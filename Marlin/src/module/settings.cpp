@@ -60,6 +60,10 @@
   #include "../HAL/shared/eeprom_api.h"
 #endif
 
+#if HAS_SPINDLE_ACCELERATION
+  #include "../feature/spindle_laser.h"
+#endif
+
 #if HAS_BED_PROBE
   #include "probe.h"
 #endif
@@ -122,7 +126,7 @@
 #endif
 
 #if ENABLED(ADVANCE_K_EXTRA)
-  extern float other_extruder_advance_K[DISTINCT_E];
+  extern float other_extruder_advance_K[EXTRUDERS];
 #endif
 
 #if HAS_MULTI_EXTRUDER
@@ -186,11 +190,6 @@
 
 #pragma pack(push, 1) // No padding between variables
 
-#if HAS_ETHERNET
-  void ETH0_report();
-  void MAC_report();
-#endif
-
 #define _EN_ITEM(N) , E##N
 #define _EN1_ITEM(N) , E##N:1
 
@@ -200,9 +199,6 @@ typedef struct {  int16_t MAIN_AXIS_NAMES_ X2, Y2, Z2, Z3, Z4;                  
 typedef struct {     bool NUM_AXIS_LIST_(X:1, Y:1, Z:1, I:1, J:1, K:1, U:1, V:1, W:1) X2:1, Y2:1, Z2:1, Z3:1, Z4:1 REPEAT(E_STEPPERS, _EN1_ITEM); } per_stepper_bool_t;
 
 #undef _EN_ITEM
-
-// Limit an index to an array size
-#define ALIM(I,ARR) _MIN(I, (signed)COUNT(ARR) - 1)
 
 // Defaults for reset / fill in on load
 static const uint32_t   _DMA[] PROGMEM = DEFAULT_MAX_ACCELERATION;
@@ -253,10 +249,18 @@ typedef struct SettingsDataStruct {
   #endif
 
   //
+  // Spindle Acceleration
+  //
+  #if HAS_SPINDLE_ACCELERATION
+    uint32_t acceleration_spindle;                      // cutter.acceleration_spindle_deg_per_s2
+  #endif
+
+  //
   // FILAMENT_RUNOUT_SENSOR
   //
   bool runout_sensor_enabled;                           // M412 S
   float runout_distance_mm;                             // M412 D
+  float motion_distance_mm;                             // M412 M
 
   //
   // ENABLE_LEVELING_FADE_HEIGHT
@@ -470,6 +474,13 @@ typedef struct SettingsDataStruct {
   #endif
 
   //
+  // TMC Homing Current
+  //
+  #if ENABLED(EDITABLE_HOMING_CURRENT)
+    homing_current_t homing_current_mA;                 // M920 X Y Z...
+  #endif
+
+  //
   // !NO_VOLUMETRIC
   //
   bool parser_volumetric_enabled;                       // M200 S  parser.volumetric_enabled
@@ -487,10 +498,15 @@ typedef struct SettingsDataStruct {
   //
   // LIN_ADVANCE
   //
-  float planner_extruder_advance_K[DISTINCT_E]; // M900 K  planner.extruder_advance_K
+  #if ENABLED(LIN_ADVANCE)
+    float planner_extruder_advance_K[DISTINCT_E];       // M900 K  planner.extruder_advance_K
+    #if ENABLED(SMOOTH_LIN_ADVANCE)
+      float stepper_extruder_advance_tau[DISTINCT_E];   // M900 U  stepper.extruder_advance_tau
+    #endif
+  #endif
 
   //
-  // HAS_MOTOR_CURRENT_PWM
+  // Stepper Motors Current
   //
   #ifndef MOTOR_CURRENT_COUNT
     #if HAS_MOTOR_CURRENT_PWM
@@ -571,6 +587,13 @@ typedef struct SettingsDataStruct {
   #endif
 
   //
+  // CONFIGURABLE_MACHINE_NAME
+  //
+  #if ENABLED(CONFIGURABLE_MACHINE_NAME)
+    MString<64> machine_name;                            // M550 P
+  #endif
+
+  //
   // PASSWORD_FEATURE
   //
   #if ENABLED(PASSWORD_FEATURE)
@@ -633,7 +656,7 @@ typedef struct SettingsDataStruct {
   // Fixed-Time Motion
   //
   #if ENABLED(FT_MOTION)
-    ft_config_t ftMotion_cfg;                          // M493
+    ft_config_t ftMotion_cfg;                           // M493
   #endif
 
   //
@@ -663,7 +686,7 @@ typedef struct SettingsDataStruct {
   // Nonlinear Extrusion
   //
   #if ENABLED(NONLINEAR_EXTRUSION)
-    ne_coeff_t stepper_ne;                              // M592 A B C
+    nonlinear_settings_t stepper_ne_settings;           // M592 S A B C
   #endif
 
   //
@@ -927,13 +950,23 @@ void MarlinSettings::postprocess() {
     #endif // NUM_AXES
 
     //
-    // Hotend Offsets, if any
+    // Hotend Offsets
     //
     {
       #if HAS_HOTEND_OFFSET
         // Skip hotend 0 which must be 0
         for (uint8_t e = 1; e < HOTENDS; ++e)
           EEPROM_WRITE(hotend_offset[e]);
+      #endif
+    }
+
+    //
+    // Spindle Acceleration
+    //
+    {
+      #if HAS_SPINDLE_ACCELERATION
+        _FIELD_TEST(acceleration_spindle);
+        EEPROM_WRITE(cutter.acceleration_spindle_deg_per_s2);
       #endif
     }
 
@@ -955,6 +988,13 @@ void MarlinSettings::postprocess() {
         constexpr float runout_distance_mm = 0;
       #endif
       EEPROM_WRITE(runout_distance_mm);
+
+      #if ENABLED(FILAMENT_SWITCH_AND_MOTION)
+        const float &motion_distance_mm = runout.motion_distance();
+      #else
+        constexpr float motion_distance_mm = 0;
+      #endif
+      EEPROM_WRITE(motion_distance_mm);
     }
 
     //
@@ -1349,6 +1389,14 @@ void MarlinSettings::postprocess() {
     #endif
 
     //
+    // TMC Homing Current
+    //
+    #if ENABLED(EDITABLE_HOMING_CURRENT)
+      _FIELD_TEST(homing_current_mA);
+      EEPROM_WRITE(homing_current_mA);
+    #endif
+
+    //
     // Volumetric & Filament Size
     //
     {
@@ -1386,72 +1434,28 @@ void MarlinSettings::postprocess() {
       per_stepper_uint16_t tmc_stepper_current{0};
 
       #if HAS_TRINAMIC_CONFIG
-        #if AXIS_IS_TMC(X)
-          tmc_stepper_current.X = stepperX.getMilliamps();
-        #endif
-        #if AXIS_IS_TMC(Y)
-          tmc_stepper_current.Y = stepperY.getMilliamps();
-        #endif
-        #if AXIS_IS_TMC(Z)
-          tmc_stepper_current.Z = stepperZ.getMilliamps();
-        #endif
-        #if AXIS_IS_TMC(I)
-          tmc_stepper_current.I = stepperI.getMilliamps();
-        #endif
-        #if AXIS_IS_TMC(J)
-          tmc_stepper_current.J = stepperJ.getMilliamps();
-        #endif
-        #if AXIS_IS_TMC(K)
-          tmc_stepper_current.K = stepperK.getMilliamps();
-        #endif
-        #if AXIS_IS_TMC(U)
-          tmc_stepper_current.U = stepperU.getMilliamps();
-        #endif
-        #if AXIS_IS_TMC(V)
-          tmc_stepper_current.V = stepperV.getMilliamps();
-        #endif
-        #if AXIS_IS_TMC(W)
-          tmc_stepper_current.W = stepperW.getMilliamps();
-        #endif
-        #if AXIS_IS_TMC(X2)
-          tmc_stepper_current.X2 = stepperX2.getMilliamps();
-        #endif
-        #if AXIS_IS_TMC(Y2)
-          tmc_stepper_current.Y2 = stepperY2.getMilliamps();
-        #endif
-        #if AXIS_IS_TMC(Z2)
-          tmc_stepper_current.Z2 = stepperZ2.getMilliamps();
-        #endif
-        #if AXIS_IS_TMC(Z3)
-          tmc_stepper_current.Z3 = stepperZ3.getMilliamps();
-        #endif
-        #if AXIS_IS_TMC(Z4)
-          tmc_stepper_current.Z4 = stepperZ4.getMilliamps();
-        #endif
-        #if AXIS_IS_TMC(E0)
-          tmc_stepper_current.E0 = stepperE0.getMilliamps();
-        #endif
-        #if AXIS_IS_TMC(E1)
-          tmc_stepper_current.E1 = stepperE1.getMilliamps();
-        #endif
-        #if AXIS_IS_TMC(E2)
-          tmc_stepper_current.E2 = stepperE2.getMilliamps();
-        #endif
-        #if AXIS_IS_TMC(E3)
-          tmc_stepper_current.E3 = stepperE3.getMilliamps();
-        #endif
-        #if AXIS_IS_TMC(E4)
-          tmc_stepper_current.E4 = stepperE4.getMilliamps();
-        #endif
-        #if AXIS_IS_TMC(E5)
-          tmc_stepper_current.E5 = stepperE5.getMilliamps();
-        #endif
-        #if AXIS_IS_TMC(E6)
-          tmc_stepper_current.E6 = stepperE6.getMilliamps();
-        #endif
-        #if AXIS_IS_TMC(E7)
-          tmc_stepper_current.E7 = stepperE7.getMilliamps();
-        #endif
+        TERN_(X_IS_TRINAMIC,  tmc_stepper_current.X =  stepperX.getMilliamps());
+        TERN_(Y_IS_TRINAMIC,  tmc_stepper_current.Y =  stepperY.getMilliamps());
+        TERN_(Z_IS_TRINAMIC,  tmc_stepper_current.Z =  stepperZ.getMilliamps());
+        TERN_(I_IS_TRINAMIC,  tmc_stepper_current.I =  stepperI.getMilliamps());
+        TERN_(J_IS_TRINAMIC,  tmc_stepper_current.J =  stepperJ.getMilliamps());
+        TERN_(K_IS_TRINAMIC,  tmc_stepper_current.K =  stepperK.getMilliamps());
+        TERN_(U_IS_TRINAMIC,  tmc_stepper_current.U =  stepperU.getMilliamps());
+        TERN_(V_IS_TRINAMIC,  tmc_stepper_current.V =  stepperV.getMilliamps());
+        TERN_(W_IS_TRINAMIC,  tmc_stepper_current.W =  stepperW.getMilliamps());
+        TERN_(X2_IS_TRINAMIC, tmc_stepper_current.X2 = stepperX2.getMilliamps());
+        TERN_(Y2_IS_TRINAMIC, tmc_stepper_current.Y2 = stepperY2.getMilliamps());
+        TERN_(Z2_IS_TRINAMIC, tmc_stepper_current.Z2 = stepperZ2.getMilliamps());
+        TERN_(Z3_IS_TRINAMIC, tmc_stepper_current.Z3 = stepperZ3.getMilliamps());
+        TERN_(Z4_IS_TRINAMIC, tmc_stepper_current.Z4 = stepperZ4.getMilliamps());
+        TERN_(E0_IS_TRINAMIC, tmc_stepper_current.E0 = stepperE0.getMilliamps());
+        TERN_(E1_IS_TRINAMIC, tmc_stepper_current.E1 = stepperE1.getMilliamps());
+        TERN_(E2_IS_TRINAMIC, tmc_stepper_current.E2 = stepperE2.getMilliamps());
+        TERN_(E3_IS_TRINAMIC, tmc_stepper_current.E3 = stepperE3.getMilliamps());
+        TERN_(E4_IS_TRINAMIC, tmc_stepper_current.E4 = stepperE4.getMilliamps());
+        TERN_(E5_IS_TRINAMIC, tmc_stepper_current.E5 = stepperE5.getMilliamps());
+        TERN_(E6_IS_TRINAMIC, tmc_stepper_current.E6 = stepperE6.getMilliamps());
+        TERN_(E7_IS_TRINAMIC, tmc_stepper_current.E7 = stepperE7.getMilliamps());
       #endif
       EEPROM_WRITE(tmc_stepper_current);
     }
@@ -1560,13 +1564,13 @@ void MarlinSettings::postprocess() {
     // Linear Advance
     //
     {
-      _FIELD_TEST(planner_extruder_advance_K);
-
       #if ENABLED(LIN_ADVANCE)
+        _FIELD_TEST(planner_extruder_advance_K);
         EEPROM_WRITE(planner.extruder_advance_K);
-      #else
-        dummyf = 0;
-        for (uint8_t q = DISTINCT_E; q--;) EEPROM_WRITE(dummyf);
+        #if ENABLED(SMOOTH_LIN_ADVANCE)
+          _FIELD_TEST(stepper_extruder_advance_tau);
+          EEPROM_WRITE(stepper.extruder_advance_tau);
+        #endif
       #endif
     }
 
@@ -1687,6 +1691,13 @@ void MarlinSettings::postprocess() {
     #endif
 
     //
+    // CONFIGURABLE_MACHINE_NAME
+    //
+    #if ENABLED(CONFIGURABLE_MACHINE_NAME)
+      EEPROM_WRITE(machine_name);
+    #endif
+
+    //
     // Password feature
     //
     #if ENABLED(PASSWORD_FEATURE)
@@ -1795,7 +1806,7 @@ void MarlinSettings::postprocess() {
     // Nonlinear Extrusion
     //
     #if ENABLED(NONLINEAR_EXTRUSION)
-      EEPROM_WRITE(stepper.ne);
+      EEPROM_WRITE(stepper.ne.settings);
     #endif
 
     //
@@ -2000,13 +2011,23 @@ void MarlinSettings::postprocess() {
       #endif // NUM_AXES
 
       //
-      // Hotend Offsets, if any
+      // Hotend Offsets
       //
       {
         #if HAS_HOTEND_OFFSET
           // Skip hotend 0 which must be 0
           for (uint8_t e = 1; e < HOTENDS; ++e)
             EEPROM_READ(hotend_offset[e]);
+        #endif
+      }
+
+      //
+      // Spindle Acceleration
+      //
+      {
+        #if HAS_SPINDLE_ACCELERATION
+          _FIELD_TEST(acceleration_spindle);
+          EEPROM_READ(cutter.acceleration_spindle_deg_per_s2);
         #endif
       }
 
@@ -2018,7 +2039,7 @@ void MarlinSettings::postprocess() {
         _FIELD_TEST(runout_sensor_enabled);
         EEPROM_READ(runout_sensor_enabled);
         #if HAS_FILAMENT_SENSOR
-        if (!validating) runout.enabled = runout_sensor_enabled < 0 ? FIL_RUNOUT_ENABLED_DEFAULT : runout_sensor_enabled;
+          if (!validating) runout.enabled = runout_sensor_enabled < 0 ? FIL_RUNOUT_ENABLED_DEFAULT : runout_sensor_enabled;
         #endif
 
         TERN_(HAS_FILAMENT_SENSOR, if (runout.enabled) runout.reset());
@@ -2027,6 +2048,12 @@ void MarlinSettings::postprocess() {
         EEPROM_READ(runout_distance_mm);
         #if HAS_FILAMENT_RUNOUT_DISTANCE
           if (!validating) runout.set_runout_distance(runout_distance_mm);
+        #endif
+
+        float motion_distance_mm;
+        EEPROM_READ(motion_distance_mm);
+        #if ENABLED(FILAMENT_SWITCH_AND_MOTION)
+          if (!validating) runout.set_motion_distance(motion_distance_mm);
         #endif
       }
 
@@ -2445,6 +2472,14 @@ void MarlinSettings::postprocess() {
       #endif
 
       //
+      // TMC Homing Current
+      //
+      #if ENABLED(EDITABLE_HOMING_CURRENT)
+        _FIELD_TEST(homing_current_mA);
+        EEPROM_READ(homing_current_mA);
+      #endif
+
+      //
       // Volumetric & Filament Size
       //
       {
@@ -2485,72 +2520,28 @@ void MarlinSettings::postprocess() {
 
           #define SET_CURR(Q) stepper##Q.rms_current(currents.Q ? currents.Q : Q##_CURRENT)
           if (!validating) {
-            #if AXIS_IS_TMC(X)
-              SET_CURR(X);
-            #endif
-            #if AXIS_IS_TMC(Y)
-              SET_CURR(Y);
-            #endif
-            #if AXIS_IS_TMC(Z)
-              SET_CURR(Z);
-            #endif
-            #if AXIS_IS_TMC(X2)
-              SET_CURR(X2);
-            #endif
-            #if AXIS_IS_TMC(Y2)
-              SET_CURR(Y2);
-            #endif
-            #if AXIS_IS_TMC(Z2)
-              SET_CURR(Z2);
-            #endif
-            #if AXIS_IS_TMC(Z3)
-              SET_CURR(Z3);
-            #endif
-            #if AXIS_IS_TMC(Z4)
-              SET_CURR(Z4);
-            #endif
-            #if AXIS_IS_TMC(I)
-              SET_CURR(I);
-            #endif
-            #if AXIS_IS_TMC(J)
-              SET_CURR(J);
-            #endif
-            #if AXIS_IS_TMC(K)
-              SET_CURR(K);
-            #endif
-            #if AXIS_IS_TMC(U)
-              SET_CURR(U);
-            #endif
-            #if AXIS_IS_TMC(V)
-              SET_CURR(V);
-            #endif
-            #if AXIS_IS_TMC(W)
-              SET_CURR(W);
-            #endif
-            #if AXIS_IS_TMC(E0)
-              SET_CURR(E0);
-            #endif
-            #if AXIS_IS_TMC(E1)
-              SET_CURR(E1);
-            #endif
-            #if AXIS_IS_TMC(E2)
-              SET_CURR(E2);
-            #endif
-            #if AXIS_IS_TMC(E3)
-              SET_CURR(E3);
-            #endif
-            #if AXIS_IS_TMC(E4)
-              SET_CURR(E4);
-            #endif
-            #if AXIS_IS_TMC(E5)
-              SET_CURR(E5);
-            #endif
-            #if AXIS_IS_TMC(E6)
-              SET_CURR(E6);
-            #endif
-            #if AXIS_IS_TMC(E7)
-              SET_CURR(E7);
-            #endif
+            TERN_(X_IS_TRINAMIC,  SET_CURR(X));
+            TERN_(Y_IS_TRINAMIC,  SET_CURR(Y));
+            TERN_(Z_IS_TRINAMIC,  SET_CURR(Z));
+            TERN_(I_IS_TRINAMIC,  SET_CURR(I));
+            TERN_(J_IS_TRINAMIC,  SET_CURR(J));
+            TERN_(K_IS_TRINAMIC,  SET_CURR(K));
+            TERN_(U_IS_TRINAMIC,  SET_CURR(U));
+            TERN_(V_IS_TRINAMIC,  SET_CURR(V));
+            TERN_(W_IS_TRINAMIC,  SET_CURR(W));
+            TERN_(X2_IS_TRINAMIC, SET_CURR(X2));
+            TERN_(Y2_IS_TRINAMIC, SET_CURR(Y2));
+            TERN_(Z2_IS_TRINAMIC, SET_CURR(Z2));
+            TERN_(Z3_IS_TRINAMIC, SET_CURR(Z3));
+            TERN_(Z4_IS_TRINAMIC, SET_CURR(Z4));
+            TERN_(E0_IS_TRINAMIC, SET_CURR(E0));
+            TERN_(E1_IS_TRINAMIC, SET_CURR(E1));
+            TERN_(E2_IS_TRINAMIC, SET_CURR(E2));
+            TERN_(E3_IS_TRINAMIC, SET_CURR(E3));
+            TERN_(E4_IS_TRINAMIC, SET_CURR(E4));
+            TERN_(E5_IS_TRINAMIC, SET_CURR(E5));
+            TERN_(E6_IS_TRINAMIC, SET_CURR(E6));
+            TERN_(E7_IS_TRINAMIC, SET_CURR(E7));
           }
         #endif
       }
@@ -2658,15 +2649,23 @@ void MarlinSettings::postprocess() {
       //
       // Linear Advance
       //
+      #if ENABLED(LIN_ADVANCE)
       {
         float extruder_advance_K[DISTINCT_E];
         _FIELD_TEST(planner_extruder_advance_K);
         EEPROM_READ(extruder_advance_K);
-        #if ENABLED(LIN_ADVANCE)
+        if (!validating)
+          DISTINCT_E_LOOP() planner.set_advance_k(extruder_advance_K[e], e);
+
+        #if ENABLED(SMOOTH_LIN_ADVANCE)
+          _FIELD_TEST(stepper_extruder_advance_tau);
+          float tau[DISTINCT_E];
+          EEPROM_READ(tau);
           if (!validating)
-            COPY(planner.extruder_advance_K, extruder_advance_K);
+            DISTINCT_E_LOOP() stepper.set_advance_tau(tau[e], e);
         #endif
       }
+      #endif
 
       //
       // Motor Current PWM
@@ -2811,6 +2810,13 @@ void MarlinSettings::postprocess() {
       #endif
 
       //
+      // CONFIGURABLE_MACHINE_NAME
+      //
+      #if ENABLED(CONFIGURABLE_MACHINE_NAME)
+        EEPROM_READ(machine_name);
+      #endif
+
+      //
       // Password feature
       //
       #if ENABLED(PASSWORD_FEATURE)
@@ -2941,7 +2947,7 @@ void MarlinSettings::postprocess() {
       // Nonlinear Extrusion
       //
       #if ENABLED(NONLINEAR_EXTRUSION)
-        EEPROM_READ(stepper.ne);
+        EEPROM_READ(stepper.ne.settings);
       #endif
 
       //
@@ -3330,13 +3336,26 @@ void MarlinSettings::reset() {
 
   TERN_(HAS_JUNCTION_DEVIATION, planner.junction_deviation_mm = float(JUNCTION_DEVIATION_MM));
 
+  //
+  // Home Offset
+  //
   #if HAS_SCARA_OFFSET
     scara_home_offset.reset();
   #elif HAS_HOME_OFFSET
     home_offset.reset();
   #endif
 
+  //
+  // Hotend Offsets
+  //
   TERN_(HAS_HOTEND_OFFSET, reset_hotend_offsets());
+
+  //
+  // Spindle Acceleration
+  //
+  #if HAS_SPINDLE_ACCELERATION
+    cutter.acceleration_spindle_deg_per_s2 = DEFAULT_ACCELERATION_SPINDLE;
+  #endif
 
   //
   // Filament Runout Sensor
@@ -3346,6 +3365,7 @@ void MarlinSettings::reset() {
     runout.enabled = FIL_RUNOUT_ENABLED_DEFAULT;
     runout.reset();
     TERN_(HAS_FILAMENT_RUNOUT_DISTANCE, runout.set_runout_distance(FILAMENT_RUNOUT_DISTANCE_MM));
+    TERN_(FILAMENT_SWITCH_AND_MOTION,   runout.set_motion_distance(FILAMENT_MOTION_DISTANCE_MM));
   #endif
 
   //
@@ -3398,6 +3418,11 @@ void MarlinSettings::reset() {
   // Case Light Brightness
   //
   TERN_(CASELIGHT_USES_BRIGHTNESS, caselight.brightness = CASE_LIGHT_DEFAULT_BRIGHTNESS);
+
+  //
+  // CONFIGURABLE_MACHINE_NAME
+  //
+  TERN_(CONFIGURABLE_MACHINE_NAME, machine_name = PSTR(MACHINE_NAME));
 
   //
   // TOUCH_SCREEN_CALIBRATION
@@ -3493,147 +3518,17 @@ void MarlinSettings::reset() {
   //
   // Endstop Adjustments
   //
-
-  #if ENABLED(X_DUAL_ENDSTOPS)
-    #ifndef X2_ENDSTOP_ADJUSTMENT
-      #define X2_ENDSTOP_ADJUSTMENT 0
-    #endif
-    endstops.x2_endstop_adj = X2_ENDSTOP_ADJUSTMENT;
-  #endif
-
-  #if ENABLED(Y_DUAL_ENDSTOPS)
-    #ifndef Y2_ENDSTOP_ADJUSTMENT
-      #define Y2_ENDSTOP_ADJUSTMENT 0
-    #endif
-    endstops.y2_endstop_adj = Y2_ENDSTOP_ADJUSTMENT;
-  #endif
-
-  #if ENABLED(Z_MULTI_ENDSTOPS)
-    #ifndef Z2_ENDSTOP_ADJUSTMENT
-      #define Z2_ENDSTOP_ADJUSTMENT 0
-    #endif
-    endstops.z2_endstop_adj = Z2_ENDSTOP_ADJUSTMENT;
-    #if NUM_Z_STEPPERS >= 3
-      #ifndef Z3_ENDSTOP_ADJUSTMENT
-        #define Z3_ENDSTOP_ADJUSTMENT 0
-      #endif
-      endstops.z3_endstop_adj = Z3_ENDSTOP_ADJUSTMENT;
-    #endif
-    #if NUM_Z_STEPPERS >= 4
-      #ifndef Z4_ENDSTOP_ADJUSTMENT
-        #define Z4_ENDSTOP_ADJUSTMENT 0
-      #endif
-      endstops.z4_endstop_adj = Z4_ENDSTOP_ADJUSTMENT;
-    #endif
-  #endif
+  endstops.factory_reset();
 
   //
-  // Preheat parameters
+  // Material Presets
   //
-  #if HAS_PREHEAT
-    #define _PITEM(N,T) PREHEAT_##N##_##T,
-    #if HAS_HOTEND
-      constexpr uint16_t hpre[] = { REPEAT2_S(1, INCREMENT(PREHEAT_COUNT), _PITEM, TEMP_HOTEND) };
-    #endif
-    #if HAS_HEATED_BED
-      constexpr uint16_t bpre[] = { REPEAT2_S(1, INCREMENT(PREHEAT_COUNT), _PITEM, TEMP_BED) };
-    #endif
-    #if HAS_FAN
-      constexpr uint8_t fpre[] = { REPEAT2_S(1, INCREMENT(PREHEAT_COUNT), _PITEM, FAN_SPEED) };
-    #endif
-    for (uint8_t i = 0; i < PREHEAT_COUNT; ++i) {
-      TERN_(HAS_HOTEND,     ui.material_preset[i].hotend_temp = hpre[i]);
-      TERN_(HAS_HEATED_BED, ui.material_preset[i].bed_temp = bpre[i]);
-      TERN_(HAS_FAN,        ui.material_preset[i].fan_speed = fpre[i]);
-    }
-  #endif
+  TERN_(HAS_PREHEAT, ui.reset_material_presets());
 
   //
-  // Hotend PID
+  // Temperature Manager
   //
-
-  #if ENABLED(PIDTEMP)
-    #if ENABLED(PID_PARAMS_PER_HOTEND)
-      constexpr float defKp[] =
-        #ifdef DEFAULT_Kp_LIST
-          DEFAULT_Kp_LIST
-        #else
-          ARRAY_BY_HOTENDS1(DEFAULT_Kp)
-        #endif
-      , defKi[] =
-        #ifdef DEFAULT_Ki_LIST
-          DEFAULT_Ki_LIST
-        #else
-          ARRAY_BY_HOTENDS1(DEFAULT_Ki)
-        #endif
-      , defKd[] =
-        #ifdef DEFAULT_Kd_LIST
-          DEFAULT_Kd_LIST
-        #else
-          ARRAY_BY_HOTENDS1(DEFAULT_Kd)
-        #endif
-      ;
-      static_assert(WITHIN(COUNT(defKp), 1, HOTENDS), "DEFAULT_Kp_LIST must have between 1 and HOTENDS items.");
-      static_assert(WITHIN(COUNT(defKi), 1, HOTENDS), "DEFAULT_Ki_LIST must have between 1 and HOTENDS items.");
-      static_assert(WITHIN(COUNT(defKd), 1, HOTENDS), "DEFAULT_Kd_LIST must have between 1 and HOTENDS items.");
-      #if ENABLED(PID_EXTRUSION_SCALING)
-        constexpr float defKc[] =
-          #ifdef DEFAULT_Kc_LIST
-            DEFAULT_Kc_LIST
-          #else
-            ARRAY_BY_HOTENDS1(DEFAULT_Kc)
-          #endif
-        ;
-        static_assert(WITHIN(COUNT(defKc), 1, HOTENDS), "DEFAULT_Kc_LIST must have between 1 and HOTENDS items.");
-      #endif
-      #if ENABLED(PID_FAN_SCALING)
-        constexpr float defKf[] =
-          #ifdef DEFAULT_Kf_LIST
-            DEFAULT_Kf_LIST
-          #else
-            ARRAY_BY_HOTENDS1(DEFAULT_Kf)
-          #endif
-        ;
-        static_assert(WITHIN(COUNT(defKf), 1, HOTENDS), "DEFAULT_Kf_LIST must have between 1 and HOTENDS items.");
-      #endif
-      #define PID_DEFAULT(N,E) def##N[E]
-    #else
-      #define PID_DEFAULT(N,E) DEFAULT_##N
-    #endif
-    HOTEND_LOOP() {
-      thermalManager.temp_hotend[e].pid.set(
-        PID_DEFAULT(Kp, ALIM(e, defKp)),
-        PID_DEFAULT(Ki, ALIM(e, defKi)),
-        PID_DEFAULT(Kd, ALIM(e, defKd))
-        OPTARG(PID_EXTRUSION_SCALING, PID_DEFAULT(Kc, ALIM(e, defKc)))
-        OPTARG(PID_FAN_SCALING, PID_DEFAULT(Kf, ALIM(e, defKf)))
-      );
-    }
-  #endif
-
-  //
-  // PID Extrusion Scaling
-  //
-  TERN_(PID_EXTRUSION_SCALING, thermalManager.lpq_len = 20); // Default last-position-queue size
-
-  //
-  // Heated Bed PID
-  //
-  #if ENABLED(PIDTEMPBED)
-    thermalManager.temp_bed.pid.set(DEFAULT_bedKp, DEFAULT_bedKi, DEFAULT_bedKd);
-  #endif
-
-  //
-  // Heated Chamber PID
-  //
-  #if ENABLED(PIDTEMPCHAMBER)
-    thermalManager.temp_chamber.pid.set(DEFAULT_chamberKp, DEFAULT_chamberKi, DEFAULT_chamberKd);
-  #endif
-
-  //
-  // User-Defined Thermistors
-  //
-  TERN_(HAS_USER_THERMISTORS, thermalManager.reset_user_thermistors());
+  thermalManager.factory_reset();
 
   //
   // Power Monitor
@@ -3685,6 +3580,29 @@ void MarlinSettings::reset() {
   TERN_(EDITABLE_HOMING_FEEDRATE, homing_feedrate_mm_m = xyz_feedrate_t(HOMING_FEEDRATE_MM_M));
 
   //
+  // TMC Homing Current
+  //
+  #if ENABLED(EDITABLE_HOMING_CURRENT)
+    homing_current_t base_homing_current_mA = {
+      OPTITEM(X_HAS_HOME_CURRENT,  X_CURRENT_HOME)
+      OPTITEM(Y_HAS_HOME_CURRENT,  Y_CURRENT_HOME)
+      OPTITEM(Z_HAS_HOME_CURRENT,  Z_CURRENT_HOME)
+      OPTITEM(X2_HAS_HOME_CURRENT, X2_CURRENT_HOME)
+      OPTITEM(Y2_HAS_HOME_CURRENT, Y2_CURRENT_HOME)
+      OPTITEM(Z2_HAS_HOME_CURRENT, Z2_CURRENT_HOME)
+      OPTITEM(Z3_HAS_HOME_CURRENT, Z3_CURRENT_HOME)
+      OPTITEM(Z4_HAS_HOME_CURRENT, Z4_CURRENT_HOME)
+      OPTITEM(I_HAS_HOME_CURRENT,  I_CURRENT_HOME)
+      OPTITEM(J_HAS_HOME_CURRENT,  J_CURRENT_HOME)
+      OPTITEM(K_HAS_HOME_CURRENT,  K_CURRENT_HOME)
+      OPTITEM(U_HAS_HOME_CURRENT,  U_CURRENT_HOME)
+      OPTITEM(V_HAS_HOME_CURRENT,  V_CURRENT_HOME)
+      OPTITEM(W_HAS_HOME_CURRENT,  W_CURRENT_HOME)
+    };
+    homing_current_mA = base_homing_current_mA;
+  #endif
+
+  //
   // Volumetric & Filament Size
   //
   #if DISABLED(NO_VOLUMETRICS)
@@ -3706,16 +3624,29 @@ void MarlinSettings::reset() {
   //
   #if ENABLED(LIN_ADVANCE)
     #if ENABLED(DISTINCT_E_FACTORS)
+
       constexpr float linAdvanceK[] = ADVANCE_K;
+      #if ENABLED(SMOOTH_LIN_ADVANCE)
+        constexpr float linAdvanceTau[] = ADVANCE_TAU;
+      #endif
+
       EXTRUDER_LOOP() {
-        const float a = linAdvanceK[_MAX(uint8_t(e), COUNT(linAdvanceK) - 1)];
-        planner.extruder_advance_K[e] = a;
-        TERN_(ADVANCE_K_EXTRA, other_extruder_advance_K[e] = a);
+        const float k = linAdvanceK[ALIM(e, linAdvanceK)];
+        planner.set_advance_k(k, e);
+        TERN_(SMOOTH_LIN_ADVANCE, stepper.set_advance_tau(linAdvanceTau[ALIM(e, linAdvanceTau)], e));
+        TERN_(ADVANCE_K_EXTRA, other_extruder_advance_K[e] = k);
       }
-    #else
-      planner.extruder_advance_K[0] = ADVANCE_K;
+
+    #else // !DISTINCT_E_FACTORS
+
+      planner.set_advance_k(ADVANCE_K);
+      TERN_(SMOOTH_LIN_ADVANCE, stepper.set_advance_tau(ADVANCE_TAU));
+      #if ENABLED(ADVANCE_K_EXTRA)
+        EXTRUDER_LOOP() other_extruder_advance_K[e] = ADVANCE_K;
+      #endif
+
     #endif
-  #endif
+  #endif // LIN_ADVANCE
 
   //
   // Motor Current PWM
@@ -3724,7 +3655,7 @@ void MarlinSettings::reset() {
   #if HAS_MOTOR_CURRENT_PWM
     constexpr uint32_t tmp_motor_current_setting[MOTOR_CURRENT_COUNT] = PWM_MOTOR_CURRENT;
     for (uint8_t q = 0; q < MOTOR_CURRENT_COUNT; ++q)
-      stepper.set_digipot_current(q, (stepper.motor_current_setting[q] = tmp_motor_current_setting[q]));
+      stepper.set_digipot_current(q, tmp_motor_current_setting[q]);
   #endif
 
   //
@@ -3732,10 +3663,8 @@ void MarlinSettings::reset() {
   //
   #if HAS_MOTOR_CURRENT_SPI
     static constexpr uint32_t tmp_motor_current_setting[] = DIGIPOT_MOTOR_CURRENT;
-    DEBUG_ECHOLNPGM("Writing Digipot");
     for (uint8_t q = 0; q < COUNT(tmp_motor_current_setting); ++q)
       stepper.set_digipot_current(q, tmp_motor_current_setting[q]);
-    DEBUG_ECHOLNPGM("Digipot Written");
   #endif
 
   //
@@ -3794,27 +3723,41 @@ void MarlinSettings::reset() {
   // Model predictive control
   //
   #if ENABLED(MPCTEMP)
+
     constexpr float _mpc_heater_power[] = MPC_HEATER_POWER;
+    static_assert(HOTENDS == COUNT(_mpc_heater_power), "MPC_HEATER_POWER requires values for all (" STRINGIFY(HOTENDS) ") hotends.");
+
+    #if ENABLED(MPC_PTC)
+      constexpr float _mpc_heater_alpha[] = MPC_HEATER_ALPHA;
+      constexpr float _mpc_heater_reftemp[] = MPC_HEATER_REFTEMP;
+      static_assert(HOTENDS == COUNT(_mpc_heater_alpha), "MPC_HEATER_ALPHA requires values for all (" STRINGIFY(HOTENDS) ") hotends.");
+      static_assert(HOTENDS == COUNT(_mpc_heater_reftemp), "MPC_HEATER_REFTEMP requires values for all (" STRINGIFY(HOTENDS) ") hotends.");
+    #endif
+
     constexpr float _mpc_block_heat_capacity[] = MPC_BLOCK_HEAT_CAPACITY;
+    static_assert(HOTENDS == COUNT(_mpc_block_heat_capacity), "MPC_BLOCK_HEAT_CAPACITY requires values for all (" STRINGIFY(HOTENDS) ") hotends.");
+
     constexpr float _mpc_sensor_responsiveness[] = MPC_SENSOR_RESPONSIVENESS;
+    static_assert(HOTENDS == COUNT(_mpc_sensor_responsiveness), "MPC_SENSOR_RESPONSIVENESS requires values for all (" STRINGIFY(HOTENDS) ") hotends.");
+
     constexpr float _mpc_ambient_xfer_coeff[] = MPC_AMBIENT_XFER_COEFF;
+    static_assert(HOTENDS == COUNT(_mpc_ambient_xfer_coeff), "MPC_AMBIENT_XFER_COEFF requires values for all (" STRINGIFY(HOTENDS) ") hotends.");
+
     #if ENABLED(MPC_INCLUDE_FAN)
       constexpr float _mpc_ambient_xfer_coeff_fan255[] = MPC_AMBIENT_XFER_COEFF_FAN255;
+      static_assert(HOTENDS == COUNT(_mpc_ambient_xfer_coeff_fan255), "MPC_AMBIENT_XFER_COEFF_FAN255 requires values for all (" STRINGIFY(HOTENDS) ") hotends.");
     #endif
-    constexpr float _filament_heat_capacity_permm[] = FILAMENT_HEAT_CAPACITY_PERMM;
 
-    static_assert(COUNT(_mpc_heater_power) == HOTENDS, "MPC_HEATER_POWER must have HOTENDS items.");
-    static_assert(COUNT(_mpc_block_heat_capacity) == HOTENDS, "MPC_BLOCK_HEAT_CAPACITY must have HOTENDS items.");
-    static_assert(COUNT(_mpc_sensor_responsiveness) == HOTENDS, "MPC_SENSOR_RESPONSIVENESS must have HOTENDS items.");
-    static_assert(COUNT(_mpc_ambient_xfer_coeff) == HOTENDS, "MPC_AMBIENT_XFER_COEFF must have HOTENDS items.");
-    #if ENABLED(MPC_INCLUDE_FAN)
-      static_assert(COUNT(_mpc_ambient_xfer_coeff_fan255) == HOTENDS, "MPC_AMBIENT_XFER_COEFF_FAN255 must have HOTENDS items.");
-    #endif
-    static_assert(COUNT(_filament_heat_capacity_permm) == HOTENDS, "FILAMENT_HEAT_CAPACITY_PERMM must have HOTENDS items.");
+    constexpr float _filament_heat_capacity_permm[] = FILAMENT_HEAT_CAPACITY_PERMM;
+    static_assert(HOTENDS == COUNT(_filament_heat_capacity_permm), "FILAMENT_HEAT_CAPACITY_PERMM requires values for all (" STRINGIFY(HOTENDS) ") hotends.");
 
     HOTEND_LOOP() {
       MPC_t &mpc = thermalManager.temp_hotend[e].mpc;
       mpc.heater_power = _mpc_heater_power[e];
+      #if ENABLED(MPC_PTC)
+        mpc.heater_alpha = _mpc_heater_alpha[e];
+        mpc.heater_reftemp = _mpc_heater_reftemp[e];
+      #endif
       mpc.block_heat_capacity = _mpc_block_heat_capacity[e];
       mpc.sensor_responsiveness = _mpc_sensor_responsiveness[e];
       mpc.ambient_xfer_coeff_fan0 = _mpc_ambient_xfer_coeff[e];
@@ -3823,7 +3766,8 @@ void MarlinSettings::reset() {
       #endif
       mpc.filament_heat_capacity_permm = _filament_heat_capacity_permm[e];
     }
-  #endif
+
+  #endif // MPCTEMP
 
   //
   // Fixed-Time Motion
@@ -3833,7 +3777,7 @@ void MarlinSettings::reset() {
   //
   // Nonlinear Extrusion
   //
-  TERN_(NONLINEAR_EXTRUSION, stepper.ne.reset());
+  TERN_(NONLINEAR_EXTRUSION, stepper.ne.settings.reset());
 
   //
   // Input Shaping
@@ -4017,6 +3961,11 @@ void MarlinSettings::reset() {
     TERN_(EDITABLE_SERVO_ANGLES, gcode.M281_report(forReplay));
 
     //
+    // BLTouch High Speed Mode
+    //
+    TERN_(BLTOUCH_HS_MODE, gcode.M401_report(forReplay));
+
+    //
     // Kinematic Settings
     //
     TERN_(IS_KINEMATIC, gcode.M665_report(forReplay));
@@ -4117,6 +4066,11 @@ void MarlinSettings::reset() {
     #endif
 
     //
+    // TMC Homing Current
+    //
+    TERN_(EDITABLE_HOMING_CURRENT, gcode.M920_report(forReplay));
+
+    //
     // TMC stepping mode
     //
     TERN_(HAS_STEALTHCHOP, gcode.M569_report(forReplay));
@@ -4175,11 +4129,11 @@ void MarlinSettings::reset() {
 
     #if HAS_ETHERNET
       CONFIG_ECHO_HEADING("Ethernet");
-      if (!forReplay) ETH0_report();
-      CONFIG_ECHO_START(); SERIAL_ECHO_SP(2); MAC_report();
-      CONFIG_ECHO_START(); SERIAL_ECHO_SP(2); gcode.M552_report();
-      CONFIG_ECHO_START(); SERIAL_ECHO_SP(2); gcode.M553_report();
-      CONFIG_ECHO_START(); SERIAL_ECHO_SP(2); gcode.M554_report();
+      if (!forReplay) ethernet.ETH0_report(false);
+      ethernet.MAC_report(forReplay);
+      gcode.M552_report(forReplay);
+      gcode.M553_report(forReplay);
+      gcode.M554_report(forReplay);
     #endif
 
     TERN_(HAS_MULTI_LANGUAGE, gcode.M414_report(forReplay));

@@ -4,21 +4,73 @@
 
 <p align="center">
     <a href="/LICENSE"><img alt="GPL-V3.0 License" src="https://img.shields.io/github/license/marlinfirmware/marlin.svg"></a>
-    <a href="https://github.com/MarlinFirmware/Marlin/graphs/contributors"><img alt="Contributors" src="https://img.shields.io/github/contributors/marlinfirmware/marlin.svg"></a>
-    <a href="https://github.com/MarlinFirmware/Marlin/releases"><img alt="Last Release Date" src="https://img.shields.io/github/release-date/MarlinFirmware/Marlin"></a>
-    <a href="https://github.com/MarlinFirmware/Marlin/actions/workflows/ci-build-tests.yml"><img alt="CI Status" src="https://github.com/MarlinFirmware/Marlin/actions/workflows/ci-build-tests.yml/badge.svg"></a>
-    <a href="https://github.com/sponsors/thinkyhead"><img alt="GitHub Sponsors" src="https://img.shields.io/github/sponsors/thinkyhead?color=db61a2"></a>
+    <a href="//github.com/MarlinFirmware/Marlin/graphs/contributors"><img alt="Contributors" src="https://img.shields.io/github/contributors/marlinfirmware/marlin.svg"></a>
+    <a href="//github.com/MarlinFirmware/Marlin/releases"><img alt="Last Release Date" src="https://img.shields.io/github/release-date/MarlinFirmware/Marlin"></a>
+    <a href="//github.com/MarlinFirmware/Marlin/actions/workflows/ci-build-tests.yml"><img alt="CI Status" src="https://github.com/MarlinFirmware/Marlin/actions/workflows/ci-build-tests.yml/badge.svg"></a>
+    <a href="//github.com/sponsors/thinkyhead"><img alt="GitHub Sponsors" src="https://img.shields.io/github/sponsors/thinkyhead?color=db61a2"></a>
     <br />
-    <a href="https://bsky.app/profile/marlinfw.org"><img alt="Follow marlinfw.org on Bluesky" src="https://img.shields.io/static/v1?label=&message=Follow @marlinfw.org&color=1185FE&logo=bluesky&logoColor=white"></a>
-    <a href="https://fosstodon.org/@marlinfirmware"><img alt="Follow MarlinFirmware on Mastodon" src="https://img.shields.io/mastodon/follow/109450200866020466?domain=https%3A%2F%2Ffosstodon.org&logoColor=%2300B&style=social"></a>
+    <a href="//bsky.app/profile/marlinfw.org"><img alt="Follow marlinfw.org on Bluesky" src="https://img.shields.io/badge/Follow%20@marlinfw.org-0085ff?logo=bluesky&logoColor=white"></a>
+    <a href="//fosstodon.org/@marlinfirmware"><img alt="Follow MarlinFirmware on Mastodon" src="https://img.shields.io/mastodon/follow/109450200866020466?domain=https%3A%2F%2Ffosstodon.org&logoColor=%2300B&style=social"></a>
 </p>
+
+### 🌍 Translations
+
+<table>
+<tr>
+  <td><a href="//translate.google.com/translate?u=github.com/MarlinFirmware/Marlin&sl=auto&tl=an">Aragonés</a></td>
+  <td><a href="//translate.google.com/translate?u=github.com/MarlinFirmware/Marlin&sl=auto&tl=bg">Български</a></td>
+  <td><a href="//translate.google.com/translate?u=github.com/MarlinFirmware/Marlin&sl=auto&tl=ca">Català</a></td>
+  <td><a href="//translate.google.com/translate?u=github.com/MarlinFirmware/Marlin&sl=auto&tl=cs">Čeština</a></td>
+  <td><a href="//translate.google.com/translate?u=github.com/MarlinFirmware/Marlin&sl=auto&tl=da">Dansk</a></td>
+  <td><a href="//translate.google.com/translate?u=github.com/MarlinFirmware/Marlin&sl=auto&tl=de">Deutsch</a></td>
+  <td><a href="//translate.google.com/translate?u=github.com/MarlinFirmware/Marlin&sl=auto&tl=el">Ελληνικά</a></td>
+</tr>
+<tr>
+  <td><a href="//github.com/MarlinFirmware/Marlin">English</a></td>
+  <td><a href="//translate.google.com/translate?u=github.com/MarlinFirmware/Marlin&sl=auto&tl=es">Español</a></td>
+  <td><a href="//translate.google.com/translate?u=github.com/MarlinFirmware/Marlin&sl=auto&tl=eu">Euskara</a></td>
+  <td><a href="//translate.google.com/translate?u=github.com/MarlinFirmware/Marlin&sl=auto&tl=fi">Suomi</a></td>
+  <td><a href="//translate.google.com/translate?u=github.com/MarlinFirmware/Marlin&sl=auto&tl=fr">Français</a></td>
+  <td><a href="//translate.google.com/translate?u=github.com/MarlinFirmware/Marlin&sl=auto&tl=gl">Galego</a></td>
+  <td><a href="//translate.google.com/translate?u=github.com/MarlinFirmware/Marlin&sl=auto&tl=hr">Hrvatski</a></td>
+</tr>
+<tr>
+  <td><a href="//translate.google.com/translate?u=github.com/MarlinFirmware/Marlin&sl=auto&tl=hu">Magyar</a></td>
+  <td><a href="//translate.google.com/translate?u=github.com/MarlinFirmware/Marlin&sl=auto&tl=it">Italiano</a></td>
+  <td><a href="//translate.google.com/translate?u=github.com/MarlinFirmware/Marlin&sl=auto&tl=ja">にほんご</a></td>
+  <td><a href="//translate.google.com/translate?u=github.com/MarlinFirmware/Marlin&sl=auto&tl=ko">한국어</a></td>
+  <td><a href="//translate.google.com/translate?u=github.com/MarlinFirmware/Marlin&sl=auto&tl=nl">Nederlands</a></td>
+  <td><a href="//translate.google.com/translate?u=github.com/MarlinFirmware/Marlin&sl=auto&tl=pl">Polski</a></td>
+  <td><a href="//translate.google.com/translate?u=github.com/MarlinFirmware/Marlin&sl=auto&tl=pt">Português</a></td>
+</tr>
+<tr>
+  <td><a href="//translate.google.com/translate?u=github.com/MarlinFirmware/Marlin&sl=auto&tl=pt-BR">Português (Brasil)</a></td>
+  <td><a href="//translate.google.com/translate?u=github.com/MarlinFirmware/Marlin&sl=auto&tl=ro">Română</a></td>
+  <td><a href="//translate.google.com/translate?u=github.com/MarlinFirmware/Marlin&sl=auto&tl=ru">Русский</a></td>
+  <td><a href="//translate.google.com/translate?u=github.com/MarlinFirmware/Marlin&sl=auto&tl=sk">Slovenčina</a></td>
+  <td><a href="//translate.google.com/translate?u=github.com/MarlinFirmware/Marlin&sl=auto&tl=sv">Svenska</a></td>
+  <td><a href="//translate.google.com/translate?u=github.com/MarlinFirmware/Marlin&sl=auto&tl=tr">Türkçe</a></td>
+  <td><a href="//translate.google.com/translate?u=github.com/MarlinFirmware/Marlin&sl=auto&tl=uk">Українська</a></td>
+</tr>
+<tr>
+  <td><a href="//translate.google.com/translate?u=github.com/MarlinFirmware/Marlin&sl=auto&tl=vi">Tiếng Việt</a></td>
+  <td><a href="//translate.google.com/translate?u=github.com/MarlinFirmware/Marlin&sl=auto&tl=zh-CN">简体中文</a></td>
+  <td><a href="//translate.google.com/translate?u=github.com/MarlinFirmware/Marlin&sl=auto&tl=zh-TW">繁體中文</a></td>
+  <td></td>
+  <td></td>
+  <td></td>
+  <td></td>
+</tr>
+</table>
 
 Additional documentation can be found at the [Marlin Home Page](//marlinfw.org/).
 Please test this firmware and let us know if it misbehaves in any way. Volunteers are standing by!
 
+---
+
 ## Marlin 2.1 Bugfix Branch
 
-__Not for production use. Use with caution!__
+**Not for production use. Use with caution!**
 
 Marlin 2.1 continues to support both 32-bit ARM and 8-bit AVR boards while adding support for up to 9 coordinated axes and to up to 8 extruders.
 
@@ -52,31 +104,32 @@ Every new HAL opens up a world of hardware. At this time we need HALs for RP2040
 
 ### Supported Platforms
 
-  Platform|MCU|Example Boards
-  --------|---|-------
-  [Arduino AVR](//www.arduino.cc/)|ATmega|RAMPS, Melzi, RAMBo
-  [Teensy++ 2.0](//www.microchip.com/en-us/product/AT90USB1286)|AT90USB1286|Printrboard
-  [Arduino Due](//www.arduino.cc/en/Guide/ArduinoDue)|SAM3X8E|RAMPS-FD, RADDS, RAMPS4DUE
-  [ESP32](//github.com/espressif/arduino-esp32)|ESP32|FYSETC E4, E4d@BOX, MRR
-  [HC32](//www.huazhoucn.com/)|HC32|Ender-2 Pro, Voxelab Aquila
-  [LPC1768](//www.nxp.com/products/processors-and-microcontrollers/arm-microcontrollers/general-purpose-mcus/lpc1700-cortex-m3/512-kb-flash-64-kb-sram-ethernet-usb-lqfp100-package:LPC1768FBD100)|ARM® Cortex-M3|MKS SBASE, Re-ARM, Selena Compact
-  [LPC1769](//www.nxp.com/products/processors-and-microcontrollers/arm-microcontrollers/general-purpose-mcus/lpc1700-cortex-m3/512-kb-flash-64-kb-sram-ethernet-usb-lqfp100-package:LPC1769FBD100)|ARM® Cortex-M3|Smoothieboard, Azteeg X5 mini, TH3D EZBoard
-  [STM32F103](//www.st.com/en/microcontrollers-microprocessors/stm32f103.html)|ARM® Cortex-M3|Malyan M200, GTM32 Pro, MKS Robin, BTT SKR Mini
-  [STM32F401](//www.st.com/en/microcontrollers-microprocessors/stm32f401.html)|ARM® Cortex-M4|ARMED, Rumba32, SKR Pro, Lerdge, FYSETC S6, Artillery Ruby
-  [Pico RP2040](//www.raspberrypi.com/documentation/microcontrollers/pico-series.html)|Dual Cortex M0+|BigTreeTech SKR Pico
-  [STM32F7x6](//www.st.com/en/microcontrollers-microprocessors/stm32f7x6.html)|ARM® Cortex-M7|The Borg, RemRam V1
-  [STM32G0B1RET6](//www.st.com/en/microcontrollers-microprocessors/stm32g0x1.html)|ARM® Cortex-M0+|BigTreeTech SKR mini E3 V3.0
-  [STM32H743xIT6](//www.st.com/en/microcontrollers-microprocessors/stm32h743-753.html)|ARM® Cortex-M7|BigTreeTech SKR V3.0, SKR EZ V3.0, SKR SE BX V2.0/V3.0
-  [SAMD21P20A](//www.adafruit.com/product/4064)|ARM® Cortex-M0+|Adafruit Grand Central M4
-  [SAMD51P20A](//www.adafruit.com/product/4064)|ARM® Cortex-M4|Adafruit Grand Central M4
-  [Teensy 3.2/3.1](//www.pjrc.com/teensy/teensy31.html)|MK20DX256VLH7 ARM® Cortex-M4|
-  [Teensy 3.5](//www.pjrc.com/store/teensy35.html)|MK64FX512-VMD12 ARM® Cortex-M4|
-  [Teensy 3.6](//www.pjrc.com/store/teensy36.html)|MK66FX1MB-VMD18 ARM® Cortex-M4|
-  [Teensy 4.0](//www.pjrc.com/store/teensy40.html)|MIMXRT1062-DVL6B ARM® Cortex-M7|
-  [Teensy 4.1](//www.pjrc.com/store/teensy41.html)|MIMXRT1062-DVJ6B ARM® Cortex-M7|
-  Linux Native|x86 / ARM / RISC-V|Raspberry Pi GPIO
-  Simulator|Windows, macOS, Linux|Desktop OS
-  [All supported boards](//marlinfw.org/docs/hardware/boards.html#boards-list)|All platforms|All boards
+| Platform                                                                                                                                                                                         | MCU                              | Example Boards                                             |
+| ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | -------------------------------- | ---------------------------------------------------------- |
+| [Arduino AVR](//www.arduino.cc/)                                                                                                                                                                 | ATmega                           | RAMPS, Melzi, RAMBo                                        |
+| [Teensy++ 2.0](//www.microchip.com/en-us/product/AT90USB1286)                                                                                                                                    | AT90USB1286                      | Printrboard                                                |
+| [Arduino Due](//www.arduino.cc/en/Guide/ArduinoDue)                                                                                                                                              | SAM3X8E                          | RAMPS-FD, RADDS, RAMPS4DUE                                 |
+| [ESP32](//github.com/espressif/arduino-esp32)                                                                                                                                                    | ESP32                            | FYSETC E4, E4d@BOX, MRR                                    |
+| [GD32](//www.gigadevice.com/)                                                                                                                                                                    | GD32 ARM Cortex-M4               | Creality MFL GD32 V4.2.2                                   |
+| [HC32](//www.huazhoucn.com/)                                                                                                                                                                     | HC32                             | Ender-2 Pro, Voxelab Aquila                                |
+| [LPC1768](//www.nxp.com/products/processors-and-microcontrollers/arm-microcontrollers/general-purpose-mcus/lpc1700-cortex-m3/512-kb-flash-64-kb-sram-ethernet-usb-lqfp100-package:LPC1768FBD100) | ARM® Cortex-M3                  | MKS SBASE, Re-ARM, Selena Compact                          |
+| [LPC1769](//www.nxp.com/products/processors-and-microcontrollers/arm-microcontrollers/general-purpose-mcus/lpc1700-cortex-m3/512-kb-flash-64-kb-sram-ethernet-usb-lqfp100-package:LPC1769FBD100) | ARM® Cortex-M3                  | Smoothieboard, Azteeg X5 mini, TH3D EZBoard                |
+| [Pico RP2040](//www.raspberrypi.com/documentation/microcontrollers/pico-series.html)                                                                                                             | Dual Cortex M0+                  | BigTreeTech SKR Pico                                       |
+| [STM32F103](//www.st.com/en/microcontrollers-microprocessors/stm32f103.html)                                                                                                                     | ARM® Cortex-M3                  | Malyan M200, GTM32 Pro, MKS Robin, BTT SKR Mini            |
+| [STM32F401](//www.st.com/en/microcontrollers-microprocessors/stm32f401.html)                                                                                                                     | ARM® Cortex-M4                  | ARMED, Rumba32, SKR Pro, Lerdge, FYSETC S6, Artillery Ruby |
+| [STM32F7x6](//www.st.com/en/microcontrollers-microprocessors/stm32f7x6.html)                                                                                                                     | ARM® Cortex-M7                  | The Borg, RemRam V1                                        |
+| [STM32G0B1RET6](//www.st.com/en/microcontrollers-microprocessors/stm32g0x1.html)                                                                                                                 | ARM® Cortex-M0+                 | BigTreeTech SKR mini E3 V3.0                               |
+| [STM32H743xIT6](//www.st.com/en/microcontrollers-microprocessors/stm32h743-753.html)                                                                                                             | ARM® Cortex-M7                  | BigTreeTech SKR V3.0, SKR EZ V3.0, SKR SE BX V2.0/V3.0     |
+| [SAMD21P20A](//www.adafruit.com/product/4064)                                                                                                                                                    | ARM® Cortex-M0+                 | Adafruit Grand Central M4                                  |
+| [SAMD51P20A](//www.adafruit.com/product/4064)                                                                                                                                                    | ARM® Cortex-M4                  | Adafruit Grand Central M4                                  |
+| [Teensy 3.2/3.1](//www.pjrc.com/teensy/teensy31.html)                                                                                                                                            | MK20DX256VLH7 ARM® Cortex-M4    |
+| [Teensy 3.5](//www.pjrc.com/store/teensy35.html)                                                                                                                                                 | MK64FX512-VMD12 ARM® Cortex-M4  |
+| [Teensy 3.6](//www.pjrc.com/store/teensy36.html)                                                                                                                                                 | MK66FX1MB-VMD18 ARM® Cortex-M4  |
+| [Teensy 4.0](//www.pjrc.com/store/teensy40.html)                                                                                                                                                 | MIMXRT1062-DVL6B ARM® Cortex-M7 |
+| [Teensy 4.1](//www.pjrc.com/store/teensy41.html)                                                                                                                                                 | MIMXRT1062-DVJ6B ARM® Cortex-M7 |
+| Linux Native                                                                                                                                                                                     | x86 / ARM / RISC-V               | Raspberry Pi GPIO                                          |
+| Simulator                                                                                                                                                                                        | Windows, macOS, Linux            | Desktop OS                                                 |
+| [All supported boards](//marlinfw.org/docs/hardware/boards.html#boards-list)                                                                                                                     | All platforms                    | All boards                                                 |
 
 ## Marlin Support
 
@@ -121,21 +174,21 @@ Marlin Firmware original logo design by Ahmet Cem TURAN [@ahmetcemturan](//githu
 
 ## Project Leadership
 
-Name|Role|Link|Donate
-----|----|----|----
-🇺🇸 Scott Lahteine|Project Lead|[[@thinkyhead](//github.com/thinkyhead)]|[💸 Donate](//marlinfw.org/docs/development/contributing.html#donate)
-🇺🇸 Roxanne Neufeld|Admin|[[@Roxy-3D](//github.com/Roxy-3D)]|
-🇺🇸 Keith Bennett|Admin|[[@thisiskeithb](//github.com/thisiskeithb)]|[💸 Donate](//github.com/sponsors/thisiskeithb)
-🇺🇸 Jason Smith|Admin|[[@sjasonsmith](//github.com/sjasonsmith)]|
-🇧🇷 Victor Oliveira|Admin|[[@rhapsodyv](//github.com/rhapsodyv)]|
-🇬🇧 Chris Pepper|Admin|[[@p3p](//github.com/p3p)]|
-🇳🇿 Peter Ellens|Admin|[[@ellensp](//github.com/ellensp)]|[💸 Donate](//ko-fi.com/ellensp)
-🇺🇸 Bob Kuhn|Admin|[[@Bob-the-Kuhn](//github.com/Bob-the-Kuhn)]|
-🇳🇱 Erik van der Zalm|Founder|[[@ErikZalm](//github.com/ErikZalm)]|
+| Name                 | Role         | Link                                         | Donate                                                                |
+| -------------------- | ------------ | -------------------------------------------- | --------------------------------------------------------------------- |
+| 🇺🇸 Scott Lahteine    | Project Lead | [[@thinkyhead](//github.com/thinkyhead)]     | [💸 Donate](//marlinfw.org/docs/development/contributing.html#donate) |
+| 🇺🇸 Roxanne Neufeld   | Admin        | [[@Roxy-3D](//github.com/Roxy-3D)]           |
+| 🇺🇸 Keith Bennett     | Admin        | [[@thisiskeithb](//github.com/thisiskeithb)] | [💸 Donate](//github.com/sponsors/thisiskeithb)                       |
+| 🇺🇸 Jason Smith       | Admin        | [[@sjasonsmith](//github.com/sjasonsmith)]   |
+| 🇧🇷 Victor Oliveira   | Admin        | [[@rhapsodyv](//github.com/rhapsodyv)]       |
+| 🇬🇧 Chris Pepper      | Admin        | [[@p3p](//github.com/p3p)]                   |
+| 🇳🇿 Peter Ellens      | Admin        | [[@ellensp](//github.com/ellensp)]           | [💸 Donate](//ko-fi.com/ellensp)                                      |
+| 🇺🇸 Bob Kuhn          | Admin        | [[@Bob-the-Kuhn](//github.com/Bob-the-Kuhn)] |
+| 🇳🇱 Erik van der Zalm | Founder      | [[@ErikZalm](//github.com/ErikZalm)]         |
 
 ## Star History
 
-<a id="starchart" href="https://star-history.com/#MarlinFirmware/Marlin&Date">
+<a id="starchart" href="//star-history.com/#MarlinFirmware/Marlin&Date">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=MarlinFirmware/Marlin&type=Date&theme=dark" />
     <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=MarlinFirmware/Marlin&type=Date" />

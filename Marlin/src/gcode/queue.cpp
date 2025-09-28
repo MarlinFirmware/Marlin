@@ -232,7 +232,7 @@ void GCodeQueue::enqueue_now_P(PGM_P const pgcode) {
  * Send an "ok" message to the host, indicating
  * that a command was successfully processed.
  *
- * If ADVANCED_OK is enabled also include:
+ * With ADVANCED_OK:
  *   N<int>  Line number of the command, if any
  *   P<int>  Planner space remaining
  *   B<int>  Block queue space remaining
@@ -426,7 +426,7 @@ void GCodeQueue::get_serial_commands() {
   // send "wait" to indicate Marlin is still waiting.
   #if NO_TIMEOUTS > 0
     const millis_t ms = millis();
-    if (ring_buffer.empty() && !any_serial_data_available() && ELAPSED(ms, last_command_time + NO_TIMEOUTS)) {
+    if (ring_buffer.empty() && !any_serial_data_available() && ELAPSED(ms, last_command_time, NO_TIMEOUTS)) {
       SERIAL_ECHOLNPGM(STR_WAIT);
       last_command_time = ms;
     }
@@ -570,7 +570,7 @@ void GCodeQueue::get_serial_commands() {
     static uint8_t sd_input_state = PS_NORMAL;
 
     // Get commands if there are more in the file
-    if (!IS_SD_FETCHING()) return;
+    if (!card.isStillFetching()) return;
 
     int sd_count = 0;
     while (!ring_buffer.full() && !card.eof()) {

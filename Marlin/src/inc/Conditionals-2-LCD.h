@@ -36,12 +36,6 @@
 #if ENABLED(SDSUPPORT)
   #define HAS_MEDIA 1
 #endif
-#if ENABLED(MULTI_VOLUME)
-  #define HAS_MULTI_VOLUME 1
-#endif
-#if ENABLED(USB_FLASH_DRIVE_SUPPORT)
-  #define HAS_USB_FLASH_DRIVE 1
-#endif
 
 //
 // Serial Port Info
@@ -78,7 +72,7 @@
   #define MKS_MINI_12864
 #endif
 
-// MKS_MINI_12864_V3 , BTT_MINI_12864 and BEEZ_MINI_12864 are nearly identical to FYSETC_MINI_12864_2_1
+// MKS_MINI_12864_V3, BTT_MINI_12864 and BEEZ_MINI_12864 are nearly identical to FYSETC_MINI_12864_2_1
 #if ANY(MKS_MINI_12864_V3, BTT_MINI_12864, BEEZ_MINI_12864)
   #define FYSETC_MINI_12864_2_1
 #endif
@@ -201,7 +195,7 @@
   #define DOGLCD
   #define IS_U8GLIB_ST7920 1
   #define IS_ULTIPANEL 1
-  #define ENCODER_PULSES_PER_STEP 2
+  #define STD_ENCODER_PULSES_PER_STEP 2
 
 #elif ENABLED(MKS_12864OLED)
 
@@ -248,7 +242,7 @@
 
   #define IS_ULTIPANEL 1
   #define U8GLIB_SSD1309
-  #define LCD_RESET_PIN LCD_PINS_D6 //  This controller need a reset pin
+  #define LCD_RESET_PIN LCD_PINS_D6         // ULTI_CONTROLLER needs a reset pin
   #define STD_ENCODER_PULSES_PER_STEP 4
   #define STD_ENCODER_STEPS_PER_MENU_ITEM 1
   #ifndef PCA9632
@@ -314,15 +308,15 @@
 
 #endif
 
-#if ANY(FYSETC_MINI_12864, MKS_MINI_12864)
-  #define U8G_SPI_USE_MODE_3 1
-#endif
-
 // ST7920-based graphical displays
 #if ANY(IS_RRD_FG_SC, LCD_FOR_MELZI, SILVER_GATE_GLCD_CONTROLLER)
   #define DOGLCD
   #define IS_U8GLIB_ST7920 1
   #define IS_RRD_SC 1
+#endif
+
+#if ANY(FYSETC_MINI_12864, MKS_MINI_12864) || ALL(__PLAT_NATIVE_SIM__, IS_U8GLIB_ST7920)
+  #define U8G_SPI_USE_MODE_3 1
 #endif
 
 // ST7565 / 64128N graphical displays
@@ -360,7 +354,22 @@
 // ...and 128x64 SPI OLED LCDs (SSD1306 / SH1106)
 #if ANY(U8GLIB_SSD1306, U8GLIB_SSD1309, U8GLIB_SH1106)
   #define HAS_U8GLIB_I2C_OLED 1
+
+  // Define this to reduce build size and optimize performance
+  //#define COMPILE_TIME_I2C_IS_HARDWARE true   // true: Hardware  false: Software  undefined: Solve at runtime
+
+  #ifdef COMPILE_TIME_I2C_IS_HARDWARE
+    #if COMPILE_TIME_I2C_IS_HARDWARE
+      #define U8G_USES_HW_I2C
+    #else
+      #define U8G_USES_SW_I2C
+    #endif
+  #else
+    #define U8G_USES_HW_I2C
+    #define U8G_USES_SW_I2C
+  #endif
 #endif
+
 #if ANY(HAS_U8GLIB_I2C_OLED, U8GLIB_SSD1306_SPI, U8GLIB_SH1106_SPI)
   #define HAS_WIRED_LCD 1
   #define DOGLCD
@@ -615,12 +624,20 @@
   #define HAS_STATUS_MESSAGE 1
 #endif
 
-#if HAS_WIRED_LCD && !HAS_GRAPHICAL_TFT && !IS_DWIN_MARLINUI
-  #define HAS_LCDPRINT 1
+#if ANY(HAS_WIRED_LCD, DWIN_LCD_PROUI)
+  #if ENABLED(STATUS_MESSAGE_SCROLLING)
+    #define MAX_MESSAGE_SIZE _MAX(LONG_FILENAME_LENGTH, MAX_LANG_CHARSIZE * (LCD_WIDTH))
+  #else
+    #define MAX_MESSAGE_SIZE (MAX_LANG_CHARSIZE * (LCD_WIDTH))
+  #endif
+#elif HAS_STATUS_MESSAGE
+  #define MAX_MESSAGE_SIZE 63
+#else
+  #define MAX_MESSAGE_SIZE 1
 #endif
 
-#if HAS_DISPLAY || HAS_LCDPRINT
-  #define HAS_UTF8_UTILS 1
+#if HAS_WIRED_LCD && !HAS_GRAPHICAL_TFT && !IS_DWIN_MARLINUI
+  #define HAS_LCDPRINT 1
 #endif
 
 #if IS_ULTIPANEL && DISABLED(NO_LCD_MENUS)
@@ -659,14 +676,6 @@
 // Slim menu optimizations
 #if ENABLED(SLIM_LCD_MENUS)
   #define BOOT_MARLIN_LOGO_SMALL
-#endif
-
-// Flow and feedrate editing
-#if HAS_EXTRUDERS && ANY(HAS_MARLINUI_MENU, DWIN_CREALITY_LCD, DWIN_LCD_PROUI, MALYAN_LCD, TOUCH_SCREEN)
-  #define HAS_FLOW_EDIT 1
-#endif
-#if ANY(HAS_MARLINUI_MENU, ULTIPANEL_FEEDMULTIPLY, DWIN_CREALITY_LCD, DWIN_LCD_PROUI, MALYAN_LCD, TOUCH_SCREEN)
-  #define HAS_FEEDRATE_EDIT 1
 #endif
 
 /**

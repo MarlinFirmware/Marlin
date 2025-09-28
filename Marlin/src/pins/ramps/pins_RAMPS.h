@@ -59,6 +59,8 @@
   #define BOARD_INFO_NAME "RAMPS 1.4"
 #endif
 
+#define BOARD_LCD_SERIAL_PORT 2
+
 //
 // Servos
 //
@@ -484,15 +486,15 @@
 #endif
 
 //
-// AUX1    5V  GND D2  D1
+// AUX1    5V  GND D1  D0
 //          2   4   6   8
 //          1   3   5   7
 //         5V  GND A3  A4
 //
 #define AUX1_05                               57  // (A3)
-#define AUX1_06                                2
+#define AUX1_06                                1  // TX0
 #define AUX1_07                               58  // (A4)
-#define AUX1_08                                1
+#define AUX1_08                                0  // RX0
 
 //
 // AUX2    GND A9 D40 D42 A11
@@ -830,7 +832,7 @@
 
       #elif ENABLED(FYSETC_MINI_12864)
 
-        // From https://wiki.fysetc.com/Mini12864_Panel/
+        // From https://wiki.fysetc.com/docs/Mini12864Panel
 
         #define DOGLCD_A0            EXP1_04_PIN
         #define DOGLCD_CS            EXP1_03_PIN
@@ -862,7 +864,7 @@
     #elif ENABLED(MINIPANEL)
 
       #ifndef BEEPER_PIN
-        #define BEEPER_PIN           AUX2_08_PIN
+        #define BEEPER_PIN               AUX2_08
       #endif
       #define LCD_BACKLIGHT_PIN          AUX2_10
 

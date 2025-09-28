@@ -105,32 +105,34 @@
 #define BOARD_TRIGORILLA_14_11        1138  //   ... Rev 1.1 (new servo pin order)
 #define BOARD_RAMPS_ENDER_4           1139  // Creality: Ender-4, CR-8
 #define BOARD_RAMPS_CREALITY          1140  // Creality: CR10S, CR20, CR-X
-#define BOARD_DAGOMA_F5               1141  // Dagoma F5
-#define BOARD_DAGOMA_D6               1142  // Dagoma D6 (as found in the Dagoma DiscoUltimate V2 TMC)
-#define BOARD_FYSETC_F6_13            1143  // FYSETC F6 1.3
-#define BOARD_FYSETC_F6_14            1144  // FYSETC F6 1.4
-#define BOARD_DUPLICATOR_I3_PLUS      1145  // Wanhao Duplicator i3 Plus
-#define BOARD_VORON                   1146  // VORON Design
-#define BOARD_TRONXY_V3_1_0           1147  // Tronxy TRONXY-V3-1.0
-#define BOARD_Z_BOLT_X_SERIES         1148  // Z-Bolt X Series
-#define BOARD_TT_OSCAR                1149  // TT OSCAR
-#define BOARD_TANGO                   1150  // BIQU Tango V1
-#define BOARD_MKS_GEN_L_V2            1151  // MKS GEN L V2
-#define BOARD_MKS_GEN_L_V21           1152  // MKS GEN L V2.1
-#define BOARD_COPYMASTER_3D           1153  // Copymaster 3D
-#define BOARD_ORTUR_4                 1154  // Ortur 4
-#define BOARD_TENLOG_D3_HERO          1155  // Tenlog D3 Hero IDEX printer
-#define BOARD_TENLOG_MB1_V23          1156  // Tenlog D3, D5, D6 IDEX Printer
-#define BOARD_RAMPS_S_12_EEFB         1157  // Ramps S 1.2 by Sakul.cz (Power outputs: Hotend0, Hotend1, Fan, Bed)
-#define BOARD_RAMPS_S_12_EEEB         1158  // Ramps S 1.2 by Sakul.cz (Power outputs: Hotend0, Hotend1, Hotend2, Bed)
-#define BOARD_RAMPS_S_12_EFFB         1159  // Ramps S 1.2 by Sakul.cz (Power outputs: Hotend, Fan0, Fan1, Bed)
-#define BOARD_LONGER3D_LK1_PRO        1160  // Longer LK1 PRO / Alfawise U20 Pro (PRO version)
-#define BOARD_LONGER3D_LKx_PRO        1161  // Longer LKx PRO / Alfawise Uxx Pro (PRO version)
-#define BOARD_PXMALION_CORE_I3        1162  // Pxmalion Core I3
-#define BOARD_PANOWIN_CUTLASS         1163  // Panowin Cutlass (as found in the Panowin F1)
-#define BOARD_KODAMA_BARDO            1164  // Kodama Bardo V1.x (as found in the Kodama Trinus)
-#define BOARD_XTLW_MFF_V1             1165  // XTLW MFF V1.0
-#define BOARD_XTLW_MFF_V2             1166  // XTLW MFF V2.0
+#define BOARD_CREALITY_V252           1141  // Creality CR-10 V2, CR-10 V3
+#define BOARD_DAGOMA_F5               1142  // Dagoma F5
+#define BOARD_DAGOMA_D6               1143  // Dagoma D6 (as found in the Dagoma DiscoUltimate V2 TMC)
+#define BOARD_FYSETC_F6_13            1144  // FYSETC F6 1.3
+#define BOARD_FYSETC_F6_14            1145  // FYSETC F6 1.4
+#define BOARD_DUPLICATOR_I3_PLUS      1146  // Wanhao Duplicator i3 Plus
+#define BOARD_VORON                   1147  // VORON Design
+#define BOARD_TRONXY_V3_1_0           1148  // Tronxy TRONXY-V3-1.0
+#define BOARD_Z_BOLT_X_SERIES         1149  // Z-Bolt X Series
+#define BOARD_TT_OSCAR                1150  // TT OSCAR
+#define BOARD_TANGO                   1151  // BIQU Tango V1
+#define BOARD_MKS_GEN_L_V2            1152  // MKS GEN L V2
+#define BOARD_MKS_GEN_L_V21           1153  // MKS GEN L V2.1
+#define BOARD_COPYMASTER_3D           1154  // Copymaster 3D
+#define BOARD_ORTUR_4                 1155  // Ortur 4
+#define BOARD_TENLOG_D3_HERO          1156  // Tenlog D3 Hero IDEX printer
+#define BOARD_TENLOG_MB1_V23          1157  // Tenlog D3, D5, D6 IDEX Printer
+#define BOARD_RAMPS_S_12_EEFB         1158  // Ramps S 1.2 by Sakul.cz (Power outputs: Hotend0, Hotend1, Fan, Bed)
+#define BOARD_RAMPS_S_12_EEEB         1159  // Ramps S 1.2 by Sakul.cz (Power outputs: Hotend0, Hotend1, Hotend2, Bed)
+#define BOARD_RAMPS_S_12_EFFB         1160  // Ramps S 1.2 by Sakul.cz (Power outputs: Hotend, Fan0, Fan1, Bed)
+#define BOARD_LONGER3D_LK1_PRO        1161  // Longer LK1 PRO / Alfawise U20 Pro (PRO version)
+#define BOARD_LONGER3D_LKx_PRO        1162  // Longer LKx PRO / Alfawise Uxx Pro (PRO version)
+#define BOARD_PXMALION_CORE_I3        1163  // Pxmalion Core I3
+#define BOARD_PANOWIN_CUTLASS         1164  // Panowin Cutlass (as found in the Panowin F1)
+#define BOARD_KODAMA_BARDO            1165  // Kodama Bardo V1.x (as found in the Kodama Trinus)
+#define BOARD_XTLW_MFF_V1             1166  // XTLW MFF V1.0
+#define BOARD_XTLW_MFF_V2             1167  // XTLW MFF V2.0
+#define BOARD_RUMBA_E3D               1168  // E3D Rumba BigBox
 
 //
 // RAMBo and derivatives
@@ -275,7 +277,7 @@
 #define BOARD_MKS_SGEN_L_V2           2509  // MKS SGEN_L V2
 #define BOARD_BTT_SKR_E3_TURBO        2510  // BigTreeTech SKR E3 Turbo
 #define BOARD_FLY_CDY                 2511  // FLYmaker FLY CDY
-#define BOARD_XTLW_CLIMBER_8TH_LPC    2512  // XTLW_CLIMBER_8TH_LPC
+#define BOARD_XTLW_CLIMBER_8TH_LPC    2512  // XTLW Climber 8
 
 //
 // SAM3X8E ARM Cortex-M3
@@ -283,7 +285,7 @@
 
 #define BOARD_DUE3DOM                 3000  // DUE3DOM for Arduino DUE
 #define BOARD_DUE3DOM_MINI            3001  // DUE3DOM MINI for Arduino DUE
-#define BOARD_RADDS                   3002  // RADDS
+#define BOARD_RADDS                   3002  // RADDS v1.5/v1.6
 #define BOARD_RAMPS_FD_V1             3003  // RAMPS-FD v1
 #define BOARD_RAMPS_FD_V2             3004  // RAMPS-FD v2
 #define BOARD_RAMPS_SMART_EFB         3005  // RAMPS-SMART (Power outputs: Hotend, Fan, Bed)
@@ -383,10 +385,10 @@
 #define BOARD_CHITU3D_V6              5036  // Chitu3D TronXY X5SA V6 Board (STM32F103ZE)
 #define BOARD_CHITU3D_V9              5037  // Chitu3D TronXY X5SA V9 Board (STM32F103ZE)
 #define BOARD_CREALITY_V4             5038  // Creality v4.x (STM32F103RC / STM32F103RE)
-#define BOARD_CREALITY_V422           5039  // Creality v4.2.2 (STM32F103RC / STM32F103RE)
+#define BOARD_CREALITY_V422           5039  // Creality v4.2.2 (STM32F103RC / STM32F103RE) ... GD32 Variant Below!
 #define BOARD_CREALITY_V423           5040  // Creality v4.2.3 (STM32F103RC / STM32F103RE)
 #define BOARD_CREALITY_V425           5041  // Creality v4.2.5 (STM32F103RC / STM32F103RE)
-#define BOARD_CREALITY_V427           5042  // Creality v4.2.7 (STM32F103RC / STM32F103RE)
+#define BOARD_CREALITY_V427           5042  // Creality v4.2.7 (STM32F103RC / STM32F103RE) ... GD32 Variant Below!
 #define BOARD_CREALITY_V4210          5043  // Creality v4.2.10 (STM32F103RC / STM32F103RE) as found in the CR-30
 #define BOARD_CREALITY_V431           5044  // Creality v4.3.1 (STM32F103RC / STM32F103RE)
 #define BOARD_CREALITY_V431_A         5045  // Creality v4.3.1a (STM32F103RC / STM32F103RE)
@@ -549,15 +551,28 @@
 // HC32 ARM Cortex-M4
 //
 
-#define BOARD_AQUILA_V101             7200  // Voxelab Aquila V1.0.0/V1.0.1/V1.0.2/V1.0.3 as found in the Voxelab Aquila X2 and C2
+#define BOARD_AQUILA_V101             7200  // Voxelab Aquila V1.0.0/1/2/3 (e.g., Aquila X2, C2). ... GD32 Variant Below!
 #define BOARD_CREALITY_ENDER2P_V24S4  7201  // Creality Ender 2 Pro v2.4.S4_170 (HC32f460kcta)
+
+//
+// GD32 ARM Cortex-M3
+//
+
+#define BOARD_AQUILA_V101_GD32_MFL    7300  // Voxelab Aquila V1.0.1 MFL (GD32F103RC) ... STM32/HC32 Variant Above!
+
+//
+// GD32 ARM Cortex-M4
+//
+
+#define BOARD_CREALITY_V422_GD32_MFL  7400  // Creality V4.2.2 MFL (GD32F303RE) ... STM32 Variant Above!
+#define BOARD_CREALITY_V427_GD32_MFL  7401  // Creality V4.2.7 MFL (GD32F303RE) ... STM32 Variant Above!
 
 //
 // Raspberry Pi
 //
 
-#define BOARD_RP2040                  6200 // Generic RP2040 Test board
-#define BOARD_BTT_SKR_PICO            6201 // BigTreeTech SKR Pico 1.x
+#define BOARD_RP2040                  6200  // Generic RP2040 Test board
+#define BOARD_BTT_SKR_PICO            6201  // BigTreeTech SKR Pico 1.x
 
 //
 // Custom board

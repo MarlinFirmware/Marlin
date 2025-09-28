@@ -78,9 +78,9 @@ void EasythreedUI::blinkLED() {
     prev_blink_interval_ms = blink_interval_ms;
     blink_start_ms = ms;
   }
-  if (PENDING(ms, blink_start_ms + blink_interval_ms))
+  if (PENDING(ms, blink_start_ms, blink_interval_ms))
     WRITE(EASYTHREED_LED_PIN, LOW);
-  else if (PENDING(ms, blink_start_ms + 2 * blink_interval_ms))
+  else if (PENDING(ms, blink_start_ms, 2 * blink_interval_ms))
     WRITE(EASYTHREED_LED_PIN, HIGH);
   else
     blink_start_ms = ms;
@@ -107,7 +107,7 @@ void EasythreedUI::loadButton() {
       break;
 
     case FS_PRESS:
-      if (ELAPSED(millis(), filament_time + BTN_DEBOUNCE_MS)) {     // After a short debounce delay...
+      if (ELAPSED(millis(), filament_time, BTN_DEBOUNCE_MS)) {      // After a short debounce delay...
         if (!READ(BTN_RETRACT) || !READ(BTN_FEED)) {                // ...if switch still toggled...
           thermalManager.setTargetHotend(EXTRUDE_MINTEMP + 10, 0);  // Start heating up
           blink_interval_ms = LED_BLINK_7;                          // Set the LED to blink fast
@@ -131,7 +131,7 @@ void EasythreedUI::loadButton() {
       break;
 
     case FS_PROCEED: {
-      // Feed or Retract just once. Hard abort all moves and return to idle on swicth release.
+      // Feed or Retract just once. Hard abort all moves and return to idle on switch release.
       static bool flag = false;
       if (READ(BTN_RETRACT) && READ(BTN_FEED)) {                    // Switch in center position (stop)
         flag = false;                                               // Restore flag to false
@@ -175,14 +175,14 @@ void EasythreedUI::printButton() {
       break;
 
     case KS_PRESS:
-      if (ELAPSED(ms, key_time + BTN_DEBOUNCE_MS))                  // Wait for debounce interval to expire
+      if (ELAPSED(ms, key_time, BTN_DEBOUNCE_MS))                   // Wait for debounce interval to expire
         key_status = READ(BTN_PRINT) ? KS_IDLE : KS_PROCEED;        // Proceed if still pressed
       break;
 
     case KS_PROCEED:
       if (!READ(BTN_PRINT)) break;                                  // Wait for the button to be released
       key_status = KS_IDLE;                                         // Ready for the next press
-      if (PENDING(ms, key_time + 1200 - BTN_DEBOUNCE_MS)) {         // Register a press < 1.2 seconds
+      if (PENDING(ms, key_time, 1200 - BTN_DEBOUNCE_MS)) {          // Register a press < 1.2 seconds
         switch (print_key_flag) {
           case PF_START: {                                          // The "Print" button starts an SD card print
             if (printingIsActive()) break;                          // Already printing? (find another line that checks for 'is planner doing anything else right now?')

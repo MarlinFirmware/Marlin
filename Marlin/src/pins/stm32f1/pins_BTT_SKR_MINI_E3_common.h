@@ -38,6 +38,8 @@
   #define MARLIN_EEPROM_SIZE    EEPROM_PAGE_SIZE  // 2K
 #endif
 
+#define BOARD_LCD_SERIAL_PORT 1
+
 //
 // Servos
 //
@@ -329,7 +331,7 @@
      *    TFT-2 ----------- EXP2-5   MOSI
      *    TFT-3 ----------- EXP2-9   SCK
      *
-     * for backlight configuration see steps 2 (V2.1) and 3 in https://wiki.fysetc.com/Mini12864_Panel/
+     * for backlight configuration see steps 2 (V2.1) and 3 in https://wiki.fysetc.com/docs/Mini12864Panel
      */
 
     #define LCD_BACKLIGHT_PIN               -1

@@ -427,7 +427,7 @@ private:
         v1 = -rmax;
         v2 =  rmin;
       }
-      jyersDWIN.updateStatus(TS(GET_TEXT_F(MSG_COLORS_RED), ' ', p_float_t(v1, 3) , F("..0.."), p_float_t(v2, 3), ' ', GET_TEXT_F(MSG_COLORS_GREEN)));
+      jyersDWIN.updateStatus(TS(GET_TEXT_F(MSG_COLORS_RED), ' ', p_float_t(v1, 3), F("..0.."), p_float_t(v2, 3), ' ', GET_TEXT_F(MSG_COLORS_GREEN)));
       drawing_mesh = false;
     }
 
@@ -454,7 +454,7 @@ void JyersDWIN::clearScreen(const uint8_t e/*=3*/) {
   if (e == 4) dwinDrawRectangle(1, COLOR_BG_BLACK, 0, 31, DWIN_WIDTH, DWIN_HEIGHT); // Clear Popup Area
 }
 
-void JyersDWIN::drawFloat(const_float_t value, const uint8_t row, const bool selected/*=false*/, const uint8_t minunit/*=10*/) {
+void JyersDWIN::drawFloat(const float value, const uint8_t row, const bool selected/*=false*/, const uint8_t minunit/*=10*/) {
   const uint8_t digits = (uint8_t)floor(log10(abs(value))) + log10(minunit) + (minunit > 1);
   const uint16_t bColor = selected ? COLOR_SELECT : COLOR_BG_BLACK;
   const uint16_t xpos = 240 - (digits * 8);
@@ -523,18 +523,18 @@ void JyersDWIN::drawMenuItem(const uint8_t row, const uint8_t icon/*=0*/, FSTR_P
 }
 
 void JyersDWIN::drawCheckbox(const uint8_t row, const bool value) {
-  #if ENABLED(DWIN_CREALITY_LCD_CUSTOM_ICONS)   // Draw appropriate checkbox icon
+  #if DISABLED(DWIN_CREALITY_LCD_STD_ICONS)     // Draw appropriate checkbox icon
     dwinIconShow(ICON, (value ? ICON_Checkbox_T : ICON_Checkbox_F), 226, MBASE(row) - 3);
   #else                                         // Draw a basic checkbox using rectangles and lines
     dwinDrawRectangle(1, COLOR_BG_BLACK, 226, MBASE(row) - 3, 226 + 20, MBASE(row) - 3 + 20);
-    dwinDrawRectangle(0, COLOR_WHITE, 226, MBASE(row) - 3, 226 + 20, MBASE(row) - 3 + 20);
+    dwinDrawRectangle(0, COLOR_WHITE,    226, MBASE(row) - 3, 226 + 20, MBASE(row) - 3 + 20);
     if (value) {
-      dwinDrawLine(COLOR_CHECKBOX, 227, MBASE(row) - 3 + 11, 226 + 8, MBASE(row) - 3 + 17);
-      dwinDrawLine(COLOR_CHECKBOX, 227 + 8, MBASE(row) - 3 + 17, 226 + 19, MBASE(row) - 3 + 1);
-      dwinDrawLine(COLOR_CHECKBOX, 227, MBASE(row) - 3 + 12, 226 + 8, MBASE(row) - 3 + 18);
-      dwinDrawLine(COLOR_CHECKBOX, 227 + 8, MBASE(row) - 3 + 18, 226 + 19, MBASE(row) - 3 + 2);
-      dwinDrawLine(COLOR_CHECKBOX, 227, MBASE(row) - 3 + 13, 226 + 8, MBASE(row) - 3 + 19);
-      dwinDrawLine(COLOR_CHECKBOX, 227 + 8, MBASE(row) - 3 + 19, 226 + 19, MBASE(row) - 3 + 3);
+      dwinDrawLine(COLOR_CHECKBOX, 227,     MBASE(row) - 3 + 11, 226 +  8, MBASE(row) - 3 + 17);
+      dwinDrawLine(COLOR_CHECKBOX, 227 + 8, MBASE(row) - 3 + 17, 226 + 19, MBASE(row) - 3 +  1);
+      dwinDrawLine(COLOR_CHECKBOX, 227,     MBASE(row) - 3 + 12, 226 +  8, MBASE(row) - 3 + 18);
+      dwinDrawLine(COLOR_CHECKBOX, 227 + 8, MBASE(row) - 3 + 18, 226 + 19, MBASE(row) - 3 +  2);
+      dwinDrawLine(COLOR_CHECKBOX, 227,     MBASE(row) - 3 + 13, 226 +  8, MBASE(row) - 3 + 19);
+      dwinDrawLine(COLOR_CHECKBOX, 227 + 8, MBASE(row) - 3 + 19, 226 + 19, MBASE(row) - 3 +  3);
     }
   #endif
 }
@@ -2398,10 +2398,13 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
           case MOTION_LA:
             if (draw) {
               drawMenuItem(row, ICON_MaxAccelerated, GET_TEXT_F(MSG_ADVANCE_K));
-              drawFloat(planner.extruder_advance_K[0], row, false, 100);
+              drawFloat(planner.get_advance_k(), row, false, 100);
             }
-            else
-              modifyValue(planner.extruder_advance_K[0], 0, 10, 100);
+            else {
+              static float k = planner.get_advance_k();
+              modifyValue(k, 0, 10, 100, []{ planner.set_advance_k(k); });
+            }
+
             break;
         #endif
       }
@@ -2914,10 +2917,12 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
           case ADVANCED_LA:
             if (draw) {
               drawMenuItem(row, ICON_MaxAccelerated, GET_TEXT_F(MSG_ADVANCE_K));
-              drawFloat(planner.extruder_advance_K[0], row, false, 100);
+              drawFloat(planner.get_advance_k(), row, false, 100);
             }
-            else
-              modifyValue(planner.extruder_advance_K[0], 0, 10, 100);
+            else {
+              static float k = planner.get_advance_k();
+              modifyValue(k, 0, 10, 100, []{ planner.set_advance_k(k); });
+            }
             break;
         #endif
 
@@ -3033,7 +3038,7 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
                 drawMenuItem(row, ICON_StepY, F("M48 Probe Test"));
               else {
                 gcode.process_subcommands_now(
-                  TS(F("G28O\nM48X") , p_float_t((X_BED_SIZE + X_MIN_POS) / 2.0f, 3), 'Y', p_float_t((Y_BED_SIZE + Y_MIN_POS) / 2.0f, 3), 'P', testcount)
+                  TS(F("G28O\nM48X"), p_float_t((X_BED_SIZE + X_MIN_POS) / 2.0f, 3), 'Y', p_float_t((Y_BED_SIZE + Y_MIN_POS) / 2.0f, 3), 'P', testcount)
                 );
               }
               break;
@@ -3068,7 +3073,7 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
               drawMenu(ID_Advanced, ADVANCED_TMC);
             break;
 
-          #if AXIS_IS_TMC(X)
+          #if X_IS_TRINAMIC
             case TMC_STEPPER_CURRENT_X:
 
               static float stepper_current_x;
@@ -3084,7 +3089,7 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
               break;
           #endif
 
-          #if AXIS_IS_TMC(Y)
+          #if Y_IS_TRINAMIC
             case TMC_STEPPER_CURRENT_Y:
               static float stepper_current_y;
               if (draw) {
@@ -3098,7 +3103,7 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
               break;
           #endif
 
-          #if AXIS_IS_TMC(Z)
+          #if Z_IS_TRINAMIC
             case TMC_STEPPER_CURRENT_Z:
               static float stepper_current_z;
               if (draw) {
@@ -3112,7 +3117,7 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
               break;
           #endif
 
-          #if AXIS_IS_TMC(E0)
+          #if E0_IS_TRINAMIC
             case TMC_STEPPER_CURRENT_E:
               static float stepper_current_e;
               if (draw) {
@@ -3925,10 +3930,12 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
           case TUNE_LA:
             if (draw) {
               drawMenuItem(row, ICON_MaxAccelerated, GET_TEXT_F(MSG_ADVANCE_K));
-              drawFloat(planner.extruder_advance_K[0], row, false, 100);
+              drawFloat(planner.get_advance_k(), row, false, 100);
             }
-            else
-              modifyValue(planner.extruder_advance_K[0], 0, 10, 100);
+            else {
+              static float k = planner.get_advance_k();
+              modifyValue(k, 0, 10, 100, []{ planner.set_advance_k(k); });
+            }
             break;
         #endif
 
@@ -4653,7 +4660,7 @@ void JyersDWIN::popupControl() {
             #if ENABLED(PARK_HEAD_ON_PAUSE)
               popupHandler(Popup_Home, true);
               #if HAS_MEDIA
-                if (IS_SD_PRINTING()) card.pauseSDPrint();
+                if (card.isStillPrinting()) card.pauseSDPrint();
               #endif
               planner.synchronize();
               queue.inject(F("M125"));
@@ -4805,7 +4812,7 @@ void JyersDWIN::confirmControl() {
 // In-Menu Value Modification
 //
 
-void JyersDWIN::setupValue(const_float_t value, const_float_t min, const_float_t max, const_float_t unit, const uint8_t type) {
+void JyersDWIN::setupValue(const float value, const float min, const float max, const float unit, const uint8_t type) {
   if (TERN0(PIDTEMP, valuepointer == &thermalManager.temp_hotend[0].pid.Ki) || TERN0(PIDTEMPBED, valuepointer == &thermalManager.temp_bed.pid.Ki))
     tempvalue = unscalePID_i(value) * unit;
   else if (TERN0(PIDTEMP, valuepointer == &thermalManager.temp_hotend[0].pid.Kd) || TERN0(PIDTEMPBED, valuepointer == &thermalManager.temp_bed.pid.Kd))
@@ -4821,32 +4828,32 @@ void JyersDWIN::setupValue(const_float_t value, const_float_t min, const_float_t
   drawFloat(tempvalue / unit, selection - scrollpos, true, valueunit);
 }
 
-void JyersDWIN::modifyValue(float &value, const_float_t min, const_float_t max, const_float_t unit, void (*f)()/*=nullptr*/) {
+void JyersDWIN::modifyValue(float &value, const float min, const float max, const float unit, void (*f)()/*=nullptr*/) {
   valuepointer = &value;
   funcpointer = f;
   setupValue((float)value, min, max, unit, 0);
 }
-void JyersDWIN::modifyValue(uint8_t &value, const_float_t min, const_float_t max, const_float_t unit, void (*f)()/*=nullptr*/) {
+void JyersDWIN::modifyValue(uint8_t &value, const float min, const float max, const float unit, void (*f)()/*=nullptr*/) {
   valuepointer = &value;
   funcpointer = f;
   setupValue((float)value, min, max, unit, 1);
 }
-void JyersDWIN::modifyValue(uint16_t &value, const_float_t min, const_float_t max, const_float_t unit, void (*f)()/*=nullptr*/) {
+void JyersDWIN::modifyValue(uint16_t &value, const float min, const float max, const float unit, void (*f)()/*=nullptr*/) {
   valuepointer = &value;
   funcpointer = f;
   setupValue((float)value, min, max, unit, 2);
 }
-void JyersDWIN::modifyValue(int16_t &value, const_float_t min, const_float_t max, const_float_t unit, void (*f)()/*=nullptr*/) {
+void JyersDWIN::modifyValue(int16_t &value, const float min, const float max, const float unit, void (*f)()/*=nullptr*/) {
   valuepointer = &value;
   funcpointer = f;
   setupValue((float)value, min, max, unit, 3);
 }
-void JyersDWIN::modifyValue(uint32_t &value, const_float_t min, const_float_t max, const_float_t unit, void (*f)()/*=nullptr*/) {
+void JyersDWIN::modifyValue(uint32_t &value, const float min, const float max, const float unit, void (*f)()/*=nullptr*/) {
   valuepointer = &value;
   funcpointer = f;
   setupValue((float)value, min, max, unit, 4);
 }
-void JyersDWIN::modifyValue(int8_t &value, const_float_t min, const_float_t max, const_float_t unit, void (*f)()/*=nullptr*/) {
+void JyersDWIN::modifyValue(int8_t &value, const float min, const float max, const float unit, void (*f)()/*=nullptr*/) {
   valuepointer = &value;
   funcpointer = f;
   setupValue((float)value, min, max, unit, 5);

@@ -30,9 +30,6 @@
 
 #include "dwin.h"
 
-//#define USE_STRING_HEADINGS
-//#define USE_STRING_TITLES
-
 #if DISABLED(PROBE_MANUALLY) && ANY(AUTO_BED_LEVELING_BILINEAR, AUTO_BED_LEVELING_LINEAR, AUTO_BED_LEVELING_3POINT)
   #define HAS_ONESTEP_LEVELING 1
 #endif
@@ -1595,6 +1592,27 @@ void hmiMaxAccelerationXYZE() {
   drawEditInteger4(select_acc.now, hmiValues.maxAcceleration, true);
 }
 
+
+#if HAS_SPINDLE_ACCELERATION
+
+  void hmiSpindleAcceleration() {
+    EncoderState encoder_diffState = encoderReceiveAnalyze();
+    if (encoder_diffState == ENCODER_DIFF_NO) return;
+    if (applyEncoder(encoder_diffState, hmiValues.spindleAcceleration)) {
+      checkkey = ID_SpindleAcceleration;
+      encoderRate.enabled = false;
+      cutter.spindle_acceleration_deg_per_s2 = hmiValues.spindleAcceleration;
+      drawEditInteger4(select_acc.now, hmiValues.spindleAcceleration);
+      return;
+    }
+    // SpindleAcceleration limit
+    LIMIT(hmiValues.spindleAcceleration, min_acceleration_edit_values_spindle, max_acceleration_edit_values_spindle);
+    // SpindleAcceleration value
+    drawEditInteger4(select_acc.now, hmiValues.spindleAcceleration, true);
+  }
+
+#endif // HAS_SPINDLE_ACCELERATION
+
 #if ENABLED(CLASSIC_JERK)
 
   void hmiMaxJerkXYZE() {
@@ -2495,7 +2513,7 @@ void itemAdvBedPID(const uint8_t row) {
     }
     else {
       #ifdef USE_STRING_TITLES
-        dwinDrawLabel(row, GET_TEXT_F(MSG_ZPROBE_OFFSETS));
+        dwinDrawLabel(row, GET_TEXT_F(MSG_OUTAGE_RECOVERY));
       #else
         itemAreaCopy(1, 208, 137, 221, row);  // "Power-loss Recovery"
       #endif
@@ -3658,7 +3676,7 @@ void hmiAdvSet() {
     dwinUpdateLCD();
   }
 
-  void hmiHomeOffN(const AxisEnum axis, float &posScaled, const_float_t lo, const_float_t hi) {
+  void hmiHomeOffN(const AxisEnum axis, float &posScaled, const float lo, const float hi) {
     EncoderState encoder_diffState = encoderReceiveAnalyze();
     if (encoder_diffState == ENCODER_DIFF_NO) return;
 
@@ -4283,6 +4301,9 @@ void dwinHandleScreen() {
     case ID_PrintSpeed:     hmiPrintSpeed(); break;
     case ID_MaxSpeedValue:  hmiMaxFeedspeedXYZE(); break;
     case ID_MaxAccelerationValue: hmiMaxAccelerationXYZE(); break;
+    #if HAS_SPINDLE_ACCELERATION
+      case ID_SpindleAccelerationValue: hmiSpindleAcceleration(); break;
+    #endif
     #if ENABLED(CLASSIC_JERK)
       case ID_MaxJerkValue: hmiMaxJerkXYZE(); break;
     #endif

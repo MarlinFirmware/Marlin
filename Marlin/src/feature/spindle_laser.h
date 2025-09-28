@@ -54,7 +54,7 @@ class SpindleLaser {
 public:
   static CutterMode cutter_mode;
 
-  static constexpr uint8_t pct_to_ocr(const_float_t pct) { return uint8_t(PCT_TO_PWM(pct)); }
+  static constexpr uint8_t pct_to_ocr(const float pct) { return uint8_t(PCT_TO_PWM(pct)); }
 
   // cpower = configured values (e.g., SPEED_POWER_MAX)
   // Convert configured power range to a percentage
@@ -109,11 +109,14 @@ public:
   static uint8_t power,
                  last_power_applied;      // Basic power state tracking
 
-  static cutter_frequency_t frequency;  // Set PWM frequency; range: 2K-50K
+  static cutter_frequency_t frequency;    // (Hz) Laser/Spindle PWM frequency (2000..50000)
 
-  static cutter_power_t menuPower,        // Power as set via LCD menu in PWM, Percentage or RPM
-                        unitPower;        // Power as displayed status in PWM, Percentage or RPM
+  static cutter_power_t menuPower,        // Power as set via LCD menu in PWM, Percentage, or RPM
+                        unitPower;        // Power as displayed status in PWM, Percentage, or RPM
 
+  #if HAS_SPINDLE_ACCELERATION
+    static uint32_t acceleration_spindle_deg_per_s2;  // (°/s/s) Spindle acceleration
+  #endif
   static void init();
 
   #if ENABLED(HAL_CAN_SET_PWM_FREQ) && SPINDLE_LASER_FREQUENCY

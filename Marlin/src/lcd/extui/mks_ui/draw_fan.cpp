@@ -66,13 +66,13 @@ void lv_draw_fan() {
 
   scr = lv_screen_create(FAN_UI);
   // Create an Image button
-  buttonAdd = lv_big_button_create(scr, "F:/bmp_Add.bin", fan_menu.add, INTERVAL_V, titleHeight, event_handler, ID_F_ADD);
+  buttonAdd = lv_big_button_create(scr, "F:/bmp_Add.bin", fan_menu.add, INTERVAL_W, titleHeight, event_handler, ID_F_ADD);
   lv_obj_clear_protect(buttonAdd, LV_PROTECT_FOLLOW);
-  lv_big_button_create(scr, "F:/bmp_Dec.bin", fan_menu.dec, BTN_X_PIXEL * 3 + INTERVAL_V * 4, titleHeight, event_handler, ID_F_DEC);
-  lv_big_button_create(scr, "F:/bmp_speed255.bin", fan_menu.full, INTERVAL_V, BTN_Y_PIXEL + INTERVAL_H + titleHeight, event_handler, ID_F_HIGH);
-  lv_big_button_create(scr, "F:/bmp_speed127.bin", fan_menu.half, BTN_X_PIXEL + INTERVAL_V * 2, BTN_Y_PIXEL + INTERVAL_H + titleHeight, event_handler, ID_F_MID);
-  lv_big_button_create(scr, "F:/bmp_speed0.bin", fan_menu.off, BTN_X_PIXEL * 2 + INTERVAL_V * 3, BTN_Y_PIXEL + INTERVAL_H + titleHeight, event_handler, ID_F_OFF);
-  lv_big_button_create(scr, "F:/bmp_return.bin", common_menu.text_back, BTN_X_PIXEL * 3 + INTERVAL_V * 4, BTN_Y_PIXEL + INTERVAL_H + titleHeight, event_handler, ID_F_RETURN);
+  lv_big_button_create(scr, "F:/bmp_Dec.bin", fan_menu.dec, BTN_SIZE_X * 3 + INTERVAL_W * 4, titleHeight, event_handler, ID_F_DEC);
+  lv_big_button_create(scr, "F:/bmp_speed255.bin", fan_menu.full, INTERVAL_W, BTN_SIZE_Y + INTERVAL_H + titleHeight, event_handler, ID_F_HIGH);
+  lv_big_button_create(scr, "F:/bmp_speed127.bin", fan_menu.half, BTN_SIZE_X + INTERVAL_W * 2, BTN_SIZE_Y + INTERVAL_H + titleHeight, event_handler, ID_F_MID);
+  lv_big_button_create(scr, "F:/bmp_speed0.bin", fan_menu.off, BTN_SIZE_X * 2 + INTERVAL_W * 3, BTN_SIZE_Y + INTERVAL_H + titleHeight, event_handler, ID_F_OFF);
+  lv_big_button_create(scr, "F:/bmp_return.bin", common_menu.text_back, BTN_SIZE_X * 3 + INTERVAL_W * 4, BTN_SIZE_Y + INTERVAL_H + titleHeight, event_handler, ID_F_RETURN);
 
   fanText = lv_label_create_empty(scr);
   lv_obj_set_style(fanText, &tft_style_label_rel);

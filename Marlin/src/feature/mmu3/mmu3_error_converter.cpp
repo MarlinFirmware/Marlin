@@ -60,7 +60,7 @@ namespace MMU3 {
     return (i != errorCodesEnd) ? (i - errorCodes) : (errorCodesSize - 1);
   }
 
-  // check that the searching algoritm works
+  // check that the searching algorithm works
   // static_assert( FindErrorIndex(ERR_MECHANICAL_FINDA_DIDNT_TRIGGER) == 0);
   // static_assert( FindErrorIndex(ERR_MECHANICAL_FINDA_FILAMENT_STUCK) == 1);
   // static_assert( FindErrorIndex(ERR_MECHANICAL_FSENSOR_DIDNT_TRIGGER) == 2);
@@ -196,16 +196,16 @@ namespace MMU3 {
     return FindErrorIndex(ERR_OTHER_UNKNOWN_ERROR);
   }
 
-  uint16_t PrusaErrorCode(const uint8_t i) { return (uint16_t)pgm_read_word(&errorCodes[i]); }
+  uint16_t PrusaErrorCode(const uint8_t i) { return pgm_read_word(errorCodes + i); }
 
-  FSTR_P const PrusaErrorTitle(const uint8_t i) { return (FSTR_P const)pgm_read_ptr(&errorTitles[i]); }
-  FSTR_P const PrusaErrorDesc(const uint8_t i) { return (FSTR_P const)pgm_read_ptr(&errorDescs[i]); }
+  FSTR_P const PrusaErrorTitle(const uint8_t i) { return (FSTR_P const)pgm_read_ptr(errorTitles + i); }
+  FSTR_P const PrusaErrorDesc(const uint8_t i) { return (FSTR_P const)pgm_read_ptr(errorDescs + i); }
 
   uint8_t PrusaErrorButtons(const uint8_t i) { return pgm_read_byte(errorButtons + i); }
 
   FSTR_P const PrusaErrorButtonTitle(const uint8_t bi) {
     // -1 represents the hidden NoOperation button which is not drawn in any way
-    return (FSTR_P const)pgm_read_ptr(&btnOperation[bi - 1]);
+    return (FSTR_P const)pgm_read_ptr(btnOperation + bi - 1);
   }
 
   Buttons ButtonPressed(const ErrorCode ec) {

@@ -220,7 +220,7 @@ struct SerialBase {
               // On non 2-complement CPU, there would be no possible representation for 2147483648.
       write('-');
     }
-    printNumber_unsigned((uint_fixed_print_t)n , base);
+    printNumber_unsigned((uint_fixed_print_t)n, base);
   }
 
   // Print a decimal number

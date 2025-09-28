@@ -82,19 +82,17 @@ void GcodeSuite::M210_report(const bool forReplay/*=true*/) {
   report_heading_etc(forReplay, F(STR_HOMING_FEEDRATE));
 
   SERIAL_ECHOPGM("  M210");
-  SERIAL_ECHOLNPGM_P(
-    LIST_N(DOUBLE(NUM_AXES)
-      , SP_X_STR, X_AXIS_UNIT(homing_feedrate_mm_m.x)
-      , SP_Y_STR, Y_AXIS_UNIT(homing_feedrate_mm_m.y)
-      , SP_Z_STR, Z_AXIS_UNIT(homing_feedrate_mm_m.z)
-      , SP_I_STR, I_AXIS_UNIT(homing_feedrate_mm_m.i)
-      , SP_J_STR, J_AXIS_UNIT(homing_feedrate_mm_m.j)
-      , SP_K_STR, K_AXIS_UNIT(homing_feedrate_mm_m.k)
-      , SP_U_STR, U_AXIS_UNIT(homing_feedrate_mm_m.u)
-      , SP_V_STR, V_AXIS_UNIT(homing_feedrate_mm_m.v)
-      , SP_W_STR, W_AXIS_UNIT(homing_feedrate_mm_m.w)
-    )
-  );
+  SERIAL_ECHOLNPGM_P(NUM_AXIS_PAIRED_LIST(
+    SP_X_STR, X_AXIS_UNIT(homing_feedrate_mm_m.x),
+    SP_Y_STR, Y_AXIS_UNIT(homing_feedrate_mm_m.y),
+    SP_Z_STR, Z_AXIS_UNIT(homing_feedrate_mm_m.z),
+    SP_I_STR, I_AXIS_UNIT(homing_feedrate_mm_m.i),
+    SP_J_STR, J_AXIS_UNIT(homing_feedrate_mm_m.j),
+    SP_K_STR, K_AXIS_UNIT(homing_feedrate_mm_m.k),
+    SP_U_STR, U_AXIS_UNIT(homing_feedrate_mm_m.u),
+    SP_V_STR, V_AXIS_UNIT(homing_feedrate_mm_m.v),
+    SP_W_STR, W_AXIS_UNIT(homing_feedrate_mm_m.w)
+  ));
 }
 
 #endif // EDITABLE_HOMING_FEEDRATE

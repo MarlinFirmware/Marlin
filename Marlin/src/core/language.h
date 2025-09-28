@@ -88,6 +88,7 @@
   #undef  MACHINE_NAME
   #define MACHINE_NAME DEFAULT_MACHINE_NAME
 #endif
+#define MACHINE_NAME_SUBST TERN(CONFIGURABLE_MACHINE_NAME, "$", MACHINE_NAME)
 
 #define MARLIN_WEBSITE_URL "marlinfw.org"
 
@@ -311,8 +312,9 @@
 #define STR_FILAMENT_RUNOUT_SENSOR          "Filament runout sensor"
 #define STR_DRIVER_STEPPING_MODE            "Driver stepping mode"
 #define STR_STEPPER_DRIVER_CURRENT          "Stepper driver current"
+#define STR_HOMING_CURRENT                  "Homing Current (mA)"
 #define STR_HYBRID_THRESHOLD                "Hybrid Threshold"
-#define STR_STALLGUARD_THRESHOLD            "StallGuard threshold"
+#define STR_STALLGUARD_THRESHOLD            "StallGuard Threshold"
 #define STR_HOME_OFFSET                     "Home offset"
 #define STR_SOFT_ENDSTOPS                   "Soft endstops"
 #define STR_MATERIAL_HEATUP                 "Material heatup parameters"
@@ -356,6 +358,21 @@
 #define STR_Z2 STR_C "2"
 #define STR_Z3 STR_C "3"
 #define STR_Z4 STR_C "4"
+#if CORE_IS_XY || CORE_IS_XZ
+  #define STEPPER_A_NAME 'A'
+#else
+  #define STEPPER_A_NAME 'X'
+#endif
+#if CORE_IS_XY || CORE_IS_YZ
+  #define STEPPER_B_NAME 'B'
+#else
+  #define STEPPER_B_NAME 'Y'
+#endif
+#if CORE_IS_XZ || CORE_IS_YZ
+  #define STEPPER_C_NAME 'C'
+#else
+  #define STEPPER_C_NAME 'Z'
+#endif
 
 //
 // Endstop Names used by Endstops::report_states

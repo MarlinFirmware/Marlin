@@ -61,7 +61,8 @@
 #define GET_COOLER_ADC()            TERN(HAS_TEMP_ADC_COOLER,   PIN_TO_ADC(TEMP_COOLER_PIN),            -1)
 #define GET_BOARD_ADC()             TERN(HAS_TEMP_ADC_BOARD,    PIN_TO_ADC(TEMP_BOARD_PIN),             -1)
 #define GET_SOC_ADC()               TERN(HAS_TEMP_ADC_BOARD,    PIN_TO_ADC(TEMP_BOARD_PIN),             -1)
-#define GET_FILAMENT_WIDTH_ADC()    TERN(FILAMENT_WIDTH_SENSOR, PIN_TO_ADC(FILWIDTH_PIN),               -1)
+#define GET_FILAMENT_WIDTH_ADC()    TERN(HAS_FILWIDTH_ADC,      PIN_TO_ADC(FILWIDTH_PIN),               -1)
+#define GET_FILAMENT2_WIDTH_ADC()   TERN(HAS_FILWIDTH2_ADC,     PIN_TO_ADC(FILWIDTH2_PIN),              -1)
 #define GET_BUTTONS_ADC()           TERN(HAS_ADC_BUTTONS,       PIN_TO_ADC(ADC_KEYPAD_PIN),             -1)
 #define GET_JOY_ADC_X()             TERN(HAS_JOY_ADC_X,         PIN_TO_ADC(JOY_X_PIN),                  -1)
 #define GET_JOY_ADC_Y()             TERN(HAS_JOY_ADC_Y,         PIN_TO_ADC(JOY_Y_PIN),                  -1)
@@ -77,7 +78,7 @@
   || GET_PROBE_ADC() == n \
   || GET_COOLER_ADC() == n \
   || GET_BOARD_ADC() == n || GET_SOC_ADC() == n \
-  || GET_FILAMENT_WIDTH_ADC() == n \
+  || GET_FILAMENT_WIDTH_ADC() == n || GET_FILAMENT2_WIDTH_ADC() == n \
   || GET_BUTTONS_ADC() == n \
   || GET_JOY_ADC_X() == n || GET_JOY_ADC_Y() == n || GET_JOY_ADC_Z() == n \
   || GET_POWERMON_ADC_CURRENT() == n || GET_POWERMON_ADC_VOLTS() == n \
@@ -146,6 +147,9 @@ enum ADCIndex {
   #if GET_FILAMENT_WIDTH_ADC() == 0
     FILWIDTH,
   #endif
+  #if GET_FILAMENT2_WIDTH_ADC() == 0
+    FILWIDTH2,
+  #endif
   #if GET_BUTTONS_ADC() == 0
     ADC_KEY,
   #endif
@@ -211,6 +215,9 @@ enum ADCIndex {
   #endif
   #if GET_FILAMENT_WIDTH_ADC() == 1
     FILWIDTH,
+  #endif
+  #if GET_FILAMENT2_WIDTH_ADC() == 1
+    FILWIDTH2,
   #endif
   #if GET_BUTTONS_ADC() == 1
     ADC_KEY,
@@ -334,6 +341,9 @@ enum ADCIndex {
     #if GET_FILAMENT_WIDTH_ADC() == 0
       FILWIDTH_PIN,
     #endif
+    #if GET_FILAMENT2_WIDTH_ADC() == 0
+      FILWIDTH2_PIN,
+    #endif
     #if GET_BUTTONS_ADC() == 0
       ADC_KEYPAD_PIN,
     #endif
@@ -399,6 +409,9 @@ enum ADCIndex {
     #endif
     #if GET_FILAMENT_WIDTH_ADC() == 1
       FILWIDTH_PIN,
+    #endif
+    #if GET_FILAMENT2_WIDTH_ADC() == 1
+      FILWIDTH2_PIN,
     #endif
     #if GET_BUTTONS_ADC() == 1
       ADC_KEYPAD_PIN,
@@ -471,6 +484,9 @@ enum ADCIndex {
       #if GET_FILAMENT_WIDTH_ADC() == 0
         { PIN_TO_INPUTCTRL(FILWIDTH_PIN) },
       #endif
+      #if GET_FILAMENT2_WIDTH_ADC() == 0
+        { PIN_TO_INPUTCTRL(FILWIDTH2_PIN) },
+      #endif
       #if GET_BUTTONS_ADC() == 0
         { PIN_TO_INPUTCTRL(ADC_KEYPAD_PIN) },
       #endif
@@ -542,6 +558,9 @@ enum ADCIndex {
       #endif
       #if GET_FILAMENT_WIDTH_ADC() == 1
         { PIN_TO_INPUTCTRL(FILWIDTH_PIN) },
+      #endif
+      #if GET_FILAMENT2_WIDTH_ADC() == 1
+        { PIN_TO_INPUTCTRL(FILWIDTH2_PIN) },
       #endif
       #if GET_BUTTONS_ADC() == 1
         { PIN_TO_INPUTCTRL(ADC_KEYPAD_PIN) },

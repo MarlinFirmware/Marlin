@@ -49,13 +49,13 @@ namespace MMU3 {
     planner_synchronize();
   }
 
-  void extruder_move(const_float_t delta, const_float_t feedRate_mm_s, const bool sync/*=true*/) {
+  void extruder_move(const float delta, const float feedRate_mm_s, const bool sync/*=true*/) {
     current_position.e += delta / planner.e_factor[active_extruder];
     planner_line_to_current_position(feedRate_mm_s);
     if (sync) planner.synchronize();
   }
 
-  float move_raise_z(const_float_t delta) {
+  float move_raise_z(const float delta) {
     //return raise_z(delta);
     xyze_pos_t current_position_before = current_position;
     do_z_clearance_by(delta);
