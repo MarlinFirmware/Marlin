@@ -475,7 +475,9 @@ void GcodeSuite::G28() {
               stepper.set_separate_multi_axis(false);
             #endif
 
-            #if ENABLED(Z_SAFE_HOMING)
+            // Use Safe Homing for Z unless re-homing with probe.
+            // Assume that it only applies to the probe-homing step.
+            #if ENABLED(Z_SAFE_HOMING) && DISABLED(REHOME_Z_WITH_PROBE)
               // H means hold the current X/Y position when probing.
               // Otherwise move to the define safe X/Y position before homing Z.
               if (!parser.seen_test('H'))

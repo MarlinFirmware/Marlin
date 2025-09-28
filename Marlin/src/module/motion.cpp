@@ -2790,27 +2790,12 @@ void prepare_line_to_destination() {
         current_position.z = 0;
         sync_plan_position();
         destination.z = current_position.z;
-        // Using probe for homing with Z_SAFE_HOMING disabled is possible for
-        // REHOME_Z_WITH_PROBE because we may want to home at endstops first.
-        #if DISABLED(Z_SAFE_HOMING)
-          // Move to safe Z position for probe
-          do_homing_move(axis, Z_CLEARANCE_DEPLOY_PROBE, z_probe_fast_mm_s, false);
-          // Reset Z position after moving to Z clearance position
-          current_position.z = Z_CLEARANCE_DEPLOY_PROBE;
-          sync_plan_position();
-          // Ensure XY is homed
-          if (!(axis_is_trusted(X_AXIS) && axis_is_trusted(Y_AXIS))) {
-            if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Probe homing failed because XY isn't homed");
-            return;
-          }
-          // Move to safe XY position to deploy probe, mostly the same as home_z_safely
-          destination = current_position;
-          destination.set(X_CENTER - probe.offset_xy.x, Y_CENTER - probe.offset_xy.y);
-          do_blocking_move_to_xy(destination);
+        z_homing_use_probe = true; // Home again, but use the probe
+        #if ENABLED(Z_SAFE_HOMING)
+          home_z_safely();
+        #else
+          homeaxis(Z_AXIS);
         #endif
-
-        z_homing_use_probe = true; // Redo Z probe homing now
-        homeaxis(Z_AXIS);
       }
       z_homing_use_probe = false;
     #endif // REHOME_Z_WITH_PROBE
