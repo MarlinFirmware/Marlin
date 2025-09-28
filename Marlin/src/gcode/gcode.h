@@ -1050,6 +1050,7 @@ private:
 
   #if HAS_BED_PROBE
     static void M401();
+    static void M401_report(const bool forReplay=true);
     static void M402();
   #endif
 

@@ -246,7 +246,7 @@ void FTMotion::loop() {
 #if HAS_FTM_SHAPING
 
   // Refresh the gains used by shaping functions.
-  void FTMotion::AxisShaping::set_axis_shaping_A(const ftMotionShaper_t shaper, const_float_t zeta, const_float_t vtol) {
+  void FTMotion::AxisShaping::set_axis_shaping_A(const ftMotionShaper_t shaper, const float zeta, const float vtol) {
 
     const float K = exp(-zeta * M_PI / sqrt(1.f - sq(zeta))),
                 K2 = sq(K),
@@ -339,7 +339,7 @@ void FTMotion::loop() {
 
   // Refresh the indices used by shaping functions.
   // Ai[] must be precomputed (if zeta or vtol change, call set_axis_shaping_A first)
-  void FTMotion::AxisShaping::set_axis_shaping_N(const ftMotionShaper_t shaper, const_float_t f, const_float_t zeta) {
+  void FTMotion::AxisShaping::set_axis_shaping_N(const ftMotionShaper_t shaper, const float f, const float zeta) {
     // Note that protections are omitted for DBZ and for index exceeding array length.
     const float df = sqrt ( 1.f - sq(zeta) );
     switch (shaper) {
@@ -388,7 +388,7 @@ void FTMotion::loop() {
 
   #if ENABLED(FTM_SMOOTHING)
     // Set smoothing time and recalculate alpha and delay.
-    void FTMotion::AxisSmoothing::set_smoothing_time(const_float_t s_time) {
+    void FTMotion::AxisSmoothing::set_smoothing_time(const float s_time) {
       if (s_time > 0.001f) {
         alpha = 1.0f - expf(-(FTM_TS) * (FTM_SMOOTHING_ORDER) / s_time );
         delay_samples = s_time * FTM_FS;
@@ -423,7 +423,7 @@ void FTMotion::loop() {
     TERN_(HAS_EXTRUDERS, smoothing.e.set_smoothing_time(cfg.smoothingTime.e));
   }
 
-  void FTMotion::set_smoothing_time(uint8_t axis, const_float_t s_time) {
+  void FTMotion::set_smoothing_time(uint8_t axis, const float s_time) {
     switch (axis) {
       TERN_(HAS_X_AXIS, case X_AXIS: cfg.smoothingTime.x = s_time; break;)
       TERN_(HAS_Y_AXIS, case Y_AXIS: cfg.smoothingTime.y = s_time; break;)

@@ -3961,6 +3961,11 @@ void MarlinSettings::reset() {
     TERN_(EDITABLE_SERVO_ANGLES, gcode.M281_report(forReplay));
 
     //
+    // BLTouch High Speed Mode
+    //
+    TERN_(BLTOUCH_HS_MODE, gcode.M401_report(forReplay));
+
+    //
     // Kinematic Settings
     //
     TERN_(IS_KINEMATIC, gcode.M665_report(forReplay));

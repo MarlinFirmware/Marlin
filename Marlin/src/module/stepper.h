@@ -383,7 +383,7 @@ class Stepper {
 
     #if ENABLED(SMOOTH_LIN_ADVANCE)
       static float extruder_advance_tau[DISTINCT_E]; // Smoothing time; also the lookahead time of the smoother
-      static void set_advance_tau(const_float_t tau, const uint8_t e=active_extruder) {
+      static void set_advance_tau(const float tau, const uint8_t e=active_extruder) {
         const uint8_t i = E_INDEX_N(e);
         extruder_advance_tau[i] = tau;
         extruder_advance_tau_ticks[i] = tau * STEPPER_TIMER_RATE;
@@ -749,9 +749,9 @@ class Stepper {
     #endif
 
     #if HAS_ZV_SHAPING
-      static void set_shaping_damping_ratio(const AxisEnum axis, const_float_t zeta);
+      static void set_shaping_damping_ratio(const AxisEnum axis, const float zeta);
       static float get_shaping_damping_ratio(const AxisEnum axis);
-      static void set_shaping_frequency(const AxisEnum axis, const_float_t freq);
+      static void set_shaping_frequency(const AxisEnum axis, const float freq);
       static float get_shaping_frequency(const AxisEnum axis);
     #endif
 

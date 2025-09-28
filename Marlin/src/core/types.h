@@ -363,17 +363,6 @@ typedef uint16_t raw_adc_t;
 typedef int16_t celsius_t;
 typedef float celsius_float_t;
 
-//
-// On AVR pointers are only 2 bytes so use 'const float &' for 'const float'
-//
-#ifdef __AVR__
-  typedef const float & const_float_t;
-#else
-  typedef const float const_float_t;
-#endif
-typedef const_float_t const_feedRate_t;
-typedef const_float_t const_celsius_float_t;
-
 // Type large enough to count leveling grid points
 typedef IF<TERN0(ABL_USES_GRID, (GRID_MAX_POINTS > 255)), uint16_t, uint8_t>::type grid_count_t;
 
