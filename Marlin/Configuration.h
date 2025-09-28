@@ -1416,13 +1416,11 @@
 //#define USE_PROBE_FOR_Z_HOMING
 
 /**
- * For machines with Z endstops and Z probes working together.
- * Enable this option to home with Z probe after Z endstop homing.
- * This allows "Z Probe Offset" changes to take effect immediately without
- * having to rebuild bed leveling mesh. Usefull for Z_MULTI_ENDSTOPS
- * machines where enstops are needed to sync the Z motors.
- * Requires a physical Probe (using nozzle as probe not supported)
- * Requires Z_CLEARANCE_DEPLOY_PROBE value if Z_SAFE_HOMING is not enabled.
+ * For machines with Z endstop(s) and a reliable Z probe this option will
+ * cause Z to home first using Z endstop and then re-home with the probe
+ * to establish a more ideal Z0 position for probing the bed. This can be
+ * useful when Z must home to MAX but you want to establish a better Z0
+ * based on bed height. Requires a  probe and calibrated probe Z offset.
  */
 //#define REHOME_Z_WITH_PROBE
 
