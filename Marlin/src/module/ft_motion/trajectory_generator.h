@@ -20,8 +20,8 @@
  *
  */
 #pragma once
+
 #include "../../inc/MarlinConfig.h"
-#if ENABLED(FT_MOTION)
 
 #include <stdint.h>
 
@@ -79,5 +79,3 @@ enum class TrajectoryType : uint8_t {
   POLY5 = 1,
   POLY6 = 2
 };
-
-#endif

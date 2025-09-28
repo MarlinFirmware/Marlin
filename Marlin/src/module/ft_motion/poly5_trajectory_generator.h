@@ -21,9 +21,6 @@
  */
 #pragma once
 
-#include "../../inc/MarlinConfig.h"
-#if ENABLED(FT_MOTION)
-
 #include "trajectory_generator.h"
 #include <math.h>
 
@@ -123,5 +120,3 @@ private:
   float initial_speed = 0.0f, nominal_speed = 0.0f;
   float pos_before_coast = 0.0f, pos_after_coast = 0.0f;
 };
-
-#endif
