@@ -145,7 +145,7 @@ class FTMotion {
       // Refresh alpha and delay samples used by smoothing functions.
       static void update_smoothing_params();
       // Setters for smoothingTime that update alpha and delay
-      static void set_smoothing_time(uint8_t axis, const_float_t s_time);
+      static void set_smoothing_time(uint8_t axis, const float s_time);
     #endif
 
     static void reset();                                  // Reset all states of the fixed time conversion to defaults.
@@ -230,7 +230,7 @@ class FTMotion {
         float smoothing_pass[FTM_SMOOTHING_ORDER] = { 0.0f }; // Last value of each of the exponential smoothing passes
         float alpha = 0.0f;               // Pre-calculated alpha for smoothing.
         uint32_t delay_samples = 0;       // Pre-calculated delay in samples for smoothing.
-        void set_smoothing_time(const_float_t s_time); // Set smoothing time, recalculate alpha and delay.
+        void set_smoothing_time(const float s_time); // Set smoothing time, recalculate alpha and delay.
       } axis_smoothing_t;
 
       // Smoothing data for XYZE axes
