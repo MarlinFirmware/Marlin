@@ -57,7 +57,7 @@
  *   di -> (2 a d - s1^2 + s2^2)/(4 a)
  *
  * We note, as an optimization, that if we have already calculated an
- * acceleration distance d1 from s1 to m and a deceration distance d2
+ * acceleration distance d1 from s1 to m and a deceleration distance d2
  * from m to s2 then
  *
  *   d1 -> (m^2 - s1^2) / (2 a)

@@ -60,19 +60,30 @@ enum {
 
 typedef bits_t(FT_BIT_COUNT) ft_command_t;
 
+// Emitters for code that only cares about shaped XYZE
 #if HAS_FTM_SHAPING
-  #define NUM_AXES_SHAPED COUNT_ENABLED(HAS_X_AXIS, HAS_Y_AXIS, FTM_SHAPER_Z, FTM_SHAPER_E)
-  #define SHAPED_ELEM(A,B,C,D) A OPTARG(HAS_Y_AXIS, B) OPTARG(FTM_SHAPER_Z, C) OPTARG(FTM_SHAPER_E, D)
+  #define NUM_AXES_SHAPED         COUNT_ENABLED(HAS_X_AXIS, HAS_Y_AXIS, FTM_SHAPER_Z, FTM_SHAPER_E)
+  #define SHAPED_AXIS_NAMES       XY_LIST(X, Y) OPTARG(FTM_SHAPER_Z, Z) OPTARG(FTM_SHAPER_E, E)
+  #define SHAPED_GANG(A,B,C,D)    XY_GANG(A, B) TERN_(FTM_SHAPER_Z, C) TERN_(FTM_SHAPER_E, D)
+  #define SHAPED_LIST(A,B,C,D)    XY_LIST(A, B) OPTARG(FTM_SHAPER_Z, C) OPTARG(FTM_SHAPER_E, D)
+  #define SHAPED_ARRAY(A,B,C,D) { SHAPED_LIST(A, B, C, D) }
+  #define SHAPED_CODE(A,B,C,D)    XY_CODE(A, B) OPTCODE(FTM_SHAPER_Z, C) OPTCODE(FTM_SHAPER_E, D)
+  #define SHAPED_MAP(F)           MAP(F, SHAPED_AXIS_NAMES)
 #else
   #define NUM_AXES_SHAPED 0
-  #define SHAPED_ELEM(A,B,C,D)
+  #define SHAPED_AXIS_NAMES
+  #define SHAPED_GANG(...)
+  #define SHAPED_LIST(...)
+  #define SHAPED_ARRAY(...) {}
+  #define SHAPED_CODE(...)
+  #define SHAPED_MAP(...)
 #endif
 
 template<typename T>
 struct FTShapedAxes {
   union {
-    struct { T SHAPED_ELEM(X, Y, Z, E); };
-    struct { T SHAPED_ELEM(x, y, z, e); };
+    struct { T SHAPED_AXIS_NAMES; };
+    struct { T SHAPED_LIST(x, y, z, e); };
     T val[NUM_AXES_SHAPED];
   };
   T& operator[](const int axis) {
@@ -80,24 +91,11 @@ struct FTShapedAxes {
   }
 
 private:
-  static constexpr int axis_to_index(int axis) {
-    int idx = 0;
-    #if HAS_X_AXIS
-      if (axis == X_AXIS) return idx;
-      idx++;
-    #endif
-    #if HAS_Y_AXIS
-      if (axis == Y_AXIS) return idx;
-      idx++;
-    #endif
-    #if ENABLED(FTM_SHAPER_Z)
-      if (axis == Z_AXIS) return idx;
-      idx++;
-    #endif
-    #if ENABLED(FTM_SHAPER_E)
-      if (axis == E_AXIS) return idx;
-      idx++;
-    #endif
+  static constexpr int axis_to_index(const int axis) {
+    int idx = -1;
+    #define _ATOI(A) idx++; if (axis == _AXIS(A)) return idx;
+    SHAPED_MAP(_ATOI);
+    #undef _ATOI
     return -1; // Invalid axis
   }
 };
@@ -108,17 +106,6 @@ typedef FTShapedAxes<dynFreqMode_t>    ft_shaped_dfm_t;
 
 #if ENABLED(FTM_SMOOTHING)
   typedef struct FTSmoothedAxes {
-    #if HAS_X_AXIS
-      float x;
-    #endif
-    #if HAS_Y_AXIS
-      float y;
-    #endif
-    #if HAS_Z_AXIS
-      float z;
-    #endif
-    #if HAS_EXTRUDERS
-      float e;
-    #endif
+    float CARTES_AXIS_NAMES;
   } ft_smoothed_float_t;
 #endif

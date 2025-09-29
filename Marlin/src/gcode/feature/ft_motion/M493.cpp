@@ -53,19 +53,10 @@ void say_shaping() {
   const bool is_shaping = AXIS_IS_SHAPING(X) || AXIS_IS_SHAPING(Y) || AXIS_IS_SHAPING(Z) || AXIS_IS_SHAPING(E);
   bool sep = false;
   if (is_shaping) {
+    #define STEPPER_E_NAME 'E'
+    #define _SAY_SHAPER(A) if (AXIS_IS_SHAPING(A)) say_shaper_type(_AXIS(A), sep, STEPPER_##A##_NAME);
     SERIAL_ECHOPGM(" (");
-    #if HAS_X_AXIS
-      if (AXIS_IS_SHAPING(X)) say_shaper_type(X_AXIS, sep, STEPPER_A_NAME);
-    #endif
-    #if HAS_Y_AXIS
-      if (AXIS_IS_SHAPING(Y)) say_shaper_type(Y_AXIS, sep, STEPPER_B_NAME);
-    #endif
-    #if ENABLED(FTM_SHAPER_Z)
-      if (AXIS_IS_SHAPING(Z)) say_shaper_type(Z_AXIS, sep, STEPPER_C_NAME);
-    #endif
-    #if ENABLED(FTM_SHAPER_E)
-      if (AXIS_IS_SHAPING(E)) say_shaper_type(E_AXIS, sep, 'E');
-    #endif
+    SHAPED_CODE(_SAY_SHAPER(A), _SAY_SHAPER(B), _SAY_SHAPER(C), _SAY_SHAPER(E));
     SERIAL_CHAR(')');
   }
   SERIAL_EOL();
@@ -244,7 +235,7 @@ void GcodeSuite::M493() {
     }
   }
 
-  #if ANY(HAS_X_AXIS, HAS_Y_AXIS, FTM_SHAPER_Z, FTM_SHAPER_E)
+  #if NUM_AXES_SHAPED > 0
 
     auto set_shaper = [&](const AxisEnum axis, const char c) {
       const ftMotionShaper_t newsh = (ftMotionShaper_t)parser.value_byte();
@@ -268,20 +259,10 @@ void GcodeSuite::M493() {
       return false;
     };
 
-    #if HAS_X_AXIS
-      if (parser.seenval('X') && set_shaper(X_AXIS, 'X')) return;  // Parse 'X' mode parameter
-    #endif
-    #if HAS_Y_AXIS
-      if (parser.seenval('Y') && set_shaper(Y_AXIS, 'Y')) return;  // Parse 'Y' mode parameter
-    #endif
-    #if ENABLED(FTM_SHAPER_Z)
-      if (parser.seenval('Z') && set_shaper(Z_AXIS, 'Z')) return;  // Parse 'Z' mode parameter
-    #endif
-    #if ENABLED(FTM_SHAPER_E)
-      if (parser.seenval('E') && set_shaper(E_AXIS, 'E')) return;  // Parse 'E' mode parameter
-    #endif
+    #define _SET_SHAPER(A) if (parser.seenval(CHARIFY(A)) && set_shaper(_AXIS(A), CHARIFY(A))) return;
+    SHAPED_MAP(_SET_SHAPER);
 
-  #endif // HAS_X_AXIS || HAS_Y_AXIS || FTM_SHAPER_Z || FTM_SHAPER_E
+  #endif // NUM_AXES_SHAPED > 0
 
   #if HAS_EXTRUDERS
 

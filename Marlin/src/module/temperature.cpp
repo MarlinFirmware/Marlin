@@ -200,7 +200,6 @@
 #endif
 
 #if ENABLED(MPCTEMP)
-  #include <math.h>
   #include "probe.h"
 #endif
 

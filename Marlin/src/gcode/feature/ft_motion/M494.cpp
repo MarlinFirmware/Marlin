@@ -29,16 +29,16 @@
 
 void say_smoothing() {
   #if HAS_X_AXIS
-    SERIAL_ECHOLN(F("  "), C('X'), F(" smoothing time: "), p_float_t(ftMotion.cfg.smoothingTime.x, 3), C('s'));
+    SERIAL_ECHOLN(F("  "), C('X'), F(" smoothing time: "), p_float_t(ftMotion.cfg.smoothingTime.X, 3), C('s'));
   #endif
   #if HAS_Y_AXIS
-    SERIAL_ECHOLN(F("  "), C('Y'), F(" smoothing time: "), p_float_t(ftMotion.cfg.smoothingTime.y, 3), C('s'));
+    SERIAL_ECHOLN(F("  "), C('Y'), F(" smoothing time: "), p_float_t(ftMotion.cfg.smoothingTime.Y, 3), C('s'));
   #endif
   #if HAS_Z_AXIS
-    SERIAL_ECHOLN(F("  "), C('Z'), F(" smoothing time: "), p_float_t(ftMotion.cfg.smoothingTime.z, 3), C('s'));
+    SERIAL_ECHOLN(F("  "), C('Z'), F(" smoothing time: "), p_float_t(ftMotion.cfg.smoothingTime.Z, 3), C('s'));
   #endif
   #if HAS_EXTRUDERS
-    SERIAL_ECHOLN(F("  "), C('E'), F(" smoothing time: "), p_float_t(ftMotion.cfg.smoothingTime.e, 3), C('s'));
+    SERIAL_ECHOLN(F("  "), C('E'), F(" smoothing time: "), p_float_t(ftMotion.cfg.smoothingTime.E, 3), C('s'));
   #endif
 }
 
@@ -48,18 +48,10 @@ void GcodeSuite::M494_report(const bool forReplay/*=true*/) {
   report_heading_etc(forReplay, F("FTM Smoothing"));
   const ft_config_t &c = ftMotion.cfg;
   SERIAL_ECHOLN(F("  M494")
-    #if HAS_X_AXIS
-      , F(" X"), c.smoothingTime.x
-    #endif
-    #if HAS_Y_AXIS
-      , F(" Y"), c.smoothingTime.y
-    #endif
-    #if HAS_Z_AXIS
-      , F(" Z"), c.smoothingTime.z
-    #endif
-    #if HAS_EXTRUDERS
-      , F(" E"), c.smoothingTime.e
-    #endif
+    CARTES_COMMA CARTES_PAIRED_LIST(
+      F(" X"), c.smoothingTime.X, F(" Y"), c.smoothingTime.Y,
+      F(" Z"), c.smoothingTime.Z, F(" E"), c.smoothingTime.E
+    )
   );
 }
 
