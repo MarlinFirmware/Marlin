@@ -74,8 +74,4 @@ protected:
 /**
  * Trajectory generator types for runtime selection
  */
-enum class TrajectoryType : uint8_t {
-  TRAPEZOIDAL = 0,
-  POLY5 = 1,
-  POLY6 = 2
-};
+enum class TrajectoryType : uint8_t { TRAPEZOIDAL, POLY5, POLY6 };
