@@ -102,6 +102,35 @@
   #define AXIS9_NAME 'W'
 #endif
 
+// G-code parameters where XYZ are invariant but IJKUVW can be renamed
+#ifndef AXIS1_PARAM
+  #define AXIS1_PARAM 'X'
+#endif
+#ifndef AXIS2_PARAM
+  #define AXIS2_PARAM 'Y'
+#endif
+#ifndef AXIS3_PARAM
+  #define AXIS3_PARAM 'Z'
+#endif
+#ifndef AXIS4_PARAM
+  #define AXIS4_PARAM AXIS4_NAME
+#endif
+#ifndef AXIS5_PARAM
+  #define AXIS5_PARAM AXIS5_NAME
+#endif
+#ifndef AXIS6_PARAM
+  #define AXIS6_PARAM AXIS6_NAME
+#endif
+#ifndef AXIS7_PARAM
+  #define AXIS7_PARAM AXIS7_NAME
+#endif
+#ifndef AXIS8_PARAM
+  #define AXIS8_PARAM AXIS8_NAME
+#endif
+#ifndef AXIS9_PARAM
+  #define AXIS9_PARAM AXIS9_NAME
+#endif
+
 #if HAS_X_AXIS
   #define X_MAX_LENGTH (X_MAX_POS - (X_MIN_POS))
 #endif

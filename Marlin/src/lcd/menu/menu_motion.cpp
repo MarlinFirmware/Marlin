@@ -370,10 +370,7 @@ void menu_move() {
       END_MENU(); \
     }
 
-  MENU_FTM_SHAPER(X);
-  MENU_FTM_SHAPER(Y);
-  TERN_(FTM_SHAPER_Z, MENU_FTM_SHAPER(Z));
-  TERN_(FTM_SHAPER_E, MENU_FTM_SHAPER(E));
+  SHAPED_MAP(MENU_FTM_SHAPER);
 
   void menu_ftm_trajectory_generator() {
     const TrajectoryType current_type = ftMotion.getTrajectoryType();
@@ -481,26 +478,13 @@ void menu_move() {
       if (ftMotion.getTrajectoryType() == TrajectoryType::POLY6) {
         EDIT_ITEM(float42_52, MSG_FTM_POLY6_OVERSHOOT, &c.poly6_acceleration_overshoot, 1.25f, 1.875f);
       }
-      TERN_(HAS_X_AXIS,   SHAPER_MENU_ITEM(X));
-      TERN_(HAS_Y_AXIS,   SHAPER_MENU_ITEM(Y));
-      TERN_(FTM_SHAPER_Z, SHAPER_MENU_ITEM(Z));
-      TERN_(FTM_SHAPER_E, SHAPER_MENU_ITEM(E));
+      SHAPED_MAP(SHAPER_MENU_ITEM);
 
       #if HAS_DYNAMIC_FREQ
         SUBMENU_S(_dmode(), MSG_FTM_DYN_MODE, menu_ftm_dyn_mode);
         if (c.dynFreqMode != dynFreqMode_DISABLED) {
-          #if HAS_X_AXIS
-            EDIT_ITEM_FAST_N(float42_52, X_AXIS, MSG_FTM_DFREQ_K_N, &c.dynFreqK.x, 0.0f, 20.0f);
-          #endif
-          #if HAS_Y_AXIS
-            EDIT_ITEM_FAST_N(float42_52, Y_AXIS, MSG_FTM_DFREQ_K_N, &c.dynFreqK.y, 0.0f, 20.0f);
-          #endif
-          #if ENABLED(FTM_SHAPER_Z)
-            EDIT_ITEM_FAST_N(float42_52, Z_AXIS, MSG_FTM_DFREQ_K_N, &c.dynFreqK.z, 0.0f, 20.0f);
-          #endif
-          #if ENABLED(FTM_SHAPER_E)
-            EDIT_ITEM_FAST_N(float42_52, E_AXIS, MSG_FTM_DFREQ_K_N, &c.dynFreqK.e, 0.0f, 20.0f);
-          #endif
+          #define _DYN_MENU_ITEM(A) EDIT_ITEM_FAST_N(float42_52, _AXIS(A), MSG_FTM_DFREQ_K_N, &c.dynFreqK.A, 0.0f, 20.0f);
+          SHAPED_MAP(_DYN_MENU_ITEM);
         }
       #endif
 
@@ -583,18 +567,8 @@ void menu_move() {
     if (ftMotion.getTrajectoryType() == TrajectoryType::POLY6) {
       EDIT_ITEM(float42_52, MSG_FTM_POLY6_OVERSHOOT, &c.poly6_acceleration_overshoot, 1.25f, 1.875f);
     }
-    #if HAS_X_AXIS
-      SUBMENU_N_S(X_AXIS, _shaper_name(X_AXIS), MSG_FTM_CMPN_MODE, menu_ftm_shaper_X);
-    #endif
-    #if HAS_Y_AXIS
-      SUBMENU_N_S(Y_AXIS, _shaper_name(Y_AXIS), MSG_FTM_CMPN_MODE, menu_ftm_shaper_Y);
-    #endif
-    #if ENABLED(FTM_SHAPER_Z)
-      SUBMENU_N_S(Z_AXIS, _shaper_name(Z_AXIS), MSG_FTM_CMPN_MODE, menu_ftm_shaper_Z);
-    #endif
-    #if ENABLED(FTM_SHAPER_E)
-      SUBMENU_N_S(E_AXIS, _shaper_name(E_AXIS), MSG_FTM_CMPN_MODE, menu_ftm_shaper_E);
-    #endif
+    #define _CMPM_MENU_ITEM(A) SUBMENU_N_S(_AXIS(A), _shaper_name(_AXIS(A)), MSG_FTM_CMPN_MODE, menu_ftm_shaper_##A);
+    SHAPED_MAP(_CMPM_MENU_ITEM);
     #if HAS_DYNAMIC_FREQ
       SUBMENU_S(_dmode(), MSG_FTM_DYN_MODE, menu_ftm_dyn_mode);
     #endif
@@ -604,22 +578,8 @@ void menu_move() {
         EDIT_ITEM(float42_52, MSG_ADVANCE_K, &c.linearAdvK, 0.0f, 10.0f);
     #endif
     #if ENABLED(FTM_SMOOTHING)
-      #if HAS_X_AXIS
-        editable.decimal = c.smoothingTime.x;
-        EDIT_ITEM_FAST_N(float43, X_AXIS, MSG_FTM_SMOOTH_TIME_N, &editable.decimal, 0.0f, FTM_MAX_SMOOTHING_TIME, []{ ftMotion.set_smoothing_time(X_AXIS, editable.decimal); });
-      #endif
-      #if HAS_Y_AXIS
-        editable.decimal = c.smoothingTime.y;
-        EDIT_ITEM_FAST_N(float43, Y_AXIS, MSG_FTM_SMOOTH_TIME_N, &editable.decimal, 0.0f, FTM_MAX_SMOOTHING_TIME, []{ ftMotion.set_smoothing_time(Y_AXIS, editable.decimal); });
-      #endif
-      #if HAS_Z_AXIS
-        editable.decimal = c.smoothingTime.z;
-        EDIT_ITEM_FAST_N(float43, Z_AXIS, MSG_FTM_SMOOTH_TIME_N, &editable.decimal, 0.0f, FTM_MAX_SMOOTHING_TIME, []{ ftMotion.set_smoothing_time(Z_AXIS, editable.decimal); });
-      #endif
-      #if HAS_EXTRUDERS
-        editable.decimal = c.smoothingTime.e;
-        EDIT_ITEM_FAST_N(float43, E_AXIS, MSG_FTM_SMOOTH_TIME_N, &editable.decimal, 0.0f, FTM_MAX_SMOOTHING_TIME, []{ ftMotion.set_smoothing_time(E_AXIS, editable.decimal); });
-      #endif
+      #define _SMOO_MENU_ITEM(A) editable.decimal = c.smoothingTime.A; EDIT_ITEM_FAST_N(float43, _AXIS(A), MSG_FTM_SMOOTH_TIME_N, &editable.decimal, 0.0f, FTM_MAX_SMOOTHING_TIME, []{ ftMotion.set_smoothing_time(_AXIS(A), editable.decimal); });
+      SHAPED_MAP(_SMOO_MENU_ITEM);
     #endif
 
     END_MENU();

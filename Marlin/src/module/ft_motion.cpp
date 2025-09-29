@@ -405,10 +405,7 @@ void FTMotion::loop() {
       shaping.A.set_axis_shaping_A(cfg.shaper.A, cfg.zeta.A, cfg.vtol.A); \
       shaping.A.set_axis_shaping_N(cfg.shaper.A, cfg.baseFreq.A, cfg.zeta.A);
 
-    TERN_(HAS_X_AXIS,   UPDATE_SHAPER(x));
-    TERN_(HAS_Y_AXIS,   UPDATE_SHAPER(y));
-    TERN_(FTM_SHAPER_Z, UPDATE_SHAPER(z));
-    TERN_(FTM_SHAPER_E, UPDATE_SHAPER(e));
+    SHAPED_MAP(UPDATE_SHAPER);
   }
 
 #endif // HAS_FTM_SHAPING
@@ -416,18 +413,15 @@ void FTMotion::loop() {
 #if ENABLED(FTM_SMOOTHING)
 
   void FTMotion::update_smoothing_params() {
-    TERN_(HAS_X_AXIS, smoothing.x.set_smoothing_time(cfg.smoothingTime.x));
-    TERN_(HAS_Y_AXIS, smoothing.y.set_smoothing_time(cfg.smoothingTime.y));
-    TERN_(HAS_Z_AXIS, smoothing.z.set_smoothing_time(cfg.smoothingTime.z));
-    TERN_(HAS_EXTRUDERS, smoothing.e.set_smoothing_time(cfg.smoothingTime.e));
+    #define _SMOOTH_PARAM(A) smoothing.A.set_smoothing_time(cfg.smoothingTime.A);
+    CARTES_MAP(_SMOOTH_PARAM);
   }
 
   void FTMotion::set_smoothing_time(uint8_t axis, const float s_time) {
+    #define _SMOOTH_CASE(A) case _AXIS(A): cfg.smoothingTime.A = s_time; break;
     switch (axis) {
-      TERN_(HAS_X_AXIS, case X_AXIS: cfg.smoothingTime.x = s_time; break;)
-      TERN_(HAS_Y_AXIS, case Y_AXIS: cfg.smoothingTime.y = s_time; break;)
-      TERN_(HAS_Z_AXIS, case Z_AXIS: cfg.smoothingTime.z = s_time; break;)
-      TERN_(HAS_EXTRUDERS, case E_AXIS: cfg.smoothingTime.e = s_time; break;)
+      default:
+      CARTES_MAP(_SMOOTH_CASE);
     }
     update_smoothing_params();
   }
@@ -453,10 +447,10 @@ void FTMotion::reset() {
   interpIdx = 0;
 
   #if HAS_FTM_SHAPING
-    TERN_(HAS_X_AXIS,   ZERO(shaping.x.d_zi));
-    TERN_(HAS_Y_AXIS,   ZERO(shaping.y.d_zi));
-    TERN_(FTM_SHAPER_Z, ZERO(shaping.z.d_zi));
-    TERN_(FTM_SHAPER_E, ZERO(shaping.e.d_zi));
+    SHAPED_CODE(
+      ZERO(shaping.x.d_zi); ZERO(shaping.y.d_zi);
+      ZERO(shaping.z.d_zi); ZERO(shaping.e.d_zi);
+    );
     shaping.zi_idx = 0;
   #endif
 
@@ -669,7 +663,7 @@ void FTMotion::generateTrajectoryPointsFromBlock() {
     uint32_t max_total_delay = 0;
 
     #if ENABLED(FTM_SMOOTHING)
-      #define SMOOTHEN(A) /* Approximate gaussian smoothing via chained EMAs */ \
+      #define _SMOOTHEN(A) /* Approximate gaussian smoothing via chained EMAs */ \
         if (smoothing.A.alpha > 0.0f) { \
           float smooth_val = traj.A[traj_idx_set]; \
           for (uint8_t _i = 0; _i < FTM_SMOOTHING_ORDER; ++_i) { \
@@ -679,33 +673,25 @@ void FTMotion::generateTrajectoryPointsFromBlock() {
           traj.A[traj_idx_set] = smooth_val; \
         }
 
-      TERN_(HAS_X_AXIS,    SMOOTHEN(x));
-      TERN_(HAS_Y_AXIS,    SMOOTHEN(y));
-      TERN_(HAS_Z_AXIS,    SMOOTHEN(z));
-      TERN_(HAS_EXTRUDERS, SMOOTHEN(e));
-
-      max_total_delay += _MAX(
-        TERN0(HAS_X_AXIS,    smoothing.x.delay_samples),
-        TERN0(HAS_Y_AXIS,    smoothing.y.delay_samples),
-        TERN0(HAS_Z_AXIS,    smoothing.z.delay_samples),
-        TERN0(HAS_EXTRUDERS, smoothing.e.delay_samples)
-      );
+      CARTES_MAP(_SMOOTHEN);
+      max_total_delay += _MAX(CARTES_LIST(
+        smoothing.x.delay_samples, smoothing.y.delay_samples,
+        smoothing.z.delay_samples, smoothing.e.delay_samples
+      ));
 
     #endif // FTM_SMOOTHING
 
     #if HAS_FTM_SHAPING
 
       if (ftMotion.cfg.axis_sync_enabled) {
-        max_total_delay -= _MIN(
-          TERN0(HAS_X_AXIS,   shaping.x.Ni[0]),
-          TERN0(HAS_Y_AXIS,   shaping.y.Ni[0]),
-          TERN0(FTM_SHAPER_Z, shaping.z.Ni[0]),
-          TERN0(FTM_SHAPER_E, shaping.e.Ni[0])
-        );
+        max_total_delay -= _MIN(SHAPED_LIST(
+          shaping.x.Ni[0], shaping.y.Ni[0],
+          shaping.z.Ni[0], shaping.e.Ni[0]
+        ));
       }
 
       // Apply shaping if active on each axis
-      #define SHAPE(A) \
+      #define _SHAPE(A) \
         do { \
           const uint32_t group_delay = ftMotion.cfg.axis_sync_enabled \
               ? max_total_delay - TERN0(FTM_SMOOTHING, smoothing.A.delay_samples) \
@@ -723,10 +709,7 @@ void FTMotion::generateTrajectoryPointsFromBlock() {
           } \
         } while (0)
 
-      TERN_(HAS_X_AXIS,   SHAPE(x));
-      TERN_(HAS_Y_AXIS,   SHAPE(y));
-      TERN_(FTM_SHAPER_Z, SHAPE(z));
-      TERN_(FTM_SHAPER_E, SHAPE(e));
+      SHAPED_MAP(_SHAPE);
 
       if (++shaping.zi_idx == (FTM_ZMAX)) shaping.zi_idx = 0;
 
