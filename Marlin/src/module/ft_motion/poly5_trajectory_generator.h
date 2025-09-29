@@ -88,11 +88,11 @@ public:
 
   float getDistanceAtTime(float t) const override {
     if (t < T1) {
-        // Acceration phase
-        return t * (acc_c1 + t * t * (acc_c3 + t * (acc_c4 + t * acc_c5)));
+      // Acceration phase
+      return t * (acc_c1 + t * t * (acc_c3 + t * (acc_c4 + t * acc_c5)));
     } else if (t <= (T1 + T2)) {
-        // Coasting phase
-        return pos_before_coast + this->nominal_speed * (t - T1);
+      // Coasting phase
+      return pos_before_coast + this->nominal_speed * (t - T1);
     }
     // Deceration phase
     const float tau = t - (T1 + T2);

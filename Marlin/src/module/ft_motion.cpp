@@ -541,10 +541,9 @@ void FTMotion::loadBlockData(block_t * const current_block) {
   const xyze_pos_t& moveDist = current_block->dist_mm;
   ratio = moveDist * oneOverLength;
 
-  const float mm_per_step = totalLength / current_block->step_event_count;  // (mm/step) Distance for each step
-
-  const float initial_speed = mm_per_step * current_block->initial_rate;              // (mm/s) Start feedrate
-  const float final_speed = mm_per_step * current_block->final_rate;    // (mm/s) End feedrate
+  const float mmps = totalLength / current_block->step_event_count; // (mm/step) Distance for each step
+  const float initial_speed = mmps * current_block->initial_rate;   // (mm/s) Start feedrate
+  const float final_speed = mmps * current_block->final_rate;       // (mm/s) End feedrate
   const float accel = current_block->acceleration;
   const float nominal_speed = current_block->nominal_speed;
 
