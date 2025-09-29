@@ -173,11 +173,6 @@ void FTMotion::loop() {
     loadBlockData(stepper.current_block);
     blockProcRdy = true;
 
-    // If the endstop is already pressed, endstop interrupts won't invoke
-    // endstop_triggered and the move will grind. So check here for a
-    // triggered endstop, which shortly marks the block for discard.
-    endstops.update();
-
     // Some kinematics track axis motion in HX, HY, HZ
     #if ANY(CORE_IS_XY, CORE_IS_XZ, MARKFORGED_XY, MARKFORGED_YX)
       stepper.last_direction_bits.hx = stepper.current_block->direction_bits.hx;
