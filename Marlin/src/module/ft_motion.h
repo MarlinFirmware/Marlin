@@ -186,7 +186,7 @@ class FTMotion {
     static TrapezoidalTrajectoryGenerator trapezoidalGenerator;
     static Poly5TrajectoryGenerator poly5Generator;
     static Poly6TrajectoryGenerator poly6Generator;
-    static TrajectoryGenerator* currentGenerator;
+    static TrajectoryGenerator& currentGenerator;
     static TrajectoryType trajectoryType;
 
     // Number of batches needed to propagate the current trajectory to the stepper.
