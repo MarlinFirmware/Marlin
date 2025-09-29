@@ -90,11 +90,12 @@ class FTMotion {
 
       #if HAS_FTM_SHAPING
 
-        #define _SET_CFG_DEFAULTS(A) \
+        #define _SET_CFG_DEFAULTS(A) do{ \
           cfg.shaper.A   = FTM_DEFAULT_SHAPER_##A; \
           cfg.baseFreq.A = FTM_SHAPING_DEFAULT_FREQ_##A; \
           cfg.zeta.A     = FTM_SHAPING_ZETA_##A; \
-          cfg.vtol.A     = FTM_SHAPING_V_TOL_##A;
+          cfg.vtol.A     = FTM_SHAPING_V_TOL_##A; \
+        }while(0);
 
         SHAPED_MAP(_SET_CFG_DEFAULTS);
         #undef _SET_CFG_DEFAULTS
@@ -124,7 +125,7 @@ class FTMotion {
 
       cfg.poly6_acceleration_overshoot = FTM_POLY6_ACCELERATION_OVERSHOOT;
 
-      setTrajectoryType(TrajectoryType::TRAPEZOIDAL);
+      setTrajectoryType(TrajectoryType::FTM_TRAJECTORY_TYPE);
 
       reset();
     }
@@ -157,7 +158,7 @@ class FTMotion {
     static void reset();                                  // Reset all states of the fixed time conversion to defaults.
 
     // Trajectory generator selection
-    static void setTrajectoryType(TrajectoryType type);
+    static void setTrajectoryType(const TrajectoryType type);
     static TrajectoryType getTrajectoryType() { return trajectoryType; }
 
     FORCE_INLINE static bool axis_is_moving(const AxisEnum axis) {

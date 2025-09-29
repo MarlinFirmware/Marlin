@@ -1191,7 +1191,7 @@
                                                 //     smoothing acceleration peaks, which may also smooth curved surfaces.
   #endif
 
-  #define FTM_TRYJECTORY_TYPE       TRAPEZOIDAL   // Block acceleration profile (TRAPEZOIDAL, POLY5, POLY6)
+  #define FTM_TRAJECTORY_TYPE       TRAPEZOIDAL   // Block acceleration profile (TRAPEZOIDAL, POLY5, POLY6)
                                                   // TRAPEZOIDAL: Continuous Velocity. Max acceleration is respected.
                                                   // POLY5:       Like POLY6 with 1.5x but cpu cheaper.
                                                   // POLY6:       Continuous Acceleration (aka S_CURVE).

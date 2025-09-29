@@ -76,7 +76,7 @@ TrapezoidalTrajectoryGenerator FTMotion::trapezoidalGenerator;
 Poly5TrajectoryGenerator FTMotion::poly5Generator;
 Poly6TrajectoryGenerator FTMotion::poly6Generator;
 TrajectoryGenerator* FTMotion::currentGenerator = &FTMotion::trapezoidalGenerator;
-TrajectoryType FTMotion::trajectoryType = TrajectoryType::TRAPEZOIDAL;
+TrajectoryType FTMotion::trajectoryType = TrajectoryType::FTM_TRAJECTORY_TYPE;
 
 // Make vector variables.
 uint32_t FTMotion::traj_idx_get = 0,            // Index of fixed time trajectory generation of the overall block.
@@ -513,28 +513,18 @@ int32_t FTMotion::stepperCmdBuffItems() {
 void FTMotion::init() {
   update_shaping_params();
   TERN_(FTM_SMOOTHING, update_smoothing_params());
-  setTrajectoryType(cfg.trajectory_type);
+  setTrajectoryType(TrajectoryType::FTM_TRAJECTORY_TYPE);
   reset(); // Precautionary.
 }
 
 // Set trajectory generator type
-void FTMotion::setTrajectoryType(TrajectoryType type) {
+void FTMotion::setTrajectoryType(const TrajectoryType type) {
   cfg.trajectory_type = trajectoryType = type;
-
   switch (type) {
-    case TrajectoryType::TRAPEZOIDAL:
-      currentGenerator = &trapezoidalGenerator;
-      break;
-    case TrajectoryType::POLY5:
-      currentGenerator = &poly5Generator;
-      break;
-    case TrajectoryType::POLY6:
-      currentGenerator = &poly6Generator;
-      break;
-    default:
-      currentGenerator = &trapezoidalGenerator;
-      cfg.trajectory_type = trajectoryType = TrajectoryType::TRAPEZOIDAL;
-      break;
+    default: cfg.trajectory_type = trajectoryType = TrajectoryType::FTM_TRAJECTORY_TYPE;
+    case TrajectoryType::TRAPEZOIDAL: currentGenerator = &trapezoidalGenerator; break;
+    case TrajectoryType::POLY5:       currentGenerator = &poly5Generator; break;
+    case TrajectoryType::POLY6:       currentGenerator = &poly6Generator; break;
   }
 
   // Reset the selected generator
