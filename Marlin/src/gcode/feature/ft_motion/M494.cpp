@@ -43,7 +43,7 @@ void say_ftm_settings() {
   if (ftMotion.getTrajectoryType() == TrajectoryType::POLY6) {
     SERIAL_ECHOLN(F("  Poly6 Overshoot: "), p_float_t(c.poly6_acceleration_overshoot, 3));
   }
-  #define _SMOO_REPORT(A) SERIAL_ECHOLN(F("  "), C(iaxis_codes[_AXIS(A)]), F(" smoothing time: "), p_float_t(c.smoothingTime.A, 3), C('s'));
+  #define _SMOO_REPORT(A) SERIAL_ECHOLN(F("  "), C(IAXIS_CHAR(_AXIS(A))), F(" smoothing time: "), p_float_t(c.smoothingTime.A, 3), C('s'));
   CARTES_MAP(_SMOO_REPORT);
 }
 
@@ -54,10 +54,8 @@ void GcodeSuite::M494_report(const bool forReplay/*=true*/) {
   const ft_config_t &c = ftMotion.cfg;
   SERIAL_ECHOLN(F("  M494 T"), (uint8_t)ftMotion.getTrajectoryType()
     CARTES_COMMA CARTES_PAIRED_LIST(
-      F(" X"), c.smoothingTime.x,
-      F(" Y"), c.smoothingTime.y,
-      F(" Z"), c.smoothingTime.z,
-      F(" E"), c.smoothingTime.e
+      F(" X"), c.smoothingTime.X, F(" Y"), c.smoothingTime.Y,
+      F(" Z"), c.smoothingTime.Z, F(" E"), c.smoothingTime.E
     )
   );
   if (ftMotion.getTrajectoryType() == TrajectoryType::POLY6) {

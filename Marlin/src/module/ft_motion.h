@@ -224,10 +224,7 @@ class FTMotion {
 
       typedef struct Shaping {
         uint32_t zi_idx;           // Index of storage in the data point delay vectors.
-        union {
-          axis_shaping_t SHAPED_AXIS_NAMES;
-          axis_shaping_t SHAPED_LIST(x, y, z, e);
-        };
+        axis_shaping_t SHAPED_AXIS_NAMES;
       } shaping_t;
 
       static shaping_t shaping; // Shaping data
@@ -245,10 +242,7 @@ class FTMotion {
 
       // Smoothing data for XYZE axes
       typedef struct Smoothing {
-        union {
-          axis_smoothing_t CARTES_AXIS_NAMES;
-          axis_smoothing_t CARTES_LIST(x, y, z, e);
-        };
+        axis_smoothing_t CARTES_AXIS_NAMES;
       } smoothing_t;
       static smoothing_t smoothing;       // Smoothing data
     #endif

@@ -82,7 +82,7 @@ typedef bits_t(FT_BIT_COUNT) ft_command_t;
 template<typename T>
 struct FTShapedAxes {
   union {
-    struct { T SHAPED_LIST(X, Y, Z, E); };
+    struct { T SHAPED_AXIS_NAMES; };
     struct { T SHAPED_LIST(x, y, z, e); };
     T val[NUM_AXES_SHAPED];
   };
@@ -106,9 +106,6 @@ typedef FTShapedAxes<dynFreqMode_t>    ft_shaped_dfm_t;
 
 #if ENABLED(FTM_SMOOTHING)
   typedef struct FTSmoothedAxes {
-    union {
-      float CARTES_AXIS_NAMES;
-      float CARTES_LIST(x, y, z, e);
-    };
+    float CARTES_AXIS_NAMES;
   } ft_smoothed_float_t;
 #endif

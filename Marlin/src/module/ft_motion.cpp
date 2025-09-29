@@ -100,16 +100,16 @@ uint32_t FTMotion::interpIdx = 0;               // Index of current data point b
   FTMotion::shaping_t FTMotion::shaping = {
     zi_idx: 0
     #if HAS_X_AXIS
-      , x:{ false, { 0.0f }, { 0.0f }, { 0 }, 0 } // ena, d_zi[], Ai[], Ni[], max_i
+      , X:{ false, { 0.0f }, { 0.0f }, { 0 }, 0 } // ena, d_zi[], Ai[], Ni[], max_i
     #endif
     #if HAS_Y_AXIS
-      , y:{ false, { 0.0f }, { 0.0f }, { 0 }, 0 }
+      , Y:{ false, { 0.0f }, { 0.0f }, { 0 }, 0 }
     #endif
     #if ENABLED(FTM_SHAPER_Z)
-      , z:{ false, { 0.0f }, { 0.0f }, { 0 }, 0 }
+      , Z:{ false, { 0.0f }, { 0.0f }, { 0 }, 0 }
     #endif
     #if ENABLED(FTM_SHAPER_E)
-      , e:{ false, { 0.0f }, { 0.0f }, { 0 }, 0 }
+      , E:{ false, { 0.0f }, { 0.0f }, { 0 }, 0 }
     #endif
   };
 #endif
@@ -117,16 +117,16 @@ uint32_t FTMotion::interpIdx = 0;               // Index of current data point b
 #if ENABLED(FTM_SMOOTHING)
   FTMotion::smoothing_t FTMotion::smoothing = {
     #if HAS_X_AXIS
-      x:{ { 0.0f }, 0.0f, 0 },  // smoothing_pass[], alpha, delay_samples
+      X:{ { 0.0f }, 0.0f, 0 },  // smoothing_pass[], alpha, delay_samples
     #endif
     #if HAS_Y_AXIS
-      y:{ { 0.0f }, 0.0f, 0 },
+      Y:{ { 0.0f }, 0.0f, 0 },
     #endif
     #if HAS_Z_AXIS
-      z:{ { 0.0f }, 0.0f, 0 },
+      Z:{ { 0.0f }, 0.0f, 0 },
     #endif
     #if HAS_EXTRUDERS
-      e:{ { 0.0f }, 0.0f, 0 }
+      E:{ { 0.0f }, 0.0f, 0 }
     #endif
   };
 #endif
@@ -447,10 +447,8 @@ void FTMotion::reset() {
   interpIdx = 0;
 
   #if HAS_FTM_SHAPING
-    SHAPED_CODE(
-      ZERO(shaping.x.d_zi); ZERO(shaping.y.d_zi);
-      ZERO(shaping.z.d_zi); ZERO(shaping.e.d_zi);
-    );
+    #define _RESET_ZI(A) ZERO(shaping.A.d_zi);
+    SHAPED_MAP(_RESET_ZI);
     shaping.zi_idx = 0;
   #endif
 
@@ -635,11 +633,11 @@ void FTMotion::generateTrajectoryPointsFromBlock() {
             oldz = z;
             #if HAS_X_AXIS
               const float xf = cfg.baseFreq.x + cfg.dynFreqK.x * z;
-              shaping.x.set_axis_shaping_N(cfg.shaper.x, _MAX(xf, FTM_MIN_SHAPE_FREQ), cfg.zeta.x);
+              shaping.X.set_axis_shaping_N(cfg.shaper.x, _MAX(xf, FTM_MIN_SHAPE_FREQ), cfg.zeta.x);
             #endif
             #if HAS_Y_AXIS
               const float yf = cfg.baseFreq.y + cfg.dynFreqK.y * z;
-              shaping.y.set_axis_shaping_N(cfg.shaper.y, _MAX(yf, FTM_MIN_SHAPE_FREQ), cfg.zeta.y);
+              shaping.Y.set_axis_shaping_N(cfg.shaper.y, _MAX(yf, FTM_MIN_SHAPE_FREQ), cfg.zeta.y);
             #endif
           }
         } break;
@@ -650,10 +648,10 @@ void FTMotion::generateTrajectoryPointsFromBlock() {
           // Update constantly. The optimization done for Z value makes
           // less sense for E, as E is expected to constantly change.
           #if HAS_X_AXIS
-            shaping.x.set_axis_shaping_N(cfg.shaper.x, cfg.baseFreq.x + cfg.dynFreqK.x * traj.e[traj_idx_set], cfg.zeta.x);
+            shaping.X.set_axis_shaping_N(cfg.shaper.x, cfg.baseFreq.x + cfg.dynFreqK.x * traj.e[traj_idx_set], cfg.zeta.x);
           #endif
           #if HAS_Y_AXIS
-            shaping.y.set_axis_shaping_N(cfg.shaper.y, cfg.baseFreq.y + cfg.dynFreqK.y * traj.e[traj_idx_set], cfg.zeta.y);
+            shaping.Y.set_axis_shaping_N(cfg.shaper.y, cfg.baseFreq.y + cfg.dynFreqK.y * traj.e[traj_idx_set], cfg.zeta.y);
           #endif
           break;
       #endif
@@ -675,8 +673,8 @@ void FTMotion::generateTrajectoryPointsFromBlock() {
 
       CARTES_MAP(_SMOOTHEN);
       max_total_delay += _MAX(CARTES_LIST(
-        smoothing.x.delay_samples, smoothing.y.delay_samples,
-        smoothing.z.delay_samples, smoothing.e.delay_samples
+        smoothing.X.delay_samples, smoothing.Y.delay_samples,
+        smoothing.Z.delay_samples, smoothing.E.delay_samples
       ));
 
     #endif // FTM_SMOOTHING
@@ -685,8 +683,8 @@ void FTMotion::generateTrajectoryPointsFromBlock() {
 
       if (ftMotion.cfg.axis_sync_enabled) {
         max_total_delay -= _MIN(SHAPED_LIST(
-          shaping.x.Ni[0], shaping.y.Ni[0],
-          shaping.z.Ni[0], shaping.e.Ni[0]
+          shaping.X.Ni[0], shaping.Y.Ni[0],
+          shaping.Z.Ni[0], shaping.E.Ni[0]
         ));
       }
 
@@ -707,7 +705,7 @@ void FTMotion::generateTrajectoryPointsFromBlock() {
             if (udiff < 0) udiff += FTM_ZMAX; \
             traj.A[traj_idx_set] += shaping.A.Ai[i] * shaping.A.d_zi[udiff]; \
           } \
-        } while (0)
+        } while (0);
 
       SHAPED_MAP(_SHAPE);
 

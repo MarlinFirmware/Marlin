@@ -53,13 +53,10 @@ void say_shaping() {
   const bool is_shaping = AXIS_IS_SHAPING(X) || AXIS_IS_SHAPING(Y) || AXIS_IS_SHAPING(Z) || AXIS_IS_SHAPING(E);
   bool sep = false;
   if (is_shaping) {
+    #define STEPPER_E_NAME 'E'
+    #define _SAY_SHAPER(A) if (AXIS_IS_SHAPING(A)) say_shaper_type(_AXIS(A), sep, STEPPER_##A##_NAME);
     SERIAL_ECHOPGM(" (");
-    SHAPED_CODE(
-      if (AXIS_IS_SHAPING(X)) say_shaper_type(X_AXIS, sep, STEPPER_A_NAME),
-      if (AXIS_IS_SHAPING(Y)) say_shaper_type(Y_AXIS, sep, STEPPER_B_NAME),
-      if (AXIS_IS_SHAPING(Z)) say_shaper_type(Z_AXIS, sep, STEPPER_C_NAME),
-      if (AXIS_IS_SHAPING(E)) say_shaper_type(E_AXIS, sep, 'E')
-    );
+    SHAPED_CODE(_SAY_SHAPER(A), _SAY_SHAPER(B), _SAY_SHAPER(C), _SAY_SHAPER(E));
     SERIAL_CHAR(')');
   }
   SERIAL_EOL();
@@ -262,7 +259,7 @@ void GcodeSuite::M493() {
       return false;
     };
 
-    #define _SET_SHAPER(A) if (parser.seenval(STRINGIFY(A)[0]) && set_shaper(_AXIS(A), STRINGIFY(A)[0])) return;
+    #define _SET_SHAPER(A) if (parser.seenval(CHARIFY(A)) && set_shaper(_AXIS(A), CHARIFY(A))) return;
     SHAPED_MAP(_SET_SHAPER);
 
   #endif // NUM_AXES_SHAPED > 0

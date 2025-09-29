@@ -497,19 +497,19 @@ void menu_move() {
       EDIT_ITEM(bool, MSG_FTM_AXIS_SYNC, &c.axis_sync_enabled);
       #if ENABLED(FTM_SMOOTHING)
         #if HAS_X_AXIS
-          editable.decimal = c.smoothingTime.x;
+          editable.decimal = c.smoothingTime.X;
           EDIT_ITEM_FAST_N(float43, X_AXIS, MSG_FTM_SMOOTH_TIME_N, &editable.decimal, 0.0f, FTM_MAX_SMOOTHING_TIME, []{ ftMotion.set_smoothing_time(X_AXIS, editable.decimal); });
         #endif
         #if HAS_Y_AXIS
-          editable.decimal = c.smoothingTime.y;
+          editable.decimal = c.smoothingTime.Y;
           EDIT_ITEM_FAST_N(float43, Y_AXIS, MSG_FTM_SMOOTH_TIME_N, &editable.decimal, 0.0f, FTM_MAX_SMOOTHING_TIME, []{ ftMotion.set_smoothing_time(Y_AXIS, editable.decimal); });
         #endif
         #if HAS_Z_AXIS
-          editable.decimal = c.smoothingTime.z;
+          editable.decimal = c.smoothingTime.Z;
           EDIT_ITEM_FAST_N(float43, Z_AXIS, MSG_FTM_SMOOTH_TIME_N, &editable.decimal, 0.0f, FTM_MAX_SMOOTHING_TIME, []{ ftMotion.set_smoothing_time(Z_AXIS, editable.decimal); });
         #endif
         #if HAS_EXTRUDERS
-          editable.decimal = c.smoothingTime.e;
+          editable.decimal = c.smoothingTime.E;
           EDIT_ITEM_FAST_N(float43, E_AXIS, MSG_FTM_SMOOTH_TIME_N, &editable.decimal, 0.0f, FTM_MAX_SMOOTHING_TIME, []{ ftMotion.set_smoothing_time(E_AXIS, editable.decimal); });
         #endif
       #endif
