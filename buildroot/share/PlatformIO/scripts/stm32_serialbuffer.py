@@ -34,8 +34,8 @@ if pioutil.is_pio_build():
             env.Append(BUILD_FLAGS=[f"-D{name}={value}"])
 
     """
-    Marlin uses the `RX_BUFFER_SIZE` \ `TX_BUFFER_SIZE` options to
-    configure buffer sizes for receiving \ transmitting serial data.
+    Marlin uses the `RX_BUFFER_SIZE` / `TX_BUFFER_SIZE` options to
+    configure buffer sizes for receiving / transmitting serial data.
     Stm32duino uses another set of defines for the same purpose, so this
     script gets the values from the configuration and uses them to define
     `SERIAL_RX_BUFFER_SIZE` and `SERIAL_TX_BUFFER_SIZE` as global build

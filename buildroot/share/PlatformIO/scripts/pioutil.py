@@ -10,6 +10,7 @@ def is_pio_build():
     if "IsCleanTarget" in dir(env):
         if env.IsCleanTarget():
             return False
+    return not env.IsIntegrationDump()
 
 def get_pio_version():
     from platformio import util
