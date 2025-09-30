@@ -77,6 +77,13 @@ for ALANG in ${LANG_ARG:=$LANGS_DEFAULT} ; do
   DN_WORK=$(mktemp -d)
   cp Configuration.h ${DN_WORK}/
   cp src/lcd/language/language_${ALANG}.h ${DN_WORK}/
+  # Find and copy included language files
+  included_files=$(grep -o '#include "language_[^"]*\.h"' src/lcd/language/language_${ALANG}.h | sed 's/#include "\(.*\)"/\1/')
+  for inc_file in $included_files; do
+    if [ -f "src/lcd/language/$inc_file" ]; then
+      cp "src/lcd/language/$inc_file" ${DN_WORK}/
+    fi
+  done
   cd "${DN_WORK}"
   ${DN_EXEC}/uxggenpages.sh "${FONTFILE}" $ALANG
   sed -i fontutf8-data.h -e 's|fonts//|fonts/|g' -e 's|fonts//|fonts/|g' -e 's|[/0-9a-zA-Z_\-]*buildroot/share/fonts|buildroot/share/fonts|' 2>/dev/null
@@ -126,7 +133,7 @@ if [ 1 = 1 ]; then
 
 #include <U8glib-HAL.h>
 
-#if defined(__AVR__) && ENABLED(NOT_EXTENDED_ISO10646_1_5X7)
+#if ALL(__AVR__, NOT_EXTENDED_ISO10646_1_5X7)
   // reduced font (only symbols 1 - 127) - saves about 1278 bytes of FLASH
 
 $TMP1
