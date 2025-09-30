@@ -5,8 +5,8 @@
 
 HERE=`dirname $0`
 
-while [[ $# -gt 0 ]]; do
-
+while [[ $# -gt 0 ]]
+do
   val="$1"
 
   if [ -d "$val" ]; then

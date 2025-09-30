@@ -34,7 +34,8 @@ MORE=""
 INDEX=2
 
 # Loop through arguments
-while [[ $# -gt 0 ]]; do
+while [[ $# -gt 0 ]]
+do
   # Get an arg and maybe a val to go with it
   opt="$1" ; shift ; val="$1"
 
