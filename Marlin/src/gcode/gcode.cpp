@@ -126,16 +126,14 @@ void GcodeSuite::say_units() {
  * Return -1 if the T parameter is out of range
  */
 int8_t GcodeSuite::get_target_extruder_from_command() {
-  #if HAS_TOOLCHANGE
-    if (parser.seenval('T')) {
-      const int8_t e = parser.value_byte();
-      if (e < EXTRUDERS) return e;
-      SERIAL_ECHO_START();
-      SERIAL_CHAR('M'); SERIAL_ECHO(parser.codenum);
-      SERIAL_ECHOLNPGM(" " STR_INVALID_EXTRUDER " ", e);
-      return -1;
-    }
-  #endif
+  if (parser.seenval('T')) {
+    const int8_t e = parser.value_byte();
+    if (e < EXTRUDERS) return e;
+    SERIAL_ECHO_START();
+    SERIAL_CHAR('M'); SERIAL_ECHO(parser.codenum);
+    SERIAL_ECHOLNPGM(" " STR_INVALID_EXTRUDER " ", e);
+    return -1;
+  }
   return active_extruder;
 }
 
