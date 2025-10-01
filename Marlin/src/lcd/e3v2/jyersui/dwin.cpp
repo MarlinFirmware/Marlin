@@ -454,7 +454,7 @@ void JyersDWIN::clearScreen(const uint8_t e/*=3*/) {
   if (e == 4) dwinDrawRectangle(1, COLOR_BG_BLACK, 0, 31, DWIN_WIDTH, DWIN_HEIGHT); // Clear Popup Area
 }
 
-void JyersDWIN::drawFloat(const_float_t value, const uint8_t row, const bool selected/*=false*/, const uint8_t minunit/*=10*/) {
+void JyersDWIN::drawFloat(const float value, const uint8_t row, const bool selected/*=false*/, const uint8_t minunit/*=10*/) {
   const uint8_t digits = (uint8_t)floor(log10(abs(value))) + log10(minunit) + (minunit > 1);
   const uint16_t bColor = selected ? COLOR_SELECT : COLOR_BG_BLACK;
   const uint16_t xpos = 240 - (digits * 8);
@@ -4812,7 +4812,7 @@ void JyersDWIN::confirmControl() {
 // In-Menu Value Modification
 //
 
-void JyersDWIN::setupValue(const_float_t value, const_float_t min, const_float_t max, const_float_t unit, const uint8_t type) {
+void JyersDWIN::setupValue(const float value, const float min, const float max, const float unit, const uint8_t type) {
   if (TERN0(PIDTEMP, valuepointer == &thermalManager.temp_hotend[0].pid.Ki) || TERN0(PIDTEMPBED, valuepointer == &thermalManager.temp_bed.pid.Ki))
     tempvalue = unscalePID_i(value) * unit;
   else if (TERN0(PIDTEMP, valuepointer == &thermalManager.temp_hotend[0].pid.Kd) || TERN0(PIDTEMPBED, valuepointer == &thermalManager.temp_bed.pid.Kd))
@@ -4828,32 +4828,32 @@ void JyersDWIN::setupValue(const_float_t value, const_float_t min, const_float_t
   drawFloat(tempvalue / unit, selection - scrollpos, true, valueunit);
 }
 
-void JyersDWIN::modifyValue(float &value, const_float_t min, const_float_t max, const_float_t unit, void (*f)()/*=nullptr*/) {
+void JyersDWIN::modifyValue(float &value, const float min, const float max, const float unit, void (*f)()/*=nullptr*/) {
   valuepointer = &value;
   funcpointer = f;
   setupValue((float)value, min, max, unit, 0);
 }
-void JyersDWIN::modifyValue(uint8_t &value, const_float_t min, const_float_t max, const_float_t unit, void (*f)()/*=nullptr*/) {
+void JyersDWIN::modifyValue(uint8_t &value, const float min, const float max, const float unit, void (*f)()/*=nullptr*/) {
   valuepointer = &value;
   funcpointer = f;
   setupValue((float)value, min, max, unit, 1);
 }
-void JyersDWIN::modifyValue(uint16_t &value, const_float_t min, const_float_t max, const_float_t unit, void (*f)()/*=nullptr*/) {
+void JyersDWIN::modifyValue(uint16_t &value, const float min, const float max, const float unit, void (*f)()/*=nullptr*/) {
   valuepointer = &value;
   funcpointer = f;
   setupValue((float)value, min, max, unit, 2);
 }
-void JyersDWIN::modifyValue(int16_t &value, const_float_t min, const_float_t max, const_float_t unit, void (*f)()/*=nullptr*/) {
+void JyersDWIN::modifyValue(int16_t &value, const float min, const float max, const float unit, void (*f)()/*=nullptr*/) {
   valuepointer = &value;
   funcpointer = f;
   setupValue((float)value, min, max, unit, 3);
 }
-void JyersDWIN::modifyValue(uint32_t &value, const_float_t min, const_float_t max, const_float_t unit, void (*f)()/*=nullptr*/) {
+void JyersDWIN::modifyValue(uint32_t &value, const float min, const float max, const float unit, void (*f)()/*=nullptr*/) {
   valuepointer = &value;
   funcpointer = f;
   setupValue((float)value, min, max, unit, 4);
 }
-void JyersDWIN::modifyValue(int8_t &value, const_float_t min, const_float_t max, const_float_t unit, void (*f)()/*=nullptr*/) {
+void JyersDWIN::modifyValue(int8_t &value, const float min, const float max, const float unit, void (*f)()/*=nullptr*/) {
   valuepointer = &value;
   funcpointer = f;
   setupValue((float)value, min, max, unit, 5);

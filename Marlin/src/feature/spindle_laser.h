@@ -54,7 +54,7 @@ class SpindleLaser {
 public:
   static CutterMode cutter_mode;
 
-  static constexpr uint8_t pct_to_ocr(const_float_t pct) { return uint8_t(PCT_TO_PWM(pct)); }
+  static constexpr uint8_t pct_to_ocr(const float pct) { return uint8_t(PCT_TO_PWM(pct)); }
 
   // cpower = configured values (e.g., SPEED_POWER_MAX)
   // Convert configured power range to a percentage

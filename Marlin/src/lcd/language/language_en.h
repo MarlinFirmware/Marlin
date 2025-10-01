@@ -936,6 +936,7 @@ namespace LanguageNarrow_en {
   LSTR MSG_FTM_MZV                        = _UxGT("MZV");
   //LSTR MSG_FTM_ULENDO_FBS               = _UxGT("Ulendo FBS");
   //LSTR MSG_FTM_DISCTF                   = _UxGT("DISCTF");
+  LSTR MSG_FTM_AXIS_SYNC                  = _UxGT("Axis Sync");
   LSTR MSG_FTM_DYN_MODE                   = _UxGT("DF Mode: $");
   LSTR MSG_FTM_Z_BASED                    = _UxGT("Z-based");
   LSTR MSG_FTM_MASS_BASED                 = _UxGT("Mass-based");
@@ -943,6 +944,7 @@ namespace LanguageNarrow_en {
   LSTR MSG_FTM_DFREQ_K_N                  = _UxGT("@ Dyn. Freq.");
   LSTR MSG_FTM_ZETA_N                     = _UxGT("@ Damping");
   LSTR MSG_FTM_VTOL_N                     = _UxGT("@ Vib. Level");
+  LSTR MSG_FTM_SMOOTH_TIME_N              = _UxGT("@ Smoothing Time");
 
   LSTR MSG_LEVEL_X_AXIS                   = _UxGT("Level X Axis");
   LSTR MSG_AUTO_CALIBRATE                 = _UxGT("Auto Calibrate");

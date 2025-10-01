@@ -1143,49 +1143,73 @@
 
 /**
  * Fixed-time-based Motion Control -- BETA FEATURE
- * Enable/disable and set parameters with G-code M493.
+ * Enable/disable and set parameters with G-code M493 and M494.
  * See ft_types.h for named values used by FTM options.
  */
 //#define FT_MOTION
 #if ENABLED(FT_MOTION)
-  //#define FTM_IS_DEFAULT_MOTION                 // Use FT Motion as the factory default?
+  //#define FTM_IS_DEFAULT_MOTION               // Use FT Motion as the factory default?
+  //#define FT_MOTION_MENU                      // Provide a MarlinUI menu to set M493 and M494 parameters
+
   #define FTM_DEFAULT_DYNFREQ_MODE dynFreqMode_DISABLED // Default mode of dynamic frequency calculation. (DISABLED, Z_BASED, MASS_BASED)
 
-  #define FTM_LINEAR_ADV_DEFAULT_ENA   false      // Default linear advance enable (true) or disable (false)
-  #define FTM_LINEAR_ADV_DEFAULT_K      0.0f      // Default linear advance gain. (Acceleration-based scaling factor.)
+  #define FTM_LINEAR_ADV_DEFAULT_ENA   false    // Default linear advance enable (true) or disable (false)
+  #define FTM_LINEAR_ADV_DEFAULT_K      0.0f    // Default linear advance gain. (Acceleration-based scaling factor.)
 
   #define FTM_DEFAULT_SHAPER_X      ftMotionShaper_NONE // Default shaper mode on X axis (NONE, ZV, ZVD, ZVDD, ZVDDD, EI, 2HEI, 3HEI, MZV)
-  #define FTM_SHAPING_DEFAULT_FREQ_X   37.0f      // (Hz) Default peak frequency used by input shapers
-  #define FTM_SHAPING_ZETA_X            0.1f      // Zeta used by input shapers for X axis
-  #define FTM_SHAPING_V_TOL_X           0.05f     // Vibration tolerance used by EI input shapers for X axis
+  #define FTM_SHAPING_DEFAULT_FREQ_X   37.0f    // (Hz) Default peak frequency used by input shapers
+  #define FTM_SHAPING_ZETA_X            0.1f    // Zeta used by input shapers for X axis
+  #define FTM_SHAPING_V_TOL_X           0.05f   // Vibration tolerance used by EI input shapers for X axis
 
   #define FTM_DEFAULT_SHAPER_Y      ftMotionShaper_NONE // Default shaper mode on Y axis
-  #define FTM_SHAPING_DEFAULT_FREQ_Y   37.0f      // (Hz) Default peak frequency used by input shapers
-  #define FTM_SHAPING_ZETA_Y            0.1f      // Zeta used by input shapers for Y axis
-  #define FTM_SHAPING_V_TOL_Y           0.05f     // Vibration tolerance used by EI input shapers for Y axis
+  #define FTM_SHAPING_DEFAULT_FREQ_Y   37.0f    // (Hz) Default peak frequency used by input shapers
+  #define FTM_SHAPING_ZETA_Y            0.1f    // Zeta used by input shapers for Y axis
+  #define FTM_SHAPING_V_TOL_Y           0.05f   // Vibration tolerance used by EI input shapers for Y axis
 
-  //#define FT_MOTION_MENU                        // Provide a MarlinUI menu to set M493 parameters
+  //#define FTM_SHAPER_Z                        // Include Z shaping support
+  #define FTM_DEFAULT_SHAPER_Z      ftMotionShaper_NONE // Default shaper mode on Z axis
+  #define FTM_SHAPING_DEFAULT_FREQ_Z   21.0f    // (Hz) Default peak frequency used by input shapers
+  #define FTM_SHAPING_ZETA_Z            0.03f   // Zeta used by input shapers for Z axis
+  #define FTM_SHAPING_V_TOL_Z           0.05f   // Vibration tolerance used by EI input shapers for Z axis
+
+  //#define FTM_SHAPER_E                        // Include E shaping support
+                                                // Required to synchronise extruder with XYZ (better quality)
+  #define FTM_DEFAULT_SHAPER_E      ftMotionShaper_NONE // Default shaper mode on Extruder axis
+  #define FTM_SHAPING_DEFAULT_FREQ_E   21.0f    // (Hz) Default peak frequency used by input shapers
+  #define FTM_SHAPING_ZETA_E            0.03f   // Zeta used by input shapers for E axis
+  #define FTM_SHAPING_V_TOL_E           0.05f   // Vibration tolerance used by EI input shapers for E axis
+
+  //#define FTM_SMOOTHING                       // Smoothing can reduce artifacts and make steppers quieter
+                                                // on sharp corners, but too much will round corners.
+  #if ENABLED(FTM_SMOOTHING)
+    #define FTM_MAX_SMOOTHING_TIME      0.10f   // Maximum smoothing time (seconds), higher consumes more RAM.
+                                                // Increase smoothing time to reduce jerky motion, ghosting and noises.
+    #define FTM_SMOOTHING_TIME_X        0.00f   // (s) Smoothing time for X axis. Zero means disabled.
+    #define FTM_SMOOTHING_TIME_Y        0.00f   // (s) Smoothing time for Y axis
+    #define FTM_SMOOTHING_TIME_Z        0.00f   // (s) Smoothing time for Z axis
+    #define FTM_SMOOTHING_TIME_E        0.02f   // (s) Smoothing time for E axis. Prevents noise/skipping from LA by
+                                                //     smoothing acceleration peaks, which may also smooth curved surfaces.
+  #endif
 
   /**
    * Advanced configuration
    */
-  #define FTM_UNIFIED_BWS                         // DON'T DISABLE unless you use Ulendo FBS (not implemented)
+  #define FTM_UNIFIED_BWS                       // DON'T DISABLE unless you use Ulendo FBS (not implemented)
   #if ENABLED(FTM_UNIFIED_BWS)
-    #define FTM_BW_SIZE               100         // Unified Window and Batch size with a ratio of 2
+    #define FTM_BW_SIZE               100       // Unified Window and Batch size with a ratio of 2
   #else
-    #define FTM_WINDOW_SIZE           200         // Custom Window size for trajectory generation needed by Ulendo FBS
-    #define FTM_BATCH_SIZE            100         // Custom Batch size for trajectory generation needed by Ulendo FBS
+    #define FTM_WINDOW_SIZE           200       // Custom Window size for trajectory generation needed by Ulendo FBS
+    #define FTM_BATCH_SIZE            100       // Custom Batch size for trajectory generation needed by Ulendo FBS
   #endif
 
-  #define FTM_FS                     1000         // (Hz) Frequency for trajectory generation. (Reciprocal of FTM_TS)
-  #define FTM_TS                        0.001f    // (s) Time step for trajectory generation. (Reciprocal of FTM_FS)
+  #define FTM_FS                     1000       // (Hz) Frequency for trajectory generation. (Reciprocal of FTM_TS)
 
   #if DISABLED(COREXY)
-    #define FTM_STEPPER_FS          20000         // (Hz) Frequency for stepper I/O update
+    #define FTM_STEPPER_FS          20000       // (Hz) Frequency for stepper I/O update
 
     // Use this to adjust the time required to consume the command buffer.
     // Try increasing this value if stepper motion is choppy.
-    #define FTM_STEPPERCMD_BUFF_SIZE 3000         // Size of the stepper command buffers
+    #define FTM_STEPPERCMD_BUFF_SIZE 3000       // Size of the stepper command buffers
 
   #else
     // CoreXY motion needs a larger buffer size. These values are based on our testing.
@@ -1193,17 +1217,7 @@
     #define FTM_STEPPERCMD_BUFF_SIZE 6000
   #endif
 
-  #define FTM_STEPS_PER_UNIT_TIME (FTM_STEPPER_FS / FTM_FS)       // Interpolated stepper commands per unit time
-  #define FTM_MIN_TICKS ((STEPPER_TIMER_RATE) / (FTM_STEPPER_FS)) // Minimum stepper ticks between steps
-
-  #define FTM_MIN_SHAPE_FREQ           10         // Minimum shaping frequency
-  #define FTM_RATIO (FTM_FS / FTM_MIN_SHAPE_FREQ) // Factor for use in FTM_ZMAX. DON'T CHANGE.
-  #define FTM_ZMAX (FTM_RATIO * 2)                // Maximum delays for shaping functions (even numbers only!)
-                                                  // Calculate as:
-                                                  //   ZV       : FTM_RATIO / 2
-                                                  //   ZVD, MZV : FTM_RATIO
-                                                  //   2HEI     : FTM_RATIO * 3 / 2
-                                                  //   3HEI     : FTM_RATIO * 2
+  #define FTM_MIN_SHAPE_FREQ           10       // (Hz) Minimum shaping frequency, lower consumes more RAM
 #endif // FT_MOTION
 
 /**
