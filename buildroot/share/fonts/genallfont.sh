@@ -78,12 +78,11 @@ for ALANG in ${LANG_ARG:=$LANGS_DEFAULT} ; do
   cp Configuration.h ${DN_WORK}/
   cp src/lcd/language/language_${ALANG}.h ${DN_WORK}/
   # Find and copy included language files
-  included_files=$(grep -o '#include "language_[^"]*\.h"' src/lcd/language/language_${ALANG}.h | sed 's/#include "\(.*\)"/\1/')
-  for inc_file in $included_files; do
-    if [ -f "src/lcd/language/$inc_file" ]; then
-      cp "src/lcd/language/$inc_file" ${DN_WORK}/
-    fi
-  done
+  sed -n 's/^#include "\(language_[^"]*\.h\)".*/\1/p' "src/lcd/language/language_${ALANG}.h" |
+    while IFS= read -r f; do
+      src="src/lcd/language/$f"
+      [ -f "$src" ] && cp "$src" "$DN_WORK/"
+    done
   cd "${DN_WORK}"
   ${DN_EXEC}/uxggenpages.sh "${FONTFILE}" $ALANG
   sed -i fontutf8-data.h -e 's|fonts//|fonts/|g' -e 's|fonts//|fonts/|g' -e 's|[/0-9a-zA-Z_\-]*buildroot/share/fonts|buildroot/share/fonts|' 2>/dev/null
