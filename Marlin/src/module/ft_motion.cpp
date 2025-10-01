@@ -157,7 +157,6 @@ void FTMotion::loop() {
    * 4. Signal ready for new block.
    */
   if (stepper.abort_current_block) {
-    if (stepperCmdBuffHasData) return;          // Wait until motion buffers are emptied
     discard_planner_block_protected();
     reset();
     stepper.abort_current_block = false;  // Abort finished.
@@ -172,11 +171,6 @@ void FTMotion::loop() {
     }
     loadBlockData(stepper.current_block);
     blockProcRdy = true;
-
-    // If the endstop is already pressed, endstop interrupts won't invoke
-    // endstop_triggered and the move will grind. So check here for a
-    // triggered endstop, which shortly marks the block for discard.
-    endstops.update();
 
     // Some kinematics track axis motion in HX, HY, HZ
     #if ANY(CORE_IS_XY, CORE_IS_XZ, MARKFORGED_XY, MARKFORGED_YX)
@@ -431,6 +425,7 @@ void FTMotion::loop() {
 // Reset all trajectory processing variables.
 void FTMotion::reset() {
   const bool did_suspend = stepper.suspend();
+
   stepperCmdBuff_produceIdx = stepperCmdBuff_consumeIdx = 0;
 
   traj.reset();
@@ -456,6 +451,7 @@ void FTMotion::reset() {
   TERN_(DISTINCT_E_FACTORS, block_extruder_axis = E_AXIS);
 
   axis_move_end_ti.reset();
+
   if (did_suspend) stepper.wake_up();
 }
 
