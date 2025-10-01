@@ -130,8 +130,7 @@ int8_t GcodeSuite::get_target_extruder_from_command() {
     const int8_t e = parser.value_byte();
     if (e < EXTRUDERS) return e;
     SERIAL_ECHO_START();
-    SERIAL_CHAR('M'); SERIAL_ECHO(parser.codenum);
-    SERIAL_ECHOLNPGM(" " STR_INVALID_EXTRUDER " ", e);
+    SERIAL_ECHOLN(C('M'), parser.codenum, F(" " STR_INVALID_EXTRUDER " "), e);
     return -1;
   }
   return active_extruder;
@@ -149,7 +148,7 @@ int8_t GcodeSuite::get_target_e_stepper_from_command(const int8_t dval/*=-1*/) {
   if (dval == -2) return dval;
 
   SERIAL_ECHO_START();
-  SERIAL_CHAR('M'); SERIAL_ECHO(parser.codenum);
+  SERIAL_ECHO(C('M'), parser.codenum);
   if (e == -1)
     SERIAL_ECHOLNPGM(" " STR_E_STEPPER_NOT_SPECIFIED);
   else
