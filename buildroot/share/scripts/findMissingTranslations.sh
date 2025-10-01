@@ -52,7 +52,6 @@ else
 fi
 
 echo "Finding all missing strings for $TEST_LANGS..."
-echo "This might take a moment..."
 
 WORD_LINES=()   # Complete lines for all words (or, grep out of en at the end instead)
 ALL_MISSING=()  # All missing languages for each missing word

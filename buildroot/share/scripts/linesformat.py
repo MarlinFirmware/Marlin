@@ -53,7 +53,7 @@ def format_text(argv):
         # Open and read the file src_file
         with open(src_file, 'r', encoding='utf-8') as rf: file_text = rf.read()
 
-    if not file_text:
+    if len(file_text) == 0:
         print('No text to process')
         return
 

@@ -1,10 +1,7 @@
 #!/usr/bin/env python
 """
-get_test_targets.py
-
 Extract the builds used in Github CI, so that we can run them locally
 """
-
 import yaml
 
 # Set the yaml file to parse
@@ -15,4 +12,4 @@ with open(yaml_file) as f:
     github_configuration = yaml.safe_load(f)
 
 # Print out the test platforms
-print(" ".join(github_configuration["jobs"]["test_builds"]["strategy"]["matrix"]["test-platform"]))
+print(' '.join(github_configuration['jobs']['test_builds']['strategy']['matrix']['test-platform']))

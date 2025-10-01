@@ -1,21 +1,17 @@
 #!/usr/bin/env python3
-"""
-rle_compress_bitmap.py
-
-Bitwise RLE compress a Marlin mono DOGM bitmap.
-
-Usage: rle_compress_bitmap.py INPUT_FILE OUTPUT_FILE
-
-Input: An existing Marlin Marlin mono DOGM bitmap .cpp or .h file.
-Output: A new file with the original and compressed data.
-"""
-
+#
+# Bitwise RLE compress a Marlin mono DOGM bitmap.
+# Input: An existing Marlin Marlin mono DOGM bitmap .cpp or .h file.
+# Output: A new file with the original and compressed data.
+#
+# Usage: rle_compress_bitmap.py INPUT_FILE OUTPUT_FILE
+#
 import sys, struct, re
 
 def addCompressedData(input_file, output_file):
     input_lines = input_file.readlines()
     input_file.close()
-    ofile = open(output_file, "wt")
+    ofile = open(output_file, 'wt')
 
     datatype = "uint8_t"
     bytewidth = 16
@@ -38,7 +34,7 @@ def addCompressedData(input_file, output_file):
             c_footer = True
 
         if c_data_section:
-            cleaned = re.sub(r'\s|,|\n', '', line)
+            cleaned = re.sub(r"\s|,|\n", "", line)
             mat = re.match(r'(0b|B)[01]{8}', cleaned)
             if mat:
                 as_list = cleaned.split(mat[1])
@@ -62,14 +58,14 @@ def addCompressedData(input_file, output_file):
 
     #print("\nRaw Bitmap Data", raw_data)
 
-    """
-    Bitwise RLE (run length) encoding
-    Convert data from raw mono bitmap to a bitwise run-length-encoded format.
-    - The first nybble is the starting bit state. Changing this nybble inverts the bitmap.
-    - The following bytes provide the runs for alternating on/off bits.
-      - A value of 0-14 encodes a run of 1-15.
-      - A value of 16 indicates a run of 16-270 calculated using the next two bytes.
-    """
+    #
+    # Bitwise RLE (run length) encoding
+    # Convert data from raw mono bitmap to a bitwise run-length-encoded format.
+    # - The first nybble is the starting bit state. Changing this nybble inverts the bitmap.
+    # - The following bytes provide the runs for alternating on/off bits.
+    #   - A value of 0-14 encodes a run of 1-15.
+    #   - A value of 16 indicates a run of 16-270 calculated using the next two bytes.
+    #
     def bitwise_rle_encode(data):
 
         def get_bit(data, n): return 1 if (data[n // 8] & (0x80 >> (n & 7))) else 0
@@ -77,7 +73,7 @@ def addCompressedData(input_file, output_file):
         def try_encode(data, isext):
             bitslen = len(data) * 8
             bitstate = get_bit(data, 0)
-            rledata = [bitstate]
+            rledata = [ bitstate ]
             bigrun = 256 if isext else 272
             medrun = False
 
@@ -91,12 +87,12 @@ def addCompressedData(input_file, output_file):
                         isext = True
                         if medrun: return [], isext
                         rem = runlen & 0xFF
-                        rledata += [15, 15, rem // 16, rem % 16]
+                        rledata += [ 15, 15, rem // 16, rem % 16 ]
                     elif runlen >= 16:
-                        rledata += [15, runlen // 16 - 1, runlen % 16]
+                        rledata += [ 15, runlen // 16 - 1, runlen % 16 ]
                         if runlen >= 256: medrun = True
                     else:
-                        rledata += [runlen - 1]
+                        rledata += [ runlen - 1 ]
                     bitstate ^= 1
                     runlen = 0
                 i += 1
@@ -109,7 +105,7 @@ def addCompressedData(input_file, output_file):
             while ri < rlen:
                 v = rledata[ri] << 4
                 if (ri < rlen - 1): v |= rledata[ri + 1]
-                encoded += [v]
+                encoded += [ v ]
                 ri += 2
 
             #print("\nencoded", encoded)
@@ -120,28 +116,25 @@ def addCompressedData(input_file, output_file):
         print("Compressing image data...", warn)
         isext = False
         encoded, isext = try_encode(data, isext)
-        if not encoded:
+        if len(encoded) == 0:
             encoded, isext = try_encode(data, True)
         return encoded, isext
 
     def bitwise_rle_decode(isext, rledata, invert=0):
         expanded = []
-        for n in rledata: expanded += [n >> 4, n & 0xF]
+        for n in rledata: expanded += [ n >> 4, n & 0xF ]
 
-        decoded  = []
-        bitstate = 0
-        workbyte = 0
-        outindex = 0
+        decoded = []
+        bitstate = 0 ; workbyte = 0 ; outindex = 0
         i = 0
         while i < len(expanded):
             c = expanded[i]
             i += 1
-            if i == 1:
-                bitstate = c
-                continue
+
+            if i == 1: bitstate = c ; continue
+
             if c == 15:
-                d = expanded[i]
-                e = expanded[i + 1]
+                d = expanded[i] ; e = expanded[i + 1]
                 if isext and d == 15:
                     c = 256 + 16 * e + expanded[i + 2] - 1
                     i += 1
@@ -153,15 +146,15 @@ def addCompressedData(input_file, output_file):
                 bitval = 0x80 >> (outindex & 7)
                 if bitstate: workbyte |= bitval
                 if bitval == 1:
-                    decoded += [workbyte]
+                    decoded += [ workbyte ]
                     workbyte = 0
                 outindex += 1
 
             bitstate ^= 1
 
         print("\nDecoded RLE data:")
-        pretty = ['{0:08b}'.format(v) for v in decoded]
-        rows = [pretty[i : i + bytewidth] for i in range(0, len(pretty), bytewidth)]
+        pretty = [ '{0:08b}'.format(v) for v in decoded ]
+        rows = [pretty[i:i+bytewidth] for i in range(0, len(pretty), bytewidth)]
         for row in rows: print(f"{''.join(row)}")
 
         return decoded
@@ -169,9 +162,9 @@ def addCompressedData(input_file, output_file):
     def rle_emit(ofile, arrname, rledata, rawsize, isext):
 
         outstr = ''
-        rows = [rledata[i : i + 16] for i in range(0, len(rledata), 16)]
+        rows = [ rledata[i:i+16] for i in range(0, len(rledata), 16) ]
         for i in range(0, len(rows)):
-            rows[i] = ['0x{0:02X}'.format(v) for v in rows[i]]
+            rows[i] = [ '0x{0:02X}'.format(v) for v in rows[i] ]
             outstr += f"  {', '.join(rows[i])},\n"
 
         outstr = outstr[:-2]
@@ -188,11 +181,11 @@ def addCompressedData(input_file, output_file):
     checkdata = bitwise_rle_decode(isext, rledata)
     for i in range(0, len(checkdata)):
         if raw_data[i] != checkdata[i]:
-            print(f"Data mismatch at byte offset {i} (should be {raw_data[i]} but got {checkdata[i]})")
+            print(f'Data mismatch at byte offset {i} (should be {raw_data[i]} but got {checkdata[i]})')
             break
 
 if len(sys.argv) <= 2:
-    print("Usage: rle_compress_bitmap.py INPUT_FILE OUTPUT_FILE")
+    print('Usage: rle_compress_bitmap.py INPUT_FILE OUTPUT_FILE')
     exit(1)
 
 output_h = sys.argv[2]

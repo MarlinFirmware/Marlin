@@ -1,20 +1,22 @@
-"""
-preprocessor.py
-"""
-
+#
+# preprocessor.py
+#
 import subprocess
 
 nocache = 1
 verbose = 0
 
-def blab(msg):
+def blab(str):
     if verbose:
-        print(msg)
+        print(str)
 
+################################################################################
+#
+# Invoke GCC to run the preprocessor and extract enabled features
+#
 preprocessor_cache = {}
 
 def run_preprocessor(env, fn=None):
-    """Invoke GCC to run the preprocessor and extract enabled features."""
     filename = fn or 'buildroot/share/PlatformIO/scripts/common-dependencies.h'
     if filename in preprocessor_cache:
         return preprocessor_cache[filename]
@@ -24,28 +26,34 @@ def run_preprocessor(env, fn=None):
     build_flags = env.ParseFlagsExtended(build_flags)
 
     cxx = search_compiler(env)
-    cmd = [cxx]
+    cmd = ['"' + cxx + '"']
 
     # Build flags from board.json
     #if 'BOARD' in env:
     #   cmd += [env.BoardConfig().get("build.extra_flags")]
     for s in build_flags['CPPDEFINES']:
         if isinstance(s, tuple):
-            cmd.append(f'-D{s[0]}={s[1]}')
+            cmd += ['-D' + s[0] + '=' + str(s[1])]
         else:
-            cmd.append(f'-D{s}')
+            cmd += ['-D' + s]
 
-    cmd += ['-D__MARLIN_DEPS__', '-w', '-dM', '-E', '-x', 'c++', filename]
-    blab(' '.join(cmd))
+    cmd += ['-D__MARLIN_DEPS__ -w -dM -E -x c++']
+    depcmd = cmd + [ filename ]
+    cmd = ' '.join(depcmd)
+    blab(cmd)
     try:
-        define_list = subprocess.check_output(cmd).splitlines()
+        define_list = subprocess.check_output(cmd, shell=True).splitlines()
     except:
         define_list = {}
     preprocessor_cache[filename] = define_list
     return define_list
 
+
+################################################################################
+#
+# Find a compiler, considering the OS
+#
 def search_compiler(env):
-    """Find a compiler, considering the OS."""
     global nocache
 
     from pathlib import Path, PurePath
@@ -56,7 +64,7 @@ def search_compiler(env):
     gccpath = None
     try:
         gccpath = env.GetProjectOption('custom_gcc')
-        blab(f"Getting compiler from {env['PIOENV']}")
+        blab("Getting compiler from env")
         return gccpath
     except:
         pass
@@ -94,12 +102,12 @@ def search_compiler(env):
 
     if not gccpath:
         gccpath = env.get('CXX')
-        blab(f"Couldn't find a compiler! Fallback to '{gccpath}'")
+        blab("Couldn't find a compiler! Fallback to '%s'" % gccpath)
         nocache = 1
 
     # Cache the g++ path to speed up the next build
     if not nocache and gccpath and ENV_BUILD_PATH.exists():
-        blab(f"Caching g++ for {env['PIOENV']}")
+        blab("Caching g++ for current env")
         GCC_PATH_CACHE.write_text(gccpath)
 
     return gccpath

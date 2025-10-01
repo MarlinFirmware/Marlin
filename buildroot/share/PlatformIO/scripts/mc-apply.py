@@ -1,21 +1,20 @@
 #!/usr/bin/env python
-"""
-mc-apply.py
-
-Apply firmware configuration from a JSON file (marlin_config.json).
-
-Usage: mc-apply.py [-h|--help] [--opt] [config_file]
-
-Process Marlin firmware configuration.
-
-Positional arguments:
-  config_file  Path to the configuration file.
-
-Optional arguments:
-  -h, --help   show this help message and exit
-  --opt        Output as an option setting script.
-"""
-
+#
+# mc-apply.py
+#
+#  Apply firmware configuration from a JSON file (marlin_config.json).
+#
+#  usage: mc-apply.py [-h] [--opt] [config_file]
+#
+#  Process Marlin firmware configuration.
+#
+#  positional arguments:
+#    config_file  Path to the configuration file.
+#
+#  optional arguments:
+#    -h, --help   show this help message and exit
+#    --opt        Output as an option setting script.
+#
 import json, sys, os
 import config
 import argparse
@@ -31,7 +30,7 @@ def write_opt_file(conf, outpath='Marlin/apply_config.sh'):
             if key in ('__INITIAL_HASH', 'VERSION'): continue
 
             # Other keys are assumed to be configs
-            if not isinstance(val, dict):
+            if not type(val) is dict:
                 continue
 
             # Write config commands to the script file
@@ -45,10 +44,10 @@ def write_opt_file(conf, outpath='Marlin/apply_config.sh'):
 
             outfile.write('\n'.join(lines))
 
-        print("Config script written to: " + outpath)
+        print('Config script written to: ' + outpath)
 
 def back_up_config(name):
-    """Back up the existing file before modifying it."""
+    # Back up the existing file before modifying it
     conf_path = 'Marlin/' + name
     with open(conf_path, 'r', encoding='utf-8') as f:
         # Write a filename.bak#.ext retaining the original extension
@@ -77,16 +76,16 @@ def apply_config(conf):
                 config.enable('Marlin/' + key, k)
 
 def main():
-    parser = argparse.ArgumentParser(description="Process Marlin firmware configuration.")
-    parser.add_argument("--opt", action="store_true", help="Output as an option setting script.")
-    parser.add_argument("config_file", nargs="?", default="marlin_config.json", help="Path to the configuration file.")
+    parser = argparse.ArgumentParser(description='Process Marlin firmware configuration.')
+    parser.add_argument('--opt', action='store_true', help='Output as an option setting script.')
+    parser.add_argument('config_file', nargs='?', default='marlin_config.json', help='Path to the configuration file.')
 
     args = parser.parse_args()
 
     try:
         infile = open(args.config_file, 'r', encoding='utf-8')
     except:
-        print(f"No {args.config_file} found.")
+        print(f'No {args.config_file} found.')
         sys.exit(1)
 
     conf = json.load(infile)
@@ -97,5 +96,5 @@ def main():
     else:
         apply_config(conf)
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

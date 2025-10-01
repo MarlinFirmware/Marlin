@@ -1,15 +1,13 @@
-"""
-pioutil.py
-"""
+#
+# pioutil.py
+#
 
 from SCons.Script import DefaultEnvironment
 env = DefaultEnvironment()
 
+# Make sure 'vscode init' is not the current command
 def is_pio_build():
-    """Make sure 'vscode init' is not the current command."""
-    if "IsCleanTarget" in dir(env):
-        if env.IsCleanTarget():
-            return False
+    if "IsCleanTarget" in dir(env) and env.IsCleanTarget(): return False
     return not env.IsIntegrationDump()
 
 def get_pio_version():

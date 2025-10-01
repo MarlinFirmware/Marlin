@@ -1,40 +1,33 @@
 #!/usr/bin/env python3
-"""
-configuration.py
-
-Apply options from config.ini to the existing Configuration headers
-"""
-
+#
+# configuration.py
+# Apply options from config.ini to the existing Configuration headers
+#
 import re, os, shutil, configparser, datetime
 from pathlib import Path
 
 verbose = 0
-
-def blab(msg, level=1):
-    if verbose >= level: print(f"[config] {msg}")
+def blab(str,level=1):
+    if verbose >= level: print(f"[config] {str}")
 
 def config_path(cpath):
     return Path("Marlin", cpath)
 
+# Apply a single name = on/off ; name = value ; etc.
+# TODO: Limit to the given (optional) configuration
 def apply_opt(name, val, conf=None):
-    """
-    TODO: Limit to the given (optional) configuration
-    Apply a single name = on/off ; name = value ; etc.
-    """
     if name == "lcd": name, val = val, "on"
 
-    """
-    Create a regex to match the option and capture parts of the line
-    1: Indentation
-    2: Comment
-    3: #define and whitespace
-    4: Option name
-    5: First space after name
-    6: Remaining spaces between name and value
-    7: Option value
-    8: Whitespace after value
-    9: End comment
-    """
+    # Create a regex to match the option and capture parts of the line
+    # 1: Indentation
+    # 2: Comment
+    # 3: #define and whitespace
+    # 4: Option name
+    # 5: First space after name
+    # 6: Remaining spaces between name and value
+    # 7: Option value
+    # 8: Whitespace after value
+    # 9: End comment
     regex = re.compile(
         rf"^(\s*)(//\s*)?(#define\s+)({name}\b)(\s?)(\s*)(.*?)(\s*)(//.*)?$",
         re.IGNORECASE
@@ -104,11 +97,9 @@ def apply_opt(name, val, conf=None):
             lines.insert(linenum, f"{prefix}#define {added:30} // Added by config.ini {currtime}\n")
             fullpath.write_text(''.join(lines), encoding='utf-8')
 
+# Disable all (most) defined options in the configuration files.
+# Everything in the named sections. Section hint for exceptions may be added.
 def disable_all_options():
-    """
-    Disable all (most) defined options in the configuration files.
-    Everything in the named sections. Section hint for exceptions may be added.
-    """
     # Create a regex to match the option and capture parts of the line
     regex = re.compile(r'^(\s*)(#define\s+)([A-Z0-9_]+\b)(\s?)(\s*)(.*?)(\s*)(//.*)?$', re.IGNORECASE)
 
@@ -134,11 +125,9 @@ def disable_all_options():
         if found:
             fullpath.write_text('\n'.join(lines), encoding='utf-8')
 
+# Fetch configuration files from GitHub given the path.
+# Return True if any files were fetched.
 def fetch_example(url):
-    """
-    Fetch configuration files from GitHub given the path.
-    Return True if any files were fetched.
-    """
     if url.endswith("/"): url = url[:-1]
     if not url.startswith('http'):
         brch = "bugfix-2.1.x"
@@ -173,8 +162,8 @@ def fetch_example(url):
 def section_items(cp, sectkey):
     return cp.items(sectkey) if sectkey in cp.sections() else []
 
+# Apply all items from a config section. Ignore ini_ items outside of config:base and config:root.
 def apply_ini_by_name(cp, sect):
-    """Apply all items from a config section. Ignore ini_ items outside of config:base and config:root."""
     iniok = True
     if sect in ('config:base', 'config:root'):
         iniok = False
@@ -186,14 +175,14 @@ def apply_ini_by_name(cp, sect):
         if iniok or not item[0].startswith('ini_'):
             apply_opt(item[0], item[1])
 
+# Apply all config sections from a parsed file
 def apply_all_sections(cp):
-    """Apply all config sections from a parsed file."""
     for sect in cp.sections():
         if sect.startswith('config:'):
             apply_ini_by_name(cp, sect)
 
+# Apply certain config sections from a parsed file
 def apply_sections(cp, ckey='all'):
-    """Apply certain config sections from a parsed file."""
     blab(f"Apply section key: {ckey}")
     if ckey == 'all':
         apply_all_sections(cp)
@@ -215,8 +204,8 @@ def apply_sections(cp, ckey='all'):
         elif ckey.startswith('config:'):
             apply_ini_by_name(cp, ckey)
 
+# Apply settings from a top level config.ini
 def apply_config_ini(cp):
-    """Apply settings from a top level config.ini."""
     blab("=" * 20 + " Gather 'config.ini' entries...")
 
     # Pre-scan for ini_use_config to get config_keys
@@ -272,11 +261,11 @@ if __name__ == "__main__":
     #
     import sys
     args = sys.argv[1:]
-    if args:
-        if args[0].endswith(".ini"):
+    if len(args) > 0:
+        if args[0].endswith('.ini'):
             ini_file = args[0]
         else:
-            print(f"usage: {os.path.basename(sys.argv[0])} <.ini file>")
+            print("Usage: %s <.ini file>" % os.path.basename(sys.argv[0]))
     else:
         ini_file = config_path('config.ini')
 

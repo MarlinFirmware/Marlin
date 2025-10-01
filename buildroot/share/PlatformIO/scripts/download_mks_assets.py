@@ -1,9 +1,7 @@
-"""
-download_mks_assets.py
-
-Added by HAS_TFT_LVGL_UI to download assets from Makerbase repo
-"""
-
+#
+# download_mks_assets.py
+# Added by HAS_TFT_LVGL_UI to download assets from Makerbase repo
+#
 import pioutil
 if pioutil.is_pio_build():
     import requests, zipfile, tempfile, shutil
@@ -18,7 +16,7 @@ if pioutil.is_pio_build():
     def download_mks_assets():
         print("Downloading MKS Assets for TFT_LVGL_UI")
         r = requests.get(url, stream=True)
-        # The user may have a very clean workspace,
+        # the user may have a very clean workspace,
         # so create the PROJECT_LIBDEPS_DIR directory if not exits
         if not deps_path.exists():
             deps_path.mkdir()

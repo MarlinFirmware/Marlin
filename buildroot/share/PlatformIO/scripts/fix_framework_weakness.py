@@ -1,7 +1,6 @@
-"""
-fix_framework_weakness.py
-"""
-
+#
+# fix_framework_weakness.py
+#
 import pioutil
 if pioutil.is_pio_build():
 
@@ -14,7 +13,7 @@ if pioutil.is_pio_build():
         FRAMEWORK_DIR = env.PioPlatform().get_package_dir("framework-arduinoststm32-maple")
         patchflag_path = join(FRAMEWORK_DIR, ".exc-patching-done")
 
-        # Patch file only if we didn't do it before
+        # patch file only if we didn't do it before
         if not isfile(patchflag_path):
             print("Patching libmaple exception handlers")
             original_file = join(FRAMEWORK_DIR, "STM32F1", "cores", "maple", "libmaple", "exc.S")

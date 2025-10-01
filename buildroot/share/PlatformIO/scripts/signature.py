@@ -1,22 +1,21 @@
 #!/usr/bin/env python3
-"""
-signature.py
-"""
-
+#
+# signature.py
+#
 import schema, subprocess, re, json, hashlib
 from datetime import datetime
 from pathlib import Path
 from functools import reduce
 
 def enabled_defines(filepath):
-    """
+    '''
     Return all enabled #define items from a given C header file in a dictionary.
     A "#define" in a multi-line comment could produce a false positive if it's not
     preceded by a non-space character (like * in a multi-line comment).
 
     Output:
     Each entry is a dictionary with a 'name' and a 'section' key. We end up with:
-        {MOTHERBOARD: {name: "MOTHERBOARD", section: "hardware"}, ...}
+        { MOTHERBOARD: { name: "MOTHERBOARD", section: "hardware" }, ... }
 
     TODO: Drop the 'name' key as redundant. For now it's useful for debugging.
 
@@ -32,7 +31,7 @@ def enabled_defines(filepath):
     We end up with the actual configured state,
     better than what the config files say. You can then use the
     resulting config.ini to produce more exact configuration files.
-    """
+    '''
     outdict = {}
     section = "user"
     spatt = re.compile(r".*@section +([-a-zA-Z0-9_\s]+)$") # @section ...
@@ -59,7 +58,7 @@ def enabled_defines(filepath):
         if sline[:7] == "#define":
             # Extract the key here (we don't care about the value)
             kv = sline[8:].strip().split()
-            outdict[kv[0]] = {'name':kv[0], 'section': section}
+            outdict[kv[0]] = { 'name':kv[0], 'section': section }
     return outdict
 
 # Compute the SHA256 hash of a file
@@ -85,12 +84,12 @@ ignore = ('CONFIGURATION_H_VERSION', 'CONFIGURATION_ADV_H_VERSION', 'CONFIG_EXAM
 # Compute a build signature and/or export the configuration
 #
 def compute_build_signature(env):
-    """
+    '''
     Compute the build signature by extracting all configuration settings and
     building a unique reversible signature that can be included in the binary.
     The signature can be reversed to get a 1:1 equivalent configuration file.
     Used by common-dependencies.py after filtering build files by feature.
-    """
+    '''
     if 'BUILD_SIGNATURE' in env: return
     env.Append(BUILD_SIGNATURE=1)
 
@@ -129,7 +128,7 @@ def compute_build_signature(env):
     conf_defines = {}
     conf_names = []
     for hpath in header_paths:
-        # Get defines in the form of {name: {name:..., section:...}, ...}
+        # Get defines in the form of { name: { name:..., section:... }, ... }
         defines = enabled_defines(hpath)
         # Get all unique define names into a flat array
         conf_names += defines.keys()
@@ -174,13 +173,13 @@ def compute_build_signature(env):
         # Remove all keys ending by "_T_DECLARED" as it's a copy of extraneous system stuff
         if key.endswith("_T_DECLARED"): continue
         # Remove keys that are not in the #define list in the Configuration list
-        if key not in conf_names + ['DETAILED_BUILD_VERSION', 'STRING_DISTRIBUTION_DATE']: continue
+        if key not in conf_names + [ 'DETAILED_BUILD_VERSION', 'STRING_DISTRIBUTION_DATE' ]: continue
         # Add to a new dictionary for simplicity
         cleaned_build_defines[key] = build_defines[key]
 
     # And we only care about defines that (most likely) came from the config files
     # Build a dictionary of dictionaries with keys: 'name', 'section', 'value'
-    # {'file1': {'option': {'name':'option', 'section':..., 'value':...}, ...}, 'file2': {...}}
+    # { 'file1': { 'option': { 'name':'option', 'section':..., 'value':... }, ... }, 'file2': { ... } }
     real_config = {}
     for header in conf_defines:
         real_config[header] = {}
@@ -188,7 +187,7 @@ def compute_build_signature(env):
             if key in conf_defines[header]:
                 if key[0:2] == '__': continue
                 val = cleaned_build_defines[key]
-                real_config[header][key] = {'file':header, 'name': key, 'value': val, 'section': conf_defines[header][key]['section']}
+                real_config[header][key] = { 'file':header, 'name': key, 'value': val, 'section': conf_defines[header][key]['section']}
 
     def tryint(key):
         try: return int(build_defines[key])
@@ -223,7 +222,7 @@ def compute_build_signature(env):
         # Start with a preferred @section ordering
         preorder = ('test','custom','info','machine','eeprom','stepper drivers','multi stepper','idex','extruder','geometry','homing','kinematics','motion','motion control','endstops','filament runout sensors','probe type','probes','bltouch','leveling','temperature','hotend temp','mpctemp','pid temp','mpc temp','bed temp','chamber temp','fans','tool change','advanced pause','calibrate','calibration','media','lcd','lights','caselight','interface','custom main menu','custom config menu','custom buttons','develop','debug matrix','delta','scara','tpara','polar','polargraph','cnc','nozzle park','nozzle clean','gcode','serial','host','filament width','i2c encoders','i2cbus','joystick','multi-material','nanodlp','network','photo','power','psu control','reporting','safety','security','servos','stats','tmc/config','tmc/hybrid','tmc/serial','tmc/smart','tmc/spi','tmc/stallguard','tmc/status','tmc/stealthchop','tmc/tmc26x','units','volumetrics','extras')
 
-        sections = {key:{} for key in preorder}
+        sections = { key:{} for key in preorder }
 
         # Group options by schema @section
         for header in real_config:
@@ -264,7 +263,7 @@ def compute_build_signature(env):
                         sections[sect][name] = ddict
 
             # Get all sections as a list of strings, with spaces and dashes replaced by underscores
-            long_list = [re.sub(r'[- ]+', '_', x).lower() for x in sections.keys()]
+            long_list = [ re.sub(r'[- ]+', '_', x).lower() for x in sections.keys() ]
             # Make comma-separated lists of sections with 64 characters or less
             sec_lines = []
             while len(long_list):
@@ -283,12 +282,12 @@ def compute_build_signature(env):
 
         config_ini = build_path / 'config.ini'
         with config_ini.open('w', encoding='utf-8') as outfile:
-            filegrp = {'Configuration.h':'config:basic', 'Configuration_adv.h':'config:advanced'}
+            filegrp = { 'Configuration.h':'config:basic', 'Configuration_adv.h':'config:advanced' }
             vers = build_defines["CONFIGURATION_H_VERSION"]
             dt_string = datetime.now().strftime("%Y-%m-%d at %H:%M:%S")
 
             outfile.write(
-f"""#
+f'''#
 # Marlin Firmware
 # config.ini - Options to apply before the build
 #
@@ -335,7 +334,7 @@ f"""#
 #
 {sec_list}
 {ini_fmt.format('ini_config_vers', vers)}
-"""         )
+'''         )
 
             if extended_dump:
 
@@ -357,7 +356,7 @@ f"""#
 
                 # Standard export just dumps config:basic and config:advanced sections
                 for header in real_config:
-                    outfile.write(f"\n[{filegrp[header]}]\n")
+                    outfile.write(f'\n[{filegrp[header]}]\n')
                     opts = real_config[header]
                     opts_keys = sorted(opts.keys(), key=lambda x: optsort(x, optorder))
                     for name in opts_keys:
@@ -374,17 +373,17 @@ f"""#
 
         config_h = Path('Marlin', 'Config-export.h')
         with config_h.open('w') as outfile:
-            filegrp = {'Configuration.h':'config:basic', 'Configuration_adv.h':'config:advanced'}
+            filegrp = { 'Configuration.h':'config:basic', 'Configuration_adv.h':'config:advanced' }
             vers = build_defines["CONFIGURATION_H_VERSION"]
             dt_string = datetime.utcnow().strftime("%Y-%m-%d at %H:%M:%S")
 
-            out_text = f"""/**
+            out_text = f'''/**
  * Config.h - Marlin Firmware distilled configuration
  * Usage: Place this file in the 'Marlin' folder with the name 'Config.h'.
  *
  * Exported by Marlin build on {dt_string}.
  */
-"""
+'''
 
             subs = (('Bltouch','BLTouch'),('hchop','hChop'),('Eeprom','EEPROM'),('Gcode','G-code'),('lguard','lGuard'),('Idex','IDEX'),('Lcd','LCD'),('Mpc','MPC'),('Pid','PID'),('Psu','PSU'),('Scara','SCARA'),('Spi','SPI'),('Tmc','TMC'),('Tpara','TPARA'))
             define_fmt = '#define {0:40} {1}'
@@ -407,7 +406,7 @@ f"""#
             else:
                 # Dump config options in just two sections, by file
                 for header in real_config:
-                    out_text += f"\n/**\n * Overrides for {header}\n */\n"
+                    out_text += f'\n/**\n * Overrides for {header}\n */\n'
                     opts = real_config[header]
                     opts_keys = sorted(opts.keys(), key=lambda x: optsort(x, optorder))
                     for name in opts_keys:

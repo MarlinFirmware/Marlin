@@ -1,14 +1,12 @@
-"""
-common-dependencies.py
-
-Convenience script to check dependencies and add libs and sources for Marlin Enabled Features
-"""
-
+#
+# common-dependencies.py
+# Convenience script to check dependencies and add libs and sources for Marlin Enabled Features
+#
 import pioutil
 if pioutil.is_pio_build():
 
     import os, re, fnmatch, glob
-    srcfilepattern = re.compile(r'.*[.](cpp|c)$')
+    srcfilepattern = re.compile(r".*[.](cpp|c)$")
     marlinbasedir = os.path.join(os.getcwd(), "Marlin/")
     env = pioutil.env
 
@@ -20,15 +18,14 @@ if pioutil.is_pio_build():
 
     def validate_pio():
         PIO_VERSION_MIN = (6, 0, 1)
-        WEIGHTS = (1000, 100, 1)
-
-        def weighted_sum(version):
-            return sum(w * float(re.sub(r'[^0-9]', '.', str(v))) for w, v in zip(WEIGHTS, version))
-
         try:
             from platformio import VERSION as PIO_VERSION
-            if weighted_sum(PIO_VERSION) < weighted_sum(PIO_VERSION_MIN):
-                print("\n" + "*" * 50)
+            weights = (1000, 100, 1)
+            version_min = sum([x[0] * float(re.sub(r'[^0-9]', '.', str(x[1]))) for x in zip(weights, PIO_VERSION_MIN)])
+            version_cur = sum([x[0] * float(re.sub(r'[^0-9]', '.', str(x[1]))) for x in zip(weights, PIO_VERSION)])
+            if version_cur < version_min:
+                print()
+                print("**************************************************")
                 print("******      An update to PlatformIO is      ******")
                 print("******  required to build Marlin Firmware.  ******")
                 print("******                                      ******")
@@ -36,17 +33,17 @@ if pioutil.is_pio_build():
                 print("******      Current Version: ", PIO_VERSION, "    ******")
                 print("******                                      ******")
                 print("******   Update PlatformIO and try again.   ******")
-                print("*" * 50 + "\n")
+                print("**************************************************")
+                print()
                 exit(1)
         except SystemExit:
             exit(1)
         except:
             print("Can't detect PlatformIO Version")
-            exit(1)
 
-    def blab(msg, level=1):
+    def blab(str, level=1):
         if verbose >= level:
-            print("[deps] %s" % msg)
+            print("[deps] %s" % str)
 
     def add_to_feat_cnf(feature, flines):
 
@@ -82,7 +79,7 @@ if pioutil.is_pio_build():
         for key in ProjectConfig().items('features'):
             feature = key[0].upper()
             if not feature in FEATURE_CONFIG:
-                FEATURE_CONFIG[feature] = {'lib_deps': []}
+                FEATURE_CONFIG[feature] = { 'lib_deps': [] }
             add_to_feat_cnf(feature, key[1])
 
         # Add options matching custom_marlin.MY_OPTION to the pile
@@ -97,7 +94,7 @@ if pioutil.is_pio_build():
                     val = None
                 if val:
                     opt = mat[1].upper()
-                    blab("%s.custom_marlin.%s = '%s'" % (env['PIOENV'], opt, val), 2)
+                    blab("%s.custom_marlin.%s = '%s'" % ( env['PIOENV'], opt, val ), 2)
                     add_to_feat_cnf(opt, val)
 
     def get_all_known_libs():
@@ -121,14 +118,12 @@ if pioutil.is_pio_build():
         proj = env.GetProjectConfig()
         proj.set("env:" + env['PIOENV'], field, value)
 
+    # All unused libs should be ignored so that if a library
+    # exists in .pio/lib_deps it will not break compilation.
     def force_ignore_unused_libs():
-        """
-        All unused libs should be ignored so that if a library
-        exists in .pio/lib_deps it will not break compilation.
-        """
         env_libs = get_all_env_libs()
         known_libs = get_all_known_libs()
-        diff = list(set(known_libs) - set(env_libs))
+        diff = (list(set(known_libs) - set(env_libs)))
         lib_ignore = env.GetProjectOption('lib_ignore') + diff
         blab("Ignore libraries: %s" % lib_ignore)
         set_env_field('lib_ignore', lib_ignore)
@@ -146,7 +141,7 @@ if pioutil.is_pio_build():
             if 'lib_deps' in feat and len(feat['lib_deps']):
                 blab("========== Adding lib_deps for %s... " % feature, 2)
 
-                # Feat to add
+                # feat to add
                 deps_to_add = {}
                 for dep in feat['lib_deps']:
                     deps_to_add[PackageSpec(dep).name] = dep
@@ -167,14 +162,14 @@ if pioutil.is_pio_build():
                         del deps_to_add[name]
 
                 # Is there anything left?
-                if deps_to_add:
+                if len(deps_to_add) > 0:
                     # Only add the missing dependencies
                     set_env_field('lib_deps', deps + list(deps_to_add.values()))
 
             if 'build_flags' in feat:
                 f = feat['build_flags']
                 blab("========== Adding build_flags for %s: %s" % (feature, f), 2)
-                new_flags = env.GetProjectOption('build_flags') + [f]
+                new_flags = env.GetProjectOption('build_flags') + [ f ]
                 env.Replace(BUILD_FLAGS=new_flags)
 
             if 'extra_scripts' in feat:
@@ -223,7 +218,7 @@ if pioutil.is_pio_build():
                     # Add all the things from the pattern by GLOB.
                     def srepl(matchi):
                         g0 = matchi.group(0)
-                        return r'**' + g0[1:]
+                        return r"**" + g0[1:]
 
                     gpattern = re.sub(r'[*]($|[^*])', srepl, plain)
                     gpattern = os.path.join(marlinbasedir, gpattern)
@@ -259,7 +254,7 @@ if pioutil.is_pio_build():
                     cur_srcs = set(filter(filt, cur_srcs))
         # Transform the resulting set into a string.
         for x in cur_srcs:
-            if build_src_filter != "": build_src_filter += " "
+            if build_src_filter != "": build_src_filter += ' '
             build_src_filter += "+<" + x + ">"
 
         # Update in PlatformIO
@@ -268,8 +263,10 @@ if pioutil.is_pio_build():
 
         #blab("Final build_src_filter: " + build_src_filter, 3)
 
+    #
+    # Use the compiler to get a list of all enabled features
+    #
     def load_marlin_features():
-        """Use the compiler to get a list of all enabled features."""
         if 'MARLIN_FEATURES' in env:
             return
 
@@ -283,8 +280,10 @@ if pioutil.is_pio_build():
             marlin_features[feature] = definition
         env['MARLIN_FEATURES'] = marlin_features
 
+    #
+    # Return True if a matching feature is enabled
+    #
     def MarlinHas(env, feature):
-        """Return True if a matching feature is enabled."""
         load_marlin_features()
         r = re.compile('^' + feature + '$', re.IGNORECASE)
         found = list(filter(r.match, env['MARLIN_FEATURES']))
@@ -294,7 +293,7 @@ if pioutil.is_pio_build():
         if len(found):
             for f in found:
                 val = env['MARLIN_FEATURES'][f]
-                if val in ['', '1', 'true']:
+                if val in [ '', '1', 'true' ]:
                     some_on = True
                 elif val in env['MARLIN_FEATURES']:
                     some_on = env.MarlinHas(val)

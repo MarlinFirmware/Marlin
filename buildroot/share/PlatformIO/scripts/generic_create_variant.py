@@ -1,11 +1,10 @@
-"""
-generic_create_variant.py
-
-Copy one of the variants from buildroot/platformio/variants into
-the appropriate framework variants folder, so that its contents
-will be picked up by PlatformIO just like any other variant.
-"""
-
+#
+# generic_create_variant.py
+#
+# Copy one of the variants from buildroot/platformio/variants into
+# the appropriate framework variants folder, so that its contents
+# will be picked up by PlatformIO just like any other variant.
+#
 import pioutil, re
 
 marlin_variant_pattern = re.compile("marlin_.*")
@@ -26,7 +25,7 @@ if pioutil.is_pio_build():
     # Remove all tool items from platform_packages
     platform_packages = [x for x in platform_packages if not x.startswith("platformio/tool-")]
 
-    if not platform_packages:
+    if len(platform_packages) == 0:
         framewords = {
             "Ststm32Platform": "framework-arduinoststm32",
             "AtmelavrPlatform": "framework-arduino-avr"

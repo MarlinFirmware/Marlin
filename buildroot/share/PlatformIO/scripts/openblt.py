@@ -1,7 +1,6 @@
-"""
-Convert the ELF to an SREC file suitable for some bootloaders
-"""
-
+#
+# Convert the ELF to an SREC file suitable for some bootloaders
+#
 import pioutil
 if pioutil.is_pio_build():
     from os.path import join

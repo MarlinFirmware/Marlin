@@ -1,12 +1,10 @@
-"""
-lerdge.py
-
-Customizations for Lerdge build environments:
-  env:LERDGEX  env:LERDGEX_usb_flash_drive
-  env:LERDGES  env:LERDGES_usb_flash_drive
-  env:LERDGEK  env:LERDGEK_usb_flash_drive
-"""
-
+#
+# lerdge.py
+# Customizations for Lerdge build environments:
+#   env:LERDGEX  env:LERDGEX_usb_flash_drive
+#   env:LERDGES  env:LERDGES_usb_flash_drive
+#   env:LERDGEK  env:LERDGEK_usb_flash_drive
+#
 import pioutil
 if pioutil.is_pio_build():
     import os, marlin
@@ -20,16 +18,14 @@ if pioutil.is_pio_build():
         byte = (0xF8 & i) | (0x07 & j)
         return byte
 
-    def encrypt_file(input_file, output_file, file_length):
-        input = bytearray(input_file.read())
-        for i, byte in enumerate(input):
-            input[i] = encryptByte(byte)
-        output_file.write(input)
+    def encrypt_file(input, output_file, file_length):
+        input_file = bytearray(input.read())
+        for i in range(len(input_file)):
+            input_file[i] = encryptByte(input_file[i])
+        output_file.write(input_file)
 
+    # Encrypt ${PROGNAME}.bin and save it with the name given in build.crypt_lerdge
     def encrypt(source, target, env):
-        """
-        Encrypt ${PROGNAME}.bin and save it with the name given in build.crypt_lerdge
-        """
         fwpath = target[0].path
         enname = board.get("build.crypt_lerdge")
         print("Encrypting %s to %s" % (fwpath, enname))

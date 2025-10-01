@@ -1,14 +1,12 @@
 #!/usr/bin/env python3
-"""
-languageExport.py
-
-Usage: languageExport.py [--single]
+'''
+languageExport.py [--single]
 
 Export LCD language strings to CSV files for easier translation.
 Use languageImport.py to import CSV into the language files.
 
-Use '--single' to export all languages to a single CSV file.
-"""
+Use --single to export all languages to a single CSV file.
+'''
 
 import re
 from pathlib import Path
@@ -18,8 +16,8 @@ from languageUtil import namebyid
 LANGHOME = "Marlin/src/lcd/language"
 
 # Write multiple sheets if true, otherwise write one giant sheet
-MULTISHEET = "--single" not in argv[1:]
-OUTDIR = "out-csv"
+MULTISHEET = '--single' not in argv[1:]
+OUTDIR = 'out-csv'
 
 # Check for the path to the language files
 if not Path(LANGHOME).is_dir():
@@ -32,7 +30,7 @@ LIMIT = 0
 
 # A dictionary to contain strings for each language.
 # Init with 'en' so English will always be first.
-language_strings = {"en": {}}
+language_strings = { 'en': {} }
 
 # A dictionary to contain all distinct LCD string names
 names = {}
@@ -57,7 +55,7 @@ for langfile in langfiles:
     # A counter for the number of strings in the file
     stringcount = 0
     # A dictionary to hold all the strings
-    strings = {'narrow': {}, 'wide': {}, 'tall': {}}
+    strings = { 'narrow': {}, 'wide': {}, 'tall': {} }
     # Read each line in the file
     for line in f:
         # Clean up the line for easier parsing
@@ -114,8 +112,8 @@ langcodes = list(language_strings.keys())
 # Report the total number of unique strings
 print("Found %s distinct LCD strings." % len(names))
 
+# Write a single language entry to the CSV file with narrow, wide, and tall strings
 def write_csv_lang(f, strings, name):
-    """Write a single language entry to the CSV file with narrow, wide, and tall strings"""
     f.write(',')
     if name in strings['narrow']: f.write('"%s"' % strings['narrow'][name])
     f.write(',')
@@ -124,11 +122,13 @@ def write_csv_lang(f, strings, name):
     if name in strings['tall']: f.write('"%s"' % strings['tall'][name])
 
 if MULTISHEET:
-    """Export a separate sheet for each language"""
+    #
+    # Export a separate sheet for each language
+    #
     Path.mkdir(Path(OUTDIR), exist_ok=True)
 
     for lang in langcodes:
-        with open('%s/language_%s.csv' % (OUTDIR, lang), 'w', encoding='utf-8') as f:
+        with open("%s/language_%s.csv" % (OUTDIR, lang), 'w', encoding='utf-8') as f:
             lname = lang + ' ' + namebyid(lang)
             header = ['name', lname, lname + ' (wide)', lname + ' (tall)']
             f.write('"' + '","'.join(header) + '"\n')
@@ -137,9 +137,12 @@ if MULTISHEET:
                 f.write('"' + name + '"')
                 write_csv_lang(f, language_strings[lang], name)
                 f.write('\n')
+
 else:
-    """Export one large sheet containing all languages"""
-    with open('languages.csv', 'w', encoding='utf-8') as f:
+    #
+    # Export one large sheet containing all languages
+    #
+    with open("languages.csv", 'w', encoding='utf-8') as f:
         header = ['name']
         for lang in langcodes:
             lname = lang + ' ' + namebyid(lang)

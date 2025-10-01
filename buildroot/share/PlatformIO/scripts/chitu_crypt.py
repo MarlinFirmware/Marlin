@@ -1,9 +1,7 @@
-"""
-chitu_crypt.py
-
-Customizations for Chitu boards
-"""
-
+#
+# chitu_crypt.py
+# Customizations for Chitu boards
+#
 import pioutil
 if pioutil.is_pio_build():
     import struct, uuid, marlin
@@ -31,11 +29,11 @@ if pioutil.is_pio_build():
         # This is the block counter
         block_number = xor_seed * block_number
 
-        # Load the xor key from the file
+        # load the xor key from the file
         r7 = file_key
 
         for loop_counter in range(0, block_size):
-            # Meant to make sure different bits of the key are used.
+            # meant to make sure different bits of the key are used.
             xor_seed = loop_counter // key_length
 
             # IP is a scratch register / R12
@@ -44,22 +42,22 @@ if pioutil.is_pio_build():
             # xor_seed = (loop_counter * loop_counter) + block_number
             xor_seed = (loop_counter * loop_counter) + block_number
 
-            # Shift the xor_seed left by the bits in IP.
+            # shift the xor_seed left by the bits in IP.
             xor_seed = xor_seed >> ip
 
-            # Load a byte into IP
+            # load a byte into IP
             ip = r0[loop_counter]
 
             # XOR the seed with r7
             xor_seed = xor_seed ^ r7
 
-            # And then with IP
+            # and then with IP
             xor_seed = xor_seed ^ ip
 
             # Now store the byte back
             r1[loop_counter] = xor_seed & 0xFF
 
-            # Increment the loop_counter
+            # increment the loop_counter
             loop_counter = loop_counter + 1
 
     def encrypt_file(input, output_file, file_length):
@@ -72,19 +70,19 @@ if pioutil.is_pio_build():
 
         xor_crc = 0xEF3D4323
 
-        # The input file is exepcted to be in chunks of 0x800
+        # the input file is exepcted to be in chunks of 0x800
         # so round the size
         while len(input_file) % block_size != 0:
             input_file.extend(b'0x0')
 
-        # Write the file header
+        # write the file header
         output_file.write(struct.pack(">I", 0x443D2D3F))
-        # Encrypt the contents using a known file header key
+        # encrypt the contents using a known file header key
 
-        # Write the file_key
+        # write the file_key
         output_file.write(struct.pack("<I", file_key))
 
-        # TODO: - How to enforce that the firmware aligns to block boundaries?
+        # TODO: - how to enforce that the firmware aligns to block boundaries?
         block_count = len(input_file) // block_size
         print("Block Count is ", block_count)
         for block_number in range(0, block_count):
@@ -95,18 +93,18 @@ if pioutil.is_pio_build():
             for n in range(0, block_size):
                 input_file[block_offset + n] = block_array[n]
 
-            # Update the expected CRC value.
+            # update the expected CRC value.
             xor_crc = calculate_crc(block_array, xor_crc)
 
-        # Write CRC
+        # write CRC
         output_file.write(struct.pack("<I", xor_crc))
 
-        # Finally, append the encrypted results.
+        # finally, append the encrypted results.
         output_file.write(input_file)
         return
 
+    # Encrypt ${PROGNAME}.bin and save it as 'update.cbd'
     def encrypt(source, target, env):
-        """Encrypt ${PROGNAME}.bin and save it as 'update.cbd'."""
         from pathlib import Path
 
         fwpath = Path(target[0].path)

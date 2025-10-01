@@ -20,16 +20,16 @@ import sys, re, requests, csv, datetime
 #from languageUtil import namebyid
 
 LANGHOME = "Marlin/src/lcd/language"
-OUTDIR = "out-language"
+OUTDIR = 'out-language'
 
 # Get the file path from the command line
 FILEPATH = sys.argv[1] if len(sys.argv) > 1 else None
 
-download = FILEPATH == "download"
+download = FILEPATH == 'download'
 
 if not FILEPATH or download:
     SHEETID = "12yiy-kS84ajKFm7oQIrC4CF8ZWeu9pAR4zrgxH4ruk4"
-    FILEPATH = "https://docs.google.com/spreadsheet/ccc?key=%s&output=csv" % SHEETID
+    FILEPATH = 'https://docs.google.com/spreadsheet/ccc?key=%s&output=csv' % SHEETID
 
 if FILEPATH.startswith('http'):
     response = requests.get(FILEPATH)
@@ -51,23 +51,10 @@ if download:
     exit(0)
 
 lines = csvdata.splitlines()
+print(lines)
 reader = csv.reader(lines, delimiter=',')
-header = next(reader)
-languages = header[1:]
-
-# Process each row
-for row in reader:
-    name = row[0]
-    print(f"--- {name} ---")
-    for i, translation in enumerate(row[1:]):
-        # Only print the translation if it's not empty
-        if translation:
-            language = languages[i]
-            print(f"  {language}: {translation}")
-    print()
-
 gothead = False
-columns = []
+columns = ['']
 numcols = 0
 strings_per_lang = {}
 for row in reader:
@@ -82,7 +69,7 @@ for row in reader:
             elms = row[i].split(' ')
             lang = elms[0]
             style = ('Wide' if elms[-1] == '(wide)' else 'Tall' if elms[-1] == '(tall)' else 'Narrow')
-            columns.append({'lang': lang, 'style': style})
+            columns.append({ 'lang': lang, 'style': style })
             if not lang in strings_per_lang: strings_per_lang[lang] = {}
             if not style in strings_per_lang[lang]: strings_per_lang[lang][style] = {}
         continue
@@ -91,14 +78,14 @@ for row in reader:
     for i in range(1, numcols):
         str_key = row[i]
         if str_key:
-            col = columns[i - 1]
+            col = columns[i]
             strings_per_lang[col['lang']][col['style']][name] = str_key
 
 # Create a folder for the imported language outfiles
 from pathlib import Path
 Path.mkdir(Path(OUTDIR), exist_ok=True)
 
-FILEHEADER = """
+FILEHEADER = '''
 /**
  * Marlin 3D Printer Firmware
  * Copyright (c) 2023 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
@@ -137,7 +124,7 @@ FILEHEADER = """
  *   @ displays an axis name such as XYZUVW, or E for an extruder
  */
 
-"""
+'''
 
 # Iterate over the languages which correspond to the columns
 # The columns are assumed to be grouped by language in the order Narrow, Wide, Tall
@@ -147,8 +134,8 @@ FILEHEADER = """
 f = None
 gotlang = {}
 for i in range(1, numcols):
-    #if i > 6: break  # Testing
-    col = columns[i - 1]
+    #if i > 6: break # Testing
+    col = columns[i]
     lang, style = col['lang'], col['style']
 
     # If we haven't already opened a file for this language, do so now
@@ -223,7 +210,7 @@ for i in range(1, numcols):
 
     if style == 'Wide' or style == 'Tall': f.write('  #endif\n')
 
-    f.write('}\n')  # End namespace
+    f.write('}\n') # End namespace
 
     # Assume the 'Tall' namespace comes last
     if style == 'Tall': f.write('\nnamespace Language_%s {\n  using namespace LanguageTall_%s;\n}\n' % (lang, lang))

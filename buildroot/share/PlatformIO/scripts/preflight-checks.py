@@ -1,9 +1,7 @@
-"""
-preflight-checks.py
-
-Check for common issues prior to compiling
-"""
-
+#
+# preflight-checks.py
+# Check for common issues prior to compiling
+#
 import pioutil
 if pioutil.is_pio_build():
 
@@ -35,7 +33,7 @@ if pioutil.is_pio_build():
                     found_envs = re.match(r"\s*#include .+" + envregex, line)
                     if found_envs:
                         envlist = re.findall(envregex + r"(\w+)", line)
-                        return ["env:" + s for s in envlist]
+                        return [ "env:"+s for s in envlist ]
         return []
 
     def check_envs(build_env, board_envs, config):
@@ -52,7 +50,7 @@ if pioutil.is_pio_build():
         return False
 
     def sanity_check_target():
-        """Sanity checks."""
+        # Sanity checks:
         if 'PIOENV' not in env:
             raise SystemExit("Error: PIOENV is not defined. This script is intended to be used with PlatformIO")
 
@@ -86,20 +84,20 @@ if pioutil.is_pio_build():
         if conf_modified:
             raise SystemExit('WARNING: Configuration files needed an update to remove incompatible items. Try the build again to use the updated files.')
 
-        if not env['MARLIN_FEATURES']:
+        if len(env['MARLIN_FEATURES']) == 0:
             raise SystemExit("Error: Failed to parse Marlin features. See previous error messages.")
 
         build_env = env['PIOENV']
         motherboard = env['MARLIN_FEATURES']['MOTHERBOARD']
         board_envs = get_envs_for_board(motherboard)
         config = env.GetProjectConfig()
-        result = check_envs("env:" + build_env, board_envs, config)
+        result = check_envs("env:"+build_env, board_envs, config)
 
         # Make sure board is compatible with the build environment. Skip for _test,
         # since the board is manipulated as each unit test is executed.
         if not result and not build_env.endswith("_native_test"):
             err = "Error: Build environment '%s' is incompatible with %s. Use one of these environments: %s" % \
-                  (build_env, motherboard, ", ".join([e[4:] for e in board_envs if e.startswith("env:")]))
+                  ( build_env, motherboard, ", ".join([ e[4:] for e in board_envs if e.startswith("env:") ]) )
             raise SystemExit(err)
 
         #
@@ -111,8 +109,10 @@ if pioutil.is_pio_build():
                     err = "ERROR: Config files found in directory %s. Please move them into the Marlin subfolder." % p
                     raise SystemExit(err)
 
+        #
+        # Find the name.cpp.o or name.o and remove it
+        #
         def rm_ofile(subdir, name):
-            """Find the name.cpp.o or name.o and remove it."""
             build_dir = Path(env['PROJECT_BUILD_DIR'], build_env)
             for outdir in (build_dir, build_dir / "debug"):
                 for ext in (".cpp.o", ".o"):
@@ -142,13 +142,13 @@ if pioutil.is_pio_build():
         #
         mixedin = []
         p = project_dir / "Marlin/src/lcd/dogm"
-        for f in ["ultralcd_DOGM.cpp", "ultralcd_DOGM.h", "u8g_dev_ssd1306_sh1106_128x64_I2C.cpp", "u8g_dev_ssd1309_12864.cpp", "u8g_dev_st7565_64128n_HAL.cpp", "u8g_dev_st7920_128x64_HAL.cpp", "u8g_dev_tft_upscale_from_128x64.cpp", "u8g_dev_uc1701_mini12864_HAL.cpp", "ultralcd_st7920_u8glib_rrd_AVR.cpp"]:
+        for f in [ "ultralcd_DOGM.cpp", "ultralcd_DOGM.h", "u8g_dev_ssd1306_sh1106_128x64_I2C.cpp", "u8g_dev_ssd1309_12864.cpp", "u8g_dev_st7565_64128n_HAL.cpp", "u8g_dev_st7920_128x64_HAL.cpp", "u8g_dev_tft_upscale_from_128x64.cpp", "u8g_dev_uc1701_mini12864_HAL.cpp", "ultralcd_st7920_u8glib_rrd_AVR.cpp" ]:
             if (p / f).is_file():
-                mixedin += [f]
+                mixedin += [ f ]
         p = project_dir / "Marlin/src/feature/bedlevel/abl"
-        for f in ["abl.cpp", "abl.h"]:
+        for f in [ "abl.cpp", "abl.h" ]:
             if (p / f).is_file():
-                mixedin += [f]
+                mixedin += [ f ]
         if mixedin:
             err = "ERROR: Old files fell into your Marlin folder. Remove %s and try again" % ", ".join(mixedin)
             raise SystemExit(err)

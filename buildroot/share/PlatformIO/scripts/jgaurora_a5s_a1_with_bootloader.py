@@ -1,14 +1,12 @@
-"""
-jgaurora_a5s_a1_with_bootloader.py
-
-Customizations for env:jgaurora_a5s_a1
-"""
-
+#
+# jgaurora_a5s_a1_with_bootloader.py
+# Customizations for env:jgaurora_a5s_a1
+#
 import pioutil
 if pioutil.is_pio_build():
 
+    # Append ${PROGNAME}.bin firmware after bootloader and save it as 'jgaurora_firmware.bin'
     def addboot(source, target, env):
-        """Append ${PROGNAME}.bin firmware after bootloader and save it as 'jgaurora_firmware.bin'."""
         from pathlib import Path
 
         fw_path = Path(target[0].path)

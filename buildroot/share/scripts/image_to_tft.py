@@ -20,11 +20,7 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #
 
-"""
-image_to_tft.py
-
-Generate Marlin TFT Images from bitmaps/PNG/JPG
-"""
+# Generate Marlin TFT Images from bitmaps/PNG/JPG
 
 import sys, struct
 from PIL import Image
@@ -54,8 +50,8 @@ def image2bin(image, output_file, transparency):
             if transparency:
                 if not got_tcolor:
                     got_tcolor = True
-                    tcolor = rgb           # First pixel color is transparent
-                if rgb == tcolor: rgb = 1  # "color 1" is transparent
+                    tcolor = rgb            # First pixel color is transparent
+                if rgb == tcolor: rgb = 1   # "color 1" is transparent
             if is_cpp:
                 strHex = item_sp + "0x{0:04X},".format(rgb)
                 f.write(strHex)

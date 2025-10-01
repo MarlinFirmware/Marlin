@@ -3,24 +3,17 @@
 # mfutil - check env and define helpers
 #
 
-# Error and debug helpers
-perror() { echo -e "$0: \033[0;31m$1 -- $2\033[0m" ; }
-bugout() { ((DEBUG)) && echo -e "\033[0;32m$1\033[0m" ; }
-
 # Check dependencies
-for cmd in curl git sed; do
-    if ! command -v "$cmd" &>/dev/null; then
-        perror "'$cmd' not found!" "Please install it."
-        exit 1
-    fi
-done
+which curl &>/dev/null || { echo "curl not found! Please install it."; exit 1 ; }
+which git  &>/dev/null || { echo "git not found! Please install it."; exit 1 ; }
+which sed  &>/dev/null || { echo "sed not found! Please install it."; exit 1 ; }
 
-OPEN=$(command -v gnome-open || command -v xdg-open || command -v open)
+OPEN=$( which gnome-open xdg-open open | head -n1 )
 
-SELF=$(basename "$0")
+SELF=`basename "$0"`
 
 # Check if called in the right location
-if [[ ! -e "Marlin/src" ]]; then
-    perror "Incorrect location." "This script must be called from a Marlin working copy with:\n ./buildroot/bin/$SELF \$1"
-    exit 1
-fi
+[[ -e "Marlin/src" ]] || { echo -e "This script must be called from a Marlin working copy with:\n ./buildroot/bin/$SELF $1" ; exit ; }
+
+perror() { echo -e "$0: \033[0;31m$1 -- $2\033[0m" ; }
+bugout() { ((DEBUG)) && echo -e "\033[0;32m$1\033[0m" ; }

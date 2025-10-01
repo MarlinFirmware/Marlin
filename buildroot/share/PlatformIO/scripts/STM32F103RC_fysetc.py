@@ -1,7 +1,6 @@
-"""
-STM32F103RC_fysetc.py
-"""
-
+#
+# STM32F103RC_fysetc.py
+#
 import pioutil
 if pioutil.is_pio_build():
     from os.path import join, expandvars
@@ -18,7 +17,7 @@ if pioutil.is_pio_build():
     # In-line command with arguments
     UPLOAD_TOOL="stm32flash"
     platform = env.PioPlatform()
-    if platform.get_package_dir("tool-stm32duino") is not None:
+    if platform.get_package_dir("tool-stm32duino") != None:
         UPLOAD_TOOL=expandvars("\"" + join(platform.get_package_dir("tool-stm32duino"),"stm32flash","stm32flash") + "\"")
 
     env.Replace(

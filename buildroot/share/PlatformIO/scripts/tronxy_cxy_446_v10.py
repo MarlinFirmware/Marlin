@@ -1,9 +1,7 @@
-"""
-tronxy_cxy_446_v10.py
-
-Build customizations for env:TRONXY_CXY_446_V10
-"""
-
+#
+# tronxy_cxy_446_v10.py
+# Build customizations for env:TRONXY_CXY_446_V10
+#
 import pioutil
 if pioutil.is_pio_build():
 

@@ -19,26 +19,26 @@ from __future__ import print_function
 import argparse, textwrap, os, zlib
 
 def deflate(data):
-    return zlib.compress(data)
+  return zlib.compress(data)
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Converts a file into a packed C array for use as data")
-    parser.add_argument("input")
-    parser.add_argument("-d", "--deflate", action="store_true", help="Packs the data using the deflate algorithm")
-    args = parser.parse_args()
+  parser = argparse.ArgumentParser(description='Converts a file into a packed C array for use as data')
+  parser.add_argument("input")
+  parser.add_argument("-d", "--deflate", action="store_true", help="Packs the data using the deflate algorithm")
+  args = parser.parse_args()
 
-    varname = os.path.splitext(os.path.basename(args.input))[0]
+  varname = os.path.splitext(os.path.basename(args.input))[0]
 
-    with open(args.input, "rb") as in_file:
-        data = in_file.read()
-    if args.deflate:
-        data = deflate(data)
-    data = bytearray(data)
-    data = list(map(lambda a: '0x' + format(a, '02x'), data))
-    nElements = len(data)
-    data = ', '.join(data)
-    data = textwrap.fill(data, 75, initial_indent='  ', subsequent_indent='  ')
+  with open(args.input, "rb") as in_file:
+    data = in_file.read()
+  if args.deflate:
+    data = deflate(data)
+  data = bytearray(data)
+  data = list(map(lambda a: "0x" + format(a, '02x'), data))
+  nElements = len(data)
+  data = ', '.join(data)
+  data = textwrap.fill(data, 75, initial_indent = '  ', subsequent_indent = '  ')
 
-    print("const unsigned char " + varname + "[" + format(nElements) + "] PROGMEM = {")
-    print(data)
-    print("};")
+  print("const unsigned char " + varname + "[" + format(nElements) + "] PROGMEM = {")
+  print(data)
+  print("};")

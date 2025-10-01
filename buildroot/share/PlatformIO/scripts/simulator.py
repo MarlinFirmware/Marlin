@@ -1,8 +1,7 @@
-"""
-simulator.py
-
-PlatformIO pre: script for simulator builds
-"""
+#
+# simulator.py
+# PlatformIO pre: script for simulator builds
+#
 
 import pioutil
 if pioutil.is_pio_build():
@@ -11,10 +10,15 @@ if pioutil.is_pio_build():
 
     #print(env.Dump())
 
+    #
     # Give the binary a distinctive name
+    #
+
     env['PROGNAME'] = "MarlinSimulator"
 
+    #
     # Check for a valid GCC and available OpenGL on macOS
+    #
     emsg = ''
     fatal = 0
     import sys
@@ -32,8 +36,10 @@ if pioutil.is_pio_build():
 
         else:
 
+            #
             # Silence half of the ranlib warnings. (No equivalent for 'ARFLAGS')
-            env['RANLIBFLAGS'] += ["-no_warning_for_no_symbols"]
+            #
+            env['RANLIBFLAGS'] += [ "-no_warning_for_no_symbols" ]
 
             # Default paths for Xcode and a lucky GL/gl.h dropped by Mesa
             xcode_path = "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks"
@@ -43,12 +49,12 @@ if pioutil.is_pio_build():
 
             if os.path.exists(xcode_path):
 
-                env['BUILD_FLAGS'] += ["-F" + xcode_path]
+                env['BUILD_FLAGS'] += [ "-F" + xcode_path ]
                 emsg = "\u001b[33mUsing OpenGL framework headers from Xcode.app"
 
             elif os.path.exists(mesa_path):
 
-                env['BUILD_FLAGS'] += ["-D__MESA__"]
+                env['BUILD_FLAGS'] += [ '-D__MESA__' ]
                 emsg = f"\u001b[33mUsing OpenGL header from {mesa_path}"
 
             else:

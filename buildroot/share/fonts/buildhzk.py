@@ -1,13 +1,8 @@
-"""
-buildhzk.py
-
-Generate a 'HZK' font file for the T5UIC1 DWIN LCD
-from multiple bdf font files.
-
-Note: the 16x16 glyphs are not produced
-Author: Taylor Talkington
-License: GPL
-"""
+# Generate a 'HZK' font file for the T5UIC1 DWIN LCD
+# from multiple bdf font files.
+# Note: the 16x16 glyphs are not produced
+# Author: Taylor Talkington
+# License: GPL
 
 import bdflib.reader, math
 
@@ -23,7 +18,7 @@ def glyph_bits(size_x, size_y, font, glyph_ord):
             v = row
             rpad = size_x - glyph.bbW
             if rpad < 0: rpad = 0
-            if glyph.bbW > size_x: v = v >> (glyph.bbW - size_x)  # Some glyphs are actually too wide to fit!
+            if glyph.bbW > size_x: v = v >> (glyph.bbW - size_x) # some glyphs are actually too wide to fit!
             v = v << (glyph_bytes * 8) - size_x + rpad
             v = v >> glyph.bbX
             bits[y + desc + glyph.bbY] |= v
@@ -50,11 +45,11 @@ def marlin_font_hzk():
     with open('marlin_fixed.hzk','wb') as output:
         for f in fonts:
             with open(f[2], 'rb') as file:
-                print(f"{f[0]}x{f[1]}")
+                print(f'{f[0]}x{f[1]}')
                 font = bdflib.reader.read_bdf(file)
 
                 if font is None:
-                    print(f"Failed to read font from {f[2]}")
+                    print(f'Failed to read font from {f[2]}')
                     continue  # Skip this font and move to the next one
 
                 for glyph in range(128):
@@ -66,9 +61,9 @@ def marlin_font_hzk():
                             z = b.to_bytes(glyph_bytes, 'big')
                             output.write(z)
                         except OverflowError:
-                            print("Overflow")
-                            print(f"{glyph}")
+                            print('Overflow')
+                            print(f'{glyph}')
                             if font and glyph in font: print(font[glyph])
-                            else: print(f"Glyph {glyph} not found in the font or font is None")
-                            for b in bits: print(f"{b:0{f[0]}b}")
+                            else: print(f'Glyph {glyph} not found in the font or font is None')
+                            for b in bits: print(f'{b:0{f[0]}b}')
                             return

@@ -1,14 +1,13 @@
-"""
-offset_and_rename.py
-
-- If 'board_build.offset' is provided, either by JSON or by the environment...
-  - Set linker flag LD_FLASH_OFFSET and relocate the VTAB based on 'build.offset'.
-  - Set linker flag LD_MAX_DATA_SIZE based on 'build.maximum_ram_size'.
-  - Define STM32_FLASH_SIZE from 'upload.maximum_size' for use by Flash-based EEPROM emulation.
-
-- For 'board_build.rename' add a post-action to rename the firmware file.
-"""
-
+#
+# offset_and_rename.py
+#
+# - If 'board_build.offset' is provided, either by JSON or by the environment...
+#   - Set linker flag LD_FLASH_OFFSET and relocate the VTAB based on 'build.offset'.
+#   - Set linker flag LD_MAX_DATA_SIZE based on 'build.maximum_ram_size'.
+#   - Define STM32_FLASH_SIZE from 'upload.maximum_size' for use by Flash-based EEPROM emulation.
+#
+# - For 'board_build.rename' add a post-action to rename the firmware file.
+#
 import pioutil
 if pioutil.is_pio_build():
     import marlin
@@ -80,8 +79,8 @@ if pioutil.is_pio_build():
     #
     if 'encrypt_mks' in board_keys:
 
+        # Encrypt ${PROGNAME}.bin and save it with the name given in build.encrypt_mks
         def encrypt(source, target, env):
-            """Encrypt ${PROGNAME}.bin and save it with the name given in build.encrypt_mks."""
             marlin.encrypt_mks(source, target, env, board.get("build.encrypt_mks"))
 
         if board.get("build.encrypt_mks") != "":
