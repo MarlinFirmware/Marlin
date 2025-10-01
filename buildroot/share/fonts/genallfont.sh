@@ -64,6 +64,9 @@ fi
 #
 LANGS_DEFAULT="an bg ca cz da de el el_CY en es eu fi fr fr_na gl hr hu it jp_kana ko_KR nl pl pt pt_br ro ru sk sv tr uk vi zh_CN zh_TW test"
 
+DN_WORK=$(mktemp -d)
+open "$DN_WORK"
+
 #
 # Generate data for language list MARLIN_LANGS or all if not provided
 #
@@ -74,7 +77,6 @@ for ALANG in ${LANG_ARG:=$LANGS_DEFAULT} ; do
      ko_* ) FONTFILE="${DN_EXEC}/NanumGothic.bdf" ;;
         * ) FONTFILE="${DN_EXEC}/marlin-6x12-3.bdf" ;;
   esac
-  DN_WORK=$(mktemp -d)
   cp Configuration.h ${DN_WORK}/
   cp src/lcd/language/language_${ALANG}.h ${DN_WORK}/
   # Find and copy included language files
@@ -88,8 +90,10 @@ for ALANG in ${LANG_ARG:=$LANGS_DEFAULT} ; do
   sed -i fontutf8-data.h -e 's|fonts//|fonts/|g' -e 's|fonts//|fonts/|g' -e 's|[/0-9a-zA-Z_\-]*buildroot/share/fonts|buildroot/share/fonts|' 2>/dev/null
   cd - >/dev/null
   mv ${DN_WORK}/fontutf8-data.h src/lcd/dogm/fontdata/langdata_${ALANG}.h
-  rm -rf ${DN_WORK}
+  rm -rf ${DN_WORK}/*
 done
+
+rm -rf ${DN_WORK}
 
 #
 # Generate default ASCII font (char range 0-255):
