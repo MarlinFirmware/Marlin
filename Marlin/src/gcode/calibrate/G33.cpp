@@ -87,7 +87,7 @@ void ac_cleanup() {
   TERN_(HAS_BED_PROBE, probe.use_probing_tool(false));
 }
 
-void print_signed_float(FSTR_P const prefix, const_float_t f) {
+void print_signed_float(FSTR_P const prefix, const float f) {
   SERIAL_ECHO(F("  "), prefix, C(':'));
   serial_offset(f);
 }

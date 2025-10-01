@@ -167,6 +167,21 @@ template <class L, class R> struct IF<true, L, R> { typedef L type; };
   #define GANG_ITEM_E(N)
 #endif
 
+// Emitters for code that only cares about XYZE and not IJKUVW
+#define CARTES_COUNT              TERN(HAS_EXTRUDERS, INCREMENT(XYZ_COUNT), XYZ_COUNT)
+#define CARTES_LIST(x,y,z,e)      XYZ_LIST(x,y,z) LIST_ITEM_E(e)
+#define CARTES_PAIRED_LIST(V...)  LIST_N(DOUBLE(CARTES_COUNT), V)
+#define CARTES_ARRAY(x,y,z,e)     { CARTES_LIST(x,y,z,e) }
+#define CARTES_CODE(x,y,z,e)      XYZ_CODE(x,y,z) CODE_ITEM_E(e)
+#define CARTES_GANG(x,y,z,e)      XYZ_GANG(x,y,z) GANG_ITEM_E(e)
+#define CARTES_AXIS_NAMES         CARTES_LIST(X,Y,Z,E)
+#define CARTES_MAP(F)             MAP(F, CARTES_AXIS_NAMES)
+#if CARTES_COUNT
+  #define CARTES_COMMA ,
+#else
+  #define CARTES_COMMA
+#endif
+
 #define AXIS_COLLISION(L) (AXIS4_NAME == L || AXIS5_NAME == L || AXIS6_NAME == L || AXIS7_NAME == L || AXIS8_NAME == L || AXIS9_NAME == L)
 
 // Helpers
@@ -363,17 +378,6 @@ typedef uint16_t raw_adc_t;
 typedef int16_t celsius_t;
 typedef float celsius_float_t;
 
-//
-// On AVR pointers are only 2 bytes so use 'const float &' for 'const float'
-//
-#ifdef __AVR__
-  typedef const float & const_float_t;
-#else
-  typedef const float const_float_t;
-#endif
-typedef const_float_t const_feedRate_t;
-typedef const_float_t const_celsius_float_t;
-
 // Type large enough to count leveling grid points
 typedef IF<TERN0(ABL_USES_GRID, (GRID_MAX_POINTS > 255)), uint16_t, uint8_t>::type grid_count_t;
 
@@ -382,7 +386,7 @@ typedef IF<TERN0(ABL_USES_GRID, (GRID_MAX_POINTS > 255)), uint16_t, uint8_t>::ty
 #define MMS_TO_MMM(MM_S) (static_cast<float>(MM_S) * 60.0f)
 
 // Packaged character for C macro and other usage
-typedef struct SerialChar { char c; SerialChar(char n) : c(n) { } } serial_char_t;
+typedef struct SerialChar { char c; SerialChar(const char n) : c(n) { } } serial_char_t;
 #define C(c) serial_char_t(c)
 
 // Packaged types: float with precision and/or width; a repeated space/character
