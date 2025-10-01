@@ -58,6 +58,7 @@
 // Macros to make a string from a macro
 #define STRINGIFY_(M) #M
 #define STRINGIFY(M) STRINGIFY_(M)
+#define CHARIFY(M) STRINGIFY(M)[0]
 
 #define A(CODE) " " CODE "\n\t"
 #define L(CODE) CODE ":\n\t"

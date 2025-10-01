@@ -22,10 +22,14 @@
 #pragma once
 
 #include "../inc/MarlinConfigPre.h" // Access the top level configurations.
-#include "../module/planner.h"      // Access block type from planner.
-#include "../module/stepper.h"      // For stepper motion and direction
+#include "planner.h"      // Access block type from planner.
+#include "stepper.h"      // For stepper motion and direction
 
 #include "ft_types.h"
+#include "ft_motion/trajectory_generator.h"
+#include "ft_motion/trapezoidal_trajectory_generator.h"
+#include "ft_motion/poly5_trajectory_generator.h"
+#include "ft_motion/poly6_trajectory_generator.h"
 
 #if HAS_X_AXIS && (HAS_Z_AXIS || HAS_EXTRUDERS)
   #define HAS_DYNAMIC_FREQ 1
@@ -43,13 +47,13 @@ typedef struct FTConfig {
 
   #if HAS_FTM_SHAPING
     ft_shaped_shaper_t shaper =                           // Shaper type
-      { SHAPED_ELEM(FTM_DEFAULT_SHAPER_X, FTM_DEFAULT_SHAPER_Y, FTM_DEFAULT_SHAPER_Z, FTM_DEFAULT_SHAPER_E) };
+      SHAPED_ARRAY(FTM_DEFAULT_SHAPER_X, FTM_DEFAULT_SHAPER_Y, FTM_DEFAULT_SHAPER_Z, FTM_DEFAULT_SHAPER_E);
     ft_shaped_float_t baseFreq =                          // Base frequency. [Hz]
-      { SHAPED_ELEM(FTM_SHAPING_DEFAULT_FREQ_X, FTM_SHAPING_DEFAULT_FREQ_Y, FTM_SHAPING_DEFAULT_FREQ_Z, FTM_SHAPING_DEFAULT_FREQ_E) };
+      SHAPED_ARRAY(FTM_SHAPING_DEFAULT_FREQ_X, FTM_SHAPING_DEFAULT_FREQ_Y, FTM_SHAPING_DEFAULT_FREQ_Z, FTM_SHAPING_DEFAULT_FREQ_E);
     ft_shaped_float_t zeta =                              // Damping factor
-      { SHAPED_ELEM(FTM_SHAPING_ZETA_X, FTM_SHAPING_ZETA_Y, FTM_SHAPING_ZETA_Z, FTM_SHAPING_ZETA_E) };
+      SHAPED_ARRAY(FTM_SHAPING_ZETA_X, FTM_SHAPING_ZETA_Y, FTM_SHAPING_ZETA_Z, FTM_SHAPING_ZETA_E);
     ft_shaped_float_t vtol =                              // Vibration Level
-      { SHAPED_ELEM(FTM_SHAPING_V_TOL_X, FTM_SHAPING_V_TOL_Y, FTM_SHAPING_V_TOL_Z, FTM_SHAPING_V_TOL_E) };
+      SHAPED_ARRAY(FTM_SHAPING_V_TOL_X, FTM_SHAPING_V_TOL_Y, FTM_SHAPING_V_TOL_Z, FTM_SHAPING_V_TOL_E);
 
     #if ENABLED(FTM_SMOOTHING)
       ft_smoothed_float_t smoothingTime;                  // Smoothing time. [s]
@@ -69,6 +73,8 @@ typedef struct FTConfig {
     float linearAdvK = FTM_LINEAR_ADV_DEFAULT_K;          // Linear advance gain.
   #endif
 
+  TrajectoryType trajectory_type = TrajectoryType::TRAPEZOIDAL; // Trajectory generator type
+  float poly6_acceleration_overshoot; // Overshoot factor for Poly6 (1.25 to 2.0)
 } ft_config_t;
 
 class FTMotion {
@@ -84,24 +90,22 @@ class FTMotion {
 
       #if HAS_FTM_SHAPING
 
-        #define SET_CFG_DEFAULTS(A) \
+        #define _SET_CFG_DEFAULTS(A) do{ \
           cfg.shaper.A   = FTM_DEFAULT_SHAPER_##A; \
           cfg.baseFreq.A = FTM_SHAPING_DEFAULT_FREQ_##A; \
           cfg.zeta.A     = FTM_SHAPING_ZETA_##A; \
-          cfg.vtol.A     = FTM_SHAPING_V_TOL_##A;
+          cfg.vtol.A     = FTM_SHAPING_V_TOL_##A; \
+        }while(0);
 
-        TERN_(HAS_X_AXIS,    SET_CFG_DEFAULTS(X));
-        TERN_(HAS_Y_AXIS,    SET_CFG_DEFAULTS(Y));
-        TERN_(FTM_SHAPER_Z,  SET_CFG_DEFAULTS(Z));
-        TERN_(FTM_SHAPER_E,  SET_CFG_DEFAULTS(E));
+        SHAPED_MAP(_SET_CFG_DEFAULTS);
+        #undef _SET_CFG_DEFAULTS
 
         #if HAS_DYNAMIC_FREQ
           cfg.dynFreqMode = FTM_DEFAULT_DYNFREQ_MODE;
           //ZERO(cfg.dynFreqK);
-          TERN_(HAS_X_AXIS,   cfg.dynFreqK.x = 0.0f);
-          TERN_(HAS_Y_AXIS,   cfg.dynFreqK.y = 0.0f);
-          TERN_(FTM_SHAPER_Z, cfg.dynFreqK.z = 0.0f);
-          TERN_(FTM_SHAPER_E, cfg.dynFreqK.e = 0.0f);
+          #define _DYN_RESET(A) cfg.dynFreqK.A = 0.0f;
+          SHAPED_MAP(_DYN_RESET);
+          #undef _DYN_RESET
         #endif
 
         update_shaping_params();
@@ -109,16 +113,19 @@ class FTMotion {
       #endif // HAS_FTM_SHAPING
 
       #if ENABLED(FTM_SMOOTHING)
-        TERN_(HAS_X_AXIS,    set_smoothing_time(X_AXIS, FTM_SMOOTHING_TIME_X));
-        TERN_(HAS_Y_AXIS,    set_smoothing_time(Y_AXIS, FTM_SMOOTHING_TIME_Y));
-        TERN_(HAS_Z_AXIS,    set_smoothing_time(Z_AXIS, FTM_SMOOTHING_TIME_Z));
-        TERN_(HAS_EXTRUDERS, set_smoothing_time(E_AXIS, FTM_SMOOTHING_TIME_E));
+        #define _SET_SMOOTH(A) set_smoothing_time(_AXIS(A), FTM_SMOOTHING_TIME_##A);
+        CARTES_MAP(_SET_SMOOTH);
+        #undef _SET_SMOOTH
       #endif
 
       #if HAS_EXTRUDERS
         cfg.linearAdvEna = FTM_LINEAR_ADV_DEFAULT_ENA;
         cfg.linearAdvK = FTM_LINEAR_ADV_DEFAULT_K;
       #endif
+
+      cfg.poly6_acceleration_overshoot = FTM_POLY6_ACCELERATION_OVERSHOOT;
+
+      setTrajectoryType(TrajectoryType::FTM_TRAJECTORY_TYPE);
 
       reset();
     }
@@ -150,6 +157,10 @@ class FTMotion {
 
     static void reset();                                  // Reset all states of the fixed time conversion to defaults.
 
+    // Trajectory generator selection
+    static void setTrajectoryType(const TrajectoryType type);
+    static TrajectoryType getTrajectoryType() { return trajectoryType; }
+
     FORCE_INLINE static bool axis_is_moving(const AxisEnum axis) {
       return cfg.active ? PENDING(millis(), axis_move_end_ti[axis]) : stepper.axis_is_moving(axis);
     }
@@ -165,18 +176,18 @@ class FTMotion {
     static bool blockProcRdy;
     static bool batchRdy, batchRdyForInterp;
 
-    // Trapezoid data variables.
+    // Block data variables.
     static xyze_pos_t   startPos,         // (mm) Start position of block
                         endPos_prevBlock; // (mm) End position of previous block
     static xyze_float_t ratio;            // (ratio) Axis move ratio of block
-    static float accel_P, decel_P,
-                 F_P,
-                 f_s,
-                 s_1e,
-                 s_2e;
+    static float tau;                     // (s) Time since start of block
 
-    static uint32_t N1, N2, N3;
-    static uint32_t max_intervals;
+    // Trajectory generators
+    static TrapezoidalTrajectoryGenerator trapezoidalGenerator;
+    static Poly5TrajectoryGenerator poly5Generator;
+    static Poly6TrajectoryGenerator poly6Generator;
+    static TrajectoryGenerator& currentGenerator;
+    static TrajectoryType trajectoryType;
 
     // Number of batches needed to propagate the current trajectory to the stepper.
     static constexpr uint32_t PROP_BATCHES = CEIL((FTM_WINDOW_SIZE) / (FTM_BATCH_SIZE)) - 1;
@@ -214,10 +225,7 @@ class FTMotion {
 
       typedef struct Shaping {
         uint32_t zi_idx;           // Index of storage in the data point delay vectors.
-        OPTCODE(HAS_X_AXIS,   axis_shaping_t x)
-        OPTCODE(HAS_Y_AXIS,   axis_shaping_t y)
-        OPTCODE(FTM_SHAPER_Z, axis_shaping_t z)
-        OPTCODE(FTM_SHAPER_E, axis_shaping_t e)
+        axis_shaping_t SHAPED_AXIS_NAMES;
       } shaping_t;
 
       static shaping_t shaping; // Shaping data
@@ -235,10 +243,7 @@ class FTMotion {
 
       // Smoothing data for XYZE axes
       typedef struct Smoothing {
-        OPTCODE(HAS_X_AXIS,    axis_smoothing_t x)
-        OPTCODE(HAS_Y_AXIS,    axis_smoothing_t y)
-        OPTCODE(HAS_Z_AXIS,    axis_smoothing_t z)
-        OPTCODE(HAS_EXTRUDERS, axis_smoothing_t e)
+        axis_smoothing_t CARTES_AXIS_NAMES;
       } smoothing_t;
       static smoothing_t smoothing;       // Smoothing data
     #endif
@@ -257,12 +262,9 @@ class FTMotion {
     static void generateStepsFromTrajectory(const uint32_t idx);
 
     FORCE_INLINE static int32_t num_samples_shaper_settle() {
-      return (
-           TERN0(HAS_X_AXIS,   shaping.x.ena)
-        || TERN0(HAS_Y_AXIS,   shaping.y.ena)
-        || TERN0(FTM_SHAPER_Z, shaping.z.ena)
-        || TERN0(FTM_SHAPER_E, shaping.e.ena)
-      ) ? FTM_ZMAX : 0;
+      #define _OR_ENA(A) || shaping.A.ena
+      return false SHAPED_MAP(_OR_ENA) ? FTM_ZMAX : 0;
+      #undef _OR_ENA
     }
 
 }; // class FTMotion

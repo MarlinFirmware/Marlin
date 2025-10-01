@@ -57,7 +57,7 @@
  *   di -> (2 a d - s1^2 + s2^2)/(4 a)
  *
  * We note, as an optimization, that if we have already calculated an
- * acceleration distance d1 from s1 to m and a deceration distance d2
+ * acceleration distance d1 from s1 to m and a deceleration distance d2
  * from m to s2 then
  *
  *   d1 -> (m^2 - s1^2) / (2 a)
@@ -2442,9 +2442,6 @@ bool Planner::_populate_block(
             }
           }
         }
-        #if ANY(SMOOTH_LIN_ADVANCE, FTM_HAS_LIN_ADVANCE)
-          block->use_advance_lead = use_adv_lead;
-        #endif
       }
     #endif // LIN_ADVANCE || FTM_HAS_LIN_ADVANCE
 
@@ -2496,6 +2493,10 @@ bool Planner::_populate_block(
       const uint32_t xy_steps = TERN0(INPUT_SHAPING_X, block->steps.x) + TERN0(INPUT_SHAPING_Y, block->steps.y);
       block->xy_length_inv_q30 = xy_steps ? (_BV32(30) / xy_steps) : 0;
     #endif
+  #endif
+
+  #if ANY(SMOOTH_LIN_ADVANCE, FTM_HAS_LIN_ADVANCE)
+    block->use_advance_lead = use_adv_lead;
   #endif
 
   // Formula for the average speed over a 1 step worth of distance if starting from zero and

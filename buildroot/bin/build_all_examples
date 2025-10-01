@@ -158,7 +158,7 @@ shopt -s nullglob
 export PAUSE=1
 
 # Get a list of all folders that contain a file matching "Configuration*.h"
-find -ds "$CBASE"/config/examples -type d -name 'Configuration.h' -o -name 'Configuration_adv.h' -print0 | while IFS= read -r -d $'\0' CONF; do
+find -s "$CBASE"/config/examples -type d -name 'Configuration.h' -o -name 'Configuration_adv.h' -print0 | while IFS= read -r -d $'\0' CONF; do
 
   # Remove the file name and slash from the end of the path
   CONF=${CONF%/*}

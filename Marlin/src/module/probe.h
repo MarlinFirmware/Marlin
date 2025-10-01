@@ -202,7 +202,7 @@ public:
 
     static bool set_deployed(const bool, const bool=false) { return false; }
 
-    static bool can_reach(const float rx, const float ry, const bool=true) { return position_is_reachable(TERN_(HAS_X_AXIS, rx) OPTARG(HAS_Y_AXIS, ry)); }
+    static bool can_reach(const float rx, const float ry, const bool=true) { return position_is_reachable(XY_LIST(rx, ry)); }
 
   #endif // !HAS_BED_PROBE
 
