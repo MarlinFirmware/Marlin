@@ -218,9 +218,10 @@
 
     // #define BTN_RIGHT_PIN                     14  // J1 ?    
         
-    // #define SR_DATA_PIN                       37  // C0 *
-    // #define SR_CLK_PIN                        36  // C1 *
-    // #define SR_STROBE_PIN                     33  // C?
+    // Leave Old pins defined for now 
+    #define SR_DATA_PIN                       37  // C0 *
+    #define SR_CLK_PIN                        36  // C1 *
+    #define SR_STROBE_PIN                     33  // C4 *
 
     // #define BTN_UP                            75  // J5 *
     // #define BTN_DOWN                          73  // J4 *
