@@ -238,19 +238,16 @@ xyz_pos_t apply_T_W_offset(const xyz_pos_t &rpose) {
 /**
  * Set an axis' current position to its home position (after homing).
  *
- * TPARA should wait until all YZ homing is done before setting the YZ
- * current_position to home, because neither Y nor Z is at home until
- * both are at home.
- *
+ * TPARA must wait for YZ homing before setting current_position.Y/Z to home.
+ * Neither Y nor Z is home until both are at home.
  */
   void scara_set_axis_is_at_home(const AxisEnum axis) {
       // Home position should be arm end position -+ offsets (+ tool offset - workspace offset), measured at home robot pose
       xyz_pos_t homeposition = { X_HOME_POS , Y_HOME_POS , Z_HOME_POS };
 
-      //SERIAL_ECHOLNPGM("TPARA Set axis is at home: ", axis );
-      //DEBUG_ECHOLNPGM_P(PSTR("homeposition X"), homeposition.x, SP_Y_LBL, homeposition.y, SP_Z_LBL, homeposition.z);
-      //SERIAL_ECHOLNPGM("Home: ", homeposition.x, ",", homeposition.y, ",", homeposition.z);
-      //SERIAL_ECHOLNPGM("Pos before IK: ", current_position.x, ",", current_position.y, ",", current_position.z);
+      //SERIAL_ECHOLNPGM("TPARA Set axis is at home: ", C(iaxis_codes[axis]));
+      //SERIAL_XYZ("Home: ", homeposition);
+      //SERIAL_XYZ("Pos before IK: ", current_position);
       //SERIAL_ECHOLNPGM("Angles Before: Theta: ", delta.a, " Phi: ", delta.b, " Psi: ", delta.c);
 
       inverse_kinematics(homeposition);
@@ -260,17 +257,16 @@ xyz_pos_t apply_T_W_offset(const xyz_pos_t &rpose) {
       forward_kinematics(delta.a, delta.b, delta.c);
       current_position[axis] = cartes[axis];
 
-      //SERIAL_ECHOLNPGM("Curr Pos after FK: ", current_position.x, ",", current_position.y, ",", current_position.z);
-      //SERIAL_ECHOLNPGM("Cartes after FK: ", cartes.x, ",", cartes.y, ",", cartes.z);
-      //DEBUG_ECHOLNPGM_P(PSTR("Cartesian X"), current_position.x, SP_Y_LBL, current_position.y);
+      //SERIAL_XYZ("'current' after FK: ", current_position);
+      //SERIAL_XYZ("'cartes' after FK: ", cartes);
 
       update_software_endstops(axis);
 
       //SERIAL_ECHOLNPGM("Final Angles: Theta: ", delta.a, " Phi: ", delta.b, " Psi: ", delta.c);
-      //SERIAL_ECHOLNPGM("Final Pos: ", current_position.x, ",", current_position.y, ",", current_position.z);
-      //SERIAL_ECHOLNPGM("Robot Offsets Shoulder:", robot_shoulder_offset.x, "," , robot_shoulder_offset.y,"," , robot_shoulder_offset.z);
-      //SERIAL_ECHOLNPGM("Robot Offsets Tool:", tool_offset.x, "," , tool_offset.y,"," , tool_offset.z);
-      //SERIAL_ECHOLNPGM("Robot Offsets Workspace:", robot_workspace_offset.x, "," , robot_workspace_offset.y,"," , robot_workspace_offset.z);
+      //SERIAL_XYZ("Final Pos: ", current_position);
+      //SERIAL_XYZ("Robot Offsets Shoulder:", robot_shoulder_offset);
+      //SERIAL_XYZ("Robot Offsets Tool:", tool_offset);
+      //SERIAL_XYZ("Robot Offsets Workspace:", robot_workspace_offset);
       //SERIAL_EOL();
   }
 
@@ -285,7 +281,9 @@ xyz_pos_t apply_T_W_offset(const xyz_pos_t &rpose) {
     const xyz_pos_t calculated_fk = xyz_pos_t({ x, y, SQRT(rho2 - sq(x) - sq(y)) }) ;
     cartes = calculated_fk + robot_shoulder_offset + tool_offset - robot_workspace_offset;
 
-    //SERIAL_ECHOLNPGM("TPARA FK Theta:", a, " Phi: ", b, " Psi: ", c , " Calculated X':", calculated_fk.x, " Y':", calculated_fk.y, " Z':", calculated_fk.z, " Workspace X:", cartes.x, " Y:", cartes.y, " Z:", cartes.z);
+    //SERIAL_ECHOPGM("TPARA FK Theta:", a, " Phi: ", b, " Psi: ", c);
+    //SERIAL_ECHOPGM(" Calculated X':", calculated_fk.x, " Y':", calculated_fk.y, " Z':", calculated_fk.z);
+    //SERIAL_XYZ(" Workspace", cartes);
   }
 
   // Home YZ together, then X (or all at once). Based on quick_home_xy & home_delta

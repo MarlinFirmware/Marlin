@@ -654,9 +654,9 @@ void report_current_position_projected() {
       can_reach = HYPOT2(rx, ry) <= sq(PRINTABLE_RADIUS - inset + fslop);
 
     #elif ENABLED(AXEL_TPARA)
-      // To Do: a custom check, as reach depends also on Z destination
-      // As we are 3D printing asume destination Z is the same current Z
-      // For now whe use the max reach of the arm
+      // TODO: A custom check, as reach depends also on Z destination.
+      // During printing assume destination Z is the current Z.
+      // For now use the max reach of the arm.
       const float R2 = HYPOT2(rx + TPARA_OFFSET_X, ry + TPARA_OFFSET_Y);
       can_reach = (
         R2 <= PRINTABLE_RADIUS_2 - inset
@@ -1288,8 +1288,9 @@ void restore_feedrate_and_scaling() {
    * radius within the set software endstops.
    */
   void apply_motion_limits(xyz_pos_t &target) {
-    //SERIAL_ECHOLNPGM("Motion limits input: ", target.x, ", ", target.y, ", ", target.z);
+    //SERIAL_ECHOLNPGM("Motion limits in: ", target.x, ", ", target.y, ", ", target.z);
     //SERIAL_EOL();
+
     if (!soft_endstop._enabled) return;
 
     #if IS_KINEMATIC
@@ -1569,13 +1570,9 @@ float get_move_distance(const xyze_pos_t &diff OPTARG(HAS_ROTATIONAL_AXES, bool 
 
     const xyze_float_t diff = destination - current_position;
 
-    //SERIAL_ECHOPGM("Destination: ", destination.x, " , ", destination.y, " , ", destination.z, " , ", destination.e);
-    //SERIAL_EOL();
-    //SERIAL_ECHOPGM("Current pos: ", current_position.x, " , ", current_position.y, " , ", current_position.z, " , ", current_position.e);
-    //SERIAL_EOL();
-    //SERIAL_ECHOPGM("Difference : ", diff.x, " , ", diff.y, " , ", diff.z, " , ", diff.e);
-    //SERIAL_EOL();
-
+    //SERIAL_ECHOLNPGM("Destination: ", destination.x, " , ", destination.y, " , ", destination.z, " , ", destination.e);
+    //SERIAL_ECHOLNPGM("Current pos: ", current_position.x, " , ", current_position.y, " , ", current_position.z, " , ", current_position.e);
+    //SERIAL_ECHOLNPGM("Difference : ", diff.x, " , ", diff.y, " , ", diff.z, " , ", diff.e);
 
     // For TPARA always split up the move, then skip next code
     #if DISABLED(AXEL_TPARA)
