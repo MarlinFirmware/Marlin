@@ -272,13 +272,15 @@ class FTMotion {
 extern FTMotion ftMotion;
 
 typedef struct FTMotionDisableInScope {
-  bool isactive;
-  FTMotionDisableInScope() {
-    isactive = ftMotion.cfg.active;
-    ftMotion.cfg.active = false;
-  }
-  ~FTMotionDisableInScope() {
-    ftMotion.cfg.active = isactive;
-    if (isactive) ftMotion.init();
-  }
+  #if DISABLED(FTM_HOME_AND_PROBE)
+    bool isactive;
+    FTMotionDisableInScope() {
+      isactive = ftMotion.cfg.active;
+      ftMotion.cfg.active = false;
+    }
+    ~FTMotionDisableInScope() {
+      ftMotion.cfg.active = isactive;
+      if (isactive) ftMotion.init();
+    }
+  #endif
 } FTMotionDisableInScope_t;

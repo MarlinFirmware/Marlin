@@ -59,7 +59,7 @@
 #define DEBUG_OUT ENABLED(DEBUG_LEVELING_FEATURE)
 #include "../../../core/debug_out.h"
 
-#if DISABLED(PROBE_MANUALLY) && FT_MOTION_DISABLE_FOR_PROBING
+#if DISABLED(PROBE_MANUALLY) && ENABLED(FT_MOTION)
   #include "../../../module/ft_motion.h"
 #endif
 
@@ -275,8 +275,9 @@ G29_TYPE GcodeSuite::G29() {
   // Set and report "probing" state to host
   TERN_(FULL_REPORT_TO_HOST_FEATURE, set_and_report_grblstate(M_PROBE, false));
 
-  #if DISABLED(PROBE_MANUALLY) && FT_MOTION_DISABLE_FOR_PROBING
-    FTMotionDisableInScope FT_Disabler; // Disable Fixed-Time Motion for probing
+  #if DISABLED(PROBE_MANUALLY) && ENABLED(FT_MOTION)
+    // Potentially disable Fixed-Time Motion for probing
+    FTMotionDisableInScope FT_Disabler;
   #endif
 
   /**

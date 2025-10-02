@@ -425,6 +425,7 @@ void FTMotion::loop() {
 // Reset all trajectory processing variables.
 void FTMotion::reset() {
   const bool did_suspend = stepper.suspend();
+
   stepperCmdBuff_produceIdx = stepperCmdBuff_consumeIdx = 0;
 
   traj.reset();
@@ -450,6 +451,7 @@ void FTMotion::reset() {
   TERN_(DISTINCT_E_FACTORS, block_extruder_axis = E_AXIS);
 
   axis_move_end_ti.reset();
+
   if (did_suspend) stepper.wake_up();
 }
 
