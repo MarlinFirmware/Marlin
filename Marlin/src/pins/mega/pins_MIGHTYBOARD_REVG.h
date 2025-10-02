@@ -45,12 +45,12 @@
 // #define SERVO3_PIN                            41  // G0 (1280-EX4)
 
 //
-// Limit Switches
-//
-#define X_MIN_PIN                             30  // C7 **
-// #define X_MAX_PIN                             48  // L1
-#define Y_MIN_PIN                             31  // C6 **
-// #define Y_MAX_PIN                             46  // L3
+// Limit Switches: X and Y go to max, Z to min 
+// 
+// #define X_MIN_PIN                             30  // C7 **
+#define X_MAX_PIN                             30  // C7 **
+// #define Y_MIN_PIN                             31  // C6 **
+#define Y_MAX_PIN                             31  // C6 **
 #define Z_MIN_PIN                             32  // C5 **
 // #define Z_MAX_PIN                             42  // L7
 
