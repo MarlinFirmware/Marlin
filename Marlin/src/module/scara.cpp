@@ -177,6 +177,7 @@ float segments_per_second = DEFAULT_SEGMENTS_PER_SECOND;
   }
 
 #elif ENABLED(AXEL_TPARA)
+
   // TPARA offset relative to the origin of the robot
   static constexpr xyz_pos_t robot_shoulder_offset = { 0, 0, TPARA_SHOULDER_AXIS_HEIGHT };
   // Workspace offset relative to the origin of the robot
@@ -247,18 +248,22 @@ xyz_pos_t apply_T_W_offset(const xyz_pos_t &rpose) {
       xyz_pos_t homeposition = { X_HOME_POS , Y_HOME_POS , Z_HOME_POS };
 
       //SERIAL_ECHOLNPGM("TPARA Set axis is at home: ", axis );
-      // DEBUG_ECHOLNPGM_P(PSTR("homeposition X"), homeposition.x, SP_Y_LBL, homeposition.y, SP_Z_LBL, homeposition.z);
+      //DEBUG_ECHOLNPGM_P(PSTR("homeposition X"), homeposition.x, SP_Y_LBL, homeposition.y, SP_Z_LBL, homeposition.z);
       //SERIAL_ECHOLNPGM("Home: ", homeposition.x, ",", homeposition.y, ",", homeposition.z);
       //SERIAL_ECHOLNPGM("Pos before IK: ", current_position.x, ",", current_position.y, ",", current_position.z);
       //SERIAL_ECHOLNPGM("Angles Before: Theta: ", delta.a, " Phi: ", delta.b, " Psi: ", delta.c);
+
       inverse_kinematics(homeposition);
+
       //SERIAL_ECHOLNPGM("Angles After IK: Theta: ", delta.a, " Phi: ", delta.b, " Psi: ", delta.c);
+
       forward_kinematics(delta.a, delta.b, delta.c);
       current_position[axis] = cartes[axis];
 
       //SERIAL_ECHOLNPGM("Curr Pos after FK: ", current_position.x, ",", current_position.y, ",", current_position.z);
       //SERIAL_ECHOLNPGM("Cartes after FK: ", cartes.x, ",", cartes.y, ",", cartes.z);
-      // DEBUG_ECHOLNPGM_P(PSTR("Cartesian X"), current_position.x, SP_Y_LBL, current_position.y);
+      //DEBUG_ECHOLNPGM_P(PSTR("Cartesian X"), current_position.x, SP_Y_LBL, current_position.y);
+
       update_software_endstops(axis);
 
       //SERIAL_ECHOLNPGM("Final Angles: Theta: ", delta.a, " Phi: ", delta.b, " Psi: ", delta.c);
@@ -267,7 +272,6 @@ xyz_pos_t apply_T_W_offset(const xyz_pos_t &rpose) {
       //SERIAL_ECHOLNPGM("Robot Offsets Tool:", tool_offset.x, "," , tool_offset.y,"," , tool_offset.z);
       //SERIAL_ECHOLNPGM("Robot Offsets Workspace:", robot_workspace_offset.x, "," , robot_workspace_offset.y,"," , robot_workspace_offset.z);
       //SERIAL_EOL();
-
   }
 
   // Convert ABC inputs in degrees to XYZ outputs in mm
@@ -282,7 +286,6 @@ xyz_pos_t apply_T_W_offset(const xyz_pos_t &rpose) {
     cartes = calculated_fk + robot_shoulder_offset + tool_offset - robot_workspace_offset;
 
     //SERIAL_ECHOLNPGM("TPARA FK Theta:", a, " Phi: ", b, " Psi: ", c , " Calculated X':", calculated_fk.x, " Y':", calculated_fk.y, " Z':", calculated_fk.z, " Workspace X:", cartes.x, " Y:", cartes.y, " Z:", cartes.z);
-
   }
 
   // Home YZ together, then X (or all at once). Based on quick_home_xy & home_delta
@@ -303,9 +306,15 @@ xyz_pos_t apply_T_W_offset(const xyz_pos_t &rpose) {
 
     // Disable stealthChop if used. Enable diag1 pin on driver.
     #if ENABLED(SENSORLESS_HOMING)
-      TERN_(X_SENSORLESS, sensorless_t stealth_states_x = start_sensorless_homing_per_axis(X_AXIS));
-      TERN_(Y_SENSORLESS, sensorless_t stealth_states_y = start_sensorless_homing_per_axis(Y_AXIS));
-      TERN_(Z_SENSORLESS, sensorless_t stealth_states_z = start_sensorless_homing_per_axis(Z_AXIS));
+      #if X_SENSORLESS
+        sensorless_t stealth_states_x = start_sensorless_homing_per_axis(X_AXIS);
+      #endif
+      #if Y_SENSORLESS
+        sensorless_t stealth_states_y = start_sensorless_homing_per_axis(Y_AXIS);
+      #endif
+      #if Z_SENSORLESS
+        sensorless_t stealth_states_z = start_sensorless_homing_per_axis(Z_AXIS);
+      #endif
     #endif
 
     // Set the homing current for all motors
@@ -385,10 +394,9 @@ xyz_pos_t apply_T_W_offset(const xyz_pos_t &rpose) {
     delta.set(DEGREES(THETA), DEGREES(PHI), DEGREES(PSI));
 
     //SERIAL_ECHOLNPGM(" TPARA IK raw(x,y,z) ", raw.x, ",", raw.y, ",", raw.z, " Robot pose(x,y,z) ", tpos.x, ",", tpos.y, ",", tpos.z + robot_shoulder_offset.z, " Rho^2=", RHO_2, " Theta=", THETA*RAD_TO_DEG, " Phi=", PHI*RAD_TO_DEG, " Psi=", PSI*RAD_TO_DEG, " Gamma=", GAMMA*RAD_TO_DEG);
-
   }
 
-#endif
+#endif // AXEL_TPARA
 
 void scara_report_positions() {
   SERIAL_ECHOLNPGM(
