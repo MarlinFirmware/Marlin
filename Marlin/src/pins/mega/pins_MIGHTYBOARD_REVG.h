@@ -25,7 +25,8 @@
  * Mightyboard Rev.G and H pin assignments
  * Schematic: not avalable (as rev G and H are not open source)
  * Pins based on the work of https://github.com/Sgail7/Replicator-Revival-Project/
- * pin number acording to arduino mapping, port is indicated in comments eg: 36 // PC1
+ * Pin number according to Mega extended mega2560ext: .\buildroot\share\PlatformIO\variants\MARLIN_MEGA_EXTENDED\pins_arduino.h
+ * Use env:MightyBoard2560 or env:MightyBoard1280 in platformio.ini
  */
 
 
@@ -38,7 +39,7 @@
 //
 // Servos (unconfirmed)
 //
-//#define SERVO0_PIN                            36  // C1 (1280-EX1)
+// #define SERVO0_PIN                            36  // C1 (1280-EX1)
 // #define SERVO1_PIN                            37  // C0 (1280-EX2)
 // #define SERVO2_PIN                            40  // G1 (1280-EX3)
 // #define SERVO3_PIN                            41  // G0 (1280-EX4)
@@ -73,9 +74,9 @@
 //
 // Steppers
 //
-#define X_STEP_PIN                           ...  // D6 *** does not have an equivalent in standard arduino core. Maybe need to use https://github.com/MCUdude/MegaCore ? 
+#define X_STEP_PIN                            83  // D6 *** does not have an equivalent in standard arduino core. uses mega extended
 #define X_DIR_PIN                             38  // D7 **
-#define X_ENABLE_PIN                         ...  // D4 *** does not have an equivalent in standard arduino core. Maybe need to use https://github.com/MCUdude/MegaCore ? 
+#define X_ENABLE_PIN                          81  // D4 *** does not have an equivalent in standard arduino core. uses mega extended
 
 #define Y_STEP_PIN                            44  // L5 **
 #define Y_DIR_PIN                             42  // L7 **
@@ -100,7 +101,7 @@
 // (Ex. 3F << 1 | 1)
 //
 #define DIGIPOTS_I2C_SCL                      28  // A6 *
-#define DIGIPOTS_I2C_SDA_X                   ...  // D5 *** does not have an equivalent in standard arduino core. Maybe need to use https://github.com/MCUdude/MegaCore ? 
+#define DIGIPOTS_I2C_SDA_X                    82  // D5 *** does not have an equivalent in standard arduino core. 
 #define DIGIPOTS_I2C_SDA_Y                    43  // L6 **
 #define DIGIPOTS_I2C_SDA_Z                    46  // L3 **
 #define DIGIPOTS_I2C_SDA_E0                   26  // A4 **
@@ -126,10 +127,10 @@
 //   E7 
 //   H2 
 //
-#define TEMP_0_CS_PIN                        ...  // E6 *** does not have an equivalent in standard arduino core. Maybe need to use https://github.com/MCUdude/MegaCore ? 
-#define TEMP_0_SCK_PIN                       ...  // E2 *** does not have an equivalent in standard arduino core. Maybe need to use https://github.com/MCUdude/MegaCore ? 
-#define TEMP_0_MISO_PIN                      ...  // E7 *** does not have an equivalent in standard arduino core. Maybe need to use https://github.com/MCUdude/MegaCore ? 
-#define TEMP_0_MOSI_PIN                      ...  // H2 *** does not have an equivalent in standard arduino core. Maybe need to use https://github.com/MCUdude/MegaCore ? 
+#define TEMP_0_CS_PIN                         79  // E6 *** does not have an equivalent in standard arduino core. Maybe need to use https://github.com/MCUdude/MegaCore ? 
+#define TEMP_0_SCK_PIN                        78  // E2 *** does not have an equivalent in standard arduino core. Maybe need to use https://github.com/MCUdude/MegaCore ? 
+#define TEMP_0_MISO_PIN                       80  // E7 *** does not have an equivalent in standard arduino core. Maybe need to use https://github.com/MCUdude/MegaCore ? 
+#define TEMP_0_MOSI_PIN                       84  // H2 *** does not have an equivalent in standard arduino core. Maybe need to use https://github.com/MCUdude/MegaCore ? 
 
 #define TEMP_1_CS_PIN                          2  // E4 **
 #define TEMP_1_SCK_PIN            TEMP_0_SCK_PIN
@@ -212,13 +213,13 @@
     #define BTN_LATCH_PIN                     34  // C3 **
     #define BTN_CLICK_PIN                     39  // G2 **
 
-    #define BTN_UP_PIN                       ...  // J5 *** does not have an equivalent in standard arduino core. Maybe need to use https://github.com/MCUdude/MegaCore ? 
-    #define BTN_DOWN_PIN                     ...  // J4 *** does not have an equivalent in standard arduino core. Maybe need to use https://github.com/MCUdude/MegaCore ? 
-    #define BTN_LEFT_PIN                     ...  // J6/J13 *** does not have an equivalent in standard arduino core. Maybe need to use https://github.com/MCUdude/MegaCore ? 
+    #define BTN_UP_PIN                        76  // J5 *** does not have an equivalent in standard arduino core. 
+    #define BTN_DOWN_PIN                      75  // J4 *** does not have an equivalent in standard arduino core. 
+    #define BTN_LEFT_PIN                      77  // J6/J13 *** does not have an equivalent in standard arduino core. Maybe need to use https://github.com/MCUdude/MegaCore ? 
 
     #define LCD_POWER_PIN                     29  // A7 **  
 
-    #define LCD_LED1_PIN                      35  // C2 *** does not have an equivalent in standard arduino core. Maybe need to use https://github.com/MCUdude/MegaCore ? 
+    #define LCD_LED1_PIN                      35  // C2 **
 
     // #define BTN_RIGHT_PIN                     14  // J1 ?    
         
