@@ -48,31 +48,31 @@ void GcodeSuite::M210() {
     return M210_report();
 
   #if HAS_X_AXIS
-    if (parser.floatval('X') > 0)        homing_feedrate_mm_m.x = parser.value_axis_units(X_AXIS);
+    if (parser.floatval(AXIS1_PARAM) > 0) homing_feedrate_mm_m.x = parser.value_axis_units(X_AXIS);
   #endif
   #if HAS_Y_AXIS
-    if (parser.floatval('Y') > 0)        homing_feedrate_mm_m.y = parser.value_axis_units(Y_AXIS);
+    if (parser.floatval(AXIS2_PARAM) > 0) homing_feedrate_mm_m.y = parser.value_axis_units(Y_AXIS);
   #endif
   #if HAS_Z_AXIS
-    if (parser.floatval('Z') > 0)        homing_feedrate_mm_m.z = parser.value_axis_units(Z_AXIS);
+    if (parser.floatval(AXIS3_PARAM) > 0) homing_feedrate_mm_m.z = parser.value_axis_units(Z_AXIS);
   #endif
   #if HAS_I_AXIS
-    if (parser.floatval(AXIS4_NAME) > 0) homing_feedrate_mm_m.i = parser.value_axis_units(I_AXIS);
+    if (parser.floatval(AXIS4_PARAM) > 0) homing_feedrate_mm_m.i = parser.value_axis_units(I_AXIS);
   #endif
   #if HAS_J_AXIS
-    if (parser.floatval(AXIS5_NAME) > 0) homing_feedrate_mm_m.j = parser.value_axis_units(J_AXIS);
+    if (parser.floatval(AXIS5_PARAM) > 0) homing_feedrate_mm_m.j = parser.value_axis_units(J_AXIS);
   #endif
   #if HAS_K_AXIS
-    if (parser.floatval(AXIS6_NAME) > 0) homing_feedrate_mm_m.k = parser.value_axis_units(K_AXIS);
+    if (parser.floatval(AXIS6_PARAM) > 0) homing_feedrate_mm_m.k = parser.value_axis_units(K_AXIS);
   #endif
   #if HAS_U_AXIS
-    if (parser.floatval(AXIS7_NAME) > 0) homing_feedrate_mm_m.u = parser.value_axis_units(U_AXIS);
+    if (parser.floatval(AXIS7_PARAM) > 0) homing_feedrate_mm_m.u = parser.value_axis_units(U_AXIS);
   #endif
   #if HAS_V_AXIS
-    if (parser.floatval(AXIS8_NAME) > 0) homing_feedrate_mm_m.v = parser.value_axis_units(V_AXIS);
+    if (parser.floatval(AXIS8_PARAM) > 0) homing_feedrate_mm_m.v = parser.value_axis_units(V_AXIS);
   #endif
   #if HAS_W_AXIS
-    if (parser.floatval(AXIS9_NAME) > 0) homing_feedrate_mm_m.w = parser.value_axis_units(W_AXIS);
+    if (parser.floatval(AXIS9_PARAM) > 0) homing_feedrate_mm_m.w = parser.value_axis_units(W_AXIS);
   #endif
 }
 

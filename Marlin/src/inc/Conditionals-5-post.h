@@ -102,6 +102,35 @@
   #define AXIS9_NAME 'W'
 #endif
 
+// G-code parameters where XYZ are invariant but IJKUVW can be renamed
+#ifndef AXIS1_PARAM
+  #define AXIS1_PARAM 'X'
+#endif
+#ifndef AXIS2_PARAM
+  #define AXIS2_PARAM 'Y'
+#endif
+#ifndef AXIS3_PARAM
+  #define AXIS3_PARAM 'Z'
+#endif
+#ifndef AXIS4_PARAM
+  #define AXIS4_PARAM AXIS4_NAME
+#endif
+#ifndef AXIS5_PARAM
+  #define AXIS5_PARAM AXIS5_NAME
+#endif
+#ifndef AXIS6_PARAM
+  #define AXIS6_PARAM AXIS6_NAME
+#endif
+#ifndef AXIS7_PARAM
+  #define AXIS7_PARAM AXIS7_NAME
+#endif
+#ifndef AXIS8_PARAM
+  #define AXIS8_PARAM AXIS8_NAME
+#endif
+#ifndef AXIS9_PARAM
+  #define AXIS9_PARAM AXIS9_NAME
+#endif
+
 #if HAS_X_AXIS
   #define X_MAX_LENGTH (X_MAX_POS - (X_MIN_POS))
 #endif
@@ -3645,4 +3674,20 @@
 // SPI Flash Backup
 #if ALL(SPI_FLASH, HAS_MEDIA, MARLIN_DEV_MODE)
   #define SPI_FLASH_BACKUP 1
+#endif
+
+// Fixed-Time Motion
+#if ENABLED(FT_MOTION)
+  #define FTM_TS (1.0f / FTM_FS)                                    // (s) Time step for trajectory generation. (Reciprocal of FTM_FS)
+  #define FTM_STEPS_PER_UNIT_TIME (FTM_STEPPER_FS / FTM_FS)         // Interpolated stepper commands per unit time
+  #define FTM_MIN_TICKS ((STEPPER_TIMER_RATE) / (FTM_STEPPER_FS))   // Minimum stepper ticks between steps
+  #define FTM_RATIO (FTM_FS / FTM_MIN_SHAPE_FREQ)     // Factor for use in FTM_ZMAX. DON'T CHANGE.
+  #define FTM_SMOOTH_MAX_I uint32_t(TERN0(FTM_SMOOTHING, CEIL(FTM_FS * FTM_MAX_SMOOTHING_TIME))) // Max delays for smoothing
+  #define FTM_ZMAX (FTM_RATIO * 2 + FTM_SMOOTH_MAX_I) // Maximum delays for shaping functions (even numbers only!)
+                                                      // Calculate as:
+                                                      //   ZV       : FTM_RATIO / 2
+                                                      //   ZVD, MZV : FTM_RATIO
+                                                      //   2HEI     : FTM_RATIO * 3 / 2
+                                                      //   3HEI     : FTM_RATIO * 2
+  #define FTM_SMOOTHING_ORDER 5                       // 3 to 5 is closest to gaussian
 #endif
