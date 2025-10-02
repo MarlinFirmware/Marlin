@@ -112,21 +112,16 @@
 #endif
 #define DIGIPOT_ENABLE_I2C_PULLUPS                // MightyBoard doesn't have hardware I2C pin pull-ups.
 
+
+// Bed temp sensor pin 
+#define TEMP_BED_PIN                           3  // F3 ** It seems to be connected to arduino ADC, shouldn't it be connected to ads1118 too?
+
 /* 
 *  Temperature Sensors
-*  Uses ADS1118 as ADC converter to read the temperature sensors
+*  Uses ADS1118 as ADC converter to read the hotend temperature sensors
 *  SPI for ADS1118 ADC, Uses software SPI
 *
 */ 
-//
-// K7 - 69 / ADC15 - 15
-#define TEMP_BED_PIN                           3  // F3 ** It seems to be connected to arduino ADC, shouldn't it be connected to ads1118 too?
-
-//   E6
-//   E2 
-//   E7 
-//   H2 
-//
 #define TEMP_0_CS_PIN                         79  // E6 *** does not have an equivalent in standard arduino core. Maybe need to use https://github.com/MCUdude/MegaCore ? 
 #define TEMP_0_SCK_PIN                        78  // E2 *** does not have an equivalent in standard arduino core. Maybe need to use https://github.com/MCUdude/MegaCore ? 
 #define TEMP_0_MISO_PIN                       80  // E7 *** does not have an equivalent in standard arduino core. Maybe need to use https://github.com/MCUdude/MegaCore ? 
