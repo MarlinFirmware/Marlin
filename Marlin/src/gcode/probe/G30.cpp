@@ -34,6 +34,10 @@
   #include "../../feature/probe_temp_comp.h"
 #endif
 
+#if ENABLED(FT_MOTION)
+  #include "../../module/ft_motion.h"
+#endif
+
 #if ANY(DWIN_CREALITY_LCD_JYERSUI, EXTENSIBLE_UI)
   #define VERBOSE_SINGLE_PROBE
 #endif
@@ -75,6 +79,9 @@ void GcodeSuite::G30() {
 
     // Use 'C' to set Probe Temperature Compensation ON/OFF (on by default)
     TERN_(HAS_PTC, ptc.set_enabled(parser.boolval('C', true)));
+
+    // Potentially disable Fixed-Time Motion for probing
+    TERN_(FT_MOTION, FTMotionDisableInScope FT_Disabler);
 
     // Probe the bed, optionally raise, and return the measured height
     const float measured_z = probe.probe_at_point(probepos, raise_after);

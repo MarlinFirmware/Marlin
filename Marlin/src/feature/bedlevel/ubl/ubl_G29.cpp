@@ -48,6 +48,10 @@
   #include "../hilbert_curve.h"
 #endif
 
+#if ENABLED(FT_MOTION)
+  #include "../../../module/ft_motion.h"
+#endif
+
 #include <math.h>
 
 #define UBL_G29_P31
@@ -308,6 +312,9 @@ void unified_bed_leveling::G29() {
 
   const uint8_t p_val = parser.byteval('P');
   const bool may_move = p_val == 1 || p_val == 2 || p_val == 4 || parser.seen_test('J');
+
+  // Potentially disable Fixed-Time Motion for probing
+  TERN_(FT_MOTION, FTMotionDisableInScope FT_Disabler);
 
   // Check for commands that require the printer to be homed
   if (may_move) {
