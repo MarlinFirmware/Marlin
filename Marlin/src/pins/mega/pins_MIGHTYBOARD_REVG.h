@@ -29,7 +29,6 @@
  * Use env:MightyBoard2560 or env:MightyBoard1280 in platformio.ini
  */
 
-
 #define ALLOW_MEGA1280
 #include "env_validate.h"
 
@@ -37,12 +36,11 @@
 #define DEFAULT_MACHINE_NAME "MB Replicator"
 
 //
-// Limit Switches: X and Y go to max, Z to min 
-// 
+// Limit Switches: X and Y go to max, Z to min
+//
 #define X_STOP_PIN                            30  // C7
 #define Y_STOP_PIN                            31  // C6
 #define Z_MIN_PIN                             32  // C5
-
 
 //
 // Steppers
@@ -53,7 +51,7 @@
 
 #define Y_STEP_PIN                            44  // L5
 #define Y_DIR_PIN                             42  // L7
-#define Y_ENABLE_PIN                          45  // L4 
+#define Y_ENABLE_PIN                          45  // L4
 
 #define Z_STEP_PIN                            48  // L1
 #define Z_DIR_PIN                             47  // L2
@@ -85,16 +83,15 @@
 #endif
 #define DIGIPOT_ENABLE_I2C_PULLUPS                // MightyBoard doesn't have hardware I2C pin pull-ups.
 
-
-// Bed temp sensor pin 
+// Bed temp sensor pin
 #define TEMP_BED_PIN                           3  // F3
 
-/* 
+/*
 *  Temperature Sensors
 *  Uses ADS1118 as ADC converter to read the hotend temperature sensors
 *  SPI for ADS1118 ADC, Uses software SPI
 *
-*/ 
+*/
 #define TEMP_0_CS_PIN                         79  // E6
 #define TEMP_0_SCK_PIN                        78  // E2
 #define TEMP_0_MISO_PIN                       80  // E7
@@ -121,7 +118,7 @@
 //
 
 #define HEATER_0_PIN                MOSFET_A_PIN  // E5
-#define HEATER_1_PIN                MOSFET_B_PIN  // E3 ?* 
+#define HEATER_1_PIN                MOSFET_B_PIN  // E3 ?*
 #define HEATER_BED_PIN              MOSFET_C_PIN  // H5
 
 #ifndef E0_AUTO_FAN_PIN
@@ -141,7 +138,7 @@
 //
 
 #if HAS_WIRED_LCD
-  
+
   #if IS_RRD_FG_SC
 
     #define LCD_PINS_RS                       33  // C4: LCD-STROBE
@@ -175,11 +172,11 @@
     #define BTN_DOWN_PIN                      75  // J4
     #define BTN_LEFT_PIN                      77  // J6/J13
 
-    #define LCD_POWER_PIN                     29  // A7  
+    #define LCD_POWER_PIN                     29  // A7
 
     #define LCD_LED1_PIN                      35  // C2
 
-    // Leave Old pins defined for now 
+    // Leave Old pins defined for now
     #define SR_DATA_PIN                       37  // C0 *
     #define SR_CLK_PIN                        36  // C1 *
     #define SR_STROBE_PIN                     33  // C4 *
@@ -191,6 +188,5 @@
     #define BEEPER_PIN                         6  // H3
 
   #endif
-
 
 #endif // HAS_WIRED_LCD
