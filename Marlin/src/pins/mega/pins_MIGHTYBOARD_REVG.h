@@ -37,36 +37,12 @@
 #define DEFAULT_MACHINE_NAME "MB Replicator"
 
 //
-// Servos (unconfirmed)
-//
-// #define SERVO0_PIN                            36  // C1 (1280-EX1)
-// #define SERVO1_PIN                            37  // C0 (1280-EX2)
-// #define SERVO2_PIN                            40  // G1 (1280-EX3)
-// #define SERVO3_PIN                            41  // G0 (1280-EX4)
-
-//
 // Limit Switches: X and Y go to max, Z to min 
 // 
-#define X_STOP_PIN                               30  // C7
-#define Y_STOP_PIN                               31  // C6
-#define Z_MIN_PIN                                32  // C5
+#define X_STOP_PIN                            30  // C7
+#define Y_STOP_PIN                            31  // C6
+#define Z_MIN_PIN                             32  // C5
 
-//
-// Z Probe (when not Z_MIN_PIN)
-//
-// #ifndef Z_MIN_PROBE_PIN
-//   #define Z_MIN_PROBE_PIN                     42
-// #endif
-
-//
-// Filament Runout Sensor
-//
-// #ifndef FIL_RUNOUT_PIN
-//   #define FIL_RUNOUT_PIN                      49
-// #endif
-// #ifndef FIL_RUNOUT2_PIN
-//   #define FIL_RUNOUT2_PIN                     47
-// #endif
 
 //
 // Steppers
@@ -105,7 +81,7 @@
 #define DIGIPOTS_I2C_SDA_E1                   77  // J7
 
 #ifndef DIGIPOT_I2C_ADDRESS_A
-  #define DIGIPOT_I2C_ADDRESS_A             0x2F  // unshifted slave address (5E <- 2F << 1)
+    #define DIGIPOT_I2C_ADDRESS_A           0x2F  // unshifted slave address (5E <- 2F << 1)
 #endif
 #define DIGIPOT_ENABLE_I2C_PULLUPS                // MightyBoard doesn't have hardware I2C pin pull-ups.
 
@@ -149,33 +125,23 @@
 #define HEATER_BED_PIN              MOSFET_C_PIN  // H5
 
 #ifndef E0_AUTO_FAN_PIN
-  #define E0_AUTO_FAN_PIN           MOSFET_D_PIN
+    #define E0_AUTO_FAN_PIN         MOSFET_D_PIN
 #elif !defined(FAN0_PIN)
-  #define FAN0_PIN                  MOSFET_D_PIN
+    #define FAN0_PIN                MOSFET_D_PIN
 #endif
 
 #ifndef E1_AUTO_FAN_PIN
-  #define E1_AUTO_FAN_PIN           MOSFET_E_PIN
+    #define E1_AUTO_FAN_PIN         MOSFET_E_PIN
 #elif !defined(FAN1_PIN)
-  #define FAN1_PIN                  MOSFET_E_PIN
+    #define FAN1_PIN                MOSFET_E_PIN
 #endif
-
-//
-// Misc. Functions
-// PCA9632 LED
-
-
-//#define LED_PIN                               13  // B7
-//#define CUTOFF_RESET_PIN                      16  // H1
-//#define CUTOFF_TEST_PIN                       17  // H0
-//#define CUTOFF_SR_CHECK_PIN                   70  // G4 (TOSC1)
 
 //
 // LCD / Controller
 //
 
 #if HAS_WIRED_LCD
-
+  
   #if IS_RRD_FG_SC
 
     #define LCD_PINS_RS                       33  // C4: LCD-STROBE
@@ -213,7 +179,7 @@
 
     #define LCD_LED1_PIN                      35  // C2
 
-    // #define BTN_RIGHT_PIN                     14  // J1 ?    
+    //#define BTN_RIGHT_PIN                     14  // J1 ?    
         
     // Leave Old pins defined for now 
     #define SR_DATA_PIN                       37  // C0 *
@@ -229,7 +195,7 @@
     #undef BTN_EN1
     #undef BTN_EN2
 
-    #define BEEPER_PIN                            6  // H3
+    #define BEEPER_PIN                         6  // H3
 
     // #define STAT_LED_RED_PIN                  32  // C2 *
     // #define STAT_LED_BLUE_PIN                 31  // C6 (Actually green)
@@ -238,7 +204,7 @@
 
   // #define BTN_CENTER                          15  // J6/J13 *
   // #define BTN_ENC                     BTN_CENTER
-
+  
 #endif // HAS_WIRED_LCD
 
 //
