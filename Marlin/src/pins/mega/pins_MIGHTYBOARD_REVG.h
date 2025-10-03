@@ -179,67 +179,18 @@
 
     #define LCD_LED1_PIN                      35  // C2
 
-    //#define BTN_RIGHT_PIN                     14  // J1 ?    
-        
     // Leave Old pins defined for now 
     #define SR_DATA_PIN                       37  // C0 *
     #define SR_CLK_PIN                        36  // C1 *
     #define SR_STROBE_PIN                     33  // C4 *
 
-    // #define BTN_UP                            75  // J5
-    // #define BTN_DOWN                          73  // J4
-    // #define BTN_LEFT                          72  // J6/J13
-    // #define BTN_RIGHT                         14  // J1
-    
     // Disable encoder
     #undef BTN_EN1
     #undef BTN_EN2
 
     #define BEEPER_PIN                         6  // H3
 
-    // #define STAT_LED_RED_PIN                  32  // C2 *
-    // #define STAT_LED_BLUE_PIN                 31  // C6 (Actually green)
-
   #endif
 
-  // #define BTN_CENTER                          15  // J6/J13 *
-  // #define BTN_ENC                     BTN_CENTER
-  
+
 #endif // HAS_WIRED_LCD
-
-//
-// SD Card
-// Not sure about these 
-// #define SD_SS_PIN                             53  // B0
-// #define SD_DETECT_PIN                          9  // H6
-
-// #if HAS_TMC_UART
-//   /**
-//    * TMC220x stepper drivers
-//    *
-//    * Hardware serial communication ports.
-//    * If undefined software serial is used according to the pins below
-//    */
-//   #define X_HARDWARE_SERIAL Serial2
-//   #define Y_HARDWARE_SERIAL Serial1
-
-//   /**
-//    * Software serial
-//    */
-
-//   #define X_SERIAL_TX_PIN                     16
-//   #define X_SERIAL_RX_PIN                     17
-
-//   #define Y_SERIAL_TX_PIN                     18
-//   #define Y_SERIAL_RX_PIN                     19
-
-//   #define Z_SERIAL_TX_PIN                     41
-//   #define Z_SERIAL_RX_PIN                     66
-
-//   #define E0_SERIAL_TX_PIN                    40
-//   #define E0_SERIAL_RX_PIN                    67
-
-//   #define E1_SERIAL_TX_PIN                    37
-//   #define E1_SERIAL_RX_PIN                    68
-
-// #endif
