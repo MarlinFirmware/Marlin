@@ -261,8 +261,6 @@
   #include "mega/pins_CHEAPTRONICv2.h"              // ATmega2560                           env:mega2560
 #elif MB(MIGHTYBOARD_REVE)
   #include "mega/pins_MIGHTYBOARD_REVE.h"           // ATmega2560, ATmega1280               env:mega2560ext env:MightyBoard1280 env:MightyBoard2560
-#elif MB(MIGHTYBOARD_REVG)
-  #include "mega/pins_MIGHTYBOARD_REVG.h"           // ATmega2560, ATmega1280               env:mega2560ext env:MightyBoard1280 env:MightyBoard2560  
 #elif MB(MEGATRONICS)
   #include "mega/pins_MEGATRONICS.h"                // ATmega2560                           env:mega2560
 #elif MB(MEGATRONICS_2)
@@ -317,7 +315,8 @@
   #include "mega/pins_PROTONEER_CNC_SHIELD_V3.h"    // ATmega2560                           env:mega2560
 #elif MB(WEEDO_62A)
   #include "mega/pins_WEEDO_62A.h"                  // ATmega2560                           env:mega2560
-
+#elif MB(MIGHTYBOARD_REVG)
+  #include "mega/pins_MIGHTYBOARD_REVG.h"           // ATmega2560, ATmega1280               env:mega2560ext env:MightyBoard1280 env:MightyBoard2560  
 //
 // ATmega1281, ATmega2561
 //
