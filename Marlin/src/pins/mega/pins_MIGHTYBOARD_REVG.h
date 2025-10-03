@@ -40,7 +40,7 @@
 //
 #define X_STOP_PIN                            30  // C7
 #define Y_STOP_PIN                            31  // C6
-#define Z_MIN_PIN                             32  // C5
+#define Z_STOP_PIN                            32  // C5
 
 //
 // Steppers
