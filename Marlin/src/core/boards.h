@@ -28,6 +28,7 @@
 
 #include "macros.h"
 
+#define BOARD_ERROR -2
 #define BOARD_UNKNOWN -1
 
 //
