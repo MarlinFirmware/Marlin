@@ -1362,6 +1362,12 @@ class Temperature {
       static raw_adc_t read_max_tc_bed();
     #endif
 
+    // ADS Thermocouples
+    #if HAS_ADS1118
+      #define READ_ADS(N) read_ads1118(N)
+      static raw_adc_t read_ads1118(const uint8_t hindex=0);
+    #endif
+
     #if HAS_AUTO_FAN
       #if ENABLED(POWER_OFF_WAIT_FOR_COOLDOWN)
         static bool autofans_on;

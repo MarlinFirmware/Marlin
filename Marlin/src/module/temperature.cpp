@@ -207,6 +207,20 @@
   #include "stepper.h"
 #endif
 
+
+#define TEMP_SENSOR_IS_ADS(n, M) (ENABLED(TEMP_SENSOR_##n##_IS_ADS##M) || (ENABLED(TEMP_SENSOR_REDUNDANT_IS_ADS##M) && REDUNDANT_TEMP_MATCH(SOURCE, E##n)))
+
+// ADS1118
+#if HAS_ADS1118  
+  #include <adc_ads1118.h>
+#endif
+
+// ADS TC related macros
+#if TEMP_SENSOR_IS_ADS(0, TEMP_SENSOR_ADS1118)
+  ads1118.init();
+#endif
+
+
 #if ENABLED(FILAMENT_WIDTH_SENSOR)
   #include "../feature/filwidth.h"
 #endif
@@ -2615,6 +2629,19 @@ void Temperature::task() {
   }
 #endif
 
+
+#if ANY_THERMISTOR_IS(-18)
+
+// Conversion for ADS1118 in differential mode (K-type)
+// Each LSB bit ≈ 62.5 µV → ~1.5 °C (no calibration).
+// Adjustable with GAIN and OFFSET from Configuration_adv.h
+
+  static constexpr celsius_float_t temp_ads1118(const raw_adc_t raw) {
+    return raw * TEMP_SENSOR_ADS1118_GAIN + TEMP_SENSOR_ADS1118_OFFSET;
+  }
+
+#endif
+
 #if HAS_HOTEND
   // Derived from RepRap FiveD extruder::getTemperature()
   // For hot end temperature measurement.
@@ -2644,6 +2671,8 @@ void Temperature::task() {
           return temp_ad595(raw);
         #elif TEMP_SENSOR_0_IS_AD8495
           return temp_ad8495(raw);
+        #elif TEMP_SENSOR_0_IS_ADS1118
+          return temp_ads1118(raw);          
         #else
           break;
         #endif
@@ -2913,6 +2942,14 @@ void Temperature::updateTemperaturesFromRawValues() {
   #if TEMP_SENSOR_IS_MAX_TC(BED)
     temp_bed.setraw(read_max_tc_bed());
   #endif
+
+  // Read ADC ADS1118
+  #if TEMP_SENSOR_IS_ADS(0,TEMP_SENSOR_ADS1118)
+    temp_hotend[0].setraw(READ_ADS(0));
+  #endif  
+  #if TEMP_SENSOR_IS_ADS(1,TEMP_SENSOR_ADS1118)
+    temp_hotend[1].setraw(READ_ADS(1));
+  #endif    
 
   #if HAS_HOTEND
     HOTEND_LOOP() temp_hotend[e].celsius = analog_to_celsius_hotend(temp_hotend[e].getraw(), e);
@@ -3810,7 +3847,7 @@ void Temperature::disable_all_heaters() {
     return max_tc_temp;
   }
 
-#endif // HAS_MAX_TC
+#endif // TEMP_SENSOR_IS_MAX_TC(0) || TEMP_SENSOR_IS_MAX_TC(1) || TEMP_SENSOR_IS_MAX_TC(2)
 
 #if TEMP_SENSOR_IS_MAX_TC(BED)
   /**
@@ -3929,6 +3966,71 @@ void Temperature::disable_all_heaters() {
   }
 
 #endif // TEMP_SENSOR_IS_MAX_TC(BED)
+
+#if ENABLED(HAS_ADS1118)
+  /**
+   * @brief Read ADS Thermocouple temperature.
+   *
+   * Reads the thermocouple board via HW or SW SPI, using a library (LIB_USR_x) or raw SPI reads.
+   * Doesn't strictly return a temperature; returns an "ADC Value" (i.e. raw register content).
+   *
+   * @param  hindex  the hotend we're referencing (if MULTI_MAX_TC)
+   * @return         integer representing the board's buffer, to be converted later if needed
+   */
+raw_adc_t Temperature::read_ads1118(const uint8_t hindex/*=0*/) {
+  #define ADS1118_HEAT_INTERVAL 250UL  // tiempo mínimo entre lecturas (ms)
+
+  static raw_adc_t ads1118_temp_previous[2] = { 0, 0 };
+  static uint8_t ads1118_errors[2] = { 0, 0 };
+  static millis_t next_ads1118_ms[2] = { 0, 0 };
+
+  const millis_t ms = millis();
+  if (PENDING(ms, next_ads1118_ms[hindex]))
+    return ads1118_temp_previous[hindex];  // devolver última lectura si no toca medir aún
+
+  next_ads1118_ms[hindex] = ms + ADS1118_HEAT_INTERVAL;
+
+  raw_adc_t ads_val = 0;
+
+  // Elegir configuración diferencial según hindex
+  uint16_t config;
+  if (hindex == 0)
+    config = 0x0003 | 0x8000;  // AIN0 - AIN1, modo single-shot, PGA ±2.048V, 128 SPS
+  else
+    config = 0x3000 | 0x8000;  // AIN2 - AIN3, modo single-shot, PGA ±2.048V, 128 SPS
+
+  // Enviar config al ADS1118
+  ads1118.transfer16(config);
+
+  // Tiempo de conversión (8 ms típico)
+  delay(10);
+
+  // Leer valor
+  int16_t raw = (int16_t)ads1118.transfer16(config);
+
+  // Manejo de errores simples: raw = 0x7FFF o 0x8000 podrían ser saturación
+  if (raw == 0x7FFF || raw == -32768) {
+    ads1118_errors[hindex]++;
+    if (ads1118_errors[hindex] > 3) {
+      SERIAL_ERROR_START();
+      SERIAL_ECHOLNPGM("ADS1118 Fault: Conversion error!");
+      ads_val = (raw_adc_t)(TEMP_SENSOR_0_MAX_TC_TMAX << 4); // forzar error
+    }
+  }
+  else {
+    ads1118_errors[hindex] = 0; // resetear errores si ok
+    // Convertir raw a formato fijo (ejemplo: 1/16 °C si es termocupla)
+    ads_val = (raw_adc_t)raw;
+  }
+
+  ads1118_temp_previous[hindex] = ads_val;
+
+  return ads_val;
+}  
+#endif // ENABLED(HAS_ADS1118)
+
+
+
 
 /**
  * Update raw temperatures
