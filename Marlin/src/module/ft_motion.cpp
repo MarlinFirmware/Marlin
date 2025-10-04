@@ -567,6 +567,10 @@ void FTMotion::loadBlockData(block_t * const current_block) {
   }while(0);
 
   LOGICAL_AXIS_MAP(_SET_MOVE_END);
+  // If the endstop is already pressed, endstop interrupts won't invoke
+  // endstop_triggered and the move will grind. So check here for a
+  // triggered endstop, which marks the block for discard on the next ISR.
+  endstops.update();
 }
 
 // Generate data points of the trajectory.
