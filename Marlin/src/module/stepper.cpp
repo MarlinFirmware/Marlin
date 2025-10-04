@@ -3350,14 +3350,15 @@ void Stepper::init() {
  * derive the current XYZE position later on.
  */
 void Stepper::_set_position(const abce_long_t &spos) {
+  const bool ftMotionActive = TERN0(FT_MOTION, ftMotion.cfg.active);
   #if ENABLED(INPUT_SHAPING_X)
-    const int32_t x_shaping_delta = count_position.x - shaping_x.last_block_end_pos;
+    const int32_t x_shaping_delta = ftMotionActive ? 0 : count_position.x - shaping_x.last_block_end_pos;
   #endif
   #if ENABLED(INPUT_SHAPING_Y)
-    const int32_t y_shaping_delta = count_position.y - shaping_y.last_block_end_pos;
+    const int32_t y_shaping_delta = ftMotionActive ? 0 : count_position.y - shaping_y.last_block_end_pos;
   #endif
   #if ENABLED(INPUT_SHAPING_Z)
-    const int32_t z_shaping_delta = count_position.z - shaping_z.last_block_end_pos;
+    const int32_t z_shaping_delta = ftMotionActive ? 0 : count_position.z - shaping_z.last_block_end_pos;
   #endif
 
   #if ANY(IS_CORE, MARKFORGED_XY, MARKFORGED_YX)
