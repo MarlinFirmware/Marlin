@@ -553,6 +553,8 @@ void FTMotion::loadBlockData(block_t * const current_block) {
   endPos_prevBlock += moveDist;
 
   TERN_(FTM_HAS_LIN_ADVANCE, use_advance_lead = current_block->use_advance_lead);
+
+  // Watch endstops until the move ends
   #define _SET_MOVE_END(A) do{ \
     if (moveDist.A) { \
       axis_is_moving_val.A = moveDist.A != 0; \

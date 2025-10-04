@@ -596,10 +596,7 @@ bool Probe::set_deployed(const bool deploy, const bool no_return/*=false*/) {
 
   endstops.enable_z_probe(deploy);
   const millis_t timeout_ms = millis() + 100; // Wait up to 100ms
-  while (PROBE_TRIGGERED() && PENDING(millis(), timeout_ms)) {
-    safe_delay(1); // Let ISR run and potentially clear probe state
-    endstops.poll(); // Refresh endstop states
-  }
+  while (PROBE_TRIGGERED() && PENDING(millis(), timeout_ms)) safe_delay(1);
   return false;
 }
 
