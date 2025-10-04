@@ -57,10 +57,10 @@ tests-single-local-docker:
 	$(CONTAINER_RT_BIN) run $(CONTAINER_RT_OPTS) $(CONTAINER_IMAGE) make tests-single-local TEST_TARGET=$(TEST_TARGET) VERBOSE_PLATFORMIO=$(VERBOSE_PLATFORMIO) GIT_RESET_HARD=$(GIT_RESET_HARD) ONLY_TEST="$(ONLY_TEST)"
 
 tests-all-local:
-	@python -c "import yaml" 2>/dev/null || (echo 'pyyaml module is not installed. Install it with "python -m pip install pyyaml"' && exit 1)
+	@$(PYTHON) -c "import yaml" 2>/dev/null || (echo 'pyyaml module is not installed. Install it with "$(PYTHON) -m pip install pyyaml"' && exit 1)
 	export PATH="./buildroot/bin/:./buildroot/tests/:${PATH}" \
 	  && export VERBOSE_PLATFORMIO=$(VERBOSE_PLATFORMIO) \
-	  && for TEST_TARGET in $$(python $(SCRIPTS_DIR)/get_test_targets.py) ; do \
+	  && for TEST_TARGET in $$($(PYTHON) $(SCRIPTS_DIR)/get_test_targets.py) ; do \
 	    if [ "$$TEST_TARGET" = "linux_native" ] && [ "$$(uname)" = "Darwin" ]; then \
 	      echo "Skipping tests for $$TEST_TARGET on macOS" ; \
 	      continue ; \
@@ -91,15 +91,73 @@ unit-test-all-local-docker:
 setup-local-docker:
 	$(CONTAINER_RT_BIN) buildx build -t $(CONTAINER_IMAGE) -f docker/Dockerfile .
 
-PINS := $(shell find Marlin/src/pins -mindepth 2 -name '*.h')
+# Cross-platform file finding and path handling
+ifeq ($(OS),Windows_NT)
+    # Windows: Use cmd tools to find pins files
+    PINS_RAW := $(shell cmd //c "dir /s /b Marlin\src\pins\*.h 2>nul | findstr /r ".*Marlin\\\\src\\\\pins\\\\.*\\\\pins_.*\.h"")
+    PINS := $(subst \,/,$(PINS_RAW))
+    # Windows: Check for available Python executable (try python, then python3, then py)
+    PYTHON := $(shell where python 2>nul)
+    ifeq ($(PYTHON),)
+        PYTHON := $(shell where python3 2>nul)
+        ifeq ($(PYTHON),)
+            PYTHON := $(shell where py 2>nul)
+            ifeq ($(PYTHON),)
+                $(error No Python executable found. Please install Python 3.x from python.org or Microsoft Store)
+            else
+                # Verify py launcher points to Python 3
+                PYTHON_VERSION := $(shell py -c "import sys; print(sys.version_info[0])" 2>nul)
+                ifneq ($(PYTHON_VERSION),3)
+                    $(error Found py launcher but it's not configured for Python 3. Use 'py -3' or install Python 3.x)
+                endif
+                PYTHON := py
+            endif
+        else
+            # Verify python3 is actually Python 3
+            PYTHON_VERSION := $(shell python3 -c "import sys; print(sys.version_info[0])" 2>nul)
+            ifneq ($(PYTHON_VERSION),3)
+                $(error Found python3 but it's not Python 3. Please reinstall Python 3.x)
+            endif
+            PYTHON := python3
+        endif
+    else
+        # Verify python is actually Python 3
+        PYTHON_VERSION := $(shell python -c "import sys; print(sys.version_info[0])" 2>nul)
+        ifneq ($(PYTHON_VERSION),3)
+            $(error Found python but it's not Python 3. Please install Python 3.x or use 'python3')
+        endif
+        PYTHON := python
+    endif
+else
+    # Unix/Linux: Use find command
+    PINS := $(shell find Marlin/src/pins -mindepth 2 -name 'pins_*.h')
+    # Check for available Python executable (prefer python3, fallback to python)
+    PYTHON := $(shell command -v python3 2>/dev/null)
+    ifeq ($(PYTHON),)
+        PYTHON := $(shell command -v python 2>/dev/null)
+        ifeq ($(PYTHON),)
+            $(error No Python executable found. Please install Python 3.x)
+        else
+            # Verify it's Python 3
+            PYTHON_VERSION := $(shell python -c "import sys; print(sys.version_info[0])" 2>/dev/null)
+            ifneq ($(PYTHON_VERSION),3)
+                $(error Found python but it's not Python 3. Please install Python 3.x or ensure python3 is in PATH)
+            endif
+            PYTHON := python
+        endif
+    else
+        PYTHON := python3
+    endif
+endif
 
 .PHONY: $(PINS) format-pins validate-pins
 
 $(PINS): %:
 	@echo "Formatting pins $@"
-	@python $(SCRIPTS_DIR)/pinsformat.py $< $@
+	@$(PYTHON) $(SCRIPTS_DIR)/pinsformat.py $< $@
 
 format-pins: $(PINS)
+	@echo "Found $(words $(PINS)) pins files to format"
 
 validate-pins: format-pins
 	@echo "Validating pins files"
@@ -109,8 +167,8 @@ validate-pins: format-pins
 
 format-lines:
 	@echo "Formatting all sources"
-	@python $(SCRIPTS_DIR)/linesformat.py buildroot
-	@python $(SCRIPTS_DIR)/linesformat.py Marlin
+	@$(PYTHON) $(SCRIPTS_DIR)/linesformat.py buildroot
+	@$(PYTHON) $(SCRIPTS_DIR)/linesformat.py Marlin
 
 validate-lines:
 	@echo "Validating text formatting"
@@ -122,4 +180,4 @@ BOARDS_FILE := Marlin/src/core/boards.h
 
 validate-boards:
 	@echo "Validating boards.h file"
-	@python $(SCRIPTS_DIR)/validate_boards.py $(BOARDS_FILE) || (echo "\nError: boards.h file is not valid. Please check and correct it.\n" && exit 1)
+	@$(PYTHON) $(SCRIPTS_DIR)/validate_boards.py $(BOARDS_FILE) || (echo "\nError: boards.h file is not valid. Please check and correct it.\n" && exit 1)
