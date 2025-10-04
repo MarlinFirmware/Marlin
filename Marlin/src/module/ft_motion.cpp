@@ -233,7 +233,7 @@ void FTMotion::loop() {
 
   // Report busy status to planner.
   busy = (stepperCmdBuffHasData || blockProcRdy || batchRdy || batchRdyForInterp);
-
+  if (!busy) axis_is_moving_val.reset();
 }
 
 #if HAS_FTM_SHAPING
