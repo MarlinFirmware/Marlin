@@ -1064,7 +1064,10 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         case 868: M868(); break;                                  // M868: Set error correction threshold
         case 869: M869(); break;                                  // M869: Report axis error
       #endif
-
+      #if ENABLED(I2C_AMMETER)
+        case 3221: M3221(); break;                                 // M3221: read INA3221 ammeter
+      #endif
+      
       #if ENABLED(MAGNETIC_PARKING_EXTRUDER)
         case 951: M951(); break;                                  // M951: Set Magnetic Parking Extruder parameters
       #endif

@@ -2055,7 +2055,9 @@ void Temperature::mintemp_error(const heater_id_t heater_id OPTARG(ERR_INCLUDE_T
       temp_cooler.soft_pwm_amount = 0;
       if (flag_cooler_state) {
         flag_cooler_state = false;
-        thermalManager.set_fan_speed(COOLER_FAN_INDEX, 0);
+        #if ENABLED(COOLER_FAN)
+          thermalManager.set_fan_speed(COOLER_FAN_INDEX, 0);
+        #endif
       }
       WRITE_HEATER_COOLER(LOW);
     }

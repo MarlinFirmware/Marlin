@@ -1292,6 +1292,11 @@ private:
     static void M710();
     static void M710_report(const bool forReplay=true);
   #endif
+    #if ENABLED(I2C_AMMETER_GCODE)
+    
+    static void M3221();
+
+  #endif
 
   static void T(const int8_t tool_index) IF_DISABLED(HAS_TOOLCHANGE, { UNUSED(tool_index); });
 

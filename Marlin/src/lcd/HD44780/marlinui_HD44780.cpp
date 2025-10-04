@@ -194,6 +194,7 @@ void MarlinUI::set_custom_characters(const HD44780CharSet screen_charset/*=CHARS
   #endif // SHOW_BOOTSCREEN
 
   // CHARSET_INFO
+
   const static PROGMEM byte bedTemp[8] = {
     B00000,
     B11111,
@@ -248,6 +249,15 @@ void MarlinUI::set_custom_characters(const HD44780CharSet screen_charset/*=CHARS
       B00100,
       B00000,
       B00000
+    #elif LCD_INFO_SCREEN_STYLE == 3
+      0x0E,
+      0x1B,
+      0x15,
+      0x1F,
+      0x15,
+      0x1B,
+      0x0E,
+      0x00
     #else
       B11100,
       B10000,
@@ -270,6 +280,31 @@ void MarlinUI::set_custom_characters(const HD44780CharSet screen_charset/*=CHARS
     B00000,
     B00000
   };
+
+#if LCD_INFO_SCREEN_STYLE == 3
+     const static PROGMEM byte cutter_power_icon[8] = {
+	0b01110,
+	0b10001,
+	0b10101,
+	0b10001,
+	0b10111,
+	0b10111,
+	0b01110,
+	0b00000
+};
+const static PROGMEM byte current_icon[8] = {
+  0x0E,
+  0x1B,
+  0x11,
+  0x1B,
+  0x1F,
+  0x11,
+  0x0E,
+  0x00
+};
+
+#endif
+
 
   #if ENABLED(LCD_PROGRESS_BAR)
 
@@ -354,6 +389,9 @@ void MarlinUI::set_custom_characters(const HD44780CharSet screen_charset/*=CHARS
       createChar_P(LCD_STR_THERMOMETER[0], thermometer);
       createChar_P(LCD_STR_FEEDRATE[0], feedrate);
       createChar_P(LCD_STR_CLOCK[0], clock);
+      
+      createChar_P(LCD_STR_POWER_ICON[0],cutter_power_icon);
+      createChar_P(LCD_STR_CURRENT_ICON[0],current_icon);
 
       #if ENABLED(LCD_PROGRESS_BAR)
         if (screen_charset == CHARSET_INFO) { // 3 Progress bar characters for info screen
@@ -581,6 +619,8 @@ void MarlinUI::draw_kill_screen() {
 //
 FORCE_INLINE void _draw_axis_value(const AxisEnum axis, const char *value, const bool blink) {
   lcd_put_lchar('X' + uint8_t(axis));
+  lcd_put_lchar(' ');
+
   if (blink)
     lcd_put_u8str(value);
   else if (axis_should_home(axis))
@@ -664,7 +704,6 @@ FORCE_INLINE void _draw_heater_status(const heater_id_t heater_id, const char pr
 
     if (prefix >= 0) {
       lcd_put_lchar(LCD_STR_DEGREE[0]);
-      lcd_put_u8str(F(" "));
       if (t2 < 10) lcd_put_u8str(F(" "));
     }
   }
@@ -684,7 +723,7 @@ FORCE_INLINE void _draw_heater_status(const heater_id_t heater_id, const char pr
     lcd_put_u8str(F(" "));
     ammeter.read();
     if (ammeter.current < 1000) {
-      lcd_put_u8str(ftostr31rj((ammeter.current)));
+      lcd_put_u8str(ftostr3rj((ammeter.current)));
       lcd_put_u8str(F("mA"));
     }
     else {
@@ -918,10 +957,24 @@ void MarlinUI::draw_status_message(const bool blink) {
  *  |B000/000°  SD---%   |
  *  |01234567890123456789|
  */
+uint8_t _framecount = 0;
+uint8_t _frame = 1;
+#define BLINK_PER_FRAME 3
 
+bool _blink = false;
 void MarlinUI::draw_status_screen() {
-
   const bool blink = get_blink();
+  if (blink != _blink ){
+    _framecount++;
+    if (_framecount >= BLINK_PER_FRAME) {
+      _framecount = 0;
+      _frame++;
+      if (_frame > 4) _frame = 1;
+    }
+    _blink=blink;    
+  }
+   
+  
   lcd_moveto(0, 0);
 
   #if LCD_INFO_SCREEN_STYLE == 0
@@ -986,7 +1039,7 @@ void MarlinUI::draw_status_screen() {
 
       #endif
 
-      TERN_(HAS_COOLER, _draw_cooler_status('*', blink));
+      TERN_(HAS_COOLER, _draw_cooler_status(LCD_STR_THERMOMETER[0], blink));
       TERN_(LASER_COOLANT_FLOW_METER, _draw_flowmeter_status());
       TERN_(I2C_AMMETER, _draw_ammeter_status());
 
@@ -1217,7 +1270,117 @@ void MarlinUI::draw_status_screen() {
     lcd_put_lchar('S');
 
 
-  #endif // LCD_INFO_SCREEN_STYLE
+  #elif LCD_INFO_SCREEN_STYLE == 3
+    //Testing LASER UI
+    // ========== Line 1 ==========
+
+    lcd_put_u8str(TERN(LASER_FEATURE, GET_TEXT_F(MSG_LASER), GET_TEXT_F(MSG_CUTTER)));
+    lcd_put_u8str(F(" "));  
+    lcd_put_u8str(cutter.enabled() ? GET_TEXT_F(MSG_LCD_ON) : GET_TEXT_F(MSG_LCD_OFF));
+    lcd_put_u8str(F(" "));  
+
+    switch (cutter.cutter_mode) {
+      case CUTTER_MODE_STANDARD:   lcd_put_u8str(F("Std")); break;
+      case CUTTER_MODE_CONTINUOUS: lcd_put_u8str(F("Cnt")); break;
+      case CUTTER_MODE_DYNAMIC:    lcd_put_u8str(F("Dyn")); break;
+      case CUTTER_MODE_ERROR:      lcd_put_u8str(F("ERR")); break;
+    }
+
+    lcd_put_lchar(14,0,LCD_STR_POWER_ICON[0]);
+    lcd_put_u8str(F(" "));  
+    lcd_put_u8str(cutter_power2str(cutter.unitPower));
+    // ========== Line 2 ==========
+    lcd_moveto(0, 1);
+  
+    #if HAS_X_AXIS
+      const xy_pos_t lpos = current_position.asLogical();
+      _draw_axis_value(X_AXIS, ftostr4sign(lpos.x), blink);
+    #endif 
+  
+    #if HAS_Y_AXIS
+      TERN_(HAS_X_AXIS, lcd_moveto(7, 1););
+      _draw_axis_value(Y_AXIS, ftostr4sign(lpos.y), blink);
+    #endif
+      
+    lcd_put_lchar(14,1,LCD_STR_FEEDRATE[0]);
+    lcd_put_u8str(F(" "));
+    lcd_put_u8str(i16tostr3rj(feedrate_percentage));
+    lcd_put_u8str(F("%"));
+
+    // ========== Line 3 ==========
+ 
+const celsius_t t2 = thermalManager.degTargetCooler();
+
+  lcd_put_lchar(0, 2, LCD_STR_THERMOMETER[0]);
+    switch (_frame) {
+      case 1: {
+        lcd_put_u8str(F(" "));
+        lcd_put_u8str(i16tostr3rj(thermalManager.wholeDegCooler())); 
+        lcd_put_lchar(LCD_STR_DEGREE[0]);
+        break;
+      }
+      case 2: {
+        lcd_put_u8str(F("."));
+        lcd_put_u8str(i16tostr3rj(t2));
+        lcd_put_lchar(LCD_STR_DEGREE[0]);
+        break;
+      }
+      case 3: {
+      lcd_put_u8str(F(" "));
+      lcd_put_u8str(ftostr11ns(cooler.flowrate));
+      lcd_put_u8str(F("L"));
+        break;
+      }
+      case 4: {
+        lcd_put_u8str(F(" "));
+        lcd_put_u8str(cooler.enabled ? "COOL" : "IDLE");
+        break;
+      }
+      default: {
+        break;
+      }
+    }
+    
+  /*   float c2 = ammeter.read(2);  //TEST
+    float v2 = ammeter.readVoltage(2);  //TEST
+    
+    lcd_put_lchar(7,2,LCD_STR_CURRENT_ICON[0]);
+
+    if (c2 < 1000) {
+      lcd_put_u8str(ftostr3rj(c2));
+      lcd_put_u8str(F("mA"));
+    }
+    else {
+      lcd_put_u8str(ftostr12ns(c2 / 1000));
+      lcd_put_u8str(F("A"));
+    } */
+
+    lcd_put_lchar(14,2,LCD_STR_CURRENT_ICON[0]);
+    
+     float c3 = ammeter.read(2);  // READ CH2 FOR LASER CURRENT
+     int16_t v3 = ammeter.readVoltage(2);
+/* 
+    SERIAL_ECHO("ch3: ");
+    SERIAL_ECHO(ftostr31rj(c3));
+    SERIAL_ECHO("mA @ ");
+    SERIAL_ECHO(v3*0.001);
+    SERIAL_ECHOLN("V"); */
+
+    if (c3 < 1000) {
+      lcd_put_u8str(ftostr3rj(c3));
+      lcd_put_u8str(F("mA"));
+    }
+    else  {
+      SERIAL_ECHO("c3 >= 1000 :: ");
+      SERIAL_ECHOLN(ftostr42_52(c3));
+      
+      lcd_put_u8str(ftostr12ns(c3 * 0.001));
+      lcd_put_u8str(F("A"));
+    } 
+
+      TERN_(SHOW_PROGRESS_PERCENT, setPercentPos(6, 2));
+      rotate_progress();
+#endif
 
   // ========= Last Line ========
 
