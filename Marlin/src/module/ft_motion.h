@@ -136,7 +136,7 @@ class FTMotion {
 
     static bool stepperCmdBuffHasData;                    // The stepper buffer has items and is in use.
 
-    static XYZEval<millis_t> axis_move_end_ti;
+    static XYZEval<bool> axis_is_moving_val;
     static AxisBits axis_move_dir;
 
     // Public methods
@@ -162,7 +162,7 @@ class FTMotion {
     static TrajectoryType getTrajectoryType() { return trajectoryType; }
 
     FORCE_INLINE static bool axis_is_moving(const AxisEnum axis) {
-      return cfg.active ? PENDING(millis(), axis_move_end_ti[axis]) : stepper.axis_is_moving(axis);
+      return cfg.active ? axis_is_moving_val[axis] : stepper.axis_is_moving(axis);
     }
     FORCE_INLINE static bool motor_direction(const AxisEnum axis) {
       return cfg.active ? axis_move_dir[axis] : stepper.last_direction_bits[axis];

@@ -47,7 +47,7 @@ int32_t FTMotion::stepperCmdBuff_produceIdx = 0, // Index of next stepper comman
 
 bool FTMotion::stepperCmdBuffHasData = false;   // The stepper buffer has items and is in use.
 
-XYZEval<millis_t> FTMotion::axis_move_end_ti = { 0 };
+XYZEval<bool> FTMotion::axis_is_moving_val = { false };
 AxisBits FTMotion::axis_move_dir;
 
 // Private variables.
@@ -450,7 +450,7 @@ void FTMotion::reset() {
   TERN_(HAS_EXTRUDERS, prev_traj_e = 0.0f);  // Reset linear advance variables.
   TERN_(DISTINCT_E_FACTORS, block_extruder_axis = E_AXIS);
 
-  axis_move_end_ti.reset();
+  axis_is_moving_val.reset();
 
   if (did_suspend) stepper.wake_up();
 }
@@ -553,15 +553,9 @@ void FTMotion::loadBlockData(block_t * const current_block) {
   endPos_prevBlock += moveDist;
 
   TERN_(FTM_HAS_LIN_ADVANCE, use_advance_lead = current_block->use_advance_lead);
-
-  // Watch endstops until the move ends
-  const float total_duration = currentGenerator.getTotalDuration();
-  uint32_t max_intervals = ceil((total_duration + reminder_from_last_block) * FTM_FS);
-  const millis_t move_end_ti = millis() + SEC_TO_MS((FTM_TS) * float(max_intervals + num_samples_shaper_settle() + ((PROP_BATCHES) + 1) * (FTM_BATCH_SIZE)) + (float(FTM_STEPPERCMD_BUFF_SIZE) / float(FTM_STEPPER_FS)));
-
   #define _SET_MOVE_END(A) do{ \
     if (moveDist.A) { \
-      axis_move_end_ti.A = move_end_ti; \
+      axis_is_moving_val.A = moveDist.A != 0; \
       axis_move_dir.A = moveDist.A > 0; \
     } \
   }while(0);
