@@ -527,6 +527,7 @@ void FTMotion::setTrajectoryType(const TrajectoryType type) {
 }
 
 // Load / convert block data from planner to fixed-time control variables.
+// Called from FTMotion::loop() at the fetch of the next planner block.
 void FTMotion::loadBlockData(block_t * const current_block) {
   // Cache the extruder index for this block
   TERN_(DISTINCT_E_FACTORS, block_extruder_axis = E_AXIS_N(current_block->extruder));
@@ -541,11 +542,9 @@ void FTMotion::loadBlockData(block_t * const current_block) {
   const float mmps = totalLength / current_block->step_event_count; // (mm/step) Distance for each step
   const float initial_speed = mmps * current_block->initial_rate;   // (mm/s) Start feedrate
   const float final_speed = mmps * current_block->final_rate;       // (mm/s) End feedrate
-  const float accel = current_block->acceleration;
-  const float nominal_speed = current_block->nominal_speed;
 
   // Plan the trajectory using the trajectory generator
-  currentGenerator.plan(initial_speed, final_speed, accel, nominal_speed, totalLength);
+  currentGenerator.plan(initial_speed, final_speed, current_block->acceleration, current_block->nominal_speed, totalLength);
 
   // Accel + Coasting + Decel + datapoints
   const float reminder_from_last_block = - tau;
@@ -571,6 +570,7 @@ void FTMotion::loadBlockData(block_t * const current_block) {
 }
 
 // Generate data points of the trajectory.
+// Called from FTMotion::loop() at the fetch of a new planner block, after loadBlockData.
 void FTMotion::generateTrajectoryPointsFromBlock() {
   const float total_duration = currentGenerator.getTotalDuration();
   if (tau + FTM_TS > total_duration) {

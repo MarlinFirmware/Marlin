@@ -1362,7 +1362,7 @@ void Temperature::factory_reset() {
     const float t1 = tuner.get_sample_1_temp(),
                 t2 = tuner.get_sample_2_temp(),
                 t3 = tuner.get_sample_3_temp();
-    float asymp_temp = (t2 * t2 - t1 * t3) / (2 * t2 - t1 - t3),
+    float asymp_temp = (sq(t2) - t1 * t3) / (2 * t2 - t1 - t3),
           block_responsiveness = -log((t2 - asymp_temp) / (t1 - asymp_temp)) / tuner.get_sample_interval();
 
     #if ENABLED(MPC_AUTOTUNE_DEBUG)

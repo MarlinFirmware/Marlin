@@ -39,20 +39,20 @@ public:
    * @param nominal_speed Peak feedrate [mm/s]
    * @param distance Total distance to travel [mm]
    */
-  virtual void plan(float initial_speed, float final_speed, float acceleration, float nominal_speed, float distance) = 0;
+  virtual void plan(const float initial_speed, const float final_speed, const float acceleration, const float nominal_speed, const float distance) = 0;
 
   /**
    * Plan a zero-motion trajectory for a specific duration.
    * @param duration The total time for the runout phase [s]
    */
-  virtual void planRunout(float duration) = 0;
+  virtual void planRunout(const float duration) = 0;
 
   /**
    * Get the distance traveled at time t.
    * @param t Time since start of trajectory [s]
    * @return Distance traveled [mm]
    */
-  virtual float getDistanceAtTime(float t) const = 0;
+  virtual float getDistanceAtTime(const float t) const = 0;
 
   /**
    * Get the total duration of the trajectory.
