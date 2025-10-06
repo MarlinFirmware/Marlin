@@ -47,7 +47,7 @@ int32_t FTMotion::stepperCmdBuff_produceIdx = 0, // Index of next stepper comman
 
 bool FTMotion::stepperCmdBuffHasData = false;   // The stepper buffer has items and is in use.
 
-XYZEval<bool> FTMotion::axis_is_moving_val = { false };
+XYZEval<bool> FTMotion::moving_axis_flags = { false };
 AxisBits FTMotion::axis_move_dir;
 
 // Private variables.
@@ -233,7 +233,7 @@ void FTMotion::loop() {
 
   // Report busy status to planner.
   busy = (stepperCmdBuffHasData || blockProcRdy || batchRdy || batchRdyForInterp);
-  if (!busy) axis_is_moving_val.reset();
+  if (!busy) moving_axis_flags.reset();
 }
 
 #if HAS_FTM_SHAPING
@@ -450,7 +450,7 @@ void FTMotion::reset() {
   TERN_(HAS_EXTRUDERS, prev_traj_e = 0.0f);  // Reset linear advance variables.
   TERN_(DISTINCT_E_FACTORS, block_extruder_axis = E_AXIS);
 
-  axis_is_moving_val.reset();
+  moving_axis_flags.reset();
 
   if (did_suspend) stepper.wake_up();
 }
@@ -557,12 +557,13 @@ void FTMotion::loadBlockData(block_t * const current_block) {
   // Watch endstops until the move ends
   #define _SET_MOVE_END(A) do{ \
     if (moveDist.A) { \
-      axis_is_moving_val.A = moveDist.A != 0; \
+      moving_axis_flags.A = moveDist.A != 0; \
       axis_move_dir.A = moveDist.A > 0; \
     } \
   }while(0);
 
   LOGICAL_AXIS_MAP(_SET_MOVE_END);
+
   // If the endstop is already pressed, endstop interrupts won't invoke
   // endstop_triggered and the move will grind. So check here for a
   // triggered endstop, which marks the block for discard on the next ISR.
