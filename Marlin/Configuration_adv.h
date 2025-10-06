@@ -486,7 +486,7 @@
 #define AUTOTEMP
 #if ENABLED(AUTOTEMP)
   #define AUTOTEMP_OLDWEIGHT    0.98  // Factor used to weight previous readings (0.0 < value < 1.0)
-  // WARNING: EEPROM values (from M104/M109 F S B) take precedence over these defaults
+  // WARNING: EEPROM values (from M104/M109 F S B) may take precedence over these defaults
   #define AUTOTEMP_MIN          210
   #define AUTOTEMP_MAX          250
   #define AUTOTEMP_FACTOR       0.1f
@@ -762,7 +762,7 @@
   //#define CASE_LIGHT_PIN 4                  // Override the default pin if needed
   #define INVERT_CASE_LIGHT false             // Set true if Case Light is ON when pin is LOW
   #define CASE_LIGHT_DEFAULT_ON true          // Set default power-up state on
-  // WARNING: EEPROM values (from M355) take precedence over this default
+  // WARNING: EEPROM values (from M355) may take precedence over this default
   #define CASE_LIGHT_DEFAULT_BRIGHTNESS 105   // Set default power-up brightness (0-255, requires PWM pin)
   //#define CASE_LIGHT_NO_BRIGHTNESS          // Disable brightness control. Enable for non-PWM lighting.
   //#define CASE_LIGHT_MAX_PWM 128            // Limit PWM duty cycle (0-255)
@@ -1012,7 +1012,7 @@
    * might be able to use it. If the machine can't raise Z fast enough the BLTouch may go into ALARM.
    *
    * Set the default state here, change with 'M401 S' or UI, use M500 to save, M502 to reset.
-   * WARNING: EEPROM values (from M401) take precedence over this default
+   * WARNING: EEPROM values (from M401) may take precedence over this default
    */
   //#define BLTOUCH_HS_MODE true
 
@@ -1253,17 +1253,17 @@
 //#define INPUT_SHAPING_Z
 #if ANY(INPUT_SHAPING_X, INPUT_SHAPING_Y, INPUT_SHAPING_Z)
   #if ENABLED(INPUT_SHAPING_X)
-    // WARNING: EEPROM values (from M593) take precedence over these defaults
+    // WARNING: EEPROM values (from M593) may take precedence over these defaults
     #define SHAPING_FREQ_X  40.0        // (Hz) The default dominant resonant frequency on the X axis.
     #define SHAPING_ZETA_X   0.15       // Damping ratio of the X axis (range: 0.0 = no damping to 1.0 = critical damping).
   #endif
   #if ENABLED(INPUT_SHAPING_Y)
-    // WARNING: EEPROM values (from M593) take precedence over these defaults
+    // WARNING: EEPROM values (from M593) may take precedence over these defaults
     #define SHAPING_FREQ_Y  40.0        // (Hz) The default dominant resonant frequency on the Y axis.
     #define SHAPING_ZETA_Y   0.15       // Damping ratio of the Y axis (range: 0.0 = no damping to 1.0 = critical damping).
   #endif
   #if ENABLED(INPUT_SHAPING_Z)
-    // WARNING: EEPROM values (from M593) take precedence over these defaults
+    // WARNING: EEPROM values (from M593) may take precedence over these defaults
     #define SHAPING_FREQ_Z  40.0        // (Hz) The default dominant resonant frequency on the Z axis.
     #define SHAPING_ZETA_Z   0.15       // Damping ratio of the Z axis (range: 0.0 = no damping to 1.0 = critical damping).
   #endif
@@ -1341,7 +1341,7 @@
 #if ENABLED(BACKLASH_COMPENSATION)
   // Define values for backlash distance and correction.
   // If BACKLASH_GCODE is enabled these values are the defaults.
-  // WARNING: EEPROM values (from M425) take precedence over these defaults
+  // WARNING: EEPROM values (from M425) may take precedence over these defaults
   #define BACKLASH_DISTANCE_MM { 0, 0, 0 } // (linear=mm, rotational=°) One value for each linear axis
   #define BACKLASH_CORRECTION    0.0       // 0.0 = no correction; 1.0 = full correction
 
@@ -1589,7 +1589,7 @@
       #define XATC_START_Z 0.0
       #define XATC_MAX_POINTS 3             // Number of points to probe in the wizard
       #define XATC_Y_POSITION Y_CENTER      // (mm) Y position to probe
-      // WARNING: EEPROM values (from M423) take precedence over these defaults
+      // WARNING: EEPROM values (from M423) may take precedence over these defaults
       #define XATC_Z_OFFSETS { 0, 0, 0 }    // Z offsets for X axis sample points
     #endif
 
@@ -1821,7 +1821,7 @@
    */
   //#define POWER_LOSS_RECOVERY
   #if ENABLED(POWER_LOSS_RECOVERY)
-    // WARNING: EEPROM values (from M413) take precedence over this default
+    // WARNING: EEPROM values (from M413) may take precedence over this default
     #define PLR_ENABLED_DEFAULT       false // Power-Loss Recovery enabled by default. (Set with 'M413 Sn' & M500)
     //#define PLR_BED_THRESHOLD BED_MAXTEMP // (°C) Skip user confirmation at or above this bed temperature (0 to disable)
 
@@ -2397,7 +2397,7 @@
  */
 //#define LIN_ADVANCE
 #if ENABLED(LIN_ADVANCE)
-  // WARNING: EEPROM values (from M900) take precedence over these defaults
+  // WARNING: EEPROM values (from M900) may take precedence over these defaults
   #if ENABLED(DISTINCT_E_FACTORS)
     #define ADVANCE_K { 0.22 }    // (mm) Compression length per 1mm/s extruder speed, per extruder
   #else
@@ -2856,7 +2856,7 @@
     #define MIN_AUTORETRACT             0.1 // (mm) Don't convert E moves under this length
     #define MAX_AUTORETRACT            10.0 // (mm) Don't convert E moves over this length
   #endif
-  // WARNING: EEPROM values (from M207/M208) take precedence over these defaults
+  // WARNING: EEPROM values (from M207/M208) may take precedence over these defaults
   #define RETRACT_LENGTH                3   // (mm) Default retract length (positive value)
   #define RETRACT_LENGTH_SWAP          13   // (mm) Default swap retract length (positive value)
   #define RETRACT_FEEDRATE             45   // (mm/s) Default feedrate for retracting
@@ -3003,7 +3003,7 @@
   #define PAUSE_PARK_RETRACT_FEEDRATE         60  // (mm/s) Initial retract feedrate.
   #define PAUSE_PARK_RETRACT_LENGTH            2  // (mm) Initial retract.
                                                   // This short retract is done immediately, before parking the nozzle.
-  // WARNING: EEPROM values (from M603) take precedence over these defaults
+  // WARNING: EEPROM values (from M603) may take precedence over these defaults
   #define FILAMENT_CHANGE_UNLOAD_FEEDRATE     10  // (mm/s) Unload filament feedrate. This can be pretty fast.
   #define FILAMENT_CHANGE_UNLOAD_ACCEL        25  // (mm/s^2) Lower acceleration may allow a faster feedrate.
   #define FILAMENT_CHANGE_UNLOAD_LENGTH      100  // (mm) The length of filament for a complete unload.
@@ -3992,7 +3992,7 @@
    *
    * M200 D0 to disable, M200 Dn to set a new diameter (and enable volumetric).
    * M200 S0/S1 to disable/enable volumetric extrusion.
-   * WARNING: EEPROM values (from M200) take precedence over this default
+   * WARNING: EEPROM values (from M200) may take precedence over this default
    */
   //#define VOLUMETRIC_DEFAULT_ON
 
@@ -4003,7 +4003,7 @@
      * This factory setting applies to all extruders.
      * Use 'M200 [T<extruder>] L<limit>' to override and 'M502' to reset.
      * A non-zero value activates Volume-based Extrusion Limiting.
-     * WARNING: EEPROM values (from M200) take precedence over this default
+     * WARNING: EEPROM values (from M200) may take precedence over this default
      */
     #define DEFAULT_VOLUMETRIC_EXTRUDER_LIMIT  0.00     // (mm^3/sec)
     #define VOLUMETRIC_EXTRUDER_LIMIT_MAX     20        // (mm^3/sec)
