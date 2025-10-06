@@ -595,8 +595,12 @@ bool Probe::set_deployed(const bool deploy, const bool no_return/*=false*/) {
   if (!no_return) do_blocking_move_to(old_xy); // Return to the original location unless handled externally
 
   endstops.enable_z_probe(deploy);
-  const millis_t timeout_ms = millis() + 100; // Wait up to 100ms
-  while (PROBE_TRIGGERED() && PENDING(millis(), timeout_ms)) safe_delay(1);
+
+  #if USE_Z_MIN_PROBE
+    const millis_t timeout_ms = millis() + 100; // Wait up to 100ms
+    while (PROBE_TRIGGERED() && PENDING(millis(), timeout_ms)) safe_delay(1);
+  #endif
+
   return false;
 }
 
