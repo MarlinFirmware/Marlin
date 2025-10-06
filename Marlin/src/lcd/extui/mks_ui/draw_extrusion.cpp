@@ -114,13 +114,13 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
 void lv_draw_extrusion() {
   scr = lv_screen_create(EXTRUSION_UI);
   // Create image buttons
-  lv_obj_t *buttonAdd = lv_big_button_create(scr, "F:/bmp_in.bin", extrude_menu.in, INTERVAL_V, titleHeight, event_handler, ID_E_ADD);
+  lv_obj_t *buttonAdd = lv_big_button_create(scr, "F:/bmp_in.bin", extrude_menu.in, INTERVAL_W, titleHeight, event_handler, ID_E_ADD);
   lv_obj_clear_protect(buttonAdd, LV_PROTECT_FOLLOW);
-  lv_big_button_create(scr, "F:/bmp_out.bin", extrude_menu.out, BTN_X_PIXEL * 3 + INTERVAL_V * 4, titleHeight, event_handler, ID_E_DEC);
+  lv_big_button_create(scr, "F:/bmp_out.bin", extrude_menu.out, BTN_SIZE_X * 3 + INTERVAL_W * 4, titleHeight, event_handler, ID_E_DEC);
 
-  buttonType = lv_imgbtn_create(scr, nullptr, INTERVAL_V, BTN_Y_PIXEL + INTERVAL_H + titleHeight, event_handler, ID_E_TYPE);
-  buttonStep = lv_imgbtn_create(scr, nullptr, BTN_X_PIXEL + INTERVAL_V * 2, BTN_Y_PIXEL + INTERVAL_H + titleHeight, event_handler, ID_E_STEP);
-  buttonSpeed = lv_imgbtn_create(scr, nullptr, BTN_X_PIXEL * 2 + INTERVAL_V * 3, BTN_Y_PIXEL + INTERVAL_H + titleHeight, event_handler, ID_E_SPEED);
+  buttonType = lv_imgbtn_create(scr, nullptr, INTERVAL_W, BTN_SIZE_Y + INTERVAL_H + titleHeight, event_handler, ID_E_TYPE);
+  buttonStep = lv_imgbtn_create(scr, nullptr, BTN_SIZE_X + INTERVAL_W * 2, BTN_SIZE_Y + INTERVAL_H + titleHeight, event_handler, ID_E_STEP);
+  buttonSpeed = lv_imgbtn_create(scr, nullptr, BTN_SIZE_X * 2 + INTERVAL_W * 3, BTN_SIZE_Y + INTERVAL_H + titleHeight, event_handler, ID_E_SPEED);
 
   #if HAS_ROTARY_ENCODER
     if (gCfgItems.encoder_enable) {
@@ -130,7 +130,7 @@ void lv_draw_extrusion() {
     }
   #endif
 
-  lv_big_button_create(scr, "F:/bmp_return.bin", common_menu.text_back, BTN_X_PIXEL * 3 + INTERVAL_V * 4, BTN_Y_PIXEL + INTERVAL_H + titleHeight, event_handler, ID_E_RETURN);
+  lv_big_button_create(scr, "F:/bmp_return.bin", common_menu.text_back, BTN_SIZE_X * 3 + INTERVAL_W * 4, BTN_SIZE_Y + INTERVAL_H + titleHeight, event_handler, ID_E_RETURN);
 
   // Create labels on the image buttons
   labelType = lv_label_create_empty(buttonType);

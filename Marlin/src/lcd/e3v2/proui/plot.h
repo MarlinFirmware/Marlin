@@ -32,8 +32,8 @@
 
 class Plot {
 public:
-  static void draw(const frame_rect_t &frame, const_celsius_float_t max, const_celsius_float_t ref=0);
-  static void update(const_celsius_float_t value);
+  static void draw(const frame_rect_t &frame, const celsius_float_t max, const celsius_float_t ref=0);
+  static void update(const celsius_float_t value);
 
 private:
   static struct PlotData {

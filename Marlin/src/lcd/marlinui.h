@@ -170,7 +170,7 @@ typedef bool (*statusResetFunc_t)();
     static float axis_value(const AxisEnum axis) {
       return NATIVE_TO_LOGICAL(processing ? destination[axis] : SUM_TERN(IS_KINEMATIC, current_position[axis], offset), axis);
     }
-    static bool apply_diff(const AxisEnum axis, const_float_t diff, const_float_t min, const_float_t max) {
+    static bool apply_diff(const AxisEnum axis, const float diff, const float min, const float max) {
       #if IS_KINEMATIC
         float &valref = offset;
         const float rmin = min - current_position[axis], rmax = max - current_position[axis];
@@ -618,7 +618,7 @@ public:
 
     #if ANY(BABYSTEP_GFX_OVERLAY, MESH_EDIT_GFX_OVERLAY)
       static void zoffset_overlay(const int8_t dir);
-      static void zoffset_overlay(const_float_t zvalue);
+      static void zoffset_overlay(const float zvalue);
     #endif
 
     static void draw_kill_screen();
@@ -656,7 +656,7 @@ public:
     static FSTR_P get_preheat_label(const uint8_t m);
     static void apply_preheat(const uint8_t m, const uint8_t pmask, const uint8_t e=active_extruder);
     static void preheat_set_fan(const uint8_t m) { TERN_(HAS_FAN, apply_preheat(m, _BV(PT_FAN))); }
-    static void preheat_hotend(const uint8_t m, const uint8_t e=active_extruder) { TERN_(HAS_HOTEND, apply_preheat(m, _BV(PT_HOTEND))); }
+    static void preheat_hotend(const uint8_t m, const uint8_t e=active_extruder) { TERN_(HAS_HOTEND, apply_preheat(m, _BV(PT_HOTEND), e)); }
     static void preheat_hotend_and_fan(const uint8_t m, const uint8_t e=active_extruder) { preheat_hotend(m, e); preheat_set_fan(m); }
     static void preheat_bed(const uint8_t m) { TERN_(HAS_HEATED_BED, apply_preheat(m, _BV(PT_BED))); }
     static void preheat_chamber(const uint8_t m) { TERN_(HAS_HEATED_CHAMBER, apply_preheat(m, _BV(PT_CHAMBER))); }
@@ -734,7 +734,7 @@ public:
     #endif
 
     #if ENABLED(AUTO_BED_LEVELING_UBL)
-      static void ubl_mesh_edit_start(const_float_t initial);
+      static void ubl_mesh_edit_start(const float initial);
       static float ubl_mesh_value();
     #endif
 

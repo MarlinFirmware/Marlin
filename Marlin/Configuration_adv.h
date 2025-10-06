@@ -1081,11 +1081,26 @@
   #define G34_MAX_GRADE              5    // (%) Maximum incline that G34 will handle
   #define Z_STEPPER_ALIGN_ITERATIONS 5    // Number of iterations to apply during alignment
   #define Z_STEPPER_ALIGN_ACC        0.02 // Stop iterating early if the accuracy is better than this
+
   #define RESTORE_LEVELING_AFTER_G34      // Restore leveling after G34 is done?
+
   // After G34, re-home Z (G28 Z) or just calculate it from the last probe heights?
   // Re-homing might be more precise in reproducing the actual 'G28 Z' homing height, especially on an uneven bed.
   #define HOME_AFTER_G34
-#endif
+
+  /**
+   * Commands to execute at the start of G34 probing,
+   * after switching to the PROBING_TOOL.
+   */
+  //#define EVENT_GCODE_BEFORE_G34 "M300 P440 S200"
+
+  /**
+   * Commands to execute at the end of G34 probing.
+   * Useful to retract or move the Z probe out of the way.
+   */
+  //#define EVENT_GCODE_AFTER_G34 "G1 Z10 F12000\nG1 X15 Y330\nG1 Z0.5\nG1 Z10"
+
+#endif // Z_STEPPER_AUTO_ALIGN
 
 /**
  * Assisted Tramming
@@ -1128,47 +1143,83 @@
 
 /**
  * Fixed-time-based Motion Control -- BETA FEATURE
- * Enable/disable and set parameters with G-code M493.
+ * Enable/disable and set parameters with G-code M493 and M494.
  * See ft_types.h for named values used by FTM options.
  */
 //#define FT_MOTION
 #if ENABLED(FT_MOTION)
-  //#define FTM_IS_DEFAULT_MOTION                 // Use FT Motion as the factory default?
+  //#define FTM_IS_DEFAULT_MOTION               // Use FT Motion as the factory default?
+  //#define FT_MOTION_MENU                      // Provide a MarlinUI menu to set M493 and M494 parameters
+  //#define FTM_HOME_AND_PROBE                  // Use FT Motion for homing / probing. Disable if FT Motion breaks these functions.
+
   #define FTM_DEFAULT_DYNFREQ_MODE dynFreqMode_DISABLED // Default mode of dynamic frequency calculation. (DISABLED, Z_BASED, MASS_BASED)
+
+  #define FTM_LINEAR_ADV_DEFAULT_ENA   false    // Default linear advance enable (true) or disable (false)
+  #define FTM_LINEAR_ADV_DEFAULT_K      0.0f    // Default linear advance gain. (Acceleration-based scaling factor.)
+
   #define FTM_DEFAULT_SHAPER_X      ftMotionShaper_NONE // Default shaper mode on X axis (NONE, ZV, ZVD, ZVDD, ZVDDD, EI, 2HEI, 3HEI, MZV)
+  #define FTM_SHAPING_DEFAULT_FREQ_X   37.0f    // (Hz) Default peak frequency used by input shapers
+  #define FTM_SHAPING_ZETA_X            0.1f    // Zeta used by input shapers for X axis
+  #define FTM_SHAPING_V_TOL_X           0.05f   // Vibration tolerance used by EI input shapers for X axis
+
   #define FTM_DEFAULT_SHAPER_Y      ftMotionShaper_NONE // Default shaper mode on Y axis
-  #define FTM_SHAPING_DEFAULT_FREQ_X   37.0f      // (Hz) Default peak frequency used by input shapers
-  #define FTM_SHAPING_DEFAULT_FREQ_Y   37.0f      // (Hz) Default peak frequency used by input shapers
-  #define FTM_LINEAR_ADV_DEFAULT_ENA   false      // Default linear advance enable (true) or disable (false)
-  #define FTM_LINEAR_ADV_DEFAULT_K      0.0f      // Default linear advance gain. (Acceleration-based scaling factor.)
-  #define FTM_SHAPING_ZETA_X            0.1f      // Zeta used by input shapers for X axis
-  #define FTM_SHAPING_ZETA_Y            0.1f      // Zeta used by input shapers for Y axis
+  #define FTM_SHAPING_DEFAULT_FREQ_Y   37.0f    // (Hz) Default peak frequency used by input shapers
+  #define FTM_SHAPING_ZETA_Y            0.1f    // Zeta used by input shapers for Y axis
+  #define FTM_SHAPING_V_TOL_Y           0.05f   // Vibration tolerance used by EI input shapers for Y axis
 
-  #define FTM_SHAPING_V_TOL_X           0.05f     // Vibration tolerance used by EI input shapers for X axis
-  #define FTM_SHAPING_V_TOL_Y           0.05f     // Vibration tolerance used by EI input shapers for Y axis
+  //#define FTM_SHAPER_Z                        // Include Z shaping support
+  #define FTM_DEFAULT_SHAPER_Z      ftMotionShaper_NONE // Default shaper mode on Z axis
+  #define FTM_SHAPING_DEFAULT_FREQ_Z   21.0f    // (Hz) Default peak frequency used by input shapers
+  #define FTM_SHAPING_ZETA_Z            0.03f   // Zeta used by input shapers for Z axis
+  #define FTM_SHAPING_V_TOL_Z           0.05f   // Vibration tolerance used by EI input shapers for Z axis
 
-  //#define FT_MOTION_MENU                        // Provide a MarlinUI menu to set M493 parameters
+  //#define FTM_SHAPER_E                        // Include E shaping support
+                                                // Required to synchronise extruder with XYZ (better quality)
+  #define FTM_DEFAULT_SHAPER_E      ftMotionShaper_NONE // Default shaper mode on Extruder axis
+  #define FTM_SHAPING_DEFAULT_FREQ_E   21.0f    // (Hz) Default peak frequency used by input shapers
+  #define FTM_SHAPING_ZETA_E            0.03f   // Zeta used by input shapers for E axis
+  #define FTM_SHAPING_V_TOL_E           0.05f   // Vibration tolerance used by EI input shapers for E axis
+
+  //#define FTM_SMOOTHING                       // Smoothing can reduce artifacts and make steppers quieter
+                                                // on sharp corners, but too much will round corners.
+  #if ENABLED(FTM_SMOOTHING)
+    #define FTM_MAX_SMOOTHING_TIME      0.10f   // Maximum smoothing time (seconds), higher consumes more RAM.
+                                                // Increase smoothing time to reduce jerky motion, ghosting and noises.
+    #define FTM_SMOOTHING_TIME_X        0.00f   // (s) Smoothing time for X axis. Zero means disabled.
+    #define FTM_SMOOTHING_TIME_Y        0.00f   // (s) Smoothing time for Y axis
+    #define FTM_SMOOTHING_TIME_Z        0.00f   // (s) Smoothing time for Z axis
+    #define FTM_SMOOTHING_TIME_E        0.02f   // (s) Smoothing time for E axis. Prevents noise/skipping from LA by
+                                                //     smoothing acceleration peaks, which may also smooth curved surfaces.
+  #endif
+
+  #define FTM_TRAJECTORY_TYPE   TRAPEZOIDAL // Block acceleration profile (TRAPEZOIDAL, POLY5, POLY6)
+                                            // TRAPEZOIDAL: Continuous Velocity. Max acceleration is respected.
+                                            // POLY5:       Like POLY6 with 1.5x but cpu cheaper.
+                                            // POLY6:       Continuous Acceleration (aka S_CURVE).
+                                            // POLY trajectories not only reduce resonances without rounding corners, but also
+                                            // reduce extruder strain due to linear advance.
+
+  #define FTM_POLY6_ACCELERATION_OVERSHOOT 1.875f // Max acceleration overshoot factor for POLY6 (1.25 to 1.875)
 
   /**
    * Advanced configuration
    */
-  #define FTM_UNIFIED_BWS                         // DON'T DISABLE unless you use Ulendo FBS (not implemented)
+  #define FTM_UNIFIED_BWS                       // DON'T DISABLE unless you use Ulendo FBS (not implemented)
   #if ENABLED(FTM_UNIFIED_BWS)
-    #define FTM_BW_SIZE               100         // Unified Window and Batch size with a ratio of 2
+    #define FTM_BW_SIZE               100       // Unified Window and Batch size with a ratio of 2
   #else
-    #define FTM_WINDOW_SIZE           200         // Custom Window size for trajectory generation needed by Ulendo FBS
-    #define FTM_BATCH_SIZE            100         // Custom Batch size for trajectory generation needed by Ulendo FBS
+    #define FTM_WINDOW_SIZE           200       // Custom Window size for trajectory generation needed by Ulendo FBS
+    #define FTM_BATCH_SIZE            100       // Custom Batch size for trajectory generation needed by Ulendo FBS
   #endif
 
-  #define FTM_FS                     1000         // (Hz) Frequency for trajectory generation. (Reciprocal of FTM_TS)
-  #define FTM_TS                        0.001f    // (s) Time step for trajectory generation. (Reciprocal of FTM_FS)
+  #define FTM_FS                     1000       // (Hz) Frequency for trajectory generation. (Reciprocal of FTM_TS)
 
   #if DISABLED(COREXY)
-    #define FTM_STEPPER_FS          20000         // (Hz) Frequency for stepper I/O update
+    #define FTM_STEPPER_FS          20000       // (Hz) Frequency for stepper I/O update
 
     // Use this to adjust the time required to consume the command buffer.
     // Try increasing this value if stepper motion is choppy.
-    #define FTM_STEPPERCMD_BUFF_SIZE 3000         // Size of the stepper command buffers
+    #define FTM_STEPPERCMD_BUFF_SIZE 3000       // Size of the stepper command buffers
 
   #else
     // CoreXY motion needs a larger buffer size. These values are based on our testing.
@@ -1176,19 +1227,8 @@
     #define FTM_STEPPERCMD_BUFF_SIZE 6000
   #endif
 
-  #define FTM_STEPS_PER_UNIT_TIME (FTM_STEPPER_FS / FTM_FS)       // Interpolated stepper commands per unit time
-  #define FTM_CTS_COMPARE_VAL (FTM_STEPS_PER_UNIT_TIME / 2)       // Comparison value used in interpolation algorithm
-  #define FTM_MIN_TICKS ((STEPPER_TIMER_RATE) / (FTM_STEPPER_FS)) // Minimum stepper ticks between steps
-
-  #define FTM_MIN_SHAPE_FREQ           10         // Minimum shaping frequency
-  #define FTM_RATIO (FTM_FS / FTM_MIN_SHAPE_FREQ) // Factor for use in FTM_ZMAX. DON'T CHANGE.
-  #define FTM_ZMAX (FTM_RATIO * 2)                // Maximum delays for shaping functions (even numbers only!)
-                                                  // Calculate as:
-                                                  //   ZV       : FTM_RATIO / 2
-                                                  //   ZVD, MZV : FTM_RATIO
-                                                  //   2HEI     : FTM_RATIO * 3 / 2
-                                                  //   3HEI     : FTM_RATIO * 2
-#endif
+  #define FTM_MIN_SHAPE_FREQ           10       // (Hz) Minimum shaping frequency, lower consumes more RAM
+#endif // FT_MOTION
 
 /**
  * Input Shaping
@@ -1394,7 +1434,7 @@
  * Multi-stepping sends steps in bursts to reduce MCU usage for high step-rates.
  * This allows higher feedrates than the MCU could otherwise support.
  */
-#define MULTISTEPPING_LIMIT   16  //: [1, 2, 4, 8, 16, 32, 64, 128]
+#define MULTISTEPPING_LIMIT   16  // :[1, 2, 4, 8, 16, 32, 64, 128]
 
 /**
  * Adaptive Step Smoothing increases the resolution of multi-axis moves, particularly at step frequencies
@@ -3031,12 +3071,11 @@
   #define INTERPOLATE      true
 
   #if HAS_DRIVER(TMC2240)
-    #define TMC2240_CURRENT_RANGE   1   // RMS: { 0:'690mA', 1:'1410mA', 2:'2120mA', 3:'2110mA' }
-                                        // PEAK:{ 0:'1A', 1:'2A', 2:'3A', 3:'3A' }
-                                        // Determines max current. Lower is more internal current resolution. Higher runs cooler.
-    #define TMC2240_Rref        12000   // ('rref', 12000, minval=12000, maxval=60000)
-    #define TMC2240_SLOPE_CONTROL   0   // :{ 0:'100V/us', 1:'200V/us', 2:'400V/us', 3:'800V/us' }
-                                        // Lower is more silent. Higher runs cooler.
+    #define TMC2240_RREF        12000   // (Ω) 12000 .. 60000. (FLY TMC2240 = 12300)
+    // Max Current. Lower for more internal resolution. Raise to run cooler.
+    #define TMC2240_CURRENT_RANGE   1   // :{ 0:'RMS=690mA PEAK=1A', 1:'RMS=1410mA PEAK=2A', 2:'RMS=2120mA PEAK=3A', 3:'RMS=2110mA PEAK=3A' }
+    // Slope Control: Lower is more silent. Higher runs cooler.
+    #define TMC2240_SLOPE_CONTROL   0   // :{ 0:'100V/µs', 1:'200V/µs', 2:'400V/µs', 3:'800V/µs' }
   #endif
 
   #if AXIS_IS_TMC_CONFIG(X)
@@ -3467,7 +3506,7 @@
    * X/Y/Z_STALL_SENSITIVITY is the default stall threshold.
    * Use M914 X Y Z to set the stall threshold at runtime:
    *
-   *  Sensitivity  TMC2209/2240   Others
+   *  Sensitivity  TMC2209        Others
    *    HIGHEST        255         -64    (Too sensitive => False positive)
    *    LOWEST          0           63    (Too insensitive => No trigger)
    *
@@ -3486,7 +3525,7 @@
   //#define SENSORLESS_HOMING // StallGuard capable drivers only
 
   #if ANY(SENSORLESS_HOMING, SENSORLESS_PROBING)
-    // TMC2209/2240: 0...255. TMC2130: -64...63
+    // TMC2209: 0...255. TMC2130: -64...63
     #define X_STALL_SENSITIVITY  8
     #define X2_STALL_SENSITIVITY X_STALL_SENSITIVITY
     #define Y_STALL_SENSITIVITY  8
@@ -3503,6 +3542,7 @@
     //#define W_STALL_SENSITIVITY  8
     //#define SPI_ENDSTOPS              // TMC2130, TMC2240, and TMC5160
     //#define IMPROVE_HOMING_RELIABILITY
+    //#define SENSORLESS_STALLGUARD_DELAY   0 // (ms) Delay to allow drivers to settle
   #endif
 
   // @section tmc/config
@@ -4010,7 +4050,7 @@
 #endif
 
 /**
- * M115 - Report capabilites. Disable to save ~1150 bytes of flash.
+ * M115 - Report capabilities. Disable to save ~1150 bytes of flash.
  *        Some hosts (and serial TFT displays) rely on this feature.
  */
 #define CAPABILITIES_REPORT

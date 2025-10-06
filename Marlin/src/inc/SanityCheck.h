@@ -77,18 +77,20 @@
  * tell you about new options that you might find useful. So it's recommended to transfer
  * your settings to new Configuration files matching your Marlin version as soon as possible.
  */
-#define HEXIFY(H) _CAT(0x,H)
-#if !defined(CONFIGURATION_H_VERSION) || HEXIFY(CONFIGURATION_H_VERSION) < HEXIFY(REQUIRED_CONFIGURATION_H_VERSION)
-  #error "Your Configuration.h file is for an old version of Marlin. Downgrade Marlin or upgrade your Configuration.h."
-#elif HEXIFY(CONFIGURATION_H_VERSION) > HEXIFY(REQUIRED_CONFIGURATION_H_VERSION)
-  #error "Your Configuration.h file is for a newer version of Marlin. Upgrade Marlin or downgrade your Configuration.h."
-#endif
-#if !defined(CONFIGURATION_ADV_H_VERSION) || HEXIFY(CONFIGURATION_ADV_H_VERSION) < HEXIFY(REQUIRED_CONFIGURATION_ADV_H_VERSION)
-  #error "Your Configuration_adv.h file is for an old version of Marlin. Downgrade Marlin or upgrade your Configuration_adv.h."
-#elif HEXIFY(CONFIGURATION_ADV_H_VERSION) > HEXIFY(REQUIRED_CONFIGURATION_ADV_H_VERSION)
-  #error "Your Configuration_adv.h file is for a newer version of Marlin. Upgrade Marlin or downgrade your Configuration_adv.h."
-#endif
-#undef HEXIFY
+#if USE_STD_CONFIGS
+  #define HEXIFY(H) _CAT(0x,H)
+  #if !defined(CONFIGURATION_H_VERSION) || HEXIFY(CONFIGURATION_H_VERSION) < HEXIFY(REQUIRED_CONFIGURATION_H_VERSION)
+    #error "Your Configuration.h file is for an old version of Marlin. Downgrade Marlin or upgrade your Configuration.h."
+  #elif HEXIFY(CONFIGURATION_H_VERSION) > HEXIFY(REQUIRED_CONFIGURATION_H_VERSION)
+    #error "Your Configuration.h file is for a newer version of Marlin. Upgrade Marlin or downgrade your Configuration.h."
+  #endif
+  #if !defined(CONFIGURATION_ADV_H_VERSION) || HEXIFY(CONFIGURATION_ADV_H_VERSION) < HEXIFY(REQUIRED_CONFIGURATION_ADV_H_VERSION)
+    #error "Your Configuration_adv.h file is for an old version of Marlin. Downgrade Marlin or upgrade your Configuration_adv.h."
+  #elif HEXIFY(CONFIGURATION_ADV_H_VERSION) > HEXIFY(REQUIRED_CONFIGURATION_ADV_H_VERSION)
+    #error "Your Configuration_adv.h file is for a newer version of Marlin. Upgrade Marlin or downgrade your Configuration_adv.h."
+  #endif
+  #undef HEXIFY
+#endif // HAS_IGNORED_CONFIGS
 
 /**
  * Warnings for old configurations
@@ -866,8 +868,6 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
   #if ENABLED(SMOOTH_LIN_ADVANCE)
     #ifndef CPU_32_BIT
       #error "SMOOTH_LIN_ADVANCE requires a 32-bit CPU."
-    #elif ENABLED(S_CURVE_ACCELERATION)
-      #error "SMOOTH_LIN_ADVANCE is not compatible with S_CURVE_ACCELERATION."
     #elif ENABLED(INPUT_SHAPING_E_SYNC) && NONE(INPUT_SHAPING_X, INPUT_SHAPING_Y)
       #error "INPUT_SHAPING_E_SYNC requires INPUT_SHAPING_X or INPUT_SHAPING_Y."
     #endif
@@ -1028,6 +1028,10 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
   #undef MPC_AUTOTUNE
   #undef MPC_EDIT_MENU
   #undef MPC_AUTOTUNE_MENU
+  #undef MPC_PTC
+#endif
+#if !WITHIN(PID_MAX, 0, 255)
+  #error "PID_MAX must be an integer from 0 to 255."
 #endif
 
 #if ENABLED(MPC_INCLUDE_FAN)
@@ -1048,6 +1052,9 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
  */
 #if ALL(PIDTEMPBED, BED_LIMIT_SWITCHING)
   #error "To use BED_LIMIT_SWITCHING you must disable PIDTEMPBED."
+#endif
+#if !WITHIN(MAX_BED_POWER, 0, 255)
+  #error "MAX_BED_POWER must be an integer from 0 to 255."
 #endif
 
 // Fan Kickstart power
@@ -3747,33 +3754,11 @@ static_assert(COUNT(sanity_arr_3) <= DISTINCT_AXES, "DEFAULT_MAX_ACCELERATION ha
 static_assert(_PLUS_TEST(3), "DEFAULT_MAX_ACCELERATION values must be positive.");
 
 #if MAXIMUM_STEPPER_RATE
-  static_assert(TERN1(HAS_X_AXIS, sanity_arr_1[X_AXIS] * sanity_arr_2[X_AXIS] <= MAXIMUM_STEPPER_RATE),
-    "Slow down! DEFAULT_MAX_FEEDRATE[X] * DEFAULT_AXIS_STEPS_PER_UNIT[X] > MAXIMUM_STEPPER_RATE (" STRINGIFY(MAXIMUM_STEPPER_RATE) ")."
+  #define _RATE_ASSERT(A) static_assert(sanity_arr_1[_AXIS(A)] * sanity_arr_2[_AXIS(A)] <= MAXIMUM_STEPPER_RATE, \
+    "Slow down! DEFAULT_MAX_FEEDRATE[" STRINGIFY(A) "] * DEFAULT_AXIS_STEPS_PER_UNIT[" STRINGIFY(A) "] > MAXIMUM_STEPPER_RATE (" STRINGIFY(MAXIMUM_STEPPER_RATE) ")." \
   );
-  static_assert(TERN1(HAS_Y_AXIS, sanity_arr_1[Y_AXIS] * sanity_arr_2[Y_AXIS] <= MAXIMUM_STEPPER_RATE),
-    "Slow down! DEFAULT_MAX_FEEDRATE[Y] * DEFAULT_AXIS_STEPS_PER_UNIT[Y] > MAXIMUM_STEPPER_RATE (" STRINGIFY(MAXIMUM_STEPPER_RATE) ")."
-  );
-  static_assert(TERN1(HAS_Z_AXIS, sanity_arr_1[Z_AXIS] * sanity_arr_2[Z_AXIS] <= MAXIMUM_STEPPER_RATE),
-    "Slow down! DEFAULT_MAX_FEEDRATE[Z] * DEFAULT_AXIS_STEPS_PER_UNIT[Z] > MAXIMUM_STEPPER_RATE (" STRINGIFY(MAXIMUM_STEPPER_RATE) ")."
-  );
-  static_assert(TERN1(HAS_I_AXIS, sanity_arr_1[I_AXIS] * sanity_arr_2[I_AXIS] <= MAXIMUM_STEPPER_RATE),
-    "Slow down! DEFAULT_MAX_FEEDRATE[I] * DEFAULT_AXIS_STEPS_PER_UNIT[I] > MAXIMUM_STEPPER_RATE (" STRINGIFY(MAXIMUM_STEPPER_RATE) ")."
-  );
-  static_assert(TERN1(HAS_J_AXIS, sanity_arr_1[J_AXIS] * sanity_arr_2[J_AXIS] <= MAXIMUM_STEPPER_RATE),
-    "Slow down! DEFAULT_MAX_FEEDRATE[J] * DEFAULT_AXIS_STEPS_PER_UNIT[J] > MAXIMUM_STEPPER_RATE (" STRINGIFY(MAXIMUM_STEPPER_RATE) ")."
-  );
-  static_assert(TERN1(HAS_K_AXIS, sanity_arr_1[K_AXIS] * sanity_arr_2[K_AXIS] <= MAXIMUM_STEPPER_RATE),
-    "Slow down! DEFAULT_MAX_FEEDRATE[K] * DEFAULT_AXIS_STEPS_PER_UNIT[K] > MAXIMUM_STEPPER_RATE (" STRINGIFY(MAXIMUM_STEPPER_RATE) ")."
-  );
-  static_assert(TERN1(HAS_U_AXIS, sanity_arr_1[U_AXIS] * sanity_arr_2[U_AXIS] <= MAXIMUM_STEPPER_RATE),
-    "Slow down! DEFAULT_MAX_FEEDRATE[U] * DEFAULT_AXIS_STEPS_PER_UNIT[U] > MAXIMUM_STEPPER_RATE (" STRINGIFY(MAXIMUM_STEPPER_RATE) ")."
-  );
-  static_assert(TERN1(HAS_V_AXIS, sanity_arr_1[V_AXIS] * sanity_arr_2[V_AXIS] <= MAXIMUM_STEPPER_RATE),
-    "Slow down! DEFAULT_MAX_FEEDRATE[V] * DEFAULT_AXIS_STEPS_PER_UNIT[V] > MAXIMUM_STEPPER_RATE (" STRINGIFY(MAXIMUM_STEPPER_RATE) ")."
-  );
-  static_assert(TERN1(HAS_W_AXIS, sanity_arr_1[W_AXIS] * sanity_arr_2[W_AXIS] <= MAXIMUM_STEPPER_RATE),
-    "Slow down! DEFAULT_MAX_FEEDRATE[W] * DEFAULT_AXIS_STEPS_PER_UNIT[W] > MAXIMUM_STEPPER_RATE (" STRINGIFY(MAXIMUM_STEPPER_RATE) ")."
-  );
+  LOGICAL_AXIS_MAP(_RATE_ASSERT)
+  #undef _RATE_ASSERT
   #if ALL(HAS_EXTRUDERS, SANITY_CHECK_E_STEPPER_RATES)
     #if DISABLED(DISTINCT_E_FACTORS)
       static_assert(sanity_arr_1[E_AXIS] * sanity_arr_2[E_AXIS] <= MAXIMUM_STEPPER_RATE,
@@ -4586,6 +4571,12 @@ static_assert(_PLUS_TEST(3), "DEFAULT_MAX_ACCELERATION values must be positive."
   #endif
   #if HAS_DYNAMIC_FREQ_G
     static_assert(FTM_DEFAULT_DYNFREQ_MODE != dynFreqMode_MASS_BASED, "dynFreqMode_MASS_BASED requires an X axis and an extruder.");
+  #endif
+  #if ENABLED(FTM_SMOOTHING)
+    static_assert(FTM_SMOOTHING_TIME_X <= FTM_MAX_SMOOTHING_TIME, "FTM_SMOOTHING_TIME_X must be <= FTM_MAX_SMOOTHING_TIME.");
+    static_assert(FTM_SMOOTHING_TIME_Y <= FTM_MAX_SMOOTHING_TIME, "FTM_SMOOTHING_TIME_Y must be <= FTM_MAX_SMOOTHING_TIME.");
+    static_assert(FTM_SMOOTHING_TIME_Z <= FTM_MAX_SMOOTHING_TIME, "FTM_SMOOTHING_TIME_Z must be <= FTM_MAX_SMOOTHING_TIME.");
+    static_assert(FTM_SMOOTHING_TIME_E <= FTM_MAX_SMOOTHING_TIME, "FTM_SMOOTHING_TIME_E must be <= FTM_MAX_SMOOTHING_TIME.");
   #endif
 #endif
 

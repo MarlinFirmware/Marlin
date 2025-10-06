@@ -60,7 +60,7 @@ namespace MMU3 {
     return (i != errorCodesEnd) ? (i - errorCodes) : (errorCodesSize - 1);
   }
 
-  // check that the searching algoritm works
+  // check that the searching algorithm works
   // static_assert( FindErrorIndex(ERR_MECHANICAL_FINDA_DIDNT_TRIGGER) == 0);
   // static_assert( FindErrorIndex(ERR_MECHANICAL_FINDA_FILAMENT_STUCK) == 1);
   // static_assert( FindErrorIndex(ERR_MECHANICAL_FSENSOR_DIDNT_TRIGGER) == 2);

@@ -69,6 +69,10 @@ GcodeSuite gcode;
   #include "../feature/fancheck.h"
 #endif
 
+#if ENABLED(EXTENSIBLE_UI)
+  #include "../lcd/extui/ui_api.h" // for ExtUI::onLevelingDone
+#endif
+
 #include "../MarlinCore.h" // for idle, kill
 
 // Inactivity shutdown
@@ -122,16 +126,13 @@ void GcodeSuite::say_units() {
  * Return -1 if the T parameter is out of range
  */
 int8_t GcodeSuite::get_target_extruder_from_command() {
-  #if HAS_TOOLCHANGE
-    if (parser.seenval('T')) {
-      const int8_t e = parser.value_byte();
-      if (e < EXTRUDERS) return e;
-      SERIAL_ECHO_START();
-      SERIAL_CHAR('M'); SERIAL_ECHO(parser.codenum);
-      SERIAL_ECHOLNPGM(" " STR_INVALID_EXTRUDER " ", e);
-      return -1;
-    }
-  #endif
+  if (parser.seenval('T')) {
+    const int8_t e = parser.value_byte();
+    if (e < EXTRUDERS) return e;
+    SERIAL_ECHO_START();
+    SERIAL_ECHOLN(C('M'), parser.codenum, F(" " STR_INVALID_EXTRUDER " "), e);
+    return -1;
+  }
   return active_extruder;
 }
 
@@ -147,7 +148,7 @@ int8_t GcodeSuite::get_target_e_stepper_from_command(const int8_t dval/*=-1*/) {
   if (dval == -2) return dval;
 
   SERIAL_ECHO_START();
-  SERIAL_CHAR('M'); SERIAL_ECHO(parser.codenum);
+  SERIAL_ECHO(C('M'), parser.codenum);
   if (e == -1)
     SERIAL_ECHOLNPGM(" " STR_E_STEPPER_NOT_SPECIFIED);
   else
@@ -928,6 +929,9 @@ void GcodeSuite::process_parsed_command(bool no_ok/*=false*/) {
 
       #if ENABLED(FT_MOTION)
         case 493: M493(); break;                                  // M493: Fixed-Time Motion control
+        #if ENABLED(FTM_SMOOTHING)
+          case 494: M494(); break;                                // M494: Fixed-Time Motion extras
+        #endif
       #endif
 
       case 500: M500(); break;                                    // M500: Store settings in EEPROM

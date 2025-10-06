@@ -832,7 +832,7 @@
 
       #elif ENABLED(FYSETC_MINI_12864)
 
-        // From https://wiki.fysetc.com/Mini12864_Panel/
+        // From https://wiki.fysetc.com/docs/Mini12864Panel
 
         #define DOGLCD_A0            EXP1_04_PIN
         #define DOGLCD_CS            EXP1_03_PIN
@@ -864,7 +864,7 @@
     #elif ENABLED(MINIPANEL)
 
       #ifndef BEEPER_PIN
-        #define BEEPER_PIN           AUX2_08_PIN
+        #define BEEPER_PIN               AUX2_08
       #endif
       #define LCD_BACKLIGHT_PIN          AUX2_10
 
