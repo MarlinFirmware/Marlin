@@ -272,10 +272,11 @@ void report_current_position_projected() {
     #define HOMING_CURRENT(A) TERN(EDITABLE_HOMING_CURRENT, homing_current_mA.A, A##_CURRENT_HOME)
 
     // Saves the running current of the motor at the moment the function is called and sets current to CURRENT_HOME
-    #define _SAVE_SET_CURRENT(A) \
+    #define _SAVE_SET_CURRENT(A) do{ \
       saved_current_mA.A = stepper##A.getMilliamps(); \
       stepper##A.rms_current(HOMING_CURRENT(A)); \
-      debug_current(F(STR_##A), saved_current_mA.A, HOMING_CURRENT(A))
+      debug_current(F(STR_##A), saved_current_mA.A, HOMING_CURRENT(A)); \
+    }while(0)
 
     #define _MAP_SAVE_SET(A) OPTCODE(A##_HAS_HOME_CURRENT, _SAVE_SET_CURRENT(A))
 
