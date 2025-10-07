@@ -150,7 +150,7 @@ public:
        * can reach the position required to put the probe at the given position.
        *
        * Example: For a probe offset of -10,+10, then for the probe to reach 0,0 the
-       *          nozzle must be be able to reach +10,-10.
+       *          nozzle must be able to reach +10,-10.
        */
       static bool can_reach(const float rx, const float ry, const bool probe_relative=true) {
         if (probe_relative) {

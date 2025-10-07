@@ -97,9 +97,9 @@ void Poly6TrajectoryGenerator::plan(const float initial_speed, const float final
     dec_c4  = -15.0f * delta_p + 7.0f * delta_v;
     dec_c5 =  6.0f * delta_p - 3.0f * delta_v;
 
-    const float a5_mid = s5pp_u(dec_c3, dec_c4, dec_c5, 0.5f) / (Ts * Ts);
+    const float a5_mid = s5pp_u(dec_c3, dec_c4, dec_c5, 0.5f) / sq(Ts);
     const float a_mid_target = -ftMotion.cfg.poly6_acceleration_overshoot * acceleration;
-    dec_c6 = (Ts * Ts) * (a_mid_target - a5_mid) / Kpp_mid;
+    dec_c6 = sq(Ts) * (a_mid_target - a5_mid) / Kpp_mid;
   }
 
 }
@@ -121,8 +121,8 @@ float Poly6TrajectoryGenerator::getDistanceAtTime(const float t) const {
     return pos_before_coast + this->nominal_speed * (t - T1);
   }
   // Decel phase
-  const float tau = t - (T1 + T2);
-  const float u   = tau / T3;
+  const float tau = t - (T1 + T2),
+              u = tau / T3;
   return s5_u(pos_after_coast, this->nominal_speed, T3, dec_c3, dec_c4, dec_c5, u)
        + dec_c6 * K_u(pos_after_coast, this->nominal_speed, T3, u);
 }

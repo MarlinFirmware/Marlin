@@ -1371,7 +1371,6 @@ void Planner::check_axes_activity() {
 
   /**
    * Called by the M104/M109 commands after setting Hotend Temperature
-   *
    */
   void Planner::autotemp_M104_M109() {
     _autotemp_update_from_hotend();

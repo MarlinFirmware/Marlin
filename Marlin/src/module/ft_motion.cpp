@@ -223,7 +223,8 @@ void FTMotion::loop() {
 
   // Interpolation (generation of step commands from fixed time trajectory).
   while (batchRdyForInterp
-    && (stepperCmdBuffItems() < (FTM_STEPPERCMD_BUFF_SIZE) - (FTM_STEPS_PER_UNIT_TIME))) {
+    && (stepperCmdBuffItems() < (FTM_STEPPERCMD_BUFF_SIZE) - (FTM_STEPS_PER_UNIT_TIME))
+  ) {
     generateStepsFromTrajectory(interpIdx);
     if (++interpIdx == FTM_BATCH_SIZE) {
       batchRdyForInterp = false;
@@ -231,7 +232,7 @@ void FTMotion::loop() {
     }
   }
 
-  // Report busy status to planner.
+  // Set busy status for use by planner.busy()
   busy = (stepperCmdBuffHasData || blockProcRdy || batchRdy || batchRdyForInterp);
 
 }
@@ -491,7 +492,7 @@ void FTMotion::runoutBlock() {
 
   ratio.reset();
   uint32_t max_intervals = PROP_BATCHES * (FTM_BATCH_SIZE) + n_to_settle_shaper + n_to_fill_batch_after_settling;
-  const float reminder_from_last_block = - tau;
+  const float reminder_from_last_block = -tau;
   const float total_duration = max_intervals * FTM_TS + reminder_from_last_block;
 
   // Plan a zero-motion trajectory for runout
@@ -527,6 +528,7 @@ void FTMotion::setTrajectoryType(const TrajectoryType type) {
 }
 
 // Load / convert block data from planner to fixed-time control variables.
+// Called from FTMotion::loop() at the fetch of the next planner block.
 void FTMotion::loadBlockData(block_t * const current_block) {
   // Cache the extruder index for this block
   TERN_(DISTINCT_E_FACTORS, block_extruder_axis = E_AXIS_N(current_block->extruder));
@@ -541,11 +543,9 @@ void FTMotion::loadBlockData(block_t * const current_block) {
   const float mmps = totalLength / current_block->step_event_count; // (mm/step) Distance for each step
   const float initial_speed = mmps * current_block->initial_rate;   // (mm/s) Start feedrate
   const float final_speed = mmps * current_block->final_rate;       // (mm/s) End feedrate
-  const float accel = current_block->acceleration;
-  const float nominal_speed = current_block->nominal_speed;
 
   // Plan the trajectory using the trajectory generator
-  currentGenerator.plan(initial_speed, final_speed, accel, nominal_speed, totalLength);
+  currentGenerator.plan(initial_speed, final_speed, current_block->acceleration, current_block->nominal_speed, totalLength);
 
   // Accel + Coasting + Decel + datapoints
   const float reminder_from_last_block = - tau;
@@ -570,6 +570,7 @@ void FTMotion::loadBlockData(block_t * const current_block) {
 }
 
 // Generate data points of the trajectory.
+// Called from FTMotion::loop() at the fetch of a new planner block, after loadBlockData.
 void FTMotion::generateTrajectoryPointsFromBlock() {
   const float total_duration = currentGenerator.getTotalDuration();
   if (tau + FTM_TS > total_duration) {

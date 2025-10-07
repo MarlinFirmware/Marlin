@@ -177,7 +177,7 @@
    * The best solution is to use the custom cable to connect the LCD SD_DETECT to a pin NOT on EXP2.
    *
    * If you can't find a pin to use for the LCD SD_DETECT then comment out SD_DETECT_PIN and remove that wire
-   * from the the custom cable.
+   * from the custom cable.
    */
   #define SD_DETECT_PIN                PIN_P2_11  // J8-5 (moved from EXP2 P0.27)
   #define SD_SCK_PIN                   PIN_P1_22  // J8-2 (moved from EXP2 P0.7)
