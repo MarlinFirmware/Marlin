@@ -52,7 +52,7 @@ if download:
     exit(0)
 
 lines = csvdata.splitlines()
-print(lines)
+#print(lines)
 reader = csv.reader(lines, delimiter=',')
 gothead = False
 columns = ['']
@@ -199,9 +199,9 @@ for i in range(1, numcols):
         comm = ''
         if lang != 'en' and 'en' in strings_per_lang:
             en = strings_per_lang['en']
-            if name in en[style]: str_key = en[style][name]
-            elif name in en['Narrow']: str_key = en['Narrow'][name]
-            if str_key:
+            if name in en[style]: str_key = en[style][name].strip()
+            elif name in en['Narrow']: str_key = en['Narrow'][name].strip()
+            if str_key and str_key != "English":
                 cfmt = '%%%ss// %%s' % (50 - len(val) if len(val) < 50 else 1)
                 comm = cfmt % (' ', str_key)
 
