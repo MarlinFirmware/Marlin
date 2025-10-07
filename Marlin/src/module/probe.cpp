@@ -598,7 +598,7 @@ bool Probe::set_deployed(const bool deploy, const bool no_return/*=false*/) {
 
   #if USE_Z_MIN_PROBE
     const millis_t timeout_ms = millis() + 100; // Wait up to 100ms
-    while (PROBE_TRIGGERED() && PENDING(millis(), timeout_ms)) safe_delay(1);
+    while (PROBE_TRIGGERED() && PENDING(millis(), timeout_ms)) safe_delay(10);
   #endif
 
   return false;
