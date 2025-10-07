@@ -23,10 +23,6 @@
 
 #include "env_validate.h"
 
-//
-// https://github.com/bigtreetech/SKR-3
-//
-
 // If you have the BigTreeTech driver expansion module, enable BTT_MOTOR_EXPANSION
 // https://github.com/bigtreetech/BTT-Expansion-module/tree/master/BTT%20EXP-MOT
 //#define BTT_MOTOR_EXPANSION
@@ -388,6 +384,12 @@
   #define BTN_ENC                           -1
   #define KILL_PIN                          -1
 
+#elif ENABLED(MKS_MINI_12864)
+
+  // Migrated to pins/lcd
+  #define BEEPER_PIN                 EXP1_01_PIN
+  #define DOGLCD_MOSI                       -1
+
 #elif IS_TFTGLCD_PANEL
 
   #if ENABLED(TFTGLCD_PANEL_SPI)
@@ -422,14 +424,7 @@
   #define BEEPER_PIN                 EXP1_01_PIN
   #define BTN_ENC                    EXP1_02_PIN
 
-  #if ENABLED(MKS_MINI_12864)
-
-    #define DOGLCD_A0                EXP1_07_PIN
-    #define DOGLCD_CS                EXP1_06_PIN
-    #define BTN_EN1                  EXP2_03_PIN
-    #define BTN_EN2                  EXP2_05_PIN
-
-  #elif HAS_SPI_TFT                               // Config for Classic UI (emulated DOGM) and Color UI
+  #if HAS_SPI_TFT                                 // Config for Classic UI (emulated DOGM) and Color UI
 
     #define TFT_SCK_PIN              EXP2_02_PIN
     #define TFT_MISO_PIN             EXP2_01_PIN
@@ -572,11 +567,10 @@
       #define LCD_PINS_D5            EXP1_06_PIN
       #define LCD_PINS_D6            EXP1_07_PIN
       #define LCD_PINS_D7            EXP1_08_PIN
+    #endif
 
-      #if ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
-        #define BTN_ENC_EN           LCD_PINS_D7  // Detect the presence of the encoder
-      #endif
-
+    #if ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
+      #define BTN_ENC_EN             LCD_PINS_D7  // Detect the presence of the encoder
     #endif
 
   #endif
