@@ -1155,7 +1155,7 @@ void Temperature::factory_reset() {
     hotend.target = 200.0f;   // So M105 looks nice
     hotend.soft_pwm_amount = (MPC_MAX) >> 1;
 
-    // Initialise rate of change to to steady state at current time
+    // Initialise rate of change to steady state at current time
     temp_samples[0] = temp_samples[1] = temp_samples[2] = current_temp;
     time_fastest = rate_fastest = 0;
 
