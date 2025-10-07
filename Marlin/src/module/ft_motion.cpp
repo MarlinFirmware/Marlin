@@ -554,7 +554,7 @@ void FTMotion::loadBlockData(block_t * const current_block) {
   // Watch endstops until the move ends
   #define _SET_MOVE_END(A) do{ \
     if (moveDist.A) { \
-      moving_axis_flags.A = moveDist.A != 0; \
+      moving_axis_flags.A = true; \
       axis_move_dir.A = moveDist.A > 0; \
     } \
   }while(0);
