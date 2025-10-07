@@ -1013,3 +1013,10 @@
 #if FREEZE_STOLE_KILL_PIN_WARNING
   #warning "FREEZE_FEATURE uses KILL_PIN replacing the KILL button. Define a separate FREEZE_PIN if you don't want this behavior."
 #endif
+
+/**
+ * Board and LCD have differently-keyed plugs
+ */
+#if LCD_USES_EXP12 && ENABLED(EXP_REVERSE_KEYED) != ENABLED(LCD_REVERSE_KEYED)
+  #warning "CAUTION! The MOTHERBOARD and LCD have oppositely-keyed EXP plugs."
+#endif
