@@ -59,6 +59,8 @@
     #include "lcd/RRD_FG_SC.h"
   #elif IS_RRD_SC
     #include "lcd/RRD_SC.h"
+  //#elif HAS_WIRED_LCD
+  //  #include "lcd/WIRED.h"
   #else
 
     // More displays to come
