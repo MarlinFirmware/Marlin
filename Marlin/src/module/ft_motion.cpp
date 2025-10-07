@@ -491,7 +491,7 @@ void FTMotion::runoutBlock() {
 
   ratio.reset();
   uint32_t max_intervals = PROP_BATCHES * (FTM_BATCH_SIZE) + n_to_settle_shaper + n_to_fill_batch_after_settling;
-  const float reminder_from_last_block = - tau;
+  const float reminder_from_last_block = -tau;
   const float total_duration = max_intervals * FTM_TS + reminder_from_last_block;
 
   // Plan a zero-motion trajectory for runout
@@ -547,8 +547,6 @@ void FTMotion::loadBlockData(block_t * const current_block) {
   currentGenerator.plan(initial_speed, final_speed, current_block->acceleration, current_block->nominal_speed, totalLength);
 
   // Accel + Coasting + Decel + datapoints
-  const float reminder_from_last_block = - tau;
-
   endPos_prevBlock += moveDist;
 
   TERN_(FTM_HAS_LIN_ADVANCE, use_advance_lead = current_block->use_advance_lead);
