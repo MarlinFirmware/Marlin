@@ -227,43 +227,15 @@
   // Migrated to pins/lcd
   #define FORCE_SOFT_SPI                          // Use this if default of hardware SPI causes display problems
                                                   //   results in LCD soft SPI mode 3, SD soft SPI mode 0
+#elif ENABLED(WYH_L12864)
+
+  // Migrated to pins/lcd
+  CONTROLLER_WARNING("BTT_SKR_V1_3", "WYH_L12864")
+  #define DOGLCD_MOSI                EXP1_01_PIN  // Swap MOSI (Pin9) and empty (Pin10) wires because Pin9 is open drain
 
 #elif HAS_WIRED_LCD
 
-  #if ENABLED(WYH_L12864)
-
-    CONTROLLER_WARNING("BTT_SKR_V1_3", "WYH_L12864")
-
-    /**
-     * 1. Cut the tab off the LCD connector so it can be plugged into the "EXP1" connector the other way.
-     * 2. Swap the LCD's +5V (Pin2) and GND (Pin1) wires. (This is the critical part!)
-     * 3. Swap the LCD's MOSI (Pin9) and empty (Pin10) wires because Pin9 is open drain.
-     *
-     * !!! If you are unsure, ask for help! Your motherboard may be damaged in some circumstances !!!
-     *
-     * The WYH_L12864 connector plug:
-     *
-     *                  BEFORE                      AFTER
-     *                  ______                     ______
-     *                 | 1  2 | (MOSI)     (MOSI) |10  9 | --
-     *       (BTN_ENC) | 3  4 | (SCK)   (BTN_ENC) | 8  7 | (SCK)
-     *       (BTN_EN1)   5  6 | (SID)   (BTN_EN1)   6  5 | (SID)
-     *       (BTN_EN2) | 7  8 | (CS)    (BTN_EN2) | 4  3 | (CS)
-     *              5V | 9 10 | GND           GND | 2  1 | 5V
-     *                  ------                     ------
-     *                   LCD                        LCD
-     */
-    #define BTN_ENC                  EXP1_03_PIN
-    #define BTN_EN1                  EXP1_05_PIN
-    #define BTN_EN2                  EXP1_07_PIN
-
-    #define DOGLCD_CS                EXP1_08_PIN
-    #define DOGLCD_A0                EXP1_06_PIN
-    #define DOGLCD_SCK               EXP1_04_PIN
-    #define DOGLCD_MOSI              EXP1_01_PIN
-    #define LCD_BACKLIGHT_PIN              -1
-
-  #elif HAS_ADC_BUTTONS
+  #if HAS_ADC_BUTTONS
 
     #error "ADC BUTTONS do not work unmodified on SKR 1.3, The ADC ports cannot take more than 3.3v."
 

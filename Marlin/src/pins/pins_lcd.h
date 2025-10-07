@@ -47,6 +47,8 @@
     #include "lcd/FYSETC_MINI_12864.h"
   #elif ENABLED(FYSETC_242_OLED_12864)
     #include "lcd/FYSETC_242_OLED_12864.h"
+  #elif ENABLED(WYH_L12864)
+    #include "lcd/WYH_L12864.h"
   #elif ENABLED(ULTI_CONTROLLER)
     #include "lcd/ULTI_CONTROLLER.h"
   #elif ENABLED(REPRAPWORLD_GRAPHICAL_LCD)

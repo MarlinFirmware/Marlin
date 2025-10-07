@@ -434,6 +434,11 @@
 
   // Migrated to pins/lcd
 
+#elif ENABLED(WYH_L12864)
+
+  // Migrated to pins/lcd
+  CONTROLLER_WARNING("I3DBEEZ9", "WYH_L12864")
+
 #elif IS_TFTGLCD_PANEL
 
   #if ENABLED(TFTGLCD_PANEL_SPI)
@@ -442,60 +447,24 @@
 
 #elif HAS_WIRED_LCD
 
-  #if ENABLED(WYH_L12864)
+  #define BEEPER_PIN                 EXP1_01_PIN
+  #define BTN_ENC                    EXP1_02_PIN
 
-    CONTROLLER_WARNING("I3DBEEZ9", "WYH_L12864")
+  #define LCD_PINS_RS                EXP1_04_PIN
 
-    /**
-     * 1. Cut the tab off the LCD connector so it can be plugged into the "EXP1" connector the other way.
-     * 2. Swap the LCD's +5V (Pin2) and GND (Pin1) wires.
-     *
-     * !!! If you are unsure, ask for help! Your motherboard may be damaged in some circumstances !!!
-     *
-     * The WYH_L12864 connector plug:
-     *
-     *                  BEFORE                     AFTER
-     *                  ------                     ------
-     *              -- | 1  2 | MOSI           -- | 1  2 | MOSI
-     *         BTN_ENC | 3  4 | SCK       BTN_ENC | 3  4 | SCK
-     *         BTN_EN1 | 5  6   SID       BTN_EN1 | 5  6   SID
-     *         BTN_EN2 | 7  8 | CS        BTN_EN2 | 7  8 | CS
-     *              5V | 9 10 | GND           GND | 9 10 | 5V
-     *                  ------                     ------
-     *                   LCD                        LCD
-     */
-    #define BEEPER_PIN                      -1
-    #define BTN_EN1                  EXP1_05_PIN
-    #define BTN_EN2                  EXP1_07_PIN
-    #define BTN_ENC                  EXP1_03_PIN
-    #define DOGLCD_CS                EXP1_08_PIN
-    #define DOGLCD_A0                EXP1_06_PIN
-    #define DOGLCD_SCK               EXP1_04_PIN
-    #define DOGLCD_MOSI              EXP1_02_PIN
-    #define LCD_BACKLIGHT_PIN               -1
+  #define BTN_EN1                    EXP2_03_PIN
+  #define BTN_EN2                    EXP2_05_PIN
 
-  #else
+  #define LCD_PINS_EN                EXP1_03_PIN
+  #define LCD_PINS_D4                EXP1_05_PIN
 
-    #define BEEPER_PIN               EXP1_01_PIN
-    #define BTN_ENC                  EXP1_02_PIN
-
-    #define LCD_PINS_RS              EXP1_04_PIN
-
-    #define BTN_EN1                  EXP2_03_PIN
-    #define BTN_EN2                  EXP2_05_PIN
-
-    #define LCD_PINS_EN              EXP1_03_PIN
-    #define LCD_PINS_D4              EXP1_05_PIN
-
-    #if IS_ULTIPANEL
-      #define LCD_PINS_D5            EXP1_06_PIN
-      #define LCD_PINS_D6            EXP1_07_PIN
-      #define LCD_PINS_D7            EXP1_08_PIN
-      #if ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
-        #define BTN_ENC_EN           LCD_PINS_D7  // Detect the presence of the encoder
-      #endif
+  #if IS_ULTIPANEL
+    #define LCD_PINS_D5              EXP1_06_PIN
+    #define LCD_PINS_D6              EXP1_07_PIN
+    #define LCD_PINS_D7              EXP1_08_PIN
+    #if ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
+      #define BTN_ENC_EN           LCD_PINS_D7  // Detect the presence of the encoder
     #endif
-
   #endif
 
 #endif // HAS_WIRED_LCD
