@@ -239,6 +239,7 @@
   #define BOARD_ST7920_DELAY_3           750
 
 #elif ENABLED(MKS_MINI_12864)
+// NOTE: Kept inline — TH3D_EZBOARD_V2 places BTN_EN1/EN2 on EXP1 instead of EXP2.
   /**          ------
    *      SCK | 1  2 | ENC
    *      EN1 | 3  4 | --
