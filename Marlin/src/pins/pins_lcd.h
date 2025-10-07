@@ -51,6 +51,8 @@
     #include "lcd/ULTI_CONTROLLER.h"
   #elif ENABLED(REPRAPWORLD_GRAPHICAL_LCD)
     #include "lcd/REPRAPWORLD_GRAPHICAL_LCD.h"
+  #elif ENABLED(YHCB2004)
+    // SPI Character LCD used by Geeetech
   #elif IS_RRD_FG_SC
     #include "lcd/RRD_FG_SC.h"
   #elif IS_RRD_SC
