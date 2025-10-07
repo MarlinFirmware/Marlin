@@ -1076,3 +1076,10 @@
 #if DISABLED_HOST_DRIVE_WARNING
   #warning "The selected board has automatically enabled NO_SD_HOST_DRIVE."
 #endif
+
+/**
+ * Board and LCD have differently-keyed plugs
+ */
+#if LCD_USES_EXP12 && ENABLED(EXP_REVERSE_KEYED) != ENABLED(LCD_REVERSE_KEYED)
+  #warning "CAUTION! The MOTHERBOARD and LCD have oppositely-keyed EXP plugs."
+#endif
