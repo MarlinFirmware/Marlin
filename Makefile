@@ -4,6 +4,31 @@ CONTAINER_RT_OPTS := --rm -v $(PWD):/code -v platformio-cache:/root/.platformio
 CONTAINER_IMAGE := marlin-dev
 UNIT_TEST_CONFIG ?= default
 
+# Find a Python 3 interpreter
+ifeq ($(OS),Windows_NT)
+	# Windows: use `where` – fall back through the three common names
+	PYTHON := $(shell where python 2>nul || where python3 2>nul || where py 2>nul)
+	# Windows: Use cmd tools to find pins files
+	PINS_RAW := $(shell cmd //c "dir /s /b Marlin\src\pins\*.h 2>nul | findstr /r ".*Marlin\\\\src\\\\pins\\\\.*\\\\pins_.*\.h"")
+	PINS := $(subst \,/,$(PINS_RAW))
+else
+	# POSIX: use `command -v` – prefer python3 over python
+	PYTHON := $(shell command -v python3 2>/dev/null || command -v python 2>/dev/null)
+	# Unix/Linux: Use find command
+	PINS := $(shell find Marlin/src/pins -mindepth 2 -name 'pins_*.h')
+endif
+
+# Check that the found interpreter is Python 3
+# Error if there's no Python 3 available
+ifneq ($(strip $(PYTHON)),)
+	PYTHON_VERSION := $(shell $(PYTHON) -c "import sys; print(sys.version_info[0])" 2>/dev/null)
+	ifneq ($(PYTHON_VERSION),3)
+		$(error $(PYTHON) is not Python 3 – install a Python‑3.x interpreter or adjust your PATH)
+	endif
+else
+	$(error No Python executable found – install Python 3.x and make sure it is in your PATH)
+endif
+
 help:
 	@echo "Tasks for local development:"
 	@echo "make marlin                    : Build Marlin for the configured board"
@@ -91,65 +116,6 @@ unit-test-all-local-docker:
 setup-local-docker:
 	$(CONTAINER_RT_BIN) buildx build -t $(CONTAINER_IMAGE) -f docker/Dockerfile .
 
-# Cross-platform file finding and path handling
-ifeq ($(OS),Windows_NT)
-    # Windows: Use cmd tools to find pins files
-    PINS_RAW := $(shell cmd //c "dir /s /b Marlin\src\pins\*.h 2>nul | findstr /r ".*Marlin\\\\src\\\\pins\\\\.*\\\\pins_.*\.h"")
-    PINS := $(subst \,/,$(PINS_RAW))
-    # Windows: Check for available Python executable (try python, then python3, then py)
-    PYTHON := $(shell where python 2>nul)
-    ifeq ($(PYTHON),)
-        PYTHON := $(shell where python3 2>nul)
-        ifeq ($(PYTHON),)
-            PYTHON := $(shell where py 2>nul)
-            ifeq ($(PYTHON),)
-                $(error No Python executable found. Please install Python 3.x from python.org or Microsoft Store)
-            else
-                # Verify py launcher points to Python 3
-                PYTHON_VERSION := $(shell py -c "import sys; print(sys.version_info[0])" 2>nul)
-                ifneq ($(PYTHON_VERSION),3)
-                    $(error Found py launcher but it's not configured for Python 3. Use 'py -3' or install Python 3.x)
-                endif
-                PYTHON := py
-            endif
-        else
-            # Verify python3 is actually Python 3
-            PYTHON_VERSION := $(shell python3 -c "import sys; print(sys.version_info[0])" 2>nul)
-            ifneq ($(PYTHON_VERSION),3)
-                $(error Found python3 but it's not Python 3. Please reinstall Python 3.x)
-            endif
-            PYTHON := python3
-        endif
-    else
-        # Verify python is actually Python 3
-        PYTHON_VERSION := $(shell python -c "import sys; print(sys.version_info[0])" 2>nul)
-        ifneq ($(PYTHON_VERSION),3)
-            $(error Found python but it's not Python 3. Please install Python 3.x or use 'python3')
-        endif
-        PYTHON := python
-    endif
-else
-    # Unix/Linux: Use find command
-    PINS := $(shell find Marlin/src/pins -mindepth 2 -name 'pins_*.h')
-    # Check for available Python executable (prefer python3, fallback to python)
-    PYTHON := $(shell command -v python3 2>/dev/null)
-    ifeq ($(PYTHON),)
-        PYTHON := $(shell command -v python 2>/dev/null)
-        ifeq ($(PYTHON),)
-            $(error No Python executable found. Please install Python 3.x)
-        else
-            # Verify it's Python 3
-            PYTHON_VERSION := $(shell python -c "import sys; print(sys.version_info[0])" 2>/dev/null)
-            ifneq ($(PYTHON_VERSION),3)
-                $(error Found python but it's not Python 3. Please install Python 3.x or ensure python3 is in PATH)
-            endif
-            PYTHON := python
-        endif
-    else
-        PYTHON := python3
-    endif
-endif
-
 .PHONY: $(PINS) format-pins validate-pins
 
 $(PINS): %:
@@ -157,7 +123,7 @@ $(PINS): %:
 	@$(PYTHON) $(SCRIPTS_DIR)/pinsformat.py $< $@
 
 format-pins: $(PINS)
-	@echo "Found $(words $(PINS)) pins files to format"
+	@echo "Processed $(words $(PINS)) pins files"
 
 validate-pins: format-pins
 	@echo "Validating pins files"
