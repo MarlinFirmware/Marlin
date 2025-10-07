@@ -223,7 +223,8 @@ void FTMotion::loop() {
 
   // Interpolation (generation of step commands from fixed time trajectory).
   while (batchRdyForInterp
-    && (stepperCmdBuffItems() < (FTM_STEPPERCMD_BUFF_SIZE) - (FTM_STEPS_PER_UNIT_TIME))) {
+    && (stepperCmdBuffItems() < (FTM_STEPPERCMD_BUFF_SIZE) - (FTM_STEPS_PER_UNIT_TIME))
+  ) {
     generateStepsFromTrajectory(interpIdx);
     if (++interpIdx == FTM_BATCH_SIZE) {
       batchRdyForInterp = false;
@@ -231,9 +232,11 @@ void FTMotion::loop() {
     }
   }
 
-  // Report busy status to planner.
+  // Set busy status for use by planner.busy()
+  const bool oldBusy = busy;
   busy = (stepperCmdBuffHasData || blockProcRdy || batchRdy || batchRdyForInterp);
-  if (!busy) moving_axis_flags.reset();
+  if (oldBusy && !busy) moving_axis_flags.reset();
+
 }
 
 #if HAS_FTM_SHAPING
