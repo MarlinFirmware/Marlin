@@ -47,8 +47,8 @@ int32_t FTMotion::stepperCmdBuff_produceIdx = 0, // Index of next stepper comman
 
 bool FTMotion::stepperCmdBuffHasData = false;   // The stepper buffer has items and is in use.
 
-XYZEval<bool> FTMotion::moving_axis_flags = { false };
-AxisBits FTMotion::axis_move_dir;
+AxisBits FTMotion::moving_axis_flags,           // These axes are moving in the planner block being processed
+         FTMotion::axis_move_dir;               // ...in these directions
 
 // Private variables.
 

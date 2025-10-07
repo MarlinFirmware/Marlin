@@ -136,8 +136,8 @@ class FTMotion {
 
     static bool stepperCmdBuffHasData;                    // The stepper buffer has items and is in use.
 
-    static XYZEval<bool> moving_axis_flags;
-    static AxisBits axis_move_dir;
+    static AxisBits moving_axis_flags,                    // These axes are moving in the planner block being processed
+                    axis_move_dir;                        // ...in these directions
 
     // Public methods
     static void init();
