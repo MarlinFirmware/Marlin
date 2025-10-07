@@ -79,7 +79,7 @@ if pioutil.is_pio_build():
                     modified_text = text.replace("BOTH(", "ALL(").replace("EITHER(", "ANY(")
                     if text != modified_text:
                         conf_modified = True
-                        with open(conf_path, 'w', encoding="utf8") as file:
+                        with open(conf_path, 'w', encoding="utf8", newline='') as file:
                             file.write(modified_text)
 
         if conf_modified:
