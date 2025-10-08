@@ -33,6 +33,17 @@
 
   #include "lcd/adapters.h"
 
+  #if ANY(ANET_FULL_GRAPHICS_LCD, CTC_A10S_A13)
+    #include "lcd/ANET_FULL_GRAPHICS_LCD.h"
+  #else
+
+    // More displays to come
+    #if HAS_LCD_SELECTED && !LCD_IS_SERIAL_HOST
+      #define LCD_MIGRATION_WARNING
+    #endif
+
+  #endif
+
 #endif
 
 /**
