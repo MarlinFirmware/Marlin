@@ -107,19 +107,17 @@ void Canvas::addImage(int16_t x, int16_t y, MarlinImage image, uint16_t *colors)
 
   if (color_mode == HIGHCOLOR) {
     // HIGHCOLOR - 16 bits per pixel
-    int16_t line = y;
-    for (int16_t i = 0; i < image_height; i++, line++) {
-      if (WITHIN(line, startLine, endLine - 1)) {
-        uint16_t *pixel = buffer + x + (line - startLine) * width;
-        uint16_t cx = x;
-        for (int16_t j = 0; j < image_width; j++, cx++) {
-          if (WITHIN(cx, 0, width - 1)) {
-            uint16_t color = ENDIAN_COLOR(*data);
-            if (color == 0x0001) color = COLOR_BACKGROUND;
-            *pixel = color;
-          }
-          pixel++;
-          data++;
+    uint16_t yc = y <= startLine ? 0 : (y - startLine) * width;
+    for (int16_t i = 0; i < image_height && y < endLine; i++, y++) {
+      if (y >= startLine) {
+        uint16_t *pixel = buffer + x + yc;
+        yc += width;
+        int16_t cx = x;
+        for (int16_t j = 0; j < image_width && cx < width; j++, cx++, pixel++, data++) {
+          if (cx < 0) continue;
+          uint16_t color = ENDIAN_COLOR(*data);
+          if (color == 0x0001) color = COLOR_BACKGROUND;
+          *pixel = color;
         }
       }
       else
@@ -214,63 +212,60 @@ void Canvas::addImage(int16_t x, int16_t y, uint8_t image_width, uint8_t image_h
     case GREYSCALE4: bitsPerPixel = 4; break;
     default: return;
   }
+  const uint8_t obase = 8 - bitsPerPixel, mask = 0xFF >> obase, pixelsPerByte = 8 / bitsPerPixel;
+  const uintptr_t span = (image_width + pixelsPerByte - 1) / pixelsPerByte;
 
-  uint8_t mask = 0xFF >> (8 - bitsPerPixel),
-          pixelsPerByte = 8 / bitsPerPixel;
+  colors--;                                                 // Color 1 is at index 0
 
-  colors--;
-
-  for (int16_t i = 0; i < image_height; i++) {
-    const int16_t line = y + i;
-    if (WITHIN(line, startLine, endLine - 1)) {
-      uint16_t *pixel = buffer + x + (line - startLine) * width;
-      uint8_t offset = 8 - bitsPerPixel;
-      for (int16_t j = 0; j < image_width; j++) {
-        if (offset > 8) {
-          data++;
-          offset = 8 - bitsPerPixel;
+  uint16_t yc = y <= startLine ? 0 : (y - startLine) * width; // Multiple of width as y offset
+  for (int16_t i = 0; i < image_height && y < endLine; i++, y++) { // Loop through image lines
+    if (y >= startLine) {                                   // Within the canvas?
+      uint16_t *pixel = buffer + x + yc;                    // Pixel address of line at x pos
+      yc += width;                                          // + is faster than *
+      int8_t offset = obase;                                // Bit offset of incoming pixel
+      for (int16_t j = 0; j < image_width; j++, pixel++) {  // Loop through image pixels
+        if (offset < 0) { data++; offset = obase; }         // Got all pixels in the byte? next byte.
+        if (WITHIN(x + j, 0, width - 1)) {                  // Within the canvas?
+          const uint8_t ci = ((*data) >> offset) & mask;    // Shift the color index to low bits
+          if (ci) *pixel = colors[ci];                      // Draw a solid pixel with the indexed color
         }
-        if (WITHIN(x + j, 0, width - 1)) {
-          const uint8_t color = ((*data) >> offset) & mask;
-          if (color) *pixel = *(colors + color);
-        }
-        pixel++;
-        offset -= bitsPerPixel;
+        offset -= bitsPerPixel;                             // Subtract bits used for the pixel
       }
-      data++;
+      data++;                                               // New line, so new set of pixels
     }
     else
-      data += (image_width + pixelsPerByte - 1) / pixelsPerByte;
+      data += span;                                         // Skip line outside the canvas
   }
 }
 
 void Canvas::addRect(uint16_t x, uint16_t y, uint16_t rectangleWidth, uint16_t rectangleHeight, uint16_t color) {
-  if (endLine < y || startLine > y + rectangleHeight) return;
+  if (endLine < y || startLine > y + rectangleHeight) return;           // Nothing to draw?
 
-  for (uint16_t i = 0; i < rectangleHeight; i++) {
-    const uint16_t line = y + i;
-    if (WITHIN(line, startLine, endLine - 1)) {
-      uint16_t *pixel = buffer + x + (line - startLine) * width;
-      if (i == 0 || i == rectangleHeight - 1) {
-        for (uint16_t j = 0; j < rectangleWidth; j++) *pixel++ = color;
+  uint16_t yc = y <= startLine ? 0 : (y - startLine) * width;           // Multiple of width as y offset
+  for (uint16_t i = 0; i < rectangleHeight && y < endLine; i++, y++) {  // Loop over the rect height
+    if (y >= startLine) {                                               // Within the canvas?
+      uint16_t *pixel = buffer + x + yc;                                // Pixel address of line at x pos
+      yc += width;                                                      // + is faster than *
+      if (i == 0 || i == rectangleHeight - 1) {                         // Top or bottom line?
+        for (uint16_t j = 0; j < rectangleWidth; j++) *pixel++ = color; // Fill the width. (No transparency)
       }
       else {
-        *pixel = color;
-        pixel += rectangleWidth - 1;
-        *pixel = color;
+        pixel[0] = color;                                               // Left line
+        pixel[rectangleWidth - 1] = color;                              // Right line
       }
     }
   }
 }
 
 void Canvas::addBar(uint16_t x, uint16_t y, uint16_t barWidth, uint16_t barHeight, uint16_t color) {
-  if (endLine < y || startLine > y + barHeight) return;
+  if (endLine < y || startLine > y + barHeight) return;           // Nothing to draw?
 
-  for (uint16_t i = 0; i < barHeight; i++) {
-    const uint16_t line = y + i;
-    if (WITHIN(line, startLine, endLine - 1)) {
-      uint16_t *pixel = buffer + x + (line - startLine) * width;
-      for (uint16_t j = 0; j < barWidth; j++) *pixel++ = color;
+  uint16_t yc = y <= startLine ? 0 : (y - startLine) * width;     // Multiple of width as y offset
+  for (uint16_t i = 0; i < barHeight && y < endLine; i++, y++) {  // Loop over the bar height
+    if (y >= startLine) {                                         // Within the canvas?
+      uint16_t *pixel = buffer + x + yc;                          // Pixel address of line at x pos
+      yc += width;                                                // + is faster than *
+      for (uint16_t j = 0; j < barWidth; j++) *pixel++ = color;   // Fill the width. (No transparency)
     }
   }
 }
