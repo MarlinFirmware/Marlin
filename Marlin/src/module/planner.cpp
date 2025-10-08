@@ -2858,10 +2858,13 @@ void Planner::buffer_sync_block(const BlockFlagBit sync_flag/*=BLOCK_BIT_SYNC_PO
     // variable, so there is no risk setting this here (but it MUST be done
     // before the following line!!)
 
-    if (TERN0(HAS_LASER_E3S1PRO, laser_device.is_laser_device()))
-      delay_before_delivering = LASER_BLOCK_DELAY_FOR_1ST_MOVE;
-    else
-      delay_before_delivering = TERN0(FT_MOTION, ftMotion.cfg.active) ? BLOCK_DELAY_NONE : BLOCK_DELAY_FOR_1ST_MOVE;
+    delay_before_delivering = (
+      #if HAS_LASER_E3S1PRO
+        laser_device.is_laser_device() ? LASER_BLOCK_DELAY_FOR_1ST_MOVE :
+      #else
+        TERN0(FT_MOTION, ftMotion.cfg.active) ? BLOCK_DELAY_NONE : BLOCK_DELAY_FOR_1ST_MOVE
+      #endif
+    );
   }
 
   block_buffer_head = next_buffer_head;
