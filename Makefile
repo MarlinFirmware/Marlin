@@ -4,6 +4,31 @@ CONTAINER_RT_OPTS := --rm -v $(PWD):/code -v platformio-cache:/root/.platformio
 CONTAINER_IMAGE := marlin-dev
 UNIT_TEST_CONFIG ?= default
 
+# Find a Python 3 interpreter
+ifeq ($(OS),Windows_NT)
+	# Windows: use `where` – fall back through the three common names
+	PYTHON := $(shell where python 2>nul || where python3 2>nul || where py 2>nul)
+	# Windows: Use cmd tools to find pins files
+	PINS_RAW := $(shell cmd //c "dir /s /b Marlin\src\pins\*.h 2>nul | findstr /r ".*Marlin\\\\src\\\\pins\\\\.*\\\\pins_.*\.h"")
+	PINS := $(subst \,/,$(PINS_RAW))
+else
+	# POSIX: use `command -v` – prefer python3 over python
+	PYTHON := $(shell command -v python3 2>/dev/null || command -v python 2>/dev/null)
+	# Unix/Linux: Use find command
+	PINS := $(shell find Marlin/src/pins -mindepth 2 -name 'pins_*.h')
+endif
+
+# Check that the found interpreter is Python 3
+# Error if there's no Python 3 available
+ifneq ($(strip $(PYTHON)),)
+	PYTHON_VERSION := $(shell $(PYTHON) -c "import sys; print(sys.version_info[0])" 2>/dev/null)
+	ifneq ($(PYTHON_VERSION),3)
+		$(error $(PYTHON) is not Python 3 – install a Python‑3.x interpreter or adjust your PATH)
+	endif
+else
+	$(error No Python executable found – install Python 3.x and make sure it is in your PATH)
+endif
+
 help:
 	@echo "Tasks for local development:"
 	@echo "make marlin                    : Build Marlin for the configured board"
@@ -57,10 +82,10 @@ tests-single-local-docker:
 	$(CONTAINER_RT_BIN) run $(CONTAINER_RT_OPTS) $(CONTAINER_IMAGE) make tests-single-local TEST_TARGET=$(TEST_TARGET) VERBOSE_PLATFORMIO=$(VERBOSE_PLATFORMIO) GIT_RESET_HARD=$(GIT_RESET_HARD) ONLY_TEST="$(ONLY_TEST)"
 
 tests-all-local:
-	@python -c "import yaml" 2>/dev/null || (echo 'pyyaml module is not installed. Install it with "python -m pip install pyyaml"' && exit 1)
+	@$(PYTHON) -c "import yaml" 2>/dev/null || (echo 'pyyaml module is not installed. Install it with "$(PYTHON) -m pip install pyyaml"' && exit 1)
 	export PATH="./buildroot/bin/:./buildroot/tests/:${PATH}" \
 	  && export VERBOSE_PLATFORMIO=$(VERBOSE_PLATFORMIO) \
-	  && for TEST_TARGET in $$(python $(SCRIPTS_DIR)/get_test_targets.py) ; do \
+	  && for TEST_TARGET in $$($(PYTHON) $(SCRIPTS_DIR)/get_test_targets.py) ; do \
 	    if [ "$$TEST_TARGET" = "linux_native" ] && [ "$$(uname)" = "Darwin" ]; then \
 	      echo "Skipping tests for $$TEST_TARGET on macOS" ; \
 	      continue ; \
@@ -110,15 +135,14 @@ setup-local-docker:
 setup-local-docker-old:
 	$(CONTAINER_RT_BIN) buildx build -t $(CONTAINER_IMAGE) -f docker/Dockerfile .
 
-PINS := $(shell find Marlin/src/pins -mindepth 2 -name '*.h')
-
 .PHONY: $(PINS) format-pins validate-pins
 
 $(PINS): %:
 	@echo "Formatting pins $@"
-	@python $(SCRIPTS_DIR)/pinsformat.py $< $@
+	@$(PYTHON) $(SCRIPTS_DIR)/pinsformat.py $< $@
 
 format-pins: $(PINS)
+	@echo "Processed $(words $(PINS)) pins files"
 
 validate-pins: format-pins
 	@echo "Validating pins files"
@@ -128,8 +152,8 @@ validate-pins: format-pins
 
 format-lines:
 	@echo "Formatting all sources"
-	@python $(SCRIPTS_DIR)/linesformat.py buildroot
-	@python $(SCRIPTS_DIR)/linesformat.py Marlin
+	@$(PYTHON) $(SCRIPTS_DIR)/linesformat.py buildroot
+	@$(PYTHON) $(SCRIPTS_DIR)/linesformat.py Marlin
 
 validate-lines:
 	@echo "Validating text formatting"
@@ -141,4 +165,4 @@ BOARDS_FILE := Marlin/src/core/boards.h
 
 validate-boards:
 	@echo "Validating boards.h file"
-	@python $(SCRIPTS_DIR)/validate_boards.py $(BOARDS_FILE) || (echo "\nError: boards.h file is not valid. Please check and correct it.\n" && exit 1)
+	@$(PYTHON) $(SCRIPTS_DIR)/validate_boards.py $(BOARDS_FILE) || (echo "\nError: boards.h file is not valid. Please check and correct it.\n" && exit 1)

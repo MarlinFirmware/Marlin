@@ -73,7 +73,7 @@ typedef struct FTConfig {
     float linearAdvK = FTM_LINEAR_ADV_DEFAULT_K;          // Linear advance gain.
   #endif
 
-  TrajectoryType trajectory_type = TrajectoryType::TRAPEZOIDAL; // Trajectory generator type
+  TrajectoryType trajectory_type = TrajectoryType::FTM_TRAJECTORY_TYPE; // Trajectory generator type
   float poly6_acceleration_overshoot; // Overshoot factor for Poly6 (1.25 to 2.0)
 } ft_config_t;
 
@@ -186,7 +186,7 @@ class FTMotion {
     static TrapezoidalTrajectoryGenerator trapezoidalGenerator;
     static Poly5TrajectoryGenerator poly5Generator;
     static Poly6TrajectoryGenerator poly6Generator;
-    static TrajectoryGenerator& currentGenerator;
+    static TrajectoryGenerator* currentGenerator;
     static TrajectoryType trajectoryType;
 
     // Number of batches needed to propagate the current trajectory to the stepper.

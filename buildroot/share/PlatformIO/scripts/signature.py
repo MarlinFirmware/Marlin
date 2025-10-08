@@ -284,7 +284,7 @@ def compute_build_signature(env):
         for line in sec_lines[1:]: sec_list += '\n' + ext_fmt.format('', line)
 
         config_ini = build_path / 'config.ini'
-        with config_ini.open('w', encoding='utf-8') as outfile:
+        with config_ini.open('w', encoding='utf-8', newline='') as outfile:
             filegrp = { 'Configuration.h':'config:basic', 'Configuration_adv.h':'config:advanced' }
             vers = build_defines["CONFIGURATION_H_VERSION"]
             dt_string = datetime.now().strftime("%Y-%m-%d at %H:%M:%S")
