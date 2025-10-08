@@ -45,7 +45,7 @@
 #define DEBUG_OUT ENABLED(DEBUG_LEVELING_FEATURE)
 #include "../../../core/debug_out.h"
 
-#if FT_MOTION_DISABLE_FOR_PROBING
+#if ENABLED(FT_MOTION)
   #include "../../module/ft_motion.h"
 #endif
 
@@ -67,9 +67,8 @@ inline void echo_not_entered(const char c) { SERIAL_CHAR(c); SERIAL_ECHOLNPGM(" 
  */
 void GcodeSuite::G29() {
 
-  #if FT_MOTION_DISABLE_FOR_PROBING
-    FTMotionDisableInScope FT_Disabler; // Disable Fixed-Time Motion for probing
-  #endif
+  // Potentially disable Fixed-Time Motion for probing
+  TERN_(FT_MOTION, FTMotionDisableInScope FT_Disabler);
 
   DEBUG_SECTION(log_G29, "G29", true);
 

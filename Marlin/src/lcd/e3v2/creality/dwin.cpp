@@ -2992,9 +2992,11 @@ void hmiAxisMove() {
         hmiFlag.cold_flag = false;
         hmiValues.moveScaled.e = current_position.e * MINUNITMULT;
         drawMoveMenu();
-        TERN_(HAS_X_AXIS, drawEditFloat3(1, hmiValues.moveScaled.x));
-        TERN_(HAS_Y_AXIS, drawEditFloat3(2, hmiValues.moveScaled.y));
-        TERN_(HAS_Z_AXIS, drawEditFloat3(3, hmiValues.moveScaled.z));
+        XYZ_CODE(
+          drawEditFloat3(1, hmiValues.moveScaled.x),
+          drawEditFloat3(2, hmiValues.moveScaled.y),
+          drawEditFloat3(3, hmiValues.moveScaled.z)
+        );
         drawEditSignedFloat3(4, 0);
         dwinUpdateLCD();
       }

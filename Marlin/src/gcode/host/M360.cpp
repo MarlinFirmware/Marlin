@@ -139,8 +139,7 @@ void GcodeSuite::M360() {
     if (TERN0(HAS_Y_AXIS, planner.max_jerk.x == planner.max_jerk.y))
       config_line(F("XY"), planner.max_jerk.x, JERK_STR);
     else {
-      TERN_(HAS_X_AXIS, _REPORT_JERK(X));
-      TERN_(HAS_Y_AXIS, _REPORT_JERK(Y));
+      XY_MAP(_REPORT_JERK);
     }
     TERN_(HAS_Z_AXIS, config_line(Z_STR, planner.max_jerk.z, JERK_STR));
     SECONDARY_AXIS_MAP(_REPORT_JERK);

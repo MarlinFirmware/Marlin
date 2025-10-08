@@ -200,7 +200,6 @@
 #endif
 
 #if ENABLED(MPCTEMP)
-  #include <math.h>
   #include "probe.h"
 #endif
 
@@ -1156,7 +1155,7 @@ void Temperature::factory_reset() {
     hotend.target = 200.0f;   // So M105 looks nice
     hotend.soft_pwm_amount = (MPC_MAX) >> 1;
 
-    // Initialise rate of change to to steady state at current time
+    // Initialise rate of change to steady state at current time
     temp_samples[0] = temp_samples[1] = temp_samples[2] = current_temp;
     time_fastest = rate_fastest = 0;
 
@@ -1363,7 +1362,7 @@ void Temperature::factory_reset() {
     const float t1 = tuner.get_sample_1_temp(),
                 t2 = tuner.get_sample_2_temp(),
                 t3 = tuner.get_sample_3_temp();
-    float asymp_temp = (t2 * t2 - t1 * t3) / (2 * t2 - t1 - t3),
+    float asymp_temp = (sq(t2) - t1 * t3) / (2 * t2 - t1 - t3),
           block_responsiveness = -log((t2 - asymp_temp) / (t1 - asymp_temp)) / tuner.get_sample_interval();
 
     #if ENABLED(MPC_AUTOTUNE_DEBUG)

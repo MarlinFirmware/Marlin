@@ -3573,8 +3573,6 @@ void Stepper::report_positions() {
     if (++ftMotion.stepperCmdBuff_consumeIdx == (FTM_STEPPERCMD_BUFF_SIZE))
       ftMotion.stepperCmdBuff_consumeIdx = 0;
 
-    if (abort_current_block) return;
-
     USING_TIMED_PULSE();
 
     // Get FT Motion command flags for axis STEP / DIR
