@@ -574,20 +574,22 @@ void FTMotion::loadBlockData(block_t * const current_block) {
 // Called from FTMotion::loop() at the fetch of a new planner block, after loadBlockData.
 void FTMotion::generateTrajectoryPointsFromBlock() {
   const float total_duration = currentGenerator->getTotalDuration();
-  if (tau + FTM_TS > total_duration) {
-    // TODO: refactor code so this thing is not twice.
-    // the reason of it being in the beginning, is that a block can be so short that it has
-    // zero trajectories.
-    // the next iteration will fall beyond this block
+
+  float newTau = tau + FTM_TS;
+  if (newTau > total_duration) {
+    // TODO: Refactor code so this doesn't need to be called twice.
+    // This is here at the start to deal with a block so short that it has zero trajectories.
+    // The next iteration will get past this block.
     blockProcRdy = false;
     traj_idx_get = 0;
     tau -= total_duration;
     return;
   }
+
   do {
-    tau += FTM_TS;                // (s) Time since start of block
-                                  // If the end of the last block doesn't exactly land on a trajectory index,
-                                  // tau can start negative, but it always holds that `tau > -FTM_TS`
+    tau = newTau; // (s) Time since start of block
+                  // If the end of the last block doesn't exactly land on a trajectory index,
+                  // tau can start negative, but it always holds that `tau > -FTM_TS`
 
     // Get distance from trajectory generator
     const float dist = currentGenerator->getDistanceAtTime(tau);
@@ -704,13 +706,17 @@ void FTMotion::generateTrajectoryPointsFromBlock() {
       traj_idx_set = BATCH_SIDX_IN_WINDOW;
       batchRdy = true;
     }
+
     traj_idx_get++;
-    if (tau + FTM_TS > total_duration) {
-      // the next iteration will fall beyond this block
+
+    newTau = tau + FTM_TS;
+    if (newTau > total_duration) {
+      // The next iteration will fall beyond this block
       blockProcRdy = false;
       traj_idx_get = 0;
-      tau -= total_duration;
+      newTau -= total_duration;
     }
+
   } while (blockProcRdy && !batchRdy);
 } // generateTrajectoryPointsFromBlock
 
