@@ -264,6 +264,7 @@ typedef struct SettingsDataStruct {
   //
   bool runout_sensor_enabled;                           // M412 S
   float runout_distance_mm;                             // M412 D
+  float motion_distance_mm;                             // M412 L
 
   //
   // ENABLE_LEVELING_FADE_HEIGHT
@@ -998,6 +999,13 @@ void MarlinSettings::postprocess() {
         constexpr float runout_distance_mm = 0;
       #endif
       EEPROM_WRITE(runout_distance_mm);
+
+      #if ENABLED(FILAMENT_SWITCH_AND_MOTION)
+        const float &motion_distance_mm = runout.motion_distance();
+      #else
+        constexpr float motion_distance_mm = 0;
+      #endif
+      EEPROM_WRITE(motion_distance_mm);
     }
 
     //
@@ -2061,6 +2069,12 @@ void MarlinSettings::postprocess() {
         EEPROM_READ(runout_distance_mm);
         #if HAS_FILAMENT_RUNOUT_DISTANCE
           if (!validating) runout.set_runout_distance(runout_distance_mm);
+        #endif
+
+        float motion_distance_mm;
+        EEPROM_READ(motion_distance_mm);
+        #if ENABLED(FILAMENT_SWITCH_AND_MOTION)
+          if (!validating) runout.set_motion_distance(motion_distance_mm);
         #endif
       }
 
@@ -3383,6 +3397,7 @@ void MarlinSettings::reset() {
     runout.enabled = FIL_RUNOUT_ENABLED_DEFAULT;
     runout.reset();
     TERN_(HAS_FILAMENT_RUNOUT_DISTANCE, runout.set_runout_distance(FILAMENT_RUNOUT_DISTANCE_MM));
+    TERN_(FILAMENT_SWITCH_AND_MOTION,   runout.set_motion_distance(FILAMENT_MOTION_DISTANCE_MM));
   #endif
 
   //
@@ -3983,6 +3998,11 @@ void MarlinSettings::reset() {
     // Editable Servo Angles
     //
     TERN_(EDITABLE_SERVO_ANGLES, gcode.M281_report(forReplay));
+
+    //
+    // BLTouch High Speed Mode
+    //
+    TERN_(BLTOUCH_HS_MODE, gcode.M401_report(forReplay));
 
     //
     // Kinematic Settings

@@ -30,9 +30,6 @@
 
 #include "dwin.h"
 
-//#define USE_STRING_HEADINGS
-//#define USE_STRING_TITLES
-
 #if DISABLED(PROBE_MANUALLY) && ANY(AUTO_BED_LEVELING_BILINEAR, AUTO_BED_LEVELING_LINEAR, AUTO_BED_LEVELING_3POINT)
   #define HAS_ONESTEP_LEVELING 1
 #endif
@@ -2520,7 +2517,7 @@ void itemAdvBedPID(const uint8_t row) {
     }
     else {
       #ifdef USE_STRING_TITLES
-        dwinDrawLabel(row, GET_TEXT_F(MSG_ZPROBE_OFFSETS));
+        dwinDrawLabel(row, GET_TEXT_F(MSG_OUTAGE_RECOVERY));
       #else
         itemAreaCopy(1, 208, 137, 221, row);  // "Power-loss Recovery"
       #endif
@@ -2999,9 +2996,11 @@ void hmiAxisMove() {
         hmiFlag.cold_flag = false;
         hmiValues.moveScaled.e = current_position.e * MINUNITMULT;
         drawMoveMenu();
-        TERN_(HAS_X_AXIS, drawEditFloat3(1, hmiValues.moveScaled.x));
-        TERN_(HAS_Y_AXIS, drawEditFloat3(2, hmiValues.moveScaled.y));
-        TERN_(HAS_Z_AXIS, drawEditFloat3(3, hmiValues.moveScaled.z));
+        XYZ_CODE(
+          drawEditFloat3(1, hmiValues.moveScaled.x),
+          drawEditFloat3(2, hmiValues.moveScaled.y),
+          drawEditFloat3(3, hmiValues.moveScaled.z)
+        );
         drawEditSignedFloat3(4, 0);
         dwinUpdateLCD();
       }
@@ -3683,7 +3682,7 @@ void hmiAdvSet() {
     dwinUpdateLCD();
   }
 
-  void hmiHomeOffN(const AxisEnum axis, float &posScaled, const_float_t lo, const_float_t hi) {
+  void hmiHomeOffN(const AxisEnum axis, float &posScaled, const float lo, const float hi) {
     EncoderState encoder_diffState = encoderReceiveAnalyze();
     if (encoder_diffState == ENCODER_DIFF_NO) return;
 

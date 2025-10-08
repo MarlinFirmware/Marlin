@@ -236,7 +236,7 @@
 
 /**
  * This sections starts with the pins_RAMPS_144.h as example, after if you need any new
- * display, you could use normal duponts and connect it with with the scheme showed before.
+ * display, you could use normal duponts and connect it with the scheme showed before.
  * Tested:
  *   - Ender-3 Old display (Character LCD)
  *   - Ender-3 New Serial DWING Display

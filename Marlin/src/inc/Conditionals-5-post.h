@@ -102,6 +102,35 @@
   #define AXIS9_NAME 'W'
 #endif
 
+// G-code parameters where XYZ are invariant but IJKUVW can be renamed
+#ifndef AXIS1_PARAM
+  #define AXIS1_PARAM 'X'
+#endif
+#ifndef AXIS2_PARAM
+  #define AXIS2_PARAM 'Y'
+#endif
+#ifndef AXIS3_PARAM
+  #define AXIS3_PARAM 'Z'
+#endif
+#ifndef AXIS4_PARAM
+  #define AXIS4_PARAM AXIS4_NAME
+#endif
+#ifndef AXIS5_PARAM
+  #define AXIS5_PARAM AXIS5_NAME
+#endif
+#ifndef AXIS6_PARAM
+  #define AXIS6_PARAM AXIS6_NAME
+#endif
+#ifndef AXIS7_PARAM
+  #define AXIS7_PARAM AXIS7_NAME
+#endif
+#ifndef AXIS8_PARAM
+  #define AXIS8_PARAM AXIS8_NAME
+#endif
+#ifndef AXIS9_PARAM
+  #define AXIS9_PARAM AXIS9_NAME
+#endif
+
 #if HAS_X_AXIS
   #define X_MAX_LENGTH (X_MAX_POS - (X_MIN_POS))
 #endif
@@ -2490,6 +2519,59 @@
 //
 // ADC Temp Sensors (Thermistor or Thermocouple with amplifier ADC interface)
 //
+
+#if TEMP_SENSOR(0)
+  #define HAS_TEMP_HOTEND 1
+#endif
+#if TEMP_SENSOR(BED)
+  #define HAS_HEATED_BED 1
+  #define HAS_TEMP_BED 1
+#endif
+#if TEMP_SENSOR(CHAMBER)
+  #define HAS_TEMP_CHAMBER 1
+#endif
+#if TEMP_SENSOR(PROBE)
+  #define HAS_TEMP_PROBE 1
+#endif
+#if TEMP_SENSOR(COOLER)
+  #define HAS_TEMP_COOLER 1
+#endif
+#if TEMP_SENSOR(BOARD)
+  #define HAS_TEMP_BOARD 1
+#endif
+#if TEMP_SENSOR(SOC)
+  #define HAS_TEMP_SOC 1
+#endif
+#if TEMP_SENSOR(REDUNDANT)
+  #define HAS_TEMP_REDUNDANT 1
+#endif
+
+// Unused ADC pins can be omitted
+#if ANY(KEEP_ADC_PINS_AROUND, PINS_DEBUGGING, MARLIN_DEV_MODE)
+  #if !HAS_TEMP_HOTEND
+    #undef TEMP_0_PIN
+  #endif
+  #if !HAS_HEATED_BED
+    #undef TEMP_BED_PIN
+  #endif
+  #if !HAS_TEMP_CHAMBER
+    #undef TEMP_CHAMBER_PIN
+  #endif
+  #if !HAS_TEMP_PROBE
+    #undef TEMP_PROBE_PIN
+  #endif
+  #if !HAS_TEMP_COOLER
+    #undef TEMP_COOLER_PIN
+  #endif
+  #if !HAS_TEMP_BOARD
+    #undef TEMP_BOARD_PIN
+  #endif
+  #if DISABLED(FILAMENT_WIDTH_SENSOR)
+    #undef FILWIDTH_PIN
+    #undef FILWIDTH2_PIN
+  #endif
+#endif
+
 #define HAS_ADC_TEST(P) (TEMP_SENSOR(P) && PIN_EXISTS(TEMP_##P) && !TEMP_SENSOR_IS_MAX_TC(P) && !TEMP_SENSOR_##P##_IS_DUMMY)
 #if HOTENDS > 0 && HAS_ADC_TEST(0)
   #define HAS_TEMP_ADC_0 1
@@ -2515,11 +2597,8 @@
 #if HOTENDS > 7 && HAS_ADC_TEST(7)
   #define HAS_TEMP_ADC_7 1
 #endif
-#if TEMP_SENSOR_BED
-  #define HAS_HEATED_BED 1
-  #if HAS_ADC_TEST(BED)
-    #define HAS_TEMP_ADC_BED 1
-  #endif
+#if HAS_HEATED_BED && HAS_ADC_TEST(BED)
+  #define HAS_TEMP_ADC_BED 1
 #endif
 #if HAS_ADC_TEST(PROBE)
   #define HAS_TEMP_ADC_PROBE 1
@@ -2539,31 +2618,11 @@
 #if HAS_ADC_TEST(REDUNDANT)
   #define HAS_TEMP_ADC_REDUNDANT 1
 #endif
-
-#define HAS_TEMP(N) (TEMP_SENSOR_IS_MAX_TC(N) || HAS_TEMP_ADC_##N || TEMP_SENSOR_##N##_IS_DUMMY)
-#if HAS_HOTEND && HAS_TEMP(0)
-  #define HAS_TEMP_HOTEND 1
+#if PIN_EXISTS(FILWIDTH_PIN)
+  #define HAS_FILWIDTH_ADC 1
 #endif
-#if HAS_TEMP(BED)
-  #define HAS_TEMP_BED 1
-#endif
-#if HAS_TEMP(CHAMBER)
-  #define HAS_TEMP_CHAMBER 1
-#endif
-#if HAS_TEMP(PROBE)
-  #define HAS_TEMP_PROBE 1
-#endif
-#if HAS_TEMP(COOLER)
-  #define HAS_TEMP_COOLER 1
-#endif
-#if HAS_TEMP(BOARD)
-  #define HAS_TEMP_BOARD 1
-#endif
-#if HAS_TEMP(SOC)
-  #define HAS_TEMP_SOC 1
-#endif
-#if HAS_TEMP(REDUNDANT)
-  #define HAS_TEMP_REDUNDANT 1
+#if PIN_EXISTS(FILWIDTH2_PIN)
+  #define HAS_FILWIDTH2_ADC 1
 #endif
 
 #if ENABLED(JOYSTICK)
@@ -2581,7 +2640,9 @@
   #endif
 #endif
 
-// Heaters
+//
+// Heater Outputs
+//
 #if PIN_EXISTS(HEATER_0)
   #define HAS_HEATER_0 1
 #endif
@@ -3601,4 +3662,20 @@
 // SPI Flash Backup
 #if ALL(SPI_FLASH, HAS_MEDIA, MARLIN_DEV_MODE)
   #define SPI_FLASH_BACKUP 1
+#endif
+
+// Fixed-Time Motion
+#if ENABLED(FT_MOTION)
+  #define FTM_TS (1.0f / FTM_FS)                                    // (s) Time step for trajectory generation. (Reciprocal of FTM_FS)
+  #define FTM_STEPS_PER_UNIT_TIME (FTM_STEPPER_FS / FTM_FS)         // Interpolated stepper commands per unit time
+  #define FTM_MIN_TICKS ((STEPPER_TIMER_RATE) / (FTM_STEPPER_FS))   // Minimum stepper ticks between steps
+  #define FTM_RATIO (FTM_FS / FTM_MIN_SHAPE_FREQ)     // Factor for use in FTM_ZMAX. DON'T CHANGE.
+  #define FTM_SMOOTH_MAX_I uint32_t(TERN0(FTM_SMOOTHING, CEIL(FTM_FS * FTM_MAX_SMOOTHING_TIME))) // Max delays for smoothing
+  #define FTM_ZMAX (FTM_RATIO * 2 + FTM_SMOOTH_MAX_I) // Maximum delays for shaping functions (even numbers only!)
+                                                      // Calculate as:
+                                                      //   ZV       : FTM_RATIO / 2
+                                                      //   ZVD, MZV : FTM_RATIO
+                                                      //   2HEI     : FTM_RATIO * 3 / 2
+                                                      //   3HEI     : FTM_RATIO * 2
+  #define FTM_SMOOTHING_ORDER 5                       // 3 to 5 is closest to gaussian
 #endif
