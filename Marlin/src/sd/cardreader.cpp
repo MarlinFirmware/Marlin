@@ -1332,17 +1332,16 @@ void CardReader::cdroot() {
     // Quick Sort
     bool CardReader::sort_cmp_files(const int16_t o1, const int16_t o2) {
       auto _sort_cmp_file = [](const char *const n1, const char *const n2) -> bool {
-        const bool sort = strcasecmp(n1, n2) > 0;
+        const bool sort = strcasecmp(n1, n2) < 0;
         return (TERN(SDSORT_GCODE, sort_alpha == AS_REV, ENABLED(SDSORT_REVERSE))) ? !sort : sort;
       };
 
       #if ENABLED(SDSORT_USES_RAM)
-        const bool dir1 = IS_DIR(o1);
-        const bool dir2 = IS_DIR(o2);
+        const bool dir1 = IS_DIR(o1),
+                   dir2 = IS_DIR(o2);
         const char* name1 = card.sortnames[o1];
         const char* name2 = card.sortnames[o2];
-      #else // !SDSORT_USES_RAM
-        // Re-read names for comparison. This is the least RAM-intensive method.
+      #else
         card.selectFileByIndex(o1);
         char name1_buffer[LONG_FILENAME_LENGTH];
         strcpy(name1_buffer, card.longest_filename());
@@ -1356,15 +1355,11 @@ void CardReader::cdroot() {
 
       #if HAS_FOLDER_SORTING
         #if ENABLED(SDSORT_GCODE)
-          if (card.sort_folders) {
-            if (dir1 != dir2) {
-              return (card.sort_folders > 0) ? dir1 : !dir1;
-            }
-          }
+          if (card.sort_folders && dir1 != dir2)
+            return (card.sort_folders > 0) ? dir1 : !dir1;
         #else
-          if (dir1 != dir2) {
+          if (dir1 != dir2)
             return (SDSORT_FOLDERS > 0) ? dir1 : !dir1;
-          }
         #endif
       #endif
 
@@ -1391,8 +1386,8 @@ void CardReader::cdroot() {
     }
 
     void CardReader::quicksort(uint8_t* arr, int16_t low, int16_t high) {
-      int8_t stack[SDSORT_LIMIT + 1];
-      int8_t top = -1; // Initialize top of stack
+      int16_t stack[SDSORT_LIMIT + 1];
+      int16_t top = -1; // Initialize top of stack
 
       // Push initial values of low and high to the stack
       stack[++top] = low;
