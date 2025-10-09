@@ -2517,8 +2517,14 @@ void prepare_line_to_destination() {
     // When homing Z with probe respect probe clearance
     const bool use_probe_bump = now_probe_homing && home_bump_mm(axis);
     const float bump = axis_home_dir * (
-      use_probe_bump ? _MAX(TERN0(Z_CLEARANCE_BETWEEN_PROBES, Z_CLEARANCE_BETWEEN_PROBES), home_bump_mm(axis)) : home_bump_mm(axis)
+    #ifdef Z_CLEARANCE_BETWEEN_PROBES
+      // TERN only works if a define is 1 or undefined, it does not work on values other than 1
+      use_probe_bump ? Z_CLEARANCE_BETWEEN_PROBES : home_bump_mm(axis) //cannot use TERN on Z_CLEARANCE_BETWEEN_PROBES
+    #else
+      home_bump_mm(axis)
+    #endif
     );
+    if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("use_probe_bump: ", use_probe_bump, " ");
 
     //
     // Fast move towards endstop until triggered
