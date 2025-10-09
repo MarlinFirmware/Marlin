@@ -3973,18 +3973,27 @@ void Temperature::disable_all_heaters() {
    *
    * Reads the thermocouple board via HW or SW SPI, using a library (LIB_USR_x) or raw SPI reads.
    * Doesn't strictly return a temperature; returns an "ADC Value" (i.e. raw register content).
+   * Currently only supports channel 0 (single extruder)
    *
-   * @param  hindex  the hotend we're referencing (if MULTI_MAX_TC)
+   * @param  hindex  the hotend we're referencing (different channel in ADS1118)
    * @return         integer representing the board's buffer, to be converted later if needed
    */
 raw_adc_t Temperature::read_ads1118(const uint8_t hindex/*=0*/) {
-  static raw_adc_t ads1118_temp_previous[2] = { 0, 0 };
+  #define ADS1118_HEAT_INTERVAL 250UL  //
+  
+  static raw_adc_t ads1118_temp_previous[2] = { 0, 0 };  
   static uint8_t ads1118_errors[2] = { 0, 0 };
   static millis_t next_ads1118_ms[2] = { 0, 0 };  
   
-  // Loop ready and read w/cache
-  ads1118.loop();
-  int16_t raw = ads1118.readChannel(hindex);
+
+  const millis_t ms = millis();
+  if (PENDING(ms, next_ads1118_ms[hindex]) || !ads1118.checkDataReady())
+    return ads1118_temp_previous[hindex];  // return cached value
+
+  next_ads1118_ms[hindex] = ms + ADS1118_HEAT_INTERVAL;
+
+  // To do: If eneable more hotends, cycle through different channels
+  int16_t raw = ads1118.readData();
 
   // Manejo de errores simples: raw = 0x7FFF o 0x8000 podrían ser saturación
   if (raw == 0x7FFF || raw == -32768) {
@@ -3992,11 +4001,11 @@ raw_adc_t Temperature::read_ads1118(const uint8_t hindex/*=0*/) {
     if (ads1118_errors[hindex] > 3) {
       SERIAL_ERROR_START();
       SERIAL_ECHOLNPGM("ADS1118 Fault: Conversion error!");
-      ads_val = (raw_adc_t)(TEMP_SENSOR_0_MAX_TC_TMAX << 4); // forzar error
+      ads_val = (raw_adc_t)(TEMP_SENSOR_0_ADS_TMAX << 4); // force error
     }
   }
   else {
-    ads1118_errors[hindex] = 0; // resetear errores si ok
+    ads1118_errors[hindex] = 0; // reset errors if ok
     // Convertir raw a formato fijo (ejemplo: 1/16 °C si es termocupla)
     ads_val = (raw_adc_t)raw;
   }
