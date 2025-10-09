@@ -3007,7 +3007,7 @@ hal_timer_t Stepper::block_phase_isr() {
       static int32_t smoothed_vals[SMOOTH_LIN_ADV_EXP_ORDER] = {0};
 
       for (uint8_t i = 0; i < SMOOTH_LIN_ADV_EXP_ORDER; i++) {
-        // Approximate gaussian smoothing via higher order exponential smoothing
+        // Approximate Gaussian smoothing via higher order exponential smoothing
         smoothed_vals[i] += MULT_Q(30, la_step_rate - smoothed_vals[i], extruder_advance_alpha_q30[E_INDEX_N(active_extruder)]);
         la_step_rate = smoothed_vals[i];
       }
@@ -3276,7 +3276,7 @@ void Stepper::init() {
    * Calculate a fixed point factor to apply to the signal and its echo
    * when shaping an axis.
    */
-  void Stepper::set_shaping_damping_ratio(const AxisEnum axis, const_float_t zeta) {
+  void Stepper::set_shaping_damping_ratio(const AxisEnum axis, const float zeta) {
     // From the damping ratio, get a factor that can be applied to advance_dividend for fixed-point maths.
     // For ZV, we use amplitudes 1/(1+K) and K/(1+K) where K = exp(-zeta * π / sqrt(1.0f - zeta * zeta))
     // which can be converted to 1:7 fixed point with an excellent fit with a 3rd-order polynomial.
@@ -3307,7 +3307,7 @@ void Stepper::init() {
     return -1;
   }
 
-  void Stepper::set_shaping_frequency(const AxisEnum axis, const_float_t freq) {
+  void Stepper::set_shaping_frequency(const AxisEnum axis, const float freq) {
     // enabling or disabling shaping whilst moving can result in lost steps
     planner.synchronize();
 
@@ -3572,8 +3572,6 @@ void Stepper::report_positions() {
     const ft_command_t command = ftMotion.stepperCmdBuff[ftMotion.stepperCmdBuff_consumeIdx];
     if (++ftMotion.stepperCmdBuff_consumeIdx == (FTM_STEPPERCMD_BUFF_SIZE))
       ftMotion.stepperCmdBuff_consumeIdx = 0;
-
-    if (abort_current_block) return;
 
     USING_TIMED_PULSE();
 

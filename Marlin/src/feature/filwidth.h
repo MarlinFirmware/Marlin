@@ -78,7 +78,7 @@ public:
   static void update_measured_mm() { measured_mm = raw_to_mm(); }
 
   // Update ring buffer used to delay filament measurements
-  static void advance_e(const_float_t e_move) {
+  static void advance_e(const float e_move) {
 
     // Increment counters with the E distance
     e_count += e_move;

@@ -295,6 +295,8 @@
   #include "mega/pins_EINSTART-S.h"                 // ATmega2560, ATmega1280               env:mega2560ext env:mega1280
 #elif MB(WANHAO_ONEPLUS)
   #include "mega/pins_WANHAO_ONEPLUS.h"             // ATmega2560                           env:mega2560
+#elif MB(WANHAO_D9)
+  #include "mega/pins_WANHAO_D9.h"                  // ATmega2560                           env:mega2560
 #elif MB(OVERLORD)
   #include "mega/pins_OVERLORD.h"                   // ATmega2560                           env:mega2560
 #elif MB(HJC2560C_REV1)
@@ -1054,6 +1056,8 @@
     #error "BOARD_TRONXY_V10 is now BOARD_TRONXY_CXY_446_V10. Please update your configuration."
   #elif MB(VAKE403D)
     #error "BOARD_VAKE403D is no longer supported in Marlin."
+  #elif MB(ERROR)
+    #warning "Most likely missing / misplaced Configuration files."
   #elif defined(MOTHERBOARD)
     #error "Unknown MOTHERBOARD value set in Configuration.h."
   #else
