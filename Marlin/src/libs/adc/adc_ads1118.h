@@ -42,7 +42,9 @@
       static bool busy();                        // estado de conversión
       static void loop();                        // ciclo no bloqueante
 
-      
+      static bool checkDataReady();
+      static void startContinuousConversion(uint8_t channel_pair)
+      static uint16_t readData();
       
     private:
       static void spiTransfer(uint8_t data, uint8_t &resp);

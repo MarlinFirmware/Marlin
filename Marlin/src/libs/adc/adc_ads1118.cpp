@@ -76,7 +76,7 @@
       _startTime = millis();
     }  
   
-  // Determine that a conversion is ready by its elapsed time
+  // Determine that a conversion is ready by its elapsed time, if true, reads data and stores in _lastValue
   bool ADS1118::ready() {
     if (!_isBusy) return true;
     if (millis() - _startTime >= ADS1118_CONV_MS) {
@@ -103,11 +103,11 @@
     }  
   
   // Sets ADS to start Continuous conversion mode
-    void ADS1118::startContinuousConversion(uint8_t pair) {
+    void ADS1118::startContinuousConversion(uint8_t channel_pair) {
       if (_isBusy) return;
   
       uint16_t config = 0x848B; // b 1000 0100 1000 1011 : SS start, single-ended off, gain ±2.048V, Continuous conversion mode, 128SPS, ADC mode, Pullup enable, Write config
-      switch (pair) {
+      switch (ch_pair) {
         case 0: config |= (0x0 << ADS1118_CH_MASK); _currentchannel = 0; break; // AIN0-AIN1
         case 1: config |= (0x3 << ADS1118_CH_MASK); _currentchannel = 1; break; // AIN2-AIN3
         default: config |= (0x0 << ADS1118_CH_MASK); _currentchannel = 0; break;
