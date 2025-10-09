@@ -1390,28 +1390,25 @@ void CardReader::cdroot() {
       int16_t stack[SDSORT_LIMIT + 1];
       int16_t top = -1; // Initialize top of stack
 
-      // Push initial values of low and high to the stack
+      // Push initial values to the stack
       stack[++top] = low;
       stack[++top] = high;
 
-      // Pop from stack while it's not empty
+      // Pop from stack while not empty
       while (top >= 0) {
-        // Pop high and low
         high = stack[top--];
         low = stack[top--];
 
-        // Set pivot element at its correct position in sorted array
-        int16_t pi = partition(arr, low, high);
-
-        // If there are elements on the left side of the pivot, push them to the stack
-        if (pi - 1 > low) {
+        // Set pivot element at correct position
+        int16_t pivot = partition(arr, low, high);
+        // If elements are on left side, push to stack
+        if (pivot - 1 > low) {
           stack[++top] = low;
-          stack[++top] = pi - 1;
+          stack[++top] = pivot - 1;
         }
-
-        // If there are elements on the right side of the pivot, push them to the stack
-        if (pi + 1 < high) {
-          stack[++top] = pi + 1;
+        // If elements are on right side, push to stack
+        if (pivot + 1 < high) {
+          stack[++top] = pivot + 1;
           stack[++top] = high;
         }
       }
@@ -1429,8 +1426,8 @@ void CardReader::cdroot() {
           // retaining only two filenames at a time. This is very
           // slow but is safest and uses minimal RAM.
           char name1[LONG_FILENAME_LENGTH];
-          selectFileByIndex(o1);              // Pre-fetch the first entry and save it
-          strcpy(name1, longest_filename());  // so the loop only needs one fetch
+          selectFileByIndex(o1);             // Pre-fetch the first entry and save it
+          strcpy(name1, longest_filename()); // so the loop only needs one fetch
           #if HAS_FOLDER_SORTING
             bool dir1 = flag.filenameIsDir;
           #endif
@@ -1461,7 +1458,7 @@ void CardReader::cdroot() {
           #if DISABLED(SDSORT_USES_RAM)
             selectFileByIndex(o2);
             const bool dir2 = flag.filenameIsDir;
-            char * const name2 = longest_filename(); // use the string in-place
+            char * const name2 = longest_filename(); // Use the string in-place
             if ((i & 0x7) == 7) hal.watchdog_refresh()
           #endif
 
