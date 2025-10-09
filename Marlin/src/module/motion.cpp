@@ -2786,14 +2786,14 @@ void prepare_line_to_destination() {
         z_homing_use_probe = true; // Home again, but use the probe
         #if ENABLED(Z_SAFE_HOMING)
           // instead of dragging the nozzle across the bed to Z_SAFE_HOMING XY position, move Z now to prevent nozzle dragging
-		  current_position.z = Z_CLEARANCE_DEPLOY_PROBE; 
-		  sync_plan_position();	          
-		  do_homing_move(axis,Z_CLEARANCE_DEPLOY_PROBE,z_probe_fast_mm_s,false);
+          current_position.z = Z_CLEARANCE_DEPLOY_PROBE; 
+          sync_plan_position();	          
+          do_homing_move(axis,Z_CLEARANCE_DEPLOY_PROBE,z_probe_fast_mm_s,false);
           //home_z_safely(); // not declared in this scope, also does not move Z first, which we need
-		  destination = current_position;
-		  destination.x = Z_SAFE_HOMING_X_POINT - probe.offset_xy.x;
-		  destination.y = Z_SAFE_HOMING_Y_POINT - probe.offset_xy.y;    
-		  do_blocking_move_to_xy(destination);		     
+          destination = current_position;
+          destination.x = Z_SAFE_HOMING_X_POINT - probe.offset_xy.x;
+          destination.y = Z_SAFE_HOMING_Y_POINT - probe.offset_xy.y;    
+          do_blocking_move_to_xy(destination);		     
         #endif
           homeaxis(Z_AXIS);
       }
