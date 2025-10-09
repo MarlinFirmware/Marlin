@@ -52,7 +52,7 @@
   #include "../../feature/bltouch.h"
 #endif
 
-#if FT_MOTION_DISABLE_FOR_PROBING
+#if ENABLED(FT_MOTION)
   #include "../../module/ft_motion.h"
 #endif
 
@@ -130,9 +130,8 @@
 
   inline void home_z_safely() {
 
-    #if FT_MOTION_DISABLE_FOR_PROBING
-      FTMotionDisableInScope FT_Disabler; // Disable Fixed-Time Motion for homing
-    #endif
+    // Potentially disable Fixed-Time Motion for homing
+    TERN_(FT_MOTION, FTMotionDisableInScope FT_Disabler);
 
     DEBUG_SECTION(log_G28, "home_z_safely", DEBUGGING(LEVELING));
 
@@ -290,9 +289,8 @@ void GcodeSuite::G28() {
       motion_state_t saved_motion_state = begin_slow_homing();
     #endif
 
-    #if FT_MOTION_DISABLE_FOR_PROBING
-      FTMotionDisableInScope FT_Disabler; // Disable Fixed-Time Motion for homing
-    #endif
+    // Potentially disable Fixed-Time Motion for homing
+    TERN_(FT_MOTION, FTMotionDisableInScope FT_Disabler);
 
     // Always home with tool 0 active
     #if HAS_MULTI_HOTEND
@@ -475,7 +473,9 @@ void GcodeSuite::G28() {
               stepper.set_separate_multi_axis(false);
             #endif
 
-            #if ENABLED(Z_SAFE_HOMING)
+            // Use Safe Homing for Z unless re-homing with probe.
+            // Assume that it only applies to the probe-homing step.
+            #if ENABLED(Z_SAFE_HOMING) && DISABLED(REHOME_Z_WITH_PROBE)
               // H means hold the current X/Y position when probing.
               // Otherwise move to the define safe X/Y position before homing Z.
               if (!parser.seen_test('H'))
