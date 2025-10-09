@@ -200,6 +200,45 @@ xyz_pos_t cartes;
   feedRate_t xy_probe_feedrate_mm_s = MMM_TO_MMS(XY_PROBE_FEEDRATE);
 #endif
 
+inline void home_z_safely() {
+
+    // Potentially disable Fixed-Time Motion for homing
+    TERN_(FT_MOTION, FTMotionDisableInScope FT_Disabler);
+
+    DEBUG_SECTION(log_G28, "home_z_safely", DEBUGGING(LEVELING));
+
+    // Disallow Z homing if X or Y homing is needed
+    if (homing_needed_error(_BV(X_AXIS) | _BV(Y_AXIS))) return;
+
+    sync_plan_position();
+
+    /**
+     * Move the Z probe (or just the nozzle) to the safe homing point
+     * (Z is already at the right height)
+     */
+    constexpr xy_float_t safe_homing_xy = { Z_SAFE_HOMING_X_POINT, Z_SAFE_HOMING_Y_POINT };
+    destination.set(safe_homing_xy, current_position.z);
+
+    TERN_(Z_CAN_HOME_WITH_PROBE, destination -= probe.offset_xy);
+
+    if (position_is_reachable(destination)) {
+
+      if (DEBUGGING(LEVELING)) DEBUG_POS("home_z_safely", destination);
+
+      // Free the active extruder for movement
+      TERN_(DUAL_X_CARRIAGE, idex_set_parked(false));
+
+      TERN_(SENSORLESS_HOMING, safe_delay(500)); // Short delay needed to settle
+
+      do_blocking_move_to_xy(destination);
+      homeaxis(Z_AXIS);
+    }
+    else {
+      LCD_MESSAGE(MSG_ZPROBE_OUT);
+      SERIAL_ECHO_MSG(STR_ZPROBE_OUT_SER);
+    }
+}
+
 /**
  * Output the current position to serial
  */
@@ -2785,6 +2824,10 @@ void prepare_line_to_destination() {
         destination.z = current_position.z;
         z_homing_use_probe = true; // Home again, but use the probe
         #if ENABLED(Z_SAFE_HOMING)
+          // instead of dragging the nozzle across the bed to Z_SAFE_HOMING XY position, move Z now to prevent nozzle dragging
+		  current_position.z = Z_CLEARANCE_DEPLOY_PROBE; 
+		  sync_plan_position();	          
+		  do_homing_move(axis,Z_CLEARANCE_DEPLOY_PROBE,z_probe_fast_mm_s,false);    
           home_z_safely();
         #else
           homeaxis(Z_AXIS);
