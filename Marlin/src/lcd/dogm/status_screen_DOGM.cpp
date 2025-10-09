@@ -584,8 +584,10 @@ void MarlinUI::draw_status_screen() {
       #endif
     }
     else {
-      TERN_(HAS_X_AXIS, strcpy(xstring, is_inch ? ftostr53_63(LINEAR_UNIT(lpos.x)) : ftostr4sign(lpos.x)));
-      TERN_(HAS_Y_AXIS, strcpy(ystring, is_inch ? ftostr53_63(LINEAR_UNIT(lpos.y)) : ftostr4sign(lpos.y)));
+      XY_CODE(
+        strcpy(xstring, is_inch ? ftostr53_63(LINEAR_UNIT(lpos.x)) : ftostr4sign(lpos.x)),
+        strcpy(ystring, is_inch ? ftostr53_63(LINEAR_UNIT(lpos.y)) : ftostr4sign(lpos.y))
+      );
     }
 
     TERN_(HAS_Z_AXIS, strcpy(zstring, is_inch ? ftostr42_52(LINEAR_UNIT(lpos.z)) : ftostr52sp(lpos.z)));
@@ -868,8 +870,10 @@ void MarlinUI::draw_status_screen() {
           #endif
         }
         else {
-          TERN_(HAS_X_AXIS, _draw_axis_value(X_AXIS, xstring, blink));
-          TERN_(HAS_Y_AXIS, _draw_axis_value(Y_AXIS, ystring, blink));
+          XY_CODE(
+            _draw_axis_value(X_AXIS, xstring, blink),
+            _draw_axis_value(Y_AXIS, ystring, blink)
+          );
         }
 
       #endif

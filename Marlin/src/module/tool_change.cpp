@@ -940,7 +940,7 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
    *  current_position.e = e;
    *  sync_plan_position_e();
    */
-  void extruder_cutting_recover(const_float_t e) {
+  void extruder_cutting_recover(const float e) {
     if (too_cold(active_extruder)) return;
     const float dist = toolchange_settings.extra_resume + toolchange_settings.wipe_retract;
     DEBUG_ECHOLNPGM("Performing Cutting Recover | Distance: ", dist, " | Speed: ", MMM_TO_MMS(toolchange_settings.unretract_speed), "mm/s");

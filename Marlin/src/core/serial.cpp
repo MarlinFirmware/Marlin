@@ -99,7 +99,7 @@ void SERIAL_WARN_START()  { SERIAL_ECHO(F("Warning:")); }
 
 void SERIAL_ECHO_SP(uint8_t count) { count *= (PROPORTIONAL_FONT_RATIO); while (count--) SERIAL_CHAR(' '); }
 
-void serial_offset(const_float_t v, const uint8_t sp/*=0*/) {
+void serial_offset(const float v, const uint8_t sp/*=0*/) {
   if (v == 0 && sp == 1)
     SERIAL_CHAR(' ');
   else if (v > 0 || (v == 0 && sp == 2))
@@ -121,7 +121,7 @@ void print_bin(uint16_t val) {
   }
 }
 
-void _print_xyz(NUM_AXIS_ARGS_(const_float_t) FSTR_P const prefix) {
+void _print_xyz(NUM_AXIS_ARGS_(const float) FSTR_P const prefix) {
   if (prefix) SERIAL_ECHO(prefix);
   #if NUM_AXES
     SERIAL_ECHOPGM_P(NUM_AXIS_PAIRED_LIST(
@@ -132,12 +132,12 @@ void _print_xyz(NUM_AXIS_ARGS_(const_float_t) FSTR_P const prefix) {
   #endif
 }
 
-void print_xyz(NUM_AXIS_ARGS_(const_float_t) FSTR_P const prefix/*=nullptr*/, FSTR_P const suffix/*=nullptr*/) {
+void print_xyz(NUM_AXIS_ARGS_(const float) FSTR_P const prefix/*=nullptr*/, FSTR_P const suffix/*=nullptr*/) {
   _print_xyz(NUM_AXIS_LIST_(x, y, z, i, j, k, u, v, w) prefix);
   if (suffix) SERIAL_ECHO(suffix); else SERIAL_EOL();
 }
 
-void print_xyze(LOGICAL_AXIS_ARGS_(const_float_t) FSTR_P const prefix/*=nullptr*/, FSTR_P const suffix/*=nullptr*/) {
+void print_xyze(LOGICAL_AXIS_ARGS_(const float) FSTR_P const prefix/*=nullptr*/, FSTR_P const suffix/*=nullptr*/) {
   _print_xyz(NUM_AXIS_LIST_(x, y, z, i, j, k, u, v, w) prefix);
   #if HAS_EXTRUDERS
     SERIAL_ECHOPGM_P(SP_E_STR, e);
