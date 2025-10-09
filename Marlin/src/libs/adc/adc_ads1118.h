@@ -34,29 +34,35 @@
   #include <stdint.h>
 
   class ADS1118 {
-      public:
-      ADC_ADS1118(uint8_t cs_pin, uint8_t mosi_pin, uint8_t miso_pin, uint8_t sck_pin);
+    public:
+      static void init(uint8_t cs, uint8_t mosi, uint8_t miso, uint8_t sck);
+      static void startConversion(uint8_t pair); // inicia conversión
+      static bool ready();                       // indica si ya se puede leer
+      static int16_t read();                     // lee valor convertido
+      static bool busy();                        // estado de conversión
+      static void loop();                        // ciclo no bloqueante
 
-      void init();
-      int16_t readChannel(uint8_t channel);
-      float readVoltage(uint8_t channel, float vref = 2.048f);
-      float readInternalTemp();    
-
-      bool Error;
+      
+      
     private:
-      uint8_t cs, mosi, miso, sck;
-
-      uint16_t transfer16(uint16_t data);
-      uint8_t transfer8(uint8_t data);
+      static void spiTransfer(uint8_t data, uint8_t &resp);
+      static void writeWord(uint16_t word);
+      static void readWord(uint16_t &word);
 
       void select();
-      void deselect();
-
+      void deselect();  
+      
       void sckHigh();
-      void sckLow();
+      void sckLow();      
 
-      // Configuración de registros
-      uint16_t configForChannel(uint8_t channel, bool temp = false);      
+      static uint8_t _cs, _mosi, _miso, _sck;
+      static unsigned long _startTime;
+      static int16_t _lastValue;
+      static bool _isBusy;  
+      static uint8_t _currentchannel;  
+
+      uint16_t configForChannel(uint8_t channel); 
+
   };
 
   extern ADS1118 ads1118;
