@@ -217,7 +217,7 @@
 
 // ADS TC related macros
 #if TEMP_SENSOR_IS_ADS(0, TEMP_SENSOR_ADS1118)
-  ads1118.init();
+  ads1118.startContinuousConversion(0);
 #endif
 
 
@@ -3978,35 +3978,13 @@ void Temperature::disable_all_heaters() {
    * @return         integer representing the board's buffer, to be converted later if needed
    */
 raw_adc_t Temperature::read_ads1118(const uint8_t hindex/*=0*/) {
-  #define ADS1118_HEAT_INTERVAL 250UL  // tiempo mínimo entre lecturas (ms)
-
   static raw_adc_t ads1118_temp_previous[2] = { 0, 0 };
   static uint8_t ads1118_errors[2] = { 0, 0 };
-  static millis_t next_ads1118_ms[2] = { 0, 0 };
-
-  const millis_t ms = millis();
-  if (PENDING(ms, next_ads1118_ms[hindex]))
-    return ads1118_temp_previous[hindex];  // devolver última lectura si no toca medir aún
-
-  next_ads1118_ms[hindex] = ms + ADS1118_HEAT_INTERVAL;
-
-  raw_adc_t ads_val = 0;
-
-  // Elegir configuración diferencial según hindex
-  uint16_t config;
-  if (hindex == 0)
-    config = 0x0003 | 0x8000;  // AIN0 - AIN1, modo single-shot, PGA ±2.048V, 128 SPS
-  else
-    config = 0x3000 | 0x8000;  // AIN2 - AIN3, modo single-shot, PGA ±2.048V, 128 SPS
-
-  // Enviar config al ADS1118
-  ads1118.transfer16(config);
-
-  // Tiempo de conversión (8 ms típico)
-  delay(10);
-
-  // Leer valor
-  int16_t raw = (int16_t)ads1118.transfer16(config);
+  static millis_t next_ads1118_ms[2] = { 0, 0 };  
+  
+  // Loop ready and read w/cache
+  ads1118.loop();
+  int16_t raw = ads1118.readChannel(hindex);
 
   // Manejo de errores simples: raw = 0x7FFF o 0x8000 podrían ser saturación
   if (raw == 0x7FFF || raw == -32768) {
