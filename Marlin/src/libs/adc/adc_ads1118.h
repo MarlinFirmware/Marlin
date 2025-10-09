@@ -60,6 +60,7 @@
       static uint8_t _cs, _mosi, _miso, _sck;
       static unsigned long _startTime;
       static int16_t _lastValue;
+      static int16_t _config;
       static bool _isBusy;  
       static uint8_t _currentchannel;  
 

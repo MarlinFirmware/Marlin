@@ -99,7 +99,7 @@
     }
   
     void ADS1118::loop() {
-      ready(); // simplemente actualiza el estado si ya pasó el tiempo
+      ready(); // updates status and value
     }  
   
   // Sets ADS to start Continuous conversion mode
