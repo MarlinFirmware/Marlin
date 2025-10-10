@@ -88,11 +88,14 @@ xyze_long_t FTMotion::step_error_q10 = { 0 };   // Fractional remainder in q10.2
 
 uint32_t FTMotion::interpIdx = 0;               // Index of current data point being interpolated.
 
+#if HAS_EXTRUDERS
+  bool FTMotion::use_advance_lead;
+#endif
+
 #if ENABLED(DISTINCT_E_FACTORS)
   uint8_t FTMotion::block_extruder_axis;        // Cached E Axis from last-fetched block
 #elif HAS_EXTRUDERS
   constexpr uint8_t FTMotion::block_extruder_axis;
-  bool FTMotion::use_advance_lead;
 #endif
 
 // Shaping variables.
