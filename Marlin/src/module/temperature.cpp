@@ -215,11 +215,6 @@
   #include <adc_ads1118.h>
 #endif
 
-// ADS TC related macros
-#if TEMP_SENSOR_IS_ADS(0, TEMP_SENSOR_ADS1118)
-  ads1118.startContinuousConversion(0);
-#endif
-
 
 #if ENABLED(FILAMENT_WIDTH_SENSOR)
   #include "../feature/filwidth.h"
@@ -3055,6 +3050,12 @@ void Temperature::init() {
     ads1118.init(ADS1118_CS_PIN, ADS1118_MOSI_PIN, ADS1118_MISO_PIN, ADS1118_SCK_PIN); // Initialize the ADS1118, global instance
     ads1118.readConfig();
   #endif
+
+  // ADS TC related macros
+  #if TEMP_SENSOR_IS_ADS(0, TEMP_SENSOR_ADS1118)
+    ads1118.startContinuousConversion(0);
+    ads1118.readConfig();
+  #endif  
 
   // Init (and disable) SPI thermocouples
   #if TEMP_SENSOR_IS_ANY_MAX_TC(0) && PIN_EXISTS(TEMP_0_CS)
