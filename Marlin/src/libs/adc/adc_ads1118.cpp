@@ -32,22 +32,18 @@
 
 #if ENABLED(HAS_ADS1118)
     
-    #include "adc_ads1118.h"
-    
-    #include "../../HAL/shared/Delay.h"
-    #include "../../core/macros.h"
-    
-    // Initialize the ADS1118, global instance
-    ADS1118::init(ADS1118_CS_PIN, ADS1118_MOSI_PIN, ADS1118_MISO_PIN, ADS1118_SCK_PIN);
-    
+  #include "adc_ads1118.h"
   
+  #include "../../HAL/shared/Delay.h"
+  #include "../../core/macros.h"
+    
   #define ADS1118_CONV_MS 10
   #define ADS1118_CH_MASK 12
   
     // Constructor
   void ADS1118::init(uint8_t cs, uint8_t mosi, uint8_t miso, uint8_t sck) {
     _cs = cs; _mosi = mosi; _miso = miso; _sck = sck;
-  
+
       SET_OUTPUT(_cs);
       SET_OUTPUT(m_osi);
       SET_OUTPUT(_sck);
@@ -55,6 +51,7 @@
     
       deselect();
       sckLow();
+      
     }
     
   // Sets ADS to start a single shot conversion, it will be read async when ready (after ADS1118_CONV_MS), non blocking
@@ -186,6 +183,25 @@
       return config;
     }
     
+    uint32_t ADS1118::transfer32(uint16_t data) {
+      uint16_t result_prev, config_echo;
+
+      result_prev = transfer16(data);    // envía config, recibe resultado anterior
+      config_echo = transfer16(0x0000);    // envía dummy, recibe eco de configuración
+
+      // Combina ambos en un solo valor de 32 bits
+      return ((uint32_t)result_prev << 16) | config_echo;
+    }
+
+    uint16_t ADS1118::readConfig() {
+      uint16_t config_echo;
+
+      transfer16(0x0000);   
+      config_echo = transfer16(0x0000);    // envía dummy, recibe eco de configuración
+      SERIAL_ECHOLNPGM("ADS1118 Configuration: 0x"); SERIAL_ECHOLN(config_echo, HEX);
+      return config_echo;
+    }    
+
     uint16_t ADS1118::transfer16(uint16_t data) {
       uint8_t high = transfer8((uint8_t)(data >> 8));
       uint8_t low  = transfer8((uint8_t)(data & 0xFF));
@@ -217,6 +233,7 @@
     void ADS1118::sckHigh()  { WRITE(_sck, HIGH); }
     void ADS1118::sckLow()   { WRITE(_sck, LOW); }
     
+    // ADS1118, global instance
     ADS1118 ads1118;
     
 #endif // HAS_ADS1118_ADC

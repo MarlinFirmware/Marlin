@@ -3051,6 +3051,11 @@ void Temperature::init() {
 
   TERN_(PROBING_HEATERS_OFF, paused_for_probing = false);
 
+  #if HAS_ADS1118
+    ads1118.init(ADS1118_CS_PIN, ADS1118_MOSI_PIN, ADS1118_MISO_PIN, ADS1118_SCK_PIN); // Initialize the ADS1118, global instance
+    ads1118.readConfig();
+  #endif
+
   // Init (and disable) SPI thermocouples
   #if TEMP_SENSOR_IS_ANY_MAX_TC(0) && PIN_EXISTS(TEMP_0_CS)
     OUT_WRITE(TEMP_0_CS_PIN, HIGH);
@@ -3979,7 +3984,7 @@ void Temperature::disable_all_heaters() {
    * @return         integer representing the board's buffer, to be converted later if needed
    */
 raw_adc_t Temperature::read_ads1118(const uint8_t hindex/*=0*/) {
-  #define ADS1118_HEAT_INTERVAL 250UL  //
+  #define ADS1118_HEAT_INTERVAL 250UL  // 250 ms
   
   static raw_adc_t ads1118_temp_previous[2] = { 0, 0 };  
   static uint8_t ads1118_errors[2] = { 0, 0 };
@@ -3992,8 +3997,9 @@ raw_adc_t Temperature::read_ads1118(const uint8_t hindex/*=0*/) {
 
   next_ads1118_ms[hindex] = ms + ADS1118_HEAT_INTERVAL;
 
-  // To do: If eneable more hotends, cycle through different channels
+  // To do: If there are more hotends enabled, cycle through different channels
   int16_t raw = ads1118.readData();
+  SERIAL_ECHOLNPGM("ADS1118 Read: 0x"); SERIAL_ECHOLN(raw, HEX);
 
   // Manejo de errores simples: raw = 0x7FFF o 0x8000 podrían ser saturación
   if (raw == 0x7FFF || raw == -32768) {
