@@ -3548,13 +3548,12 @@ void Stepper::report_positions() {
   void Stepper::ftMotion_stepper() {
 
     // Check if the buffer is empty.
-    ftMotion.stepperCmdBuffHasData = (ftMotion.stepperCmdBuff_produceIdx != ftMotion.stepperCmdBuff_consumeIdx);
-    if (!ftMotion.stepperCmdBuffHasData) return;
+    if (ftMotion.stepperCmdBuff_isEmpty()) return;
 
     // "Pop" one command from current motion buffer
-    const ft_command_t command = ftMotion.stepperCmdBuff[ftMotion.stepperCmdBuff_consumeIdx];
-    if (++ftMotion.stepperCmdBuff_consumeIdx == (FTM_STEPPERCMD_BUFF_SIZE))
-      ftMotion.stepperCmdBuff_consumeIdx = 0;
+    const ft_command_t command = ftMotion.stepperCmdBuff[ftMotion.stepperCmdBuff_consume_i];
+    if (++ftMotion.stepperCmdBuff_consume_i == (FTM_STEPPERCMD_BUFF_SIZE))
+      ftMotion.stepperCmdBuff_consume_i = 0;
 
     USING_TIMED_PULSE();
 

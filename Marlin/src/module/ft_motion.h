@@ -137,10 +137,8 @@ class FTMotion {
     }
 
     static ft_command_t stepperCmdBuff[FTM_STEPPERCMD_BUFF_SIZE]; // Buffer of stepper commands.
-    static int32_t stepperCmdBuff_produceIdx,             // Index of next stepper command write to the buffer.
-                   stepperCmdBuff_consumeIdx;             // Index of next stepper command read from the buffer.
-
-    static bool stepperCmdBuffHasData;                    // The stepper buffer has items and is in use.
+    static int32_t stepperCmdBuff_produce_i,             // Index of next stepper command write to the buffer.
+                   stepperCmdBuff_consume_i;             // Index of next stepper command read from the buffer.
 
     static XYZEval<millis_t> axis_move_end_ti;
     static AxisBits axis_move_dir;
@@ -180,14 +178,11 @@ class FTMotion {
     FORCE_INLINE static bool motor_direction(const AxisEnum axis) {
       return cfg.active ? axis_move_dir[axis] : stepper.last_direction_bits[axis];
     }
+    static bool stepperCmdBuff_isEmpty();
 
   private:
 
     static xyze_trajectory_t traj;
-    static xyze_trajectoryMod_t trajMod;
-
-    static bool blockProcRdy;
-    static bool batchRdy, batchRdyForInterp;
 
     // Block data variables.
     static xyze_pos_t   startPos,         // (mm) Start position of block
@@ -203,11 +198,11 @@ class FTMotion {
     static TrajectoryType trajectoryType;
 
     // Number of batches needed to propagate the current trajectory to the stepper.
-    static constexpr uint32_t PROP_BATCHES = CEIL((FTM_WINDOW_SIZE) / (FTM_BATCH_SIZE)) - 1;
+    static constexpr uint32_t PROP_BATCHES = 1;
 
-    // generateTrajectoryPointsFromBlock variables.
-    static uint32_t traj_idx_get,
-                    traj_idx_set;
+    // fill_trajectory_buffer variables.
+    static uint32_t traj_consume_i,
+                    traj_produce_i;
 
     // Interpolation variables.
     static uint32_t interpIdx;
@@ -266,13 +261,15 @@ class FTMotion {
       static float prev_traj_e;
     #endif
 
-    // Private methods
+    // Buffers
     static void discard_planner_block_protected();
     static void runoutBlock();
-    static int32_t stepperCmdBuffItems();
-    static void loadBlockData(block_t *const current_block);
-    static void generateTrajectoryPointsFromBlock();
-    static void generateStepsFromTrajectory(const uint32_t idx);
+    static bool trajBuff_isFull();
+    static bool stepperCmdBuff_isFull();
+    static bool trajBuff_isEmpty();
+    static void fill_trajectory_buffer();
+    static void fill_stepper_cmd_buffer();
+    static bool plan_next_block();
 
     FORCE_INLINE static int32_t num_samples_shaper_settle() {
       #define _OR_ENA(A) || shaping.A.ena

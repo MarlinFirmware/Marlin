@@ -1536,10 +1536,6 @@
   #if !HAS_EXTRUDERS
     #undef FTM_SHAPER_E
   #endif
-  #if ENABLED(FTM_UNIFIED_BWS)
-    #define FTM_WINDOW_SIZE FTM_BW_SIZE
-    #define FTM_BATCH_SIZE  FTM_BW_SIZE
-  #endif
 #endif
 
 // Multi-Stepping Limit
