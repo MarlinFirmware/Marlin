@@ -136,10 +136,6 @@ class FTMotion {
       reset();
     }
 
-    static ft_command_t stepperCmdBuff[FTM_STEPPERCMD_BUFF_SIZE]; // Buffer of stepper commands.
-    static int32_t stepperCmdBuff_produce_i,             // Index of next stepper command write to the buffer.
-                   stepperCmdBuff_consume_i;             // Index of next stepper command read from the buffer.
-
     static XYZEval<millis_t> axis_move_end_ti;
     static AxisBits axis_move_dir;
 
@@ -178,7 +174,100 @@ class FTMotion {
     FORCE_INLINE static bool motor_direction(const AxisEnum axis) {
       return cfg.active ? axis_move_dir[axis] : stepper.last_direction_bits[axis];
     }
-    static bool stepperCmdBuff_isEmpty();
+
+    typedef struct Stepping {
+      xyze_float_t last_pos{0};
+      float advance_divisor = 0;
+      uint32_t interval = 0;
+      xyze_float_t advance_dividend{0};
+      xyze_float_t delta_error{0};
+      uint32_t steps_pending = 0;
+
+      void reset(){
+        last_pos.reset();
+        advance_divisor = 0;
+        advance_dividend.reset();
+        steps_pending = 0;
+        delta_error.reset();
+      }
+
+      /**
+       * @brief Interpolate a single trajectory data point into stepper commands.
+       * @param idx The index of the trajectory point to convert.
+       *
+       * Calculate the required stepper movements for each axis based on the
+       * difference between the current and previous trajectory points.
+       * Add up to one stepper command to the buffer with STEP/DIR bits for all axes.
+       */
+      uint32_t plan() {
+        if (steps_pending > 0) return interval;
+        if (trajBuff_isEmpty()) {
+          // clear bresenham. maybe let it execute the last couple of steps in step_error_q10
+          return HAL_TIMER_TYPE_MAX;
+        }
+
+        // q10 per-stepper-slot increment toward this sample’s target step count.
+        // (traj * steps_per_mm - steps) = steps still due at the start of this UNIT_TIME.
+        // Convert to q10 (×2^10), then subtract the current accumulator error: step_error_q10 / FTM_STEPS_PER_UNIT_TIME.
+        // Over FTM_STEPS_PER_UNIT_TIME stepper-slots this sums to the exact target (no drift).
+        // Any fraction of a step that may remain will be accounted for by the next UNIT_TIME
+
+        /*
+        la idea es ver cuantos steps per FTM_TS hay que hacer en cada eje.
+        el eje más rápido es el que determina el intervalo, osea que su delta va a ser igual al denominador.
+        los otros van a tener un delta de rate_axis/rate_fastest_axis.
+          advance_dividend = (current_block->steps << 1).asLong();
+          advance_divisor = step_event_count << 1;
+
+        */
+        #define TOSTEPS(A, B) \
+          (traj.A[traj_consume_i] * planner.settings.axis_steps_per_mm[B])
+
+        xyze_float_t curr_pos = LOGICAL_AXIS_ARRAY(
+          TOSTEPS(e, block_extruder_axis),
+          TOSTEPS(x, X_AXIS), TOSTEPS(y, Y_AXIS), TOSTEPS(z, Z_AXIS),
+          TOSTEPS(i, I_AXIS), TOSTEPS(j, J_AXIS), TOSTEPS(k, K_AXIS),
+          TOSTEPS(u, U_AXIS), TOSTEPS(v, V_AXIS), TOSTEPS(w, W_AXIS)
+        );
+
+        xyze_float_t delta = last_pos - curr_pos;
+        last_pos = curr_pos;
+
+        float fastest = delta.ABS().large();
+        steps_pending = FLOOR(fastest);
+        advance_divisor = fastest * 2;
+        advance_dividend = delta * 2;
+        interval = STEPPER_TIMER_RATE / advance_dividend;
+
+        traj_consume_i++;
+        if (traj_consume_i == (FTM_WINDOW_SIZE)) traj_consume_i = 0;
+        return interval;
+      }
+
+      ft_command_t pop_command() {
+        steps_pending--;
+        // 1. Subtract one whole step from the accumulated distance
+        // 2. Accumulate one positive or negative step
+        // 3. Set the step and direction bits for the stepper command
+        delta_error += advance_dividend;
+        ft_command_t cmd = 0;
+        #define RUN_AXIS(A)                                                     \
+          do {                                                                  \
+            if (delta_error.A >= advance_divisor) {           \
+              delta_error.A -= advance_divisor;               \
+              cmd |= _BV(FT_BIT_DIR_##A) | _BV(FT_BIT_STEP_##A);                \
+            } else if (delta_error.A <= -advance_divisor) {   \
+              delta_error.A += advance_divisor;               \
+              cmd |= _BV(FT_BIT_STEP_##A); /* neg dir implicit */               \
+            }                                                                   \
+          } while (0);
+
+        // Where the error has accumulated whole axis steps, add them to the command
+        LOGICAL_AXIS_MAP(RUN_AXIS);
+        return cmd;
+      }
+    } stepping_t;
+    static stepping_t stepping;
 
   private:
 
@@ -204,11 +293,7 @@ class FTMotion {
     static uint32_t traj_consume_i,
                     traj_produce_i;
 
-    // Interpolation variables.
-    static uint32_t interpIdx;
 
-    static xyze_long_t steps;
-    static xyze_long_t step_error_q10;
 
     #if ENABLED(DISTINCT_E_FACTORS)
       static uint8_t block_extruder_axis;  // Cached extruder axis index
@@ -264,12 +349,11 @@ class FTMotion {
     // Buffers
     static void discard_planner_block_protected();
     static void runoutBlock();
-    static bool trajBuff_isFull();
-    static bool stepperCmdBuff_isFull();
-    static bool trajBuff_isEmpty();
     static void fill_trajectory_buffer();
-    static void fill_stepper_cmd_buffer();
     static bool plan_next_block();
+    static bool trajBuff_isFull();
+    static bool trajBuff_isEmpty();
+    static uint32_t trajBuff_count();
 
     FORCE_INLINE static int32_t num_samples_shaper_settle() {
       #define _OR_ENA(A) || shaping.A.ena

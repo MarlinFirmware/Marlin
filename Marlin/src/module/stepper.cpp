@@ -1513,6 +1513,7 @@ void Stepper::isr() {
 
   #if ENABLED(FT_MOTION)
     static uint32_t ftMotion_nextAuxISR = 0U;  // Storage for the next ISR of the auxiliary tasks.
+    static uint32_t ftMotion_nextStepperISR = 0U;  // Storage for the next ISR for stepping.
     const bool using_ftMotion = ftMotion.cfg.active;
   #else
     constexpr bool using_ftMotion = false;
@@ -1527,7 +1528,7 @@ void Stepper::isr() {
     #if ENABLED(FT_MOTION)
 
       if (using_ftMotion) {
-        ftMotion_stepper();             // Run FTM Stepping
+        if (!ftMotion_nextStepperISR) ftMotion_stepper();
 
         // Define 2.5 msec task for auxiliary functions.
         if (!ftMotion_nextAuxISR) {
@@ -1535,11 +1536,18 @@ void Stepper::isr() {
           ftMotion_nextAuxISR = (STEPPER_TIMER_RATE) / 400;
         }
 
+
+        // ^== Time critical. NOTHING besides pulse generation should be above here!!!
         // Enable ISRs to reduce latency for higher priority ISRs
         hal.isr_on();
 
-        interval = FTM_MIN_TICKS;
+        ftMotion_nextStepperISR = ftMotion.stepping.plan();
+
+        interval = _MIN(ftMotion_nextStepperISR, uint32_t(HAL_TIMER_TYPE_MAX));         // Time until the next step
+        NOMORE(interval, ftMotion_nextAuxISR);
+
         ftMotion_nextAuxISR -= interval;
+        ftMotion_nextStepperISR -= interval;
       }
 
     #endif
@@ -3548,12 +3556,10 @@ void Stepper::report_positions() {
   void Stepper::ftMotion_stepper() {
 
     // Check if the buffer is empty.
-    if (ftMotion.stepperCmdBuff_isEmpty()) return;
+    if (ftMotion.stepping.steps_pending == 0) return;
 
     // "Pop" one command from current motion buffer
-    const ft_command_t command = ftMotion.stepperCmdBuff[ftMotion.stepperCmdBuff_consume_i];
-    if (++ftMotion.stepperCmdBuff_consume_i == (FTM_STEPPERCMD_BUFF_SIZE))
-      ftMotion.stepperCmdBuff_consume_i = 0;
+    const ft_command_t command = ftMotion.stepping.pop_command();
 
     USING_TIMED_PULSE();
 
