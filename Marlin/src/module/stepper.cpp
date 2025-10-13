@@ -1512,7 +1512,6 @@ void Stepper::isr() {
   uint8_t max_loops = 10;
 
   #if ENABLED(FT_MOTION)
-    static uint32_t ftMotion_nextAuxISR = 0U;  // Storage for the next ISR of the auxiliary tasks.
     static uint32_t ftMotion_nextStepperISR = 0U;  // Storage for the next ISR for stepping.
     const bool using_ftMotion = ftMotion.cfg.active;
   #else
@@ -1529,24 +1528,24 @@ void Stepper::isr() {
 
       if (using_ftMotion) {
         if (!ftMotion_nextStepperISR) ftMotion_stepper();
-
-        // Define 2.5 msec task for auxiliary functions.
-        if (!ftMotion_nextAuxISR) {
-          TERN_(BABYSTEPPING, if (babystep.has_steps()) babystepping_isr());
-          ftMotion_nextAuxISR = (STEPPER_TIMER_RATE) / 400;
-        }
+        #if ENABLED(BABYSTEPPING)
+          const bool is_babystep = (nextBabystepISR == 0);  // 0 = Do Babystepping (XY)Z pulses
+          if (is_babystep) nextBabystepISR = babystepping_isr();
+        #endif
 
 
         // ^== Time critical. NOTHING besides pulse generation should be above here!!!
         // Enable ISRs to reduce latency for higher priority ISRs
         hal.isr_on();
 
-        ftMotion_nextStepperISR = ftMotion.stepping.plan();
+        if (!ftMotion_nextStepperISR) ftMotion_nextStepperISR = ftMotion.stepping.plan();
 
-        interval = _MIN(ftMotion_nextStepperISR, uint32_t(HAL_TIMER_TYPE_MAX));         // Time until the next step
-        NOMORE(interval, ftMotion_nextAuxISR);
+        interval = HAL_TIMER_TYPE_MAX;         // Time until the next step
 
-        ftMotion_nextAuxISR -= interval;
+        NOMORE(interval, ftMotion_nextStepperISR);
+        NOMORE(interval, nextBabystepISR);
+
+        nextBabystepISR -= interval;
         ftMotion_nextStepperISR -= interval;
       }
 

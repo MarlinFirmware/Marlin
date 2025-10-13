@@ -202,24 +202,9 @@ class FTMotion {
       uint32_t plan() {
         if (steps_pending > 0) return interval;
         if (trajBuff_isEmpty()) {
-          // clear bresenham. maybe let it execute the last couple of steps in step_error_q10
           return HAL_TIMER_TYPE_MAX;
         }
 
-        // q10 per-stepper-slot increment toward this sample’s target step count.
-        // (traj * steps_per_mm - steps) = steps still due at the start of this UNIT_TIME.
-        // Convert to q10 (×2^10), then subtract the current accumulator error: step_error_q10 / FTM_STEPS_PER_UNIT_TIME.
-        // Over FTM_STEPS_PER_UNIT_TIME stepper-slots this sums to the exact target (no drift).
-        // Any fraction of a step that may remain will be accounted for by the next UNIT_TIME
-
-        /*
-        la idea es ver cuantos steps per FTM_TS hay que hacer en cada eje.
-        el eje más rápido es el que determina el intervalo, osea que su delta va a ser igual al denominador.
-        los otros van a tener un delta de rate_axis/rate_fastest_axis.
-          advance_dividend = (current_block->steps << 1).asLong();
-          advance_divisor = step_event_count << 1;
-
-        */
         #define TOSTEPS(A, B) \
           (traj.A[traj_consume_i] * planner.settings.axis_steps_per_mm[B])
 
@@ -230,14 +215,23 @@ class FTMotion {
           TOSTEPS(u, U_AXIS), TOSTEPS(v, V_AXIS), TOSTEPS(w, W_AXIS)
         );
 
-        xyze_float_t delta = last_pos - curr_pos;
-        last_pos = curr_pos;
+        #define OVERSAMPLING 2
+        advance_dividend = (curr_pos - last_pos);
+        advance_divisor = advance_dividend.ABS().large();
+        steps_pending = FLOOR(advance_divisor);
+        advance_divisor = advance_divisor * OVERSAMPLING;
 
-        float fastest = delta.ABS().large();
-        steps_pending = FLOOR(fastest);
-        advance_divisor = fastest * 2;
-        advance_dividend = delta * 2;
-        interval = STEPPER_TIMER_RATE / advance_dividend;
+        NOLESS(steps_pending, 1); // at least one so the other stepper isr consumes it
+
+        if (advance_divisor == 0) interval = STEPPER_TIMER_RATE * FTM_TS;
+        else interval = STEPPER_TIMER_RATE / (advance_divisor * FTM_FS);
+
+
+        NOMORE(interval, STEPPER_TIMER_RATE * FTM_TS);
+          // advance_dividend = advance_dividend / advance_divisor;
+          // advance_divisor = 1;
+
+        last_pos = curr_pos;
 
         traj_consume_i++;
         if (traj_consume_i == (FTM_WINDOW_SIZE)) traj_consume_i = 0;
@@ -246,9 +240,6 @@ class FTMotion {
 
       ft_command_t pop_command() {
         steps_pending--;
-        // 1. Subtract one whole step from the accumulated distance
-        // 2. Accumulate one positive or negative step
-        // 3. Set the step and direction bits for the stepper command
         delta_error += advance_dividend;
         ft_command_t cmd = 0;
         #define RUN_AXIS(A)                                                     \

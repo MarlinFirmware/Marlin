@@ -58,8 +58,6 @@ AxisBits FTMotion::axis_move_dir;
 
 // Private variables.
 
-xyze_trajectory_t    FTMotion::traj;            // = {0.0f} Storage for fixed-time-based trajectory.
-
 // Block data variables.
 xyze_pos_t   FTMotion::startPos,                    // (mm) Start position of block
              FTMotion::endPos_prevBlock = { 0.0f }; // (mm) End position of previous block
@@ -72,11 +70,6 @@ Poly5TrajectoryGenerator FTMotion::poly5Generator;
 Poly6TrajectoryGenerator FTMotion::poly6Generator;
 TrajectoryGenerator* FTMotion::currentGenerator = &FTMotion::trapezoidalGenerator;
 TrajectoryType FTMotion::trajectoryType = TrajectoryType::FTM_TRAJECTORY_TYPE;
-
-// Make vector variables.
-uint32_t FTMotion::traj_consume_i = 0,            // Index of fixed time trajectory generation of the overall block.
-         FTMotion::traj_produce_i = 0;            // Index of fixed time trajectory generation within the batch.
-
 
 #if ENABLED(DISTINCT_E_FACTORS)
   uint8_t FTMotion::block_extruder_axis;        // Cached E Axis from last-fetched block
@@ -152,11 +145,18 @@ void FTMotion::loop() {
     reset();
     stepper.abort_current_block = false;  // Abort finished.
   }
+  static uint32_t was = 0;
 
   fill_trajectory_buffer();
 
   // Set busy status for use by planner.busy()
   busy = stepping.steps_pending > 0 || !trajBuff_isEmpty();
+  // uint32_t is = trajBuff_count();
+  // if (was != is){
+  //   SERIAL_ECHOLNPGM("was", was);
+  //   SERIAL_ECHOLNPGM("traj buffer after:", is);
+  //   was = is;
+  // }
 }
 
 #if HAS_FTM_SHAPING
@@ -424,6 +424,7 @@ bool FTMotion::plan_next_block() {
   while (true) {
     block_t * current_block = planner.get_current_block();
     bool planner_finished = stepper.current_block && !current_block;
+    stepper.current_block = current_block;
     discard_planner_block_protected();
 
     if (planner_finished) {
@@ -435,7 +436,6 @@ bool FTMotion::plan_next_block() {
       return false;
     }
 
-    stepper.current_block = current_block;
     if (current_block->is_sync_pos()) stepper._set_position(current_block->position);
     if (current_block->is_sync()) continue;
 
@@ -625,20 +625,34 @@ void FTMotion::fill_trajectory_buffer() {
   }
 } // fill_trajectory_buffer
 
-bool FTMotion::trajBuff_isFull() {
+
+
+xyze_trajectory_t    FTMotion::traj;            // = {0.0f} Storage for fixed-time-based trajectory.
+
+/*
+ * traj_consume_i is the first ready to consume
+ * traj_produce_i is where the next one should be inserted
+ * if they a
+*/
+uint32_t FTMotion::traj_consume_i = 0,            // The index to consume from
+         FTMotion::traj_produce_i = 0;            // The index to produce into
+
+
+bool FTMotion::trajBuff_isEmpty() {
   return traj_consume_i == traj_produce_i;
 }
 
-uint32_t FTMotion::trajBuff_count() {
-  return traj_produce_i > traj_consume_i
-    ? traj_produce_i - traj_consume_i
-    : traj_consume_i - traj_produce_i + FTM_WINDOW_SIZE;
+bool FTMotion::trajBuff_isFull() {
+  uint32_t next_produce = traj_produce_i + 1;
+  if (next_produce >= FTM_WINDOW_SIZE) next_produce -= FTM_WINDOW_SIZE;
+  return next_produce == traj_consume_i;
 }
 
-bool FTMotion::trajBuff_isEmpty() {
-  uint32_t next_consume = traj_consume_i + 1;
-  if (next_consume == FTM_WINDOW_SIZE) next_consume == 0;
-  return next_consume == traj_produce_i - 1;
+uint32_t FTMotion::trajBuff_count() {
+  int32_t count = traj_produce_i - traj_consume_i;
+  if (count < 0) count += FTM_WINDOW_SIZE;
+  return count;
 }
+
 
 #endif // FT_MOTION
