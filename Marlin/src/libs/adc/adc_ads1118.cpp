@@ -42,12 +42,17 @@
   
     // Constructor
   void ADS1118::init(uint8_t cs, uint8_t mosi, uint8_t miso, uint8_t sck) {
-    _cs = cs; _mosi = mosi; _miso = miso; _sck = sck;
+    cs_pin = cs; mosi_pin = mosi; miso_pin = miso; sck_pin = sck;
 
-      SET_OUTPUT(_cs);
-      SET_OUTPUT(m_osi);
-      SET_OUTPUT(_sck);
-      SET_INPUT(_miso);
+// #define TEMP_0_CS_PIN                         79  // E6
+// #define TEMP_0_SCK_PIN                        78  // E2
+// #define TEMP_0_MISO_PIN                       80  // E7
+// #define TEMP_0_MOSI_PIN                       84  // H2
+
+      pinMode(cs_pin, OUTPUT);
+      pinMode(mosi_pin, OUTPUT);
+      pinMode(sck_pin, OUTPUT);
+      pinMode(miso_pin, INPUT);
     
       deselect();
       sckLow();
@@ -56,43 +61,43 @@
     
   // Sets ADS to start a single shot conversion, it will be read async when ready (after ADS1118_CONV_MS), non blocking
     void ADS1118::startConversion(uint8_t pair) {
-      if (_isBusy) return;
+      if (isBusy) return;
   
       uint16_t config = 0x858B; // 0b 1000 0101 1000 1011 : SS start, single-ended off, gain ±2.048V, single-shot mode, 128SPS, ADC mode, Pullup enable, Write config
       switch (pair) {
-        case 0: config |= (0x0 << ADS1118_CH_MASK); _currentchannel = 0; break; // AIN0-AIN1
-        case 1: config |= (0x3 << ADS1118_CH_MASK); _currentchannel = 1; break; // AIN2-AIN3
-        default: config |= (0x0 << ADS1118_CH_MASK); _currentchannel = 0; break;
+        case 0: config |= (0x0 << ADS1118_CH_MASK); currentchannel = 0; break; // AIN0-AIN1
+        case 1: config |= (0x3 << ADS1118_CH_MASK); currentchannel = 1; break; // AIN2-AIN3
+        default: config |= (0x0 << ADS1118_CH_MASK); currentchannel = 0; break;
       }
   
-      WRITE(_cs, LOW);
+      digitalWrite(cs_pin, LOW);
       transfer16(config);
-      WRITE(_cs, HIGH);
+      digitalWrite(cs_pin, HIGH);
   
-      _isBusy = true;
-      _startTime = millis();
+      isBusy = true;
+      startTime = millis();
     }  
   
   // Determine that a conversion is ready by its elapsed time, if true, reads data and stores in _lastValue
   bool ADS1118::ready() {
-    if (!_isBusy) return true;
-    if (millis() - _startTime >= ADS1118_CONV_MS) {
+    if (!isBusy) return true;
+    if (millis() - startTime >= ADS1118_CONV_MS) {
       uint16_t raw;
-      WRITE(_cs, LOW);
+      digitalWrite(cs_pin, LOW);
       transfer16(raw);
-      WRITE(_cs, HIGH);
-      _lastValue = (int16_t)raw;
-      _isBusy = false;
+      digitalWrite(cs_pin, HIGH);
+      lastValue = (int16_t)raw;
+      isBusy = false;
     }
-    return !_isBusy;
+    return !isBusy;
   }
   
     int16_t ADS1118::read() {
-      return _lastValue;
+      return lastValue;
     }
   
     bool ADS1118::busy() {
-      return _isBusy;
+      return isBusy;
     }
   
     void ADS1118::loop() {
@@ -101,28 +106,30 @@
   
   // Sets ADS to start Continuous conversion mode
     void ADS1118::startContinuousConversion(uint8_t channel_pair) {
-      if (_isBusy) return;
+      SERIAL_ECHOLNPGM("ADS1118 Set to start conv");
+      if (isBusy) return;
   
       uint16_t config = 0x848B; // b 1000 0100 1000 1011 : SS start, single-ended off, gain ±2.048V, Continuous conversion mode, 128SPS, ADC mode, Pullup enable, Write config
-      switch (ch_pair) {
-        case 0: config |= (0x0 << ADS1118_CH_MASK); _currentchannel = 0; break; // AIN0-AIN1
-        case 1: config |= (0x3 << ADS1118_CH_MASK); _currentchannel = 1; break; // AIN2-AIN3
-        default: config |= (0x0 << ADS1118_CH_MASK); _currentchannel = 0; break;
+      switch (channel_pair) {
+        case 0: config |= (0x0 << ADS1118_CH_MASK); currentchannel = 0; break; // AIN0-AIN1
+        case 1: config |= (0x3 << ADS1118_CH_MASK); currentchannel = 1; break; // AIN2-AIN3
+        default: config |= (0x0 << ADS1118_CH_MASK); currentchannel = 0; break;
       }
   
-      WRITE(_cs, LOW);
+      digitalWrite(cs_pin, LOW);
       transfer16(config);
-      WRITE(_cs, HIGH);
+      digitalWrite(cs_pin, HIGH);
   
-      _isBusy = true;
-      _startTime = millis();
+      isBusy = true;
+      startTime = millis();
+      SERIAL_ECHOLNPGM("ADS1118 Leaving start conv");
     }  
   
     // Check if ADS has a complete conversion
     bool ADS1118::checkDataReady() {
-      WRITE(_cs, LOW);
-      uint8_t isReady = !READ(_miso); // Read MISO, is low when ready
-      WRITE(_cs, HIGH);
+      digitalWrite(cs_pin, LOW);
+      uint8_t isReady = !digitalRead(miso_pin); // Read MISO, is low when ready
+      digitalWrite(cs_pin, HIGH);
       
       return isReady;
 
@@ -131,9 +138,9 @@
     // Check if ADS has a complete conversion
     uint16_t ADS1118::readData() {
 
-      WRITE(_cs, LOW);
+      digitalWrite(cs_pin, LOW);
       uint16_t data = transfer16(0);
-      WRITE(_cs, HIGH);      
+      digitalWrite(cs_pin, HIGH);      
       return data;
 
     }       
@@ -198,7 +205,7 @@
 
       transfer16(0x0000);   
       config_echo = transfer16(0x0000);    // envía dummy, recibe eco de configuración
-      SERIAL_ECHOLNPGM("ADS1118 Configuration: 0x"); SERIAL_ECHOLN(config_echo, HEX);
+      SERIAL_ECHOPGM("ADS1118 Configuration: 0x"); SERIAL_ECHOLN(config_echo, HEX);
       return config_echo;
     }    
 
@@ -212,14 +219,14 @@
       uint8_t recv = 0;
       for (uint8_t i = 0; i < 8; i++) {
         // Send MSB first
-        if (data & 0x80) WRITE(mosi, HIGH); else WRITE(mosi, LOW);
+        if (data & 0x80) digitalWrite(mosi_pin, HIGH); else digitalWrite(mosi_pin, LOW);
         data <<= 1;
     
         sckHigh();
         DELAY_NS(100); // small delay for stability
     
         recv <<= 1;
-        if (READ(miso)) recv |= 0x01;
+        if (digitalRead(miso_pin)) recv |= 0x01;
     
         sckLow();
         DELAY_NS(100);
@@ -227,11 +234,22 @@
       return recv;
     }
     
-    void ADS1118::select()   { WRITE(_cs, LOW); }
-    void ADS1118::deselect() { WRITE(_cs, HIGH); }
+    void ADS1118::select()   { digitalWrite(cs_pin, LOW); }
+    void ADS1118::deselect() { digitalWrite(cs_pin, HIGH); }
     
-    void ADS1118::sckHigh()  { WRITE(_sck, HIGH); }
-    void ADS1118::sckLow()   { WRITE(_sck, LOW); }
+    void ADS1118::sckHigh()  { digitalWrite(sck_pin, HIGH); }
+    void ADS1118::sckLow()   { digitalWrite(sck_pin, LOW); }
+
+    // Definiciones de variables estáticas
+    uint8_t ADS1118::cs_pin = 0;
+    uint8_t ADS1118::mosi_pin = 0;
+    uint8_t ADS1118::miso_pin = 0;
+    uint8_t ADS1118::sck_pin = 0;
+    unsigned long ADS1118::startTime = 0;
+    int16_t ADS1118::lastValue = 0;
+    int16_t ADS1118::config = 0;
+    bool ADS1118::isBusy = false;
+    uint8_t ADS1118::currentchannel = 0;    
     
     // ADS1118, global instance
     ADS1118 ads1118;

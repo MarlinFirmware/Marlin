@@ -33,6 +33,8 @@
 
   #include <stdint.h>
 
+  #define TEMP_SENSOR_ADS1118 -18
+
   class ADS1118 {
     public:
       static void init(uint8_t cs, uint8_t mosi, uint8_t miso, uint8_t sck);
@@ -43,28 +45,38 @@
       static void loop();                        // ciclo no bloqueante
 
       static bool checkDataReady();
-      static void startContinuousConversion(uint8_t channel_pair)
+      static void startContinuousConversion(uint8_t channel_pair);
       static uint16_t readData();
+      static int16_t readChannel(uint8_t channel); 
+      static uint16_t readConfig (); 
       
     private:
       static void spiTransfer(uint8_t data, uint8_t &resp);
       static void writeWord(uint16_t word);
       static void readWord(uint16_t &word);
 
-      void select();
-      void deselect();  
+      static uint32_t transfer32 (uint16_t data);
+      static uint16_t transfer16 (uint16_t data);
+      static uint8_t transfer8 (uint8_t data);
       
-      void sckHigh();
-      void sckLow();      
 
-      static uint8_t _cs, _mosi, _miso, _sck;
-      static unsigned long _startTime;
-      static int16_t _lastValue;
-      static int16_t _config;
-      static bool _isBusy;  
-      static uint8_t _currentchannel;  
+      static void select();
+      static void deselect();  
+      
+      static void sckHigh();
+      static void sckLow();      
+
+      static uint8_t cs_pin, mosi_pin, miso_pin, sck_pin;
+      static unsigned long startTime;
+      static int16_t lastValue;
+      static int16_t config;
+      static bool isBusy;  
+      static uint8_t currentchannel;  
 
       uint16_t configForChannel(uint8_t channel); 
+      static uint16_t configChannel(uint8_t channel); 
+      float readVoltage(uint8_t channel, float vref); 
+      float readInternalTemp();
 
   };
 
