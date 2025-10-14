@@ -1528,10 +1528,7 @@ void Stepper::isr() {
 
       if (using_ftMotion) {
         if (!ftMotion_nextStepperISR) ftMotion_stepper();
-        #if ENABLED(BABYSTEPPING)
-          const bool is_babystep = (nextBabystepISR == 0);  // 0 = Do Babystepping (XY)Z pulses
-          if (is_babystep) nextBabystepISR = babystepping_isr();
-        #endif
+        TERN_(BABYSTEPPING, if (!nextBabystepISR) nextBabystepISR = babystepping_isr());
 
 
         // ^== Time critical. NOTHING besides pulse generation should be above here!!!
@@ -1543,9 +1540,11 @@ void Stepper::isr() {
         interval = HAL_TIMER_TYPE_MAX;         // Time until the next step
 
         NOMORE(interval, ftMotion_nextStepperISR);
-        NOMORE(interval, nextBabystepISR);
+        TERN_(BABYSTEPPING, NOMORE(interval, nextBabystepISR));
 
-        nextBabystepISR -= interval;
+        // ---
+
+        TERN_(BABYSTEPPING, nextBabystepISR -= interval);
         ftMotion_nextStepperISR -= interval;
       }
 

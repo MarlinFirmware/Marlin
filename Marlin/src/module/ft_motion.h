@@ -215,21 +215,23 @@ class FTMotion {
           TOSTEPS(u, U_AXIS), TOSTEPS(v, V_AXIS), TOSTEPS(w, W_AXIS)
         );
 
-        #define OVERSAMPLING 2
+        #define OVERSAMPLING 1
         advance_dividend = (curr_pos - last_pos);
-        advance_divisor = advance_dividend.ABS().large();
-        steps_pending = FLOOR(advance_divisor);
-        advance_divisor = advance_divisor * OVERSAMPLING;
+        advance_divisor = advance_dividend.ABS().large() * OVERSAMPLING;
+        steps_pending = CEIL(advance_divisor);
 
         NOLESS(steps_pending, 1); // at least one so the other stepper isr consumes it
 
-        if (advance_divisor == 0) interval = STEPPER_TIMER_RATE * FTM_TS;
-        else interval = STEPPER_TIMER_RATE / (advance_divisor * FTM_FS);
-
-
-        NOMORE(interval, STEPPER_TIMER_RATE * FTM_TS);
-          // advance_dividend = advance_dividend / advance_divisor;
-          // advance_divisor = 1;
+        if (advance_divisor == 0) {
+          interval = STEPPER_TIMER_RATE * FTM_TS;
+          advance_dividend = 0;
+          advance_divisor = 1;
+        } else {
+          interval = (STEPPER_TIMER_RATE * FTM_TS) / (advance_divisor);
+          advance_dividend = advance_dividend / advance_divisor;
+          advance_divisor = 1;
+          NOMORE(interval, STEPPER_TIMER_RATE * FTM_TS);
+        }
 
         last_pos = curr_pos;
 
@@ -237,7 +239,6 @@ class FTMotion {
         if (traj_consume_i == (FTM_WINDOW_SIZE)) traj_consume_i = 0;
         return interval;
       }
-
       ft_command_t pop_command() {
         steps_pending--;
         delta_error += advance_dividend;
@@ -255,6 +256,7 @@ class FTMotion {
 
         // Where the error has accumulated whole axis steps, add them to the command
         LOGICAL_AXIS_MAP(RUN_AXIS);
+        #undef RUN_AXIS
         return cmd;
       }
     } stepping_t;
