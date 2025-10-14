@@ -212,7 +212,7 @@
 
 // ADS1118
 #if HAS_ADS1118  
-  #include <adc_ads1118.h>
+  #include "../libs/adc/adc_ads1118.h"
 #endif
 
 
@@ -2939,10 +2939,15 @@ void Temperature::updateTemperaturesFromRawValues() {
   #endif
 
   // Read ADC ADS1118
-  #if TEMP_SENSOR_IS_ADS(0,TEMP_SENSOR_ADS1118)
+  #if TEMP_SENSOR_IS_ADS(0,1118)
+    #warning "ADS1118 is selected for temp 0"
+    SERIAL_ECHOLNPGM("ADS1118 Setting Raw hotend 0");  
     temp_hotend[0].setraw(READ_ADS(0));
+    SERIAL_ECHOPGM("ADS1118 Raw hotend 0: "); SERIAL_ECHOLN(temp_hotend[0].getraw());
   #endif  
-  #if TEMP_SENSOR_IS_ADS(1,TEMP_SENSOR_ADS1118)
+  #if TEMP_SENSOR_IS_ADS(1,1118)
+    #warning "ADS1118 is selected for temp 1"
+    SERIAL_ECHOLNPGM("ADS1118 Setting Raw hotend 1");  
     temp_hotend[1].setraw(READ_ADS(1));
   #endif    
 
@@ -3046,13 +3051,21 @@ void Temperature::init() {
 
   TERN_(PROBING_HEATERS_OFF, paused_for_probing = false);
 
+// #define TEMP_0_CS_PIN                         79  // E6
+// #define TEMP_0_SCK_PIN                        78  // E2
+// #define TEMP_0_MISO_PIN                       80  // E7
+// #define TEMP_0_MOSI_PIN                       84  // H2
+
   #if HAS_ADS1118
-    ads1118.init(ADS1118_CS_PIN, ADS1118_MOSI_PIN, ADS1118_MISO_PIN, ADS1118_SCK_PIN); // Initialize the ADS1118, global instance
+    ads1118.init(TEMP_0_CS_PIN, TEMP_0_MOSI_PIN, TEMP_0_MISO_PIN, TEMP_0_SCK_PIN); // Initialize the ADS1118, global instance
     ads1118.readConfig();
   #endif
 
+
   // ADS TC related macros
-  #if TEMP_SENSOR_IS_ADS(0, TEMP_SENSOR_ADS1118)
+  #if TEMP_SENSOR_IS_ADS(0, 1118)
+    #warning "ADS1118 is selected for temp 0"
+    SERIAL_ECHOLNPGM("ADS1118 Entering to start continuous conv");
     ads1118.startContinuousConversion(0);
     ads1118.readConfig();
   #endif  
@@ -3990,6 +4003,8 @@ raw_adc_t Temperature::read_ads1118(const uint8_t hindex/*=0*/) {
   static raw_adc_t ads1118_temp_previous[2] = { 0, 0 };  
   static uint8_t ads1118_errors[2] = { 0, 0 };
   static millis_t next_ads1118_ms[2] = { 0, 0 };  
+
+  static raw_adc_t ads_val = TEMP_SENSOR_0_ADS_TMAX;
   
 
   const millis_t ms = millis();
@@ -4000,7 +4015,7 @@ raw_adc_t Temperature::read_ads1118(const uint8_t hindex/*=0*/) {
 
   // To do: If there are more hotends enabled, cycle through different channels
   int16_t raw = ads1118.readData();
-  SERIAL_ECHOLNPGM("ADS1118 Read: 0x"); SERIAL_ECHOLN(raw, HEX);
+  SERIAL_ECHOPGM("ADS1118 Read: 0x"); SERIAL_ECHOLN(raw, HEX);
 
   // Manejo de errores simples: raw = 0x7FFF o 0x8000 podrían ser saturación
   if (raw == 0x7FFF || raw == -32768) {

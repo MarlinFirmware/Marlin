@@ -426,7 +426,8 @@
 #elif TEMP_SENSOR_0 == -1
   #define TEMP_SENSOR_0_IS_AD595 1
 #elif TEMP_SENSOR_0 == -18
-  #define TEMP_SENSOR_0_IS_ADS1118 1  
+  #define HAS_ADS1118 1
+  #define TEMP_SENSOR_0_IS_ADS1118  1  
   #define TEMP_SENSOR_0_ADS_TMIN    0
   #define TEMP_SENSOR_0_ADS_TMAX 1024  
 #elif TEMP_SENSOR_0 > 0

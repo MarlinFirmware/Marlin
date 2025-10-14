@@ -114,6 +114,14 @@
   #warning "Warning! Don't use dummy thermistors (998/999) for final build!"
 #endif
 
+#if ENABLED(HAS_ADS1118) 
+  #warning "ADS1118 support is in development"
+#endif
+
+#if ANY_THERMISTOR_IS(-18)
+  #warning "ADS1118 support (-18) is in development"
+#endif
+
 #if NONE(HAS_RESUME_CONTINUE, HOST_PROMPT_SUPPORT, UNIT_TEST, NO_USER_FEEDBACK_WARNING)
   #warning "Your Configuration provides no method to acquire user feedback! (Define NO_USER_FEEDBACK_WARNING to suppress this warning.)"
 #endif
