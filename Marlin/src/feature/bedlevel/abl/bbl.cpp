@@ -78,7 +78,7 @@ void LevelingBilinear::extrapolate_one_point(const uint8_t x, const uint8_t y, c
   const float a = 2 * a1 - a2, b = 2 * b1 - b2, c = 2 * c1 - c2;
 
   // Take the average instead of the median
-  z_values[x][y] = (a + b + c) / 3.0;
+  z_values[x][y] = (a + b + c) / 3.0f;
   TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(x, y, z_values[x][y]));
 
   // Median is robust (ignores outliers).
@@ -377,7 +377,7 @@ float LevelingBilinear::get_z_correction(const xy_pos_t &raw) {
    * Prepare a bilinear-leveled linear move on Cartesian,
    * splitting the move where it crosses grid borders.
    */
-  void LevelingBilinear::line_to_destination(const feedRate_t scaled_fr_mm_s, uint16_t x_splits, uint16_t y_splits) {
+  void LevelingBilinear::line_to_destination(const feedRate_t scaled_fr, uint16_t x_splits, uint16_t y_splits) {
     // Get current and destination cells for this line
     xy_int_t c1 { CELL_INDEX(x, motion.position.x), CELL_INDEX(y, motion.position.y) },
              c2 { CELL_INDEX(x, motion.destination.x), CELL_INDEX(y, motion.destination.y) };
@@ -392,6 +392,27 @@ float LevelingBilinear::get_z_correction(const xy_pos_t &raw) {
       motion.goto_current_position(scaled_fr_mm_s);
       return;
     }
+
+    const xyze_pos_t total = motion.destination - motion.position;
+
+    #if ENABLED(FEEDRATE_MODE_SUPPORT)
+      // Get the linear distance in XYZ
+      #if HAS_ROTATIONAL_AXES
+        bool cartes_move = true;
+      #endif
+      float cartesian_mm = get_move_distance(total OPTARG(HAS_ROTATIONAL_AXES, cartes_move));
+
+      // If the move is very short, check the E move distance
+      TERN_(HAS_EXTRUDERS, if (UNEAR_ZERO(cartesian_mm)) cartesian_mm = ABS(total.e));
+
+      const bool old_inverse_time_enabled = parser.inverse_time_enabled;
+
+      const feedrate_t scaled_fr_mm_s = (old_inverse_time_enabled && parser.print_move) ? cartesian_mm * scaled_fr : scaled_fr;
+      parser.inverse_time_enabled = false;
+
+    #else
+      const feedrate_t scaled_fr_mm_s = scaled_fr;
+    #endif
 
     #define LINE_SEGMENT_END(A) (motion.position.A + (motion.destination.A - motion.position.A) * normalized_dist)
 
@@ -422,7 +443,8 @@ float LevelingBilinear::get_z_correction(const xy_pos_t &raw) {
       // Must already have been split on these border(s)
       // This should be a rare case.
       motion.position = motion.destination;
-      motion.goto_current_position(scaled_fr_mm_s);
+      motion.line_to_current_position(scaled_fr_mm_s);
+      parser.inverse_time_enabled = old_inverse_time_enabled;
       return;
     }
 
@@ -435,6 +457,7 @@ float LevelingBilinear::get_z_correction(const xy_pos_t &raw) {
     // Restore destination from stack
     motion.destination = end;
     line_to_destination(scaled_fr_mm_s, x_splits, y_splits);
+    parser.inverse_time_enabled = old_inverse_time_enabled;
   }
 
 #endif // IS_CARTESIAN && !SEGMENT_LEVELED_MOVES

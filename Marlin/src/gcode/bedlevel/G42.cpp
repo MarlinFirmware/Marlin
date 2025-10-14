@@ -54,6 +54,8 @@ void GcodeSuite::G42() {
     return;
   }
 
+  TERN_(FEEDRATE_MODE_SUPPORT, parser.print_move = true);
+
   // Move to motion.position, as modified by I, J, P parameters
   motion.destination = motion.position;
 
@@ -67,8 +69,8 @@ void GcodeSuite::G42() {
     }
   #endif
 
-  const feedRate_t fval = parser.linearval('F'),
-                   fr_mm_s = MMM_TO_MMS(fval > 0 ? fval : 0.0f);
+  const feedRate_t fval = parser.feedrateval('F'),
+                   fr_mm_s = MMM_TO_MMS(fval);
 
   // SCARA kinematic has "safe" XY raw moves
   #if IS_SCARA
@@ -76,6 +78,8 @@ void GcodeSuite::G42() {
   #else
     motion.prepare_internal_move_to_destination(fr_mm_s);
   #endif
+
+  TERN_(FEEDRATE_MODE_SUPPORT, parser.print_move = false);
 }
 
 #endif // HAS_MESH

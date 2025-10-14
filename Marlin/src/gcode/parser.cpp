@@ -37,6 +37,11 @@ bool GCodeParser::volumetric_enabled;
   float GCodeParser::linear_unit_factor, GCodeParser::volumetric_unit_factor;
 #endif
 
+#if ENABLED(FEEDRATE_MODE_SUPPORT)
+  bool GCodeParser::inverse_time_enabled;
+  bool GCodeParser::print_move;
+#endif
+
 #if ENABLED(TEMPERATURE_UNITS_SUPPORT)
   TempUnit GCodeParser::input_temp_units = TEMPUNIT_C;
 #endif

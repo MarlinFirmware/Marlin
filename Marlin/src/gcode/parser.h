@@ -76,6 +76,11 @@ public:
     static float linear_unit_factor, volumetric_unit_factor;
   #endif
 
+  #if ENABLED(FEEDRATE_MODE_SUPPORT)
+    static bool inverse_time_enabled;
+    static bool print_move;
+  #endif
+
   #if ENABLED(TEMPERATURE_UNITS_SUPPORT)
     static TempUnit input_temp_units;
   #endif
@@ -415,7 +420,13 @@ public:
 
   #endif // !TEMPERATURE_UNITS_SUPPORT
 
-  static feedRate_t value_feedrate() { return MMM_TO_MMS(value_linear_units()); }
+  static feedRate_t value_feedrate() { 
+    #if ENABLED(FEEDRATE_MODE_SUPPORT)
+      return (inverse_time_enabled && print_move) ? value_float() : value_linear_units();
+    #else
+      return value_linear_units();
+    #endif
+  }
 
   void unknown_command_warning();
 
