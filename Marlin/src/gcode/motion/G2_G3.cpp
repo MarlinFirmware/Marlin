@@ -212,12 +212,17 @@ void plan_arc(
   }
 
   // Feedrate for the move, scaled by the feedrate multiplier
-  const feedRate_t scaled_fr_mm_s = MMS_SCALED(feedrate_mm_s);
+  #if ENABLED(FEEDRATE_MODE_SUPPORT)
+    const feedRate_t scaled_fr = MMS_SCALED(feedrate_mm_s);
+    const feedRate_t scaled_fr_mm_s = parser.inverse_time_enabled ? scaled_fr * flat_mm : scaled_fr;
+  #else
+    const feedRate_t scaled_fr_mm_s = MMS_SCALED(feedrate_mm_s);
+  #endif
 
   // Get the ideal segment length for the move based on settings
   const float ideal_segment_mm = (
     #if ARC_SEGMENTS_PER_SEC  // Length based on segments per second and feedrate
-      constrain(scaled_fr_mm_s * RECIPROCAL(ARC_SEGMENTS_PER_SEC), MIN_ARC_SEGMENT_MM, MAX_ARC_SEGMENT_MM)
+      constrain(scaled_fr_mm_s * RECIPROCAL(ARC_SEGMENTS_PER_SEC, MIN_ARC_SEGMENT_MM, MAX_ARC_SEGMENT_MM))
     #else
       MAX_ARC_SEGMENT_MM      // Length using the maximum segment size
     #endif
@@ -236,7 +241,11 @@ void plan_arc(
   // Add hints to help optimize the move
   PlannerHints hints;
   #if ENABLED(FEEDRATE_SCALING)
-    hints.inv_duration = (scaled_fr_mm_s / flat_mm) * segments;
+    #if ENABLED(FEEDRATE_MODE_SUPPORT)
+      hints.inv_duration = segments * (parser.inverse_time_enabled ? scaled_fr : (scaled_fr_mm_s / flat_mm));
+    #else
+      hints.inv_duration = segments * (scaled_fr_mm_s / flat_mm);
+    #endif
   #endif
 
   /**
@@ -427,6 +436,8 @@ void GcodeSuite::G2_G3(const bool clockwise) {
 
   TERN_(FULL_REPORT_TO_HOST_FEATURE, set_and_report_grblstate(M_RUNNING));
 
+  TERN_(FEEDRATE_MODE_SUPPORT, parser.print_move = true);
+
   #if ENABLED(SF_ARC_FIX)
     const bool relative_mode_backup = relative_mode;
     relative_mode = true;
@@ -485,6 +496,8 @@ void GcodeSuite::G2_G3(const bool clockwise) {
   }
   else
     SERIAL_ERROR_MSG(STR_ERR_ARC_ARGS);
+
+  TERN_(FEEDRATE_MODE_SUPPORT, parser.print_move = false);
 
   TERN_(FULL_REPORT_TO_HOST_FEATURE, set_and_report_grblstate(M_IDLE));
 }

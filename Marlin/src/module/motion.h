@@ -113,6 +113,8 @@ feedRate_t get_homing_bump_feedrate(const AxisEnum axis);
  */
 extern feedRate_t feedrate_mm_s;
 
+//extern bool print_move;
+
 /**
  * Feedrate scaling is applied to all G0/G1, G2/G3, and G5 moves
  */

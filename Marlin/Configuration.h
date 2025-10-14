@@ -2483,6 +2483,11 @@
 //#define INCH_MODE_SUPPORT
 
 //
+// G93/G94 Feedrate mode support
+//
+//#define FEEDRATE_MODE_SUPPORT
+
+//
 // M149 Set temperature units support
 //
 //#define TEMPERATURE_UNITS_SUPPORT

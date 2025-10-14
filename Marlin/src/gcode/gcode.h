@@ -637,6 +637,12 @@ private:
 
   static void G92();
 
+
+  #if ENABLED(FEEDRATE_MODE_SUPPORT)
+    static void G93();
+    static void G94();
+  #endif
+
   #if ENABLED(CALIBRATION_GCODE)
     static void G425();
   #endif

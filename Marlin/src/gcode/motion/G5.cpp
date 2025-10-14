@@ -54,6 +54,13 @@ void GcodeSuite::G5() {
     }
   #endif
 
+  #if ENABLED(FEEDRATE_MODE_SUPPORT)
+    if (parser.inverse_time_enabled) {
+      SERIAL_ERROR_MSG(STR_ERR_BAD_FEEDRATE_MODE);
+      return;
+    }
+  #endif
+
   get_destination_from_command();
 
   const xy_pos_t offsets[2] = {
