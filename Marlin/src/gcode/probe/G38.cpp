@@ -45,12 +45,17 @@ inline void G38_single_probe(const uint8_t move_value) {
 inline bool G38_run_probe() {
 
   bool G38_pass_fail = false;
-
+  if (probe.offset.x || probe.offset.y || probe.offset.z) {
+    const xyze_pos_t npos_start = current_position - DIFF_TERN(HAS_HOTEND_OFFSET, probe.offset, hotend_offset[active_extruder]);
+    const xyze_pos_t npos_destination = destination - DIFF_TERN(HAS_HOTEND_OFFSET, probe.offset, hotend_offset[active_extruder]);
+    do_blocking_move_to(npos_start);
+    destination = npos_destination;
+  }
   #if MULTIPLE_PROBING > 1
     // Get direction of move and retract
     xyz_float_t retract_mm;
     LOOP_NUM_AXES(i) {
-      const float dist = destination[i] - current_position[i];
+      const float dist = npos_destination[i] - npos_start[i];
       retract_mm[i] = ABS(dist) < G38_MINIMUM_MOVE ? 0 : home_bump_mm((AxisEnum)i) * (dist > 0 ? -1 : 1);
     }
   #endif
@@ -79,7 +84,11 @@ inline bool G38_run_probe() {
       endstops.enable(false);
       prepare_line_to_destination();
       planner.synchronize();
-
+      #if ENABLED(SOLENOID_PROBE)
+        probe.stow();
+        safe_delay(1000);
+        probe.deploy();
+      #endif
       REMEMBER(fr, feedrate_mm_s, feedrate_mm_s * 0.25);
 
       // Bump the target more slowly
@@ -88,8 +97,13 @@ inline bool G38_run_probe() {
       G38_single_probe(move_value);
     #endif
   }
-
-  endstops.not_homing();
+  if (probe.offset.x || probe.offset.y || probe.offset.z) {
+    endstops.enable(false);
+    TERN_(SOLENOID_PROBE, probe.stow());
+    destination += DIFF_TERN(HAS_HOTEND_OFFSET, probe.offset, hotend_offset[active_extruder]);
+    do_blocking_move_to(destination);
+    planner.synchronize();
+  }
   return G38_pass_fail;
 }
 
@@ -105,24 +119,29 @@ inline bool G38_run_probe() {
  *  G38.5 - Probe away from workpiece, stop on contact break
  */
 void GcodeSuite::G38(const int8_t subcode) {
-
+  TERN_(FEEDRATE_MODE_SUPPORT, parser.print_move = true);
   // Get X Y Z E F
   get_destination_from_command();
 
   remember_feedrate_scaling_off();
-
+  probe.use_probing_tool();
   const bool error_on_fail = TERN(G38_PROBE_AWAY, !TEST(subcode, 0), subcode == 2);
 
   // If any axis has enough movement, do the move
-  LOOP_NUM_AXES(i)
+  LOOP_NUM_AXES(i) {
     if (ABS(destination[i] - current_position[i]) >= G38_MINIMUM_MOVE) {
-      if (!parser.seenval('F')) feedrate_mm_s = homing_feedrate((AxisEnum)i);
+      if (!parser.seenval('F')) {
+        TERN_(FEEDRATE_MODE_SUPPORT, parser.print_move = false);
+        feedrate_mm_s = homing_feedrate((AxisEnum)i);
+      }
       // If G38.2 fails throw an error
       if (!G38_run_probe() && error_on_fail) SERIAL_ERROR_MSG("Failed to reach target");
       break;
     }
-
+  }
+  probe.use_probing_tool(false);
   restore_feedrate_and_scaling();
+  TERN_(FEEDRATE_MODE_SUPPORT, parser.print_move = false);
 }
 
 #endif // G38_PROBE_TARGET
