@@ -176,7 +176,7 @@ class FTMotion {
     }
 
     typedef struct Stepping {
-      xyze_float_t last_pos{0};
+      xyze_float_t curr_pos{0};
       float advance_divisor = 0;
       uint32_t interval = 0;
       xyze_float_t advance_dividend{0};
@@ -184,7 +184,7 @@ class FTMotion {
       uint32_t steps_pending = 0;
 
       void reset(){
-        last_pos.reset();
+        curr_pos.reset();
         advance_divisor = 0;
         advance_dividend.reset();
         steps_pending = 0;
@@ -208,19 +208,18 @@ class FTMotion {
         #define TOSTEPS(A, B) \
           (traj.A[traj_consume_i] * planner.settings.axis_steps_per_mm[B])
 
-        xyze_float_t curr_pos = LOGICAL_AXIS_ARRAY(
+        xyze_float_t next_pos = LOGICAL_AXIS_ARRAY(
           TOSTEPS(e, block_extruder_axis),
           TOSTEPS(x, X_AXIS), TOSTEPS(y, Y_AXIS), TOSTEPS(z, Z_AXIS),
           TOSTEPS(i, I_AXIS), TOSTEPS(j, J_AXIS), TOSTEPS(k, K_AXIS),
           TOSTEPS(u, U_AXIS), TOSTEPS(v, V_AXIS), TOSTEPS(w, W_AXIS)
         );
 
-        #define OVERSAMPLING 1
-        advance_dividend = (curr_pos - last_pos);
-        advance_divisor = advance_dividend.ABS().large() * OVERSAMPLING;
-        steps_pending = CEIL(advance_divisor);
-
-        NOLESS(steps_pending, 1); // at least one so the other stepper isr consumes it
+        #define OVERSAMPLING 2
+        advance_dividend = (next_pos - curr_pos);
+        advance_divisor = advance_dividend.ABS().large() * (float)OVERSAMPLING;
+        steps_pending = advance_divisor;
+        curr_pos = next_pos;
 
         if (advance_divisor == 0) {
           interval = STEPPER_TIMER_RATE * FTM_TS;
@@ -233,12 +232,12 @@ class FTMotion {
           NOMORE(interval, STEPPER_TIMER_RATE * FTM_TS);
         }
 
-        last_pos = curr_pos;
 
         traj_consume_i++;
         if (traj_consume_i == (FTM_WINDOW_SIZE)) traj_consume_i = 0;
         return interval;
       }
+
       ft_command_t pop_command() {
         steps_pending--;
         delta_error += advance_dividend;
