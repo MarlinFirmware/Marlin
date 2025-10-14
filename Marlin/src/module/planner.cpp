@@ -2172,11 +2172,22 @@ bool Planner::_populate_block(
     }
   #endif // HAS_EXTRUDERS
 
-  if (esteps)
-    NOLESS(fr_mm_s, settings.min_feedrate_mm_s);
-  else
-    NOLESS(fr_mm_s, settings.min_travel_feedrate_mm_s);
-
+  if (esteps) {
+    if (TERN0(FEEDRATE_MODE_SUPPORT, parser.inverse_time_enabled && parser.print_move)) {
+      NOLESS(fr_mm_s, RECIPROCAL(settings.min_feedrate_mm_s));
+    }
+    else {
+     NOLESS(fr_mm_s, settings.min_feedrate_mm_s);
+    }
+  }
+  else {
+    if (TERN0(FEEDRATE_MODE_SUPPORT, parser.inverse_time_enabled && parser.print_move)) {
+      NOLESS(fr_mm_s, RECIPROCAL(settings.min_travel_feedrate_mm_s));
+    }
+    else {
+      NOLESS(fr_mm_s, settings.min_travel_feedrate_mm_s);
+    }
+  }
   const float inverse_millimeters = 1.0f / block->millimeters;  // Inverse millimeters to remove multiple divides
 
   /**
@@ -2184,17 +2195,38 @@ bool Planner::_populate_block(
    * EXAMPLE: At 120mm/s a 60mm move involving XYZ axes takes 0.5s. So this will give 2.0.
    * EXAMPLE: At 120°/s a 60° move involving only rotational axes takes 0.5s. So this will give 2.0.
    */
-  float inverse_secs = inverse_millimeters * (
-    #if ALL(HAS_ROTATIONAL_AXES, INCH_MODE_SUPPORT)
-      /**
-       * Workaround for premature feedrate conversion
-       * from in/s to mm/s by get_distance_from_command.
-       */
-      cartesian_move ? fr_mm_s : LINEAR_UNIT(fr_mm_s)
+
+  float inverse_secs;
+  if (TERN0(FEEDRATE_MODE_SUPPORT, parser.inverse_time_enabled && parser.print_move)) {
+    #if IS_KINEMATIC && ENABLED(FEEDRATE_MODE_SUPPORT)
+      inverse_secs = hints.inv_duration ? : fr_mm_s; 
     #else
-      fr_mm_s
+      inverse_secs = fr_mm_s;
     #endif
-  );
+    float min_inverse_secs;
+    if (esteps)
+      min_inverse_secs = settings.min_feedrate_mm_s * inverse_millimeters;
+    else
+      min_inverse_secs = settings.min_travel_feedrate_mm_s * inverse_millimeters;
+    NOLESS(inverse_secs, min_inverse_secs);
+  }
+  else {
+    #if IS_KINEMATIC && ENABLED(FEEDRATE_MODE_SUPPORT)
+      inverse_secs = hints.inv_duration ? : inverse_millimeters * (
+    #else
+      inverse_secs  = inverse_millimeters * (
+    #endif
+      #if ALL(HAS_ROTATIONAL_AXES, INCH_MODE_SUPPORT)
+        /**
+         * Workaround for premature feedrate conversion
+         * from in/s to mm/s by get_distance_from_command.
+         */
+        cartesian_move ? fr_mm_s : LINEAR_UNIT(fr_mm_s)
+      #else
+        fr_mm_s
+      #endif
+    );
+  }
 
   // Get the number of non busy movements in queue (non busy means that they can be altered)
   const uint8_t moves_queued = nonbusy_movesplanned();
@@ -2202,7 +2234,7 @@ bool Planner::_populate_block(
   // Slow down when the buffer starts to empty, rather than wait at the corner for a buffer refill
   #if ANY(SLOWDOWN, HAS_WIRED_LCD) || defined(XY_FREQUENCY_LIMIT)
     // Segment time in microseconds
-    int32_t segment_time_us = LROUND(1000000.0f / inverse_secs);
+    int32_t segment_time_us = LROUND(1000000.0f * RECIPROCAL(inverse_secs));
   #endif
 
   #if ENABLED(SLOWDOWN)
