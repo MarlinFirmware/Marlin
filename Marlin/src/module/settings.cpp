@@ -188,6 +188,10 @@
   #include "../feature/mmu3/mmu3_reporting.h"
 #endif
 
+#if ENABLED(GCODE_MACROS_EEPROM)
+  extern char gcode_macros[GCODE_MACROS_SLOTS][GCODE_MACROS_SLOT_SIZE + 1];
+#endif
+
 #pragma pack(push, 1) // No padding between variables
 
 #define _EN_ITEM(N) , E##N
@@ -704,6 +708,13 @@ typedef struct SettingsDataStruct {
     uint8_t stealth_mode;         // EEPROM_MMU_STEALTH
     bool mmu_hw_enabled;          // EEPROM_MMU_ENABLED
     // uint32_t material_changes
+  #endif
+
+  //
+  // GCODE_MACROS
+  //
+  #if ENABLED(GCODE_MACROS_EEPROM)
+    char gcode_macros[GCODE_MACROS_SLOTS][GCODE_MACROS_SLOT_SIZE + 1];
   #endif
 
 } SettingsData;
@@ -1824,6 +1835,14 @@ void MarlinSettings::postprocess() {
       EEPROM_WRITE(mmu3.cutter_mode); // EEPROM_MMU_CUTTER_ENABLED
       EEPROM_WRITE(mmu3.stealth_mode); // EEPROM_MMU_STEALTH
       EEPROM_WRITE(mmu3.mmu_hw_enabled); // EEPROM_MMU_ENABLED
+    #endif
+
+    //
+    // GCODE_MACROS
+    //
+    #if ENABLED(GCODE_MACROS_EEPROM)
+      _FIELD_TEST(gcode_macros);
+      EEPROM_WRITE(gcode_macros);
     #endif
 
     //
@@ -2986,6 +3005,14 @@ void MarlinSettings::postprocess() {
       #endif
 
       //
+      // GCODE_MACROS
+      //
+      #if ENABLED(GCODE_MACROS_EEPROM)
+        EEPROM_READ(gcode_macros);
+      #endif
+
+
+      //
       // Validate Final Size and CRC
       //
       const uint16_t eeprom_total = eeprom_index - (EEPROM_OFFSET);
@@ -3806,6 +3833,14 @@ void MarlinSettings::reset() {
     mmu3.cutter_mode = 0;
     mmu3.stealth_mode = 0;
     mmu3.mmu_hw_enabled = true;
+  #endif
+
+  //
+  // GCODE_MACROS
+  //
+  #if ENABLED(GCODE_MACROS_EEPROM)
+    for (uint8_t i = 0; i < GCODE_MACROS_SLOTS; ++i)
+      gcode_macros[i][0] = '\0';  // Clear all macro slots to empty
   #endif
 
   //
