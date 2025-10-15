@@ -215,23 +215,26 @@ class FTMotion {
           TOSTEPS(u, U_AXIS), TOSTEPS(v, V_AXIS), TOSTEPS(w, W_AXIS)
         );
 
-        #define OVERSAMPLING 2
         advance_dividend = (next_pos - curr_pos);
-        advance_divisor = advance_dividend.ABS().large() * (float)OVERSAMPLING;
-        steps_pending = advance_divisor;
-        curr_pos = next_pos;
+        advance_divisor = advance_dividend.ABS().large();
 
-        if (advance_divisor == 0) {
-          interval = STEPPER_TIMER_RATE * FTM_TS;
-          advance_dividend = 0;
-          advance_divisor = 1;
-        } else {
-          interval = (STEPPER_TIMER_RATE * FTM_TS) / (advance_divisor);
-          advance_dividend = advance_dividend / advance_divisor;
-          advance_divisor = 1;
-          NOMORE(interval, STEPPER_TIMER_RATE * FTM_TS);
-        }
+        if (advance_divisor>0 && advance_divisor < 2) advance_divisor*=10;
 
+        static float interval_carry = 0;
+
+        float interval_till_next_traj = STEPPER_TIMER_RATE * FTM_TS + interval_carry;
+        interval = interval_till_next_traj / advance_divisor;
+        advance_divisor = interval_till_next_traj / FLOOR(interval); // floor cos unsure if the int is optimized out by -o2
+
+        NOLESS(advance_divisor, 1);
+
+        steps_pending = FLOOR(advance_divisor);
+        interval_carry = (1-steps_pending/advance_divisor) * interval_till_next_traj;
+
+        advance_dividend = advance_dividend / advance_divisor;
+        advance_divisor = 1;
+
+        curr_pos = curr_pos + advance_dividend * (float)steps_pending;
 
         traj_consume_i++;
         if (traj_consume_i == (FTM_WINDOW_SIZE)) traj_consume_i = 0;
@@ -244,10 +247,10 @@ class FTMotion {
         ft_command_t cmd = 0;
         #define RUN_AXIS(A)                                                     \
           do {                                                                  \
-            if (delta_error.A >= advance_divisor) {           \
+            if (delta_error.A > advance_divisor*.5) {           \
               delta_error.A -= advance_divisor;               \
               cmd |= _BV(FT_BIT_DIR_##A) | _BV(FT_BIT_STEP_##A);                \
-            } else if (delta_error.A <= -advance_divisor) {   \
+            } else if (delta_error.A < -advance_divisor*.5) {   \
               delta_error.A += advance_divisor;               \
               cmd |= _BV(FT_BIT_STEP_##A); /* neg dir implicit */               \
             }                                                                   \
