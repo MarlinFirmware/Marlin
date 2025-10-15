@@ -4039,6 +4039,11 @@ void MarlinSettings::reset() {
     TERN_(EDITABLE_HOMING_FEEDRATE, gcode.M210_report(forReplay));
 
     //
+    // GCODE Macros
+    //
+    TERN_(GCODE_MACROS_REPORT, gcode.M810_819_report(forReplay));
+
+    //
     // Probe Offset
     //
     TERN_(HAS_BED_PROBE, gcode.M851_report(forReplay));

@@ -62,4 +62,31 @@ void GcodeSuite::M810_819() {
   }
 }
 
+#if ENABLED(GCODE_MACROS_REPORT)
+
+void GcodeSuite::M810_819_report(const bool forReplay/*=true*/) {
+  if (!forReplay) {
+    report_heading(false, F("GCODE Macros"));
+  }
+
+  for (uint8_t i = 0; i < GCODE_MACROS_SLOTS; ++i) {
+    const char * const cmd = gcode_macros[i];
+    report_echo_start(forReplay);
+    SERIAL_ECHOPGM("  M", i + 810);
+    if (strlen(cmd)) {
+      SERIAL_CHAR(' ');
+      // Output the macro with \n replaced by |
+      char c;
+      const char *ptr = cmd;
+      while ((c = *ptr++)) {
+        SERIAL_CHAR(c == '\n' ? '|' : c);
+      }
+    } else {
+      SERIAL_ECHOPGM(" <empty>");
+    }
+    SERIAL_EOL();
+  }
+}
+
+#endif // GCODE_MACROS_REPORT
 #endif // GCODE_MACROS

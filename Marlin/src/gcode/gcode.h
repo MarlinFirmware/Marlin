@@ -1214,6 +1214,9 @@ private:
 
   #if ENABLED(GCODE_MACROS)
     static void M810_819();
+    #if ENABLED(GCODE_MACROS_REPORT)
+      static void M810_819_report(const bool forReplay=true);
+    #endif
     static void M820();
   #endif
 
