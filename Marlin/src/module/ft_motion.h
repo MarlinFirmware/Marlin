@@ -218,15 +218,14 @@ class FTMotion {
         advance_dividend = (next_pos - curr_pos);
         advance_divisor = advance_dividend.ABS().large();
 
-        if (advance_divisor>0 && advance_divisor < 2) advance_divisor*=10;
+        if (advance_divisor < 2) advance_divisor*=10;
+        NOLESS(advance_divisor, 1);
 
         static float interval_carry = 0;
 
         float interval_till_next_traj = STEPPER_TIMER_RATE * FTM_TS + interval_carry;
         interval = interval_till_next_traj / advance_divisor;
-        advance_divisor = interval_till_next_traj / FLOOR(interval); // floor cos unsure if the int is optimized out by -o2
-
-        NOLESS(advance_divisor, 1);
+        // advance_divisor = interval_till_next_traj / FLOOR(interval); // floor cos unsure if the int is optimized out by -o2
 
         steps_pending = FLOOR(advance_divisor);
         interval_carry = (1-steps_pending/advance_divisor) * interval_till_next_traj;
@@ -242,9 +241,10 @@ class FTMotion {
       }
 
       ft_command_t pop_command() {
+        ft_command_t cmd = 0;
+        if (steps_pending == 0) return cmd; // just trying to keep the isr time more constant, probably bs
         steps_pending--;
         delta_error += advance_dividend;
-        ft_command_t cmd = 0;
         #define RUN_AXIS(A)                                                     \
           do {                                                                  \
             if (delta_error.A > advance_divisor*.5) {           \

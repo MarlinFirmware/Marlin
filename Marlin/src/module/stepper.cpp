@@ -3553,7 +3553,6 @@ void Stepper::report_positions() {
    */
   void Stepper::ftMotion_stepper() {
 
-    // Check if the buffer is empty.
     if (ftMotion.stepping.steps_pending == 0) return;
 
     // "Pop" one command from current motion buffer
