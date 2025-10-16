@@ -224,7 +224,7 @@ class FTMotion {
         static float interval_carry = 0;
 
         float interval_till_next_traj = STEPPER_TIMER_RATE * FTM_TS + interval_carry;
-        interval = interval_till_next_traj / advance_divisor;
+        interval = interval_till_next_traj / advance_divisor + .5;
         // advance_divisor = interval_till_next_traj / FLOOR(interval); // floor cos unsure if the int is optimized out by -o2
 
         steps_pending = FLOOR(advance_divisor);
