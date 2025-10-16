@@ -201,29 +201,41 @@ class FTMotion {
        */
       uint32_t plan() {
         if (steps_pending > 0) return interval;
-        if (trajBuff_isEmpty()) {
-          return HAL_TIMER_TYPE_MAX;
+
+        advance_dividend = 0;
+        advance_divisor = 1;
+
+        #define OVERSAMPLING 2
+        float divisor = 0;
+        xyze_float_t dividend = {0};
+        static uint32_t trajs = 0;
+        while (divisor < 1) {
+          if (trajBuff_isEmpty()) {
+            return HAL_TIMER_TYPE_MAX;
+          }
+          #define TOSTEPS(A, B) \
+            (traj.A[traj_consume_i] * planner.settings.axis_steps_per_mm[B])
+          xyze_float_t next_pos = LOGICAL_AXIS_ARRAY(
+            TOSTEPS(e, block_extruder_axis),
+            TOSTEPS(x, X_AXIS), TOSTEPS(y, Y_AXIS), TOSTEPS(z, Z_AXIS),
+            TOSTEPS(i, I_AXIS), TOSTEPS(j, J_AXIS), TOSTEPS(k, K_AXIS),
+            TOSTEPS(u, U_AXIS), TOSTEPS(v, V_AXIS), TOSTEPS(w, W_AXIS)
+          );
+          dividend = (next_pos - curr_pos);
+          divisor = dividend.ABS().large() * OVERSAMPLING;
+          traj_consume_i++;
+          if (traj_consume_i == (FTM_WINDOW_SIZE)) traj_consume_i = 0;
+          trajs++;
         }
 
-        #define TOSTEPS(A, B) \
-          (traj.A[traj_consume_i] * planner.settings.axis_steps_per_mm[B])
+        advance_dividend = dividend;
+        advance_divisor = divisor;
 
-        xyze_float_t next_pos = LOGICAL_AXIS_ARRAY(
-          TOSTEPS(e, block_extruder_axis),
-          TOSTEPS(x, X_AXIS), TOSTEPS(y, Y_AXIS), TOSTEPS(z, Z_AXIS),
-          TOSTEPS(i, I_AXIS), TOSTEPS(j, J_AXIS), TOSTEPS(k, K_AXIS),
-          TOSTEPS(u, U_AXIS), TOSTEPS(v, V_AXIS), TOSTEPS(w, W_AXIS)
-        );
-
-        advance_dividend = (next_pos - curr_pos);
-        advance_divisor = advance_dividend.ABS().large();
-
-        if (advance_divisor < 2) advance_divisor*=10;
-        NOLESS(advance_divisor, 1);
 
         static float interval_carry = 0;
 
-        float interval_till_next_traj = STEPPER_TIMER_RATE * FTM_TS + interval_carry;
+        float interval_till_next_traj = STEPPER_TIMER_RATE * FTM_TS * trajs + interval_carry;
+        trajs = 0;
         interval = interval_till_next_traj / advance_divisor + .5;
         // advance_divisor = interval_till_next_traj / FLOOR(interval); // floor cos unsure if the int is optimized out by -o2
 
@@ -235,8 +247,7 @@ class FTMotion {
 
         curr_pos = curr_pos + advance_dividend * (float)steps_pending;
 
-        traj_consume_i++;
-        if (traj_consume_i == (FTM_WINDOW_SIZE)) traj_consume_i = 0;
+
         return interval;
       }
 
