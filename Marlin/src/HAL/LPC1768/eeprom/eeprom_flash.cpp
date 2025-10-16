@@ -74,7 +74,7 @@ bool PersistentStore::access_start() {
 
   if (status == CMD_SUCCESS) {
     // sector is blank so nothing stored yet
-    for (int i = 0; i < MARLIN_EEPROM_SIZE; i++) ram_eeprom[i] = EEPROM_ERASE;
+    for (int i = 0; i < long(MARLIN_EEPROM_SIZE); i++) ram_eeprom[i] = EEPROM_ERASE;
     current_slot = EEPROM_SLOTS;
   }
   else {
@@ -82,7 +82,7 @@ bool PersistentStore::access_start() {
     current_slot = first_nblank_loc / (MARLIN_EEPROM_SIZE);
     uint8_t *eeprom_data = SLOT_ADDRESS(EEPROM_SECTOR, current_slot);
     // load current settings
-    for (int i = 0; i < MARLIN_EEPROM_SIZE; i++) ram_eeprom[i] = eeprom_data[i];
+    for (int i = 0; i < long(MARLIN_EEPROM_SIZE); i++) ram_eeprom[i] = eeprom_data[i];
   }
   eeprom_dirty = false;
 

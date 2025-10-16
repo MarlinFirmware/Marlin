@@ -2474,7 +2474,7 @@ hal_timer_t Stepper::block_phase_isr() {
          *  isPowered - True when a move is powered.
          *  isEnabled - laser power is active.
          *
-         * Laser power variables are calulated and stored in this block by the planner code.
+         * Laser power variables are calculated and stored in this block by the planner code.
          *  trap_ramp_active_pwr - the active power in this block across accel or decel trap steps.
          *  trap_ramp_entry_incr - holds the precalculated value to increase the current power per accel step.
          */
@@ -3007,7 +3007,7 @@ hal_timer_t Stepper::block_phase_isr() {
       static int32_t smoothed_vals[SMOOTH_LIN_ADV_EXP_ORDER] = {0};
 
       for (uint8_t i = 0; i < SMOOTH_LIN_ADV_EXP_ORDER; i++) {
-        // Approximate gaussian smoothing via higher order exponential smoothing
+        // Approximate Gaussian smoothing via higher order exponential smoothing
         smoothed_vals[i] += MULT_Q(30, la_step_rate - smoothed_vals[i], extruder_advance_alpha_q30[E_INDEX_N(active_extruder)]);
         la_step_rate = smoothed_vals[i];
       }
@@ -3276,7 +3276,7 @@ void Stepper::init() {
    * Calculate a fixed point factor to apply to the signal and its echo
    * when shaping an axis.
    */
-  void Stepper::set_shaping_damping_ratio(const AxisEnum axis, const_float_t zeta) {
+  void Stepper::set_shaping_damping_ratio(const AxisEnum axis, const float zeta) {
     // From the damping ratio, get a factor that can be applied to advance_dividend for fixed-point maths.
     // For ZV, we use amplitudes 1/(1+K) and K/(1+K) where K = exp(-zeta * π / sqrt(1.0f - zeta * zeta))
     // which can be converted to 1:7 fixed point with an excellent fit with a 3rd-order polynomial.
@@ -3307,7 +3307,7 @@ void Stepper::init() {
     return -1;
   }
 
-  void Stepper::set_shaping_frequency(const AxisEnum axis, const_float_t freq) {
+  void Stepper::set_shaping_frequency(const AxisEnum axis, const float freq) {
     // enabling or disabling shaping whilst moving can result in lost steps
     planner.synchronize();
 
@@ -3534,15 +3534,13 @@ int32_t Stepper::triggered_position(const AxisEnum axis) {
 
 void Stepper::report_a_position(const xyz_long_t &pos) {
   #if NUM_AXES
-    SERIAL_ECHOLNPGM_P(
-      LIST_N(DOUBLE(NUM_AXES),
-        TERN(SAYS_A, PSTR(STR_COUNT_A), PSTR(STR_COUNT_X)), pos.x,
-        TERN(SAYS_B, PSTR("B:"), SP_Y_LBL), pos.y,
-        TERN(SAYS_C, PSTR("C:"), SP_Z_LBL), pos.z,
-        SP_I_LBL, pos.i, SP_J_LBL, pos.j, SP_K_LBL, pos.k,
-        SP_U_LBL, pos.u, SP_V_LBL, pos.v, SP_W_LBL, pos.w
-      )
-    );
+    SERIAL_ECHOLNPGM_P(NUM_AXIS_PAIRED_LIST(
+      TERN(SAYS_A, PSTR(STR_COUNT_A), PSTR(STR_COUNT_X)), pos.x,
+      TERN(SAYS_B, PSTR("B:"), SP_Y_LBL), pos.y,
+      TERN(SAYS_C, PSTR("C:"), SP_Z_LBL), pos.z,
+      SP_I_LBL, pos.i, SP_J_LBL, pos.j, SP_K_LBL, pos.k,
+      SP_U_LBL, pos.u, SP_V_LBL, pos.v, SP_W_LBL, pos.w
+    ));
   #endif
 }
 
@@ -3567,15 +3565,13 @@ void Stepper::report_positions() {
   void Stepper::ftMotion_stepper() {
 
     // Check if the buffer is empty.
-    ftMotion.sts_stepperBusy = (ftMotion.stepperCmdBuff_produceIdx != ftMotion.stepperCmdBuff_consumeIdx);
-    if (!ftMotion.sts_stepperBusy) return;
+    ftMotion.stepperCmdBuffHasData = (ftMotion.stepperCmdBuff_produceIdx != ftMotion.stepperCmdBuff_consumeIdx);
+    if (!ftMotion.stepperCmdBuffHasData) return;
 
     // "Pop" one command from current motion buffer
     const ft_command_t command = ftMotion.stepperCmdBuff[ftMotion.stepperCmdBuff_consumeIdx];
     if (++ftMotion.stepperCmdBuff_consumeIdx == (FTM_STEPPERCMD_BUFF_SIZE))
       ftMotion.stepperCmdBuff_consumeIdx = 0;
-
-    if (abort_current_block) return;
 
     USING_TIMED_PULSE();
 

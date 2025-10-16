@@ -209,13 +209,6 @@ jobs:
         sudo apt-get install libsdl2-net-dev
         sudo apt-get install libglm-dev
 
-    - name: Checkout Configurations
-      uses: actions/checkout@v4
-      with:
-        repository: MarlinFirmware/Configurations
-        ref: ${{ env.CONFIG_BRANCH }}
-        path: ConfigurationsRepo
-
     - name: Run ${{ matrix.test-platform }} Tests
       run: |
         make tests-single-ci TEST_TARGET=${{ matrix.test-platform }}
