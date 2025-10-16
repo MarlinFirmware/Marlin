@@ -131,6 +131,7 @@ int8_t GcodeSuite::get_target_e_stepper_from_command() {
     SERIAL_ECHOLNPAIR(" " STR_INVALID_E_STEPPER " ", e);
   return -1;
 }
+bool custom_cyclical_mode = false;
 
 /**
  * Set XYZE destination and feedrate from the current GCode command

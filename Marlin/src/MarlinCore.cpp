@@ -259,6 +259,18 @@ bool wait_for_heatup = true;
 
 #endif
 
+// ------------ НАЧАЛО НАШЕГО КОДА: ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ ------------
+
+// Указываем, что наш специальный режим включен по умолчанию
+constexpr bool CUSTOM_AUTONOMOUS_MODE_ENABLED = true;
+
+// Параметры движения для нашего режима
+constexpr float CUSTOM_MOVE_DISTANCE_MM = 100.0f; // Расстояние в мм
+constexpr float CUSTOM_MOVE_FEEDRATE_MM_MIN = 1200.0f; // Скорость в мм/мин
+
+// ------------ КОНЕЦ НАШЕГО КОДА: ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ ------------
+
+
 /**
  * ***************************************************************************
  * ******************************** FUNCTIONS ********************************
@@ -717,6 +729,38 @@ inline void manage_inactivity(const bool ignore_stepper_queue=false) {
  *  - Handle Joystick jogging
  */
 void idle(TERN_(ADVANCED_PAUSE_FEATURE, bool no_stepper_sleep/*=false*/)) {
+    
+  // ------------ НАЧАЛО НАШЕГО КОДА: ОСНОВНАЯ ЛОГИКА ------------
+
+  if (CUSTOM_AUTONOMOUS_MODE_ENABLED && !planner.movesplanned()
+  ) {
+    // Проверяем, что наш режим включен и планировщик сейчас свободен (т.е. не выполняет движение)
+
+    // Статическая переменная. 'static' означает, что её значение сохраняется между вызовами функции idle().
+    // Это нужно, чтобы отловить именно момент нажатия, а не зажатое состояние.
+    static bool was_x_endstop_pressed = false;
+
+    // Определяем текущее состояние концевика с учетом инверсии
+    const bool is_x_endstop_pressed = (READ(X_MIN_PIN) ^ X_MIN_ENDSTOP_INVERTING);
+
+    // Ищем "передний фронт" - переход из состояния "не нажат" в "нажат"
+    if (is_x_endstop_pressed && !was_x_endstop_pressed) {
+      
+      // Концевик только что был нажат! Формируем строку с G-кодом
+      char gcode_command[32];
+      sprintf_P(gcode_command, PSTR("G91\nG1 X%.2f F%.0f\nG90"), CUSTOM_MOVE_DISTANCE_MM, CUSTOM_MOVE_FEEDRATE_MM_MIN);
+
+      // Помещаем G-код в очередь на выполнение.
+      // Marlin сам его подхватит и выполнит, как только сможет.
+      queue.inject(gcode_command);
+    }
+
+    // Запоминаем текущее состояние концевика для следующей проверки
+    was_x_endstop_pressed = is_x_endstop_pressed;
+  }
+
+  // ------------ КОНЕЦ НАШЕГО КОДА ------------
+  
   #if ENABLED(MARLIN_DEV_MODE)
     static uint16_t idle_depth = 0;
     if (++idle_depth > 5) SERIAL_ECHOLNPAIR("idle() call depth: ", idle_depth);
@@ -811,6 +855,8 @@ void idle(TERN_(ADVANCED_PAUSE_FEATURE, bool no_stepper_sleep/*=false*/)) {
 
   // Update the LVGL interface
   TERN_(HAS_TFT_LVGL_UI, LV_TASK_HANDLER());
+
+
 
   IDLE_DONE:
   TERN_(MARLIN_DEV_MODE, idle_depth--);

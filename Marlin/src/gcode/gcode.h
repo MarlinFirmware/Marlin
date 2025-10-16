@@ -318,6 +318,8 @@ enum AxisRelative : uint8_t { REL_X, REL_Y, REL_Z, REL_E, E_MODE_ABS, E_MODE_REL
 
 extern const char G28_STR[];
 
+extern bool custom_cyclical_mode;
+
 class GcodeSuite {
 public:
 
@@ -1101,10 +1103,14 @@ private:
     static void M7219();
   #endif
 
+  #if HAS_X_MIN
+    static void M9002();
+  #endif
+  
   #if ENABLED(CONTROLLER_FAN_EDITABLE)
     static void M710();
   #endif
-
+  
   static void T(const int8_t tool_index);
 
 };
