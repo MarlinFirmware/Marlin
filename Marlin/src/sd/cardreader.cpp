@@ -303,7 +303,7 @@ void CardReader::printListing(MediaFile parent, const char * const prepend, cons
       // Allocate enough stack space for the full path including / separator
       char path[lenPrepend + FILENAME_LENGTH];
       if (prepend) { strcpy(path, prepend); path[lenPrepend - 1] = '/'; }
-      char* dosFilename = path + lenPrepend;
+      char * const dosFilename = path + lenPrepend;
       createFilename(dosFilename, p);
 
       // Get a new directory object using the full path
@@ -1338,19 +1338,17 @@ void CardReader::cdroot() {
       };
 
       #if ENABLED(SDSORT_USES_RAM)
-        const bool dir1 = IS_DIR(o1),
-                   dir2 = IS_DIR(o2);
-        const char* name1 = card.sortnames[o1];
-        const char* name2 = card.sortnames[o2];
+        const bool dir1 = IS_DIR(o1), dir2 = IS_DIR(o2);
+        const char *name1 = card.sortnames[o1], *name2 = card.sortnames[o2];
       #else
         card.selectFileByIndex(o1);
         char name1_buffer[LONG_FILENAME_LENGTH];
         strcpy(name1_buffer, card.longest_filename());
-        const char* name1 = name1_buffer;
+        const char *name1 = name1_buffer;
         const bool dir1 = card.flag.filenameIsDir;
 
         card.selectFileByIndex(o2);
-        const char* name2 = card.longest_filename();
+        const char *name2 = card.longest_filename();
         const bool dir2 = card.flag.filenameIsDir;
       #endif
 
@@ -1400,7 +1398,7 @@ void CardReader::cdroot() {
         low = stack[top--];
 
         // Set pivot element at correct position
-        int16_t pivot = partition(arr, low, high);
+        const int16_t pivot = partition(arr, low, high);
         // If elements are on left side, push to stack
         if (pivot - 1 > low) {
           stack[++top] = low;
