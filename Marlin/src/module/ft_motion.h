@@ -182,6 +182,7 @@ class FTMotion {
       xyze_float_t advance_dividend{0};
       xyze_float_t delta_error{0};
       uint32_t steps_pending = 0;
+      AxisBits last_direction_bits;
 
       void reset(){
         curr_pos.reset();
@@ -191,21 +192,13 @@ class FTMotion {
         delta_error.reset();
       }
 
-      /**
-       * @brief Interpolate a single trajectory data point into stepper commands.
-       * @param idx The index of the trajectory point to convert.
-       *
-       * Calculate the required stepper movements for each axis based on the
-       * difference between the current and previous trajectory points.
-       * Add up to one stepper command to the buffer with STEP/DIR bits for all axes.
-       */
       uint32_t plan() {
         if (steps_pending > 0) return interval;
 
         advance_dividend = 0;
         advance_divisor = 1;
 
-        #define OVERSAMPLING 2
+        #define OVERSAMPLING 5
         float divisor = 0;
         xyze_float_t dividend = {0};
         static uint32_t trajs = 0;
@@ -213,14 +206,14 @@ class FTMotion {
           if (trajBuff_isEmpty()) {
             return HAL_TIMER_TYPE_MAX;
           }
-          #define TOSTEPS(A, B) \
-            (traj.A[traj_consume_i] * planner.settings.axis_steps_per_mm[B])
+          #define TOSTEPS(A, B) (traj.A[traj_consume_i] * planner.settings.axis_steps_per_mm[B])
           xyze_float_t next_pos = LOGICAL_AXIS_ARRAY(
             TOSTEPS(e, block_extruder_axis),
             TOSTEPS(x, X_AXIS), TOSTEPS(y, Y_AXIS), TOSTEPS(z, Z_AXIS),
             TOSTEPS(i, I_AXIS), TOSTEPS(j, J_AXIS), TOSTEPS(k, K_AXIS),
             TOSTEPS(u, U_AXIS), TOSTEPS(v, V_AXIS), TOSTEPS(w, W_AXIS)
           );
+          #undef TOSTEPS
           dividend = (next_pos - curr_pos);
           divisor = dividend.ABS().large() * OVERSAMPLING;
           traj_consume_i++;
@@ -228,46 +221,47 @@ class FTMotion {
           trajs++;
         }
 
+
+        #define SET_DIR(A)                                                      \
+          if (dividend.A != 0 && ((dividend.A > 0) != last_direction_bits.A)) { \
+            delta_error.A *= -1;                                                \
+            last_direction_bits.A = !last_direction_bits.A;                     \
+          }
+
+        LOGICAL_AXIS_MAP(SET_DIR);
+
         advance_dividend = dividend;
         advance_divisor = divisor;
-
 
         static float interval_carry = 0;
 
         float interval_till_next_traj = STEPPER_TIMER_RATE * FTM_TS * trajs + interval_carry;
         trajs = 0;
         interval = interval_till_next_traj / advance_divisor + .5;
-        // advance_divisor = interval_till_next_traj / FLOOR(interval); // floor cos unsure if the int is optimized out by -o2
 
         steps_pending = FLOOR(advance_divisor);
-        interval_carry = (1-steps_pending/advance_divisor) * interval_till_next_traj;
+        interval_carry = (1 - steps_pending/advance_divisor) * interval_till_next_traj;
 
         advance_dividend = advance_dividend / advance_divisor;
         advance_divisor = 1;
 
         curr_pos = curr_pos + advance_dividend * (float)steps_pending;
-
-
+        advance_dividend = advance_dividend.ABS();
         return interval;
       }
 
       ft_command_t pop_command() {
         ft_command_t cmd = 0;
-        if (steps_pending == 0) return cmd; // just trying to keep the isr time more constant, probably bs
+        if (steps_pending == 0) return cmd;
         steps_pending--;
         delta_error += advance_dividend;
-        #define RUN_AXIS(A)                                                     \
-          do {                                                                  \
-            if (delta_error.A > advance_divisor*.5) {           \
-              delta_error.A -= advance_divisor;               \
-              cmd |= _BV(FT_BIT_DIR_##A) | _BV(FT_BIT_STEP_##A);                \
-            } else if (delta_error.A < -advance_divisor*.5) {   \
-              delta_error.A += advance_divisor;               \
-              cmd |= _BV(FT_BIT_STEP_##A); /* neg dir implicit */               \
-            }                                                                   \
-          } while (0);
+        #define RUN_AXIS(A)                                                   \
+          if (delta_error.A > 0.5) {                                          \
+            delta_error.A -= 1;                                               \
+            cmd |= ((ft_command_t) last_direction_bits.A) << FT_BIT_DIR_##A;  \
+            cmd |= _BV(FT_BIT_STEP_##A);                                      \
+          }                                                                   \
 
-        // Where the error has accumulated whole axis steps, add them to the command
         LOGICAL_AXIS_MAP(RUN_AXIS);
         #undef RUN_AXIS
         return cmd;
