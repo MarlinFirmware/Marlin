@@ -1459,7 +1459,7 @@ void CardReader::cdroot() {
             selectFileByIndex(o2);
             const bool dir2 = flag.filenameIsDir;
             char * const name2 = longest_filename(); // Use the string in-place
-            if ((i & 0x7) == 7) hal.watchdog_refresh()
+            if ((i & 0x7) == 7) hal.watchdog_refresh();
           #endif
 
           // Sort the current pair according to settings.
