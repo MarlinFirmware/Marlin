@@ -3552,11 +3552,8 @@ void Stepper::report_positions() {
    * - Apply STEP/DIR along with any delays required. A command may be empty, with no STEP/DIR.
    */
   void Stepper::ftMotion_stepper() {
-
-    if (ftMotion.stepping.steps_pending == 0) return;
-
-    // "Pop" one command from current motion buffer
     const ft_command_t command = ftMotion.stepping.pop_command();
+    if (command == 0) return;
 
     USING_TIMED_PULSE();
 
