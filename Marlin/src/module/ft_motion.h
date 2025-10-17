@@ -180,8 +180,8 @@ class FTMotion {
       uint32_t steps_pending = 0;
       float interval_carry = 0;
       xyze_float_t curr_pos{0};
-      XYZEval<uint32_t>  advance_dividend{0};
-      XYZEval<uint32_t> delta_error{0};
+      XYZEval<uint32_t>  advance_dividend_q32{0};
+      XYZEval<uint32_t> delta_error_q32{1UL<<31};
       ft_command_t pre_loaded_directons; // Never write FT_BIT_STEP_##A here.
 
       void reset(){
@@ -189,8 +189,8 @@ class FTMotion {
         steps_pending = 0;
         interval_carry = 0;
         curr_pos.reset();
-        advance_dividend.reset();
-        delta_error.reset();
+        advance_dividend_q32.reset();
+        delta_error_q32 = {1UL<<31};
         // pre_loaded_directons not reset on purpose
       }
 
@@ -226,7 +226,7 @@ class FTMotion {
             bool new_dir = (delta.A > 0);                                       \
             if (old_dir != new_dir) {                                           \
               bitWrite(pre_loaded_directons, FT_BIT_DIR_##A, new_dir);          \
-              delta_error.A = 0u - delta_error.A;                               \
+              delta_error_q32.A = 0u - delta_error_q32.A;                               \
             }                                                                   \
           } while (0);
 
@@ -248,7 +248,7 @@ class FTMotion {
           LOGICAL_AXIS_MAP(SHIFT32);
         #undef SHIFT32
 
-        advance_dividend = dividend.asULong();  // XYZEval<uint32_t>{ (uint32_t)e, (uint32_t)x, ... }
+        advance_dividend_q32 = dividend.asULong();  // XYZEval<uint32_t>{ (uint32_t)e, (uint32_t)x, ... }
 
         float interval_till_next_traj = STEPPER_TIMER_RATE * FTM_TS * trajs + interval_carry;
 
@@ -262,17 +262,22 @@ class FTMotion {
         return interval;
       }
 
+      /**
+       * When delta_error_q32 reaches 1 (1 = 2^32 in q0.32 fixed point format), it:
+       *  * rolls over, so no need to subtract 1 (2^32) from it
+       *  * the carry can be detected because advance_dividend is strictly < 1
+       *  * delta_error_q32 is initialized to 0.5 (2^31) to ensure steps are not lost.
+       *  * Technically a step would be lost every billion consecutive steps (2^30) in the same direction.
+      */
       ft_command_t pop_command() {
         ft_command_t cmd = pre_loaded_directons;
         if (steps_pending == 0) return cmd;
         steps_pending--;
         #define RUN_AXIS(A)                                                   \
           do {                                                                \
-            /* MAGIC: error wraps around when a step is due */                \
-            delta_error.A += advance_dividend.A;                              \
-            /* MAGIC: do_step_now  is the carry of the previous sum */        \
-            ft_command_t do_step_now = delta_error.A < advance_dividend.A;    \
-            cmd |= do_step_now << FT_BIT_STEP_##A;                            \
+            delta_error_q32.A += advance_dividend_q32.A;                      \
+            bool do_step_now = delta_error_q32.A < advance_dividend_q32.A;    \
+            cmd |= ft_command_t(do_step_now) << FT_BIT_STEP_##A;              \
           } while (0);
 
         LOGICAL_AXIS_MAP(RUN_AXIS);
