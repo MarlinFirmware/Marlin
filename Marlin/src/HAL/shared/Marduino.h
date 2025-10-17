@@ -46,6 +46,9 @@
 #ifndef CBI
   #define CBI(A,B) (A &= ~_BV(B))
 #endif
+#ifndef bitWrite
+  #define bitWrite(value,bit,bitvalue) ((bitvalue) ? SBI((value), (bit)) : CBI((value), (bit) ))
+#endif
 
 #undef sq
 #define sq(x) ((x)*(x))
