@@ -31,6 +31,10 @@
 #include "stepper.h" // Access stepper block queue function and abort status.
 #include "endstops.h"
 
+#if ENABLED(POWER_LOSS_RECOVERY)
+  #include "../feature/powerloss.h"
+#endif
+
 FTMotion ftMotion;
 
 //-----------------------------------------------------------------
@@ -170,6 +174,12 @@ void FTMotion::loop() {
       continue;
     }
     loadBlockData(stepper.current_block);
+    
+    #if ENABLED(POWER_LOSS_RECOVERY)
+      recovery.info.sdpos = stepper.current_block->sdpos;
+      recovery.info.current_position = stepper.current_block->start_position;
+    #endif
+
     blockProcRdy = true;
 
     // Some kinematics track axis motion in HX, HY, HZ
