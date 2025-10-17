@@ -29,7 +29,7 @@
 
 static std::list<MarlinTest*> all_marlin_tests;
 
-MarlinTest::MarlinTest(const std::string _name, const void(*_test)(), const char *_file, const int _line)
+MarlinTest::MarlinTest(const std::string& _name, const void(*_test)(), const char *_file, const int _line)
 : name(_name), test(_test), file(_file), line(_line) {
   all_marlin_tests.push_back(this);
 }

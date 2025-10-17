@@ -48,7 +48,7 @@ uint16_t Touch::controls_count;
 millis_t Touch::next_touch_ms = 0,
          Touch::time_to_hold,
          Touch::repeat_delay,
-         Touch::touch_time;
+         Touch::nada_start_ms;
 TouchControlType Touch::touch_control_type = NONE;
 #if HAS_DISPLAY_SLEEP
   millis_t Touch::next_sleep_ms; // = 0
@@ -78,16 +78,17 @@ void Touch::add_control(TouchControlType type, uint16_t x, uint16_t y, uint16_t 
 }
 
 void Touch::idle() {
-  int16_t _x, _y;
-
   if (!enabled) return;
 
   // Return if Touch::idle is called within the same millisecond
   const millis_t now = millis();
-  if (now <= next_touch_ms) return;
+  if (now == next_touch_ms) return;
   next_touch_ms = now;
 
+  // Get the point and if the screen is touched do more
+  int16_t _x, _y;
   if (get_point(&_x, &_y)) {
+
     #if HAS_RESUME_CONTINUE
       // UI is waiting for a click anywhere?
       if (wait_for_user) {
@@ -100,18 +101,27 @@ void Touch::idle() {
 
     ui.reset_status_timeout(now);
 
-    if (touch_time) {
+    // If nada_start_ms is set the touch is being held down outside of a control.
+    // With TOUCH_SCREEN_CALIBRATION a long hold (2.5s by default) opens to the calibration screen.
+    // As long as this non-action touch is still held down, return.
+    if (nada_start_ms) {
       #if ENABLED(TOUCH_SCREEN_CALIBRATION)
-        if (touch_control_type == NONE && ELAPSED(now, touch_time, TOUCH_SCREEN_HOLD_TO_CALIBRATE_MS) && ui.on_status_screen())
+        if (touch_control_type == NONE && ELAPSED(now, nada_start_ms, TOUCH_SCREEN_HOLD_TO_CALIBRATE_MS) && ui.on_status_screen())
           ui.goto_screen(touch_screen_calibration);
       #endif
       return;
     }
 
+    // First time touched, ignore the control for a tiny interval as a debounce
     if (time_to_hold == 0) time_to_hold = now + MINIMUM_HOLD_TIME;
+
+    // For a held control ignore the continuing touch until time elapses
+    // to prevent spamming controls.
     if (PENDING(now, time_to_hold)) return;
 
+    // Was a previous point recorded? Then we are dragging, maybe in a control.
     if (x != 0 && y != 0) {
+      // If a control was set by hold() keep sliding it until its bounds are exited
       if (current_control) {
         if (WITHIN(x, current_control->x - FREE_MOVE_RANGE, current_control->x + current_control->width + FREE_MOVE_RANGE) && WITHIN(y, current_control->y - FREE_MOVE_RANGE, current_control->y + current_control->height + FREE_MOVE_RANGE)) {
           LIMIT(x, current_control->x, current_control->x + current_control->width);
@@ -122,65 +132,102 @@ void Touch::idle() {
           current_control = nullptr;
       }
       else {
-        for (uint16_t i = 0; i < controls_count; i++) {
-          if ((WITHIN(x, controls[i].x, controls[i].x + controls[i].width) && WITHIN(y, controls[i].y, controls[i].y + controls[i].height)) || (TERN(TOUCH_SCREEN_CALIBRATION, controls[i].type == CALIBRATE, false))) {
-            touch_control_type = controls[i].type;
-            touch(&controls[i]);
+        // Initiate a touch on the first control containing the touch position
+        // If this is a button the touch initiates the action on the button.
+        // TODO: Apply standard UI practice for Tap events:
+        //  - Take a short press-and-release as a Tap.
+        //  - If more taps occur before "tap detect time" elapses, increment taps counter.
+        //  - When "tap detect time" elapses activate the button, sending the number of taps.
+        for (uint16_t i = 0; i < controls_count; ++i) {
+          auto &c = controls[i];
+          if ((WITHIN(x, c.x, c.x + c.width) && WITHIN(y, c.y, c.y + c.height)) || TERN0(TOUCH_SCREEN_CALIBRATION, c.type == CALIBRATE)) {
+            touch_control_type = c.type;
+            touch(&c);
             break;
           }
         }
       }
 
       if (!current_control)
-        touch_time = now;
+        nada_start_ms = now;
     }
     x = _x;
     y = _y;
   }
   else {
+    // No touch is occurring. Continually reset these values:
     x = y = 0;
     current_control = nullptr;
-    touch_time = 0;
+    nada_start_ms = 0;
     touch_control_type = NONE;
     time_to_hold = 0;
     repeat_delay = TOUCH_REPEAT_DELAY;
   }
 }
 
-void Touch::touch(touch_control_t *control) {
+// Handle a touch first detected in a control
+void Touch::touch(touch_control_t * const control) {
   switch (control->type) {
+
     #if ENABLED(TOUCH_SCREEN_CALIBRATION)
+      // During touch calibration just intercept the whole screen
       case CALIBRATE:
         if (touch_calibration.handleTouch(x, y)) ui.refresh();
         break;
     #endif
 
+    // A control that activates a menu item screen
     case MENU_SCREEN: ui.goto_screen((screenFunc_t)control->data); break;
+
+    // Back Control
     case BACK: ui.goto_previous_screen(); break;
+
+    // Set the encoder position to highlight the menu item but not activate it
+    case MENU_ITEM: ui.encoderPosition = control->data; ui.refresh(); break;
+
+    // Move encoder to a menu item and simulate a click.
+    // Highlighted menu items have this type to indicate a touch will activate it.
     case MENU_CLICK:
       TERN_(SINGLE_TOUCH_NAVIGATION, ui.encoderPosition = control->data);
-      ui.lcd_clicked = true;
-      break;
+      // Effectively ignore the touch until it is released
+      time_to_hold = next_touch_ms + 2000;
+      // fall thru
+
+    // Tap to Continue. e.g., Anywhere on the whole screen.
     case CLICK: ui.lcd_clicked = true; break;
+
+    // Tap on button with 'true' selection
+    case CONFIRM: ui.encoderPosition = 1; ui.selection = true; ui.lcd_clicked = true; break;
+    // Tap on butto with 'false' selection
+    case CANCEL:  ui.encoderPosition = 0; ui.selection = false; ui.lcd_clicked = true; break;
+
+    // Specifically, Click to Continue
     #if HAS_RESUME_CONTINUE
       case RESUME_CONTINUE: extern bool wait_for_user; wait_for_user = false; break;
     #endif
-    case CANCEL:  ui.encoderPosition = 0; ui.selection = false; ui.lcd_clicked = true; break;
-    case CONFIRM: ui.encoderPosition = 1; ui.selection = true; ui.lcd_clicked = true; break;
-    case MENU_ITEM: ui.encoderPosition = control->data; ui.refresh(); break;
+
+    // Page Up button
     case PAGE_UP:
       encoderTopLine = encoderTopLine > LCD_HEIGHT ? encoderTopLine - LCD_HEIGHT : 0;
       ui.encoderPosition = ui.encoderPosition > LCD_HEIGHT ? ui.encoderPosition - LCD_HEIGHT : 0;
       ui.refresh();
       break;
+    // Page Down button
     case PAGE_DOWN:
       encoderTopLine = (encoderTopLine + 2 * LCD_HEIGHT < screen_items) ? encoderTopLine + LCD_HEIGHT : screen_items - LCD_HEIGHT;
       ui.encoderPosition = ui.encoderPosition + LCD_HEIGHT < (uint32_t)screen_items ? ui.encoderPosition + LCD_HEIGHT : screen_items;
       ui.refresh();
       break;
+
+    // A slider is held until the touch ends, no repeat delay
     case SLIDER:    hold(control); ui.encoderPosition = (x - control->x) * control->data / control->width; break;
+
+    // Increase / Decrease controls are held with a repeat delay
     case INCREASE:  hold(control, repeat_delay - 5); TERN(AUTO_BED_LEVELING_UBL, ui.external_control ? bedlevel.encoder_diff++ : ui.encoderPosition++, ui.encoderPosition++); break;
     case DECREASE:  hold(control, repeat_delay - 5); TERN(AUTO_BED_LEVELING_UBL, ui.external_control ? bedlevel.encoder_diff-- : ui.encoderPosition--, ui.encoderPosition--); break;
+
+    // Other controls behave like menu items
+
     case HEATER: {
       ui.clear_for_drawing();
       const int8_t heater = control->data;
@@ -261,7 +308,9 @@ void Touch::touch(touch_control_t *control) {
   }
 }
 
-void Touch::hold(touch_control_t *control, millis_t delay) {
+// Set the control as "held" until the touch is released
+//
+void Touch::hold(touch_control_t * const control, const millis_t delay/*=0*/) {
   current_control = control;
   if (delay) {
     repeat_delay = _MAX(delay, uint32_t(MIN_REPEAT_DELAY));

@@ -399,9 +399,9 @@ typedef struct { float p, i, d, c, f; } raw_pidcf_t;
     float filament_heat_capacity_permm; // M306 H
     #if ENABLED(MPC_INCLUDE_FAN)
       float fan255_adjustment;          // M306 F
-      void applyFanAdjustment(const_float_t cf) { fan255_adjustment = cf - ambient_xfer_coeff_fan0; }
+      void applyFanAdjustment(const float cf) { fan255_adjustment = cf - ambient_xfer_coeff_fan0; }
     #else
-      void applyFanAdjustment(const_float_t) {}
+      void applyFanAdjustment(const float) {}
     #endif
     float fanCoefficient() { return SUM_TERN(MPC_INCLUDE_FAN, ambient_xfer_coeff_fan0, fan255_adjustment); }
   } MPC_t;
@@ -459,7 +459,7 @@ struct PIDHeaterInfo : public HeaterInfo {
           modeled_block_temp,
           modeled_sensor_temp;
     float fanCoefficient() { return mpc.fanCoefficient(); }
-    void applyFanAdjustment(const_float_t cf) { mpc.applyFanAdjustment(cf); }
+    void applyFanAdjustment(const float cf) { mpc.applyFanAdjustment(cf); }
   };
 #endif
 
@@ -1224,7 +1224,7 @@ class Temperature {
       // Update the temp manager when PID values change
       #if ENABLED(PIDTEMP)
         static void updatePID() { HOTEND_LOOP() temp_hotend[e].pid.reset(); }
-        static void setPID(const uint8_t hotend, const_float_t p, const_float_t i, const_float_t d) {
+        static void setPID(const uint8_t hotend, const float p, const float i, const float d) {
           #if ENABLED(PID_PARAMS_PER_HOTEND)
             temp_hotend[hotend].pid.set(p, i, d);
           #else
@@ -1425,7 +1425,7 @@ class Temperature {
           millis_t variance_timer = 0;
           celsius_float_t last_temp = 0.0, variance = 0.0;
         #endif
-        void run(const_celsius_float_t current, const_celsius_float_t target, const heater_id_t heater_id, const uint16_t period_seconds, const celsius_float_t hysteresis_degc);
+        void run(const celsius_float_t current, const celsius_float_t target, const heater_id_t heater_id, const uint16_t period_seconds, const celsius_float_t hysteresis_degc);
       } tr_state_machine_t;
 
       static tr_state_machine_t tr_state_machine[NR_HEATER_RUNAWAY];

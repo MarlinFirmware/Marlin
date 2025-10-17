@@ -170,7 +170,7 @@ typedef bool (*statusResetFunc_t)();
     static float axis_value(const AxisEnum axis) {
       return NATIVE_TO_LOGICAL(processing ? destination[axis] : SUM_TERN(IS_KINEMATIC, current_position[axis], offset), axis);
     }
-    static bool apply_diff(const AxisEnum axis, const_float_t diff, const_float_t min, const_float_t max) {
+    static bool apply_diff(const AxisEnum axis, const float diff, const float min, const float max) {
       #if IS_KINEMATIC
         float &valref = offset;
         const float rmin = min - current_position[axis], rmax = max - current_position[axis];
@@ -726,7 +726,7 @@ public:
 
     #if ENABLED(AUTO_BED_LEVELING_UBL)
       static void ubl_plot(const uint8_t x_plot, const uint8_t y_plot);
-      static void ubl_mesh_edit_start(const_float_t initial);
+      static void ubl_mesh_edit_start(const float initial);
       static float ubl_mesh_value();
     #endif
 

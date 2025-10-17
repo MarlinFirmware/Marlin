@@ -41,7 +41,7 @@
   #include "../tft/touch.h"
 #endif
 
-void _goto_manual_move_z(const_float_t);
+void _goto_manual_move_z(const float);
 
 float measured_z, z_offset;
 
