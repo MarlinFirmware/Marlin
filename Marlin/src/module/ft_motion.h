@@ -182,7 +182,9 @@ class FTMotion {
       xyze_float_t curr_pos{0};
       XYZEval<uint32_t>  advance_dividend_q32{0};
       XYZEval<uint32_t> delta_error_q32{1UL<<31};
-      ft_command_t pre_loaded_directons; // Never write FT_BIT_STEP_##A here.
+      ft_command_t pre_loaded_directons; // Holds only FT_BIT_DIR_## bits, no steps.
+                                         // Also used to find out direction changes, shall not be resetted inside reset()
+      uint32_t trajectory_points_in_curr_plan = 0;
 
       void reset(){
         interval = 0;
@@ -191,7 +193,7 @@ class FTMotion {
         curr_pos.reset();
         advance_dividend_q32.reset();
         delta_error_q32 = {1UL<<31};
-        // pre_loaded_directons not reset on purpose
+        trajectory_points_in_curr_plan = 0;
       }
 
       uint32_t plan() {
@@ -200,7 +202,6 @@ class FTMotion {
         #define OVERSAMPLING 5
         float delta_max = 0;
         xyze_float_t delta = {0};
-        static uint32_t trajs = 0;
         while (delta_max < 1) {
           if (trajBuff_isEmpty()) {
             return HAL_TIMER_TYPE_MAX;
@@ -217,7 +218,7 @@ class FTMotion {
           delta_max = delta.ABS().large() * OVERSAMPLING;
           traj_consume_i++;
           if (traj_consume_i == (FTM_WINDOW_SIZE)) traj_consume_i = 0;
-          trajs++;
+          trajectory_points_in_curr_plan++;
         }
         // From here onwards, delta_max ≥ 1
         #define PRELOAD_DIRECTIONS(A)                                           \
@@ -226,7 +227,7 @@ class FTMotion {
             bool new_dir = (delta.A > 0);                                       \
             if (old_dir != new_dir) {                                           \
               bitWrite(pre_loaded_directons, FT_BIT_DIR_##A, new_dir);          \
-              delta_error_q32.A = 0u - delta_error_q32.A;                               \
+              delta_error_q32.A = 0u - delta_error_q32.A;                       \
             }                                                                   \
           } while (0);
 
@@ -250,9 +251,9 @@ class FTMotion {
 
         advance_dividend_q32 = dividend.asULong();  // XYZEval<uint32_t>{ (uint32_t)e, (uint32_t)x, ... }
 
-        float interval_till_next_traj = STEPPER_TIMER_RATE * FTM_TS * trajs + interval_carry;
+        float interval_till_next_traj = STEPPER_TIMER_RATE * FTM_TS * trajectory_points_in_curr_plan + interval_carry;
 
-        trajs = 0;
+        trajectory_points_in_curr_plan = 0;
         interval = interval_till_next_traj / delta_max + .5;
 
         steps_pending = FLOOR(delta_max);
