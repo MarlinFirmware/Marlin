@@ -104,12 +104,12 @@ void ProbeTempComp::print_offsets() {
   #endif
 }
 
-void ProbeTempComp::prepare_new_calibration(const_float_t init_meas_z) {
+void ProbeTempComp::prepare_new_calibration(const float init_meas_z) {
   calib_idx = 0;
   init_measurement = init_meas_z;
 }
 
-void ProbeTempComp::push_back_new_measurement(const TempSensorID tsi, const_float_t meas_z) {
+void ProbeTempComp::push_back_new_measurement(const TempSensorID tsi, const float meas_z) {
   if (calib_idx >= cali_info[tsi].measurements) return;
   sensor_z_offsets[tsi][calib_idx++] = static_cast<int16_t>((meas_z - init_measurement) * 1000.0f);
 }
@@ -186,7 +186,7 @@ void ProbeTempComp::compensate_measurement(const TempSensorID tsi, const celsius
   };
 
   // Interpolate Z based on a temperature being within a given range
-  auto linear_interp = [](const_float_t x, xy_float_t p1, xy_float_t p2) {
+  auto linear_interp = [](const float x, xy_float_t p1, xy_float_t p2) {
     //   zoffs1 +      zoffset_per_toffset      *  toffset
     return p1.y + (p2.y - p1.y) / (p2.x - p1.x) * (x - p1.x);
   };

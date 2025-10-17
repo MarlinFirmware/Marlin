@@ -65,20 +65,21 @@ if pioutil.is_pio_build():
         # Useful values
         project_dir = Path(env['PROJECT_DIR'])
         config_files = ("Configuration.h", "Configuration_adv.h")
+        mpath = project_dir / "Marlin"
 
         #
         # Update old macros BOTH and EITHER in configuration files
         #
         conf_modified = False
         for f in config_files:
-            conf_path = project_dir / "Marlin" / f
+            conf_path = mpath / f
             if conf_path.is_file():
                 with open(conf_path, 'r', encoding="utf8") as file:
                     text = file.read()
                     modified_text = text.replace("BOTH(", "ALL(").replace("EITHER(", "ANY(")
                     if text != modified_text:
                         conf_modified = True
-                        with open(conf_path, 'w', encoding="utf8") as file:
+                        with open(conf_path, 'w', encoding="utf8", newline='') as file:
                             file.write(modified_text)
 
         if conf_modified:
@@ -86,6 +87,22 @@ if pioutil.is_pio_build():
 
         if len(env['MARLIN_FEATURES']) == 0:
             raise SystemExit("Error: Failed to parse Marlin features. See previous error messages.")
+
+        #
+        # Alert user for config files in 'project' or 'project/config'
+        # NOTE: Some issues could prevent reaching this check.
+        #
+        has_cfgs = (mpath / "Config.h").is_file() or ((mpath / config_files[0]).is_file() and (mpath / config_files[1]).is_file())
+        for p in (project_dir, project_dir / "config"):
+            for f in config_files:
+                if (p / f).is_file():
+                    desc = "Redundant" if has_cfgs else "Your"
+                    err = f"ERROR: {desc} config files were found in {p}."
+                    err += " Put the configs you want to use into the 'Marlin' subfolder."
+                    raise SystemExit(err)
+
+        if not has_cfgs:
+            raise SystemExit("Error: No configuration files found! Put your config files into the 'Marlin' subfolder.")
 
         build_env = env['PIOENV']
         motherboard = env['MARLIN_FEATURES']['MOTHERBOARD']
@@ -99,15 +116,6 @@ if pioutil.is_pio_build():
             err = "Error: Build environment '%s' is incompatible with %s. Use one of these environments: %s" % \
                   ( build_env, motherboard, ", ".join([ e[4:] for e in board_envs if e.startswith("env:") ]) )
             raise SystemExit(err)
-
-        #
-        # Check for Config files in two common incorrect places
-        #
-        for p in (project_dir, project_dir / "config"):
-            for f in config_files:
-                if (p / f).is_file():
-                    err = "ERROR: Config files found in directory %s. Please move them into the Marlin subfolder." % p
-                    raise SystemExit(err)
 
         #
         # Find the name.cpp.o or name.o and remove it
