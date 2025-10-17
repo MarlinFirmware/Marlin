@@ -176,77 +176,91 @@ class FTMotion {
     }
 
     typedef struct Stepping {
-      xyze_float_t curr_pos{0};
-      float advance_divisor = 0;
       uint32_t interval = 0;
-      xyze_float_t advance_dividend{0};
-      xyze_float_t delta_error{0};
       uint32_t steps_pending = 0;
+      float interval_carry = 0;
+      xyze_float_t curr_pos{0};
+      XYZEval<uint32_t>  advance_dividend{0};
+      XYZEval<uint32_t> delta_error{0};
       AxisBits last_direction_bits;
 
       void reset(){
-        curr_pos.reset();
-        advance_divisor = 0;
-        advance_dividend.reset();
+        interval = 0;
         steps_pending = 0;
+        interval_carry = 0;
+        curr_pos.reset();
+        advance_dividend.reset();
         delta_error.reset();
+        // last_direction_bits.reset(); DONT reset this to avoid axis starting on the wrong direction
       }
 
       uint32_t plan() {
         if (steps_pending > 0) return interval;
 
-        advance_dividend = 0;
-        advance_divisor = 1;
-
         #define OVERSAMPLING 5
-        float divisor = 0;
-        xyze_float_t dividend = {0};
+        float delta_max = 0;
+        xyze_float_t delta = {0};
         static uint32_t trajs = 0;
-        while (divisor < 1) {
+        while (delta_max < 1) {
           if (trajBuff_isEmpty()) {
             return HAL_TIMER_TYPE_MAX;
           }
           #define TOSTEPS(A, B) (traj.A[traj_consume_i] * planner.settings.axis_steps_per_mm[B])
-          xyze_float_t next_pos = LOGICAL_AXIS_ARRAY(
-            TOSTEPS(e, block_extruder_axis),
-            TOSTEPS(x, X_AXIS), TOSTEPS(y, Y_AXIS), TOSTEPS(z, Z_AXIS),
-            TOSTEPS(i, I_AXIS), TOSTEPS(j, J_AXIS), TOSTEPS(k, K_AXIS),
-            TOSTEPS(u, U_AXIS), TOSTEPS(v, V_AXIS), TOSTEPS(w, W_AXIS)
-          );
+            xyze_float_t next_pos = LOGICAL_AXIS_ARRAY(
+              TOSTEPS(e, block_extruder_axis),
+              TOSTEPS(x, X_AXIS), TOSTEPS(y, Y_AXIS), TOSTEPS(z, Z_AXIS),
+              TOSTEPS(i, I_AXIS), TOSTEPS(j, J_AXIS), TOSTEPS(k, K_AXIS),
+              TOSTEPS(u, U_AXIS), TOSTEPS(v, V_AXIS), TOSTEPS(w, W_AXIS)
+            );
           #undef TOSTEPS
-          dividend = (next_pos - curr_pos);
-          divisor = dividend.ABS().large() * OVERSAMPLING;
+          delta = (next_pos - curr_pos);
+          delta_max = delta.ABS().large() * OVERSAMPLING;
           traj_consume_i++;
           if (traj_consume_i == (FTM_WINDOW_SIZE)) traj_consume_i = 0;
           trajs++;
         }
 
-
         #define SET_DIR(A)                                                      \
-          if (dividend.A != 0 && ((dividend.A > 0) != last_direction_bits.A)) { \
-            delta_error.A *= -1;                                                \
-            last_direction_bits.A = !last_direction_bits.A;                     \
-          }
+            if (delta.A != 0 && ((delta.A > 0) != last_direction_bits.A)) {     \
+              delta_error.A *= -1;                                              \
+              last_direction_bits.A = !last_direction_bits.A;                   \
+            }
 
-        LOGICAL_AXIS_MAP(SET_DIR);
+          LOGICAL_AXIS_MAP(SET_DIR);
+        #undef SET_DIR
 
-        advance_dividend = dividend;
-        advance_divisor = divisor;
+        if (delta_max > 0) {
+          // Convert (delta / delta_max) to UQ0.32 per-axis in uint32_t clamped to [0, 1)
+          XYZEval<float> dividend = delta.ABS() / delta_max;
+          // clamp to [0, 1).
+          // nextafterf(1, 0) the biggest float smaller than 1 ("returns the next representable value of 'from' in the direction of 'to'")
+          const float one_minus = nextafterf(1.0f, 0.0f);
+          #define CLAMP(A) LIMIT(dividend.A, 0.0f, one_minus);
+            LOGICAL_AXIS_MAP(CLAMP);
+          #undef CLAMP
+
+          // “<< 32” as float (exact power-of-two shift), then truncate.
+          // ldexpf "Multiplies a floating-point value arg by the number 2 raised to the exp power."
+          #define SHIFT32(A) dividend.A = ldexpf(dividend.A, 32);
+            LOGICAL_AXIS_MAP(SHIFT32);
+          #undef SHIFT32
+
+          advance_dividend = dividend.asULong();  // XYZEval<uint32_t>{ (uint32_t)e, (uint32_t)x, ... }
+
+        }
 
         static float interval_carry = 0;
-
         float interval_till_next_traj = STEPPER_TIMER_RATE * FTM_TS * trajs + interval_carry;
+
         trajs = 0;
-        interval = interval_till_next_traj / advance_divisor + .5;
+        interval = interval_till_next_traj / delta_max + .5;
 
-        steps_pending = FLOOR(advance_divisor);
-        interval_carry = (1 - steps_pending/advance_divisor) * interval_till_next_traj;
+        steps_pending = FLOOR(delta_max);
+        interval_carry = (1 - steps_pending/delta_max) * interval_till_next_traj;
+        curr_pos = curr_pos + delta * (float)steps_pending;
 
-        advance_dividend = advance_dividend / advance_divisor;
-        advance_divisor = 1;
 
-        curr_pos = curr_pos + advance_dividend * (float)steps_pending;
-        advance_dividend = advance_dividend.ABS();
+
         return interval;
       }
 
@@ -254,13 +268,16 @@ class FTMotion {
         ft_command_t cmd = 0;
         if (steps_pending == 0) return cmd;
         steps_pending--;
-        delta_error += advance_dividend;
         #define RUN_AXIS(A)                                                   \
-          if (delta_error.A > 0.5) {                                          \
-            delta_error.A -= 1;                                               \
-            cmd |= ((ft_command_t) last_direction_bits.A) << FT_BIT_DIR_##A;  \
-            cmd |= _BV(FT_BIT_STEP_##A);                                      \
-          }                                                                   \
+          do {                                                                \
+            /* MAGIC: error wraps around when a step is due */                \
+            delta_error.A += advance_dividend.A;                              \
+            /* MAGIC: do_step_now  is the carry of the previous sum */        \
+            ft_command_t do_step_now = delta_error.A < advance_dividend.A;    \
+            ft_command_t dir = last_direction_bits.A;                         \
+            cmd |= dir         << FT_BIT_DIR_##A;                             \
+            cmd |= do_step_now << FT_BIT_STEP_##A;                            \
+          } while (0);
 
         LOGICAL_AXIS_MAP(RUN_AXIS);
         #undef RUN_AXIS
@@ -382,3 +399,4 @@ typedef struct FTMotionDisableInScope {
     }
   #endif
 } FTMotionDisableInScope_t;
+
