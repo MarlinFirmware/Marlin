@@ -151,12 +151,6 @@ void FTMotion::loop() {
 
   // Set busy status for use by planner.busy()
   busy = stepping.steps_pending > 0 || !trajBuff_isEmpty();
-  // uint32_t is = trajBuff_count();
-  // if (was != is){
-  //   SERIAL_ECHOLNPGM("was", was);
-  //   SERIAL_ECHOLNPGM("traj buffer after:", is);
-  //   was = is;
-  // }
 }
 
 #if HAS_FTM_SHAPING
