@@ -177,7 +177,7 @@ class FTMotion {
 
     typedef struct Stepping {
       uint32_t interval = 0;
-      uint32_t steps_pending = 0;
+      uint32_t bresenham_iterations_pending = 0;
       float interval_carry = 0;
       xyze_float_t curr_pos{0};
       XYZEval<uint32_t>  advance_dividend_q32{0};
@@ -188,7 +188,7 @@ class FTMotion {
 
       void reset(){
         interval = 0;
-        steps_pending = 0;
+        bresenham_iterations_pending = 0;
         interval_carry = 0;
         curr_pos.reset();
         advance_dividend_q32.reset();
@@ -197,7 +197,7 @@ class FTMotion {
       }
 
       uint32_t plan() {
-        if (steps_pending > 0) return interval;
+        if (bresenham_iterations_pending > 0) return interval;
 
         #define OVERSAMPLING 10
         float delta_max = 0;
@@ -256,9 +256,9 @@ class FTMotion {
         trajectory_points_in_curr_plan = 0;
         interval = interval_till_next_traj / delta_max + .5;
 
-        steps_pending = FLOOR(delta_max);
-        interval_carry = (1 - steps_pending/delta_max) * interval_till_next_traj;
-        curr_pos = curr_pos + delta_per_step * (float)steps_pending;
+        bresenham_iterations_pending = FLOOR(delta_max);
+        interval_carry = (1 - bresenham_iterations_pending/delta_max) * interval_till_next_traj;
+        curr_pos = curr_pos + delta_per_step * (float)bresenham_iterations_pending;
 
         return interval;
       }
@@ -271,9 +271,9 @@ class FTMotion {
        *  * Technically a step would be lost every billion consecutive steps (2^30) in the same direction.
       */
       ft_command_t pop_command() {
-        if (steps_pending == 0) return 0;
-        ft_command_t cmd = pre_loaded_directons;
-        steps_pending--;
+        if (bresenham_iterations_pending == 0) return 0;
+        ft_command_t cmd = 0;
+        bresenham_iterations_pending--;
         #define RUN_AXIS(A)                                                   \
           do {                                                                \
             delta_error_q32.A += advance_dividend_q32.A;                      \
@@ -283,7 +283,8 @@ class FTMotion {
 
         LOGICAL_AXIS_MAP(RUN_AXIS);
         #undef RUN_AXIS
-        return cmd;
+        if (!cmd) return 0; // to let the isr return early b/c no steps need doing
+        return cmd | pre_loaded_directons;
       }
     } stepping_t;
     static stepping_t stepping;

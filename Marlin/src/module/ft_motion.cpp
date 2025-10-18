@@ -150,7 +150,7 @@ void FTMotion::loop() {
   fill_trajectory_buffer();
 
   // Set busy status for use by planner.busy()
-  busy = stepping.steps_pending > 0 || !trajBuff_isEmpty();
+  busy = stepping.bresenham_iterations_pending > 0 || !trajBuff_isEmpty();
 }
 
 #if HAS_FTM_SHAPING
