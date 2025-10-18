@@ -36,15 +36,10 @@
  * Scans I2C addresses 0x08 to 0x77 and reports any responding devices.
  */
 void GcodeSuite::M265() {
-
-  SERIAL_ECHOLNPGM("M265 I2C Scanner");
-
   Wire.begin();
-
   int device_count = 0;
 
-  SERIAL_ECHOLNPGM("Scanning addresses 0x08-0x77...");
-
+  SERIAL_ECHOLNPGM("Scanning I2C (0x08-0x77)...");
   for (uint8_t address = 0x08; address <= 0x77; address++) {
     Wire.beginTransmission(address);
     const uint8_t error = Wire.endTransmission();
@@ -54,18 +49,20 @@ void GcodeSuite::M265() {
       device_count++;
       SERIAL_ECHOLNPGM("I2C device found at address 0x", hex_byte(address));
     }
-    else if (error == 4) {
+    else if (error == 4)
       SERIAL_ECHOLNPGM("Unknown error at address 0x", hex_byte(address));
-    }
 
     safe_delay(5);  // Small delay between scans
   }
 
-  SERIAL_ECHOPGM("Scan complete. ");
+  SERIAL_ECHOPGM("I2C scan complete. ");
   if (device_count == 0)
     SERIAL_ECHOLNPGM("No I2C devices found");
-  else
-    SERIAL_ECHOLNPGM("Found ", device_count, " device(s)");
+  else {
+    SERIAL_ECHOLN("Found ", device_count, " device");
+    if (device_count > 1) SERIAL_CHAR('s');
+    SERIAL_EOL();
+  }
 
 }
 
