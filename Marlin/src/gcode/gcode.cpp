@@ -826,6 +826,10 @@ void GcodeSuite::process_parsed_command(bool no_ok/*=false*/) {
         case 261: M261(); break;                                  // M261: Request data from an i2c slave
       #endif
 
+      #if ENABLED(I2C_SCANNER)
+        case 265: M265(); break;                                  // M265: I2C Scanner
+      #endif
+
       #if ENABLED(PREVENT_COLD_EXTRUSION)
         case 302: M302(); break;                                  // M302: Allow cold extrudes (set the minimum extrude temperature)
       #endif
