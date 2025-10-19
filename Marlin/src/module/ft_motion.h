@@ -191,7 +191,7 @@ class FTMotion {
       }
 
       uint32_t plan() {
-        #define FREQ 2000000
+        #define FREQ 250000
         constexpr uint32_t INTERVAL = (STEPPER_TIMER_RATE / FREQ);
         constexpr uint32_t ITERATIONS_PER_TRAJ = FREQ * FTM_TS;
         constexpr float ITERATIONS_PER_TRAJ_INV = 1.0f / ITERATIONS_PER_TRAJ;
@@ -228,19 +228,14 @@ class FTMotion {
 
           LOGICAL_AXIS_MAP(PRELOAD_DIRECTIONS);
 
-        xyze_float_t delta_per_iteration = delta * ITERATIONS_PER_TRAJ_INV;
-        xyze_float_t dividend = delta_per_iteration.ABS();
-        // Convert dividend to Q0.32 fixed point notation clamped to just below 1
-        // nextafterf(1, 0) the biggest float smaller than 1 ("returns the next representable value of 'from' in the direction of 'to'")
-        constexpr float one_minus = nextafterf(1.0f, 0.0f);
-        #define CLAMP(A) NOMORE(dividend.A, one_minus);
-          LOGICAL_AXIS_MAP(CLAMP);
-        #undef CLAMP
+        xyze_float_t dividend = delta * ITERATIONS_PER_TRAJ_INV;
+        // TODO: DOCUMENT THAT DIVIDEND CANNOT BE 1 BECAUSE OF THE BRESEHNAM OVERFLOW ALGORITHM
+
 
         // “<< 32” as float (exact power-of-two shift), then truncate.
         // ldexpf "Multiplies a floating-point value arg by the number 2 raised to the exp power."
-        #define SHIFT32(A) dividend.A = ldexpf(dividend.A, 32);
-          LOGICAL_AXIS_MAP(SHIFT32);
+        #define SHIFT32(A) dividend.A = ldexpf(ABS(dividend.A), 32);
+        LOGICAL_AXIS_MAP(SHIFT32);
         #undef SHIFT32
 
         advance_dividend_q32 = dividend.asULong();
@@ -269,8 +264,7 @@ class FTMotion {
 
         LOGICAL_AXIS_MAP(RUN_AXIS);
         #undef RUN_AXIS
-        if (!cmd) return 0; // to let the isr return early b/c no steps need doing
-        return cmd | pre_loaded_directons;
+        return cmd;
       }
     } stepping_t;
     static stepping_t stepping;

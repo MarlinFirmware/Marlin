@@ -3559,7 +3559,7 @@ void Stepper::report_positions() {
 
     // Get FT Motion command flags for axis STEP / DIR
     #define _FTM_STEP(AXIS) TEST(command, FT_BIT_STEP_##AXIS)
-    #define _FTM_DIR(AXIS) TEST(command, FT_BIT_DIR_##AXIS)
+    #define _FTM_DIR(AXIS) TEST(ftMotion.stepping.pre_loaded_directons, FT_BIT_DIR_##AXIS)
 
     /**
      * Update direction bits for steppers that were stepped by this command.
