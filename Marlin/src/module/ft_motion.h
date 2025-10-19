@@ -176,51 +176,46 @@ class FTMotion {
     }
 
     typedef struct Stepping {
-      uint32_t interval = 0;
       uint32_t bresenham_iterations_pending = 0;
-      float interval_carry = 0;
       xyze_float_t curr_pos{0};
       XYZEval<uint32_t>  advance_dividend_q32{0};
       XYZEval<uint32_t> delta_error_q32{1UL<<31};
       ft_command_t pre_loaded_directons; // Holds only FT_BIT_DIR_## bits, no steps.
                                          // Also used to find out direction changes, shall not be resetted inside reset()
-      uint32_t trajectory_points_in_curr_plan = 0;
 
       void reset(){
-        interval = 0;
         bresenham_iterations_pending = 0;
-        interval_carry = 0;
         curr_pos.reset();
         advance_dividend_q32.reset();
         delta_error_q32 = {1UL<<31};
-        trajectory_points_in_curr_plan = 0;
       }
 
       uint32_t plan() {
-        if (bresenham_iterations_pending > 0) return interval;
+        #define FREQ 2000000
+        constexpr uint32_t INTERVAL = (STEPPER_TIMER_RATE / FREQ);
+        constexpr uint32_t ITERATIONS_PER_TRAJ = FREQ * FTM_TS;
+        constexpr float ITERATIONS_PER_TRAJ_INV = 1.0f / ITERATIONS_PER_TRAJ;
+        if (bresenham_iterations_pending > 0) return INTERVAL;
 
-        #define OVERSAMPLING 10
-        float delta_max = 0;
         xyze_float_t delta = {0};
-        while (delta_max < 1) {
-          if (trajBuff_isEmpty()) {
-            return HAL_TIMER_TYPE_MAX;
-          }
-          #define TOSTEPS(A, B) (traj.A[traj_consume_i] * planner.settings.axis_steps_per_mm[B])
-            xyze_float_t next_pos = LOGICAL_AXIS_ARRAY(
-              TOSTEPS(e, block_extruder_axis),
-              TOSTEPS(x, X_AXIS), TOSTEPS(y, Y_AXIS), TOSTEPS(z, Z_AXIS),
-              TOSTEPS(i, I_AXIS), TOSTEPS(j, J_AXIS), TOSTEPS(k, K_AXIS),
-              TOSTEPS(u, U_AXIS), TOSTEPS(v, V_AXIS), TOSTEPS(w, W_AXIS)
-            );
-          #undef TOSTEPS
-          delta = (next_pos - curr_pos);
-          delta_max = delta.ABS().large() * OVERSAMPLING;
-          traj_consume_i++;
-          if (traj_consume_i == (FTM_WINDOW_SIZE)) traj_consume_i = 0;
-          trajectory_points_in_curr_plan++;
+        if (trajBuff_isEmpty()) {
+          advance_dividend_q32 = 0;
+          return HAL_TIMER_TYPE_MAX;
         }
-        // From here onwards, delta_max ≥ 1
+
+        #define TOSTEPS(A, B) (traj.A[traj_consume_i] * planner.settings.axis_steps_per_mm[B])
+        xyze_float_t next_pos = LOGICAL_AXIS_ARRAY(
+          TOSTEPS(e, block_extruder_axis),
+          TOSTEPS(x, X_AXIS), TOSTEPS(y, Y_AXIS), TOSTEPS(z, Z_AXIS),
+          TOSTEPS(i, I_AXIS), TOSTEPS(j, J_AXIS), TOSTEPS(k, K_AXIS),
+          TOSTEPS(u, U_AXIS), TOSTEPS(v, V_AXIS), TOSTEPS(w, W_AXIS)
+        );
+        #undef TOSTEPS
+        if (++traj_consume_i == (FTM_WINDOW_SIZE)) traj_consume_i = 0;
+
+        delta = (next_pos - curr_pos);
+        curr_pos = next_pos;
+
         #define PRELOAD_DIRECTIONS(A)                                           \
           do {                                                                  \
             bool old_dir = (pre_loaded_directons & _BV(FT_BIT_DIR_##A)) != 0;   \
@@ -231,15 +226,14 @@ class FTMotion {
             }                                                                   \
           } while (0);
 
-        LOGICAL_AXIS_MAP(PRELOAD_DIRECTIONS);
+          LOGICAL_AXIS_MAP(PRELOAD_DIRECTIONS);
 
-        XYZEval<float> delta_per_step = delta / delta_max;
-        // Convert (delta / delta_max) to UQ0.32 per-axis in uint32_t clamped to [0, 1)
-        XYZEval<float> dividend = delta_per_step.ABS();
-        // clamp to [0, 1).
+        xyze_float_t delta_per_iteration = delta * ITERATIONS_PER_TRAJ_INV;
+        xyze_float_t dividend = delta_per_iteration.ABS();
+        // Convert dividend to Q0.32 fixed point notation clamped to just below 1
         // nextafterf(1, 0) the biggest float smaller than 1 ("returns the next representable value of 'from' in the direction of 'to'")
-        const float one_minus = nextafterf(1.0f, 0.0f);
-        #define CLAMP(A) LIMIT(dividend.A, 0.0f, one_minus);
+        constexpr float one_minus = nextafterf(1.0f, 0.0f);
+        #define CLAMP(A) NOMORE(dividend.A, one_minus);
           LOGICAL_AXIS_MAP(CLAMP);
         #undef CLAMP
 
@@ -250,17 +244,9 @@ class FTMotion {
         #undef SHIFT32
 
         advance_dividend_q32 = dividend.asULong();
+        bresenham_iterations_pending = ITERATIONS_PER_TRAJ;
 
-        float interval_till_next_traj = STEPPER_TIMER_RATE * FTM_TS * trajectory_points_in_curr_plan + interval_carry;
-
-        trajectory_points_in_curr_plan = 0;
-        interval = interval_till_next_traj / delta_max + .5;
-
-        bresenham_iterations_pending = FLOOR(delta_max);
-        interval_carry = (1 - bresenham_iterations_pending/delta_max) * interval_till_next_traj;
-        curr_pos = curr_pos + delta_per_step * (float)bresenham_iterations_pending;
-
-        return interval;
+        return INTERVAL;
       }
 
       /**
