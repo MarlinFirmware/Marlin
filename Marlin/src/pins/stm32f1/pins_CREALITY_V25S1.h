@@ -78,7 +78,7 @@
 //
 // Filament Runout Sensor
 //
-#if ENABLED(FILAMENT_RUNOUT_SENSOR)
+#ifndef FIL_RUNOUT_PIN
   #define FIL_RUNOUT_PIN                    PA15  // "Pulled-high"
 #endif
 
