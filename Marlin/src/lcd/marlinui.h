@@ -668,7 +668,7 @@ public:
 
     #if ANY(BABYSTEP_GFX_OVERLAY, MESH_EDIT_GFX_OVERLAY)
       static void zoffset_overlay(const int8_t dir);
-      static void zoffset_overlay(const_float_t zvalue);
+      static void zoffset_overlay(const float zvalue);
     #endif
 
     #if HAS_TOUCH_BUTTONS
