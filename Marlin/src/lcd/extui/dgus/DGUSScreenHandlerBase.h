@@ -212,7 +212,7 @@ public:
       float f = *(float *)var.memadr;
       DEBUG_ECHOLNPGM(" >> ", p_float_t(f, 6));
       f *= cpow(10, decimals);
-      dgus.writeVariable(var.VP, (int16_t)round(f));
+      dgus.writeVariable(var.VP, (int16_t)LROUND(f));
     }
   }
 
