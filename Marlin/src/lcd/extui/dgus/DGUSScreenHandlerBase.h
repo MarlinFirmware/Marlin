@@ -199,7 +199,7 @@ public:
     if (var.memadr) {
       float f = *(float *)var.memadr;
       f *= cpow(10, decimals);
-      dgus.writeVariable(var.VP, (long)round(f));
+      dgus.writeVariable(var.VP, LROUND(f));
     }
   }
 

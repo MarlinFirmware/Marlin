@@ -302,7 +302,7 @@ void FTMotion::loop() {
       case ftMotionShaper_2HEI: {
         max_i = 3U;
         const float vtolx2 = sq(vtol);
-        const float X = pow(vtolx2 * (sqrt(1.0f - vtolx2) + 1.0f), 1.0f / 3.0f);
+        const float X = POW(vtolx2 * (sqrt(1.0f - vtolx2) + 1.0f), 1.0f / 3.0f);
         Ai[0] = (3.0f * sq(X) + 2.0f * X + 3.0f * vtolx2) / (16.0f * X);
         Ai[1] = (0.5f - Ai[0]) * K;
         Ai[2] = Ai[1] * K;
