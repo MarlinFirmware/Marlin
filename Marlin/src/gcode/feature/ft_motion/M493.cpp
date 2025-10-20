@@ -128,6 +128,22 @@ void GcodeSuite::M493_report(const bool forReplay/*=true*/) {
   const ft_config_t &c = ftMotion.cfg;
   SERIAL_ECHOLNPGM(
     "  M493 S", c.active
+
+    // Shaper type for each axis
+    #if HAS_X_AXIS
+      , " X", c.shaper.x
+    #endif
+    #if HAS_Y_AXIS
+      , " Y", c.shaper.y
+    #endif
+    #if ENABLED(FTM_SHAPER_Z)
+      , " Z", c.shaper.z
+    #endif
+    #if ENABLED(FTM_SHAPER_E)
+      , " E", c.shaper.e
+    #endif
+
+    // Base Frequency for axis shapers
     #if HAS_X_AXIS
       , " A", c.baseFreq.x
     #endif
@@ -138,9 +154,10 @@ void GcodeSuite::M493_report(const bool forReplay/*=true*/) {
       , " C", c.baseFreq.z
     #endif
     #if ENABLED(FTM_SHAPER_E)
-      , " E", c.baseFreq.e
+      , " W", c.baseFreq.e
     #endif
 
+    // Dynamic Frequency Mode and Axis K Factors
     #if HAS_DYNAMIC_FREQ
       , " D", c.dynFreqMode
       #if HAS_X_AXIS
@@ -153,10 +170,39 @@ void GcodeSuite::M493_report(const bool forReplay/*=true*/) {
         , " L", c.dynFreqK.z
       #endif
       #if ENABLED(FTM_SHAPER_E)
-        , " O", c.dynFreqK.e
+        , " N", c.dynFreqK.e
       #endif
     #endif
 
+    // Zeta Value
+    #if HAS_X_AXIS
+      , " I", c.zeta.x
+    #endif
+    #if HAS_Y_AXIS
+      , " J", c.zeta.y
+    #endif
+    #if ENABLED(FTM_SHAPER_Z)
+      , " O", c.zeta.z
+    #endif
+    #if ENABLED(FTM_SHAPER_E)
+      , " U", c.zeta.e
+    #endif
+
+    // Vibration Tolerance
+    #if HAS_X_AXIS
+      , " Q", c.vtol.x
+    #endif
+    #if HAS_Y_AXIS
+      , " R", c.vtol.y
+    #endif
+    #if ENABLED(FTM_SHAPER_Z)
+      , " T", c.vtol.z
+    #endif
+    #if ENABLED(FTM_SHAPER_E)
+      , " V", c.vtol.e
+    #endif
+
+    // Axis Synchronization
     , " G", c.axis_sync_enabled
 
     #if HAS_EXTRUDERS
@@ -199,22 +245,22 @@ void GcodeSuite::M493_report(const bool forReplay/*=true*/) {
  *    A<Hz>   Set X static/base frequency
  *    F<Hz>   Set X frequency scaling
  *    I<flt>  Set X damping ratio
- *    Q<flt>  Set X vibration tolerance
+ *    Q<flt>  Set X vibration tolerance (vtol)
  *
  *    B<Hz>   Set Y static/base frequency
  *    H<Hz>   Set Y frequency scaling
  *    J<flt>  Set Y damping ratio
  *    R<flt>  Set Y vibration tolerance
  *
- * With FTM_SHAPING_Z:
+ * With FTM_SHAPER_Z:
  *    C<Hz>   Set Z static/base frequency
  *    L<Hz>   Set Z frequency scaling
  *    O<flt>  Set Z damping ratio
- *    M<flt>  Set Z vibration tolerance
+ *    T<flt>  Set Z vibration tolerance
  *
- * With FTM_SHAPING_E:
+ * With FTM_SHAPER_E:
  *    W<Hz>   Set E static/base frequency
- *    O<Hz>   Set E frequency scaling
+ *    N<Hz>   Set E frequency scaling
  *    U<flt>  Set E damping ratio
  *    V<flt>  Set E vibration tolerance
  *
@@ -286,8 +332,8 @@ void GcodeSuite::M493() {
 
   #endif // HAS_EXTRUDERS
 
-  // Parse '?' axis synchronization parameter.
-  if (parser.seen('?')) {
+  // Parse 'G' axis synchronization parameter.
+  if (parser.seenval('G')) {
     const bool enabled = parser.value_bool();
     if (enabled != ftMotion.cfg.axis_sync_enabled) {
       ftMotion.cfg.axis_sync_enabled = enabled;
@@ -497,7 +543,7 @@ void GcodeSuite::M493() {
     }
 
     // Parse Z vtol parameter
-    if (parser.seenval('M')) {
+    if (parser.seenval('T')) {
       const float val = parser.value_float();
       if (AXIS_IS_EISHAPING(Z)) {
         if (WITHIN(val, 0.00f, 1.0f)) {
@@ -505,7 +551,7 @@ void GcodeSuite::M493() {
           flag.update = true;
         }
         else
-          SERIAL_ECHOLNPGM("?Invalid ", C(STEPPER_C_NAME), " vtol [", C('M'), "] value."); // VTol out of range.
+          SERIAL_ECHOLNPGM("?Invalid ", C(STEPPER_C_NAME), " vtol [", C('T'), "] value."); // VTol out of range.
       }
       else
         SERIAL_ECHOLNPGM("?Wrong mode for ", C(STEPPER_C_NAME), " vtol parameter.");
@@ -532,13 +578,13 @@ void GcodeSuite::M493() {
 
     #if HAS_DYNAMIC_FREQ
       // Parse E frequency scaling parameter
-      if (parser.seenval('O')) {
+      if (parser.seenval('N')) {
         if (modeUsesDynFreq) {
           ftMotion.cfg.dynFreqK.e = parser.value_float();
           flag.report = true;
         }
         else
-          SERIAL_ECHOLNPGM("?Wrong mode for ", C('E'), " [", C('O'), "] frequency scaling.");
+          SERIAL_ECHOLNPGM("?Wrong mode for ", C('E'), " [", C('N'), "] frequency scaling.");
       }
     #endif
 
