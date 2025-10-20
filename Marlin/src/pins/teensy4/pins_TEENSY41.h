@@ -32,3 +32,10 @@
 #define BOARD_INFO_NAME "Teensy4.1"
 
 #include "pins_TEENSY4x.h"
+
+// For the Ethernet Kit or WIZ812
+// https://www.pjrc.com/store/ethernet_kit.html
+// https://www.pjrc.com/teensy/td_libs_Ethernet.html)
+#if HAS_ETHERNET
+  #define ETHERNET_CS_PIN   10 // W5x00 module
+#endif

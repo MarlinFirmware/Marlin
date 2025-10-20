@@ -81,7 +81,10 @@ extern USBSerialType USBSerial;
 #define SERIAL_INDEX_MIN 0
 #define SERIAL_INDEX_MAX 8
 #define USB_SERIAL_PORT(...) USBSerial
-#define ETH_SERIAL_PORT(...) ethernet.telnetClient
+
+#if HAS_ETHERNET
+  #define ETH_SERIAL_PORT(...) ethernet.telnetClient
+#endif
 #include "../shared/serial_ports.h"
 
 // ------------------------
