@@ -147,10 +147,10 @@ void FTMotion::loop() {
   }
   static uint32_t was = 0;
 
-  fill_trajectory_buffer();
+  fill_stepper_data_buffer();
 
   // Set busy status for use by planner.busy()
-  busy = stepping.bresenham_iterations_pending > 0 || !trajBuff_isEmpty();
+  busy = stepping.bresenham_iterations_pending > 0 || !stepper_data_is_empty();
 }
 
 #if HAS_FTM_SHAPING
@@ -342,14 +342,11 @@ void FTMotion::loop() {
 // Reset all trajectory processing variables.
 void FTMotion::reset() {
   const bool did_suspend = stepper.suspend();
-
-  traj.reset();
-
   endPos_prevBlock.reset();
   tau = 0;
-  traj_consume_i = traj_produce_i = 0;
-
+  stepper_data_tail = stepper_data_head = 0;
   stepping.reset();
+  curr_steps.reset();
 
   #if HAS_FTM_SHAPING
     #define _RESET_ZI(A) ZERO(shaping.A.d_zi);
@@ -472,7 +469,7 @@ bool FTMotion::plan_next_block() {
 
     // Watch endstops until the move ends
     const millis_t move_end_ti = millis() + \
-      trajBuff_count() * FTM_TS + // Time to empty stepper command buffer
+      stepper_data_count() * FTM_TS + // Time to empty stepper command buffer
       SEC_TO_MS(currentGenerator->getTotalDuration()) + // Time to finish this block
       SEC_TO_MS((FTM_TS) * num_samples_shaper_settle()); // Time for a rounout block
 
@@ -489,162 +486,207 @@ bool FTMotion::plan_next_block() {
   }
 }
 
-// Generate data points of the trajectory.
-// Called from FTMotion::loop() at the fetch of a new planner block, after plan_next_block.
-void FTMotion::fill_trajectory_buffer() {
-  while (!trajBuff_isFull()){
+xyze_float_t FTMotion::calc_traj_point(float dist) {
+  xyze_float_t traj_coords;
+  #define _SET_TRAJ(q) traj_coords.q = startPos.q + ratio.q * dist;
+  LOGICAL_AXIS_MAP_LC(_SET_TRAJ);
+
+  #if FTM_HAS_LIN_ADVANCE
+    if (cfg.linearAdvEna) {
+      float traj_e = traj_coords.e;
+      if (use_advance_lead) {
+        // Don't apply LA to retract/unretract blocks
+        float e_rate = (traj_e - prev_traj_e) * (FTM_FS);
+        traj_coords.e += e_rate * cfg.linearAdvK;
+      }
+      prev_traj_e = traj_e;
+    }
+  #endif
+
+  // Update shaping parameters if needed.
+  switch (cfg.dynFreqMode) {
+    #if HAS_DYNAMIC_FREQ_MM
+      case dynFreqMode_Z_BASED: {
+        static float oldz = 0.0f;
+        const float z = traj_coords.z;
+        if (z != oldz) { // Only update if Z changed.
+          oldz = z;
+          #if HAS_X_AXIS
+            const float xf = cfg.baseFreq.x + cfg.dynFreqK.x * z;
+            shaping.X.set_axis_shaping_N(cfg.shaper.x, _MAX(xf, FTM_MIN_SHAPE_FREQ), cfg.zeta.x);
+          #endif
+          #if HAS_Y_AXIS
+            const float yf = cfg.baseFreq.y + cfg.dynFreqK.y * z;
+            shaping.Y.set_axis_shaping_N(cfg.shaper.y, _MAX(yf, FTM_MIN_SHAPE_FREQ), cfg.zeta.y);
+          #endif
+        }
+      } break;
+    #endif
+
+    #if HAS_DYNAMIC_FREQ_G
+      case dynFreqMode_MASS_BASED:
+        // Update constantly. The optimization done for Z value makes
+        // less sense for E, as E is expected to constantly change.
+        #if HAS_X_AXIS
+          shaping.X.set_axis_shaping_N(cfg.shaper.x, cfg.baseFreq.x + cfg.dynFreqK.x * traj_coords.e, cfg.zeta.x);
+        #endif
+        #if HAS_Y_AXIS
+          shaping.Y.set_axis_shaping_N(cfg.shaper.y, cfg.baseFreq.y + cfg.dynFreqK.y * traj_coords.e, cfg.zeta.y);
+        #endif
+        break;
+    #endif
+
+    default: break;
+  }
+  uint32_t max_total_delay = 0;
+
+  #if ENABLED(FTM_SMOOTHING)
+    #define _SMOOTHEN(A) /* Approximate gaussian smoothing via chained EMAs */ \
+      if (smoothing.A.alpha > 0.0f) { \
+        float smooth_val = traj_coords.A; \
+        for (uint8_t _i = 0; _i < FTM_SMOOTHING_ORDER; ++_i) { \
+          smoothing.A.smoothing_pass[_i] += (smooth_val - smoothing.A.smoothing_pass[_i]) * smoothing.A.alpha; \
+          smooth_val = smoothing.A.smoothing_pass[_i]; \
+        } \
+        traj_coords.A = smooth_val; \
+      }
+
+    CARTES_MAP(_SMOOTHEN);
+    max_total_delay += _MAX(CARTES_LIST(
+      smoothing.X.delay_samples, smoothing.Y.delay_samples,
+      smoothing.Z.delay_samples, smoothing.E.delay_samples
+    ));
+
+  #endif // FTM_SMOOTHING
+
+  #if HAS_FTM_SHAPING
+
+    if (ftMotion.cfg.axis_sync_enabled) {
+      max_total_delay -= _MIN(SHAPED_LIST(
+        shaping.X.Ni[0], shaping.Y.Ni[0],
+        shaping.Z.Ni[0], shaping.E.Ni[0]
+      ));
+    }
+
+    // Apply shaping if active on each axis
+    #define _SHAPE(A) \
+      do { \
+        const uint32_t group_delay = ftMotion.cfg.axis_sync_enabled \
+            ? max_total_delay - TERN0(FTM_SMOOTHING, smoothing.A.delay_samples) \
+            : -shaping.A.Ni[0]; \
+        /* α=1−exp(−(dt / (τ / order))) */ \
+        shaping.A.d_zi[shaping.zi_idx] = traj_coords.A; \
+        traj_coords.A = 0; \
+        for (uint32_t i = 0; i <= shaping.A.max_i; i++) { \
+          /* echo_delay is always positive since Ni[i] = echo_relative_delay - group_delay + max_total_delay */ \
+          /* where echo_relative_delay > 0 and group_delay ≤ max_total_delay */ \
+          const uint32_t echo_delay = group_delay + shaping.A.Ni[i]; \
+          int32_t udiff = shaping.zi_idx - echo_delay; \
+          if (udiff < 0) udiff += FTM_ZMAX; \
+          traj_coords.A += shaping.A.Ai[i] * shaping.A.d_zi[udiff]; \
+        } \
+      } while (0);
+
+    SHAPED_MAP(_SHAPE);
+
+    if (++shaping.zi_idx == (FTM_ZMAX)) shaping.zi_idx = 0;
+
+  #endif // HAS_FTM_SHAPING
+  return traj_coords;
+}
+
+
+stepper_data_t FTMotion::calc_stepper_plan(xyze_float_t delta){
+  stepper_data_t stepper_data;
+  // Handle directions
+  #define _PRELOAD_DIRECTIONS(A) bitWrite(stepper_data.command_directions, FT_BIT_DIR_##A, (delta.A > 0));
+  LOGICAL_AXIS_MAP(_PRELOAD_DIRECTIONS);
+  #undef _PRELOAD_DIRECTIONS
+
+  // Calculate dividend for Bresenham algorithm
+  constexpr float ITERATIONS_PER_TRAJ = FTM_STEPPER_FS * FTM_TS;
+  constexpr float ITERATIONS_PER_TRAJ_INV = 1.0f / ITERATIONS_PER_TRAJ;
+  xyze_float_t dividend = delta * ITERATIONS_PER_TRAJ_INV;
+
+  // Apply 32-bit shift for fixed point
+  #define _SHIFT32(A) dividend.A = ldexpf(ABS(dividend.A), 32);
+  LOGICAL_AXIS_MAP(_SHIFT32);
+  #undef _SHIFT32
+
+  stepper_data.advance_dividend_q32 = dividend.asULong();
+
+  return stepper_data;
+}
+
+// Generate stepper data of the trajectory.
+// Called from FTMotion::loop()
+void FTMotion::fill_stepper_data_buffer() {
+  while (!stepper_data_is_full()) {
     float total_duration = currentGenerator->getTotalDuration(); // if the current plan is empty, it will have zero duration.
     while (tau + FTM_TS > total_duration) {
-      // previous block plan consumed, try to get the next one.
-      tau -= total_duration;      // If the end of the last block doesn't exactly land on a trajectory index,
+      // Previous block plan consumed, try to get the next one.
+      tau -= total_duration; // The exact end of the last block may be in-between trajectory points, so the next one may start anywhere of (-FTM_TS, 0].
       bool plan_available = plan_next_block();
       if (!plan_available) return;
       total_duration = currentGenerator->getTotalDuration();
-                                  // tau can start negative, but it always holds that `tau > -FTM_TS`
     }
-    tau += FTM_TS;                // (s) Time since start of block
+    tau += FTM_TS; // (s) Time since start of block
 
     // Get distance from trajectory generator
-    const float dist = currentGenerator->getDistanceAtTime(tau);
+    xyze_float_t traj_coords = calc_traj_point(currentGenerator->getDistanceAtTime(tau));
 
-    #define _SET_TRAJ(q) traj.q[traj_produce_i] = startPos.q + ratio.q * dist;
-    LOGICAL_AXIS_MAP_LC(_SET_TRAJ);
+    // Now convert trajectory to stepper data
+    #define _TOSTEPS(A, B) (traj_coords.A * planner.settings.axis_steps_per_mm[B])
+    xyze_float_t next_steps = LOGICAL_AXIS_ARRAY(
+      _TOSTEPS(e, block_extruder_axis),
+      _TOSTEPS(x, X_AXIS), _TOSTEPS(y, Y_AXIS), _TOSTEPS(z, Z_AXIS),
+      _TOSTEPS(i, I_AXIS), _TOSTEPS(j, J_AXIS), _TOSTEPS(k, K_AXIS),
+      _TOSTEPS(u, U_AXIS), _TOSTEPS(v, V_AXIS), _TOSTEPS(w, W_AXIS)
+    );
+    #undef _TOSTEPS
 
-    #if FTM_HAS_LIN_ADVANCE
-      if (cfg.linearAdvEna) {
-        float traj_e = traj.e[traj_produce_i];
-        if (use_advance_lead) {
-          // Don't apply LA to retract/unretract blocks
-          float e_rate = (traj_e - prev_traj_e) * (FTM_FS);
-          traj.e[traj_produce_i] += e_rate * cfg.linearAdvK;
-        }
-        prev_traj_e = traj_e;
-      }
-    #endif
+    xyze_float_t delta = (next_steps - curr_steps);
 
-    // Update shaping parameters if needed.
+    stepper_data_t data_point = calc_stepper_plan(delta);
 
-    switch (cfg.dynFreqMode) {
+    // Store in buffer
+    stepper_data_buff[stepper_data_head] = data_point;
+    if (++stepper_data_head == FTM_BUFFER_SIZE) stepper_data_head = 0;
 
-      #if HAS_DYNAMIC_FREQ_MM
-        case dynFreqMode_Z_BASED: {
-          static float oldz = 0.0f;
-          const float z = traj.z[traj_produce_i];
-          if (z != oldz) { // Only update if Z changed.
-            oldz = z;
-            #if HAS_X_AXIS
-              const float xf = cfg.baseFreq.x + cfg.dynFreqK.x * z;
-              shaping.X.set_axis_shaping_N(cfg.shaper.x, _MAX(xf, FTM_MIN_SHAPE_FREQ), cfg.zeta.x);
-            #endif
-            #if HAS_Y_AXIS
-              const float yf = cfg.baseFreq.y + cfg.dynFreqK.y * z;
-              shaping.Y.set_axis_shaping_N(cfg.shaper.y, _MAX(yf, FTM_MIN_SHAPE_FREQ), cfg.zeta.y);
-            #endif
-          }
-        } break;
-      #endif
-
-      #if HAS_DYNAMIC_FREQ_G
-        case dynFreqMode_MASS_BASED:
-          // Update constantly. The optimization done for Z value makes
-          // less sense for E, as E is expected to constantly change.
-          #if HAS_X_AXIS
-            shaping.X.set_axis_shaping_N(cfg.shaper.x, cfg.baseFreq.x + cfg.dynFreqK.x * traj.e[traj_produce_i], cfg.zeta.x);
-          #endif
-          #if HAS_Y_AXIS
-            shaping.Y.set_axis_shaping_N(cfg.shaper.y, cfg.baseFreq.y + cfg.dynFreqK.y * traj.e[traj_produce_i], cfg.zeta.y);
-          #endif
-          break;
-      #endif
-
-      default: break;
-    }
-    uint32_t max_total_delay = 0;
-
-    #if ENABLED(FTM_SMOOTHING)
-      #define _SMOOTHEN(A) /* Approximate gaussian smoothing via chained EMAs */ \
-        if (smoothing.A.alpha > 0.0f) { \
-          float smooth_val = traj.A[traj_produce_i]; \
-          for (uint8_t _i = 0; _i < FTM_SMOOTHING_ORDER; ++_i) { \
-            smoothing.A.smoothing_pass[_i] += (smooth_val - smoothing.A.smoothing_pass[_i]) * smoothing.A.alpha; \
-            smooth_val = smoothing.A.smoothing_pass[_i]; \
-          } \
-          traj.A[traj_produce_i] = smooth_val; \
-        }
-
-      CARTES_MAP(_SMOOTHEN);
-      max_total_delay += _MAX(CARTES_LIST(
-        smoothing.X.delay_samples, smoothing.Y.delay_samples,
-        smoothing.Z.delay_samples, smoothing.E.delay_samples
-      ));
-
-    #endif // FTM_SMOOTHING
-
-    #if HAS_FTM_SHAPING
-
-      if (ftMotion.cfg.axis_sync_enabled) {
-        max_total_delay -= _MIN(SHAPED_LIST(
-          shaping.X.Ni[0], shaping.Y.Ni[0],
-          shaping.Z.Ni[0], shaping.E.Ni[0]
-        ));
-      }
-
-      // Apply shaping if active on each axis
-      #define _SHAPE(A) \
-        do { \
-          const uint32_t group_delay = ftMotion.cfg.axis_sync_enabled \
-              ? max_total_delay - TERN0(FTM_SMOOTHING, smoothing.A.delay_samples) \
-              : -shaping.A.Ni[0]; \
-          /* α=1−exp(−(dt / (τ / order))) */ \
-          shaping.A.d_zi[shaping.zi_idx] = traj.A[traj_produce_i]; \
-          traj.A[traj_produce_i] = 0; \
-          for (uint32_t i = 0; i <= shaping.A.max_i; i++) { \
-            /* echo_delay is always positive since Ni[i] = echo_relative_delay - group_delay + max_total_delay */ \
-            /* where echo_relative_delay > 0 and group_delay ≤ max_total_delay */ \
-            const uint32_t echo_delay = group_delay + shaping.A.Ni[i]; \
-            int32_t udiff = shaping.zi_idx - echo_delay; \
-            if (udiff < 0) udiff += FTM_ZMAX; \
-            traj.A[traj_produce_i] += shaping.A.Ai[i] * shaping.A.d_zi[udiff]; \
-          } \
-        } while (0);
-
-      SHAPED_MAP(_SHAPE);
-
-      if (++shaping.zi_idx == (FTM_ZMAX)) shaping.zi_idx = 0;
-
-    #endif // HAS_FTM_SHAPING
-
-
-    if (++traj_produce_i == FTM_WINDOW_SIZE) traj_produce_i = 0;
+    curr_steps = next_steps;
   }
-} // fill_trajectory_buffer
-
-
-
-xyze_trajectory_t    FTMotion::traj;            // = {0.0f} Storage for fixed-time-based trajectory.
+}
 
 /*
  * traj_consume_i is the first ready to consume
  * traj_produce_i is where the next one should be inserted
  * if they a
 */
-uint32_t FTMotion::traj_consume_i = 0,            // The index to consume from
-         FTMotion::traj_produce_i = 0;            // The index to produce into
+
+//-----------------------------------------------------------------
+// Variable definitions.
+//-----------------------------------------------------------------
+
+stepper_data_t FTMotion::stepper_data_buff[FTM_BUFFER_SIZE];
+xyze_float_t FTMotion::curr_steps = {0.0f};
+
+uint32_t FTMotion::stepper_data_tail = 0,            // The index to consume from
+         FTMotion::stepper_data_head = 0;            // The index to produce into
 
 
-bool FTMotion::trajBuff_isEmpty() {
-  return traj_consume_i == traj_produce_i;
+bool FTMotion::stepper_data_is_empty() {
+  return stepper_data_tail == stepper_data_head;
 }
 
-bool FTMotion::trajBuff_isFull() {
-  uint32_t next_produce = traj_produce_i + 1;
-  if (next_produce >= FTM_WINDOW_SIZE) next_produce -= FTM_WINDOW_SIZE;
-  return next_produce == traj_consume_i;
+bool FTMotion::stepper_data_is_full() {
+  uint32_t next_head = stepper_data_head + 1;
+  if (next_head == FTM_BUFFER_SIZE) next_head = 0;
+  return next_head == stepper_data_tail;
 }
 
-uint32_t FTMotion::trajBuff_count() {
-  int32_t count = traj_produce_i - traj_consume_i;
-  if (count < 0) count += FTM_WINDOW_SIZE;
+uint32_t FTMotion::stepper_data_count() {
+  int32_t count = stepper_data_head - stepper_data_tail;
+  if (count < 0) count += FTM_BUFFER_SIZE;
   return count;
 }
 

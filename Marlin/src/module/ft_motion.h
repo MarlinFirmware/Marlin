@@ -175,47 +175,36 @@ class FTMotion {
       return cfg.active ? axis_move_dir[axis] : stepper.last_direction_bits[axis];
     }
 
+
     typedef struct Stepping {
-      uint32_t bresenham_iterations_pending = 0;
-      xyze_float_t curr_pos{0};
-      XYZEval<uint32_t>  advance_dividend_q32{0};
+      stepper_data_t stepper_data;
       XYZEval<uint32_t> delta_error_q32{1UL<<31};
-      ft_command_t pre_loaded_directons; // Holds only FT_BIT_DIR_## bits, no steps.
-                                         // Also used to find out direction changes, shall not be resetted inside reset()
-      ft_command_t next_command;
+      ft_command_t command_steps;
+      uint32_t bresenham_iterations_pending;
 
       void reset(){
-        bresenham_iterations_pending = 0;
-        curr_pos.reset();
-        advance_dividend_q32.reset();
+        stepper_data.reset();
         delta_error_q32 = {1UL<<31}; // start as 0.5 in q32 so steps are rounded
+        command_steps = 0;
+        bresenham_iterations_pending = 0;
       }
 
-      // #define FREQ 2'000'000u
-      #define FREQ 1'000'000
-      #define INTERVAL_PER_ITERATION (STEPPER_TIMER_RATE / FREQ)
+
+      #define INTERVAL_PER_ITERATION (STEPPER_TIMER_RATE / FTM_STEPPER_FS)
       #define INTERVAL_PER_TRAJ_POINT (STEPPER_TIMER_RATE / FTM_FS)
 
-      // Updates error and bresenham_iterations_pending, sets next_command and returns interval until it executes
+      // Updates error and bresenham_iterations_pending, sets command_steps and returns interval until it executes
       uint32_t advance_until_step(){
-        next_command = 0;
-
-        if (advance_dividend_q32 == 0) {
-          // don't waste time in zero motion trajs
-          bresenham_iterations_pending = 0;
-          return INTERVAL_PER_TRAJ_POINT;
-        }
-        bool did_step = false;
+        command_steps = 0;
         uint32_t interval = 0;
-        while (!did_step && bresenham_iterations_pending > 0 && interval < INTERVAL_PER_TRAJ_POINT) {
+        while (!command_steps && bresenham_iterations_pending > 0) {
           interval += INTERVAL_PER_ITERATION;
           bresenham_iterations_pending--;
-          // Note to reviewer: defining a macro inside a loop doesn't change what the preprocessor does. Keeping it here to be closest to its usage and easier to read
-          #define RUN_AXIS(A) do {                                              \
-              delta_error_q32.A += advance_dividend_q32.A;                        \
-              bool do_step_now = delta_error_q32.A < advance_dividend_q32.A;      \
-              did_step = did_step || do_step_now;                                 \
-              next_command |= ft_command_t(do_step_now) << FT_BIT_STEP_##A;       \
+          // Note: defining a macro inside a loop doesn't change what the preprocessor does. Keeping it here to be closest to its usage and easier to read
+          #define RUN_AXIS(A) do {                                                         \
+              delta_error_q32.A += stepper_data.advance_dividend_q32.A;                    \
+              bool do_step_now = delta_error_q32.A < stepper_data.advance_dividend_q32.A;  \
+              command_steps |= ft_command_t(do_step_now) << FT_BIT_STEP_##A;               \
             } while (0);
           LOGICAL_AXIS_MAP(RUN_AXIS);
           #undef RUN_AXIS
@@ -225,67 +214,46 @@ class FTMotion {
 
       /**
        * If bresenham_iterations_pending, advance to next actual step.
-       * Else, consume traj point, update advance_dividend_q32, bresenham_iterations_pending
+       * Else, consume stepper data point
        * Then return interval until that next step
        **/
       uint32_t plan() {
-        constexpr uint32_t ITERATIONS_PER_TRAJ = FREQ * FTM_TS;
-        constexpr float ITERATIONS_PER_TRAJ_INV = 1.0f / ITERATIONS_PER_TRAJ;
         if (bresenham_iterations_pending > 0) return advance_until_step();
 
-        if (trajBuff_isEmpty()) {
-          next_command = 0;
+        if (stepper_data_is_empty()) {
           bresenham_iterations_pending = 0;
-          advance_dividend_q32 = 0;
+          command_steps = 0;
           return HAL_TIMER_TYPE_MAX;
         }
 
-        #define TOSTEPS(A, B) (traj.A[traj_consume_i] * planner.settings.axis_steps_per_mm[B])
-        xyze_float_t next_pos = LOGICAL_AXIS_ARRAY(
-          TOSTEPS(e, block_extruder_axis),
-          TOSTEPS(x, X_AXIS), TOSTEPS(y, Y_AXIS), TOSTEPS(z, Z_AXIS),
-          TOSTEPS(i, I_AXIS), TOSTEPS(j, J_AXIS), TOSTEPS(k, K_AXIS),
-          TOSTEPS(u, U_AXIS), TOSTEPS(v, V_AXIS), TOSTEPS(w, W_AXIS)
-        );
-        #undef TOSTEPS
+        ft_command_t old_directions = stepper_data.command_directions;
 
-        xyze_float_t delta = (next_pos - curr_pos);
+        stepper_data = stepper_data_buff[stepper_data_tail];
+        if (++stepper_data_tail == FTM_BUFFER_SIZE) stepper_data_tail = 0;
 
-        #define PRELOAD_DIRECTIONS(A)                                           \
-          do {                                                                  \
-            bool old_dir = (pre_loaded_directons & _BV(FT_BIT_DIR_##A)) != 0;   \
-            bool new_dir = (delta.A > 0);                                       \
-            if (old_dir != new_dir) {                                           \
-              bitWrite(pre_loaded_directons, FT_BIT_DIR_##A, new_dir);          \
-              delta_error_q32.A = -delta_error_q32.A;                           \
-            }                                                                   \
-          } while (0);
+        const ft_command_t dir_flip_mask = old_directions ^ stepper_data.command_directions;  // axes that must toggle now
+        if (dir_flip_mask) {
+          #define _HANDLE_DIR_CHANGES(A) \
+            if (dir_flip_mask & _BV(FT_BIT_DIR_##A)) delta_error_q32.A = -delta_error_q32.A;
+          LOGICAL_AXIS_MAP(_HANDLE_DIR_CHANGES);
+          #undef _HANDLE_DIR_CHANGES
+        }
 
-        LOGICAL_AXIS_MAP(PRELOAD_DIRECTIONS);
-        #undef PRELOAD_DIRECTIONS
-        xyze_float_t dividend = delta * ITERATIONS_PER_TRAJ_INV;
-        // TODO: if ABS(dividend.ABS().large() >= 1), speed is too much. Either increase ITERATIONS_PER_TRAJ or limit speed in planner
+        if (stepper_data.advance_dividend_q32 == 0) {
+          // don't waste time in zero motion trajs
+          bresenham_iterations_pending = 0;
+          command_steps = 0;
+          return INTERVAL_PER_TRAJ_POINT;
+        }
 
-        // “<< 32” as float (exact power-of-two shift).
-        // ldexpf "Multiplies a floating-point value arg by the number 2 raised to the exp power."
-        #define SHIFT32(A) dividend.A = ldexpf(ABS(dividend.A), 32);
-        LOGICAL_AXIS_MAP(SHIFT32);
-        #undef SHIFT32
-
-        advance_dividend_q32 = dividend.asULong();
+        constexpr float ITERATIONS_PER_TRAJ = FTM_STEPPER_FS * FTM_TS;
         bresenham_iterations_pending = ITERATIONS_PER_TRAJ;
-        curr_pos = next_pos;
-        if (++traj_consume_i == (FTM_WINDOW_SIZE)) traj_consume_i = 0;
-
         return advance_until_step();
       }
     } stepping_t;
     static stepping_t stepping;
 
   private:
-
-    static xyze_trajectory_t traj;
-
     // Block data variables.
     static xyze_pos_t   startPos,         // (mm) Start position of block
                         endPos_prevBlock; // (mm) End position of previous block
@@ -301,11 +269,6 @@ class FTMotion {
 
     // Number of batches needed to propagate the current trajectory to the stepper.
     static constexpr uint32_t PROP_BATCHES = 1;
-
-    // fill_trajectory_buffer variables.
-    static uint32_t traj_consume_i,
-                    traj_produce_i;
-
 
 
     #if ENABLED(DISTINCT_E_FACTORS)
@@ -362,11 +325,19 @@ class FTMotion {
     // Buffers
     static void discard_planner_block_protected();
     static void runoutBlock();
-    static void fill_trajectory_buffer();
+    static void fill_stepper_data_buffer();
+    static xyze_float_t calc_traj_point(float dist);
+    static stepper_data_t calc_stepper_plan(xyze_float_t delta);
     static bool plan_next_block();
-    static bool trajBuff_isFull();
-    static bool trajBuff_isEmpty();
-    static uint32_t trajBuff_count();
+    static bool stepper_data_is_full();
+    static bool stepper_data_is_empty();
+    static uint32_t stepper_data_count();
+    // stepper_data buffer variables.
+    static stepper_data_t stepper_data_buff[FTM_BUFFER_SIZE];
+    static uint32_t stepper_data_tail,
+                    stepper_data_head;
+    static xyze_float_t curr_steps;
+
 
     FORCE_INLINE static int32_t num_samples_shaper_settle() {
       #define _OR_ENA(A) || shaping.A.ena
@@ -395,4 +366,3 @@ typedef struct FTMotionDisableInScope {
     }
   #endif
 } FTMotionDisableInScope_t;
-
