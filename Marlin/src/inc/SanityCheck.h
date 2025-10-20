@@ -4531,6 +4531,16 @@ static_assert(WITHIN(MULTISTEPPING_LIMIT, 1, 128) && IS_POWER_OF_2(MULTISTEPPING
   #error "CONFIGURABLE_MACHINE_NAME requires GCODE_QUOTED_STRINGS."
 #endif
 
+/**
+ * Shared Microstepping Pins Sanity Check
+ */
+#if HAS_SHARED_MICROSTEPPING_PINS
+  static constexpr uint8_t _microstep_modes[] = MICROSTEP_MODES;
+  static_assert(_microstep_modes[0] == _microstep_modes[1] && _microstep_modes[1] == _microstep_modes[2] && _microstep_modes[2] == _microstep_modes[3] && _microstep_modes[3] == _microstep_modes[4] && _microstep_modes[4] == _microstep_modes[5],
+                "When using shared microstepping pins (MS1_PIN and MS2_PIN), all MICROSTEP_MODES values must be identical.");
+#endif
+
+
 // Misc. Cleanup
 #undef _TEST_PWM
 #undef _NUM_AXES_STR

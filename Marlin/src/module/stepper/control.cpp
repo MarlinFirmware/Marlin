@@ -361,12 +361,27 @@
       #endif
     #endif
 
+    #if HAS_SHARED_MICROSTEPPING_PINS
+      SET_OUTPUT(MS1_PIN); SET_OUTPUT(MS2_PIN);
+    #endif
+
     static const uint8_t microstep_modes[] = MICROSTEP_MODES;
-    for (uint16_t i = 0; i < COUNT(microstep_modes); i++)
-      microstep_mode(i, microstep_modes[i]);
+    #if HAS_SHARED_MICROSTEPPING_PINS
+      // When using shared microstepping pins, set microstepping once for all drivers
+      microstep_mode(0, microstep_modes[0]);
+    #else
+      for (uint16_t i = 0; i < COUNT(microstep_modes); i++)
+        microstep_mode(i, microstep_modes[i]);
+    #endif
   }
 
   void Stepper::microstep_ms(const uint8_t driver, const int8_t ms1, const int8_t ms2, const int8_t ms3) {
+    #if HAS_SHARED_MICROSTEPPING_PINS
+      // Use shared microstepping pins for all drivers
+      if (ms1 >= 0) WRITE(MS1_PIN, ms1);
+      if (ms2 >= 0) WRITE(MS2_PIN, ms2);
+      // MS3 is not shared, handled per-driver below
+    #else
     if (ms1 >= 0) switch (driver) {
       #if HAS_X_MS_PINS || HAS_X2_MS_PINS
         case X_AXIS:
@@ -608,6 +623,8 @@
       #endif
     }
   }
+#endif // !HAS_SHARED_MICROSTEPPING_PINS
+}
 
   // MS1 MS2 MS3 Stepper Driver Microstepping mode table
   #ifndef MICROSTEP1
