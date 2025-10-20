@@ -378,8 +378,8 @@ private:
         dwinDrawRectangle(1,                                          // RGB565 colors: http://www.barth-dev.de/online/rgb565-color-picker/
           isnan(bedlevel.z_values[x][y]) ? COLOR_GREY : (             // gray if undefined
             (bedlevel.z_values[x][y] < 0 ?
-              (uint16_t)round(0x1F * -bedlevel.z_values[x][y] / (!viewer_asymmetric_range ? rmax : v_min)) << 11 :  // red if mesh point value is negative
-              (uint16_t)round(0x3F *  bedlevel.z_values[x][y] / (!viewer_asymmetric_range ? rmax : v_max)) << 5) |  // green if mesh point value is positive
+              (uint16_t)LROUND(0x1F * -bedlevel.z_values[x][y] / (!viewer_asymmetric_range ? rmax : v_min)) << 11 : // red if mesh point value is negative
+              (uint16_t)LROUND(0x3F *  bedlevel.z_values[x][y] / (!viewer_asymmetric_range ? rmax : v_max)) << 5) | // green if mesh point value is positive
                 _MIN(0x1F, (((uint8_t)abs(bedlevel.z_values[x][y]) / 10) * 4))),                                    // + blue stepping for every mm
           start_x_px, start_y_px, end_x_px, end_y_px
         );
