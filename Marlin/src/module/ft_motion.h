@@ -31,6 +31,8 @@
 #include "ft_motion/poly5_trajectory_generator.h"
 #include "ft_motion/poly6_trajectory_generator.h"
 
+#define FTM_VERSION   2   // Change version when hosts need to know
+
 #if HAS_X_AXIS && (HAS_Z_AXIS || HAS_EXTRUDERS)
   #define HAS_DYNAMIC_FREQ 1
   #if HAS_Z_AXIS
