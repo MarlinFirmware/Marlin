@@ -191,7 +191,8 @@ class FTMotion {
         delta_error_q32 = {1UL<<31}; // start as 0.5 in q32 so steps are rounded
       }
 
-      #define FREQ 2000000
+      // #define FREQ 2'000'000u
+      #define FREQ 1'000'000
       #define INTERVAL_PER_ITERATION (STEPPER_TIMER_RATE / FREQ)
       #define INTERVAL_PER_TRAJ_POINT (STEPPER_TIMER_RATE / FTM_FS)
 
@@ -222,6 +223,11 @@ class FTMotion {
         return interval;
       }
 
+      /**
+       * If bresenham_iterations_pending, advance to next actual step.
+       * Else, consume traj point, update advance_dividend_q32, bresenham_iterations_pending
+       * Then return interval until that next step
+       **/
       uint32_t plan() {
         constexpr uint32_t ITERATIONS_PER_TRAJ = FREQ * FTM_TS;
         constexpr float ITERATIONS_PER_TRAJ_INV = 1.0f / ITERATIONS_PER_TRAJ;
@@ -242,7 +248,6 @@ class FTMotion {
           TOSTEPS(u, U_AXIS), TOSTEPS(v, V_AXIS), TOSTEPS(w, W_AXIS)
         );
         #undef TOSTEPS
-        if (++traj_consume_i == (FTM_WINDOW_SIZE)) traj_consume_i = 0;
 
         xyze_float_t delta = (next_pos - curr_pos);
 
@@ -252,16 +257,16 @@ class FTMotion {
             bool new_dir = (delta.A > 0);                                       \
             if (old_dir != new_dir) {                                           \
               bitWrite(pre_loaded_directons, FT_BIT_DIR_##A, new_dir);          \
-              delta_error_q32.A = 0u - delta_error_q32.A;                       \
+              delta_error_q32.A = -delta_error_q32.A;                           \
             }                                                                   \
           } while (0);
 
         LOGICAL_AXIS_MAP(PRELOAD_DIRECTIONS);
-
+        #undef PRELOAD_DIRECTIONS
         xyze_float_t dividend = delta * ITERATIONS_PER_TRAJ_INV;
-        // TODO: DOCUMENT THAT DIVIDEND CANNOT BE 1 BECAUSE OF THE BRESEHNAM OVERFLOW ALGORITHM
+        // TODO: if ABS(dividend.ABS().large() >= 1), speed is too much. Either increase ITERATIONS_PER_TRAJ or limit speed in planner
 
-        // “<< 32” as float (exact power-of-two shift), then truncate.
+        // “<< 32” as float (exact power-of-two shift).
         // ldexpf "Multiplies a floating-point value arg by the number 2 raised to the exp power."
         #define SHIFT32(A) dividend.A = ldexpf(ABS(dividend.A), 32);
         LOGICAL_AXIS_MAP(SHIFT32);
@@ -270,6 +275,7 @@ class FTMotion {
         advance_dividend_q32 = dividend.asULong();
         bresenham_iterations_pending = ITERATIONS_PER_TRAJ;
         curr_pos = next_pos;
+        if (++traj_consume_i == (FTM_WINDOW_SIZE)) traj_consume_i = 0;
 
         return advance_until_step();
       }
