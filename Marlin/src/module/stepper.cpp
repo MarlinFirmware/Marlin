@@ -3552,13 +3552,12 @@ void Stepper::report_positions() {
    * - Apply STEP/DIR along with any delays required. A command may be empty, with no STEP/DIR.
    */
   void Stepper::ftMotion_stepper() {
-    const ft_command_t command = ftMotion.stepping.pop_command();
-    if (command == 0) return;
+    if (ftMotion.stepping.next_command == 0) return;
 
     USING_TIMED_PULSE();
 
     // Get FT Motion command flags for axis STEP / DIR
-    #define _FTM_STEP(AXIS) TEST(command, FT_BIT_STEP_##AXIS)
+    #define _FTM_STEP(AXIS) TEST(ftMotion.stepping.next_command, FT_BIT_STEP_##AXIS)
     #define _FTM_DIR(AXIS) TEST(ftMotion.stepping.pre_loaded_directons, FT_BIT_DIR_##AXIS)
 
     /**

@@ -182,23 +182,54 @@ class FTMotion {
       XYZEval<uint32_t> delta_error_q32{1UL<<31};
       ft_command_t pre_loaded_directons; // Holds only FT_BIT_DIR_## bits, no steps.
                                          // Also used to find out direction changes, shall not be resetted inside reset()
+      ft_command_t next_command;
 
       void reset(){
         bresenham_iterations_pending = 0;
         curr_pos.reset();
         advance_dividend_q32.reset();
-        delta_error_q32 = {1UL<<31};
+        delta_error_q32 = {1UL<<31}; // start as 0.5 in q32 so steps are rounded
+      }
+
+      #define FREQ 2000000
+      #define INTERVAL_PER_ITERATION (STEPPER_TIMER_RATE / FREQ)
+      #define INTERVAL_PER_TRAJ_POINT (STEPPER_TIMER_RATE / FTM_FS)
+
+      // Updates error and bresenham_iterations_pending, sets next_command and returns interval until it executes
+      uint32_t advance_until_step(){
+        next_command = 0;
+
+        if (advance_dividend_q32 == 0) {
+          // don't waste time in zero motion trajs
+          bresenham_iterations_pending = 0;
+          return INTERVAL_PER_TRAJ_POINT;
+        }
+        bool did_step = false;
+        uint32_t interval = 0;
+        while (!did_step && bresenham_iterations_pending > 0 && interval < INTERVAL_PER_TRAJ_POINT) {
+          interval += INTERVAL_PER_ITERATION;
+          bresenham_iterations_pending--;
+          // Note to reviewer: defining a macro inside a loop doesn't change what the preprocessor does. Keeping it here to be closest to its usage and easier to read
+          #define RUN_AXIS(A) do {                                              \
+              delta_error_q32.A += advance_dividend_q32.A;                        \
+              bool do_step_now = delta_error_q32.A < advance_dividend_q32.A;      \
+              did_step = did_step || do_step_now;                                 \
+              next_command |= ft_command_t(do_step_now) << FT_BIT_STEP_##A;       \
+            } while (0);
+          LOGICAL_AXIS_MAP(RUN_AXIS);
+          #undef RUN_AXIS
+        }
+        return interval;
       }
 
       uint32_t plan() {
-        #define FREQ 250000
-        constexpr uint32_t INTERVAL = (STEPPER_TIMER_RATE / FREQ);
         constexpr uint32_t ITERATIONS_PER_TRAJ = FREQ * FTM_TS;
         constexpr float ITERATIONS_PER_TRAJ_INV = 1.0f / ITERATIONS_PER_TRAJ;
-        if (bresenham_iterations_pending > 0) return INTERVAL;
+        if (bresenham_iterations_pending > 0) return advance_until_step();
 
-        xyze_float_t delta = {0};
         if (trajBuff_isEmpty()) {
+          next_command = 0;
+          bresenham_iterations_pending = 0;
           advance_dividend_q32 = 0;
           return HAL_TIMER_TYPE_MAX;
         }
@@ -213,8 +244,7 @@ class FTMotion {
         #undef TOSTEPS
         if (++traj_consume_i == (FTM_WINDOW_SIZE)) traj_consume_i = 0;
 
-        delta = (next_pos - curr_pos);
-        curr_pos = next_pos;
+        xyze_float_t delta = (next_pos - curr_pos);
 
         #define PRELOAD_DIRECTIONS(A)                                           \
           do {                                                                  \
@@ -226,11 +256,10 @@ class FTMotion {
             }                                                                   \
           } while (0);
 
-          LOGICAL_AXIS_MAP(PRELOAD_DIRECTIONS);
+        LOGICAL_AXIS_MAP(PRELOAD_DIRECTIONS);
 
         xyze_float_t dividend = delta * ITERATIONS_PER_TRAJ_INV;
         // TODO: DOCUMENT THAT DIVIDEND CANNOT BE 1 BECAUSE OF THE BRESEHNAM OVERFLOW ALGORITHM
-
 
         // “<< 32” as float (exact power-of-two shift), then truncate.
         // ldexpf "Multiplies a floating-point value arg by the number 2 raised to the exp power."
@@ -240,31 +269,9 @@ class FTMotion {
 
         advance_dividend_q32 = dividend.asULong();
         bresenham_iterations_pending = ITERATIONS_PER_TRAJ;
+        curr_pos = next_pos;
 
-        return INTERVAL;
-      }
-
-      /**
-       * When delta_error_q32 reaches 1 (1 = 2^32 in q0.32 fixed point format), it:
-       *  * rolls over, so no need to subtract 1 (2^32) from it
-       *  * the carry can be detected because advance_dividend is strictly < 1
-       *  * delta_error_q32 is initialized to 0.5 (2^31) to ensure steps are not lost.
-       *  * Technically a step would be lost every billion consecutive steps (2^30) in the same direction.
-      */
-      ft_command_t pop_command() {
-        if (bresenham_iterations_pending == 0) return 0;
-        ft_command_t cmd = 0;
-        bresenham_iterations_pending--;
-        #define RUN_AXIS(A)                                                   \
-          do {                                                                \
-            delta_error_q32.A += advance_dividend_q32.A;                      \
-            bool do_step_now = delta_error_q32.A < advance_dividend_q32.A;    \
-            cmd |= ft_command_t(do_step_now) << FT_BIT_STEP_##A;              \
-          } while (0);
-
-        LOGICAL_AXIS_MAP(RUN_AXIS);
-        #undef RUN_AXIS
-        return cmd;
+        return advance_until_step();
       }
     } stepping_t;
     static stepping_t stepping;
