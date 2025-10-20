@@ -1212,7 +1212,7 @@
     #define FTM_BATCH_SIZE            100       // Custom Batch size for trajectory generation needed by Ulendo FBS
   #endif
 
-  #define FTM_FS                     1000       // (Hz) Frequency for trajectory generation. (Reciprocal of FTM_TS)
+  #define FTM_FS                     1000       // (Hz) Frequency for trajectory generation
 
   #if DISABLED(COREXY)
     #define FTM_STEPPER_FS          20000       // (Hz) Frequency for stepper I/O update
