@@ -622,9 +622,8 @@
         case (E_AXIS + 7): WRITE(E7_MS3_PIN, ms3); break;
       #endif
     }
+    #endif // !HAS_SHARED_MICROSTEPPING_PINS
   }
-#endif // !HAS_SHARED_MICROSTEPPING_PINS
-}
 
   // MS1 MS2 MS3 Stepper Driver Microstepping mode table
   #ifndef MICROSTEP1
