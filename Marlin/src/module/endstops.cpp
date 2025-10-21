@@ -877,7 +877,7 @@ void Endstops::update() {
 
   // Signal, after validation, if an endstop limit is pressed or not
 
-  #define AXIS_IS_MOVING(A) TERN(FT_MOTION, ftMotion, stepper).axis_is_moving(_AXIS(A))
+  #define AXIS_IS_MOVING(A) stepper.axis_is_moving(_AXIS(A))
   #define AXIS_DIR_REV(A)  !TERN(FT_MOTION, ftMotion, stepper).motor_direction(A)
 
   #if HAS_X_AXIS
