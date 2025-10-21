@@ -579,8 +579,8 @@
 //
 // NeoPixel LED
 //
-#ifndef BOARD_NEOPIXEL_PIN
-  #define BOARD_NEOPIXEL_PIN                PE6
+#ifndef NEOPIXEL_PIN
+  #define NEOPIXEL_PIN                      PE6
 #endif
 
 #if ENABLED(WIFISUPPORT)

@@ -316,8 +316,8 @@
 //
 // NeoPixel LED
 //
-#ifndef BOARD_NEOPIXEL_PIN
-  #define BOARD_NEOPIXEL_PIN                PC11  // RGB1
+#ifndef NEOPIXEL_PIN
+  #define NEOPIXEL_PIN                      PC11  // RGB1
 #endif
 
 #ifndef NEOPIXEL2_PIN

@@ -115,5 +115,5 @@
 //
 // NeoPixel Rings
 //
-#define BOARD_NEOPIXEL_PIN                    14
+#define NEOPIXEL_PIN                          14
 #define NEOPIXEL2_PIN                         27

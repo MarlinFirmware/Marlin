@@ -168,8 +168,8 @@
 //
 // Misc. Functions
 //
-#ifndef BOARD_NEOPIXEL_PIN
-  #define BOARD_NEOPIXEL_PIN                PB7   // LED driving pin
+#ifndef NEOPIXEL_PIN
+  #define NEOPIXEL_PIN                      PB7   // LED driving pin
 #endif
 
 #ifndef PS_ON_PIN

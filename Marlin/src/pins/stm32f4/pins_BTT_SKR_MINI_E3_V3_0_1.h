@@ -92,8 +92,8 @@
   #define POWER_LOSS_PIN                    PC13  // Power Loss Detection: PWR-DET
 #endif
 
-#ifndef BOARD_NEOPIXEL_PIN
-  #define BOARD_NEOPIXEL_PIN                PA14  // LED driving pin
+#ifndef NEOPIXEL_PIN
+  #define NEOPIXEL_PIN                      PA14  // LED driving pin
 #endif
 
 #ifndef PS_ON_PIN

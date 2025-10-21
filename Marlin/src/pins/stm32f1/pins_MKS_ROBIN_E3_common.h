@@ -245,8 +245,8 @@
 #endif
 
 // LED driving pin
-#ifndef BOARD_NEOPIXEL_PIN
-  #define BOARD_NEOPIXEL_PIN                PA2
+#ifndef NEOPIXEL_PIN
+  #define NEOPIXEL_PIN                      PA2
 #endif
 
 //

@@ -205,7 +205,7 @@
 // Onboard SD support
 //
 #ifndef SDCARD_CONNECTION
-  #define SDCARD_CONNECTION              LCD
+  #define SDCARD_CONNECTION                 LCD
 #endif
 
 #if SD_CONNECTION_IS(LCD)
@@ -265,7 +265,7 @@
   #define FORCE_SOFT_SPI
 
   #define KILL_PIN                          -1    // NC
-  #define BOARD_NEOPIXEL_PIN         EXP1_07_PIN
+  #define NEOPIXEL_PIN               EXP1_07_PIN
 
 #elif HAS_WIRED_LCD
 

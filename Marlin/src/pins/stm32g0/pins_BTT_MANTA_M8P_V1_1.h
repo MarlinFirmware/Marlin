@@ -67,8 +67,8 @@
 //
 // NeoPixel LED
 //
-#ifndef BOARD_NEOPIXEL_PIN
-  #define BOARD_NEOPIXEL_PIN                PA9
+#ifndef NEOPIXEL_PIN
+  #define NEOPIXEL_PIN                      PA9
 #endif
 
 #ifndef NEOPIXEL2_PIN

@@ -1869,15 +1869,6 @@
 #undef _E_DIAG_EXISTS
 #undef E_DIAG_EXISTS
 
-// Get a NeoPixel pin from the LCD or board, if provided
-#ifndef NEOPIXEL_PIN
-  #if PIN_EXISTS(LCD_NEOPIXEL)
-    #define NEOPIXEL_PIN LCD_NEOPIXEL_PIN
-  #elif PIN_EXISTS(BOARD_NEOPIXEL)
-    #define NEOPIXEL_PIN BOARD_NEOPIXEL_PIN
-  #endif
-#endif
-
 // Undefine motor PWM pins for nonexistent axes since the existence of a MOTOR_CURRENT_PWM_*_PIN implies its standard use.
 // TODO: Allow remapping (e.g., E => Z2). Spec G-codes to use logical axis with index (e.g., to set Z2: Mxxx Z P1 Snnn).
 #if !HAS_X_AXIS

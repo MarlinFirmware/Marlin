@@ -453,8 +453,8 @@
 //
 // NeoPixel
 //
-#ifndef BOARD_NEOPIXEL_PIN
-  #define BOARD_NEOPIXEL_PIN                PA8   // LED driving pin
+#ifndef NEOPIXEL_PIN
+  #define NEOPIXEL_PIN                      PA8   // LED driving pin
 #endif
 
 // Pins for documentation and sanity checks only.

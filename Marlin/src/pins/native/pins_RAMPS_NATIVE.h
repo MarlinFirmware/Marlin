@@ -195,7 +195,7 @@
 //
 #define SD_SS_PIN                             53
 #define LED_PIN                               13
-#define BOARD_NEOPIXEL_PIN                    71
+#define NEOPIXEL_PIN                          71
 
 #ifndef FILWIDTH_PIN
   #define FILWIDTH_PIN                         5  // Analog Input on AUX2

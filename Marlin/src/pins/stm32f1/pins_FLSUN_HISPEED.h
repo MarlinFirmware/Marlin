@@ -126,7 +126,7 @@
   #define Y_SERIAL_TX_PIN                   PA9   // TXD1
   #define Z_SERIAL_TX_PIN                   PC7   // IO1
   #ifndef TMC_BAUD_RATE
-    #define TMC_BAUD_RATE                  19200
+    #define TMC_BAUD_RATE                   19200
   #endif
 #else
   // Motor current PWM pins
@@ -227,7 +227,7 @@
   #define FIL_RUNOUT2_PIN                   PE6   // MT_DET_2
 #endif
 #ifndef FIL_RUNOUT_STATE
-  #define FIL_RUNOUT_STATE                LOW
+  #define FIL_RUNOUT_STATE                  LOW
 #endif
 
 //
@@ -237,8 +237,8 @@
 
 #if ENABLED(NEOPIXEL_LED)
   #define LED_PWM                           PC7   // IO1
-  #ifndef BOARD_NEOPIXEL_PIN
-    #define BOARD_NEOPIXEL_PIN           LED_PWM  // USED WIFI IO0/IO1 PIN
+  #ifndef NEOPIXEL_PIN
+    #define NEOPIXEL_PIN                LED_PWM   // USED WIFI IO0/IO1 PIN
   #endif
 #endif
 

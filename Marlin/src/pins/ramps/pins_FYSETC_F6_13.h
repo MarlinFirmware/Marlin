@@ -252,7 +252,7 @@
   #define DOGLCD_A0                  LCD_PINS_DC
 
   #undef KILL_PIN
-  #define BOARD_NEOPIXEL_PIN         EXP1_07_PIN
+  #define NEOPIXEL_PIN               EXP1_07_PIN
 
 #else
   #define BEEPER_PIN                 EXP1_01_PIN

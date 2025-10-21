@@ -182,8 +182,8 @@
 //
 #define CASE_LIGHT_PIN                      PA13
 
-#ifndef BOARD_NEOPIXEL_PIN
-  #define BOARD_NEOPIXEL_PIN                PA8
+#ifndef NEOPIXEL_PIN
+  #define NEOPIXEL_PIN                      PA8
 #endif
 
 #define SUICIDE_PIN                         PC13
