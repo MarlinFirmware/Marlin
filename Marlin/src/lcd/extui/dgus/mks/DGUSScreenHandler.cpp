@@ -382,7 +382,7 @@ void DGUSScreenHandlerMKS::zOffsetSelect(DGUS_VP_Variable &var, void *val_ptr) {
 
 void DGUSScreenHandlerMKS::getOffsetValue(DGUS_VP_Variable &var, void *val_ptr) {
   #if HAS_BED_PROBE
-    const float offset = BE32_P(val_ptr) / 100.0f;
+    const float offset = BE32_P(val_ptr) * 0.01f;
     switch (var.VP) {
       default: break;
       case VP_OFFSET_X: probe.offset.x = offset; break;

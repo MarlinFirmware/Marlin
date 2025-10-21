@@ -302,7 +302,7 @@ void FTMotion::loop() {
       case ftMotionShaper_2HEI: {
         max_i = 3U;
         const float vtolx2 = sq(vtol);
-        const float X = pow(vtolx2 * (sqrt(1.0f - vtolx2) + 1.0f), 1.0f / 3.0f);
+        const float X = POW(vtolx2 * (sqrt(1.0f - vtolx2) + 1.0f), 1.0f / 3.0f);
         Ai[0] = (3.0f * sq(X) + 2.0f * X + 3.0f * vtolx2) / (16.0f * X);
         Ai[1] = (0.5f - Ai[0]) * K;
         Ai[2] = Ai[1] * K;
@@ -348,28 +348,28 @@ void FTMotion::loop() {
     const float df = sqrt ( 1.f - sq(zeta) );
     switch (shaper) {
       case ftMotionShaper_ZV:
-        Ni[1] = round((0.5f / f / df) * (FTM_FS));
+        Ni[1] = LROUND((0.5f / f / df) * (FTM_FS));
         break;
       case ftMotionShaper_ZVD:
       case ftMotionShaper_EI:
-        Ni[1] = round((0.5f / f / df) * (FTM_FS));
+        Ni[1] = LROUND((0.5f / f / df) * (FTM_FS));
         Ni[2] = Ni[1] + Ni[1];
         break;
       case ftMotionShaper_ZVDD:
       case ftMotionShaper_2HEI:
-        Ni[1] = round((0.5f / f / df) * (FTM_FS));
+        Ni[1] = LROUND((0.5f / f / df) * (FTM_FS));
         Ni[2] = Ni[1] + Ni[1];
         Ni[3] = Ni[2] + Ni[1];
         break;
       case ftMotionShaper_ZVDDD:
       case ftMotionShaper_3HEI:
-        Ni[1] = round((0.5f / f / df) * (FTM_FS));
+        Ni[1] = LROUND((0.5f / f / df) * (FTM_FS));
         Ni[2] = Ni[1] + Ni[1];
         Ni[3] = Ni[2] + Ni[1];
         Ni[4] = Ni[3] + Ni[1];
         break;
       case ftMotionShaper_MZV:
-        Ni[1] = round((0.375f / f / df) * (FTM_FS));
+        Ni[1] = LROUND((0.375f / f / df) * (FTM_FS));
         Ni[2] = Ni[1] + Ni[1];
         break;
       case ftMotionShaper_NONE:
@@ -383,7 +383,7 @@ void FTMotion::loop() {
     float centroid = 0.0f;
     for (uint8_t i = 1; i <= max_i; ++i) centroid -= Ai[i] * Ni[i];
 
-    Ni[0] = round(centroid);
+    Ni[0] = LROUND(centroid);
 
     // The resulting echo index can be negative, this is ok because it will be offset
     // by the max delay of all axes before it is used.

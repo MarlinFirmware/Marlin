@@ -3069,7 +3069,7 @@ bool Planner::buffer_line(const xyze_pos_t &cart, const feedRate_t fr_mm_s
           calculated_feedrate = settings.max_feedrate_mm_s[Y_AXIS];
         else {
           // Normalized vector of movement
-          const float diffBLength = ABS((2.0f * M_PI * diff.a) * (diff.b / 360.0f)),
+          const float diffBLength = ABS((2.0f * M_PI * diff.a) * (diff.b * 0.002777777778)), // ÷ 360
                       diffTheta = DEGREES(ATAN2(diff.a, diffBLength)),
                       normalizedTheta = 1.0f - (ABS(diffTheta > 90.0f ? 180.0f - diffTheta : diffTheta) / 90.0f);
 
