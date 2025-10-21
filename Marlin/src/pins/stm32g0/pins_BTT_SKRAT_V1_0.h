@@ -506,5 +506,5 @@
 // NeoPixel LED
 //
 #ifndef NEOPIXEL_PIN
-  #define NEOPIXEL_PIN                       PE4  // RGB
+  #define NEOPIXEL_PIN                      PE4   // RGB
 #endif
