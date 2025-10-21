@@ -68,7 +68,7 @@ inline void echo_not_entered(const char c) { SERIAL_CHAR(c); SERIAL_ECHOLNPGM(" 
 void GcodeSuite::G29() {
 
   // Potentially disable Fixed-Time Motion for probing
-  TERN_(FT_MOTION, FTMotionDisableInScope FT_Disabler);
+  TERN_(FT_MOTION, IF_DISABLED(FTM_HOME_AND_PROBE, FTMotionDisableInScope FT_Disabler));
 
   DEBUG_SECTION(log_G29, "G29", true);
 

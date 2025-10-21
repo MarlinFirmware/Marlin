@@ -81,7 +81,7 @@ void GcodeSuite::G30() {
     TERN_(HAS_PTC, ptc.set_enabled(parser.boolval('C', true)));
 
     // Potentially disable Fixed-Time Motion for probing
-    TERN_(FT_MOTION, FTMotionDisableInScope FT_Disabler);
+    TERN_(FT_MOTION, IF_DISABLED(FTM_HOME_AND_PROBE, FTMotionDisableInScope FT_Disabler));
 
     // Probe the bed, optionally raise, and return the measured height
     const float measured_z = probe.probe_at_point(probepos, raise_after);

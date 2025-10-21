@@ -271,8 +271,8 @@ class FTMotion {
 
 extern FTMotion ftMotion;
 
-typedef struct FTMotionDisableInScope {
-  #if DISABLED(FTM_HOME_AND_PROBE)
+#if DISABLED(FTM_HOME_AND_PROBE)
+  typedef struct FTMotionDisableInScope {
     bool isactive;
     FTMotionDisableInScope() {
       isactive = ftMotion.cfg.active;
@@ -282,5 +282,5 @@ typedef struct FTMotionDisableInScope {
       ftMotion.cfg.active = isactive;
       if (isactive) ftMotion.init();
     }
-  #endif
-} FTMotionDisableInScope_t;
+  } FTMotionDisableInScope_t;
+#endif

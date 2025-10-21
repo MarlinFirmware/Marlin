@@ -277,7 +277,7 @@ G29_TYPE GcodeSuite::G29() {
 
   #if DISABLED(PROBE_MANUALLY) && ENABLED(FT_MOTION)
     // Potentially disable Fixed-Time Motion for probing
-    FTMotionDisableInScope FT_Disabler;
+    IF_DISABLED(FTM_HOME_AND_PROBE, FTMotionDisableInScope FT_Disabler);
   #endif
 
   /**
