@@ -850,7 +850,7 @@ namespace ExtUI {
                                                       { backlash.set_distance_mm((AxisEnum)axis, constrain(value,0,5)); }
 
     float getBacklashCorrection_percent()             { return backlash.get_correction() * 100.0f; }
-    void setBacklashCorrection_percent(const float value) { backlash.set_correction(constrain(value, 0, 100) / 100.0f); }
+    void setBacklashCorrection_percent(const float value) { backlash.set_correction(constrain(value, 0, 100) * 0.01f); }
 
     #ifdef BACKLASH_SMOOTHING_MM
       float getBacklashSmoothing_mm()                 { return backlash.get_smoothing_mm(); }

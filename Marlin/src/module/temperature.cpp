@@ -1122,7 +1122,7 @@ void Temperature::factory_reset() {
 
       if (ELAPSED(curr_time_ms, next_test_ms)) {
         if (current_temp >= ambient_temp) {
-          ambient_temp = (ambient_temp + current_temp) / 2.0f;
+          ambient_temp = (ambient_temp + current_temp) * 0.5f;
           break;
         }
         ambient_temp = current_temp;
@@ -1884,7 +1884,7 @@ void Temperature::mintemp_error(const heater_id_t heater_id OPTARG(ERR_INCLUDE_T
       float power = 0.0;
       if (hotend.target != 0 && !is_idling) {
         // Plan power level to get to target temperature in 2 seconds
-        power = (hotend.target - hotend.modeled_block_temp) * mpc.block_heat_capacity / 2.0f;
+        power = (hotend.target - hotend.modeled_block_temp) * mpc.block_heat_capacity * 0.5f;
         power -= (hotend.modeled_ambient_temp - hotend.modeled_block_temp) * ambient_xfer_coeff;
       }
 
@@ -2602,7 +2602,7 @@ void Temperature::task() {
 #if ANY_THERMISTOR_IS(-1)
   // For a 5V input the AD595 returns a value scaled with 10mV per °C. (Minimum input voltage is 5V.)
   static constexpr celsius_float_t temp_ad595(const raw_adc_t raw) {
-    return raw * (float(ADC_VREF_MV) / 10.0f) / float(HAL_ADC_RANGE) / (OVERSAMPLENR)
+    return raw * (float(ADC_VREF_MV) * 0.1f) / float(HAL_ADC_RANGE) / (OVERSAMPLENR)
                * (TEMP_SENSOR_AD595_GAIN) + (TEMP_SENSOR_AD595_OFFSET);
   }
 #endif

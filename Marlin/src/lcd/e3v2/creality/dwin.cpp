@@ -96,7 +96,7 @@
 
 // Minimum unit (0.1) : multiple (10)
 #define UNITFDIGITS 1
-#define MINUNITMULT pow(10, UNITFDIGITS)
+#define MINUNITMULT POW(10, UNITFDIGITS)
 
 #define DWIN_VAR_UPDATE_INTERVAL         1000
 #define DWIN_SCROLL_UPDATE_INTERVAL      SEC_TO_MS(2)
@@ -1392,7 +1392,7 @@ void hmiMoveDone(const AxisEnum axis) {
     LIMIT(hmiValues.offset_value, _OFFSET_ZMIN * 100, _OFFSET_ZMAX * 100);
 
     last_zoffset = dwin_zoffset;
-    dwin_zoffset = hmiValues.offset_value / 100.0f;
+    dwin_zoffset = hmiValues.offset_value * 0.01f;
     #if ANY(BABYSTEP_ZPROBE_OFFSET, JUST_BABYSTEP)
       if (BABYSTEP_ALLOWED()) babystep.add_mm(Z_AXIS, dwin_zoffset - last_zoffset);
     #endif
