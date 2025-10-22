@@ -21,6 +21,8 @@
  */
 #pragma once
 
-#if NOT_TARGET(IS_TEENSY41)
+#if defined(IS_TEENSY40) && NOT_TARGET(IS_TEENSY40)
+  #error "Oops! Select 'Teensy 4.0' in 'Tools > Board.'"
+#elif defined(IS_TEENSY41) && NOT_TARGET(IS_TEENSY41)
   #error "Oops! Select 'Teensy 4.1' in 'Tools > Board.'"
 #endif
