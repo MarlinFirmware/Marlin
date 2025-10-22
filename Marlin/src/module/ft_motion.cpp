@@ -461,8 +461,6 @@ void FTMotion::reset() {
   TERN_(HAS_EXTRUDERS, prev_traj_e = 0.0f);  // Reset linear advance variables.
   TERN_(DISTINCT_E_FACTORS, block_extruder_axis = E_AXIS);
 
-  axis_move_end_ti.reset();
-
   if (did_suspend) stepper.wake_up();
 }
 
