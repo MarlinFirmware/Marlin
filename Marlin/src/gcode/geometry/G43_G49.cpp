@@ -39,13 +39,7 @@
 /**
  * G43: Enable Tool Length Compensation.
  * 
- * G43: Enable Simple Tool Length Compensation.
  * G43 Tool Length Compensation can be canceled with G49.
- *
- * G43.4: Enable Rotational Tool Center Point Control Mode.
- * G43.4 Rotational Tool Center Point Control Mode can be canceled with G49.
- * 
- * Only one can be active at any time.
  */
 void GcodeSuite::G43() {
 
@@ -59,40 +53,29 @@ void GcodeSuite::G43() {
     default: return;                                              // Ignore unknown G43.x
 
     case 0:                                                       // G43 - Simple Tool Length Compensation Mode.
-      #if HAS_TOOL_CENTERPOINT_CONTROL
-        tool_centerpoint_control = false;
-      #endif
+      if (!(simple_tool_length_compensation || tool_centerpoint_control)) {
+        current_position += hotend_offset[active_extruder];
+      }
       simple_tool_length_compensation = true;
+      sync_plan_position();
       break;
-
-    #if HAS_TOOL_CENTERPOINT_CONTROL
-      case 4:                                                     // G43.4 - Rotational Tool Center Point Control Mode.
-        simple_tool_length_compensation = false;
-        tool_centerpoint_control = true;
-        break;
-    #endif
   }
 
-  current_position += hotend_offset[active_extruder];
-  sync_plan_position();
 }
 
 
 /**
  * G49: Cancel Tool Length Compensation
  * 
- * Cancels Simple Tool Length Compensation Mode and Rotational Tool Center Point Control Mode.
+ * Cancels Simple Tool Length Compensation Mode.
  * 
  * Simple Tool Length Compensation Mode can be enabled with G43
- * Rotational Tool Center Point Control Mode can be enabled with G43.4
  */
 void GcodeSuite::G49() {
+  if (simple_tool_length_compensation) {
+    current_position -= hotend_offset[active_extruder];
+  }
   simple_tool_length_compensation = false;
-  #if HAS_TOOL_CENTERPOINT_CONTROL
-    tool_centerpoint_control = false;
-  #endif
-
-  current_position -= hotend_offset[active_extruder];
   sync_plan_position();
 }
 

@@ -161,10 +161,6 @@ xyz_pos_t cartes;
 
   abce_pos_t delta;
 
-  #if HAS_TOOL_CENTERPOINT_CONTROL
-    bool tool_centerpoint_control = false;
-  #endif
-
   #if HAS_SCARA_OFFSET
     abc_pos_t scara_home_offset;
   #endif
