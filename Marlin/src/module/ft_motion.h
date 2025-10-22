@@ -161,7 +161,7 @@ class FTMotion {
     static TrajectoryType getTrajectoryType() { return trajectoryType; }
 
     FORCE_INLINE static bool motor_direction(const AxisEnum axis) {
-      return cfg.active ? axis_move_dir[axis] : stepper.last_direction_bits[axis];
+      return cfg.active ? axis_move_dir[axis] : stepper.motor_direction(axis);
     }
 
   private:
