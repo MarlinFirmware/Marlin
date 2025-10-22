@@ -152,34 +152,18 @@ namespace MMU3 {
     #endif
   }
 
-  int16_t thermal_degTargetHotend() {
-    return thermalManager.degTargetHotend(0);
-  }
-
-  int16_t thermal_degHotend() {
-    return thermalManager.degHotend(0);
-  }
-
-  void thermal_setExtrudeMintemp(int16_t t) {
-    thermalManager.extrude_min_temp = t;
-  }
-
-  void thermal_setTargetHotend(int16_t t) {
-    thermalManager.setTargetHotend(t, 0);
-  }
+  int16_t thermal_degTargetHotend() { return thermalManager.degTargetHotend(0); }
+  int16_t thermal_degHotend() { return thermalManager.degHotend(0); }
+  void thermal_setExtrudeMintemp(int16_t t) { thermalManager.extrude_min_temp = t; }
+  void thermal_setTargetHotend(int16_t t) { thermalManager.setTargetHotend(t, 0); }
 
   void safe_delay_keep_alive(uint16_t t) {
     idle(true);
     safe_delay(t);
   }
 
-  void Enable_E0() {
-    stepper.enable_extruder(TERN_(HAS_EXTRUDERS, 0));
-  }
-
-  void Disable_E0() {
-    stepper.disable_extruder(TERN_(HAS_EXTRUDERS, 0));
-  }
+  void Enable_E0() { stepper.enable_extruder(TERN_(HAS_EXTRUDERS, 0)); }
+  void Disable_E0() { stepper.disable_extruder(TERN_(HAS_EXTRUDERS, 0)); }
 
   bool xy_are_trusted() {
     return axis_is_trusted(X_AXIS) && axis_is_trusted(Y_AXIS);
