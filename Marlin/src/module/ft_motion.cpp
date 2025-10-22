@@ -51,8 +51,6 @@ int32_t FTMotion::stepperCmdBuff_produceIdx = 0, // Index of next stepper comman
 
 bool FTMotion::stepperCmdBuffHasData = false;   // The stepper buffer has items and is in use.
 
-AxisBits FTMotion::axis_move_dir;
-
 // Private variables.
 
 // NOTE: These are sized for Ulendo FBS use.
@@ -439,7 +437,6 @@ void FTMotion::reset() {
   stepperCmdBuff_produceIdx = stepperCmdBuff_consumeIdx = 0;
 
   traj.reset();
-  stepper.axis_did_move.reset();
 
   blockProcRdy = batchRdy = batchRdyForInterp = false;
 
@@ -558,10 +555,6 @@ void FTMotion::loadBlockData(block_t * const current_block) {
   endPos_prevBlock += moveDist;
 
   TERN_(FTM_HAS_LIN_ADVANCE, use_advance_lead = current_block->use_advance_lead);
-
-  // Set direction and moving bits for a new block
-  stepper.set_axis_moved_for_current_block();
-  axis_move_dir = current_block->direction_bits;
 
 }
 

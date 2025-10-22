@@ -3585,8 +3585,12 @@ void Stepper::report_positions() {
      * when the block was fetched and are not overwritten here.
      */
 
-    #define _FTM_SET_DIR(AXIS) if (_FTM_STEP(AXIS)) last_direction_bits.bset(_AXIS(AXIS), _FTM_DIR(AXIS));
-    LOGICAL_AXIS_MAP(_FTM_SET_DIR);
+    axis_did_move.reset();
+
+    #define _FTM_SET_MOVE_DIR(AXIS) if (_FTM_STEP(AXIS))  { last_direction_bits.bset(_AXIS(AXIS), _FTM_DIR(AXIS));\
+                                                            axis_did_move.bset(_AXIS(AXIS), true);\
+                                                          } 
+    LOGICAL_AXIS_MAP(_FTM_SET_MOVE_DIR);
 
     if (last_set_direction != last_direction_bits) {
       // Apply directions (generally applying to the entire linear move)

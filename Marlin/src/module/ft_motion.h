@@ -136,8 +136,6 @@ class FTMotion {
 
     static bool stepperCmdBuffHasData;                    // The stepper buffer has items and is in use.
 
-    static AxisBits axis_move_dir;
-
     // Public methods
     static void init();
     static void loop();                                   // Controller main, to be invoked from non-isr task.
@@ -159,10 +157,6 @@ class FTMotion {
     // Trajectory generator selection
     static void setTrajectoryType(const TrajectoryType type);
     static TrajectoryType getTrajectoryType() { return trajectoryType; }
-
-    FORCE_INLINE static bool motor_direction(const AxisEnum axis) {
-      return cfg.active ? axis_move_dir[axis] : stepper.motor_direction(axis);
-    }
 
   private:
 
