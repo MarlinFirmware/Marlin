@@ -557,9 +557,6 @@ void FTMotion::loadBlockData(block_t * const current_block) {
   // Plan the trajectory using the trajectory generator
   currentGenerator->plan(initial_speed, final_speed, current_block->acceleration, current_block->nominal_speed, totalLength);
 
-  // Accel + Coasting + Decel + datapoints
-  const float reminder_from_last_block = - tau;
-
   endPos_prevBlock += moveDist;
 
   TERN_(FTM_HAS_LIN_ADVANCE, use_advance_lead = current_block->use_advance_lead);
