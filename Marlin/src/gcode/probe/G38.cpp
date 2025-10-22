@@ -45,12 +45,21 @@ inline void G38_single_probe(const uint8_t move_value) {
 inline bool G38_run_probe() {
 
   bool G38_pass_fail = false;
-  if (probe.offset.x || probe.offset.y || probe.offset.z) {
-    const xyze_pos_t npos_start = current_position - DIFF_TERN(HAS_HOTEND_OFFSET, probe.offset, hotend_offset[active_extruder]);
-    const xyze_pos_t npos_destination = destination - DIFF_TERN(HAS_HOTEND_OFFSET, probe.offset, hotend_offset[active_extruder]);
-    do_blocking_move_to(npos_start);
-    destination = npos_destination;
+  const xyze_pos_t start_pos = current_position;
+  const xyze_pos_t old_destination = destination;
+  probe.use_probing_tool();
+  if (probe.deploy()) {
+    SERIAL_ERROR_MSG("Failed to deploy probe");
+    endstops.not_homing();
+    probe.use_probing_tool(false);
+    return false;
   }
+  const xyze_pos_t npos_start = start_pos - DIFF_TERN(HAS_HOTEND_OFFSET, probe.offset, hotend_offset[active_extruder]);
+  const xyze_pos_t npos_destination = old_destination - DIFF_TERN(HAS_HOTEND_OFFSET, probe.offset, hotend_offset[active_extruder]);
+  do_blocking_move_to(npos_start);
+  destination = npos_destination;
+
+
   #if MULTIPLE_PROBING > 1
     // Get direction of move and retract
     xyz_float_t retract_mm;
@@ -87,7 +96,11 @@ inline bool G38_run_probe() {
       #if ENABLED(SOLENOID_PROBE)
         probe.stow();
         safe_delay(1000);
-        probe.deploy();
+        if (probe.deploy()) {
+          endstops.not_homing();
+          probe.use_probing_tool(false);
+          return false;
+        }
       #endif
       REMEMBER(fr, feedrate_mm_s, feedrate_mm_s * 0.25);
 
@@ -97,13 +110,14 @@ inline bool G38_run_probe() {
       G38_single_probe(move_value);
     #endif
   }
-  if (probe.offset.x || probe.offset.y || probe.offset.z) {
-    endstops.enable(false);
-    TERN_(SOLENOID_PROBE, probe.stow());
-    destination += DIFF_TERN(HAS_HOTEND_OFFSET, probe.offset, hotend_offset[active_extruder]);
-    do_blocking_move_to(destination);
-    planner.synchronize();
-  }
+  endstops.enable(false);
+  TERN_(SOLENOID_PROBE, probe.stow());
+  const xyze_pos_t probed_pos = current_position + DIFF_TERN(HAS_HOTEND_OFFSET, probe.offset, hotend_offset[active_extruder]);
+  probe.use_probing_tool(false);
+  destination = probed_pos;
+  do_blocking_move_to(destination);
+  planner.synchronize();
+  endstops.not_homing();
   return G38_pass_fail;
 }
 
@@ -124,7 +138,6 @@ void GcodeSuite::G38(const int8_t subcode) {
   get_destination_from_command();
 
   remember_feedrate_scaling_off();
-  probe.use_probing_tool();
   const bool error_on_fail = TERN(G38_PROBE_AWAY, !TEST(subcode, 0), subcode == 2);
 
   // If any axis has enough movement, do the move
@@ -139,7 +152,6 @@ void GcodeSuite::G38(const int8_t subcode) {
       break;
     }
   }
-  probe.use_probing_tool(false);
   restore_feedrate_and_scaling();
   TERN_(FEEDRATE_MODE_SUPPORT, parser.print_move = false);
 }
