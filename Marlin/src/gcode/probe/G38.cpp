@@ -54,12 +54,26 @@ inline void G38_single_probe(const uint8_t move_value) {
 FORCE_INLINE bool G38_run_probe() {
 
   bool G38_pass_fail = false;
+  const xyze_pos_t start_pos = current_position;
+  const xyze_pos_t old_destination = destination;
+  probe.use_probing_tool();
+  if (probe.deploy()) {
+    SERIAL_ERROR_MSG("Failed to deploy probe");
+    endstops.not_homing();
+    probe.use_probing_tool(false);
+    return false;
+  }
+  const xyze_pos_t npos_start = start_pos - DIFF_TERN(HAS_HOTEND_OFFSET, probe.offset, hotend_offset[active_extruder]);
+  const xyze_pos_t npos_destination = old_destination - DIFF_TERN(HAS_HOTEND_OFFSET, probe.offset, hotend_offset[active_extruder]);
+  do_blocking_move_to(npos_start);
+  destination = npos_destination;
+
 
   #if MULTIPLE_PROBING > 1
     // Get direction of move and retract
     xyz_float_t retract_mm;
     LOOP_NUM_AXES(i) {
-      const float dist = destination[i] - current_position[i];
+      const float dist = npos_destination[i] - npos_start[i];
       retract_mm[i] = ABS(dist) < G38_MINIMUM_MOVE ? 0 : home_bump_mm((AxisEnum)i) * (dist > 0 ? -1 : 1);
     }
   #endif
@@ -88,9 +102,17 @@ FORCE_INLINE bool G38_run_probe() {
       endstops.enable(false);
       prepare_line_to_destination();
       planner.synchronize();
-
+      #if ENABLED(SOLENOID_PROBE)
+        probe.stow();
+        safe_delay(1000);
+        if (probe.deploy()) {
+          endstops.not_homing();
+          probe.use_probing_tool(false);
+          return false;
+        }
+      #endif
       REMEMBER(fr, feedrate_mm_s, feedrate_mm_s * 0.25);
-
+  
       // Bump the target more slowly
       destination -= retract_mm * 2;
 
@@ -98,7 +120,13 @@ FORCE_INLINE bool G38_run_probe() {
     #endif
   }
 
-  endstops.not_homing();
+  endstops.enable(false);
+  TERN_(SOLENOID_PROBE, probe.stow());
+  const xyze_pos_t probed_pos = current_position + DIFF_TERN(HAS_HOTEND_OFFSET, probe.offset, hotend_offset[active_extruder]);
+  probe.use_probing_tool(false);
+  destination = probed_pos;
+  do_blocking_move_to(destination);
+  planner.synchronize();
   return G38_pass_fail;
 }
 
