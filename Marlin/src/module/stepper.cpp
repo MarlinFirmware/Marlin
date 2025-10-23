@@ -1441,8 +1441,8 @@ void Stepper::apply_directions() {
           A("lsrs  %[ahi],%[alo],#1")           // a  = F << 31      1 cycles
           A("lsls  %[alo],%[alo],#31")          //                   1 cycles
           #ifndef S_CURVE_FACTOR
-            A("umull %[flo],%[fhi],%[fhi],%[t]")  // f *= t            5 cycles [fhi:flo=64bits]
-            A("umull %[flo],%[fhi],%[fhi],%[t]")  // f>>=32; f*=t      5 cycles [fhi:flo=64bits]
+            A("umull %[flo],%[fhi],%[fhi],%[t]")  // f *= t          5 cycles [fhi:flo=64bits]
+            A("umull %[flo],%[fhi],%[fhi],%[t]")  // f>>=32; f*=t    5 cycles [fhi:flo=64bits]
           #endif
           A("lsrs  %[flo],%[fhi],#1")           //                   1 cycles [31bits]
           A("smlal %[alo],%[ahi],%[flo],%[C]")  // a+=(f>>33)*C;     5 cycles

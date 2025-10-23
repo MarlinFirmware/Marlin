@@ -879,10 +879,10 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
  * S_CURVE_ACCELERATION
  */
 #if ENABLED(S_CURVE_ACCELERATION) && defined(S_CURVE_FACTOR)
-  #if defined(__AVR__)
-    #error "S_CURVE_FACTOR is not implemented for AVR yet"
+  #ifdef __AVR__
+    #error "S_CURVE_FACTOR is not yet implemented for AVR."
   #endif
-  static_assert(WITHIN(S_CURVE_FACTOR, 0, 1), "S_CURVE_FACTOR must be from 0 to 1");
+  static_assert(WITHIN(S_CURVE_FACTOR, 0, 1), "S_CURVE_FACTOR must be between 0.0 and 1.0.");
 #endif
 
 /**
