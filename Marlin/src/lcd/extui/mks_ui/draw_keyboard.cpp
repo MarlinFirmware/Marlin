@@ -160,7 +160,7 @@ static void lv_kb_event_cb(lv_obj_t *kb, lv_event_t event) {
           goto_previous_ui();
           break;
         case GCodeCommand:
-          if (ret_ta_txt[0] && !queue.ring_buffer.full(3)) {
+          if (ret_ta_txt[0]) {
             // Hook for the next bytes to arrive from the serial port
             MYSERIAL1.setHook(lv_serial_capt_hook, lv_eom_hook, 0);
             // Run the command as soon as possible

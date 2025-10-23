@@ -44,6 +44,7 @@
 #include "../inc/MarlinConfig.h"
 
 #include "planner.h"
+#include "motion.h"
 #include "stepper/indirection.h"
 #include "stepper/cycles.h"
 #ifdef __AVR__
@@ -59,7 +60,7 @@
   #define E_STATES EXTRUDERS  // All steppers are set together for each mixer. (Currently limited to 1.)
 #elif HAS_SWITCHING_EXTRUDER
   #define E_STATES E_STEPPERS // One stepper for every two EXTRUDERS. The last extruder can be non-switching.
-#elif HAS_PRUSA_MMU2
+#elif HAS_PRUSA_MMU2 || HAS_PRUSA_MMU3
   #define E_STATES E_STEPPERS // One E stepper shared with all EXTRUDERS, so setting any only sets one.
 #else
   #define E_STATES E_STEPPERS // One stepper for each extruder, so each can be disabled individually.
@@ -139,18 +140,18 @@ constexpr ena_mask_t enable_overlap[] = {
   #ifdef SHAPING_MAX_STEPRATE
     constexpr float max_step_rate = SHAPING_MAX_STEPRATE;
   #else
-    #define ISALIM(I, ARR) _MIN(I, COUNT(ARR) - 1)
     constexpr float     _ISDASU[] = DEFAULT_AXIS_STEPS_PER_UNIT;
     constexpr feedRate_t _ISDMF[] = DEFAULT_MAX_FEEDRATE;
     constexpr float max_shaped_rate = TERN0(INPUT_SHAPING_X, _ISDMF[X_AXIS] * _ISDASU[X_AXIS]) +
-                                      TERN0(INPUT_SHAPING_Y, _ISDMF[Y_AXIS] * _ISDASU[Y_AXIS]);
+                                      TERN0(INPUT_SHAPING_Y, _ISDMF[Y_AXIS] * _ISDASU[Y_AXIS]) +
+                                      TERN0(INPUT_SHAPING_Z, _ISDMF[Z_AXIS] * _ISDASU[Z_AXIS]);
     #if defined(__AVR__) || !defined(ADAPTIVE_STEP_SMOOTHING)
-      // MIN_STEP_ISR_FREQUENCY is known at compile time on AVRs and any reduction in SRAM is welcome
-      template<unsigned int INDEX=DISTINCT_AXES> constexpr float max_isr_rate() {
-        return _MAX(_ISDMF[ISALIM(INDEX - 1, _ISDMF)] * _ISDASU[ISALIM(INDEX - 1, _ISDASU)], max_isr_rate<INDEX - 1>());
+      // min_step_isr_frequency is known at compile time on AVRs and any reduction in SRAM is welcome
+      template<int INDEX=DISTINCT_AXES> constexpr float max_isr_rate() {
+        return _MAX(_ISDMF[ALIM(INDEX - 1, _ISDMF)] * _ISDASU[ALIM(INDEX - 1, _ISDASU)], max_isr_rate<INDEX - 1>());
       }
       template<> constexpr float max_isr_rate<0>() {
-        return TERN0(ADAPTIVE_STEP_SMOOTHING, MIN_STEP_ISR_FREQUENCY);
+        return TERN0(ADAPTIVE_STEP_SMOOTHING, min_step_isr_frequency);
       }
       constexpr float max_step_rate = _MIN(max_isr_rate(), max_shaped_rate);
     #else
@@ -159,7 +160,7 @@ constexpr ena_mask_t enable_overlap[] = {
   #endif
 
   #ifndef SHAPING_MIN_FREQ
-    #define SHAPING_MIN_FREQ _MIN(__FLT_MAX__ OPTARG(INPUT_SHAPING_X, SHAPING_FREQ_X) OPTARG(INPUT_SHAPING_Y, SHAPING_FREQ_Y))
+    #define SHAPING_MIN_FREQ _MIN(__FLT_MAX__ OPTARG(INPUT_SHAPING_X, SHAPING_FREQ_X) OPTARG(INPUT_SHAPING_Y, SHAPING_FREQ_Y) OPTARG(INPUT_SHAPING_Z, SHAPING_FREQ_Z))
   #endif
   constexpr float shaping_min_freq = SHAPING_MIN_FREQ;
   constexpr uint16_t shaping_echoes = FLOOR(max_step_rate / shaping_min_freq / 2) + 3;
@@ -169,6 +170,7 @@ constexpr ena_mask_t enable_overlap[] = {
   struct shaping_echo_axis_t {
     TERN_(INPUT_SHAPING_X, shaping_echo_t x:2);
     TERN_(INPUT_SHAPING_Y, shaping_echo_t y:2);
+    TERN_(INPUT_SHAPING_Z, shaping_echo_t z:2);
   };
 
   class ShapingQueue {
@@ -178,96 +180,92 @@ constexpr ena_mask_t enable_overlap[] = {
       static shaping_echo_axis_t  echo_axes[shaping_echoes];
       static uint16_t             tail;
 
-      #if ENABLED(INPUT_SHAPING_X)
-        static shaping_time_t delay_x;    // = shaping_time_t(-1) to disable queueing
-        static shaping_time_t peek_x_val;
-        static uint16_t head_x;
-        static uint16_t _free_count_x;
-      #endif
-      #if ENABLED(INPUT_SHAPING_Y)
-        static shaping_time_t delay_y;    // = shaping_time_t(-1) to disable queueing
-        static shaping_time_t peek_y_val;
-        static uint16_t head_y;
-        static uint16_t _free_count_y;
-      #endif
+      #define SHAPING_QUEUE_AXIS_VARS(AXIS)                                                     \
+        static shaping_time_t delay_##AXIS;    /* = shaping_time_t(-1) to disable queueing*/    \
+        static shaping_time_t _peek_##AXIS;                                                     \
+        static uint16_t head_##AXIS;                                                            \
+        static uint16_t _free_count_##AXIS;
+
+      TERN_(INPUT_SHAPING_X, SHAPING_QUEUE_AXIS_VARS(x))
+      TERN_(INPUT_SHAPING_Y, SHAPING_QUEUE_AXIS_VARS(y))
+      TERN_(INPUT_SHAPING_Z, SHAPING_QUEUE_AXIS_VARS(z))
 
     public:
       static void decrement_delays(const shaping_time_t interval) {
         now += interval;
-        TERN_(INPUT_SHAPING_X, if (peek_x_val != shaping_time_t(-1)) peek_x_val -= interval);
-        TERN_(INPUT_SHAPING_Y, if (peek_y_val != shaping_time_t(-1)) peek_y_val -= interval);
+        TERN_(INPUT_SHAPING_X, if (_peek_x != shaping_time_t(-1)) _peek_x -= interval);
+        TERN_(INPUT_SHAPING_Y, if (_peek_y != shaping_time_t(-1)) _peek_y -= interval);
+        TERN_(INPUT_SHAPING_Z, if (_peek_z != shaping_time_t(-1)) _peek_z -= interval);
       }
       static void set_delay(const AxisEnum axis, const shaping_time_t delay) {
         TERN_(INPUT_SHAPING_X, if (axis == X_AXIS) delay_x = delay);
         TERN_(INPUT_SHAPING_Y, if (axis == Y_AXIS) delay_y = delay);
+        TERN_(INPUT_SHAPING_Z, if (axis == Z_AXIS) delay_z = delay);
       }
-      static void enqueue(const bool x_step, const bool x_forward, const bool y_step, const bool y_forward) {
-        #if ENABLED(INPUT_SHAPING_X)
-          if (x_step) {
-            if (head_x == tail) peek_x_val = delay_x;
-            echo_axes[tail].x = x_forward ? ECHO_FWD : ECHO_BWD;
-            _free_count_x--;
+
+      static void enqueue(const bool x_step, const bool x_forward, const bool y_step, const bool y_forward, const bool z_step, const bool z_forward) {
+        #define SHAPING_QUEUE_ENQUEUE(AXIS)                              \
+          if (AXIS##_step) {                                             \
+            if (head_##AXIS == tail) _peek_##AXIS = delay_##AXIS;        \
+            echo_axes[tail].AXIS = AXIS##_forward ? ECHO_FWD : ECHO_BWD; \
+            _free_count_##AXIS--;                                        \
+          }                                                              \
+          else {                                                         \
+            echo_axes[tail].AXIS = ECHO_NONE;                            \
+            if (head_##AXIS != tail)                                     \
+              _free_count_##AXIS--;                                      \
+            else if (++head_##AXIS == shaping_echoes)                    \
+              head_##AXIS = 0;                                           \
           }
-          else {
-            echo_axes[tail].x = ECHO_NONE;
-            if (head_x != tail)
-              _free_count_x--;
-            else if (++head_x == shaping_echoes)
-              head_x = 0;
-          }
-        #endif
-        #if ENABLED(INPUT_SHAPING_Y)
-          if (y_step) {
-            if (head_y == tail) peek_y_val = delay_y;
-            echo_axes[tail].y = y_forward ? ECHO_FWD : ECHO_BWD;
-            _free_count_y--;
-          }
-          else {
-            echo_axes[tail].y = ECHO_NONE;
-            if (head_y != tail)
-              _free_count_y--;
-            else if (++head_y == shaping_echoes)
-              head_y = 0;
-          }
-        #endif
+
+        TERN_(INPUT_SHAPING_X, SHAPING_QUEUE_ENQUEUE(x))
+        TERN_(INPUT_SHAPING_Y, SHAPING_QUEUE_ENQUEUE(y))
+        TERN_(INPUT_SHAPING_Z, SHAPING_QUEUE_ENQUEUE(z))
+
         times[tail] = now;
         if (++tail == shaping_echoes) tail = 0;
       }
+
+      #define SHAPING_QUEUE_DEQUEUE(AXIS)                                                                  \
+        bool forward = echo_axes[head_##AXIS].AXIS == ECHO_FWD;                                            \
+        do {                                                                                               \
+          _free_count_##AXIS++;                                                                            \
+          if (++head_##AXIS == shaping_echoes) head_##AXIS = 0;                                            \
+        } while (head_##AXIS != tail && echo_axes[head_##AXIS].AXIS == ECHO_NONE);                         \
+        _peek_##AXIS = head_##AXIS == tail ? shaping_time_t(-1) : times[head_##AXIS] + delay_##AXIS - now; \
+        return forward;
+
       #if ENABLED(INPUT_SHAPING_X)
-        static shaping_time_t peek_x() { return peek_x_val; }
-        static bool dequeue_x() {
-          bool forward = echo_axes[head_x].x == ECHO_FWD;
-          do {
-            _free_count_x++;
-            if (++head_x == shaping_echoes) head_x = 0;
-          } while (head_x != tail && echo_axes[head_x].x == ECHO_NONE);
-          peek_x_val = head_x == tail ? shaping_time_t(-1) : times[head_x] + delay_x - now;
-          return forward;
-        }
+        static shaping_time_t peek_x() { return _peek_x; }
+        static bool dequeue_x() { SHAPING_QUEUE_DEQUEUE(x) }
         static bool empty_x() { return head_x == tail; }
         static uint16_t free_count_x() { return _free_count_x; }
+        static uint16_t get_delay_x() { return delay_x; }
       #endif
       #if ENABLED(INPUT_SHAPING_Y)
-        static shaping_time_t peek_y() { return peek_y_val; }
-        static bool dequeue_y() {
-          bool forward = echo_axes[head_y].y == ECHO_FWD;
-          do {
-            _free_count_y++;
-            if (++head_y == shaping_echoes) head_y = 0;
-          } while (head_y != tail && echo_axes[head_y].y == ECHO_NONE);
-          peek_y_val = head_y == tail ? shaping_time_t(-1) : times[head_y] + delay_y - now;
-          return forward;
-        }
+        static shaping_time_t peek_y() { return _peek_y; }
+        static bool dequeue_y() { SHAPING_QUEUE_DEQUEUE(y) }
         static bool empty_y() { return head_y == tail; }
         static uint16_t free_count_y() { return _free_count_y; }
+        static uint16_t get_delay_y() { return delay_y; }
+      #endif
+      #if ENABLED(INPUT_SHAPING_Z)
+        static shaping_time_t peek_z() { return _peek_z; }
+        static bool dequeue_z() { SHAPING_QUEUE_DEQUEUE(z) }
+        static bool empty_z() { return head_z == tail; }
+        static uint16_t free_count_z() { return _free_count_z; }
+        static uint16_t get_delay_z() { return delay_z; }
       #endif
       static void purge() {
         const auto st = shaping_time_t(-1);
         #if ENABLED(INPUT_SHAPING_X)
-          head_x = tail; _free_count_x = shaping_echoes - 1; peek_x_val = st;
+          head_x = tail; _free_count_x = shaping_echoes - 1; _peek_x = st;
         #endif
         #if ENABLED(INPUT_SHAPING_Y)
-          head_y = tail; _free_count_y = shaping_echoes - 1; peek_y_val = st;
+          head_y = tail; _free_count_y = shaping_echoes - 1; _peek_y = st;
+        #endif
+        #if ENABLED(INPUT_SHAPING_Z)
+          head_z = tail; _free_count_z = shaping_echoes - 1; _peek_z = st;
         #endif
       }
   };
@@ -285,10 +283,40 @@ constexpr ena_mask_t enable_overlap[] = {
 
 #endif // HAS_ZV_SHAPING
 
+//
+// NonLinear Extrusion data
+//
 #if ENABLED(NONLINEAR_EXTRUSION)
-  typedef struct { float A, B, C; void reset() { A = B = 0.0f; C = 1.0f; } } ne_coeff_t;
-  typedef struct { int32_t A, B, C; } ne_fix_t;
-#endif
+
+  #if DISABLED(SMOOTH_LIN_ADVANCE)
+    #define NONLINEAR_EXTRUSION_Q24 1
+  #endif
+
+  typedef struct {
+    bool enabled;
+    struct {
+      float A, B, C;
+      void reset() { A = B = 0.0f; C = 1.0f; }
+    } coeff;
+    void reset() {
+      enabled = ENABLED(NONLINEAR_EXTRUSION_DEFAULT_ON);
+      coeff.reset();
+    }
+  } nonlinear_settings_t;
+
+  typedef struct {
+    nonlinear_settings_t settings;
+    union {
+      struct { int32_t A, B, C; } q24;
+      struct { int32_t A, B, C; } q30;
+    };
+    #if NONLINEAR_EXTRUSION_Q24
+      int32_t edividend;
+      uint32_t scale_q24;
+    #endif
+  } nonlinear_t;
+
+#endif // NONLINEAR_EXTRUSION
 
 //
 // Stepper class definition
@@ -296,9 +324,20 @@ constexpr ena_mask_t enable_overlap[] = {
 class Stepper {
   friend class Max7219;
   friend class FTMotion;
+  friend class MarlinSettings;
   friend void stepperTask(void *);
 
   public:
+
+    // The minimal step rate ensures calculations stay within limits
+    // and avoid the most unreasonably slow step rates.
+    static constexpr uint32_t minimal_step_rate = (
+      #ifdef CPU_32_BIT
+        _MAX((uint32_t(STEPPER_TIMER_RATE) / HAL_TIMER_TYPE_MAX), 1U) // 32-bit shouldn't go below 1
+      #else
+        (F_CPU) / 500000U   // AVR shouldn't go below 32 (16MHz) or 40 (20MHz)
+      #endif
+    );
 
     #if ANY(HAS_EXTRA_ENDSTOPS, Z_STEPPER_AUTO_ALIGN)
       static bool separate_multi_axis;
@@ -318,7 +357,7 @@ class Stepper {
         #define MOTOR_CURRENT_COUNT COUNT(Stepper::digipot_count)
       #endif
       static bool initialized;
-      static uint32_t motor_current_setting[MOTOR_CURRENT_COUNT]; // Initialized by settings.load()
+      static uint32_t motor_current_setting[MOTOR_CURRENT_COUNT]; // Initialized by settings.load
     #endif
 
     // Last-moved extruder, as set when the last movement was fetched from planner
@@ -333,13 +372,28 @@ class Stepper {
     #endif
 
     #if ENABLED(NONLINEAR_EXTRUSION)
-      static ne_coeff_t ne;
+      static nonlinear_t ne;
     #endif
 
     #if ENABLED(ADAPTIVE_STEP_SMOOTHING_TOGGLE)
       static bool adaptive_step_smoothing_enabled;
     #else
       static constexpr bool adaptive_step_smoothing_enabled = true;
+    #endif
+
+    #if ENABLED(SMOOTH_LIN_ADVANCE)
+      static float extruder_advance_tau[DISTINCT_E]; // Smoothing time; also the lookahead time of the smoother
+      static void set_advance_tau(const float tau, const uint8_t e=active_extruder) {
+        const uint8_t i = E_INDEX_N(e);
+        extruder_advance_tau[i] = tau;
+        extruder_advance_tau_ticks[i] = tau * STEPPER_TIMER_RATE;
+        // α=1−exp(−dt/τ)
+        const float alpha_float = 1.0f - expf(-float(SMOOTH_LIN_ADV_INTERVAL) * (SMOOTH_LIN_ADV_EXP_ORDER) / extruder_advance_tau_ticks[i]);
+        extruder_advance_alpha_q30[i] = int32_t(alpha_float * _BV32(30));
+      }
+      static float get_advance_tau(const uint8_t e=active_extruder) {
+        return extruder_advance_tau[E_INDEX_N(e)];
+      }
     #endif
 
   private:
@@ -420,22 +474,27 @@ class Stepper {
       #if ENABLED(INPUT_SHAPING_Y)
         static ShapeParams shaping_y;
       #endif
+      #if ENABLED(INPUT_SHAPING_Z)
+        static ShapeParams shaping_z;
+      #endif
     #endif
 
     #if ENABLED(LIN_ADVANCE)
       static constexpr hal_timer_t LA_ADV_NEVER = HAL_TIMER_TYPE_MAX;
       static hal_timer_t nextAdvanceISR,
-                         la_interval;      // Interval between ISR calls for LA
-      static int32_t     la_delta_error,   // Analogue of delta_error.e for E steps in LA ISR
-                         la_dividend,      // Analogue of advance_dividend.e for E steps in LA ISR
-                         la_advance_steps; // Count of steps added to increase nozzle pressure
-      static bool        la_active;        // Whether linear advance is used on the present segment.
-    #endif
-
-    #if ENABLED(NONLINEAR_EXTRUSION)
-      static int32_t ne_edividend;
-      static uint32_t ne_scale;
-      static ne_fix_t ne_fix;
+                         la_interval;       // Interval between ISR calls for LA
+      #if ENABLED(SMOOTH_LIN_ADVANCE)
+        static uint32_t curr_timer_tick,                        // Current tick relative to block start
+                        curr_step_rate;                         // Current motion step rate
+        static uint32_t extruder_advance_tau_ticks[DISTINCT_E], // Same as extruder_advance_tau but in stepper timer ticks
+                        extruder_advance_alpha_q30[DISTINCT_E]; // The smoothing factor of each stage of the high-order exponential
+                                                                // smoothing filter (calculated from tau)
+      #else
+        static int32_t  la_delta_error,     // Analogue of delta_error.e for E steps in LA ISR
+                        la_dividend,        // Analogue of advance_dividend.e for E steps in LA ISR
+                        la_advance_steps;   // Count of steps added to increase nozzle pressure
+        static bool     la_active;          // Whether linear advance is used on the present segment
+      #endif
     #endif
 
     #if ENABLED(BABYSTEPPING)
@@ -495,6 +554,17 @@ class Stepper {
     #if ENABLED(LIN_ADVANCE)
       // The Linear advance ISR phase
       static void advance_isr();
+      #if ENABLED(SMOOTH_LIN_ADVANCE)
+        #if ENABLED(INPUT_SHAPING_E_SYNC)
+          static xy_long_t smooth_lin_adv_lookback(const shaping_time_t stepper_ticks);
+        #endif
+        static int32_t smooth_lin_adv_lookahead(uint32_t stepper_ticks);
+        static void set_la_interval(int32_t step_rate);
+        static hal_timer_t smooth_lin_adv_isr();
+        #if ENABLED(S_CURVE_ACCELERATION)
+          static int32_t calc_bezier_curve(const int32_t v0, const int32_t v1, const uint32_t av, const uint32_t curr_step);
+        #endif
+      #endif
     #endif
 
     #if ENABLED(BABYSTEPPING)
@@ -517,7 +587,7 @@ class Stepper {
         const bool was_on = hal.isr_state();
         hal.isr_off();
 
-        const bool result = TERN0(INPUT_SHAPING_X, !ShapingQueue::empty_x()) || TERN0(INPUT_SHAPING_Y, !ShapingQueue::empty_y());
+        const bool result = TERN0(INPUT_SHAPING_X, !ShapingQueue::empty_x()) || TERN0(INPUT_SHAPING_Y, !ShapingQueue::empty_y()) || TERN0(INPUT_SHAPING_Z, !ShapingQueue::empty_z());
 
         if (was_on) hal.isr_on();
 
@@ -532,6 +602,11 @@ class Stepper {
     static void set_position(const xyze_long_t &spos);
     static void set_axis_position(const AxisEnum a, const int32_t &v);
 
+    #if HAS_EXTRUDERS
+      // Save a little when E is the only one used
+      static void set_e_position(const int32_t &v);
+    #endif
+
     // Report the positions of the steppers, in steps
     static void report_a_position(const xyz_long_t &pos);
     static void report_positions();
@@ -544,7 +619,7 @@ class Stepper {
       current_block = nullptr;
       axis_did_move.reset();
       planner.release_current_block();
-      TERN_(LIN_ADVANCE, la_interval = nextAdvanceISR = LA_ADV_NEVER);
+      TERN_(HAS_ROUGH_LIN_ADVANCE, la_interval = nextAdvanceISR = LA_ADV_NEVER);
     }
 
     // Quickly stop all steppers
@@ -620,9 +695,18 @@ class Stepper {
     }
     static void mark_axis_enabled(const AxisEnum axis E_OPTARG(const uint8_t eindex=0)) {
       SBI(axis_enabled.bits, INDEX_OF_AXIS(axis, eindex));
+      TERN_(HAS_Z_AXIS, if (axis == Z_AXIS) z_min_trusted = true);
+      // TODO: DELTA should have "Z" state affect all (ABC) motors and treat "XY" on/off as meaningless
     }
     static void mark_axis_disabled(const AxisEnum axis E_OPTARG(const uint8_t eindex=0)) {
       CBI(axis_enabled.bits, INDEX_OF_AXIS(axis, eindex));
+      #if HAS_Z_AXIS
+        if (TERN0(Z_CAN_FALL_DOWN, axis == Z_AXIS)) {
+          z_min_trusted = false;
+          current_position.z = 0;
+        }
+      #endif
+      // TODO: DELTA should have "Z" state affect all (ABC) motors and treat "XY" on/off as meaningless
     }
     static bool can_axis_disable(const AxisEnum axis E_OPTARG(const uint8_t eindex=0)) {
       return !any_enable_overlap() || !(axis_enabled.bits & enable_overlap[INDEX_OF_AXIS(axis, eindex)]);
@@ -660,16 +744,14 @@ class Stepper {
     }
 
     #if ENABLED(FT_MOTION)
-      // Manage the planner
-      static void ftMotion_blockQueueUpdate();
       // Set current position in steps when reset flag is set in M493 and planner already synchronized
       static void ftMotion_syncPosition();
     #endif
 
     #if HAS_ZV_SHAPING
-      static void set_shaping_damping_ratio(const AxisEnum axis, const_float_t zeta);
+      static void set_shaping_damping_ratio(const AxisEnum axis, const float zeta);
       static float get_shaping_damping_ratio(const AxisEnum axis);
-      static void set_shaping_frequency(const AxisEnum axis, const_float_t freq);
+      static void set_shaping_frequency(const AxisEnum axis, const float freq);
       static float get_shaping_frequency(const AxisEnum axis);
     #endif
 
@@ -687,8 +769,10 @@ class Stepper {
     // Evaluate axis motions and set bits in axis_did_move
     static void set_axis_moved_for_current_block();
 
-    #if ENABLED(NONLINEAR_EXTRUSION)
-      static void calc_nonlinear_e(uint32_t step_rate);
+    #if NONLINEAR_EXTRUSION_Q24
+      static void calc_nonlinear_e(const uint32_t step_rate);
+    #else
+      static void calc_nonlinear_e(const uint32_t) {}
     #endif
 
     #if ENABLED(S_CURVE_ACCELERATION)

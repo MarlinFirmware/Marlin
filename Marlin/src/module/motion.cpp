@@ -78,7 +78,12 @@
 #endif
 
 // Relative Mode. Enable with G91, disable with G90.
-bool relative_mode; // = false;
+bool relative_mode; // = false
+
+#if HAS_Z_AXIS
+  // If Z has been powered on trust that the real Z is >= current_position.z
+  bool z_min_trusted; // = false
+#endif
 
 /**
  * Cartesian Current Position
@@ -104,7 +109,7 @@ xyze_pos_t destination; // {0}
 
 // G60/G61 Position Save and Return
 #if SAVED_POSITIONS
-  uint8_t saved_slots[(SAVED_POSITIONS + 7) >> 3];
+  Flags<SAVED_POSITIONS> did_save_position;
   xyze_pos_t stored_position[SAVED_POSITIONS];
 #endif
 
@@ -119,7 +124,7 @@ xyze_pos_t destination; // {0}
 
 // Extruder offsets
 #if HAS_HOTEND_OFFSET
-  xyz_pos_t hotend_offset[HOTENDS]; // Initialized by settings.load()
+  xyz_pos_t hotend_offset[HOTENDS]; // Initialized by settings.load
   void reset_hotend_offsets() {
     constexpr float tmp[XYZ][HOTENDS] = { HOTEND_OFFSET_X, HOTEND_OFFSET_Y, HOTEND_OFFSET_Z };
     static_assert(
@@ -141,6 +146,9 @@ xyze_pos_t destination; // {0}
 #endif
 feedRate_t feedrate_mm_s = MMM_TO_MMS(DEFAULT_FEEDRATE_MM_M);
 int16_t feedrate_percentage = 100;
+#if ENABLED(EDITABLE_HOMING_FEEDRATE)
+  xyz_feedrate_t homing_feedrate_mm_m = HOMING_FEEDRATE_MM_M;
+#endif
 
 // Cartesian conversion result goes here:
 xyz_pos_t cartes;
@@ -182,7 +190,7 @@ xyz_pos_t cartes;
   xyz_pos_t workspace_offset{0};
 #endif
 
-#if HAS_ABL_NOT_UBL
+#if ABL_USES_GRID
   feedRate_t xy_probe_feedrate_mm_s = MMM_TO_MMS(XY_PROBE_FEEDRATE);
 #endif
 
@@ -200,22 +208,12 @@ inline void report_more_positions() {
 inline void report_logical_position(const xyze_pos_t &rpos) {
   const xyze_pos_t lpos = rpos.asLogical();
   #if NUM_AXES
-    SERIAL_ECHOPGM_P(
-      LIST_N(DOUBLE(NUM_AXES),
-           X_LBL, lpos.x,
-        SP_Y_LBL, lpos.y,
-        SP_Z_LBL, lpos.z,
-        SP_I_LBL, lpos.i,
-        SP_J_LBL, lpos.j,
-        SP_K_LBL, lpos.k,
-        SP_U_LBL, lpos.u,
-        SP_V_LBL, lpos.v,
-        SP_W_LBL, lpos.w
-      )
-    );
-  #endif
-  #if HAS_EXTRUDERS
-    SERIAL_ECHOPGM_P(SP_E_LBL, lpos.e);
+    SERIAL_ECHOPGM_P(LOGICAL_AXIS_PAIRED_LIST(
+      SP_E_LBL, lpos.e,
+         X_LBL, lpos.x,  SP_Y_LBL, lpos.y,  SP_Z_LBL, lpos.z,
+      SP_I_LBL, lpos.i,  SP_J_LBL, lpos.j,  SP_K_LBL, lpos.k,
+      SP_U_LBL, lpos.u,  SP_V_LBL, lpos.v,  SP_W_LBL, lpos.w
+    ));
   #endif
 }
 
@@ -253,11 +251,339 @@ void report_current_position_projected() {
   stepper.report_a_position(planner.position);
 }
 
+#if HAS_HOMING_CURRENT
+
+  #if ENABLED(DEBUG_LEVELING_FEATURE)
+    auto debug_current = [](FSTR_P const s, const int16_t a, const int16_t b) {
+      if (DEBUGGING(LEVELING)) { DEBUG_ECHOLN(s, F(" current: "), a, F(" -> "), b); }
+    };
+  #else
+    #define debug_current(...)
+  #endif
+
+  homing_current_t saved_current_mA;
+
+  /**
+   * Set motors to their homing / probing currents.
+   * Currents are saved first so they can be restored afterward.
+   */
+  void set_homing_current(const AxisEnum axis) {
+
+    #define HOMING_CURRENT(A) TERN(EDITABLE_HOMING_CURRENT, homing_current_mA.A, A##_CURRENT_HOME)
+
+    // Saves the running current of the motor at the moment the function is called and sets current to CURRENT_HOME
+    #define _SAVE_SET_CURRENT(A) do{ \
+      saved_current_mA.A = stepper##A.getMilliamps(); \
+      stepper##A.rms_current(HOMING_CURRENT(A)); \
+      debug_current(F(STR_##A), saved_current_mA.A, HOMING_CURRENT(A)); \
+    }while(0)
+
+    #define _MAP_SAVE_SET(A) OPTCODE(A##_HAS_HOME_CURRENT, _SAVE_SET_CURRENT(A))
+
+    if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Setting homing driver current");
+
+    #if ANY(CORE_IS_XY, MARKFORGED_XY, MARKFORGED_YX)
+
+      // CORE and Markforged kinematics
+      switch (axis) {
+        default: break;
+        case X_AXIS: case Y_AXIS: MAP(_MAP_SAVE_SET, X, X2, Y, Y2); break;
+        case Z_AXIS: MAP(_MAP_SAVE_SET, Z, Z2, Z3, Z4); break;
+      }
+
+    #elif CORE_IS_XZ
+
+      // CORE XZ / ZX
+      switch (axis) {
+        default: break;
+        case X_AXIS: case Z_AXIS: MAP(_MAP_SAVE_SET, X, Z); break;
+        case Y_AXIS: MAP(_MAP_SAVE_SET, Y, Y2); break;
+      }
+
+    #elif CORE_IS_YZ
+
+      // CORE YZ / ZY
+      switch (axis) {
+        default: break;
+        case X_AXIS: MAP(_MAP_SAVE_SET, X, X2); break;
+        case Y_AXIS: case Z_AXIS: MAP(_MAP_SAVE_SET, Y, Z); break;
+      }
+
+    #elif IS_SCARA
+
+      // SCARA kinematics
+      switch (axis) {
+        default: break;
+        #if X_HAS_HOME_CURRENT
+          case A_AXIS: _SAVE_SET_CURRENT(X); break;
+        #endif
+        #if Y_HAS_HOME_CURRENT
+          case B_AXIS: _SAVE_SET_CURRENT(Y); break;
+        #endif
+        #if Z_HAS_HOME_CURRENT
+          case C_AXIS: _SAVE_SET_CURRENT(Z); break;
+        #endif
+      }
+
+    #elif ANY(AXEL_TPARA, DELTA)
+
+      // TPARA or DELTA kinematics.
+      // Z_AXIS is a special mode to apply homing current to all axes.
+      #if X_HAS_HOME_CURRENT
+        if (axis == A_AXIS || axis == Z_AXIS) _SAVE_SET_CURRENT(X);
+      #endif
+      #if Y_HAS_HOME_CURRENT
+        if (axis == B_AXIS || axis == Z_AXIS) _SAVE_SET_CURRENT(Y);
+      #endif
+      #if Z_HAS_HOME_CURRENT
+        if (axis == C_AXIS) _SAVE_SET_CURRENT(Z);
+      #endif
+
+    #elif ANY(POLARGRAPH, POLAR)
+
+      // POLAR kinematics
+      switch (axis) {
+        default: break;
+        #if X_HAS_HOME_CURRENT
+          case A_AXIS: _SAVE_SET_CURRENT(X); break;
+        #endif
+        #if Y_HAS_HOME_CURRENT
+          case B_AXIS: _SAVE_SET_CURRENT(Y); break;
+        #endif
+        #if Z_HAS_HOME_CURRENT
+          case C_AXIS: _SAVE_SET_CURRENT(Z); break;
+        #endif
+      }
+
+    #elif defined(ARTICULATED_ROBOT_ARM)
+
+      // Articulated Robot Arm
+      // Useful?
+      switch (axis) {
+        default: break;
+        #if X_HAS_HOME_CURRENT
+          case A_AXIS: _SAVE_SET_CURRENT(X); break;
+        #endif
+        #if Y_HAS_HOME_CURRENT
+          case B_AXIS: _SAVE_SET_CURRENT(Y); break;
+        #endif
+        #if Z_HAS_HOME_CURRENT
+          case C_AXIS: _SAVE_SET_CURRENT(Z); break;
+        #endif
+      }
+
+    #elif defined(FOAMCUTTER_XYUV)
+
+      // Foam cutter
+      switch (axis) {
+        default: break;
+        case X_AXIS: case I_AXIS: MAP(_MAP_SAVE_SET, X, I); break;
+        case Y_AXIS: case J_AXIS: MAP(_MAP_SAVE_SET, Y, J); break;
+        case Z_AXIS: MAP(_MAP_SAVE_SET, Z); break;
+      }
+
+    #else
+
+      // Cartesian kinematics
+      switch (axis) {
+        default: break;
+        case X_AXIS: MAP(_MAP_SAVE_SET, X, X2); break;
+        case Y_AXIS: MAP(_MAP_SAVE_SET, Y, Y2); break;
+        case Z_AXIS: MAP(_MAP_SAVE_SET, Z, Z2, Z3, Z4); break;
+      }
+
+    #endif // kinematics
+
+    switch (axis) {
+      default: break;
+      #if I_HAS_HOME_CURRENT && DISABLED(FOAMCUTTER_XYUV)
+        case I_AXIS: _SAVE_SET_CURRENT(I); break;
+      #endif
+      #if J_HAS_HOME_CURRENT && DISABLED(FOAMCUTTER_XYUV)
+        case J_AXIS: _SAVE_SET_CURRENT(J); break;
+      #endif
+      #if K_HAS_HOME_CURRENT
+        case K_AXIS: _SAVE_SET_CURRENT(K); break;
+      #endif
+      #if U_HAS_HOME_CURRENT
+        case U_AXIS: _SAVE_SET_CURRENT(U); break;
+      #endif
+      #if V_HAS_HOME_CURRENT
+        case V_AXIS: _SAVE_SET_CURRENT(V); break;
+      #endif
+      #if W_HAS_HOME_CURRENT
+        case W_AXIS: _SAVE_SET_CURRENT(W); break;
+      #endif
+    }
+
+    #if SENSORLESS_STALLGUARD_DELAY
+      safe_delay(SENSORLESS_STALLGUARD_DELAY); // Short delay needed to settle
+    #endif
+
+  } // set_homing_current()
+
+  /**
+   * Restore motors to their previously-stored currents.
+   * Always call set_homing_current() first!
+   */
+  void restore_homing_current(const AxisEnum axis) {
+
+    // Restore the saved current
+    #define _RESTORE_CURRENT(A) \
+      stepper##A.rms_current(saved_current_mA.A); \
+      debug_current(F(STR_##A), HOMING_CURRENT(A), saved_current_mA.A)
+
+    #define _MAP_RESTORE(A) OPTCODE(A##_HAS_HOME_CURRENT, _RESTORE_CURRENT(A))
+
+    if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Restore driver current");
+
+    #if ANY(CORE_IS_XY, MARKFORGED_XY, MARKFORGED_YX)
+
+      // CORE and Markforged kinematics
+      switch (axis) {
+        default: break;
+        case X_AXIS: case Y_AXIS: MAP(_MAP_RESTORE, X, Y); break;
+        case Z_AXIS: MAP(_MAP_RESTORE, Z, Z2, Z3, Z4); break;
+      }
+
+    #elif CORE_IS_XZ
+
+      // CORE XZ / ZX
+      switch (axis) {
+        default: break;
+        case X_AXIS: case Z_AXIS: MAP(_MAP_RESTORE, X, Z); break;
+        case Y_AXIS: MAP(_MAP_RESTORE, Y, Y2); break;
+      }
+
+    #elif CORE_IS_YZ
+
+      // CORE YZ / ZY
+      switch (axis) {
+        default: break;
+        case X_AXIS: MAP(_MAP_RESTORE, X, X2); break;
+        case Y_AXIS: case Z_AXIS: MAP(_MAP_RESTORE, Y, Z); break;
+      }
+
+    #elif IS_SCARA // Unsupported for now?
+
+      // SCARA kinematics
+      switch (axis) {
+        default: break;
+        #if X_HAS_HOME_CURRENT
+          case A_AXIS: _RESTORE_CURRENT(X); break;
+        #endif
+        #if Y_HAS_HOME_CURRENT
+          case B_AXIS: _RESTORE_CURRENT(Y); break;
+        #endif
+        #if Z_HAS_HOME_CURRENT
+          case C_AXIS: _RESTORE_CURRENT(Z); break;
+        #endif
+      }
+
+    #elif ANY(AXEL_TPARA, DELTA)
+
+      // TPARA or DELTA kinematics
+      // Z_AXIS is a special mode to set homing current to all axes
+      #if X_HAS_HOME_CURRENT
+        if (axis == A_AXIS || axis == Z_AXIS) _RESTORE_CURRENT(X);
+      #endif
+      #if Y_HAS_HOME_CURRENT
+        if (axis == B_AXIS || axis == Z_AXIS) _RESTORE_CURRENT(Y);
+      #endif
+      #if Z_HAS_HOME_CURRENT
+        if (axis == C_AXIS) _RESTORE_CURRENT(Z);
+      #endif
+
+    #elif ANY(POLARGRAPH, POLAR)
+
+      // POLAR kinematics
+      switch (axis) {
+        default: break;
+        #if X_HAS_HOME_CURRENT
+          case A_AXIS: _RESTORE_CURRENT(X); break;
+        #endif
+        #if Y_HAS_HOME_CURRENT
+          case B_AXIS: _RESTORE_CURRENT(Y); break;
+        #endif
+        #if Z_HAS_HOME_CURRENT
+          case C_AXIS: _RESTORE_CURRENT(Z); break;
+        #endif
+      }
+
+    #elif ENABLED(ARTICULATED_ROBOT_ARM)
+
+      // Articulated Robot Arm
+      // Useful?
+      switch (axis) {
+        default: break;
+        #if X_HAS_HOME_CURRENT
+          case A_AXIS: _RESTORE_CURRENT(X); break;
+        #endif
+        #if Y_HAS_HOME_CURRENT
+          case B_AXIS: _RESTORE_CURRENT(Y); break;
+        #endif
+        #if Z_HAS_HOME_CURRENT
+          case C_AXIS: _RESTORE_CURRENT(Z); break;
+        #endif
+      }
+
+    #elif ENABLED(FOAMCUTTER_XYUV)
+
+      // Foam cutter
+      switch (axis) {
+        default: break;
+        case X_AXIS: case I_AXIS: MAP(_MAP_RESTORE, X, I); break;
+        case Y_AXIS: case J_AXIS: MAP(_MAP_RESTORE, Y, J); break;
+        case Z_AXIS: MAP(_MAP_RESTORE, Z); break;
+      }
+
+    #else
+
+      // Cartesian kinematics
+      switch (axis) {
+        default: break;
+        case X_AXIS: MAP(_MAP_RESTORE, X, X2); break;
+        case Y_AXIS: MAP(_MAP_RESTORE, Y, Y2); break;
+        case Z_AXIS: MAP(_MAP_RESTORE, Z, Z2, Z3, Z4); break;
+      }
+
+    #endif // kinematics
+
+    switch (axis) {
+      default: break;
+      #if I_HAS_HOME_CURRENT && DISABLED(FOAMCUTTER_XYUV)
+        case I_AXIS: _RESTORE_CURRENT(I); break;
+      #endif
+      #if J_HAS_HOME_CURRENT && DISABLED(FOAMCUTTER_XYUV)
+        case J_AXIS: _RESTORE_CURRENT(J); break;
+      #endif
+      #if K_HAS_HOME_CURRENT
+        case K_AXIS: _RESTORE_CURRENT(K); break;
+      #endif
+      #if U_HAS_HOME_CURRENT
+        case U_AXIS: _RESTORE_CURRENT(U); break;
+      #endif
+      #if V_HAS_HOME_CURRENT
+        case V_AXIS: _RESTORE_CURRENT(V); break;
+      #endif
+      #if W_HAS_HOME_CURRENT
+        case W_AXIS: _RESTORE_CURRENT(W); break;
+      #endif
+    }
+
+    #if SENSORLESS_STALLGUARD_DELAY
+      safe_delay(SENSORLESS_STALLGUARD_DELAY); // Short delay needed to settle
+    #endif
+
+  } // restore_homing_current()
+
+#endif // HAS_HOMING_CURRENT
+
 #if ENABLED(AUTO_REPORT_POSITION)
   AutoReporter<PositionReport> position_auto_reporter;
 #endif
 
-#if ANY(FULL_REPORT_TO_HOST_FEATURE, REALTIME_REPORTING_COMMANDS)
+#if ENABLED(REALTIME_REPORTING_COMMANDS)
 
   M_StateEnum M_State_grbl = M_INIT;
 
@@ -273,22 +599,12 @@ void report_current_position_projected() {
     get_cartesian_from_steppers();
     const xyz_pos_t lpos = cartes.asLogical();
 
-    SERIAL_ECHOPGM_P(
-      LIST_N(DOUBLE(NUM_AXES),
-           X_LBL, lpos.x,
-        SP_Y_LBL, lpos.y,
-        SP_Z_LBL, lpos.z,
-        SP_I_LBL, lpos.i,
-        SP_J_LBL, lpos.j,
-        SP_K_LBL, lpos.k,
-        SP_U_LBL, lpos.u,
-        SP_V_LBL, lpos.v,
-        SP_W_LBL, lpos.w
-      )
-      #if HAS_EXTRUDERS
-        , SP_E_LBL, current_position.e
-      #endif
-    );
+    SERIAL_ECHOPGM_P(LOGICAL_AXIS_PAIRED_LIST(
+      SP_E_LBL, current_position.e,
+         X_LBL, lpos.x,  SP_Y_LBL, lpos.y,  SP_Z_LBL, lpos.z,
+      SP_I_LBL, lpos.i,  SP_J_LBL, lpos.j,  SP_K_LBL, lpos.k,
+      SP_U_LBL, lpos.u,  SP_V_LBL, lpos.v,  SP_W_LBL, lpos.w
+    ));
 
     report_more_positions();
     report_current_grblstate_moving();
@@ -299,22 +615,22 @@ void report_current_position_projected() {
    */
   M_StateEnum grbl_state_for_marlin_state() {
     switch (marlin_state) {
-      case MF_INITIALIZING: return M_INIT;
-      case MF_SD_COMPLETE:  return M_ALARM;
-      case MF_WAITING:      return M_IDLE;
-      case MF_STOPPED:      return M_END;
-      case MF_RUNNING:      return M_RUNNING;
-      case MF_PAUSED:       return M_HOLD;
-      case MF_KILLED:       return M_ERROR;
-      default:              return M_IDLE;
+      case MarlinState::MF_INITIALIZING: return M_INIT;
+      case MarlinState::MF_SD_COMPLETE:  return M_ALARM;
+      case MarlinState::MF_WAITING:      return M_IDLE;
+      case MarlinState::MF_STOPPED:      return M_END;
+      case MarlinState::MF_RUNNING:      return M_RUNNING;
+      case MarlinState::MF_PAUSED:       return M_HOLD;
+      case MarlinState::MF_KILLED:       return M_ERROR;
+      default:                           return M_IDLE;
     }
   }
 
-#endif
+#endif // REALTIME_REPORTING_COMMANDS
 
 #if IS_KINEMATIC
 
-  bool position_is_reachable(const_float_t rx, const_float_t ry, const float inset/*=0*/) {
+  bool position_is_reachable(const float rx, const float ry, const float inset/*=0.0f*/) {
 
     bool can_reach;
 
@@ -365,7 +681,7 @@ void report_current_position_projected() {
 #else // CARTESIAN
 
   // Return true if the given position is within the machine bounds.
-  bool position_is_reachable(TERN_(HAS_X_AXIS, const_float_t rx) OPTARG(HAS_Y_AXIS, const_float_t ry)) {
+  bool position_is_reachable(XY_LIST(const float rx, const float ry)) {
     if (TERN0(HAS_Y_AXIS, !COORDINATE_OKAY(ry, Y_MIN_POS - fslop, Y_MAX_POS + fslop))) return false;
     #if ENABLED(DUAL_X_CARRIAGE)
       if (active_extruder)
@@ -487,12 +803,12 @@ void set_current_from_steppers_for_axis(const AxisEnum axis) {
  * Move the planner to the current position from wherever it last moved
  * (or from wherever it has been told it is located).
  */
-void line_to_current_position(const_feedRate_t fr_mm_s/*=feedrate_mm_s*/) {
+void line_to_current_position(const feedRate_t fr_mm_s/*=feedrate_mm_s*/) {
   planner.buffer_line(current_position, fr_mm_s);
 }
 
 #if HAS_EXTRUDERS
-  void unscaled_e_move(const_float_t length, const_feedRate_t fr_mm_s) {
+  void unscaled_e_move(const float length, const feedRate_t fr_mm_s) {
     TERN_(HAS_FILAMENT_SENSOR, runout.reset());
     current_position.e += length / planner.e_factor[active_extruder];
     line_to_current_position(fr_mm_s);
@@ -505,7 +821,7 @@ void line_to_current_position(const_feedRate_t fr_mm_s/*=feedrate_mm_s*/) {
   /**
    * Buffer a fast move without interpolation. Set current_position to destination
    */
-  void prepare_fast_move_to_destination(const_feedRate_t scaled_fr_mm_s/*=MMS_SCALED(feedrate_mm_s)*/) {
+  void prepare_fast_move_to_destination(const feedRate_t scaled_fr_mm_s/*=MMS_SCALED(feedrate_mm_s)*/) {
     if (DEBUGGING(LEVELING)) DEBUG_POS("prepare_fast_move_to_destination", destination);
 
     #if UBL_SEGMENTED
@@ -527,7 +843,7 @@ void line_to_current_position(const_feedRate_t fr_mm_s/*=feedrate_mm_s*/) {
  *  - Move at normal speed regardless of feedrate percentage.
  *  - Extrude the specified length regardless of flow percentage.
  */
-void _internal_move_to_destination(const_feedRate_t fr_mm_s/*=0.0f*/
+void _internal_move_to_destination(const feedRate_t fr_mm_s/*=0.0f*/
   OPTARG(IS_KINEMATIC, const bool is_fast/*=false*/)
 ) {
   REMEMBER(fr, feedrate_mm_s);
@@ -543,8 +859,8 @@ void _internal_move_to_destination(const_feedRate_t fr_mm_s/*=0.0f*/
 
 #if SECONDARY_AXES
 
-  void secondary_axis_moves(SECONDARY_AXIS_ARGS(const_float_t), const_feedRate_t fr_mm_s) {
-    auto move_one = [&](const AxisEnum a, const_float_t p) {
+  void secondary_axis_moves(SECONDARY_AXIS_ARGS_LC(const float), const feedRate_t fr_mm_s) {
+    auto move_one = [&](const AxisEnum a, const float p) {
       const feedRate_t fr = fr_mm_s ?: homing_feedrate(a);
       current_position[a] = p; line_to_current_position(fr);
     };
@@ -565,10 +881,10 @@ void _internal_move_to_destination(const_feedRate_t fr_mm_s/*=0.0f*/
  * - Delta may lower Z first to get into the free motion zone.
  * - Before returning, wait for the planner buffer to empty.
  */
-void do_blocking_move_to(NUM_AXIS_ARGS_(const_float_t) const_feedRate_t fr_mm_s/*=0.0f*/) {
+void do_blocking_move_to(NUM_AXIS_ARGS_(const float) const feedRate_t fr_mm_s/*=0.0f*/) {
   DEBUG_SECTION(log_move, "do_blocking_move_to", DEBUGGING(LEVELING));
   #if NUM_AXES
-    if (DEBUGGING(LEVELING)) DEBUG_XYZ("> ", NUM_AXIS_ARGS());
+    if (DEBUGGING(LEVELING)) DEBUG_XYZ("> ", NUM_AXIS_ARGS_LC());
   #endif
 
   const feedRate_t xy_feedrate = fr_mm_s ?: feedRate_t(XY_PROBE_FEEDRATE_MM_S);
@@ -642,7 +958,7 @@ void do_blocking_move_to(NUM_AXIS_ARGS_(const_float_t) const_feedRate_t fr_mm_s/
       if (current_position.z < z) { current_position.z = z; line_to_current_position(z_feedrate); }
     #endif
 
-    current_position.set(TERN_(HAS_X_AXIS, x) OPTARG(HAS_Y_AXIS, y)); line_to_current_position(xy_feedrate);
+    current_position.set(XY_LIST(x, y)); line_to_current_position(xy_feedrate);
 
     #if SECONDARY_AXES
       secondary_axis_moves(SECONDARY_AXIS_LIST(i, j, k, u, v, w), fr_mm_s);
@@ -658,22 +974,24 @@ void do_blocking_move_to(NUM_AXIS_ARGS_(const_float_t) const_feedRate_t fr_mm_s/
   planner.synchronize();
 }
 
-void do_blocking_move_to(const xy_pos_t &raw, const_feedRate_t fr_mm_s/*=0.0f*/) {
-  do_blocking_move_to(NUM_AXIS_LIST_(raw.x, raw.y, current_position.z, current_position.i, current_position.j, current_position.k,
+void do_blocking_move_to(const xy_pos_t &raw, const feedRate_t fr_mm_s/*=0.0f*/) {
+  do_blocking_move_to(NUM_AXIS_LIST_(raw.x, raw.y, current_position.z,
+                                    current_position.i, current_position.j, current_position.k,
                                     current_position.u, current_position.v, current_position.w) fr_mm_s);
 }
-void do_blocking_move_to(const xyz_pos_t &raw, const_feedRate_t fr_mm_s/*=0.0f*/) {
+void do_blocking_move_to(const xyz_pos_t &raw, const feedRate_t fr_mm_s/*=0.0f*/) {
   do_blocking_move_to(NUM_AXIS_ELEM_(raw) fr_mm_s);
 }
-void do_blocking_move_to(const xyze_pos_t &raw, const_feedRate_t fr_mm_s/*=0.0f*/) {
+void do_blocking_move_to(const xyze_pos_t &raw, const feedRate_t fr_mm_s/*=0.0f*/) {
   do_blocking_move_to(NUM_AXIS_ELEM_(raw) fr_mm_s);
 }
 
 #if HAS_X_AXIS
-  void do_blocking_move_to_x(const_float_t rx, const_feedRate_t fr_mm_s/*=0.0*/) {
+  void do_blocking_move_to_x(const float rx, const feedRate_t fr_mm_s/*=0.0*/) {
     if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("do_blocking_move_to_x(", rx, ", ", fr_mm_s, ")");
     do_blocking_move_to(
-      NUM_AXIS_LIST_(rx, current_position.y, current_position.z, current_position.i, current_position.j, current_position.k,
+      NUM_AXIS_LIST_(rx, current_position.y, current_position.z,
+                     current_position.i, current_position.j, current_position.k,
                      current_position.u, current_position.v, current_position.w)
       fr_mm_s
     );
@@ -681,35 +999,38 @@ void do_blocking_move_to(const xyze_pos_t &raw, const_feedRate_t fr_mm_s/*=0.0f*
 #endif
 
 #if HAS_Y_AXIS
-  void do_blocking_move_to_y(const_float_t ry, const_feedRate_t fr_mm_s/*=0.0*/) {
+  void do_blocking_move_to_y(const float ry, const feedRate_t fr_mm_s/*=0.0*/) {
     if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("do_blocking_move_to_y(", ry, ", ", fr_mm_s, ")");
     do_blocking_move_to(
-      NUM_AXIS_LIST_(current_position.x, ry, current_position.z, current_position.i, current_position.j, current_position.k,
+      NUM_AXIS_LIST_(current_position.x, ry, current_position.z,
+                    current_position.i, current_position.j, current_position.k,
                     current_position.u, current_position.v, current_position.w)
       fr_mm_s
     );
   }
-  void do_blocking_move_to_xy(const_float_t rx, const_float_t ry, const_feedRate_t fr_mm_s/*=0.0*/) {
+  void do_blocking_move_to_xy(const float rx, const float ry, const feedRate_t fr_mm_s/*=0.0*/) {
     if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("do_blocking_move_to_xy(", rx, ", ", ry, ", ", fr_mm_s, ")");
     do_blocking_move_to(
-      NUM_AXIS_LIST_(rx, ry, current_position.z, current_position.i, current_position.j, current_position.k,
+      NUM_AXIS_LIST_(rx, ry, current_position.z,
+                    current_position.i, current_position.j, current_position.k,
                     current_position.u, current_position.v, current_position.w)
       fr_mm_s
     );
   }
-  void do_blocking_move_to_xy(const xy_pos_t &raw, const_feedRate_t fr_mm_s/*=0.0f*/) {
+  void do_blocking_move_to_xy(const xy_pos_t &raw, const feedRate_t fr_mm_s/*=0.0f*/) {
     do_blocking_move_to_xy(raw.x, raw.y, fr_mm_s);
   }
 #endif
 
 #if HAS_Z_AXIS
-  void do_blocking_move_to_z(const_float_t rz, const_feedRate_t fr_mm_s/*=0.0*/) {
+  void do_blocking_move_to_z(const float rz, const feedRate_t fr_mm_s/*=0.0*/) {
     if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("do_blocking_move_to_z(", rz, ", ", fr_mm_s, ")");
     do_blocking_move_to_xy_z(current_position, rz, fr_mm_s);
   }
-  void do_blocking_move_to_xy_z(const xy_pos_t &raw, const_float_t z, const_feedRate_t fr_mm_s/*=0.0f*/) {
+  void do_blocking_move_to_xy_z(const xy_pos_t &raw, const float z, const feedRate_t fr_mm_s/*=0.0f*/) {
     do_blocking_move_to(
-      NUM_AXIS_LIST_(raw.x, raw.y, z, current_position.i, current_position.j, current_position.k,
+      NUM_AXIS_LIST_(raw.x, raw.y, z,
+                    current_position.i, current_position.j, current_position.k,
                     current_position.u, current_position.v, current_position.w)
       fr_mm_s
     );
@@ -722,7 +1043,7 @@ void do_blocking_move_to(const xyze_pos_t &raw, const_feedRate_t fr_mm_s/*=0.0f*
    *  - If lowering is not allowed then skip a downward move
    *  - Execute the move at the probing (or homing) feedrate
    */
-  void do_z_clearance(const_float_t zclear, const bool with_probe/*=true*/, const bool lower_allowed/*=false*/) {
+  void do_z_clearance(const float zclear, const bool with_probe/*=true*/, const bool lower_allowed/*=false*/) {
     UNUSED(with_probe);
     float zdest = zclear;
     TERN_(HAS_BED_PROBE, if (with_probe && probe.offset.z < 0) zdest -= probe.offset.z);
@@ -731,7 +1052,7 @@ void do_blocking_move_to(const xyze_pos_t &raw, const_feedRate_t fr_mm_s/*=0.0f*
     if ((!lower_allowed && zdest < current_position.z) || zdest == current_position.z) return;
     do_blocking_move_to_z(zdest, TERN(HAS_BED_PROBE, z_probe_fast_mm_s, homing_feedrate(Z_AXIS)));
   }
-  void do_z_clearance_by(const_float_t zclear) {
+  void do_z_clearance_by(const float zclear) {
     if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("do_z_clearance_by(", zclear, ")");
     do_z_clearance(current_position.z + zclear, false);
   }
@@ -742,81 +1063,85 @@ void do_blocking_move_to(const xyze_pos_t &raw, const_feedRate_t fr_mm_s/*=0.0f*
   void do_move_after_z_homing() {
     DEBUG_SECTION(mzah, "do_move_after_z_homing", DEBUGGING(LEVELING));
     #ifdef Z_POST_CLEARANCE
-      do_z_clearance(Z_POST_CLEARANCE, true, true);
+      do_z_clearance(
+        Z_POST_CLEARANCE,
+        ALL(HOMING_Z_WITH_PROBE, HAS_STOWABLE_PROBE) && TERN0(HAS_BED_PROBE, endstops.z_probe_enabled),
+        true
+      );
     #elif ENABLED(USE_PROBE_FOR_Z_HOMING)
       probe.move_z_after_probing();
     #endif
   }
-#endif
+#endif // HAS_Z_AXIS
 
 #if HAS_I_AXIS
-  void do_blocking_move_to_xyz_i(const xyze_pos_t &raw, const_float_t i, const_feedRate_t fr_mm_s/*=0.0f*/) {
+  void do_blocking_move_to_xyz_i(const xyze_pos_t &raw, const float i, const feedRate_t fr_mm_s/*=0.0f*/) {
     do_blocking_move_to(
       NUM_AXIS_LIST_(raw.x, raw.y, raw.z, i, raw.j, raw.k, raw.u, raw.v, raw.w)
       fr_mm_s
     );
   }
-  void do_blocking_move_to_i(const_float_t ri, const_feedRate_t fr_mm_s/*=0.0*/) {
+  void do_blocking_move_to_i(const float ri, const feedRate_t fr_mm_s/*=0.0*/) {
     do_blocking_move_to_xyz_i(current_position, ri, fr_mm_s);
   }
 #endif
 
 #if HAS_J_AXIS
-  void do_blocking_move_to_xyzi_j(const xyze_pos_t &raw, const_float_t j, const_feedRate_t fr_mm_s/*=0.0f*/) {
+  void do_blocking_move_to_xyzi_j(const xyze_pos_t &raw, const float j, const feedRate_t fr_mm_s/*=0.0f*/) {
     do_blocking_move_to(
       NUM_AXIS_LIST_(raw.x, raw.y, raw.z, raw.i, j, raw.k, raw.u, raw.v, raw.w)
       fr_mm_s
     );
   }
-  void do_blocking_move_to_j(const_float_t rj, const_feedRate_t fr_mm_s/*=0.0*/) {
+  void do_blocking_move_to_j(const float rj, const feedRate_t fr_mm_s/*=0.0*/) {
     do_blocking_move_to_xyzi_j(current_position, rj, fr_mm_s);
   }
 #endif
 
 #if HAS_K_AXIS
-  void do_blocking_move_to_xyzij_k(const xyze_pos_t &raw, const_float_t k, const_feedRate_t fr_mm_s/*=0.0f*/) {
+  void do_blocking_move_to_xyzij_k(const xyze_pos_t &raw, const float k, const feedRate_t fr_mm_s/*=0.0f*/) {
     do_blocking_move_to(
       NUM_AXIS_LIST_(raw.x, raw.y, raw.z, raw.i, raw.j, k, raw.u, raw.v, raw.w)
       fr_mm_s
     );
   }
-  void do_blocking_move_to_k(const_float_t rk, const_feedRate_t fr_mm_s/*=0.0*/) {
+  void do_blocking_move_to_k(const float rk, const feedRate_t fr_mm_s/*=0.0*/) {
     do_blocking_move_to_xyzij_k(current_position, rk, fr_mm_s);
   }
 #endif
 
 #if HAS_U_AXIS
-  void do_blocking_move_to_xyzijk_u(const xyze_pos_t &raw, const_float_t u, const_feedRate_t fr_mm_s/*=0.0f*/) {
+  void do_blocking_move_to_xyzijk_u(const xyze_pos_t &raw, const float u, const feedRate_t fr_mm_s/*=0.0f*/) {
     do_blocking_move_to(
       NUM_AXIS_LIST_(raw.x, raw.y, raw.z, raw.i, raw.j, raw.k, u, raw.v, raw.w)
       fr_mm_s
     );
   }
-  void do_blocking_move_to_u(const_float_t ru, const_feedRate_t fr_mm_s/*=0.0*/) {
+  void do_blocking_move_to_u(const float ru, const feedRate_t fr_mm_s/*=0.0*/) {
     do_blocking_move_to_xyzijk_u(current_position, ru, fr_mm_s);
   }
 #endif
 
 #if HAS_V_AXIS
-  void do_blocking_move_to_xyzijku_v(const xyze_pos_t &raw, const_float_t v, const_feedRate_t fr_mm_s/*=0.0f*/) {
+  void do_blocking_move_to_xyzijku_v(const xyze_pos_t &raw, const float v, const feedRate_t fr_mm_s/*=0.0f*/) {
     do_blocking_move_to(
       NUM_AXIS_LIST_(raw.x, raw.y, raw.z, raw.i, raw.j, raw.k, raw.u, v, raw.w)
       fr_mm_s
     );
   }
-  void do_blocking_move_to_v(const_float_t rv, const_feedRate_t fr_mm_s/*=0.0*/) {
+  void do_blocking_move_to_v(const float rv, const feedRate_t fr_mm_s/*=0.0*/) {
     do_blocking_move_to_xyzijku_v(current_position, rv, fr_mm_s);
   }
 #endif
 
 #if HAS_W_AXIS
-  void do_blocking_move_to_xyzijkuv_w(const xyze_pos_t &raw, const_float_t w, const_feedRate_t fr_mm_s/*=0.0f*/) {
+  void do_blocking_move_to_xyzijkuv_w(const xyze_pos_t &raw, const float w, const feedRate_t fr_mm_s/*=0.0f*/) {
     do_blocking_move_to(
       NUM_AXIS_LIST_(raw.x, raw.y, raw.z, raw.i, raw.j, raw.k, raw.u, raw.v, w)
       fr_mm_s
     );
   }
-  void do_blocking_move_to_w(const_float_t rw, const_feedRate_t fr_mm_s/*=0.0*/) {
+  void do_blocking_move_to_w(const float rw, const feedRate_t fr_mm_s/*=0.0*/) {
     do_blocking_move_to_xyzijkuv_w(current_position, rw, fr_mm_s);
   }
 #endif
@@ -1309,7 +1634,7 @@ float get_move_distance(const xyze_pos_t &diff OPTARG(HAS_ROTATIONAL_AXES, bool 
      * small incremental moves. This allows the planner to
      * apply more detailed bed leveling to the full move.
      */
-    inline void segmented_line_to_destination(const_feedRate_t fr_mm_s, const float segment_size=LEVELED_SEGMENT_LENGTH) {
+    inline void segmented_line_to_destination(const feedRate_t fr_mm_s, const float segment_size=LEVELED_SEGMENT_LENGTH) {
 
       const xyze_float_t diff = destination - current_position;
 
@@ -1492,7 +1817,7 @@ float get_move_distance(const xyze_pos_t &diff OPTARG(HAS_ROTATIONAL_AXES, bool 
           if (planner.buffer_line(raised, fr_zfast)) {
             //  2. Move to the current native XY and raised Z. Presumably this is a null move.
             xyze_pos_t curpos = current_position; curpos.z = raised_parked_position.z;
-            if (planner.buffer_line(curpos, PLANNER_XY_FEEDRATE())) {
+            if (planner.buffer_line(curpos, PLANNER_XY_FEEDRATE_MM_S)) {
               //  3. Lower Z back down
               line_to_current_position(fr_zfast);
             }
@@ -1637,8 +1962,7 @@ void prepare_line_to_destination() {
     SERIAL_ECHO_START();
     msg.echoln();
 
-    msg.setf(GET_TEXT_F(MSG_HOME_FIRST), need);
-    ui.set_status(msg);
+    ui.status_printf(0, GET_TEXT_F(MSG_HOME_FIRST), need);
     return true;
   }
 
@@ -1647,7 +1971,7 @@ void prepare_line_to_destination() {
    */
   feedRate_t get_homing_bump_feedrate(const AxisEnum axis) {
     #if HOMING_Z_WITH_PROBE
-      if (axis == Z_AXIS) return MMM_TO_MMS(Z_PROBE_FEEDRATE_SLOW);
+      if (axis == Z_AXIS) return z_probe_slow_mm_s;
     #endif
     static const uint8_t homing_bump_divisor[] PROGMEM = HOMING_BUMP_DIVISOR;
     uint8_t hbd = pgm_read_byte(&homing_bump_divisor[axis]);
@@ -2056,7 +2380,7 @@ void prepare_line_to_destination() {
         default: return;
       }
 
-      // Phase distance to nearest home phase position when moving in the backout direction from endstop(may be negative).
+      // Phase distance to nearest home phase position when moving in the backout direction from endstop (may be negative).
       int16_t phaseDelta = (home_phase[axis] - phaseCurrent) * stepperBackoutDir;
 
       // Check if home distance within endstop assumed repeatability noise of .05mm and warn.
@@ -2068,7 +2392,7 @@ void prepare_line_to_destination() {
       // Skip to next if target position is behind current. So it only moves away from endstop.
       if (phaseDelta < 0) phaseDelta += 1024;
 
-      // Convert TMC µsteps(phase) to whole Marlin µsteps to effector backout direction to mm
+      // Convert TMC µsteps (phase) to whole Marlin µsteps to effector backout direction to mm
       const float mmDelta = int16_t(phaseDelta / phasePerUStep) * effectorBackoutDir * planner.mm_per_step[axis];
 
       // Optional debug messages
@@ -2115,9 +2439,11 @@ void prepare_line_to_destination() {
 
     //
     // Homing Z with a probe? Raise Z (maybe) and deploy the Z probe.
+    // Return early if probe deployment fails.
     //
-    if (TERN0(HOMING_Z_WITH_PROBE, axis == Z_AXIS && probe.deploy()))
-      return;
+    #if HOMING_Z_WITH_PROBE
+      if (axis == Z_AXIS && probe.deploy()) { probe.stow(); return; }
+    #endif
 
     // Set flags for X, Y, Z motor locking
     #if HAS_EXTRA_ENDSTOPS
@@ -2135,11 +2461,25 @@ void prepare_line_to_destination() {
     //
     #if HOMING_Z_WITH_PROBE
       if (axis == Z_AXIS) {
-        if (TERN0(BLTOUCH, bltouch.deploy())) return;   // BLTouch was deployed above, but get the alarm state.
-        if (TERN0(PROBE_TARE, probe.tare())) return;
+
+        #if ENABLED(BLTOUCH)
+          // BLTouch was deployed above, but get the alarm state.
+          // Stow and return early if there is a deploy alarm.
+          if (bltouch.deploy()) { bltouch.stow(); return; }
+        #endif
+
+        // Tare the probe. Stow and return early if it fails
+        if (TERN0(PROBE_TARE, probe.tare())) { probe.stow(); return; }
+
+        // Tell the Bed Distance Sensor we're Z homing
         TERN_(BD_SENSOR, bdl.config_state = BDS_HOMING_Z);
       }
     #endif
+
+    //
+    // Set a new current for the homed axis motor(s)
+    //
+    TERN_(HAS_HOMING_CURRENT, set_homing_current(axis));
 
     //
     // Back away to prevent an early sensorless trigger
@@ -2213,8 +2553,10 @@ void prepare_line_to_destination() {
       #endif // DETECT_BROKEN_ENDSTOP
 
       #if ALL(HOMING_Z_WITH_PROBE, BLTOUCH)
-        if (axis == Z_AXIS && !bltouch.high_speed_mode && bltouch.deploy())
+        if (axis == Z_AXIS && !bltouch.high_speed_mode && bltouch.deploy()) {
+          bltouch.stow();
           return; // Intermediate DEPLOY (in LOW SPEED MODE)
+        }
       #endif
 
       // Slow move towards endstop until triggered
@@ -2259,30 +2601,23 @@ void prepare_line_to_destination() {
 
             const float adj = ABS(endstops.z2_endstop_adj);
             if (adj) {
-              if (pos_dir ? (endstops.z2_endstop_adj > 0) : (endstops.z2_endstop_adj < 0)) stepper.set_z1_lock(true); else stepper.set_z2_lock(true);
+              if (pos_dir ? (endstops.z2_endstop_adj > 0) : (endstops.z2_endstop_adj < 0))
+                stepper.set_z1_lock(true);
+              else
+                stepper.set_z2_lock(true);
               do_homing_move(axis, pos_dir ? -adj : adj);
               stepper.set_z1_lock(false);
               stepper.set_z2_lock(false);
             }
 
-          #else
+          #else // NUM_Z_STEPPERS >= 3
 
             // Handy arrays of stepper lock function pointers
 
             typedef void (*adjustFunc_t)(const bool);
 
-            adjustFunc_t lock[] = {
-              stepper.set_z1_lock, stepper.set_z2_lock, stepper.set_z3_lock
-              #if NUM_Z_STEPPERS >= 4
-                , stepper.set_z4_lock
-              #endif
-            };
-            float adj[] = {
-              0, endstops.z2_endstop_adj, endstops.z3_endstop_adj
-              #if NUM_Z_STEPPERS >= 4
-                , endstops.z4_endstop_adj
-              #endif
-            };
+            adjustFunc_t lock[] = ARRAY_N(NUM_Z_STEPPERS, stepper.set_z1_lock, stepper.set_z2_lock, stepper.set_z3_lock, stepper.set_z4_lock);
+            float adj[] = ARRAY_N(NUM_Z_STEPPERS, 0, endstops.z2_endstop_adj, endstops.z3_endstop_adj, endstops.z4_endstop_adj);
 
             adjustFunc_t tempLock;
             float tempAdj;
@@ -2316,40 +2651,39 @@ void prepare_line_to_destination() {
               lock[1] = tempLock, adj[1] = tempAdj;
             }
 
+            float d;
             if (pos_dir) {
-              // normalize adj to smallest value and do the first move
+              // Normalize adj to smallest value and do the first move
               (*lock[0])(true);
-              do_homing_move(axis, adj[1] - adj[0]);
-              // lock the second stepper for the final correction
+              if ((d = adj[1] - adj[0])) do_homing_move(axis, d);
+              // Lock the second stepper for the final correction
               (*lock[1])(true);
-              do_homing_move(axis, adj[2] - adj[1]);
+              if ((d = adj[2] - adj[1])) do_homing_move(axis, d);
               #if NUM_Z_STEPPERS >= 4
-                // lock the third stepper for the final correction
+                // Lock the third stepper for the final correction
                 (*lock[2])(true);
-                do_homing_move(axis, adj[3] - adj[2]);
+                if ((d = adj[3] - adj[2])) do_homing_move(axis, d);
               #endif
             }
             else {
               #if NUM_Z_STEPPERS >= 4
                 (*lock[3])(true);
-                do_homing_move(axis, adj[2] - adj[3]);
+                if ((d = adj[2] - adj[3])) do_homing_move(axis, d);
               #endif
               (*lock[2])(true);
-              do_homing_move(axis, adj[1] - adj[2]);
+              if ((d = adj[1] - adj[2])) do_homing_move(axis, d);
               (*lock[1])(true);
-              do_homing_move(axis, adj[0] - adj[1]);
+              if ((d = adj[0] - adj[1])) do_homing_move(axis, d);
             }
-
-            stepper.set_z1_lock(false);
-            stepper.set_z2_lock(false);
-            stepper.set_z3_lock(false);
-            #if NUM_Z_STEPPERS >= 4
-              stepper.set_z4_lock(false);
-            #endif
+            CODE_N(NUM_Z_STEPPERS,
+              stepper.set_z1_lock(false), stepper.set_z2_lock(false),
+              stepper.set_z3_lock(false), stepper.set_z4_lock(false)
+            );
 
           #endif
         }
-      #endif
+
+      #endif // NUM_Z_STEPPERS >= 3
 
       // Reset flags for X, Y, Z motor locking
       switch (axis) {
@@ -2402,7 +2736,7 @@ void prepare_line_to_destination() {
       if (axis == Z_AXIS) bdl.config_state = BDS_IDLE;
     #endif
 
-    // Put away the Z probe
+    // Put away the Z probe. Return early if it fails.
     if (TERN0(HOMING_Z_WITH_PROBE, axis == Z_AXIS && probe.stow())) return;
 
     #if DISABLED(DELTA) && defined(HOMING_BACKOFF_POST_MM)
@@ -2428,6 +2762,11 @@ void prepare_line_to_destination() {
     #endif
 
     if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("<<< homeaxis(", C(AXIS_CHAR(axis)), ")");
+
+    //
+    // Restore axis motor(s) current after homing
+    //
+    TERN_(HAS_HOMING_CURRENT, restore_homing_current(axis));
 
   } // homeaxis()
 
@@ -2510,7 +2849,7 @@ void set_axis_is_at_home(const AxisEnum axis) {
   /**
    * Set the home offset for an axis.
    */
-  void set_home_offset(const AxisEnum axis, const_float_t v) {
+  void set_home_offset(const AxisEnum axis, const float v) {
     home_offset[axis] = v;
   }
 #endif

@@ -345,6 +345,14 @@ void setup_endstop_interrupts() {
       pciSetup(Z_MIN_PROBE_PIN);
     #endif
   #endif
+  #if USE_CALIBRATION
+    #if (digitalPinToInterrupt(CALIBRATION_PIN) != NOT_AN_INTERRUPT)
+      _ATTACH(CALIBRATION_PIN);
+    #else
+      static_assert(digitalPinHasPCICR(CALIBRATION_PIN), "CALIBRATION_PIN is not interrupt-capable. Disable ENDSTOP_INTERRUPTS_FEATURE to continue.");
+      pciSetup(CALIBRATION_PIN);
+    #endif
+  #endif
 
   // If we arrive here without raising an assertion, each pin has either an EXT-interrupt or a PCI.
 }

@@ -34,8 +34,6 @@
 // Ignore temp readings during development.
 //#define BOGUS_TEMPERATURE_GRACE_PERIOD    2000
 
-#define LED_PIN                             PD8
-
 // Onboard I2C EEPROM
 #if ANY(NO_EEPROM_SELECTED, I2C_EEPROM)
   #undef NO_EEPROM_SELECTED
@@ -43,8 +41,12 @@
   #define SOFT_I2C_EEPROM                         // Force the use of Software I2C
   #define I2C_SCL_PIN                       PB6
   #define I2C_SDA_PIN                       PB7
-  #define MARLIN_EEPROM_SIZE              0x1000  // 4K
+  #define MARLIN_EEPROM_SIZE             0x1000U  // 4K
 #endif
+
+#define BOARD_LCD_SERIAL_PORT 1
+
+#define LED_PIN                             PD8
 
 //
 // Servos
@@ -247,7 +249,7 @@
       #define LCD_BACKLIGHT_PIN             -1
       #define NEOPIXEL_PIN           EXP1_02_PIN
     #else
-      #error "Only FYSETC_MINI_12864_2_1 / MKS_MINI_12864_V3 / BTT_MINI_12864 / BEEZ_MINI_12864 are currently supported on the BIGTREE_SKR_MINI_E3 with SKR_MINI_SCREEN_ADAPTER."
+      #error "Only FYSETC_MINI_12864_2_1 / MKS_MINI_12864_V3 / BTT_MINI_12864 / BEEZ_MINI_12864 are currently supported on the SKR Mini E3 with SKR_MINI_SCREEN_ADAPTER."
     #endif
 
   #else
@@ -374,7 +376,7 @@
       #define LCD_BACKLIGHT_PIN             -1
 
     #else
-      #error "Only CR10_STOCKDISPLAY, ZONESTAR_LCD, ENDER2_STOCKDISPLAY, MKS_MINI_12864, FYSETC_MINI_12864_2_1, and TFTGLCD_PANEL_(SPI|I2C) are currently supported on the BIGTREE_SKR_MINI_E3."
+      #error "Only CR10_STOCKDISPLAY, ZONESTAR_LCD, ENDER2_STOCKDISPLAY, MKS_MINI_12864, FYSETC_MINI_12864_2_1, and TFTGLCD_PANEL_(SPI|I2C) are currently supported on the SKR Mini E3."
     #endif
 
   #endif // SKR_MINI_SCREEN_ADAPTER
@@ -443,7 +445,6 @@
 #define ONBOARD_SD_CS_PIN                   PA4   // Chip select for "System" SD card
 
 #define ENABLE_SPI1
-#define SDSS                   ONBOARD_SD_CS_PIN
 #define SD_SS_PIN              ONBOARD_SD_CS_PIN
 #define SD_SCK_PIN                          PA5
 #define SD_MISO_PIN                         PA6

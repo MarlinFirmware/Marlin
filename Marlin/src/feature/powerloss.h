@@ -30,12 +30,16 @@
 
 #include "../inc/MarlinConfig.h"
 
+#if ENABLED(CANCEL_OBJECTS)
+  #include "cancel_object.h"
+#endif
+
 #if ENABLED(GCODE_REPEAT_MARKERS)
-  #include "../feature/repeat.h"
+  #include "repeat.h"
 #endif
 
 #if ENABLED(MIXING_EXTRUDER)
-  #include "../feature/mixing.h"
+  #include "mixing.h"
 #endif
 
 #if !defined(POWER_LOSS_STATE) && PIN_EXISTS(POWER_LOSS)
@@ -59,8 +63,15 @@ typedef struct {
   // Machine state
   xyze_pos_t current_position;
   uint16_t feedrate;
+  int16_t feedrate_percentage;
+  uint16_t flow_percentage[EXTRUDERS];
 
   float zraise;
+
+  // Canceled objects
+  #if ENABLED(CANCEL_OBJECTS)
+    cancel_state_t cancel_state;
+  #endif
 
   // Repeat information
   #if ENABLED(GCODE_REPEAT_MARKERS)
@@ -226,7 +237,7 @@ class PrintJobRecovery {
     static void write();
 
     #if ENABLED(BACKUP_POWER_SUPPLY)
-      static void retract_and_lift(const_float_t zraise);
+      static void retract_and_lift(const float zraise);
     #endif
 
     #if PIN_EXISTS(POWER_LOSS) || ENABLED(DEBUG_POWER_LOSS_RECOVERY)

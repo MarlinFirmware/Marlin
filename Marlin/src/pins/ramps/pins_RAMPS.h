@@ -59,6 +59,8 @@
   #define BOARD_INFO_NAME "RAMPS 1.4"
 #endif
 
+#define BOARD_LCD_SERIAL_PORT 2
+
 //
 // Servos
 //
@@ -231,20 +233,26 @@
   #define MOSFET_D_PIN                        -1
 #endif
 
-#define HEATER_0_PIN                MOSFET_A_PIN
+#ifndef HEATER_0_PIN
+  #define HEATER_0_PIN              MOSFET_A_PIN
+#endif
 
-#if FET_ORDER_EFB                                 // Hotend, Fan, Bed
+#if ENABLED(FET_ORDER_EFB)                        // Hotend, Fan, Bed
   #ifndef HEATER_BED_PIN
     #define HEATER_BED_PIN          MOSFET_C_PIN
   #endif
-#elif FET_ORDER_EEF                               // Hotend, Hotend, Fan
-  #define HEATER_1_PIN              MOSFET_B_PIN
-#elif FET_ORDER_EEB                               // Hotend, Hotend, Bed
-  #define HEATER_1_PIN              MOSFET_B_PIN
+#elif ENABLED(FET_ORDER_EEF)                      // Hotend, Hotend, Fan
+  #ifndef HEATER_1_PIN
+    #define HEATER_1_PIN            MOSFET_B_PIN
+  #endif
+#elif ENABLED(FET_ORDER_EEB)                      // Hotend, Hotend, Bed
+  #ifndef HEATER_1_PIN
+    #define HEATER_1_PIN            MOSFET_B_PIN
+  #endif
   #ifndef HEATER_BED_PIN
     #define HEATER_BED_PIN          MOSFET_C_PIN
   #endif
-#elif FET_ORDER_EFF                               // Hotend, Fan, Fan
+#elif ENABLED(FET_ORDER_EFF)                      // Hotend, Fan, Fan
   #ifndef FAN1_PIN
     #define FAN1_PIN                MOSFET_C_PIN
   #endif
@@ -253,9 +261,13 @@
     #define HEATER_BED_PIN          MOSFET_C_PIN
   #endif
   #if ANY(HAS_MULTI_HOTEND, HEATERS_PARALLEL)
-    #define HEATER_1_PIN            MOSFET_D_PIN
+    #ifndef HEATER_1_PIN
+      #define HEATER_1_PIN          MOSFET_D_PIN
+    #endif
   #else
-    #define FAN1_PIN                MOSFET_D_PIN
+    #ifndef FAN1_PIN
+      #define FAN1_PIN              MOSFET_D_PIN
+    #endif
   #endif
 #endif
 
@@ -264,7 +276,7 @@
     #define FAN0_PIN                MOSFET_B_PIN
   #elif ANY(FET_ORDER_EEF, FET_ORDER_SF)          // Hotend, Hotend, Fan or Spindle, Fan
     #define FAN0_PIN                MOSFET_C_PIN
-  #elif FET_ORDER_EEB                             // Hotend, Hotend, Bed
+  #elif ENABLED(FET_ORDER_EEB)                    // Hotend, Hotend, Bed
     #define FAN0_PIN                           4  // IO pin. Buffer needed
   #else                                           // Non-specific are "EFB" (i.e., "EFBF" or "EFBE")
     #define FAN0_PIN                MOSFET_B_PIN
@@ -274,8 +286,8 @@
 //
 // Misc. Functions
 //
-#ifndef SDSS
-  #define SDSS                           AUX3_06
+#ifndef SD_SS_PIN
+  #define SD_SS_PIN                      AUX3_06
 #endif
 #define LED_PIN                               13
 
@@ -474,15 +486,15 @@
 #endif
 
 //
-// AUX1    5V  GND D2  D1
+// AUX1    5V  GND D1  D0
 //          2   4   6   8
 //          1   3   5   7
 //         5V  GND A3  A4
 //
 #define AUX1_05                               57  // (A3)
-#define AUX1_06                                2
+#define AUX1_06                                1  // TX0
 #define AUX1_07                               58  // (A4)
-#define AUX1_08                                1
+#define AUX1_08                                0  // RX0
 
 //
 // AUX2    GND A9 D40 D42 A11
@@ -740,8 +752,9 @@
       #define BTN_EN1                    AUX4_04
       #define BTN_EN2                    AUX4_06
       #define BTN_ENC                    AUX4_03
-      #define LCD_SDSS                      SDSS
+      #define LCD_SDSS_PIN             SD_SS_PIN
       #define KILL_PIN               EXP2_08_PIN
+      #undef LCD_PINS_EN                          // not used, causes false pin conflict report
 
     #elif ENABLED(LCD_I2C_VIKI)
 
@@ -749,7 +762,7 @@
       #define BTN_EN2                    AUX2_08
       #define BTN_ENC                         -1
 
-      #define LCD_SDSS                      SDSS
+      #define LCD_SDSS_PIN             SD_SS_PIN
       #ifndef SD_DETECT_PIN
         #define SD_DETECT_PIN        EXP2_07_PIN
       #endif
@@ -789,7 +802,7 @@
       #define BTN_EN2                EXP1_01_PIN
       #define BTN_ENC                EXP2_03_PIN
 
-      #define LCD_SDSS                      SDSS
+      #define LCD_SDSS_PIN             SD_SS_PIN
       #ifndef SD_DETECT_PIN
         #define SD_DETECT_PIN        EXP2_07_PIN
       #endif
@@ -819,7 +832,7 @@
 
       #elif ENABLED(FYSETC_MINI_12864)
 
-        // From https://wiki.fysetc.com/Mini12864_Panel/
+        // From https://wiki.fysetc.com/docs/Mini12864Panel
 
         #define DOGLCD_A0            EXP1_04_PIN
         #define DOGLCD_CS            EXP1_03_PIN
@@ -851,7 +864,7 @@
     #elif ENABLED(MINIPANEL)
 
       #ifndef BEEPER_PIN
-        #define BEEPER_PIN           AUX2_08_PIN
+        #define BEEPER_PIN               AUX2_08
       #endif
       #define LCD_BACKLIGHT_PIN          AUX2_10
 

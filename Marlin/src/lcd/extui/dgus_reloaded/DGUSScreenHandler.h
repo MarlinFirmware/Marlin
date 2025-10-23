@@ -53,11 +53,11 @@ public:
   static void filamentRunout(const ExtUI::extruder_t extruder);
 
   #if HAS_MEDIA
-    /// Marlin informed us that a new SD has been inserted.
+    // Marlin informed us that a new SD has been inserted.
     static void sdCardInserted();
-    /// Marlin informed us that the SD Card has been removed().
+    // Marlin informed us that the SD Card has been removed().
     static void sdCardRemoved();
-    /// Marlin informed us about a bad SD Card.
+    // Marlin informed us about a bad SD Card.
     static void sdCardError();
   #endif
 
@@ -70,8 +70,8 @@ public:
   #endif
 
   static void setMessageLine(const char * const msg, const uint8_t line);
-  static void setMessageLinePGM(PGM_P const msg, const uint8_t line);
-  static void setMessageLine(FSTR_P const msg, const uint8_t line) { setMessageLinePGM(FTOP(msg), line); }
+  static void setMessageLine_P(PGM_P const msg, const uint8_t line);
+  static void setMessageLine(FSTR_P const msg, const uint8_t line) { setMessageLine_P(FTOP(msg), line); }
 
   static void setStatusMessage(const char* msg, const millis_t duration=DGUS_STATUS_EXPIRATION_MS);
   static void setStatusMessage(FSTR_P const msg, const millis_t duration=DGUS_STATUS_EXPIRATION_MS);

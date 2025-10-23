@@ -37,7 +37,7 @@ namespace LanguageNarrow_pt {
   constexpr uint8_t CHARSIZE              = 2;
   LSTR LANGUAGE                           = _UxGT("Portuguese");
 
-  LSTR WELCOME_MSG                        = MACHINE_NAME _UxGT(" pronta.");
+  LSTR WELCOME_MSG                        = MACHINE_NAME_SUBST _UxGT(" pronta.");
   LSTR MSG_MEDIA_INSERTED                 = _UxGT("Cartão inserido");
   LSTR MSG_MEDIA_REMOVED                  = _UxGT("Cartão removido");
   LSTR MSG_MAIN_MENU                      = _UxGT("Menu principal");
@@ -75,6 +75,7 @@ namespace LanguageNarrow_pt {
   LSTR MSG_EXTRUDE                        = _UxGT("Extrudir");
   LSTR MSG_RETRACT                        = _UxGT("Retrair");
   LSTR MSG_MOVE_AXIS                      = _UxGT("Mover eixo");
+  LSTR MSG_PROBE_AND_LEVEL                = _UxGT("Calibrar e nivelar");
   LSTR MSG_MOVE_X                         = _UxGT("Mover X");
   LSTR MSG_MOVE_Y                         = _UxGT("Mover Y");
   LSTR MSG_MOVE_Z                         = _UxGT("Mover Z");
@@ -141,10 +142,18 @@ namespace LanguageNarrow_pt {
   LSTR MSG_AUTORETRACT                    = _UxGT(" Auto-Retract");
   LSTR MSG_FILAMENTCHANGE                 = _UxGT("Trocar filamento");
   LSTR MSG_FILAMENTCHANGE_E               = _UxGT("Trocar filamento *");
+
   LSTR MSG_ATTACH_MEDIA                   = _UxGT("Inici. cartão SD");
+  LSTR MSG_ATTACH_SD                      = _UxGT("Inici. cartão SD");
+  LSTR MSG_ATTACH_USB                     = _UxGT("Inici. flash USB");
   LSTR MSG_CHANGE_MEDIA                   = _UxGT("Trocar cartão SD");
+
   LSTR MSG_ZPROBE_OUT                     = _UxGT("Sensor fora/base");
+  LSTR MSG_ZPROBE_XOFFSET                 = _UxGT("Desvio X");
+  LSTR MSG_ZPROBE_YOFFSET                 = _UxGT("Desvio Y");
   LSTR MSG_ZPROBE_ZOFFSET                 = _UxGT("Desvio Z");
+  LSTR MSG_ZPROBE_OFFSET_N                = _UxGT("Desvio @");
+  LSTR MSG_BABYSTEP_PROBE_Z               = _UxGT("Passo Z ajuste");
   LSTR MSG_ENDSTOP_ABORT                  = _UxGT("Fim de curso");
   LSTR MSG_ERR_HEATING_FAILED             = _UxGT("Aquecimento falhou");
   LSTR MSG_ERR_MAXTEMP                    = _UxGT("Err: T Máxima");

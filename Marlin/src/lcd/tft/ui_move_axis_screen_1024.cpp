@@ -133,7 +133,7 @@ void MarlinUI::move_axis_screen() {
   motionAxisState.blocked = false;
   TERN_(TOUCH_SCREEN, touch.enable());
 
-  ui.clear_lcd();
+  ui.clear_for_drawing();
 
   TERN_(TOUCH_SCREEN, touch.clear());
 

@@ -25,6 +25,7 @@
  * Makerbase MKS SBASE pin assignments
  */
 
+#define ALLOW_LPC1768_OR_9
 #include "env_validate.h"
 
 #ifndef BOARD_INFO_NAME
@@ -176,7 +177,7 @@
    * The best solution is to use the custom cable to connect the LCD SD_DETECT to a pin NOT on EXP2.
    *
    * If you can't find a pin to use for the LCD SD_DETECT then comment out SD_DETECT_PIN and remove that wire
-   * from the the custom cable.
+   * from the custom cable.
    */
   #define SD_DETECT_PIN                PIN_P2_11  // J8-5 (moved from EXP2 P0.27)
   #define SD_SCK_PIN                   PIN_P1_22  // J8-2 (moved from EXP2 P0.7)
@@ -225,6 +226,8 @@
 #define EXP2_06_PIN                        P0_09
 #define EXP2_07_PIN                        P0_27
 
+#define EXP_REVERSE_KEYED
+
 //
 // LCD / Controller
 //
@@ -245,7 +248,7 @@
   #define BTN_EN1                    EXP2_05_PIN
   #define BTN_EN2                    EXP2_03_PIN
   #define LCD_PINS_RS                EXP1_04_PIN
-  #define LCD_SDSS                   EXP2_04_PIN
+  #define LCD_SDSS_PIN               EXP2_04_PIN
   #define LCD_PINS_EN                EXP1_03_PIN
   #define LCD_PINS_D4                EXP1_05_PIN
   #if ANY(VIKI2, miniVIKI)
@@ -294,7 +297,7 @@
 #endif // HAS_WIRED_LCD
 
 /**
- * Example for trinamic drivers using the J8 connector on MKs Sbase.
+ * Example for Trinamic drivers using the J8 connector on MKS Sbase.
  * 2130s need 1 pin for each driver. 2208/2209s need 2 pins for serial control.
  * This board does not have enough pins to use hardware serial.
  */

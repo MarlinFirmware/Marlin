@@ -58,10 +58,10 @@
  *
  *   L #  Layer       Layer height. (Height of nozzle above bed)  If not specified .20mm will be used.
  *
- *   O #  Ooooze      How much your nozzle will Ooooze filament while getting in position to print. This
- *                    is over kill, but using this parameter will let you get the very first 'circle' perfect
- *                    so you have a trophy to peel off of the bed and hang up to show how perfectly you have your
- *                    Mesh calibrated. If not specified, a filament length of .3mm is assumed.
+ *   O #  Ooze        How much your nozzle will Ooooze filament while getting in position to print. If not
+ *                    specified, a filament length of .3mm is assumed. This might be overkill, but this
+ *                    parameter ensures the very first 'circle' is perfect (providing an ideal trophy to hang
+ *                    up to show off your perfectly calibrated Mesh).
  *
  *   P #  Prime       Prime the nozzle with specified length of filament. If this parameter is not
  *                    given, no prime action will take place. If the parameter specifies an amount, that much
@@ -102,7 +102,7 @@
 #define G26_OK false
 #define G26_ERR true
 
-#include "../../gcode/gcode.h"
+#include "../gcode.h"
 #include "../../feature/bedlevel/bedlevel.h"
 
 #include "../../MarlinCore.h"
@@ -132,11 +132,11 @@
 #endif
 
 #ifndef G26_XY_FEEDRATE
-  #define G26_XY_FEEDRATE (PLANNER_XY_FEEDRATE() / 3.0)
+  #define G26_XY_FEEDRATE (PLANNER_XY_FEEDRATE_MM_S / 3.0)
 #endif
 
 #ifndef G26_XY_FEEDRATE_TRAVEL
-  #define G26_XY_FEEDRATE_TRAVEL (PLANNER_XY_FEEDRATE() / 1.5)
+  #define G26_XY_FEEDRATE_TRAVEL (PLANNER_XY_FEEDRATE_MM_S / 1.5)
 #endif
 
 #if CROSSHAIRS_SIZE >= INTERSECTION_CIRCLE_RADIUS
@@ -170,7 +170,7 @@ float g26_random_deviation = 0.0;
 
 #endif
 
-void move_to(const_float_t rx, const_float_t ry, const_float_t z, const_float_t e_delta) {
+void move_to(const float rx, const float ry, const float z, const float e_delta) {
   static float last_z = -999.99;
 
   const xy_pos_t dest = { rx, ry };
@@ -196,7 +196,7 @@ void move_to(const_float_t rx, const_float_t ry, const_float_t z, const_float_t 
   prepare_internal_move_to_destination(fr_mm_s);
 }
 
-void move_to(const xyz_pos_t &where, const_float_t de) { move_to(where.x, where.y, where.z, de); }
+void move_to(const xyz_pos_t &where, const float de) { move_to(where.x, where.y, where.z, de); }
 
 typedef struct {
   float extrusion_multiplier  = EXTRUSION_MULTIPLIER,
@@ -268,8 +268,10 @@ typedef struct {
 
     // If the end point of the line is closer to the nozzle, flip the direction,
     // moving from the end to the start. On very small lines the optimization isn't worth it.
-    if (dist_end < dist_start && (INTERSECTION_CIRCLE_RADIUS) < ABS(line_length))
-      return print_line_from_here_to_there(e, s);
+    if (dist_end < dist_start && (INTERSECTION_CIRCLE_RADIUS) < ABS(line_length)) {
+      print_line_from_here_to_there(e, s);
+      return;
+    }
 
     // Decide whether to retract & lift
     if (dist_start > 2.0) retract_lift_move(s);
@@ -783,7 +785,7 @@ void GcodeSuite::G26() {
 
         g26.recover_filament(destination);
 
-        { REMEMBER(fr, feedrate_mm_s, PLANNER_XY_FEEDRATE() * 0.1f);
+        { REMEMBER(fr, feedrate_mm_s, PLANNER_XY_FEEDRATE_MM_S * 0.1f);
           plan_arc(endpoint, arc_offset, false, 0);  // Draw a counter-clockwise arc
           destination = current_position;
         }

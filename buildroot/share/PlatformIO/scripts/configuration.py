@@ -3,7 +3,7 @@
 # configuration.py
 # Apply options from config.ini to the existing Configuration headers
 #
-import re, shutil, configparser, datetime
+import re, os, shutil, configparser, datetime
 from pathlib import Path
 
 verbose = 0
@@ -11,7 +11,7 @@ def blab(str,level=1):
     if verbose >= level: print(f"[config] {str}")
 
 def config_path(cpath):
-    return Path("Marlin", cpath, encoding='utf-8')
+    return Path("Marlin", cpath)
 
 # Apply a single name = on/off ; name = value ; etc.
 # TODO: Limit to the given (optional) configuration
@@ -28,7 +28,10 @@ def apply_opt(name, val, conf=None):
     # 7: Option value
     # 8: Whitespace after value
     # 9: End comment
-    regex = re.compile(rf'^(\s*)(//\s*)?(#define\s+)({name}\b)(\s?)(\s*)(.*?)(\s*)(//.*)?$', re.IGNORECASE)
+    regex = re.compile(
+        rf"^(\s*)(//\s*)?(#define\s+)({name}\b)(\s?)(\s*)(.*?)(\s*)(//.*)?$",
+        re.IGNORECASE
+    )
 
     # Find and enable and/or update all matches
     for file in ("Configuration.h", "Configuration_adv.h"):
@@ -110,7 +113,7 @@ def disable_all_options():
             match = regex.match(line)
             if match:
                 name = match[3].upper()
-                if name in ('CONFIGURATION_H_VERSION', 'CONFIGURATION_ADV_H_VERSION'): continue
+                if name in ('CONFIGURATION_H_VERSION', 'CONFIGURATION_ADV_H_VERSION', 'CONFIG_EXAMPLES_DIR'): continue
                 if name.startswith('_'): continue
                 found = True
                 # Comment out the define
@@ -141,8 +144,6 @@ def fetch_example(url):
     else:
         blab("Couldn't find curl or wget", -1)
         return False
-
-    import os
 
     # Reset configurations to default
     os.system("git checkout HEAD Marlin/*.h")
@@ -195,7 +196,7 @@ def apply_sections(cp, ckey='all'):
             apply_ini_by_name(cp, 'config:basic')
 
         # Apply historically Configuration_adv.h settings everywhere
-        # (Some of which rely on defines in 'Conditionals_LCD.h')
+        # (Some of which rely on defines in 'Conditionals-2-LCD.h')
         elif ckey in ('adv', 'advanced'):
             apply_ini_by_name(cp, 'config:advanced')
 
@@ -223,7 +224,7 @@ def apply_config_ini(cp):
             sect = 'base'
             if '@' in ckey: sect, ckey = map(str.strip, ckey.split('@'))
             cp2 = configparser.ConfigParser()
-            cp2.read(config_path(ckey))
+            cp2.read(config_path(ckey), encoding='utf-8')
             apply_sections(cp2, sect)
             ckey = 'base'
 
@@ -264,13 +265,13 @@ if __name__ == "__main__":
         if args[0].endswith('.ini'):
             ini_file = args[0]
         else:
-            print("Usage: %s <.ini file>" % sys.argv[0])
+            print("Usage: %s <.ini file>" % os.path.basename(sys.argv[0]))
     else:
         ini_file = config_path('config.ini')
 
     if ini_file:
         user_ini = configparser.ConfigParser()
-        user_ini.read(ini_file)
+        user_ini.read(ini_file, encoding='utf-8')
         apply_config_ini(user_ini)
 
 else:
@@ -279,11 +280,8 @@ else:
     #
     import pioutil
     if pioutil.is_pio_build():
-
-        Import("env")
-
         try:
-            verbose = int(env.GetProjectOption('custom_verbose'))
+            verbose = int(pioutil.env.GetProjectOption('custom_verbose'))
         except:
             pass
 

@@ -72,7 +72,7 @@ void DGUSReturnKeyCodeHandler::Command_MenuSelect(DGUS_VP &vp, void *data) {
       break;
 
     case DGUS_Data::MenuSelectCommand::Print:
-      if (ExtUI::isMediaInserted()) {
+      if (ExtUI::isMediaMounted()) {
         dgus_sdcard_handler.Reset();
         screen.triggerScreenChange(DGUS_ScreenID::FILE1);
       }
@@ -241,7 +241,7 @@ void DGUSReturnKeyCodeHandler::Command_CheckOK(DGUS_VP &vp, void *data) {
     #endif // HAS_FILAMENT_SENSOR
 
     case DGUS_Data::CheckOKCommand::SDCardCheck_Yes:
-      if (ExtUI::isMediaInserted()) {
+      if (ExtUI::isMediaMounted()) {
         dgus_sdcard_handler.Reset();
         screen.triggerScreenChange(DGUS_ScreenID::FILE1);
       }

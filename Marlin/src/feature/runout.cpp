@@ -33,7 +33,7 @@
 FilamentMonitor runout;
 
 bool FilamentMonitorBase::enabled = true,
-     FilamentMonitorBase::filament_ran_out;  // = false
+     FilamentMonitorBase::filament_ran_out; // = false
 
 #if ENABLED(HOST_ACTION_COMMANDS)
   bool FilamentMonitorBase::host_handling; // = false
@@ -51,6 +51,10 @@ bool FilamentMonitorBase::enabled = true,
   #if ENABLED(FILAMENT_MOTION_SENSOR)
     uint8_t FilamentSensorEncoder::motion_detected;
   #endif
+  #if ENABLED(FILAMENT_SWITCH_AND_MOTION)
+    bool RunoutResponseDelayed::ignore_motion = false;
+    float RunoutResponseDelayed::motion_distance_mm = FILAMENT_MOTION_DISTANCE_MM;
+  #endif
 #else
   int8_t RunoutResponseDebounced::runout_count[NUM_RUNOUT_SENSORS]; // = 0
 #endif
@@ -59,7 +63,7 @@ bool FilamentMonitorBase::enabled = true,
 // Filament Runout event handler
 //
 #include "../MarlinCore.h"
-#include "../feature/pause.h"
+#include "pause.h"
 #include "../gcode/queue.h"
 
 #if ENABLED(HOST_ACTION_COMMANDS)
@@ -71,6 +75,8 @@ bool FilamentMonitorBase::enabled = true,
 #endif
 
 void event_filament_runout(const uint8_t extruder) {
+
+  runout.init_for_restart(false); // Reset and disable
 
   if (did_pause_print) return;  // Action already in progress. Purge triggered repeated runout.
 
