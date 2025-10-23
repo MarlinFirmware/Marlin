@@ -1471,23 +1471,19 @@ void Stepper::apply_directions() {
         // For non ARM targets, we provide a fallback implementation. Really doubt it
         // will be useful, unless the processor is fast and 32bit
 
-        uint32_t t = bezier_AV * curr_step;               // t: Range 32 bits
-        uint64_t f = t;
+        uint32_t t = bezier_AV * curr_step;           // t: Range 32 bits
+        uint64_t f = t;                               // f: Range 64 bits
         #ifndef S_CURVE_FACTOR
-          f *= t;                                         // Range 32*2 = 64 bits (unsigned)
-          f >>= 32;                                       // Range 32 bits  (unsigned)
-          f *= t;                                         // Range 32*2 = 64 bits  (unsigned)
-          f >>= 32;                                       // Range 32 bits : f = t^3  (unsigned)
+          f *= t; f >>= 32;                           // f = t^2  (unsigned)
+          f *= t; f >>= 32;                           // f = t^3  (unsigned)
         #endif
-        int64_t acc = (int64_t) bezier_F << 31;           // Range 63 bits (signed)
-        acc += ((uint32_t) f >> 1) * (int64_t) bezier_C;  // Range 29bits + 31 = 60bits (plus sign)
-        f *= t;                                           // Range 32*2 = 64 bits
-        f >>= 32;                                         // Range 32 bits : f = t^3  (unsigned)
-        acc += ((uint32_t) f >> 1) * (int64_t) bezier_B;  // Range 29bits + 31 = 60bits (plus sign)
-        f *= t;                                           // Range 32*2 = 64 bits
-        f >>= 32;                                         // Range 32 bits : f = t^3  (unsigned)
-        acc += ((uint32_t) f >> 1) * (int64_t) bezier_A;  // Range 28bits + 31 = 59bits (plus sign)
-        acc >>= (31 + 7);                                 // Range 24bits (plus sign)
+        int64_t acc = int64_t(bezier_F) << 31;        // Range 63 bits (signed)
+        acc += uint32_t(f >> 1) * int64_t(bezier_C);  // Range 29bits + 31 = 60bits (plus sign)
+        f *= t; f >>= 32;                             // f = t^2 or t^4  (unsigned)
+        acc += uint32_t(f >> 1) * int64_t(bezier_B);  // Range 29bits + 31 = 60bits (plus sign)
+        f *= t; f >>= 32;                             // f = t^3 or t^5  (unsigned)
+        acc += uint32_t(f >> 1) * int64_t(bezier_A);  // Range 28bits + 31 = 59bits (plus sign)
+        acc >>= (31 + 7);                             // Range 24bits (plus sign)
         return (int32_t) acc;
 
       #endif
