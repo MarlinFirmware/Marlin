@@ -465,10 +465,7 @@ void menu_move() {
     BACK_ITEM(MSG_MOTION);
 
     bool show_state = c.active;
-    EDIT_ITEM(bool, MSG_FIXED_TIME_MOTION, &show_state, []{
-      FLIP(ftMotion.cfg.active);
-      ftMotion.update_shaping_params();
-    });
+    EDIT_ITEM(bool, MSG_FIXED_TIME_MOTION, &show_state, []{ (void)ftMotion.toggle(); });
 
     // Show only when FT Motion is active (or optionally always show)
     if (c.active || ENABLED(FT_MOTION_NO_MENU_TOGGLE)) {

@@ -20,6 +20,13 @@
  *
  */
 
+/**
+ * ft_motion.cpp - Singleton to execute Fixed Time Motion planning
+ *
+ * Fixed-Time Motion concept contributed by Ulendo with integration and
+ * overhaul optimizations by @thinkyhead, @narno2202, @dbuezas.
+ */
+
 #include "../inc/MarlinConfig.h"
 
 #if ENABLED(FT_MOTION)

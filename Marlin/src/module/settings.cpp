@@ -2518,7 +2518,7 @@ void MarlinSettings::postprocess() {
 
         #if HAS_TRINAMIC_CONFIG
 
-          #define SET_CURR(Q) stepper##Q.rms_current(currents.Q ? currents.Q : Q##_CURRENT)
+          #define SET_CURR(Q) stepper##Q.rms_current(currents.Q ?: Q##_CURRENT)
           if (!validating) {
             TERN_(X_IS_TRINAMIC,  SET_CURR(X));
             TERN_(Y_IS_TRINAMIC,  SET_CURR(Y));

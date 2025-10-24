@@ -66,6 +66,9 @@ marlin:
 	./buildroot/bin/mftest -a
 .PHONY: marlin
 
+clean:
+	rm -r .pio/build
+
 tests-single-ci:
 	export GIT_RESET_HARD=true
 	$(MAKE) tests-single-local TEST_TARGET=$(TEST_TARGET) PLATFORMIO_BUILD_FLAGS=-DGITHUB_ACTION
