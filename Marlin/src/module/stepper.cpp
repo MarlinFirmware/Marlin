@@ -21,33 +21,25 @@
  */
 
 /**
- * stepper.cpp - A singleton object to execute motion plans using stepper motors
- * Marlin Firmware
+ * stepper.cpp - Singleton to execute motion plans using stepper motors
  *
- * Derived from Grbl
- * Copyright (c) 2009-2011 Simen Svale Skogsrud
+ * Marlin uses the Bresenham algorithm. For a detailed explanation of theory and
+ * method see https://www.cs.helsinki.fi/group/goa/mallinnus/lines/bresenh.html
  *
- * Grbl is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Grbl is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with Grbl.  If not, see <https://www.gnu.org/licenses/>.
- */
-
-/**
  * Timer calculations informed by the 'RepRap cartesian firmware' by Zack Smith
  * and Philipp Tiefenbacher.
+ *
+ * Jerk controlled movements planner added Apr 2018 by Eduardo José Tagle.
+ * Equations based on Synthethos TinyG2 sources, but the fixed-point
+ * implementation is new, as we are running the ISR with a variable period.
+ * Also implemented the Bézier velocity curve evaluation in ARM assembler,
+ * to avoid impacting ISR speed.
+ *
+ * Fixed-Time Motion concept contributed by Ulendo with integration and
+ * overhaul optimizations by @thinkyhead, @narno2202, @dbuezas.
  */
 
-/**
- *         __________________________
+/**        __________________________
  *        /|                        |\     _________________         ^
  *       / |                        | \   /|               |\        |
  *      /  |                        |  \ / |               | \       s
@@ -68,19 +60,6 @@
  *    - Cruise while step_events_completed < block->decelerate_start.
  *    - Decelerate after that, until all steps are completed.
  *    - Reset the trapezoid generator.
- */
-
-/**
- * Marlin uses the Bresenham algorithm. For a detailed explanation of theory and
- * method see https://www.cs.helsinki.fi/group/goa/mallinnus/lines/bresenh.html
- */
-
-/**
- * Jerk controlled movements planner added Apr 2018 by Eduardo José Tagle.
- * Equations based on Synthethos TinyG2 sources, but the fixed-point
- * implementation is new, as we are running the ISR with a variable period.
- * Also implemented the Bézier velocity curve evaluation in ARM assembler,
- * to avoid impacting ISR speed.
  */
 
 #include "stepper.h"
@@ -3590,8 +3569,7 @@ void Stepper::report_positions() {
 
     if (last_set_direction != last_direction_bits) {
       // Apply directions (generally applying to the entire linear move)
-      #define _FTM_APPLY_DIR(A) if (last_direction_bits.A != last_set_direction.A) \
-                                  SET_STEP_DIR(A);
+      #define _FTM_APPLY_DIR(A) if (last_direction_bits.A != last_set_direction.A) SET_STEP_DIR(A);
       LOGICAL_AXIS_MAP(_FTM_APPLY_DIR);
 
       last_set_direction = last_direction_bits;

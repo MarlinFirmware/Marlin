@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2025 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -22,20 +22,13 @@
 #pragma once
 
 /****************************************************************************************
-* Teensy 4.1 (IMXRT1062) Breadboard pin assignments
-* Requires the Teensyduino software with Teensy 4.1 selected in Arduino IDE!
+* Teensy 4.0 (IMXRT1062) Breadboard pin assignments
+* Requires the Teensyduino software with Teensy 4.0 selected in Arduino IDE!
 * https://www.pjrc.com/teensy/teensyduino.html
 ****************************************************************************************/
 
 #include "env_validate.h"
 
-#define BOARD_INFO_NAME "Teensy4.1"
+#define BOARD_INFO_NAME "Teensy4.0"
 
 #include "pins_TEENSY4x.h"
-
-// For the Ethernet Kit or WIZ812
-// https://www.pjrc.com/store/ethernet_kit.html
-// https://www.pjrc.com/teensy/td_libs_Ethernet.html)
-#if HAS_ETHERNET
-  #define ETHERNET_CS_PIN   10 // W5x00 module
-#endif

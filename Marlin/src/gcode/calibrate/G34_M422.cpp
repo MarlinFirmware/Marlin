@@ -236,10 +236,8 @@ void GcodeSuite::G34() {
             Z_TWEEN_SAFE_CLEARANCE                                     // z_clearance
           );
 
-          if (DEBUGGING(LEVELING)) {
-            DEBUG_ECHOLNPGM_P(PSTR("Probing X"), ppos.x, SP_Y_STR, ppos.y);
-            DEBUG_ECHOLNPGM("Height = ", z_probed_height);
-          }
+          if (DEBUGGING(LEVELING))
+            DEBUG_ECHOLN(F("Probing X"), ppos.x, FPSTR(SP_Y_STR), ppos.y, F(" Height = "), z_probed_height);
 
           if (isnan(z_probed_height)) {
             SERIAL_ECHOLNPGM(STR_ERR_PROBING_FAILED);
