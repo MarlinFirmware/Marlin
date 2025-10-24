@@ -124,6 +124,11 @@ def main():
   else:
     config_path = "default"
 
+  try:
+    subprocess.run(['restore_configs'], check=True)
+  except FileNotFoundError:
+    print("restore_configs not found, skipping.")
+
   fetch_configs(branch, config_path)
 
 if __name__ == "__main__":
