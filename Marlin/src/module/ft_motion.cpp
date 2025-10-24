@@ -53,6 +53,8 @@ bool FTMotion::stepperCmdBuffHasData = false;   // The stepper buffer has items 
 
 // Private variables.
 
+bool FTMotion:: block_start = false;            // Will be set to true when a new block is loaded
+
 // NOTE: These are sized for Ulendo FBS use.
 xyze_trajectory_t    FTMotion::traj;            // = {0.0f} Storage for fixed-time-based trajectory.
 xyze_trajectoryMod_t FTMotion::trajMod;         // = {0.0f} Storage for fixed time trajectory window.
@@ -438,6 +440,8 @@ void FTMotion::reset() {
 
   traj.reset();
 
+  block_start = false;
+
   blockProcRdy = batchRdy = batchRdyForInterp = false;
 
   endPos_prevBlock.reset();
@@ -535,6 +539,7 @@ void FTMotion::setTrajectoryType(const TrajectoryType type) {
 // Load / convert block data from planner to fixed-time control variables.
 // Called from FTMotion::loop() at the fetch of the next planner block.
 void FTMotion::loadBlockData(block_t * const current_block) {
+  block_start = true; // Mark a new block
   // Cache the extruder index for this block
   TERN_(DISTINCT_E_FACTORS, block_extruder_axis = E_AXIS_N(current_block->extruder));
 
@@ -756,11 +761,15 @@ void FTMotion::generateStepsFromTrajectory(const uint32_t idx) {
     // Init the command to no STEP (Reverse DIR)
     cmd = 0;
 
-    // Accumulate the "error" for all axes according the fixed-point distance
-    step_error_q10 += delta_q10;
+   if(block_start)
+      block_start = false;
+    else {
+          // Accumulate the "error" for all axes according the fixed-point distance
+          step_error_q10 += delta_q10;
 
-    // Where the error has accumulated whole axis steps, add them to the command
-    LOGICAL_AXIS_MAP(RUN_AXIS);
+          // Where the error has accumulated whole axis steps, add them to the command
+          LOGICAL_AXIS_MAP(RUN_AXIS);
+    }
 
     // Next circular buffer index
     if (++stepperCmdBuff_produceIdx == (FTM_STEPPERCMD_BUFF_SIZE))

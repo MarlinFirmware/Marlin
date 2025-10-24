@@ -158,7 +158,11 @@ class FTMotion {
     static void setTrajectoryType(const TrajectoryType type);
     static TrajectoryType getTrajectoryType() { return trajectoryType; }
 
+    static int32_t stepperCmdBuffItems();
+
   private:
+
+    static bool block_start; // Flag to mark block start
 
     static xyze_trajectory_t traj;
     static xyze_trajectoryMod_t trajMod;
@@ -246,7 +250,6 @@ class FTMotion {
     // Private methods
     static void discard_planner_block_protected();
     static void runoutBlock();
-    static int32_t stepperCmdBuffItems();
     static void loadBlockData(block_t *const current_block);
     static void generateTrajectoryPointsFromBlock();
     static void generateStepsFromTrajectory(const uint32_t idx);

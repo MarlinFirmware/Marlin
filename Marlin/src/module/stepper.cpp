@@ -3573,24 +3573,31 @@ void Stepper::report_positions() {
     if (++ftMotion.stepperCmdBuff_consumeIdx == (FTM_STEPPERCMD_BUFF_SIZE))
       ftMotion.stepperCmdBuff_consumeIdx = 0;
 
-    USING_TIMED_PULSE();
+        #define _FTM_SET_MOVE(AXIS) axis_did_move.bset(_AXIS(AXIS), _FTM_STEP(AXIS));
 
-    // Get FT Motion command flags for axis STEP / DIR
-    #define _FTM_STEP(AXIS) TEST(command, FT_BIT_STEP_##AXIS)
-    #define _FTM_DIR(AXIS) TEST(command, FT_BIT_DIR_##AXIS)
+    #define _FTM_SET_DIR(AXIS) if (_FTM_STEP(AXIS)) last_direction_bits.bset(_AXIS(AXIS), _FTM_DIR(AXIS));
+    
+    // Pop one command from the buffer
+    const ft_command_t command = ftMotion.stepperCmdBuff[ftMotion.stepperCmdBuff_consumeIdx];
+    if (++ftMotion.stepperCmdBuff_consumeIdx == (FTM_STEPPERCMD_BUFF_SIZE))
+      ftMotion.stepperCmdBuff_consumeIdx = 0;
+    
+    // Test command for a block start
+    if((command == 0) && ftMotion.stepperCmdBuffItems()){
+      // Start of a block, pick the next buffer command and just set MOVE and DIR bits
+      const ft_command_t command = ftMotion.stepperCmdBuff[ftMotion.stepperCmdBuff_consumeIdx];
+      LOGICAL_AXIS_MAP(_FTM_SET_MOVE);
+      LOGICAL_AXIS_MAP(_FTM_SET_DIR);
+      return;
+    }
+
+    USING_TIMED_PULSE();
 
     /**
      * Update direction bits for steppers that were stepped by this command.
      * HX, HY, HZ direction bits were set for Core kinematics
      * when the block was fetched and are not overwritten here.
      */
-
-    axis_did_move.reset();
-
-    #define _FTM_SET_MOVE_DIR(AXIS) if (_FTM_STEP(AXIS))  { last_direction_bits.bset(_AXIS(AXIS), _FTM_DIR(AXIS));\
-                                                            axis_did_move.bset(_AXIS(AXIS), true);\
-                                                          } 
-    LOGICAL_AXIS_MAP(_FTM_SET_MOVE_DIR);
 
     if (last_set_direction != last_direction_bits) {
       // Apply directions (generally applying to the entire linear move)
