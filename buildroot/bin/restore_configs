@@ -17,7 +17,10 @@ def use_example_configs():
     try:
         subprocess.run(['use_example_configs'], check=True)
     except FileNotFoundError:
-        print("use_example_configs not found, skipping.")
+        try:
+            subprocess.run(['./buildroot/bin/use_example_configs'], check=True)
+        except FileNotFoundError:
+            print("use_example_configs not found, skipping.")
     pass
 
 if len(sys.argv) > 1 and sys.argv[1] in ['-d', '--default']:
