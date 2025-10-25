@@ -1530,19 +1530,16 @@ void Stepper::isr() {
         if (!ftMotion_nextStepperISR) ftMotion_stepper();
         TERN_(BABYSTEPPING, if (!nextBabystepISR) nextBabystepISR = babystepping_isr());
 
-
         // ^== Time critical. NOTHING besides pulse generation should be above here!!!
+        
         // Enable ISRs to reduce latency for higher priority ISRs
         hal.isr_on();
 
         if (!ftMotion_nextStepperISR) ftMotion_nextStepperISR = ftMotion.stepping.plan();
 
         interval = HAL_TIMER_TYPE_MAX;         // Time until the next step
-
         NOMORE(interval, ftMotion_nextStepperISR);
         TERN_(BABYSTEPPING, NOMORE(interval, nextBabystepISR));
-
-        // ---
 
         TERN_(BABYSTEPPING, nextBabystepISR -= interval);
         ftMotion_nextStepperISR -= interval;
@@ -3552,13 +3549,12 @@ void Stepper::report_positions() {
    * - Apply STEP/DIR along with any delays required. A command may be empty, with no STEP/DIR.
    */
   void Stepper::ftMotion_stepper() {
-    if (ftMotion.stepping.command_steps == 0) return;
+    AxisBits& step_bits = ftMotion.stepping.step_bits; // just an alias for prettier code
+    AxisBits& dir_bits = ftMotion.stepping.stepper_plan.dir_bits; // just an alias for prettier code
+
+    if (step_bits.bits == 0) return;
 
     USING_TIMED_PULSE();
-
-    // Get FT Motion command flags for axis STEP / DIR
-    #define _FTM_STEP(AXIS) TEST(ftMotion.stepping.command_steps, FT_BIT_STEP_##AXIS)
-    #define _FTM_DIR(AXIS) TEST(ftMotion.stepping.stepper_data.command_directions, FT_BIT_DIR_##AXIS)
 
     /**
      * Update direction bits for steppers that were stepped by this command.
@@ -3566,7 +3562,7 @@ void Stepper::report_positions() {
      * when the block was fetched and are not overwritten here.
      */
 
-    #define _FTM_SET_DIR(AXIS) if (_FTM_STEP(AXIS)) last_direction_bits.bset(_AXIS(AXIS), _FTM_DIR(AXIS));
+    #define _FTM_SET_DIR(A) if (step_bits.A) last_direction_bits.A = dir_bits.A;
     LOGICAL_AXIS_MAP(_FTM_SET_DIR);
 
     if (last_set_direction != last_direction_bits) {
@@ -3581,7 +3577,7 @@ void Stepper::report_positions() {
     }
 
     // Start step pulses. Edge stepping will toggle the STEP pin.
-    #define _FTM_STEP_START(A) A##_APPLY_STEP(_FTM_STEP(A), false);
+    #define _FTM_STEP_START(A) A##_APPLY_STEP(step_bits.A, false);
     LOGICAL_AXIS_MAP(_FTM_STEP_START);
 
     // Apply steps via I2S
@@ -3591,7 +3587,7 @@ void Stepper::report_positions() {
     START_TIMED_PULSE();
 
     // Update step counts
-    #define _FTM_STEP_COUNT(A) if (_FTM_STEP(A)) count_position.A += last_direction_bits.A ? 1 : -1;
+    #define _FTM_STEP_COUNT(A) if (step_bits.A) count_position.A += last_direction_bits.A ? 1 : -1;
     LOGICAL_AXIS_MAP(_FTM_STEP_COUNT);
 
     // Provide EDGE flags for E stepper(s)
@@ -3607,10 +3603,10 @@ void Stepper::report_positions() {
 
     // Only wait for axes without edge stepping
     const bool any_wait = false LOGICAL_AXIS_GANG(
-      || (!e_axis_has_dedge  && _FTM_STEP(E)),
-      || (!AXIS_HAS_DEDGE(X) && _FTM_STEP(X)), || (!AXIS_HAS_DEDGE(Y) && _FTM_STEP(Y)), || (!AXIS_HAS_DEDGE(Z) && _FTM_STEP(Z)),
-      || (!AXIS_HAS_DEDGE(I) && _FTM_STEP(I)), || (!AXIS_HAS_DEDGE(J) && _FTM_STEP(J)), || (!AXIS_HAS_DEDGE(K) && _FTM_STEP(K)),
-      || (!AXIS_HAS_DEDGE(U) && _FTM_STEP(U)), || (!AXIS_HAS_DEDGE(V) && _FTM_STEP(V)), || (!AXIS_HAS_DEDGE(W) && _FTM_STEP(W))
+      || (!e_axis_has_dedge  && step_bits.E),
+      || (!AXIS_HAS_DEDGE(X) && step_bits.X), || (!AXIS_HAS_DEDGE(Y) && step_bits.Y), || (!AXIS_HAS_DEDGE(Z) && step_bits.Z),
+      || (!AXIS_HAS_DEDGE(I) && step_bits.I), || (!AXIS_HAS_DEDGE(J) && step_bits.J), || (!AXIS_HAS_DEDGE(K) && step_bits.K),
+      || (!AXIS_HAS_DEDGE(U) && step_bits.U), || (!AXIS_HAS_DEDGE(V) && step_bits.V), || (!AXIS_HAS_DEDGE(W) && step_bits.W)
     );
 
     // Allow pulses to be registered by stepper drivers

@@ -3678,4 +3678,5 @@
                                                       //   2HEI     : FTM_RATIO * 3 / 2
                                                       //   3HEI     : FTM_RATIO * 2
   #define FTM_SMOOTHING_ORDER 5                       // 3 to 5 is closest to gaussian
+  #define FTM_BUFFER_MASK (FTM_BUFFER_SIZE - 1u)
 #endif

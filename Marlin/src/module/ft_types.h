@@ -44,26 +44,13 @@ enum dynFreqMode_t : uint8_t {
 #define AXIS_IS_SHAPING(A)    TERN0(FTM_SHAPER_##A, (ftMotion.cfg.shaper.A != ftMotionShaper_NONE))
 #define AXIS_IS_EISHAPING(A)  TERN0(FTM_SHAPER_##A, WITHIN(ftMotion.cfg.shaper.A, ftMotionShaper_EI, ftMotionShaper_3HEI))
 
-// TODO: Convert ft_command_t to a struct with bitfields instead of using a primitive type
-enum {
-  LOGICAL_AXIS_PAIRED_LIST(
-    FT_BIT_DIR_E, FT_BIT_STEP_E,
-    FT_BIT_DIR_X, FT_BIT_STEP_X, FT_BIT_DIR_Y, FT_BIT_STEP_Y, FT_BIT_DIR_Z, FT_BIT_STEP_Z,
-    FT_BIT_DIR_I, FT_BIT_STEP_I, FT_BIT_DIR_J, FT_BIT_STEP_J, FT_BIT_DIR_K, FT_BIT_STEP_K,
-    FT_BIT_DIR_U, FT_BIT_STEP_U, FT_BIT_DIR_V, FT_BIT_STEP_V, FT_BIT_DIR_W, FT_BIT_STEP_W
-  ),
-  FT_BIT_COUNT
-};
-
-typedef bits_t(FT_BIT_COUNT) ft_command_t;
-
-typedef struct stepper_data {
-  ft_command_t command_directions;  // Holds only FT_BIT_DIR_## bits, no steps.
+typedef struct stepper_plan {
+  AxisBits dir_bits;
   XYZEval<uint32_t> advance_dividend_q32{0};
   void reset(){
     advance_dividend_q32 = 0;
   }
-} stepper_data_t;
+} stepper_plan_t;
 
 // Emitters for code that only cares about shaped XYZE
 #if HAS_FTM_SHAPING

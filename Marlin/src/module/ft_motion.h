@@ -177,40 +177,89 @@ class FTMotion {
 
 
     typedef struct Stepping {
-      stepper_data_t stepper_data;
+      stepper_plan_t stepper_plan;
       XYZEval<uint32_t> delta_error_q32{1UL<<31};
-      ft_command_t command_steps;
+      AxisBits step_bits;
       uint32_t bresenham_iterations_pending;
 
       void reset(){
-        stepper_data.reset();
+        stepper_plan.reset();
         delta_error_q32 = {1UL<<31}; // start as 0.5 in q32 so steps are rounded
-        command_steps = 0;
+        step_bits = 0;
         bresenham_iterations_pending = 0;
       }
 
 
       #define INTERVAL_PER_ITERATION (STEPPER_TIMER_RATE / FTM_STEPPER_FS)
       #define INTERVAL_PER_TRAJ_POINT (STEPPER_TIMER_RATE / FTM_FS)
+      #define ITERATIONS_PER_TRAJ (FTM_STEPPER_FS * FTM_TS)
 
-      // Updates error and bresenham_iterations_pending, sets command_steps and returns interval until it executes
-      uint32_t advance_until_step(){
-        command_steps = 0;
+      // Updates error and bresenham_iterations_pending, sets step_bits and returns interval until it executes
+      uint32_t advance_until_step_old(){
+        step_bits = 0;
         uint32_t interval = 0;
-        while (!command_steps && bresenham_iterations_pending > 0) {
+        while (!step_bits && bresenham_iterations_pending > 0) {
           interval += INTERVAL_PER_ITERATION;
           bresenham_iterations_pending--;
           // Note: defining a macro inside a loop doesn't change what the preprocessor does. Keeping it here to be closest to its usage and easier to read
-          #define RUN_AXIS(A) do {                                                         \
-              delta_error_q32.A += stepper_data.advance_dividend_q32.A;                    \
-              bool do_step_now = delta_error_q32.A < stepper_data.advance_dividend_q32.A;  \
-              command_steps |= ft_command_t(do_step_now) << FT_BIT_STEP_##A;               \
-            } while (0);
+          #define RUN_AXIS(A)                                                          \
+              delta_error_q32.A += stepper_plan.advance_dividend_q32.A;                \
+              step_bits.A = delta_error_q32.A < stepper_plan.advance_dividend_q32.A;
           LOGICAL_AXIS_MAP(RUN_AXIS);
           #undef RUN_AXIS
         }
         return interval;
       }
+
+      // Updates error and bresenham_iterations_pending, sets step_bits and returns interval until it executes
+      // For perf, it searches in powers of two instead of bresenham by one until a step is due.
+      // equivalent to iterations = (space/dividend).small() but avoiding division
+      uint32_t advance_until_step() {
+        uint32_t iterations = 0;
+        { // block just to group variables
+          XYZEval<uint32_t> dividend_scaled = stepper_plan.advance_dividend_q32;
+          uint32_t jump = 1;
+
+          XYZEval<uint32_t> space = -delta_error_q32 + UINT32_MAX; // How much accumulation until a step in any axis is due
+                                                                   // scalar in the right hand because types.h is missing scalar on left cases
+          // using halves since we'll double the dividend and iteration_multiplier inside the while.
+          XYZEval<uint32_t> half_space = space >> 1;                         // ensures (dividend_scaled<<1) <= space
+          uint32_t half_pending = (bresenham_iterations_pending - 1) >> 1;   // ensures (iter<<1) < pending
+
+          // —— Grow phase: keep doubling until right before a step would occur (or pending iterations exhausted)
+          while (dividend_scaled <= half_space && jump <= half_pending) {
+            jump <<= 1;               // stays < pending
+            dividend_scaled <<= 1;    // safe: fits after doubling
+          }
+
+          // —— Shrink phase: keep adding and halving until there's 1 iteration left for actual stepping
+          while (bresenham_iterations_pending > 1 && jump > 0) {
+            if (jump < bresenham_iterations_pending && dividend_scaled <= space) {
+              space -= dividend_scaled;
+              bresenham_iterations_pending -= jump;
+              delta_error_q32 += dividend_scaled;
+              iterations += jump;
+            }
+            dividend_scaled >>= 1;
+            jump >>= 1;
+          }
+        }
+        step_bits = 0;
+        // if there are still iteration pending (should be exactly 1), run through it
+        if (bresenham_iterations_pending) {
+          iterations++;
+          bresenham_iterations_pending--;
+          #define RUN_AXIS(A)                                                        \
+            delta_error_q32.A += stepper_plan.advance_dividend_q32.A;                \
+            step_bits.A = delta_error_q32.A < stepper_plan.advance_dividend_q32.A;
+          LOGICAL_AXIS_MAP(RUN_AXIS);
+          #undef RUN_AXIS
+        }
+
+        // TODO: find out why not subtracting 1 results in 1 bad pulse train per trajectory point.
+        return (iterations - 1) * INTERVAL_PER_ITERATION;
+      }
+
 
       /**
        * If bresenham_iterations_pending, advance to next actual step.
@@ -220,33 +269,28 @@ class FTMotion {
       uint32_t plan() {
         if (bresenham_iterations_pending > 0) return advance_until_step();
 
-        if (stepper_data_is_empty()) {
+        if (stepper_plan_is_empty()) {
           bresenham_iterations_pending = 0;
-          command_steps = 0;
+          step_bits = 0;
           return HAL_TIMER_TYPE_MAX;
         }
 
-        ft_command_t old_directions = stepper_data.command_directions;
-
-        stepper_data = stepper_data_buff[stepper_data_tail];
-        if (++stepper_data_tail == FTM_BUFFER_SIZE) stepper_data_tail = 0;
-
-        const ft_command_t dir_flip_mask = old_directions ^ stepper_data.command_directions;  // axes that must toggle now
+        AxisBits old_dir_bits = stepper_plan.dir_bits;
+        stepper_plan = dequeue_stepper_plan();
+        const AxisBits dir_flip_mask = old_dir_bits ^ stepper_plan.dir_bits;  // axes that must toggle now
         if (dir_flip_mask) {
-          #define _HANDLE_DIR_CHANGES(A) \
-            if (dir_flip_mask & _BV(FT_BIT_DIR_##A)) delta_error_q32.A = -delta_error_q32.A;
+          #define _HANDLE_DIR_CHANGES(A) if (dir_flip_mask.A) delta_error_q32.A = -delta_error_q32.A;
           LOGICAL_AXIS_MAP(_HANDLE_DIR_CHANGES);
           #undef _HANDLE_DIR_CHANGES
         }
 
-        if (stepper_data.advance_dividend_q32 == 0) {
-          // don't waste time in zero motion trajs
+        if (stepper_plan.advance_dividend_q32 == 0) {
+          // don't waste time in zero motion traj points
           bresenham_iterations_pending = 0;
-          command_steps = 0;
+          step_bits = 0;
           return INTERVAL_PER_TRAJ_POINT;
         }
 
-        constexpr float ITERATIONS_PER_TRAJ = FTM_STEPPER_FS * FTM_TS;
         bresenham_iterations_pending = ITERATIONS_PER_TRAJ;
         return advance_until_step();
       }
@@ -325,17 +369,37 @@ class FTMotion {
     // Buffers
     static void discard_planner_block_protected();
     static void runoutBlock();
-    static void fill_stepper_data_buffer();
+    static void fill_stepper_plan_buffer();
     static xyze_float_t calc_traj_point(float dist);
-    static stepper_data_t calc_stepper_plan(xyze_float_t delta);
+    static stepper_plan_t calc_stepper_plan(xyze_float_t delta);
     static bool plan_next_block();
-    static bool stepper_data_is_full();
-    static bool stepper_data_is_empty();
-    static uint32_t stepper_data_count();
-    // stepper_data buffer variables.
-    static stepper_data_t stepper_data_buff[FTM_BUFFER_SIZE];
-    static uint32_t stepper_data_tail,
-                    stepper_data_head;
+    FORCE_INLINE static bool stepper_plan_is_empty() {
+      return stepper_plan_head == stepper_plan_tail;
+    }
+    FORCE_INLINE static bool stepper_plan_is_full() {
+      return ((stepper_plan_head + 1) & FTM_BUFFER_MASK) == stepper_plan_tail;
+    }
+    FORCE_INLINE static uint32_t stepper_plan_count() {
+      return (stepper_plan_head - stepper_plan_tail) & FTM_BUFFER_MASK;
+    }
+    // Enqueue a plan
+    FORCE_INLINE static void enqueue_stepper_plan(const stepper_plan_t& d) {
+      stepper_plan_buff[stepper_plan_head] = d;
+      stepper_plan_head = (stepper_plan_head + 1u) & FTM_BUFFER_MASK;
+    }
+    // Dequeue a plan.
+    // Zero-copy consume; caller must use it before next dequeue if they keep a ref.
+    // Done like this to avoid double copy.
+    // e.g do: stepper_plan_t data = dequeue_stepper_plan(); this is ok
+    FORCE_INLINE static stepper_plan_t& dequeue_stepper_plan() {
+      const uint32_t i = stepper_plan_tail;
+      stepper_plan_tail = (i + 1u) & FTM_BUFFER_MASK;
+      return stepper_plan_buff[i];
+    }
+    // stepper_plan buffer variables.
+    static stepper_plan_t stepper_plan_buff[FTM_BUFFER_SIZE];
+    static uint32_t stepper_plan_tail,
+                    stepper_plan_head;
     static xyze_float_t curr_steps;
 
 

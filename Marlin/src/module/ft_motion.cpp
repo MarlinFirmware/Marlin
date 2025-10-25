@@ -147,10 +147,10 @@ void FTMotion::loop() {
   }
   static uint32_t was = 0;
 
-  fill_stepper_data_buffer();
+  fill_stepper_plan_buffer();
 
   // Set busy status for use by planner.busy()
-  busy = stepping.bresenham_iterations_pending > 0 || !stepper_data_is_empty();
+  busy = stepping.bresenham_iterations_pending > 0 || !stepper_plan_is_empty();
 }
 
 #if HAS_FTM_SHAPING
@@ -344,7 +344,7 @@ void FTMotion::reset() {
   const bool did_suspend = stepper.suspend();
   endPos_prevBlock.reset();
   tau = 0;
-  stepper_data_tail = stepper_data_head = 0;
+  stepper_plan_tail = stepper_plan_head = 0;
   stepping.reset();
   curr_steps.reset();
 
@@ -469,7 +469,7 @@ bool FTMotion::plan_next_block() {
 
     // Watch endstops until the move ends
     const millis_t move_end_ti = millis() + \
-      stepper_data_count() * FTM_TS + // Time to empty stepper command buffer
+      stepper_plan_count() * FTM_TS + // Time to empty stepper command buffer
       SEC_TO_MS(currentGenerator->getTotalDuration()) + // Time to finish this block
       SEC_TO_MS((FTM_TS) * num_samples_shaper_settle()); // Time for a rounout block
 
@@ -596,15 +596,27 @@ xyze_float_t FTMotion::calc_traj_point(float dist) {
 }
 
 
-stepper_data_t FTMotion::calc_stepper_plan(xyze_float_t delta){
-  stepper_data_t stepper_data;
+stepper_plan_t FTMotion::calc_stepper_plan(xyze_float_t traj_coords){
+  // Now convert trajectory to stepper data
+  #define _TOSTEPS(A, B) (traj_coords.A * planner.settings.axis_steps_per_mm[B])
+  xyze_float_t next_steps = LOGICAL_AXIS_ARRAY(
+    _TOSTEPS(e, block_extruder_axis),
+    _TOSTEPS(x, X_AXIS), _TOSTEPS(y, Y_AXIS), _TOSTEPS(z, Z_AXIS),
+    _TOSTEPS(i, I_AXIS), _TOSTEPS(j, J_AXIS), _TOSTEPS(k, K_AXIS),
+    _TOSTEPS(u, U_AXIS), _TOSTEPS(v, V_AXIS), _TOSTEPS(w, W_AXIS)
+  );
+  #undef _TOSTEPS
+  
+  xyze_float_t delta = (next_steps - curr_steps);
+  curr_steps = next_steps;
+
+  stepper_plan_t stepper_plan;
   // Handle directions
-  #define _PRELOAD_DIRECTIONS(A) bitWrite(stepper_data.command_directions, FT_BIT_DIR_##A, (delta.A > 0));
-  LOGICAL_AXIS_MAP(_PRELOAD_DIRECTIONS);
-  #undef _PRELOAD_DIRECTIONS
+  #define SET_AXIS_DIR(A) stepper_plan.dir_bits.A = delta.A > 0;
+  LOGICAL_AXIS_MAP(SET_AXIS_DIR);
+  #undef SET_AXIS_DIR
 
   // Calculate dividend for Bresenham algorithm
-  constexpr float ITERATIONS_PER_TRAJ = FTM_STEPPER_FS * FTM_TS;
   constexpr float ITERATIONS_PER_TRAJ_INV = 1.0f / ITERATIONS_PER_TRAJ;
   xyze_float_t dividend = delta * ITERATIONS_PER_TRAJ_INV;
 
@@ -613,15 +625,15 @@ stepper_data_t FTMotion::calc_stepper_plan(xyze_float_t delta){
   LOGICAL_AXIS_MAP(_SHIFT32);
   #undef _SHIFT32
 
-  stepper_data.advance_dividend_q32 = dividend.asULong();
+  stepper_plan.advance_dividend_q32 = dividend.asULong();
 
-  return stepper_data;
+  return stepper_plan;
 }
 
 // Generate stepper data of the trajectory.
 // Called from FTMotion::loop()
-void FTMotion::fill_stepper_data_buffer() {
-  while (!stepper_data_is_full()) {
+void FTMotion::fill_stepper_plan_buffer() {
+  while (!stepper_plan_is_full()) {
     float total_duration = currentGenerator->getTotalDuration(); // if the current plan is empty, it will have zero duration.
     while (tau + FTM_TS > total_duration) {
       // Previous block plan consumed, try to get the next one.
@@ -635,25 +647,11 @@ void FTMotion::fill_stepper_data_buffer() {
     // Get distance from trajectory generator
     xyze_float_t traj_coords = calc_traj_point(currentGenerator->getDistanceAtTime(tau));
 
-    // Now convert trajectory to stepper data
-    #define _TOSTEPS(A, B) (traj_coords.A * planner.settings.axis_steps_per_mm[B])
-    xyze_float_t next_steps = LOGICAL_AXIS_ARRAY(
-      _TOSTEPS(e, block_extruder_axis),
-      _TOSTEPS(x, X_AXIS), _TOSTEPS(y, Y_AXIS), _TOSTEPS(z, Z_AXIS),
-      _TOSTEPS(i, I_AXIS), _TOSTEPS(j, J_AXIS), _TOSTEPS(k, K_AXIS),
-      _TOSTEPS(u, U_AXIS), _TOSTEPS(v, V_AXIS), _TOSTEPS(w, W_AXIS)
-    );
-    #undef _TOSTEPS
-
-    xyze_float_t delta = (next_steps - curr_steps);
-
-    stepper_data_t data_point = calc_stepper_plan(delta);
+    stepper_plan_t plan = calc_stepper_plan(traj_coords);
 
     // Store in buffer
-    stepper_data_buff[stepper_data_head] = data_point;
-    if (++stepper_data_head == FTM_BUFFER_SIZE) stepper_data_head = 0;
+    enqueue_stepper_plan(plan);
 
-    curr_steps = next_steps;
   }
 }
 
@@ -667,28 +665,9 @@ void FTMotion::fill_stepper_data_buffer() {
 // Variable definitions.
 //-----------------------------------------------------------------
 
-stepper_data_t FTMotion::stepper_data_buff[FTM_BUFFER_SIZE];
+stepper_plan_t FTMotion::stepper_plan_buff[FTM_BUFFER_SIZE];
 xyze_float_t FTMotion::curr_steps = {0.0f};
 
-uint32_t FTMotion::stepper_data_tail = 0,            // The index to consume from
-         FTMotion::stepper_data_head = 0;            // The index to produce into
-
-
-bool FTMotion::stepper_data_is_empty() {
-  return stepper_data_tail == stepper_data_head;
-}
-
-bool FTMotion::stepper_data_is_full() {
-  uint32_t next_head = stepper_data_head + 1;
-  if (next_head == FTM_BUFFER_SIZE) next_head = 0;
-  return next_head == stepper_data_tail;
-}
-
-uint32_t FTMotion::stepper_data_count() {
-  int32_t count = stepper_data_head - stepper_data_tail;
-  if (count < 0) count += FTM_BUFFER_SIZE;
-  return count;
-}
-
-
+uint32_t FTMotion::stepper_plan_tail = 0,            // The index to consume from
+         FTMotion::stepper_plan_head = 0;            // The index to produce into
 #endif // FT_MOTION
