@@ -182,7 +182,7 @@ void TFT_FSMC::abort() {
 }
 
 void TFT_FSMC::transmitDMA(uint32_t memoryIncrease, uint16_t *data, uint16_t count) {
-  if (DMAtx.Init.PeriphInc != memoryIncrease) {
+  if (!__IS_DMA_CONFIGURED(&DMAtx) || DMAtx.Init.PeriphInc != memoryIncrease) {
     DMAtx.Init.PeriphInc = memoryIncrease;
     HAL_DMA_Init(&DMAtx);
   }
@@ -191,7 +191,7 @@ void TFT_FSMC::transmitDMA(uint32_t memoryIncrease, uint16_t *data, uint16_t cou
 }
 
 void TFT_FSMC::transmit(uint32_t memoryIncrease, uint16_t *data, uint16_t count) {
-  if (DMAtx.Init.PeriphInc != memoryIncrease) {
+  if (!__IS_DMA_CONFIGURED(&DMAtx) || DMAtx.Init.PeriphInc != memoryIncrease) {
     DMAtx.Init.PeriphInc = memoryIncrease;
     HAL_DMA_Init(&DMAtx);
   }
