@@ -386,8 +386,25 @@ void FTMotion::discard_planner_block_protected() {
  */
 void FTMotion::runoutBlock() {
   startPos = endPos_prevBlock;
-  currentGenerator->planRunout(num_samples_shaper_settle() * FTM_TS);
-  ratio.reset();
+  uint32_t max_total_delay = 0;
+  if (ftMotion.cfg.axis_sync_enabled){
+    xyze_long_t delay = {0};
+    #if ENABLED(FTM_SMOOTHING)
+      #define _ADD(A) delay.A += smoothing.A.delay_samples;
+      LOGICAL_AXIS_MAP(_ADD)
+      #undef _ADD
+    #endif
+
+    #if HAS_FTM_SHAPING
+      // Ni[max_i] is the delay of the last pulse, but it is relative to Ni[0] (the negative delay centroid)
+      #define _ADD(A) delay.A += shaping.A.Ni[shaping.A.max_i] - shaping.A.Ni[0];
+      SHAPED_MAP(_ADD)
+      #undef _ADD
+    #endif
+    max_total_delay = delay.large();
+  }
+  currentGenerator->planRunout( max_total_delay * FTM_TS);
+  ratio.reset(); // setting ratio to zero means no motion on any axis
 }
 
 // Initializes storage variables before startup.
@@ -413,10 +430,11 @@ void FTMotion::setTrajectoryType(const TrajectoryType type) {
 // Called from FTMotion::loop() at the fetch of the next planner block.
 bool FTMotion::plan_next_block() {
   while (true) {
-    block_t * current_block = planner.get_current_block();
-    bool planner_finished = stepper.current_block && !current_block;
-    stepper.current_block = current_block;
+
+    bool had_block = !!stepper.current_block;
     discard_planner_block_protected();
+    block_t * current_block = planner.get_current_block();
+    bool planner_finished = had_block && !current_block;
 
     if (planner_finished) {
       runoutBlock();
@@ -426,6 +444,7 @@ bool FTMotion::plan_next_block() {
       currentGenerator->planRunout(0);
       return false;
     }
+    stepper.current_block = current_block;
 
     if (current_block->is_sync_pos()) stepper._set_position(current_block->position);
     if (current_block->is_sync()) continue;
@@ -606,7 +625,7 @@ stepper_plan_t FTMotion::calc_stepper_plan(xyze_float_t traj_coords){
     _TOSTEPS(u, U_AXIS), _TOSTEPS(v, V_AXIS), _TOSTEPS(w, W_AXIS)
   );
   #undef _TOSTEPS
-  
+
   xyze_float_t delta = (next_steps - curr_steps);
   curr_steps = next_steps;
 
