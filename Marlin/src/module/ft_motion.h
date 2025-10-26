@@ -41,6 +41,9 @@
   #endif
 #endif
 
+/**
+ * FTConfig - The active configured state of FT Motion
+ */
 typedef struct FTConfig {
   bool active = ENABLED(FTM_IS_DEFAULT_MOTION);           // Active (else standard motion)
   bool axis_sync_enabled = true;                          // Axis synchronization enabled
@@ -77,6 +80,9 @@ typedef struct FTConfig {
   float poly6_acceleration_overshoot; // Overshoot factor for Poly6 (1.25 to 2.0)
 } ft_config_t;
 
+/**
+ * FTMotion - Singleton class encapsulating Fixed Time Motion
+ */
 class FTMotion {
 
   public:
@@ -145,7 +151,7 @@ class FTMotion {
 
     #if HAS_FTM_SHAPING
       // Refresh gains and indices used by shaping functions.
-      static void update_shaping_params(void);
+      static void update_shaping_params();
     #endif
 
     #if ENABLED(FTM_SMOOTHING)
@@ -156,6 +162,13 @@ class FTMotion {
     #endif
 
     static void reset();                                  // Reset all states of the fixed time conversion to defaults.
+
+    static bool toggle() {
+      stepper.ftMotion_syncPosition();
+      FLIP(cfg.active);
+      update_shaping_params();
+      return cfg.active;
+    }
 
     // Trajectory generator selection
     static void setTrajectoryType(const TrajectoryType type);
@@ -269,8 +282,12 @@ class FTMotion {
 
 }; // class FTMotion
 
-extern FTMotion ftMotion;
+extern FTMotion ftMotion; // Use ftMotion.thing, not FTMotion::thing.
 
+/**
+ * Optional behavior to turn FT Motion off for homing/probing.
+ * Applies when FTM_HOME_AND_PROBE is disabled.
+ */
 typedef struct FTMotionDisableInScope {
   #if DISABLED(FTM_HOME_AND_PROBE)
     bool isactive;

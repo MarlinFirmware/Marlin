@@ -402,6 +402,7 @@ private:
 
     #endif // SDSORT_USES_RAM
 
+    static void flush_presort();
   #endif // SDCARD_SORT_ALPHA
 
   //
@@ -424,10 +425,6 @@ private:
     MediaFile parent, const char * const prepend, const uint8_t lsflags
     OPTARG(LONG_FILENAME_HOST_SUPPORT, const char * const prependLong=nullptr)
   );
-
-  #if ENABLED(SDCARD_SORT_ALPHA)
-    static void flush_presort();
-  #endif
 };
 
 #else // !HAS_MEDIA
