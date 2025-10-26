@@ -959,7 +959,6 @@ struct XYZEval {
   FI bool operator> (const XYZEval<T> &rs) const { return true LOGICAL_AXIS_GANG(&& e >  rs.e, && x >  rs.x, && y >  rs.y, && z >  rs.z, && i >  rs.i, && j >  rs.j, && k >  rs.k, && u >  rs.u, && v >  rs.v, && w >  rs.w); }
   FI bool operator>=(const XYZEval<T> &rs) const { return true LOGICAL_AXIS_GANG(&& e >= rs.e, && x >= rs.x, && y >= rs.y, && z >= rs.z, && i >= rs.i, && j >= rs.j, && k >= rs.k, && u >= rs.u, && v >= rs.v, && w >= rs.w); }
 
-
   FI bool operator< (const XYZval<T>  &rs) const { return true NUM_AXIS_GANG(&& x <  rs.x, && y <  rs.y, && z <  rs.z, && i <  rs.i, && j <  rs.j, && k <  rs.k, && u <  rs.u, && v <  rs.v, && w <  rs.w); }
   FI bool operator<=(const XYZval<T>  &rs) const { return true NUM_AXIS_GANG(&& x <= rs.x, && y <= rs.y, && z <= rs.z, && i <= rs.i, && j <= rs.j, && k <= rs.k, && u <= rs.u, && v <= rs.v, && w <= rs.w); }
   FI bool operator> (const XYZval<T>  &rs) const { return true NUM_AXIS_GANG(&& x >  rs.x, && y >  rs.y, && z >  rs.z, && i >  rs.i, && j >  rs.j, && k >  rs.k, && u >  rs.u, && v >  rs.v, && w >  rs.w); }
@@ -969,6 +968,9 @@ struct XYZEval {
 
 #include <string.h> // for memset
 
+//
+// Axis indexed arrays of type T (x[SIZE], y[SIZE], etc.)
+//
 template<typename T, int SIZE>
 struct XYZarray {
   typedef T el[SIZE];
@@ -1068,6 +1070,9 @@ struct XYZEarray {
   FI XYZEval<T> operator[](const int n) const { return XYZval<T>(LOGICAL_AXIS_ARRAY(e[n], x[n], y[n], z[n], i[n], j[n], k[n], u[n], v[n], w[n])); }
 };
 
+//
+// Axes mapped to bits in a mask of minimum size, bits_t(NUM_AXIS_HEADS)
+//
 class AxisBits {
 public:
   typedef bits_t(NUM_AXIS_HEADS) el;
