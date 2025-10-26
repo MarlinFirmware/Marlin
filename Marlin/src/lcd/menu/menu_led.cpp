@@ -34,15 +34,18 @@
   #include "../../feature/power.h"
 #endif
 
-#if ALL(CASE_LIGHT_MENU, CASELIGHT_USES_BRIGHTNESS)
+#if ENABLED(CASE_LIGHT_MENU)
   #include "../../feature/caselight.h"
-  void menu_case_light() {
-    START_MENU();
-    BACK_ITEM(MSG_CONFIGURATION);
-    EDIT_ITEM(percent, MSG_CASE_LIGHT_BRIGHTNESS, &caselight.brightness, 0, 255, caselight.update_brightness, true);
-    EDIT_ITEM(bool, MSG_CASE_LIGHT, &caselight.on, caselight.update_enabled);
-    END_MENU();
-  }
+
+  #if CASELIGHT_USES_BRIGHTNESS
+    void menu_case_light() {
+      START_MENU();
+      BACK_ITEM(MSG_CONFIGURATION);
+      EDIT_ITEM(percent, MSG_CASE_LIGHT_BRIGHTNESS, &caselight.brightness, 0, 255, caselight.update_brightness, true);
+      EDIT_ITEM(bool, MSG_CASE_LIGHT, &caselight.on, caselight.update_enabled);
+      END_MENU();
+    }
+  #endif
 #endif
 
 #if ENABLED(LED_CONTROL_MENU)
