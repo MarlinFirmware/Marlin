@@ -1204,7 +1204,7 @@
   /**
    * Advanced configuration
    */
-  #define FTM_BUFFER_SIZE               100     // Window size for trajectory generation, must be a power of 2 (e.g 64, 128, 256, ...)
+  #define FTM_BUFFER_SIZE               128     // Window size for trajectory generation, must be a power of 2 (e.g 64, 128, 256, ...)
                                                 // The total buffered time in seconds is (FTM_BUFFER_SIZE/FTM_FS)
   #define FTM_FS                       1000     // (Hz) Frequency for trajectory generation.
   #define FTM_STEPPER_FS          2'000'000     // (Hz) Frequency for stepper I/O update. Up to 2'000'000 in fastest boards
