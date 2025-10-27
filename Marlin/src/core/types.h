@@ -631,15 +631,15 @@ struct XYval {
   FI bool operator> (const XYval<T>   &rs) const { return x >  rs.x && y >  rs.y; }
   FI bool operator>=(const XYval<T>   &rs) const { return x >= rs.x && y >= rs.y; }
 
-  FI bool operator< (const XYZval<T>  &rs) const { return ENABLED(HAS_X_AXIS) XY_GANG(&& x <  rs.x, && y <  rs.y); }
-  FI bool operator<=(const XYZval<T>  &rs) const { return ENABLED(HAS_X_AXIS) XY_GANG(&& x <= rs.x, && y <= rs.y); }
-  FI bool operator> (const XYZval<T>  &rs) const { return ENABLED(HAS_X_AXIS) XY_GANG(&& x >  rs.x, && y >  rs.y); }
-  FI bool operator>=(const XYZval<T>  &rs) const { return ENABLED(HAS_X_AXIS) XY_GANG(&& x >= rs.x, && y >= rs.y); }
+  FI bool operator< (const XYZval<T>  &rs) const { return true XY_GANG(&& x <  rs.x, && y <  rs.y); }
+  FI bool operator<=(const XYZval<T>  &rs) const { return true XY_GANG(&& x <= rs.x, && y <= rs.y); }
+  FI bool operator> (const XYZval<T>  &rs) const { return true XY_GANG(&& x >  rs.x, && y >  rs.y); }
+  FI bool operator>=(const XYZval<T>  &rs) const { return true XY_GANG(&& x >= rs.x, && y >= rs.y); }
 
-  FI bool operator< (const XYZEval<T> &rs) const { return ENABLED(HAS_X_AXIS) XY_GANG(&& x <  rs.x, && y <  rs.y); }
-  FI bool operator<=(const XYZEval<T> &rs) const { return ENABLED(HAS_X_AXIS) XY_GANG(&& x <= rs.x, && y <= rs.y); }
-  FI bool operator> (const XYZEval<T> &rs) const { return ENABLED(HAS_X_AXIS) XY_GANG(&& x >  rs.x, && y >  rs.y); }
-  FI bool operator>=(const XYZEval<T> &rs) const { return ENABLED(HAS_X_AXIS) XY_GANG(&& x >= rs.x, && y >= rs.y); }
+  FI bool operator< (const XYZEval<T> &rs) const { return true XY_GANG(&& x <  rs.x, && y <  rs.y); }
+  FI bool operator<=(const XYZEval<T> &rs) const { return true XY_GANG(&& x <= rs.x, && y <= rs.y); }
+  FI bool operator> (const XYZEval<T> &rs) const { return true XY_GANG(&& x >  rs.x, && y >  rs.y); }
+  FI bool operator>=(const XYZEval<T> &rs) const { return true XY_GANG(&& x >= rs.x, && y >= rs.y); }
 
 };
 
@@ -788,7 +788,7 @@ struct XYZval {
   FI XYZval<T>& operator<<=(const int &p)        { NUM_AXIS_CODE(_LSE(x), _LSE(y), _LSE(z), _LSE(i), _LSE(j), _LSE(k), _LSE(u), _LSE(v), _LSE(w)); return *this; }
 
   // Exact comparisons. For floats a "NEAR" operation may be better.
-  FI bool operator==(const XYZEval<T> &rs) const { return true NUM_AXIS_GANG(&& x == rs.x, && y == rs.y, && z == rs.z, && i == rs.i, && j == rs.j, && k == rs.k, && u == rs.u, && v == rs.v, && w == rs.w); }
+  FI bool operator==(const XYZEval<T> &rs) const { return ENABLED(HAS_X_AXIS) NUM_AXIS_GANG(&& x == rs.x, && y == rs.y, && z == rs.z, && i == rs.i, && j == rs.j, && k == rs.k, && u == rs.u, && v == rs.v, && w == rs.w); }
   FI bool operator!=(const XYZEval<T> &rs) const { return !operator==(rs); }
 
   FI bool operator< (const XYZval<T>  &rs) const { return true NUM_AXIS_GANG(&& x <  rs.x, && y <  rs.y, && z <  rs.z, && i <  rs.i, && j <  rs.j, && k <  rs.k, && u <  rs.u, && v <  rs.v, && w <  rs.w); }
@@ -949,8 +949,8 @@ struct XYZEval {
   FI XYZEval<T>& operator<<=(const int &p)        { LOGICAL_AXIS_CODE(_LSE(e), _LSE(x), _LSE(y), _LSE(z), _LSE(i), _LSE(j), _LSE(k), _LSE(u), _LSE(v), _LSE(w)); return *this; }
 
   // Exact comparisons. For floats a "NEAR" operation may be better.
-  FI bool operator==(const XYZval<T>  &rs) const { return true NUM_AXIS_GANG(&& x == rs.x, && y == rs.y, && z == rs.z, && i == rs.i, && j == rs.j, && k == rs.k, && u == rs.u, && v == rs.v, && w == rs.w); }
-  FI bool operator==(const XYZEval<T> &rs) const { return true LOGICAL_AXIS_GANG(&& e == rs.e, && x == rs.x, && y == rs.y, && z == rs.z, && i == rs.i, && j == rs.j, && k == rs.k, && u == rs.u, && v == rs.v, && w == rs.w); }
+  FI bool operator==(const XYZval<T>  &rs) const { return ENABLED(HAS_X_AXIS) NUM_AXIS_GANG(&& x == rs.x, && y == rs.y, && z == rs.z, && i == rs.i, && j == rs.j, && k == rs.k, && u == rs.u, && v == rs.v, && w == rs.w); }
+  FI bool operator==(const XYZEval<T> &rs) const { return ANY(HAS_X_AXIS, HAS_EXTRUDERS) LOGICAL_AXIS_GANG(&& e == rs.e, && x == rs.x, && y == rs.y, && z == rs.z, && i == rs.i, && j == rs.j, && k == rs.k, && u == rs.u, && v == rs.v, && w == rs.w); }
   FI bool operator!=(const XYZval<T>  &rs) const { return !operator==(rs); }
   FI bool operator!=(const XYZEval<T> &rs) const { return !operator==(rs); }
 
