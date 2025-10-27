@@ -346,7 +346,7 @@ void FTMotion::reset() {
   tau = 0;
   stepper_plan_tail = stepper_plan_head = 0;
   stepping.reset();
-  curr_steps.reset();
+  curr_steps_q32_32.reset();
 
   #if HAS_FTM_SHAPING
     #define _RESET_ZI(A) ZERO(shaping.A.d_zi);
@@ -401,7 +401,7 @@ void FTMotion::runoutBlock() {
       SHAPED_MAP(_ADD)
       #undef _ADD
     #endif
-    max_total_delay = delay.large();
+    max_total_delay = delay.large() + 1;
   }
   currentGenerator->planRunout( max_total_delay * FTM_TS);
   ratio.reset(); // setting ratio to zero means no motion on any axis
@@ -614,40 +614,43 @@ xyze_float_t FTMotion::calc_traj_point(float dist) {
   return traj_coords;
 }
 
-
 stepper_plan_t FTMotion::calc_stepper_plan(xyze_float_t traj_coords){
-  // Now convert trajectory to stepper data
-  #define _TOSTEPS(A, B) (traj_coords.A * planner.settings.axis_steps_per_mm[B])
-  xyze_float_t next_steps = LOGICAL_AXIS_ARRAY(
-    _TOSTEPS(e, block_extruder_axis),
-    _TOSTEPS(x, X_AXIS), _TOSTEPS(y, Y_AXIS), _TOSTEPS(z, Z_AXIS),
-    _TOSTEPS(i, I_AXIS), _TOSTEPS(j, J_AXIS), _TOSTEPS(k, K_AXIS),
-    _TOSTEPS(u, U_AXIS), _TOSTEPS(v, V_AXIS), _TOSTEPS(w, W_AXIS)
+  // 1) Convert trajectory to step delta
+  #define _TOSTEPS_q32(A, B) int64_t(traj_coords.A * planner.settings.axis_steps_per_mm[B] * (1ull << 32))
+  XYZEval<int64_t> next_steps_q32_32 = LOGICAL_AXIS_ARRAY(
+    _TOSTEPS_q32(e, block_extruder_axis),
+    _TOSTEPS_q32(x, X_AXIS), _TOSTEPS_q32(y, Y_AXIS), _TOSTEPS_q32(z, Z_AXIS),
+    _TOSTEPS_q32(i, I_AXIS), _TOSTEPS_q32(j, J_AXIS), _TOSTEPS_q32(k, K_AXIS),
+    _TOSTEPS_q32(u, U_AXIS), _TOSTEPS_q32(v, V_AXIS), _TOSTEPS_q32(w, W_AXIS)
   );
-  #undef _TOSTEPS
+  #undef _TOSTEPS_q32
 
-  xyze_float_t delta = (next_steps - curr_steps);
-  curr_steps = next_steps;
-
+  constexpr uint32_t ITERATIONS_PER_TRAJ_INV_uq0_32 = (1ull << 32) / ITERATIONS_PER_TRAJ;
   stepper_plan_t stepper_plan;
-  // Handle directions
-  #define SET_AXIS_DIR(A) stepper_plan.dir_bits.A = delta.A > 0;
-  LOGICAL_AXIS_MAP(SET_AXIS_DIR);
-  #undef SET_AXIS_DIR
 
-  // Calculate dividend for Bresenham algorithm
-  constexpr float ITERATIONS_PER_TRAJ_INV = 1.0f / ITERATIONS_PER_TRAJ;
-  xyze_float_t dividend = delta * ITERATIONS_PER_TRAJ_INV;
-
-  // Apply 32-bit shift for fixed point
-  #define _SHIFT32(A) dividend.A = ldexpf(ABS(dividend.A), 32);
-  LOGICAL_AXIS_MAP(_SHIFT32);
-  #undef _SHIFT32
-
-  stepper_plan.advance_dividend_q32 = dividend.asULong();
+  #define _RUN_AXIS(A) do{                                                                                   \
+      int64_t delta_q32_32 = (next_steps_q32_32.A - curr_steps_q32_32.A);                                    \
+      /* 2) Set stepper plan direction bits */                                                               \
+      int16_t sign = (delta_q32_32 > 0) - (delta_q32_32 < 0);                                                \
+      stepper_plan.dir_bits.A = delta_q32_32 > 0;                                                            \
+      /* 3) Set per-iteration advance dividend Q0.32 */                                                      \
+      uint64_t delta_uq32_32 = ABS(delta_q32_32);                                                            \
+      /* dividend = delta_q32_32 / ITERATIONS_PER_TRAJ, but avoiding division and an intermediate int128 */  \
+      /* Note the integer part would overflow if there is eq or more than 1 steps per isr */                 \
+      uint32_t integer_part = (delta_uq32_32 >> 32) * ITERATIONS_PER_TRAJ_INV_uq0_32;                        \
+      uint32_t fractional_part = ((delta_uq32_32 & UINT32_MAX) * ITERATIONS_PER_TRAJ_INV_uq0_32) >> 32;      \
+      stepper_plan.advance_dividend_q0_32.A = integer_part + fractional_part;                                \
+      /* 4) Advance curr_steps by the exact integer steps that Bresenham will emit */                        \
+      /* It's like doing current_steps = next_steps, but considering any fractional error */                 \
+      /* from the dividend. This way there can be no drift. */                                               \
+      curr_steps_q32_32.A += (int64_t)stepper_plan.advance_dividend_q0_32.A * sign * ITERATIONS_PER_TRAJ;    \
+    } while(0);
+  LOGICAL_AXIS_MAP(_RUN_AXIS);
+  #undef _RUN_AXIS
 
   return stepper_plan;
 }
+
 
 // Generate stepper data of the trajectory.
 // Called from FTMotion::loop()
@@ -685,7 +688,7 @@ void FTMotion::fill_stepper_plan_buffer() {
 //-----------------------------------------------------------------
 
 stepper_plan_t FTMotion::stepper_plan_buff[FTM_BUFFER_SIZE];
-xyze_float_t FTMotion::curr_steps = {0.0f};
+XYZEval<int64_t> FTMotion::curr_steps_q32_32 = {0};
 
 uint32_t FTMotion::stepper_plan_tail = 0,            // The index to consume from
          FTMotion::stepper_plan_head = 0;            // The index to produce into

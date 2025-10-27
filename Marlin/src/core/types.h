@@ -790,7 +790,7 @@ struct XYZval {
   // Exact comparisons. For floats a "NEAR" operation may be better.
   FI bool operator==(const XYZEval<T> &rs) const { return true NUM_AXIS_GANG(&& x == rs.x, && y == rs.y, && z == rs.z, && i == rs.i, && j == rs.j, && k == rs.k, && u == rs.u, && v == rs.v, && w == rs.w); }
   FI bool operator!=(const XYZEval<T> &rs) const { return !operator==(rs); }
-  
+
   FI bool operator< (const XYZval<T>  &rs) const { return true NUM_AXIS_GANG(&& x <  rs.x, && y <  rs.y, && z <  rs.z, && i <  rs.i, && j <  rs.j, && k <  rs.k, && u <  rs.u, && v <  rs.v, && w <  rs.w); }
   FI bool operator<=(const XYZval<T>  &rs) const { return true NUM_AXIS_GANG(&& x <= rs.x, && y <= rs.y, && z <= rs.z, && i <= rs.i, && j <= rs.j, && k <= rs.k, && u <= rs.u, && v <= rs.v, && w <= rs.w); }
   FI bool operator> (const XYZval<T>  &rs) const { return true NUM_AXIS_GANG(&& x >  rs.x, && y >  rs.y, && z >  rs.z, && i >  rs.i, && j >  rs.j, && k >  rs.k, && u >  rs.u, && v >  rs.v, && w >  rs.w); }

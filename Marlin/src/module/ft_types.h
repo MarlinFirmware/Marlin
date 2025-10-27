@@ -46,9 +46,9 @@ enum dynFreqMode_t : uint8_t {
 
 typedef struct stepper_plan {
   AxisBits dir_bits;
-  XYZEval<uint32_t> advance_dividend_q32{0};
+  XYZEval<uint32_t> advance_dividend_q0_32{0};
   void reset(){
-    advance_dividend_q32 = 0;
+    advance_dividend_q0_32 = 0;
   }
 } stepper_plan_t;
 

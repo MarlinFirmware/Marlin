@@ -203,8 +203,8 @@ class FTMotion {
           bresenham_iterations_pending--;
           // Note: defining a macro inside a loop doesn't change what the preprocessor does. Keeping it here to be closest to its usage and easier to read
           #define RUN_AXIS(A)                                                          \
-              delta_error_q32.A += stepper_plan.advance_dividend_q32.A;                \
-              step_bits.A = delta_error_q32.A < stepper_plan.advance_dividend_q32.A;
+              delta_error_q32.A += stepper_plan.advance_dividend_q0_32.A;                \
+              step_bits.A = delta_error_q32.A < stepper_plan.advance_dividend_q0_32.A;
           LOGICAL_AXIS_MAP(RUN_AXIS);
           #undef RUN_AXIS
         }
@@ -217,7 +217,7 @@ class FTMotion {
       uint32_t advance_until_step() {
         uint32_t iterations = 0;
         { // block just to group variables
-          XYZEval<uint32_t> dividend_scaled = stepper_plan.advance_dividend_q32;
+          XYZEval<uint32_t> dividend_scaled = stepper_plan.advance_dividend_q0_32;
           uint32_t jump = 1;
 
           XYZEval<uint32_t> space = -delta_error_q32 + UINT32_MAX; // How much accumulation until a step in any axis is due
@@ -250,8 +250,8 @@ class FTMotion {
           iterations++;
           bresenham_iterations_pending--;
           #define RUN_AXIS(A)                                                        \
-            delta_error_q32.A += stepper_plan.advance_dividend_q32.A;                \
-            step_bits.A = delta_error_q32.A < stepper_plan.advance_dividend_q32.A;
+            delta_error_q32.A += stepper_plan.advance_dividend_q0_32.A;                \
+            step_bits.A = delta_error_q32.A < stepper_plan.advance_dividend_q0_32.A;
           LOGICAL_AXIS_MAP(RUN_AXIS);
           #undef RUN_AXIS
         }
@@ -284,7 +284,7 @@ class FTMotion {
           #undef _HANDLE_DIR_CHANGES
         }
 
-        if (stepper_plan.advance_dividend_q32 == 0) {
+        if (stepper_plan.advance_dividend_q0_32 == 0) {
           // don't waste time in zero motion traj points
           bresenham_iterations_pending = 0;
           step_bits = 0;
@@ -400,7 +400,7 @@ class FTMotion {
     static stepper_plan_t stepper_plan_buff[FTM_BUFFER_SIZE];
     static uint32_t stepper_plan_tail,
                     stepper_plan_head;
-    static xyze_float_t curr_steps;
+    static XYZEval<int64_t> curr_steps_q32_32;
 
 
     FORCE_INLINE static int32_t num_samples_shaper_settle() {
