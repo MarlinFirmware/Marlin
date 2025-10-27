@@ -549,11 +549,20 @@ struct XYval {
   // Explicit copy and copies with conversion
   FI constexpr XYval<T>           copy() const { return *this; }
   FI constexpr XYval<T>            ABS() const { return { T(_ABS(x)), T(_ABS(y)) }; }
-  FI constexpr XYval<int16_t>  asInt16() const { return { int16_t(x), int16_t(y) }; }
-  FI constexpr XYval<int32_t>  asInt32() const { return { int32_t(x), int32_t(y) }; }
   FI constexpr XYval<int32_t>   ROUNDL() const { return { int32_t(LROUND(x)), int32_t(LROUND(y)) }; }
-  FI constexpr XYval<float>    asFloat() const { return { static_cast<float>(x), static_cast<float>(y) }; }
   FI constexpr XYval<float> reciprocal() const { return { _RECIP(x), _RECIP(y) }; }
+
+  // Conversion to other types
+  template <class Q>
+  constexpr XYval as() const {
+    return XYval{ static_cast<Q>(x), static_cast<Q>(y) };
+  }
+  FI constexpr XYval asInt16()  const { return as<int16_t>(); }
+  FI constexpr XYval asInt32()  const { return as<int32_t>(); }
+  FI constexpr XYval asUInt32() const { return as<uint32_t>(); }
+  FI constexpr XYval asInt64()  const { return as<int64_t>(); }
+  FI constexpr XYval asUInt64() const { return as<uint64_t>(); }
+  FI constexpr XYval asFloat()  const { return as<float>(); }
 
   // Marlin workspace shifting is done with G92 and M206
   FI XYval<float> asLogical() const { XYval<float> o = asFloat(); toLogical(o); return o; }
@@ -706,11 +715,26 @@ struct XYZval {
   // Explicit copy and copies with conversion
   FI constexpr XYZval<T>           copy() const { XYZval<T> o = *this; return o; }
   FI constexpr XYZval<T>            ABS() const { return NUM_AXIS_ARRAY(T(_ABS(x)), T(_ABS(y)), T(_ABS(z)), T(_ABS(i)), T(_ABS(j)), T(_ABS(k)), T(_ABS(u)), T(_ABS(v)), T(_ABS(w))); }
-  FI constexpr XYZval<int16_t>  asInt16() const { return NUM_AXIS_ARRAY(int16_t(x), int16_t(y), int16_t(z), int16_t(i), int16_t(j), int16_t(k), int16_t(u), int16_t(v), int16_t(w)); }
-  FI constexpr XYZval<int32_t>  asInt32() const { return NUM_AXIS_ARRAY(int32_t(x), int32_t(y), int32_t(z), int32_t(i), int32_t(j), int32_t(k), int32_t(u), int32_t(v), int32_t(w)); }
   FI constexpr XYZval<int32_t>   ROUNDL() const { return NUM_AXIS_ARRAY(int32_t(LROUND(x)), int32_t(LROUND(y)), int32_t(LROUND(z)), int32_t(LROUND(i)), int32_t(LROUND(j)), int32_t(LROUND(k)), int32_t(LROUND(u)), int32_t(LROUND(v)), int32_t(LROUND(w))); }
-  FI constexpr XYZval<float>    asFloat() const { return NUM_AXIS_ARRAY(static_cast<float>(x), static_cast<float>(y), static_cast<float>(z), static_cast<float>(i), static_cast<float>(j), static_cast<float>(k), static_cast<float>(u), static_cast<float>(v), static_cast<float>(w)); }
   FI constexpr XYZval<float> reciprocal() const { return NUM_AXIS_ARRAY(_RECIP(x),  _RECIP(y),  _RECIP(z),  _RECIP(i),  _RECIP(j),  _RECIP(k),  _RECIP(u),  _RECIP(v),  _RECIP(w)); }
+
+  // Conversion to other types
+  template <class Q>
+  constexpr XYZval as() const {
+    return XYZval{
+      NUM_AXIS_LIST(
+        static_cast<Q>(x), static_cast<Q>(y), static_cast<Q>(z),
+        static_cast<Q>(i), static_cast<Q>(j), static_cast<Q>(k),
+        static_cast<Q>(u), static_cast<Q>(v), static_cast<Q>(w)
+      )
+    };
+  }
+  FI constexpr XYZval asInt16()  const { return as<int16_t>(); }
+  FI constexpr XYZval asInt32()  const { return as<int32_t>(); }
+  FI constexpr XYZval asUInt32() const { return as<uint32_t>(); }
+  FI constexpr XYZval asInt64()  const { return as<int64_t>(); }
+  FI constexpr XYZval asUInt64() const { return as<uint64_t>(); }
+  FI constexpr XYZval asFloat()  const { return as<float>(); }
 
   // Marlin workspace shifting is done with G92 and M206
   FI XYZval<float> asLogical() const { XYZval<float> o = asFloat(); toLogical(o); return o; }
@@ -861,14 +885,27 @@ struct XYZEval {
   // Explicit copy and copies with conversion
   FI constexpr XYZEval<T>            copy() const { XYZEval<T> v = *this; return v; }
   FI constexpr XYZEval<T>             ABS() const { return LOGICAL_AXIS_ARRAY(T(_ABS(e)), T(_ABS(x)), T(_ABS(y)), T(_ABS(z)), T(_ABS(i)), T(_ABS(j)), T(_ABS(k)), T(_ABS(u)), T(_ABS(v)), T(_ABS(w))); }
-  FI constexpr XYZEval<int16_t>   asInt16() const { return LOGICAL_AXIS_ARRAY(int16_t(e), int16_t(x), int16_t(y), int16_t(z), int16_t(i), int16_t(j), int16_t(k), int16_t(u), int16_t(v), int16_t(w)); }
-  FI constexpr XYZEval<int32_t>   asInt32() const { return LOGICAL_AXIS_ARRAY(int32_t(e), int32_t(x), int32_t(y), int32_t(z), int32_t(i), int32_t(j), int32_t(k), int32_t(u), int32_t(v), int32_t(w)); }
-  FI constexpr XYZEval<uint32_t> asUInt32() const { return LOGICAL_AXIS_ARRAY(uint32_t(e), uint32_t(x), uint32_t(y), uint32_t(z), uint32_t(i), uint32_t(j), uint32_t(k), uint32_t(u), uint32_t(v), uint32_t(w)); }
-  FI constexpr XYZEval<int64_t>   asInt64() const { return LOGICAL_AXIS_ARRAY(int64_t(e), int64_t(x), int64_t(y), int64_t(z), int64_t(i), int64_t(j), int64_t(k), int64_t(u), int64_t(v), int64_t(w)); }
-  FI constexpr XYZEval<uint64_t> asUInt64() const { return LOGICAL_AXIS_ARRAY(uint64_t(e), uint64_t(x), uint64_t(y), uint64_t(z), uint64_t(i), uint64_t(j), uint64_t(k), uint64_t(u), uint64_t(v), uint64_t(w)); }
   FI constexpr XYZEval<int32_t>    ROUNDL() const { return LOGICAL_AXIS_ARRAY(int32_t(LROUND(e)), int32_t(LROUND(x)), int32_t(LROUND(y)), int32_t(LROUND(z)), int32_t(LROUND(i)), int32_t(LROUND(j)), int32_t(LROUND(k)), int32_t(LROUND(u)), int32_t(LROUND(v)), int32_t(LROUND(w))); }
-  FI constexpr XYZEval<float>     asFloat() const { return LOGICAL_AXIS_ARRAY(static_cast<float>(e), static_cast<float>(x), static_cast<float>(y), static_cast<float>(z), static_cast<float>(i), static_cast<float>(j), static_cast<float>(k), static_cast<float>(u), static_cast<float>(v), static_cast<float>(w)); }
   FI constexpr XYZEval<float>  reciprocal() const { return LOGICAL_AXIS_ARRAY(_RECIP(e), _RECIP(x), _RECIP(y), _RECIP(z), _RECIP(i), _RECIP(j), _RECIP(k), _RECIP(u), _RECIP(v), _RECIP(w)); }
+
+  // Conversion to other types
+  template <class Q>
+  constexpr XYZEval as() const {
+    return XYZEval{
+      LOGICAL_AXIS_LIST(
+        static_cast<Q>(e),
+        static_cast<Q>(x), static_cast<Q>(y), static_cast<Q>(z),
+        static_cast<Q>(i), static_cast<Q>(j), static_cast<Q>(k),
+        static_cast<Q>(u), static_cast<Q>(v), static_cast<Q>(w)
+      )
+    };
+  }
+  FI constexpr XYZEval asInt16()  const { return as<int16_t>(); }
+  FI constexpr XYZEval asInt32()  const { return as<int32_t>(); }
+  FI constexpr XYZEval asUInt32() const { return as<uint32_t>(); }
+  FI constexpr XYZEval asInt64()  const { return as<int64_t>(); }
+  FI constexpr XYZEval asUInt64() const { return as<uint64_t>(); }
+  FI constexpr XYZEval asFloat()  const { return as<float>(); }
 
   // Marlin workspace shifting is done with G92 and M206
   FI XYZEval<float> asLogical() const { XYZEval<float> o = asFloat(); toLogical(o); return o; }

@@ -2699,7 +2699,7 @@ hal_timer_t Stepper::block_phase_isr() {
       TERN_(HAS_ROUGH_LIN_ADVANCE, la_delta_error = delta_error);
 
       // Calculate Bresenham dividends and divisors
-      advance_dividend = (current_block->steps << 1).asInt32();
+      advance_dividend = current_block->steps << 1; // narrowing conversion
       advance_divisor = step_event_count << 1;
 
       #if ENABLED(INPUT_SHAPING_X)
