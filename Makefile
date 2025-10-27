@@ -67,7 +67,7 @@ marlin:
 .PHONY: marlin
 
 clean:
-	rm -r .pio/build
+	rm -rf .pio/build*
 
 tests-single-ci:
 	export GIT_RESET_HARD=true

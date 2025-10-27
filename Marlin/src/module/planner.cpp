@@ -2415,9 +2415,10 @@ bool Planner::_populate_block(
        *               Check the appropriate K value for Standard or Fixed-Time Motion.
        */
       if (esteps && dm.e) {
-        const bool ftm_active = TERN0(FTM_HAS_LIN_ADVANCE, ftMotion.cfg.active);
+        const bool ftm_active = TERN0(FTM_HAS_LIN_ADVANCE, ftMotion.cfg.active),
+                   ftm_la_active = TERN0(FTM_HAS_LIN_ADVANCE, ftm_active && ftMotion.cfg.linearAdvEna);
         const float advK = ftm_active
-          ? TERN0(FTM_HAS_LIN_ADVANCE, ftMotion.cfg.linearAdvK)
+          ? (ftm_la_active ? TERN0(FTM_HAS_LIN_ADVANCE, ftMotion.cfg.linearAdvK) : 0)
           : TERN0(HAS_ROUGH_LIN_ADVANCE, extruder_advance_K[E_INDEX_N(extruder)]);
         if (advK) {
           float e_D_ratio = (target_float.e - position_float.e) /
@@ -2437,7 +2438,7 @@ bool Planner::_populate_block(
             const uint32_t max_accel_steps_per_s2 = (MAX_E_JERK(extruder) / (advK * e_D_ratio)) * steps_per_mm;
             if (accel > max_accel_steps_per_s2) {
               accel = max_accel_steps_per_s2;
-              if (TERN0(LA_DEBUG, DEBUGGING(INFO))) SERIAL_ECHOLNPGM("Acceleration limited.");
+              if (TERN0(LA_DEBUG, DEBUGGING(INFO))) SERIAL_ECHOLNPGM("Acceleration limited to max_accel_steps_per_s2 (", max_accel_steps_per_s2, ")");
             }
           }
         }
