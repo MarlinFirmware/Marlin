@@ -145,7 +145,6 @@ void FTMotion::loop() {
     reset();
     stepper.abort_current_block = false;  // Abort finished.
   }
-  static uint32_t was = 0;
 
   fill_stepper_plan_buffer();
 
@@ -428,24 +427,31 @@ void FTMotion::setTrajectoryType(const TrajectoryType type) {
 
 // Load / convert block data from planner to fixed-time control variables.
 // Called from FTMotion::loop() at the fetch of the next planner block.
+// Return whether a plan is available.
 bool FTMotion::plan_next_block() {
   while (true) {
 
-    bool had_block = !!stepper.current_block;
-    discard_planner_block_protected();
-    block_t * current_block = planner.get_current_block();
-    bool planner_finished = had_block && !current_block;
+    const bool had_block = !!stepper.current_block;
+    discard_planner_block_protected();                                  // Always clears stepper.current_block...
+    block_t * const current_block = planner.get_current_block();  // ...so get the current block from the queue
 
+    // The planner had a block and there was not another one?
+    const bool planner_finished = had_block && !current_block;
     if (planner_finished) {
       runoutBlock();
       return true;
-    };
+    }
+
+    // There was never a block? Run out the plan and bail.
     if (!current_block) {
       currentGenerator->planRunout(0);
       return false;
     }
+
+    // Fetching this block for Stepper and for this loop
     stepper.current_block = current_block;
 
+    // Handle sync blocks and skip others
     if (current_block->is_sync_pos()) stepper._set_position(current_block->position);
     if (current_block->is_sync()) continue;
 
@@ -468,16 +474,15 @@ bool FTMotion::plan_next_block() {
     // Cache the extruder index for this block
     TERN_(DISTINCT_E_FACTORS, block_extruder_axis = E_AXIS_N(current_block->extruder));
 
-    const float totalLength = current_block->millimeters,
-                oneOverLength = 1.0f / totalLength;
+    const float totalLength = current_block->millimeters;
 
     startPos = endPos_prevBlock;
     const xyze_pos_t& moveDist = current_block->dist_mm;
-    ratio = moveDist * oneOverLength;
+    ratio = moveDist / totalLength;
 
-    const float mmps = totalLength / current_block->step_event_count; // (mm/step) Distance for each step
-    const float initial_speed = mmps * current_block->initial_rate;   // (mm/s) Start feedrate
-    const float final_speed = mmps * current_block->final_rate;       // (mm/s) End feedrate
+    const float mmps = totalLength / current_block->step_event_count, // (mm/step) Distance for each step
+                initial_speed = mmps * current_block->initial_rate,   // (mm/s) Start feedrate
+                final_speed = mmps * current_block->final_rate;       // (mm/s) End feedrate
 
     // Plan the trajectory using the trajectory generator
     currentGenerator->plan(initial_speed, final_speed, current_block->acceleration, current_block->nominal_speed, totalLength);
@@ -660,7 +665,7 @@ void FTMotion::fill_stepper_plan_buffer() {
     while (tau + FTM_TS > total_duration) {
       // Previous block plan consumed, try to get the next one.
       tau -= total_duration; // The exact end of the last block may be in-between trajectory points, so the next one may start anywhere of (-FTM_TS, 0].
-      bool plan_available = plan_next_block();
+      const bool plan_available = plan_next_block();
       if (!plan_available) return;
       total_duration = currentGenerator->getTotalDuration();
     }

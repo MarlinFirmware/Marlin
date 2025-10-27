@@ -3549,8 +3549,8 @@ void Stepper::report_positions() {
    * - Apply STEP/DIR along with any delays required. A command may be empty, with no STEP/DIR.
    */
   void Stepper::ftMotion_stepper() {
-    AxisBits& step_bits = ftMotion.stepping.step_bits; // just an alias for prettier code
-    AxisBits& dir_bits = ftMotion.stepping.stepper_plan.dir_bits; // just an alias for prettier code
+    AxisBits &step_bits = ftMotion.stepping.step_bits;            // Aliases for prettier code
+    AxisBits &dir_bits = ftMotion.stepping.stepper_plan.dir_bits;
 
     if (step_bits.bits == 0) return;
 

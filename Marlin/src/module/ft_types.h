@@ -46,10 +46,8 @@ enum dynFreqMode_t : uint8_t {
 
 typedef struct stepper_plan {
   AxisBits dir_bits;
-  XYZEval<uint32_t> advance_dividend_q0_32{0};
-  void reset(){
-    advance_dividend_q0_32 = 0;
-  }
+  xyze_ulong_t advance_dividend_q0_32{0};
+  void reset() { advance_dividend_q0_32.reset(); }
 } stepper_plan_t;
 
 // Emitters for code that only cares about shaped XYZE

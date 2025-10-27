@@ -157,6 +157,7 @@ class FTMotion {
 
     static void reset();                                  // Reset all states of the fixed time conversion to defaults.
 
+    // Safely toggle the active state of FT Motion
     static bool toggle() {
       stepper.ftMotion_syncPosition();
       FLIP(cfg.active);
@@ -175,36 +176,36 @@ class FTMotion {
       return cfg.active ? axis_move_dir[axis] : stepper.last_direction_bits[axis];
     }
 
-
+    // Stepping plan handles the counting at the table
     typedef struct Stepping {
       stepper_plan_t stepper_plan;
-      XYZEval<uint32_t> delta_error_q32{1UL<<31};
+      xyze_ulong_t delta_error_q32{ LOGICAL_AXIS_LIST_1(_BV32(31)) };
       AxisBits step_bits;
       uint32_t bresenham_iterations_pending;
 
-      void reset(){
+      void reset() {
         stepper_plan.reset();
-        delta_error_q32 = {1UL<<31}; // start as 0.5 in q32 so steps are rounded
+        delta_error_q32.set(LOGICAL_AXIS_ARRAY_1(_BV32(31))); // start as 0.5 in q32 so steps are rounded
         step_bits = 0;
         bresenham_iterations_pending = 0;
       }
-
 
       #define INTERVAL_PER_ITERATION (STEPPER_TIMER_RATE / FTM_STEPPER_FS)
       #define INTERVAL_PER_TRAJ_POINT (STEPPER_TIMER_RATE / FTM_FS)
       #define ITERATIONS_PER_TRAJ (FTM_STEPPER_FS * FTM_TS)
 
       // Updates error and bresenham_iterations_pending, sets step_bits and returns interval until it executes
-      uint32_t advance_until_step_old(){
+      uint32_t advance_until_step_old() {
         step_bits = 0;
         uint32_t interval = 0;
         while (!step_bits && bresenham_iterations_pending > 0) {
           interval += INTERVAL_PER_ITERATION;
           bresenham_iterations_pending--;
           // Note: defining a macro inside a loop doesn't change what the preprocessor does. Keeping it here to be closest to its usage and easier to read
-          #define RUN_AXIS(A)                                                          \
-              delta_error_q32.A += stepper_plan.advance_dividend_q0_32.A;                \
-              step_bits.A = delta_error_q32.A < stepper_plan.advance_dividend_q0_32.A;
+          #define RUN_AXIS(A) do{                                                      \
+              delta_error_q32.A += stepper_plan.advance_dividend_q0_32.A;              \
+              step_bits.A = delta_error_q32.A < stepper_plan.advance_dividend_q0_32.A; \
+            }while(0);
           LOGICAL_AXIS_MAP(RUN_AXIS);
           #undef RUN_AXIS
         }
@@ -217,13 +218,13 @@ class FTMotion {
       uint32_t advance_until_step() {
         uint32_t iterations = 0;
         { // block just to group variables
-          XYZEval<uint32_t> dividend_scaled = stepper_plan.advance_dividend_q0_32;
+          xyze_ulong_t dividend_scaled = stepper_plan.advance_dividend_q0_32;
           uint32_t jump = 1;
 
-          XYZEval<uint32_t> space = -delta_error_q32 + UINT32_MAX; // How much accumulation until a step in any axis is due
+          xyze_ulong_t space = -delta_error_q32 + UINT32_MAX; // How much accumulation until a step in any axis is due
                                                                    // scalar in the right hand because types.h is missing scalar on left cases
           // using halves since we'll double the dividend and iteration_multiplier inside the while.
-          XYZEval<uint32_t> half_space = space >> 1;                         // ensures (dividend_scaled<<1) <= space
+          xyze_ulong_t half_space = space >> 1;                         // ensures (dividend_scaled<<1) <= space
           uint32_t half_pending = (bresenham_iterations_pending - 1) >> 1;   // ensures (iter<<1) < pending
 
           // —— Grow phase: keep doubling until right before a step would occur (or pending iterations exhausted)
@@ -244,14 +245,17 @@ class FTMotion {
             jump >>= 1;
           }
         }
+
         step_bits = 0;
+
         // if there are still iteration pending (should be exactly 1), run through it
         if (bresenham_iterations_pending) {
           iterations++;
           bresenham_iterations_pending--;
-          #define RUN_AXIS(A)                                                        \
-            delta_error_q32.A += stepper_plan.advance_dividend_q0_32.A;                \
-            step_bits.A = delta_error_q32.A < stepper_plan.advance_dividend_q0_32.A;
+          #define RUN_AXIS(A) do{                                                      \
+              delta_error_q32.A += stepper_plan.advance_dividend_q0_32.A;              \
+              step_bits.A = delta_error_q32.A < stepper_plan.advance_dividend_q0_32.A; \
+            }while(0);
           LOGICAL_AXIS_MAP(RUN_AXIS);
           #undef RUN_AXIS
         }
@@ -260,12 +264,11 @@ class FTMotion {
         return (iterations - 1) * INTERVAL_PER_ITERATION;
       }
 
-
       /**
        * If bresenham_iterations_pending, advance to next actual step.
        * Else, consume stepper data point
        * Then return interval until that next step
-       **/
+       */
       uint32_t plan() {
         if (bresenham_iterations_pending > 0) return advance_until_step();
 
@@ -279,12 +282,12 @@ class FTMotion {
         stepper_plan = dequeue_stepper_plan();
         const AxisBits dir_flip_mask = old_dir_bits ^ stepper_plan.dir_bits;  // axes that must toggle now
         if (dir_flip_mask) {
-          #define _HANDLE_DIR_CHANGES(A) if (dir_flip_mask.A) delta_error_q32.A = -delta_error_q32.A;
+          #define _HANDLE_DIR_CHANGES(A) if (dir_flip_mask.A) delta_error_q32.A *= -1;
           LOGICAL_AXIS_MAP(_HANDLE_DIR_CHANGES);
           #undef _HANDLE_DIR_CHANGES
         }
 
-        if (stepper_plan.advance_dividend_q0_32 == 0) {
+        if (!(bool)stepper_plan.advance_dividend_q0_32) {
           // don't waste time in zero motion traj points
           bresenham_iterations_pending = 0;
           step_bits = 0;
@@ -295,6 +298,7 @@ class FTMotion {
         return advance_until_step();
       }
     } stepping_t;
+
     static stepping_t stepping;
 
   private:
@@ -313,7 +317,6 @@ class FTMotion {
 
     // Number of batches needed to propagate the current trajectory to the stepper.
     static constexpr uint32_t PROP_BATCHES = 1;
-
 
     #if ENABLED(DISTINCT_E_FACTORS)
       static uint8_t block_extruder_axis;  // Cached extruder axis index
@@ -398,10 +401,8 @@ class FTMotion {
     }
     // stepper_plan buffer variables.
     static stepper_plan_t stepper_plan_buff[FTM_BUFFER_SIZE];
-    static uint32_t stepper_plan_tail,
-                    stepper_plan_head;
+    static uint32_t stepper_plan_tail, stepper_plan_head;
     static XYZEval<int64_t> curr_steps_q32_32;
-
 
     FORCE_INLINE static int32_t num_samples_shaper_settle() {
       #define _OR_ENA(A) || shaping.A.ena
