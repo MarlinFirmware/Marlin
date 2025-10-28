@@ -308,14 +308,19 @@ class FTMotion {
         int32_t Ni[5];                    // Shaping time index vector
         uint32_t max_i;                   // Vector length for the selected shaper
 
-        void set_axis_shaping_N(const ftMotionShaper_t shaper, const float f, const float zeta);    // Sets the gains used by shaping functions.
-        void set_axis_shaping_A(const ftMotionShaper_t shaper, const float zeta, const float vtol); // Sets the indices used by shaping functions.
+        // Set the gains used by shaping functions
+        void set_axis_shaping_N(const ftMotionShaper_t shaper, const float f, const float zeta);
+
+        // Set the indices used by shaping functions
+        void set_axis_shaping_A(const ftMotionShaper_t shaper, const float zeta, const float vtol);
 
       } axis_shaping_t;
 
       typedef struct Shaping {
         uint32_t zi_idx;           // Index of storage in the data point delay vectors.
         axis_shaping_t SHAPED_AXIS_NAMES;
+        int32_t smallest_Ni_0;
+        void refresh_smallest_Ni_0() { smallest_Ni_0 = _MIN(SHAPED_LIST(X.Ni[0], Y.Ni[0], Z.Ni[0], E.Ni[0])); }
       } shaping_t;
 
       static shaping_t shaping; // Shaping data
@@ -348,7 +353,7 @@ class FTMotion {
     static uint32_t calc_runout_samples();
     static void plan_runout_block();
     static void fill_stepper_plan_buffer();
-    static xyze_float_t calc_traj_point(float dist);
+    static xyze_float_t calc_traj_point(const float dist);
     static stepper_plan_t calc_stepper_plan(xyze_float_t delta);
     static bool plan_next_block();
     FORCE_INLINE static bool stepper_plan_is_empty() {

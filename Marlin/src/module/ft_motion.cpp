@@ -294,6 +294,9 @@ void FTMotion::loop() {
     // The resulting echo index can be negative, this is ok because it will be offset
     // by the max delay of all axes before it is used.
     for (uint8_t i = 1; i <= max_i; ++i) Ni[i] += Ni[0];
+
+    // Cache the smallest current Ni[0]
+    shaping.refresh_smallest_Ni_0();
   }
 
   #if ENABLED(FTM_SMOOTHING)
@@ -513,7 +516,7 @@ bool FTMotion::plan_next_block() {
   }
 }
 
-xyze_float_t FTMotion::calc_traj_point(float dist) {
+xyze_float_t FTMotion::calc_traj_point(const float dist) {
   xyze_float_t traj_coords;
   #define _SET_TRAJ(q) traj_coords.q = startPos.q + ratio.q * dist;
   LOGICAL_AXIS_MAP_LC(_SET_TRAJ);
@@ -588,12 +591,9 @@ xyze_float_t FTMotion::calc_traj_point(float dist) {
 
   #if HAS_FTM_SHAPING
 
-    if (ftMotion.cfg.axis_sync_enabled) {
-      max_total_delay -= _MIN(SHAPED_LIST(
-        shaping.X.Ni[0], shaping.Y.Ni[0],
-        shaping.Z.Ni[0], shaping.E.Ni[0]
-      ));
-    }
+    // If Axis Sync is on subtract the smallest shaping delay centroid (Ni) from the Max Total Delay
+    if (ftMotion.cfg.axis_sync_enabled)
+      max_total_delay -= shaping.smallest_Ni_0;
 
     // Apply shaping if active on each axis
     #define _SHAPE(A) \
@@ -619,6 +619,7 @@ xyze_float_t FTMotion::calc_traj_point(float dist) {
     if (++shaping.zi_idx == (FTM_ZMAX)) shaping.zi_idx = 0;
 
   #endif // HAS_FTM_SHAPING
+
   return traj_coords;
 }
 
