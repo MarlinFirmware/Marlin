@@ -371,7 +371,8 @@ class FTMotion {
 
     // Buffers
     static void discard_planner_block_protected();
-    static void runoutBlock();
+    static uint32_t calc_runout_samples();
+    static void plan_runout_block();
     static void fill_stepper_plan_buffer();
     static xyze_float_t calc_traj_point(float dist);
     static stepper_plan_t calc_stepper_plan(xyze_float_t delta);
@@ -403,13 +404,6 @@ class FTMotion {
     static stepper_plan_t stepper_plan_buff[FTM_BUFFER_SIZE];
     static uint32_t stepper_plan_tail, stepper_plan_head;
     static XYZEval<int64_t> curr_steps_q32_32;
-
-    FORCE_INLINE static int32_t num_samples_shaper_settle() {
-      #define _OR_ENA(A) || shaping.A.ena
-      return false SHAPED_MAP(_OR_ENA) ? FTM_ZMAX : 0;
-      #undef _OR_ENA
-    }
-
 }; // class FTMotion
 
 extern FTMotion ftMotion; // Use ftMotion.thing, not FTMotion::thing.

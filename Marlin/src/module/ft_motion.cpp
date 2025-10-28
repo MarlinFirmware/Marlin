@@ -376,6 +376,25 @@ void FTMotion::discard_planner_block_protected() {
   }
 }
 
+
+uint32_t FTMotion::calc_runout_samples() {
+  uint32_t max_total_delay = 0;
+  xyze_long_t delay = {0};
+  #if ENABLED(FTM_SMOOTHING)
+    #define _ADD(A) delay.A += smoothing.A.delay_samples;
+    LOGICAL_AXIS_MAP(_ADD)
+    #undef _ADD
+  #endif
+
+  #if HAS_FTM_SHAPING
+    // Ni[max_i] is the delay of the last pulse, but it is relative to Ni[0] (the negative delay centroid)
+    #define _ADD(A) if(shaping.A.ena) delay.A += shaping.A.Ni[shaping.A.max_i] - shaping.A.Ni[0];
+    SHAPED_MAP(_ADD)
+    #undef _ADD
+  #endif
+  return delay.large();
+}
+
 /**
  * Set up a pseudo block to allow motion to settle and buffers to empty.
  * Called when the planner has one block left. The buffers will be filled
@@ -383,26 +402,9 @@ void FTMotion::discard_planner_block_protected() {
  * the last position of the previous block and all ratios to zero such that no
  * axes' positions are incremented.
  */
-void FTMotion::runoutBlock() {
+void FTMotion::plan_runout_block() {
   startPos = endPos_prevBlock;
-  uint32_t max_total_delay = 0;
-  if (ftMotion.cfg.axis_sync_enabled){
-    xyze_long_t delay = {0};
-    #if ENABLED(FTM_SMOOTHING)
-      #define _ADD(A) delay.A += smoothing.A.delay_samples;
-      LOGICAL_AXIS_MAP(_ADD)
-      #undef _ADD
-    #endif
-
-    #if HAS_FTM_SHAPING
-      // Ni[max_i] is the delay of the last pulse, but it is relative to Ni[0] (the negative delay centroid)
-      #define _ADD(A) delay.A += shaping.A.Ni[shaping.A.max_i] - shaping.A.Ni[0];
-      SHAPED_MAP(_ADD)
-      #undef _ADD
-    #endif
-    max_total_delay = delay.large() + 1;
-  }
-  currentGenerator->planRunout( max_total_delay * FTM_TS);
+  currentGenerator->planRunout(calc_runout_samples() * FTM_TS);
   ratio.reset(); // setting ratio to zero means no motion on any axis
 }
 
@@ -438,7 +440,7 @@ bool FTMotion::plan_next_block() {
     // The planner had a block and there was not another one?
     const bool planner_finished = had_block && !current_block;
     if (planner_finished) {
-      runoutBlock();
+      plan_runout_block();
       return true;
     }
 
@@ -495,7 +497,7 @@ bool FTMotion::plan_next_block() {
     const millis_t move_end_ti = millis() + \
       stepper_plan_count() * FTM_TS + // Time to empty stepper command buffer
       SEC_TO_MS(currentGenerator->getTotalDuration()) + // Time to finish this block
-      SEC_TO_MS((FTM_TS) * num_samples_shaper_settle()); // Time for a rounout block
+      SEC_TO_MS((FTM_TS) * calc_runout_samples()); // Time for a rounout block
 
     #define _SET_MOVE_END(A) do{ \
       if (moveDist.A) { \
