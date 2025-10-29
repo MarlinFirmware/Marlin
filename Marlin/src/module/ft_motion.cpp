@@ -143,6 +143,7 @@ void FTMotion::loop() {
   if (stepper.abort_current_block) {
     discard_planner_block_protected();
     reset();
+    currentGenerator->planRunout(0.0f);   // Reset generator state
     stepper.abort_current_block = false;  // Abort finished.
   }
 
