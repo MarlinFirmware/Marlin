@@ -28,6 +28,7 @@
 
 #include "macros.h"
 
+#define BOARD_ERROR -2
 #define BOARD_UNKNOWN -1
 
 //
@@ -175,16 +176,17 @@
 #define BOARD_GT2560_V41B             1322  // Geeetech GT2560 V4.1B for A10(M/T/D)
 #define BOARD_EINSTART_S              1323  // Einstart retrofit
 #define BOARD_WANHAO_ONEPLUS          1324  // Wanhao 0ne+ i3 Mini
-#define BOARD_OVERLORD                1325  // Overlord/Overlord Pro
-#define BOARD_HJC2560C_REV1           1326  // ADIMLab Gantry v1
-#define BOARD_HJC2560C_REV2           1327  // ADIMLab Gantry v2
-#define BOARD_LEAPFROG_XEED2015       1328  // Leapfrog Xeed 2015
-#define BOARD_PICA_REVB               1329  // PICA Shield (original version)
-#define BOARD_PICA                    1330  // PICA Shield (rev C or later)
-#define BOARD_INTAMSYS40              1331  // Intamsys 4.0 (Funmat HT)
-#define BOARD_MALYAN_M180             1332  // Malyan M180 Mainboard Version 2 (no display function, direct G-code only)
-#define BOARD_PROTONEER_CNC_SHIELD_V3 1333  // Mega controller & Protoneer CNC Shield V3.00
-#define BOARD_WEEDO_62A               1334  // WEEDO 62A board (TINA2, Monoprice Cadet, etc.)
+#define BOARD_WANHAO_D9               1325  // Wanhao D9 MK2
+#define BOARD_OVERLORD                1326  // Overlord/Overlord Pro
+#define BOARD_HJC2560C_REV1           1327  // ADIMLab Gantry v1
+#define BOARD_HJC2560C_REV2           1328  // ADIMLab Gantry v2
+#define BOARD_LEAPFROG_XEED2015       1329  // Leapfrog Xeed 2015
+#define BOARD_PICA_REVB               1330  // PICA Shield (original version)
+#define BOARD_PICA                    1331  // PICA Shield (rev C or later)
+#define BOARD_INTAMSYS40              1332  // Intamsys 4.0 (Funmat HT)
+#define BOARD_MALYAN_M180             1333  // Malyan M180 Mainboard Version 2 (no display function, direct G-code only)
+#define BOARD_PROTONEER_CNC_SHIELD_V3 1334  // Mega controller & Protoneer CNC Shield V3.00
+#define BOARD_WEEDO_62A               1335  // WEEDO 62A board (TINA2, Monoprice Cadet, etc.)
 
 //
 // ATmega1281, ATmega2561
@@ -511,10 +513,11 @@
 #define BOARD_BTT_OCTOPUS_PRO_V1_1    6008  // BigTreeTech Octopus Pro v1.1 (STM32H723ZE)
 #define BOARD_BTT_MANTA_M8P_V2_0      6009  // BigTreeTech Manta M8P V2.0 (STM32H723ZE)
 #define BOARD_BTT_KRAKEN_V1_0         6010  // BigTreeTech Kraken v1.0 (STM32H723ZG)
-#define BOARD_TEENSY41                6011  // Teensy 4.1
-#define BOARD_T41U5XBB                6012  // T41U5XBB Teensy 4.1 breakout board
-#define BOARD_FLY_D8_PRO              6013  // FLY_D8_PRO (STM32H723VG)
-#define BOARD_FLY_SUPER8_PRO          6014  // FLY SUPER8 PRO (STM32H723ZG)
+#define BOARD_TEENSY40                6011  // Teensy 4.0
+#define BOARD_TEENSY41                6012  // Teensy 4.1
+#define BOARD_T41U5XBB                6013  // T41U5XBB Teensy 4.1 breakout board
+#define BOARD_FLY_D8_PRO              6014  // FLY_D8_PRO (STM32H723VG)
+#define BOARD_FLY_SUPER8_PRO          6015  // FLY SUPER8 PRO (STM32H723ZG)
 
 //
 // Espressif ESP32 WiFi
