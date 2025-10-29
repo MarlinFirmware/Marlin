@@ -2438,6 +2438,7 @@ hal_timer_t Stepper::block_phase_isr() {
         acceleration_time += interval;
         deceleration_time = 0; // Reset since we're doing acceleration first.
 
+        // Apply Nonlinear Extrusion, if enabled
         calc_nonlinear_e(acc_step_rate << oversampling_factor);
 
         #if HAS_ROUGH_LIN_ADVANCE
@@ -2502,6 +2503,7 @@ hal_timer_t Stepper::block_phase_isr() {
         interval = calc_multistep_timer_interval(step_rate << oversampling_factor);
         deceleration_time += interval;
 
+        // Apply Nonlinear Extrusion, if enabled
         calc_nonlinear_e(step_rate << oversampling_factor);
 
         #if HAS_ROUGH_LIN_ADVANCE
@@ -2513,7 +2515,7 @@ hal_timer_t Stepper::block_phase_isr() {
 
               if (forward_e != motor_direction(E_AXIS)) {
                 last_direction_bits.toggle(E_AXIS);
-                count_direction.e = -count_direction.e;
+                count_direction.e *= -1;
 
                 DIR_WAIT_BEFORE();
 
@@ -2555,6 +2557,7 @@ hal_timer_t Stepper::block_phase_isr() {
           TERN_(SMOOTH_LIN_ADVANCE, curr_step_rate = current_block->nominal_rate;)
           deceleration_time = ticks_nominal / 2;
 
+          // Apply Nonlinear Extrusion, if enabled
           calc_nonlinear_e(current_block->nominal_rate << oversampling_factor);
 
           #if HAS_ROUGH_LIN_ADVANCE
@@ -2696,7 +2699,7 @@ hal_timer_t Stepper::block_phase_isr() {
       TERN_(HAS_ROUGH_LIN_ADVANCE, la_delta_error = delta_error);
 
       // Calculate Bresenham dividends and divisors
-      advance_dividend = (current_block->steps << 1).asLong();
+      advance_dividend = (current_block->steps << 1).asInt32();
       advance_divisor = step_event_count << 1;
 
       #if ENABLED(INPUT_SHAPING_X)
@@ -2826,6 +2829,7 @@ hal_timer_t Stepper::block_phase_isr() {
       // Initialize ac/deceleration time as if half the time passed.
       acceleration_time = deceleration_time = interval / 2;
 
+      // Apply Nonlinear Extrusion, if enabled
       calc_nonlinear_e(current_block->initial_rate << oversampling_factor);
 
       #if ENABLED(LIN_ADVANCE)
@@ -2872,7 +2876,7 @@ hal_timer_t Stepper::block_phase_isr() {
         la_interval = calc_timer_interval(uint32_t(ABS(step_rate)));
         if (forward_e != motor_direction(E_AXIS)) {
           last_direction_bits.toggle(E_AXIS);
-          count_direction.e = -count_direction.e;
+          count_direction.e *= -1;
           DIR_WAIT_BEFORE();
           E_APPLY_DIR(forward_e, false);
           TERN_(FT_MOTION, last_set_direction = last_direction_bits);

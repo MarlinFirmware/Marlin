@@ -40,6 +40,9 @@
   #error "Marlin requires C++11 support (gcc >= 4.7, Arduino IDE >= 1.6.8). Please upgrade your toolchain."
 #endif
 
+// Emit the GCC version
+//static_assert(false, "GCC version: " STRINGIFY(__GNUC__) "." STRINGIFY(__GNUC_MINOR__) "." STRINGIFY(__GNUC_PATCHLEVEL__));
+
 // Strings for sanity check messages
 #define _NUM_AXES_STR NUM_AXIS_GANG("X ", "Y ", "Z ", "I ", "J ", "K ", "U ", "V ", "W ")
 #define _LOGICAL_AXES_STR LOGICAL_AXIS_GANG("E ", "X ", "Y ", "Z ", "I ", "J ", "K ", "U ", "V ", "W ")
@@ -4529,6 +4532,17 @@ static_assert(WITHIN(MULTISTEPPING_LIMIT, 1, 128) && IS_POWER_OF_2(MULTISTEPPING
 
 #if ENABLED(CONFIGURABLE_MACHINE_NAME) && DISABLED(GCODE_QUOTED_STRINGS)
   #error "CONFIGURABLE_MACHINE_NAME requires GCODE_QUOTED_STRINGS."
+#endif
+
+/**
+ * Shared Microstepping Pins Sanity Check
+ */
+#if HAS_SHARED_MICROSTEPPING_PINS
+  static constexpr uint8_t _microstep_modes[] = MICROSTEP_MODES, mm0 = _microstep_modes[0];
+  static_assert(
+    _microstep_modes[1] == mm0 && _microstep_modes[2] == mm0 && _microstep_modes[3] == mm0 && _microstep_modes[4] == mm0 && _microstep_modes[5] == mm0,
+    "When using shared microstepping pins (MS1_PIN and MS2_PIN), all MICROSTEP_MODES values must be identical."
+  );
 #endif
 
 // Misc. Cleanup

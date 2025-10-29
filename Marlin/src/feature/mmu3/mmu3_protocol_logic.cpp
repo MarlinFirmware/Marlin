@@ -707,7 +707,7 @@ namespace MMU3 {
   }
 
   bool ProtocolLogic::Elapsed(uint32_t timeout) const {
-    return _millis() >= (lastUARTActivityMs + timeout);
+    return ELAPSED(_millis(), lastUARTActivityMs + timeout);
   }
 
   void ProtocolLogic::RecordUARTActivity() {
@@ -716,7 +716,7 @@ namespace MMU3 {
 
   void ProtocolLogic::RecordReceivedByte(uint8_t c) {
     lastReceivedBytes[lrb] = c;
-    lrb = (lrb + 1) % lastReceivedBytes.size();
+    lrb = (lrb + 1) % COUNT(lastReceivedBytes);
   }
 
   constexpr char NibbleToChar(uint8_t c) {
@@ -728,13 +728,13 @@ namespace MMU3 {
   }
 
   void ProtocolLogic::FormatLastReceivedBytes(char *dst) {
-    for (uint8_t i = 0; i < lastReceivedBytes.size(); ++i) {
-      uint8_t b = lastReceivedBytes[(lrb - i - 1) % lastReceivedBytes.size()];
+    for (uint8_t i = 0; i < COUNT(lastReceivedBytes); ++i) {
+      uint8_t b = lastReceivedBytes[(COUNT(lastReceivedBytes) - 1 + (lrb - i)) % COUNT(lastReceivedBytes)];
       dst[i * 3] = NibbleToChar(b >> 4);
       dst[i * 3 + 1] = NibbleToChar(b & 0xf);
       dst[i * 3 + 2] = ' ';
     }
-    dst[(lastReceivedBytes.size() - 1) * 3 + 2] = 0; // terminate properly
+    dst[(COUNT(lastReceivedBytes) - 1) * 3 + 2] = 0; // terminate properly
   }
 
   void ProtocolLogic::FormatLastResponseMsgAndClearLRB(char *dst) {
@@ -777,18 +777,18 @@ namespace MMU3 {
   }
 
   void ProtocolLogic::LogError(const char *reason_P) {
-    char lrb[lastReceivedBytes.size() * 3];
-    FormatLastReceivedBytes(lrb);
+    char _lrb[COUNT(lastReceivedBytes) * 3];
+    FormatLastReceivedBytes(_lrb);
 
     MMU2_ERROR_MSGRPGM(reason_P);
     SERIAL_ECHOPGM(", last bytes: ");
-    SERIAL_ECHOLN(lrb);
+    SERIAL_ECHOLN(_lrb);
   }
 
   void ProtocolLogic::LogResponse() {
-    char lrb[lastReceivedBytes.size()];
-    FormatLastResponseMsgAndClearLRB(lrb);
-    MMU2_ECHO_MSGLN(lrb);
+    char _lrb[COUNT(lastReceivedBytes)];
+    FormatLastResponseMsgAndClearLRB(_lrb);
+    MMU2_ECHO_MSGLN(_lrb);
   }
 
   StepStatus ProtocolLogic::SuppressShortDropOuts(const char *msg_P, StepStatus ss) {
