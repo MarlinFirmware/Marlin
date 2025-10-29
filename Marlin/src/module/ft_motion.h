@@ -311,7 +311,7 @@ class FTMotion {
         // Set the gains used by shaping functions
         void set_axis_shaping_N(const ftMotionShaper_t shaper, const float f, const float zeta);
 
-        // Set the indices used by shaping functions
+        // Set the indices (per pulse delays) used by shaping functions
         void set_axis_shaping_A(const ftMotionShaper_t shaper, const float zeta, const float vtol);
 
       } axis_shaping_t;
@@ -319,8 +319,12 @@ class FTMotion {
       typedef struct Shaping {
         uint32_t zi_idx;           // Index of storage in the data point delay vectors.
         axis_shaping_t SHAPED_AXIS_NAMES;
-        int32_t smallest_Ni_0;
-        void refresh_smallest_Ni_0() { smallest_Ni_0 = _MIN(SHAPED_LIST(X.Ni[0], Y.Ni[0], Z.Ni[0], E.Ni[0])); }
+        int32_t largest_centroid_delay;
+        // Shaping an axis makes it lag with respect to the others by certain amount, the "centroid delay"
+        // Ni[0] stores how far in the past the first step would need to happen to avoid desynchronisation (it is therefore negative).
+        // Of course things can't be done in the past, so when shaping is applied, the all axes are delayed by largest_centroid_delay
+        // minus their own centroid delay. This makes them all be equally delayed and therefore in synch.
+        void refresh_largest_centroid_delay() { largest_centroid_delay = -_MIN(SHAPED_LIST(X.Ni[0], Y.Ni[0], Z.Ni[0], E.Ni[0])); }
       } shaping_t;
 
       static shaping_t shaping; // Shaping data

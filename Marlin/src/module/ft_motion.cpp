@@ -296,7 +296,7 @@ void FTMotion::loop() {
     for (uint8_t i = 1; i <= max_i; ++i) Ni[i] += Ni[0];
 
     // Cache the smallest current Ni[0]
-    shaping.refresh_smallest_Ni_0();
+    shaping.refresh_largest_centroid_delay();
   }
 
   #if ENABLED(FTM_SMOOTHING)
@@ -591,9 +591,8 @@ xyze_float_t FTMotion::calc_traj_point(const float dist) {
 
   #if HAS_FTM_SHAPING
 
-    // If Axis Sync is on subtract the smallest shaping delay centroid (Ni) from the Max Total Delay
     if (ftMotion.cfg.axis_sync_enabled)
-      max_total_delay -= shaping.smallest_Ni_0;
+      max_total_delay += shaping.largest_centroid_delay;
 
     // Apply shaping if active on each axis
     #define _SHAPE(A) \
