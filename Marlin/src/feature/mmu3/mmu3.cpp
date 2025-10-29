@@ -867,7 +867,7 @@ namespace MMU3 {
           nozzle_timer.start();
           LogEchoEvent(F("Cooling Timeout started"));
         }
-        else if (nozzle_timer.duration() > (PAUSE_PARK_NOZZLE_TIMEOUT * 1000ul)) { // mins->msec.
+        else if (nozzle_timer.duration() > (PAUSE_PARK_NOZZLE_TIMEOUT * 1000UL)) { // mins->msec.
           mmu_print_saved &= ~(SavedState::CooldownPending);
           mmu_print_saved |= SavedState::Cooldown;
           thermal_setTargetHotend(0);

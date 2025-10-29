@@ -209,12 +209,12 @@ typedef struct PlannerBlock {
 
   volatile block_flags_t flag;              // Block flags
 
-  bool is_sync_pos() { return flag.sync_position; }
-  bool is_sync_fan() { return TERN0(LASER_SYNCHRONOUS_M106_M107, flag.sync_fans); }
-  bool is_sync_pwr() { return TERN0(LASER_POWER_SYNC, flag.sync_laser_pwr); }
-  bool is_sync() { return is_sync_pos() || is_sync_fan() || is_sync_pwr(); }
-  bool is_page() { return TERN0(DIRECT_STEPPING, flag.page); }
-  bool is_move() { return !(is_sync() || is_page()); }
+  bool is_sync_pos() const { return flag.sync_position; }
+  bool is_sync_fan() const { return TERN0(LASER_SYNCHRONOUS_M106_M107, flag.sync_fans); }
+  bool is_sync_pwr() const { return TERN0(LASER_POWER_SYNC, flag.sync_laser_pwr); }
+  bool is_sync() const { return is_sync_pos() || is_sync_fan() || is_sync_pwr(); }
+  bool is_page() const { return TERN0(DIRECT_STEPPING, flag.page); }
+  bool is_move() const { return !(is_sync() || is_page()); }
 
   // Fields used by the motion planner to manage acceleration
   float nominal_speed,                      // The nominal speed for this block in (mm/sec)

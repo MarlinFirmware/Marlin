@@ -68,7 +68,7 @@ void StepperDAC::set_current_value(const uint8_t channel, uint16_t val) {
 }
 
 void StepperDAC::set_current_percent(const uint8_t channel, float val) {
-  set_current_value(channel, _MIN(val, 100.0f) * (DAC_STEPPER_MAX) / 100.0f);
+  set_current_value(channel, _MIN(val, 100.0f) * (DAC_STEPPER_MAX) * 0.01f);
 }
 
 static float dac_perc(int8_t n) { return mcp4728.getDrvPct(dac_order[n]); }
