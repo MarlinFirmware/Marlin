@@ -1531,7 +1531,7 @@ void Stepper::isr() {
         TERN_(BABYSTEPPING, if (!nextBabystepISR) nextBabystepISR = babystepping_isr());
 
         // ^== Time critical. NOTHING besides pulse generation should be above here!!!
-        
+
         // Enable ISRs to reduce latency for higher priority ISRs
         hal.isr_on();
 
@@ -1586,7 +1586,8 @@ void Stepper::isr() {
       #endif
 
       // Get the interval to the next ISR call
-      interval = _MIN(nextMainISR, uint32_t(HAL_TIMER_TYPE_MAX));         // Time until the next Pulse / Block phase
+      interval = uint32_t(STEPPER_TIMER_RATE * 0.030);                    // Max wait of 30ms regardless of stepper timer frequency
+      NOMORE(interval, nextMainISR);                                      // Time until the next Pulse / Block phase
       TERN_(INPUT_SHAPING_X, NOMORE(interval, ShapingQueue::peek_x()));   // Time until next input shaping echo for X
       TERN_(INPUT_SHAPING_Y, NOMORE(interval, ShapingQueue::peek_y()));   // Time until next input shaping echo for Y
       TERN_(INPUT_SHAPING_Z, NOMORE(interval, ShapingQueue::peek_z()));   // Time until next input shaping echo for Z

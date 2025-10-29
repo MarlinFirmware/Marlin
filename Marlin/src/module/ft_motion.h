@@ -176,9 +176,10 @@ class FTMotion {
       return cfg.active ? axis_move_dir[axis] : stepper.last_direction_bits[axis];
     }
 
-    // Stepping plan handles the counting at the table
+    // Stepping plan handles steps for a while frame (trajectory point delta)
     typedef struct Stepping {
       stepper_plan_t stepper_plan;
+      xyze_ulong_t advance_dividend_reciprocal{0}; // Note this 32 bit reciprocal underestimates quotients by at most one.
       xyze_ulong_t delta_error_q32{ LOGICAL_AXIS_LIST_1(_BV32(31)) };
       AxisBits step_bits;
       uint32_t bresenham_iterations_pending;
@@ -194,62 +195,27 @@ class FTMotion {
       #define INTERVAL_PER_TRAJ_POINT (STEPPER_TIMER_RATE / FTM_FS)
       #define ITERATIONS_PER_TRAJ (FTM_STEPPER_FS * FTM_TS)
 
-      // Updates error and bresenham_iterations_pending, sets step_bits and returns interval until it executes
-      uint32_t advance_until_step_old() {
-        step_bits = 0;
-        uint32_t interval = 0;
-        while (!step_bits && bresenham_iterations_pending > 0) {
-          interval += INTERVAL_PER_ITERATION;
-          bresenham_iterations_pending--;
-          // Note: defining a macro inside a loop doesn't change what the preprocessor does. Keeping it here to be closest to its usage and easier to read
-          #define RUN_AXIS(A) do{                                                      \
-              delta_error_q32.A += stepper_plan.advance_dividend_q0_32.A;              \
-              step_bits.A = delta_error_q32.A < stepper_plan.advance_dividend_q0_32.A; \
-            }while(0);
-          LOGICAL_AXIS_MAP(RUN_AXIS);
-          #undef RUN_AXIS
-        }
-        return interval;
-      }
-
-      // Updates error and bresenham_iterations_pending, sets step_bits and returns interval until it executes
-      // For perf, it searches in powers of two instead of bresenham by one until a step is due.
-      // equivalent to iterations = (space/dividend).small() but avoiding division
+      // Updates error and bresenham_iterations_pending, sets step_bits and returns interval until the next step (or end of frame).
       uint32_t advance_until_step() {
-        uint32_t iterations = 0;
-        { // block just to group variables
-          xyze_ulong_t dividend_scaled = stepper_plan.advance_dividend_q0_32;
-          uint32_t jump = 1;
+        xyze_ulong_t space_q32 = -delta_error_q32 + UINT32_MAX; // How much accumulation until a step in any axis is ALMOST due
+                                                            // scalar in the right hand because types.h is missing scalar on left cases
 
-          xyze_ulong_t space = -delta_error_q32 + UINT32_MAX; // How much accumulation until a step in any axis is due
-                                                                   // scalar in the right hand because types.h is missing scalar on left cases
-          // using halves since we'll double the dividend and iteration_multiplier inside the while.
-          xyze_ulong_t half_space = space >> 1;                         // ensures (dividend_scaled<<1) <= space
-          uint32_t half_pending = (bresenham_iterations_pending - 1) >> 1;   // ensures (iter<<1) < pending
+        xyze_ulong_t advance_q32 = stepper_plan.advance_dividend_q0_32;
+        uint32_t iterations = bresenham_iterations_pending;
+        // Per-axis lower-bound approx of floor(space_q32/adv), min across axes (lower bound because this fast division underestimates result by up to 1)
+        // #define RUN_AXIS(A) if(advance_q32.A > 0) NOMORE(iterations, space_q32.A/advance_q32.A);
+        #define RUN_AXIS(A) if(advance_q32.A > 0) NOMORE(iterations, uint32_t((uint64_t(space_q32.A) * advance_dividend_reciprocal.A) >> 32));
+        LOGICAL_AXIS_MAP(RUN_AXIS);
+        #undef RUN_AXIS
 
-          // —— Grow phase: keep doubling until right before a step would occur (or pending iterations exhausted)
-          while (dividend_scaled <= half_space && jump <= half_pending) {
-            jump <<= 1;               // stays < pending
-            dividend_scaled <<= 1;    // safe: fits after doubling
-          }
+        #define RUN_AXIS(A) delta_error_q32.A += advance_q32.A * iterations;
+        LOGICAL_AXIS_MAP(RUN_AXIS);
+        #undef RUN_AXIS
 
-          // —— Shrink phase: keep adding and halving until there's 1 iteration left for actual stepping
-          while (bresenham_iterations_pending > 1 && jump > 0) {
-            if (jump < bresenham_iterations_pending && dividend_scaled <= space) {
-              space -= dividend_scaled;
-              bresenham_iterations_pending -= jump;
-              delta_error_q32 += dividend_scaled;
-              iterations += jump;
-            }
-            dividend_scaled >>= 1;
-            jump >>= 1;
-          }
-        }
-
+        bresenham_iterations_pending -= iterations;
         step_bits = 0;
-
-        // if there are still iteration pending (should be exactly 1), run through it
-        if (bresenham_iterations_pending) {
+        // iterations may be underestimated by 1 by the cheap division, therefore we may have to do 2 iterations here
+        while (bresenham_iterations_pending && !(bool)step_bits) {
           iterations++;
           bresenham_iterations_pending--;
           #define RUN_AXIS(A) do{                                                      \
@@ -260,8 +226,7 @@ class FTMotion {
           #undef RUN_AXIS
         }
 
-        // TODO: find out why not subtracting 1 results in 1 bad pulse train per trajectory point.
-        return (iterations - 1) * INTERVAL_PER_ITERATION;
+        return iterations * INTERVAL_PER_ITERATION;
       }
 
       /**
@@ -270,12 +235,17 @@ class FTMotion {
        * Then return interval until that next step
        */
       uint32_t plan() {
-        if (bresenham_iterations_pending > 0) return advance_until_step();
+        uint32_t intervals = 0;
+        if (bresenham_iterations_pending > 0) {
+          intervals = advance_until_step();
+          if (bool(step_bits)) return intervals; // steps to make => return the wait time so it gets done in due time
+          // Else all bresenham iterations were advanced without steps => this is just the frame end, so plan the next one directly and accumulate the wait
+        }
 
         if (stepper_plan_is_empty()) {
           bresenham_iterations_pending = 0;
           step_bits = 0;
-          return HAL_TIMER_TYPE_MAX;
+          return INTERVAL_PER_TRAJ_POINT;
         }
 
         AxisBits old_dir_bits = stepper_plan.dir_bits;
@@ -294,8 +264,12 @@ class FTMotion {
           return INTERVAL_PER_TRAJ_POINT;
         }
 
+        advance_dividend_reciprocal.set(LOGICAL_AXIS_ARRAY_1(UINT32_MAX));
+        advance_dividend_reciprocal /= stepper_plan.advance_dividend_q0_32; // this vector division is unavoidable, but it saves a division per step during bresenham
+        /* 2^32 / (dividend*2^32)*/
+        /* 1 / (dividend)*/
         bresenham_iterations_pending = ITERATIONS_PER_TRAJ;
-        return advance_until_step();
+        return intervals + advance_until_step();
       }
     } stepping_t;
 
