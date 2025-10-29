@@ -29,6 +29,6 @@
 #endif
 
 // Some STM32F4 boards may lose steps when saving to EEPROM during print (PR #17946)
-#if defined(STM32F4xx) && ENABLED(FLASH_EEPROM_EMULATION) && PRINTCOUNTER_SAVE_INTERVAL > 0
+#if ALL(STM32F4xx, FLASH_EEPROM_EMULATION) && PRINTCOUNTER_SAVE_INTERVAL > 0
   #define PRINTCOUNTER_SYNC
 #endif

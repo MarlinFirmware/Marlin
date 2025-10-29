@@ -59,7 +59,7 @@ def back_up_config(name):
                 nr = 1 if nr == '' else nr + 1
                 continue
 
-            with open(bak_path, 'w', encoding='utf-8') as b:
+            with open(bak_path, 'w', encoding='utf-8', newline='') as b:
                 b.writelines(f.readlines())
                 break
 

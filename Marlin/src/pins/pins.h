@@ -295,6 +295,8 @@
   #include "mega/pins_EINSTART-S.h"                 // ATmega2560, ATmega1280               env:mega2560ext env:mega1280
 #elif MB(WANHAO_ONEPLUS)
   #include "mega/pins_WANHAO_ONEPLUS.h"             // ATmega2560                           env:mega2560
+#elif MB(WANHAO_D9)
+  #include "mega/pins_WANHAO_D9.h"                  // ATmega2560                           env:mega2560
 #elif MB(OVERLORD)
   #include "mega/pins_OVERLORD.h"                   // ATmega2560                           env:mega2560
 #elif MB(HJC2560C_REV1)
@@ -852,8 +854,10 @@
   #include "stm32h7/pins_BTT_MANTA_M8P_V2_0.h"      // STM32H7                              env:STM32H723ZE_btt
 #elif MB(BTT_KRAKEN_V1_0)
   #include "stm32h7/pins_BTT_KRAKEN_V1_0.h"         // STM32H7                              env:STM32H723ZG_btt
+#elif MB(TEENSY40)
+  #include "teensy4/pins_TEENSY40.h"                // Teensy-4.0                           env:teensy40
 #elif MB(TEENSY41)
-  #include "teensy4/pins_TEENSY41.h"                // Teensy-4.x                           env:teensy41
+  #include "teensy4/pins_TEENSY41.h"                // Teensy-4.1                           env:teensy41
 #elif MB(T41U5XBB)
   #include "teensy4/pins_T41U5XBB.h"                // Teensy-4.x                           env:teensy41
 #elif MB(FLY_D8_PRO)
@@ -1054,6 +1058,8 @@
     #error "BOARD_TRONXY_V10 is now BOARD_TRONXY_CXY_446_V10. Please update your configuration."
   #elif MB(VAKE403D)
     #error "BOARD_VAKE403D is no longer supported in Marlin."
+  #elif MB(ERROR)
+    #warning "Most likely missing / misplaced Configuration files."
   #elif defined(MOTHERBOARD)
     #error "Unknown MOTHERBOARD value set in Configuration.h."
   #else
