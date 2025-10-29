@@ -102,6 +102,35 @@
   #define AXIS9_NAME 'W'
 #endif
 
+// G-code parameters where XYZ are invariant but IJKUVW can be renamed
+#ifndef AXIS1_PARAM
+  #define AXIS1_PARAM 'X'
+#endif
+#ifndef AXIS2_PARAM
+  #define AXIS2_PARAM 'Y'
+#endif
+#ifndef AXIS3_PARAM
+  #define AXIS3_PARAM 'Z'
+#endif
+#ifndef AXIS4_PARAM
+  #define AXIS4_PARAM AXIS4_NAME
+#endif
+#ifndef AXIS5_PARAM
+  #define AXIS5_PARAM AXIS5_NAME
+#endif
+#ifndef AXIS6_PARAM
+  #define AXIS6_PARAM AXIS6_NAME
+#endif
+#ifndef AXIS7_PARAM
+  #define AXIS7_PARAM AXIS7_NAME
+#endif
+#ifndef AXIS8_PARAM
+  #define AXIS8_PARAM AXIS8_NAME
+#endif
+#ifndef AXIS9_PARAM
+  #define AXIS9_PARAM AXIS9_NAME
+#endif
+
 #if HAS_X_AXIS
   #define X_MAX_LENGTH (X_MAX_POS - (X_MIN_POS))
 #endif
@@ -1838,6 +1867,8 @@
 #endif
 #if ANY_AXIS_HAS(SW_SERIAL)
   #define HAS_TMC_SW_SERIAL 1
+#elif HAS_TRINAMIC_CONFIG
+  #define HAS_TMC_WITHOUT_SW_SERIAL 1
 #endif
 #ifndef SERIAL_FLOAT_PRECISION
   #define SERIAL_FLOAT_PRECISION 2
@@ -3034,13 +3065,17 @@
   #define HAS_MOTOR_CURRENT_PWM 1
 #endif
 
+#if PINS_EXIST(MS1, MS2)
+  #define HAS_SHARED_MICROSTEPPING_PINS 1
+#endif
+
 #if ANY(HAS_Z_MS_PINS, HAS_Z2_MS_PINS, HAS_Z3_MS_PINS, HAS_Z4_MS_PINS)
   #define HAS_SOME_Z_MS_PINS 1
 #endif
 #if ANY(HAS_E0_MS_PINS, HAS_E1_MS_PINS, HAS_E2_MS_PINS, HAS_E3_MS_PINS, HAS_E4_MS_PINS, HAS_E5_MS_PINS, HAS_E6_MS_PINS, HAS_E7_MS_PINS)
   #define HAS_SOME_E_MS_PINS 1
 #endif
-#if ANY(HAS_X_MS_PINS, HAS_X2_MS_PINS, HAS_Y_MS_PINS, HAS_Y2_MS_PINS, HAS_SOME_Z_MS_PINS, HAS_I_MS_PINS, HAS_J_MS_PINS, HAS_K_MS_PINS, HAS_U_MS_PINS, HAS_V_MS_PINS, HAS_W_MS_PINS, HAS_SOME_E_MS_PINS)
+#if ANY(HAS_X_MS_PINS, HAS_X2_MS_PINS, HAS_Y_MS_PINS, HAS_Y2_MS_PINS, HAS_SOME_Z_MS_PINS, HAS_I_MS_PINS, HAS_J_MS_PINS, HAS_K_MS_PINS, HAS_U_MS_PINS, HAS_V_MS_PINS, HAS_W_MS_PINS, HAS_SOME_E_MS_PINS, HAS_SHARED_MICROSTEPPING_PINS)
   #define HAS_MICROSTEPS 1
 #else
   #undef MICROSTEP_MODES
@@ -3622,11 +3657,27 @@
 #endif
 
 // Flag whether hex_print.cpp is needed
-#if ANY(AUTO_BED_LEVELING_UBL, M100_FREE_MEMORY_WATCHER, DEBUG_GCODE_PARSER, TMC_DEBUG, MARLIN_DEV_MODE, DEBUG_CARDREADER, M20_TIMESTAMP_SUPPORT, HAS_STM32_UID)
+#if ANY(AUTO_BED_LEVELING_UBL, M100_FREE_MEMORY_WATCHER, DEBUG_GCODE_PARSER, TMC_DEBUG, MARLIN_DEV_MODE, DEBUG_CARDREADER, M20_TIMESTAMP_SUPPORT, HAS_STM32_UID, I2C_SCANNER)
   #define NEED_HEX_PRINT 1
 #endif
 
 // SPI Flash Backup
 #if ALL(SPI_FLASH, HAS_MEDIA, MARLIN_DEV_MODE)
   #define SPI_FLASH_BACKUP 1
+#endif
+
+// Fixed-Time Motion
+#if ENABLED(FT_MOTION)
+  #define FTM_TS (1.0f / FTM_FS)                                    // (s) Time step for trajectory generation. (Reciprocal of FTM_FS)
+  #define FTM_STEPS_PER_UNIT_TIME (FTM_STEPPER_FS / FTM_FS)         // Interpolated stepper commands per unit time
+  #define FTM_MIN_TICKS ((STEPPER_TIMER_RATE) / (FTM_STEPPER_FS))   // Minimum stepper ticks between steps
+  #define FTM_RATIO (FTM_FS / FTM_MIN_SHAPE_FREQ)     // Factor for use in FTM_ZMAX. DON'T CHANGE.
+  #define FTM_SMOOTH_MAX_I uint32_t(TERN0(FTM_SMOOTHING, CEIL(FTM_FS * FTM_MAX_SMOOTHING_TIME))) // Max delays for smoothing
+  #define FTM_ZMAX (FTM_RATIO * 2 + FTM_SMOOTH_MAX_I) // Maximum delays for shaping functions (even numbers only!)
+                                                      // Calculate as:
+                                                      //   ZV       : FTM_RATIO / 2
+                                                      //   ZVD, MZV : FTM_RATIO
+                                                      //   2HEI     : FTM_RATIO * 3 / 2
+                                                      //   3HEI     : FTM_RATIO * 2
+  #define FTM_SMOOTHING_ORDER 5                       // 3 to 5 is closest to gaussian
 #endif

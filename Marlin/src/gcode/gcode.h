@@ -215,6 +215,7 @@
  * M256 - Set LCD brightness: 'M256 B<brightness>' (0-255). (Requires an LCD with brightness control)
  * M260 - i2c Send Data (Requires EXPERIMENTAL_I2CBUS)
  * M261 - i2c Request Data (Requires EXPERIMENTAL_I2CBUS)
+ * M265 - i2c Scanner - Scan for I2C devices. (Requires I2C_SCANNER)
  * M280 - Set servo position absolute: 'M280 P<index> S<angle|µs>'. (Requires servos)
  * M281 - Set servo min|max position: 'M281 P<index> L<min> U<max>'. (Requires EDITABLE_SERVO_ANGLES)
  * M282 - Detach servo: 'M282 P<index>'. (Requires SERVO_DETACH_GCODE)
@@ -1017,6 +1018,10 @@ private:
     static void M261();
   #endif
 
+  #if ENABLED(I2C_SCANNER)
+    static void M265();
+  #endif
+
   #if HAS_SERVOS
     static void M280();
     #if ENABLED(EDITABLE_SERVO_ANGLES)
@@ -1102,6 +1107,7 @@ private:
 
   #if HAS_BED_PROBE
     static void M401();
+    static void M401_report(const bool forReplay=true);
     static void M402();
   #endif
 
@@ -1171,6 +1177,8 @@ private:
   #if ENABLED(FT_MOTION)
     static void M493();
     static void M493_report(const bool forReplay=true);
+    static void M494();
+    static void M494_report(const bool forReplay=true);
   #endif
 
   static void M500();

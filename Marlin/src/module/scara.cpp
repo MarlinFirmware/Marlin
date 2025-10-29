@@ -48,7 +48,7 @@ float segments_per_second = DEFAULT_SEGMENTS_PER_SECOND;
    * Maths and first version by QHARLEY.
    * Integrated into Marlin and slightly restructured by Joachim Cerny.
    */
-  void forward_kinematics(const_float_t a, const_float_t b) {
+  void forward_kinematics(const float a, const float b) {
     const float a_sin = sinf(RADIANS(a)) * L1,
                 a_cos = cosf(RADIANS(a)) * L1,
                 b_sin = sinf(RADIANS(SUM_TERN(MP_SCARA, b, a))) * L2,
@@ -197,7 +197,7 @@ float segments_per_second = DEFAULT_SEGMENTS_PER_SECOND;
   }
 
   // Convert ABC inputs in degrees to XYZ outputs in mm
-  void forward_kinematics(const_float_t a, const_float_t b, const_float_t c) {
+  void forward_kinematics(const float a, const float b, const float c) {
     const float w = c - b,
                 r = L1 * cosf(RADIANS(b)) + L2 * sinf(RADIANS(w - (90 - b))),
                 x = r  * cosf(RADIANS(a)),

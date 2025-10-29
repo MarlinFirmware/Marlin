@@ -133,7 +133,7 @@ Nozzle nozzle;
      * @param strokes number of strokes to execute
      * @param radius radius of circle
      */
-    void Nozzle::circle(const xyz_pos_t &start, const xyz_pos_t &middle, const uint8_t strokes, const_float_t radius) {
+    void Nozzle::circle(const xyz_pos_t &start, const xyz_pos_t &middle, const uint8_t strokes, const float radius) {
       if (strokes == 0) return;
 
       #if ENABLED(NOZZLE_CLEAN_GOBACK)
@@ -162,7 +162,7 @@ Nozzle nozzle;
    * @param pattern one of the available patterns
    * @param argument depends on the cleaning pattern
    */
-  void Nozzle::clean(const uint8_t pattern, const uint8_t strokes, const_float_t radius, const uint8_t objects, const uint8_t cleans) {
+  void Nozzle::clean(const uint8_t pattern, const uint8_t strokes, const float radius, const uint8_t objects, const uint8_t cleans) {
     xyz_pos_t start[HOTENDS] = NOZZLE_CLEAN_START_POINT, end[HOTENDS] = NOZZLE_CLEAN_END_POINT;
     #if ENABLED(NOZZLE_CLEAN_PATTERN_CIRCLE)
       xyz_pos_t middle[HOTENDS] = NOZZLE_CLEAN_CIRCLE_MIDDLE;
@@ -246,7 +246,7 @@ Nozzle nozzle;
 #if ENABLED(NOZZLE_PARK_FEATURE)
 
   #if HAS_Z_AXIS
-    float Nozzle::park_mode_0_height(const_float_t park_z) {
+    float Nozzle::park_mode_0_height(const float park_z) {
       // Apply a minimum raise, if specified. Use park.z as a minimum height instead.
       return _MAX(park_z,                       // Minimum height over 0 based on input
         _MIN(Z_MAX_POS,                         // Maximum height is fixed

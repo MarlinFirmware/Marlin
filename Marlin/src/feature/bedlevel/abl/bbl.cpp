@@ -229,7 +229,7 @@ void LevelingBilinear::print_leveling_grid(const bed_mesh_t* _z_values/*=nullptr
     ) * 0.5f;
   }
 
-  float LevelingBilinear::virt_2cmr(const uint8_t x, const uint8_t y, const_float_t tx, const_float_t ty) {
+  float LevelingBilinear::virt_2cmr(const uint8_t x, const uint8_t y, const float tx, const float ty) {
     float row[4], column[4];
     for (uint8_t i = 0; i < 4; ++i) {
       for (uint8_t j = 0; j < 4; ++j) {
@@ -369,7 +369,7 @@ float LevelingBilinear::get_z_correction(const xy_pos_t &raw) {
    * Prepare a bilinear-leveled linear move on Cartesian,
    * splitting the move where it crosses grid borders.
    */
-  void LevelingBilinear::line_to_destination(const_feedRate_t scaled_fr_mm_s, uint16_t x_splits, uint16_t y_splits) {
+  void LevelingBilinear::line_to_destination(const feedRate_t scaled_fr_mm_s, uint16_t x_splits, uint16_t y_splits) {
     // Get current and destination cells for this line
     xy_int_t c1 { CELL_INDEX(x, current_position.x), CELL_INDEX(y, current_position.y) },
              c2 { CELL_INDEX(x, destination.x), CELL_INDEX(y, destination.y) };

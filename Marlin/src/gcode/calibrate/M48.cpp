@@ -124,7 +124,7 @@ void GcodeSuite::M48() {
         max = -99999.9, // Largest value sampled so far
         sample_set[n_samples];  // Storage for sampled values
 
-  auto dev_report = [](const bool verbose, const_float_t mean, const_float_t sigma, const_float_t min, const_float_t max, const bool final=false) {
+  auto dev_report = [](const bool verbose, const float mean, const float sigma, const float min, const float max, const bool final=false) {
     if (verbose) {
       SERIAL_ECHOPGM("Mean: ", p_float_t(mean, 6));
       if (!final) SERIAL_ECHOPGM(" Sigma: ", p_float_t(sigma, 6));
@@ -149,7 +149,7 @@ void GcodeSuite::M48() {
     for (uint8_t n = 0; n < n_samples; ++n) {
       #if HAS_STATUS_MESSAGE
         // Display M48 progress in the status bar
-        ui.status_printf(0, F(S_FMT ": %d/%d"), GET_TEXT_F(MSG_M48_POINT), int(n + 1), int(n_samples));
+        ui.status_printf(0, F(S_FMT ": %d/%d"), GET_TEXT(MSG_M48_POINT), int(n + 1), int(n_samples));
       #endif
 
       // When there are "legs" of movement move around the point before probing

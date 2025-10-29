@@ -54,7 +54,7 @@ float absoluteAngle(float a) {
   return a;
 }
 
-void forward_kinematics(const_float_t r, const_float_t theta) {
+void forward_kinematics(const float r, const float theta) {
   const float absTheta = absoluteAngle(theta);
   float radius = r;
   if (polar_center_offset > 0.0) radius = SQRT( ABS( sq(r) - sq(-polar_center_offset) ) );

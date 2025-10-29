@@ -49,7 +49,7 @@ struct vector_3 {
     struct { float x, y, z; };
     float pos[3];
   };
-  vector_3(const_float_t _x, const_float_t _y, const_float_t _z) : x(_x), y(_y), z(_z) {}
+  vector_3(const float _x, const float _y, const float _z) : x(_x), y(_y), z(_z) {}
   vector_3(const xy_float_t   &in) { TERN_(HAS_X_AXIS, x = in.x); TERN_(HAS_Y_AXIS, y = in.y); }
   vector_3(const xyz_float_t  &in) { TERN_(HAS_X_AXIS, x = in.x); TERN_(HAS_Y_AXIS, y = in.y); TERN_(HAS_Z_AXIS, z = in.z); }
   vector_3(const xyze_float_t &in) { TERN_(HAS_X_AXIS, x = in.x); TERN_(HAS_Y_AXIS, y = in.y); TERN_(HAS_Z_AXIS, z = in.z); }
@@ -75,8 +75,8 @@ struct vector_3 {
   vector_3 operator-(const vector_3 &v) { return vector_3(x - v.x, y - v.y, z - v.z); }
   vector_3 operator*(const float &v)    { return vector_3(x * v, y * v, z * v); }
 
-  operator xy_float_t() { return xy_float_t({ TERN_(HAS_X_AXIS, x) OPTARG(HAS_Y_AXIS, y) }); }
-  operator xyz_float_t() { return xyz_float_t({ TERN_(HAS_X_AXIS, x) OPTARG(HAS_Y_AXIS, y) OPTARG(HAS_Z_AXIS, z) }); }
+  operator xy_float_t() { return xy_float_t(XY_ARRAY(x, y)); }
+  operator xyz_float_t() { return xyz_float_t(XYZ_ARRAY(x, y, z)); }
 
   void debug(FSTR_P const title);
 };

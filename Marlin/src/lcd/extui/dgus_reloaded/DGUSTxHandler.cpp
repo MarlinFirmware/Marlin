@@ -183,7 +183,7 @@
 
 void DGUSTxHandler::zPosition(DGUS_VP &vp) {
   const float position = ExtUI::isAxisPositionKnown(ExtUI::Z) ? planner.get_axis_position_mm(Z_AXIS) : 0;
-  const int32_t data = dgus.toFixedPoint<float, int32_t, 2>(int32_t(position * 50.0f) / 50.0f); // Round to 0.02
+  const int32_t data = dgus.toFixedPoint<float, int32_t, 2>(int32_t(position * 50.0f) * 0.02f); // Round to 0.02
   dgus.write((uint16_t)vp.addr, dgus.swapBytes(data));
 }
 
