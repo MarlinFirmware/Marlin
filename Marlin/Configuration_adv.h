@@ -338,7 +338,7 @@
 /**
  * Thermal Protection parameters for the bed are just as above for hotends.
  */
-#if ALL(TEMP_SENSOR_BED, THERMAL_PROTECTION_BED)
+#if TEMP_SENSOR_BED && ENABLED(THERMAL_PROTECTION_BED)
   #define THERMAL_PROTECTION_BED_PERIOD        20 // (seconds)
   #define THERMAL_PROTECTION_BED_HYSTERESIS     2 // (°C)
 
@@ -352,7 +352,7 @@
 /**
  * Thermal Protection parameters for the heated chamber.
  */
-#if ALL(TEMP_SENSOR_CHAMBER, THERMAL_PROTECTION_CHAMBER)
+#if TEMP_SENSOR_CHAMBER && ENABLED(THERMAL_PROTECTION_CHAMBER)
   #define THERMAL_PROTECTION_CHAMBER_PERIOD    20 // (seconds)
   #define THERMAL_PROTECTION_CHAMBER_HYSTERESIS 2 // (°C)
 
@@ -366,7 +366,7 @@
 /**
  * Thermal Protection parameters for the laser cooler.
  */
-#if ALL(TEMP_SENSOR_COOLER, THERMAL_PROTECTION_COOLER)
+#if TEMP_SENSOR_COOLER && ENABLED(THERMAL_PROTECTION_COOLER)
   #define THERMAL_PROTECTION_COOLER_PERIOD     10 // (seconds)
   #define THERMAL_PROTECTION_COOLER_HYSTERESIS  3 // (°C)
 
