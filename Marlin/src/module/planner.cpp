@@ -57,7 +57,7 @@
  *   di -> (2 a d - s1^2 + s2^2)/(4 a)
  *
  * We note, as an optimization, that if we have already calculated an
- * acceleration distance d1 from s1 to m and a deceration distance d2
+ * acceleration distance d1 from s1 to m and a deceleration distance d2
  * from m to s2 then
  *
  *   d1 -> (m^2 - s1^2) / (2 a)
@@ -799,7 +799,7 @@ block_t* Planner::get_future_block(const uint8_t offset) {
  * NOT BUSY and it is marked as RECALCULATE. That WARRANTIES the Stepper ISR
  * is not and will not use the block while we modify it.
  */
-void Planner::calculate_trapezoid_for_block(block_t * const block, const_float_t entry_speed, const_float_t exit_speed) {
+void Planner::calculate_trapezoid_for_block(block_t * const block, const float entry_speed, const float exit_speed) {
 
   const float spmm = block->steps_per_mm;
   uint32_t initial_rate = entry_speed ? LROUND(entry_speed * spmm) : block->initial_rate,
@@ -1006,7 +1006,7 @@ void Planner::calculate_trapezoid_for_block(block_t * const block, const_float_t
 
 // The kernel called by recalculate() when scanning the plan from last to first entry.
 // Returns true if it could increase the current block's entry speed.
-bool Planner::reverse_pass_kernel(block_t * const current, const block_t * const next, const_float_t safe_exit_speed_sqr) {
+bool Planner::reverse_pass_kernel(block_t * const current, const block_t * const next, const float safe_exit_speed_sqr) {
   // We need to recalculate only for the last block added or if next->entry_speed_sqr changed.
   if (!next || next->flag.recalculate) {
     // And only if we're not already at max entry speed.
@@ -1045,7 +1045,7 @@ bool Planner::reverse_pass_kernel(block_t * const current, const block_t * const
  * coarsely maximizes the entry speeds starting from last block.
  * Requires there's at least one block with flag.recalculate in the buffer.
  */
-void Planner::reverse_pass(const_float_t safe_exit_speed_sqr) {
+void Planner::reverse_pass(const float safe_exit_speed_sqr) {
   // Initialize block index to the last block in the planner buffer.
   // This last block will have flag.recalculate set.
   uint8_t block_index = prev_block_index(block_buffer_head);
@@ -1107,7 +1107,7 @@ void Planner::forward_pass_kernel(const block_t * const previous, block_t * cons
  * Do the forward pass and recalculate the trapezoid speed profiles for all blocks in the plan
  * according to entry/exit speeds.
  */
-void Planner::recalculate_trapezoids(const_float_t safe_exit_speed_sqr) {
+void Planner::recalculate_trapezoids(const float safe_exit_speed_sqr) {
   // Start with the block that's about to execute or is executing.
   uint8_t block_index = block_buffer_tail,
           head_block_index = block_buffer_head;
@@ -1182,7 +1182,7 @@ void Planner::recalculate_trapezoids(const_float_t safe_exit_speed_sqr) {
 }
 
 // Requires there's at least one block with flag.recalculate in the buffer
-void Planner::recalculate(const_float_t safe_exit_speed_sqr) {
+void Planner::recalculate(const float safe_exit_speed_sqr) {
   reverse_pass(safe_exit_speed_sqr);
   // The forward pass is done as part of recalculate_trapezoids()
   recalculate_trapezoids(safe_exit_speed_sqr);
@@ -1375,7 +1375,6 @@ void Planner::check_axes_activity() {
 
   /**
    * Called by the M104/M109 commands after setting Hotend Temperature
-   *
    */
   void Planner::autotemp_M104_M109() {
     _autotemp_update_from_hotend();
@@ -1425,7 +1424,7 @@ void Planner::check_axes_activity() {
    * This is the reciprocal of the circular cross-section area.
    * Return 1.0 with volumetric off or a diameter of 0.0.
    */
-  inline float calculate_volumetric_multiplier(const_float_t diameter) {
+  inline float calculate_volumetric_multiplier(const float diameter) {
     return (parser.volumetric_enabled && diameter) ? 1.0f / CIRCLE_AREA(diameter * 0.5f) : 1;
   }
 
@@ -2408,8 +2407,8 @@ bool Planner::_populate_block(
   const float steps_per_mm = block->step_event_count * inverse_millimeters;
   block->steps_per_mm = steps_per_mm;
   uint32_t accel;
-  #if ENABLED(LIN_ADVANCE)
-    bool use_advance_lead = false;
+  #if ANY(LIN_ADVANCE, FTM_HAS_LIN_ADVANCE)
+    bool use_adv_lead = false;
   #endif
   if (!ANY_AXIS_MOVES(block)) {                                 // Is this a retract / recover move?
     accel = CEIL(settings.retract_acceleration * steps_per_mm); // Convert to: acceleration steps/sec^2
@@ -2432,45 +2431,48 @@ bool Planner::_populate_block(
     // Start with print or travel acceleration
     accel = CEIL((esteps ? settings.acceleration : settings.travel_acceleration) * steps_per_mm);
 
-    #if ENABLED(LIN_ADVANCE)
+    #if ANY(LIN_ADVANCE, FTM_HAS_LIN_ADVANCE)
       // Linear advance is currently not ready for HAS_I_AXIS
       #define MAX_E_JERK(N) TERN(HAS_LINEAR_E_JERK, max_e_jerk[E_INDEX_N(N)], max_jerk.e)
 
       /**
-       * Use LIN_ADVANCE for blocks if all these are true:
-       *
-       * esteps                       : This is a print move, because we checked for A, B, C steps before.
-       *
-       * extruder_advance_K[extruder] : There is an advance factor set for this extruder.
-       *
-       * dm.e                         : Extruder is running forward (e.g., for "Wipe while retracting" (Slic3r) or "Combing" (Cura) moves)
+       * Apply Linear/Pressure Advance for blocks when:
+       *  !!esteps : This is a print move, because we checked for A, B, C steps before.
+       *  !!dm.e   : Extruder is running forward (e.g., for "Wipe while retracting" (Slic3r) or "Combing" (Cura) moves)
+       * ...then...
+       *  !!advanceK : There is an Advance K set so Linear/Pressure Advance is active.
+       *               Check the appropriate K value for Standard or Fixed-Time Motion.
        */
-      use_advance_lead = esteps && extruder_advance_K[E_INDEX_N(extruder)] && dm.e;
+      if (esteps && dm.e) {
+        const bool ftm_active = TERN0(FTM_HAS_LIN_ADVANCE, ftMotion.cfg.active),
+                   ftm_la_active = TERN0(FTM_HAS_LIN_ADVANCE, ftm_active && ftMotion.cfg.linearAdvEna);
+        const float advK = ftm_active
+          ? (ftm_la_active ? TERN0(FTM_HAS_LIN_ADVANCE, ftMotion.cfg.linearAdvK) : 0)
+          : TERN0(HAS_ROUGH_LIN_ADVANCE, extruder_advance_K[E_INDEX_N(extruder)]);
+        if (advK) {
+          float e_D_ratio = (target_float.e - position_float.e) /
+            TERN(IS_KINEMATIC, block->millimeters,
+              SQRT(sq(target_float.x - position_float.x)
+                 + sq(target_float.y - position_float.y)
+                 + sq(target_float.z - position_float.z))
+            );
 
-      if (use_advance_lead) {
-        float e_D_ratio = (target_float.e - position_float.e) /
-          TERN(IS_KINEMATIC, block->millimeters,
-            SQRT(sq(target_float.x - position_float.x)
-               + sq(target_float.y - position_float.y)
-               + sq(target_float.z - position_float.z))
-          );
-
-        // Check for unusual high e_D ratio to detect if a retract move was combined with the last print move due to min. steps per segment. Never execute this with advance!
-        // This assumes no one will use a retract length of 0mm < retr_length < ~0.2mm and no one will print 100mm wide lines using 3mm filament or 35mm wide lines using 1.75mm filament.
-        if (e_D_ratio > 3.0f)
-          use_advance_lead = false;
-        else {
-          #if HAS_ROUGH_LIN_ADVANCE
-            // Scale E acceleration so that it will be possible to jump to the advance speed.
-            const uint32_t max_accel_steps_per_s2 = MAX_E_JERK(extruder) / (extruder_advance_K[E_INDEX_N(extruder)] * e_D_ratio) * steps_per_mm;
+          // Stay below an unusually high e_D ratio, a retract move combined with the last print move (due to min steps per segment).
+          //   Never execute this with advance!
+          // This assumes no one will use a retract length of 0mm < retr_length < ~0.2mm
+          //   and no one will print 100mm wide lines using 3mm filament or 35mm wide lines using 1.75mm filament.
+          use_adv_lead = e_D_ratio <= 3.0f;
+          if (use_adv_lead && TERN0(HAS_ROUGH_LIN_ADVANCE, !ftm_active)) {
+            // For Standard Motion LA: Scale E acceleration so it'll be possible to jump to the advance speed
+            const uint32_t max_accel_steps_per_s2 = (MAX_E_JERK(extruder) / (advK * e_D_ratio)) * steps_per_mm;
             if (accel > max_accel_steps_per_s2) {
               accel = max_accel_steps_per_s2;
-              if (TERN0(LA_DEBUG, DEBUGGING(INFO))) SERIAL_ECHOLNPGM("Acceleration limited.");
+              if (TERN0(LA_DEBUG, DEBUGGING(INFO))) SERIAL_ECHOLNPGM("Acceleration limited to max_accel_steps_per_s2 (", max_accel_steps_per_s2, ")");
             }
-          #endif
+          }
         }
       }
-    #endif // LIN_ADVANCE
+    #endif // LIN_ADVANCE || FTM_HAS_LIN_ADVANCE
 
     // Limit acceleration per axis
     if (block->step_event_count <= acceleration_long_cutoff) {
@@ -2511,7 +2513,7 @@ bool Planner::_populate_block(
   #if HAS_ROUGH_LIN_ADVANCE
     block->la_advance_rate = 0;
     block->la_scaling = 0;
-    if (use_advance_lead) {
+    if (use_adv_lead) {
       // The Bresenham algorithm will convert this step rate into extruder steps
       block->la_advance_rate = extruder_advance_K[E_INDEX_N(extruder)] * block->acceleration_steps_per_s2;
 
@@ -2525,7 +2527,6 @@ bool Planner::_populate_block(
           SERIAL_ECHOLNPGM("eISR running at > 10kHz: ", block->la_advance_rate);
     }
   #elif ENABLED(SMOOTH_LIN_ADVANCE)
-    block->use_advance_lead = use_advance_lead;
     const uint32_t ratio = (uint64_t(block->steps.e) * _BV32(30)) / block->step_event_count;
     block->e_step_ratio_q30 = block->direction_bits.e ? ratio : -ratio;
 
@@ -2533,6 +2534,10 @@ bool Planner::_populate_block(
       const uint32_t xy_steps = TERN0(INPUT_SHAPING_X, block->steps.x) + TERN0(INPUT_SHAPING_Y, block->steps.y);
       block->xy_length_inv_q30 = xy_steps ? (_BV32(30) / xy_steps) : 0;
     #endif
+  #endif
+
+  #if ANY(SMOOTH_LIN_ADVANCE, FTM_HAS_LIN_ADVANCE)
+    block->use_advance_lead = use_adv_lead;
   #endif
 
   // Formula for the average speed over a 1 step worth of distance if starting from zero and
@@ -2914,7 +2919,7 @@ void Planner::buffer_sync_block(const BlockFlagBit sync_flag/*=BLOCK_BIT_SYNC_PO
  */
 bool Planner::buffer_segment(const abce_pos_t &abce
   OPTARG(HAS_DIST_MM_ARG, const xyze_float_t &cart_dist_mm)
-  , const_feedRate_t fr_mm_s
+  , const feedRate_t fr_mm_s
   , const uint8_t extruder/*=active_extruder*/
   , const PlannerHints &hints/*=PlannerHints()*/
 ) {
@@ -3041,7 +3046,7 @@ bool Planner::buffer_segment(const abce_pos_t &abce
  *
  * @return  false if no segment was queued due to cleaning, cold extrusion, full queue, etc.
  */
-bool Planner::buffer_line(const xyze_pos_t &cart, const_feedRate_t fr_mm_s
+bool Planner::buffer_line(const xyze_pos_t &cart, const feedRate_t fr_mm_s
   , const uint8_t extruder/*=active_extruder*/
   , const PlannerHints &hints/*=PlannerHints()*/
 ) {
@@ -3123,11 +3128,11 @@ bool Planner::buffer_line(const xyze_pos_t &cart, const_feedRate_t fr_mm_s
       feedRate_t calculated_feedrate = fr_mm_s;
       const xyz_pos_t diff = delta - position_float;
       if (!NEAR_ZERO(diff.b)) {
-        if (delta.a <= POLAR_FAST_RADIUS )
+        if (delta.a <= POLAR_FAST_RADIUS)
           calculated_feedrate = settings.max_feedrate_mm_s[Y_AXIS];
         else {
           // Normalized vector of movement
-          const float diffBLength = ABS((2.0f * M_PI * diff.a) * (diff.b / 360.0f)),
+          const float diffBLength = ABS((2.0f * M_PI * diff.a) * (diff.b * 0.002777777778)), // ÷ 360
                       diffTheta = DEGREES(ATAN2(diff.a, diffBLength)),
                       normalizedTheta = 1.0f - (ABS(diffTheta > 90.0f ? 180.0f - diffTheta : diffTheta) / 90.0f);
 
@@ -3279,7 +3284,7 @@ void Planner::set_position_mm(const xyze_pos_t &xyze) {
   /**
    * Special setter for planner E position (also setting E stepper position).
    */
-  void Planner::set_e_position_mm(const_float_t e) {
+  void Planner::set_e_position_mm(const float e) {
     const uint8_t axis_index = E_AXIS_N(active_extruder);
     TERN_(DISTINCT_E_FACTORS, last_extruder = active_extruder);
 

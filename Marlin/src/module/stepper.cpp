@@ -21,33 +21,25 @@
  */
 
 /**
- * stepper.cpp - A singleton object to execute motion plans using stepper motors
- * Marlin Firmware
+ * stepper.cpp - Singleton to execute motion plans using stepper motors
  *
- * Derived from Grbl
- * Copyright (c) 2009-2011 Simen Svale Skogsrud
+ * Marlin uses the Bresenham algorithm. For a detailed explanation of theory and
+ * method see https://www.cs.helsinki.fi/group/goa/mallinnus/lines/bresenh.html
  *
- * Grbl is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Grbl is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with Grbl.  If not, see <https://www.gnu.org/licenses/>.
- */
-
-/**
  * Timer calculations informed by the 'RepRap cartesian firmware' by Zack Smith
  * and Philipp Tiefenbacher.
+ *
+ * Jerk controlled movements planner added Apr 2018 by Eduardo José Tagle.
+ * Equations based on Synthethos TinyG2 sources, but the fixed-point
+ * implementation is new, as we are running the ISR with a variable period.
+ * Also implemented the Bézier velocity curve evaluation in ARM assembler,
+ * to avoid impacting ISR speed.
+ *
+ * Fixed-Time Motion concept contributed by Ulendo with integration and
+ * overhaul optimizations by @thinkyhead, @narno2202, @dbuezas.
  */
 
-/**
- *         __________________________
+/**        __________________________
  *        /|                        |\     _________________         ^
  *       / |                        | \   /|               |\        |
  *      /  |                        |  \ / |               | \       s
@@ -68,19 +60,6 @@
  *    - Cruise while step_events_completed < block->decelerate_start.
  *    - Decelerate after that, until all steps are completed.
  *    - Reset the trapezoid generator.
- */
-
-/**
- * Marlin uses the Bresenham algorithm. For a detailed explanation of theory and
- * method see https://www.cs.helsinki.fi/group/goa/mallinnus/lines/bresenh.html
- */
-
-/**
- * Jerk controlled movements planner added Apr 2018 by Eduardo José Tagle.
- * Equations based on Synthethos TinyG2 sources, but the fixed-point
- * implementation is new, as we are running the ISR with a variable period.
- * Also implemented the Bézier velocity curve evaluation in ARM assembler,
- * to avoid impacting ISR speed.
  */
 
 #include "stepper.h"
@@ -2449,6 +2428,7 @@ hal_timer_t Stepper::block_phase_isr() {
         acceleration_time += interval;
         deceleration_time = 0; // Reset since we're doing acceleration first.
 
+        // Apply Nonlinear Extrusion, if enabled
         calc_nonlinear_e(acc_step_rate << oversampling_factor);
 
         #if HAS_ROUGH_LIN_ADVANCE
@@ -2513,6 +2493,7 @@ hal_timer_t Stepper::block_phase_isr() {
         interval = calc_multistep_timer_interval(step_rate << oversampling_factor);
         deceleration_time += interval;
 
+        // Apply Nonlinear Extrusion, if enabled
         calc_nonlinear_e(step_rate << oversampling_factor);
 
         #if HAS_ROUGH_LIN_ADVANCE
@@ -2524,7 +2505,7 @@ hal_timer_t Stepper::block_phase_isr() {
 
               if (forward_e != motor_direction(E_AXIS)) {
                 last_direction_bits.toggle(E_AXIS);
-                count_direction.e = -count_direction.e;
+                count_direction.e *= -1;
 
                 DIR_WAIT_BEFORE();
 
@@ -2566,6 +2547,7 @@ hal_timer_t Stepper::block_phase_isr() {
           TERN_(SMOOTH_LIN_ADVANCE, curr_step_rate = current_block->nominal_rate;)
           deceleration_time = ticks_nominal / 2;
 
+          // Apply Nonlinear Extrusion, if enabled
           calc_nonlinear_e(current_block->nominal_rate << oversampling_factor);
 
           #if HAS_ROUGH_LIN_ADVANCE
@@ -2704,7 +2686,7 @@ hal_timer_t Stepper::block_phase_isr() {
       TERN_(HAS_ROUGH_LIN_ADVANCE, la_delta_error = delta_error);
 
       // Calculate Bresenham dividends and divisors
-      advance_dividend = (current_block->steps << 1).asLong();
+      advance_dividend = (current_block->steps << 1).asInt32();
       advance_divisor = step_event_count << 1;
 
       #if ENABLED(INPUT_SHAPING_X)
@@ -2834,6 +2816,7 @@ hal_timer_t Stepper::block_phase_isr() {
       // Initialize ac/deceleration time as if half the time passed.
       acceleration_time = deceleration_time = interval / 2;
 
+      // Apply Nonlinear Extrusion, if enabled
       calc_nonlinear_e(current_block->initial_rate << oversampling_factor);
 
       #if ENABLED(LIN_ADVANCE)
@@ -2880,7 +2863,7 @@ hal_timer_t Stepper::block_phase_isr() {
         la_interval = calc_timer_interval(uint32_t(ABS(step_rate)));
         if (forward_e != motor_direction(E_AXIS)) {
           last_direction_bits.toggle(E_AXIS);
-          count_direction.e = -count_direction.e;
+          count_direction.e *= -1;
           DIR_WAIT_BEFORE();
           E_APPLY_DIR(forward_e, false);
           TERN_(FT_MOTION, last_set_direction = last_direction_bits);
@@ -3263,7 +3246,7 @@ void Stepper::init() {
    * Calculate a fixed point factor to apply to the signal and its echo
    * when shaping an axis.
    */
-  void Stepper::set_shaping_damping_ratio(const AxisEnum axis, const_float_t zeta) {
+  void Stepper::set_shaping_damping_ratio(const AxisEnum axis, const float zeta) {
     // From the damping ratio, get a factor that can be applied to advance_dividend for fixed-point maths.
     // For ZV, we use amplitudes 1/(1+K) and K/(1+K) where K = exp(-zeta * π / sqrt(1.0f - zeta * zeta))
     // which can be converted to 1:7 fixed point with an excellent fit with a 3rd-order polynomial.
@@ -3294,7 +3277,7 @@ void Stepper::init() {
     return -1;
   }
 
-  void Stepper::set_shaping_frequency(const AxisEnum axis, const_float_t freq) {
+  void Stepper::set_shaping_frequency(const AxisEnum axis, const float freq) {
     // enabling or disabling shaping whilst moving can result in lost steps
     planner.synchronize();
 
@@ -3558,8 +3541,6 @@ void Stepper::report_positions() {
     if (++ftMotion.stepperCmdBuff_consumeIdx == (FTM_STEPPERCMD_BUFF_SIZE))
       ftMotion.stepperCmdBuff_consumeIdx = 0;
 
-    if (abort_current_block) return;
-
     USING_TIMED_PULSE();
 
     // Get FT Motion command flags for axis STEP / DIR
@@ -3577,8 +3558,7 @@ void Stepper::report_positions() {
 
     if (last_set_direction != last_direction_bits) {
       // Apply directions (generally applying to the entire linear move)
-      #define _FTM_APPLY_DIR(A) if (last_direction_bits.A != last_set_direction.A) \
-                                  SET_STEP_DIR(A);
+      #define _FTM_APPLY_DIR(A) if (last_direction_bits.A != last_set_direction.A) SET_STEP_DIR(A);
       LOGICAL_AXIS_MAP(_FTM_APPLY_DIR);
 
       last_set_direction = last_direction_bits;

@@ -27,7 +27,7 @@
 //
 typedef Timer0 *timer_channel_t;
 typedef uint16_t hal_timer_t;
-#define HAL_TIMER_TYPE_MAX 0xFFFF
+#define HAL_TIMER_TYPE_MAX 0xFFFFU
 
 //
 // Timer instances

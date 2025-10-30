@@ -481,9 +481,9 @@
 
   /**
    * Fast write helper
-   * @param[in] address I/O register address
-   * @param[in] bit bit number to write
-   * @param[in] level value for bit
+   * @param[in] address  I/O register address
+   * @param[in] bit      bit number to write
+   * @param[in] level    value for bit
    */
   FORCE_INLINE static void fastBitWriteSafe(volatile uint8_t* address, uint8_t bit, bool level) {
     uint8_t oldSREG;

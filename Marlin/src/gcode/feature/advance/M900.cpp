@@ -41,6 +41,9 @@
  * With ADVANCE_K_EXTRA:
  *  S<0/1>      Activate slot 0 or 1.
  *  L<factor>   Set secondary advance K factor (Slot 1).
+ *
+ * With SMOOTH_LIN_ADVANCE:
+ *  U<tau>      Set a tau value for LA smoothing
  */
 void GcodeSuite::M900() {
 
