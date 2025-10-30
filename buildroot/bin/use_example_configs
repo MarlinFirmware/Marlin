@@ -24,13 +24,13 @@ def debug_print(s):
     if DEBUGGING: print(s)
 
 def get_current_branch():
-  try:
-    result = subprocess.run(["git", "branch"], capture_output=True, text=True, check=True)
-    for line in result.stdout.splitlines():
-      if line.startswith("*"):
-        return line[2:]
-  except subprocess.CalledProcessError:
-    return None
+    try:
+        result = subprocess.run(["git", "branch"], capture_output=True, text=True, check=True)
+        for line in result.stdout.splitlines():
+            if line.startswith("*"):
+                return line[2:]
+    except subprocess.CalledProcessError:
+        return None
 
 def sparse_checkout(branch, config_path, repo_url="https://github.com/MarlinFirmware/Configurations.git"):
     configs_dir = Path("ConfigurationsRepo")
@@ -99,35 +99,30 @@ def main():
         print("Not a git repository or no branch found.")
         sys.exit(1)
 
-  if branch.startswith("bugfix-2."):
-      branch = branch
-  elif branch.endswith("-2.1.x") or branch == "2.1.x":
-      branch = "latest-2.1.x"
-  elif branch.endswith("-2.0.x") or branch == "2.0.x":
-      branch = "latest-2.0.x"
-  elif branch.endswith("-1.1.x") or branch == "1.1.x":
-      branch = "latest-1.1.x"
-  elif branch.endswith("-1.0.x") or branch == "1.0.x":
-      branch = "latest-1.0.x"
-  else:
-      branch = "bugfix-2.1.x"
+    if branch.startswith("bugfix-2."):
+        branch = branch
+    elif branch.endswith("-2.1.x") or branch == "2.1.x":
+        branch = "latest-2.1.x"
+    elif branch.endswith("-2.0.x") or branch == "2.0.x":
+        branch = "latest-2.0.x"
+    elif branch.endswith("-1.1.x") or branch == "1.1.x":
+        branch = "latest-1.1.x"
+    elif branch.endswith("-1.0.x") or branch == "1.0.x":
+        branch = "latest-1.0.x"
+    else:
+        branch = "bugfix-2.1.x"
 
-  if len(sys.argv) > 1:
-      arg = sys.argv[1]
-      if ":" in arg:
-          part1, part2 = arg.split(":", 1)
-          config_path = part2
-          branch = part1
-      else:
-          config_path = arg
-      config_path = "examples/" + config_path
-  else:
-      config_path = "default"
-
-  try:
-      subprocess.run(["restore_configs"], check=True)
-  except FileNotFoundError:
-      print("restore_configs not found, skipping.")
+    if len(sys.argv) > 1:
+        arg = sys.argv[1]
+        if ":" in arg:
+            part1, part2 = arg.split(":", 1)
+            config_path = part2
+            branch = part1
+        else:
+            config_path = arg
+        config_path = "examples/" + config_path
+    else:
+        config_path = "default"
 
     try:
         subprocess.run(['restore_configs'], check=True)
