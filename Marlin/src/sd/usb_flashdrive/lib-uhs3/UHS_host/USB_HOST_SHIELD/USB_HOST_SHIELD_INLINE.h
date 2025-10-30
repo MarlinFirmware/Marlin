@@ -179,7 +179,7 @@ void UHS_NI MAX3421E_HOST::VBUS_changed() {
     case FSHOST: // Full speed
       // Start device initialization if we are not initializing
       // Resets to the device cause an IRQ
-      // usb_task_state == UHS_USB_HOST_STATE_RESET_NOT_COMPLETE;
+      //usb_task_state == UHS_USB_HOST_STATE_RESET_NOT_COMPLETE;
       //if ((usb_task_state & UHS_USB_HOST_STATE_MASK) != UHS_USB_HOST_STATE_DETACHED) {
       ReleaseChildren();
       if (!doingreset) {

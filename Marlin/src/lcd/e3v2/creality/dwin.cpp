@@ -4022,27 +4022,27 @@ void eachMomentUpdate() {
   if (PENDING(ms, next_rts_update_ms)) return;
   next_rts_update_ms = ms + DWIN_SCROLL_UPDATE_INTERVAL;
   if (checkkey == ID_PrintProcess) {
-    // if print done
+    // If print done
     if (hmiFlag.print_finish && !hmiFlag.done_confirm_flag) {
       hmiFlag.print_finish = false;
       hmiFlag.done_confirm_flag = true;
       TERN_(POWER_LOSS_RECOVERY, recovery.cancel());
       planner.finish_and_disable();
-      // show percent bar and value
+      // Show percent bar and value
       _card_percent = 0;
       drawPrintProgressBar();
-      // show print done confirm
+      // Show print done confirm
       dwinDrawRectangle(1, COLOR_BG_BLACK, 0, 250, DWIN_WIDTH - 1, STATUS_Y);
       dwinIconShow(ICON, hmiIsChinese() ? ICON_Confirm_C : ICON_Confirm_E, 86, 283);
     }
     else if (hmiFlag.pause_flag != printingIsPaused()) {
-      // print status update
+      // Print status update
       hmiFlag.pause_flag = printingIsPaused();
       iconResumeOrPause();
     }
   }
 
-  // pause after homing
+  // Pause after homing
   if (hmiFlag.pause_action && printingIsPaused() && !planner.has_blocks_queued()) {
     hmiFlag.pause_action = false;
     #if ENABLED(PAUSE_HEAT)
