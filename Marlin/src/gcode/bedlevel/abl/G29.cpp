@@ -628,7 +628,7 @@ G29_TYPE GcodeSuite::G29() {
         G29_RETURN(false, true);
       }
       else {
-        // Leveling done! Fall through to G29 finishing code below
+        // Leveling done! Fallthrough to G29 finishing code below
         SERIAL_ECHOLNPGM("Grid probing done.");
         // Re-enable software endstops, if needed
         SET_SOFT_ENDSTOP_LOOSE(false);

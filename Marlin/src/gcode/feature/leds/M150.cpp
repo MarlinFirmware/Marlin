@@ -69,7 +69,7 @@ void GcodeSuite::M150() {
       #endif
       int8_t brightness = neo.brightness(), unit = parser.intval('S', NEOPIXEL_M150_DEFAULT);
       switch (unit) {
-        case -1: neo2.neoindex = index; // fall-thru
+        case -1: neo2.neoindex = index; // Fallthrough
         case  0:  neo.neoindex = index; old_color = seenK ? neo.pixel_color(_MAX(index, 0)) : 0; break;
         case  1: neo2.neoindex = index; brightness = neo2.brightness(); old_color = seenK ? neo2.pixel_color(_MAX(index, 0)) : 0; break;
       }

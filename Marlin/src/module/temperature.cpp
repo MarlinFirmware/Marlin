@@ -2355,7 +2355,7 @@ void Temperature::task() {
     }
 
     #if HAS_MEDIA
-      if (emergency_parser.sd_abort_by_M524) { // abort SD print immediately
+      if (emergency_parser.sd_abort_by_M524) { // Abort SD print immediately
         emergency_parser.sd_abort_by_M524 = false;
         card.flag.abort_sd_printing = true;
         gcode.process_subcommands_now(F("M524"));
@@ -3511,7 +3511,7 @@ void Temperature::init() {
         else if (PENDING(now, timer)) break;
         state = TRRunaway;
 
-      } // fall through
+      } // Fallthrough
 
       case TRRunaway:
         TERN_(SOVOL_SV06_RTS, rts.gotoPageBeep(ID_KillRunaway_L, ID_KillRunaway_D));
@@ -3597,9 +3597,9 @@ void Temperature::disable_all_heaters() {
   void Temperature::pause_heaters(const bool p) {
     if (p != paused_for_probing) {
       paused_for_probing = p;
-      if (p) {
-        HOTEND_LOOP() heater_idle[e].expire();    // Timeout immediately
-        TERN_(HAS_HEATED_BED, heater_idle[IDLE_INDEX_BED].expire()); // Timeout immediately
+      if (p) { // Timeout immediately
+        HOTEND_LOOP() heater_idle[e].expire();
+        TERN_(HAS_HEATED_BED, heater_idle[IDLE_INDEX_BED].expire());
       }
       else {
         HOTEND_LOOP() reset_hotend_idle_timer(e);
@@ -4398,7 +4398,7 @@ void Temperature::isr() {
         break;
       }
       else {
-        adc_sensor_state = StartSampling;                 // Fall-through to start sampling
+        adc_sensor_state = StartSampling;                 // Fallthrough to start sampling
         next_sensor_state = (ADCSensorState)(int(StartSampling) + 1);
       }
     }
@@ -4551,14 +4551,14 @@ void Temperature::isr() {
       case Prepare_ADC_KEY: hal.adc_start(ADC_KEYPAD_PIN); break;
       case Measure_ADC_KEY:
         if (!hal.adc_ready())
-          next_sensor_state = adc_sensor_state; // redo this state
+          next_sensor_state = adc_sensor_state; // Redo this state
         else if (ADCKey_count < ADC_BUTTON_DEBOUNCE_DELAY) {
           raw_ADCKey_value = hal.adc_value();
           if (raw_ADCKey_value <= 900UL * HAL_ADC_RANGE / 1024UL) {
             NOMORE(current_ADCKey_raw, raw_ADCKey_value);
             ADCKey_count++;
           }
-          else { //ADC Key release
+          else { // ADC Key release
             if (ADCKey_count > 0) ADCKey_count++; else ADCKey_pressed = false;
             if (ADCKey_pressed) {
               ADCKey_count = 0;
@@ -4572,14 +4572,14 @@ void Temperature::isr() {
 
     case StartupDelay: break;
 
-  } // switch(adc_sensor_state)
+  } // switch (adc_sensor_state)
 
   // Go to the next state
   adc_sensor_state = next_sensor_state;
 
-  //
-  // Additional ~1kHz Tasks
-  //
+  /**
+   * Additional ~1kHz Tasks
+   */
 
   // Check fan tachometers
   TERN_(HAS_FANCHECK, fan_check.update_tachometers());

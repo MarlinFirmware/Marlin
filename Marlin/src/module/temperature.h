@@ -790,7 +790,7 @@ class Temperature {
       static millis_t fan_update_ms;
 
       static void manage_extruder_fans(millis_t ms) {
-        if (ELAPSED(ms, fan_update_ms)) { // only need to check fan state very infrequently
+        if (ELAPSED(ms, fan_update_ms)) { // Only need to check fan state very infrequently
           const millis_t next_ms = ms + fan_update_interval_ms;
           #if HAS_PWMFANCHECK
             #define FAN_CHECK_DURATION 100
@@ -976,9 +976,11 @@ class Temperature {
       #endif
     #endif
 
-    //high level conversion routines, for use outside of temperature.cpp
-    //inline so that there is no performance decrease.
-    //deg=degreeCelsius
+    /**
+     * High level conversion routines, for use outside of temperature.cpp
+     * inline so that there is no performance decrease.
+     * deg=degreeCelsius
+     */
 
     static celsius_float_t degHotend(const uint8_t E_NAME) {
       return TERN0(HAS_HOTEND, temp_hotend[HOTEND_INDEX].celsius);
@@ -1329,7 +1331,7 @@ class Temperature {
       #endif
     #endif
 
-    #if HAS_HOTEND && HAS_STATUS_MESSAGE
+    #if ALL(HAS_HOTEND, HAS_STATUS_MESSAGE)
       static void set_heating_message(const uint8_t e, const bool isM104=false);
     #else
       static void set_heating_message(const uint8_t, const bool=false) {}

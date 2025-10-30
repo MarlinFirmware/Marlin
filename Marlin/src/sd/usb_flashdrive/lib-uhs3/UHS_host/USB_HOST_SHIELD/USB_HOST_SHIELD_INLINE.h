@@ -175,7 +175,7 @@ void UHS_NI MAX3421E_HOST::VBUS_changed() {
   switch (vbusState) {
     case LSHOST: // Low speed
     speed = 0;
-    // Intentional fall-through
+    // Intentional fallthrough
     case FSHOST: // Full speed
       // Start device initialization if we are not initializing
       // Resets to the device cause an IRQ
@@ -806,7 +806,7 @@ void UHS_NI MAX3421E_HOST::ISRbottom() {
     case UHS_USB_HOST_STATE_WAIT_BUS_READY:
       MAX_HOST_DEBUG(PSTR("UHS_USB_HOST_STATE_WAIT_BUS_READY\r\n"));
       usb_task_state = UHS_USB_HOST_STATE_CONFIGURING;
-      break; // don't fall through
+      break; // don't fallthrough
 
     case UHS_USB_HOST_STATE_CONFIGURING:
       usb_task_state = UHS_USB_HOST_STATE_CHECK;
