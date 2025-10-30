@@ -38,7 +38,7 @@ extern const char M23_STR[], M24_STR[];
   #ifndef SDSORT_FOLDERS
     #define SDSORT_FOLDERS 0
   #endif
-  #if ANY(SDSORT_FOLDERS, SDSORT_GCODE)
+  #if SDSORT_FOLDERS || ENABLED(SDSORT_GCODE)
     #define HAS_FOLDER_SORTING 1
   #endif
 #endif
