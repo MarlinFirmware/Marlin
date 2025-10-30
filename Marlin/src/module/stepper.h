@@ -52,7 +52,6 @@
 #endif
 
 #if ENABLED(FT_MOTION)
-  #include "ft_types.h"
   class FTMotion;
 #endif
 

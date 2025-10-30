@@ -80,7 +80,7 @@ TrajectoryType FTMotion::trajectoryType = TrajectoryType::FTM_TRAJECTORY_TYPE;
 
 // Shaping variables.
 #if HAS_FTM_SHAPING
-  FTMotion::shaping_t FTMotion::shaping = {
+  shaping_t FTMotion::shaping = {
     zi_idx: 0
     #if HAS_X_AXIS
       , X:{ false, { 0.0f }, { 0.0f }, { 0 }, 0 } // ena, d_zi[], Ai[], Ni[], max_i
@@ -98,7 +98,7 @@ TrajectoryType FTMotion::trajectoryType = TrajectoryType::FTM_TRAJECTORY_TYPE;
 #endif
 
 #if ENABLED(FTM_SMOOTHING)
-  FTMotion::smoothing_t FTMotion::smoothing = {
+  smoothing_t FTMotion::smoothing = {
     #if HAS_X_AXIS
       X:{ { 0.0f }, 0.0f, 0 },  // smoothing_pass[], alpha, delay_samples
     #endif
@@ -120,7 +120,7 @@ TrajectoryType FTMotion::trajectoryType = TrajectoryType::FTM_TRAJECTORY_TYPE;
 #endif
 
 // Stepping variables.
-FTMotion::stepping_t FTMotion::stepping;
+stepping_t FTMotion::stepping;
 
 //-----------------------------------------------------------------
 // Function definitions.
@@ -155,164 +155,6 @@ void FTMotion::loop() {
 
 #if HAS_FTM_SHAPING
 
-  // Refresh the gains used by shaping functions.
-  void FTMotion::AxisShaping::set_axis_shaping_A(const ftMotionShaper_t shaper, const float zeta, const float vtol) {
-
-    const float K = exp(-zeta * M_PI / sqrt(1.f - sq(zeta))),
-                K2 = sq(K),
-                K3 = K2 * K,
-                K4 = K3 * K;
-
-    switch (shaper) {
-
-      case ftMotionShaper_ZV:
-        max_i = 1U;
-        Ai[0] = 1.0f / (1.0f + K);
-        Ai[1] = Ai[0] * K;
-        break;
-
-      case ftMotionShaper_ZVD:
-        max_i = 2U;
-        Ai[0] = 1.0f / (1.0f + 2.0f * K + K2);
-        Ai[1] = Ai[0] * 2.0f * K;
-        Ai[2] = Ai[0] * K2;
-        break;
-
-      case ftMotionShaper_ZVDD:
-        max_i = 3U;
-        Ai[0] = 1.0f / (1.0f + 3.0f * K + 3.0f * K2 + K3);
-        Ai[1] = Ai[0] * 3.0f * K;
-        Ai[2] = Ai[0] * 3.0f * K2;
-        Ai[3] = Ai[0] * K3;
-        break;
-
-      case ftMotionShaper_ZVDDD:
-        max_i = 4U;
-        Ai[0] = 1.0f / (1.0f + 4.0f * K + 6.0f * K2 + 4.0f * K3 + K4);
-        Ai[1] = Ai[0] * 4.0f * K;
-        Ai[2] = Ai[0] * 6.0f * K2;
-        Ai[3] = Ai[0] * 4.0f * K3;
-        Ai[4] = Ai[0] * K4;
-        break;
-
-      case ftMotionShaper_EI: {
-        max_i = 2U;
-        Ai[0] = 0.25f * (1.0f + vtol);
-        Ai[1] = 0.50f * (1.0f - vtol) * K;
-        Ai[2] = Ai[0] * K2;
-
-        const float adj = 1.0f / (Ai[0] + Ai[1] + Ai[2]);
-        for (uint32_t i = 0; i < 3U; i++) Ai[i] *= adj;
-      } break;
-
-      case ftMotionShaper_2HEI: {
-        max_i = 3U;
-        const float vtolx2 = sq(vtol);
-        const float X = POW(vtolx2 * (sqrt(1.0f - vtolx2) + 1.0f), 1.0f / 3.0f);
-        Ai[0] = (3.0f * sq(X) + 2.0f * X + 3.0f * vtolx2) / (16.0f * X);
-        Ai[1] = (0.5f - Ai[0]) * K;
-        Ai[2] = Ai[1] * K;
-        Ai[3] = Ai[0] * K3;
-
-        const float adj = 1.0f / (Ai[0] + Ai[1] + Ai[2] + Ai[3]);
-        for (uint32_t i = 0; i < 4U; i++) Ai[i] *= adj;
-      } break;
-
-      case ftMotionShaper_3HEI: {
-        max_i = 4U;
-        Ai[0] = 0.0625f * ( 1.0f + 3.0f * vtol + 2.0f * sqrt( 2.0f * ( vtol + 1.0f ) * vtol ) );
-        Ai[1] = 0.25f * ( 1.0f - vtol ) * K;
-        Ai[2] = ( 0.5f * ( 1.0f + vtol ) - 2.0f * Ai[0] ) * K2;
-        Ai[3] = Ai[1] * K2;
-        Ai[4] = Ai[0] * K4;
-
-        const float adj = 1.0f / (Ai[0] + Ai[1] + Ai[2] + Ai[3] + Ai[4]);
-        for (uint32_t i = 0; i < 5U; i++) Ai[i] *= adj;
-      } break;
-
-      case ftMotionShaper_MZV: {
-        max_i = 2U;
-        const float Bx = 1.4142135623730950488016887242097f * K;
-        Ai[0] = 1.0f / (1.0f + Bx + K2);
-        Ai[1] = Ai[0] * Bx;
-        Ai[2] = Ai[0] * K2;
-      }
-      break;
-
-      case ftMotionShaper_NONE:
-        max_i = 0;
-        Ai[0] = 1.0f; // No echoes so the whole impulse is applied in the first tap
-        break;
-    }
-
-  }
-
-  // Refresh the indices used by shaping functions.
-  // Ai[] must be precomputed (if zeta or vtol change, call set_axis_shaping_A first)
-  void FTMotion::AxisShaping::set_axis_shaping_N(const ftMotionShaper_t shaper, const float f, const float zeta) {
-    // Note that protections are omitted for DBZ and for index exceeding array length.
-    const float df = sqrt ( 1.f - sq(zeta) );
-    switch (shaper) {
-      case ftMotionShaper_ZV:
-        Ni[1] = LROUND((0.5f / f / df) * (FTM_FS));
-        break;
-      case ftMotionShaper_ZVD:
-      case ftMotionShaper_EI:
-        Ni[1] = LROUND((0.5f / f / df) * (FTM_FS));
-        Ni[2] = Ni[1] + Ni[1];
-        break;
-      case ftMotionShaper_ZVDD:
-      case ftMotionShaper_2HEI:
-        Ni[1] = LROUND((0.5f / f / df) * (FTM_FS));
-        Ni[2] = Ni[1] + Ni[1];
-        Ni[3] = Ni[2] + Ni[1];
-        break;
-      case ftMotionShaper_ZVDDD:
-      case ftMotionShaper_3HEI:
-        Ni[1] = LROUND((0.5f / f / df) * (FTM_FS));
-        Ni[2] = Ni[1] + Ni[1];
-        Ni[3] = Ni[2] + Ni[1];
-        Ni[4] = Ni[3] + Ni[1];
-        break;
-      case ftMotionShaper_MZV:
-        Ni[1] = LROUND((0.375f / f / df) * (FTM_FS));
-        Ni[2] = Ni[1] + Ni[1];
-        break;
-      case ftMotionShaper_NONE:
-        // No echoes.
-        // max_i is set to 0 by set_axis_shaping_A, so delay centroid (Ni[0]) will also correctly be 0
-        break;
-    }
-
-    // Group delay in samples (i.e., Axis delay caused by shaping): sum(Ai * Ni[i]).
-    // Skipping i=0 since the uncompensated delay of the first impulse is always zero, so Ai[0] * Ni[0] == 0
-    float centroid = 0.0f;
-    for (uint8_t i = 1; i <= max_i; ++i) centroid -= Ai[i] * Ni[i];
-
-    Ni[0] = LROUND(centroid);
-
-    // The resulting echo index can be negative, this is ok because it will be offset
-    // by the max delay of all axes before it is used.
-    for (uint8_t i = 1; i <= max_i; ++i) Ni[i] += Ni[0];
-
-    // Cache the smallest current Ni[0]
-    shaping.refresh_largest_centroid_delay();
-  }
-
-  #if ENABLED(FTM_SMOOTHING)
-    // Set smoothing time and recalculate alpha and delay.
-    void FTMotion::AxisSmoothing::set_smoothing_time(const float s_time) {
-      if (s_time > 0.001f) {
-        alpha = 1.0f - expf(-(FTM_TS) * (FTM_SMOOTHING_ORDER) / s_time );
-        delay_samples = s_time * FTM_FS;
-      }
-      else {
-        alpha = 0.0f;
-        delay_samples = 0;
-      }
-    }
-  #endif
-
   void FTMotion::update_shaping_params() {
     #define UPDATE_SHAPER(A) \
       shaping.A.ena = ftMotion.cfg.shaper.A != ftMotionShaper_NONE; \
@@ -320,6 +162,7 @@ void FTMotion::loop() {
       shaping.A.set_axis_shaping_N(cfg.shaper.A, cfg.baseFreq.A, cfg.zeta.A);
 
     SHAPED_MAP(UPDATE_SHAPER);
+    shaping.refresh_largest_centroid_delay();
   }
 
 #endif // HAS_FTM_SHAPING
@@ -329,6 +172,7 @@ void FTMotion::loop() {
   void FTMotion::update_smoothing_params() {
     #define _SMOOTH_PARAM(A) smoothing.A.set_smoothing_time(cfg.smoothingTime.A);
     CARTES_MAP(_SMOOTH_PARAM);
+    smoothing.refresh_larges_delay_samples();
   }
 
   void FTMotion::set_smoothing_time(uint8_t axis, const float s_time) {
@@ -379,7 +223,6 @@ void FTMotion::discard_planner_block_protected() {
                                       // its values every ISR.
   }
 }
-
 
 uint32_t FTMotion::calc_runout_samples() {
   uint32_t max_total_delay = 0;
@@ -458,8 +301,10 @@ bool FTMotion::plan_next_block() {
     stepper.current_block = current_block;
 
     // Handle sync blocks and skip others
-    if (current_block->is_sync_pos()) stepper._set_position(current_block->position);
-    if (current_block->is_sync()) continue;
+    if (current_block->is_sync()) {
+      if (current_block->is_sync_pos()) stepper._set_position(current_block->position);
+      continue;
+    }
 
     #if ENABLED(POWER_LOSS_RECOVERY)
       recovery.info.sdpos = current_block->sdpos;
@@ -549,6 +394,7 @@ xyze_float_t FTMotion::calc_traj_point(const float dist) {
             const float yf = cfg.baseFreq.y + cfg.dynFreqK.y * z;
             shaping.Y.set_axis_shaping_N(cfg.shaper.y, _MAX(yf, FTM_MIN_SHAPE_FREQ), cfg.zeta.y);
           #endif
+          shaping.refresh_largest_centroid_delay();
         }
       } break;
     #endif
@@ -563,6 +409,7 @@ xyze_float_t FTMotion::calc_traj_point(const float dist) {
         #if HAS_Y_AXIS
           shaping.Y.set_axis_shaping_N(cfg.shaper.y, cfg.baseFreq.y + cfg.dynFreqK.y * traj_coords.e, cfg.zeta.y);
         #endif
+        shaping.refresh_largest_centroid_delay();
         break;
     #endif
 
@@ -582,10 +429,7 @@ xyze_float_t FTMotion::calc_traj_point(const float dist) {
       }
 
     CARTES_MAP(_SMOOTHEN);
-    max_total_delay += _MAX(CARTES_LIST(
-      smoothing.X.delay_samples, smoothing.Y.delay_samples,
-      smoothing.Z.delay_samples, smoothing.E.delay_samples
-    ));
+    max_total_delay += smoothing.larges_delay_samples;
 
   #endif // FTM_SMOOTHING
 
