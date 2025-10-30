@@ -47,4 +47,7 @@ typedef struct Stepping {
    * Then return interval until that next step
    */
   uint32_t plan();
+  #define INTERVAL_PER_ITERATION (STEPPER_TIMER_RATE / FTM_STEPPER_FS)
+  #define INTERVAL_PER_TRAJ_POINT (STEPPER_TIMER_RATE / FTM_FS)
+  #define ITERATIONS_PER_TRAJ (FTM_STEPPER_FS * FTM_TS)
 } stepping_t;

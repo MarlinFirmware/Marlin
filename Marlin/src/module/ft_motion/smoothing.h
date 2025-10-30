@@ -27,19 +27,20 @@ typedef struct FTSmoothedAxes {
 } ft_smoothed_float_t;
 
 // Smoothing data for each axis
+// The smoothing algorithm used is an approximation of moving window averaging with gaussian weights, based
+// on chained exponential smoothers.
 typedef struct AxisSmoothing {
   float smoothing_pass[FTM_SMOOTHING_ORDER] = { 0.0f }; // Last value of each of the exponential smoothing passes
-  float alpha = 0.0f;               // Pre-calculated alpha for smoothing.
-  uint32_t delay_samples = 0;       // Pre-calculated delay in samples for smoothing.
-  void set_smoothing_time(const float s_time); // Set smoothing time, recalculate alpha and delay.
+  float alpha = 0.0f;                                   // Pre-calculated alpha for smoothing.
+  uint32_t delay_samples = 0;                           // Pre-calculated delay in samples for smoothing.
+  void set_smoothing_time(const float s_time);          // Set smoothing time, recalculate alpha and delay.
 } axis_smoothing_t;
 
 typedef struct Smoothing {
   axis_smoothing_t CARTES_AXIS_NAMES;
-  int32_t larges_delay_samples;
-  // Shaping an axis makes it lag with respect to the others by certain amount, the "centroid delay"
-  // Ni[0] stores how far in the past the first step would need to happen to avoid desynchronisation (it is therefore negative).
-  // Of course things can't be done in the past, so when shaping is applied, the all axes are delayed by largest_centroid_delay
-  // minus their own centroid delay. This makes them all be equally delayed and therefore in synch.
-  void refresh_larges_delay_samples() { larges_delay_samples = _MAX(CARTES_LIST(X.delay_samples, Y.delay_samples, Z.delay_samples, E.delay_samples)); }
+  int32_t largest_delay_samples;
+  // Smoothing causes a phase delay equal to smoothing_time. This delay is componensated for during axis synchronisation, which
+  // is done by delaying all axes to match the laggiest one (i.e largest_delay_samples).
+  void refresh_largest_delay_samples() { largest_delay_samples = _MAX(CARTES_LIST(X.delay_samples, Y.delay_samples, Z.delay_samples, E.delay_samples)); }
+  // Note: the delay equals smoothing_time iff the input signal frequency is lower than 1/smoothing_time, luckily for us, this holds in this case
 } smoothing_t;

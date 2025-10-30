@@ -30,10 +30,6 @@ void Stepping::reset() {
   bresenham_iterations_pending = 0;
 }
 
-#define INTERVAL_PER_ITERATION (STEPPER_TIMER_RATE / FTM_STEPPER_FS)
-#define INTERVAL_PER_TRAJ_POINT (STEPPER_TIMER_RATE / FTM_FS)
-#define ITERATIONS_PER_TRAJ (FTM_STEPPER_FS * FTM_TS)
-
 uint32_t Stepping::advance_until_step() {
   xyze_ulong_t space_q32 = -delta_error_q32 + UINT32_MAX; // How much accumulation until a step in any axis is ALMOST due
                                                     // scalar in the right hand because types.h is missing scalar on left cases

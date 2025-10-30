@@ -162,7 +162,7 @@ void FTMotion::loop() {
       shaping.A.set_axis_shaping_N(cfg.shaper.A, cfg.baseFreq.A, cfg.zeta.A);
 
     SHAPED_MAP(UPDATE_SHAPER);
-    shaping.refresh_largest_centroid_delay();
+    shaping.refresh_largest_delay_samples();
   }
 
 #endif // HAS_FTM_SHAPING
@@ -172,7 +172,7 @@ void FTMotion::loop() {
   void FTMotion::update_smoothing_params() {
     #define _SMOOTH_PARAM(A) smoothing.A.set_smoothing_time(cfg.smoothingTime.A);
     CARTES_MAP(_SMOOTH_PARAM);
-    smoothing.refresh_larges_delay_samples();
+    smoothing.refresh_largest_delay_samples();
   }
 
   void FTMotion::set_smoothing_time(uint8_t axis, const float s_time) {
@@ -394,7 +394,7 @@ xyze_float_t FTMotion::calc_traj_point(const float dist) {
             const float yf = cfg.baseFreq.y + cfg.dynFreqK.y * z;
             shaping.Y.set_axis_shaping_N(cfg.shaper.y, _MAX(yf, FTM_MIN_SHAPE_FREQ), cfg.zeta.y);
           #endif
-          shaping.refresh_largest_centroid_delay();
+          shaping.refresh_largest_delay_samples();
         }
       } break;
     #endif
@@ -409,7 +409,7 @@ xyze_float_t FTMotion::calc_traj_point(const float dist) {
         #if HAS_Y_AXIS
           shaping.Y.set_axis_shaping_N(cfg.shaper.y, cfg.baseFreq.y + cfg.dynFreqK.y * traj_coords.e, cfg.zeta.y);
         #endif
-        shaping.refresh_largest_centroid_delay();
+        shaping.refresh_largest_delay_samples();
         break;
     #endif
 
@@ -418,6 +418,7 @@ xyze_float_t FTMotion::calc_traj_point(const float dist) {
   uint32_t max_total_delay = 0;
 
   #if ENABLED(FTM_SMOOTHING)
+
     #define _SMOOTHEN(A) /* Approximate gaussian smoothing via chained EMAs */ \
       if (smoothing.A.alpha > 0.0f) { \
         float smooth_val = traj_coords.A; \
@@ -429,14 +430,14 @@ xyze_float_t FTMotion::calc_traj_point(const float dist) {
       }
 
     CARTES_MAP(_SMOOTHEN);
-    max_total_delay += smoothing.larges_delay_samples;
+    max_total_delay += smoothing.largest_delay_samples;
 
   #endif // FTM_SMOOTHING
 
   #if HAS_FTM_SHAPING
 
     if (ftMotion.cfg.axis_sync_enabled)
-      max_total_delay += shaping.largest_centroid_delay;
+      max_total_delay += shaping.largest_delay_samples;
 
     // Apply shaping if active on each axis
     #define _SHAPE(A) \

@@ -109,10 +109,10 @@ typedef struct AxisShaping {
 typedef struct Shaping {
   uint32_t zi_idx;           // Index of storage in the data point delay vectors.
   axis_shaping_t SHAPED_AXIS_NAMES;
-  int32_t largest_centroid_delay;
+  uint32_t largest_delay_samples;
   // Shaping an axis makes it lag with respect to the others by certain amount, the "centroid delay"
   // Ni[0] stores how far in the past the first step would need to happen to avoid desynchronisation (it is therefore negative).
-  // Of course things can't be done in the past, so when shaping is applied, the all axes are delayed by largest_centroid_delay
+  // Of course things can't be done in the past, so when shaping is applied, the all axes are delayed by largest_delay_samples
   // minus their own centroid delay. This makes them all be equally delayed and therefore in synch.
-  void refresh_largest_centroid_delay() { largest_centroid_delay = -_MIN(SHAPED_LIST(X.Ni[0], Y.Ni[0], Z.Ni[0], E.Ni[0])); }
+  void refresh_largest_delay_samples() { largest_delay_samples = -_MIN(SHAPED_LIST(X.Ni[0], Y.Ni[0], Z.Ni[0], E.Ni[0])); }
 } shaping_t;
