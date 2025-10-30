@@ -2941,9 +2941,9 @@ void Temperature::updateTemperaturesFromRawValues() {
   // Read ADC ADS1118
   #if TEMP_SENSOR_IS_ADS(0,1118)
     #warning "ADS1118 is selected for temp 0"
-    SERIAL_ECHOLNPGM("ADS1118 Setting Raw hotend 0");  
+    // SERIAL_ECHOLNPGM("ADS1118 Setting Raw hotend 0");  
     temp_hotend[0].setraw(READ_ADS(0));
-    SERIAL_ECHOPGM("ADS1118 Raw hotend 0: "); SERIAL_ECHOLN(temp_hotend[0].getraw());
+    SERIAL_ECHOPGM("ADS1118 Get Raw hotend 0: "); SERIAL_ECHOLN(temp_hotend[0].getraw());
   #endif  
   #if TEMP_SENSOR_IS_ADS(1,1118)
     #warning "ADS1118 is selected for temp 1"

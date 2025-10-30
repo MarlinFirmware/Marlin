@@ -130,19 +130,15 @@
       digitalWrite(cs_pin, LOW);
       uint8_t isReady = !digitalRead(miso_pin); // Read MISO, is low when ready
       digitalWrite(cs_pin, HIGH);
-      
       return isReady;
-
     }    
 
-    // Check if ADS has a complete conversion
+    // Read ADS data
     uint16_t ADS1118::readData() {
-
       digitalWrite(cs_pin, LOW);
       uint16_t data = transfer16(0);
       digitalWrite(cs_pin, HIGH);      
       return data;
-
     }       
   
 
@@ -202,10 +198,11 @@
 
     uint16_t ADS1118::readConfig() {
       uint16_t config_echo;
-
-      transfer16(0x0000);   
+      select();
+      transfer16(0x0000);                  // envía dummy 16 bits, ignore reply, config is in the next 16 bit transfer
       config_echo = transfer16(0x0000);    // envía dummy, recibe eco de configuración
-      SERIAL_ECHOPGM("ADS1118 Configuration: 0x"); SERIAL_ECHOLN(config_echo, HEX);
+      SERIAL_ECHOPGM("ADS1118 Configuration: "); SERIAL_ECHOLN(config_echo);
+      deselect();
       return config_echo;
     }    
 
