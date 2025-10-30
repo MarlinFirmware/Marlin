@@ -977,9 +977,11 @@ class Temperature {
       #endif
     #endif
 
-    // High level conversion routines, for use outside of temperature.cpp
-    // inline so that there is no performance decrease.
-    // deg=degreeCelsius
+    /**
+     * High level conversion routines, for use outside of temperature.cpp
+     * inline so that there is no performance decrease.
+     * deg=degreeCelsius
+     */
 
     static celsius_float_t degHotend(const uint8_t E_NAME) {
       return TERN0(HAS_HOTEND, temp_hotend[HOTEND_INDEX].celsius);
