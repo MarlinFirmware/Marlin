@@ -590,7 +590,7 @@ void _menu_ubl_tools() {
    */
   void _lcd_ubl_mesh_wizard() {
     char ubl_lcd_gcode[30];
-    #if HAS_HEATED_BED && HAS_HOTEND
+    #if ALL(HAS_HEATED_BED, HAS_HOTEND)
       sprintf_P(ubl_lcd_gcode, PSTR("M1004B%iH%iS%i"), custom_bed_temp, custom_hotend_temp, ubl_storage_slot);
     #elif HAS_HOTEND
       sprintf_P(ubl_lcd_gcode, PSTR("M1004H%iS%i"), custom_hotend_temp, ubl_storage_slot);

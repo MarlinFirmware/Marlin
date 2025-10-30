@@ -31,7 +31,7 @@
 #include "ft_motion/poly5_trajectory_generator.h"
 #include "ft_motion/poly6_trajectory_generator.h"
 
-#if HAS_X_AXIS && (HAS_Z_AXIS || HAS_EXTRUDERS)
+#if HAS_X_AXIS && ANY(HAS_Z_AXIS, HAS_EXTRUDERS)
   #define HAS_DYNAMIC_FREQ 1
   #if HAS_Z_AXIS
     #define HAS_DYNAMIC_FREQ_MM 1

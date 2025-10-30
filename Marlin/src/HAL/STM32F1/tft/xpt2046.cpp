@@ -24,7 +24,7 @@
 
 #include "../../../inc/MarlinConfig.h"
 
-#if HAS_TFT_XPT2046 || HAS_RES_TOUCH_BUTTONS
+#if ANY(HAS_TFT_XPT2046, HAS_RES_TOUCH_BUTTONS)
 
 #include "xpt2046.h"
 #include <SPI.h>

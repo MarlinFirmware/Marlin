@@ -161,7 +161,7 @@
   #define E_STEPPERS      EXTRUDERS
   #define E_MANUAL        EXTRUDERS
 
-#elif HAS_PRUSA_MMU2 || HAS_PRUSA_MMU3 // Průša Multi-Material Unit v2/v3
+#elif ANY(HAS_PRUSA_MMU2, HAS_PRUSA_MMU3) // Průša Multi-Material Unit v2/v3
 
   #define E_STEPPERS      1
   #define E_MANUAL        1
@@ -451,7 +451,7 @@
 #if MAP(_OR_HAS_DA, X, Y, Z, I, J, K, U, V, W) 0
   #define HAS_DISABLE_MAIN_AXES 1
 #endif
-#if HAS_DISABLE_MAIN_AXES || ENABLED(DISABLE_E)
+#if ANY(HAS_DISABLE_MAIN_AXES, DISABLE_E)
   #define HAS_DISABLE_AXES 1
 #endif
 #undef _OR_HAS_DA

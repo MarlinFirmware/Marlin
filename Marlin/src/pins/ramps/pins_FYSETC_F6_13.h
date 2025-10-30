@@ -285,7 +285,7 @@
       #define NEOPIXEL_PIN           EXP1_06_PIN
     #endif
 
-  #elif HAS_MARLINUI_U8GLIB || HAS_MARLINUI_HD44780
+  #elif ANY(HAS_MARLINUI_U8GLIB, HAS_MARLINUI_HD44780)
 
     #define LCD_PINS_RS              EXP1_04_PIN
     #define LCD_PINS_EN              EXP1_03_PIN

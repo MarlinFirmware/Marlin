@@ -22,7 +22,7 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-#if HAS_UI_480x320 || HAS_UI_480x272
+#if ANY(HAS_UI_480x320, HAS_UI_480x272)
 
 #include "ui_common.h"
 

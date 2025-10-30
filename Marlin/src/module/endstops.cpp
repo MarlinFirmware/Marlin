@@ -991,7 +991,7 @@ void Endstops::update() {
     }
   #endif // HAS_Z_AXIS
 
-  #if HAS_I_AXIS && HAS_I_STATE
+  #if ALL(HAS_I_AXIS, HAS_I_STATE)
     if (AXIS_IS_MOVING(I)) {
       if (AXIS_DIR_REV(I_AXIS_HEAD)) {
         #if HAS_I_MIN_STATE
@@ -1006,7 +1006,7 @@ void Endstops::update() {
     }
   #endif // HAS_I_AXIS
 
-  #if HAS_J_AXIS && HAS_J_STATE
+  #if ALL(HAS_J_AXIS, HAS_J_STATE)
     if (AXIS_IS_MOVING(J)) {
       if (AXIS_DIR_REV(J_AXIS_HEAD)) {
         #if HAS_J_MIN_STATE
@@ -1021,7 +1021,7 @@ void Endstops::update() {
     }
   #endif // HAS_J_AXIS
 
-  #if HAS_K_AXIS && HAS_K_STATE
+  #if ALL(HAS_K_AXIS, HAS_K_STATE)
     if (AXIS_IS_MOVING(K)) {
       if (AXIS_DIR_REV(K_AXIS_HEAD)) {
         #if HAS_K_MIN_STATE
@@ -1036,7 +1036,7 @@ void Endstops::update() {
     }
   #endif // HAS_K_AXIS
 
-  #if HAS_U_AXIS && HAS_U_STATE
+  #if ALL(HAS_U_AXIS, HAS_U_STATE)
     if (AXIS_IS_MOVING(U)) {
       if (AXIS_DIR_REV(U_AXIS_HEAD)) {
         #if HAS_U_MIN_STATE
@@ -1051,7 +1051,7 @@ void Endstops::update() {
     }
   #endif // HAS_U_AXIS
 
-  #if HAS_V_AXIS && HAS_V_STATE
+  #if ALL(HAS_V_AXIS, HAS_V_STATE)
     if (AXIS_IS_MOVING(V)) {
       if (AXIS_DIR_REV(V_AXIS_HEAD)) {
         #if HAS_V_MIN_STATE
@@ -1066,7 +1066,7 @@ void Endstops::update() {
     }
   #endif // HAS_V_AXIS
 
-  #if HAS_W_AXIS && HAS_W_STATE
+  #if ALL(HAS_W_AXIS, HAS_W_STATE)
     if (AXIS_IS_MOVING(W)) {
       if (AXIS_DIR_REV(W_AXIS_HEAD)) {
         #if HAS_W_MIN_STATE

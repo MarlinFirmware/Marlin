@@ -272,7 +272,7 @@ void menu_move() {
 
     #define SUBMENU_MOVE_E(N) SUBMENU_N(N, MSG_MOVE_EN, []{ _menu_move_distance(E_AXIS, []{ lcd_move_e(N); }, N); });
 
-    #if HAS_SWITCHING_EXTRUDER || HAS_SWITCHING_NOZZLE
+    #if ANY(HAS_SWITCHING_EXTRUDER, HAS_SWITCHING_NOZZLE)
 
       // ...and the non-switching
       #if E_MANUAL == 7 || E_MANUAL == 5 || E_MANUAL == 3

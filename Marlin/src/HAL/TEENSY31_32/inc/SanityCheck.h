@@ -25,7 +25,7 @@
  * Test TEENSY35_36 specific configuration values for errors at compile-time.
  */
 
-#if HAS_SPI_TFT || HAS_FSMC_TFT
+#if ANY(HAS_SPI_TFT, HAS_FSMC_TFT)
   #error "Sorry! TFT displays are not available for Teensy 3.1/3.2."
 #endif
 

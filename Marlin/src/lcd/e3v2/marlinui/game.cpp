@@ -21,7 +21,7 @@
  */
 #include "../../../inc/MarlinConfigPre.h"
 
-#if IS_DWIN_MARLINUI && HAS_GAMES
+#if ALL(IS_DWIN_MARLINUI, HAS_GAMES)
 
 // Enable performance counters (draw call count, frame timing) for debugging
 //#define GAME_PERFORMANCE_COUNTERS

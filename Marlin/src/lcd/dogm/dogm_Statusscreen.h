@@ -143,7 +143,7 @@
 // Can also be overridden in Configuration_adv.h
 // If you can afford it, try the 3-frame fan animation!
 // Don't compile in the fan animation with no fan
-#if !HAS_FAN0 || (HOTENDS == 5 || (HOTENDS == 4 && (HAS_HEATED_BED || HAS_TEMP_CHAMBER)) || ALL(STATUS_COMBINE_HEATERS, HAS_HEATED_CHAMBER))
+#if !HAS_FAN0 || (HOTENDS == 5 || (HOTENDS == 4 && ANY((HAS_HEATED_BED, HAS_TEMP_CHAMBER))) || ALL(STATUS_COMBINE_HEATERS, HAS_HEATED_CHAMBER))
   #undef STATUS_FAN_FRAMES
 #elif !STATUS_FAN_FRAMES
   #define STATUS_FAN_FRAMES 2
@@ -202,7 +202,7 @@
 
   #ifndef STATUS_HEATERS_X
     #define _BED_OR_CHAMBER_OR_FAN (HAS_HEATED_BED || HAS_TEMP_CHAMBER || HAS_FAN)
-    #if (HAS_HOTEND && STATUS_LOGO_WIDTH && _BED_OR_CHAMBER_OR_FAN) || (HOTENDS >= 3 && !_BED_OR_CHAMBER_OR_FAN)
+    #if ALL(HAS_HOTEND, STATUS_LOGO_WIDTH, _BED_OR_CHAMBER_OR_FAN) || (HOTENDS >= 3 && !_BED_OR_CHAMBER_OR_FAN)
       #define _STATUS_HEATERS_X(H,S,N) ((LCD_PIXEL_WIDTH - (H * (S + N)) - (_EXTRA_WIDTH) + (STATUS_LOGO_WIDTH)) / 2)
       #if STATUS_HOTEND1_WIDTH
         #if HOTENDS > 2
@@ -718,7 +718,7 @@
   #endif
 #endif
 
-#if STATUS_LOGO_WIDTH && ENABLED(CUSTOM_STATUS_SCREEN_IMAGE)
+#if ALL(STATUS_LOGO_WIDTH, CUSTOM_STATUS_SCREEN_IMAGE)
   #define DO_DRAW_LOGO 1
 #endif
 #if HOTENDS > 0
