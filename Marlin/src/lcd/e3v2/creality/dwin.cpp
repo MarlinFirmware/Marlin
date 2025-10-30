@@ -1187,7 +1187,7 @@ void drawPrintingScreen() {
     #ifdef USE_STRING_HEADINGS
       drawTitle(GET_TEXT_F(MSG_PRINTING));
     #else
-      dwinFrameTitleCopy(42, 0, 47, 14); // "Printing"
+      dwinFrameTitleCopy(42, 0, 47, 14);              // "Printing"
     #endif
     #ifdef USE_STRING_TITLES
       dwinDrawString(false, font8x16, COLOR_WHITE, COLOR_BG_BLACK,  43, y, GET_TEXT_F(MSG_INFO_PRINT_TIME));
@@ -4129,7 +4129,7 @@ void eachMomentUpdate() {
   if (!PENDING(ms, next_rts_update_ms)) {
     next_rts_update_ms = ms + DWIN_SCROLL_UPDATE_INTERVAL;
     if (checkkey == ID_PrintProcess) {
-      // If print done
+      // if print done
       if (hmiFlag.print_finish && !hmiFlag.done_confirm_flag) {
         hmiFlag.print_finish = false;
         hmiFlag.done_confirm_flag = true;
@@ -4138,18 +4138,18 @@ void eachMomentUpdate() {
         // show percent bar and value
         _card_percent = 0;
         drawPrintProgressBar();
-        // Show print done confirm
+        // show print done confirm
         dwinDrawRectangle(1, COLOR_BG_BLACK, 0, 250, DWIN_WIDTH - 1, STATUS_Y);
         dwinIconShow(ICON, hmiIsChinese() ? ICON_Confirm_C : ICON_Confirm_E, 86, 283);
       }
       else if (hmiFlag.pause_flag != printingIsPaused()) {
-        // Print status update
+        // print status update
         hmiFlag.pause_flag = printingIsPaused();
         iconResumeOrPause();
       }
     }
 
-    // Pause after homing
+    // pause after homing
     if (hmiFlag.pause_action && printingIsPaused() && !planner.has_blocks_queued()) {
       hmiFlag.pause_action = false;
       #if ENABLED(PAUSE_HEAT)
@@ -4292,7 +4292,7 @@ void dwinHandleScreen() {
     #if HAS_HEATED_BED
       case ID_BedTemp:      hmiBedTemp(); break;
     #endif
-    #if ALL(HAS_PREHEAT, HAS_FAN)
+    #if HAS_PREHEAT && HAS_FAN
       case ID_FanSpeed:     hmiFanSpeed(); break;
     #endif
     case ID_PrintSpeed:     hmiPrintSpeed(); break;

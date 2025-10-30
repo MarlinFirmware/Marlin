@@ -1863,7 +1863,7 @@ void Stepper::pulse_phase_isr() {
             case DirectStepping::Config::SEGMENT_STEPS:
               page_step_state.segment_idx += 2;
               page_step_state.segment_steps = 0;
-              // fallthrough
+              // fallthru
             case 0: {
               const uint8_t low = page_step_state.page[page_step_state.segment_idx],
                            high = page_step_state.page[page_step_state.segment_idx + 1];
@@ -1903,7 +1903,7 @@ void Stepper::pulse_phase_isr() {
             case DirectStepping::Config::SEGMENT_STEPS:
               page_step_state.segment_idx++;
               page_step_state.segment_steps = 0;
-              // fallthrough
+              // fallthru
             case 0: {
               const uint8_t b = page_step_state.page[page_step_state.segment_idx];
               PAGE_SEGMENT_UPDATE(X, (b >> 6) & 0x3);

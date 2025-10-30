@@ -172,7 +172,7 @@
          * it might be fine to remove this check and let planner.buffer_segment() filter it out.
          */
         if (dest.y != start.y) {
-          if (!inf_normalized_flag) { // Fallthrough faster than branch
+          if (!inf_normalized_flag) { // fall-through faster than branch
             on_axis_distance = use_x_dist ? dest.x - start.x : dest.y - start.y;
             TERN_(HAS_EXTRUDERS, dest.e = start.e + on_axis_distance * e_normalized_dist);
             dest.z = start.z + on_axis_distance * z_normalized_dist;

@@ -81,8 +81,7 @@ void MarlinUI::tft_idle() {
     if ((BOOTSCREEN_TIMEOUT) > sofar) safe_delay((BOOTSCREEN_TIMEOUT) - sofar);
     clear_for_drawing();
   }
-
-#endif // SHOW_BOOTSCREEN
+#endif
 
 void MarlinUI::draw_kill_screen() {
   tft.queue.reset();
