@@ -1546,12 +1546,12 @@ void Planner::check_axes_activity() {
    */
   void Planner::apply_retract(float &rz, float &e) {
     rz += fwretract.current_hop;
-    e -= fwretract.current_retract[active_extruder];
+    e -= fwretract.current_retract[motion.extruder];
   }
 
   void Planner::unapply_retract(float &rz, float &e) {
     rz -= fwretract.current_hop;
-    e += fwretract.current_retract[active_extruder];
+    e += fwretract.current_retract[motion.extruder];
   }
 
 #endif
@@ -1598,12 +1598,12 @@ void Planner::quick_stop() {
     // Don't empty buffers or queues
     const bool did_suspend = stepper.suspend();
     if (did_suspend)
-      TERN_(FULL_REPORT_TO_HOST_FEATURE, set_and_report_grblstate(M_HOLD));
+      TERN_(FULL_REPORT_TO_HOST_FEATURE, motion.set_and_report_grblstate(M_HOLD));
   }
 
   // Resume if suspended
   void Planner::quick_resume() {
-    TERN_(FULL_REPORT_TO_HOST_FEATURE, set_and_report_grblstate(grbl_state_for_marlin_state()));
+    TERN_(FULL_REPORT_TO_HOST_FEATURE, motion.set_and_report_grblstate(motion.grbl_state_for_marlin_state()));
     stepper.wake_up();
   }
 
@@ -2017,7 +2017,7 @@ bool Planner::_populate_block(
   TERN_(HAS_REAL_Z, dist_mm.real.z = dz);
 
   TERN_(HAS_EXTRUDERS, dist_mm.e = esteps_float * mm_per_step[E_AXIS_N(extruder)]);
-  TERN_(LCD_SHOW_E_TOTAL, e_move_accumulator += dist_mm.e);
+  TERN_(LCD_SHOW_E_TOTAL, motion.e_move_accumulator += dist_mm.e);
 
   TERN_(FT_MOTION, block->ext_distance_mm = dist_mm); // Store the distance for all axes in mm for this block
 
@@ -2043,7 +2043,7 @@ bool Planner::_populate_block(
         dist_mm.u, dist_mm.v, dist_mm.w
       );
 
-      block->millimeters = get_move_distance(displacement OPTARG(HAS_ROTATIONAL_AXES, cartesian_move));
+      block->millimeters = motion.get_move_distance(displacement OPTARG(HAS_ROTATIONAL_AXES, cartesian_move));
     }
 
     /**
@@ -2822,7 +2822,7 @@ void Planner::buffer_sync_block(const BlockFlagBit sync_flag/*=BLOCK_BIT_SYNC_PO
  * @param abce          Target position in mm and/or degrees
  * @param cart_dist_mm  The pre-calculated move lengths for all axes, in mm
  * @param fr_mm_s       (Target) speed of the move
- * @param extruder      Optional target extruder (otherwise active_extruder)
+ * @param extruder      Optional target extruder (otherwise motion.extruder)
  * @param hints         Optional parameters to aid planner calculations
  *
  * @return  false if no segment was queued due to cleaning, cold extrusion, full queue, etc.
@@ -2830,7 +2830,7 @@ void Planner::buffer_sync_block(const BlockFlagBit sync_flag/*=BLOCK_BIT_SYNC_PO
 bool Planner::buffer_segment(const abce_pos_t &abce
   OPTARG(HAS_DIST_MM_ARG, const xyze_float_t &cart_dist_mm)
   , const feedRate_t fr_mm_s
-  , const uint8_t extruder/*=active_extruder*/
+  , const uint8_t extruder/*=motion.extruder*/
   , const PlannerHints &hints/*=PlannerHints()*/
 ) {
 
@@ -2951,11 +2951,11 @@ bool Planner::buffer_segment(const abce_pos_t &abce
  *
  * @param cart      Target position in mm or degrees
  * @param fr_mm_s   (Target) speed of the move (mm/s)
- * @param extruder  Optional target extruder (otherwise active_extruder)
+ * @param extruder  Optional target extruder (otherwise motion.extruder)
  * @param hints     Optional parameters to aid planner calculations
  */
 bool Planner::buffer_line(const xyze_pos_t &cart, const feedRate_t fr_mm_s
-  , const uint8_t extruder/*=active_extruder*/
+  , const uint8_t extruder/*=motion.extruder*/
   , const PlannerHints &hints/*=PlannerHints()*/
 ) {
   xyze_pos_t machine = cart;
@@ -2984,7 +2984,7 @@ bool Planner::buffer_line(const xyze_pos_t &cart, const feedRate_t fr_mm_s
     // Provide known Cartesian length in the hints structure
     PlannerHints ph = hints;
     if (!hints.millimeters)
-      ph.millimeters = get_move_distance(xyze_pos_t(cart_dist_mm) OPTARG(HAS_ROTATIONAL_AXES, ph.cartesian_move));
+      ph.millimeters = motion.get_move_distance(xyze_pos_t(cart_dist_mm) OPTARG(HAS_ROTATIONAL_AXES, ph.cartesian_move));
 
     #if DISABLED(FEEDRATE_SCALING)
 
@@ -2995,7 +2995,7 @@ bool Planner::buffer_line(const xyze_pos_t &cart, const feedRate_t fr_mm_s
       // For SCARA scale the feedrate from mm/s to degrees/s
       // i.e., Complete the angular vector in the given time.
       const float duration_recip = hints.inv_duration ?: fr_mm_s / ph.millimeters;
-      const xyz_pos_t diff = delta - position_float;
+      const xyz_pos_t diff = motion.delta - position_float;
       const feedRate_t feedrate = diff.magnitude() * duration_recip;
 
     #elif ENABLED(POLAR)
@@ -3023,9 +3023,9 @@ bool Planner::buffer_line(const xyze_pos_t &cart, const feedRate_t fr_mm_s
        * This shouldn't be a problem for cutting/milling operations.
        */
       feedRate_t calculated_feedrate = fr_mm_s;
-      const xyz_pos_t diff = delta - position_float;
+      const xyz_pos_t diff = motion.delta - position_float;
       if (!NEAR_ZERO(diff.b)) {
-        if (delta.a <= POLAR_FAST_RADIUS)
+        if (motion.delta.a <= POLAR_FAST_RADIUS)
           calculated_feedrate = settings.max_feedrate_mm_s[Y_AXIS];
         else {
           // Normalized vector of movement
@@ -3034,7 +3034,7 @@ bool Planner::buffer_line(const xyze_pos_t &cart, const feedRate_t fr_mm_s
                       normalizedTheta = 1.0f - (ABS(diffTheta > 90.0f ? 180.0f - diffTheta : diffTheta) / 90.0f);
 
           // Normalized position along the radius
-          const float radiusRatio = (PRINTABLE_RADIUS) / delta.a;
+          const float radiusRatio = (PRINTABLE_RADIUS) / motion.delta.a;
           calculated_feedrate += (fr_mm_s * radiusRatio * normalizedTheta);
         }
       }
@@ -3042,8 +3042,8 @@ bool Planner::buffer_line(const xyze_pos_t &cart, const feedRate_t fr_mm_s
 
     #endif // POLAR && FEEDRATE_SCALING
 
-    TERN_(HAS_EXTRUDERS, delta.e = machine.e);
-    if (buffer_segment(delta OPTARG(HAS_DIST_MM_ARG, cart_dist_mm), feedrate, extruder, ph)) {
+    TERN_(HAS_EXTRUDERS, motion.delta.e = machine.e);
+    if (buffer_segment(motion.delta OPTARG(HAS_DIST_MM_ARG, cart_dist_mm), feedrate, extruder, ph)) {
       position_cart = cart;
       return true;
     }
@@ -3122,11 +3122,11 @@ void Planner::set_machine_position_mm(const abce_pos_t &abce) {
   // When FT Motion is enabled, call synchronize() here instead of generating a sync block
   if (TERN0(FT_MOTION, ftMotion.cfg.active)) synchronize();
 
-  TERN_(DISTINCT_E_FACTORS, last_extruder = active_extruder);
+  TERN_(DISTINCT_E_FACTORS, last_extruder = motion.extruder);
   TERN_(HAS_POSITION_FLOAT, position_float = abce);
   position.set(
     LOGICAL_AXIS_LIST(
-      LROUND(abce.e * settings.axis_steps_per_mm[E_AXIS_N(active_extruder)]),
+      LROUND(abce.e * settings.axis_steps_per_mm[E_AXIS_N(motion.extruder)]),
       LROUND(abce.a * settings.axis_steps_per_mm[A_AXIS]),
       LROUND(abce.b * settings.axis_steps_per_mm[B_AXIS]),
       LROUND(abce.c * settings.axis_steps_per_mm[C_AXIS]),
@@ -3169,8 +3169,8 @@ void Planner::set_position_mm(const xyze_pos_t &xyze) {
   #if IS_KINEMATIC
     position_cart = xyze;
     inverse_kinematics(machine);
-    TERN_(HAS_EXTRUDERS, delta.e = machine.e);
-    set_machine_position_mm(delta);
+    TERN_(HAS_EXTRUDERS, motion.delta.e = machine.e);
+    set_machine_position_mm(motion.delta);
   #else
     set_machine_position_mm(machine);
   #endif
@@ -3182,11 +3182,11 @@ void Planner::set_position_mm(const xyze_pos_t &xyze) {
    * Special setter for planner E position (also setting E stepper position).
    */
   void Planner::set_e_position_mm(const float e) {
-    const uint8_t axis_index = E_AXIS_N(active_extruder);
-    TERN_(DISTINCT_E_FACTORS, last_extruder = active_extruder);
+    const uint8_t axis_index = E_AXIS_N(motion.extruder);
+    TERN_(DISTINCT_E_FACTORS, last_extruder = motion.extruder);
 
     // Unapply the current retraction before (immediately) setting the planner position
-    const float e_new = DIFF_TERN(FWRETRACT, e, fwretract.current_retract[active_extruder]);
+    const float e_new = DIFF_TERN(FWRETRACT, e, fwretract.current_retract[motion.extruder]);
     position.e = LROUND(settings.axis_steps_per_mm[axis_index] * e_new);
     TERN_(HAS_POSITION_FLOAT, position_float.e = e_new);
     TERN_(IS_KINEMATIC, TERN_(HAS_EXTRUDERS, position_cart.e = e));
@@ -3206,7 +3206,7 @@ void Planner::refresh_acceleration_rates() {
   uint32_t highest_rate = 1;
   LOOP_DISTINCT_AXES(i) {
     max_acceleration_steps_per_s2[i] = settings.max_acceleration_mm_per_s2[i] * settings.axis_steps_per_mm[i];
-    if (TERN1(DISTINCT_E_FACTORS, i < E_AXIS || i == E_AXIS_N(active_extruder)))
+    if (TERN1(DISTINCT_E_FACTORS, i < E_AXIS || i == E_AXIS_N(motion.extruder)))
       NOLESS(highest_rate, max_acceleration_steps_per_s2[i]);
   }
   acceleration_long_cutoff = UINT32_MAX / highest_rate;
@@ -3225,7 +3225,7 @@ void Planner::refresh_positioning() {
       stepper.nle.q30.B = _BV32(30) * (stepper.nle.settings.coeff.B * mm_per_step[E_AXIS_N(0)]);
     #endif
   #endif
-  set_position_mm(current_position);
+  set_position_mm(motion.position);
   refresh_acceleration_rates();
 }
 

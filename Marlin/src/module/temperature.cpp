@@ -481,7 +481,7 @@ PGMSTR(str_t_heating_failed, STR_T_HEATING_FAILED);
     NOMORE(speed, 255U);
 
     #if ENABLED(SINGLENOZZLE_STANDBY_FAN)
-      if (fan != active_extruder) {
+      if (fan != motion.extruder) {
         if (fan < EXTRUDERS) singlenozzle_fan_speed[fan] = speed;
         return;
       }
@@ -934,7 +934,7 @@ void Temperature::factory_reset() {
       // Report heater states every 2 seconds
       if (ELAPSED(ms, next_temp_ms)) {
         #if HAS_TEMP_SENSOR
-          print_heater_states(heater_id < 0 ? active_extruder : (int8_t)heater_id);
+          print_heater_states(heater_id < 0 ? motion.extruder : (int8_t)heater_id);
           SERIAL_EOL();
         #endif
         next_temp_ms = ms + 2000UL;
@@ -1068,7 +1068,7 @@ void Temperature::factory_reset() {
       planner.sync_fan_speeds(fan_speed);
     #endif
 
-    do_z_clearance(MPC_TUNING_END_Z, false);
+    motion.do_z_clearance(MPC_TUNING_END_Z, false);
 
     #ifdef EVENT_GCODE_AFTER_MPC_TUNE
       gcode.process_subcommands_now(F(EVENT_GCODE_AFTER_MPC_TUNE));
@@ -1297,7 +1297,7 @@ void Temperature::factory_reset() {
       set_fan_speed(TERN(SINGLEFAN, 0, e), 255);
       planner.sync_fan_speeds(fan_speed);
     #endif
-    do_blocking_move_to(xyz_pos_t(MPC_TUNING_POS));
+    motion.blocking_move(xyz_pos_t(MPC_TUNING_POS));
 
     // Determine ambient temperature.
     SERIAL_ECHOLNPGM(STR_MPC_COOLING_TO_AMBIENT);
@@ -1569,7 +1569,7 @@ inline void loud_kill(FSTR_P const lcd_msg, const heater_id_t heater_id) {
     buzzer.on();
   #endif
   #if ENABLED(NOZZLE_PARK_FEATURE)
-    if (!homing_needed_error()) {
+    if (!motion.homing_needed_error()) {
       nozzle.park(0);
       planner.synchronize();
     }
@@ -1727,7 +1727,7 @@ void Temperature::mintemp_error(const heater_id_t heater_id OPTARG(ERR_INCLUDE_T
 
         #if ENABLED(PID_EXTRUSION_SCALING)
           out += tempinfo.pid.get_extrusion_scale_output(
-            extr == active_extruder, stepper.position(E_AXIS), planner.mm_per_step[E_AXIS], thermalManager.lpq_len
+            extr == motion.extruder, stepper.position(E_AXIS), planner.mm_per_step[E_AXIS], thermalManager.lpq_len
           );
         #endif
 
@@ -1781,7 +1781,7 @@ void Temperature::mintemp_error(const heater_id_t heater_id OPTARG(ERR_INCLUDE_T
       const float pid_output = is_idling ? 0 : hotend_pid[ee].get_pid_output(ee);
 
       #if ENABLED(PID_DEBUG)
-        if (ee == active_extruder)
+        if (ee == motion.extruder)
           hotend_pid[ee].debug(temp_hotend[ee].celsius, pid_output, F("E"), ee);
       #endif
 
@@ -1799,7 +1799,7 @@ void Temperature::mintemp_error(const heater_id_t heater_id OPTARG(ERR_INCLUDE_T
       #if HOTENDS == 1
         constexpr bool this_hotend = true;
       #else
-        const bool this_hotend = (ee == active_extruder);
+        const bool this_hotend = (ee == motion.extruder);
       #endif
 
       float ambient_xfer_coeff = mpc.ambient_xfer_coeff_fan0;
@@ -4538,7 +4538,7 @@ void Temperature::isr() {
     AutoReporter<Temperature::AutoReportTemp> Temperature::auto_reporter;
     void Temperature::AutoReportTemp::report() {
       if (marlin.is_heating()) return;
-      print_heater_states(active_extruder OPTARG(HAS_TEMP_REDUNDANT, ENABLED(AUTO_REPORT_REDUNDANT)));
+      print_heater_states(motion.extruder OPTARG(HAS_TEMP_REDUNDANT, ENABLED(AUTO_REPORT_REDUNDANT)));
       SERIAL_EOL();
     }
   #endif
@@ -4714,7 +4714,7 @@ void Temperature::isr() {
   #if ENABLED(AUTOTEMP)
 
     void Temperature::_autotemp_update_from_hotend() {
-      TERN_(AUTOTEMP_PROPORTIONAL, autotemp.update(degTargetHotend(active_extruder)));
+      TERN_(AUTOTEMP_PROPORTIONAL, autotemp.update(degTargetHotend(motion.extruder)));
     }
 
     /**
@@ -4750,7 +4750,7 @@ void Temperature::isr() {
      */
     void Temperature::autotemp_task() {
       if (!autotemp.enabled) return;
-      if (degTargetHotend(active_extruder) < autotemp.cfg.min - 2) return; // Below the min?
+      if (degTargetHotend(motion.extruder) < autotemp.cfg.min - 2) return; // Below the min?
 
       // Get a highest target proportion greater than zero
       float high = planner.get_high_e_speed();
@@ -4758,7 +4758,7 @@ void Temperature::isr() {
       // Calculate a new target, with weighted correction for a drop
       float t = autotemp.calculate(high);
 
-      _setTargetHotend(t, active_extruder);
+      _setTargetHotend(t, motion.extruder);
     }
 
   #endif // AUTOTEMP
@@ -4811,7 +4811,7 @@ void Temperature::isr() {
         now = millis();
         if (ELAPSED(now, next_temp_ms)) { //Print Temp Reading every 1 second while heating up.
           next_temp_ms = now + 1000UL;
-          print_heater_states(active_extruder);
+          print_heater_states(motion.extruder);
           #if TEMP_BED_RESIDENCY_TIME > 0
             SString<20> s(F(" W:"));
             if (residency_start_ms)
@@ -4924,7 +4924,7 @@ void Temperature::isr() {
         millis_t now = millis();
         if (!next_temp_ms || ELAPSED(now, next_temp_ms)) {
           next_temp_ms = now + 10000UL;
-          print_heater_states(active_extruder);
+          print_heater_states(motion.extruder);
           SERIAL_EOL();
         }
 
@@ -5008,7 +5008,7 @@ void Temperature::isr() {
         now = millis();
         if (ELAPSED(now, next_temp_ms)) { // Print Temp Reading every 1 second while heating up.
           next_temp_ms = now + 1000UL;
-          print_heater_states(active_extruder);
+          print_heater_states(motion.extruder);
           #if TEMP_CHAMBER_RESIDENCY_TIME > 0
             SString<20> s(F(" W:"));
             if (residency_start_ms)
@@ -5109,7 +5109,7 @@ void Temperature::isr() {
         now = millis();
         if (ELAPSED(now, next_temp_ms)) { // Print Temp Reading every 1 second while heating up.
           next_temp_ms = now + 1000UL;
-          print_heater_states(active_extruder);
+          print_heater_states(motion.extruder);
           #if TEMP_COOLER_RESIDENCY_TIME > 0
             SString<20> s(F(" W:"));
             if (residency_start_ms)

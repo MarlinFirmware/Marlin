@@ -374,7 +374,7 @@ void Marlin::startOrResumeJob() {
   if (!printingIsPaused()) {
     TERN_(GCODE_REPEAT_MARKERS, repeat.reset());
     TERN_(CANCEL_OBJECTS, cancelable.reset());
-    TERN_(LCD_SHOW_E_TOTAL, e_move_accumulator = 0);
+    TERN_(LCD_SHOW_E_TOTAL, motion.e_move_accumulator = 0);
     TERN_(SET_REMAINING_TIME, ui.reset_remaining_time());
     TERN_(HAS_PRUSA_MMU3, MMU3::operation_statistics.reset_per_print_stats());
   }
@@ -388,7 +388,7 @@ void Marlin::startOrResumeJob() {
     card.abortFilePrintNow(TERN_(SD_RESORT, true));
 
     queue.clear();
-    quickstop_stepper();
+    motion.quickstop_stepper();
 
     print_job_timer.abort();
 
@@ -709,18 +709,18 @@ void Marlin::manage_inactivity(const bool no_stepper_sleep/*=false*/) {
   #endif
 
   #if ENABLED(EXTRUDER_RUNOUT_PREVENT)
-    if (thermalManager.degHotend(active_extruder) > (EXTRUDER_RUNOUT_MINTEMP)
+    if (thermalManager.degHotend(motion.extruder) > (EXTRUDER_RUNOUT_MINTEMP)
       && ELAPSED(ms, gcode.previous_move_ms, SEC_TO_MS(EXTRUDER_RUNOUT_SECONDS))
       && !planner.has_blocks_queued()
     ) {
-      const int8_t e_stepper = TERN(HAS_SWITCHING_EXTRUDER, active_extruder >> 1, active_extruder);
+      const int8_t e_stepper = TERN(HAS_SWITCHING_EXTRUDER, motion.extruder / 2, motion.extruder);
       const bool e_off = !stepper.AXIS_IS_ENABLED(E_AXIS, e_stepper);
       if (e_off) stepper.ENABLE_EXTRUDER(e_stepper);
 
-      const float olde = current_position.e;
-      current_position.e += EXTRUDER_RUNOUT_EXTRUDE;
-      line_to_current_position(MMM_TO_MMS(EXTRUDER_RUNOUT_SPEED));
-      current_position.e = olde;
+      const float olde = motion.position.e;
+      motion.position.e += EXTRUDER_RUNOUT_EXTRUDE;
+      motion.goto_current_position(MMM_TO_MMS(EXTRUDER_RUNOUT_SPEED));
+      motion.position.e = olde;
       planner.set_e_position_mm(olde);
       planner.synchronize();
 
@@ -735,8 +735,8 @@ void Marlin::manage_inactivity(const bool no_stepper_sleep/*=false*/) {
     if (delayed_move_time && ELAPSED(ms, delayed_move_time) && isRunning()) {
       // travel moves have been received so enact them
       delayed_move_time = UINT32_MAX; // force moves to be done
-      destination = current_position;
-      prepare_line_to_destination();
+      motion.destination = motion.position;
+      motion.prepare_line_to_destination();
       planner.synchronize();
     }
   #endif
@@ -816,7 +816,7 @@ void Marlin::idle(const bool no_stepper_sleep/*=false*/) {
   if (is(MF_INITIALIZING)) goto IDLE_DONE;
 
   // TODO: Still causing errors
-  TERN_(TOOL_SENSOR, (void)check_tool_sensor_stats(active_extruder, true));
+  TERN_(TOOL_SENSOR, (void)check_tool_sensor_stats(motion.extruder, true));
 
   // Handle filament runout sensors
   #if HAS_FILAMENT_SENSOR
@@ -891,7 +891,7 @@ void Marlin::idle(const bool no_stepper_sleep/*=false*/) {
       TERN_(AUTO_REPORT_TEMPERATURES, thermalManager.auto_reporter.tick());
       TERN_(AUTO_REPORT_FANS, fan_check.auto_reporter.tick());
       TERN_(AUTO_REPORT_SD_STATUS, card.auto_reporter.tick());
-      TERN_(AUTO_REPORT_POSITION, position_auto_reporter.tick());
+      TERN_(AUTO_REPORT_POSITION, motion.position_auto_reporter.tick());
       TERN_(BUFFER_MONITORING, queue.auto_report_buffer_statistics());
     }
   #endif
@@ -1411,9 +1411,9 @@ void setup() {
     SETUP_RUN(touchBt.init());
   #endif
 
-  TERN_(HAS_HOME_OFFSET, current_position += home_offset); // Init current position based on home_offset
+  TERN_(HAS_HOME_OFFSET, motion.position += motion.home_offset); // Init current position based on home_offset
 
-  sync_plan_position();               // Vital to init stepper/planner equivalent for current_position
+  motion.sync_plan_position();        // Vital to init stepper/planner equivalent for motion.position
 
   SETUP_RUN(thermalManager.init());   // Initialize temperature loop
 

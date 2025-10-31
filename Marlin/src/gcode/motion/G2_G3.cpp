@@ -51,7 +51,7 @@
  */
 void plan_arc(
   const xyze_pos_t &cart,   // Destination position
-  const ab_float_t &offset, // Center of rotation relative to current_position
+  const ab_float_t &offset, // Center of rotation relative to motion.position
   const bool clockwise,     // Clockwise?
   const uint8_t circles     // Take the scenic route
 ) {
@@ -71,22 +71,22 @@ void plan_arc(
   ab_float_t rvec = -offset;
 
   const float radius = HYPOT(rvec.a, rvec.b),
-              center_P = current_position[axis_p] - rvec.a,
-              center_Q = current_position[axis_q] - rvec.b,
+              center_P = motion.position[axis_p] - rvec.a,
+              center_Q = motion.position[axis_q] - rvec.b,
               rt_X = cart[axis_p] - center_P,
               rt_Y = cart[axis_q] - center_Q;
 
   // Starting position of the move for all non-arc axes
   // i.e., only one of X, Y, or Z, plus the rest.
   ARC_LIJKUVWE_CODE(
-    float start_L = current_position[axis_l],
-    float start_I = current_position.i,
-    float start_J = current_position.j,
-    float start_K = current_position.k,
-    float start_U = current_position.u,
-    float start_V = current_position.v,
-    float start_W = current_position.w,
-    float start_E = current_position.e
+    float start_L = motion.position[axis_l],
+    float start_I = motion.position.i,
+    float start_J = motion.position.j,
+    float start_K = motion.position.k,
+    float start_U = motion.position.u,
+    float start_V = motion.position.v,
+    float start_W = motion.position.w,
+    float start_E = motion.position.e
   );
 
   // Angle of rotation between position and target from the circle center.
@@ -96,7 +96,7 @@ void plan_arc(
   uint16_t min_segments = 1;
 
   // Do a full circle if starting and ending positions are "identical"
-  if (NEAR(current_position[axis_p], cart[axis_p]) && NEAR(current_position[axis_q], cart[axis_q])) {
+  if (NEAR(motion.position[axis_p], cart[axis_p]) && NEAR(motion.position[axis_q], cart[axis_q])) {
     // Preserve direction for circles
     angular_travel = clockwise ? -RADIANS(360) : RADIANS(360);
     abs_angular_travel = RADIANS(360);
@@ -150,7 +150,7 @@ void plan_arc(
       const float per_circle_E = travel_E * part_per_circle     // E movement per circle
     );
 
-    xyze_pos_t temp_position = current_position;
+    xyze_pos_t temp_position = motion.position;
     for (uint16_t n = circles; n--;) {
       ARC_LIJKUVWE_CODE(                                        // Destination Linear Axes
         temp_position[axis_l] += per_circle_L,                  // Linear X, Y, or Z
@@ -167,14 +167,14 @@ void plan_arc(
 
     // Get starting coordinates for the remainder from the current position
     ARC_LIJKUVWE_CODE(
-      start_L = current_position[axis_l],
-      start_I = current_position.i,
-      start_J = current_position.j,
-      start_K = current_position.k,
-      start_U = current_position.u,
-      start_V = current_position.v,
-      start_W = current_position.w,
-      start_E = current_position.e
+      start_L = motion.position[axis_l],
+      start_I = motion.position.i,
+      start_J = motion.position.j,
+      start_K = motion.position.k,
+      start_U = motion.position.u,
+      start_V = motion.position.v,
+      start_W = motion.position.w,
+      start_E = motion.position.e
     );
 
     // Update travel distance for the remainder
@@ -212,7 +212,7 @@ void plan_arc(
   }
 
   // Feedrate for the move, scaled by the feedrate multiplier
-  const feedRate_t scaled_fr_mm_s = MMS_SCALED(feedrate_mm_s);
+  const feedRate_t scaled_fr_mm_s = motion.mms_scaled();
 
   // Get the ideal segment length for the move based on settings
   const float ideal_segment_mm = (
@@ -361,7 +361,7 @@ void plan_arc(
         raw.e       = start_E + per_segment_E * i
       );
 
-      apply_motion_limits(raw);
+      motion.apply_limits(raw);
 
       #if HAS_LEVELING && !PLANNER_LEVELING
         planner.apply_leveling(raw);
@@ -371,7 +371,7 @@ void plan_arc(
       const float arc_mm_remaining = flat_mm - segment_mm * i;
       hints.safe_exit_speed_sqr = _MIN(limiting_speed_sqr, 2 * limiting_accel * arc_mm_remaining);
 
-      if (!planner.buffer_line(raw, scaled_fr_mm_s, active_extruder, hints))
+      if (!planner.buffer_line(raw, scaled_fr_mm_s, motion.extruder, hints))
         break;
 
       hints.curve_radius = radius;
@@ -381,7 +381,7 @@ void plan_arc(
   // Ensure last segment arrives at target location.
   raw = cart;
 
-  apply_motion_limits(raw);
+  motion.apply_limits(raw);
 
   #if HAS_LEVELING && !PLANNER_LEVELING
     planner.apply_leveling(raw);
@@ -389,9 +389,9 @@ void plan_arc(
 
   hints.curve_radius = 0;
   hints.safe_exit_speed_sqr = 0.0f;
-  planner.buffer_line(raw, scaled_fr_mm_s, active_extruder, hints);
+  planner.buffer_line(raw, scaled_fr_mm_s, motion.extruder, hints);
 
-  current_position = cart;
+  motion.position = cart;
 
 } // plan_arc
 
@@ -425,22 +425,22 @@ void plan_arc(
 void GcodeSuite::G2_G3(const bool clockwise) {
   if (!MOTION_CONDITIONS) return;
 
-  TERN_(FULL_REPORT_TO_HOST_FEATURE, set_and_report_grblstate(M_RUNNING));
+  TERN_(FULL_REPORT_TO_HOST_FEATURE, motion.set_and_report_grblstate(M_RUNNING));
 
   #if ENABLED(SF_ARC_FIX)
-    const bool relative_mode_backup = relative_mode;
-    relative_mode = true;
+    const bool relative_mode_backup = motion.relative_mode;
+    motion.relative_mode = true;
   #endif
 
   get_destination_from_command();   // Get X Y [Z[I[J[K...]]]] [E] F (and set cutter power)
 
-  TERN_(SF_ARC_FIX, relative_mode = relative_mode_backup);
+  TERN_(SF_ARC_FIX, motion.relative_mode = relative_mode_backup);
 
   ab_float_t arc_offset = { 0, 0 };
   if (parser.seenval('R')) {
     const float r = parser.value_linear_units();
     if (r) {
-      const xy_pos_t p1 = current_position, p2 = destination;
+      const xy_pos_t p1 = motion.position, p2 = motion.destination;
       if (p1 != p2) {
         const xy_pos_t d2 = (p2 - p1) * 0.5f;          // XY vector to midpoint of move from current
         const float e = clockwise ^ (r < 0) ? -1 : 1,  // clockwise -1/1, counterclockwise 1/-1
@@ -480,13 +480,13 @@ void GcodeSuite::G2_G3(const bool clockwise) {
     #endif
 
     // Send the arc to the planner
-    plan_arc(destination, arc_offset, clockwise, circles_to_do);
+    plan_arc(motion.destination, arc_offset, clockwise, circles_to_do);
     reset_stepper_timeout();
   }
   else
     SERIAL_ERROR_MSG(STR_ERR_ARC_ARGS);
 
-  TERN_(FULL_REPORT_TO_HOST_FEATURE, set_and_report_grblstate(M_IDLE));
+  TERN_(FULL_REPORT_TO_HOST_FEATURE, motion.set_and_report_grblstate(M_IDLE));
 }
 
 #endif // ARC_SUPPORT

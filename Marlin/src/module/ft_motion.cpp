@@ -688,7 +688,7 @@ void FTMotion::fill_stepper_plan_buffer() {
 
   // Start Resonance Testing
   void FTMotion::start_resonance_test() {
-    home_if_needed(); // Ensure known axes first
+    motion.home_if_needed();  // Ensure known axes first
 
     ftm_resonance_test_params_t &p = rtg.rt_params;
 
@@ -697,10 +697,10 @@ void FTMotion::fill_stepper_plan_buffer() {
       p.accel_per_hz = 15.0f;
 
     // Always move to the center of the bed
-    do_blocking_move_to_xy(X_CENTER, Y_CENTER, Z_CLEARANCE_FOR_HOMING);
+    motion.blocking_move_xy(X_CENTER, Y_CENTER, Z_CLEARANCE_FOR_HOMING);
 
     // Start test at the current position with the configured time-step
-    rtg.start(current_position, FTM_TS);
+    rtg.start(motion.position, FTM_TS);
   }
 
 #endif // FTM_RESONANCE_TEST

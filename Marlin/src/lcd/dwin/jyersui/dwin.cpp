@@ -306,7 +306,7 @@ private:
     #endif
 
     void manualValueUpdate(const bool reset=false) {
-      const float zval = reset ? 0.0f : current_position.z;
+      const float zval = reset ? 0.0f : motion.position.z;
       queue.inject(TS(F("M421I"), mesh_x, F("J"), mesh_y, F("Z"), p_float_t(zval, 3)));
       planner.synchronize();
     }
@@ -314,17 +314,17 @@ private:
     void manual_mesh_move(const bool zmove=false) {
       if (zmove) {
         planner.synchronize();
-        current_position.z = goto_mesh_value ? bedlevel.z_values[mesh_x][mesh_y] : Z_CLEARANCE_BETWEEN_PROBES;
-        planner.buffer_line(current_position, homing_feedrate(Z_AXIS), active_extruder);
+        motion.position.z = goto_mesh_value ? bedlevel.z_values[mesh_x][mesh_y] : Z_CLEARANCE_BETWEEN_PROBES;
+        planner.buffer_line(motion.position, motion.homing_feedrate(Z_AXIS), motion.extruder);
         planner.synchronize();
       }
       else {
         jyersDWIN.popupHandler(Popup_MoveWait);
-        gcode.process_subcommands_now(TS(F("G0F300Z"), p_float_t(current_position.z, 3)));
+        gcode.process_subcommands_now(TS(F("G0F300Z"), p_float_t(motion.position.z, 3)));
         gcode.process_subcommands_now(TS(F("G42 F4000 I"), mesh_x, 'J', mesh_y));
         planner.synchronize();
-        current_position.z = goto_mesh_value ? bedlevel.z_values[mesh_x][mesh_y] : Z_CLEARANCE_BETWEEN_PROBES;
-        planner.buffer_line(current_position, homing_feedrate(Z_AXIS), active_extruder);
+        motion.position.z = goto_mesh_value ? bedlevel.z_values[mesh_x][mesh_y] : Z_CLEARANCE_BETWEEN_PROBES;
+        planner.buffer_line(motion.position, motion.homing_feedrate(Z_AXIS), motion.extruder);
         planner.synchronize();
         jyersDWIN.redrawMenu();
       }
@@ -875,16 +875,16 @@ void JyersDWIN::drawStatusArea(const bool icons/*=false*/) {
     dwinIconShow(ICON, ICON_Speed, 113, 383);
     dwinDrawString(false, DWIN_FONT_STAT, getColor(eeprom_settings.status_area_text, COLOR_WHITE), COLOR_BG_BLACK, 116 + 5 * STAT_CHR_W + 2, 384, F("%"));
   }
-  if (feedrate_percentage != feedrate) {
-    feedrate = feedrate_percentage;
-    dwinDrawIntValue(true, true, 0, DWIN_FONT_STAT, getColor(eeprom_settings.status_area_text, COLOR_WHITE), COLOR_BG_BLACK, 3, 116 + 2 * STAT_CHR_W, 384, feedrate_percentage);
+  if (motion.feedrate_percentage != feedrate) {
+    feedrate = motion.feedrate_percentage;
+    dwinDrawIntValue(true, true, 0, DWIN_FONT_STAT, getColor(eeprom_settings.status_area_text, COLOR_WHITE), COLOR_BG_BLACK, 3, 116 + 2 * STAT_CHR_W, 384, motion.feedrate_percentage);
   }
 
   static float x = -1, y = -1, z = -1;
   static bool update_x = false, update_y = false, update_z = false;
-  update_x = (current_position.x != x || axis_should_home(X_AXIS) || update_x);
-  update_y = (current_position.y != y || axis_should_home(Y_AXIS) || update_y);
-  update_z = (current_position.z != z || axis_should_home(Z_AXIS) || update_z);
+  update_x = (motion.position.x != x || motion.axis_should_home(X_AXIS) || update_x);
+  update_y = (motion.position.y != y || motion.axis_should_home(Y_AXIS) || update_y);
+  update_z = (motion.position.z != z || motion.axis_should_home(Z_AXIS) || update_z);
   if (icons) {
     x = y = z = -1;
     dwinDrawLine(getColor(eeprom_settings.coordinates_split_line, COLOR_LINE, true), 16, 450, 256, 450);
@@ -893,25 +893,25 @@ void JyersDWIN::drawStatusArea(const bool icons/*=false*/) {
     dwinIconShow(ICON, ICON_MaxSpeedZ, 180, 456);
   }
   if (update_x) {
-    x = current_position.x;
-    if ((update_x = axis_should_home(X_AXIS) && ui.get_blink()))
+    x = motion.position.x;
+    if ((update_x = motion.axis_should_home(X_AXIS) && ui.get_blink()))
       dwinDrawString(true, DWIN_FONT_MENU, getColor(eeprom_settings.coordinates_text, COLOR_WHITE), COLOR_BG_BLACK, 35, 459, F("  -?-  "));
     else
-      dwinDrawFloatValue(true, true, 0, DWIN_FONT_MENU, getColor(eeprom_settings.coordinates_text, COLOR_WHITE), COLOR_BG_BLACK, 3, 1, 35, 459, current_position.x);
+      dwinDrawFloatValue(true, true, 0, DWIN_FONT_MENU, getColor(eeprom_settings.coordinates_text, COLOR_WHITE), COLOR_BG_BLACK, 3, 1, 35, 459, motion.position.x);
   }
   if (update_y) {
-    y = current_position.y;
-    if ((update_y = axis_should_home(Y_AXIS) && ui.get_blink()))
+    y = motion.position.y;
+    if ((update_y = motion.axis_should_home(Y_AXIS) && ui.get_blink()))
       dwinDrawString(true, DWIN_FONT_MENU, getColor(eeprom_settings.coordinates_text, COLOR_WHITE), COLOR_BG_BLACK, 120, 459, F("  -?-  "));
     else
-      dwinDrawFloatValue(true, true, 0, DWIN_FONT_MENU, getColor(eeprom_settings.coordinates_text, COLOR_WHITE), COLOR_BG_BLACK, 3, 1, 120, 459, current_position.y);
+      dwinDrawFloatValue(true, true, 0, DWIN_FONT_MENU, getColor(eeprom_settings.coordinates_text, COLOR_WHITE), COLOR_BG_BLACK, 3, 1, 120, 459, motion.position.y);
   }
   if (update_z) {
-    z = current_position.z;
-    if ((update_z = axis_should_home(Z_AXIS) && ui.get_blink()))
+    z = motion.position.z;
+    if ((update_z = motion.axis_should_home(Z_AXIS) && ui.get_blink()))
       dwinDrawString(true, DWIN_FONT_MENU, getColor(eeprom_settings.coordinates_text, COLOR_WHITE), COLOR_BG_BLACK, 205, 459, F("  -?-  "));
     else
-      dwinDrawFloatValue(true, true, 0, DWIN_FONT_MENU, getColor(eeprom_settings.coordinates_text, COLOR_WHITE), COLOR_BG_BLACK, 3, 2, 205, 459, current_position.z >= 0 ? current_position.z : 0);
+      dwinDrawFloatValue(true, true, 0, DWIN_FONT_MENU, getColor(eeprom_settings.coordinates_text, COLOR_WHITE), COLOR_BG_BLACK, 3, 2, 205, 459, motion.position.z >= 0 ? motion.position.z : 0);
   }
   dwinUpdateLCD();
 }
@@ -1089,7 +1089,7 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
           if (draw)
             drawMenuItem(row, ICON_PrintSize, F("Manual Leveling"), nullptr, true);
           else {
-            if (axes_should_home()) {
+            if (motion.axes_should_home()) {
               popupHandler(Popup_Home);
               gcode.home_all_axes(true);
             }
@@ -1277,35 +1277,35 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
         case MOVE_X:
           if (draw) {
             drawMenuItem(row, ICON_MoveX, GET_TEXT_F(MSG_MOVE_X));
-            drawFloat(current_position.x, row, false);
+            drawFloat(motion.position.x, row, false);
           }
           else
-            modifyValue(current_position.x, X_MIN_POS, X_MAX_POS, 10);
+            modifyValue(motion.position.x, X_MIN_POS, X_MAX_POS, 10);
           break;
         case MOVE_Y:
           if (draw) {
             drawMenuItem(row, ICON_MoveY, GET_TEXT_F(MSG_MOVE_Y));
-            drawFloat(current_position.y, row);
+            drawFloat(motion.position.y, row);
           }
           else
-            modifyValue(current_position.y, Y_MIN_POS, Y_MAX_POS, 10);
+            modifyValue(motion.position.y, Y_MIN_POS, Y_MAX_POS, 10);
           break;
         case MOVE_Z:
           if (draw) {
             drawMenuItem(row, ICON_MoveZ, GET_TEXT_F(MSG_MOVE_Z));
-            drawFloat(current_position.z, row);
+            drawFloat(motion.position.z, row);
           }
           else
-            modifyValue(current_position.z, Z_MIN_POS, Z_MAX_POS, 10);
+            modifyValue(motion.position.z, Z_MIN_POS, Z_MAX_POS, 10);
           break;
 
         #if HAS_HOTEND
           case MOVE_E:
             if (draw) {
               drawMenuItem(row, ICON_Extruder, GET_TEXT_F(MSG_MOVE_E));
-              current_position.e = 0;
-              sync_plan_position();
-              drawFloat(current_position.e, row);
+              motion.position.e = 0;
+              motion.sync_plan_position();
+              drawFloat(motion.position.e, row);
             }
             else {
               if (thermalManager.targetTooColdToExtrude(0)) {
@@ -1317,9 +1317,9 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
                   thermalManager.wait_for_hotend(0);
                   redrawMenu();
                 }
-                current_position.e = 0;
-                sync_plan_position();
-                modifyValue(current_position.e, -500, 500, 10);
+                motion.position.e = 0;
+                motion.sync_plan_position();
+                modifyValue(motion.position.e, -500, 500, 10);
               }
             }
           break;
@@ -1589,7 +1589,7 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
             }
             else {
               if (!liveadjust) {
-                if (axes_should_home()) {
+                if (motion.axes_should_home()) {
                   popupHandler(Popup_Home);
                   gcode.home_all_axes(true);
                 }
@@ -2249,7 +2249,7 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
                 drawMenuItem(row, ICON_HotendTemp, GET_TEXT_F(MSG_PID_AUTOTUNE));
               else {
                 popupHandler(Popup_MPCWait);
-                thermalManager.MPC_autotune(active_extruder, Temperature::MPCTuningType::AUTO);
+                thermalManager.MPC_autotune(motion.extruder, Temperature::MPCTuningType::AUTO);
                 redrawMenu();
               }
               break;
@@ -2416,18 +2416,18 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
         case HOMEOFFSETS_XOFFSET:
           if (draw) {
             drawMenuItem(row, ICON_StepX, GET_TEXT_F(MSG_HOME_OFFSET_X));
-            drawFloat(home_offset.x, row, false, 100);
+            drawFloat(motion.home_offset.x, row, false, 100);
           }
           else
-            modifyValue(home_offset.x, -MAX_XY_OFFSET, MAX_XY_OFFSET, 100);
+            modifyValue(motion.home_offset.x, -MAX_XY_OFFSET, MAX_XY_OFFSET, 100);
           break;
         case HOMEOFFSETS_YOFFSET:
           if (draw) {
             drawMenuItem(row, ICON_StepY, GET_TEXT_F(MSG_HOME_OFFSET_Y));
-            drawFloat(home_offset.y, row, false, 100);
+            drawFloat(motion.home_offset.y, row, false, 100);
           }
           else
-            modifyValue(home_offset.y, -MAX_XY_OFFSET, MAX_XY_OFFSET, 100);
+            modifyValue(motion.home_offset.y, -MAX_XY_OFFSET, MAX_XY_OFFSET, 100);
           break;
       }
       break;
@@ -3287,7 +3287,7 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
                   break;
                 }
               #endif
-              if (axes_should_home()) {
+              if (motion.axes_should_home()) {
                 popupHandler(Popup_Home);
                 gcode.home_all_axes(true);
               }
@@ -3567,8 +3567,8 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
               bedlevel.z_values[mesh_conf.mesh_x][mesh_conf.mesh_y] += 0.01;
               queue.inject(F("M290 Z0.01"));
               planner.synchronize();
-              current_position.z += 0.01f;
-              sync_plan_position();
+              motion.position.z += 0.01f;
+              motion.sync_plan_position();
               drawFloat(bedlevel.z_values[mesh_conf.mesh_x][mesh_conf.mesh_y], row - 1, false, 100);
             }
             break;
@@ -3579,8 +3579,8 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
               bedlevel.z_values[mesh_conf.mesh_x][mesh_conf.mesh_y] -= 0.01;
               queue.inject(F("M290 Z-0.01"));
               planner.synchronize();
-              current_position.z -= 0.01f;
-              sync_plan_position();
+              motion.position.z -= 0.01f;
+              motion.sync_plan_position();
               drawFloat(bedlevel.z_values[mesh_conf.mesh_x][mesh_conf.mesh_y], row - 2, false, 100);
             }
             break;
@@ -3591,7 +3591,7 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
             }
             else {
               FLIP(mesh_conf.goto_mesh_value);
-              current_position.z = 0;
+              motion.position.z = 0;
               mesh_conf.manual_mesh_move(true);
               drawCheckbox(row, mesh_conf.goto_mesh_value);
             }
@@ -3686,8 +3686,8 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
               bedlevel.z_values[mesh_conf.mesh_x][mesh_conf.mesh_y] += 0.01;
               queue.inject(F("M290 Z0.01"));
               planner.synchronize();
-              current_position.z += 0.01f;
-              sync_plan_position();
+              motion.position.z += 0.01f;
+              motion.sync_plan_position();
               drawFloat(bedlevel.z_values[mesh_conf.mesh_x][mesh_conf.mesh_y], row - 1, false, 100);
             }
             break;
@@ -3698,8 +3698,8 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
               bedlevel.z_values[mesh_conf.mesh_x][mesh_conf.mesh_y] -= 0.01;
               queue.inject(F("M290 Z-0.01"));
               planner.synchronize();
-              current_position.z -= 0.01f;
-              sync_plan_position();
+              motion.position.z -= 0.01f;
+              motion.sync_plan_position();
               drawFloat(bedlevel.z_values[mesh_conf.mesh_x][mesh_conf.mesh_y], row - 2, false, 100);
             }
             break;
@@ -3753,32 +3753,32 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
           case MMESH_OFFSET:
             if (draw) {
               drawMenuItem(row, ICON_SetZOffset, F("Z Position"));
-              current_position.z = MANUAL_PROBE_START_Z;
-              drawFloat(current_position.z, row, false, 100);
+              motion.position.z = MANUAL_PROBE_START_Z;
+              drawFloat(motion.position.z, row, false, 100);
             }
             else
-              modifyValue(current_position.z, MIN_Z_OFFSET, MAX_Z_OFFSET, 100);
+              modifyValue(motion.position.z, MIN_Z_OFFSET, MAX_Z_OFFSET, 100);
             break;
           case MMESH_UP:
             if (draw)
               drawMenuItem(row, ICON_Axis, F("+0.01mm Up"));
-            else if (current_position.z < MAX_Z_OFFSET) {
+            else if (motion.position.z < MAX_Z_OFFSET) {
               gcode.process_subcommands_now(F("M290 Z0.01"));
               planner.synchronize();
-              current_position.z += 0.01f;
-              sync_plan_position();
-              drawFloat(current_position.z, row - 1, false, 100);
+              motion.position.z += 0.01f;
+              motion.sync_plan_position();
+              drawFloat(motion.position.z, row - 1, false, 100);
             }
             break;
           case MMESH_DOWN:
             if (draw)
               drawMenuItem(row, ICON_AxisD, F("-0.01mm Down"));
-            else if (current_position.z > MIN_Z_OFFSET) {
+            else if (motion.position.z > MIN_Z_OFFSET) {
               gcode.process_subcommands_now(F("M290 Z-0.01"));
               planner.synchronize();
-              current_position.z -= 0.01f;
-              sync_plan_position();
-              drawFloat(current_position.z, row - 2, false, 100);
+              motion.position.z -= 0.01f;
+              motion.sync_plan_position();
+              drawFloat(motion.position.z, row - 2, false, 100);
             }
             break;
           case MMESH_OLD:
@@ -3797,11 +3797,11 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
               drawFloat(currval, row, false, 100);
             }
             else if (!isnan(currval)) {
-              current_position.z = currval;
+              motion.position.z = currval;
               planner.synchronize();
-              planner.buffer_line(current_position, homing_feedrate(Z_AXIS), active_extruder);
+              planner.buffer_line(motion.position, motion.homing_feedrate(Z_AXIS), motion.extruder);
               planner.synchronize();
-              drawFloat(current_position.z, row - 3, false, 100);
+              drawFloat(motion.position.z, row - 3, false, 100);
             }
             break;
         }
@@ -3837,10 +3837,10 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
         case TUNE_SPEED:
           if (draw) {
             drawMenuItem(row, ICON_Speed, GET_TEXT_F(MSG_SPEED));
-            drawFloat(feedrate_percentage, row, false, 1);
+            drawFloat(motion.feedrate_percentage, row, false, 1);
           }
           else
-            modifyValue(feedrate_percentage, MIN_PRINT_SPEED, MAX_PRINT_SPEED, 1);
+            modifyValue(motion.feedrate_percentage, MIN_PRINT_SPEED, MAX_PRINT_SPEED, 1);
           break;
 
         #if HAS_HOTEND
@@ -4414,10 +4414,10 @@ void JyersDWIN::valueControl() {
     dwinUpdateLCD();
     if (active_menu == ID_ZOffset && liveadjust) {
       planner.synchronize();
-      current_position.z += (tempvalue / valueunit - zoffsetvalue);
-      planner.buffer_line(current_position, homing_feedrate(Z_AXIS), active_extruder);
-      current_position.z = 0;
-      sync_plan_position();
+      motion.position.z += (tempvalue / valueunit - zoffsetvalue);
+      planner.buffer_line(motion.position, motion.homing_feedrate(Z_AXIS), motion.extruder);
+      motion.position.z = 0;
+      motion.sync_plan_position();
     }
     else if (active_menu == ID_Tune && selection == TUNE_ZOFFSET) {
       gcode.process_subcommands_now(TS(F("M290Z"), p_float_t((tempvalue / valueunit - zoffsetvalue), 3)));
@@ -4437,12 +4437,12 @@ void JyersDWIN::valueControl() {
     switch (active_menu) {
       case ID_Move:
         planner.synchronize();
-        planner.buffer_line(current_position, manual_feedrate_mm_s[selection - 1], active_extruder);
+        planner.buffer_line(motion.position, manual_feedrate_mm_s[selection - 1], motion.extruder);
         break;
       #if HAS_MESH
         case ID_ManualMesh:
           planner.synchronize();
-          planner.buffer_line(current_position, homing_feedrate(Z_AXIS), active_extruder);
+          planner.buffer_line(motion.position, motion.homing_feedrate(Z_AXIS), motion.extruder);
           planner.synchronize();
           break;
         case ID_UBLMesh: mesh_conf.manual_mesh_move(true); break;
@@ -4457,7 +4457,7 @@ void JyersDWIN::valueControl() {
   dwinUpdateLCD();
   if (active_menu == ID_Move && livemove) {
     *(float*)valuepointer = tempvalue / valueunit;
-    planner.buffer_line(current_position, manual_feedrate_mm_s[selection - 1], active_extruder);
+    planner.buffer_line(motion.position, manual_feedrate_mm_s[selection - 1], motion.extruder);
   }
 }
 
@@ -4703,7 +4703,7 @@ void JyersDWIN::popupControl() {
       #if HAS_BED_PROBE
         case Popup_ManualProbing:
           if (selection == 0) {
-            const float dif = probe.probe_at_point(current_position.x, current_position.y, PROBE_PT_STOW, 0, false) - corner_avg;
+            const float dif = probe.probe_at_point(motion.position.x, motion.position.y, PROBE_PT_STOW, 0, false) - corner_avg;
             updateStatus(TS(F("Corner is "), p_float_t(abs(dif), 3), "mm ", dif > 0 ? F("high") : F("low")));
           }
           else {
@@ -5005,7 +5005,7 @@ void JyersDWIN::screenUpdate() {
       #if HAS_BED_PROBE
         probe.offset.z = zoffsetvalue;
       #else
-        set_home_offset(Z_AXIS, -zoffsetvalue);
+        motion.set_home_offset(Z_AXIS, -zoffsetvalue);
       #endif
     }
 
@@ -5013,8 +5013,8 @@ void JyersDWIN::screenUpdate() {
       if (probe.offset.z != lastzoffset)
         zoffsetvalue = lastzoffset = probe.offset.z;
     #else
-      if (-home_offset.z != lastzoffset)
-        zoffsetvalue = lastzoffset = -home_offset.z;
+      if (-motion.home_offset.z != lastzoffset)
+        zoffsetvalue = lastzoffset = -motion.home_offset.z;
     #endif
   #endif // HAS_ZOFFSET_ITEM
 
@@ -5152,7 +5152,7 @@ void MarlinUI::init_lcd() {
 void MarlinUI::clear_lcd() {}
 
 #if ENABLED(ADVANCED_PAUSE_FEATURE)
-  void MarlinUI::pause_show_message(const PauseMessage message, const PauseMode mode/*=PAUSE_MODE_SAME*/, const uint8_t extruder/*=active_extruder*/) {
+  void MarlinUI::pause_show_message(const PauseMessage message, const PauseMode mode/*=PAUSE_MODE_SAME*/, const uint8_t extruder/*=motion.extruder*/) {
     if (mode != PAUSE_MODE_SAME) pause_mode = mode;
     switch (message) {
       case PAUSE_MESSAGE_INSERT:  jyersDWIN.confirmHandler(Popup_FilInsert);  break;
