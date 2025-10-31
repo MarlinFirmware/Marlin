@@ -1378,14 +1378,7 @@ void CardReader::cdroot() {
           #endif
         #endif
 
-      #else // !SDSORT_USES_RAM
-
-        // By default re-read the names from SD for every compare
-        // retaining only two filenames at a time. This is very
-        // slow but is safest and uses minimal RAM.
-        char name1[LONG_FILENAME_LENGTH];
-
-      #endif
+      #endif // SDSORT_USES_RAM
 
       if (fileCnt > 1) {
 
