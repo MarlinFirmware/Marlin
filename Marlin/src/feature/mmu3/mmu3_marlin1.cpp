@@ -103,14 +103,13 @@ namespace MMU3 {
     return xyz_pos_t(current_position);
   }
 
-  void motion_do_blocking_move_to_xy(float rx, float ry, float feedRate_mm_s) {
-    current_position[X_AXIS] = rx;
-    current_position[Y_AXIS] = ry;
+  void motion_blocking_move_xy(float rx, float ry, float feedRate_mm_s) {
+    current_position.set(rx, ry);
     planner_line_to_current_position_sync(feedRate_mm_s);
   }
 
-  void motion_do_blocking_move_to_z(float z, float feedRate_mm_s) {
-    current_position[Z_AXIS] = z;
+  void motion_blocking_move_z(float z, float feedRate_mm_s) {
+    current_position.z = z;
     planner_line_to_current_position_sync(feedRate_mm_s);
   }
 
