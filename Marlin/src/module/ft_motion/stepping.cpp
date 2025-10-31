@@ -97,7 +97,7 @@ uint32_t Stepping::plan() {
   // The reciprocal is actually 2^32/dividend, but that requires dividing a uint64_t, which quite expensive
   // Since even the real reciprocal may underestimate the quotient by 1 anyway already, this optimisation doesn't
   // make things worse. This underestimation is compensated for in advance_until_step.
-  #define _DIVIDEND_RECIP(A) advance_dividend_reciprocal.A = UINT32_MAX / stepper_plan.advance_dividend_q0_32;
+  #define _DIVIDEND_RECIP(A) advance_dividend_reciprocal.A = UINT32_MAX / stepper_plan.advance_dividend_q0_32.A;
   LOGICAL_AXIS_MAP(_DIVIDEND_RECIP);
   #undef _DIVIDEND_RECIP
 
