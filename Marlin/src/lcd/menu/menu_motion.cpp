@@ -411,6 +411,13 @@ void menu_move() {
     #define CACHE_FOR_SPEED 1
   #endif
 
+  #if ENABLED(FTM_SMOOTHING)
+    #define _SMOO_MENU_ITEM(A) do{ \
+      editable.decimal = c.smoothingTime.A; \
+      EDIT_ITEM_FAST_N(float43, _AXIS(A), MSG_FTM_SMOOTH_TIME_N, &editable.decimal, 0.0f, FTM_MAX_SMOOTHING_TIME, []{ ftMotion.set_smoothing_time(_AXIS(A), editable.decimal); }); \
+    }while(0);
+  #endif
+
   void menu_ft_motion() {
     // Define stuff ahead of the menu loop
     ft_config_t &c = ftMotion.cfg;
@@ -499,23 +506,9 @@ void menu_move() {
       #endif
 
       EDIT_ITEM(bool, MSG_FTM_AXIS_SYNC, &c.axis_sync_enabled);
+
       #if ENABLED(FTM_SMOOTHING)
-        #if HAS_X_AXIS
-          editable.decimal = c.smoothingTime.X;
-          EDIT_ITEM_FAST_N(float43, X_AXIS, MSG_FTM_SMOOTH_TIME_N, &editable.decimal, 0.0f, FTM_MAX_SMOOTHING_TIME, []{ ftMotion.set_smoothing_time(X_AXIS, editable.decimal); });
-        #endif
-        #if HAS_Y_AXIS
-          editable.decimal = c.smoothingTime.Y;
-          EDIT_ITEM_FAST_N(float43, Y_AXIS, MSG_FTM_SMOOTH_TIME_N, &editable.decimal, 0.0f, FTM_MAX_SMOOTHING_TIME, []{ ftMotion.set_smoothing_time(Y_AXIS, editable.decimal); });
-        #endif
-        #if HAS_Z_AXIS
-          editable.decimal = c.smoothingTime.Z;
-          EDIT_ITEM_FAST_N(float43, Z_AXIS, MSG_FTM_SMOOTH_TIME_N, &editable.decimal, 0.0f, FTM_MAX_SMOOTHING_TIME, []{ ftMotion.set_smoothing_time(Z_AXIS, editable.decimal); });
-        #endif
-        #if HAS_EXTRUDERS
-          editable.decimal = c.smoothingTime.E;
-          EDIT_ITEM_FAST_N(float43, E_AXIS, MSG_FTM_SMOOTH_TIME_N, &editable.decimal, 0.0f, FTM_MAX_SMOOTHING_TIME, []{ ftMotion.set_smoothing_time(E_AXIS, editable.decimal); });
-        #endif
+        CARTES_MAP(_SMOO_MENU_ITEM);
       #endif
     }
     END_MENU();
@@ -592,10 +585,6 @@ void menu_move() {
     #endif
 
     #if ENABLED(FTM_SMOOTHING)
-      #define _SMOO_MENU_ITEM(A) do{ \
-        editable.decimal = c.smoothingTime.A; \
-        EDIT_ITEM_FAST_N(float43, _AXIS(A), MSG_FTM_SMOOTH_TIME_N, &editable.decimal, 0.0f, FTM_MAX_SMOOTHING_TIME, []{ ftMotion.set_smoothing_time(_AXIS(A), editable.decimal); }); \
-      }while(0);
       CARTES_MAP(_SMOO_MENU_ITEM);
     #endif
 
