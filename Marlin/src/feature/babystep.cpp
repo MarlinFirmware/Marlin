@@ -49,7 +49,7 @@ int16_t Babystep::accum;
 void Babystep::step_axis(const AxisEnum axis) {
   const int16_t curTodo = steps[BS_AXIS_IND(axis)]; // get rid of volatile for performance
   if (curTodo) {
-    stepper.do_babystep((AxisEnum)axis, curTodo > 0);
+    stepper.do_babystep(axis, curTodo > 0);
     if (curTodo > 0) steps[BS_AXIS_IND(axis)]--; else steps[BS_AXIS_IND(axis)]++;
   }
 }

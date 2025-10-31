@@ -87,7 +87,7 @@ void StepperDAC::print_values() {
   LOOP_LOGICAL_AXES(a) {
     SERIAL_CHAR(' ', IAXIS_CHAR(a), ':');
     SERIAL_ECHO(dac_perc(a));
-    SERIAL_ECHOPGM_P(PSTR(" ("), dac_amps(AxisEnum(a)), PSTR(")"));
+    SERIAL_ECHOPGM_P(PSTR(" ("), dac_amps((AxisEnum)a), PSTR(")"));
   }
   #if HAS_EXTRUDERS
     SERIAL_ECHOLNPGM_P(SP_E_LBL, dac_perc(E_AXIS), PSTR(" ("), dac_amps(E_AXIS), PSTR(")"));
