@@ -229,10 +229,10 @@ void FWRetract::M207_report() {
  */
 void FWRetract::M208() {
   if (!parser.seen("FSRW")) return M208_report();
-  if (parser.seen('S')) settings.retract_recover_extra              = parser.value_axis_units(E_AXIS);
-  if (parser.seen('F')) settings.retract_recover_feedrate_mm_s      = MMM_TO_MMS(parser.value_axis_units(E_AXIS));
-  if (parser.seen('W')) settings.swap_retract_recover_extra         = parser.value_axis_units(E_AXIS);
-  if (parser.seen('R')) settings.swap_retract_recover_feedrate_mm_s = MMM_TO_MMS(parser.value_axis_units(E_AXIS));
+  if (parser.seenval('S')) settings.retract_recover_extra              = parser.value_axis_units(E_AXIS);
+  if (parser.seenval('F')) settings.retract_recover_feedrate_mm_s      = MMM_TO_MMS(parser.value_axis_units(E_AXIS));
+  if (parser.seenval('W')) settings.swap_retract_recover_extra         = parser.value_axis_units(E_AXIS);
+  if (parser.seenval('R')) settings.swap_retract_recover_feedrate_mm_s = MMM_TO_MMS(parser.value_axis_units(E_AXIS));
 }
 
 void FWRetract::M208_report() {
