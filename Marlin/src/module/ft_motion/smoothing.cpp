@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2023 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2025 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -21,6 +21,9 @@
  */
 
 #include "../../inc/MarlinConfig.h"
+
+#if ENABLED(FTM_SMOOTHING)
+
 #include "smoothing.h"
 
 // Set smoothing time and recalculate alpha and delay.
@@ -34,3 +37,5 @@ void AxisSmoothing::set_smoothing_time(const float s_time) {
     delay_samples = 0;
   }
 }
+
+#endif // FTM_SMOOTHING

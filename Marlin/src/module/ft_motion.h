@@ -75,7 +75,7 @@ typedef struct FTConfig {
   #endif // HAS_FTM_SHAPING
 
   #if ENABLED(FTM_SMOOTHING)
-    ft_smoothed_float_t smoothingTime;                  // Smoothing time. [s]
+    ft_smoothed_float_t smoothingTime;                    // Smoothing time. [s]
   #endif
 
   #if HAS_EXTRUDERS
@@ -222,9 +222,6 @@ class FTMotion {
     static Poly6TrajectoryGenerator poly6Generator;
     static TrajectoryGenerator* currentGenerator;
     static TrajectoryType trajectoryType;
-
-    // Number of batches needed to propagate the current trajectory to the stepper.
-    static constexpr uint32_t PROP_BATCHES = 1;
 
     #if ENABLED(DISTINCT_E_FACTORS)
       static uint8_t block_extruder_axis;  // Cached extruder axis index
