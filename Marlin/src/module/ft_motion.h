@@ -73,11 +73,6 @@ typedef struct FTConfig {
 
   #endif // HAS_FTM_SHAPING
 
-  #if HAS_EXTRUDERS
-    bool linearAdvEna = FTM_LINEAR_ADV_DEFAULT_ENA;       // Linear advance enable configuration.
-    float linearAdvK = FTM_LINEAR_ADV_DEFAULT_K;          // Linear advance gain.
-  #endif
-
   TrajectoryType trajectory_type = TrajectoryType::FTM_TRAJECTORY_TYPE; // Trajectory generator type
   float poly6_acceleration_overshoot; // Overshoot factor for Poly6 (1.25 to 2.0)
 } ft_config_t;
@@ -124,11 +119,6 @@ class FTMotion {
         #define _SET_SMOOTH(A) set_smoothing_time(_AXIS(A), FTM_SMOOTHING_TIME_##A);
         CARTES_MAP(_SET_SMOOTH);
         #undef _SET_SMOOTH
-      #endif
-
-      #if HAS_EXTRUDERS
-        cfg.linearAdvEna = FTM_LINEAR_ADV_DEFAULT_ENA;
-        cfg.linearAdvK = FTM_LINEAR_ADV_DEFAULT_K;
       #endif
 
       cfg.poly6_acceleration_overshoot = FTM_POLY6_ACCELERATION_OVERSHOOT;

@@ -612,12 +612,13 @@ void FTMotion::generateTrajectoryPointsFromBlock() {
     LOGICAL_AXIS_MAP_LC(_SET_TRAJ);
 
     #if FTM_HAS_LIN_ADVANCE
-      if (cfg.linearAdvEna) {
+      const float advK = planner.get_advance_k();
+      if (advK) {
         float traj_e = traj.e[traj_idx_set];
         if (use_advance_lead) {
           // Don't apply LA to retract/unretract blocks
           float e_rate = (traj_e - prev_traj_e) * (FTM_FS);
-          traj.e[traj_idx_set] += e_rate * cfg.linearAdvK;
+          traj.e[traj_idx_set] += e_rate * advK;
         }
         prev_traj_e = traj_e;
       }

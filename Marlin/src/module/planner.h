@@ -530,7 +530,7 @@ class Planner {
       static constexpr bool leveling_active = false;
     #endif
 
-    #if ENABLED(LIN_ADVANCE)
+    #if HAS_LIN_ADVANCE_K
       static float extruder_advance_K[DISTINCT_E];
       static void set_advance_k(const float k, const uint8_t e=active_extruder) {
         UNUSED(e);
@@ -541,13 +541,14 @@ class Planner {
         UNUSED(e);
         return extruder_advance_K[E_INDEX_N(e)];
       }
-      #if ENABLED(SMOOTH_LIN_ADVANCE)
-        static uint32_t get_advance_k_q27(const uint8_t e=active_extruder) {
-          UNUSED(e);
-          return extruder_advance_K_q27[E_INDEX_N(e)];
-        }
-      #endif
-    #endif // LIN_ADVANCE
+    #endif
+
+    #if ENABLED(SMOOTH_LIN_ADVANCE)
+      static uint32_t get_advance_k_q27(const uint8_t e=active_extruder) {
+        UNUSED(e);
+        return extruder_advance_K_q27[E_INDEX_N(e)];
+      }
+    #endif
 
     /**
      * The current position of the tool in absolute steps

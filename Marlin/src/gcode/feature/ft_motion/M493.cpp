@@ -114,13 +114,6 @@ void say_shaping() {
       SERIAL_EOL();
     #endif
   }
-
-  #if HAS_EXTRUDERS
-    if (c.active) {
-      SERIAL_ECHO_TERNARY(c.linearAdvEna, "Linear Advance ", "en", "dis", "abled");
-      SERIAL_ECHOLNPGM(". Gain: ", c.linearAdvK);
-    }
-  #endif
 }
 
 void GcodeSuite::M493_report(const bool forReplay/*=true*/) {
@@ -133,9 +126,6 @@ void GcodeSuite::M493_report(const bool forReplay/*=true*/) {
     "  M493 S", c.active
     #if HAS_DYNAMIC_FREQ
       , " D", c.dynFreqMode
-    #endif
-    #if HAS_EXTRUDERS
-      , " P", c.linearAdvEna, " K", c.linearAdvK
     #endif
     // Axis Synchronization
     , " H", c.axis_sync_enabled
@@ -172,7 +162,6 @@ void GcodeSuite::M493_report(const bool forReplay/*=true*/) {
  * Linear / Pressure Advance:
  *
  *    P<bool> Enable (1) or Disable (0) Linear Advance pressure control
- *    K<gain> Set Linear Advance gain
  *
  * Specifying Axes (for A,C,F,I,Q):
  *
@@ -250,28 +239,6 @@ void GcodeSuite::M493() {
     }
 
   #endif // NUM_AXES_SHAPED > 0
-
-  #if HAS_EXTRUDERS
-
-    // Pressure control (linear advance) parameter.
-    if (parser.seen('P')) {
-      const bool val = parser.value_bool();
-      ftMotion.cfg.linearAdvEna = val;
-      flag.report = true;
-    }
-
-    // Pressure control (linear advance) gain parameter.
-    if (parser.seenval('K')) {
-      const float val = parser.value_float();
-      if (WITHIN(val, 0.0f, 10.0f)) {
-        ftMotion.cfg.linearAdvK = val;
-        flag.report = true;
-      }
-      else // Value out of range.
-        SERIAL_ECHOLNPGM("Linear Advance gain out of range.");
-    }
-
-  #endif // HAS_EXTRUDERS
 
   // Parse 'H' Axis Synchronization parameter.
   if (parser.seenval('H')) {

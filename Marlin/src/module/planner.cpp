@@ -234,7 +234,7 @@ float Planner::previous_nominal_speed;
   int32_t Planner::xy_freq_min_interval_us = LROUND(1000000.0f / (XY_FREQUENCY_LIMIT));
 #endif
 
-#if ENABLED(LIN_ADVANCE)
+#if HAS_LIN_ADVANCE_K
   float Planner::extruder_advance_K[DISTINCT_E]; // Initialized by settings.load
   #if ENABLED(SMOOTH_LIN_ADVANCE)
     uint32_t Planner::extruder_advance_K_q27[DISTINCT_E];
@@ -881,11 +881,9 @@ void Planner::calculate_trapezoid_for_block(block_t * const block, const float e
 
   #if ENABLED(SMOOTH_LIN_ADVANCE)
     block->cruise_time = plateau_steps > 0 ? float(plateau_steps) * float(STEPPER_TIMER_RATE) / float(cruise_rate) : 0;
-  #endif
-
-  #if HAS_ROUGH_LIN_ADVANCE
+  #elif HAS_ROUGH_LIN_ADVANCE
     if (block->la_advance_rate) {
-      const float comp = extruder_advance_K[E_INDEX_N(block->extruder)] * block->steps.e / block->step_event_count;
+      const float comp = get_advance_k(block->extruder) * block->steps.e / block->step_event_count;
       block->max_adv_steps = cruise_rate * comp;
       block->final_adv_steps = final_rate * comp;
     }
@@ -2403,7 +2401,7 @@ bool Planner::_populate_block(
     // Start with print or travel acceleration
     accel = CEIL((esteps ? settings.acceleration : settings.travel_acceleration) * steps_per_mm);
 
-    #if ANY(LIN_ADVANCE, FTM_HAS_LIN_ADVANCE)
+    #if HAS_LIN_ADVANCE_K
       // Linear advance is currently not ready for HAS_I_AXIS
       #define MAX_E_JERK(N) TERN(HAS_LINEAR_E_JERK, max_e_jerk[E_INDEX_N(N)], max_jerk.e)
 
@@ -2416,11 +2414,7 @@ bool Planner::_populate_block(
        *               Check the appropriate K value for Standard or Fixed-Time Motion.
        */
       if (esteps && dm.e) {
-        const bool ftm_active = TERN0(FTM_HAS_LIN_ADVANCE, ftMotion.cfg.active),
-                   ftm_la_active = TERN0(FTM_HAS_LIN_ADVANCE, ftm_active && ftMotion.cfg.linearAdvEna);
-        const float advK = ftm_active
-          ? (ftm_la_active ? TERN0(FTM_HAS_LIN_ADVANCE, ftMotion.cfg.linearAdvK) : 0)
-          : TERN0(HAS_ROUGH_LIN_ADVANCE, extruder_advance_K[E_INDEX_N(extruder)]);
+        const float advK = get_advance_k(extruder);
         if (advK) {
           float e_D_ratio = (target_float.e - position_float.e) /
             TERN(IS_KINEMATIC, block->millimeters,
@@ -2434,17 +2428,20 @@ bool Planner::_populate_block(
           // This assumes no one will use a retract length of 0mm < retr_length < ~0.2mm
           //   and no one will print 100mm wide lines using 3mm filament or 35mm wide lines using 1.75mm filament.
           use_adv_lead = e_D_ratio <= 3.0f;
-          if (use_adv_lead && TERN0(HAS_ROUGH_LIN_ADVANCE, !ftm_active)) {
-            // For Standard Motion LA: Scale E acceleration so it'll be possible to jump to the advance speed
-            const uint32_t max_accel_steps_per_s2 = (MAX_E_JERK(extruder) / (advK * e_D_ratio)) * steps_per_mm;
-            if (accel > max_accel_steps_per_s2) {
-              accel = max_accel_steps_per_s2;
-              if (TERN0(LA_DEBUG, DEBUGGING(INFO))) SERIAL_ECHOLNPGM("Acceleration limited to max_accel_steps_per_s2 (", max_accel_steps_per_s2, ")");
+
+          #if HAS_ROUGH_LIN_ADVANCE
+            if (use_adv_lead && TERN1(FT_MOTION, !ftMotion.cfg.active)) {
+              // For Standard Motion LA: Scale E acceleration so it'll be possible to jump to the advance speed
+              const uint32_t max_accel_steps_per_s2 = (MAX_E_JERK(extruder) / (advK * e_D_ratio)) * steps_per_mm;
+              if (accel > max_accel_steps_per_s2) {
+                accel = max_accel_steps_per_s2;
+                if (TERN0(LA_DEBUG, DEBUGGING(INFO))) SERIAL_ECHOLNPGM("Acceleration limited to max_accel_steps_per_s2 (", max_accel_steps_per_s2, ")");
+              }
             }
-          }
+          #endif
         }
       }
-    #endif // LIN_ADVANCE || FTM_HAS_LIN_ADVANCE
+    #endif // HAS_LIN_ADVANCE_K
 
     // Limit acceleration per axis
     if (block->step_event_count <= acceleration_long_cutoff) {
@@ -2475,7 +2472,7 @@ bool Planner::_populate_block(
     block->la_scaling = 0;
     if (use_adv_lead) {
       // The Bresenham algorithm will convert this step rate into extruder steps
-      block->la_advance_rate = extruder_advance_K[E_INDEX_N(extruder)] * block->acceleration_steps_per_s2;
+      block->la_advance_rate = get_advance_k(extruder) * block->acceleration_steps_per_s2;
 
       // Reduce LA ISR frequency by calling it only often enough to ensure that there will
       // never be more than four extruder steps per call

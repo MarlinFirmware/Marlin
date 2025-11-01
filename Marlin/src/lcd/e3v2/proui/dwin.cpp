@@ -2686,7 +2686,7 @@ void applyMaxAccel() { planner.set_max_acceleration(hmiValue.axis, menuData.valu
   void setJDmm() { setPFloatOnClick(MIN_JD_MM, MAX_JD_MM, 3, applyJDmm); }
 #endif
 
-#if ENABLED(LIN_ADVANCE)
+#if HAS_LIN_ADVANCE_K
   #define LA_FDIGITS 3
   void applyLA_K() { planner.set_advance_k(menuData.value / POW(10, LA_FDIGITS)); }
   void setLA_K() { setFloatOnClick(0, 10, LA_FDIGITS, planner.get_advance_k(), applyLA_K); }
@@ -3677,7 +3677,7 @@ void drawTuneMenu() {
 
 void drawMotionMenu() {
   constexpr uint8_t items = (4
-    + COUNT_ENABLED(EDITABLE_STEPS_PER_UNIT, EDITABLE_HOMING_FEEDRATE, LIN_ADVANCE, SHAPING_MENU, ADAPTIVE_STEP_SMOOTHING_TOGGLE)
+    + COUNT_ENABLED(EDITABLE_STEPS_PER_UNIT, EDITABLE_HOMING_FEEDRATE, HAS_LIN_ADVANCE_K, SMOOTH_LIN_ADVANCE, SHAPING_MENU, ADAPTIVE_STEP_SMOOTHING_TOGGLE)
     + 2
   );
   checkkey = ID_Menu;
@@ -3696,7 +3696,7 @@ void drawMotionMenu() {
     #if ENABLED(EDITABLE_HOMING_FEEDRATE)
       MENU_ITEM(ICON_Homing, MSG_HOMING_FEEDRATE, onDrawSubMenu, drawHomingFRMenu);
     #endif
-    #if ENABLED(LIN_ADVANCE)
+    #if HAS_LIN_ADVANCE_K
       static float editable_k;
       editable_k = planner.get_advance_k();
       EDIT_ITEM(ICON_MaxAccelerated, MSG_ADVANCE_K, onDrawLA_K, setLA_K, &editable_k);
