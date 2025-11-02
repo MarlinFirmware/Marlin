@@ -30,6 +30,10 @@
 #include "ft_motion/poly5_trajectory_generator.h"
 #include "ft_motion/poly6_trajectory_generator.h"
 
+#if ENABLED(FTM_RESONANCE_TEST)
+ #include "ft_motion/resonance_trajectory_generator.h"
+#endif
+
 #if HAS_FTM_SHAPING
   #include "ft_motion/shaping.h"
 #endif
@@ -89,6 +93,8 @@ typedef struct FTConfig {
  */
 class FTMotion {
 
+  TERN_(FTM_RESONANCE_TEST, friend void ResonanceTrajectoryGenerator::fill_stepper_plan_buffer();)
+
   public:
 
     // Public variables
@@ -141,6 +147,9 @@ class FTMotion {
     // Public methods
     static void init();
     static void loop();                                   // Controller main, to be invoked from non-isr task.
+    TERN_(FTM_RESONANCE_TEST, static void start_resonanceTest();) // Start a resonance test with given parameters.
+    TERN_(FTM_RESONANCE_TEST, static ResonanceTrajectoryGenerator* rtg;) // Resonance trajectory generator instance.
+    TERN_(FTM_RESONANCE_TEST, static TrajectoryType previous_trajectoryType;) // Previous trajectory type before resonance test.
 
     #if HAS_FTM_SHAPING
       // Refresh gains and indices used by shaping functions.
@@ -212,6 +221,7 @@ class FTMotion {
     static TrapezoidalTrajectoryGenerator trapezoidalGenerator;
     static Poly5TrajectoryGenerator poly5Generator;
     static Poly6TrajectoryGenerator poly6Generator;
+    TERN_(FTM_RESONANCE_TEST, static ResonanceTrajectoryGenerator resonanceGenerator;)
     static TrajectoryGenerator* currentGenerator;
     static TrajectoryType trajectoryType;
 

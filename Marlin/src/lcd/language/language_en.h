@@ -950,6 +950,11 @@ namespace LanguageNarrow_en {
   LSTR MSG_FTM_VTOL_N                     = _UxGT("@ Vib. Level");
   LSTR MSG_FTM_SMOOTH_TIME_N              = _UxGT("@ Smoothing Time");
   LSTR MSG_FTM_POLY6_OVERSHOOT            = _UxGT("@ Poly6 Overshoot");
+  LSTR MSG_FTM_RESONANCE_TEST             = _UxGT("Resonance Test");
+  LSTR MSG_FTM_RT_RUNNING                 = _UxGT("Resonance Test Running...");
+  LSTR MSG_FTM_RT_START_X                 = _UxGT("Start Test on X axis");
+  LSTR MSG_FTM_RT_START_Y                 = _UxGT("Start Test on Y axis");
+  LSTR MSG_FTM_RT_STOP                    = _UxGT("Abort Test");
 
   LSTR MSG_LEVEL_X_AXIS                   = _UxGT("Level X Axis");
   LSTR MSG_AUTO_CALIBRATE                 = _UxGT("Auto Calibrate");

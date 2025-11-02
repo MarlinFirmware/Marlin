@@ -35,6 +35,9 @@
 #include "ft_motion/trapezoidal_trajectory_generator.h"
 #include "ft_motion/poly5_trajectory_generator.h"
 #include "ft_motion/poly6_trajectory_generator.h"
+#if ENABLED(FTM_RESONANCE_TEST)
+  #include "ft_motion/resonance_trajectory_generator.h"
+#endif
 #include "stepper.h" // Access stepper block queue function and abort status.
 #include "endstops.h"
 
@@ -68,8 +71,11 @@ float FTMotion::tau = 0.0f;                         // (s) Time since start of b
 TrapezoidalTrajectoryGenerator FTMotion::trapezoidalGenerator;
 Poly5TrajectoryGenerator FTMotion::poly5Generator;
 Poly6TrajectoryGenerator FTMotion::poly6Generator;
+TERN_(FTM_RESONANCE_TEST, ResonanceTrajectoryGenerator FTMotion::resonanceGenerator;)
 TrajectoryGenerator* FTMotion::currentGenerator = &FTMotion::trapezoidalGenerator;
+TERN_(FTM_RESONANCE_TEST, ResonanceTrajectoryGenerator* FTMotion::rtg;) // Resonance trajectory generator instance.
 TrajectoryType FTMotion::trajectoryType = TrajectoryType::FTM_TRAJECTORY_TYPE;
+TERN_(FTM_RESONANCE_TEST, TrajectoryType FTMotion::previous_trajectoryType;) // Previous trajectory type before resonance test.
 
 // Compact plan buffer
 stepper_plan_t FTMotion::stepper_plan_buff[FTM_BUFFER_SIZE];
@@ -147,14 +153,39 @@ void FTMotion::loop() {
    * 3. Reset all the states / memory.
    * 4. Signal ready for new block.
    */
-  if (stepper.abort_current_block) {
-    discard_planner_block_protected();
-    reset();
-    currentGenerator->planRunout(0.0f);   // Reset generator state
-    stepper.abort_current_block = false;  // Abort finished.
-  }
 
-  fill_stepper_plan_buffer();
+  #if ENABLED(FTM_RESONANCE_TEST)
+  bool using_resonance;
+    if(getTrajectoryType() == TrajectoryType::RESONANCE)
+      using_resonance = rtg->isActive();
+    else
+      using_resonance = false;
+  #else
+    using_resonance = false;
+  #endif
+
+  #if ENABLED(FTM_RESONANCE_TEST)
+    if(using_resonance) {
+      // Resonance Test has priority over normal ft_motion operation.
+      // Process resonance test if active. When it's done, generate the last data points for a clean ending.
+      if(rtg->isActive()) {
+        if (rtg->isDone())
+          plan_runout_block();
+        rtg->fill_stepper_plan_buffer();
+      }
+    }
+  #endif
+
+  if(!using_resonance) {
+    if (stepper.abort_current_block) {
+      discard_planner_block_protected();
+      reset();
+      currentGenerator->planRunout(0.0f);   // Reset generator state
+      stepper.abort_current_block = false;  // Abort finished.
+    }
+
+    fill_stepper_plan_buffer();
+  }
 
   // Set busy status for use by planner.busy()
   const bool oldBusy = busy;
@@ -274,12 +305,14 @@ void FTMotion::init() {
 
 // Set trajectory generator type
 void FTMotion::setTrajectoryType(const TrajectoryType type) {
+  TERN_(FTM_RESONANCE_TEST, previous_trajectoryType = trajectoryType;)
   cfg.trajectory_type = trajectoryType = type;
   switch (type) {
     default: cfg.trajectory_type = trajectoryType = TrajectoryType::FTM_TRAJECTORY_TYPE;
     case TrajectoryType::TRAPEZOIDAL: currentGenerator = &trapezoidalGenerator; break;
     case TrajectoryType::POLY5:       currentGenerator = &poly5Generator; break;
     case TrajectoryType::POLY6:       currentGenerator = &poly6Generator; break;
+    TERN_(FTM_RESONANCE_TEST, case TrajectoryType::RESONANCE:   currentGenerator = &resonanceGenerator; break;)
   }
 }
 
@@ -541,6 +574,23 @@ void FTMotion::fill_stepper_plan_buffer() {
     enqueue_stepper_plan(plan);
 
   }
+}
+
+//Start Resonance Testing
+void FTMotion::start_resonanceTest() {
+
+  gcode.home_all_axes(); // Always home all axes first
+
+  // Always move to the center of the bed at a safe height
+  do_blocking_move_to_xy(xy_pos_t{X_CENTER, Y_CENTER});
+
+  setTrajectoryType(TrajectoryType::RESONANCE);
+  rtg = &resonanceGenerator;
+  // Now, set up the test state variables
+  rtg->rt_params.start_pos = current_position;
+  rtg->rt_params.start_time = millis();
+  rtg->setActive(true);
+  rtg->setDone(false);
 }
 
 #endif // FT_MOTION
