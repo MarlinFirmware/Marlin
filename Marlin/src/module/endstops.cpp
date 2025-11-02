@@ -328,6 +328,9 @@ void Endstops::enable(const bool onoff) {
     #if PIN_EXISTS(PROBE_ENABLE)
       WRITE(PROBE_ENABLE_PIN, onoff);
     #endif
+    #if PROBE_WAKEUP_TIME_MS
+      if (onoff) safe_delay(PROBE_WAKEUP_TIME_MS);
+    #endif
     resync();
   }
 #endif
