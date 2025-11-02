@@ -3544,13 +3544,11 @@ void Stepper::report_positions() {
 #if ENABLED(FT_MOTION)
 
   /**
-   * Run stepping from the Stepper ISR at regular short intervals.
+   * Run stepping for FT Motion from the Stepper ISR at regular short intervals.
    *
-   * - Set ftMotion.sts_stepperBusy state to reflect whether there are any commands in the circular buffer.
-   * - If there are no commands in the buffer, return.
-   * - Get the next command from the circular buffer ftMotion.stepperCmdBuff[].
-   * - If the block is being aborted, return without processing the command.
-   * - Apply STEP/DIR along with any delays required. A command may be empty, with no STEP/DIR.
+   * - If there are no STEP commands in the buffer, return.
+   * - Update the last_direction_bits for all stepping axes.
+   * - Apply STEP/DIR along with any delays required.
    */
   void Stepper::ftMotion_stepper() {
     AxisBits &step_bits = ftMotion.stepping.step_bits;            // Aliases for prettier code
