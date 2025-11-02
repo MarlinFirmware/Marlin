@@ -7,7 +7,7 @@ UNIT_TEST_CONFIG ?= default
 # Find a Python 3 interpreter
 ifeq ($(OS),Windows_NT)
 	# Windows: use `where` – fall back through the three common names
-	PYTHON := $(shell where python 2>nul || where python3 2>nul || where py 2>nul)
+	PYTHON := $(shell which python 2>nul || which python3 2>nul || which py 2>nul)
 	# Windows: Use cmd tools to find pins files
 	PINS_RAW := $(shell cmd //c "dir /s /b Marlin\src\pins\*.h 2>nul | findstr /r ".*Marlin\\\\src\\\\pins\\\\.*\\\\pins_.*\.h"")
 	PINS := $(subst \,/,$(PINS_RAW))
@@ -65,6 +65,9 @@ help:
 marlin:
 	./buildroot/bin/mftest -a
 .PHONY: marlin
+
+clean:
+	rm -rf .pio/build*
 
 tests-single-ci:
 	export GIT_RESET_HARD=true

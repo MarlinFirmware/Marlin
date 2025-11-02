@@ -114,6 +114,7 @@
 //
 // LCD / Controller
 //
+
 #if HAS_WIRED_LCD
   #define BEEPER_PIN                          27  // EXP1-1
 

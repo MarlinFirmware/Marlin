@@ -932,6 +932,12 @@
   #if ENABLED(FTM_HOME_AND_PROBE) && DELAY_BEFORE_PROBING <= 25
     #warning "A longer DELAY_BEFORE_PROBING is recommended when using a probe with FT_MOTION."
   #endif
+  #if ENABLED(NONLINEAR_EXTRUSION)
+    #warning "NONLINEAR_EXTRUSION does not (currently) operate when FT_MOTION is the active motion system."
+  #endif
+  #if ENABLED(LIN_ADVANCE)
+    #warning "Be aware that FT_MOTION K factor (M493 K) is a separate setting from LIN_ADVANCE K factor (M900 K)."
+  #endif
 #endif
 
 /**
