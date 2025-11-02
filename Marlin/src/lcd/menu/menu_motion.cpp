@@ -384,10 +384,22 @@ void menu_move() {
 
   #if ENABLED(FTM_RESONANCE_TEST)
 
+    void menu_ftm_resonance_freq() {
+      START_MENU();
+      BACK_ITEM(MSG_FTM_RESONANCE_TEST);
+      
+      STATIC_ITEM(MSG_FTM_RETRIEVE_FREQ);
+      EDIT_ITEM(float53, MSG_FTM_TIMELINE_FREQ, &ftMotion.rtg->timeline, 0.000f, 99.999f);
+      PSTRING_ITEM(MSG_FTM_RESONANCE_FREQ, ftostr53_63(ftMotion.rtg->getCurrentFrequency()), SS_FULL);
+
+      END_MENU();
+    }
+
     void menu_ftm_resonance_test() {
       START_MENU();
       BACK_ITEM(MSG_FIXED_TIME_MOTION);
       
+      STATIC_ITEM(MSG_FTM_RESONANCE_TEST);
       if(ftMotion.rtg->isActive() && !ftMotion.rtg->isDone()) {
         STATIC_ITEM(MSG_FTM_RT_RUNNING);
         ACTION_ITEM(MSG_FTM_RT_STOP, []{ ftMotion.rtg->abort(); ui.go_back(); });
@@ -395,6 +407,9 @@ void menu_move() {
       else { 
         GCODES_ITEM(MSG_FTM_RT_START_X, F("M495 X S"));
         GCODES_ITEM(MSG_FTM_RT_START_Y, F("M495 Y S"));
+
+        SUBMENU(MSG_FTM_RETRIEVE_FREQ, menu_ftm_resonance_freq);
+
       }
       END_MENU();
     }

@@ -581,8 +581,8 @@ void FTMotion::start_resonanceTest() {
 
   gcode.home_all_axes(); // Always home all axes first
 
-  // Always move to the center of the bed at a safe height
-  do_blocking_move_to_xy(xy_pos_t{X_CENTER, Y_CENTER});
+  // Always move to the center of the bed
+  do_blocking_move_to_xy(xy_pos_t {X_CENTER, Y_CENTER});
 
   setTrajectoryType(TrajectoryType::RESONANCE);
   rtg = &resonanceGenerator;

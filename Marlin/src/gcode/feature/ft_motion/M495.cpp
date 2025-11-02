@@ -54,6 +54,7 @@ void say_resonance_test() {
  *   [C<int>]      Amplitude correction factor (default 2).
  *   [X]           Select X axis.
  *   [Y]           Select Y axis.
+ *   [G<float>s]   Get the resonance frquency from timeline value 00.000 s 
  *   If no parameters are given, the current configuration is reported.
  **/
 
@@ -134,6 +135,17 @@ void GcodeSuite::M495() {
     }
     else {
       SERIAL_ECHOLNPGM("FTMotion must be active to run the Resonance Test.");
+    }
+  }
+
+  if (parser.seenval('G')) {
+    const float val = parser.value_float();
+    if (WITHIN(val,0.0f, 99.999f)) {
+      ftMotion.rtg->timeline = val;
+      SERIAL_ECHOLNPGM("Resonance frequency : ", ftMotion.rtg->getCurrentFrequency(), " Hz");
+    }
+    else {
+      SERIAL_ECHOLNPGM("Invalid timeline value. Must be >= 0.0 and =< 99.999 s.");
     }
   }
 }

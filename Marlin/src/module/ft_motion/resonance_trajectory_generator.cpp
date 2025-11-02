@@ -81,8 +81,8 @@
     }
   }
 
-  float ResonanceTrajectoryGenerator::getCurrentFrequency(millis_t timeline) {
-    const millis_t elapsed_ms = timeline - rt_params.start_time;
+  float ResonanceTrajectoryGenerator::getCurrentFrequency() {
+    const millis_t elapsed_ms = timeline * 1000 - rt_params.start_time;
     const float t = float(elapsed_ms) * FTM_TS;
     return (rt_params.min_freq + t * rt_params.hz_per_sec);
   }
@@ -91,3 +91,4 @@
 
   bool ResonanceTrajectoryGenerator::active = false;                       // Resonance test active
   bool ResonanceTrajectoryGenerator::done = false;                         // Resonance test done
+  float ResonanceTrajectoryGenerator::timeline = 0.0f;

@@ -48,7 +48,7 @@ class ResonanceTrajectoryGenerator : public TrajectoryGenerator {
 
     void reset() override;
 
-    float getCurrentFrequency(millis_t timeline);        // Return frequency based on timeline
+    float getCurrentFrequency();     // Return frequency based on timeline
 
     static ftm_resonance_test_params_t rt_params;        // Resonance test parameters
 
@@ -60,9 +60,9 @@ class ResonanceTrajectoryGenerator : public TrajectoryGenerator {
     void setDone(bool state) { done = state; }
 
     void abort();                                        // Abort resonance test
+    static float timeline;      // Timeline Value to calculate resonance frequency
 
   private:
-    static bool active;            // Resonance test active
+    static bool active;         // Resonance test active
     static bool done;           // Resonance test done
-
 };
