@@ -920,23 +920,32 @@
 #endif
 
 /**
+ * Delay for probes that need time to boot up when enabled
+ */
+#if defined(DELAY_BEFORE_PROBING) && DELAY_BEFORE_PROBING < 25
+  #warning "The actual DELAY_BEFORE_PROBING will be the minimum 25 ms. Leave DELAY_BEFORE_PROBING disabled to use the minimum."
+#endif
+
+/**
  * Fixed-Time Motion
  */
 #if ENABLED(FT_MOTION)
   #if ENABLED(I2S_STEPPER_STREAM)
     #warning "FT_MOTION has not been tested with I2S_STEPPER_STREAM."
   #endif
-  #if ENABLED(FTM_HOME_AND_PROBE) && ANY(BIQU_MICROPROBE_V1, BIQU_MICROPROBE_V2)
-    #warning "FT_MOTION in known to have issues with BIQU Microprobe."
-  #endif
-  #if ENABLED(FTM_HOME_AND_PROBE) && DELAY_BEFORE_PROBING <= 25
-    #warning "A longer DELAY_BEFORE_PROBING is recommended when using a probe with FT_MOTION."
-  #endif
   #if ENABLED(NONLINEAR_EXTRUSION)
     #warning "NONLINEAR_EXTRUSION does not (currently) operate when FT_MOTION is the active motion system."
   #endif
   #if ENABLED(LIN_ADVANCE)
-    #warning "Be aware that FT_MOTION K factor (M493 K) is a separate setting from LIN_ADVANCE K factor (M900 K)."
+    #warning "Be aware that FT_MOTION K factor is now set with M900 K (same as LIN_ADVANCE)."
+  #endif
+#endif
+#if ENABLED(FTM_HOME_AND_PROBE)
+  #if ANY(BIQU_MICROPROBE_V1, BIQU_MICROPROBE_V2)
+    #warning "Let us know if you experience any issues with BIQU Microprobe and FT_MOTION."
+  #endif
+  #if DELAY_BEFORE_PROBING <= 25
+    #warning "A DELAY_BEFORE_PROBING over 25 ms is recommended with FT_MOTION."
   #endif
 #endif
 
