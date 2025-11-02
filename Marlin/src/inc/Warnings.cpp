@@ -943,9 +943,12 @@
 #if ENABLED(FTM_HOME_AND_PROBE)
   #if ANY(BIQU_MICROPROBE_V1, BIQU_MICROPROBE_V2)
     #warning "Let us know if you experience any issues with BIQU Microprobe and FT_MOTION."
+    #if PROBE_WAKEUP_TIME_MS <= 25
+      #warning "A PROBE_WAKEUP_TIME_MS over 25 ms is recommended with FT_MOTION and BIQU_MICROPROBE_V1 or BIQU_MICROPROBE_V2."
+    #endif
   #endif
-  #if PROBE_WAKEUP_TIME_MS <= 25
-    #warning "A PROBE_WAKEUP_TIME_MS over 25 ms is recommended with FT_MOTION."
+  #if DELAY_BEFORE_PROBING <= 25
+    #warning "A DELAY_BEFORE_PROBING over 25 ms is recommended with FT_MOTION."
   #endif
 #endif
 
