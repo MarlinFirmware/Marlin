@@ -71,6 +71,13 @@ Poly6TrajectoryGenerator FTMotion::poly6Generator;
 TrajectoryGenerator* FTMotion::currentGenerator = &FTMotion::trapezoidalGenerator;
 TrajectoryType FTMotion::trajectoryType = TrajectoryType::FTM_TRAJECTORY_TYPE;
 
+// Compact plan buffer
+stepper_plan_t FTMotion::stepper_plan_buff[FTM_BUFFER_SIZE];
+XYZEval<int64_t> FTMotion::curr_steps_q32_32 = {0};
+
+uint32_t FTMotion::stepper_plan_tail = 0,            // The index to consume from
+         FTMotion::stepper_plan_head = 0;            // The index to produce into
+
 #if ENABLED(DISTINCT_E_FACTORS)
   uint8_t FTMotion::block_extruder_axis;        // Cached E Axis from last-fetched block
 #elif HAS_EXTRUDERS
@@ -225,7 +232,6 @@ void FTMotion::discard_planner_block_protected() {
 }
 
 uint32_t FTMotion::calc_runout_samples() {
-  uint32_t max_total_delay = 0;
   xyze_long_t delay = {0};
   #if ENABLED(FTM_SMOOTHING)
     #define _ADD(A) delay.A += smoothing.A.delay_samples;
@@ -415,7 +421,10 @@ xyze_float_t FTMotion::calc_traj_point(const float dist) {
 
     default: break;
   }
-  uint32_t max_total_delay = 0;
+
+  #if ANY(FTM_SMOOTHING, HAS_FTM_SHAPING)
+    uint32_t max_total_delay = 0;
+  #endif
 
   #if ENABLED(FTM_SMOOTHING)
 
@@ -467,7 +476,7 @@ xyze_float_t FTMotion::calc_traj_point(const float dist) {
   return traj_coords;
 }
 
-stepper_plan_t FTMotion::calc_stepper_plan(xyze_float_t traj_coords){
+stepper_plan_t FTMotion::calc_stepper_plan(xyze_float_t traj_coords) {
   // 1) Convert trajectory to step delta
   #define _TOSTEPS_q32(A, B) int64_t(traj_coords.A * planner.settings.axis_steps_per_mm[B] * (1ull << 32))
   XYZEval<int64_t> next_steps_q32_32 = LOGICAL_AXIS_ARRAY(
@@ -504,9 +513,10 @@ stepper_plan_t FTMotion::calc_stepper_plan(xyze_float_t traj_coords){
   return stepper_plan;
 }
 
-
-// Generate stepper data of the trajectory.
-// Called from FTMotion::loop()
+/**
+ * Generate stepper data of the trajectory.
+ * Called from FTMotion::loop()
+ */
 void FTMotion::fill_stepper_plan_buffer() {
   while (!stepper_plan_is_full()) {
     float total_duration = currentGenerator->getTotalDuration(); // if the current plan is empty, it will have zero duration.
@@ -530,19 +540,4 @@ void FTMotion::fill_stepper_plan_buffer() {
   }
 }
 
-/*
- * traj_consume_i is the first ready to consume
- * traj_produce_i is where the next one should be inserted
- * if they a
-*/
-
-//-----------------------------------------------------------------
-// Variable definitions.
-//-----------------------------------------------------------------
-
-stepper_plan_t FTMotion::stepper_plan_buff[FTM_BUFFER_SIZE];
-XYZEval<int64_t> FTMotion::curr_steps_q32_32 = {0};
-
-uint32_t FTMotion::stepper_plan_tail = 0,            // The index to consume from
-         FTMotion::stepper_plan_head = 0;            // The index to produce into
 #endif // FT_MOTION

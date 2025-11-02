@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2023 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2025 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -22,7 +22,6 @@
 #pragma once
 
 #include "../../inc/MarlinConfig.h"
-#include "../../core/types.h"
 
 enum ftMotionShaper_t : uint8_t {
   ftMotionShaper_NONE  = 0, // No compensator

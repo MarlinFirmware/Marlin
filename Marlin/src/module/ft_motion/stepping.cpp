@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2023 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2025 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -19,6 +19,10 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
+
+#include "../../inc/MarlinConfigPre.h"
+
+#if ENABLED(FT_MOTION)
 
 #include "stepping.h"
 #include "../ft_motion.h"
@@ -104,3 +108,5 @@ uint32_t Stepping::plan() {
   bresenham_iterations_pending = ITERATIONS_PER_TRAJ;
   return intervals + advance_until_step();
 }
+
+#endif // FT_MOTION

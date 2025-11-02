@@ -1194,7 +1194,7 @@
 
   #define FTM_TRAJECTORY_TYPE   TRAPEZOIDAL // Block acceleration profile (TRAPEZOIDAL, POLY5, POLY6)
                                             // TRAPEZOIDAL: Continuous Velocity. Max acceleration is respected.
-                                            // POLY5:       Like POLY6 with 1.5x but cpu cheaper.
+                                            // POLY5:       Like POLY6 with 1.5x but uses less CPU.
                                             // POLY6:       Continuous Acceleration (aka S_CURVE).
                                             // POLY trajectories not only reduce resonances without rounding corners, but also
                                             // reduce extruder strain due to linear advance.
@@ -1207,8 +1207,9 @@
   #define FTM_BUFFER_SIZE             128   // Window size for trajectory generation, must be a power of 2 (e.g 64, 128, 256, ...)
                                             // The total buffered time in seconds is (FTM_BUFFER_SIZE/FTM_FS)
   #define FTM_FS                     1000   // (Hz) Frequency for trajectory generation.
-  #define FTM_STEPPER_FS        2'000'000   // (Hz) Time resolution of stepper I/O update. Shouldn't affect cpu much (slower borard testing needed)
+  #define FTM_STEPPER_FS        2'000'000   // (Hz) Time resolution of stepper I/O update. Shouldn't affect CPU much (slower board testing needed)
   #define FTM_MIN_SHAPE_FREQ           20   // (Hz) Minimum shaping frequency, lower consumes more RAM
+
 #endif // FT_MOTION
 
 /**

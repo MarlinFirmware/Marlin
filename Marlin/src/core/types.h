@@ -238,6 +238,24 @@ struct Flags<N, false> {
   FI bool operator[](const int n) const      { return test(n); }
   FI int size() const                        { return sizeof(b); }
   FI operator bool() const                   { return b != 0; }
+
+  FI Flags<N>& operator|=(Flags<N> &p) const { b |= p.b; return *this; }
+  FI Flags<N>& operator&=(Flags<N> &p) const { b &= p.b; return *this; }
+  FI Flags<N>& operator^=(Flags<N> &p) const { b ^= p.b; return *this; }
+
+  FI Flags<N>& operator|=(const flagbits_t &p) { b |= flagbits_t(p); return *this; }
+  FI Flags<N>& operator&=(const flagbits_t &p) { b &= flagbits_t(p); return *this; }
+  FI Flags<N>& operator^=(const flagbits_t &p) { b ^= flagbits_t(p); return *this; }
+
+  FI Flags<N> operator|(Flags<N> &p) const { return Flags<N>(b | p.b); }
+  FI Flags<N> operator&(Flags<N> &p) const { return Flags<N>(b & p.b); }
+  FI Flags<N> operator^(Flags<N> &p) const { return Flags<N>(b ^ p.b); }
+  FI Flags<N> operator~()            const { return Flags<N>(~b); }
+
+  FI flagbits_t operator|(const flagbits_t &p) const { return b | flagbits_t(p); }
+  FI flagbits_t operator&(const flagbits_t &p) const { return b & flagbits_t(p); }
+  FI flagbits_t operator^(const flagbits_t &p) const { return b ^ flagbits_t(p); }
+
 };
 
 // Flag bits for more than 64 states
@@ -917,7 +935,7 @@ struct XYZEval {
   FI constexpr XYZEval<T> operator- (const XYZEval<T> &rs) const { return LOGICAL_AXIS_ARRAY(T(e - rs.e), T(x - rs.x), T(y - rs.y), T(z - rs.z), T(i - rs.i), T(j - rs.j), T(k - rs.k), T(u - rs.u), T(v - rs.v), T(w - rs.w)); }
   FI constexpr XYZEval<T> operator* (const XYZEval<T> &rs) const { return LOGICAL_AXIS_ARRAY(T(e * rs.e), T(x * rs.x), T(y * rs.y), T(z * rs.z), T(i * rs.i), T(j * rs.j), T(k * rs.k), T(u * rs.u), T(v * rs.v), T(w * rs.w)); }
   FI constexpr XYZEval<T> operator/ (const XYZEval<T> &rs) const { return LOGICAL_AXIS_ARRAY(T(e / rs.e), T(x / rs.x), T(y / rs.y), T(z / rs.z), T(i / rs.i), T(j / rs.j), T(k / rs.k), T(u / rs.u), T(v / rs.v), T(w / rs.w)); }
-  FI constexpr XYZEval<T> operator+ (const uint32_t &p)    const { return LOGICAL_AXIS_ARRAY(e + p, x + p, y + p, z + p, i + p, j + p, k + p, u + p, v + p, w + p); }
+  FI constexpr XYZEval<T> operator+ (const uint32_t &p)    const { return LOGICAL_AXIS_ARRAY(T(e + p), T(x + p), T(y + p), T(z + p), T(i + p), T(j + p), T(k + p), T(u + p), T(v + p), T(w + p)); }
   FI constexpr XYZEval<T> operator* (const float &p)       const { return LOGICAL_AXIS_ARRAY(T(e * p), T(x * p), T(y * p), T(z * p), T(i * p), T(j * p), T(k * p), T(u * p), T(v * p), T(w * p)); }
   FI constexpr XYZEval<T> operator* (const int &p)         const { return LOGICAL_AXIS_ARRAY(e * p, x * p, y * p, z * p, i * p, j * p, k * p, u * p, v * p, w * p); }
   FI constexpr XYZEval<T> operator/ (const float &p)       const { return LOGICAL_AXIS_ARRAY(T(e / p), T(x / p), T(y / p), T(z / p), T(i / p), T(j / p), T(k / p), T(u / p), T(v / p), T(w / p)); }
@@ -1270,6 +1288,7 @@ public:
   FI AxisBits operator|(const AxisBits &p) const { return AxisBits(bits | p.bits); }
   FI AxisBits operator&(const AxisBits &p) const { return AxisBits(bits & p.bits); }
   FI AxisBits operator^(const AxisBits &p) const { return AxisBits(bits ^ p.bits); }
+  FI AxisBits operator~()                  const { return AxisBits(~bits); }
 
   FI operator bool() const { return !!bits; }
   FI operator uint16_t() const { return uint16_t(bits & 0xFFFF); }
