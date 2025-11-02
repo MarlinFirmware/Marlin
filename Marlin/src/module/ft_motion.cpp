@@ -373,12 +373,13 @@ xyze_float_t FTMotion::calc_traj_point(const float dist) {
   LOGICAL_AXIS_MAP_LC(_SET_TRAJ);
 
   #if FTM_HAS_LIN_ADVANCE
-    if (cfg.linearAdvEna) {
-      float traj_e = traj_coords.e;
+    const float advK = planner.get_advance_k();
+    if (advK) {
+      const float traj_e = traj_coords.e;
       if (use_advance_lead) {
         // Don't apply LA to retract/unretract blocks
-        float e_rate = (traj_e - prev_traj_e) * (FTM_FS);
-        traj_coords.e += e_rate * cfg.linearAdvK;
+        const float e_rate = (traj_e - prev_traj_e) * (FTM_FS);
+        traj_coords.e += e_rate * advK;
       }
       prev_traj_e = traj_e;
     }

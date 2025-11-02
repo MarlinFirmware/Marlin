@@ -325,11 +325,11 @@ typedef struct PlannerBlock {
   #define HAS_POSITION_FLOAT 1
 #endif
 
-constexpr uint8_t block_dec_mod(const uint8_t v1, const uint8_t v2) {
+constexpr uint8_t block_sub_mod(const uint8_t v1, const uint8_t v2) {
   return v1 >= v2 ? v1 - v2 : v1 - v2 + BLOCK_BUFFER_SIZE;
 }
 
-constexpr uint8_t block_inc_mod(const uint8_t v1, const uint8_t v2) {
+constexpr uint8_t block_add_mod(const uint8_t v1, const uint8_t v2) {
   return v1 + v2 < BLOCK_BUFFER_SIZE ? v1 + v2 : v1 + v2 - BLOCK_BUFFER_SIZE;
 }
 
@@ -530,7 +530,7 @@ class Planner {
       static constexpr bool leveling_active = false;
     #endif
 
-    #if ENABLED(LIN_ADVANCE)
+    #if HAS_LIN_ADVANCE_K
       static float extruder_advance_K[DISTINCT_E];
       static void set_advance_k(const float k, const uint8_t e=active_extruder) {
         UNUSED(e);
@@ -541,13 +541,14 @@ class Planner {
         UNUSED(e);
         return extruder_advance_K[E_INDEX_N(e)];
       }
-      #if ENABLED(SMOOTH_LIN_ADVANCE)
-        static uint32_t get_advance_k_q27(const uint8_t e=active_extruder) {
-          UNUSED(e);
-          return extruder_advance_K_q27[E_INDEX_N(e)];
-        }
-      #endif
-    #endif // LIN_ADVANCE
+    #endif
+
+    #if ENABLED(SMOOTH_LIN_ADVANCE)
+      static uint32_t get_advance_k_q27(const uint8_t e=active_extruder) {
+        UNUSED(e);
+        return extruder_advance_K_q27[E_INDEX_N(e)];
+      }
+    #endif
 
     /**
      * The current position of the tool in absolute steps
@@ -850,10 +851,10 @@ class Planner {
     #endif // HAS_POSITION_MODIFIERS
 
     // Number of moves currently in the planner including the busy block, if any
-    FORCE_INLINE static uint8_t movesplanned() { return block_dec_mod(block_buffer_head, block_buffer_tail); }
+    FORCE_INLINE static uint8_t movesplanned() { return block_sub_mod(block_buffer_head, block_buffer_tail); }
 
     // Number of nonbusy moves currently in the planner
-    FORCE_INLINE static uint8_t nonbusy_movesplanned() { return block_dec_mod(block_buffer_head, block_buffer_nonbusy); }
+    FORCE_INLINE static uint8_t nonbusy_movesplanned() { return block_sub_mod(block_buffer_head, block_buffer_nonbusy); }
 
     // Remove all blocks from the buffer
     FORCE_INLINE static void clear_block_buffer() {
@@ -1131,8 +1132,8 @@ class Planner {
     /**
      * Get the index of the next / previous block in the ring buffer
      */
-    static constexpr uint8_t next_block_index(const uint8_t block_index) { return block_inc_mod(block_index, 1); }
-    static constexpr uint8_t prev_block_index(const uint8_t block_index) { return block_dec_mod(block_index, 1); }
+    static constexpr uint8_t next_block_index(const uint8_t block_index) { return block_add_mod(block_index, 1); }
+    static constexpr uint8_t prev_block_index(const uint8_t block_index) { return block_sub_mod(block_index, 1); }
 
     /**
      * Calculate the maximum allowable speed squared at this point, in order

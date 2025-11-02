@@ -238,7 +238,7 @@ namespace ExtUI {
   void onSteppersDisabled() {}
   void onSteppersEnabled() {}
   void onAxisDisabled(const axis_t axis) {
-    set_axis_untrusted(AxisEnum(axis)); // MRISCOC workaround: https://github.com/MarlinFirmware/Marlin/issues/23095
+    set_axis_untrusted((AxisEnum)axis); // MRISCOC workaround: https://github.com/MarlinFirmware/Marlin/issues/23095
   }
   void onAxisEnabled(const axis_t) {}
 

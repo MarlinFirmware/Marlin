@@ -778,7 +778,7 @@ void DGUSScreenHandler::handleManualMove(DGUS_VP_Variable &var, void *val_ptr) {
   char buf[32]; // G1 X9999.99 F12345
   char sign[] = "\0";
   int16_t value = movevalue / 100;
-  if (movevalue < 0) { value = -value; sign[0] = '-'; }
+  if (movevalue < 0) { value *= -1; sign[0] = '-'; }
   const int16_t fraction = ABS(movevalue) % 100;
   snprintf_P(buf, 32, PSTR("G0 %c%s%d.%02d F%d"), axiscode, sign, value, fraction, speed);
   queue.enqueue_one_now(buf);

@@ -38,6 +38,8 @@
 #endif
 #include "ft_motion/stepping.h"
 
+#define FTM_VERSION   2   // Change version when hosts need to know
+
 #if HAS_X_AXIS && (HAS_Z_AXIS || HAS_EXTRUDERS)
   #define HAS_DYNAMIC_FREQ 1
   #if HAS_Z_AXIS
@@ -76,11 +78,6 @@ typedef struct FTConfig {
 
   #if ENABLED(FTM_SMOOTHING)
     ft_smoothed_float_t smoothingTime;                    // Smoothing time. [s]
-  #endif
-
-  #if HAS_EXTRUDERS
-    bool linearAdvEna = FTM_LINEAR_ADV_DEFAULT_ENA;       // Linear advance enable configuration.
-    float linearAdvK = FTM_LINEAR_ADV_DEFAULT_K;          // Linear advance gain.
   #endif
 
   TrajectoryType trajectory_type = TrajectoryType::FTM_TRAJECTORY_TYPE; // Trajectory generator type
@@ -129,11 +126,6 @@ class FTMotion {
         #define _SET_SMOOTH(A) set_smoothing_time(_AXIS(A), FTM_SMOOTHING_TIME_##A);
         CARTES_MAP(_SET_SMOOTH);
         #undef _SET_SMOOTH
-      #endif
-
-      #if HAS_EXTRUDERS
-        cfg.linearAdvEna = FTM_LINEAR_ADV_DEFAULT_ENA;
-        cfg.linearAdvK = FTM_LINEAR_ADV_DEFAULT_K;
       #endif
 
       cfg.poly6_acceleration_overshoot = FTM_POLY6_ACCELERATION_OVERSHOOT;
