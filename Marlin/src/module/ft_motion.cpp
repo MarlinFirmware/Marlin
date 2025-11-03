@@ -577,20 +577,22 @@ void FTMotion::fill_stepper_plan_buffer() {
 }
 
 //Start Resonance Testing
-void FTMotion::start_resonanceTest() {
+#if ENABLED(FTM_RESONANCE_TEST)
+  void FTMotion::start_resonanceTest() {
 
-  gcode.home_all_axes(); // Always home all axes first
+   gcode.home_all_axes(); // Always home all axes first
 
-  // Always move to the center of the bed
-  do_blocking_move_to_xy(xy_pos_t {X_CENTER, Y_CENTER});
+    // Always move to the center of the bed
+    do_blocking_move_to_xy(xy_pos_t {X_CENTER, Y_CENTER});
 
-  setTrajectoryType(TrajectoryType::RESONANCE);
-  rtg = &resonanceGenerator;
-  // Now, set up the test state variables
-  rtg->rt_params.start_pos = current_position;
-  rtg->rt_params.start_time = millis();
-  rtg->setActive(true);
-  rtg->setDone(false);
-}
+    setTrajectoryType(TrajectoryType::RESONANCE);
+    rtg = &resonanceGenerator;
+    // Now, set up the test state variables
+    rtg->rt_params.start_pos = current_position;
+    rtg->rt_params.start_time = millis();
+    rtg->setActive(true);
+    rtg->setDone(false);
+  }
+#endif
 
 #endif // FT_MOTION
