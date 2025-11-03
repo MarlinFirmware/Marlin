@@ -390,7 +390,7 @@ void menu_move() {
       
       STATIC_ITEM(MSG_FTM_RETRIEVE_FREQ);
       EDIT_ITEM(float53, MSG_FTM_TIMELINE_FREQ, &ftMotion.rtg->timeline, 0.000f, 99.999f);
-      PSTRING_ITEM(MSG_FTM_RESONANCE_FREQ, ftostr53_63(ftMotion.rtg->getCurrentFrequency()), SS_FULL);
+      PSTRING_ITEM(MSG_FTM_RESONANCE_FREQ, ftostr53_63(ftMotion.rtg->getFrequenctFromTimiline()), SS_FULL);
 
       END_MENU();
     }

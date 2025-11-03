@@ -21,48 +21,53 @@
  */
 #pragma once
 
-#include "trajectory_generator.h"
+#include "../../inc/MarlinConfigPre.h"
 
-  typedef struct FTMResonanceTestParams {
-    AxisEnum axis       = X_AXIS;     // Axis to test
-    float min_freq      = 5.0f;       // Minimum frequency [Hz]
-    float max_freq      = 100.0f;     // Maximum frequency [Hz]
-    float hz_per_sec    = 1.0f;       // Frequency change rate [Hz/sec]
-    float accel_per_hz  = 60.0f;      // Acceleration per Hz [mm/sec^2/Hz] or [g/Hz]
-    int16_t amplitude_correction = 5; // Amplitude correction factor
-    millis_t start_time = 0;          // Start time of the test
-    xyze_pos_t start_pos;             // Initial stepper position 
-  } ftm_resonance_test_params_t;
+#if ENABLED(FTM_RESONANCE_TEST)
 
-class ResonanceTrajectoryGenerator : public TrajectoryGenerator {
-  public:
-    ResonanceTrajectoryGenerator();
+  #include "trajectory_generator.h"
 
-    void plan(const float initial_speed, const float final_speed, const float acceleration, float nominal_speed, const float distance) override {};
+    typedef struct FTMResonanceTestParams {
+      AxisEnum axis       = X_AXIS;     // Axis to test
+      float min_freq      = 5.0f;       // Minimum frequency [Hz]
+      float max_freq      = 100.0f;     // Maximum frequency [Hz]
+      float hz_per_sec    = 1.0f;       // Frequency change rate [Hz/sec]
+      float accel_per_hz  = 60.0f;      // Acceleration per Hz [mm/sec^2/Hz] or [g/Hz]
+      int16_t amplitude_correction = 5; // Amplitude correction factor
+      millis_t start_time = 0;          // Start time of the test
+      xyze_pos_t start_pos;             // Initial stepper position 
+    } ftm_resonance_test_params_t;
 
-    void planRunout(const float duration) override;
+  class ResonanceTrajectoryGenerator : public TrajectoryGenerator {
+    public:
+      ResonanceTrajectoryGenerator();
 
-    float getDistanceAtTime(const float t) const override { return 0.0f; }
-     
-    float getTotalDuration() const override {return 0.0f; }
+      void plan(const float initial_speed, const float final_speed, const float acceleration, float nominal_speed, const float distance) override {};
 
-    void reset() override;
+      void planRunout(const float duration) override;
 
-    float getCurrentFrequency();     // Return frequency based on timeline
+      float getDistanceAtTime(const float t) const override { return 0.0f; }
+      
+      float getTotalDuration() const override {return 0.0f; }
 
-    static ftm_resonance_test_params_t rt_params;        // Resonance test parameters
+      void reset() override;
 
-    void fill_stepper_plan_buffer(); // Fill stepper plan buffer with trajectory points  
+      float getFrequenctFromTimiline();     // Return frequency based on timeline
 
-    bool isActive() const { return active; }
-    bool isDone() const { return done; }
-    void setActive(bool state) { active = state; }
-    void setDone(bool state) { done = state; }
+      static ftm_resonance_test_params_t rt_params;        // Resonance test parameters
 
-    void abort();                                        // Abort resonance test
-    static float timeline;      // Timeline Value to calculate resonance frequency
+      void fill_stepper_plan_buffer(); // Fill stepper plan buffer with trajectory points  
 
-  private:
-    static bool active;         // Resonance test active
-    static bool done;           // Resonance test done
-};
+      bool isActive() const { return active; }
+      bool isDone() const { return done; }
+      void setActive(bool state) { active = state; }
+      void setDone(bool state) { done = state; }
+
+      void abort();                                        // Abort resonance test
+      static float timeline;      // Timeline Value to calculate resonance frequency
+
+    private:
+      static bool active;         // Resonance test active
+      static bool done;           // Resonance test done
+  };
+#endif

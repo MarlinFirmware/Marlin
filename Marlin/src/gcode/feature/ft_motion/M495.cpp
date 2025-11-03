@@ -42,9 +42,10 @@ void say_resonance_test() {
 
 /**
  * M495: Configure and run the resonance test
- * M495 S   : Start the test with default values or with last set parameters
- * M495 X S : Start the test on X axis with default values or with last set parameters
- * M495 Y S : Start the test on Y axis with default values or with last set parameters
+ * M495 S       : Start the test with default values or with last set parameters
+ * M495 X S     : Start the test on X axis with default values or with last set parameters
+ * M495 Y S     : Start the test on Y axis with default values or with last set parameters
+ * M495 G <val> : Get resonance frequency from timeline value
  *
  *   [A<accel/Hz>] Accel per Hz (default 60.00f).
  *   [F<Hz>]       Start frequency (default 5.0f).
@@ -54,7 +55,7 @@ void say_resonance_test() {
  *   [C<int>]      Amplitude correction factor (default 2).
  *   [X]           Select X axis.
  *   [Y]           Select Y axis.
- *   [G<float>s]   Get the resonance frquency from timeline value 00.000 s 
+ *   [G<float>s]   Get the resonance frequency from timeline value 00.000 s 
  *   If no parameters are given, the current configuration is reported.
  **/
 
@@ -142,7 +143,7 @@ void GcodeSuite::M495() {
     const float val = parser.value_float();
     if (WITHIN(val,0.0f, 99.999f)) {
       ftMotion.rtg->timeline = val;
-      SERIAL_ECHOLNPGM("Resonance frequency : ", ftMotion.rtg->getCurrentFrequency(), " Hz");
+      SERIAL_ECHOLNPGM("Resonance frequency : ", ftMotion.rtg->getFrequenctFromTimiline(), " Hz");
     }
     else {
       SERIAL_ECHOLNPGM("Invalid timeline value. Must be >= 0.0 and =< 99.999 s.");

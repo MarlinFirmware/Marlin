@@ -20,75 +20,81 @@
  *
  */
 
+#include "../../inc/MarlinConfigPre.h"
+
+#if ENABLED(FTM_RESONANCE_TEST)
+
  #include "../ft_motion.h"
  #include "resonance_trajectory_generator.h"
 
  #include <math.h>
 
-  ResonanceTrajectoryGenerator::ResonanceTrajectoryGenerator() {}
+   ResonanceTrajectoryGenerator::ResonanceTrajectoryGenerator() {}
 
-  void ResonanceTrajectoryGenerator::planRunout(const float duration) {
-    reset();
-    ftMotion.reset();
-    ftMotion.setTrajectoryType(ftMotion.previous_trajectoryType);    
-  }
-  void ResonanceTrajectoryGenerator::abort() {
-    planRunout(0.0f);
-  }
+   void ResonanceTrajectoryGenerator::planRunout(const float duration) {
+     reset();
+     ftMotion.reset();
+     ftMotion.setTrajectoryType(ftMotion.previous_trajectoryType);
+   }
+   void ResonanceTrajectoryGenerator::abort() {
+     planRunout(0.0f);
+   }
 
-  void ResonanceTrajectoryGenerator::reset() {
-    rt_params = ftm_resonance_test_params_t();
-    active = false;
-    done = false;
-  }
+   void ResonanceTrajectoryGenerator::reset() {
+     rt_params = ftm_resonance_test_params_t();
+     active = false;
+     done = false;
+   }
 
-  void ResonanceTrajectoryGenerator::fill_stepper_plan_buffer() {
-    
-    xyze_float_t traj_coords = {};
-    millis_t current_ms = millis();
-    
-    while (!ftMotion.stepper_plan_is_full()) {
+   void ResonanceTrajectoryGenerator::fill_stepper_plan_buffer() {
+      
+     xyze_float_t traj_coords = {};
+     millis_t current_ms = millis();
+      
+     while (!ftMotion.stepper_plan_is_full()) {
        // Calculate time for the CURRENT point
-      const millis_t elapsed_ms = current_ms - rt_params.start_time;
-      const float t = float(elapsed_ms) * FTM_TS;
-      // Calculate current frequency
-      const float freq = rt_params.min_freq + t * rt_params.hz_per_sec;
-      if (freq > rt_params.max_freq) {
-        done = true;
-        return;
-      }
+       const millis_t elapsed_ms = current_ms - rt_params.start_time;
+       const float t = float(elapsed_ms) * FTM_TS;
+       // Calculate current frequency
+       const float freq = rt_params.min_freq + t * rt_params.hz_per_sec;
+       if (freq > rt_params.max_freq) {
+         done = true;
+         return;
+       }
 
-      // Amplitude based on a sinusoidal wave : A = accel / (4 * PI^2 * f^2)
-      //const float accel_magnitude = rt_params.accel_per_hz * freq;
-      //const float amplitude = rt_params.amplitude_correction * accel_magnitude / (4.0f * PI * PI * sq(freq));
-      const float amplitude = rt_params.amplitude_correction * rt_params.accel_per_hz * 0.25f / (M_PI * M_PI * freq);
+       // Amplitude based on a sinusoidal wave : A = accel / (4 * PI^2 * f^2)
+       //const float accel_magnitude = rt_params.accel_per_hz * freq;
+       //const float amplitude = rt_params.amplitude_correction * accel_magnitude / (4.0f * PI * PI * sq(freq));
+       const float amplitude = rt_params.amplitude_correction * rt_params.accel_per_hz * 0.25f / (M_PI * M_PI * freq);
 
-      // Phase in radian
-      const float phase = 2.0f * M_PI * freq * t;
+       // Phase in radian
+       const float phase = 2.0f * M_PI * freq * t;
 
-      // Position Offset : between -A and +A
-      const float pos_offset = amplitude * sinf(phase);
+       // Position Offset : between -A and +A
+       const float pos_offset = amplitude * sinf(phase);
 
-      // Set base position and apply offset to the test axis in one step for all axes
-      #define _SET_TRAJ(A) traj_coords.A = rt_params.start_pos.A + (rt_params.axis == A##_AXIS ? pos_offset : 0.0f);
-      LOGICAL_AXIS_MAP(_SET_TRAJ);
+       // Set base position and apply offset to the test axis in one step for all axes
+       #define _SET_TRAJ(A) traj_coords.A = rt_params.start_pos.A + (rt_params.axis == A##_AXIS ? pos_offset : 0.0f);
+       LOGICAL_AXIS_MAP(_SET_TRAJ);
 
-      stepper_plan_t plan = ftMotion.calc_stepper_plan(traj_coords);
-      // Store in buffer
-      ftMotion.enqueue_stepper_plan(plan);
-      // Increment our local time approximation for the next point
-      current_ms += FTM_TS;
-    }
-  }
+       stepper_plan_t plan = ftMotion.calc_stepper_plan(traj_coords);
+       // Store in buffer
+       ftMotion.enqueue_stepper_plan(plan);
+       // Increment our local time approximation for the next point
+       current_ms += FTM_TS;
+     }
+   }
 
-  float ResonanceTrajectoryGenerator::getCurrentFrequency() {
-    const millis_t elapsed_ms = timeline * 1000 - rt_params.start_time;
-    const float t = float(elapsed_ms) * FTM_TS;
-    return (rt_params.min_freq + t * rt_params.hz_per_sec);
-  }
+   float ResonanceTrajectoryGenerator::getFrequenctFromTimiline() {
+     const millis_t elapsed_ms = timeline * 1000 - rt_params.start_time;
+     const float t = float(elapsed_ms) * FTM_TS;
+     return (rt_params.min_freq + t * rt_params.hz_per_sec);
+   }
 
-  ftm_resonance_test_params_t ResonanceTrajectoryGenerator::rt_params;     // Resonance test parameters
+   ftm_resonance_test_params_t ResonanceTrajectoryGenerator::rt_params;     // Resonance test parameters
 
-  bool ResonanceTrajectoryGenerator::active = false;                       // Resonance test active
-  bool ResonanceTrajectoryGenerator::done = false;                         // Resonance test done
-  float ResonanceTrajectoryGenerator::timeline = 0.0f;
+   bool ResonanceTrajectoryGenerator::active = false;                       // Resonance test active
+   bool ResonanceTrajectoryGenerator::done = false;                         // Resonance test done
+   float ResonanceTrajectoryGenerator::timeline = 0.0f;
+
+#endif
