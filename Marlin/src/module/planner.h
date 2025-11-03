@@ -32,6 +32,8 @@
 
 #include "../MarlinCore.h"
 
+#include "temperature.h"
+
 #if ENABLED(JD_HANDLE_SMALL_SEGMENTS)
   // Enable this option for perfect accuracy but maximum
   // computation. Should be fine on ARM processors.
@@ -164,14 +166,6 @@ typedef struct {
   void reset(const BlockFlagBit b) volatile { bits = _BV(b); }
 
 } block_flags_t;
-
-#if ENABLED(AUTOTEMP)
-  typedef struct {
-    celsius_t min, max;
-    float factor;
-    bool enabled;
-  } autotemp_t;
-#endif
 
 #if ENABLED(LASER_FEATURE)
 
@@ -679,6 +673,10 @@ class Planner {
     // Manage fans, paste pressure, etc.
     static void check_axes_activity();
 
+    #if ENABLED(AUTOTEMP)
+      static float get_high_e_speed();
+    #endif
+
     // Apply fan speeds
     #if HAS_FAN
       static void sync_fan_speeds(uint8_t (&fan_speed)[FAN_COUNT]);
@@ -1104,13 +1102,6 @@ class Planner {
       static void clear_block_buffer_runtime();
     #endif
 
-    #if ENABLED(AUTOTEMP)
-      static autotemp_t autotemp;
-      static void autotemp_update();
-      static void autotemp_M104_M109();
-      static void autotemp_task();
-    #endif
-
     #if HAS_LINEAR_E_JERK
       FORCE_INLINE static void recalculate_max_e_jerk() {
         const float prop = junction_deviation_mm * SQRT(0.5) / (1.0f - SQRT(0.5));
@@ -1120,14 +1111,6 @@ class Planner {
     #endif
 
   private:
-
-    #if ENABLED(AUTOTEMP)
-      #if ENABLED(AUTOTEMP_PROPORTIONAL)
-        static void _autotemp_update_from_hotend();
-      #else
-        static void _autotemp_update_from_hotend() {}
-      #endif
-    #endif
 
     /**
      * Get the index of the next / previous block in the ring buffer

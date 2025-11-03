@@ -271,8 +271,7 @@ typedef struct SettingsDataStruct {
   // AUTOTEMP
   //
   #if ENABLED(AUTOTEMP)
-    celsius_t planner_autotemp_max, planner_autotemp_min;
-    float planner_autotemp_factor;
+    autotemp_cfg_t planner_autotemp_cfg;                // M104 S B F
   #endif
 
   //
@@ -1012,10 +1011,8 @@ void MarlinSettings::postprocess() {
     // AUTOTEMP
     //
     #if ENABLED(AUTOTEMP)
-      _FIELD_TEST(planner_autotemp_max);
-      EEPROM_WRITE(planner.autotemp.max);
-      EEPROM_WRITE(planner.autotemp.min);
-      EEPROM_WRITE(planner.autotemp.factor);
+      _FIELD_TEST(planner_autotemp_cfg);
+      EEPROM_WRITE(thermalManager.autotemp.cfg);
     #endif
 
     //
@@ -2066,9 +2063,8 @@ void MarlinSettings::postprocess() {
       // AUTOTEMP
       //
       #if ENABLED(AUTOTEMP)
-        EEPROM_READ(planner.autotemp.max);
-        EEPROM_READ(planner.autotemp.min);
-        EEPROM_READ(planner.autotemp.factor);
+        _FIELD_TEST(planner_autotemp_cfg);
+        EEPROM_READ(thermalManager.autotemp.cfg);
       #endif
 
       //
@@ -3450,11 +3446,7 @@ void MarlinSettings::reset() {
   //
   // AUTOTEMP
   //
-  #if ENABLED(AUTOTEMP)
-    planner.autotemp.max = AUTOTEMP_MAX;
-    planner.autotemp.min = AUTOTEMP_MIN;
-    planner.autotemp.factor = AUTOTEMP_FACTOR;
-  #endif
+  TERN_(AUTOTEMP, thermalManager.autotemp.reset());
 
   //
   // X Axis Twist Compensation
@@ -3852,6 +3844,11 @@ void MarlinSettings::reset() {
       SERIAL_ECHOPGM("  G21 ;");
     #endif
     gcode.say_units(); // " (in/mm)"
+
+    //
+    // M104 settings for AUTOTEMP
+    //
+    TERN_(AUTOTEMP, gcode.M104_report());
 
     //
     // M149 Temperature units

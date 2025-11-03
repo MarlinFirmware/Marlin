@@ -211,10 +211,6 @@ uint32_t Planner::max_acceleration_steps_per_s2[DISTINCT_AXES]; // (steps/s^2) D
   skew_factor_t Planner::skew_factor; // Initialized by settings.load
 #endif
 
-#if ENABLED(AUTOTEMP)
-  autotemp_t Planner::autotemp = { AUTOTEMP_MIN, AUTOTEMP_MAX, AUTOTEMP_FACTOR, false };
-#endif
-
 // private:
 
 xyze_long_t Planner::position{0};
@@ -1339,7 +1335,8 @@ void Planner::check_axes_activity() {
   //
   TERN_(HAS_TAIL_FAN_SPEED, if (fans_need_update) sync_fan_speeds(tail_fan_speed));
 
-  TERN_(AUTOTEMP, autotemp_task());
+  // Update hotend temperature based on extruder speed
+  TERN_(AUTOTEMP, thermalManager.autotemp_task());
 
   #if ENABLED(BARICUDA)
     TERN_(HAS_HEATER_1, hal.set_pwm_duty(pin_t(HEATER_1_PIN), tail_valve_pressure));
@@ -1349,51 +1346,7 @@ void Planner::check_axes_activity() {
 
 #if ENABLED(AUTOTEMP)
 
-  #if ENABLED(AUTOTEMP_PROPORTIONAL)
-    void Planner::_autotemp_update_from_hotend() {
-      const celsius_t target = thermalManager.degTargetHotend(active_extruder);
-      autotemp.min = target + AUTOTEMP_MIN_P;
-      autotemp.max = target + AUTOTEMP_MAX_P;
-    }
-  #endif
-
-  /**
-   * Called after changing tools to:
-   *  - Reset or re-apply the default proportional autotemp factor.
-   *  - Enable autotemp if the factor is non-zero.
-   */
-  void Planner::autotemp_update() {
-    _autotemp_update_from_hotend();
-    autotemp.factor = TERN0(AUTOTEMP_PROPORTIONAL, AUTOTEMP_FACTOR_P);
-    autotemp.enabled = autotemp.factor != 0;
-  }
-
-  /**
-   * Called by the M104/M109 commands after setting Hotend Temperature
-   */
-  void Planner::autotemp_M104_M109() {
-    _autotemp_update_from_hotend();
-
-    if (parser.seenval('S')) autotemp.min = parser.value_celsius();
-    if (parser.seenval('B')) autotemp.max = parser.value_celsius();
-
-    // When AUTOTEMP_PROPORTIONAL is enabled, F0 disables autotemp.
-    // Normally, leaving off F also disables autotemp.
-    autotemp.factor = parser.seen('F') ? parser.value_float() : TERN0(AUTOTEMP_PROPORTIONAL, AUTOTEMP_FACTOR_P);
-    autotemp.enabled = autotemp.factor != 0;
-  }
-
-  /**
-   * Called every so often to adjust the hotend target temperature
-   * based on the extrusion speed, which is calculated from the blocks
-   * currently in the planner.
-   */
-  void Planner::autotemp_task() {
-    static float oldt = 0.0f;
-
-    if (!autotemp.enabled) return;
-    if (thermalManager.degTargetHotend(active_extruder) < autotemp.min - 2) return; // Below the min?
-
+  float Planner::get_high_e_speed() {
     float high = 0.0f;
     for (uint8_t b = block_buffer_tail; b != block_buffer_head; b = next_block_index(b)) {
       const block_t * const block = &block_buffer[b];
@@ -1402,12 +1355,7 @@ void Planner::check_axes_activity() {
         NOLESS(high, se);
       }
     }
-
-    float t = autotemp.min + high * autotemp.factor;
-    LIMIT(t, autotemp.min, autotemp.max);
-    if (t < oldt) t = t * (1.0f - (AUTOTEMP_OLDWEIGHT)) + oldt * (AUTOTEMP_OLDWEIGHT);
-    oldt = t;
-    thermalManager.setTargetHotend(t, active_extruder);
+    return high;
   }
 
 #endif // AUTOTEMP

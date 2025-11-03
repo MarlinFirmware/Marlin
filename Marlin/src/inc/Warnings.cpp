@@ -944,8 +944,8 @@
   #if ANY(BIQU_MICROPROBE_V1, BIQU_MICROPROBE_V2)
     #warning "Let us know if you experience any issues with BIQU Microprobe and FT_MOTION."
   #endif
-  #if DELAY_BEFORE_PROBING <= 25
-    #warning "A DELAY_BEFORE_PROBING over 25 ms is recommended with FT_MOTION."
+  #if PROBE_WAKEUP_TIME_MS < 30
+    #warning "A PROBE_WAKEUP_TIME_MS over 30 ms is recommended with FT_MOTION."
   #endif
 #endif
 

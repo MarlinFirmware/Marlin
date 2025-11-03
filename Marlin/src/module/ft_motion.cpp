@@ -84,11 +84,14 @@ XYZEval<int64_t> FTMotion::curr_steps_q32_32 = {0};
 uint32_t FTMotion::stepper_plan_tail = 0,            // The index to consume from
          FTMotion::stepper_plan_head = 0;            // The index to produce into
 
+#if FTM_HAS_LIN_ADVANCE
+  bool FTMotion::use_advance_lead;
+#endif
+
 #if ENABLED(DISTINCT_E_FACTORS)
   uint8_t FTMotion::block_extruder_axis;        // Cached E Axis from last-fetched block
 #elif HAS_EXTRUDERS
   constexpr uint8_t FTMotion::block_extruder_axis;
-  bool FTMotion::use_advance_lead;
 #endif
 
 // Shaping variables.
