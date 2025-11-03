@@ -766,6 +766,9 @@ private:
     static void M104_M109(const bool isM109);
     FORCE_INLINE static void M104() { M104_M109(false); }
     FORCE_INLINE static void M109() { M104_M109(true); }
+    #if ENABLED(AUTOTEMP)
+      static void M104_report(const bool forReplay=true);
+    #endif
   #endif
 
   static void M105();
