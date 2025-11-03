@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2024 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2023 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -168,37 +168,20 @@
   // TMC2208/TMC2209 stepper drivers
   //
   #define X_SERIAL_TX_PIN                   PD2
-  #define X_SERIAL_RX_PIN                   PD2
-
   #define X2_SERIAL_TX_PIN                  PE15
-  #define X2_SERIAL_RX_PIN                  PE15
-
   #define Y_SERIAL_TX_PIN                   PD8
-  #define Y_SERIAL_RX_PIN                   PD8
-
   #define Z_SERIAL_TX_PIN                   PD7
-  #define Z_SERIAL_RX_PIN                   PD7
-
   #define Z2_SERIAL_TX_PIN                  PC14
-  #define Z2_SERIAL_RX_PIN                  PC14
-
   #define E0_SERIAL_TX_PIN                  PC15
-  #define E0_SERIAL_RX_PIN                  PC15
-
   #define E1_SERIAL_TX_PIN                  PG3
-  #define E1_SERIAL_RX_PIN                  PG3
-
   #define E2_SERIAL_TX_PIN                  PD9
-  #define E2_SERIAL_RX_PIN                  PD9
-
   #define E3_SERIAL_TX_PIN                  PF5
-  #define E3_SERIAL_RX_PIN                  PF5
-
   #define E4_SERIAL_TX_PIN                  PG11
-  #define E4_SERIAL_RX_PIN                  PG11
 
   // Reduce baud rate to improve software serial reliability
-  #define TMC_BAUD_RATE                    19200
+  #ifndef TMC_BAUD_RATE
+    #define TMC_BAUD_RATE                  19200
+  #endif
 #endif
 
 //
@@ -296,8 +279,8 @@
 #define SD_MISO_PIN                  EXP2_01_PIN
 #define SD_MOSI_PIN                  EXP2_06_PIN
 
-#define SD_SS_PIN                    EXP2_07_PIN
-#define SD_DETECT_PIN                EXP2_04_PIN
+#define SD_SS_PIN                    EXP2_04_PIN
+#define SD_DETECT_PIN                EXP2_07_PIN
 
 //
 // LCD / Controller
@@ -332,7 +315,7 @@
   #define BTN_EN1                    EXP2_03_PIN
   #define BTN_EN2                    EXP2_05_PIN
 
-  #define LCD_SDSS_PIN               EXP2_07_PIN
+  #define LCD_SDSS_PIN               EXP2_04_PIN
 
   #define LCD_PINS_EN                EXP1_03_PIN
   #define LCD_PINS_D4                EXP1_05_PIN
@@ -379,17 +362,17 @@
 #endif
 
 /**
- *                      -------
- *            GND | 9  |       | 8 | 3.3V
- *  (ESP-CS) PB12 | 10 |       | 7 | PB15 (ESP-MOSI)
- *           3.3V | 11 |       | 6 | PB14 (ESP-MISO)
- * (ESP-IO0)  PD7 | 12 |       | 5 | PB13 (ESP-CLK)
- * (ESP-IO4) PD10 | 13 |       | 4 | --
- *             -- | 14 |       | 3 | PE15 (ESP-EN)
- *  (ESP-RX)  PD8 | 15 |       | 2 | --
- *  (ESP-TX)  PD9 | 16 |       | 1 | PE14 (ESP-RST)
- *                      -------
- *                       WIFI
+ *                 -------
+ *            GND |  9  8 | 3.3V
+ *  (ESP-CS) PB12 | 10  7 | PB15 (ESP-MOSI)
+ *           3.3V | 11  6 | PB14 (ESP-MISO)
+ * (ESP-IO0)  PD7 | 12  5 | PB13 (ESP-CLK)
+ * (ESP-IO4) PD10 | 13  4 | --
+ *             -- | 14  3 | PE15 (ESP-EN)
+ *  (ESP-RX)  PD8 | 15  2 | --
+ *  (ESP-TX)  PD9 | 16  1 | PE14 (ESP-RST)
+ *                 -------
+ *                  WIFI
  */
 #define ESP_WIFI_MODULE_COM                 1     // Set either SERIAL_PORT or SERIAL_PORT_2 to this
 #define ESP_WIFI_MODULE_BAUDRATE        BAUDRATE  // Use the same BAUDRATE as SERIAL_PORT or SERIAL_PORT_2
@@ -402,9 +385,13 @@
 // NeoPixel LED
 // FYSETC_242_OLED_12864 & FYSETC_MINI_12864_2_1 uses one of the EXP pins for NeoPixels
 //
-#if NONE(FYSETC_242_OLED_12864, FYSETC_MINI_12864_2_1) && !defined(NEOPIXEL_PIN)
-  #define NEOPIXEL_PIN                      PD3   // Neo-pixel
-#elif ANY(FYSETC_242_OLED_12864, FYSETC_MINI_12864_2_1) && !defined(NEOPIXEL2_PIN)
+#if ANY(FYSETC_242_OLED_12864, FYSETC_MINI_12864_2_1)
   // Allow dedicated RGB (NeoPixel) pin to be used for a NeoPixel strip
-  #define NEOPIXEL2_PIN                     PD3   // Neo-pixel
+  #ifndef NEOPIXEL2_PIN
+    #define NEOPIXEL2_PIN                   PD3   // Neo-pixel
+  #endif
+#else
+  #ifndef NEOPIXEL_PIN
+    #define NEOPIXEL_PIN                    PD3   // Neo-pixel
+  #endif
 #endif

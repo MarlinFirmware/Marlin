@@ -519,8 +519,8 @@
 #define BOARD_T41U5XBB                      6013  // T41U5XBB Teensy 4.1 breakout board
 #define BOARD_FLY_D8_PRO                    6014  // FLY_D8_PRO (STM32H723VG)
 #define BOARD_FLY_SUPER8_PRO                6015  // FLY SUPER8 PRO (STM32H723ZG)
-#define BOARD_FYSETC_SPIDER_KING_V1_H723    6015  // FYSETC Spider King v1 (STM32H723ZG)
-#define BOARD_FYSETC_SPIDER_KING_V1_1_H723  6016  // FYSETC Spider King v1.1 (STM32H723ZG)
+#define BOARD_FYSETC_SPIDER_KING_V1_H723    6016  // FYSETC Spider King v1 (STM32H723ZG)
+#define BOARD_FYSETC_SPIDER_KING_V1_1_H723  6017  // FYSETC Spider King v1.1 (STM32H723ZG)
 
 //
 // Espressif ESP32 WiFi
