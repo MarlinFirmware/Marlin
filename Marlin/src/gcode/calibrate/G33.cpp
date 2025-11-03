@@ -154,7 +154,7 @@ static float std_dev_points(float z_pt[NPP + 1], const bool _0p_cal, const bool 
         S2 += sq(z_pt[rad]);
         N++;
       }
-      return LROUND(SQRT(S2 / N) * 1000.0f) / 1000.0f + 0.00001f;
+      return LROUND(SQRT(S2 / N) * 1000.0f) * 0.001f + 0.00001f;
     }
   }
   return 0.00001f;
@@ -315,7 +315,7 @@ static void calc_kinematics_diff_probe_points(float z_pt[NPP + 1], const float d
 
 static float auto_tune_h(const float dcr) {
   const float r_quot = dcr / delta_radius;
-  return RECIPROCAL(r_quot / (2.0f / 3.0f));  // (2/3)/CR
+  return RECIPROCAL(r_quot * (3.0f / 2.0f));  // (2/3)/CR
 }
 
 static float auto_tune_r(const float dcr) {
@@ -490,7 +490,7 @@ void GcodeSuite::G33() {
 
     float z_at_pt[NPP + 1] = { 0.0f };
 
-    test_precision = zero_std_dev_old != 999.0f ? (zero_std_dev + zero_std_dev_old) / 2.0f : zero_std_dev;
+    test_precision = zero_std_dev_old != 999.0f ? (zero_std_dev + zero_std_dev_old) * 0.5f : zero_std_dev;
     iterations++;
 
     // Probe the points
@@ -527,7 +527,7 @@ void GcodeSuite::G33() {
        *  - Definition of the matrix scaling parameters
        *  - Matrices for 4 and 7 point calibration
        */
-      #define ZP(N,I) ((N) * z_at_pt[I] / 4.0f) // 4.0 = divider to normalize to integers
+      #define ZP(N,I) ((N) * z_at_pt[I] * 0.25f) // 4.0 = divider to normalize to integers
       #define Z12(I) ZP(12, I)
       #define Z4(I) ZP(4, I)
       #define Z2(I) ZP(2, I)

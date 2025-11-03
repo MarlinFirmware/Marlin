@@ -46,7 +46,8 @@
 #endif
 
 #if ENABLED(BD_SENSOR)
-  #define PROBE_READ() bdp_state
+  #include "endstops.h"
+  #define PROBE_READ() endstops.bdp_state
 #elif USE_Z_MIN_PROBE
   #define PROBE_READ() READ(Z_MIN_PROBE_PIN)
 #else

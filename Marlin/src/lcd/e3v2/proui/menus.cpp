@@ -213,7 +213,7 @@ void setValueOnClick(uint8_t process, const int32_t lo, const int32_t hi, const 
 //  liveUpdate: live update function when the encoder changes
 //  apply: update function when the encoder is pressed
 void setValueOnClick(uint8_t process, const float lo, const float hi, uint8_t dp, const float val, void (*apply)()/*=nullptr*/, void (*liveUpdate)()/*=nullptr*/) {
-  const int32_t value =  round(val * POW(10, dp));
+  const int32_t value =  LROUND(val * POW(10, dp));
   setOnClick(process, lo * POW(10, dp), hi * POW(10, dp), dp, value, apply, liveUpdate);
   DrawItemEdit(true);
 }

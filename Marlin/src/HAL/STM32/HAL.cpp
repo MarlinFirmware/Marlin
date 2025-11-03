@@ -66,7 +66,7 @@ void MarlinHAL::init() {
   // Ensure F_CPU is a constant expression.
   // If the compiler breaks here, it means that delay code that should compute at compile time will not work.
   // So better safe than sorry here.
-  constexpr int cpuFreq = F_CPU;
+  constexpr unsigned int cpuFreq = F_CPU;
   UNUSED(cpuFreq);
 
   #if HAS_MEDIA && DISABLED(ONBOARD_SDIO) && PIN_EXISTS(SD_SS)

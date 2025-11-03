@@ -205,7 +205,7 @@ void DGUSScreenHandler::handleManualMove(DGUS_VP_Variable &var, void *val_ptr) {
     const uint16_t backup_speed = MMS_TO_MMM(feedrate_mm_s);
     char sign[] = "\0";
     int16_t value = movevalue / 100;
-    if (movevalue < 0) { value = -value; sign[0] = '-'; }
+    if (movevalue < 0) { value *= -1; sign[0] = '-'; }
     int16_t fraction = ABS(movevalue) % 100;
     snprintf_P(buf, 32, PSTR("G0 %c%s%d.%02d F%d"), axiscode, sign, value, fraction, speed);
     queue.enqueue_one_now(buf);

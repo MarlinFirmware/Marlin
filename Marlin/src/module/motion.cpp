@@ -107,12 +107,6 @@ xyze_pos_t current_position = LOGICAL_AXIS_ARRAY(0, X_HOME_POS, Y_HOME_POS, Z_IN
  */
 xyze_pos_t destination; // {0}
 
-// G60/G61 Position Save and Return
-#if SAVED_POSITIONS
-  Flags<SAVED_POSITIONS> did_save_position;
-  xyze_pos_t stored_position[SAVED_POSITIONS];
-#endif
-
 // The active extruder (tool). Set with T<extruder> command.
 #if HAS_MULTI_EXTRUDER
   uint8_t active_extruder = 0; // = 0
@@ -190,7 +184,7 @@ xyz_pos_t cartes;
   xyz_pos_t workspace_offset{0};
 #endif
 
-#if HAS_ABL_NOT_UBL
+#if ABL_USES_GRID
   feedRate_t xy_probe_feedrate_mm_s = MMM_TO_MMS(XY_PROBE_FEEDRATE);
 #endif
 
