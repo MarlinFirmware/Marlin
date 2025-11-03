@@ -157,8 +157,8 @@ void FTMotion::loop() {
    * 4. Signal ready for new block.
    */
 
-  #if ENABLED(FTM_RESONANCE_TEST)
   bool using_resonance;
+  #if ENABLED(FTM_RESONANCE_TEST)
     if(getTrajectoryType() == TrajectoryType::RESONANCE)
       using_resonance = rtg->isActive();
     else
