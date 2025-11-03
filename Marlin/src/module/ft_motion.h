@@ -215,7 +215,7 @@ class FTMotion {
     static TrajectoryGenerator* currentGenerator;
     static TrajectoryType trajectoryType;
 
-    #if HAS_EXTRUDERS
+    #if FTM_HAS_LIN_ADVANCE
       static bool use_advance_lead;
     #endif
 

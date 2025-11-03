@@ -78,7 +78,7 @@ XYZEval<int64_t> FTMotion::curr_steps_q32_32 = {0};
 uint32_t FTMotion::stepper_plan_tail = 0,            // The index to consume from
          FTMotion::stepper_plan_head = 0;            // The index to produce into
 
-#if HAS_EXTRUDERS
+#if FTM_HAS_LIN_ADVANCE
   bool FTMotion::use_advance_lead;
 #endif
 
