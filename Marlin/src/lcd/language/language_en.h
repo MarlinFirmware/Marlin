@@ -955,6 +955,9 @@ namespace LanguageNarrow_en {
   LSTR MSG_FTM_RT_START_X                 = _UxGT("Start Test on X axis");
   LSTR MSG_FTM_RT_START_Y                 = _UxGT("Start Test on Y axis");
   LSTR MSG_FTM_RT_STOP                    = _UxGT("Abort Test");
+  LSTR MSG_FTM_RETRIEVE_FREQ              = _UxGT("Calc. Res. Freq.");
+  LSTR MSG_FTM_RESONANCE_FREQ             = _UxGT("Resonance frequency");
+  LSTR MSG_FTM_TIMELINE_FREQ              = _UxGT("Timeline (s)");
 
   LSTR MSG_LEVEL_X_AXIS                   = _UxGT("Level X Axis");
   LSTR MSG_AUTO_CALIBRATE                 = _UxGT("Auto Calibrate");
