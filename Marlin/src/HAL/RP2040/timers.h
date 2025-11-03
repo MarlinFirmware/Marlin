@@ -41,9 +41,9 @@
 #define _HAL_TIMER_ISR(T)  __HAL_TIMER_ISR(T)
 
 typedef uint64_t hal_timer_t;
-#define HAL_TIMER_TYPE_MAX 0xFFFFFFFFFFFFFFFF
+#define HAL_TIMER_TYPE_MAX 0xFFFF'FFFF'FFFF'FFFFULL
 
-#define HAL_TIMER_RATE         (1000000ull)  // fixed value as we use a microsecond timesource
+#define HAL_TIMER_RATE         (1'000'000ULL)  // fixed value as we use a microsecond timesource
 #ifndef MF_TIMER_STEP
   #define MF_TIMER_STEP        0  // Timer Index for Stepper
 #endif
@@ -131,19 +131,19 @@ FORCE_INLINE static void HAL_timer_set_compare(const uint8_t timer_num, hal_time
 
   switch (timer_num) {
     case 0:
-      alarm_pool_add_alarm_in_us(HAL_timer_pool_0 ,compare , HAL_timer_alarm_pool_0_callback ,0 ,false );
+      alarm_pool_add_alarm_in_us(HAL_timer_pool_0, compare, HAL_timer_alarm_pool_0_callback, 0, false);
       break;
 
     case 1:
-      alarm_pool_add_alarm_in_us(HAL_timer_pool_1 ,compare , HAL_timer_alarm_pool_1_callback ,0 ,false );
+      alarm_pool_add_alarm_in_us(HAL_timer_pool_1, compare, HAL_timer_alarm_pool_1_callback, 0, false);
       break;
 
     case 2:
-      alarm_pool_add_alarm_in_us(HAL_timer_pool_2 ,compare , HAL_timer_alarm_pool_2_callback ,0 ,false );
+      alarm_pool_add_alarm_in_us(HAL_timer_pool_2, compare, HAL_timer_alarm_pool_2_callback, 0, false);
       break;
 
     case 3:
-      alarm_pool_add_alarm_in_us(HAL_timer_pool_3 ,compare , HAL_timer_alarm_pool_3_callback ,0 ,false );
+      alarm_pool_add_alarm_in_us(HAL_timer_pool_3, compare, HAL_timer_alarm_pool_3_callback, 0, false);
       break;
   }
 }

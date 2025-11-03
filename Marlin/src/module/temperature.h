@@ -118,8 +118,11 @@ enum ADCSensorState : char {
   #if HAS_JOY_ADC_Z
     PrepareJoy_Z, MeasureJoy_Z,
   #endif
-  #if ENABLED(FILAMENT_WIDTH_SENSOR)
+  #if HAS_FILWIDTH_ADC
     Prepare_FILWIDTH, Measure_FILWIDTH,
+  #endif
+  #if HAS_FILWIDTH2_ADC
+    Prepare_FILWIDTH2, Measure_FILWIDTH2,
   #endif
   #if ENABLED(POWER_MONITOR_CURRENT)
     Prepare_POWER_MONITOR_CURRENT,
@@ -173,7 +176,7 @@ typedef struct { float p, i, d, c, f; } raw_pidcf_t;
   struct PID_t {
     protected:
       bool pid_reset = true;
-      float temp_iState = 0.0f, temp_dState = 0.0f;
+      float temp_dState = 0;
       float work_p = 0, work_i = 0, work_d = 0;
 
     public:
@@ -217,17 +220,14 @@ typedef struct { float p, i, d, c, f; } raw_pidcf_t;
         }
         else {
           if (pid_reset) {
+            work_i = 0;
+            work_d = 0;
             pid_reset = false;
-            temp_iState = 0.0;
-            work_d = 0.0;
           }
 
-          const float max_power_over_i_gain = float(MAX_POW) / Ki - float(MIN_POW);
-          temp_iState = constrain(temp_iState + pid_error, 0, max_power_over_i_gain);
-
           work_p = Kp * pid_error;
-          work_i = Ki * temp_iState;
-          work_d = work_d + PID_K2 * (Kd * (temp_dState - current) - work_d);
+          work_i = constrain(work_i + Ki * pid_error, 0, float(MAX_POW - MIN_POW));
+          work_d += (Kd * (temp_dState - current) - work_d) * PID_K2;
 
           output_pow = constrain(work_p + work_i + work_d + float(MIN_POW), 0, MAX_POW);
         }
@@ -389,15 +389,19 @@ typedef struct { float p, i, d, c, f; } raw_pidcf_t;
     static bool e_paused;               // Pause E filament permm tracking
     static int32_t e_position;          // For E tracking
     float heater_power;                 // M306 P
+    #if ENABLED(MPC_PTC)
+      float heater_alpha;               // M306 L
+      float heater_reftemp;             // M306 Q
+    #endif
     float block_heat_capacity;          // M306 C
     float sensor_responsiveness;        // M306 R
     float ambient_xfer_coeff_fan0;      // M306 A
     float filament_heat_capacity_permm; // M306 H
     #if ENABLED(MPC_INCLUDE_FAN)
       float fan255_adjustment;          // M306 F
-      void applyFanAdjustment(const_float_t cf) { fan255_adjustment = cf - ambient_xfer_coeff_fan0; }
+      void applyFanAdjustment(const float cf) { fan255_adjustment = cf - ambient_xfer_coeff_fan0; }
     #else
-      void applyFanAdjustment(const_float_t) {}
+      void applyFanAdjustment(const float) {}
     #endif
     float fanCoefficient() { return SUM_TERN(MPC_INCLUDE_FAN, ambient_xfer_coeff_fan0, fan255_adjustment); }
   } MPC_t;
@@ -455,7 +459,7 @@ struct PIDHeaterInfo : public HeaterInfo {
           modeled_block_temp,
           modeled_sensor_temp;
     float fanCoefficient() { return mpc.fanCoefficient(); }
-    void applyFanAdjustment(const_float_t cf) { mpc.applyFanAdjustment(cf); }
+    void applyFanAdjustment(const float cf) { mpc.applyFanAdjustment(cf); }
   };
 #endif
 
@@ -813,14 +817,12 @@ class Temperature {
 
   public:
     /**
-     * Instance Methods
-     */
-
-    void init();
-
-    /**
      * Static (class) methods
      */
+
+    static void init();
+
+    static void factory_reset();
 
     #if HAS_USER_THERMISTORS
       static user_thermistor_t user_thermistor[USER_THERMISTORS];
@@ -1222,7 +1224,7 @@ class Temperature {
       // Update the temp manager when PID values change
       #if ENABLED(PIDTEMP)
         static void updatePID() { HOTEND_LOOP() temp_hotend[e].pid.reset(); }
-        static void setPID(const uint8_t hotend, const_float_t p, const_float_t i, const_float_t d) {
+        static void setPID(const uint8_t hotend, const float p, const float i, const float d) {
           #if ENABLED(PID_PARAMS_PER_HOTEND)
             temp_hotend[hotend].pid.set(p, i, d);
           #else
@@ -1334,10 +1336,6 @@ class Temperature {
       static void set_heating_message(const uint8_t, const bool=false) {}
     #endif
 
-    #if HAS_MARLINUI_MENU && HAS_TEMPERATURE && HAS_PREHEAT
-      static void lcd_preheat(const uint8_t e, const int8_t indh, const int8_t indb);
-    #endif
-
   private:
 
     // Reading raw temperatures and converting to Celsius when ready
@@ -1427,7 +1425,7 @@ class Temperature {
           millis_t variance_timer = 0;
           celsius_float_t last_temp = 0.0, variance = 0.0;
         #endif
-        void run(const_celsius_float_t current, const_celsius_float_t target, const heater_id_t heater_id, const uint16_t period_seconds, const celsius_float_t hysteresis_degc);
+        void run(const celsius_float_t current, const celsius_float_t target, const heater_id_t heater_id, const uint16_t period_seconds, const celsius_float_t hysteresis_degc);
       } tr_state_machine_t;
 
       static tr_state_machine_t tr_state_machine[NR_HEATER_RUNAWAY];

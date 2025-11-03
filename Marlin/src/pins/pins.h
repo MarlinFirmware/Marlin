@@ -65,57 +65,6 @@
   #define HAS_FREE_AUX2_PINS 1
 #endif
 
-//
-// Check for additional used endstop pins
-//
-#ifndef X_MIN_PIN
-  #define X_MIN_PIN 1001
-#endif
-#ifndef Y_MIN_PIN
-  #define Y_MIN_PIN 1002
-#endif
-#ifndef Z_MIN_PIN
-  #define Z_MIN_PIN 1003
-#endif
-#ifndef X_MAX_PIN
-  #define X_MAX_PIN 1004
-#endif
-#ifndef Y_MAX_PIN
-  #define Y_MAX_PIN 1005
-#endif
-#ifndef Z_MAX_PIN
-  #define Z_MAX_PIN 1006
-#endif
-#define _ENDSTOP_IS_ANY(P) (HAS_EXTRA_ENDSTOPS && (X2_STOP_PIN == P || Y2_STOP_PIN == P || Z2_STOP_PIN == P || Z3_STOP_PIN == P || Z4_STOP_PIN == P))
-#if ENABLED(DUAL_X_CARRIAGE) || _ENDSTOP_IS_ANY(X_MIN_PIN) || _ENDSTOP_IS_ANY(X_MAX_PIN)
-  #define NEEDS_X_MINMAX 1
-#endif
-#if _ENDSTOP_IS_ANY(Y_MIN_PIN) || _ENDSTOP_IS_ANY(Y_MAX_PIN)
-  #define NEEDS_Y_MINMAX 1
-#endif
-#if _ENDSTOP_IS_ANY(Z_MIN_PIN) || _ENDSTOP_IS_ANY(Z_MAX_PIN) || ALL(Z_HOME_TO_MAX, Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN)
-  #define NEEDS_Z_MINMAX 1
-#endif
-#undef _ENDSTOP_IS_ANY
-#if X_MIN_PIN > 1000
-  #undef X_MIN_PIN
-#endif
-#if Y_MIN_PIN > 1000
-  #undef Y_MIN_PIN
-#endif
-#if Z_MIN_PIN > 1000
-  #undef Z_MIN_PIN
-#endif
-#if X_MAX_PIN > 1000
-  #undef X_MAX_PIN
-#endif
-#if Y_MAX_PIN > 1000
-  #undef Y_MAX_PIN
-#endif
-#if Z_MAX_PIN > 1000
-  #undef Z_MAX_PIN
-#endif
-
 // Test the target within the included pins file
 #ifdef __MARLIN_DEPS__
   #define NOT_TARGET(V...) 0
@@ -228,6 +177,8 @@
   #include "ramps/pins_RAMPS_ENDER_4.h"             // ATmega2560                           env:mega2560
 #elif MB(RAMPS_CREALITY)
   #include "ramps/pins_RAMPS_CREALITY.h"            // ATmega2560                           env:mega2560
+#elif MB(CREALITY_V252)
+  #include "ramps/pins_CREALITY_V252.h"             // ATmega2560                           env:mega2560
 #elif MB(DAGOMA_F5)
   #include "ramps/pins_DAGOMA_F5.h"                 // ATmega2560                           env:mega2560
 #elif MB(DAGOMA_D6)
@@ -274,6 +225,8 @@
   #include "ramps/pins_XTLW_MFF_V1.h"               // ATmega2560                           env:mega2560
 #elif MB(XTLW_MFF_V2)
   #include "ramps/pins_XTLW_MFF_V2.h"               // ATmega2560                           env:mega2560
+#elif MB(RUMBA_E3D)
+  #include "ramps/pins_RUMBA_E3D.h"                 // ATmega2560                           env:mega2560
 
 //
 // RAMBo and derivatives
@@ -342,6 +295,8 @@
   #include "mega/pins_EINSTART-S.h"                 // ATmega2560, ATmega1280               env:mega2560ext env:mega1280
 #elif MB(WANHAO_ONEPLUS)
   #include "mega/pins_WANHAO_ONEPLUS.h"             // ATmega2560                           env:mega2560
+#elif MB(WANHAO_D9)
+  #include "mega/pins_WANHAO_D9.h"                  // ATmega2560                           env:mega2560
 #elif MB(OVERLORD)
   #include "mega/pins_OVERLORD.h"                   // ATmega2560                           env:mega2560
 #elif MB(HJC2560C_REV1)
@@ -516,33 +471,33 @@
 //
 
 #elif MB(DUE3DOM)
-  #include "sam/pins_DUE3DOM.h"                     // SAM3X8E                              env:DUE env:DUE_USB env:DUE_debug
+  #include "sam/pins_DUE3DOM.h"                     // SAM3X8E                              env:DUE env:DUE_USB
 #elif MB(DUE3DOM_MINI)
-  #include "sam/pins_DUE3DOM_MINI.h"                // SAM3X8E                              env:DUE env:DUE_USB env:DUE_debug
+  #include "sam/pins_DUE3DOM_MINI.h"                // SAM3X8E                              env:DUE env:DUE_USB
 #elif MB(RADDS)
-  #include "sam/pins_RADDS.h"                       // SAM3X8E                              env:DUE env:DUE_USB env:DUE_debug
+  #include "sam/pins_RADDS.h"                       // SAM3X8E                              env:DUE env:DUE_USB
 #elif MB(RAMPS_FD_V1)
-  #include "sam/pins_RAMPS_FD_V1.h"                 // SAM3X8E                              env:DUE env:DUE_USB env:DUE_debug
+  #include "sam/pins_RAMPS_FD_V1.h"                 // SAM3X8E                              env:DUE env:DUE_USB
 #elif MB(RAMPS_FD_V2)
-  #include "sam/pins_RAMPS_FD_V2.h"                 // SAM3X8E                              env:DUE env:DUE_USB env:DUE_debug
+  #include "sam/pins_RAMPS_FD_V2.h"                 // SAM3X8E                              env:DUE env:DUE_USB
 #elif MB(RAMPS_SMART_EFB, RAMPS_SMART_EEB, RAMPS_SMART_EFF, RAMPS_SMART_EEF, RAMPS_SMART_SF)
-  #include "sam/pins_RAMPS_SMART.h"                 // SAM3X8E                              env:DUE env:DUE_USB env:DUE_debug
+  #include "sam/pins_RAMPS_SMART.h"                 // SAM3X8E                              env:DUE env:DUE_USB
 #elif MB(RAMPS_DUO_EFB, RAMPS_DUO_EEB, RAMPS_DUO_EFF, RAMPS_DUO_EEF, RAMPS_DUO_SF)
-  #include "sam/pins_RAMPS_DUO.h"                   // SAM3X8E                              env:DUE env:DUE_USB env:DUE_debug
+  #include "sam/pins_RAMPS_DUO.h"                   // SAM3X8E                              env:DUE env:DUE_USB
 #elif MB(RAMPS4DUE_EFB, RAMPS4DUE_EEB, RAMPS4DUE_EFF, RAMPS4DUE_EEF, RAMPS4DUE_SF)
-  #include "sam/pins_RAMPS4DUE.h"                   // SAM3X8E                              env:DUE env:DUE_USB env:DUE_debug
+  #include "sam/pins_RAMPS4DUE.h"                   // SAM3X8E                              env:DUE env:DUE_USB
 #elif MB(RURAMPS4D_11)
-  #include "sam/pins_RURAMPS4D_11.h"                // SAM3X8E                              env:DUE env:DUE_USB env:DUE_debug
+  #include "sam/pins_RURAMPS4D_11.h"                // SAM3X8E                              env:DUE env:DUE_USB
 #elif MB(RURAMPS4D_13)
-  #include "sam/pins_RURAMPS4D_13.h"                // SAM3X8E                              env:DUE env:DUE_USB env:DUE_debug
+  #include "sam/pins_RURAMPS4D_13.h"                // SAM3X8E                              env:DUE env:DUE_USB
 #elif MB(ULTRATRONICS_PRO)
-  #include "sam/pins_ULTRATRONICS_PRO.h"            // SAM3X8E                              env:DUE env:DUE_debug
+  #include "sam/pins_ULTRATRONICS_PRO.h"            // SAM3X8E                              env:DUE
 #elif MB(ARCHIM1)
-  #include "sam/pins_ARCHIM1.h"                     // SAM3X8E                              env:DUE_archim env:DUE_archim_debug
+  #include "sam/pins_ARCHIM1.h"                     // SAM3X8E                              env:DUE_archim
 #elif MB(ARCHIM2)
-  #include "sam/pins_ARCHIM2.h"                     // SAM3X8E                              env:DUE_archim env:DUE_archim_debug
+  #include "sam/pins_ARCHIM2.h"                     // SAM3X8E                              env:DUE_archim
 #elif MB(ALLIGATOR)
-  #include "sam/pins_ALLIGATOR_R2.h"                // SAM3X8E                              env:DUE env:DUE_debug
+  #include "sam/pins_ALLIGATOR_R2.h"                // SAM3X8E                              env:DUE
 #elif MB(CNCONTROLS_15D)
   #include "sam/pins_CNCONTROLS_15D.h"              // SAM3X8E                              env:DUE env:DUE_USB
 #elif MB(KRATOS32)
@@ -555,7 +510,7 @@
 #elif MB(PRINTRBOARD_G2)
   #include "sam/pins_PRINTRBOARD_G2.h"              // SAM3X8C                              env:DUE_USB
 #elif MB(ADSK)
-  #include "sam/pins_ADSK.h"                        // SAM3X8C                              env:DUE env:DUE_debug
+  #include "sam/pins_ADSK.h"                        // SAM3X8C                              env:DUE
 
 //
 // STM32 ARM Cortex-M0+
@@ -901,8 +856,10 @@
   #include "stm32h7/pins_BTT_MANTA_M8P_V2_0.h"           // STM32H7                         env:STM32H723ZE_btt
 #elif MB(BTT_KRAKEN_V1_0)
   #include "stm32h7/pins_BTT_KRAKEN_V1_0.h"              // STM32H7                         env:STM32H723ZG_btt
+#elif MB(TEENSY40)
+  #include "teensy4/pins_TEENSY40.h"                     // Teensy-4.0                      env:teensy40
 #elif MB(TEENSY41)
-  #include "teensy4/pins_TEENSY41.h"                     // Teensy-4.x                      env:teensy41
+  #include "teensy4/pins_TEENSY41.h"                     // Teensy-4.1                      env:teensy41
 #elif MB(T41U5XBB)
   #include "teensy4/pins_T41U5XBB.h"                     // Teensy-4.x                      env:teensy41
 #elif MB(FLY_D8_PRO)
@@ -971,6 +928,22 @@
   #include "hc32f4/pins_CREALITY_ENDER2P_V24S4.h"   // HC32F460                             env:HC32F460C_e2p24s4
 
 //
+// GD32 ARM Cortex-M3
+//
+
+#elif MB(AQUILA_V101_GD32_MFL)
+  #include "gd32f1/pins_AQUILA_101_GD32_MFL.h"      // GD32F103RC                           env:GD32F103RC_aquila_mfl
+
+//
+// GD32 ARM Cortex-M4
+//
+
+#elif MB(CREALITY_V422_GD32_MFL)
+  #include "gd32f3/pins_CREALITY_V422_GD32_MFL.h"   // GD32F303RE                           env:GD32F303RE_creality_mfl
+#elif MB(CREALITY_V427_GD32_MFL)
+  #include "gd32f3/pins_CREALITY_V427_GD32_MFL.h"   // GD32F303RE                           env:GD32F303RE_creality_mfl
+
+//
 // Raspberry Pi RP2040
 //
 
@@ -991,7 +964,7 @@
 //
 
 #elif MB(SIMULATED)
-  #include "native/pins_RAMPS_NATIVE.h"             // Native or Simulation                 lin:linux_native mac:simulator_macos_debug mac:simulator_macos_release win:simulator_windows lin:simulator_linux_debug lin:simulator_linux_release
+  #include "native/pins_RAMPS_NATIVE.h"             // Native or Simulation                 lin:linux_native lin:simulator_linux_debug lin:simulator_linux_release lin:linux_native_test mac:simulator_macos_debug mac:simulator_macos_release win:simulator_windows
 
 #else
 
@@ -1094,6 +1067,8 @@
     #error "BOARD_VAKE403D is no longer supported in Marlin."
   #elif MB(FYSETC_SPIDER_KING407)
     #error "BOARD_FYSETC_SPIDER_KING407 is now BOARD_FYSETC_SPIDER_KING_V1_F407 or BOARD_FYSETC_SPIDER_KING_V1_1_F407. Please update your configuration."
+  #elif MB(ERROR)
+    #warning "Most likely missing / misplaced Configuration files."
   #elif defined(MOTHERBOARD)
     #error "Unknown MOTHERBOARD value set in Configuration.h."
   #else

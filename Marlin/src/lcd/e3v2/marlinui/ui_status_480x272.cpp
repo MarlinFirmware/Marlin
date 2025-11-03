@@ -108,7 +108,7 @@ void _draw_axis_value(const AxisEnum axis, const char *value, const bool blink, 
 
 #if ENABLED(LCD_SHOW_E_TOTAL)
 
-  void _draw_e_value(const_float_t value, const uint16_t x, const uint16_t y) {
+  void _draw_e_value(const float value, const uint16_t x, const uint16_t y) {
     const uint8_t scale = value >= 100000.0f ? 10 : 1; // show cm after 99,999mm
     const bool e_redraw = !ui.did_first_redraw || old_is_printing != print_job_timer.isRunning();
 
@@ -290,17 +290,17 @@ void MarlinUI::draw_status_screen() {
     );
   }
 
-  uint16_t hx = STATUS_HEATERS_X;
+  uint16_t shx = STATUS_HEATERS_X;
   #if HAS_HOTEND
-    _draw_heater_status(H_E0, hx, STATUS_HEATERS_Y);
-    hx += STATUS_HEATERS_XSPACE;
+    _draw_heater_status(H_E0, shx, STATUS_HEATERS_Y);
+    shx += STATUS_HEATERS_XSPACE;
   #endif
   #if HAS_MULTI_HOTEND
-    _draw_heater_status(H_E1, hx, STATUS_HEATERS_Y);
-    hx += STATUS_HEATERS_XSPACE;
+    _draw_heater_status(H_E1, shx, STATUS_HEATERS_Y);
+    shx += STATUS_HEATERS_XSPACE;
   #endif
   #if HAS_HEATED_BED
-    _draw_heater_status(H_BED, hx, STATUS_HEATERS_Y);
+    _draw_heater_status(H_BED, shx, STATUS_HEATERS_Y);
   #endif
   #if HAS_FAN
     _draw_fan_status(LCD_PIXEL_WIDTH - STATUS_CHR_WIDTH * 5, STATUS_FAN_Y);
@@ -315,8 +315,10 @@ void MarlinUI::draw_status_screen() {
     TERN_(LCD_SHOW_E_TOTAL, _draw_e_value(e_move_accumulator, TERN(DWIN_MARLINUI_PORTRAIT, 6, 75), cpy));
   }
   else {
-    TERN_(HAS_X_AXIS, _draw_axis_value(X_AXIS, ftostr4sign(lpos.x), blink, TERN(DWIN_MARLINUI_PORTRAIT,  6,  75), cpy));
-    TERN_(HAS_Y_AXIS, _draw_axis_value(Y_AXIS, ftostr4sign(lpos.y), blink, TERN(DWIN_MARLINUI_PORTRAIT, 95, 184), cpy));
+    XY_CODE(
+      _draw_axis_value(X_AXIS, ftostr4sign(lpos.x), blink, TERN(DWIN_MARLINUI_PORTRAIT,  6,  75), cpy),
+      _draw_axis_value(Y_AXIS, ftostr4sign(lpos.y), blink, TERN(DWIN_MARLINUI_PORTRAIT, 95, 184), cpy)
+    );
   }
   TERN_(HAS_Z_AXIS, _draw_axis_value(Z_AXIS, ftostr52sp(lpos.z), blink, TERN(DWIN_MARLINUI_PORTRAIT, 165, 300), cpy));
 

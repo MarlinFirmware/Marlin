@@ -69,6 +69,10 @@ GcodeSuite gcode;
   #include "../feature/fancheck.h"
 #endif
 
+#if ENABLED(EXTENSIBLE_UI)
+  #include "../lcd/extui/ui_api.h" // for ExtUI::onLevelingDone
+#endif
+
 #include "../MarlinCore.h" // for idle, kill
 
 // Inactivity shutdown
@@ -122,16 +126,13 @@ void GcodeSuite::say_units() {
  * Return -1 if the T parameter is out of range
  */
 int8_t GcodeSuite::get_target_extruder_from_command() {
-  #if HAS_TOOLCHANGE
-    if (parser.seenval('T')) {
-      const int8_t e = parser.value_byte();
-      if (e < EXTRUDERS) return e;
-      SERIAL_ECHO_START();
-      SERIAL_CHAR('M'); SERIAL_ECHO(parser.codenum);
-      SERIAL_ECHOLNPGM(" " STR_INVALID_EXTRUDER " ", e);
-      return -1;
-    }
-  #endif
+  if (parser.seenval('T')) {
+    const int8_t e = parser.value_byte();
+    if (e < EXTRUDERS) return e;
+    SERIAL_ECHO_START();
+    SERIAL_ECHOLN(C('M'), parser.codenum, F(" " STR_INVALID_EXTRUDER " "), e);
+    return -1;
+  }
   return active_extruder;
 }
 
@@ -139,6 +140,7 @@ int8_t GcodeSuite::get_target_extruder_from_command() {
  * Get the target E stepper from the 'T' parameter.
  * If there is no 'T' parameter then dval will be substituted.
  * Returns -1 if the resulting E stepper index is out of range.
+ * Use a default of -2 for silent failure.
  */
 int8_t GcodeSuite::get_target_e_stepper_from_command(const int8_t dval/*=-1*/) {
   const int8_t e = parser.intval('T', dval);
@@ -146,7 +148,7 @@ int8_t GcodeSuite::get_target_e_stepper_from_command(const int8_t dval/*=-1*/) {
   if (dval == -2) return dval;
 
   SERIAL_ECHO_START();
-  SERIAL_CHAR('M'); SERIAL_ECHO(parser.codenum);
+  SERIAL_ECHO(C('M'), parser.codenum);
   if (e == -1)
     SERIAL_ECHOLNPGM(" " STR_E_STEPPER_NOT_SPECIFIED);
   else
@@ -177,7 +179,7 @@ void GcodeSuite::get_destination_from_command() {
       if (skip_move)
         destination[i] = current_position[i];
       else
-        destination[i] = axis_is_relative(AxisEnum(i)) ? current_position[i] + v : LOGICAL_TO_NATIVE(v, i);
+        destination[i] = axis_is_relative((AxisEnum)i) ? current_position[i] + v : LOGICAL_TO_NATIVE(v, i);
     }
     else
       destination[i] = current_position[i];
@@ -195,7 +197,7 @@ void GcodeSuite::get_destination_from_command() {
 
   #if ENABLED(POWER_LOSS_RECOVERY) && !PIN_EXISTS(POWER_LOSS)
     // Only update power loss recovery on moves with E
-    if (recovery.enabled && IS_SD_PRINTING() && seen.e && (seen.x || seen.y))
+    if (recovery.enabled && card.isStillPrinting() && seen.e && (seen.x || seen.y))
       recovery.save();
   #endif
 
@@ -242,11 +244,11 @@ void GcodeSuite::get_destination_from_command() {
 }
 
 /**
- * Dwell waits immediately. It does not synchronize. Use M400 instead of G4
+ * Dwell waits immediately. It does not synchronize.
  */
-void GcodeSuite::dwell(millis_t time) {
-  time += millis();
-  while (PENDING(millis(), time)) idle();
+void GcodeSuite::dwell(const millis_t time) {
+  const millis_t start_ms = millis();
+  while (PENDING(millis(), start_ms, time)) idle();
 }
 
 /**
@@ -318,7 +320,7 @@ void GcodeSuite::dwell(millis_t time) {
 /**
  * Process the parsed command and dispatch it to its handler
  */
-void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
+void GcodeSuite::process_parsed_command(bool no_ok/*=false*/) {
   TERN_(HAS_FANCHECK, fan_check.check_deferred_error());
 
   KEEPALIVE_STATE(IN_HANDLER);
@@ -457,8 +459,8 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         case 80: G80(); break;                                    // G80: Reset the current motion mode
       #endif
 
-      case 90: set_relative_mode(false); break;                   // G90: Absolute Mode
-      case 91: set_relative_mode(true);  break;                   // G91: Relative Mode
+      case 90: G90(); break;                                      // G90: Absolute Mode
+      case 91: G91(); break;                                      // G91: Relative Mode
 
       case 92: G92(); break;                                      // G92: Set current axis position(s)
 
@@ -581,7 +583,7 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         case 109: M109(); break;                                  // M109: Wait for hotend temperature to reach target
       #endif
 
-      case 105: M105(); return;                                   // M105: Report Temperatures (and say "ok")
+      case 105: M105(); no_ok = true; break;                      // M105: Report Temperatures (and say "ok")
 
       #if HAS_FAN
         case 106: M106(); break;                                  // M106: Fan On
@@ -824,6 +826,10 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         case 261: M261(); break;                                  // M261: Request data from an i2c slave
       #endif
 
+      #if ENABLED(I2C_SCANNER)
+        case 265: M265(); break;                                  // M265: I2C Scanner
+      #endif
+
       #if ENABLED(PREVENT_COLD_EXTRUSION)
         case 302: M302(); break;                                  // M302: Allow cold extrudes (set the minimum extrude temperature)
       #endif
@@ -917,6 +923,9 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
 
       #if ENABLED(FT_MOTION)
         case 493: M493(); break;                                  // M493: Fixed-Time Motion control
+        #if ENABLED(FTM_SMOOTHING)
+          case 494: M494(); break;                                // M494: Fixed-Time Motion extras
+        #endif
       #endif
 
       case 500: M500(); break;                                    // M500: Store settings in EEPROM
@@ -945,6 +954,10 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
 
       #if ENABLED(SD_ABORT_ON_ENDSTOP_HIT)
         case 540: M540(); break;                                  // M540: Set abort on endstop hit for SD printing
+      #endif
+
+      #if ENABLED(CONFIGURABLE_MACHINE_NAME)
+        case 550: M550(); break;                                  // M550: Set machine name
       #endif
 
       #if HAS_ETHERNET
@@ -1025,7 +1038,7 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         case 871: M871(); break;                                  // M871: Print/reset/clear first layer temperature offset values
       #endif
 
-      #if ENABLED(LIN_ADVANCE)
+      #if HAS_LIN_ADVANCE_K
         case 900: M900(); break;                                  // M900: Set advance K factor.
       #endif
 
@@ -1051,12 +1064,15 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
           case 912: M912(); break;                                // M912: Clear TMC2130 prewarn triggered flags
         #endif
         #if ENABLED(HYBRID_THRESHOLD)
-          case 913: M913(); break;                                // M913: Set HYBRID_THRESHOLD speed.
+          case 913: M913(); break;                                // M913: Set HYBRID_THRESHOLD speed
         #endif
         #if USE_SENSORLESS
-          case 914: M914(); break;                                // M914: Set StallGuard sensitivity.
+          case 914: M914(); break;                                // M914: Set StallGuard sensitivity
         #endif
         case 919: M919(); break;                                  // M919: Set stepper Chopper Times
+        #if ENABLED(EDITABLE_HOMING_CURRENT)
+          case 920: M920(); break;                                // M920: Set Homing Current
+        #endif
       #endif
 
       #if HAS_MICROSTEPS

@@ -204,6 +204,15 @@ void MarlinUI::goto_screen(screenFunc_t screen, const uint16_t encoder/*=0*/, co
   #endif
 
   //
+  // Clear alerts when exiting the Status Screen to the Main Menu
+  //
+
+  if (currentScreen == status_screen && screen == menu_main) {
+    reset_alert_level();
+    reset_status();
+  }
+
+  //
   // Go to the new screen
   //
 
@@ -286,7 +295,7 @@ void scroll_screen(const uint8_t limit, const bool is_menu) {
 
 #if HAS_LINE_TO_Z
 
-  void line_to_z(const_float_t z) {
+  void line_to_z(const float z) {
     current_position.z = z;
     line_to_current_position(manual_feedrate_mm_s.z);
   }

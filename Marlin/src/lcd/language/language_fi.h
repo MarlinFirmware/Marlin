@@ -36,11 +36,11 @@ namespace LanguageNarrow_fi {
   constexpr uint8_t CHARSIZE              = 2;
   LSTR LANGUAGE                           = _UxGT("Finnish");
 
-  LSTR WELCOME_MSG                        = MACHINE_NAME _UxGT(" valmis.");
+  LSTR WELCOME_MSG                        = MACHINE_NAME_SUBST _UxGT(" valmis.");
   LSTR MSG_MEDIA_INSERTED                 = _UxGT("Kortti asetettu");
   LSTR MSG_MEDIA_REMOVED                  = _UxGT("Kortti poistettu");
   LSTR MSG_MAIN_MENU                      = _UxGT("Palaa");
-  LSTR MSG_RUN_AUTO_FILES                 = _UxGT("Automaatti");
+  LSTR MSG_RUN_AUTOFILES                  = _UxGT("Automaatti");
   LSTR MSG_DISABLE_STEPPERS               = _UxGT("Vapauta moottorit");
   LSTR MSG_AUTO_HOME                      = _UxGT("Aja referenssiin");
 

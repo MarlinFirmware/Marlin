@@ -42,22 +42,22 @@
 
 #if DISABLED(SD_NO_DEFAULT_TIMEOUT)
   #ifndef SD_INIT_TIMEOUT
-    #define SD_INIT_TIMEOUT 2000u   // (ms) Init timeout
+    #define SD_INIT_TIMEOUT 2000U   // (ms) Init timeout
   #elif SD_INIT_TIMEOUT < 0
     #error "SD_INIT_TIMEOUT must be greater than or equal to 0."
   #endif
   #ifndef SD_ERASE_TIMEOUT
-    #define SD_ERASE_TIMEOUT 10000u // (ms) Erase timeout
+    #define SD_ERASE_TIMEOUT 10000U // (ms) Erase timeout
   #elif SD_ERASE_TIMEOUT < 0
     #error "SD_ERASE_TIMEOUT must be greater than or equal to 0."
   #endif
   #ifndef SD_READ_TIMEOUT
-    #define SD_READ_TIMEOUT 300u    // (ms) Read timeout
+    #define SD_READ_TIMEOUT 300U    // (ms) Read timeout
   #elif SD_READ_TIMEOUT < 0
     #error "SD_READ_TIMEOUT must be greater than or equal to 0."
   #endif
   #ifndef SD_WRITE_TIMEOUT
-    #define SD_WRITE_TIMEOUT 600u   // (ms) Write timeout
+    #define SD_WRITE_TIMEOUT 600U   // (ms) Write timeout
   #elif SD_WRITE_TIMEOUT < 0
     #error "SD_WRITE_TIMEOUT must be greater than or equal to 0."
   #endif

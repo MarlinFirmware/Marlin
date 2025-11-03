@@ -23,6 +23,8 @@
 
 #define BOARD_INFO_NAME "MKS Monster8 V1"
 
+#define BOARD_LCD_SERIAL_PORT 1
+
 //
 // Limit Switches
 //

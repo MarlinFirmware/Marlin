@@ -211,7 +211,9 @@ void menu_main();
 void menu_move();
 
 #if HAS_MEDIA
-  void menu_media();
+  void menu_file_selector();
+  void menu_file_selector_sd();
+  void menu_file_selector_usb();
 #endif
 
 ////////////////////////////////////////////
@@ -223,7 +225,7 @@ void _lcd_draw_homing();
 #define HAS_LINE_TO_Z ANY(DELTA, PROBE_MANUALLY, MESH_BED_LEVELING, LCD_BED_TRAMMING)
 
 #if HAS_LINE_TO_Z
-  void line_to_z(const_float_t z);
+  void line_to_z(const float z);
 #endif
 
 #if ENABLED(PROBE_OFFSET_WIZARD)

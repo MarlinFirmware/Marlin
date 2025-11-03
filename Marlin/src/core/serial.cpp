@@ -99,7 +99,7 @@ void SERIAL_WARN_START()  { SERIAL_ECHO(F("Warning:")); }
 
 void SERIAL_ECHO_SP(uint8_t count) { count *= (PROPORTIONAL_FONT_RATIO); while (count--) SERIAL_CHAR(' '); }
 
-void serial_offset(const_float_t v, const uint8_t sp/*=0*/) {
+void serial_offset(const float v, const uint8_t sp/*=0*/) {
   if (v == 0 && sp == 1)
     SERIAL_CHAR(' ');
   else if (v > 0 || (v == 0 && sp == 2))
@@ -114,10 +114,6 @@ void serial_ternary(FSTR_P const pre, const bool onoff, FSTR_P const on, FSTR_P 
   if (post)          SERIAL_ECHO(post);
 }
 
-void serialprint_onoff(const bool onoff) { SERIAL_ECHO(onoff ? F(STR_ON) : F(STR_OFF)); }
-void serialprintln_onoff(const bool onoff) { serialprint_onoff(onoff); SERIAL_EOL(); }
-void serialprint_truefalse(const bool tf) { SERIAL_ECHO(tf ? F("true") : F("false")); }
-
 void print_bin(uint16_t val) {
   for (uint8_t i = 16; i--;) {
     SERIAL_CHAR('0' + TEST(val, i));
@@ -125,21 +121,23 @@ void print_bin(uint16_t val) {
   }
 }
 
-void _print_xyz(NUM_AXIS_ARGS_(const_float_t) FSTR_P const prefix) {
+void _print_xyz(NUM_AXIS_ARGS_(const float) FSTR_P const prefix) {
   if (prefix) SERIAL_ECHO(prefix);
   #if NUM_AXES
-    SERIAL_ECHOPGM_P(
-      LIST_N(DOUBLE(NUM_AXES), SP_X_STR, x, SP_Y_STR, y, SP_Z_STR, z, SP_I_STR, i, SP_J_STR, j, SP_K_STR, k, SP_U_STR, u, SP_V_STR, v, SP_W_STR, w)
-    );
+    SERIAL_ECHOPGM_P(NUM_AXIS_PAIRED_LIST(
+      SP_X_STR, x, SP_Y_STR, y, SP_Z_STR, z,
+      SP_I_STR, i, SP_J_STR, j, SP_K_STR, k,
+      SP_U_STR, u, SP_V_STR, v, SP_W_STR, w
+    ));
   #endif
 }
 
-void print_xyz(NUM_AXIS_ARGS_(const_float_t) FSTR_P const prefix/*=nullptr*/, FSTR_P const suffix/*=nullptr*/) {
+void print_xyz(NUM_AXIS_ARGS_(const float) FSTR_P const prefix/*=nullptr*/, FSTR_P const suffix/*=nullptr*/) {
   _print_xyz(NUM_AXIS_LIST_(x, y, z, i, j, k, u, v, w) prefix);
   if (suffix) SERIAL_ECHO(suffix); else SERIAL_EOL();
 }
 
-void print_xyze(LOGICAL_AXIS_ARGS_(const_float_t) FSTR_P const prefix/*=nullptr*/, FSTR_P const suffix/*=nullptr*/) {
+void print_xyze(LOGICAL_AXIS_ARGS_(const float) FSTR_P const prefix/*=nullptr*/, FSTR_P const suffix/*=nullptr*/) {
   _print_xyz(NUM_AXIS_LIST_(x, y, z, i, j, k, u, v, w) prefix);
   #if HAS_EXTRUDERS
     SERIAL_ECHOPGM_P(SP_E_STR, e);

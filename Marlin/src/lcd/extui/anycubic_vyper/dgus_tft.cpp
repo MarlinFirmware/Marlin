@@ -64,7 +64,7 @@ namespace Anycubic {
     DgusTFT::page25, DgusTFT::page26, DgusTFT::page27, DgusTFT::page28, DgusTFT::page29, DgusTFT::page30,
     DgusTFT::page31, DgusTFT::page32
     #if HAS_LEVELING
-      , DgusTFT::page33 , DgusTFT::page34
+      , DgusTFT::page33, DgusTFT::page34
     #endif
   };
 
@@ -496,7 +496,7 @@ namespace Anycubic {
       #endif
       case AC_printer_printing:
       case AC_printer_paused:
-        // Heater timout, send acknowledgement
+        // Heater timeout, send acknowledgement
         if (strcmp_P(msg, MARLIN_msg_heater_timeout) == 0) {
           pause_state = AC_paused_heater_timed_out;
           tftSendLn(AC_msg_paused); // enable continue button
@@ -1108,7 +1108,7 @@ namespace Anycubic {
         */
       }
       else if (0x82 == data_buf[0]) {
-        // send_cmd_to_pc(cmd ,start );
+        // send_cmd_to_pc(cmd, start );
       }
     }
   }

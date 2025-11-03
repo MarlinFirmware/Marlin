@@ -23,18 +23,56 @@ if pioutil.is_pio_build():
         LD_FLASH_OFFSET = board.get("build.offset")
         marlin.relocate_vtab(LD_FLASH_OFFSET)
 
-        # Flash size
-        maximum_flash_size = board.get("upload.maximum_size") // 1024
+        # Chip total flash (bytes) from board JSON
+        _max_flash_bytes = int(board.get("upload.maximum_size"))
+
+        # Keep STM32_FLASH_SIZE as the chip total (KiB)
+        maximum_flash_size = _max_flash_bytes // 1024
         marlin.replace_define('STM32_FLASH_SIZE', maximum_flash_size)
+
+        # Also compute available flash after bootloader for Project Inspect
+        try:
+            _offset_int = int(str(LD_FLASH_OFFSET), 0)
+        except Exception:
+            _offset_int = 0
+
+        if _max_flash_bytes and _offset_int:
+            _avail = _max_flash_bytes - _offset_int
+            if _avail > 0:
+                # Update in-memory manifest so Advanced Memory Usage shows the correct total
+                try:
+                    board.manifest.setdefault("upload", {})
+                    board.manifest["upload"]["maximum_size"] = _avail
+                except Exception:
+                    pass
 
         # Get upload.maximum_ram_size (defined by /buildroot/share/PlatformIO/boards/VARIOUS.json)
         maximum_ram_size = board.get("upload.maximum_ram_size")
 
-        for i, flag in enumerate(env["LINKFLAGS"]):
-            if "-Wl,--defsym=LD_FLASH_OFFSET" in flag:
-                env["LINKFLAGS"][i] = "-Wl,--defsym=LD_FLASH_OFFSET=" + LD_FLASH_OFFSET
-            if "-Wl,--defsym=LD_MAX_DATA_SIZE" in flag:
-                env["LINKFLAGS"][i] = "-Wl,--defsym=LD_MAX_DATA_SIZE=" + str(maximum_ram_size - 40)
+        # Helper: replace existing -Wl,--defsym=NAME=... or append if missing
+        def _upsert_defsym(name, value):
+            key = "-Wl,--defsym=" + name
+            if isinstance(value, int):
+                val = key + "=" + (hex(value) if value >= 10 else str(value))
+            else:
+                val = key + "=" + str(value)
+            found = False
+            for i, flag in enumerate(env["LINKFLAGS"]):
+                if key in flag:
+                    env["LINKFLAGS"][i] = val
+                    found = True
+                    break
+            if not found:
+                env.Append(LINKFLAGS=[val])
+
+        # Provide the symbols the linker script expects:
+        #   ORIGIN = 0x08000000 + LD_FLASH_OFFSET
+        #   LENGTH = LD_MAX_SIZE - LD_FLASH_OFFSET
+        _upsert_defsym("LD_FLASH_OFFSET", _offset_int)
+        _upsert_defsym("LD_MAX_SIZE", _max_flash_bytes)
+
+        if maximum_ram_size:
+            _upsert_defsym("LD_MAX_DATA_SIZE", int(maximum_ram_size) - 40)
 
     #
     # For build.encrypt_mks rename and encode the firmware file.
@@ -62,8 +100,37 @@ if pioutil.is_pio_build():
             from pathlib import Path
             from datetime import datetime
             from os import path
-            _newpath = Path(target[0].dir.path, datetime.now().strftime(new_name.replace('{date}', '%Y%m%d').replace('{time}', '%H%M%S')))
-            Path(target[0].path).replace(_newpath)
-            env['PROGNAME'] = path.splitext(_newpath)[0]
+
+            # Build the timestamped base name from your template (may already include ".bin")
+            base = datetime.now().strftime(new_name.replace('{date}', '%Y%m%d').replace('{time}', '%H%M%S'))
+
+            # Ensure correct extensions for both outputs
+            if base.lower().endswith('.bin'):
+                stem = base[:-4]            # strip ".bin" for the ELF stem
+                bin_name = base
+            else:
+                stem = base
+                bin_name = base + '.bin'
+
+            elf_name = stem + '.elf'
+
+            # Current files produced by PlatformIO
+            bin_old = Path(target[0].path)           # e.g. .pio/build/<env>/firmware.bin
+            elf_old = Path(source[0].path)           # e.g. .pio/build/<env>/firmware.elf
+
+            # New paths in the same directories
+            bin_new = Path(target[0].dir.path, bin_name)
+            elf_new = Path(source[0].dir.path, elf_name)
+
+            # Rename both
+            bin_old.replace(bin_new)
+            elf_old.replace(elf_new)
+
+            # Update PROGNAME (base without extension) for any later steps that read it
+            env['PROGNAME'] = path.splitext(str(bin_new))[0]
+
+            # Optional: log the results
+            print(f"FIRMWARE BIN: {bin_new}")
+            print(f"FIRMWARE ELF: {elf_new}")
 
         marlin.add_post_action(rename_target)

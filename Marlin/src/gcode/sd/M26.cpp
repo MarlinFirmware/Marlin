@@ -28,7 +28,12 @@
 #include "../../sd/cardreader.h"
 
 /**
- * M26: Set SD Card file index
+ * M26: Set Media File current index
+ *
+ * Set the next read position for the open file.
+ *
+ * Parameters:
+ *   S<pos>  Next file read position to set
  */
 void GcodeSuite::M26() {
   if (card.isMounted() && parser.seenval('S'))
