@@ -72,8 +72,7 @@ protected:
 /**
  * Trajectory generator types for runtime selection
  */
-#if ENABLED(FTM_RESONANCE_TEST)
-  enum class TrajectoryType : uint8_t { TRAPEZOIDAL, POLY5, POLY6, RESONANCE };
-#else
-  enum class TrajectoryType : uint8_t { TRAPEZOIDAL, POLY5, POLY6 };
-#endif
+enum class TrajectoryType : uint8_t {
+  TRAPEZOIDAL, POLY5, POLY6
+  OPTITEM(FTM_RESONANCE_TEST, RESONANCE)
+};

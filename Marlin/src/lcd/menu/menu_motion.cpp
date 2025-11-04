@@ -399,17 +399,14 @@ void menu_move() {
       START_MENU();
       BACK_ITEM(MSG_FIXED_TIME_MOTION);
 
-      STATIC_ITEM(MSG_FTM_RESONANCE_TEST);
       if (ftMotion.rtg->isActive() && !ftMotion.rtg->isDone()) {
         STATIC_ITEM(MSG_FTM_RT_RUNNING);
         ACTION_ITEM(MSG_FTM_RT_STOP, []{ ftMotion.rtg->abort(); ui.go_back(); });
       }
       else {
-        GCODES_ITEM(MSG_FTM_RT_START_X, F("M495 X S"));
-        GCODES_ITEM(MSG_FTM_RT_START_Y, F("M495 Y S"));
-
+        GCODES_ITEM_N(X_AXIS, MSG_FTM_RT_START_N, F("M495 X S"));
+        GCODES_ITEM_N(Y_AXIS, MSG_FTM_RT_START_N, F("M495 Y S"));
         SUBMENU(MSG_FTM_RETRIEVE_FREQ, menu_ftm_resonance_freq);
-
       }
       END_MENU();
     }

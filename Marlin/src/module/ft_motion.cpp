@@ -71,18 +71,22 @@ float FTMotion::tau = 0.0f;                         // (s) Time since start of b
 TrapezoidalTrajectoryGenerator FTMotion::trapezoidalGenerator;
 Poly5TrajectoryGenerator FTMotion::poly5Generator;
 Poly6TrajectoryGenerator FTMotion::poly6Generator;
-TERN_(FTM_RESONANCE_TEST, ResonanceTrajectoryGenerator FTMotion::resonanceGenerator;)
 TrajectoryGenerator* FTMotion::currentGenerator = &FTMotion::trapezoidalGenerator;
-TERN_(FTM_RESONANCE_TEST, ResonanceTrajectoryGenerator* FTMotion::rtg;) // Resonance trajectory generator instance.
 TrajectoryType FTMotion::trajectoryType = TrajectoryType::FTM_TRAJECTORY_TYPE;
-TERN_(FTM_RESONANCE_TEST, TrajectoryType FTMotion::previous_trajectoryType;) // Previous trajectory type before resonance test.
+
+// Resonance Test
+#if ENABLED(FTM_RESONANCE_TEST)
+  ResonanceTrajectoryGenerator FTMotion::resonanceGenerator;
+  ResonanceTrajectoryGenerator* FTMotion::rtg;      // Resonance trajectory generator instance
+  TrajectoryType FTMotion::previous_trajectoryType; // Previous trajectory type before resonance test
+#endif
 
 // Compact plan buffer
 stepper_plan_t FTMotion::stepper_plan_buff[FTM_BUFFER_SIZE];
 XYZEval<int64_t> FTMotion::curr_steps_q32_32 = {0};
 
-uint32_t FTMotion::stepper_plan_tail = 0,            // The index to consume from
-         FTMotion::stepper_plan_head = 0;            // The index to produce into
+uint32_t FTMotion::stepper_plan_tail = 0,           // The index to consume from
+         FTMotion::stepper_plan_head = 0;           // The index to produce into
 
 #if FTM_HAS_LIN_ADVANCE
   bool FTMotion::use_advance_lead;
@@ -177,7 +181,6 @@ void FTMotion::loop() {
       currentGenerator->planRunout(0.0f);   // Reset generator state
       stepper.abort_current_block = false;  // Abort finished.
     }
-
     fill_stepper_plan_buffer();
   }
 
@@ -299,14 +302,16 @@ void FTMotion::init() {
 
 // Set trajectory generator type
 void FTMotion::setTrajectoryType(const TrajectoryType type) {
-  TERN_(FTM_RESONANCE_TEST, previous_trajectoryType = trajectoryType;)
+  TERN_(FTM_RESONANCE_TEST, previous_trajectoryType = trajectoryType);
   cfg.trajectory_type = trajectoryType = type;
   switch (type) {
     default: cfg.trajectory_type = trajectoryType = TrajectoryType::FTM_TRAJECTORY_TYPE;
     case TrajectoryType::TRAPEZOIDAL: currentGenerator = &trapezoidalGenerator; break;
     case TrajectoryType::POLY5:       currentGenerator = &poly5Generator; break;
     case TrajectoryType::POLY6:       currentGenerator = &poly6Generator; break;
-    TERN_(FTM_RESONANCE_TEST, case TrajectoryType::RESONANCE:   currentGenerator = &resonanceGenerator; break;)
+    #if ENABLED(FTM_RESONANCE_TEST)
+      case TrajectoryType::RESONANCE: currentGenerator = &resonanceGenerator; break;
+    #endif
   }
 }
 
