@@ -150,7 +150,7 @@ void EmergencyParser::update(EmergencyParser::State &state, const uint8_t c) {
 
     case EP_M10: state = (c == '8') ? EP_M108 : EP_IGNORE; break;
     case EP_M11: state = (c == '2') ? EP_M112 : EP_IGNORE; break;
-    case EP_M4:  
+    case EP_M4:
       switch (c) {
         case '1' :state = EP_M41;    break;
         #if ENABLED(FT_MOTION_RESONANCE_TEST)
@@ -165,7 +165,7 @@ void EmergencyParser::update(EmergencyParser::State &state, const uint8_t c) {
     #if ENABLED(FTM_RESONANCE_TEST)
       case EP_M49: state = (c == '6') ? EP_M496 : EP_IGNORE; break;
     #endif
-    
+
     #if HAS_MEDIA
       case EP_M5:  state = (c == '2') ? EP_M52  : EP_IGNORE; break;
       case EP_M52: state = (c == '4') ? EP_M524 : EP_IGNORE; break;

@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2023 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2025 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -24,25 +24,25 @@
 
 #if ENABLED(FTM_RESONANCE_TEST)
 
-    #include "../../gcode.h"
-    #include "../../../module/ft_motion/resonance_trajectory_generator.h"
-    #include "../../../module/ft_motion.h"
+#include "../../gcode.h"
+#include "../../../module/ft_motion/trajectory_resonance.h"
+#include "../../../module/ft_motion.h"
 
-    /**
-     * M496: Abort the resonance test via Emergency parser
-     * Usage: M496
-    **/
-    void GcodeSuite::M496() {
-        if(ftMotion.getTrajectoryType() == TrajectoryType::RESONANCE) {            
-            if(ftMotion.rtg->isActive()) {
-                ftMotion.rtg->abort();
-                EmergencyParser::rt_stop_by_M496 = false;
-                SERIAL_ECHOLNPGM("Resonance Test aborted.");
-            }
-            else 
-            SERIAL_ECHOLNPGM("No active Resonance Test to abort.");
-        }
-        else
-            SERIAL_ECHOLNPGM("No active Resonance Test to abort.");
-    }   
+/**
+ * M496: Abort the resonance test (via Emergency Parser)
+ */
+void GcodeSuite::M496() {
+  if (ftMotion.getTrajectoryType() == TrajectoryType::RESONANCE) {
+    if (ftMotion.rtg->isActive()) {
+      ftMotion.rtg->abort();
+      EmergencyParser::rt_stop_by_M496 = false;
+      SERIAL_ECHOLNPGM("Resonance Test aborted.");
+      return;
+    }
+  }
+  #if DISABLED(MARLIN_SMALL_BUILD)
+    SERIAL_ECHOLNPGM("No active Resonance Test to abort.");
+  #endif
+}
+
 #endif // FTM_RESONANCE_TEST

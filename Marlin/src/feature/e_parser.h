@@ -67,7 +67,9 @@ public:
   static bool killed_by_M112;
   static bool quickstop_by_M410;
 
-  TERN_(FTM_RESONANCE_TEST, static bool rt_stop_by_M496;)
+  #if ENABLED(FTM_RESONANCE_TEST)
+    static bool rt_stop_by_M496;
+  #endif
 
   #if HAS_MEDIA
     static bool sd_abort_by_M524;

@@ -32,11 +32,11 @@
 #if ENABLED(FT_MOTION)
 
 #include "ft_motion.h"
-#include "ft_motion/trapezoidal_trajectory_generator.h"
-#include "ft_motion/poly5_trajectory_generator.h"
-#include "ft_motion/poly6_trajectory_generator.h"
+#include "ft_motion/trajectory_trapezoidal.h"
+#include "ft_motion/trajectory_poly5.h"
+#include "ft_motion/trajectory_poly6.h"
 #if ENABLED(FTM_RESONANCE_TEST)
-  #include "ft_motion/resonance_trajectory_generator.h"
+  #include "ft_motion/trajectory_resonance.h"
 #endif
 #include "stepper.h" // Access stepper block queue function and abort status.
 #include "endstops.h"
@@ -157,29 +157,20 @@ void FTMotion::loop() {
    * 4. Signal ready for new block.
    */
 
-  bool using_resonance;
-  #if ENABLED(FTM_RESONANCE_TEST)
-    if(getTrajectoryType() == TrajectoryType::RESONANCE)
-      using_resonance = rtg->isActive();
-    else
-      using_resonance = false;
-  #else
-    using_resonance = false;
-  #endif
+  const bool using_resonance = TERN0(FTM_RESONANCE_TEST, getTrajectoryType() == TrajectoryType::RESONANCE && rtg->isActive());
 
   #if ENABLED(FTM_RESONANCE_TEST)
-    if(using_resonance) {
+    if (using_resonance) {
       // Resonance Test has priority over normal ft_motion operation.
       // Process resonance test if active. When it's done, generate the last data points for a clean ending.
-      if(rtg->isActive()) {
-        if (rtg->isDone())
-          plan_runout_block();
+      if (rtg->isActive()) {
+        if (rtg->isDone()) plan_runout_block();
         rtg->fill_stepper_plan_buffer();
       }
     }
   #endif
 
-  if(!using_resonance) {
+  if (!using_resonance) {
     if (stepper.abort_current_block) {
       discard_planner_block_protected();
       reset();
@@ -271,16 +262,16 @@ void FTMotion::discard_planner_block_protected() {
 uint32_t FTMotion::calc_runout_samples() {
   xyze_long_t delay = {0};
   #if ENABLED(FTM_SMOOTHING)
-    #define _ADD(A) delay.A += smoothing.A.delay_samples;
-    LOGICAL_AXIS_MAP(_ADD)
-    #undef _ADD
+    #define _DELAY_ADD(A) delay.A += smoothing.A.delay_samples;
+    LOGICAL_AXIS_MAP(_DELAY_ADD)
+    #undef _DELAY_ADD
   #endif
 
   #if HAS_FTM_SHAPING
     // Ni[max_i] is the delay of the last pulse, but it is relative to Ni[0] (the negative delay centroid)
-    #define _ADD(A) if(shaping.A.ena) delay.A += shaping.A.Ni[shaping.A.max_i] - shaping.A.Ni[0];
-    SHAPED_MAP(_ADD)
-    #undef _ADD
+    #define _DELAY_ADD(A) if (shaping.A.ena) delay.A += shaping.A.Ni[shaping.A.max_i] - shaping.A.Ni[0];
+    SHAPED_MAP(_DELAY_ADD)
+    #undef _DELAY_ADD
   #endif
   return delay.large();
 }
@@ -579,14 +570,15 @@ void FTMotion::fill_stepper_plan_buffer() {
   }
 }
 
-//Start Resonance Testing
 #if ENABLED(FTM_RESONANCE_TEST)
+
+  // Start Resonance Testing
   void FTMotion::start_resonanceTest() {
 
-   gcode.home_all_axes(); // Always home all axes first
+    gcode.home_all_axes(); // Always home all axes first
 
     // Always move to the center of the bed
-    do_blocking_move_to_xy(xy_pos_t {X_CENTER, Y_CENTER});
+    do_blocking_move_to_xy(X_CENTER, Y_CENTER);
 
     setTrajectoryType(TrajectoryType::RESONANCE);
     rtg = &resonanceGenerator;
@@ -596,6 +588,7 @@ void FTMotion::fill_stepper_plan_buffer() {
     rtg->setActive(true);
     rtg->setDone(false);
   }
-#endif
+
+#endif // FTM_RESONANCE_TEST
 
 #endif // FT_MOTION

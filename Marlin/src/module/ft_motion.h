@@ -26,12 +26,12 @@
 #include "stepper.h"      // For stepper motion and direction
 
 #include "ft_motion/trajectory_generator.h"
-#include "ft_motion/trapezoidal_trajectory_generator.h"
-#include "ft_motion/poly5_trajectory_generator.h"
-#include "ft_motion/poly6_trajectory_generator.h"
+#include "ft_motion/trajectory_trapezoidal.h"
+#include "ft_motion/trajectory_poly5.h"
+#include "ft_motion/trajectory_poly6.h"
 
 #if ENABLED(FTM_RESONANCE_TEST)
- #include "ft_motion/resonance_trajectory_generator.h"
+ #include "ft_motion/trajectory_resonance.h"
 #endif
 
 #if HAS_FTM_SHAPING
@@ -93,7 +93,9 @@ typedef struct FTConfig {
  */
 class FTMotion {
 
-  TERN_(FTM_RESONANCE_TEST, friend void ResonanceTrajectoryGenerator::fill_stepper_plan_buffer();)
+  #if ENABLED(FTM_RESONANCE_TEST)
+    friend void ResonanceTrajectoryGenerator::fill_stepper_plan_buffer();
+  #endif
 
   public:
 
@@ -147,9 +149,11 @@ class FTMotion {
     // Public methods
     static void init();
     static void loop();                                   // Controller main, to be invoked from non-isr task.
-    TERN_(FTM_RESONANCE_TEST, static void start_resonanceTest();) // Start a resonance test with given parameters.
-    TERN_(FTM_RESONANCE_TEST, static ResonanceTrajectoryGenerator* rtg;) // Resonance trajectory generator instance.
-    TERN_(FTM_RESONANCE_TEST, static TrajectoryType previous_trajectoryType;) // Previous trajectory type before resonance test.
+    #if ENABLED(FTM_RESONANCE_TEST)
+      static void start_resonance_test();                 // Start a resonance test with given parameters
+      static ResonanceTrajectoryGenerator *rtg;           // Resonance trajectory generator instance
+      static TrajectoryType previous_trajectoryType;      // Previous trajectory type before resonance test
+    #endif
 
     #if HAS_FTM_SHAPING
       // Refresh gains and indices used by shaping functions.
@@ -221,7 +225,9 @@ class FTMotion {
     static TrapezoidalTrajectoryGenerator trapezoidalGenerator;
     static Poly5TrajectoryGenerator poly5Generator;
     static Poly6TrajectoryGenerator poly6Generator;
-    TERN_(FTM_RESONANCE_TEST, static ResonanceTrajectoryGenerator resonanceGenerator;)
+    #if ENABLED(FTM_RESONANCE_TEST)
+      static ResonanceTrajectoryGenerator resonanceGenerator;
+    #endif
     static TrajectoryGenerator* currentGenerator;
     static TrajectoryType trajectoryType;
 
