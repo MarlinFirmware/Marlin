@@ -184,9 +184,9 @@
 #elif MB(DAGOMA_D6)
   #include "ramps/pins_DAGOMA_D6.h"                 // ATmega2560                           env:mega2560ext
 #elif MB(FYSETC_F6_13)
-  #include "ramps/pins_FYSETC_F6_13.h"              // ATmega2560                           env:FYSETC_F6
+  #include "ramps/pins_FYSETC_F6_13.h"              // ATmega2560                           env:mega2560ext
 #elif MB(FYSETC_F6_14)
-  #include "ramps/pins_FYSETC_F6_14.h"              // ATmega2560                           env:FYSETC_F6
+  #include "ramps/pins_FYSETC_F6_14.h"              // ATmega2560                           env:mega2560ext
 #elif MB(DUPLICATOR_I3_PLUS)
   #include "ramps/pins_DUPLICATOR_I3_PLUS.h"        // ATmega2560                           env:mega2560
 #elif MB(VORON)

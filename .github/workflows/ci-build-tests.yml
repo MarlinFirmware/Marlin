@@ -58,7 +58,7 @@ jobs:
         - at90usb1286_dfu
 
         # AVR Extended
-        - FYSETC_F6
+        - mega2560ext
         - melzi_optiboot
         - rambo
         - sanguino1284p
