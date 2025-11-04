@@ -578,7 +578,7 @@ void FTMotion::fill_stepper_plan_buffer() {
 #if ENABLED(FTM_RESONANCE_TEST)
 
   // Start Resonance Testing
-  void FTMotion::start_resonanceTest() {
+  void FTMotion::start_resonance_test() {
 
     gcode.home_all_axes(); // Always home all axes first
 
