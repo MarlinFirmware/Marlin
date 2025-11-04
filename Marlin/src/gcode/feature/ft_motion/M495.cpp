@@ -31,13 +31,14 @@
 void say_resonance_test() {
   SERIAL_ECHO_START();
   SERIAL_ECHOLNPGM("M495 Resonance Test Parameters:");
-  SERIAL_ECHOLNPGM("  Axis: ", ftMotion.rtg->rt_params.axis ? C('Y'): C('X'), "-axis");
+  SERIAL_ECHOLNPGM("  Axis: ", !ftMotion.rtg->rt_params.axis ? C('X') : ftMotion.rtg->rt_params.axis == 1 ? C('Y') : C('Z'), "-axis");
   SERIAL_ECHOLNPGM("  Freq Range (F..T): ", ftMotion.rtg->rt_params.min_freq, " .. ", ftMotion.rtg->rt_params.max_freq, " Hz");
   SERIAL_ECHOLNPGM("  Rate (R): ", ftMotion.rtg->rt_params.hz_per_sec, " Hz/s");
   SERIAL_ECHOLNPGM("  Accel/Hz (A): ", ftMotion.rtg->rt_params.accel_per_hz);
   SERIAL_ECHOLNPGM("Use S to start the test with default values or with last set parameters");
   SERIAL_ECHOLNPGM("Use X S to start the test on X axis");
   SERIAL_ECHOLNPGM("Use Y S to start the test on Y axis");
+  SERIAL_ECHOLNPGM("Use Z S to start the test on Z axis");
 }
 
 /**
@@ -53,26 +54,28 @@ void say_resonance_test() {
  *   C<int>        Amplitude correction factor. (Default 2)
  *   X             Flag to select the X axis.
  *   Y             Flag to select the Y axis.
+ *   Z             Flag to select the Z axis.
  *   H<float>      Get the Resonance Frequency from Timeline value. (Default 0)
  *
  * Examples:
  *   M495 S       : Start the test with default values or with last set parameters
  *   M495 X S     : Start the test on X axis with default values or with last set parameters
  *   M495 Y S     : Start the test on Y axis with default values or with last set parameters
+ *   M495 Z S     : Start the test on Z axis with default values or with last set parameters
  *   M495 H<val>  : Get Resonance Frequency from Timeline value
  *
  */
 void GcodeSuite::M495() {
   if (!parser.seen_any()) return say_resonance_test();
 
-  const bool seenX = parser.seen_test('X'), seenY = parser.seen_test('Y');
-  if (seenX || seenY) {
-    if (seenX && seenY) {
+  const bool seenX = parser.seen_test('X'), seenY = parser.seen_test('Y'), seenZ = parser.seen_test('Z') ;
+  if (seenX + seenY + seenZ > 1) {
       SERIAL_ECHOLNPGM("?Select only one axis for Resonance Test.");
       return;
     }
-    ftMotion.rtg->rt_params.axis = seenX ? X_AXIS : Y_AXIS;
-    SERIAL_ECHOLN(C('X' + seenY), F("-axis selected for Resonance Test."));
+    else {
+      ftMotion.rtg->rt_params.axis = seenX ? X_AXIS : seenY ? Y_AXIS : Z_AXIS;
+      SERIAL_ECHOLN(C('X' + seenY + 2 * seenZ), F("-axis selected for Resonance Test."));
   }
 
   if (parser.seenval('A')) {

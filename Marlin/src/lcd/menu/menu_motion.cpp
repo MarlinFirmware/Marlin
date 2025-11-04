@@ -406,6 +406,7 @@ void menu_move() {
       else {
         GCODES_ITEM_N(X_AXIS, MSG_FTM_RT_START_N, F("M495 X S"));
         GCODES_ITEM_N(Y_AXIS, MSG_FTM_RT_START_N, F("M495 Y S"));
+        GCODES_ITEM_N(Z_AXIS, MSG_FTM_RT_START_N, F("M495 Z S"));
         SUBMENU(MSG_FTM_RETRIEVE_FREQ, menu_ftm_resonance_freq);
       }
       END_MENU();
