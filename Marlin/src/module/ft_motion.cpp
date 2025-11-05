@@ -41,7 +41,7 @@
 
 #include "stepper.h"  // Access stepper block queue function and abort status.
 #include "endstops.h"
-#include "gcode.h"    // for home_all_axes
+#include "../gcode/gcode.h"    // for home_all_axes
 
 #if ENABLED(POWER_LOSS_RECOVERY)
   #include "../feature/powerloss.h"
