@@ -134,10 +134,17 @@ void Canvas::addImage(int16_t x, int16_t y, MarlinImage image, uint16_t *colors)
       uint32_t rle_offset;
     } rle_state;
 
+    static MarlinImage last_image = noImage;
+
     // RLE16 HIGHCOLOR - 16 bits per pixel
     if (color_mode == RLE16) {
       uint8_t *bytedata = (uint8_t *)images[image].data;
       if (!bytedata) return;
+
+      if (image != last_image) {
+        rle_state.has_rle_state = false;
+        last_image = image;
+      }
 
       // Loop through the image data advancing the row and column as needed
       int16_t srcy = 0, srcx = 0,                   // Image data line / column index
