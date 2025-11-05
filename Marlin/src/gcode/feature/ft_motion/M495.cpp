@@ -36,9 +36,7 @@ void say_resonance_test() {
   SERIAL_ECHOLNPGM("  Rate (R): ", ftMotion.rtg->rt_params.hz_per_sec, " Hz/s");
   SERIAL_ECHOLNPGM("  Accel/Hz (A): ", ftMotion.rtg->rt_params.accel_per_hz);
   SERIAL_ECHOLNPGM("Use S to start the test with default values or with last set parameters");
-  SERIAL_ECHOLNPGM("Use X S to start the test on X axis");
-  SERIAL_ECHOLNPGM("Use Y S to start the test on Y axis");
-  SERIAL_ECHOLNPGM("Use Z S to start the test on Z axis");
+  SERIAL_ECHOLNPGM("Use X/Y/Z S to start the test on X/Y/Z axis"); 
 }
 
 /**
