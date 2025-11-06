@@ -426,6 +426,7 @@
 #elif TEMP_SENSOR_0 == -1
   #define TEMP_SENSOR_0_IS_AD595 1
 #elif TEMP_SENSOR_0 == -18
+  #warning "Config is TEMP_SENSOR_0 == -18"
   #define HAS_ADS1118 1
   #define TEMP_SENSOR_0_IS_ADS1118  1  
   #define TEMP_SENSOR_0_ADS_TMIN    0

@@ -22,7 +22,7 @@
 
 /**
  * adc_ads1118.cpp -  library for Texas Instruments ADS1118 - 16-Bit Analog-to-Digital Converter
- *
+ * based in the sailfish code for ADS1118, ThermocoupleReader, TemperatureTable
  * For implementation details, please take a look at the datasheet:
  * https://www.ti.com/product/ADS1118
  * 
@@ -92,9 +92,9 @@
     return !isBusy;
   }
   
-    int16_t ADS1118::read() {
-      return lastValue;
-    }
+  int16_t ADS1118::read() {
+    return lastValue;
+  }
   
     bool ADS1118::busy() {
       return isBusy;
@@ -108,8 +108,9 @@
     void ADS1118::startContinuousConversion(uint8_t channel_pair) {
       SERIAL_ECHOLNPGM("ADS1118 Set to start conv");
       if (isBusy) return;
-  
-      uint16_t config = 0x848B; // b 1000 0100 1000 1011 : SS start, single-ended off, gain ±2.048V, Continuous conversion mode, 128SPS, ADC mode, Pullup enable, Write config
+      // 0x048B b 0000 0100 1000 1011 : SS start, single-ended off, gain ±2.048V, Continuous conversion mode, 128SPS, ADC mode, Pullup enable, Write config
+      // 0x049B: read internal temp 
+      uint16_t config = 0x048B; 
       switch (channel_pair) {
         case 0: config |= (0x0 << ADS1118_CH_MASK); currentchannel = 0; break; // AIN0-AIN1
         case 1: config |= (0x3 << ADS1118_CH_MASK); currentchannel = 1; break; // AIN2-AIN3
@@ -141,7 +142,6 @@
       return data;
     }       
   
-
     // Reads and returns a single channel inmediately with delay (blocking)
     int16_t ADS1118::readChannel(uint8_t channel) {
       uint16_t config = configChannel(channel);
@@ -166,7 +166,7 @@
       delay(10);
     
       int16_t raw = (int16_t)transfer16(config);
-      return raw * 0.03125f; // 0.03125 °C by LSB and datasheet
+      return (raw>>2) * 0.03125f; // 14 bit left aligned, 0.03125 °C per LSB as datasheet
     }
     
     uint16_t ADS1118::configChannel(uint8_t channel) {
@@ -181,7 +181,6 @@
         case 3: config = 0xF583; break;   // 0b 1111 0101 1000 0011 Ch4 & start SS conversion 
         default: config = 0x8583; break;
       }
-    
     
       return config;
     }
@@ -251,4 +250,59 @@
     // ADS1118, global instance
     ADS1118 ads1118;
     
+void ThermocoupleK::init() {}
+
+// --- Convierte lectura ADC a °C ---
+float ThermocoupleK:: tempReadtoCelsius(int16_t rawADC) {
+    //Serial.println((int16_t)pgm_read_word(&ThermocoupleK_Lookup[TEMP_TABLE_SIZE - 1]));
+
+    if (rawADC > (int16_t) pgm_read_word(&table_thermocouple_k[TEMP_TABLE_SIZE - 1].adc))
+        return TEMP_MAX_TEMP;
+    if (rawADC < (int16_t) pgm_read_word(&table_thermocouple_k[0].adc))
+        return TEMP_MIN_TEMP;  
+
+    // Búsqueda lineal en la tabla (de menor a mayor valor ADC)
+    for (uint16_t i = 0; i < TEMP_TABLE_SIZE - 1; i++) {
+        
+        int16_t adc1 = pgm_read_word(&table_thermocouple_k[i].adc);
+        int16_t adc2  = pgm_read_word(&table_thermocouple_k[i + 1].adc);
+        // Serial.print(i); Serial.print(" "); Serial.print(adc1); Serial.print(" "); Serial.print(adc2);
+
+        if (rawADC >= adc1 && rawADC < adc2) { // in beteen tableValue and nextValue
+            // Temperatura aproximada por interpolación lineal
+            //float frac = float(rawADC - adc2) / float(adc1 - adc2);
+            int16_t t1  = pgm_read_word(&table_thermocouple_k[i].temp);
+            int16_t t2  = pgm_read_word(&table_thermocouple_k[i+1].temp);
+            // Serial.print(" "); Serial.print(t1); Serial.print(" "); Serial.print(t2);
+            float tempC = t1 + (float) (rawADC - adc1) * (float(t2 - t1) / float(adc2 - adc1)) ; // TEMP_TABLE_OFFSET + i + frac;
+            return tempC;
+        }
+        // Serial.println("");
+    }
+
+    return TEMP_MIN_TEMP;
+}
+
+void ThermocoupleK::setTcold(float tcold) {
+  _Tcold = tcold;
+}
+
+float ThermocoupleK::getTcold() {
+  return _Tcold ;
+}
+
+void ThermocoupleK::setThot(float thot) {
+  _Thot = thot;
+}
+
+float ThermocoupleK::getThot() {
+  return _Thot ;
+}
+
+float ThermocoupleK:: getTempCelsius() {
+
+  return _Thot + _Tcold;
+}
+
+
 #endif // HAS_ADS1118_ADC

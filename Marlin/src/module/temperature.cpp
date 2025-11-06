@@ -4014,8 +4014,8 @@ raw_adc_t Temperature::read_ads1118(const uint8_t hindex/*=0*/) {
   next_ads1118_ms[hindex] = ms + ADS1118_HEAT_INTERVAL;
 
   // To do: If there are more hotends enabled, cycle through different channels
-  int16_t raw = ads1118.readData();
-  SERIAL_ECHOPGM("ADS1118 Read: 0x"); SERIAL_ECHOLN(raw, HEX);
+  uint16_t raw = ads1118.readData();
+  SERIAL_ECHOPGM("ADS1118 Read: "); SERIAL_ECHOLN(raw);
 
   // Manejo de errores simples: raw = 0x7FFF o 0x8000 podrían ser saturación
   if (raw == 0x7FFF || raw == -32768) {
@@ -4029,7 +4029,7 @@ raw_adc_t Temperature::read_ads1118(const uint8_t hindex/*=0*/) {
   else {
     ads1118_errors[hindex] = 0; // reset errors if ok
     // Convertir raw a formato fijo (ejemplo: 1/16 °C si es termocupla)
-    ads_val = (raw_adc_t)raw;
+    ads_val = (raw_adc_t) raw; // raw; // Fijo temporalmente
   }
 
   ads1118_temp_previous[hindex] = ads_val;

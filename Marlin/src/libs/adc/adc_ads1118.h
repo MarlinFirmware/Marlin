@@ -35,6 +35,49 @@
 
   #define TEMP_SENSOR_ADS1118 -18
 
+  typedef struct {
+     int16_t adc;
+     int16_t temp;
+  } ADC_Lookup;
+
+  const static ADC_Lookup PROGMEM table_thermocouple_k[] = {
+      { -304, -64},
+      { -232, -48},
+      { -157, -32},
+      {  -79, -16},
+      {    0,   0},
+      {   82,  16},
+      {  164,  32},
+      {  248,  48},
+      {  333,  64},
+      {  418,  80},
+      {  503,  96},
+      {  588, 112},
+      {  672, 128},
+      {  755, 144},
+      {  837, 160},
+      {  919, 176},
+      { 1001, 192},
+      { 1083, 208},
+      { 1165, 224},
+      { 1248, 240},
+      { 1331, 256},
+      { 1415, 272},
+      { 1499, 288},
+      { 1584, 304},
+      { 1754, 336},
+      { 1840, 352},
+      { 1926, 368},
+      { 2012, 384},
+      { 2099, 400}
+
+  };  
+
+  #define TEMP_TABLE_SIZE (sizeof(table_thermocouple_k) / sizeof(table_thermocouple_k[0]))
+  #define TEMP_MIN_TEMP     0
+  #define TEMP_MAX_TEMP   300
+  #define TEMP_TABLE_OFFSET 0 // grados Celsius por índice
+
   class ADS1118 {
     public:
       static void init(uint8_t cs, uint8_t mosi, uint8_t miso, uint8_t sck);
@@ -81,6 +124,20 @@
   };
 
   extern ADS1118 ads1118;
+
+  class ThermocoupleK {
+  public:
+    void init();
+    float tempReadtoCelsius(int16_t rawADC);
+    float getTempCelsius();
+    float _Tcold,  _Thot;
+
+    void setTcold(float tcold);
+    float getTcold();
+
+    void setThot(float thot);
+    float getThot();  
+};
 
 
 #endif // ENABLED(HAS_ADS1118)
