@@ -61,7 +61,8 @@ void ResonanceTrajectoryGenerator::fill_stepper_plan_buffer() {
     const millis_t elapsed_ms = current_ms - rt_params.start_time;
     const float t = float(elapsed_ms) * FTM_TS;
     // Calculate current frequency
-    const float freq = rt_params.min_freq + t * rt_params.hz_per_sec;
+    // Logarithmic approach with duration per octave
+    const float freq = rt_params.min_freq * powf(2.0f, t / rt_params.octave_duration);
     if (freq > rt_params.max_freq) {
       done = true;
       return;
@@ -93,7 +94,7 @@ void ResonanceTrajectoryGenerator::fill_stepper_plan_buffer() {
 float ResonanceTrajectoryGenerator::getFrequencyFromTimeline() {
   const millis_t elapsed_ms = timeline * 1000 - rt_params.start_time;
   const float t = float(elapsed_ms) * FTM_TS;
-  return (rt_params.min_freq + t * rt_params.hz_per_sec);
+  return (rt_params.min_freq * powf(2.0f, t / rt_params.octave_duration));
 }
 
 #endif // FTM_RESONANCE_TEST

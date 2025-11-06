@@ -34,7 +34,7 @@ void say_resonance_test() {
   SERIAL_ECHOLNPGM("M495 Resonance Test");
   SERIAL_ECHOLNPGM("  Axis: ", p.axis == NO_AXIS_ENUM ? C('-') : C(AXIS_CHAR(p.axis)));
   SERIAL_ECHOLNPGM("  Freq Range (F..T): ", p.min_freq, " .. ", p.max_freq, " Hz");
-  SERIAL_ECHOLNPGM("  Rate (R): ", p.hz_per_sec, " Hz/s");
+  SERIAL_ECHOLNPGM("  Octave Duration (O): ", p.octave_duration, " s");
   SERIAL_ECHOLNPGM("  Accel/Hz (A): ", p.accel_per_hz);
 }
 
@@ -45,10 +45,10 @@ void say_resonance_test() {
  * Parameters:
  *   A<accel/Hz>   Accel per Hz. (Default 60)
  *   F<Hz>         Start frequency. (Default 5.0)
- *   R<Hz/s>       Frequency increase rate. (Default 1.0)
  *   S             Start the test.
  *   T<Hz>         End frequency. (Default 100.0f)
- *   C<int>        Amplitude correction factor. (Default 2)
+ *   O<float>      Ocrave duration for logarithmic progression
+ *   C<int>        Amplitude correction factor. (Default 5)
  *   X             Flag to select the X axis.
  *   Y             Flag to select the Y axis.
  *   Z             Flag to select the Z axis.
@@ -111,14 +111,14 @@ void GcodeSuite::M495() {
     }
   }
 
-  if (parser.seenval('R')) {
+  if (parser.seenval('O')) {
     const float val = parser.value_float();
-    if (WITHIN(val, 1, 10)) {
-      p.hz_per_sec = val;
-      SERIAL_ECHOLNPGM("Frequency Increase Rate set to ", p.hz_per_sec, " Hz/s.");
+    if (WITHIN(val, 20, 60)) {
+      p.octave_duration = val;
+      SERIAL_ECHOLNPGM("Octave Duration set to ",p.octave_duration, " s.");
     }
     else {
-      SERIAL_ECHOLN(F("?Invalid "), F("frequency increase rate [R]. (1..10 Hz/s)."));
+      SERIAL_ECHOLN(F("?Invalid "), F("octave duration [O]. (20..60 s)."));
     }
   }
 

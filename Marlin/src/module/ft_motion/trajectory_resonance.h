@@ -29,7 +29,7 @@ typedef struct FTMResonanceTestParams {
   AxisEnum axis       = NO_AXIS_ENUM; // Axis to test
   float min_freq      = 5.0f;         // Minimum frequency [Hz]
   float max_freq      = 100.0f;       // Maximum frequency [Hz]
-  float hz_per_sec    = 1.0f;         // Frequency change rate [Hz/sec]
+  float octave_duration = 40.0f;      // Octave duration for logarithmic progression
   float accel_per_hz  = 60.0f;        // Acceleration per Hz [mm/sec/Hz] or [g/Hz]
   int16_t amplitude_correction = 5;   // Amplitude correction factor
   millis_t start_time = 0;            // Start time of the test
