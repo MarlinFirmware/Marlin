@@ -29,14 +29,13 @@
 #include "../../../module/ft_motion/trajectory_resonance.h"
 
 void say_resonance_test() {
+  const ftm_resonance_test_params_t &p = ftMotion.rtg->rt_params;
   SERIAL_ECHO_START();
-  SERIAL_ECHOLNPGM("M495 Resonance Test Parameters:");
-  SERIAL_ECHOLNPGM("  Axis: ", !ftMotion.rtg->rt_params.axis ? C('X') : ftMotion.rtg->rt_params.axis == 1 ? C('Y') : C('Z'), "-axis");
-  SERIAL_ECHOLNPGM("  Freq Range (F..T): ", ftMotion.rtg->rt_params.min_freq, " .. ", ftMotion.rtg->rt_params.max_freq, " Hz");
-  SERIAL_ECHOLNPGM("  Rate (R): ", ftMotion.rtg->rt_params.hz_per_sec, " Hz/s");
-  SERIAL_ECHOLNPGM("  Accel/Hz (A): ", ftMotion.rtg->rt_params.accel_per_hz);
-  SERIAL_ECHOLNPGM("Use S to start the test with default values or with last set parameters");
-  SERIAL_ECHOLNPGM("Use X/Y/Z S to start the test on X/Y/Z axis"); 
+  SERIAL_ECHOLNPGM("M495 Resonance Test");
+  SERIAL_ECHOLNPGM("  Axis: ", p.axis == NO_AXIS_ENUM ? C('-') : C(AXIS_CHAR(p.axis)));
+  SERIAL_ECHOLNPGM("  Freq Range (F..T): ", p.min_freq, " .. ", p.max_freq, " Hz");
+  SERIAL_ECHOLNPGM("  Rate (R): ", p.hz_per_sec, " Hz/s");
+  SERIAL_ECHOLNPGM("  Accel/Hz (A): ", p.accel_per_hz);
 }
 
 /**
@@ -56,95 +55,81 @@ void say_resonance_test() {
  *   H<float>      Get the Resonance Frequency from Timeline value. (Default 0)
  *
  * Examples:
- *   M495 S       : Start the test with default values or with last set parameters
- *   M495 X S     : Start the test on X axis with default values or with last set parameters
- *   M495 Y S     : Start the test on Y axis with default values or with last set parameters
- *   M495 Z S     : Start the test on Z axis with default values or with last set parameters
+ *   M495 S       : Start the test with default or last-used parameters
+ *   M495 X S     : Start the test on the X axis with default or last-used parameters
  *   M495 H<val>  : Get Resonance Frequency from Timeline value
  *
  */
 void GcodeSuite::M495() {
   if (!parser.seen_any()) return say_resonance_test();
 
-  const bool seenX = parser.seen_test('X'), seenY = parser.seen_test('Y'), seenZ = parser.seen_test('Z') ;
-  if (seenX + seenY + seenZ > 1) {
-      SERIAL_ECHOLNPGM("?Select only one axis for Resonance Test.");
-      return;
-    }
-    else {
-      ftMotion.rtg->rt_params.axis = seenX ? X_AXIS : seenY ? Y_AXIS : Z_AXIS;
-      SERIAL_ECHOLN(C('X' + seenY + 2 * seenZ), F("-axis selected for Resonance Test."));
+  ftm_resonance_test_params_t &p = ftMotion.rtg->rt_params;
+
+  const bool seenX = parser.seen_test('X'), seenY = parser.seen_test('Y'), seenZ = parser.seen_test('Z');
+
+  if (seenX + seenY + seenZ == 1) {
+    const AxisEnum a = seenX ? X_AXIS : seenY ? Y_AXIS : Z_AXIS;
+    p.axis = a;
+    SERIAL_ECHOLN(C(AXIS_CHAR(a)), F("-axis selected"), F(" for Resonance Test."));
+  }
+  else if (seenX + seenY + seenZ > 1) {
+    SERIAL_ECHOLN(F("?Specify X, Y, or Z axis"), F(" for Resonance Test."));
+    return;
   }
 
   if (parser.seenval('A')) {
     const float val = parser.value_float();
-    if (ftMotion.rtg->rt_params_axis == Z_AXIS && val > 15.0f) {
-      ftMotion.rtg->rt_params.accel_per_hz = 15.0f;
-      SERIAL_ECHOLNPGM("Accel/Hz set to max 15 for Z Axis");
+    if (p.axis == Z_AXIS && val > 15.0f) {
+      p.accel_per_hz = 15.0f;
+      SERIAL_ECHOLNPGM("Accel/Hz set to max 15 mm/s for Z Axis");
     }
     else {
-      ftMotion.rtg->rt_params.accel_per_hz = val;
-      SERIAL_ECHOLNPGM("Accel/Hz set to ", ftMotion.rtg->rt_params.accel_per_hz);
+      p.accel_per_hz = val;
+      SERIAL_ECHOLNPGM("Accel/Hz set to ", p.accel_per_hz);
     }
   }
 
   if (parser.seenval('F')) {
     const float val = parser.value_float();
     if (val >= 5.0f) {
-      ftMotion.rtg->rt_params.min_freq = val;
-      SERIAL_ECHOLNPGM("Start Frequency set to ", ftMotion.rtg->rt_params.min_freq, " Hz");
+      p.min_freq = val;
+      SERIAL_ECHOLNPGM("Start Frequency set to ", p.min_freq, " Hz");
     }
     else {
-      SERIAL_ECHOLNPGM("?Invalid Start [F]requency. (minimum 5.0 Hz).");
+      SERIAL_ECHOLN(F("?Invalid "), F("Start [F]requency. (minimum 5.0 Hz)."));
     }
   }
 
   if (parser.seenval('T')) {
     const float val = parser.value_float();
-    if (val > ftMotion.rtg->rt_params.min_freq && val <= 200.0f) {
-      ftMotion.rtg->rt_params.max_freq = val;
-      SERIAL_ECHOLNPGM("End Frequency set to ", ftMotion.rtg->rt_params.max_freq, " Hz");
+    if (val > p.min_freq && val <= 200.0f) {
+      p.max_freq = val;
+      SERIAL_ECHOLNPGM("End Frequency set to ", p.max_freq, " Hz");
     }
     else {
-      SERIAL_ECHOLNPGM("?Invalid end frequency [T]. (Start Frequency .. 200 Hz).");
+      SERIAL_ECHOLN(F("?Invalid "), F("End Frequency [T]. (StartFreq .. 200 Hz)."));
     }
   }
 
   if (parser.seenval('R')) {
     const float val = parser.value_float();
     if (WITHIN(val, 1, 10)) {
-      ftMotion.rtg->rt_params.hz_per_sec = val;
-      SERIAL_ECHOLNPGM("Frequency Increase Rate set to ", ftMotion.rtg->rt_params.hz_per_sec, " Hz/s.");
+      p.hz_per_sec = val;
+      SERIAL_ECHOLNPGM("Frequency Increase Rate set to ", p.hz_per_sec, " Hz/s.");
     }
     else {
-      SERIAL_ECHOLNPGM("?Invalid frequency increase rate [R]. (1..10 Hz/s).");
+      SERIAL_ECHOLN(F("?Invalid "), F("frequency increase rate [R]. (1..10 Hz/s)."));
     }
   }
 
   if (parser.seenval('C')) {
     const int val = parser.value_int();
     if (WITHIN(val, 1, 8)) {
-      ftMotion.rtg->rt_params.amplitude_correction = val;
-      SERIAL_ECHOLNPGM("Amplitude Correction Factor set to ", ftMotion.rtg->rt_params.amplitude_correction);
+      p.amplitude_correction = val;
+      SERIAL_ECHOLNPGM("Amplitude Correction Factor set to ", p.amplitude_correction);
     }
     else {
-      SERIAL_ECHOLNPGM("?Invalid Amplitude [C]orrection Factor. (1..8).");
-    }
-  }
-
-  if (parser.seen_test('S')) {
-    if (ftMotion.cfg.active) {
-      if (ftMotion.rtg->rt_params.max_freq > ftMotion.rtg->rt_params.min_freq) {
-        SERIAL_ECHOLNPGM("Starting Resonance Test...");
-        ftMotion.start_resonance_test();
-        // The function returns immediately, the test runs in the background.
-      }
-      else {
-        SERIAL_ECHOLNPGM("?End Frequency must be greater than Start Frequency.");
-      }
-    }
-    else {
-      SERIAL_ECHOLNPGM("?Activate FT Motion to run the Resonance Test.");
+      SERIAL_ECHOLN(F("?Invalid "), F("Amplitude [C]orrection Factor. (1..8)."));
     }
   }
 
@@ -155,7 +140,28 @@ void GcodeSuite::M495() {
       SERIAL_ECHOLNPGM("Resonance Frequency set to ", ftMotion.rtg->getFrequencyFromTimeline(), " Hz.");
     }
     else {
-      SERIAL_ECHOLNPGM("Invalid Timeline value (0..100 s).");
+      SERIAL_ECHOLN(F("?Invalid "), F("Timeline value (0..100 s)."));
+    }
+  }
+
+  if (parser.seen_test('S')) {
+    if (ftMotion.cfg.active) {
+      if (p.axis != NO_AXIS_ENUM) {
+        if (p.max_freq > p.min_freq) {
+          SERIAL_ECHOLNPGM("Starting Resonance Test...");
+          ftMotion.start_resonance_test();
+          // The function returns immediately, the test runs in the background.
+        }
+        else {
+          SERIAL_ECHOLNPGM("?End Frequency must be greater than Start Frequency.");
+        }
+      }
+      else {
+        SERIAL_ECHOLN(F("?Specify X, Y, or Z axis"), F(" first."));
+      }
+    }
+    else {
+      SERIAL_ECHOLNPGM("?Activate FT Motion to run the Resonance Test.");
     }
   }
 }

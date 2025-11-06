@@ -3126,7 +3126,7 @@ void MarlinSettings::postprocess() {
   #if ENABLED(AUTO_BED_LEVELING_UBL)
 
     inline void ubl_invalid_slot(const int s) {
-      DEBUG_ECHOLNPGM("?Invalid slot.\n", s, " mesh slots available.");
+      DEBUG_ECHOLN(F("?Invalid "), F("slot.\n"), s, F(" mesh slots available."));
       UNUSED(s);
     }
 
