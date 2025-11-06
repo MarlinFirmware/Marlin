@@ -77,8 +77,15 @@ void GcodeSuite::M495() {
   }
 
   if (parser.seenval('A')) {
-    ftMotion.rtg->rt_params.accel_per_hz = parser.value_float();
-    SERIAL_ECHOLNPGM("Accel/Hz set to ", ftMotion.rtg->rt_params.accel_per_hz);
+    const float val = parser.value_float();
+    if (ftMotion.rtg->rt_params_axis == Z_AXIS && val > 15.0f) {
+      ftMotion.rtg->rt_params.accel_per_hz = 15.0f;
+      SERIAL_ECHOLNPGM("Accel/Hz set to max 15 for Z Axis");
+    }
+    else {
+      ftMotion.rtg->rt_params.accel_per_hz = val;
+      SERIAL_ECHOLNPGM("Accel/Hz set to ", ftMotion.rtg->rt_params.accel_per_hz);
+    }
   }
 
   if (parser.seenval('F')) {

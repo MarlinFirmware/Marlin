@@ -584,6 +584,10 @@ void FTMotion::fill_stepper_plan_buffer() {
 
     gcode.home_all_axes(); // Always home all axes first
 
+    // Safe Acceleration per Hz for Z axis
+    if(rtg->rt_params.axis == Z_AXIS && rtg->rt_params.accel_accel_per_hz > 15.0f)
+      rtg->rt_params.accel_accel_per_hz = 15.0f;
+
     // Always move to the center of the bed
     do_blocking_move_to_xy(X_CENTER, Y_CENTER);
 
