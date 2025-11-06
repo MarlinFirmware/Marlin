@@ -1586,7 +1586,7 @@ void Stepper::isr() {
       #endif
 
       // Get the interval to the next ISR call
-      interval = uint32_t(STEPPER_TIMER_RATE * 0.030);                    // Max wait of 30ms regardless of stepper timer frequency
+      interval = hal_timer_t(STEPPER_TIMER_RATE * 0.03);                  // Max wait of 30ms regardless of stepper timer frequency
       NOMORE(interval, nextMainISR);                                      // Time until the next Pulse / Block phase
       TERN_(INPUT_SHAPING_X, NOMORE(interval, ShapingQueue::peek_x()));   // Time until next input shaping echo for X
       TERN_(INPUT_SHAPING_Y, NOMORE(interval, ShapingQueue::peek_y()));   // Time until next input shaping echo for Y

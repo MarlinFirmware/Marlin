@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# Build tests for AVR ATmega FYSETC F6 1.3
+# Build tests for mega2560ext - AVR ATmega (extended)
 #
 
 # exit on first failure

@@ -37,11 +37,11 @@
 #include "ft_motion/trajectory_poly6.h"
 #if ENABLED(FTM_RESONANCE_TEST)
   #include "ft_motion/trajectory_resonance.h"
+  #include "../gcode/gcode.h" // for home_all_axes
 #endif
 
-#include "stepper.h"  // Access stepper block queue function and abort status.
+#include "stepper.h" // Access stepper block queue function and abort status.
 #include "endstops.h"
-#include "../gcode/gcode.h"    // for home_all_axes
 
 #if ENABLED(POWER_LOSS_RECOVERY)
   #include "../feature/powerloss.h"
