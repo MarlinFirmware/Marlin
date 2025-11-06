@@ -47,7 +47,7 @@ void say_resonance_test() {
  *   F<Hz>         Start frequency. (Default 5.0)
  *   S             Start the test.
  *   T<Hz>         End frequency. (Default 100.0f)
- *   O<float>      Ocrave duration for logarithmic progression
+ *   O<float>      Octave duration for logarithmic progression
  *   C<int>        Amplitude correction factor. (Default 5)
  *   X             Flag to select the X axis.
  *   Y             Flag to select the Y axis.
