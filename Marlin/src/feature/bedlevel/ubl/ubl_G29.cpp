@@ -314,7 +314,7 @@ void unified_bed_leveling::G29() {
   const bool may_move = p_val == 1 || p_val == 2 || p_val == 4 || parser.seen_test('J');
 
   // Potentially disable Fixed-Time Motion for probing
-  TERN_(FT_MOTION, FTMotionDisableInScope FT_Disabler);
+  TERN_(FT_MOTION, FTM_DISABLE_IN_SCOPE());
 
   // Check for commands that require the printer to be homed
   if (may_move) {

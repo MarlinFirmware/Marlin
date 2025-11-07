@@ -273,8 +273,8 @@ extern FTMotion ftMotion; // Use ftMotion.thing, not FTMotion::thing.
  * Optional behavior to turn FT Motion off for homing/probing.
  * Applies when FTM_HOME_AND_PROBE is disabled.
  */
-typedef struct FTMotionDisableInScope {
-  #if DISABLED(FTM_HOME_AND_PROBE)
+#if DISABLED(FTM_HOME_AND_PROBE)
+  typedef struct FTMotionDisableInScope {
     bool isactive;
     FTMotionDisableInScope() {
       isactive = ftMotion.cfg.active;
@@ -284,5 +284,7 @@ typedef struct FTMotionDisableInScope {
       ftMotion.cfg.active = isactive;
       if (isactive) ftMotion.init();
     }
-  #endif
-} FTMotionDisableInScope_t;
+  } FTMotionDisableInScope_t;
+#endif
+
+#define FTM_DISABLE_IN_SCOPE() TERN(FTM_HOME_AND_PROBE, NOOP, FTMotionDisableInScope FT_Disabler)
