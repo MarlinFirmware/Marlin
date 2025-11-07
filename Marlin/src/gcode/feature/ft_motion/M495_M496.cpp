@@ -26,10 +26,10 @@
 
 #include "../../gcode.h"
 #include "../../../module/ft_motion.h"
-#include "../../../module/ft_motion/trajectory_resonance.h"
+#include "../../../module/ft_motion/resonance_generator.h"
 
 void say_resonance_test() {
-  const ftm_resonance_test_params_t &p = ftMotion.rtg->rt_params;
+  const ftm_resonance_test_params_t &p = ftMotion.rtg.rt_params;
   SERIAL_ECHO_START();
   SERIAL_ECHOLN(F("M495 "), F("Resonance Test"));
   SERIAL_ECHOLNPGM("  Axis: ", p.axis == NO_AXIS_ENUM ? C('-') : C(AXIS_CHAR(p.axis)));
@@ -63,7 +63,7 @@ void say_resonance_test() {
 void GcodeSuite::M495() {
   if (!parser.seen_any()) return say_resonance_test();
 
-  ftm_resonance_test_params_t &p = ftMotion.rtg->rt_params;
+  ftm_resonance_test_params_t &p = ftMotion.rtg.rt_params;
 
   const bool seenX = parser.seen_test('X'), seenY = parser.seen_test('Y'), seenZ = parser.seen_test('Z');
 
@@ -136,8 +136,8 @@ void GcodeSuite::M495() {
   if (parser.seenval('G')) {
     const float val = parser.value_float();
     if (WITHIN(val, 0, 100)) {
-      ftMotion.rtg->timeline = val;
-      SERIAL_ECHOLNPGM("Resonance Frequency set to ", ftMotion.rtg->getFrequencyFromTimeline(), " Hz");
+      ftMotion.rtg.timeline = val;
+      SERIAL_ECHOLNPGM("Resonance Frequency set to ", ftMotion.rtg.getFrequencyFromTimeline(), " Hz");
     }
     else {
       SERIAL_ECHOLN(F("?Invalid "), F("Timeline value (0..100 s)"));
@@ -170,15 +170,13 @@ void GcodeSuite::M495() {
  * M496: Abort the resonance test (via Emergency Parser)
  */
 void GcodeSuite::M496() {
-  if (ftMotion.getTrajectoryType() == TrajectoryType::RESONANCE) {
-    if (ftMotion.rtg->isActive()) {
-      ftMotion.rtg->abort();
+  if (ftMotion.rtg.isActive()) {
+      ftMotion.rtg.abort();
       EmergencyParser::rt_stop_by_M496 = false;
       #if DISABLED(MARLIN_SMALL_BUILD)
         SERIAL_ECHOLN(F("Resonance Test"), F(" aborted."));
       #endif
       return;
-    }
   }
   #if DISABLED(MARLIN_SMALL_BUILD)
     SERIAL_ECHOLN(F("No active "), F("Resonance Test"), F(" to abort."));

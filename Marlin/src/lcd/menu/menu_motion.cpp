@@ -389,8 +389,8 @@ void menu_move() {
       BACK_ITEM(MSG_FTM_RESONANCE_TEST);
 
       STATIC_ITEM(MSG_FTM_RETRIEVE_FREQ);
-      EDIT_ITEM(float62, MSG_FTM_TIMELINE_FREQ, &ftMotion.rtg->timeline, 0.0f, 600.0f);
-      PSTRING_ITEM(MSG_FTM_RESONANCE_FREQ, ftostr53_63(ftMotion.rtg->getFrequencyFromTimeline()), SS_FULL);
+      EDIT_ITEM(float62, MSG_FTM_TIMELINE_FREQ, &ftMotion.rtg.timeline, 0.0f, 600.0f);
+      PSTRING_ITEM(MSG_FTM_RESONANCE_FREQ, ftostr53_63(ftMotion.rtg.getFrequencyFromTimeline()), SS_FULL);
 
       END_MENU();
     }
@@ -399,9 +399,9 @@ void menu_move() {
       START_MENU();
       BACK_ITEM(MSG_FIXED_TIME_MOTION);
 
-      if (ftMotion.rtg->isActive() && !ftMotion.rtg->isDone()) {
+      if (ftMotion.rtg.isActive() && !ftMotion.rtg.isDone()) {
         STATIC_ITEM(MSG_FTM_RT_RUNNING);
-        ACTION_ITEM(MSG_FTM_RT_STOP, []{ ftMotion.rtg->abort(); ui.go_back(); });
+        ACTION_ITEM(MSG_FTM_RT_STOP, []{ ftMotion.rtg.abort(); ui.go_back(); });
       }
       else {
         GCODES_ITEM_N(X_AXIS, MSG_FTM_RT_START_N, F("M495 X S"));

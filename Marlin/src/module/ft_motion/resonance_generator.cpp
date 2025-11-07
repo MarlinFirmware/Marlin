@@ -25,34 +25,30 @@
 #if ENABLED(FTM_RESONANCE_TEST)
 
 #include "../ft_motion.h"
-#include "trajectory_resonance.h"
+#include "resonance_generator.h"
 
 #include <math.h>
 
-ftm_resonance_test_params_t ResonanceTrajectoryGenerator::rt_params;     // Resonance test parameters
+ftm_resonance_test_params_t ResonanceGenerator::rt_params;     // Resonance test parameters
 
-bool ResonanceTrajectoryGenerator::active = false;                       // Resonance test active
-bool ResonanceTrajectoryGenerator::done = false;                         // Resonance test done
-float ResonanceTrajectoryGenerator::timeline = 0.0f;
+bool ResonanceGenerator::active = false;                       // Resonance test active
+bool ResonanceGenerator::done = false;                         // Resonance test done
+float ResonanceGenerator::timeline = 0.0f;
 
-ResonanceTrajectoryGenerator::ResonanceTrajectoryGenerator() {}
+ResonanceGenerator::ResonanceGenerator() {}
 
-void ResonanceTrajectoryGenerator::planRunout(const float duration) {
+void ResonanceGenerator::abort() {
   reset();
   ftMotion.reset();
-  ftMotion.setTrajectoryType(ftMotion.previous_trajectoryType);
-}
-void ResonanceTrajectoryGenerator::abort() {
-  planRunout(0.0f);
 }
 
-void ResonanceTrajectoryGenerator::reset() {
+void ResonanceGenerator::reset() {
   rt_params = ftm_resonance_test_params_t();
   active = false;
   done = false;
 }
 
-void ResonanceTrajectoryGenerator::fill_stepper_plan_buffer() {
+void ResonanceGenerator::fill_stepper_plan_buffer() {
   xyze_float_t traj_coords = {};
   millis_t current_ms = millis();
 
@@ -91,7 +87,7 @@ void ResonanceTrajectoryGenerator::fill_stepper_plan_buffer() {
   }
 }
 
-float ResonanceTrajectoryGenerator::getFrequencyFromTimeline() {
+float ResonanceGenerator::getFrequencyFromTimeline() {
   const millis_t elapsed_ms = timeline * 1000 - rt_params.start_time;
   const float t = float(elapsed_ms) * FTM_TS;
   return (rt_params.min_freq * powf(2.0f, t / rt_params.octave_duration));

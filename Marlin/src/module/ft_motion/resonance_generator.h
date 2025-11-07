@@ -21,8 +21,6 @@
  */
 #pragma once
 
-#include "trajectory_generator.h"
-
 typedef struct FTMResonanceTestParams {
   AxisEnum axis       = NO_AXIS_ENUM; // Axis to test
   float min_freq      = 5.0f;         // Minimum frequency [Hz]
@@ -34,25 +32,13 @@ typedef struct FTMResonanceTestParams {
   xyze_pos_t start_pos;               // Initial stepper position
 } ftm_resonance_test_params_t;
 
-class ResonanceTrajectoryGenerator : public TrajectoryGenerator {
+class ResonanceGenerator {
   public:
-    ResonanceTrajectoryGenerator();
+    ResonanceGenerator();
 
-    void plan(
-      const float initial_speed,
-      const float final_speed,
-      const float acceleration,
-      float nominal_speed,
-      const float distance
-    ) override {};
+    void planRunout(const float duration);
 
-    void planRunout(const float duration) override;
-
-    float getDistanceAtTime(const float t) const override { return 0.0f; }
-
-    float getTotalDuration() const override {return 0.0f; }
-
-    void reset() override;
+    void reset();
 
     float getFrequencyFromTimeline();               // Return frequency based on timeline
 

@@ -36,7 +36,7 @@
 #include "ft_motion/trajectory_poly5.h"
 #include "ft_motion/trajectory_poly6.h"
 #if ENABLED(FTM_RESONANCE_TEST)
-  #include "ft_motion/trajectory_resonance.h"
+  #include "ft_motion/resonance_generator.h"
   #include "../gcode/gcode.h" // for home_all_axes
 #endif
 
@@ -77,11 +77,7 @@ TrajectoryGenerator* FTMotion::currentGenerator = &FTMotion::trapezoidalGenerato
 TrajectoryType FTMotion::trajectoryType = TrajectoryType::FTM_TRAJECTORY_TYPE;
 
 // Resonance Test
-#if ENABLED(FTM_RESONANCE_TEST)
-  ResonanceTrajectoryGenerator FTMotion::resonanceGenerator;
-  ResonanceTrajectoryGenerator* FTMotion::rtg;      // Resonance trajectory generator instance
-  TrajectoryType FTMotion::previous_trajectoryType; // Previous trajectory type before resonance test
-#endif
+TERN_(FTM_RESONANCE_TEST,ResonanceGenerator FTMotion::rtg;) // Resonance trajectory generator instance
 
 // Compact plan buffer
 stepper_plan_t FTMotion::stepper_plan_buff[FTM_BUFFER_SIZE];
@@ -163,15 +159,18 @@ void FTMotion::loop() {
    * 4. Signal ready for new block.
    */
 
-  const bool using_resonance = TERN0(FTM_RESONANCE_TEST, getTrajectoryType() == TrajectoryType::RESONANCE && rtg->isActive());
+  const bool using_resonance = TERN(FTM_RESONANCE_TEST, rtg.isActive(), false);
 
   #if ENABLED(FTM_RESONANCE_TEST)
     if (using_resonance) {
       // Resonance Test has priority over normal ft_motion operation.
       // Process resonance test if active. When it's done, generate the last data points for a clean ending.
-      if (rtg->isActive()) {
-        if (rtg->isDone()) plan_runout_block();
-        rtg->fill_stepper_plan_buffer();
+      if (rtg.isActive()) {
+        if (rtg.isDone()) {
+          rtg.abort();
+          return;
+        }
+        rtg.fill_stepper_plan_buffer();
       }
     }
   #endif
@@ -304,16 +303,12 @@ void FTMotion::init() {
 
 // Set trajectory generator type
 void FTMotion::setTrajectoryType(const TrajectoryType type) {
-  TERN_(FTM_RESONANCE_TEST, previous_trajectoryType = trajectoryType);
   cfg.trajectory_type = trajectoryType = type;
   switch (type) {
     default: cfg.trajectory_type = trajectoryType = TrajectoryType::FTM_TRAJECTORY_TYPE;
     case TrajectoryType::TRAPEZOIDAL: currentGenerator = &trapezoidalGenerator; break;
     case TrajectoryType::POLY5:       currentGenerator = &poly5Generator; break;
     case TrajectoryType::POLY6:       currentGenerator = &poly6Generator; break;
-    #if ENABLED(FTM_RESONANCE_TEST)
-      case TrajectoryType::RESONANCE: currentGenerator = &resonanceGenerator; break;
-    #endif
   }
 }
 
@@ -596,19 +591,17 @@ void FTMotion::fill_stepper_plan_buffer() {
     gcode.home_all_axes(); // Always home all axes first
 
     // Safe Acceleration per Hz for Z axis
-    if (rtg->rt_params.axis == Z_AXIS && rtg->rt_params.accel_per_hz > 15.0f)
-      rtg->rt_params.accel_per_hz = 15.0f;
+    if (rtg.rt_params.axis == Z_AXIS && rtg.rt_params.accel_per_hz > 15.0f)
+      rtg.rt_params.accel_per_hz = 15.0f;
 
     // Always move to the center of the bed
     do_blocking_move_to_xy(X_CENTER, Y_CENTER);
 
-    setTrajectoryType(TrajectoryType::RESONANCE);
-    rtg = &resonanceGenerator;
     // Now, set up the test state variables
-    rtg->rt_params.start_pos = current_position;
-    rtg->rt_params.start_time = millis();
-    rtg->setActive(true);
-    rtg->setDone(false);
+    rtg.rt_params.start_pos = current_position;
+    rtg.rt_params.start_time = millis();
+    rtg.setActive(true);
+    rtg.setDone(false);
   }
 
 #endif // FTM_RESONANCE_TEST
