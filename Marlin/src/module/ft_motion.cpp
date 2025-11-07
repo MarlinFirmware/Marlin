@@ -587,18 +587,19 @@ void FTMotion::fill_stepper_plan_buffer() {
 
   // Start Resonance Testing
   void FTMotion::start_resonance_test() {
+    gcode.home_if_needed(); // Ensure known axes first
 
-    gcode.home_all_axes(); // Always home all axes first
+    ftm_resonance_test_params_t &p = rtg.rt_params;
 
     // Safe Acceleration per Hz for Z axis
-    if (rtg.rt_params.axis == Z_AXIS && rtg.rt_params.accel_per_hz > 15.0f)
-      rtg.rt_params.accel_per_hz = 15.0f;
+    if (p.axis == Z_AXIS && p.accel_per_hz > 15.0f)
+      p.accel_per_hz = 15.0f;
 
     // Always move to the center of the bed
-    do_blocking_move_to_xy(X_CENTER, Y_CENTER);
+    do_blocking_move_to_xy(X_CENTER, Y_CENTER, Z_CLEARANCE_FOR_HOMING);
 
     // Now, set up the test state variables
-    rtg.rt_params.start_pos = current_position;
+    p.start_pos = current_position;
     rtg.start_time = FTM_TS;
     rtg.setActive(true);
     rtg.setDone(false);
