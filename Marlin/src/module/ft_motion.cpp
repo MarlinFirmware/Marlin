@@ -587,7 +587,7 @@ void FTMotion::fill_stepper_plan_buffer() {
 
   // Start Resonance Testing
   void FTMotion::start_resonance_test() {
-    gcode.home_if_needed(); // Ensure known axes first
+    home_if_needed(); // Ensure known axes first
 
     ftm_resonance_test_params_t &p = rtg.rt_params;
 
