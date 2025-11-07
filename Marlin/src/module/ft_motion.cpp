@@ -599,7 +599,7 @@ void FTMotion::fill_stepper_plan_buffer() {
 
     // Now, set up the test state variables
     rtg.rt_params.start_pos = current_position;
-    rtg.rt_params.start_time = millis();
+    rtg.start_time = FTM_TS;
     rtg.setActive(true);
     rtg.setDone(false);
   }

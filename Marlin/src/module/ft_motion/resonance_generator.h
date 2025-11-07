@@ -21,6 +21,8 @@
  */
 #pragma once
 
+#include <math.h>
+
 typedef struct FTMResonanceTestParams {
   AxisEnum axis       = NO_AXIS_ENUM; // Axis to test
   float min_freq      = 5.0f;         // Minimum frequency [Hz]
@@ -28,7 +30,6 @@ typedef struct FTMResonanceTestParams {
   float octave_duration = 40.0f;      // Octave duration for logarithmic progression
   float accel_per_hz  = 60.0f;        // Acceleration per Hz [mm/sec/Hz] or [g/Hz]
   int16_t amplitude_correction = 5;   // Amplitude correction factor
-  millis_t start_time = 0;            // Start time of the test
   xyze_pos_t start_pos;               // Initial stepper position
 } ftm_resonance_test_params_t;
 
@@ -40,7 +41,7 @@ class ResonanceGenerator {
 
     void reset();
 
-    float getFrequencyFromTimeline();               // Return frequency based on timeline
+    float getFrequencyFromTimeline() { return (rt_params.min_freq * powf(2.0f, timeline / rt_params.octave_duration));}  // Return frequency based on timeline
 
     static ftm_resonance_test_params_t rt_params;   // Resonance test parameters
 
@@ -55,6 +56,7 @@ class ResonanceGenerator {
     static float timeline;      // Timeline Value to calculate resonance frequency
 
   private:
+    static float start_time;    // Start time of the test
     static bool active;         // Resonance test active
     static bool done;           // Resonance test done
 };

@@ -33,6 +33,7 @@ ftm_resonance_test_params_t ResonanceGenerator::rt_params;     // Resonance test
 
 bool ResonanceGenerator::active = false;                       // Resonance test active
 bool ResonanceGenerator::done = false;                         // Resonance test done
+float ResonanceGenerator::start_time = FTM_TS;                 // Resonance test start time 
 float ResonanceGenerator::timeline = 0.0f;
 
 ResonanceGenerator::ResonanceGenerator() {}
@@ -44,21 +45,18 @@ void ResonanceGenerator::abort() {
 
 void ResonanceGenerator::reset() {
   rt_params = ftm_resonance_test_params_t();
+  start_time = FTM_TS;
   active = false;
   done = false;
 }
 
 void ResonanceGenerator::fill_stepper_plan_buffer() {
   xyze_float_t traj_coords = {};
-  millis_t current_ms = millis();
 
   while (!ftMotion.stepper_plan_is_full()) {
-    // Calculate time for the CURRENT point
-    const millis_t elapsed_ms = current_ms - rt_params.start_time;
-    const float t = float(elapsed_ms) * FTM_TS;
     // Calculate current frequency
     // Logarithmic approach with duration per octave
-    const float freq = rt_params.min_freq * powf(2.0f, t / rt_params.octave_duration);
+    const float freq = rt_params.min_freq * powf(2.0f, start_time / rt_params.octave_duration);
     if (freq > rt_params.max_freq) {
       done = true;
       return;
@@ -70,7 +68,7 @@ void ResonanceGenerator::fill_stepper_plan_buffer() {
     const float amplitude = rt_params.amplitude_correction * rt_params.accel_per_hz * 0.25f / (sq(M_PI) * freq);
 
     // Phase in radians
-    const float phase = 2.0f * M_PI * freq * t;
+    const float phase = 2.0f * M_PI * freq * start_time;
 
     // Position Offset : between -A and +A
     const float pos_offset = amplitude * sinf(phase);
@@ -82,15 +80,9 @@ void ResonanceGenerator::fill_stepper_plan_buffer() {
     stepper_plan_t plan = ftMotion.calc_stepper_plan(traj_coords);
     // Store in buffer
     ftMotion.enqueue_stepper_plan(plan);
-    // Increment our local time approximation for the next point
-    current_ms += FTM_TS;
+    // Increment time for the next point
+    start_time += FTM_TS;
   }
-}
-
-float ResonanceGenerator::getFrequencyFromTimeline() {
-  const millis_t elapsed_ms = timeline * 1000 - rt_params.start_time;
-  const float t = float(elapsed_ms) * FTM_TS;
-  return (rt_params.min_freq * powf(2.0f, t / rt_params.octave_duration));
 }
 
 #endif // FTM_RESONANCE_TEST
