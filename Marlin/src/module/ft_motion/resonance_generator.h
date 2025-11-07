@@ -48,7 +48,7 @@ class ResonanceGenerator {
 
     void start(const xyze_pos_t &spos, const float t) {
       rt_params.start_pos = spos;
-      start_time = t;
+      rt_time = t;
       setActive(true);
       setDone(false);
     }
@@ -67,7 +67,7 @@ class ResonanceGenerator {
     void abort();               // Abort resonance test
 
   private:
-    static float start_time;    // Start time of the test
+    static float rt_time;    // Test timer
     static bool active;         // Resonance test active
     static bool done;           // Resonance test done
 };

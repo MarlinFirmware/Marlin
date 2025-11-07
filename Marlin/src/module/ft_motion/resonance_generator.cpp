@@ -33,7 +33,7 @@ ftm_resonance_test_params_t ResonanceGenerator::rt_params;     // Resonance test
 
 bool ResonanceGenerator::active = false;                       // Resonance test active
 bool ResonanceGenerator::done = false;                         // Resonance test done
-float ResonanceGenerator::start_time = FTM_TS;                 // Resonance test start time 
+float ResonanceGenerator::rt_time = FTM_TS;                    // Resonance test timer 
 float ResonanceGenerator::timeline = 0.0f;
 
 ResonanceGenerator::ResonanceGenerator() {}
@@ -45,7 +45,7 @@ void ResonanceGenerator::abort() {
 
 void ResonanceGenerator::reset() {
   rt_params = ftm_resonance_test_params_t();
-  start_time = FTM_TS;
+  rt_time = FTM_TS;
   active = false;
   done = false;
 }
@@ -56,7 +56,7 @@ void ResonanceGenerator::fill_stepper_plan_buffer() {
   while (!ftMotion.stepper_plan_is_full()) {
     // Calculate current frequency
     // Logarithmic approach with duration per octave
-    const float freq = rt_params.min_freq * powf(2.0f, start_time / rt_params.octave_duration);
+    const float freq = rt_params.min_freq * powf(2.0f, rt_time / rt_params.octave_duration);
     if (freq > rt_params.max_freq) {
       done = true;
       return;
@@ -68,7 +68,7 @@ void ResonanceGenerator::fill_stepper_plan_buffer() {
     const float amplitude = rt_params.amplitude_correction * rt_params.accel_per_hz * 0.25f / (sq(M_PI) * freq);
 
     // Phase in radians
-    const float phase = 2.0f * M_PI * freq * start_time;
+    const float phase = 2.0f * M_PI * freq * rt_time;
 
     // Position Offset : between -A and +A
     const float pos_offset = amplitude * sinf(phase);
@@ -81,7 +81,7 @@ void ResonanceGenerator::fill_stepper_plan_buffer() {
     // Store in buffer
     ftMotion.enqueue_stepper_plan(plan);
     // Increment time for the next point
-    start_time += FTM_TS;
+    rt_time += FTM_TS;
   }
 }
 
