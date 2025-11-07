@@ -31,7 +31,7 @@
 void say_resonance_test() {
   const ftm_resonance_test_params_t &p = ftMotion.rtg->rt_params;
   SERIAL_ECHO_START();
-  SERIAL_ECHOLNPGM("M495 Resonance Test");
+  SERIAL_ECHOLN(F("M495 "), F("Resonance Test"));
   SERIAL_ECHOLNPGM("  Axis: ", p.axis == NO_AXIS_ENUM ? C('-') : C(AXIS_CHAR(p.axis)));
   SERIAL_ECHOLNPGM("  Freq Range (F..T): ", p.min_freq, " .. ", p.max_freq, " Hz");
   SERIAL_ECHOLNPGM("  Octave Duration (O): ", p.octave_duration, " s");
@@ -70,10 +70,10 @@ void GcodeSuite::M495() {
   if (seenX + seenY + seenZ == 1) {
     const AxisEnum a = seenX ? X_AXIS : seenY ? Y_AXIS : Z_AXIS;
     p.axis = a;
-    SERIAL_ECHOLN(C(AXIS_CHAR(a)), F("-axis selected"), F(" for Resonance Test."));
+    SERIAL_ECHOLN(C(AXIS_CHAR(a)), F("-axis selected"), F(" for "), F("Resonance Test"));
   }
   else if (seenX + seenY + seenZ > 1) {
-    SERIAL_ECHOLN(F("?Specify X, Y, or Z axis"), F(" for Resonance Test."));
+    SERIAL_ECHOLN(F("?Specify X, Y, or Z axis"), F(" for "), F("Resonance Test"));
     return;
   }
 
@@ -96,7 +96,7 @@ void GcodeSuite::M495() {
       SERIAL_ECHOLNPGM("Start Frequency set to ", p.min_freq, " Hz");
     }
     else {
-      SERIAL_ECHOLN(F("?Invalid "), F("Start [F]requency. (minimum 5.0 Hz)."));
+      SERIAL_ECHOLN(F("?Invalid "), F("Start [F]requency. (minimum 5.0 Hz)"));
     }
   }
 
@@ -107,7 +107,7 @@ void GcodeSuite::M495() {
       SERIAL_ECHOLNPGM("End Frequency set to ", p.max_freq, " Hz");
     }
     else {
-      SERIAL_ECHOLN(F("?Invalid "), F("End Frequency [T]. (StartFreq .. 200 Hz)."));
+      SERIAL_ECHOLN(F("?Invalid "), F("End Frequency [T]. (StartFreq .. 200 Hz)"));
     }
   }
 
@@ -115,10 +115,10 @@ void GcodeSuite::M495() {
     const float val = parser.value_float();
     if (WITHIN(val, 20, 60)) {
       p.octave_duration = val;
-      SERIAL_ECHOLNPGM("Octave Duration set to ",p.octave_duration, " s.");
+      SERIAL_ECHOLNPGM("Octave Duration set to ",p.octave_duration, " s");
     }
     else {
-      SERIAL_ECHOLN(F("?Invalid "), F("octave duration [O]. (20..60 s)."));
+      SERIAL_ECHOLN(F("?Invalid "), F("octave duration [O]. (20..60 s)"));
     }
   }
 
@@ -129,7 +129,7 @@ void GcodeSuite::M495() {
       SERIAL_ECHOLNPGM("Amplitude Correction Factor set to ", p.amplitude_correction);
     }
     else {
-      SERIAL_ECHOLN(F("?Invalid "), F("Amplitude [C]orrection Factor. (1..8)."));
+      SERIAL_ECHOLN(F("?Invalid "), F("Amplitude [C]orrection Factor. (1..8)"));
     }
   }
 
@@ -137,10 +137,10 @@ void GcodeSuite::M495() {
     const float val = parser.value_float();
     if (WITHIN(val, 0, 100)) {
       ftMotion.rtg->timeline = val;
-      SERIAL_ECHOLNPGM("Resonance Frequency set to ", ftMotion.rtg->getFrequencyFromTimeline(), " Hz.");
+      SERIAL_ECHOLNPGM("Resonance Frequency set to ", ftMotion.rtg->getFrequencyFromTimeline(), " Hz");
     }
     else {
-      SERIAL_ECHOLN(F("?Invalid "), F("Timeline value (0..100 s)."));
+      SERIAL_ECHOLN(F("?Invalid "), F("Timeline value (0..100 s)"));
     }
   }
 
@@ -148,20 +148,20 @@ void GcodeSuite::M495() {
     if (ftMotion.cfg.active) {
       if (p.axis != NO_AXIS_ENUM) {
         if (p.max_freq > p.min_freq) {
-          SERIAL_ECHOLNPGM("Starting Resonance Test...");
+          SERIAL_ECHOLN(F("Starting "), F("Resonance Test"));
           ftMotion.start_resonance_test();
           // The function returns immediately, the test runs in the background.
         }
         else {
-          SERIAL_ECHOLNPGM("?End Frequency must be greater than Start Frequency.");
+          SERIAL_ECHOLNPGM("?End Frequency must be greater than Start Frequency");
         }
       }
       else {
-        SERIAL_ECHOLN(F("?Specify X, Y, or Z axis"), F(" first."));
+        SERIAL_ECHOLN(F("?Specify X, Y, or Z axis"), F(" first"));
       }
     }
     else {
-      SERIAL_ECHOLNPGM("?Activate FT Motion to run the Resonance Test.");
+      SERIAL_ECHOLN(F("?Activate FT Motion to run the "), F("Resonance Test"));
     }
   }
 }

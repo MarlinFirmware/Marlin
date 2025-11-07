@@ -36,12 +36,14 @@ void GcodeSuite::M496() {
     if (ftMotion.rtg->isActive()) {
       ftMotion.rtg->abort();
       EmergencyParser::rt_stop_by_M496 = false;
-      SERIAL_ECHOLNPGM("Resonance Test aborted.");
+      #if DISABLED(MARLIN_SMALL_BUILD)
+        SERIAL_ECHOLN(F("Resonance Test"), F(" aborted."));
+      #endif
       return;
     }
   }
   #if DISABLED(MARLIN_SMALL_BUILD)
-    SERIAL_ECHOLNPGM("No active Resonance Test to abort.");
+    SERIAL_ECHOLNPGM(F("No active "), F("Resonance Test"), F(" to abort."));
   #endif
 }
 

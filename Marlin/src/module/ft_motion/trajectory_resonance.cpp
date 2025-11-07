@@ -70,10 +70,10 @@ void ResonanceTrajectoryGenerator::fill_stepper_plan_buffer() {
 
     // Amplitude based on a sinusoidal wave : A = accel / (4 * PI^2 * f^2)
     //const float accel_magnitude = rt_params.accel_per_hz * freq;
-    //const float amplitude = rt_params.amplitude_correction * accel_magnitude / (4.0f * PI * PI * sq(freq));
-    const float amplitude = rt_params.amplitude_correction * rt_params.accel_per_hz * 0.25f / (M_PI * M_PI * freq);
+    //const float amplitude = rt_params.amplitude_correction * accel_magnitude / (4.0f * sq(M_PI) * sq(freq));
+    const float amplitude = rt_params.amplitude_correction * rt_params.accel_per_hz * 0.25f / (sq(M_PI) * freq);
 
-    // Phase in radian
+    // Phase in radians
     const float phase = 2.0f * M_PI * freq * t;
 
     // Position Offset : between -A and +A
