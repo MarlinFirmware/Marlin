@@ -29,20 +29,20 @@
 
 void Stepping::reset() {
   stepper_plan.reset();
-  delta_error_q32.set(LOGICAL_AXIS_ARRAY_1(_BV32(31))); // start as 0.5 in q32 so steps are rounded
+  delta_error_q32.set(LOGICAL_AXIS_LIST_1(1 << 31)); // Start as 0.5 in q32 so steps are rounded
   step_bits = 0;
   bresenham_iterations_pending = 0;
 }
 
 uint32_t Stepping::advance_until_step() {
   xyze_ulong_t space_q32 = -delta_error_q32 + UINT32_MAX; // How much accumulation until a step in any axis is ALMOST due
-                                                    // scalar in the right hand because types.h is missing scalar on left cases
+                                                          // TODO: Add operators to types.h for scalar destination.
 
   xyze_ulong_t advance_q32 = stepper_plan.advance_dividend_q0_32;
   uint32_t iterations = bresenham_iterations_pending;
   // Per-axis lower-bound approx of floor(space_q32/adv), min across axes (lower bound because this fast division underestimates result by up to 1)
-  // #define RUN_AXIS(A) if(advance_q32.A > 0) NOMORE(iterations, space_q32.A/advance_q32.A);
-  #define RUN_AXIS(A) if(advance_q32.A > 0) NOMORE(iterations, uint32_t((uint64_t(space_q32.A) * advance_dividend_reciprocal.A) >> 32));
+  //#define RUN_AXIS(A) if (advance_q32.A > 0) NOMORE(iterations, space_q32.A / advance_q32.A);
+  #define RUN_AXIS(A) if (advance_q32.A > 0) NOMORE(iterations, uint32_t((uint64_t(space_q32.A) * advance_dividend_reciprocal.A) >> 32));
   LOGICAL_AXIS_MAP(RUN_AXIS);
   #undef RUN_AXIS
 
@@ -72,7 +72,7 @@ uint32_t Stepping::plan() {
   if (bresenham_iterations_pending > 0) {
     intervals = advance_until_step();
     if (bool(step_bits)) return intervals; // steps to make => return the wait time so it gets done in due time
-    // Else all bresenham iterations were advanced without steps => this is just the frame end, so plan the next one directly and accumulate the wait
+    // Else all Bresenham iterations were advanced without steps => this is just the frame end, so plan the next one directly and accumulate the wait
   }
 
   if (ftMotion.stepper_plan_is_empty()) {
@@ -97,7 +97,7 @@ uint32_t Stepping::plan() {
     return INTERVAL_PER_TRAJ_POINT;
   }
 
-  // This vector division is unavoidable, but it saves a division per step during bresenham
+  // This vector division is unavoidable, but it saves a division per step during Bresenham
   // The reciprocal is actually 2^32/dividend, but that requires dividing a uint64_t, which quite expensive
   // Since even the real reciprocal may underestimate the quotient by 1 anyway already, this optimisation doesn't
   // make things worse. This underestimation is compensated for in advance_until_step.

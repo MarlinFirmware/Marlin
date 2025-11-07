@@ -272,7 +272,7 @@ uint32_t Stepper::advance_divisor = 0,
 
 hal_timer_t Stepper::ticks_nominal = 0;
 #if DISABLED(S_CURVE_ACCELERATION)
-  uint32_t Stepper::acc_step_rate; // needed for deceleration start point
+  uint32_t Stepper::acc_step_rate; // Needed for deceleration start point
 #endif
 
 xyz_long_t Stepper::endstops_trigsteps;
@@ -1989,7 +1989,7 @@ void Stepper::pulse_phase_isr() {
 
       #if HAS_ROUGH_LIN_ADVANCE
         if (la_active && step_needed.e) {
-          // don't actually step here, but do subtract movements steps
+          // Don't actually step here, but do subtract movements steps
           // from the linear advance step count
           step_needed.e = false;
           la_advance_steps--;
@@ -2000,14 +2000,14 @@ void Stepper::pulse_phase_isr() {
       #endif
 
       #if HAS_ZV_SHAPING
-        // record an echo if a step is needed in the primary bresenham
+        // Record an echo if a step is needed in the primary Bresenham
         const bool x_step = TERN0(INPUT_SHAPING_X, step_needed.x && shaping_x.enabled),
                    y_step = TERN0(INPUT_SHAPING_Y, step_needed.y && shaping_y.enabled),
                    z_step = TERN0(INPUT_SHAPING_Z, step_needed.z && shaping_z.enabled);
         if (x_step || y_step || z_step)
           ShapingQueue::enqueue(x_step, TERN0(INPUT_SHAPING_X, shaping_x.forward), y_step, TERN0(INPUT_SHAPING_Y, shaping_y.forward), z_step, TERN0(INPUT_SHAPING_Z, shaping_z.forward));
 
-        // do the first part of the secondary bresenham
+        // Do the first part of the secondary Bresenham
         #if ENABLED(INPUT_SHAPING_X)
           if (x_step)
             PULSE_PREP_SHAPING(X, shaping_x.delta_error, shaping_x.forward ? shaping_x.factor1 : -shaping_x.factor1);
@@ -2195,7 +2195,7 @@ hal_timer_t Stepper::calc_timer_interval(uint32_t step_rate) {
 
   #else
 
-    if (step_rate >= 0x0800) {  // higher step rate
+    if (step_rate >= 0x0800) {  // Higher step rate
       // AVR is able to keep up at around 65kHz Stepping ISR rate at most.
       // So values for step_rate > 65535 might as well be truncated.
       // Handle it as quickly as possible. i.e., assume highest byte is zero
@@ -2208,7 +2208,7 @@ hal_timer_t Stepper::calc_timer_interval(uint32_t step_rate) {
       const uint8_t gain = uint8_t(pgm_read_byte(table_address + 2));
       return base - MultiU8X8toH8(uint8_t(step_rate & 0x00FF), gain);
     }
-    else if (step_rate > minimal_step_rate) { // lower step rates
+    else if (step_rate > minimal_step_rate) { // Lower step rates
       step_rate -= minimal_step_rate; // Correct for minimal speed
       const uintptr_t table_address = uintptr_t(&speed_lookuptable_slow[uint8_t(step_rate >> 3)]);
       return uint16_t(pgm_read_word(table_address))
@@ -2388,7 +2388,7 @@ hal_timer_t Stepper::block_phase_isr() {
         ticks_nominal = 0;
       }
     #endif
-    time_spent_in_isr = -time_spent;    // unsigned but guaranteed to be +ve when needed
+    time_spent_in_isr = -time_spent;    // Unsigned but guaranteed to be +ve when needed
     time_spent_out_isr = 0;
   #endif
 
@@ -3295,7 +3295,7 @@ void Stepper::init() {
   }
 
   void Stepper::set_shaping_frequency(const AxisEnum axis, const float freq) {
-    // enabling or disabling shaping whilst moving can result in lost steps
+    // Enabling or disabling shaping whilst moving can result in lost steps
     planner.synchronize();
 
     const bool was_on = hal.isr_state();
@@ -3373,7 +3373,7 @@ void Stepper::_set_position(const abce_long_t &spos) {
     );
     TERN_(HAS_EXTRUDERS, count_position.e = spos.e);
   #else
-    // default non-h-bot planning
+    // Default non-h-bot planning
     count_position = spos;
   #endif
 

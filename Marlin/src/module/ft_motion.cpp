@@ -515,7 +515,7 @@ xyze_float_t FTMotion::calc_traj_point(const float dist) {
 
 stepper_plan_t FTMotion::calc_stepper_plan(xyze_float_t traj_coords) {
   // 1) Convert trajectory to step delta
-  #define _TOSTEPS_q32(A, B) int64_t(traj_coords.A * planner.settings.axis_steps_per_mm[B] * (1ull << 32))
+  #define _TOSTEPS_q32(A, B) int64_t(traj_coords.A * planner.settings.axis_steps_per_mm[B] * (1ULL << 32))
   XYZEval<int64_t> next_steps_q32_32 = LOGICAL_AXIS_ARRAY(
     _TOSTEPS_q32(e, block_extruder_axis),
     _TOSTEPS_q32(x, X_AXIS), _TOSTEPS_q32(y, Y_AXIS), _TOSTEPS_q32(z, Z_AXIS),
@@ -524,7 +524,7 @@ stepper_plan_t FTMotion::calc_stepper_plan(xyze_float_t traj_coords) {
   );
   #undef _TOSTEPS_q32
 
-  constexpr uint32_t ITERATIONS_PER_TRAJ_INV_uq0_32 = (1ull << 32) / ITERATIONS_PER_TRAJ;
+  constexpr uint32_t ITERATIONS_PER_TRAJ_INV_uq0_32 = (1ULL << 32) / ITERATIONS_PER_TRAJ;
   stepper_plan_t stepper_plan;
 
   #define _RUN_AXIS(A) do{                                                                                   \
@@ -556,10 +556,21 @@ stepper_plan_t FTMotion::calc_stepper_plan(xyze_float_t traj_coords) {
  */
 void FTMotion::fill_stepper_plan_buffer() {
   while (!stepper_plan_is_full()) {
-    float total_duration = currentGenerator->getTotalDuration(); // if the current plan is empty, it will have zero duration.
+    float total_duration = currentGenerator->getTotalDuration(); // If the current plan is empty, it will have zero duration.
     while (tau + FTM_TS > total_duration) {
-      // Previous block plan consumed, try to get the next one.
-      tau -= total_duration; // The exact end of the last block may be in-between trajectory points, so the next one may start anywhere of (-FTM_TS, 0].
+      /**
+       * We’ve reached the end of the current block.
+       *
+       * `tau` is the time that has elapsed inside this block. After a block is finished, the next one may
+       * start at any point between *just before* the last sampled time (one step earlier, i.e. `-FTM_TS`)
+       * and *exactly at* the last sampled time (0). IOW the real start of the next block could be anywhere
+       * in the interval (-FTM_TS, 0].
+       *
+       * To account for that uncertainty we simply subtract the duration of the finished block from `tau`.
+       * This brings us back to a time value that is valid for the next block, while still allowing the next
+       * block’s start to be offset by up to one time step into the past.
+       */
+      tau -= total_duration;
       const bool plan_available = plan_next_block();
       if (!plan_available) return;
       total_duration = currentGenerator->getTotalDuration();
