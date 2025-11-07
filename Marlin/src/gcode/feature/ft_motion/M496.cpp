@@ -43,7 +43,7 @@ void GcodeSuite::M496() {
     }
   }
   #if DISABLED(MARLIN_SMALL_BUILD)
-    SERIAL_ECHOLNPGM(F("No active "), F("Resonance Test"), F(" to abort."));
+    SERIAL_ECHOLN(F("No active "), F("Resonance Test"), F(" to abort."));
   #endif
 }
 
