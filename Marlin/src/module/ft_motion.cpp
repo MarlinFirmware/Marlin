@@ -598,11 +598,8 @@ void FTMotion::fill_stepper_plan_buffer() {
     // Always move to the center of the bed
     do_blocking_move_to_xy(X_CENTER, Y_CENTER, Z_CLEARANCE_FOR_HOMING);
 
-    // Now, set up the test state variables
-    p.start_pos = current_position;
-    rtg.start_time = FTM_TS;
-    rtg.setActive(true);
-    rtg.setDone(false);
+    // Start test at the current position with the configured time-step
+    rtg.start(current_position, FTM_TS);
   }
 
 #endif // FTM_RESONANCE_TEST

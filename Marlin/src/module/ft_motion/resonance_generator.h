@@ -21,6 +21,8 @@
  */
 #pragma once
 
+#include "../../inc/MarlinConfigPre.h"
+
 #include <math.h>
 
 typedef struct FTMResonanceTestParams {
@@ -35,15 +37,25 @@ typedef struct FTMResonanceTestParams {
 
 class ResonanceGenerator {
   public:
+    static ftm_resonance_test_params_t rt_params; // Resonance test parameters
+    static float timeline;                        // Timeline Value to calculate resonance frequency
+
     ResonanceGenerator();
 
     void planRunout(const float duration);
 
     void reset();
 
-    float getFrequencyFromTimeline() { return (rt_params.min_freq * powf(2.0f, timeline / rt_params.octave_duration));}  // Return frequency based on timeline
+    void start(const xyze_pos_t &spos, const float t) {
+      rt_params.start_pos = spos;
+      start_time = t;
+      setActive(true);
+      setDone(false);
+    }
 
-    static ftm_resonance_test_params_t rt_params;   // Resonance test parameters
+    float getFrequencyFromTimeline() {
+      return (rt_params.min_freq * powf(2.0f, timeline / rt_params.octave_duration)); // Return frequency based on timeline
+    }
 
     void fill_stepper_plan_buffer();                // Fill stepper plan buffer with trajectory points
 
@@ -53,7 +65,6 @@ class ResonanceGenerator {
     void setDone(bool state) { done = state; }
 
     void abort();               // Abort resonance test
-    static float timeline;      // Timeline Value to calculate resonance frequency
 
   private:
     static float start_time;    // Start time of the test
