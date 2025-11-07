@@ -252,8 +252,8 @@
  * M485 - Send RS485 packets (Requires RS485_SERIAL_PORT)
  * M486 - Identify and cancel objects. (Requires CANCEL_OBJECTS)
  * M493 - Set / Report input FT Motion/Shaping parameters. (Requires FT_MOTION)
- * M495 - Set / Start resonance test. (Requires FT_MOTION)
- * M496 - Abort resonance test. (Requires FT_MOTION)
+ * M495 - Set / Start resonance test. (Requires FTM_RESONANCE_TEST)
+ * M496 - Abort resonance test. (Requires FTM_RESONANCE_TEST)
  * M500 - Store parameters in EEPROM. (Requires EEPROM_SETTINGS)
  * M501 - Restore parameters from EEPROM. (Requires EEPROM_SETTINGS)
  * M502 - Revert to the default "factory settings". ** Does not write them to EEPROM! **

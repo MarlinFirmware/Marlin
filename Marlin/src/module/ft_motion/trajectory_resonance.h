@@ -21,8 +21,6 @@
  */
 #pragma once
 
-#include "../../inc/MarlinConfigPre.h"
-
 #include "trajectory_generator.h"
 
 typedef struct FTMResonanceTestParams {

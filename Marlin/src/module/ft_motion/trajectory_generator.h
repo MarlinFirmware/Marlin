@@ -21,7 +21,7 @@
  */
 #pragma once
 
-#include <stdint.h>
+#include "../../inc/MarlinConfigPre.h"
 
 /**
  * Base class for trajectory generators.

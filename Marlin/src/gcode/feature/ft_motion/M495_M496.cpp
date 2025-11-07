@@ -166,4 +166,23 @@ void GcodeSuite::M495() {
   }
 }
 
+/**
+ * M496: Abort the resonance test (via Emergency Parser)
+ */
+void GcodeSuite::M496() {
+  if (ftMotion.getTrajectoryType() == TrajectoryType::RESONANCE) {
+    if (ftMotion.rtg->isActive()) {
+      ftMotion.rtg->abort();
+      EmergencyParser::rt_stop_by_M496 = false;
+      #if DISABLED(MARLIN_SMALL_BUILD)
+        SERIAL_ECHOLN(F("Resonance Test"), F(" aborted."));
+      #endif
+      return;
+    }
+  }
+  #if DISABLED(MARLIN_SMALL_BUILD)
+    SERIAL_ECHOLN(F("No active "), F("Resonance Test"), F(" to abort."));
+  #endif
+}
+
 #endif // FTM_RESONANCE_TEST

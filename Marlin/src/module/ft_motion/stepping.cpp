@@ -29,7 +29,7 @@
 
 void Stepping::reset() {
   stepper_plan.reset();
-  delta_error_q32.set(LOGICAL_AXIS_LIST_1(1 << 31)); // Start as 0.5 in q32 so steps are rounded
+  delta_error_q32.set(LOGICAL_AXIS_LIST_1(1UL << 31)); // Start as 0.5 in q32 so steps are rounded
   step_bits = 0;
   bresenham_iterations_pending = 0;
 }

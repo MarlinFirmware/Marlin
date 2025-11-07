@@ -29,7 +29,6 @@ typedef struct stepper_plan {
   void reset() { advance_dividend_q0_32.reset(); }
 } stepper_plan_t;
 
-
 // Stepping plan handles steps for a while frame (trajectory point delta)
 typedef struct Stepping {
   stepper_plan_t stepper_plan;

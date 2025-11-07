@@ -29,7 +29,7 @@
 #include "ft_motion/trajectory_poly5.h"
 #include "ft_motion/trajectory_poly6.h"
 #if ENABLED(FTM_RESONANCE_TEST)
- #include "ft_motion/trajectory_resonance.h"
+  #include "ft_motion/trajectory_resonance.h"
 #endif
 
 #if HAS_FTM_SHAPING
