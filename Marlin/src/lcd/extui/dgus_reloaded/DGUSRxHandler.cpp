@@ -52,7 +52,7 @@ void DGUSRxHandler::screenChange(DGUS_VP &vp, void *data_ptr) {
     #if HAS_MEDIA
       IF_DISABLED(HAS_SD_DETECT, card.mount());
 
-      if (!ExtUI::isMediaInserted()) {
+      if (!ExtUI::isMediaMounted()) {
         screen.setStatusMessage(GET_TEXT_F(MSG_NO_MEDIA));
         return;
       }
@@ -484,29 +484,28 @@ void DGUSRxHandler::moveToPoint(DGUS_VP &vp, void *data_ptr) {
       y = DGUS_LEVEL_CENTER_Y;
       break;
     case 2:
-      x = X_MIN_POS + lfrb[0];
-      y = Y_MIN_POS + lfrb[1];
+      x = X_MIN_BED + lfrb[0];
+      y = Y_MIN_BED + lfrb[1];
       break;
     case 3:
-      x = X_MAX_POS - lfrb[2];
-      y = Y_MIN_POS + lfrb[1];
+      x = X_MAX_BED - lfrb[2];
+      y = Y_MIN_BED + lfrb[1];
       break;
     case 4:
-      x = X_MAX_POS - lfrb[2];
-      y = Y_MAX_POS - lfrb[3];
+      x = X_MAX_BED - lfrb[2];
+      y = Y_MAX_BED - lfrb[3];
       break;
     case 5:
-      x = X_MIN_POS + lfrb[0];
-      y = Y_MAX_POS - lfrb[3];
+      x = X_MIN_BED + lfrb[0];
+      y = Y_MAX_BED - lfrb[3];
       break;
   }
 
-  if (ExtUI::getAxisPosition_mm(ExtUI::Z) < Z_MIN_POS + BED_TRAMMING_Z_HOP) {
-    ExtUI::setAxisPosition_mm(Z_MIN_POS + BED_TRAMMING_Z_HOP, ExtUI::Z);
-  }
+  if (BED_TRAMMING_Z_HOP)
+    ExtUI::setAxisPosition_mm(ExtUI::getAxisPosition_mm(ExtUI::Z) + (BED_TRAMMING_Z_HOP), ExtUI::Z);
   ExtUI::setAxisPosition_mm(x, ExtUI::X);
   ExtUI::setAxisPosition_mm(y, ExtUI::Y);
-  ExtUI::setAxisPosition_mm(Z_MIN_POS + BED_TRAMMING_HEIGHT, ExtUI::Z);
+  ExtUI::setAxisPosition_mm((Z_MIN_POS) + (BED_TRAMMING_HEIGHT), ExtUI::Z);
 }
 
 void DGUSRxHandler::probe(DGUS_VP &vp, void *data_ptr) {
@@ -514,7 +513,7 @@ void DGUSRxHandler::probe(DGUS_VP &vp, void *data_ptr) {
   UNUSED(data_ptr);
 
   #if ENABLED(MESH_BED_LEVELING)
-    screen.setStatusMessage(FPSTR(DGUS_MSG_ABL_REQUIRED));
+    screen.setStatusMessage(GET_TEXT_F(DGUS_MSG_ABL_REQUIRED));
     return;
   #endif
 
@@ -687,11 +686,11 @@ void DGUSRxHandler::moveStep(DGUS_VP &vp, void *data_ptr) {
 
   switch (direction) {
     default: return;
-    case DGUS_Data::MoveDirection::XM: offset = -offset;
+    case DGUS_Data::MoveDirection::XM: offset *= -1;
     case DGUS_Data::MoveDirection::XP: axis = ExtUI::X; break;
-    case DGUS_Data::MoveDirection::YM: offset = -offset;
+    case DGUS_Data::MoveDirection::YM: offset *= -1;
     case DGUS_Data::MoveDirection::YP: axis = ExtUI::Y; break;
-    case DGUS_Data::MoveDirection::ZM: offset = -offset;
+    case DGUS_Data::MoveDirection::ZM: offset *= -1;
     case DGUS_Data::MoveDirection::ZP: axis = ExtUI::Z; break;
   }
 
@@ -815,13 +814,13 @@ void DGUSRxHandler::pidSetTemp(DGUS_VP &vp, void *data_ptr) {
     return;
   }
 
-  uint16_t temp = BE16_P(data_ptr);
+  celsius_t temp = BE16_P(data_ptr);
 
   switch (screen.pid_heater) {
     default: return;
     #if HAS_HEATED_BED
       case DGUS_Data::Heater::BED:
-        LIMIT(temp, BED_MINTEMP, BED_MAX_TARGET);
+        LIMIT(temp, celsius_t(BED_MINTEMP), celsius_t(BED_MAX_TARGET));
         break;
     #endif
     #if HAS_HOTEND

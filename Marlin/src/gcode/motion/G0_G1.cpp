@@ -35,6 +35,10 @@
   #include "../../module/planner.h"
 #endif
 
+#if ENABLED(SOVOL_SV06_RTS)
+  #include "../../lcd/sovol_rts/sovol_rts.h"
+#endif
+
 extern xyze_pos_t destination;
 
 #if ENABLED(VARIABLE_G0_FEEDRATE)
@@ -82,9 +86,10 @@ void GcodeSuite::G0_G1(TERN_(HAS_FAST_MOVES, const bool fast_move/*=false*/)) {
         const float echange = destination.e - current_position.e;
         // Is this a retract or recover move?
         if (WITHIN(ABS(echange), MIN_AUTORETRACT, MAX_AUTORETRACT) && fwretract.retracted[active_extruder] == (echange > 0.0)) {
-          current_position.e = destination.e;       // Hide a G1-based retract/recover from calculations
-          sync_plan_position_e();                   // AND from the planner
-          return fwretract.retract(echange < 0.0);  // Firmware-based retract/recover (double-retract ignored)
+          current_position.e = destination.e;    // Hide a G1-based retract/recover from calculations
+          sync_plan_position_e();                // AND from the planner
+          fwretract.retract(echange < 0.0);      // Firmware-based retract/recover (double-retract ignored)
+          return;
         }
       }
     }
@@ -116,4 +121,6 @@ void GcodeSuite::G0_G1(TERN_(HAS_FAST_MOVES, const bool fast_move/*=false*/)) {
   #else
     TERN_(FULL_REPORT_TO_HOST_FEATURE, report_current_grblstate_moving());
   #endif
+
+  TERN_(SOVOL_SV06_RTS, RTS_PauseMoveAxisPage());
 }

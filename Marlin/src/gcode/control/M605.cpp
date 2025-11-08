@@ -115,7 +115,7 @@
     else if (!parser.seen('W'))  // if no S or W parameter, the DXC mode gets reset to the user's default
       dual_x_carriage_mode = DEFAULT_DUAL_X_CARRIAGE_MODE;
 
-    #ifdef DEBUG_DXC_MODE
+    #if ENABLED(DEBUG_DXC_MODE)
 
       if (parser.seen('W')) {
         DEBUG_ECHO_START();
@@ -155,13 +155,16 @@
 #elif ENABLED(MULTI_NOZZLE_DUPLICATION)
 
   /**
-   * M605: Set multi-nozzle duplication mode
+   * M605: Multi Nozzle Mode
    *
-   *  S2       - Enable duplication mode
-   *  P[mask]  - Bit-mask of nozzles to include in the duplication set.
-   *             A value of 0 disables duplication.
-   *  E[index] - Last nozzle index to include in the duplication set.
-   *             A value of 0 disables duplication.
+   * Set multi-nozzle duplication mode.
+   *
+   * Parameters:
+   *   S2        Enable duplication mode
+   *   P<mask>   Bit-mask of nozzles to include in the duplication set
+   *             A value of 0 disables duplication
+   *   E<index>  Last nozzle index to include in the duplication set
+   *             A value of 0 disables duplication
    */
   void GcodeSuite::M605() {
     bool ena = false;
@@ -173,8 +176,7 @@
       set_duplication_enabled(ena && (duplication_e_mask >= 3));
     }
     SERIAL_ECHO_START();
-    SERIAL_ECHOPGM(STR_DUPLICATION_MODE);
-    serialprint_onoff(extruder_duplication_enabled);
+    SERIAL_ECHOPGM(STR_DUPLICATION_MODE, ON_OFF(extruder_duplication_enabled));
     if (ena) {
       SERIAL_ECHOPGM(" ( ");
       HOTEND_LOOP() if (TEST(duplication_e_mask, e)) { SERIAL_ECHO(e); SERIAL_CHAR(' '); }

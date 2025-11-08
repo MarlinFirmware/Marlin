@@ -23,7 +23,8 @@
 
 /**
  * DWIN general defines and data structs for PRO UI
- * Author: Miguel A. Risco-Castillo (MRISCOC)
+ * Based on the original work of: Miguel Risco-Castillo (MRISCOC)
+ * https://github.com/mriscoc/Ender3V2S1
  * Version: 3.12.2
  * Date: 2022/08/08
  */
@@ -33,6 +34,10 @@
 //#define TJC_DISPLAY           // Enable for TJC display
 //#define DACAI_DISPLAY         // Enable for DACAI display
 //#define TITLE_CENTERED        // Center Menu Title Text
+
+#if HAS_MESH
+  #define USE_GRID_MESHVIEWER 1
+#endif
 
 #if HAS_MESH
   #define PROUI_MESH_EDIT       // Add a menu to edit mesh points
@@ -116,11 +121,11 @@
 #if ENABLED(POWER_LOSS_RECOVERY)
   #define PROUI_ITEM_PLR      // Tune > Power-loss Recovery
 #endif
-#if ENABLED(HAS_JUNCTION_DEVIATION)
+#if HAS_JUNCTION_DEVIATION
   #define PROUI_ITEM_JD       // Tune > Junction Deviation
 #endif
-#if ENABLED(LIN_ADVANCE)
-  #define PROUI_ITEM_ADVK     // Tune > Linear Advance
+#if HAS_LIN_ADVANCE_K
+  #define PROUI_ITEM_ADVK 1   // Tune > Linear Advance
 #endif
 #if ANY(HAS_PID_HEATING, MPC_AUTOTUNE) && DISABLED(DISABLE_TUNING_GRAPH)
   #define PROUI_TUNING_GRAPH 1

@@ -99,7 +99,12 @@ void RTS::onStartup() {
   sendData(StartSoundSet, SoundAddr);
   delay_ms(400); // Delay to allow screen to configure
 
-  onStatusChanged(MACHINE_NAME " Ready");
+  #if ENABLED(CONFIGURABLE_MACHINE_NAME)
+    const MString<32> ready(machine_name, " Ready");
+    onStatusChanged(ready);
+  #else
+    onStatusChanged(F(MACHINE_NAME " Ready"));
+  #endif
 
   sendData(100, FeedrateDisplay);
 
@@ -251,8 +256,8 @@ void RTS::onIdle() {
     delay_ms(3000);     // Delay to show bootscreen
   }
   else if (startprogress < 250) {
-    if (isMediaInserted()) // Re init media as it happens too early on STM32 boards often
-      onMediaInserted();
+    if (isMediaMounted()) // Re init media as it happens too early on STM32 boards often
+      onMediaMounted();
     else
       injectCommands(F("M22\nM21"));
     startprogress = 254;
@@ -375,7 +380,7 @@ void RTS::onIdle() {
     if (++autoHomeIconNum > 9) autoHomeIconNum = 0;
   }
 
-  if (isMediaInserted()) {
+  if (isMediaMounted()) {
     const uint16_t currPage = fileIndex == 0 ? 1 : CEIL(float(fileIndex) / float(DISPLAY_FILES)) + 1,
                    maxPageAdd = filenavigator.folderdepth ? 1 : 0,
                    maxPages = CEIL(float(filenavigator.maxFiles() + maxPageAdd) / float(DISPLAY_FILES) );
@@ -549,7 +554,7 @@ void RTS::sendData(const char c, const uint32_t addr, const uint8_t cmd/*=VarAdd
   sendData();
 }
 
-void RTS::sendData(const_float_t f, const uint32_t addr, const uint8_t cmd/*=VarAddr_W*/) {
+void RTS::sendData(const float f, const uint32_t addr, const uint8_t cmd/*=VarAddr_W*/) {
   int16_t n = f;
   if (cmd == VarAddr_W) {
     snddat.data[0] = n;
@@ -793,7 +798,7 @@ void RTS::handleData() {
           tmp_zprobe_offset = (float(recdat.data[0]) - 65536) / 100;
         else
           tmp_zprobe_offset = float(recdat.data[0]) / 100;
-        if (WITHIN((tmp_zprobe_offset), PROBE_OFFSET_ZMIN, PROBE_OFFSET_ZMAX)) {
+        if (WITHIN(tmp_zprobe_offset, PROBE_OFFSET_ZMIN, PROBE_OFFSET_ZMAX)) {
           int16_t tmpSteps = mmToWholeSteps(getZOffset_mm() - tmp_zprobe_offset, axis_t(Z));
           if (tmpSteps == 0) tmpSteps = getZOffset_mm() < tmp_zprobe_offset ? 1 : -1;
           smartAdjustAxis_steps(-tmpSteps, axis_t(Z), false);
@@ -1162,35 +1167,35 @@ void RTS::handleData() {
 
         #if ENABLED(LCD_BED_TRAMMING)
           case 6:   // Bed Tramming,  Centre 1
-            setAxisPosition_mm(BED_TRAMMING_Z_HOP, axis_t(Z));
+            if (BED_TRAMMING_Z_HOP) setAxisPosition_mm(current_position.z + (BED_TRAMMING_Z_HOP), axis_t(Z));
             setAxisPosition_mm(X_CENTER, axis_t(X));
             setAxisPosition_mm(Y_CENTER, axis_t(Y));
             waitway = 6;
             break;
 
           case 7:   // Bed Tramming, Front Left 2
-            setAxisPosition_mm(BED_TRAMMING_Z_HOP, axis_t(Z));
+            if (BED_TRAMMING_Z_HOP) setAxisPosition_mm(current_position.z + (BED_TRAMMING_Z_HOP), axis_t(Z));
             setAxisPosition_mm(X_MIN_BED + lfrb[0], axis_t(X));
             setAxisPosition_mm(Y_MIN_BED + lfrb[1], axis_t(Y));
             waitway = 6;
             break;
 
           case 8:   // Bed Tramming, Front Right 3
-            setAxisPosition_mm(BED_TRAMMING_Z_HOP, axis_t(Z));
+            if (BED_TRAMMING_Z_HOP) setAxisPosition_mm(current_position.z + (BED_TRAMMING_Z_HOP), axis_t(Z));
             setAxisPosition_mm(X_MAX_BED - lfrb[2], axis_t(X));
             setAxisPosition_mm(Y_MIN_BED + lfrb[1], axis_t(Y));
             waitway = 6;
             break;
 
           case 9:   // Bed Tramming, Back Right 4
-            setAxisPosition_mm(BED_TRAMMING_Z_HOP, axis_t(Z));
+            if (BED_TRAMMING_Z_HOP) setAxisPosition_mm(current_position.z + (BED_TRAMMING_Z_HOP), axis_t(Z));
             setAxisPosition_mm(X_MAX_BED - lfrb[2], axis_t(X));
             setAxisPosition_mm(Y_MAX_BED - lfrb[3], axis_t(Y));
             waitway = 6;
             break;
 
           case 10:   // Bed Tramming, Back Left 5
-            setAxisPosition_mm(BED_TRAMMING_Z_HOP, axis_t(Z));
+            if (BED_TRAMMING_Z_HOP) setAxisPosition_mm(current_position.z + (BED_TRAMMING_Z_HOP), axis_t(Z));
             setAxisPosition_mm(X_MIN_BED + lfrb[0], axis_t(X));
             setAxisPosition_mm(Y_MAX_BED - lfrb[3], axis_t(Y));
             waitway = 6;
@@ -1252,7 +1257,7 @@ void RTS::handleData() {
           setTouchScreenConfiguration();
           break;
         case 21:
-          dwin_settings.display_standby ^= true;
+          FLIP(dwin_settings.display_standby);
           setTouchScreenConfiguration();
           break;
         case 22:
@@ -1435,7 +1440,7 @@ void RTS::handleData() {
           // pause_resume_selected = true;
         }
         else {
-          #if ENABLED(FILAMENT_RUNOUT_SENSOR)
+          #if HAS_FILAMENT_SENSOR
             bool runouton = false;
             if (getFilamentRunoutState()) {
               #if NUM_RUNOUT_SENSORS > 1
@@ -1488,7 +1493,7 @@ void RTS::handleData() {
     } break;
 
     case Filename: {
-      if (isMediaInserted() && recdat.addr == FilenameChs) {
+      if (isMediaMounted() && recdat.addr == FilenameChs) {
 
         recordcount = recdat.data[0] - 1;
         if (filenavigator.currentindex == 0 && filenavigator.folderdepth > 0 && (fileIndex + recordcount) == 0) {
@@ -1521,7 +1526,7 @@ void RTS::handleData() {
         }
       }
       else if (recdat.addr == FilenamePlay) {
-        if (recdat.data[0] == 1 && isMediaInserted()) { // for sure
+        if (recdat.data[0] == 1 && isMediaMounted()) { // for sure
           printFile(filenavigator.getIndexName(fileIndex + recordcount));
 
           for (int16_t j = 0; j < 10; j++) // clean screen.
@@ -1622,6 +1627,9 @@ void RTS::handleData() {
 
       float meshVal = float(recdat.data[0] - (recdat.data[0] >= 32768 ? 65536 : 0)) / 1000;
 
+      #ifndef Z_PROBE_LOW_POINT
+        #define Z_PROBE_LOW_POINT -2
+      #endif
       LIMIT(meshVal, Z_PROBE_LOW_POINT, Z_CLEARANCE_BETWEEN_PROBES);
       xy_uint8_t point = { xPnt, yPnt };
       setMeshPoint(point, meshVal);

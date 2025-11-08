@@ -601,20 +601,20 @@ MSerialT1 customizedSerial1(MSerialT1::HasEmergencyParser);
 
 #endif // SERIAL_PORT_3
 
-#ifdef MMU2_SERIAL_PORT
+#ifdef MMU_SERIAL_PORT
 
-  ISR(SERIAL_REGNAME(USART, MMU2_SERIAL_PORT, _RX_vect)) {
-    MarlinSerial<MMU2SerialCfg<MMU2_SERIAL_PORT>>::store_rxd_char();
+  ISR(SERIAL_REGNAME(USART, MMU_SERIAL_PORT, _RX_vect)) {
+    MarlinSerial<MMU2SerialCfg<MMU_SERIAL_PORT>>::store_rxd_char();
   }
 
-  ISR(SERIAL_REGNAME(USART, MMU2_SERIAL_PORT, _UDRE_vect)) {
-    MarlinSerial<MMU2SerialCfg<MMU2_SERIAL_PORT>>::_tx_udr_empty_irq();
+  ISR(SERIAL_REGNAME(USART, MMU_SERIAL_PORT, _UDRE_vect)) {
+    MarlinSerial<MMU2SerialCfg<MMU_SERIAL_PORT>>::_tx_udr_empty_irq();
   }
 
-  template class MarlinSerial< MMU2SerialCfg<MMU2_SERIAL_PORT> >;
+  template class MarlinSerial< MMU2SerialCfg<MMU_SERIAL_PORT> >;
   MSerialMMU2 mmuSerial(MSerialMMU2::HasEmergencyParser);
 
-#endif // MMU2_SERIAL_PORT
+#endif // MMU_SERIAL_PORT
 
 #ifdef LCD_SERIAL_PORT
 
@@ -629,7 +629,7 @@ MSerialT1 customizedSerial1(MSerialT1::HasEmergencyParser);
   template class MarlinSerial< LCDSerialCfg<LCD_SERIAL_PORT> >;
   MSerialLCD lcdSerial(MSerialLCD::HasEmergencyParser);
 
-  #if HAS_DGUS_LCD
+  #if ANY(HAS_DGUS_LCD, EXTENSIBLE_UI)
     template<typename Cfg>
     typename MarlinSerial<Cfg>::ring_buffer_pos_t MarlinSerial<Cfg>::get_tx_buffer_free() {
       const ring_buffer_pos_t t = tx_buffer.tail,  // next byte to send.

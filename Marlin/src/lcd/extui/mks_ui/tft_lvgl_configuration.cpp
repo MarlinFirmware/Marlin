@@ -85,7 +85,7 @@ lv_group_t*  g;
 uint16_t DeviceCode = 0x9488;
 extern uint8_t sel_id;
 
-uint8_t bmp_public_buf[14 * 1024];
+uint8_t bmp_public_buf[16 * 1024];
 uint8_t public_buf[513];
 
 extern bool flash_preview_begin, default_preview_flg, gcode_preview_over;
@@ -131,30 +131,15 @@ void tft_lvgl_init() {
   // Init TFT first!
   SPI_TFT.spiInit(SPI_FULL_SPEED);
   SPI_TFT.lcdInit();
-
   hal.watchdog_refresh();     // LVGL init takes time
 
-  #if ENABLED(USB_FLASH_DRIVE_SUPPORT)
-    uint16_t usb_flash_loop = 1000;
-    #if ENABLED(MULTI_VOLUME) && !HAS_SD_HOST_DRIVE
-      if (IS_SD_INSERTED())
-        card.changeMedia(&card.media_driver_sdcard);
-      else
-        card.changeMedia(&card.media_driver_usbFlash);
-    #endif
-    do {
-      card.media_driver_usbFlash.idle();
-      hal.watchdog_refresh();
-      delay(2);
-    } while (!card.media_driver_usbFlash.isInserted() && usb_flash_loop--);
-    card.mount();
-  #elif HAS_LOGO_IN_FLASH
+  #if HAS_LOGO_IN_FLASH
+    // Leave the boot screen visible for a moment
     delay(1000);
-    hal.watchdog_refresh();
+    hal.watchdog_refresh();     // LVGL init takes time
     delay(1000);
+    hal.watchdog_refresh();     // LVGL init takes time
   #endif
-
-  hal.watchdog_refresh();     // LVGL init takes time
 
   #if HAS_MEDIA
     UpdateAssets();
@@ -164,9 +149,14 @@ void tft_lvgl_init() {
 
   touch.init();
 
+  #if ENABLED(USE_HASH_TABLE)
+    init_img_map();             // Initialize the image address hash table
+    hal.watchdog_refresh();     // Hash table init takes time
+  #endif
+
   lv_init();
 
-  lv_disp_buf_init(&disp_buf, bmp_public_buf, nullptr, LV_HOR_RES_MAX * 14); // Initialize the display buffer
+  lv_disp_buf_init(&disp_buf, bmp_public_buf, nullptr, LV_HOR_RES_MAX * 17); // Initialize the display buffer
 
   lv_disp_drv_t disp_drv;     // Descriptor of a display driver
   lv_disp_drv_init(&disp_drv);    // Basic initialization
@@ -216,7 +206,6 @@ void tft_lvgl_init() {
 
   tft_style_init();
   filament_pin_setup();
-  lv_encoder_pin_init();
 
   #if ENABLED(MKS_WIFI_MODULE)
     mks_esp_wifi_init();
@@ -284,8 +273,6 @@ void my_disp_flush(lv_disp_drv_t * disp, const lv_area_t * area, lv_color_t * co
     SPI_TFT.tftio.writeSequence((uint16_t*)color_p, width * height);
     lv_disp_flush_ready(disp_drv_p); // Indicate you are ready with the flushing
   #endif
-
-  W25QXX.init(SPI_QUARTER_SPEED);
 }
 
 #if ENABLED(USE_SPI_DMA_TC)
@@ -331,31 +318,37 @@ bool my_touchpad_read(lv_indev_drv_t * indev_driver, lv_indev_data_t * data) {
 }
 
 int16_t enc_diff = 0;
-lv_indev_state_t state = LV_INDEV_STATE_REL;
+lv_indev_state_t indev_enc_state = LV_INDEV_STATE_REL; // ENC button is pressed or released
 
 bool my_mousewheel_read(lv_indev_drv_t * indev_drv, lv_indev_data_t * data) {
-  (void) indev_drv;   // Unused
+  UNUSED(indev_drv);
 
-  data->state = state;
+  data->state = indev_enc_state;
   data->enc_diff = enc_diff;
   enc_diff = 0;
 
   return false;       // No more data to read so return false
 }
 
-extern uint8_t currentFlashPage;
+#if HAS_SPI_FLASH_COMPRESSION
+  extern uint8_t currentFlashPage;
+#endif
 
 // spi_flash
 uint32_t pic_read_base_addr = 0, pic_read_addr_offset = 0;
 lv_fs_res_t spi_flash_open_cb (lv_fs_drv_t * drv, void * file_p, const char * path, lv_fs_mode_t mode) {
   static char last_path_name[30];
+  #if HAS_SPI_FLASH_COMPRESSION
+    currentFlashPage = 0;
+  #endif
   if (strcasecmp(last_path_name, path) != 0) {
     pic_read_base_addr = lv_get_pic_addr((uint8_t *)path);
+    // clean lvgl image cache
+    char cache_path_name[30 + 3] = {0};
+    strcat(cache_path_name, "F:/");
+    strcat(cache_path_name, (const char *)last_path_name);
+    lv_img_cache_invalidate_src(cache_path_name);
     strcpy(last_path_name, path);
-  }
-  else {
-    W25QXX.init(SPI_QUARTER_SPEED);
-    currentFlashPage = 0;
   }
   pic_read_addr_offset = pic_read_base_addr;
   return LV_FS_RES_OK;
@@ -446,101 +439,49 @@ lv_fs_res_t sd_tell_cb(lv_fs_drv_t * drv, void * file_p, uint32_t * pos_p) {
   return LV_FS_RES_OK;
 }
 
-void lv_encoder_pin_init() {
-  #if BUTTON_EXISTS(EN1)
-    SET_INPUT_PULLUP(BTN_EN1);
+void lv_update_encoder() {
+
+  #if ANY_BUTTON(EN1, EN2)
+    constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;   // We can fill in
+    static uint8_t pulse_count;
+    pulse_count += ui.get_encoder_delta();
+    const int8_t fullSteps = pulse_count / epps;
+    pulse_count -= fullSteps * epps;
+    enc_diff += fullSteps;
   #endif
-  #if BUTTON_EXISTS(EN2)
-    SET_INPUT_PULLUP(BTN_EN2);
+
+  #if ANY_BUTTON(ENC, BACK, UP, DOWN, LEFT, RIGHT)
+    static millis_t last_encoder_ms;
+    const millis_t now = millis(), diffTime = getTickDiff(now, last_encoder_ms);
+    if (diffTime <= 50) return;
   #endif
+
   #if BUTTON_EXISTS(ENC)
-    SET_INPUT_PULLUP(BTN_ENC);
+    static uint8_t old_button_enc = LV_INDEV_STATE_REL;
+    const uint8_t enc_c = BUTTON_PRESSED(ENC) ? LV_INDEV_STATE_PR : LV_INDEV_STATE_REL;
+    if (enc_c != old_button_enc) {
+      indev_enc_state = enc_c ? LV_INDEV_STATE_PR : LV_INDEV_STATE_REL;
+      old_button_enc = enc_c;
+    }
   #endif
 
   #if BUTTON_EXISTS(BACK)
-    SET_INPUT_PULLUP(BTN_BACK);
+    if (BUTTON_PRESSED(BACK)) {}
   #endif
-
   #if BUTTON_EXISTS(UP)
-    SET_INPUT(BTN_UP);
+    if (BUTTON_PRESSED(UP)) {}
   #endif
   #if BUTTON_EXISTS(DOWN)
-    SET_INPUT(BTN_DOWN);
+    if (BUTTON_PRESSED(DOWN)) {}
   #endif
   #if BUTTON_EXISTS(LEFT)
-    SET_INPUT(BTN_LEFT);
+    if (BUTTON_PRESSED(LEFT)) {}
   #endif
   #if BUTTON_EXISTS(RIGHT)
-    SET_INPUT(BTN_RIGHT);
+    if (BUTTON_PRESSED(RIGHT)) {}
   #endif
+
 }
-
-#if 1 // HAS_ENCODER_ACTION
-
-  void lv_update_encoder() {
-    static uint32_t encoder_time1;
-    uint32_t tmpTime, diffTime = 0;
-    tmpTime = millis();
-    diffTime = getTickDiff(tmpTime, encoder_time1);
-    if (diffTime > 50) {
-
-      #if HAS_ENCODER_WHEEL
-
-        #if ANY_BUTTON(EN1, EN2, ENC, BACK)
-
-          uint8_t newbutton = 0;
-          if (BUTTON_PRESSED(EN1)) newbutton |= EN_A;
-          if (BUTTON_PRESSED(EN2)) newbutton |= EN_B;
-          if (BUTTON_PRESSED(ENC)) newbutton |= EN_C;
-          if (BUTTON_PRESSED(BACK)) newbutton |= EN_D;
-
-        #else
-
-          constexpr uint8_t newbutton = 0;
-
-        #endif
-
-        static uint8_t buttons = 0;
-        buttons = newbutton;
-        static uint8_t lastEncoderBits;
-
-        #define encrot0 0
-        #define encrot1 1
-        #define encrot2 2
-
-        uint8_t enc = 0;
-        if (buttons & EN_A) enc |= B01;
-        if (buttons & EN_B) enc |= B10;
-        if (enc != lastEncoderBits) {
-          switch (enc) {
-            case encrot1:
-              if (lastEncoderBits == encrot0) {
-                enc_diff--;
-                encoder_time1 = tmpTime;
-              }
-              break;
-            case encrot2:
-              if (lastEncoderBits == encrot0) {
-                enc_diff++;
-                encoder_time1 = tmpTime;
-              }
-              break;
-          }
-          lastEncoderBits = enc;
-        }
-        static uint8_t last_button_state = LV_INDEV_STATE_REL;
-        const uint8_t enc_c = (buttons & EN_C) ? LV_INDEV_STATE_PR : LV_INDEV_STATE_REL;
-        if (enc_c != last_button_state) {
-          state = enc_c ? LV_INDEV_STATE_PR : LV_INDEV_STATE_REL;
-          last_button_state = enc_c;
-        }
-
-      #endif // HAS_ENCODER_WHEEL
-
-    } // encoder_time1
-  }
-
-#endif // HAS_ENCODER_ACTION
 
 #ifdef __PLAT_NATIVE_SIM__
   #include <lv_misc/lv_log.h>

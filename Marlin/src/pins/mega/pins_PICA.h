@@ -23,8 +23,7 @@
 
 /**
  * Arduino Mega with PICA pin assignments
- * Schematic: https://green-candy.osdn.jp/external/MarlinFW/board_schematics/PICA/pica_schematic.pdf
- * Origin: https://github.com/mjrice/PICA/blob/master/pica_schematic.pdf
+ * Schematic: https://github.com/mjrice/PICA/blob/master/pica_schematic.pdf
  * ATmega2560
  *
  * PICA is Power, Interface, and Control Adapter and is open source hardware.
@@ -128,7 +127,7 @@
 // SD Support
 //
 #define SD_DETECT_PIN                EXP2_07_PIN
-#define SDSS                         EXP2_04_PIN
+#define SD_SS_PIN                    EXP2_04_PIN
 
 /**                      PICA Expansion Headers
  *               ------                            ------
@@ -175,5 +174,5 @@
   #define BTN_EN2                    EXP2_05_PIN
   #define BTN_ENC                    EXP1_02_PIN
 
-  #define LCD_SDSS                   EXP2_04_PIN
+  #define LCD_SDSS_PIN               EXP2_04_PIN
 #endif

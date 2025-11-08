@@ -34,14 +34,14 @@
 #define FORCE_INLINE __attribute__((always_inline)) inline
 
 typedef uint32_t hal_timer_t;
-#define HAL_TIMER_TYPE_MAX 0xFFFFFFFF
+#define HAL_TIMER_TYPE_MAX 0xFFFFFFFFUL
 
 #define FTM0_TIMER_PRESCALE 8
 #define FTM1_TIMER_PRESCALE 4
 #define FTM0_TIMER_PRESCALE_BITS 0b011
 #define FTM1_TIMER_PRESCALE_BITS 0b010
 
-#define FTM0_TIMER_RATE (F_BUS / (FTM0_TIMER_PRESCALE)) // 60MHz / 8 = 7500kHz
+#define FTM0_TIMER_RATE (F_BUS / (FTM0_TIMER_PRESCALE)) // 60MHz / 8 = 7.5MHz
 #define FTM1_TIMER_RATE (F_BUS / (FTM1_TIMER_PRESCALE)) // 60MHz / 4 = 15MHz
 
 #define HAL_TIMER_RATE         (FTM0_TIMER_RATE)

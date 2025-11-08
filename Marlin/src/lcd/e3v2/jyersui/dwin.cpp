@@ -46,7 +46,7 @@
   #include "../../../feature/pause.h"
 #endif
 
-#if ENABLED(FILAMENT_RUNOUT_SENSOR)
+#if HAS_FILAMENT_SENSOR
   #include "../../../feature/runout.h"
 #endif
 
@@ -378,8 +378,8 @@ private:
         dwinDrawRectangle(1,                                          // RGB565 colors: http://www.barth-dev.de/online/rgb565-color-picker/
           isnan(bedlevel.z_values[x][y]) ? COLOR_GREY : (             // gray if undefined
             (bedlevel.z_values[x][y] < 0 ?
-              (uint16_t)round(0x1F * -bedlevel.z_values[x][y] / (!viewer_asymmetric_range ? rmax : v_min)) << 11 :  // red if mesh point value is negative
-              (uint16_t)round(0x3F *  bedlevel.z_values[x][y] / (!viewer_asymmetric_range ? rmax : v_max)) << 5) |  // green if mesh point value is positive
+              (uint16_t)LROUND(0x1F * -bedlevel.z_values[x][y] / (!viewer_asymmetric_range ? rmax : v_min)) << 11 : // red if mesh point value is negative
+              (uint16_t)LROUND(0x3F *  bedlevel.z_values[x][y] / (!viewer_asymmetric_range ? rmax : v_max)) << 5) | // green if mesh point value is positive
                 _MIN(0x1F, (((uint8_t)abs(bedlevel.z_values[x][y]) / 10) * 4))),                                    // + blue stepping for every mm
           start_x_px, start_y_px, end_x_px, end_y_px
         );
@@ -427,7 +427,7 @@ private:
         v1 = -rmax;
         v2 =  rmin;
       }
-      jyersDWIN.updateStatus(TS(GET_TEXT_F(MSG_COLORS_RED), ' ', p_float_t(v1, 3) , F("..0.."), p_float_t(v2, 3), ' ', GET_TEXT_F(MSG_COLORS_GREEN)));
+      jyersDWIN.updateStatus(TS(GET_TEXT_F(MSG_COLORS_RED), ' ', p_float_t(v1, 3), F("..0.."), p_float_t(v2, 3), ' ', GET_TEXT_F(MSG_COLORS_GREEN)));
       drawing_mesh = false;
     }
 
@@ -454,7 +454,7 @@ void JyersDWIN::clearScreen(const uint8_t e/*=3*/) {
   if (e == 4) dwinDrawRectangle(1, COLOR_BG_BLACK, 0, 31, DWIN_WIDTH, DWIN_HEIGHT); // Clear Popup Area
 }
 
-void JyersDWIN::drawFloat(const_float_t value, const uint8_t row, const bool selected/*=false*/, const uint8_t minunit/*=10*/) {
+void JyersDWIN::drawFloat(const float value, const uint8_t row, const bool selected/*=false*/, const uint8_t minunit/*=10*/) {
   const uint8_t digits = (uint8_t)floor(log10(abs(value))) + log10(minunit) + (minunit > 1);
   const uint16_t bColor = selected ? COLOR_SELECT : COLOR_BG_BLACK;
   const uint16_t xpos = 240 - (digits * 8);
@@ -523,18 +523,18 @@ void JyersDWIN::drawMenuItem(const uint8_t row, const uint8_t icon/*=0*/, FSTR_P
 }
 
 void JyersDWIN::drawCheckbox(const uint8_t row, const bool value) {
-  #if ENABLED(DWIN_CREALITY_LCD_CUSTOM_ICONS)   // Draw appropriate checkbox icon
+  #if DISABLED(DWIN_CREALITY_LCD_STD_ICONS)     // Draw appropriate checkbox icon
     dwinIconShow(ICON, (value ? ICON_Checkbox_T : ICON_Checkbox_F), 226, MBASE(row) - 3);
   #else                                         // Draw a basic checkbox using rectangles and lines
     dwinDrawRectangle(1, COLOR_BG_BLACK, 226, MBASE(row) - 3, 226 + 20, MBASE(row) - 3 + 20);
-    dwinDrawRectangle(0, COLOR_WHITE, 226, MBASE(row) - 3, 226 + 20, MBASE(row) - 3 + 20);
+    dwinDrawRectangle(0, COLOR_WHITE,    226, MBASE(row) - 3, 226 + 20, MBASE(row) - 3 + 20);
     if (value) {
-      dwinDrawLine(COLOR_CHECKBOX, 227, MBASE(row) - 3 + 11, 226 + 8, MBASE(row) - 3 + 17);
-      dwinDrawLine(COLOR_CHECKBOX, 227 + 8, MBASE(row) - 3 + 17, 226 + 19, MBASE(row) - 3 + 1);
-      dwinDrawLine(COLOR_CHECKBOX, 227, MBASE(row) - 3 + 12, 226 + 8, MBASE(row) - 3 + 18);
-      dwinDrawLine(COLOR_CHECKBOX, 227 + 8, MBASE(row) - 3 + 18, 226 + 19, MBASE(row) - 3 + 2);
-      dwinDrawLine(COLOR_CHECKBOX, 227, MBASE(row) - 3 + 13, 226 + 8, MBASE(row) - 3 + 19);
-      dwinDrawLine(COLOR_CHECKBOX, 227 + 8, MBASE(row) - 3 + 19, 226 + 19, MBASE(row) - 3 + 3);
+      dwinDrawLine(COLOR_CHECKBOX, 227,     MBASE(row) - 3 + 11, 226 +  8, MBASE(row) - 3 + 17);
+      dwinDrawLine(COLOR_CHECKBOX, 227 + 8, MBASE(row) - 3 + 17, 226 + 19, MBASE(row) - 3 +  1);
+      dwinDrawLine(COLOR_CHECKBOX, 227,     MBASE(row) - 3 + 12, 226 +  8, MBASE(row) - 3 + 18);
+      dwinDrawLine(COLOR_CHECKBOX, 227 + 8, MBASE(row) - 3 + 18, 226 + 19, MBASE(row) - 3 +  2);
+      dwinDrawLine(COLOR_CHECKBOX, 227,     MBASE(row) - 3 + 13, 226 +  8, MBASE(row) - 3 + 19);
+      dwinDrawLine(COLOR_CHECKBOX, 227 + 8, MBASE(row) - 3 + 19, 226 + 19, MBASE(row) - 3 +  3);
     }
   #endif
 }
@@ -828,7 +828,7 @@ void JyersDWIN::drawStatusArea(const bool icons/*=false*/) {
     }
     if (planner.flow_percentage[0] != flow) {
       flow = planner.flow_percentage[0];
-      dwinDrawIntValue(true, true, 0, DWIN_FONT_STAT, getColor(eeprom_settings.status_area_text, COLOR_WHITE), COLOR_BG_BLACK, 3, 116 + 2 * STAT_CHR_W, 417, planner.flow_percentage[0]);
+      dwinDrawIntValue(true, true, 0, DWIN_FONT_STAT, getColor(eeprom_settings.status_area_text, COLOR_WHITE), COLOR_BG_BLACK, 3, 116 + 2 * STAT_CHR_W, 417, flow);
     }
   #endif
 
@@ -1342,7 +1342,7 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
               drawCheckbox(row, probe_deployed);
             }
             else {
-              probe_deployed ^= true;
+              FLIP(probe_deployed);
               probe.set_deployed(probe_deployed);
               drawCheckbox(row, probe_deployed);
             }
@@ -1355,7 +1355,7 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
             drawCheckbox(row, livemove);
           }
           else {
-            livemove ^= true;
+            FLIP(livemove);
             drawCheckbox(row, livemove);
           }
           break;
@@ -1377,10 +1377,10 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
       static bool use_probe = false;
 
       #if HAS_BED_PROBE
-        const float probe_x_min = _MAX(0 + corner_pos, X_MIN_POS + probe.offset.x, X_MIN_POS + PROBING_MARGIN) - probe.offset.x,
-                    probe_x_max = _MIN((X_BED_SIZE + X_MIN_POS) - corner_pos, X_MAX_POS + probe.offset.x, X_MAX_POS - PROBING_MARGIN) - probe.offset.x,
-                    probe_y_min = _MAX(0 + corner_pos, Y_MIN_POS + probe.offset.y, Y_MIN_POS + PROBING_MARGIN) - probe.offset.y,
-                    probe_y_max = _MIN((Y_BED_SIZE + Y_MIN_POS) - corner_pos, Y_MAX_POS + probe.offset.y, Y_MAX_POS - PROBING_MARGIN) - probe.offset.y;
+        const float probe_x_min = _MAX(0 + corner_pos, X_MIN_POS + probe.offset.x, X_MIN_POS + (PROBING_MARGIN_LEFT)) - probe.offset.x,
+                    probe_x_max = _MIN((X_BED_SIZE + X_MIN_POS) - corner_pos, X_MAX_POS + probe.offset.x, X_MAX_POS - (PROBING_MARGIN_RIGHT)) - probe.offset.x,
+                    probe_y_min = _MAX(0 + corner_pos, Y_MIN_POS + probe.offset.y, Y_MIN_POS + (PROBING_MARGIN_FRONT)) - probe.offset.y,
+                    probe_y_max = _MIN((Y_BED_SIZE + Y_MIN_POS) - corner_pos, Y_MAX_POS + probe.offset.y, Y_MAX_POS - (PROBING_MARGIN_BACK)) - probe.offset.y;
       #endif
 
       switch (item) {
@@ -1400,7 +1400,7 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
               drawCheckbox(row, use_probe);
             }
             else {
-              use_probe ^= true;
+              FLIP(use_probe);
               drawCheckbox(row, use_probe);
               if (use_probe) {
                 popupHandler(Popup_Level);
@@ -1523,7 +1523,7 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
             if (use_probe) {
               #if HAS_BED_PROBE
                 gcode.process_subcommands_now(
-                  TS(F("G0F4000\nG0Z10\nG0X"), p_float_t((X_MAX_POS) / 2.0f - probe.offset.x, 3), 'Y', p_float_t((Y_MAX_POS) / 2.0f - probe.offset.y, 3))
+                  TS(F("G0F4000\nG0Z10\nG0X"), p_float_t((X_MAX_POS) * 0.5f - probe.offset.x, 3), 'Y', p_float_t((Y_MAX_POS) * 0.5f - probe.offset.y, 3))
                 );
                 planner.synchronize();
                 popupHandler(Popup_ManualProbing);
@@ -1616,7 +1616,7 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
                 planner.synchronize();
                 redrawMenu();
               }
-              liveadjust ^= true;
+              FLIP(liveadjust);
               drawCheckbox(row, liveadjust);
             }
             break;
@@ -2398,10 +2398,13 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
           case MOTION_LA:
             if (draw) {
               drawMenuItem(row, ICON_MaxAccelerated, GET_TEXT_F(MSG_ADVANCE_K));
-              drawFloat(planner.extruder_advance_K[0], row, false, 100);
+              drawFloat(planner.get_advance_k(), row, false, 100);
             }
-            else
-              modifyValue(planner.extruder_advance_K[0], 0, 10, 100);
+            else {
+              static float k = planner.get_advance_k();
+              modifyValue(k, 0, 10, 100, []{ planner.set_advance_k(k); });
+            }
+
             break;
         #endif
       }
@@ -2719,7 +2722,7 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
             drawCheckbox(row, eeprom_settings.time_format_textual);
           }
           else {
-            eeprom_settings.time_format_textual ^= true;
+            FLIP(eeprom_settings.time_format_textual);
             drawCheckbox(row, eeprom_settings.time_format_textual);
           }
           break;
@@ -2857,7 +2860,7 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
       #define ADVANCED_LOAD (ADVANCED_LA + ENABLED(ADVANCED_PAUSE_FEATURE))
       #define ADVANCED_UNLOAD (ADVANCED_LOAD + ENABLED(ADVANCED_PAUSE_FEATURE))
       #define ADVANCED_COLD_EXTRUDE  (ADVANCED_UNLOAD + ENABLED(PREVENT_COLD_EXTRUSION))
-      #define ADVANCED_FILSENSORENABLED (ADVANCED_COLD_EXTRUDE + ENABLED(FILAMENT_RUNOUT_SENSOR))
+      #define ADVANCED_FILSENSORENABLED (ADVANCED_COLD_EXTRUDE + ENABLED(HAS_FILAMENT_SENSOR))
       #define ADVANCED_FILSENSORDISTANCE (ADVANCED_FILSENSORENABLED + ENABLED(HAS_FILAMENT_RUNOUT_DISTANCE))
       #define ADVANCED_POWER_LOSS (ADVANCED_FILSENSORDISTANCE + ENABLED(POWER_LOSS_RECOVERY))
       #define ADVANCED_TOTAL ADVANCED_POWER_LOSS
@@ -2877,7 +2880,7 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
               drawCheckbox(row, ui.sound_on);
             }
             else {
-              ui.sound_on ^= true;
+              FLIP(ui.sound_on);
               drawCheckbox(row, ui.sound_on);
             }
             break;
@@ -2914,10 +2917,12 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
           case ADVANCED_LA:
             if (draw) {
               drawMenuItem(row, ICON_MaxAccelerated, GET_TEXT_F(MSG_ADVANCE_K));
-              drawFloat(planner.extruder_advance_K[0], row, false, 100);
+              drawFloat(planner.get_advance_k(), row, false, 100);
             }
-            else
-              modifyValue(planner.extruder_advance_K[0], 0, 10, 100);
+            else {
+              static float k = planner.get_advance_k();
+              modifyValue(k, 0, 10, 100, []{ planner.set_advance_k(k); });
+            }
             break;
         #endif
 
@@ -2953,14 +2958,14 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
             break;
         #endif
 
-        #if ENABLED(FILAMENT_RUNOUT_SENSOR)
+        #if HAS_FILAMENT_SENSOR
           case ADVANCED_FILSENSORENABLED:
             if (draw) {
               drawMenuItem(row, ICON_Extruder, GET_TEXT_F(MSG_RUNOUT_SENSOR));
               drawCheckbox(row, runout.enabled);
             }
             else {
-              runout.enabled ^= true;
+              FLIP(runout.enabled);
               drawCheckbox(row, runout.enabled);
             }
             break;
@@ -2975,7 +2980,7 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
                 modifyValue(runout.runout_distance(), 0, 999, 10);
               break;
           #endif
-        #endif // FILAMENT_RUNOUT_SENSOR
+        #endif // HAS_FILAMENT_SENSOR
 
         #if ENABLED(POWER_LOSS_RECOVERY)
           case ADVANCED_POWER_LOSS:
@@ -3033,7 +3038,7 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
                 drawMenuItem(row, ICON_StepY, F("M48 Probe Test"));
               else {
                 gcode.process_subcommands_now(
-                  TS(F("G28O\nM48X") , p_float_t((X_BED_SIZE + X_MIN_POS) / 2.0f, 3), 'Y', p_float_t((Y_BED_SIZE + Y_MIN_POS) / 2.0f, 3), 'P', testcount)
+                  TS(F("G28O\nM48X"), p_float_t((X_BED_SIZE + X_MIN_POS) / 2.0f, 3), 'Y', p_float_t((Y_BED_SIZE + Y_MIN_POS) / 2.0f, 3), 'P', testcount)
                 );
               }
               break;
@@ -3068,7 +3073,7 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
               drawMenu(ID_Advanced, ADVANCED_TMC);
             break;
 
-          #if AXIS_IS_TMC(X)
+          #if X_IS_TRINAMIC
             case TMC_STEPPER_CURRENT_X:
 
               static float stepper_current_x;
@@ -3084,7 +3089,7 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
               break;
           #endif
 
-          #if AXIS_IS_TMC(Y)
+          #if Y_IS_TRINAMIC
             case TMC_STEPPER_CURRENT_Y:
               static float stepper_current_y;
               if (draw) {
@@ -3098,7 +3103,7 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
               break;
           #endif
 
-          #if AXIS_IS_TMC(Z)
+          #if Z_IS_TRINAMIC
             case TMC_STEPPER_CURRENT_Z:
               static float stepper_current_z;
               if (draw) {
@@ -3112,7 +3117,7 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
               break;
           #endif
 
-          #if AXIS_IS_TMC(E0)
+          #if E0_IS_TRINAMIC
             case TMC_STEPPER_CURRENT_E:
               static float stepper_current_e;
               if (draw) {
@@ -3403,7 +3408,7 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
               drawCheckbox(row, mesh_conf.viewer_print_value);
             }
             else {
-              mesh_conf.viewer_print_value ^= true;
+              FLIP(mesh_conf.viewer_print_value);
               drawCheckbox(row, mesh_conf.viewer_print_value);
             }
             break;
@@ -3413,7 +3418,7 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
               drawCheckbox(row, mesh_conf.viewer_asymmetric_range);
             }
             else {
-              mesh_conf.viewer_asymmetric_range ^= true;
+              FLIP(mesh_conf.viewer_asymmetric_range);
               drawCheckbox(row, mesh_conf.viewer_asymmetric_range);
             }
             break;
@@ -3596,7 +3601,7 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
               drawCheckbox(row, mesh_conf.goto_mesh_value);
             }
             else {
-              mesh_conf.goto_mesh_value ^= true;
+              FLIP(mesh_conf.goto_mesh_value);
               current_position.z = 0;
               mesh_conf.manual_mesh_move(true);
               drawCheckbox(row, mesh_conf.goto_mesh_value);
@@ -3830,7 +3835,7 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
       #define TUNE_LA (TUNE_ZDOWN + ENABLED(LIN_ADVANCE))
       #define TUNE_CHANGEFIL (TUNE_LA + ENABLED(FILAMENT_LOAD_UNLOAD_GCODES))
       #define TUNE_FWRETRACT (TUNE_CHANGEFIL + ENABLED(FWRETRACT))
-      #define TUNE_FILSENSORENABLED (TUNE_FWRETRACT + ENABLED(FILAMENT_RUNOUT_SENSOR))
+      #define TUNE_FILSENSORENABLED (TUNE_FWRETRACT + ENABLED(HAS_FILAMENT_SENSOR))
       #define TUNE_BACKLIGHT_OFF (TUNE_FILSENSORENABLED + 1)
       #define TUNE_BACKLIGHT (TUNE_BACKLIGHT_OFF + 1)
       #define TUNE_TOTAL TUNE_BACKLIGHT
@@ -3925,10 +3930,12 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
           case TUNE_LA:
             if (draw) {
               drawMenuItem(row, ICON_MaxAccelerated, GET_TEXT_F(MSG_ADVANCE_K));
-              drawFloat(planner.extruder_advance_K[0], row, false, 100);
+              drawFloat(planner.get_advance_k(), row, false, 100);
             }
-            else
-              modifyValue(planner.extruder_advance_K[0], 0, 10, 100);
+            else {
+              static float k = planner.get_advance_k();
+              modifyValue(k, 0, 10, 100, []{ planner.set_advance_k(k); });
+            }
             break;
         #endif
 
@@ -3950,14 +3957,14 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
             break;
         #endif
 
-        #if ENABLED(FILAMENT_RUNOUT_SENSOR)
+        #if HAS_FILAMENT_SENSOR
           case TUNE_FILSENSORENABLED:
             if (draw) {
               drawMenuItem(row, ICON_Extruder, GET_TEXT_F(MSG_RUNOUT_SENSOR));
               drawCheckbox(row, runout.enabled);
             }
             else {
-              runout.enabled ^= true;
+              FLIP(runout.enabled);
               drawCheckbox(row, runout.enabled);
             }
             break;
@@ -4140,7 +4147,7 @@ FSTR_P JyersDWIN::getMenuTitle(const uint8_t menu) {
     case ID_Move:           return GET_TEXT_F(MSG_MOVE_AXIS);
     case ID_ManualLevel:    return GET_TEXT_F(MSG_BED_TRAMMING_MANUAL);
     #if HAS_ZOFFSET_ITEM
-      case ID_ZOffset:      return GET_TEXT_F(MSG_ZPROBE_ZOFFSET);
+      case ID_ZOffset:      return liveadjust ? GET_TEXT_F(MSG_BABYSTEP_PROBE_Z) : GET_TEXT_F(MSG_ZPROBE_ZOFFSET);
     #endif
     #if HAS_PREHEAT
       case ID_Preheat:      return F("Preheat");
@@ -4326,7 +4333,7 @@ void JyersDWIN::popupHandler(const PopupID popupid, const bool option/*=false*/)
     case Popup_FilLoad:       drawPopup(option ? F("Unloading Filament") : F("Loading Filament"), PWID, F(""), Proc_Wait, ICON_BLTouch); break;
     case Popup_FilChange:     drawPopup(F("Filament Change"), F("Please wait for prompt."), F(""), Proc_Wait, ICON_BLTouch); break;
     case Popup_TempWarn:      drawPopup(option ? F("Nozzle temp too low!") : F("Nozzle temp too high!"), F(""), F(""), Proc_Wait, option ? ICON_TempTooLow : ICON_TempTooHigh); break;
-    #if ENABLED(FILAMENT_RUNOUT_SENSOR)
+    #if HAS_FILAMENT_SENSOR
       case Popup_Runout:      drawPopup(F("Filament Runout"), F(""), F(""), Proc_Wait, ICON_BLTouch); break;
     #endif
     #if ANY(PIDTEMP, PIDTEMPBED)
@@ -4653,7 +4660,7 @@ void JyersDWIN::popupControl() {
             #if ENABLED(PARK_HEAD_ON_PAUSE)
               popupHandler(Popup_Home, true);
               #if HAS_MEDIA
-                if (IS_SD_PRINTING()) card.pauseSDPrint();
+                if (card.isStillPrinting()) card.pauseSDPrint();
               #endif
               planner.synchronize();
               queue.inject(F("M125"));
@@ -4805,7 +4812,7 @@ void JyersDWIN::confirmControl() {
 // In-Menu Value Modification
 //
 
-void JyersDWIN::setupValue(const_float_t value, const_float_t min, const_float_t max, const_float_t unit, const uint8_t type) {
+void JyersDWIN::setupValue(const float value, const float min, const float max, const float unit, const uint8_t type) {
   if (TERN0(PIDTEMP, valuepointer == &thermalManager.temp_hotend[0].pid.Ki) || TERN0(PIDTEMPBED, valuepointer == &thermalManager.temp_bed.pid.Ki))
     tempvalue = unscalePID_i(value) * unit;
   else if (TERN0(PIDTEMP, valuepointer == &thermalManager.temp_hotend[0].pid.Kd) || TERN0(PIDTEMPBED, valuepointer == &thermalManager.temp_bed.pid.Kd))
@@ -4821,32 +4828,32 @@ void JyersDWIN::setupValue(const_float_t value, const_float_t min, const_float_t
   drawFloat(tempvalue / unit, selection - scrollpos, true, valueunit);
 }
 
-void JyersDWIN::modifyValue(float &value, const_float_t min, const_float_t max, const_float_t unit, void (*f)()/*=nullptr*/) {
+void JyersDWIN::modifyValue(float &value, const float min, const float max, const float unit, void (*f)()/*=nullptr*/) {
   valuepointer = &value;
   funcpointer = f;
   setupValue((float)value, min, max, unit, 0);
 }
-void JyersDWIN::modifyValue(uint8_t &value, const_float_t min, const_float_t max, const_float_t unit, void (*f)()/*=nullptr*/) {
+void JyersDWIN::modifyValue(uint8_t &value, const float min, const float max, const float unit, void (*f)()/*=nullptr*/) {
   valuepointer = &value;
   funcpointer = f;
   setupValue((float)value, min, max, unit, 1);
 }
-void JyersDWIN::modifyValue(uint16_t &value, const_float_t min, const_float_t max, const_float_t unit, void (*f)()/*=nullptr*/) {
+void JyersDWIN::modifyValue(uint16_t &value, const float min, const float max, const float unit, void (*f)()/*=nullptr*/) {
   valuepointer = &value;
   funcpointer = f;
   setupValue((float)value, min, max, unit, 2);
 }
-void JyersDWIN::modifyValue(int16_t &value, const_float_t min, const_float_t max, const_float_t unit, void (*f)()/*=nullptr*/) {
+void JyersDWIN::modifyValue(int16_t &value, const float min, const float max, const float unit, void (*f)()/*=nullptr*/) {
   valuepointer = &value;
   funcpointer = f;
   setupValue((float)value, min, max, unit, 3);
 }
-void JyersDWIN::modifyValue(uint32_t &value, const_float_t min, const_float_t max, const_float_t unit, void (*f)()/*=nullptr*/) {
+void JyersDWIN::modifyValue(uint32_t &value, const float min, const float max, const float unit, void (*f)()/*=nullptr*/) {
   valuepointer = &value;
   funcpointer = f;
   setupValue((float)value, min, max, unit, 4);
 }
-void JyersDWIN::modifyValue(int8_t &value, const_float_t min, const_float_t max, const_float_t unit, void (*f)()/*=nullptr*/) {
+void JyersDWIN::modifyValue(int8_t &value, const float min, const float max, const float unit, void (*f)()/*=nullptr*/) {
   valuepointer = &value;
   funcpointer = f;
   setupValue((float)value, min, max, unit, 5);
@@ -4953,7 +4960,7 @@ void JyersDWIN::stateUpdate() {
       }
     }
   #endif
-  #if ENABLED(FILAMENT_RUNOUT_SENSOR)
+  #if HAS_FILAMENT_SENSOR
     static bool ranout = false;
     if (runout.filament_ran_out != ranout) {
       ranout = runout.filament_ran_out;
@@ -5105,7 +5112,7 @@ void JyersDWIN::loadSettings(const char * const buff) {
   memcpy(&eeprom_settings, buff, _MIN(sizeof(eeprom_settings), eeprom_data_size));
   TERN_(AUTO_BED_LEVELING_UBL, mesh_conf.tilt_grid = eeprom_settings.tilt_grid_size + 1);
   if (eeprom_settings.corner_pos == 0) eeprom_settings.corner_pos = 325;
-  corner_pos = eeprom_settings.corner_pos / 10.0f;
+  corner_pos = eeprom_settings.corner_pos * 0.1f;
   redrawScreen();
   #if ENABLED(POWER_LOSS_RECOVERY)
     static bool init = true;
@@ -5132,7 +5139,7 @@ void JyersDWIN::resetSettings() {
   eeprom_settings.coordinates_text = 0;
   eeprom_settings.coordinates_split_line = 0;
   TERN_(AUTO_BED_LEVELING_UBL, mesh_conf.tilt_grid = eeprom_settings.tilt_grid_size + 1);
-  corner_pos = eeprom_settings.corner_pos / 10.0f;
+  corner_pos = eeprom_settings.corner_pos * 0.1f;
   TERN_(SOUND_MENU_ITEM, ui.sound_on = ENABLED(SOUND_ON_DEFAULT));
   redrawScreen();
 }
@@ -5143,7 +5150,6 @@ void MarlinUI::init_lcd() {
   if (dwinHandshake()) SERIAL_ECHOLNPGM("ok."); else SERIAL_ECHOLNPGM("error.");
   dwinFrameSetDir(1); // Orientation 90°
   dwinUpdateLCD();     // Show bootscreen (first image)
-  encoderConfiguration();
   for (uint16_t t = 0; t <= 100; t += 2) {
     dwinIconShow(ICON, ICON_Bar, 15, 260);
     dwinDrawRectangle(1, COLOR_BG_BLACK, 15 + t * 242 / 100, 260, 257, 280);
@@ -5155,6 +5161,8 @@ void MarlinUI::init_lcd() {
   dwinJPGCacheTo1(Language_English);
   jyersDWIN.redrawScreen();
 }
+
+void MarlinUI::clear_lcd() {}
 
 #if ENABLED(ADVANCED_PAUSE_FEATURE)
   void MarlinUI::pause_show_message(const PauseMessage message, const PauseMode mode/*=PAUSE_MODE_SAME*/, const uint8_t extruder/*=active_extruder*/) {

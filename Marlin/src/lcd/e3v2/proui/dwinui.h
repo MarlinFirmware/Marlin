@@ -23,7 +23,8 @@
 
 /**
  * DWIN Enhanced implementation for PRO UI
- * Author: Miguel A. Risco-Castillo (MRISCOC)
+ * Based on the original work of: Miguel Risco-Castillo (MRISCOC)
+ * https://github.com/mriscoc/Ender3V2S1
  * Version: 3.21.1
  * Date: 2023/03/21
  */
@@ -34,22 +35,6 @@
 #include "../common/dwin_font.h"
 #include "../common/dwin_color.h"
 #include "dwin_lcd.h"
-
-// Extra Icons
-#define ICON_Printer_0         93
-#define ICON_Box              200
-#define ICON_Checkbox         201
-#define ICON_Fade             202
-#define ICON_Mesh             203
-#define ICON_Tilt             204
-#define ICON_Brightness       205
-#define ICON_Probe            206
-#define ICON_AxisD            249
-#define ICON_AxisBR           250
-#define ICON_AxisTR           251
-#define ICON_AxisBL           252
-#define ICON_AxisTL           253
-#define ICON_AxisC            254
 
 #define ICON_BedSizeX         ICON_PrintSize
 #define ICON_BedSizeY         ICON_PrintSize

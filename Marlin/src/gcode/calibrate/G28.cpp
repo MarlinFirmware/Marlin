@@ -28,6 +28,10 @@
 #include "../../module/planner.h"
 #include "../../module/stepper.h" // for various
 
+#if HAS_HOMING_CURRENT
+  #include "../../module/motion.h" // for set/restore_homing_current
+#endif
+
 #if HAS_MULTI_HOTEND
   #include "../../module/tool_change.h"
 #endif
@@ -40,10 +44,16 @@
   #include "../../feature/tmc_util.h"
 #endif
 
-#include "../../module/probe.h"
+#if HAS_BED_PROBE
+  #include "../../module/probe.h"
+#endif
 
 #if ENABLED(BLTOUCH)
   #include "../../feature/bltouch.h"
+#endif
+
+#if ENABLED(FT_MOTION)
+  #include "../../module/ft_motion.h"
 #endif
 
 #include "../../lcd/marlinui.h"
@@ -52,6 +62,8 @@
   #include "../../lcd/extui/ui_api.h"
 #elif ENABLED(DWIN_CREALITY_LCD)
   #include "../../lcd/e3v2/creality/dwin.h"
+#elif ENABLED(SOVOL_SV06_RTS)
+  #include "../../lcd/sovol_rts/sovol_rts.h"
 #endif
 
 #if ENABLED(LASER_FEATURE)
@@ -75,6 +87,12 @@
     const float minfr = _MIN(homing_feedrate(X_AXIS), homing_feedrate(Y_AXIS)),
                 fr_mm_s = HYPOT(minfr, minfr);
 
+    // Set homing current to X and Y axis if defined
+    TERN_(X_HAS_HOME_CURRENT, set_homing_current(X_AXIS));
+    #if Y_HAS_HOME_CURRENT && NONE(CORE_IS_XY, MARKFORGED_XY, MARKFORGED_YX)
+      set_homing_current(Y_AXIS);
+    #endif
+
     #if ENABLED(SENSORLESS_HOMING)
       sensorless_t stealth_states {
         NUM_AXIS_LIST(
@@ -93,6 +111,11 @@
 
     current_position.set(0.0, 0.0);
 
+    TERN_(X_HAS_HOME_CURRENT, restore_homing_current(X_AXIS));
+    #if Y_HAS_HOME_CURRENT && NONE(CORE_IS_XY, MARKFORGED_XY, MARKFORGED_YX)
+      restore_homing_current(Y_AXIS);
+    #endif
+
     #if ENABLED(SENSORLESS_HOMING) && DISABLED(ENDSTOPS_ALWAYS_ON_DEFAULT)
       TERN_(X_SENSORLESS, tmc_disable_stallguard(stepperX, stealth_states.x));
       TERN_(X2_SENSORLESS, tmc_disable_stallguard(stepperX2, stealth_states.x2));
@@ -106,6 +129,10 @@
 #if ENABLED(Z_SAFE_HOMING)
 
   inline void home_z_safely() {
+
+    // Potentially disable Fixed-Time Motion for homing
+    TERN_(FT_MOTION, FTM_DISABLE_IN_SCOPE());
+
     DEBUG_SECTION(log_G28, "home_z_safely", DEBUGGING(LEVELING));
 
     // Disallow Z homing if X or Y homing is needed
@@ -172,18 +199,24 @@
 #endif // IMPROVE_HOMING_RELIABILITY
 
 /**
- * G28: Home all axes according to settings
+ * G28: Auto Home
  *
- * Parameters
+ * Home all axes according to settings
  *
- *  None  Home to all axes with no parameters.
+ * Parameters:
+ *  None  Home all axes
  *        With QUICK_HOME enabled XY will home together, then Z.
  *
  *  L<bool>   Force leveling state ON (if possible) or OFF after homing (Requires RESTORE_LEVELING_AFTER_G28 or ENABLE_LEVELING_AFTER_G28)
  *  O         Home only if the position is not known and trusted
  *  R<linear> Raise by n mm/inches before homing
+ *  H         Hold the current X/Y position when executing a home Z, or if
+ *            multiple axes are homed, the position when Z home is executed.
+ *            When using a probe for Z Home, positions close to the edge may
+ *            fail with position unreachable due to probe/nozzle offset.  This
+ *            can be used to avoid a model.
  *
- * Cartesian/SCARA parameters
+ * Cartesian/SCARA parameters:
  *
  *  X   Home to the X endstop
  *  Y   Home to the Y endstop
@@ -252,76 +285,12 @@ void GcodeSuite::G28() {
     // Reset to the XY plane
     TERN_(CNC_WORKSPACE_PLANES, workspace_plane = PLANE_XY);
 
-    #define _OR_HAS_CURR_HOME(N) HAS_CURRENT_HOME(N) ||
-    #if MAIN_AXIS_MAP(_OR_HAS_CURR_HOME) MAP(_OR_HAS_CURR_HOME, X2, Y2, Z2, Z3, Z4) 0
-      #define HAS_HOMING_CURRENT 1
-    #endif
-
-    #if HAS_HOMING_CURRENT
-
-      #if ENABLED(DEBUG_LEVELING_FEATURE)
-        auto debug_current = [](FSTR_P const s, const int16_t a, const int16_t b) {
-          if (DEBUGGING(LEVELING)) { DEBUG_ECHOLN(s, F(" current: "), a, F(" -> "), b); }
-        };
-      #else
-        #define debug_current(...)
-      #endif
-
-      #define _SAVE_SET_CURRENT(A) \
-        const int16_t saved_current_##A = stepper##A.getMilliamps(); \
-        stepper##A.rms_current(A##_CURRENT_HOME); \
-        debug_current(F(STR_##A), saved_current_##A, A##_CURRENT_HOME)
-
-      #if HAS_CURRENT_HOME(X)
-        _SAVE_SET_CURRENT(X);
-      #endif
-      #if HAS_CURRENT_HOME(X2)
-        _SAVE_SET_CURRENT(X2);
-      #endif
-      #if HAS_CURRENT_HOME(Y)
-        _SAVE_SET_CURRENT(Y);
-      #endif
-      #if HAS_CURRENT_HOME(Y2)
-        _SAVE_SET_CURRENT(Y2);
-      #endif
-      #if HAS_CURRENT_HOME(Z)
-        _SAVE_SET_CURRENT(Z);
-      #endif
-      #if HAS_CURRENT_HOME(Z2)
-        _SAVE_SET_CURRENT(Z2);
-      #endif
-      #if HAS_CURRENT_HOME(Z3)
-        _SAVE_SET_CURRENT(Z3);
-      #endif
-      #if HAS_CURRENT_HOME(Z4)
-        _SAVE_SET_CURRENT(Z4);
-      #endif
-      #if HAS_CURRENT_HOME(I)
-        _SAVE_SET_CURRENT(I);
-      #endif
-      #if HAS_CURRENT_HOME(J)
-        _SAVE_SET_CURRENT(J);
-      #endif
-      #if HAS_CURRENT_HOME(K)
-        _SAVE_SET_CURRENT(K);
-      #endif
-      #if HAS_CURRENT_HOME(U)
-        _SAVE_SET_CURRENT(U);
-      #endif
-      #if HAS_CURRENT_HOME(V)
-        _SAVE_SET_CURRENT(V);
-      #endif
-      #if HAS_CURRENT_HOME(W)
-        _SAVE_SET_CURRENT(W);
-      #endif
-      #if SENSORLESS_STALLGUARD_DELAY
-        safe_delay(SENSORLESS_STALLGUARD_DELAY); // Short delay needed to settle
-      #endif
-    #endif // HAS_HOMING_CURRENT
-
     #if ENABLED(IMPROVE_HOMING_RELIABILITY)
       motion_state_t saved_motion_state = begin_slow_homing();
     #endif
+
+    // Potentially disable Fixed-Time Motion for homing
+    TERN_(FT_MOTION, FTM_DISABLE_IN_SCOPE());
 
     // Always home with tool 0 active
     #if HAS_MULTI_HOTEND
@@ -330,7 +299,8 @@ void GcodeSuite::G28() {
       #endif
       // PARKING_EXTRUDER homing requires different handling of movement / solenoid activation, depending on the side of homing
       #if ENABLED(PARKING_EXTRUDER)
-        const bool pe_final_change_must_unpark = parking_extruder_unpark_after_homing(old_tool_index, X_HOME_DIR + 1 == old_tool_index * 2);
+        const bool homed_towards_tool = old_tool_index == TERN(X_HOME_TO_MIN, 0, 1),
+                   pe_final_change_must_unpark = parking_extruder_unpark_after_homing(old_tool_index, homed_towards_tool);
       #endif
       tool_change(0, true);
     #endif
@@ -361,9 +331,9 @@ void GcodeSuite::G28() {
 
     #else // !DELTA && !AXEL_TPARA
 
-      #define _UNSAFE(A) (homeZ && TERN0(Z_SAFE_HOMING, axes_should_home(_BV(A##_AXIS))))
+      #define _UNSAFE(A) TERN0(Z_SAFE_HOMING, homeZZ && axis_should_home(_AXIS(A)))
 
-      const bool homeZ = TERN0(HAS_Z_AXIS, parser.seen_test('Z')),
+      const bool homeZZ = TERN0(HAS_Z_AXIS, parser.seen_test('Z')),
                  NUM_AXIS_LIST_(             // Other axes should be homed before Z safe-homing
                    needX = _UNSAFE(X), needY = _UNSAFE(Y), needZ = false, // UNUSED
                    needI = _UNSAFE(I), needJ = _UNSAFE(J), needK = _UNSAFE(K),
@@ -372,7 +342,7 @@ void GcodeSuite::G28() {
                  NUM_AXIS_LIST_(             // Home each axis if needed or flagged
                    homeX = needX || parser.seen_test('X'),
                    homeY = needY || parser.seen_test('Y'),
-                   homeZZ = homeZ,
+                   homeZ = homeZZ,
                    homeI = needI || parser.seen_test(AXIS4_NAME), homeJ = needJ || parser.seen_test(AXIS5_NAME),
                    homeK = needK || parser.seen_test(AXIS6_NAME), homeU = needU || parser.seen_test(AXIS7_NAME),
                    homeV = needV || parser.seen_test(AXIS8_NAME), homeW = needW || parser.seen_test(AXIS9_NAME)
@@ -394,7 +364,7 @@ void GcodeSuite::G28() {
 
       #if HAS_Z_AXIS
 
-        UNUSED(needZ); UNUSED(homeZZ);
+        UNUSED(needZ);
 
         // Z may home first, e.g., when homing away from the bed.
         // This is also permitted when homing with a Z endstop.
@@ -417,7 +387,7 @@ void GcodeSuite::G28() {
           bool with_probe = ENABLED(HOMING_Z_WITH_PROBE);
           // Raise above the current Z (which should be synced in the planner)
           // The "height" for Z is a coordinate. But if Z is not trusted/homed make it relative.
-          if (seenR || !TERN(HOME_AFTER_DEACTIVATE, axis_is_trusted, axis_was_homed)(Z_AXIS)) {
+          if (seenR || !(z_min_trusted || axis_should_home(Z_AXIS))) {
             z_homing_height += current_position.z;
             with_probe = false;
           }
@@ -478,8 +448,7 @@ void GcodeSuite::G28() {
 
       #if HAS_Y_AXIS
         // Home Y (after X)
-        if (DISABLED(HOME_Y_BEFORE_X) && doY)
-          homeaxis(Y_AXIS);
+        if (DISABLED(HOME_Y_BEFORE_X) && doY) homeaxis(Y_AXIS);
       #endif
 
       #if ALL(FOAMCUTTER_XYUV, HAS_J_AXIS)
@@ -505,7 +474,12 @@ void GcodeSuite::G28() {
             #endif
 
             #if ENABLED(Z_SAFE_HOMING)
-              if (TERN1(POWER_LOSS_RECOVERY, !parser.seen_test('H'))) home_z_safely(); else homeaxis(Z_AXIS);
+              // H means hold the current X/Y position when probing.
+              // Otherwise move to the define safe X/Y position before homing Z.
+              if (!parser.seen_test('H'))
+                home_z_safely();
+              else
+                homeaxis(Z_AXIS);
             #else
               homeaxis(Z_AXIS);
             #endif
@@ -570,55 +544,6 @@ void GcodeSuite::G28() {
     // Clear endstop state for polled stallGuard endstops
     TERN_(SPI_ENDSTOPS, endstops.clear_endstop_state());
 
-    #if HAS_HOMING_CURRENT
-      if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Restore driver current...");
-      #if HAS_CURRENT_HOME(X)
-        stepperX.rms_current(saved_current_X);
-      #endif
-      #if HAS_CURRENT_HOME(X2)
-        stepperX2.rms_current(saved_current_X2);
-      #endif
-      #if HAS_CURRENT_HOME(Y)
-        stepperY.rms_current(saved_current_Y);
-      #endif
-      #if HAS_CURRENT_HOME(Y2)
-        stepperY2.rms_current(saved_current_Y2);
-      #endif
-      #if HAS_CURRENT_HOME(Z)
-        stepperZ.rms_current(saved_current_Z);
-      #endif
-      #if HAS_CURRENT_HOME(Z2)
-        stepperZ2.rms_current(saved_current_Z2);
-      #endif
-      #if HAS_CURRENT_HOME(Z3)
-        stepperZ3.rms_current(saved_current_Z3);
-      #endif
-      #if HAS_CURRENT_HOME(Z4)
-        stepperZ4.rms_current(saved_current_Z4);
-      #endif
-      #if HAS_CURRENT_HOME(I)
-        stepperI.rms_current(saved_current_I);
-      #endif
-      #if HAS_CURRENT_HOME(J)
-        stepperJ.rms_current(saved_current_J);
-      #endif
-      #if HAS_CURRENT_HOME(K)
-        stepperK.rms_current(saved_current_K);
-      #endif
-      #if HAS_CURRENT_HOME(U)
-        stepperU.rms_current(saved_current_U);
-      #endif
-      #if HAS_CURRENT_HOME(V)
-        stepperV.rms_current(saved_current_V);
-      #endif
-      #if HAS_CURRENT_HOME(W)
-        stepperW.rms_current(saved_current_W);
-      #endif
-      #if SENSORLESS_STALLGUARD_DELAY
-        safe_delay(SENSORLESS_STALLGUARD_DELAY); // Short delay needed to settle
-      #endif
-    #endif // HAS_HOMING_CURRENT
-
     // Move to a height where we can use the full xy-area
     TERN_(DELTA_HOME_TO_SAFE_ZONE, do_blocking_move_to_z(delta_clip_start_height));
 
@@ -650,6 +575,7 @@ void GcodeSuite::G28() {
 
   ui.refresh();
 
+  TERN_(SOVOL_SV06_RTS, RTS_MoveAxisHoming());
   TERN_(DWIN_CREALITY_LCD, dwinHomingDone());
   TERN_(EXTENSIBLE_UI, ExtUI::onHomingDone());
 

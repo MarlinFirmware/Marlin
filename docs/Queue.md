@@ -13,6 +13,7 @@ Whenever the command queue gets full the sender needs to wait for space to open 
 An opposite problem called "planner starvation" occurs when Marlin receives many short and fast moves in a row so the Planner Buffer gets completed very quickly. In this case the host can't send commands fast enough to prevent the Planner Buffer from emptying out. Planner starvation causes obvious stuttering and is commonly seen on overloaded deltabots during small curves. Marlin has strategies to mitigate this issue, but sometimes a model has to be re-sliced (or the G-code has to be post-processed with Arc Welder) just to stay within the machine's inherent limits.
 
 Here's a basic flowchart of Marlin command processing:
+
 ```
 +------+                                Marlin's GCodeQueue
 |      |                             +--------------------------------------+     +-----------+
@@ -39,6 +40,7 @@ Here's a basic flowchart of Marlin command processing:
 ```
 
 Marlin is a single-threaded application with a main `loop()` that manages the command queue and an `idle()` routine that manages the hardware. The command queue is handled in two stages:
+
 1. The `idle()` routine reads all inputs and attempts to enqueue any completed command lines.
 2. The main `loop()` gets the command at the front the G-code queue (if any) and runs it. Each G-code command blocks the main loop, preventing the queue from advancing until it returns. To keep essential tasks and the UI running, any commands that run a long process need to call `idle()` frequently.
 
@@ -51,6 +53,7 @@ If no data is available on the serial buffer, Marlin can be configured to period
 ## Limitation of the design
 
 Some limitations to the design are evident:
+
 1. Whenever the G-code processor is busy processing a command, the G-code queue cannot advance.
 2. A long command like `G29` causes commands to pile up and to fill the queue, making the host wait.
 3. Each serial input requires a buffer large enough for a complete G-code line. This is set by `MAX_CMD_SIZE` with a default value of 96.

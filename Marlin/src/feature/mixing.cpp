@@ -28,10 +28,6 @@
 
 Mixer mixer;
 
-#ifdef MIXER_NORMALIZER_DEBUG
-  #include "../core/serial.h"
-#endif
-
 // Used up to Planner level
 uint_fast8_t  Mixer::selected_vtool = 0;
 float         Mixer::collector[MIXING_STEPPERS]; // mix proportion. 0.0 = off, otherwise <= COLOR_A_MASK.
@@ -170,7 +166,7 @@ void Mixer::refresh_collector(const float proportion/*=1.0*/, const uint8_t t/*=
 
   float Mixer::prev_z; // = 0
 
-  void Mixer::update_gradient_for_z(const_float_t z) {
+  void Mixer::update_gradient_for_z(const float z) {
     if (z == prev_z) return;
     prev_z = z;
 

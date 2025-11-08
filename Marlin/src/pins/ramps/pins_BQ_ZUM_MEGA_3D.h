@@ -23,8 +23,7 @@
 
 /**
  * bq ZUM Mega 3D board definition
- * Schematic: https://green-candy.osdn.jp/external/MarlinFW/board_schematics/bq%20ZUM%20Mega%203D/Zum%20Mega%203D.PDF
- * Origin: https://github.com/bq/zum/blob/master/zum-mega3d/Zum%20Mega%203D.PDF
+ * Schematic: https://github.com/bq/zum/blob/master/zum-mega3d/Zum%20Mega%203D.PDF
  * ATmega2560
  */
 

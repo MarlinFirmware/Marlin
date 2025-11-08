@@ -23,7 +23,8 @@
 
 /**
  * DWIN Enhanced implementation for PRO UI
- * Author: Miguel A. Risco-Castillo (MRISCOC)
+ * Based on the original work of: Miguel Risco-Castillo (MRISCOC)
+ * https://github.com/mriscoc/Ender3V2S1
  * Version: 3.25.3
  * Date: 2023/05/18
  */
@@ -90,7 +91,7 @@ enum processID : uint8_t {
       PID_TUNING_TIMEOUT,
     #endif
     #if ENABLED(MPC_AUTOTUNE)
-      MPCTEMP_START,
+      MPC_STARTED,
       MPC_TEMP_ERROR,
       MPC_INTERRUPTED,
     #endif
@@ -159,7 +160,7 @@ typedef struct {
     #define Z_POST_CLEARANCE hmiData.zAfterHoming
   #endif
   #if ALL(LED_CONTROL_MENU, HAS_COLOR_LEDS)
-    LEDColor ledColor = defColorLeds;
+    LED1Color_t ledColor = defColorLeds;
   #endif
   #if HAS_GCODE_PREVIEW
     bool enablePreview = true;
@@ -287,7 +288,7 @@ void dwinCheckStatusMessage();
 void dwinHomingStart();
 void dwinHomingDone();
 #if HAS_MESH
-  void dwinMeshUpdate(const int8_t cpos, const int8_t tpos, const_float_t zval);
+  void dwinMeshUpdate(const int8_t cpos, const int8_t tpos, const float zval);
 #endif
 void dwinLevelingStart();
 void dwinLevelingDone();
@@ -370,6 +371,9 @@ void drawMaxAccelMenu();
 #endif
 #if ENABLED(INDIVIDUAL_AXIS_HOMING_SUBMENU)
   void drawHomingMenu();
+#endif
+#if ENABLED(EDITABLE_HOMING_FEEDRATE)
+  void drawHomingFRMenu();
 #endif
 #if ENABLED(FWRETRACT)
   void drawFWRetractMenu();

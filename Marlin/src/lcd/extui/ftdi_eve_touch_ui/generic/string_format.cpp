@@ -35,7 +35,7 @@
 /**
  * Formats a temperature string (e.g. "100°C")
  */
-void format_temp(char *str, const_celsius_float_t t1) {
+void format_temp(char *str, const celsius_float_t t1) {
   #ifdef TOUCH_UI_LCD_TEMP_PRECISION
     char num1[7];
     dtostrf(t1, 4 + TOUCH_UI_LCD_TEMP_PRECISION, TOUCH_UI_LCD_TEMP_PRECISION, num1);
@@ -48,7 +48,7 @@ void format_temp(char *str, const_celsius_float_t t1) {
 /**
  * Formats a temperature string for an idle heater (e.g. "100 °C / idle")
  */
-void format_temp_and_idle(char *str, const_celsius_float_t t1) {
+void format_temp_and_idle(char *str, const celsius_float_t t1) {
   #ifdef TOUCH_UI_LCD_TEMP_PRECISION
     char num1[7];
     dtostrf(t1, 4 + TOUCH_UI_LCD_TEMP_PRECISION, TOUCH_UI_LCD_TEMP_PRECISION, num1);
@@ -61,7 +61,7 @@ void format_temp_and_idle(char *str, const_celsius_float_t t1) {
 /**
  * Formats a temperature string for an active heater (e.g. "100 / 200°C")
  */
-void format_temp_and_temp(char *str, const_celsius_float_t t1, const_celsius_float_t t2) {
+void format_temp_and_temp(char *str, const celsius_float_t t1, const celsius_float_t t2) {
   #ifdef TOUCH_UI_LCD_TEMP_PRECISION
     char num1[7], num2[7];
     dtostrf(t1, 4 + TOUCH_UI_LCD_TEMP_PRECISION, TOUCH_UI_LCD_TEMP_PRECISION, num1);
@@ -75,7 +75,7 @@ void format_temp_and_temp(char *str, const_celsius_float_t t1, const_celsius_flo
 /**
  * Formats a temperature string for a material (e.g. "100°C (PLA)")
  */
-void format_temp_and_material(char *str, const_celsius_float_t t1, const char *material) {
+void format_temp_and_material(char *str, const celsius_float_t t1, const char *material) {
   #ifdef TOUCH_UI_LCD_TEMP_PRECISION
     char num1[7];
     dtostrf(t1, 4 + TOUCH_UI_LCD_TEMP_PRECISION, TOUCH_UI_LCD_TEMP_PRECISION, num1);
@@ -91,7 +91,7 @@ void format_temp_and_material(char *str, const_celsius_float_t t1, const char *m
 void format_position(char *str, float p, uint8_t decimals) {
   dtostrf(p, 4 + decimals, decimals, str);
   strcat_P(str, PSTR(" "));
-  strcat_P(str, GET_TEXT(MSG_UNITS_MM));
+  //strcat_P(str, GET_TEXT(MSG_UNITS_MM));
 }
 
 /**

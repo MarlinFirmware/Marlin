@@ -40,10 +40,8 @@
 #include "../../inc/MarlinConfigPre.h"
 
 #if HAS_SD_HOST_DRIVE
-  #include "msc_sd.h"
+  #include "sd/msc_sd.h"
 #endif
-
-#include "MarlinSerial.h"
 
 // ------------------------
 // Defines
@@ -64,90 +62,17 @@
   #endif
 #endif
 
-// ------------------------
-// Serial ports
-// ------------------------
+//
+// Serial Ports
+//
 
-#ifdef SERIAL_USB
-  typedef ForwardSerial1Class< USBSerial > DefaultSerial1;
-  extern DefaultSerial1 MSerial0;
-  #if HAS_SD_HOST_DRIVE
-    #define UsbSerial MarlinCompositeSerial
-  #else
-    #define UsbSerial MSerial0
-  #endif
-#endif
-
-#define _MSERIAL(X) MSerial##X
-#define MSERIAL(X) _MSERIAL(X)
-
-#if ANY(STM32_HIGH_DENSITY, STM32_XL_DENSITY)
-  #define NUM_UARTS 5
-#else
-  #define NUM_UARTS 3
-#endif
-
-#if SERIAL_PORT == -1
-  #define MYSERIAL1 UsbSerial
-#elif WITHIN(SERIAL_PORT, 1, NUM_UARTS)
-  #define MYSERIAL1 MSERIAL(SERIAL_PORT)
-#else
-  #define MYSERIAL1 MSERIAL(1) // dummy port
-  static_assert(false, "SERIAL_PORT must be from 1 to " STRINGIFY(NUM_UARTS) ". You can also use -1 if the board supports Native USB.")
-#endif
-
-#ifdef SERIAL_PORT_2
-  #if SERIAL_PORT_2 == -1
-    #define MYSERIAL2 UsbSerial
-  #elif WITHIN(SERIAL_PORT_2, 1, NUM_UARTS)
-    #define MYSERIAL2 MSERIAL(SERIAL_PORT_2)
-  #else
-    #define MYSERIAL2 MSERIAL(1) // dummy port
-    static_assert(false, "SERIAL_PORT_2 must be from 1 to " STRINGIFY(NUM_UARTS) ". You can also use -1 if the board supports Native USB.")
-  #endif
-#endif
-
-#ifdef SERIAL_PORT_3
-  #if SERIAL_PORT_3 == -1
-    #define MYSERIAL3 UsbSerial
-  #elif WITHIN(SERIAL_PORT_3, 1, NUM_UARTS)
-    #define MYSERIAL3 MSERIAL(SERIAL_PORT_3)
-  #else
-    #define MYSERIAL3 MSERIAL(1) // dummy port
-    static_assert(false, "SERIAL_PORT_3 must be from 1 to " STRINGIFY(NUM_UARTS) ". You can also use -1 if the board supports Native USB.")
-  #endif
-#endif
-
-#ifdef MMU2_SERIAL_PORT
-  #if MMU2_SERIAL_PORT == -1
-    #define MMU2_SERIAL UsbSerial
-  #elif WITHIN(MMU2_SERIAL_PORT, 1, NUM_UARTS)
-    #define MMU2_SERIAL MSERIAL(MMU2_SERIAL_PORT)
-  #else
-    #define MMU2_SERIAL MSERIAL(1) // dummy port
-    static_assert(false, "MMU2_SERIAL_PORT must be from 1 to " STRINGIFY(NUM_UARTS) ". You can also use -1 if the board supports Native USB.")
-  #endif
-#endif
-
-#ifdef LCD_SERIAL_PORT
-  #if LCD_SERIAL_PORT == -1
-    #define LCD_SERIAL UsbSerial
-  #elif WITHIN(LCD_SERIAL_PORT, 1, NUM_UARTS)
-    #define LCD_SERIAL MSERIAL(LCD_SERIAL_PORT)
-  #else
-    #define LCD_SERIAL MSERIAL(1) // dummy port
-    static_assert(false, "LCD_SERIAL_PORT must be from 1 to " STRINGIFY(NUM_UARTS) ". You can also use -1 if the board supports Native USB.")
-  #endif
-  #if HAS_DGUS_LCD
-    #define LCD_SERIAL_TX_BUFFER_FREE() LCD_SERIAL.availableForWrite()
-  #endif
-#endif
+#include "MarlinSerial.h"
 
 /**
  * TODO: review this to return 1 for pins that are not analog input
  */
 #ifndef analogInputToDigitalPin
-  #define analogInputToDigitalPin(p) (p)
+  #define analogInputToDigitalPin(p) pin_t(p)
 #endif
 
 #ifndef digitalPinHasPWM

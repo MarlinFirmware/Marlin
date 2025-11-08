@@ -1,14 +1,13 @@
 #!/usr/bin/env python3
+"""
+Formatter script for pins_MYPINS.h files
 
-#
-# Formatter script for pins_MYPINS.h files
-#
-# Usage: pinsformat.py [infile] [outfile]
-#
-# With no parameters convert STDIN to STDOUT
-#
+usage: pinsformat.py [infile] [outfile]
 
-import sys, re
+With no parameters convert STDIN to STDOUT
+"""
+
+import sys, re, argparse
 
 do_log = False
 def logmsg(msg, line):
@@ -27,25 +26,40 @@ def rpad(astr, fill, c=' '):
     need = fill - len(astr)
     return astr if need <= 0 else astr + (need * c)
 
+# Concatenate a string, adding a space if necessary
+# to avoid merging two words
+def concat_with_space(s1, s2):
+    if not s1.endswith(' ') and not s2.startswith(' '):
+        s1 += ' '
+    return s1 + s2
+
 # Pin patterns
 mpatt = [ r'-?\d{1,3}', r'P[A-I]\d+', r'P\d_\d+', r'Pin[A-Z]\d\b' ]
 mstr = '|'.join(mpatt)
 mexpr = [ re.compile(f'^{m}$') for m in mpatt ]
 
-# Corrsponding padding for each pattern
+# Corresponding padding for each pattern
 ppad = [ 3, 4, 5, 5 ]
 
 # Match a define line
-definePatt = re.compile(rf'^\s*(//)?#define\s+[A-Z_][A-Z0-9_]+\s+({mstr})\s*(//.*)?$')
+definePinPatt = re.compile(rf'^\s*(//)?#define\s+[A-Z_][A-Z0-9_]+?_PIN\s+({mstr})\s*(//.*)?$')
 
 def format_pins(argv):
-    src_file = 'stdin'
-    dst_file = None
+    parser = argparse.ArgumentParser(description="Formatter script for pins_MYPINS.h files")
+    parser.add_argument('infile', nargs='?', default=None, help="Input file to read from. If not provided, reads from stdin.")
+    parser.add_argument('outfile', nargs='?', default=None, help="Output file to write to. If not provided, writes to stdout.")
+    parser.add_argument('-v', action='store_true', help="Enable logging.")
+
+    args = parser.parse_args(argv)
+
+    src_file = args.infile or 'stdin'
+    dst_file = args.outfile or None
 
     scnt = 0
     for arg in argv:
         if arg == '-v':
-            do_log = True
+            global do_log
+            do_log = args.v or True
         elif scnt == 0:
             # Get a source file if specified. Default destination is the same file
             src_file = dst_file = arg
@@ -63,7 +77,7 @@ def format_pins(argv):
         file_text = sys.stdin.read()
     else:
         # Open and read the file src_file
-        with open(src_file, 'r') as rf: file_text = rf.read()
+        with open(src_file, 'r', encoding='utf-8', newline='') as rf: file_text = rf.read()
 
     if len(file_text) == 0:
         print('No text to process')
@@ -72,7 +86,7 @@ def format_pins(argv):
     # Read from file or STDIN until it terminates
     filtered = process_text(file_text)
     if dst_file:
-        with open(dst_file, 'w') as wf: wf.write(filtered)
+        with open(dst_file, 'w', encoding='utf-8', newline='') as wf: wf.write(filtered)
     else:
         print(filtered)
 
@@ -85,7 +99,7 @@ def get_pin_pattern(txt):
     # Find the most common matching pattern
     match_threshold = 5
     for line in txt.split('\n'):
-        r = definePatt.match(line)
+        r = definePinPatt.match(line)
         if r == None: continue
         ind = -1
         for p in mexpr:
@@ -135,7 +149,7 @@ def process_text(txt):
         logmsg("pin:", line)
         pinnum = r[4] if r[4][0] == 'P' else lpad(r[4], patt['pad'])
         line = f'{r[1]} {r[3]}'
-        line = rpad(line, col_value_lj) + pinnum
+        line = concat_with_space(rpad(line, col_value_lj), pinnum)
         if r[5]: line = rpad(line, col_comment) + r[5]
         d['line'] = line
         return True
@@ -149,7 +163,7 @@ def process_text(txt):
         if r == None: return False
         logmsg("pin -1:", line)
         line = f'{r[1]} {r[3]}'
-        line = rpad(line, col_value_lj) + '-1'
+        line = concat_with_space(rpad(line, col_value_lj), '-1')
         if r[5]: line = rpad(line, col_comment) + r[5]
         d['line'] = line
         return True
@@ -179,8 +193,8 @@ def process_text(txt):
         if r == None: return False
         logmsg("alias:", line)
         line = f'{r[1]} {r[3]}'
-        line += lpad(r[4], col_value_rj + 1 - len(line))
-        if r[5]: line = rpad(line, col_comment) + r[5]
+        line = concat_with_space(line, lpad(r[4], col_value_rj + 1 - len(line)))
+        if r[5]: line = concat_with_space(rpad(line, col_comment), r[5])
         d['line'] = line
         return True
 
@@ -193,7 +207,7 @@ def process_text(txt):
         if r == None: return False
         logmsg("switch:", line)
         line = f'{r[1]} {r[3]}'
-        if r[4]: line = rpad(line, col_comment) + r[4]
+        if r[4]: line = concat_with_space(rpad(line, col_comment), r[4])
         d['line'] = line
         d['check_comment_next'] = True
         return True
@@ -207,7 +221,7 @@ def process_text(txt):
         if r == None: return False
         logmsg("def:", line)
         line = f'{r[1]} {r[3]} '
-        line += lpad(r[4], col_value_rj + 1 - len(line))
+        line = concat_with_space(line, lpad(r[4], col_value_rj + 1 - len(line)))
         if r[5]: line = rpad(line, col_comment - 1) + ' ' + r[5]
         d['line'] = line
         return True
@@ -221,7 +235,7 @@ def process_text(txt):
         if r == None: return False
         logmsg("undef:", line)
         line = f'{r[1]} {r[3]}'
-        if r[4]: line = rpad(line, col_comment) + r[4]
+        if r[4]: line = concat_with_space(rpad(line, col_comment), r[4])
         d['line'] = line
         return True
 
@@ -233,7 +247,7 @@ def process_text(txt):
         r = condPatt.match(line)
         if r == None: return False
         logmsg("cond:", line)
-        line = rpad(r[1], col_comment) + r[5]
+        line = concat_with_space(rpad(r[1], col_comment), r[5])
         d['line'] = line
         d['check_comment_next'] = True
         return True
@@ -250,7 +264,7 @@ def process_text(txt):
 
         if wDict['check_comment_next']:
             # Comments in column 50
-            line = rpad('', col_comment) + r[1]
+            line = rpad('', col_comment) + (r[1] if r else '')
 
         elif trySkip1(wDict):   pass  #define SKIP_ME
         elif tryPindef(wDict):  pass  #define MY_PIN [pin]
@@ -263,7 +277,7 @@ def process_text(txt):
         elif tryUndef(wDict):   pass  #undef ...
         elif tryCond(wDict):    pass  #if|ifdef|ifndef|elif ...
 
-        out += wDict['line'] + '\n'
+        out += wDict['line'].rstrip() + '\n'
 
     return re.sub('\n\n$', '\n', re.sub(r'\n\n+', '\n\n', out))
 
