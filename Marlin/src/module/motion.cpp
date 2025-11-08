@@ -85,6 +85,12 @@ bool relative_mode; // = false
   bool z_min_trusted; // = false
 #endif
 
+#if HOMING_Z_WITH_PROBE
+  constexpr bool z_homing_use_probe = true;
+#elif REHOME_Z_WITH_PROBE
+  bool z_homing_use_probe; // = false
+#endif
+
 /**
  * Cartesian Current Position
  *   Used to track the native machine position as moves are queued.
@@ -1059,7 +1065,7 @@ void do_blocking_move_to(const xyze_pos_t &raw, const feedRate_t fr_mm_s/*=0.0f*
     #ifdef Z_POST_CLEARANCE
       do_z_clearance(
         Z_POST_CLEARANCE,
-        ALL(HOMING_Z_WITH_PROBE, HAS_STOWABLE_PROBE) && TERN0(HAS_BED_PROBE, endstops.z_probe_enabled),
+        ALL(Z_CAN_HOME_WITH_PROBE, HAS_STOWABLE_PROBE) && TERN0(HAS_BED_PROBE, endstops.z_probe_enabled),
         true
       );
     #elif ENABLED(USE_PROBE_FOR_Z_HOMING)
@@ -1964,8 +1970,8 @@ void prepare_line_to_destination() {
    * Homing bump feedrate (mm/s)
    */
   feedRate_t get_homing_bump_feedrate(const AxisEnum axis) {
-    #if HOMING_Z_WITH_PROBE
-      if (axis == Z_AXIS) return z_probe_slow_mm_s;
+    #if Z_CAN_HOME_WITH_PROBE
+      if (axis == Z_AXIS && z_homing_use_probe) return z_probe_slow_mm_s;
     #endif
     static const uint8_t homing_bump_divisor[] PROGMEM = HOMING_BUMP_DIVISOR;
     uint8_t hbd = pgm_read_byte(&homing_bump_divisor[axis]);
@@ -2196,7 +2202,7 @@ void prepare_line_to_destination() {
 
     if (is_home_dir) {
 
-      if (TERN0(HOMING_Z_WITH_PROBE, axis == Z_AXIS)) {
+      if (TERN0(Z_CAN_HOME_WITH_PROBE, axis == Z_AXIS && z_homing_use_probe)) {
         #if ALL(HAS_HEATED_BED, WAIT_FOR_BED_HEATER)
           // Wait for bed to heat back up between probing points
           thermalManager.wait_for_bed_heating();
@@ -2245,8 +2251,8 @@ void prepare_line_to_destination() {
 
     if (is_home_dir) {
 
-      #if HOMING_Z_WITH_PROBE && HAS_QUIET_PROBING
-        if (axis == Z_AXIS && final_approach) probe.set_probing_paused(false);
+      #if Z_CAN_HOME_WITH_PROBE && HAS_QUIET_PROBING
+        if (axis == Z_AXIS && z_homing_use_probe && final_approach) probe.set_probing_paused(false);
       #endif
 
       endstops.validate_homing_move();
@@ -2421,7 +2427,7 @@ void prepare_line_to_destination() {
       // Only Z homing (with probe) is permitted
       if (axis != Z_AXIS) { BUZZ(100, 880); return; }
     #else
-      #define _CAN_HOME(A) (axis == _AXIS(A) && (ANY(A##_SPI_SENSORLESS, HAS_##A##_STATE) || TERN0(HOMING_Z_WITH_PROBE, _AXIS(A) == Z_AXIS)))
+      #define _CAN_HOME(A) (axis == _AXIS(A) && (ANY(A##_SPI_SENSORLESS, HAS_##A##_STATE) || TERN0(Z_CAN_HOME_WITH_PROBE, _AXIS(A) == Z_AXIS)))
       #define _ANDCANT(N) && !_CAN_HOME(N)
       if (true MAIN_AXIS_MAP(_ANDCANT)) return;
     #endif
@@ -2435,26 +2441,29 @@ void prepare_line_to_destination() {
     // Homing Z with a probe? Raise Z (maybe) and deploy the Z probe.
     // Return early if probe deployment fails.
     //
-    #if HOMING_Z_WITH_PROBE
-      if (axis == Z_AXIS && probe.deploy()) { probe.stow(); return; }
+    const bool now_probe_homing = TERN0(Z_CAN_HOME_WITH_PROBE, axis == Z_AXIS && z_homing_use_probe);
+    #if Z_CAN_HOME_WITH_PROBE
+      if (now_probe_homing && probe.deploy()) { probe.stow(); return; }
     #endif
 
     // Set flags for X, Y, Z motor locking
     #if HAS_EXTRA_ENDSTOPS
-      switch (axis) {
-        TERN_(X_DUAL_ENDSTOPS, case X_AXIS:)
-        TERN_(Y_DUAL_ENDSTOPS, case Y_AXIS:)
-        TERN_(Z_MULTI_ENDSTOPS, case Z_AXIS:)
-          stepper.set_separate_multi_axis(true);
-        default: break;
+      if (TERN1(REHOME_Z_WITH_PROBE, !z_homing_use_probe)) {
+        switch (axis) {
+          TERN_(X_DUAL_ENDSTOPS,  case X_AXIS:)
+          TERN_(Y_DUAL_ENDSTOPS,  case Y_AXIS:)
+          TERN_(Z_MULTI_ENDSTOPS, case Z_AXIS:)
+            stepper.set_separate_multi_axis(true);
+          default: break;
+        }
       }
     #endif
 
     //
     // Deploy BLTouch or tare the probe just before probing
     //
-    #if HOMING_Z_WITH_PROBE
-      if (axis == Z_AXIS) {
+    #if Z_CAN_HOME_WITH_PROBE
+      if (now_probe_homing) {
 
         #if ENABLED(BLTOUCH)
           // BLTouch was deployed above, but get the alarm state.
@@ -2500,10 +2509,16 @@ void prepare_line_to_destination() {
 
     // Determine if a homing bump will be done and the bumps distance
     // When homing Z with probe respect probe clearance
-    const bool use_probe_bump = TERN0(HOMING_Z_WITH_PROBE, axis == Z_AXIS && home_bump_mm(axis));
+    const bool use_probe_bump = now_probe_homing && home_bump_mm(axis);
     const float bump = axis_home_dir * (
-      use_probe_bump ? _MAX(TERN0(HOMING_Z_WITH_PROBE, Z_CLEARANCE_BETWEEN_PROBES), home_bump_mm(axis)) : home_bump_mm(axis)
+    #ifdef Z_CLEARANCE_BETWEEN_PROBES
+      // TERN only works if a define is 1 or undefined, it does not work on values other than 1
+      use_probe_bump ? Z_CLEARANCE_BETWEEN_PROBES : home_bump_mm(axis) //cannot use TERN on Z_CLEARANCE_BETWEEN_PROBES
+    #else
+      home_bump_mm(axis)
+    #endif
     );
+    if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("use_probe_bump: ", use_probe_bump, " ");
 
     //
     // Fast move towards endstop until triggered
@@ -2514,13 +2529,13 @@ void prepare_line_to_destination() {
 
     // If a second homing move is configured...
     if (bump) {
-      #if ALL(HOMING_Z_WITH_PROBE, BLTOUCH)
-        if (axis == Z_AXIS && !bltouch.high_speed_mode) bltouch.stow(); // Intermediate STOW (in LOW SPEED MODE)
+      #if ALL(Z_CAN_HOME_WITH_PROBE, BLTOUCH)
+        if (now_probe_homing && !bltouch.high_speed_mode) bltouch.stow(); // Intermediate STOW (in LOW SPEED MODE)
       #endif
 
       // Move away from the endstop by the axis HOMING_BUMP_MM
       if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Move Away: ", -bump, "mm");
-      do_homing_move(axis, -bump, TERN0(HOMING_Z_WITH_PROBE, (axis == Z_AXIS ? z_probe_fast_mm_s : 0)), false);
+      do_homing_move(axis, -bump, TERN0(Z_CAN_HOME_WITH_PROBE, (now_probe_homing ? z_probe_fast_mm_s : 0)), false);
 
       #if ENABLED(DETECT_BROKEN_ENDSTOP)
 
@@ -2546,8 +2561,8 @@ void prepare_line_to_destination() {
 
       #endif // DETECT_BROKEN_ENDSTOP
 
-      #if ALL(HOMING_Z_WITH_PROBE, BLTOUCH)
-        if (axis == Z_AXIS && !bltouch.high_speed_mode && bltouch.deploy()) {
+      #if ALL(Z_CAN_HOME_WITH_PROBE, BLTOUCH)
+        if (now_probe_homing && !bltouch.high_speed_mode && bltouch.deploy()) {
           bltouch.stow();
           return; // Intermediate DEPLOY (in LOW SPEED MODE)
         }
@@ -2559,11 +2574,14 @@ void prepare_line_to_destination() {
       do_homing_move(axis, rebump, get_homing_bump_feedrate(axis), true);
     }
 
-    #if ALL(HOMING_Z_WITH_PROBE, BLTOUCH)
-      if (axis == Z_AXIS) bltouch.stow(); // The final STOW
+    #if ALL(Z_CAN_HOME_WITH_PROBE, BLTOUCH)
+      if (now_probe_homing) bltouch.stow(); // The final STOW
     #endif
 
     #if HAS_EXTRA_ENDSTOPS
+
+      if (TERN1(REHOME_Z_WITH_PROBE, !z_homing_use_probe)) {
+
       const bool pos_dir = axis_home_dir > 0;
       #if ENABLED(X_DUAL_ENDSTOPS)
         if (axis == X_AXIS) {
@@ -2688,6 +2706,8 @@ void prepare_line_to_destination() {
           stepper.set_separate_multi_axis(false);
       }
 
+      } // !z_homing_use_probe
+
     #endif // HAS_EXTRA_ENDSTOPS
 
     #ifdef TMC_HOME_PHASE
@@ -2726,18 +2746,18 @@ void prepare_line_to_destination() {
 
     #endif
 
-    #if ALL(BD_SENSOR, HOMING_Z_WITH_PROBE)
-      if (axis == Z_AXIS) bdl.config_state = BDS_IDLE;
+    #if ALL(BD_SENSOR, Z_CAN_HOME_WITH_PROBE)
+      if (now_probe_homing) bdl.config_state = BDS_IDLE;
     #endif
 
     // Put away the Z probe. Return early if it fails.
-    if (TERN0(HOMING_Z_WITH_PROBE, axis == Z_AXIS && probe.stow())) return;
+    if (TERN0(Z_CAN_HOME_WITH_PROBE, now_probe_homing && probe.stow())) return;
 
     #if DISABLED(DELTA) && defined(HOMING_BACKOFF_POST_MM)
       const xyz_float_t endstop_backoff = HOMING_BACKOFF_POST_MM;
       if (endstop_backoff[axis]) {
         current_position[axis] -= ABS(endstop_backoff[axis]) * axis_home_dir;
-        line_to_current_position(TERN_(HOMING_Z_WITH_PROBE, (axis == Z_AXIS) ? z_probe_fast_mm_s :) homing_feedrate(axis));
+        line_to_current_position(TERN_(Z_CAN_HOME_WITH_PROBE, (axis == Z_AXIS) ? z_probe_fast_mm_s :) homing_feedrate(axis));
 
         #if ENABLED(SENSORLESS_HOMING)
           planner.synchronize();
@@ -2755,12 +2775,35 @@ void prepare_line_to_destination() {
       if (axis == Z_AXIS) fwretract.current_hop = 0.0;
     #endif
 
-    if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("<<< homeaxis(", C(AXIS_CHAR(axis)), ")");
+    // Home again, this time with the probe
+    #if ENABLED(REHOME_Z_WITH_PROBE)
+      if (axis == Z_AXIS && !z_homing_use_probe) {
+        // This was Z endstop homing. Set up for Z Probe Homing.
+        if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("ReHoming Z with Probe now...");
+        current_position.z = 0;
+        sync_plan_position();
+        destination.z = current_position.z;
+        z_homing_use_probe = true; // Home again, but use the probe
+        #if ENABLED(Z_SAFE_HOMING)
+          // instead of dragging the nozzle across the bed to Z_SAFE_HOMING XY position, move Z now to prevent nozzle dragging
+          current_position.z = Z_CLEARANCE_DEPLOY_PROBE; 
+          sync_plan_position();	          
+          do_homing_move(axis,Z_CLEARANCE_DEPLOY_PROBE,z_probe_fast_mm_s,false);
+          //home_z_safely(); // not declared in this scope, also does not move Z first, which we need
+          destination = current_position;
+          destination.x = Z_SAFE_HOMING_X_POINT - probe.offset_xy.x;
+          destination.y = Z_SAFE_HOMING_Y_POINT - probe.offset_xy.y;    
+          do_blocking_move_to_xy(destination);		     
+        #endif
+          homeaxis(Z_AXIS);
+      }
+      z_homing_use_probe = false;
+    #endif // REHOME_Z_WITH_PROBE
 
-    //
     // Restore axis motor(s) current after homing
-    //
     TERN_(HAS_HOMING_CURRENT, restore_homing_current(axis));
+
+    if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("<<< homeaxis(", C(AXIS_CHAR(axis)), ")");
 
   } // homeaxis()
 
@@ -2810,14 +2853,19 @@ void set_axis_is_at_home(const AxisEnum axis) {
    */
   #if HAS_BED_PROBE && Z_HOME_TO_MIN
     if (axis == Z_AXIS) {
-      #if HOMING_Z_WITH_PROBE
-        #if ENABLED(BD_SENSOR)
-          safe_delay(100);
-          current_position.z = bdl.read();
-        #else
-          current_position.z -= probe.offset.z;
-        #endif
-        if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("*** Z homed with PROBE" TERN_(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN, " (Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN)") " ***\n> (M851 Z", probe.offset.z, ")");
+      #if Z_CAN_HOME_WITH_PROBE
+        if (z_homing_use_probe) {
+          #if ENABLED(BD_SENSOR)
+            safe_delay(100);
+            current_position.z = bdl.read();
+          #else
+            current_position.z -= probe.offset.z;
+          #endif
+          if (DEBUGGING(LEVELING))
+            DEBUG_ECHOLNPGM("*** Z homed with PROBE" TERN_(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN, " (Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN)") " ***\n> (M851 Z", probe.offset.z, ")");
+        }
+        else if (DEBUGGING(LEVELING))
+          DEBUG_ECHOLNPGM("*** Z homed to ENDSTOP, next is Z probe homing ***");
       #else
         if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("*** Z homed to ENDSTOP ***");
       #endif

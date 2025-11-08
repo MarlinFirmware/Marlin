@@ -432,7 +432,14 @@
     #define NEED_Z_MIN_PROBE_PIN 1
   #endif
   #if Z_HOME_TO_MIN && (!NEED_Z_MIN_PROBE_PIN || ENABLED(USE_PROBE_FOR_Z_HOMING))
-    #define HOMING_Z_WITH_PROBE 1
+    #define HOMING_Z_WITH_PROBE 1     // Always home Z with probe
+  #endif
+  #if ANY(HOMING_Z_WITH_PROBE, REHOME_Z_WITH_PROBE)
+    #define Z_CAN_HOME_WITH_PROBE 1   // Can home Z with probe or endstop
+  #endif
+  #ifdef REHOME_Z_WITH_PROBE
+    #undef REHOME_Z_WITH_PROBE
+    #define REHOME_Z_WITH_PROBE 1 // ensure a value of 1 so we can use with #elif and TERN
   #endif
   #if DISABLED(NOZZLE_AS_PROBE)
     #define HAS_PROBE_XY_OFFSET 1

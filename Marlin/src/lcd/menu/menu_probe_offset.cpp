@@ -82,7 +82,7 @@ void probe_offset_wizard_menu() {
   ACTION_ITEM(MSG_BUTTON_CANCEL, []{
     set_offset_and_go_back(z_offset_backup);
     // On cancel the Z position needs correction
-    #if HOMING_Z_WITH_PROBE && defined(PROBE_OFFSET_WIZARD_START_Z)
+    #if Z_CAN_HOME_WITH_PROBE && defined(PROBE_OFFSET_WIZARD_START_Z)
       set_axis_never_homed(Z_AXIS);
       queue.inject(F("G28Z"));
     #else
@@ -104,7 +104,7 @@ void probe_offset_wizard_menu() {
  *   3. Go to the probe_offset_wizard_menu() screen for Z position adjustment to acquire Z0.
  */
 void prepare_for_probe_offset_wizard() {
-  #if defined(PROBE_OFFSET_WIZARD_XY_POS) || !HOMING_Z_WITH_PROBE
+  #if defined(PROBE_OFFSET_WIZARD_XY_POS) || !Z_CAN_HOME_WITH_PROBE
     if (ui.should_draw()) MenuItem_static::draw(1, GET_TEXT_F(MSG_PROBE_WIZARD_PROBING));
 
     if (ui.wait_for_move) return;

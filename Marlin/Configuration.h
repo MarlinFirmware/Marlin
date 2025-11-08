@@ -1416,6 +1416,15 @@
 //#define USE_PROBE_FOR_Z_HOMING
 
 /**
+ * For machines with Z endstop(s) and a reliable Z probe this option will
+ * cause Z to home first using Z endstop and then re-home with the probe
+ * to establish a more ideal Z0 position for probing the bed. This can be
+ * useful when Z must home to MAX but you want to establish a better Z0
+ * based on bed height. Requires a  probe and calibrated probe Z offset.
+ */
+//#define REHOME_Z_WITH_PROBE
+
+/**
  * Z_MIN_PROBE_PIN
  *
  * Override this pin only if the probe cannot be connected to

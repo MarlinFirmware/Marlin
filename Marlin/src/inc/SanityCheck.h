@@ -2563,6 +2563,8 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
   #error "Z_HOME_DIR must be -1 when homing Z with the probe."
 #elif ALL(USE_PROBE_FOR_Z_HOMING, HOME_Z_FIRST)
   #error "HOME_Z_FIRST can't be used when homing Z with a probe."
+#elif ALL(HOMING_Z_WITH_PROBE, REHOME_Z_WITH_PROBE)
+  #error "HOMING_Z_WITH_PROBE and REHOME_Z_WITH_PROBE are mutually-exclusive."
 #endif
 
 #if Z_HOME_TO_MAX && defined(Z_AFTER_HOMING) && DISABLED(ALLOW_Z_AFTER_HOMING)
