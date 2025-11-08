@@ -33,7 +33,7 @@
 #include "../../module/planner.h"
 #include "../../module/stepper.h"
 
-#if DISABLED(NO_VOLUMETRICS)
+#if HAS_VOLUMETRIC_EXTRUSION
   #include "../../gcode/parser.h"
 #endif
 
@@ -103,7 +103,7 @@ void menu_backlash();
 
 #endif
 
-#if DISABLED(NO_VOLUMETRICS) || ENABLED(ADVANCED_PAUSE_FEATURE)
+#if ANY(HAS_VOLUMETRIC_EXTRUSION, ADVANCED_PAUSE_FEATURE)
   #define HAS_ADV_FILAMENT_MENU 1
 #endif
 
@@ -142,7 +142,7 @@ void menu_backlash();
       EDIT_ITEM(bool, MSG_NLE_ON, &stepper.ne.settings.enabled);
     #endif
 
-    #if DISABLED(NO_VOLUMETRICS)
+    #if HAS_VOLUMETRIC_EXTRUSION
       EDIT_ITEM(bool, MSG_VOLUMETRIC_ENABLED, &parser.volumetric_enabled, planner.calculate_volumetric_multipliers);
 
       #if ENABLED(VOLUMETRIC_EXTRUDER_LIMIT)
@@ -160,7 +160,7 @@ void menu_backlash();
             EDIT_ITEM_FAST_N(float43, e, MSG_FILAMENT_DIAM_E, &planner.filament_size[e], 1.5f, 3.25f, planner.calculate_volumetric_multipliers);
         #endif
       }
-    #endif // !NO_VOLUMETRICS
+    #endif // HAS_VOLUMETRIC_EXTRUSION
 
     #if ENABLED(CONFIGURE_FILAMENT_CHANGE)
       constexpr float extrude_maxlength = TERN(PREVENT_LENGTHY_EXTRUDE, EXTRUDE_MAXLENGTH, 999);

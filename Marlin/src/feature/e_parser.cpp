@@ -33,6 +33,9 @@
 // Static data members
 bool EmergencyParser::killed_by_M112, // = false
      EmergencyParser::quickstop_by_M410,
+     #if ENABLED(FTM_RESONANCE_TEST)
+       EmergencyParser::rt_stop_by_M496, // = false
+     #endif
      #if HAS_MEDIA
        EmergencyParser::sd_abort_by_M524,
      #endif
@@ -147,8 +150,21 @@ void EmergencyParser::update(EmergencyParser::State &state, const uint8_t c) {
 
     case EP_M10: state = (c == '8') ? EP_M108 : EP_IGNORE; break;
     case EP_M11: state = (c == '2') ? EP_M112 : EP_IGNORE; break;
-    case EP_M4:  state = (c == '1') ? EP_M41  : EP_IGNORE; break;
+    case EP_M4:
+      switch (c) {
+        case '1' :state = EP_M41;    break;
+        #if ENABLED(FT_MOTION_RESONANCE_TEST)
+          case '9': state = EP_M49;  break;
+        #endif
+        default: state  = EP_IGNORE;
+      }
+      break;
+
     case EP_M41: state = (c == '0') ? EP_M410 : EP_IGNORE; break;
+
+    #if ENABLED(FTM_RESONANCE_TEST)
+      case EP_M49: state = (c == '6') ? EP_M496 : EP_IGNORE; break;
+    #endif
 
     #if HAS_MEDIA
       case EP_M5:  state = (c == '2') ? EP_M52  : EP_IGNORE; break;
@@ -195,6 +211,9 @@ void EmergencyParser::update(EmergencyParser::State &state, const uint8_t c) {
           case EP_M108: wait_for_user = wait_for_heatup = false; break;
           case EP_M112: killed_by_M112 = true; break;
           case EP_M410: quickstop_by_M410 = true; break;
+          #if ENABLED(FTM_RESONANCE_TEST)
+            case EP_M496: rt_stop_by_M496 = true; break;
+          #endif
           #if ENABLED(EP_BABYSTEPPING)
             case EP_M293: babystep.ep_babysteps++; break;
             case EP_M294: babystep.ep_babysteps--; break;

@@ -4510,6 +4510,9 @@ static_assert(_PLUS_TEST(3), "DEFAULT_MAX_ACCELERATION values must be positive."
     static_assert(FTM_SMOOTHING_TIME_Z <= FTM_MAX_SMOOTHING_TIME, "FTM_SMOOTHING_TIME_Z must be <= FTM_MAX_SMOOTHING_TIME.");
     static_assert(FTM_SMOOTHING_TIME_E <= FTM_MAX_SMOOTHING_TIME, "FTM_SMOOTHING_TIME_E must be <= FTM_MAX_SMOOTHING_TIME.");
   #endif
+  #if ENABLED(FTM_RESONANCE_TEST) && DISABLED(EMERGENCY_PARSER)
+    #error "EMERGENCY_PARSER is required with FTM_RESONANCE_TEST (to cancel the test)."
+  #endif
 #endif
 
 // Multi-Stepping Limit

@@ -867,7 +867,7 @@ struct XYZEval {
     FI void set(const XYZval<T> &pxyz, const T pe)           { set(pxyz); e = pe; }
     FI void set(LOGICAL_AXIS_ARGS_LC(const T))               { LOGICAL_AXIS_CODE(_e = e, a = x, b = y, c = z, _i = i, _j = j, _k = k, _u = u, _v = v, _w = w); }
     #if DISTINCT_AXES > LOGICAL_AXES
-      FI void set(const T (&arr)[DISTINCT_AXES])             { LOGICAL_AXIS_CODE(e = arr[LOGICAL_AXES-1], x = arr[0], y = arr[1], z = arr[2], i = arr[3], j = arr[4], k = arr[5], u = arr[6], v = arr[7], w = arr[8]); }
+      FI void set(const T (&arr)[DISTINCT_AXES], const uint8_t eindex) { LOGICAL_AXIS_CODE(e = arr[LOGICAL_AXES-1 + eindex], x = arr[0], y = arr[1], z = arr[2], i = arr[3], j = arr[4], k = arr[5], u = arr[6], v = arr[7], w = arr[8]); }
     #endif
   #endif
 

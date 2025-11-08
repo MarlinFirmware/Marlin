@@ -178,7 +178,7 @@ uint32_t Planner::max_acceleration_steps_per_s2[DISTINCT_AXES]; // (steps/s^2) D
   float Planner::e_factor[EXTRUDERS] = ARRAY_BY_EXTRUDERS1(1.0f); // The flow percentage and volumetric multiplier combine to scale E movement
 #endif
 
-#if DISABLED(NO_VOLUMETRICS)
+#if HAS_VOLUMETRIC_EXTRUSION
   float Planner::volumetric_area_nominal = CIRCLE_AREA(float(DEFAULT_NOMINAL_FILAMENT_DIA) * 0.5f); // Nominal cross-sectional area
   float Planner::filament_size[EXTRUDERS],          // diameter of filament (in millimeters), typically around 1.75 or 2.85, 0 disables the volumetric calculations for the extruder
         Planner::volumetric_multiplier[EXTRUDERS];  // Reciprocal of cross-sectional area of filament (in mm^2). Pre-calculated to reduce computation in the planner
@@ -1214,7 +1214,7 @@ void Planner::recalculate(const float safe_exit_speed_sqr) {
       if (fan_speed[f] > FAN_OFF_PWM) {
         const bool first_kick = fan_kick_end[f] == 0 && TERN1(FAN_KICKSTART_LINEAR, fan_speed[f] > set_fan_speed[f]);
         if (first_kick)
-          fan_kick_end[f] = ms + (FAN_KICKSTART_TIME) TERN_(FAN_KICKSTART_LINEAR, * (fan_speed[f] - set_fan_speed[f]) / 255);
+          fan_kick_end[f] = ms + MUL_TERN(FAN_KICKSTART_LINEAR, FAN_KICKSTART_TIME, (fan_speed[f] - set_fan_speed[f]) / 255);
         if (first_kick || PENDING(ms, fan_kick_end[f])) {
           fan_speed[f] = FAN_KICKSTART_POWER;
           return;
@@ -1360,7 +1360,7 @@ void Planner::check_axes_activity() {
 
 #endif // AUTOTEMP
 
-#if DISABLED(NO_VOLUMETRICS)
+#if HAS_VOLUMETRIC_EXTRUSION
 
   /**
    * Get a volumetric multiplier from a filament diameter.
@@ -1385,7 +1385,7 @@ void Planner::check_axes_activity() {
     #endif
   }
 
-#endif // !NO_VOLUMETRICS
+#endif // HAS_VOLUMETRIC_EXTRUSION
 
 #if ENABLED(VOLUMETRIC_EXTRUDER_LIMIT)
 
