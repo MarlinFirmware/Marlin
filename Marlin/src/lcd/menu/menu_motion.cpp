@@ -401,7 +401,7 @@ void menu_move() {
 
       if (ftMotion.rtg.isActive() && !ftMotion.rtg.isDone()) {
         STATIC_ITEM(MSG_FTM_RT_RUNNING);
-        ACTION_ITEM(MSG_FTM_RT_STOP, []{ ftMotion.rtg.abort(); ui.go_back(); });
+        ACTION_ITEM(MSG_FTM_RT_STOP, []{ ftMotion.rtg.abort(); ui.refresh(); });
       }
       else {
         GCODES_ITEM_N(X_AXIS, MSG_FTM_RT_START_N, F("M495 X S"));
