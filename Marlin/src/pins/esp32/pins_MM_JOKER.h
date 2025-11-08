@@ -222,6 +222,10 @@
 
 #if HAS_WIRED_LCD
 
+  #define BTN_ENC                             12
+  #define BTN_EN1                              2
+  #define BTN_EN2                              4
+
   //#define LCD_PINS_RS                       13
   //#define LCD_PINS_EN                       17
   //#define LCD_PINS_D4                       16
@@ -238,12 +242,11 @@
     //#define LCD_PINS_D6                     -1
     //#define LCD_PINS_D7                     -1
 
-  #endif
+  #else
 
-  #define BTN_EN1                              2
-  #define BTN_EN2                              4
-  #define BTN_ENC                             12
-  #define BEEPER_PIN                         139
+    #define BEEPER_PIN                       139
+
+  #endif
 
 #endif // HAS_WIRED_LCD
 

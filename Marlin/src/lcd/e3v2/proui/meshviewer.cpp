@@ -75,7 +75,7 @@ void MeshViewer::drawMeshGrid(const uint8_t csizex, const uint8_t csizey) {
 
 void MeshViewer::drawMeshPoint(const uint8_t x, const uint8_t y, const float z) {
   const uint8_t fs = DWINUI::fontWidth(meshfont);
-  const int16_t v = isnan(z) ? 0 : round(z * 100);
+  const int16_t v = isnan(z) ? int16_t(0) : int16_t(LROUND(z * 100));
   NOLESS(max, z); NOMORE(min, z);
 
   const uint16_t color = DWINUI::rainbowInt(v, zmin, zmax);

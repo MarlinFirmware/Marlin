@@ -28,6 +28,7 @@
 
 #include "macros.h"
 
+#define BOARD_ERROR -2
 #define BOARD_UNKNOWN -1
 
 //
@@ -54,11 +55,11 @@
 #define BOARD_RAMPS_PLUS_EEF          1033  // RAMPS Plus 3DYMY (Power outputs: Hotend0, Hotend1, Fan)
 #define BOARD_RAMPS_PLUS_SF           1034  // RAMPS Plus 3DYMY (Power outputs: Spindle, Controller Fan)
 
-#define BOARD_RAMPS_BTT_16_PLUS_EFB   1035  // RAMPS 1.6+ (Power outputs: Hotend, Fan, Bed)
-#define BOARD_RAMPS_BTT_16_PLUS_EEB   1036  // RAMPS 1.6+ (Power outputs: Hotend0, Hotend1, Bed)
-#define BOARD_RAMPS_BTT_16_PLUS_EFF   1037  // RAMPS 1.6+ (Power outputs: Hotend, Fan0, Fan1)
-#define BOARD_RAMPS_BTT_16_PLUS_EEF   1038  // RAMPS 1.6+ (Power outputs: Hotend0, Hotend1, Fan)
-#define BOARD_RAMPS_BTT_16_PLUS_SF    1039  // RAMPS 1.6+ (Power outputs: Spindle, Controller Fan)
+#define BOARD_RAMPS_BTT_16_PLUS_EFB   1040  // RAMPS 1.6+ (Power outputs: Hotend, Fan, Bed)
+#define BOARD_RAMPS_BTT_16_PLUS_EEB   1041  // RAMPS 1.6+ (Power outputs: Hotend0, Hotend1, Bed)
+#define BOARD_RAMPS_BTT_16_PLUS_EFF   1042  // RAMPS 1.6+ (Power outputs: Hotend, Fan0, Fan1)
+#define BOARD_RAMPS_BTT_16_PLUS_EEF   1043  // RAMPS 1.6+ (Power outputs: Hotend0, Hotend1, Fan)
+#define BOARD_RAMPS_BTT_16_PLUS_SF    1044  // RAMPS 1.6+ (Power outputs: Spindle, Controller Fan)
 
 //
 // RAMPS Derivatives - ATmega1280, ATmega2560
@@ -175,16 +176,17 @@
 #define BOARD_GT2560_V41B             1322  // Geeetech GT2560 V4.1B for A10(M/T/D)
 #define BOARD_EINSTART_S              1323  // Einstart retrofit
 #define BOARD_WANHAO_ONEPLUS          1324  // Wanhao 0ne+ i3 Mini
-#define BOARD_OVERLORD                1325  // Overlord/Overlord Pro
-#define BOARD_HJC2560C_REV1           1326  // ADIMLab Gantry v1
-#define BOARD_HJC2560C_REV2           1327  // ADIMLab Gantry v2
-#define BOARD_LEAPFROG_XEED2015       1328  // Leapfrog Xeed 2015
-#define BOARD_PICA_REVB               1329  // PICA Shield (original version)
-#define BOARD_PICA                    1330  // PICA Shield (rev C or later)
-#define BOARD_INTAMSYS40              1331  // Intamsys 4.0 (Funmat HT)
-#define BOARD_MALYAN_M180             1332  // Malyan M180 Mainboard Version 2 (no display function, direct G-code only)
-#define BOARD_PROTONEER_CNC_SHIELD_V3 1333  // Mega controller & Protoneer CNC Shield V3.00
-#define BOARD_WEEDO_62A               1334  // WEEDO 62A board (TINA2, Monoprice Cadet, etc.)
+#define BOARD_WANHAO_D9               1325  // Wanhao D9 MK2
+#define BOARD_OVERLORD                1326  // Overlord/Overlord Pro
+#define BOARD_HJC2560C_REV1           1327  // ADIMLab Gantry v1
+#define BOARD_HJC2560C_REV2           1328  // ADIMLab Gantry v2
+#define BOARD_LEAPFROG_XEED2015       1329  // Leapfrog Xeed 2015
+#define BOARD_PICA_REVB               1330  // PICA Shield (original version)
+#define BOARD_PICA                    1331  // PICA Shield (rev C or later)
+#define BOARD_INTAMSYS40              1332  // Intamsys 4.0 (Funmat HT)
+#define BOARD_MALYAN_M180             1333  // Malyan M180 Mainboard Version 2 (no display function, direct G-code only)
+#define BOARD_PROTONEER_CNC_SHIELD_V3 1334  // Mega controller & Protoneer CNC Shield V3.00
+#define BOARD_WEEDO_62A               1335  // WEEDO 62A board (TINA2, Monoprice Cadet, etc.)
 
 //
 // ATmega1281, ATmega2561
@@ -429,67 +431,68 @@
 // STM32 ARM Cortex-M4F
 //
 
-#define BOARD_ARMED                   5200  // Arm'ed STM32F4-based controller
-#define BOARD_RUMBA32_V1_0            5201  // RUMBA32 STM32F446VE based controller from Aus3D
-#define BOARD_RUMBA32_V1_1            5202  // RUMBA32 STM32F446VE based controller from Aus3D
-#define BOARD_RUMBA32_MKS             5203  // RUMBA32 STM32F446VE based controller from Makerbase
-#define BOARD_RUMBA32_BTT             5204  // RUMBA32 STM32F446VE based controller from BIGTREETECH
-#define BOARD_BLACK_STM32F407VE       5205  // Black STM32F407VE development board
-#define BOARD_BLACK_STM32F407ZE       5206  // Black STM32F407ZE development board
-#define BOARD_BTT_SKR_MINI_E3_V3_0_1  5207  // BigTreeTech SKR Mini E3 V3.0.1 (STM32F401RC)
-#define BOARD_BTT_SKR_PRO_V1_1        5208  // BigTreeTech SKR Pro v1.1 (STM32F407ZG)
-#define BOARD_BTT_SKR_PRO_V1_2        5209  // BigTreeTech SKR Pro v1.2 (STM32F407ZG)
-#define BOARD_BTT_BTT002_V1_0         5210  // BigTreeTech BTT002 v1.0 (STM32F407VG)
-#define BOARD_BTT_E3_RRF              5211  // BigTreeTech E3 RRF (STM32F407VG)
-#define BOARD_BTT_SKR_V2_0_REV_A      5212  // BigTreeTech SKR v2.0 Rev A (STM32F407VG)
-#define BOARD_BTT_SKR_V2_0_REV_B      5213  // BigTreeTech SKR v2.0 Rev B (STM32F407VG/STM32F429VG)
-#define BOARD_BTT_GTR_V1_0            5214  // BigTreeTech GTR v1.0 (STM32F407IGT)
-#define BOARD_BTT_OCTOPUS_V1_0        5215  // BigTreeTech Octopus v1.0 (STM32F446ZE)
-#define BOARD_BTT_OCTOPUS_V1_1        5216  // BigTreeTech Octopus v1.1 (STM32F446ZE)
-#define BOARD_BTT_OCTOPUS_PRO_V1_0    5217  // BigTreeTech Octopus Pro v1.0 (STM32F446ZE / STM32F429ZG)
-#define BOARD_LERDGE_K                5218  // Lerdge K (STM32F407ZG)
-#define BOARD_LERDGE_S                5219  // Lerdge S (STM32F407VE)
-#define BOARD_LERDGE_X                5220  // Lerdge X (STM32F407VE)
-#define BOARD_FYSETC_S6               5221  // FYSETC S6 (STM32F446VE)
-#define BOARD_FYSETC_S6_V2_0          5222  // FYSETC S6 v2.0 (STM32F446VE)
-#define BOARD_FYSETC_SPIDER           5223  // FYSETC Spider (STM32F446VE)
-#define BOARD_FYSETC_SPIDER_V2_2      5224  // FYSETC Spider V2.2 (STM32F446VE)
-#define BOARD_FLYF407ZG               5225  // FLYmaker FLYF407ZG (STM32F407ZG)
-#define BOARD_MKS_ROBIN2              5226  // MKS Robin2 V1.0 (STM32F407ZE)
-#define BOARD_MKS_ROBIN_PRO_V2        5227  // MKS Robin Pro V2 (STM32F407VE)
-#define BOARD_MKS_ROBIN_NANO_V3       5228  // MKS Robin Nano V3 (STM32F407VG)
-#define BOARD_MKS_ROBIN_NANO_V3_1     5229  // MKS Robin Nano V3.1 (STM32F407VE)
-#define BOARD_MKS_MONSTER8_V1         5230  // MKS Monster8 V1 (STM32F407VE)
-#define BOARD_MKS_MONSTER8_V2         5231  // MKS Monster8 V2 (STM32F407VE)
-#define BOARD_ANET_ET4                5232  // ANET ET4 V1.x (STM32F407VG)
-#define BOARD_ANET_ET4P               5233  // ANET ET4P V1.x (STM32F407VG)
-#define BOARD_FYSETC_CHEETAH_V20      5234  // FYSETC Cheetah V2.0 (STM32F401RC)
-#define BOARD_FYSETC_CHEETAH_V30      5235  // FYSETC Cheetah V3.0 (STM32F446RC)
-#define BOARD_TH3D_EZBOARD_V2         5236  // TH3D EZBoard v2.0 (STM32F405RG)
-#define BOARD_OPULO_LUMEN_REV3        5237  // Opulo Lumen PnP Controller REV3 (STM32F407VE / STM32F407VG)
-#define BOARD_OPULO_LUMEN_REV4        5238  // Opulo Lumen PnP Controller REV4 (STM32F407VE / STM32F407VG)
-#define BOARD_MKS_ROBIN_NANO_V1_3_F4  5239  // MKS Robin Nano V1.3 and MKS Robin Nano-S V1.3 (STM32F407VE)
-#define BOARD_MKS_EAGLE               5240  // MKS Eagle (STM32F407VE)
-#define BOARD_ARTILLERY_RUBY          5241  // Artillery Ruby (STM32F401RC)
-#define BOARD_CREALITY_V24S1_301F4    5242  // Creality v2.4.S1_301F4 (STM32F401RC) as found in the Ender-3 S1 F4
-#define BOARD_CREALITY_CR4NTXXC10     5243  // Creality E3 Free-runs Silent Motherboard (STM32F401RET6)
-#define BOARD_FYSETC_SPIDER_KING407   5244  // FYSETC Spider King407 (STM32F407ZG)
-#define BOARD_MKS_SKIPR_V1            5245  // MKS SKIPR v1.0 all-in-one board (STM32F407VE)
-#define BOARD_TRONXY_CXY_446_V10      5246  // TRONXY CXY-446-V10-220413/CXY-V6-191121 (STM32F446ZE)
-#define BOARD_CREALITY_F401RE         5247  // Creality CR4NS200141C13 (STM32F401RE) as found in the Ender-5 S1
-#define BOARD_BLACKPILL_CUSTOM        5248  // Custom board based on STM32F401CDU6.
-#define BOARD_I3DBEEZ9_V1             5249  // I3DBEEZ9 V1 (STM32F407ZG)
-#define BOARD_MELLOW_FLY_E3_V2        5250  // Mellow Fly E3 V2 (STM32F407VG)
-#define BOARD_BLACKBEEZMINI_V1        5251  // BlackBeezMini V1 (STM32F401CCU6)
-#define BOARD_XTLW_CLIMBER_8TH        5252  // XTLW Climber-8th (STM32F407VGT6)
-#define BOARD_FLY_RRF_E3_V1           5253  // Fly RRF E3 V1.0 (STM32F407VG)
-#define BOARD_FLY_SUPER8              5254  // Fly SUPER8 (STM32F407ZGT6)
-#define BOARD_FLY_D8                  5255  // FLY D8 (STM32F407VG)
-#define BOARD_FLY_CDY_V3              5256  // FLY CDY V3 (STM32F407VGT6)
-#define BOARD_ZNP_ROBIN_NANO          5257  // Elegoo Neptune 2 v1.2 board
-#define BOARD_ZNP_ROBIN_NANO_V1_3     5258  // Elegoo Neptune 2 v1.3 board
-#define BOARD_MKS_NEPTUNE_X           5259  // Elegoo Neptune X
-#define BOARD_MKS_NEPTUNE_3           5260  // Elegoo Neptune 3
+#define BOARD_ARMED                         5200  // Arm'ed STM32F4-based controller
+#define BOARD_RUMBA32_V1_0                  5201  // RUMBA32 STM32F446VE based controller from Aus3D
+#define BOARD_RUMBA32_V1_1                  5202  // RUMBA32 STM32F446VE based controller from Aus3D
+#define BOARD_RUMBA32_MKS                   5203  // RUMBA32 STM32F446VE based controller from Makerbase
+#define BOARD_RUMBA32_BTT                   5204  // RUMBA32 STM32F446VE based controller from BIGTREETECH
+#define BOARD_BLACK_STM32F407VE             5205  // Black STM32F407VE development board
+#define BOARD_BLACK_STM32F407ZE             5206  // Black STM32F407ZE development board
+#define BOARD_BTT_SKR_MINI_E3_V3_0_1        5207  // BigTreeTech SKR Mini E3 V3.0.1 (STM32F401RC)
+#define BOARD_BTT_SKR_PRO_V1_1              5208  // BigTreeTech SKR Pro v1.1 (STM32F407ZG)
+#define BOARD_BTT_SKR_PRO_V1_2              5209  // BigTreeTech SKR Pro v1.2 (STM32F407ZG)
+#define BOARD_BTT_BTT002_V1_0               5210  // BigTreeTech BTT002 v1.0 (STM32F407VG)
+#define BOARD_BTT_E3_RRF                    5211  // BigTreeTech E3 RRF (STM32F407VG)
+#define BOARD_BTT_SKR_V2_0_REV_A            5212  // BigTreeTech SKR v2.0 Rev A (STM32F407VG)
+#define BOARD_BTT_SKR_V2_0_REV_B            5213  // BigTreeTech SKR v2.0 Rev B (STM32F407VG/STM32F429VG)
+#define BOARD_BTT_GTR_V1_0                  5214  // BigTreeTech GTR v1.0 (STM32F407IGT)
+#define BOARD_BTT_OCTOPUS_V1_0              5215  // BigTreeTech Octopus v1.0 (STM32F446ZE)
+#define BOARD_BTT_OCTOPUS_V1_1              5216  // BigTreeTech Octopus v1.1 (STM32F446ZE)
+#define BOARD_BTT_OCTOPUS_PRO_V1_0          5217  // BigTreeTech Octopus Pro v1.0 (STM32F446ZE / STM32F429ZG)
+#define BOARD_LERDGE_K                      5218  // Lerdge K (STM32F407ZG)
+#define BOARD_LERDGE_S                      5219  // Lerdge S (STM32F407VE)
+#define BOARD_LERDGE_X                      5220  // Lerdge X (STM32F407VE)
+#define BOARD_FYSETC_S6                     5221  // FYSETC S6 (STM32F446VE)
+#define BOARD_FYSETC_S6_V2_0                5222  // FYSETC S6 v2.0 (STM32F446VE)
+#define BOARD_FYSETC_SPIDER                 5223  // FYSETC Spider (STM32F446VE)
+#define BOARD_FYSETC_SPIDER_V2_2            5224  // FYSETC Spider V2.2 (STM32F446VE)
+#define BOARD_FLYF407ZG                     5225  // FLYmaker FLYF407ZG (STM32F407ZG)
+#define BOARD_MKS_ROBIN2                    5226  // MKS Robin2 V1.0 (STM32F407ZE)
+#define BOARD_MKS_ROBIN_PRO_V2              5227  // MKS Robin Pro V2 (STM32F407VE)
+#define BOARD_MKS_ROBIN_NANO_V3             5228  // MKS Robin Nano V3 (STM32F407VG)
+#define BOARD_MKS_ROBIN_NANO_V3_1           5229  // MKS Robin Nano V3.1 (STM32F407VE)
+#define BOARD_MKS_MONSTER8_V1               5230  // MKS Monster8 V1 (STM32F407VE)
+#define BOARD_MKS_MONSTER8_V2               5231  // MKS Monster8 V2 (STM32F407VE)
+#define BOARD_ANET_ET4                      5232  // ANET ET4 V1.x (STM32F407VG)
+#define BOARD_ANET_ET4P                     5233  // ANET ET4P V1.x (STM32F407VG)
+#define BOARD_FYSETC_CHEETAH_V20            5234  // FYSETC Cheetah V2.0 (STM32F401RC)
+#define BOARD_FYSETC_CHEETAH_V30            5235  // FYSETC Cheetah V3.0 (STM32F446RC)
+#define BOARD_TH3D_EZBOARD_V2               5236  // TH3D EZBoard v2.0 (STM32F405RG)
+#define BOARD_OPULO_LUMEN_REV3              5237  // Opulo Lumen PnP Controller REV3 (STM32F407VE / STM32F407VG)
+#define BOARD_OPULO_LUMEN_REV4              5238  // Opulo Lumen PnP Controller REV4 (STM32F407VE / STM32F407VG)
+#define BOARD_MKS_ROBIN_NANO_V1_3_F4        5239  // MKS Robin Nano V1.3 and MKS Robin Nano-S V1.3 (STM32F407VE)
+#define BOARD_MKS_EAGLE                     5240  // MKS Eagle (STM32F407VE)
+#define BOARD_ARTILLERY_RUBY                5241  // Artillery Ruby (STM32F401RC)
+#define BOARD_CREALITY_V24S1_301F4          5242  // Creality v2.4.S1_301F4 (STM32F401RC) as found in the Ender-3 S1 F4
+#define BOARD_CREALITY_CR4NTXXC10           5243  // Creality E3 Free-runs Silent Motherboard (STM32F401RET6)
+#define BOARD_FYSETC_SPIDER_KING_V1_F407    5244  // FYSETC Spider King v1 (STM32F407ZG)
+#define BOARD_FYSETC_SPIDER_KING_V1_1_F407  5245  // FYSETC Spider King v1.1 (STM32F407ZG)
+#define BOARD_MKS_SKIPR_V1                  5246  // MKS SKIPR v1.0 all-in-one board (STM32F407VE)
+#define BOARD_TRONXY_CXY_446_V10            5247  // TRONXY CXY-446-V10-220413/CXY-V6-191121 (STM32F446ZE)
+#define BOARD_CREALITY_F401RE               5248  // Creality CR4NS200141C13 (STM32F401RE) as found in the Ender-5 S1
+#define BOARD_BLACKPILL_CUSTOM              5249  // Custom board based on STM32F401CDU6.
+#define BOARD_I3DBEEZ9_V1                   5250  // I3DBEEZ9 V1 (STM32F407ZG)
+#define BOARD_MELLOW_FLY_E3_V2              5251  // Mellow Fly E3 V2 (STM32F407VG)
+#define BOARD_BLACKBEEZMINI_V1              5252  // BlackBeezMini V1 (STM32F401CCU6)
+#define BOARD_XTLW_CLIMBER_8TH              5253  // XTLW Climber-8th (STM32F407VGT6)
+#define BOARD_FLY_RRF_E3_V1                 5254  // Fly RRF E3 V1.0 (STM32F407VG)
+#define BOARD_FLY_SUPER8                    5255  // Fly SUPER8 (STM32F407ZGT6)
+#define BOARD_FLY_D8                        5256  // FLY D8 (STM32F407VG)
+#define BOARD_FLY_CDY_V3                    5257  // FLY CDY V3 (STM32F407VGT6)
+#define BOARD_ZNP_ROBIN_NANO                5258  // Elegoo Neptune 2 v1.2 board
+#define BOARD_ZNP_ROBIN_NANO_V1_3           5259  // Elegoo Neptune 2 v1.3 board
+#define BOARD_MKS_NEPTUNE_X                 5260  // Elegoo Neptune X
+#define BOARD_MKS_NEPTUNE_3                 5261  // Elegoo Neptune 3
 
 //
 // Other ARM Cortex-M4
@@ -500,21 +503,24 @@
 // ARM Cortex-M7
 //
 
-#define BOARD_REMRAM_V1               6000  // RemRam v1
-#define BOARD_NUCLEO_F767ZI           6001  // ST NUCLEO-F767ZI Dev Board
-#define BOARD_BTT_SKR_SE_BX_V2        6002  // BigTreeTech SKR SE BX V2.0 (STM32H743II)
-#define BOARD_BTT_SKR_SE_BX_V3        6003  // BigTreeTech SKR SE BX V3.0 (STM32H743II)
-#define BOARD_BTT_SKR_V3_0            6004  // BigTreeTech SKR V3.0 (STM32H743VI / STM32H723VG)
-#define BOARD_BTT_SKR_V3_0_EZ         6005  // BigTreeTech SKR V3.0 EZ (STM32H743VI / STM32H723VG)
-#define BOARD_BTT_OCTOPUS_MAX_EZ_V1_0 6006  // BigTreeTech Octopus Max EZ V1.0 (STM32H723ZE)
-#define BOARD_BTT_OCTOPUS_PRO_V1_0_1  6007  // BigTreeTech Octopus Pro v1.0.1 (STM32H723ZE)
-#define BOARD_BTT_OCTOPUS_PRO_V1_1    6008  // BigTreeTech Octopus Pro v1.1 (STM32H723ZE)
-#define BOARD_BTT_MANTA_M8P_V2_0      6009  // BigTreeTech Manta M8P V2.0 (STM32H723ZE)
-#define BOARD_BTT_KRAKEN_V1_0         6010  // BigTreeTech Kraken v1.0 (STM32H723ZG)
-#define BOARD_TEENSY41                6011  // Teensy 4.1
-#define BOARD_T41U5XBB                6012  // T41U5XBB Teensy 4.1 breakout board
-#define BOARD_FLY_D8_PRO              6013  // FLY_D8_PRO (STM32H723VG)
-#define BOARD_FLY_SUPER8_PRO          6014  // FLY SUPER8 PRO (STM32H723ZG)
+#define BOARD_REMRAM_V1                     6000  // RemRam v1
+#define BOARD_NUCLEO_F767ZI                 6001  // ST NUCLEO-F767ZI Dev Board
+#define BOARD_BTT_SKR_SE_BX_V2              6002  // BigTreeTech SKR SE BX V2.0 (STM32H743II)
+#define BOARD_BTT_SKR_SE_BX_V3              6003  // BigTreeTech SKR SE BX V3.0 (STM32H743II)
+#define BOARD_BTT_SKR_V3_0                  6004  // BigTreeTech SKR V3.0 (STM32H743VI / STM32H723VG)
+#define BOARD_BTT_SKR_V3_0_EZ               6005  // BigTreeTech SKR V3.0 EZ (STM32H743VI / STM32H723VG)
+#define BOARD_BTT_OCTOPUS_MAX_EZ_V1_0       6006  // BigTreeTech Octopus Max EZ V1.0 (STM32H723ZE)
+#define BOARD_BTT_OCTOPUS_PRO_V1_0_1        6007  // BigTreeTech Octopus Pro v1.0.1 (STM32H723ZE)
+#define BOARD_BTT_OCTOPUS_PRO_V1_1          6008  // BigTreeTech Octopus Pro v1.1 (STM32H723ZE)
+#define BOARD_BTT_MANTA_M8P_V2_0            6009  // BigTreeTech Manta M8P V2.0 (STM32H723ZE)
+#define BOARD_BTT_KRAKEN_V1_0               6010  // BigTreeTech Kraken v1.0 (STM32H723ZG)
+#define BOARD_TEENSY40                      6011  // Teensy 4.0
+#define BOARD_TEENSY41                      6012  // Teensy 4.1
+#define BOARD_T41U5XBB                      6013  // T41U5XBB Teensy 4.1 breakout board
+#define BOARD_FLY_D8_PRO                    6014  // FLY_D8_PRO (STM32H723VG)
+#define BOARD_FLY_SUPER8_PRO                6015  // FLY SUPER8 PRO (STM32H723ZG)
+#define BOARD_FYSETC_SPIDER_KING_V1_H723    6016  // FYSETC Spider King v1 (STM32H723ZG)
+#define BOARD_FYSETC_SPIDER_KING_V1_1_H723  6017  // FYSETC Spider King v1.1 (STM32H723ZG)
 
 //
 // Espressif ESP32 WiFi

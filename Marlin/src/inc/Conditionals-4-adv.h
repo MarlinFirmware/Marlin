@@ -112,6 +112,7 @@
 #if !HAS_BED_PROBE
   #undef BABYSTEP_ZPROBE_OFFSET
   #undef PROBING_USE_CURRENT_HOME
+  #undef FTM_HOME_AND_PROBE
 #endif
 #if !HAS_STOWABLE_PROBE
   #undef PROBE_DEPLOY_STOW_MENU
@@ -237,9 +238,15 @@
   #undef LIN_ADVANCE
   #undef SMOOTH_LIN_ADVANCE
   #undef MANUAL_E_MOVES_RELATIVE
+  #undef MPCTEMP
+  #undef MPC_AUTOTUNE
   #undef PID_EXTRUSION_SCALING
   #undef SHOW_TEMP_ADC_VALUES
   #undef STEALTHCHOP_E
+#endif
+
+#if DISABLED(NO_VOLUMETRICS)
+  #define HAS_VOLUMETRIC_EXTRUSION 1
 #endif
 
 #if !TEMP_SENSOR_CHAMBER
@@ -340,10 +347,15 @@
 #endif
 
 // Linear advance uses Jerk since E is an isolated axis
-#if ALL(HAS_JUNCTION_DEVIATION, LIN_ADVANCE)
+#if ALL(FT_MOTION, HAS_EXTRUDERS)
+  #define FTM_HAS_LIN_ADVANCE 1
+#endif
+#if ANY(FTM_HAS_LIN_ADVANCE, LIN_ADVANCE)
+  #define HAS_LIN_ADVANCE_K 1
+#endif
+#if HAS_JUNCTION_DEVIATION && ENABLED(LIN_ADVANCE)
   #define HAS_LINEAR_E_JERK 1
 #endif
-
 #if ENABLED(LIN_ADVANCE) && DISABLED(SMOOTH_LIN_ADVANCE)
   #define HAS_ROUGH_LIN_ADVANCE 1
 #endif
@@ -1518,13 +1530,16 @@
 #if ENABLED(FT_MOTION)
   #if HAS_X_AXIS
     #define HAS_FTM_SHAPING 1
+    #define FTM_SHAPER_X
   #endif
-  #if ENABLED(FTM_UNIFIED_BWS)
-    #define FTM_WINDOW_SIZE FTM_BW_SIZE
-    #define FTM_BATCH_SIZE  FTM_BW_SIZE
+  #if HAS_Y_AXIS
+    #define FTM_SHAPER_Y
   #endif
-  #if ANY(BIQU_MICROPROBE_V1, BIQU_MICROPROBE_V2)
-    #define FT_MOTION_DISABLE_FOR_PROBING 1
+  #if !HAS_Z_AXIS
+    #undef FTM_SHAPER_Z
+  #endif
+  #if !HAS_EXTRUDERS
+    #undef FTM_SHAPER_E
   #endif
 #endif
 

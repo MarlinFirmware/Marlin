@@ -296,6 +296,7 @@
 #define STR_TOOL_CHANGING                   "Tool-changing"
 #define STR_HOTEND_OFFSETS                  "Hotend offsets"
 #define STR_SERVO_ANGLES                    "Servo Angles"
+#define STR_AUTOTEMP                        "Auto Temp Control"
 #define STR_HOTEND_PID                      "Hotend PID"
 #define STR_BED_PID                         "Bed PID"
 #define STR_CHAMBER_PID                     "Chamber PID"
@@ -358,6 +359,21 @@
 #define STR_Z2 STR_C "2"
 #define STR_Z3 STR_C "3"
 #define STR_Z4 STR_C "4"
+#if CORE_IS_XY || CORE_IS_XZ
+  #define STEPPER_A_NAME 'A'
+#else
+  #define STEPPER_A_NAME 'X'
+#endif
+#if CORE_IS_XY || CORE_IS_YZ
+  #define STEPPER_B_NAME 'B'
+#else
+  #define STEPPER_B_NAME 'Y'
+#endif
+#if CORE_IS_XZ || CORE_IS_YZ
+  #define STEPPER_C_NAME 'C'
+#else
+  #define STEPPER_C_NAME 'Z'
+#endif
 
 //
 // Endstop Names used by Endstops::report_states

@@ -228,7 +228,7 @@ struct SerialBase {
     // Handle negative numbers
     if (number < 0.0) {
       write('-');
-      number = -number;
+      number *= -1;
     }
 
     // Round correctly so that print(1.999, 2) prints as "2.00"

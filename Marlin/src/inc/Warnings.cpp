@@ -920,10 +920,33 @@
 #endif
 
 /**
+ * Delay for probes that need time to boot up when enabled
+ */
+#if defined(DELAY_BEFORE_PROBING) && DELAY_BEFORE_PROBING < 25
+  #warning "The actual DELAY_BEFORE_PROBING will be the minimum 25 ms. Leave DELAY_BEFORE_PROBING disabled to use the minimum."
+#endif
+
+/**
  * Fixed-Time Motion
  */
-#if ALL(FT_MOTION, I2S_STEPPER_STREAM)
-  #warning "FT_MOTION has not been tested with I2S_STEPPER_STREAM."
+#if ENABLED(FT_MOTION)
+  #if ENABLED(I2S_STEPPER_STREAM)
+    #warning "FT_MOTION has not been tested with I2S_STEPPER_STREAM."
+  #endif
+  #if ENABLED(NONLINEAR_EXTRUSION)
+    #warning "NONLINEAR_EXTRUSION does not (currently) operate when FT_MOTION is the active motion system."
+  #endif
+  #if ENABLED(LIN_ADVANCE)
+    #warning "Be aware that FT_MOTION K factor is now set with M900 K (same as LIN_ADVANCE)."
+  #endif
+#endif
+#if ENABLED(FTM_HOME_AND_PROBE)
+  #if ANY(BIQU_MICROPROBE_V1, BIQU_MICROPROBE_V2)
+    #warning "Let us know if you experience any issues with BIQU Microprobe and FT_MOTION."
+  #endif
+  #if PROBE_WAKEUP_TIME_MS < 30
+    #warning "A PROBE_WAKEUP_TIME_MS over 30 ms is recommended with FT_MOTION."
+  #endif
 #endif
 
 /**
