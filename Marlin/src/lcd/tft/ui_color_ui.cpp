@@ -68,7 +68,7 @@ void MarlinUI::tft_idle() {
       tft.queue.reset();
       tft.canvas(CUSTOM_BOOTSCREEN_X, CUSTOM_BOOTSCREEN_Y, CUSTOM_BOOTSCREEN_WIDTH, CUSTOM_BOOTSCREEN_HEIGHT);
       tft.set_background(COLOR_BACKGROUND);
-      tft.add_image(0, 0, imgCustomBootScreen);
+      tft.add_image(0, 0, imgCustomBoot);
       tft.queue.sync();
       #ifndef CUSTOM_BOOTSCREEN_TIMEOUT
         #define CUSTOM_BOOTSCREEN_TIMEOUT 2500

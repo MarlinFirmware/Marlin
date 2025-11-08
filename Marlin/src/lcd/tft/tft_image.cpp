@@ -30,7 +30,7 @@
 const tImage NoLogo = { nullptr, 0, 0, NOCOLORS };
 
 const tImage images[imgCount] = {
-  TERN(SHOW_CUSTOM_BOOTSCREEN, CUSTOM_BOOTSCREEN, NoLogo), // imgCustomBootScreen
+  TERN(SHOW_CUSTOM_BOOTSCREEN, CUSTOM_BOOTSCREEN, NoLogo), // imgCustomBoot
   TERN(SHOW_BOOTSCREEN, BOOTSCREEN_LOGO, NoLogo),          // imgBootScreen
   HotEnd_64x64x4,                                          // imgHotEnd
   Bed_64x64x4,                                             // imgBed
