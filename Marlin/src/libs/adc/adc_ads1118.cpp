@@ -140,7 +140,15 @@
       uint16_t data = transfer16(0);
       digitalWrite(cs_pin, HIGH);      
       return data;
-    }       
+    }  
+    
+    // Reads and writes ADS data
+    uint16_t ADS1118::readWriteData(uint16_t config) {
+      digitalWrite(cs_pin, LOW);
+      uint16_t data = transfer16(config);
+      digitalWrite(cs_pin, HIGH);      
+      return data;
+    }      
   
     // Reads and returns a single channel inmediately with delay (blocking)
     int16_t ADS1118::readChannel(uint8_t channel) {
@@ -249,6 +257,16 @@
     
     // ADS1118, global instance
     ADS1118 ads1118;
+
+    #if ENABLED(TEMP_SENSOR_0_IS_ADS1118)
+      #warning "ThcK 0 is enabled"
+      ThermocoupleK thck_0;
+    #endif
+
+    #if ENABLED(TEMP_SENSOR_1_IS_ADS1118)
+      #warning "ThcK 1 is enabled"
+      ThermocoupleK thck_1;
+    #endif
     
 void ThermocoupleK::init() {}
 

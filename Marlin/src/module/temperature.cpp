@@ -3065,9 +3065,13 @@ void Temperature::init() {
   // ADS TC related macros
   #if TEMP_SENSOR_IS_ADS(0, 1118)
     #warning "ADS1118 is selected for temp 0"
-    SERIAL_ECHOLNPGM("ADS1118 Entering to start continuous conv");
-    ads1118.startContinuousConversion(0);
-    ads1118.readConfig();
+    thck_0.init();
+    SERIAL_ECHOLNPGM("ADS1118 Entering to start conv");
+    thck_0.setTcold (ads1118.readInternalTemp());
+    SERIAL_ECHOLNPGM("ADS1118 Tcold:");
+    SERIAL_ECHOLNPGM(thck_0.getTcold());
+    //ads1118.readConfig();
+    
   #endif  
 
   // Init (and disable) SPI thermocouples
@@ -4000,11 +4004,17 @@ void Temperature::disable_all_heaters() {
 raw_adc_t Temperature::read_ads1118(const uint8_t hindex/*=0*/) {
   #define ADS1118_HEAT_INTERVAL 250UL  // 250 ms
   
+  static raw_adc_t ads1118_coldJ_temp_current[2] = { 0, 0 };
+  static raw_adc_t ads1118_hotJ_temp_current[2] = { 0, 0 };
+
   static raw_adc_t ads1118_temp_previous[2] = { 0, 0 };  
   static uint8_t ads1118_errors[2] = { 0, 0 };
   static millis_t next_ads1118_ms[2] = { 0, 0 };  
 
   static raw_adc_t ads_val = TEMP_SENSOR_0_ADS_TMAX;
+
+  static uint8_t curr_state ;
+  static uint8_t prev_state ;
   
 
   const millis_t ms = millis();
@@ -4014,8 +4024,24 @@ raw_adc_t Temperature::read_ads1118(const uint8_t hindex/*=0*/) {
   next_ads1118_ms[hindex] = ms + ADS1118_HEAT_INTERVAL;
 
   // To do: If there are more hotends enabled, cycle through different channels
-  uint16_t raw = ads1118.readData();
-  SERIAL_ECHOPGM("ADS1118 Read: "); SERIAL_ECHOLN(raw);
+  uint16_t raw ;
+  if (curr_state == 0)
+  {
+    /* code */
+    raw = ads1118.readWriteData(ads1118.config_ADC_SS_CH0);
+    prev_state = curr_state ;
+    curr_state = 1 ; 
+  }
+  else
+  {
+    /* code */
+    raw = ads1118.readWriteData(ads1118.config_ADC_SS_TEMP); 
+    prev_state = curr_state ;
+    curr_state = 0 ;
+  }
+  
+
+  SERIAL_ECHOPGM("ADS1118 State:Read "); SERIAL_ECHOPGM(curr_state); SERIAL_ECHOPGM(":"); SERIAL_ECHOLN(raw);
 
   // Manejo de errores simples: raw = 0x7FFF o 0x8000 podrían ser saturación
   if (raw == 0x7FFF || raw == -32768) {

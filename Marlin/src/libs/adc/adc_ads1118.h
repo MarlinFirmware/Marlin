@@ -35,6 +35,70 @@
 
   #define TEMP_SENSOR_ADS1118 -18
 
+// ADS config register bits and values: 
+// Bit 15: Single-shot conversion start
+#define ADS_SS_NOP   0x0000
+#define ADS_SS_START 0x8000
+// Bits 14-12 Mux
+#define INPUT_CHAN_0_1 0x0000 // *Default*
+#define INPUT_CHAN_0_3 0x1000
+#define INPUT_CHAN_1_3 0x2000
+#define INPUT_CHAN_2_3 0x3000
+#define INPUT_CHAN_0_G 0x4000
+#define INPUT_CHAN_1_G 0x5000
+#define INPUT_CHAN_2_G 0x6000
+#define INPUT_CHAN_3_G 0x7000
+
+
+/// Bits 11-9 ADC PGA gain select bits
+/// the gain setting sets the voltage range for the ADC.  Full Scale Range 
+/// voltage is the read value at 0x7FFF  (the ADC returns a 16bit integer integer value)
+/// we use the highest possible gain setting - k-Type thermocouples have a voltage
+/// difference of ~12mV at 300C
+#define PGA_0_6_14		0x0000  // Gain = 1, Full Scale Voltage is 6.14V
+#define PGA_1_4_09		0x0200  // Gain = 1.5, Full Scale Voltage is 4.09V
+#define PGA_2_2_04		0x0400  // Gain = 3, Full Scale Voltage is 2.04V *Default*
+#define PGA_3_1_02		0x0600  // Gain = 6, Full Scale Voltage is 1.02V
+#define PGA_4_0_512		0x0800  // Gain = 12, Full Scale Voltage is 0.512V
+#define PGA_5_0_256		0x0A00  // Gain = 24, Full Scale Voltage is 0.256V
+
+/// Bit 8: operating mode: single sample or continous conversion
+#define CONTINUOUS_CONVERSION_MODE		0x0000 // continous conversion
+#define SINGLE_SHOT_MODE		          0x0100 // single sample
+
+/// Bit 7-5: Data Rate, Sample Frequency select bits (Hz)
+#define SAMPLE_FREQ_860  0x00E0
+#define SAMPLE_FREQ_475  0x00C0
+#define SAMPLE_FREQ_250  0x00A0 
+#define SAMPLE_FREQ_128  0x0080  //* default 
+#define SAMPLE_FREQ_64	 0x0060
+#define SAMPLE_FREQ_32   0x0040
+#define SAMPLE_FREQ_16   0x0020
+#define SAMPLE_FREQ_08   0x0000
+
+/// Bit 4: ADC mode (thermocouples) vs temperature sensor (on-board cold_junction temp sensor)
+#define ADC_MODE    0x0000
+#define TEMP_MODE   0x0010
+
+/// Bit 3: Pull up enable
+#define PULL_UP_DISABLE  0x0000
+#define PULL_UP_ENABLE   0x0008
+
+/// write new data to the config register ( if bits <2:1> are not <01> the config bytes are ignored)
+#define ADS_NOP     	0x0000
+#define WRITE_CONFIG	0x0002
+
+/// number of read cycles between cold junction temperature reads
+/// we don't need to read the cold junction temperature every cycle
+/// because we don't expect it to change much
+#define TEMP_CHECK_COUNT 120
+
+#define THERM_CHANNEL_ONE	0
+#define THERM_CHANNEL_TWO	1
+#define THERM_CHANNEL_HBP	2
+#define THERM_COLD_JUNCTION	3
+
+
   typedef struct {
      int16_t adc;
      int16_t temp;
@@ -78,6 +142,8 @@
   #define TEMP_MAX_TEMP   300
   #define TEMP_TABLE_OFFSET 0 // grados Celsius por índice
 
+
+
   class ADS1118 {
     public:
       static void init(uint8_t cs, uint8_t mosi, uint8_t miso, uint8_t sck);
@@ -92,6 +158,9 @@
       static uint16_t readData();
       static int16_t readChannel(uint8_t channel); 
       static uint16_t readConfig (); 
+
+      uint16_t config_ADC_SS_CH0 = ADS_SS_START | PGA_5_0_256 | SINGLE_SHOT_MODE| SAMPLE_FREQ_128 | ADC_MODE | PULL_UP_ENABLE | WRITE_CONFIG; 
+      uint16_t config_SS_TEMP = ADS_SS_START | PGA_5_0_256 | SINGLE_SHOT_MODE | SAMPLE_FREQ_128 | TEMP_MODE | PULL_UP_ENABLE | WRITE_CONFIG; 
       
     private:
       static void spiTransfer(uint8_t data, uint8_t &resp);
