@@ -49,8 +49,8 @@ class ResonanceGenerator {
     void start(const xyze_pos_t &spos, const float t) {
       rt_params.start_pos = spos;
       rt_time = t;
-      setActive(true);
-      setDone(false);
+      active = true;
+      done = false;
     }
 
     float getFrequencyFromTimeline() {
