@@ -1385,7 +1385,7 @@ void CardReader::cdroot() {
         // slow but is safest and uses minimal RAM.
         char name1[LONG_FILENAME_LENGTH];
 
-      #endif
+      #endif // SDSORT_USES_RAM
 
       if (fileCnt > 1) {
 

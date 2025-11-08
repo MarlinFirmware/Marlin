@@ -21,8 +21,6 @@
  */
 #pragma once
 
-#include "../../inc/MarlinConfig.h"
-
 #include <stdint.h>
 
 /**

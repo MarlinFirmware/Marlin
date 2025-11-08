@@ -676,11 +676,11 @@ void DGUSRxHandler::moveStep(DGUS_VP &vp, void *data_ptr) {
 
   switch (direction) {
     default: return;
-    case DGUS_Data::MoveDirection::XM: offset = -offset;
+    case DGUS_Data::MoveDirection::XM: offset *= -1;
     case DGUS_Data::MoveDirection::XP: axis = ExtUI::X; break;
-    case DGUS_Data::MoveDirection::YM: offset = -offset;
+    case DGUS_Data::MoveDirection::YM: offset *= -1;
     case DGUS_Data::MoveDirection::YP: axis = ExtUI::Y; break;
-    case DGUS_Data::MoveDirection::ZM: offset = -offset;
+    case DGUS_Data::MoveDirection::ZM: offset *= -1;
     case DGUS_Data::MoveDirection::ZP: axis = ExtUI::Z; break;
   }
 

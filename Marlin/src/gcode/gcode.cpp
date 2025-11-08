@@ -179,7 +179,7 @@ void GcodeSuite::get_destination_from_command() {
       if (skip_move)
         destination[i] = current_position[i];
       else
-        destination[i] = axis_is_relative(AxisEnum(i)) ? current_position[i] + v : LOGICAL_TO_NATIVE(v, i);
+        destination[i] = axis_is_relative((AxisEnum)i) ? current_position[i] + v : LOGICAL_TO_NATIVE(v, i);
     }
     else
       destination[i] = current_position[i];
@@ -1038,7 +1038,7 @@ void GcodeSuite::process_parsed_command(bool no_ok/*=false*/) {
         case 871: M871(); break;                                  // M871: Print/reset/clear first layer temperature offset values
       #endif
 
-      #if ENABLED(LIN_ADVANCE)
+      #if HAS_LIN_ADVANCE_K
         case 900: M900(); break;                                  // M900: Set advance K factor.
       #endif
 
