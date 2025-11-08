@@ -25,8 +25,8 @@
 #if ENABLED(FT_MOTION)
 
 #include "trajectory_poly6.h"
-#include <math.h>
 #include "../ft_motion.h"
+#include <math.h>
 
 Poly6TrajectoryGenerator::Poly6TrajectoryGenerator() {}
 

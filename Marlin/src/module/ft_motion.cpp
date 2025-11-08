@@ -35,6 +35,11 @@
 #include "ft_motion/trajectory_trapezoidal.h"
 #include "ft_motion/trajectory_poly5.h"
 #include "ft_motion/trajectory_poly6.h"
+#if ENABLED(FTM_RESONANCE_TEST)
+  #include "ft_motion/resonance_generator.h"
+  #include "../gcode/gcode.h" // for home_all_axes
+#endif
+
 #include "stepper.h" // Access stepper block queue function and abort status.
 #include "endstops.h"
 
@@ -70,6 +75,9 @@ Poly5TrajectoryGenerator FTMotion::poly5Generator;
 Poly6TrajectoryGenerator FTMotion::poly6Generator;
 TrajectoryGenerator* FTMotion::currentGenerator = &FTMotion::trapezoidalGenerator;
 TrajectoryType FTMotion::trajectoryType = TrajectoryType::FTM_TRAJECTORY_TYPE;
+
+// Resonance Test
+TERN_(FTM_RESONANCE_TEST,ResonanceGenerator FTMotion::rtg;) // Resonance trajectory generator instance
 
 // Compact plan buffer
 stepper_plan_t FTMotion::stepper_plan_buff[FTM_BUFFER_SIZE];
@@ -150,14 +158,32 @@ void FTMotion::loop() {
    * 3. Reset all the states / memory.
    * 4. Signal ready for new block.
    */
-  if (stepper.abort_current_block) {
-    discard_planner_block_protected();
-    reset();
-    currentGenerator->planRunout(0.0f);   // Reset generator state
-    stepper.abort_current_block = false;  // Abort finished.
-  }
 
-  fill_stepper_plan_buffer();
+  const bool using_resonance = TERN(FTM_RESONANCE_TEST, rtg.isActive(), false);
+
+  #if ENABLED(FTM_RESONANCE_TEST)
+    if (using_resonance) {
+      // Resonance Test has priority over normal ft_motion operation.
+      // Process resonance test if active. When it's done, generate the last data points for a clean ending.
+      if (rtg.isActive()) {
+        if (rtg.isDone()) {
+          rtg.abort();
+          return;
+        }
+        rtg.fill_stepper_plan_buffer();
+      }
+    }
+  #endif
+
+  if (!using_resonance) {
+    if (stepper.abort_current_block) {
+      discard_planner_block_protected();
+      reset();
+      currentGenerator->planRunout(0.0f);   // Reset generator state
+      stepper.abort_current_block = false;  // Abort finished.
+    }
+    fill_stepper_plan_buffer();
+  }
 
   // Set busy status for use by planner.busy()
   const bool oldBusy = busy;
@@ -556,5 +582,26 @@ void FTMotion::fill_stepper_plan_buffer() {
 
   }
 }
+
+#if ENABLED(FTM_RESONANCE_TEST)
+
+  // Start Resonance Testing
+  void FTMotion::start_resonance_test() {
+    home_if_needed(); // Ensure known axes first
+
+    ftm_resonance_test_params_t &p = rtg.rt_params;
+
+    // Safe Acceleration per Hz for Z axis
+    if (p.axis == Z_AXIS && p.accel_per_hz > 15.0f)
+      p.accel_per_hz = 15.0f;
+
+    // Always move to the center of the bed
+    do_blocking_move_to_xy(X_CENTER, Y_CENTER, Z_CLEARANCE_FOR_HOMING);
+
+    // Start test at the current position with the configured time-step
+    rtg.start(current_position, FTM_TS);
+  }
+
+#endif // FTM_RESONANCE_TEST
 
 #endif // FT_MOTION
