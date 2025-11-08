@@ -942,7 +942,7 @@
  * protect against a broken or disconnected thermistor wire.
  *
  * The issue: If a thermistor falls out, it will report the much lower
- * temperature of the air in the room, and the the firmware will keep
+ * temperature of the air in the room, and the firmware will keep
  * the heater on.
  *
  * If you get "Thermal Runaway" or "Heating failed" errors the
@@ -1395,6 +1395,11 @@
  * See https://github.com/synthetos/TinyG/wiki/Jerk-Controlled-Motion-Explained
  */
 //#define S_CURVE_ACCELERATION
+#if ENABLED(S_CURVE_ACCELERATION)
+  // Define to use 4th instead of 6th order motion curve
+  //#define S_CURVE_FACTOR 0.25    // Initial and final acceleration factor, ideally 0.1 to 0.4.
+                                   // Shouldn't generally require tuning.
+#endif
 
 //===========================================================================
 //============================= Z Probe Options =============================
@@ -1666,6 +1671,8 @@
 #ifdef PROBING_TOOL
   //#define PROBE_TOOLCHANGE_NO_MOVE  // Suppress motion on probe tool-change
 #endif
+
+//#define PROBE_WAKEUP_TIME_MS  30    // (ms) Time for the probe to wake up
 
 // Most probes should stay away from the edges of the bed, but
 // with NOZZLE_AS_PROBE this can be negative for a wider probing area.

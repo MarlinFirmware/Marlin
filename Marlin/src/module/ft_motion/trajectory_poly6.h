@@ -50,18 +50,18 @@ private:
   // Base quintic in position (end accel = 0): s5(u) = s0 + v0*Ts*u + c3 u^3 + c4 u^4 + c5 u^5
   static inline float s5_u(const float s0, const float v0, const float Ts,
                            const float c3, const float c4, const float c5, const float u) {
-    const float u2=u * u, u3=u2 * u, u4=u3 * u, u5=u4 * u;
+    const float u2 = sq(u), u3 = u2 * u, u4 = u3 * u, u5 = u4 * u;
     return s0 + v0 * Ts * u + c3 * u3 + c4 * u4 + c5 * u5;
   }
   static inline float s5pp_u(const float c3, const float c4, const float c5, const float u) {
     // d^2/du^2 (c3 u^3 + c4 u^4 + c5 u^5) = 6a u + 12 c4 u^2 + 20 c5 u^3
-    return 6.0f * c3 * u + 12.0f * c4 * u * u + 20.0f * c5 * u * u * u;
+    return 6.0f * c3 * u + 12.0f * c4 * sq(u) + 20.0f * c5 * cu(u);
   }
 
   // Shape term K(u) = u^3(1-u)^3 added in position with scalar c
   static inline float K_u(const float /*s0*/, const float /*v0*/, const float /*Ts*/, const float u) {
     const float um1 = 1.0f - u;
-    return (u * u * u) * (um1 * um1 * um1);
+    return cu(u) * cu(um1);
   }
 
   // Timings and kinematics

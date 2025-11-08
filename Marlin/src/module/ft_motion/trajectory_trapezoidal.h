@@ -33,13 +33,13 @@ class TrapezoidalTrajectoryGenerator : public TrajectoryGenerator {
 public:
   TrapezoidalTrajectoryGenerator() = default;
 
-  void plan(float initial_speed, float final_speed, float acceleration, float nominal_speed, float distance) override {
+  void plan(const float initial_speed, const float final_speed, const float acceleration, const float nominal_speed, const float distance) override {
     this->initial_speed = initial_speed;
     this->nominal_speed = nominal_speed;
     this->acceleration = acceleration;
 
     const float one_over_accel = 1.0f / acceleration;
-    const float ldiff = distance + 0.5f * one_over_accel * (initial_speed * initial_speed + final_speed * final_speed);
+    const float ldiff = distance + 0.5f * one_over_accel * (sq(initial_speed) + sq(final_speed));
 
     T2 = ldiff / nominal_speed - one_over_accel * nominal_speed;
     if (T2 < 0.0f) {
@@ -51,30 +51,30 @@ public:
     T3 = (this->nominal_speed - final_speed) * one_over_accel;
 
     // Calculate the distance traveled during the accel phase
-    pos_before_coast = initial_speed * T1 + 0.5f * acceleration * T1 * T1;
+    pos_before_coast = initial_speed * T1 + 0.5f * acceleration * sq(T1);
 
     // Calculate the distance traveled during the coast phase
     pos_after_coast = pos_before_coast + this->nominal_speed * T2;
   }
 
-  float getDistanceAtTime(float t) const override {
+  float getDistanceAtTime(const float t) const override {
     if (t < T1) {
       // Acceleration phase
-      return (this->initial_speed * t) + (0.5f * this->acceleration * t * t);
+      return (this->initial_speed * t) + (0.5f * this->acceleration * sq(t));
     } else if (t <= (T1 + T2)) {
       // Coasting phase
       return pos_before_coast + this->nominal_speed * (t - T1);
     }
     // Deceleration phase
     const float tau_decel = t - (T1 + T2);
-    return pos_after_coast + this->nominal_speed * tau_decel - 0.5f * this->acceleration * tau_decel * tau_decel;
+    return pos_after_coast + this->nominal_speed * tau_decel - 0.5f * this->acceleration * sq(tau_decel);
   }
 
   float getTotalDuration() const override {
     return T1 + T2 + T3;
   }
 
-  void planRunout(float duration) override {
+  void planRunout(const float duration) override {
     reset();
     T2 = duration; // Coast at zero speed for the entire duration
   }

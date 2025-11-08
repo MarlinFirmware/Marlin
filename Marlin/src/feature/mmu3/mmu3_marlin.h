@@ -46,8 +46,8 @@ namespace MMU3 {
   void planner_set_current_position_E(float e);
   xyz_pos_t planner_current_position();
 
-  void motion_do_blocking_move_to_xy(float rx, float ry, float feedRate_mm_s);
-  void motion_do_blocking_move_to_z(float z, float feedRate_mm_s);
+  void motion_blocking_move_xy(float rx, float ry, float feedRate_mm_s);
+  void motion_blocking_move_z(float z, float feedRate_mm_s);
 
   void nozzle_park();
 

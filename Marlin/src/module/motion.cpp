@@ -122,12 +122,6 @@ xyze_pos_t current_position = LOGICAL_AXIS_ARRAY(0,
  */
 xyze_pos_t destination; // {0}
 
-// G60/G61 Position Save and Return
-#if SAVED_POSITIONS
-  Flags<SAVED_POSITIONS> did_save_position;
-  xyze_pos_t stored_position[SAVED_POSITIONS];
-#endif
-
 // The active extruder (tool). Set with T<extruder> command.
 #if HAS_MULTI_EXTRUDER
   uint8_t active_extruder = 0; // = 0
@@ -206,7 +200,7 @@ xyz_pos_t cartes;
   xyz_pos_t workspace_offset{0};
 #endif
 
-#if HAS_ABL_NOT_UBL
+#if ABL_USES_GRID
   feedRate_t xy_probe_feedrate_mm_s = MMM_TO_MMS(XY_PROBE_FEEDRATE);
 #endif
 
@@ -288,10 +282,11 @@ void report_current_position_projected() {
     #define HOMING_CURRENT(A) TERN(EDITABLE_HOMING_CURRENT, homing_current_mA.A, A##_CURRENT_HOME)
 
     // Saves the running current of the motor at the moment the function is called and sets current to CURRENT_HOME
-    #define _SAVE_SET_CURRENT(A) \
+    #define _SAVE_SET_CURRENT(A) do{ \
       saved_current_mA.A = stepper##A.getMilliamps(); \
       stepper##A.rms_current(HOMING_CURRENT(A)); \
-      debug_current(F(STR_##A), saved_current_mA.A, HOMING_CURRENT(A))
+      debug_current(F(STR_##A), saved_current_mA.A, HOMING_CURRENT(A)); \
+    }while(0)
 
     #define _MAP_SAVE_SET(A) OPTCODE(A##_HAS_HOME_CURRENT, _SAVE_SET_CURRENT(A))
 
@@ -2637,30 +2632,23 @@ void prepare_line_to_destination() {
 
             const float adj = ABS(endstops.z2_endstop_adj);
             if (adj) {
-              if (pos_dir ? (endstops.z2_endstop_adj > 0) : (endstops.z2_endstop_adj < 0)) stepper.set_z1_lock(true); else stepper.set_z2_lock(true);
+              if (pos_dir ? (endstops.z2_endstop_adj > 0) : (endstops.z2_endstop_adj < 0))
+                stepper.set_z1_lock(true);
+              else
+                stepper.set_z2_lock(true);
               do_homing_move(axis, pos_dir ? -adj : adj);
               stepper.set_z1_lock(false);
               stepper.set_z2_lock(false);
             }
 
-          #else
+          #else // NUM_Z_STEPPERS >= 3
 
             // Handy arrays of stepper lock function pointers
 
             typedef void (*adjustFunc_t)(const bool);
 
-            adjustFunc_t lock[] = {
-              stepper.set_z1_lock, stepper.set_z2_lock, stepper.set_z3_lock
-              #if NUM_Z_STEPPERS >= 4
-                , stepper.set_z4_lock
-              #endif
-            };
-            float adj[] = {
-              0, endstops.z2_endstop_adj, endstops.z3_endstop_adj
-              #if NUM_Z_STEPPERS >= 4
-                , endstops.z4_endstop_adj
-              #endif
-            };
+            adjustFunc_t lock[] = ARRAY_N(NUM_Z_STEPPERS, stepper.set_z1_lock, stepper.set_z2_lock, stepper.set_z3_lock, stepper.set_z4_lock);
+            float adj[] = ARRAY_N(NUM_Z_STEPPERS, 0, endstops.z2_endstop_adj, endstops.z3_endstop_adj, endstops.z4_endstop_adj);
 
             adjustFunc_t tempLock;
             float tempAdj;
@@ -2694,40 +2682,39 @@ void prepare_line_to_destination() {
               lock[1] = tempLock, adj[1] = tempAdj;
             }
 
+            float d;
             if (pos_dir) {
-              // normalize adj to smallest value and do the first move
+              // Normalize adj to smallest value and do the first move
               (*lock[0])(true);
-              do_homing_move(axis, adj[1] - adj[0]);
-              // lock the second stepper for the final correction
+              if ((d = adj[1] - adj[0])) do_homing_move(axis, d);
+              // Lock the second stepper for the final correction
               (*lock[1])(true);
-              do_homing_move(axis, adj[2] - adj[1]);
+              if ((d = adj[2] - adj[1])) do_homing_move(axis, d);
               #if NUM_Z_STEPPERS >= 4
-                // lock the third stepper for the final correction
+                // Lock the third stepper for the final correction
                 (*lock[2])(true);
-                do_homing_move(axis, adj[3] - adj[2]);
+                if ((d = adj[3] - adj[2])) do_homing_move(axis, d);
               #endif
             }
             else {
               #if NUM_Z_STEPPERS >= 4
                 (*lock[3])(true);
-                do_homing_move(axis, adj[2] - adj[3]);
+                if ((d = adj[2] - adj[3])) do_homing_move(axis, d);
               #endif
               (*lock[2])(true);
-              do_homing_move(axis, adj[1] - adj[2]);
+              if ((d = adj[1] - adj[2])) do_homing_move(axis, d);
               (*lock[1])(true);
-              do_homing_move(axis, adj[0] - adj[1]);
+              if ((d = adj[0] - adj[1])) do_homing_move(axis, d);
             }
-
-            stepper.set_z1_lock(false);
-            stepper.set_z2_lock(false);
-            stepper.set_z3_lock(false);
-            #if NUM_Z_STEPPERS >= 4
-              stepper.set_z4_lock(false);
-            #endif
+            CODE_N(NUM_Z_STEPPERS,
+              stepper.set_z1_lock(false), stepper.set_z2_lock(false),
+              stepper.set_z3_lock(false), stepper.set_z4_lock(false)
+            );
 
           #endif
         }
-      #endif
+
+      #endif // NUM_Z_STEPPERS >= 3
 
       // Reset flags for X, Y, Z motor locking
       switch (axis) {

@@ -52,7 +52,7 @@
   #include "delta.h"
 #endif
 
-#if ENABLED(SENSORLESS_PROBING)
+#if HAS_DELTA_SENSORLESS_PROBING
   abc_float_t offset_sensorless_adj{0};
   float largest_sensorless_adj = 0;
 #endif
@@ -595,6 +595,7 @@ bool Probe::set_deployed(const bool deploy, const bool no_return/*=false*/) {
   if (!no_return) do_blocking_move_to(old_xy); // Return to the original location unless handled externally
 
   endstops.enable_z_probe(deploy);
+
   return false;
 }
 
@@ -1128,6 +1129,6 @@ float Probe::probe_at_point(
     }
   }
 
-#endif
+#endif // HAS_DELTA_SENSORLESS_PROBING
 
 #endif // HAS_BED_PROBE
