@@ -1277,53 +1277,22 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
   + (DISABLED(BLTOUCH) && HAS_Z_SERVO_PROBE) \
   + COUNT_ENABLED(PROBE_MANUALLY, BLTOUCH, BD_SENSOR, FIX_MOUNTED_PROBE, NOZZLE_AS_PROBE, TOUCH_MI_PROBE, SOLENOID_PROBE, Z_PROBE_ALLEN_KEY, Z_PROBE_SLED, RACK_AND_PINION_PROBE, SENSORLESS_PROBING, MAGLEV4, MAG_MOUNTED_PROBE, BIQU_MICROPROBE_V1, BIQU_MICROPROBE_V2)
   #error "Please enable only one probe option. See the following errors:"
-  #if ENABLED(BLTOUCH)
-    #error "(BLTOUCH is enabled.)"
-  #elif HAS_Z_SERVO_PROBE
-    #error "(Z_SERVO_PROBE is enabled.)"
-  #endif
-  #if ENABLED(PROBE_MANUALLY)
-    #error "(PROBE_MANUALLY is enabled.)"
-  #endif
-  #if ENABLED(BD_SENSOR)
-    #error "(BD_SENSOR is enabled.)"
-  #endif
-  #if ENABLED(FIX_MOUNTED_PROBE)
-    #error "(FIX_MOUNTED_PROBE is enabled.)"
-  #endif
-  #if ENABLED(NOZZLE_AS_PROBE)
-    #error "(NOZZLE_AS_PROBE is enabled.)"
-  #endif
-  #if ENABLED(TOUCH_MI_PROBE)
-    #error "(TOUCH_MI_PROBE is enabled.)"
-  #endif
-  #if ENABLED(SOLENOID_PROBE)
-    #error "(SOLENOID_PROBE is enabled.)"
-  #endif
-  #if ENABLED(Z_PROBE_ALLEN_KEY)
-    #error "(Z_PROBE_ALLEN_KEY is enabled.)"
-  #endif
-  #if ENABLED(Z_PROBE_SLED)
-    #error "(Z_PROBE_SLED is enabled.)"
-  #endif
-  #if ENABLED(RACK_AND_PINION_PROBE)
-    #error "(RACK_AND_PINION_PROBE is enabled.)"
-  #endif
-  #if ENABLED(SENSORLESS_PROBING)
-    #error "(SENSORLESS_PROBING is enabled.)"
-  #endif
-  #if ENABLED(MAGLEV4)
-    #error "(MAGLEV4 is enabled.)"
-  #endif
-  #if ENABLED(MAG_MOUNTED_PROBE)
-    #error "(MAG_MOUNTED_PROBE is enabled.)"
-  #endif
-  #if ENABLED(BIQU_MICROPROBE_V1)
-    #error "(BIQU_MICROPROBE_V1 is enabled.)"
-  #endif
-  #if ENABLED(BIQU_MICROPROBE_V2)
-    #error "(BIQU_MICROPROBE_V2 is enabled.)"
-  #endif
+  static_assert(DISABLED(BLTOUCH), "(BLTOUCH is enabled.)");
+  static_assert(ENABLED(BLTOUCH) || DISABLED(HAS_Z_SERVO_PROBE), "(Z_SERVO_PROBE is enabled.)");
+  static_assert(DISABLED(PROBE_MANUALLY), "(PROBE_MANUALLY is enabled.)");
+  static_assert(DISABLED(BD_SENSOR), "(BD_SENSOR is enabled.)");
+  static_assert(DISABLED(FIX_MOUNTED_PROBE), "(FIX_MOUNTED_PROBE is enabled.)");
+  static_assert(DISABLED(NOZZLE_AS_PROBE), "(NOZZLE_AS_PROBE is enabled.)");
+  static_assert(DISABLED(TOUCH_MI_PROBE), "(TOUCH_MI_PROBE is enabled.)");
+  static_assert(DISABLED(SOLENOID_PROBE), "(SOLENOID_PROBE is enabled.)");
+  static_assert(DISABLED(Z_PROBE_ALLEN_KEY), "(Z_PROBE_ALLEN_KEY is enabled.)");
+  static_assert(DISABLED(Z_PROBE_SLED), "(Z_PROBE_SLED is enabled.)");
+  static_assert(DISABLED(RACK_AND_PINION_PROBE), "(RACK_AND_PINION_PROBE is enabled.)");
+  static_assert(DISABLED(SENSORLESS_PROBING), "(SENSORLESS_PROBING is enabled.)");
+  static_assert(DISABLED(MAGLEV4), "(MAGLEV4 is enabled.)");
+  static_assert(DISABLED(MAG_MOUNTED_PROBE), "(MAG_MOUNTED_PROBE is enabled.)");
+  static_assert(DISABLED(BIQU_MICROPROBE_V1), "(BIQU_MICROPROBE_V1 is enabled.)");
+  static_assert(DISABLED(BIQU_MICROPROBE_V2), "(BIQU_MICROPROBE_V2 is enabled.)");
 #endif
 
 #if HAS_BED_PROBE
@@ -1500,7 +1469,6 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
     #elif !PIN_EXISTS(PROBE_ENABLE)
       #error "BIQU MicroProbe requires a PROBE_ENABLE_PIN."
     #endif
-
     #if ENABLED(BIQU_MICROPROBE_V1)
       #if ENABLED(INVERTED_PROBE_STATE)
         #if Z_MIN_PROBE_ENDSTOP_HIT_STATE != LOW
@@ -1516,6 +1484,13 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
           #endif
         #elif Z_MIN_ENDSTOP_HIT_STATE != HIGH
           #error "BIQU_MICROPROBE_V1 requires Z_MIN_ENDSTOP_HIT_STATE HIGH."
+        #endif
+      #endif
+      #if NONE(ONBOARD_ENDSTOPPULLUPS, ENDSTOPPULLUPS, ENDSTOPPULLUP_ZMIN, ENDSTOPPULLUP_ZMIN_PROBE)
+        #if USE_Z_MIN_PROBE
+          #error "BIQU_MICROPROBE_V1 on Z_MIN_PROBE_PIN requires ENDSTOPPULLUP_ZMIN_PROBE, or ENDSTOPPULLUPS."
+        #else
+          #error "BIQU_MICROPROBE_V1 on Z_MIN_PIN requires ENDSTOPPULLUP_ZMIN, or ENDSTOPPULLUPS."
         #endif
       #endif
     #elif ENABLED(BIQU_MICROPROBE_V2)
@@ -1534,6 +1509,13 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
         #elif Z_MIN_ENDSTOP_HIT_STATE != LOW
           #error "BIQU_MICROPROBE_V2 requires Z_MIN_ENDSTOP_HIT_STATE LOW."
         #endif
+      #endif
+    #endif
+    #if NONE(ONBOARD_ENDSTOPPULLUPS, ENDSTOPPULLUPS, ENDSTOPPULLUP_ZMIN, ENDSTOPPULLUP_ZMIN_PROBE)
+      #if USE_Z_MIN_PROBE
+        #error "BIQU_MICROPROBE_V2 on Z_MIN_PROBE_PIN requires ENDSTOPPULLUP_ZMIN_PROBE, or ENDSTOPPULLUPS."
+      #else
+        #error "BIQU_MICROPROBE_V2 on Z_MIN_PIN requires ENDSTOPPULLUP_ZMIN, or ENDSTOPPULLUPS."
       #endif
     #endif
   #endif // BIQU_MICROPROBE_V1 || BIQU_MICROPROBE_V2
