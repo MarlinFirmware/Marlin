@@ -32,9 +32,14 @@
 #if ENABLED(FT_MOTION)
 
 #include "ft_motion.h"
-#include "ft_motion/trapezoidal_trajectory_generator.h"
-#include "ft_motion/poly5_trajectory_generator.h"
-#include "ft_motion/poly6_trajectory_generator.h"
+#include "ft_motion/trajectory_trapezoidal.h"
+#include "ft_motion/trajectory_poly5.h"
+#include "ft_motion/trajectory_poly6.h"
+#if ENABLED(FTM_RESONANCE_TEST)
+  #include "ft_motion/resonance_generator.h"
+  #include "../gcode/gcode.h" // for home_all_axes
+#endif
+
 #include "stepper.h" // Access stepper block queue function and abort status.
 #include "endstops.h"
 
@@ -71,18 +76,24 @@ Poly6TrajectoryGenerator FTMotion::poly6Generator;
 TrajectoryGenerator* FTMotion::currentGenerator = &FTMotion::trapezoidalGenerator;
 TrajectoryType FTMotion::trajectoryType = TrajectoryType::FTM_TRAJECTORY_TYPE;
 
+// Resonance Test
+TERN_(FTM_RESONANCE_TEST,ResonanceGenerator FTMotion::rtg;) // Resonance trajectory generator instance
+
 // Compact plan buffer
 stepper_plan_t FTMotion::stepper_plan_buff[FTM_BUFFER_SIZE];
 XYZEval<int64_t> FTMotion::curr_steps_q32_32 = {0};
 
-uint32_t FTMotion::stepper_plan_tail = 0,            // The index to consume from
-         FTMotion::stepper_plan_head = 0;            // The index to produce into
+uint32_t FTMotion::stepper_plan_tail = 0,           // The index to consume from
+         FTMotion::stepper_plan_head = 0;           // The index to produce into
+
+#if FTM_HAS_LIN_ADVANCE
+  bool FTMotion::use_advance_lead;
+#endif
 
 #if ENABLED(DISTINCT_E_FACTORS)
   uint8_t FTMotion::block_extruder_axis;        // Cached E Axis from last-fetched block
 #elif HAS_EXTRUDERS
   constexpr uint8_t FTMotion::block_extruder_axis;
-  bool FTMotion::use_advance_lead;
 #endif
 
 // Shaping variables.
@@ -147,14 +158,32 @@ void FTMotion::loop() {
    * 3. Reset all the states / memory.
    * 4. Signal ready for new block.
    */
-  if (stepper.abort_current_block) {
-    discard_planner_block_protected();
-    reset();
-    currentGenerator->planRunout(0.0f);   // Reset generator state
-    stepper.abort_current_block = false;  // Abort finished.
-  }
 
-  fill_stepper_plan_buffer();
+  const bool using_resonance = TERN(FTM_RESONANCE_TEST, rtg.isActive(), false);
+
+  #if ENABLED(FTM_RESONANCE_TEST)
+    if (using_resonance) {
+      // Resonance Test has priority over normal ft_motion operation.
+      // Process resonance test if active. When it's done, generate the last data points for a clean ending.
+      if (rtg.isActive()) {
+        if (rtg.isDone()) {
+          rtg.abort();
+          return;
+        }
+        rtg.fill_stepper_plan_buffer();
+      }
+    }
+  #endif
+
+  if (!using_resonance) {
+    if (stepper.abort_current_block) {
+      discard_planner_block_protected();
+      reset();
+      currentGenerator->planRunout(0.0f);   // Reset generator state
+      stepper.abort_current_block = false;  // Abort finished.
+    }
+    fill_stepper_plan_buffer();
+  }
 
   // Set busy status for use by planner.busy()
   const bool oldBusy = busy;
@@ -237,16 +266,16 @@ void FTMotion::discard_planner_block_protected() {
 uint32_t FTMotion::calc_runout_samples() {
   xyze_long_t delay = {0};
   #if ENABLED(FTM_SMOOTHING)
-    #define _ADD(A) delay.A += smoothing.A.delay_samples;
-    LOGICAL_AXIS_MAP(_ADD)
-    #undef _ADD
+    #define _DELAY_ADD(A) delay.A += smoothing.A.delay_samples;
+    LOGICAL_AXIS_MAP(_DELAY_ADD)
+    #undef _DELAY_ADD
   #endif
 
   #if HAS_FTM_SHAPING
     // Ni[max_i] is the delay of the last pulse, but it is relative to Ni[0] (the negative delay centroid)
-    #define _ADD(A) if(shaping.A.ena) delay.A += shaping.A.Ni[shaping.A.max_i] - shaping.A.Ni[0];
-    SHAPED_MAP(_ADD)
-    #undef _ADD
+    #define _DELAY_ADD(A) if (shaping.A.ena) delay.A += shaping.A.Ni[shaping.A.max_i] - shaping.A.Ni[0];
+    SHAPED_MAP(_DELAY_ADD)
+    #undef _DELAY_ADD
   #endif
   return delay.large();
 }
@@ -481,7 +510,7 @@ xyze_float_t FTMotion::calc_traj_point(const float dist) {
 
 stepper_plan_t FTMotion::calc_stepper_plan(xyze_float_t traj_coords) {
   // 1) Convert trajectory to step delta
-  #define _TOSTEPS_q32(A, B) int64_t(traj_coords.A * planner.settings.axis_steps_per_mm[B] * (1ull << 32))
+  #define _TOSTEPS_q32(A, B) int64_t(traj_coords.A * planner.settings.axis_steps_per_mm[B] * (1ULL << 32))
   XYZEval<int64_t> next_steps_q32_32 = LOGICAL_AXIS_ARRAY(
     _TOSTEPS_q32(e, block_extruder_axis),
     _TOSTEPS_q32(x, X_AXIS), _TOSTEPS_q32(y, Y_AXIS), _TOSTEPS_q32(z, Z_AXIS),
@@ -490,7 +519,7 @@ stepper_plan_t FTMotion::calc_stepper_plan(xyze_float_t traj_coords) {
   );
   #undef _TOSTEPS_q32
 
-  constexpr uint32_t ITERATIONS_PER_TRAJ_INV_uq0_32 = (1ull << 32) / ITERATIONS_PER_TRAJ;
+  constexpr uint32_t ITERATIONS_PER_TRAJ_INV_uq0_32 = (1ULL << 32) / ITERATIONS_PER_TRAJ;
   stepper_plan_t stepper_plan;
 
   #define _RUN_AXIS(A) do{                                                                                   \
@@ -522,10 +551,21 @@ stepper_plan_t FTMotion::calc_stepper_plan(xyze_float_t traj_coords) {
  */
 void FTMotion::fill_stepper_plan_buffer() {
   while (!stepper_plan_is_full()) {
-    float total_duration = currentGenerator->getTotalDuration(); // if the current plan is empty, it will have zero duration.
+    float total_duration = currentGenerator->getTotalDuration(); // If the current plan is empty, it will have zero duration.
     while (tau + FTM_TS > total_duration) {
-      // Previous block plan consumed, try to get the next one.
-      tau -= total_duration; // The exact end of the last block may be in-between trajectory points, so the next one may start anywhere of (-FTM_TS, 0].
+      /**
+       * We’ve reached the end of the current block.
+       *
+       * `tau` is the time that has elapsed inside this block. After a block is finished, the next one may
+       * start at any point between *just before* the last sampled time (one step earlier, i.e. `-FTM_TS`)
+       * and *exactly at* the last sampled time (0). IOW the real start of the next block could be anywhere
+       * in the interval (-FTM_TS, 0].
+       *
+       * To account for that uncertainty we simply subtract the duration of the finished block from `tau`.
+       * This brings us back to a time value that is valid for the next block, while still allowing the next
+       * block’s start to be offset by up to one time step into the past.
+       */
+      tau -= total_duration;
       const bool plan_available = plan_next_block();
       if (!plan_available) return;
       total_duration = currentGenerator->getTotalDuration();
@@ -542,5 +582,26 @@ void FTMotion::fill_stepper_plan_buffer() {
 
   }
 }
+
+#if ENABLED(FTM_RESONANCE_TEST)
+
+  // Start Resonance Testing
+  void FTMotion::start_resonance_test() {
+    home_if_needed(); // Ensure known axes first
+
+    ftm_resonance_test_params_t &p = rtg.rt_params;
+
+    // Safe Acceleration per Hz for Z axis
+    if (p.axis == Z_AXIS && p.accel_per_hz > 15.0f)
+      p.accel_per_hz = 15.0f;
+
+    // Always move to the center of the bed
+    do_blocking_move_to_xy(X_CENTER, Y_CENTER, Z_CLEARANCE_FOR_HOMING);
+
+    // Start test at the current position with the configured time-step
+    rtg.start(current_position, FTM_TS);
+  }
+
+#endif // FTM_RESONANCE_TEST
 
 #endif // FT_MOTION

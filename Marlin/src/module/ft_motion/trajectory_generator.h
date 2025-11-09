@@ -21,7 +21,7 @@
  */
 #pragma once
 
-#include <stdint.h>
+#include "../../inc/MarlinConfigPre.h"
 
 /**
  * Base class for trajectory generators.
@@ -72,4 +72,7 @@ protected:
 /**
  * Trajectory generator types for runtime selection
  */
-enum class TrajectoryType : uint8_t { TRAPEZOIDAL, POLY5, POLY6 };
+enum class TrajectoryType : uint8_t {
+  TRAPEZOIDAL, POLY5, POLY6
+  OPTARG(FTM_RESONANCE_TEST, RESONANCE)
+};

@@ -947,8 +947,8 @@
       #warning "A PROBE_WAKEUP_TIME_MS over 25 ms is recommended with FT_MOTION and BIQU_MICROPROBE_V1 or BIQU_MICROPROBE_V2."
     #endif
   #endif
-  #if DELAY_BEFORE_PROBING <= 25
-    #warning "A DELAY_BEFORE_PROBING over 25 ms is recommended with FT_MOTION."
+  #if PROBE_WAKEUP_TIME_MS < 30
+    #warning "A PROBE_WAKEUP_TIME_MS over 30 ms is recommended with FT_MOTION."
   #endif
 #endif
 
