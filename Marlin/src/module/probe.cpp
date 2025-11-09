@@ -681,7 +681,7 @@ bool Probe::probe_down_to_z(const float z, const feedRate_t fr_mm_s) {
   // Check to see if the probe was triggered
   const bool probe_triggered = (
     #if HAS_DELTA_SENSORLESS_PROBING
-      endstops.trigger_state() & (_BV(X_MAX) | _BV(Y_MAX) | _BV(Z_MAX))
+      PROBE_TRIGGERED()
     #else
       TEST(endstops.trigger_state(), Z_MIN_PROBE)
     #endif
