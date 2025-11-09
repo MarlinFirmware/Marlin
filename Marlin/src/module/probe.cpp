@@ -352,6 +352,8 @@ xyz_pos_t Probe::offset; // Initialized by settings.load
    * Pause for at least 25ms when preparing to probe (dopause == true).
    */
   void Probe::set_devices_paused_for_probing(const bool dopause) {
+    const bool state1 = PROBE_TRIGGERED();
+
     TERN_(PROBING_HEATERS_OFF, thermalManager.pause_heaters(dopause));
     TERN_(PROBING_FANS_OFF, thermalManager.set_fans_paused(dopause));
     TERN_(PROBING_ESTEPPERS_OFF, if (dopause) stepper.disable_e_steppers());
@@ -368,7 +370,14 @@ xyz_pos_t Probe::offset; // Initialized by settings.load
         axes_trusted = old_trusted;
       }
     #endif
+
+    const bool state2 = PROBE_TRIGGERED();
+
     if (dopause) safe_delay(_MAX(DELAY_BEFORE_PROBING, 25));
+
+    const bool state3 = PROBE_TRIGGERED();
+
+    SERIAL_ECHOLNPGM("set_devices_paused_for_probing(", TRUE_FALSE(dopause), ") state1:", TRUE_FALSE(state1), " 2:", TRUE_FALSE(state2), " 3:", TRUE_FALSE(state3));
   }
 
 #endif // HAS_QUIET_PROBING
