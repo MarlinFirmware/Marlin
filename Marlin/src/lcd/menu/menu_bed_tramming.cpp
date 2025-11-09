@@ -90,7 +90,7 @@ constexpr int center_index = TERN(BED_TRAMMING_INCLUDE_CENTER, available_points 
 #if DISABLED(BED_TRAMMING_USE_PROBE)
   constexpr float inset_lfrb[4] = BED_TRAMMING_INSET_LFRB;
   constexpr xy_pos_t lf { (X_MIN_BED) + inset_lfrb[0], (Y_MIN_BED) + inset_lfrb[1] },
-                   rb { (X_MAX_BED) - inset_lfrb[2], (Y_MAX_BED) - inset_lfrb[3] };
+                     rb { (X_MAX_BED) - inset_lfrb[2], (Y_MAX_BED) - inset_lfrb[3] };
 #endif
 static int8_t bed_corner;
 
@@ -99,8 +99,9 @@ static int8_t bed_corner;
  */
 static void _lcd_goto_next_corner() {
   #if ENABLED(BED_TRAMMING_USE_PROBE)
-    xy_pos_t lf = {X_MIN_BED + probe.min_x() + 0.01f, Y_MIN_BED + probe.min_y() + 0.01f },
-             rb = {X_MAX_BED - probe.max_x() - 0.01f, Y_MAX_BED - probe.max_y() - 0.01f };
+    constexpr float slop = 0.01f;
+    const xy_pos_t lf = { (X_MIN_BED) + probe.min_x() + slop, (Y_MIN_BED) + probe.min_y() + slop },
+                   rb = { (X_MAX_BED) - probe.max_x() - slop, (Y_MAX_BED) - probe.max_y() - slop };
   #endif
 
   xy_pos_t corner_point = lf;                     // Left front

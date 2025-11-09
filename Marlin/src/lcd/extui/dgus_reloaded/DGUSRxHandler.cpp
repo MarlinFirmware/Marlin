@@ -469,8 +469,12 @@ void DGUSRxHandler::moveToPoint(DGUS_VP &vp, void *data_ptr) {
   const uint8_t point = ((uint8_t*)data_ptr)[1];
 
   #if ENABLED(BED_TRAMMING_USE_PROBE)
-      float lfrb[4] = {X_MIN_BED + probe.min_x(), Y_MIN_BED + probe.min_y(),
-             X_MAX_BED - probe.max_x(), Y_MAX_BED - probe.max_y() };
+    float lfrb[4] = {
+      (X_MIN_BED) + probe.min_x(),
+      (Y_MIN_BED) + probe.min_y(),
+      (X_MAX_BED) - probe.max_x(),
+      (Y_MAX_BED) - probe.max_y()
+    };
   #else
     constexpr float lfrb[4] = BED_TRAMMING_INSET_LFRB;
   #endif
