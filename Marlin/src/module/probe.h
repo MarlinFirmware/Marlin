@@ -347,7 +347,7 @@ public:
   #endif
 
   #if HAS_QUIET_PROBING
-    static void set_probing_paused(const bool p);
+    static void set_devices_paused_for_probing(const bool p);
   #endif
 
   #if ENABLED(PROBE_TARE)

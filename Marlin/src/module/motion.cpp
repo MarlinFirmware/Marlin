@@ -2207,7 +2207,7 @@ void prepare_line_to_destination() {
           thermalManager.wait_for_hotend_heating(active_extruder);
         #endif
 
-        TERN_(HAS_QUIET_PROBING, if (final_approach) probe.set_probing_paused(true));
+        TERN_(HAS_QUIET_PROBING, if (final_approach) probe.set_devices_paused_for_probing(true));
       }
 
       // Disable stealthChop if used. Enable diag1 pin on driver.
@@ -2246,7 +2246,7 @@ void prepare_line_to_destination() {
     if (is_home_dir) {
 
       #if HOMING_Z_WITH_PROBE && HAS_QUIET_PROBING
-        if (axis == Z_AXIS && final_approach) probe.set_probing_paused(false);
+        if (axis == Z_AXIS && final_approach) probe.set_devices_paused_for_probing(false);
       #endif
 
       endstops.validate_homing_move();
