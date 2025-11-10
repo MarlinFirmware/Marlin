@@ -1643,7 +1643,7 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
       #error "BED_TRAMMING_USE_PROBE is incompatible with SENSORLESS_PROBING."
     #endif
   #elif !defined(BED_TRAMMING_INSET_LFRB)
-    #error "LCD_BED_TRAMMING requires BED_TRAMMING_INSET_LFRB values."
+    #error "LCD_BED_TRAMMING without BED_TRAMMING_USE_PROBE requires BED_TRAMMING_INSET_LFRB."
   #endif
   static_assert(BED_TRAMMING_Z_HOP >= 0, "BED_TRAMMING_Z_HOP must be >= 0.");
 #elif ANY(DGUS_LCD_UI_RELOADED, DGUS_LCD_UI_E3S1PRO)

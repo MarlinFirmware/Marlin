@@ -87,11 +87,6 @@ static_assert(COUNT(lco) == 4 || lcodiff == 1 || lcodiff == 3, "The first two BE
 constexpr int nr_edge_points = tramming_3_points ? 3 : 4;
 constexpr int available_points = nr_edge_points + ENABLED(BED_TRAMMING_INCLUDE_CENTER);
 constexpr int center_index = TERN(BED_TRAMMING_INCLUDE_CENTER, available_points - 1, -1);
-#if DISABLED(BED_TRAMMING_USE_PROBE)
-  constexpr float inset_lfrb[4] = BED_TRAMMING_INSET_LFRB;
-  constexpr xy_pos_t lf { (X_MIN_BED) + inset_lfrb[0], (Y_MIN_BED) + inset_lfrb[1] },
-                     rb { (X_MAX_BED) - inset_lfrb[2], (Y_MAX_BED) - inset_lfrb[3] };
-#endif
 static int8_t bed_corner;
 
 /**
@@ -102,6 +97,10 @@ static void _lcd_goto_next_corner() {
     constexpr float slop = 0.01f;
     const xy_pos_t lf = { (X_MIN_BED) + probe.min_x() + slop, (Y_MIN_BED) + probe.min_y() + slop },
                    rb = { (X_MAX_BED) - probe.max_x() - slop, (Y_MAX_BED) - probe.max_y() - slop };
+  #else
+    constexpr float inset_lfrb[4] = BED_TRAMMING_INSET_LFRB;
+    constexpr xy_pos_t lf { (X_MIN_BED) + inset_lfrb[0], (Y_MIN_BED) + inset_lfrb[1] },
+                       rb { (X_MAX_BED) - inset_lfrb[2], (Y_MAX_BED) - inset_lfrb[3] };
   #endif
 
   xy_pos_t corner_point = lf;                     // Left front
