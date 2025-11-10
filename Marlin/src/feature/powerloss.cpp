@@ -81,11 +81,6 @@ uint32_t PrintJobRecovery::cmd_sdpos, // = 0
   #include "../lcd/rts/e3s1pro/lcd_rts.h"
 #endif
 
-#if HAS_LASER_E3S1PRO
-  #include "../module/stepper.h"
-  #include "../feature/spindle_laser.h"
-#endif
-
 PrintJobRecovery recovery;
 
 #if DISABLED(BACKUP_POWER_SUPPLY)
@@ -144,16 +139,11 @@ bool PrintJobRecovery::check() {
     load();
   #endif
 
-  bool success = false;
-  if (TERN0(HAS_LASER_E3S1PRO, laser_device.is_laser_device()))
-    purge();
-  else {
-    success = valid();
-    if (!success)
-      cancel();
-    else
-      queue.inject(F("M1000S"));
-  }
+  const bool success = valid();
+  if (!success)
+    cancel();
+  else
+    queue.inject(F("M1000S"));
   return success;
 }
 
@@ -191,8 +181,6 @@ void PrintJobRecovery::prepare() {
 void PrintJobRecovery::save(const bool force/*=false*/, const float zraise/*=POWER_LOSS_ZRAISE*/, const bool raised/*=false*/) {
 
   // We don't check isStillPrinting here so a save may occur during a pause
-
-  if (TERN0(HAS_LASER_E3S1PRO, laser_device.is_laser_device())) return;
 
   #if SAVE_INFO_INTERVAL_MS > 0
     static millis_t next_save_ms; // = 0

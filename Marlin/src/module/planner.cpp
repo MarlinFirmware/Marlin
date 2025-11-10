@@ -118,10 +118,6 @@
 #define BLOCK_DELAY_NONE         0U
 #define BLOCK_DELAY_FOR_1ST_MOVE 100U
 
-#if HAS_LASER_E3S1PRO
-  #define LASER_BLOCK_DELAY_FOR_1ST_MOVE  0
-#endif
-
 Planner planner;
 
 // public:
@@ -1720,13 +1716,7 @@ bool Planner::_buffer_steps(const xyze_long_t &target
     // As there are no queued movements, the Stepper ISR will not touch this
     // variable, so there is no risk setting this here (but it MUST be done
     // before the following line!!)
-
-    do {
-      #if HAS_LASER_E3S1PRO
-        if (laser_device.is_laser_device()) { delay_before_delivering = LASER_BLOCK_DELAY_FOR_1ST_MOVE; break; }
-      #endif
-      delay_before_delivering = TERN0(FT_MOTION, ftMotion.cfg.active) ? BLOCK_DELAY_NONE : BLOCK_DELAY_FOR_1ST_MOVE;
-    } while(0);
+    delay_before_delivering = TERN0(FT_MOTION, ftMotion.cfg.active) ? BLOCK_DELAY_NONE : BLOCK_DELAY_FOR_1ST_MOVE;
   }
 
   // Move buffer head
@@ -2804,14 +2794,7 @@ void Planner::buffer_sync_block(const BlockFlagBit sync_flag/*=BLOCK_BIT_SYNC_PO
     // As there are no queued movements, the Stepper ISR will not touch this
     // variable, so there is no risk setting this here (but it MUST be done
     // before the following line!!)
-
-    delay_before_delivering = (
-      #if HAS_LASER_E3S1PRO
-        laser_device.is_laser_device() ? LASER_BLOCK_DELAY_FOR_1ST_MOVE :
-      #else
-        TERN0(FT_MOTION, ftMotion.cfg.active) ? BLOCK_DELAY_NONE : BLOCK_DELAY_FOR_1ST_MOVE
-      #endif
-    );
+    delay_before_delivering = TERN0(FT_MOTION, ftMotion.cfg.active) ? BLOCK_DELAY_NONE : BLOCK_DELAY_FOR_1ST_MOVE;
   }
 
   block_buffer_head = next_buffer_head;

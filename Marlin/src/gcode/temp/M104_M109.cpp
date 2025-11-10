@@ -42,10 +42,6 @@
   #include "../../lcd/rts/e3s1pro/lcd_rts.h"
 #endif
 
-#if HAS_LASER_E3S1PRO
-  #include "../../feature/spindle_laser.h"
-#endif
-
 #if ENABLED(PRINTJOB_TIMER_AUTOSTART)
   #include "../../module/printcounter.h"
   #if ENABLED(CANCEL_OBJECTS)
@@ -83,8 +79,6 @@ void GcodeSuite::M104_M109(const bool isM109) {
   #endif
 
   if (DEBUGGING(DRYRUN)) return;
-
-  if (TERN0(HAS_LASER_E3S1PRO, laser_device.is_laser_device())) return;
 
   #if ENABLED(MIXING_EXTRUDER) && MIXING_VIRTUAL_TOOLS > 1
     constexpr int8_t target_extruder = 0;

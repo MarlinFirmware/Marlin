@@ -553,7 +553,6 @@ void show_continue_prompt(const bool is_reload) {
   DEBUG_ECHOLNPGM("... is_reload:", is_reload);
 
   ui.pause_show_message(is_reload ? PAUSE_MESSAGE_INSERT : PAUSE_MESSAGE_WAITING);
-
   #if ENABLED(SOVOL_SV06_RTS)
     rts.updateTempE0();
     rts.gotoPage(ID_Insert_L, ID_Insert_D);
@@ -563,7 +562,6 @@ void show_continue_prompt(const bool is_reload) {
     rts.sendData(thermalManager.degTargetHotend(0), HEAD_SET_TEMP_VP);
     //rts.sendData(beepSound, soundAddr);
   #endif
-
   SERIAL_ECHO_START();
   SERIAL_ECHO(is_reload ? F(_PMSG(STR_FILAMENT_CHANGE_INSERT) "\n") : F(_PMSG(STR_FILAMENT_CHANGE_WAIT) "\n"));
 }
@@ -593,7 +591,6 @@ void wait_for_confirmation(const bool is_reload/*=false*/, const int8_t max_beep
   KEEPALIVE_STATE(PAUSED_FOR_USER);
   TERN_(HOST_PROMPT_SUPPORT, hostui.continue_prompt(GET_TEXT_F(MSG_NOZZLE_PARKED)));
   TERN_(EXTENSIBLE_UI, ExtUI::onUserConfirmRequired(GET_TEXT_F(MSG_NOZZLE_PARKED)));
-
   wait_for_user = true;    // LCD click or M108 will clear this
   while (wait_for_user) {
     impatient_beep(max_beep_count);
@@ -646,7 +643,6 @@ void wait_for_confirmation(const bool is_reload/*=false*/, const int8_t max_beep
       HOTEND_LOOP() thermalManager.heater_idle[e].start(nozzle_timeout);
 
       TERN_(HOST_PROMPT_SUPPORT, hostui.continue_prompt(GET_TEXT_F(MSG_REHEATDONE)));
-
       #if ENABLED(EXTENSIBLE_UI)
         ExtUI::onUserConfirmRequired(GET_TEXT_F(MSG_REHEATDONE));
       #else

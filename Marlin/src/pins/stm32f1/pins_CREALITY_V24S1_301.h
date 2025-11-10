@@ -30,7 +30,7 @@
 
 #if HAS_MULTI_HOTEND || E_STEPPERS > 1
   #error "Creality v24S1 only supports 1 hotend / E stepper."
-  #define E_ERROR                              1
+  #define E_ERROR 1
 #endif
 
 #if DISABLED(E3S1PRO_RTS) && ALL(BLTOUCH, Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN)

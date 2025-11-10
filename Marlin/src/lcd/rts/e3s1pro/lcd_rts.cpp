@@ -93,10 +93,6 @@
   #include "../../feature/PRE01_Power_loss/PRE01_Power_loss.h"
 #endif
 
-#if HAS_LASER_E3S1PRO
-  #include "../../../feature/spindle_laser.h"
-#endif
-
 #ifdef LCD_SERIAL_PORT
   #define LCDSERIAL LCD_SERIAL
 #elif SERIAL_PORT_2
@@ -3327,86 +3323,6 @@ void RTS::handleData() {
       sendData(change_page_font + exchangePageBase, exchangePageAddr);
       break;
 
-      #if HAS_LASER_E3S1PRO
-        case SwitchDeviceKey:
-          if (recdat.data[0] == 1) {
-            sendData(exchangePageBase + 57, exchangePageAddr);
-            // change_page_font = 57;
-          }
-          else if (recdat.data[0] == 2) {
-            sendData(exchangePageBase + 56, exchangePageAddr);
-            // change_page_font = 56;
-          }
-          else if (recdat.data[0] == 0x03) {
-            if (change_page_font == 64) {
-              sendData(exchangePageBase + 33, exchangePageAddr);
-              change_page_font = 33;
-            }
-            else {
-              sendData(exchangePageBase + 1, exchangePageAddr);
-              change_page_font = 1;
-            }
-            laser_device.set_current_device(DEVICE_FDM);
-          }
-          else if (recdat.data[0] == 0x04) {
-            if (change_page_font == 64) {
-              sendData(exchangePageBase + 64, exchangePageAddr);
-              change_page_font = 64;
-            }
-            else {
-              sendData(exchangePageBase + 50, exchangePageAddr);
-            }
-          }
-          else if (recdat.data[0] == 0x05) {
-            uint8_t language;
-            sendData(exchangePageBase + 77, exchangePageAddr);
-            // change_page_font = 77;
-            laser_device.set_current_device(DEVICE_LASER);
-            language = language_change_font;
-            settings.reset();
-            language_change_font = language;
-            settings.save();
-            probe.offset.z = zprobe_zoffset = 0;
-            sendData(zprobe_zoffset * 100, AUTO_BED_LEVEL_ZOFFSET_VP);
-
-            // queue.inject(F("M999"));
-            queue.enqueue_now(F("M999\nG92.9 Z0"));
-
-            planner.synchronize();
-            sendData(0, SW_FOCUS_Z_VP);
-            laser_device.laser_power_open();
-          }
-          else if (recdat.data[0] == 0x06) {
-            if (change_page_font == 33) {
-              sendData(exchangePageBase + 33, exchangePageAddr);
-              change_page_font = 33;
-            }
-            else {
-              sendData(exchangePageBase + 50, exchangePageAddr);
-              change_page_font = 50;
-            }
-          }
-          //else if (recdat.data[0] == 8) { //调整焦距 √
-          //  queue.inject(F("G92.9 Z0"));
-          //  sendData(0, AXIS_Z_COORD_VP);
-          //  sendData(0, SW_FOCUS_Z_VP);
-          //  SERIAL_ECHOPGM("\nchange_page_font=",change_page_font);
-          //  if (change_page_font == 64) {
-          //    sendData(exchangePageBase + 64, exchangePageAddr);
-          //    change_page_font = 64;
-          //  }
-          //  else {
-          //    sendData(exchangePageBase + 51, exchangePageAddr);
-          //    change_page_font = 51;
-          //  }
-          //}
-          else if (recdat.data[0] == 0x0B) {
-            sendData(exchangePageBase + 56, exchangePageAddr);
-            // change_page_font = 56;
-          }
-          break;
-      #endif // HAS_LASER_E3S1PRO
-
     case ErrorKey: {
       if (recdat.data[0] == 1) {
         if (printingIsActive()) {
@@ -3510,24 +3426,9 @@ void EachMomentUpdate() {
             }
           }
 
-          #if HAS_LASER_E3S1PRO
-            if (laser_device.is_laser_device()) {
-              rts.sendData(exchangePageBase + 51, exchangePageAddr);
-              change_page_font = 51;
-            }
-            else if (laser_device.get_current_device() == DEVICE_UNKNOWN) {
-              rts.sendData(exchangePageBase + 50, exchangePageAddr);
-              change_page_font = 50;
-            }
-            else
-          #endif
-          {
-            rts.sendData(exchangePageBase + 1, exchangePageAddr);
-            change_page_font = 1;
-            #if ENABLED(GCODE_PREVIEW_ENABLED)
-              gcodePicDisplayOnOff(DEFAULT_PRINT_MODEL_VP, true);
-            #endif
-          }
+          rts.sendData(exchangePageBase + 1, exchangePageAddr);
+          change_page_font = 1;
+          TERN_(GCODE_PREVIEW_ENABLED, gcodePicDisplayOnOff(DEFAULT_PRINT_MODEL_VP, true));
         }
 
         return;
@@ -3767,23 +3668,6 @@ void RTS::languagedisplayUpdate() {
   sendData(lang, LEVELING_WAY_TITLE_VP);
   sendData(lang, SOUND_SETTING_VP);
   sendData(lang, PRINT_FINISH_ICON_VP);
-  #if HAS_LASER_E3S1PRO
-    sendData(lang, SELECT_LASER_WARNING_TIPS_VP);
-    sendData(lang, SELECT_FDM_WARNING_TIPS_VP);
-    sendData(lang, PRINT_MOVE_AXIS_VP);
-    sendData(lang, PRINT_DIRECT_ENGRAV_VP);
-    sendData(lang, PRINT_RUN_RANGE_VP);
-    sendData(lang, PRINT_RETURN_VP);
-    sendData(lang, PRINT_WARNING_TIPS_VP);
-    sendData(lang, DEVICE_SWITCH_LASER_VP);
-    sendData(lang, FIRST_SELECT_DEVICE_TYPE);
-    sendData(lang, HOME_LASER_ENGRAVE_VP);
-    sendData(lang, PREPARE_ADJUST_FOCUS_VP);
-    sendData(lang, PREPARE_SWITCH_FDM_VP);
-    sendData(lang, FIRST_DEVICE_FDM);
-    sendData(lang, FIRST_DEVICE_LASER);
-    sendData(lang, FOCUS_SET_FOCUS_TIPS);
-  #endif
   sendData(lang, AUTO_PID_INLET_VP);
   sendData(lang, AUTO_PID_HOTBED_INLET_VP);
   sendData(lang, AUTO_PID_HOTBED_TIS_VP);
@@ -3827,8 +3711,6 @@ void RTS_Update() {
 }
 
 void RTS_PauseMoveAxisPage() {
-  if (TERN0(HAS_LASER_E3S1PRO, laser_device.is_laser_device())) return;
-
   if (waitway == 1) {
     rts.sendData(exchangePageBase + 12, exchangePageAddr);
     change_page_font = 12;
@@ -3922,10 +3804,8 @@ void RTS_MoveAxisHoming() {
     waitway = 0;
   }
 
-  if (TERN1(HAS_LASER_E3S1PRO, !laser_device.is_laser_device())) {
-    rts.sendData(10 * current_position[X_AXIS], AXIS_X_COORD_VP);
-    rts.sendData(10 * current_position[Y_AXIS], AXIS_Y_COORD_VP);
-  }
+  rts.sendData(10 * current_position[X_AXIS], AXIS_X_COORD_VP);
+  rts.sendData(10 * current_position[Y_AXIS], AXIS_Y_COORD_VP);
   rts.sendData(10 * current_position[Z_AXIS], AXIS_Z_COORD_VP);
 }
 

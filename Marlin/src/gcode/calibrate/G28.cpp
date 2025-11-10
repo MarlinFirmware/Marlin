@@ -595,14 +595,8 @@ void GcodeSuite::G28() {
   TERN_(FULL_REPORT_TO_HOST_FEATURE, set_and_report_grblstate(old_grblstate));
 
   #if ENABLED(E3S1PRO_RTS)
-    const bool is_laser = TERN0(HAS_LASER_E3S1PRO, laser_device.is_laser_device());
-    if (is_laser) {
-      do_blocking_move_to_xy(0, 10, homing_feedrate(X_AXIS));
-    }
-    else {
-      RTS_MoveAxisHoming();
-      rts.sendData(0, MOTOR_FREE_ICON_VP);
-    }
+    RTS_MoveAxisHoming();
+    rts.sendData(0, MOTOR_FREE_ICON_VP);
   #endif
 
   #ifdef EVENT_GCODE_AFTER_HOMING

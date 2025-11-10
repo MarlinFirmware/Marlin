@@ -794,7 +794,6 @@ void unified_bed_leveling::shift_mesh_height(const float zoffs) {
 
     mesh_index_pair best;
     TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(best.pos, ExtUI::G29_START));
-
     do {
       if (do_ubl_mesh_map) display_map(param.T_map_type);
 

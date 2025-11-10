@@ -1117,9 +1117,6 @@
   #if DEFAULT_ACCELERATION_SPINDLE
     #define HAS_SPINDLE_ACCELERATION 1
   #endif
-  #if ALL(E3S1PRO_RTS, LASER_FEATURE)
-    #define HAS_LASER_E3S1PRO 1
-  #endif
 #endif
 
 #if !defined(__AVR__) || !defined(USBCON)

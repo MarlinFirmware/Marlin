@@ -35,10 +35,6 @@
 // Inline laser power
 #include "../module/planner.h"
 
-#if HAS_LASER_E3S1PRO
-  #include "e3s1pro_laser.h"
-#endif
-
 #define RPM_TO_PWM(X) ((X) * 255 / (SPEED_POWER_MAX))
 #define PWM_TO_RPM(X) ((X) * (SPEED_POWER_MAX) / 255)
 #define PCT_TO_PWM(X) ((X) * 255 / 100)
@@ -338,7 +334,3 @@ public:
 };
 
 extern SpindleLaser cutter;
-
-#if HAS_LASER_E3S1PRO
-  extern spindle_laser_soft_pwm laser_device;
-#endif

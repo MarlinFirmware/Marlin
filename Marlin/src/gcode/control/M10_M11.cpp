@@ -31,10 +31,6 @@
 
 #include "../gcode.h"
 
-#if HAS_LASER_E3S1PRO
-  #include "../../feature/spindle_laser.h"
-#endif
-
 /**
  * M10: Vacuum or Blower On
  */

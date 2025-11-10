@@ -30,10 +30,6 @@
 
 #include <libmaple/timer.h>
 
-#if HAS_LASER_E3S1PRO
-  #include "e3s1pro_timers.h"
-#endif
-
 // ------------------------
 // Defines
 // ------------------------

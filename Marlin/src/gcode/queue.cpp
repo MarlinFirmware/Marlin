@@ -56,11 +56,6 @@ GCodeQueue queue;
   #include "../feature/repeat.h"
 #endif
 
-#if HAS_LASER_E3S1PRO
-  #include "../feature/spindle_laser.h"
-  #include "../feature/e3s1pro_laser.h"
-#endif
-
 // Frequently used G-code strings
 PGMSTR(G28_STR, "G28");
 
@@ -342,44 +337,6 @@ FORCE_INLINE bool is_M29(const char * const cmd) {  // matches "M29" & "M29 ", b
   const char * const m29 = strstr_P(cmd, PSTR("M29"));
   return m29 && !NUMERIC(m29[3]);
 }
-
-#if HAS_LASER_E3S1PRO
-
-  void get_gcode_comment() {
-    char *p;
-    unsigned char i, inc = 0, buf[30] = { 0 };
-    for (;;) {
-      const int16_t n = card.get();
-      const bool card_eof = card.eof();
-
-      if (card_eof || n == '\n') {
-        for (i = LASER_MIN_X; i <= LASER_MAX_Y; ++i) {
-          p = strstr((char*)&buf[0], laser_device.laser_cmp_info[i]);
-          if (p) {
-            p += 5;
-            while (*p == ' ') p++;
-            laser_device.set_laser_range((laser_device_range)i, atof(p)); // = atof(p+5);
-            break;
-            //SERIAL_ECHOLNPGM(laser_device.laser_cmp_info[i], laser_device.get_laser_range((laser_device_range)i));
-          }
-          else if ((p = strstr((char*)&buf[0], "estimated_time")) != NULL) {
-            p += strlen("estimated_time(s):");
-            while (*p==' ') p++;
-            laser_device.remain_time = atof(p) + 59;
-            //SERIAL_ECHOLNPGM("laser_device.remain_time=", laser_device.remain_time);
-            break;
-          }
-        }
-        //SERIAL_ECHO_MSG(buf); // 107011
-        return;
-      }
-
-      buf[inc] = n;
-      if (inc < COUNT(buf) - 1) inc++;
-    }
-  }
-
-#endif // HAS_LASER_E3S1PRO
 
 #define PS_NORMAL 0
 #define PS_EOL    1
@@ -665,16 +622,8 @@ void GCodeQueue::get_serial_commands() {
         if (card_eof) {
           rts.sendData(100, PRINT_PROCESS_VP); delay(1);
           rts.sendData(100, PRINT_PROCESS_ICON_VP); delay(1);
-
-          const bool is_laser = TERN0(HAS_LASER_E3S1PRO, laser_device.is_laser_device());
-          if (is_laser) {
-            rts.sendData(exchangePageBase + 60, exchangePageAddr);
-            change_page_font = 60;
-          }
-          else {
-            rts.sendData(exchangePageBase + 9, exchangePageAddr);
-            change_page_font = 9;
-          }
+          rts.sendData(exchangePageBase + 9, exchangePageAddr);
+          change_page_font = 9;
 
           //if (flag_over_shutdown) {
           //  // Start the automatic shutdown timer after printing
@@ -684,31 +633,6 @@ void GCodeQueue::get_serial_commands() {
       #endif
     }
   }
-
-  #if HAS_LASER_E3S1PRO
-
-    void get_sdcard_laser_range() {
-      // Get commands if there are more in the file
-      if (!(laser_device.is_read_gcode_range_on() && laser_device.is_laser_device() && card.isPaused())) return;
-
-      while (!card.eof()) {
-        const int16_t n = card.get();
-        const bool card_eof = card.eof();
-
-        if (n < 0 && !card_eof) { SERIAL_ERROR_MSG(STR_SD_ERR_READ); continue; }
-
-        if (n != ';') {
-          //SERIAL_ECHOLNPGM("n!=;", n);
-          card.setIndex(0);
-          laser_device.set_read_gcode_range_off();
-          return;
-        }
-        //SERIAL_ECHOLNPGM("n=;", n);
-        get_gcode_comment();
-      }
-    }
-
-  #endif // HAS_LASER_E3S1PRO
 
 #endif // HAS_MEDIA
 
@@ -723,15 +647,7 @@ void GCodeQueue::get_available_commands() {
 
   get_serial_commands();
 
-  #if HAS_LASER_E3S1PRO
-    if (laser_device.is_laser_device() && laser_device.is_read_gcode_range_on() && card.isPaused()) { // 解决FDM有时不打印的bug 107011 -20211110
-      get_sdcard_laser_range();
-    }
-    else
-  #endif
-    {
-      TERN_(HAS_MEDIA, get_sdcard_commands());
-    }
+  TERN_(HAS_MEDIA, get_sdcard_commands());
 }
 
 /**

@@ -41,10 +41,6 @@
   #include "../feature/cooler.h"
 #endif
 
-#if HAS_LASER_E3S1PRO
-  #include "../feature/spindle_laser.h"
-#endif
-
 #if ENABLED(USE_CONTROLLER_FAN)
   #include "../feature/controllerfan.h"
 #endif
@@ -1577,9 +1573,6 @@ int16_t Temperature::getHeaterPower(const heater_id_t heater_id) {
   #endif
 
   void Temperature::update_autofans() {
-
-    if (TERN0(HAS_LASER_E3S1PRO, laser_device.is_laser_device())) return;
-
     #define _EFAN(I,N) _EFANOVERLAP(I,N) ? I :
     static const uint8_t fanBit[] PROGMEM = {
       0
@@ -1807,7 +1800,6 @@ void Temperature::maxtemp_error(const heater_id_t heater_id OPTARG(ERR_INCLUDE_T
     TERN_(DWIN_CREALITY_LCD, dwinPopupTemperature(1));
     TERN_(EXTENSIBLE_UI, ExtUI::onMaxTempError(heater_id));
   #endif
-
   _TEMP_ERROR(heater_id, F(STR_T_MAXTEMP), MSG_ERR_MAXTEMP, deg);
 }
 
@@ -1824,7 +1816,6 @@ void Temperature::mintemp_error(const heater_id_t heater_id OPTARG(ERR_INCLUDE_T
     TERN_(DWIN_CREALITY_LCD, dwinPopupTemperature(0));
     TERN_(EXTENSIBLE_UI, ExtUI::onMinTempError(heater_id));
   #endif
-
   _TEMP_ERROR(heater_id, F(STR_T_MINTEMP), MSG_ERR_MINTEMP, deg);
 }
 

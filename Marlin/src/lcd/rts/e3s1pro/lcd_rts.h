@@ -492,25 +492,6 @@
 
 #define ABNORMAL_PAGE_TEXT_VP_SIZE        30
 
-#if HAS_LASER_E3S1PRO
-  #define SELECT_LASER_WARNING_TIPS_VP    0x1381
-  #define SELECT_FDM_WARNING_TIPS_VP      0x1382
-  #define PRINT_MOVE_AXIS_VP              0x1383
-  #define PRINT_DIRECT_ENGRAV_VP          0x1384
-  #define PRINT_RUN_RANGE_VP              0x1385
-  #define PRINT_RETURN_VP                 0x1386
-  #define PRINT_WARNING_TIPS_VP           0x1387
-  #define DEVICE_SWITCH_LASER_VP          0x1388
-  #define FIRST_SELECT_DEVICE_TYPE        0x1389
-  #define HOME_LASER_ENGRAVE_VP           0x138A
-  #define PREPARE_ADJUST_FOCUS_VP         0x138B
-  #define PREPARE_SWITCH_FDM_VP           0x138C
-  #define FIRST_DEVICE_FDM                0x138D
-  #define FIRST_DEVICE_LASER              0x138E
-  #define FOCUS_SET_FOCUS_TIPS            0x138F
-  #define SW_FOCUS_Z_VP                   0x2207
-#endif
-
 /************struct**************/
 typedef struct DataBuf {
   unsigned char len;
@@ -573,10 +554,6 @@ class RTS {
     void handleData();
     void init();
     void sendCurveData(uint8_t channel, uint16_t *vaule, uint8_t size);
-    #if HAS_LASER_E3S1PRO
-      void handleDataLaser();
-      void sdCardStopLaser();
-    #endif
     static void sendText(const char string[], unsigned long addr, uint8_t textSize = 30);
     static DB recdat;
     static DB snddat;
@@ -773,9 +750,6 @@ const uint32_t addrBuf[] = {
 int endsWith(const char*, const char*);
 void errorHanding();
 void RTS_Update();
-#if HAS_LASER_E3S1PRO
-  void RTSUpdateLaser();
-#endif
 extern int touchscreen_requested_mesh;
 extern float zprobe_zoffset;
 extern int16_t temphot;

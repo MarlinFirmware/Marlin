@@ -387,8 +387,7 @@ void startOrResumeJob() {
     IF_DISABLED(NO_SD_AUTOSTART, card.autofile_cancel());
     card.abortFilePrintNow(TERN_(SD_RESORT, true));
 
-    if (TERN0(HAS_LASER_E3S1PRO, !laser_device.is_laser_device()))
-      thermalManager.cooldown();
+    thermalManager.cooldown();
 
     queue.clear();
     quickstop_stepper();
@@ -861,16 +860,10 @@ void idle(const bool no_stepper_sleep/*=false*/) {
   // Handle UI input / draw events
   #if ANY(SOVOL_SV06_RTS, E3S1PRO_RTS)
     RTS_Update();
+  #elif ENABLED(E3S1PRO_RTS)
+    RTSUpdate();
   #else
     ui.update();
-  #endif
-
-  #if ENABLED(E3S1PRO_RTS)
-    if (TERN0(HAS_LASER_E3S1PRO, laser_device.is_laser_device())) {
-      TERN_(HAS_LASER_E3S1PRO, RTSUpdateLaser());
-    }
-    else
-      RTSUpdate();
   #endif
 
   // Run i2c Position Encoders
@@ -1696,12 +1689,6 @@ void setup() {
 
   #if ENABLED(DIRECT_STEPPING)
     SETUP_RUN(page_manager.init());
-  #endif
-
-  #if HAS_LASER_E3S1PRO
-    laser_device.get_device_from_eeprom(); // 107011
-    laser_device.get_z_axis_high_from_eeprom();
-    if (laser_device.is_laser_device()) laser_device.laser_power_open();
   #endif
 
   #if HAS_TFT_LVGL_UI

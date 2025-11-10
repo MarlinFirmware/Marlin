@@ -23,10 +23,6 @@
 
 #include "../../../inc/MarlinConfigPre.h"
 
-#if ENABLED(E3S1PRO_RTS)
-  #include "../bedlevel.h"
-#endif
-
 class LevelingBilinear {
 public:
   static bed_mesh_t z_values;
