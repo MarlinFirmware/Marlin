@@ -202,7 +202,7 @@ void SpindleLaser::apply_power(const uint8_t opwr) {
 #endif
 
 #if HAS_LASER_E3S1PRO
-  class spindle_laser_soft_pwm laser_device;
+  spindle_laser_soft_pwm laser_device;
 #endif
 
 #endif // HAS_CUTTER

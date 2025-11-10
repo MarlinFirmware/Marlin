@@ -338,3 +338,7 @@ public:
 };
 
 extern SpindleLaser cutter;
+
+#if HAS_LASER_E3S1PRO
+  extern spindle_laser_soft_pwm laser_device;
+#endif

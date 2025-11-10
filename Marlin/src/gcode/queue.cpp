@@ -666,7 +666,7 @@ void GCodeQueue::get_serial_commands() {
           rts.sendData(100, PRINT_PROCESS_VP); delay(1);
           rts.sendData(100, PRINT_PROCESS_ICON_VP); delay(1);
 
-          const bool is_laser = TERN0(HAS_CUTTER, laser_device.is_laser_device());
+          const bool is_laser = TERN0(HAS_LASER_E3S1PRO, laser_device.is_laser_device());
           if (is_laser) {
             rts.sendData(exchangePageBase + 60, exchangePageAddr);
             change_page_font = 60;
@@ -723,7 +723,7 @@ void GCodeQueue::get_available_commands() {
 
   get_serial_commands();
 
-  #if HAS_CUTTER
+  #if HAS_LASER_E3S1PRO
     if (laser_device.is_laser_device() && laser_device.is_read_gcode_range_on() && card.isPaused()) { // 解决FDM有时不打印的bug 107011 -20211110
       get_sdcard_laser_range();
     }
