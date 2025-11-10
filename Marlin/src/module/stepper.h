@@ -52,7 +52,7 @@
 #endif
 
 #if ENABLED(FT_MOTION)
-  #include "ft_types.h"
+  class FTMotion;
 #endif
 
 // TODO: Review and ensure proper handling for special E axes with commands like M17/M18, stepper timeout, etc.
@@ -147,7 +147,7 @@ constexpr ena_mask_t enable_overlap[] = {
                                       TERN0(INPUT_SHAPING_Z, _ISDMF[Z_AXIS] * _ISDASU[Z_AXIS]);
     #if defined(__AVR__) || !defined(ADAPTIVE_STEP_SMOOTHING)
       // min_step_isr_frequency is known at compile time on AVRs and any reduction in SRAM is welcome
-      template<unsigned int INDEX=DISTINCT_AXES> constexpr float max_isr_rate() {
+      template<int INDEX=DISTINCT_AXES> constexpr float max_isr_rate() {
         return _MAX(_ISDMF[ALIM(INDEX - 1, _ISDMF)] * _ISDASU[ALIM(INDEX - 1, _ISDASU)], max_isr_rate<INDEX - 1>());
       }
       template<> constexpr float max_isr_rate<0>() {
@@ -275,7 +275,7 @@ constexpr ena_mask_t enable_overlap[] = {
     float zeta;
     bool enabled : 1;
     bool forward : 1;
-    int16_t delta_error = 0;    // delta_error for seconday bresenham mod 128
+    int16_t delta_error = 0;    // delta_error for secondary Bresenham mod 128
     uint8_t factor1;
     uint8_t factor2;
     int32_t last_block_end_pos = 0;
@@ -283,10 +283,40 @@ constexpr ena_mask_t enable_overlap[] = {
 
 #endif // HAS_ZV_SHAPING
 
+//
+// NonLinear Extrusion data
+//
 #if ENABLED(NONLINEAR_EXTRUSION)
-  typedef struct { float A, B, C; void reset() { A = B = 0.0f; C = 1.0f; } } ne_coeff_t;
-  typedef struct { int32_t A, B, C; } ne_fix_t;
-#endif
+
+  #if DISABLED(SMOOTH_LIN_ADVANCE)
+    #define NONLINEAR_EXTRUSION_Q24 1
+  #endif
+
+  typedef struct {
+    bool enabled;
+    struct {
+      float A, B, C;
+      void reset() { A = B = 0.0f; C = 1.0f; }
+    } coeff;
+    void reset() {
+      enabled = ENABLED(NONLINEAR_EXTRUSION_DEFAULT_ON);
+      coeff.reset();
+    }
+  } nonlinear_settings_t;
+
+  typedef struct {
+    nonlinear_settings_t settings;
+    union {
+      struct { int32_t A, B, C; } q24;
+      struct { int32_t A, B, C; } q30;
+    };
+    #if NONLINEAR_EXTRUSION_Q24
+      int32_t edividend;
+      uint32_t scale_q24;
+    #endif
+  } nonlinear_t;
+
+#endif // NONLINEAR_EXTRUSION
 
 //
 // Stepper class definition
@@ -342,7 +372,7 @@ class Stepper {
     #endif
 
     #if ENABLED(NONLINEAR_EXTRUSION)
-      static ne_coeff_t ne;
+      static nonlinear_t ne;
     #endif
 
     #if ENABLED(ADAPTIVE_STEP_SMOOTHING_TOGGLE)
@@ -353,7 +383,7 @@ class Stepper {
 
     #if ENABLED(SMOOTH_LIN_ADVANCE)
       static float extruder_advance_tau[DISTINCT_E]; // Smoothing time; also the lookahead time of the smoother
-      static void set_advance_tau(const_float_t tau, const uint8_t e=active_extruder) {
+      static void set_advance_tau(const float tau, const uint8_t e=active_extruder) {
         const uint8_t i = E_INDEX_N(e);
         extruder_advance_tau[i] = tau;
         extruder_advance_tau_ticks[i] = tau * STEPPER_TIMER_RATE;
@@ -429,7 +459,7 @@ class Stepper {
       static int32_t bezier_A,     // A coefficient in Bézier speed curve
                      bezier_B,     // B coefficient in Bézier speed curve
                      bezier_C;     // C coefficient in Bézier speed curve
-      static uint32_t bezier_F,    // F coefficient in Bézier speed curve
+      static uint32_t bezier_F,    // F/free coefficient in Bézier speed curve
                       bezier_AV;   // AV coefficient in Bézier speed curve
       #ifdef __AVR__
         static bool A_negative;    // If A coefficient was negative
@@ -456,7 +486,7 @@ class Stepper {
       #if ENABLED(SMOOTH_LIN_ADVANCE)
         static uint32_t curr_timer_tick,                        // Current tick relative to block start
                         curr_step_rate;                         // Current motion step rate
-        static uint32_t extruder_advance_tau_ticks[DISTINCT_E], // Same as extruder_advance_tau but in in stepper timer ticks
+        static uint32_t extruder_advance_tau_ticks[DISTINCT_E], // Same as extruder_advance_tau but in stepper timer ticks
                         extruder_advance_alpha_q30[DISTINCT_E]; // The smoothing factor of each stage of the high-order exponential
                                                                 // smoothing filter (calculated from tau)
       #else
@@ -465,12 +495,6 @@ class Stepper {
                         la_advance_steps;   // Count of steps added to increase nozzle pressure
         static bool     la_active;          // Whether linear advance is used on the present segment
       #endif
-    #endif
-
-    #if ENABLED(NONLINEAR_EXTRUSION)
-      static int32_t ne_edividend;
-      static uint32_t ne_scale;
-      static ne_fix_t ne_fix;
     #endif
 
     #if ENABLED(BABYSTEPPING)
@@ -531,8 +555,15 @@ class Stepper {
       // The Linear advance ISR phase
       static void advance_isr();
       #if ENABLED(SMOOTH_LIN_ADVANCE)
-        static void set_la_interval(const int32_t rate);
+        #if ENABLED(INPUT_SHAPING_E_SYNC)
+          static xy_long_t smooth_lin_adv_lookback(const shaping_time_t stepper_ticks);
+        #endif
+        static int32_t smooth_lin_adv_lookahead(uint32_t stepper_ticks);
+        static void set_la_interval(int32_t step_rate);
         static hal_timer_t smooth_lin_adv_isr();
+        #if ENABLED(S_CURVE_ACCELERATION)
+          static int32_t calc_bezier_curve(const int32_t v0, const int32_t v1, const uint32_t av, const uint32_t curr_step);
+        #endif
       #endif
     #endif
 
@@ -718,9 +749,9 @@ class Stepper {
     #endif
 
     #if HAS_ZV_SHAPING
-      static void set_shaping_damping_ratio(const AxisEnum axis, const_float_t zeta);
+      static void set_shaping_damping_ratio(const AxisEnum axis, const float zeta);
       static float get_shaping_damping_ratio(const AxisEnum axis);
-      static void set_shaping_frequency(const AxisEnum axis, const_float_t freq);
+      static void set_shaping_frequency(const AxisEnum axis, const float freq);
       static float get_shaping_frequency(const AxisEnum axis);
     #endif
 
@@ -738,8 +769,10 @@ class Stepper {
     // Evaluate axis motions and set bits in axis_did_move
     static void set_axis_moved_for_current_block();
 
-    #if ENABLED(NONLINEAR_EXTRUSION)
-      static void calc_nonlinear_e(uint32_t step_rate);
+    #if NONLINEAR_EXTRUSION_Q24
+      static void calc_nonlinear_e(const uint32_t step_rate);
+    #else
+      static void calc_nonlinear_e(const uint32_t) {}
     #endif
 
     #if ENABLED(S_CURVE_ACCELERATION)

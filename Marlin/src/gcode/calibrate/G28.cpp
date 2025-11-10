@@ -52,7 +52,7 @@
   #include "../../feature/bltouch.h"
 #endif
 
-#if FT_MOTION_DISABLE_FOR_PROBING
+#if ENABLED(FT_MOTION)
   #include "../../module/ft_motion.h"
 #endif
 
@@ -130,9 +130,8 @@
 
   inline void home_z_safely() {
 
-    #if FT_MOTION_DISABLE_FOR_PROBING
-      FTMotionDisableInScope FT_Disabler; // Disable Fixed-Time Motion for homing
-    #endif
+    // Potentially disable Fixed-Time Motion for homing
+    TERN_(FT_MOTION, FTM_DISABLE_IN_SCOPE());
 
     DEBUG_SECTION(log_G28, "home_z_safely", DEBUGGING(LEVELING));
 
@@ -200,11 +199,12 @@
 #endif // IMPROVE_HOMING_RELIABILITY
 
 /**
- * G28: Home all axes according to settings
+ * G28: Auto Home
  *
- * Parameters
+ * Home all axes according to settings
  *
- *  None  Home to all axes with no parameters.
+ * Parameters:
+ *  None  Home all axes
  *        With QUICK_HOME enabled XY will home together, then Z.
  *
  *  L<bool>   Force leveling state ON (if possible) or OFF after homing (Requires RESTORE_LEVELING_AFTER_G28 or ENABLE_LEVELING_AFTER_G28)
@@ -216,7 +216,7 @@
  *            fail with position unreachable due to probe/nozzle offset.  This
  *            can be used to avoid a model.
  *
- * Cartesian/SCARA parameters
+ * Cartesian/SCARA parameters:
  *
  *  X   Home to the X endstop
  *  Y   Home to the Y endstop
@@ -289,9 +289,8 @@ void GcodeSuite::G28() {
       motion_state_t saved_motion_state = begin_slow_homing();
     #endif
 
-    #if FT_MOTION_DISABLE_FOR_PROBING
-      FTMotionDisableInScope FT_Disabler; // Disable Fixed-Time Motion for homing
-    #endif
+    // Potentially disable Fixed-Time Motion for homing
+    TERN_(FT_MOTION, FTM_DISABLE_IN_SCOPE());
 
     // Always home with tool 0 active
     #if HAS_MULTI_HOTEND

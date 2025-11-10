@@ -11,7 +11,8 @@ if pioutil.is_pio_build():
         # "-Wno-incompatible-pointer-types",
         # "-Wno-unused-const-variable",
         # "-Wno-maybe-uninitialized",
-        # "-Wno-sign-compare"
+        # "-Wno-sign-compare",
+        "-fno-sized-deallocation"
     ]
     if "teensy" not in env["PIOENV"]:
         cxxflags += ["-Wno-register"]

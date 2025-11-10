@@ -90,17 +90,16 @@ namespace LanguageNarrow_en {
   LSTR MSG_MEDIA_REMOVED                  = MEDIA_TYPE_EN _UxGT(" Removed");
   LSTR MSG_MEDIA_REMOVED_SD               = _UxGT("SD Card Removed");
   LSTR MSG_MEDIA_REMOVED_USB              = _UxGT("USB Drive Removed");
-  LSTR MSG_MEDIA_WAITING                  = _UxGT("Waiting for ") MEDIA_TYPE_EN;
-  LSTR MSG_MEDIA_WAITING_SD               = _UxGT("Waiting for SD Card");
-  LSTR MSG_MEDIA_WAITING_USB              = _UxGT("Waiting for USB Drive");
   LSTR MSG_MEDIA_INIT_FAIL                = MEDIA_TYPE_EN _UxGT(" Init Fail");
   LSTR MSG_MEDIA_INIT_FAIL_SD             = _UxGT("SD Card Init Fail");
   LSTR MSG_MEDIA_INIT_FAIL_USB            = _UxGT("USB Drive Init Fail");
   LSTR MSG_MEDIA_READ_ERROR               = MEDIA_TYPE_EN _UxGT(" read error");
-  LSTR MSG_MEDIA_USB_REMOVED              = _UxGT("USB device removed");
-  LSTR MSG_MEDIA_USB_FAILED               = _UxGT("USB start failed");
   LSTR MSG_MEDIA_SORT                     = _UxGT("Sort ") MEDIA_TYPE_EN;
   LSTR MSG_MEDIA_UPDATE                   = MEDIA_TYPE_EN _UxGT(" Update");
+  LSTR MSG_USB_FD_WAITING_FOR_MEDIA       = _UxGT("Wait for USB Drive");
+  LSTR MSG_USB_FD_MEDIA_REMOVED           = _UxGT("USB Drive Removed");
+  LSTR MSG_USB_FD_DEVICE_REMOVED          = _UxGT("USB device removed");
+  LSTR MSG_USB_FD_USB_FAILED              = _UxGT("USB start failed");
 
   LSTR MSG_KILL_SUBCALL_OVERFLOW          = _UxGT("Subcall Overflow");
   LSTR MSG_LCD_ENDSTOPS                   = _UxGT("Endstops"); // Max length 8 characters
@@ -365,7 +364,7 @@ namespace LanguageNarrow_en {
   LSTR MSG_MOVE_N_MM                      = _UxGT("Move $mm");
   LSTR MSG_MOVE_N_IN                      = _UxGT("Move $in");
   LSTR MSG_MOVE_N_DEG                     = _UxGT("Move $") LCD_STR_DEGREE;
-  LSTR MSG_LIVE_MOVE                      = _UxGT("Live Move");
+  LSTR MSG_LIVE_MOVE                      = _UxGT("Live Movement");
   LSTR MSG_SPEED                          = _UxGT("Speed");
   LSTR MSG_MESH_Z_OFFSET                  = _UxGT("Bed Z");
   LSTR MSG_NOZZLE                         = _UxGT("Nozzle");
@@ -490,6 +489,10 @@ namespace LanguageNarrow_en {
   LSTR MSG_EN_STEPS                       = _UxGT("* Steps/mm");
   LSTR MSG_TEMPERATURE                    = _UxGT("Temperature");
   LSTR MSG_MOTION                         = _UxGT("Motion");
+  LSTR MSG_FTM_TRAPEZOIDAL                = _UxGT("Trapezoidal");
+  LSTR MSG_FTM_POLY5                      = _UxGT("5th Order");
+  LSTR MSG_FTM_POLY6                      = _UxGT("6th Order");
+  LSTR MSG_FTM_TRAJECTORY                 = _UxGT("Trajectory: $");
   LSTR MSG_FILAMENT                       = _UxGT("Filament");
   LSTR MSG_FILAMENT_EN                    = _UxGT("Filament *");
   LSTR MSG_VOLUMETRIC_ENABLED             = _UxGT("E in mm") SUPERSCRIPT_THREE;
@@ -510,6 +513,7 @@ namespace LanguageNarrow_en {
   LSTR MSG_ADVANCE_TAU                    = _UxGT("Advance Tau");
   LSTR MSG_ADVANCE_K_E                    = _UxGT("Advance K *");
   LSTR MSG_ADVANCE_TAU_E                  = _UxGT("Advance Tau *");
+  LSTR MSG_NLE_ON                         = _UxGT("NLE enabled");
   LSTR MSG_CONTRAST                       = _UxGT("LCD Contrast");
   LSTR MSG_BRIGHTNESS                     = _UxGT("LCD Brightness");
   LSTR MSG_SCREEN_TIMEOUT                 = _UxGT("LCD Timeout (m)");
@@ -778,6 +782,7 @@ namespace LanguageNarrow_en {
   LSTR MSG_RUNOUT_SENSOR                  = _UxGT("Runout Sensor");
   LSTR MSG_SENSOR                         = _UxGT("Sensor");
   LSTR MSG_RUNOUT_DISTANCE_MM             = _UxGT("Runout Dist mm");
+  LSTR MSG_MOTION_DISTANCE_MM             = _UxGT("Motion Dist mm");
   LSTR MSG_EXTRUDER_MIN_TEMP              = _UxGT("Extruder Min Temp.");  // ProUI
   LSTR MSG_FANCHECK                       = _UxGT("Fan Tacho Check");
   LSTR MSG_KILL_HOMING_FAILED             = _UxGT("Homing Failed");
@@ -935,6 +940,7 @@ namespace LanguageNarrow_en {
   LSTR MSG_FTM_MZV                        = _UxGT("MZV");
   //LSTR MSG_FTM_ULENDO_FBS               = _UxGT("Ulendo FBS");
   //LSTR MSG_FTM_DISCTF                   = _UxGT("DISCTF");
+  LSTR MSG_FTM_AXIS_SYNC                  = _UxGT("Axis Sync");
   LSTR MSG_FTM_DYN_MODE                   = _UxGT("DF Mode: $");
   LSTR MSG_FTM_Z_BASED                    = _UxGT("Z-based");
   LSTR MSG_FTM_MASS_BASED                 = _UxGT("Mass-based");
@@ -942,6 +948,16 @@ namespace LanguageNarrow_en {
   LSTR MSG_FTM_DFREQ_K_N                  = _UxGT("@ Dyn. Freq.");
   LSTR MSG_FTM_ZETA_N                     = _UxGT("@ Damping");
   LSTR MSG_FTM_VTOL_N                     = _UxGT("@ Vib. Level");
+  LSTR MSG_FTM_SMOOTH_TIME_N              = _UxGT("@ Smoothing Time");
+  LSTR MSG_FTM_POLY6_OVERSHOOT            = _UxGT("@ Poly6 Overshoot");
+
+  LSTR MSG_FTM_RESONANCE_TEST             = _UxGT("Resonance Test");
+  LSTR MSG_FTM_RT_RUNNING                 = _UxGT("Res. Test Running...");
+  LSTR MSG_FTM_RT_START_N                 = _UxGT("Start @ Axis Test");
+  LSTR MSG_FTM_RT_STOP                    = _UxGT("Abort Test");
+  LSTR MSG_FTM_RETRIEVE_FREQ              = _UxGT("Calc. Res. Freq.");
+  LSTR MSG_FTM_RESONANCE_FREQ             = _UxGT("Resonance Freq.");
+  LSTR MSG_FTM_TIMELINE_FREQ              = _UxGT("Timeline (s)");
 
   LSTR MSG_LEVEL_X_AXIS                   = _UxGT("Level X Axis");
   LSTR MSG_AUTO_CALIBRATE                 = _UxGT("Auto Calibrate");
@@ -1125,7 +1141,6 @@ namespace LanguageNarrow_en {
 namespace LanguageWide_en {
   using namespace LanguageNarrow_en;
   #if LCD_WIDTH >= 20 || HAS_DWIN_E3V2
-    LSTR MSG_LIVE_MOVE                    = _UxGT("Live Movement");
     LSTR MSG_HOST_START_PRINT             = _UxGT("Start Host Print");
     LSTR MSG_PRINTING_OBJECT              = _UxGT("Printing Object");
     LSTR MSG_CANCEL_OBJECT                = _UxGT("Cancel Object");
@@ -1151,6 +1166,8 @@ namespace LanguageWide_en {
     LSTR MSG_EEPROM_INITIALIZED           = _UxGT("Default Settings Restored");
     LSTR MSG_PREHEAT_M_CHAMBER            = _UxGT("Preheat $ Chamber");
     LSTR MSG_PREHEAT_M_SETTINGS           = _UxGT("Preheat $ Config");
+    LSTR MSG_FTM_RT_RUNNING               = _UxGT("Resonance Test Running...");
+    LSTR MSG_FTM_RESONANCE_FREQ           = _UxGT("Resonance frequency");
   #endif
 }
 

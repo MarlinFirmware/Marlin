@@ -37,9 +37,9 @@ public:
   MarlinServo();
 
   /**
-   * @brief attach the pin to the servo, set pin mode, return channel number
-   * @param pin pin to attach to
-   * @return channel number, -1 if failed
+   * @brief attach   the pin to the servo, set pin mode, return channel number
+   * @param pin      pin to attach to
+   * @return         channel number, -1 if failed
    */
   int8_t attach(const pin_t apin);
 

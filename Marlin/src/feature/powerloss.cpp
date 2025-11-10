@@ -221,7 +221,7 @@ void PrintJobRecovery::save(const bool force/*=false*/, const float zraise/*=POW
     TERN_(HAS_WORKSPACE_OFFSET, info.workspace_offset = workspace_offset);
     E_TERN_(info.active_extruder = active_extruder);
 
-    #if DISABLED(NO_VOLUMETRICS)
+    #if HAS_VOLUMETRIC_EXTRUSION
       info.flag.volumetric_enabled = parser.volumetric_enabled;
       #if HAS_MULTI_EXTRUDER
         COPY(info.filament_size, planner.filament_size);
@@ -270,7 +270,7 @@ void PrintJobRecovery::save(const bool force/*=false*/, const float zraise/*=POW
 
   #if ENABLED(BACKUP_POWER_SUPPLY)
 
-    void PrintJobRecovery::retract_and_lift(const_float_t zraise) {
+    void PrintJobRecovery::retract_and_lift(const float zraise) {
       #if POWER_LOSS_RETRACT_LEN || POWER_LOSS_ZRAISE
 
         gcode.set_relative_mode(true);  // Use relative coordinates
@@ -420,8 +420,11 @@ void PrintJobRecovery::resume() {
   #endif
 
   // Interpret the saved Z according to flags
-  const float z_print = resume_pos.z,
-              z_raised = z_print + info.zraise;
+  const float z_print = resume_pos.z;
+
+  #if ANY(Z_HOME_TO_MAX, POWER_LOSS_RECOVER_ZHOME) || DISABLED(BELTPRINTER)
+    const float z_raised = z_print + info.zraise;
+  #endif
 
   //
   // Home the axes that can safely be homed, and
@@ -482,7 +485,7 @@ void PrintJobRecovery::resume() {
 
     #if !HOMING_Z_DOWN
       // The physical Z was adjusted at power-off so undo the M420S1 correction to Z with G92.9.
-      PROCESS_SUBCOMMANDS_NOW(TS(F("G92.9Z"), p_float_t(z_now, 1)));
+      PROCESS_SUBCOMMANDS_NOW(TS(F("G92.9Z"), p_float_t(z_now, 3)));
     #endif
   #endif
 
@@ -493,7 +496,7 @@ void PrintJobRecovery::resume() {
   #endif
 
   // Recover volumetric extrusion state
-  #if DISABLED(NO_VOLUMETRICS)
+  #if HAS_VOLUMETRIC_EXTRUSION
     #if HAS_MULTI_EXTRUDER
       EXTRUDER_LOOP()
         PROCESS_SUBCOMMANDS_NOW(TS(F("M200T"), e, F("D"), p_float_t(info.filament_size[e], 3)));
@@ -529,7 +532,7 @@ void PrintJobRecovery::resume() {
     }
   #endif
 
-  // Restore retract and hop state from an active `G10` command
+  // Restore retract and hop state from an active 'G10' command
   #if ENABLED(FWRETRACT)
     EXTRUDER_LOOP() {
       if (info.retract[e] != 0.0) {
@@ -656,7 +659,7 @@ void PrintJobRecovery::resume() {
           DEBUG_ECHOLNPGM("active_extruder: ", info.active_extruder);
         #endif
 
-        #if DISABLED(NO_VOLUMETRICS)
+        #if HAS_VOLUMETRIC_EXTRUSION
           DEBUG_ECHOPGM("filament_size:");
           EXTRUDER_LOOP() DEBUG_ECHOLNPGM(" ", info.filament_size[e]);
           DEBUG_EOL();
@@ -722,7 +725,7 @@ void PrintJobRecovery::resume() {
 
         DEBUG_ECHOLNPGM("flag.dryrun: ", AS_DIGIT(info.flag.dryrun));
         DEBUG_ECHOLNPGM("flag.allow_cold_extrusion: ", AS_DIGIT(info.flag.allow_cold_extrusion));
-        #if DISABLED(NO_VOLUMETRICS)
+        #if HAS_VOLUMETRIC_EXTRUSION
           DEBUG_ECHOLNPGM("flag.volumetric_enabled: ", AS_DIGIT(info.flag.volumetric_enabled));
         #endif
       }

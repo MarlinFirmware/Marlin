@@ -33,7 +33,7 @@
 #include "../../module/planner.h"
 #include "../../module/stepper.h"
 
-#if DISABLED(NO_VOLUMETRICS)
+#if HAS_VOLUMETRIC_EXTRUSION
   #include "../../gcode/parser.h"
 #endif
 
@@ -103,7 +103,7 @@ void menu_backlash();
 
 #endif
 
-#if DISABLED(NO_VOLUMETRICS) || ENABLED(ADVANCED_PAUSE_FEATURE)
+#if ANY(HAS_VOLUMETRIC_EXTRUSION, ADVANCED_PAUSE_FEATURE)
   #define HAS_ADV_FILAMENT_MENU 1
 #endif
 
@@ -138,7 +138,11 @@ void menu_backlash();
       #endif
     #endif // LIN_ADVANCE
 
-    #if DISABLED(NO_VOLUMETRICS)
+    #if ENABLED(NONLINEAR_EXTRUSION)
+      EDIT_ITEM(bool, MSG_NLE_ON, &stepper.ne.settings.enabled);
+    #endif
+
+    #if HAS_VOLUMETRIC_EXTRUSION
       EDIT_ITEM(bool, MSG_VOLUMETRIC_ENABLED, &parser.volumetric_enabled, planner.calculate_volumetric_multipliers);
 
       #if ENABLED(VOLUMETRIC_EXTRUDER_LIMIT)
@@ -156,7 +160,7 @@ void menu_backlash();
             EDIT_ITEM_FAST_N(float43, e, MSG_FILAMENT_DIAM_E, &planner.filament_size[e], 1.5f, 3.25f, planner.calculate_volumetric_multipliers);
         #endif
       }
-    #endif // !NO_VOLUMETRICS
+    #endif // HAS_VOLUMETRIC_EXTRUSION
 
     #if ENABLED(CONFIGURE_FILAMENT_CHANGE)
       constexpr float extrude_maxlength = TERN(PREVENT_LENGTHY_EXTRUDE, EXTRUDE_MAXLENGTH, 999);
@@ -177,11 +181,12 @@ void menu_backlash();
     #if HAS_FILAMENT_RUNOUT_DISTANCE
       editable.decimal = runout.runout_distance();
       auto set_runout_distance = []{ runout.set_runout_distance(editable.decimal); };
-      #if ENABLED(FILAMENT_MOTION_SENSOR)
-        EDIT_ITEM_FAST(float31, MSG_RUNOUT_DISTANCE_MM, &editable.decimal, 0.1, 10, set_runout_distance, true);
-      #else
-        EDIT_ITEM_FAST(float3, MSG_RUNOUT_DISTANCE_MM, &editable.decimal, 1, 999, set_runout_distance, true);
-      #endif
+      EDIT_ITEM_FAST(float3, MSG_RUNOUT_DISTANCE_MM, &editable.decimal, 1, 999, set_runout_distance, true);
+    #endif
+    #if ENABLED(FILAMENT_SWITCH_AND_MOTION)
+      editable.decimal = runout.motion_distance();
+      auto set_motion_distance = []{ runout.set_motion_distance(editable.decimal); };
+      EDIT_ITEM_FAST(float31, MSG_MOTION_DISTANCE_MM, &editable.decimal, 0.1, 10, set_motion_distance, true);
     #endif
 
     END_MENU();
@@ -320,9 +325,9 @@ void menu_backlash();
     // Autotemp, Min, Max, Fact
     //
     #if ALL(AUTOTEMP, HAS_TEMP_HOTEND)
-      EDIT_ITEM(int3, MSG_MIN, &planner.autotemp.min, 0, thermalManager.hotend_max_target(0));
-      EDIT_ITEM(int3, MSG_MAX, &planner.autotemp.max, 0, thermalManager.hotend_max_target(0));
-      EDIT_ITEM(float42_52, MSG_FACTOR, &planner.autotemp.factor, 0, 10);
+      EDIT_ITEM(int3, MSG_MIN, &thermalManager.autotemp.cfg.min, 0, thermalManager.hotend_max_target(0));
+      EDIT_ITEM(int3, MSG_MAX, &thermalManager.autotemp.cfg.max, 0, thermalManager.hotend_max_target(0));
+      EDIT_ITEM(float42_52, MSG_FACTOR, &thermalManager.autotemp.cfg.factor, 0, 10);
     #endif
 
     //

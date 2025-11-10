@@ -408,7 +408,7 @@ void dwinDrawFloatValue(uint8_t bShow, bool zeroFill, uint8_t zeroMode, uint8_t 
 //  value: positive unscaled float value
 void dwinDrawFloatValue(uint8_t bShow, bool zeroFill, uint8_t zeroMode, uint8_t size, uint16_t color,
                             uint16_t bColor, uint8_t iNum, uint8_t fNum, uint16_t x, uint16_t y, float value) {
-  const int32_t val = round(value * POW(10, fNum));
+  const int32_t val = LROUND(value * POW(10, fNum));
   dwinDrawFloatValue(bShow, zeroFill, zeroMode, size, color, bColor, iNum, fNum, x, y, val);
 }
 

@@ -101,7 +101,7 @@ bool BDS_Leveling::check(const uint16_t data, const bool raw_data/*=false*/, con
 }
 
 float BDS_Leveling::interpret(const uint16_t data) {
-  return (data & 0x3FF) / 100.0f;
+  return (data & 0x3FF) * 0.01f;
 }
 
 float BDS_Leveling::read() {

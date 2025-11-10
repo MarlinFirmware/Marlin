@@ -283,7 +283,7 @@ class RTS {
 
     static void sendData(const uint8_t str[], const uint32_t addr, const uint8_t cmd=VarAddr_W) { sendData((char *)str, addr, cmd); }
     static void sendData(const uint16_t n,    const uint32_t addr, const uint8_t cmd=VarAddr_W) { sendData(int16_t(n), addr, cmd); }
-    static void sendData(const_float_t n,     const uint32_t addr, const uint8_t cmd=VarAddr_W) { sendData(int16_t(n), addr, cmd); } //was originally int16 ?
+    static void sendData(const float n,     const uint32_t addr, const uint8_t cmd=VarAddr_W) { sendData(int16_t(n), addr, cmd); } //was originally int16 ?
     static void sendData(const int32_t n,     const uint32_t addr, const uint8_t cmd=VarAddr_W) { sendData(uint32_t(n), addr, cmd); }
     static void sendData(const int n,         const uint32_t addr, const uint8_t cmd=VarAddr_W) { sendData(int16_t(n), addr, cmd); }
 

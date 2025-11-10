@@ -62,6 +62,10 @@ MarlinUI ui;
   #include "../module/printcounter.h"
 #endif
 
+#if HAS_WIRED_LCD || HAS_PREHEAT
+  #include "../module/temperature.h"
+#endif
+
 #if LCD_HAS_WAIT_FOR_MOVE
   bool MarlinUI::wait_for_move; // = false
 #endif
@@ -136,8 +140,6 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
 #endif
 
 #if HAS_PREHEAT
-  #include "../module/temperature.h"
-
   preheat_t MarlinUI::material_preset[PREHEAT_COUNT];  // Initialized by settings.load
 
   void MarlinUI::reset_material_presets() {
@@ -331,7 +333,6 @@ void MarlinUI::init() {
 
   #include "lcdprint.h"
 
-  #include "../module/temperature.h"
   #include "../module/planner.h"
   #include "../module/motion.h"
 
@@ -533,9 +534,7 @@ void MarlinUI::init() {
         ui.manual_move.menu_scale = REPRAPWORLD_KEYPAD_MOVE_STEP;
         ui.encoderPosition = dir;
         switch (axis) {
-          TERN_(HAS_X_AXIS, case X_AXIS:)
-          TERN_(HAS_Y_AXIS, case Y_AXIS:)
-          TERN_(HAS_Z_AXIS, case Z_AXIS:)
+          XYZ_GANG(case X_AXIS:, case Y_AXIS:, case Z_AXIS:)
             lcd_move_axis(axis);
           default: break;
         }
@@ -1883,7 +1882,7 @@ uint8_t expand_u8str_P(char * const outstr, PGM_P const ptpl, const int8_t ind, 
     );
   }
 
-  #if LCD_WITH_BLINK && HAS_EXTRA_PROGRESS
+  #if HAS_ROTATE_PROGRESS
 
     // Renew and redraw all enabled progress strings
     void MarlinUI::rotate_progress() {
@@ -1903,7 +1902,7 @@ uint8_t expand_u8str_P(char * const outstr, PGM_P const ptpl, const int8_t ind, 
       }
     }
 
-  #endif // LCD_WITH_BLINK && HAS_EXTRA_PROGRESS
+  #endif // HAS_ROTATE_PROGRESS
 
 #endif // HAS_PRINT_PROGRESS
 
@@ -1956,7 +1955,7 @@ uint8_t expand_u8str_P(char * const outstr, PGM_P const ptpl, const int8_t ind, 
           if ((old_status ^ status) & INSERT_SD)
             LCD_MESSAGE(MSG_MEDIA_REMOVED_SD);
           else if ((old_status ^ status) & INSERT_USB)
-            LCD_MESSAGE(MSG_MEDIA_REMOVED_USB);
+            LCD_MESSAGE(MSG_USB_FD_MEDIA_REMOVED);
           else
             LCD_MESSAGE(MSG_MEDIA_REMOVED);
 
@@ -1995,7 +1994,7 @@ uint8_t expand_u8str_P(char * const outstr, PGM_P const ptpl, const int8_t ind, 
   }
 
   #if ANY(BABYSTEP_GFX_OVERLAY, MESH_EDIT_GFX_OVERLAY)
-    void MarlinUI::zoffset_overlay(const_float_t zvalue) {
+    void MarlinUI::zoffset_overlay(const float zvalue) {
       // Determine whether the user is raising or lowering the nozzle.
       static int8_t dir;
       static float old_zvalue;

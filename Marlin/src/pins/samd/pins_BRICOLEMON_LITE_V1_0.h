@@ -212,7 +212,7 @@
 
 /**
  * This section starts with the pins_RAMPS_144.h as example, after if you need any new
- * display, you could use normal duponts and connect it with with the scheme showed before.
+ * display, you could use normal duponts and connect it with the scheme showed before.
  * Tested:
  *   - Ender-3 Old display (Character LCD)
  *   - Ender-3 New Serial DWING Display
@@ -450,7 +450,7 @@
 
       #elif ENABLED(FYSETC_MINI_12864)
 
-        // From https://wiki.fysetc.com/Mini12864_Panel/
+        // From https://wiki.fysetc.com/docs/Mini12864Panel
 
         // TO TEST
         //#define DOGLCD_A0                   16

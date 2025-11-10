@@ -176,7 +176,7 @@ void HAL_timer_start(const uint8_t timer_num, const uint32_t frequency) {
     tc->COUNT32.CTRLA.reg |= TC_CTRLA_WAVEGEN_MFRQ;
     //set prescaler
     //the clock normally counts at the GCLK_TC frequency, but we can set it to divide that frequency to slow it down
-    //you can use different prescaler divisons here like TC_CTRLA_PRESCALER_DIV1 to get a different range
+    //you can use different prescaler divisions here like TC_CTRLA_PRESCALER_DIV1 to get a different range
     tc->COUNT32.CTRLA.reg |= TC_CTRLA_PRESCALER_DIV1 | TC_CTRLA_ENABLE; //it will divide GCLK_TC frequency by 1024
     //set the compare-capture register.
     //The counter will count up to this value (it's a 16bit counter so we use uint16_t)
