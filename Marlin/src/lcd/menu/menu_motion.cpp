@@ -382,6 +382,38 @@ void menu_move() {
     END_MENU();
   }
 
+  #if ENABLED(FTM_RESONANCE_TEST)
+
+    void menu_ftm_resonance_freq() {
+      START_MENU();
+      BACK_ITEM(MSG_FTM_RESONANCE_TEST);
+
+      STATIC_ITEM(MSG_FTM_RETRIEVE_FREQ);
+      EDIT_ITEM(float62, MSG_FTM_TIMELINE_FREQ, &ftMotion.rtg.timeline, 0.0f, 600.0f);
+      PSTRING_ITEM(MSG_FTM_RESONANCE_FREQ, ftostr53_63(ftMotion.rtg.getFrequencyFromTimeline()), SS_FULL);
+
+      END_MENU();
+    }
+
+    void menu_ftm_resonance_test() {
+      START_MENU();
+      BACK_ITEM(MSG_FIXED_TIME_MOTION);
+
+      if (ftMotion.rtg.isActive() && !ftMotion.rtg.isDone()) {
+        STATIC_ITEM(MSG_FTM_RT_RUNNING);
+        ACTION_ITEM(MSG_FTM_RT_STOP, []{ ftMotion.rtg.abort(); ui.refresh(); });
+      }
+      else {
+        GCODES_ITEM_N(X_AXIS, MSG_FTM_RT_START_N, F("M495 X S"));
+        GCODES_ITEM_N(Y_AXIS, MSG_FTM_RT_START_N, F("M495 Y S"));
+        GCODES_ITEM_N(Z_AXIS, MSG_FTM_RT_START_N, F("M495 Z S"));
+        SUBMENU(MSG_FTM_RETRIEVE_FREQ, menu_ftm_resonance_freq);
+      }
+      END_MENU();
+    }
+
+  #endif // FTM_RESONANCE_TEST
+
   #if HAS_DYNAMIC_FREQ
 
     void menu_ftm_dyn_mode() {
@@ -409,6 +441,13 @@ void menu_move() {
 
   #if ALL(__AVR__, HAS_MARLINUI_U8GLIB) && DISABLED(OPTIMIZE_FT_MOTION_FOR_SIZE)
     #define CACHE_FOR_SPEED 1
+  #endif
+
+  #if ENABLED(FTM_SMOOTHING)
+    #define _SMOO_MENU_ITEM(A) do{ \
+      editable.decimal = c.smoothingTime.A; \
+      EDIT_ITEM_FAST_N(float43, _AXIS(A), MSG_FTM_SMOOTH_TIME_N, &editable.decimal, 0.0f, FTM_MAX_SMOOTHING_TIME, []{ ftMotion.set_smoothing_time(_AXIS(A), editable.decimal); }); \
+    }while(0);
   #endif
 
   void menu_ft_motion() {
@@ -465,10 +504,7 @@ void menu_move() {
     BACK_ITEM(MSG_MOTION);
 
     bool show_state = c.active;
-    EDIT_ITEM(bool, MSG_FIXED_TIME_MOTION, &show_state, []{
-      FLIP(ftMotion.cfg.active);
-      ftMotion.update_shaping_params();
-    });
+    EDIT_ITEM(bool, MSG_FIXED_TIME_MOTION, &show_state, []{ (void)ftMotion.toggle(); });
 
     // Show only when FT Motion is active (or optionally always show)
     if (c.active || ENABLED(FT_MOTION_NO_MENU_TOGGLE)) {
@@ -495,30 +531,14 @@ void menu_move() {
         }
       #endif
 
-      #if HAS_EXTRUDERS
-        EDIT_ITEM(bool, MSG_LINEAR_ADVANCE, &c.linearAdvEna);
-        if (c.linearAdvEna || ENABLED(FT_MOTION_NO_MENU_TOGGLE))
-          EDIT_ITEM(float42_52, MSG_ADVANCE_K, &c.linearAdvK, 0.0f, 10.0f);
+      EDIT_ITEM(bool, MSG_FTM_AXIS_SYNC, &c.axis_sync_enabled);
+
+      #if ENABLED(FTM_SMOOTHING)
+        CARTES_MAP(_SMOO_MENU_ITEM);
       #endif
 
-      EDIT_ITEM(bool, MSG_FTM_AXIS_SYNC, &c.axis_sync_enabled);
-      #if ENABLED(FTM_SMOOTHING)
-        #if HAS_X_AXIS
-          editable.decimal = c.smoothingTime.X;
-          EDIT_ITEM_FAST_N(float43, X_AXIS, MSG_FTM_SMOOTH_TIME_N, &editable.decimal, 0.0f, FTM_MAX_SMOOTHING_TIME, []{ ftMotion.set_smoothing_time(X_AXIS, editable.decimal); });
-        #endif
-        #if HAS_Y_AXIS
-          editable.decimal = c.smoothingTime.Y;
-          EDIT_ITEM_FAST_N(float43, Y_AXIS, MSG_FTM_SMOOTH_TIME_N, &editable.decimal, 0.0f, FTM_MAX_SMOOTHING_TIME, []{ ftMotion.set_smoothing_time(Y_AXIS, editable.decimal); });
-        #endif
-        #if HAS_Z_AXIS
-          editable.decimal = c.smoothingTime.Z;
-          EDIT_ITEM_FAST_N(float43, Z_AXIS, MSG_FTM_SMOOTH_TIME_N, &editable.decimal, 0.0f, FTM_MAX_SMOOTHING_TIME, []{ ftMotion.set_smoothing_time(Z_AXIS, editable.decimal); });
-        #endif
-        #if HAS_EXTRUDERS
-          editable.decimal = c.smoothingTime.E;
-          EDIT_ITEM_FAST_N(float43, E_AXIS, MSG_FTM_SMOOTH_TIME_N, &editable.decimal, 0.0f, FTM_MAX_SMOOTHING_TIME, []{ ftMotion.set_smoothing_time(E_AXIS, editable.decimal); });
-        #endif
+      #if ENABLED(FTM_RESONANCE_TEST)
+        SUBMENU(MSG_FTM_RESONANCE_TEST, menu_ftm_resonance_test);
       #endif
     }
     END_MENU();
@@ -588,17 +608,7 @@ void menu_move() {
       SUBMENU_S(_dmode(), MSG_FTM_DYN_MODE, menu_ftm_dyn_mode);
     #endif
 
-    #if HAS_EXTRUDERS
-      EDIT_ITEM(bool, MSG_LINEAR_ADVANCE, &c.linearAdvEna);
-      if (c.linearAdvEna || ENABLED(FT_MOTION_NO_MENU_TOGGLE))
-        EDIT_ITEM(float42_52, MSG_ADVANCE_K, &c.linearAdvK, 0.0f, 10.0f);
-    #endif
-
     #if ENABLED(FTM_SMOOTHING)
-      #define _SMOO_MENU_ITEM(A) do{ \
-        editable.decimal = c.smoothingTime.A; \
-        EDIT_ITEM_FAST_N(float43, _AXIS(A), MSG_FTM_SMOOTH_TIME_N, &editable.decimal, 0.0f, FTM_MAX_SMOOTHING_TIME, []{ ftMotion.set_smoothing_time(_AXIS(A), editable.decimal); }); \
-      }while(0);
       CARTES_MAP(_SMOO_MENU_ITEM);
     #endif
 

@@ -654,19 +654,19 @@ namespace ExtUI {
 
   #if HAS_SHAPING
     float getShapingZeta(const axis_t axis) {
-      return stepper.get_shaping_damping_ratio(AxisEnum(axis));
+      return stepper.get_shaping_damping_ratio((AxisEnum)axis);
     }
     void setShapingZeta(const float zeta, const axis_t axis) {
       if (!WITHIN(zeta, 0, 1)) return;
-      stepper.set_shaping_damping_ratio(AxisEnum(axis), zeta);
+      stepper.set_shaping_damping_ratio((AxisEnum)axis, zeta);
     }
     float getShapingFrequency(const axis_t axis) {
-      return stepper.get_shaping_frequency(AxisEnum(axis));
+      return stepper.get_shaping_frequency((AxisEnum)axis);
     }
     void setShapingFrequency(const float freq, const axis_t axis) {
       constexpr float min_freq = float(uint32_t(STEPPER_TIMER_RATE) / 2) / shaping_time_t(-2);
       if (freq == 0.0f || freq > min_freq)
-        stepper.set_shaping_frequency(AxisEnum(axis), freq);
+        stepper.set_shaping_frequency((AxisEnum)axis, freq);
     }
   #endif
 
@@ -850,7 +850,7 @@ namespace ExtUI {
                                                       { backlash.set_distance_mm((AxisEnum)axis, constrain(value,0,5)); }
 
     float getBacklashCorrection_percent()             { return backlash.get_correction() * 100.0f; }
-    void setBacklashCorrection_percent(const float value) { backlash.set_correction(constrain(value, 0, 100) / 100.0f); }
+    void setBacklashCorrection_percent(const float value) { backlash.set_correction(constrain(value, 0, 100) * 0.01f); }
 
     #ifdef BACKLASH_SMOOTHING_MM
       float getBacklashSmoothing_mm()                 { return backlash.get_smoothing_mm(); }

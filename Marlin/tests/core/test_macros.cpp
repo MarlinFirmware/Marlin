@@ -251,14 +251,14 @@ MARLIN_TEST(macros_numeric, NOLESS_int) {
 
 MARLIN_TEST(macros_numeric, NOLESS_uint) {
   // Scenario 1: Input was already acceptable
-  unsigned int b = 8u;
-  NOLESS(b, 5u);
-  TEST_ASSERT_EQUAL(8u, b);
+  unsigned int b = 8U;
+  NOLESS(b, 5U);
+  TEST_ASSERT_EQUAL(8U, b);
 
   // Original scenario: Input was less than the limit
-  b = 5u;
-  NOLESS(b, 10u);
-  TEST_ASSERT_EQUAL(10u, b);
+  b = 5U;
+  NOLESS(b, 10U);
+  TEST_ASSERT_EQUAL(10U, b);
 }
 
 MARLIN_TEST(macros_numeric, NOLESS_float) {
@@ -310,14 +310,14 @@ MARLIN_TEST(macros_numeric, NOMORE_int) {
 
 MARLIN_TEST(macros_numeric, NOMORE_uint) {
   // Scenario 1: Input was already acceptable
-  unsigned int b = 8u;
-  NOMORE(b, 10u);
-  TEST_ASSERT_EQUAL(8u, b);
+  unsigned int b = 8U;
+  NOMORE(b, 10U);
+  TEST_ASSERT_EQUAL(8U, b);
 
   // Original scenario: Input was more than the limit
-  b = 15u;
-  NOMORE(b, 10u);
-  TEST_ASSERT_EQUAL(10u, b);
+  b = 15U;
+  NOMORE(b, 10U);
+  TEST_ASSERT_EQUAL(10U, b);
 }
 
 MARLIN_TEST(macros_numeric, NOMORE_float) {
@@ -383,17 +383,17 @@ MARLIN_TEST(macros_numeric, LIMIT_int) {
 }
 
 MARLIN_TEST(macros_numeric, LIMIT_uint) {
-  unsigned int b = 15u;
-  LIMIT(b, 10u, 20u);
-  TEST_ASSERT_EQUAL(15u, b);
+  unsigned int b = 15U;
+  LIMIT(b, 10U, 20U);
+  TEST_ASSERT_EQUAL(15U, b);
 
-  b = 5u;
-  LIMIT(b, 10u, 20u);
-  TEST_ASSERT_EQUAL(10u, b);
+  b = 5U;
+  LIMIT(b, 10U, 20U);
+  TEST_ASSERT_EQUAL(10U, b);
 
-  b = 25u;
-  LIMIT(b, 10u, 20u);
-  TEST_ASSERT_EQUAL(20u, b);
+  b = 25U;
+  LIMIT(b, 10U, 20U);
+  TEST_ASSERT_EQUAL(20U, b);
 }
 
 MARLIN_TEST(macros_numeric, LIMIT_float) {
