@@ -3334,6 +3334,11 @@
 //#define SOVOL_SV06_RTS
 
 //
+// Ender-3 S1 Pro Resistive Touch Screen
+//
+//#define E3S1PRO_RTS
+
+//
 // 320x240 Nextion 2.8" serial TFT Resistive Touch Screen NX3224T028
 //
 //#define NEXTION_TFT
@@ -3528,11 +3533,6 @@
   //#define USE_STRING_HEADINGS       // Use string headings for Creality UI instead of images
   //#define USE_STRING_TITLES         // Use string titles for Creality UI instead of images
 #endif
-
-//
-// Ender-3 S1 Pro Resistive Touch Screen
-//
-//#define E3S1PRO_RTS
 
 //
 // Touch Screen Settings
