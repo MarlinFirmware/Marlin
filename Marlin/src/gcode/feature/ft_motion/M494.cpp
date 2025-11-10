@@ -121,7 +121,7 @@ void GcodeSuite::M494() {
           report = true; \
         } \
         else \
-          SERIAL_ECHOLN("?Invalid ", C(N), " smoothing time [", C(CHARIFY(A)), "] value."); \
+          SERIAL_ECHOLNPGM("?Invalid ", C(N), " smoothing time [", C(CHARIFY(A)), "] value."); \
       }
 
     CARTES_GANG(

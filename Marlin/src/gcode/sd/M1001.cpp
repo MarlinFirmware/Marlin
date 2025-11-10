@@ -55,10 +55,6 @@
   #include "../../feature/host_actions.h"
 #endif
 
-#if ENABLED(E3S1PRO_RTS)
-  #include "../../lcd/rts/e3s1pro/lcd_rts.h"
-#endif
-
 #ifndef PE_LEDS_COMPLETED_TIME
   #define PE_LEDS_COMPLETED_TIME (30*60)
 #endif
@@ -109,6 +105,7 @@ void GcodeSuite::M1001() {
     }
   #endif
 
+  // Inject SD_FINISHED_RELEASECOMMAND, if any
   #ifdef SD_FINISHED_RELEASECOMMAND
     process_subcommands_now(F(SD_FINISHED_RELEASECOMMAND));
   #endif

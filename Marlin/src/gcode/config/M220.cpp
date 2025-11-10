@@ -39,6 +39,11 @@
  *     R<flag>  Restore the last-saved factor
  */
 void GcodeSuite::M220() {
+  if (!parser.seen_any()) {
+    SERIAL_ECHOLNPGM("FR:", feedrate_percentage, "%");
+    return;
+  }
+
   static int16_t backup_feedrate_percentage = 100;
   const int16_t now_feedrate_perc = feedrate_percentage;
   if (parser.seen_test('R')) feedrate_percentage = backup_feedrate_percentage;
@@ -49,8 +54,5 @@ void GcodeSuite::M220() {
     rts.sendData(feedrate_percentage, PRINT_SPEED_RATE_VP);
     SERIAL_ECHOLNPGM("M220 S", feedrate_percentage);
   #endif
-
-  if (!parser.seen_any())
-    SERIAL_ECHOLNPGM("FR:", feedrate_percentage, "%");
 
 }

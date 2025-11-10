@@ -602,4 +602,5 @@ void GcodeSuite::G28() {
   #ifdef EVENT_GCODE_AFTER_HOMING
     gcode.process_subcommands_now(F(EVENT_GCODE_AFTER_HOMING));
   #endif
+
 }

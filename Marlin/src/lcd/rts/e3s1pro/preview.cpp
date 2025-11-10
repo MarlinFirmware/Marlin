@@ -545,7 +545,7 @@ char gcodePicExistjudge(char *fileName, unsigned int targetPicAddr, const char t
     // Move the pointer directly, skip the invalid picture
     // The agreement stipulates a complete line of data: ' +' ' + "data" +' \ n '1 + 1 + 76 + 1 = 79 byte
     // The last line is "; PNG END \ R" or "; JPG END \ R",
-    uint32_t index1 = card.getFileCurPosition();// card.getIndex();
+    uint32_t index1 = card.getFileCurPosition(); // card.getIndex()
     uint32_t targetPicLen = (picLen / 3 + (picLen % 3 == 0)) * 4;
     uint32_t indexAdd = (targetPicLen / 76) * 3 + targetPicLen + 10;
     if ((targetPicLen % 76 ) != 0)

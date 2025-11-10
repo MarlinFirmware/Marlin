@@ -1491,15 +1491,13 @@ class Temperature {
 };
 
 #if ALL(EEPROM_DEMARCATE, E3S1PRO_RTS)
-    typedef struct demarcate_data
-    {
-      uint8_t demarcate_save_flag;
-      int8_t  demarcate_set_nozzle[DEMARCATE_NUMBER];
-      int8_t  demarcate_set_bed[DEMARCATE_NUMBER];
-      uint8_t demarcate_crc;
-    }DEMARCATE_T;
-
-    extern DEMARCATE_T demarcate_data;
+  typedef struct demarcate_data {
+    uint8_t demarcate_save_flag;
+    int8_t  demarcate_set_nozzle[DEMARCATE_NUMBER];
+    int8_t  demarcate_set_bed[DEMARCATE_NUMBER];
+    uint8_t demarcate_crc;
+  } DEMARCATE_T;
+  extern DEMARCATE_T demarcate_data;
 #endif
 
 #if ENABLED(E3S1PRO_RTS)

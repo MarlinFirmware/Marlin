@@ -651,7 +651,7 @@
 #elif MB(CREALITY_V24S1)
   #include "stm32f1/pins_CREALITY_V24S1.h"          // STM32F1                              env:STM32F103RE_creality env:STM32F103RE_creality_xfer env:STM32F103RC_creality env:STM32F103RC_creality_xfer env:STM32F103RE_creality_maple
 #elif MB(CREALITY_V24S1_301)
-  #include "stm32f1/pins_CREALITY_V24S1_301.h"      // STM32F1                              env:STM32F103RE_creality env:STM32F103RE_creality_xfer env:STM32F103RC_creality env:STM32F103RC_creality_xfer env:STM32F103RE_creality_maple env:STM32F103RE_creality_e3s1pro_abl5x5 env:STM32F103RE_creality_e3s1pro_ubl5x5 env:STM32F103RE_creality_e3s1pro_ubl7x7 env:STM32F103RE_creality_e3s1pro_ubl10x10 env:STM32F103RE_creality_e3s1plus_abl5x5 env:STM32F103RE_creality_e3s1plus_ubl5x5 env:STM32F103RE_creality_e3s1plus_ubl7x7 env:STM32F103RE_creality_e3s1plus_ubl10x10 env:STM32F103RE_creality_e3s1_abl5x5
+  #include "stm32f1/pins_CREALITY_V24S1_301.h"      // STM32F1                              env:STM32F103RE_creality env:STM32F103RE_creality_xfer env:STM32F103RC_creality env:STM32F103RC_creality_xfer env:STM32F103RE_creality_maple
 #elif MB(CREALITY_V25S1)
   #include "stm32f1/pins_CREALITY_V25S1.h"          // STM32F1                              env:STM32F103RE_creality_smartPro env:STM32F103RE_creality_smartPro_maple
 #elif MB(TRIGORILLA_PRO)
@@ -783,7 +783,7 @@
 #elif MB(ARTILLERY_RUBY)
   #include "stm32f4/pins_ARTILLERY_RUBY.h"          // STM32F4                              env:Artillery_Ruby
 #elif MB(CREALITY_V24S1_301F4)
-  #include "stm32f4/pins_CREALITY_V24S1_301F4.h"    // STM32F4                              env:STM32F401RC_creality env:STM32F401RC_creality_nobootloader env:STM32F401RC_creality_jlink env:STM32F401RC_creality_stlink env:STM32F401RC_creality_e3s1pro_abl5x5 env:STM32F401RC_creality_e3s1pro_abl5x5_personal env:STM32F401RC_creality_e3s1pro_ubl5x5 env:STM32F401RC_creality_e3s1pro_ubl7x7 env:STM32F401RC_creality_e3s1pro_ubl10x10 env:STM32F401RC_creality_e3s1plus_abl5x5 env:STM32F401RC_creality_e3s1plus_ubl5x5 env:STM32F401RC_creality_e3s1plus_ubl7x7 env:STM32F401RC_creality_e3s1plus_ubl10x10 env:STM32F401RC_creality_e3s1_abl5x5
+  #include "stm32f4/pins_CREALITY_V24S1_301F4.h"    // STM32F4                              env:STM32F401RC_creality env:STM32F401RC_creality_nobootloader env:STM32F401RC_creality_jlink env:STM32F401RC_creality_stlink
 #elif MB(CREALITY_CR4NTXXC10)
   #include "stm32f4/pins_CREALITY_CR4NTXXC10.h"     // STM32F4                              env:STM32F401RE_freeruns env:STM32F401RE_freeruns_jlink env:STM32F401RE_freeruns_stlink
 #elif MB(FYSETC_SPIDER_KING_V1_F407)

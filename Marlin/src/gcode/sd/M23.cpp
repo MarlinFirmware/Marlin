@@ -29,7 +29,6 @@
 #include "../../lcd/marlinui.h"
 
 #if ENABLED(E3S1PRO_RTS)
-  #include "../../lcd/rts/e3s1pro/lcd_rts.h"
   #include "../../feature/runout.h"
 #endif
 

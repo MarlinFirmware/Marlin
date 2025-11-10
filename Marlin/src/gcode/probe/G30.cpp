@@ -102,7 +102,6 @@ void GcodeSuite::G30() {
         F(  " Z:"), p_float_t(measured_z, 3)
       );
       msg.echoln();
-
       TERN_(VERBOSE_SINGLE_PROBE, ui.set_status(msg));
 
       #if ENABLED(E3S1PRO_RTS)

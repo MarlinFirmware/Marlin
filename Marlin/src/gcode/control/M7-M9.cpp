@@ -39,6 +39,10 @@
 
 #if ANY(COOLANT_FLOOD, AIR_ASSIST)
 
+  #if ENABLED(AIR_ASSIST)
+    #include "../../feature/spindle_laser.h"
+  #endif
+
   /**
    * M8: Flood Coolant / Air Assist ON
    */

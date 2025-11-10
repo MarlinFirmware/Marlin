@@ -52,6 +52,8 @@ MarlinUI ui;
   #include "e3v2/jyersui/dwin.h"
 #elif ENABLED(SOVOL_SV06_RTS)
   #include "sovol_rts/sovol_rts.h"
+#elif ENABLED(E3S1PRO_RTS)
+  #include "rts/e3s1pro/lcd_rts.h"
 #endif
 
 #if ENABLED(LCD_PROGRESS_BAR) && !IS_TFTGLCD_PANEL
@@ -101,6 +103,7 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
   void MarlinUI::set_language(const uint8_t lang) {
     if (lang < NUM_LANGUAGES) {
       language = lang;
+      TERN_(E3S1PRO_RTS, language_change_font = parser.value_byte());
       TERN_(HAS_MARLINUI_U8GLIB, update_language_font());
       return_to_status();
       refresh();

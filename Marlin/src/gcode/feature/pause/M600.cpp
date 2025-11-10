@@ -186,7 +186,6 @@ void GcodeSuite::M600() {
     }
     else {
       #if ENABLED(MMU_MENUS)
-
         const bool automatic = parser.seen_test('A');
         mmu2_M600(automatic);
         resume_print(0, 0, 0, beep_count, 0, !automatic, false DXC_PASS);

@@ -39,6 +39,7 @@
 
 #if ANY(HAS_COOLER, LASER_COOLANT_FLOW_METER)
   #include "../feature/cooler.h"
+  #include "../feature/spindle_laser.h"
 #endif
 
 #if ENABLED(USE_CONTROLLER_FAN)
