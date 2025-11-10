@@ -46,7 +46,7 @@
 #include "../../../core/debug_out.h"
 
 #if ENABLED(FT_MOTION)
-  #include "../../module/ft_motion.h"
+  #include "../../../module/ft_motion.h"
 #endif
 
 // Save 130 bytes with non-duplication of PSTR

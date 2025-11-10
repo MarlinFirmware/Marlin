@@ -30,14 +30,37 @@
 #include "tft.h"
 #include "tft_image.h"
 
+#if ENABLED(SHOW_CUSTOM_BOOTSCREEN)
+
+  #include "../../../_Bootscreen.h"
+
+  #ifndef CUSTOM_BOOTSCREEN
+    #define CUSTOM_BOOTSCREEN         CustomBootscreen
+  #endif
+  #ifndef CUSTOM_BOOTSCREEN_WIDTH
+    #define CUSTOM_BOOTSCREEN_WIDTH   TFT_WIDTH
+  #endif
+  #ifndef CUSTOM_BOOTSCREEN_HEIGHT
+    #define CUSTOM_BOOTSCREEN_HEIGHT  TFT_HEIGHT
+  #endif
+
+  #ifndef CUSTOM_BOOTSCREEN_X
+    #define CUSTOM_BOOTSCREEN_X       ((TFT_WIDTH - (CUSTOM_BOOTSCREEN_WIDTH)) / 2)
+  #endif
+  #ifndef CUSTOM_BOOTSCREEN_Y
+    #define CUSTOM_BOOTSCREEN_Y       ((TFT_HEIGHT - (CUSTOM_BOOTSCREEN_HEIGHT)) / 2)
+  #endif
+
+  const tImage CustomBootscreen = CUSTOM_BOOTSCREEN_CHOSEN(CUSTOM_BOOTSCREEN_WIDTH, CUSTOM_BOOTSCREEN_HEIGHT);
+
+#endif // SHOW_CUSTOM_BOOTSCREEN
+
 #if ENABLED(TOUCH_SCREEN)
   #include "touch.h"
   extern bool draw_menu_navigation;
 #else
   // add_control() function is used to display encoder-controlled elements
-  enum TouchControlType : uint16_t {
-    NONE = 0x0000,
-  };
+  enum TouchControlType : uint16_t { NONE = 0x0000 };
 #endif
 
 #define UI_INCL_(W, H) STRINGIFY_(ui_##W##x##H.h)
