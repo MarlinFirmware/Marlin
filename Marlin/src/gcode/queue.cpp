@@ -685,32 +685,32 @@ void GCodeQueue::get_serial_commands() {
     }
   }
 
-#endif // HAS_MEDIA
+  #if HAS_LASER_E3S1PRO
 
-#if ALL(SDSUPPORT, HAS_LASER_E3S1PRO)
+    void get_sdcard_laser_range() {
+      // Get commands if there are more in the file
+      if (!(laser_device.is_read_gcode_range_on() && laser_device.is_laser_device() && card.isPaused())) return;
 
-  void get_sdcard_laser_range() {
-    // Get commands if there are more in the file
-    if (!((laser_device.is_read_gcode_range_on()) && (laser_device.is_laser_device()) && (IS_SD_PAUSED()))) return;
+      while (!card.eof()) {
+        const int16_t n = card.get();
+        const bool card_eof = card.eof();
 
-    while (!card.eof()) {
-      const int16_t n = card.get();
-      const bool card_eof = card.eof();
+        if (n < 0 && !card_eof) { SERIAL_ERROR_MSG(STR_SD_ERR_READ); continue; }
 
-      if (n < 0 && !card_eof) { SERIAL_ERROR_MSG(STR_SD_ERR_READ); continue; }
-
-      if (n != ';') {
-        //SERIAL_ECHOLNPGM("n!=;", n);
-        card.setIndex(0);
-        laser_device.set_read_gcode_range_off();
-        return;
+        if (n != ';') {
+          //SERIAL_ECHOLNPGM("n!=;", n);
+          card.setIndex(0);
+          laser_device.set_read_gcode_range_off();
+          return;
+        }
+        //SERIAL_ECHOLNPGM("n=;", n);
+        get_gcode_comment();
       }
-      //SERIAL_ECHOLNPGM("n=;", n);
-      get_gcode_comment();
     }
-  }
 
-#endif // SDSUPPORT
+  #endif // HAS_LASER_E3S1PRO
+
+#endif // HAS_MEDIA
 
 /**
  * Add to the circular command queue the next command from:
@@ -724,7 +724,7 @@ void GCodeQueue::get_available_commands() {
   get_serial_commands();
 
   #if HAS_CUTTER
-    if (laser_device.is_laser_device() && laser_device.is_read_gcode_range_on() && IS_SD_PAUSED()) { // 解决FDM有时不打印的bug 107011 -20211110
+    if (laser_device.is_laser_device() && laser_device.is_read_gcode_range_on() && card.isPaused()) { // 解决FDM有时不打印的bug 107011 -20211110
       get_sdcard_laser_range();
     }
     else
