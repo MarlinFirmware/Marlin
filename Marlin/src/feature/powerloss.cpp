@@ -137,12 +137,10 @@ void PrintJobRecovery::changed() {
  * If a saved state exists send 'M1000 S' to initiate job recovery.
  */
 bool PrintJobRecovery::check() {
-  //if (!card.isMounted()) card.mount();
-  if (!card.isMounted()) return false;
-
   #if ENABLED(EEPROM_PLR)
     BL24CXX::read(PLR_ADDR, (uint8_t*)&info, sizeof(info));
   #else
+    if (!card.isMounted()) return false;
     load();
   #endif
 

@@ -380,7 +380,7 @@ bool unload_filament(const float unload_length, const bool show_lcd/*=false*/,
     return false;
   }
 
-  if (show_lcd){
+  if (show_lcd) {
     ui.pause_show_message(PAUSE_MESSAGE_UNLOAD, mode);
 
     #if ENABLED(E3S1PRO_RTS)

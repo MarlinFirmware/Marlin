@@ -859,7 +859,7 @@ void idle(const bool no_stepper_sleep/*=false*/) {
   TERN_(HAS_BEEPER, buzzer.tick());
 
   // Handle UI input / draw events
-  #if ENABLED(SOVOL_SV06_RTS)
+  #if ANY(SOVOL_SV06_RTS, E3S1PRO_RTS)
     RTS_Update();
   #else
     ui.update();
@@ -1373,7 +1373,7 @@ void setup() {
   // (because EEPROM code calls the UI).
 
   #if ENABLED(E3S1PRO_RTS) && defined(LCD_SERIAL_PORT)
-    //SETUP_RUN(RTSUpdate());
+    //SETUP_RUN(RTS_Update());
     LCD_SERIAL.begin(LCD_BAUDRATE);
   #endif
 

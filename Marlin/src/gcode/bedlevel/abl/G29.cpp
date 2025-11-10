@@ -35,13 +35,10 @@
 
 #if ENABLED(E3S1PRO_RTS)
   #include "../../../module/stepper.h"
+  #include "../../../module/settings.h"
 #endif
 
 #include "../../../module/probe.h"
-
-#if ENABLED(E3S1PRO_RTS)
-  #include "../../../module/settings.h"
-#endif
 
 #include "../../../module/temperature.h"
 #include "../../queue.h"
@@ -62,8 +59,6 @@
   #include "../../../lcd/extui/ui_api.h"
 #elif ENABLED(DWIN_CREALITY_LCD)
   #include "../../../lcd/e3v2/creality/dwin.h"
-#elif ENABLED(DWIN_LCD_PROUI)
-  #include "../../../lcd/e3v2/proui/dwin.h"
 #elif ENABLED(E3S1PRO_RTS)
   #include "../../../lcd/rts/e3s1pro/lcd_rts.h"
 #elif ENABLED(SOVOL_SV06_RTS)

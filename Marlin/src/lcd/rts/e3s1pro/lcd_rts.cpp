@@ -3797,7 +3797,7 @@ void RTS::languagedisplayUpdate() {
 }
 
 // looping at the loop function
-void RTSUpdate() {
+void RTS_Update() {
   // Check the status of card
   rts.sdCardUpate();
 

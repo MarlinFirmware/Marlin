@@ -714,8 +714,8 @@ volatile bool Temperature::raw_temps_ready = false;
     TERN_(USE_CONTROLLER_FAN, controllerFan.update());
 
     // Run UI update
-    #if ANY(E3S1PRO_RTS, SOVOL_SV06_RTS)
-      RTSUpdate();
+    #if ANY(SOVOL_SV06_RTS, E3S1PRO_RTS)
+      RTS_Update();
     #else
       ui.update();
     #endif

@@ -770,12 +770,11 @@ const uint32_t addrBuf[] = {
   0
 };
 
-extern int endsWith(const char*, const char*);
+int endsWith(const char*, const char*);
 void errorHanding();
-extern void RTSUpdate();
-extern void RTSInit();
+void RTS_Update();
 #if HAS_LASER_E3S1PRO
-  extern void RTSUpdateLaser();
+  void RTSUpdateLaser();
 #endif
 extern int touchscreen_requested_mesh;
 extern float zprobe_zoffset;

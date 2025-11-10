@@ -376,8 +376,7 @@ const uint32_t Addrbuf[] = {
   0x2473, 0x2475, 0x2477, 0x2479, 0x247B, 0x110E, 0
 };
 
-extern void RTS_Update();
-extern void RTS_Init();
+void RTS_Update();
 
 extern int16_t update_time_value;
 extern bool poweroff_continue;
