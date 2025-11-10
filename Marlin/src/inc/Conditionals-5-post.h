@@ -3690,6 +3690,7 @@
   #if ANY(BIQU_MICROPROBE_V1, BIQU_MICROPROBE_V2)
     #ifndef PROBE_WAKEUP_TIME_MS
       #define PROBE_WAKEUP_TIME_MS 30
+      #define PROBE_WAKEUP_TIME_WARNING 1
     #endif
   #endif
 #endif

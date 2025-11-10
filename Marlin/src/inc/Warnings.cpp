@@ -724,6 +724,10 @@
   #warning "BIQU MicroProbe V2 detect signal requires a strong pull-up. Some processors have weak internal pull-up capabilities, so we recommended connecting MicroProbe SIGNAL / GND to Z-MIN / Z-STOP instead of the dedicated PROBE port. (Define NO_MICROPROBE_WARNING to suppress this warning.)"
 #endif
 
+#if PROBE_WAKEUP_TIME_WARNING
+  #warning "PROBE_WAKEUP_TIME_MS has been set to the default 30ms."
+#endif
+
 //
 // Warn users of potential endstop/DIAG pin conflicts to prevent homing issues when not using sensorless homing
 //
@@ -976,8 +980,6 @@
 /**
  * Smooth Linear Advance with Mixing Extruder, S-Curve Acceleration
  */
-#if ENABLED(SMOOTH_LIN_ADVANCE)
-  #if ENABLED(MIXING_EXTRUDER)
-    #warning "SMOOTH_LIN_ADVANCE with MIXING_EXTRUDER is untested. Use with caution."
-  #endif
+#if ALL(SMOOTH_LIN_ADVANCE, MIXING_EXTRUDER)
+  #warning "SMOOTH_LIN_ADVANCE with MIXING_EXTRUDER is untested. Use with caution."
 #endif
