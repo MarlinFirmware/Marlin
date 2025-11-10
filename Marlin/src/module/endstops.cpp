@@ -328,20 +328,10 @@ void Endstops::enable(const bool onoff) {
     #if PIN_EXISTS(PROBE_ENABLE)
       WRITE(PROBE_ENABLE_PIN, onoff);
     #endif
-
-    const bool state1 = PROBE_TRIGGERED();
-
     #if PROBE_WAKEUP_TIME_MS
       if (onoff) safe_delay(PROBE_WAKEUP_TIME_MS);
     #endif
-
-    const bool state2 = PROBE_TRIGGERED();
-
     resync();
-
-    const bool state3 = PROBE_TRIGGERED();
-
-    SERIAL_ECHOLNPGM("enable_z_probe(", TRUE_FALSE(onoff), ") state1:", TRUE_FALSE(state1), " 2:", TRUE_FALSE(state2), " 3:", TRUE_FALSE(state3));
   }
 #endif
 
