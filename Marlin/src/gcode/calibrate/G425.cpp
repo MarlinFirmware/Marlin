@@ -34,9 +34,11 @@
 #include "../../module/motion.h"
 #include "../../module/planner.h"
 #include "../../module/endstops.h"
-#include "../../feature/bedlevel/bedlevel.h"
+#if HAS_LEVELING
+  #include "../../feature/bedlevel/bedlevel.h"
+#endif
 
-#if HAS_MULTI_HOTEND
+#if HAS_TOOLCHANGE
   #include "../../module/tool_change.h"
 #endif
 
@@ -164,7 +166,7 @@ inline void park_above_object(measurements_t &m, const float uncertainty) {
   calibration_move();
 }
 
-#if HAS_MULTI_HOTEND
+#if HAS_TOOLCHANGE
   inline void set_nozzle(measurements_t &m, const uint8_t extruder) {
     if (extruder != active_extruder) {
       park_above_object(m, CALIBRATION_MEASUREMENT_UNKNOWN);
@@ -176,7 +178,7 @@ inline void park_above_object(measurements_t &m, const float uncertainty) {
 #if HAS_HOTEND_OFFSET
 
   inline void normalize_hotend_offsets() {
-    for (uint8_t e = 1; e < HOTENDS; ++e)
+    for (uint8_t e = 1; e < TOOLS; ++e)
       hotend_offset[e] -= hotend_offset[0];
     hotend_offset[0].reset();
   }
@@ -619,7 +621,7 @@ inline void probe_sides(measurements_t &m, const float uncertainty) {
     // This function requires normalize_hotend_offsets() to be called
     //
     inline void report_hotend_offsets() {
-      for (uint8_t e = 1; e < HOTENDS; ++e)
+      for (uint8_t e = 1; e < TOOLS; ++e)
         SERIAL_ECHOLNPGM_P(PSTR("T"), e, PSTR(" Hotend Offset X"), hotend_offset[e].x, SP_Y_STR, hotend_offset[e].y, SP_Z_STR, hotend_offset[e].z);
     }
   #endif
@@ -752,7 +754,7 @@ inline void calibrate_toolhead(measurements_t &m, const float uncertainty, const
   TEMPORARY_BACKLASH_CORRECTION(backlash.all_on);
   TEMPORARY_BACKLASH_SMOOTHING(0.0f);
 
-  TERN(HAS_MULTI_HOTEND, set_nozzle(m, extruder), UNUSED(extruder));
+  TERN(HAS_TOOLCHANGE, set_nozzle(m, extruder), UNUSED(extruder));
 
   probe_sides(m, uncertainty);
 
@@ -791,12 +793,14 @@ inline void calibrate_toolhead(measurements_t &m, const float uncertainty, const
 inline void calibrate_all_toolheads(measurements_t &m, const float uncertainty) {
   TEMPORARY_BACKLASH_CORRECTION(backlash.all_on);
   TEMPORARY_BACKLASH_SMOOTHING(0.0f);
-
-  HOTEND_LOOP() calibrate_toolhead(m, uncertainty, e);
+ 
+  for (int8_t t = 0; t < TOOLS; t++) {
+    calibrate_toolhead(m, uncertainty, t);
+  }
 
   TERN_(HAS_HOTEND_OFFSET, normalize_hotend_offsets());
 
-  TERN_(HAS_MULTI_HOTEND, set_nozzle(m, 0));
+  TERN_(HAS_TOOLCHANGE, set_nozzle(m, 0));
 }
 
 /**
@@ -823,11 +827,6 @@ inline void calibrate_all() {
 
   TERN_(BACKLASH_GCODE, calibrate_backlash(m, CALIBRATION_MEASUREMENT_UNCERTAIN));
 
-  // Cycle the toolheads so the servos settle into their "natural" positions
-  #if HAS_MULTI_HOTEND
-    HOTEND_LOOP() set_nozzle(m, e);
-  #endif
-
   // Do a slow and precise calibration of the toolheads
   calibrate_all_toolheads(m, CALIBRATION_MEASUREMENT_UNCERTAIN);
 
@@ -853,7 +852,9 @@ void GcodeSuite::G425() {
 
   if (homing_needed_error()) return;
 
-  TEMPORARY_BED_LEVELING_STATE(false);
+  #if HAS_LEVELING
+    TEMPORARY_BED_LEVELING_STATE(false);
+  #endif
   SET_SOFT_ENDSTOP_LOOSE(true);
 
   measurements_t m;
