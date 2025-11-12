@@ -1526,7 +1526,8 @@ HAL_STEP_TIMER_ISR() {
 void Stepper::isr() {
 
   static hal_timer_t nextMainISR = 0;  // Interval until the next main Stepper Pulse phase (0 = Now)
-
+  HAL_timer_reset_count(MF_TIMER_STEP); //reset the timer to 0 so we include the isr run time in the step period
+  
   #if ENABLED(SMOOTH_LIN_ADVANCE)
     static hal_timer_t smoothLinAdvISR = 0;
   #endif
@@ -1535,7 +1536,7 @@ void Stepper::isr() {
   // flag an interrupt while this ISR is running - So changes from small
   // periods to big periods are respected and the timer does not reset to 0
   HAL_timer_set_compare(MF_TIMER_STEP, hal_timer_t(HAL_TIMER_TYPE_MAX));
-
+  
   // Count of ticks for the next ISR
   hal_timer_t next_isr_ticks = 0;
 
@@ -1728,7 +1729,7 @@ void Stepper::isr() {
   // sure that the time has not arrived yet - Warrantied by the scheduler
 
   // Set the next ISR to fire at the proper time
-  HAL_timer_set_compare(MF_TIMER_STEP, next_isr_ticks-time_spent);
+  HAL_timer_set_compare(MF_TIMER_STEP, next_isr_ticks);
 
   // Don't forget to finally reenable interrupts on non-AVR.
   // AVR automatically calls sei() for us on Return-from-Interrupt.
