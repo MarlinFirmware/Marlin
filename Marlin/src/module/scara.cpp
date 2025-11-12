@@ -192,82 +192,84 @@ float segments_per_second = DEFAULT_SEGMENTS_PER_SECOND;
   // Remove offset for calculation with trigonometric
   // Tool offset coordinates are recalculated for each angle
   xyz_pos_t remove_W_T_offset(const xyz_pos_t &raw) {
-  xyz_pos_t toolhead_absolute = raw + robot_workspace_offset; // Remove workspace offset first, so we can use trigonometrics relative to robot reference frame (otherwise a negative raw position would "mirror/invert" the tool offset)
+    // Remove workspace offset first, so we can use trigonometrics relative to robot reference
+    // frame (otherwise a negative raw position would "mirror/invert" the tool offset)
+    xyz_pos_t toolhead_absolute = raw + robot_workspace_offset;
 
-  // We should apply a rotation matrix, but is too costly to calculate sin and cos
-  const float r2 = HYPOT2(toolhead_absolute.x, toolhead_absolute.y);
-  xyz_pos_t tool_offset_rotated;
-  if (UNEAR_ZERO(r2)) {
-    // avoid zero div
-    tool_offset_rotated.x = tool_offset_cyl.x;
-    tool_offset_rotated.y = 0.0f;
-    tool_offset_rotated.z = tool_offset_cyl.z;
+    // We should apply a rotation matrix, but is too costly to calculate sin and cos
+    const float r2 = HYPOT2(toolhead_absolute.x, toolhead_absolute.y);
+    xyz_pos_t tool_offset_rotated;
+    if (UNEAR_ZERO(r2)) {
+      // avoid zero div
+      tool_offset_rotated.x = tool_offset_cyl.x;
+      tool_offset_rotated.y = 0.0f;
+      tool_offset_rotated.z = tool_offset_cyl.z;
+    }
+    else {
+      const float inv_r = RSQRT(r2);
+      tool_offset_rotated.x = tool_offset_cyl.x * toolhead_absolute.x * inv_r;  // Equivalent to tool_offset_cyl.x * cos(atan2(toolhead_absolute.y, toolhead_absolute.x))
+      tool_offset_rotated.y = tool_offset_cyl.x * toolhead_absolute.y * inv_r;  // Equivalent to tool_offset_cyl.x * sin(atan2(toolhead_absolute.y, toolhead_absolute.x))
+      tool_offset_rotated.z = tool_offset_cyl.z;
+    }
+
+    return toolhead_absolute - tool_offset_rotated; // Returns the real robot position without tool or workspace offset
   }
-  else {
-    const float inv_r = 1.0f / sqrtf(r2);
-    tool_offset_rotated.x = tool_offset_cyl.x * toolhead_absolute.x * inv_r;  // Equivalent to tool_offset_cyl.x * cos(atan2(toolhead_absolute.y, toolhead_absolute.x))
-    tool_offset_rotated.y = tool_offset_cyl.x * toolhead_absolute.y * inv_r;  // Equivalent to tool_offset_cyl.x * sin(atan2(toolhead_absolute.y, toolhead_absolute.x))
-    tool_offset_rotated.z = tool_offset_cyl.z;
+
+  // Apply tool and workspace offset to robot flange position, accounting for the rotated tool offset
+  xyz_pos_t apply_T_W_offset(const xyz_pos_t &rpos) {
+    // We should apply a rotation matrix, but it's too costly
+    const float r2 = rpos.x * rpos.x + rpos.y * rpos.y;
+    xyz_pos_t tool_offset_rotated;
+    if (UNEAR_ZERO(r2)) {
+      // avoid zero div
+      tool_offset_rotated.x = tool_offset_cyl.x;
+      tool_offset_rotated.y = 0.0f;
+      tool_offset_rotated.z = tool_offset_cyl.z;
+    }
+    else {
+      const float inv_r = RSQRT(r2);
+      tool_offset_rotated.x = tool_offset_cyl.x * rpos.x * inv_r;
+      tool_offset_rotated.y = tool_offset_cyl.x * rpos.y * inv_r;
+      tool_offset_rotated.z = tool_offset_cyl.z;
+    }
+    //SERIAL_ECHOLNPGM(" Tool_offset_rotated(x,y,z) ", tool_offset_rotated.x, ",", tool_offset_rotated.y, ",", tool_offset_rotated.z );
+
+    return rpos + tool_offset_rotated - robot_workspace_offset;
   }
 
-  return toolhead_absolute - tool_offset_rotated; // Returns the real robot pose without tool or workspace offset
-}
-
-// Apply tool and workspace offset to robot flange pose, accounting for the rotated tool offset
-xyz_pos_t apply_T_W_offset(const xyz_pos_t &rpose) {
-  // We should apply a rotation matrix, but it's too costly
-  const float r2 = rpose.x * rpose.x + rpose.y * rpose.y;
-  xyz_pos_t tool_offset_rotated;
-  if (UNEAR_ZERO(r2)) {
-    // avoid zero div
-    tool_offset_rotated.x = tool_offset_cyl.x;
-    tool_offset_rotated.y = 0.0f;
-    tool_offset_rotated.z = tool_offset_cyl.z;
-  }
-  else {
-    const float inv_r = 1.0f / sqrtf(r2);
-    tool_offset_rotated.x = tool_offset_cyl.x * rpose.x * inv_r;
-    tool_offset_rotated.y = tool_offset_cyl.x * rpose.y * inv_r;
-    tool_offset_rotated.z = tool_offset_cyl.z;
-  }
-  //SERIAL_ECHOLNPGM(" Tool_offset_rotated(x,y,z) ", tool_offset_rotated.x, ",", tool_offset_rotated.y, ",", tool_offset_rotated.z );
-
-  return rpose + tool_offset_rotated - robot_workspace_offset;
-}
-
-/**
- * Set an axis' current position to its home position (after homing).
- *
- * TPARA must wait for YZ homing before setting current_position.Y/Z to home.
- * Neither Y nor Z is home until both are at home.
- */
+  /**
+   * Set an axis' current position to its home position (after homing).
+   *
+   * TPARA must wait for YZ homing before setting current_position.Y/Z to home.
+   * Neither Y nor Z is home until both are at home.
+   */
   void scara_set_axis_is_at_home(const AxisEnum axis) {
-      // Home position should be arm end position -+ offsets (+ tool offset - workspace offset), measured at home robot pose
-      xyz_pos_t homeposition = { X_HOME_POS , Y_HOME_POS , Z_HOME_POS };
+    // Home position should be arm end position -+ offsets (+ tool offset - workspace offset), measured at home robot position
+    xyz_pos_t homeposition = { X_HOME_POS , Y_HOME_POS , Z_HOME_POS };
 
-      //SERIAL_ECHOLNPGM("TPARA Set axis is at home: ", C(iaxis_codes[axis]));
-      //SERIAL_XYZ("Home: ", homeposition);
-      //SERIAL_XYZ("Pos before IK: ", current_position);
-      //SERIAL_ECHOLNPGM("Angles Before: Theta: ", delta.a, " Phi: ", delta.b, " Psi: ", delta.c);
+    //SERIAL_ECHOLNPGM("TPARA Set axis is at home: ", C(iaxis_codes[axis]));
+    //SERIAL_XYZ("Home: ", homeposition);
+    //SERIAL_XYZ("Pos before IK: ", current_position);
+    //SERIAL_ECHOLNPGM("Angles Before: Theta: ", delta.a, " Phi: ", delta.b, " Psi: ", delta.c);
 
-      inverse_kinematics(homeposition);
+    inverse_kinematics(homeposition);
 
-      //SERIAL_ECHOLNPGM("Angles After IK: Theta: ", delta.a, " Phi: ", delta.b, " Psi: ", delta.c);
+    //SERIAL_ECHOLNPGM("Angles After IK: Theta: ", delta.a, " Phi: ", delta.b, " Psi: ", delta.c);
 
-      forward_kinematics(delta.a, delta.b, delta.c);
-      current_position[axis] = cartes[axis];
+    forward_kinematics(delta.a, delta.b, delta.c);
+    current_position[axis] = cartes[axis];
 
-      //SERIAL_XYZ("'current' after FK: ", current_position);
-      //SERIAL_XYZ("'cartes' after FK: ", cartes);
+    //SERIAL_XYZ("'current' after FK: ", current_position);
+    //SERIAL_XYZ("'cartes' after FK: ", cartes);
 
-      update_software_endstops(axis);
+    update_software_endstops(axis);
 
-      //SERIAL_ECHOLNPGM("Final Angles: Theta: ", delta.a, " Phi: ", delta.b, " Psi: ", delta.c);
-      //SERIAL_XYZ("Final Pos: ", current_position);
-      //SERIAL_XYZ("Robot Offsets Shoulder:", robot_shoulder_offset);
-      //SERIAL_XYZ("Robot Offsets Tool:", tool_offset);
-      //SERIAL_XYZ("Robot Offsets Workspace:", robot_workspace_offset);
-      //SERIAL_EOL();
+    //SERIAL_ECHOLNPGM("Final Angles: Theta: ", delta.a, " Phi: ", delta.b, " Psi: ", delta.c);
+    //SERIAL_XYZ("Final Pos: ", current_position);
+    //SERIAL_XYZ("Robot Offsets Shoulder:", robot_shoulder_offset);
+    //SERIAL_XYZ("Robot Offsets Tool:", tool_offset);
+    //SERIAL_XYZ("Robot Offsets Workspace:", robot_workspace_offset);
+    //SERIAL_EOL();
   }
 
   // Convert ABC inputs in degrees to XYZ outputs in mm
@@ -293,13 +295,13 @@ xyz_pos_t apply_T_W_offset(const xyz_pos_t &rpose) {
     destination.reset();
     sync_plan_position();
 
-    //SERIAL_ECHOLNPGM("Reset and sync position to the asumed start pose of the robot" );
-    // Set the asumed start pose of the robot for homing, so it home ZY axis at same time preserving the B and C motor angle
-    const xyz_pos_t asumed_intial_pose = {L2, 0, 0};
-    xyz_pos_t intial_pose_w_offset = apply_T_W_offset(asumed_intial_pose);
+    //SERIAL_ECHOLNPGM("Reset and sync position to the assumed start position of the robot" );
+    // Set the assumed start position of the robot for homing, so it home ZY axis at same time preserving the B and C motor angle
+    constexpr xyz_pos_t assumed_intial_pos = { L2, 0, 0 };
+    xyz_pos_t intial_pos_w_offset = apply_T_W_offset(assumed_intial_pos);
 
-    current_position.set(intial_pose_w_offset.x, intial_pose_w_offset.y, intial_pose_w_offset.z);
-    destination.set(intial_pose_w_offset.x, intial_pose_w_offset.y, intial_pose_w_offset.z);
+    current_position.set(intial_pos_w_offset.x, intial_pos_w_offset.y, intial_pos_w_offset.z);
+    destination.set(intial_pos_w_offset.x, intial_pos_w_offset.y, intial_pos_w_offset.z);
     sync_plan_position();
 
     // Disable stealthChop if used. Enable diag1 pin on driver.
@@ -320,10 +322,10 @@ xyz_pos_t apply_T_W_offset(const xyz_pos_t &rpose) {
 
     // Move to home, should move Z, Y, then X. Move X to near 0 (to avoid div by zero
     // and sign/angle stability around 0 for trigonometric functions), Y to 0 and Z to max_length
-    xyz_pos_t raw_homing_pose_dir = { 1, 0, max_length(Z_AXIS) };
+    xyz_pos_t raw_homing_pos_dir = { 1, 0, max_length(Z_AXIS) };
 
-    xyz_pos_t homing_pose_dir = apply_T_W_offset(raw_homing_pose_dir);
-    current_position.set(homing_pose_dir.x, homing_pose_dir.y, homing_pose_dir.z);
+    xyz_pos_t homing_pos_dir = apply_T_W_offset(raw_homing_pos_dir);
+    current_position.set(homing_pos_dir.x, homing_pos_dir.y, homing_pos_dir.z);
 
     line_to_current_position(homing_feedrate(Z_AXIS));
     planner.synchronize();
@@ -366,32 +368,32 @@ xyz_pos_t apply_T_W_offset(const xyz_pos_t &rpose) {
     const float RXY = SQRT(HYPOT2(tpos.x, tpos.y)),
                 RHO_2 = NORMSQ(tpos.x, tpos.y, tpos.z),
                 //RHO = SQRT(RHO2),
-                LSS = L1_2 + L2_2,  // L1^2 + L2^2 , LSS : Lenght square sum
-                LM = 2.0f * L1 * L2, // Length multiplication and doubled
+                LSS = L1_2 + L2_2,    // L1^2 + L2^2 , LSS : Lenght square sum
+                LM = 2.0f * L1 * L2,  // Length multiplication and doubled
 
                 // Method 2
-                CG = (LSS - RHO_2) / LM, // cosine of gamma
-                SG = SQRT(1 - POW(CG, 2)),  // sine of gamma
-                K1 = L1 - L2 * CG,  // K1 projection
-                K2 = L2 * SG,  // K2 projection
+                CG = (LSS - RHO_2) / LM,    // Cosine of gamma
+                SG = SQRT(1 - POW(CG, 2)),  // Sine of gamma
+                K1 = L1 - L2 * CG,          // K1 projection
+                K2 = L2 * SG,               // K2 projection
 
                 // Angle of Body/base Joint
                 THETA = ATAN2(tpos.y, tpos.x),
 
                 // Angle of Elbow Joint, between L1 and L2
-                //GAMMA = ACOS(CG),
-                GAMMA = ATAN2(SG, CG), // Method 2
+                //GAMMA = ACOS(CG),         // Method 1
+                GAMMA = ATAN2(SG, CG),      // Method 2
 
                 // Angle of Shoulder Joint, elevation angle measured from horizontal plane XY (r+)
-                //PHI = asin(tpos.z/RHO) + asin(L2 * sin(GAMMA) / RHO),
-                PHI = ATAN2(tpos.z, RXY) + ATAN2(K2, K1),   // Method 2
+                //PHI = asin(tpos.z/RHO) + asin(L2 * sin(GAMMA) / RHO), // Method 1
+                PHI = ATAN2(tpos.z, RXY) + ATAN2(K2, K1),               // Method 2
 
                 // Elbow motor angle measured from horizontal, same reference frame as shoulder angle (r+)
                 PSI = PHI + GAMMA;
 
     delta.set(DEGREES(THETA), DEGREES(PHI), DEGREES(PSI));
 
-    //SERIAL_ECHOLNPGM(" TPARA IK raw(x,y,z) ", raw.x, ",", raw.y, ",", raw.z, " Robot pose(x,y,z) ", tpos.x, ",", tpos.y, ",", tpos.z + robot_shoulder_offset.z, " Rho^2=", RHO_2, " Theta=", THETA*RAD_TO_DEG, " Phi=", PHI*RAD_TO_DEG, " Psi=", PSI*RAD_TO_DEG, " Gamma=", GAMMA*RAD_TO_DEG);
+    //SERIAL_ECHOLNPGM(" TPARA IK raw(x,y,z) ", raw.x, ",", raw.y, ",", raw.z, " Robot pos(x,y,z) ", tpos.x, ",", tpos.y, ",", tpos.z + robot_shoulder_offset.z, " Rho^2=", RHO_2, " Theta=", THETA*RAD_TO_DEG, " Phi=", PHI*RAD_TO_DEG, " Psi=", PSI*RAD_TO_DEG, " Gamma=", GAMMA*RAD_TO_DEG);
   }
 
 #endif // AXEL_TPARA
@@ -400,8 +402,8 @@ void scara_report_positions() {
   SERIAL_ECHOLNPGM(
     #if ENABLED(AXEL_TPARA)
         "TPARA Theta: ", planner.get_axis_position_degrees(A_AXIS)
-      , " Phi: ",         planner.get_axis_position_degrees(B_AXIS)
-      , " Psi: ",         planner.get_axis_position_degrees(C_AXIS)
+      , " Phi: ",        planner.get_axis_position_degrees(B_AXIS)
+      , " Psi: ",        planner.get_axis_position_degrees(C_AXIS)
     #else
         "SCARA Theta:",                            planner.get_axis_position_degrees(A_AXIS)
       , "  Psi" TERN_(MORGAN_SCARA, "+Theta") ":", planner.get_axis_position_degrees(B_AXIS)
