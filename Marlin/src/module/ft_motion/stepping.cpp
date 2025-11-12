@@ -90,8 +90,8 @@ uint32_t Stepping::plan() {
     #undef _HANDLE_DIR_CHANGES
   }
 
-  if (!(bool)stepper_plan.advance_dividend_q0_32) {
-    // don't waste time in zero motion traj points
+  if (stepper_plan.advance_dividend_q0_32 == 0) {
+    // Don't waste time in zero motion traj points
     bresenham_iterations_pending = 0;
     step_bits = 0;
     return INTERVAL_PER_TRAJ_POINT;
@@ -101,7 +101,10 @@ uint32_t Stepping::plan() {
   // The reciprocal is actually 2^32/dividend, but that requires dividing a uint64_t, which quite expensive
   // Since even the real reciprocal may underestimate the quotient by 1 anyway already, this optimisation doesn't
   // make things worse. This underestimation is compensated for in advance_until_step.
-  #define _DIVIDEND_RECIP(A) advance_dividend_reciprocal.A = stepper_plan.advance_dividend_q0_32.A ? UINT32_MAX / stepper_plan.advance_dividend_q0_32.A : UINT32_MAX;
+  #define _DIVIDEND_RECIP(A) do{ \
+    const uint32_t d = stepper_plan.advance_dividend_q0_32.A; \
+    advance_dividend_reciprocal.A = d ? UINT32_MAX / d : UINT32_MAX; \
+  }while(0);
   LOGICAL_AXIS_MAP(_DIVIDEND_RECIP);
   #undef _DIVIDEND_RECIP
 
