@@ -143,12 +143,12 @@ class TMenuEditItem : public MenuEditItemBase {
 
     // Classic version
     static void action(
-      FSTR_P const fstr,
-      type_t * const ptr,
-      const type_t minValue,
+      FSTR_P const fstr,                    // Edit label
+      type_t * const ptr,                   // Value pointer
+      const type_t minValue,                // Value range
       const type_t maxValue,
-      const screenFunc_t callback=nullptr,
-      const bool live=false
+      const screenFunc_t callback=nullptr,  // Value update callback
+      const bool live=false                 // Callback during editing
     ) {
       const int32_t minv = _MAX(scaleToEncoder(minValue), INT32_MIN),
                     maxv = _MIN(scaleToEncoder(maxValue), INT32_MAX);

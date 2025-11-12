@@ -26,6 +26,7 @@
 #include "../../inc/MarlinConfig.h"
 
 #include "limits.h"
+#include <type_traits>
 
 extern int8_t encoderLine, encoderTopLine, screen_items;
 
@@ -175,7 +176,7 @@ class MenuEditItemBase : public MenuItemBase {
 
     static FSTR_P editLabel;
     static void *editValue;
-    static int32_t minEditValue,maxEditValue;
+    static int32_t minEditValue,maxEditValue;  // Encoder value range
     static bool liveEdit;
 
     static std::function<void()> callbackFunc;
@@ -193,14 +194,14 @@ class MenuEditItemBase : public MenuItemBase {
     }
 
     static void goto_edit_screen(
-      FSTR_P const el,
-      void * const ev,
-      const int32_t minv,
-      const int32_t maxv,
-      const uint32_t ep,
-      const screenFunc_t cs,
-      const screenFunc_t cb,
-      const bool le
+      FSTR_P const el,        // Edit label
+      void * const ev,        // Edit value pointer
+      const int32_t minv,     // Encoder minimum
+      const int32_t maxv,     // Encoder maximum
+      const uint32_t ep,      // Initial encoder value
+      const screenFunc_t cs,  // MenuItem_type::draw_edit_screen => MenuEditItemBase::edit()
+      const screenFunc_t cb,  // Callback after editc
+      const bool le           // Flag to call cb() during editing
     );
 
     static void edit_screen(strfunc_t, loadfunc_t);
@@ -226,8 +227,8 @@ class MenuEditItemBase : public MenuItemBase {
       callbackFunc = lambda;
     }
 
-   // Implementation-specific:
-  // This low-level method is good to draw from anywhere
+    // Implementation-specific:
+    // Draw the current item at specified row with edit data
     static void draw(const bool sel, const uint8_t row, FSTR_P const ftpl, const char * const inStr, const bool pgm=false);
 
     static void draw(const bool sel, const uint8_t row, FSTR_P const ftpl, FSTR_P const fstr) {
