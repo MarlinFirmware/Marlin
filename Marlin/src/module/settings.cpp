@@ -188,10 +188,6 @@
   #include "../feature/mmu3/mmu3_reporting.h"
 #endif
 
-#if ENABLED(GCODE_MACROS_EEPROM)
-  extern char gcode_macros[GCODE_MACROS_SLOTS][GCODE_MACROS_SLOT_SIZE + 1];
-#endif
-
 #pragma pack(push, 1) // No padding between variables
 
 #define _EN_ITEM(N) , E##N
@@ -1842,7 +1838,7 @@ void MarlinSettings::postprocess() {
     //
     #if ENABLED(GCODE_MACROS_EEPROM)
       _FIELD_TEST(gcode_macros);
-      EEPROM_WRITE(gcode_macros);
+      EEPROM_WRITE(gcode.macros);
     #endif
 
     //
@@ -3008,9 +3004,8 @@ void MarlinSettings::postprocess() {
       // GCODE_MACROS
       //
       #if ENABLED(GCODE_MACROS_EEPROM)
-        EEPROM_READ(gcode_macros);
+        EEPROM_READ(gcode.macros);
       #endif
-
 
       //
       // Validate Final Size and CRC
@@ -3836,12 +3831,9 @@ void MarlinSettings::reset() {
   #endif
 
   //
-  // GCODE_MACROS
+  // G-code Macros
   //
-  #if ENABLED(GCODE_MACROS_EEPROM)
-    for (uint8_t i = 0; i < GCODE_MACROS_SLOTS; ++i)
-      gcode_macros[i][0] = '\0';  // Clear all macro slots to empty
-  #endif
+  TERN_(GCODE_MACROS_EEPROM, gcode.reset_macros());
 
   //
   // Hotend Idle Timeout
@@ -4074,7 +4066,7 @@ void MarlinSettings::reset() {
     TERN_(EDITABLE_HOMING_FEEDRATE, gcode.M210_report(forReplay));
 
     //
-    // GCODE Macros
+    // G-Code Macros
     //
     TERN_(GCODE_MACROS, gcode.M810_819_report(forReplay));
 

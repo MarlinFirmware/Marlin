@@ -28,8 +28,6 @@
 #include "../../queue.h"
 #include "../../parser.h"
 
-extern char gcode_macros[GCODE_MACROS_SLOTS][GCODE_MACROS_SLOT_SIZE + 1];
-
 /**
  * M820: List defined M810 - M819 macros
  */
@@ -37,7 +35,7 @@ void GcodeSuite::M820(const bool withoutEcho/*=true*/) {
   report_heading(withoutEcho, F(STR_STORED_MACROS));
   bool some = false;
   for (uint8_t i = 0; i < GCODE_MACROS_SLOTS; ++i) {
-    const char *cmd = gcode_macros[i];
+    const char *cmd = gcode.macros[i];
     if (*cmd) {
       report_echo_start(withoutEcho);
       SERIAL_ECHO(F("M81"), i, C(' '));
