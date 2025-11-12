@@ -4112,7 +4112,6 @@
 #if ENABLED(GCODE_MACROS)
   #define GCODE_MACROS_SLOTS       5  // Up to 10 may be used
   #define GCODE_MACROS_SLOT_SIZE  50  // Maximum length of a single macro
-  //#define GCODE_MACROS_REPORT       // Include macros in M503 report
   #if ENABLED(EEPROM_SETTINGS)
     //#define GCODE_MACROS_IN_EEPROM  // Include macros in EEPROM
   #endif

@@ -4076,7 +4076,7 @@ void MarlinSettings::reset() {
     //
     // GCODE Macros
     //
-    TERN_(GCODE_MACROS_REPORT, gcode.M810_819_report(forReplay));
+    TERN_(GCODE_MACROS, gcode.M810_819_report(forReplay));
 
     //
     // Probe Offset
