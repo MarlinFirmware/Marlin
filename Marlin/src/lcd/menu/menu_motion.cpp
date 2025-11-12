@@ -434,60 +434,15 @@ void menu_move() {
 
   #endif // HAS_DYNAMIC_FREQ
 
-  // Suppress warning about storing a stack address in a static string pointer
-  #pragma GCC diagnostic push
-  #pragma GCC diagnostic ignored "-Wdangling-pointer"
-
-  #if ALL(__AVR__, HAS_MARLINUI_U8GLIB) && DISABLED(OPTIMIZE_FT_MOTION_FOR_SIZE)
-    #define CACHE_FOR_SPEED 1
-  #endif
-
   void menu_ftm_axis(AxisEnum axis) {
-        #ifdef __AVR__
-      // Copy Flash strings to RAM for C-string substitution
-      // For U8G paged rendering check and skip extra string copy
-      #if HAS_X_AXIS
-        MString<20> shaper_name;
-        #if CACHE_FOR_SPEED
-          int8_t prev_a = -1;
-        #endif
-        auto _shaper_name = [&](const AxisEnum a) {
-          if (TERN1(CACHE_FOR_SPEED, a != prev_a)) {
-            TERN_(CACHE_FOR_SPEED, prev_a = a);
-            shaper_name = get_shaper_name(a);
-          }
-          return shaper_name;
-        };
-      #endif
-      #if HAS_DYNAMIC_FREQ
-        MString<20> dmode;
-        #if CACHE_FOR_SPEED
-          bool got_d = false;
-        #endif
-        auto _dmode = [&]{
-          if (TERN1(CACHE_FOR_SPEED, !got_d)) {
-            TERN_(CACHE_FOR_SPEED, got_d = true);
-            dmode = get_dyn_freq_mode_name();
-          }
-          return dmode;
-        };
-      #endif
-      MString<20> traj_name;
-      #if CACHE_FOR_SPEED
-        bool got_t = false;
-      #endif
-    #else
-      auto _shaper_name = [](const AxisEnum a) { return get_shaper_name(a); };
-      auto _dmode = []{ return get_dyn_freq_mode_name(); };
-    #endif
-
+    
     ft_config_t &c = ftMotion.cfg;
     
     START_MENU();
       BACK_ITEM(MSG_FIXED_TIME_MOTION);
       
       if (axis == X_AXIS || axis == Y_AXIS || (axis == Z_AXIS && TERN(FTM_SHAPER_Z, true, false)) || (axis == E_AXIS && TERN(FTM_SHAPER_E, true, false))) {
-        SUBMENU_N_S(axis, _shaper_name(axis), MSG_FTM_CMPN_MODE, [axis] { menu_ftm_shaper(axis); });
+        SUBMENU_N_S(axis, get_shaper_name(axis), MSG_FTM_CMPN_MODE, [axis] { menu_ftm_shaper(axis); });
         if (c.shaper[axis] != ftMotionShaper_NONE) { 
           EDIT_ITEM_FAST_N(float42_52, axis, MSG_FTM_BASE_FREQ_N, &c.baseFreq[axis], FTM_MIN_SHAPE_FREQ, (FTM_FS) / 2, ftMotion.update_shaping_params);
           EDIT_ITEM_FAST_N(float42_52, axis, MSG_FTM_ZETA_N, &c.zeta[axis], 0.0f, 1.0f, ftMotion.update_shaping_params);
@@ -516,7 +471,7 @@ void menu_move() {
 
       #if HAS_DYNAMIC_FREQ
         if (axis == X_AXIS || axis == Y_AXIS) {
-          SUBMENU_S(_dmode(), MSG_FTM_DYN_MODE, menu_ftm_dyn_mode);
+          SUBMENU_S(get_dyn_freq_mode_name(), MSG_FTM_DYN_MODE, menu_ftm_dyn_mode);
           if (c.dynFreqMode != dynFreqMode_DISABLED)
             EDIT_ITEM_FAST_N(float42_52, axis, MSG_FTM_DFREQ_K_N, &c.dynFreqK[axis], 0.0f, 20.0f);
         }
@@ -526,26 +481,8 @@ void menu_move() {
   }
 
   void menu_ft_motion() {
-    // Define stuff ahead of the menu loop
-    ft_config_t &c = ftMotion.cfg;
 
-    #ifdef __AVR__
-      // Copy Flash strings to RAM for C-string substitution
-      // For U8G paged rendering check and skip extra string copy
-      MString<20> traj_name;
-      #if CACHE_FOR_SPEED
-        bool got_t = false;
-      #endif
-      auto _traj_name = [&]{
-        if (TERN1(CACHE_FOR_SPEED, !got_t)) {
-          TERN_(CACHE_FOR_SPEED, got_t = true);
-          traj_name = get_trajectory_name();
-        }
-        return traj_name;
-      };
-    #else
-      auto _traj_name = []{ return get_trajectory_name(); };
-    #endif
+    ft_config_t &c = ftMotion.cfg;
 
     START_MENU();
     BACK_ITEM(MSG_MOTION);
@@ -556,7 +493,7 @@ void menu_move() {
     // Show only when FT Motion is active (or optionally always show)
     if (c.active || ENABLED(FT_MOTION_NO_MENU_TOGGLE)) {
       
-      SUBMENU_S(_traj_name(), MSG_FTM_TRAJECTORY, menu_ftm_trajectory_generator);
+      SUBMENU_S(get_trajectory_name(), MSG_FTM_TRAJECTORY, menu_ftm_trajectory_generator);
 
       if (ftMotion.getTrajectoryType() == TrajectoryType::POLY6)
         EDIT_ITEM(float42_52, MSG_FTM_POLY6_OVERSHOOT, &c.poly6_acceleration_overshoot, 1.25f, 1.875f);
@@ -576,30 +513,13 @@ void menu_move() {
   } // menu_ft_motion
 
   void menu_tune_ft_motion() {
-    // Define stuff ahead of the menu loop
+
     ft_config_t &c = ftMotion.cfg;
-    #ifdef __AVR__
-      // Copy Flash strings to RAM for C-string substitution
-      // For U8G paged rendering check and skip extra string copy
-      MString<20> traj_name;
-      #if CACHE_FOR_SPEED
-        bool got_t = false;
-      #endif
-      auto _traj_name = [&]{
-        if (TERN1(CACHE_FOR_SPEED, !got_t)) {
-          TERN_(CACHE_FOR_SPEED, got_t = true);
-          traj_name = get_trajectory_name();
-        }
-        return traj_name;
-      };
-    #else // !__AVR__
-      auto _traj_name = []{ return get_trajectory_name(); };
-    #endif
 
     START_MENU();
     BACK_ITEM(MSG_TUNE);
 
-    SUBMENU_S(_traj_name(), MSG_FTM_TRAJECTORY, menu_ftm_trajectory_generator);
+    SUBMENU_S(get_trajectory_name(), MSG_FTM_TRAJECTORY, menu_ftm_trajectory_generator);
 
     if (ftMotion.getTrajectoryType() == TrajectoryType::POLY6)
       EDIT_ITEM(float42_52, MSG_FTM_POLY6_OVERSHOOT, &c.poly6_acceleration_overshoot, 1.25f, 1.875f);
@@ -609,8 +529,6 @@ void menu_move() {
 
     END_MENU();
   } // menu_tune_ft_motion
-
-  #pragma GCC diagnostic pop
 
 #endif // FT_MOTION_MENU
 
