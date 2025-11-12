@@ -347,30 +347,29 @@ void menu_move() {
     }
   #endif
 
-  void ftm_menu_set_shaper(ftMotionShaper_t &outShaper, const ftMotionShaper_t s) {
-    outShaper = s;
+  void ftm_menu_set_shaper(const AxisEnum axis, const ftMotionShaper_t s) {
+    ftMotion.cfg.shaper[axis] = s;
     ftMotion.update_shaping_params();
     ui.go_back();
   }
 
-  #define MENU_FTM_SHAPER(A) \
-    inline void menu_ftm_shaper_##A() { \
-      const ftMotionShaper_t shaper = ftMotion.cfg.shaper.A; \
-      START_MENU(); \
-      BACK_ITEM(MSG_FIXED_TIME_MOTION); \
-      if (shaper != ftMotionShaper_NONE)  ACTION_ITEM(MSG_LCD_OFF,  []{ ftm_menu_set_shaper(ftMotion.cfg.shaper.A, ftMotionShaper_NONE  ); }); \
-      if (shaper != ftMotionShaper_ZV)    ACTION_ITEM(MSG_FTM_ZV,   []{ ftm_menu_set_shaper(ftMotion.cfg.shaper.A, ftMotionShaper_ZV    ); }); \
-      if (shaper != ftMotionShaper_ZVD)   ACTION_ITEM(MSG_FTM_ZVD,  []{ ftm_menu_set_shaper(ftMotion.cfg.shaper.A, ftMotionShaper_ZVD   ); }); \
-      if (shaper != ftMotionShaper_ZVDD)  ACTION_ITEM(MSG_FTM_ZVDD, []{ ftm_menu_set_shaper(ftMotion.cfg.shaper.A, ftMotionShaper_ZVDD  ); }); \
-      if (shaper != ftMotionShaper_ZVDDD) ACTION_ITEM(MSG_FTM_ZVDDD,[]{ ftm_menu_set_shaper(ftMotion.cfg.shaper.A, ftMotionShaper_ZVDDD ); }); \
-      if (shaper != ftMotionShaper_EI)    ACTION_ITEM(MSG_FTM_EI,   []{ ftm_menu_set_shaper(ftMotion.cfg.shaper.A, ftMotionShaper_EI    ); }); \
-      if (shaper != ftMotionShaper_2HEI)  ACTION_ITEM(MSG_FTM_2HEI, []{ ftm_menu_set_shaper(ftMotion.cfg.shaper.A, ftMotionShaper_2HEI  ); }); \
-      if (shaper != ftMotionShaper_3HEI)  ACTION_ITEM(MSG_FTM_3HEI, []{ ftm_menu_set_shaper(ftMotion.cfg.shaper.A, ftMotionShaper_3HEI  ); }); \
-      if (shaper != ftMotionShaper_MZV)   ACTION_ITEM(MSG_FTM_MZV,  []{ ftm_menu_set_shaper(ftMotion.cfg.shaper.A, ftMotionShaper_MZV   ); }); \
-      END_MENU(); \
-    }
+  inline void menu_ftm_shaper(const AxisEnum axis) { 
+      const ftMotionShaper_t shaper = ftMotion.cfg.shaper[axis]; 
+      START_MENU();
 
-  SHAPED_MAP(MENU_FTM_SHAPER);
+      BACK_ITEM(MSG_FTM_AXIS_N);
+      
+      if (shaper != ftMotionShaper_NONE)  ACTION_ITEM(MSG_LCD_OFF,  [axis]{ ftm_menu_set_shaper(axis, ftMotionShaper_NONE)  ; }); 
+      if (shaper != ftMotionShaper_ZV)    ACTION_ITEM(MSG_FTM_ZV,   [axis]{ ftm_menu_set_shaper(axis, ftMotionShaper_ZV)    ; }); 
+      if (shaper != ftMotionShaper_ZVD)   ACTION_ITEM(MSG_FTM_ZVD,  [axis]{ ftm_menu_set_shaper(axis, ftMotionShaper_ZVD)   ; }); 
+      if (shaper != ftMotionShaper_ZVDD)  ACTION_ITEM(MSG_FTM_ZVDD, [axis]{ ftm_menu_set_shaper(axis, ftMotionShaper_ZVDD)  ; }); 
+      if (shaper != ftMotionShaper_ZVDDD) ACTION_ITEM(MSG_FTM_ZVDDD,[axis]{ ftm_menu_set_shaper(axis, ftMotionShaper_ZVDDD) ; }); 
+      if (shaper != ftMotionShaper_EI)    ACTION_ITEM(MSG_FTM_EI,   [axis]{ ftm_menu_set_shaper(axis, ftMotionShaper_EI)    ; }); 
+      if (shaper != ftMotionShaper_2HEI)  ACTION_ITEM(MSG_FTM_2HEI, [axis]{ ftm_menu_set_shaper(axis, ftMotionShaper_2HEI)  ; }); 
+      if (shaper != ftMotionShaper_3HEI)  ACTION_ITEM(MSG_FTM_3HEI, [axis]{ ftm_menu_set_shaper(axis, ftMotionShaper_3HEI)  ; }); 
+      if (shaper != ftMotionShaper_MZV)   ACTION_ITEM(MSG_FTM_MZV,  [axis]{ ftm_menu_set_shaper(axis, ftMotionShaper_MZV)   ; });
+      END_MENU(); 
+    }
 
   void menu_ftm_trajectory_generator() {
     const TrajectoryType current_type = ftMotion.getTrajectoryType();
@@ -420,7 +419,7 @@ void menu_move() {
       const dynFreqMode_t dmode = ftMotion.cfg.dynFreqMode;
 
       START_MENU();
-      BACK_ITEM(MSG_FIXED_TIME_MOTION);
+      BACK_ITEM(MSG_FTM_AXIS_N);
 
       if (dmode != dynFreqMode_DISABLED) ACTION_ITEM(MSG_LCD_OFF, []{ ftMotion.cfg.dynFreqMode = dynFreqMode_DISABLED; ui.go_back(); });
       #if HAS_DYNAMIC_FREQ_MM
@@ -443,18 +442,8 @@ void menu_move() {
     #define CACHE_FOR_SPEED 1
   #endif
 
-  #if ENABLED(FTM_SMOOTHING)
-    #define _SMOO_MENU_ITEM(A) do{ \
-      editable.decimal = c.smoothingTime.A; \
-      EDIT_ITEM_FAST_N(float43, _AXIS(A), MSG_FTM_SMOOTH_TIME_N, &editable.decimal, 0.0f, FTM_MAX_SMOOTHING_TIME, []{ ftMotion.set_smoothing_time(_AXIS(A), editable.decimal); }); \
-    }while(0);
-  #endif
-
-  void menu_ft_motion() {
-    // Define stuff ahead of the menu loop
-    ft_config_t &c = ftMotion.cfg;
-
-    #ifdef __AVR__
+  void menu_ftm_axis(AxisEnum axis) {
+        #ifdef __AVR__
       // Copy Flash strings to RAM for C-string substitution
       // For U8G paged rendering check and skip extra string copy
       #if HAS_X_AXIS
@@ -487,6 +476,66 @@ void menu_move() {
       #if CACHE_FOR_SPEED
         bool got_t = false;
       #endif
+    #else
+      auto _shaper_name = [](const AxisEnum a) { return get_shaper_name(a); };
+      auto _dmode = []{ return get_dyn_freq_mode_name(); };
+    #endif
+
+    ft_config_t &c = ftMotion.cfg;
+    
+    START_MENU();
+      BACK_ITEM(MSG_FIXED_TIME_MOTION);
+      
+      if (axis == X_AXIS || axis == Y_AXIS || (axis == Z_AXIS && TERN(FTM_SHAPER_Z, true, false)) || (axis == E_AXIS && TERN(FTM_SHAPER_E, true, false))) {
+        SUBMENU_N_S(axis, _shaper_name(axis), MSG_FTM_CMPN_MODE, [axis] { menu_ftm_shaper(axis); });
+        if (c.shaper[axis] != ftMotionShaper_NONE) { 
+          EDIT_ITEM_FAST_N(float42_52, axis, MSG_FTM_BASE_FREQ_N, &c.baseFreq[axis], FTM_MIN_SHAPE_FREQ, (FTM_FS) / 2, ftMotion.update_shaping_params);
+          EDIT_ITEM_FAST_N(float42_52, axis, MSG_FTM_ZETA_N, &c.zeta[axis], 0.0f, 1.0f, ftMotion.update_shaping_params);
+          if WITHIN(c.shaper[axis], ftMotionShaper_EI, ftMotionShaper_3HEI) 
+            EDIT_ITEM_FAST_N(float42_52, axis, MSG_FTM_VTOL_N, &c.vtol[axis], 0.0f, 1.0f, ftMotion.update_shaping_params);
+        }
+      }
+      
+      #if ENABLED(FTM_SMOOTHING)
+       switch(axis) {
+        case X_AXIS:
+          editable.decimal = c.smoothingTime.X;
+        break;
+        case Y_AXIS:
+          editable.decimal = c.smoothingTime.Y;
+        break;
+        case Z_AXIS:
+          editable.decimal = c.smoothingTime.Z;
+        break;
+        case E_AXIS:
+          editable.decimal = c.smoothingTime.E;
+        break;
+       }
+        EDIT_ITEM_FAST_N(float43, axis, MSG_FTM_SMOOTH_TIME_N, &editable.decimal, 0.0f, FTM_MAX_SMOOTHING_TIME, [axis]{ ftMotion.set_smoothing_time(axis, editable.decimal); });
+      #endif
+
+      #if HAS_DYNAMIC_FREQ
+        if (axis == X_AXIS || axis == Y_AXIS) {
+          SUBMENU_S(_dmode(), MSG_FTM_DYN_MODE, menu_ftm_dyn_mode);
+          if (c.dynFreqMode != dynFreqMode_DISABLED)
+            EDIT_ITEM_FAST_N(float42_52, axis, MSG_FTM_DFREQ_K_N, &c.dynFreqK[axis], 0.0f, 20.0f);
+        }
+      #endif
+      
+      END_MENU();
+  }
+
+  void menu_ft_motion() {
+    // Define stuff ahead of the menu loop
+    ft_config_t &c = ftMotion.cfg;
+
+    #ifdef __AVR__
+      // Copy Flash strings to RAM for C-string substitution
+      // For U8G paged rendering check and skip extra string copy
+      MString<20> traj_name;
+      #if CACHE_FOR_SPEED
+        bool got_t = false;
+      #endif
       auto _traj_name = [&]{
         if (TERN1(CACHE_FOR_SPEED, !got_t)) {
           TERN_(CACHE_FOR_SPEED, got_t = true);
@@ -495,8 +544,6 @@ void menu_move() {
         return traj_name;
       };
     #else
-      auto _shaper_name = [](const AxisEnum a) { return get_shaper_name(a); };
-      auto _dmode = []{ return get_dyn_freq_mode_name(); };
       auto _traj_name = []{ return get_trajectory_name(); };
     #endif
 
@@ -508,34 +555,18 @@ void menu_move() {
 
     // Show only when FT Motion is active (or optionally always show)
     if (c.active || ENABLED(FT_MOTION_NO_MENU_TOGGLE)) {
-      #define SHAPER_MENU_ITEM(A) \
-        SUBMENU_N_S(_AXIS(A), _shaper_name(_AXIS(A)), MSG_FTM_CMPN_MODE, menu_ftm_shaper_##A); \
-        if (AXIS_IS_SHAPING(A)) { \
-          EDIT_ITEM_FAST_N(float42_52, _AXIS(A), MSG_FTM_BASE_FREQ_N, &c.baseFreq.A, FTM_MIN_SHAPE_FREQ, (FTM_FS) / 2, ftMotion.update_shaping_params); \
-          EDIT_ITEM_FAST_N(float42_52, _AXIS(A), MSG_FTM_ZETA_N, &c.zeta.A, 0.0f, 1.0f, ftMotion.update_shaping_params); \
-          if (AXIS_IS_EISHAPING(A)) \
-            EDIT_ITEM_FAST_N(float42_52, _AXIS(A), MSG_FTM_VTOL_N, &c.vtol.A, 0.0f, 1.0f, ftMotion.update_shaping_params); \
-        }
+      
       SUBMENU_S(_traj_name(), MSG_FTM_TRAJECTORY, menu_ftm_trajectory_generator);
 
       if (ftMotion.getTrajectoryType() == TrajectoryType::POLY6)
         EDIT_ITEM(float42_52, MSG_FTM_POLY6_OVERSHOOT, &c.poly6_acceleration_overshoot, 1.25f, 1.875f);
 
-      SHAPED_MAP(SHAPER_MENU_ITEM);
+      #define AXIS_MENU(A) \
+        SUBMENU_N(_AXIS(A), MSG_FTM_AXIS_N, [] { menu_ftm_axis(_AXIS(A)); });
 
-      #if HAS_DYNAMIC_FREQ
-        SUBMENU_S(_dmode(), MSG_FTM_DYN_MODE, menu_ftm_dyn_mode);
-        if (c.dynFreqMode != dynFreqMode_DISABLED) {
-          #define _DYN_MENU_ITEM(A) EDIT_ITEM_FAST_N(float42_52, _AXIS(A), MSG_FTM_DFREQ_K_N, &c.dynFreqK.A, 0.0f, 20.0f);
-          SHAPED_MAP(_DYN_MENU_ITEM);
-        }
-      #endif
+      CARTES_MAP(AXIS_MENU);
 
       EDIT_ITEM(bool, MSG_FTM_AXIS_SYNC, &c.axis_sync_enabled);
-
-      #if ENABLED(FTM_SMOOTHING)
-        CARTES_MAP(_SMOO_MENU_ITEM);
-      #endif
 
       #if ENABLED(FTM_RESONANCE_TEST)
         SUBMENU(MSG_FTM_RESONANCE_TEST, menu_ftm_resonance_test);
@@ -550,32 +581,6 @@ void menu_move() {
     #ifdef __AVR__
       // Copy Flash strings to RAM for C-string substitution
       // For U8G paged rendering check and skip extra string copy
-      #if HAS_X_AXIS
-        MString<20> shaper_name;
-        #if CACHE_FOR_SPEED
-          int8_t prev_a = -1;
-        #endif
-        auto _shaper_name = [&](const AxisEnum a) {
-          if (TERN1(CACHE_FOR_SPEED, a != prev_a)) {
-            TERN_(CACHE_FOR_SPEED, prev_a = a);
-            shaper_name = get_shaper_name(a);
-          }
-          return shaper_name;
-        };
-      #endif
-      #if HAS_DYNAMIC_FREQ
-        MString<20> dmode;
-        #if CACHE_FOR_SPEED
-          bool got_d = false;
-        #endif
-        auto _dmode = [&]{
-          if (TERN1(CACHE_FOR_SPEED, !got_d)) {
-            TERN_(CACHE_FOR_SPEED, got_d = true);
-            dmode = get_dyn_freq_mode_name();
-          }
-          return dmode;
-        };
-      #endif
       MString<20> traj_name;
       #if CACHE_FOR_SPEED
         bool got_t = false;
@@ -588,8 +593,6 @@ void menu_move() {
         return traj_name;
       };
     #else // !__AVR__
-      auto _shaper_name = [](const AxisEnum a) { return get_shaper_name(a); };
-      auto _dmode = []{ return get_dyn_freq_mode_name(); };
       auto _traj_name = []{ return get_trajectory_name(); };
     #endif
 
@@ -601,16 +604,8 @@ void menu_move() {
     if (ftMotion.getTrajectoryType() == TrajectoryType::POLY6)
       EDIT_ITEM(float42_52, MSG_FTM_POLY6_OVERSHOOT, &c.poly6_acceleration_overshoot, 1.25f, 1.875f);
 
-    #define _CMPM_MENU_ITEM(A) SUBMENU_N_S(_AXIS(A), _shaper_name(_AXIS(A)), MSG_FTM_CMPN_MODE, menu_ftm_shaper_##A);
+    #define _CMPM_MENU_ITEM(A) SUBMENU_N(_AXIS(A), MSG_FTM_AXIS_N, [] { menu_ftm_axis(_AXIS(A)); });
     SHAPED_MAP(_CMPM_MENU_ITEM);
-
-    #if HAS_DYNAMIC_FREQ
-      SUBMENU_S(_dmode(), MSG_FTM_DYN_MODE, menu_ftm_dyn_mode);
-    #endif
-
-    #if ENABLED(FTM_SMOOTHING)
-      CARTES_MAP(_SMOO_MENU_ITEM);
-    #endif
 
     END_MENU();
   } // menu_tune_ft_motion

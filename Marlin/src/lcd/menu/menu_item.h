@@ -38,10 +38,52 @@
 // SUBMENU(LABEL, screen_handler)
 class MenuItem_submenu : public MenuItemBase {
   public:
+    using MenuItemBase::action;
+    
     FORCE_INLINE static void draw(const bool sel, const uint8_t row, FSTR_P const fstr, ...) {
       _draw(sel, row, fstr, '>', LCD_STR_ARROW_RIGHT[0]);
     }
     static void action(FSTR_P const, const screenFunc_t func) { ui.push_current_screen(); ui.goto_screen(func); }
+ 
+    // Template overload for lambda capture (not convertible to screenFunc_t)
+  
+    template<typename F,
+           typename = typename std::enable_if<!std::is_convertible<F, screenFunc_t>::value>::type>
+    static void action(FSTR_P const /*flabel*/, F lambda) {
+      // Stocke la lambda (remplace l'existante si présente)
+      stored_func() = std::function<void()>(lambda);
+      stored_in_use() = true;
+
+      ui.push_current_screen();
+      ui.goto_screen(&generic_submenu_screen);
+    }
+
+    // If necessary call it in _goto_previous_screen()
+    /*
+    static void clear_stored_lambda() {
+      if (stored_in_use()) {
+        stored_func() = std::function<void()>(); // reset
+        stored_in_use() = false;
+      }
+    }
+    */
+
+  private:
+    // Save lambda and flag
+    static std::function<void()>& stored_func() {
+      static std::function<void()> f;
+      return f;
+    }
+    static bool& stored_in_use() {
+      static bool b = false;
+      return b;
+    }
+
+    // Trampoline function for ui.goto_screen
+    static void generic_submenu_screen() {
+      if (!stored_in_use()) return;
+      stored_func()();
+    } 
 };
 
 // Any menu item that invokes an immediate action
@@ -56,7 +98,9 @@ class MenuItem_button : public MenuItemBase {
 // ACTION_ITEM(LABEL, FUNC)
 class MenuItem_function : public MenuItem_button {
   public:
-    //static void action(FSTR_P const, const uint8_t, const menuAction_t func) { (*func)(); };
+    using MenuItemBase::action;
+    using MenuItem_button::draw;
+     //static void action(FSTR_P const, const uint8_t, const menuAction_t func) { (*func)(); };
     static void action(FSTR_P const, const menuAction_t func) { if (func) (*func)(); };
 };
 
@@ -76,35 +120,69 @@ class MenuItem_gcode : public MenuItem_button {
 
 // Template for specific Menu Edit Item Types
 template<typename NAME>
-class TMenuEditItem : MenuEditItemBase {
+class TMenuEditItem : public MenuEditItemBase {
   private:
     typedef typename NAME::type_t type_t;
+
     static int32_t scaleToEncoder(const type_t &value) { return NAME::scaleToEncoder(value); }
     static type_t unscaleEncoder(const int32_t value)  { return NAME::unscaleEncoder(value); }
     static const char* to_string(const int32_t value)  { return NAME::strfunc(unscaleEncoder(value)); }
     static void load(void *ptr, const int32_t value) { *((type_t*)ptr) = unscaleEncoder(value); }
+
   public:
     FORCE_INLINE static void draw(const bool sel, const uint8_t row, FSTR_P const fstr, type_t * const data, ...) {
       MenuEditItemBase::draw(sel, row, fstr, NAME::strfunc(*(data)));
     }
+
     FORCE_INLINE static void draw(const bool sel, const uint8_t row, FSTR_P const fstr, type_t (*pget)(), ...) {
       MenuEditItemBase::draw(sel, row, fstr, NAME::strfunc(pget()));
     }
+
     // Edit screen for this type of item
     static void edit_screen() { MenuEditItemBase::edit_screen(to_string, load); }
+
+    // Classic version
     static void action(
-      FSTR_P const fstr,                    // Edit label
-      type_t * const ptr,                   // Value pointer
-      const type_t minValue,                // Value range
+      FSTR_P const fstr,
+      type_t * const ptr,
+      const type_t minValue,
       const type_t maxValue,
-      const screenFunc_t callback=nullptr,  // Value update callback
-      const bool live=false                 // Callback during editing
+      const screenFunc_t callback=nullptr,
+      const bool live=false
     ) {
-      // Make sure minv and maxv fit within int32_t
       const int32_t minv = _MAX(scaleToEncoder(minValue), INT32_MIN),
                     maxv = _MIN(scaleToEncoder(maxValue), INT32_MAX);
-      goto_edit_screen(fstr, ptr, minv, maxv - minv, scaleToEncoder(*ptr) - minv,
-        edit_screen, callback, live);
+
+      current_strfunc = to_string;
+      current_loadfunc = load;
+
+      goto_edit_screen(fstr, ptr, minv, maxv - minv,
+                       scaleToEncoder(*ptr) - minv,
+                       edit_screen_wrapper, callback, live);
+    }
+
+    // Lambda capture 
+    template<typename F,
+             typename = typename std::enable_if<!std::is_convertible<F, screenFunc_t>::value>::type>
+    static void action(
+      FSTR_P const fstr,
+      type_t * const ptr,
+      const type_t minValue,
+      const type_t maxValue,
+      F lambda,
+      const bool live=false
+    ) {
+      const int32_t minv = _MAX(scaleToEncoder(minValue), INT32_MIN),
+                    maxv = _MIN(scaleToEncoder(maxValue), INT32_MAX);
+
+      current_strfunc = to_string;
+      current_loadfunc = load;
+
+      set_callback(lambda);
+
+      goto_edit_screen(fstr, ptr, minv, maxv - minv,
+                       scaleToEncoder(*ptr) - minv,
+                       edit_screen_wrapper, callback_wrapper, live);
     }
 };
 
