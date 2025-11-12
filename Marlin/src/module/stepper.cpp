@@ -1728,7 +1728,7 @@ void Stepper::isr() {
   // sure that the time has not arrived yet - Warrantied by the scheduler
 
   // Set the next ISR to fire at the proper time
-  HAL_timer_set_compare(MF_TIMER_STEP, next_isr_ticks);
+  HAL_timer_set_compare(MF_TIMER_STEP, next_isr_ticks-time_spent);
 
   // Don't forget to finally reenable interrupts on non-AVR.
   // AVR automatically calls sei() for us on Return-from-Interrupt.
