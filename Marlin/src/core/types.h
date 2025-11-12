@@ -541,7 +541,7 @@ struct XYval {
   #endif
   #if HAS_Y_AXIS
     FI void set(const T px, const T py)           { x = px; y = py; }
-    FI void set(const T (&arr)[XY])               { x = arr[0]; y = arr[1]; }
+    FI void set(const T (&arr)[2])                { x = arr[0]; y = arr[1]; }
   #endif
   #if NUM_AXES > XY
     FI void set(const T (&arr)[NUM_AXES])         { x = arr[0]; y = arr[1]; }
