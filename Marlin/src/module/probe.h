@@ -33,6 +33,10 @@
   #include "../feature/bltouch.h"
 #endif
 
+#if ANY(BD_SENSOR, HAS_DELTA_SENSORLESS_PROBING)
+  #include "endstops.h"
+#endif
+
 #define DEBUG_OUT ENABLED(DEBUG_LEVELING_FEATURE)
 #include "../core/debug_out.h"
 
@@ -45,20 +49,24 @@
   };
 #endif
 
-#if ENABLED(BD_SENSOR)
-  #include "endstops.h"
-  #define PROBE_READ() endstops.bdp_state
-#elif USE_Z_MIN_PROBE
-  #define PROBE_READ() READ(Z_MIN_PROBE_PIN)
+#if HAS_DELTA_SENSORLESS_PROBING
+  #define PROBE_READ() (endstops.trigger_state() & (_BV(X_MAX) | _BV(Y_MAX) | _BV(Z_MAX)))
+  #define PROBE_TRIGGERED() (PROBE_READ() != 0)
 #else
-  #define PROBE_READ() READ(Z_MIN_PIN)
+  #if ENABLED(BD_SENSOR)
+    #define PROBE_READ() endstops.bdp_state
+  #elif USE_Z_MIN_PROBE
+    #define PROBE_READ() READ(Z_MIN_PROBE_PIN)
+  #else
+    #define PROBE_READ() READ(Z_MIN_PIN)
+  #endif
+  #if USE_Z_MIN_PROBE
+    #define PROBE_HIT_STATE Z_MIN_PROBE_ENDSTOP_HIT_STATE
+  #else
+    #define PROBE_HIT_STATE Z_MIN_ENDSTOP_HIT_STATE
+  #endif
+  #define PROBE_TRIGGERED() (PROBE_READ() == PROBE_HIT_STATE)
 #endif
-#if USE_Z_MIN_PROBE
-  #define PROBE_HIT_STATE Z_MIN_PROBE_ENDSTOP_HIT_STATE
-#else
-  #define PROBE_HIT_STATE Z_MIN_ENDSTOP_HIT_STATE
-#endif
-#define PROBE_TRIGGERED() (PROBE_READ() == PROBE_HIT_STATE)
 
 // In BLTOUCH HS mode, the probe travels in a deployed state.
 #define Z_TWEEN_SAFE_CLEARANCE SUM_TERN(BLTOUCH, Z_CLEARANCE_BETWEEN_PROBES, bltouch.z_extra_clearance())
@@ -347,7 +355,7 @@ public:
   #endif
 
   #if HAS_QUIET_PROBING
-    static void set_probing_paused(const bool p);
+    static void set_devices_paused_for_probing(const bool p);
   #endif
 
   #if ENABLED(PROBE_TARE)

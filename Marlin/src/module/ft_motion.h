@@ -25,10 +25,12 @@
 #include "planner.h"      // Access block type from planner.
 #include "stepper.h"      // For stepper motion and direction
 
-#include "ft_motion/trajectory_generator.h"
-#include "ft_motion/trapezoidal_trajectory_generator.h"
-#include "ft_motion/poly5_trajectory_generator.h"
-#include "ft_motion/poly6_trajectory_generator.h"
+#include "ft_motion/trajectory_trapezoidal.h"
+#include "ft_motion/trajectory_poly5.h"
+#include "ft_motion/trajectory_poly6.h"
+#if ENABLED(FTM_RESONANCE_TEST)
+  #include "ft_motion/resonance_generator.h"
+#endif
 
 #if HAS_FTM_SHAPING
   #include "ft_motion/shaping.h"
@@ -89,6 +91,10 @@ typedef struct FTConfig {
  */
 class FTMotion {
 
+  #if ENABLED(FTM_RESONANCE_TEST)
+    friend void ResonanceGenerator::fill_stepper_plan_buffer();
+  #endif
+
   public:
 
     // Public variables
@@ -141,6 +147,10 @@ class FTMotion {
     // Public methods
     static void init();
     static void loop();                                   // Controller main, to be invoked from non-isr task.
+    #if ENABLED(FTM_RESONANCE_TEST)
+      static void start_resonance_test();                 // Start a resonance test with given parameters
+      static ResonanceGenerator rtg;                      // Resonance trajectory generator instance
+    #endif
 
     #if HAS_FTM_SHAPING
       // Refresh gains and indices used by shaping functions.
@@ -215,11 +225,14 @@ class FTMotion {
     static TrajectoryGenerator* currentGenerator;
     static TrajectoryType trajectoryType;
 
+    #if FTM_HAS_LIN_ADVANCE
+      static bool use_advance_lead;
+    #endif
+
     #if ENABLED(DISTINCT_E_FACTORS)
       static uint8_t block_extruder_axis;  // Cached extruder axis index
     #elif HAS_EXTRUDERS
       static constexpr uint8_t block_extruder_axis = E_AXIS;
-      static bool use_advance_lead;
     #endif
 
     #if HAS_FTM_SHAPING
@@ -256,8 +269,8 @@ extern FTMotion ftMotion; // Use ftMotion.thing, not FTMotion::thing.
  * Optional behavior to turn FT Motion off for homing/probing.
  * Applies when FTM_HOME_AND_PROBE is disabled.
  */
-typedef struct FTMotionDisableInScope {
-  #if DISABLED(FTM_HOME_AND_PROBE)
+#if DISABLED(FTM_HOME_AND_PROBE)
+  typedef struct FTMotionDisableInScope {
     bool isactive;
     FTMotionDisableInScope() {
       isactive = ftMotion.cfg.active;
@@ -267,5 +280,7 @@ typedef struct FTMotionDisableInScope {
       ftMotion.cfg.active = isactive;
       if (isactive) ftMotion.init();
     }
-  #endif
-} FTMotionDisableInScope_t;
+  } FTMotionDisableInScope_t;
+#endif
+
+#define FTM_DISABLE_IN_SCOPE() TERN(FTM_HOME_AND_PROBE, NOOP, FTMotionDisableInScope FT_Disabler)

@@ -347,12 +347,16 @@ xyz_pos_t Probe::offset; // Initialized by settings.load
     #define DELAY_BEFORE_PROBING 25
   #endif
 
-  void Probe::set_probing_paused(const bool dopause) {
+  /**
+   * Optionally turn off noisy components so we get a cleaner probe signal.
+   * Pause for at least 25ms when preparing to probe (dopause == true).
+   */
+  void Probe::set_devices_paused_for_probing(const bool dopause) {
     TERN_(PROBING_HEATERS_OFF, thermalManager.pause_heaters(dopause));
     TERN_(PROBING_FANS_OFF, thermalManager.set_fans_paused(dopause));
     TERN_(PROBING_ESTEPPERS_OFF, if (dopause) stepper.disable_e_steppers());
-    #if ENABLED(PROBING_STEPPERS_OFF) && DISABLED(DELTA)
-      static uint8_t old_trusted;
+    #if ENABLED(PROBING_STEPPERS_OFF)
+      static main_axes_bits_t old_trusted;
       if (dopause) {
         old_trusted = axes_trusted;
         stepper.disable_axis(X_AXIS);
@@ -660,7 +664,7 @@ bool Probe::probe_down_to_z(const float z, const feedRate_t fr_mm_s) {
     endstops.enable(true);
   #endif // SENSORLESS_PROBING
 
-  TERN_(HAS_QUIET_PROBING, set_probing_paused(true));
+  TERN_(HAS_QUIET_PROBING, set_devices_paused_for_probing(true));
 
   // Move down until the probe is triggered
   do_blocking_move_to_z(z, fr_mm_s);
@@ -668,7 +672,7 @@ bool Probe::probe_down_to_z(const float z, const feedRate_t fr_mm_s) {
   // Check to see if the probe was triggered
   const bool probe_triggered = (
     #if HAS_DELTA_SENSORLESS_PROBING
-      endstops.trigger_state() & (_BV(X_MAX) | _BV(Y_MAX) | _BV(Z_MAX))
+      PROBE_TRIGGERED()
     #else
       TEST(endstops.trigger_state(), Z_MIN_PROBE)
     #endif
@@ -679,7 +683,7 @@ bool Probe::probe_down_to_z(const float z, const feedRate_t fr_mm_s) {
     if (probe_triggered) refresh_largest_sensorless_adj();
   #endif
 
-  TERN_(HAS_QUIET_PROBING, set_probing_paused(false));
+  TERN_(HAS_QUIET_PROBING, set_devices_paused_for_probing(false));
 
   // Re-enable stealthChop if used. Disable diag1 pin on driver.
   #if ENABLED(SENSORLESS_PROBING)

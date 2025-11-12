@@ -603,6 +603,41 @@ typedef struct { raw_adc_t raw_min, raw_max; celsius_t mintemp, maxtemp; } temp_
   #define HAS_FAN_LOGIC 1
 #endif
 
+#if ENABLED(AUTOTEMP)
+
+  typedef struct {
+    celsius_t min, max;
+    float factor;
+  } autotemp_cfg_t;
+
+  typedef struct {
+    autotemp_cfg_t cfg;
+    bool enabled;
+
+    void reset() {
+      cfg.min = AUTOTEMP_MIN;
+      cfg.max = AUTOTEMP_MAX;
+      cfg.factor = AUTOTEMP_FACTOR;
+      enabled = false;
+    }
+    #if ENABLED(AUTOTEMP_PROPORTIONAL)
+      void update(const celsius_t t) {
+        cfg.min = t + AUTOTEMP_MIN_P;
+        cfg.max = t + AUTOTEMP_MAX_P;
+      }
+    #endif
+    float calculate(const celsius_t high) {
+      static float oldt = 0;
+      float t = cfg.min + high * cfg.factor;
+      NOMORE(t, cfg.max);
+      if (t < oldt) t = t * (1.0f - (AUTOTEMP_OLDWEIGHT)) + oldt * (AUTOTEMP_OLDWEIGHT);
+      oldt = t;
+      return t;
+    }
+  } autotemp_t;
+
+#endif // AUTOTEMP
+
 class Temperature {
 
   public:
@@ -1001,6 +1036,10 @@ class Temperature {
 
     #if HAS_HOTEND
 
+      static void _setTargetHotend(const celsius_t celsius, const uint8_t E_NAME) {
+        temp_hotend[HOTEND_INDEX].target = _MIN(celsius, hotend_max_target(HOTEND_INDEX));
+      }
+
       static void setTargetHotend(const celsius_t celsius, const uint8_t E_NAME) {
         const uint8_t ee = HOTEND_INDEX;
         #if PREHEAT_TIME_HOTEND_MS > 0
@@ -1010,7 +1049,8 @@ class Temperature {
             start_hotend_preheat_time(ee);
         #endif
         TERN_(AUTO_POWER_CONTROL, if (celsius) powerManager.power_on());
-        temp_hotend[ee].target = _MIN(celsius, hotend_max_target(ee));
+        _setTargetHotend(celsius, ee);
+        TERN_(AUTOTEMP, autotemp.enabled = false);
         start_watching_hotend(ee);
       }
 
@@ -1051,6 +1091,13 @@ class Temperature {
       static void manage_hotends(const millis_t &ms);
 
     #endif // HAS_HOTEND
+
+    #if ENABLED(AUTOTEMP)
+      static autotemp_t autotemp;
+      static void autotemp_update();
+      static void autotemp_M104_M109();
+      static void autotemp_task();
+    #endif
 
     #if HAS_HEATED_BED
 
@@ -1348,6 +1395,10 @@ class Temperature {
       raw_temps_ready = false;
       return true;
     }
+
+    #if ENABLED(AUTOTEMP)
+      static void _autotemp_update_from_hotend();
+    #endif
 
     // MAX Thermocouples
     #if HAS_MAX_TC

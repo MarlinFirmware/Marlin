@@ -224,7 +224,7 @@ void GcodeSuite::M493() {
     const ftMotionShaper_t shaperVal = seenC ? (ftMotionShaper_t)parser.value_byte() : ftMotionShaper_NONE;
     const bool goodShaper = WITHIN(shaperVal, ftMotionShaper_NONE, ftMotionShaper_MZV);
     if (seenC && !goodShaper) {
-      SERIAL_ECHOLNPGM("?Invalid (C)ompensator value. (0-", int(ftMotionShaper_MZV));
+      SERIAL_ECHOLN(F("?Invalid "), F("(C)ompensator value. (0-"), int(ftMotionShaper_MZV));
       return;
     }
     auto set_shaper = [&](const AxisEnum axis, ftMotionShaper_t newsh) {
@@ -267,12 +267,12 @@ void GcodeSuite::M493() {
             flag.report = true;
             break;
           default:
-            SERIAL_ECHOLNPGM("?Invalid (D)ynamic Frequency Mode value.");
+            SERIAL_ECHOLN(F("?Invalid "), F("(D)ynamic Frequency Mode value."));
             break;
         }
       }
       else {
-        SERIAL_ECHOLNPGM("?Wrong shaper for (D)ynamic Frequency mode ", ftMotion.cfg.dynFreqMode, ".");
+        SERIAL_ECHOLNPGM("?Wrong shaper for (D)ynamic Frequency Mode ", ftMotion.cfg.dynFreqMode, ".");
       }
     }
 
@@ -288,7 +288,7 @@ void GcodeSuite::M493() {
   const float baseFreqVal = seenA ? parser.value_float() : 0.0f;
   const bool goodBaseFreq = seenA && WITHIN(baseFreqVal, FTM_MIN_SHAPE_FREQ, (FTM_FS) / 2);
   if (seenA && !goodBaseFreq)
-    SERIAL_ECHOLN(F("?Invalid (A) Base Frequency value. ("), int(FTM_MIN_SHAPE_FREQ), C('-'), int((FTM_FS) / 2), C(')'));
+    SERIAL_ECHOLN(F("?Invalid "), F("(A) Base Frequency value. ("), int(FTM_MIN_SHAPE_FREQ), C('-'), int((FTM_FS) / 2), C(')'));
 
   #if HAS_DYNAMIC_FREQ
     // Dynamic Frequency parameter
@@ -303,14 +303,14 @@ void GcodeSuite::M493() {
   const float zetaVal = seenI ? parser.value_float() : 0.0f;
   const bool goodZeta = seenI && WITHIN(zetaVal, 0.01f, 1.0f);
   if (seenI && !goodZeta)
-    SERIAL_ECHOLNPGM("?Invalid (I) Zeta value. (0.01-1.0)"); // Zeta out of range
+    SERIAL_ECHOLN(F("?Invalid "), F("(I) Zeta value. (0.01-1.0)")); // Zeta out of range
 
   // Vibration Tolerance parameter
   const bool seenQ = parser.seenval('Q');
   const float vtolVal = seenQ ? parser.value_float() : 0.0f;
   const bool goodVtol = seenQ && WITHIN(vtolVal, 0.00f, 1.0f);
   if (seenQ && !goodVtol)
-    SERIAL_ECHOLNPGM("?Invalid (Q) Vibration Tolerance value. (0.0-1.0)"); // VTol out of range
+    SERIAL_ECHOLN(F("?Invalid "), F("(Q) Vibration Tolerance value. (0.0-1.0)")); // VTol out of range
 
   const bool apply_xy = !parser.seen("XYZE");
 

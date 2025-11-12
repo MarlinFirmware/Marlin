@@ -200,7 +200,7 @@ typedef struct {
 select_t select_page{0}, select_print{0};
 
 #if ENABLED(LCD_BED_TRAMMING)
-  constexpr float bed_tramming_inset_lfbr[] = BED_TRAMMING_INSET_LFRB;
+  constexpr float bed_tramming_inset_lfrb[] = BED_TRAMMING_INSET_LFRB;
 #endif
 
 bool hash_changed = true; // Flag to know if message status was changed
@@ -2435,23 +2435,23 @@ void setFlow() { setPIntOnClick(FLOW_EDIT_MIN, FLOW_EDIT_MAX, []{ planner.refres
     switch (point) {
       case 0:
         LCD_MESSAGE(MSG_TRAM_FL);
-        x = bed_tramming_inset_lfbr[0];
-        y = bed_tramming_inset_lfbr[1];
+        x = bed_tramming_inset_lfrb[0];
+        y = bed_tramming_inset_lfrb[1];
         break;
       case 1:
         LCD_MESSAGE(MSG_TRAM_FR);
-        x = X_BED_SIZE - bed_tramming_inset_lfbr[2];
-        y = bed_tramming_inset_lfbr[1];
+        x = X_BED_SIZE - bed_tramming_inset_lfrb[2];
+        y = bed_tramming_inset_lfrb[1];
         break;
       case 2:
         LCD_MESSAGE(MSG_TRAM_BR);
-        x = X_BED_SIZE - bed_tramming_inset_lfbr[2];
-        y = Y_BED_SIZE - bed_tramming_inset_lfbr[3];
+        x = X_BED_SIZE - bed_tramming_inset_lfrb[2];
+        y = Y_BED_SIZE - bed_tramming_inset_lfrb[3];
         break;
       case 3:
         LCD_MESSAGE(MSG_TRAM_BL);
-        x = bed_tramming_inset_lfbr[0];
-        y = Y_BED_SIZE - bed_tramming_inset_lfbr[3];
+        x = bed_tramming_inset_lfrb[0];
+        y = Y_BED_SIZE - bed_tramming_inset_lfrb[3];
         break;
       #if ENABLED(BED_TRAMMING_INCLUDE_CENTER)
         case 4:
