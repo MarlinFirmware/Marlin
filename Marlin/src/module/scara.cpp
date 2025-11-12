@@ -41,7 +41,7 @@ float segments_per_second = DEFAULT_SEGMENTS_PER_SECOND;
 
 #if ANY(MORGAN_SCARA, MP_SCARA)
 
-  static constexpr xy_pos_t scara_offset = { SCARA_OFFSET_X, SCARA_OFFSET_Y };
+  constexpr xy_pos_t scara_offset = { SCARA_OFFSET_X, SCARA_OFFSET_Y };
 
   /**
    * Morgan SCARA Forward Kinematics. Results in 'cartes'.
@@ -179,13 +179,13 @@ float segments_per_second = DEFAULT_SEGMENTS_PER_SECOND;
 #elif ENABLED(AXEL_TPARA)
 
   // TPARA offset relative to the origin of the robot
-  static constexpr xyz_pos_t robot_shoulder_offset = { 0, 0, TPARA_SHOULDER_AXIS_HEIGHT };
+  constexpr xyz_pos_t robot_shoulder_offset = { 0, 0, TPARA_SHOULDER_AXIS_HEIGHT };
   // Workspace offset relative to the origin of the robot
   constexpr xyz_pos_t robot_workspace_offset = { TPARA_OFFSET_X, TPARA_OFFSET_Y, TPARA_OFFSET_Z };
   // Tool offset relative to the tool center point of the robot
   constexpr xyz_pos_t tool_offset = { TPARA_TCP_OFFSET_X, TPARA_TCP_OFFSET_Y, TPARA_TCP_OFFSET_Z };
   // Tool offset in cylindrical coordinates (r, phi, z)
-  static const xyz_pos_t tool_offset_cyl = { SQRT(sq(TPARA_TCP_OFFSET_X) + sq(TPARA_TCP_OFFSET_Y)) , ATAN2(TPARA_TCP_OFFSET_Y, TPARA_TCP_OFFSET_X), TPARA_TCP_OFFSET_Z };
+  constexpr xyz_pos_t tool_offset_cyl = { SQRT(sq(TPARA_TCP_OFFSET_X) + sq(TPARA_TCP_OFFSET_Y)) , ATAN2(TPARA_TCP_OFFSET_Y, TPARA_TCP_OFFSET_X), TPARA_TCP_OFFSET_Z };
 
   //xyz_pos_t home_t_w_offset = tool_offset - robot_workspace_offset;
 
@@ -216,25 +216,24 @@ float segments_per_second = DEFAULT_SEGMENTS_PER_SECOND;
   }
 
   // Apply tool and workspace offset to robot flange position, accounting for the rotated tool offset
-  xyz_pos_t apply_T_W_offset(const xyz_pos_t &rpos) {
+  constexpr xyz_pos_t apply_T_W_offset(const xyz_pos_t &rpos) {
     // We should apply a rotation matrix, but it's too costly
     const float r2 = rpos.x * rpos.x + rpos.y * rpos.y;
-    xyz_pos_t tool_offset_rotated;
     if (UNEAR_ZERO(r2)) {
       // avoid zero div
-      tool_offset_rotated.x = tool_offset_cyl.x;
-      tool_offset_rotated.y = 0.0f;
-      tool_offset_rotated.z = tool_offset_cyl.z;
+      xyz_pos_t tool_offset_rotated = { tool_offset_cyl.x, 0.0f, tool_offset_cyl.z };
+      return rpos + tool_offset_rotated - robot_workspace_offset;
     }
     else {
       const float inv_r = RSQRT(r2);
-      tool_offset_rotated.x = tool_offset_cyl.x * rpos.x * inv_r;
-      tool_offset_rotated.y = tool_offset_cyl.x * rpos.y * inv_r;
-      tool_offset_rotated.z = tool_offset_cyl.z;
+      xyz_pos_t tool_offset_rotated = {
+        tool_offset_cyl.x * rpos.x * inv_r,
+        tool_offset_cyl.x * rpos.y * inv_r,
+        tool_offset_cyl.z
+      };
+      //SERIAL_ECHOLNPGM(" Tool_offset_rotated(x,y,z) ", tool_offset_rotated.x, ",", tool_offset_rotated.y, ",", tool_offset_rotated.z );
+      return rpos + tool_offset_rotated - robot_workspace_offset;
     }
-    //SERIAL_ECHOLNPGM(" Tool_offset_rotated(x,y,z) ", tool_offset_rotated.x, ",", tool_offset_rotated.y, ",", tool_offset_rotated.z );
-
-    return rpos + tool_offset_rotated - robot_workspace_offset;
   }
 
   /**
@@ -297,11 +296,10 @@ float segments_per_second = DEFAULT_SEGMENTS_PER_SECOND;
 
     //SERIAL_ECHOLNPGM("Reset and sync position to the assumed start position of the robot" );
     // Set the assumed start position of the robot for homing, so it home ZY axis at same time preserving the B and C motor angle
-    constexpr xyz_pos_t assumed_intial_pos = { L2, 0, 0 };
-    xyz_pos_t intial_pos_w_offset = apply_T_W_offset(assumed_intial_pos);
+    constexpr xyz_pos_t init_w_offset = apply_T_W_offset(xyz_pos_t({ L2, 0, 0 }));
 
-    current_position.set(intial_pos_w_offset.x, intial_pos_w_offset.y, intial_pos_w_offset.z);
-    destination.set(intial_pos_w_offset.x, intial_pos_w_offset.y, intial_pos_w_offset.z);
+    current_position.set(init_w_offset.x, init_w_offset.y, init_w_offset.z);
+    destination.set(init_w_offset.x, init_w_offset.y, init_w_offset.z);
     sync_plan_position();
 
     // Disable stealthChop if used. Enable diag1 pin on driver.
@@ -322,9 +320,7 @@ float segments_per_second = DEFAULT_SEGMENTS_PER_SECOND;
 
     // Move to home, should move Z, Y, then X. Move X to near 0 (to avoid div by zero
     // and sign/angle stability around 0 for trigonometric functions), Y to 0 and Z to max_length
-    xyz_pos_t raw_homing_pos_dir = { 1, 0, max_length(Z_AXIS) };
-
-    xyz_pos_t homing_pos_dir = apply_T_W_offset(raw_homing_pos_dir);
+    constexpr xyz_pos_t homing_pos_dir = apply_T_W_offset(xyz_pos_t({ 1, 0, Z_MAX_LENGTH }));
     current_position.set(homing_pos_dir.x, homing_pos_dir.y, homing_pos_dir.z);
 
     line_to_current_position(homing_feedrate(Z_AXIS));
@@ -393,7 +389,7 @@ float segments_per_second = DEFAULT_SEGMENTS_PER_SECOND;
 
     delta.set(DEGREES(THETA), DEGREES(PHI), DEGREES(PSI));
 
-    //SERIAL_ECHOLNPGM(" TPARA IK raw(x,y,z) ", raw.x, ",", raw.y, ",", raw.z, " Robot pos(x,y,z) ", tpos.x, ",", tpos.y, ",", tpos.z + robot_shoulder_offset.z, " Rho^2=", RHO_2, " Theta=", THETA*RAD_TO_DEG, " Phi=", PHI*RAD_TO_DEG, " Psi=", PSI*RAD_TO_DEG, " Gamma=", GAMMA*RAD_TO_DEG);
+    //SERIAL_ECHOLNPGM(" TPARA IK raw(x,y,z) ", raw.x, ",", raw.y, ",", raw.z, " Robot pos(x,y,z) ", tpos.x, ",", tpos.y, ",", tpos.z + robot_shoulder_offset.z, " Rho^2=", RHO_2, " Theta=", DEGREES(THETA), " Phi=", DEGREES(PHI), " Psi=", DEGREES(PSI), " Gamma=", DEGREES(GAMMA));
   }
 
 #endif // AXEL_TPARA
