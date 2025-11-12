@@ -4091,13 +4091,17 @@
 /**
  * G-code Macros
  *
- * Add G-codes M810-M819 to define and run G-code macros.
- * Macros are not saved to EEPROM.
+ * Add G-codes M810-M819 to define and run G-code macros
+ * and M820 to report the current set of macros.
+ * Macros are not saved to EEPROM unless enabled below.
  */
 //#define GCODE_MACROS
 #if ENABLED(GCODE_MACROS)
   #define GCODE_MACROS_SLOTS       5  // Up to 10 may be used
   #define GCODE_MACROS_SLOT_SIZE  50  // Maximum length of a single macro
+  #if ENABLED(EEPROM_SETTINGS)
+    //#define GCODE_MACROS_IN_EEPROM  // Include macros in EEPROM
+  #endif
 #endif
 
 /**

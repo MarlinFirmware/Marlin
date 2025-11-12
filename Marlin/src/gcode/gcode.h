@@ -510,6 +510,11 @@ public:
 
   static void dwell(const millis_t time);
 
+  #if ENABLED(GCODE_MACROS)
+    static char macros[GCODE_MACROS_SLOTS][GCODE_MACROS_SLOT_SIZE + 1];
+    static void reset_macros() { for (uint8_t i = 0; i < GCODE_MACROS_SLOTS; ++i) macros[i][0] = '\0'; }
+  #endif
+
 private:
 
   friend class MarlinSettings;
@@ -1229,7 +1234,8 @@ private:
 
   #if ENABLED(GCODE_MACROS)
     static void M810_819();
-    static void M820();
+    static void M810_819_report(const bool forReplay=true);
+    static void M820(const bool withoutEcho=true);
   #endif
 
   #if HAS_BED_PROBE
