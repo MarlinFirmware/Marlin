@@ -4028,6 +4028,7 @@ void Temperature::readings_ready() {
  */
 HAL_TEMP_TIMER_ISR() {
   HAL_timer_isr_prologue(MF_TIMER_TEMP);
+  HAL_timer_reset_count(MF_TIMER_TEMP);
 
   Temperature::isr();
 
@@ -4070,7 +4071,6 @@ public:
  *  - Planner clean buffer
  */
 void Temperature::isr() {
-  HAL_timer_reset_count(MF_TIMER_TEMP);
   // Shut down the laser if steppers are inactive for > LASER_SAFETY_TIMEOUT_MS ms
   #if LASER_SAFETY_TIMEOUT_MS > 0
     if (cutter.last_power_applied && ELAPSED(millis(), gcode.previous_move_ms + (LASER_SAFETY_TIMEOUT_MS))) {

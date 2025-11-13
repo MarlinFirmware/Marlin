@@ -1507,6 +1507,7 @@ HAL_STEP_TIMER_ISR() {
   #endif
 
   HAL_timer_isr_prologue(MF_TIMER_STEP);
+  HAL_timer_reset_count(MF_TIMER_STEP); // Reset the timer to 0 to include the ISR run time in the step period
 
   Stepper::isr();
 
@@ -1526,7 +1527,6 @@ HAL_STEP_TIMER_ISR() {
 void Stepper::isr() {
 
   static hal_timer_t nextMainISR = 0;  // Interval until the next main Stepper Pulse phase (0 = Now)
-  HAL_timer_reset_count(MF_TIMER_STEP); //reset the timer to 0 so we include the isr run time in the step period
   
   #if ENABLED(SMOOTH_LIN_ADVANCE)
     static hal_timer_t smoothLinAdvISR = 0;
