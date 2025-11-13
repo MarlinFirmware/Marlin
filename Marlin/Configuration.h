@@ -2513,9 +2513,9 @@
 #define PREHEAT_2_FAN_SPEED     0 // Value from 0 to 255
 
 /**
- * @section nozzle park
+ * @section park nozzle
  *
- * Nozzle Park
+ * Park Nozzle
  *
  * Park the nozzle at the given XYZ position on idle or G27.
  *

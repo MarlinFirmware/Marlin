@@ -398,7 +398,7 @@ void GcodeSuite::process_parsed_command(bool no_ok/*=false*/) {
       #endif
 
       #if ENABLED(NOZZLE_PARK_FEATURE)
-        case 27: G27(); break;                                    // G27: Nozzle Park
+        case 27: G27(); break;                                    // G27: Park Nozzle
       #endif
 
       case 28: G28(); break;                                      // G28: Home one or more axes
