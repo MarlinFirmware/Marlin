@@ -32,21 +32,20 @@
 #endif
 
 /**
- * G27: Park the nozzle according with the given style
+ * G27: Nozzle Park
+ *
+ * Just Z raise (G27 P3) without homing first: requires G27_BYPASS_TRUST.
+ * Just XY parking (G27 P4) if XY are trusted; otherwise, nozzle parking requires prior homing.
  *
  *  P<style> - Parking style:
- *             0 = (Default) Relative raise by NOZZLE_PARK_Z_RAISE_MIN (>= NOZZLE_PARK_POINT.z) before XY parking.
- *             1 = Absolute move to NOZZLE_PARK_POINT.z before XY parking. (USE WITH CAUTION!)
- *             2 = Relative raise by NOZZLE_PARK_POINT.z before XY parking.
+ *             0 = Relative raise by NOZZLE_PARK_Z_RAISE_MIN (>= NOZZLE_PARK_POINT.z), then XY parking. (Default)
+ *             1 = Absolute move to NOZZLE_PARK_POINT.z, then XY parking. (USE WITH CAUTION!)
+ *             2 = Relative raise by NOZZLE_PARK_POINT.z, then XY parking.
  *             3 = Relative raise by NOZZLE_PARK_Z_RAISE_MIN, skip XY parking.
- *             4 = No Z raise. Just XY parking.
+ *             4 = No Z raise; only XY parking.
  */
 void GcodeSuite::G27() {
-  /**
-   * Just Z raise (G27 P3) without homing first requires G27_BYPASS_TRUST
-   * Just XY parking (G27 P4) only if XY are trusted
-   * Otherwise, does not allow nozzle parking without homing first
-   */
+
   const uint8_t pv = parser.byteval('P');
   switch (pv) {
     OPTCODE(G27_BYPASS_TRUST, case 3: break)
