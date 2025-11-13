@@ -113,6 +113,7 @@ FORCE_INLINE void HAL_timer_start(const uint8_t timer_num, const uint32_t) {
  */
 #define HAL_timer_isr_prologue(T) NOOP
 #define HAL_timer_isr_epilogue(T) NOOP
+#define HAL_timer_reset_count(T) NOOP
 
 #ifndef HAL_STEP_TIMER_ISR
 

@@ -143,3 +143,4 @@ FORCE_INLINE static void HAL_timer_set_compare(const uint8_t timer_number, const
 
 #define HAL_timer_isr_prologue(T) NOOP
 #define HAL_timer_isr_epilogue(T) NOOP
+#define HAL_timer_reset_count(T) NOOP
