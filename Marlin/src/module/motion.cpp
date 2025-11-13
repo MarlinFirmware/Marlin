@@ -174,13 +174,13 @@ xyz_pos_t cartes;
     float delta_max_radius, delta_max_radius_2;
   #elif IS_SCARA
     constexpr float delta_max_radius = PRINTABLE_RADIUS,
-                    delta_max_radius_2 = sq(PRINTABLE_RADIUS);
+                    delta_max_radius_2 = sq(float(PRINTABLE_RADIUS));
   #elif ENABLED(POLAR)
     constexpr float delta_max_radius = PRINTABLE_RADIUS,
-                    delta_max_radius_2 = sq(PRINTABLE_RADIUS);
+                    delta_max_radius_2 = sq(float(PRINTABLE_RADIUS));
   #else // DELTA
     constexpr float delta_max_radius = PRINTABLE_RADIUS,
-                    delta_max_radius_2 = sq(PRINTABLE_RADIUS);
+                    delta_max_radius_2 = sq(float(PRINTABLE_RADIUS));
   #endif
 
 #endif
