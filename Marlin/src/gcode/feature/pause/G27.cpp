@@ -47,7 +47,7 @@ void GcodeSuite::G27() {
    * Just XY parking (G27 P4) only if XY are trusted
    * Otherwise, does not allow nozzle parking without homing first
    */
-  const uint8_t pv = parser.ushortval('P');
+  const uint8_t pv = parser.byteval('P');
   switch (pv) {
     OPTCODE(G27_BYPASS_TRUST, case 3: break)
     case 4: if (axis_is_trusted(X_AXIS) && axis_is_trusted(Y_AXIS)) break;
