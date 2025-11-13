@@ -1507,7 +1507,6 @@ HAL_STEP_TIMER_ISR() {
   #endif
 
   HAL_timer_isr_prologue(MF_TIMER_STEP);
-  HAL_timer_reset_count(MF_TIMER_STEP); // Reset the timer to 0 to include the ISR run time in the step period
 
   Stepper::isr();
 

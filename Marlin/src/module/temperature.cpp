@@ -4028,7 +4028,6 @@ void Temperature::readings_ready() {
  */
 HAL_TEMP_TIMER_ISR() {
   HAL_timer_isr_prologue(MF_TIMER_TEMP);
-  HAL_timer_reset_count(MF_TIMER_TEMP);
 
   Temperature::isr();
 

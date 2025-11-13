@@ -39,8 +39,7 @@ void HAL_timer_start(const uint8_t timer_num, const uint32_t frequency) {
 
       GPT1_PR = GPT1_TIMER_PRESCALE - 1;
 
-      GPT1_CR = GPT_CR_FRR           // freerun mode
-              | GPT_CR_CLKSRC(1)     // clock selection #1 (peripheral clock = 150 MHz)
+      GPT1_CR = GPT_CR_CLKSRC(1)     // clock selection #1 (peripheral clock = 150 MHz)
               | GPT_CR_ENMOD         // causes count to reset to zero when enabling
               | GPT_CR_OM1(TERN(MARLIN_DEV_MODE, 1, 0)); // toggle mode
 
@@ -65,8 +64,7 @@ void HAL_timer_start(const uint8_t timer_num, const uint32_t frequency) {
 
       GPT2_PR = GPT2_TIMER_PRESCALE - 1;
 
-      GPT2_CR = GPT_CR_FRR           // freerun mode
-              | GPT_CR_CLKSRC(1)     // clock selection #1 (peripheral clock = 150 MHz)
+      GPT2_CR = GPT_CR_CLKSRC(1)     // clock selection #1 (peripheral clock = 150 MHz)
               | GPT_CR_ENMOD         // causes count to reset to zero when enabling
               | GPT_CR_OM1(TERN(MARLIN_DEV_MODE, 1, 0));
 
