@@ -30,41 +30,74 @@
 
 void HAL_timer_start(const uint8_t timer_num, const uint32_t frequency) {
   switch (timer_num) {
+
+    //
+    // Step Timer – GPT1 - Compare Interrupt OCR1 - Reset Mode
+    //
     case MF_TIMER_STEP:
-      CCM_CSCMR1 &= ~CCM_CSCMR1_PERCLK_CLK_SEL; // turn off 24mhz mode
+      // 24MHz mode off – Use peripheral clock (150MHz)
+      CCM_CSCMR1 &= ~CCM_CSCMR1_PERCLK_CLK_SEL;
+      // Enable GPT1 clock gating
       CCM_CCGR1 |= CCM_CCGR1_GPT1_BUS(CCM_CCGR_ON);
 
-      GPT1_CR = 0;                   // disable timer
-      GPT1_SR = 0x3F;                // clear all prior status
+      // Disable timer, clear all status bits
+      GPT1_CR = 0;                      // Disable timer
+      GPT1_SR = 0x3F;                   // Clear all prior status
+
+      // Prescaler = 2 => 75MHz counting clock
       GPT1_PR = GPT1_TIMER_PRESCALE - 1;
-      GPT1_CR |= GPT_CR_CLKSRC(1);   //clock selection #1 (peripheral clock = 150 MHz)
-      GPT1_CR |= GPT_CR_ENMOD;       //reset count to zero before enabling
-      GPT1_CR |= GPT_CR_OM1(1);      // toggle mode
-      GPT1_OCR1 = (GPT1_TIMER_RATE / frequency) -1; // Initial compare value
-      GPT1_IR = GPT_IR_OF1IE;        // Compare3 value
+
+      GPT1_CR = GPT_CR_CLKSRC(1)        // Clock selection #1 (peripheral clock = 150 MHz)
+              | GPT_CR_ENMOD            // Reset count to zero before enabling
+              | GPT_CR_OM2(TERN(MARLIN_DEV_MODE, 1, 0)); // 0 = edge compare, 1 = toggle
+
+      // Compare value – the number of clocks between edges
+      GPT1_OCR1 = (GPT1_TIMER_RATE / frequency) - 1;
+
+      // Enable compare‑event interrupt
+      GPT1_IR = GPT_IR_OF2IE;           // OF2 interrupt enabled
       GPT1_CR |= GPT_CR_EN;          //enable GPT2 counting at 150 MHz
 
       OUT_WRITE(15, HIGH);
+
+      // Attach and enable Stepper IRQ
+      // Note: UART priority is 16
       attachInterruptVector(IRQ_GPT1, &stepTC_Handler);
-      NVIC_SET_PRIORITY(IRQ_GPT1, 16);
+      NVIC_SET_PRIORITY(IRQ_GPT1, 16);  // Priority 16 (higher than Temp Timer)
       break;
+
+    //
+    // Temperature Timer – GPT2 - Compare Interrupt OCR1 - Reset Mode
+    //
     case MF_TIMER_TEMP:
-      CCM_CSCMR1 &= ~CCM_CSCMR1_PERCLK_CLK_SEL; // turn off 24mhz mode
+      // 24MHz mode off – Use peripheral clock (150MHz)
+      CCM_CSCMR1 &= ~CCM_CSCMR1_PERCLK_CLK_SEL;
+      // Enable GPT2 clock gating
       CCM_CCGR0 |= CCM_CCGR0_GPT2_BUS(CCM_CCGR_ON);
 
-      GPT2_CR = 0;                   // disable timer
-      GPT2_SR = 0x3F;                // clear all prior status
+      // Disable timer, clear all status bits
+      GPT2_CR = 0;                      // Disable timer
+      GPT2_SR = 0x3F;                   // Clear all prior status
+
+      // Prescaler = 10 => 15MHz counting clock
       GPT2_PR = GPT2_TIMER_PRESCALE - 1;
-      GPT2_CR |= GPT_CR_CLKSRC(1);   //clock selection #1 (peripheral clock = 150 MHz)
-      GPT2_CR |= GPT_CR_ENMOD;       //reset count to zero before enabling
-      GPT2_CR |= GPT_CR_OM1(1);      // toggle mode
-      GPT2_OCR1 = (GPT2_TIMER_RATE / frequency) -1; // Initial compare value
-      GPT2_IR = GPT_IR_OF1IE;        // Compare3 value
+
+      GPT2_CR = GPT_CR_CLKSRC(1)        // Clock selection #1 (peripheral clock = 150 MHz)
+              | GPT_CR_ENMOD            // and reset count to zero before enabling
+              | GPT_CR_OM2(TERN(MARLIN_DEV_MODE, 1, 0)); // 0 = edge compare, 1 = toggle
+
+      // Compare value – the number of clocks between edges
+      GPT2_OCR1 = (GPT2_TIMER_RATE / frequency) - 1;
+
+      // Enable compare‑event interrupt
+      GPT2_IR = GPT_IR_OF2IE;
       GPT2_CR |= GPT_CR_EN;          //enable GPT2 counting at 150 MHz
 
       OUT_WRITE(14, HIGH);
+
+      // Attach Temperature ISR
       attachInterruptVector(IRQ_GPT2, &tempTC_Handler);
-      NVIC_SET_PRIORITY(IRQ_GPT2, 32);
+      NVIC_SET_PRIORITY(IRQ_GPT2, 32);  // Priority 32 (lower than Step Timer)
       break;
   }
 }
@@ -82,6 +115,7 @@ void HAL_timer_disable_interrupt(const uint8_t timer_num) {
     case MF_TIMER_TEMP: NVIC_DISABLE_IRQ(IRQ_GPT2); break;
   }
 
+  // Ensure the CPU actually stops servicing the IRQ
   // We NEED memory barriers to ensure Interrupts are actually disabled!
   // ( https://dzone.com/articles/nvic-disabling-interrupts-on-arm-cortex-m-and-the )
   asm volatile("dsb");
@@ -97,8 +131,8 @@ bool HAL_timer_interrupt_enabled(const uint8_t timer_num) {
 
 void HAL_timer_isr_prologue(const uint8_t timer_num) {
   switch (timer_num) {
-    case MF_TIMER_STEP: GPT1_SR = GPT_IR_OF1IE; break; // clear OF3 bit
-    case MF_TIMER_TEMP: GPT2_SR = GPT_IR_OF1IE; break; // clear OF3 bit
+    case MF_TIMER_STEP: GPT1_SR = GPT_IR_OF1IE; break;   // clear OF1
+    case MF_TIMER_TEMP: GPT2_SR = GPT_IR_OF1IE; break;
   }
   asm volatile("dsb");
 }

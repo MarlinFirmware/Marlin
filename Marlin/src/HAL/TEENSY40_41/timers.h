@@ -60,7 +60,7 @@ typedef uint32_t hal_timer_t;
 #define HAL_TIMER_RATE         GPT1_TIMER_RATE
 #define STEPPER_TIMER_RATE     HAL_TIMER_RATE
 #define STEPPER_TIMER_TICKS_PER_US ((STEPPER_TIMER_RATE) / 1000000)
-#define STEPPER_TIMER_PRESCALE ((GPT_TIMER_RATE / 1000000) / STEPPER_TIMER_TICKS_PER_US)
+#define STEPPER_TIMER_PRESCALE (GPT_TIMER_RATE / STEPPER_TIMER_RATE)
 
 #define PULSE_TIMER_RATE       STEPPER_TIMER_RATE   // frequency of pulse timer
 #define PULSE_TIMER_PRESCALE   STEPPER_TIMER_PRESCALE
@@ -115,5 +115,4 @@ void HAL_timer_disable_interrupt(const uint8_t timer_num);
 bool HAL_timer_interrupt_enabled(const uint8_t timer_num);
 
 void HAL_timer_isr_prologue(const uint8_t timer_num);
-//void HAL_timer_isr_epilogue(const uint8_t timer_num) {}
-#define HAL_timer_isr_epilogue(T) NOOP
+inline void HAL_timer_isr_epilogue(const uint8_t) {}
