@@ -154,7 +154,7 @@ void menu_temperature() {
     EDIT_ITEM_FAST(int3, MSG_NOZZLE, &editable.celsius, 0, thermalManager.hotend_max_target(0), []{ thermalManager.setTargetHotend(editable.celsius, 0); });
   #elif HAS_MULTI_HOTEND
     HOTEND_LOOP() {
-      editable.celsius = thermalManager.temp_hotend[e].target;
+      editable.celsius = thermalManager.degTargetHotend(e);
       EDIT_ITEM_FAST_N(int3, e, MSG_NOZZLE_N, &editable.celsius, 0, thermalManager.hotend_max_target(e), []{ thermalManager.setTargetHotend(editable.celsius, MenuItemBase::itemIndex); });
     }
   #endif

@@ -3303,6 +3303,9 @@
 #if ANY(ADVANCED_PAUSE_FEATURE, PROBING_HEATERS_OFF)
   #define HEATER_IDLE_HANDLER 1
 #endif
+#if ENABLED(DELTA)
+  #undef PROBING_STEPPERS_OFF
+#endif
 #if HAS_BED_PROBE && (ANY(PROBING_HEATERS_OFF, PROBING_STEPPERS_OFF, PROBING_ESTEPPERS_OFF, PROBING_FANS_OFF) || DELAY_BEFORE_PROBING > 0)
   #define HAS_QUIET_PROBING 1
 #endif
@@ -3680,4 +3683,14 @@
                                                       //   2HEI     : FTM_RATIO * 3 / 2
                                                       //   3HEI     : FTM_RATIO * 2
   #define FTM_SMOOTHING_ORDER 5                       // 3 to 5 is closest to gaussian
+  #ifndef FTM_BUFFER_SIZE
+    #define FTM_BUFFER_SIZE 128
+  #endif
+  #define FTM_BUFFER_MASK (FTM_BUFFER_SIZE - 1u)
+  #if ANY(BIQU_MICROPROBE_V1, BIQU_MICROPROBE_V2)
+    #ifndef PROBE_WAKEUP_TIME_MS
+      #define PROBE_WAKEUP_TIME_MS 30
+      #define PROBE_WAKEUP_TIME_WARNING 1
+    #endif
+  #endif
 #endif

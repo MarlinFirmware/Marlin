@@ -399,8 +399,8 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
 /**
  * Custom Boot and Status screens
  */
-#if ENABLED(SHOW_CUSTOM_BOOTSCREEN) && NONE(HAS_MARLINUI_HD44780, HAS_MARLINUI_U8GLIB, TOUCH_UI_FTDI_EVE, IS_DWIN_MARLINUI)
-  #error "SHOW_CUSTOM_BOOTSCREEN requires Character LCD, Graphical LCD, or TOUCH_UI_FTDI_EVE."
+#if ENABLED(SHOW_CUSTOM_BOOTSCREEN) && NONE(TFT_COLOR_UI, HAS_MARLINUI_HD44780, HAS_MARLINUI_U8GLIB, TOUCH_UI_FTDI_EVE, IS_DWIN_MARLINUI)
+  #error "SHOW_CUSTOM_BOOTSCREEN requires Character LCD, Graphical LCD, TOUCH_UI_FTDI_EVE, or TFT_COLOR_UI."
 #elif ENABLED(SHOW_CUSTOM_BOOTSCREEN) && DISABLED(SHOW_BOOTSCREEN)
   #error "SHOW_CUSTOM_BOOTSCREEN requires SHOW_BOOTSCREEN."
 #elif ENABLED(CUSTOM_STATUS_SCREEN_IMAGE) && !HAS_MARLINUI_U8GLIB
@@ -600,7 +600,7 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
 
 #if ENABLED(NOZZLE_PARK_FEATURE)
   constexpr float npp[] = NOZZLE_PARK_POINT;
-  static_assert(COUNT(npp) == _MIN(NUM_AXES, XYZ), "NOZZLE_PARK_POINT requires coordinates for enabled axes, but only up to X,Y,Z.");
+  static_assert(COUNT(npp) == _MIN(NUM_AXES, 3), "NOZZLE_PARK_POINT requires coordinates for enabled axes, but only up to X,Y,Z.");
   constexpr xyz_pos_t npp_xyz = NOZZLE_PARK_POINT;
   static_assert(WITHIN(npp_xyz.x, X_MIN_POS, X_MAX_POS), "NOZZLE_PARK_POINT.X is out of bounds (X_MIN_POS, X_MAX_POS).");
   static_assert(TERN1(HAS_Y_AXIS, WITHIN(npp_xyz.y, Y_MIN_POS, Y_MAX_POS)), "NOZZLE_PARK_POINT.Y is out of bounds (Y_MIN_POS, Y_MAX_POS).");
@@ -848,26 +848,15 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
 #endif
 
 /**
- * Linear Advance 1.5 - Check K value range
+ * Linear Advance requirements
  */
 #if ENABLED(LIN_ADVANCE)
-  #if ENABLED(DISTINCT_E_FACTORS)
-    constexpr float lak[] = ADVANCE_K;
-    static_assert(COUNT(lak) <= DISTINCT_E, "The ADVANCE_K array has too many elements (i.e., more than " STRINGIFY(DISTINCT_E) ").");
-    #define _LIN_ASSERT(N) static_assert(N >= COUNT(lak) || WITHIN(lak[N], 0, 10), "ADVANCE_K values must be from 0 to 10 (Changed in LIN_ADVANCE v1.5, Marlin 1.1.9).");
-    REPEAT(DISTINCT_E, _LIN_ASSERT)
-    #undef _LIN_ASSERT
-  #else
-    static_assert(WITHIN(ADVANCE_K, 0, 10), "ADVANCE_K must be from 0 to 10 (Changed in LIN_ADVANCE v1.5, Marlin 1.1.9).");
-  #endif
-
+  // Incompatible with Direct Stepping
   #if ENABLED(DIRECT_STEPPING)
     #error "DIRECT_STEPPING is incompatible with LIN_ADVANCE. (Extrusion is controlled externally by the Step Daemon.)"
   #endif
 
-  /**
-   * Smooth Linear Advance
-   */
+  // Smooth Linear Advance
   #if ENABLED(SMOOTH_LIN_ADVANCE)
     #ifndef CPU_32_BIT
       #error "SMOOTH_LIN_ADVANCE requires a 32-bit CPU."
@@ -875,8 +864,32 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
       #error "INPUT_SHAPING_E_SYNC requires INPUT_SHAPING_X or INPUT_SHAPING_Y."
     #endif
   #endif
-
 #endif // LIN_ADVANCE
+
+/**
+ * S_CURVE_ACCELERATION
+ */
+#if ENABLED(S_CURVE_ACCELERATION) && defined(S_CURVE_FACTOR)
+  #ifdef __AVR__
+    #error "S_CURVE_FACTOR is not yet implemented for AVR. Disable it to continue."
+  #endif
+  static_assert(WITHIN(S_CURVE_FACTOR, 0, 1), "S_CURVE_FACTOR must be between 0.0 and 1.0.");
+#endif
+
+/**
+ * Linear Advance and FT Motion - Check K value range
+ */
+#if HAS_LIN_ADVANCE_K
+  #if ENABLED(DISTINCT_E_FACTORS)
+    constexpr float lak[] = ADVANCE_K;
+    static_assert(COUNT(lak) <= DISTINCT_E, "The ADVANCE_K array has too many elements (i.e., more than " STRINGIFY(DISTINCT_E) ").");
+    #define _LIN_ASSERT(N) static_assert(N >= COUNT(lak) || WITHIN(lak[N], 0, 10), "ADVANCE_K values must be from 0 to 10.");
+    REPEAT(DISTINCT_E, _LIN_ASSERT)
+    #undef _LIN_ASSERT
+  #else
+    static_assert(WITHIN(ADVANCE_K, 0, 10), "ADVANCE_K must be from 0 to 10.");
+  #endif
+#endif
 
 /**
  * Nonlinear Extrusion requirements
@@ -1109,7 +1122,7 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
   #error "Leveling in Marlin requires three or more axes, with Z as the vertical axis."
 #elif ENABLED(CNC_WORKSPACE_PLANES) && !HAS_Z_AXIS
   #error "CNC_WORKSPACE_PLANES currently requires a Z axis"
-#elif ENABLED(DIRECT_STEPPING) && NUM_AXES > XYZ
+#elif ENABLED(DIRECT_STEPPING) && NUM_AXES > 3
   #error "DIRECT_STEPPING does not currently support more than 3 axes (i.e., XYZ)."
 #elif ENABLED(FOAMCUTTER_XYUV) && !(HAS_I_AXIS && HAS_J_AXIS)
   #error "FOAMCUTTER_XYUV requires I and J steppers to be enabled."
@@ -1264,53 +1277,22 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
   + (DISABLED(BLTOUCH) && HAS_Z_SERVO_PROBE) \
   + COUNT_ENABLED(PROBE_MANUALLY, BLTOUCH, BD_SENSOR, FIX_MOUNTED_PROBE, NOZZLE_AS_PROBE, TOUCH_MI_PROBE, SOLENOID_PROBE, Z_PROBE_ALLEN_KEY, Z_PROBE_SLED, RACK_AND_PINION_PROBE, SENSORLESS_PROBING, MAGLEV4, MAG_MOUNTED_PROBE, BIQU_MICROPROBE_V1, BIQU_MICROPROBE_V2)
   #error "Please enable only one probe option. See the following errors:"
-  #if ENABLED(BLTOUCH)
-    #error "(BLTOUCH is enabled.)"
-  #elif HAS_Z_SERVO_PROBE
-    #error "(Z_SERVO_PROBE is enabled.)"
-  #endif
-  #if ENABLED(PROBE_MANUALLY)
-    #error "(PROBE_MANUALLY is enabled.)"
-  #endif
-  #if ENABLED(BD_SENSOR)
-    #error "(BD_SENSOR is enabled.)"
-  #endif
-  #if ENABLED(FIX_MOUNTED_PROBE)
-    #error "(FIX_MOUNTED_PROBE is enabled.)"
-  #endif
-  #if ENABLED(NOZZLE_AS_PROBE)
-    #error "(NOZZLE_AS_PROBE is enabled.)"
-  #endif
-  #if ENABLED(TOUCH_MI_PROBE)
-    #error "(TOUCH_MI_PROBE is enabled.)"
-  #endif
-  #if ENABLED(SOLENOID_PROBE)
-    #error "(SOLENOID_PROBE is enabled.)"
-  #endif
-  #if ENABLED(Z_PROBE_ALLEN_KEY)
-    #error "(Z_PROBE_ALLEN_KEY is enabled.)"
-  #endif
-  #if ENABLED(Z_PROBE_SLED)
-    #error "(Z_PROBE_SLED is enabled.)"
-  #endif
-  #if ENABLED(RACK_AND_PINION_PROBE)
-    #error "(RACK_AND_PINION_PROBE is enabled.)"
-  #endif
-  #if ENABLED(SENSORLESS_PROBING)
-    #error "(SENSORLESS_PROBING is enabled.)"
-  #endif
-  #if ENABLED(MAGLEV4)
-    #error "(MAGLEV4 is enabled.)"
-  #endif
-  #if ENABLED(MAG_MOUNTED_PROBE)
-    #error "(MAG_MOUNTED_PROBE is enabled.)"
-  #endif
-  #if ENABLED(BIQU_MICROPROBE_V1)
-    #error "(BIQU_MICROPROBE_V1 is enabled.)"
-  #endif
-  #if ENABLED(BIQU_MICROPROBE_V2)
-    #error "(BIQU_MICROPROBE_V2 is enabled.)"
-  #endif
+  static_assert(DISABLED(BLTOUCH), "(BLTOUCH is enabled.)");
+  static_assert(ENABLED(BLTOUCH) || DISABLED(HAS_Z_SERVO_PROBE), "(Z_SERVO_PROBE is enabled.)");
+  static_assert(DISABLED(PROBE_MANUALLY), "(PROBE_MANUALLY is enabled.)");
+  static_assert(DISABLED(BD_SENSOR), "(BD_SENSOR is enabled.)");
+  static_assert(DISABLED(FIX_MOUNTED_PROBE), "(FIX_MOUNTED_PROBE is enabled.)");
+  static_assert(DISABLED(NOZZLE_AS_PROBE), "(NOZZLE_AS_PROBE is enabled.)");
+  static_assert(DISABLED(TOUCH_MI_PROBE), "(TOUCH_MI_PROBE is enabled.)");
+  static_assert(DISABLED(SOLENOID_PROBE), "(SOLENOID_PROBE is enabled.)");
+  static_assert(DISABLED(Z_PROBE_ALLEN_KEY), "(Z_PROBE_ALLEN_KEY is enabled.)");
+  static_assert(DISABLED(Z_PROBE_SLED), "(Z_PROBE_SLED is enabled.)");
+  static_assert(DISABLED(RACK_AND_PINION_PROBE), "(RACK_AND_PINION_PROBE is enabled.)");
+  static_assert(DISABLED(SENSORLESS_PROBING), "(SENSORLESS_PROBING is enabled.)");
+  static_assert(DISABLED(MAGLEV4), "(MAGLEV4 is enabled.)");
+  static_assert(DISABLED(MAG_MOUNTED_PROBE), "(MAG_MOUNTED_PROBE is enabled.)");
+  static_assert(DISABLED(BIQU_MICROPROBE_V1), "(BIQU_MICROPROBE_V1 is enabled.)");
+  static_assert(DISABLED(BIQU_MICROPROBE_V2), "(BIQU_MICROPROBE_V2 is enabled.)");
 #endif
 
 #if HAS_BED_PROBE
@@ -1487,7 +1469,6 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
     #elif !PIN_EXISTS(PROBE_ENABLE)
       #error "BIQU MicroProbe requires a PROBE_ENABLE_PIN."
     #endif
-
     #if ENABLED(BIQU_MICROPROBE_V1)
       #if ENABLED(INVERTED_PROBE_STATE)
         #if Z_MIN_PROBE_ENDSTOP_HIT_STATE != LOW
@@ -1503,6 +1484,13 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
           #endif
         #elif Z_MIN_ENDSTOP_HIT_STATE != HIGH
           #error "BIQU_MICROPROBE_V1 requires Z_MIN_ENDSTOP_HIT_STATE HIGH."
+        #endif
+      #endif
+      #if NONE(ONBOARD_ENDSTOPPULLUPS, ENDSTOPPULLUPS, ENDSTOPPULLUP_ZMIN, ENDSTOPPULLUP_ZMIN_PROBE)
+        #if USE_Z_MIN_PROBE
+          #error "BIQU_MICROPROBE_V1 on Z_MIN_PROBE_PIN requires ENDSTOPPULLUP_ZMIN_PROBE, or ENDSTOPPULLUPS."
+        #else
+          #error "BIQU_MICROPROBE_V1 on Z_MIN_PIN requires ENDSTOPPULLUP_ZMIN, or ENDSTOPPULLUPS."
         #endif
       #endif
     #elif ENABLED(BIQU_MICROPROBE_V2)
@@ -1521,6 +1509,13 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
         #elif Z_MIN_ENDSTOP_HIT_STATE != LOW
           #error "BIQU_MICROPROBE_V2 requires Z_MIN_ENDSTOP_HIT_STATE LOW."
         #endif
+      #endif
+    #endif
+    #if NONE(ONBOARD_ENDSTOPPULLUPS, ENDSTOPPULLUPS, ENDSTOPPULLUP_ZMIN, ENDSTOPPULLUP_ZMIN_PROBE)
+      #if USE_Z_MIN_PROBE
+        #error "BIQU_MICROPROBE_V2 on Z_MIN_PROBE_PIN requires ENDSTOPPULLUP_ZMIN_PROBE, or ENDSTOPPULLUPS."
+      #else
+        #error "BIQU_MICROPROBE_V2 on Z_MIN_PIN requires ENDSTOPPULLUP_ZMIN, or ENDSTOPPULLUPS."
       #endif
     #endif
   #endif // BIQU_MICROPROBE_V1 || BIQU_MICROPROBE_V2
@@ -4488,10 +4483,9 @@ static_assert(_PLUS_TEST(3), "DEFAULT_MAX_ACCELERATION values must be positive."
  * Fixed-Time Motion limitations
  */
 #if ENABLED(FT_MOTION)
+  static_assert(FTM_BUFFER_SIZE >= 4 && (FTM_BUFFER_SIZE & FTM_BUFFER_MASK) == 0, "FTM_BUFFER_SIZE must be a power of two (128, 256, 512, ...).");
   #if ENABLED(MIXING_EXTRUDER)
     #error "FT_MOTION does not currently support MIXING_EXTRUDER."
-  #elif DISABLED(FTM_UNIFIED_BWS)
-    #error "FT_MOTION requires FTM_UNIFIED_BWS to be enabled because FBS is not yet implemented."
   #endif
   #if !HAS_X_AXIS
     static_assert(FTM_DEFAULT_SHAPER_X != ftMotionShaper_NONE, "Without any linear axes FTM_DEFAULT_SHAPER_X must be ftMotionShaper_NONE.");
@@ -4507,6 +4501,9 @@ static_assert(_PLUS_TEST(3), "DEFAULT_MAX_ACCELERATION values must be positive."
     static_assert(FTM_SMOOTHING_TIME_Y <= FTM_MAX_SMOOTHING_TIME, "FTM_SMOOTHING_TIME_Y must be <= FTM_MAX_SMOOTHING_TIME.");
     static_assert(FTM_SMOOTHING_TIME_Z <= FTM_MAX_SMOOTHING_TIME, "FTM_SMOOTHING_TIME_Z must be <= FTM_MAX_SMOOTHING_TIME.");
     static_assert(FTM_SMOOTHING_TIME_E <= FTM_MAX_SMOOTHING_TIME, "FTM_SMOOTHING_TIME_E must be <= FTM_MAX_SMOOTHING_TIME.");
+  #endif
+  #if ENABLED(FTM_RESONANCE_TEST) && DISABLED(EMERGENCY_PARSER)
+    #error "EMERGENCY_PARSER is required with FTM_RESONANCE_TEST (to cancel the test)."
   #endif
 #endif
 

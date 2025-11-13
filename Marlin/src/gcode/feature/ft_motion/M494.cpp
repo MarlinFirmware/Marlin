@@ -97,7 +97,7 @@ void GcodeSuite::M494() {
       report = true;
     }
     else
-      SERIAL_ECHOLNPGM("?Invalid trajectory type [T] value. Use 0=TRAPEZOIDAL, 1=POLY5, 2=POLY6");
+      SERIAL_ECHOLN(F("?Invalid "), F("trajectory type [T] value. Use 0=TRAPEZOIDAL, 1=POLY5, 2=POLY6"));
   }
 
   // Parse overshoot parameter.
@@ -108,7 +108,7 @@ void GcodeSuite::M494() {
       report = true;
     }
     else
-      SERIAL_ECHOLNPGM("?Invalid overshoot [O] value. Range 1.25-1.875");
+      SERIAL_ECHOLN(F("?Invalid "), F("overshoot [O] value. Range 1.25-1.875"));
   }
 
   #if ENABLED(FTM_SMOOTHING)

@@ -236,9 +236,10 @@ void Touch::touch(touch_control_t * const control) {
           #if HAS_HOTEND
             #define HOTEND_HEATER(N) TERN0(HAS_MULTI_HOTEND, N)
             TERN_(HAS_MULTI_HOTEND, MenuItemBase::itemIndex = heater);
+            editable.celsius = thermalManager.degTargetHotend(HOTEND_HEATER(heater));
             MenuItem_int3::action(GET_TEXT_F(TERN(HAS_MULTI_HOTEND, MSG_NOZZLE_N, MSG_NOZZLE)),
-              &thermalManager.temp_hotend[HOTEND_HEATER(heater)].target, 0, thermalManager.hotend_max_target(HOTEND_HEATER(heater)),
-              []{ thermalManager.start_watching_hotend(HOTEND_HEATER(MenuItemBase::itemIndex)); }
+              &editable.celsius, 0, thermalManager.hotend_max_target(HOTEND_HEATER(heater)),
+              []{ thermalManager.setTargetHotend(editable.celsius, HOTEND_HEATER(MenuItemBase::itemIndex)); }
             );
           #endif
           break;

@@ -389,6 +389,10 @@ PGMSTR(str_t_heating_failed, STR_T_HEATING_FAILED);
 
 #endif // HAS_HOTEND
 
+#if ENABLED(AUTOTEMP)
+  autotemp_t Temperature::autotemp;   // Initialized by settings.load
+#endif
+
 #if HAS_TEMP_REDUNDANT
   redundant_info_t Temperature::temp_redundant;
 #endif
@@ -3552,7 +3556,7 @@ void Temperature::init() {
 void Temperature::disable_all_heaters() {
 
   // Disable autotemp, unpause and reset everything
-  TERN_(AUTOTEMP, planner.autotemp.enabled = false);
+  TERN_(AUTOTEMP, autotemp.enabled = false);
   TERN_(PROBING_HEATERS_OFF, pause_heaters(false));
 
   #if HAS_HOTEND
@@ -3637,7 +3641,7 @@ void Temperature::disable_all_heaters() {
       singlenozzle_temp[old_tool] = temp_hotend[0].target;
       if (singlenozzle_temp[new_tool] && singlenozzle_temp[new_tool] != singlenozzle_temp[old_tool]) {
         setTargetHotend(singlenozzle_temp[new_tool], 0);
-        TERN_(AUTOTEMP, planner.autotemp_update());
+        TERN_(AUTOTEMP, autotemp_update());
         set_heating_message(0);
         (void)wait_for_hotend(0, false);  // Wait for heating or cooling
       }
@@ -4778,7 +4782,7 @@ void Temperature::isr() {
       OPTARG(G26_CLICK_CAN_CANCEL, const bool click_to_cancel/*=false*/)
     ) {
       #if ENABLED(AUTOTEMP)
-        REMEMBER(1, planner.autotemp.enabled, false);
+        REMEMBER(1, autotemp.enabled, false);
       #endif
 
       #if TEMP_RESIDENCY_TIME > 0
@@ -4910,6 +4914,58 @@ void Temperature::isr() {
     #endif
 
   #endif // HAS_TEMP_HOTEND
+
+  #if ENABLED(AUTOTEMP)
+
+    void Temperature::_autotemp_update_from_hotend() {
+      TERN_(AUTOTEMP_PROPORTIONAL, autotemp.update(degTargetHotend(active_extruder)));
+    }
+
+    /**
+     * Called after changing tools to:
+     *  - Reset or re-apply the default proportional autotemp factor.
+     *  - Enable autotemp if the factor is non-zero.
+     */
+    void Temperature::autotemp_update() {
+      _autotemp_update_from_hotend();
+      autotemp.cfg.factor = TERN0(AUTOTEMP_PROPORTIONAL, AUTOTEMP_FACTOR_P);
+      autotemp.enabled = autotemp.cfg.factor != 0;
+    }
+
+    /**
+     * Called by the M104/M109 commands after setting Hotend Temperature
+     */
+    void Temperature::autotemp_M104_M109() {
+      _autotemp_update_from_hotend();
+
+      if (parser.seenval('S')) autotemp.cfg.min = parser.value_celsius();
+      if (parser.seenval('B')) autotemp.cfg.max = parser.value_celsius();
+
+      // When AUTOTEMP_PROPORTIONAL is enabled, F0 disables autotemp.
+      // Normally, leaving off F also disables autotemp.
+      autotemp.cfg.factor = parser.seen('F') ? parser.value_float() : TERN0(AUTOTEMP_PROPORTIONAL, AUTOTEMP_FACTOR_P);
+      autotemp.enabled = autotemp.cfg.factor != 0;
+    }
+
+    /**
+     * Called every so often to adjust the hotend target temperature
+     * based on the extrusion speed, which is calculated from the blocks
+     * currently in the planner.
+     */
+    void Temperature::autotemp_task() {
+      if (!autotemp.enabled) return;
+      if (degTargetHotend(active_extruder) < autotemp.cfg.min - 2) return; // Below the min?
+
+      // Get a highest target proportion greater than zero
+      float high = planner.get_high_e_speed();
+
+      // Calculate a new target, with weighted correction for a drop
+      float t = autotemp.calculate(high);
+
+      _setTargetHotend(t, active_extruder);
+    }
+
+  #endif // AUTOTEMP
 
   #if HAS_HEATED_BED
 
