@@ -36,51 +36,50 @@ void HAL_timer_start(const uint8_t timer_num, const uint32_t frequency) {
 
       GPT1_CR = 0;                   // disable timer
       GPT1_SR = 0x3F;                // clear all prior status
-      GPT1_PR = GPT1_TIMER_PRESCALE - 1;
-      GPT1_CR |= GPT_CR_FRR;         // set in freerun mode
-      GPT1_CR |= GPT_CR_CLKSRC(1);   //clock selection #1 (peripheral clock = 150 MHz)
-      GPT1_CR |= GPT_CR_ENMOD;       //enables reset count to zero when enabling
-      GPT1_CR |= GPT_CR_OM1(1);      // toggle mode
-      GPT1_OCR1 = (GPT1_TIMER_RATE / frequency) -1; // Initial compare value
-      GPT1_IR = GPT_IR_OF1IE;        // Compare3 value
-      GPT1_CR |= GPT_CR_EN;          //enable GPT2 counting at 150 MHz
 
-      OUT_WRITE(15, HIGH);
+      GPT1_PR = GPT1_TIMER_PRESCALE - 1;
+
+      GPT1_CR = GPT_CR_FRR           // freerun mode
+              | GPT_CR_CLKSRC(1)     // clock selection #1 (peripheral clock = 150 MHz)
+              | GPT_CR_ENMOD         // causes count to reset to zero when enabling
+              | GPT_CR_OM1(TERN(MARLIN_DEV_MODE, 1, 0)); // toggle mode
+
+      GPT1_OCR1 = (GPT1_TIMER_RATE / frequency) -1; // Compare value for the given frequency
+      GPT1_IR = GPT_IR_OF1IE;        // Compare1 value
+
+      TERN_(MARLIN_DEV_MODE, OUT_WRITE(15, HIGH));
+
       attachInterruptVector(IRQ_GPT1, &stepTC_Handler);
       NVIC_SET_PRIORITY(IRQ_GPT1, 16);
+
+      GPT1_CR |= GPT_CR_EN;          // Start GPT1 counting at 150 MHz
+
       break;
+
     case MF_TIMER_TEMP:
       CCM_CSCMR1 &= ~CCM_CSCMR1_PERCLK_CLK_SEL; // turn off 24mhz mode
       CCM_CCGR0 |= CCM_CCGR0_GPT2_BUS(CCM_CCGR_ON);
 
       GPT2_CR = 0;                   // disable timer
       GPT2_SR = 0x3F;                // clear all prior status
-      GPT2_PR = GPT2_TIMER_PRESCALE - 1;
-      GPT2_CR |= GPT_CR_FRR;         // set in freerun mode
-      GPT2_CR |= GPT_CR_CLKSRC(1);   //clock selection #1 (peripheral clock = 150 MHz)
-      GPT2_CR |= GPT_CR_ENMOD;       //enables reset count to zero when enabling
-      GPT2_CR |= GPT_CR_OM1(1);      // toggle mode
-      GPT2_OCR1 = (GPT2_TIMER_RATE / frequency) -1; // Initial compare value
-      GPT2_IR = GPT_IR_OF1IE;        // Compare3 value
-      GPT2_CR |= GPT_CR_EN;          //enable GPT2 counting at 150 MHz
 
-      OUT_WRITE(14, HIGH);
+      GPT2_PR = GPT2_TIMER_PRESCALE - 1;
+
+      GPT2_CR = GPT_CR_FRR           // freerun mode
+              | GPT_CR_CLKSRC(1)     // clock selection #1 (peripheral clock = 150 MHz)
+              | GPT_CR_ENMOD         // causes count to reset to zero when enabling
+              | GPT_CR_OM1(TERN(MARLIN_DEV_MODE, 1, 0));
+
+      GPT2_OCR1 = (GPT2_TIMER_RATE / frequency) - 1; // Compare value for the given frequency
+      GPT2_IR = GPT_IR_OF1IE;        // Compare1 value
+
+      TERN_(MARLIN_DEV_MODE, OUT_WRITE(14, HIGH));
+
       attachInterruptVector(IRQ_GPT2, &tempTC_Handler);
       NVIC_SET_PRIORITY(IRQ_GPT2, 32);
-      break;
-  }
-}
 
-//This resets count by GPT_CR_ENMOD is enabled.
-void HAL_timer_reset_count(const uint8_t timer_num){
-  switch (timer_num) {
-    case MF_TIMER_STEP:
-      GPT1_CR &= ~GPT_CR_EN;
-      GPT1_CR |= GPT_CR_EN;
-      break;
-    case MF_TIMER_TEMP:
-      GPT2_CR &= ~GPT_CR_EN;
-      GPT2_CR |= GPT_CR_EN;
+      GPT2_CR |= GPT_CR_EN;          // Start GPT2 counting at 150 MHz
+
       break;
   }
 }
@@ -103,6 +102,14 @@ void HAL_timer_disable_interrupt(const uint8_t timer_num) {
   asm volatile("dsb");
 }
 
+// Reset count with CR_ENMOD side-effect by toggling CR_EN
+void HAL_timer_reset_count(const uint8_t timer_num) {
+  switch (timer_num) {
+    case MF_TIMER_STEP: GPT1_CR &= ~GPT_CR_EN; GPT1_CR |= GPT_CR_EN; break;
+    case MF_TIMER_TEMP: GPT2_CR &= ~GPT_CR_EN; GPT2_CR |= GPT_CR_EN; break;
+  }
+}
+
 bool HAL_timer_interrupt_enabled(const uint8_t timer_num) {
   switch (timer_num) {
     case MF_TIMER_STEP: return (NVIC_IS_ENABLED(IRQ_GPT1));
@@ -113,8 +120,8 @@ bool HAL_timer_interrupt_enabled(const uint8_t timer_num) {
 
 void HAL_timer_isr_prologue(const uint8_t timer_num) {
   switch (timer_num) {
-    case MF_TIMER_STEP: GPT1_SR = GPT_IR_OF1IE; break; // clear OF3 bit
-    case MF_TIMER_TEMP: GPT2_SR = GPT_IR_OF1IE; break; // clear OF3 bit
+    case MF_TIMER_STEP: GPT1_SR = GPT_IR_OF1IE; break;  // clear OF1
+    case MF_TIMER_TEMP: GPT2_SR = GPT_IR_OF1IE; break;
   }
   asm volatile("dsb");
 }
