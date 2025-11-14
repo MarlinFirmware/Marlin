@@ -1570,13 +1570,11 @@ float get_move_distance(const xyze_pos_t &diff OPTARG(HAS_ROTATIONAL_AXES, bool 
     //SERIAL_ECHOLNPGM("Difference : ", diff.x, " , ", diff.y, " , ", diff.z, " , ", diff.e);
 
     // For TPARA always split up the move, then skip next code
-    #if DISABLED(AXEL_TPARA)
-      // For DELTA/SCARA if the move is only in Z/E don't split up the move
-      if (!diff.x && !diff.y) {
-        planner.buffer_line(destination, scaled_fr_mm_s);
-        return false; // caller will update current_position
-      }
-    #endif
+    // For DELTA/SCARA if the move is only in Z/E don't split up the move
+    if (TERN0(AXEL_TPARA, !diff.x && !diff.y)) {
+      planner.buffer_line(destination, scaled_fr_mm_s);
+      return false; // caller will update current_position
+    }
 
     // Fail if attempting move outside printable radius
     if (!position_is_reachable(destination)) return true;
