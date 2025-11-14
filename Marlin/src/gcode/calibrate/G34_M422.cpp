@@ -390,7 +390,7 @@ void GcodeSuite::G34() {
             // Decreasing accuracy was detected so move was inverted.
             // Will match reversed Z steppers on dual steppers. Triple will need more work to map.
             if (adjustment_reverse) {
-              z_align_move = -z_align_move;
+              z_align_move *= -1;
               if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("> Z", zstepper + 1, " correction reversed to ", z_align_move);
             }
           #endif
