@@ -85,19 +85,34 @@ bool relative_mode; // = false
   bool z_min_trusted; // = false
 #endif
 
+// Warn for unexpected TPARA home position
+#if ENABLED(AXEL_TPARA)
+  static_assert(
+    ABS(X_HOME_POS - (TPARA_ARM_X_HOME_POS + TPARA_TCP_OFFSET_X - TPARA_OFFSET_X)) < 0.01f,
+    "X_HOME_POS should be equal to (TPARA_ARM_X_HOME_POS + TPARA_TCP_OFFSET_X - TPARA_OFFSET_X)");
+  static_assert(
+    ABS(Y_HOME_POS - (TPARA_ARM_Y_HOME_POS + TPARA_TCP_OFFSET_Y - TPARA_OFFSET_Y)) < 0.01f,
+    "Y_HOME_POS should be equal to (TPARA_ARM_Y_HOME_POS + TPARA_TCP_OFFSET_Y - TPARA_OFFSET_Y).");
+  static_assert(
+    ABS(Z_HOME_POS - (TPARA_ARM_Z_HOME_POS + TPARA_TCP_OFFSET_Z - TPARA_OFFSET_Z)) < 0.01f,
+    "Z_HOME_POS should be equal to (TPARA_ARM_Z_HOME_POS + TPARA_TCP_OFFSET_Z - TPARA_OFFSET_Z).");
+#endif
+
 /**
  * Cartesian Current Position
  *   Used to track the native machine position as moves are queued.
  *   Used by 'line_to_current_position' to do a move after changing it.
  *   Used by 'sync_plan_position' to update 'planner.position'.
  */
-#ifdef Z_IDLE_HEIGHT
-  #define Z_INIT_POS Z_IDLE_HEIGHT
-#else
-  #define Z_INIT_POS Z_HOME_POS
-#endif
-
-xyze_pos_t current_position = LOGICAL_AXIS_ARRAY(0, X_HOME_POS, Y_HOME_POS, Z_INIT_POS, I_HOME_POS, J_HOME_POS, K_HOME_POS, U_HOME_POS, V_HOME_POS, W_HOME_POS);
+xyze_pos_t current_position = LOGICAL_AXIS_ARRAY(0,
+  X_HOME_POS, Y_HOME_POS,
+  #ifdef Z_IDLE_HEIGHT
+    Z_IDLE_HEIGHT
+  #else
+    Z_HOME_POS
+  #endif
+  , I_HOME_POS, J_HOME_POS, K_HOME_POS, U_HOME_POS, V_HOME_POS, W_HOME_POS
+);
 
 /**
  * Cartesian Destination
@@ -154,18 +169,18 @@ xyz_pos_t cartes;
   #if HAS_SCARA_OFFSET
     abc_pos_t scara_home_offset;
   #endif
-
+  // If it does not have software endstops, use the printable radius
   #if HAS_SOFTWARE_ENDSTOPS
     float delta_max_radius, delta_max_radius_2;
   #elif IS_SCARA
     constexpr float delta_max_radius = PRINTABLE_RADIUS,
-                    delta_max_radius_2 = sq(PRINTABLE_RADIUS);
+                    delta_max_radius_2 = sq(float(PRINTABLE_RADIUS));
   #elif ENABLED(POLAR)
     constexpr float delta_max_radius = PRINTABLE_RADIUS,
-                    delta_max_radius_2 = sq(PRINTABLE_RADIUS);
+                    delta_max_radius_2 = sq(float(PRINTABLE_RADIUS));
   #else // DELTA
     constexpr float delta_max_radius = PRINTABLE_RADIUS,
-                    delta_max_radius_2 = sq(PRINTABLE_RADIUS);
+                    delta_max_radius_2 = sq(float(PRINTABLE_RADIUS));
   #endif
 
 #endif
@@ -179,6 +194,7 @@ xyz_pos_t cartes;
   // Set by M206, M428, or menu item. Saved to EEPROM.
   xyz_pos_t home_offset{0};
 #endif
+
 #if HAS_WORKSPACE_OFFSET
   // The above two are combined to save on computes
   xyz_pos_t workspace_offset{0};
@@ -633,12 +649,14 @@ void report_current_position_projected() {
       can_reach = HYPOT2(rx, ry) <= sq(PRINTABLE_RADIUS - inset + fslop);
 
     #elif ENABLED(AXEL_TPARA)
-
-      const float R2 = HYPOT2(rx - TPARA_OFFSET_X, ry - TPARA_OFFSET_Y);
+      // TODO: A custom check, as reach depends also on Z destination.
+      // During printing assume destination Z is the current Z.
+      // For now use the max reach of the arm.
+      const float R2 = HYPOT2(rx + TPARA_OFFSET_X, ry + TPARA_OFFSET_Y);
       can_reach = (
-        R2 <= sq(L1 + L2) - inset
+        R2 <= PRINTABLE_RADIUS_2 - inset
         #if MIDDLE_DEAD_ZONE_R > 0
-          && R2 >= FLOAT_SQ(MIDDLE_DEAD_ZONE_R)
+          && R2 >= FLOAT_SQ(MIDDLE_DEAD_ZONE_R + TPARA_TCP_OFFSET_X)
         #endif
       );
 
@@ -726,6 +744,8 @@ void quickstop_stepper() {
 void sync_plan_position() {
   if (DEBUGGING(LEVELING)) DEBUG_POS("sync_plan_position", current_position);
   planner.set_position_mm(current_position);
+  //SERIAL_ECHOLNPGM("Sync_plan_position: ", current_position.x, ", ", current_position.y, ", ", current_position.z);
+  //SERIAL_EOL();
 }
 
 #if HAS_EXTRUDERS
@@ -817,6 +837,9 @@ void line_to_current_position(const feedRate_t fr_mm_s/*=feedrate_mm_s*/) {
    */
   void prepare_fast_move_to_destination(const feedRate_t scaled_fr_mm_s/*=MMS_SCALED(feedrate_mm_s)*/) {
     if (DEBUGGING(LEVELING)) DEBUG_POS("prepare_fast_move_to_destination", destination);
+
+    //SERIAL_ECHOLNPGM("Prepare fast move to destination: ", destination.x , ",", destination.y,  ",", destination.z, "," , destination.e);
+    //SERIAL_EOL();
 
     #if UBL_SEGMENTED
       // UBL segmented line will do Z-only moves in single segment
@@ -1260,6 +1283,8 @@ void restore_feedrate_and_scaling() {
    * radius within the set software endstops.
    */
   void apply_motion_limits(xyz_pos_t &target) {
+    //SERIAL_ECHOLNPGM("Motion limits in: ", target.x, ", ", target.y, ", ", target.z);
+    //SERIAL_EOL();
 
     if (!soft_endstop._enabled) return;
 
@@ -1287,6 +1312,8 @@ void restore_feedrate_and_scaling() {
       #else
         if (TERN1(IS_SCARA, axis_was_homed(X_AXIS) && axis_was_homed(Y_AXIS))) {
           const float dist_2 = HYPOT2(target.x - offs.x, target.y - offs.y);
+          //SERIAL_ECHOLNPGM("Motion limits data: dist_2:", dist_2, " delta_max_radius_2: ", delta_max_radius_2);
+          //SERIAL_EOL();
           if (dist_2 > delta_max_radius_2)
             target *= float(delta_max_radius / SQRT(dist_2)); // 200 / 300 = 0.66
         }
@@ -1538,8 +1565,13 @@ float get_move_distance(const xyze_pos_t &diff OPTARG(HAS_ROTATIONAL_AXES, bool 
 
     const xyze_float_t diff = destination - current_position;
 
-    // If the move is only in Z/E don't split up the move
-    if (!diff.x && !diff.y) {
+    //SERIAL_ECHOLNPGM("Destination: ", destination.x, " , ", destination.y, " , ", destination.z, " , ", destination.e);
+    //SERIAL_ECHOLNPGM("Current pos: ", current_position.x, " , ", current_position.y, " , ", current_position.z, " , ", current_position.e);
+    //SERIAL_ECHOLNPGM("Difference : ", diff.x, " , ", diff.y, " , ", diff.z, " , ", diff.e);
+
+    // For TPARA always split up the move, then skip next code
+    // For DELTA/SCARA if the move is only in Z/E don't split up the move
+    if (TERN0(AXEL_TPARA, !diff.x && !diff.y)) {
       planner.buffer_line(destination, scaled_fr_mm_s);
       return false; // caller will update current_position
     }
@@ -1871,6 +1903,9 @@ float get_move_distance(const xyze_pos_t &diff OPTARG(HAS_ROTATIONAL_AXES, bool 
  */
 void prepare_line_to_destination() {
   apply_motion_limits(destination);
+
+  //SERIAL_ECHOLNPGM(">TPARA Prepare line to destination: ", destination.x , " , ", destination.y,  " , ", destination.z, " , " , destination.e);
+  //SERIAL_EOL();
 
   #if ANY(PREVENT_COLD_EXTRUSION, PREVENT_LENGTHY_EXTRUDE)
 
@@ -2781,6 +2816,10 @@ void prepare_line_to_destination() {
  * SCARA should wait until all XY homing is done before setting the XY
  * current_position to home, because neither X nor Y is at home until
  * both are at home. Z can however be homed individually.
+ *
+ * TPARA should wait until all YZ homing is done before setting the YZ
+ * current_position to home, because neither Y nor Z is at home until
+ * both are at home. X can however be homed individually.
  *
  * Callers must sync the planner position after calling this!
  */
