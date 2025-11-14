@@ -26,10 +26,13 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-#if ALL(HAS_MARLINUI_MENU, LED_CONTROL_MENU)
+#if HAS_MARLINUI_MENU && ANY(LED_CONTROL_MENU, CASE_LIGHT_MENU)
 
 #include "menu_item.h"
-#include "../../feature/leds/leds.h"
+
+#if ENABLED(LED_CONTROL_MENU)
+  #include "../../feature/leds/leds.h"
+#endif
 
 #if ENABLED(PSU_CONTROL)
   #include "../../feature/power.h"
@@ -49,7 +52,9 @@
   #endif
 #endif
 
-#define MSG_LIGHT2_PRESETS TERN(BIQU_BX_TFT70, MSG_LIGHT_ENCODER_PRESETS, MSG_NEO2_PRESETS)
+#if ENABLED(NEO2_COLOR_PRESETS)
+  #define MSG_LIGHT2_PRESETS TERN(BIQU_BX_TFT70, MSG_LIGHT_ENCODER_PRESETS, MSG_NEO2_PRESETS)
+#endif
 
 #if ENABLED(LED_COLOR_PRESETS)
 
@@ -132,14 +137,16 @@ void menu_led() {
   START_MENU();
   BACK_ITEM(MSG_MAIN_MENU);
 
-  if (TERN1(PSU_CONTROL, powerManager.psu_on)) {
-    editable.state = leds.lights_on;
-    #if ENABLED(NEOPIXEL2_SEPARATE) && DISABLED(BIQU_BX_TFT70)
-      EDIT_ITEM_N(bool, 1, MSG_LIGHT_N, &editable.state, leds.toggle);
-    #else
-      EDIT_ITEM(bool, MSG_LIGHTS, &editable.state, leds.toggle);
-    #endif
-  }
+  #if ENABLED(LED_CONTROL_MENU)
+    if (TERN1(PSU_CONTROL, powerManager.psu_on)) {
+      editable.state = leds.lights_on;
+      #if ENABLED(NEOPIXEL2_SEPARATE) && DISABLED(BIQU_BX_TFT70)
+        EDIT_ITEM_N(bool, 1, MSG_LIGHT_N, &editable.state, leds.toggle);
+      #else
+        EDIT_ITEM(bool, MSG_LIGHTS, &editable.state, leds.toggle);
+      #endif
+    }
+  #endif
 
   #if ENABLED(LED_COLOR_PRESETS)
     ACTION_ITEM(MSG_SET_LEDS_DEFAULT, [] { leds.set_default(); ui.refresh(); } );
@@ -180,4 +187,4 @@ void menu_led() {
   END_MENU();
 }
 
-#endif // HAS_MARLINUI_MENU && LED_CONTROL_MENU
+#endif // HAS_MARLINUI_MENU && (LED_CONTROL_MENU || CASE_LIGHT_MENU)
