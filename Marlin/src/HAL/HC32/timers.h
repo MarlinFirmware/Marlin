@@ -112,7 +112,7 @@ MARLIN_HAL_TIMER_INLINE_ATTR void HAL_timer_isr_prologue(const timer_channel_t t
   timer_num->clearInterruptFlag();
 }
 
-#define HAL_timer_isr_epilogue(T) NOOP
+MARLIN_HAL_TIMER_INLINE_ATTR void HAL_timer_isr_epilogue(const timer_channel_t timer_num) {}
 
 //
 // HAL function aliases
@@ -131,8 +131,8 @@ void Step_Handler();
 void Temp_Handler();
 
 #ifndef HAL_STEP_TIMER_ISR
-  #define HAL_STEP_TIMER_ISR() void Step_Handler()
+#define HAL_STEP_TIMER_ISR() void Step_Handler()
 #endif
 #ifndef HAL_TEMP_TIMER_ISR
-  #define HAL_TEMP_TIMER_ISR() void Temp_Handler()
+#define HAL_TEMP_TIMER_ISR() void Temp_Handler()
 #endif
