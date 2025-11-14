@@ -1513,11 +1513,7 @@ HAL_STEP_TIMER_ISR() {
   HAL_timer_isr_epilogue(MF_TIMER_STEP);
 }
 
-#ifdef CPU_32_BIT
-  #define STEP_MULTIPLY(A,B) MultiU32X24toH32(A, B)
-#else
-  #define STEP_MULTIPLY(A,B) MultiU24X32toH16(A, B)
-#endif
+#define STEP_MULTIPLY(A,B) TERN(CPU_32_BIT, MultiU32X24toH32, MultiU24X32toH16)(A, B)
 
 #if ENABLED(SMOOTH_LIN_ADVANCE)
   FORCE_INLINE static constexpr int32_t MULT_Q(uint8_t q, int32_t x, int32_t y) { return (int64_t(x) * y) >> q; }

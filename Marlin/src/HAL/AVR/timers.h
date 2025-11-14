@@ -111,8 +111,8 @@ FORCE_INLINE void HAL_timer_start(const uint8_t timer_num, const uint32_t) {
  * (otherwise, characters will be lost due to UART overflow).
  * Then: Stepper, Endstops, Temperature, and -finally- all others.
  */
-#define HAL_timer_isr_prologue(T) NOOP
-#define HAL_timer_isr_epilogue(T) NOOP
+inline void HAL_timer_isr_prologue(const uint8_t) {}
+inline void HAL_timer_isr_epilogue(const uint8_t) {}
 
 #ifndef HAL_STEP_TIMER_ISR
 
