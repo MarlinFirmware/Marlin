@@ -3875,7 +3875,7 @@ void MarlinSettings::reset() {
     //
     // M104 settings for AUTOTEMP
     //
-    TERN_(AUTOTEMP, gcode.M104_report());
+    TERN_(AUTOTEMP, gcode.M104_report(forReplay));
 
     //
     // M149 Temperature units

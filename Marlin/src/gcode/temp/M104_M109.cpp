@@ -140,12 +140,12 @@ void GcodeSuite::M104_M109(const bool isM109) {
   //
   void GcodeSuite::M104_report(const bool forReplay/*=true*/) {
     TERN_(MARLIN_SMALL_BUILD, return);
-      report_heading_etc(forReplay, F(STR_AUTOTEMP));
-      SERIAL_ECHOLNPGM("  M104"
-        " S", thermalManager.autotemp.cfg.min,
-        " B", thermalManager.autotemp.cfg.max,
-        " F", thermalManager.autotemp.cfg.factor
-      );
+    report_heading_etc(forReplay, F(STR_AUTOTEMP));
+    SERIAL_ECHOLNPGM("  M104"
+      " S", thermalManager.autotemp.cfg.min,
+      " B", thermalManager.autotemp.cfg.max,
+      " F", thermalManager.autotemp.cfg.factor
+    );
   }
 #endif
 
