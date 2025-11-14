@@ -56,14 +56,18 @@ void HAL_timer_start(const uint8_t timer_num, const uint32_t frequency) {
 
       // Enable compare‑event interrupt
       GPT1_IR = GPT_IR_OF2IE;           // OF2 interrupt enabled
-      GPT1_CR |= GPT_CR_EN;          //enable GPT2 counting at 150 MHz
 
-      OUT_WRITE(15, HIGH);
+      // Pull Pin 15 HIGH (logic‑high is the “idle” state)
+      TERN_(MARLIN_DEV_MODE, OUT_WRITE(15, HIGH));
 
       // Attach and enable Stepper IRQ
       // Note: UART priority is 16
       attachInterruptVector(IRQ_GPT1, &stepTC_Handler);
       NVIC_SET_PRIORITY(IRQ_GPT1, 16);  // Priority 16 (higher than Temp Timer)
+
+      // Start GPT1 counting at 150 MHz
+      GPT1_CR |= GPT_CR_EN;
+
       break;
 
     //
@@ -91,13 +95,17 @@ void HAL_timer_start(const uint8_t timer_num, const uint32_t frequency) {
 
       // Enable compare‑event interrupt
       GPT2_IR = GPT_IR_OF2IE;
-      GPT2_CR |= GPT_CR_EN;          //enable GPT2 counting at 150 MHz
 
-      OUT_WRITE(14, HIGH);
+      // Pull Pin 14 HIGH (logic‑high is the “idle” state)
+      TERN_(MARLIN_DEV_MODE, OUT_WRITE(14, HIGH));
 
       // Attach Temperature ISR
       attachInterruptVector(IRQ_GPT2, &tempTC_Handler);
       NVIC_SET_PRIORITY(IRQ_GPT2, 32);  // Priority 32 (lower than Step Timer)
+
+      // Start GPT2 counting at 150 MHz
+      GPT2_CR |= GPT_CR_EN;
+
       break;
   }
 }
