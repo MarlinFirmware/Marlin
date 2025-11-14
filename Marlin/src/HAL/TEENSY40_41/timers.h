@@ -90,12 +90,12 @@ void HAL_timer_start(const uint8_t timer_num, const uint32_t frequency);
 FORCE_INLINE static void HAL_timer_set_compare(const uint8_t timer_num, const hal_timer_t compare) {
   switch (timer_num) {
     case MF_TIMER_STEP: 
-      GPT1_CR |= GPT_CR_FRR; //set timer into free run modem so a set to the compare register does not reset the count
+      GPT1_CR |= GPT_CR_FRR; //set timer into free run mode so a set to the compare register does not reset the count
       GPT1_OCR1 = compare - 1; 
       GPT1_CR &= ~GPT_CR_FRR; //set timer back into reset mode
       break;
     case MF_TIMER_TEMP: 
-      GPT2_CR |= GPT_CR_FRR; //set timer into free run modem so a set to the compare register does not reset the count
+      GPT2_CR |= GPT_CR_FRR; //set timer into free run mode so a set to the compare register does not reset the count
       GPT2_OCR1 = compare - 1;
       GPT2_CR &= ~GPT_CR_FRR; //set timer back into reset mode
       break;
