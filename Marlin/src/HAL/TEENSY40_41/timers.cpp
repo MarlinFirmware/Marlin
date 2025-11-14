@@ -100,14 +100,6 @@ void HAL_timer_disable_interrupt(const uint8_t timer_num) {
   asm volatile("dsb");
 }
 
-// Reset count with CR_ENMOD side-effect by toggling CR_EN
-void HAL_timer_reset_count(const uint8_t timer_num) {
-  switch (timer_num) {
-    case MF_TIMER_STEP: GPT1_CR &= ~GPT_CR_EN; GPT1_CR |= GPT_CR_EN; break;
-    case MF_TIMER_TEMP: GPT2_CR &= ~GPT_CR_EN; GPT2_CR |= GPT_CR_EN; break;
-  }
-}
-
 bool HAL_timer_interrupt_enabled(const uint8_t timer_num) {
   switch (timer_num) {
     case MF_TIMER_STEP: return (NVIC_IS_ENABLED(IRQ_GPT1));

@@ -113,7 +113,6 @@ MARLIN_HAL_TIMER_INLINE_ATTR void HAL_timer_isr_prologue(const timer_channel_t t
 }
 
 #define HAL_timer_isr_epilogue(T) NOOP
-#define HAL_timer_reset_count(T) NOOP
 
 //
 // HAL function aliases

@@ -164,6 +164,5 @@ FORCE_INLINE static bool HAL_timer_interrupt_enabled(const uint8_t timer_num) {
   return HAL_timer_irq_en[timer_num]; //lucky coincidence that timer_num and rp2040 irq num matches
 }
 
-#define HAL_timer_reset_count(T) NOOP
 #define HAL_timer_isr_prologue(T) NOOP
 #define HAL_timer_isr_epilogue(T) NOOP
