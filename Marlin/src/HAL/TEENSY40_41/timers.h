@@ -93,6 +93,7 @@ FORCE_INLINE static void HAL_timer_set_compare(const uint8_t timer_num, const ha
       GPT1_CR |= GPT_CR_FRR; //set timer into free run modem so a set to the compare register does not reset the count
       GPT1_OCR1 = compare - 1; 
       GPT1_CR &= ~GPT_CR_FRR; //set timer back into reset mode
+      break;
     case MF_TIMER_TEMP: 
       GPT2_CR |= GPT_CR_FRR; //set timer into free run modem so a set to the compare register does not reset the count
       GPT2_OCR1 = compare - 1;
