@@ -371,7 +371,7 @@ void CardReader::ls(const uint8_t lsflags/*=0*/) {
 
     int i, pathLen = path ? strlen(path) : 0;
 
-    // SERIAL_ECHOPGM("Full Path: "); SERIAL_ECHOLN(path);
+    //SERIAL_ECHOPGM("Full Path: "); SERIAL_ECHOLN(path);
 
     // Zero out slashes to make segments
     for (i = 0; i < pathLen; i++) if (path[i] == '/') path[i] = '\0';
@@ -402,7 +402,7 @@ void CardReader::ls(const uint8_t lsflags/*=0*/) {
       // If the filename was printed then that's it
       if (!flag.filenameIsDir) break;
 
-      // SERIAL_ECHOPGM("Opening dir: "); SERIAL_ECHOLN(segment);
+      //SERIAL_ECHOPGM("Opening dir: "); SERIAL_ECHOLN(segment);
 
       // Open the sub-item as the new dive parent
       MediaFile dir;
@@ -1378,13 +1378,6 @@ void CardReader::cdroot() {
           #endif
         #endif
 
-      #else // !SDSORT_USES_RAM
-
-        // By default re-read the names from SD for every compare
-        // retaining only two filenames at a time. This is very
-        // slow but is safest and uses minimal RAM.
-        char name1[LONG_FILENAME_LENGTH];
-
       #endif // SDSORT_USES_RAM
 
       if (fileCnt > 1) {
@@ -1496,6 +1489,12 @@ void CardReader::cdroot() {
         }
         #else
         {
+          #if DISABLED(SDSORT_USES_RAM)
+            // By default re-read the names from SD for every compare, retaining two
+            // filenames at a time. This is very slow but is safest and uses minimal RAM.
+            char name1[LONG_FILENAME_LENGTH];
+          #endif
+
           // Bubble Sort
           for (int16_t i = fileCnt; --i;) {
             bool didSwap = false;

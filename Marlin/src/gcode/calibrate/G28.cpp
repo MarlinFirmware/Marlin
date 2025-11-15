@@ -131,7 +131,7 @@
   inline void home_z_safely() {
 
     // Potentially disable Fixed-Time Motion for homing
-    TERN_(FT_MOTION, FTMotionDisableInScope FT_Disabler);
+    TERN_(FT_MOTION, FTM_DISABLE_IN_SCOPE());
 
     DEBUG_SECTION(log_G28, "home_z_safely", DEBUGGING(LEVELING));
 
@@ -290,7 +290,7 @@ void GcodeSuite::G28() {
     #endif
 
     // Potentially disable Fixed-Time Motion for homing
-    TERN_(FT_MOTION, FTMotionDisableInScope FT_Disabler);
+    TERN_(FT_MOTION, FTM_DISABLE_IN_SCOPE());
 
     // Always home with tool 0 active
     #if HAS_MULTI_HOTEND

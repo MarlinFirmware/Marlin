@@ -252,6 +252,8 @@
  * M485 - Send RS485 packets (Requires RS485_SERIAL_PORT)
  * M486 - Identify and cancel objects. (Requires CANCEL_OBJECTS)
  * M493 - Set / Report input FT Motion/Shaping parameters. (Requires FT_MOTION)
+ * M495 - Set / Start resonance test. (Requires FTM_RESONANCE_TEST)
+ * M496 - Abort resonance test. (Requires FTM_RESONANCE_TEST)
  * M500 - Store parameters in EEPROM. (Requires EEPROM_SETTINGS)
  * M501 - Restore parameters from EEPROM. (Requires EEPROM_SETTINGS)
  * M502 - Revert to the default "factory settings". ** Does not write them to EEPROM! **
@@ -507,6 +509,11 @@ public:
   #endif
 
   static void dwell(const millis_t time);
+
+  #if ENABLED(GCODE_MACROS)
+    static char macros[GCODE_MACROS_SLOTS][GCODE_MACROS_SLOT_SIZE + 1];
+    static void reset_macros() { for (uint8_t i = 0; i < GCODE_MACROS_SLOTS; ++i) macros[i][0] = '\0'; }
+  #endif
 
 private:
 
@@ -881,7 +888,7 @@ private:
     #endif
   #endif
 
-  #if DISABLED(NO_VOLUMETRICS)
+  #if HAS_VOLUMETRIC_EXTRUSION
     static void M200();
     static void M200_report(const bool forReplay=true);
   #endif
@@ -1115,6 +1122,11 @@ private:
     static void M493_report(const bool forReplay=true);
     static void M494();
     static void M494_report(const bool forReplay=true);
+    #if ENABLED(FTM_RESONANCE_TEST)
+      static void M495();
+      static void M495_report(const bool forReplay=true);
+      static void M496();
+    #endif
   #endif
 
   static void M500();
@@ -1222,7 +1234,8 @@ private:
 
   #if ENABLED(GCODE_MACROS)
     static void M810_819();
-    static void M820();
+    static void M810_819_report(const bool forReplay=true);
+    static void M820(const bool withoutEcho=true);
   #endif
 
   #if HAS_BED_PROBE

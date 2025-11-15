@@ -258,7 +258,7 @@
   #if NUM_AXES >= XY
     #define HAS_Y_AXIS 1
     #define HAS_B_AXIS 1
-    #if NUM_AXES >= XYZ
+    #if NUM_AXES >= 3
       #define HAS_Z_AXIS 1
       #define HAS_C_AXIS 1
       #if NUM_AXES >= 4

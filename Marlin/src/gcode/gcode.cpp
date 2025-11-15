@@ -104,6 +104,10 @@ relative_t GcodeSuite::axis_relative; // Init in constructor
   xyz_pos_t GcodeSuite::coordinate_system[MAX_COORDINATE_SYSTEMS];
 #endif
 
+#if ENABLED(GCODE_MACROS)
+  char GcodeSuite::macros[GCODE_MACROS_SLOTS][GCODE_MACROS_SLOT_SIZE + 1] = {{ 0 }};
+#endif
+
 void GcodeSuite::report_echo_start(const bool forReplay) { if (!forReplay) SERIAL_ECHO_START(); }
 void GcodeSuite::report_heading(const bool forReplay, FSTR_P const fstr, const bool eol/*=true*/) {
   if (forReplay) return;
@@ -717,7 +721,7 @@ void GcodeSuite::process_parsed_command(bool no_ok/*=false*/) {
         #endif
       #endif
 
-      #if DISABLED(NO_VOLUMETRICS)
+      #if HAS_VOLUMETRIC_EXTRUSION
         case 200: M200(); break;                                  // M200: Set filament diameter, E to cubic units
       #endif
 
@@ -925,6 +929,10 @@ void GcodeSuite::process_parsed_command(bool no_ok/*=false*/) {
         case 493: M493(); break;                                  // M493: Fixed-Time Motion control
         #if ENABLED(FTM_SMOOTHING)
           case 494: M494(); break;                                // M494: Fixed-Time Motion extras
+        #endif
+        #if ENABLED(FTM_RESONANCE_TEST)
+          case 495: M495(); break;                                // M495: Resonance test for Input Shaping
+          case 496: M496(); break;                                // M496: Abort resonance test
         #endif
       #endif
 
