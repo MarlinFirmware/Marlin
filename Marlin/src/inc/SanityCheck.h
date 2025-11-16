@@ -939,13 +939,11 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
  */
 #if ENABLED(DIFFERENTIAL_EXTRUDER)
   #if EXTRUDERS != 1
-    #error "DIFFERENTIAL EXTRUDER currently works with only one extruder (EXTRUDERS = 1)."
-  #endif
-  #if !IS_FULL_CARTESIAN
-    #error "DIFFERENTIAL EXTRUDER requires regular Cartesian kinematics (i3/reprap only. No COREXY, DELTA, SCARA, etc.)"
-  #endif
-  #ifndef CPU_32_BIT
-      #error "DIFFERENTIAL EXTRUDER requires a 32-bit CPU"
+    #error "DIFFERENTIAL EXTRUDER currently requires a single extruder (EXTRUDERS = 1)."
+  #elif !IS_FULL_CARTESIAN
+    #error "DIFFERENTIAL EXTRUDER requires standard Cartesian kinematics."
+  #elif !defined(CPU_32_BIT)
+    #error "DIFFERENTIAL EXTRUDER requires a 32-bit CPU."
   #endif
 #endif
 
