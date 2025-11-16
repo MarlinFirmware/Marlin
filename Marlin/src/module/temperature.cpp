@@ -4035,8 +4035,8 @@ void Temperature::disable_all_heaters() {
 raw_adc_t Temperature::read_ads1118(const uint8_t hindex/*=0*/) {
   #define ADS1118_HEAT_INTERVAL 250UL  // 250 ms
   
-  static raw_adc_t ads1118_coldJ_temp_current[2] = { 0, 0 };
-  static raw_adc_t ads1118_hotJ_temp_current[2] = { 0, 0 };
+  //static raw_adc_t ads1118_coldJ_temp_current[2] = { 0, 0 };
+  //static raw_adc_t ads1118_hotJ_temp_current[2] = { 0, 0 };
 
   static raw_adc_t ads1118_temp_previous[2] = { 0, 0 };  
   static uint8_t ads1118_errors[2] = { 0, 0 };
@@ -4049,7 +4049,7 @@ raw_adc_t Temperature::read_ads1118(const uint8_t hindex/*=0*/) {
 
   static uint8_t sampleCount ;
 
-  static millis_t lastmillis ;
+  //static millis_t lastmillis ;
 
   const millis_t ms = millis();
   //SERIAL_ECHOPGM("ADS1118 elapsed: "); SERIAL_ECHOLN(ms- lastmillis); 
@@ -4101,8 +4101,8 @@ raw_adc_t Temperature::read_ads1118(const uint8_t hindex/*=0*/) {
 
   // SERIAL_ECHOPGM("ADS1118 State:Read "); SERIAL_ECHOLN(curr_state); SERIAL_ECHOPGM(":"); SERIAL_ECHOLN(raw);
 
-  // Handle read error or disconnection : raw = 0x7FFF or 0x8000
-  if (raw == 0x7FFF || raw == 0x8000) {
+  // Handle read error or disconnection : raw = 0x7FFF or 0x8000 (-32768)
+  if (raw == 0x7FFF || raw == -32768) {
     ads1118_errors[hindex]++;
     if (ads1118_errors[hindex] > 3) {
       SERIAL_ERROR_START();
@@ -4120,7 +4120,7 @@ raw_adc_t Temperature::read_ads1118(const uint8_t hindex/*=0*/) {
   }
   //ads_val = (raw_adc_t) 3000; // raw;
 
-  ads1118_temp_previous[hindex] = ads_val; // not necessary
+  ads1118_temp_previous[hindex] = ads_val; // cache value
   //SERIAL_ECHOPGM("ADS1118 ads_val: "); SERIAL_ECHOLN(ads_val);
   return ads_val;  // return the raw value, it will not be used directly for conversion but for errors, (raw values are stored in thermocouple class)
 }  
