@@ -38,7 +38,7 @@ mpatt = [ r'-?\d{1,3}', r'P[A-I]\d+', r'P\d_\d+', r'Pin[A-Z]\d\b' ]
 mstr = '|'.join(mpatt)
 mexpr = [ re.compile(f'^{m}$') for m in mpatt ]
 
-# Corrsponding padding for each pattern
+# Corresponding padding for each pattern
 ppad = [ 3, 4, 5, 5 ]
 
 # Match a define line
@@ -77,7 +77,7 @@ def format_pins(argv):
         file_text = sys.stdin.read()
     else:
         # Open and read the file src_file
-        with open(src_file, 'r', encoding='utf-8') as rf: file_text = rf.read()
+        with open(src_file, 'r', encoding='utf-8', newline='') as rf: file_text = rf.read()
 
     if len(file_text) == 0:
         print('No text to process')
@@ -86,7 +86,7 @@ def format_pins(argv):
     # Read from file or STDIN until it terminates
     filtered = process_text(file_text)
     if dst_file:
-        with open(dst_file, 'w', encoding='utf-8') as wf: wf.write(filtered)
+        with open(dst_file, 'w', encoding='utf-8', newline='') as wf: wf.write(filtered)
     else:
         print(filtered)
 

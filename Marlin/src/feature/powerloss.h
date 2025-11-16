@@ -88,7 +88,7 @@ typedef struct {
     uint8_t active_extruder;
   #endif
 
-  #if DISABLED(NO_VOLUMETRICS)
+  #if HAS_VOLUMETRIC_EXTRUSION
     float filament_size[EXTRUDERS];
   #endif
 
@@ -140,7 +140,7 @@ typedef struct {
     #if HAS_LEVELING
       bool leveling:1;            // M420 S
     #endif
-    #if DISABLED(NO_VOLUMETRICS)
+    #if HAS_VOLUMETRIC_EXTRUSION
       bool volumetric_enabled:1;  // M200 S D
     #endif
   } flag;
@@ -237,7 +237,7 @@ class PrintJobRecovery {
     static void write();
 
     #if ENABLED(BACKUP_POWER_SUPPLY)
-      static void retract_and_lift(const_float_t zraise);
+      static void retract_and_lift(const float zraise);
     #endif
 
     #if PIN_EXISTS(POWER_LOSS) || ENABLED(DEBUG_POWER_LOSS_RECOVERY)

@@ -211,6 +211,7 @@
  * M256 - Set LCD brightness: 'M256 B<brightness>' (0-255). (Requires an LCD with brightness control)
  * M260 - i2c Send Data (Requires EXPERIMENTAL_I2CBUS)
  * M261 - i2c Request Data (Requires EXPERIMENTAL_I2CBUS)
+ * M265 - i2c Scanner - Scan for I2C devices. (Requires I2C_SCANNER)
  * M280 - Set servo position absolute: 'M280 P<index> S<angle|µs>'. (Requires servos)
  * M281 - Set servo min|max position: 'M281 P<index> L<min> U<max>'. (Requires EDITABLE_SERVO_ANGLES)
  * M282 - Detach servo: 'M282 P<index>'. (Requires SERVO_DETACH_GCODE)
@@ -251,6 +252,8 @@
  * M485 - Send RS485 packets (Requires RS485_SERIAL_PORT)
  * M486 - Identify and cancel objects. (Requires CANCEL_OBJECTS)
  * M493 - Set / Report input FT Motion/Shaping parameters. (Requires FT_MOTION)
+ * M495 - Set / Start resonance test. (Requires FTM_RESONANCE_TEST)
+ * M496 - Abort resonance test. (Requires FTM_RESONANCE_TEST)
  * M500 - Store parameters in EEPROM. (Requires EEPROM_SETTINGS)
  * M501 - Restore parameters from EEPROM. (Requires EEPROM_SETTINGS)
  * M502 - Revert to the default "factory settings". ** Does not write them to EEPROM! **
@@ -308,7 +311,7 @@
  *
  * M871 - Print/Reset/Clear first layer temperature offset values. (Requires PTC_PROBE, PTC_BED, or PTC_HOTEND)
  * M876 - Handle Prompt Response. (Requires HOST_PROMPT_SUPPORT and not EMERGENCY_PARSER)
- * M900 - Set / Report Linear Advance K-factor. (Requires LIN_ADVANCE)
+ * M900 - Set / Report Linear Advance K-factor (Requires LIN_ADVANCE or FT_MOTION) and Smoothing Tau factor (Requires SMOOTH_LIN_ADVANCE).
  * M906 - Set / Report motor current in milliamps using axis codes XYZE, etc. Report values if no axis codes given. (Requires *_DRIVER_TYPE TMC(2130|2160|5130|5160|2208|2209|2240|2660))
  * M907 - Set digital trimpot motor current using axis codes. (Requires a board with digital trimpots)
  * M908 - Control digital trimpot directly. (Requires HAS_MOTOR_CURRENT_DAC or DIGIPOTSS_PIN)
@@ -506,6 +509,11 @@ public:
   #endif
 
   static void dwell(const millis_t time);
+
+  #if ENABLED(GCODE_MACROS)
+    static char macros[GCODE_MACROS_SLOTS][GCODE_MACROS_SLOT_SIZE + 1];
+    static void reset_macros() { for (uint8_t i = 0; i < GCODE_MACROS_SLOTS; ++i) macros[i][0] = '\0'; }
+  #endif
 
 private:
 
@@ -765,6 +773,9 @@ private:
     static void M104_M109(const bool isM109);
     FORCE_INLINE static void M104() { M104_M109(false); }
     FORCE_INLINE static void M109() { M104_M109(true); }
+    #if ENABLED(AUTOTEMP)
+      static void M104_report(const bool forReplay=true);
+    #endif
   #endif
 
   static void M105();
@@ -877,7 +888,7 @@ private:
     #endif
   #endif
 
-  #if DISABLED(NO_VOLUMETRICS)
+  #if HAS_VOLUMETRIC_EXTRUSION
     static void M200();
     static void M200_report(const bool forReplay=true);
   #endif
@@ -965,6 +976,10 @@ private:
     static void M261();
   #endif
 
+  #if ENABLED(I2C_SCANNER)
+    static void M265();
+  #endif
+
   #if HAS_SERVOS
     static void M280();
     #if ENABLED(EDITABLE_SERVO_ANGLES)
@@ -1050,6 +1065,7 @@ private:
 
   #if HAS_BED_PROBE
     static void M401();
+    static void M401_report(const bool forReplay=true);
     static void M402();
   #endif
 
@@ -1104,6 +1120,13 @@ private:
   #if ENABLED(FT_MOTION)
     static void M493();
     static void M493_report(const bool forReplay=true);
+    static void M494();
+    static void M494_report(const bool forReplay=true);
+    #if ENABLED(FTM_RESONANCE_TEST)
+      static void M495();
+      static void M495_report(const bool forReplay=true);
+      static void M496();
+    #endif
   #endif
 
   static void M500();
@@ -1211,7 +1234,8 @@ private:
 
   #if ENABLED(GCODE_MACROS)
     static void M810_819();
-    static void M820();
+    static void M810_819_report(const bool forReplay=true);
+    static void M820(const bool withoutEcho=true);
   #endif
 
   #if HAS_BED_PROBE
@@ -1241,7 +1265,7 @@ private:
     static void M871();
   #endif
 
-  #if ENABLED(LIN_ADVANCE)
+  #if HAS_LIN_ADVANCE_K
     static void M900();
     static void M900_report(const bool forReplay=true);
   #endif

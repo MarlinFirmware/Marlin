@@ -40,6 +40,9 @@
   #error "Marlin requires C++11 support (gcc >= 4.7, Arduino IDE >= 1.6.8). Please upgrade your toolchain."
 #endif
 
+// Emit the GCC version
+//static_assert(false, "GCC version: " STRINGIFY(__GNUC__) "." STRINGIFY(__GNUC_MINOR__) "." STRINGIFY(__GNUC_PATCHLEVEL__));
+
 // Strings for sanity check messages
 #define _NUM_AXES_STR NUM_AXIS_GANG("X ", "Y ", "Z ", "I ", "J ", "K ", "U ", "V ", "W ")
 #define _LOGICAL_AXES_STR LOGICAL_AXIS_GANG("E ", "X ", "Y ", "Z ", "I ", "J ", "K ", "U ", "V ", "W ")
@@ -77,18 +80,20 @@
  * tell you about new options that you might find useful. So it's recommended to transfer
  * your settings to new Configuration files matching your Marlin version as soon as possible.
  */
-#define HEXIFY(H) _CAT(0x,H)
-#if !defined(CONFIGURATION_H_VERSION) || HEXIFY(CONFIGURATION_H_VERSION) < HEXIFY(REQUIRED_CONFIGURATION_H_VERSION)
-  #error "Your Configuration.h file is for an old version of Marlin. Downgrade Marlin or upgrade your Configuration.h."
-#elif HEXIFY(CONFIGURATION_H_VERSION) > HEXIFY(REQUIRED_CONFIGURATION_H_VERSION)
-  #error "Your Configuration.h file is for a newer version of Marlin. Upgrade Marlin or downgrade your Configuration.h."
-#endif
-#if !defined(CONFIGURATION_ADV_H_VERSION) || HEXIFY(CONFIGURATION_ADV_H_VERSION) < HEXIFY(REQUIRED_CONFIGURATION_ADV_H_VERSION)
-  #error "Your Configuration_adv.h file is for an old version of Marlin. Downgrade Marlin or upgrade your Configuration_adv.h."
-#elif HEXIFY(CONFIGURATION_ADV_H_VERSION) > HEXIFY(REQUIRED_CONFIGURATION_ADV_H_VERSION)
-  #error "Your Configuration_adv.h file is for a newer version of Marlin. Upgrade Marlin or downgrade your Configuration_adv.h."
-#endif
-#undef HEXIFY
+#if USE_STD_CONFIGS
+  #define HEXIFY(H) _CAT(0x,H)
+  #if !defined(CONFIGURATION_H_VERSION) || HEXIFY(CONFIGURATION_H_VERSION) < HEXIFY(REQUIRED_CONFIGURATION_H_VERSION)
+    #error "Your Configuration.h file is for an old version of Marlin. Downgrade Marlin or upgrade your Configuration.h."
+  #elif HEXIFY(CONFIGURATION_H_VERSION) > HEXIFY(REQUIRED_CONFIGURATION_H_VERSION)
+    #error "Your Configuration.h file is for a newer version of Marlin. Upgrade Marlin or downgrade your Configuration.h."
+  #endif
+  #if !defined(CONFIGURATION_ADV_H_VERSION) || HEXIFY(CONFIGURATION_ADV_H_VERSION) < HEXIFY(REQUIRED_CONFIGURATION_ADV_H_VERSION)
+    #error "Your Configuration_adv.h file is for an old version of Marlin. Downgrade Marlin or upgrade your Configuration_adv.h."
+  #elif HEXIFY(CONFIGURATION_ADV_H_VERSION) > HEXIFY(REQUIRED_CONFIGURATION_ADV_H_VERSION)
+    #error "Your Configuration_adv.h file is for a newer version of Marlin. Upgrade Marlin or downgrade your Configuration_adv.h."
+  #endif
+  #undef HEXIFY
+#endif // HAS_IGNORED_CONFIGS
 
 /**
  * Warnings for old configurations
@@ -394,8 +399,8 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
 /**
  * Custom Boot and Status screens
  */
-#if ENABLED(SHOW_CUSTOM_BOOTSCREEN) && NONE(HAS_MARLINUI_HD44780, HAS_MARLINUI_U8GLIB, TOUCH_UI_FTDI_EVE, IS_DWIN_MARLINUI)
-  #error "SHOW_CUSTOM_BOOTSCREEN requires Character LCD, Graphical LCD, or TOUCH_UI_FTDI_EVE."
+#if ENABLED(SHOW_CUSTOM_BOOTSCREEN) && NONE(TFT_COLOR_UI, HAS_MARLINUI_HD44780, HAS_MARLINUI_U8GLIB, TOUCH_UI_FTDI_EVE, IS_DWIN_MARLINUI)
+  #error "SHOW_CUSTOM_BOOTSCREEN requires Character LCD, Graphical LCD, TOUCH_UI_FTDI_EVE, or TFT_COLOR_UI."
 #elif ENABLED(SHOW_CUSTOM_BOOTSCREEN) && DISABLED(SHOW_BOOTSCREEN)
   #error "SHOW_CUSTOM_BOOTSCREEN requires SHOW_BOOTSCREEN."
 #elif ENABLED(CUSTOM_STATUS_SCREEN_IMAGE) && !HAS_MARLINUI_U8GLIB
@@ -595,7 +600,7 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
 
 #if ENABLED(NOZZLE_PARK_FEATURE)
   constexpr float npp[] = NOZZLE_PARK_POINT;
-  static_assert(COUNT(npp) == _MIN(NUM_AXES, XYZ), "NOZZLE_PARK_POINT requires coordinates for enabled axes, but only up to X,Y,Z.");
+  static_assert(COUNT(npp) == _MIN(NUM_AXES, 3), "NOZZLE_PARK_POINT requires coordinates for enabled axes, but only up to X,Y,Z.");
   constexpr xyz_pos_t npp_xyz = NOZZLE_PARK_POINT;
   static_assert(WITHIN(npp_xyz.x, X_MIN_POS, X_MAX_POS), "NOZZLE_PARK_POINT.X is out of bounds (X_MIN_POS, X_MAX_POS).");
   static_assert(TERN1(HAS_Y_AXIS, WITHIN(npp_xyz.y, Y_MIN_POS, Y_MAX_POS)), "NOZZLE_PARK_POINT.Y is out of bounds (Y_MIN_POS, Y_MAX_POS).");
@@ -843,26 +848,15 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
 #endif
 
 /**
- * Linear Advance 1.5 - Check K value range
+ * Linear Advance requirements
  */
 #if ENABLED(LIN_ADVANCE)
-  #if ENABLED(DISTINCT_E_FACTORS)
-    constexpr float lak[] = ADVANCE_K;
-    static_assert(COUNT(lak) <= DISTINCT_E, "The ADVANCE_K array has too many elements (i.e., more than " STRINGIFY(DISTINCT_E) ").");
-    #define _LIN_ASSERT(N) static_assert(N >= COUNT(lak) || WITHIN(lak[N], 0, 10), "ADVANCE_K values must be from 0 to 10 (Changed in LIN_ADVANCE v1.5, Marlin 1.1.9).");
-    REPEAT(DISTINCT_E, _LIN_ASSERT)
-    #undef _LIN_ASSERT
-  #else
-    static_assert(WITHIN(ADVANCE_K, 0, 10), "ADVANCE_K must be from 0 to 10 (Changed in LIN_ADVANCE v1.5, Marlin 1.1.9).");
-  #endif
-
+  // Incompatible with Direct Stepping
   #if ENABLED(DIRECT_STEPPING)
     #error "DIRECT_STEPPING is incompatible with LIN_ADVANCE. (Extrusion is controlled externally by the Step Daemon.)"
   #endif
 
-  /**
-   * Smooth Linear Advance
-   */
+  // Smooth Linear Advance
   #if ENABLED(SMOOTH_LIN_ADVANCE)
     #ifndef CPU_32_BIT
       #error "SMOOTH_LIN_ADVANCE requires a 32-bit CPU."
@@ -870,8 +864,32 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
       #error "INPUT_SHAPING_E_SYNC requires INPUT_SHAPING_X or INPUT_SHAPING_Y."
     #endif
   #endif
-
 #endif // LIN_ADVANCE
+
+/**
+ * S_CURVE_ACCELERATION
+ */
+#if ENABLED(S_CURVE_ACCELERATION) && defined(S_CURVE_FACTOR)
+  #ifdef __AVR__
+    #error "S_CURVE_FACTOR is not yet implemented for AVR. Disable it to continue."
+  #endif
+  static_assert(WITHIN(S_CURVE_FACTOR, 0, 1), "S_CURVE_FACTOR must be between 0.0 and 1.0.");
+#endif
+
+/**
+ * Linear Advance and FT Motion - Check K value range
+ */
+#if HAS_LIN_ADVANCE_K
+  #if ENABLED(DISTINCT_E_FACTORS)
+    constexpr float lak[] = ADVANCE_K;
+    static_assert(COUNT(lak) <= DISTINCT_E, "The ADVANCE_K array has too many elements (i.e., more than " STRINGIFY(DISTINCT_E) ").");
+    #define _LIN_ASSERT(N) static_assert(N >= COUNT(lak) || WITHIN(lak[N], 0, 10), "ADVANCE_K values must be from 0 to 10.");
+    REPEAT(DISTINCT_E, _LIN_ASSERT)
+    #undef _LIN_ASSERT
+  #else
+    static_assert(WITHIN(ADVANCE_K, 0, 10), "ADVANCE_K must be from 0 to 10.");
+  #endif
+#endif
 
 /**
  * Nonlinear Extrusion requirements
@@ -1119,7 +1137,7 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
   #error "Leveling in Marlin requires three or more axes, with Z as the vertical axis."
 #elif ENABLED(CNC_WORKSPACE_PLANES) && !HAS_Z_AXIS
   #error "CNC_WORKSPACE_PLANES currently requires a Z axis"
-#elif ENABLED(DIRECT_STEPPING) && NUM_AXES > XYZ
+#elif ENABLED(DIRECT_STEPPING) && NUM_AXES > 3
   #error "DIRECT_STEPPING does not currently support more than 3 axes (i.e., XYZ)."
 #elif ENABLED(FOAMCUTTER_XYUV) && !(HAS_I_AXIS && HAS_J_AXIS)
   #error "FOAMCUTTER_XYUV requires I and J steppers to be enabled."
@@ -1250,6 +1268,13 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
 #endif
 
 /**
+ * Axel TPARA requirements
+ */
+#if ENABLED(AXEL_TPARA) && !ALL(HOME_Z_FIRST, HOME_Y_BEFORE_X)
+  #error "AXEL_TPARA requires both HOME_Z_FIRST and HOME_Y_BEFORE_X to be enabled."
+#endif
+
+/**
  * Junction deviation is incompatible with kinematic systems.
  */
 #if HAS_JUNCTION_DEVIATION && IS_KINEMATIC
@@ -1274,53 +1299,22 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
   + (DISABLED(BLTOUCH) && HAS_Z_SERVO_PROBE) \
   + COUNT_ENABLED(PROBE_MANUALLY, BLTOUCH, BD_SENSOR, FIX_MOUNTED_PROBE, NOZZLE_AS_PROBE, TOUCH_MI_PROBE, SOLENOID_PROBE, Z_PROBE_ALLEN_KEY, Z_PROBE_SLED, RACK_AND_PINION_PROBE, SENSORLESS_PROBING, MAGLEV4, MAG_MOUNTED_PROBE, BIQU_MICROPROBE_V1, BIQU_MICROPROBE_V2)
   #error "Please enable only one probe option. See the following errors:"
-  #if ENABLED(BLTOUCH)
-    #error "(BLTOUCH is enabled.)"
-  #elif HAS_Z_SERVO_PROBE
-    #error "(Z_SERVO_PROBE is enabled.)"
-  #endif
-  #if ENABLED(PROBE_MANUALLY)
-    #error "(PROBE_MANUALLY is enabled.)"
-  #endif
-  #if ENABLED(BD_SENSOR)
-    #error "(BD_SENSOR is enabled.)"
-  #endif
-  #if ENABLED(FIX_MOUNTED_PROBE)
-    #error "(FIX_MOUNTED_PROBE is enabled.)"
-  #endif
-  #if ENABLED(NOZZLE_AS_PROBE)
-    #error "(NOZZLE_AS_PROBE is enabled.)"
-  #endif
-  #if ENABLED(TOUCH_MI_PROBE)
-    #error "(TOUCH_MI_PROBE is enabled.)"
-  #endif
-  #if ENABLED(SOLENOID_PROBE)
-    #error "(SOLENOID_PROBE is enabled.)"
-  #endif
-  #if ENABLED(Z_PROBE_ALLEN_KEY)
-    #error "(Z_PROBE_ALLEN_KEY is enabled.)"
-  #endif
-  #if ENABLED(Z_PROBE_SLED)
-    #error "(Z_PROBE_SLED is enabled.)"
-  #endif
-  #if ENABLED(RACK_AND_PINION_PROBE)
-    #error "(RACK_AND_PINION_PROBE is enabled.)"
-  #endif
-  #if ENABLED(SENSORLESS_PROBING)
-    #error "(SENSORLESS_PROBING is enabled.)"
-  #endif
-  #if ENABLED(MAGLEV4)
-    #error "(MAGLEV4 is enabled.)"
-  #endif
-  #if ENABLED(MAG_MOUNTED_PROBE)
-    #error "(MAG_MOUNTED_PROBE is enabled.)"
-  #endif
-  #if ENABLED(BIQU_MICROPROBE_V1)
-    #error "(BIQU_MICROPROBE_V1 is enabled.)"
-  #endif
-  #if ENABLED(BIQU_MICROPROBE_V2)
-    #error "(BIQU_MICROPROBE_V2 is enabled.)"
-  #endif
+  static_assert(DISABLED(BLTOUCH), "(BLTOUCH is enabled.)");
+  static_assert(ENABLED(BLTOUCH) || DISABLED(HAS_Z_SERVO_PROBE), "(Z_SERVO_PROBE is enabled.)");
+  static_assert(DISABLED(PROBE_MANUALLY), "(PROBE_MANUALLY is enabled.)");
+  static_assert(DISABLED(BD_SENSOR), "(BD_SENSOR is enabled.)");
+  static_assert(DISABLED(FIX_MOUNTED_PROBE), "(FIX_MOUNTED_PROBE is enabled.)");
+  static_assert(DISABLED(NOZZLE_AS_PROBE), "(NOZZLE_AS_PROBE is enabled.)");
+  static_assert(DISABLED(TOUCH_MI_PROBE), "(TOUCH_MI_PROBE is enabled.)");
+  static_assert(DISABLED(SOLENOID_PROBE), "(SOLENOID_PROBE is enabled.)");
+  static_assert(DISABLED(Z_PROBE_ALLEN_KEY), "(Z_PROBE_ALLEN_KEY is enabled.)");
+  static_assert(DISABLED(Z_PROBE_SLED), "(Z_PROBE_SLED is enabled.)");
+  static_assert(DISABLED(RACK_AND_PINION_PROBE), "(RACK_AND_PINION_PROBE is enabled.)");
+  static_assert(DISABLED(SENSORLESS_PROBING), "(SENSORLESS_PROBING is enabled.)");
+  static_assert(DISABLED(MAGLEV4), "(MAGLEV4 is enabled.)");
+  static_assert(DISABLED(MAG_MOUNTED_PROBE), "(MAG_MOUNTED_PROBE is enabled.)");
+  static_assert(DISABLED(BIQU_MICROPROBE_V1), "(BIQU_MICROPROBE_V1 is enabled.)");
+  static_assert(DISABLED(BIQU_MICROPROBE_V2), "(BIQU_MICROPROBE_V2 is enabled.)");
 #endif
 
 #if HAS_BED_PROBE
@@ -1497,7 +1491,6 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
     #elif !PIN_EXISTS(PROBE_ENABLE)
       #error "BIQU MicroProbe requires a PROBE_ENABLE_PIN."
     #endif
-
     #if ENABLED(BIQU_MICROPROBE_V1)
       #if ENABLED(INVERTED_PROBE_STATE)
         #if Z_MIN_PROBE_ENDSTOP_HIT_STATE != LOW
@@ -1513,6 +1506,13 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
           #endif
         #elif Z_MIN_ENDSTOP_HIT_STATE != HIGH
           #error "BIQU_MICROPROBE_V1 requires Z_MIN_ENDSTOP_HIT_STATE HIGH."
+        #endif
+      #endif
+      #if NONE(ONBOARD_ENDSTOPPULLUPS, ENDSTOPPULLUPS, ENDSTOPPULLUP_ZMIN, ENDSTOPPULLUP_ZMIN_PROBE)
+        #if USE_Z_MIN_PROBE
+          #error "BIQU_MICROPROBE_V1 on Z_MIN_PROBE_PIN requires ENDSTOPPULLUP_ZMIN_PROBE, or ENDSTOPPULLUPS."
+        #else
+          #error "BIQU_MICROPROBE_V1 on Z_MIN_PIN requires ENDSTOPPULLUP_ZMIN, or ENDSTOPPULLUPS."
         #endif
       #endif
     #elif ENABLED(BIQU_MICROPROBE_V2)
@@ -1531,6 +1531,13 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
         #elif Z_MIN_ENDSTOP_HIT_STATE != LOW
           #error "BIQU_MICROPROBE_V2 requires Z_MIN_ENDSTOP_HIT_STATE LOW."
         #endif
+      #endif
+    #endif
+    #if NONE(ONBOARD_ENDSTOPPULLUPS, ENDSTOPPULLUPS, ENDSTOPPULLUP_ZMIN, ENDSTOPPULLUP_ZMIN_PROBE)
+      #if USE_Z_MIN_PROBE
+        #error "BIQU_MICROPROBE_V2 on Z_MIN_PROBE_PIN requires ENDSTOPPULLUP_ZMIN_PROBE, or ENDSTOPPULLUPS."
+      #else
+        #error "BIQU_MICROPROBE_V2 on Z_MIN_PIN requires ENDSTOPPULLUP_ZMIN, or ENDSTOPPULLUPS."
       #endif
     #endif
   #endif // BIQU_MICROPROBE_V1 || BIQU_MICROPROBE_V2
@@ -2817,79 +2824,6 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
 #endif
 
 /**
- * Make sure only one display is enabled
- */
-#if 1 < 0 \
-  + ENABLED(REPRAP_DISCOUNT_SMART_CONTROLLER) \
-  + ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER) \
-  + (ENABLED(U8GLIB_SSD1306) && DISABLED(IS_U8GLIB_SSD1306)) \
-  + (ENABLED(MINIPANEL) && NONE(MKS_MINI_12864, ENDER2_STOCKDISPLAY)) \
-  + (ENABLED(MKS_MINI_12864) && NONE(MKS_LCD12864A, MKS_LCD12864B)) \
-  + (ENABLED(FYSETC_MINI_12864_2_1) && NONE(MKS_MINI_12864_V3, BTT_MINI_12864, BEEZ_MINI_12864)) \
-  + COUNT_ENABLED(MKS_MINI_12864_V3, BTT_MINI_12864, BEEZ_MINI_12864) \
-  + (ENABLED(EXTENSIBLE_UI) && DISABLED(IS_EXTUI)) \
-  + (DISABLED(IS_LEGACY_TFT) && ENABLED(TFT_GENERIC)) \
-  + (ENABLED(IS_LEGACY_TFT) && COUNT_ENABLED(TFT_320x240, TFT_320x240_SPI, TFT_480x320, TFT_480x320_SPI)) \
-  + COUNT_ENABLED(ANYCUBIC_LCD_I3MEGA, ANYCUBIC_LCD_CHIRON, ANYCUBIC_TFT35, ANYCUBIC_LCD_VYPER) \
-  + DGUS_UI_IS(ORIGIN) + DGUS_UI_IS(FYSETC) + DGUS_UI_IS(HIPRECY) + DGUS_UI_IS(MKS) + DGUS_UI_IS(RELOADED) + DGUS_UI_IS(IA_CREALITY) \
-  + COUNT_ENABLED(ENDER2_STOCKDISPLAY, CR10_STOCKDISPLAY) \
-  + COUNT_ENABLED(DWIN_CREALITY_LCD, DWIN_LCD_PROUI, DWIN_CREALITY_LCD_JYERSUI, DWIN_MARLINUI_PORTRAIT, DWIN_MARLINUI_LANDSCAPE, SOVOL_SV06_RTS) \
-  + COUNT_ENABLED(FYSETC_MINI_12864_X_X, FYSETC_MINI_12864_1_2, FYSETC_MINI_12864_2_0, FYSETC_GENERIC_12864_1_1) \
-  + COUNT_ENABLED(LCD_SAINSMART_I2C_1602, LCD_SAINSMART_I2C_2004) \
-  + COUNT_ENABLED(MKS_12864OLED, MKS_12864OLED_SSD1306) \
-  + COUNT_ENABLED(MKS_TS35_V2_0, MKS_ROBIN_TFT24, MKS_ROBIN_TFT28, MKS_ROBIN_TFT32, MKS_ROBIN_TFT35, MKS_ROBIN_TFT43, \
-                  MKS_ROBIN_TFT_V1_1R, ANET_ET4_TFT28, ANET_ET5_TFT35, BIQU_BX_TFT70, BTT_TFT35_SPI_V1_0) \
-  + COUNT_ENABLED(TFTGLCD_PANEL_SPI, TFTGLCD_PANEL_I2C) \
-  + COUNT_ENABLED(VIKI2, miniVIKI) \
-  + ENABLED(WYH_L12864) \
-  + COUNT_ENABLED(ZONESTAR_12864LCD, ZONESTAR_12864OLED, ZONESTAR_12864OLED_SSD1306) \
-  + COUNT_ENABLED(ANET_FULL_GRAPHICS_LCD, CTC_A10S_A13) \
-  + ENABLED(AZSMZ_12864) \
-  + ENABLED(BQ_LCD_SMART_CONTROLLER) \
-  + ENABLED(CARTESIO_UI) \
-  + ENABLED(ELB_FULL_GRAPHIC_CONTROLLER) \
-  + ENABLED(FF_INTERFACEBOARD) \
-  + ENABLED(FYSETC_242_OLED_12864) \
-  + ENABLED(G3D_PANEL) \
-  + ENABLED(LCD_FOR_MELZI) \
-  + ENABLED(LCD_I2C_PANELOLU2) \
-  + ENABLED(LCD_I2C_VIKI) \
-  + ENABLED(LCM1602) \
-  + ENABLED(LONGER_LK_TFT28) \
-  + ENABLED(MAKEBOARD_MINI_2_LINE_DISPLAY_1602) \
-  + ENABLED(MAKRPANEL) \
-  + ENABLED(MALYAN_LCD) \
-  + ENABLED(NEXTION_TFT) \
-  + ENABLED(MKS_LCD12864A) \
-  + ENABLED(MKS_LCD12864B) \
-  + ENABLED(OLED_PANEL_TINYBOY2) \
-  + ENABLED(OVERLORD_OLED) \
-  + ENABLED(PANEL_ONE) \
-  + ENABLED(RA_CONTROL_PANEL) \
-  + ENABLED(RADDS_DISPLAY) \
-  + ENABLED(REPRAPWORLD_GRAPHICAL_LCD) \
-  + ENABLED(RIGIDBOT_PANEL) \
-  + ENABLED(SAV_3DGLCD) \
-  + ENABLED(SAV_3DLCD) \
-  + ENABLED(SILVER_GATE_GLCD_CONTROLLER) \
-  + ENABLED(TFT_TRONXY_X5SA) \
-  + ENABLED(TOUCH_UI_FTDI_EVE) \
-  + ENABLED(U8GLIB_SH1106_EINSTART) \
-  + ENABLED(ULTI_CONTROLLER) \
-  + ENABLED(ULTIMAKERCONTROLLER) \
-  + ENABLED(ULTIPANEL) \
-  + ENABLED(ULTRA_LCD) \
-  + ENABLED(YHCB2004) \
-  + ENABLED(ZONESTAR_LCD) \
-  + ENABLED(K3D_FULL_GRAPHIC_SMART_CONTROLLER) \
-  + ENABLED(K3D_242_OLED_CONTROLLER)
-  #error "Please select only one LCD controller option."
-#endif
-
-#undef IS_U8GLIB_SSD1306
-#undef IS_EXTUI
-
-/**
  * Make sure LCD language settings are distinct
  */
 #if NUM_LANGUAGES > 1
@@ -3767,33 +3701,11 @@ static_assert(COUNT(sanity_arr_3) <= DISTINCT_AXES, "DEFAULT_MAX_ACCELERATION ha
 static_assert(_PLUS_TEST(3), "DEFAULT_MAX_ACCELERATION values must be positive.");
 
 #if MAXIMUM_STEPPER_RATE
-  static_assert(TERN1(HAS_X_AXIS, sanity_arr_1[X_AXIS] * sanity_arr_2[X_AXIS] <= MAXIMUM_STEPPER_RATE),
-    "Slow down! DEFAULT_MAX_FEEDRATE[X] * DEFAULT_AXIS_STEPS_PER_UNIT[X] > MAXIMUM_STEPPER_RATE (" STRINGIFY(MAXIMUM_STEPPER_RATE) ")."
+  #define _RATE_ASSERT(A) static_assert(sanity_arr_1[_AXIS(A)] * sanity_arr_2[_AXIS(A)] <= MAXIMUM_STEPPER_RATE, \
+    "Slow down! DEFAULT_MAX_FEEDRATE[" STRINGIFY(A) "] * DEFAULT_AXIS_STEPS_PER_UNIT[" STRINGIFY(A) "] > MAXIMUM_STEPPER_RATE (" STRINGIFY(MAXIMUM_STEPPER_RATE) ")." \
   );
-  static_assert(TERN1(HAS_Y_AXIS, sanity_arr_1[Y_AXIS] * sanity_arr_2[Y_AXIS] <= MAXIMUM_STEPPER_RATE),
-    "Slow down! DEFAULT_MAX_FEEDRATE[Y] * DEFAULT_AXIS_STEPS_PER_UNIT[Y] > MAXIMUM_STEPPER_RATE (" STRINGIFY(MAXIMUM_STEPPER_RATE) ")."
-  );
-  static_assert(TERN1(HAS_Z_AXIS, sanity_arr_1[Z_AXIS] * sanity_arr_2[Z_AXIS] <= MAXIMUM_STEPPER_RATE),
-    "Slow down! DEFAULT_MAX_FEEDRATE[Z] * DEFAULT_AXIS_STEPS_PER_UNIT[Z] > MAXIMUM_STEPPER_RATE (" STRINGIFY(MAXIMUM_STEPPER_RATE) ")."
-  );
-  static_assert(TERN1(HAS_I_AXIS, sanity_arr_1[I_AXIS] * sanity_arr_2[I_AXIS] <= MAXIMUM_STEPPER_RATE),
-    "Slow down! DEFAULT_MAX_FEEDRATE[I] * DEFAULT_AXIS_STEPS_PER_UNIT[I] > MAXIMUM_STEPPER_RATE (" STRINGIFY(MAXIMUM_STEPPER_RATE) ")."
-  );
-  static_assert(TERN1(HAS_J_AXIS, sanity_arr_1[J_AXIS] * sanity_arr_2[J_AXIS] <= MAXIMUM_STEPPER_RATE),
-    "Slow down! DEFAULT_MAX_FEEDRATE[J] * DEFAULT_AXIS_STEPS_PER_UNIT[J] > MAXIMUM_STEPPER_RATE (" STRINGIFY(MAXIMUM_STEPPER_RATE) ")."
-  );
-  static_assert(TERN1(HAS_K_AXIS, sanity_arr_1[K_AXIS] * sanity_arr_2[K_AXIS] <= MAXIMUM_STEPPER_RATE),
-    "Slow down! DEFAULT_MAX_FEEDRATE[K] * DEFAULT_AXIS_STEPS_PER_UNIT[K] > MAXIMUM_STEPPER_RATE (" STRINGIFY(MAXIMUM_STEPPER_RATE) ")."
-  );
-  static_assert(TERN1(HAS_U_AXIS, sanity_arr_1[U_AXIS] * sanity_arr_2[U_AXIS] <= MAXIMUM_STEPPER_RATE),
-    "Slow down! DEFAULT_MAX_FEEDRATE[U] * DEFAULT_AXIS_STEPS_PER_UNIT[U] > MAXIMUM_STEPPER_RATE (" STRINGIFY(MAXIMUM_STEPPER_RATE) ")."
-  );
-  static_assert(TERN1(HAS_V_AXIS, sanity_arr_1[V_AXIS] * sanity_arr_2[V_AXIS] <= MAXIMUM_STEPPER_RATE),
-    "Slow down! DEFAULT_MAX_FEEDRATE[V] * DEFAULT_AXIS_STEPS_PER_UNIT[V] > MAXIMUM_STEPPER_RATE (" STRINGIFY(MAXIMUM_STEPPER_RATE) ")."
-  );
-  static_assert(TERN1(HAS_W_AXIS, sanity_arr_1[W_AXIS] * sanity_arr_2[W_AXIS] <= MAXIMUM_STEPPER_RATE),
-    "Slow down! DEFAULT_MAX_FEEDRATE[W] * DEFAULT_AXIS_STEPS_PER_UNIT[W] > MAXIMUM_STEPPER_RATE (" STRINGIFY(MAXIMUM_STEPPER_RATE) ")."
-  );
+  LOGICAL_AXIS_MAP(_RATE_ASSERT)
+  #undef _RATE_ASSERT
   #if ALL(HAS_EXTRUDERS, SANITY_CHECK_E_STEPPER_RATES)
     #if DISABLED(DISTINCT_E_FACTORS)
       static_assert(sanity_arr_1[E_AXIS] * sanity_arr_2[E_AXIS] <= MAXIMUM_STEPPER_RATE,
@@ -4593,10 +4505,9 @@ static_assert(_PLUS_TEST(3), "DEFAULT_MAX_ACCELERATION values must be positive."
  * Fixed-Time Motion limitations
  */
 #if ENABLED(FT_MOTION)
+  static_assert(FTM_BUFFER_SIZE >= 4 && (FTM_BUFFER_SIZE & FTM_BUFFER_MASK) == 0, "FTM_BUFFER_SIZE must be a power of two (128, 256, 512, ...).");
   #if ENABLED(MIXING_EXTRUDER)
     #error "FT_MOTION does not currently support MIXING_EXTRUDER."
-  #elif DISABLED(FTM_UNIFIED_BWS)
-    #error "FT_MOTION requires FTM_UNIFIED_BWS to be enabled because FBS is not yet implemented."
   #endif
   #if !HAS_X_AXIS
     static_assert(FTM_DEFAULT_SHAPER_X != ftMotionShaper_NONE, "Without any linear axes FTM_DEFAULT_SHAPER_X must be ftMotionShaper_NONE.");
@@ -4606,6 +4517,15 @@ static_assert(_PLUS_TEST(3), "DEFAULT_MAX_ACCELERATION values must be positive."
   #endif
   #if HAS_DYNAMIC_FREQ_G
     static_assert(FTM_DEFAULT_DYNFREQ_MODE != dynFreqMode_MASS_BASED, "dynFreqMode_MASS_BASED requires an X axis and an extruder.");
+  #endif
+  #if ENABLED(FTM_SMOOTHING)
+    static_assert(FTM_SMOOTHING_TIME_X <= FTM_MAX_SMOOTHING_TIME, "FTM_SMOOTHING_TIME_X must be <= FTM_MAX_SMOOTHING_TIME.");
+    static_assert(FTM_SMOOTHING_TIME_Y <= FTM_MAX_SMOOTHING_TIME, "FTM_SMOOTHING_TIME_Y must be <= FTM_MAX_SMOOTHING_TIME.");
+    static_assert(FTM_SMOOTHING_TIME_Z <= FTM_MAX_SMOOTHING_TIME, "FTM_SMOOTHING_TIME_Z must be <= FTM_MAX_SMOOTHING_TIME.");
+    static_assert(FTM_SMOOTHING_TIME_E <= FTM_MAX_SMOOTHING_TIME, "FTM_SMOOTHING_TIME_E must be <= FTM_MAX_SMOOTHING_TIME.");
+  #endif
+  #if ENABLED(FTM_RESONANCE_TEST) && DISABLED(EMERGENCY_PARSER)
+    #error "EMERGENCY_PARSER is required with FTM_RESONANCE_TEST (to cancel the test)."
   #endif
 #endif
 
@@ -4631,6 +4551,17 @@ static_assert(WITHIN(MULTISTEPPING_LIMIT, 1, 128) && IS_POWER_OF_2(MULTISTEPPING
 
 #if ENABLED(CONFIGURABLE_MACHINE_NAME) && DISABLED(GCODE_QUOTED_STRINGS)
   #error "CONFIGURABLE_MACHINE_NAME requires GCODE_QUOTED_STRINGS."
+#endif
+
+/**
+ * Shared Microstepping Pins Sanity Check
+ */
+#if HAS_SHARED_MICROSTEPPING_PINS
+  static constexpr uint8_t _microstep_modes[] = MICROSTEP_MODES, mm0 = _microstep_modes[0];
+  static_assert(
+    _microstep_modes[1] == mm0 && _microstep_modes[2] == mm0 && _microstep_modes[3] == mm0 && _microstep_modes[4] == mm0 && _microstep_modes[5] == mm0,
+    "When using shared microstepping pins (MS1_PIN and MS2_PIN), all MICROSTEP_MODES values must be identical."
+  );
 #endif
 
 // Misc. Cleanup

@@ -28,8 +28,9 @@
 #include "../../../module/ft_motion.h"
 #include "../../../module/stepper.h"
 
-void say_shaper_type(const AxisEnum a) {
-  SERIAL_ECHOPGM(" axis ");
+void say_shaper_type(const AxisEnum a, bool &sep, const char axis_name) {
+  if (sep) SERIAL_ECHOPGM(" ; ");
+  SERIAL_CHAR(axis_name, '=');
   switch (ftMotion.cfg.shaper[a]) {
     default: break;
     case ftMotionShaper_ZV:    SERIAL_ECHOPGM("ZV");        break;
@@ -41,49 +42,36 @@ void say_shaper_type(const AxisEnum a) {
     case ftMotionShaper_3HEI:  SERIAL_ECHOPGM("3 Hump EI"); break;
     case ftMotionShaper_MZV:   SERIAL_ECHOPGM("MZV");       break;
   }
-  SERIAL_ECHOPGM(" shaping");
+  sep = true;
 }
 
-#if CORE_IS_XY || CORE_IS_XZ
-  #define AXIS_0_NAME "A"
-#else
-  #define AXIS_0_NAME "X"
-#endif
-#if CORE_IS_XY || CORE_IS_YZ
-  #define AXIS_1_NAME "B"
-#else
-  #define AXIS_1_NAME "Y"
-#endif
-
 void say_shaping() {
+  const ft_config_t &c = ftMotion.cfg;
+
   // FT Enabled
-  SERIAL_ECHO_TERNARY(ftMotion.cfg.active, "Fixed-Time Motion ", "en", "dis", "abled");
+  SERIAL_ECHO_TERNARY(c.active, "Fixed-Time Motion ", "en", "dis", "abled");
 
   // FT Shaping
-  #if HAS_X_AXIS
-    if (AXIS_HAS_SHAPER(X)) {
-      SERIAL_ECHOPGM(" with " AXIS_0_NAME);
-      say_shaper_type(X_AXIS);
-    }
-  #endif
-  #if HAS_Y_AXIS
-    if (AXIS_HAS_SHAPER(Y)) {
-      SERIAL_ECHOPGM(" and with " AXIS_1_NAME);
-      say_shaper_type(Y_AXIS);
-    }
-  #endif
+  const bool is_shaping = AXIS_IS_SHAPING(X) || AXIS_IS_SHAPING(Y) || AXIS_IS_SHAPING(Z) || AXIS_IS_SHAPING(E);
+  bool sep = false;
+  if (is_shaping) {
+    #define STEPPER_E_NAME 'E'
+    #define _SAY_SHAPER(A) if (AXIS_IS_SHAPING(A)) say_shaper_type(_AXIS(A), sep, STEPPER_##A##_NAME);
+    SERIAL_ECHOPGM(" (");
+    SHAPED_CODE(_SAY_SHAPER(A), _SAY_SHAPER(B), _SAY_SHAPER(C), _SAY_SHAPER(E));
+    SERIAL_CHAR(')');
+  }
+  SERIAL_EOL();
 
-  SERIAL_ECHOLNPGM(".");
-
-  const bool z_based = TERN0(HAS_DYNAMIC_FREQ_MM, ftMotion.cfg.dynFreqMode == dynFreqMode_Z_BASED),
-             g_based = TERN0(HAS_DYNAMIC_FREQ_G,  ftMotion.cfg.dynFreqMode == dynFreqMode_MASS_BASED),
+  const bool z_based = TERN0(HAS_DYNAMIC_FREQ_MM, c.dynFreqMode == dynFreqMode_Z_BASED),
+             g_based = TERN0(HAS_DYNAMIC_FREQ_G,  c.dynFreqMode == dynFreqMode_MASS_BASED),
              dynamic = z_based || g_based;
 
   // FT Dynamic Frequency Mode
-  if (AXIS_HAS_SHAPER(X) || AXIS_HAS_SHAPER(Y)) {
+  if (is_shaping) {
     #if HAS_DYNAMIC_FREQ
       SERIAL_ECHOPGM("Dynamic Frequency Mode ");
-      switch (ftMotion.cfg.dynFreqMode) {
+      switch (c.dynFreqMode) {
         default:
         case dynFreqMode_DISABLED: SERIAL_ECHOPGM("disabled"); break;
         #if HAS_DYNAMIC_FREQ_MM
@@ -97,31 +85,35 @@ void say_shaping() {
     #endif
 
     #if HAS_X_AXIS
-      SERIAL_ECHO_TERNARY(dynamic, AXIS_0_NAME " ", "base dynamic", "static", " shaper frequency: ");
-      SERIAL_ECHO(p_float_t(ftMotion.cfg.baseFreq.x, 2), F("Hz"));
+      SERIAL_CHAR(STEPPER_A_NAME);
+      SERIAL_ECHO_TERNARY(dynamic, " ", "base dynamic", "static", " shaper frequency: ");
+      SERIAL_ECHO(p_float_t(c.baseFreq.x, 2), F("Hz"));
       #if HAS_DYNAMIC_FREQ
-        if (dynamic) SERIAL_ECHO(F(" scaling: "), p_float_t(ftMotion.cfg.dynFreqK.x, 2), F("Hz/"), z_based ? F("mm") : F("g"));
+        if (dynamic) SERIAL_ECHO(F(" scaling: "), p_float_t(c.dynFreqK.x, 2), F("Hz/"), z_based ? F("mm") : F("g"));
       #endif
       SERIAL_EOL();
     #endif
 
     #if HAS_Y_AXIS
-      SERIAL_ECHO_TERNARY(dynamic, AXIS_1_NAME " ", "base dynamic", "static", " shaper frequency: ");
-      SERIAL_ECHO(p_float_t(ftMotion.cfg.baseFreq.y, 2), F(" Hz"));
+      SERIAL_CHAR(STEPPER_B_NAME);
+      SERIAL_ECHO_TERNARY(dynamic, " ", "base dynamic", "static", " shaper frequency: ");
+      SERIAL_ECHO(p_float_t(c.baseFreq.y, 2), F(" Hz"));
       #if HAS_DYNAMIC_FREQ
-        if (dynamic) SERIAL_ECHO(F(" scaling: "), p_float_t(ftMotion.cfg.dynFreqK.y, 2), F("Hz/"), z_based ? F("mm") : F("g"));
+        if (dynamic) SERIAL_ECHO(F(" scaling: "), p_float_t(c.dynFreqK.y, 2), F("Hz/"), z_based ? F("mm") : F("g"));
+      #endif
+      SERIAL_EOL();
+    #endif
+
+    #if ENABLED(FTM_SHAPER_Z)
+      SERIAL_CHAR(STEPPER_C_NAME);
+      SERIAL_ECHO_TERNARY(dynamic, " ", "base dynamic", "static", " shaper frequency: ");
+      SERIAL_ECHO(p_float_t(c.baseFreq.z, 2), F(" Hz"));
+      #if HAS_DYNAMIC_FREQ
+        if (dynamic) SERIAL_ECHO(F(" scaling: "), p_float_t(c.dynFreqK.z, 2), F("Hz/"), z_based ? F("mm") : F("g"));
       #endif
       SERIAL_EOL();
     #endif
   }
-
-  #if HAS_EXTRUDERS
-    SERIAL_ECHO_TERNARY(ftMotion.cfg.linearAdvEna, "Linear Advance ", "en", "dis", "abled");
-    if (ftMotion.cfg.linearAdvEna)
-      SERIAL_ECHOLNPGM(". Gain: ", ftMotion.cfg.linearAdvK);
-    else
-      SERIAL_EOL();
-  #endif
 }
 
 void GcodeSuite::M493_report(const bool forReplay/*=true*/) {
@@ -129,26 +121,31 @@ void GcodeSuite::M493_report(const bool forReplay/*=true*/) {
 
   report_heading_etc(forReplay, F(STR_FT_MOTION));
   const ft_config_t &c = ftMotion.cfg;
-  SERIAL_ECHOPGM("  M493 S", c.active);
-  #if HAS_X_AXIS
-    SERIAL_ECHOPGM(" A", c.baseFreq.x);
-    #if HAS_Y_AXIS
-      SERIAL_ECHOPGM(" B", c.baseFreq.y);
+
+  SERIAL_ECHOLNPGM(
+    "  M493 S", c.active
+    #if HAS_DYNAMIC_FREQ
+      , " D", c.dynFreqMode
     #endif
-  #endif
+    // Axis Synchronization
+    , " H", c.axis_sync_enabled
+  );
+
   #if HAS_DYNAMIC_FREQ
-    SERIAL_ECHOPGM(" D", c.dynFreqMode);
-    #if HAS_X_AXIS
-      SERIAL_ECHOPGM(" F", c.dynFreqK.x);
-      #if HAS_Y_AXIS
-        SERIAL_ECHOPGM(" H", c.dynFreqK.y);
-      #endif
-    #endif
+    #define F_REPORT(A) , F(" F"), c.dynFreqK.A
+  #else
+    #define F_REPORT(A)
   #endif
-  #if HAS_EXTRUDERS
-    SERIAL_ECHOPGM(" P", c.linearAdvEna, " K", c.linearAdvK);
-  #endif
-  SERIAL_EOL();
+  #define _REPORT_M493_AXIS(A) \
+    SERIAL_ECHOLN(F("  M493 "), C(AXIS_CHAR(_AXIS(A))) \
+      , F(" C"), c.shaper.A \
+      , F(" A"), c.baseFreq.A \
+      F_REPORT(A) \
+      , F(" I"), c.zeta.A \
+      , F(" Q"), c.vtol.A \
+    );
+  // Shaper type for each axis
+  SHAPED_MAP(_REPORT_M493_AXIS);
 }
 
 /**
@@ -158,8 +155,23 @@ void GcodeSuite::M493_report(const bool forReplay/*=true*/) {
  *       0: Fixed-Time Motion OFF (Standard Motion)
  *       1: Fixed-Time Motion ON
  *
- *    X/Y<mode> Set the vibration compensator [input shaper] mode for X / Y axis.
- *              Users / slicers must remember to set the mode for both axes!
+ *    V         Flag to request version (Version 2+). (No reply = Version < 2)
+ *
+ *    H<bool> Enable (1) or Disable (0) Axis Synchronization.
+ *
+ * Linear / Pressure Advance:
+ *
+ *    P<bool> Enable (1) or Disable (0) Linear Advance pressure control
+ *
+ * Specifying Axes (for A,C,F,I,Q):
+ *
+ *    X/Y/Z/E : Flag the axes (or core steppers) on which to apply the given parameters
+ *              If none are given then XY is assumed.
+ *
+ * Compensator / Input Shaper:
+ *
+ *    C<mode>   Set Compensator Mode (Input Shaper) for the specified axes
+ *              Users / slicers must remember to set the mode for all relevant axes!
  *       0: NONE  : No input shaper
  *       1: ZV    : Zero Vibration
  *       2: ZVD   : Zero Vibration and Derivative
@@ -170,26 +182,27 @@ void GcodeSuite::M493_report(const bool forReplay/*=true*/) {
  *       7: 3HEI  : 3-Hump Extra-Intensive
  *       8: MZV   : Mass-based Zero Vibration
  *
- *    P<bool> Enable (1) or Disable (0) Linear Advance pressure control
+ *    A<Hz>     Set static/base frequency for the specified axes
+ *    I<flt>    Set damping ratio for the specified axes
+ *    Q<flt>    Set vibration tolerance (vtol) for the specified axes
  *
- *    K<gain> Set Linear Advance gain
+ * Dynamic Frequency Mode:
  *
- *    D<mode> Set Dynamic Frequency mode
+ *    D<mode> Set Dynamic Frequency mode (for all axis compensators)
  *       0: DISABLED
  *       1: Z-based (Requires a Z axis)
  *       2: Mass-based (Requires X and E axes)
  *
- *    A<Hz>   Set static/base frequency for the X axis
- *    F<Hz>   Set frequency scaling for the X axis
- *    I 0.0   Set damping ratio for the X axis
- *    Q 0.00  Set the vibration tolerance for the X axis
+ *    F<Hz>     Set frequency scaling for the specified axes
  *
- *    B<Hz> Set static/base frequency for the Y axis
- *    H<Hz> Set frequency scaling for the Y axis
- *    J 0.0   Set damping ratio for the Y axis
- *    R 0.00  Set the vibration tolerance for the Y axis
  */
 void GcodeSuite::M493() {
+  // Request version of FTM. (No response = Version < 2)
+  if (parser.seen('V') && !parser.has_value()) {
+    SERIAL_ECHOLNPGM("FTM V" STRINGIFY(FTM_VERSION));
+    return;
+  }
+
   struct { bool update:1, report:1; } flag = { false };
 
   if (!parser.seen_any())
@@ -205,65 +218,42 @@ void GcodeSuite::M493() {
     }
   }
 
-  #if HAS_X_AXIS
-    auto set_shaper = [&](const AxisEnum axis, const char c) {
-      const ftMotionShaper_t newsh = (ftMotionShaper_t)parser.value_byte();
+  #if NUM_AXES_SHAPED > 0
+
+    const bool seenC = parser.seenval('C');
+    const ftMotionShaper_t shaperVal = seenC ? (ftMotionShaper_t)parser.value_byte() : ftMotionShaper_NONE;
+    const bool goodShaper = WITHIN(shaperVal, ftMotionShaper_NONE, ftMotionShaper_MZV);
+    if (seenC && !goodShaper) {
+      SERIAL_ECHOLN(F("?Invalid "), F("(C)ompensator value. (0-"), int(ftMotionShaper_MZV));
+      return;
+    }
+    auto set_shaper = [&](const AxisEnum axis, ftMotionShaper_t newsh) {
       if (newsh != ftMotion.cfg.shaper[axis]) {
-        switch (newsh) {
-          default: SERIAL_ECHOLNPGM("?Invalid [", C(c), "] shaper."); return true;
-          case ftMotionShaper_NONE:
-          case ftMotionShaper_ZV:
-          case ftMotionShaper_ZVD:
-          case ftMotionShaper_ZVDD:
-          case ftMotionShaper_ZVDDD:
-          case ftMotionShaper_EI:
-          case ftMotionShaper_2HEI:
-          case ftMotionShaper_3HEI:
-          case ftMotionShaper_MZV:
-            ftMotion.cfg.shaper[axis] = newsh;
-            flag.update = flag.report = true;
-            break;
-        }
+        ftMotion.cfg.shaper[axis] = newsh;
+        flag.update = flag.report = true;
       }
-      return false;
     };
+    if (seenC) {
+      #define _SET_SHAPER(A) set_shaper(_AXIS(A), shaperVal);
+      SHAPED_MAP(_SET_SHAPER);
+    }
 
-    if (parser.seenval('X') && set_shaper(X_AXIS, 'X')) return;    // Parse 'X' mode parameter
+  #endif // NUM_AXES_SHAPED > 0
 
-    #if HAS_Y_AXIS
-      if (parser.seenval('Y') && set_shaper(Y_AXIS, 'Y')) return;  // Parse 'Y' mode parameter
-    #endif
-
-  #endif // HAS_X_AXIS
-
-  #if HAS_EXTRUDERS
-
-    // Pressure control (linear advance) parameter.
-    if (parser.seen('P')) {
-      const bool val = parser.value_bool();
-      ftMotion.cfg.linearAdvEna = val;
+  // Parse 'H' Axis Synchronization parameter.
+  if (parser.seenval('H')) {
+    const bool enabled = parser.value_bool();
+    if (enabled != ftMotion.cfg.axis_sync_enabled) {
+      ftMotion.cfg.axis_sync_enabled = enabled;
       flag.report = true;
-      SERIAL_ECHO_TERNARY(val, "Linear Advance ", "en", "dis", "abled.\n");
     }
-
-    // Pressure control (linear advance) gain parameter.
-    if (parser.seenval('K')) {
-      const float val = parser.value_float();
-      if (val >= 0.0f) {
-        ftMotion.cfg.linearAdvK = val;
-        flag.report = true;
-      }
-      else // Value out of range.
-        SERIAL_ECHOLNPGM("Linear Advance gain out of range.");
-    }
-
-  #endif // HAS_EXTRUDERS
+  }
 
   #if HAS_DYNAMIC_FREQ
 
     // Dynamic frequency mode parameter.
     if (parser.seenval('D')) {
-      if (AXIS_HAS_SHAPER(X) || AXIS_HAS_SHAPER(Y)) {
+      if (AXIS_IS_SHAPING(X) || AXIS_IS_SHAPING(Y) || AXIS_IS_SHAPING(Z) || AXIS_IS_SHAPING(E)) {
         const dynFreqMode_t val = dynFreqMode_t(parser.value_byte());
         switch (val) {
           #if HAS_DYNAMIC_FREQ_MM
@@ -277,12 +267,12 @@ void GcodeSuite::M493() {
             flag.report = true;
             break;
           default:
-            SERIAL_ECHOLNPGM("?Invalid Dynamic Frequency Mode [D] value.");
+            SERIAL_ECHOLN(F("?Invalid "), F("(D)ynamic Frequency Mode value."));
             break;
         }
       }
       else {
-        SERIAL_ECHOLNPGM("?Wrong shaper for [D] Dynamic Frequency mode.");
+        SERIAL_ECHOLNPGM("?Wrong shaper for (D)ynamic Frequency Mode ", ftMotion.cfg.dynFreqMode, ".");
       }
     }
 
@@ -293,128 +283,241 @@ void GcodeSuite::M493() {
 
   #endif // HAS_DYNAMIC_FREQ
 
+  // Frequency parameter
+  const bool seenA = parser.seenval('A');
+  const float baseFreqVal = seenA ? parser.value_float() : 0.0f;
+  const bool goodBaseFreq = seenA && WITHIN(baseFreqVal, FTM_MIN_SHAPE_FREQ, (FTM_FS) / 2);
+  if (seenA && !goodBaseFreq)
+    SERIAL_ECHOLN(F("?Invalid "), F("(A) Base Frequency value. ("), int(FTM_MIN_SHAPE_FREQ), C('-'), int((FTM_FS) / 2), C(')'));
+
+  #if HAS_DYNAMIC_FREQ
+    // Dynamic Frequency parameter
+    const bool seenF = parser.seenval('F');
+    const float baseDynFreqVal = seenF ? parser.value_float() : 0.0f;
+    if (seenF && !modeUsesDynFreq)
+      SERIAL_ECHOLNPGM("?Wrong mode for (F)requency scaling.");
+  #endif
+
+  // Zeta parameter
+  const bool seenI = parser.seenval('I');
+  const float zetaVal = seenI ? parser.value_float() : 0.0f;
+  const bool goodZeta = seenI && WITHIN(zetaVal, 0.01f, 1.0f);
+  if (seenI && !goodZeta)
+    SERIAL_ECHOLN(F("?Invalid "), F("(I) Zeta value. (0.01-1.0)")); // Zeta out of range
+
+  // Vibration Tolerance parameter
+  const bool seenQ = parser.seenval('Q');
+  const float vtolVal = seenQ ? parser.value_float() : 0.0f;
+  const bool goodVtol = seenQ && WITHIN(vtolVal, 0.00f, 1.0f);
+  if (seenQ && !goodVtol)
+    SERIAL_ECHOLN(F("?Invalid "), F("(Q) Vibration Tolerance value. (0.0-1.0)")); // VTol out of range
+
+  const bool apply_xy = !parser.seen("XYZE");
+
   #if HAS_X_AXIS
 
-    // Parse frequency parameter (X axis).
-    if (parser.seenval('A')) {
-      if (AXIS_HAS_SHAPER(X)) {
-        const float val = parser.value_float();
-        // TODO: Frequency minimum is dependent on the shaper used; the above check isn't always correct.
-        if (WITHIN(val, FTM_MIN_SHAPE_FREQ, (FTM_FS) / 2)) {
-          ftMotion.cfg.baseFreq.x = val;
-          flag.update = flag.report = true;
-        }
-        else // Frequency out of range.
-          SERIAL_ECHOLNPGM("Invalid [", C('A'), "] frequency value.");
-      }
-      else // Mode doesn't use frequency.
-        SERIAL_ECHOLNPGM("Wrong mode for [", C('A'), "] frequency.");
-    }
+    if (apply_xy || parser.seen_test('X')) {
 
-    #if HAS_DYNAMIC_FREQ
-      // Parse frequency scaling parameter (X axis).
-      if (parser.seenval('F')) {
-        if (modeUsesDynFreq) {
-          ftMotion.cfg.dynFreqK.x = parser.value_float();
+      // Parse X frequency parameter
+      if (seenA) {
+        if (AXIS_IS_SHAPING(X)) {
+          // TODO: Frequency minimum is dependent on the shaper used; the above check isn't always correct.
+          if (goodBaseFreq) {
+            ftMotion.cfg.baseFreq.x = baseFreqVal;
+            flag.update = flag.report = true;
+          }
+        }
+        else // Mode doesn't use frequency.
+          SERIAL_ECHOLNPGM("?Wrong mode for ", C(STEPPER_A_NAME), " [A] frequency.");
+      }
+
+      #if HAS_DYNAMIC_FREQ
+        // Parse X frequency scaling parameter
+        if (seenF && modeUsesDynFreq) {
+          ftMotion.cfg.dynFreqK.x = baseDynFreqVal;
           flag.report = true;
         }
-        else
-          SERIAL_ECHOLNPGM("Wrong mode for [", C('F'), "] frequency scaling.");
-      }
-    #endif
+      #endif
 
-    // Parse zeta parameter (X axis).
-    if (parser.seenval('I')) {
-      const float val = parser.value_float();
-      if (AXIS_HAS_SHAPER(X)) {
-        if (WITHIN(val, 0.01f, 1.0f)) {
-          ftMotion.cfg.zeta[0] = val;
-          flag.update = true;
+      // Parse X zeta parameter
+      if (seenI) {
+        if (AXIS_IS_SHAPING(X)) {
+          if (goodZeta) {
+            ftMotion.cfg.zeta.x = zetaVal;
+            flag.update = true;
+          }
         }
         else
-          SERIAL_ECHOLNPGM("Invalid X zeta [", C('I'), "] value."); // Zeta out of range.
+          SERIAL_ECHOLNPGM("?Wrong mode for ", C(STEPPER_A_NAME), " zeta parameter.");
       }
-      else
-        SERIAL_ECHOLNPGM("Wrong mode for zeta parameter.");
-    }
 
-    // Parse vtol parameter (X axis).
-    if (parser.seenval('Q')) {
-      const float val = parser.value_float();
-      if (AXIS_HAS_EISHAPER(X)) {
-        if (WITHIN(val, 0.00f, 1.0f)) {
-          ftMotion.cfg.vtol[0] = val;
-          flag.update = true;
+      // Parse X vtol parameter
+      if (seenQ) {
+        if (AXIS_IS_EISHAPING(X)) {
+          if (goodVtol) {
+            ftMotion.cfg.vtol.x = vtolVal;
+            flag.update = true;
+          }
         }
         else
-          SERIAL_ECHOLNPGM("Invalid X vtol [", C('Q'), "] value."); // VTol out of range.
+          SERIAL_ECHOLNPGM("?Wrong mode for ", C(STEPPER_A_NAME), " vtol parameter.");
       }
-      else
-        SERIAL_ECHOLNPGM("Wrong mode for vtol parameter.");
     }
 
   #endif // HAS_X_AXIS
 
   #if HAS_Y_AXIS
 
-    // Parse frequency parameter (Y axis).
-    if (parser.seenval('B')) {
-      if (AXIS_HAS_SHAPER(Y)) {
-        const float val = parser.value_float();
-        if (WITHIN(val, FTM_MIN_SHAPE_FREQ, (FTM_FS) / 2)) {
-          ftMotion.cfg.baseFreq.y = val;
-          flag.update = flag.report = true;
-        }
-        else // Frequency out of range.
-          SERIAL_ECHOLNPGM("Invalid frequency [", C('B'), "] value.");
-      }
-      else // Mode doesn't use frequency.
-        SERIAL_ECHOLNPGM("Wrong mode for [", C('B'), "] frequency.");
-    }
+    if (apply_xy || parser.seen_test('Y')) {
 
-    #if HAS_DYNAMIC_FREQ
-      // Parse frequency scaling parameter (Y axis).
-      if (parser.seenval('H')) {
-        if (modeUsesDynFreq) {
-          ftMotion.cfg.dynFreqK.y = parser.value_float();
+      // Parse Y frequency parameter
+      if (seenA) {
+        if (AXIS_IS_SHAPING(Y)) {
+          if (goodBaseFreq) {
+            ftMotion.cfg.baseFreq.y = baseFreqVal;
+            flag.update = flag.report = true;
+          }
+        }
+        else // Mode doesn't use frequency.
+          SERIAL_ECHOLNPGM("?Wrong mode for ", C(STEPPER_B_NAME), " [A] frequency.");
+      }
+
+      #if HAS_DYNAMIC_FREQ
+        // Parse Y frequency scaling parameter
+        if (seenF && modeUsesDynFreq) {
+          ftMotion.cfg.dynFreqK.y = baseDynFreqVal;
           flag.report = true;
         }
-        else
-          SERIAL_ECHOLNPGM("Wrong mode for [", C('H'), "] frequency scaling.");
-      }
-    #endif
+      #endif
 
-    // Parse zeta parameter (Y axis).
-    if (parser.seenval('J')) {
-      const float val = parser.value_float();
-      if (AXIS_HAS_SHAPER(Y)) {
-        if (WITHIN(val, 0.01f, 1.0f)) {
-          ftMotion.cfg.zeta[1] = val;
-          flag.update = true;
+      // Parse Y zeta parameter
+      if (seenI) {
+        if (AXIS_IS_SHAPING(Y)) {
+          if (goodZeta) {
+            ftMotion.cfg.zeta.y = zetaVal;
+            flag.update = true;
+          }
         }
         else
-          SERIAL_ECHOLNPGM("Invalid Y zeta [", C('J'), "] value."); // Zeta Out of range
+          SERIAL_ECHOLNPGM("?Wrong mode for ", C(STEPPER_B_NAME), " zeta parameter.");
       }
-      else
-        SERIAL_ECHOLNPGM("Wrong mode for zeta parameter.");
-    }
 
-    // Parse vtol parameter (Y axis).
-    if (parser.seenval('R')) {
-      const float val = parser.value_float();
-      if (AXIS_HAS_EISHAPER(Y)) {
-        if (WITHIN(val, 0.00f, 1.0f)) {
-          ftMotion.cfg.vtol[1] = val;
-          flag.update = true;
+      // Parse Y vtol parameter
+      if (seenQ) {
+        if (AXIS_IS_EISHAPING(Y)) {
+          if (goodVtol) {
+            ftMotion.cfg.vtol.y = vtolVal;
+            flag.update = true;
+          }
         }
         else
-          SERIAL_ECHOLNPGM("Invalid Y vtol [", C('R'), "] value."); // VTol out of range.
+          SERIAL_ECHOLNPGM("?Wrong mode for ", C(STEPPER_B_NAME), " vtol parameter.");
       }
-      else
-        SERIAL_ECHOLNPGM("Wrong mode for vtol parameter.");
     }
 
   #endif // HAS_Y_AXIS
+
+  #if ENABLED(FTM_SHAPER_Z)
+
+    if (parser.seen_test('Z')) {
+
+      // Parse Z frequency parameter
+      if (seenA) {
+        if (AXIS_IS_SHAPING(Z)) {
+          if (goodBaseFreq) {
+            ftMotion.cfg.baseFreq.z = baseFreqVal;
+            flag.update = flag.report = true;
+          }
+        }
+        else // Mode doesn't use frequency.
+          SERIAL_ECHOLNPGM("?Wrong mode for ", C(STEPPER_C_NAME), " [A] frequency.");
+      }
+
+      #if HAS_DYNAMIC_FREQ
+        // Parse Z frequency scaling parameter
+        if (seenF && modeUsesDynFreq) {
+          ftMotion.cfg.dynFreqK.z = baseDynFreqVal;
+          flag.report = true;
+        }
+      #endif
+
+      // Parse Z zeta parameter
+      if (seenI) {
+        if (AXIS_IS_SHAPING(Z)) {
+          if (goodZeta) {
+            ftMotion.cfg.zeta.z = zetaVal;
+            flag.update = true;
+          }
+        }
+        else
+          SERIAL_ECHOLNPGM("?Wrong mode for ", C(STEPPER_C_NAME), " zeta parameter.");
+      }
+
+      // Parse Z vtol parameter
+      if (seenQ) {
+        if (AXIS_IS_EISHAPING(Z)) {
+          if (goodVtol) {
+            ftMotion.cfg.vtol.z = vtolVal;
+            flag.update = true;
+          }
+        }
+        else
+          SERIAL_ECHOLNPGM("?Wrong mode for ", C(STEPPER_C_NAME), " vtol parameter.");
+      }
+    }
+
+  #endif // FTM_SHAPER_Z
+
+  #if ENABLED(FTM_SHAPER_E)
+
+    if (parser.seen_test('E')) {
+
+      // Parse E frequency parameter
+      if (seenA) {
+        if (AXIS_IS_SHAPING(E)) {
+          if (goodBaseFreq) {
+            ftMotion.cfg.baseFreq.e = baseFreqVal;
+            flag.update = flag.report = true;
+          }
+        }
+        else // Mode doesn't use frequency.
+          SERIAL_ECHOLNPGM("?Wrong mode for ", C('E'), " [A] frequency.");
+      }
+
+      #if HAS_DYNAMIC_FREQ
+        // Parse E frequency scaling parameter
+        if (seenF && modeUsesDynFreq) {
+          ftMotion.cfg.dynFreqK.e = baseDynFreqVal;
+          flag.report = true;
+        }
+      #endif
+
+      // Parse E zeta parameter
+      if (seenI) {
+        if (AXIS_IS_SHAPING(E)) {
+          if (goodZeta) {
+            ftMotion.cfg.zeta.e = zetaVal;
+            flag.update = true;
+          }
+        }
+        else
+          SERIAL_ECHOLNPGM("?Wrong mode for ", C('E'), " zeta parameter.");
+      }
+
+      // Parse E vtol parameter
+      if (seenQ) {
+        if (AXIS_IS_EISHAPING(E)) {
+          if (goodVtol) {
+            ftMotion.cfg.vtol.e = vtolVal;
+            flag.update = true;
+          }
+        }
+        else
+          SERIAL_ECHOLNPGM("?Wrong mode for ", C('E'), " vtol parameter.");
+      }
+    }
+
+  #endif // FTM_SHAPER_E
 
   if (flag.update) ftMotion.update_shaping_params();
 

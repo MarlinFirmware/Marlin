@@ -52,7 +52,7 @@
 #endif
 
 #if ENABLED(FT_MOTION)
-  #include "ft_types.h"
+  class FTMotion;
 #endif
 
 // TODO: Review and ensure proper handling for special E axes with commands like M17/M18, stepper timeout, etc.
@@ -275,7 +275,7 @@ constexpr ena_mask_t enable_overlap[] = {
     float zeta;
     bool enabled : 1;
     bool forward : 1;
-    int16_t delta_error = 0;    // delta_error for seconday bresenham mod 128
+    int16_t delta_error = 0;    // delta_error for secondary Bresenham mod 128
     uint8_t factor1;
     uint8_t factor2;
     int32_t last_block_end_pos = 0;
@@ -383,7 +383,7 @@ class Stepper {
 
     #if ENABLED(SMOOTH_LIN_ADVANCE)
       static float extruder_advance_tau[DISTINCT_E]; // Smoothing time; also the lookahead time of the smoother
-      static void set_advance_tau(const_float_t tau, const uint8_t e=active_extruder) {
+      static void set_advance_tau(const float tau, const uint8_t e=active_extruder) {
         const uint8_t i = E_INDEX_N(e);
         extruder_advance_tau[i] = tau;
         extruder_advance_tau_ticks[i] = tau * STEPPER_TIMER_RATE;
@@ -459,7 +459,7 @@ class Stepper {
       static int32_t bezier_A,     // A coefficient in Bézier speed curve
                      bezier_B,     // B coefficient in Bézier speed curve
                      bezier_C;     // C coefficient in Bézier speed curve
-      static uint32_t bezier_F,    // F coefficient in Bézier speed curve
+      static uint32_t bezier_F,    // F/free coefficient in Bézier speed curve
                       bezier_AV;   // AV coefficient in Bézier speed curve
       #ifdef __AVR__
         static bool A_negative;    // If A coefficient was negative
@@ -486,7 +486,7 @@ class Stepper {
       #if ENABLED(SMOOTH_LIN_ADVANCE)
         static uint32_t curr_timer_tick,                        // Current tick relative to block start
                         curr_step_rate;                         // Current motion step rate
-        static uint32_t extruder_advance_tau_ticks[DISTINCT_E], // Same as extruder_advance_tau but in in stepper timer ticks
+        static uint32_t extruder_advance_tau_ticks[DISTINCT_E], // Same as extruder_advance_tau but in stepper timer ticks
                         extruder_advance_alpha_q30[DISTINCT_E]; // The smoothing factor of each stage of the high-order exponential
                                                                 // smoothing filter (calculated from tau)
       #else
@@ -749,9 +749,9 @@ class Stepper {
     #endif
 
     #if HAS_ZV_SHAPING
-      static void set_shaping_damping_ratio(const AxisEnum axis, const_float_t zeta);
+      static void set_shaping_damping_ratio(const AxisEnum axis, const float zeta);
       static float get_shaping_damping_ratio(const AxisEnum axis);
-      static void set_shaping_frequency(const AxisEnum axis, const_float_t freq);
+      static void set_shaping_frequency(const AxisEnum axis, const float freq);
       static float get_shaping_frequency(const AxisEnum axis);
     #endif
 

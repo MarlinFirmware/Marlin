@@ -25,12 +25,6 @@
   #define __has_include(...) 1
 #endif
 
-#define ABCE 4
-#define XYZE 4
-#define ABC  3
-#define XYZ  3
-#define XY   2
-
 #define _AXIS(A) (A##_AXIS)
 
 #define _FORCE_INLINE_ __attribute__((__always_inline__)) __inline__
@@ -58,6 +52,7 @@
 // Macros to make a string from a macro
 #define STRINGIFY_(M) #M
 #define STRINGIFY(M) STRINGIFY_(M)
+#define CHARIFY(M) STRINGIFY(M)[0]
 
 #define A(CODE) " " CODE "\n\t"
 #define L(CODE) CODE ":\n\t"

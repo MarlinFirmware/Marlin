@@ -56,7 +56,7 @@ void MarlinHAL::init() {
   // Ensure F_CPU is a constant expression.
   // If the compiler breaks here, it means that delay code that should compute at compile time will not work.
   // So better safe than sorry here.
-  constexpr int cpuFreq = F_CPU;
+  constexpr unsigned int cpuFreq = F_CPU;
   UNUSED(cpuFreq);
 
   #if HAS_MEDIA && DISABLED(ONBOARD_SDIO) && PIN_EXISTS(SD_SS)
@@ -112,7 +112,7 @@ void MarlinHAL::reboot() { watchdog_reboot(0, 0, 1); }
 
   void MarlinHAL::watchdog_init() {
     #if DISABLED(DISABLE_WATCHDOG_INIT)
-      static_assert(WDT_TIMEOUT_US > 1000, "WDT Timout is too small, aborting");
+      static_assert(WDT_TIMEOUT_US > 1000, "WDT Timeout is too small, aborting");
       watchdog_enable(WDT_TIMEOUT_US/1000, true);
     #endif
   }
