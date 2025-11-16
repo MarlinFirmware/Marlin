@@ -174,8 +174,15 @@
       delay(10);
     
       int16_t raw = (int16_t)transfer16(config);
-      return (raw>>2) * 0.03125f; // 14 bit left aligned, 0.03125 °C per LSB as datasheet
+      return convertInternalTemp(raw) ; 
     }
+
+    // Converts raw internal temperature data to °C
+    float ADS1118::convertInternalTemp(int16_t data) {
+ 
+      return (float) (data>>2) * 0.03125f; // 14 bit left aligned, 0.03125 °C per LSB as datasheet
+    }    
+
     
     uint16_t ADS1118::configChannel(uint8_t channel) {
       uint16_t config = 0;
@@ -257,16 +264,18 @@
     
     // ADS1118, global instance
     ADS1118 ads1118;
+    ThermocoupleK thck_0;
+    ThermocoupleK thck_1;
 
-    #if ENABLED(TEMP_SENSOR_0_IS_ADS1118)
-      #warning "ThcK 0 is enabled"
-      ThermocoupleK thck_0;
-    #endif
+    // #if ENABLED(TEMP_SENSOR_0_IS_ADS1118)
+    //   #warning "ThcK 0 is enabled"
+    //   ThermocoupleK thck_0;
+    // #endif
 
-    #if ENABLED(TEMP_SENSOR_1_IS_ADS1118)
-      #warning "ThcK 1 is enabled"
-      ThermocoupleK thck_1;
-    #endif
+    // #if ENABLED(TEMP_SENSOR_1_IS_ADS1118)
+    //   #warning "ThcK 1 is enabled"
+    //   ThermocoupleK thck_1;
+    // #endif
     
 void ThermocoupleK::init() {}
 
@@ -301,6 +310,22 @@ float ThermocoupleK:: tempReadtoCelsius(int16_t rawADC) {
     return TEMP_MIN_TEMP;
 }
 
+float ThermocoupleK:: calcTempCelsius() {
+    _Tcold = ads1118.convertInternalTemp(_raw_cold);
+    _Thot = tempReadtoCelsius(_raw_hot);
+    SERIAL_ECHOPGM("ADS1118 TCold "); SERIAL_ECHOLN(_Tcold); 
+    SERIAL_ECHOPGM("ADS1118 THot "); SERIAL_ECHOLN(_Thot); 
+    return _Thot + _Tcold;
+}
+
+
+void ThermocoupleK::setRawCold(int16_t raw_cold) {
+  _raw_cold = raw_cold;
+} 
+
+void ThermocoupleK::setRawHot(int16_t raw_hot) {
+  _raw_hot = raw_hot;
+} 
 void ThermocoupleK::setTcold(float tcold) {
   _Tcold = tcold;
 }

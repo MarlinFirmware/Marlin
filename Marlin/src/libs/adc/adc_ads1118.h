@@ -158,10 +158,18 @@
       static uint16_t readData();
       static int16_t readChannel(uint8_t channel); 
       static uint16_t readConfig (); 
+      static uint16_t readWriteData(uint16_t config);
 
-      uint16_t config_ADC_SS_CH0 = ADS_SS_START | PGA_5_0_256 | SINGLE_SHOT_MODE| SAMPLE_FREQ_128 | ADC_MODE | PULL_UP_ENABLE | WRITE_CONFIG; 
-      uint16_t config_SS_TEMP = ADS_SS_START | PGA_5_0_256 | SINGLE_SHOT_MODE | SAMPLE_FREQ_128 | TEMP_MODE | PULL_UP_ENABLE | WRITE_CONFIG; 
+      float convertInternalTemp(int16_t data);
+      float readInternalTemp();
+
+
+      uint16_t config_ADC_SS_CH0 = ADS_SS_START | INPUT_CHAN_0_1| PGA_5_0_256 | SINGLE_SHOT_MODE| SAMPLE_FREQ_128 | ADC_MODE | PULL_UP_ENABLE | WRITE_CONFIG; 
+      uint16_t config_ADC_SS_CH1 = ADS_SS_START | INPUT_CHAN_2_3 | PGA_5_0_256 | SINGLE_SHOT_MODE| SAMPLE_FREQ_128 | ADC_MODE | PULL_UP_ENABLE | WRITE_CONFIG; 
+      uint16_t config_ADC_SS_TEMP = ADS_SS_START  | PGA_5_0_256 | SINGLE_SHOT_MODE | SAMPLE_FREQ_128 | TEMP_MODE | PULL_UP_ENABLE | WRITE_CONFIG; 
       
+
+
     private:
       static void spiTransfer(uint8_t data, uint8_t &resp);
       static void writeWord(uint16_t word);
@@ -188,7 +196,7 @@
       uint16_t configForChannel(uint8_t channel); 
       static uint16_t configChannel(uint8_t channel); 
       float readVoltage(uint8_t channel, float vref); 
-      float readInternalTemp();
+      
 
   };
 
@@ -198,8 +206,13 @@
   public:
     void init();
     float tempReadtoCelsius(int16_t rawADC);
+    float calcTempCelsius();
     float getTempCelsius();
     float _Tcold,  _Thot;
+    int16_t _raw_cold,  _raw_hot;
+
+    void setRawCold(int16_t raw_cold);
+    void setRawHot(int16_t raw_hot);  
 
     void setTcold(float tcold);
     float getTcold();
@@ -207,6 +220,9 @@
     void setThot(float thot);
     float getThot();  
 };
+
+  extern ThermocoupleK thck_0;
+  extern ThermocoupleK thck_1;
 
 
 #endif // ENABLED(HAS_ADS1118)

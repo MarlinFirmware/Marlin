@@ -2631,8 +2631,23 @@ void Temperature::task() {
 // Each LSB bit ≈ 62.5 µV → ~1.5 °C (no calibration).
 // Adjustable with GAIN and OFFSET from Configuration_adv.h
 
-  static constexpr celsius_float_t temp_ads1118(const raw_adc_t raw) {
-    return raw * TEMP_SENSOR_ADS1118_GAIN + TEMP_SENSOR_ADS1118_OFFSET;
+  static constexpr celsius_float_t temp_ads1118(const uint8_t e) {
+    
+    celsius_float_t temp = 0 ;
+
+    switch (e) {
+      case 0:
+          temp = thck_0.calcTempCelsius();
+          SERIAL_ECHO("temp ads1118: "); SERIAL_ECHOLN(temp); 
+          break;
+      case 1:
+          temp = thck_1.calcTempCelsius();
+          break;
+      default:
+        temp = -14.0f; // Fallback to error temperature
+        break;
+    }
+    return temp ;
   }
 
 #endif
@@ -2641,6 +2656,7 @@ void Temperature::task() {
   // Derived from RepRap FiveD extruder::getTemperature()
   // For hot end temperature measurement.
   celsius_float_t Temperature::analog_to_celsius_hotend(const raw_adc_t raw, const uint8_t e) {
+    //SERIAL_ECHOLN(e);
     if (e >= HOTENDS) {
       SERIAL_ERROR_START();
       SERIAL_ECHO(e);
@@ -2667,7 +2683,7 @@ void Temperature::task() {
         #elif TEMP_SENSOR_0_IS_AD8495
           return temp_ad8495(raw);
         #elif TEMP_SENSOR_0_IS_ADS1118
-          return temp_ads1118(raw);          
+          return temp_ads1118(e);          
         #else
           break;
         #endif
@@ -2687,6 +2703,8 @@ void Temperature::task() {
           return temp_ad595(raw);
         #elif TEMP_SENSOR_1_IS_AD8495
           return temp_ad8495(raw);
+        #elif TEMP_SENSOR_1_IS_ADS1118
+          return temp_ads1118(e);          
         #else
           break;
         #endif
@@ -2939,16 +2957,29 @@ void Temperature::updateTemperaturesFromRawValues() {
   #endif
 
   // Read ADC ADS1118
+  // Note: For ADS1118, we don't call setraw() because read_ads1118() returns int16_t
+  // (differential measurement can be negative) but raw_adc_t is uint16_t.
+  // Instead, the ThermocoupleK object (thck_0/thck_1) handles the conversion
+  // internally, and analog_to_celsius_hotend() will retrieve the computed
+  // temperature via thck_0.getThot(). This avoids type overflow and keeps
+  // the conversion logic centralized and ISR-light.
   #if TEMP_SENSOR_IS_ADS(0,1118)
     #warning "ADS1118 is selected for temp 0"
-    // SERIAL_ECHOLNPGM("ADS1118 Setting Raw hotend 0");  
+    
     temp_hotend[0].setraw(READ_ADS(0));
-    SERIAL_ECHOPGM("ADS1118 Get Raw hotend 0: "); SERIAL_ECHOLN(temp_hotend[0].getraw());
+    SERIAL_ECHOPGM("ADS1118 Tcold="); 
+    SERIAL_ECHO(thck_0.getTcold()); 
+    SERIAL_ECHOPGM(" Thot=");
+    SERIAL_ECHOLN(thck_0.getThot());
   #endif  
   #if TEMP_SENSOR_IS_ADS(1,1118)
     #warning "ADS1118 is selected for temp 1"
-    SERIAL_ECHOLNPGM("ADS1118 Setting Raw hotend 1");  
+    
     temp_hotend[1].setraw(READ_ADS(1));
+    SERIAL_ECHOPGM("ADS1118 Tcold="); 
+    SERIAL_ECHO(thck_1.getTcold()); 
+    SERIAL_ECHOPGM(" Thot=");
+    SERIAL_ECHOLN(thck_1.getThot());
   #endif    
 
   #if HAS_HOTEND
@@ -3069,7 +3100,7 @@ void Temperature::init() {
     SERIAL_ECHOLNPGM("ADS1118 Entering to start conv");
     thck_0.setTcold (ads1118.readInternalTemp());
     SERIAL_ECHOLNPGM("ADS1118 Tcold:");
-    SERIAL_ECHOLNPGM(thck_0.getTcold());
+    SERIAL_ECHOLN(thck_0.getTcold());
     //ads1118.readConfig();
     
   #endif  
@@ -4013,38 +4044,65 @@ raw_adc_t Temperature::read_ads1118(const uint8_t hindex/*=0*/) {
 
   static raw_adc_t ads_val = TEMP_SENSOR_0_ADS_TMAX;
 
-  static uint8_t curr_state ;
-  static uint8_t prev_state ;
-  
+  static uint16_t curr_state ;
+  static uint16_t prev_state ;
+
+  static uint8_t sampleCount ;
+
+  static millis_t lastmillis ;
 
   const millis_t ms = millis();
-  if (PENDING(ms, next_ads1118_ms[hindex]) || !ads1118.checkDataReady())
+  SERIAL_ECHOPGM("ADS1118 elapsed: "); SERIAL_ECHOLN(ms- lastmillis); 
+  lastmillis = ms ;
+  if (PENDING(ms, next_ads1118_ms[hindex]) )  // || !ads1118.checkDataReady()
     return ads1118_temp_previous[hindex];  // return cached value
 
   next_ads1118_ms[hindex] = ms + ADS1118_HEAT_INTERVAL;
 
   // To do: If there are more hotends enabled, cycle through different channels
-  uint16_t raw ;
-  if (curr_state == 0)
+  int16_t raw ;
+
+  if (sampleCount < 1)
   {
-    /* code */
-    raw = ads1118.readWriteData(ads1118.config_ADC_SS_CH0);
     prev_state = curr_state ;
-    curr_state = 1 ; 
+    curr_state = ads1118.config_ADC_SS_TEMP ; 
+    sampleCount++ ;
   }
-  else
+  else if (hindex == 0)
   {
-    /* code */
-    raw = ads1118.readWriteData(ads1118.config_ADC_SS_TEMP); 
     prev_state = curr_state ;
-    curr_state = 0 ;
+    curr_state = ads1118.config_ADC_SS_CH0 ;
+    sampleCount = 0 ;
+  } else if (hindex == 1){
+    prev_state = curr_state ;
+    curr_state = ads1118.config_ADC_SS_CH1 ;
+    sampleCount = 0 ;
+  } 
+
+  raw = (int16_t) ads1118.readWriteData(curr_state); 
+
+  if (prev_state == ads1118.config_ADC_SS_TEMP)
+  {
+    //thck_0.setTcold(ads1118.convertInternalTemp(raw));
+    thck_0.setRawCold(raw);
+    SERIAL_ECHOPGM("Last read Raw cold: "); SERIAL_ECHOLN(raw); 
+    //SERIAL_ECHOPGM("TCold "); SERIAL_ECHOLN(thck_0.getTcold()); 
+
+  }
+  else if (prev_state == ads1118.config_ADC_SS_CH0)
+  {
+    //ads1118_hotJ_temp_current[hindex] = raw ;
+    //thck_0.setThot(thck_0.tempReadtoCelsius(raw));
+    thck_0.setRawHot(raw);
+    SERIAL_ECHOPGM("Last read Raw hot"); SERIAL_ECHOLN(raw); 
+    //SERIAL_ECHOPGM("ADS1118 THot "); SERIAL_ECHOLN(thck_0.getThot()); 
   }
   
 
-  SERIAL_ECHOPGM("ADS1118 State:Read "); SERIAL_ECHOPGM(curr_state); SERIAL_ECHOPGM(":"); SERIAL_ECHOLN(raw);
+  // SERIAL_ECHOPGM("ADS1118 State:Read "); SERIAL_ECHOLN(curr_state); SERIAL_ECHOPGM(":"); SERIAL_ECHOLN(raw);
 
-  // Manejo de errores simples: raw = 0x7FFF o 0x8000 podrían ser saturación
-  if (raw == 0x7FFF || raw == -32768) {
+  // Handle read error or disconnection : raw = 0x7FFF or 0x8000
+  if (raw == 0x7FFF || raw == 0x8000) {
     ads1118_errors[hindex]++;
     if (ads1118_errors[hindex] > 3) {
       SERIAL_ERROR_START();
@@ -4052,15 +4110,19 @@ raw_adc_t Temperature::read_ads1118(const uint8_t hindex/*=0*/) {
       ads_val = (raw_adc_t)(TEMP_SENSOR_0_ADS_TMAX << 4); // force error
     }
   }
-  else {
+  else if (raw < 32767){
     ads1118_errors[hindex] = 0; // reset errors if ok
-    // Convertir raw a formato fijo (ejemplo: 1/16 °C si es termocupla)
-    ads_val = (raw_adc_t) raw; // raw; // Fijo temporalmente
+    ads_val = (raw_adc_t) (((int16_t)raw) + 32768); // raw shift to unsigned int;
+  } else { // if we add 32767 to raw it will overflow
+    ads1118_errors[hindex] = 0; // reset errors if ok
+    SERIAL_ECHOLNPGM("ADS1118 Warn: Cannot shift adc read from signed to unsigned!");
+    ads_val = (raw_adc_t) (raw); // as is ;
   }
+  //ads_val = (raw_adc_t) 3000; // raw;
 
-  ads1118_temp_previous[hindex] = ads_val;
-
-  return ads_val;
+  ads1118_temp_previous[hindex] = ads_val; // not necessary
+  SERIAL_ECHOPGM("ADS1118 ads_val: "); SERIAL_ECHOLN(ads_val);
+  return ads_val;  // return the raw value, it will not be used directly for conversion but for errors, (raw values are stored in thermocouple class)
 }  
 #endif // ENABLED(HAS_ADS1118)
 
