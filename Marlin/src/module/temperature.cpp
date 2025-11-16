@@ -4053,7 +4053,7 @@ raw_adc_t Temperature::read_ads1118(const uint8_t hindex/*=0*/) {
 
   const millis_t ms = millis();
   //SERIAL_ECHOPGM("ADS1118 elapsed: "); SERIAL_ECHOLN(ms- lastmillis); 
-  lastmillis = ms ;
+  //lastmillis = ms ;
   if (PENDING(ms, next_ads1118_ms[hindex]) )  // || !ads1118.checkDataReady()
     return ads1118_temp_previous[hindex];  // return cached value
 
