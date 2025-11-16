@@ -2638,7 +2638,7 @@ void Temperature::task() {
     switch (e) {
       case 0:
           temp = thck_0.calcTempCelsius();
-          SERIAL_ECHO("temp ads1118: "); SERIAL_ECHOLN(temp); 
+          //SERIAL_ECHO("temp ads1118: "); SERIAL_ECHOLN(temp); 
           break;
       case 1:
           temp = thck_1.calcTempCelsius();
@@ -2967,19 +2967,19 @@ void Temperature::updateTemperaturesFromRawValues() {
     #warning "ADS1118 is selected for temp 0"
     
     temp_hotend[0].setraw(READ_ADS(0));
-    SERIAL_ECHOPGM("ADS1118 Tcold="); 
-    SERIAL_ECHO(thck_0.getTcold()); 
-    SERIAL_ECHOPGM(" Thot=");
-    SERIAL_ECHOLN(thck_0.getThot());
+    // SERIAL_ECHOPGM("ADS1118 Tcold="); 
+    // SERIAL_ECHO(thck_0.getTcold()); 
+    // SERIAL_ECHOPGM(" Thot=");
+    // SERIAL_ECHOLN(thck_0.getThot());
   #endif  
   #if TEMP_SENSOR_IS_ADS(1,1118)
     #warning "ADS1118 is selected for temp 1"
     
     temp_hotend[1].setraw(READ_ADS(1));
-    SERIAL_ECHOPGM("ADS1118 Tcold="); 
-    SERIAL_ECHO(thck_1.getTcold()); 
-    SERIAL_ECHOPGM(" Thot=");
-    SERIAL_ECHOLN(thck_1.getThot());
+    // SERIAL_ECHOPGM("ADS1118 Tcold="); 
+    // SERIAL_ECHO(thck_1.getTcold()); 
+    // SERIAL_ECHOPGM(" Thot=");
+    // SERIAL_ECHOLN(thck_1.getThot());
   #endif    
 
   #if HAS_HOTEND
@@ -4052,7 +4052,7 @@ raw_adc_t Temperature::read_ads1118(const uint8_t hindex/*=0*/) {
   static millis_t lastmillis ;
 
   const millis_t ms = millis();
-  SERIAL_ECHOPGM("ADS1118 elapsed: "); SERIAL_ECHOLN(ms- lastmillis); 
+  //SERIAL_ECHOPGM("ADS1118 elapsed: "); SERIAL_ECHOLN(ms- lastmillis); 
   lastmillis = ms ;
   if (PENDING(ms, next_ads1118_ms[hindex]) )  // || !ads1118.checkDataReady()
     return ads1118_temp_previous[hindex];  // return cached value
@@ -4085,7 +4085,7 @@ raw_adc_t Temperature::read_ads1118(const uint8_t hindex/*=0*/) {
   {
     //thck_0.setTcold(ads1118.convertInternalTemp(raw));
     thck_0.setRawCold(raw);
-    SERIAL_ECHOPGM("Last read Raw cold: "); SERIAL_ECHOLN(raw); 
+    //SERIAL_ECHOPGM("Last read Raw cold: "); SERIAL_ECHOLN(raw); 
     //SERIAL_ECHOPGM("TCold "); SERIAL_ECHOLN(thck_0.getTcold()); 
 
   }
@@ -4094,7 +4094,7 @@ raw_adc_t Temperature::read_ads1118(const uint8_t hindex/*=0*/) {
     //ads1118_hotJ_temp_current[hindex] = raw ;
     //thck_0.setThot(thck_0.tempReadtoCelsius(raw));
     thck_0.setRawHot(raw);
-    SERIAL_ECHOPGM("Last read Raw hot"); SERIAL_ECHOLN(raw); 
+    //SERIAL_ECHOPGM("Last read Raw hot"); SERIAL_ECHOLN(raw); 
     //SERIAL_ECHOPGM("ADS1118 THot "); SERIAL_ECHOLN(thck_0.getThot()); 
   }
   
@@ -4121,7 +4121,7 @@ raw_adc_t Temperature::read_ads1118(const uint8_t hindex/*=0*/) {
   //ads_val = (raw_adc_t) 3000; // raw;
 
   ads1118_temp_previous[hindex] = ads_val; // not necessary
-  SERIAL_ECHOPGM("ADS1118 ads_val: "); SERIAL_ECHOLN(ads_val);
+  //SERIAL_ECHOPGM("ADS1118 ads_val: "); SERIAL_ECHOLN(ads_val);
   return ads_val;  // return the raw value, it will not be used directly for conversion but for errors, (raw values are stored in thermocouple class)
 }  
 #endif // ENABLED(HAS_ADS1118)

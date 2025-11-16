@@ -313,8 +313,8 @@ float ThermocoupleK:: tempReadtoCelsius(int16_t rawADC) {
 float ThermocoupleK:: calcTempCelsius() {
     _Tcold = ads1118.convertInternalTemp(_raw_cold);
     _Thot = tempReadtoCelsius(_raw_hot);
-    SERIAL_ECHOPGM("ADS1118 TCold "); SERIAL_ECHOLN(_Tcold); 
-    SERIAL_ECHOPGM("ADS1118 THot "); SERIAL_ECHOLN(_Thot); 
+    //SERIAL_ECHOPGM("ADS1118 TCold "); SERIAL_ECHOLN(_Tcold); 
+    //SERIAL_ECHOPGM("ADS1118 THot "); SERIAL_ECHOLN(_Thot); 
     return _Thot + _Tcold;
 }
 
