@@ -1513,11 +1513,7 @@ HAL_STEP_TIMER_ISR() {
   HAL_timer_isr_epilogue(MF_TIMER_STEP);
 }
 
-#ifdef CPU_32_BIT
-  #define STEP_MULTIPLY(A,B) MultiU32X24toH32(A, B)
-#else
-  #define STEP_MULTIPLY(A,B) MultiU24X32toH16(A, B)
-#endif
+#define STEP_MULTIPLY(A,B) TERN(CPU_32_BIT, MultiU32X24toH32, MultiU24X32toH16)(A, B)
 
 #if ENABLED(SMOOTH_LIN_ADVANCE)
   FORCE_INLINE static constexpr int32_t MULT_Q(uint8_t q, int32_t x, int32_t y) { return (int64_t(x) * y) >> q; }
@@ -2729,6 +2725,70 @@ hal_timer_t Stepper::block_phase_isr() {
       // Based on the oversampling factor, do the calculations
       step_event_count = current_block->step_event_count << oversampling_factor;
 
+      #if ENABLED(DIFFERENTIAL_EXTRUDER)
+
+        // X and E work together as a differential mechanism:
+        //  When X and E move in the same direction they move the print carriage,
+        //  and when X and E move in opposite directions they cause extrusion.
+
+        // NOTE: All calculations performed per block, preserving Bresenham timing coordination
+        if (current_block->steps.x > 0 || current_block->steps.e > 0) {
+          // Calculate signed step counts based on directions
+          const int32_t x_signed_steps = current_block->direction_bits.x ? current_block->steps.x : -int32_t(current_block->steps.x),
+                        e_signed_steps = current_block->direction_bits.e ? current_block->steps.e : -int32_t(current_block->steps.e);
+
+          #if ENABLED(BALANCED_DIFFERENTIAL_EXTRUDER)
+
+            // BALANCED DIFFERENTIAL EXTRUDER: X stepper drives one loop belt
+            //  and E stepper drives another loop belt. Two belts mesh at the extruder
+            // X stepper: X - E/2 (carriage movement - half extrusion)
+            // E stepper: X + E/2 (carriage movement + half extrusion)
+            // Net extrusion: (X + E/2) - (X - E/2) = E
+            // (This will work great once I figure out what to do when E/2 is not integer!)
+
+            // Split extrusion 50/50 between X and E steppers
+            const int32_t half_e_steps = e_signed_steps / 2;
+
+            // X stepper: X movement - half E extrusion
+            const int32_t new_x_steps = x_signed_steps - half_e_steps;
+            current_block->steps.x = ABS(new_x_steps);
+
+            // Update X axis direction
+            current_block->direction_bits.x = new_x_steps >= 0;
+
+            // E stepper: X movement + half E extrusion
+            const int32_t new_e_steps = x_signed_steps + half_e_steps;
+            current_block->steps.e = ABS(new_e_steps);
+
+            // Update E axis direction
+            current_block->direction_bits.e = new_e_steps >= 0;
+
+          #else // !BALANCED_DIFFERENTIAL_EXTRUDER
+
+            // SIMPLE SINGLE-LOOP DIFFERENTIAL EXTRUDER: X stepper drives the carriage as usual,
+            //  while E stepper drives a loop belt that's meshed around the extruder.
+            // X stepper: X only (carriage movement)
+            // E stepper: X + E  (carriage movement + extrusion)
+            // Net extrusion: (X + E) - X = E
+
+            // Calculate net E steps (X movement + extrusion)
+            const int32_t net_e_steps = x_signed_steps + e_signed_steps;
+
+            // Update the block with new E step count
+            current_block->steps.e = ABS(net_e_steps);
+
+            // Update direction bit for E axis
+            current_block->direction_bits.e = net_e_steps >= 0;
+
+          #endif // !BALANCED_DIFFERENTIAL_EXTRUDER
+
+          // NOTE: DO NOT modify the step_event_count! This would change XYZ timing!
+          // Bresenham distributes X and E steps over the time base.
+
+        }
+
+      #endif // DIFFERENTIAL_EXTRUDER
+
       // Initialize Bresenham delta errors to 1/2
       delta_error = -int32_t(step_event_count);
       TERN_(HAS_ROUGH_LIN_ADVANCE, la_delta_error = delta_error);
@@ -3326,7 +3386,7 @@ void Stepper::init() {
   }
 
   void Stepper::set_shaping_frequency(const AxisEnum axis, const float freq) {
-    // Enabling or disabling shaping whilst moving can result in lost steps
+    // Enabling or disabling shaping while moving can result in lost steps
     planner.synchronize();
 
     const bool was_on = hal.isr_state();

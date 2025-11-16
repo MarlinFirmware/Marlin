@@ -86,10 +86,10 @@ typedef uint64_t hal_timer_t;
 //#define STEP_TIMER_PTR _HAL_TIMER(MF_TIMER_STEP)
 //#define TEMP_TIMER_PTR _HAL_TIMER(MF_TIMER_TEMP)
 
-extern alarm_pool_t* HAL_timer_pool_0;
-extern alarm_pool_t* HAL_timer_pool_1;
-extern alarm_pool_t* HAL_timer_pool_2;
-extern alarm_pool_t* HAL_timer_pool_3;
+extern alarm_pool_t *HAL_timer_pool_0;
+extern alarm_pool_t *HAL_timer_pool_1;
+extern alarm_pool_t *HAL_timer_pool_2;
+extern alarm_pool_t *HAL_timer_pool_3;
 
 extern struct repeating_timer HAL_timer_0;
 
@@ -120,28 +120,23 @@ void HAL_timer_stop(const uint8_t timer_num);
 
 FORCE_INLINE static void HAL_timer_set_compare(const uint8_t timer_num, hal_timer_t compare) {
 
-  if (timer_num == MF_TIMER_STEP){
-    if (compare == HAL_TIMER_TYPE_MAX){
-       HAL_timer_stop(timer_num);
-       return;
-    }
+  if (timer_num == MF_TIMER_STEP && compare == HAL_TIMER_TYPE_MAX) {
+    HAL_timer_stop(timer_num);
+    return;
   }
 
- compare = compare *10; //Dirty fix, figure out a proper way
+ compare *= 10; // Dirty fix, figure out a proper way
 
   switch (timer_num) {
     case 0:
       alarm_pool_add_alarm_in_us(HAL_timer_pool_0, compare, HAL_timer_alarm_pool_0_callback, 0, false);
       break;
-
     case 1:
       alarm_pool_add_alarm_in_us(HAL_timer_pool_1, compare, HAL_timer_alarm_pool_1_callback, 0, false);
       break;
-
     case 2:
       alarm_pool_add_alarm_in_us(HAL_timer_pool_2, compare, HAL_timer_alarm_pool_2_callback, 0, false);
       break;
-
     case 3:
       alarm_pool_add_alarm_in_us(HAL_timer_pool_3, compare, HAL_timer_alarm_pool_3_callback, 0, false);
       break;
@@ -151,27 +146,20 @@ FORCE_INLINE static void HAL_timer_set_compare(const uint8_t timer_num, hal_time
 FORCE_INLINE static hal_timer_t HAL_timer_get_compare(const uint8_t timer_num) {
   return 0;
 }
-
 FORCE_INLINE static hal_timer_t HAL_timer_get_count(const uint8_t timer_num) {
   if (timer_num == MF_TIMER_STEP) return 0ull;
   return time_us_64();
 }
 
-
 FORCE_INLINE static void HAL_timer_enable_interrupt(const uint8_t timer_num) {
   HAL_timer_irq_en[timer_num] = 1;
 }
-
 FORCE_INLINE static void HAL_timer_disable_interrupt(const uint8_t timer_num) {
   HAL_timer_irq_en[timer_num] = 0;
 }
-
 FORCE_INLINE static bool HAL_timer_interrupt_enabled(const uint8_t timer_num) {
-  return HAL_timer_irq_en[timer_num]; //lucky coincidence that timer_num and rp2040 irq num matches
+  return HAL_timer_irq_en[timer_num]; // Lucky coincidence that timer_num and rp2040 IRQ num matches
 }
 
-FORCE_INLINE static void HAL_timer_isr_prologue(const uint8_t timer_num) {
-  return;
-}
-
-#define HAL_timer_isr_epilogue(T) NOOP
+inline void HAL_timer_isr_prologue(const uint8_t) {}
+inline void HAL_timer_isr_epilogue(const uint8_t) {}
