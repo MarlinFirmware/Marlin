@@ -167,7 +167,9 @@
       uint16_t config_ADC_SS_CH0 = ADS_SS_START | INPUT_CHAN_0_1| PGA_5_0_256 | SINGLE_SHOT_MODE| SAMPLE_FREQ_128 | ADC_MODE | PULL_UP_ENABLE | WRITE_CONFIG; 
       uint16_t config_ADC_SS_CH1 = ADS_SS_START | INPUT_CHAN_2_3 | PGA_5_0_256 | SINGLE_SHOT_MODE| SAMPLE_FREQ_128 | ADC_MODE | PULL_UP_ENABLE | WRITE_CONFIG; 
       uint16_t config_ADC_SS_TEMP = ADS_SS_START  | PGA_5_0_256 | SINGLE_SHOT_MODE | SAMPLE_FREQ_128 | TEMP_MODE | PULL_UP_ENABLE | WRITE_CONFIG; 
-      
+
+      static uint16_t current_config ;
+      static uint16_t previous_config ;
 
 
     private:
@@ -190,6 +192,7 @@
       static unsigned long startTime;
       static int16_t lastValue;
       static int16_t config;
+
       static bool isBusy;  
       static uint8_t currentchannel;  
 

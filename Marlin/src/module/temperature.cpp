@@ -2998,7 +2998,7 @@ void Temperature::updateTemperaturesFromRawValues() {
   TERN_(HAS_POWER_MONITOR,     power_monitor.capture_values());
 
   #if HAS_HOTEND
-    #define _TEMPDIR(N) TEMP_SENSOR_IS_ANY_MAX_TC(N) ? 0 : TEMPDIR(N),
+    #define _TEMPDIR(N) (TEMP_SENSOR_IS_ANY_MAX_TC(N) || TEMP_SENSOR_IS_ADS (N,1118) ) ? 0 : TEMPDIR(N),
     static constexpr int8_t temp_dir[HOTENDS] = { REPEAT(HOTENDS, _TEMPDIR) };
 
     HOTEND_LOOP() {
@@ -3097,10 +3097,13 @@ void Temperature::init() {
   #if TEMP_SENSOR_IS_ADS(0, 1118)
     #warning "ADS1118 is selected for temp 0"
     thck_0.init();
-    SERIAL_ECHOLNPGM("ADS1118 Entering to start conv");
+    //SERIAL_ECHOLNPGM("ADS1118 start initial conversion for Tcold...");
     thck_0.setTcold (ads1118.readInternalTemp());
-    SERIAL_ECHOLNPGM("ADS1118 Tcold:");
-    SERIAL_ECHOLN(thck_0.getTcold());
+    
+    ads1118.current_config  = ads1118.config_ADC_SS_TEMP; 
+    ads1118.previous_config = ads1118.current_config; 
+    //SERIAL_ECHOPGM("ADS1118 Tcold: ");
+    //SERIAL_ECHOLN(thck_0.getTcold());
     //ads1118.readConfig();
     
   #endif  
@@ -4044,9 +4047,6 @@ raw_adc_t Temperature::read_ads1118(const uint8_t hindex/*=0*/) {
 
   static raw_adc_t ads_val = TEMP_SENSOR_0_ADS_TMAX;
 
-  static uint16_t curr_state ;
-  static uint16_t prev_state ;
-
   static uint8_t sampleCount ;
 
   //static millis_t lastmillis ;
@@ -4064,24 +4064,24 @@ raw_adc_t Temperature::read_ads1118(const uint8_t hindex/*=0*/) {
 
   if (sampleCount < 1)
   {
-    prev_state = curr_state ;
-    curr_state = ads1118.config_ADC_SS_TEMP ; 
+    ads1118.previous_config = ads1118.current_config ;
+    ads1118.current_config = ads1118.config_ADC_SS_TEMP ; 
     sampleCount++ ;
   }
   else if (hindex == 0)
   {
-    prev_state = curr_state ;
-    curr_state = ads1118.config_ADC_SS_CH0 ;
+    ads1118.previous_config = ads1118.current_config ;
+    ads1118.current_config = ads1118.config_ADC_SS_CH0 ;
     sampleCount = 0 ;
   } else if (hindex == 1){
-    prev_state = curr_state ;
-    curr_state = ads1118.config_ADC_SS_CH1 ;
+    ads1118.previous_config = ads1118.current_config ;
+    ads1118.current_config = ads1118.config_ADC_SS_CH1 ;
     sampleCount = 0 ;
   } 
 
-  raw = (int16_t) ads1118.readWriteData(curr_state); 
+  raw = (int16_t) ads1118.readWriteData(ads1118.current_config); 
 
-  if (prev_state == ads1118.config_ADC_SS_TEMP)
+  if (ads1118.previous_config == ads1118.config_ADC_SS_TEMP)
   {
     //thck_0.setTcold(ads1118.convertInternalTemp(raw));
     thck_0.setRawCold(raw);
@@ -4089,12 +4089,12 @@ raw_adc_t Temperature::read_ads1118(const uint8_t hindex/*=0*/) {
     //SERIAL_ECHOPGM("TCold "); SERIAL_ECHOLN(thck_0.getTcold()); 
 
   }
-  else if (prev_state == ads1118.config_ADC_SS_CH0)
+  else if (ads1118.previous_config  == ads1118.config_ADC_SS_CH0)
   {
     //ads1118_hotJ_temp_current[hindex] = raw ;
     //thck_0.setThot(thck_0.tempReadtoCelsius(raw));
     thck_0.setRawHot(raw);
-    //SERIAL_ECHOPGM("Last read Raw hot"); SERIAL_ECHOLN(raw); 
+    //SERIAL_ECHOPGM("Last read Raw hot: "); SERIAL_ECHOLN(raw); 
     //SERIAL_ECHOPGM("ADS1118 THot "); SERIAL_ECHOLN(thck_0.getThot()); 
   }
   

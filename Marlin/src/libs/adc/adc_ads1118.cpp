@@ -168,12 +168,14 @@
     }
     
     float ADS1118::readInternalTemp() {
-      uint16_t config =  0x8F80; // Config internal temp read & start SS conversion
+      uint16_t config = config_ADC_SS_TEMP; // Config internal temp read 0x8F80; // Config internal temp read & start SS conversion
+      select();
       transfer16(config);
-    
+      deselect();
       delay(10);
-    
+      select();
       int16_t raw = (int16_t)transfer16(config);
+      deselect();
       return convertInternalTemp(raw) ; 
     }
 
@@ -259,6 +261,9 @@
     unsigned long ADS1118::startTime = 0;
     int16_t ADS1118::lastValue = 0;
     int16_t ADS1118::config = 0;
+    uint16_t ADS1118::current_config = 0;
+    uint16_t ADS1118::previous_config = 0;
+
     bool ADS1118::isBusy = false;
     uint8_t ADS1118::currentchannel = 0;    
     
