@@ -459,47 +459,13 @@ void DGUSRxHandler::moveToPoint(DGUS_VP &vp, void *data_ptr) {
     return;
   }
 
-  const uint8_t point = ((uint8_t*)data_ptr)[1];
-
-  #if ENABLED(BED_TRAMMING_USE_PROBE)
-    const float lfrb[4] = {
-      (X_MIN_BED) + probe.min_x(),
-      (Y_MIN_BED) + probe.min_y(),
-      (X_MAX_BED) - probe.max_x(),
-      (Y_MAX_BED) - probe.max_y()
-    };
-  #endif
-
-  float x, y;
-
-  switch (point) {
-    default: return;
-    case 1:
-      x = DGUS_LEVEL_CENTER_X;
-      y = DGUS_LEVEL_CENTER_Y;
-      break;
-    case 2:
-      x = X_MIN_BED + lfrb[0];
-      y = Y_MIN_BED + lfrb[1];
-      break;
-    case 3:
-      x = X_MAX_BED - lfrb[2];
-      y = Y_MIN_BED + lfrb[1];
-      break;
-    case 4:
-      x = X_MAX_BED - lfrb[2];
-      y = Y_MAX_BED - lfrb[3];
-      break;
-    case 5:
-      x = X_MIN_BED + lfrb[0];
-      y = Y_MAX_BED - lfrb[3];
-      break;
-  }
+  const uint8_t point = ((uint8_t*)data_ptr)[1] - 1;
+  const xy_pos_t xy = tram_point_by_index(point);
 
   if (BED_TRAMMING_Z_HOP)
     ExtUI::setAxisPosition_mm(ExtUI::getAxisPosition_mm(ExtUI::Z) + (BED_TRAMMING_Z_HOP), ExtUI::Z);
-  ExtUI::setAxisPosition_mm(x, ExtUI::X);
-  ExtUI::setAxisPosition_mm(y, ExtUI::Y);
+  ExtUI::setAxisPosition_mm(xy.x, ExtUI::X);
+  ExtUI::setAxisPosition_mm(xy.y, ExtUI::Y);
   ExtUI::setAxisPosition_mm((Z_MIN_POS) + (BED_TRAMMING_HEIGHT), ExtUI::Z);
 }
 
@@ -524,12 +490,8 @@ void DGUSRxHandler::probe(DGUS_VP &vp, void *data_ptr) {
 
   screen.triggerScreenChange(DGUS_ScreenID::LEVELING_PROBING);
 
-  #if ENABLED(AUTO_BED_LEVELING_UBL)
-    queue.enqueue_now(F("G29P1\nG29P3\nG29P5C"));
-  #else
-    queue.enqueue_now(F("G29"));
-  #endif
-  queue.enqueue_now(F("M500"));
+  queue.enqueue_now(F(TERN(AUTO_BED_LEVELING_UBL, "G29P1\nG29P3\nG29P5C", "G29")));
+  queue.enqueue_now(F("M500"));   // Save results even if G29 fails
 }
 
 void DGUSRxHandler::disableABL(DGUS_VP &vp, void *data_ptr) {

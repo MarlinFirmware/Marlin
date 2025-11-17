@@ -69,20 +69,41 @@ constexpr int8_t available_points = nr_edge_points + ENABLED(BED_TRAMMING_INCLUD
 constexpr int8_t center_index = TERN(BED_TRAMMING_INCLUDE_CENTER, available_points - 1, -1);
 
 // Center of the opposite edge for the 3rd point
+constexpr NamedPlace third_place() {
+  if (corners_are(LB, RB)) return FC; // Front Center
+  if (corners_are(LF, LB)) return RC; // Right Center
+  if (corners_are(RF, RB)) return LC; // Left Center
+  return BC; // Back Center
+}
+
 static inline xy_pos_t third_point() {
   #if ENABLED(BED_TRAMMING_USE_PROBE)
     constexpr float slop = 0.01f;
     const xy_pos_t lf = { (X_MIN_BED) + probe.min_x() + slop, (Y_MIN_BED) + probe.min_y() + slop },
                    rb = { (X_MAX_BED) - probe.max_x() - slop, (Y_MAX_BED) - probe.max_y() - slop };
   #endif
-  if (corners_are(LB, RB))
-    return xy_pos_t({ (lf.x + rb.x) / 2, lf.y }); // Front Center
-  if (corners_are(LF, LB))
-    return xy_pos_t({ rb.x, (lf.y + rb.y) / 2 }); // Right Center
-  if (corners_are(RF, RB))
-    return xy_pos_t({ lf.x, (lf.y + rb.y) / 2 }); // Left Center
-  //if (corners_are(LF, RF))
-    return xy_pos_t({ (lf.x + rb.x) / 2, rb.y }); // Back Center
+  switch (third_place()) {
+    case FC: return xy_pos_t({ (lf.x + rb.x) / 2, lf.y }); // Front Center
+    case RC: return xy_pos_t({ rb.x, (lf.y + rb.y) / 2 }); // Right Center
+    case LC: return xy_pos_t({ lf.x, (lf.y + rb.y) / 2 }); // Left Center
+    case BC: return xy_pos_t({ (lf.x + rb.x) / 2, rb.y }); // Back Center
+  }
+}
+
+static inline NamedPlace tram_place_by_index(const uint8_t i) {
+  if (tramming_3_points) {
+    switch (i) {
+      case 0 ... 1: return lco[i];                // 1st and 2nd point set explicitly by config
+      case 2: return third_point();               // 3rd point is based on the other two
+      #if ENABLED(BED_TRAMMING_INCLUDE_CENTER)
+        case 3: return CC;                        // 4th point is optional center
+      #endif
+    }
+  }
+  else {
+    // Four-Corner Bed Tramming with optional center
+    return TERN0(BED_TRAMMING_INCLUDE_CENTER, i == center_index) ? CC : return lco[i];
+  }
 }
 
 inline static xy_pos_t tram_point_by_index(const uint8_t i) {
@@ -96,6 +117,7 @@ inline static xy_pos_t tram_point_by_index(const uint8_t i) {
       case 0 ... 1:
         // First two corners set explicitly by the configuration
         switch (lco[i]) {
+          default:
           case LF: return lf;                       // Left Front
           case RF: return xy_pos_t({ rb.x, lf.y }); // Right Front
           case RB: return rb;                       // Right Back
