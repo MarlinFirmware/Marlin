@@ -2428,56 +2428,28 @@ void setFlow() { setPIntOnClick(FLOW_EDIT_MIN, FLOW_EDIT_MAX, []{ planner.refres
 
 #if ENABLED(LCD_BED_TRAMMING)
 
-  void tramXY(const uint8_t point, float &x, float &y) {
-    #if ENABLED(BED_TRAMMING_USE_PROBE)
-      constexpr float slop = 0.01f;
-      const float lfrb[4] = {
-        (X_MIN_BED) + probe.min_x() + slop,
-        (Y_MIN_BED) + probe.min_y() + slop,
-        (X_MAX_BED) - probe.max_x() - slop,
-        (Y_MAX_BED) - probe.max_y() - slop
-      };
-    #endif
-
-    switch (point) {
-      case 0:
-        LCD_MESSAGE(MSG_TRAM_FL);
-        x = lfrb[0];
-        y = lfrb[1];
-        break;
-      case 1:
-        LCD_MESSAGE(MSG_TRAM_FR);
-        x = X_BED_SIZE - lfrb[2];
-        y = lfrb[1];
-        break;
-      case 2:
-        LCD_MESSAGE(MSG_TRAM_BR);
-        x = X_BED_SIZE - lfrb[2];
-        y = Y_BED_SIZE - lfrb[3];
-        break;
-      case 3:
-        LCD_MESSAGE(MSG_TRAM_BL);
-        x = lfrb[0];
-        y = Y_BED_SIZE - lfrb[3];
-        break;
+  void tramXY(const uint8_t index, float &x, float &y) {
+    switch (tram_place_by_index(index)) {
+      case LF: LCD_MESSAGE(MSG_TRAM_FL); break;
+      case RF: LCD_MESSAGE(MSG_TRAM_FR); break;
+      case RB: LCD_MESSAGE(MSG_TRAM_BR); break;
+      case LB: LCD_MESSAGE(MSG_TRAM_BL); break;
       #if ENABLED(BED_TRAMMING_INCLUDE_CENTER)
-        case 4:
-          LCD_MESSAGE(MSG_TRAM_C);
-          x = X_CENTER;
-          y = Y_CENTER;
-          break;
+        case CC: LCD_MESSAGE(MSG_TRAM_C); break;
       #endif
     }
+    const xyz_pos_t xy = tram_point_by_index(index);
+    x = xy.x; y = xy.y;
   }
 
   #if HAS_BED_PROBE
 
-    float tram(const uint8_t point) {
+    float tram(const uint8_t index) {
       static bool inLev = false;
       if (inLev) return NAN;
 
       float xpos = 0, ypos = 0, zval = 0;
-      tramXY(point, xpos, ypos);
+      tramXY(index, xpos, ypos);
 
       if (hmiData.fullManualTramming) {
         queue.inject(MString<100>(
@@ -2516,9 +2488,9 @@ void setFlow() { setPIntOnClick(FLOW_EDIT_MIN, FLOW_EDIT_MAX, []{ planner.refres
 
   #else
 
-    void tram(const uint8_t point) {
+    void tram(const uint8_t index) {
       float xpos = 0, ypos = 0;
-      tramXY(point, xpos, ypos);
+      tramXY(index, xpos, ypos);
       queue.inject(MString<100>(
         F("M420S0\nG28O\nG90\nG0F300Z5\nG0F5000X"), p_float_t(xpos, 1), 'Y', p_float_t(ypos, 1), F("\nG0F300Z0")
       ));
