@@ -325,9 +325,14 @@ void menu_backlash();
     // Autotemp, Min, Max, Fact
     //
     #if ALL(AUTOTEMP, HAS_TEMP_HOTEND)
-      EDIT_ITEM(int3, MSG_MIN, &thermalManager.autotemp.cfg.min, 0, thermalManager.hotend_max_target(0));
-      EDIT_ITEM(int3, MSG_MAX, &thermalManager.autotemp.cfg.max, 0, thermalManager.hotend_max_target(0));
-      EDIT_ITEM(float42_52, MSG_FACTOR, &thermalManager.autotemp.cfg.factor, 0, 10);
+      autotemp_cfg_t &c = thermalManager.autotemp.cfg;
+      EDIT_ITEM(int3, MSG_MIN, &c.min, 0, thermalManager.hotend_max_target(0), []{
+        NOLESS(thermalManager.autotemp.cfg.max, thermalManager.autotemp.cfg.min);
+      });
+      EDIT_ITEM(int3, MSG_MAX, &c.max, 0, thermalManager.hotend_max_target(0), []{
+        NOMORE(thermalManager.autotemp.cfg.min, thermalManager.autotemp.cfg.max);
+      });
+      EDIT_ITEM(float42_52, MSG_FACTOR, &c.factor, 0, 10);
     #endif
 
     //
@@ -340,13 +345,15 @@ void menu_backlash();
     //
 
     #if ALL(PIDTEMP, PID_EDIT_MENU)
-      #define __PID_HOTEND_MENU_ITEMS(N) \
+
+      #define __PID_HOTEND_MENU_ITEMS(N) do{ \
         raw_Kp = thermalManager.temp_hotend[N].pid.p(); \
         raw_Ki = thermalManager.temp_hotend[N].pid.i(); \
         raw_Kd = thermalManager.temp_hotend[N].pid.d(); \
-        EDIT_ITEM_FAST_N(float41sign, N, MSG_PID_P_E, &raw_Kp, 1, 9990, []{ apply_PID_p(N); }); \
+        EDIT_ITEM_FAST_N(float41sign, N, MSG_PID_P_E, &raw_Kp, 1.00f, 9990, []{ apply_PID_p(N); }); \
         EDIT_ITEM_FAST_N(float52sign, N, MSG_PID_I_E, &raw_Ki, 0.01f, 9990, []{ apply_PID_i(N); }); \
-        EDIT_ITEM_FAST_N(float41sign, N, MSG_PID_D_E, &raw_Kd, 1, 9990, []{ apply_PID_d(N); })
+        EDIT_ITEM_FAST_N(float41sign, N, MSG_PID_D_E, &raw_Kd, 1.00f, 9990, []{ apply_PID_d(N); }); \
+      }while(0)
 
       #if ENABLED(PID_EXTRUSION_SCALING)
         #define _PID_HOTEND_MENU_ITEMS(N) \
@@ -377,9 +384,9 @@ void menu_backlash();
         raw_Kp = T.pid.p(); \
         raw_Ki = T.pid.i(); \
         raw_Kd = T.pid.d(); \
-        EDIT_ITEM_FAST_N(float41sign, N, MSG_PID_P_E, &raw_Kp, 1, 9990, []{ apply_PID_p(N); }); \
+        EDIT_ITEM_FAST_N(float41sign, N, MSG_PID_P_E, &raw_Kp, 1.00f, 9990, []{ apply_PID_p(N); }); \
         EDIT_ITEM_FAST_N(float52sign, N, MSG_PID_I_E, &raw_Ki, 0.01f, 9990, []{ apply_PID_i(N); }); \
-        EDIT_ITEM_FAST_N(float41sign, N, MSG_PID_D_E, &raw_Kd, 1, 9990, []{ apply_PID_d(N); })
+        EDIT_ITEM_FAST_N(float41sign, N, MSG_PID_D_E, &raw_Kd, 1.00f, 9990, []{ apply_PID_d(N); })
     #endif
 
     #if ENABLED(PIDTEMP)

@@ -42,7 +42,7 @@ uint32_t Stepping::advance_until_step() {
   uint32_t iterations = bresenham_iterations_pending;
   // Per-axis lower-bound approx of floor(space_q32/adv), min across axes (lower bound because this fast division underestimates result by up to 1)
   //#define RUN_AXIS(A) if (advance_q32.A > 0) NOMORE(iterations, space_q32.A / advance_q32.A);
-  #define RUN_AXIS(A) if (advance_q32.A > 0) NOMORE(iterations, uint32_t((uint64_t(space_q32.A) * advance_dividend_reciprocal.A) >> 32));
+  #define RUN_AXIS(A) NOMORE(iterations, uint32_t((uint64_t(space_q32.A) * advance_dividend_reciprocal.A) >> 32));
   LOGICAL_AXIS_MAP(RUN_AXIS);
   #undef RUN_AXIS
 
@@ -90,8 +90,8 @@ uint32_t Stepping::plan() {
     #undef _HANDLE_DIR_CHANGES
   }
 
-  if (!(bool)stepper_plan.advance_dividend_q0_32) {
-    // don't waste time in zero motion traj points
+  if (stepper_plan.advance_dividend_q0_32 == 0) {
+    // Don't waste time in zero motion traj points
     bresenham_iterations_pending = 0;
     step_bits = 0;
     return INTERVAL_PER_TRAJ_POINT;
@@ -101,7 +101,10 @@ uint32_t Stepping::plan() {
   // The reciprocal is actually 2^32/dividend, but that requires dividing a uint64_t, which quite expensive
   // Since even the real reciprocal may underestimate the quotient by 1 anyway already, this optimisation doesn't
   // make things worse. This underestimation is compensated for in advance_until_step.
-  #define _DIVIDEND_RECIP(A) advance_dividend_reciprocal.A = UINT32_MAX / stepper_plan.advance_dividend_q0_32.A;
+  #define _DIVIDEND_RECIP(A) do{ \
+    const uint32_t d = stepper_plan.advance_dividend_q0_32.A; \
+    advance_dividend_reciprocal.A = d ? UINT32_MAX / d : UINT32_MAX; \
+  }while(0);
   LOGICAL_AXIS_MAP(_DIVIDEND_RECIP);
   #undef _DIVIDEND_RECIP
 

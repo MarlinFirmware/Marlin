@@ -99,7 +99,7 @@ PrintJobRecovery recovery;
 /**
  * Clear the recovery info
  */
-void PrintJobRecovery::init() { info = {}; }
+void PrintJobRecovery::init() { info = { 0 }; }
 
 /**
  * Enable or disable then call changed()

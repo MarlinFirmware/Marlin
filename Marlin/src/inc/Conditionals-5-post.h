@@ -313,10 +313,24 @@
 /**
  * SCARA cannot use SLOWDOWN and requires QUICKHOME
  * Printable radius assumes joints can fully extend
+ *
+ * TPARA cannot use SLOWDOWN nor QUICKHOME
+ * Printable radius assumes joints can't fully extend
+ * AXEL_TPARA is assigned a default Home Position unless overridden
  */
 #if IS_SCARA
   #if ENABLED(AXEL_TPARA)
-    #define PRINTABLE_RADIUS (TPARA_LINKAGE_1 + TPARA_LINKAGE_2)
+    #define PRINTABLE_RADIUS_2 HYPOT2(TPARA_LINKAGE_1, TPARA_LINKAGE_2) - 2 * (TPARA_LINKAGE_1) * (TPARA_LINKAGE_2) * cosf(TPARA_MAX_L1L2_ANGLE)
+    #define PRINTABLE_RADIUS SQRT(PRINTABLE_RADIUS_2)
+    #ifndef MANUAL_X_HOME_POS
+      #define MANUAL_X_HOME_POS (TPARA_ARM_X_HOME_POS + TPARA_TCP_OFFSET_X - TPARA_OFFSET_X)
+    #endif
+    #ifndef MANUAL_Y_HOME_POS
+      #define MANUAL_Y_HOME_POS (TPARA_ARM_Y_HOME_POS + TPARA_TCP_OFFSET_Y - TPARA_OFFSET_Y)
+    #endif
+    #ifndef MANUAL_Z_HOME_POS
+      #define MANUAL_Z_HOME_POS (TPARA_ARM_Z_HOME_POS + TPARA_TCP_OFFSET_Z - TPARA_OFFSET_Z)
+    #endif
   #else
     #define QUICK_HOME
     #define PRINTABLE_RADIUS (SCARA_LINKAGE_1 + SCARA_LINKAGE_2)
@@ -352,10 +366,12 @@
   #endif
 #endif
 
-#ifdef MANUAL_Z_HOME_POS
-  #define Z_HOME_POS MANUAL_Z_HOME_POS
-#else
-  #define Z_HOME_POS TERN(Z_HOME_TO_MIN, Z_MIN_POS, Z_MAX_POS)
+#if HAS_Z_AXIS
+  #ifdef MANUAL_Z_HOME_POS
+    #define Z_HOME_POS MANUAL_Z_HOME_POS
+  #else
+    #define Z_HOME_POS TERN(Z_HOME_TO_MIN, Z_MIN_POS, Z_MAX_POS)
+  #endif
 #endif
 
 #if HAS_I_AXIS

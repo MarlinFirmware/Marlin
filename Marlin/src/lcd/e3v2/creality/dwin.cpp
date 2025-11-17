@@ -1972,7 +1972,7 @@ void hmiSDCardUpdate() {
   if (hmiFlag.home_flag) return;
   if (DWIN_lcd_sd_status != card.isMounted()) {
     DWIN_lcd_sd_status = card.isMounted();
-    //SERIAL_ECHOLNPGM("HMI_SDCardUpdate: ", DWIN_lcd_sd_status);
+    //SERIAL_ECHOLNPGM("hmiSDCardUpdate: ", DWIN_lcd_sd_status);
     if (DWIN_lcd_sd_status) {
       if (checkkey == ID_SelectFile)
         redrawSDList();
@@ -4224,7 +4224,7 @@ void eachMomentUpdate() {
           if (encoder_diffState == ENCODER_DIFF_ENTER) {
             recovery_flag = false;
             if (hmiFlag.select_flag) break;
-            queue.inject(F("M1000C"));
+            TERN_(POWER_LOSS_RECOVERY, queue.inject(F("M1000C")));
             hmiStartFrame(true);
             return;
           }

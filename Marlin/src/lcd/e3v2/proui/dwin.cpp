@@ -466,8 +466,8 @@ void popupPauseOrStop() {
       FSTR_P errorstr;
       uint8_t icon;
       switch (state) {
-        case 0:  errorstr = GET_TEXT_F(MSG_TEMP_TOO_LOW);       icon = ICON_TempTooLow;  break;
-        case 1:  errorstr = GET_TEXT_F(MSG_TEMP_TOO_HIGH);      icon = ICON_TempTooHigh; break;
+        case 0:  errorstr = GET_TEXT_F(DGUS_MSG_TEMP_TOO_LOW);  icon = ICON_TempTooLow;  break;
+        case 1:  errorstr = GET_TEXT_F(DGUS_MSG_TEMP_TOO_HIGH); icon = ICON_TempTooHigh; break;
         default: errorstr = GET_TEXT_F(MSG_ERR_HEATING_FAILED); icon = ICON_Temperature; break; // May be thermal runaway, temp malfunction, etc.
       }
       dwinShowPopup(icon, heaterstr, errorstr, BTN_Continue);
@@ -1744,7 +1744,7 @@ void dwinLevelingDone() {
         break;
       case PID_TEMP_TOO_HIGH:
         checkkey = last_checkkey;
-        dwinPopupConfirm(ICON_TempTooHigh, GET_TEXT_F(MSG_PID_AUTOTUNE_FAILED), GET_TEXT_F(MSG_TEMP_TOO_HIGH));
+        dwinPopupConfirm(ICON_TempTooHigh, GET_TEXT_F(MSG_PID_AUTOTUNE_FAILED), GET_TEXT_F(DGUS_MSG_TEMP_TOO_HIGH));
         break;
       case AUTOTUNE_DONE:
         checkkey = last_checkkey;
