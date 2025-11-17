@@ -161,25 +161,22 @@
 
   #else
     // Replicator 2 and 2X uses a HD44780 SPI display, pins: mosi, sclk, miso (not used),  missing: latch, click, power
-    #define SPI_SOFT_MOSI_PIN                 37  // C0
-    #define SPI_SOFT_SCLK_PIN                 36  // C1
-    #define SPI_SOFT_MISO_PIN                 33  // C4
+    
+    #define SR_DATA_PIN                       37  // C0 
+    #define SR_CLK_PIN                        36  // C1 
+    #define SR_STROBE_PIN                     34  // C3
 
-    #define BTN_LATCH_PIN                     34  // C3
-    #define BTN_CLICK_PIN                     39  // G2
+    #define SR_DETECT_PIN                     33  // C4
 
-    #define BTN_UP_PIN                        76  // J5
-    #define BTN_DOWN_PIN                      75  // J4
-    #define BTN_LEFT_PIN                      77  // J6/J13
+    #define LCD_LED1_PIN                      35  // C2 To be implemented... 
 
-    #define LCD_POWER_PIN                     29  // A7
+    #define BTN_CLICK                         39  // G2
+    #define BTN_UP                            83  // J5 76 or 83?
+    #define BTN_DOWN                          82  // J4 75 or 82?
+    #define BTN_LEFT                          84  // J6 77 or 84?
+    #define BTN_RIGHT                         81  // J13  
 
-    #define LCD_LED1_PIN                      35  // C2
-
-    // Leave Old pins defined for now
-    #define SR_DATA_PIN                       37  // C0 *
-    #define SR_CLK_PIN                        36  // C1 *
-    #define SR_STROBE_PIN                     33  // C4 *
+    #define LCD_POWER_PIN                     29  // A7 To be implemented... 
 
     // Disable encoder
     #undef BTN_EN1
