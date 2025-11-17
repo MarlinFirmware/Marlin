@@ -176,7 +176,7 @@
     #define BTN_LEFT                          84  // J6 77 or 84?
     #define BTN_RIGHT                         81  // J13  
 
-    #define LCD_POWER_PIN                     29  // A7 To be implemented... 
+    #define LCD_BACKLIGHT_PIN                 29  // A7 To be implemented... 
 
     // Disable encoder
     #undef BTN_EN1
