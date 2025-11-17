@@ -61,12 +61,12 @@ constexpr bool corners_are(NamedPlace a, NamedPlace b) {
   return (lco[0] == a && lco[1] == b) || (lco[0] == b && lco[1] == a);
 }
 
-constexpr int8_t lcodiff = ABS(lco[0] - lco[1]);
-static_assert(COUNT(lco) == 4 || lcodiff == 1 || lcodiff == 3, "The first two BED_TRAMMING_LEVELING_ORDER corners must be on the same edge.");
+constexpr int8_t lcodiff = ABS(lco[0] - lco[1]),
+                 nr_edge_points = tramming_3_points ? 3 : 4,
+                 available_points = nr_edge_points + ENABLED(BED_TRAMMING_INCLUDE_CENTER),
+                 center_index = TERN(BED_TRAMMING_INCLUDE_CENTER, available_points - 1, -1);
 
-constexpr int8_t nr_edge_points = tramming_3_points ? 3 : 4;
-constexpr int8_t available_points = nr_edge_points + ENABLED(BED_TRAMMING_INCLUDE_CENTER);
-constexpr int8_t center_index = TERN(BED_TRAMMING_INCLUDE_CENTER, available_points - 1, -1);
+static_assert(COUNT(lco) == 4 || lcodiff == 1 || lcodiff == 3, "The first two BED_TRAMMING_LEVELING_ORDER corners must be on the same edge.");
 
 inline static xy_pos_t tram_point_by_place(const uint8_t p) {
   #if ENABLED(BED_TRAMMING_USE_PROBE)
@@ -89,7 +89,7 @@ inline static xy_pos_t tram_point_by_place(const uint8_t p) {
 }
 
 // Center of the opposite edge for the 3rd point
-constexpr NamedPlace third_place() {
+constexpr NamedPlace tram_third_place() {
   if (corners_are(LB, RB)) return FC; // Front Center
   if (corners_are(LF, LB)) return RC; // Right Center
   if (corners_are(RF, RB)) return LC; // Left Center
@@ -99,10 +99,10 @@ constexpr NamedPlace third_place() {
 static inline NamedPlace tram_place_by_index(const int8_t i) {
   if (tramming_3_points) {
     switch (i) {
-      case 0 ... 1: return lco[i];                // 1st and 2nd point set explicitly by config
-      case 2: return third_place();               // 3rd point is based on the other two
+      case 0 ... 1: return lco[i];              // 1st and 2nd point set explicitly by config
+      case 2: return tram_third_place();        // 3rd point is based on the other two
       #if ENABLED(BED_TRAMMING_INCLUDE_CENTER)
-        case 3: return CC;                        // 4th point is optional center
+        case 3: return CC;                      // 4th point is optional center
       #endif
     }
   }
