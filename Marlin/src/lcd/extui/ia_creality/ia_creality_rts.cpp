@@ -695,15 +695,6 @@ void RTS::handleData() {
     return;
   }
 
-  #if ENABLED(BED_TRAMMING_USE_PROBE)
-    const float lfrb[4] = {
-      (X_MIN_BED) + probe.min_x(),
-      (Y_MIN_BED) + probe.min_y(),
-      (X_MAX_BED) - probe.max_x(),
-      (Y_MAX_BED) - probe.max_y()
-    };
-  #endif
-
   switch (Checkkey) {
 
     case Printfile: {
@@ -1176,40 +1167,21 @@ void RTS::handleData() {
         } break;
 
         #if ENABLED(LCD_BED_TRAMMING)
-          case 6:   // Bed Tramming,  Centre 1
+          case 6 ... 10: {
+            xy_pos_t xy;
             if (BED_TRAMMING_Z_HOP) setAxisPosition_mm(current_position.z + (BED_TRAMMING_Z_HOP), axis_t(Z));
-            setAxisPosition_mm(X_CENTER, axis_t(X));
-            setAxisPosition_mm(Y_CENTER, axis_t(Y));
+            switch (recdat.data[0]) {
+              default:
+              case  6: xy = tram_point_by_place(CC); break; // Bed Tramming, Center 1
+              case  7: xy = tram_point_by_place(LF); break; // Bed Tramming, Left Front 2
+              case  8: xy = tram_point_by_place(RF); break; // Bed Tramming, Right Front 3
+              case  9: xy = tram_point_by_place(RB); break; // Bed Tramming, Right Back 4
+              case 10: xy = tram_point_by_place(LB); break; // Bed Tramming, Left Back 5
+            }
+            setAxisPosition_mm(xy.x, axis_t(X));
+            setAxisPosition_mm(xy.y, axis_t(Y));
             waitway = 6;
-            break;
-
-          case 7:   // Bed Tramming, Front Left 2
-            if (BED_TRAMMING_Z_HOP) setAxisPosition_mm(current_position.z + (BED_TRAMMING_Z_HOP), axis_t(Z));
-            setAxisPosition_mm(X_MIN_BED + lfrb[0], axis_t(X));
-            setAxisPosition_mm(Y_MIN_BED + lfrb[1], axis_t(Y));
-            waitway = 6;
-            break;
-
-          case 8:   // Bed Tramming, Front Right 3
-            if (BED_TRAMMING_Z_HOP) setAxisPosition_mm(current_position.z + (BED_TRAMMING_Z_HOP), axis_t(Z));
-            setAxisPosition_mm(X_MAX_BED - lfrb[2], axis_t(X));
-            setAxisPosition_mm(Y_MIN_BED + lfrb[1], axis_t(Y));
-            waitway = 6;
-            break;
-
-          case 9:   // Bed Tramming, Back Right 4
-            if (BED_TRAMMING_Z_HOP) setAxisPosition_mm(current_position.z + (BED_TRAMMING_Z_HOP), axis_t(Z));
-            setAxisPosition_mm(X_MAX_BED - lfrb[2], axis_t(X));
-            setAxisPosition_mm(Y_MAX_BED - lfrb[3], axis_t(Y));
-            waitway = 6;
-            break;
-
-          case 10:   // Bed Tramming, Back Left 5
-            if (BED_TRAMMING_Z_HOP) setAxisPosition_mm(current_position.z + (BED_TRAMMING_Z_HOP), axis_t(Z));
-            setAxisPosition_mm(X_MIN_BED + lfrb[0], axis_t(X));
-            setAxisPosition_mm(Y_MAX_BED - lfrb[3], axis_t(Y));
-            waitway = 6;
-            break;
+          } break;
 
         #endif // LCD_BED_TRAMMING
 
