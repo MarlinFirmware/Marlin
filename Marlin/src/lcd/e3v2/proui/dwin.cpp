@@ -38,6 +38,7 @@
 
 #include "../../utf8.h"
 #include "../../marlinui.h"
+#include "../../tramming.h"
 #include "../../extui/ui_api.h"
 #include "../../../MarlinCore.h"
 #include "../../../module/temperature.h"
@@ -2430,14 +2431,12 @@ void setFlow() { setPIntOnClick(FLOW_EDIT_MIN, FLOW_EDIT_MAX, []{ planner.refres
   void tramXY(const uint8_t point, float &x, float &y) {
     #if ENABLED(BED_TRAMMING_USE_PROBE)
       constexpr float slop = 0.01f;
-      float lfrb[] = {
+      const float lfrb[4] = {
         (X_MIN_BED) + probe.min_x() + slop,
         (Y_MIN_BED) + probe.min_y() + slop,
         (X_MAX_BED) - probe.max_x() - slop,
         (Y_MAX_BED) - probe.max_y() - slop
       };
-    #else
-      constexpr float lfrb[] = BED_TRAMMING_INSET_LFRB;
     #endif
 
     switch (point) {

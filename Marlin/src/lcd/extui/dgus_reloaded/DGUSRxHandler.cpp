@@ -30,6 +30,7 @@
 #include "config/DGUS_ScreenID.h"
 
 #include "../ui_api.h"
+#include "../../tramming.h"
 #include "../../../core/language.h"
 #include "../../../module/temperature.h"
 #include "../../../module/printcounter.h"
@@ -80,6 +81,7 @@ void DGUSRxHandler::screenChange(DGUS_VP &vp, void *data_ptr) {
 }
 
 #if HAS_MEDIA
+
   void DGUSRxHandler::scroll(DGUS_VP &vp, void *data_ptr) {
     UNUSED(vp);
 
@@ -87,25 +89,22 @@ void DGUSRxHandler::screenChange(DGUS_VP &vp, void *data_ptr) {
 
     switch (scroll) {
       case DGUS_Data::Scroll::GO_BACK:
-        if (screen.filelist.isAtRootDir()) {
+        if (screen.filelist.isAtRootDir())
           return;
-        }
 
         screen.filelist_offset = 0;
         screen.filelist_selected = -1;
         screen.filelist.upDir();
         break;
       case DGUS_Data::Scroll::UP:
-        if (screen.filelist_offset < 1) {
+        if (screen.filelist_offset < 1)
           return;
-        }
 
         --screen.filelist_offset;
         break;
       case DGUS_Data::Scroll::DOWN:
-        if (screen.filelist_offset + 1 + DGUS_FILE_COUNT > screen.filelist.count()) {
+        if (screen.filelist_offset + 1 + DGUS_FILE_COUNT > screen.filelist.count())
           return;
-        }
 
         ++screen.filelist_offset;
         break;
@@ -119,18 +118,16 @@ void DGUSRxHandler::screenChange(DGUS_VP &vp, void *data_ptr) {
 
     const uint8_t index = ((uint8_t*)data_ptr)[1];
 
-    if (!screen.filelist.seek(screen.filelist_offset + index)) {
+    if (!screen.filelist.seek(screen.filelist_offset + index))
       return;
-    }
 
     if (screen.filelist.isDir()) {
       screen.filelist_offset = 0;
       screen.filelist_selected = -1;
       screen.filelist.changeDir(screen.filelist.filename());
     }
-    else {
+    else
       screen.filelist_selected = screen.filelist_offset + index;
-    }
 
     screen.triggerFullUpdate();
   }
@@ -144,10 +141,8 @@ void DGUSRxHandler::screenChange(DGUS_VP &vp, void *data_ptr) {
       return;
     }
 
-    if (!screen.filelist.seek(screen.filelist_selected)
-        || screen.filelist.isDir()) {
+    if (!screen.filelist.seek(screen.filelist_selected) || screen.filelist.isDir())
       return;
-    }
 
     if (!screen.isPrinterIdle()) {
       screen.setStatusMessage(GET_TEXT_F(DGUS_MSG_BUSY));
@@ -157,6 +152,7 @@ void DGUSRxHandler::screenChange(DGUS_VP &vp, void *data_ptr) {
     ExtUI::printFile(screen.filelist.shortFilename());
     screen.triggerScreenChange(DGUS_ScreenID::PRINT_STATUS);
   }
+
 #endif // HAS_MEDIA
 
 void DGUSRxHandler::printAbort(DGUS_VP &vp, void *data_ptr) {
@@ -164,9 +160,8 @@ void DGUSRxHandler::printAbort(DGUS_VP &vp, void *data_ptr) {
 
   const DGUS_Data::Popup result = (DGUS_Data::Popup)((uint8_t*)data_ptr)[1];
 
-  if (result != DGUS_Data::Popup::CONFIRMED) {
+  if (result != DGUS_Data::Popup::CONFIRMED)
     return;
-  }
 
   if (!ExtUI::isPrinting() && !ExtUI::isPrintingPaused()) {
     screen.triggerFullUpdate();
@@ -181,9 +176,8 @@ void DGUSRxHandler::printPause(DGUS_VP &vp, void *data_ptr) {
 
   const DGUS_Data::Popup result = (DGUS_Data::Popup)((uint8_t*)data_ptr)[1];
 
-  if (result != DGUS_Data::Popup::CONFIRMED) {
+  if (result != DGUS_Data::Popup::CONFIRMED)
     return;
-  }
 
   if (!ExtUI::isPrinting()) {
     screen.triggerFullUpdate();
@@ -198,9 +192,8 @@ void DGUSRxHandler::printResume(DGUS_VP &vp, void *data_ptr) {
 
   const DGUS_Data::Popup result = (DGUS_Data::Popup)((uint8_t*)data_ptr)[1];
 
-  if (result != DGUS_Data::Popup::CONFIRMED) {
+  if (result != DGUS_Data::Popup::CONFIRMED)
     return;
-  }
 
   if (!ExtUI::isPrintingPaused()) {
     screen.triggerFullUpdate();
@@ -469,14 +462,12 @@ void DGUSRxHandler::moveToPoint(DGUS_VP &vp, void *data_ptr) {
   const uint8_t point = ((uint8_t*)data_ptr)[1];
 
   #if ENABLED(BED_TRAMMING_USE_PROBE)
-    float lfrb[4] = {
+    const float lfrb[4] = {
       (X_MIN_BED) + probe.min_x(),
       (Y_MIN_BED) + probe.min_y(),
       (X_MAX_BED) - probe.max_x(),
       (Y_MAX_BED) - probe.max_y()
     };
-  #else
-    constexpr float lfrb[4] = BED_TRAMMING_INSET_LFRB;
   #endif
 
   float x, y;

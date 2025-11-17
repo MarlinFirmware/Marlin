@@ -40,114 +40,36 @@
   #define NEEDS_PROBE_DEPLOY 1
 #endif
 
+#include "../tramming.h"
+
 #if ENABLED(BED_TRAMMING_USE_PROBE)
   #include "../../module/probe.h"
   #include "../../module/endstops.h"
   #if ENABLED(BLTOUCH)
     #include "../../feature/bltouch.h"
   #endif
-  #ifndef BED_TRAMMING_PROBE_TOLERANCE
-    #define BED_TRAMMING_PROBE_TOLERANCE 0.2
+  #if HAS_MARLINUI_U8GLIB
+    #include "../dogm/marlinui_DOGM.h"
   #endif
   float last_z;
   int good_points;
   bool tramming_done, wait_for_probe;
-
-  #if HAS_MARLINUI_U8GLIB
-    #include "../dogm/marlinui_DOGM.h"
-  #endif
-  #define GOOD_POINTS_TO_STR(N) ui8tostr2(N)
-  #define LAST_Z_TO_STR(N) ftostr53_63(N) //ftostr42_52(N)
-
 #endif
 
-static_assert(BED_TRAMMING_Z_HOP >= 0, "BED_TRAMMING_Z_HOP must be >= 0. Please update your configuration.");
-
-#define LF 1
-#define RF 2
-#define RB 3
-#define LB 4
-
-#ifndef BED_TRAMMING_LEVELING_ORDER
-  #define BED_TRAMMING_LEVELING_ORDER { LF, RF, LB, RB } // Default
-  //#define BED_TRAMMING_LEVELING_ORDER { LF, LB, RF  }  // 3 hard-coded points
-  //#define BED_TRAMMING_LEVELING_ORDER { LF, RF }       // 3-Point tramming - Rear
-  //#define BED_TRAMMING_LEVELING_ORDER { LF, LB }       // 3-Point tramming - Right
-  //#define BED_TRAMMING_LEVELING_ORDER { RF, RB }       // 3-Point tramming - Left
-  //#define BED_TRAMMING_LEVELING_ORDER { LB, RB }       // 3-Point tramming - Front
-#endif
-
-constexpr int lco[] = BED_TRAMMING_LEVELING_ORDER;
-constexpr bool tramming_3_points = COUNT(lco) == 2;
-static_assert(tramming_3_points || COUNT(lco) == 4, "BED_TRAMMING_LEVELING_ORDER must have exactly 2 or 4 corners.");
-
-constexpr int lcodiff = ABS(lco[0] - lco[1]);
-static_assert(COUNT(lco) == 4 || lcodiff == 1 || lcodiff == 3, "The first two BED_TRAMMING_LEVELING_ORDER corners must be on the same edge.");
-
-constexpr int nr_edge_points = tramming_3_points ? 3 : 4;
-constexpr int available_points = nr_edge_points + ENABLED(BED_TRAMMING_INCLUDE_CENTER);
-constexpr int center_index = TERN(BED_TRAMMING_INCLUDE_CENTER, available_points - 1, -1);
 static int8_t bed_corner;
 
 /**
  * Move to the next corner coordinates
  */
 static void _lcd_goto_next_corner() {
-  #if ENABLED(BED_TRAMMING_USE_PROBE)
-    constexpr float slop = 0.01f;
-    const xy_pos_t lf = { (X_MIN_BED) + probe.min_x() + slop, (Y_MIN_BED) + probe.min_y() + slop },
-                   rb = { (X_MAX_BED) - probe.max_x() - slop, (Y_MAX_BED) - probe.max_y() - slop };
-  #else
-    constexpr float inset_lfrb[4] = BED_TRAMMING_INSET_LFRB;
-    constexpr xy_pos_t lf { (X_MIN_BED) + inset_lfrb[0], (Y_MIN_BED) + inset_lfrb[1] },
-                       rb { (X_MAX_BED) - inset_lfrb[2], (Y_MAX_BED) - inset_lfrb[3] };
-  #endif
-
-  xy_pos_t corner_point = lf;                     // Left front
+  xy_pos_t tram_point = tram_point_by_index(bed_corner);
 
   if (tramming_3_points) {
     if (bed_corner >= available_points) bed_corner = 0; // Above max position -> move back to first corner
-    switch (bed_corner) {
-      case 0 ... 1:
-        // First two corners set explicitly by the configuration
-        switch (lco[bed_corner]) {
-          case RF: corner_point.x = rb.x; break;  // Right Front
-          case RB: corner_point   = rb;   break;  // Right Back
-          case LB: corner_point.y = rb.y; break;  // Left Back
-        }
-        break;
-
-      case 2:
-        // Determine which edge to probe for 3rd point
-        corner_point.set(lf.x + (rb.x - lf.x) / 2, lf.y + (rb.y - lf.y) / 2);
-        if ((lco[0] == LB && lco[1] == RB) || (lco[0] == RB && lco[1] == LB)) corner_point.y = lf.y; // Front Center
-        if ((lco[0] == LF && lco[1] == LB) || (lco[0] == LB && lco[1] == LF)) corner_point.x = rb.x; // Center Right
-        if ((lco[0] == RF && lco[1] == RB) || (lco[0] == RB && lco[1] == RF)) corner_point.x = lf.x; // Left Center
-        if ((lco[0] == LF && lco[1] == RF) || (lco[0] == RF && lco[1] == LF)) corner_point.y = rb.y; // Center Back
-        #if ENABLED(BED_TRAMMING_USE_PROBE) && DISABLED(BED_TRAMMING_INCLUDE_CENTER)
-          bed_corner++;  // Must increment the count to ensure it resets the loop if the 3rd point is out of tolerance
-        #endif
-        break;
-
-      #if ENABLED(BED_TRAMMING_INCLUDE_CENTER)
-        case 3:
-          corner_point.set(X_CENTER, Y_CENTER);
-          break;
-      #endif
-    }
-  }
-  else {
-    // Four-Corner Bed Tramming with optional center
-    if (TERN0(BED_TRAMMING_INCLUDE_CENTER, bed_corner == center_index)) {
-      corner_point.set(X_CENTER, Y_CENTER);
-    }
-    else {
-      switch (lco[bed_corner]) {
-        case RF: corner_point.x = rb.x; break;  // Right Front
-        case RB: corner_point   = rb;   break;  // Right Back
-        case LB: corner_point.y = rb.y; break;  // Left Back
-      }
-    }
+    #if ENABLED(BED_TRAMMING_USE_PROBE) && DISABLED(BED_TRAMMING_INCLUDE_CENTER)
+      // Must increment the count to ensure it resets the loop if the 3rd point is out of tolerance
+      if (bed_corner == 2) bed_corner++;
+    #endif
   }
 
   float z = _MIN(current_position.z + (BED_TRAMMING_Z_HOP), Z_MAX_POS);
@@ -155,7 +77,7 @@ static void _lcd_goto_next_corner() {
     z += bltouch.z_extra_clearance();
   #endif
   line_to_z(z);
-  do_blocking_move_to_xy(DIFF_TERN(BED_TRAMMING_USE_PROBE, corner_point, probe.offset_xy), manual_feedrate_mm_s.x);
+  do_blocking_move_to_xy(DIFF_TERN(BED_TRAMMING_USE_PROBE, tram_point, probe.offset_xy), manual_feedrate_mm_s.x);
   #if DISABLED(BED_TRAMMING_USE_PROBE)
     line_to_z(BED_TRAMMING_HEIGHT);
     if (++bed_corner >= available_points) bed_corner = 0;
