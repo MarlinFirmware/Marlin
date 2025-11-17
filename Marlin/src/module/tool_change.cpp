@@ -940,7 +940,7 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
    *  current_position.e = e;
    *  sync_plan_position_e();
    */
-  void extruder_cutting_recover(const_float_t e) {
+  void extruder_cutting_recover(const float e) {
     if (too_cold(active_extruder)) return;
     const float dist = toolchange_settings.extra_resume + toolchange_settings.wipe_retract;
     DEBUG_ECHOLNPGM("Performing Cutting Recover | Distance: ", dist, " | Speed: ", MMM_TO_MMS(toolchange_settings.unretract_speed), "mm/s");
@@ -1415,6 +1415,12 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
       #endif
 
     } // (new_tool != old_tool)
+    else {
+      // For switching-nozzle-with-servos you may have manually-edited servo angles
+      // or other functions that can affect angles. So here we ensure a T# command
+      // restores active tool position even when recalling the same tool.
+      TERN_(SWITCHING_NOZZLE_TWO_SERVOS, lower_nozzle(new_tool));
+    }
 
     planner.synchronize();
 
@@ -1575,13 +1581,13 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
     // Migrate the temperature to the new hotend
     #if HAS_MULTI_HOTEND
       thermalManager.setTargetHotend(thermalManager.degTargetHotend(active_extruder), migration_extruder);
-      TERN_(AUTOTEMP, planner.autotemp_update());
+      TERN_(AUTOTEMP, thermalManager.autotemp_update());
       thermalManager.set_heating_message(0);
       thermalManager.wait_for_hotend(active_extruder);
     #endif
 
     // Migrate Linear Advance K factor to the new extruder
-    TERN_(LIN_ADVANCE, planner.extruder_advance_K[active_extruder] = planner.extruder_advance_K[migration_extruder]);
+    TERN_(LIN_ADVANCE, planner.set_advance_k(planner.get_advance_k(migration_extruder), active_extruder));
 
     // Temporary migration toolchange_settings restored on exit. i.e., before next tool_change().
     #if defined(MIGRATION_FS_EXTRA_PRIME) \

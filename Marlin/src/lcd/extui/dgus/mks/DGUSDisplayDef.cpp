@@ -103,7 +103,7 @@ void MKS_resume_print_move() {
 
 float z_offset_add = 0;
 
-xyz_int_t tmc_step; // = { 0, 0, 0 }
+xyz_int_t tmc_stall_sens; // = { 0, 0, 0 }
 
 uint16_t lcd_default_light = 50;
 
@@ -117,7 +117,10 @@ const uint16_t VPList_Boot[] PROGMEM = {
 };
 
 #define MKSLIST_E_ITEM(N) VP_T_E##N##_Is, VP_T_E##N##_Set,
+#define INFO_BAR REPEAT(EXTRUDERS, MKSLIST_E_ITEM) VP_T_Bed_Is, VP_T_Bed_Set, VP_Fan0_Percentage,
 
+// Not defined in firmware 1.30 or 1.31
+/*
 const uint16_t VPList_Main[] PROGMEM = {
   // VP_M117, for completeness, but it cannot be auto-uploaded.
   #if HAS_HOTEND
@@ -140,53 +143,31 @@ const uint16_t VPList_Main[] PROGMEM = {
   #endif
   0x0000
 };
+*/
 
 const uint16_t MKSList_Home[] PROGMEM = {
-  // E Temp
-  REPEAT(EXTRUDERS, MKSLIST_E_ITEM)
-  // HB Temp
-  VP_T_Bed_Is, VP_T_Bed_Set,
-  // FAN
-  VP_Fan0_Percentage,
-  // Language
-  // VP_HOME_Dis,
+  INFO_BAR
 
   0x0000
 };
 
 const uint16_t MKSList_Setting[] PROGMEM = {
-  // E Temp
-  REPEAT(EXTRUDERS, MKSLIST_E_ITEM)
-  // HB Temp
-  VP_T_Bed_Is, VP_T_Bed_Set,
-  // FAN
-  VP_Fan0_Percentage,
-  // Language
-  VP_Setting_Dis,
+  INFO_BAR
+
   0x0000
 };
 
 const uint16_t MKSList_Tool[] PROGMEM = {
-  // E Temp
-  REPEAT(EXTRUDERS, MKSLIST_E_ITEM)
-  // HB Temp
-  VP_T_Bed_Is, VP_T_Bed_Set,
-  // FAN
-  VP_Fan0_Percentage,
-  // Language
-  VP_Tool_Dis,
-  // LCD BLK
+  INFO_BAR
+
+  // LCD BackLight
   VP_LCD_BLK,
+
   0x0000
 };
 
-const uint16_t MKSList_EXTRUE[] PROGMEM = {
-  // E Temp
-  REPEAT(EXTRUDERS, MKSLIST_E_ITEM)
-  // HB Temp
-  VP_T_Bed_Is, VP_T_Bed_Set,
-  // FAN
-  VP_Fan0_Percentage,
+const uint16_t MKSList_EXTRUDE[] PROGMEM = {
+  INFO_BAR
 
   VP_Filament_distance,
   VP_Filament_speed,
@@ -195,34 +176,19 @@ const uint16_t MKSList_EXTRUE[] PROGMEM = {
 };
 
 const uint16_t MKSList_LEVEL[] PROGMEM = {
-  // E Temp
-  REPEAT(EXTRUDERS, MKSLIST_E_ITEM)
-  // HB Temp
-  VP_T_Bed_Is, VP_T_Bed_Set,
-  // FAN
-  VP_Fan0_Percentage,
+  INFO_BAR
 
   0x0000
 };
 
 const uint16_t MKSList_MOVE[] PROGMEM = {
-  // E Temp
-  REPEAT(EXTRUDERS, MKSLIST_E_ITEM)
-  // HB Temp
-  VP_T_Bed_Is, VP_T_Bed_Set,
-  // FAN
-  VP_Fan0_Percentage,
+  INFO_BAR
 
   0x0000
 };
 
 const uint16_t MKSList_Print[] PROGMEM = {
-  // E Temp
-  REPEAT(EXTRUDERS, MKSLIST_E_ITEM)
-  // HB Temp
-  VP_T_Bed_Is, VP_T_Bed_Set,
-  // FAN
-  VP_Fan0_Percentage,
+  INFO_BAR
   // Print Percent
   VP_PrintProgress_Percentage,
 
@@ -254,26 +220,15 @@ const uint16_t MKSList_SD_File[] PROGMEM = {
 };
 
 const uint16_t MKSList_TempOnly[] PROGMEM = {
-  // E Temp
-  REPEAT(EXTRUDERS, MKSLIST_E_ITEM)
-  // HB Temp
-  VP_T_Bed_Is, VP_T_Bed_Set,
-  // FAN
-  VP_Fan0_Percentage,
-  // LCD BLK
-  VP_LCD_BLK,
+  INFO_BAR
+
   0x0000
 };
 
-const uint16_t MKSList_Pluse[] PROGMEM = {
-  // E Temp
-  REPEAT(EXTRUDERS, MKSLIST_E_ITEM)
-  // HB Temp
-  VP_T_Bed_Is, VP_T_Bed_Set,
-  // FAN
-  VP_Fan0_Percentage,
+const uint16_t MKSList_Steps_mm[] PROGMEM = {
+  INFO_BAR
 
-  // Pluse
+  // Steps/mm
   VP_X_STEP_PER_MM,
   VP_Y_STEP_PER_MM,
   VP_Z_STEP_PER_MM,
@@ -284,14 +239,9 @@ const uint16_t MKSList_Pluse[] PROGMEM = {
 };
 
 const uint16_t MKSList_MaxSpeed[] PROGMEM = {
-  // E Temp
-  REPEAT(EXTRUDERS, MKSLIST_E_ITEM)
-  // HB Temp
-  VP_T_Bed_Is, VP_T_Bed_Set,
-  // FAN
-  VP_Fan0_Percentage,
+  INFO_BAR
 
-  // Pluse
+  // Max Speed
   VP_X_MAX_SPEED,
   VP_Y_MAX_SPEED,
   VP_Z_MAX_SPEED,
@@ -302,31 +252,20 @@ const uint16_t MKSList_MaxSpeed[] PROGMEM = {
 };
 
 const uint16_t MKSList_MaxAcc[] PROGMEM = {
-  // E Temp
-  REPEAT(EXTRUDERS, MKSLIST_E_ITEM)
-  // HB Temp
-  VP_T_Bed_Is, VP_T_Bed_Set,
-  // FAN
-  VP_Fan0_Percentage,
+  INFO_BAR
 
-  // ACC
-  VP_ACC_SPEED,
-  VP_X_ACC_MAX_SPEED,
-  VP_Y_ACC_MAX_SPEED,
-  VP_Z_ACC_MAX_SPEED,
-  VP_E0_ACC_MAX_SPEED,
-  VP_E1_ACC_MAX_SPEED,
+  // Acceleration
+  VP_X_MAX_ACC,
+  VP_Y_MAX_ACC,
+  VP_Z_MAX_ACC,
+  VP_E0_MAX_ACC,
+  VP_E1_MAX_ACC,
 
   0x0000
 };
 
 const uint16_t MKSList_PID[] PROGMEM = {
-  // E Temp
-  REPEAT(EXTRUDERS, MKSLIST_E_ITEM)
-  // HB Temp
-  VP_T_Bed_Is, VP_T_Bed_Set,
-  // FAN
-  VP_Fan0_Percentage,
+  INFO_BAR
 
   // PID
   VP_E0_PID_P,
@@ -337,12 +276,7 @@ const uint16_t MKSList_PID[] PROGMEM = {
 };
 
 const uint16_t MKSList_Level_Point[] PROGMEM = {
-  // E Temp
-  REPEAT(EXTRUDERS, MKSLIST_E_ITEM)
-  // HB Temp
-  VP_T_Bed_Is, VP_T_Bed_Set,
-  // FAN
-  VP_Fan0_Percentage,
+  INFO_BAR
 
   // Level Point
   VP_Level_Point_One_X,
@@ -372,10 +306,7 @@ const uint16_t MKSList_Level_PrintConfig[] PROGMEM = {
 };
 
 const uint16_t MKSList_PrintPauseConfig[] PROGMEM = {
-  // E Temp
-  REPEAT(EXTRUDERS, MKSLIST_E_ITEM)
-  // HB Temp
-  VP_T_Bed_Is, VP_T_Bed_Set,
+  INFO_BAR
 
   VP_X_PARK_POS,
   VP_Y_PARK_POS,
@@ -384,11 +315,8 @@ const uint16_t MKSList_PrintPauseConfig[] PROGMEM = {
   0x0000
 };
 
-const uint16_t MKSList_MotoConfig[] PROGMEM = {
-  // E Temp
-  REPEAT(EXTRUDERS, MKSLIST_E_ITEM)
-  // HB Temp
-  VP_T_Bed_Is, VP_T_Bed_Set,
+const uint16_t MKSList_MotionConfig[] PROGMEM = {
+  INFO_BAR
 
   VP_TRAVEL_SPEED,
   VP_FEEDRATE_MIN_SPEED,
@@ -398,24 +326,18 @@ const uint16_t MKSList_MotoConfig[] PROGMEM = {
 };
 
 const uint16_t MKSList_EX_Config[] PROGMEM = {
-  // E Temp
-  REPEAT(EXTRUDERS, MKSLIST_E_ITEM)
-  // HB Temp
-  VP_T_Bed_Is, VP_T_Bed_Set,
-  VP_MIN_EX_T,VP_Min_EX_T_E,
+  INFO_BAR
+  VP_MIN_EX_T, VP_Min_EX_T_E,
+
   0x0000
 };
 
 const uint16_t MKSTMC_Config[] PROGMEM = {
-  // E Temp
-  REPEAT(EXTRUDERS, MKSLIST_E_ITEM)
-  // HB Temp
-  VP_T_Bed_Is, VP_T_Bed_Set,
-  VP_MIN_EX_T,
+  INFO_BAR
 
-  VP_TMC_X_STEP,
-  VP_TMC_Y_STEP,
-  VP_TMC_Z_STEP,
+  VP_TMC_X_SENS,
+  VP_TMC_Y_SENS,
+  VP_TMC_Z_SENS,
   VP_TMC_X1_Current,
   VP_TMC_Y1_Current,
   VP_TMC_X_Current,
@@ -431,20 +353,23 @@ const uint16_t MKSTMC_Config[] PROGMEM = {
 const uint16_t MKSAuto_Level[] PROGMEM = {
   VP_MESH_LEVEL_POINT_DIS,
   VP_ZPos,
+
   0x0000
 };
 
 const uint16_t MKSOffset_Config[] PROGMEM = {
-  // E Temp
-  REPEAT(EXTRUDERS, MKSLIST_E_ITEM)
+  INFO_BAR
+
   VP_OFFSET_X,
   VP_OFFSET_Y,
   VP_OFFSET_Z,
+
   0x0000
 };
 
 const uint16_t MKSBabyStep[] PROGMEM = {
   VP_ZOffset_DE_DIS,
+
   0x0000
 };
 
@@ -463,23 +388,23 @@ const struct VPMapping VPMap[] PROGMEM = {
   { MKSLCD_SCREEN_HOME, MKSList_Home },                       // Home, Page 1
   { MKSLCD_SCREEN_SETTING, MKSList_Setting },                 // Setting, Page 2
   { MKSLCD_SCREEM_TOOL, MKSList_Tool },                       // Page 3
-  { MKSLCD_SCREEN_EXTRUDE_P1, MKSList_EXTRUE },               // Page 4
-  { MKSLCD_SCREEN_EXTRUDE_P2, MKSList_EXTRUE },               // Page 11
-  { MKSLCD_PAUSE_SETTING_EX, MKSList_EXTRUE },                // Page 57
-  { MKSLCD_PAUSE_SETTING_EX2, MKSList_EXTRUE },               // Page 61
+  { MKSLCD_SCREEN_EXTRUDE_P1, MKSList_EXTRUDE },              // Page 4
+  { MKSLCD_SCREEN_EXTRUDE_P2, MKSList_EXTRUDE },              // Page 11
+  { MKSLCD_PAUSE_SETTING_EX, MKSList_EXTRUDE },               // Page 57
+  { MKSLCD_PAUSE_SETTING_EX2, MKSList_EXTRUDE },              // Page 61
   { MKSLCD_SCREEN_LEVEL, MKSList_LEVEL },                     // Page 5
   { MKSLCD_SCREEN_MOVE, MKSList_MOVE },                       // Page 6
   { MKSLCD_SCREEN_PRINT, MKSList_Print },                     // Page 7
   { MKSLCD_SCREEN_PAUSE, MKSList_Print },                     // Page 26
   { MKSLCD_SCREEN_CHOOSE_FILE, MKSList_SD_File },             // Page 15
-  { MKSLCD_SCREEN_MOTOR_PLUSE, MKSList_Pluse },               // Page 51
-  { MKSLCD_SCREEN_MOTOR_SPEED, MKSList_MaxSpeed },            // Page 55
-  { MKSLCD_SCREEN_MOTOR_ACC_MAX, MKSList_MaxAcc },            // Page 53
+  { MKSLCD_SCREEN_STEPS_MM, MKSList_Steps_mm },               // Page 51
+  { MKSLCD_SCREEN_AXIS_SPEED, MKSList_MaxSpeed },             // Page 55
+  { MKSLCD_SCREEN_AXIS_ACC_MAX, MKSList_MaxAcc },             // Page 53
   { MKSLCD_SCREEN_LEVEL_DATA, MKSList_Level_Point },          // Page 48
   { MKSLCD_PrintPause_SET, MKSList_PrintPauseConfig },        // Page 49
-  { MKSLCD_FILAMENT_DATA, MKSList_SD_File },                  // Page 50
+  //{ MKSLCD_FILAMENT_DATA, MKSList_SD_File },                // Page 50
   { MKSLCD_SCREEN_Config, MKSList_TempOnly },                 // Page 46
-  { MKSLCD_SCREEN_Config_MOTOR, MKSList_MotoConfig },         // Page 47
+  { MKSLCD_SCREEN_Config_MOTOR, MKSList_MotionConfig },       // Page 47
   { MKSLCD_PID, MKSList_PID },                                // Page 56
   { MKSLCD_ABOUT, MKSList_About },                            // Page 36
   { MKSLCD_SCREEN_PRINT_CONFIG, MKSList_Level_PrintConfig },  // Page 60
@@ -495,7 +420,7 @@ const struct VPMapping VPMap[] PROGMEM = {
 };
 
 const char MarlinVersion[] PROGMEM = SHORT_BUILD_VERSION;
-const char H43Version[] PROGMEM = "MKS H43_V1.30";
+const char H43Version[] PROGMEM = "MKS H43_V1.31";
 const char Updata_Time[] PROGMEM = STRING_DISTRIBUTION_DATE;
 
 const struct DGUS_VP_Variable ListOfVP[] PROGMEM = {
@@ -522,7 +447,7 @@ const struct DGUS_VP_Variable ListOfVP[] PROGMEM = {
 
   VPHELPER(VP_MOVE_DISTANCE, &manualMoveStep, screen.getManualMovestep, nullptr),
 
-  VPHELPER(VP_MOTOR_LOCK_UNLOK, nullptr, screen.handleManualMove, nullptr),
+  VPHELPER(VP_MOTOR_LOCK_UNLOCK, nullptr, screen.handleManualMove, nullptr),
   VPHELPER(VP_LEVEL_POINT, nullptr, screen.manualAssistLeveling, nullptr),
 
   #if ENABLED(POWER_LOSS_RECOVERY)
@@ -545,7 +470,7 @@ const struct DGUS_VP_Variable ListOfVP[] PROGMEM = {
   #if HAS_HOTEND
     VPHELPER(VP_T_E0_Is, &thermalManager.temp_hotend[0].celsius, nullptr, screen.sendFloatAsLongValueToDisplay<0>),
     VPHELPER(VP_T_E0_Set, &thermalManager.temp_hotend[0].target, screen.handleTemperatureChanged, screen.sendWordValueToDisplay),
-    VPHELPER(VP_Flowrate_E0, &planner.flow_percentage[ExtUI::extruder_t::E0], screen.handleFlowRateChanged, screen.sendWordValueToDisplay),
+    VPHELPER(VP_Flowrate_E0, &planner.flow_percentage[0], screen.handleFlowRateChanged, screen.sendWordValueToDisplay),
     VPHELPER(VP_EPos, &destination.e, nullptr, screen.sendFloatAsLongValueToDisplay<2>),
     VPHELPER(VP_MOVE_E0, nullptr, screen.handleManualExtrude, nullptr),
     VPHELPER(VP_E0_CONTROL, &thermalManager.temp_hotend[0].target, screen.handleHeaterControl, nullptr),
@@ -570,7 +495,7 @@ const struct DGUS_VP_Variable ListOfVP[] PROGMEM = {
   #if HAS_MULTI_HOTEND
     VPHELPER(VP_T_E1_Is, &thermalManager.temp_hotend[1].celsius, nullptr, screen.sendFloatAsLongValueToDisplay<0>),
     VPHELPER(VP_T_E1_Set, &thermalManager.temp_hotend[1].target, screen.handleTemperatureChanged, screen.sendWordValueToDisplay),
-    VPHELPER(VP_Flowrate_E1, &planner.flow_percentage[ExtUI::extruder_t::E1], screen.handleFlowRateChanged, screen.sendWordValueToDisplay),
+    VPHELPER(VP_Flowrate_E1, &planner.flow_percentage[1], screen.handleFlowRateChanged, screen.sendWordValueToDisplay),
     VPHELPER(VP_MOVE_E1, nullptr, screen.handleManualExtrude, nullptr),
     VPHELPER(VP_E1_CONTROL, &thermalManager.temp_hotend[1].target, screen.handleHeaterControl, nullptr),
     VPHELPER(VP_E1_STATUS, &thermalManager.temp_hotend[1].target, nullptr, screen.sendHeaterStatusToDisplay),
@@ -664,27 +589,27 @@ const struct DGUS_VP_Variable ListOfVP[] PROGMEM = {
   VPHELPER(VP_Z_MAX_SPEED, &planner.settings.max_feedrate_mm_s[Z_AXIS], screen.handleMaxSpeedChange, screen.sendFloatAsIntValueToDisplay<0>),
 
   #if HAS_HOTEND
-    VPHELPER(VP_E0_MAX_SPEED, &planner.settings.max_feedrate_mm_s[E_AXIS_N(0)], screen.handleExtruderMaxSpeedChange, screen.sendFloatAsIntValueToDisplay<0>),
+    VPHELPER(VP_E0_MAX_SPEED, &planner.settings.max_feedrate_mm_s[E_AXIS_N(0)], screen.handleMaxSpeedChange, screen.sendFloatAsIntValueToDisplay<0>),
     #if HAS_MULTI_HOTEND
-      VPHELPER(VP_E1_MAX_SPEED, &planner.settings.max_feedrate_mm_s[E_AXIS_N(1)], screen.handleExtruderMaxSpeedChange, screen.sendFloatAsIntValueToDisplay<0>),
+      VPHELPER(VP_E1_MAX_SPEED, &planner.settings.max_feedrate_mm_s[E_AXIS_N(1)], screen.handleMaxSpeedChange, screen.sendFloatAsIntValueToDisplay<0>),
     #endif
   #endif
 
-  VPHELPER(VP_X_ACC_MAX_SPEED, (uint16_t *)&planner.settings.max_acceleration_mm_per_s2[X_AXIS], screen.handleMaxAccChange, screen.sendWordValueToDisplay),
-  VPHELPER(VP_Y_ACC_MAX_SPEED, (uint16_t *)&planner.settings.max_acceleration_mm_per_s2[Y_AXIS], screen.handleMaxAccChange, screen.sendWordValueToDisplay),
-  VPHELPER(VP_Z_ACC_MAX_SPEED, (uint16_t *)&planner.settings.max_acceleration_mm_per_s2[Z_AXIS], screen.handleMaxAccChange, screen.sendWordValueToDisplay),
+  VPHELPER(VP_X_MAX_ACC, (uint16_t *)&planner.settings.max_acceleration_mm_per_s2[X_AXIS], screen.handleMaxAccChange, screen.sendWordValueToDisplay),
+  VPHELPER(VP_Y_MAX_ACC, (uint16_t *)&planner.settings.max_acceleration_mm_per_s2[Y_AXIS], screen.handleMaxAccChange, screen.sendWordValueToDisplay),
+  VPHELPER(VP_Z_MAX_ACC, (uint16_t *)&planner.settings.max_acceleration_mm_per_s2[Z_AXIS], screen.handleMaxAccChange, screen.sendWordValueToDisplay),
 
   #if HAS_HOTEND
-    VPHELPER(VP_E0_ACC_MAX_SPEED, (uint16_t *)&planner.settings.max_acceleration_mm_per_s2[E_AXIS_N(0)], screen.handleExtruderAccChange, screen.sendWordValueToDisplay),
+    VPHELPER(VP_E0_MAX_ACC, (uint16_t *)&planner.settings.max_acceleration_mm_per_s2[E_AXIS_N(0)], screen.handleMaxAccChange, screen.sendWordValueToDisplay),
     #if HAS_MULTI_HOTEND
-      VPHELPER(VP_E1_ACC_MAX_SPEED, (uint16_t *)&planner.settings.max_acceleration_mm_per_s2[E_AXIS_N(1)], screen.handleExtruderAccChange, screen.sendWordValueToDisplay),
+      VPHELPER(VP_E1_MAX_ACC, (uint16_t *)&planner.settings.max_acceleration_mm_per_s2[E_AXIS_N(1)], screen.handleMaxAccChange, screen.sendWordValueToDisplay),
     #endif
   #endif
 
   VPHELPER(VP_TRAVEL_SPEED, (uint16_t *)&planner.settings.travel_acceleration, screen.handleTravelAccChange, screen.sendFloatAsIntValueToDisplay<0>),
   VPHELPER(VP_FEEDRATE_MIN_SPEED, (uint16_t *)&planner.settings.min_feedrate_mm_s, screen.handleFeedRateMinChange, screen.sendFloatAsIntValueToDisplay<0>),
   VPHELPER(VP_T_F_SPEED, (uint16_t *)&planner.settings.min_travel_feedrate_mm_s, screen.handleMin_T_F, screen.sendFloatAsIntValueToDisplay<0>),
-  VPHELPER(VP_ACC_SPEED, (uint16_t *)&planner.settings.acceleration, screen.handleAccChange, screen.sendWordValueToDisplay),
+  //VPHELPER(VP_DEFAULT_ACC, (uint16_t *)&planner.settings.acceleration, screen.handleAccChange, screen.sendWordValueToDisplay),
 
   VPHELPER(VP_X_PARK_POS, &mks_park_pos.x, screen.getParkPos, screen.sendWordValueToDisplay),
   VPHELPER(VP_Y_PARK_POS, &mks_park_pos.y, screen.getParkPos, screen.sendWordValueToDisplay),
@@ -696,13 +621,13 @@ const struct DGUS_VP_Variable ListOfVP[] PROGMEM = {
 
   #if ENABLED(SENSORLESS_HOMING)  // TMC SENSORLESS Setting
     #if X_HAS_STEALTHCHOP
-      VPHELPER(VP_TMC_X_STEP, &tmc_step.x, screen.tmcChangeConfig, screen.sendTMCStepValue),
+      VPHELPER(VP_TMC_X_SENS, &tmc_stall_sens.x, screen.tmcChangeConfig, screen.sendTMCSensValue),
     #endif
     #if Y_HAS_STEALTHCHOP
-      VPHELPER(VP_TMC_Y_STEP, &tmc_step.y, screen.tmcChangeConfig, screen.sendTMCStepValue),
+      VPHELPER(VP_TMC_Y_SENS, &tmc_stall_sens.y, screen.tmcChangeConfig, screen.sendTMCSensValue),
     #endif
     #if Z_HAS_STEALTHCHOP
-      VPHELPER(VP_TMC_Z_STEP, &tmc_step.z, screen.tmcChangeConfig, screen.sendTMCStepValue),
+      VPHELPER(VP_TMC_Z_SENS, &tmc_stall_sens.z, screen.tmcChangeConfig, screen.sendTMCSensValue),
     #endif
   #endif
 
@@ -741,9 +666,9 @@ const struct DGUS_VP_Variable ListOfVP[] PROGMEM = {
 
   VPHELPER(VP_SD_Print_LiveAdjustZ_Confirm, nullptr, screen.zOffsetConfirm, nullptr),
 
-  VPHELPER(VP_ZOffset_Distance,nullptr ,screen.getZoffsetDistance, nullptr),
+  VPHELPER(VP_ZOffset_Distance, nullptr, screen.getZoffsetDistance, nullptr),
   VPHELPER(VP_MESH_LEVEL_ADJUST, nullptr, screen.meshLevelDistanceConfig, nullptr),
-  VPHELPER(VP_MESH_LEVEL_POINT,nullptr, screen.meshLevel, nullptr),
+  VPHELPER(VP_MESH_LEVEL_POINT, nullptr, screen.meshLevel, nullptr),
 
   #if ENABLED(PREVENT_COLD_EXTRUSION)
     VPHELPER(VP_Min_EX_T_E, &thermalManager.extrude_min_temp, screen.getMinExtrudeTemp, screen.sendWordValueToDisplay),
@@ -753,9 +678,9 @@ const struct DGUS_VP_Variable ListOfVP[] PROGMEM = {
 
   #if ENABLED(EDITABLE_STEPS_PER_UNIT)
     #if HAS_HOTEND
-      VPHELPER(VP_E0_STEP_PER_MM, &planner.settings.axis_steps_per_mm[E_AXIS_N(0)], screen.handleStepPerMMExtruderChanged, screen.sendFloatAsIntValueToDisplay<0>),
+      VPHELPER(VP_E0_STEP_PER_MM, &planner.settings.axis_steps_per_mm[E_AXIS_N(0)], screen.handleStepPerMMChanged, screen.sendFloatAsIntValueToDisplay<0>),
       #if HAS_MULTI_HOTEND
-        VPHELPER(VP_E1_STEP_PER_MM, &planner.settings.axis_steps_per_mm[E_AXIS_N(1)], screen.handleStepPerMMExtruderChanged, screen.sendFloatAsIntValueToDisplay<0>),
+        VPHELPER(VP_E1_STEP_PER_MM, &planner.settings.axis_steps_per_mm[E_AXIS_N(1)], screen.handleStepPerMMChanged, screen.sendFloatAsIntValueToDisplay<0>),
       #endif
     #endif
   #endif
@@ -784,9 +709,9 @@ const struct DGUS_VP_Variable ListOfVP[] PROGMEM = {
       VPHELPER(VP_ZOffset_DE_DIS, &z_offset_add, nullptr, screen.sendFloatAsLongValueToDisplay<2>),
     #endif
     #if HAS_BED_PROBE
-      VPHELPER(VP_OFFSET_X, &probe.offset.x, screen.getOffsetValue,screen.sendFloatAsLongValueToDisplay<2>),
-      VPHELPER(VP_OFFSET_Y, &probe.offset.y, screen.getOffsetValue,screen.sendFloatAsLongValueToDisplay<2>),
-      VPHELPER(VP_OFFSET_Z, &probe.offset.z, screen.getOffsetValue,screen.sendFloatAsLongValueToDisplay<2>),
+      VPHELPER(VP_OFFSET_X, &probe.offset.x, screen.getOffsetValue, screen.sendFloatAsLongValueToDisplay<2>),
+      VPHELPER(VP_OFFSET_Y, &probe.offset.y, screen.getOffsetValue, screen.sendFloatAsLongValueToDisplay<2>),
+      VPHELPER(VP_OFFSET_Z, &probe.offset.z, screen.getOffsetValue, screen.sendFloatAsLongValueToDisplay<2>),
     #endif
   #else
     VPHELPER(VP_SD_FileSelected, nullptr, screen.printReturn, nullptr),

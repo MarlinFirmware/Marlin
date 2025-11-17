@@ -40,19 +40,19 @@ namespace LanguageNarrow_fr {
   LSTR MSG_YES                            = _UxGT("Oui");
   LSTR MSG_NO                             = _UxGT("Non");
   LSTR MSG_BACK                           = _UxGT("Retour");
+
   LSTR MSG_MEDIA_ABORTING                 = _UxGT("Annulation...");
   LSTR MSG_MEDIA_INSERTED                 = _UxGT("Média inséré");
   LSTR MSG_MEDIA_REMOVED                  = _UxGT("Média retiré");
-  LSTR MSG_MEDIA_WAITING                  = _UxGT("Attente média");
   LSTR MSG_MEDIA_READ_ERROR               = _UxGT("Err lecture média");
-  LSTR MSG_MEDIA_USB_REMOVED              = _UxGT("USB débranché");
-  LSTR MSG_MEDIA_USB_FAILED               = _UxGT("Erreur média USB");
+  LSTR MSG_USB_FD_DEVICE_REMOVED          = _UxGT("USB débranché");
+  LSTR MSG_USB_FD_USB_FAILED              = _UxGT("Erreur média USB");
+
   LSTR MSG_LCD_ENDSTOPS                   = _UxGT("Butées");
   LSTR MSG_LCD_SOFT_ENDSTOPS              = _UxGT("Butées SW");
   LSTR MSG_MAIN_MENU                      = _UxGT("Menu principal");
   LSTR MSG_ADVANCED_SETTINGS              = _UxGT("Config. avancée");
   LSTR MSG_CONFIGURATION                  = _UxGT("Configuration");
-  LSTR MSG_RUN_AUTO_FILES                 = _UxGT("Exéc. auto.gcode");
   LSTR MSG_DISABLE_STEPPERS               = _UxGT("Arrêter moteurs");
   LSTR MSG_DEBUG_MENU                     = _UxGT("Menu debug");
   LSTR MSG_PROGRESS_BAR_TEST              = _UxGT("Test barre progress.");
@@ -262,8 +262,6 @@ namespace LanguageNarrow_fr {
   LSTR MSG_PID_TEMP_TOO_HIGH              = _UxGT("Echec Autotune! Temp. trop haute");
   LSTR MSG_PID_TIMEOUT                    = _UxGT("Echec Autotune! Opér. expirée");
 
-  LSTR MSG_TEMP_TOO_LOW                   = _UxGT("Temperature trop basse");
-
   LSTR MSG_SELECT_E                       = _UxGT("Sélectionner *");
   LSTR MSG_ACC                            = _UxGT("Accélération");
   LSTR MSG_JERK                           = _UxGT("Jerk");
@@ -392,14 +390,14 @@ namespace LanguageNarrow_fr {
   LSTR MSG_FILAMENTUNLOAD                 = _UxGT("Retrait filament");
   LSTR MSG_FILAMENTUNLOAD_E               = _UxGT("Retrait filament *");
   LSTR MSG_FILAMENTUNLOAD_ALL             = _UxGT("Retirer tout");
-  #if HAS_MULTI_VOLUME
-    LSTR MSG_ATTACH_SD_MEDIA              = _UxGT("Charger le SD");
-    LSTR MSG_ATTACH_USB_MEDIA             = _UxGT("Charger le USB");
-  #else
-    LSTR MSG_ATTACH_MEDIA                 = _UxGT("Charger le SD");
-  #endif
+
+  LSTR MSG_ATTACH_MEDIA                   = _UxGT("Charger le SD");
+  LSTR MSG_ATTACH_SD                      = _UxGT("Charger le SD");
+  LSTR MSG_ATTACH_USB                     = _UxGT("Charger le USB");
   LSTR MSG_CHANGE_MEDIA                   = _UxGT("Actualiser média");
   LSTR MSG_RELEASE_MEDIA                  = _UxGT("Retirer le média");
+  LSTR MSG_RUN_AUTOFILES                  = _UxGT("Exéc. auto.gcode");
+
   LSTR MSG_ZPROBE_OUT                     = _UxGT("Sonde Z hors lit");
   LSTR MSG_SKEW_FACTOR                    = _UxGT("Facteur écart");
   LSTR MSG_BLTOUCH                        = _UxGT("BLTouch");
@@ -607,6 +605,7 @@ namespace LanguageNarrow_fr {
   LSTR DGUS_MSG_NOT_WHILE_PRINTING        = _UxGT("Impossible pendant une impression");
   LSTR DGUS_MSG_NOT_WHILE_IDLE            = _UxGT("Impossible tant que l'imprimante est en attente");
   LSTR DGUS_MSG_NO_FILE_SELECTED          = _UxGT("Aucun fichier selectionne");
+  LSTR DGUS_MSG_TEMP_TOO_LOW              = _UxGT("Temperature trop basse");
   LSTR DGUS_MSG_EXECUTING_COMMAND         = _UxGT("Execution de la commande...");
   LSTR DGUS_MSG_BED_PID_DISABLED          = _UxGT("Bed PID desactive");
   LSTR DGUS_MSG_PID_DISABLED              = _UxGT("PID desactive");

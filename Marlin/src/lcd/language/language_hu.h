@@ -43,21 +43,21 @@ namespace LanguageNarrow_hu {
   LSTR MSG_YES                            = _UxGT("IGEN");
   LSTR MSG_NO                             = _UxGT("NEM");
   LSTR MSG_BACK                           = _UxGT("Vissza");
+
   LSTR MSG_MEDIA_ABORTING                 = _UxGT("Megszakítás...");
   LSTR MSG_MEDIA_INSERTED                 = _UxGT("Tároló behelyezve");
   LSTR MSG_MEDIA_REMOVED                  = _UxGT("Tároló eltávolítva");
-  LSTR MSG_MEDIA_WAITING                  = _UxGT("Várakozás a tárolóra");
   LSTR MSG_MEDIA_INIT_FAIL                = _UxGT("Tároló-kártya hiba");
   LSTR MSG_MEDIA_READ_ERROR               = _UxGT("Tároló olvasási hiba");
-  LSTR MSG_MEDIA_USB_REMOVED              = _UxGT("USB eltávolítva");
-  LSTR MSG_MEDIA_USB_FAILED               = _UxGT("USB eszköz hiba");
+  LSTR MSG_USB_FD_DEVICE_REMOVED          = _UxGT("USB eltávolítva");
+  LSTR MSG_USB_FD_USB_FAILED              = _UxGT("USB eszköz hiba");
   LSTR MSG_KILL_SUBCALL_OVERFLOW          = _UxGT("Túlfolyás");
+
   LSTR MSG_LCD_ENDSTOPS                   = _UxGT("Végállás"); // Maximum 8 karakter
   LSTR MSG_LCD_SOFT_ENDSTOPS              = _UxGT("Szoft. végállás");
   LSTR MSG_MAIN_MENU                      = _UxGT("<Fömenü>");
   LSTR MSG_ADVANCED_SETTINGS              = _UxGT("További beállítások");
   LSTR MSG_CONFIGURATION                  = _UxGT("Konfiguráció");
-  LSTR MSG_RUN_AUTO_FILES                 = _UxGT("Fájl auto. futtatás");
   LSTR MSG_DISABLE_STEPPERS               = _UxGT("Motorok kikapcsolása");
   LSTR MSG_DEBUG_MENU                     = _UxGT("Hiba Menü");
   LSTR MSG_PROGRESS_BAR_TEST              = _UxGT("Haladás sáv teszt");
@@ -431,14 +431,14 @@ namespace LanguageNarrow_hu {
   LSTR MSG_FILAMENTUNLOAD                 = _UxGT("Szál eltávolítás");
   LSTR MSG_FILAMENTUNLOAD_E               = _UxGT("Szál eltávolítás *");
   LSTR MSG_FILAMENTUNLOAD_ALL             = _UxGT("Mindet eltávolít");
-  #if HAS_MULTI_VOLUME
-    LSTR MSG_ATTACH_SD_MEDIA              = _UxGT("Tároló SD");
-    LSTR MSG_ATTACH_USB_MEDIA             = _UxGT("Tároló USB");
-  #else
-    LSTR MSG_ATTACH_MEDIA                 = _UxGT("Tároló SD");
-  #endif
+
+  LSTR MSG_ATTACH_MEDIA                   = _UxGT("Tároló SD");
+  LSTR MSG_ATTACH_SD                      = _UxGT("Tároló SD");
+  LSTR MSG_ATTACH_USB                     = _UxGT("Tároló USB");
   LSTR MSG_CHANGE_MEDIA                   = _UxGT("Tároló csere");
   LSTR MSG_RELEASE_MEDIA                  = _UxGT("Tároló Kiadása");
+  LSTR MSG_RUN_AUTOFILES                  = _UxGT("Fájl auto. futtatás");
+
   LSTR MSG_ZPROBE_OUT                     = _UxGT("Z szonda tálcán kivül");
   LSTR MSG_SKEW_FACTOR                    = _UxGT("Ferdeség faktor");
   LSTR MSG_BLTOUCH                        = _UxGT("BLTouch");

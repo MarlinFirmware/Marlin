@@ -64,6 +64,20 @@ void MarlinUI::tft_idle() {
 #if ENABLED(SHOW_BOOTSCREEN)
 
   void MarlinUI::show_bootscreen() {
+    #if ENABLED(SHOW_CUSTOM_BOOTSCREEN)
+      tft.queue.reset();
+      tft.canvas(CUSTOM_BOOTSCREEN_X, CUSTOM_BOOTSCREEN_Y, CUSTOM_BOOTSCREEN_WIDTH, CUSTOM_BOOTSCREEN_HEIGHT);
+      tft.set_background(COLOR_BACKGROUND);
+      tft.add_image(0, 0, imgCustomBoot);
+      tft.queue.sync();
+      #ifndef CUSTOM_BOOTSCREEN_TIMEOUT
+        #define CUSTOM_BOOTSCREEN_TIMEOUT 2500
+      #endif
+      #if CUSTOM_BOOTSCREEN_TIMEOUT
+        safe_delay(CUSTOM_BOOTSCREEN_TIMEOUT);
+      #endif
+    #endif
+
     tft.queue.reset();
 
     tft.canvas(0, 0, TFT_WIDTH, TFT_HEIGHT);
@@ -248,21 +262,21 @@ void MarlinUI::draw_status_screen() {
   tft.add_rectangle(0, 0, COORDINATES_W, COORDINATES_H, COLOR_AXIS_HOMED);
 
   #if HAS_X_AXIS && defined(X_MARK_X) && defined(X_MARK_Y) && defined(X_VALUE_X) && defined(X_VALUE_Y)
-    tft.add_text(X_MARK_X, X_MARK_Y, COLOR_AXIS_HOMED , "X");
+    tft.add_text(X_MARK_X, X_MARK_Y, COLOR_AXIS_HOMED, "X");
     const bool nhx = axis_should_home(X_AXIS);
     tft_string.set(blink && nhx ? "?" : ftostr4sign(LOGICAL_X_POSITION(current_position.x)));
     tft.add_text(X_VALUE_X, X_VALUE_Y, nhx ? COLOR_AXIS_NOT_HOMED : COLOR_AXIS_HOMED, tft_string);
   #endif
 
   #if HAS_Y_AXIS && defined(Y_MARK_X) && defined(Y_MARK_Y) && defined(Y_VALUE_X) && defined(Y_VALUE_Y)
-    tft.add_text(Y_MARK_X, Y_MARK_Y, COLOR_AXIS_HOMED , "Y");
+    tft.add_text(Y_MARK_X, Y_MARK_Y, COLOR_AXIS_HOMED, "Y");
     const bool nhy = axis_should_home(Y_AXIS);
     tft_string.set(blink && nhy ? "?" : ftostr4sign(LOGICAL_Y_POSITION(current_position.y)));
     tft.add_text(Y_VALUE_X, Y_VALUE_Y, nhy ? COLOR_AXIS_NOT_HOMED : COLOR_AXIS_HOMED, tft_string);
   #endif
 
   #if HAS_Z_AXIS && defined(Z_MARK_X) && defined(Z_MARK_Y) && defined(Z_VALUE_X) && defined(Z_VALUE_Y) && defined(Z_VALUE_OFFSET)
-    tft.add_text(Z_MARK_X, Z_MARK_Y, COLOR_AXIS_HOMED , "Z");
+    tft.add_text(Z_MARK_X, Z_MARK_Y, COLOR_AXIS_HOMED, "Z");
     uint16_t offset = Z_VALUE_OFFSET;
     const bool nhz = axis_should_home(Z_AXIS);
     if (blink && nhz)
@@ -323,7 +337,7 @@ void MarlinUI::draw_status_screen() {
       if (cm && pa)
         add_control(SDCARD_ICON_X, SDCARD_ICON_Y, STOP, imgCancel, true, COLOR_CONTROL_CANCEL);
       else
-        add_control(SDCARD_ICON_X, SDCARD_ICON_Y, menu_media, imgSD, cm && !pa, COLOR_CONTROL_ENABLED, COLOR_CONTROL_DISABLED);
+        add_control(SDCARD_ICON_X, SDCARD_ICON_Y, menu_file_selector, imgSD, cm && !pa, COLOR_CONTROL_ENABLED, COLOR_CONTROL_DISABLED);
     #endif
   #endif
 

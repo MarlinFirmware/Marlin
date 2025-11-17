@@ -377,16 +377,16 @@ void printPinPort(const pin_t pin) {   // print port number
     uint8_t x;
     SERIAL_ECHOPGM("  Port: ");
     #if AVR_AT90USB1286_FAMILY
-      x = (pin == 46 || pin == 47) ? 'E' : digitalPinToPort_DEBUG(pin) + 64;
+      x = (pin == PIN_E2 || pin == PIN_E3) ? 'E' : 'A' + digitalPinToPort_DEBUG(pin) - 1;
     #else
-      x = digitalPinToPort_DEBUG(pin) + 64;
+      x = 'A' + digitalPinToPort_DEBUG(pin) - 1;
     #endif
     SERIAL_CHAR(x);
 
     #if AVR_AT90USB1286_FAMILY
-      if (pin == 46)
+      if (pin == PIN_E2)
         x = '2';
-      else if (pin == 47)
+      else if (pin == PIN_E3)
         x = '3';
       else {
         uint8_t temp = digitalPinToBitMask_DEBUG(pin);

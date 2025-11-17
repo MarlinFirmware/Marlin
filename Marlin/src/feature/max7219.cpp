@@ -283,7 +283,7 @@ void Max7219::set(const uint8_t line, const uint8_t bits) {
   }
 
   // Draw a float with a decimal point and optional digits
-  void Max7219::print(const uint8_t start, const_float_t value, const uint8_t pre_size, const uint8_t post_size, const bool leadzero=false) {
+  void Max7219::print(const uint8_t start, const float value, const uint8_t pre_size, const uint8_t post_size, const bool leadzero=false) {
     if (pre_size) print(start, value, pre_size, leadzero, !!post_size);
     if (post_size) {
       const int16_t after = ABS(value) * (10 ^ post_size);
@@ -757,7 +757,7 @@ void Max7219::idle_tasks() {
 
   #ifdef MAX7219_DEBUG_MULTISTEPPING
     static uint8_t last_multistepping = 0;
-    const uint8_t multistepping = Stepper::steps_per_isr;
+    const uint8_t multistepping = stepper.steps_per_isr;
     if (multistepping != last_multistepping) {
       static uint8_t log2_old = 0;
       uint8_t log2_new = 0;
@@ -770,7 +770,7 @@ void Max7219::idle_tasks() {
 
   #ifdef MAX7219_DEBUG_SLOWDOWN
     static uint8_t last_slowdown_count = 0;
-    const uint8_t slowdown_count = Planner::slowdown_count;
+    const uint8_t slowdown_count = planner.slowdown_count;
     if (slowdown_count != last_slowdown_count) {
       mark16(MAX7219_DEBUG_SLOWDOWN, last_slowdown_count, slowdown_count, &row_change_mask);
       last_slowdown_count = slowdown_count;

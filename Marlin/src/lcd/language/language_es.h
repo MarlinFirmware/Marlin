@@ -28,7 +28,13 @@
  * See also https://marlinfw.org/docs/development/lcd_language.html
  */
 
-#define MEDIA_TYPE_ES "SD/FD"
+#if HAS_SDCARD && !HAS_USB_FLASH_DRIVE
+  #define MEDIA_TYPE_ES "SD"
+#elif HAS_USB_FLASH_DRIVE && !HAS_SDCARD
+  #define MEDIA_TYPE_ES "USB"
+#else
+  #define MEDIA_TYPE_ES "SD/FD"
+#endif
 
 namespace LanguageNarrow_es {
   using namespace Language_en; // Inherit undefined strings from English
@@ -40,21 +46,21 @@ namespace LanguageNarrow_es {
   LSTR MSG_YES                            = _UxGT("SI");
   LSTR MSG_NO                             = _UxGT("NO");
   LSTR MSG_BACK                           = _UxGT("Atrás");
+
   LSTR MSG_MEDIA_ABORTING                 = _UxGT("Cancelando...");
   LSTR MSG_MEDIA_INSERTED                 = MEDIA_TYPE_ES _UxGT(" insertado");
   LSTR MSG_MEDIA_REMOVED                  = MEDIA_TYPE_ES _UxGT(" retirado");
-  LSTR MSG_MEDIA_WAITING                  = _UxGT("Esperando al ") MEDIA_TYPE_ES;
   LSTR MSG_MEDIA_INIT_FAIL                = _UxGT("Fallo al iniciar ") MEDIA_TYPE_ES;
   LSTR MSG_MEDIA_READ_ERROR               = _UxGT("Error lectura ") MEDIA_TYPE_ES;
-  LSTR MSG_MEDIA_USB_REMOVED              = _UxGT("Disp. USB retirado");
-  LSTR MSG_MEDIA_USB_FAILED               = _UxGT("Inicio USB fallido");
+  LSTR MSG_USB_FD_DEVICE_REMOVED          = _UxGT("Disp. USB retirado");
+  LSTR MSG_USB_FD_USB_FAILED              = _UxGT("Inicio USB fallido");
   LSTR MSG_KILL_SUBCALL_OVERFLOW          = _UxGT("Desbordamiento de subllamada");
+
   LSTR MSG_LCD_ENDSTOPS                   = _UxGT("Endstops"); // Max length 8 characters
   LSTR MSG_LCD_SOFT_ENDSTOPS              = _UxGT("Soft Endstops");
   LSTR MSG_MAIN_MENU                      = _UxGT("Menú principal");
   LSTR MSG_ADVANCED_SETTINGS              = _UxGT("Ajustes avanzados");
   LSTR MSG_CONFIGURATION                  = _UxGT("Configuración");
-  LSTR MSG_RUN_AUTO_FILES                 = _UxGT("Inicio automático");
   LSTR MSG_DISABLE_STEPPERS               = _UxGT("Apagar motores");
   LSTR MSG_DEBUG_MENU                     = _UxGT("Menú depuración");
   LSTR MSG_PROGRESS_BAR_TEST              = _UxGT("Prob. barra progreso");
@@ -368,14 +374,14 @@ namespace LanguageNarrow_es {
   LSTR MSG_FILAMENTUNLOAD                 = _UxGT("Descargar filamento");
   LSTR MSG_FILAMENTUNLOAD_E               = _UxGT("Descargar fil. *");
   LSTR MSG_FILAMENTUNLOAD_ALL             = _UxGT("Descargar todo");
-  #if HAS_MULTI_VOLUME
-    LSTR MSG_ATTACH_SD_MEDIA              = _UxGT("Iniciar SD");
-    LSTR MSG_ATTACH_USB_MEDIA             = _UxGT("Iniciar USB");
-  #else
-    LSTR MSG_ATTACH_MEDIA                 = _UxGT("Iniciar ") MEDIA_TYPE_ES;
-  #endif
+
+  LSTR MSG_ATTACH_MEDIA                   = _UxGT("Iniciar ") MEDIA_TYPE_ES;
+  LSTR MSG_ATTACH_SD                      = _UxGT("Iniciar SD");
+  LSTR MSG_ATTACH_USB                     = _UxGT("Iniciar USB");
   LSTR MSG_CHANGE_MEDIA                   = _UxGT("Cambiar ") MEDIA_TYPE_ES;
   LSTR MSG_RELEASE_MEDIA                  = _UxGT("Lanzar ") MEDIA_TYPE_ES;
+  LSTR MSG_RUN_AUTOFILES                  = _UxGT("Inicio automático");
+
   LSTR MSG_ZPROBE_OUT                     = _UxGT("Sonda Z fuera cama");
   LSTR MSG_SKEW_FACTOR                    = _UxGT("Factor de desviación");
   LSTR MSG_BLTOUCH                        = _UxGT("BLTouch");

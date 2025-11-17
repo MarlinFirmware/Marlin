@@ -83,7 +83,7 @@ fileprop_t fileprop;
 void getValue(const char * const buf, PGM_P const key, float &value) {
   if (value != 0.0f) return;
 
-  char *posptr = strstr_P(buf, key);
+  const char *posptr = strstr_P(buf, key);
   if (posptr == nullptr) return;
 
   char num[10] = "";
@@ -101,8 +101,9 @@ void getValue(const char * const buf, PGM_P const key, float &value) {
 
 bool Preview::hasPreview() {
   const char * const tbstart = PSTR("; thumbnail begin " STRINGIFY(THUMBWIDTH) "x" STRINGIFY(THUMBHEIGHT));
-  char *posptr = nullptr;
+  const char *posptr = nullptr;
   uint32_t indx = 0;
+  uint32_t prev_indx = 0;
   float tmp = 0;
 
   fileprop.clear();
@@ -114,7 +115,7 @@ bool Preview::hasPreview() {
   uint8_t nbyte = 1;
   while (!fileprop.thumbstart && nbyte > 0 && indx < 4 * sizeof(buf)) {
     nbyte = card.read(buf, sizeof(buf) - 1);
-    if (nbyte > 0) {
+    if (nbyte >= 0) {
       buf[nbyte] = '\0';
       getValue(buf, PSTR(";TIME:"), fileprop.time);
       getValue(buf, PSTR(";Filament used:"), fileprop.filament);
@@ -132,13 +133,17 @@ bool Preview::hasPreview() {
       fileprop.height -= tmp;
       posptr = strstr_P(buf, tbstart);
       if (posptr != nullptr) {
-        fileprop.thumbstart = indx + (posptr - &buf[0]);
+        fileprop.thumbstart = indx + (posptr - buf);
       }
       else {
         indx += _MAX(10, nbyte - (signed)strlen_P(tbstart));
+        if (indx <= prev_indx) break;
+        prev_indx = indx;
         card.setIndex(indx);
       }
     }
+    else
+      break;
   }
 
   if (!fileprop.thumbstart) {
@@ -190,7 +195,7 @@ void Preview::drawFromSD() {
     return;
   }
 
-  MString<45> buf;
+  TString buf;
   dwinDrawRectangle(1, hmiData.colorBackground, 0, 0, DWIN_WIDTH, STATUS_Y - 1);
   if (fileprop.time) {
     buf.setf(F("Estimated time: %i:%02i"), (uint16_t)fileprop.time / 3600, ((uint16_t)fileprop.time % 3600) / 60);
@@ -210,7 +215,7 @@ void Preview::drawFromSD() {
   }
   DWINUI::drawButton(BTN_Print, 26, 290);
   DWINUI::drawButton(BTN_Cancel, 146, 290);
-  show();
+  if (fileprop.thumbsize) show();
   drawSelectHighlight(true, 290);
   dwinUpdateLCD();
 }

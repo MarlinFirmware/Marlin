@@ -170,7 +170,7 @@ float g26_random_deviation = 0.0;
 
 #endif
 
-void move_to(const_float_t rx, const_float_t ry, const_float_t z, const_float_t e_delta) {
+void move_to(const float rx, const float ry, const float z, const float e_delta) {
   static float last_z = -999.99;
 
   const xy_pos_t dest = { rx, ry };
@@ -196,7 +196,7 @@ void move_to(const_float_t rx, const_float_t ry, const_float_t z, const_float_t 
   prepare_internal_move_to_destination(fr_mm_s);
 }
 
-void move_to(const xyz_pos_t &where, const_float_t de) { move_to(where.x, where.y, where.z, de); }
+void move_to(const xyz_pos_t &where, const float de) { move_to(where.x, where.y, where.z, de); }
 
 typedef struct {
   float extrusion_multiplier  = EXTRUSION_MULTIPLIER,
@@ -268,8 +268,10 @@ typedef struct {
 
     // If the end point of the line is closer to the nozzle, flip the direction,
     // moving from the end to the start. On very small lines the optimization isn't worth it.
-    if (dist_end < dist_start && (INTERSECTION_CIRCLE_RADIUS) < ABS(line_length))
-      return print_line_from_here_to_there(e, s);
+    if (dist_end < dist_start && (INTERSECTION_CIRCLE_RADIUS) < ABS(line_length)) {
+      print_line_from_here_to_there(e, s);
+      return;
+    }
 
     // Decide whether to retract & lift
     if (dist_start > 2.0) retract_lift_move(s);
@@ -661,7 +663,7 @@ void GcodeSuite::G26() {
 
   do_z_clearance(Z_CLEARANCE_BETWEEN_PROBES);
 
-  #if DISABLED(NO_VOLUMETRICS)
+  #if HAS_VOLUMETRIC_EXTRUSION
     bool volumetric_was_enabled = parser.volumetric_enabled;
     parser.volumetric_enabled = false;
     planner.calculate_volumetric_multipliers();
@@ -854,7 +856,7 @@ void GcodeSuite::G26() {
   destination.z = Z_CLEARANCE_BETWEEN_PROBES;
   move_to(destination, 0);                                   // Raise the nozzle
 
-  #if DISABLED(NO_VOLUMETRICS)
+  #if HAS_VOLUMETRIC_EXTRUSION
     parser.volumetric_enabled = volumetric_was_enabled;
     planner.calculate_volumetric_multipliers();
   #endif

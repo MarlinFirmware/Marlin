@@ -54,9 +54,11 @@
 #endif
 
 /**
- * M115: Capabilities string and extended capabilities report
- *       If a capability is not reported, hosts should assume
- *       the capability is not present.
+ * M115: Firmware Info
+ *
+ * Capabilities string and extended capabilities report.
+ * If a capability is not reported, hosts should assume
+ * the capability is not present.
  *
  * NOTE: Always make sure to add new capabilities to the RepRap Wiki
  *       at https://reprap.org/wiki/Firmware_Capabilities_Protocol
@@ -83,7 +85,7 @@ void GcodeSuite::M115() {
     " MACHINE_TYPE:" MACHINE_NAME
     " KINEMATICS:" MACHINE_KINEMATICS
     " EXTRUDER_COUNT:" STRINGIFY(EXTRUDERS)
-    #if NUM_AXES != XYZ
+    #if NUM_AXES != 3
       " AXIS_COUNT:" STRINGIFY(NUM_AXES)
     #endif
     #if defined(MACHINE_UUID) || ENABLED(HAS_STM32_UID)
@@ -137,7 +139,7 @@ void GcodeSuite::M115() {
     cap_line(F("EEPROM"), ENABLED(EEPROM_SETTINGS));
 
     // Volumetric Extrusion (M200)
-    cap_line(F("VOLUMETRIC"), DISABLED(NO_VOLUMETRICS));
+    cap_line(F("VOLUMETRIC"), ENABLED(HAS_VOLUMETRIC_EXTRUSION));
 
     // AUTOREPORT_POS (M154)
     cap_line(F("AUTOREPORT_POS"), ENABLED(AUTO_REPORT_POSITION));
@@ -261,13 +263,13 @@ void GcodeSuite::M115() {
         "area:{"
           "full:{"
             "min:{"
-              LIST_N(DOUBLE(NUM_AXES),
+              NUM_AXIS_PAIRED_LIST(
                  "x:", lmin.x, ",y:", lmin.y, ",z:", lmin.z,
                 ",i:", lmin.i, ",j:", lmin.j, ",k:", lmin.k,
                 ",u:", lmin.u, ",v:", lmin.v, ",w:", lmin.w
               ),
             "},max:{"
-              LIST_N(DOUBLE(NUM_AXES),
+              NUM_AXIS_PAIRED_LIST(
                  "x:", lmax.x, ",y:", lmax.y, ",z:", lmax.z,
                 ",i:", lmax.i, ",j:", lmax.j, ",k:", lmax.k,
                 ",u:", lmax.u, ",v:", lmax.v, ",w:", lmax.w
@@ -278,13 +280,13 @@ void GcodeSuite::M115() {
       SERIAL_ECHOLNPGM(
           "work:{"
             "min:{"
-              LIST_N(DOUBLE(NUM_AXES),
+              NUM_AXIS_PAIRED_LIST(
                  "x:", wmin.x, ",y:", wmin.y, ",z:", wmin.z,
                 ",i:", wmin.i, ",j:", wmin.j, ",k:", wmin.k,
                 ",u:", wmin.u, ",v:", wmin.v, ",w:", wmin.w
               ),
             "},max:{"
-              LIST_N(DOUBLE(NUM_AXES),
+              NUM_AXIS_PAIRED_LIST(
                  "x:", wmax.x, ",y:", wmax.y, ",z:", wmax.z,
                 ",i:", wmax.i, ",j:", wmax.j, ",k:", wmax.k,
                 ",u:", wmax.u, ",v:", wmax.v, ",w:", wmax.w

@@ -30,7 +30,13 @@
 
 #define DISPLAY_CHARSET_ISO10646_1
 
-#define MEDIA_TYPE_GL "SD/FD"
+#if HAS_SDCARD && !HAS_USB_FLASH_DRIVE
+  #define MEDIA_TYPE_GL "SD"
+#elif HAS_USB_FLASH_DRIVE && !HAS_SDCARD
+  #define MEDIA_TYPE_GL "FD"
+#else
+  #define MEDIA_TYPE_GL "SD/FD"
+#endif
 
 namespace LanguageNarrow_gl {
   using namespace Language_en; // Inherit undefined strings from English
@@ -42,20 +48,20 @@ namespace LanguageNarrow_gl {
   LSTR MSG_YES                            = _UxGT("SI");
   LSTR MSG_NO                             = _UxGT("NON");
   LSTR MSG_BACK                           = _UxGT("Atrás");
+
   LSTR MSG_MEDIA_ABORTING                 = _UxGT("Cancelando...");
   LSTR MSG_MEDIA_INSERTED                 = _UxGT("Tarxeta inserida");
   LSTR MSG_MEDIA_REMOVED                  = _UxGT("Tarxeta retirada");
-  LSTR MSG_MEDIA_WAITING                  = _UxGT("Agardando ao ") MEDIA_TYPE_GL;
   LSTR MSG_MEDIA_READ_ERROR               = _UxGT("Erro lectura ") MEDIA_TYPE_GL;
-  LSTR MSG_MEDIA_USB_REMOVED              = _UxGT("Disp. USB retirado");
-  LSTR MSG_MEDIA_USB_FAILED               = _UxGT("Inicio USB fallido");
+  LSTR MSG_USB_FD_DEVICE_REMOVED          = _UxGT("Disp. USB retirado");
+  LSTR MSG_USB_FD_USB_FAILED              = _UxGT("Inicio USB fallido");
   LSTR MSG_KILL_SUBCALL_OVERFLOW          = _UxGT("Desbord. Subch.");
+
   LSTR MSG_LCD_ENDSTOPS                   = _UxGT("FinCarro");
   LSTR MSG_LCD_SOFT_ENDSTOPS              = _UxGT("FinCarro SW");
   LSTR MSG_MAIN_MENU                      = _UxGT("Menú principal");
   LSTR MSG_ADVANCED_SETTINGS              = _UxGT("Axustes avanzados");
   LSTR MSG_CONFIGURATION                  = _UxGT("Configuración");
-  LSTR MSG_RUN_AUTO_FILES                 = _UxGT("Autoarranque");
   LSTR MSG_DISABLE_STEPPERS               = _UxGT("Apagar motores");
   LSTR MSG_DEBUG_MENU                     = _UxGT("Menú depuración");
   LSTR MSG_PROGRESS_BAR_TEST              = _UxGT("Test barra progreso");
@@ -383,14 +389,14 @@ namespace LanguageNarrow_gl {
   LSTR MSG_FILAMENTUNLOAD                 = _UxGT("Descargar Filamento");
   LSTR MSG_FILAMENTUNLOAD_E               = _UxGT("Descargar Filamento *");
   LSTR MSG_FILAMENTUNLOAD_ALL             = _UxGT("Descargar Todo");
-  #if HAS_MULTI_VOLUME
-    LSTR MSG_ATTACH_SD_MEDIA              = _UxGT("Iniciar SD");
-    LSTR MSG_ATTACH_USB_MEDIA             = _UxGT("Iniciar USB");
-  #else
-    LSTR MSG_ATTACH_MEDIA                 = _UxGT("Iniciar ") MEDIA_TYPE_GL;
-  #endif
+
+  LSTR MSG_ATTACH_MEDIA                   = _UxGT("Iniciar ") MEDIA_TYPE_GL;
+  LSTR MSG_ATTACH_SD                      = _UxGT("Iniciar SD");
+  LSTR MSG_ATTACH_USB                     = _UxGT("Iniciar USB");
   LSTR MSG_CHANGE_MEDIA                   = _UxGT("Cambiar ") MEDIA_TYPE_GL;
   LSTR MSG_RELEASE_MEDIA                  = _UxGT("Lanzar ") MEDIA_TYPE_GL;
+  LSTR MSG_RUN_AUTOFILES                  = _UxGT("Autoarranque");
+
   LSTR MSG_ZPROBE_OUT                     = _UxGT("Sonda-Z fóra Cama");
   LSTR MSG_SKEW_FACTOR                    = _UxGT("Factor de Desviación");
   LSTR MSG_BLTOUCH                        = _UxGT("BLTouch");

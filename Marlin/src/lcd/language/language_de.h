@@ -41,21 +41,21 @@ namespace LanguageNarrow_de {
   LSTR MSG_LOW                            = _UxGT("RUNTER");
   LSTR MSG_BACK                           = _UxGT("Zurück");
   LSTR MSG_ERROR                          = _UxGT("Fehler");
+
   LSTR MSG_MEDIA_ABORTING                 = _UxGT("Abbruch...");
   LSTR MSG_MEDIA_INSERTED                 = _UxGT("Medium erkannt");
   LSTR MSG_MEDIA_REMOVED                  = _UxGT("Medium entfernt");
-  LSTR MSG_MEDIA_WAITING                  = _UxGT("Warten auf Medium");
   LSTR MSG_MEDIA_INIT_FAIL                = _UxGT("Medium Init fehlgesch.");
   LSTR MSG_MEDIA_READ_ERROR               = _UxGT("Medium Lesefehler");
-  LSTR MSG_MEDIA_USB_REMOVED              = _UxGT("USB Gerät entfernt");
-  LSTR MSG_MEDIA_USB_FAILED               = _UxGT("USB Start fehlge.");
+  LSTR MSG_USB_FD_DEVICE_REMOVED          = _UxGT("USB Gerät entfernt");
+  LSTR MSG_USB_FD_USB_FAILED              = _UxGT("USB Start fehlge.");
   LSTR MSG_KILL_SUBCALL_OVERFLOW          = _UxGT("Subcall überschritten");
+
   LSTR MSG_LCD_ENDSTOPS                   = _UxGT("Endstopp"); // Max length 8 characters
   LSTR MSG_LCD_SOFT_ENDSTOPS              = _UxGT("Software-Endstopp");
   LSTR MSG_MAIN_MENU                      = _UxGT("Hauptmenü");
   LSTR MSG_ADVANCED_SETTINGS              = _UxGT("Erw. Einstellungen");
   LSTR MSG_CONFIGURATION                  = _UxGT("Konfiguration");
-  LSTR MSG_RUN_AUTO_FILES                 = _UxGT("Autostart");
   LSTR MSG_DISABLE_STEPPERS               = _UxGT("Motoren deaktivieren"); // M84 :: Max length 19 characters
   LSTR MSG_DEBUG_MENU                     = _UxGT("Debug-Menü");
   LSTR MSG_PROGRESS_BAR_TEST              = _UxGT("Statusbalken-Test");
@@ -73,7 +73,7 @@ namespace LanguageNarrow_de {
   LSTR MSG_TRAM_C                         = _UxGT("Mitte");
   LSTR MSG_TRAM_BL                        = _UxGT("Hinten Links");
   LSTR MSG_TRAM_BR                        = _UxGT("Hinten Rechts");
-  LSTR MSG_MANUAL_MESH                    = _UxGT("Manuelles Netz");
+  LSTR MSG_MANUAL_MESH                    = _UxGT("manuelles Netz");
   LSTR MSG_AUTO_MESH                      = _UxGT("Netz auto. erstellen");
   LSTR MSG_AUTO_Z_ALIGN                   = _UxGT("Z-Achsen ausgleichen");
   LSTR MSG_ITERATION                      = _UxGT("G34 Iteration: %i");
@@ -324,8 +324,6 @@ namespace LanguageNarrow_de {
   LSTR MSG_PID_CYCLE                      = _UxGT("PID Zyklus");
   LSTR MSG_PID_AUTOTUNE_DONE              = _UxGT("PID Tuning fertig");
   LSTR MSG_PID_AUTOTUNE_FAILED            = _UxGT("PID Autotune fehlge.!");
-  LSTR MSG_BAD_HEATER_ID                  = _UxGT("ungültiger Extruder.");
-  LSTR MSG_TEMP_TOO_HIGH                  = _UxGT("Temperatur zu hoch.");
   LSTR MSG_PID_BAD_HEATER_ID              = _UxGT("Autotune fehlge.! Ungültiger Extruder");
   LSTR MSG_PID_TEMP_TOO_HIGH              = _UxGT("Autotune fehlge.! Temperatur zu hoch.");
   LSTR MSG_PID_TIMEOUT                    = _UxGT("Autotune fehlge.! Timeout.");
@@ -493,14 +491,14 @@ namespace LanguageNarrow_de {
   LSTR MSG_FILAMENTUNLOAD                 = _UxGT("Filament entladen");
   LSTR MSG_FILAMENTUNLOAD_E               = _UxGT("Filament entladen *");
   LSTR MSG_FILAMENTUNLOAD_ALL             = _UxGT("Alles entladen");
-  #if HAS_MULTI_VOLUME
-    LSTR MSG_ATTACH_SD_MEDIA              = _UxGT("SD initial.");
-    LSTR MSG_ATTACH_USB_MEDIA             = _UxGT("USB initial.");
-  #else
-    LSTR MSG_ATTACH_MEDIA                 = _UxGT("SD initial.");
-  #endif
+
+  LSTR MSG_ATTACH_MEDIA                   = _UxGT("SD initial.");
+  LSTR MSG_ATTACH_SD                      = _UxGT("SD initial.");
+  LSTR MSG_ATTACH_USB                     = _UxGT("USB initial.");
   LSTR MSG_CHANGE_MEDIA                   = _UxGT("Medium getauscht"); // SD-card changed by user. For machines with no autocarddetect. Both send "M21"
   LSTR MSG_RELEASE_MEDIA                  = _UxGT("Medium freigeben"); // if Marlin gets confused - M22
+  LSTR MSG_RUN_AUTOFILES                  = _UxGT("Autostart");
+
   LSTR MSG_ZPROBE_OUT                     = _UxGT("Z-Sonde außerhalb");
   LSTR MSG_SKEW_FACTOR                    = _UxGT("Korrekturfaktor");
   LSTR MSG_BLTOUCH                        = _UxGT("BLTouch");
@@ -758,6 +756,9 @@ namespace LanguageNarrow_de {
   LSTR MSG_USB_DISK                       = _UxGT("USB Disk");
 
   LSTR MSG_HOST_SHUTDOWN                  = _UxGT("Host abschalten");
+
+  // DGUS-Specific message strings, not used elsewhere
+  LSTR DGUS_MSG_TEMP_TOO_HIGH             = _UxGT("Temperatur zu hoch.");
 
   LSTR MSG_SHORT_DAY                      = _UxGT("t"); // One character only
   LSTR MSG_SHORT_HOUR                     = _UxGT("h"); // One character only

@@ -201,23 +201,23 @@
 #endif
 
 #if ENABLED(YHCB2004)
+  #ifndef BTN_ENC
+    #define BTN_ENC                           19
+  #endif
   #ifndef BTN_EN1
     #define BTN_EN1                           16
   #endif
   #ifndef BTN_EN2
     #define BTN_EN2                           17
   #endif
+#elif IS_NEWPANEL
   #ifndef BTN_ENC
     #define BTN_ENC                           19
   #endif
-#elif IS_NEWPANEL
   #ifndef BTN_EN1
     #define BTN_EN1                           42
   #endif
   #ifndef BTN_EN2
     #define BTN_EN2                           40
-  #endif
-  #ifndef BTN_ENC
-    #define BTN_ENC                           19
   #endif
 #endif
