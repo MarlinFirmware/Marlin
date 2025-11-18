@@ -354,6 +354,7 @@
  */
 
 #include "../inc/MarlinConfig.h"
+#include "../module/temperature.h"
 #include "parser.h"
 
 #if ENABLED(I2C_POSITION_ENCODERS)
@@ -382,6 +383,9 @@ typedef bits_t(NUM_REL_MODES) relative_t;
 extern const char G28_STR[];
 
 class GcodeSuite {
+
+  friend void Temperature::task();
+
 public:
 
   static relative_t axis_relative;
