@@ -82,31 +82,18 @@
 //
 // Limit Switches
 //
-#if ENABLED(QUICK_PRINT)
-  #define X_MAX_PIN                         PF14
-#else
-  #define X_MIN_PIN                         PF14
-  //#define X_MAX_PIN                       PA15
-#endif
+#define X_STOP_PIN                          PF14
+//#define X_STOP_PIN                        PA15
+#define Y_STOP_PIN                          PF13
+//#define Y_STOP_PIN                        PD12
+#define Z_STOP_PIN                          PG0
+//#define Z_STOP_PIN                        PD15
+#define E0_STOP_PIN                         PD3   // after ver3.0
 
-#define Y_MIN_PIN                           PF13
-//#define Y_MAX_PIN                         PD12
-
-#ifdef Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN
-  #define Z_MIN_PIN                         PD3
-#else
-  #define Z_MIN_PIN                         PF11
- #if ENABLED(Z_MULTI_ENDSTOPS)
-  #define Z2_MIN_PIN                        PD3   // after ver3.0
- #endif
-#endif
-//#define Z_MIN_PIN                         PG0
-//#define Z_MAX_PIN                         PD15
+#define Z_MIN_PROBE_PIN                     PF11
 
 //#define LED_RED_PIN                       PG9
-#if ENABLED(R_B_LED)
-  #define RB_LED_PIN                        PD7
-#endif
+#define RB_LED_PIN                          PD7   // Red-Blue LED
 
 #if ENABLED(WS2812_LED)
   #define WS2812_LED_PIN                    PD7
@@ -176,7 +163,7 @@
 // Temperature Sensors
 //
 #define TEMP_0_PIN                          PF5   // T0
-#define TEMP_1_PIN                          PB1   // T0
+#define TEMP_1_PIN                          PB1   // T1
 #define TEMP_BED_PIN                        PF6   // TB
 
 #ifndef TEMP_CHAMBER_PIN
