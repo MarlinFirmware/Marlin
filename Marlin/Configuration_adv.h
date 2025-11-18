@@ -4187,6 +4187,7 @@
     #define BUTTON1_WHEN_PRINTING false     // Button allowed to trigger during printing?
     #define BUTTON1_GCODE         "G28"
     #define BUTTON1_DESC          "Homing"  // Optional string to set the LCD status
+    //#define BUTTON1_IMMEDIATE             // Skip the queue and run the G-code immediately
   #endif
 
   //#define BUTTON2_PIN -1
@@ -4195,6 +4196,7 @@
     #define BUTTON2_WHEN_PRINTING false
     #define BUTTON2_GCODE         "M140 S" STRINGIFY(PREHEAT_1_TEMP_BED) "\nM104 S" STRINGIFY(PREHEAT_1_TEMP_HOTEND)
     #define BUTTON2_DESC          "Preheat for " PREHEAT_1_LABEL
+    //#define BUTTON2_IMMEDIATE
   #endif
 
   //#define BUTTON3_PIN -1
@@ -4203,6 +4205,7 @@
     #define BUTTON3_WHEN_PRINTING false
     #define BUTTON3_GCODE         "M140 S" STRINGIFY(PREHEAT_2_TEMP_BED) "\nM104 S" STRINGIFY(PREHEAT_2_TEMP_HOTEND)
     #define BUTTON3_DESC          "Preheat for " PREHEAT_2_LABEL
+    //#define BUTTON3_IMMEDIATE
   #endif
 #endif
 

@@ -23,6 +23,7 @@
 
 #include "menu.h"
 #include "../marlinui.h"
+#include "../../gcode/gcode.h" // for process_subcommands_now
 #include "../../gcode/queue.h" // for inject
 
 #include "../../inc/MarlinConfigPre.h"
