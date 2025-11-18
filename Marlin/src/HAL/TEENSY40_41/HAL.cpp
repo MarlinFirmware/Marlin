@@ -98,7 +98,7 @@ void MarlinHAL::clear_reset_source() {
 
   #define WDT_TIMEOUT TERN(WATCHDOG_DURATION_8S, 8, 4) // 4 or 8 second timeout
 
-  constexpr uint8_t timeoutval = (WDT_TIMEOUT - 0.5f) / 0.5f;
+  constexpr uint8_t timeoutval = (WDT_TIMEOUT - 0.5f) * 2.0f;
 
   void MarlinHAL::watchdog_init() {
     CCM_CCGR3 |= CCM_CCGR3_WDOG1(3);  // enable WDOG1 clocks

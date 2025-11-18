@@ -32,9 +32,6 @@
 #include "trinamic.h"
 #include "../stepper.h"
 
-#include <HardwareSerial.h>
-#include <SPI.h>
-
 enum StealthIndex : uint8_t {
   LOGICAL_AXIS_LIST(STEALTH_AXIS_E, STEALTH_AXIS_X, STEALTH_AXIS_Y, STEALTH_AXIS_Z, STEALTH_AXIS_I, STEALTH_AXIS_J, STEALTH_AXIS_K, STEALTH_AXIS_U, STEALTH_AXIS_V, STEALTH_AXIS_W)
 };
@@ -157,6 +154,82 @@ enum StealthIndex : uint8_t {
   TMC_SPI_DEFINE_E(7);
 #endif
 
+#if HAS_TMC_SPI
+
+  // Init CS pins (active-low) for TMC SPI drivers.
+  #define INIT_CS_PIN(st) OUT_WRITE(st##_CS_PIN, HIGH)
+
+  void tmc_init_cs_pins() {
+    #if AXIS_HAS_SPI(X)
+      INIT_CS_PIN(X);
+    #endif
+    #if AXIS_HAS_SPI(Y)
+      INIT_CS_PIN(Y);
+    #endif
+    #if AXIS_HAS_SPI(Z)
+      INIT_CS_PIN(Z);
+    #endif
+    #if AXIS_HAS_SPI(X2)
+      INIT_CS_PIN(X2);
+    #endif
+    #if AXIS_HAS_SPI(Y2)
+      INIT_CS_PIN(Y2);
+    #endif
+    #if AXIS_HAS_SPI(Z2)
+      INIT_CS_PIN(Z2);
+    #endif
+    #if AXIS_HAS_SPI(Z3)
+      INIT_CS_PIN(Z3);
+    #endif
+    #if AXIS_HAS_SPI(Z4)
+      INIT_CS_PIN(Z4);
+    #endif
+    #if AXIS_HAS_SPI(I)
+      INIT_CS_PIN(I);
+    #endif
+    #if AXIS_HAS_SPI(J)
+      INIT_CS_PIN(J);
+    #endif
+    #if AXIS_HAS_SPI(K)
+      INIT_CS_PIN(K);
+    #endif
+    #if AXIS_HAS_SPI(U)
+      INIT_CS_PIN(U);
+    #endif
+    #if AXIS_HAS_SPI(V)
+      INIT_CS_PIN(V);
+    #endif
+    #if AXIS_HAS_SPI(W)
+      INIT_CS_PIN(W);
+    #endif
+    #if AXIS_HAS_SPI(E0)
+      INIT_CS_PIN(E0);
+    #endif
+    #if AXIS_HAS_SPI(E1)
+      INIT_CS_PIN(E1);
+    #endif
+    #if AXIS_HAS_SPI(E2)
+      INIT_CS_PIN(E2);
+    #endif
+    #if AXIS_HAS_SPI(E3)
+      INIT_CS_PIN(E3);
+    #endif
+    #if AXIS_HAS_SPI(E4)
+      INIT_CS_PIN(E4);
+    #endif
+    #if AXIS_HAS_SPI(E5)
+      INIT_CS_PIN(E5);
+    #endif
+    #if AXIS_HAS_SPI(E6)
+      INIT_CS_PIN(E6);
+    #endif
+    #if AXIS_HAS_SPI(E7)
+      INIT_CS_PIN(E7);
+    #endif
+  }
+
+#endif // HAS_TMC_SPI
+
 #ifndef TMC_BAUD_RATE
   // Reduce baud rate for boards not already overriding TMC_BAUD_RATE for software serial.
   // Testing has shown that 115200 is not 100% reliable on AVR platforms, occasionally
@@ -242,12 +315,12 @@ enum StealthIndex : uint8_t {
     st.begin();
 
     CHOPCONF_t chopconf{0};
-    chopconf.tbl = 0b01;
-    chopconf.toff = chop_init.toff;
+    chopconf.tbl    = 0b01;
+    chopconf.toff   = chop_init.toff;
     chopconf.intpol = interpolate;
-    chopconf.hend = chop_init.hend + 3;
-    chopconf.hstrt = chop_init.hstrt - 1;
-    TERN_(EDGE_STEPPING, chopconf.dedge = true);
+    chopconf.hend   = chop_init.hend + 3;
+    chopconf.hstrt  = chop_init.hstrt - 1;
+    chopconf.dedge  = ENABLED(EDGE_STEPPING);
     st.CHOPCONF(chopconf.sr);
 
     st.rms_current(mA, hold_multiplier);
@@ -280,12 +353,12 @@ enum StealthIndex : uint8_t {
     st.begin();
 
     CHOPCONF_t chopconf{0};
-    chopconf.tbl = 0b01;
-    chopconf.toff = chop_init.toff;
+    chopconf.tbl    = 0b01;
+    chopconf.toff   = chop_init.toff;
     chopconf.intpol = interpolate;
-    chopconf.hend = chop_init.hend + 3;
-    chopconf.hstrt = chop_init.hstrt - 1;
-    TERN_(EDGE_STEPPING, chopconf.dedge = true);
+    chopconf.hend   = chop_init.hend + 3;
+    chopconf.hstrt  = chop_init.hstrt - 1;
+    chopconf.dedge  = ENABLED(EDGE_STEPPING);
     st.CHOPCONF(chopconf.sr);
 
     st.rms_current(mA, hold_multiplier);
@@ -316,6 +389,7 @@ enum StealthIndex : uint8_t {
 // TMC2208/2209 Driver objects and inits
 //
 #if HAS_TMC_UART
+
   #if AXIS_HAS_UART(X)
     #ifdef X_HARDWARE_SERIAL
       TMC_UART_DEFINE(HW, X, X);
@@ -688,7 +762,8 @@ enum StealthIndex : uint8_t {
       #endif
     #endif
   }
-#endif
+
+#endif // HAS_TMC_UART
 
 #if HAS_DRIVER(TMC2208)
   template<char AXIS_LETTER, char DRIVER_ID, AxisEnum AXIS_ID>
@@ -705,12 +780,12 @@ enum StealthIndex : uint8_t {
     st.stored.stealthChop_enabled = stealth;
 
     TMC2208_n::CHOPCONF_t chopconf{0};
-    chopconf.tbl = 0b01; // blank_time = 24
-    chopconf.toff = chop_init.toff;
+    chopconf.tbl    = 0b01; // blank_time = 24
+    chopconf.toff   = chop_init.toff;
     chopconf.intpol = interpolate;
-    chopconf.hend = chop_init.hend + 3;
-    chopconf.hstrt = chop_init.hstrt - 1;
-    TERN_(EDGE_STEPPING, chopconf.dedge = true);
+    chopconf.hend   = chop_init.hend + 3;
+    chopconf.hstrt  = chop_init.hstrt - 1;
+    chopconf.dedge  = ENABLED(EDGE_STEPPING);
     st.CHOPCONF(chopconf.sr);
 
     st.rms_current(mA, hold_multiplier);
@@ -750,12 +825,12 @@ enum StealthIndex : uint8_t {
     st.stored.stealthChop_enabled = stealth;
 
     TMC2208_n::CHOPCONF_t chopconf{0};
-    chopconf.tbl = 0b01; // blank_time = 24
-    chopconf.toff = chop_init.toff;
+    chopconf.tbl    = 0b01; // blank_time = 24
+    chopconf.toff   = chop_init.toff;
     chopconf.intpol = interpolate;
-    chopconf.hend = chop_init.hend + 3;
-    chopconf.hstrt = chop_init.hstrt - 1;
-    TERN_(EDGE_STEPPING, chopconf.dedge = true);
+    chopconf.hend   = chop_init.hend + 3;
+    chopconf.hstrt  = chop_init.hstrt - 1;
+    chopconf.dedge  = ENABLED(EDGE_STEPPING);
     st.CHOPCONF(chopconf.sr);
 
     st.rms_current(mA, hold_multiplier);
@@ -788,42 +863,68 @@ enum StealthIndex : uint8_t {
   ) {
     st.begin();
 
-    st.Rref = TMC2240_Rref;
+    st.Rref = TMC2240_RREF; // Minimum: 12000 ; FLY TMC2240: 12300
+
+    TMC2240_n::GCONF_t gconf{0};
+    gconf.en_pwm_mode = !stealth;
+    st.GCONF(gconf.sr);
+
     TMC2240_n::DRV_CONF_t drv_conf{0};
     drv_conf.current_range = TMC2240_CURRENT_RANGE;
     drv_conf.slope_control = TMC2240_SLOPE_CONTROL;
     st.DRV_CONF(drv_conf.sr);
 
-    CHOPCONF_t chopconf{0};
-    chopconf.tbl = 0b01;
-    chopconf.toff = chop_init.toff;
-    chopconf.intpol = interpolate;
-    chopconf.hend = chop_init.hend + 3;
-    chopconf.hstrt = chop_init.hstrt - 1;
-    TERN_(EDGE_STEPPING, chopconf.dedge = true);
+    // Adjust based on user experience
+    TMC2240_n::CHOPCONF_t chopconf{0};
+    chopconf.toff   = chop_init.toff;       // 3 (3)
+    chopconf.intpol = interpolate;          // true
+    chopconf.hend   = chop_init.hend + 3;   // 2 (-1)
+    chopconf.hstrt  = chop_init.hstrt - 1;  // 5 (6)
+    chopconf.TBL    = 0b10;                 // 36 tCLK
+    chopconf.tpfd   = 4;                    // 512 NCLK
+    chopconf.dedge  = ENABLED(EDGE_STEPPING);
     st.CHOPCONF(chopconf.sr);
 
     st.rms_current(mA, hold_multiplier);
     st.microsteps(microsteps);
-    st.iholddelay(10);
+    st.iholddelay(6);
+    st.irundelay(4);
+
+    // (from Makerbase)
+    //st.TPOWERDOWN(10);
+
     st.TPOWERDOWN(128); // ~2s until driver lowers to hold current
 
     st.en_pwm_mode(stealth);
     st.stored.stealthChop_enabled = stealth;
 
+    // Adjust based on user experience
     TMC2240_n::PWMCONF_t pwmconf{0};
-    pwmconf.pwm_lim = 12;
-    pwmconf.pwm_reg = 8;
-    pwmconf.pwm_autograd = true;
-    pwmconf.pwm_autoscale = true;
-    pwmconf.pwm_freq = 0b01;
-    pwmconf.pwm_grad = 14;
-    pwmconf.pwm_ofs = 36;
+    pwmconf.pwm_ofs             = 29;
+    pwmconf.pwm_grad            = 0;
+    pwmconf.pwm_freq            = 0b00;  // fPWM = 2/1024 fCLK | 16MHz clock -> 31.3kHz PWM
+    pwmconf.pwm_autograd        = true;
+    pwmconf.pwm_autoscale       = true;
+    pwmconf.freewheel           = 0;
+    pwmconf.pwm_meas_sd_enable  = false;
+    pwmconf.pwm_dis_reg_stst    = false;
+    pwmconf.pwm_reg             = 4;
+    pwmconf.pwm_lim             = 12;
     st.PWMCONF(pwmconf.sr);
 
     TERN(HYBRID_THRESHOLD, st.set_pwm_thrs(hyb_thrs), UNUSED(hyb_thrs));
+
+    // (from Makerbase)
+    //st.GCONF(0x00);
+    //st.IHOLD_IRUN(0x04071f03);
+    //st.GSTAT(0x07);
+    //st.GSTAT(0x00);
+
+    st.diag0_pushpull(true);
+
     st.GSTAT(); // Clear GSTAT
   }
+
 #endif // TMC2240
 
 #if HAS_DRIVER(TMC2660)
@@ -860,12 +961,12 @@ enum StealthIndex : uint8_t {
     st.begin();
 
     CHOPCONF_t chopconf{0};
-    chopconf.tbl = 0b01;
-    chopconf.toff = chop_init.toff;
+    chopconf.tbl    = 0b01;
+    chopconf.toff   = chop_init.toff;
     chopconf.intpol = interpolate;
-    chopconf.hend = chop_init.hend + 3;
-    chopconf.hstrt = chop_init.hstrt - 1;
-    TERN_(EDGE_STEPPING, chopconf.dedge = true);
+    chopconf.hend   = chop_init.hend + 3;
+    chopconf.hstrt  = chop_init.hstrt - 1;
+    chopconf.dedge  = ENABLED(EDGE_STEPPING);
     st.CHOPCONF(chopconf.sr);
 
     st.rms_current(mA, hold_multiplier);
@@ -898,12 +999,12 @@ enum StealthIndex : uint8_t {
     st.begin();
 
     CHOPCONF_t chopconf{0};
-    chopconf.tbl = 0b01;
-    chopconf.toff = chop_init.toff;
+    chopconf.tbl    = 0b01;
+    chopconf.toff   = chop_init.toff;
     chopconf.intpol = interpolate;
-    chopconf.hend = chop_init.hend + 3;
-    chopconf.hstrt = chop_init.hstrt - 1;
-    TERN_(EDGE_STEPPING, chopconf.dedge = true);
+    chopconf.hend   = chop_init.hend + 3;
+    chopconf.hstrt  = chop_init.hstrt - 1;
+    chopconf.dedge  = ENABLED(EDGE_STEPPING);
     st.CHOPCONF(chopconf.sr);
 
     st.rms_current(mA, hold_multiplier);

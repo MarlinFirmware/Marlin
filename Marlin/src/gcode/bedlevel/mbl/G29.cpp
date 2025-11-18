@@ -45,8 +45,8 @@
 #define DEBUG_OUT ENABLED(DEBUG_LEVELING_FEATURE)
 #include "../../../core/debug_out.h"
 
-#if FT_MOTION_DISABLE_FOR_PROBING
-  #include "../../module/ft_motion.h"
+#if ENABLED(FT_MOTION)
+  #include "../../../module/ft_motion.h"
 #endif
 
 // Save 130 bytes with non-duplication of PSTR
@@ -67,9 +67,8 @@ inline void echo_not_entered(const char c) { SERIAL_CHAR(c); SERIAL_ECHOLNPGM(" 
  */
 void GcodeSuite::G29() {
 
-  #if FT_MOTION_DISABLE_FOR_PROBING
-    FTMotionDisableInScope FT_Disabler; // Disable Fixed-Time Motion for probing
-  #endif
+  // Potentially disable Fixed-Time Motion for probing
+  TERN_(FT_MOTION, FTM_DISABLE_IN_SCOPE());
 
   DEBUG_SECTION(log_G29, "G29", true);
 
@@ -261,7 +260,7 @@ void GcodeSuite::G29() {
 
   if (state == MeshNext) {
     SERIAL_ECHOLNPGM("MBL G29 point ", _MIN(mbl_probe_index, GRID_MAX_POINTS), " of ", GRID_MAX_POINTS);
-    if (mbl_probe_index > 0) TERN_(HAS_STATUS_MESSAGE, ui.status_printf(0, F(S_FMT " %i/%i"), GET_TEXT_F(MSG_PROBING_POINT), _MIN(mbl_probe_index, GRID_MAX_POINTS), int(GRID_MAX_POINTS)));
+    if (mbl_probe_index > 0) TERN_(HAS_STATUS_MESSAGE, ui.status_printf(0, F(S_FMT " %i/%i"), GET_TEXT(MSG_PROBING_POINT), _MIN(mbl_probe_index, GRID_MAX_POINTS), int(GRID_MAX_POINTS)));
   }
 
   report_current_position();

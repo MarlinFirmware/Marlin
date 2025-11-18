@@ -452,11 +452,11 @@ bool MarlinUI::detected() {
     #if ENABLED(LCD_I2C_TYPE_MCP23017)
       // Reading these buttons is too slow for interrupt context
       // so they are read during LCD update in the main loop.
-      uint8_t slow_bits = lcd.readButtons()
+      uint8_t slow_bits = (lcd.readButtons()
         #if !BUTTON_EXISTS(ENC)
           << B_I2C_BTN_OFFSET
         #endif
-      ;
+      );
       #if ENABLED(LCD_I2C_VIKI)
         if ((slow_bits & (B_MI | B_RI)) && PENDING(millis(), next_button_update_ms)) // LCD clicked
           slow_bits &= ~(B_MI | B_RI); // Disable LCD clicked buttons if screen is updated
@@ -853,9 +853,18 @@ void MarlinUI::draw_status_message(const bool blink) {
       if (printJobOngoing()) {
         char buffer[8];
         const duration_t remaint = get_remaining_time();
-        const uint8_t timepos = TPOFFSET - remaint.toDigital(buffer);
-        IF_DISABLED(LCD_INFO_SCREEN_STYLE, lcd_put_lchar(timepos - 1, 2, 0x20));
-        lcd_put_lchar(TERN(LCD_INFO_SCREEN_STYLE, 11, timepos), 2, 'R');
+        #if LCD_INFO_SCREEN_STYLE == 0
+          const uint8_t timepos = TPOFFSET - remaint.toDigital(buffer);
+          lcd_put_lchar(timepos - 1, 2, ' ');
+        #endif
+        lcd_put_lchar(
+          #if LCD_INFO_SCREEN_STYLE == 0
+            timepos
+          #else
+            11
+          #endif
+          , 2, 'R'
+        );
         lcd_put_u8str(buffer);
       }
     }
@@ -866,9 +875,18 @@ void MarlinUI::draw_status_message(const bool blink) {
       const duration_t interactt = interaction_time;
       if (printingIsActive() && interactt.value) {
         char buffer[8];
-        const uint8_t timepos = TPOFFSET - interactt.toDigital(buffer);
-        IF_DISABLED(LCD_INFO_SCREEN_STYLE, lcd_put_lchar(timepos - 1, 2, 0x20));
-        lcd_put_lchar(TERN(LCD_INFO_SCREEN_STYLE, 11, timepos), 2, 'C');
+        #if LCD_INFO_SCREEN_STYLE == 0
+          const uint8_t timepos = TPOFFSET - interactt.toDigital(buffer);
+          lcd_put_lchar(timepos - 1, 2, ' ');
+        #endif
+        lcd_put_lchar(
+          #if LCD_INFO_SCREEN_STYLE == 0
+            timepos
+          #else
+            11
+          #endif
+          , 2, 'C'
+        );
         lcd_put_u8str(buffer);
       }
     }
@@ -879,9 +897,18 @@ void MarlinUI::draw_status_message(const bool blink) {
       if (printJobOngoing()) {
         char buffer[8];
         const duration_t elapsedt = print_job_timer.duration();
-        const uint8_t timepos = TPOFFSET - elapsedt.toDigital(buffer);
-        IF_DISABLED(LCD_INFO_SCREEN_STYLE, lcd_put_lchar(timepos - 1, 2, 0x20));
-        lcd_put_lchar(TERN(LCD_INFO_SCREEN_STYLE, 11, timepos), 2, 'E');
+        #if LCD_INFO_SCREEN_STYLE == 0
+          const uint8_t timepos = TPOFFSET - elapsedt.toDigital(buffer);
+          lcd_put_lchar(timepos - 1, 2, ' ');
+        #endif
+        lcd_put_lchar(
+          #if LCD_INFO_SCREEN_STYLE == 0
+            timepos
+          #else
+            11
+          #endif
+          , 2, 'E'
+        );
         lcd_put_u8str(buffer);
       }
     }
@@ -1097,7 +1124,7 @@ void MarlinUI::draw_status_screen() {
           rotate_progress();
         #else
           char c;
-          uint16_t per;
+          uint16_t pct;
           #if HAS_FAN0
             if (true
               #if ALL(HAS_EXTRUDERS, ADAPTIVE_FAN_SLOWING)
@@ -1109,18 +1136,18 @@ void MarlinUI::draw_status_screen() {
               #if ENABLED(ADAPTIVE_FAN_SLOWING)
                 else { c = '*'; spd = thermalManager.scaledFanSpeed(0, spd); }
               #endif
-              per = thermalManager.pwmToPercent(spd);
+              pct = thermalManager.pwmToPercent(spd);
             }
             else
           #endif
             {
               #if HAS_EXTRUDERS
                 c = 'E';
-                per = planner.flow_percentage[0];
+                pct = planner.flow_percentage[0];
               #endif
             }
           lcd_put_lchar(c);
-          lcd_put_u8str(i16tostr3rj(per));
+          lcd_put_u8str(i16tostr3rj(pct));
           lcd_put_u8str(F("%"));
         #endif
       #endif

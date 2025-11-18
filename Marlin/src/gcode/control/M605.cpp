@@ -155,13 +155,16 @@
 #elif ENABLED(MULTI_NOZZLE_DUPLICATION)
 
   /**
-   * M605: Set multi-nozzle duplication mode
+   * M605: Multi Nozzle Mode
    *
-   *  S2       - Enable duplication mode
-   *  P[mask]  - Bit-mask of nozzles to include in the duplication set.
-   *             A value of 0 disables duplication.
-   *  E[index] - Last nozzle index to include in the duplication set.
-   *             A value of 0 disables duplication.
+   * Set multi-nozzle duplication mode.
+   *
+   * Parameters:
+   *   S2        Enable duplication mode
+   *   P<mask>   Bit-mask of nozzles to include in the duplication set
+   *             A value of 0 disables duplication
+   *   E<index>  Last nozzle index to include in the duplication set
+   *             A value of 0 disables duplication
    */
   void GcodeSuite::M605() {
     bool ena = false;

@@ -232,7 +232,7 @@ void GCodeQueue::enqueue_now_P(PGM_P const pgcode) {
  * Send an "ok" message to the host, indicating
  * that a command was successfully processed.
  *
- * If ADVANCED_OK is enabled also include:
+ * With ADVANCED_OK:
  *   N<int>  Line number of the command, if any
  *   P<int>  Planner space remaining
  *   B<int>  Block queue space remaining

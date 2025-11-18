@@ -163,7 +163,7 @@ namespace ExtUI {
   #endif
 
   #if HAS_MESH
-    void onMeshUpdate(const int8_t xpos, const int8_t ypos, const_float_t zval) {
+    void onMeshUpdate(const int8_t xpos, const int8_t ypos, const float zval) {
       const int16_t idx = ypos * (GRID_MAX_POINTS_X) + xpos;
       dwinMeshUpdate(_MIN(idx, GRID_MAX_POINTS), int(GRID_MAX_POINTS), zval);
       dwinRedrawScreen();
@@ -238,7 +238,7 @@ namespace ExtUI {
   void onSteppersDisabled() {}
   void onSteppersEnabled() {}
   void onAxisDisabled(const axis_t axis) {
-    set_axis_untrusted(AxisEnum(axis)); // MRISCOC workaround: https://github.com/MarlinFirmware/Marlin/issues/23095
+    set_axis_untrusted((AxisEnum)axis); // MRISCOC workaround: https://github.com/MarlinFirmware/Marlin/issues/23095
   }
   void onAxisEnabled(const axis_t) {}
 

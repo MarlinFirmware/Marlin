@@ -745,6 +745,10 @@
   #error "FTM_SHAPING_DEFAULT_[XY]_FREQ is now FTM_SHAPING_DEFAULT_FREQ_[XY]."
 #elif defined(SDSS)
   #error "SDSS is now SD_SS_PIN."
+#elif defined(FTM_LINEAR_ADV_DEFAULT_ENA)
+  #error "FTM_LINEAR_ADV_DEFAULT_ENA is obsolete and should be removed."
+#elif defined(FTM_LINEAR_ADV_DEFAULT_K)
+  #error "FTM_LINEAR_ADV_DEFAULT_K is now set with ADVANCE_K and should be removed."
 #endif
 
 // SDSS renamed to SD_SS_PIN
