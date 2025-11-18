@@ -671,7 +671,7 @@ void menu_motion() {
   //
   // Disable Steppers
   //
-  GCODES_ITEM(MSG_DISABLE_STEPPERS, F("M84"));
+  COMMAND_ITEM(MSG_DISABLE_STEPPERS, F("M84"));
 
   END_MENU();
 } // menu_motion
