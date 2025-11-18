@@ -96,7 +96,7 @@
 
 // Minimum unit (0.1) : multiple (10)
 #define UNITFDIGITS 1
-#define MINUNITMULT pow(10, UNITFDIGITS)
+#define MINUNITMULT POW(10, UNITFDIGITS)
 
 #define DWIN_VAR_UPDATE_INTERVAL         1024
 #define DWIN_SCROLL_UPDATE_INTERVAL      SEC_TO_MS(2)
@@ -1388,7 +1388,7 @@ void hmiMoveDone(const AxisEnum axis) {
     LIMIT(hmiValues.offset_value, _OFFSET_ZMIN * 100, _OFFSET_ZMAX * 100);
 
     last_zoffset = dwin_zoffset;
-    dwin_zoffset = hmiValues.offset_value / 100.0f;
+    dwin_zoffset = hmiValues.offset_value * 0.01f;
     #if ANY(BABYSTEP_ZPROBE_OFFSET, JUST_BABYSTEP)
       if (BABYSTEP_ALLOWED()) babystep.add_mm(Z_AXIS, dwin_zoffset - last_zoffset);
     #endif
@@ -1972,7 +1972,7 @@ void hmiSDCardUpdate() {
   if (hmiFlag.home_flag) return;
   if (DWIN_lcd_sd_status != card.isMounted()) {
     DWIN_lcd_sd_status = card.isMounted();
-    //SERIAL_ECHOLNPGM("HMI_SDCardUpdate: ", DWIN_lcd_sd_status);
+    //SERIAL_ECHOLNPGM("hmiSDCardUpdate: ", DWIN_lcd_sd_status);
     if (DWIN_lcd_sd_status) {
       if (checkkey == ID_SelectFile)
         redrawSDList();
@@ -4224,7 +4224,7 @@ void eachMomentUpdate() {
           if (encoder_diffState == ENCODER_DIFF_ENTER) {
             recovery_flag = false;
             if (hmiFlag.select_flag) break;
-            queue.inject(F("M1000C"));
+            TERN_(POWER_LOSS_RECOVERY, queue.inject(F("M1000C")));
             hmiStartFrame(true);
             return;
           }

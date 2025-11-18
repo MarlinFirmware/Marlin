@@ -1124,7 +1124,7 @@ void MarlinUI::draw_status_screen() {
           rotate_progress();
         #else
           char c;
-          uint16_t per;
+          uint16_t pct;
           #if HAS_FAN0
             if (true
               #if ALL(HAS_EXTRUDERS, ADAPTIVE_FAN_SLOWING)
@@ -1136,18 +1136,18 @@ void MarlinUI::draw_status_screen() {
               #if ENABLED(ADAPTIVE_FAN_SLOWING)
                 else { c = '*'; spd = thermalManager.scaledFanSpeed(0, spd); }
               #endif
-              per = thermalManager.pwmToPercent(spd);
+              pct = thermalManager.pwmToPercent(spd);
             }
             else
           #endif
             {
               #if HAS_EXTRUDERS
                 c = 'E';
-                per = planner.flow_percentage[0];
+                pct = planner.flow_percentage[0];
               #endif
             }
           lcd_put_lchar(c);
-          lcd_put_u8str(i16tostr3rj(per));
+          lcd_put_u8str(i16tostr3rj(pct));
           lcd_put_u8str(F("%"));
         #endif
       #endif

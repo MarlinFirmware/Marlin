@@ -30,108 +30,114 @@
 
 #include "menu_item.h"
 
+#if ENABLED(LED_CONTROL_MENU)
+  #include "../../feature/leds/leds.h"
+#endif
+
 #if ENABLED(PSU_CONTROL)
   #include "../../feature/power.h"
 #endif
 
-#if ALL(CASE_LIGHT_MENU, CASELIGHT_USES_BRIGHTNESS)
+#if ENABLED(CASE_LIGHT_MENU)
   #include "../../feature/caselight.h"
-  void menu_case_light() {
-    START_MENU();
-    BACK_ITEM(MSG_CONFIGURATION);
-    EDIT_ITEM(percent, MSG_CASE_LIGHT_BRIGHTNESS, &caselight.brightness, 0, 255, caselight.update_brightness, true);
-    EDIT_ITEM(bool, MSG_CASE_LIGHT, &caselight.on, caselight.update_enabled);
-    END_MENU();
-  }
+
+  #if CASELIGHT_USES_BRIGHTNESS
+    void menu_case_light() {
+      START_MENU();
+      BACK_ITEM(MSG_CONFIGURATION);
+      EDIT_ITEM(percent, MSG_CASE_LIGHT_BRIGHTNESS, &caselight.brightness, 0, 255, caselight.update_brightness, true);
+      EDIT_ITEM(bool, MSG_CASE_LIGHT, &caselight.on, caselight.update_enabled);
+      END_MENU();
+    }
+  #endif
 #endif
 
-#if ENABLED(LED_CONTROL_MENU)
-
-  #include "../../feature/leds/leds.h"
-
+#if ENABLED(NEO2_COLOR_PRESETS)
   #define MSG_LIGHT2_PRESETS TERN(BIQU_BX_TFT70, MSG_LIGHT_ENCODER_PRESETS, MSG_NEO2_PRESETS)
+#endif
 
-  #if ENABLED(LED_COLOR_PRESETS)
+#if ENABLED(LED_COLOR_PRESETS)
 
-    void menu_led_presets() {
-      START_MENU();
-      #if LCD_HEIGHT > 2
-        STATIC_ITEM(MSG_LED_PRESETS, SS_DEFAULT|SS_INVERT);
-      #endif
-      BACK_ITEM(MSG_LED_CONTROL);
-      ACTION_ITEM(MSG_SET_LEDS_WHITE,  leds.set_white);
-      ACTION_ITEM(MSG_SET_LEDS_RED,    leds.set_red);
-      ACTION_ITEM(MSG_SET_LEDS_ORANGE, leds.set_orange);
-      ACTION_ITEM(MSG_SET_LEDS_YELLOW, leds.set_yellow);
-      ACTION_ITEM(MSG_SET_LEDS_GREEN,  leds.set_green);
-      ACTION_ITEM(MSG_SET_LEDS_BLUE,   leds.set_blue);
-      ACTION_ITEM(MSG_SET_LEDS_INDIGO, leds.set_indigo);
-      ACTION_ITEM(MSG_SET_LEDS_VIOLET, leds.set_violet);
-      END_MENU();
-    }
-
-  #endif // LED_COLOR_PRESETS
-
-  #if ENABLED(NEO2_COLOR_PRESETS)
-
-    void menu_leds2_presets() {
-      START_MENU();
-      #if LCD_HEIGHT > 2
-        STATIC_ITEM(MSG_LIGHT2_PRESETS, SS_DEFAULT|SS_INVERT);
-      #endif
-      BACK_ITEM(MSG_LED_CONTROL);
-      ACTION_ITEM(MSG_SET_LEDS_WHITE,  leds2.set_white);
-      ACTION_ITEM(MSG_SET_LEDS_RED,    leds2.set_red);
-      ACTION_ITEM(MSG_SET_LEDS_ORANGE, leds2.set_orange);
-      ACTION_ITEM(MSG_SET_LEDS_YELLOW, leds2.set_yellow);
-      ACTION_ITEM(MSG_SET_LEDS_GREEN,  leds2.set_green);
-      ACTION_ITEM(MSG_SET_LEDS_BLUE,   leds2.set_blue);
-      ACTION_ITEM(MSG_SET_LEDS_INDIGO, leds2.set_indigo);
-      ACTION_ITEM(MSG_SET_LEDS_VIOLET, leds2.set_violet);
-      END_MENU();
-    }
-
-  #endif // NEO2_COLOR_PRESETS
-
-  void menu_led_custom() {
+  void menu_led_presets() {
     START_MENU();
+    #if LCD_HEIGHT > 2
+      STATIC_ITEM(MSG_LED_PRESETS, SS_DEFAULT|SS_INVERT);
+    #endif
     BACK_ITEM(MSG_LED_CONTROL);
-
-    #if ENABLED(NEOPIXEL2_SEPARATE)
-      STATIC_ITEM_N(1, MSG_LED_CHANNEL_N, SS_DEFAULT|SS_INVERT);
-    #endif
-    EDIT_ITEM(uint8, MSG_INTENSITY_R, &leds.color.r, 0, 255, leds.update, true);
-    EDIT_ITEM(uint8, MSG_INTENSITY_G, &leds.color.g, 0, 255, leds.update, true);
-    EDIT_ITEM(uint8, MSG_INTENSITY_B, &leds.color.b, 0, 255, leds.update, true);
-    #if HAS_WHITE_LED
-      EDIT_ITEM(uint8, MSG_INTENSITY_W, &leds.color.w, 0, 255, leds.update, true);
-    #endif
-    #if ENABLED(NEOPIXEL_LED)
-      EDIT_ITEM(uint8, MSG_LED_BRIGHTNESS, &leds.color.i, 0, 255, leds.update, true);
-    #endif
-
-    #if ENABLED(NEOPIXEL2_SEPARATE)
-      STATIC_ITEM_N(2, MSG_LED_CHANNEL_N, SS_DEFAULT|SS_INVERT);
-      EDIT_ITEM(uint8, MSG_INTENSITY_R, &leds2.color.r, 0, 255, leds2.update, true);
-      EDIT_ITEM(uint8, MSG_INTENSITY_G, &leds2.color.g, 0, 255, leds2.update, true);
-      EDIT_ITEM(uint8, MSG_INTENSITY_B, &leds2.color.b, 0, 255, leds2.update, true);
-      #if HAS_WHITE_LED2
-        EDIT_ITEM(uint8, MSG_INTENSITY_W, &leds2.color.w, 0, 255, leds2.update, true);
-      #endif
-      EDIT_ITEM(uint8, MSG_NEO2_BRIGHTNESS, &leds2.color.i, 0, 255, leds2.update, true);
-    #endif
-
+    ACTION_ITEM(MSG_SET_LEDS_WHITE,  leds.set_white);
+    ACTION_ITEM(MSG_SET_LEDS_RED,    leds.set_red);
+    ACTION_ITEM(MSG_SET_LEDS_ORANGE, leds.set_orange);
+    ACTION_ITEM(MSG_SET_LEDS_YELLOW, leds.set_yellow);
+    ACTION_ITEM(MSG_SET_LEDS_GREEN,  leds.set_green);
+    ACTION_ITEM(MSG_SET_LEDS_BLUE,   leds.set_blue);
+    ACTION_ITEM(MSG_SET_LEDS_INDIGO, leds.set_indigo);
+    ACTION_ITEM(MSG_SET_LEDS_VIOLET, leds.set_violet);
     END_MENU();
   }
 
-  void menu_led() {
-    #if ENABLED(CASE_LIGHT_MENU)
-      const bool has_bright = TERN0(CASELIGHT_USES_BRIGHTNESS, caselight.has_brightness());
-    #endif
+#endif // LED_COLOR_PRESETS
 
+#if ENABLED(NEO2_COLOR_PRESETS)
+
+  void menu_leds2_presets() {
     START_MENU();
-    BACK_ITEM(MSG_MAIN_MENU);
+    #if LCD_HEIGHT > 2
+      STATIC_ITEM(MSG_LIGHT2_PRESETS, SS_DEFAULT|SS_INVERT);
+    #endif
+    BACK_ITEM(MSG_LED_CONTROL);
+    ACTION_ITEM(MSG_SET_LEDS_WHITE,  leds2.set_white);
+    ACTION_ITEM(MSG_SET_LEDS_RED,    leds2.set_red);
+    ACTION_ITEM(MSG_SET_LEDS_ORANGE, leds2.set_orange);
+    ACTION_ITEM(MSG_SET_LEDS_YELLOW, leds2.set_yellow);
+    ACTION_ITEM(MSG_SET_LEDS_GREEN,  leds2.set_green);
+    ACTION_ITEM(MSG_SET_LEDS_BLUE,   leds2.set_blue);
+    ACTION_ITEM(MSG_SET_LEDS_INDIGO, leds2.set_indigo);
+    ACTION_ITEM(MSG_SET_LEDS_VIOLET, leds2.set_violet);
+    END_MENU();
+  }
 
+#endif // NEO2_COLOR_PRESETS
+
+void menu_led_custom() {
+  START_MENU();
+  BACK_ITEM(MSG_LED_CONTROL);
+
+  #if ENABLED(NEOPIXEL2_SEPARATE)
+    STATIC_ITEM_N(1, MSG_LED_CHANNEL_N, SS_DEFAULT|SS_INVERT);
+  #endif
+  EDIT_ITEM(uint8, MSG_INTENSITY_R, &leds.color.r, 0, 255, leds.update, true);
+  EDIT_ITEM(uint8, MSG_INTENSITY_G, &leds.color.g, 0, 255, leds.update, true);
+  EDIT_ITEM(uint8, MSG_INTENSITY_B, &leds.color.b, 0, 255, leds.update, true);
+  #if HAS_WHITE_LED
+    EDIT_ITEM(uint8, MSG_INTENSITY_W, &leds.color.w, 0, 255, leds.update, true);
+  #endif
+  #if ENABLED(NEOPIXEL_LED)
+    EDIT_ITEM(uint8, MSG_LED_BRIGHTNESS, &leds.color.i, 0, 255, leds.update, true);
+  #endif
+
+  #if ENABLED(NEOPIXEL2_SEPARATE)
+    STATIC_ITEM_N(2, MSG_LED_CHANNEL_N, SS_DEFAULT|SS_INVERT);
+    EDIT_ITEM(uint8, MSG_INTENSITY_R, &leds2.color.r, 0, 255, leds2.update, true);
+    EDIT_ITEM(uint8, MSG_INTENSITY_G, &leds2.color.g, 0, 255, leds2.update, true);
+    EDIT_ITEM(uint8, MSG_INTENSITY_B, &leds2.color.b, 0, 255, leds2.update, true);
+    #if HAS_WHITE_LED2
+      EDIT_ITEM(uint8, MSG_INTENSITY_W, &leds2.color.w, 0, 255, leds2.update, true);
+    #endif
+    EDIT_ITEM(uint8, MSG_NEO2_BRIGHTNESS, &leds2.color.i, 0, 255, leds2.update, true);
+  #endif
+
+  END_MENU();
+}
+
+void menu_led() {
+  #if ENABLED(CASE_LIGHT_MENU)
+    const bool has_bright = TERN0(CASELIGHT_USES_BRIGHTNESS, caselight.has_brightness());
+  #endif
+
+  START_MENU();
+  BACK_ITEM(MSG_MAIN_MENU);
+
+  #if ENABLED(LED_CONTROL_MENU)
     if (TERN1(PSU_CONTROL, powerManager.psu_on)) {
       editable.state = leds.lights_on;
       #if ENABLED(NEOPIXEL2_SEPARATE) && DISABLED(BIQU_BX_TFT70)
@@ -140,46 +146,45 @@
         EDIT_ITEM(bool, MSG_LIGHTS, &editable.state, leds.toggle);
       #endif
     }
+  #endif
 
-    #if ENABLED(LED_COLOR_PRESETS)
-      ACTION_ITEM(MSG_SET_LEDS_DEFAULT, [] { leds.set_default(); ui.refresh(); } );
-      SUBMENU(MSG_LED_PRESETS, menu_led_presets);
+  #if ENABLED(LED_COLOR_PRESETS)
+    ACTION_ITEM(MSG_SET_LEDS_DEFAULT, [] { leds.set_default(); ui.refresh(); } );
+    SUBMENU(MSG_LED_PRESETS, menu_led_presets);
+  #endif
+
+  #if ENABLED(NEOPIXEL2_SEPARATE)
+    editable.state = leds2.lights_on;
+    #if ENABLED(BIQU_BX_TFT70)
+      EDIT_ITEM(bool, MSG_LIGHT_ENCODER, &editable.state, leds2.toggle);
+    #else
+      EDIT_ITEM_N(bool, 2, MSG_LIGHT_N, &editable.state, leds2.toggle);
     #endif
+    #if ENABLED(NEO2_COLOR_PRESETS)
+      ACTION_ITEM(MSG_SET_LEDS_DEFAULT, leds2.set_default);
+      SUBMENU(MSG_LIGHT2_PRESETS, menu_leds2_presets);
+    #endif
+  #endif
 
-    #if ENABLED(NEOPIXEL2_SEPARATE)
-      editable.state = leds2.lights_on;
-      #if ENABLED(BIQU_BX_TFT70)
-        EDIT_ITEM(bool, MSG_LIGHT_ENCODER, &editable.state, leds2.toggle);
-      #else
-        EDIT_ITEM_N(bool, 2, MSG_LIGHT_N, &editable.state, leds2.toggle);
+  //
+  // Directly set RGBW and Brightness
+  //
+  SUBMENU(MSG_CUSTOM_LEDS, menu_led_custom);
+
+  //
+  // Set Case light on/off/brightness
+  //
+  #if ENABLED(CASE_LIGHT_MENU)
+    if (has_bright) {
+      #if CASELIGHT_USES_BRIGHTNESS
+        SUBMENU(MSG_CASE_LIGHT, menu_case_light);
       #endif
-      #if ENABLED(NEO2_COLOR_PRESETS)
-        ACTION_ITEM(MSG_SET_LEDS_DEFAULT, leds2.set_default);
-        SUBMENU(MSG_LIGHT2_PRESETS, menu_leds2_presets);
-      #endif
-    #endif
+    }
+    else
+      EDIT_ITEM(bool, MSG_CASE_LIGHT, &caselight.on, caselight.update_enabled);
+  #endif
 
-    //
-    // Directly set RGBW and Brightness
-    //
-    SUBMENU(MSG_CUSTOM_LEDS, menu_led_custom);
+  END_MENU();
+}
 
-    //
-    // Set Case light on/off/brightness
-    //
-    #if ENABLED(CASE_LIGHT_MENU)
-      if (has_bright) {
-        #if CASELIGHT_USES_BRIGHTNESS
-          SUBMENU(MSG_CASE_LIGHT, menu_case_light);
-        #endif
-      }
-      else
-        EDIT_ITEM(bool, MSG_CASE_LIGHT, &caselight.on, caselight.update_enabled);
-    #endif
-
-    END_MENU();
-  }
-
-#endif // LED_CONTROL_MENU
-
-#endif // HAS_MARLINUI_MENU && LED_CONTROL_MENU
+#endif // HAS_MARLINUI_MENU && (LED_CONTROL_MENU || CASE_LIGHT_MENU)

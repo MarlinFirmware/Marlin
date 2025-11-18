@@ -74,7 +74,7 @@ namespace ExtUI {
   #if ENABLED(MPC_AUTOTUNE)
     enum mpcresult_t : uint8_t { MPC_STARTED, MPC_TEMP_ERROR, MPC_INTERRUPTED, MPC_DONE };
   #endif
-  struct probe_limits_t { float xmin, ymin, xmax, ymax; };
+  typedef struct { float xmin, ymin, xmax, ymax; } probe_limits_t;
 
   constexpr uint8_t extruderCount = EXTRUDERS;
   constexpr uint8_t hotendCount   = HOTENDS;

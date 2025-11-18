@@ -48,7 +48,7 @@
   #include "../hilbert_curve.h"
 #endif
 
-#if FT_MOTION_DISABLE_FOR_PROBING
+#if ENABLED(FT_MOTION)
   #include "../../../module/ft_motion.h"
 #endif
 
@@ -313,9 +313,8 @@ void unified_bed_leveling::G29() {
   const uint8_t p_val = parser.byteval('P');
   const bool may_move = p_val == 1 || p_val == 2 || p_val == 4 || parser.seen_test('J');
 
-  #if FT_MOTION_DISABLE_FOR_PROBING
-    FTMotionDisableInScope FT_Disabler; // Disable Fixed-Time Motion for probing
-  #endif
+  // Potentially disable Fixed-Time Motion for probing
+  TERN_(FT_MOTION, FTM_DISABLE_IN_SCOPE());
 
   // Check for commands that require the printer to be homed
   if (may_move) {
@@ -398,7 +397,7 @@ void unified_bed_leveling::G29() {
   if (parser.seen('Q')) {
     const int16_t test_pattern = parser.has_value() ? parser.value_int() : -99;
     if (!WITHIN(test_pattern, TERN0(UBL_DEVEL_DEBUGGING, -1), 2)) {
-      SERIAL_ECHOLNPGM("?Invalid (Q) test pattern. (" TERN(UBL_DEVEL_DEBUGGING, "-1", "0") " to 2)\n");
+      SERIAL_ECHOLN(F("?Invalid "), F("(Q) test pattern. (" TERN(UBL_DEVEL_DEBUGGING, "-1", "0") " to 2)\n"));
       return;
     }
     SERIAL_ECHOLNPGM("Applying test pattern.\n");
@@ -649,7 +648,7 @@ void unified_bed_leveling::G29() {
     }
 
     if (!WITHIN(param.KLS_storage_slot, 0, a - 1)) {
-      SERIAL_ECHOLNPGM("?Invalid storage slot.\n?Use 0 to ", a - 1);
+      SERIAL_ECHOLN(F("?Invalid "), F("storage slot.\n?Use 0 to "), a - 1);
       return;
     }
 
@@ -677,7 +676,7 @@ void unified_bed_leveling::G29() {
     }
 
     if (!WITHIN(param.KLS_storage_slot, 0, a - 1)) {
-      SERIAL_ECHOLNPGM("?Invalid storage slot.\n?Use 0 to ", a - 1);
+      SERIAL_ECHOLN(F("?Invalid "), F("storage slot.\n?Use 0 to "), a - 1);
       goto LEAVE;
     }
 
@@ -1183,7 +1182,7 @@ bool unified_bed_leveling::G29_parse_parameters() {
     #if HAS_BED_PROBE
       param.J_grid_size = parser.value_byte();
       if (param.J_grid_size && !WITHIN(param.J_grid_size, 2, 9)) {
-        SERIAL_ECHOLNPGM("?Invalid grid size (J) specified (2-9).\n");
+        SERIAL_ECHOLN(F("?Invalid "), F("grid size (J) specified (2-9).\n"));
         err_flag = true;
       }
     #else
@@ -1852,7 +1851,7 @@ void unified_bed_leveling::smart_fill_mesh() {
     }
 
     if (!parser.has_value() || !WITHIN(parser.value_int(), 0, a - 1)) {
-      SERIAL_ECHOLNPGM("?Invalid storage slot.\n?Use 0 to ", a - 1);
+      SERIAL_ECHOLN(F("?Invalid "), F("storage slot.\n?Use 0 to "), a - 1);
       return;
     }
 

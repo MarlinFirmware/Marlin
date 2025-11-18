@@ -273,6 +273,10 @@
   #error "CUSTOM_CABLE is not a supported SDCARD_CONNECTION for BOARD_MKS_MONSTER8_V1/V2."
 #endif
 
+//
+// LCD / Controller
+//
+
 #if HAS_WIRED_LCD
 
   #define BEEPER_PIN                 EXP1_01_PIN

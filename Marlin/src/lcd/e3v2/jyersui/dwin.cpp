@@ -378,8 +378,8 @@ private:
         dwinDrawRectangle(1,                                          // RGB565 colors: http://www.barth-dev.de/online/rgb565-color-picker/
           isnan(bedlevel.z_values[x][y]) ? COLOR_GREY : (             // gray if undefined
             (bedlevel.z_values[x][y] < 0 ?
-              (uint16_t)round(0x1F * -bedlevel.z_values[x][y] / (!viewer_asymmetric_range ? rmax : v_min)) << 11 :  // red if mesh point value is negative
-              (uint16_t)round(0x3F *  bedlevel.z_values[x][y] / (!viewer_asymmetric_range ? rmax : v_max)) << 5) |  // green if mesh point value is positive
+              (uint16_t)LROUND(0x1F * -bedlevel.z_values[x][y] / (!viewer_asymmetric_range ? rmax : v_min)) << 11 : // red if mesh point value is negative
+              (uint16_t)LROUND(0x3F *  bedlevel.z_values[x][y] / (!viewer_asymmetric_range ? rmax : v_max)) << 5) | // green if mesh point value is positive
                 _MIN(0x1F, (((uint8_t)abs(bedlevel.z_values[x][y]) / 10) * 4))),                                    // + blue stepping for every mm
           start_x_px, start_y_px, end_x_px, end_y_px
         );
@@ -1523,7 +1523,7 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
             if (use_probe) {
               #if HAS_BED_PROBE
                 gcode.process_subcommands_now(
-                  TS(F("G0F4000\nG0Z10\nG0X"), p_float_t((X_MAX_POS) / 2.0f - probe.offset.x, 3), 'Y', p_float_t((Y_MAX_POS) / 2.0f - probe.offset.y, 3))
+                  TS(F("G0F4000\nG0Z10\nG0X"), p_float_t((X_MAX_POS) * 0.5f - probe.offset.x, 3), 'Y', p_float_t((Y_MAX_POS) * 0.5f - probe.offset.y, 3))
                 );
                 planner.synchronize();
                 popupHandler(Popup_ManualProbing);
@@ -5112,7 +5112,7 @@ void JyersDWIN::loadSettings(const char * const buff) {
   memcpy(&eeprom_settings, buff, _MIN(sizeof(eeprom_settings), eeprom_data_size));
   TERN_(AUTO_BED_LEVELING_UBL, mesh_conf.tilt_grid = eeprom_settings.tilt_grid_size + 1);
   if (eeprom_settings.corner_pos == 0) eeprom_settings.corner_pos = 325;
-  corner_pos = eeprom_settings.corner_pos / 10.0f;
+  corner_pos = eeprom_settings.corner_pos * 0.1f;
   redrawScreen();
   #if ENABLED(POWER_LOSS_RECOVERY)
     static bool init = true;
@@ -5139,7 +5139,7 @@ void JyersDWIN::resetSettings() {
   eeprom_settings.coordinates_text = 0;
   eeprom_settings.coordinates_split_line = 0;
   TERN_(AUTO_BED_LEVELING_UBL, mesh_conf.tilt_grid = eeprom_settings.tilt_grid_size + 1);
-  corner_pos = eeprom_settings.corner_pos / 10.0f;
+  corner_pos = eeprom_settings.corner_pos * 0.1f;
   TERN_(SOUND_MENU_ITEM, ui.sound_on = ENABLED(SOUND_ON_DEFAULT));
   redrawScreen();
 }
