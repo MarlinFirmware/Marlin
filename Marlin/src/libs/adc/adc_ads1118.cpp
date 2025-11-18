@@ -259,12 +259,12 @@ ADS1118 ads1118;
 ThermocoupleK thck_0;
 ThermocoupleK thck_1;
 
-//#if ENABLED(TEMP_SENSOR_0_IS_ADS1118)
+//#if TEMP_SENSOR_0_IS_ADS1118
 //  #warning "ThcK 0 is enabled"
 //  ThermocoupleK thck_0;
 //#endif
 
-//#if ENABLED(TEMP_SENSOR_1_IS_ADS1118)
+//#if TEMP_SENSOR_1_IS_ADS1118
 //  #warning "ThcK 1 is enabled"
 //  ThermocoupleK thck_1;
 //#endif

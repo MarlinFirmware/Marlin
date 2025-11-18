@@ -2636,25 +2636,23 @@ void Temperature::task() {
 // Adjustable with GAIN and OFFSET from Configuration_adv.h
 
   static constexpr celsius_float_t temp_ads1118(const uint8_t e) {
-
-    celsius_float_t temp = 0 ;
-
+    celsius_float_t temp = 0;
     switch (e) {
       case 0:
-          temp = thck_0.calcTempCelsius();
-          //SERIAL_ECHO("temp ads1118: "); SERIAL_ECHOLN(temp);
-          break;
+        temp = thck_0.calcTempCelsius();
+        //SERIAL_ECHO("temp ads1118: "); SERIAL_ECHOLN(temp);
+        break;
       case 1:
-          temp = thck_1.calcTempCelsius();
-          break;
+        temp = thck_1.calcTempCelsius();
+        break;
       default:
         temp = -14.0f; // Fallback to error temperature
         break;
     }
-    return temp ;
+    return temp;
   }
 
-#endif
+#endif // ANY_THERMISTOR_IS(-18)
 
 #if HAS_HOTEND
   // Derived from RepRap FiveD extruder::getTemperature()
@@ -4051,36 +4049,36 @@ raw_adc_t Temperature::read_ads1118(const uint8_t hindex/*=0*/) {
 
   static raw_adc_t ads_val = TEMP_SENSOR_0_ADS_TMAX;
 
-  static uint8_t sampleCount ;
+  static uint8_t sampleCount;
 
-  //static millis_t lastmillis ;
+  //static millis_t lastmillis;
 
   const millis_t ms = millis();
   //SERIAL_ECHOPGM("ADS1118 elapsed: "); SERIAL_ECHOLN(ms- lastmillis);
-  //lastmillis = ms ;
+  //lastmillis = ms;
   if (PENDING(ms, next_ads1118_ms[hindex]) )  // || !ads1118.checkDataReady()
     return ads1118_temp_previous[hindex];  // return cached value
 
   next_ads1118_ms[hindex] = ms + ADS1118_HEAT_INTERVAL;
 
   // To do: If there are more hotends enabled, cycle through different channels
-  int16_t raw ;
+  int16_t raw;
 
   if (sampleCount < 1)
   {
-    ads1118.previous_config = ads1118.current_config ;
-    ads1118.current_config = ads1118.config_ADC_SS_TEMP ;
-    sampleCount++ ;
+    ads1118.previous_config = ads1118.current_config;
+    ads1118.current_config = ads1118.config_ADC_SS_TEMP;
+    sampleCount++;
   }
   else if (hindex == 0)
   {
-    ads1118.previous_config = ads1118.current_config ;
-    ads1118.current_config = ads1118.config_ADC_SS_CH0 ;
-    sampleCount = 0 ;
+    ads1118.previous_config = ads1118.current_config;
+    ads1118.current_config = ads1118.config_ADC_SS_CH0;
+    sampleCount = 0;
   } else if (hindex == 1){
-    ads1118.previous_config = ads1118.current_config ;
-    ads1118.current_config = ads1118.config_ADC_SS_CH1 ;
-    sampleCount = 0 ;
+    ads1118.previous_config = ads1118.current_config;
+    ads1118.current_config = ads1118.config_ADC_SS_CH1;
+    sampleCount = 0;
   }
 
   raw = (int16_t) ads1118.readWriteData(ads1118.current_config);
@@ -4095,7 +4093,7 @@ raw_adc_t Temperature::read_ads1118(const uint8_t hindex/*=0*/) {
   }
   else if (ads1118.previous_config  == ads1118.config_ADC_SS_CH0)
   {
-    //ads1118_hotJ_temp_current[hindex] = raw ;
+    //ads1118_hotJ_temp_current[hindex] = raw;
     //thck_0.setThot(thck_0.tempReadtoCelsius(raw));
     thck_0.setRawHot(raw);
     //SERIAL_ECHOPGM("Last read Raw hot: "); SERIAL_ECHOLN(raw);
@@ -4120,9 +4118,9 @@ raw_adc_t Temperature::read_ads1118(const uint8_t hindex/*=0*/) {
   } else { // if we add 32767 to raw it will overflow
     ads1118_errors[hindex] = 0; // reset errors if ok
     SERIAL_ECHOLNPGM("ADS1118 Warn: Cannot shift adc read from signed to unsigned!");
-    ads_val = (raw_adc_t) (raw); // as is ;
+    ads_val = raw_adc_t(raw); // as is
   }
-  //ads_val = (raw_adc_t) 3000; // raw;
+  //ads_val = raw_adc_t(3000); // raw;
 
   ads1118_temp_previous[hindex] = ads_val; // cache value
   //SERIAL_ECHOPGM("ADS1118 ads_val: "); SERIAL_ECHOLN(ads_val);

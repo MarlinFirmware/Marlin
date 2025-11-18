@@ -29,8 +29,6 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-#define TEMP_SENSOR_ADS1118 -18
-
 // ADS config register bits and values:
 // Bit 15: Single-shot conversion start
 #define ADS_SS_NOP   0x0000
