@@ -49,4 +49,3 @@ void GcodeSuite::M112() {
 void GcodeSuite::M410() {
   quickstop_stepper();
 }
-
