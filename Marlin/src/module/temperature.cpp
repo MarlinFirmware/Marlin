@@ -2965,23 +2965,22 @@ void Temperature::updateTemperaturesFromRawValues() {
   // internally, and analog_to_celsius_hotend() will retrieve the computed
   // temperature via thck_0.getThot(). This avoids type overflow and keeps
   // the conversion logic centralized and ISR-light.
-  #if TEMP_SENSOR_IS_ADS(0,1118)
-    #warning "ADS1118 is selected for temp 0"
-
+  #if TEMP_SENSOR_IS_ADS(0, 1118)
+    #warning "ADS1118 is selected for hotend 0"
     temp_hotend[0].setraw(READ_ADS(0));
-    // SERIAL_ECHOPGM("ADS1118 Tcold=");
-    // SERIAL_ECHO(thck_0.getTcold());
-    // SERIAL_ECHOPGM(" Thot=");
-    // SERIAL_ECHOLN(thck_0.getThot());
+    //SERIAL_ECHOPGM("ADS1118 Tcold=");
+    //SERIAL_ECHO(thck_0.getTcold());
+    //SERIAL_ECHOPGM(" Thot=");
+    //SERIAL_ECHOLN(thck_0.getThot());
   #endif
-  #if TEMP_SENSOR_IS_ADS(1,1118)
-    #warning "ADS1118 is selected for temp 1"
 
+  #if TEMP_SENSOR_IS_ADS(1, 1118)
+    #warning "ADS1118 is selected for hotend 1"
     temp_hotend[1].setraw(READ_ADS(1));
-    // SERIAL_ECHOPGM("ADS1118 Tcold=");
-    // SERIAL_ECHO(thck_1.getTcold());
-    // SERIAL_ECHOPGM(" Thot=");
-    // SERIAL_ECHOLN(thck_1.getThot());
+    //SERIAL_ECHOPGM("ADS1118 Tcold=");
+    //SERIAL_ECHO(thck_1.getTcold());
+    //SERIAL_ECHOPGM(" Thot=");
+    //SERIAL_ECHOLN(thck_1.getThot());
   #endif
 
   #if HAS_HOTEND
@@ -3000,7 +2999,8 @@ void Temperature::updateTemperaturesFromRawValues() {
   TERN_(HAS_POWER_MONITOR,     power_monitor.capture_values());
 
   #if HAS_HOTEND
-    #define _TEMPDIR(N) (TEMP_SENSOR_IS_ANY_MAX_TC(N) || TEMP_SENSOR_IS_ADS (N,1118) ) ? 0 : TEMPDIR(N),
+
+    #define _TEMPDIR(N) (TEMP_SENSOR_IS_ANY_MAX_TC(N) || TEMP_SENSOR_IS_ADS(N,1118)) ? 0 : TEMPDIR(N),
     static constexpr int8_t temp_dir[HOTENDS] = { REPEAT(HOTENDS, _TEMPDIR) };
 
     HOTEND_LOOP() {
@@ -3084,16 +3084,15 @@ void Temperature::init() {
 
   TERN_(PROBING_HEATERS_OFF, paused_for_probing = false);
 
-// #define TEMP_0_CS_PIN                         79  // E6
-// #define TEMP_0_SCK_PIN                        78  // E2
-// #define TEMP_0_MISO_PIN                       80  // E7
-// #define TEMP_0_MOSI_PIN                       84  // H2
+  //#define TEMP_0_CS_PIN    79  // E6
+  //#define TEMP_0_SCK_PIN   78  // E2
+  //#define TEMP_0_MISO_PIN  80  // E7
+  //#define TEMP_0_MOSI_PIN  84  // H2
 
   #if HAS_ADS1118
     ads1118.init(TEMP_0_CS_PIN, TEMP_0_MOSI_PIN, TEMP_0_MISO_PIN, TEMP_0_SCK_PIN); // Initialize the ADS1118, global instance
     ads1118.readConfig();
   #endif
-
 
   // ADS TC related macros
   #if TEMP_SENSOR_IS_ADS(0, 1118)
@@ -3107,7 +3106,6 @@ void Temperature::init() {
     //SERIAL_ECHOPGM("ADS1118 Tcold: ");
     //SERIAL_ECHOLN(thck_0.getTcold());
     //ads1118.readConfig();
-
   #endif
 
   // Init (and disable) SPI thermocouples
