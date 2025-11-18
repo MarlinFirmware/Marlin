@@ -118,14 +118,17 @@ void menu_configuration();
 
 #if ANY(CUSTOM_MENU_MAIN, CUSTOM_MENU_CONFIG)
 
-  template<bool IMMEDIATE>
-  void _lcd_custom_menu_gcode(FSTR_P const fstr) {
-    if (IMMEDIATE)
-      gcode.process_subcommands_now(fstr);
-    else
-      queue.inject(fstr);
+  FORCE_INLINE void _lcd_custom_menu_gcode_done() {
     TERN_(CUSTOM_MENU_MAIN_SCRIPT_AUDIBLE_FEEDBACK, ui.completion_feedback());
     TERN_(CUSTOM_MENU_MAIN_SCRIPT_RETURN, ui.return_to_status());
+  }
+  template<> void _lcd_custom_menu_gcode<true>(FSTR_P const fstr) {
+    gcode.process_subcommands_now(fstr);
+    _lcd_custom_menu_gcode_done();
+  }
+  template<> void _lcd_custom_menu_gcode<false>(FSTR_P const fstr) {
+    queue.inject(fstr);
+    _lcd_custom_menu_gcode_done();
   }
 
 #endif
