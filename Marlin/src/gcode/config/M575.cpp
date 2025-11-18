@@ -51,25 +51,24 @@ void GcodeSuite::M575() {
   switch (baud) {
     case 2400: case 9600: case 19200: case 38400: case 57600:
     case 115200: case 250000: case 500000: case 1000000: {
-      const int8_t port = parser.intval('P', -99);
-      const bool set1 = (port == -99 || port == 0);
-
       SERIAL_FLUSH();
 
+      const int8_t port = parser.intval('P', -99);
+      const bool set1 = (port == -99 || port == 0);
       if (set1) { MYSERIAL1.end(); MYSERIAL1.begin(baud); }
       #if HAS_MULTI_SERIAL
+        const bool set2 = (port == -99 || port == 1);
         if (set2) { MYSERIAL2.end(); MYSERIAL2.begin(baud); }
         #ifdef SERIAL_PORT_3
+          const bool set3 = (port == -99 || port == 2);
           if (set3) { MYSERIAL3.end(); MYSERIAL3.begin(baud); }
         #endif
       #endif
 
       if (set1) SERIAL_ECHO_MSG(" Serial ", AS_DIGIT(0), " baud rate set to ", baud);
       #if HAS_MULTI_SERIAL
-        const bool set2 = (port == -99 || port == 1);
         if (set2) SERIAL_ECHO_MSG(" Serial ", AS_DIGIT(1), " baud rate set to ", baud);
         #ifdef SERIAL_PORT_3
-          const bool set3 = (port == -99 || port == 2);
           if (set3) SERIAL_ECHO_MSG(" Serial ", AS_DIGIT(2), " baud rate set to ", baud);
         #endif
       #endif
