@@ -426,11 +426,10 @@
 #elif TEMP_SENSOR_0 == -1
   #define TEMP_SENSOR_0_IS_AD595 1
 #elif TEMP_SENSOR_0 == -18
-  #warning "Config is TEMP_SENSOR_0 == -18"
   #define HAS_ADS1118 1
-  #define TEMP_SENSOR_0_IS_ADS1118  1  
+  #define TEMP_SENSOR_0_IS_ADS1118  1
   #define TEMP_SENSOR_0_ADS_TMIN    0
-  #define TEMP_SENSOR_0_ADS_TMAX 1024  
+  #define TEMP_SENSOR_0_ADS_TMAX 1024
 #elif TEMP_SENSOR_0 > 0
   #define TEMP_SENSOR_0_IS_THERMISTOR 1
   #if TEMP_SENSOR_0 == 1000
@@ -475,11 +474,10 @@
 #elif TEMP_SENSOR_1 == -1
   #define TEMP_SENSOR_1_IS_AD595 1
 #elif TEMP_SENSOR_1 == -18
-  #warning "Config is TEMP_SENSOR_1 == -18"
   #define HAS_ADS1118 1
-  #define TEMP_SENSOR_1_IS_ADS1118  1  
+  #define TEMP_SENSOR_1_IS_ADS1118  1
   #define TEMP_SENSOR_1_ADS_TMIN    0
-  #define TEMP_SENSOR_1_ADS_TMAX 1024    
+  #define TEMP_SENSOR_1_ADS_TMAX 1024
 #elif TEMP_SENSOR_1 > 0
   #define TEMP_SENSOR_1_IS_THERMISTOR 1
   #if TEMP_SENSOR_1 == 1000
