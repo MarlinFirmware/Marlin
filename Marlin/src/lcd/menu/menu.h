@@ -271,6 +271,5 @@ inline void clear_menu_history() { screen_history_depth = 0; }
 #endif
 
 #if ANY(CUSTOM_MENU_MAIN, CUSTOM_MENU_CONFIG)
-  template<bool IMMEDIATE>
-  void _lcd_custom_menu_gcode(FSTR_P const fstr);
+  template<bool> void _lcd_custom_menu_gcode(FSTR_P const fstr);
 #endif
