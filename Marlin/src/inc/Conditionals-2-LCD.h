@@ -540,6 +540,12 @@
   #define IS_ULTIPANEL 1
 #endif
 
+#if ENABLED(MIGHTYBOARD_LCD)
+  #define HAS_WIRED_LCD 1
+  #define LCD_WIDTH 20
+  #define LCD_HEIGHT 4
+#endif
+
 #if ANY(IS_ULTIPANEL, ULTRA_LCD)
   #define HAS_WIRED_LCD 1
 #endif

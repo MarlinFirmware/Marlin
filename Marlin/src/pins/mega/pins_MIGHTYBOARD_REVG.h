@@ -138,7 +138,7 @@
 //
 
 #if HAS_WIRED_LCD
-
+#warning "HAS_WIRED_LCD is defined."
   #if IS_RRD_FG_SC
 
     #define LCD_PINS_RS                       33  // C4: LCD-STROBE
@@ -160,6 +160,7 @@
     #define STAT_LED_BLUE_PIN         SERVO1_PIN  // C0 (1280-EX2, DEBUG3)
 
   #else
+    #warning "Using SR pins."
     // Replicator 2 and 2X uses a HD44780 SPI display, pins: mosi, sclk, miso (not used),  missing: latch, click, power
     
     #define SR_DATA_PIN                       37  // C0 
@@ -176,8 +177,8 @@
     #define BTN_LEFT                          84  // J6 77 or 84?
     #define BTN_RIGHT                         81  // J13  
 
-    #define LCD_BACKLIGHT_PIN                 29  // A7 To be implemented... 
-
+    #define LCD_PWR_PIN                 29  // A7 To be implemented... 
+    
     // Disable encoder
     #undef BTN_EN1
     #undef BTN_EN2
