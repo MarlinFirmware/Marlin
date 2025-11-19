@@ -28,4 +28,3 @@
 // Simplified: T = 437.423 - (RAW / OVERSAMPLENR) * 0.46875
 
 #define TEMP_SOC_SENSOR(RAW) (437.423f - ((RAW) / OVERSAMPLENR) * 0.46875f)
-

@@ -23,6 +23,6 @@
 
 /**
  * RP2040 LCD-specific defines
-*/
+ */
 uint8_t u8g_com_rp2040_ssd_i2c_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_val, void *arg_ptr); // u8g_com_rp2040_ssd_i2c.cpp
 #define U8G_COM_SSD_I2C_HAL   u8g_com_rp2040_ssd_i2c_fn

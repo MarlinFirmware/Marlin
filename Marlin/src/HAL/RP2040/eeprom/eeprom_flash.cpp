@@ -64,14 +64,14 @@ bool PersistentStore::access_finish() {
     TERN_(HAS_PAUSE_SERVO_OUTPUT, PAUSE_SERVO_OUTPUT());
 
     // Disable interrupts during flash write
-    uint32_t ints = save_and_disable_interrupts();
+    const uint32_t intstate = save_and_disable_interrupts();
 
     // Erase and program the sector
     flash_range_erase(FLASH_TARGET_OFFSET, FLASH_SECTOR_SIZE);
     flash_range_program(FLASH_TARGET_OFFSET, eeprom_buffer, MARLIN_EEPROM_SIZE);
 
     // Restore interrupts
-    restore_interrupts(ints);
+    restore_interrupts(intstate);
 
     TERN_(HAS_PAUSE_SERVO_OUTPUT, RESUME_SERVO_OUTPUT());
     eeprom_data_written = false;

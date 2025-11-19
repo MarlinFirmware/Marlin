@@ -122,8 +122,11 @@ uint8_t get_pin_mode(const pin_t Ard_num) {
   uint32_t gpio_func = gpio_get_function(Ard_num);
 
   // GPIO_FUNC_I2C is typically function 3 on RP2040
-  if (gpio_func == GPIO_FUNC_I2C || gpio_func == GPIO_FUNC_SPI ||
-      gpio_func == GPIO_FUNC_UART || gpio_func == GPIO_FUNC_PWM) {
+  if ( gpio_func == GPIO_FUNC_I2C
+    || gpio_func == GPIO_FUNC_SPI
+    || gpio_func == GPIO_FUNC_UART
+    || gpio_func == GPIO_FUNC_PWM
+  ) {
     return MODE_PIN_ALT;
   }
 

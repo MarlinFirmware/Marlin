@@ -58,10 +58,10 @@
 uint8_t u8g_com_rp2040_ssd_i2c_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_val, void *arg_ptr) {
 
   // Hardware I2C flag
-  static bool i2c_initialized = false;    // Flag to only run init/linking code once
-  if (!i2c_initialized) {                 // Init runtime linkages
-    i2c_initialized = true;               // Only do this once
-  }
+  //static bool i2c_initialized = false;  // Flag to only run init/linking code once
+  //if (!i2c_initialized) {               // Init runtime linkages
+  //  i2c_initialized = true;             // Only do this once
+  //}
 
   static uint8_t control;
   // Use the global Wire instance (already initialized with correct pins for RP2040)
