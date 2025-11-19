@@ -170,7 +170,7 @@
 
     #define SR_DETECT_PIN                     33  // C4
 
-    #define LCD_LED1_PIN                      35  // C2 To be implemented... 
+    #define BUTTON_LED_PIN                    35  // C2 To be implemented... 
 
     #define BTN_CENTER                        39  // G2
     #define BTN_UP                            76  // J5
@@ -183,7 +183,7 @@
       #define BTN_ENC BTN_CENTER
     #endif
 
-    #define LCD_PWR_PIN                 29  // A7 To be implemented... 
+    #define LCD_PWR_PIN                       29  // A7
     
     // Disable encoder
     #undef BTN_EN1
