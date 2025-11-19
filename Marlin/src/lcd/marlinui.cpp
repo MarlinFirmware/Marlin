@@ -314,39 +314,39 @@ void MarlinUI::init() {
     #endif
   #endif
 
-  // Compile-time warnings to confirm whether this directional-button init block
-  // is compiled for the current board. These will appear in the compiler output
-  // only when ANY_BUTTON(UP, DOWN, LFT, RT) evaluates true for the current build.
-  #if ANY_BUTTON(UP, DOWN, LFT, RT)
-    #warning "Marlin: Compiling directional button init (UP/DOWN/LEFT/RIGHT)"
-  #endif
+  // // Compile-time warnings to confirm whether this directional-button init block
+  // // is compiled for the current board. These will appear in the compiler output
+  // // only when ANY_BUTTON(UP, DOWN, LFT, RT) evaluates true for the current build.
+  // #if ENABLED(MIGHTYBOARD_RUNTIME_DEBUG) && ANY_BUTTON(UP, DOWN, LFT, RT)
+  //   #warning "Marlin: Compiling directional button init (UP/DOWN/LEFT/RIGHT)"
+  // #endif
 
-  // Optional runtime trace for MightyBoard UI/button flow.
-  // Enable by uncommenting `#define MIGHTYBOARD_RUNTIME_DEBUG` in the board pins file.
-  #if ENABLED(MIGHTYBOARD_RUNTIME_DEBUG)
-    SERIAL_ECHOLN("MarlinUI::init() - MIGHTYBOARD_RUNTIME_DEBUG active");
-    #if ENABLED(MIGHTYBOARD_BUTTON_PULLUPS)
-      SERIAL_ECHOLN("MIGHTYBOARD_BUTTON_PULLUPS: ENABLED");
-    #else
-      SERIAL_ECHOLN("MIGHTYBOARD_BUTTON_PULLUPS: DISABLED");
-    #endif
-    SERIAL_ECHO_MSG("LCD dimensions: ", LCD_WIDTH, " x ", LCD_HEIGHT);
-    SERIAL_ECHOLN("");
+  // // Optional runtime trace for MightyBoard UI/button flow.
+  // // Enable by uncommenting `#define MIGHTYBOARD_RUNTIME_DEBUG` in the board pins file.
+  // #if ENABLED(MIGHTYBOARD_RUNTIME_DEBUG)
+  //   SERIAL_ECHOLN("MarlinUI::init() - MIGHTYBOARD_RUNTIME_DEBUG active");
+  //   #if ENABLED(MIGHTYBOARD_BUTTON_PULLUPS)
+  //     SERIAL_ECHOLN("MIGHTYBOARD_BUTTON_PULLUPS: ENABLED");
+  //   #else
+  //     SERIAL_ECHOLN("MIGHTYBOARD_BUTTON_PULLUPS: DISABLED");
+  //   #endif
+  //   SERIAL_ECHO_MSG("LCD dimensions: ", LCD_WIDTH, " x ", LCD_HEIGHT);
+  //   SERIAL_ECHOLN("");
 
-    // Report encoder/click compile-time presence and pin numbers (if defined)
-    #if BUTTON_EXISTS(ENC)
-      SERIAL_ECHOLN("BUTTON_EXISTS(ENC): defined");
-      SERIAL_ECHO_MSG("BTN_ENC pin: ", BTN_ENC);
-      SERIAL_ECHOLN("");
-    #else
-      SERIAL_ECHOLN("BUTTON_EXISTS(ENC): NOT defined");
-    #endif
+  //   // Report encoder/click compile-time presence and pin numbers (if defined)
+  //   #if BUTTON_EXISTS(ENC)
+  //     SERIAL_ECHOLN("BUTTON_EXISTS(ENC): defined");
+  //     SERIAL_ECHO_MSG("BTN_ENC pin: ", BTN_ENC);
+  //     SERIAL_ECHOLN("");
+  //   #else
+  //     SERIAL_ECHOLN("BUTTON_EXISTS(ENC): NOT defined");
+  //   #endif
 
-    #ifdef BTN_CLICK
-      SERIAL_ECHO_MSG("BTN_CLICK pin: ", BTN_CLICK);
-      SERIAL_ECHOLN("");
-    #endif
-  #endif
+  //   #ifdef BTN_CLICK
+  //     SERIAL_ECHO_MSG("BTN_CLICK pin: ", BTN_CLICK);
+  //     SERIAL_ECHOLN("");
+  //   #endif
+  // #endif
 
   #if HAS_SHIFT_ENCODER
 
