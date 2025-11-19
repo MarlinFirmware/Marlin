@@ -26,6 +26,7 @@
  * Schematic: not avalable (as rev G and H are not open source)
  * Pins based on the work of https://github.com/Sgail7/Replicator-Revival-Project/
  * Pin number according to Mega extended mega2560ext: .\buildroot\share\PlatformIO\variants\MARLIN_MEGA_EXTENDED\pins_arduino.h
+ * Corrected pins based on Marlin\src\libs\softspi.h
  * Use env:MightyBoard2560 or env:MightyBoard1280 in platformio.ini
  */
 
@@ -40,7 +41,7 @@
 //
 #define X_STOP_PIN                            30  // C7
 #define Y_STOP_PIN                            31  // C6
-#define Z_MIN_PIN                             32  // C5
+#define Z_STOP_PIN                            32  // C5
 
 //
 // Steppers
@@ -76,7 +77,7 @@
 #define DIGIPOTS_I2C_SDA_Y                    43  // L6
 #define DIGIPOTS_I2C_SDA_Z                    46  // L3
 #define DIGIPOTS_I2C_SDA_E0                   26  // A4
-#define DIGIPOTS_I2C_SDA_E1                   77  // J7
+#define DIGIPOTS_I2C_SDA_E1                   74  // J7
 
 #ifndef DIGIPOT_I2C_ADDRESS_A
     #define DIGIPOT_I2C_ADDRESS_A           0x2F  // unshifted slave address (5E <- 2F << 1)
@@ -138,7 +139,7 @@
 //
 
 #if HAS_WIRED_LCD
-
+#warning "HAS_WIRED_LCD is defined."
   #if IS_RRD_FG_SC
 
     #define LCD_PINS_RS                       33  // C4: LCD-STROBE
@@ -160,27 +161,30 @@
     #define STAT_LED_BLUE_PIN         SERVO1_PIN  // C0 (1280-EX2, DEBUG3)
 
   #else
+    #warning "Using SR pins."
     // Replicator 2 and 2X uses a HD44780 SPI display, pins: mosi, sclk, miso (not used),  missing: latch, click, power
-    #define SPI_SOFT_MOSI_PIN                 37  // C0
-    #define SPI_SOFT_SCLK_PIN                 36  // C1
-    #define SPI_SOFT_MISO_PIN                 33  // C4
+    
+    #define SR_DATA_PIN                       37  // C0 
+    #define SR_CLK_PIN                        36  // C1 
+    #define SR_STROBE_PIN                     34  // C3
 
-    #define BTN_LATCH_PIN                     34  // C3
-    #define BTN_CLICK_PIN                     39  // G2
+    #define SR_DETECT_PIN                     33  // C4
 
-    #define BTN_UP_PIN                        76  // J5
-    #define BTN_DOWN_PIN                      75  // J4
-    #define BTN_LEFT_PIN                      77  // J6/J13
+    #define BUTTON_LED_PIN                    35  // C2 To be implemented... 
 
-    #define LCD_POWER_PIN                     29  // A7
+    #define BTN_CENTER                        39  // G2
+    #define BTN_UP                            76  // J5
+    #define BTN_DOWN                          75  // J4
+    #define BTN_LEFT                          77  // J6
+    #define BTN_RIGHT                         73  // J3
 
-    #define LCD_LED1_PIN                      35  // C2
+    // Map the CLICK button to the encoder 'click' so Marlin treats it as SELECT
+    #ifndef BTN_ENC
+      #define BTN_ENC BTN_CENTER
+    #endif
 
-    // Leave Old pins defined for now
-    #define SR_DATA_PIN                       37  // C0 *
-    #define SR_CLK_PIN                        36  // C1 *
-    #define SR_STROBE_PIN                     33  // C4 *
-
+    #define LCD_PWR_PIN                       29  // A7
+    
     // Disable encoder
     #undef BTN_EN1
     #undef BTN_EN2
@@ -190,3 +194,5 @@
   #endif
 
 #endif // HAS_WIRED_LCD
+
+

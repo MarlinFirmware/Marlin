@@ -3003,7 +3003,9 @@
 // https://github.com/mikeshub/SailfishLCD
 // Uses the code directly from Sailfish
 //
-//#define FF_INTERFACEBOARD
+// #define FF_INTERFACEBOARD
+
+// #define MIGHTYBOARD_LCD
 
 //
 // TFT GLCD Panel with Marlin UI
