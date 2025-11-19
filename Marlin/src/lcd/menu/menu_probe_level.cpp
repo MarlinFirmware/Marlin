@@ -84,7 +84,7 @@
       ui.goto_previous_screen_no_defer();
       ui.completion_feedback();
     }
-    if (ui.should_draw()) MenuItem_static::draw(LCD_HEIGHT >= 4, GET_TEXT_F(MSG_LEVEL_BED_DONE));
+    if (ui.should_draw()) MenuItem_static::draw(LCD_HEIGHT / 2 - 1, GET_TEXT_F(MSG_LEVEL_BED_DONE));
     ui.refresh(LCDVIEW_CALL_REDRAW_NEXT);
   }
 
@@ -146,7 +146,7 @@
     if (ui.should_draw()) {
       MString<10> msg;
       msg.setf(F(" %i / %u"), int(manual_probe_index + 1), total_probe_points);
-      MenuItem_static::draw(LCD_HEIGHT / 2, GET_TEXT_F(MSG_LEVEL_BED_NEXT_POINT), SS_CENTER, msg);
+      MenuItem_static::draw(LCD_HEIGHT / 2 - 1, GET_TEXT_F(MSG_LEVEL_BED_NEXT_POINT), SS_CENTER, msg);
     }
     ui.refresh(LCDVIEW_CALL_NO_REDRAW);
     if (!ui.wait_for_move) ui.goto_screen(_lcd_level_bed_get_z);

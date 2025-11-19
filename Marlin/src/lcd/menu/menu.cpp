@@ -258,12 +258,39 @@ void MarlinUI::synchronize(FSTR_P const fmsg/*=nullptr*/) {
   // Hijack 'editable' for the string pointer
   editable.fstr = fmsg ?: GET_TEXT_F(MSG_MOVING);
   goto_screen([]{
-    if (should_draw()) MenuItem_static::draw(LCD_HEIGHT >= 4, editable.fstr);
+    if (should_draw()) MenuItem_static::draw(LCD_HEIGHT / 2 - 1, editable.fstr);
   });
 
   defer_status_screen();
   planner.synchronize(); // idle() is called until moves complete
   goto_previous_screen_no_defer();
+}
+
+/**
+ * Displays screen with custom message.
+ *   Message is automatically wrapped to fit screen.
+ *   Line breaks can be forced by "\n".
+ *   Takes up to 2 FSTR_P and 1 RAM string that are seamlessly joined
+ *   Message can be synchronized with planner to stay visible untill all moves are fnished.
+ */
+void MarlinUI::goto_message_screen(FSTR_P const fstr1, const char * const string/*=nullptr*/, FSTR_P const fstr2/*=nullptr*/, bool synchronize/*=false*/) {
+  static FSTR_P _fstr1;
+  static const char * _cstr;
+  static FSTR_P _fstr2;
+
+  _fstr1 = fstr1;
+  _cstr = string;
+  _fstr2 = fstr2;
+
+  push_current_screen();
+  goto_screen([]{
+    if (should_draw()) ui.draw_message_on_screen(_fstr1, _cstr, _fstr2);
+  });
+  if (synchronize) {
+    defer_status_screen();
+    planner.synchronize(); // idle() is called until moves complete
+    goto_previous_screen_no_defer();
+  }
 }
 
 /**

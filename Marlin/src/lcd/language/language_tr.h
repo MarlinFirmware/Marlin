@@ -107,8 +107,7 @@ namespace LanguageNarrow_tr {
   LSTR MSG_HOME_OFFSETS_APPLIED           = _UxGT("Ofset Tamam");
   LSTR MSG_ERR_M428_TOO_FAR               = _UxGT("MIN/MAX Çok Fazla");
   LSTR MSG_TRAMMING_WIZARD                = _UxGT("Hizalama Sihirbazı");
-  LSTR MSG_SELECT_ORIGIN                  = _UxGT("Başlangıç Seç");
-  LSTR MSG_LAST_VALUE_SP                  = _UxGT("Son değer ");
+  LSTR MSG_TW_SELECT_TRAM_REF             = _UxGT("Başlangıç Seç");
 
   LSTR MSG_PREHEAT_1                      = _UxGT("ÖnIsıtma ") PREHEAT_1_LABEL;                   // Çalışma gerekli Hata
   LSTR MSG_PREHEAT_1_H                    = _UxGT("ÖnIsıtma ") PREHEAT_1_LABEL " ~";              // Çalışma gerekli Hata
