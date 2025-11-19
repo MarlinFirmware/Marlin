@@ -75,14 +75,11 @@ chimera_t editable;                     // Value Editing
 
 // Menu Edit Items
 FSTR_P       MenuEditItemBase::editLabel;
-void *       MenuEditItemBase::editValue;
-int32_t      MenuEditItemBase::minEditValue;
-int32_t      MenuEditItemBase::maxEditValue;
+void*        MenuEditItemBase::editValue;
+int32_t      MenuEditItemBase::minEditValue,
+             MenuEditItemBase::maxEditValue;
+screenFunc_t MenuEditItemBase::callbackFunc;
 bool         MenuEditItemBase::liveEdit;
-
-std::function<void()> MenuEditItemBase::callbackFunc{};
-MenuEditItemBase::strfunc_t MenuEditItemBase::current_strfunc;
-MenuEditItemBase::loadfunc_t MenuEditItemBase::current_loadfunc;
 
 ////////////////////////////////////////////
 //////// Menu Navigation & History /////////
@@ -129,7 +126,7 @@ void MenuEditItemBase::edit_screen(strfunc_t strfunc, loadfunc_t loadfunc) {
     // Pass the editValue pointer to the loadfunc along with the encoder plus min
     if (editValue) loadfunc(editValue, ui.encoderPosition + minEditValue);
     // If a callbackFunc was set, call it for click or always for "live editing"
-    if (callbackFunc && (liveEdit || ui.lcd_clicked)) callbackFunc();
+    if (callbackFunc && (liveEdit || ui.lcd_clicked)) (*callbackFunc)();
     // Use up the click to finish editing and go to the previous screen
     if (ui.use_click()) ui.goto_previous_screen();
   }

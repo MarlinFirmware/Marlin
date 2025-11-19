@@ -26,7 +26,6 @@
 #include "../../inc/MarlinConfig.h"
 
 #include "limits.h"
-#include <type_traits>
 
 extern int8_t encoderLine, encoderTopLine, screen_items;
 
@@ -63,18 +62,6 @@ class MenuItemBase {
     FORCE_INLINE static void init(const int8_t ind=0, FSTR_P const fstr=nullptr) { itemIndex = ind; itemStringF = fstr; itemStringC = nullptr; }
     FORCE_INLINE static void init(const int8_t ind, const char * const cstr) { itemIndex = ind; itemStringC = cstr; itemStringF = nullptr; }
 
-    // Classic menuAction_t usage
-    FORCE_INLINE static void action(FSTR_P const /*flabel*/, const menuAction_t func) {
-      if (func) func();
-    }
-    
-    // Template overload for lambdas with capture
-    template<typename F,
-             typename = typename std::enable_if<!std::is_convertible<F, menuAction_t>::value>::type>
-    FORCE_INLINE static void action(FSTR_P const /*flabel*/, F lambda) {
-      lambda();
-    }
-    
     // Implementation-specific:
     // Draw an item either selected (pre_char) or not (space) with post_char
     // Menus may set up itemIndex, itemStringC/F and pass them to string-building or string-emitting functions
@@ -166,33 +153,19 @@ extern chimera_t editable;
 
 // Base class for Menu Edit Items
 class MenuEditItemBase : public MenuItemBase {
-  protected:
+  private:
     // These values are statically constructed by init() via action()
     // The action() method acts like the instantiator. The entire lifespan
     // of a menu item is within its declaration, so all these values decompose
     // into behavior and unused items get optimized out.
-    typedef const char* (*strfunc_t)(const int32_t);
-    typedef void (*loadfunc_t)(void *, const int32_t);
-
     static FSTR_P editLabel;
     static void *editValue;
-    static int32_t minEditValue,maxEditValue;  // Encoder value range
+    static int32_t minEditValue, maxEditValue;  // Encoder value range
+    static screenFunc_t callbackFunc;
     static bool liveEdit;
-
-    static std::function<void()> callbackFunc;
-    static strfunc_t current_strfunc;
-    static loadfunc_t current_loadfunc;
-
-    // Wrapper without arg for screenFunc_t compatibility
-    static void edit_screen_wrapper() {
-      edit_screen(current_strfunc, current_loadfunc);
-    }
-
-    // Wrapper without arg for callback
-    static void callback_wrapper() {
-      if (callbackFunc) callbackFunc();
-    }
-
+  protected:
+    typedef const char* (*strfunc_t)(const int32_t);
+    typedef void (*loadfunc_t)(void *, const int32_t);
     static void goto_edit_screen(
       FSTR_P const el,        // Edit label
       void * const ev,        // Edit value pointer
@@ -200,33 +173,11 @@ class MenuEditItemBase : public MenuItemBase {
       const int32_t maxv,     // Encoder maximum
       const uint32_t ep,      // Initial encoder value
       const screenFunc_t cs,  // MenuItem_type::draw_edit_screen => MenuEditItemBase::edit()
-      const screenFunc_t cb,  // Callback after editc
+      const screenFunc_t cb,  // Callback after edit
       const bool le           // Flag to call cb() during editing
     );
-
-    static void edit_screen(strfunc_t, loadfunc_t);
-
+    static void edit_screen(strfunc_t, loadfunc_t); // Edit value handler
   public:
-    // Classic version
-    static void action(
-      FSTR_P const fstr,
-      void * const ptr,
-      const int32_t minValue,
-      const int32_t maxValue,
-      const screenFunc_t callback=nullptr,
-      const bool live=false
-    ) {
-      goto_edit_screen(fstr, ptr, minValue, maxValue - minValue,
-                       0, edit_screen_wrapper, callback, live);
-    }
-
-    // API for lambda and capture
-    template<typename F,
-             typename = typename std::enable_if<!std::is_convertible<F, screenFunc_t>::value>::type>
-    static void set_callback(F lambda) {
-      callbackFunc = lambda;
-    }
-
     // Implementation-specific:
     // Draw the current item at specified row with edit data
     static void draw(const bool sel, const uint8_t row, FSTR_P const ftpl, const char * const inStr, const bool pgm=false);
