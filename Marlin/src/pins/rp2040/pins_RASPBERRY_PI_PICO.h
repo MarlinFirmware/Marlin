@@ -67,7 +67,7 @@
 //
 // SD Card
 //
-#define SD_DETECT_PIN                         -1   // No pins left
+#define SD_DETECT_PIN                         -1  // No pins left
 #define SDCARD_CONNECTION ONBOARD
 #define SD_SS_PIN                             17  // GP17 - SPI0_CS for SD card chip select
 
