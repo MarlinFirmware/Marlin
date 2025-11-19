@@ -58,25 +58,26 @@ void MightyboardLCDSerial::begin(uint8_t cols, uint8_t rows, uint8_t charsize) {
   _rows = rows;
 
   // Diagnostic output showing LCD configuration
-  SERIAL_ECHOLN("MightyboardLCDSerial::begin() - LCD Configuration:");
-  SERIAL_ECHO("  Dimensions: ");
-  SERIAL_ECHO(_cols);
-  SERIAL_ECHO(" x ");
-  SERIAL_ECHOLN(_rows);
-  #ifdef LCD_WIDTH
-    SERIAL_ECHO("  Expected from config: ");
-    SERIAL_ECHO(LCD_WIDTH);
+  #ifdef MIGHTYBOARD_RUNTIME_DEBUG
+    SERIAL_ECHOLN("MightyboardLCDSerial::begin() - LCD Configuration:");
+    SERIAL_ECHO("  Dimensions: ");
+    SERIAL_ECHO(_cols);
     SERIAL_ECHO(" x ");
-    SERIAL_ECHOLN(LCD_HEIGHT);
+    SERIAL_ECHOLN(_rows);
+    #ifdef LCD_WIDTH
+      SERIAL_ECHO("  Expected from config: ");
+      SERIAL_ECHO(LCD_WIDTH);
+      SERIAL_ECHO(" x ");
+      SERIAL_ECHOLN(LCD_HEIGHT);
+    #endif
+    SERIAL_ECHO("  Charsize: ");
+    if (charsize == LCD_5x8DOTS)
+      SERIAL_ECHOLN("5x8 dots");
+    else if (charsize == LCD_5x10DOTS)
+      SERIAL_ECHOLN("5x10 dots");
+    else
+      SERIAL_ECHOLN("unknown");
   #endif
-  SERIAL_ECHO("  Charsize: ");
-  if (charsize == LCD_5x8DOTS)
-    SERIAL_ECHOLN("5x8 dots");
-  else if (charsize == LCD_5x10DOTS)
-    SERIAL_ECHOLN("5x10 dots");
-  else
-    SERIAL_ECHOLN("unknown");
-
   if (rows > 1) {
     _displayfunction |= LCD_2LINE;
   }
