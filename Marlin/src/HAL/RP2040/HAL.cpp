@@ -36,7 +36,6 @@ extern "C" {
 
 #if HAS_SD_HOST_DRIVE
   #include "msc_sd.h"
-  #include "usbd_cdc_if.h"
 #endif
 
 // ------------------------
@@ -136,9 +135,8 @@ void MarlinHAL::adc_init() {
   analogReadResolution(HAL_ADC_RESOLUTION);
   ::adc_init();
   adc_fifo_setup(true, false, 1, false, false);
-  irq_set_exclusive_handler(ADC_IRQ_FIFO, adc_exclusive_handler);
-  irq_set_enabled(ADC_IRQ_FIFO, true);
-  adc_irq_set_enabled(true);
+  // Use polled mode instead of interrupts to avoid ISR delays
+  // that could interfere with critical stepper timing
 }
 
 void MarlinHAL::adc_enable(const pin_t pin) {
@@ -149,24 +147,39 @@ void MarlinHAL::adc_enable(const pin_t pin) {
 }
 
 void MarlinHAL::adc_start(const pin_t pin) {
-  adc_has_result = false;
-  // Select an ADC input. 0...3 are GPIOs 26...29 respectively.
-  adc_select_input(pin == HAL_ADC_MCU_TEMP_DUMMY_PIN ? 4 : pin - A0);
+  // Just store which pin we need to read - actual read happens in adc_value()
+  // This makes adc_start() fast and non-blocking in ISR context
+  adc_result = (pin == HAL_ADC_MCU_TEMP_DUMMY_PIN) ? 4 : (pin - A0);
+  adc_has_result = true;  // Signal ready immediately
+}
+
+uint16_t MarlinHAL::adc_value() {
+  // Perform the actual ADC read here (not in ISR)
+  // This keeps ISR fast and puts the settling delay here where it's safe
+  const uint8_t adc_channel = adc_result;  // Channel was stored by adc_start()
+
+  adc_select_input(adc_channel);
+  // Allow input mux to settle - critical for preventing channel crosstalk
+  // With 100k thermistors, need time for S&H cap to charge
+  delayMicroseconds(100);
+
+  // Drain any old data from FIFO
+  while (!adc_fifo_is_empty()) adc_fifo_get();
+
+  // Start single conversion
   adc_run(true);
-}
 
-void MarlinHAL::adc_exclusive_handler() {
-  adc_run(false); // Disable since we only want one result
-  irq_clear(ADC_IRQ_FIFO); // Clear the IRQ
-
-  if (adc_fifo_get_level() >= 1) {
-    adc_result = adc_fifo_get(); // Pop the result
-    adc_fifo_drain();
-    adc_has_result = true; // Signal the end of the conversion
+  // Wait for result with timeout to prevent hanging
+  uint32_t timeout = 10000; // ~10ms timeout
+  while (adc_fifo_is_empty() && timeout--) {
+    delayMicroseconds(1);
   }
-}
 
-uint16_t MarlinHAL::adc_value() { return adc_result; }
+  adc_run(false);
+
+  // Return result or 0 if timeout
+  return adc_fifo_is_empty() ? 0 : adc_fifo_get();
+}
 
 // Reset the system to initiate a firmware flash
 void flashFirmware(const int16_t) { hal.reboot(); }

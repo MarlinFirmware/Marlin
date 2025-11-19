@@ -103,9 +103,32 @@
 #define PRINT_ARRAY_NAME(x) do{ sprintf_P(buffer, PSTR("%-" STRINGIFY(MAX_NAME_LENGTH) "s"), pin_array[x].name); SERIAL_ECHO(buffer); }while(0)
 #define MULTI_NAME_PAD 33 // space needed to be pretty if not first name assigned to a pin
 
-uint8_t get_pin_mode(const pin_t Ard_num) {
+// Function implementations for PINS_DEBUGGING - RP2040 specific
+void printPinNameByIndex(uint8_t x) {
+  char buffer[MAX_NAME_LENGTH + 1];
+  sprintf_P(buffer, PSTR("%-" STRINGIFY(MAX_NAME_LENGTH) "s"), pin_array[x].name);
+  SERIAL_ECHO(buffer);
+}
 
-  uint dir = gpio_get_dir( Ard_num);
+#define printPinNumber(P) do{ char buffer[8]; sprintf_P(buffer, PSTR("%3d "), P); SERIAL_ECHO(buffer); }while(0)
+#define printPinAnalog(P) do{ if (isAnalogPin(P)) { char buffer[10]; sprintf_P(buffer, PSTR(" (A%2d)  "), digitalPinToAnalogIndex(P)); SERIAL_ECHO(buffer); } else SERIAL_ECHO_SP(7); }while(0)
+#define getPinByIndex(x) pin_array[x].pin
+#define getPinIsDigitalByIndex(x) pin_array[x].is_digital
+#define isValidPin(P) (P >= 0 && P < pin_t(NUMBER_PINS_TOTAL))
+#define digitalPinToAnalogIndex(P) digital_pin_to_analog_pin(P)
+
+uint8_t get_pin_mode(const pin_t Ard_num) {
+  // Check if pin is in alternate function mode (I2C, SPI, etc.)
+  uint32_t gpio_func = gpio_get_function(Ard_num);
+
+  // GPIO_FUNC_I2C is typically function 3 on RP2040
+  if (gpio_func == GPIO_FUNC_I2C || gpio_func == GPIO_FUNC_SPI ||
+      gpio_func == GPIO_FUNC_UART || gpio_func == GPIO_FUNC_PWM) {
+    return MODE_PIN_ALT;
+  }
+
+  // For GPIO mode, check direction
+  uint dir = gpio_get_dir(Ard_num);
 
   if (dir) return MODE_PIN_OUTPUT;
   else return MODE_PIN_INPUT;
@@ -137,10 +160,16 @@ void printPinPort(const pin_t Ard_num) {
 }
 
 bool pwm_status(const pin_t Ard_num) {
-  return get_pin_mode(Ard_num) == MODE_PIN_ALT;
+  // Check if this pin is configured for PWM
+  return PWM_PIN(Ard_num) && get_pin_mode(Ard_num) == MODE_PIN_ALT;
 }
 
 void printPinPWM(const pin_t Ard_num) {
-  if (PWM_PIN(Ard_num)) {
+  if (pwm_status(Ard_num)) {
+    // RP2040 has hardware PWM on specific pins
+    char buffer[20];
+    sprintf_P(buffer, PSTR("PWM:  pin %d"), Ard_num);
+    SERIAL_ECHO(buffer);
+    SERIAL_ECHO_SP(2);
   }
 }

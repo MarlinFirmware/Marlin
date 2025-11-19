@@ -260,7 +260,11 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
 void MarlinUI::init() {
 
   #if HAS_U8GLIB_I2C_OLED && PINS_EXIST(I2C_SCL, I2C_SDA) && DISABLED(SOFT_I2C_EEPROM)
-    Wire.begin(uint8_t(I2C_SDA_PIN), uint8_t(I2C_SCL_PIN));
+    #ifdef TARGET_RP2040
+      Wire.begin();  // RP2040 MbedI2C uses pins configured in pins_arduino.h
+    #else
+      Wire.begin(uint8_t(I2C_SDA_PIN), uint8_t(I2C_SCL_PIN));
+    #endif
   #endif
 
   init_lcd();
