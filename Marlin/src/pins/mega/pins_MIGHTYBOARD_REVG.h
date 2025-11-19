@@ -26,6 +26,7 @@
  * Schematic: not avalable (as rev G and H are not open source)
  * Pins based on the work of https://github.com/Sgail7/Replicator-Revival-Project/
  * Pin number according to Mega extended mega2560ext: .\buildroot\share\PlatformIO\variants\MARLIN_MEGA_EXTENDED\pins_arduino.h
+ * Corrected pins based on Marlin\src\libs\softspi.h
  * Use env:MightyBoard2560 or env:MightyBoard1280 in platformio.ini
  */
 
@@ -76,7 +77,7 @@
 #define DIGIPOTS_I2C_SDA_Y                    43  // L6
 #define DIGIPOTS_I2C_SDA_Z                    46  // L3
 #define DIGIPOTS_I2C_SDA_E0                   26  // A4
-#define DIGIPOTS_I2C_SDA_E1                   77  // J7
+#define DIGIPOTS_I2C_SDA_E1                   74  // J7
 
 #ifndef DIGIPOT_I2C_ADDRESS_A
     #define DIGIPOT_I2C_ADDRESS_A           0x2F  // unshifted slave address (5E <- 2F << 1)
@@ -171,11 +172,16 @@
 
     #define LCD_LED1_PIN                      35  // C2 To be implemented... 
 
-    #define BTN_CLICK                         39  // G2
-    #define BTN_UP                            83  // J5 76 or 83?
-    #define BTN_DOWN                          82  // J4 75 or 82?
-    #define BTN_LEFT                          84  // J6 77 or 84?
-    #define BTN_RIGHT                         81  // J13  
+    #define BTN_CENTER                        39  // G2
+    #define BTN_UP                            76  // J5
+    #define BTN_DOWN                          75  // J4
+    #define BTN_LEFT                          77  // J6
+    #define BTN_RIGHT                         73  // J3
+
+    // Map the CLICK button to the encoder 'click' so Marlin treats it as SELECT
+    #ifndef BTN_ENC
+      #define BTN_ENC BTN_CENTER
+    #endif
 
     #define LCD_PWR_PIN                 29  // A7 To be implemented... 
     
@@ -188,3 +194,5 @@
   #endif
 
 #endif // HAS_WIRED_LCD
+
+

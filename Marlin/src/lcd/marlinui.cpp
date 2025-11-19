@@ -273,7 +273,11 @@ void MarlinUI::init() {
     SET_INPUT_PULLUP(BTN_EN2);
   #endif
   #if BUTTON_EXISTS(ENC)
-    SET_INPUT_PULLUP(BTN_ENC);
+    #if ENABLED(MIGHTYBOARD_DISABLE_ENC_PULLUP)
+      SET_INPUT(BTN_ENC);
+    #else
+      SET_INPUT_PULLUP(BTN_ENC);
+    #endif
   #endif
   #if BUTTON_EXISTS(ENC_EN)
     SET_INPUT_PULLUP(BTN_ENC_EN);
@@ -282,16 +286,33 @@ void MarlinUI::init() {
     SET_INPUT_PULLUP(BTN_BACK);
   #endif
   #if BUTTON_EXISTS(UP)
-    SET_INPUT(BTN_UP);
+    #if ENABLED(MIGHTYBOARD_BUTTON_PULLUPS)
+      SET_INPUT_PULLUP(BTN_UP);
+    #else
+      SET_INPUT(BTN_UP);
+    #endif
   #endif
   #if BUTTON_EXISTS(DOWN)
-    SET_INPUT(BTN_DOWN);
+    #if ENABLED(MIGHTYBOARD_BUTTON_PULLUPS)
+      SET_INPUT_PULLUP(BTN_DOWN);
+    #else
+      SET_INPUT(BTN_DOWN);
+    #endif
   #endif
   #if BUTTON_EXISTS(LFT)
-    SET_INPUT(BTN_LEFT);
+    #if ENABLED(MIGHTYBOARD_BUTTON_PULLUPS)
+      SET_INPUT_PULLUP(BTN_LEFT);
+    #else
+      SET_INPUT(BTN_LEFT);
+    #endif
   #endif
   #if BUTTON_EXISTS(RT)
-    SET_INPUT(BTN_RIGHT);
+    #if ENABLED(MIGHTYBOARD_BUTTON_PULLUPS)
+      SET_INPUT_PULLUP(BTN_RIGHT);
+    #else
+      SET_INPUT(BTN_RIGHT);
+    #endif
+  #endif
   #endif
 
   #if HAS_SHIFT_ENCODER
