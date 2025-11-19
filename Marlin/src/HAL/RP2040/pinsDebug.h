@@ -25,7 +25,7 @@
 #include "HAL.h"
 
 #ifndef NUM_DIGITAL_PINS
-   #error "Expected NUM_DIGITAL_PINS not found"
+  #error "Expected NUM_DIGITAL_PINS not found."
 #endif
 
 /**
@@ -74,6 +74,27 @@
  *          signal.  The Arduino pin number is listed by the M43 I command.
  */
 
+/**
+ * Pins Debugging for RP2040
+ *
+ *   - NUMBER_PINS_TOTAL
+ *   - MULTI_NAME_PAD
+ *   - getPinByIndex(index)
+ *   - printPinNameByIndex(index)
+ *   - getPinIsDigitalByIndex(index)
+ *   - digitalPinToAnalogIndex(pin)
+ *   - getValidPinMode(pin)
+ *   - isValidPin(pin)
+ *   - isAnalogPin(pin)
+ *   - digitalRead_mod(pin)
+ *   - pwm_status(pin)
+ *   - printPinPWM(pin)
+ *   - printPinPort(pin)
+ *   - printPinNumber(pin)
+ *   - printPinAnalog(pin)
+ */
+
+#define NUMBER_PINS_TOTAL NUM_DIGITAL_PINS
 #define NUM_ANALOG_FIRST A0
 
 #define MODE_PIN_INPUT  0 // Input mode (reset state)
@@ -81,45 +102,14 @@
 #define MODE_PIN_ALT    2 // Alternate function mode
 #define MODE_PIN_ANALOG 3 // Analog mode
 
-#define PIN_NUM(P) (P & 0x000F)
-#define PIN_NUM_ALPHA_LEFT(P) (((P & 0x000F) < 10) ? ('0' + (P & 0x000F)) : '1')
-#define PIN_NUM_ALPHA_RIGHT(P) (((P & 0x000F) > 9)  ? ('0' + (P & 0x000F) - 10) : 0 )
-#define PORT_NUM(P) ((P  >> 4) & 0x0007)
-#define PORT_ALPHA(P) ('A' + (P  >> 4))
-
-/**
- * Translation of routines & variables used by pinsDebug.h
- */
-#define NUMBER_PINS_TOTAL NUM_DIGITAL_PINS
-#define VALID_PIN(ANUM) (pin_t(ANUM) >= 0 && pin_t(ANUM) < NUMBER_PINS_TOTAL)
-#define digitalRead_mod(Ard_num) extDigitalRead(Ard_num)  // must use Arduino pin numbers when doing reads
-#define PRINT_PIN(Q)
-#define PRINT_PIN_ANALOG(p) do{ sprintf_P(buffer, PSTR(" (A%2d)  "), DIGITAL_PIN_TO_ANALOG_PIN(pin)); SERIAL_ECHO(buffer); }while(0)
-#define DIGITAL_PIN_TO_ANALOG_PIN(ANUM) -1  // will report analog pin number in the print port routine
-
-// x is a variable used to search pin_array
-#define GET_ARRAY_IS_DIGITAL(x) ((bool) pin_array[x].is_digital)
-#define GET_ARRAY_PIN(x) ((pin_t) pin_array[x].pin)
-#define PRINT_ARRAY_NAME(x) do{ sprintf_P(buffer, PSTR("%-" STRINGIFY(MAX_NAME_LENGTH) "s"), pin_array[x].name); SERIAL_ECHO(buffer); }while(0)
-#define MULTI_NAME_PAD 33 // space needed to be pretty if not first name assigned to a pin
-
-// Function implementations for PINS_DEBUGGING - RP2040 specific
-void printPinNameByIndex(uint8_t x) {
-  char buffer[MAX_NAME_LENGTH + 1];
-  sprintf_P(buffer, PSTR("%-" STRINGIFY(MAX_NAME_LENGTH) "s"), pin_array[x].name);
-  SERIAL_ECHO(buffer);
-}
-
-#define printPinNumber(P) do{ char buffer[8]; sprintf_P(buffer, PSTR("%3d "), P); SERIAL_ECHO(buffer); }while(0)
-#define printPinAnalog(P) do{ if (isAnalogPin(P)) { char buffer[10]; sprintf_P(buffer, PSTR(" (A%2d)  "), digitalPinToAnalogIndex(P)); SERIAL_ECHO(buffer); } else SERIAL_ECHO_SP(7); }while(0)
 #define getPinByIndex(x) pin_array[x].pin
+#define printPinNameByIndex(x) do{ sprintf_P(buffer, PSTR("%-" STRINGIFY(MAX_NAME_LENGTH) "s"), pin_array[x].name); SERIAL_ECHO(buffer); }while(0)
 #define getPinIsDigitalByIndex(x) pin_array[x].is_digital
-#define isValidPin(P) (P >= 0 && P < pin_t(NUMBER_PINS_TOTAL))
 #define digitalPinToAnalogIndex(P) digital_pin_to_analog_pin(P)
 
-uint8_t get_pin_mode(const pin_t Ard_num) {
+uint8_t get_pin_mode(const pin_t pin) {
   // Check if pin is in alternate function mode (I2C, SPI, etc.)
-  uint32_t gpio_func = gpio_get_function(Ard_num);
+  const uint32_t gpio_func = gpio_get_function(pin);
 
   // GPIO_FUNC_I2C is typically function 3 on RP2040
   if ( gpio_func == GPIO_FUNC_I2C
@@ -131,48 +121,47 @@ uint8_t get_pin_mode(const pin_t Ard_num) {
   }
 
   // For GPIO mode, check direction
-  uint dir = gpio_get_dir(Ard_num);
-
-  if (dir) return MODE_PIN_OUTPUT;
-  else return MODE_PIN_INPUT;
-
+  return gpio_get_dir(pin) ? MODE_PIN_OUTPUT : MODE_PIN_INPUT;
 }
 
-bool getValidPinMode(const pin_t Ard_num) {
-  const uint8_t pin_mode = get_pin_mode(Ard_num);
+bool getValidPinMode(const pin_t pin) {
+  const uint8_t pin_mode = get_pin_mode(pin);
   return pin_mode == MODE_PIN_OUTPUT || pin_mode == MODE_PIN_ALT;  // assume all alt definitions are PWM
 }
 
-int8_t digital_pin_to_analog_pin(pin_t Ard_num) {
-  Ard_num -= NUM_ANALOG_FIRST;
-  return (Ard_num >= 0 && Ard_num < NUM_ANALOG_INPUTS) ? Ard_num : -1;
+#define isValidPin(P) WITHIN(P, 0, pin_t(NUMBER_PINS_TOTAL - 1))
+
+int8_t digital_pin_to_analog_pin(pin_t pin) {
+  pin -= NUM_ANALOG_FIRST;
+  return (WITHIN(pin, 0, NUM_ANALOG_INPUTS - 1)) ? pin : -1;
 }
 
-bool isAnalogPin(const pin_t Ard_num) {
-  return digital_pin_to_analog_pin(Ard_num) != -1;
+bool isAnalogPin(const pin_t pin) {
+  return digital_pin_to_analog_pin(pin) != -1;
 }
 
-bool is_digital(const pin_t x) {
-  const uint8_t pin_mode = get_pin_mode(x);
-  return pin_mode == MODE_PIN_INPUT || pin_mode == MODE_PIN_OUTPUT;
-}
+#define digitalRead_mod(A) extDigitalRead(A)  // must use Arduino pin numbers when doing reads
+#define printPinNumber(P) do{ sprintf_P(buffer, PSTR("%3d "), P); SERIAL_ECHO(buffer); }while(0)
+#define printPinAnalog(P) do{ sprintf_P(buffer, PSTR(" (A%2d)  "), digitalPinToAnalogIndex(P)); SERIAL_ECHO(buffer); }while(0)
+#define MULTI_NAME_PAD 33 // space needed to be pretty if not first name assigned to a pin
 
-void printPinPort(const pin_t Ard_num) {
-  SERIAL_ECHOPGM("Pin: ");
-  SERIAL_ECHO(Ard_num);
-}
+//bool is_digital(const pin_t pin) {
+//  const uint8_t pin_mode = get_pin_mode(pin);
+//  return pin_mode == MODE_PIN_INPUT || pin_mode == MODE_PIN_OUTPUT;
+//}
 
-bool pwm_status(const pin_t Ard_num) {
+bool pwm_status(const pin_t pin) {
   // Check if this pin is configured for PWM
-  return PWM_PIN(Ard_num) && get_pin_mode(Ard_num) == MODE_PIN_ALT;
+  return PWM_PIN(pin) && get_pin_mode(pin) == MODE_PIN_ALT;
 }
 
-void printPinPWM(const pin_t Ard_num) {
-  if (pwm_status(Ard_num)) {
+void printPinPWM(const pin_t pin) {
+  if (pwm_status(pin)) {
     // RP2040 has hardware PWM on specific pins
-    char buffer[20];
-    sprintf_P(buffer, PSTR("PWM:  pin %d"), Ard_num);
+    char buffer[22];
+    sprintf_P(buffer, PSTR("PWM:  pin %d  "), pin);
     SERIAL_ECHO(buffer);
-    SERIAL_ECHO_SP(2);
   }
 }
+
+void printPinPort(const pin_t pin) {}
