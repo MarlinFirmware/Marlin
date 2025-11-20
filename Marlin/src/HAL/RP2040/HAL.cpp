@@ -48,9 +48,27 @@ extern "C" {
 volatile uint32_t adc_accumulators[5] = {0}; // Accumulators for oversampling (sum of readings)
 volatile uint8_t adc_counts[5] = {0};        // Count of readings accumulated per channel
 volatile uint16_t adc_values[5] = {512, 512, 512, 512, 512}; // Final oversampled ADC values (averages) - initialized to mid-range
+
+// Core 1 watchdog monitoring
+volatile uint32_t core1_last_heartbeat = 0; // Timestamp of Core 1's last activity
+volatile bool core1_watchdog_triggered = false; // Flag to indicate Core 1 reset
 volatile uint8_t current_pin;
 volatile bool MarlinHAL::adc_has_result;
-volatile bool adc_channels_enabled[5] = {false}; // Track which ADC channels are enabled
+volatile uint8_t adc_channels_enabled[5] = {false}; // Track which ADC channels are enabled
+
+// Helper function for LED blinking patterns
+void blink_led_pattern(uint8_t blink_count, uint32_t blink_duration_us = 100000) {
+  #if DISABLED(PINS_DEBUGGING) && PIN_EXISTS(LED)
+    for (uint8_t i = 0; i < blink_count; i++) {
+      WRITE(LED_PIN, HIGH);
+      busy_wait_us(blink_duration_us);
+      WRITE(LED_PIN, LOW);
+      if (i < blink_count - 1) { // Don't delay after the last blink
+        busy_wait_us(blink_duration_us);
+      }
+    }
+  #endif
+}
 
 // Core 1 ADC reading task - dynamically reads all enabled channels with oversampling
 void core1_adc_task() {
@@ -58,6 +76,9 @@ void core1_adc_task() {
   const uint8_t OVERSAMPLENR = 16; // Standard Marlin oversampling count
 
   while (true) {
+    // Update heartbeat timestamp at start of each scan cycle
+    core1_last_heartbeat = time_us_32();
+
     // Scan all enabled ADC channels
     for (uint8_t channel = 0; channel < 5; channel++) {
       if (!adc_channels_enabled[channel]) continue;
@@ -106,14 +127,13 @@ void core1_adc_task() {
     if (now - last_led_toggle >= 2000000) { // 2 seconds
       last_led_toggle = now;
       #if DISABLED(PINS_DEBUGGING) && PIN_EXISTS(LED)
-        // Double blink pattern for Core 1
-        WRITE(LED_PIN, HIGH);
-        busy_wait_us(100000); // 100ms on
-        WRITE(LED_PIN, LOW);
-        busy_wait_us(100000); // 100ms off
-        WRITE(LED_PIN, HIGH);
-        busy_wait_us(100000); // 100ms on
-        WRITE(LED_PIN, LOW);
+        // Triple blink pattern if watchdog was triggered (shows Core 1 was reset)
+        if (core1_watchdog_triggered) {
+          core1_watchdog_triggered = false; // Clear flag
+          blink_led_pattern(3); // Triple blink for watchdog reset
+        } else {
+          blink_led_pattern(2); // Normal double blink
+        }
       #endif
     }
 
@@ -198,6 +218,16 @@ void MarlinHAL::reboot() { watchdog_reboot(0, 0, 1); }
 
   void MarlinHAL::watchdog_refresh() {
     watchdog_update();
+
+    // Check Core 1 watchdog (30 second timeout)
+    uint32_t now = time_us_32();
+    if (now - core1_last_heartbeat > 30000000) { // 30 seconds
+      // Core 1 appears stuck - reset it
+      multicore_reset_core1();
+      multicore_launch_core1(core1_adc_task);
+      core1_watchdog_triggered = true; // Signal for LED indicator
+    }
+
     #if DISABLED(PINS_DEBUGGING) && PIN_EXISTS(LED)
       // Core 0 LED indicator: Single toggle every watchdog refresh (shows Core 0 activity)
       TOGGLE(LED_PIN);
