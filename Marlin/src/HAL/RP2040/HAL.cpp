@@ -45,14 +45,18 @@ extern "C" {
 // Public Variables
 // ------------------------
 
-volatile uint16_t adc_values[5]; // ADC values for channels 0-4 (A0-A3, MCU temp)
+volatile uint32_t adc_accumulators[5] = {0}; // Accumulators for oversampling (sum of readings)
+volatile uint8_t adc_counts[5] = {0};        // Count of readings accumulated per channel
+volatile uint16_t adc_values[5] = {512, 512, 512, 512, 512}; // Final oversampled ADC values (averages) - initialized to mid-range
 volatile uint8_t current_pin;
 volatile bool MarlinHAL::adc_has_result;
 volatile bool adc_channels_enabled[5] = {false}; // Track which ADC channels are enabled
 
-// Core 1 ADC reading task - dynamically reads all enabled channels
+// Core 1 ADC reading task - dynamically reads all enabled channels with oversampling
 void core1_adc_task() {
   static uint32_t last_led_toggle = 0;
+  const uint8_t OVERSAMPLENR = 16; // Standard Marlin oversampling count
+
   while (true) {
     // Scan all enabled ADC channels
     for (uint8_t channel = 0; channel < 5; channel++) {
@@ -76,7 +80,20 @@ void core1_adc_task() {
       }
 
       adc_run(false);
-      adc_values[channel] = adc_fifo_is_empty() ? 0 : adc_fifo_get();
+      uint16_t reading = adc_fifo_is_empty() ? 0 : adc_fifo_get();
+
+      // Accumulate readings for oversampling
+      adc_accumulators[channel] += reading;
+      adc_counts[channel]++;
+
+      // Update the averaged value with current accumulation (provides immediate valid data)
+      adc_values[channel] = adc_accumulators[channel] / adc_counts[channel];
+
+      // When we reach the full oversampling count, reset accumulator for next cycle
+      if (adc_counts[channel] >= OVERSAMPLENR) {
+        adc_accumulators[channel] = 0;
+        adc_counts[channel] = 0;
+      }
 
       // Disable temp sensor after reading to save power
       if (channel == 4) {
