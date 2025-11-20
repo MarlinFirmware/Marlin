@@ -41,6 +41,9 @@ extern "C" {
   #include "msc_sd.h"
 #endif
 
+// Core 1 watchdog configuration
+#define CORE1_MAX_RESETS 5  // Maximum number of Core 1 resets before halting system
+
 // ------------------------
 // Public Variables
 // ------------------------
@@ -52,6 +55,7 @@ volatile uint16_t adc_values[5] = {512, 512, 512, 512, 512}; // Final oversample
 // Core 1 watchdog monitoring
 volatile uint32_t core1_last_heartbeat = 0; // Timestamp of Core 1's last activity
 volatile bool core1_watchdog_triggered = false; // Flag to indicate Core 1 reset
+volatile uint8_t core1_reset_count = 0; // Count of Core 1 resets - halt system if >= CORE1_MAX_RESETS
 volatile uint8_t current_pin;
 volatile bool MarlinHAL::adc_has_result;
 volatile uint8_t adc_channels_enabled[5] = {false}; // Track which ADC channels are enabled
@@ -220,6 +224,12 @@ void MarlinHAL::reboot() { watchdog_reboot(0, 0, 1); }
   }
 
   void MarlinHAL::watchdog_refresh() {
+    // If Core 1 has reset CORE1_MAX_RESETS+ times, stop updating watchdog to halt system
+    if (core1_reset_count >= CORE1_MAX_RESETS) {
+      SERIAL_ECHO_MSG("Core 1 reset limit exceeded (", core1_reset_count, " resets) - halting system for safety");
+      return; // Don't update watchdog - system will halt
+    }
+
     watchdog_update();
 
     // Check Core 1 watchdog (15 second timeout)
@@ -229,7 +239,8 @@ void MarlinHAL::reboot() { watchdog_reboot(0, 0, 1); }
       multicore_reset_core1();
       multicore_launch_core1(core1_adc_task);
       core1_watchdog_triggered = true; // Signal for LED indicator
-      SERIAL_ECHO_MSG("Core 1 ADC watchdog triggered - resetting Core 1");
+      core1_reset_count++; // Increment reset counter
+      SERIAL_ECHO_MSG("Core 1 ADC watchdog triggered - resetting Core 1 (attempt ", core1_reset_count, ")");
     }
 
     #if DISABLED(PINS_DEBUGGING) && PIN_EXISTS(LED)
