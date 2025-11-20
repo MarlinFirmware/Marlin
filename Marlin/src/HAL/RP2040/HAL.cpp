@@ -75,6 +75,9 @@ void core1_adc_task() {
   static uint32_t last_led_toggle = 0;
   const uint8_t OVERSAMPLENR = 16; // Standard Marlin oversampling count
 
+  // Signal successful Core 1 startup/restart
+  SERIAL_ECHO_MSG("Core 1 ADC task started");
+
   while (true) {
     // Update heartbeat timestamp at start of each scan cycle
     core1_last_heartbeat = time_us_32();
@@ -219,13 +222,14 @@ void MarlinHAL::reboot() { watchdog_reboot(0, 0, 1); }
   void MarlinHAL::watchdog_refresh() {
     watchdog_update();
 
-    // Check Core 1 watchdog (30 second timeout)
+    // Check Core 1 watchdog (15 second timeout)
     uint32_t now = time_us_32();
-    if (now - core1_last_heartbeat > 30000000) { // 30 seconds
+    if (now - core1_last_heartbeat > 15000000) { // 15 seconds
       // Core 1 appears stuck - reset it
       multicore_reset_core1();
       multicore_launch_core1(core1_adc_task);
       core1_watchdog_triggered = true; // Signal for LED indicator
+      SERIAL_ECHO_MSG("Core 1 ADC watchdog triggered - resetting Core 1");
     }
 
     #if DISABLED(PINS_DEBUGGING) && PIN_EXISTS(LED)
