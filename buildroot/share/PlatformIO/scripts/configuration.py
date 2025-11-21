@@ -296,12 +296,17 @@ else:
     #
     # From within PlatformIO use the loaded INI file
     #
-    import pioutil
-    if pioutil.is_pio_build():
-        try:
-            verbose = int(pioutil.env.GetProjectOption('custom_verbose'))
-        except:
-            pass
+    try:
+        import pioutil
+        if pioutil.is_pio_build():
+            try:
+                verbose = int(pioutil.env.GetProjectOption('custom_verbose'))
+            except:
+                pass
 
-        from platformio.project.config import ProjectConfig
-        apply_config_ini(ProjectConfig())
+            from platformio.project.config import ProjectConfig
+            apply_config_ini(ProjectConfig())
+    except AttributeError:
+        # Handle the 'IsIntegrationDump' error here, or just continue if
+        # the build is not a PlatformIO build where pioutil would be unavailable.
+        print("Warning: Failed to initialize PlatformIO environment.")
