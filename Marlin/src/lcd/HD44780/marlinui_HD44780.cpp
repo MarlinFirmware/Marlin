@@ -452,11 +452,11 @@ bool MarlinUI::detected() {
     #if ENABLED(LCD_I2C_TYPE_MCP23017)
       // Reading these buttons is too slow for interrupt context
       // so they are read during LCD update in the main loop.
-      uint8_t slow_bits = lcd.readButtons()
+      uint8_t slow_bits = (lcd.readButtons()
         #if !BUTTON_EXISTS(ENC)
           << B_I2C_BTN_OFFSET
         #endif
-      ;
+      );
       #if ENABLED(LCD_I2C_VIKI)
         if ((slow_bits & (B_MI | B_RI)) && PENDING(millis(), next_button_update_ms)) // LCD clicked
           slow_bits &= ~(B_MI | B_RI); // Disable LCD clicked buttons if screen is updated
@@ -1124,7 +1124,7 @@ void MarlinUI::draw_status_screen() {
           rotate_progress();
         #else
           char c;
-          uint16_t per;
+          uint16_t pct;
           #if HAS_FAN0
             if (true
               #if ALL(HAS_EXTRUDERS, ADAPTIVE_FAN_SLOWING)
@@ -1136,18 +1136,18 @@ void MarlinUI::draw_status_screen() {
               #if ENABLED(ADAPTIVE_FAN_SLOWING)
                 else { c = '*'; spd = thermalManager.scaledFanSpeed(0, spd); }
               #endif
-              per = thermalManager.pwmToPercent(spd);
+              pct = thermalManager.pwmToPercent(spd);
             }
             else
           #endif
             {
               #if HAS_EXTRUDERS
                 c = 'E';
-                per = planner.flow_percentage[0];
+                pct = planner.flow_percentage[0];
               #endif
             }
           lcd_put_lchar(c);
-          lcd_put_u8str(i16tostr3rj(per));
+          lcd_put_u8str(i16tostr3rj(pct));
           lcd_put_u8str(F("%"));
         #endif
       #endif

@@ -33,9 +33,8 @@ class TrapezoidalTrajectoryGenerator : public TrajectoryGenerator {
 public:
   TrapezoidalTrajectoryGenerator() = default;
 
-  void plan(const float initial_speed, const float final_speed, const float acceleration, const float nominal_speed, const float distance) override {
+  void plan(const float initial_speed, const float final_speed, const float acceleration, float nominal_speed, const float distance) override {
     this->initial_speed = initial_speed;
-    this->nominal_speed = nominal_speed;
     this->acceleration = acceleration;
 
     const float one_over_accel = 1.0f / acceleration;
@@ -44,26 +43,29 @@ public:
     T2 = ldiff / nominal_speed - one_over_accel * nominal_speed;
     if (T2 < 0.0f) {
       T2 = 0.0f;
-      this->nominal_speed = sqrtf(ldiff * acceleration);
+      nominal_speed = SQRT(ldiff * acceleration);
     }
 
-    T1 = (this->nominal_speed - initial_speed) * one_over_accel;
-    T3 = (this->nominal_speed - final_speed) * one_over_accel;
+    this->nominal_speed = nominal_speed;
+
+    T1 = (nominal_speed - initial_speed) * one_over_accel;
+    T3 = (nominal_speed - final_speed) * one_over_accel;
 
     // Calculate the distance traveled during the accel phase
     pos_before_coast = initial_speed * T1 + 0.5f * acceleration * sq(T1);
 
     // Calculate the distance traveled during the coast phase
-    pos_after_coast = pos_before_coast + this->nominal_speed * T2;
+    pos_after_coast = pos_before_coast + nominal_speed * T2;
   }
 
   float getDistanceAtTime(const float t) const override {
     if (t < T1) {
       // Acceleration phase
       return (this->initial_speed * t) + (0.5f * this->acceleration * sq(t));
-    } else if (t <= (T1 + T2)) {
+    }
+    else if (t <= (T1 + T2)) {
       // Coasting phase
-      return pos_before_coast + this->nominal_speed * (t - T1);
+      return pos_before_coast + nominal_speed * (t - T1);
     }
     // Deceleration phase
     const float tau_decel = t - (T1 + T2);

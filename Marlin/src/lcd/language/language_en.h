@@ -414,10 +414,6 @@ namespace LanguageNarrow_en {
   LSTR MSG_TEMP_BED                       = _UxGT("Bed Temperature");
   LSTR MSG_TEMP_CHAMBER                   = _UxGT("Chamber Temperature");
 
-  LSTR MSG_BAD_HEATER_ID                  = _UxGT("Bad extruder.");
-  LSTR MSG_TEMP_TOO_HIGH                  = _UxGT("Temperature too high.");
-  LSTR MSG_TEMP_TOO_LOW                   = _UxGT("Temperature too low");
-
   LSTR MSG_PID_BAD_HEATER_ID              = _UxGT("Autotune failed! Bad extruder.");
   LSTR MSG_PID_TEMP_TOO_HIGH              = _UxGT("Autotune failed! Temperature too high.");
   LSTR MSG_PID_TIMEOUT                    = _UxGT("Autotune failed! Timeout.");
@@ -951,6 +947,14 @@ namespace LanguageNarrow_en {
   LSTR MSG_FTM_SMOOTH_TIME_N              = _UxGT("@ Smoothing Time");
   LSTR MSG_FTM_POLY6_OVERSHOOT            = _UxGT("@ Poly6 Overshoot");
 
+  LSTR MSG_FTM_RESONANCE_TEST             = _UxGT("Resonance Test");
+  LSTR MSG_FTM_RT_RUNNING                 = _UxGT("Res. Test Running...");
+  LSTR MSG_FTM_RT_START_N                 = _UxGT("Start @ Axis Test");
+  LSTR MSG_FTM_RT_STOP                    = _UxGT("Abort Test");
+  LSTR MSG_FTM_RETRIEVE_FREQ              = _UxGT("Calc. Res. Freq.");
+  LSTR MSG_FTM_RESONANCE_FREQ             = _UxGT("Resonance Freq.");
+  LSTR MSG_FTM_TIMELINE_FREQ              = _UxGT("Timeline (s)");
+
   LSTR MSG_LEVEL_X_AXIS                   = _UxGT("Level X Axis");
   LSTR MSG_AUTO_CALIBRATE                 = _UxGT("Auto Calibrate");
   LSTR MSG_FTDI_HEATER_TIMEOUT            = _UxGT("Idle timeout, temperature decreased. Press Okay to reheat and again to resume.");
@@ -1006,6 +1010,8 @@ namespace LanguageNarrow_en {
   LSTR DGUS_MSG_NOT_WHILE_PRINTING        = _UxGT("Not allowed during print");
   LSTR DGUS_MSG_NOT_WHILE_IDLE            = _UxGT("Not allowed while idle");
   LSTR DGUS_MSG_NO_FILE_SELECTED          = _UxGT("No file selected");
+  LSTR DGUS_MSG_TEMP_TOO_LOW              = _UxGT("Temperature too low");
+  LSTR DGUS_MSG_TEMP_TOO_HIGH             = _UxGT("Temperature too high.");
   LSTR DGUS_MSG_EXECUTING_COMMAND         = _UxGT("Executing command...");
   LSTR DGUS_MSG_BED_PID_DISABLED          = _UxGT("Bed PID disabled");
   LSTR DGUS_MSG_PID_DISABLED              = _UxGT("PID disabled");
@@ -1158,6 +1164,8 @@ namespace LanguageWide_en {
     LSTR MSG_EEPROM_INITIALIZED           = _UxGT("Default Settings Restored");
     LSTR MSG_PREHEAT_M_CHAMBER            = _UxGT("Preheat $ Chamber");
     LSTR MSG_PREHEAT_M_SETTINGS           = _UxGT("Preheat $ Config");
+    LSTR MSG_FTM_RT_RUNNING               = _UxGT("Resonance Test Running...");
+    LSTR MSG_FTM_RESONANCE_FREQ           = _UxGT("Resonance frequency");
   #endif
 }
 

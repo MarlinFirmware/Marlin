@@ -255,7 +255,7 @@ namespace MMU3 {
       uint8_t block_index = planner.block_buffer_tail;
       while (block_index != planner.block_buffer_head) {
         block = &planner.block_buffer[block_index];
-        if (block->steps[E_AXIS] != 0) e_active++;
+        if (block->steps.e != 0) e_active++;
         block_index = (block_index + 1) & (BLOCK_BUFFER_SIZE - 1);
       }
     }
@@ -760,10 +760,10 @@ namespace MMU3 {
       LogEchoEvent(F("Resuming XYZ"));
 
       // Move XY to starting position, then Z
-      motion_do_blocking_move_to_xy(resume_position.x, resume_position.x, feedRate_t(NOZZLE_PARK_XY_FEEDRATE));
+      motion_blocking_move_xy(resume_position.x, resume_position.y, feedRate_t(NOZZLE_PARK_XY_FEEDRATE));
 
       // Move Z_AXIS to saved position
-      motion_do_blocking_move_to_z(resume_position.z, feedRate_t(NOZZLE_PARK_Z_FEEDRATE));
+      motion_blocking_move_z(resume_position.z, feedRate_t(NOZZLE_PARK_Z_FEEDRATE));
 
       // From this point forward, power panic should not use
       // the partial backup in RAM since the extruder is no

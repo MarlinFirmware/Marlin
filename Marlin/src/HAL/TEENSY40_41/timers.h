@@ -60,7 +60,7 @@ typedef uint32_t hal_timer_t;
 #define HAL_TIMER_RATE         GPT1_TIMER_RATE
 #define STEPPER_TIMER_RATE     HAL_TIMER_RATE
 #define STEPPER_TIMER_TICKS_PER_US ((STEPPER_TIMER_RATE) / 1000000)
-#define STEPPER_TIMER_PRESCALE ((GPT_TIMER_RATE / 1000000) / STEPPER_TIMER_TICKS_PER_US)
+#define STEPPER_TIMER_PRESCALE (GPT_TIMER_RATE / STEPPER_TIMER_RATE)
 
 #define PULSE_TIMER_RATE       STEPPER_TIMER_RATE   // frequency of pulse timer
 #define PULSE_TIMER_PRESCALE   STEPPER_TIMER_PRESCALE
@@ -89,8 +89,16 @@ void HAL_timer_start(const uint8_t timer_num, const uint32_t frequency);
 
 FORCE_INLINE static void HAL_timer_set_compare(const uint8_t timer_num, const hal_timer_t compare) {
   switch (timer_num) {
-    case MF_TIMER_STEP: GPT1_OCR1 = compare - 1; break;
-    case MF_TIMER_TEMP: GPT2_OCR1 = compare - 1; break;
+    case MF_TIMER_STEP:
+      GPT1_CR |= GPT_CR_FRR;    // Free Run Mode (setting OCRx preserves CNT)
+      GPT1_OCR1 = compare - 1;
+      GPT1_CR &= ~GPT_CR_FRR;   // Reset Mode (CNT resets on trigger)
+      break;
+    case MF_TIMER_TEMP:
+      GPT2_CR |= GPT_CR_FRR;    // Free Run Mode (setting OCRx preserves CNT)
+      GPT2_OCR1 = compare - 1;
+      GPT2_CR &= ~GPT_CR_FRR;   // Reset Mode (CNT resets on trigger)
+      break;
   }
 }
 
@@ -115,5 +123,4 @@ void HAL_timer_disable_interrupt(const uint8_t timer_num);
 bool HAL_timer_interrupt_enabled(const uint8_t timer_num);
 
 void HAL_timer_isr_prologue(const uint8_t timer_num);
-//void HAL_timer_isr_epilogue(const uint8_t timer_num) {}
-#define HAL_timer_isr_epilogue(T) NOOP
+inline void HAL_timer_isr_epilogue(const uint8_t) {}

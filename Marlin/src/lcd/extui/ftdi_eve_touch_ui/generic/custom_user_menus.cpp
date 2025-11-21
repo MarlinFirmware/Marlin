@@ -42,7 +42,7 @@ void CustomUserMenus::onRedraw(draw_mode_t what) {
   }
 
   #if ENABLED(TOUCH_UI_PORTRAIT)
-    #if defined(TOOLHEAD_Legacy_Universal)
+    #ifdef TOOLHEAD_Legacy_Universal
       #define GRID_ROWS 10
     #else
       #define GRID_ROWS 7
@@ -61,10 +61,9 @@ void CustomUserMenus::onRedraw(draw_mode_t what) {
     #define BACK_POS          BTN_POS(1,GRID_ROWS), BTN_SIZE(GRID_COLS,1)
   #endif
 
-btn_colors thcolor[8] = {normal_btn};
+  btn_colors thcolor[8] = {normal_btn};
+  //.color(TH_color[1])
 
-
-//.color(TH_color[1])
   if (what & FOREGROUND) {
     CommandProcessor cmd;
     cmd.colors(normal_btn)
@@ -72,42 +71,42 @@ btn_colors thcolor[8] = {normal_btn};
        .tag(0).text(TOOLHEAD_LABL_POS, GET_TEXT_F(MSG_CUSTOM_MENU_MAIN_TITLE));
     cmd.colors(accent_btn)
        .font(Theme::font_medium)
-       #if defined(MAIN_MENU_ITEM_1_DESC)
+       #ifdef MAIN_MENU_ITEM_1_DESC
         //_USER_ITEM(1)
         .tag(_ITEM_TAG(11)).button(USER_ITEM_POS(1), MAIN_MENU_ITEM_1_DESC)
        #endif
       .colors(thcolor[1])
-       #if defined(MAIN_MENU_ITEM_2_DESC)
+       #ifdef MAIN_MENU_ITEM_2_DESC
         //_USER_ITEM(2)
         .tag(_ITEM_TAG(12)).button(USER_ITEM_POS(2), MAIN_MENU_ITEM_2_DESC)
        #endif
        .colors(thcolor[2])
-       #if defined(MAIN_MENU_ITEM_3_DESC)
+       #ifdef MAIN_MENU_ITEM_3_DESC
         //_USER_ITEM(3)
         .tag(_ITEM_TAG(13)).button(USER_ITEM_POS(3), MAIN_MENU_ITEM_3_DESC)
        #endif
        .colors(thcolor[3])
-       #if defined(MAIN_MENU_ITEM_4_DESC)
+       #ifdef MAIN_MENU_ITEM_4_DESC
         //_USER_ITEM(4)
         .tag(_ITEM_TAG(14)).button(USER_ITEM_POS(4), MAIN_MENU_ITEM_4_DESC)
        #endif
        .colors(thcolor[4])
-       #if defined(MAIN_MENU_ITEM_5_DESC)
+       #ifdef MAIN_MENU_ITEM_5_DESC
         //_USER_ITEM(5)
         .tag(_ITEM_TAG(15)).button(USER_ITEM_POS(5), MAIN_MENU_ITEM_5_DESC)
        #endif
        .colors(thcolor[5])
-       #if defined(MAIN_MENU_ITEM_6_DESC)
+       #ifdef MAIN_MENU_ITEM_6_DESC
         //_USER_ITEM(6)
         .tag(_ITEM_TAG(16)).button(USER_ITEM_POS(6), MAIN_MENU_ITEM_6_DESC)
        #endif
        .colors(thcolor[6])
-       #if defined(MAIN_MENU_ITEM_7_DESC)
+       #ifdef MAIN_MENU_ITEM_7_DESC
         //_USER_ITEM(7)
         .tag(_ITEM_TAG(17)).button(USER_ITEM_POS(7), MAIN_MENU_ITEM_7_DESC)
        #endif
        .colors(thcolor[7])
-       #if defined(MAIN_MENU_ITEM_8_DESC)
+       #ifdef MAIN_MENU_ITEM_8_DESC
         //_USER_ITEM(8)
         .tag(_ITEM_TAG(18)).button(USER_ITEM_POS(8), MAIN_MENU_ITEM_8_DESC)
        #endif
@@ -123,41 +122,49 @@ btn_colors thcolor[8] = {normal_btn};
   }
 }
 
+#include "../../../../gcode/queue.h"
+
+template<bool> void _lcd_custom_menu_gcode(FSTR_P const fstr);
+
+FORCE_INLINE void _lcd_custom_menu_gcode_done() {
+  TERN_(CUSTOM_MENU_MAIN_SCRIPT_AUDIBLE_FEEDBACK, ui.completion_feedback());
+  TERN_(CUSTOM_MENU_MAIN_SCRIPT_RETURN, ui.return_to_status());
+}
+template<> void _lcd_custom_menu_gcode<true>(FSTR_P const fstr) {
+  gcode.process_subcommands_now(fstr);
+  _lcd_custom_menu_gcode_done();
+}
+template<> void _lcd_custom_menu_gcode<false>(FSTR_P const fstr) {
+  queue.inject(fstr);
+  _lcd_custom_menu_gcode_done();
+}
+
 bool CustomUserMenus::onTouchEnd(uint8_t tag) {
   switch (tag) {
-    #if defined(MAIN_MENU_ITEM_1_DESC)
-      //_USER_ACTION(1)
-      case _ITEM_TAG(11): injectCommands_P(PSTR(MAIN_MENU_ITEM_1_GCODE));sound.play(chimes, PLAY_ASYNCHRONOUS); GOTO_SCREEN(StatusScreen); break;
+    #ifdef MAIN_MENU_ITEM_1_DESC
+      case _ITEM_TAG(11): _lcd_custom_menu_gcode<ENABLED(MAIN_MENU_ITEM_1_IMMEDIATE)>(F(MAIN_MENU_ITEM_1_GCODE)); break;
     #endif
-    #if defined(MAIN_MENU_ITEM_2_DESC)
-      //_USER_ACTION(2)
-      case _ITEM_TAG(12): injectCommands_P(PSTR(MAIN_MENU_ITEM_2_GCODE));sound.play(chimes, PLAY_ASYNCHRONOUS); GOTO_SCREEN(StatusScreen); break;
+    #ifdef MAIN_MENU_ITEM_2_DESC
+      case _ITEM_TAG(12): _lcd_custom_menu_gcode<ENABLED(MAIN_MENU_ITEM_2_IMMEDIATE)>(F(MAIN_MENU_ITEM_2_GCODE)); break;
     #endif
-    #if defined(MAIN_MENU_ITEM_3_DESC)
-      //_USER_ACTION(3)
-      case _ITEM_TAG(13): injectCommands_P(PSTR(MAIN_MENU_ITEM_3_GCODE));sound.play(chimes, PLAY_ASYNCHRONOUS); GOTO_SCREEN(StatusScreen); break;
+    #ifdef MAIN_MENU_ITEM_3_DESC
+      case _ITEM_TAG(13): _lcd_custom_menu_gcode<ENABLED(MAIN_MENU_ITEM_3_IMMEDIATE)>(F(MAIN_MENU_ITEM_3_GCODE)); break;
     #endif
-    #if defined(MAIN_MENU_ITEM_4_DESC)
-      //_USER_ACTION(4)
-      case _ITEM_TAG(14): injectCommands_P(PSTR(MAIN_MENU_ITEM_4_GCODE));sound.play(chimes, PLAY_ASYNCHRONOUS); GOTO_SCREEN(StatusScreen); break;
+    #ifdef MAIN_MENU_ITEM_4_DESC
+      case _ITEM_TAG(14): _lcd_custom_menu_gcode<ENABLED(MAIN_MENU_ITEM_4_IMMEDIATE)>(F(MAIN_MENU_ITEM_4_GCODE)); break;
     #endif
-    #if defined(MAIN_MENU_ITEM_5_DESC)
-      //_USER_ACTION(5)
-      case _ITEM_TAG(15): injectCommands_P(PSTR(MAIN_MENU_ITEM_5_GCODE));sound.play(chimes, PLAY_ASYNCHRONOUS); GOTO_SCREEN(StatusScreen); break;
+    #ifdef MAIN_MENU_ITEM_5_DESC
+      case _ITEM_TAG(15): _lcd_custom_menu_gcode<ENABLED(MAIN_MENU_ITEM_5_IMMEDIATE)>(F(MAIN_MENU_ITEM_5_GCODE)); break;
     #endif
-    #if defined(MAIN_MENU_ITEM_6_DESC)
-      //_USER_ACTION(6)
-      case _ITEM_TAG(16): injectCommands_P(PSTR(MAIN_MENU_ITEM_6_GCODE));sound.play(chimes, PLAY_ASYNCHRONOUS); GOTO_SCREEN(StatusScreen); break;
+    #ifdef MAIN_MENU_ITEM_6_DESC
+      case _ITEM_TAG(16): _lcd_custom_menu_gcode<ENABLED(MAIN_MENU_ITEM_6_IMMEDIATE)>(F(MAIN_MENU_ITEM_6_GCODE)); break;
     #endif
-    #if defined(MAIN_MENU_ITEM_7_DESC)
-      //_USER_ACTION(7)
-      case _ITEM_TAG(17): injectCommands_P(PSTR(MAIN_MENU_ITEM_7_GCODE));sound.play(chimes, PLAY_ASYNCHRONOUS); GOTO_SCREEN(StatusScreen);break;
+    #ifdef MAIN_MENU_ITEM_7_DESC
+      case _ITEM_TAG(17): _lcd_custom_menu_gcode<ENABLED(MAIN_MENU_ITEM_7_IMMEDIATE)>(F(MAIN_MENU_ITEM_7_GCODE)); break;
     #endif
-    #if defined(MAIN_MENU_ITEM_8_DESC)
-      //_USER_ACTION(8)
-      case _ITEM_TAG(18): injectCommands_P(PSTR(MAIN_MENU_ITEM_8_GCODE));sound.play(chimes, PLAY_ASYNCHRONOUS); GOTO_SCREEN(StatusScreen);break;
+    #ifdef MAIN_MENU_ITEM_8_DESC
+      case _ITEM_TAG(18): _lcd_custom_menu_gcode<ENABLED(MAIN_MENU_ITEM_8_IMMEDIATE)>(F(MAIN_MENU_ITEM_8_GCODE)); break;
     #endif
-
     case 1: GOTO_PREVIOUS(); break;
     #ifdef PARKING_COMMAND_GCODE
       case 20: injectCommands(F(PARKING_COMMAND_GCODE)); break;

@@ -531,11 +531,15 @@ inline void manage_inactivity(const bool no_stepper_sleep=false) {
       constexpr millis_t CUB_DEBOUNCE_DELAY_##N = 250UL;               \
       static millis_t next_cub_ms_##N;                                 \
       if (BUTTON##N##_HIT_STATE == READ(BUTTON##N##_PIN)               \
-        && (ENABLED(BUTTON##N##_WHEN_PRINTING) || printer_not_busy)) { \
+        && (ENABLED(BUTTON##N##_WHEN_PRINTING) || printer_not_busy)    \
+      ) {                                                              \
         if (ELAPSED(ms, next_cub_ms_##N)) {                            \
           next_cub_ms_##N = ms + CUB_DEBOUNCE_DELAY_##N;               \
           CODE;                                                        \
-          queue.inject(F(BUTTON##N##_GCODE));                          \
+          if (ENABLED(BUTTON##N##_IMMEDIATE))                          \
+            gcode.process_subcommands_now(F(BUTTON##N##_GCODE));       \
+          else                                                         \
+            queue.inject(F(BUTTON##N##_GCODE));                        \
           TERN_(HAS_MARLINUI_MENU, ui.quick_feedback());               \
         }                                                              \
       }                                                                \

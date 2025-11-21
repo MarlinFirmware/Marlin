@@ -101,6 +101,8 @@ def main():
 
     if branch.startswith("bugfix-2."):
         branch = branch
+    elif branch.endswith("bugfix-2.1.x"):
+        branch = "bugfix-2.1.x"
     elif branch.endswith("-2.1.x") or branch == "2.1.x":
         branch = "latest-2.1.x"
     elif branch.endswith("-2.0.x") or branch == "2.0.x":
