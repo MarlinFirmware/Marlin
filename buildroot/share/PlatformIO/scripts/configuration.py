@@ -309,4 +309,4 @@ else:
     except AttributeError:
         # Handle the 'IsIntegrationDump' error here, or just continue if
         # the build is not a PlatformIO build where pioutil would be unavailable.
-        print("Warning: Failed to initialize PlatformIO environment.")
+        pass
