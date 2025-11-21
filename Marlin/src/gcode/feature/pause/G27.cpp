@@ -44,7 +44,7 @@
 void GcodeSuite::G27() {
   // Don't allow nozzle parking without homing first
   if (homing_needed_error()) return;
-  const int16_t pval = parser.intval('P');
+  const uint8_t pval = parser.byteval('P');
   if (WITHIN(pval, 0, 4)) {
     nozzle.park(pval);
     TERN_(SOVOL_SV06_RTS, RTS_MoveAxisHoming());

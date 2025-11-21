@@ -1161,16 +1161,16 @@ bool unified_bed_leveling::G29_parse_parameters() {
   }
 
   if (parser.seen('P')) {
-    const uint8_t pv = parser.value_byte();
+    const uint8_t pval = parser.value_byte();
     #if !HAS_BED_PROBE
-      if (pv == 1) {
+      if (pval == 1) {
         SERIAL_ECHOLNPGM("G29 P1 requires a probe.\n");
         err_flag = true;
       }
       else
     #endif
       {
-        param.P_phase = pv;
+        param.P_phase = pval;
         if (!WITHIN(param.P_phase, 0, 6)) {
           SERIAL_ECHOLNPGM("?(P)hase value invalid (0-6).\n");
           err_flag = true;
