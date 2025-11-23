@@ -84,6 +84,12 @@ TERN_(FTM_RESONANCE_TEST,ResonanceGenerator FTMotion::rtg;) // Resonance traject
   bool FTMotion::use_advance_lead;
 #endif
 
+#if ENABLED(DISTINCT_E_FACTORS)
+  uint8_t FTMotion::block_extruder_axis;        // Cached E Axis from last-fetched block
+#elif HAS_EXTRUDERS
+  constexpr uint8_t FTMotion::block_extruder_axis;
+#endif
+
 // Shaping variables.
 #if HAS_FTM_SHAPING
   shaping_t FTMotion::shaping = {
@@ -233,13 +239,6 @@ void FTMotion::reset() {
 
   if (did_suspend) stepper.wake_up();
 }
-
-#if ENABLED(DISTINCT_E_FACTORS)
-  uint8_t FTMotion::block_extruder_axis;        // Cached E Axis from last-fetched block
-#elif HAS_EXTRUDERS
-  constexpr uint8_t FTMotion::block_extruder_axis;
-#endif
-
 
 // Private functions.
 
@@ -532,7 +531,7 @@ void FTMotion::fill_stepper_plan_buffer() {
     xyze_float_t traj_coords = calc_traj_point(currentGenerator->getDistanceAtTime(tau));
 
     // Calculate and store stepper plan in buffer
-    stepping.enqueue(traj_coords);
+    stepping_enqueue(traj_coords);
 
   }
 }

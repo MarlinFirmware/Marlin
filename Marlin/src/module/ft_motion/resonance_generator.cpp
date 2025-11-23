@@ -78,7 +78,7 @@ void ResonanceGenerator::fill_stepper_plan_buffer() {
     LOGICAL_AXIS_MAP(_SET_TRAJ);
 
     // Store in buffer
-    ftMotion.stepping.enqueue(traj_coords);
+    ftMotion.stepping_enqueue(traj_coords);
     // Increment time for the next point
     rt_time += FTM_TS;
   }
