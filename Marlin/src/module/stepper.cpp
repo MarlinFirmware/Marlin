@@ -1555,7 +1555,9 @@ void Stepper::isr() {
 
       if (using_ftMotion) {
         if (!ftMotion_nextStepperISR) ftMotion_stepper();
-        TERN_(BABYSTEPPING, if (!nextBabystepISR) nextBabystepISR = babystepping_isr());
+
+        // piggy back babystepping to existing isr
+        TERN_(BABYSTEPPING, if (nextBabystepISR < (BABYSTEP_TICKS / 10)) nextBabystepISR = babystepping_isr());
 
         // ^== Time critical. NOTHING besides pulse generation should be above here!!!
 

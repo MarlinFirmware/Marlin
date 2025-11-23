@@ -25,8 +25,8 @@
 
 typedef struct stepper_plan {
   AxisBits dir_bits;
-  xyze_uint_t first_interval_q11_5{0};
-  xyze_uint_t interval_q11_5{0};
+  xyze_uint_t first_interval_q11_5;
+  xyze_uint_t interval_q11_5;
 } stepper_plan_t;
 
 // Stepping plan handles steps for a whole frame (trajectory point delta)
@@ -36,9 +36,9 @@ typedef struct Stepping {
   AxisBits dir_bits;
   AxisBits step_bits;
   // the wait and interval vars could be uin16_t, but 32 bit mcus handle 32 bit vars faster (no unnecessary masking)
-  xyze_ulong_t axis_interval_q5;
-  xyze_ulong_t axis_wait_q5{FTM_NEVER};
-  uint32_t frame_wait_q5{FTM_NEVER};
+  xyze_ulong_t axis_interval_q5{ LOGICAL_AXIS_LIST_1(FTM_NEVER) };
+  xyze_ulong_t axis_wait_q5{ LOGICAL_AXIS_LIST_1(FTM_NEVER) };
+  uint32_t frame_wait_q5 = FTM_NEVER;
 
   FORCE_INLINE uint32_t advance_until_step();
 
@@ -84,6 +84,10 @@ FORCE_INLINE uint32_t a_times_b_shift_16(uint32_t a, uint32_t b){
     return r;
 }
 
+constexpr uint32_t ONE_Q5 = 1 << 5;
+constexpr uint32_t Q5_INTEGER_MASK = ~(ONE_Q5 - 1);
+constexpr uint32_t FRAME_TICKS_Q5 = TIMER_TICKS_PER_FRAME << 5;
+
 FORCE_INLINE uint32_t Stepping::advance_until_step() {
   step_bits.reset();
   // find next event
@@ -91,13 +95,9 @@ FORCE_INLINE uint32_t Stepping::advance_until_step() {
   #define _RUN_LOOP(A) NOMORE(next_event_q5, axis_wait_q5.A);
   LOGICAL_AXIS_MAP(_RUN_LOOP)
   #undef _RUN_LOOP
-
-  // advance until it
-  constexpr uint32_t ONE_Q5 = 1 << 5;
-  constexpr uint32_t Q5_INTEGER_MASK = ~(ONE_Q5 - 1);
-  constexpr uint32_t FRAME_TICKS_Q5 = TIMER_TICKS_PER_FRAME << 5;
-
   const uint32_t next_event_round_q5 = next_event_q5 & Q5_INTEGER_MASK;
+
+  // advance to it
   frame_wait_q5 -= next_event_round_q5;
   #define _RUN_LOOP(A) axis_wait_q5.A -= next_event_round_q5;
   LOGICAL_AXIS_MAP(_RUN_LOOP)
@@ -112,11 +112,11 @@ FORCE_INLINE uint32_t Stepping::advance_until_step() {
 
     const stepper_plan_t next = dequeue();
     dir_bits         = next.dir_bits;
-    axis_interval_q5 = next.interval_q11_5;
+    axis_interval_q5 = next.interval_q11_5.asUInt32();
     // Note the frame actually ends a fraction of a tick later, so frame_wait_q5 still has that fraction.
     // Instead of discarding that time, we delay both the end of the next frame, and al first steps by that amount.
-    axis_wait_q5     = next.first_interval_q11_5;
-    axis_wait_q5    += frame_wait_q5; // avoid suming XYZEval + scalar in the line above b/c it creates a new struct
+    axis_wait_q5     = next.first_interval_q11_5.asUInt32();
+    axis_wait_q5    += frame_wait_q5;
     frame_wait_q5   += FRAME_TICKS_Q5;
   }
 
