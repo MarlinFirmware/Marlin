@@ -3687,8 +3687,8 @@
 
 // Fixed-Time Motion
 #if ENABLED(FT_MOTION)
-  #define FTM_TS (1.0f / FTM_FS)                                    // (s) Time step for trajectory generation. (Reciprocal of FTM_FS)
-  #define TIMER_TICKS_PER_FRAME (STEPPER_TIMER_RATE / FTM_FS)         // Interpolated stepper commands per unit time
+  #define FTM_TS (1.0f / FTM_FS)                                // (s) Time step for trajectory generation. (Reciprocal of FTM_FS)
+  #define TIMER_TICKS_PER_FRAME (STEPPER_TIMER_RATE / FTM_FS)   // Interpolated stepper commands per unit time
   #define FTM_NEVER HAL_TIMER_TYPE_MAX                // Special stepper timer ticks to note "never"
   #define FTM_RATIO (FTM_FS / FTM_MIN_SHAPE_FREQ)     // Factor for use in FTM_ZMAX. DON'T CHANGE.
   #define FTM_SMOOTH_MAX_I uint32_t(TERN0(FTM_SMOOTHING, CEIL(FTM_FS * FTM_MAX_SMOOTHING_TIME))) // Max delays for smoothing

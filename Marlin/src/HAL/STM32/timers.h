@@ -38,7 +38,7 @@
 // of adding a run-time check and HAL_TIMER_TYPE_MAX is refactored to allow unique
 // values for each timer.
 #define hal_timer_t uint32_t
-#define HAL_TIMER_TYPE_MAX UINT16_MAX
+#define HAL_TIMER_TYPE_MAX hal_timer_t(UINT16_MAX)
 
 // Marlin timer_instance[] content (unrelated to timer selection)
 #define MF_TIMER_STEP       0  // Timer Index for Stepper

@@ -32,17 +32,21 @@ typedef struct stepper_plan {
 // Stepping plan handles steps for a whole frame (trajectory point delta)
 typedef struct Stepping {
 
+  //
   // ISR part
+  //
+
   AxisBits dir_bits;
   AxisBits step_bits;
-  // the wait and interval vars could be uin16_t, but 32 bit mcus handle 32 bit vars faster (no unnecessary masking)
+
+  // The wait and interval vars could be uin16_t, but 32 bit MCUs handle 32 bit vars faster (no unnecessary masking)
   xyze_ulong_t axis_interval_q5{ LOGICAL_AXIS_LIST_1(FTM_NEVER) };
   xyze_ulong_t ticks_left_per_axis_q5{ LOGICAL_AXIS_LIST_1(FTM_NEVER) };
   uint32_t ticks_left_in_frame_q5 = FTM_NEVER;
 
   FORCE_INLINE uint32_t advance_until_step();
 
-  FORCE_INLINE void reset(){
+  FORCE_INLINE void reset() {
     step_bits = 0;
     axis_interval_q5 = FTM_NEVER;
     ticks_left_per_axis_q5 = FTM_NEVER;
@@ -52,7 +56,9 @@ typedef struct Stepping {
     curr_steps_q48_16.reset();
   }
 
+  //
   // Buffering part
+  //
 
   stepper_plan_t stepper_plan_buff[FTM_BUFFER_SIZE];
   uint32_t stepper_plan_tail, stepper_plan_head;
@@ -73,15 +79,16 @@ typedef struct Stepping {
   }
 } stepping_t;
 
-
+//
 // uint64-free equivalent of: ((uint64_t)a * b) >> 16
-FORCE_INLINE uint32_t a_times_b_shift_16(uint32_t a, uint32_t b){
-    uint32_t hi = a >> 16;
-    uint32_t lo = a & 0xFFFFu;
-    uint32_t hi_prod = hi * (uint32_t)b;
-    uint32_t lo_prod = lo * (uint32_t)b;
-    uint32_t r = hi_prod + (lo_prod >> 16);
-    return r;
+//
+FORCE_INLINE uint32_t a_times_b_shift_16(uint32_t a, uint32_t b) {
+  uint32_t hi = a >> 16;
+  uint32_t lo = a & 0xFFFFu;
+  uint32_t hi_prod = hi * (uint32_t)b;
+  uint32_t lo_prod = lo * (uint32_t)b;
+  uint32_t r = hi_prod + (lo_prod >> 16);
+  return r;
 }
 
 constexpr uint32_t ONE_Q5 = 1 << 5;
@@ -128,10 +135,10 @@ FORCE_INLINE uint32_t Stepping::advance_until_step() {
       LOGICAL_AXIS_MAP(_RUN_LOOP)
       #undef _RUN_LOOP
       // build step_bits
-      #define _RUN_LOOP(A)                                    \
-        if (ticks_left_per_axis_q5.A < ONE_Q5) {              \
-            step_bits.A = 1;                                  \
-            ticks_left_per_axis_q5.A += axis_interval_q5.A;   \
+      #define _RUN_LOOP(A)                                \
+        if (ticks_left_per_axis_q5.A < ONE_Q5) {          \
+          step_bits.A = 1;                                \
+          ticks_left_per_axis_q5.A += axis_interval_q5.A; \
         }
       LOGICAL_AXIS_MAP(_RUN_LOOP)
       #undef _RUN_LOOP
@@ -186,7 +193,7 @@ FORCE_INLINE void Stepping::enqueue(XYZEval<int64_t> next_steps_q48_16) {
   #undef _RUN_AXIS
 
   stepper_plan_buff[stepper_plan_head] = stepper_plan;
-  stepper_plan_head = (stepper_plan_head + 1u) & FTM_BUFFER_MASK;
+  stepper_plan_head = (stepper_plan_head + 1U) & FTM_BUFFER_MASK;
 }
 
 // Dequeue a plan.
