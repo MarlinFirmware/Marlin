@@ -25,7 +25,7 @@
  * Loosely based on DWIN PROUI gcode_preview.cpp
  */
 
-#include "../../../inc/MarlinConfig.h"
+#include "../../inc/MarlinConfig.h"
 
 #if HAS_GCODE_PREVIEW && ENABLED(TFT_COLOR_UI)
 //#define DEBUG_OUT 1

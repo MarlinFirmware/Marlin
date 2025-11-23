@@ -14,7 +14,7 @@
  * (at your option) any later version.
  */
 
-#include "../../../inc/MarlinConfig.h"
+#include "../../../../inc/MarlinConfig.h"
 
 #if HAS_JPEG_DECODER
 
