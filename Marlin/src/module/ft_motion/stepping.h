@@ -98,15 +98,15 @@ constexpr uint32_t FRAME_TICKS_Q5 = TIMER_TICKS_PER_FRAME << 5;
 FORCE_INLINE uint32_t Stepping::advance_until_step() {
   step_bits.reset();
   uint32_t ticks_to_wait_q5 = 0;
-  while (1) {
-    // find next step
+  for (;;) {
+    // Find next step
     uint32_t ticks_to_next_step_q5 = FTM_NEVER;
     #define _RUN_LOOP(A) NOMORE(ticks_to_next_step_q5, ticks_left_per_axis_q5.A);
-    LOGICAL_AXIS_MAP(_RUN_LOOP)
+    LOGICAL_AXIS_MAP(_RUN_LOOP);
     #undef _RUN_LOOP
 
     if (ticks_to_next_step_q5 > ticks_left_in_frame_q5) {
-      // frame ends before next step
+      // Frame ends before next step
       if (is_empty()) {
         ticks_left_in_frame_q5 = 0;
         ticks_left_per_axis_q5 = FTM_NEVER;
@@ -124,27 +124,33 @@ FORCE_INLINE uint32_t Stepping::advance_until_step() {
       // Instead of discarding that time, we delay both the end of the next frame, and al first steps by that amount.
       ticks_left_per_axis_q5  = next.first_interval_q11_5.asUInt32();
       ticks_left_per_axis_q5 += ticks_left_in_frame_q5;
-      ticks_left_in_frame_q5  += FRAME_TICKS_Q5;
-    } else {
-      // step happens before frame end
-      // advance to it
+      ticks_left_in_frame_q5 += FRAME_TICKS_Q5;
+    }
+    else {
+      // Step happens before frame end
+      // Advance to it
       const uint32_t wait_floor_q5 = ticks_to_next_step_q5 & Q5_INTEGER_MASK;
       ticks_to_wait_q5 += wait_floor_q5;
       ticks_left_in_frame_q5 -= wait_floor_q5;
+
       #define _RUN_LOOP(A) ticks_left_per_axis_q5.A -= wait_floor_q5;
-      LOGICAL_AXIS_MAP(_RUN_LOOP)
+      LOGICAL_AXIS_MAP(_RUN_LOOP);
       #undef _RUN_LOOP
-      // build step_bits
-      #define _RUN_LOOP(A)                                \
-        if (ticks_left_per_axis_q5.A < ONE_Q5) {          \
-          step_bits.A = 1;                                \
-          ticks_left_per_axis_q5.A += axis_interval_q5.A; \
+
+      // Build step_bits array
+      auto _set_step_bits = [&](const AxisEnum A) __attribute__((always_inline)) {
+        if (ticks_left_per_axis_q5[A] < ONE_Q5) {
+          step_bits[A] = 1;
+          ticks_left_per_axis_q5[A] += axis_interval_q5[A];
         }
-      LOGICAL_AXIS_MAP(_RUN_LOOP)
-      #undef _RUN_LOOP
+      };
+      #define _SET_STEP_BITS(A) _set_step_bits(_AXIS(A));
+      LOGICAL_AXIS_MAP(_SET_STEP_BITS);
+      #undef _SET_STEP_BITS
+
       return ticks_to_wait_q5 >> 5;
     }
-  }
+  } // loop forever
 }
 
 FORCE_INLINE void Stepping::enqueue(XYZEval<int64_t> next_steps_q48_16) {
