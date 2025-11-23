@@ -281,6 +281,29 @@ void Canvas::addBar(uint16_t x, uint16_t y, uint16_t barWidth, uint16_t barHeigh
   }
 }
 
+void Canvas::addPixels(uint16_t x, uint16_t y, uint16_t pixelWidth, uint16_t pixelHeight, uint16_t *pixels) {
+  if (startLine >= y + pixelHeight || endLine <= y) return;          // No overlap with current chunk
+
+  uint16_t yc = y <= startLine ? 0 : (y - startLine) * width;      // Multiple of width as y offset
+  uint16_t *srcPixel = pixels;                                   // Source pixel pointer
+
+  // Calculate which rows of the image to draw in this chunk
+  uint16_t startRow = (startLine > y) ? startLine - y : 0;
+  uint16_t endRow = (endLine < y + pixelHeight) ? endLine - y : pixelHeight;
+
+  for (uint16_t i = startRow; i < endRow; i++) {                 // Loop over the rows to draw
+    uint16_t *dstPixel = buffer + x + yc;                        // Destination pixel address
+    yc += width;                                                 // + is faster than *
+    uint16_t *rowSrc = srcPixel + i * pixelWidth;                // Start of this row in source
+    for (uint16_t j = 0; j < pixelWidth; j++) {                  // Copy the width
+      if (x + j < width) {                                       // Within canvas width?
+        *dstPixel++ = ENDIAN_COLOR(*rowSrc);                    // Copy with endianness
+      }
+      rowSrc++;                                                  // Next source pixel
+    }
+  }
+}
+
 Canvas tftCanvas;
 
 #endif // HAS_GRAPHICAL_TFT
