@@ -27,7 +27,7 @@
 
 #pragma once
 
-#include "../../../inc/MarlinConfigPre.h"
+#include "../../inc/MarlinConfigPre.h"
 
 #if ENABLED(TFT_COLOR_UI) && HAS_GCODE_PREVIEW
 
