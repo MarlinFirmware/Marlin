@@ -179,7 +179,7 @@ FORCE_INLINE void Stepping::enqueue(XYZEval<int64_t> next_steps_q48_16) {
       first_interval_q11_5 += (TIMER_TICKS_PER_FRAME << 5) - tick_of_spurious_step_q27_5 + 1;    \
     }                                                                                            \
     stepper_plan.first_interval_q11_5.A = first_interval_q11_5;                                  \
-    stepper_plan.interval_q11_5.A       = MIN(interval_q27_5, FTM_NEVER);                        \
+    stepper_plan.interval_q11_5.A       = _MIN(interval_q27_5, FTM_NEVER);                       \
   } while(0);                                                                                    \
 
   LOGICAL_AXIS_MAP(_RUN_AXIS);
