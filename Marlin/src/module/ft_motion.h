@@ -185,8 +185,13 @@ class FTMotion {
       return cfg.active ? axis_move_dir[axis] : stepper.last_direction_bits[axis];
     }
 
-
     static stepping_t stepping;
+
+    #if ENABLED(DISTINCT_E_FACTORS)
+      static uint8_t block_extruder_axis;  // Cached extruder axis index
+    #elif HAS_EXTRUDERS
+      static constexpr uint8_t block_extruder_axis = E_AXIS;
+    #endif
 
   private:
     // Block data variables.
@@ -204,12 +209,6 @@ class FTMotion {
 
     #if FTM_HAS_LIN_ADVANCE
       static bool use_advance_lead;
-    #endif
-
-    #if ENABLED(DISTINCT_E_FACTORS)
-      static uint8_t block_extruder_axis;  // Cached extruder axis index
-    #elif HAS_EXTRUDERS
-      static constexpr uint8_t block_extruder_axis = E_AXIS;
     #endif
 
     #if HAS_FTM_SHAPING

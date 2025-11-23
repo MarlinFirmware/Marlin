@@ -31,6 +31,8 @@ typedef struct stepper_plan {
 
 // Stepping plan handles steps for a whole frame (trajectory point delta)
 typedef struct Stepping {
+
+  // ISR part
   AxisBits dir_bits;
   AxisBits step_bits;
   // the wait and interval vars could be uin16_t, but 32 bit mcus handle 32 bit vars faster (no unnecessary masking)
@@ -38,9 +40,9 @@ typedef struct Stepping {
   xyze_ulong_t axis_wait_q5{FTM_NEVER};
   uint32_t frame_wait_q5{FTM_NEVER};
 
-  FORCE_INLINE uint32_t advance_until_step();
+  uint32_t advance_until_step();
 
-  FORCE_INLINE void reset(){
+  void reset(){
     step_bits = 0;
     axis_interval_q5 = FTM_NEVER;
     axis_wait_q5 = FTM_NEVER;
@@ -50,28 +52,23 @@ typedef struct Stepping {
     curr_steps_q48_16.reset();
   }
 
-  FORCE_INLINE void enqueue_stepper_plan(XYZEval<int64_t> next_steps_q48_16);
+  // Buffering part
 
   stepper_plan_t stepper_plan_buff[FTM_BUFFER_SIZE];
   uint32_t stepper_plan_tail, stepper_plan_head;
   XYZEval<int64_t> curr_steps_q48_16;
 
-  // Dequeue a plan.
-  // Zero-copy consume; caller must use it before next dequeue if they keep a ref.
-  // Done like this to avoid double copy.
-  // e.g do: stepper_plan_t data = dequeue_stepper_plan(); this is ok
-  FORCE_INLINE stepper_plan_t& dequeue_stepper_plan() {
-    const uint32_t i = stepper_plan_tail;
-    stepper_plan_tail = (i + 1u) & FTM_BUFFER_MASK;
-    return stepper_plan_buff[i];
+  void enqueue(XYZEval<float> traj_coords);
+
+  stepper_plan_t& dequeue();
+
+  bool is_busy() {
+    return !(is_empty() && frame_wait_q5 == FTM_NEVER);
   }
-  FORCE_INLINE bool stepper_is_busy() {
-    return !(stepper_plan_is_empty() && frame_wait_q5 == FTM_NEVER);
-  }
-  FORCE_INLINE bool stepper_plan_is_empty() {
+  bool is_empty() {
     return stepper_plan_head == stepper_plan_tail;
   }
-  FORCE_INLINE bool stepper_plan_is_full() {
+  bool is_full() {
     return ((stepper_plan_head + 1) & FTM_BUFFER_MASK) == stepper_plan_tail;
   }
 } stepping_t;

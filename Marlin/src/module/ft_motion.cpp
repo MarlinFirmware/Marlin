@@ -84,12 +84,6 @@ TERN_(FTM_RESONANCE_TEST,ResonanceGenerator FTMotion::rtg;) // Resonance traject
   bool FTMotion::use_advance_lead;
 #endif
 
-#if ENABLED(DISTINCT_E_FACTORS)
-  uint8_t FTMotion::block_extruder_axis;        // Cached E Axis from last-fetched block
-#elif HAS_EXTRUDERS
-  constexpr uint8_t FTMotion::block_extruder_axis;
-#endif
-
 // Shaping variables.
 #if HAS_FTM_SHAPING
   shaping_t FTMotion::shaping = {
@@ -181,7 +175,7 @@ void FTMotion::loop() {
 
   // Set busy status for use by planner.busy()
   const bool oldBusy = busy;
-  busy = stepping.stepper_is_busy();
+  busy = stepping.is_busy();
   if (oldBusy && !busy) moving_axis_flags.reset();
 
 }
@@ -239,6 +233,13 @@ void FTMotion::reset() {
 
   if (did_suspend) stepper.wake_up();
 }
+
+#if ENABLED(DISTINCT_E_FACTORS)
+  uint8_t FTMotion::block_extruder_axis;        // Cached E Axis from last-fetched block
+#elif HAS_EXTRUDERS
+  constexpr uint8_t FTMotion::block_extruder_axis;
+#endif
+
 
 // Private functions.
 
@@ -505,7 +506,7 @@ xyze_float_t FTMotion::calc_traj_point(const float dist) {
  * Called from FTMotion::loop()
  */
 void FTMotion::fill_stepper_plan_buffer() {
-  while (!stepping.stepper_plan_is_full()) {
+  while (!stepping.is_full()) {
     float total_duration = currentGenerator->getTotalDuration(); // If the current plan is empty, it will have zero duration.
     while (tau + FTM_TS > total_duration) {
       /**
@@ -529,17 +530,9 @@ void FTMotion::fill_stepper_plan_buffer() {
 
     // Get distance from trajectory generator
     xyze_float_t traj_coords = calc_traj_point(currentGenerator->getDistanceAtTime(tau));
-    // Convert trajectory to step delta
-    #define _TOSTEPS_q16(A, B) int64_t(traj_coords.A * planner.settings.axis_steps_per_mm[B] * (1ULL << 16))
-    XYZEval<int64_t> next_steps_q48_16 = LOGICAL_AXIS_ARRAY(
-      _TOSTEPS_q16(e, block_extruder_axis),
-      _TOSTEPS_q16(x, X_AXIS), _TOSTEPS_q16(y, Y_AXIS), _TOSTEPS_q16(z, Z_AXIS),
-      _TOSTEPS_q16(i, I_AXIS), _TOSTEPS_q16(j, J_AXIS), _TOSTEPS_q16(k, K_AXIS),
-      _TOSTEPS_q16(u, U_AXIS), _TOSTEPS_q16(v, V_AXIS), _TOSTEPS_q16(w, W_AXIS)
-    );
-    #undef _TOSTEPS_q32
+
     // Calculate and store stepper plan in buffer
-    stepping.enqueue_stepper_plan(next_steps_q48_16);
+    stepping.enqueue(traj_coords);
 
   }
 }
