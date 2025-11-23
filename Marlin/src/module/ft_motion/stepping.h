@@ -141,50 +141,46 @@ FORCE_INLINE uint32_t Stepping::advance_until_step() {
 }
 
 FORCE_INLINE void Stepping::enqueue(XYZEval<int64_t> next_steps_q48_16) {
-  constexpr uint32_t HALF_PHASE_OFFSET = (1 << 15); // to make steps at .5 crossings instead of integers to center the error
   stepper_plan_t stepper_plan;
-  #define _RUN_AXIS(A) do {                                                           \
-    int64_t offset_curr_q48_16 = curr_steps_q48_16.A /*+ HALF_PHASE_OFFSET*/;             \
-    int64_t offset_next_q48_16 = next_steps_q48_16.A /*+ HALF_PHASE_OFFSET*/;             \
-    curr_steps_q48_16.A = next_steps_q48_16.A;                                        \
-    bool new_dir = offset_next_q48_16 >= offset_curr_q48_16;                          \
-    stepper_plan.dir_bits.A = new_dir;                                                \
-    uint32_t delta_q16_16 = abs(offset_next_q48_16 - offset_curr_q48_16);             \
-    uint32_t curr_phase_q1_16 = offset_curr_q48_16 & 0xFFFF;                          \
-    uint32_t next_phase_q1_16 = offset_next_q48_16 & 0xFFFF;                          \
-    if (!new_dir) {                                                                   \
-      /* when going backwards, the phase is 1-phase */                                \
-      curr_phase_q1_16 = (1<<16) - curr_phase_q1_16;                                  \
-      next_phase_q1_16 = (1<<16) - next_phase_q1_16;                                  \
-    }                                                                                 \
-    /* When going e.g from 0.6 to 1.0, the delta is not a whole step, */              \
-    /* but the phase overflow indicates a step.  */                                   \
-    uint32_t carry = curr_phase_q1_16 > next_phase_q1_16;                             \
-    /* steps_to_make = integer steps + potential fraction crossing an integer */      \
-    uint16_t steps_to_make = (delta_q16_16 >> 16) + carry;                            \
-    if (steps_to_make == 0) {                                                         \
-      stepper_plan.first_interval_q11_5.A = FTM_NEVER;                                \
-      stepper_plan.interval_q11_5.A       = FTM_NEVER;                                \
-      break;                                                                          \
-    }                                                                                 \
-    uint32_t interval_q27_5 = ((uint32_t)TIMER_TICKS_PER_FRAME << 21) / delta_q16_16; \
-    uint32_t current_frame_phase_q27_5 =                                              \
-      a_times_b_shift_16(interval_q27_5, curr_phase_q1_16);                           \
-    uint16_t first_interval_q11_5 = interval_q27_5 - current_frame_phase_q27_5;       \
-    /* The calculation of interval_q27_5 may undershoot its value by a fraction */    \
-    /* due to integer (floor) division. This small fractional error can */            \
-    /* ocasionally make a spurious step fit inside this frame. */                     \
-    /* To avoid that corner case, the first interval is incremented just enough */    \
-    /* for it to not fit.   */                                                        \
-    int32_t tick_of_spurious_step_q27_5 = first_interval_q11_5 +                      \
-                                          interval_q27_5 * steps_to_make;             \
-    if (tick_of_spurious_step_q27_5 <= (TIMER_TICKS_PER_FRAME << 5)) {                \
-      first_interval_q11_5 += (TIMER_TICKS_PER_FRAME << 5) -                          \
-                              tick_of_spurious_step_q27_5 + 1;                        \
-    }                                                                                 \
-    stepper_plan.first_interval_q11_5.A = first_interval_q11_5;                       \
-    stepper_plan.interval_q11_5.A       = MIN(interval_q27_5, FTM_NEVER);             \
-  } while(0);                                                                         \
+  #define _RUN_AXIS(A) do {                                                                      \
+    int64_t offset_curr_q48_16 = curr_steps_q48_16.A;                                            \
+    int64_t offset_next_q48_16 = next_steps_q48_16.A;                                            \
+    curr_steps_q48_16.A = next_steps_q48_16.A;                                                   \
+    bool new_dir = offset_next_q48_16 >= offset_curr_q48_16;                                     \
+    stepper_plan.dir_bits.A = new_dir;                                                           \
+    uint32_t delta_q16_16 = abs(offset_next_q48_16 - offset_curr_q48_16);                        \
+    uint32_t curr_phase_q1_16 = offset_curr_q48_16 & 0xFFFF;                                     \
+    uint32_t next_phase_q1_16 = offset_next_q48_16 & 0xFFFF;                                     \
+    if (!new_dir) {                                                                              \
+      /* when going backwards, the phase is 1-phase */                                           \
+      curr_phase_q1_16 = (1<<16) - curr_phase_q1_16;                                             \
+      next_phase_q1_16 = (1<<16) - next_phase_q1_16;                                             \
+    }                                                                                            \
+    /* When going e.g from 0.6 to 1.0, the delta is not a whole step, */                         \
+    /* but the phase overflow indicates a step.  */                                              \
+    uint32_t carry = curr_phase_q1_16 > next_phase_q1_16;                                        \
+    /* steps_to_make = integer steps + potential fraction crossing an integer */                 \
+    uint16_t steps_to_make = (delta_q16_16 >> 16) + carry;                                       \
+    if (steps_to_make == 0) {                                                                    \
+      stepper_plan.first_interval_q11_5.A = FTM_NEVER;                                           \
+      stepper_plan.interval_q11_5.A       = FTM_NEVER;                                           \
+      break;                                                                                     \
+    }                                                                                            \
+    uint32_t interval_q27_5 = ((uint32_t)TIMER_TICKS_PER_FRAME << 21) / delta_q16_16;            \
+    uint32_t current_frame_phase_q27_5 = a_times_b_shift_16(interval_q27_5, curr_phase_q1_16);   \
+    uint16_t first_interval_q11_5 = interval_q27_5 - current_frame_phase_q27_5;                  \
+    /* The calculation of interval_q27_5 may undershoot its value by a fraction */               \
+    /* due to integer (floor) division. This small fractional error can */                       \
+    /* ocasionally make a spurious step fit inside this frame. */                                \
+    /* To avoid that corner case, the first interval is incremented just enough */               \
+    /* for it to not fit.   */                                                                   \
+    int32_t tick_of_spurious_step_q27_5 = first_interval_q11_5 + interval_q27_5 * steps_to_make; \
+    if (tick_of_spurious_step_q27_5 <= (TIMER_TICKS_PER_FRAME << 5)) {                           \
+      first_interval_q11_5 += (TIMER_TICKS_PER_FRAME << 5) - tick_of_spurious_step_q27_5 + 1;    \
+    }                                                                                            \
+    stepper_plan.first_interval_q11_5.A = first_interval_q11_5;                                  \
+    stepper_plan.interval_q11_5.A       = MIN(interval_q27_5, FTM_NEVER);                        \
+  } while(0);                                                                                    \
 
   LOGICAL_AXIS_MAP(_RUN_AXIS);
   #undef _RUN_AXIS
