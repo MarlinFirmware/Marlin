@@ -29,7 +29,7 @@
 
 #if HAS_GCODE_PREVIEW && ENABLED(TFT_COLOR_UI)
 //#define DEBUG_OUT 1
-#include "../../../core/debug_out.h"
+#include "../../core/debug_out.h"
 
 #include "ui_gcode_preview.h"
 
