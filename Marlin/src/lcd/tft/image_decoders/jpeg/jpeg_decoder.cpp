@@ -19,7 +19,7 @@
 #if HAS_JPEG_DECODER
 
 //#define DEBUG_OUT 1
-#include "../../../core/debug_out.h"
+#include "../../../../core/debug_out.h"
 
 #include "jpeg_decoder.h"
 #include <cstring>

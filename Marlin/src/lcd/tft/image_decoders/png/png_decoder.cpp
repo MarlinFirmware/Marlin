@@ -19,7 +19,7 @@
 #if HAS_PNG_DECODER
 
 //#define DEBUG_OUT 1
-#include "../../../core/debug_out.h"
+#include "../../../../core/debug_out.h"
 
 #include "png_decoder.h"
 #include <stdlib.h>

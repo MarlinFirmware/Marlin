@@ -19,7 +19,7 @@
 #if HAS_QOI_DECODER
 
 //#define DEBUG_OUT 1
-#include "../../../core/debug_out.h"
+#include "../../../../core/debug_out.h"
 
 // Configure qoi.h for embedded use
 #define QOI_IMPLEMENTATION
