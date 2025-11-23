@@ -25,28 +25,53 @@
 
 typedef struct stepper_plan {
   AxisBits dir_bits;
-  xyze_ulong_t advance_dividend_q0_32{0};
-  void reset() { advance_dividend_q0_32.reset(); }
+  xyze_uint_t first_interval_q11_5{0};
+  xyze_uint_t interval_q11_5{0};
 } stepper_plan_t;
 
-// Stepping plan handles steps for a while frame (trajectory point delta)
+// Stepping plan handles steps for a whole frame (trajectory point delta)
 typedef struct Stepping {
-  stepper_plan_t stepper_plan;
-  xyze_ulong_t advance_dividend_reciprocal{0}; // Note this 32 bit reciprocal underestimates quotients by at most one.
-  xyze_ulong_t delta_error_q32{ LOGICAL_AXIS_LIST_1(_BV32(31)) };
+  AxisBits dir_bits;
   AxisBits step_bits;
-  uint32_t bresenham_iterations_pending;
+  // the wait and interval vars could be uin16_t, but 32 bit mcus handle 32 bit vars faster (no unnecessary masking)
+  xyze_ulong_t axis_interval_q5;
+  xyze_ulong_t axis_wait_q5{FTM_NEVER};
+  uint32_t frame_wait_q5{FTM_NEVER};
 
-  void reset();
-  // Updates error and bresenham_iterations_pending, sets step_bits and returns interval until the next step (or end of frame).
-  uint32_t advance_until_step();
-  /**
-   * If bresenham_iterations_pending, advance to next actual step.
-   * Else, consume stepper data point
-   * Then return interval until that next step
-   */
-  uint32_t plan();
-  #define INTERVAL_PER_ITERATION (STEPPER_TIMER_RATE / FTM_STEPPER_FS)
-  #define INTERVAL_PER_TRAJ_POINT (STEPPER_TIMER_RATE / FTM_FS)
-  #define ITERATIONS_PER_TRAJ (FTM_STEPPER_FS * FTM_TS)
+  FORCE_INLINE uint32_t advance_until_step();
+
+  FORCE_INLINE void reset(){
+    step_bits = 0;
+    axis_interval_q5 = FTM_NEVER;
+    axis_wait_q5 = FTM_NEVER;
+    frame_wait_q5 = FTM_NEVER;
+
+    stepper_plan_tail = stepper_plan_head = 0;
+    curr_steps_q48_16.reset();
+  }
+
+  FORCE_INLINE void enqueue_stepper_plan(XYZEval<int64_t> next_steps_q48_16);
+
+  stepper_plan_t stepper_plan_buff[FTM_BUFFER_SIZE];
+  uint32_t stepper_plan_tail, stepper_plan_head;
+  XYZEval<int64_t> curr_steps_q48_16;
+
+  // Dequeue a plan.
+  // Zero-copy consume; caller must use it before next dequeue if they keep a ref.
+  // Done like this to avoid double copy.
+  // e.g do: stepper_plan_t data = dequeue_stepper_plan(); this is ok
+  FORCE_INLINE stepper_plan_t& dequeue_stepper_plan() {
+    const uint32_t i = stepper_plan_tail;
+    stepper_plan_tail = (i + 1u) & FTM_BUFFER_MASK;
+    return stepper_plan_buff[i];
+  }
+  FORCE_INLINE bool stepper_is_busy() {
+    return !(stepper_plan_is_empty() && frame_wait_q5 == FTM_NEVER);
+  }
+  FORCE_INLINE bool stepper_plan_is_empty() {
+    return stepper_plan_head == stepper_plan_tail;
+  }
+  FORCE_INLINE bool stepper_plan_is_full() {
+    return ((stepper_plan_head + 1) & FTM_BUFFER_MASK) == stepper_plan_tail;
+  }
 } stepping_t;

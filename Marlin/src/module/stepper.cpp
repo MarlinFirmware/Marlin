@@ -1562,7 +1562,7 @@ void Stepper::isr() {
         // Enable ISRs to reduce latency for higher priority ISRs
         hal.isr_on();
 
-        if (!ftMotion_nextStepperISR) ftMotion_nextStepperISR = ftMotion.stepping.plan();
+        if (!ftMotion_nextStepperISR) ftMotion_nextStepperISR = ftMotion.stepping.advance_until_step();
 
         interval = HAL_TIMER_TYPE_MAX;         // Time until the next step
         NOMORE(interval, ftMotion_nextStepperISR);
@@ -3643,9 +3643,7 @@ void Stepper::report_positions() {
    */
   void Stepper::ftMotion_stepper() {
     AxisBits &step_bits = ftMotion.stepping.step_bits;            // Aliases for prettier code
-    AxisBits &dir_bits = ftMotion.stepping.stepper_plan.dir_bits;
-
-    if (step_bits.bits == 0) return;
+    AxisBits &dir_bits = ftMotion.stepping.dir_bits;
 
     USING_TIMED_PULSE();
 
@@ -3657,8 +3655,6 @@ void Stepper::report_positions() {
 
     // Replace last_direction_bits with current dir bits for all stepped axes
     last_direction_bits = (last_direction_bits & ~step_bits) | (dir_bits & step_bits);
-    //#define _FTM_SET_DIR(A) if (step_bits.A) last_direction_bits.A = dir_bits.A;
-    //LOGICAL_AXIS_MAP(_FTM_SET_DIR);
 
     if (last_set_direction != last_direction_bits) {
       // Apply directions (generally applying to the entire linear move)

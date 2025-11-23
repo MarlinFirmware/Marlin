@@ -187,29 +187,6 @@ class FTMotion {
 
 
     static stepping_t stepping;
-    FORCE_INLINE static bool stepper_plan_is_empty() {
-      return stepper_plan_head == stepper_plan_tail;
-    }
-    FORCE_INLINE static bool stepper_plan_is_full() {
-      return ((stepper_plan_head + 1) & FTM_BUFFER_MASK) == stepper_plan_tail;
-    }
-    FORCE_INLINE static uint32_t stepper_plan_count() {
-      return (stepper_plan_head - stepper_plan_tail) & FTM_BUFFER_MASK;
-    }
-    // Enqueue a plan
-    FORCE_INLINE static void enqueue_stepper_plan(const stepper_plan_t& d) {
-      stepper_plan_buff[stepper_plan_head] = d;
-      stepper_plan_head = (stepper_plan_head + 1u) & FTM_BUFFER_MASK;
-    }
-    // Dequeue a plan.
-    // Zero-copy consume; caller must use it before next dequeue if they keep a ref.
-    // Done like this to avoid double copy.
-    // e.g do: stepper_plan_t data = dequeue_stepper_plan(); this is ok
-    FORCE_INLINE static stepper_plan_t& dequeue_stepper_plan() {
-      const uint32_t i = stepper_plan_tail;
-      stepper_plan_tail = (i + 1u) & FTM_BUFFER_MASK;
-      return stepper_plan_buff[i];
-    }
 
   private:
     // Block data variables.
@@ -255,12 +232,8 @@ class FTMotion {
     static void plan_runout_block();
     static void fill_stepper_plan_buffer();
     static xyze_float_t calc_traj_point(const float dist);
-    static stepper_plan_t calc_stepper_plan(xyze_float_t delta);
     static bool plan_next_block();
-    // stepper_plan buffer variables.
-    static stepper_plan_t stepper_plan_buff[FTM_BUFFER_SIZE];
-    static uint32_t stepper_plan_tail, stepper_plan_head;
-    static XYZEval<int64_t> curr_steps_q32_32;
+
 }; // class FTMotion
 
 extern FTMotion ftMotion; // Use ftMotion.thing, not FTMotion::thing.
