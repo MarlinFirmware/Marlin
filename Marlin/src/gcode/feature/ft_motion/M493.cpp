@@ -213,6 +213,7 @@ void GcodeSuite::M493() {
     const bool active = parser.value_bool();
     if (active != ftMotion.cfg.active) {
       stepper.ftMotion_syncPosition();
+      planner.synchronize();
       ftMotion.cfg.active = active;
       flag.report = true;
     }
@@ -229,6 +230,7 @@ void GcodeSuite::M493() {
     }
     auto set_shaper = [&](const AxisEnum axis, ftMotionShaper_t newsh) {
       if (newsh != ftMotion.cfg.shaper[axis]) {
+        planner.synchronize();
         ftMotion.cfg.shaper[axis] = newsh;
         flag.update = flag.report = true;
       }
@@ -244,6 +246,7 @@ void GcodeSuite::M493() {
   if (parser.seenval('H')) {
     const bool enabled = parser.value_bool();
     if (enabled != ftMotion.cfg.axis_sync_enabled) {
+      planner.synchronize();
       ftMotion.cfg.axis_sync_enabled = enabled;
       flag.report = true;
     }
@@ -263,6 +266,7 @@ void GcodeSuite::M493() {
             case dynFreqMode_MASS_BASED:
           #endif
           case dynFreqMode_DISABLED:
+            planner.synchronize();
             ftMotion.cfg.dynFreqMode = val;
             flag.report = true;
             break;
@@ -323,6 +327,7 @@ void GcodeSuite::M493() {
         if (AXIS_IS_SHAPING(X)) {
           // TODO: Frequency minimum is dependent on the shaper used; the above check isn't always correct.
           if (goodBaseFreq) {
+            planner.synchronize();
             ftMotion.cfg.baseFreq.x = baseFreqVal;
             flag.update = flag.report = true;
           }
@@ -334,6 +339,7 @@ void GcodeSuite::M493() {
       #if HAS_DYNAMIC_FREQ
         // Parse X frequency scaling parameter
         if (seenF && modeUsesDynFreq) {
+          planner.synchronize();
           ftMotion.cfg.dynFreqK.x = baseDynFreqVal;
           flag.report = true;
         }
@@ -343,6 +349,7 @@ void GcodeSuite::M493() {
       if (seenI) {
         if (AXIS_IS_SHAPING(X)) {
           if (goodZeta) {
+            planner.synchronize();
             ftMotion.cfg.zeta.x = zetaVal;
             flag.update = true;
           }
@@ -355,6 +362,7 @@ void GcodeSuite::M493() {
       if (seenQ) {
         if (AXIS_IS_EISHAPING(X)) {
           if (goodVtol) {
+            planner.synchronize();
             ftMotion.cfg.vtol.x = vtolVal;
             flag.update = true;
           }
@@ -374,6 +382,7 @@ void GcodeSuite::M493() {
       if (seenA) {
         if (AXIS_IS_SHAPING(Y)) {
           if (goodBaseFreq) {
+            planner.synchronize();
             ftMotion.cfg.baseFreq.y = baseFreqVal;
             flag.update = flag.report = true;
           }
@@ -385,6 +394,7 @@ void GcodeSuite::M493() {
       #if HAS_DYNAMIC_FREQ
         // Parse Y frequency scaling parameter
         if (seenF && modeUsesDynFreq) {
+          planner.synchronize();
           ftMotion.cfg.dynFreqK.y = baseDynFreqVal;
           flag.report = true;
         }
@@ -394,6 +404,7 @@ void GcodeSuite::M493() {
       if (seenI) {
         if (AXIS_IS_SHAPING(Y)) {
           if (goodZeta) {
+            planner.synchronize();
             ftMotion.cfg.zeta.y = zetaVal;
             flag.update = true;
           }
@@ -406,6 +417,7 @@ void GcodeSuite::M493() {
       if (seenQ) {
         if (AXIS_IS_EISHAPING(Y)) {
           if (goodVtol) {
+            planner.synchronize();
             ftMotion.cfg.vtol.y = vtolVal;
             flag.update = true;
           }
@@ -425,6 +437,7 @@ void GcodeSuite::M493() {
       if (seenA) {
         if (AXIS_IS_SHAPING(Z)) {
           if (goodBaseFreq) {
+            planner.synchronize();
             ftMotion.cfg.baseFreq.z = baseFreqVal;
             flag.update = flag.report = true;
           }
@@ -436,6 +449,7 @@ void GcodeSuite::M493() {
       #if HAS_DYNAMIC_FREQ
         // Parse Z frequency scaling parameter
         if (seenF && modeUsesDynFreq) {
+          planner.synchronize();
           ftMotion.cfg.dynFreqK.z = baseDynFreqVal;
           flag.report = true;
         }
@@ -445,6 +459,7 @@ void GcodeSuite::M493() {
       if (seenI) {
         if (AXIS_IS_SHAPING(Z)) {
           if (goodZeta) {
+            planner.synchronize();
             ftMotion.cfg.zeta.z = zetaVal;
             flag.update = true;
           }
@@ -457,6 +472,7 @@ void GcodeSuite::M493() {
       if (seenQ) {
         if (AXIS_IS_EISHAPING(Z)) {
           if (goodVtol) {
+            planner.synchronize();
             ftMotion.cfg.vtol.z = vtolVal;
             flag.update = true;
           }
@@ -476,6 +492,7 @@ void GcodeSuite::M493() {
       if (seenA) {
         if (AXIS_IS_SHAPING(E)) {
           if (goodBaseFreq) {
+            planner.synchronize();
             ftMotion.cfg.baseFreq.e = baseFreqVal;
             flag.update = flag.report = true;
           }
@@ -487,6 +504,7 @@ void GcodeSuite::M493() {
       #if HAS_DYNAMIC_FREQ
         // Parse E frequency scaling parameter
         if (seenF && modeUsesDynFreq) {
+          planner.synchronize();
           ftMotion.cfg.dynFreqK.e = baseDynFreqVal;
           flag.report = true;
         }
@@ -496,6 +514,7 @@ void GcodeSuite::M493() {
       if (seenI) {
         if (AXIS_IS_SHAPING(E)) {
           if (goodZeta) {
+            planner.synchronize();
             ftMotion.cfg.zeta.e = zetaVal;
             flag.update = true;
           }
@@ -508,6 +527,7 @@ void GcodeSuite::M493() {
       if (seenQ) {
         if (AXIS_IS_EISHAPING(E)) {
           if (goodVtol) {
+            planner.synchronize();
             ftMotion.cfg.vtol.e = vtolVal;
             flag.update = true;
           }

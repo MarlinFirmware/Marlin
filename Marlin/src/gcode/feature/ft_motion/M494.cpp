@@ -104,6 +104,7 @@ void GcodeSuite::M494() {
   if (parser.seenval('O')) {
     const float val = parser.value_float();
     if (WITHIN(val, 1.25f, 1.875f)) {
+      planner.synchronize();
       ftMotion.cfg.poly6_acceleration_overshoot = val;
       report = true;
     }
@@ -117,6 +118,7 @@ void GcodeSuite::M494() {
       if (parser.seenval(CHARIFY(A))) { \
         const float val = parser.value_float(); \
         if (WITHIN(val, 0.0f, FTM_MAX_SMOOTHING_TIME)) { \
+          planner.synchronize(); \
           ftMotion.set_smoothing_time(_AXIS(A), val); \
           report = true; \
         } \

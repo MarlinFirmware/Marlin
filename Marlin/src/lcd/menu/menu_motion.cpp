@@ -348,6 +348,7 @@ void menu_move() {
   #endif
 
   void ftm_menu_set_shaper(ftMotionShaper_t &outShaper, const ftMotionShaper_t s) {
+    planner.synchronize();
     outShaper = s;
     ftMotion.update_shaping_params();
     ui.go_back();
@@ -422,12 +423,12 @@ void menu_move() {
       START_MENU();
       BACK_ITEM(MSG_FIXED_TIME_MOTION);
 
-      if (dmode != dynFreqMode_DISABLED) ACTION_ITEM(MSG_LCD_OFF, []{ ftMotion.cfg.dynFreqMode = dynFreqMode_DISABLED; ui.go_back(); });
+      if (dmode != dynFreqMode_DISABLED) ACTION_ITEM(MSG_LCD_OFF, []{ planner.synchronize(); ftMotion.cfg.dynFreqMode = dynFreqMode_DISABLED; ui.go_back(); });
       #if HAS_DYNAMIC_FREQ_MM
-        if (dmode != dynFreqMode_Z_BASED) ACTION_ITEM(MSG_FTM_Z_BASED, []{ ftMotion.cfg.dynFreqMode = dynFreqMode_Z_BASED; ui.go_back(); });
+        if (dmode != dynFreqMode_Z_BASED) ACTION_ITEM(MSG_FTM_Z_BASED, []{ planner.synchronize(); ftMotion.cfg.dynFreqMode = dynFreqMode_Z_BASED; ui.go_back(); });
       #endif
       #if HAS_DYNAMIC_FREQ_G
-        if (dmode != dynFreqMode_MASS_BASED) ACTION_ITEM(MSG_FTM_MASS_BASED, []{ ftMotion.cfg.dynFreqMode = dynFreqMode_MASS_BASED; ui.go_back(); });
+        if (dmode != dynFreqMode_MASS_BASED) ACTION_ITEM(MSG_FTM_MASS_BASED, []{ planner.synchronize(); ftMotion.cfg.dynFreqMode = dynFreqMode_MASS_BASED; ui.go_back(); });
       #endif
 
       END_MENU();
@@ -446,7 +447,7 @@ void menu_move() {
   #if ENABLED(FTM_SMOOTHING)
     #define _SMOO_MENU_ITEM(A) do{ \
       editable.decimal = c.smoothingTime.A; \
-      EDIT_ITEM_FAST_N(float43, _AXIS(A), MSG_FTM_SMOOTH_TIME_N, &editable.decimal, 0.0f, FTM_MAX_SMOOTHING_TIME, []{ ftMotion.set_smoothing_time(_AXIS(A), editable.decimal); }); \
+      EDIT_ITEM_FAST_N(float43, _AXIS(A), MSG_FTM_SMOOTH_TIME_N, &editable.decimal, 0.0f, FTM_MAX_SMOOTHING_TIME, []{ planner.synchronize(); ftMotion.set_smoothing_time(_AXIS(A), editable.decimal); }); \
     }while(0);
   #endif
 
