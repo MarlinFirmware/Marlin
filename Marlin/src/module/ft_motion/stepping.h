@@ -50,7 +50,7 @@ typedef struct Stepping {
     step_bits = 0;
     axis_interval_q5 = FTM_NEVER;
     ticks_left_per_axis_q5 = FTM_NEVER;
-    ticks_left_in_frame_q5 = FTM_NEVER;
+    ticks_left_in_frame_q5 = 0;
 
     stepper_plan_tail = stepper_plan_head = 0;
     curr_steps_q48_16.reset();
@@ -96,7 +96,7 @@ constexpr uint32_t Q5_INTEGER_MASK = ~(ONE_Q5 - 1);
 constexpr uint32_t FRAME_TICKS_Q5 = TIMER_TICKS_PER_FRAME << 5;
 
 FORCE_INLINE uint32_t Stepping::advance_until_step() {
-  step_bits.set(0);
+  step_bits = 0;
   uint32_t ticks_to_wait_q5 = 0;
   for (;;) {
     // Find next step
@@ -147,10 +147,11 @@ FORCE_INLINE uint32_t Stepping::advance_until_step() {
 FORCE_INLINE void Stepping::enqueue(XYZEval<int64_t> next_steps_q48_16) {
 
   stepper_plan_t stepper_plan;
+  constexpr uint32_t HALF_PHASE_OFFSET = (1 << 15); // to make steps at .5 crossings instead of integers to center the error
 
   auto _run_axis = [&](const AxisEnum A) __attribute__((always_inline)) {
-    const int64_t offset_curr_q48_16 = curr_steps_q48_16[A],
-                  offset_next_q48_16 = next_steps_q48_16[A];
+    const int64_t offset_curr_q48_16 = curr_steps_q48_16[A] + HALF_PHASE_OFFSET,
+                  offset_next_q48_16 = next_steps_q48_16[A] + HALF_PHASE_OFFSET;
     curr_steps_q48_16[A] = next_steps_q48_16[A];
 
     const bool new_dir = offset_next_q48_16 >= offset_curr_q48_16;
