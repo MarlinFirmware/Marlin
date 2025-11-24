@@ -164,11 +164,6 @@
   CardReader card;
 #endif
 
-#if ENABLED(G38_PROBE_TARGET)
-  uint8_t G38_move; // = 0
-  bool G38_did_trigger; // = false
-#endif
-
 #if ENABLED(DELTA)
   #include "module/delta.h"
 #elif ENABLED(POLARGRAPH)

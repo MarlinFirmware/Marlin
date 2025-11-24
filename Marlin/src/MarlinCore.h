@@ -33,11 +33,6 @@ void stop();
 void idle(const bool no_stepper_sleep=false);
 inline void idle_no_sleep() { idle(true); }
 
-#if ENABLED(G38_PROBE_TARGET)
-  extern uint8_t G38_move;          // Flag to tell the ISR that G38 is in progress, and the type
-  extern bool G38_did_trigger;      // Flag from the ISR to indicate the endstop changed
-#endif
-
 void kill(FSTR_P const lcd_error=nullptr, FSTR_P const lcd_component=nullptr, const bool steppers_off=false);
 void minkill(const bool steppers_off=false);
 
