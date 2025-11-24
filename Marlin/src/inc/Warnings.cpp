@@ -947,7 +947,7 @@
   #if ENABLED(LIN_ADVANCE)
     #warning "Be aware that FT_MOTION K factor is now set with M900 K (same as LIN_ADVANCE)."
     #if DISABLED(FTM_SMOOTHING)
-      #warning "Be aware that enabling FTM_SMOOTHING and setting FTM_SMOOTHING_TIME_E tames extruder acceleations due to linear advance and results in higher print quality."
+      #warning "Be aware that enabling FTM_SMOOTHING and setting FTM_SMOOTHING_TIME_E tames extruder accelerations due to linear advance and results in higher print quality."
     #endif
   #endif
   #if DISABLED(FTM_SHAPER_E)
