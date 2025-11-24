@@ -49,7 +49,7 @@ public:
   static void reset();
 
   FORCE_INLINE static bool has_mesh() {
-    GRID_LOOP(x, y) if (z_values[x][y]) return true;
+    GRID_LOOP_COND(x, y) if (z_values[x][y]) return true;
     return false;
   }
 

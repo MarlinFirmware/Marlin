@@ -607,10 +607,51 @@
   #undef DEFAULT_LEVELING_FADE_HEIGHT
 #endif
 
-#ifdef GRID_MAX_POINTS_X
-  #define GRID_MAX_POINTS ((GRID_MAX_POINTS_X) * (GRID_MAX_POINTS_Y))
-  #define GRID_LOOP(A,B) for (uint8_t A = 0; A < GRID_MAX_POINTS_X; ++A) for (uint8_t B = 0; B < GRID_MAX_POINTS_Y; ++B)
+#ifdef GRID_MIN_SPACING
+  #ifndef GRID_MAX_POINTS_X
+    #define GRID_MAX_POINTS_X ((X_BED_SIZE) / (GRID_MIN_SPACING))
+  #endif
+  #ifndef GRID_MAX_POINTS_Y
+    #define GRID_MAX_POINTS_Y ((Y_BED_SIZE) / (GRID_MIN_SPACING))
+  #endif
 #endif
+
+#ifdef GRID_MAX_POINTS_X
+
+  #if ALL(AUTO_BED_LEVELING_UBL, VARIABLE_GRID_POINTS)
+    #define GRID_USED_POINTS_X unified_bed_leveling::nr_grid_points.x
+    #define GRID_USED_POINTS_Y unified_bed_leveling::nr_grid_points.y
+  #elif ALL(AUTO_BED_LEVELING_BILINEAR, VARIABLE_GRID_POINTS)
+    #define GRID_USED_POINTS_X bedlevel.nr_grid_points.x
+    #define GRID_USED_POINTS_Y bedlevel.nr_grid_points.y
+  #else
+    #define GRID_USED_POINTS_X GRID_MAX_POINTS_X
+    #define GRID_USED_POINTS_Y GRID_MAX_POINTS_Y
+  #endif
+
+  #if ENABLED(AUTO_BED_LEVELING_UBL)
+    #define GRID_USED_CELLS_X  (GRID_USED_POINTS_X - 1)
+    #define GRID_USED_CELLS_Y  (GRID_USED_POINTS_Y - 1)
+  #endif
+
+  // TODO: GRID_MAX_POINTS can produce incorrect number if GRID_MAX_POINTS_[XY] is calculated from GRID_MIN_SPACING which resulted in float value
+  #define GRID_MAX_POINTS ((GRID_MAX_POINTS_X) * (GRID_MAX_POINTS_Y))
+  #define GRID_USED_POINTS (GRID_USED_POINTS_X * GRID_USED_POINTS_Y)
+
+  #define GRID_CONST         IF_DISABLED(VARIABLE_GRID_POINTS, const)
+  #define GRID_CONSTEXPR     IF_DISABLED(VARIABLE_GRID_POINTS, constexpr)
+  #define GRID_VAL(A,B)      (TERN(VARIABLE_GRID_POINTS, A, B))
+  #define GRID_PREF_POINTS_X GRID_VAL(GRID_USED_POINTS_X, GRID_MAX_POINTS_X)
+  #define GRID_PREF_POINTS_Y GRID_VAL(GRID_USED_POINTS_Y, GRID_MAX_POINTS_Y)
+  #define GRID_PREF_POINTS   GRID_VAL(GRID_USED_POINTS,   GRID_MAX_POINTS)
+  #define GRID_PREF_CELLS_X  GRID_VAL(GRID_USED_CELLS_X,  GRID_MAX_CELLS_X)
+  #define GRID_PREF_CELLS_Y  GRID_VAL(GRID_USED_CELLS_Y,  GRID_MAX_CELLS_Y)
+
+  #define GRID_LOOP(A,B)      for (uint8_t A = 0; A < (GRID_MAX_POINTS_X); ++A) for (uint8_t B = 0; B < (GRID_MAX_POINTS_Y); ++B)
+  #define GRID_LOOP_USED(A,B) for (uint8_t A = 0; A < (GRID_USED_POINTS_X); ++A) for (uint8_t B = 0; B < (GRID_USED_POINTS_Y); ++B)
+  #define GRID_LOOP_COND(x, y) TERN(VARIABLE_GRID_POINTS, GRID_LOOP_USED, GRID_LOOP)(x, y)
+
+#endif // GRID_MAX_POINTS_X
 
 /**
  * CoreXY, CoreXZ, and CoreYZ - and their reverse

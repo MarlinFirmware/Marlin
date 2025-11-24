@@ -204,7 +204,6 @@ namespace LanguageNarrow_it {
   LSTR MSG_MESH_AMAX                      = _UxGT("Massimizza area");
   LSTR MSG_MESH_CENTER                    = _UxGT("Area centrale");
   LSTR MSG_MESH_EDIT_Z                    = _UxGT("Valore di Z");
-  LSTR MSG_MESH_CANCEL                    = _UxGT("Mesh cancellata");
   LSTR MSG_MESH_RESET                     = _UxGT("Resetta mesh");
   LSTR MSG_CUSTOM_COMMANDS                = _UxGT("Comandi personaliz.");
   LSTR MSG_CUSTOM_MENU_MAIN_TITLE         = _UxGT(CUSTOM_MENU_MAIN_TITLE);

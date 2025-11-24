@@ -874,7 +874,7 @@ namespace ExtUI {
       bed_mesh_t& getMeshArray() { return bedlevel.z_values; }
       float getMeshPoint(const xy_uint8_t &pos) { return bedlevel.z_values[pos.x][pos.y]; }
       void setMeshPoint(const xy_uint8_t &pos, const float zoff) {
-        if (WITHIN(pos.x, 0, (GRID_MAX_POINTS_X) - 1) && WITHIN(pos.y, 0, (GRID_MAX_POINTS_Y) - 1)) {
+        if (WITHIN(pos.x, 0, GRID_PREF_POINTS_X - 1) && WITHIN(pos.y, 0, GRID_PREF_POINTS_Y - 1)) {
           bedlevel.z_values[pos.x][pos.y] = zoff;
           TERN_(ABL_BILINEAR_SUBDIVISION, bedlevel.refresh_bed_level());
         }
@@ -883,8 +883,8 @@ namespace ExtUI {
       void moveToMeshPoint(const xy_uint8_t &pos, const float z) {
         #if ANY(MESH_BED_LEVELING, AUTO_BED_LEVELING_UBL)
           REMEMBER(fr, feedrate_mm_s);
-          const float x_target = MESH_MIN_X + pos.x * (MESH_X_DIST),
-                      y_target = MESH_MIN_Y + pos.y * (MESH_Y_DIST);
+          const float x_target = MESH_MIN_X + pos.x * GRID_VAL(bedlevel.mesh_dist.x, MESH_X_DIST),
+                      y_target = MESH_MIN_Y + pos.y * GRID_VAL(bedlevel.mesh_dist.y, MESH_Y_DIST);
           if (x_target != current_position.x || y_target != current_position.y) {
             // If moving across bed, raise nozzle to safe height over bed
             feedrate_mm_s = z_probe_fast_mm_s;

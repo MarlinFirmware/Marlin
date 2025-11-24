@@ -2034,7 +2034,7 @@ void dwinRedrawScreen() {
     TERN_(USE_GRID_MESHVIEWER, bedLevelTools.grid_meshview = false);
     _dwinMeshViewer();
   }
-  #if ENABLED(USE_GRID_MESHVIEWER)
+  #if USE_GRID_MESHVIEWER
     void dwinMeshViewerGrid() { bedLevelTools.grid_meshview = true; _dwinMeshViewer(); }
   #endif
 #endif
@@ -2478,7 +2478,7 @@ void setFlow() { setPIntOnClick(FLOW_EDIT_MIN, FLOW_EDIT_MAX, []{ planner.refres
         ));
       }
       else {
-        // AUTO_BED_LEVELING_BILINEAR does not define MESH_INSET
+        // AUTO_BED_LEVELING_BILINEAR defines MESH_INSET as 0
         #ifndef MESH_MIN_X
           #define MESH_MIN_X (_MAX(X_MIN_BED + (PROBING_MARGIN_LEFT), X_MIN_POS))
         #endif
@@ -4316,8 +4316,8 @@ void drawMaxAccelMenu() {
     void applyEditMeshX() { bedLevelTools.mesh_x = menuData.value; }
     void applyEditMeshY() { bedLevelTools.mesh_y = menuData.value; }
     void resetMesh() { bedLevelTools.meshReset(); LCD_MESSAGE(MSG_MESH_RESET); }
-    void setEditMeshX() { hmiValue.select = 0; setIntOnClick(0, GRID_MAX_POINTS_X - 1, bedLevelTools.mesh_x, applyEditMeshX, liveEditMesh); }
-    void setEditMeshY() { hmiValue.select = 1; setIntOnClick(0, GRID_MAX_POINTS_Y - 1, bedLevelTools.mesh_y, applyEditMeshY, liveEditMesh); }
+    void setEditMeshX() { hmiValue.select = 0; setIntOnClick(0, GRID_PREF_POINTS_X - 1, bedLevelTools.mesh_x, applyEditMeshX, liveEditMesh); }
+    void setEditMeshY() { hmiValue.select = 1; setIntOnClick(0, GRID_PREF_POINTS_Y - 1, bedLevelTools.mesh_y, applyEditMeshY, liveEditMesh); }
     void setEditZValue() { setPFloatOnClick(Z_OFFSET_MIN, Z_OFFSET_MAX, 3); }
   #endif
 
@@ -4345,7 +4345,7 @@ void drawMaxAccelMenu() {
   }
 
   void ublSmartFillMesh() {
-    for (uint8_t x = 0; x < GRID_MAX_POINTS_Y; ++x) bedlevel.smart_fill_mesh();
+    for (uint8_t x = 0; x < GRID_PREF_POINTS_Y; ++x) bedlevel.smart_fill_mesh();
     LCD_MESSAGE(MSG_UBL_MESH_FILLED);
   }
 

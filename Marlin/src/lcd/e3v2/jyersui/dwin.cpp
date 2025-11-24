@@ -275,7 +275,7 @@ private:
       bool createPlaneFromMesh() {
         struct linear_fit_data lsf_results;
         incremental_LSF_reset(&lsf_results);
-        GRID_LOOP(x, y) {
+        GRID_LOOP_COND(x, y) {
           if (!isnan(bedlevel.z_values[x][y])) {
             xy_pos_t rpos = { bedlevel.get_mesh_x(x), bedlevel.get_mesh_y(y) };
             incremental_LSF(&lsf_results, rpos, bedlevel.z_values[x][y]);
@@ -290,7 +290,7 @@ private:
         bedlevel.set_all_mesh_points_to_value(0);
 
         matrix_3x3 rotation = matrix_3x3::create_look_at(vector_3(lsf_results.A, lsf_results.B, 1));
-        GRID_LOOP(i, j) {
+        GRID_LOOP_COND(i, j) {
           float mx = bedlevel.get_mesh_x(i), my = bedlevel.get_mesh_y(j), mz = bedlevel.z_values[i][j];
 
           if (DEBUGGING(LEVELING)) {
@@ -342,38 +342,38 @@ private:
 
     float getMaxValue() {
       float max = -(__FLT_MAX__);
-      GRID_LOOP(x, y) { const float z = bedlevel.z_values[x][y]; if (!isnan(z)) NOLESS(max, z); }
+      GRID_LOOP_COND(x, y) { const float z = bedlevel.z_values[x][y]; if (!isnan(z)) NOLESS(max, z); }
       return max;
     }
 
     float getMinValue() {
       float min = __FLT_MAX__;
-      GRID_LOOP(x, y) { const float z = bedlevel.z_values[x][y]; if (!isnan(z)) NOMORE(min, z); }
+      GRID_LOOP_COND(x, y) { const float z = bedlevel.z_values[x][y]; if (!isnan(z)) NOMORE(min, z); }
       return min;
     }
 
     void drawBedMesh(const int16_t selected=-1, const uint8_t gridline_width=1, const uint16_t padding_x=8, const uint16_t padding_y_top=40 + 53 - 7) {
       drawing_mesh = true;
       const uint16_t total_width_px = DWIN_WIDTH - padding_x - padding_x,
-                     cell_width_px  = total_width_px / (GRID_MAX_POINTS_X),
-                     cell_height_px = total_width_px / (GRID_MAX_POINTS_Y);
+                     cell_width_px  = total_width_px / GRID_VAL(GRID_USED_POINTS_X, GRID_PREF_POINTS_X);
+      const uint16_t cell_height_px = total_width_px / GRID_PREF_POINTS_Y;
       const float v_max = abs(getMaxValue()), v_min = abs(getMinValue()), rmax = _MAX(v_min, v_max);
 
       // Clear background from previous selection and select new square
       dwinDrawRectangle(1, COLOR_BG_BLACK, _MAX(0, padding_x - gridline_width), _MAX(0, padding_y_top - gridline_width), padding_x + total_width_px, padding_y_top + total_width_px);
       if (selected >= 0) {
-        const auto selected_y = selected / (GRID_MAX_POINTS_X);
-        const auto selected_x = selected - (GRID_MAX_POINTS_X) * selected_y;
+        const auto selected_y = selected / GRID_PREF_POINTS_X;
+        const auto selected_x = selected - GRID_PREF_POINTS_X * selected_y;
         const auto start_y_px = padding_y_top + selected_y * cell_height_px;
         const auto start_x_px = padding_x + selected_x * cell_width_px;
         dwinDrawRectangle(1, COLOR_WHITE, _MAX(0, start_x_px - gridline_width), _MAX(0, start_y_px - gridline_width), start_x_px + cell_width_px, start_y_px + cell_height_px);
       }
 
       // Draw value square grid
-      GRID_LOOP(x, y) {
+      GRID_LOOP_COND(x, y) {
         const auto start_x_px = padding_x + x * cell_width_px;
         const auto end_x_px   = start_x_px + cell_width_px - 1 - gridline_width;
-        const auto start_y_px = padding_y_top + (GRID_MAX_POINTS_Y - y - 1) * cell_height_px;
+        const auto start_y_px = padding_y_top + (GRID_PREF_POINTS_Y - y - 1) * cell_height_px;
         const auto end_y_px   = start_y_px + cell_height_px - 1 - gridline_width;
         dwinDrawRectangle(1,                                          // RGB565 colors: http://www.barth-dev.de/online/rgb565-color-picker/
           isnan(bedlevel.z_values[x][y]) ? COLOR_GREY : (             // gray if undefined
@@ -395,12 +395,12 @@ private:
           }
           else {                          // has value
             MString<12> msg;
-            if (GRID_MAX_POINTS_X < 10)
+            if (GRID_PREF_POINTS_X < 10)
               msg.set(p_float_t(abs(bedlevel.z_values[x][y]), 2));
             else
               msg.setf(F("%02i"), uint16_t(abs(bedlevel.z_values[x][y] - int16_t(bedlevel.z_values[x][y])) * 100));
             const int8_t offset_x = cell_width_px / 2 - 3 * msg.length() - 2;
-            if (GRID_MAX_POINTS_X >= 10)
+            if (GRID_PREF_POINTS_X >= 10)
               dwinDrawString(false, font6x12, COLOR_WHITE, COLOR_BG_BLUE, start_x_px - 2 + offset_x, start_y_px + offset_y /*+ square / 2 - 6*/, F("."));
             dwinDrawString(false, font6x12, COLOR_WHITE, COLOR_BG_BLUE, start_x_px + 1 + offset_x, start_y_px + offset_y /*+ square / 2 - 6*/, msg);
           }
@@ -3534,7 +3534,7 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
               drawFloat(mesh_conf.mesh_x, row, 0, 1);
             }
             else
-              modifyValue(mesh_conf.mesh_x, 0, GRID_MAX_POINTS_X - 1, 1);
+              modifyValue(mesh_conf.mesh_x, 0, GRID_PREF_POINTS_X - 1, 1);
             break;
           case LEVELING_M_Y:
             if (draw) {
@@ -3542,14 +3542,14 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
               drawFloat(mesh_conf.mesh_y, row, 0, 1);
             }
             else
-              modifyValue(mesh_conf.mesh_y, 0, GRID_MAX_POINTS_Y - 1, 1);
+              modifyValue(mesh_conf.mesh_y, 0, GRID_PREF_POINTS_Y - 1, 1);
             break;
           case LEVELING_M_NEXT:
             if (draw)
               drawMenuItem(row, ICON_More, GET_TEXT_F(MSG_LEVEL_BED_NEXT_POINT));
             else {
-              if (mesh_conf.mesh_x != (GRID_MAX_POINTS_X - 1) || mesh_conf.mesh_y != (GRID_MAX_POINTS_Y - 1)) {
-                if ((mesh_conf.mesh_x == (GRID_MAX_POINTS_X - 1) && mesh_conf.mesh_y % 2 == 0) || (mesh_conf.mesh_x == 0 && mesh_conf.mesh_y % 2 == 1))
+              if (mesh_conf.mesh_x != GRID_PREF_POINTS_X - 1 || mesh_conf.mesh_y != GRID_PREF_POINTS_Y - 1) {
+                if ((mesh_conf.mesh_x == GRID_PREF_POINTS_X - 1 && mesh_conf.mesh_y % 2 == 0) || (mesh_conf.mesh_x == 0 && mesh_conf.mesh_y % 2 == 1))
                   mesh_conf.mesh_y++;
                 else if (mesh_conf.mesh_y % 2 == 0)
                   mesh_conf.mesh_x++;
@@ -3642,14 +3642,14 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
             break;
           case UBL_M_NEXT:
             if (draw) {
-              if (mesh_conf.mesh_x != (GRID_MAX_POINTS_X - 1) || mesh_conf.mesh_y != (GRID_MAX_POINTS_Y - 1))
+              if (mesh_conf.mesh_x != GRID_PREF_POINTS_X - 1 || mesh_conf.mesh_y != GRID_PREF_POINTS_Y - 1)
                 drawMenuItem(row, ICON_More, GET_TEXT_F(MSG_LEVEL_BED_NEXT_POINT));
               else
                 drawMenuItem(row, ICON_More, GET_TEXT_F(MSG_UBL_SAVE_MESH));
             }
             else {
-              if (mesh_conf.mesh_x != (GRID_MAX_POINTS_X - 1) || mesh_conf.mesh_y != (GRID_MAX_POINTS_Y - 1)) {
-                if ((mesh_conf.mesh_x == (GRID_MAX_POINTS_X - 1) && mesh_conf.mesh_y % 2 == 0) || (mesh_conf.mesh_x == 0 && mesh_conf.mesh_y % 2 == 1))
+              if (mesh_conf.mesh_x != GRID_PREF_POINTS_X - 1 || mesh_conf.mesh_y != GRID_PREF_POINTS_Y - 1) {
+                if ((mesh_conf.mesh_x == GRID_PREF_POINTS_X - 1 && mesh_conf.mesh_y % 2 == 0) || (mesh_conf.mesh_x == 0 && mesh_conf.mesh_y % 2 == 1))
                   mesh_conf.mesh_y++;
                 else if (mesh_conf.mesh_y % 2 == 0)
                   mesh_conf.mesh_x++;
@@ -3670,7 +3670,7 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
               drawMenuItem(row, ICON_More, F("Previous Point"));
             else {
               if (mesh_conf.mesh_x != 0 || mesh_conf.mesh_y != 0) {
-                if ((mesh_conf.mesh_x == (GRID_MAX_POINTS_X - 1) && mesh_conf.mesh_y % 2 == 1) || (mesh_conf.mesh_x == 0 && mesh_conf.mesh_y % 2 == 0))
+                if ((mesh_conf.mesh_x == GRID_PREF_POINTS_X - 1 && mesh_conf.mesh_y % 2 == 1) || (mesh_conf.mesh_x == 0 && mesh_conf.mesh_y % 2 == 0))
                   mesh_conf.mesh_y--;
                 else if (mesh_conf.mesh_y % 2 == 0)
                   mesh_conf.mesh_x--;
@@ -3743,12 +3743,12 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
             break;
           case MMESH_NEXT:
             if (draw) {
-              if (gridpoint < GRID_MAX_POINTS)
+              if (gridpoint < GRID_VAL(GRID_USED_POINTS, GRID_MAX_POINTS))
                 drawMenuItem(row, ICON_More, GET_TEXT_F(MSG_LEVEL_BED_NEXT_POINT));
               else
                 drawMenuItem(row, ICON_More, GET_TEXT_F(MSG_UBL_SAVE_MESH));
             }
-            else if (gridpoint < GRID_MAX_POINTS) {
+            else if (gridpoint < GRID_PREF_POINTS) {
               popupHandler(Popup_MoveWait);
               queue.inject(F("G29"));
               planner.synchronize();
@@ -3796,11 +3796,11 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
           case MMESH_OLD:
             uint8_t mesh_x, mesh_y;
             // 0,0 -> 1,0 -> 2,0 -> 2,1 -> 1,1 -> 0,1 -> 0,2 -> 1,2 -> 2,2
-            mesh_y = (gridpoint - 1) / (GRID_MAX_POINTS_Y);
-            mesh_x = (gridpoint - 1) % (GRID_MAX_POINTS_X);
+            mesh_y = (gridpoint - 1) / GRID_PREF_POINTS_Y;
+            mesh_x = (gridpoint - 1) % GRID_PREF_POINTS_X;
 
             if (mesh_y % 2 == 1)
-              mesh_x = (GRID_MAX_POINTS_X) - mesh_x - 1;
+              mesh_x = GRID_PREF_POINTS_X - mesh_x - 1;
 
             const float currval = bedlevel.z_values[mesh_x][mesh_y];
 
