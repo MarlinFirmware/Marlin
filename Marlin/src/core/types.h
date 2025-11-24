@@ -68,7 +68,7 @@ template <class L, class R> struct IF<true, L, R> { typedef L type; };
 #define LOGICAL_AXIS_NAMES_LC      LOGICAL_AXIS_LIST(e, x, y, z, i, j, k, u, v, w)
 #define LOGICAL_AXIS_MAP(F)        MAP(F, LOGICAL_AXIS_NAMES)
 #define LOGICAL_AXIS_MAP_LC(F)     MAP(F, LOGICAL_AXIS_NAMES_LC)
-#define LOGICAL_AXIS_CALL(F)       LOGICAL_AXIS_CODE(F(E_AXIS), F(X_AXIS), F(Y_AXIS), F(Z_AXIS), F(I_AXIS), F(J_AXIS), F(K_AXIS), F(U_AXIS), F(V_AXIS), F(W_AXIS))
+#define LOGICAL_AXIS_CALL(F)       do { LOGICAL_AXIS_CODE(F(E_AXIS), F(X_AXIS), F(Y_AXIS), F(Z_AXIS), F(I_AXIS), F(J_AXIS), F(K_AXIS), F(U_AXIS), F(V_AXIS), F(W_AXIS)); } while(0)
 #define STR_AXES_LOGICAL           LOGICAL_AXIS_GANG("E", "X", "Y", "Z", STR_I, STR_J, STR_K, STR_U, STR_V, STR_W)
 
 #define NUM_AXIS_PAIRED_LIST(V...)           LIST_N(DOUBLE(NUM_AXES), V)
