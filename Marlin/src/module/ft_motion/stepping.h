@@ -100,10 +100,7 @@ FORCE_INLINE uint32_t Stepping::advance_until_step() {
   uint32_t ticks_to_wait_q5 = 0;
   for (;;) {
     // Find next step
-    uint32_t ticks_to_next_step_q5 = FTM_NEVER;
-    #define _RUN_LOOP(A) NOMORE(ticks_to_next_step_q5, ticks_left_per_axis_q5.A);
-    LOGICAL_AXIS_MAP(_RUN_LOOP);
-    #undef _RUN_LOOP
+    const uint32_t ticks_to_next_step_q5 = ticks_left_per_axis_q5.small();
 
     if (ticks_to_next_step_q5 > ticks_left_in_frame_q5) {
       // Frame ends before next step
@@ -132,10 +129,7 @@ FORCE_INLINE uint32_t Stepping::advance_until_step() {
       const uint32_t wait_floor_q5 = ticks_to_next_step_q5 & Q5_INTEGER_MASK;
       ticks_to_wait_q5 += wait_floor_q5;
       ticks_left_in_frame_q5 -= wait_floor_q5;
-
-      #define _RUN_LOOP(A) ticks_left_per_axis_q5.A -= wait_floor_q5;
-      LOGICAL_AXIS_MAP(_RUN_LOOP);
-      #undef _RUN_LOOP
+      ticks_left_per_axis_q5 -= wait_floor_q5;
 
       // Build step_bits array
       auto _set_step_bits = [&](const AxisEnum A) __attribute__((always_inline)) {
