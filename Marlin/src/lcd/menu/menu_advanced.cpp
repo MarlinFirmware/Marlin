@@ -684,7 +684,7 @@ void menu_backlash();
 
 void menu_advanced_settings() {
   #if ANY(POLARGRAPH, SHAPING_MENU, HAS_BED_PROBE, EDITABLE_STEPS_PER_UNIT)
-    const bool is_busy = printer_busy();
+    const bool is_busy = marlin.printer_busy();
   #endif
 
   #if ENABLED(SD_FIRMWARE_UPDATE)

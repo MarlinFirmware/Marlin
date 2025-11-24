@@ -144,7 +144,7 @@ public:
 
   static void delay_ms(const int ms) { delay(ms); }
 
-  // Tasks, called from idle()
+  // Tasks, called from marlin.idle()
   static void idletask() { TERN_(HAS_SD_HOST_DRIVE, tuh_task()); }
 
   // Reset

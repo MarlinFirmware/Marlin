@@ -252,7 +252,7 @@ void GcodeSuite::get_destination_from_command() {
  */
 void GcodeSuite::dwell(const millis_t time) {
   const millis_t start_ms = millis();
-  while (PENDING(millis(), start_ms, time)) idle();
+  while (PENDING(millis(), start_ms, time)) marlin.idle();
 }
 
 /**
@@ -286,7 +286,7 @@ void GcodeSuite::dwell(const millis_t time) {
       #ifdef ACTION_ON_CANCEL
         hostui.cancel();
       #endif
-      kill(GET_TEXT_F(MSG_LCD_PROBING_FAILED));
+      marlin.kill(GET_TEXT_F(MSG_LCD_PROBING_FAILED));
     #endif
   }
 

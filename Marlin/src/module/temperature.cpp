@@ -681,7 +681,7 @@ volatile bool Temperature::raw_temps_ready = false;
 
   /**
    * Run the minimal required activities during a tuning loop.
-   * TODO: Allow tuning routines to call idle() for more complete keepalive.
+   * TODO: Allow tuning routines to call marlin.idle() for more complete keepalive.
    */
   bool Temperature::tuning_idle(const millis_t &ms) {
 
@@ -856,8 +856,7 @@ void Temperature::factory_reset() {
     LCD_MESSAGE(MSG_HEATING);
 
     // PID Tuning loop
-    wait_for_heatup = true;
-    while (wait_for_heatup) { // Can be interrupted with M108
+    for (marlin.heatup_start(); marlin.is_heating(); ) { // Can be interrupted with M108
 
       const millis_t ms = millis();
 
@@ -1020,7 +1019,7 @@ void Temperature::factory_reset() {
         goto EXIT_M303;
       }
     }
-    wait_for_heatup = false;
+    marlin.heatup_done();
 
     disable_all_heaters();
 
@@ -1057,7 +1056,7 @@ void Temperature::factory_reset() {
   }
 
   Temperature::MPC_autotuner::~MPC_autotuner() {
-    wait_for_heatup = false;
+    marlin.heatup_done();
 
     ui.reset_status();
 
@@ -1082,9 +1081,8 @@ void Temperature::factory_reset() {
     const millis_t test_interval_ms = 10000UL;
     millis_t next_test_ms = curr_time_ms + test_interval_ms;
     ambient_temp = current_temp = degHotend(e);
-    wait_for_heatup = true;
 
-    for (;;) { // Can be interrupted with M108
+    for (marlin.heatup_start(); ;) { // Can be interrupted with M108
       if (housekeeping() == CANCELLED) return CANCELLED;
 
       if (ELAPSED(curr_time_ms, next_test_ms)) {
@@ -1096,7 +1094,7 @@ void Temperature::factory_reset() {
         next_test_ms += test_interval_ms;
       }
     }
-    wait_for_heatup = false;
+    marlin.heatup_done();
 
     #if ENABLED(MPC_AUTOTUNE_DEBUG)
       SERIAL_ECHOLNPGM("MPC_autotuner::measure_ambient_temp() Completed\n=====\n"
@@ -1125,8 +1123,7 @@ void Temperature::factory_reset() {
     temp_samples[0] = temp_samples[1] = temp_samples[2] = current_temp;
     time_fastest = rate_fastest = 0;
 
-    wait_for_heatup = true;
-    for (;;) { // Can be interrupted with M108
+    for (marlin.heatup_start(); ;) { // Can be interrupted with M108
       if (housekeeping() == CANCELLED) return CANCELLED;
 
       if (ELAPSED(curr_time_ms, next_test_time_ms)) {
@@ -1172,7 +1169,7 @@ void Temperature::factory_reset() {
         }
       }
     }
-    wait_for_heatup = false;
+    marlin.heatup_done();
 
     hotend.soft_pwm_amount = 0;
 
@@ -1210,8 +1207,7 @@ void Temperature::factory_reset() {
     #endif
     float last_temp = current_temp;
 
-    wait_for_heatup = true;
-    for (;;) { // Can be interrupted with M108
+    for (marlin.heatup_start(); ;) { // Can be interrupted with M108
       if (housekeeping() == CANCELLED) return CANCELLED;
 
       if (ELAPSED(curr_time_ms, next_test_ms)) {
@@ -1240,11 +1236,11 @@ void Temperature::factory_reset() {
       if (!WITHIN(current_temp, get_sample_3_temp() - 15.0f, hotend.target + 15.0f)) {
         SERIAL_ECHOLNPGM(STR_MPC_TEMPERATURE_ERROR);
         TERN_(EXTENSIBLE_UI, ExtUI::onMPCTuning(ExtUI::mpcresult_t::MPC_TEMP_ERROR));
-        wait_for_heatup = false;
+        marlin.heatup_done();
         return FAILED;
       }
     }
-    wait_for_heatup = false;
+    marlin.heatup_done();
 
     power_fan0 = total_energy_fan0 / MS_TO_SEC_PRECISE(test_duration);
     TERN_(HAS_FAN, power_fan255 = (total_energy_fan255 * 1000) / test_duration);
@@ -1275,7 +1271,7 @@ void Temperature::factory_reset() {
       SERIAL_EOL();
     }
 
-    if (!wait_for_heatup) {
+    if (!marlin.is_heating()) {
       SERIAL_ECHOLNPGM(STR_MPC_AUTOTUNE_INTERRUPTED);
       TERN_(EXTENSIBLE_UI, ExtUI::onMPCTuning(ExtUI::mpcresult_t::MPC_INTERRUPTED));
       return MeasurementState::CANCELLED;
@@ -1560,7 +1556,7 @@ int16_t Temperature::getHeaterPower(const heater_id_t heater_id) {
  * @param  heater_id:  The heater that caused the error
  */
 inline void loud_kill(FSTR_P const lcd_msg, const heater_id_t heater_id) {
-  marlin_state = MarlinState::MF_KILLED;
+  marlin.setState(MarlinState::MF_KILLED);
   thermalManager.disable_all_heaters();
   #if HAS_BEEPER
     for (uint8_t i = 20; i--;) {
@@ -1586,7 +1582,7 @@ inline void loud_kill(FSTR_P const lcd_msg, const heater_id_t heater_id) {
                          _FSTR_E(h,1) _FSTR_E(h,2) _FSTR_E(h,3) _FSTR_E(h,4) \
                          _FSTR_E(h,5) _FSTR_E(h,6) _FSTR_E(h,7) F(STR_E0)
 
-  kill(lcd_msg, HEATER_FSTR(heater_id));
+  marlin.kill(lcd_msg, HEATER_FSTR(heater_id));
 }
 
 /**
@@ -1606,7 +1602,7 @@ void Temperature::_temp_error(
   #endif
   static uint8_t killed = 0;
 
-  if (IsRunning() && killed == TERN(HAS_BOGUS_TEMPERATURE_GRACE_PERIOD, 2, 0)) {
+  if (marlin.isRunning() && killed == TERN(HAS_BOGUS_TEMPERATURE_GRACE_PERIOD, 2, 0)) {
     SERIAL_ERROR_START();
     SERIAL_ECHO(serial_msg);
     SERIAL_ECHOPGM(STR_STOPPED_HEATER);
@@ -2314,14 +2310,15 @@ void Temperature::mintemp_error(const heater_id_t heater_id OPTARG(ERR_INCLUDE_T
  *  - Update the heated bed PID output value
  */
 void Temperature::task() {
-  if (marlin_state == MarlinState::MF_INITIALIZING) return hal.watchdog_refresh(); // If Marlin isn't started, at least reset the watchdog!
+  if (marlin.is(MarlinState::MF_INITIALIZING)) return hal.watchdog_refresh(); // If Marlin isn't started, at least reset the watchdog!
 
   static bool no_reentry = false;  // Prevent recursion
   if (no_reentry) return;
   REMEMBER(mh, no_reentry, true);
 
   #if ENABLED(EMERGENCY_PARSER)
-    if (emergency_parser.killed_by_M112) kill(FPSTR(M112_KILL_STR), nullptr, true);
+    if (emergency_parser.killed_by_M112)
+      marlin.kill(FPSTR(M112_KILL_STR), nullptr, true);
 
     if (emergency_parser.quickstop_by_M410) {
       emergency_parser.quickstop_by_M410 = false; // quickstop_stepper may call idle so clear this now!
@@ -2586,7 +2583,7 @@ void Temperature::task() {
       SERIAL_ERROR_START();
       SERIAL_ECHO(e);
       SERIAL_ECHOLNPGM(STR_INVALID_EXTRUDER_NUM);
-      kill();
+      marlin.kill();
       return 0;
     }
 
@@ -3517,7 +3514,7 @@ void Temperature::disable_all_heaters() {
 
   void Temperature::auto_job_check_timer(const bool can_start, const bool can_stop) {
     if (auto_job_over_threshold()) {
-      if (can_start) startOrResumeJob();
+      if (can_start) marlin.startOrResumeJob();
     }
     else if (can_stop) {
       print_job_timer.stop();
@@ -4539,7 +4536,7 @@ void Temperature::isr() {
   #if ENABLED(AUTO_REPORT_TEMPERATURES)
     AutoReporter<Temperature::AutoReportTemp> Temperature::auto_reporter;
     void Temperature::AutoReportTemp::report() {
-      if (wait_for_heatup) return;
+      if (marlin.is_heating()) return;
       print_heater_states(active_extruder OPTARG(HAS_TEMP_REDUNDANT, ENABLED(AUTO_REPORT_REDUNDANT)));
       SERIAL_EOL();
     }
@@ -4605,8 +4602,7 @@ void Temperature::isr() {
       bool wants_to_cool = false;
       celsius_float_t target_temp = -1.0, old_temp = 9999.0;
       millis_t now, next_temp_ms = 0, cool_check_ms = 0;
-      wait_for_heatup = true;
-      do {
+      for (marlin.heatup_start(); marlin.is_heating() && TEMP_CONDITIONS; ) {
         // Target temperature might be changed during the loop
         if (target_temp != degTargetHotend(target_extruder)) {
           wants_to_cool = isCoolingHotend(target_extruder);
@@ -4631,7 +4627,7 @@ void Temperature::isr() {
           SERIAL_EOL();
         }
 
-        idle();
+        marlin.idle();
         gcode.reset_stepper_timeout(); // Keep steppers powered
 
         const celsius_float_t temp = degHotend(target_extruder);
@@ -4672,16 +4668,17 @@ void Temperature::isr() {
 
         #if G26_CLICK_CAN_CANCEL
           if (click_to_cancel && ui.use_click()) {
-            wait_for_heatup = false;
+            marlin.heatup_done();
             TERN_(HAS_MARLINUI_MENU, ui.quick_feedback());
           }
         #endif
 
-      } while (wait_for_heatup && TEMP_CONDITIONS);
+      } // for ... is_heating ...
 
       // If wait_for_heatup is set, temperature was reached, no cancel
-      if (wait_for_heatup) {
-        wait_for_heatup = false;
+      // TODO: Use a common function to reset wait_for_heatup and update UI
+      if (marlin.is_heating()) {
+        marlin.heatup_done();
         #if ENABLED(DWIN_CREALITY_LCD)
           hmiFlag.heat_flag = 0;
           duration_t elapsed = print_job_timer.duration();  // Print timer
@@ -4698,12 +4695,12 @@ void Temperature::isr() {
       }
 
       return false;
-    }
+    } // Temperature::wait_for_hotend
 
     #if ENABLED(WAIT_FOR_HOTEND)
       void Temperature::wait_for_hotend_heating(const uint8_t target_extruder) {
         if (isHeatingHotend(target_extruder)) {
-          SERIAL_ECHOLNPGM("Wait for hotend heating...");
+          SERIAL_ECHOLNPGM(STR_WAIT_FOR_HOTEND);
           LCD_MESSAGE(MSG_HEATING);
           wait_for_hotend(target_extruder);
           ui.reset_status();
@@ -4799,7 +4796,7 @@ void Temperature::isr() {
       bool wants_to_cool = false;
       celsius_float_t target_temp = -1, old_temp = 9999;
       millis_t now, next_temp_ms = 0, cool_check_ms = 0;
-      wait_for_heatup = true;
+      marlin.heatup_start();
       do {
         // Target temperature might be changed during the loop
         if (target_temp != degTargetBed()) {
@@ -4825,7 +4822,7 @@ void Temperature::isr() {
           SERIAL_EOL();
         }
 
-        idle();
+        marlin.idle();
         gcode.reset_stepper_timeout(); // Keep steppers powered
 
         const celsius_float_t temp = degBed();
@@ -4864,7 +4861,7 @@ void Temperature::isr() {
 
         #if G26_CLICK_CAN_CANCEL
           if (click_to_cancel && ui.use_click()) {
-            wait_for_heatup = false;
+            marlin.heatup_done();
             TERN_(HAS_MARLINUI_MENU, ui.quick_feedback());
           }
         #endif
@@ -4873,11 +4870,12 @@ void Temperature::isr() {
           first_loop = false;
         #endif
 
-      } while (wait_for_heatup && TEMP_BED_CONDITIONS);
+      } while (marlin.is_heating() && TEMP_BED_CONDITIONS);
 
       // If wait_for_heatup is set, temperature was reached, no cancel
-      if (wait_for_heatup) {
-        wait_for_heatup = false;
+      // TODO: Use a common function to reset wait_for_heatup and update UI
+      if (marlin.is_heating()) {
+        marlin.heatup_done();
         ui.reset_status();
         return true;
       }
@@ -4887,7 +4885,7 @@ void Temperature::isr() {
 
     void Temperature::wait_for_bed_heating() {
       if (isHeatingBed()) {
-        SERIAL_ECHOLNPGM("Wait for bed heating...");
+        SERIAL_ECHOLNPGM(STR_WAIT_FOR_BED);
         LCD_MESSAGE(MSG_BED_HEATING);
         wait_for_bed();
         ui.reset_status();
@@ -4918,8 +4916,8 @@ void Temperature::isr() {
 
       float old_temp = 9999;
       millis_t next_temp_ms = 0, next_delta_check_ms = 0;
-      wait_for_heatup = true;
-      while (will_wait && wait_for_heatup) {
+      marlin.heatup_start();
+      while (will_wait && marlin.is_heating()) {
 
         // Print Temp Reading every 10 seconds while heating up.
         millis_t now = millis();
@@ -4929,7 +4927,7 @@ void Temperature::isr() {
           SERIAL_EOL();
         }
 
-        idle();
+        marlin.idle();
         gcode.reset_stepper_timeout(); // Keep steppers powered
 
         // Break after MIN_DELTA_SLOPE_TIME_PROBE seconds if the temperature
@@ -4954,8 +4952,9 @@ void Temperature::isr() {
       }
 
       // If wait_for_heatup is set, temperature was reached, no cancel
-      if (wait_for_heatup) {
-        wait_for_heatup = false;
+      // TODO: Use a common function to reset wait_for_heatup and update UI
+      if (marlin.is_heating()) {
+        marlin.heatup_done();
         ui.reset_status();
         return true;
       }
@@ -4994,7 +4993,7 @@ void Temperature::isr() {
       bool wants_to_cool = false;
       float target_temp = -1, old_temp = 9999;
       millis_t now, next_temp_ms = 0, cool_check_ms = 0;
-      wait_for_heatup = true;
+      marlin.heatup_start();
       do {
         // Target temperature might be changed during the loop
         if (target_temp != degTargetChamber()) {
@@ -5020,7 +5019,7 @@ void Temperature::isr() {
           SERIAL_EOL();
         }
 
-        idle();
+        marlin.idle();
         gcode.reset_stepper_timeout(); // Keep steppers powered
 
         const float temp = degChamber();
@@ -5052,11 +5051,12 @@ void Temperature::isr() {
             old_temp = temp;
           }
         }
-      } while (wait_for_heatup && TEMP_CHAMBER_CONDITIONS);
+      } while (marlin.is_heating() && TEMP_CHAMBER_CONDITIONS);
 
       // If wait_for_heatup is set, temperature was reached, no cancel
-      if (wait_for_heatup) {
-        wait_for_heatup = false;
+      // TODO: Use a common function to reset wait_for_heatup and update UI
+      if (marlin.is_heating()) {
+        marlin.heatup_done();
         ui.reset_status();
         return true;
       }
@@ -5094,7 +5094,7 @@ void Temperature::isr() {
       bool wants_to_cool = false;
       float target_temp = -1, previous_temp = 9999;
       millis_t now, next_temp_ms = 0, next_cooling_check_ms = 0;
-      wait_for_heatup = true;
+      marlin.heatup_start();
       do {
         // Target temperature might be changed during the loop
         if (target_temp != degTargetCooler()) {
@@ -5120,7 +5120,7 @@ void Temperature::isr() {
           SERIAL_EOL();
         }
 
-        idle();
+        marlin.idle();
         gcode.reset_stepper_timeout(); // Keep steppers powered
 
         const celsius_float_t current_temp = degCooler();
@@ -5153,11 +5153,12 @@ void Temperature::isr() {
           }
         }
 
-      } while (wait_for_heatup && TEMP_COOLER_CONDITIONS);
+      } while (marlin.is_heating() && TEMP_COOLER_CONDITIONS);
 
       // If wait_for_heatup is set, temperature was reached, no cancel
-      if (wait_for_heatup) {
-        wait_for_heatup = false;
+      // TODO: Use a common function to reset wait_for_heatup and update UI
+      if (marlin.is_heating()) {
+        marlin.heatup_done();
         ui.reset_status();
         return true;
       }

@@ -1606,7 +1606,7 @@ bool Planner::busy() {
 }
 
 void Planner::finish_and_disable() {
-  while (has_blocks_queued() || cleaning_buffer_counter) idle();
+  while (has_blocks_queued() || cleaning_buffer_counter) marlin.idle();
   stepper.disable_all_steppers();
 }
 
@@ -1666,7 +1666,7 @@ float Planner::get_axis_position_mm(const AxisEnum axis) {
 /**
  * Block until the planner is finished processing
  */
-void Planner::synchronize() { while (busy()) idle(); }
+void Planner::synchronize() { while (busy()) marlin.idle(); }
 
 /**
  * @brief Add a new linear movement to the planner queue (in terms of steps).
@@ -3040,7 +3040,7 @@ bool Planner::buffer_line(const xyze_pos_t &cart, const feedRate_t fr_mm_s
 
   void Planner::buffer_page(const page_idx_t page_idx, const uint8_t extruder, const uint16_t num_steps) {
     if (!last_page_step_rate) {
-      kill(GET_TEXT_F(MSG_BAD_PAGE_SPEED));
+      marlin.kill(GET_TEXT_F(MSG_BAD_PAGE_SPEED));
       return;
     }
 

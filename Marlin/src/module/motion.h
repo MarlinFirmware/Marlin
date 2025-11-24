@@ -484,12 +484,12 @@ inline bool all_axes_trusted()                        { return main_axes_mask ==
 void home_if_needed(const bool keeplev=false);
 
 #if ENABLED(NO_MOTION_BEFORE_HOMING)
-  #define MOTION_CONDITIONS (IsRunning() && !homing_needed_error())
+  #define MOTION_CONDITIONS (marlin.isRunning() && !homing_needed_error())
 #else
-  #define MOTION_CONDITIONS IsRunning()
+  #define MOTION_CONDITIONS marlin.isRunning()
 #endif
 
-#define BABYSTEP_ALLOWED() ((ENABLED(BABYSTEP_WITHOUT_HOMING) || all_axes_trusted()) && (ENABLED(BABYSTEP_ALWAYS_AVAILABLE) || printer_busy()))
+#define BABYSTEP_ALLOWED() ((ENABLED(BABYSTEP_WITHOUT_HOMING) || all_axes_trusted()) && (ENABLED(BABYSTEP_ALWAYS_AVAILABLE) || marlin.printer_busy()))
 
 #if HAS_HOME_OFFSET
   extern xyz_pos_t home_offset;

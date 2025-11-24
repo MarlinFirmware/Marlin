@@ -44,7 +44,14 @@ inline void G38_single_probe(const uint8_t move_value) {
   sync_plan_position();
 }
 
-inline bool G38_run_probe() {
+/**
+ * Handle G38.N where N is the sub-code for the type of probe:
+ *  2 - Probe toward workpiece, stop on contact, signal error if failure
+ *  3 - Probe toward workpiece, stop on contact
+ *  4 - Probe away from workpiece, stop on contact break, signal error if failure
+ *  5 - Probe away from workpiece, stop on contact break
+ */
+FORCE_INLINE bool G38_run_probe() {
 
   bool G38_pass_fail = false;
 

@@ -295,7 +295,7 @@ void MarlinUI::draw_status_screen() {
 
   #if ENABLED(LCD_SHOW_E_TOTAL) && defined(E_MARK_X) && defined(E_MARK_Y) && defined(E_VALUE_X) && defined(E_VALUE_Y)
     tft.add_text(E_MARK_X, E_MARK_Y, COLOR_AXIS_HOMED, "E");
-    if (printingIsActive()) {
+    if (marlin.printingIsActive()) {
       const uint8_t escale = e_move_accumulator >= 10000.0f ? 10 : 1; // After 10m switch to cm to fit into 4 digits output of ftostr4sign()
       tft_string.set(ftostr4sign(e_move_accumulator / escale));
       const uint16_t e_value_x = E_VALUE_X;
@@ -333,7 +333,7 @@ void MarlinUI::draw_status_screen() {
   #if ENABLED(TOUCH_SCREEN)
     add_control(MENU_ICON_X, MENU_ICON_Y, menu_main, imgSettings);
     #if HAS_MEDIA
-      const bool cm = card.isMounted(), pa = printingIsActive();
+      const bool cm = card.isMounted(), pa = marlin.printingIsActive();
       if (cm && pa)
         add_control(SDCARD_ICON_X, SDCARD_ICON_Y, STOP, imgCancel, true, COLOR_CONTROL_CANCEL);
       else
@@ -382,7 +382,7 @@ void MarlinUI::draw_status_screen() {
     tft.canvas(REMAINING_TIME_X, REMAINING_TIME_Y, REMAINING_TIME_W, REMAINING_TIME_H);
     tft.set_background(COLOR_BACKGROUND);
     tft_string.set(buffer);
-    color = printingIsActive() ? COLOR_PRINT_TIME : COLOR_INACTIVE;
+    color = marlin.printingIsActive() ? COLOR_PRINT_TIME : COLOR_INACTIVE;
     #if defined(REMAINING_TIME_IMAGE_X) && defined(REMAINING_TIME_IMAGE_Y)
       tft.add_image(REMAINING_TIME_IMAGE_X, REMAINING_TIME_IMAGE_Y, imgTimeRemaining, color);
     #endif

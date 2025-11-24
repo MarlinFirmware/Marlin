@@ -84,7 +84,6 @@ Stepper stepper; // Singleton
 #include "../lcd/marlinui.h"
 #include "../gcode/queue.h"
 #include "../sd/cardreader.h"
-#include "../MarlinCore.h"
 #include "../HAL/shared/Delay.h"
 
 #if ENABLED(BD_SENSOR)

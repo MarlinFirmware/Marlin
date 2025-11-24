@@ -26,7 +26,6 @@
 
 #include "../bedlevel.h"
 
-#include "../../../MarlinCore.h"
 #include "../../../HAL/shared/eeprom_api.h"
 #include "../../../libs/hex_print.h"
 #include "../../../module/settings.h"
@@ -375,7 +374,7 @@ void unified_bed_leveling::G29() {
     bool invalidate_all = count >= GRID_MAX_POINTS;
     if (!invalidate_all) {
       while (count--) {
-        if ((count & 0x0F) == 0x0F) idle();
+        if ((count & 0x0F) == 0x0F) marlin.idle();
         const mesh_index_pair closest = find_closest_mesh_point_of_type(REAL, param.XY_pos);
         // No more REAL mesh points to invalidate? Assume the user meant
         // to invalidate the ENTIRE mesh, which can't be done with
@@ -856,7 +855,7 @@ void set_message_with_feedback(FSTR_P const fstr) {
       ui.quick_feedback(false);         // Preserve button state for click-and-hold
       const millis_t nxt = millis() + 1500UL;
       while (ui.button_pressed()) {     // Loop while the encoder is pressed. Uses hardware flag!
-        idle();                         // idle, of course
+        marlin.idle();                  // idle, of course
         if (ELAPSED(millis(), nxt)) {   // After 1.5 seconds
           ui.quick_feedback();
           if (func) (*func)();
@@ -872,7 +871,7 @@ void set_message_with_feedback(FSTR_P const fstr) {
   void unified_bed_leveling::move_z_with_encoder(const float multiplier) {
     ui.wait_for_release();
     while (!ui.button_pressed()) {
-      idle();
+      marlin.idle();
       gcode.reset_stepper_timeout(); // Keep steppers powered
       if (encoder_diff) {
         do_blocking_move_to_z(current_position.z + float(encoder_diff) * multiplier);
@@ -1088,7 +1087,7 @@ void set_message_with_feedback(FSTR_P const fstr) {
       SET_SOFT_ENDSTOP_LOOSE(true);
 
       do {
-        idle_no_sleep();
+        marlin.idle_no_sleep();
         new_z = ui.ubl_mesh_value();
         TERN_(UBL_MESH_EDIT_MOVES_Z, do_blocking_move_to_z(h_offset + new_z)); // Move the nozzle as the point is edited
         SERIAL_FLUSH();                                   // Prevent host M105 buffer overrun.
@@ -1728,7 +1727,7 @@ void unified_bed_leveling::smart_fill_mesh() {
           const float ez = -lsf_results.D - lsf_results.A * ppos.x - lsf_results.B * ppos.y;
           z_values[ix][iy] = ez;
           TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(ix, iy, z_values[ix][iy]));
-          idle(); // housekeeping
+          marlin.idle(); // housekeeping
         }
       }
     }
@@ -1785,7 +1784,7 @@ void unified_bed_leveling::smart_fill_mesh() {
     SERIAL_EOL();
 
     #if HAS_KILL
-      SERIAL_ECHOLNPGM("Kill pin on :", KILL_PIN, "  state:", kill_state());
+      SERIAL_ECHOLNPGM("Kill pin on :", KILL_PIN, "  state:", marlin.kill_state());
     #endif
 
     SERIAL_EOL();
@@ -1823,7 +1822,7 @@ void unified_bed_leveling::smart_fill_mesh() {
     SERIAL_ECHO_MSG("EEPROM Dump:");
     persistentStore.access_start();
     for (uint16_t i = 0; i < persistentStore.capacity(); i += 16) {
-      if (!(i & 0x3)) idle();
+      if (!(i & 0x3)) marlin.idle();
       print_hex_word(i);
       SERIAL_ECHOPGM(": ");
       for (uint16_t j = 0; j < 16; j++) {

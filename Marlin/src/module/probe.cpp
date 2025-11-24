@@ -38,8 +38,6 @@
 #include "../gcode/gcode.h"
 #include "../lcd/marlinui.h"
 
-#include "../MarlinCore.h" // for stop(), disable_e_steppers(), wait_for_user_response()
-
 #if HAS_LEVELING
   #include "../feature/bedlevel/bedlevel.h"
 #endif
@@ -169,7 +167,7 @@ xyz_pos_t Probe::offset; // Initialized by settings.load
       ui.return_to_status();
 
       TERN_(HOST_PROMPT_SUPPORT, hostui.continue_prompt(F("Deploy TouchMI")));
-      TERN_(HAS_RESUME_CONTINUE, wait_for_user_response());
+      TERN_(HAS_RESUME_CONTINUE, marlin.wait_for_user_response());
       ui.reset_status();
       ui.goto_screen(prev_screen);
 
@@ -392,9 +390,9 @@ FORCE_INLINE void probe_specific_action(const bool deploy) {
       // Wait for the probe to be attached or detached before asking for explicit user confirmation
       // Allow the user to interrupt
       KEEPALIVE_STATE(PAUSED_FOR_USER);
-      TERN_(HAS_RESUME_CONTINUE, wait_for_user = true);
-      while (deploy == PROBE_TRIGGERED() && TERN1(HAS_RESUME_CONTINUE, wait_for_user)) idle_no_sleep();
-      TERN_(HAS_RESUME_CONTINUE, wait_for_user = false);
+      TERN_(HAS_RESUME_CONTINUE, marlin.wait_start());
+      while (deploy == PROBE_TRIGGERED() && TERN1(HAS_RESUME_CONTINUE, marlin.wait_for_user)) marlin.idle_no_sleep();
+      TERN_(HAS_RESUME_CONTINUE, marlin.user_resume());
       OKAY_BUZZ();
     }
     #endif
@@ -405,7 +403,7 @@ FORCE_INLINE void probe_specific_action(const bool deploy) {
     #elif ENABLED(EXTENSIBLE_UI)
       ExtUI::onUserConfirmRequired(ds_fstr);
     #endif
-    TERN_(HAS_RESUME_CONTINUE, wait_for_user_response());
+    TERN_(HAS_RESUME_CONTINUE, marlin.wait_for_user_response());
 
     ui.reset_alert_level();
     //ui.reset_status();
@@ -528,7 +526,7 @@ void Probe::probe_error_stop() {
     SERIAL_ECHOPGM(STR_STOP_BLTOUCH);
   #endif
   SERIAL_ECHOLNPGM(STR_STOP_POST);
-  stop();
+  marlin.stop();
 }
 
 /**
@@ -578,11 +576,11 @@ bool Probe::set_deployed(const bool deploy, const bool no_return/*=false*/) {
     }
 
     if (PROBE_TRIGGERED() == deploy) {             // Unchanged after deploy/stow action?
-      if (IsRunning()) {
+      if (marlin.isRunning()) {
         SERIAL_ERROR_MSG("Z-Probe failed");
         LCD_ALERTMESSAGE_F("Err: ZPROBE");
       }
-      stop();
+      marlin.stop();
       return true;
     }
 

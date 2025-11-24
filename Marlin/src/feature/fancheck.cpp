@@ -93,7 +93,7 @@ void FanCheck::compute_speed(uint16_t elapsedTime) {
   // Drop the error when all fans are ok
   if (!fan_error_msk && error == TachoError::REPORTED) error = TachoError::FIXED;
 
-  if (error == TachoError::FIXED && !printJobOngoing() && !printingIsPaused()) {
+  if (error == TachoError::FIXED && !marlin.printJobOngoing() && !marlin.printingIsPaused()) {
     error = TachoError::NONE; // if the issue has been fixed while the printer is idle, reenable immediately
     ui.reset_alert_level();
   }
@@ -106,17 +106,17 @@ void FanCheck::compute_speed(uint16_t elapsedTime) {
 }
 
 void FanCheck::report_speed_error(uint8_t fan) {
-  if (printJobOngoing()) {
+  if (marlin.printJobOngoing()) {
     if (error == TachoError::NONE) {
       if (thermalManager.degTargetHotend(fan) != 0) {
-        kill(GET_TEXT_F(MSG_FAN_SPEED_FAULT));
+        marlin.kill(GET_TEXT_F(MSG_FAN_SPEED_FAULT));
         error = TachoError::REPORTED;
       }
       else
         error = TachoError::DETECTED;   // Plans error for next processed command
     }
   }
-  else if (!printingIsPaused()) {
+  else if (!marlin.printingIsPaused()) {
     thermalManager.setTargetHotend(0, fan); // Always disable heating
     if (error == TachoError::NONE) error = TachoError::REPORTED;
   }

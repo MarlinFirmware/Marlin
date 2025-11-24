@@ -24,8 +24,6 @@
 
 #if ENABLED(MMU_MENUS)
 
-#include "../../MarlinCore.h"
-
 #if HAS_PRUSA_MMU3
   #include "../../feature/mmu3/mmu3.h"
   #include "../../feature/mmu3/mmu3_reporting.h"
@@ -101,7 +99,7 @@ void action_mmu2_unload_filament() {
   LCD_MESSAGE(MSG_MMU2_UNLOADING_FILAMENT);
   while (!TERN(HAS_PRUSA_MMU3, mmu3.unload(), mmu2.unload())) {
     safe_delay(50);
-    TERN(HAS_PRUSA_MMU3, MMU3::marlin_idle(true), idle());
+    TERN(HAS_PRUSA_MMU3, MMU3::marlin_idle(true), marlin.idle());
   }
   ui.reset_status();
 }
@@ -154,7 +152,7 @@ void menu_mmu3_fail_stats_last_print() {
   sprintf_P(buffer2, PSTR("%hu"), load_fail_num);
 
   START_SCREEN();
-  STATIC_ITEM_F(printJobOngoing() ? GET_TEXT_F(MSG_MMU_CURRENT_PRINT_FAILURES) :  GET_TEXT_F(MSG_MMU_LAST_PRINT_FAILURES), SS_INVERT);
+  STATIC_ITEM_F(marlin.printJobOngoing() ? GET_TEXT_F(MSG_MMU_CURRENT_PRINT_FAILURES) :  GET_TEXT_F(MSG_MMU_LAST_PRINT_FAILURES), SS_INVERT);
   #ifndef __AVR__
     // TODO: I couldn't make this work on AVR
     PSTRING_ITEM(MSG_MMU_FAILS, buffer1, SS_FULL);
@@ -216,7 +214,7 @@ void menu_mmu3_toolchange_stat_total() {
   STATIC_ITEM(MSG_MMU_MATERIAL_CHANGES, SS_INVERT);
   #ifndef __AVR__
     // TODO: I couldn't make this work on AVR
-    if (printJobOngoing())
+    if (marlin.printJobOngoing())
       PSTRING_ITEM(MSG_MMU_CURRENT_PRINT, buffer1, SS_FULL);
     else
       PSTRING_ITEM(MSG_MMU_LAST_PRINT, buffer1, SS_FULL);
@@ -233,7 +231,7 @@ void menu_mmu3_statistics() {
     ACTION_ITEM(MSG_MMU_DEV_INCREMENT_LOAD_FAILS, menu_mmu3_dev_increment_load_fail_stat);
   #endif
 
-  SUBMENU_F(printJobOngoing() ? GET_TEXT_F(MSG_MMU_CURRENT_PRINT_FAILURES) : GET_TEXT_F(MSG_MMU_LAST_PRINT_FAILURES), menu_mmu3_fail_stats_last_print);
+  SUBMENU_F(marlin.printJobOngoing() ? GET_TEXT_F(MSG_MMU_CURRENT_PRINT_FAILURES) : GET_TEXT_F(MSG_MMU_LAST_PRINT_FAILURES), menu_mmu3_fail_stats_last_print);
   SUBMENU(MSG_MMU_TOTAL_FAILURES, menu_mmu3_fail_stas_total);
   SUBMENU(MSG_MMU_MATERIAL_CHANGES, menu_mmu3_toolchange_stat_total);
   CONFIRM_ITEM(MSG_MMU_RESET_FAIL_STATS,
@@ -269,7 +267,7 @@ void action_mmu2_reset() {
 }
 
 void menu_mmu2() {
-  const bool busy = printJobOngoing(); // printingIsActive();
+  const bool busy = marlin.printJobOngoing(); // printingIsActive()
 
   START_MENU();
   BACK_ITEM(MSG_MAIN_MENU);
@@ -377,14 +375,14 @@ void mmu2_M600(const bool automatic/*=false*/) {
   ui.defer_status_screen();
   ui.goto_screen(menu_mmu2_pause);
   wait_for_mmu_menu = true;
-  while (wait_for_mmu_menu) idle();
+  while (wait_for_mmu_menu) marlin.idle();
 }
 
 uint8_t mmu2_choose_filament() {
   ui.defer_status_screen();
   ui.goto_screen(menu_mmu2_choose_filament);
   wait_for_mmu_menu = true;
-  while (wait_for_mmu_menu) idle();
+  while (wait_for_mmu_menu) marlin.idle();
   ui.return_to_status();
   return feeder_index;
 }

@@ -122,15 +122,15 @@ namespace MMU3 {
     #endif
   }
 
-  bool marlin_printingIsActive() { return printingIsActive(); }
+  bool marlin_printingIsActive() { return marlin.printingIsActive(); }
 
   void marlin_manage_heater() { thermalManager.task(); }
 
-  void marlin_manage_inactivity(const bool b) { idle(b); }
+  void marlin_manage_inactivity(const bool b) { marlin.idle(b); }
 
-  void marlin_idle(bool b) {
+  void marlin_idle(const bool b) {
     thermalManager.task();
-    idle(b);
+    marlin.idle(b);
   }
 
   void marlin_refresh_print_state_in_ram() {
@@ -157,7 +157,7 @@ namespace MMU3 {
   void thermal_setTargetHotend(int16_t t) { thermalManager.setTargetHotend(t, 0); }
 
   void safe_delay_keep_alive(uint16_t t) {
-    idle(true);
+    marlin.idle(true);
     safe_delay(t);
   }
 
