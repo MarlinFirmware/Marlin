@@ -35,11 +35,10 @@
 
 #include "tft.h"
 #include "ui_common.h"
-#include "touch.h"
 
 #include "../marlinui.h"
-#include "../../../sd/cardreader.h"
-#include "../../../MarlinCore.h" // for wait_for_user
+#include "../../sd/cardreader.h"
+#include "../../MarlinCore.h" // for wait_for_user
 #include "base64.h"
 #include "image_decoders/image_decoder.h"
 #include "../menu/menu.h"  // for menu_file_selector
@@ -104,6 +103,9 @@ typedef struct {
 } thumb_candidate_t;
 
 fileprop_t fileprop;
+
+// Track current button selection for encoder navigation (0 = Cancel, 1 = Confirm)
+static uint8_t button_selection = 1; // Default to Confirm
 
 void getValue(const char * const buf, PGM_P const key, float &value) {
   if (value != 0.0f) return;
@@ -627,8 +629,19 @@ void Preview::drawFromSD() {
   const int button_y = GCODE_PREVIEW_BUTTON_Y;
   const int button1_x = GCODE_PREVIEW_BUTTON1_X;
   const int button2_x = GCODE_PREVIEW_BUTTON2_X;
-  tft.add_image(button1_x, button_y, imgConfirm, COLOR_LIME);
-  tft.add_image(button2_x, button_y, imgCancel, COLOR_RED);
+  
+  // Handle encoder input for button selection
+  const int8_t encoder_delta = ui.get_encoder_delta();
+  if (encoder_delta) {
+    button_selection = encoder_delta > 0 ? 1 : 0; // Positive = Confirm, Negative = Cancel
+    DEBUG_ECHOLN("G-code preview: Encoder moved, selection now: ", button_selection ? "Confirm" : "Cancel");
+  }
+  
+  // Draw buttons with highlighting for encoder selection
+  const uint16_t confirm_color = (button_selection == 1) ? COLOR_WHITE : COLOR_LIME;
+  const uint16_t cancel_color = (button_selection == 0) ? COLOR_WHITE : COLOR_RED;
+  tft.add_image(button1_x, button_y, imgConfirm, confirm_color);
+  tft.add_image(button2_x, button_y, imgCancel, cancel_color);
 
   // Add touch controls for the buttons
   #if ENABLED(TOUCH_SCREEN)
@@ -640,6 +653,11 @@ void Preview::drawFromSD() {
 
   // Check for user input (non-blocking)
   if (ui.use_click()) {
+    // For encoder-only systems, set ui.selection based on current button_selection
+    #if DISABLED(TOUCH_SCREEN)
+      ui.set_selection(button_selection == 1);
+    #endif
+    
     // Handle the user response
     if (ui.selection) {
       // User pressed CONFIRM - start printing

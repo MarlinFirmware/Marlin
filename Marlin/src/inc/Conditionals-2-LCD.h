@@ -433,11 +433,13 @@
 #if ENABLED(TFT_COLOR_UI)
   #define HAS_GRAPHICAL_TFT 1
   #define IS_ULTIPANEL 1
-  #define HAS_GCODE_PREVIEW 1   // Preview G-code model thumbnail
-  // Image decoder options for G-code thumbnails
-  #define HAS_JPEG_DECODER 1   // Enable JPEG thumbnail decoding
-  #define HAS_PNG_DECODER  1   // Enable PNG thumbnail decoding
-  #define HAS_QOI_DECODER  1   // Enable QOI thumbnail decoding
+  #if HAS_MEDIA
+    #define HAS_GCODE_PREVIEW 1   // Preview G-code model thumbnail
+    // Image decoder options for G-code thumbnails
+    #define HAS_JPEG_DECODER 1   // Enable JPEG thumbnail decoding
+    #define HAS_PNG_DECODER  1   // Enable PNG thumbnail decoding
+    #define HAS_QOI_DECODER  1   // Enable QOI thumbnail decoding
+  #endif
 #endif
 
 /**
