@@ -629,14 +629,14 @@ void Preview::drawFromSD() {
   const int button_y = GCODE_PREVIEW_BUTTON_Y;
   const int button1_x = GCODE_PREVIEW_BUTTON1_X;
   const int button2_x = GCODE_PREVIEW_BUTTON2_X;
-  
+
   // Handle encoder input for button selection
   const int8_t encoder_delta = ui.get_encoder_delta();
   if (encoder_delta) {
     button_selection = encoder_delta > 0 ? 1 : 0; // Positive = Confirm, Negative = Cancel
     DEBUG_ECHOLN("G-code preview: Encoder moved, selection now: ", button_selection ? "Confirm" : "Cancel");
   }
-  
+
   // Draw buttons with highlighting for encoder selection
   const uint16_t confirm_color = (button_selection == 1) ? COLOR_WHITE : COLOR_LIME;
   const uint16_t cancel_color = (button_selection == 0) ? COLOR_WHITE : COLOR_RED;
@@ -657,7 +657,7 @@ void Preview::drawFromSD() {
     #if DISABLED(TOUCH_SCREEN)
       ui.set_selection(button_selection == 1);
     #endif
-    
+
     // Handle the user response
     if (ui.selection) {
       // User pressed CONFIRM - start printing
