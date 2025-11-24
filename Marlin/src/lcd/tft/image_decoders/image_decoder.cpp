@@ -34,23 +34,23 @@ namespace ImageDecoders {
   ImageFormat ImageDecoder::detectFormat(const uint8_t* data, size_t size) {
   #if HAS_JPEG_DECODER
     if (JPEGDecoder::isValidJPEG(data, size)) {
-      return ImageFormat::JPEG;
+      return ImageFormat::IMG_JPEG;
     }
   #endif
 
   #if HAS_PNG_DECODER
     if (PNGDecoder::isValidPNG(data, size)) {
-      return ImageFormat::PNG;
+      return ImageFormat::IMG_PNG;
     }
   #endif
 
   #if HAS_QOI_DECODER
     if (QOIDecoder::isValidQOI(data, size)) {
-      return ImageFormat::QOI;
+      return ImageFormat::IMG_QOI;
     }
   #endif
 
-    return ImageFormat::UNKNOWN;
+    return ImageFormat::IMG_UNKNOWN;
   }
 
   bool ImageDecoder::decode(const uint8_t* image_data, size_t image_size,
@@ -61,18 +61,18 @@ namespace ImageDecoders {
 
     switch (format) {
   #if HAS_JPEG_DECODER
-      case ImageFormat::JPEG:
+      case ImageFormat::IMG_JPEG:
         DEBUG_ECHOLN("ImageDecoder: Calling JPEGDecoder::decode()");
         return JPEGDecoder::decode(image_data, image_size, output_buffer, width, height);
   #endif
 
   #if HAS_PNG_DECODER
-      case ImageFormat::PNG:
+      case ImageFormat::IMG_PNG:
         return PNGDecoder::decode(image_data, image_size, output_buffer, width, height);
   #endif
 
   #if HAS_QOI_DECODER
-      case ImageFormat::QOI:
+      case ImageFormat::IMG_QOI:
         return QOIDecoder::decode(image_data, image_size, output_buffer, width, height);
   #endif
 
@@ -87,15 +87,15 @@ namespace ImageDecoders {
 
     switch (format) {
       #if HAS_JPEG_DECODER
-        case ImageFormat::JPEG:
+        case ImageFormat::IMG_JPEG:
           return JPEGDecoder::getDimensions(image_data, image_size, width, height);
       #endif
       #if HAS_PNG_DECODER
-        case ImageFormat::PNG:
+        case ImageFormat::IMG_PNG:
           return PNGDecoder::getDimensions(image_data, image_size, width, height);
       #endif
       #if HAS_QOI_DECODER
-        case ImageFormat::QOI:
+        case ImageFormat::IMG_QOI:
           return QOIDecoder::getDimensions(image_data, image_size, width, height);
       #endif
       default:

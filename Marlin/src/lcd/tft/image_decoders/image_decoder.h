@@ -20,10 +20,10 @@
 namespace ImageDecoders {
 
 enum class ImageFormat {
-  JPEG,
-  PNG,
-  QOI,
-  UNKNOWN
+  IMG_JPEG,
+  IMG_PNG,
+  IMG_QOI,
+  IMG_UNKNOWN
 };
 
 // Unified interface for image decoding
