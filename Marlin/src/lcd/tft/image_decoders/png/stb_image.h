@@ -372,6 +372,7 @@ RECENT REVISION HISTORY:
 #endif // STBI_NO_STDIO
 
 #define STBI_VERSION 1
+#define STBI_ONLY_PNG
 
 enum
 {
