@@ -819,6 +819,7 @@ struct XYZval {
   FI XYZval<T>& operator-=(const T &p)           { NUM_AXIS_CODE(x -= p, y -= p, z -= p, i -= p, j -= p, k -= p, u -= p, v -= p, w -= p); return *this; }
   FI XYZval<T>& operator*=(const T &p)           { NUM_AXIS_CODE(x *= p, y *= p, z *= p, i *= p, j *= p, k *= p, u *= p, v *= p, w *= p); return *this; }
   FI XYZval<T>& operator/=(const T &p)           { NUM_AXIS_CODE(x /= p, y /= p, z /= p, i /= p, j /= p, k /= p, u /= p, v /= p, w /= p); return *this; }
+  FI XYZval<T>& operator*=(const int &p)         { NUM_AXIS_CODE(x *= p, y *= p, z *= p, i *= p, j *= p, k *= p, u *= p, v *= p, w *= p); return *this; }
   FI XYZval<T>& operator*=(const float p)        { NUM_AXIS_CODE(x *= p, y *= p, z *= p, i *= p, j *= p, k *= p, u *= p, v *= p, w *= p); return *this; }
   FI XYZval<T>& operator/=(const float p)        { NUM_AXIS_CODE(x /= p, y /= p, z /= p, i /= p, j /= p, k /= p, u /= p, v /= p, w /= p); return *this; }
   FI XYZval<T>& operator>>=(const int &p)        { NUM_AXIS_CODE(_RSE(x), _RSE(y), _RSE(z), _RSE(i), _RSE(j), _RSE(k), _RSE(u), _RSE(v), _RSE(w)); return *this; }
