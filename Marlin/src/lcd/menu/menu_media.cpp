@@ -31,11 +31,8 @@
 #include "menu_item.h"
 #include "../../sd/cardreader.h"
 
-#if ENABLED(TFT_COLOR_UI)
-  #include "../tft/ui_common.h"
-#endif
-
 #if ENABLED(TFT_COLOR_UI) && HAS_GCODE_PREVIEW
+  #include "../tft/ui_common.h"
   #include "../tft/ui_gcode_preview.h"
 #endif
 
