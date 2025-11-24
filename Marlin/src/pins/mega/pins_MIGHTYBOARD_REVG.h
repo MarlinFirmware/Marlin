@@ -191,6 +191,22 @@
 
     #define BEEPER_PIN                         6  // H3
 
+    //
+    // SD Card
+    //
+    // --- Secure Digital Card configuration ---
+    // NOTE: If SD support is enabled, it is implicitly assumed that the
+    // following pins are connected:
+    //  AVR    |   SD header
+    //---------|--------------
+    //  MISO   |   DATA_OUT
+    //  MOSI   |   DATA_IN
+    //  SCK    |   CLK
+
+    #define SD_WRITE_PIN                          41  // Sailfish mighty two: G0(41)  H5(D8)  -
+    #define SD_DETECT_PIN                         40  // Sailfish mighty two: G1(40) H6(D9)  L0(D49)
+    #define SD_SS_PIN                             53  // Sailfish mighty two: B0(53)
+
   #endif
 
 #endif // HAS_WIRED_LCD

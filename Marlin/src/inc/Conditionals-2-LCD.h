@@ -542,14 +542,14 @@
 
 #if ENABLED(MIGHTYBOARD_INTERFACE)
   #define MIGHTYBOARD_LCD
-  // #define IS_ULTIPANEL 1
+  #define IS_ULTIPANEL 1    // Enables button menu navigation and functions (Marlin UI)
   // #define HAS_WIRED_LCD 1
   #define LCD_WIDTH 20
   #define LCD_HEIGHT 4
 #endif
 
 #if ANY(IS_ULTIPANEL, ULTRA_LCD, MIGHTYBOARD_LCD)
-  #define HAS_WIRED_LCD 1
+  #define HAS_WIRED_LCD 1   // Enables LCD and button detection
 #endif
 
 
