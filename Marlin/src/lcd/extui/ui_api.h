@@ -74,7 +74,7 @@ namespace ExtUI {
   #if ENABLED(MPC_AUTOTUNE)
     enum mpcresult_t : uint8_t { MPC_STARTED, MPC_TEMP_ERROR, MPC_INTERRUPTED, MPC_DONE };
   #endif
-  struct probe_limits_t { float xmin, ymin, xmax, ymax; };
+  typedef struct { float xmin, ymin, xmax, ymax; } probe_limits_t;
 
   constexpr uint8_t extruderCount = EXTRUDERS;
   constexpr uint8_t hotendCount   = HOTENDS;
@@ -132,6 +132,8 @@ namespace ExtUI {
   inline void injectCommands(FSTR_P const fstr) { injectCommands_P(FTOP(fstr)); }
   void injectCommands(char * const);
   bool commandsInQueue();
+  inline void executeCommands(FSTR_P const fstr) { gcode.process_subcommands_now(fstr); }
+  inline void executeCommands(char * const cstr) { gcode.process_subcommands_now(cstr); }
 
   #if ENABLED(HOST_KEEPALIVE_FEATURE)
     GcodeSuite::MarlinBusyState getHostKeepaliveState();

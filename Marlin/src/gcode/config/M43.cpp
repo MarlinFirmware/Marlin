@@ -154,37 +154,36 @@ inline void servo_probe_test() {
 
     SET_INPUT_PULLUP(PROBE_TEST_PIN);
 
-    // First, check for a probe that recognizes an advanced BLTouch sequence.
-    // In addition to STOW and DEPLOY, it uses SW MODE (and RESET in the beginning)
-    // to see if this is one of the following: BLTOUCH Classic 1.2, 1.3,  or
-    // BLTouch Smart 1.0, 2.0, 2.2, 3.0, 3.1. But only if the user has actually
-    // configured a BLTouch as being present. If the user has not configured this,
-    // the BLTouch will be detected in the last phase of these tests (see further on).
-    bool blt = false;
-    // This code will try to detect a BLTouch probe or clone
+    /**
+     * This code will try to detect a BLTouch probe or clone.
+     * First, check for a probe that recognizes an advanced BLTouch sequence.
+     * In addition to STOW and DEPLOY, it uses SW MODE (and RESET in the beginning)
+     * to see if this is one of the following: BLTOUCH Classic 1.2, 1.3, or
+     * BLTouch Smart 1.0, 2.0, 2.2, 3.0, 3.1. But only if the user has actually
+     * configured a BLTouch as being present. If the user has not configured this,
+     * the BLTouch will be detected in the last phase of these tests (see further on).
+     */
     #if ENABLED(BLTOUCH)
-      SERIAL_ECHOLNPGM(". Check for BLTOUCH");
-      bltouch._reset();
-      bltouch._stow();
-      if (!PROBE_TRIGGERED()) {
-        bltouch._set_SW_mode();
-        if (PROBE_TRIGGERED()) {
-          bltouch._deploy();
-          if (!PROBE_TRIGGERED()) {
-            bltouch._stow();
-            SERIAL_ECHOLNPGM("= BLTouch Classic 1.2, 1.3, Smart 1.0, 2.0, 2.2, 3.0, 3.1 detected.");
-            // Check for a 3.1 by letting the user trigger it, later
-            blt = true;
-        }
-      }
-    }
+      bool blt = false;
+      do {
+        SERIAL_ECHOLNPGM(". Check for BLTOUCH");
+        bltouch._reset();
+        bltouch._stow();          if ( PROBE_TRIGGERED()) break;
+        bltouch._set_SW_mode();   if (!PROBE_TRIGGERED()) break;
+        bltouch._deploy();        if ( PROBE_TRIGGERED()) break;
+        bltouch._stow();
+        SERIAL_ECHOLNPGM("= BLTouch Classic 1.2, 1.3, Smart 1.0, 2.0, 2.2, 3.0, 3.1 detected.");
+        blt = true; // Check for a 3.1 by letting the user trigger it, later
+      } while(0);
+    #else
+      static constexpr bool blt = false;
     #endif
 
     // The following code is common to all kinds of servo probes.
     // Since it could be a real servo or a BLTouch (any kind) or a clone,
     // use only "common" functions - i.e. SERVO_MOVE. No bltouch.xxxx stuff.
 
-    // If it is already recognised as a being a BLTouch, no need for this test
+    // If it is already recognized as a being a BLTouch, no need for this test
     if (!blt) {
       // DEPLOY and STOW 4 times and see if the signal follows
       // Then it is a mechanical switch

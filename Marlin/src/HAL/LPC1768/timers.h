@@ -57,7 +57,7 @@
 #define _HAL_TIMER_ISR(T)  __HAL_TIMER_ISR(T)
 
 typedef uint32_t hal_timer_t;
-#define HAL_TIMER_TYPE_MAX 0xFFFFFFFF
+#define HAL_TIMER_TYPE_MAX 0xFFFFFFFFUL
 
 #define HAL_TIMER_RATE         ((F_CPU) / 4)  // frequency of timers peripherals
 
@@ -171,4 +171,4 @@ FORCE_INLINE static void HAL_timer_isr_prologue(const uint8_t timer_num) {
   }
 }
 
-#define HAL_timer_isr_epilogue(T) NOOP
+inline void HAL_timer_isr_epilogue(const uint8_t) {}
