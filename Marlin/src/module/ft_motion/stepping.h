@@ -39,10 +39,9 @@ typedef struct Stepping {
   AxisBits dir_bits;
   AxisBits step_bits;
 
-  // The wait and interval vars could be uin16_t, but 32 bit MCUs handle 32 bit vars faster (no unnecessary masking)
   xyze_ulong_t axis_interval_q5{ LOGICAL_AXIS_LIST_1(FTM_NEVER) };
   xyze_ulong_t ticks_left_per_axis_q5{ LOGICAL_AXIS_LIST_1(FTM_NEVER) };
-  uint32_t ticks_left_in_frame_q5 = FTM_NEVER;
+  uint32_t ticks_left_in_frame_q5 = 0;
 
   FORCE_INLINE uint32_t advance_until_step();
 
@@ -61,8 +60,8 @@ typedef struct Stepping {
   //
 
   stepper_plan_t stepper_plan_buff[FTM_BUFFER_SIZE];
-  uint32_t stepper_plan_tail, stepper_plan_head;
-  XYZEval<int64_t> curr_steps_q48_16;
+  uint32_t stepper_plan_tail = 0, stepper_plan_head = 0;
+  XYZEval<int64_t> curr_steps_q48_16{ LOGICAL_AXIS_LIST_1(0) };
 
   FORCE_INLINE void enqueue(XYZEval<int64_t> next_steps_q48_16);
 
@@ -79,6 +78,8 @@ typedef struct Stepping {
   }
 } stepping_t;
 
+constexpr uint32_t FRAME_TICKS_Q5 = TIMER_TICKS_PER_FRAME << 5;
+
 //
 // uint64-free equivalent of: ((uint64_t)a * b) >> 16
 //
@@ -93,7 +94,6 @@ FORCE_INLINE uint32_t a_times_b_shift_16(uint32_t a, uint32_t b) {
 
 constexpr uint32_t ONE_Q5 = 1 << 5;
 constexpr uint32_t Q5_INTEGER_MASK = ~(ONE_Q5 - 1);
-constexpr uint32_t FRAME_TICKS_Q5 = TIMER_TICKS_PER_FRAME << 5;
 
 FORCE_INLINE uint32_t Stepping::advance_until_step() {
   step_bits = 0;
@@ -133,7 +133,7 @@ FORCE_INLINE uint32_t Stepping::advance_until_step() {
 
       // Build step_bits array
       auto _set_step_bit = [&](const AxisEnum A) __attribute__((always_inline)) {
-        if (ticks_left_per_axis_q5[A] < ONE_Q5) {
+        if (ticks_left_per_axis_q5[A] < ONE_Q5 && ticks_left_per_axis_q5[A] <= ticks_left_in_frame_q5) {
           step_bits[A] = 1;
           ticks_left_per_axis_q5[A] += axis_interval_q5[A];
         }
@@ -172,6 +172,7 @@ FORCE_INLINE void Stepping::enqueue(XYZEval<int64_t> next_steps_q48_16) {
 
     // steps_to_make = integer steps + potential fraction crossing an integer
     const uint16_t steps_to_make = (delta_q16_16 >> 16) + carry;
+
     if (steps_to_make == 0) {
       stepper_plan.first_interval_q11_5[A] = FTM_NEVER;
       stepper_plan.interval_q11_5[A]       = FTM_NEVER;
@@ -180,17 +181,17 @@ FORCE_INLINE void Stepping::enqueue(XYZEval<int64_t> next_steps_q48_16) {
 
     const uint32_t interval_q27_5 = ((uint32_t)TIMER_TICKS_PER_FRAME << 21) / delta_q16_16,
                    current_frame_phase_q27_5 = a_times_b_shift_16(interval_q27_5, curr_phase_q1_16);
-    uint16_t first_interval_q11_5 = interval_q27_5 - current_frame_phase_q27_5;
+    uint32_t first_interval_q27_5 = interval_q27_5 - current_frame_phase_q27_5;
     // The calculation of interval_q27_5 may undershoot its value by a fraction
     // due to integer (floor) division. This small fractional error can
     // occasionally make a spurious step fit inside this frame.
     // To avoid that corner case, the first interval is incremented just enough
     // for it to not fit.
-    const int32_t tick_of_spurious_step_q27_5 = first_interval_q11_5 + interval_q27_5 * steps_to_make;
-    if (tick_of_spurious_step_q27_5 <= (TIMER_TICKS_PER_FRAME << 5)) {
-      first_interval_q11_5 += (TIMER_TICKS_PER_FRAME << 5) - tick_of_spurious_step_q27_5 + 1;
+    const uint32_t tick_of_spurious_step_q27_5 = first_interval_q27_5 + interval_q27_5 * steps_to_make;
+    if (tick_of_spurious_step_q27_5 <= FRAME_TICKS_Q5) {
+      first_interval_q27_5 += FRAME_TICKS_Q5 - tick_of_spurious_step_q27_5 + 1;
     }
-    stepper_plan.first_interval_q11_5[A] = first_interval_q11_5;
+    stepper_plan.first_interval_q11_5[A] = _MIN(first_interval_q27_5, FTM_NEVER);
     stepper_plan.interval_q11_5[A]       = _MIN(interval_q27_5, FTM_NEVER);
   };
   LOGICAL_AXIS_CALL(_run_axis);
