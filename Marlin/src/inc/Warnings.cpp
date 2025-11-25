@@ -31,6 +31,10 @@
 // Warnings! Located here so they will appear just once in the build output.
 //
 
+#if __cplusplus < 201703L
+  #warning "This build does not have access to >= c++17 features."
+#endif
+
 // static_warning works like a static_assert but only emits a (messy) warning.
 #ifdef __GNUC__
   namespace mfwarn {
