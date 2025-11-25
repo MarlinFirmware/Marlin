@@ -1978,7 +1978,7 @@ void hmiSDCardUpdate() {
   if (hmiFlag.home_flag) return;
   if (DWIN_lcd_sd_status != card.isMounted()) {
     DWIN_lcd_sd_status = card.isMounted();
-    //SERIAL_ECHOLNPGM("HMI_SDCardUpdate: ", DWIN_lcd_sd_status);
+    //SERIAL_ECHOLNPGM("hmiSDCardUpdate: ", DWIN_lcd_sd_status);
     if (DWIN_lcd_sd_status) {
       if (checkkey == ID_SelectFile)
         redrawSDList();
@@ -4168,6 +4168,61 @@ void eachMomentUpdate() {
         if (card_pct) {
           _card_percent = card_pct;
           drawPrintProgressBar();
+        }
+      }
+      // Estimate remaining time every 20 seconds
+      static millis_t next_remain_time_update = 0;
+      if (_card_percent > 1 && ELAPSED(ms, next_remain_time_update) && !hmiFlag.heat_flag) {
+        _remain_time = (elapsed.value - dwin_heat_time) / (_card_percent * 0.01f) - (elapsed.value - dwin_heat_time);
+        next_remain_time_update += DWIN_REMAIN_TIME_UPDATE_INTERVAL;
+        drawPrintProgressRemain();
+      }
+  }
+  else if (dwin_abort_flag && !hmiFlag.home_flag) { // Print Stop
+    dwin_abort_flag = false;
+    hmiValues.printSpeed = feedrate_percentage = 100;
+    dwin_zoffset = BABY_Z_VAR;
+    select_page.set(0);
+    gotoMainMenu();
+  }
+
+  #if ENABLED(POWER_LOSS_RECOVERY)
+    else if (DWIN_lcd_sd_status && recovery.ui_flag_resume) { // Resume interrupted print
+      recovery.ui_flag_resume = false;
+
+      auto update_selection = [&](const bool sel) {
+        hmiFlag.select_flag = sel;
+        const uint16_t c1 = sel ? COLOR_BG_WINDOW : COLOR_SELECT;
+        dwinDrawRectangle(0, c1, 25, 306, 126, 345);
+        dwinDrawRectangle(0, c1, 24, 305, 127, 346);
+        const uint16_t c2 = sel ? COLOR_SELECT : COLOR_BG_WINDOW;
+        dwinDrawRectangle(0, c2, 145, 306, 246, 345);
+        dwinDrawRectangle(0, c2, 144, 305, 247, 346);
+      };
+
+      popupWindowResume();
+      update_selection(true);
+
+      char * const name = card.longest_filename();
+      const int8_t npos = _MAX(0U, DWIN_WIDTH - strlen(name) * (MENU_CHR_W)) / 2;
+      dwinDrawString(true, font8x16, COLOR_POPUP_TEXT, COLOR_BG_WINDOW, npos, 252, name);
+      dwinUpdateLCD();
+
+      bool recovery_flag = true;
+      while (recovery_flag) {
+        EncoderState encoder_diffState = encoderReceiveAnalyze();
+        if (encoder_diffState != ENCODER_DIFF_NO) {
+          if (encoder_diffState == ENCODER_DIFF_ENTER) {
+            recovery_flag = false;
+            if (hmiFlag.select_flag) break;
+            TERN_(POWER_LOSS_RECOVERY, queue.inject(F("M1000C")));
+            hmiStartFrame(true);
+            return;
+          }
+          else
+            update_selection(encoder_diffState == ENCODER_DIFF_CW);
+
+          dwinUpdateLCD();
         }
       }
 

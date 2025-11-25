@@ -23,6 +23,7 @@
 
 #include "menu.h"
 #include "../marlinui.h"
+#include "../../gcode/gcode.h" // for process_subcommands_now
 #include "../../gcode/queue.h" // for inject
 
 #include "../../inc/MarlinConfigPre.h"
@@ -67,6 +68,12 @@ class MenuItem_gcode : public MenuItem_button {
       _draw(sel, row, fstr, '>', ' ');
     }
     static void action(FSTR_P const, FSTR_P const fgcode) { queue.inject(fgcode); }
+    static void action(FSTR_P const fstr, const uint8_t, FSTR_P const fgcode) { action(fstr, fgcode); }
+};
+
+class MenuItem_command : public MenuItem_gcode {
+  public:
+    static void action(FSTR_P const, FSTR_P const fgcode) { gcode.process_subcommands_now(fgcode); }
     static void action(FSTR_P const fstr, const uint8_t, FSTR_P const fgcode) { action(fstr, fgcode); }
 };
 
@@ -478,6 +485,15 @@ class MenuItem_bool : public MenuEditItemBase {
 #define GCODES_ITEM_N(N, LABEL, GCODES)              GCODES_ITEM_N_F(N, GET_TEXT_F(LABEL), GCODES)
 #define GCODES_ITEM_F(FLABEL, GCODES)                    MENU_ITEM_F(gcode, FLABEL, GCODES)
 #define GCODES_ITEM(LABEL, GCODES)                     GCODES_ITEM_F(GET_TEXT_F(LABEL), GCODES)
+
+#define COMMAND_ITEM_N_S_F(N, S, FLABEL, GCODES)     MENU_ITEM_N_S_F(command, N, S, FLABEL, GCODES)
+#define COMMAND_ITEM_N_S(N, S, LABEL, GCODES)     COMMAND_ITEM_N_S_F(N, S, GET_TEXT_F(LABEL), GCODES)
+#define COMMAND_ITEM_S_F(S, FLABEL, GCODES)            MENU_ITEM_S_F(command, S, FLABEL, GCODES)
+#define COMMAND_ITEM_S(S, LABEL, GCODES)            COMMAND_ITEM_S_F(S, GET_TEXT_F(LABEL), GCODES)
+#define COMMAND_ITEM_N_F(N, FLABEL, GCODES)            MENU_ITEM_N_F(command, N, FLABEL, GCODES)
+#define COMMAND_ITEM_N(N, LABEL, GCODES)            COMMAND_ITEM_N_F(N, GET_TEXT_F(LABEL), GCODES)
+#define COMMAND_ITEM_F(FLABEL, GCODES)                   MENU_ITEM_F(command, FLABEL, GCODES)
+#define COMMAND_ITEM(LABEL, GCODES)                   COMMAND_ITEM_F(GET_TEXT_F(LABEL), GCODES)
 
 #define SUBMENU_N_S_F(N, S, FLABEL, DEST)            MENU_ITEM_N_S_F(submenu, N, S, FLABEL, DEST)
 #define SUBMENU_N_S(N, S, LABEL, DEST)                 SUBMENU_N_S_F(N, S, GET_TEXT_F(LABEL), DEST)

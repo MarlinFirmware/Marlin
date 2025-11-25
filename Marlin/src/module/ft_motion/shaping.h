@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2023 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2025 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -21,7 +21,7 @@
  */
 #pragma once
 
-#include "../core/types.h"
+#include "../../inc/MarlinConfig.h"
 
 enum ftMotionShaper_t : uint8_t {
   ftMotionShaper_NONE  = 0, // No compensator
@@ -43,22 +43,6 @@ enum dynFreqMode_t : uint8_t {
 
 #define AXIS_IS_SHAPING(A)    TERN0(FTM_SHAPER_##A, (ftMotion.cfg.shaper.A != ftMotionShaper_NONE))
 #define AXIS_IS_EISHAPING(A)  TERN0(FTM_SHAPER_##A, WITHIN(ftMotion.cfg.shaper.A, ftMotionShaper_EI, ftMotionShaper_3HEI))
-
-typedef struct XYZEarray<float, FTM_WINDOW_SIZE> xyze_trajectory_t;
-typedef struct XYZEarray<float, FTM_BATCH_SIZE> xyze_trajectoryMod_t;
-
-// TODO: Convert ft_command_t to a struct with bitfields instead of using a primitive type
-enum {
-  LOGICAL_AXIS_PAIRED_LIST(
-    FT_BIT_DIR_E, FT_BIT_STEP_E,
-    FT_BIT_DIR_X, FT_BIT_STEP_X, FT_BIT_DIR_Y, FT_BIT_STEP_Y, FT_BIT_DIR_Z, FT_BIT_STEP_Z,
-    FT_BIT_DIR_I, FT_BIT_STEP_I, FT_BIT_DIR_J, FT_BIT_STEP_J, FT_BIT_DIR_K, FT_BIT_STEP_K,
-    FT_BIT_DIR_U, FT_BIT_STEP_U, FT_BIT_DIR_V, FT_BIT_STEP_V, FT_BIT_DIR_W, FT_BIT_STEP_W
-  ),
-  FT_BIT_COUNT
-};
-
-typedef bits_t(FT_BIT_COUNT) ft_command_t;
 
 // Emitters for code that only cares about shaped XYZE
 #if HAS_FTM_SHAPING
@@ -104,8 +88,30 @@ typedef FTShapedAxes<float>            ft_shaped_float_t;
 typedef FTShapedAxes<ftMotionShaper_t> ft_shaped_shaper_t;
 typedef FTShapedAxes<dynFreqMode_t>    ft_shaped_dfm_t;
 
-#if ENABLED(FTM_SMOOTHING)
-  typedef struct FTSmoothedAxes {
-    float CARTES_AXIS_NAMES;
-  } ft_smoothed_float_t;
-#endif
+
+// Shaping data
+typedef struct AxisShaping {
+  bool ena = false;                 // Enabled indication
+  float d_zi[FTM_ZMAX] = { 0.0f };  // Data point delay vector
+  float Ai[5];                      // Shaping gain vector
+  int32_t Ni[5];                    // Shaping time index vector
+  uint32_t max_i;                   // Vector length for the selected shaper
+
+  // Set the gains used by shaping functions
+  void set_axis_shaping_N(const ftMotionShaper_t shaper, const float f, const float zeta);
+
+  // Set the indices (per pulse delays) used by shaping functions
+  void set_axis_shaping_A(const ftMotionShaper_t shaper, const float zeta, const float vtol);
+
+} axis_shaping_t;
+
+typedef struct Shaping {
+  uint32_t zi_idx;           // Index of storage in the data point delay vectors.
+  axis_shaping_t SHAPED_AXIS_NAMES;
+  uint32_t largest_delay_samples;
+  // Shaping an axis makes it lag with respect to the others by certain amount, the "centroid delay"
+  // Ni[0] stores how far in the past the first step would need to happen to avoid desynchronisation (it is therefore negative).
+  // Of course things can't be done in the past, so when shaping is applied, the all axes are delayed by largest_delay_samples
+  // minus their own centroid delay. This makes them all be equally delayed and therefore in synch.
+  void refresh_largest_delay_samples() { largest_delay_samples = -_MIN(SHAPED_LIST(X.Ni[0], Y.Ni[0], Z.Ni[0], E.Ni[0])); }
+} shaping_t;

@@ -663,7 +663,7 @@ void GcodeSuite::G26() {
 
   do_z_clearance(Z_CLEARANCE_BETWEEN_PROBES);
 
-  #if DISABLED(NO_VOLUMETRICS)
+  #if HAS_VOLUMETRIC_EXTRUSION
     bool volumetric_was_enabled = parser.volumetric_enabled;
     parser.volumetric_enabled = false;
     planner.calculate_volumetric_multipliers();
@@ -856,7 +856,7 @@ void GcodeSuite::G26() {
   destination.z = Z_CLEARANCE_BETWEEN_PROBES;
   move_to(destination, 0);                                   // Raise the nozzle
 
-  #if DISABLED(NO_VOLUMETRICS)
+  #if HAS_VOLUMETRIC_EXTRUSION
     parser.volumetric_enabled = volumetric_was_enabled;
     planner.calculate_volumetric_multipliers();
   #endif

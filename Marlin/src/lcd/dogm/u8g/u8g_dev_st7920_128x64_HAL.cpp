@@ -192,7 +192,7 @@ uint8_t u8g_dev_st7920_128x64_HAL_4x_fn(u8g_t *u8g, u8g_dev_t *dev, uint8_t msg,
 U8G_PB_DEV(u8g_dev_st7920_128x64_HAL_sw_spi, LCD_PIXEL_WIDTH, LCD_PIXEL_HEIGHT, PAGE_HEIGHT, u8g_dev_st7920_128x64_HAL_fn, U8G_COM_ST7920_HAL_SW_SPI);
 
 #define QWIDTH ((LCD_PIXEL_WIDTH) * 4)
-uint8_t u8g_dev_st7920_128x64_HAL_4x_buf[QWIDTH] U8G_NOCOMMON ;
+uint8_t u8g_dev_st7920_128x64_HAL_4x_buf[QWIDTH] U8G_NOCOMMON;
 u8g_pb_t u8g_dev_st7920_128x64_HAL_4x_pb = { { 32, LCD_PIXEL_HEIGHT, 0, 0, 0 }, LCD_PIXEL_WIDTH, u8g_dev_st7920_128x64_HAL_4x_buf};
 u8g_dev_t u8g_dev_st7920_128x64_HAL_4x_sw_spi = { u8g_dev_st7920_128x64_HAL_4x_fn, &u8g_dev_st7920_128x64_HAL_4x_pb, U8G_COM_ST7920_HAL_SW_SPI };
 

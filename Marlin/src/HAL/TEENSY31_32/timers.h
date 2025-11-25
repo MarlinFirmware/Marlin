@@ -74,10 +74,10 @@ typedef uint32_t hal_timer_t;
 #define DISABLE_TEMPERATURE_INTERRUPT() HAL_timer_disable_interrupt(MF_TIMER_TEMP)
 
 #ifndef HAL_STEP_TIMER_ISR
-  #define HAL_STEP_TIMER_ISR() extern "C" void ftm0_isr() //void TC3_Handler()
+  #define HAL_STEP_TIMER_ISR() extern "C" void ftm0_isr()
 #endif
 #ifndef HAL_TEMP_TIMER_ISR
-  #define HAL_TEMP_TIMER_ISR() extern "C" void ftm1_isr() //void TC4_Handler()
+  #define HAL_TEMP_TIMER_ISR() extern "C" void ftm1_isr()
 #endif
 
 void HAL_timer_start(const uint8_t timer_num, const uint32_t frequency);
@@ -110,4 +110,4 @@ void HAL_timer_disable_interrupt(const uint8_t timer_num);
 bool HAL_timer_interrupt_enabled(const uint8_t timer_num);
 
 void HAL_timer_isr_prologue(const uint8_t timer_num);
-#define HAL_timer_isr_epilogue(T) NOOP
+inline void HAL_timer_isr_epilogue(const uint8_t) {}
