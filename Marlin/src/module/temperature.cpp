@@ -210,11 +210,9 @@
 
 #define TEMP_SENSOR_IS_ADS(n, M) (ENABLED(TEMP_SENSOR_##n##_IS_ADS##M) || (ENABLED(TEMP_SENSOR_REDUNDANT_IS_ADS##M) && REDUNDANT_TEMP_MATCH(SOURCE, E##n)))
 
-// ADS1118
 #if HAS_ADS1118
   #include "../libs/adc/adc_ads1118.h"
 #endif
-
 
 #if ENABLED(FILAMENT_WIDTH_SENSOR)
   #include "../feature/filwidth.h"
@@ -4025,6 +4023,7 @@ void Temperature::disable_all_heaters() {
 #endif // TEMP_SENSOR_IS_MAX_TC(BED)
 
 #if HAS_ADS1118
+
   /**
    * @brief Read ADS Thermocouple temperature.
    *
@@ -4035,99 +4034,93 @@ void Temperature::disable_all_heaters() {
    * @param  hindex  the hotend we're referencing (different channel in ADS1118)
    * @return         integer representing the board's buffer, to be converted later if needed
    */
-raw_adc_t Temperature::read_ads1118(const uint8_t hindex/*=0*/) {
-  #define ADS1118_HEAT_INTERVAL 250UL  // 250 ms
+  raw_adc_t Temperature::read_ads1118(const uint8_t hindex/*=0*/) {
+    #define ADS1118_HEAT_INTERVAL 250UL  // 250 ms
 
-  //static raw_adc_t ads1118_coldJ_temp_current[2] = { 0, 0 };
-  //static raw_adc_t ads1118_hotJ_temp_current[2] = { 0, 0 };
+    //static raw_adc_t ads1118_coldJ_temp_current[2] = { 0, 0 };
+    //static raw_adc_t ads1118_hotJ_temp_current[2] = { 0, 0 };
 
-  static raw_adc_t ads1118_temp_previous[2] = { 0, 0 };
-  static uint8_t ads1118_errors[2] = { 0, 0 };
-  static millis_t next_ads1118_ms[2] = { 0, 0 };
+    static raw_adc_t ads1118_temp_previous[2] = { 0, 0 };
+    static uint8_t ads1118_errors[2] = { 0, 0 };
+    static millis_t next_ads1118_ms[2] = { 0, 0 };
 
-  static raw_adc_t ads_val = TEMP_SENSOR_0_ADS_TMAX;
+    static raw_adc_t ads_val = TEMP_SENSOR_0_ADS_TMAX;
 
-  static uint8_t sampleCount;
+    static uint8_t sampleCount;
 
-  //static millis_t lastmillis;
+    //static millis_t lastmillis;
 
-  const millis_t ms = millis();
-  //SERIAL_ECHOPGM("ADS1118 elapsed: "); SERIAL_ECHOLN(ms- lastmillis);
-  //lastmillis = ms;
-  if (PENDING(ms, next_ads1118_ms[hindex]) )  // || !ads1118.checkDataReady()
-    return ads1118_temp_previous[hindex];  // return cached value
+    const millis_t ms = millis();
+    //SERIAL_ECHOPGM("ADS1118 elapsed: "); SERIAL_ECHOLN(ms- lastmillis);
+    //lastmillis = ms;
+    if (PENDING(ms, next_ads1118_ms[hindex]) )  // || !ads1118.checkDataReady()
+      return ads1118_temp_previous[hindex];  // return cached value
 
-  next_ads1118_ms[hindex] = ms + ADS1118_HEAT_INTERVAL;
+    next_ads1118_ms[hindex] = ms + ADS1118_HEAT_INTERVAL;
 
-  // To do: If there are more hotends enabled, cycle through different channels
-  int16_t raw;
+    // To do: If there are more hotends enabled, cycle through different channels
+    int16_t raw;
 
-  if (sampleCount < 1)
-  {
-    ads1118.previous_config = ads1118.current_config;
-    ads1118.current_config = ads1118.config_ADC_SS_TEMP;
-    sampleCount++;
-  }
-  else if (hindex == 0)
-  {
-    ads1118.previous_config = ads1118.current_config;
-    ads1118.current_config = ads1118.config_ADC_SS_CH0;
-    sampleCount = 0;
-  } else if (hindex == 1){
-    ads1118.previous_config = ads1118.current_config;
-    ads1118.current_config = ads1118.config_ADC_SS_CH1;
-    sampleCount = 0;
-  }
-
-  raw = (int16_t) ads1118.readWriteData(ads1118.current_config);
-
-  if (ads1118.previous_config == ads1118.config_ADC_SS_TEMP)
-  {
-    //thck_0.setTcold(ads1118.convertInternalTemp(raw));
-    thck_0.setRawCold(raw);
-    //SERIAL_ECHOPGM("Last read Raw cold: "); SERIAL_ECHOLN(raw);
-    //SERIAL_ECHOPGM("TCold "); SERIAL_ECHOLN(thck_0.getTcold());
-
-  }
-  else if (ads1118.previous_config  == ads1118.config_ADC_SS_CH0)
-  {
-    //ads1118_hotJ_temp_current[hindex] = raw;
-    //thck_0.setThot(thck_0.tempReadtoCelsius(raw));
-    thck_0.setRawHot(raw);
-    //SERIAL_ECHOPGM("Last read Raw hot: "); SERIAL_ECHOLN(raw);
-    //SERIAL_ECHOPGM("ADS1118 THot "); SERIAL_ECHOLN(thck_0.getThot());
-  }
-
-
-  // SERIAL_ECHOPGM("ADS1118 State:Read "); SERIAL_ECHOLN(curr_state); SERIAL_ECHOPGM(":"); SERIAL_ECHOLN(raw);
-
-  // Handle read error or disconnection : raw = 0x7FFF or 0x8000 (-32768)
-  if (raw == 0x7FFF || raw == -32768) {
-    ads1118_errors[hindex]++;
-    if (ads1118_errors[hindex] > 3) {
-      SERIAL_ERROR_START();
-      SERIAL_ECHOLNPGM("ADS1118 Fault: Conversion error!");
-      ads_val = (raw_adc_t)(TEMP_SENSOR_0_ADS_TMAX << 4); // force error
+    if (sampleCount < 1) {
+      ads1118.previous_config = ads1118.current_config;
+      ads1118.current_config = ads1118.config_ADC_SS_TEMP;
+      sampleCount++;
     }
-  }
-  else if (raw < 32767){
-    ads1118_errors[hindex] = 0; // reset errors if ok
-    ads_val = (raw_adc_t) (((int16_t)raw) + 32768); // raw shift to unsigned int;
-  } else { // if we add 32767 to raw it will overflow
-    ads1118_errors[hindex] = 0; // reset errors if ok
-    SERIAL_ECHOLNPGM("ADS1118 Warn: Cannot shift adc read from signed to unsigned!");
-    ads_val = raw_adc_t(raw); // as is
-  }
-  //ads_val = raw_adc_t(3000); // raw;
+    else if (hindex == 0) {
+      ads1118.previous_config = ads1118.current_config;
+      ads1118.current_config = ads1118.config_ADC_SS_CH0;
+      sampleCount = 0;
+    }
+    else if (hindex == 1) {
+      ads1118.previous_config = ads1118.current_config;
+      ads1118.current_config = ads1118.config_ADC_SS_CH1;
+      sampleCount = 0;
+    }
 
-  ads1118_temp_previous[hindex] = ads_val; // cache value
-  //SERIAL_ECHOPGM("ADS1118 ads_val: "); SERIAL_ECHOLN(ads_val);
-  return ads_val;  // return the raw value, it will not be used directly for conversion but for errors, (raw values are stored in thermocouple class)
-}
+    raw = (int16_t) ads1118.readWriteData(ads1118.current_config);
+
+    if (ads1118.previous_config == ads1118.config_ADC_SS_TEMP) {
+      //thck_0.setTcold(ads1118.convertInternalTemp(raw));
+      thck_0.setRawCold(raw);
+      //SERIAL_ECHOPGM("Last read Raw cold: "); SERIAL_ECHOLN(raw);
+      //SERIAL_ECHOPGM("TCold "); SERIAL_ECHOLN(thck_0.getTcold());
+
+    }
+    else if (ads1118.previous_config  == ads1118.config_ADC_SS_CH0) {
+      //ads1118_hotJ_temp_current[hindex] = raw;
+      //thck_0.setThot(thck_0.tempReadtoCelsius(raw));
+      thck_0.setRawHot(raw);
+      //SERIAL_ECHOPGM("Last read Raw hot: "); SERIAL_ECHOLN(raw);
+      //SERIAL_ECHOPGM("ADS1118 THot "); SERIAL_ECHOLN(thck_0.getThot());
+    }
+
+    //SERIAL_ECHOPGM("ADS1118 State:Read "); SERIAL_ECHOLN(curr_state); SERIAL_ECHOPGM(":"); SERIAL_ECHOLN(raw);
+
+    // Handle read error or disconnection : raw = 0x7FFF or 0x8000 (-32768)
+    if (raw == 0x7FFF || raw == -32768) {
+      ads1118_errors[hindex]++;
+      if (ads1118_errors[hindex] > 3) {
+        SERIAL_ERROR_START();
+        SERIAL_ECHOLNPGM("ADS1118 Fault: Conversion error!");
+        ads_val = (raw_adc_t)(TEMP_SENSOR_0_ADS_TMAX << 4); // force error
+      }
+    }
+    else if (raw < 32767){
+      ads1118_errors[hindex] = 0; // reset errors if ok
+      ads_val = (raw_adc_t) (((int16_t)raw) + 32768); // raw shift to unsigned int;
+    } else { // if we add 32767 to raw it will overflow
+      ads1118_errors[hindex] = 0; // reset errors if ok
+      SERIAL_ECHOLNPGM("ADS1118 Warn: Cannot shift adc read from signed to unsigned!");
+      ads_val = raw_adc_t(raw); // as is
+    }
+    //ads_val = raw_adc_t(3000); // raw;
+
+    ads1118_temp_previous[hindex] = ads_val; // cache value
+    //SERIAL_ECHOPGM("ADS1118 ads_val: "); SERIAL_ECHOLN(ads_val);
+    return ads_val;  // return the raw value, it will not be used directly for conversion but for errors, (raw values are stored in thermocouple class)
+  }
+
 #endif // HAS_ADS1118
-
-
-
 
 /**
  * Update raw temperatures

@@ -338,4 +338,4 @@ float ThermocoupleK:: getTempCelsius() {
 }
 
 
-#endif // HAS_ADS1118_ADC
+#endif // HAS_ADS1118
