@@ -305,10 +305,8 @@ private:
 
     #endif
 
-    void manualValueUpdate(bool reset=false) {
-      float zval;
-      if (reset) { zval = 0; }
-      else { zval = current_position.z; }
+    void manualValueUpdate(const bool reset=false) {
+      const float zval = reset ? 0.0f : current_position.z;
       queue.inject(TS(F("M421I"), mesh_x, F("J"), mesh_y, F("Z"), p_float_t(zval, 3)));
       planner.synchronize();
     }

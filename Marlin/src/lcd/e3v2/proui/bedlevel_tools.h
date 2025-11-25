@@ -57,7 +57,7 @@ public:
   #if ENABLED(AUTO_BED_LEVELING_UBL)
     static bool createPlaneFromMesh();
   #endif
-  static void manualValueUpdate(const uint8_t mesh_x, const uint8_t mesh_y, bool reset=false);
+  static void manualValueUpdate(const uint8_t mesh_x, const uint8_t mesh_y, const bool reset=false);
   static void manualMove(const uint8_t mesh_x, const uint8_t mesh_y, bool zmove=false);
   static void moveToXYZ();
   static void moveToXY();

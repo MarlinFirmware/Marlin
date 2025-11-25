@@ -24,9 +24,6 @@
 
 #if ENABLED(NOZZLE_PARK_FEATURE)
 
-#define DEBUG_OUT ENABLED(DEBUG_LEVELING_FEATURE)
-#include "../../../core/debug_out.h"
-
 #include "../../gcode.h"
 #include "../../../libs/nozzle.h"
 #include "../../../module/motion.h"
@@ -47,14 +44,13 @@
 void GcodeSuite::G27() {
   // Don't allow nozzle parking without homing first
   if (homing_needed_error()) return;
-  const uint8_t pval = parser.byteval('P');
-  nozzle.park(pval);
-  TERN_(SOVOL_SV06_RTS, RTS_MoveAxisHoming());
-
-  #ifdef DEBUG_OUT
-    if (WITHIN(pval, 0, 4))
-      DEBUG_ECHOLN(F("?Invalid "), F("[P]arking style (0..4)."));
-  #endif
+  const int16_t pval = parser.intval('P');
+  if (WITHIN(pval, 0, 4)) {
+    nozzle.park(pval);
+    TERN_(SOVOL_SV06_RTS, RTS_MoveAxisHoming());
+  }
+  else
+    SERIAL_ECHOLN(F("?Invalid "), F("[P]arking style (0..4)."));
 }
 
 #endif // NOZZLE_PARK_FEATURE
