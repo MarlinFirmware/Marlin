@@ -1,32 +1,29 @@
 #!/usr/bin/env python3
-#
-# mc-apply.py
-#
-#  Apply firmware configuration from a JSON file (marlin_config.json).
-#
-#  usage: mc-apply.py [-h] [--opt] [--verbose] [config_file]
-#
-#  Process Marlin firmware configuration.
-#
-#  positional arguments:
-#    config_file  Path to the configuration file.
-#
-#  optional arguments:
-#    -h, --help   show this help message and exit
-#    --opt        Output as an option setting script.
-#    --verbose    Enable verbose logging (0-2)
-#
-import json, sys, os, re, shutil, datetime
+"""
+mc-apply.py
+
+ Apply firmware configuration from a JSON file (marlin_config.json).
+
+ usage: mc-apply.py [-h] [--opt] [--verbose] [config_file]
+
+ Process Marlin firmware configuration.
+
+ positional arguments:
+   config_file  Path to the configuration file.
+
+ optional arguments:
+   -h, --help   Show this help message and exit
+   --opt        Output as an option setting script.
+   --verbose    Enable verbose logging (0-2)
+"""
+
+import json, sys, os, configuration
 import config
 import argparse
-from pathlib import Path
 
 verbose = 0
-def blab(str, level=1):
-    if verbose >= level: print(f"[mc-apply] {str}")
-
-def config_path(cpath):
-    return Path("Marlin", cpath)
+def blab(msg, level=1):
+    if verbose >= level: print(f"[mc-apply] {msg}")
 
 def normalize_value(v):
     """
@@ -55,80 +52,6 @@ def normalize_value(v):
     else:
         return ('set', v if not isinstance(v, bool) else v_str)
 
-# Disable all (most) defined options in the configuration files.
-def disable_all_options():
-    blab("Disabling all configuration options...")
-    # Create a regex to match the option and capture parts of the line
-    regex = re.compile(r'^(\s*)(#define\s+)([A-Z0-9_]+\b)(\s?)(\s*)(.*?)(\s*)(//.*)?$', re.IGNORECASE)
-
-    # Disable all enabled options in both Config files
-    for file in ("Configuration.h", "Configuration_adv.h"):
-        fullpath = config_path(file)
-        if not fullpath.exists():
-            blab(f"File not found: {fullpath}", 0)
-            continue
-
-        lines = fullpath.read_text(encoding='utf-8').split('\n')
-        found = False
-        for i in range(len(lines)):
-            line = lines[i]
-            match = regex.match(line)
-            if match:
-                name = match[3].upper()
-                if name in ('CONFIGURATION_H_VERSION', 'CONFIGURATION_ADV_H_VERSION', 'CONFIG_EXAMPLES_DIR'): continue
-                if name.startswith('_'): continue
-                found = True
-                # Comment out the define
-                lines[i] = re.sub(r'^(\s*)(#define)(\s{1,3})?(\s*)', r'\1//\2 \4', line)
-                blab(f"Disable {name}", 2)
-
-        # If the option was found, write the modified lines
-        if found:
-            fullpath.write_text('\n'.join(lines), encoding='utf-8')
-            blab(f"Updated {file}")
-
-# Fetch configuration files from GitHub given the path.
-# Return True if any files were fetched.
-def fetch_example(url):
-    blab(f"Fetching example configuration from: {url}")
-    if url.endswith("/"): url = url[:-1]
-    if not url.startswith('http'):
-        brch = "bugfix-2.1.x"
-        if '@' in url: url, brch = map(str.strip, url.split('@'))
-        if url == 'examples/default': url = 'default'
-        url = f"https://raw.githubusercontent.com/MarlinFirmware/Configurations/{brch}/config/{url}"
-    url = url.replace("%", "%25").replace(" ", "%20")
-
-    # Find a suitable fetch command
-    if shutil.which("curl") is not None:
-        fetch = "curl -L -s -S -f -o"
-    elif shutil.which("wget") is not None:
-        fetch = "wget -q -O"
-    else:
-        blab("Couldn't find curl or wget", 0)
-        return False
-
-    # Reset configurations to default
-    blab("Resetting configurations to default...")
-    os.system("git checkout HEAD Marlin/*.h")
-
-    # Try to fetch the remote files
-    gotfile = False
-    for fn in ("Configuration.h", "Configuration_adv.h", "_Bootscreen.h", "_Statusscreen.h"):
-        if os.system(f"{fetch} wgot {url}/{fn} >/dev/null 2>&1") == 0:
-            shutil.move('wgot', config_path(fn))
-            gotfile = True
-            blab(f"Fetched {fn}", 2)
-
-    if Path('wgot').exists(): shutil.rmtree('wgot')
-
-    if gotfile:
-        blab("Example configuration fetched successfully")
-    else:
-        blab("Failed to fetch example configuration", 0)
-
-    return gotfile
-
 def report_version(conf):
     if 'VERSION' in conf:
         blab("Configuration version information:")
@@ -142,7 +65,7 @@ def write_opt_file(conf, outpath='Marlin/apply_config.sh'):
             if key in ('__INITIAL_HASH', '__directives__', 'VERSION'): continue
 
             # Other keys are assumed to be configs
-            if not type(val) is dict:
+            if not isinstance(val, dict):
                 continue
 
             # Write config commands to the script file
@@ -198,17 +121,17 @@ def process_directives(directives):
 
         # Handle [disable] directive
         if directive == "[disable]":
-            disable_all_options()
+            configuration.disable_all_options()
 
         # Handle example fetching (examples/path or example/path)
         elif directive.startswith('examples/') or directive.startswith('example/'):
             if directive.startswith('example/'):
                 directive = 'examples' + directive[7:]
-            fetch_example(directive)
+            configuration.fetch_example(directive)
 
         # Handle direct URLs
         elif directive.startswith('http://') or directive.startswith('https://'):
-            fetch_example(directive)
+            configuration.fetch_example(directive)
 
         else:
             blab(f"Unknown directive: {directive}", 0)
