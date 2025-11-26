@@ -389,6 +389,10 @@ PGMSTR(str_t_heating_failed, STR_T_HEATING_FAILED);
 
 #endif // HAS_HOTEND
 
+#if ENABLED(AUTOTEMP)
+  autotemp_t Temperature::autotemp;   // Initialized by settings.load
+#endif
+
 #if HAS_TEMP_REDUNDANT
   redundant_info_t Temperature::temp_redundant;
 #endif
@@ -1122,7 +1126,7 @@ void Temperature::factory_reset() {
 
       if (ELAPSED(curr_time_ms, next_test_ms)) {
         if (current_temp >= ambient_temp) {
-          ambient_temp = (ambient_temp + current_temp) / 2.0f;
+          ambient_temp = (ambient_temp + current_temp) * 0.5f;
           break;
         }
         ambient_temp = current_temp;
@@ -1155,7 +1159,7 @@ void Temperature::factory_reset() {
     hotend.target = 200.0f;   // So M105 looks nice
     hotend.soft_pwm_amount = (MPC_MAX) >> 1;
 
-    // Initialise rate of change to to steady state at current time
+    // Initialise rate of change to steady state at current time
     temp_samples[0] = temp_samples[1] = temp_samples[2] = current_temp;
     time_fastest = rate_fastest = 0;
 
@@ -1362,7 +1366,7 @@ void Temperature::factory_reset() {
     const float t1 = tuner.get_sample_1_temp(),
                 t2 = tuner.get_sample_2_temp(),
                 t3 = tuner.get_sample_3_temp();
-    float asymp_temp = (t2 * t2 - t1 * t3) / (2 * t2 - t1 - t3),
+    float asymp_temp = (sq(t2) - t1 * t3) / (2 * t2 - t1 - t3),
           block_responsiveness = -log((t2 - asymp_temp) / (t1 - asymp_temp)) / tuner.get_sample_interval();
 
     #if ENABLED(MPC_AUTOTUNE_DEBUG)
@@ -1884,7 +1888,7 @@ void Temperature::mintemp_error(const heater_id_t heater_id OPTARG(ERR_INCLUDE_T
       float power = 0.0;
       if (hotend.target != 0 && !is_idling) {
         // Plan power level to get to target temperature in 2 seconds
-        power = (hotend.target - hotend.modeled_block_temp) * mpc.block_heat_capacity / 2.0f;
+        power = (hotend.target - hotend.modeled_block_temp) * mpc.block_heat_capacity * 0.5f;
         power -= (hotend.modeled_ambient_temp - hotend.modeled_block_temp) * ambient_xfer_coeff;
       }
 
@@ -2602,7 +2606,7 @@ void Temperature::task() {
 #if ANY_THERMISTOR_IS(-1)
   // For a 5V input the AD595 returns a value scaled with 10mV per °C. (Minimum input voltage is 5V.)
   static constexpr celsius_float_t temp_ad595(const raw_adc_t raw) {
-    return raw * (float(ADC_VREF_MV) / 10.0f) / float(HAL_ADC_RANGE) / (OVERSAMPLENR)
+    return raw * (float(ADC_VREF_MV) * 0.1f) / float(HAL_ADC_RANGE) / (OVERSAMPLENR)
                * (TEMP_SENSOR_AD595_GAIN) + (TEMP_SENSOR_AD595_OFFSET);
   }
 #endif
@@ -3552,7 +3556,7 @@ void Temperature::init() {
 void Temperature::disable_all_heaters() {
 
   // Disable autotemp, unpause and reset everything
-  TERN_(AUTOTEMP, planner.autotemp.enabled = false);
+  TERN_(AUTOTEMP, autotemp.enabled = false);
   TERN_(PROBING_HEATERS_OFF, pause_heaters(false));
 
   #if HAS_HOTEND
@@ -3637,7 +3641,7 @@ void Temperature::disable_all_heaters() {
       singlenozzle_temp[old_tool] = temp_hotend[0].target;
       if (singlenozzle_temp[new_tool] && singlenozzle_temp[new_tool] != singlenozzle_temp[old_tool]) {
         setTargetHotend(singlenozzle_temp[new_tool], 0);
-        TERN_(AUTOTEMP, planner.autotemp_update());
+        TERN_(AUTOTEMP, autotemp_update());
         set_heating_message(0);
         (void)wait_for_hotend(0, false);  // Wait for heating or cooling
       }
@@ -4778,7 +4782,7 @@ void Temperature::isr() {
       OPTARG(G26_CLICK_CAN_CANCEL, const bool click_to_cancel/*=false*/)
     ) {
       #if ENABLED(AUTOTEMP)
-        REMEMBER(1, planner.autotemp.enabled, false);
+        REMEMBER(1, autotemp.enabled, false);
       #endif
 
       #if TEMP_RESIDENCY_TIME > 0
@@ -4910,6 +4914,58 @@ void Temperature::isr() {
     #endif
 
   #endif // HAS_TEMP_HOTEND
+
+  #if ENABLED(AUTOTEMP)
+
+    void Temperature::_autotemp_update_from_hotend() {
+      TERN_(AUTOTEMP_PROPORTIONAL, autotemp.update(degTargetHotend(active_extruder)));
+    }
+
+    /**
+     * Called after changing tools to:
+     *  - Reset or re-apply the default proportional autotemp factor.
+     *  - Enable autotemp if the factor is non-zero.
+     */
+    void Temperature::autotemp_update() {
+      _autotemp_update_from_hotend();
+      autotemp.cfg.factor = TERN0(AUTOTEMP_PROPORTIONAL, AUTOTEMP_FACTOR_P);
+      autotemp.enabled = autotemp.cfg.factor != 0;
+    }
+
+    /**
+     * Called by the M104/M109 commands after setting Hotend Temperature
+     */
+    void Temperature::autotemp_M104_M109() {
+      _autotemp_update_from_hotend();
+
+      if (parser.seenval('S')) autotemp.cfg.min = parser.value_celsius();
+      if (parser.seenval('B')) autotemp.cfg.max = parser.value_celsius();
+
+      // When AUTOTEMP_PROPORTIONAL is enabled, F0 disables autotemp.
+      // Normally, leaving off F also disables autotemp.
+      autotemp.cfg.factor = parser.seen('F') ? parser.value_float() : TERN0(AUTOTEMP_PROPORTIONAL, AUTOTEMP_FACTOR_P);
+      autotemp.enabled = autotemp.cfg.factor != 0;
+    }
+
+    /**
+     * Called every so often to adjust the hotend target temperature
+     * based on the extrusion speed, which is calculated from the blocks
+     * currently in the planner.
+     */
+    void Temperature::autotemp_task() {
+      if (!autotemp.enabled) return;
+      if (degTargetHotend(active_extruder) < autotemp.cfg.min - 2) return; // Below the min?
+
+      // Get a highest target proportion greater than zero
+      float high = planner.get_high_e_speed();
+
+      // Calculate a new target, with weighted correction for a drop
+      float t = autotemp.calculate(high);
+
+      _setTargetHotend(t, active_extruder);
+    }
+
+  #endif // AUTOTEMP
 
   #if HAS_HEATED_BED
 

@@ -444,14 +444,14 @@
  *  The LPC1768's hardware PWM controller has 6 channels. Each channel
  *  can be setup to either control a dedicated pin directly or to generate
  *  an interrupt. The direct method's duty cycle is accurate to within a
- *  a microsecond. The interrupt method's average duty cycle has the
- *  the same accuracy but the individual cycles can vary because of higher
+ *  microsecond. The interrupt method's average duty cycle has the
+ *  same accuracy but the individual cycles can vary because of higher
  *  priority interrupts.
  *
  *  All Fast PWMs have a 50Hz rate.
  *
  *  The following pins/signals use the direct method. All other pins use the
- *  the interrupt method. Note that SERVO2_PIN and MOSFET_C_PIN use the
+ *  interrupt method. Note that SERVO2_PIN and MOSFET_C_PIN use the
  *  interrupt method.
  *
  *     P1_20 (11)   SERVO0_PIN
