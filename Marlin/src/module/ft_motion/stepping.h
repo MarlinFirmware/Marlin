@@ -23,6 +23,22 @@
 
 #include "../../inc/MarlinConfig.h"
 
+//
+// uint64-free equivalent of: ((uint64_t)a * b) >> 16
+//
+FORCE_INLINE constexpr uint32_t a_times_b_shift_16(uint32_t a, uint32_t b) {
+  uint32_t hi = a >> 16;
+  uint32_t lo = a & 0xFFFFu;
+  uint32_t hi_prod = hi * (uint32_t)b;
+  uint32_t lo_prod = lo * (uint32_t)b;
+  uint32_t r = hi_prod + (lo_prod >> 16);
+  return r;
+}
+
+constexpr uint32_t ONE_Q5 = 1 << 5;
+constexpr uint32_t Q5_INTEGER_MASK = ~(ONE_Q5 - 1);
+constexpr uint32_t FRAME_TICKS_Q5 = TIMER_TICKS_PER_FRAME << 5;
+
 typedef struct stepper_plan {
   AxisBits dir_bits;
   xyze_uint_t first_interval_q11_5;
@@ -43,7 +59,68 @@ typedef struct Stepping {
   xyze_ulong_t ticks_left_per_axis_q5{ LOGICAL_AXIS_LIST_1(FTM_NEVER) };
   uint32_t ticks_left_in_frame_q5 = 0;
 
-  FORCE_INLINE uint32_t advance_until_step();
+  // Return how many full ticks we must wait before
+  // generating the next step pulse. The call is inexpensive:
+  //  - no heap, no locks – pure arithmetic on pre-computed data
+  FORCE_INLINE uint32_t advance_until_step() {
+    step_bits = 0;
+    uint32_t ticks_to_wait_q5 = 0;
+
+    for (;;) {
+      // Smallest remaining tick count among all axes – next step time
+      const uint32_t ticks_to_next_step_q5 = ticks_left_per_axis_q5.small();
+
+      // Does the frame finish before this next step occurs?
+      if (ticks_to_next_step_q5 > ticks_left_in_frame_q5) {
+        // Frame ends before next step
+        if (is_empty()) {
+          ticks_left_in_frame_q5 = 0;
+          ticks_left_per_axis_q5 = FTM_NEVER;
+          return FTM_NEVER;
+        }
+
+        // Consume the rest of this frame's time
+        const uint32_t wait_floor_q5 = ticks_left_in_frame_q5 & Q5_INTEGER_MASK;
+        ticks_to_wait_q5 += wait_floor_q5;
+        ticks_left_in_frame_q5 -= wait_floor_q5;
+
+        //
+        // Pull the next plan – it already contains:
+        //  - direction bits
+        //  - first_interval_q11_5 (time to the first step)
+        //  - interval_q11_5       (repeating step period)
+        //
+        const stepper_plan_t next = dequeue();
+        dir_bits         = next.dir_bits;
+        axis_interval_q5 = next.interval_q11_5.asUInt32();
+
+        // Note the frame will actually end a fraction of a tick in the future, and ticks_left_in_frame_q5 still has that fraction.
+        // Instead of discarding that time, we delay both the end of the next frame, and all first steps by that amount.
+        ticks_left_per_axis_q5  = next.first_interval_q11_5.asUInt32();
+        ticks_left_per_axis_q5 += ticks_left_in_frame_q5;
+        ticks_left_in_frame_q5 += FRAME_TICKS_Q5;   // Start a fresh frame
+      }
+      else {
+        // Step happens before frame end
+        // Advance to it
+        const uint32_t wait_floor_q5 = ticks_to_next_step_q5 & Q5_INTEGER_MASK;
+        ticks_to_wait_q5 += wait_floor_q5;
+        ticks_left_in_frame_q5 -= wait_floor_q5;
+        ticks_left_per_axis_q5 -= wait_floor_q5;
+
+        // Build step_bits: any axis whose counter < ONE_Q5 needs a pulse
+        auto _set_step_bit = [&](const AxisEnum A) __attribute__((always_inline)) {
+          if (ticks_left_per_axis_q5[A] < ONE_Q5 && ticks_left_per_axis_q5[A] <= ticks_left_in_frame_q5) {
+            step_bits[A] = 1;
+            ticks_left_per_axis_q5[A] += axis_interval_q5[A];
+          }
+        };
+        LOGICAL_AXIS_CALL(_set_step_bit);
+
+        return ticks_to_wait_q5 >> 5;   // Convert Q5 back to whole ticks
+      }
+    } // loop forever
+  }
 
   FORCE_INLINE void reset() {
     step_bits = 0;
@@ -61,11 +138,88 @@ typedef struct Stepping {
 
   stepper_plan_t stepper_plan_buff[FTM_BUFFER_SIZE];
   uint32_t stepper_plan_tail = 0, stepper_plan_head = 0;
-  XYZEval<int64_t> curr_steps_q48_16{ LOGICAL_AXIS_LIST_1(0) };
+  XYZEval<int64_t> curr_steps_q48_16{0}; // LOGICAL_AXIS_LIST_1(0) needed due to bug in struct initializer?
 
-  FORCE_INLINE void enqueue(XYZEval<int64_t> next_steps_q48_16);
+  FORCE_INLINE void enqueue(XYZEval<int64_t> next_steps_q48_16) {
 
-  FORCE_INLINE stepper_plan_t& dequeue();
+    stepper_plan_t stepper_plan;
+    constexpr uint32_t HALF_PHASE_OFFSET = (1UL << 15); // to make steps at .5 crossings instead of integers to center the error
+
+    auto _run_axis = [&](const AxisEnum A) __attribute__((always_inline)) {
+      // Add half-phase offset to keep step error centred
+      const int64_t offset_curr_q48_16 = curr_steps_q48_16[A] + HALF_PHASE_OFFSET,
+                    offset_next_q48_16 = next_steps_q48_16[A] + HALF_PHASE_OFFSET;
+      curr_steps_q48_16[A] = next_steps_q48_16[A];
+
+      // Determine direction change
+      const bool new_dir = offset_next_q48_16 >= offset_curr_q48_16;
+      stepper_plan.dir_bits[A] = new_dir;
+
+      // Δsteps in Q16.16 format – magnitude only
+      const uint32_t delta_q16_16 = abs(offset_next_q48_16 - offset_curr_q48_16);
+
+      // Current / next phase (fractional part of the position)
+      uint32_t curr_phase_q1_16 = offset_curr_q48_16 & 0xFFFF,
+               next_phase_q1_16 = offset_next_q48_16 & 0xFFFF;
+      if (!new_dir) {
+        // When going backwards, the phase is 1-phase
+        curr_phase_q1_16 = (1UL<<16) - curr_phase_q1_16;
+        next_phase_q1_16 = (1UL<<16) - next_phase_q1_16;
+      }
+      // When going, e.g., from 0.6 to 1.0, the delta is not a whole step,
+      // but the phase overflow indicates a step.
+      const uint32_t carry = curr_phase_q1_16 > next_phase_q1_16;
+
+      // steps_to_make = integer steps + potential fraction crossing an integer
+      const uint16_t steps_to_make = (delta_q16_16 >> 16) + carry;
+
+      if (steps_to_make == 0) {                // No steps on this axis
+        stepper_plan.first_interval_q11_5[A] = FTM_NEVER;
+        stepper_plan.interval_q11_5[A]       = FTM_NEVER;
+        return;
+      }
+
+      // Compute the exact time between steps.
+      //   interval_q27_5 = (ticks_per_frame << 21) / delta
+      //   current_frame_phase_q27_5 = interval * curr_phase
+      const uint32_t interval_q27_5 = ((uint32_t)TIMER_TICKS_PER_FRAME << 21) / delta_q16_16,
+                     current_frame_phase_q27_5 = a_times_b_shift_16(interval_q27_5, curr_phase_q1_16);
+      uint32_t first_interval_q27_5 = interval_q27_5 - current_frame_phase_q27_5;
+
+      // The calculation of interval_q27_5 may undershoot its value by a fraction
+      // due to integer (floor) division. This small fractional error can
+      // occasionally make a spurious step fit inside this frame.
+      // To avoid that corner case, the first interval is incremented just enough
+      // for it to not fit.
+      const uint32_t tick_of_spurious_step_q27_5 = first_interval_q27_5 + interval_q27_5 * steps_to_make;
+      if (tick_of_spurious_step_q27_5 <= FRAME_TICKS_Q5) {
+        first_interval_q27_5 += FRAME_TICKS_Q5 - tick_of_spurious_step_q27_5 + 1;
+      }
+
+      stepper_plan.first_interval_q11_5[A] = _MIN(first_interval_q27_5, FTM_NEVER);
+      stepper_plan.interval_q11_5[A]       = _MIN(interval_q27_5, FTM_NEVER);
+    };
+
+    LOGICAL_AXIS_CALL(_run_axis);
+
+    // Store the plan into the circular buffer
+    stepper_plan_buff[stepper_plan_head] = stepper_plan;
+    stepper_plan_head = (stepper_plan_head + 1U) & FTM_BUFFER_MASK;
+  }
+
+  // Dequeue a plan.
+  // Zero-copy consume; caller must use it before next dequeue if they keep a ref.
+  // Done like this to avoid double copy.
+  // e.g do: stepper_plan_t data = dequeue(); this is ok
+  FORCE_INLINE stepper_plan_t& dequeue() {
+    const uint32_t i = stepper_plan_tail;
+    stepper_plan_tail = (i + 1u) & FTM_BUFFER_MASK;
+    return stepper_plan_buff[i];
+  }
+
+  //
+  // Simple helper predicates
+  //
 
   FORCE_INLINE bool is_busy() {
     return !(is_empty() && ticks_left_in_frame_q5 == 0);
@@ -76,136 +230,5 @@ typedef struct Stepping {
   FORCE_INLINE bool is_full() {
     return ((stepper_plan_head + 1) & FTM_BUFFER_MASK) == stepper_plan_tail;
   }
+
 } stepping_t;
-
-constexpr uint32_t FRAME_TICKS_Q5 = TIMER_TICKS_PER_FRAME << 5;
-
-//
-// uint64-free equivalent of: ((uint64_t)a * b) >> 16
-//
-FORCE_INLINE uint32_t a_times_b_shift_16(uint32_t a, uint32_t b) {
-  uint32_t hi = a >> 16;
-  uint32_t lo = a & 0xFFFFu;
-  uint32_t hi_prod = hi * (uint32_t)b;
-  uint32_t lo_prod = lo * (uint32_t)b;
-  uint32_t r = hi_prod + (lo_prod >> 16);
-  return r;
-}
-
-constexpr uint32_t ONE_Q5 = 1 << 5;
-constexpr uint32_t Q5_INTEGER_MASK = ~(ONE_Q5 - 1);
-
-FORCE_INLINE uint32_t Stepping::advance_until_step() {
-  step_bits = 0;
-  uint32_t ticks_to_wait_q5 = 0;
-  for (;;) {
-    // Find next step
-    const uint32_t ticks_to_next_step_q5 = ticks_left_per_axis_q5.small();
-
-    if (ticks_to_next_step_q5 > ticks_left_in_frame_q5) {
-      // Frame ends before next step
-      if (is_empty()) {
-        ticks_left_in_frame_q5 = 0;
-        ticks_left_per_axis_q5 = FTM_NEVER;
-        return FTM_NEVER;
-      }
-
-      const uint32_t wait_floor_q5 = ticks_left_in_frame_q5 & Q5_INTEGER_MASK;
-      ticks_to_wait_q5 += wait_floor_q5;
-      ticks_left_in_frame_q5 -= wait_floor_q5;
-
-      const stepper_plan_t next = dequeue();
-      dir_bits         = next.dir_bits;
-      axis_interval_q5 = next.interval_q11_5.asUInt32();
-      // Note the frame will actually end a fraction of a tick in the future, and ticks_left_in_frame_q5 still has that fraction.
-      // Instead of discarding that time, we delay both the end of the next frame, and all first steps by that amount.
-      ticks_left_per_axis_q5  = next.first_interval_q11_5.asUInt32();
-      ticks_left_per_axis_q5 += ticks_left_in_frame_q5;
-      ticks_left_in_frame_q5 += FRAME_TICKS_Q5;
-    }
-    else {
-      // Step happens before frame end
-      // Advance to it
-      const uint32_t wait_floor_q5 = ticks_to_next_step_q5 & Q5_INTEGER_MASK;
-      ticks_to_wait_q5 += wait_floor_q5;
-      ticks_left_in_frame_q5 -= wait_floor_q5;
-      ticks_left_per_axis_q5 -= wait_floor_q5;
-
-      // Build step_bits array
-      auto _set_step_bit = [&](const AxisEnum A) __attribute__((always_inline)) {
-        if (ticks_left_per_axis_q5[A] < ONE_Q5 && ticks_left_per_axis_q5[A] <= ticks_left_in_frame_q5) {
-          step_bits[A] = 1;
-          ticks_left_per_axis_q5[A] += axis_interval_q5[A];
-        }
-      };
-      LOGICAL_AXIS_CALL(_set_step_bit);
-      return ticks_to_wait_q5 >> 5;
-    }
-  } // loop forever
-}
-
-FORCE_INLINE void Stepping::enqueue(XYZEval<int64_t> next_steps_q48_16) {
-
-  stepper_plan_t stepper_plan;
-  constexpr uint32_t HALF_PHASE_OFFSET = (1 << 15); // to make steps at .5 crossings instead of integers to center the error
-
-  auto _run_axis = [&](const AxisEnum A) __attribute__((always_inline)) {
-    const int64_t offset_curr_q48_16 = curr_steps_q48_16[A] + HALF_PHASE_OFFSET,
-                  offset_next_q48_16 = next_steps_q48_16[A] + HALF_PHASE_OFFSET;
-    curr_steps_q48_16[A] = next_steps_q48_16[A];
-
-    const bool new_dir = offset_next_q48_16 >= offset_curr_q48_16;
-    stepper_plan.dir_bits[A] = new_dir;
-
-    const uint32_t delta_q16_16 = abs(offset_next_q48_16 - offset_curr_q48_16);
-
-    uint32_t curr_phase_q1_16 = offset_curr_q48_16 & 0xFFFF,
-             next_phase_q1_16 = offset_next_q48_16 & 0xFFFF;
-    if (!new_dir) {
-      // When going backwards, the phase is 1-phase
-      curr_phase_q1_16 = (1<<16) - curr_phase_q1_16;
-      next_phase_q1_16 = (1<<16) - next_phase_q1_16;
-    }
-    // When going, e.g., from 0.6 to 1.0, the delta is not a whole step,
-    // but the phase overflow indicates a step.
-    const uint32_t carry = curr_phase_q1_16 > next_phase_q1_16;
-
-    // steps_to_make = integer steps + potential fraction crossing an integer
-    const uint16_t steps_to_make = (delta_q16_16 >> 16) + carry;
-
-    if (steps_to_make == 0) {
-      stepper_plan.first_interval_q11_5[A] = FTM_NEVER;
-      stepper_plan.interval_q11_5[A]       = FTM_NEVER;
-      return;
-    }
-
-    const uint32_t interval_q27_5 = ((uint32_t)TIMER_TICKS_PER_FRAME << 21) / delta_q16_16,
-                   current_frame_phase_q27_5 = a_times_b_shift_16(interval_q27_5, curr_phase_q1_16);
-    uint32_t first_interval_q27_5 = interval_q27_5 - current_frame_phase_q27_5;
-    // The calculation of interval_q27_5 may undershoot its value by a fraction
-    // due to integer (floor) division. This small fractional error can
-    // occasionally make a spurious step fit inside this frame.
-    // To avoid that corner case, the first interval is incremented just enough
-    // for it to not fit.
-    const uint32_t tick_of_spurious_step_q27_5 = first_interval_q27_5 + interval_q27_5 * steps_to_make;
-    if (tick_of_spurious_step_q27_5 <= FRAME_TICKS_Q5) {
-      first_interval_q27_5 += FRAME_TICKS_Q5 - tick_of_spurious_step_q27_5 + 1;
-    }
-    stepper_plan.first_interval_q11_5[A] = _MIN(first_interval_q27_5, FTM_NEVER);
-    stepper_plan.interval_q11_5[A]       = _MIN(interval_q27_5, FTM_NEVER);
-  };
-  LOGICAL_AXIS_CALL(_run_axis);
-
-  stepper_plan_buff[stepper_plan_head] = stepper_plan;
-  stepper_plan_head = (stepper_plan_head + 1U) & FTM_BUFFER_MASK;
-}
-
-// Dequeue a plan.
-// Zero-copy consume; caller must use it before next dequeue if they keep a ref.
-// Done like this to avoid double copy.
-// e.g do: stepper_plan_t data = dequeue(); this is ok
-FORCE_INLINE stepper_plan_t& Stepping::dequeue() {
-  const uint32_t i = stepper_plan_tail;
-  stepper_plan_tail = (i + 1u) & FTM_BUFFER_MASK;
-  return stepper_plan_buff[i];
-}

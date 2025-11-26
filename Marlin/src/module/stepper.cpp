@@ -1554,23 +1554,34 @@ void Stepper::isr() {
     #if ENABLED(FT_MOTION)
 
       if (using_ftMotion) {
+        // Time to run stepping and apply STEP/DIR pulses?
         if (!ftMotion_nextStepperISR) ftMotion_stepper();
 
-        // piggy back babystepping to existing isr
-        TERN_(BABYSTEPPING, if (nextBabystepISR < (BABYSTEP_TICKS / 10)) nextBabystepISR = babystepping_isr());
+        // Piggyback babystepping to existing ISR
+        #if ENABLED(BABYSTEPPING)
+          // Time to run babystepping and apply STEP/DIR pulses?
+          //   babystepping_isr -> babystep.task -> [ babystep.step_axis(*) -> stepper.do_babystep ]
+          if (nextBabystepISR < (BABYSTEP_TICKS / 10)) nextBabystepISR = babystepping_isr();
+        #endif
 
-        // ^== Time critical. NOTHING besides pulse generation should be above here!!!
+        // ^
+        // ^ Time critical! NOTHING besides pulse generation should be above here!!!
+        // ^
 
         // Enable ISRs to reduce latency for higher priority ISRs
         hal.isr_on();
 
+        // Get time until next FTM stepping event
         if (!ftMotion_nextStepperISR) ftMotion_nextStepperISR = ftMotion.stepping.advance_until_step();
 
         interval = HAL_TIMER_TYPE_MAX;         // Time until the next step
         NOMORE(interval, ftMotion_nextStepperISR);
-        TERN_(BABYSTEPPING, NOMORE(interval, nextBabystepISR));
 
-        TERN_(BABYSTEPPING, nextBabystepISR -= interval);
+        #if ENABLED(BABYSTEPPING)
+          NOMORE(interval, nextBabystepISR);   // Babystepping may want to return earlier
+          nextBabystepISR -= interval;
+        #endif
+
         ftMotion_nextStepperISR -= interval;
       }
 
@@ -1592,6 +1603,8 @@ void Stepper::isr() {
       #endif
 
       #if ENABLED(BABYSTEPPING)
+        // Time to run babystepping and apply STEP/DIR pulses?
+        //   babystepping_isr -> babystep.task -> [ babystep.step_axis(*) -> stepper.do_babystep ]
         const bool is_babystep = (nextBabystepISR == 0);  // 0 = Do Babystepping (XY)Z pulses
         if (is_babystep) nextBabystepISR = babystepping_isr();
       #endif
