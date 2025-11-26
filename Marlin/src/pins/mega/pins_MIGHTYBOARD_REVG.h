@@ -163,14 +163,14 @@
   #else
     #warning "Using SR pins."
     // Replicator 2 and 2X uses a HD44780 SPI display, pins: mosi, sclk, miso (not used),  missing: latch, click, power
-    
-    #define SR_DATA_PIN                       37  // C0 
-    #define SR_CLK_PIN                        36  // C1 
+
+    #define SR_DATA_PIN                       37  // C0
+    #define SR_CLK_PIN                        36  // C1
     #define SR_STROBE_PIN                     34  // C3
 
     #define SR_DETECT_PIN                     33  // C4
 
-    #define BUTTON_LED_PIN                    35  // C2 To be implemented... 
+    #define BUTTON_LED_PIN                    35  // C2 To be implemented...
 
     #define BTN_CENTER                        39  // G2
     #define BTN_UP                            76  // J5
@@ -180,11 +180,11 @@
 
     // Map the CLICK button to the encoder 'click' so Marlin treats it as SELECT
     #ifndef BTN_ENC
-      #define BTN_ENC BTN_CENTER
+      #define BTN_ENC                 BTN_CENTER
     #endif
 
     #define LCD_PWR_PIN                       29  // A7
-    
+
     // Disable encoder
     #undef BTN_EN1
     #undef BTN_EN2
@@ -203,12 +203,10 @@
     //  MOSI   |   DATA_IN
     //  SCK    |   CLK
 
-    #define SD_WRITE_PIN                          41  // Sailfish mighty two: G0(41)  H5(D8)  -
-    #define SD_DETECT_PIN                         40  // Sailfish mighty two: G1(40) H6(D9)  L0(D49)
-    #define SD_SS_PIN                             53  // Sailfish mighty two: B0(53)
+    #define SD_WRITE_PIN                      41  // Sailfish mighty two: G0(41)  H5(D8)  -
+    #define SD_DETECT_PIN                     40  // Sailfish mighty two: G1(40) H6(D9)  L0(D49)
+    #define SD_SS_PIN                         53  // Sailfish mighty two: B0(53)
 
   #endif
 
 #endif // HAS_WIRED_LCD
-
-
