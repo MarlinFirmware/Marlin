@@ -1480,7 +1480,7 @@ void Planner::check_axes_activity() {
         raw.z += bedlevel.get_z_correction(raw);
       #endif
 
-      TERN_(MESH_BED_LEVELING, raw.z += bedlevel.get_z_offset());
+      TERN_(MESH_BED_LEVELING, raw.z += 0);
 
     #endif
   }
