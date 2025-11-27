@@ -240,7 +240,7 @@ void ADS1118::deselect() { digitalWrite(cs_pin, HIGH); }
 void ADS1118::sckHigh()  { digitalWrite(sck_pin, HIGH); }
 void ADS1118::sckLow()   { digitalWrite(sck_pin, LOW); }
 
-// Definiciones de variables estáticas
+// Static variable definitions
 uint8_t ADS1118::cs_pin = 0;
 uint8_t ADS1118::mosi_pin = 0;
 uint8_t ADS1118::miso_pin = 0;
@@ -271,7 +271,7 @@ ThermocoupleK thck_1;
 
 void ThermocoupleK::init() {}
 
-// --- Convierte lectura ADC a °C ---
+// --- Convert ADC reading to °C ---
 float ThermocoupleK:: tempReadtoCelsius(const int16_t rawADC) {
   //Serial.println((int16_t)pgm_read_word(&ThermocoupleK_Lookup[TEMP_TABLE_SIZE - 1]));
 
@@ -280,34 +280,34 @@ float ThermocoupleK:: tempReadtoCelsius(const int16_t rawADC) {
   if (rawADC < (int16_t) pgm_read_word(&table_thermocouple_k[0].adc))
       return TEMP_MIN_TEMP;
 
-  // Búsqueda lineal en la tabla (de menor a mayor valor ADC)
+  // Linear search in the table (from lowest to highest ADC value)
   for (uint16_t i = 0; i < TEMP_TABLE_SIZE - 1; i++) {
 
-      int16_t adc1 = pgm_read_word(&table_thermocouple_k[i].adc);
-      int16_t adc2  = pgm_read_word(&table_thermocouple_k[i + 1].adc);
-      // Serial.print(i); Serial.print(" "); Serial.print(adc1); Serial.print(" "); Serial.print(adc2);
+    int16_t adc1 = pgm_read_word(&table_thermocouple_k[i].adc);
+    int16_t adc2  = pgm_read_word(&table_thermocouple_k[i + 1].adc);
+    // Serial.print(i); Serial.print(" "); Serial.print(adc1); Serial.print(" "); Serial.print(adc2);
 
-      if (rawADC >= adc1 && rawADC < adc2) { // in-between tableValue and nextValue
-          // Approximate temperature via linear interpolation
-          //float frac = float(rawADC - adc2) / float(adc1 - adc2);
-          int16_t t1  = pgm_read_word(&table_thermocouple_k[i].temp);
-          int16_t t2  = pgm_read_word(&table_thermocouple_k[i+1].temp);
-          // Serial.print(" "); Serial.print(t1); Serial.print(" "); Serial.print(t2);
-          float tempC = t1 + (float) (rawADC - adc1) * (float(t2 - t1) / float(adc2 - adc1)); // TEMP_TABLE_OFFSET + i + frac;
-          return tempC;
-      }
-      // Serial.println("");
+    if (rawADC >= adc1 && rawADC < adc2) { // in-between tableValue and nextValue
+      // Approximate temperature via linear interpolation
+      //float frac = float(rawADC - adc2) / float(adc1 - adc2);
+      int16_t t1  = pgm_read_word(&table_thermocouple_k[i].temp);
+      int16_t t2  = pgm_read_word(&table_thermocouple_k[i+1].temp);
+      // Serial.print(" "); Serial.print(t1); Serial.print(" "); Serial.print(t2);
+      float tempC = t1 + (float) (rawADC - adc1) * (float(t2 - t1) / float(adc2 - adc1)); // TEMP_TABLE_OFFSET + i + frac;
+      return tempC;
+    }
+    // Serial.println("");
   }
 
   return TEMP_MIN_TEMP;
 }
 
 float ThermocoupleK:: calcTempCelsius() {
-    _Tcold = ads1118.convertInternalTemp(_raw_cold);
-    _Thot = tempReadtoCelsius(_raw_hot);
-    //SERIAL_ECHOPGM("ADS1118 TCold "); SERIAL_ECHOLN(_Tcold);
-    //SERIAL_ECHOPGM("ADS1118 THot "); SERIAL_ECHOLN(_Thot);
-    return _Thot + _Tcold;
+  _Tcold = ads1118.convertInternalTemp(_raw_cold);
+  _Thot = tempReadtoCelsius(_raw_hot);
+  //SERIAL_ECHOPGM("ADS1118 TCold "); SERIAL_ECHOLN(_Tcold);
+  //SERIAL_ECHOPGM("ADS1118 THot "); SERIAL_ECHOLN(_Thot);
+  return _Thot + _Tcold;
 }
 
 void ThermocoupleK::setRawCold(const int16_t raw_cold) {
@@ -336,6 +336,5 @@ float ThermocoupleK::getThot() {
 float ThermocoupleK:: getTempCelsius() {
   return _Thot + _Tcold;
 }
-
 
 #endif // HAS_ADS1118

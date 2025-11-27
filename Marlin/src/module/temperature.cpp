@@ -2629,9 +2629,9 @@ void Temperature::task() {
 
 #if ANY_THERMISTOR_IS(-18)
 
-// Conversion for ADS1118 in differential mode (K-type)
-// Each LSB bit ≈ 62.5 µV → ~1.5 °C (no calibration).
-// Adjustable with GAIN and OFFSET from Configuration_adv.h
+  // Conversion for ADS1118 in differential mode (K-type)
+  // Each LSB bit ≈ 62.5 µV → ~1.5 °C (no calibration).
+  // Adjustable with GAIN and OFFSET from Configuration_adv.h
 
   static constexpr celsius_float_t temp_ads1118(const uint8_t e) {
     celsius_float_t temp = 0;
