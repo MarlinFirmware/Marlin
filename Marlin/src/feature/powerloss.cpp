@@ -375,6 +375,7 @@ void PrintJobRecovery::write() {
 }
 
 #if ENABLED(PLR_HEAT_BED_ON_REBOOT)
+  // Set bed temperature and wait. Called from M1000 to resume bed heating.
   void PrintJobRecovery::set_bed_temp(const bool on) {
     PROCESS_SUBCOMMANDS_NOW(TS(F("M190S"), on ? info.target_temperature_bed + PLR_HEAT_BED_EXTRA : 0));
   }
