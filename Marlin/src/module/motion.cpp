@@ -2574,7 +2574,7 @@ void prepare_line_to_destination() {
           }
         #endif
 
-        if (TEST(endstops.state(), es)) {
+        if (endstops.state(es)) {
           SERIAL_ECHO_MSG("Bad ", C(AXIS_CHAR(axis)), " Endstop?");
           kill(GET_TEXT_F(MSG_KILL_HOMING_FAILED));
         }

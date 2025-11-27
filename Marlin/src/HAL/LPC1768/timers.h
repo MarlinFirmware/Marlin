@@ -59,7 +59,7 @@
 typedef uint32_t hal_timer_t;
 #define HAL_TIMER_TYPE_MAX 0xFFFFFFFFUL
 
-#define HAL_TIMER_RATE         ((F_CPU) / 4)  // frequency of timers peripherals
+#define HAL_TIMER_RATE         ((F_CPU) / 4)  // (Hz) Frequency of timers peripherals
 
 #ifndef MF_TIMER_STEP
   #define MF_TIMER_STEP         0  // Timer Index for Stepper
@@ -74,11 +74,13 @@ typedef uint32_t hal_timer_t;
   #define MF_TIMER_PWM          3  // Timer Index for PWM
 #endif
 
-#define TEMP_TIMER_RATE        1000000
-#define TEMP_TIMER_FREQUENCY   1000 // temperature interrupt frequency
+#define TEMP_TIMER_RATE        1000000 // 1MHz
+#define TEMP_TIMER_FREQUENCY   1000 // (Hz) Temperature ISR frequency
 
-#define STEPPER_TIMER_RATE     HAL_TIMER_RATE   // frequency of stepper timer (HAL_TIMER_RATE / STEPPER_TIMER_PRESCALE)
-#define STEPPER_TIMER_TICKS_PER_US ((STEPPER_TIMER_RATE) / 1000000) // stepper timer ticks per µs
+#ifndef STEPPER_TIMER_RATE
+  #define STEPPER_TIMER_RATE   HAL_TIMER_RATE   // (Hz) Frequency of stepper timer (HAL_TIMER_RATE / STEPPER_TIMER_PRESCALE)
+#endif
+#define STEPPER_TIMER_TICKS_PER_US ((STEPPER_TIMER_RATE) / 1000000) // Stepper Timer ticks per µs
 #define STEPPER_TIMER_PRESCALE (CYCLES_PER_MICROSECOND / STEPPER_TIMER_TICKS_PER_US)
 
 #define PULSE_TIMER_RATE       STEPPER_TIMER_RATE   // frequency of pulse timer

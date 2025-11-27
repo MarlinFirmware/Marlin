@@ -185,7 +185,6 @@ class FTMotion {
       return cfg.active ? axis_move_dir[axis] : stepper.last_direction_bits[axis];
     }
 
-
     static stepping_t stepping;
 
     FORCE_INLINE static void stepping_enqueue(xyze_float_t traj_coords) {

@@ -3131,27 +3131,14 @@ void Temperature::init() {
       OUT_WRITE(HEATER_0_PIN, ENABLED(HEATER_0_INVERTING));
     #endif
   #endif
-  #if HAS_HEATER_1
-    OUT_WRITE(HEATER_1_PIN, ENABLED(HEATER_1_INVERTING));
-  #endif
-  #if HAS_HEATER_2
-    OUT_WRITE(HEATER_2_PIN, ENABLED(HEATER_2_INVERTING));
-  #endif
-  #if HAS_HEATER_3
-    OUT_WRITE(HEATER_3_PIN, ENABLED(HEATER_3_INVERTING));
-  #endif
-  #if HAS_HEATER_4
-    OUT_WRITE(HEATER_4_PIN, ENABLED(HEATER_4_INVERTING));
-  #endif
-  #if HAS_HEATER_5
-    OUT_WRITE(HEATER_5_PIN, ENABLED(HEATER_5_INVERTING));
-  #endif
-  #if HAS_HEATER_6
-    OUT_WRITE(HEATER_6_PIN, ENABLED(HEATER_6_INVERTING));
-  #endif
-  #if HAS_HEATER_7
-    OUT_WRITE(HEATER_7_PIN, ENABLED(HEATER_7_INVERTING));
-  #endif
+
+  TERF(HAS_HEATER_1, OUT_WRITE)(HEATER_1_PIN, ENABLED(HEATER_1_INVERTING));
+  TERF(HAS_HEATER_2, OUT_WRITE)(HEATER_2_PIN, ENABLED(HEATER_2_INVERTING));
+  TERF(HAS_HEATER_3, OUT_WRITE)(HEATER_3_PIN, ENABLED(HEATER_3_INVERTING));
+  TERF(HAS_HEATER_4, OUT_WRITE)(HEATER_4_PIN, ENABLED(HEATER_4_INVERTING));
+  TERF(HAS_HEATER_5, OUT_WRITE)(HEATER_5_PIN, ENABLED(HEATER_5_INVERTING));
+  TERF(HAS_HEATER_6, OUT_WRITE)(HEATER_6_PIN, ENABLED(HEATER_6_INVERTING));
+  TERF(HAS_HEATER_7, OUT_WRITE)(HEATER_7_PIN, ENABLED(HEATER_7_INVERTING));
 
   #if HAS_HEATED_BED
     #if ENABLED(PELTIER_BED)
@@ -3173,33 +3160,15 @@ void Temperature::init() {
     OUT_WRITE(COOLER_PIN, ENABLED(COOLER_INVERTING));
   #endif
 
-  #if HAS_FAN0
-    INIT_FAN_PIN(FAN0_PIN);
-  #endif
-  #if HAS_FAN1
-    INIT_FAN_PIN(FAN1_PIN);
-  #endif
-  #if HAS_FAN2
-    INIT_FAN_PIN(FAN2_PIN);
-  #endif
-  #if HAS_FAN3
-    INIT_FAN_PIN(FAN3_PIN);
-  #endif
-  #if HAS_FAN4
-    INIT_FAN_PIN(FAN4_PIN);
-  #endif
-  #if HAS_FAN5
-    INIT_FAN_PIN(FAN5_PIN);
-  #endif
-  #if HAS_FAN6
-    INIT_FAN_PIN(FAN6_PIN);
-  #endif
-  #if HAS_FAN7
-    INIT_FAN_PIN(FAN7_PIN);
-  #endif
-  #if ENABLED(USE_CONTROLLER_FAN)
-    INIT_FAN_PIN(CONTROLLER_FAN_PIN);
-  #endif
+  TERF(HAS_FAN0, INIT_FAN_PIN)(FAN0_PIN);
+  TERF(HAS_FAN1, INIT_FAN_PIN)(FAN1_PIN);
+  TERF(HAS_FAN2, INIT_FAN_PIN)(FAN2_PIN);
+  TERF(HAS_FAN3, INIT_FAN_PIN)(FAN3_PIN);
+  TERF(HAS_FAN4, INIT_FAN_PIN)(FAN4_PIN);
+  TERF(HAS_FAN5, INIT_FAN_PIN)(FAN5_PIN);
+  TERF(HAS_FAN6, INIT_FAN_PIN)(FAN6_PIN);
+  TERF(HAS_FAN7, INIT_FAN_PIN)(FAN7_PIN);
+  TERF(USE_CONTROLLER_FAN, INIT_FAN_PIN)(CONTROLLER_FAN_PIN);
 
   TERN_(HAS_MAXTC_SW_SPI, max_tc_spi.init());
 
@@ -3229,9 +3198,7 @@ void Temperature::init() {
   TERN_(POWER_MONITOR_CURRENT,  hal.adc_enable(POWER_MONITOR_CURRENT_PIN));
   TERN_(POWER_MONITOR_VOLTAGE,  hal.adc_enable(POWER_MONITOR_VOLTAGE_PIN));
 
-  #if HAS_JOY_ADC_EN
-    SET_INPUT_PULLUP(JOY_EN_PIN);
-  #endif
+  TERF(HAS_JOY_ADC_EN, SET_INPUT_PULLUP)(JOY_EN_PIN);
 
   HAL_timer_start(MF_TIMER_TEMP, TEMP_TIMER_FREQUENCY);
   ENABLE_TEMPERATURE_INTERRUPT();
@@ -4140,18 +4107,12 @@ void Temperature::isr() {
 
       #if HAS_HEATED_BED
         _PWM_MOD(BED, soft_pwm_bed, temp_bed);
-        #if ENABLED(PELTIER_BED)
-          WRITE_PELTIER_DIR(temp_bed.peltier_dir_heating);
-        #endif
+        TERF(PELTIER_BED, WRITE_PELTIER_DIR)(temp_bed.peltier_dir_heating);
       #endif
 
-      #if HAS_HEATED_CHAMBER
-        _PWM_MOD(CHAMBER, soft_pwm_chamber, temp_chamber);
-      #endif
+      TERF(HAS_HEATED_CHAMBER, _PWM_MOD)(CHAMBER, soft_pwm_chamber, temp_chamber);
 
-      #if HAS_COOLER
-        _PWM_MOD(COOLER, soft_pwm_cooler, temp_cooler);
-      #endif
+      TERF(HAS_COOLER, _PWM_MOD)(COOLER, soft_pwm_cooler, temp_cooler);
 
       #if ENABLED(FAN_SOFT_PWM)
 
@@ -4165,30 +4126,14 @@ void Temperature::isr() {
           WRITE_FAN(N, spcf > pwm_mask ? HIGH : LOW);               \
         }while(0)
 
-        #if HAS_FAN0
-          _FAN_PWM(0);
-        #endif
-        #if HAS_FAN1
-          _FAN_PWM(1);
-        #endif
-        #if HAS_FAN2
-          _FAN_PWM(2);
-        #endif
-        #if HAS_FAN3
-          _FAN_PWM(3);
-        #endif
-        #if HAS_FAN4
-          _FAN_PWM(4);
-        #endif
-        #if HAS_FAN5
-          _FAN_PWM(5);
-        #endif
-        #if HAS_FAN6
-          _FAN_PWM(6);
-        #endif
-        #if HAS_FAN7
-          _FAN_PWM(7);
-        #endif
+        TERF(HAS_FAN0, _FAN_PWM)(0);
+        TERF(HAS_FAN1, _FAN_PWM)(1);
+        TERF(HAS_FAN2, _FAN_PWM)(2);
+        TERF(HAS_FAN3, _FAN_PWM)(3);
+        TERF(HAS_FAN4, _FAN_PWM)(4);
+        TERF(HAS_FAN5, _FAN_PWM)(5);
+        TERF(HAS_FAN6, _FAN_PWM)(6);
+        TERF(HAS_FAN7, _FAN_PWM)(7);
       #endif
     }
     else {
@@ -4198,17 +4143,9 @@ void Temperature::isr() {
         REPEAT(HOTENDS, _PWM_LOW_E);
       #endif
 
-      #if HAS_HEATED_BED
-        _PWM_LOW(BED, soft_pwm_bed);
-      #endif
-
-      #if HAS_HEATED_CHAMBER
-        _PWM_LOW(CHAMBER, soft_pwm_chamber);
-      #endif
-
-      #if HAS_COOLER
-        _PWM_LOW(COOLER, soft_pwm_cooler);
-      #endif
+      TERF(HAS_HEATED_BED,     _PWM_LOW)(BED, soft_pwm_bed);
+      TERF(HAS_HEATED_CHAMBER, _PWM_LOW)(CHAMBER, soft_pwm_chamber);
+      TERF(HAS_COOLER,         _PWM_LOW)(COOLER, soft_pwm_cooler);
 
       #if ENABLED(FAN_SOFT_PWM)
         #if HAS_FAN0
@@ -4271,17 +4208,9 @@ void Temperature::isr() {
         REPEAT(HOTENDS, _SLOW_PWM_E);
       #endif
 
-      #if HAS_HEATED_BED
-        _SLOW_PWM(BED, soft_pwm_bed, temp_bed);
-      #endif
-
-      #if HAS_HEATED_CHAMBER
-        _SLOW_PWM(CHAMBER, soft_pwm_chamber, temp_chamber);
-      #endif
-
-      #if HAS_COOLER
-        _SLOW_PWM(COOLER, soft_pwm_cooler, temp_cooler);
-      #endif
+      TERF(HAS_HEATED_BED,     _SLOW_PWM)(BED, soft_pwm_bed, temp_bed);
+      TERF(HAS_HEATED_CHAMBER, _SLOW_PWM)(CHAMBER, soft_pwm_chamber, temp_chamber);
+      TERF(HAS_COOLER,         _SLOW_PWM)(COOLER, soft_pwm_cooler, temp_cooler);
 
     } // slow_pwm_count == 0
 
@@ -4290,17 +4219,9 @@ void Temperature::isr() {
       REPEAT(HOTENDS, _PWM_OFF_E);
     #endif
 
-    #if HAS_HEATED_BED
-      _PWM_OFF(BED, soft_pwm_bed);
-    #endif
-
-    #if HAS_HEATED_CHAMBER
-      _PWM_OFF(CHAMBER, soft_pwm_chamber);
-    #endif
-
-    #if HAS_COOLER
-      _PWM_OFF(COOLER, soft_pwm_cooler, temp_cooler);
-    #endif
+    TERF(HAS_HEATED_BED,     _PWM_OFF)(BED, soft_pwm_bed);
+    TERF(HAS_HEATED_CHAMBER, _PWM_OFF)(CHAMBER, soft_pwm_chamber);
+    TERF(HAS_COOLER,         _PWM_OFF)(COOLER, soft_pwm_cooler, temp_cooler);
 
     #if ENABLED(FAN_SOFT_PWM)
       if (pwm_count_tmp >= 127) {
@@ -4309,30 +4230,14 @@ void Temperature::isr() {
           soft_pwm_count_fan[N] = soft_pwm_amount_fan[N] >> 1;  \
           WRITE_FAN(N, soft_pwm_count_fan[N] > 0 ? HIGH : LOW); \
         }while(0)
-        #if HAS_FAN0
-          _PWM_FAN(0);
-        #endif
-        #if HAS_FAN1
-          _PWM_FAN(1);
-        #endif
-        #if HAS_FAN2
-          _PWM_FAN(2);
-        #endif
-        #if HAS_FAN3
-          _FAN_PWM(3);
-        #endif
-        #if HAS_FAN4
-          _FAN_PWM(4);
-        #endif
-        #if HAS_FAN5
-          _FAN_PWM(5);
-        #endif
-        #if HAS_FAN6
-          _FAN_PWM(6);
-        #endif
-        #if HAS_FAN7
-          _FAN_PWM(7);
-        #endif
+        TERF(HAS_FAN0, _PWM_FAN)(0);
+        TERF(HAS_FAN1, _PWM_FAN)(1);
+        TERF(HAS_FAN2, _PWM_FAN)(2);
+        TERF(HAS_FAN3, _FAN_PWM)(3);
+        TERF(HAS_FAN4, _FAN_PWM)(4);
+        TERF(HAS_FAN5, _FAN_PWM)(5);
+        TERF(HAS_FAN6, _FAN_PWM)(6);
+        TERF(HAS_FAN7, _FAN_PWM)(7);
       }
       #if HAS_FAN0
         if (soft_pwm_count_fan[0] <= pwm_count_tmp) WRITE_FAN(0, LOW);
