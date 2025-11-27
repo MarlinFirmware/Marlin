@@ -54,17 +54,17 @@
 #define STEPPER_TIMER_RATE 2000000 // 2 Mhz
 extern uint32_t GetStepperTimerClkFreq();
 #define STEPPER_TIMER_PRESCALE (GetStepperTimerClkFreq() / (STEPPER_TIMER_RATE))
-#define STEPPER_TIMER_TICKS_PER_US ((STEPPER_TIMER_RATE) / 1000000) // stepper timer ticks per µs
+#define STEPPER_TIMER_TICKS_PER_US ((STEPPER_TIMER_RATE) / 1000000UL)               // (MHz) Stepper Timer ticks per µs
 
-#define PULSE_TIMER_RATE STEPPER_TIMER_RATE
-#define PULSE_TIMER_PRESCALE STEPPER_TIMER_PRESCALE
-#define PULSE_TIMER_TICKS_PER_US STEPPER_TIMER_TICKS_PER_US
+#define PULSE_TIMER_RATE            STEPPER_TIMER_RATE                              // (Hz) Frequency of Pulse Timer
+#define PULSE_TIMER_TICKS_PER_US    STEPPER_TIMER_TICKS_PER_US
+#define PULSE_TIMER_PRESCALE        STEPPER_TIMER_PRESCALE
 
-#define ENABLE_STEPPER_DRIVER_INTERRUPT() HAL_timer_enable_interrupt(MF_TIMER_STEP)
-#define DISABLE_STEPPER_DRIVER_INTERRUPT() HAL_timer_disable_interrupt(MF_TIMER_STEP)
-#define STEPPER_ISR_ENABLED() HAL_timer_interrupt_enabled(MF_TIMER_STEP)
+#define ENABLE_STEPPER_DRIVER_INTERRUPT()   HAL_timer_enable_interrupt(MF_TIMER_STEP)
+#define DISABLE_STEPPER_DRIVER_INTERRUPT()  HAL_timer_disable_interrupt(MF_TIMER_STEP)
+#define STEPPER_ISR_ENABLED()               HAL_timer_interrupt_enabled(MF_TIMER_STEP)
 
-#define ENABLE_TEMPERATURE_INTERRUPT() HAL_timer_enable_interrupt(MF_TIMER_TEMP)
+#define ENABLE_TEMPERATURE_INTERRUPT()  HAL_timer_enable_interrupt(MF_TIMER_TEMP)
 #define DISABLE_TEMPERATURE_INTERRUPT() HAL_timer_disable_interrupt(MF_TIMER_TEMP)
 
 extern void Step_Handler();
