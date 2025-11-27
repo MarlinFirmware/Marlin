@@ -31,8 +31,7 @@
 
 /**
  * ZMIB pin assignments
- * Schematic: https://green-candy.osdn.jp/external/MarlinFW/board_schematics/ZONESTAR%20ZMIB%20V2/ZMIB_V2_Schmatic.pdf
- * Origin: https://github.com/ZONESTAR3D/Control-Board/blob/main/8bit/ZMIB/ZMIB%20V2/ZMIB_V2_Schmatic.pdf
+ * Schematic: https://github.com/ZONESTAR3D/Control-Board/blob/main/8bit/ZMIB/ZMIB%20V2/ZMIB_V2_Schmatic.pdf
  *
  * The ZMIB board needs a bootloader installed before Marlin can be uploaded.
  * If you don't have a chip programmer you can use a spare Arduino plus a few
@@ -160,7 +159,7 @@
 // SD card
 //
 #if HAS_MEDIA
-  #define SDSS                                 4
+  #define SD_SS_PIN                            4
 #endif
 #define SD_DETECT_PIN                         -1
 
@@ -190,9 +189,8 @@
   //
   // LCD 128x64
   //
-  #define LCDSCREEN_NAME "ZONESTAR_12864LCD"
   #define FORCE_SOFT_SPI
-  //#define LCD_SDSS                 EXP1_03_PIN
+  //#define LCD_SDSS_PIN             EXP1_03_PIN
   #define LCD_PINS_RS                EXP1_03_PIN  // ST7920 CS  (LCD-4)
   #define LCD_PINS_EN                EXP1_06_PIN  // ST7920 DAT (LCD-5)
   #define LCD_PINS_D4                EXP1_04_PIN  // ST7920 CLK (LCD-6)
@@ -205,7 +203,6 @@
   //
   // OLED 128x64
   //
-  #define LCDSCREEN_NAME "ZONESTAR 12864OLED"
   #define FORCE_SOFT_SPI
   #define LCD_PINS_RS                EXP1_06_PIN
   #define LCD_PINS_DC                EXP1_04_PIN

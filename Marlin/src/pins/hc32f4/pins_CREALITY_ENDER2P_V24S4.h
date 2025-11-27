@@ -46,10 +46,13 @@
 #endif
 
 //
-// Release PB4 (Y_ENABLE_PIN) from JTAG NRST role
+// Release JTAG pins but keep SWD enabled
+// - PA15 (JTDI / E0_DIR_PIN)
+// - PB3 (JTDO / E0_STEP_PIN)
+// - PB4 (NJTRST / E0_ENABLE_PIN)
 //
 //#define DISABLE_DEBUG
-//#define DISABLE_JTAG
+#define DISABLE_JTAG
 
 //
 // EEPROM
@@ -63,16 +66,16 @@
 #if ENABLED(IIC_BL24CXX_EEPROM)
   #define IIC_EEPROM_SDA                    PA12
   #define IIC_EEPROM_SCL                    PA11
-  #define MARLIN_EEPROM_SIZE               0x800 // 2K (24C16)
+  #define MARLIN_EEPROM_SIZE              0x800U // 2K (24C16)
 #elif ENABLED(SDCARD_EEPROM_EMULATION)
-  #define MARLIN_EEPROM_SIZE               0x800 // 2K
+  #define MARLIN_EEPROM_SIZE              0x800U // 2K
 #endif
 
 //
 // Servos
 //
 #ifndef SERVO0_PIN
-  #define SERVO0_PIN                        PB0   // BLTouch OUT *
+  #define SERVO0_PIN                        PB1
 #endif
 
 //
@@ -80,17 +83,17 @@
 //
 #define X_STOP_PIN                          PA5
 #define Y_STOP_PIN                          PA6
-#define Z_STOP_PIN                          PB0   // BLTOUCH *
+#define Z_STOP_PIN                          PB0
 
 #ifndef Z_MIN_PROBE_PIN
-  #define Z_MIN_PROBE_PIN                   PB1   // BLTouch IN *
+  #define Z_MIN_PROBE_PIN                   PB2
 #endif
 
 //
 // Filament Runout Sensor
 //
 #ifndef FIL_RUNOUT_PIN
-  #define FIL_RUNOUT_PIN                    PC15  // "Pulled-high" *
+  #define FIL_RUNOUT_PIN                    PA4   // "Pulled-high" *
 #endif
 
 //
@@ -183,17 +186,17 @@
 
 /**        ------
  *   PC6  | 1  2 | PC7
- *   PA2  | 3  4 | PC1
+ *   PA2  | 3  4 | PA3
  *   PB13   5  6 | PB14
  *   PB15 | 7  8 | PB12
- *    GND | 9 10 | 5V
+ *   GND  | 9 10 | 5V
  *         ------
  *          EXP1
  */
 #define EXP1_01_PIN                         PC6
 #define EXP1_02_PIN                         PC7
 #define EXP1_03_PIN                         PA2
-#define EXP1_04_PIN                         PC1
+#define EXP1_04_PIN                         PA3
 #define EXP1_05_PIN                         PB13
 #define EXP1_06_PIN                         PB14
 #define EXP1_07_PIN                         PB15

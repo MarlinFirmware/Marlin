@@ -22,9 +22,6 @@
 
 /**
  * Bed Level Tools for Pro UI
- * Extended by: Miguel A. Risco-Castillo (MRISCOC)
- * Version: 3.2.0
- * Date: 2023/05/03
  *
  * Based on the original work of: Henri-J-Norden
  * https://github.com/Jyers/Marlin/pull/126
@@ -49,8 +46,8 @@
 
 class BedLevelTools {
 public:
-  #if ENABLED(USE_GRID_MESHVIEWER)
-    static bool viewer_asymmetric_range;
+  #if USE_GRID_MESHVIEWER
+    static bool grid_meshview;
     static bool viewer_print_value;
   #endif
   static bool goto_mesh_value;
@@ -58,11 +55,9 @@ public:
   static uint8_t tilt_grid;
 
   #if ENABLED(AUTO_BED_LEVELING_UBL)
-    static void manualValueUpdate(const uint8_t mesh_x, const uint8_t mesh_y, bool undefined=false);
     static bool createPlaneFromMesh();
-  #else
-    static void manualValueUpdate(const uint8_t mesh_x, const uint8_t mesh_y);
   #endif
+  static void manualValueUpdate(const uint8_t mesh_x, const uint8_t mesh_y, const bool reset=false);
   static void manualMove(const uint8_t mesh_x, const uint8_t mesh_y, bool zmove=false);
   static void moveToXYZ();
   static void moveToXY();
@@ -72,7 +67,7 @@ public:
   static float getMaxValue();
   static float getMinValue();
   static bool meshValidate();
-  #if ENABLED(USE_GRID_MESHVIEWER)
+  #if USE_GRID_MESHVIEWER
     static void drawBedMesh(int16_t selected=-1, uint8_t gridline_width=1, uint16_t padding_x=8, uint16_t padding_y_top=(40 + 53 - 7));
     static void setMeshViewerStatus();
   #endif

@@ -43,6 +43,9 @@ public:
     #if HAS_MEDIA
       EP_M5, EP_M52, EP_M524,
     #endif
+    #if ENABLED(FTM_RESONANCE_TEST)
+      EP_M49, EP_M496,
+    #endif
     #if ENABLED(EP_BABYSTEPPING)
       EP_M2, EP_M29, EP_M293, EP_M294,
     #endif
@@ -63,6 +66,10 @@ public:
 
   static bool killed_by_M112;
   static bool quickstop_by_M410;
+
+  #if ENABLED(FTM_RESONANCE_TEST)
+    static bool rt_stop_by_M496;
+  #endif
 
   #if HAS_MEDIA
     static bool sd_abort_by_M524;

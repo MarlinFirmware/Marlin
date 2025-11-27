@@ -53,7 +53,7 @@
  *               41 - Counter-Clockwise M4
  *               50 - Clockwise M5
  *               51 - Counter-Clockwise M5
- **/
+ */
 void GcodeSuite::G35() {
 
   DEBUG_SECTION(log_G35, "G35", DEBUGGING(LEVELING));
@@ -95,9 +95,11 @@ void GcodeSuite::G35() {
   for (uint8_t i = 0; i < G35_PROBE_COUNT; ++i) {
     const float z_probed_height = probe.probe_at_point(tramming_points[i], PROBE_PT_RAISE);
     if (isnan(z_probed_height)) {
-      SERIAL_ECHO(
-        F("G35 failed at point "), i + 1, F(" ("), FPSTR(pgm_read_ptr(&tramming_point_name[i])), C(')'),
-        FPSTR(SP_X_STR), tramming_points[i].x, FPSTR(SP_Y_STR), tramming_points[i].y
+      SERIAL_ECHOLN(
+        F("G35 failed at point "), i + 1,
+        F(" ("), FPSTR(pgm_read_ptr(&tramming_point_name[i])), C(')'),
+        FPSTR(SP_X_STR), tramming_points[i].x,
+        FPSTR(SP_Y_STR), tramming_points[i].y
       );
       err_break = true;
       break;

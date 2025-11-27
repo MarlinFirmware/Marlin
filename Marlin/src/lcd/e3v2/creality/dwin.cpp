@@ -30,9 +30,6 @@
 
 #include "dwin.h"
 
-//#define USE_STRING_HEADINGS
-//#define USE_STRING_TITLES
-
 #if DISABLED(PROBE_MANUALLY) && ANY(AUTO_BED_LEVELING_BILINEAR, AUTO_BED_LEVELING_LINEAR, AUTO_BED_LEVELING_3POINT)
   #define HAS_ONESTEP_LEVELING 1
 #endif
@@ -51,8 +48,6 @@
 #include "../../../sd/cardreader.h"
 
 #include "../../../MarlinCore.h"
-#include "../../../core/serial.h"
-#include "../../../core/macros.h"
 #include "../../../gcode/queue.h"
 
 #include "../../../module/temperature.h"
@@ -101,7 +96,7 @@
 
 // Minimum unit (0.1) : multiple (10)
 #define UNITFDIGITS 1
-#define MINUNITMULT pow(10, UNITFDIGITS)
+#define MINUNITMULT POW(10, UNITFDIGITS)
 
 #define DWIN_VAR_UPDATE_INTERVAL         1024
 #define DWIN_SCROLL_UPDATE_INTERVAL      SEC_TO_MS(2)
@@ -355,6 +350,10 @@ void clearMainWindow() {
 void clearPopupArea() {
   clearTitleBar();
   dwinDrawRectangle(1, COLOR_BG_BLACK, 0, 31, DWIN_WIDTH, DWIN_HEIGHT);
+}
+
+void drawPopupBkgd60() {
+  dwinDrawRectangle(1, COLOR_BG_WINDOW, 14, 60, 258, 330);
 }
 
 void drawPopupBkgd105() {
@@ -1083,10 +1082,6 @@ void drawMotionMenu() {
 
 #endif
 
-void drawPopupBkgd60() {
-  dwinDrawRectangle(1, COLOR_BG_WINDOW, 14, 60, 258, 330);
-}
-
 #if HAS_HOTEND
 
   void popupWindowETempTooLow() {
@@ -1118,7 +1113,7 @@ void popupWindowResume() {
   else {
     dwinDrawString(true, font8x16, COLOR_POPUP_TEXT, COLOR_BG_WINDOW, (272 - 8 * 14) / 2, 115, F("Continue Print"));
     dwinDrawString(true, font8x16, COLOR_POPUP_TEXT, COLOR_BG_WINDOW, (272 - 8 * 22) / 2, 192, F("It looks like the last"));
-    dwinDrawString(true, font8x16, COLOR_POPUP_TEXT, COLOR_BG_WINDOW, (272 - 8 * 22) / 2, 212, F("file was interrupted."));
+    dwinDrawString(true, font8x16, COLOR_POPUP_TEXT, COLOR_BG_WINDOW, (272 - 8 * 21) / 2, 212, F("file was interrupted."));
     dwinIconShow(ICON, ICON_Cancel_E,    26, 307);
     dwinIconShow(ICON, ICON_Continue_E, 146, 307);
   }
@@ -1127,7 +1122,7 @@ void popupWindowResume() {
 void popupWindowHome(const bool parking/*=false*/) {
   clearMainWindow();
   drawPopupBkgd60();
-  dwinIconShow(ICON, ICON_BLTouch, 101, 105);
+  dwinIconShow(ICON, ICON_Printer_0, 101, 105);
   if (hmiIsChinese()) {
     dwinFrameAreaCopy(1, 0, 371, 33, 386, 85, 240);       // Wait for Move to Complete
     dwinFrameAreaCopy(1, 203, 286, 271, 302, 118, 240);
@@ -1150,7 +1145,7 @@ void popupWindowHome(const bool parking/*=false*/) {
       dwinFrameAreaCopy(1, 0, 389, 150, 402, 61, 280);
     }
     else {
-      dwinDrawString(true, font8x16, COLOR_POPUP_TEXT, COLOR_BG_WINDOW, (272 - 8 * 13) / 2, 230, GET_TEXT_F(MSG_BED_LEVELING));
+      dwinDrawString(true, font8x16, COLOR_POPUP_TEXT, COLOR_BG_WINDOW, (272 - 8 * 12) / 2, 230, GET_TEXT_F(MSG_BED_LEVELING));
       dwinDrawString(true, font8x16, COLOR_POPUP_TEXT, COLOR_BG_WINDOW, (272 - 8 * 23) / 2, 260, F("Please wait until done."));
     }
   }
@@ -1171,8 +1166,8 @@ void popupwindowPauseOrStop() {
   clearMainWindow();
   drawPopupBkgd60();
   if (hmiIsChinese()) {
-         if (select_print.now == PRINT_PAUSE_RESUME) dwinFrameAreaCopy(1, 237, 338, 269, 356, 98, 150);    // Pause
-    else if (select_print.now == PRINT_STOP) dwinFrameAreaCopy(1, 221, 320, 253, 336, 98, 150);    // Stop
+         if (select_print.now == PRINT_PAUSE_RESUME) dwinFrameAreaCopy(1, 237, 338, 269, 356, 98, 150); // Pause
+    else if (select_print.now == PRINT_STOP) dwinFrameAreaCopy(1, 221, 320, 253, 336, 98, 150);         // Stop
     dwinFrameAreaCopy(1, 220, 304, 264, 319, 130, 150); // Print
     dwinIconShow(ICON, ICON_Confirm_C, 26, 280);
     dwinIconShow(ICON, ICON_Cancel_C, 146, 280);
@@ -1393,7 +1388,7 @@ void hmiMoveDone(const AxisEnum axis) {
     LIMIT(hmiValues.offset_value, _OFFSET_ZMIN * 100, _OFFSET_ZMAX * 100);
 
     last_zoffset = dwin_zoffset;
-    dwin_zoffset = hmiValues.offset_value / 100.0f;
+    dwin_zoffset = hmiValues.offset_value * 0.01f;
     #if ANY(BABYSTEP_ZPROBE_OFFSET, JUST_BABYSTEP)
       if (BABYSTEP_ALLOWED()) babystep.add_mm(Z_AXIS, dwin_zoffset - last_zoffset);
     #endif
@@ -1596,6 +1591,27 @@ void hmiMaxAccelerationXYZE() {
   // MaxAcceleration value
   drawEditInteger4(select_acc.now, hmiValues.maxAcceleration, true);
 }
+
+
+#if HAS_SPINDLE_ACCELERATION
+
+  void hmiSpindleAcceleration() {
+    EncoderState encoder_diffState = encoderReceiveAnalyze();
+    if (encoder_diffState == ENCODER_DIFF_NO) return;
+    if (applyEncoder(encoder_diffState, hmiValues.spindleAcceleration)) {
+      checkkey = ID_SpindleAcceleration;
+      encoderRate.enabled = false;
+      cutter.spindle_acceleration_deg_per_s2 = hmiValues.spindleAcceleration;
+      drawEditInteger4(select_acc.now, hmiValues.spindleAcceleration);
+      return;
+    }
+    // SpindleAcceleration limit
+    LIMIT(hmiValues.spindleAcceleration, min_acceleration_edit_values_spindle, max_acceleration_edit_values_spindle);
+    // SpindleAcceleration value
+    drawEditInteger4(select_acc.now, hmiValues.spindleAcceleration, true);
+  }
+
+#endif // HAS_SPINDLE_ACCELERATION
 
 #if ENABLED(CLASSIC_JERK)
 
@@ -1816,17 +1832,25 @@ void hmiSDCardInit() { card.cdroot(); }
 // Initialize or re-initialize the LCD
 void MarlinUI::init_lcd() { dwinStartup(); }
 
+void MarlinUI::clear_lcd() {}
+
 void MarlinUI::update() {
   eachMomentUpdate(); // Status update
   hmiSDCardUpdate();  // SD card update
   dwinHandleScreen(); // Rotary encoder update
 }
 
-void MarlinUI::refresh() { /* Nothing to see here */ }
-
 #if HAS_LCD_BRIGHTNESS
   void MarlinUI::_set_brightness() { dwinLCDBrightness(backlight ? brightness : 0); }
 #endif
+
+void MarlinUI::kill_screen(FSTR_P const lcd_error, FSTR_P const) {
+  clearMainWindow();
+  drawPopupBkgd60();
+  dwinIconShow(ICON, ICON_Printer_0, 101, 105);
+  dwinDrawString(true, font8x16, COLOR_POPUP_TEXT, COLOR_BG_WINDOW, (272 - 8 * 15) / 2, 230, GET_TEXT_F(MSG_PRINTER_KILLED));
+  dwinDrawString(true, font8x16, COLOR_POPUP_TEXT, COLOR_BG_WINDOW, (272 - 8 * 20) / 2, 260, GET_TEXT_F(MSG_TURN_OFF));
+}
 
 #if ENABLED(SCROLL_LONG_FILENAMES)
 
@@ -1948,7 +1972,7 @@ void hmiSDCardUpdate() {
   if (hmiFlag.home_flag) return;
   if (DWIN_lcd_sd_status != card.isMounted()) {
     DWIN_lcd_sd_status = card.isMounted();
-    //SERIAL_ECHOLNPGM("HMI_SDCardUpdate: ", DWIN_lcd_sd_status);
+    //SERIAL_ECHOLNPGM("hmiSDCardUpdate: ", DWIN_lcd_sd_status);
     if (DWIN_lcd_sd_status) {
       if (checkkey == ID_SelectFile)
         redrawSDList();
@@ -2489,7 +2513,7 @@ void itemAdvBedPID(const uint8_t row) {
     }
     else {
       #ifdef USE_STRING_TITLES
-        dwinDrawLabel(row, GET_TEXT_F(MSG_ZPROBE_OFFSETS));
+        dwinDrawLabel(row, GET_TEXT_F(MSG_OUTAGE_RECOVERY));
       #else
         itemAreaCopy(1, 208, 137, 221, row);  // "Power-loss Recovery"
       #endif
@@ -2968,9 +2992,11 @@ void hmiAxisMove() {
         hmiFlag.cold_flag = false;
         hmiValues.moveScaled.e = current_position.e * MINUNITMULT;
         drawMoveMenu();
-        TERN_(HAS_X_AXIS, drawEditFloat3(1, hmiValues.moveScaled.x));
-        TERN_(HAS_Y_AXIS, drawEditFloat3(2, hmiValues.moveScaled.y));
-        TERN_(HAS_Z_AXIS, drawEditFloat3(3, hmiValues.moveScaled.z));
+        XYZ_CODE(
+          drawEditFloat3(1, hmiValues.moveScaled.x),
+          drawEditFloat3(2, hmiValues.moveScaled.y),
+          drawEditFloat3(3, hmiValues.moveScaled.z)
+        );
         drawEditSignedFloat3(4, 0);
         dwinUpdateLCD();
       }
@@ -3652,7 +3678,7 @@ void hmiAdvSet() {
     dwinUpdateLCD();
   }
 
-  void hmiHomeOffN(const AxisEnum axis, float &posScaled, const_float_t lo, const_float_t hi) {
+  void hmiHomeOffN(const AxisEnum axis, float &posScaled, const float lo, const float hi) {
     EncoderState encoder_diffState = encoderReceiveAnalyze();
     if (encoder_diffState == ENCODER_DIFF_NO) return;
 
@@ -4080,7 +4106,6 @@ void hmiInit() {
 }
 
 void dwinInitScreen() {
-  encoderConfiguration();
   hmiInit();
   hmiSetLanguageCache();
   hmiStartFrame(true);
@@ -4171,8 +4196,8 @@ void eachMomentUpdate() {
     gotoMainMenu();
   }
   #if ENABLED(POWER_LOSS_RECOVERY)
-    else if (DWIN_lcd_sd_status && recovery.dwin_flag) { // resume print before power off
-      recovery.dwin_flag = false;
+    else if (DWIN_lcd_sd_status && recovery.ui_flag_resume) { // Resume interrupted print
+      recovery.ui_flag_resume = false;
 
       auto update_selection = [&](const bool sel) {
         hmiFlag.select_flag = sel;
@@ -4278,6 +4303,9 @@ void dwinHandleScreen() {
     case ID_PrintSpeed:     hmiPrintSpeed(); break;
     case ID_MaxSpeedValue:  hmiMaxFeedspeedXYZE(); break;
     case ID_MaxAccelerationValue: hmiMaxAccelerationXYZE(); break;
+    #if HAS_SPINDLE_ACCELERATION
+      case ID_SpindleAccelerationValue: hmiSpindleAcceleration(); break;
+    #endif
     #if ENABLED(CLASSIC_JERK)
       case ID_MaxJerkValue: hmiMaxJerkXYZE(); break;
     #endif

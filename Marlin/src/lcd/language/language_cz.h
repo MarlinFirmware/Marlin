@@ -41,23 +41,23 @@ namespace LanguageNarrow_cz {
   constexpr uint8_t CHARSIZE              = 2;
   LSTR LANGUAGE                           = _UxGT("Czech");
 
-  LSTR WELCOME_MSG                        = MACHINE_NAME _UxGT(" připraven.");
+  LSTR WELCOME_MSG                        = MACHINE_NAME_SUBST _UxGT(" připraven.");
   LSTR MSG_YES                            = _UxGT("ANO");
   LSTR MSG_NO                             = _UxGT("NE");
   LSTR MSG_BACK                           = _UxGT("Zpět");
+
   LSTR MSG_MEDIA_ABORTING                 = _UxGT("Rušení...");
   LSTR MSG_MEDIA_INSERTED                 = _UxGT("Médium vloženo");
   LSTR MSG_MEDIA_REMOVED                  = _UxGT("Médium vyjmuto");
-  LSTR MSG_MEDIA_WAITING                  = _UxGT("Čekání na médium");
   LSTR MSG_MEDIA_READ_ERROR               = _UxGT("Chyba čtení média");
-  LSTR MSG_MEDIA_USB_REMOVED              = _UxGT("USB odstraněno");
-  LSTR MSG_MEDIA_USB_FAILED               = _UxGT("Chyba USB");
+  LSTR MSG_USB_FD_DEVICE_REMOVED          = _UxGT("USB odstraněno");
+  LSTR MSG_USB_FD_USB_FAILED              = _UxGT("Chyba USB");
+
   LSTR MSG_LCD_ENDSTOPS                   = _UxGT("Endstopy"); // max 8 znaku
   LSTR MSG_LCD_SOFT_ENDSTOPS              = _UxGT("Soft Endstopy");
   LSTR MSG_MAIN_MENU                      = _UxGT("Hlavní nabídka");
   LSTR MSG_ADVANCED_SETTINGS              = _UxGT("Další nastavení");
   LSTR MSG_CONFIGURATION                  = _UxGT("Konfigurace");
-  LSTR MSG_RUN_AUTO_FILES                 = _UxGT("Autostart");
   LSTR MSG_DISABLE_STEPPERS               = _UxGT("Uvolnit motory");
   LSTR MSG_DEBUG_MENU                     = _UxGT("Nabídka ladění");
   LSTR MSG_PROGRESS_BAR_TEST              = _UxGT("Test uk. průběhu");
@@ -102,6 +102,7 @@ namespace LanguageNarrow_cz {
   LSTR MSG_EXTRUDE                        = _UxGT("Vytlačit (extr.)");
   LSTR MSG_RETRACT                        = _UxGT("Zatlačit (retr.)");
   LSTR MSG_MOVE_AXIS                      = _UxGT("Posunout osy");
+  LSTR MSG_PROBE_AND_LEVEL                = _UxGT("Měření a vyrovnání");
   LSTR MSG_BED_LEVELING                   = _UxGT("Vyrovnat podložku");
   LSTR MSG_LEVEL_BED                      = _UxGT("Vyrovnat podložku");
   LSTR MSG_BED_TRAMMING                   = _UxGT("Vyrovnat rohy");
@@ -125,7 +126,7 @@ namespace LanguageNarrow_cz {
   LSTR MSG_IDEX_MODE_MIRRORED_COPY        = _UxGT("Zrcadlení");
   LSTR MSG_IDEX_MODE_FULL_CTRL            = _UxGT("Plná kontrola");
   LSTR MSG_HOTEND_OFFSET_Z                = _UxGT("2. tryska Z");
-  LSTR MSG_HOTEND_OFFSET_A                = _UxGT("2. tryska @");
+  LSTR MSG_HOTEND_OFFSET_N                = _UxGT("2. tryska @");
 
   LSTR MSG_UBL_DOING_G29                  = _UxGT("Provádím G29");
   LSTR MSG_UBL_TOOLS                      = _UxGT("UBL nástroje");
@@ -135,13 +136,10 @@ namespace LanguageNarrow_cz {
   LSTR MSG_UBL_BC_INSERT2                 = _UxGT("Změřte");
   LSTR MSG_UBL_BC_REMOVE                  = _UxGT("Odstraňte a změřte");
   LSTR MSG_UBL_MOVING_TO_NEXT             = _UxGT("Přesun na další");
-  LSTR MSG_UBL_ACTIVATE_MESH              = _UxGT("Aktivovat UBL");
-  LSTR MSG_UBL_DEACTIVATE_MESH            = _UxGT("Deaktivovat UBL");
   LSTR MSG_UBL_SET_TEMP_BED               = _UxGT("Teplota podložky");
   LSTR MSG_UBL_BED_TEMP_CUSTOM            = _UxGT("Teplota podložky");
   LSTR MSG_UBL_SET_TEMP_HOTEND            = _UxGT("Teplota hotendu");
   LSTR MSG_UBL_HOTEND_TEMP_CUSTOM         = _UxGT("Teplota hotendu");
-  LSTR MSG_UBL_MESH_EDIT                  = _UxGT("Úprava sítě bodů");
   LSTR MSG_UBL_EDIT_CUSTOM_MESH           = _UxGT("Upravit vlastní síť");
   LSTR MSG_UBL_FINE_TUNE_MESH             = _UxGT("Doladit síť bodů");
   LSTR MSG_UBL_DONE_EDITING_MESH          = _UxGT("Konec úprav sítě");
@@ -202,7 +200,8 @@ namespace LanguageNarrow_cz {
   LSTR MSG_UBL_7_SAVE_MESH                = _UxGT("7. Uložit síť bodů");
 
   LSTR MSG_LED_CONTROL                    = _UxGT("Nastavení LED");
-  LSTR MSG_LEDS                           = _UxGT("Světla");
+  LSTR MSG_LIGHTS                         = _UxGT("Světla");
+  LSTR MSG_LIGHT_N                        = _UxGT("Světla #{");
   LSTR MSG_LED_PRESETS                    = _UxGT("Světla Předvolby");
   LSTR MSG_SET_LEDS_RED                   = _UxGT("Červená");
   LSTR MSG_SET_LEDS_ORANGE                = _UxGT("Oranžová");
@@ -361,8 +360,12 @@ namespace LanguageNarrow_cz {
   LSTR MSG_FILAMENTUNLOAD_ALL             = _UxGT("Vysunout vše");
 
   LSTR MSG_ATTACH_MEDIA                   = _UxGT("Načíst médium");
+  LSTR MSG_ATTACH_SD                      = _UxGT("Načíst SD");
+  LSTR MSG_ATTACH_USB                     = _UxGT("Načíst USB");
   LSTR MSG_CHANGE_MEDIA                   = _UxGT("Vyměnit médium");
   LSTR MSG_RELEASE_MEDIA                  = _UxGT("Vysunout médium");
+  LSTR MSG_RUN_AUTOFILES                  = _UxGT("Autostart");
+
   LSTR MSG_ZPROBE_OUT                     = _UxGT("Sonda Z mimo podl");
   LSTR MSG_SKEW_FACTOR                    = _UxGT("Faktor zkosení");
   LSTR MSG_BLTOUCH                        = _UxGT("BLTouch");
@@ -386,7 +389,11 @@ namespace LanguageNarrow_cz {
   LSTR MSG_MANUAL_DEPLOY                  = _UxGT("Vysunout Z-sondu");
   LSTR MSG_MANUAL_STOW                    = _UxGT("Zasunout Z-sondu");
   LSTR MSG_HOME_FIRST                     = _UxGT("Domů %s první");
+  LSTR MSG_ZPROBE_XOFFSET                 = _UxGT("X ofset");
+  LSTR MSG_ZPROBE_YOFFSET                 = _UxGT("Y ofset");
   LSTR MSG_ZPROBE_ZOFFSET                 = _UxGT("Z ofset");
+  LSTR MSG_ZPROBE_OFFSET_N                = _UxGT("@ ofset");
+  LSTR MSG_BABYSTEP_PROBE_Z               = _UxGT("Krok a Z offset");
   LSTR MSG_BABYSTEP_X                     = _UxGT("Babystep X");
   LSTR MSG_BABYSTEP_Y                     = _UxGT("Babystep Y");
   LSTR MSG_BABYSTEP_Z                     = _UxGT("Babystep Z");
@@ -526,7 +533,8 @@ namespace LanguageNarrow_cz {
   LSTR MSG_TMC_HYBRID_THRS                = _UxGT("Hybridní práh");
   LSTR MSG_TMC_HOMING_THRS                = _UxGT("Domů bez senzorů");
   LSTR MSG_TMC_STEPPING_MODE              = _UxGT("Režim kroků");
-  LSTR MSG_TMC_STEALTH_ENABLED            = _UxGT("StealthChop povolen");
+  LSTR MSG_TMC_STEALTHCHOP                = _UxGT("StealthChop");
+
   LSTR MSG_SERVICE_RESET                  = _UxGT("Reset");
   LSTR MSG_SERVICE_IN                     = _UxGT(" za:");
   LSTR MSG_BACKLASH                       = _UxGT("Vůle");

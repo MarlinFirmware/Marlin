@@ -134,21 +134,21 @@ private:
 public:
 
   static void idle() {
-    // If a transfer is interrupted and a file is left open, abort it after TIMEOUT ms
+    // If a transfer is interrupted and a file is left open, abort it after 'idle_period' ms
     const millis_t ms = millis();
     if (transfer_active && ELAPSED(ms, idle_timeout)) {
-      idle_timeout = ms + IDLE_PERIOD;
+      idle_timeout = ms + idle_period;
       if (ELAPSED(ms, transfer_timeout)) transfer_abort();
     }
   }
 
   static void process(uint8_t packet_type, char *buffer, const uint16_t length) {
-    transfer_timeout = millis() + TIMEOUT;
+    transfer_timeout = millis() + timeout;
     switch (static_cast<FileTransfer>(packet_type)) {
       case FileTransfer::QUERY:
-        SERIAL_ECHOPGM("PFT:version:", VERSION_MAJOR, ".", VERSION_MINOR, ".", VERSION_PATCH);
+        SERIAL_ECHO(F("PFT:version:"), version_major, C('.'), version_minor, C('.'), version_patch);
         #if ENABLED(BINARY_STREAM_COMPRESSION)
-          SERIAL_ECHOLNPGM(":compression:heatshrink,", HEATSHRINK_STATIC_WINDOW_BITS, ",", HEATSHRINK_STATIC_LOOKAHEAD_BITS);
+          SERIAL_ECHOLN(F(":compression:heatshrink,"), HEATSHRINK_STATIC_WINDOW_BITS, C(','), HEATSHRINK_STATIC_LOOKAHEAD_BITS);
         #else
           SERIAL_ECHOLNPGM(":compression:none");
         #endif
@@ -194,7 +194,7 @@ public:
     }
   }
 
-  static const uint16_t VERSION_MAJOR = 0, VERSION_MINOR = 1, VERSION_PATCH = 0, TIMEOUT = 10000, IDLE_PERIOD = 1000;
+  static const uint16_t version_major = 0, version_minor = 1, version_patch = 0, timeout = 10000, idle_period = 1000;
 };
 
 class BinaryStream {
@@ -209,7 +209,7 @@ public:
   struct Packet { // 10 byte protocol overhead, ascii with checksum and line number has a minimum of 7 increasing with line
 
     union Header {
-      static constexpr uint16_t HEADER_TOKEN = 0xB5AD;
+      static constexpr uint16_t header_token = 0xB5AD;
       struct [[gnu::packed]] {
         uint16_t token;       // packet start token
         uint8_t sync;         // stream sync, resend id and packet loss detection
@@ -245,7 +245,7 @@ public:
       bytes_received = 0;
       checksum = 0;
       header_checksum = 0;
-      timeout = millis() + PACKET_MAX_WAIT;
+      timeout = millis() + packet_max_wait;
       buffer = nullptr;
     }
   } packet{};
@@ -272,14 +272,14 @@ public:
     }
     if (!bs_serial_data_available(card.transfer_port_index)) return false;
     data = bs_read_serial(card.transfer_port_index);
-    packet.timeout = millis() + PACKET_MAX_WAIT;
+    packet.timeout = millis() + packet_max_wait;
     return true;
   }
 
   template<const size_t buffer_size>
   void receive(char (&buffer)[buffer_size]) {
     uint8_t data = 0;
-    millis_t transfer_window = millis() + RX_TIMESLICE;
+    millis_t transfer_window = millis() + rx_timeslice;
 
     #if HAS_MEDIA
       PORT_REDIRECT(SERIAL_PORTMASK(card.transfer_port_index));
@@ -299,7 +299,7 @@ public:
         case StreamState::PACKET_WAIT:
           if (!stream_read(data)) { idle(); return; }  // no active packet so don't wait
           packet.header.data[1] = data;
-          if (packet.header.token == packet.header.HEADER_TOKEN) {
+          if (packet.header.token == packet.header.header_token) {
             packet.bytes_received = 2;
             stream_state = StreamState::PACKET_HEADER;
           }
@@ -322,7 +322,7 @@ public:
             if (packet.header.checksum == packet.header_checksum) {
               // The SYNC control packet is a special case in that it doesn't require the stream sync to be correct
               if (static_cast<Protocol>(packet.header.protocol()) == Protocol::CONTROL && static_cast<ProtocolControl>(packet.header.type()) == ProtocolControl::SYNC) {
-                  SERIAL_ECHOLNPGM("ss", sync, ",", buffer_size, ",", VERSION_MAJOR, ".", VERSION_MINOR, ".", VERSION_PATCH);
+                  SERIAL_ECHOLN(F("ss"), sync, C(','), buffer_size, C(','), version_major, C('.'), version_minor, C('.'), version_patch);
                   stream_state = StreamState::PACKET_RESET;
                   break;
               }
@@ -398,7 +398,7 @@ public:
           stream_state = StreamState::PACKET_RESET;
           break;
         case StreamState::PACKET_RESEND:
-          if (packet_retries < MAX_RETRIES || MAX_RETRIES == 0) {
+          if (packet_retries < max_retries || max_retries == 0) {
             packet_retries++;
             stream_state = StreamState::PACKET_RESET;
             SERIAL_ECHO_MSG("Resend request ", packet_retries);
@@ -446,7 +446,7 @@ public:
     SDFileTransferProtocol::idle();
   }
 
-  static const uint16_t PACKET_MAX_WAIT = 500, RX_TIMESLICE = 20, MAX_RETRIES = 0, VERSION_MAJOR = 0, VERSION_MINOR = 1, VERSION_PATCH = 0;
+  static const uint16_t packet_max_wait = 500, rx_timeslice = 20, max_retries = 0, version_major = 0, version_minor = 1, version_patch = 0;
   uint8_t  packet_retries, sync;
   uint16_t buffer_next_index;
   uint32_t bytes_received;

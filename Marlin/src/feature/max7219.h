@@ -110,7 +110,7 @@
       if (mode == ACCUMULATE_TOTAL) return;
 
       // update time_fraction every hundred milliseconds
-      if (instance_count == 0 && ELAPSED(now, last_calc_time + 100000)) {
+      if (instance_count == 0 && now - last_calc_time > 100000) {
         time_fraction = total_time * 128 / (now - last_calc_time);
         last_calc_time = now;
         total_time = 0;
@@ -166,7 +166,7 @@ public:
     // Draw an integer with optional leading zeros and optional decimal point
     void print(const uint8_t start, int16_t value, uint8_t size, const bool leadzero=false, bool dec=false);
     // Draw a float with a decimal point and optional digits
-    void print(const uint8_t start, const_float_t value, const uint8_t pre_size, const uint8_t post_size, const bool leadzero=false);
+    void print(const uint8_t start, const float value, const uint8_t pre_size, const uint8_t post_size, const bool leadzero=false);
   #endif
 
   // Set a single LED by XY coordinate

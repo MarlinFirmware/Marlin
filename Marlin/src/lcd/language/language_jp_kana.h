@@ -41,13 +41,12 @@ namespace LanguageNarrow_jp_kana {
   // This translation can be improved by using the full charset of unicode codeblock U+30A0 to U+30FF.
 
   // 片仮名表示定義
-  LSTR WELCOME_MSG                        = MACHINE_NAME _UxGT(" ジュンビカンリョウ");
+  LSTR WELCOME_MSG                        = MACHINE_NAME_SUBST _UxGT(" ジュンビカンリョウ");
   LSTR MSG_MEDIA_INSERTED                 = _UxGT("メディアガソウニュウサレマシタ"); // "Card inserted"
   LSTR MSG_MEDIA_REMOVED                  = _UxGT("メディアガアリマセン"); // "Card removed"
   LSTR MSG_RELEASE_MEDIA                  = _UxGT("メディアノトリダシ");
   LSTR MSG_LCD_ENDSTOPS                   = _UxGT("エンドストップ"); // "Endstops" // Max length 8 characters
   LSTR MSG_MAIN_MENU                      = _UxGT("メイン"); // "Main"
-  LSTR MSG_RUN_AUTO_FILES                 = _UxGT("ジドウカイシ"); // "Autostart"
   LSTR MSG_DISABLE_STEPPERS               = _UxGT("モーターデンゲン オフ"); // "Disable steppers"
   LSTR MSG_DEBUG_MENU                     = _UxGT("デバッグメニュー"); // "Debug Menu"
   LSTR MSG_PROGRESS_BAR_TEST              = _UxGT("プログレスバー テスト"); // "Progress Bar Test"
@@ -84,6 +83,7 @@ namespace LanguageNarrow_jp_kana {
   LSTR MSG_EXTRUDE                        = _UxGT("オシダシ"); // "Extrude"
   LSTR MSG_RETRACT                        = _UxGT("ヒキコミセッテイ"); // "Retract"
   LSTR MSG_MOVE_AXIS                      = _UxGT("ジクイドウ"); // "Move axis"
+  LSTR MSG_PROBE_AND_LEVEL                = _UxGT("プローブ アンド レベリング"); // "Probe and Level"
   LSTR MSG_BED_LEVELING                   = _UxGT("ベッドレベリング"); // "Bed leveling"
   LSTR MSG_LEVEL_BED                      = _UxGT("ベッドレベリング"); // "Level bed"
 
@@ -167,13 +167,22 @@ namespace LanguageNarrow_jp_kana {
   LSTR MSG_CONTROL_RETRACT_RECOVERF       = _UxGT("ホショウソクド mm/s"); // "Unretract V"
   LSTR MSG_AUTORETRACT                    = _UxGT("ジドウヒキコミ"); // "Auto-Retract"
   LSTR MSG_FILAMENTCHANGE                 = _UxGT("フィラメントコウカン"); // "Change filament"
-  LSTR MSG_ATTACH_MEDIA                   = _UxGT("メディアサイヨミコミ"); // "Init. SD card"
+
+  LSTR MSG_ATTACH_MEDIA                   = _UxGT("SDカードをマウントする"); // "Attach SD Card"
+  LSTR MSG_ATTACH_SD                      = _UxGT("SDカードをマウントする"); // "Attach SD Card"
+  LSTR MSG_ATTACH_USB                     = _UxGT("USBメモリをマウントする"); // "Attach USB Drive"
   LSTR MSG_CHANGE_MEDIA                   = _UxGT("メディアコウカン"); // "Change SD card"
+  LSTR MSG_RUN_AUTOFILES                  = _UxGT("ジドウカイシ"); // "Autostart"
+
   LSTR MSG_ZPROBE_OUT                     = _UxGT("Zプローブ ベッドガイ"); // "Z probe out. bed"
   LSTR MSG_BLTOUCH_SELFTEST               = _UxGT("BLTouch ジコシンダン"); // "BLTouch Self-Test"
   LSTR MSG_BLTOUCH_RESET                  = _UxGT("BLTouch リセット"); // "Reset BLTouch"
   LSTR MSG_HOME_FIRST                     = _UxGT("サキニ %s ヲフッキサセテクダサイ"); // "Home ... first"
+  LSTR MSG_ZPROBE_XOFFSET                 = _UxGT("Xオフセット"); // "X Offset"
+  LSTR MSG_ZPROBE_YOFFSET                 = _UxGT("Yオフセット"); // "Y Offset"
   LSTR MSG_ZPROBE_ZOFFSET                 = _UxGT("Zオフセット"); // "Z Offset"
+  LSTR MSG_ZPROBE_OFFSET_N                = _UxGT("@オフセット"); // "@ Offset"
+  LSTR MSG_BABYSTEP_PROBE_Z               = _UxGT("プローブZオフセット"); // "Babystep Probe Z"
   LSTR MSG_BABYSTEP_X                     = _UxGT("Xジク ビドウ"); // "Babystep X"
   LSTR MSG_BABYSTEP_Y                     = _UxGT("Yジク ビドウ"); // "Babystep Y"
   LSTR MSG_BABYSTEP_Z                     = _UxGT("Zジク ビドウ"); // "Babystep Z"

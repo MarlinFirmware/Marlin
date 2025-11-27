@@ -36,14 +36,14 @@ void ZOffsetScreen::onRedraw(draw_mode_t what) {
   widgets_t w(what);
   w.precision(2, BaseNumericAdjustmentScreen::DEFAULT_MIDRANGE).units(GET_TEXT_F(MSG_UNITS_MM));
 
-  w.heading(                  GET_TEXT_F(MSG_ZPROBE_ZOFFSET));
+  w.heading(                  GET_TEXT_F(MSG_BABYSTEP_PROBE_Z));
   w.color(z_axis).adjuster(4, GET_TEXT_F(MSG_ZPROBE_ZOFFSET), getZOffset_mm());
   w.increments();
   w.button(2, GET_TEXT_F(MSG_PROBE_WIZARD), !isPrinting());
 }
 
 bool ZOffsetScreen::onTouchHeld(uint8_t tag) {
-  const int16_t steps =   TERN(BABYSTEPPING, mmToWholeSteps(getIncrement(), Z), 0);
+  const int16_t steps =   TERN0(BABYSTEPPING, mmToWholeSteps(getIncrement(), Z));
   const float increment = TERN(BABYSTEPPING, mmFromWholeSteps(steps, Z), getIncrement());
   switch (tag) {
     case 2: ZOffsetWizard::runWizard(); break;

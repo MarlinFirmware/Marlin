@@ -36,29 +36,29 @@ namespace LanguageNarrow_fr {
   constexpr uint8_t CHARSIZE              = 2;
   LSTR LANGUAGE                           = _UxGT("Français");
 
-  LSTR WELCOME_MSG                        = MACHINE_NAME _UxGT(" prête.");
+  LSTR WELCOME_MSG                        = MACHINE_NAME_SUBST _UxGT(" prête.");
   LSTR MSG_YES                            = _UxGT("Oui");
   LSTR MSG_NO                             = _UxGT("Non");
   LSTR MSG_BACK                           = _UxGT("Retour");
+
   LSTR MSG_MEDIA_ABORTING                 = _UxGT("Annulation...");
   LSTR MSG_MEDIA_INSERTED                 = _UxGT("Média inséré");
   LSTR MSG_MEDIA_REMOVED                  = _UxGT("Média retiré");
-  LSTR MSG_MEDIA_WAITING                  = _UxGT("Attente média");
   LSTR MSG_MEDIA_READ_ERROR               = _UxGT("Err lecture média");
-  LSTR MSG_MEDIA_USB_REMOVED              = _UxGT("USB débranché");
-  LSTR MSG_MEDIA_USB_FAILED               = _UxGT("Erreur média USB");
+  LSTR MSG_USB_FD_DEVICE_REMOVED          = _UxGT("USB débranché");
+  LSTR MSG_USB_FD_USB_FAILED              = _UxGT("Erreur média USB");
+
   LSTR MSG_LCD_ENDSTOPS                   = _UxGT("Butées");
   LSTR MSG_LCD_SOFT_ENDSTOPS              = _UxGT("Butées SW");
   LSTR MSG_MAIN_MENU                      = _UxGT("Menu principal");
   LSTR MSG_ADVANCED_SETTINGS              = _UxGT("Config. avancée");
   LSTR MSG_CONFIGURATION                  = _UxGT("Configuration");
-  LSTR MSG_RUN_AUTO_FILES                 = _UxGT("Exéc. auto.gcode");
   LSTR MSG_DISABLE_STEPPERS               = _UxGT("Arrêter moteurs");
   LSTR MSG_DEBUG_MENU                     = _UxGT("Menu debug");
   LSTR MSG_PROGRESS_BAR_TEST              = _UxGT("Test barre progress.");
   LSTR MSG_HOMING                         = _UxGT("Origine");
   LSTR MSG_AUTO_HOME                      = _UxGT("Origine auto");
-  LSTR MSG_AUTO_HOME_A                    = _UxGT("Origine @ auto");
+  LSTR MSG_AUTO_HOME_N                    = _UxGT("Origine @ auto");
   LSTR MSG_AUTO_HOME_X                    = _UxGT("Origine X auto");
   LSTR MSG_AUTO_HOME_Y                    = _UxGT("Origine Y auto");
   LSTR MSG_AUTO_HOME_Z                    = _UxGT("Origine Z auto");
@@ -69,9 +69,9 @@ namespace LanguageNarrow_fr {
   LSTR MSG_LEVEL_BED_DONE                 = _UxGT("Mise à niveau OK!");
   LSTR MSG_Z_FADE_HEIGHT                  = _UxGT("Hauteur lissée");
   LSTR MSG_SET_HOME_OFFSETS               = _UxGT("Régl. décal origine");
-  LSTR MSG_HOME_OFFSET_X                  = _UxGT("Décal. origine X");
-  LSTR MSG_HOME_OFFSET_Y                  = _UxGT("Décal. origine Y");
-  LSTR MSG_HOME_OFFSET_Z                  = _UxGT("Décal. origine Z");
+  LSTR MSG_HOME_OFFSET_X                  = _UxGT("Décal. origine X"); // DWIN
+  LSTR MSG_HOME_OFFSET_Y                  = _UxGT("Décal. origine Y"); // DWIN
+  LSTR MSG_HOME_OFFSET_Z                  = _UxGT("Décal. origine Z"); // DWIN
   LSTR MSG_HOME_OFFSETS_APPLIED           = _UxGT("Décalages appliqués");
   LSTR MSG_TRAMMING_WIZARD                = _UxGT("Assistant Molettes");
   LSTR MSG_SELECT_ORIGIN                  = _UxGT("Molette du lit"); // Not a selection of the origin
@@ -103,6 +103,7 @@ namespace LanguageNarrow_fr {
   LSTR MSG_EXTRUDE                        = _UxGT("Extrusion");
   LSTR MSG_RETRACT                        = _UxGT("Rétractation");
   LSTR MSG_MOVE_AXIS                      = _UxGT("Déplacer un axe");
+  LSTR MSG_PROBE_AND_LEVEL                = _UxGT("Mesure et Niv.");
   LSTR MSG_BED_LEVELING                   = _UxGT("Régler Niv. lit");
   LSTR MSG_LEVEL_BED                      = _UxGT("Niveau du lit");
   LSTR MSG_BED_TRAMMING                   = _UxGT("Niveau des coins");
@@ -129,7 +130,7 @@ namespace LanguageNarrow_fr {
   LSTR MSG_IDEX_MODE_FULL_CTRL            = _UxGT("Contrôle complet");
   LSTR MSG_OFFSETS_MENU                   = _UxGT("Offsets Outil");
   LSTR MSG_HOTEND_OFFSET_Z                = _UxGT("Buse 2 Z");
-  LSTR MSG_HOTEND_OFFSET_A                = _UxGT("Buse 2 @");
+  LSTR MSG_HOTEND_OFFSET_N                = _UxGT("Buse 2 @");
   LSTR MSG_G26_HEATING_BED                = _UxGT("G26: Chauffage du lit");
   LSTR MSG_G26_HEATING_NOZZLE             = _UxGT("Buse en chauffe...");
   LSTR MSG_G26_MANUAL_PRIME               = _UxGT("Amorce manuelle...");
@@ -144,13 +145,10 @@ namespace LanguageNarrow_fr {
   LSTR MSG_UBL_BC_INSERT2                 = _UxGT("Mesure");
   LSTR MSG_UBL_BC_REMOVE                  = _UxGT("ôter et mesurer lit");
   LSTR MSG_UBL_MOVING_TO_NEXT             = _UxGT("Aller au suivant");
-  LSTR MSG_UBL_ACTIVATE_MESH              = _UxGT("Activer l'UBL");
-  LSTR MSG_UBL_DEACTIVATE_MESH            = _UxGT("Désactiver l'UBL");
   LSTR MSG_UBL_SET_TEMP_BED               = _UxGT("Température lit");
   LSTR MSG_UBL_BED_TEMP_CUSTOM            = _UxGT("Température lit");
   LSTR MSG_UBL_SET_TEMP_HOTEND            = _UxGT("Température buse");
   LSTR MSG_UBL_HOTEND_TEMP_CUSTOM         = _UxGT("Température buse");
-  LSTR MSG_UBL_MESH_EDIT                  = _UxGT("Modifier grille");
   LSTR MSG_UBL_EDIT_CUSTOM_MESH           = _UxGT("Modif. grille perso");
   LSTR MSG_UBL_FINE_TUNE_MESH             = _UxGT("Réglage fin");
   LSTR MSG_UBL_DONE_EDITING_MESH          = _UxGT("Terminer");
@@ -204,7 +202,8 @@ namespace LanguageNarrow_fr {
   LSTR MSG_UBL_7_SAVE_MESH                = _UxGT("7.Stocker grille");
 
   LSTR MSG_LED_CONTROL                    = _UxGT("Contrôle LED");
-  LSTR MSG_LEDS                           = _UxGT("Lumière");
+  LSTR MSG_LIGHTS                         = _UxGT("Lumière");
+  LSTR MSG_LIGHT_N                        = _UxGT("Lumière #{");
   LSTR MSG_LED_PRESETS                    = _UxGT("Préregl. LED");
   LSTR MSG_SET_LEDS_RED                   = _UxGT("Rouge");
   LSTR MSG_SET_LEDS_ORANGE                = _UxGT("Orange");
@@ -255,12 +254,14 @@ namespace LanguageNarrow_fr {
   LSTR MSG_AUTOTEMP                       = _UxGT("Temp. Auto.");
   LSTR MSG_LCD_ON                         = _UxGT("Marche");
   LSTR MSG_LCD_OFF                        = _UxGT("Arrêt");
+
   LSTR MSG_PID_AUTOTUNE                   = _UxGT("PID Autotune");
   LSTR MSG_PID_AUTOTUNE_E                 = _UxGT("PID Autotune *");
   LSTR MSG_PID_AUTOTUNE_DONE              = _UxGT("Tuning PID terminé");
   LSTR MSG_PID_BAD_HEATER_ID              = _UxGT("Echec Autotune! E incorrect");
   LSTR MSG_PID_TEMP_TOO_HIGH              = _UxGT("Echec Autotune! Temp. trop haute");
   LSTR MSG_PID_TIMEOUT                    = _UxGT("Echec Autotune! Opér. expirée");
+
   LSTR MSG_SELECT_E                       = _UxGT("Sélectionner *");
   LSTR MSG_ACC                            = _UxGT("Accélération");
   LSTR MSG_JERK                           = _UxGT("Jerk");
@@ -389,9 +390,14 @@ namespace LanguageNarrow_fr {
   LSTR MSG_FILAMENTUNLOAD                 = _UxGT("Retrait filament");
   LSTR MSG_FILAMENTUNLOAD_E               = _UxGT("Retrait filament *");
   LSTR MSG_FILAMENTUNLOAD_ALL             = _UxGT("Retirer tout");
-  LSTR MSG_ATTACH_MEDIA                   = _UxGT("Charger le média");
+
+  LSTR MSG_ATTACH_MEDIA                   = _UxGT("Charger le SD");
+  LSTR MSG_ATTACH_SD                      = _UxGT("Charger le SD");
+  LSTR MSG_ATTACH_USB                     = _UxGT("Charger le USB");
   LSTR MSG_CHANGE_MEDIA                   = _UxGT("Actualiser média");
   LSTR MSG_RELEASE_MEDIA                  = _UxGT("Retirer le média");
+  LSTR MSG_RUN_AUTOFILES                  = _UxGT("Exéc. auto.gcode");
+
   LSTR MSG_ZPROBE_OUT                     = _UxGT("Sonde Z hors lit");
   LSTR MSG_SKEW_FACTOR                    = _UxGT("Facteur écart");
   LSTR MSG_BLTOUCH                        = _UxGT("BLTouch");
@@ -418,6 +424,8 @@ namespace LanguageNarrow_fr {
   LSTR MSG_ZPROBE_XOFFSET                 = _UxGT("Décalage X");
   LSTR MSG_ZPROBE_YOFFSET                 = _UxGT("Décalage Y");
   LSTR MSG_ZPROBE_ZOFFSET                 = _UxGT("Décalage Z");
+  LSTR MSG_ZPROBE_OFFSET_N                = _UxGT("Décalage @");
+  LSTR MSG_BABYSTEP_PROBE_Z               = _UxGT("Babystep sonde Z");
   LSTR MSG_BABYSTEP_X                     = _UxGT("Babystep X");
   LSTR MSG_BABYSTEP_Y                     = _UxGT("Babystep Y");
   LSTR MSG_BABYSTEP_Z                     = _UxGT("Babystep Z");
@@ -563,7 +571,8 @@ namespace LanguageNarrow_fr {
   LSTR MSG_TMC_HYBRID_THRS                = _UxGT("Seuil hybride");
   LSTR MSG_TMC_HOMING_THRS                = _UxGT("Home sans capteur");
   LSTR MSG_TMC_STEPPING_MODE              = _UxGT("Mode pas à pas");
-  LSTR MSG_TMC_STEALTH_ENABLED            = _UxGT("StealthChop activé");
+  LSTR MSG_TMC_STEALTHCHOP                = _UxGT("StealthChop");
+
   LSTR MSG_SERVICE_RESET                  = _UxGT("Réinit.");
   LSTR MSG_SERVICE_IN                     = _UxGT("  dans:");
   LSTR MSG_BACKLASH_CORRECTION            = _UxGT("Correction");

@@ -51,16 +51,27 @@
    */
 
   #define X_SERIAL_TX_PIN                   PC1
-  #define X_SERIAL_RX_PIN                   PC1
-
   #define Y_SERIAL_TX_PIN                   PC0
-  #define Y_SERIAL_RX_PIN                   PC0
-
   #define Z_SERIAL_TX_PIN                   PA15
-  #define Z_SERIAL_RX_PIN                   PA15
-
   #define E0_SERIAL_TX_PIN                  PC14
-  #define E0_SERIAL_RX_PIN                  PC14
+
+  // Default TMC slave addresses
+  #ifndef X_SLAVE_ADDRESS
+    #define X_SLAVE_ADDRESS                    3
+  #endif
+  #ifndef Y_SLAVE_ADDRESS
+    #define Y_SLAVE_ADDRESS                    3
+  #endif
+  #ifndef Z_SLAVE_ADDRESS
+    #define Z_SLAVE_ADDRESS                    3
+  #endif
+  #ifndef E0_SLAVE_ADDRESS
+    #define E0_SLAVE_ADDRESS                   3
+  #endif
+  static_assert(X_SLAVE_ADDRESS == 3, "X_SLAVE_ADDRESS must be 3 for BOARD_SOVOL_V131.");
+  static_assert(Y_SLAVE_ADDRESS == 3, "Y_SLAVE_ADDRESS must be 3 for BOARD_SOVOL_V131.");
+  static_assert(Z_SLAVE_ADDRESS == 3, "Z_SLAVE_ADDRESS must be 3 for BOARD_SOVOL_V131.");
+  static_assert(E0_SLAVE_ADDRESS == 3, "E0_SLAVE_ADDRESS must be 3 for BOARD_SOVOL_V131.");
 
   // Reduce baud rate to improve software serial reliability
   #ifndef TMC_BAUD_RATE

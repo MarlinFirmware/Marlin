@@ -30,23 +30,60 @@
 #include "tft.h"
 #include "tft_image.h"
 
+#if ENABLED(SHOW_CUSTOM_BOOTSCREEN)
+
+  #include "../../../_Bootscreen.h"
+
+  #ifndef CUSTOM_BOOTSCREEN
+    #define CUSTOM_BOOTSCREEN         CustomBootscreen
+  #endif
+  #ifndef CUSTOM_BOOTSCREEN_WIDTH
+    #define CUSTOM_BOOTSCREEN_WIDTH   TFT_WIDTH
+  #endif
+  #ifndef CUSTOM_BOOTSCREEN_HEIGHT
+    #define CUSTOM_BOOTSCREEN_HEIGHT  TFT_HEIGHT
+  #endif
+
+  #ifndef CUSTOM_BOOTSCREEN_X
+    #define CUSTOM_BOOTSCREEN_X       ((TFT_WIDTH - (CUSTOM_BOOTSCREEN_WIDTH)) / 2)
+  #endif
+  #ifndef CUSTOM_BOOTSCREEN_Y
+    #define CUSTOM_BOOTSCREEN_Y       ((TFT_HEIGHT - (CUSTOM_BOOTSCREEN_HEIGHT)) / 2)
+  #endif
+
+  const tImage CustomBootscreen = CUSTOM_BOOTSCREEN_CHOSEN(CUSTOM_BOOTSCREEN_WIDTH, CUSTOM_BOOTSCREEN_HEIGHT);
+
+#endif // SHOW_CUSTOM_BOOTSCREEN
+
 #if ENABLED(TOUCH_SCREEN)
   #include "touch.h"
   extern bool draw_menu_navigation;
 #else
   // add_control() function is used to display encoder-controlled elements
-  enum TouchControlType : uint16_t {
-    NONE = 0x0000,
-  };
+  enum TouchControlType : uint16_t { NONE = 0x0000 };
 #endif
 
 #define UI_INCL_(W, H) STRINGIFY_(ui_##W##x##H.h)
 #define UI_INCL(W, H) UI_INCL_(W, H)
 
-#include "ui_theme.h"
 #include UI_INCL(TFT_WIDTH, TFT_HEIGHT)
+#include "ui_theme.h"
 #include "tft_font.h"
 #include "tft_color.h"
+
+#ifndef BOOTSCREEN_LOGO_X
+  #define BOOTSCREEN_LOGO_X (TFT_WIDTH - BOOTSCREEN_LOGO_W) / 2
+#endif
+#ifndef BOOTSCREEN_LOGO_Y
+  #define BOOTSCREEN_LOGO_Y (TFT_HEIGHT - BOOTSCREEN_LOGO_H) / 2
+#endif
+
+#ifndef MENU_EDIT_ITEM_RIGHT_X
+  #define MENU_EDIT_ITEM_RIGHT_X ((TFT_WIDTH) - (MENU_TEXT_X))
+#endif
+#ifndef MENU_ITEM_SUBMENU_ICON_X
+  #define MENU_ITEM_SUBMENU_ICON_X (TFT_WIDTH - 32)
+#endif
 
 // Common Implementation
 #define Z_SELECTION_Z 1
@@ -114,7 +151,7 @@ void draw_fan_status(uint16_t x, uint16_t y, const bool blink);
 
 void text_line(const uint16_t y, uint16_t color=COLOR_BACKGROUND);
 void menu_line(const uint8_t row, uint16_t color=COLOR_BACKGROUND);
-void menu_item(const uint8_t row, bool sel = false);
+uint16_t menu_item(const uint8_t row, bool sel = false);
 
 typedef void (*screenFunc_t)();
 void add_control(

@@ -51,42 +51,22 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
   if (event != LV_EVENT_RELEASED) return;
   switch (obj->mks_obj_id) {
     case ID_C_ADD:
-      if (!editingFlowrate) {
-        if (feedrate_percentage < MAX_EXT_SPEED_PERCENT - uiCfg.stepPrintSpeed)
-          feedrate_percentage += uiCfg.stepPrintSpeed;
-        else
-          feedrate_percentage = MAX_EXT_SPEED_PERCENT;
-      }
+      if (!editingFlowrate)
+        feedrate_percentage = _MIN(MAX_EXT_SPEED_PERCENT, feedrate_percentage + uiCfg.stepPrintSpeed);
       else {
-        if (planner.flow_percentage[0] < MAX_EXT_SPEED_PERCENT - uiCfg.stepPrintSpeed)
-          planner.flow_percentage[0] += uiCfg.stepPrintSpeed;
-        else
-          planner.flow_percentage[0] = MAX_EXT_SPEED_PERCENT;
-        planner.refresh_e_factor(0);
-        #if HAS_MULTI_EXTRUDER
-          planner.flow_percentage[1] = planner.flow_percentage[0];
-          planner.refresh_e_factor(1);
-        #endif
+        const int16_t new_flow = _MIN(MAX_EXT_SPEED_PERCENT, planner.flow_percentage[0] + uiCfg.stepPrintSpeed);
+        planner.set_flow(0, new_flow);
+        TERN_(HAS_MULTI_EXTRUDER, planner.set_flow(1, new_flow));
       }
       disp_print_speed();
       break;
     case ID_C_DEC:
-      if (!editingFlowrate) {
-        if (feedrate_percentage > MIN_EXT_SPEED_PERCENT + uiCfg.stepPrintSpeed)
-          feedrate_percentage -= uiCfg.stepPrintSpeed;
-        else
-          feedrate_percentage = MIN_EXT_SPEED_PERCENT;
-      }
+      if (!editingFlowrate)
+        feedrate_percentage = _MAX(MIN_EXT_SPEED_PERCENT, feedrate_percentage - uiCfg.stepPrintSpeed);
       else {
-        if (planner.flow_percentage[0] > MIN_EXT_SPEED_PERCENT + uiCfg.stepPrintSpeed)
-          planner.flow_percentage[0] -= uiCfg.stepPrintSpeed;
-        else
-          planner.flow_percentage[0] = MIN_EXT_SPEED_PERCENT;
-        planner.refresh_e_factor(0);
-        #if HAS_MULTI_EXTRUDER
-          planner.flow_percentage[1] = planner.flow_percentage[0];
-          planner.refresh_e_factor(1);
-        #endif
+        const int16_t new_flow = _MAX(MIN_EXT_SPEED_PERCENT, planner.flow_percentage[0] - uiCfg.stepPrintSpeed);
+        planner.set_flow(0, new_flow);
+        TERN_(HAS_MULTI_EXTRUDER, planner.set_flow(1, new_flow));
       }
       disp_print_speed();
       break;
@@ -101,12 +81,7 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
       disp_print_speed();
       break;
     case ID_C_STEP:
-      if (uiCfg.stepPrintSpeed == 1)
-        uiCfg.stepPrintSpeed = 5;
-      else if (uiCfg.stepPrintSpeed == 5)
-        uiCfg.stepPrintSpeed = 10;
-      else
-        uiCfg.stepPrintSpeed = 1;
+      uiCfg.stepPrintSpeed = (uiCfg.stepPrintSpeed == 5) ? 10 : (uiCfg.stepPrintSpeed == 1) ? 5 : 1;
       disp_speed_step();
       break;
     case ID_C_RETURN:
@@ -118,11 +93,11 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
 void lv_draw_change_speed() {
   scr = lv_screen_create(CHANGE_SPEED_UI);
   // Create an Image button
-  lv_big_button_create(scr, "F:/bmp_Add.bin", speed_menu.add, INTERVAL_V, titleHeight, event_handler, ID_C_ADD);
-  lv_big_button_create(scr, "F:/bmp_Dec.bin", speed_menu.dec, BTN_X_PIXEL * 3 + INTERVAL_V * 4, titleHeight, event_handler, ID_C_DEC);
-  buttonMov  = lv_imgbtn_create(scr, nullptr, INTERVAL_V, BTN_Y_PIXEL + INTERVAL_H + titleHeight, event_handler, ID_C_MOVE);
-  buttonExt  = lv_imgbtn_create(scr, nullptr, BTN_X_PIXEL + INTERVAL_V * 2, BTN_Y_PIXEL + INTERVAL_H + titleHeight, event_handler, ID_C_EXT);
-  buttonStep = lv_imgbtn_create(scr, nullptr, BTN_X_PIXEL * 2 + INTERVAL_V * 3, BTN_Y_PIXEL + INTERVAL_H + titleHeight, event_handler, ID_C_STEP);
+  lv_big_button_create(scr, "F:/bmp_Add.bin", speed_menu.add, INTERVAL_W, titleHeight, event_handler, ID_C_ADD);
+  lv_big_button_create(scr, "F:/bmp_Dec.bin", speed_menu.dec, BTN_SIZE_X * 3 + INTERVAL_W * 4, titleHeight, event_handler, ID_C_DEC);
+  buttonMov  = lv_imgbtn_create(scr, nullptr, INTERVAL_W, BTN_SIZE_Y + INTERVAL_H + titleHeight, event_handler, ID_C_MOVE);
+  buttonExt  = lv_imgbtn_create(scr, nullptr, BTN_SIZE_X + INTERVAL_W * 2, BTN_SIZE_Y + INTERVAL_H + titleHeight, event_handler, ID_C_EXT);
+  buttonStep = lv_imgbtn_create(scr, nullptr, BTN_SIZE_X * 2 + INTERVAL_W * 3, BTN_SIZE_Y + INTERVAL_H + titleHeight, event_handler, ID_C_STEP);
   #if HAS_ROTARY_ENCODER
     if (gCfgItems.encoder_enable) {
       lv_group_add_obj(g, buttonMov);
@@ -130,7 +105,7 @@ void lv_draw_change_speed() {
       lv_group_add_obj(g, buttonStep);
     }
   #endif
-  lv_big_button_create(scr, "F:/bmp_return.bin", common_menu.text_back, BTN_X_PIXEL * 3 + INTERVAL_V * 4, BTN_Y_PIXEL + INTERVAL_H + titleHeight, event_handler, ID_C_RETURN);
+  lv_big_button_create(scr, "F:/bmp_return.bin", common_menu.text_back, BTN_SIZE_X * 3 + INTERVAL_W * 4, BTN_SIZE_Y + INTERVAL_H + titleHeight, event_handler, ID_C_RETURN);
 
   // Create labels on the image buttons
   labelMov  = lv_label_create_empty(buttonMov);
