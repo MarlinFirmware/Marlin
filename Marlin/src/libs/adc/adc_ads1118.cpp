@@ -63,9 +63,9 @@ void ADS1118::startConversion(const uint8_t pair) {
 
   uint16_t config = 0x858B; // 0b 1000 0101 1000 1011 : SS start, single-ended off, gain ±2.048V, single-shot mode, 128SPS, ADC mode, Pullup enable, Write config
   switch (pair) {
+    default:
     case 0:  config |= (0x0 << ADS1118_CH_MASK); currentchannel = 0; break; // AIN0-AIN1
     case 1:  config |= (0x3 << ADS1118_CH_MASK); currentchannel = 1; break; // AIN2-AIN3
-    default: config |= (0x0 << ADS1118_CH_MASK); currentchannel = 0; break;
   }
 
   digitalWrite(cs_pin, LOW);
@@ -80,9 +80,8 @@ void ADS1118::startConversion(const uint8_t pair) {
 bool ADS1118::ready() {
   if (!isBusy) return true;
   if (millis() - startTime >= ADS1118_CONV_MS) {
-    uint16_t raw;
     digitalWrite(cs_pin, LOW);
-    transfer16(raw);
+    uint16_t raw = transfer16(0);
     digitalWrite(cs_pin, HIGH);
     lastValue = (int16_t)raw;
     isBusy = false;
@@ -104,9 +103,9 @@ void ADS1118::startContinuousConversion(const uint8_t channel_pair) {
   // 0x049B: read internal temp
   uint16_t config = 0x048B;
   switch (channel_pair) {
+    default:
     case 0:  config |= (0x0 << ADS1118_CH_MASK); currentchannel = 0; break; // AIN0-AIN1
     case 1:  config |= (0x3 << ADS1118_CH_MASK); currentchannel = 1; break; // AIN2-AIN3
-    default: config |= (0x0 << ADS1118_CH_MASK); currentchannel = 0; break;
   }
 
   digitalWrite(cs_pin, LOW);
