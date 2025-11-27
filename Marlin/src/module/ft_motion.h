@@ -84,6 +84,22 @@ typedef struct FTConfig {
 
   TrajectoryType trajectory_type = TrajectoryType::FTM_TRAJECTORY_TYPE; // Trajectory generator type
   float poly6_acceleration_overshoot; // Overshoot factor for Poly6 (1.25 to 2.0)
+
+  bool setActive(const bool a) {
+    if (a == active) return false;
+    stepper.ftMotion_syncPosition();
+    planner.synchronize();
+    active = a;
+    return true;
+  }
+
+  bool setShaper(const AxisEnum a, const ft_shaped_shaper_t s) {
+    if (newsh == shaper[a]) return false;
+    planner.synchronize();
+    shaper[a] = newsh;
+    return true;
+  }
+
 } ft_config_t;
 
 /**
@@ -168,8 +184,7 @@ class FTMotion {
 
     // Safely toggle the active state of FT Motion
     static bool toggle() {
-      stepper.ftMotion_syncPosition();
-      FLIP(cfg.active);
+      cfg.setActive(!cfg.active);
       update_shaping_params();
       return cfg.active;
     }
@@ -274,10 +289,10 @@ extern FTMotion ftMotion; // Use ftMotion.thing, not FTMotion::thing.
     bool isactive;
     FTMotionDisableInScope() {
       isactive = ftMotion.cfg.active;
-      ftMotion.cfg.active = false;
+      ftMotion.cfg.setActive(false);
     }
     ~FTMotionDisableInScope() {
-      ftMotion.cfg.active = isactive;
+      ftMotion.cfg.setActive(isactive);
       if (isactive) ftMotion.init();
     }
   } FTMotionDisableInScope_t;

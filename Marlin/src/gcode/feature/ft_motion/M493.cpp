@@ -209,15 +209,8 @@ void GcodeSuite::M493() {
     flag.report = true;
 
   // Parse 'S' mode parameter.
-  if (parser.seen('S')) {
-    const bool active = parser.value_bool();
-    if (active != ftMotion.cfg.active) {
-      stepper.ftMotion_syncPosition();
-      planner.synchronize();
-      ftMotion.cfg.active = active;
-      flag.report = true;
-    }
-  }
+  if (parser.seen('S') && ftMotion.cfg.setActive(parser.value_bool()))
+    flag.report = true;
 
   #if NUM_AXES_SHAPED > 0
 
@@ -229,11 +222,8 @@ void GcodeSuite::M493() {
       return;
     }
     auto set_shaper = [&](const AxisEnum axis, ftMotionShaper_t newsh) {
-      if (newsh != ftMotion.cfg.shaper[axis]) {
-        planner.synchronize();
-        ftMotion.cfg.shaper[axis] = newsh;
+      if (ftMotion.cfg.setShaper(axis, newsh))
         flag.update = flag.report = true;
-      }
     };
     if (seenC) {
       #define _SET_SHAPER(A) set_shaper(_AXIS(A), shaperVal);
