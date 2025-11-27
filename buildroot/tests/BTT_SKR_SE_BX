@@ -9,8 +9,5 @@ set -e
 #
 # Build with the default configurations
 #
-use_example_configs BIQU/BX
-exec_test $1 $2 "BIQU/BX" "$3"
-
-# clean up
-restore_configs
+use_example_configs BIQU/BX/base
+exec_test $1 $2 "BIQU/BX/base" "$3"

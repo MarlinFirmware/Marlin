@@ -37,6 +37,8 @@
   #define HAL_PATH(PATH, NAME) XSTR(PATH/HAL/LPC1768/NAME)
 #elif defined(ARDUINO_ARCH_HC32)
   #define HAL_PATH(PATH, NAME) XSTR(PATH/HAL/HC32/NAME)
+#elif defined(ARDUINO_ARCH_MFL)
+  #define HAL_PATH(PATH, NAME) XSTR(PATH/HAL/GD32_MFL/NAME)
 #elif defined(__STM32F1__) || defined(TARGET_STM32F1)
   #define HAL_PATH(PATH, NAME) XSTR(PATH/HAL/STM32F1/NAME)
 #elif defined(ARDUINO_ARCH_STM32)
@@ -54,6 +56,8 @@
   #define HAL_PATH(PATH, NAME) XSTR(PATH/HAL/SAMD51/NAME)
 #elif defined(__SAMD21__)
   #define HAL_PATH(PATH, NAME) XSTR(PATH/HAL/SAMD21/NAME)
+#elif defined(__PLAT_RP2040__)
+  #define HAL_PATH(PATH, NAME) XSTR(PATH/HAL/RP2040/NAME)
 #else
   #error "Unsupported Platform!"
 #endif

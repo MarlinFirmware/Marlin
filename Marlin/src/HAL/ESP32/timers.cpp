@@ -78,8 +78,8 @@ void IRAM_ATTR timer_isr(void *para) {
 
 /**
  * Enable and initialize the timer
- * @param timer_num timer number to initialize
- * @param frequency frequency of the timer
+ * @param timer_num   timer number to initialize
+ * @param frequency   frequency of the timer
  */
 void HAL_timer_start(const uint8_t timer_num, const uint32_t frequency) {
   const tTimerConfig timer = timer_config[timer_num];
@@ -90,7 +90,7 @@ void HAL_timer_start(const uint8_t timer_num, const uint32_t frequency) {
   config.counter_en  = TIMER_PAUSE;
   config.alarm_en    = TIMER_ALARM_EN;
   config.intr_type   = TIMER_INTR_LEVEL;
-  config.auto_reload = true;
+  config.auto_reload = TIMER_AUTORELOAD_EN;
 
   // Select and initialize the timer
   timer_init(timer.group, timer.idx, &config);

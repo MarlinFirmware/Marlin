@@ -34,7 +34,7 @@
 #define FORCE_INLINE __attribute__((always_inline)) inline
 
 typedef uint32_t hal_timer_t;
-#define HAL_TIMER_TYPE_MAX 0xFFFFFFFF
+#define HAL_TIMER_TYPE_MAX 0xFFFFFFFFUL
 
 #define HAL_TIMER_PRESCALER    2
 #define HAL_TIMER_RATE         ((F_CPU) / (HAL_TIMER_PRESCALER))  // frequency of timers peripherals
@@ -127,4 +127,4 @@ FORCE_INLINE static void HAL_timer_isr_prologue(const uint8_t timer_num) {
   pConfig->pTimerRegs->TC_CHANNEL[pConfig->channel].TC_SR;
 }
 
-#define HAL_timer_isr_epilogue(T) NOOP
+inline void HAL_timer_isr_epilogue(const uint8_t) {}

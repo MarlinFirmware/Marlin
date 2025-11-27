@@ -23,8 +23,7 @@
 
 /**
  * Geeetech GT2560 Revision A+ board pin assignments
- * Schematic: https://green-candy.osdn.jp/external/MarlinFW/board_schematics/Geeetech%20GT2560%20Revision%20A+/Hardware_GT2560_RevA+.pdf
- * Origin: https://www.geeetech.com/wiki/images/d/d3/Hardware_GT2560_RevA%2B.pdf
+ * Schematic: https://www.geeetech.com/wiki/images/d/d3/Hardware_GT2560_RevA%2B.pdf
  * ATmega2560
  */
 

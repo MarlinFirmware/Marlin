@@ -33,12 +33,11 @@ namespace LanguageNarrow_ca {
   constexpr uint8_t CHARSIZE              = 2;
   LSTR LANGUAGE                           = _UxGT("Catalan");
 
-  LSTR WELCOME_MSG                        = MACHINE_NAME _UxGT(" preparada.");
+  LSTR WELCOME_MSG                        = MACHINE_NAME_SUBST _UxGT(" preparada.");
   LSTR MSG_MEDIA_INSERTED                 = _UxGT("Targeta detectada.");
   LSTR MSG_MEDIA_REMOVED                  = _UxGT("Targeta extreta.");
   LSTR MSG_LCD_ENDSTOPS                   = _UxGT("Endstops");
   LSTR MSG_MAIN_MENU                      = _UxGT("Menú principal");
-  LSTR MSG_RUN_AUTO_FILES                 = _UxGT("Inici automatic");
   LSTR MSG_DISABLE_STEPPERS               = _UxGT("Desactiva motors");
   LSTR MSG_DEBUG_MENU                     = _UxGT("Menu de depuracio");
   LSTR MSG_PROGRESS_BAR_TEST              = _UxGT("Test barra progres");
@@ -75,6 +74,7 @@ namespace LanguageNarrow_ca {
   LSTR MSG_EXTRUDE                        = _UxGT("Extrudeix");
   LSTR MSG_RETRACT                        = _UxGT("Retreu");
   LSTR MSG_MOVE_AXIS                      = _UxGT("Mou eixos");
+  LSTR MSG_PROBE_AND_LEVEL                = _UxGT("Sonda i anivella");
   LSTR MSG_BED_LEVELING                   = _UxGT("Anivella llit");
   LSTR MSG_LEVEL_BED                      = _UxGT("Anivella llit");
 
@@ -144,12 +144,21 @@ namespace LanguageNarrow_ca {
   LSTR MSG_AUTORETRACT                    = _UxGT("Auto retraccio");
   LSTR MSG_FILAMENTCHANGE                 = _UxGT("Canvia filament");
   LSTR MSG_FILAMENTCHANGE_E               = _UxGT("Canvia filament *");
+
   LSTR MSG_ATTACH_MEDIA                   = _UxGT("Inicialitza SD");
+  LSTR MSG_ATTACH_SD                      = _UxGT("Inicialitza SD");
+  LSTR MSG_ATTACH_USB                     = _UxGT("Inicialitza USB");
   LSTR MSG_CHANGE_MEDIA                   = _UxGT("Canvia SD");
+  LSTR MSG_RUN_AUTOFILES                  = _UxGT("Inici automatic");
+
   LSTR MSG_ZPROBE_OUT                     = _UxGT("Sonda Z fora");
   LSTR MSG_BLTOUCH_RESET                  = _UxGT("Reinicia BLTouch");
   LSTR MSG_HOME_FIRST                     = _UxGT("Home %s primer");
+  LSTR MSG_ZPROBE_XOFFSET                 = _UxGT("Decalatge X");
+  LSTR MSG_ZPROBE_YOFFSET                 = _UxGT("Decalatge Y");
   LSTR MSG_ZPROBE_ZOFFSET                 = _UxGT("Decalatge Z");
+  LSTR MSG_ZPROBE_OFFSET_N                = _UxGT("Decalatge @");
+  LSTR MSG_BABYSTEP_PROBE_Z               = _UxGT("Pas a pas el Z");
   LSTR MSG_BABYSTEP_X                     = _UxGT("Micropas X");
   LSTR MSG_BABYSTEP_Y                     = _UxGT("Micropas Y");
   LSTR MSG_BABYSTEP_Z                     = _UxGT("Micropas Z");

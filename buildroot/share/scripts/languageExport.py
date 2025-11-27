@@ -1,21 +1,23 @@
 #!/usr/bin/env python3
 '''
-languageExport.py
+languageExport.py [--single]
 
 Export LCD language strings to CSV files for easier translation.
-Use importTranslations.py to import CSV into the language files.
+Use languageImport.py to import CSV into the language files.
 
+Use --single to export all languages to a single CSV file.
 '''
 
 import re
 from pathlib import Path
+from sys import argv
 from languageUtil import namebyid
 
 LANGHOME = "Marlin/src/lcd/language"
 
 # Write multiple sheets if true, otherwise write one giant sheet
-MULTISHEET = True
-OUTDIR = 'out-csv'
+MULTISHEET = '--single' not in argv[1:]
+OUTDIR = Path('out-csv')
 
 # Check for the path to the language files
 if not Path(LANGHOME).is_dir():
@@ -28,7 +30,7 @@ LIMIT = 0
 
 # A dictionary to contain strings for each language.
 # Init with 'en' so English will always be first.
-language_strings = { 'en': 0 }
+language_strings = { 'en': {} }
 
 # A dictionary to contain all distinct LCD string names
 names = {}
@@ -123,10 +125,10 @@ if MULTISHEET:
     #
     # Export a separate sheet for each language
     #
-    Path.mkdir(Path(OUTDIR), exist_ok=True)
+    OUTDIR.mkdir(exist_ok=True)
 
     for lang in langcodes:
-        with open("%s/language_%s.csv" % (OUTDIR, lang), 'w', encoding='utf-8') as f:
+        with open(OUTDIR / f"language_{lang}.csv", 'w', encoding='utf-8') as f:
             lname = lang + ' ' + namebyid(lang)
             header = ['name', lname, lname + ' (wide)', lname + ' (tall)']
             f.write('"' + '","'.join(header) + '"\n')

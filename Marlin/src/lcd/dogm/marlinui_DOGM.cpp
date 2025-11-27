@@ -197,7 +197,7 @@ bool MarlinUI::detected() { return true; }
       #endif
         {
           #if ENABLED(CUSTOM_BOOTSCREEN_ANIMATED_FRAME_TIME)
-            const uint8_t fr = _MIN(f, COUNT(custom_bootscreen_animation) - 1);
+            const uint8_t fr = ALIM(f, custom_bootscreen_animation);
             const millis_t frame_time = pgm_read_word(&custom_bootscreen_animation[fr].duration);
           #endif
           u8g.firstPage();
@@ -310,7 +310,22 @@ void MarlinUI::init_lcd() {
   #endif
 
   #if ANY(MKS_12864OLED, MKS_12864OLED_SSD1306, FYSETC_242_OLED_12864, ZONESTAR_12864OLED, K3D_242_OLED_CONTROLLER)
-    SET_OUTPUT(LCD_PINS_DC);
+
+    #if defined(LCD_PINS_DC) && LCD_PINS_DC != -1
+      #if IS_I2C_LCD
+        I2C_TypeDef *i2cInstance1 = (I2C_TypeDef *)pinmap_peripheral(digitalPinToPinName(DOGLCD_SDA_PIN), PinMap_I2C_SDA);
+        I2C_TypeDef *i2cInstance2 = (I2C_TypeDef *)pinmap_peripheral(digitalPinToPinName(DOGLCD_SCL_PIN), PinMap_I2C_SCL);
+        const bool isSoftI2C = !(i2cInstance1 && (i2cInstance1 == i2cInstance2)); // Using software I2C driver for LCD
+      #else
+        constexpr bool isSoftI2C = false;
+      #endif
+      if (!isSoftI2C) SET_OUTPUT(LCD_PINS_DC);  // For these LCDs, set as output if not using software I2C driver
+    #endif
+
+    #ifndef LCD_RESET_PIN
+      #define LCD_RESET_PIN LCD_PINS_RS
+    #endif
+
   #endif
 
   #if PIN_EXISTS(LCD_RESET)
@@ -374,10 +389,30 @@ void MarlinUI::draw_kill_screen() {
   } while (u8g.nextPage());
 }
 
-void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
+// Erase the LCD contents by drawing an empty box.
+void MarlinUI::clear_lcd() {
+  u8g.setColorIndex(0);
+  u8g.firstPage();
+  do {
+    u8g.drawBox(0, 0, u8g.getWidth(), u8g.getHeight());
+  } while (u8g.nextPage());
+  u8g.setColorIndex(1);
+}
+
+// U8G displays are drawn over multiple loops so must do their own clearing.
+void MarlinUI::clear_for_drawing() {
+  // Automatically cleared by Picture Loop
+}
 
 #if HAS_DISPLAY_SLEEP
-  void MarlinUI::sleep_display(const bool sleep/*=true*/) { sleep ? u8g.sleepOn() : u8g.sleepOff(); }
+  static bool asleep = false;
+  bool MarlinUI::display_is_asleep() { return asleep; }
+  void MarlinUI::sleep_display(const bool sleep/*=true*/) {
+    if (asleep != sleep) {
+      sleep ? u8g.sleepOn() : u8g.sleepOff();
+      asleep = sleep;
+    }
+  }
 #endif
 
 #if HAS_LCD_BRIGHTNESS
@@ -600,7 +635,7 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
       const uint8_t maxlen = LCD_WIDTH - isDir;
       if (isDir) lcd_put_lchar(LCD_STR_FOLDER[0]);
       const pixel_len_t pixw = maxlen * (MENU_FONT_WIDTH);
-      pixel_len_t n = pixw - lcd_put_u8str_max(ui.scrolled_filename(theCard, maxlen, row, sel), pixw);
+      pixel_len_t n = pixw - lcd_put_u8str_max(ui.scrolled_filename(theCard, maxlen, sel), pixw);
       for (; n > MENU_FONT_WIDTH; n -= MENU_FONT_WIDTH) lcd_put_u8str(F(" "));
     }
 

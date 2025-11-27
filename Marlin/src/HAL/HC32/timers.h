@@ -20,13 +20,14 @@
 #pragma once
 #include <stdint.h>
 #include <Timer0.h>
+#include "sysclock.h"
 
 //
 // Timer Types
 //
 typedef Timer0 *timer_channel_t;
 typedef uint16_t hal_timer_t;
-#define HAL_TIMER_TYPE_MAX 0xFFFF
+#define HAL_TIMER_TYPE_MAX 0xFFFFU
 
 //
 // Timer instances
@@ -38,88 +39,83 @@ extern Timer0 step_timer;
 // Timer Configurations
 //
 
-// TODO: some calculations (step irq min_step_rate) require the timer rate to be known at compile time
-//       this is not possible with the HC32F460, as the timer rate depends on PCLK1
-//       as a workaround, PCLK1 = 50MHz is assumed (check with clock dump in MarlinHAL::init())
-#define HAL_TIMER_RATE 50000000 // 50MHz
-// #define HAL_TIMER_RATE TIMER0_BASE_FREQUENCY
-
-// TODO: CYCLES_PER_MICROSECOND seems to be used by Marlin to calculate the number of cycles per microsecond in the timer ISRs
-//       by default, it uses F_CPU, but since that is not known at compile time for HC32, we overwrite it here
-#undef CYCLES_PER_MICROSECOND
-#define CYCLES_PER_MICROSECOND (HAL_TIMER_RATE / 1000000UL)
+/**
+ * HAL_TIMER_RATE must be known at compile time since it's used to calculate
+ * STEPPER_TIMER_RATE, which is used in 'constexpr' calculations.
+ * On the HC32F460 the timer rate depends on PCLK1, which is derived from the
+ * system clock configured at runtime.
+ * Thus we use the 'F_PCLK1' constant defined in 'sysclock.h'.
+ *
+ * See https://github.com/MarlinFirmware/Marlin/pull/27099 for more information.
+ *
+ * NOTE: If the 'constexpr' requirement is ever lifted, TIMER0_BASE_FREQUENCY could
+ * be used instead. Tho this would probably not make any noticeable difference.
+ */
+#define HAL_TIMER_RATE F_PCLK1
 
 // Temperature timer
-#define TEMP_TIMER_NUM (&temp_timer)
-#define TEMP_TIMER_PRIORITY DDL_IRQ_PRIORITY_02
-#define TEMP_TIMER_PRESCALE 16ul
-#define TEMP_TIMER_RATE 1000                 // 1kHz
-#define TEMP_TIMER_FREQUENCY TEMP_TIMER_RATE // Alias for Marlin
+#define MF_TIMER_TEMP         (&temp_timer)
+#define TEMP_TIMER_PRIORITY   DDL_IRQ_PRIORITY_02
+#define TEMP_TIMER_PRESCALE   16UL            // 12.5MHz
+#define TEMP_TIMER_RATE       1000            // 1kHz
+#define TEMP_TIMER_FREQUENCY  TEMP_TIMER_RATE // 1kHz also
 
 // Stepper timer
-#define STEP_TIMER_NUM (&step_timer)
-#define STEP_TIMER_PRIORITY DDL_IRQ_PRIORITY_01
-#define STEPPER_TIMER_PRESCALE 16ul
+#define MF_TIMER_STEP          (&step_timer)
+#define STEP_TIMER_PRIORITY    DDL_IRQ_PRIORITY_00  // Top priority, nothing else uses it
+#define STEPPER_TIMER_PRESCALE 16UL                 // 12.5MHz
 
-// TODO: STEPPER_TIMER_RATE seems to work fine like this, but requires further testing...
-#define STEPPER_TIMER_RATE (HAL_TIMER_RATE / STEPPER_TIMER_PRESCALE) // 50MHz / 16 = 3.125MHz
-#define STEPPER_TIMER_TICKS_PER_US (STEPPER_TIMER_RATE / 1000000)
+#define STEPPER_TIMER_RATE (HAL_TIMER_RATE / STEPPER_TIMER_PRESCALE)  // 50MHz / 16 = 3.125MHz
+#define STEPPER_TIMER_TICKS_PER_US (STEPPER_TIMER_RATE / 1000000UL)   // Integer 3
 
 // Pulse timer (== stepper timer)
-#define PULSE_TIMER_NUM STEP_TIMER_NUM
-#define PULSE_TIMER_PRESCALE STEPPER_TIMER_PRESCALE
-#define PULSE_TIMER_TICKS_PER_US STEPPER_TIMER_TICKS_PER_US
-
-//
-// Channel aliases
-//
-#define MF_TIMER_TEMP TEMP_TIMER_NUM
-#define MF_TIMER_STEP STEP_TIMER_NUM
-#define MF_TIMER_PULSE PULSE_TIMER_NUM
+#define MF_TIMER_PULSE            MF_TIMER_STEP
+#define PULSE_TIMER_PRESCALE      STEPPER_TIMER_PRESCALE
+#define PULSE_TIMER_TICKS_PER_US  STEPPER_TIMER_TICKS_PER_US
 
 //
 // HAL functions
 //
-void HAL_timer_start(const timer_channel_t timer_num, const uint32_t frequency);
+void HAL_timer_start(const timer_channel_t timer_ch, const uint32_t frequency);
 
 // Inlined since they are somewhat critical
 #define MARLIN_HAL_TIMER_INLINE_ATTR __attribute__((always_inline)) inline
 
-MARLIN_HAL_TIMER_INLINE_ATTR void HAL_timer_enable_interrupt(const timer_channel_t timer_num) {
-  timer_num->resume();
+MARLIN_HAL_TIMER_INLINE_ATTR void HAL_timer_enable_interrupt(const timer_channel_t timer_ch) {
+  timer_ch->resume();
 }
 
-MARLIN_HAL_TIMER_INLINE_ATTR void HAL_timer_disable_interrupt(const timer_channel_t timer_num) {
-  timer_num->pause();
+MARLIN_HAL_TIMER_INLINE_ATTR void HAL_timer_disable_interrupt(const timer_channel_t timer_ch) {
+  timer_ch->pause();
 }
 
-MARLIN_HAL_TIMER_INLINE_ATTR bool HAL_timer_interrupt_enabled(const timer_channel_t timer_num) {
-  return timer_num->isPaused();
+MARLIN_HAL_TIMER_INLINE_ATTR bool HAL_timer_interrupt_enabled(const timer_channel_t timer_ch) {
+  return timer_ch->isPaused();
 }
 
-MARLIN_HAL_TIMER_INLINE_ATTR void HAL_timer_set_compare(const timer_channel_t timer_num, const hal_timer_t compare) {
-  timer_num->setCompareValue(compare);
+MARLIN_HAL_TIMER_INLINE_ATTR void HAL_timer_set_compare(const timer_channel_t timer_ch, const hal_timer_t compare) {
+  timer_ch->setCompareValue(compare);
 }
 
-MARLIN_HAL_TIMER_INLINE_ATTR hal_timer_t HAL_timer_get_count(const timer_channel_t timer_num) {
-  return timer_num->getCount();
+MARLIN_HAL_TIMER_INLINE_ATTR hal_timer_t HAL_timer_get_count(const timer_channel_t timer_ch) {
+  return timer_ch->getCount();
 }
 
-MARLIN_HAL_TIMER_INLINE_ATTR void HAL_timer_isr_prologue(const timer_channel_t timer_num) {
-  timer_num->clearInterruptFlag();
+MARLIN_HAL_TIMER_INLINE_ATTR void HAL_timer_isr_prologue(const timer_channel_t timer_ch) {
+  timer_ch->clearInterruptFlag();
 }
 
-MARLIN_HAL_TIMER_INLINE_ATTR void HAL_timer_isr_epilogue(const timer_channel_t timer_num) {}
+inline void HAL_timer_isr_epilogue(const timer_channel_t) {}
 
 //
 // HAL function aliases
 //
-#define ENABLE_STEPPER_DRIVER_INTERRUPT() HAL_timer_enable_interrupt(STEP_TIMER_NUM)
-#define DISABLE_STEPPER_DRIVER_INTERRUPT() HAL_timer_disable_interrupt(STEP_TIMER_NUM)
-#define STEPPER_ISR_ENABLED() HAL_timer_interrupt_enabled(STEP_TIMER_NUM)
+#define ENABLE_STEPPER_DRIVER_INTERRUPT() HAL_timer_enable_interrupt(MF_TIMER_STEP)
+#define DISABLE_STEPPER_DRIVER_INTERRUPT() HAL_timer_disable_interrupt(MF_TIMER_STEP)
+#define STEPPER_ISR_ENABLED() HAL_timer_interrupt_enabled(MF_TIMER_STEP)
 
-#define ENABLE_TEMPERATURE_INTERRUPT() HAL_timer_enable_interrupt(TEMP_TIMER_NUM)
-#define DISABLE_TEMPERATURE_INTERRUPT() HAL_timer_disable_interrupt(TEMP_TIMER_NUM);
+#define ENABLE_TEMPERATURE_INTERRUPT() HAL_timer_enable_interrupt(MF_TIMER_TEMP)
+#define DISABLE_TEMPERATURE_INTERRUPT() HAL_timer_disable_interrupt(MF_TIMER_TEMP);
 
 //
 // HAL ISR callbacks
@@ -128,8 +124,8 @@ void Step_Handler();
 void Temp_Handler();
 
 #ifndef HAL_STEP_TIMER_ISR
-#define HAL_STEP_TIMER_ISR() void Step_Handler()
+  #define HAL_STEP_TIMER_ISR() void Step_Handler()
 #endif
 #ifndef HAL_TEMP_TIMER_ISR
-#define HAL_TEMP_TIMER_ISR() void Temp_Handler()
+  #define HAL_TEMP_TIMER_ISR() void Temp_Handler()
 #endif

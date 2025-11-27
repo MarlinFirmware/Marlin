@@ -138,7 +138,7 @@ SPISettings MAX31865::spiConfig = SPISettings(
  * @param ref_res   The resistance of the reference resistor, in ohms.
  * @param wire_res  The resistance of the wire connecting the sensor to the RTD, in ohms.
  */
-void MAX31865::begin(max31865_numwires_t wires, const_float_t zero_res, const_float_t ref_res, const_float_t wire_res) {
+void MAX31865::begin(max31865_numwires_t wires, const float zero_res, const float ref_res, const float wire_res) {
   resNormalizer = 100.0f / zero_res;  // reciprocal of resistance, scaled by 100
   refRes = ref_res;
   wireRes = wire_res;
@@ -346,7 +346,7 @@ inline uint16_t MAX31865::readRawImmediate() {
   }
   else {
     TERN_(MAX31865_USE_READ_ERROR_DETECTION, const millis_t ms = millis());
-    if (TERN0(MAX31865_USE_READ_ERROR_DETECTION, ABS((int)(lastRead - rtd)) > 500 && PENDING(ms, lastReadStamp + 1000))) {
+    if (TERN0(MAX31865_USE_READ_ERROR_DETECTION, ABS(int(lastRead - rtd)) > 500 && PENDING(ms, lastReadStamp, 1000UL))) {
       // If 2 readings within 1s differ too much (~20°C) it's a read error.
       lastFault = 0x01;
       lastRead |= 1;

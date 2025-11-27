@@ -143,13 +143,13 @@ public:
 
   // Set with format string and arguments, like printf
   template<typename... Args>
-  MString& setf_P(PGM_P const fmt, Args... more) { SNPRINTF_P(str, SIZE, fmt, more...); debug(F("setf_P")); return *this; }
+  MString& setf_P(PGM_P const pfmt, Args... more) { SNPRINTF_P(str, SIZE, pfmt, more...); debug(F("setf_P")); return *this; }
 
   template<typename... Args>
-  MString& setf(const char *fmt, Args... more)   { SNPRINTF(str, SIZE, fmt, more...);   debug(F("setf"));   return *this; }
+  MString& setf(const char *fmt, Args... more) { SNPRINTF(str, SIZE, fmt, more...); debug(F("setf")); return *this; }
 
   template<typename... Args>
-  MString& setf(FSTR_P const fmt, Args... more)  { return setf_P(FTOP(fmt), more...); }
+  MString& setf(FSTR_P const ffmt, Args... more) { return setf_P(FTOP(ffmt), more...); }
 
   // Chainable String appenders
   MString& append()                           { debug(F("nil")); return *this; } // for macros that might emit no output
@@ -206,9 +206,9 @@ public:
   MString& append(const spaces_t &s) { return append(repchr_t(' ', s.count)); }
 
   template<typename... Args>
-  MString& appendf_P(PGM_P const fmt, Args... more) {
+  MString& appendf_P(PGM_P const pfmt, Args... more) {
     int sz = length();
-    if (sz < SIZE) SNPRINTF_P(str + sz, SIZE - sz, fmt, more...);
+    if (sz < SIZE) SNPRINTF_P(str + sz, SIZE - sz, pfmt, more...);
     debug(F("appendf_P"));
     return *this;
   }
@@ -280,12 +280,11 @@ public:
   // Quick hash to detect change (e.g., to avoid expensive drawing)
   typedef IF<ENABLED(DJB2_HASH), uint32_t, uint16_t>::type hash_t;
   hash_t hash() const {
+    const int sz = length();
     #if ENABLED(DJB2_HASH)
       hash_t hval = 5381;
-      char c;
-      while ((c = *str++)) hval += (hval << 5) + c; // = hval * 33 + c
+      for (int i = 0; i < sz; i++) hval += (hval << 5) + str[i]; // = hval * 33 + c
     #else
-      const int sz = length();
       hash_t hval = hash_t(sz);
       for (int i = 0; i < sz; i++) hval = ((hval << 1) | (hval >> 15)) ^ str[i]; // ROL, XOR
     #endif
@@ -298,6 +297,9 @@ public:
   MString& clear() { return set(); }
   MString& eol() { return append('\n'); }
   MString& trunc(const int &i) { if (i <= SIZE) str[i] = '\0'; debug(F("trunc")); return *this; }
+  MString& ltrim() { char *s = str; while (*s == ' ') ++s; if (s != str) strcpy(str, s); return *this; }
+  MString& rtrim() { int s = length(); while (s && str[s - 1] == ' ') --s; str[s] = '\0'; return *this; }
+  MString& trim() { return rtrim().ltrim(); }
 
   // Truncate on a Unicode boundary
   MString& utrunc(const int &n=SIZE) {

@@ -186,13 +186,13 @@ void HostUI::action(FSTR_P const fstr, const bool eol) {
         switch (response) {
 
           case 0: // "Purge More" button
-            #if ALL(M600_PURGE_MORE_RESUMABLE, ADVANCED_PAUSE_FEATURE)
+            #if ENABLED(M600_PURGE_MORE_RESUMABLE)
               pause_menu_response = PAUSE_RESPONSE_EXTRUDE_MORE;  // Simulate menu selection (menu exits, doesn't extrude more)
             #endif
             break;
 
           case 1: // "Continue" / "Disable Runout" button
-            #if ALL(M600_PURGE_MORE_RESUMABLE, ADVANCED_PAUSE_FEATURE)
+            #if ENABLED(M600_PURGE_MORE_RESUMABLE)
               pause_menu_response = PAUSE_RESPONSE_RESUME_PRINT;  // Simulate menu selection
             #endif
             #if HAS_FILAMENT_SENSOR

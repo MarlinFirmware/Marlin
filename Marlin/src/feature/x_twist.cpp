@@ -30,7 +30,7 @@ XATC xatc;
 
 bool XATC::enabled;
 float XATC::spacing, XATC::start;
-xatc_array_t XATC::z_offset; // Initialized by settings.load()
+xatc_array_t XATC::z_offset; // Initialized by settings.load
 
 void XATC::reset() {
   constexpr float xzo[] = XATC_Z_OFFSETS;
@@ -53,7 +53,7 @@ void XATC::print_points() {
   SERIAL_EOL();
 }
 
-float lerp(const_float_t t, const_float_t a, const_float_t b) { return a + t * (b - a); }
+float lerp(const float t, const float a, const float b) { return a + t * (b - a); }
 
 float XATC::compensation(const xy_pos_t &raw) {
   if (!enabled) return 0;

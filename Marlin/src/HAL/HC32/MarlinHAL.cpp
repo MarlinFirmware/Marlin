@@ -123,6 +123,11 @@ void MarlinHAL::init() {
 
   // Register min serial
   TERN_(POSTMORTEM_DEBUGGING, install_min_serial());
+
+  // warn if low memory after init
+  if (freeMemory() < 1024) {
+    SERIAL_WARN_MSG("HAL: low memory after init!\n");
+  }
 }
 
 void MarlinHAL::init_board() {}
@@ -147,7 +152,31 @@ void MarlinHAL::delay_ms(const int ms) {
   delay(ms);
 }
 
-void MarlinHAL::idletask() {}
+void MarlinHAL::idletask() {
+  #if ENABLED(MARLIN_DEV_MODE)
+    // check & print serial RX errors
+    MSerialT *serials[] = { &MSerial1, &MSerial2 };
+    for (int serial = 0; serial < 2; serial++) {
+      usart_receive_error_t err = serials[serial]->getReceiveError();
+      if (err != usart_receive_error_t::None) {
+        // "Warning: MSerial[n] RX [Framing|Parity|Overrun] Error"
+        SERIAL_WARN_START();
+        SERIAL_ECHOPGM(" MSerial");
+        SERIAL_ECHO(serial + 1);
+        SERIAL_ECHOPGM(" RX ");
+        switch(err) {
+          case usart_receive_error_t::FramingError: SERIAL_ECHOPGM("Framing"); break;
+          case usart_receive_error_t::ParityError:  SERIAL_ECHOPGM("Parity");  break;
+          case usart_receive_error_t::OverrunError: SERIAL_ECHOPGM("Overrun"); break;
+          case usart_receive_error_t::RxDataDropped: SERIAL_ECHOPGM("DataDropped"); break;
+          default: break;
+        }
+        SERIAL_ECHOPGM(" Error");
+        SERIAL_EOL();
+      }
+    }
+  #endif
+}
 
 uint8_t MarlinHAL::get_reset_source() {
   // Query reset cause from RMU
@@ -203,7 +232,9 @@ int MarlinHAL::freeMemory() {
   return &top - _sbrk(0);
 }
 
-void MarlinHAL::adc_init() {}
+void MarlinHAL::adc_init() {
+  analogReadResolution(HAL_ADC_RESOLUTION);
+}
 
 void MarlinHAL::adc_enable(const pin_t pin) {
   #if TEMP_SENSOR_SOC
