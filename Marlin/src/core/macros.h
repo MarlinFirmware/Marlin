@@ -209,7 +209,10 @@
 // "Ternary" that emits or omits the given content
 #define EMIT(V...) V
 #define OMIT(...)
-#define TERN_(O,A)          _TERN(_ENA_1(O),OMIT,EMIT)(A) // OPTION ? 'A' : '<nul>'
+#define TERN_(O,A)          TERF(O,EMIT)(A)         // OPTION ? 'A' : '<nul>'   ; Usage: TERN_(OPTION, EMITTHIS)
+
+// Call G(...) or swallow with OMIT(...)
+#define TERF(O,G)           _TERN(_ENA_1(O),OMIT,G) // OPTION ? 'G' : 'OMIT'    ; Usage: TERF(OPTION, CALLTHIS)(ARGS...)
 
 // Macros to conditionally emit array items and function arguments
 #define _OPTITEM(A...)      A,

@@ -185,7 +185,6 @@ class FTMotion {
       return cfg.active ? axis_move_dir[axis] : stepper.last_direction_bits[axis];
     }
 
-
     static stepping_t stepping;
     FORCE_INLINE static bool stepper_plan_is_empty() {
       return stepper_plan_head == stepper_plan_tail;
@@ -261,6 +260,7 @@ class FTMotion {
     static stepper_plan_t stepper_plan_buff[FTM_BUFFER_SIZE];
     static uint32_t stepper_plan_tail, stepper_plan_head;
     static XYZEval<int64_t> curr_steps_q32_32;
+
 }; // class FTMotion
 
 extern FTMotion ftMotion; // Use ftMotion.thing, not FTMotion::thing.

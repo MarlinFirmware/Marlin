@@ -221,6 +221,11 @@ class Endstops {
       ;
     }
 
+    /**
+     * Get a particular endstop state
+     */
+    FORCE_INLINE static bool state(const EndstopEnum es) { return TEST(state(), es); }
+
     static bool probe_switch_activated() {
       return (true
         #if ENABLED(PROBE_ACTIVATION_SWITCH)

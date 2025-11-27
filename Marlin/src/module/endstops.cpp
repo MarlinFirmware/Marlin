@@ -133,90 +133,34 @@ Endstops::endstop_mask_t Endstops::live_state = 0;
 void Endstops::init() {
 
   #define _INIT_ENDSTOP(T,A,N) TERN(ENDSTOPPULLUP_##A##T, SET_INPUT_PULLUP, TERN(ENDSTOPPULLDOWN_##A##T, SET_INPUT_PULLDOWN, SET_INPUT))(A##N##_##T##_PIN)
-  #if USE_X_MIN
-    _INIT_ENDSTOP(MIN,X,);
-  #endif
-  #if USE_X_MAX
-    _INIT_ENDSTOP(MAX,X,);
-  #endif
-  #if USE_X2_MIN
-    _INIT_ENDSTOP(MIN,X,2);
-  #endif
-  #if USE_X2_MAX
-    _INIT_ENDSTOP(MAX,X,2);
-  #endif
-  #if USE_Y_MIN
-    _INIT_ENDSTOP(MIN,Y,);
-  #endif
-  #if USE_Y_MAX
-    _INIT_ENDSTOP(MAX,Y,);
-  #endif
-  #if USE_Y2_MIN
-    _INIT_ENDSTOP(MIN,Y,2);
-  #endif
-  #if USE_Y2_MAX
-    _INIT_ENDSTOP(MAX,Y,2);
-  #endif
-  #if USE_Z_MIN
-    _INIT_ENDSTOP(MIN,Z,);
-  #endif
-  #if USE_Z_MAX
-    _INIT_ENDSTOP(MAX,Z,);
-  #endif
-  #if USE_Z2_MIN
-    _INIT_ENDSTOP(MIN,Z,2);
-  #endif
-  #if USE_Z2_MAX
-    _INIT_ENDSTOP(MAX,Z,2);
-  #endif
-  #if USE_Z3_MIN
-    _INIT_ENDSTOP(MIN,Z,3);
-  #endif
-  #if USE_Z3_MAX
-    _INIT_ENDSTOP(MAX,Z,3);
-  #endif
-  #if USE_Z4_MIN
-    _INIT_ENDSTOP(MIN,Z,4);
-  #endif
-  #if USE_Z4_MAX
-    _INIT_ENDSTOP(MAX,Z,4);
-  #endif
-  #if USE_I_MIN
-    _INIT_ENDSTOP(MIN,I,);
-  #endif
-  #if USE_I_MAX
-    _INIT_ENDSTOP(MAX,I,);
-  #endif
-  #if USE_J_MIN
-    _INIT_ENDSTOP(MIN,J,);
-  #endif
-  #if USE_J_MAX
-    _INIT_ENDSTOP(MAX,J,);
-  #endif
-  #if USE_K_MIN
-    _INIT_ENDSTOP(MIN,K,);
-  #endif
-  #if USE_K_MAX
-    _INIT_ENDSTOP(MAX,K,);
-  #endif
-  #if USE_U_MIN
-    _INIT_ENDSTOP(MIN,U,);
-  #endif
-  #if USE_U_MAX
-    _INIT_ENDSTOP(MAX,U,);
-  #endif
-  #if USE_V_MIN
-    _INIT_ENDSTOP(MIN,V,);
-  #endif
-  #if USE_V_MAX
-    _INIT_ENDSTOP(MAX,V,);
-  #endif
-  #if USE_W_MIN
-    _INIT_ENDSTOP(MIN,W,);
-  #endif
-  #if USE_W_MAX
-    _INIT_ENDSTOP(MAX,W,);
-  #endif
+  TERF(USE_X_MIN,  _INIT_ENDSTOP)(MIN,X,);
+  TERF(USE_X_MAX,  _INIT_ENDSTOP)(MAX,X,);
+  TERF(USE_X2_MIN, _INIT_ENDSTOP)(MIN,X,2);
+  TERF(USE_X2_MAX, _INIT_ENDSTOP)(MAX,X,2);
+  TERF(USE_Y_MIN,  _INIT_ENDSTOP)(MIN,Y,);
+  TERF(USE_Y_MAX,  _INIT_ENDSTOP)(MAX,Y,);
+  TERF(USE_Y2_MIN, _INIT_ENDSTOP)(MIN,Y,2);
+  TERF(USE_Y2_MAX, _INIT_ENDSTOP)(MAX,Y,2);
+  TERF(USE_Z_MIN,  _INIT_ENDSTOP)(MIN,Z,);
+  TERF(USE_Z_MAX,  _INIT_ENDSTOP)(MAX,Z,);
+  TERF(USE_Z2_MIN, _INIT_ENDSTOP)(MIN,Z,2);
+  TERF(USE_Z2_MAX, _INIT_ENDSTOP)(MAX,Z,2);
+  TERF(USE_Z3_MIN, _INIT_ENDSTOP)(MIN,Z,3);
+  TERF(USE_Z3_MAX, _INIT_ENDSTOP)(MAX,Z,3);
+  TERF(USE_Z4_MIN, _INIT_ENDSTOP)(MIN,Z,4);
+  TERF(USE_Z4_MAX, _INIT_ENDSTOP)(MAX,Z,4);
+  TERF(USE_I_MIN,  _INIT_ENDSTOP)(MIN,I,);
+  TERF(USE_I_MAX,  _INIT_ENDSTOP)(MAX,I,);
+  TERF(USE_J_MIN,  _INIT_ENDSTOP)(MIN,J,);
+  TERF(USE_J_MAX,  _INIT_ENDSTOP)(MAX,J,);
+  TERF(USE_K_MIN,  _INIT_ENDSTOP)(MIN,K,);
+  TERF(USE_K_MAX,  _INIT_ENDSTOP)(MAX,K,);
+  TERF(USE_U_MIN,  _INIT_ENDSTOP)(MIN,U,);
+  TERF(USE_U_MAX,  _INIT_ENDSTOP)(MAX,U,);
+  TERF(USE_V_MIN,  _INIT_ENDSTOP)(MIN,V,);
+  TERF(USE_V_MAX,  _INIT_ENDSTOP)(MAX,V,);
+  TERF(USE_W_MIN,  _INIT_ENDSTOP)(MIN,W,);
+  TERF(USE_W_MAX,  _INIT_ENDSTOP)(MAX,W,);
 
   #if USE_CALIBRATION
     #if ENABLED(CALIBRATION_PIN_PULLUP)
@@ -458,99 +402,41 @@ void __O2 Endstops::report_states() {
   TERN_(BLTOUCH, bltouch._set_SW_mode());
   SERIAL_ECHOLNPGM(STR_M119_REPORT);
   #define ES_REPORT(S) print_es_state(READ_ENDSTOP(S##_PIN) == S##_ENDSTOP_HIT_STATE, F(STR_##S))
-  #if USE_X_MIN
-    ES_REPORT(X_MIN);
-  #endif
-  #if USE_X2_MIN
-    ES_REPORT(X2_MIN);
-  #endif
-  #if USE_X_MAX
-    ES_REPORT(X_MAX);
-  #endif
-  #if USE_X2_MAX
-    ES_REPORT(X2_MAX);
-  #endif
-  #if USE_Y_MIN
-    ES_REPORT(Y_MIN);
-  #endif
-  #if USE_Y2_MIN
-    ES_REPORT(Y2_MIN);
-  #endif
-  #if USE_Y_MAX
-    ES_REPORT(Y_MAX);
-  #endif
-  #if USE_Y2_MAX
-    ES_REPORT(Y2_MAX);
-  #endif
-  #if USE_Z_MIN
-    ES_REPORT(Z_MIN);
-  #endif
-  #if USE_Z2_MIN
-    ES_REPORT(Z2_MIN);
-  #endif
-  #if USE_Z3_MIN
-    ES_REPORT(Z3_MIN);
-  #endif
-  #if USE_Z4_MIN
-    ES_REPORT(Z4_MIN);
-  #endif
-  #if USE_Z_MAX
-    ES_REPORT(Z_MAX);
-  #endif
-  #if USE_Z2_MAX
-    ES_REPORT(Z2_MAX);
-  #endif
-  #if USE_Z3_MAX
-    ES_REPORT(Z3_MAX);
-  #endif
-  #if USE_Z4_MAX
-    ES_REPORT(Z4_MAX);
-  #endif
-  #if USE_I_MIN
-    ES_REPORT(I_MIN);
-  #endif
-  #if USE_I_MAX
-    ES_REPORT(I_MAX);
-  #endif
-  #if USE_J_MIN
-    ES_REPORT(J_MIN);
-  #endif
-  #if USE_J_MAX
-    ES_REPORT(J_MAX);
-  #endif
-  #if USE_K_MIN
-    ES_REPORT(K_MIN);
-  #endif
-  #if USE_K_MAX
-    ES_REPORT(K_MAX);
-  #endif
-  #if USE_U_MIN
-    ES_REPORT(U_MIN);
-  #endif
-  #if USE_U_MAX
-    ES_REPORT(U_MAX);
-  #endif
-  #if USE_V_MIN
-    ES_REPORT(V_MIN);
-  #endif
-  #if USE_V_MAX
-    ES_REPORT(V_MAX);
-  #endif
-  #if USE_W_MIN
-    ES_REPORT(W_MIN);
-  #endif
-  #if USE_W_MAX
-    ES_REPORT(W_MAX);
-  #endif
-  #if ENABLED(PROBE_ACTIVATION_SWITCH)
-    print_es_state(probe_switch_activated(), F(STR_PROBE_EN));
-  #endif
-  #if USE_Z_MIN_PROBE
-    print_es_state(PROBE_TRIGGERED(), F(STR_Z_PROBE));
-  #endif
-  #if USE_CALIBRATION
-    print_es_state(READ(CALIBRATION_PIN) != CALIBRATION_PIN_INVERTING, F(STR_CALIBRATION));
-  #endif
+  TERF(USE_X_MIN,  ES_REPORT)(X_MIN);
+  TERF(USE_X2_MIN, ES_REPORT)(X2_MIN);
+  TERF(USE_X_MAX,  ES_REPORT)(X_MAX);
+  TERF(USE_X2_MAX, ES_REPORT)(X2_MAX);
+  TERF(USE_Y_MIN,  ES_REPORT)(Y_MIN);
+  TERF(USE_Y2_MIN, ES_REPORT)(Y2_MIN);
+  TERF(USE_Y_MAX,  ES_REPORT)(Y_MAX);
+  TERF(USE_Y2_MAX, ES_REPORT)(Y2_MAX);
+  TERF(USE_Z_MIN,  ES_REPORT)(Z_MIN);
+  TERF(USE_Z2_MIN, ES_REPORT)(Z2_MIN);
+  TERF(USE_Z3_MIN, ES_REPORT)(Z3_MIN);
+  TERF(USE_Z4_MIN, ES_REPORT)(Z4_MIN);
+  TERF(USE_Z_MAX,  ES_REPORT)(Z_MAX);
+  TERF(USE_Z2_MAX, ES_REPORT)(Z2_MAX);
+  TERF(USE_Z3_MAX, ES_REPORT)(Z3_MAX);
+  TERF(USE_Z4_MAX, ES_REPORT)(Z4_MAX);
+  TERF(USE_I_MIN,  ES_REPORT)(I_MIN);
+  TERF(USE_I_MAX,  ES_REPORT)(I_MAX);
+  TERF(USE_J_MIN,  ES_REPORT)(J_MIN);
+  TERF(USE_J_MAX,  ES_REPORT)(J_MAX);
+  TERF(USE_K_MIN,  ES_REPORT)(K_MIN);
+  TERF(USE_K_MAX,  ES_REPORT)(K_MAX);
+  TERF(USE_U_MIN,  ES_REPORT)(U_MIN);
+  TERF(USE_U_MAX,  ES_REPORT)(U_MAX);
+  TERF(USE_V_MIN,  ES_REPORT)(V_MIN);
+  TERF(USE_V_MAX,  ES_REPORT)(V_MAX);
+  TERF(USE_W_MIN,  ES_REPORT)(W_MIN);
+  TERF(USE_W_MAX,  ES_REPORT)(W_MAX);
+
+  TERF(PROBE_ACTIVATION_SWITCH, print_es_state)(probe_switch_activated(), F(STR_PROBE_EN));
+
+  TERF(USE_Z_MIN_PROBE, print_es_state)(PROBE_TRIGGERED(), F(STR_Z_PROBE));
+
+  TERF(USE_CALIBRATION, print_es_state)(READ(CALIBRATION_PIN) != CALIBRATION_PIN_INVERTING, F(STR_CALIBRATION));
+
   #if MULTI_FILAMENT_SENSOR
     #define _CASE_RUNOUT(N) do{ \
       SERIAL_ECHO(F(STR_FILAMENT)); \
@@ -719,42 +605,18 @@ void Endstops::update() {
     COPY_LIVE_STATE(Z_MAX, Z4_MAX);
   #endif
 
-  #if USE_I_MIN
-    UPDATE_LIVE_STATE(I, MIN);
-  #endif
-  #if USE_I_MAX
-    UPDATE_LIVE_STATE(I, MAX);
-  #endif
-  #if USE_J_MIN
-    UPDATE_LIVE_STATE(J, MIN);
-  #endif
-  #if USE_J_MAX
-    UPDATE_LIVE_STATE(J, MAX);
-  #endif
-  #if USE_K_MIN
-    UPDATE_LIVE_STATE(K, MIN);
-  #endif
-  #if USE_K_MAX
-    UPDATE_LIVE_STATE(K, MAX);
-  #endif
-  #if USE_U_MIN
-    UPDATE_LIVE_STATE(U, MIN);
-  #endif
-  #if USE_U_MAX
-    UPDATE_LIVE_STATE(U, MAX);
-  #endif
-  #if USE_V_MIN
-    UPDATE_LIVE_STATE(V, MIN);
-  #endif
-  #if USE_V_MAX
-    UPDATE_LIVE_STATE(V, MAX);
-  #endif
-  #if USE_W_MIN
-    UPDATE_LIVE_STATE(W, MIN);
-  #endif
-  #if USE_W_MAX
-    UPDATE_LIVE_STATE(W, MAX);
-  #endif
+  TERF(USE_I_MIN, UPDATE_LIVE_STATE)(I, MIN);
+  TERF(USE_I_MAX, UPDATE_LIVE_STATE)(I, MAX);
+  TERF(USE_J_MIN, UPDATE_LIVE_STATE)(J, MIN);
+  TERF(USE_J_MAX, UPDATE_LIVE_STATE)(J, MAX);
+  TERF(USE_K_MIN, UPDATE_LIVE_STATE)(K, MIN);
+  TERF(USE_K_MAX, UPDATE_LIVE_STATE)(K, MAX);
+  TERF(USE_U_MIN, UPDATE_LIVE_STATE)(U, MIN);
+  TERF(USE_U_MAX, UPDATE_LIVE_STATE)(U, MAX);
+  TERF(USE_V_MIN, UPDATE_LIVE_STATE)(V, MIN);
+  TERF(USE_V_MAX, UPDATE_LIVE_STATE)(V, MAX);
+  TERF(USE_W_MIN, UPDATE_LIVE_STATE)(W, MIN);
+  TERF(USE_W_MAX, UPDATE_LIVE_STATE)(W, MAX);
 
   #if ENDSTOP_NOISE_THRESHOLD
 
@@ -1225,192 +1087,71 @@ void Endstops::update() {
     uint16_t live_state_local = 0;
 
     #define ES_GET_STATE(S) if (READ_ENDSTOP(S##_PIN)) SBI(live_state_local, S)
-
-    #if USE_X_MIN
-      ES_GET_STATE(X_MIN);
-    #endif
-    #if USE_X_MAX
-      ES_GET_STATE(X_MAX);
-    #endif
-    #if USE_Y_MIN
-      ES_GET_STATE(Y_MIN);
-    #endif
-    #if USE_Y_MAX
-      ES_GET_STATE(Y_MAX);
-    #endif
-    #if USE_Z_MIN
-      ES_GET_STATE(Z_MIN);
-    #endif
-    #if USE_Z_MAX
-      ES_GET_STATE(Z_MAX);
-    #endif
-    #if USE_Z_MIN_PROBE
-      ES_GET_STATE(Z_MIN_PROBE);
-    #endif
-    #if USE_CALIBRATION
-      ES_GET_STATE(CALIBRATION);
-    #endif
-    #if USE_X2_MIN
-      ES_GET_STATE(X2_MIN);
-    #endif
-    #if USE_X2_MAX
-      ES_GET_STATE(X2_MAX);
-    #endif
-    #if USE_Y2_MIN
-      ES_GET_STATE(Y2_MIN);
-    #endif
-    #if USE_Y2_MAX
-      ES_GET_STATE(Y2_MAX);
-    #endif
-    #if USE_Z2_MIN
-      ES_GET_STATE(Z2_MIN);
-    #endif
-    #if USE_Z2_MAX
-      ES_GET_STATE(Z2_MAX);
-    #endif
-    #if USE_Z3_MIN
-      ES_GET_STATE(Z3_MIN);
-    #endif
-    #if USE_Z3_MAX
-      ES_GET_STATE(Z3_MAX);
-    #endif
-    #if USE_Z4_MIN
-      ES_GET_STATE(Z4_MIN);
-    #endif
-    #if USE_Z4_MAX
-      ES_GET_STATE(Z4_MAX);
-    #endif
-    #if USE_I_MAX
-      ES_GET_STATE(I_MAX);
-    #endif
-    #if USE_I_MIN
-      ES_GET_STATE(I_MIN);
-    #endif
-    #if USE_J_MAX
-      ES_GET_STATE(J_MAX);
-    #endif
-    #if USE_J_MIN
-      ES_GET_STATE(J_MIN);
-    #endif
-    #if USE_K_MAX
-      ES_GET_STATE(K_MAX);
-    #endif
-    #if USE_K_MIN
-      ES_GET_STATE(K_MIN);
-    #endif
-    #if USE_U_MAX
-      ES_GET_STATE(U_MAX);
-    #endif
-    #if USE_U_MIN
-      ES_GET_STATE(U_MIN);
-    #endif
-    #if USE_V_MAX
-      ES_GET_STATE(V_MAX);
-    #endif
-    #if USE_V_MIN
-      ES_GET_STATE(V_MIN);
-    #endif
-    #if USE_W_MAX
-      ES_GET_STATE(W_MAX);
-    #endif
-    #if USE_W_MIN
-      ES_GET_STATE(W_MIN);
-    #endif
+    TERF(USE_X_MIN, ES_GET_STATE)(X_MIN);
+    TERF(USE_X_MAX, ES_GET_STATE)(X_MAX);
+    TERF(USE_Y_MIN, ES_GET_STATE)(Y_MIN);
+    TERF(USE_Y_MAX, ES_GET_STATE)(Y_MAX);
+    TERF(USE_Z_MIN, ES_GET_STATE)(Z_MIN);
+    TERF(USE_Z_MAX, ES_GET_STATE)(Z_MAX);
+    TERF(USE_Z_MIN_PROBE, ES_GET_STATE)(Z_MIN_PROBE);
+    TERF(USE_CALIBRATION, ES_GET_STATE)(CALIBRATION);
+    TERF(USE_X2_MIN, ES_GET_STATE)(X2_MIN);
+    TERF(USE_X2_MAX, ES_GET_STATE)(X2_MAX);
+    TERF(USE_Y2_MIN, ES_GET_STATE)(Y2_MIN);
+    TERF(USE_Y2_MAX, ES_GET_STATE)(Y2_MAX);
+    TERF(USE_Z2_MIN, ES_GET_STATE)(Z2_MIN);
+    TERF(USE_Z2_MAX, ES_GET_STATE)(Z2_MAX);
+    TERF(USE_Z3_MIN, ES_GET_STATE)(Z3_MIN);
+    TERF(USE_Z3_MAX, ES_GET_STATE)(Z3_MAX);
+    TERF(USE_Z4_MIN, ES_GET_STATE)(Z4_MIN);
+    TERF(USE_Z4_MAX, ES_GET_STATE)(Z4_MAX);
+    TERF(USE_I_MAX, ES_GET_STATE)(I_MAX);
+    TERF(USE_I_MIN, ES_GET_STATE)(I_MIN);
+    TERF(USE_J_MAX, ES_GET_STATE)(J_MAX);
+    TERF(USE_J_MIN, ES_GET_STATE)(J_MIN);
+    TERF(USE_K_MAX, ES_GET_STATE)(K_MAX);
+    TERF(USE_K_MIN, ES_GET_STATE)(K_MIN);
+    TERF(USE_U_MAX, ES_GET_STATE)(U_MAX);
+    TERF(USE_U_MIN, ES_GET_STATE)(U_MIN);
+    TERF(USE_V_MAX, ES_GET_STATE)(V_MAX);
+    TERF(USE_V_MIN, ES_GET_STATE)(V_MIN);
+    TERF(USE_W_MAX, ES_GET_STATE)(W_MAX);
+    TERF(USE_W_MIN, ES_GET_STATE)(W_MIN);
 
     const uint16_t endstop_change = live_state_local ^ old_live_state_local;
     #define ES_REPORT_CHANGE(S) if (TEST(endstop_change, S)) SERIAL_ECHOPGM("  " STRINGIFY(S) ":", TEST(live_state_local, S))
 
     if (endstop_change) {
-      #if USE_X_MIN
-        ES_REPORT_CHANGE(X_MIN);
-      #endif
-      #if USE_X_MAX
-        ES_REPORT_CHANGE(X_MAX);
-      #endif
-      #if USE_Y_MIN
-        ES_REPORT_CHANGE(Y_MIN);
-      #endif
-      #if USE_Y_MAX
-        ES_REPORT_CHANGE(Y_MAX);
-      #endif
-      #if USE_Z_MIN
-        ES_REPORT_CHANGE(Z_MIN);
-      #endif
-      #if USE_Z_MAX
-        ES_REPORT_CHANGE(Z_MAX);
-      #endif
-      #if USE_Z_MIN_PROBE
-        ES_REPORT_CHANGE(Z_MIN_PROBE);
-      #endif
-      #if USE_CALIBRATION
-        ES_REPORT_CHANGE(CALIBRATION);
-      #endif
-      #if USE_X2_MIN
-        ES_REPORT_CHANGE(X2_MIN);
-      #endif
-      #if USE_X2_MAX
-        ES_REPORT_CHANGE(X2_MAX);
-      #endif
-      #if USE_Y2_MIN
-        ES_REPORT_CHANGE(Y2_MIN);
-      #endif
-      #if USE_Y2_MAX
-        ES_REPORT_CHANGE(Y2_MAX);
-      #endif
-      #if USE_Z2_MIN
-        ES_REPORT_CHANGE(Z2_MIN);
-      #endif
-      #if USE_Z2_MAX
-        ES_REPORT_CHANGE(Z2_MAX);
-      #endif
-      #if USE_Z3_MIN
-        ES_REPORT_CHANGE(Z3_MIN);
-      #endif
-      #if USE_Z3_MAX
-        ES_REPORT_CHANGE(Z3_MAX);
-      #endif
-      #if USE_Z4_MIN
-        ES_REPORT_CHANGE(Z4_MIN);
-      #endif
-      #if USE_Z4_MAX
-        ES_REPORT_CHANGE(Z4_MAX);
-      #endif
-      #if USE_I_MIN
-        ES_REPORT_CHANGE(I_MIN);
-      #endif
-      #if USE_I_MAX
-        ES_REPORT_CHANGE(I_MAX);
-      #endif
-      #if USE_J_MIN
-        ES_REPORT_CHANGE(J_MIN);
-      #endif
-      #if USE_J_MAX
-        ES_REPORT_CHANGE(J_MAX);
-      #endif
-      #if USE_K_MIN
-        ES_REPORT_CHANGE(K_MIN);
-      #endif
-      #if USE_K_MAX
-        ES_REPORT_CHANGE(K_MAX);
-      #endif
-      #if USE_U_MIN
-        ES_REPORT_CHANGE(U_MIN);
-      #endif
-      #if USE_U_MAX
-        ES_REPORT_CHANGE(U_MAX);
-      #endif
-      #if USE_V_MIN
-        ES_REPORT_CHANGE(V_MIN);
-      #endif
-      #if USE_V_MAX
-        ES_REPORT_CHANGE(V_MAX);
-      #endif
-      #if USE_W_MIN
-        ES_REPORT_CHANGE(W_MIN);
-      #endif
-      #if USE_W_MAX
-        ES_REPORT_CHANGE(W_MAX);
-      #endif
+      TERF(USE_X_MIN, ES_REPORT_CHANGE)(X_MIN);
+      TERF(USE_X_MAX, ES_REPORT_CHANGE)(X_MAX);
+      TERF(USE_Y_MIN, ES_REPORT_CHANGE)(Y_MIN);
+      TERF(USE_Y_MAX, ES_REPORT_CHANGE)(Y_MAX);
+      TERF(USE_Z_MIN, ES_REPORT_CHANGE)(Z_MIN);
+      TERF(USE_Z_MAX, ES_REPORT_CHANGE)(Z_MAX);
+      TERF(USE_Z_MIN_PROBE, ES_REPORT_CHANGE)(Z_MIN_PROBE);
+      TERF(USE_CALIBRATION, ES_REPORT_CHANGE)(CALIBRATION);
+      TERF(USE_X2_MIN, ES_REPORT_CHANGE)(X2_MIN);
+      TERF(USE_X2_MAX, ES_REPORT_CHANGE)(X2_MAX);
+      TERF(USE_Y2_MIN, ES_REPORT_CHANGE)(Y2_MIN);
+      TERF(USE_Y2_MAX, ES_REPORT_CHANGE)(Y2_MAX);
+      TERF(USE_Z2_MIN, ES_REPORT_CHANGE)(Z2_MIN);
+      TERF(USE_Z2_MAX, ES_REPORT_CHANGE)(Z2_MAX);
+      TERF(USE_Z3_MIN, ES_REPORT_CHANGE)(Z3_MIN);
+      TERF(USE_Z3_MAX, ES_REPORT_CHANGE)(Z3_MAX);
+      TERF(USE_Z4_MIN, ES_REPORT_CHANGE)(Z4_MIN);
+      TERF(USE_Z4_MAX, ES_REPORT_CHANGE)(Z4_MAX);
+      TERF(USE_I_MIN, ES_REPORT_CHANGE)(I_MIN);
+      TERF(USE_I_MAX, ES_REPORT_CHANGE)(I_MAX);
+      TERF(USE_J_MIN, ES_REPORT_CHANGE)(J_MIN);
+      TERF(USE_J_MAX, ES_REPORT_CHANGE)(J_MAX);
+      TERF(USE_K_MIN, ES_REPORT_CHANGE)(K_MIN);
+      TERF(USE_K_MAX, ES_REPORT_CHANGE)(K_MAX);
+      TERF(USE_U_MIN, ES_REPORT_CHANGE)(U_MIN);
+      TERF(USE_U_MAX, ES_REPORT_CHANGE)(U_MAX);
+      TERF(USE_V_MIN, ES_REPORT_CHANGE)(V_MIN);
+      TERF(USE_V_MAX, ES_REPORT_CHANGE)(V_MAX);
+      TERF(USE_W_MIN, ES_REPORT_CHANGE)(W_MIN);
+      TERF(USE_W_MAX, ES_REPORT_CHANGE)(W_MAX);
 
       SERIAL_ECHOLNPGM("\n");
       hal.set_pwm_duty(pin_t(LED_PIN), local_LED_status);
