@@ -410,7 +410,7 @@ PGMSTR(str_t_heating_failed, STR_T_HEATING_FAILED);
 #endif
 
 #if ALL(FAN_SOFT_PWM, USE_CONTROLLER_FAN)
-  uint8_t Temperature::soft_pwm_controller_speed = FAN_OFF_PWM;
+  uint8_t Temperature::soft_pwm_controllerfan_speed = FAN_OFF_PWM;
 #endif
 
 // Init fans according to whether they're native PWM or Software PWM
@@ -4038,7 +4038,7 @@ void Temperature::isr() {
   #endif
 
   #if ALL(FAN_SOFT_PWM, USE_CONTROLLER_FAN)
-    static SoftPWM soft_pwm_controller;
+    static SoftPWM soft_pwm_controllerfan;
   #endif
 
   #define WRITE_FAN(n, v) WRITE(FAN##n##_PIN, (v) ^ ENABLED(FAN_INVERTING))
@@ -4076,7 +4076,7 @@ void Temperature::isr() {
       #if ENABLED(FAN_SOFT_PWM)
 
         #if ENABLED(USE_CONTROLLER_FAN)
-          WRITE(CONTROLLER_FAN_PIN, soft_pwm_controller.add(pwm_mask, controllerFan.soft_pwm_speed));
+          WRITE(CONTROLLER_FAN_PIN, soft_pwm_controllerfan.add(pwm_mask, controllerFan.soft_pwm_speed));
         #endif
 
         #define _FAN_PWM(N) do{                                     \
@@ -4132,7 +4132,7 @@ void Temperature::isr() {
           if (soft_pwm_count_fan[7] <= pwm_count_tmp) WRITE_FAN(7, LOW);
         #endif
         #if ENABLED(USE_CONTROLLER_FAN)
-          if (soft_pwm_controller.count <= pwm_count_tmp) WRITE(CONTROLLER_FAN_PIN, LOW);
+          if (soft_pwm_controllerfan.count <= pwm_count_tmp) WRITE(CONTROLLER_FAN_PIN, LOW);
         #endif
       #endif
     }
