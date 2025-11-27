@@ -199,7 +199,6 @@ class FTMotion {
       stepping.enqueue(next_steps_q48_16);
     }
 
-
   private:
     // Block data variables.
     static xyze_pos_t   startPos,         // (mm) Start position of block
