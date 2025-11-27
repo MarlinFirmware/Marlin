@@ -110,11 +110,11 @@ void GcodeSuite::M140_M190(const bool isM190) {
     #if ENABLED(BED_ANNEALING_GCODE)
       if (anneal) {
         LCD_MESSAGE(MSG_BED_ANNEALING);
-        const millis_t wait_ms = anneal_ms / (thermalManager.degBed() - temp) ;
+        const millis_t wait_ms = anneal_ms / (thermalManager.degBed() - temp);
         // Loop from current temp down to the target
         for (celsius_t cool_temp = thermalManager.degBed() - 1; cool_temp >= temp; --cool_temp) {
           thermalManager.setTargetBed(cool_temp); // Cool by one degree
-          dwell(wait_ms); //Wait for going to the next degree
+          dwell(wait_ms);   // Wait while going to the next degree
         }
         return;
       }
