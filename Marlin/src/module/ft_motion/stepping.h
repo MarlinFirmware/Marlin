@@ -31,22 +31,22 @@ FORCE_INLINE constexpr uint32_t a_times_b_shift_16(uint32_t a, uint32_t b) {
   uint32_t lo = a & 0xFFFFu;
   return (hi * b) + ((lo * b) >> 16);
 }
-
-constexpr uint32_t FRAME_TICKS = (STEPPER_TIMER_RATE / FTM_FS);        // Timer ticks in a frame
-constexpr uint32_t FTM_Q_INT = (32u - __builtin_clz(FRAME_TICKS + 1)); // Bits to represent the max value (duration of a frame, +1 one for FTM_NEVER).
-                                                                       // "clz" counts leading zeroes.
-constexpr uint32_t FTM_Q = (16 - FTM_Q_INT);                           // uint16 interval fractional bits.
-                                                                       // Intervals buffer has fixed point numbers with the point on this position
+#define FTM_NEVER (UINT16_MAX)                                       // Reserved number to indicate "no ticks in this frame" (FRAME_TICKS_FP+1 would work too)
+constexpr uint32_t FRAME_TICKS = STEPPER_TIMER_RATE / FTM_FS;        // Timer ticks in a frame
+static_assert(FRAME_TICKS < FTM_NEVER, "(STEPPER_TIMER_RATE / FTM_FS) must be < 2^16 (otherwise fixed-point numbers exceed uint16 vars).");
+constexpr uint32_t FTM_Q_INT = 32u - __builtin_clz(FRAME_TICKS + 1); // Bits to represent the max value (duration of a frame, +1 one for FTM_NEVER).
+                                                                     // "clz" counts leading zeroes.
+constexpr uint32_t FTM_Q = 16 - FTM_Q_INT;                           // uint16 interval fractional bits.
+                                                                     // Intervals buffer has fixed point numbers with the point on this position
 
 // The _FP and _fp suffixes mean the number is in fixed point format with the point at the FTM_Q position.
 // See: https://en.wikipedia.org/wiki/Fixed-point_arithmetic
-// E.g `number_fp = number << (FTM_Q)
+// E.g number_fp = number << FTM_Q
+//     number == (number_fp >> FTM_Q)
 constexpr uint32_t ONE_FP = 1 << FTM_Q;                   // Number 1 in fixed point format
 constexpr uint32_t FP_FLOOR_MASK = ~(ONE_FP - 1);         // Bit mask to do FLOOR in fixed point
 constexpr uint32_t FRAME_TICKS_FP = FRAME_TICKS << FTM_Q; // Ticks in a frame in fixed point
-static_assert(FRAME_TICKS_FP < UINT16_MAX, "(STEPPER_TIMER_RATE / FTM_FS) must be < 2^16 (otherwise fixed-point numbers exceed uint16 vars).");
 
-#define FTM_NEVER (UINT16_MAX)                            // Reserved number to indicate "no ticks in this frame" (FRAME_TICKS_FP+1 would work too)
 
 typedef struct stepper_plan {
   AxisBits dir_bits;
@@ -119,8 +119,9 @@ typedef struct Stepping {
 
         // Build step_bits: any axis whose counter < ONE_FP should step before the next tick, so we tick now
         // unless the frame ends earlier.
+        uint32_t limit_fp = _MIN(ONE_FP - 1, ticks_left_in_frame_fp);
         auto _set_step_bit = [&](const AxisEnum A) __attribute__((always_inline)) {
-          if (ticks_left_per_axis_fp[A] < ONE_FP && ticks_left_per_axis_fp[A] <= ticks_left_in_frame_fp) {
+          if (ticks_left_per_axis_fp[A] <= limit_fp) {
             step_bits[A] = 1;
             ticks_left_per_axis_fp[A] += axis_interval_fp[A];
           }
