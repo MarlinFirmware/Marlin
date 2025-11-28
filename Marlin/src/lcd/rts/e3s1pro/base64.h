@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2023 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -19,38 +19,18 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
-/**
- * G29.cpp - Unified Bed Leveling
+#define BASE64_ENCODE_OUT_SIZE(s) ((unsigned int)((((s) + 2) / 3) * 4 + 1))
+#define BASE64_DECODE_OUT_SIZE(s) ((unsigned int)(((s) / 4) * 3))
+
+/*
+ * out is null-terminated encode string.
+ * return values is out length, exclusive terminating `\0'
  */
+unsigned int base64_encode(const unsigned char *in, unsigned int inlen, char *out);
 
-#include "../../../inc/MarlinConfig.h"
-
-#if ENABLED(AUTO_BED_LEVELING_UBL)
-
-#include "../../gcode.h"
-#include "../../../feature/bedlevel/bedlevel.h"
-
-#if ENABLED(FULL_REPORT_TO_HOST_FEATURE)
-  #include "../../../module/motion.h"
-#endif
-
-#if ENABLED(E3S1PRO_RTS)
-  #include "../../../lcd/rts/e3s1pro/lcd_rts.h"
-#endif
-
-void GcodeSuite::G29() {
-
-  TERN_(FULL_REPORT_TO_HOST_FEATURE, set_and_report_grblstate(M_PROBE));
-
-  bedlevel.G29();
-
-  TERN_(FULL_REPORT_TO_HOST_FEATURE, set_and_report_grblstate(M_IDLE));
-
-  #if ENABLED(E3S1PRO_RTS) && GRID_MAX_POINTS_X == 7
-    rts.sendData(100, AUTO_LEVELING_PERCENT_DATA_VP);
-  #endif
-
-}
-
-#endif // AUTO_BED_LEVELING_UBL
+/*
+ * return values is out length
+ */
+unsigned int base64_decode(const char *in, unsigned int inlen, unsigned char *out);

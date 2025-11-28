@@ -29,6 +29,10 @@
 #include "../../lcd/marlinui.h" // i2c-based BUZZ
 #include "../../libs/buzzer.h"  // Buzzer, if possible
 
+#if ENABLED(E3S1PRO_RTS)
+  #include "../../lcd/rts/e3s1pro/lcd_rts.h"
+#endif
+
 /**
  * M300: Play a Tone / Add a tone to the queue
  *
@@ -39,6 +43,11 @@
  *  E<0|1>       - Mute or enable sound
  */
 void GcodeSuite::M300() {
+
+  #if ENABLED(E3S1PRO_RTS)
+    rts.sendData(startSoundSet, soundAddr);
+    return;
+  #endif
 
   #if ENABLED(SOUND_MENU_ITEM)
     if (parser.seen('E')) {

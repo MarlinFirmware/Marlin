@@ -231,7 +231,10 @@ public:
     static void set_reverse(const bool reverse);
     static bool is_reverse() { return READ(SPINDLE_DIR_PIN) == SPINDLE_INVERT_DIR; }
   #else
-    static void set_reverse(const bool) {}
+    static void set_reverse(const bool dyn) {
+      TERN_(E3S1PRO_RTS, cutter_mode = dyn ? CUTTER_MODE_DYNAMIC : CUTTER_MODE_STANDARD);
+      UNUSED(dyn);
+    }
     static bool is_reverse() { return false; }
   #endif
 

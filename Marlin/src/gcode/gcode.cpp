@@ -1265,6 +1265,10 @@ void GcodeSuite::process_subcommands_now(char * gcode) {
 
 #if ENABLED(HOST_KEEPALIVE_FEATURE)
 
+  #if ENABLED(E3S1PRO_RTS)
+    extern int change_page_font;
+  #endif
+
   /**
    * Output a "busy" message at regular intervals
    * while the machine is not accepting commands.
@@ -1282,7 +1286,8 @@ void GcodeSuite::process_subcommands_now(char * gcode) {
           TERN_(FULL_REPORT_TO_HOST_FEATURE, report_current_position_moving());
           break;
         case PAUSED_FOR_USER:
-          SERIAL_ECHO_MSG(STR_BUSY_PAUSED_FOR_USER);
+          if (TERN1(E3S1PRO_RTS, change_page_font == 7))
+            SERIAL_ECHO_MSG(STR_BUSY_PAUSED_FOR_USER);
           TERN_(FULL_REPORT_TO_HOST_FEATURE, set_and_report_grblstate(M_HOLD));
           break;
         case PAUSED_FOR_INPUT:

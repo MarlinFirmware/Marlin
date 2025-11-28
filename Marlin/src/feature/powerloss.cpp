@@ -77,6 +77,10 @@ uint32_t PrintJobRecovery::cmd_sdpos, // = 0
 #define DEBUG_OUT ENABLED(DEBUG_POWER_LOSS_RECOVERY)
 #include "../core/debug_out.h"
 
+#if ENABLED(E3S1PRO_RTS)
+  #include "../lcd/rts/e3s1pro/lcd_rts.h"
+#endif
+
 PrintJobRecovery recovery;
 
 #if DISABLED(BACKUP_POWER_SUPPLY)
@@ -128,16 +132,18 @@ void PrintJobRecovery::changed() {
  * If a saved state exists send 'M1000 S' to initiate job recovery.
  */
 bool PrintJobRecovery::check() {
-  //if (!card.isMounted()) card.mount();
-  bool success = false;
-  if (card.isMounted()) {
+  #if ENABLED(EEPROM_PLR)
+    BL24CXX::read(PLR_ADDR, (uint8_t*)&info, sizeof(info));
+  #else
+    if (!card.isMounted()) return false;
     load();
-    success = valid();
-    if (!success)
-      cancel();
-    else
-      queue.inject(F("M1000S"));
-  }
+  #endif
+
+  const bool success = valid();
+  if (!success)
+    cancel();
+  else
+    queue.inject(F("M1000S"));
   return success;
 }
 
@@ -269,6 +275,8 @@ void PrintJobRecovery::save(const bool force/*=false*/, const float zraise/*=POW
     // Misc. Marlin flags
     info.flag.dryrun = !!(marlin_debug_flags & MARLIN_DEBUG_DRYRUN);
     info.flag.allow_cold_extrusion = TERN0(PREVENT_COLD_EXTRUSION, thermalManager.allow_cold_extrude);
+
+    TERN_(E3S1PRO_RTS, info.recovery_flag = poweroffContinue);
 
     write();
   }

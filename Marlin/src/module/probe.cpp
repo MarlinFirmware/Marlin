@@ -98,6 +98,10 @@
   #include "../lcd/extui/ui_api.h"
 #endif
 
+#if ENABLED(E3S1PRO_RTS)
+  #include "../lcd/rts/e3s1pro/lcd_rts.h"
+#endif
+
 #define DEBUG_OUT ENABLED(DEBUG_LEVELING_FEATURE)
 #include "../core/debug_out.h"
 
@@ -1061,6 +1065,15 @@ float Probe::probe_at_point(
       // Something definitely went wrong at this point, so it might be a good idea to release the steppers.
       // The user may want to quickly move the carriage or bed by hand to avoid bed damage from the (hot) nozzle.
       // This would also benefit from the contemplated "Audio Alerts" feature.
+
+      #if ENABLED(E3S1PRO_RTS)
+        waitway = 0;
+        rts.sendData(exchangePageBase + 41, exchangePageAddr);
+        change_page_font = 41;
+        rts.sendData(Error_203, ABNORMAL_PAGE_TEXT_VP);
+        errorway = 3;
+      #endif
+
       stow();
       LCD_MESSAGE(MSG_LCD_PROBING_FAILED);
       #if DISABLED(G29_RETRY_AND_RECOVER)

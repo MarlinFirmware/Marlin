@@ -30,6 +30,8 @@
 #include "../../../module/printcounter.h"
 
 #include "../../../lcd/marlinui.h"
+#include "../../../module/temperature.h"
+
 #if ENABLED(SOVOL_SV06_RTS)
   #include "../../../lcd/sovol_rts/sovol_rts.h"
 #endif
@@ -48,6 +50,11 @@
   #if ENABLED(MMU_MENUS)
     #include "../../../lcd/menu/menu_mmu2.h"
   #endif
+#endif
+
+#if ENABLED(E3S1PRO_RTS)
+  #include "../../../lcd/rts/e3s1pro/lcd_rts.h"
+  #include "../../../module/cardreader.h"
 #endif
 
 #if ENABLED(MIXING_EXTRUDER)
@@ -182,6 +189,26 @@ void GcodeSuite::M600() {
         const bool automatic = parser.seen_test('A');
         mmu2_M600(automatic);
         resume_print(0, 0, 0, beep_count, 0, !automatic, false DXC_PASS);
+
+      #elif ENABLED(E3S1PRO_RTS)
+
+        wait_for_confirmation(true, beep_count DXC_PASS);
+        if (card.flag.abort_sd_printing) {
+          //SERIAL_ECHOLNPGM("\nbread....");
+          // Re-enable the heaters if they timed out
+          bool nozzle_timed_out = false;
+          HOTEND_LOOP() {
+            nozzle_timed_out |= thermalManager.heater_idle[e].timed_out;
+            thermalManager.reset_hotend_idle_timer(e);
+          }
+          return;
+        }
+        else {
+          //SERIAL_ECHOLNPGM("\nresume_print....");
+          resume_print(unload_length, unload_length, ADVANCED_PAUSE_PURGE_LENGTH,
+                      beep_count, (parser.seenval('R') ? parser.value_celsius() : 0)DXC_PASS);
+        }
+
       #endif
     }
   }

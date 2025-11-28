@@ -178,6 +178,10 @@
   #include "../lcd/extui/dgus/DGUSDisplayDef.h"
 #endif
 
+#if ENABLED(E3S1PRO_RTS)
+  #include "../lcd/rts/e3s1pro/lcd_rts.h"
+#endif
+
 #if ENABLED(HOTEND_IDLE_TIMEOUT)
   #include "../feature/hotend_idle.h"
 #endif
@@ -583,6 +587,13 @@ typedef struct SettingsDataStruct {
   //
   #if CASELIGHT_USES_BRIGHTNESS
     uint8_t caselight_brightness;                        // M355 P
+  #endif
+
+  #if ENABLED(E3S1PRO_RTS)
+    uint8_t g_soundSetOffOn;
+    uint8_t language_change_font;
+    //float x_min_pos_eeprom;
+    //float y_min_pos_eeprom;
   #endif
 
   //
@@ -1692,6 +1703,16 @@ void MarlinSettings::postprocess() {
     //
     #if CASELIGHT_USES_BRIGHTNESS
       EEPROM_WRITE(caselight.brightness);
+    #endif
+
+    //
+    // Ender-3 S1 Pro RTS
+    //
+    #if ENABLED(E3S1PRO_RTS)
+      EEPROM_WRITE(g_soundSetOffOn);
+      EEPROM_WRITE(language_change_font);
+      //EEPROM_WRITE(x_min_pos_eeprom);
+      //EEPROM_WRITE(y_min_pos_eeprom);
     #endif
 
     //
@@ -2820,6 +2841,17 @@ void MarlinSettings::postprocess() {
         EEPROM_READ(caselight.brightness);
       #endif
 
+      #if ENABLED(E3S1PRO_RTS)
+        EEPROM_READ(g_soundSetOffOn);
+
+        EEPROM_READ(language_change_font);
+        if (!WITHIN(language_change_font, 1, 9))
+          language_change_font = 2;
+
+        //EEPROM_READ(x_min_pos_eeprom);
+        //EEPROM_READ(y_min_pos_eeprom);
+      #endif
+
       //
       // CONFIGURABLE_MACHINE_NAME
       //
@@ -3436,6 +3468,13 @@ void MarlinSettings::reset() {
   // Case Light Brightness
   //
   TERN_(CASELIGHT_USES_BRIGHTNESS, caselight.brightness = CASE_LIGHT_DEFAULT_BRIGHTNESS);
+
+  #if ENABLED(E3S1PRO_RTS)
+    g_soundSetOffOn = 1;
+    language_change_font = 2;
+    //x_min_pos_eeprom = -2.00;
+    //y_min_pos_eeprom = -2.00;
+  #endif
 
   //
   // CONFIGURABLE_MACHINE_NAME
@@ -4166,6 +4205,10 @@ void MarlinSettings::reset() {
     #endif
 
     TERN_(HAS_MULTI_LANGUAGE, gcode.M414_report(forReplay));
+
+    #if ENABLED(E3S1PRO_RTS)
+      SERIAL_ECHOLNPGM("  Display sound OffOn ", g_soundSetOffOn);
+    #endif
 
     //
     // Model predictive control

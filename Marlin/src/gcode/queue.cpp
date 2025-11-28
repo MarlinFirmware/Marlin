@@ -37,6 +37,13 @@ GCodeQueue queue;
 #include "../MarlinCore.h"
 #include "../core/bug_on.h"
 
+#if ENABLED(E3S1PRO_RTS)
+  #include "../lcd/rts/e3s1pro/lcd_rts.h"
+  #if ENABLED(GCODE_PREVIEW_ENABLED)
+    #include "../lcd/e3v2/creality/preview.h"
+  #endif
+#endif
+
 #if ENABLED(BINARY_FILE_TRANSFER)
   #include "../feature/binary_stream.h"
 #endif
@@ -573,7 +580,7 @@ void GCodeQueue::get_serial_commands() {
     if (!card.isStillFetching()) return;
 
     int sd_count = 0;
-    while (!ring_buffer.full() && !card.eof()) {
+    while (!ring_buffer.full() && !card.eof() && TERN1(E3S1PRO_RTS, rts.sdDetected())) {
       const int16_t n = card.get();
       const bool card_eof = card.eof();
       if (n < 0 && !card_eof) { SERIAL_ERROR_MSG(STR_SD_ERR_READ); continue; }
@@ -604,10 +611,26 @@ void GCodeQueue::get_serial_commands() {
           TERN_(POWER_LOSS_RECOVERY, recovery.cmd_sdpos = card.getIndex());
         }
 
-        if (card.eof()) card.fileHasFinished();         // Handle end of file reached
+        if (card_eof) card.fileHasFinished();         // Handle end of file reached
       }
-      else
+      else {
         process_stream_char(sd_char, sd_input_state, command.buffer, sd_count);
+      }
+
+      #if ENABLED(E3S1PRO_RTS)
+        // the printing results
+        if (card_eof) {
+          rts.sendData(100, PRINT_PROCESS_VP); delay(1);
+          rts.sendData(100, PRINT_PROCESS_ICON_VP); delay(1);
+          rts.sendData(exchangePageBase + 9, exchangePageAddr);
+          change_page_font = 9;
+
+          //if (flag_over_shutdown) {
+          //  // Start the automatic shutdown timer after printing
+          //  flag_counter_printover_to_shutdown = true;
+          //}
+        }
+      #endif
     }
   }
 

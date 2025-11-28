@@ -84,6 +84,10 @@
   #endif
 #endif
 
+#if ENABLED(E3S1PRO_RTS)
+  #include "lcd/rts/e3s1pro/lcd_rts.h"
+#endif
+
 #if HAS_ETHERNET
   #include "feature/ethernet.h"
 #endif
@@ -265,6 +269,10 @@
   #include "tests/marlin_tests.h"
 #endif
 
+#if ENABLED(EEPROM_DEMARCATE)
+  DEMARCATE_T demarcate_data;
+#endif
+
 #if HAS_RS485_SERIAL
   #include "feature/rs485.h"
 #endif
@@ -283,6 +291,11 @@ MarlinState marlin_state = MarlinState::MF_INITIALIZING;
 
 // For M109 and M190, this flag may be cleared (by M108) to exit the wait loop
 bool wait_for_heatup = false;
+
+#if ENABLED(E3S1PRO_RTS)
+  uint8_t language_change_font;
+  bool eeprom_save_flag = false;
+#endif
 
 // For M0/M1, this flag may be cleared (by M108) to exit the wait-for-user loop
 #if HAS_RESUME_CONTINUE
@@ -374,6 +387,8 @@ void startOrResumeJob() {
     IF_DISABLED(NO_SD_AUTOSTART, card.autofile_cancel());
     card.abortFilePrintNow(TERN_(SD_RESORT, true));
 
+    thermalManager.cooldown();
+
     queue.clear();
     quickstop_stepper();
 
@@ -433,7 +448,16 @@ inline void manage_inactivity(const bool no_stepper_sleep=false) {
   if (gcode.stepper_max_timed_out(ms)) {
     SERIAL_ERROR_START();
     SERIAL_ECHOLN(F(STR_KILL_PRE), F(STR_KILL_INACTIVE_TIME), parser.command_ptr);
-    kill();
+
+    #if ENABLED(E3S1PRO_RTS)
+      waitway = 0;
+      rts.sendData(exchangePageBase + 41, exchangePageAddr);
+      change_page_font = 41;
+      rts.sendData(Error_201, ABNORMAL_PAGE_TEXT_VP);
+      errorway = 1;
+    #else
+      kill();
+    #endif
   }
 
   const bool has_blocks = planner.has_blocks_queued();  // Any moves in the planner?
@@ -445,7 +469,11 @@ inline void manage_inactivity(const bool no_stepper_sleep=false) {
 
       static bool already_shutdown_steppers; // = false
 
-      if (!has_blocks && !do_reset_timeout && gcode.stepper_inactive_timeout()) {
+      if (!has_blocks && !do_reset_timeout && gcode.stepper_inactive_timeout()
+        #if ALL(HAS_MEDIA, E3S1PRO_RTS)
+          && !card.isPrinting() && !card.isPaused()
+        #endif
+      ) {
         if (!already_shutdown_steppers) {
           already_shutdown_steppers = true;
 
@@ -834,8 +862,10 @@ void idle(const bool no_stepper_sleep/*=false*/) {
   TERN_(HAS_BEEPER, buzzer.tick());
 
   // Handle UI input / draw events
-  #if ENABLED(SOVOL_SV06_RTS)
+  #if ANY(SOVOL_SV06_RTS, E3S1PRO_RTS)
     RTS_Update();
+  #elif ENABLED(E3S1PRO_RTS)
+    RTSUpdate();
   #else
     ui.update();
   #endif
@@ -1310,7 +1340,7 @@ void setup() {
       " | Author: " STRING_CONFIG_H_AUTHOR
     );
   #endif
-  SERIAL_ECHO_MSG(" Compiled: " __DATE__);
+  SERIAL_ECHO_MSG(" Compiled: " __DATE__ TERN_(E3S1PRO_RTS, " " __TIME__));
   SERIAL_ECHO_MSG(STR_FREE_MEMORY, hal.freeMemory(), STR_PLANNER_BUFFER_BYTES, sizeof(block_t) * (BLOCK_BUFFER_SIZE));
 
   // Some HAL need precise delay adjustment
@@ -1338,6 +1368,12 @@ void setup() {
 
   // UI must be initialized before EEPROM
   // (because EEPROM code calls the UI).
+
+  #if ENABLED(E3S1PRO_RTS) && defined(LCD_SERIAL_PORT)
+    //SETUP_RUN(RTS_Update());
+    LCD_SERIAL.begin(LCD_BAUDRATE);
+  #endif
+
   #if ENABLED(SOVOL_SV06_RTS)
     SETUP_RUN(RTS_Update());
   #else
@@ -1364,6 +1400,8 @@ void setup() {
   #if HAS_EARLY_LCD_SETTINGS
     SETUP_RUN(settings.load_lcd_state());
   #endif
+
+  TERN_(HAS_M414_COMMAND, lang = language_change_font);
 
   #if ALL(HAS_WIRED_LCD, SHOW_BOOTSCREEN)
     SETUP_RUN(ui.show_bootscreen());
@@ -1639,6 +1677,9 @@ void setup() {
   #if ENABLED(DWIN_CREALITY_LCD)
     SETUP_RUN(dwinInitScreen());
   #elif ENABLED(SOVOL_SV06_RTS)
+    SETUP_RUN(rts.init());
+  #elif ENABLED(E3S1PRO_RTS)
+    delay(500);
     SETUP_RUN(rts.init());
   #endif
 

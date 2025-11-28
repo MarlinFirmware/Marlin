@@ -70,6 +70,10 @@
   #include "../../feature/spindle_laser.h"
 #endif
 
+#if ENABLED(E3S1PRO_RTS)
+  #include "../../lcd/rts/e3s1pro/lcd_rts.h"
+#endif
+
 #define DEBUG_OUT ENABLED(DEBUG_LEVELING_FEATURE)
 #include "../../core/debug_out.h"
 
@@ -254,6 +258,7 @@ void GcodeSuite::G28() {
     set_and_report_grblstate(M_HOMING);
   #endif
 
+  TERN_(E3S1PRO_RTS, home_flag = true);
   TERN_(DWIN_CREALITY_LCD, dwinHomingStart());
   TERN_(EXTENSIBLE_UI, ExtUI::onHomingStart());
 
@@ -579,9 +584,20 @@ void GcodeSuite::G28() {
   TERN_(DWIN_CREALITY_LCD, dwinHomingDone());
   TERN_(EXTENSIBLE_UI, ExtUI::onHomingDone());
 
+  #if ENABLED(E3S1PRO_RTS)
+    RTS_MoveAxisHoming();
+    rts.sendData(0, MOTOR_FREE_ICON_VP);
+    home_flag = false;
+  #endif
+
   report_current_position();
 
   TERN_(FULL_REPORT_TO_HOST_FEATURE, set_and_report_grblstate(old_grblstate));
+
+  #if ENABLED(E3S1PRO_RTS)
+    RTS_MoveAxisHoming();
+    rts.sendData(0, MOTOR_FREE_ICON_VP);
+  #endif
 
   #ifdef EVENT_GCODE_AFTER_HOMING
     gcode.process_subcommands_now(F(EVENT_GCODE_AFTER_HOMING));

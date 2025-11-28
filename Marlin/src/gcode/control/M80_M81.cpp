@@ -88,7 +88,9 @@ void GcodeSuite::M81() {
     ZERO(thermalManager.saved_fan_speed);
   #endif
 
-  TERN_(POWER_LOSS_RECOVERY, recovery.purge()); // Clear PLR on intentional shutdown
+  #if ENABLED(POWER_LOSS_RECOVERY)
+    if (TERN1(E3S1PRO_RTS, card.flag.mounted)) recovery.purge(); // Clear PLR on intentional shutdown
+  #endif
 
   safe_delay(1000); // Wait 1 second before switching off
 

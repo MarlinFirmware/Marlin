@@ -65,6 +65,10 @@
   #include "probe.h"
 #endif
 
+#if ENABLED(E3S1PRO_RTS)
+  #include "../lcd/rts/e3s1pro/lcd_rts.h"
+#endif
+
 #define DEBUG_OUT ALL(USE_SENSORLESS, DEBUG_LEVELING_FEATURE)
 #include "../core/debug_out.h"
 
@@ -259,6 +263,17 @@ void Endstops::enable(const bool onoff) {
     if (trigger_state())
       hit_on_purpose();
     else {
+      #if ENABLED(E3S1PRO_RTS)
+        waitway = 0;
+        // Displays the exception interface after 3 failures
+        //jump2page_num(PG_ABNORMAL);
+        //change_page_font = PG_ABNORMAL;
+        //Failed to homing move
+        //rts.sendData(Error_202, ABNORMAL_PAGE_TEXT_VP);
+        //rts.sendData(0, Window_fault_probe_VP);
+        //rts.sendData(0, Window_fault_home_VP);
+        errorway = 2;
+      #endif
       TERN_(SOVOL_SV06_RTS, rts.gotoPageBeep(ID_KillHome_L, ID_KillHome_D));
       kill(GET_TEXT_F(MSG_KILL_HOMING_FAILED));
     }

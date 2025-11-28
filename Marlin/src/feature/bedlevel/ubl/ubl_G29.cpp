@@ -48,6 +48,10 @@
   #include "../hilbert_curve.h"
 #endif
 
+#if ENABLED(E3S1PRO_RTS)
+  #include "../../../lcd/rts/e3s1pro/lcd_rts.h"
+#endif
+
 #if ENABLED(FT_MOTION)
   #include "../../../module/ft_motion.h"
 #endif
@@ -484,6 +488,12 @@ void unified_bed_leveling::G29() {
 
           report_current_position();
           SET_PROBE_DEPLOYED(true);
+
+          #if ENABLED(E3S1PRO_RTS)
+            if (parser.seen_test('C') && touchscreen_requested_mesh == 1)
+              queue.enqueue_one(F("G29 P3"));
+          #endif
+
         } break;
 
       #endif // HAS_BED_PROBE
@@ -597,6 +607,14 @@ void unified_bed_leveling::G29() {
               break;
           }
         }
+
+        #if ENABLED(E3S1PRO_RTS)
+          if (touchscreen_requested_mesh == 1) {
+            touchscreen_requested_mesh = 0;
+            queue.enqueue_one(F("G29 S1"));
+          }
+        #endif
+
         break;
       }
 
@@ -815,6 +833,16 @@ void unified_bed_leveling::shift_mesh_height(const float zoffs) {
       }
       SERIAL_FLUSH(); // Prevent host M105 buffer overrun.
 
+    #if ENABLED(E3S1PRO_RTS)
+      if (best.pos.x >= 0) {
+        const uint16_t percent = 100 / GRID_MAX_POINTS * (GRID_MAX_POINTS - (count - 1));
+        rts.sendData(uint16_t(percent / 2), AUTO_BED_LEVEL_TITLE_VP);
+        rts.sendData(percent, AUTO_LEVELING_PERCENT_DATA_VP);
+        rts.sendData(exchangePageBase + 26, exchangePageAddr);
+        change_page_font = 26;
+      }
+    #endif
+
     } while (best.pos.x >= 0 && --count);
 
     GRID_LOOP(x, y) if (z_values[x][y] == HUGE_VALF) z_values[x][y] = NAN; // Restore NAN for HUGE_VALF marks
@@ -825,6 +853,11 @@ void unified_bed_leveling::shift_mesh_height(const float zoffs) {
     TERN_(HAS_MARLINUI_MENU, ui.release());
     probe.stow();
     TERN_(HAS_MARLINUI_MENU, ui.capture());
+
+    #if ENABLED(E3S1PRO_RTS)
+      if (touchscreen_requested_mesh == 1) queue.enqueue_one(F("G29 P1 C T"));
+      RTS_AutoBedLevelPage();
+    #endif
 
     probe.move_z_after_probing();
 

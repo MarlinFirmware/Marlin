@@ -314,6 +314,11 @@ public:
   // Print File stats
   static uint32_t getFileSize()  { return filesize; }
   static uint32_t getIndex()     { return sdpos; }
+
+  #if ENABLED(E3S1PRO_RTS)
+    static uint32_t getFileCurPosition()  { return myfile.curPosition(); } // (or just return sdpos)
+  #endif
+
   static bool isFileOpen()       { return isMounted() && myfile.isOpen(); }
   static bool eof()              { return getIndex() >= getFileSize(); }
 

@@ -23,6 +23,10 @@
 #include "../gcode.h"
 #include "../../module/motion.h"
 
+#if ENABLED(E3S1PRO_RTS)
+  #include "../../lcd/rts/e3s1pro/lcd_rts.h"
+#endif
+
 /**
  * M220: Set Feedrate Percentage
  *
@@ -45,5 +49,10 @@ void GcodeSuite::M220() {
   if (parser.seen_test('R')) feedrate_percentage = backup_feedrate_percentage;
   if (parser.seen_test('B')) backup_feedrate_percentage = now_feedrate_perc;
   if (parser.seenval('S')) feedrate_percentage = parser.value_int();
+
+  #if ENABLED(E3S1PRO_RTS)
+    rts.sendData(feedrate_percentage, PRINT_SPEED_RATE_VP);
+    SERIAL_ECHOLNPGM("M220 S", feedrate_percentage);
+  #endif
 
 }

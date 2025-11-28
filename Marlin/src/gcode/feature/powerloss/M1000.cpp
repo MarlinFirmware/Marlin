@@ -28,6 +28,10 @@
 #include "../../../feature/powerloss.h"
 #include "../../../module/motion.h"
 
+#if ENABLED(E3S1PRO_RTS)
+  #include "../../../module/printcounter.h"
+#endif
+
 #if HAS_PLR_BED_THRESHOLD
   #include "../../../module/temperature.h"  // for degBed
 #endif
@@ -81,6 +85,8 @@ void GcodeSuite::M1000() {
         ExtUI::onPowerLossResume();
       #elif HAS_PLR_UI_FLAG
         recovery.ui_flag_resume = true;
+      #elif ENABLED(E3S1PRO_RTS)
+        recovery.info.print_job_elapsed = print_job_timer.duration() + recovery.info.print_job_elapsed;
       #elif ENABLED(DWIN_CREALITY_LCD_JYERSUI) // Temporary fix until it can be better implemented
         jyersDWIN.popupHandler(Popup_Resume);
       #else
