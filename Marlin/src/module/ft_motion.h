@@ -185,9 +185,11 @@ class FTMotion {
       return cfg.active ? axis_move_dir[axis] : stepper.last_direction_bits[axis];
     }
 
+    // A frame of the stepping plan
     static stepping_t stepping;
 
-    FORCE_INLINE static void stepping_enqueue(xyze_float_t traj_coords) {
+    // Add a single set of coordinates in the stepping plan
+    FORCE_INLINE static void stepping_enqueue(const xyze_float_t traj_coords) {
       #define _TOSTEPS_q16(A, B) int64_t(traj_coords.A * planner.settings.axis_steps_per_mm[B] * (1ULL << 16))
       XYZEval<int64_t> next_steps_q48_16 = LOGICAL_AXIS_ARRAY(
         _TOSTEPS_q16(e, block_extruder_axis),
@@ -195,7 +197,7 @@ class FTMotion {
         _TOSTEPS_q16(i, I_AXIS), _TOSTEPS_q16(j, J_AXIS), _TOSTEPS_q16(k, K_AXIS),
         _TOSTEPS_q16(u, U_AXIS), _TOSTEPS_q16(v, V_AXIS), _TOSTEPS_q16(w, W_AXIS)
       );
-      #undef _TOSTEPS_q32
+      #undef _TOSTEPS_q16
       stepping.enqueue(next_steps_q48_16);
     }
 

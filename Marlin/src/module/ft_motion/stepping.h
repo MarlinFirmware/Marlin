@@ -223,7 +223,7 @@ typedef struct Stepping {
   // e.g do: stepper_plan_t data = dequeue(); this is ok
   FORCE_INLINE stepper_plan_t& dequeue() {
     const uint32_t i = stepper_plan_tail;
-    stepper_plan_tail = (i + 1u) & FTM_BUFFER_MASK;
+    stepper_plan_tail = (i + 1U) & FTM_BUFFER_MASK;
     return stepper_plan_buff[i];
   }
 
