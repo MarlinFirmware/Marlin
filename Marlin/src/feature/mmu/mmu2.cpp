@@ -96,7 +96,7 @@ struct E_Step {
   feedRate_t feedRate;  //!< feed rate in mm/s
 };
 
-inline void unscaled_mmu2_e_move(const float &dist, const feedRate_t fr_mm_s, const bool sync=true) {
+inline void unscaled_mmu2_e_move(const float dist, const feedRate_t fr_mm_s, const bool sync=true) {
   current_position.e += dist / planner.e_factor[active_extruder];
   line_to_current_position(fr_mm_s);
   if (sync) planner.synchronize();

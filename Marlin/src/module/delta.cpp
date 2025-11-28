@@ -56,7 +56,7 @@ float delta_radius,
       delta_diagonal_rod,
       segments_per_second;
 abc_float_t delta_tower_angle_trim;
-xy_float_t delta_tower[ABC];
+xy_float_t delta_tower[3];
 abc_float_t delta_diagonal_rod_2_tower;
 float delta_clip_start_height = Z_MAX_POS;
 abc_float_t delta_diagonal_rod_trim;
@@ -162,7 +162,7 @@ float delta_safe_distance_from_top() {
  *
  * The result is stored in the cartes[] array.
  */
-void forward_kinematics(const_float_t z1, const_float_t z2, const_float_t z3) {
+void forward_kinematics(const float z1, const float z2, const float z3) {
   // Create a vector in old coordinates along x axis of new coordinate
   const float p12[3] = { delta_tower[B_AXIS].x - delta_tower[A_AXIS].x, delta_tower[B_AXIS].y - delta_tower[A_AXIS].y, z2 - z1 },
 

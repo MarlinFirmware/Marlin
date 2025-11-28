@@ -48,12 +48,6 @@ extern bool relative_mode;
 extern xyze_pos_t current_position,  // High-level current tool position
                   destination;       // Destination for a move
 
-// G60/G61 Position Save and Return
-#if SAVED_POSITIONS
-  extern Flags<SAVED_POSITIONS> did_save_position;
-  extern xyze_pos_t stored_position[SAVED_POSITIONS];
-#endif
-
 // Scratch space for a cartesian result
 extern xyz_pos_t cartes;
 
@@ -62,7 +56,9 @@ extern xyz_pos_t cartes;
   extern abce_pos_t delta;
 #endif
 
-#if HAS_ABL_NOT_UBL
+// Determine XY_PROBE_FEEDRATE_MM_S - The feedrate used between Probe Points
+#if ABL_USES_GRID
+  // ABL LINEAR and BILINEAR use 'G29 S' value, or MMM_TO_MMS(XY_PROBE_FEEDRATE)
   extern feedRate_t xy_probe_feedrate_mm_s;
   #define XY_PROBE_FEEDRATE_MM_S xy_probe_feedrate_mm_s
 #elif defined(XY_PROBE_FEEDRATE)
@@ -141,7 +137,7 @@ inline int8_t pgm_read_any(const int8_t *p) { return TERN(__IMXRT1062__, *p, pgm
 
 #define XYZ_DEFS(T, NAME, OPT) \
   inline T NAME(const AxisEnum axis) { \
-    static const XYZval<T> NAME##_P DEFS_PROGMEM = NUM_AXIS_ARRAY(X_##OPT, Y_##OPT, Z_##OPT, I_##OPT, J_##OPT, K_##OPT, U_##OPT, V_##OPT, W_##OPT); \
+    static constexpr XYZval<T> NAME##_P DEFS_PROGMEM = NUM_AXIS_ARRAY(X_##OPT, Y_##OPT, Z_##OPT, I_##OPT, J_##OPT, K_##OPT, U_##OPT, V_##OPT, W_##OPT); \
     return pgm_read_any(&NAME##_P[axis]); \
   }
 XYZ_DEFS(float,  base_min_pos,  MIN_POS);     // base_min_pos(axis)
@@ -338,24 +334,24 @@ void sync_plan_position();
  * Move the planner to the current position from wherever it last moved
  * (or from wherever it has been told it is located).
  */
-void line_to_current_position(const_feedRate_t fr_mm_s=feedrate_mm_s);
+void line_to_current_position(const feedRate_t fr_mm_s=feedrate_mm_s);
 
 #if HAS_EXTRUDERS
-  void unscaled_e_move(const_float_t length, const_feedRate_t fr_mm_s);
+  void unscaled_e_move(const float length, const feedRate_t fr_mm_s);
 #endif
 
 void prepare_line_to_destination();
 
-void _internal_move_to_destination(const_feedRate_t fr_mm_s=0.0f OPTARG(IS_KINEMATIC, const bool is_fast=false));
+void _internal_move_to_destination(const feedRate_t fr_mm_s=0.0f OPTARG(IS_KINEMATIC, const bool is_fast=false));
 
-inline void prepare_internal_move_to_destination(const_feedRate_t fr_mm_s=0.0f) {
+inline void prepare_internal_move_to_destination(const feedRate_t fr_mm_s=0.0f) {
   _internal_move_to_destination(fr_mm_s);
 }
 
 #if IS_KINEMATIC
-  void prepare_fast_move_to_destination(const_feedRate_t scaled_fr_mm_s=MMS_SCALED(feedrate_mm_s));
+  void prepare_fast_move_to_destination(const feedRate_t scaled_fr_mm_s=MMS_SCALED(feedrate_mm_s));
 
-  inline void prepare_internal_fast_move_to_destination(const_feedRate_t fr_mm_s=0.0f) {
+  inline void prepare_internal_fast_move_to_destination(const feedRate_t fr_mm_s=0.0f) {
     _internal_move_to_destination(fr_mm_s, true);
   }
 #endif
@@ -363,56 +359,56 @@ inline void prepare_internal_move_to_destination(const_feedRate_t fr_mm_s=0.0f) 
 /**
  * Blocking movement and shorthand functions
  */
-void do_blocking_move_to(NUM_AXIS_ARGS_(const_float_t) const_feedRate_t fr_mm_s=0.0f);
-void do_blocking_move_to(const xy_pos_t &raw, const_feedRate_t fr_mm_s=0.0f);
-void do_blocking_move_to(const xyz_pos_t &raw, const_feedRate_t fr_mm_s=0.0f);
-void do_blocking_move_to(const xyze_pos_t &raw, const_feedRate_t fr_mm_s=0.0f);
+void do_blocking_move_to(NUM_AXIS_ARGS_(const float) const feedRate_t fr_mm_s=0.0f);
+void do_blocking_move_to(const xy_pos_t &raw, const feedRate_t fr_mm_s=0.0f);
+void do_blocking_move_to(const xyz_pos_t &raw, const feedRate_t fr_mm_s=0.0f);
+void do_blocking_move_to(const xyze_pos_t &raw, const feedRate_t fr_mm_s=0.0f);
 
 #if HAS_X_AXIS
-  void do_blocking_move_to_x(const_float_t rx, const_feedRate_t fr_mm_s=0.0f);
+  void do_blocking_move_to_x(const float rx, const feedRate_t fr_mm_s=0.0f);
 #endif
 #if HAS_Y_AXIS
-  void do_blocking_move_to_y(const_float_t ry, const_feedRate_t fr_mm_s=0.0f);
+  void do_blocking_move_to_y(const float ry, const feedRate_t fr_mm_s=0.0f);
 #endif
 #if HAS_Z_AXIS
-  void do_blocking_move_to_z(const_float_t rz, const_feedRate_t fr_mm_s=0.0f);
+  void do_blocking_move_to_z(const float rz, const feedRate_t fr_mm_s=0.0f);
 #endif
 #if HAS_I_AXIS
-  void do_blocking_move_to_i(const_float_t ri, const_feedRate_t fr_mm_s=0.0f);
-  void do_blocking_move_to_xyz_i(const xyze_pos_t &raw, const_float_t i, const_feedRate_t fr_mm_s=0.0f);
+  void do_blocking_move_to_i(const float ri, const feedRate_t fr_mm_s=0.0f);
+  void do_blocking_move_to_xyz_i(const xyze_pos_t &raw, const float i, const feedRate_t fr_mm_s=0.0f);
 #endif
 #if HAS_J_AXIS
-  void do_blocking_move_to_j(const_float_t rj, const_feedRate_t fr_mm_s=0.0f);
-  void do_blocking_move_to_xyzi_j(const xyze_pos_t &raw, const_float_t j, const_feedRate_t fr_mm_s=0.0f);
+  void do_blocking_move_to_j(const float rj, const feedRate_t fr_mm_s=0.0f);
+  void do_blocking_move_to_xyzi_j(const xyze_pos_t &raw, const float j, const feedRate_t fr_mm_s=0.0f);
 #endif
 #if HAS_K_AXIS
-  void do_blocking_move_to_k(const_float_t rk, const_feedRate_t fr_mm_s=0.0f);
-  void do_blocking_move_to_xyzij_k(const xyze_pos_t &raw, const_float_t k, const_feedRate_t fr_mm_s=0.0f);
+  void do_blocking_move_to_k(const float rk, const feedRate_t fr_mm_s=0.0f);
+  void do_blocking_move_to_xyzij_k(const xyze_pos_t &raw, const float k, const feedRate_t fr_mm_s=0.0f);
 #endif
 #if HAS_U_AXIS
-  void do_blocking_move_to_u(const_float_t ru, const_feedRate_t fr_mm_s=0.0f);
-  void do_blocking_move_to_xyzijk_u(const xyze_pos_t &raw, const_float_t u, const_feedRate_t fr_mm_s=0.0f);
+  void do_blocking_move_to_u(const float ru, const feedRate_t fr_mm_s=0.0f);
+  void do_blocking_move_to_xyzijk_u(const xyze_pos_t &raw, const float u, const feedRate_t fr_mm_s=0.0f);
 #endif
 #if HAS_V_AXIS
-  void do_blocking_move_to_v(const_float_t rv, const_feedRate_t fr_mm_s=0.0f);
-  void do_blocking_move_to_xyzijku_v(const xyze_pos_t &raw, const_float_t v, const_feedRate_t fr_mm_s=0.0f);
+  void do_blocking_move_to_v(const float rv, const feedRate_t fr_mm_s=0.0f);
+  void do_blocking_move_to_xyzijku_v(const xyze_pos_t &raw, const float v, const feedRate_t fr_mm_s=0.0f);
 #endif
 #if HAS_W_AXIS
-  void do_blocking_move_to_w(const_float_t rw, const_feedRate_t fr_mm_s=0.0f);
-  void do_blocking_move_to_xyzijkuv_w(const xyze_pos_t &raw, const_float_t w, const_feedRate_t fr_mm_s=0.0f);
+  void do_blocking_move_to_w(const float rw, const feedRate_t fr_mm_s=0.0f);
+  void do_blocking_move_to_xyzijkuv_w(const xyze_pos_t &raw, const float w, const feedRate_t fr_mm_s=0.0f);
 #endif
 
 #if HAS_Y_AXIS
-  void do_blocking_move_to_xy(const_float_t rx, const_float_t ry, const_feedRate_t fr_mm_s=0.0f);
-  void do_blocking_move_to_xy(const xy_pos_t &raw, const_feedRate_t fr_mm_s=0.0f);
-  FORCE_INLINE void do_blocking_move_to_xy(const xyz_pos_t &raw, const_feedRate_t fr_mm_s=0.0f)  { do_blocking_move_to_xy(xy_pos_t(raw), fr_mm_s); }
-  FORCE_INLINE void do_blocking_move_to_xy(const xyze_pos_t &raw, const_feedRate_t fr_mm_s=0.0f) { do_blocking_move_to_xy(xy_pos_t(raw), fr_mm_s); }
+  void do_blocking_move_to_xy(const float rx, const float ry, const feedRate_t fr_mm_s=0.0f);
+  void do_blocking_move_to_xy(const xy_pos_t &raw, const feedRate_t fr_mm_s=0.0f);
+  FORCE_INLINE void do_blocking_move_to_xy(const xyz_pos_t &raw, const feedRate_t fr_mm_s=0.0f)  { do_blocking_move_to_xy(xy_pos_t(raw), fr_mm_s); }
+  FORCE_INLINE void do_blocking_move_to_xy(const xyze_pos_t &raw, const feedRate_t fr_mm_s=0.0f) { do_blocking_move_to_xy(xy_pos_t(raw), fr_mm_s); }
 #endif
 
 #if HAS_Z_AXIS
-  void do_blocking_move_to_xy_z(const xy_pos_t &raw, const_float_t z, const_feedRate_t fr_mm_s=0.0f);
-  FORCE_INLINE void do_blocking_move_to_xy_z(const xyz_pos_t &raw, const_float_t z, const_feedRate_t fr_mm_s=0.0f)  { do_blocking_move_to_xy_z(xy_pos_t(raw), z, fr_mm_s); }
-  FORCE_INLINE void do_blocking_move_to_xy_z(const xyze_pos_t &raw, const_float_t z, const_feedRate_t fr_mm_s=0.0f) { do_blocking_move_to_xy_z(xy_pos_t(raw), z, fr_mm_s); }
+  void do_blocking_move_to_xy_z(const xy_pos_t &raw, const float z, const feedRate_t fr_mm_s=0.0f);
+  FORCE_INLINE void do_blocking_move_to_xy_z(const xyz_pos_t &raw, const float z, const feedRate_t fr_mm_s=0.0f)  { do_blocking_move_to_xy_z(xy_pos_t(raw), z, fr_mm_s); }
+  FORCE_INLINE void do_blocking_move_to_xy_z(const xyze_pos_t &raw, const float z, const feedRate_t fr_mm_s=0.0f) { do_blocking_move_to_xy_z(xy_pos_t(raw), z, fr_mm_s); }
 #endif
 
 void remember_feedrate_scaling_off();
@@ -426,8 +422,8 @@ void restore_feedrate_and_scaling();
       #define Z_POST_CLEARANCE Z_CLEARANCE_FOR_HOMING
     #endif
   #endif
-  void do_z_clearance(const_float_t zclear, const bool with_probe=true, const bool lower_allowed=false);
-  void do_z_clearance_by(const_float_t zclear);
+  void do_z_clearance(const float zclear, const bool with_probe=true, const bool lower_allowed=false);
+  void do_z_clearance_by(const float zclear);
   void do_move_after_z_homing();
   inline void do_z_post_clearance() { do_z_clearance(Z_POST_CLEARANCE); }
 #else
@@ -569,18 +565,18 @@ void home_if_needed(const bool keeplev=false);
   #endif
 
   // Return true if the given point is within the printable area
-  bool position_is_reachable(const_float_t rx, const_float_t ry, const float inset=0);
+  bool position_is_reachable(const float rx, const float ry, const float inset=0.0f);
 
-  inline bool position_is_reachable(const xy_pos_t &pos, const float inset=0) {
+  inline bool position_is_reachable(const xy_pos_t &pos, const float inset=0.0f) {
     return position_is_reachable(pos.x, pos.y, inset);
   }
 
 #else
 
   // Return true if the given position is within the machine bounds.
-  bool position_is_reachable(TERN_(HAS_X_AXIS, const_float_t rx) OPTARG(HAS_Y_AXIS, const_float_t ry));
+  bool position_is_reachable(XY_LIST(const float rx, const float ry));
   inline bool position_is_reachable(const xy_pos_t &pos) {
-    return position_is_reachable(TERN_(HAS_X_AXIS, pos.x) OPTARG(HAS_Y_AXIS, pos.y));
+    return position_is_reachable(XY_LIST(pos.x, pos.y));
   }
 
 #endif
@@ -636,7 +632,7 @@ void home_if_needed(const bool keeplev=false);
 #endif
 
 #if HAS_HOME_OFFSET
-  void set_home_offset(const AxisEnum axis, const_float_t v);
+  void set_home_offset(const AxisEnum axis, const float v);
 #endif
 
 //

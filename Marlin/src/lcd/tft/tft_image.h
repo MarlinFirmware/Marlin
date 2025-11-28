@@ -25,12 +25,21 @@
 
 #if ENABLED(COMPACT_MARLIN_BOOT_LOGO)
   #define MARLIN_LOGO_CHOSEN(W,H) { (void *)marlin_logo_##W##x##H##x16_rle16, W, H, RLE16 }
+  #if ENABLED(SHOW_CUSTOM_BOOTSCREEN)
+    #define _CUSTOM_BOOTSCREEN_CHOSEN(W,H) { (void *)custom_bootscreen_##W##x##H##x16_rle16, W, H, RLE16 }
+    #define CUSTOM_BOOTSCREEN_CHOSEN(W,H) _CUSTOM_BOOTSCREEN_CHOSEN(W,H)
+  #endif
 #else
   #define MARLIN_LOGO_CHOSEN(W,H) { (void *)marlin_logo_##W##x##H##x16, W, H, HIGHCOLOR }
+  #if ENABLED(SHOW_CUSTOM_BOOTSCREEN)
+    #define _CUSTOM_BOOTSCREEN_CHOSEN(W,H){ (void *)custom_bootscreen_##W##x##H##x16, W, H, HIGHCOLOR }
+    #define CUSTOM_BOOTSCREEN_CHOSEN(W,H) _CUSTOM_BOOTSCREEN_CHOSEN(W,H)
+  #endif
 #endif
 
 enum MarlinImage : uint8_t {
-  imgBootScreen = 0x00, // BOOTSCREEN_LOGO / NoLogo
+  imgCustomBoot = 0x00, // CUSTOM_BOOTSCREEN
+  imgBootScreen,        // BOOTSCREEN_LOGO / NoLogo
   imgHotEnd,            // HotEnd_64x64x4
   imgBed,               // Bed_64x64x4
   imgBedHeated,         // Bed_Heated_64x64x4

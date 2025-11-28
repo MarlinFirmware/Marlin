@@ -47,14 +47,14 @@ static uint8_t ram_eeprom[MARLIN_EEPROM_SIZE] __attribute__((aligned(4))) = {0};
 static bool eeprom_dirty = false;
 
 bool PersistentStore::access_start() {
-  const uint32_t *source = reinterpret_cast<const uint32_t*>(EEPROM_PAGE0_BASE);
-  uint32_t *destination = reinterpret_cast<uint32_t*>(ram_eeprom);
+  const uint32_t *src = reinterpret_cast<const uint32_t*>(EEPROM_PAGE0_BASE);
+  uint32_t *dst = reinterpret_cast<uint32_t*>(ram_eeprom);
 
   static_assert(0 == (MARLIN_EEPROM_SIZE) % 4, "MARLIN_EEPROM_SIZE is corrupted. (Must be a multiple of 4.)"); // Ensure copying as uint32_t is safe
   constexpr size_t eeprom_size_u32 = (MARLIN_EEPROM_SIZE) / 4;
 
-  for (size_t i = 0; i < eeprom_size_u32; ++i, ++destination, ++source)
-    *destination = *source;
+  for (size_t i = 0; i < eeprom_size_u32; ++i, ++dst, ++src)
+    *dst = *src;
 
   eeprom_dirty = false;
   return true;
@@ -80,9 +80,9 @@ bool PersistentStore::access_finish() {
     status = FLASH_ErasePage(EEPROM_PAGE1_BASE);
     if (status != FLASH_COMPLETE) ACCESS_FINISHED(true);
 
-    const uint16_t *source = reinterpret_cast<const uint16_t*>(ram_eeprom);
-    for (size_t i = 0; i < long(MARLIN_EEPROM_SIZE); i += 2, ++source) {
-      if (FLASH_ProgramHalfWord(EEPROM_PAGE0_BASE + i, *source) != FLASH_COMPLETE)
+    const uint16_t *src = reinterpret_cast<const uint16_t*>(ram_eeprom);
+    for (size_t i = 0; i < long(MARLIN_EEPROM_SIZE); i += 2, ++src) {
+      if (FLASH_ProgramHalfWord(EEPROM_PAGE0_BASE + i, *src) != FLASH_COMPLETE)
         ACCESS_FINISHED(false);
     }
 

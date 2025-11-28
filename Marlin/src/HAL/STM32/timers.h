@@ -38,7 +38,7 @@
 // of adding a run-time check and HAL_TIMER_TYPE_MAX is refactored to allow unique
 // values for each timer.
 #define hal_timer_t uint32_t
-#define HAL_TIMER_TYPE_MAX UINT16_MAX
+#define HAL_TIMER_TYPE_MAX hal_timer_t(UINT16_MAX)
 
 // Marlin timer_instance[] content (unrelated to timer selection)
 #define MF_TIMER_STEP       0  // Timer Index for Stepper
@@ -116,5 +116,5 @@ FORCE_INLINE static void HAL_timer_set_compare(const uint8_t timer_num, const ha
   }
 }
 
-#define HAL_timer_isr_prologue(T) NOOP
-#define HAL_timer_isr_epilogue(T) NOOP
+inline void HAL_timer_isr_prologue(const uint8_t) {}
+inline void HAL_timer_isr_epilogue(const uint8_t) {}

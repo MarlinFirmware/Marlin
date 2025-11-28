@@ -1967,14 +1967,14 @@ namespace Anycubic {
 
         setSoftEndstopState(false);
 
-        z_off = getZOffset_mm() - 0.01f;
+        z_off = getZOffset_mm() - BABYSTEP_SIZE_Z;
         setZOffset_mm(z_off);
 
         sendTxtToTFT(ftostr52sprj(getZOffset_mm()) + 2, TXT_LEVEL_OFFSET);
 
         if (isAxisPositionKnown(Z)) {
           const float currZpos = getAxisPosition_mm(Z);
-          setAxisPosition_mm(currZpos - 0.01f, Z);
+          setAxisPosition_mm(currZpos - BABYSTEP_SIZE_Z, Z);
         }
 
         setSoftEndstopState(true);
@@ -1985,14 +1985,14 @@ namespace Anycubic {
 
         setSoftEndstopState(false);
 
-        z_off = getZOffset_mm() + 0.01f;
+        z_off = getZOffset_mm() + BABYSTEP_SIZE_Z;
         setZOffset_mm(z_off);
 
         sendTxtToTFT(ftostr52sprj(getZOffset_mm()) + 2, TXT_LEVEL_OFFSET);
 
         if (isAxisPositionKnown(Z)) {          // Move Z axis
           const float currZpos = getAxisPosition_mm(Z);
-          setAxisPosition_mm(currZpos + 0.01f, Z);
+          setAxisPosition_mm(currZpos + BABYSTEP_SIZE_Z, Z);
         }
 
         setSoftEndstopState(true);

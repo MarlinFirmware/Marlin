@@ -94,7 +94,7 @@ void GcodeSuite::M425() {
     #if ENABLED(MEASURE_BACKLASH_WHEN_PROBING)
       SERIAL_ECHOPGM("  Average measured backlash (mm):");
       if (backlash.has_any_measurement()) {
-        LOOP_NUM_AXES(a) if (axis_can_calibrate(a) && backlash.has_measurement(AxisEnum(a))) {
+        LOOP_NUM_AXES(a) if (axis_can_calibrate(a) && backlash.has_measurement((AxisEnum)a)) {
           SERIAL_ECHOPGM_P((PGM_P)pgm_read_ptr(&SP_AXIS_STR[a]), backlash.get_measurement((AxisEnum)a));
         }
       }

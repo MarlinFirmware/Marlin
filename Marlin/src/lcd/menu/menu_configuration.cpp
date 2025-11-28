@@ -464,12 +464,6 @@ void menu_advanced_settings();
 
 #if ENABLED(CUSTOM_MENU_CONFIG)
 
-  void _lcd_custom_menus_configuration_gcode(FSTR_P const fstr) {
-    queue.inject(fstr);
-    TERN_(CUSTOM_MENU_CONFIG_SCRIPT_AUDIBLE_FEEDBACK, ui.completion_feedback());
-    TERN_(CUSTOM_MENU_CONFIG_SCRIPT_RETURN, ui.return_to_status());
-  }
-
   void custom_menus_configuration() {
     START_MENU();
     BACK_ITEM(MSG_MAIN_MENU);
@@ -481,7 +475,7 @@ void menu_advanced_settings();
     #else
       #define _DONE_SCRIPT ""
     #endif
-    #define GCODE_LAMBDA_CONF(N) []{ _lcd_custom_menus_configuration_gcode(F(CONFIG_MENU_ITEM_##N##_GCODE _DONE_SCRIPT)); }
+    #define GCODE_LAMBDA_CONF(N) []{ _lcd_custom_menu_gcode<ENABLED(CONFIG_MENU_ITEM_##N##_IMMEDIATE)>(F(CONFIG_MENU_ITEM_##N##_GCODE _DONE_SCRIPT)); }
     #define _CUSTOM_ITEM_CONF(N) ACTION_ITEM_F(F(CONFIG_MENU_ITEM_##N##_DESC), GCODE_LAMBDA_CONF(N));
     #define _CUSTOM_ITEM_CONF_CONFIRM(N)            \
       SUBMENU_F(F(CONFIG_MENU_ITEM_##N##_DESC), []{ \

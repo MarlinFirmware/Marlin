@@ -40,6 +40,11 @@
   #include "msc_sd.h"
 #endif
 
+// ADC index 4 is the MCU temperature
+#define HAL_ADC_MCU_TEMP_DUMMY_PIN 127
+#define TEMP_SOC_PIN HAL_ADC_MCU_TEMP_DUMMY_PIN   // ADC4 is internal temp sensor
+#include "temp_soc.h"
+
 //
 // Serial Ports
 //
@@ -85,8 +90,6 @@ typedef libServo hal_servo_t;
 #else
   #define HAL_ADC_RESOLUTION 12
 #endif
-// ADC index 4 is the MCU temperature
-#define HAL_ADC_MCU_TEMP_DUMMY_PIN 127
 
 //
 // Pin Mapping for M42, M43, M226
@@ -163,9 +166,6 @@ public:
 
   // Begin ADC sampling on the given pin. Called from Temperature::isr!
   static void adc_start(const pin_t pin);
-
-  // This ADC runs a periodic task
-  static void adc_exclusive_handler();
 
   // Is the ADC ready for reading?
   static volatile bool adc_has_result;

@@ -45,6 +45,7 @@
  */
 #if EXTRUDERS
   #define HAS_EXTRUDERS 1
+  #define HAS_E_AXIS 1
   #if EXTRUDERS > 1
     #define HAS_MULTI_EXTRUDER 1
   #endif
@@ -70,8 +71,11 @@
   #undef HOTEND_OVERSHOOT
   #undef DISABLE_E
   #undef PREVENT_LENGTHY_EXTRUDE
+  #undef FILAMENT_SWITCH_AND_MOTION
   #undef FILAMENT_RUNOUT_SENSOR
   #undef FILAMENT_RUNOUT_DISTANCE_MM
+  #undef FILAMENT_MOTION_SENSOR
+  #undef FILAMENT_MOTION_DISTANCE_MM
   #undef DISABLE_OTHER_EXTRUDERS
 #endif
 
@@ -254,7 +258,7 @@
   #if NUM_AXES >= XY
     #define HAS_Y_AXIS 1
     #define HAS_B_AXIS 1
-    #if NUM_AXES >= XYZ
+    #if NUM_AXES >= 3
       #define HAS_Z_AXIS 1
       #define HAS_C_AXIS 1
       #if NUM_AXES >= 4

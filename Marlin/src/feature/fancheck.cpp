@@ -42,30 +42,14 @@ bool FanCheck::enabled;
 
 void FanCheck::init() {
   #define _TACHINIT(N) TERN(E##N##_FAN_TACHO_PULLUP, SET_INPUT_PULLUP, TERN(E##N##_FAN_TACHO_PULLDOWN, SET_INPUT_PULLDOWN, SET_INPUT))(E##N##_FAN_TACHO_PIN)
-  #if HAS_E0_FAN_TACHO
-    _TACHINIT(0);
-  #endif
-  #if HAS_E1_FAN_TACHO
-    _TACHINIT(1);
-  #endif
-  #if HAS_E2_FAN_TACHO
-    _TACHINIT(2);
-  #endif
-  #if HAS_E3_FAN_TACHO
-    _TACHINIT(3);
-  #endif
-  #if HAS_E4_FAN_TACHO
-    _TACHINIT(4);
-  #endif
-  #if HAS_E5_FAN_TACHO
-    _TACHINIT(5);
-  #endif
-  #if HAS_E6_FAN_TACHO
-    _TACHINIT(6);
-  #endif
-  #if HAS_E7_FAN_TACHO
-    _TACHINIT(7);
-  #endif
+  TERF(HAS_E0_FAN_TACHO, _TACHINIT)(0);
+  TERF(HAS_E1_FAN_TACHO, _TACHINIT)(1);
+  TERF(HAS_E2_FAN_TACHO, _TACHINIT)(2);
+  TERF(HAS_E3_FAN_TACHO, _TACHINIT)(3);
+  TERF(HAS_E4_FAN_TACHO, _TACHINIT)(4);
+  TERF(HAS_E5_FAN_TACHO, _TACHINIT)(5);
+  TERF(HAS_E6_FAN_TACHO, _TACHINIT)(6);
+  TERF(HAS_E7_FAN_TACHO, _TACHINIT)(7);
 }
 
 void FanCheck::update_tachometers() {
@@ -74,30 +58,14 @@ void FanCheck::update_tachometers() {
   #define _TACHO_CASE(N) case N: status = READ(E##N##_FAN_TACHO_PIN); break;
   for (uint8_t f = 0; f < TACHO_COUNT; ++f) {
     switch (f) {
-      #if HAS_E0_FAN_TACHO
-        _TACHO_CASE(0)
-      #endif
-      #if HAS_E1_FAN_TACHO
-        _TACHO_CASE(1)
-      #endif
-      #if HAS_E2_FAN_TACHO
-        _TACHO_CASE(2)
-      #endif
-      #if HAS_E3_FAN_TACHO
-        _TACHO_CASE(3)
-      #endif
-      #if HAS_E4_FAN_TACHO
-        _TACHO_CASE(4)
-      #endif
-      #if HAS_E5_FAN_TACHO
-        _TACHO_CASE(5)
-      #endif
-      #if HAS_E6_FAN_TACHO
-        _TACHO_CASE(6)
-      #endif
-      #if HAS_E7_FAN_TACHO
-        _TACHO_CASE(7)
-      #endif
+      TERF(HAS_E0_FAN_TACHO, _TACHO_CASE)(0)
+      TERF(HAS_E1_FAN_TACHO, _TACHO_CASE)(1)
+      TERF(HAS_E2_FAN_TACHO, _TACHO_CASE)(2)
+      TERF(HAS_E3_FAN_TACHO, _TACHO_CASE)(3)
+      TERF(HAS_E4_FAN_TACHO, _TACHO_CASE)(4)
+      TERF(HAS_E5_FAN_TACHO, _TACHO_CASE)(5)
+      TERF(HAS_E6_FAN_TACHO, _TACHO_CASE)(6)
+      TERF(HAS_E7_FAN_TACHO, _TACHO_CASE)(7)
       default: continue;
     }
 
