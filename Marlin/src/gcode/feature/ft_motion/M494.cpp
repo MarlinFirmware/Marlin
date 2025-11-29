@@ -21,7 +21,7 @@
  */
 #include "../../../inc/MarlinConfigPre.h"
 
-#if ENABLED(FT_MOTION)
+#if ENABLED(FTM_POLYS)
 
 #include "../../gcode.h"
 #include "../../../module/ft_motion.h"
@@ -32,10 +32,8 @@ static FSTR_P get_trajectory_type_name() {
   switch (ftMotion.getTrajectoryType()) {
     default:
     case TrajectoryType::TRAPEZOIDAL: return GET_TEXT_F(MSG_FTM_TRAPEZOIDAL);
-    #if ENABLED(FTM_POLYS)
-      case TrajectoryType::POLY5:       return GET_TEXT_F(MSG_FTM_POLY5);
-      case TrajectoryType::POLY6:       return GET_TEXT_F(MSG_FTM_POLY6);
-   #endif
+    case TrajectoryType::POLY5:       return GET_TEXT_F(MSG_FTM_POLY5);
+    case TrajectoryType::POLY6:       return GET_TEXT_F(MSG_FTM_POLY6);
   }
 }
 
@@ -44,10 +42,8 @@ void say_ftm_settings() {
 
   const ft_config_t &c = ftMotion.cfg;
 
-  #if (ENABLED(FTM_POLYS))
-    if (ftMotion.getTrajectoryType() == TrajectoryType::POLY6)
-      SERIAL_ECHOLNPGM("  Poly6 Overshoot: ", p_float_t(c.poly6_acceleration_overshoot, 3));
-  #endif 
+  if (ftMotion.getTrajectoryType() == TrajectoryType::POLY6)
+    SERIAL_ECHOLNPGM("  Poly6 Overshoot: ", p_float_t(c.poly6_acceleration_overshoot, 3));
 
   #if ENABLED(FTM_SMOOTHING)
     #define _SMOO_REPORT(A) SERIAL_ECHOLN(F("  "), C(IAXIS_CHAR(_AXIS(A))), F(" smoothing time: "), p_float_t(c.smoothingTime.A, 3), C('s'));
@@ -72,13 +68,10 @@ void GcodeSuite::M494_report(const bool forReplay/*=true*/) {
     );
   #endif
 
-  #if ENABLED(FTM_POLYS)
-    if (ftMotion.getTrajectoryType() == TrajectoryType::POLY6) {
-      SERIAL_ECHOPGM(" O", c.poly6_acceleration_overshoot);
+  if (ftMotion.getTrajectoryType() == TrajectoryType::POLY6)
+    SERIAL_ECHOPGM(" O", c.poly6_acceleration_overshoot);
 
-    SERIAL_EOL();
-    }
-  #endif
+  SERIAL_EOL();
 }
 
 /**
@@ -97,31 +90,26 @@ void GcodeSuite::M494() {
 
   // Parse trajectory type parameter.
   if (parser.seenval('T')) {
-    #if (ENABLED(FTM_POLYS)) 
-      const int val = parser.value_int();
-      if (WITHIN(val, 0, 2)) {
-        planner.synchronize();
-        ftMotion.setTrajectoryType((TrajectoryType)val);
-        report = true;
-      }
-      else
-        SERIAL_ECHOLN(F("?Invalid "), F("trajectory type [T] value. Use 0=TRAPEZOIDAL, 1=POLY5, 2=POLY6"));
-    #endif
+    const int val = parser.value_int();
+    if (WITHIN(val, 0, 2)) {
+      planner.synchronize();
+      ftMotion.setTrajectoryType((TrajectoryType)val);
+      report = true;
     }
-  }  
+    else
+      SERIAL_ECHOLN(F("?Invalid "), F("trajectory type [T] value. Use 0=TRAPEZOIDAL, 1=POLY5, 2=POLY6"));
+  }
 
   // Parse overshoot parameter.
   if (parser.seenval('O')) {
-    #if (ENABLED(FTM_POLYS)) 
-      const float val = parser.value_float();
-      if (WITHIN(val, 1.25f, 1.875f)) {
-        ftMotion.cfg.poly6_acceleration_overshoot = val;
-        report = true;
-      }
-      else
-        SERIAL_ECHOLN(F("?Invalid "), F("overshoot [O] value. Range 1.25-1.875"));
-  #endif
-  } 
+    const float val = parser.value_float();
+    if (WITHIN(val, 1.25f, 1.875f)) {
+      ftMotion.cfg.poly6_acceleration_overshoot = val;
+      report = true;
+    }
+    else
+      SERIAL_ECHOLN(F("?Invalid "), F("overshoot [O] value. Range 1.25-1.875"));
+  }
 
   #if ENABLED(FTM_SMOOTHING)
 
