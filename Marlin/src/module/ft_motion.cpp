@@ -224,8 +224,8 @@ void FTMotion::reset() {
   endPos_prevBlock.reset();
   tau = 0;
   stepping.reset();
-  smoothing.reset();
   shaping.reset();
+  TERN_(FTM_SMOOTHING, smoothing.reset(););
 
   TERN_(HAS_EXTRUDERS, prev_traj_e = 0.0f);  // Reset linear advance variables.
   TERN_(DISTINCT_E_FACTORS, block_extruder_axis = E_AXIS);
