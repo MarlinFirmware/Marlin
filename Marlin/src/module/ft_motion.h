@@ -42,7 +42,7 @@
 
 #define FTM_VERSION   2   // Change version when hosts need to know
 
-#if HAS_X_AXIS && (HAS_Z_AXIS || HAS_EXTRUDERS)
+#if ENABLED(FTM_DYNAMIC_FREQ)
   #define HAS_DYNAMIC_FREQ 1
   #if HAS_Z_AXIS
     #define HAS_DYNAMIC_FREQ_MM 1
