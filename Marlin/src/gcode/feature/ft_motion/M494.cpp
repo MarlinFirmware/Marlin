@@ -97,7 +97,7 @@ void GcodeSuite::M494() {
 
   // Parse trajectory type parameter.
   if (parser.seenval('T')) {
-    if (ENABLED(FTM_POLYS)) {  
+    #if (ENABLED(FTM_POLYS)) 
       const int val = parser.value_int();
       if (WITHIN(val, 0, 2)) {
         planner.synchronize();
@@ -106,9 +106,8 @@ void GcodeSuite::M494() {
       }
       else
         SERIAL_ECHOLN(F("?Invalid "), F("trajectory type [T] value. Use 0=TRAPEZOIDAL, 1=POLY5, 2=POLY6"));
+    #endif
     }
-    else
-        SERIAL_ECHOLN(F("?Invalid "), F("Poly trajectory types disabled."));
   }  
 
   // Parse overshoot parameter.
