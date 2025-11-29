@@ -72,7 +72,7 @@ void GcodeSuite::M494_report(const bool forReplay/*=true*/) {
       )
     );
   #endif // FTM_SMOOTHING
-  
+
   #if ENABLED(FTM_POLYS)
 
     if (ftMotion.getTrajectoryType() == TrajectoryType::POLY6)

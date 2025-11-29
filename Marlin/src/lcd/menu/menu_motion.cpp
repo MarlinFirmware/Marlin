@@ -335,7 +335,7 @@ void menu_move() {
         case TrajectoryType::TRAPEZOIDAL: return GET_TEXT_F(MSG_FTM_TRAPEZOIDAL);
         case TrajectoryType::POLY5:       return GET_TEXT_F(MSG_FTM_POLY5);
         case TrajectoryType::POLY6:       return GET_TEXT_F(MSG_FTM_POLY6);
-    
+
       }
     }
   #endif // FTM_POLYS
@@ -502,7 +502,9 @@ void menu_move() {
     #else
       auto _shaper_name = [](const AxisEnum a) { return get_shaper_name(a); };
       auto _dmode = []{ return get_dyn_freq_mode_name(); };
-      auto _traj_name = []{ return get_trajectory_name(); };
+      #if ENABLED(FTM_POLYS)
+        auto _traj_name = []{ return get_trajectory_name(); };
+      #endif
     #endif
 
     START_MENU();
@@ -513,6 +515,12 @@ void menu_move() {
 
     // Show only when FT Motion is active (or optionally always show)
     if (c.active || ENABLED(FT_MOTION_NO_MENU_TOGGLE)) {
+      #if ENABLED(FTM_POLYS)
+        SUBMENU_S(_traj_name(), MSG_FTM_TRAJECTORY, menu_ftm_trajectory_generator);
+        if (ftMotion.getTrajectoryType() == TrajectoryType::POLY6)
+          EDIT_ITEM(float42_52, MSG_FTM_POLY6_OVERSHOOT, &c.poly6_acceleration_overshoot, 1.25f, 1.875f);
+      #endif
+
       #define SHAPER_MENU_ITEM(A) \
         SUBMENU_N_S(_AXIS(A), _shaper_name(_AXIS(A)), MSG_FTM_CMPN_MODE, menu_ftm_shaper_##A); \
         if (AXIS_IS_SHAPING(A)) { \
@@ -521,11 +529,6 @@ void menu_move() {
           if (AXIS_IS_EISHAPING(A)) \
             EDIT_ITEM_FAST_N(float42_52, _AXIS(A), MSG_FTM_VTOL_N, &c.vtol.A, 0.0f, 1.0f, ftMotion.update_shaping_params); \
         }
-      SUBMENU_S(_traj_name(), MSG_FTM_TRAJECTORY, menu_ftm_trajectory_generator);
-
-      if (ftMotion.getTrajectoryType() == TrajectoryType::POLY6)
-        EDIT_ITEM(float42_52, MSG_FTM_POLY6_OVERSHOOT, &c.poly6_acceleration_overshoot, 1.25f, 1.875f);
-
       SHAPED_MAP(SHAPER_MENU_ITEM);
 
       #if HAS_DYNAMIC_FREQ

@@ -4500,6 +4500,15 @@ static_assert(_PLUS_TEST(3), "DEFAULT_MAX_ACCELERATION values must be positive."
   #if ENABLED(FTM_RESONANCE_TEST) && DISABLED(EMERGENCY_PARSER)
     #error "EMERGENCY_PARSER is required with FTM_RESONANCE_TEST (to cancel the test)."
   #endif
+  #if DISABLED(FTM_POLYS)
+    #define _FTM_TRAPEZOIDAL 123
+    #define _FTM_TRAJ(T) _CAT(_FTM_,T)
+    #if _FTM_TRAJ(FTM_TRAJECTORY_TYPE) != _FTM_TRAJ(TRAPEZOIDAL)
+      #error "FTM_TRAJECTORY_TYPE TRAPEZOIDAL is required with FTM_POLYS disabled."
+    #endif
+    #undef _FTM_TRAPEZOIDAL
+    #undef _FTM_TRAJ
+  #endif
 #endif
 
 // Multi-Stepping Limit
