@@ -134,4 +134,4 @@ void GcodeSuite::M494() {
   if (report) say_ftm_settings();
 }
 
-#endif // FT_MOTION
+#endif // FTM_POLYS
