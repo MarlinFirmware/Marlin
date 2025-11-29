@@ -1544,7 +1544,7 @@ void RTS::updateTempBed() {
 }
 
 void RTS::updateFan0() {
-  TERN_(HAS_FAN, sendData(thermalManager.fan_speed[0], FAN_SPEED_VP));
+  TERN_(HAS_FAN, sendData(fans[0].speed, FAN_SPEED_VP));
 }
 
 void RTS::onIdle() {
