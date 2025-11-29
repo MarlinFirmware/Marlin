@@ -68,7 +68,7 @@ void GcodeSuite::M24() {
   #endif
 
   #if ALL(ADVANCED_PAUSE_FANS_PAUSE, HAS_FAN)
-    thermalManager.set_fans_paused(false);
+    Fan::all_pause(false);
   #endif
 
   #if DGUS_LCD_UI_MKS
@@ -140,7 +140,7 @@ void GcodeSuite::M25() {
     #endif
 
     #if ALL(ADVANCED_PAUSE_FANS_PAUSE, HAS_FAN)
-      thermalManager.set_fans_paused(true);
+      Fan::all_pause(true);
     #endif
 
     #if MEDIA_PAUSE_PARK_NOZZLE_TIMEOUT
