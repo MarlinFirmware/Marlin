@@ -926,8 +926,8 @@ void GcodeSuite::process_parsed_command(bool no_ok/*=false*/) {
       #endif
 
       #if ENABLED(FT_MOTION)
-        case 493: M493(); break;                                  // M493: Fixed-Time Motion control
-        #if ENABLED(FTM_SMOOTHING)
+          case 493: M493(); break;                                // M493: Fixed-Time Motion control
+        #if ANY(FTM_SMOOTHING,FTM_POLYS)
           case 494: M494(); break;                                // M494: Fixed-Time Motion extras
         #endif
         #if ENABLED(FTM_RESONANCE_TEST)
