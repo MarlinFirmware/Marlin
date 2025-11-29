@@ -496,7 +496,7 @@ void menu_move() {
       };
     #else
       auto _shaper_name = [](const AxisEnum a) { return get_shaper_name(a); };
-      auto _dmode = []{ return get_dyn_freq_mode_name(); };
+      TERN_(HAS_DYNAMIC_FREQ, auto _dmode = []{ return get_dyn_freq_mode_name(); });
       auto _traj_name = []{ return get_trajectory_name(); };
     #endif
 
@@ -589,7 +589,7 @@ void menu_move() {
       };
     #else // !__AVR__
       auto _shaper_name = [](const AxisEnum a) { return get_shaper_name(a); };
-      auto _dmode = []{ return get_dyn_freq_mode_name(); };
+      TERN_(HAS_DYNAMIC_FREQ, auto _dmode = []{ return get_dyn_freq_mode_name(); });
       auto _traj_name = []{ return get_trajectory_name(); };
     #endif
 
