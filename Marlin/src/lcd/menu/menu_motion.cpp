@@ -327,14 +327,18 @@ void menu_move() {
     }
   }
 
-  FSTR_P get_trajectory_name() {
-    switch (ftMotion.getTrajectoryType()) {
-      default:
-      case TrajectoryType::TRAPEZOIDAL: return GET_TEXT_F(MSG_FTM_TRAPEZOIDAL);
-      case TrajectoryType::POLY5:       return GET_TEXT_F(MSG_FTM_POLY5);
-      case TrajectoryType::POLY6:       return GET_TEXT_F(MSG_FTM_POLY6);
+
+  #if ENABLED(FTM_POLYS)
+    FSTR_P get_trajectory_name() {
+      switch (ftMotion.getTrajectoryType()) {
+        default:
+        case TrajectoryType::TRAPEZOIDAL: return GET_TEXT_F(MSG_FTM_TRAPEZOIDAL);
+        case TrajectoryType::POLY5:       return GET_TEXT_F(MSG_FTM_POLY5);
+        case TrajectoryType::POLY6:       return GET_TEXT_F(MSG_FTM_POLY6);
+    
+      }
     }
-  }
+  #endif // FTM_POLYS
 
   #if HAS_DYNAMIC_FREQ
     FSTR_P get_dyn_freq_mode_name() {
@@ -371,16 +375,17 @@ void menu_move() {
     }
 
   SHAPED_MAP(MENU_FTM_SHAPER);
-
-  void menu_ftm_trajectory_generator() {
-    const TrajectoryType current_type = ftMotion.getTrajectoryType();
-    START_MENU();
-    BACK_ITEM(MSG_FIXED_TIME_MOTION);
-    if (current_type != TrajectoryType::TRAPEZOIDAL) ACTION_ITEM(MSG_FTM_TRAPEZOIDAL, []{ planner.synchronize(); ftMotion.setTrajectoryType(TrajectoryType::TRAPEZOIDAL);  ui.go_back(); });
-    if (current_type != TrajectoryType::POLY5)       ACTION_ITEM(MSG_FTM_POLY5,       []{ planner.synchronize(); ftMotion.setTrajectoryType(TrajectoryType::POLY5);        ui.go_back(); });
-    if (current_type != TrajectoryType::POLY6)       ACTION_ITEM(MSG_FTM_POLY6,       []{ planner.synchronize(); ftMotion.setTrajectoryType(TrajectoryType::POLY6);        ui.go_back(); });
+  #if ENABLED(FTM_POLYS)
+    void menu_ftm_trajectory_generator() {
+      const TrajectoryType current_type = ftMotion.getTrajectoryType();
+      START_MENU();
+      BACK_ITEM(MSG_FIXED_TIME_MOTION);
+      if (current_type != TrajectoryType::TRAPEZOIDAL) ACTION_ITEM(MSG_FTM_TRAPEZOIDAL, []{ planner.synchronize(); ftMotion.setTrajectoryType(TrajectoryType::TRAPEZOIDAL);  ui.go_back(); });
+      if (current_type != TrajectoryType::POLY5)       ACTION_ITEM(MSG_FTM_POLY5,       []{ planner.synchronize(); ftMotion.setTrajectoryType(TrajectoryType::POLY5);        ui.go_back(); });
+      if (current_type != TrajectoryType::POLY6)       ACTION_ITEM(MSG_FTM_POLY6,       []{ planner.synchronize(); ftMotion.setTrajectoryType(TrajectoryType::POLY6);        ui.go_back(); });
     END_MENU();
   }
+  #endif // FTM_POLYS
 
   #if ENABLED(FTM_RESONANCE_TEST)
 
