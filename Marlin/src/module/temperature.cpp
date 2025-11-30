@@ -720,47 +720,47 @@ void Temperature::factory_reset() {
   //
   #if ENABLED(PIDTEMP)
     #if ENABLED(PID_PARAMS_PER_HOTEND)
-      constexpr float defKp[] =
-        #ifdef DEFAULT_Kp_LIST
-          DEFAULT_Kp_LIST
+      constexpr float defKP[] =
+        #ifdef DEFAULT_KP_LIST
+          DEFAULT_KP_LIST
         #else
-          ARRAY_BY_HOTENDS1(DEFAULT_Kp)
+          ARRAY_BY_HOTENDS1(DEFAULT_KP)
         #endif
-      , defKi[] =
-        #ifdef DEFAULT_Ki_LIST
-          DEFAULT_Ki_LIST
+      , defKI[] =
+        #ifdef DEFAULT_KI_LIST
+          DEFAULT_KI_LIST
         #else
-          ARRAY_BY_HOTENDS1(DEFAULT_Ki)
+          ARRAY_BY_HOTENDS1(DEFAULT_KI)
         #endif
-      , defKd[] =
-        #ifdef DEFAULT_Kd_LIST
-          DEFAULT_Kd_LIST
+      , defKD[] =
+        #ifdef DEFAULT_KD_LIST
+          DEFAULT_KD_LIST
         #else
-          ARRAY_BY_HOTENDS1(DEFAULT_Kd)
+          ARRAY_BY_HOTENDS1(DEFAULT_KD)
         #endif
       ;
-      static_assert(WITHIN(COUNT(defKp), 1, HOTENDS), "DEFAULT_Kp_LIST must have between 1 and HOTENDS items.");
-      static_assert(WITHIN(COUNT(defKi), 1, HOTENDS), "DEFAULT_Ki_LIST must have between 1 and HOTENDS items.");
-      static_assert(WITHIN(COUNT(defKd), 1, HOTENDS), "DEFAULT_Kd_LIST must have between 1 and HOTENDS items.");
+      static_assert(WITHIN(COUNT(defKP), 1, HOTENDS), "DEFAULT_KP_LIST must have between 1 and HOTENDS items.");
+      static_assert(WITHIN(COUNT(defKI), 1, HOTENDS), "DEFAULT_KI_LIST must have between 1 and HOTENDS items.");
+      static_assert(WITHIN(COUNT(defKD), 1, HOTENDS), "DEFAULT_KD_LIST must have between 1 and HOTENDS items.");
       #if ENABLED(PID_EXTRUSION_SCALING)
-        constexpr float defKc[] =
-          #ifdef DEFAULT_Kc_LIST
-            DEFAULT_Kc_LIST
+        constexpr float defKC[] =
+          #ifdef DEFAULT_KC_LIST
+            DEFAULT_KC_LIST
           #else
-            ARRAY_BY_HOTENDS1(DEFAULT_Kc)
+            ARRAY_BY_HOTENDS1(DEFAULT_KC)
           #endif
         ;
-        static_assert(WITHIN(COUNT(defKc), 1, HOTENDS), "DEFAULT_Kc_LIST must have between 1 and HOTENDS items.");
+        static_assert(WITHIN(COUNT(defKC), 1, HOTENDS), "DEFAULT_KC_LIST must have between 1 and HOTENDS items.");
       #endif
       #if ENABLED(PID_FAN_SCALING)
-        constexpr float defKf[] =
-          #ifdef DEFAULT_Kf_LIST
-            DEFAULT_Kf_LIST
+        constexpr float defKF[] =
+          #ifdef DEFAULT_KF_LIST
+            DEFAULT_KF_LIST
           #else
-            ARRAY_BY_HOTENDS1(DEFAULT_Kf)
+            ARRAY_BY_HOTENDS1(DEFAULT_KF)
           #endif
         ;
-        static_assert(WITHIN(COUNT(defKf), 1, HOTENDS), "DEFAULT_Kf_LIST must have between 1 and HOTENDS items.");
+        static_assert(WITHIN(COUNT(defKF), 1, HOTENDS), "DEFAULT_KF_LIST must have between 1 and HOTENDS items.");
       #endif
       #define PID_DEFAULT(N,E) def##N[E]
     #else
@@ -768,11 +768,11 @@ void Temperature::factory_reset() {
     #endif
     HOTEND_LOOP() {
       temp_hotend[e].pid.set(
-        PID_DEFAULT(Kp, ALIM(e, defKp)),
-        PID_DEFAULT(Ki, ALIM(e, defKi)),
-        PID_DEFAULT(Kd, ALIM(e, defKd))
-        OPTARG(PID_EXTRUSION_SCALING, PID_DEFAULT(Kc, ALIM(e, defKc)))
-        OPTARG(PID_FAN_SCALING, PID_DEFAULT(Kf, ALIM(e, defKf)))
+        PID_DEFAULT(KP, ALIM(e, defKP)),
+        PID_DEFAULT(KI, ALIM(e, defKI)),
+        PID_DEFAULT(KD, ALIM(e, defKD))
+        OPTARG(PID_EXTRUSION_SCALING, PID_DEFAULT(KC, ALIM(e, defKC)))
+        OPTARG(PID_FAN_SCALING, PID_DEFAULT(KF, ALIM(e, defKF)))
       );
     }
   #endif // PIDTEMP
@@ -786,14 +786,14 @@ void Temperature::factory_reset() {
   // Heated Bed PID
   //
   #if ENABLED(PIDTEMPBED)
-    temp_bed.pid.set(DEFAULT_bedKp, DEFAULT_bedKi, DEFAULT_bedKd);
+    temp_bed.pid.set(DEFAULT_BED_KP, DEFAULT_BED_KI, DEFAULT_BED_KD);
   #endif
 
   //
   // Heated Chamber PID
   //
   #if ENABLED(PIDTEMPCHAMBER)
-    temp_chamber.pid.set(DEFAULT_chamberKp, DEFAULT_chamberKi, DEFAULT_chamberKd);
+    temp_chamber.pid.set(DEFAULT_CHAMBER_KP, DEFAULT_CHAMBER_KI, DEFAULT_CHAMBER_KD);
   #endif
 
   // User-Defined Thermistors
