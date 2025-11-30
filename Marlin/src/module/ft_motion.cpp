@@ -312,8 +312,8 @@ void FTMotion::setTrajectoryType(const TrajectoryType type) {
     default: cfg.trajectory_type = trajectoryType = TrajectoryType::FTM_TRAJECTORY_TYPE;
     case TrajectoryType::TRAPEZOIDAL: currentGenerator = &trapezoidalGenerator; break;
     #if ENABLED(FTM_POLYS)
-      case TrajectoryType::POLY5:       currentGenerator = &poly5Generator; break;
-      case TrajectoryType::POLY6:       currentGenerator = &poly6Generator; break;
+      case TrajectoryType::POLY5: currentGenerator = &poly5Generator; break;
+      case TrajectoryType::POLY6: currentGenerator = &poly6Generator; break;
     #endif
   }
 }

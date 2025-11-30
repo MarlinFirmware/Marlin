@@ -28,7 +28,6 @@
 #include "../../../module/stepper.h"
 #include "../../../module/planner.h"
 
-
 static FSTR_P get_trajectory_type_name() {
   switch (ftMotion.getTrajectoryType()) {
     default:

@@ -327,7 +327,6 @@ void menu_move() {
     }
   }
 
-
   #if ENABLED(FTM_POLYS)
     FSTR_P get_trajectory_name() {
       switch (ftMotion.getTrajectoryType()) {
@@ -604,10 +603,11 @@ void menu_move() {
     START_MENU();
     BACK_ITEM(MSG_TUNE);
 
-    SUBMENU_S(_traj_name(), MSG_FTM_TRAJECTORY, menu_ftm_trajectory_generator);
-
-    if (ftMotion.getTrajectoryType() == TrajectoryType::POLY6)
-      EDIT_ITEM(float42_52, MSG_FTM_POLY6_OVERSHOOT, &c.poly6_acceleration_overshoot, 1.25f, 1.875f);
+    #if ENABLED(FTM_POLYS)
+      SUBMENU_S(_traj_name(), MSG_FTM_TRAJECTORY, menu_ftm_trajectory_generator);
+      if (ftMotion.getTrajectoryType() == TrajectoryType::POLY6)
+        EDIT_ITEM(float42_52, MSG_FTM_POLY6_OVERSHOOT, &c.poly6_acceleration_overshoot, 1.25f, 1.875f);
+    #endif
 
     #define _CMPM_MENU_ITEM(A) SUBMENU_N_S(_AXIS(A), _shaper_name(_AXIS(A)), MSG_FTM_CMPN_MODE, menu_ftm_shaper_##A);
     SHAPED_MAP(_CMPM_MENU_ITEM);
