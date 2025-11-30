@@ -1541,6 +1541,9 @@
   #if !HAS_EXTRUDERS
     #undef FTM_SHAPER_E
   #endif
+  #if DISABLED(FTM_POLYS)
+    #define FTM_TRAJECTORY_TYPE TRAPEZOIDAL
+  #endif
 #endif
 
 // Multi-Stepping Limit
