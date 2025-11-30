@@ -1597,7 +1597,7 @@ void Stepper::isr() {
 
     #if ENABLED(FT_MOTION)
 
-      if (using_ftMotion && !abort_current_block) {
+      if (using_ftMotion) {
         // Time to run stepping and apply STEP/DIR pulses?
         if (!ftMotion_nextStepperISR) ftMotion_stepper();
 
