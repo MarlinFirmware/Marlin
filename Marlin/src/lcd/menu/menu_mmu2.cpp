@@ -154,10 +154,7 @@ void menu_mmu3_fail_stats_last_print() {
   sprintf_P(buffer2, PSTR("%hu"), load_fail_num);
 
   START_SCREEN();
-  STATIC_ITEM(
-    TERN(printJobOngoing(), MSG_MMU_CURRENT_PRINT_FAILURES, MSG_MMU_LAST_PRINT_FAILURES),
-    SS_INVERT
-  );
+  STATIC_ITEM_F(printJobOngoing() ? GET_TEXT_F(MSG_MMU_CURRENT_PRINT_FAILURES) :  GET_TEXT_F(MSG_MMU_LAST_PRINT_FAILURES), SS_INVERT);
   #ifndef __AVR__
     // TODO: I couldn't make this work on AVR
     PSTRING_ITEM(MSG_MMU_FAILS, buffer1, SS_FULL);
@@ -236,10 +233,7 @@ void menu_mmu3_statistics() {
     ACTION_ITEM(MSG_MMU_DEV_INCREMENT_LOAD_FAILS, menu_mmu3_dev_increment_load_fail_stat);
   #endif
 
-  SUBMENU(
-    TERN(printJobOngoing(), MSG_MMU_CURRENT_PRINT_FAILURES, MSG_MMU_LAST_PRINT_FAILURES),
-    menu_mmu3_fail_stats_last_print
-  );
+  SUBMENU_F(printJobOngoing() ? GET_TEXT_F(MSG_MMU_CURRENT_PRINT_FAILURES) : GET_TEXT_F(MSG_MMU_LAST_PRINT_FAILURES), menu_mmu3_fail_stats_last_print);
   SUBMENU(MSG_MMU_TOTAL_FAILURES, menu_mmu3_fail_stas_total);
   SUBMENU(MSG_MMU_MATERIAL_CHANGES, menu_mmu3_toolchange_stat_total);
   CONFIRM_ITEM(MSG_MMU_RESET_FAIL_STATS,

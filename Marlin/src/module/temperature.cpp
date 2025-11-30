@@ -720,47 +720,17 @@ void Temperature::factory_reset() {
   //
   #if ENABLED(PIDTEMP)
     #if ENABLED(PID_PARAMS_PER_HOTEND)
-      constexpr float defKp[] =
-        #ifdef DEFAULT_Kp_LIST
-          DEFAULT_Kp_LIST
-        #else
-          ARRAY_BY_HOTENDS1(DEFAULT_Kp)
-        #endif
-      , defKi[] =
-        #ifdef DEFAULT_Ki_LIST
-          DEFAULT_Ki_LIST
-        #else
-          ARRAY_BY_HOTENDS1(DEFAULT_Ki)
-        #endif
-      , defKd[] =
-        #ifdef DEFAULT_Kd_LIST
-          DEFAULT_Kd_LIST
-        #else
-          ARRAY_BY_HOTENDS1(DEFAULT_Kd)
-        #endif
-      ;
-      static_assert(WITHIN(COUNT(defKp), 1, HOTENDS), "DEFAULT_Kp_LIST must have between 1 and HOTENDS items.");
-      static_assert(WITHIN(COUNT(defKi), 1, HOTENDS), "DEFAULT_Ki_LIST must have between 1 and HOTENDS items.");
-      static_assert(WITHIN(COUNT(defKd), 1, HOTENDS), "DEFAULT_Kd_LIST must have between 1 and HOTENDS items.");
+      constexpr float defKP[] = DEFAULT_KP_LIST, defKI[] = DEFAULT_KI_LIST, defKD[] = DEFAULT_KD_LIST;
+      static_assert(WITHIN(COUNT(defKP), 1, HOTENDS), "DEFAULT_KP_LIST must have between 1 and HOTENDS items.");
+      static_assert(WITHIN(COUNT(defKI), 1, HOTENDS), "DEFAULT_KI_LIST must have between 1 and HOTENDS items.");
+      static_assert(WITHIN(COUNT(defKD), 1, HOTENDS), "DEFAULT_KD_LIST must have between 1 and HOTENDS items.");
       #if ENABLED(PID_EXTRUSION_SCALING)
-        constexpr float defKc[] =
-          #ifdef DEFAULT_Kc_LIST
-            DEFAULT_Kc_LIST
-          #else
-            ARRAY_BY_HOTENDS1(DEFAULT_Kc)
-          #endif
-        ;
-        static_assert(WITHIN(COUNT(defKc), 1, HOTENDS), "DEFAULT_Kc_LIST must have between 1 and HOTENDS items.");
+        constexpr float defKC[] = DEFAULT_KC_LIST;
+        static_assert(WITHIN(COUNT(defKC), 1, HOTENDS), "DEFAULT_KC_LIST must have between 1 and HOTENDS items.");
       #endif
       #if ENABLED(PID_FAN_SCALING)
-        constexpr float defKf[] =
-          #ifdef DEFAULT_Kf_LIST
-            DEFAULT_Kf_LIST
-          #else
-            ARRAY_BY_HOTENDS1(DEFAULT_Kf)
-          #endif
-        ;
-        static_assert(WITHIN(COUNT(defKf), 1, HOTENDS), "DEFAULT_Kf_LIST must have between 1 and HOTENDS items.");
+        constexpr float defKF[] = DEFAULT_KF_LIST;
+        static_assert(WITHIN(COUNT(defKF), 1, HOTENDS), "DEFAULT_KF_LIST must have between 1 and HOTENDS items.");
       #endif
       #define PID_DEFAULT(N,E) def##N[E]
     #else
@@ -768,11 +738,11 @@ void Temperature::factory_reset() {
     #endif
     HOTEND_LOOP() {
       temp_hotend[e].pid.set(
-        PID_DEFAULT(Kp, ALIM(e, defKp)),
-        PID_DEFAULT(Ki, ALIM(e, defKi)),
-        PID_DEFAULT(Kd, ALIM(e, defKd))
-        OPTARG(PID_EXTRUSION_SCALING, PID_DEFAULT(Kc, ALIM(e, defKc)))
-        OPTARG(PID_FAN_SCALING, PID_DEFAULT(Kf, ALIM(e, defKf)))
+        PID_DEFAULT(KP, ALIM(e, defKP)),
+        PID_DEFAULT(KI, ALIM(e, defKI)),
+        PID_DEFAULT(KD, ALIM(e, defKD))
+        OPTARG(PID_EXTRUSION_SCALING, PID_DEFAULT(KC, ALIM(e, defKC)))
+        OPTARG(PID_FAN_SCALING, PID_DEFAULT(KF, ALIM(e, defKF)))
       );
     }
   #endif // PIDTEMP
@@ -786,14 +756,14 @@ void Temperature::factory_reset() {
   // Heated Bed PID
   //
   #if ENABLED(PIDTEMPBED)
-    temp_bed.pid.set(DEFAULT_bedKp, DEFAULT_bedKi, DEFAULT_bedKd);
+    temp_bed.pid.set(DEFAULT_BED_KP, DEFAULT_BED_KI, DEFAULT_BED_KD);
   #endif
 
   //
   // Heated Chamber PID
   //
   #if ENABLED(PIDTEMPCHAMBER)
-    temp_chamber.pid.set(DEFAULT_chamberKp, DEFAULT_chamberKi, DEFAULT_chamberKd);
+    temp_chamber.pid.set(DEFAULT_CHAMBER_KP, DEFAULT_CHAMBER_KI, DEFAULT_CHAMBER_KD);
   #endif
 
   // User-Defined Thermistors
@@ -1009,14 +979,14 @@ void Temperature::factory_reset() {
         TERN_(HOST_PROMPT_SUPPORT, hostui.notify(GET_TEXT_F(MSG_PID_AUTOTUNE_DONE)));
 
         #if ANY(PIDTEMPBED, PIDTEMPCHAMBER)
-          FSTR_P const estring = PER_CBH(F("chamber"), F("bed"), FPSTR(NUL_STR));
-          say_default_(); SERIAL_ECHOLN(estring, F("Kp "), tune_pid.p);
-          say_default_(); SERIAL_ECHOLN(estring, F("Ki "), tune_pid.i);
-          say_default_(); SERIAL_ECHOLN(estring, F("Kd "), tune_pid.d);
+          FSTR_P const estring = PER_CBH(F("CHAMBER_"), F("BED_"), FPSTR(NUL_STR));
+          say_default_(); SERIAL_ECHOLN(estring, F("KP "), tune_pid.p);
+          say_default_(); SERIAL_ECHOLN(estring, F("KI "), tune_pid.i);
+          say_default_(); SERIAL_ECHOLN(estring, F("KD "), tune_pid.d);
         #else
-          say_default_(); SERIAL_ECHOLNPGM("Kp ", tune_pid.p);
-          say_default_(); SERIAL_ECHOLNPGM("Ki ", tune_pid.i);
-          say_default_(); SERIAL_ECHOLNPGM("Kd ", tune_pid.d);
+          say_default_(); SERIAL_ECHOLNPGM("KP ", tune_pid.p);
+          say_default_(); SERIAL_ECHOLNPGM("KI ", tune_pid.i);
+          say_default_(); SERIAL_ECHOLNPGM("KD ", tune_pid.d);
         #endif
 
         auto _set_hotend_pid = [](const uint8_t tool, const raw_pid_t &in_pid) {
