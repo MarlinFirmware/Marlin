@@ -749,6 +749,18 @@
   #error "FTM_LINEAR_ADV_DEFAULT_ENA is obsolete and should be removed."
 #elif defined(FTM_LINEAR_ADV_DEFAULT_K)
   #error "FTM_LINEAR_ADV_DEFAULT_K is now set with ADVANCE_K and should be removed."
+#elif defined(DEFAULT_Kp_LIST) || defined(DEFAULT_Ki_LIST) || defined(DEFAULT_Kd_LIST)
+  #error "DEFAULT_K[p|i|d]_LIST is now DEFAULT_K[P|I|D]_LIST."
+#elif defined(DEFAULT_Kp) || defined(DEFAULT_Ki) || defined(DEFAULT_Kd)
+  #error "DEFAULT_K[p|i|d] is now DEFAULT_K[P|I|D]."
+#elif defined(DEFAULT_bedKp) || defined(DEFAULT_bedKi) || defined(DEFAULT_bedKd)
+  #error "DEFAULT_bedK[p|i|d] is now DEFAULT_BED_K[P|I|D]."
+#elif defined(DEFAULT_chamberKp) || defined(DEFAULT_chamberKi) || defined(DEFAULT_chamberKd)
+  #error "DEFAULT_chamberK[p|i|d] is now DEFAULT_CHAMBER_K[P|I|D]."
+#elif defined(DEFAULT_Kc)
+  #error "DEFAULT_Kc is now DEFAULT_KC."
+#elif defined(DEFAULT_Kf)
+  #error "DEFAULT_Kf is now DEFAULT_KF."
 #endif
 
 // SDSS renamed to SD_SS_PIN
