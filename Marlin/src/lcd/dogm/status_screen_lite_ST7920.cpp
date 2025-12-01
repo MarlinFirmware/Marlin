@@ -611,7 +611,7 @@ void ST7920_Lite_Status_Screen::draw_position(const xyze_pos_t &pos, const bool 
   // If position is unknown, flash the labels.
   const unsigned char alt_label = position_trusted ? 0 : (ui.get_blink() ? ' ' : 0);
 
-  if (TERN0(LCD_SHOW_E_TOTAL, printingIsActive())) {
+  if (TERN0(LCD_SHOW_E_TOTAL, marlin.printingIsActive())) {
     #if ENABLED(LCD_SHOW_E_TOTAL)
       char tmp[15];
       const uint8_t escale = e_move_accumulator >= 100000.0f ? 10 : 1; // After 100m switch to cm
@@ -694,7 +694,7 @@ bool ST7920_Lite_Status_Screen::indicators_changed() {
     void MarlinUI::drawRemain() { lightUI.drawRemain(); }
     void ST7920_Lite_Status_Screen::drawRemain() {
       const duration_t remaint = TERN0(SET_REMAINING_TIME, ui.get_remaining_time());
-      if (printJobOngoing() && remaint.value) {
+      if (marlin.printJobOngoing() && remaint.value) {
         draw_progress_string(PPOS, prepare_time_string(remaint, 'R'));
       }
     }
@@ -703,7 +703,7 @@ bool ST7920_Lite_Status_Screen::indicators_changed() {
     void MarlinUI::drawInter() { lightUI.drawInter(); }
     void ST7920_Lite_Status_Screen::drawInter() {
       const duration_t interactt = ui.interaction_time;
-      if (printingIsActive() && interactt.value) {
+      if (marlin.printingIsActive() && interactt.value) {
         draw_progress_string(PPOS, prepare_time_string(interactt, 'C'));
       }
     }
@@ -711,7 +711,7 @@ bool ST7920_Lite_Status_Screen::indicators_changed() {
   #if ENABLED(SHOW_ELAPSED_TIME)
     void MarlinUI::drawElapsed() { lightUI.drawElapsed(); }
     void ST7920_Lite_Status_Screen::drawElapsed() {
-      if (printJobOngoing()) {
+      if (marlin.printJobOngoing()) {
         const duration_t elapsedt = print_job_timer.duration();
         draw_progress_string(PPOS, prepare_time_string(elapsedt, 'E'));
       }

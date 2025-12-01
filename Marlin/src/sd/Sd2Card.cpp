@@ -38,8 +38,6 @@
 
 #include "Sd2Card.h"
 
-#include "../MarlinCore.h"
-
 #if DISABLED(SD_NO_DEFAULT_TIMEOUT)
   #ifndef SD_INIT_TIMEOUT
     #define SD_INIT_TIMEOUT 2000U   // (ms) Init timeout

@@ -52,19 +52,19 @@ typedef uint32_t hal_timer_t;
   #define MF_TIMER_TONE         6  // index of timer to use for beeper tones
 #endif
 
-#define TEMP_TIMER_FREQUENCY   1000 // temperature interrupt frequency
+#define TEMP_TIMER_FREQUENCY   1000 // (Hz) Temperature ISR frequency
 
-#define STEPPER_TIMER_RATE          HAL_TIMER_RATE                                        // frequency of stepper timer (HAL_TIMER_RATE / STEPPER_TIMER_PRESCALE)
-#define STEPPER_TIMER_TICKS_PER_US  ((STEPPER_TIMER_RATE) / 1000000)                      // stepper timer ticks per µs
+#define STEPPER_TIMER_RATE          HAL_TIMER_RATE                                  // (Hz) Frequency of Stepper Timer ISR (HAL_TIMER_RATE / STEPPER_TIMER_PRESCALE)
+#define STEPPER_TIMER_TICKS_PER_US  ((STEPPER_TIMER_RATE) / 1000000UL)              // (MHz) Stepper Timer ticks per µs
 #define STEPPER_TIMER_PRESCALE      (CYCLES_PER_MICROSECOND / STEPPER_TIMER_TICKS_PER_US)
 
-#define PULSE_TIMER_RATE            STEPPER_TIMER_RATE                                    // frequency of pulse timer
-#define PULSE_TIMER_PRESCALE        STEPPER_TIMER_PRESCALE
+#define PULSE_TIMER_RATE            STEPPER_TIMER_RATE                              // (Hz) Frequency of Pulse Timer
 #define PULSE_TIMER_TICKS_PER_US    STEPPER_TIMER_TICKS_PER_US
+#define PULSE_TIMER_PRESCALE        STEPPER_TIMER_PRESCALE
 
-#define ENABLE_STEPPER_DRIVER_INTERRUPT() HAL_timer_enable_interrupt(MF_TIMER_STEP)
+#define ENABLE_STEPPER_DRIVER_INTERRUPT()   HAL_timer_enable_interrupt(MF_TIMER_STEP)
 #define DISABLE_STEPPER_DRIVER_INTERRUPT()  HAL_timer_disable_interrupt(MF_TIMER_STEP)
-#define STEPPER_ISR_ENABLED() HAL_timer_interrupt_enabled(MF_TIMER_STEP)
+#define STEPPER_ISR_ENABLED()               HAL_timer_interrupt_enabled(MF_TIMER_STEP)
 
 #define ENABLE_TEMPERATURE_INTERRUPT()  HAL_timer_enable_interrupt(MF_TIMER_TEMP)
 #define DISABLE_TEMPERATURE_INTERRUPT() HAL_timer_disable_interrupt(MF_TIMER_TEMP)

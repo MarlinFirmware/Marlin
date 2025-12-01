@@ -1610,7 +1610,7 @@ bool Planner::busy() {
 }
 
 void Planner::finish_and_disable() {
-  while (has_blocks_queued() || cleaning_buffer_counter) idle();
+  while (has_blocks_queued() || cleaning_buffer_counter) marlin.idle();
   stepper.disable_all_steppers();
 }
 
@@ -1670,7 +1670,7 @@ float Planner::get_axis_position_mm(const AxisEnum axis) {
 /**
  * Block until the planner is finished processing
  */
-void Planner::synchronize() { while (busy()) idle(); }
+void Planner::synchronize() { while (busy()) marlin.idle(); }
 
 /**
  * @brief Add a new linear movement to the planner queue (in terms of steps).
@@ -2567,18 +2567,8 @@ bool Planner::_populate_block(
     if (moves_queued && !UNEAR_ZERO(previous_nominal_speed)) {
       // Compute cosine of angle between previous and current path. (prev_unit_vec is negative)
       // NOTE: Max junction velocity is computed without sin() or acos() by trig half angle identity.
-      float junction_cos_theta = LOGICAL_AXIS_GANG(
-                                 + (-prev_unit_vec.e * unit_vec.e),
-                                 + (-prev_unit_vec.x * unit_vec.x),
-                                 + (-prev_unit_vec.y * unit_vec.y),
-                                 + (-prev_unit_vec.z * unit_vec.z),
-                                 + (-prev_unit_vec.i * unit_vec.i),
-                                 + (-prev_unit_vec.j * unit_vec.j),
-                                 + (-prev_unit_vec.k * unit_vec.k),
-                                 + (-prev_unit_vec.u * unit_vec.u),
-                                 + (-prev_unit_vec.v * unit_vec.v),
-                                 + (-prev_unit_vec.w * unit_vec.w)
-                               );
+      #define _UNIT_VEC(A) + (-prev_unit_vec.A * unit_vec.A)
+      float junction_cos_theta = LOGICAL_AXIS_MAP(_UNIT_VEC);
 
       // NOTE: Computed without any expensive trig, sin() or acos(), by trig half angle identity of cos(theta).
       if (junction_cos_theta > 0.999999f) {
@@ -2590,6 +2580,8 @@ bool Planner::_populate_block(
         xyze_float_t junction_unit_vec = unit_vec - prev_unit_vec;
         normalize_junction_vector(junction_unit_vec);
 
+        // TODO: Don't limit acceleration on axes with very small distance relative to others
+        // See https://github.com/MarlinFirmware/Marlin/issues/27918#issuecomment-3145339116
         const float junction_acceleration = limit_value_by_axis_maximum(block->acceleration, junction_unit_vec);
 
         if (TERN0(HINTS_CURVE_RADIUS, hints.curve_radius)) {
@@ -3110,7 +3102,7 @@ bool Planner::buffer_line(const xyze_pos_t &cart, const feedRate_t fr_mm_s
 
   void Planner::buffer_page(const page_idx_t page_idx, const uint8_t extruder, const uint16_t num_steps) {
     if (!last_page_step_rate) {
-      kill(GET_TEXT_F(MSG_BAD_PAGE_SPEED));
+      marlin.kill(GET_TEXT_F(MSG_BAD_PAGE_SPEED));
       return;
     }
 

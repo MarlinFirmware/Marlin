@@ -44,21 +44,11 @@
 
     switch (file) {
       default: return;
-      case 0:
-        control = DGUS_Control::FILE0;
-        break;
-      case 1:
-        control = DGUS_Control::FILE1;
-        break;
-      case 2:
-        control = DGUS_Control::FILE2;
-        break;
-      case 3:
-        control = DGUS_Control::FILE3;
-        break;
-      case 4:
-        control = DGUS_Control::FILE4;
-        break;
+      case 0: control = DGUS_Control::FILE0; break;
+      case 1: control = DGUS_Control::FILE1; break;
+      case 2: control = DGUS_Control::FILE2; break;
+      case 3: control = DGUS_Control::FILE3; break;
+      case 4: control = DGUS_Control::FILE4; break;
     }
 
     if (state) {
@@ -100,21 +90,11 @@
 
     switch (vp.addr) {
       default: return;
-      case DGUS_Addr::SD_FileName0:
-        offset = 0;
-        break;
-      case DGUS_Addr::SD_FileName1:
-        offset = 1;
-        break;
-      case DGUS_Addr::SD_FileName2:
-        offset = 2;
-        break;
-      case DGUS_Addr::SD_FileName3:
-        offset = 3;
-        break;
-      case DGUS_Addr::SD_FileName4:
-        offset = 4;
-        break;
+      case DGUS_Addr::SD_FileName0: offset = 0; break;
+      case DGUS_Addr::SD_FileName1: offset = 1; break;
+      case DGUS_Addr::SD_FileName2: offset = 2; break;
+      case DGUS_Addr::SD_FileName3: offset = 3; break;
+      case DGUS_Addr::SD_FileName4: offset = 4; break;
     }
 
     if (screen.filelist.seek(screen.filelist_offset + offset)) {
@@ -199,12 +179,8 @@ void DGUSTxHandler::percent(DGUS_VP &vp) {
 
   switch (vp.addr) {
     default: return;
-    case DGUS_Addr::STATUS_Percent:
-      progress = constrain(ExtUI::getProgress_percent(), 0, 100);
-      break;
-    case DGUS_Addr::STATUS_Percent_Complete:
-      progress = 100;
-      break;
+    case DGUS_Addr::STATUS_Percent:          progress = constrain(ExtUI::getProgress_percent(), 0, 100); break;
+    case DGUS_Addr::STATUS_Percent_Complete: progress = 100; break;
   }
 
   dgus.write((uint16_t)DGUS_Addr::STATUS_Percent, Swap16(progress));
@@ -251,12 +227,8 @@ void DGUSTxHandler::flowrate(DGUS_VP &vp) {
       flowrate = ExtUI::getFlow_percent(TERN(HAS_MULTI_EXTRUDER, ExtUI::getActiveTool(), ExtUI::E0));
       break;
     #if HAS_MULTI_EXTRUDER
-      case DGUS_Addr::ADJUST_Flowrate_E0:
-        flowrate = ExtUI::getFlow_percent(ExtUI::E0);
-        break;
-      case DGUS_Addr::ADJUST_Flowrate_E1:
-        flowrate = ExtUI::getFlow_percent(ExtUI::E1);
-        break;
+      case DGUS_Addr::ADJUST_Flowrate_E0: flowrate = ExtUI::getFlow_percent(ExtUI::E0); break;
+      case DGUS_Addr::ADJUST_Flowrate_E1: flowrate = ExtUI::getFlow_percent(ExtUI::E1); break;
     #endif
   }
 
@@ -269,19 +241,13 @@ void DGUSTxHandler::tempMax(DGUS_VP &vp) {
   switch (vp.addr) {
     default: return;
     #if HAS_HEATED_BED
-      case DGUS_Addr::TEMP_Max_Bed:
-        temp = BED_MAX_TARGET;
-        break;
+      case DGUS_Addr::TEMP_Max_Bed: temp = BED_MAX_TARGET; break;
     #endif
     #if HAS_HOTEND
-      case DGUS_Addr::TEMP_Max_H0:
-        temp = thermalManager.hotend_max_target(0);
-        break;
+      case DGUS_Addr::TEMP_Max_H0:  temp = thermalManager.hotend_max_target(0); break;
     #endif
     #if HAS_MULTI_HOTEND
-      case DGUS_Addr::TEMP_Max_H1:
-        temp = thermalManager.hotend_max_target(1);
-        break;
+      case DGUS_Addr::TEMP_Max_H1:  temp = thermalManager.hotend_max_target(1); break;
     #endif
   }
 
@@ -299,18 +265,10 @@ void DGUSTxHandler::stepIcons(DGUS_VP &vp) {
   DGUS_Data::StepSize size = *(DGUS_Data::StepSize*)vp.extra;
 
   switch (size) {
-    case DGUS_Data::StepSize::MM10:
-      icons |= (uint16_t)DGUS_Data::StepIcon::MM10;
-      break;
-    case DGUS_Data::StepSize::MM1:
-      icons |= (uint16_t)DGUS_Data::StepIcon::MM1;
-      break;
-    case DGUS_Data::StepSize::MMP1:
-      icons |= (uint16_t)DGUS_Data::StepIcon::MMP1;
-      break;
-    case DGUS_Data::StepSize::MMP01:
-      icons |= (uint16_t)DGUS_Data::StepIcon::MMP01;
-      break;
+    case DGUS_Data::StepSize::MM10:  icons |= (uint16_t)DGUS_Data::StepIcon::MM10; break;
+    case DGUS_Data::StepSize::MM1:   icons |= (uint16_t)DGUS_Data::StepIcon::MM1; break;
+    case DGUS_Data::StepSize::MMP1:  icons |= (uint16_t)DGUS_Data::StepIcon::MMP1; break;
+    case DGUS_Data::StepSize::MMP01: icons |= (uint16_t)DGUS_Data::StepIcon::MMP01; break;
   }
 
   dgus.write((uint16_t)vp.addr, Swap16(icons));
@@ -362,21 +320,13 @@ void DGUSTxHandler::filamentIcons(DGUS_VP &vp) {
       #if HAS_MULTI_EXTRUDER
         switch (ExtUI::getActiveTool()) {
           default: break;
-          case ExtUI::E0:
-            icons |= (uint16_t)DGUS_Data::ExtruderIcon::E0;
-            break;
-          case ExtUI::E1:
-            icons |= (uint16_t)DGUS_Data::ExtruderIcon::E1;
-            break;
+          case ExtUI::E0: icons |= (uint16_t)DGUS_Data::ExtruderIcon::E0; break;
+          case ExtUI::E1: icons |= (uint16_t)DGUS_Data::ExtruderIcon::E1; break;
         }
         break;
       #endif
-    case DGUS_Data::Extruder::E0:
-      icons |= (uint16_t)DGUS_Data::ExtruderIcon::E0;
-      break;
-    case DGUS_Data::Extruder::E1:
-      icons |= (uint16_t)DGUS_Data::ExtruderIcon::E1;
-      break;
+    case DGUS_Data::Extruder::E0: icons |= (uint16_t)DGUS_Data::ExtruderIcon::E0; break;
+    case DGUS_Data::Extruder::E1: icons |= (uint16_t)DGUS_Data::ExtruderIcon::E1; break;
   }
 
   dgus.write((uint16_t)vp.addr, Swap16(icons));
@@ -403,15 +353,9 @@ void DGUSTxHandler::pidIcons(DGUS_VP &vp) {
 
   switch (screen.pid_heater) {
     default: return;
-    case DGUS_Data::Heater::BED:
-      icons |= (uint16_t)DGUS_Data::HeaterIcon::BED;
-      break;
-    case DGUS_Data::Heater::H0:
-      icons |= (uint16_t)DGUS_Data::HeaterIcon::H0;
-      break;
-    case DGUS_Data::Heater::H1:
-      icons |= (uint16_t)DGUS_Data::HeaterIcon::H1;
-      break;
+    case DGUS_Data::Heater::BED: icons |= (uint16_t)DGUS_Data::HeaterIcon::BED; break;
+    case DGUS_Data::Heater::H0:  icons |= (uint16_t)DGUS_Data::HeaterIcon::H0; break;
+    case DGUS_Data::Heater::H1:  icons |= (uint16_t)DGUS_Data::HeaterIcon::H1; break;
   }
 
   dgus.write((uint16_t)vp.addr, Swap16(icons));
@@ -423,18 +367,12 @@ void DGUSTxHandler::pidKp(DGUS_VP &vp) {
   switch (screen.pid_heater) {
     default: return;
     #if ENABLED(PIDTEMPBED)
-      case DGUS_Data::Heater::BED:
-        value = ExtUI::getBedPID_Kp();
-        break;
+      case DGUS_Data::Heater::BED:  value = ExtUI::getBedPID_Kp(); break;
     #endif
     #if ENABLED(PIDTEMP)
-      case DGUS_Data::Heater::H0:
-        value = ExtUI::getPID_Kp(ExtUI::E0);
-        break;
+      case DGUS_Data::Heater::H0:   value = ExtUI::getPID_Kp(ExtUI::E0); break;
       #if HAS_MULTI_HOTEND
-        case DGUS_Data::Heater::H1:
-          value = ExtUI::getPID_Kp(ExtUI::E1);
-          break;
+        case DGUS_Data::Heater::H1: value = ExtUI::getPID_Kp(ExtUI::E1); break;
       #endif
     #endif
   }
@@ -449,18 +387,12 @@ void DGUSTxHandler::pidKi(DGUS_VP &vp) {
   switch (screen.pid_heater) {
     default: return;
     #if ENABLED(PIDTEMPBED)
-      case DGUS_Data::Heater::BED:
-        value = ExtUI::getBedPID_Ki();
-        break;
+      case DGUS_Data::Heater::BED:  value = ExtUI::getBedPID_Ki(); break;
     #endif
     #if ENABLED(PIDTEMP)
-      case DGUS_Data::Heater::H0:
-        value = ExtUI::getPID_Ki(ExtUI::E0);
-        break;
+      case DGUS_Data::Heater::H0:   value = ExtUI::getPID_Ki(ExtUI::E0); break;
       #if HAS_MULTI_HOTEND
-        case DGUS_Data::Heater::H1:
-          value = ExtUI::getPID_Ki(ExtUI::E1);
-          break;
+        case DGUS_Data::Heater::H1: value = ExtUI::getPID_Ki(ExtUI::E1); break;
       #endif
     #endif
   }
@@ -475,18 +407,12 @@ void DGUSTxHandler::pidKd(DGUS_VP &vp) {
   switch (screen.pid_heater) {
     default: return;
     #if ENABLED(PIDTEMPBED)
-      case DGUS_Data::Heater::BED:
-        value = ExtUI::getBedPID_Kd();
-        break;
+      case DGUS_Data::Heater::BED:  value = ExtUI::getBedPID_Kd(); break;
     #endif
     #if ENABLED(PIDTEMP)
-      case DGUS_Data::Heater::H0:
-        value = ExtUI::getPID_Kd(ExtUI::E0);
-        break;
+      case DGUS_Data::Heater::H0:   value = ExtUI::getPID_Kd(ExtUI::E0); break;
       #if HAS_MULTI_HOTEND
-        case DGUS_Data::Heater::H1:
-          value = ExtUI::getPID_Kd(ExtUI::E1);
-          break;
+        case DGUS_Data::Heater::H1: value = ExtUI::getPID_Kd(ExtUI::E1); break;
       #endif
     #endif
   }

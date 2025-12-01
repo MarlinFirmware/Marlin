@@ -49,9 +49,6 @@ bool EmergencyParser::killed_by_M112, // = false
 // Global instance
 EmergencyParser emergency_parser;
 
-// External references
-extern bool wait_for_user, wait_for_heatup;
-
 #if ENABLED(EP_BABYSTEPPING)
   #include "babystep.h"
 #endif
@@ -208,7 +205,7 @@ void EmergencyParser::update(EmergencyParser::State &state, const uint8_t c) {
     default:
       if (ISEOL(c)) {
         if (enabled) switch (state) {
-          case EP_M108: wait_for_user = wait_for_heatup = false; break;
+          case EP_M108: marlin.end_waiting(); break;
           case EP_M112: killed_by_M112 = true; break;
           case EP_M410: quickstop_by_M410 = true; break;
           #if ENABLED(FTM_RESONANCE_TEST)

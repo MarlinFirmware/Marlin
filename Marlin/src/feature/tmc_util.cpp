@@ -31,7 +31,6 @@
  */
 
 #include "tmc_util.h"
-#include "../MarlinCore.h"
 
 #include "../module/stepper/indirection.h"
 #include "../module/printcounter.h"
@@ -283,7 +282,7 @@
       if (data.is_s2g) SERIAL_ECHOLNPGM("coil short circuit");
       TERN_(TMC_DEBUG, tmc_report_all());
       TERN_(SOVOL_SV06_RTS, rts.gotoPage(ID_DriverError_L, ID_DriverError_D));
-      kill(F("Driver error"));
+      marlin.kill(F("Driver error"));
     }
   #endif
 

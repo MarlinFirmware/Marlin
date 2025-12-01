@@ -22,7 +22,7 @@
 
 #include "../../inc/MarlinConfig.h"
 
-#if ENABLED(FT_MOTION)
+#if ENABLED(FTM_POLYS)
 
 #include "trajectory_poly6.h"
 #include "../ft_motion.h"
@@ -140,4 +140,4 @@ void Poly6TrajectoryGenerator::reset() {
   acc_c6 = dec_c6 = 0.0f;
 }
 
-#endif // FT_MOTION
+#endif // FTM_POLYS

@@ -231,12 +231,8 @@ void DGUSRxHandler::flowrate(DGUS_VP &vp, void *data_ptr) {
       ExtUI::setFlow_percent(flowrate, TERN(HAS_MULTI_EXTRUDER, ExtUI::getActiveTool(), ExtUI::E0));
       break;
     #if HAS_MULTI_EXTRUDER
-      case DGUS_Addr::ADJUST_SetFlowrate_E0:
-        ExtUI::setFlow_percent(flowrate, ExtUI::E0);
-        break;
-      case DGUS_Addr::ADJUST_SetFlowrate_E1:
-        ExtUI::setFlow_percent(flowrate, ExtUI::E1);
-        break;
+      case DGUS_Addr::ADJUST_SetFlowrate_E0: ExtUI::setFlow_percent(flowrate, ExtUI::E0); break;
+      case DGUS_Addr::ADJUST_SetFlowrate_E1: ExtUI::setFlow_percent(flowrate, ExtUI::E1); break;
     #endif
   }
 
@@ -265,12 +261,8 @@ void DGUSRxHandler::babystep(DGUS_VP &vp, void *data_ptr) {
 
   switch (adjust) {
     default: return;
-    case DGUS_Data::Adjust::INCREMENT:
-      steps = ExtUI::mmToWholeSteps(DGUS_PRINT_BABYSTEP, ExtUI::Z);
-      break;
-    case DGUS_Data::Adjust::DECREMENT:
-      steps = ExtUI::mmToWholeSteps(-DGUS_PRINT_BABYSTEP, ExtUI::Z);
-      break;
+    case DGUS_Data::Adjust::INCREMENT: steps = ExtUI::mmToWholeSteps(DGUS_PRINT_BABYSTEP, ExtUI::Z); break;
+    case DGUS_Data::Adjust::DECREMENT: steps = ExtUI::mmToWholeSteps(-DGUS_PRINT_BABYSTEP, ExtUI::Z); break;
   }
 
   ExtUI::smartAdjustAxis_steps(steps, ExtUI::Z, true);
@@ -319,16 +311,10 @@ void DGUSRxHandler::tempTarget(DGUS_VP &vp, void *data_ptr) {
 
   switch (vp.addr) {
     default: return;
-    case DGUS_Addr::TEMP_SetTarget_Bed:
-      ExtUI::setTargetTemp_celsius(temp, ExtUI::BED);
-      break;
-    case DGUS_Addr::TEMP_SetTarget_H0:
-      ExtUI::setTargetTemp_celsius(temp, ExtUI::H0);
-      break;
+    case DGUS_Addr::TEMP_SetTarget_Bed:  ExtUI::setTargetTemp_celsius(temp, ExtUI::BED); break;
+    case DGUS_Addr::TEMP_SetTarget_H0:   ExtUI::setTargetTemp_celsius(temp, ExtUI::H0); break;
     #if HAS_MULTI_HOTEND
-      case DGUS_Addr::TEMP_SetTarget_H1:
-        ExtUI::setTargetTemp_celsius(temp, ExtUI::H1);
-        break;
+      case DGUS_Addr::TEMP_SetTarget_H1: ExtUI::setTargetTemp_celsius(temp, ExtUI::H1); break;
     #endif
   }
 
@@ -349,16 +335,10 @@ void DGUSRxHandler::tempCool(DGUS_VP &vp, void *data_ptr) {
         ExtUI::setTargetTemp_celsius(0, ExtUI::H1);
       #endif
       break;
-    case DGUS_Data::Heater::BED:
-      ExtUI::setTargetTemp_celsius(0, ExtUI::BED);
-      break;
-    case DGUS_Data::Heater::H0:
-      ExtUI::setTargetTemp_celsius(0, ExtUI::H0);
-      break;
+    case DGUS_Data::Heater::BED:  ExtUI::setTargetTemp_celsius(0, ExtUI::BED); break;
+    case DGUS_Data::Heater::H0:   ExtUI::setTargetTemp_celsius(0, ExtUI::H0); break;
     #if HAS_MULTI_HOTEND
-      case DGUS_Data::Heater::H1:
-        ExtUI::setTargetTemp_celsius(0, ExtUI::H1);
-        break;
+      case DGUS_Data::Heater::H1: ExtUI::setTargetTemp_celsius(0, ExtUI::H1); break;
     #endif
   }
 

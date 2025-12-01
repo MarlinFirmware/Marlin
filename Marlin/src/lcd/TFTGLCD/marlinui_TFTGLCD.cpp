@@ -607,7 +607,7 @@ FORCE_INLINE void _draw_axis_value(const AxisEnum axis, const char *value, const
   #endif
   #if ENABLED(SHOW_REMAINING_TIME)
     void MarlinUI::drawRemain() {
-      if (printJobOngoing()) {
+      if (marlin.printJobOngoing()) {
         const duration_t remaint = ui.get_remaining_time();
         char buffer[10];
         const uint8_t timepos = TPOFFSET - remaint.toDigital(buffer);
@@ -620,7 +620,7 @@ FORCE_INLINE void _draw_axis_value(const AxisEnum axis, const char *value, const
   #if ENABLED(SHOW_INTERACTION_TIME)
     void MarlinUI::drawInter() {
       const duration_t interactt = ui.interaction_time;
-      if (printingIsActive() && interactt.value) {
+      if (marlin.printingIsActive() && interactt.value) {
         char buffer[10];
         const uint8_t timepos = TPOFFSET - interactt.toDigital(buffer);
         lcd_moveto(timepos, 1);
@@ -631,7 +631,7 @@ FORCE_INLINE void _draw_axis_value(const AxisEnum axis, const char *value, const
   #endif
   #if ENABLED(SHOW_ELAPSED_TIME)
     void MarlinUI::drawElapsed() {
-      if (printJobOngoing()) {
+      if (marlin.printJobOngoing()) {
         const duration_t elapsedt = print_job_timer.duration();
         char buffer[10];
         const uint8_t timepos = TPOFFSET - elapsedt.toDigital(buffer);

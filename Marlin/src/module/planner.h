@@ -875,7 +875,7 @@ class Planner {
     FORCE_INLINE static block_t* get_next_free_block(uint8_t &next_buffer_head, const uint8_t count=1) {
 
       // Wait until there are enough slots free
-      while (moves_free() < count) { idle(); }
+      while (moves_free() < count) { marlin.idle(); }
 
       // Return the first available block
       next_buffer_head = next_block_index(block_buffer_head);
@@ -1157,12 +1157,14 @@ class Planner {
         vector *= RSQRT(magnitude_sq);
       }
 
+      // max_value is block->acceleration
       FORCE_INLINE static float limit_value_by_axis_maximum(const float max_value, xyze_float_t &unit_vec) {
         float limit_value = max_value;
         LOOP_LOGICAL_AXES(idx) {
           if (unit_vec[idx]) {
-            if (limit_value * ABS(unit_vec[idx]) > settings.max_acceleration_mm_per_s2[idx])
-              limit_value = ABS(settings.max_acceleration_mm_per_s2[idx] / unit_vec[idx]);
+            const uint32_t abs_vec = ABS(unit_vec[idx]);
+            if (limit_value * abs_vec > settings.max_acceleration_mm_per_s2[idx])
+              limit_value = settings.max_acceleration_mm_per_s2[idx] / abs_vec;
           }
         }
         return limit_value;

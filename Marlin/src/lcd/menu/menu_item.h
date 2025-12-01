@@ -413,8 +413,7 @@ class MenuItem_bool : public MenuEditItemBase {
 
 #define STATIC_ITEM_C(CSTR, V...) STATIC_ITEM_N_F_C(0, F("$"), CSTR, ##V)
 
-// PSTRING_ITEM is like STATIC_ITEM
-// but also takes a PSTR and style.
+// PSTRING_ITEM is like STATIC_ITEM but also takes a PSTR and style.
 
 #define PSTRING_ITEM_F_P(FLABEL, PVAL, STYL) do{ \
   constexpr int m = 20;                          \

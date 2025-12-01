@@ -506,19 +506,19 @@ FORCE_INLINE void _draw_axis_value(const AxisEnum axis, const char *value, const
   #endif
   #if ENABLED(SHOW_REMAINING_TIME)
     void MarlinUI::drawRemain() {
-      if (printJobOngoing() && get_remaining_time() != 0)
+      if (marlin.printJobOngoing() && get_remaining_time() != 0)
         prepare_time_string(get_remaining_time(), 'R');
     }
   #endif
   #if ENABLED(SHOW_INTERACTION_TIME)
     void MarlinUI::drawInter() {
-      if (printingIsActive() && interaction_time)
+      if (marlin.printingIsActive() && interaction_time)
         prepare_time_string(interaction_time, 'C');
     }
   #endif
   #if ENABLED(SHOW_ELAPSED_TIME)
     void MarlinUI::drawElapsed() {
-      if (printJobOngoing())
+      if (marlin.printJobOngoing())
         prepare_time_string(print_job_timer.duration(), 'E');
     }
   #endif
@@ -549,7 +549,7 @@ void MarlinUI::draw_status_screen() {
     static char wstring[5], mstring[4];
   #endif
 
-  const bool show_e_total = TERN1(HAS_X_AXIS, TERN0(LCD_SHOW_E_TOTAL, printingIsActive()));
+  const bool show_e_total = TERN1(HAS_X_AXIS, TERN0(LCD_SHOW_E_TOTAL, marlin.printingIsActive()));
 
   #if HAS_PRINT_PROGRESS
     static u8g_uint_t progress_bar_solid_width = 0;

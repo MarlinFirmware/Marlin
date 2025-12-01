@@ -32,7 +32,6 @@
   #include "../../../module/delta.h"
 #endif
 
-#include "../../../MarlinCore.h"
 #include <math.h>
 
 //#define DEBUG_UBL_MOTION

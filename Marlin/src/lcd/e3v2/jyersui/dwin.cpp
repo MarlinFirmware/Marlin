@@ -265,13 +265,6 @@ private:
     #if ENABLED(AUTO_BED_LEVELING_UBL)
       uint8_t tilt_grid = 1;
 
-      void manualValueUpdate(bool undefined=false) {
-        queue.inject(
-          TS(F("M421I"), mesh_x, 'J', mesh_y, 'Z', p_float_t(current_position.z, 3), undefined ? "N" : "")
-        );
-        planner.synchronize();
-      }
-
       bool createPlaneFromMesh() {
         struct linear_fit_data lsf_results;
         incremental_LSF_reset(&lsf_results);
@@ -310,16 +303,13 @@ private:
         return false;
       }
 
-    #else
-
-      void manualValueUpdate() {
-        queue.inject(
-          TS(F("G29I"), mesh_x, 'J', mesh_y, 'Z', p_float_t(current_position.z, 3))
-        );
-        planner.synchronize();
-      }
-
     #endif
+
+    void manualValueUpdate(const bool reset=false) {
+      const float zval = reset ? 0.0f : current_position.z;
+      queue.inject(TS(F("M421I"), mesh_x, F("J"), mesh_y, F("Z"), p_float_t(zval, 3)));
+      planner.synchronize();
+    }
 
     void manual_mesh_move(const bool zmove=false) {
       if (zmove) {
@@ -3515,8 +3505,8 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
         #define LEVELING_M_UP (LEVELING_M_OFFSET + 1)
         #define LEVELING_M_DOWN (LEVELING_M_UP + 1)
         #define LEVELING_M_GOTO_VALUE (LEVELING_M_DOWN + 1)
-        #define LEVELING_M_UNDEF (LEVELING_M_GOTO_VALUE + ENABLED(AUTO_BED_LEVELING_UBL))
-        #define LEVELING_M_TOTAL LEVELING_M_UNDEF
+        #define LEVELING_M_ZERO (LEVELING_M_GOTO_VALUE + 1)
+        #define LEVELING_M_TOTAL LEVELING_M_ZERO
 
         switch (item) {
           case LEVELING_M_BACK:
@@ -3606,16 +3596,14 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
               drawCheckbox(row, mesh_conf.goto_mesh_value);
             }
             break;
-          #if ENABLED(AUTO_BED_LEVELING_UBL)
-            case LEVELING_M_UNDEF:
-              if (draw)
-                drawMenuItem(row, ICON_ResetEEPROM, F("Clear Point Value"));
-              else {
-                mesh_conf.manualValueUpdate(true);
-                redrawMenu(false);
-              }
-              break;
-          #endif
+          case LEVELING_M_ZERO:
+            if (draw)
+              drawMenuItem(row, ICON_ResetEEPROM, GET_TEXT_F(MSG_ZERO_MESH_POINT));
+            else {
+              mesh_conf.manualValueUpdate(true);
+              redrawMenu(false);
+            }
+            break;
         }
         break;
     #endif // HAS_MESH
@@ -4607,7 +4595,7 @@ void JyersDWIN::printScreenControl() {
       case PRINT_PAUSE_RESUME:
         if (paused) {
           if (sdprint) {
-            wait_for_user = false;
+            marlin.user_resume();
             #if ENABLED(PARK_HEAD_ON_PAUSE)
               card.startOrResumeFilePrinting();
               TERN_(POWER_LOSS_RECOVERY, recovery.prepare());
@@ -4792,15 +4780,15 @@ void JyersDWIN::confirmControl() {
         break;
       case Popup_FilInsert:
         popupHandler(Popup_FilChange);
-        wait_for_user = false;
+        marlin.user_resume();
         break;
       case Popup_HeaterTime:
         popupHandler(Popup_Heating);
-        wait_for_user = false;
+        marlin.user_resume();
         break;
       default:
         redrawMenu(true, true, false);
-        wait_for_user = false;
+        marlin.user_resume();
         break;
     }
   }
@@ -4947,7 +4935,7 @@ void JyersDWIN::stateUpdate() {
     if (process == Proc_Print) printScreenIcons();
     if (process == Proc_Wait && !paused) redrawMenu(true, true);
   }
-  if (wait_for_user && !(process == Proc_Confirm) && !print_job_timer.isPaused())
+  if (marlin.wait_for_user && !(process == Proc_Confirm) && !print_job_timer.isPaused())
     confirmHandler(Popup_UserInput);
   #if ENABLED(ADVANCED_PAUSE_FEATURE)
     if (process == Proc_Popup && popup == Popup_PurgeMore) {
