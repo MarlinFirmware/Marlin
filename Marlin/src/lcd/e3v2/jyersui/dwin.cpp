@@ -4595,7 +4595,7 @@ void JyersDWIN::printScreenControl() {
       case PRINT_PAUSE_RESUME:
         if (paused) {
           if (sdprint) {
-            wait_for_user = false;
+            marlin.user_resume();
             #if ENABLED(PARK_HEAD_ON_PAUSE)
               card.startOrResumeFilePrinting();
               TERN_(POWER_LOSS_RECOVERY, recovery.prepare());
@@ -4780,15 +4780,15 @@ void JyersDWIN::confirmControl() {
         break;
       case Popup_FilInsert:
         popupHandler(Popup_FilChange);
-        wait_for_user = false;
+        marlin.user_resume();
         break;
       case Popup_HeaterTime:
         popupHandler(Popup_Heating);
-        wait_for_user = false;
+        marlin.user_resume();
         break;
       default:
         redrawMenu(true, true, false);
-        wait_for_user = false;
+        marlin.user_resume();
         break;
     }
   }
@@ -4935,7 +4935,7 @@ void JyersDWIN::stateUpdate() {
     if (process == Proc_Print) printScreenIcons();
     if (process == Proc_Wait && !paused) redrawMenu(true, true);
   }
-  if (wait_for_user && !(process == Proc_Confirm) && !print_job_timer.isPaused())
+  if (marlin.wait_for_user && !(process == Proc_Confirm) && !print_job_timer.isPaused())
     confirmHandler(Popup_UserInput);
   #if ENABLED(ADVANCED_PAUSE_FEATURE)
     if (process == Proc_Popup && popup == Popup_PurgeMore) {

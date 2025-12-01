@@ -621,10 +621,10 @@ void report_current_position_projected() {
   }
 
   /**
-   * Set a Grbl-compatible state from the current marlin_state
+   * Set a Grbl-compatible state from the current marlin.state
    */
   M_StateEnum grbl_state_for_marlin_state() {
-    switch (marlin_state) {
+    switch (marlin.state) {
       case MarlinState::MF_INITIALIZING: return M_INIT;
       case MarlinState::MF_SD_COMPLETE:  return M_ALARM;
       case MarlinState::MF_WAITING:      return M_IDLE;
@@ -1427,7 +1427,7 @@ FORCE_INLINE void segment_idle(millis_t &next_idle_ms) {
   const millis_t ms = millis();
   if (ELAPSED(ms, next_idle_ms)) {
     next_idle_ms = ms + 200UL;
-    return idle();
+    return marlin.idle();
   }
   thermalManager.task();  // Returns immediately on most calls
 }
@@ -2576,7 +2576,7 @@ void prepare_line_to_destination() {
 
         if (endstops.state(es)) {
           SERIAL_ECHO_MSG("Bad ", C(AXIS_CHAR(axis)), " Endstop?");
-          kill(GET_TEXT_F(MSG_KILL_HOMING_FAILED));
+          marlin.kill(GET_TEXT_F(MSG_KILL_HOMING_FAILED));
         }
 
       #endif // DETECT_BROKEN_ENDSTOP

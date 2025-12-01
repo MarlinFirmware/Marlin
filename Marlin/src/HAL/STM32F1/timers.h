@@ -95,27 +95,27 @@ typedef uint16_t hal_timer_t;
 #define TEMP_TIMER_IRQ_PRIO 3
 #define SERVO0_TIMER_IRQ_PRIO 1
 
-#define TEMP_TIMER_PRESCALE     1000 // prescaler for setting Temp timer, 72Khz
-#define TEMP_TIMER_FREQUENCY    1000 // temperature interrupt frequency
+#define TEMP_TIMER_PRESCALE     1000 // Prescaler for setting Temp Timer, 72Khz
+#define TEMP_TIMER_FREQUENCY    1000 // (Hz) Temperature ISR frequency
 
-#define STEPPER_TIMER_PRESCALE      18                                          // prescaler for setting stepper timer, 4Mhz
-#define STEPPER_TIMER_RATE          (HAL_TIMER_RATE / STEPPER_TIMER_PRESCALE)   // frequency of stepper timer
-#define STEPPER_TIMER_TICKS_PER_US  ((STEPPER_TIMER_RATE) / 1000000)            // stepper timer ticks per µs
+#define STEPPER_TIMER_PRESCALE      18                                                    // Prescaler for setting stepper timer, 4Mhz
+#define STEPPER_TIMER_RATE          (HAL_TIMER_RATE / STEPPER_TIMER_PRESCALE)       // (Hz) Frequency of Stepper Timer ISR
+#define STEPPER_TIMER_TICKS_PER_US  ((STEPPER_TIMER_RATE) / 1000000UL)              // (MHz) Stepper Timer ticks per µs
 
-#define PULSE_TIMER_RATE            STEPPER_TIMER_RATE   // frequency of pulse timer
-#define PULSE_TIMER_PRESCALE        STEPPER_TIMER_PRESCALE
+#define PULSE_TIMER_RATE            STEPPER_TIMER_RATE                              // (Hz) Frequency of Pulse Timer
 #define PULSE_TIMER_TICKS_PER_US    STEPPER_TIMER_TICKS_PER_US
+#define PULSE_TIMER_PRESCALE        STEPPER_TIMER_PRESCALE
 
 timer_dev* HAL_get_timer_dev(int number);
 #define TIMER_DEV(num) HAL_get_timer_dev(num)
 #define STEP_TIMER_DEV TIMER_DEV(MF_TIMER_STEP)
 #define TEMP_TIMER_DEV TIMER_DEV(MF_TIMER_TEMP)
 
-#define ENABLE_STEPPER_DRIVER_INTERRUPT() timer_enable_irq(STEP_TIMER_DEV, STEP_TIMER_CHAN)
-#define DISABLE_STEPPER_DRIVER_INTERRUPT() timer_disable_irq(STEP_TIMER_DEV, STEP_TIMER_CHAN)
-#define STEPPER_ISR_ENABLED() HAL_timer_interrupt_enabled(MF_TIMER_STEP)
+#define ENABLE_STEPPER_DRIVER_INTERRUPT()   timer_enable_irq(STEP_TIMER_DEV, STEP_TIMER_CHAN)
+#define DISABLE_STEPPER_DRIVER_INTERRUPT()  timer_disable_irq(STEP_TIMER_DEV, STEP_TIMER_CHAN)
+#define STEPPER_ISR_ENABLED()               HAL_timer_interrupt_enabled(MF_TIMER_STEP)
 
-#define ENABLE_TEMPERATURE_INTERRUPT() timer_enable_irq(TEMP_TIMER_DEV, TEMP_TIMER_CHAN)
+#define ENABLE_TEMPERATURE_INTERRUPT()  timer_enable_irq(TEMP_TIMER_DEV, TEMP_TIMER_CHAN)
 #define DISABLE_TEMPERATURE_INTERRUPT() timer_disable_irq(TEMP_TIMER_DEV, TEMP_TIMER_CHAN)
 
 #define HAL_timer_get_count(timer_num) timer_get_count(TIMER_DEV(timer_num))

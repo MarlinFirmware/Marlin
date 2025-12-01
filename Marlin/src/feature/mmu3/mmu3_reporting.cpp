@@ -213,7 +213,7 @@ namespace MMU3 {
 
   void EndReport(CommandInProgress /*cip*/, ProgressCode /*ec*/) {
     // clear the status msg line - let the printed filename get visible again
-    if (!printJobOngoing()) ui.reset_status();
+    if (!marlin.printJobOngoing()) ui.reset_status();
     //custom_message_type = CustomMsg::Status;
   }
 

@@ -24,7 +24,6 @@
 
 #if ENABLED(BD_SENSOR)
 
-#include "../../../MarlinCore.h"
 #include "../../../gcode/gcode.h"
 #include "../../../module/settings.h"
 #include "../../../module/motion.h"
@@ -110,7 +109,7 @@ float BDS_Leveling::read() {
 }
 
 void BDS_Leveling::process() {
-  if (config_state == BDS_IDLE && printingIsActive()) return;
+  if (config_state == BDS_IDLE && marlin.printingIsActive()) return;
   static millis_t next_check_ms = 0; // starting at T=0
   static float zpos = 0.0f;
   const millis_t ms = millis();
@@ -156,7 +155,7 @@ void BDS_Leveling::process() {
     }
     else if (config_state == BDS_HOMING_Z) {
       SERIAL_ECHOLNPGM("Read:", tmp);
-      kill(F("BDsensor connect Err!"));
+      marlin.kill(F("BDsensor connect Err!"));
     }
 
     DEBUG_ECHOLNPGM("BD:", tmp & 0x3FF, " Z:", cur_z, "|", current_position.z);

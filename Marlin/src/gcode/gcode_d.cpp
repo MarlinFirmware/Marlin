@@ -58,7 +58,7 @@ void GcodeSuite::D(const int16_t dcode) {
       break;
 
     case 10:
-      kill(F("D10"), F("KILL TEST"), parser.seen_test('P'));
+      marlin.kill(F("D10"), F("KILL TEST"), parser.seen_test('P'));
       break;
 
     case 1: {
