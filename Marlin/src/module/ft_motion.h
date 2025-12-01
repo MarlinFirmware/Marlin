@@ -94,9 +94,9 @@ typedef struct FTConfig {
   }
 
   bool setShaper(const AxisEnum a, const ft_shaped_shaper_t s) {
-    if (newsh == shaper[a]) return false;
+    if (s == shaper[a]) return false;
     planner.synchronize();
-    shaper[a] = newsh;
+    shaper[a] = s;
     return true;
   }
 
