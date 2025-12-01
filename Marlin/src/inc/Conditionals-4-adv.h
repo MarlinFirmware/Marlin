@@ -1526,7 +1526,7 @@
   #define HAS_ZV_SHAPING 1
 #endif
 
-// FT Motion unified window and batch size
+// FT Motion: Shapers
 #if ENABLED(FT_MOTION)
   #if HAS_X_AXIS
     #define HAS_FTM_SHAPING 1
@@ -1540,6 +1540,9 @@
   #endif
   #if !HAS_EXTRUDERS
     #undef FTM_SHAPER_E
+  #endif
+  #if DISABLED(FTM_POLYS)
+    #define FTM_TRAJECTORY_TYPE TRAPEZOIDAL
   #endif
 #endif
 

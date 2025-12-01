@@ -312,7 +312,7 @@ void iconResume() {
 }
 
 void iconResumeOrPause() {
-  if (printingIsPaused() || hmiFlag.pause_flag || hmiFlag.pause_action)
+  if (marlin.printingIsPaused() || hmiFlag.pause_flag || hmiFlag.pause_action)
     iconResume();
   else
     iconPause();
@@ -1982,11 +1982,11 @@ void hmiSDCardUpdate() {
       if (checkkey == ID_SelectFile) {
         redrawSDList();
       }
-      else if (checkkey == ID_PrintProcess || checkkey == ID_Tune || printingIsActive()) {
+      else if (checkkey == ID_PrintProcess || checkkey == ID_Tune || marlin.printingIsActive()) {
         // TODO: Move card removed abort handling
         //       to CardReader::manage_media.
         card.abortFilePrintSoon();
-        wait_for_heatup = wait_for_user = false;
+        marlin.end_waiting();
         dwin_abort_flag = true; // Reset feedrate, return to Home
       }
     }
@@ -2389,7 +2389,7 @@ void hmiPauseOrStop() {
     else if (select_print.now == PRINT_STOP) {
       if (hmiFlag.select_flag) {
         checkkey = ID_BackMain;
-        wait_for_heatup = wait_for_user = false;      // Stop waiting for heating/user
+        marlin.end_waiting();                         // Stop waiting for heating/user
         card.abortFilePrintSoon();                    // Let the main loop handle SD abort
         dwin_abort_flag = true;                       // Reset feedrate, return to Home
         #ifdef ACTION_ON_CANCEL
@@ -4141,15 +4141,15 @@ void eachMomentUpdate() {
       dwinDrawRectangle(1, COLOR_BG_BLACK, 0, 250, DWIN_WIDTH - 1, STATUS_Y);
       dwinIconShow(ICON, hmiIsChinese() ? ICON_Confirm_C : ICON_Confirm_E, 86, 283);
     }
-    else if (hmiFlag.pause_flag != printingIsPaused()) {
+    else if (hmiFlag.pause_flag != marlin.printingIsPaused()) {
       // print status update
-      hmiFlag.pause_flag = printingIsPaused();
+      hmiFlag.pause_flag = marlin.printingIsPaused();
       iconResumeOrPause();
     }
   }
 
   // pause after homing
-  if (hmiFlag.pause_action && printingIsPaused() && !planner.has_blocks_queued()) {
+  if (hmiFlag.pause_action && marlin.printingIsPaused() && !planner.has_blocks_queued()) {
     hmiFlag.pause_action = false;
     #if ENABLED(PAUSE_HEAT)
       TERN_(HAS_HOTEND, resume_hotend_temp = thermalManager.degTargetHotend(0));

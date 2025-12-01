@@ -68,8 +68,8 @@ EncoderState encoderReceiveAnalyze() {
         ui.refresh_brightness();
         return ENCODER_DIFF_NO;
       }
-      const bool was_waiting = wait_for_user;
-      wait_for_user = false;
+      const bool was_waiting = marlin.wait_for_user;
+      marlin.user_resume();
       return was_waiting ? ENCODER_DIFF_NO : ENCODER_DIFF_ENTER;
     }
     else return ENCODER_DIFF_NO;

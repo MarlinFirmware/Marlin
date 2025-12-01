@@ -26,8 +26,10 @@
 #include "stepper.h"      // For stepper motion and direction
 
 #include "ft_motion/trajectory_trapezoidal.h"
-#include "ft_motion/trajectory_poly5.h"
-#include "ft_motion/trajectory_poly6.h"
+#if ENABLED(FTM_POLYS)
+  #include "ft_motion/trajectory_poly5.h"
+  #include "ft_motion/trajectory_poly6.h"
+#endif
 #if ENABLED(FTM_RESONANCE_TEST)
   #include "ft_motion/resonance_generator.h"
 #endif
@@ -83,7 +85,10 @@ typedef struct FTConfig {
   #endif
 
   TrajectoryType trajectory_type = TrajectoryType::FTM_TRAJECTORY_TYPE; // Trajectory generator type
-  float poly6_acceleration_overshoot; // Overshoot factor for Poly6 (1.25 to 2.0)
+
+  #if ENABLED(FTM_POLYS)
+    float poly6_acceleration_overshoot; // Overshoot factor for Poly6 (1.25 to 2.0)
+  #endif
 
   bool setActive(const bool a) {
     if (a == active) return false;
@@ -150,7 +155,9 @@ class FTMotion {
         #undef _SET_SMOOTH
       #endif
 
-      cfg.poly6_acceleration_overshoot = FTM_POLY6_ACCELERATION_OVERSHOOT;
+      #if ENABLED(FTM_POLYS)
+        cfg.poly6_acceleration_overshoot = FTM_POLY6_ACCELERATION_OVERSHOOT;
+      #endif
 
       setTrajectoryType(TrajectoryType::FTM_TRAJECTORY_TYPE);
 
@@ -200,7 +207,6 @@ class FTMotion {
       return cfg.active ? axis_move_dir[axis] : stepper.last_direction_bits[axis];
     }
 
-
     static stepping_t stepping;
     FORCE_INLINE static bool stepper_plan_is_empty() {
       return stepper_plan_head == stepper_plan_tail;
@@ -235,8 +241,10 @@ class FTMotion {
 
     // Trajectory generators
     static TrapezoidalTrajectoryGenerator trapezoidalGenerator;
-    static Poly5TrajectoryGenerator poly5Generator;
-    static Poly6TrajectoryGenerator poly6Generator;
+    #if ENABLED(FTM_POLYS)
+      static Poly5TrajectoryGenerator poly5Generator;
+      static Poly6TrajectoryGenerator poly6Generator;
+    #endif
     static TrajectoryGenerator* currentGenerator;
     static TrajectoryType trajectoryType;
 
@@ -276,6 +284,7 @@ class FTMotion {
     static stepper_plan_t stepper_plan_buff[FTM_BUFFER_SIZE];
     static uint32_t stepper_plan_tail, stepper_plan_head;
     static XYZEval<int64_t> curr_steps_q32_32;
+
 }; // class FTMotion
 
 extern FTMotion ftMotion; // Use ftMotion.thing, not FTMotion::thing.

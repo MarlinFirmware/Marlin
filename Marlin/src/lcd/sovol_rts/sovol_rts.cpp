@@ -38,7 +38,6 @@ RTS rts;
 #include <WString.h>
 #include <stdio.h>
 #include <string.h>
-#include "../../MarlinCore.h"
 #include "../../sd/cardreader.h"
 #include "../../module/temperature.h"
 #include "../../module/planner.h"
@@ -518,7 +517,7 @@ void RTS::sdCardStop() {
   updateTempE0();
   updateTempBed();
   thermalManager.zero_fan_speeds();
-  wait_for_heatup = wait_for_user = false;
+  marlin.end_waiting();
   poweroff_continue = false;
   #if ALL(HAS_MEDIA, POWER_LOSS_RECOVERY)
     if (card.flag.mounted) card.removeJobRecoveryFile();
@@ -1102,7 +1101,7 @@ void RTS::handleData() {
             }
           #endif
 
-          wait_for_heatup = wait_for_user = false;
+          marlin.end_waiting();
           print_state = 0;
           break;
       }
@@ -1364,7 +1363,7 @@ void RTS::handleData() {
           case 1: if (FILAMENT_IS_OUT()) break;
           case 2:
             updateTempE0();
-            wait_for_heatup = wait_for_user = false;
+            marlin.end_waiting();
             break;
           case 3: pause_menu_response = PAUSE_RESPONSE_EXTRUDE_MORE; break;
           case 4: pause_menu_response = PAUSE_RESPONSE_RESUME_PRINT; break;
@@ -1617,7 +1616,7 @@ void RTS::onIdle() {
     }
   }
 
-  if (pause_action_flag && !sdcard_pause_check && printingIsPaused() && !planner.has_blocks_queued()) {
+  if (pause_action_flag && !sdcard_pause_check && marlin.printingIsPaused() && !planner.has_blocks_queued()) {
     pause_action_flag = false;
     queue.enqueue_now(F("G0 F3000 X0 Y0\nM18 S0"));
   }

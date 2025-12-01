@@ -850,7 +850,7 @@ void MarlinUI::draw_status_message(const bool blink) {
 
   #if ENABLED(SHOW_REMAINING_TIME)
     void MarlinUI::drawRemain() {
-      if (printJobOngoing()) {
+      if (marlin.printJobOngoing()) {
         char buffer[8];
         const duration_t remaint = get_remaining_time();
         #if LCD_INFO_SCREEN_STYLE == 0
@@ -873,7 +873,7 @@ void MarlinUI::draw_status_message(const bool blink) {
   #if ENABLED(SHOW_INTERACTION_TIME)
     void MarlinUI::drawInter() {
       const duration_t interactt = interaction_time;
-      if (printingIsActive() && interactt.value) {
+      if (marlin.printingIsActive() && interactt.value) {
         char buffer[8];
         #if LCD_INFO_SCREEN_STYLE == 0
           const uint8_t timepos = TPOFFSET - interactt.toDigital(buffer);
@@ -894,7 +894,7 @@ void MarlinUI::draw_status_message(const bool blink) {
 
   #if ENABLED(SHOW_ELAPSED_TIME)
     void MarlinUI::drawElapsed() {
-      if (printJobOngoing()) {
+      if (marlin.printJobOngoing()) {
         char buffer[8];
         const duration_t elapsedt = print_job_timer.duration();
         #if LCD_INFO_SCREEN_STYLE == 0
@@ -1072,7 +1072,7 @@ void MarlinUI::draw_status_screen() {
 
           #else // !HAS_DUAL_MIXING
 
-            const bool show_e_total = TERN1(HAS_X_AXIS, TERN0(LCD_SHOW_E_TOTAL, printingIsActive()));
+            const bool show_e_total = TERN1(HAS_X_AXIS, TERN0(LCD_SHOW_E_TOTAL, marlin.printingIsActive()));
 
             if (show_e_total) {
               #if ENABLED(LCD_SHOW_E_TOTAL)

@@ -578,7 +578,8 @@
 //
 
 #define BOARD_RP2040                  6200  // Generic RP2040 Test board
-#define BOARD_BTT_SKR_PICO            6201  // BigTreeTech SKR Pico 1.x
+#define BOARD_RASPBERRY_PI_PICO       6201  // Raspberry Pi Pico
+#define BOARD_BTT_SKR_PICO            6202  // BigTreeTech SKR Pico 1.x
 
 //
 // Custom board
