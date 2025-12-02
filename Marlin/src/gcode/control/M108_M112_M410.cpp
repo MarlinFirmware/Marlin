@@ -21,9 +21,6 @@
  */
 
 #include "../../inc/MarlinConfig.h"
-
-#if DISABLED(EMERGENCY_PARSER)
-
 #include "../gcode.h"
 #include "../../module/motion.h" // for quickstop_stepper
 
@@ -50,5 +47,3 @@ void GcodeSuite::M112() {
 void GcodeSuite::M410() {
   quickstop_stepper();
 }
-
-#endif // !EMERGENCY_PARSER
