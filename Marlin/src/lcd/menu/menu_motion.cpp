@@ -488,7 +488,9 @@ void menu_move() {
       };
     #else
       auto _shaper_name = [](const AxisEnum a) { return get_shaper_name(a); };
-      auto _dmode = []{ return get_dyn_freq_mode_name(); };
+      #if HAS_DYNAMIC_FREQ
+        auto _dmode = []{ return get_dyn_freq_mode_name(); };
+      #endif
       #if ENABLED(FTM_POLYS)
         auto _traj_name = []{ return ftMotion.getTrajectoryName(); };
       #endif
@@ -585,23 +587,29 @@ void menu_move() {
         };
       #endif
 
-      #if CACHE_FOR_SPEED
-        bool got_t = false;
+      #if ENABLED(FTM_POLYS)
+        #if CACHE_FOR_SPEED
+          bool got_t = false;
+        #endif
+        MString<20> traj_name;
+        auto _traj_name = [&]{
+          if (TERN1(CACHE_FOR_SPEED, !got_t)) {
+            TERN_(CACHE_FOR_SPEED, got_t = true);
+            traj_name = ftMotion.getTrajectoryName();
+          }
+          return traj_name;
+        };
       #endif
-      MString<20> traj_name;
-      auto _traj_name = [&]{
-        if (TERN1(CACHE_FOR_SPEED, !got_t)) {
-          TERN_(CACHE_FOR_SPEED, got_t = true);
-          traj_name = ftMotion.getTrajectoryName();
-        }
-        return traj_name;
-      };
 
     #else // !__AVR__
 
       auto _shaper_name = [](const AxisEnum a) { return get_shaper_name(a); };
-      auto _dmode = []{ return get_dyn_freq_mode_name(); };
-      auto _traj_name = []{ return ftMotion.getTrajectoryName(); };
+      #if HAS_DYNAMIC_FREQ
+        auto _dmode = []{ return get_dyn_freq_mode_name(); };
+      #endif
+      #if ENABLED(FTM_POLYS)
+        auto _traj_name = []{ return ftMotion.getTrajectoryName(); };
+      #endif
 
     #endif // !__AVR__
 
