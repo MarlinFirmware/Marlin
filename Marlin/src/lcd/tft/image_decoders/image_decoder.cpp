@@ -22,7 +22,7 @@
 
 #include "../../../inc/MarlinConfig.h"
 
-#if ANY(HAS_JPEG_DECODER, HAS_PNG_DECODER, HAS_QOI_DECODER)
+#if HAS_TFT_GCODE_PREVIEW
 
 //#define DEBUG_OUT 1
 #include "../../../core/debug_out.h"
@@ -32,13 +32,13 @@
 namespace ImageDecoders {
 
   ImageFormat ImageDecoder::detectFormat(const uint8_t *data, size_t size) {
-    #if HAS_JPEG_DECODER
+    #if ENABLED(GCODE_PREVIEW_JPEG)
       if (JPEGDecoder::isValidJPEG(data, size)) return ImageFormat::IMG_JPEG;
     #endif
-    #if HAS_PNG_DECODER
+    #if ENABLED(GCODE_PREVIEW_PNG)
       if (PNGDecoder::isValidPNG(data, size)) return ImageFormat::IMG_PNG;
     #endif
-    #if HAS_QOI_DECODER
+    #if ENABLED(GCODE_PREVIEW_QOI)
       if (QOIDecoder::isValidQOI(data, size)) return ImageFormat::IMG_QOI;
     #endif
     return ImageFormat::IMG_UNKNOWN;
@@ -52,24 +52,21 @@ namespace ImageDecoders {
     DEBUG_ECHOLNPGM("ImageDecoder: Detected format: ", (int)format, ", data size: ", (int)image_size);
 
     switch (format) {
-      #if HAS_JPEG_DECODER
+      #if ENABLED(GCODE_PREVIEW_JPEG)
         case ImageFormat::IMG_JPEG:
           DEBUG_ECHOLNPGM("ImageDecoder: Calling JPEGDecoder::decode()");
           return JPEGDecoder::decode(image_data, image_size, output_buffer, width, height);
       #endif
-
-      #if HAS_PNG_DECODER
+      #if ENABLED(GCODE_PREVIEW_PNG)
         case ImageFormat::IMG_PNG:
           return PNGDecoder::decode(image_data, image_size, output_buffer, width, height);
       #endif
-
-      #if HAS_QOI_DECODER
+      #if ENABLED(GCODE_PREVIEW_QOI)
         case ImageFormat::IMG_QOI:
           return QOIDecoder::decode(image_data, image_size, output_buffer, width, height);
       #endif
 
-      default:
-        return false;
+      default: return false;
     }
   }
 
@@ -79,23 +76,23 @@ namespace ImageDecoders {
     ImageFormat format = detectFormat(image_data, image_size);
 
     switch (format) {
-      #if HAS_JPEG_DECODER
+      #if ENABLED(GCODE_PREVIEW_JPEG)
         case ImageFormat::IMG_JPEG:
           return JPEGDecoder::getDimensions(image_data, image_size, width, height);
       #endif
-      #if HAS_PNG_DECODER
+      #if ENABLED(GCODE_PREVIEW_PNG)
         case ImageFormat::IMG_PNG:
           return PNGDecoder::getDimensions(image_data, image_size, width, height);
       #endif
-      #if HAS_QOI_DECODER
+      #if ENABLED(GCODE_PREVIEW_QOI)
         case ImageFormat::IMG_QOI:
           return QOIDecoder::getDimensions(image_data, image_size, width, height);
       #endif
-      default:
-        return false;
+
+      default: return false;
     }
   }
 
 } // namespace ImageDecoders
 
-#endif // HAS_JPEG_DECODER || HAS_PNG_DECODER || HAS_QOI_DECODER
+#endif // HAS_TFT_GCODE_PREVIEW

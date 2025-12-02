@@ -27,7 +27,7 @@
 
 #include "../../inc/MarlinConfig.h"
 
-#if ALL(TFT_COLOR_UI, GCODE_PREVIEW)
+#if HAS_TFT_GCODE_PREVIEW
 
 #include "ui_common.h"
 #include "ui_gcode_preview.h"
@@ -43,6 +43,8 @@
 
 //#define DEBUG_OUT 1
 #include "../../core/debug_out.h"
+
+Preview preview;
 
 /**
  * Structure to hold file properties
@@ -342,23 +344,13 @@ bool Preview::hasPreview() {
 
   // Detect image format
   #if DEBUG_OUT
-    const char* format_name = "UNKNOWN";
-    #if HAS_JPEG_DECODER
-      if (ImageDecoders::JPEGDecoder::isValidJPEG(thumbdata, fileprop.thumbsize)) {
-        format_name = "JPEG";
-      } else
-    #endif
-    #if HAS_PNG_DECODER
-      if (ImageDecoders::PNGDecoder::isValidPNG(thumbdata, fileprop.thumbsize)) {
-        format_name = "PNG";
-      } else
-    #endif
-    #if HAS_QOI_DECODER
-      if (ImageDecoders::QOIDecoder::isValidQOI(thumbdata, fileprop.thumbsize)) {
-        format_name = "QOI";
-      } else
-    #endif
-      {} // Empty else for UNKNOWN case
+    const char *format_name = "UNKNOWN";
+    if (TERN0(GCODE_PREVIEW_JPEG, ImageDecoders::JPEGDecoder::isValidJPEG(thumbdata, fileprop.thumbsize)))
+      format_name = "JPEG";
+    else if (TERN0(GCODE_PREVIEW_PNG, ImageDecoders::PNGDecoder::isValidPNG(thumbdata, fileprop.thumbsize)))
+      format_name = "PNG";
+    else if (TERN0(GCODE_PREVIEW_QOI, ImageDecoders::QOIDecoder::isValidQOI(thumbdata, fileprop.thumbsize)))
+      format_name = "QOI";
     DEBUG_ECHOLNPGM("G-code preview: Detected image format: ", format_name);
   #endif
 
@@ -369,7 +361,8 @@ bool Preview::hasPreview() {
     // Use JPEG dimensions instead of G-code dimensions
     fileprop.thumbwidth = jpeg_width;
     fileprop.thumbheight = jpeg_height;
-  } else {
+  }
+  else {
     DEBUG_ECHOLNPGM("G-code preview: Failed to get JPEG dimensions");
   }
 
@@ -381,7 +374,8 @@ bool Preview::hasPreview() {
       thumbdata, fileprop.thumbsize,
       fileprop.decoded_thumb, fileprop.thumbwidth, fileprop.thumbheight
     );
-  } else {
+  }
+  else {
     DEBUG_ECHOLNPGM("G-code preview: Image too large for buffer: ", fileprop.thumbwidth, C('x'), fileprop.thumbheight,
            " needs ", required_bytes, " bytes, buffer has ", sizeof(fileprop.decoded_thumb), " bytes");
   }
@@ -393,7 +387,8 @@ bool Preview::hasPreview() {
   if (!fileprop.decode_success) {
     DEBUG_ECHOLNPGM("G-code preview: Failed to decode thumbnail image");
     // Continue anyway - we can still show metadata
-  } else {
+  }
+  else {
     // Debug: Print first few decoded pixels
     DEBUG_ECHOPGM("G-code preview: First 10 decoded pixels: ");
     for (int i = 0; i < 10 && i < fileprop.thumbwidth * fileprop.thumbheight; i++) {
@@ -527,7 +522,10 @@ void Preview::drawFromSD() {
         tft.add_text(text_x, text_y + 25, COLOR_RED, "Not available");
       }
     #endif // TFT_COLOR_UI_LANDSCAPE
-  } else {
+
+  }
+  else { // valid()
+
     // Valid preview available
     char buf[100];
 
@@ -712,6 +710,4 @@ void Preview::show(const int x, const int y) {
   //tft.add_rectangle(x, y, fileprop.thumbwidth, fileprop.thumbheight, COLOR_WHITE);
 }
 
-Preview preview;
-
-#endif // TFT_COLOR_UI && GCODE_PREVIEW
+#endif // HAS_TFT_GCODE_PREVIEW

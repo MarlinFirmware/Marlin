@@ -16,7 +16,7 @@
 
 #include "../../../../inc/MarlinConfig.h"
 
-#if HAS_QOI_DECODER
+#if ENABLED(GCODE_PREVIEW_QOI)
 
 //#define DEBUG_OUT 1
 #include "../../../../core/debug_out.h"
@@ -111,4 +111,4 @@ bool QOIDecoder::isValidQOI(const uint8_t *data, size_t size) {
 
 } // namespace ImageDecoders
 
-#endif // HAS_QOI_DECODER
+#endif // GCODE_PREVIEW_QOI

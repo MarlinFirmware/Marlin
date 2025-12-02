@@ -5,13 +5,13 @@
 
 #include "../ui_common.h"  // For decoder defines
 
-#if HAS_JPEG_DECODER
+#if ENABLED(GCODE_PREVIEW_JPEG)
   #include "jpeg/jpeg_decoder.h"
 #endif
-#if HAS_PNG_DECODER
+#if ENABLED(GCODE_PREVIEW_PNG)
   #include "png/png_decoder.h"
 #endif
-#if HAS_QOI_DECODER
+#if ENABLED(GCODE_PREVIEW_QOI)
   #include "qoi/qoi_decoder.h"
 #endif
 

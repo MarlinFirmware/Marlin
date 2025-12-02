@@ -16,7 +16,7 @@
 
 #include "../../../../inc/MarlinConfig.h"
 
-#if HAS_PNG_DECODER
+#if ENABLED(GCODE_PREVIEW_PNG)
 
 //#define DEBUG_OUT 1
 #include "../../../../core/debug_out.h"
@@ -127,4 +127,4 @@ bool PNGDecoder::findIHDR(const uint8_t *data, size_t size, uint16_t& width, uin
 
 } // namespace ImageDecoders
 
-#endif // HAS_PNG_DECODER
+#endif // GCODE_PREVIEW_PNG

@@ -16,7 +16,7 @@
 
 #include "../../../../inc/MarlinConfig.h"
 
-#if HAS_JPEG_DECODER
+#if ENABLED(GCODE_PREVIEW_JPEG)
 
 //#define DEBUG_OUT 1
 #include "../../../../core/debug_out.h"
@@ -189,4 +189,4 @@ bool JPEGDecoder::decode(const uint8_t *jpeg_data, size_t jpeg_size, uint16_t *o
 
 } // namespace ImageDecoders
 
-#endif // HAS_JPEG_DECODER
+#endif // GCODE_PREVIEW_JPEG
