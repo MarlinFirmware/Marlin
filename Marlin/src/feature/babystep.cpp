@@ -25,7 +25,6 @@
 #if ENABLED(BABYSTEPPING)
 
 #include "babystep.h"
-#include "../MarlinCore.h"
 #include "../module/motion.h"   // for axis_should_home(), BABYSTEP_ALLOWED
 #include "../module/planner.h"  // for axis_steps_per_mm[]
 #include "../module/stepper.h"

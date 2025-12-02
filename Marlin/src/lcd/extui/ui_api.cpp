@@ -1021,9 +1021,9 @@ namespace ExtUI {
   void coolDown() { thermalManager.cooldown(); }
 
   bool awaitingUserConfirm() {
-    return TERN0(HAS_RESUME_CONTINUE, wait_for_user) || TERN0(HOST_KEEPALIVE_FEATURE, getHostKeepaliveIsPaused());
+    return TERN0(HAS_RESUME_CONTINUE, marlin.wait_for_user) || TERN0(HOST_KEEPALIVE_FEATURE, getHostKeepaliveIsPaused());
   }
-  void setUserConfirmed() { TERN_(HAS_RESUME_CONTINUE, wait_for_user = false); }
+  void setUserConfirmed() { TERN_(HAS_RESUME_CONTINUE, marlin.user_resume()); }
 
   #if ENABLED(ADVANCED_PAUSE_FEATURE)
     void setPauseMenuResponse(PauseMenuResponse response) { pause_menu_response = response; }
@@ -1068,7 +1068,7 @@ namespace ExtUI {
   bool isPrintingFromMediaPaused() { return card.isPaused(); }
 
   bool isPrinting() {
-    return commandsInQueue() || isPrintingFromMedia() || printJobOngoing() || printingIsPaused();
+    return commandsInQueue() || isPrintingFromMedia() || marlin.printJobOngoing() || marlin.printingIsPaused();
   }
 
   bool isPrintingPaused() {
@@ -1076,7 +1076,7 @@ namespace ExtUI {
   }
 
   bool isOngoingPrintJob() {
-    return isPrintingFromMedia() || printJobOngoing();
+    return isPrintingFromMedia() || marlin.printJobOngoing();
   }
 
   bool isMediaMounted()    { return card.isMounted(); }
@@ -1112,7 +1112,7 @@ namespace ExtUI {
   void onSurviveInKilled() {
     thermalManager.disable_all_heaters();
     flags.printer_killed = 0;
-    marlin_state = MarlinState::MF_RUNNING;
+    marlin.setState(MarlinState::MF_RUNNING);
     //SERIAL_ECHOLNPGM("survived at: ", millis());
   }
 

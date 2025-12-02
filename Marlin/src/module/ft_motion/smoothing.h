@@ -44,4 +44,9 @@ typedef struct Smoothing {
   // is done by delaying all axes to match the laggiest one (i.e largest_delay_samples).
   void refresh_largest_delay_samples() { largest_delay_samples = _MAX(CARTES_LIST(X.delay_samples, Y.delay_samples, Z.delay_samples, E.delay_samples)); }
   // Note: the delay equals smoothing_time iff the input signal frequency is lower than 1/smoothing_time, luckily for us, this holds in this case
+  void reset() {
+    #define _CLEAR(A) ZERO(A.smoothing_pass);
+    LOGICAL_AXIS_MAP(_CLEAR);
+    #undef _CLEAR
+  }
 } smoothing_t;

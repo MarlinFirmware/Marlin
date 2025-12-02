@@ -140,6 +140,7 @@ namespace LanguageNarrow_en {
   LSTR MSG_LEVEL_BED_WAITING              = _UxGT("Click to Begin");
   LSTR MSG_LEVEL_BED_NEXT_POINT           = _UxGT("Next Point");
   LSTR MSG_LEVEL_BED_DONE                 = _UxGT("Leveling Done!");
+  LSTR MSG_ZERO_MESH_POINT                = _UxGT("Zero Current Point");
   LSTR MSG_Z_FADE_HEIGHT                  = _UxGT("Fade Height");
   LSTR MSG_SET_HOME_OFFSETS               = _UxGT("Set Home Offsets");
   LSTR MSG_HOME_OFFSET_X                  = _UxGT("Home Offset X"); // DWIN
@@ -413,10 +414,6 @@ namespace LanguageNarrow_en {
   LSTR MSG_TEMP_NOZZLE                    = _UxGT("Nozzle Temperature");
   LSTR MSG_TEMP_BED                       = _UxGT("Bed Temperature");
   LSTR MSG_TEMP_CHAMBER                   = _UxGT("Chamber Temperature");
-
-  LSTR MSG_BAD_HEATER_ID                  = _UxGT("Bad extruder.");
-  LSTR MSG_TEMP_TOO_HIGH                  = _UxGT("Temperature too high.");
-  LSTR MSG_TEMP_TOO_LOW                   = _UxGT("Temperature too low");
 
   LSTR MSG_PID_BAD_HEATER_ID              = _UxGT("Autotune failed! Bad extruder.");
   LSTR MSG_PID_TEMP_TOO_HIGH              = _UxGT("Autotune failed! Temperature too high.");
@@ -1014,6 +1011,8 @@ namespace LanguageNarrow_en {
   LSTR DGUS_MSG_NOT_WHILE_PRINTING        = _UxGT("Not allowed during print");
   LSTR DGUS_MSG_NOT_WHILE_IDLE            = _UxGT("Not allowed while idle");
   LSTR DGUS_MSG_NO_FILE_SELECTED          = _UxGT("No file selected");
+  LSTR DGUS_MSG_TEMP_TOO_LOW              = _UxGT("Temperature too low");
+  LSTR DGUS_MSG_TEMP_TOO_HIGH             = _UxGT("Temperature too high.");
   LSTR DGUS_MSG_EXECUTING_COMMAND         = _UxGT("Executing command...");
   LSTR DGUS_MSG_BED_PID_DISABLED          = _UxGT("Bed PID disabled");
   LSTR DGUS_MSG_PID_DISABLED              = _UxGT("PID disabled");

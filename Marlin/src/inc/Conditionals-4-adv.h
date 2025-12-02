@@ -1136,7 +1136,7 @@
   #undef SERIAL_XON_XOFF
 #endif
 
-#if ENABLED(HOST_PROMPT_SUPPORT) && DISABLED(EMERGENCY_PARSER)
+#if ENABLED(HOST_PROMPT_SUPPORT)
   #define HAS_GCODE_M876 1
 #endif
 
@@ -1526,7 +1526,7 @@
   #define HAS_ZV_SHAPING 1
 #endif
 
-// FT Motion unified window and batch size
+// FT Motion: Shapers
 #if ENABLED(FT_MOTION)
   #if HAS_X_AXIS
     #define HAS_FTM_SHAPING 1

@@ -35,7 +35,6 @@
 #include "planner.h"
 #include "endstops.h"
 #include "../lcd/marlinui.h"
-#include "../MarlinCore.h"
 
 // Initialized by settings.load
 float segments_per_second, polargraph_max_belt_len;

@@ -54,7 +54,6 @@
 #include "../lcd/marlinui.h"
 #include "../libs/vector_3.h"   // for matrix_3x3
 #include "../gcode/gcode.h"
-#include "../MarlinCore.h"
 
 #if ANY(EEPROM_SETTINGS, SD_FIRMWARE_UPDATE)
   #include "../HAL/shared/eeprom_api.h"
@@ -703,6 +702,13 @@ typedef struct SettingsDataStruct {
     uint8_t stealth_mode;         // EEPROM_MMU_STEALTH
     bool mmu_hw_enabled;          // EEPROM_MMU_ENABLED
     // uint32_t material_changes
+  #endif
+
+  //
+  // GCODE_MACROS
+  //
+  #if ENABLED(GCODE_MACROS_IN_EEPROM)
+    char gcode_macros[GCODE_MACROS_SLOTS][GCODE_MACROS_SLOT_SIZE + 1];
   #endif
 
 } SettingsData;
@@ -1691,7 +1697,7 @@ void MarlinSettings::postprocess() {
     // CONFIGURABLE_MACHINE_NAME
     //
     #if ENABLED(CONFIGURABLE_MACHINE_NAME)
-      EEPROM_WRITE(machine_name);
+      EEPROM_WRITE(marlin.machine_name);
     #endif
 
     //
@@ -1821,6 +1827,14 @@ void MarlinSettings::postprocess() {
       EEPROM_WRITE(mmu3.cutter_mode); // EEPROM_MMU_CUTTER_ENABLED
       EEPROM_WRITE(mmu3.stealth_mode); // EEPROM_MMU_STEALTH
       EEPROM_WRITE(mmu3.mmu_hw_enabled); // EEPROM_MMU_ENABLED
+    #endif
+
+    //
+    // GCODE_MACROS
+    //
+    #if ENABLED(GCODE_MACROS_IN_EEPROM)
+      _FIELD_TEST(gcode_macros);
+      EEPROM_WRITE(gcode.macros);
     #endif
 
     //
@@ -2809,7 +2823,7 @@ void MarlinSettings::postprocess() {
       // CONFIGURABLE_MACHINE_NAME
       //
       #if ENABLED(CONFIGURABLE_MACHINE_NAME)
-        EEPROM_READ(machine_name);
+        EEPROM_READ(marlin.machine_name);
       #endif
 
       //
@@ -2982,6 +2996,13 @@ void MarlinSettings::postprocess() {
       #endif
 
       //
+      // GCODE_MACROS
+      //
+      #if ENABLED(GCODE_MACROS_IN_EEPROM)
+        EEPROM_READ(gcode.macros);
+      #endif
+
+      //
       // Validate Final Size and CRC
       //
       const uint16_t eeprom_total = eeprom_index - (EEPROM_OFFSET);
@@ -3053,7 +3074,7 @@ void MarlinSettings::postprocess() {
 
     #if ENABLED(EEPROM_CHITCHAT) && DISABLED(DISABLE_M503)
       // Report the EEPROM settings
-      if (!validating && TERN1(EEPROM_BOOT_SILENT, IsRunning())) report();
+      if (!validating && TERN1(EEPROM_BOOT_SILENT, marlin.isRunning())) report();
     #endif
 
     return eeprom_error;
@@ -3418,7 +3439,7 @@ void MarlinSettings::reset() {
   //
   // CONFIGURABLE_MACHINE_NAME
   //
-  TERN_(CONFIGURABLE_MACHINE_NAME, machine_name = PSTR(MACHINE_NAME));
+  TERN_(CONFIGURABLE_MACHINE_NAME, marlin.machine_name = PSTR(MACHINE_NAME));
 
   //
   // TOUCH_SCREEN_CALIBRATION
@@ -3801,6 +3822,11 @@ void MarlinSettings::reset() {
   #endif
 
   //
+  // G-code Macros
+  //
+  TERN_(GCODE_MACROS_IN_EEPROM, gcode.reset_macros());
+
+  //
   // Hotend Idle Timeout
   //
   TERN_(HOTEND_IDLE_TIMEOUT, hotend_idle.cfg.set_defaults());
@@ -3848,7 +3874,7 @@ void MarlinSettings::reset() {
     //
     // M104 settings for AUTOTEMP
     //
-    TERN_(AUTOTEMP, gcode.M104_report());
+    TERN_(AUTOTEMP, gcode.M104_report(forReplay));
 
     //
     // M149 Temperature units
@@ -4034,6 +4060,11 @@ void MarlinSettings::reset() {
     // Homing Feedrate
     //
     TERN_(EDITABLE_HOMING_FEEDRATE, gcode.M210_report(forReplay));
+
+    //
+    // G-Code Macros
+    //
+    TERN_(GCODE_MACROS, gcode.M810_819_report(forReplay));
 
     //
     // Probe Offset

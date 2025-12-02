@@ -344,8 +344,6 @@ namespace LanguageNarrow_sk {
   LSTR MSG_PID_CYCLE                      = _UxGT("Cykly PID");
   LSTR MSG_PID_AUTOTUNE_DONE              = _UxGT("Kal. PID dokončená");
   LSTR MSG_PID_AUTOTUNE_FAILED            = _UxGT("Kal. PID zlyhala!");
-  LSTR MSG_BAD_HEATER_ID                  = _UxGT("Zlý extrudér");
-  LSTR MSG_TEMP_TOO_HIGH                  = _UxGT("Príliš vysoká tepl.");
   LSTR MSG_PID_BAD_HEATER_ID              = _UxGT("Auto-kal. zlyhala! Zlý extrúder.");
   LSTR MSG_PID_TEMP_TOO_HIGH              = _UxGT("Auto-kal. zlyhala! Príliš vysoká tepl.");
   LSTR MSG_PID_TIMEOUT                    = _UxGT("Auto-kal. zlyhala! Čas vypršal.");
@@ -800,6 +798,9 @@ namespace LanguageNarrow_sk {
   LSTR MSG_USB_DISK                       = _UxGT("USB disk");
 
   LSTR MSG_HOST_SHUTDOWN                  = _UxGT("Vypnúť hosta");
+
+  // DGUS-Specific message strings, not used elsewhere
+  LSTR DGUS_MSG_TEMP_TOO_HIGH             = _UxGT("Príliš vysoká tepl.");
 }
 
 namespace LanguageWide_sk {

@@ -39,7 +39,6 @@
 #include "../../utf8.h"
 #include "../../marlinui.h"
 #include "../../extui/ui_api.h"
-#include "../../../MarlinCore.h"
 #include "../../../module/temperature.h"
 #include "../../../module/printcounter.h"
 #include "../../../module/motion.h"
@@ -200,7 +199,7 @@ typedef struct {
 select_t select_page{0}, select_print{0};
 
 #if ENABLED(LCD_BED_TRAMMING)
-  constexpr float bed_tramming_inset_lfbr[] = BED_TRAMMING_INSET_LFRB;
+  constexpr float bed_tramming_inset_lfrb[] = BED_TRAMMING_INSET_LFRB;
 #endif
 
 bool hash_changed = true; // Flag to know if message status was changed
@@ -294,7 +293,7 @@ MenuItem *fanSpeedItem = nullptr;
 MenuItem *mMeshMoveZItem = nullptr;
 MenuItem *editZValueItem = nullptr;
 
-bool isPrinting()   { return printingIsActive() || printingIsPaused(); }
+bool isPrinting()   { return marlin.printingIsActive() || marlin.printingIsPaused(); }
 bool sdPrinting()   { return isPrinting() && card.isStillPrinting(); }
 bool hostPrinting() { return isPrinting() && !card.isStillPrinting(); }
 
@@ -466,8 +465,8 @@ void popupPauseOrStop() {
       FSTR_P errorstr;
       uint8_t icon;
       switch (state) {
-        case 0:  errorstr = GET_TEXT_F(MSG_TEMP_TOO_LOW);       icon = ICON_TempTooLow;  break;
-        case 1:  errorstr = GET_TEXT_F(MSG_TEMP_TOO_HIGH);      icon = ICON_TempTooHigh; break;
+        case 0:  errorstr = GET_TEXT_F(DGUS_MSG_TEMP_TOO_LOW);  icon = ICON_TempTooLow;  break;
+        case 1:  errorstr = GET_TEXT_F(DGUS_MSG_TEMP_TOO_HIGH); icon = ICON_TempTooHigh; break;
         default: errorstr = GET_TEXT_F(MSG_ERR_HEATING_FAILED); icon = ICON_Temperature; break; // May be thermal runaway, temp malfunction, etc.
       }
       dwinShowPopup(icon, heaterstr, errorstr, BTN_Continue);
@@ -668,7 +667,7 @@ void drawPrintDone() {
 }
 
 void gotoPrintDone() {
-  wait_for_user = true;
+  marlin.wait_start();
   if (checkkey != ID_PrintDone) {
     checkkey = ID_PrintDone;
     drawPrintDone();
@@ -1214,7 +1213,7 @@ void hmiPrinting() {
     switch (select_print.now) {
       case PRINT_SETUP: drawTuneMenu(); break;
       case PRINT_PAUSE_RESUME:
-        if (printingIsPaused()) {  // If printer is already in pause
+        if (marlin.printingIsPaused()) {  // If printer is already in pause
           ExtUI::resumePrint();
           break;
         }
@@ -1275,7 +1274,7 @@ void hmiWaitForUser() {
     hmiReturnScreen();
     return;
   }
-  if (!wait_for_user) {
+  if (!marlin.wait_for_user) {
     switch (checkkey) {
       case ID_PrintDone: select_page.reset(); gotoMainMenu(); break;
       default: ui.reset_status(true); hmiReturnScreen(); break;
@@ -1366,8 +1365,8 @@ void eachMomentUpdate() {
         dwinPrintFinished();
     }
 
-    if ((hmiFlag.pause_flag != printingIsPaused()) && !hmiFlag.home_flag) {
-      hmiFlag.pause_flag = printingIsPaused();
+    if ((hmiFlag.pause_flag != marlin.printingIsPaused()) && !hmiFlag.home_flag) {
+      hmiFlag.pause_flag = marlin.printingIsPaused();
       if (hmiFlag.pause_flag)
         dwinPrintPause();
       else if (hmiFlag.abort_flag)
@@ -1517,14 +1516,14 @@ void hmiSaveProcessID(const uint8_t id) {
     TERN_(HAS_BED_PROBE, case ID_Leveling:)
     TERN_(HAS_ESDIAG, case ID_ESDiagProcess:)
     TERN_(PROUI_ITEM_PLOT, case ID_PlotProcess:)
-      wait_for_user = true;
+      marlin.wait_start();
     default: break;
   }
 }
 
 void hmiReturnScreen() {
   checkkey = last_checkkey;
-  wait_for_user = false;
+  marlin.user_resume();
   drawMainArea();
 }
 
@@ -1744,7 +1743,7 @@ void dwinLevelingDone() {
         break;
       case PID_TEMP_TOO_HIGH:
         checkkey = last_checkkey;
-        dwinPopupConfirm(ICON_TempTooHigh, GET_TEXT_F(MSG_PID_AUTOTUNE_FAILED), GET_TEXT_F(MSG_TEMP_TOO_HIGH));
+        dwinPopupConfirm(ICON_TempTooHigh, GET_TEXT_F(MSG_PID_AUTOTUNE_FAILED), GET_TEXT_F(DGUS_MSG_TEMP_TOO_HIGH));
         break;
       case AUTOTUNE_DONE:
         checkkey = last_checkkey;
@@ -1823,7 +1822,7 @@ void dwinPrintFinished() {
   TERN_(POWER_LOSS_RECOVERY, if (card.isPrinting()) recovery.cancel());
   hmiFlag.abort_flag = false;
   hmiFlag.pause_flag = false;
-  wait_for_heatup = false;
+  marlin.heatup_done();
   planner.finish_and_disable();
   thermalManager.cooldown();
   gotoPrintDone();
@@ -1960,9 +1959,9 @@ void MarlinUI::update() {
   void MarlinUI::_set_brightness() {
     dwinLCDBrightness(backlight ? brightness : 0);
     if (!backlight)
-      wait_for_user = true;
+      marlin.wait_start();
     else if (checkkey != ID_PrintDone)
-      wait_for_user = false;
+      marlin.user_resume();
   }
 #endif
 
@@ -2133,7 +2132,7 @@ void gotoConfirmToPrint() {
 
 // Reset Printer
 void rebootPrinter() {
-  wait_for_heatup = wait_for_user = false;    // Stop waiting for heating/user
+  marlin.end_waiting(); // Stop waiting for heating/user
   thermalManager.disable_all_heaters();
   planner.finish_and_disable();
   dwinRebootScreen();
@@ -2435,23 +2434,23 @@ void setFlow() { setPIntOnClick(FLOW_EDIT_MIN, FLOW_EDIT_MAX, []{ planner.refres
     switch (point) {
       case 0:
         LCD_MESSAGE(MSG_TRAM_FL);
-        x = bed_tramming_inset_lfbr[0];
-        y = bed_tramming_inset_lfbr[1];
+        x = bed_tramming_inset_lfrb[0];
+        y = bed_tramming_inset_lfrb[1];
         break;
       case 1:
         LCD_MESSAGE(MSG_TRAM_FR);
-        x = X_BED_SIZE - bed_tramming_inset_lfbr[2];
-        y = bed_tramming_inset_lfbr[1];
+        x = X_BED_SIZE - bed_tramming_inset_lfrb[2];
+        y = bed_tramming_inset_lfrb[1];
         break;
       case 2:
         LCD_MESSAGE(MSG_TRAM_BR);
-        x = X_BED_SIZE - bed_tramming_inset_lfbr[2];
-        y = Y_BED_SIZE - bed_tramming_inset_lfbr[3];
+        x = X_BED_SIZE - bed_tramming_inset_lfrb[2];
+        y = Y_BED_SIZE - bed_tramming_inset_lfrb[3];
         break;
       case 3:
         LCD_MESSAGE(MSG_TRAM_BL);
-        x = bed_tramming_inset_lfbr[0];
-        y = Y_BED_SIZE - bed_tramming_inset_lfbr[3];
+        x = bed_tramming_inset_lfrb[0];
+        y = Y_BED_SIZE - bed_tramming_inset_lfrb[3];
         break;
       #if ENABLED(BED_TRAMMING_INCLUDE_CENTER)
         case 4:
@@ -4316,6 +4315,7 @@ void drawMaxAccelMenu() {
     void applyEditMeshX() { bedLevelTools.mesh_x = menuData.value; }
     void applyEditMeshY() { bedLevelTools.mesh_y = menuData.value; }
     void resetMesh() { bedLevelTools.meshReset(); LCD_MESSAGE(MSG_MESH_RESET); }
+    void zeroPoint() { bedLevelTools.manualValueUpdate(bedLevelTools.mesh_x, bedLevelTools.mesh_y, true); editZValueItem->redraw(); LCD_MESSAGE(MSG_ZERO_MESH_POINT); }
     void setEditMeshX() { hmiValue.select = 0; setIntOnClick(0, GRID_MAX_POINTS_X - 1, bedLevelTools.mesh_x, applyEditMeshX, liveEditMesh); }
     void setEditMeshY() { hmiValue.select = 1; setIntOnClick(0, GRID_MAX_POINTS_Y - 1, bedLevelTools.mesh_y, applyEditMeshY, liveEditMesh); }
     void setEditZValue() { setPFloatOnClick(Z_OFFSET_MIN, Z_OFFSET_MAX, 3); }
@@ -4417,6 +4417,7 @@ void drawMaxAccelMenu() {
         EDIT_ITEM(ICON_MeshEditX, MSG_MESH_X, onDrawPInt8Menu, setEditMeshX, &bedLevelTools.mesh_x);
         EDIT_ITEM(ICON_MeshEditY, MSG_MESH_Y, onDrawPInt8Menu, setEditMeshY, &bedLevelTools.mesh_y);
         editZValueItem = EDIT_ITEM(ICON_MeshEditZ, MSG_MESH_EDIT_Z, onDrawPFloat2Menu, setEditZValue, &bedlevel.z_values[bedLevelTools.mesh_x][bedLevelTools.mesh_y]);
+        MENU_ITEM(ICON_SetZOffset, MSG_ZERO_MESH_POINT, onDrawMenuItem, zeroPoint);
       }
       updateMenu(editMeshMenu);
     }

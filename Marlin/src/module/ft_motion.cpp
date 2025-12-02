@@ -33,8 +33,10 @@
 
 #include "ft_motion.h"
 #include "ft_motion/trajectory_trapezoidal.h"
-#include "ft_motion/trajectory_poly5.h"
-#include "ft_motion/trajectory_poly6.h"
+#if ENABLED(FTM_POLYS)
+  #include "ft_motion/trajectory_poly5.h"
+  #include "ft_motion/trajectory_poly6.h"
+#endif
 #if ENABLED(FTM_RESONANCE_TEST)
   #include "ft_motion/resonance_generator.h"
   #include "../gcode/gcode.h" // for home_all_axes
@@ -71,20 +73,17 @@ float FTMotion::tau = 0.0f;                         // (s) Time since start of b
 
 // Trajectory generators
 TrapezoidalTrajectoryGenerator FTMotion::trapezoidalGenerator;
-Poly5TrajectoryGenerator FTMotion::poly5Generator;
-Poly6TrajectoryGenerator FTMotion::poly6Generator;
-TrajectoryGenerator* FTMotion::currentGenerator = &FTMotion::trapezoidalGenerator;
-TrajectoryType FTMotion::trajectoryType = TrajectoryType::FTM_TRAJECTORY_TYPE;
+#if ENABLED(FTM_POLYS)
+  TrajectoryType FTMotion::trajectoryType = TrajectoryType::FTM_TRAJECTORY_TYPE;
+  Poly5TrajectoryGenerator FTMotion::poly5Generator;
+  Poly6TrajectoryGenerator FTMotion::poly6Generator;
+  TrajectoryGenerator* FTMotion::currentGenerator = &FTMotion::trapezoidalGenerator;
+#endif
 
 // Resonance Test
-TERN_(FTM_RESONANCE_TEST,ResonanceGenerator FTMotion::rtg;) // Resonance trajectory generator instance
-
-// Compact plan buffer
-stepper_plan_t FTMotion::stepper_plan_buff[FTM_BUFFER_SIZE];
-XYZEval<int64_t> FTMotion::curr_steps_q32_32 = {0};
-
-uint32_t FTMotion::stepper_plan_tail = 0,           // The index to consume from
-         FTMotion::stepper_plan_head = 0;           // The index to produce into
+#if ENABLED(FTM_RESONANCE_TEST)
+  ResonanceGenerator FTMotion::rtg; // Resonance trajectory generator instance
+#endif
 
 #if FTM_HAS_LIN_ADVANCE
   bool FTMotion::use_advance_lead;
@@ -187,7 +186,7 @@ void FTMotion::loop() {
 
   // Set busy status for use by planner.busy()
   const bool oldBusy = busy;
-  busy = stepping.bresenham_iterations_pending > 0 || !stepper_plan_is_empty();
+  busy = stepping.is_busy();
   if (oldBusy && !busy) moving_axis_flags.reset();
 
 }
@@ -230,15 +229,9 @@ void FTMotion::reset() {
   const bool did_suspend = stepper.suspend();
   endPos_prevBlock.reset();
   tau = 0;
-  stepper_plan_tail = stepper_plan_head = 0;
   stepping.reset();
-  curr_steps_q32_32.reset();
-
-  #if HAS_FTM_SHAPING
-    #define _RESET_ZI(A) ZERO(shaping.A.d_zi);
-    SHAPED_MAP(_RESET_ZI);
-    shaping.zi_idx = 0;
-  #endif
+  shaping.reset();
+  TERN_(FTM_SMOOTHING, smoothing.reset(););
 
   TERN_(HAS_EXTRUDERS, prev_traj_e = 0.0f);  // Reset linear advance variables.
   TERN_(DISTINCT_E_FACTORS, block_extruder_axis = E_AXIS);
@@ -297,18 +290,33 @@ void FTMotion::plan_runout_block() {
 void FTMotion::init() {
   update_shaping_params();
   TERN_(FTM_SMOOTHING, update_smoothing_params());
-  setTrajectoryType(cfg.trajectory_type);
+  TERN_(FTM_POLYS, setTrajectoryType(cfg.trajectory_type));
   reset(); // Precautionary.
 }
 
-// Set trajectory generator type
-void FTMotion::setTrajectoryType(const TrajectoryType type) {
-  cfg.trajectory_type = trajectoryType = type;
-  switch (type) {
-    default: cfg.trajectory_type = trajectoryType = TrajectoryType::FTM_TRAJECTORY_TYPE;
-    case TrajectoryType::TRAPEZOIDAL: currentGenerator = &trapezoidalGenerator; break;
-    case TrajectoryType::POLY5:       currentGenerator = &poly5Generator; break;
-    case TrajectoryType::POLY6:       currentGenerator = &poly6Generator; break;
+#if ENABLED(FTM_POLYS)
+
+  // Set trajectory generator type
+  void FTMotion::setTrajectoryType(const TrajectoryType type) {
+    cfg.trajectory_type = trajectoryType = type;
+    switch (type) {
+      default:
+      case TrajectoryType::TRAPEZOIDAL: currentGenerator = &trapezoidalGenerator; break;
+      #if ENABLED(FTM_POLYS)
+        case TrajectoryType::POLY5: currentGenerator = &poly5Generator; break;
+        case TrajectoryType::POLY6: currentGenerator = &poly6Generator; break;
+      #endif
+    }
+  }
+
+#endif // FTM_POLYS
+
+FSTR_P FTMotion::getTrajectoryName() {
+  switch (getTrajectoryType()) {
+    default:
+    case TrajectoryType::TRAPEZOIDAL: return GET_TEXT_F(MSG_FTM_TRAPEZOIDAL);
+    case TrajectoryType::POLY5:       return GET_TEXT_F(MSG_FTM_POLY5);
+    case TrajectoryType::POLY6:       return GET_TEXT_F(MSG_FTM_POLY6);
   }
 }
 
@@ -508,49 +516,12 @@ xyze_float_t FTMotion::calc_traj_point(const float dist) {
   return traj_coords;
 }
 
-stepper_plan_t FTMotion::calc_stepper_plan(xyze_float_t traj_coords) {
-  // 1) Convert trajectory to step delta
-  #define _TOSTEPS_q32(A, B) int64_t(traj_coords.A * planner.settings.axis_steps_per_mm[B] * (1ULL << 32))
-  XYZEval<int64_t> next_steps_q32_32 = LOGICAL_AXIS_ARRAY(
-    _TOSTEPS_q32(e, block_extruder_axis),
-    _TOSTEPS_q32(x, X_AXIS), _TOSTEPS_q32(y, Y_AXIS), _TOSTEPS_q32(z, Z_AXIS),
-    _TOSTEPS_q32(i, I_AXIS), _TOSTEPS_q32(j, J_AXIS), _TOSTEPS_q32(k, K_AXIS),
-    _TOSTEPS_q32(u, U_AXIS), _TOSTEPS_q32(v, V_AXIS), _TOSTEPS_q32(w, W_AXIS)
-  );
-  #undef _TOSTEPS_q32
-
-  constexpr uint32_t ITERATIONS_PER_TRAJ_INV_uq0_32 = (1ULL << 32) / ITERATIONS_PER_TRAJ;
-  stepper_plan_t stepper_plan;
-
-  #define _RUN_AXIS(A) do{                                                                                   \
-      int64_t delta_q32_32 = (next_steps_q32_32.A - curr_steps_q32_32.A);                                    \
-      /* 2) Set stepper plan direction bits */                                                               \
-      int16_t sign = (delta_q32_32 > 0) - (delta_q32_32 < 0);                                                \
-      stepper_plan.dir_bits.A = delta_q32_32 > 0;                                                            \
-      /* 3) Set per-iteration advance dividend Q0.32 */                                                      \
-      uint64_t delta_uq32_32 = ABS(delta_q32_32);                                                            \
-      /* dividend = delta_q32_32 / ITERATIONS_PER_TRAJ, but avoiding division and an intermediate int128 */  \
-      /* Note the integer part would overflow if there is eq or more than 1 steps per isr */                 \
-      uint32_t integer_part = (delta_uq32_32 >> 32) * ITERATIONS_PER_TRAJ_INV_uq0_32;                        \
-      uint32_t fractional_part = ((delta_uq32_32 & UINT32_MAX) * ITERATIONS_PER_TRAJ_INV_uq0_32) >> 32;      \
-      stepper_plan.advance_dividend_q0_32.A = integer_part + fractional_part;                                \
-      /* 4) Advance curr_steps by the exact integer steps that Bresenham will emit */                        \
-      /* It's like doing current_steps = next_steps, but considering any fractional error */                 \
-      /* from the dividend. This way there can be no drift. */                                               \
-      curr_steps_q32_32.A += (int64_t)stepper_plan.advance_dividend_q0_32.A * sign * ITERATIONS_PER_TRAJ;    \
-    } while(0);
-  LOGICAL_AXIS_MAP(_RUN_AXIS);
-  #undef _RUN_AXIS
-
-  return stepper_plan;
-}
-
 /**
  * Generate stepper data of the trajectory.
  * Called from FTMotion::loop()
  */
 void FTMotion::fill_stepper_plan_buffer() {
-  while (!stepper_plan_is_full()) {
+  while (!stepping.is_full()) {
     float total_duration = currentGenerator->getTotalDuration(); // If the current plan is empty, it will have zero duration.
     while (tau + FTM_TS > total_duration) {
       /**
@@ -575,10 +546,8 @@ void FTMotion::fill_stepper_plan_buffer() {
     // Get distance from trajectory generator
     xyze_float_t traj_coords = calc_traj_point(currentGenerator->getDistanceAtTime(tau));
 
-    stepper_plan_t plan = calc_stepper_plan(traj_coords);
-
-    // Store in buffer
-    enqueue_stepper_plan(plan);
+    // Calculate and store stepper plan in buffer
+    stepping_enqueue(traj_coords);
 
   }
 }

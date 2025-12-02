@@ -37,7 +37,7 @@ public:
    * @param nominal_speed Peak feedrate [mm/s]
    * @param distance Total distance to travel [mm]
    */
-  virtual void plan(const float initial_speed, const float final_speed, const float acceleration, const float nominal_speed, const float distance) = 0;
+  virtual void plan(const float initial_speed, const float final_speed, const float acceleration, float nominal_speed, const float distance) = 0;
 
   /**
    * Plan a zero-motion trajectory for a specific duration.

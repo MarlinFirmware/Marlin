@@ -99,7 +99,7 @@ PrintJobRecovery recovery;
 /**
  * Clear the recovery info
  */
-void PrintJobRecovery::init() { info = {}; }
+void PrintJobRecovery::init() { info = { 0 }; }
 
 /**
  * Enable or disable then call changed()
@@ -139,6 +139,14 @@ bool PrintJobRecovery::check() {
       queue.inject(F("M1000S"));
   }
   return success;
+}
+
+/**
+ * Cancel recovery
+ */
+void PrintJobRecovery::cancel() {
+  TERN_(PLR_HEAT_BED_ON_REBOOT, set_bed_temp(false));
+  purge();
 }
 
 /**
@@ -313,7 +321,7 @@ void PrintJobRecovery::save(const bool force/*=false*/, const float zraise/*=POW
   void PrintJobRecovery::_outage(TERN_(DEBUG_POWER_LOSS_RECOVERY, const bool simulated/*=false*/)) {
     #if ENABLED(BACKUP_POWER_SUPPLY)
       static bool lock = false;
-      if (lock) return; // No re-entrance from idle() during retract_and_lift()
+      if (lock) return; // No re-entrance from marlin.idle() during retract_and_lift()
       lock = true;
     #endif
 
@@ -347,7 +355,7 @@ void PrintJobRecovery::save(const bool force/*=false*/, const float zraise/*=POW
       sync_plan_position();
     }
     else
-      kill(GET_TEXT_F(MSG_OUTAGE_RECOVERY));
+      marlin.kill(GET_TEXT_F(MSG_OUTAGE_RECOVERY));
   }
 
 #endif // POWER_LOSS_PIN || DEBUG_POWER_LOSS_RECOVERY
@@ -365,6 +373,13 @@ void PrintJobRecovery::write() {
   if (ret == -1) DEBUG_ECHOLNPGM("Power-loss file write failed.");
   if (!file.close()) DEBUG_ECHOLNPGM("Power-loss file close failed.");
 }
+
+#if ENABLED(PLR_HEAT_BED_ON_REBOOT)
+  // Set bed temperature and wait. Called from M1000 to resume bed heating.
+  void PrintJobRecovery::set_bed_temp(const bool on) {
+    PROCESS_SUBCOMMANDS_NOW(TS(F("M190S"), on ? info.target_temperature_bed + PLR_HEAT_BED_EXTRA : 0));
+  }
+#endif
 
 /**
  * Resume the saved print job
