@@ -112,12 +112,8 @@ void GcodeSuite::M494() {
 
     #define SMOOTH_SET(A,N) \
       if (parser.seenval(CHARIFY(A))) { \
-        const float val = parser.value_float(); \
-        if (WITHIN(val, 0.0f, FTM_MAX_SMOOTHING_TIME)) { \
-          planner.synchronize(); \
-          ftMotion.set_smoothing_time(_AXIS(A), val); \
+        if (ftMotion.set_smoothing_time(_AXIS(A), parser.value_float())) \
           report = true; \
-        } \
         else \
           SERIAL_ECHOLNPGM("?Invalid ", C(N), " smoothing time (", C(CHARIFY(A)), ") value."); \
       }

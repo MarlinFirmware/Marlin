@@ -232,42 +232,23 @@ void GcodeSuite::M493() {
 
   #endif // NUM_AXES_SHAPED > 0
 
-  // Parse 'H' Axis Synchronization parameter.
-  if (parser.seenval('H')) {
-    const bool enabled = parser.value_bool();
-    if (enabled != ftMotion.cfg.axis_sync_enabled) {
-      planner.synchronize();
-      ftMotion.cfg.axis_sync_enabled = enabled;
-      flag.report = true;
-    }
-  }
+  // Parse bool 'H' Axis Synchronization parameter.
+  if (parser.seen('H') && ftMotion.cfg.setAxisSync(parser.value_bool()))
+    flag.report = true;
 
   #if HAS_DYNAMIC_FREQ
 
     // Dynamic frequency mode parameter.
     if (parser.seenval('D')) {
       if (AXIS_IS_SHAPING(X) || AXIS_IS_SHAPING(Y) || AXIS_IS_SHAPING(Z) || AXIS_IS_SHAPING(E)) {
-        const dynFreqMode_t val = dynFreqMode_t(parser.value_byte());
-        switch (val) {
-          #if HAS_DYNAMIC_FREQ_MM
-            case dynFreqMode_Z_BASED:
-          #endif
-          #if HAS_DYNAMIC_FREQ_G
-            case dynFreqMode_MASS_BASED:
-          #endif
-          case dynFreqMode_DISABLED:
-            planner.synchronize();
-            ftMotion.cfg.dynFreqMode = val;
-            flag.report = true;
-            break;
-          default:
-            SERIAL_ECHOLN(F("?Invalid "), F("(D)ynamic Frequency Mode value."));
-            break;
+        switch (ftMotion.cfg.setDynFreqMode(parser.value_byte())) {
+          case 0: break; // Same value, no update
+          case 1: flag.report = true; break; // New value, updated
+          default: SERIAL_ECHOLN(F("?Invalid "), F("(D)ynamic Frequency Mode value.")); break;
         }
       }
-      else {
-        SERIAL_ECHOLNPGM("?Wrong shaper for (D)ynamic Frequency Mode ", ftMotion.cfg.dynFreqMode, ".");
-      }
+      else
+        SERIAL_ECHOLNPGM("?Shaper required for (D)ynamic Frequency Mode ", ftMotion.cfg.dynFreqMode, ".");
     }
 
     const bool modeUsesDynFreq = (
@@ -280,7 +261,7 @@ void GcodeSuite::M493() {
   // Frequency parameter
   const bool seenA = parser.seenval('A');
   const float baseFreqVal = seenA ? parser.value_float() : 0.0f;
-  const bool goodBaseFreq = seenA && WITHIN(baseFreqVal, FTM_MIN_SHAPE_FREQ, (FTM_FS) / 2);
+  const bool goodBaseFreq = seenA && ftMotion.cfg.goodBaseFreq(baseFreqVal);
   if (seenA && !goodBaseFreq)
     SERIAL_ECHOLN(F("?Invalid "), F("(A) Base Frequency value. ("), int(FTM_MIN_SHAPE_FREQ), C('-'), int((FTM_FS) / 2), C(')'));
 
@@ -316,11 +297,8 @@ void GcodeSuite::M493() {
       if (seenA) {
         if (AXIS_IS_SHAPING(X)) {
           // TODO: Frequency minimum is dependent on the shaper used; the above check isn't always correct.
-          if (goodBaseFreq) {
-            planner.synchronize();
-            ftMotion.cfg.baseFreq.x = baseFreqVal;
+          if (goodBaseFreq && ftMotion.cfg.setBaseFreq(X_AXIS, baseFreqVal))
             flag.update = flag.report = true;
-          }
         }
         else // Mode doesn't use frequency.
           SERIAL_ECHOLNPGM("?Wrong mode for ", C(STEPPER_A_NAME), " (A) frequency.");
@@ -371,11 +349,8 @@ void GcodeSuite::M493() {
       // Parse Y frequency parameter
       if (seenA) {
         if (AXIS_IS_SHAPING(Y)) {
-          if (goodBaseFreq) {
-            planner.synchronize();
-            ftMotion.cfg.baseFreq.y = baseFreqVal;
+          if (goodBaseFreq && ftMotion.cfg.setBaseFreq(Y_AXIS, baseFreqVal))
             flag.update = flag.report = true;
-          }
         }
         else // Mode doesn't use frequency.
           SERIAL_ECHOLNPGM("?Wrong mode for ", C(STEPPER_B_NAME), " (A) frequency.");
@@ -426,11 +401,8 @@ void GcodeSuite::M493() {
       // Parse Z frequency parameter
       if (seenA) {
         if (AXIS_IS_SHAPING(Z)) {
-          if (goodBaseFreq) {
-            planner.synchronize();
-            ftMotion.cfg.baseFreq.z = baseFreqVal;
+          if (goodBaseFreq && ftMotion.cfg.setBaseFreq(Z_AXIS, baseFreqVal))
             flag.update = flag.report = true;
-          }
         }
         else // Mode doesn't use frequency.
           SERIAL_ECHOLNPGM("?Wrong mode for ", C(STEPPER_C_NAME), " (A) frequency.");
@@ -481,11 +453,8 @@ void GcodeSuite::M493() {
       // Parse E frequency parameter
       if (seenA) {
         if (AXIS_IS_SHAPING(E)) {
-          if (goodBaseFreq) {
-            planner.synchronize();
-            ftMotion.cfg.baseFreq.e = baseFreqVal;
+          if (goodBaseFreq && ftMotion.cfg.setBaseFreq(E_AXIS, baseFreqVal))
             flag.update = flag.report = true;
-          }
         }
         else // Mode doesn't use frequency.
           SERIAL_ECHOLNPGM("?Wrong mode for ", C('E'), " (A) frequency.");

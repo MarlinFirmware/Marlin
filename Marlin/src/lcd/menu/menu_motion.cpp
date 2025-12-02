@@ -414,12 +414,12 @@ void menu_move() {
       START_MENU();
       BACK_ITEM(MSG_FIXED_TIME_MOTION);
 
-      if (dmode != dynFreqMode_DISABLED) ACTION_ITEM(MSG_LCD_OFF, []{ planner.synchronize(); ftMotion.cfg.dynFreqMode = dynFreqMode_DISABLED; ui.go_back(); });
+      if (dmode != dynFreqMode_DISABLED) ACTION_ITEM(MSG_LCD_OFF, []{ (void)ftMotion.cfg.setDynFreqMode(dynFreqMode_DISABLED); ui.go_back(); });
       #if HAS_DYNAMIC_FREQ_MM
-        if (dmode != dynFreqMode_Z_BASED) ACTION_ITEM(MSG_FTM_Z_BASED, []{ planner.synchronize(); ftMotion.cfg.dynFreqMode = dynFreqMode_Z_BASED; ui.go_back(); });
+        if (dmode != dynFreqMode_Z_BASED) ACTION_ITEM(MSG_FTM_Z_BASED, []{ (void)ftMotion.cfg.setDynFreqMode(dynFreqMode_Z_BASED); ui.go_back(); });
       #endif
       #if HAS_DYNAMIC_FREQ_G
-        if (dmode != dynFreqMode_MASS_BASED) ACTION_ITEM(MSG_FTM_MASS_BASED, []{ planner.synchronize(); ftMotion.cfg.dynFreqMode = dynFreqMode_MASS_BASED; ui.go_back(); });
+        if (dmode != dynFreqMode_MASS_BASED) ACTION_ITEM(MSG_FTM_MASS_BASED, []{ (void)ftMotion.cfg.setDynFreqMode(dynFreqMode_MASS_BASED); ui.go_back(); });
       #endif
 
       END_MENU();
@@ -438,7 +438,7 @@ void menu_move() {
   #if ENABLED(FTM_SMOOTHING)
     #define _SMOO_MENU_ITEM(A) do{ \
       editable.decimal = c.smoothingTime.A; \
-      EDIT_ITEM_FAST_N(float43, _AXIS(A), MSG_FTM_SMOOTH_TIME_N, &editable.decimal, 0.0f, FTM_MAX_SMOOTHING_TIME, []{ planner.synchronize(); ftMotion.set_smoothing_time(_AXIS(A), editable.decimal); }); \
+      EDIT_ITEM_FAST_N(float43, _AXIS(A), MSG_FTM_SMOOTH_TIME_N, &editable.decimal, 0.0f, FTM_MAX_SMOOTHING_TIME, []{ (void)ftMotion.set_smoothing_time(_AXIS(A), editable.decimal); }); \
     }while(0);
   #endif
 
@@ -526,7 +526,8 @@ void menu_move() {
         }
       #endif
 
-      EDIT_ITEM(bool, MSG_FTM_AXIS_SYNC, &c.axis_sync_enabled);
+      editable.state = c.axis_sync_enabled;
+      EDIT_ITEM(bool, MSG_FTM_AXIS_SYNC, &editable.state, []{ c.setAxisSync(editable.state); });
 
       #if ENABLED(FTM_SMOOTHING)
         CARTES_MAP(_SMOO_MENU_ITEM);
