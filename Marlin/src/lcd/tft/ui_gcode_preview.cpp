@@ -244,7 +244,7 @@ bool Preview::hasPreview() {
             candidates[candidate_count].area = temp_width * temp_height;
             candidate_count++;
 
-            DEBUG_ECHOLNPGM("G-code preview: Found thumbnail candidate ", candidate_count, " at position ", candidate_pos, ", dimensions ", temp_width, "x", temp_height, ", size ", temp_size, ", area ", temp_width * temp_height);
+            DEBUG_ECHOLNPGM("G-code preview: Found thumbnail candidate ", candidate_count, " at position ", candidate_pos, ", dimensions ", temp_width, C('x'), temp_height, ", size ", temp_size, ", area ", temp_width * temp_height);
           }
 
           card.setIndex(saved_index);  // Restore index
@@ -291,7 +291,7 @@ bool Preview::hasPreview() {
         DEBUG_ECHOLNPGM("G-code preview: Selected thumbnail candidate ", i+1, " (area ", candidates[i].area, ")");
       }
     } else {
-      DEBUG_ECHOLNPGM("G-code preview: Skipping thumbnail candidate ", i+1, " - too large (", w, "x", h, " > ", GCODE_PREVIEW_THUMB_WIDTH, "x", GCODE_PREVIEW_THUMB_HEIGHT, ")");
+      DEBUG_ECHOLNPGM("G-code preview: Skipping thumbnail candidate ", i+1, " - too large (", w, C('x'), h, " > ", GCODE_PREVIEW_THUMB_WIDTH, C('x'), GCODE_PREVIEW_THUMB_HEIGHT, ")");
     }
   }
 
@@ -309,7 +309,7 @@ bool Preview::hasPreview() {
   fileprop.thumbheight = best_height;
   fileprop.thumbsize = best_size;
 
-  DEBUG_ECHOLNPGM("G-code preview: Selected best thumbnail at position ", fileprop.thumbstart, ", dimensions ", fileprop.thumbwidth, "x", fileprop.thumbheight, ", size ", fileprop.thumbsize);
+  DEBUG_ECHOLNPGM("G-code preview: Selected best thumbnail at position ", fileprop.thumbstart, ", dimensions ", fileprop.thumbwidth, C('x'), fileprop.thumbheight, ", size ", fileprop.thumbsize);
 
   // Exit if there isn't a thumbnail
   if (!fileprop.thumbsize) {
@@ -365,7 +365,7 @@ bool Preview::hasPreview() {
   // Get actual dimensions from JPEG header
   uint16_t jpeg_width, jpeg_height;
   if (ImageDecoders::ImageDecoder::getDimensions(thumbdata, fileprop.thumbsize, jpeg_width, jpeg_height)) {
-    DEBUG_ECHOLNPGM("G-code preview: JPEG dimensions from header: ", jpeg_width, "x", jpeg_height);
+    DEBUG_ECHOLNPGM("G-code preview: JPEG dimensions from header: ", jpeg_width, C('x'), jpeg_height);
     // Use JPEG dimensions instead of G-code dimensions
     fileprop.thumbwidth = jpeg_width;
     fileprop.thumbheight = jpeg_height;
@@ -382,7 +382,7 @@ bool Preview::hasPreview() {
       fileprop.decoded_thumb, fileprop.thumbwidth, fileprop.thumbheight
     );
   } else {
-    DEBUG_ECHOLNPGM("G-code preview: Image too large for buffer: ", fileprop.thumbwidth, "x", fileprop.thumbheight,
+    DEBUG_ECHOLNPGM("G-code preview: Image too large for buffer: ", fileprop.thumbwidth, C('x'), fileprop.thumbheight,
            " needs ", required_bytes, " bytes, buffer has ", sizeof(fileprop.decoded_thumb), " bytes");
   }
 

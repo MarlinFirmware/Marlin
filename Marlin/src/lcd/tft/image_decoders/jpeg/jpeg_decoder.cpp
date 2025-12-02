@@ -91,7 +91,7 @@ bool JPEGDecoder::isValidJPEG(const uint8_t *data, size_t size) {
   return data[0] == 0xFF && data[1] == 0xD8;  // SOI marker
 }
 
-bool JPEGDecoder::findSOF0(const uint8_t* data, size_t size, uint16_t& width, uint16_t& height) {
+bool JPEGDecoder::findSOF0(const uint8_t *data, size_t size, uint16_t& width, uint16_t& height) {
   size_t pos = 2; // Skip SOI marker
 
   while (pos < size - 8) {
@@ -112,29 +112,29 @@ bool JPEGDecoder::findSOF0(const uint8_t* data, size_t size, uint16_t& width, ui
   return false;
 }
 
-bool JPEGDecoder::getDimensions(const uint8_t* jpeg_data, size_t jpeg_size, uint16_t& width, uint16_t& height) {
-  DEBUG_ECHOLN("JPEGDecoder::getDimensions: Getting JPEG dimensions, size=", jpeg_size);
+bool JPEGDecoder::getDimensions(const uint8_t *jpeg_data, size_t jpeg_size, uint16_t& width, uint16_t& height) {
+  DEBUG_ECHOLNPGM("JPEGDecoder::getDimensions: Getting JPEG dimensions, size=", jpeg_size);
 
   bool result = findSOF0(jpeg_data, jpeg_size, width, height);
 
   if (result) {
-    DEBUG_ECHOLN("JPEGDecoder::getDimensions: JPEG dimensions: ", width, "x", height);
+    DEBUG_ECHOLNPGM("JPEGDecoder::getDimensions: JPEG dimensions: ", width, C('x'), height);
   } else {
-    DEBUG_ECHOLN("JPEGDecoder::getDimensions: Failed to get JPEG dimensions");
+    DEBUG_ECHOLNPGM("JPEGDecoder::getDimensions: Failed to get JPEG dimensions");
   }
 
   return result;
 }
 
-bool JPEGDecoder::decode(const uint8_t* jpeg_data, size_t jpeg_size, uint16_t* output_buffer, uint16_t width, uint16_t height) {
-  DEBUG_ECHOLN("JPEGDecoder::decode: Starting JPEG decode, size=", jpeg_size, ", expected dims=", width, "x", height);
+bool JPEGDecoder::decode(const uint8_t *jpeg_data, size_t jpeg_size, uint16_t *output_buffer, uint16_t width, uint16_t height) {
+  DEBUG_ECHOLNPGM("JPEGDecoder::decode: Starting JPEG decode, size=", jpeg_size, ", expected dims=", width, C('x'), height);
 
   if (!isValidJPEG(jpeg_data, jpeg_size)) {
-    DEBUG_ECHOLN("JPEGDecoder::decode: Invalid JPEG data");
+    DEBUG_ECHOLNPGM("JPEGDecoder::decode: Invalid JPEG data");
     return false;
   }
   if (!output_buffer) {
-    DEBUG_ECHOLN("JPEGDecoder::decode: No output buffer provided");
+    DEBUG_ECHOLNPGM("JPEGDecoder::decode: No output buffer provided");
     return false;
   }
 
@@ -154,7 +154,7 @@ bool JPEGDecoder::decode(const uint8_t* jpeg_data, size_t jpeg_size, uint16_t* o
   JDEC jdec;
   JRESULT res = jd_prepare(&jdec, jpeg_input, work, sizeof(work), &ctx);
   if (res != JDR_OK) {
-    DEBUG_ECHOLN("JPEGDecoder::decode: TJpgDec prepare failed, creating test pattern");
+    DEBUG_ECHOLNPGM("JPEGDecoder::decode: TJpgDec prepare failed, creating test pattern");
     // TJpgDec failed, create a recognizable test image instead of weird lines
     for (uint16_t y = 0; y < height; y++) {
       for (uint16_t x = 0; x < width; x++) {
@@ -167,7 +167,7 @@ bool JPEGDecoder::decode(const uint8_t* jpeg_data, size_t jpeg_size, uint16_t* o
         output_buffer[y * width + x] = color;
       }
     }
-    DEBUG_ECHOLN("JPEGDecoder::decode: Test pattern created successfully");
+    DEBUG_ECHOLNPGM("JPEGDecoder::decode: Test pattern created successfully");
     return true; // Still return success
   }
 
@@ -179,9 +179,9 @@ bool JPEGDecoder::decode(const uint8_t* jpeg_data, size_t jpeg_size, uint16_t* o
   res = jd_decomp(&jdec, jpeg_output, 0); // 0 = no scaling
 
   if (res == JDR_OK) {
-    DEBUG_ECHOLN("JPEGDecoder::decode: JPEG decode completed successfully");
+    DEBUG_ECHOLNPGM("JPEGDecoder::decode: JPEG decode completed successfully");
   } else {
-    DEBUG_ECHOLN("JPEGDecoder::decode: JPEG decompression failed");
+    DEBUG_ECHOLNPGM("JPEGDecoder::decode: JPEG decompression failed");
   }
 
   return (res == JDR_OK);

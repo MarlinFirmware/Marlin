@@ -33,35 +33,36 @@
 
 namespace ImageDecoders {
 
-bool QOIDecoder::decode(const uint8_t* qoi_data, size_t qoi_size,
-                        uint16_t* output_buffer, uint16_t width, uint16_t height) {
-  DEBUG_ECHOLN("QOIDecoder::decode: Starting QOI decode, size=", qoi_size, ", expected dims=", width, "x", height);
+bool QOIDecoder::decode(
+  const uint8_t *qoi_data, size_t qoi_size, uint16_t *output_buffer, uint16_t width, uint16_t height
+) {
+  DEBUG_ECHOLNPGM("QOIDecoder::decode: Starting QOI decode, size=", qoi_size, ", expected dims=", width, C('x'), height);
 
   if (!isValidQOI(qoi_data, qoi_size)) {
-    DEBUG_ECHOLN("QOIDecoder::decode: Invalid QOI data");
+    DEBUG_ECHOLNPGM("QOIDecoder::decode: Invalid QOI data");
     return false;
   }
 
   // Decode QOI image using qoi.h
   qoi_desc desc;
   // Request RGB or RGBA output (4 channels to get full color data)
-  unsigned char* pixels = (unsigned char*)qoi_decode(qoi_data, qoi_size, &desc, 0);
+  unsigned char *pixels = (unsigned char*)qoi_decode(qoi_data, qoi_size, &desc, 0);
 
   if (!pixels) {
-    DEBUG_ECHOLN("QOIDecoder::decode: qoi_decode failed");
+    DEBUG_ECHOLNPGM("QOIDecoder::decode: qoi_decode failed");
     return false;
   }
 
-  DEBUG_ECHOLN("QOIDecoder::decode: QOI decoded successfully, actual dims=", desc.width, "x", desc.height, ", channels=", desc.channels);
+  DEBUG_ECHOLNPGM("QOIDecoder::decode: QOI decoded successfully, actual dims=", desc.width, C('x'), desc.height, ", channels=", desc.channels);
 
   // Verify dimensions match
   if (desc.width != width || desc.height != height) {
-    DEBUG_ECHOLN("QOIDecoder::decode: Dimension mismatch: got ", desc.width, "x", desc.height, ", expected ", width, "x", height);
+    DEBUG_ECHOLNPGM("QOIDecoder::decode: Dimension mismatch: got ", desc.width, C('x'), desc.height, ", expected ", width, C('x'), height);
     QOI_FREE(pixels);
     return false;
   }
 
-  DEBUG_ECHOLN("QOIDecoder::decode: Converting to RGB565, channels=", desc.channels);
+  DEBUG_ECHOLNPGM("QOIDecoder::decode: Converting to RGB565, channels=", desc.channels);
 
   // Convert decoded pixels to RGB565
   const uint32_t total_pixels = width * height;
@@ -77,16 +78,17 @@ bool QOIDecoder::decode(const uint8_t* qoi_data, size_t qoi_size,
   }
 
   QOI_FREE(pixels);
-  DEBUG_ECHOLN("QOIDecoder::decode: QOI decode completed successfully");
+  DEBUG_ECHOLNPGM("QOIDecoder::decode: QOI decode completed successfully");
   return true;
 }
 
-bool QOIDecoder::getDimensions(const uint8_t* qoi_data, size_t qoi_size,
-                              uint16_t& width, uint16_t& height) {
-  DEBUG_ECHOLN("QOIDecoder::getDimensions: Getting QOI dimensions, size=", qoi_size);
+bool QOIDecoder::getDimensions(
+  const uint8_t *qoi_data, size_t qoi_size, uint16_t& width, uint16_t& height
+) {
+  DEBUG_ECHOLNPGM("QOIDecoder::getDimensions: Getting QOI dimensions, size=", qoi_size);
 
   if (!isValidQOI(qoi_data, qoi_size) || qoi_size < 14) {
-    DEBUG_ECHOLN("QOIDecoder::getDimensions: Invalid QOI data or size too small");
+    DEBUG_ECHOLNPGM("QOIDecoder::getDimensions: Invalid QOI data or size too small");
     return false;
   }
 
@@ -97,15 +99,16 @@ bool QOIDecoder::getDimensions(const uint8_t* qoi_data, size_t qoi_size,
   height = ((uint32_t)qoi_data[8] << 24) | ((uint32_t)qoi_data[9] << 16) |
            ((uint32_t)qoi_data[10] << 8) | qoi_data[11];
 
-  DEBUG_ECHOLN("QOIDecoder::getDimensions: QOI dimensions: ", width, "x", height);
+  DEBUG_ECHOLNPGM("QOIDecoder::getDimensions: QOI dimensions: ", width, C('x'), height);
   return true;
 }
 
-bool QOIDecoder::isValidQOI(const uint8_t* data, size_t size) {
+bool QOIDecoder::isValidQOI(const uint8_t *data, size_t size) {
   if (size < 14) return false;
   // Check QOI magic "qoif"
   return data[0] == 'q' && data[1] == 'o' && data[2] == 'i' && data[3] == 'f';
 }
 
 } // namespace ImageDecoders
+
 #endif // HAS_QOI_DECODER

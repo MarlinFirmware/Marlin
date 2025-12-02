@@ -157,7 +157,7 @@ static void* alloc_pool (	/* Pointer to allocated memory block (NULL:no memory a
 
 static JRESULT create_qt_tbl (	/* 0:OK, !0:Failed */
 	JDEC* jd,				/* Pointer to the decompressor object */
-	const uint8_t* data,	/* Pointer to the quantizer tables */
+	const uint8_t *data,	/* Pointer to the quantizer tables */
 	size_t ndata			/* Size of input data */
 )
 {
@@ -193,7 +193,7 @@ static JRESULT create_qt_tbl (	/* 0:OK, !0:Failed */
 
 static JRESULT create_huffman_tbl (	/* 0:OK, !0:Failed */
 	JDEC* jd,					/* Pointer to the decompressor object */
-	const uint8_t* data,		/* Pointer to the packed huffman tables */
+	const uint8_t *data,		/* Pointer to the packed huffman tables */
 	size_t ndata				/* Size of input data */
 )
 {
