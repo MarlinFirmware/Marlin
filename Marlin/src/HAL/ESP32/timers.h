@@ -36,35 +36,40 @@ typedef uint64_t hal_timer_t;
   #define MF_TIMER_STEP         0  // Timer Index for Stepper
 #endif
 #ifndef MF_TIMER_PULSE
-  #define MF_TIMER_PULSE        MF_TIMER_STEP
+  #define MF_TIMER_PULSE        MF_TIMER_STEP // Timer Index for Pulse interval
 #endif
 #ifndef MF_TIMER_TEMP
   #define MF_TIMER_TEMP         1  // Timer Index for Temperature
 #endif
 #ifndef MF_TIMER_PWM
-  #define MF_TIMER_PWM          2  // index of timer to use for PWM outputs
+  #define MF_TIMER_PWM          2  // Timer Index for PWM outputs
 #endif
 #ifndef MF_TIMER_TONE
-  #define MF_TIMER_TONE         3  // index of timer for beeper tones
+  #define MF_TIMER_TONE         3  // Timer Index for beeper tones
 #endif
 
-#define HAL_TIMER_RATE APB_CLK_FREQ // frequency of timer peripherals
+#define HAL_TIMER_RATE APB_CLK_FREQ // Frequency of timer peripherals
+
+#define TEMP_TIMER_PRESCALE    1000 // Prescaler for setting Temp Timer, 72Khz
+#define TEMP_TIMER_FREQUENCY   1000 // (Hz) Temperature ISR frequency
 
 #if ENABLED(I2S_STEPPER_STREAM)
   #define STEPPER_TIMER_PRESCALE     1
-  #define STEPPER_TIMER_RATE         250'000                          // 250khz, 4µs pulses of i2s word clock
+  #define STEPPER_TIMER_RATE         250'000    // 250khz, 4µs pulses of i2s word clock
+  #define STEPPER_TIMER_TICKS_PER_US 0.25       // (MHz) Stepper Timer ticks per µs
 #else
   #define STEPPER_TIMER_PRESCALE     40
-  #define STEPPER_TIMER_RATE         ((HAL_TIMER_RATE) / (STEPPER_TIMER_PRESCALE)) // frequency of stepper timer, 2MHz
+  #define STEPPER_TIMER_RATE         ((HAL_TIMER_RATE) / (STEPPER_TIMER_PRESCALE))  // (Hz) Frequency of Stepper Timer ISR, 2MHz
+  #define STEPPER_TIMER_TICKS_PER_US ((STEPPER_TIMER_RATE) / 1'000'000UL)           // (MHz) Stepper Timer ticks per µs
 #endif
-#define STEPPER_TIMER_TICKS_PER_US   ((STEPPER_TIMER_RATE) / 1'000'000) // stepper timer ticks per µs
 
 #define STEP_TIMER_MIN_INTERVAL   8 // minimum time in µs between stepper interrupts
 
-#define TONE_TIMER_PRESCALE    1000 // Arbitrary value, no idea what i'm doing here
+#define PULSE_TIMER_RATE            STEPPER_TIMER_RATE                              // (Hz) Frequency of Pulse Timer
+#define PULSE_TIMER_TICKS_PER_US    STEPPER_TIMER_TICKS_PER_US
+#define PULSE_TIMER_PRESCALE        STEPPER_TIMER_PRESCALE
 
-#define TEMP_TIMER_PRESCALE    1000 // prescaler for setting Temp timer, 72Khz
-#define TEMP_TIMER_FREQUENCY   1000 // temperature interrupt frequency
+#define TONE_TIMER_PRESCALE    1000 // Arbitrary value, no idea what i'm doing here
 
 #define PWM_TIMER_PRESCALE       10
 #if ENABLED(FAST_PWM_FAN)
@@ -74,13 +79,9 @@ typedef uint64_t hal_timer_t;
 #endif
 #define MAX_PWM_PINS             32 // Number of PWM pin-slots
 
-#define PULSE_TIMER_RATE         STEPPER_TIMER_RATE   // frequency of pulse timer
-#define PULSE_TIMER_PRESCALE     STEPPER_TIMER_PRESCALE
-#define PULSE_TIMER_TICKS_PER_US STEPPER_TIMER_TICKS_PER_US
-
-#define ENABLE_STEPPER_DRIVER_INTERRUPT() HAL_timer_enable_interrupt(MF_TIMER_STEP)
+#define ENABLE_STEPPER_DRIVER_INTERRUPT()   HAL_timer_enable_interrupt(MF_TIMER_STEP)
 #define DISABLE_STEPPER_DRIVER_INTERRUPT()  HAL_timer_disable_interrupt(MF_TIMER_STEP)
-#define STEPPER_ISR_ENABLED() HAL_timer_interrupt_enabled(MF_TIMER_STEP)
+#define STEPPER_ISR_ENABLED()               HAL_timer_interrupt_enabled(MF_TIMER_STEP)
 
 #define ENABLE_TEMPERATURE_INTERRUPT()  HAL_timer_enable_interrupt(MF_TIMER_TEMP)
 #define DISABLE_TEMPERATURE_INTERRUPT() HAL_timer_disable_interrupt(MF_TIMER_TEMP)

@@ -33,8 +33,10 @@
 
 #include "ft_motion.h"
 #include "ft_motion/trajectory_trapezoidal.h"
-#include "ft_motion/trajectory_poly5.h"
-#include "ft_motion/trajectory_poly6.h"
+#if ENABLED(FTM_POLYS)
+  #include "ft_motion/trajectory_poly5.h"
+  #include "ft_motion/trajectory_poly6.h"
+#endif
 #if ENABLED(FTM_RESONANCE_TEST)
   #include "ft_motion/resonance_generator.h"
   #include "../gcode/gcode.h" // for home_all_axes
@@ -71,8 +73,10 @@ float FTMotion::tau = 0.0f;                         // (s) Time since start of b
 
 // Trajectory generators
 TrapezoidalTrajectoryGenerator FTMotion::trapezoidalGenerator;
-Poly5TrajectoryGenerator FTMotion::poly5Generator;
-Poly6TrajectoryGenerator FTMotion::poly6Generator;
+#if ENABLED(FTM_POLYS)
+  Poly5TrajectoryGenerator FTMotion::poly5Generator;
+  Poly6TrajectoryGenerator FTMotion::poly6Generator;
+#endif
 TrajectoryGenerator* FTMotion::currentGenerator = &FTMotion::trapezoidalGenerator;
 TrajectoryType FTMotion::trajectoryType = TrajectoryType::FTM_TRAJECTORY_TYPE;
 
@@ -307,8 +311,10 @@ void FTMotion::setTrajectoryType(const TrajectoryType type) {
   switch (type) {
     default: cfg.trajectory_type = trajectoryType = TrajectoryType::FTM_TRAJECTORY_TYPE;
     case TrajectoryType::TRAPEZOIDAL: currentGenerator = &trapezoidalGenerator; break;
-    case TrajectoryType::POLY5:       currentGenerator = &poly5Generator; break;
-    case TrajectoryType::POLY6:       currentGenerator = &poly6Generator; break;
+    #if ENABLED(FTM_POLYS)
+      case TrajectoryType::POLY5: currentGenerator = &poly5Generator; break;
+      case TrajectoryType::POLY6: currentGenerator = &poly6Generator; break;
+    #endif
   }
 }
 

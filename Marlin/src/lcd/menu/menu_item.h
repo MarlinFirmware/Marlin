@@ -71,11 +71,8 @@ class MenuItem_gcode : public MenuItem_button {
     static void action(FSTR_P const fstr, const uint8_t, FSTR_P const fgcode) { action(fstr, fgcode); }
 };
 
-class MenuItem_command : public MenuItem_button {
+class MenuItem_command : public MenuItem_gcode {
   public:
-    FORCE_INLINE static void draw(const bool sel, const uint8_t row, FSTR_P const fstr, ...) {
-      _draw(sel, row, fstr, '>', ' ');
-    }
     static void action(FSTR_P const, FSTR_P const fgcode) { gcode.process_subcommands_now(fgcode); }
     static void action(FSTR_P const fstr, const uint8_t, FSTR_P const fgcode) { action(fstr, fgcode); }
 };
@@ -416,8 +413,7 @@ class MenuItem_bool : public MenuEditItemBase {
 
 #define STATIC_ITEM_C(CSTR, V...) STATIC_ITEM_N_F_C(0, F("$"), CSTR, ##V)
 
-// PSTRING_ITEM is like STATIC_ITEM
-// but also takes a PSTR and style.
+// PSTRING_ITEM is like STATIC_ITEM but also takes a PSTR and style.
 
 #define PSTRING_ITEM_F_P(FLABEL, PVAL, STYL) do{ \
   constexpr int m = 20;                          \
