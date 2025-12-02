@@ -460,6 +460,10 @@ namespace LanguageNarrow_it {
   LSTR MSG_E_STEPS                        = _UxGT("E passi/mm");
   LSTR MSG_EN_STEPS                       = _UxGT("* passi/mm");
   LSTR MSG_TEMPERATURE                    = _UxGT("Temperatura");
+  LSTR MSG_FTM_TRAPEZOIDAL                = _UxGT("Trapezoidale");
+  LSTR MSG_FTM_POLY5                      = _UxGT("5° ordine");
+  LSTR MSG_FTM_POLY6                      = _UxGT("6° ordine");
+  LSTR MSG_FTM_TRAJECTORY                 = _UxGT("Traiettoria: $");
   LSTR MSG_MOTION                         = _UxGT("Movimento");
   LSTR MSG_FILAMENT                       = _UxGT("Filamento");
   LSTR MSG_FILAMENT_EN                    = _UxGT("Filamento *");
@@ -481,6 +485,7 @@ namespace LanguageNarrow_it {
   LSTR MSG_ADVANCE_TAU                    = _UxGT("Tau advance");
   LSTR MSG_ADVANCE_K_E                    = _UxGT("K advance *");
   LSTR MSG_ADVANCE_TAU_E                  = _UxGT("Tau advance *");
+  LSTR MSG_NLE_ON                         = _UxGT("NLE abilitato");
   LSTR MSG_CONTRAST                       = _UxGT("Contrasto LCD");
   LSTR MSG_BRIGHTNESS                     = _UxGT("Luminosità LCD");
   LSTR MSG_SCREEN_TIMEOUT                 = _UxGT("Timeout LCD (m)");
@@ -745,6 +750,7 @@ namespace LanguageNarrow_it {
   LSTR MSG_RUNOUT_SENSOR                  = _UxGT("Sens.filo termin."); // Max 17 characters
   LSTR MSG_SENSOR                         = _UxGT("Sensore");
   LSTR MSG_RUNOUT_DISTANCE_MM             = _UxGT("Dist mm filo term.");
+  LSTR MSG_MOTION_DISTANCE_MM             = _UxGT("Dist mm movimento");
   LSTR MSG_EXTRUDER_MIN_TEMP              = _UxGT("Temp.min estrusore");  // ProUI
   LSTR MSG_FANCHECK                       = _UxGT("Verif.tacho vent."); // Max 17 characters
   LSTR MSG_KILL_HOMING_FAILED             = _UxGT("Home fallito");
@@ -888,8 +894,9 @@ namespace LanguageNarrow_it {
   LSTR MSG_BACKLASH_CORRECTION            = _UxGT("Correzione");
   LSTR MSG_BACKLASH_SMOOTHING             = _UxGT("Appianamento");
 
-  LSTR MSG_FIXED_TIME_MOTION              = _UxGT("Movimento a Tempo-Fisso");
+  LSTR MSG_FIXED_TIME_MOTION              = _UxGT("Movim.Tempo-Fisso");
   LSTR MSG_FTM_CMPN_MODE                  = _UxGT("@ Modo Comp: $");
+  LSTR MSG_FTM_AXIS_SYNC                  = _UxGT("Sinc. Asse");
   LSTR MSG_FTM_DYN_MODE                   = _UxGT("Modo DF: $");
   LSTR MSG_FTM_Z_BASED                    = _UxGT("Base-Z");
   LSTR MSG_FTM_MASS_BASED                 = _UxGT("Base-Massa");
@@ -897,6 +904,16 @@ namespace LanguageNarrow_it {
   LSTR MSG_FTM_DFREQ_K_N                  = _UxGT("@ Freq. dinam.");
   LSTR MSG_FTM_ZETA_N                     = _UxGT("Smorzamento @");
   LSTR MSG_FTM_VTOL_N                     = _UxGT("Livello vib. @");
+  LSTR MSG_FTM_SMOOTH_TIME_N              = _UxGT("@ Tempo smorzamento");
+  LSTR MSG_FTM_POLY6_OVERSHOOT            = _UxGT("@ Overshoot Poly6");
+
+  LSTR MSG_FTM_RESONANCE_TEST             = _UxGT("Test risonanza");
+  LSTR MSG_FTM_RT_RUNNING                 = _UxGT("Test ris.in corso...");
+  LSTR MSG_FTM_RT_START_N                 = _UxGT("Avvia Test Asse @");
+  LSTR MSG_FTM_RT_STOP                    = _UxGT("Annulla Test");
+  LSTR MSG_FTM_RETRIEVE_FREQ              = _UxGT("Calc. Res. Freq.");
+  LSTR MSG_FTM_RESONANCE_FREQ             = _UxGT("Freq.Risonanza");
+  LSTR MSG_FTM_TIMELINE_FREQ              = _UxGT("Cronologia (s)");
 
   LSTR MSG_LEVEL_X_AXIS                   = _UxGT("Livello asse X");
   LSTR MSG_AUTO_CALIBRATE                 = _UxGT("Auto Calibra");
@@ -954,6 +971,33 @@ namespace LanguageNarrow_it {
   LSTR DGUS_MSG_WRITE_EEPROM_FAILED       = _UxGT("Scrittura EEPROM fallita");
   LSTR DGUS_MSG_READ_EEPROM_FAILED        = _UxGT("Lettura EEPROM fallita");
   LSTR DGUS_MSG_FILAMENT_RUNOUT           = _UxGT("Filament runout E%d");
+
+  //
+  // MMU3 Translatable Strings
+  //
+
+  LSTR MSG_DESC_FINDA_DIDNT_TRIGGER       = _UxGT("FINDA non si è attivato durante il caricamento del filamento. Assicurarsi che il filamento possa muoversi e che FINDA funzioni.");
+  LSTR MSG_DESC_FINDA_FILAMENT_STUCK      = _UxGT("FINDA non si è disattivato durante lo scaricamento del filamento. Provare a scaricarlo manualmente. Assicurarsi che il filamento si muova e che FINDA funzioni.");
+  LSTR MSG_DESC_FSENSOR_DIDNT_TRIGGER     = _UxGT("Il sensore del filamento non si è attivato durante il caricamento del filamento. Assicurarsi che il sensore sia calibrato e che il filamento lo abbia raggiunto.");
+  LSTR MSG_DESC_FSENSOR_FILAMENT_STUCK    = _UxGT("Il sensore del filamento non si è disattivato durante lo scaricamento del filamento. Assicurarsi che il filamento possa muoversi e che il sensore funzioni.");
+  LSTR MSG_DESC_PULLEY_CANNOT_MOVE        = _UxGT("Il motore della puleggia è bloccato. Assicurarsi che la puleggia possa muoversi e controllare il cablaggio.");
+  LSTR MSG_DESC_FSENSOR_TOO_EARLY         = _UxGT("Il sensore del filamento si è attivato troppo presto durante il caricamento nell'estrusore. Verificare che non vi sia nulla incastrato nel tubo in PTFE. Verificare che il sensore legga correttamente.");
+  LSTR MSG_DESC_INSPECT_FINDA             = _UxGT("Il selettore non si muove perché FINDA ha rilevato un filamento. Assicurarsi che non vi sia alcun filamento nel selettore e che FINDA funzioni correttamente.");
+  LSTR MSG_DESC_LOAD_TO_EXTRUDER_FAILED   = _UxGT("Caricamento nell'estrusore non riuscito. Ispezionare la forma della punta del filamento. Se necessario, perfezionare la calibrazione del sensore.");
+  LSTR MSG_DESC_SELECTOR_CANNOT_HOME      = _UxGT("Il selettore non riesce a tornare correttamente in posizione iniziale. Verificare che non vi siano ostacoli al suo movimento.");
+  LSTR MSG_DESC_CANNOT_MOVE               = _UxGT("Impossibile spostare il selettore o il tendicinghia.");
+  LSTR MSG_DESC_IDLER_CANNOT_HOME         = _UxGT("Il tendicinghi non riesce a tornare correttamente in posizione iniziale. Controllare che non ci siano ostacoli al suo movimento.");
+  LSTR MSG_DESC_TMC                       = _UxGT("Maggiori dettagli online.");
+  LSTR MSG_DESC_MMU_NOT_RESPONDING        = _UxGT("La MMU non risponde. Controllare il cablaggio e i connettori.");
+  LSTR MSG_DESC_COMMUNICATION_ERROR       = _UxGT("La MMU non risponde correttamente. Controllare il cablaggio e i connettori.");
+  LSTR MSG_DESC_FILAMENT_ALREADY_LOADED   = _UxGT("Impossibile eseguire l'azione, il filamento è già caricato. Scaricarlo prima.");
+  LSTR MSG_DESC_INVALID_TOOL              = _UxGT("L'utensile per il filamento richiesto non è disponibile su questo hardware. Controllare il codice G per verificare per l'indice non compreso nell'intervallo (T0-T4).");
+  LSTR MSG_DESC_QUEUE_FULL                = _UxGT("Errore interno del firmware MMU, resetrtare la MMU.");
+  LSTR MSG_DESC_FW_RUNTIME_ERROR          = _UxGT("Errore di runtime interno. Provare a reimpostare la MMU o ad aggiornare il firmware.");
+  LSTR MSG_DESC_UNLOAD_MANUALLY           = _UxGT("Filamento rilevato in modo imprevisto. Assicurarsi che non vi sia alcun filamento caricato. Controllare il sensore ed il cablaggio.");
+  LSTR MSG_DESC_FILAMENT_EJECTED          = _UxGT("Rimuovere il filamento espulso dalla parte anteriore della MMU.");
+  LSTR MSG_DESC_FILAMENT_CHANGE           = _UxGT("Sostituzione del filamento M600. Carica un nuovo filamento o espelli quello vecchio.");
+  LSTR MSG_DESC_UNKNOWN_ERROR             = _UxGT("Si è verificato un errore imprevisto.");
 
   LSTR MSG_DESC_FW_UPDATE_NEEDED          = _UxGT("LA versione di FW della MMU non è supportato. Aggiornare alla versione " STRINGIFY(mmuVersionMajor) "." STRINGIFY(mmuVersionMinor) "." STRINGIFY(mmuVersionPatch) ".");
 

@@ -34,7 +34,7 @@
 
 #include <SPI.h>
 
-#include "../../../MarlinCore.h" // for marlin_state
+#include "../../../MarlinCore.h" // for marlin.is()
 #include "../../../sd/cardreader.h"
 #include "../../../module/motion.h"
 #include "../../../module/planner.h"
@@ -757,7 +757,7 @@ void GUI_RefreshPage() {
         disp_print_time();
         disp_fan_Zpos();
       }
-      if (printing_rate_update_flag || marlin_state == MarlinState::MF_SD_COMPLETE) {
+      if (printing_rate_update_flag || marlin.is(MarlinState::MF_SD_COMPLETE)) {
         printing_rate_update_flag = false;
         if (!gcode_preview_over) setProBarRate();
       }

@@ -114,7 +114,7 @@ void MarlinHAL::idletask() {
 void MarlinHAL::reboot() { NVIC_SystemReset(); }
 
 uint8_t MarlinHAL::get_reset_source() {
-  return
+  return (
     #ifdef RCC_FLAG_IWDGRST // Some sources may not exist...
       RESET != __HAL_RCC_GET_FLAG(RCC_FLAG_IWDGRST)  ? RST_WATCHDOG :
     #endif
@@ -134,7 +134,7 @@ uint8_t MarlinHAL::get_reset_source() {
       RESET != __HAL_RCC_GET_FLAG(RCC_FLAG_PORRST)   ? RST_POWER_ON :
     #endif
     0
-  ;
+  );
 }
 
 void MarlinHAL::clear_reset_source() { __HAL_RCC_CLEAR_RESET_FLAGS(); }

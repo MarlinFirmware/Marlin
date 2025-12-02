@@ -225,7 +225,7 @@ void GcodeSuite::G29() {
         }
       }
       else
-        return echo_not_entered('J');
+        return echo_not_entered('I');
 
       if (parser.seenval('J')) {
         iy = parser.value_int();

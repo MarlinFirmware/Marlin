@@ -96,7 +96,7 @@
 
   void GcodeSuite::G76() {
     auto report_temps = [](millis_t &ntr, millis_t timeout=0) {
-      idle_no_sleep();
+      marlin.idle_no_sleep();
       const millis_t ms = millis();
       if (ELAPSED(ms, ntr)) {
         ntr = ms + 1000;

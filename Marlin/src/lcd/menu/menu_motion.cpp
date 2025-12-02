@@ -328,14 +328,17 @@ void menu_move() {
     }
   }
 
-  FSTR_P get_trajectory_name() {
-    switch (ftMotion.getTrajectoryType()) {
-      default:
-      case TrajectoryType::TRAPEZOIDAL: return GET_TEXT_F(MSG_FTM_TRAPEZOIDAL);
-      case TrajectoryType::POLY5:       return GET_TEXT_F(MSG_FTM_POLY5);
-      case TrajectoryType::POLY6:       return GET_TEXT_F(MSG_FTM_POLY6);
+  #if ENABLED(FTM_POLYS)
+    FSTR_P get_trajectory_name() {
+      switch (ftMotion.getTrajectoryType()) {
+        default:
+        case TrajectoryType::TRAPEZOIDAL: return GET_TEXT_F(MSG_FTM_TRAPEZOIDAL);
+        case TrajectoryType::POLY5:       return GET_TEXT_F(MSG_FTM_POLY5);
+        case TrajectoryType::POLY6:       return GET_TEXT_F(MSG_FTM_POLY6);
+
+      }
     }
-  }
+  #endif // FTM_POLYS
 
   #if HAS_DYNAMIC_FREQ
     FSTR_P get_dyn_freq_mode_name() {
@@ -371,16 +374,17 @@ void menu_move() {
       if (shaper != ftMotionShaper_MZV)   ACTION_ITEM(MSG_FTM_MZV,  []{ ftm_menu_set_shaper(ftMotionShaper_MZV)   ; });
       END_MENU(); 
     }
-
-  void menu_ftm_trajectory_generator() {
-    const TrajectoryType current_type = ftMotion.getTrajectoryType();
-    START_MENU();
-    BACK_ITEM(MSG_FIXED_TIME_MOTION);
-    if (current_type != TrajectoryType::TRAPEZOIDAL) ACTION_ITEM(MSG_FTM_TRAPEZOIDAL, []{ planner.synchronize(); ftMotion.setTrajectoryType(TrajectoryType::TRAPEZOIDAL);  ui.go_back(); });
-    if (current_type != TrajectoryType::POLY5)       ACTION_ITEM(MSG_FTM_POLY5,       []{ planner.synchronize(); ftMotion.setTrajectoryType(TrajectoryType::POLY5);        ui.go_back(); });
-    if (current_type != TrajectoryType::POLY6)       ACTION_ITEM(MSG_FTM_POLY6,       []{ planner.synchronize(); ftMotion.setTrajectoryType(TrajectoryType::POLY6);        ui.go_back(); });
+  #if ENABLED(FTM_POLYS)
+    void menu_ftm_trajectory_generator() {
+      const TrajectoryType current_type = ftMotion.getTrajectoryType();
+      START_MENU();
+      BACK_ITEM(MSG_FIXED_TIME_MOTION);
+      if (current_type != TrajectoryType::TRAPEZOIDAL) ACTION_ITEM(MSG_FTM_TRAPEZOIDAL, []{ planner.synchronize(); ftMotion.setTrajectoryType(TrajectoryType::TRAPEZOIDAL);  ui.go_back(); });
+      if (current_type != TrajectoryType::POLY5)       ACTION_ITEM(MSG_FTM_POLY5,       []{ planner.synchronize(); ftMotion.setTrajectoryType(TrajectoryType::POLY5);        ui.go_back(); });
+      if (current_type != TrajectoryType::POLY6)       ACTION_ITEM(MSG_FTM_POLY6,       []{ planner.synchronize(); ftMotion.setTrajectoryType(TrajectoryType::POLY6);        ui.go_back(); });
     END_MENU();
   }
+  #endif // FTM_POLYS
 
   #if ENABLED(FTM_RESONANCE_TEST)
 
@@ -492,10 +496,12 @@ void menu_move() {
     // Show only when FT Motion is active (or optionally always show)
     if (c.active || ENABLED(FT_MOTION_NO_MENU_TOGGLE)) {
       
-      SUBMENU_S(get_trajectory_name(), MSG_FTM_TRAJECTORY, menu_ftm_trajectory_generator);
+      #if ENABLED(POLYS)
+        SUBMENU_S(get_trajectory_name(), MSG_FTM_TRAJECTORY, menu_ftm_trajectory_generator);
 
-      if (ftMotion.getTrajectoryType() == TrajectoryType::POLY6)
-        EDIT_ITEM(float42_52, MSG_FTM_POLY6_OVERSHOOT, &c.poly6_acceleration_overshoot, 1.25f, 1.875f);
+        if (ftMotion.getTrajectoryType() == TrajectoryType::POLY6)
+          EDIT_ITEM(float42_52, MSG_FTM_POLY6_OVERSHOOT, &c.poly6_acceleration_overshoot, 1.25f, 1.875f);
+      #endif // POLYS
 
       #define AXIS_MENU(A) \
         SUBMENU_N(_AXIS(A), MSG_FTM_AXIS_N, [] { selected_axis = _AXIS(A); menu_ftm_axis(); });
@@ -517,10 +523,12 @@ void menu_move() {
     START_MENU();
     BACK_ITEM(MSG_TUNE);
 
-    SUBMENU_S(get_trajectory_name(), MSG_FTM_TRAJECTORY, menu_ftm_trajectory_generator);
+    #if ENABLED(POLYS)
+      SUBMENU_S(get_trajectory_name(), MSG_FTM_TRAJECTORY, menu_ftm_trajectory_generator);
 
-    if (ftMotion.getTrajectoryType() == TrajectoryType::POLY6)
-      EDIT_ITEM(float42_52, MSG_FTM_POLY6_OVERSHOOT, &c.poly6_acceleration_overshoot, 1.25f, 1.875f);
+      if (ftMotion.getTrajectoryType() == TrajectoryType::POLY6)
+        EDIT_ITEM(float42_52, MSG_FTM_POLY6_OVERSHOOT, &c.poly6_acceleration_overshoot, 1.25f, 1.875f);
+    #endif // POLYS
 
     #define _CMPM_MENU_ITEM(A) SUBMENU_N(_AXIS(A), MSG_FTM_AXIS_N, [] { selected_axis = _AXIS(A); menu_ftm_axis(); });
     SHAPED_MAP(_CMPM_MENU_ITEM);

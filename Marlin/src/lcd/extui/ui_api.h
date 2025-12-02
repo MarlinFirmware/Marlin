@@ -132,6 +132,8 @@ namespace ExtUI {
   inline void injectCommands(FSTR_P const fstr) { injectCommands_P(FTOP(fstr)); }
   void injectCommands(char * const);
   bool commandsInQueue();
+  inline void executeCommands(FSTR_P const fstr) { gcode.process_subcommands_now(fstr); }
+  inline void executeCommands(char * const cstr) { gcode.process_subcommands_now(cstr); }
 
   #if ENABLED(HOST_KEEPALIVE_FEATURE)
     GcodeSuite::MarlinBusyState getHostKeepaliveState();

@@ -29,7 +29,7 @@ typedef struct stepper_plan {
   void reset() { advance_dividend_q0_32.reset(); }
 } stepper_plan_t;
 
-// Stepping plan handles steps for a while frame (trajectory point delta)
+// Stepping plan handles steps for a whole frame (trajectory point delta)
 typedef struct Stepping {
   stepper_plan_t stepper_plan;
   xyze_ulong_t advance_dividend_reciprocal{0}; // Note this 32 bit reciprocal underestimates quotients by at most one.
@@ -49,4 +49,5 @@ typedef struct Stepping {
   #define INTERVAL_PER_ITERATION (STEPPER_TIMER_RATE / FTM_STEPPER_FS)
   #define INTERVAL_PER_TRAJ_POINT (STEPPER_TIMER_RATE / FTM_FS)
   #define ITERATIONS_PER_TRAJ (FTM_STEPPER_FS * FTM_TS)
+
 } stepping_t;
