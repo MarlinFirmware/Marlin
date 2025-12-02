@@ -47,7 +47,6 @@ constexpr uint32_t ONE_FP = 1 << FTM_Q;                   // Number 1 in fixed p
 constexpr uint32_t FP_FLOOR_MASK = ~(ONE_FP - 1);         // Bit mask to do FLOOR in fixed point
 constexpr uint32_t FRAME_TICKS_FP = FRAME_TICKS << FTM_Q; // Ticks in a frame in fixed point
 
-
 typedef struct stepper_plan {
   AxisBits dir_bits;
   xyze_uint_t first_interval_fp;
