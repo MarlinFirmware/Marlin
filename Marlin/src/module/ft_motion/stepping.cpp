@@ -90,7 +90,7 @@ uint32_t Stepping::plan() {
     #undef _HANDLE_DIR_CHANGES
   }
 
-  if (stepper_plan.advance_dividend_q0_32 == 0) {
+  if (stepper_plan.advance_dividend_q0_32 == 0UL) {
     // Don't waste time in zero motion traj points
     bresenham_iterations_pending = 0;
     step_bits = 0;
