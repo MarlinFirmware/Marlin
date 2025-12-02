@@ -500,7 +500,9 @@ void menu_move() {
       };
     #else
       auto _shaper_name = [](const AxisEnum a) { return get_shaper_name(a); };
-      auto _dmode = []{ return get_dyn_freq_mode_name(); };
+      #if HAS_DYNAMIC_FREQ
+        auto _dmode = []{ return get_dyn_freq_mode_name(); };
+      #endif
       #if ENABLED(FTM_POLYS)
         auto _traj_name = []{ return get_trajectory_name(); };
       #endif
@@ -554,9 +556,12 @@ void menu_move() {
   void menu_tune_ft_motion() {
     // Define stuff ahead of the menu loop
     ft_config_t &c = ftMotion.cfg;
+
     #ifdef __AVR__
+
       // Copy Flash strings to RAM for C-string substitution
       // For U8G paged rendering check and skip extra string copy
+
       #if HAS_X_AXIS
         MString<20> shaper_name;
         #if CACHE_FOR_SPEED
@@ -570,6 +575,7 @@ void menu_move() {
           return shaper_name;
         };
       #endif
+
       #if HAS_DYNAMIC_FREQ
         MString<20> dmode;
         #if CACHE_FOR_SPEED
@@ -583,22 +589,32 @@ void menu_move() {
           return dmode;
         };
       #endif
-      MString<20> traj_name;
-      #if CACHE_FOR_SPEED
-        bool got_t = false;
+
+      #if ENABLED(FTM_POLYS)
+        MString<20> traj_name;
+        #if CACHE_FOR_SPEED
+          bool got_t = false;
+        #endif
+        auto _traj_name = [&]{
+          if (TERN1(CACHE_FOR_SPEED, !got_t)) {
+            TERN_(CACHE_FOR_SPEED, got_t = true);
+            traj_name = get_trajectory_name();
+          }
+          return traj_name;
+        };
       #endif
-      auto _traj_name = [&]{
-        if (TERN1(CACHE_FOR_SPEED, !got_t)) {
-          TERN_(CACHE_FOR_SPEED, got_t = true);
-          traj_name = get_trajectory_name();
-        }
-        return traj_name;
-      };
+
     #else // !__AVR__
+
       auto _shaper_name = [](const AxisEnum a) { return get_shaper_name(a); };
-      auto _dmode = []{ return get_dyn_freq_mode_name(); };
-      auto _traj_name = []{ return get_trajectory_name(); };
-    #endif
+      #if HAS_DYNAMIC_FREQ
+        auto _dmode = []{ return get_dyn_freq_mode_name(); };
+      #endif
+      #if ENABLED(FTM_POLYS)
+        auto _traj_name = []{ return get_trajectory_name(); };
+      #endif
+
+    #endif // !__AVR__
 
     START_MENU();
     BACK_ITEM(MSG_TUNE);
