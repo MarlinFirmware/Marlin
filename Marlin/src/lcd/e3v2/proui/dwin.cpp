@@ -108,7 +108,7 @@
   #include "../../../feature/tmc_util.h"
 #endif
 
-#if HAS_GCODE_PREVIEW
+#if HAS_PROUI_GCODE_PREVIEW
   #include "gcode_preview.h"
 #endif
 
@@ -645,7 +645,7 @@ void drawPrintDone() {
   title.showCaption(GET_TEXT_F(MSG_PRINT_DONE));
   DWINUI::clearMainArea();
   dwinPrintHeader();
-  #if HAS_GCODE_PREVIEW
+  #if HAS_PROUI_GCODE_PREVIEW
     const bool haspreview = preview.valid();
     if (haspreview) {
       preview.show();
@@ -1797,7 +1797,7 @@ void dwinLevelingDone() {
 
 // Started a Print Job
 void dwinPrintStarted() {
-  TERN_(HAS_GCODE_PREVIEW, if (hostPrinting()) preview.invalidate());
+  TERN_(HAS_PROUI_GCODE_PREVIEW, if (hostPrinting()) preview.invalidate());
   TERN_(SET_PROGRESS_PERCENT, ui.progress_reset());
   TERN_(SET_REMAINING_TIME, ui.reset_remaining_time());
   hmiFlag.pause_flag = false;
@@ -1900,7 +1900,7 @@ void dwinSetDataDefaults() {
     TERN_(LED_COLOR_PRESETS, leds.set_default());
     applyLEDColor();
   #endif
-  TERN_(HAS_GCODE_PREVIEW, hmiData.enablePreview = true);
+  TERN_(HAS_PROUI_GCODE_PREVIEW, hmiData.enablePreview = true);
 }
 
 void dwinCopySettingsTo(char * const buff) {
@@ -2064,7 +2064,7 @@ void dwinRedrawScreen() {
 
 #endif // HAS_LOCKSCREEN
 
-#if HAS_GCODE_PREVIEW
+#if HAS_PROUI_GCODE_PREVIEW
 
   void setPreview() { toggleCheckboxLine(hmiData.enablePreview); }
 
@@ -2079,10 +2079,10 @@ void dwinRedrawScreen() {
       hmiReturnScreen();
   }
 
-#endif // HAS_GCODE_PREVIEW
+#endif // HAS_PROUI_GCODE_PREVIEW
 
 void gotoConfirmToPrint() {
-  #if HAS_GCODE_PREVIEW
+  #if HAS_PROUI_GCODE_PREVIEW
     if (hmiData.enablePreview) {
       gotoPopup(preview.drawFromSD, onClickConfirmToPrint);
       return;
@@ -3261,7 +3261,7 @@ void drawControlMenu() {
 void drawAdvancedSettingsMenu() {
   constexpr uint8_t items = (1
     + COUNT_ENABLED(EEPROM_SETTINGS, HAS_MESH, HAS_BED_PROBE, HAS_HOME_OFFSET, HAS_TRINAMIC_CONFIG, HAS_ESDIAG, \
-                    HAS_LOCKSCREEN, EDITABLE_DISPLAY_TIMEOUT, SOUND_MENU_ITEM, POWER_LOSS_RECOVERY, HAS_GCODE_PREVIEW, \
+                    HAS_LOCKSCREEN, EDITABLE_DISPLAY_TIMEOUT, SOUND_MENU_ITEM, POWER_LOSS_RECOVERY, HAS_PROUI_GCODE_PREVIEW, \
                     PROUI_MEDIASORT, BAUD_RATE_GCODE, HAS_CUSTOM_COLORS)
     + 1
     + (ENABLED(PIDTEMP) && ANY(PID_AUTOTUNE_MENU, PID_EDIT_MENU))
@@ -3318,7 +3318,7 @@ void drawAdvancedSettingsMenu() {
     #if ENABLED(POWER_LOSS_RECOVERY)
       EDIT_ITEM(ICON_Pwrlossr, MSG_OUTAGE_RECOVERY, onDrawChkbMenu, setPwrLossr, &recovery.enabled);
     #endif
-    #if HAS_GCODE_PREVIEW
+    #if HAS_PROUI_GCODE_PREVIEW
       EDIT_ITEM(ICON_File, MSG_HAS_PREVIEW, onDrawChkbMenu, setPreview, &hmiData.enablePreview);
     #endif
     #if ENABLED(PROUI_MEDIASORT)
