@@ -511,17 +511,24 @@ void menu_move() {
       #define SHAPER_MENU_ITEM(A) \
         SUBMENU_N_S(_AXIS(A), _shaper_name(_AXIS(A)), MSG_FTM_CMPN_MODE, menu_ftm_shaper_##A); \
         if (AXIS_IS_SHAPING(A)) { \
-          EDIT_ITEM_FAST_N(float42_52, _AXIS(A), MSG_FTM_BASE_FREQ_N, &c.baseFreq.A, FTM_MIN_SHAPE_FREQ, (FTM_FS) / 2, ftMotion.update_shaping_params); \
-          EDIT_ITEM_FAST_N(float42_52, _AXIS(A), MSG_FTM_ZETA_N, &c.zeta.A, 0.0f, 1.0f, ftMotion.update_shaping_params); \
-          if (AXIS_IS_EISHAPING(A)) \
-            EDIT_ITEM_FAST_N(float42_52, _AXIS(A), MSG_FTM_VTOL_N, &c.vtol.A, 0.0f, 1.0f, ftMotion.update_shaping_params); \
+          editable.decimal = c.baseFreq.A; \
+          EDIT_ITEM_FAST_N(float42_52, _AXIS(A), MSG_FTM_BASE_FREQ_N, &editable.decimal, FTM_MIN_SHAPE_FREQ, (FTM_FS) / 2, []{ (void)ftMotion.setBaseFreq(_AXIS(A), editable.decimal); }); \
+          editable.decimal = c.zeta.A; \
+          EDIT_ITEM_FAST_N(float42_52, _AXIS(A), MSG_FTM_ZETA_N, &editable.decimal, 0.01f, 1.0f, []{ (void)ftMotion.setZeta(_AXIS(A), editable.decimal); }); \
+          if (AXIS_IS_EISHAPING(A)) { \
+            editable.decimal = c.vtol.A; \
+            EDIT_ITEM_FAST_N(float42_52, _AXIS(A), MSG_FTM_VTOL_N, &editable.decimal, 0.0f, 1.0f, []{ (void)ftMotion.setVtol(_AXIS(A), editable.decimal); }); \
+          } \
         }
       SHAPED_MAP(SHAPER_MENU_ITEM);
 
       #if HAS_DYNAMIC_FREQ
         SUBMENU_S(_dmode(), MSG_FTM_DYN_MODE, menu_ftm_dyn_mode);
-        if (c.dynFreqMode != dynFreqMode_DISABLED) {
-          #define _DYN_MENU_ITEM(A) EDIT_ITEM_FAST_N(float42_52, _AXIS(A), MSG_FTM_DFREQ_K_N, &c.dynFreqK.A, 0.0f, 20.0f);
+        if (c.modeUsesDynFreq()) {
+          #define _DYN_MENU_ITEM(A) do{ \
+            editable.decimal = c.dynFreqK.A; \
+            EDIT_ITEM_FAST_N(float42_52, _AXIS(A), MSG_FTM_DFREQ_K_N, &editable.decimal, 0.0f, 20.0f, []{ c.setDynFreqK(_AXIS(A), editable.decimal); }); \
+          }while(0);
           SHAPED_MAP(_DYN_MENU_ITEM);
         }
       #endif

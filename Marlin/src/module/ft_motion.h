@@ -115,6 +115,26 @@ typedef struct FTConfig {
       return true;
     }
 
+    constexpr bool goodZeta(const float z) { return WITHIN(z, 0.01f, 1.0f); }
+
+    bool setZeta(const AxisEnum a, const float z) {
+      if (z == zeta[a]) return false;
+      if (!goodZeta(z)) return false;
+      planner.synchronize();
+      zeta[a] = z;
+      return true;
+    }
+
+    constexpr bool goodVtol(const float v) { return WITHIN(v, 0.00f, 1.0f); }
+
+    bool setVtol(const AxisEnum a, const float v) {
+      if (v == vtol[a]) return false;
+      if (!goodVtol(v)) return false;
+      planner.synchronize();
+      vtol[a] = v;
+      return true;
+    }
+
     #if HAS_DYNAMIC_FREQ
 
       uint8_t setDynFreqMode(const uint8_t m) {
@@ -129,6 +149,19 @@ typedef struct FTConfig {
             break;
         }
         return 1;
+      }
+
+      bool modeUsesDynFreq() const {
+        return (TERN0(HAS_DYNAMIC_FREQ_MM, dynFreqMode == dynFreqMode_Z_BASED)
+             || TERN0(HAS_DYNAMIC_FREQ_G,  dynFreqMode == dynFreqMode_MASS_BASED));
+      }
+
+      bool setDynFreqK(const AxisEnum a, const float k) {
+        if (!modeUsesDynFreq()) return false;
+        if (k == dynFreqK[a]) return false;
+        planner.synchronize();
+        dynFreqK[a] = k;
+        return true;
       }
 
     #endif
@@ -233,6 +266,23 @@ class FTMotion {
       cfg.setActive(!cfg.active);
       update_shaping_params();
       return cfg.active;
+    }
+
+    // Setters for baseFreq, zeta, vtol
+    static bool setBaseFreq(const AxisEnum a, const float f) {
+      if (!cfg.setBaseFreq(a, f)) return false;
+      update_shaping_params();
+      return true;
+    }
+    static bool setZeta(const AxisEnum a, const float z) {
+      if (!cfg.setZeta(a, z)) return false;
+      update_shaping_params();
+      return true;
+    }
+    static bool setVtol(const AxisEnum a, const float v) {
+      if (!cfg.setVtol(a, v)) return false;
+      update_shaping_params();
+      return true;
     }
 
     // Trajectory generator selection

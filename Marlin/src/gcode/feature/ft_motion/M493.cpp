@@ -251,10 +251,7 @@ void GcodeSuite::M493() {
         SERIAL_ECHOLNPGM("?Shaper required for (D)ynamic Frequency Mode ", ftMotion.cfg.dynFreqMode, ".");
     }
 
-    const bool modeUsesDynFreq = (
-         TERN0(HAS_DYNAMIC_FREQ_MM, ftMotion.cfg.dynFreqMode == dynFreqMode_Z_BASED)
-      || TERN0(HAS_DYNAMIC_FREQ_G,  ftMotion.cfg.dynFreqMode == dynFreqMode_MASS_BASED)
-    );
+    const bool modeUsesDynFreq = ftMotion.modeUsesDynFreq();
 
   #endif // HAS_DYNAMIC_FREQ
 
@@ -276,14 +273,14 @@ void GcodeSuite::M493() {
   // Zeta parameter
   const bool seenI = parser.seenval('I');
   const float zetaVal = seenI ? parser.value_float() : 0.0f;
-  const bool goodZeta = seenI && WITHIN(zetaVal, 0.01f, 1.0f);
+  const bool goodZeta = seenI && ftMotion.cfg.goodZeta(zetaVal);
   if (seenI && !goodZeta)
     SERIAL_ECHOLN(F("?Invalid "), F("(I) Zeta value. (0.01-1.0)")); // Zeta out of range
 
   // Vibration Tolerance parameter
   const bool seenQ = parser.seenval('Q');
   const float vtolVal = seenQ ? parser.value_float() : 0.0f;
-  const bool goodVtol = seenQ && WITHIN(vtolVal, 0.00f, 1.0f);
+  const bool goodVtol = seenQ && ftMotion.cfg.goodVtol(vtolVal);
   if (seenQ && !goodVtol)
     SERIAL_ECHOLN(F("?Invalid "), F("(Q) Vibration Tolerance value. (0.0-1.0)")); // VTol out of range
 
@@ -306,21 +303,15 @@ void GcodeSuite::M493() {
 
       #if HAS_DYNAMIC_FREQ
         // Parse X frequency scaling parameter
-        if (seenF && modeUsesDynFreq) {
-          planner.synchronize();
-          ftMotion.cfg.dynFreqK.x = baseDynFreqVal;
+        if (seenF && ftMotion.cfg.setDynFreqK(X_AXIS, baseDynFreqVal))
           flag.report = true;
-        }
       #endif
 
       // Parse X zeta parameter
       if (seenI) {
         if (AXIS_IS_SHAPING(X)) {
-          if (goodZeta) {
-            planner.synchronize();
-            ftMotion.cfg.zeta.x = zetaVal;
+          if (goodZeta && ftMotion.cfg.setZeta(X_AXIS, zetaVal))
             flag.update = true;
-          }
         }
         else
           SERIAL_ECHOLNPGM("?Wrong mode for ", C(STEPPER_A_NAME), " (I) zeta parameter.");
@@ -329,11 +320,8 @@ void GcodeSuite::M493() {
       // Parse X vtol parameter
       if (seenQ) {
         if (AXIS_IS_EISHAPING(X)) {
-          if (goodVtol) {
-            planner.synchronize();
-            ftMotion.cfg.vtol.x = vtolVal;
+          if (goodVtol && ftMotion.cfg.setVtol(X_AXIS, vtolVal))
             flag.update = true;
-          }
         }
         else
           SERIAL_ECHOLNPGM("?Wrong mode for ", C(STEPPER_A_NAME), " (Q) vtol parameter.");
@@ -358,21 +346,15 @@ void GcodeSuite::M493() {
 
       #if HAS_DYNAMIC_FREQ
         // Parse Y frequency scaling parameter
-        if (seenF && modeUsesDynFreq) {
-          planner.synchronize();
-          ftMotion.cfg.dynFreqK.y = baseDynFreqVal;
+        if (seenF && ftMotion.cfg.setDynFreqK(Y_AXIS, baseDynFreqVal))
           flag.report = true;
-        }
       #endif
 
       // Parse Y zeta parameter
       if (seenI) {
         if (AXIS_IS_SHAPING(Y)) {
-          if (goodZeta) {
-            planner.synchronize();
-            ftMotion.cfg.zeta.y = zetaVal;
+          if (goodZeta && ftMotion.cfg.setZeta(Y_AXIS, zetaVal))
             flag.update = true;
-          }
         }
         else
           SERIAL_ECHOLNPGM("?Wrong mode for ", C(STEPPER_B_NAME), " (I) zeta parameter.");
@@ -381,11 +363,8 @@ void GcodeSuite::M493() {
       // Parse Y vtol parameter
       if (seenQ) {
         if (AXIS_IS_EISHAPING(Y)) {
-          if (goodVtol) {
-            planner.synchronize();
-            ftMotion.cfg.vtol.y = vtolVal;
+          if (goodVtol && ftMotion.cfg.setVtol(Y_AXIS, vtolVal))
             flag.update = true;
-          }
         }
         else
           SERIAL_ECHOLNPGM("?Wrong mode for ", C(STEPPER_B_NAME), " (Q) vtol parameter.");
@@ -410,21 +389,15 @@ void GcodeSuite::M493() {
 
       #if HAS_DYNAMIC_FREQ
         // Parse Z frequency scaling parameter
-        if (seenF && modeUsesDynFreq) {
-          planner.synchronize();
-          ftMotion.cfg.dynFreqK.z = baseDynFreqVal;
+        if (seenF && ftMotion.cfg.setDynFreqK(Z_AXIS, baseDynFreqVal))
           flag.report = true;
-        }
       #endif
 
       // Parse Z zeta parameter
       if (seenI) {
         if (AXIS_IS_SHAPING(Z)) {
-          if (goodZeta) {
-            planner.synchronize();
-            ftMotion.cfg.zeta.z = zetaVal;
+          if (goodZeta && ftMotion.cfg.setZeta(Z_AXIS, zetaVal))
             flag.update = true;
-          }
         }
         else
           SERIAL_ECHOLNPGM("?Wrong mode for ", C(STEPPER_C_NAME), " (I) zeta parameter.");
@@ -433,11 +406,8 @@ void GcodeSuite::M493() {
       // Parse Z vtol parameter
       if (seenQ) {
         if (AXIS_IS_EISHAPING(Z)) {
-          if (goodVtol) {
-            planner.synchronize();
-            ftMotion.cfg.vtol.z = vtolVal;
+          if (goodVtol && ftMotion.cfg.setVtol(Z_AXIS, vtolVal))
             flag.update = true;
-          }
         }
         else
           SERIAL_ECHOLNPGM("?Wrong mode for ", C(STEPPER_C_NAME), " (Q) vtol parameter.");
@@ -462,21 +432,15 @@ void GcodeSuite::M493() {
 
       #if HAS_DYNAMIC_FREQ
         // Parse E frequency scaling parameter
-        if (seenF && modeUsesDynFreq) {
-          planner.synchronize();
-          ftMotion.cfg.dynFreqK.e = baseDynFreqVal;
+        if (seenF && ftMotion.cfg.setDynFreqK(E_AXIS, baseDynFreqVal))
           flag.report = true;
-        }
       #endif
 
       // Parse E zeta parameter
       if (seenI) {
         if (AXIS_IS_SHAPING(E)) {
-          if (goodZeta) {
-            planner.synchronize();
-            ftMotion.cfg.zeta.e = zetaVal;
+          if (goodZeta && ftMotion.cfg.setZeta(E_AXIS, zetaVal))
             flag.update = true;
-          }
         }
         else
           SERIAL_ECHOLNPGM("?Wrong mode for ", C('E'), " (I) zeta parameter.");
@@ -485,11 +449,8 @@ void GcodeSuite::M493() {
       // Parse E vtol parameter
       if (seenQ) {
         if (AXIS_IS_EISHAPING(E)) {
-          if (goodVtol) {
-            planner.synchronize();
-            ftMotion.cfg.vtol.e = vtolVal;
+          if (goodVtol && ftMotion.cfg.setVtol(E_AXIS, vtolVal))
             flag.update = true;
-          }
         }
         else
           SERIAL_ECHOLNPGM("?Wrong mode for ", C('E'), " (Q) vtol parameter.");
