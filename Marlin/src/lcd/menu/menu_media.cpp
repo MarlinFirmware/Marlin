@@ -31,7 +31,7 @@
 #include "menu_item.h"
 #include "../../sd/cardreader.h"
 
-#if ENABLED(TFT_COLOR_UI) && HAS_GCODE_PREVIEW
+#if ALL(TFT_COLOR_UI, HAS_GCODE_PREVIEW)
   #include "../tft/ui_common.h"
   #include "../tft/ui_gcode_preview.h"
 #endif
@@ -69,15 +69,13 @@ class MenuItem_sdfile : public MenuItem_sdbase {
       MenuItem_sdbase::draw(sel, row, fstr, theCard, false);
     }
     static void action(FSTR_P const fstr, CardReader &) {
-      #if ENABLED(TFT_COLOR_UI) && HAS_GCODE_PREVIEW
+      #if ALL(TFT_COLOR_UI, HAS_GCODE_PREVIEW)
         // Show preview for TFT_COLOR_UI
         // First process the preview data
         preview.invalidate();  // Clear any previous state
         preview.hasPreview();  // Process the preview data (result doesn't matter)
         // Always show the preview screen - drawFromSD() handles both cases
-        ui.goto_screen([]{
-          preview.drawFromSD();
-        });
+        ui.goto_screen([]{ preview.drawFromSD(); });
       #else
         #if ENABLED(SD_REPRINT_LAST_SELECTED_FILE)
           // Save menu state for the selected file

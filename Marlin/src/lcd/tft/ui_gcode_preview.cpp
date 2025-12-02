@@ -27,23 +27,22 @@
 
 #include "../../inc/MarlinConfig.h"
 
-#if HAS_GCODE_PREVIEW && ENABLED(TFT_COLOR_UI)
-//#define DEBUG_OUT 1
-#include "../../core/debug_out.h"
+#if ALL(TFT_COLOR_UI, HAS_GCODE_PREVIEW)
 
-#include "ui_gcode_preview.h"
-
-#include "tft.h"
 #include "ui_common.h"
-
-#include "../marlinui.h"
-#include "../../sd/cardreader.h"
-#include "../../MarlinCore.h" // for wait_for_user
+#include "ui_gcode_preview.h"
 #include "base64.h"
 #include "image_decoders/image_decoder.h"
+
+#include "../marlinui.h"
 #include "../menu/menu.h"  // for menu_file_selector
+#include "../../sd/cardreader.h"
+#include "../../MarlinCore.h" // for wait_for_user
 
 #define MAX_THUMBNAIL_SIZE 131072  // 128KB for thumbnails
+
+//#define DEBUG_OUT 1
+#include "../../core/debug_out.h"
 
 /**
  * Structure to hold file properties
@@ -127,15 +126,15 @@ void getValue(const char * const buf, PGM_P const key, float &value) {
 }
 
 bool Preview::hasPreview() {
-  DEBUG_ECHOLN("G-code preview: hasPreview called, filename: ", card.filename, ", processed: ", processed);
+  DEBUG_ECHOLNPGM("G-code preview: hasPreview called, filename: ", card.filename, ", processed: ", processed);
 
   // If already processed, just return whether we have valid data
   if (processed) {
-    DEBUG_ECHOLN("G-code preview: Already processed (processed=", processed, "), returning valid status");
+    DEBUG_ECHOLNPGM("G-code preview: Already processed (processed=", processed, "), returning valid status");
     return valid();
   }
 
-  DEBUG_ECHOLN("G-code preview: SD mounted: ", card.isMounted());
+  DEBUG_ECHOLNPGM("G-code preview: SD mounted: ", card.isMounted());
 
   const char * const tbstart = PSTR(" begin ");
   const char *posptr = nullptr;
@@ -151,7 +150,7 @@ bool Preview::hasPreview() {
   fileprop.setname(card.filename);
 
   card.openFileRead(card.filename);
-  DEBUG_ECHOLN("G-code preview: file opened, isOpen: ", card.isFileOpen());
+  DEBUG_ECHOLNPGM("G-code preview: file opened, isOpen: ", card.isFileOpen());
 
   char buf[256];
   uint8_t nbyte = 1;
@@ -245,7 +244,7 @@ bool Preview::hasPreview() {
             candidates[candidate_count].area = temp_width * temp_height;
             candidate_count++;
 
-            DEBUG_ECHOLN("G-code preview: Found thumbnail candidate ", candidate_count, " at position ", candidate_pos, ", dimensions ", temp_width, "x", temp_height, ", size ", temp_size, ", area ", temp_width * temp_height);
+            DEBUG_ECHOLNPGM("G-code preview: Found thumbnail candidate ", candidate_count, " at position ", candidate_pos, ", dimensions ", temp_width, "x", temp_height, ", size ", temp_size, ", area ", temp_width * temp_height);
           }
 
           card.setIndex(saved_index);  // Restore index
@@ -264,10 +263,10 @@ bool Preview::hasPreview() {
       break;
   }
 
-  DEBUG_ECHOLN("G-code preview: Found ", candidate_count, " thumbnail candidates");
+  DEBUG_ECHOLNPGM("G-code preview: Found ", candidate_count, " thumbnail candidates");
 
   if (!found_gcode) {
-    DEBUG_ECHOLN("G-code preview: Scanned entire file header without finding G-code commands");
+    DEBUG_ECHOLNPGM("G-code preview: Scanned entire file header without finding G-code commands");
   }
 
   // Select the best thumbnail (largest that fits within display limits)
@@ -289,17 +288,17 @@ bool Preview::hasPreview() {
         best_width = w;
         best_height = h;
         best_size = candidates[i].size;
-        DEBUG_ECHOLN("G-code preview: Selected thumbnail candidate ", i+1, " (area ", candidates[i].area, ")");
+        DEBUG_ECHOLNPGM("G-code preview: Selected thumbnail candidate ", i+1, " (area ", candidates[i].area, ")");
       }
     } else {
-      DEBUG_ECHOLN("G-code preview: Skipping thumbnail candidate ", i+1, " - too large (", w, "x", h, " > ", GCODE_PREVIEW_THUMB_WIDTH, "x", GCODE_PREVIEW_THUMB_HEIGHT, ")");
+      DEBUG_ECHOLNPGM("G-code preview: Skipping thumbnail candidate ", i+1, " - too large (", w, "x", h, " > ", GCODE_PREVIEW_THUMB_WIDTH, "x", GCODE_PREVIEW_THUMB_HEIGHT, ")");
     }
   }
 
   if (!best_position) {
     card.closefile();
     ui.set_status_P(PSTR("No suitable thumbnail found"));
-    DEBUG_ECHOLN("G-code preview: No suitable thumbnail found");
+    DEBUG_ECHOLNPGM("G-code preview: No suitable thumbnail found");
     return false;
   }
 
@@ -310,7 +309,7 @@ bool Preview::hasPreview() {
   fileprop.thumbheight = best_height;
   fileprop.thumbsize = best_size;
 
-  DEBUG_ECHOLN("G-code preview: Selected best thumbnail at position ", fileprop.thumbstart, ", dimensions ", fileprop.thumbwidth, "x", fileprop.thumbheight, ", size ", fileprop.thumbsize);
+  DEBUG_ECHOLNPGM("G-code preview: Selected best thumbnail at position ", fileprop.thumbstart, ", dimensions ", fileprop.thumbwidth, "x", fileprop.thumbheight, ", size ", fileprop.thumbsize);
 
   // Exit if there isn't a thumbnail
   if (!fileprop.thumbsize) {
@@ -332,14 +331,14 @@ bool Preview::hasPreview() {
   card.closefile();
   buf64[nread] = '\0';
 
-  DEBUG_ECHOLN("G-code preview: nread = ", nread, ", buf64 first 20: ", String((char*)buf64).substring(0, 20));
+  DEBUG_ECHOLNPGM("G-code preview: nread = ", nread, ", buf64 first 20: ", String((char*)buf64).substring(0, 20));
 
   // For TFT, decode to a buffer and store for display
   // Assuming we can use a static buffer or allocate
   static uint8_t thumbdata[MAX_THUMBNAIL_SIZE];  // Reserve space for the JPEG thumbnail
   fileprop.thumbsize = decode_base64(buf64, thumbdata);
 
-  DEBUG_ECHOLN("G-code preview: Base64 decoded size: ", fileprop.thumbsize, ", first bytes: ", thumbdata[0], " ", thumbdata[1], " ", thumbdata[2], " ", thumbdata[3]);
+  DEBUG_ECHOLNPGM("G-code preview: Base64 decoded size: ", fileprop.thumbsize, ", first bytes: ", thumbdata[0], " ", thumbdata[1], " ", thumbdata[2], " ", thumbdata[3]);
 
   // Detect image format
   #if DEBUG_OUT
@@ -360,18 +359,18 @@ bool Preview::hasPreview() {
       } else
     #endif
       {} // Empty else for UNKNOWN case
-    DEBUG_ECHOLN("G-code preview: Detected image format: ", format_name);
+    DEBUG_ECHOLNPGM("G-code preview: Detected image format: ", format_name);
   #endif
 
   // Get actual dimensions from JPEG header
   uint16_t jpeg_width, jpeg_height;
   if (ImageDecoders::ImageDecoder::getDimensions(thumbdata, fileprop.thumbsize, jpeg_width, jpeg_height)) {
-    DEBUG_ECHOLN("G-code preview: JPEG dimensions from header: ", jpeg_width, "x", jpeg_height);
+    DEBUG_ECHOLNPGM("G-code preview: JPEG dimensions from header: ", jpeg_width, "x", jpeg_height);
     // Use JPEG dimensions instead of G-code dimensions
     fileprop.thumbwidth = jpeg_width;
     fileprop.thumbheight = jpeg_height;
   } else {
-    DEBUG_ECHOLN("G-code preview: Failed to get JPEG dimensions");
+    DEBUG_ECHOLNPGM("G-code preview: Failed to get JPEG dimensions");
   }
 
   // Now decode the image data to RGB565
@@ -383,38 +382,38 @@ bool Preview::hasPreview() {
       fileprop.decoded_thumb, fileprop.thumbwidth, fileprop.thumbheight
     );
   } else {
-    DEBUG_ECHOLN("G-code preview: Image too large for buffer: ", fileprop.thumbwidth, "x", fileprop.thumbheight,
+    DEBUG_ECHOLNPGM("G-code preview: Image too large for buffer: ", fileprop.thumbwidth, "x", fileprop.thumbheight,
            " needs ", required_bytes, " bytes, buffer has ", sizeof(fileprop.decoded_thumb), " bytes");
   }
 
   fileprop.decode_success = decode_success;
 
-  DEBUG_ECHOLN("G-code preview: JPEG decode result: success=", decode_success, ", buffer size needed=", required_bytes, ", actual buffer size=", sizeof(fileprop.decoded_thumb));
+  DEBUG_ECHOLNPGM("G-code preview: JPEG decode result: success=", decode_success, ", buffer size needed=", required_bytes, ", actual buffer size=", sizeof(fileprop.decoded_thumb));
 
   if (!fileprop.decode_success) {
-    DEBUG_ECHOLN("G-code preview: Failed to decode thumbnail image");
+    DEBUG_ECHOLNPGM("G-code preview: Failed to decode thumbnail image");
     // Continue anyway - we can still show metadata
   } else {
     // Debug: Print first few decoded pixels
-    DEBUG_ECHO("G-code preview: First 10 decoded pixels: ");
+    DEBUG_ECHOPGM("G-code preview: First 10 decoded pixels: ");
     for (int i = 0; i < 10 && i < fileprop.thumbwidth * fileprop.thumbheight; i++) {
       DEBUG_ECHO(fileprop.decoded_thumb[i], HEX);
-      DEBUG_ECHO(" ");
+      DEBUG_CHAR(' ');
     }
-    DEBUG_ECHOLN();
+    DEBUG_EOL();
   }
 
-  DEBUG_ECHOLN("G-code preview: Thumbnail found and decoded, size: ", fileprop.thumbsize, ", decode success: ", fileprop.decode_success);
+  DEBUG_ECHOLNPGM("G-code preview: Thumbnail found and decoded, size: ", fileprop.thumbsize, ", decode success: ", fileprop.decode_success);
 
   // Mark as processed to prevent repeated file I/O
   processed = true;
-  DEBUG_ECHOLN("G-code preview: Setting processed = true");
+  DEBUG_ECHOLNPGM("G-code preview: Setting processed = true");
 
   return true;
 }
 
 void Preview::drawFromSD() {
-  DEBUG_ECHOLN("G-code preview: drawFromSD called");
+  DEBUG_ECHOLNPGM("G-code preview: drawFromSD called");
 
   // Follow the TFT queue pattern like other screens
   tft.canvas(0, 0, TFT_WIDTH, TFT_HEIGHT);
@@ -422,7 +421,7 @@ void Preview::drawFromSD() {
 
   if (!valid()) {
     // Handle no preview - draw a test message
-    DEBUG_ECHOLN("G-code preview: no valid preview available");
+    DEBUG_ECHOLNPGM("G-code preview: no valid preview available");
     tft.add_text(20, 100, COLOR_WHITE, "Preview not available");
     tft.add_text(20, 120, COLOR_WHITE, "File: ");
     tft.add_text(80, 120, COLOR_WHITE, card.filename);
@@ -485,7 +484,9 @@ void Preview::drawFromSD() {
       } else {
         tft.add_text(text_x + 120, text_y, COLOR_RED, "Not available");
       }
-    #else
+
+    #else // TFT_COLOR_UI_LANDSCAPE
+
       // Landscape mode: two-line format, text on right
       // Always show estimated time
       tft.add_text(text_x, text_y, COLOR_WHITE, "Estimated time:");
@@ -525,7 +526,7 @@ void Preview::drawFromSD() {
       } else {
         tft.add_text(text_x, text_y + 25, COLOR_RED, "Not available");
       }
-    #endif
+    #endif // TFT_COLOR_UI_LANDSCAPE
   } else {
     // Valid preview available
     char buf[100];
@@ -576,7 +577,7 @@ void Preview::drawFromSD() {
       int thumb_y = GCODE_PREVIEW_THUMB_Y;
       show(thumb_x, thumb_y);
 
-    #else
+    #else // TFT_COLOR_UI_LANDSCAPE
       // Landscape mode: thumbnail on left, text on right
       int thumb_x = 0;  // Hard left
       int thumb_y = (TFT_HEIGHT - fileprop.thumbheight) / 2;  // Centered vertically
@@ -622,19 +623,19 @@ void Preview::drawFromSD() {
 
       // Draw thumbnail area
       show(thumb_x, thumb_y);
-    #endif
+    #endif // TFT_COLOR_UI_LANDSCAPE
   }
 
   // Always draw both buttons at the bottom of the screen
-  const int button_y = GCODE_PREVIEW_BUTTON_Y;
-  const int button1_x = GCODE_PREVIEW_BUTTON1_X;
-  const int button2_x = GCODE_PREVIEW_BUTTON2_X;
+  const int button_y = GCODE_PREVIEW_BUTTON_Y,
+            button1_x = GCODE_PREVIEW_BUTTON1_X,
+            button2_x = GCODE_PREVIEW_BUTTON2_X;
 
   // Handle encoder input for button selection
   const int8_t encoder_delta = ui.get_encoder_delta();
   if (encoder_delta) {
     button_selection = encoder_delta > 0 ? 1 : 0; // Positive = Confirm, Negative = Cancel
-    DEBUG_ECHOLN("G-code preview: Encoder moved, selection now: ", button_selection ? "Confirm" : "Cancel");
+    DEBUG_ECHOLNPGM("G-code preview: Encoder moved, selection now: ", button_selection ? "Confirm" : "Cancel");
   }
 
   // Draw buttons with highlighting for encoder selection
@@ -661,19 +662,19 @@ void Preview::drawFromSD() {
     // Handle the user response
     if (ui.selection) {
       // User pressed CONFIRM - start printing
-      DEBUG_ECHOLN("G-code preview: User confirmed - starting print");
+      DEBUG_ECHOLNPGM("G-code preview: User confirmed - starting print");
       card.openAndPrintFile(card.filename);
       ui.return_to_status();
     } else {
       // User pressed CANCEL - go back to SD card file browser
-      DEBUG_ECHOLN("G-code preview: User cancelled - returning to SD card file browser");
+      DEBUG_ECHOLNPGM("G-code preview: User cancelled - returning to SD card file browser");
       ui.goto_screen(menu_file_selector);
     }
   }
 }
 
 void Preview::invalidate() {
-  DEBUG_ECHOLN("G-code preview: invalidate called, resetting processed flag");
+  DEBUG_ECHOLNPGM("G-code preview: invalidate called, resetting processed flag");
   fileprop.thumbsize = 0;
   processed = false;
 }
@@ -682,8 +683,8 @@ bool Preview::valid() {
   return !!fileprop.thumbsize;
 }
 
-void Preview::show(int x, int y) {
-  DEBUG_ECHOLN("G-code preview: show() called at (%d,%d), thumbsize: %d, width: %d, height: %d\n", x, y, fileprop.thumbsize, fileprop.thumbwidth, fileprop.thumbheight);
+void Preview::show(const int x, const int y) {
+  DEBUG_ECHOLNPGM("G-code preview: show() called at (%d,%d), thumbsize: %d, width: %d, height: %d\n", x, y, fileprop.thumbsize, fileprop.thumbwidth, fileprop.thumbheight);
 
   // Display the decoded thumbnail if available
   if (fileprop.decode_success) {
@@ -691,13 +692,14 @@ void Preview::show(int x, int y) {
     tft.add_pixels(x, y, fileprop.thumbwidth, fileprop.thumbheight, fileprop.decoded_thumb);
 
     // Debug: Print first few decoded pixels
-    DEBUG_ECHO("G-code preview: First 10 decoded pixels: ");
+    DEBUG_ECHOPGM("G-code preview: First 10 decoded pixels: ");
     for (int i = 0; i < 10 && i < fileprop.thumbwidth * fileprop.thumbheight; i++) {
       DEBUG_ECHO(fileprop.decoded_thumb[i], HEX);
-      DEBUG_ECHO(" ");
+      DEBUG_CHAR(' ');
     }
-    DEBUG_ECHOLN();
-  } else {
+    DEBUG_EOL();
+  }
+  else {
     // Fallback: Fill the thumbnail area with a visible color
     tft.add_bar(x, y, fileprop.thumbwidth, fileprop.thumbheight, COLOR_RED);
 
@@ -712,4 +714,4 @@ void Preview::show(int x, int y) {
 
 Preview preview;
 
-#endif // HAS_GCODE_PREVIEW && ENABLED(TFT_COLOR_UI)
+#endif // TFT_COLOR_UI && HAS_GCODE_PREVIEW

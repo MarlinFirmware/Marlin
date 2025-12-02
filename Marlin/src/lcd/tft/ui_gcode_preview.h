@@ -29,29 +29,25 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-#if ENABLED(TFT_COLOR_UI) && HAS_GCODE_PREVIEW
-
 /**
  * Class for handling G-code thumbnail preview functionality
  */
 class Preview {
-  public:
-    /** Check if a preview is available for the current file */
-    bool hasPreview();
-    /** Draw the preview screen from SD card */
-    void drawFromSD();
-    /** Invalidate the current preview cache */
-    void invalidate();
-    /** Check if the preview is valid */
-    bool valid();
-    /** Show the thumbnail at specified coordinates */
-    void show(int x, int y);
+public:
+  // Check if a preview is available for the current file
+  bool hasPreview();
+  // Draw the preview screen from SD card
+  void drawFromSD();
+  // Invalidate the current preview cache
+  void invalidate();
+  // Check if the preview is valid
+  bool valid();
+  // Show the thumbnail at specified coordinates
+  void show(const int x, const int y);
 
-  private:
-    /** Flag to track if preview has been processed */
-    bool processed = false;
+private:
+  // Flag to track if preview has been processed
+  bool processed = false;
 };
 
 extern Preview preview;
-
-#endif // ENABLED(TFT_COLOR_UI) && HAS_GCODE_PREVIEW
