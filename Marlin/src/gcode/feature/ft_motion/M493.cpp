@@ -208,8 +208,10 @@ void GcodeSuite::M493() {
   if (!parser.seen_any())
     flag.report = true;
 
+  ft_config_t &c = ftMotion.cfg;
+
   // Parse 'S' mode parameter.
-  if (parser.seen('S') && ftMotion.cfg.setActive(parser.value_bool()))
+  if (parser.seen('S') && c.setActive(parser.value_bool()))
     flag.report = true;
 
   #if NUM_AXES_SHAPED > 0
@@ -222,7 +224,7 @@ void GcodeSuite::M493() {
       return;
     }
     auto set_shaper = [&](const AxisEnum axis, ftMotionShaper_t newsh) {
-      if (ftMotion.cfg.setShaper(axis, newsh))
+      if (c.setShaper(axis, newsh))
         flag.update = flag.report = true;
     };
     if (seenC) {
@@ -233,7 +235,7 @@ void GcodeSuite::M493() {
   #endif // NUM_AXES_SHAPED > 0
 
   // Parse bool 'H' Axis Synchronization parameter.
-  if (parser.seen('H') && ftMotion.cfg.setAxisSync(parser.value_bool()))
+  if (parser.seen('H') && c.setAxisSync(parser.value_bool()))
     flag.report = true;
 
   #if HAS_DYNAMIC_FREQ
@@ -241,24 +243,24 @@ void GcodeSuite::M493() {
     // Dynamic frequency mode parameter.
     if (parser.seenval('D')) {
       if (AXIS_IS_SHAPING(X) || AXIS_IS_SHAPING(Y) || AXIS_IS_SHAPING(Z) || AXIS_IS_SHAPING(E)) {
-        switch (ftMotion.cfg.setDynFreqMode(parser.value_byte())) {
+        switch (c.setDynFreqMode(parser.value_byte())) {
           case 0: break; // Same value, no update
           case 1: flag.report = true; break; // New value, updated
           default: SERIAL_ECHOLN(F("?Invalid "), F("(D)ynamic Frequency Mode value.")); break;
         }
       }
       else
-        SERIAL_ECHOLNPGM("?Shaper required for (D)ynamic Frequency Mode ", ftMotion.cfg.dynFreqMode, ".");
+        SERIAL_ECHOLNPGM("?Shaper required for (D)ynamic Frequency Mode ", c.dynFreqMode, ".");
     }
 
-    const bool modeUsesDynFreq = ftMotion.modeUsesDynFreq();
+    const bool modeUsesDynFreq = c.modeUsesDynFreq();
 
   #endif // HAS_DYNAMIC_FREQ
 
   // Frequency parameter
   const bool seenA = parser.seenval('A');
   const float baseFreqVal = seenA ? parser.value_float() : 0.0f;
-  const bool goodBaseFreq = seenA && ftMotion.cfg.goodBaseFreq(baseFreqVal);
+  const bool goodBaseFreq = seenA && c.goodBaseFreq(baseFreqVal);
   if (seenA && !goodBaseFreq)
     SERIAL_ECHOLN(F("?Invalid "), F("(A) Base Frequency value. ("), int(FTM_MIN_SHAPE_FREQ), C('-'), int((FTM_FS) / 2), C(')'));
 
@@ -273,14 +275,14 @@ void GcodeSuite::M493() {
   // Zeta parameter
   const bool seenI = parser.seenval('I');
   const float zetaVal = seenI ? parser.value_float() : 0.0f;
-  const bool goodZeta = seenI && ftMotion.cfg.goodZeta(zetaVal);
+  const bool goodZeta = seenI && c.goodZeta(zetaVal);
   if (seenI && !goodZeta)
     SERIAL_ECHOLN(F("?Invalid "), F("(I) Zeta value. (0.01-1.0)")); // Zeta out of range
 
   // Vibration Tolerance parameter
   const bool seenQ = parser.seenval('Q');
   const float vtolVal = seenQ ? parser.value_float() : 0.0f;
-  const bool goodVtol = seenQ && ftMotion.cfg.goodVtol(vtolVal);
+  const bool goodVtol = seenQ && c.goodVtol(vtolVal);
   if (seenQ && !goodVtol)
     SERIAL_ECHOLN(F("?Invalid "), F("(Q) Vibration Tolerance value. (0.0-1.0)")); // VTol out of range
 
@@ -294,7 +296,7 @@ void GcodeSuite::M493() {
       if (seenA) {
         if (AXIS_IS_SHAPING(X)) {
           // TODO: Frequency minimum is dependent on the shaper used; the above check isn't always correct.
-          if (goodBaseFreq && ftMotion.cfg.setBaseFreq(X_AXIS, baseFreqVal))
+          if (goodBaseFreq && c.setBaseFreq(X_AXIS, baseFreqVal))
             flag.update = flag.report = true;
         }
         else // Mode doesn't use frequency.
@@ -303,14 +305,14 @@ void GcodeSuite::M493() {
 
       #if HAS_DYNAMIC_FREQ
         // Parse X frequency scaling parameter
-        if (seenF && ftMotion.cfg.setDynFreqK(X_AXIS, baseDynFreqVal))
+        if (seenF && c.setDynFreqK(X_AXIS, baseDynFreqVal))
           flag.report = true;
       #endif
 
       // Parse X zeta parameter
       if (seenI) {
         if (AXIS_IS_SHAPING(X)) {
-          if (goodZeta && ftMotion.cfg.setZeta(X_AXIS, zetaVal))
+          if (goodZeta && c.setZeta(X_AXIS, zetaVal))
             flag.update = true;
         }
         else
@@ -320,7 +322,7 @@ void GcodeSuite::M493() {
       // Parse X vtol parameter
       if (seenQ) {
         if (AXIS_IS_EISHAPING(X)) {
-          if (goodVtol && ftMotion.cfg.setVtol(X_AXIS, vtolVal))
+          if (goodVtol && c.setVtol(X_AXIS, vtolVal))
             flag.update = true;
         }
         else
@@ -337,7 +339,7 @@ void GcodeSuite::M493() {
       // Parse Y frequency parameter
       if (seenA) {
         if (AXIS_IS_SHAPING(Y)) {
-          if (goodBaseFreq && ftMotion.cfg.setBaseFreq(Y_AXIS, baseFreqVal))
+          if (goodBaseFreq && c.setBaseFreq(Y_AXIS, baseFreqVal))
             flag.update = flag.report = true;
         }
         else // Mode doesn't use frequency.
@@ -346,14 +348,14 @@ void GcodeSuite::M493() {
 
       #if HAS_DYNAMIC_FREQ
         // Parse Y frequency scaling parameter
-        if (seenF && ftMotion.cfg.setDynFreqK(Y_AXIS, baseDynFreqVal))
+        if (seenF && c.setDynFreqK(Y_AXIS, baseDynFreqVal))
           flag.report = true;
       #endif
 
       // Parse Y zeta parameter
       if (seenI) {
         if (AXIS_IS_SHAPING(Y)) {
-          if (goodZeta && ftMotion.cfg.setZeta(Y_AXIS, zetaVal))
+          if (goodZeta && c.setZeta(Y_AXIS, zetaVal))
             flag.update = true;
         }
         else
@@ -363,7 +365,7 @@ void GcodeSuite::M493() {
       // Parse Y vtol parameter
       if (seenQ) {
         if (AXIS_IS_EISHAPING(Y)) {
-          if (goodVtol && ftMotion.cfg.setVtol(Y_AXIS, vtolVal))
+          if (goodVtol && c.setVtol(Y_AXIS, vtolVal))
             flag.update = true;
         }
         else
@@ -380,7 +382,7 @@ void GcodeSuite::M493() {
       // Parse Z frequency parameter
       if (seenA) {
         if (AXIS_IS_SHAPING(Z)) {
-          if (goodBaseFreq && ftMotion.cfg.setBaseFreq(Z_AXIS, baseFreqVal))
+          if (goodBaseFreq && c.setBaseFreq(Z_AXIS, baseFreqVal))
             flag.update = flag.report = true;
         }
         else // Mode doesn't use frequency.
@@ -389,14 +391,14 @@ void GcodeSuite::M493() {
 
       #if HAS_DYNAMIC_FREQ
         // Parse Z frequency scaling parameter
-        if (seenF && ftMotion.cfg.setDynFreqK(Z_AXIS, baseDynFreqVal))
+        if (seenF && c.setDynFreqK(Z_AXIS, baseDynFreqVal))
           flag.report = true;
       #endif
 
       // Parse Z zeta parameter
       if (seenI) {
         if (AXIS_IS_SHAPING(Z)) {
-          if (goodZeta && ftMotion.cfg.setZeta(Z_AXIS, zetaVal))
+          if (goodZeta && c.setZeta(Z_AXIS, zetaVal))
             flag.update = true;
         }
         else
@@ -406,7 +408,7 @@ void GcodeSuite::M493() {
       // Parse Z vtol parameter
       if (seenQ) {
         if (AXIS_IS_EISHAPING(Z)) {
-          if (goodVtol && ftMotion.cfg.setVtol(Z_AXIS, vtolVal))
+          if (goodVtol && c.setVtol(Z_AXIS, vtolVal))
             flag.update = true;
         }
         else
@@ -423,7 +425,7 @@ void GcodeSuite::M493() {
       // Parse E frequency parameter
       if (seenA) {
         if (AXIS_IS_SHAPING(E)) {
-          if (goodBaseFreq && ftMotion.cfg.setBaseFreq(E_AXIS, baseFreqVal))
+          if (goodBaseFreq && c.setBaseFreq(E_AXIS, baseFreqVal))
             flag.update = flag.report = true;
         }
         else // Mode doesn't use frequency.
@@ -432,14 +434,14 @@ void GcodeSuite::M493() {
 
       #if HAS_DYNAMIC_FREQ
         // Parse E frequency scaling parameter
-        if (seenF && ftMotion.cfg.setDynFreqK(E_AXIS, baseDynFreqVal))
+        if (seenF && c.setDynFreqK(E_AXIS, baseDynFreqVal))
           flag.report = true;
       #endif
 
       // Parse E zeta parameter
       if (seenI) {
         if (AXIS_IS_SHAPING(E)) {
-          if (goodZeta && ftMotion.cfg.setZeta(E_AXIS, zetaVal))
+          if (goodZeta && c.setZeta(E_AXIS, zetaVal))
             flag.update = true;
         }
         else
@@ -449,7 +451,7 @@ void GcodeSuite::M493() {
       // Parse E vtol parameter
       if (seenQ) {
         if (AXIS_IS_EISHAPING(E)) {
-          if (goodVtol && ftMotion.cfg.setVtol(E_AXIS, vtolVal))
+          if (goodVtol && c.setVtol(E_AXIS, vtolVal))
             flag.update = true;
         }
         else
