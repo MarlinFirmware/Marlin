@@ -106,7 +106,7 @@ void GcodeSuite::M494() {
         report = true;
       }
       else
-        SERIAL_ECHOLN(F("?Invalid "), F("[T]rajectory type value. Use 0=TRAPEZOIDAL, 1=POLY5, 2=POLY6"));
+        SERIAL_ECHOLN(F("?Invalid "), F("(T)rajectory type value. Use 0=TRAPEZOIDAL, 1=POLY5, 2=POLY6"));
     }
 
     // Parse overshoot parameter.
@@ -117,7 +117,7 @@ void GcodeSuite::M494() {
         report = true;
       }
       else
-        SERIAL_ECHOLN(F("?Invalid "), F("[O]vershoot value. Range 1.25-1.875"));
+        SERIAL_ECHOLN(F("?Invalid "), F("(O)vershoot value. Range 1.25-1.875"));
     }
 
   #endif // FTM_POLYS
@@ -133,7 +133,7 @@ void GcodeSuite::M494() {
           report = true; \
         } \
         else \
-          SERIAL_ECHOLNPGM("?Invalid ", C(N), " smoothing time [", C(CHARIFY(A)), "] value."); \
+          SERIAL_ECHOLNPGM("?Invalid ", C(N), " smoothing time (", C(CHARIFY(A)), ") value."); \
       }
 
     CARTES_GANG(

@@ -323,7 +323,7 @@ void GcodeSuite::M493() {
           }
         }
         else // Mode doesn't use frequency.
-          SERIAL_ECHOLNPGM("?Wrong mode for ", C(STEPPER_A_NAME), " [A] frequency.");
+          SERIAL_ECHOLNPGM("?Wrong mode for ", C(STEPPER_A_NAME), " (A) frequency.");
       }
 
       #if HAS_DYNAMIC_FREQ
@@ -345,7 +345,7 @@ void GcodeSuite::M493() {
           }
         }
         else
-          SERIAL_ECHOLNPGM("?Wrong mode for ", C(STEPPER_A_NAME), " zeta parameter.");
+          SERIAL_ECHOLNPGM("?Wrong mode for ", C(STEPPER_A_NAME), " (I) zeta parameter.");
       }
 
       // Parse X vtol parameter
@@ -358,7 +358,7 @@ void GcodeSuite::M493() {
           }
         }
         else
-          SERIAL_ECHOLNPGM("?Wrong mode for ", C(STEPPER_A_NAME), " vtol parameter.");
+          SERIAL_ECHOLNPGM("?Wrong mode for ", C(STEPPER_A_NAME), " (Q) vtol parameter.");
       }
     }
 
@@ -378,7 +378,7 @@ void GcodeSuite::M493() {
           }
         }
         else // Mode doesn't use frequency.
-          SERIAL_ECHOLNPGM("?Wrong mode for ", C(STEPPER_B_NAME), " [A] frequency.");
+          SERIAL_ECHOLNPGM("?Wrong mode for ", C(STEPPER_B_NAME), " (A) frequency.");
       }
 
       #if HAS_DYNAMIC_FREQ
@@ -400,7 +400,7 @@ void GcodeSuite::M493() {
           }
         }
         else
-          SERIAL_ECHOLNPGM("?Wrong mode for ", C(STEPPER_B_NAME), " zeta parameter.");
+          SERIAL_ECHOLNPGM("?Wrong mode for ", C(STEPPER_B_NAME), " (I) zeta parameter.");
       }
 
       // Parse Y vtol parameter
@@ -413,7 +413,7 @@ void GcodeSuite::M493() {
           }
         }
         else
-          SERIAL_ECHOLNPGM("?Wrong mode for ", C(STEPPER_B_NAME), " vtol parameter.");
+          SERIAL_ECHOLNPGM("?Wrong mode for ", C(STEPPER_B_NAME), " (Q) vtol parameter.");
       }
     }
 
@@ -433,7 +433,7 @@ void GcodeSuite::M493() {
           }
         }
         else // Mode doesn't use frequency.
-          SERIAL_ECHOLNPGM("?Wrong mode for ", C(STEPPER_C_NAME), " [A] frequency.");
+          SERIAL_ECHOLNPGM("?Wrong mode for ", C(STEPPER_C_NAME), " (A) frequency.");
       }
 
       #if HAS_DYNAMIC_FREQ
@@ -455,7 +455,7 @@ void GcodeSuite::M493() {
           }
         }
         else
-          SERIAL_ECHOLNPGM("?Wrong mode for ", C(STEPPER_C_NAME), " zeta parameter.");
+          SERIAL_ECHOLNPGM("?Wrong mode for ", C(STEPPER_C_NAME), " (I) zeta parameter.");
       }
 
       // Parse Z vtol parameter
@@ -468,7 +468,7 @@ void GcodeSuite::M493() {
           }
         }
         else
-          SERIAL_ECHOLNPGM("?Wrong mode for ", C(STEPPER_C_NAME), " vtol parameter.");
+          SERIAL_ECHOLNPGM("?Wrong mode for ", C(STEPPER_C_NAME), " (Q) vtol parameter.");
       }
     }
 
@@ -488,7 +488,7 @@ void GcodeSuite::M493() {
           }
         }
         else // Mode doesn't use frequency.
-          SERIAL_ECHOLNPGM("?Wrong mode for ", C('E'), " [A] frequency.");
+          SERIAL_ECHOLNPGM("?Wrong mode for ", C('E'), " (A) frequency.");
       }
 
       #if HAS_DYNAMIC_FREQ
@@ -510,7 +510,7 @@ void GcodeSuite::M493() {
           }
         }
         else
-          SERIAL_ECHOLNPGM("?Wrong mode for ", C('E'), " zeta parameter.");
+          SERIAL_ECHOLNPGM("?Wrong mode for ", C('E'), " (I) zeta parameter.");
       }
 
       // Parse E vtol parameter
@@ -523,7 +523,7 @@ void GcodeSuite::M493() {
           }
         }
         else
-          SERIAL_ECHOLNPGM("?Wrong mode for ", C('E'), " vtol parameter.");
+          SERIAL_ECHOLNPGM("?Wrong mode for ", C('E'), " (Q) vtol parameter.");
       }
     }
 
