@@ -84,10 +84,11 @@ typedef struct FTConfig {
     ft_smoothed_float_t smoothingTime;                    // Smoothing time. [s]
   #endif
 
-  TrajectoryType trajectory_type = TrajectoryType::FTM_TRAJECTORY_TYPE; // Trajectory generator type
-
   #if ENABLED(FTM_POLYS)
     float poly6_acceleration_overshoot; // Overshoot factor for Poly6 (1.25 to 2.0)
+    TrajectoryType trajectory_type = TrajectoryType::FTM_TRAJECTORY_TYPE; // Trajectory generator type
+  #else
+    static constexpr TrajectoryType trajectory_type = TrajectoryType::TRAPEZOIDAL;
   #endif
 
   bool setActive(const bool a) {
@@ -157,9 +158,8 @@ class FTMotion {
 
       #if ENABLED(FTM_POLYS)
         cfg.poly6_acceleration_overshoot = FTM_POLY6_ACCELERATION_OVERSHOOT;
+        setTrajectoryType(TrajectoryType::FTM_TRAJECTORY_TYPE);
       #endif
-
-      setTrajectoryType(TrajectoryType::FTM_TRAJECTORY_TYPE);
 
       reset();
     }
@@ -198,7 +198,9 @@ class FTMotion {
 
     // Trajectory generator selection
     static void setTrajectoryType(const TrajectoryType type);
-    static TrajectoryType getTrajectoryType() { return trajectoryType; }
+    static bool updateTrajectoryType(const TrajectoryType type);
+    static TrajectoryType getTrajectoryType() { return TERN(FTM_POLYS, trajectoryType, TrajectoryType::TRAPEZOIDAL); }
+    static FSTR_P getTrajectoryName();
 
     FORCE_INLINE static bool axis_is_moving(const AxisEnum axis) {
       return cfg.active ? moving_axis_flags[axis] : stepper.axis_is_moving(axis);
@@ -244,9 +246,11 @@ class FTMotion {
     #if ENABLED(FTM_POLYS)
       static Poly5TrajectoryGenerator poly5Generator;
       static Poly6TrajectoryGenerator poly6Generator;
+      static TrajectoryType trajectoryType;
+      static TrajectoryGenerator* currentGenerator;
+    #else
+      static constexpr TrajectoryGenerator *currentGenerator = trapezoidalGenerator;
     #endif
-    static TrajectoryGenerator* currentGenerator;
-    static TrajectoryType trajectoryType;
 
     #if FTM_HAS_LIN_ADVANCE
       static bool use_advance_lead;
