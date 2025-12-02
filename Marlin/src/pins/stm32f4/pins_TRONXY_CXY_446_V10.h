@@ -189,7 +189,7 @@
   #define TOUCH_MISO_PIN                    PB14
   #define TOUCH_MOSI_PIN                    PB15
 
-  #if ENABLED(TFT_LVGL_UI)
+  #if HAS_TFT_LVGL_UI
     #define HAS_SPI_FLASH_FONT                    1
     #define HAS_GCODE_PREVIEW                     1
     #define HAS_GCODE_DEFAULT_VIEW_IN_FLASH       0

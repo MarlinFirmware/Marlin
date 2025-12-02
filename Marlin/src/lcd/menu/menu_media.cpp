@@ -31,7 +31,7 @@
 #include "menu_item.h"
 #include "../../sd/cardreader.h"
 
-#if ALL(TFT_COLOR_UI, HAS_GCODE_PREVIEW)
+#if ALL(TFT_COLOR_UI, GCODE_PREVIEW)
   #include "../tft/ui_common.h"
   #include "../tft/ui_gcode_preview.h"
 #endif
@@ -69,7 +69,7 @@ class MenuItem_sdfile : public MenuItem_sdbase {
       MenuItem_sdbase::draw(sel, row, fstr, theCard, false);
     }
     static void action(FSTR_P const fstr, CardReader &) {
-      #if ALL(TFT_COLOR_UI, HAS_GCODE_PREVIEW)
+      #if ALL(TFT_COLOR_UI, GCODE_PREVIEW)
         // Show preview for TFT_COLOR_UI
         // First process the preview data
         preview.invalidate();  // Clear any previous state

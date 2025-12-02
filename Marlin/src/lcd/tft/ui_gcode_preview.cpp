@@ -27,7 +27,7 @@
 
 #include "../../inc/MarlinConfig.h"
 
-#if ALL(TFT_COLOR_UI, HAS_GCODE_PREVIEW)
+#if ALL(TFT_COLOR_UI, GCODE_PREVIEW)
 
 #include "ui_common.h"
 #include "ui_gcode_preview.h"
@@ -714,4 +714,4 @@ void Preview::show(const int x, const int y) {
 
 Preview preview;
 
-#endif // TFT_COLOR_UI && HAS_GCODE_PREVIEW
+#endif // TFT_COLOR_UI && GCODE_PREVIEW
