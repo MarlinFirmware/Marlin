@@ -164,7 +164,7 @@ typedef struct FTConfig {
         return true;
       }
 
-    #endif
+    #endif // HAS_DYNAMIC_FREQ
 
   #endif // HAS_FTM_SHAPING
 
