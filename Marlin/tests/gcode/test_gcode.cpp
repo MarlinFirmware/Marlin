@@ -21,8 +21,8 @@
  */
 
 #include "../test/unit_tests.h"
-#include <src/gcode/gcode.h>
-#include <src/gcode/parser.h>
+#include "src/gcode/gcode.h"
+#include "src/gcode/parser.h"
 
 MARLIN_TEST(gcode, process_parsed_command) {
   GcodeSuite suite;

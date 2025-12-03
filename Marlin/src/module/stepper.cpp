@@ -3585,9 +3585,7 @@ void Stepper::report_positions() {
    */
   void Stepper::ftMotion_stepper() {
     AxisBits &step_bits = ftMotion.stepping.step_bits;            // Aliases for prettier code
-    AxisBits &dir_bits = ftMotion.stepping.stepper_plan.dir_bits;
-
-    if (step_bits.bits == 0) return;
+    AxisBits &dir_bits = ftMotion.stepping.dir_bits;
 
     USING_TIMED_PULSE();
 

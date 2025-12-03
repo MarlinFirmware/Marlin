@@ -1103,7 +1103,9 @@ void CardReader::closefile(const bool store_location/*=false*/) {
   flag.saving = flag.logging = false;
   sdpos = 0;
 
-  TERN_(EMERGENCY_PARSER, emergency_parser.enable());
+  #if DISABLED(SDCARD_READONLY)
+    TERN_(EMERGENCY_PARSER, emergency_parser.enable());
+  #endif
 
   if (store_location) {
     // TODO: Store printer state, filename, position

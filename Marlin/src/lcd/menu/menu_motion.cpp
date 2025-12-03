@@ -328,18 +328,6 @@ void menu_move() {
     }
   }
 
-  #if ENABLED(FTM_POLYS)
-    FSTR_P get_trajectory_name() {
-      switch (ftMotion.getTrajectoryType()) {
-        default:
-        case TrajectoryType::TRAPEZOIDAL: return GET_TEXT_F(MSG_FTM_TRAPEZOIDAL);
-        case TrajectoryType::POLY5:       return GET_TEXT_F(MSG_FTM_POLY5);
-        case TrajectoryType::POLY6:       return GET_TEXT_F(MSG_FTM_POLY6);
-
-      }
-    }
-  #endif // FTM_POLYS
-
   #if HAS_DYNAMIC_FREQ
     FSTR_P get_dyn_freq_mode_name() {
       switch (ftMotion.cfg.dynFreqMode) {

@@ -44,7 +44,7 @@
 
 #define FTM_VERSION   2   // Change version when hosts need to know
 
-#if HAS_X_AXIS && (HAS_Z_AXIS || HAS_EXTRUDERS)
+#if ENABLED(FTM_DYNAMIC_FREQ)
   #define HAS_DYNAMIC_FREQ 1
   #if HAS_Z_AXIS
     #define HAS_DYNAMIC_FREQ_MM 1
@@ -84,10 +84,26 @@ typedef struct FTConfig {
     ft_smoothed_float_t smoothingTime;                    // Smoothing time. [s]
   #endif
 
-  TrajectoryType trajectory_type = TrajectoryType::FTM_TRAJECTORY_TYPE; // Trajectory generator type
   #if ENABLED(FTM_POLYS)
     float poly6_acceleration_overshoot; // Overshoot factor for Poly6 (1.25 to 2.0)
+    TrajectoryType trajectory_type = TrajectoryType::FTM_TRAJECTORY_TYPE; // Trajectory generator type
+  #else
+    static constexpr TrajectoryType trajectory_type = TrajectoryType::TRAPEZOIDAL;
   #endif
+
+  #if HAS_FTM_SHAPING
+    constexpr bool goodZeta(const float z) { return WITHIN(z, 0.01f, 1.0f); }
+    constexpr bool goodVtol(const float v) { return WITHIN(v, 0.00f, 1.0f); }
+    #if HAS_DYNAMIC_FREQ
+      bool modeUsesDynFreq() const {
+        return (TERN0(HAS_DYNAMIC_FREQ_MM, dynFreqMode == dynFreqMode_Z_BASED)
+             || TERN0(HAS_DYNAMIC_FREQ_G,  dynFreqMode == dynFreqMode_MASS_BASED));
+      }
+    #endif
+  #endif // HAS_FTM_SHAPING
+
+  constexpr bool goodBaseFreq(const float f) { return WITHIN(f, FTM_MIN_SHAPE_FREQ, (FTM_FS) / 2); }
+
 } ft_config_t;
 
 /**
@@ -140,9 +156,8 @@ class FTMotion {
 
       #if ENABLED(FTM_POLYS)
         cfg.poly6_acceleration_overshoot = FTM_POLY6_ACCELERATION_OVERSHOOT;
+        setTrajectoryType(TrajectoryType::FTM_TRAJECTORY_TYPE);
       #endif
-
-      setTrajectoryType(TrajectoryType::FTM_TRAJECTORY_TYPE);
 
       reset();
     }
@@ -182,7 +197,8 @@ class FTMotion {
 
     // Trajectory generator selection
     static void setTrajectoryType(const TrajectoryType type);
-    static TrajectoryType getTrajectoryType() { return trajectoryType; }
+    static TrajectoryType getTrajectoryType() { return TERN(FTM_POLYS, trajectoryType, TrajectoryType::TRAPEZOIDAL); }
+    static FSTR_P getTrajectoryName();
 
     FORCE_INLINE static bool axis_is_moving(const AxisEnum axis) {
       return cfg.active ? moving_axis_flags[axis] : stepper.axis_is_moving(axis);
@@ -191,29 +207,20 @@ class FTMotion {
       return cfg.active ? axis_move_dir[axis] : stepper.last_direction_bits[axis];
     }
 
+    // A frame of the stepping plan
     static stepping_t stepping;
-    FORCE_INLINE static bool stepper_plan_is_empty() {
-      return stepper_plan_head == stepper_plan_tail;
-    }
-    FORCE_INLINE static bool stepper_plan_is_full() {
-      return ((stepper_plan_head + 1) & FTM_BUFFER_MASK) == stepper_plan_tail;
-    }
-    FORCE_INLINE static uint32_t stepper_plan_count() {
-      return (stepper_plan_head - stepper_plan_tail) & FTM_BUFFER_MASK;
-    }
-    // Enqueue a plan
-    FORCE_INLINE static void enqueue_stepper_plan(const stepper_plan_t& d) {
-      stepper_plan_buff[stepper_plan_head] = d;
-      stepper_plan_head = (stepper_plan_head + 1u) & FTM_BUFFER_MASK;
-    }
-    // Dequeue a plan.
-    // Zero-copy consume; caller must use it before next dequeue if they keep a ref.
-    // Done like this to avoid double copy.
-    // e.g do: stepper_plan_t data = dequeue_stepper_plan(); this is ok
-    FORCE_INLINE static stepper_plan_t& dequeue_stepper_plan() {
-      const uint32_t i = stepper_plan_tail;
-      stepper_plan_tail = (i + 1u) & FTM_BUFFER_MASK;
-      return stepper_plan_buff[i];
+
+    // Add a single set of coordinates in the stepping plan
+    FORCE_INLINE static void stepping_enqueue(const xyze_float_t traj_coords) {
+      #define _TOSTEPS_q16(A, B) int64_t(traj_coords.A * planner.settings.axis_steps_per_mm[B] * (1ULL << 16))
+      XYZEval<int64_t> next_steps_q48_16 = LOGICAL_AXIS_ARRAY(
+        _TOSTEPS_q16(e, block_extruder_axis),
+        _TOSTEPS_q16(x, X_AXIS), _TOSTEPS_q16(y, Y_AXIS), _TOSTEPS_q16(z, Z_AXIS),
+        _TOSTEPS_q16(i, I_AXIS), _TOSTEPS_q16(j, J_AXIS), _TOSTEPS_q16(k, K_AXIS),
+        _TOSTEPS_q16(u, U_AXIS), _TOSTEPS_q16(v, V_AXIS), _TOSTEPS_q16(w, W_AXIS)
+      );
+      #undef _TOSTEPS_q16
+      stepping.enqueue(next_steps_q48_16);
     }
 
   private:
@@ -228,9 +235,11 @@ class FTMotion {
     #if ENABLED(FTM_POLYS)
       static Poly5TrajectoryGenerator poly5Generator;
       static Poly6TrajectoryGenerator poly6Generator;
+      static TrajectoryType trajectoryType;
+      static TrajectoryGenerator* currentGenerator;
+    #else
+      static constexpr TrajectoryGenerator *currentGenerator = trapezoidalGenerator;
     #endif
-    static TrajectoryGenerator* currentGenerator;
-    static TrajectoryType trajectoryType;
 
     #if FTM_HAS_LIN_ADVANCE
       static bool use_advance_lead;
@@ -262,12 +271,7 @@ class FTMotion {
     static void plan_runout_block();
     static void fill_stepper_plan_buffer();
     static xyze_float_t calc_traj_point(const float dist);
-    static stepper_plan_t calc_stepper_plan(xyze_float_t delta);
     static bool plan_next_block();
-    // stepper_plan buffer variables.
-    static stepper_plan_t stepper_plan_buff[FTM_BUFFER_SIZE];
-    static uint32_t stepper_plan_tail, stepper_plan_head;
-    static XYZEval<int64_t> curr_steps_q32_32;
 
 }; // class FTMotion
 
