@@ -234,9 +234,11 @@ typedef struct Stepping {
   FORCE_INLINE bool is_busy() {
     return !(is_empty() && ticks_left_in_frame_fp == 0);
   }
+
   FORCE_INLINE bool is_empty() {
     return stepper_plan_head == stepper_plan_tail;
   }
+
   FORCE_INLINE bool is_full() {
     return ((stepper_plan_head + 1) & FTM_BUFFER_MASK) == stepper_plan_tail;
   }
