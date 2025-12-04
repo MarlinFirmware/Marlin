@@ -139,8 +139,7 @@ void GcodeSuite::M360() {
     if (TERN0(HAS_Y_AXIS, planner.max_jerk.x == planner.max_jerk.y))
       config_line(F("XY"), planner.max_jerk.x, JERK_STR);
     else {
-      TERN_(HAS_X_AXIS, _REPORT_JERK(X));
-      TERN_(HAS_Y_AXIS, _REPORT_JERK(Y));
+      XY_MAP(_REPORT_JERK);
     }
     TERN_(HAS_Z_AXIS, config_line(Z_STR, planner.max_jerk.z, JERK_STR));
     SECONDARY_AXIS_MAP(_REPORT_JERK);
@@ -243,7 +242,7 @@ void GcodeSuite::M360() {
       #endif
       config_line_e(e, F("Acceleration"), planner.settings.max_acceleration_mm_per_s2[E_AXIS_N(e)]);
       config_line_e(e, F("MaxSpeed"), planner.settings.max_feedrate_mm_s[E_AXIS_N(e)]);
-      config_line_e(e, F("Diameter"), TERN(NO_VOLUMETRICS, DEFAULT_NOMINAL_FILAMENT_DIA, planner.filament_size[e]));
+      config_line_e(e, F("Diameter"), TERN(HAS_VOLUMETRIC_EXTRUSION, planner.filament_size[e], DEFAULT_NOMINAL_FILAMENT_DIA));
       config_line_e(e, F("MaxTemp"), thermalManager.hotend_maxtemp[e]);
     }
   #endif

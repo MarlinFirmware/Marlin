@@ -52,7 +52,7 @@
 #endif
 
 #if ENABLED(FT_MOTION)
-  #include "ft_types.h"
+  class FTMotion;
 #endif
 
 // TODO: Review and ensure proper handling for special E axes with commands like M17/M18, stepper timeout, etc.
@@ -275,7 +275,7 @@ constexpr ena_mask_t enable_overlap[] = {
     float zeta;
     bool enabled : 1;
     bool forward : 1;
-    int16_t delta_error = 0;    // delta_error for seconday bresenham mod 128
+    int16_t delta_error = 0;    // delta_error for secondary Bresenham mod 128
     uint8_t factor1;
     uint8_t factor2;
     int32_t last_block_end_pos = 0;
@@ -405,6 +405,7 @@ class Stepper {
 
     static bool abort_current_block;      // Signals to the stepper that current block should be aborted
 
+    // Motor locking for independent movement of multi-stepper axes
     #if ENABLED(X_DUAL_ENDSTOPS)
       static bool locked_X_motor, locked_X2_motor;
     #endif
@@ -422,7 +423,7 @@ class Stepper {
                   ;
     #endif
 
-    static uint32_t acceleration_time, deceleration_time; // time measured in Stepper Timer ticks
+    static uint32_t acceleration_time, deceleration_time; // Time measured in Stepper Timer ticks
 
     #if MULTISTEPPING_LIMIT == 1
       static constexpr uint8_t steps_per_isr = 1; // Count of steps to perform per Stepper ISR call
@@ -459,7 +460,7 @@ class Stepper {
       static int32_t bezier_A,     // A coefficient in Bézier speed curve
                      bezier_B,     // B coefficient in Bézier speed curve
                      bezier_C;     // C coefficient in Bézier speed curve
-      static uint32_t bezier_F,    // F coefficient in Bézier speed curve
+      static uint32_t bezier_F,    // F/free coefficient in Bézier speed curve
                       bezier_AV;   // AV coefficient in Bézier speed curve
       #ifdef __AVR__
         static bool A_negative;    // If A coefficient was negative
@@ -486,7 +487,7 @@ class Stepper {
       #if ENABLED(SMOOTH_LIN_ADVANCE)
         static uint32_t curr_timer_tick,                        // Current tick relative to block start
                         curr_step_rate;                         // Current motion step rate
-        static uint32_t extruder_advance_tau_ticks[DISTINCT_E], // Same as extruder_advance_tau but in in stepper timer ticks
+        static uint32_t extruder_advance_tau_ticks[DISTINCT_E], // Same as extruder_advance_tau but in stepper timer ticks
                         extruder_advance_alpha_q30[DISTINCT_E]; // The smoothing factor of each stage of the high-order exponential
                                                                 // smoothing filter (calculated from tau)
       #else

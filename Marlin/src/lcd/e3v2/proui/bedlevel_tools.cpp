@@ -75,14 +75,6 @@ bool drawing_mesh = false;
 
 #if ENABLED(AUTO_BED_LEVELING_UBL)
 
-  void BedLevelTools::manualValueUpdate(const uint8_t mesh_x, const uint8_t mesh_y, bool undefined/*=false*/) {
-    MString<MAX_CMD_SIZE> cmd;
-    cmd.set(F("M421 I"), mesh_x, 'J', mesh_y, 'Z', p_float_t(current_position.z, 3));
-    if (undefined) cmd += F(" N");
-    gcode.process_subcommands_now(cmd);
-    planner.synchronize();
-  }
-
   bool BedLevelTools::createPlaneFromMesh() {
     struct linear_fit_data lsf_results;
     incremental_LSF_reset(&lsf_results);
@@ -122,16 +114,13 @@ bool drawing_mesh = false;
     return false;
   }
 
-#else
-
-  void BedLevelTools::manualValueUpdate(const uint8_t mesh_x, const uint8_t mesh_y) {
-    gcode.process_subcommands_now(
-      TS(F("G29 I"), mesh_x, 'J', mesh_y, 'Z', p_float_t(current_position.z, 3))
-    );
-    planner.synchronize();
-  }
-
 #endif
+
+void BedLevelTools::manualValueUpdate(const uint8_t mesh_x, const uint8_t mesh_y, const bool reset/*=false*/) {
+  const float zval = reset ? 0.0f : current_position.z;
+  queue.inject(TS(F("M421I"), mesh_x, F("J"), mesh_y, F("Z"), p_float_t(zval, 3)));
+  planner.synchronize();
+}
 
 void BedLevelTools::manualMove(const uint8_t mesh_x, const uint8_t mesh_y, bool zmove/*=false*/) {
   gcode.process_subcommands_now(F("G28O"));
@@ -226,10 +215,10 @@ bool BedLevelTools::meshValidate() {
       const auto start_y_px = padding_y_top + ((GRID_MAX_POINTS_Y) - y - 1) * cell_height_px;
       const auto end_y_px   = start_y_px + cell_height_px - 1 - gridline_width;
       const float z = bedlevel.z_values[x][y];
-      const uint16_t color = isnan(z) ? COLOR_GREY : (   // Gray if undefined
-        (z < 0 ? uint16_t(round(0x1F * -z / rmax)) << 11 // Red for negative mesh point
-               : uint16_t(round(0x3F *  z / rmax)) << 5) // Green for positive mesh point
-               | _MIN(0x1F, (uint8_t(abs(z) * 0.4)))     // + Blue stepping for every mm
+      const uint16_t color = isnan(z) ? COLOR_GREY : (    // Gray if undefined
+        (z < 0 ? uint16_t(LROUND(0x1F * -z / rmax)) << 11 // Red for negative mesh point
+               : uint16_t(LROUND(0x3F *  z / rmax)) << 5) // Green for positive mesh point
+               | _MIN(0x1F, (uint8_t(abs(z) * 0.4)))      // + Blue stepping for every mm
       );
 
       dwinDrawRectangle(1, color, start_x_px, start_y_px, end_x_px, end_y_px);

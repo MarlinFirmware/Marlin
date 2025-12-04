@@ -100,7 +100,7 @@ void RTS::onStartup() {
   delay_ms(400); // Delay to allow screen to configure
 
   #if ENABLED(CONFIGURABLE_MACHINE_NAME)
-    const MString<32> ready(machine_name, " Ready");
+    const MString<32> ready(marlin.machine_name, " Ready");
     onStatusChanged(ready);
   #else
     onStatusChanged(F(MACHINE_NAME " Ready"));

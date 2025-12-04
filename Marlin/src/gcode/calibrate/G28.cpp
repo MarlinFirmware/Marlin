@@ -52,7 +52,7 @@
   #include "../../feature/bltouch.h"
 #endif
 
-#if FT_MOTION_DISABLE_FOR_PROBING
+#if ENABLED(FT_MOTION)
   #include "../../module/ft_motion.h"
 #endif
 
@@ -129,15 +129,13 @@
 #if ENABLED(Z_SAFE_HOMING)
 
   inline void home_z_safely() {
-
-    #if FT_MOTION_DISABLE_FOR_PROBING
-      FTMotionDisableInScope FT_Disabler; // Disable Fixed-Time Motion for homing
-    #endif
-
     DEBUG_SECTION(log_G28, "home_z_safely", DEBUGGING(LEVELING));
 
     // Disallow Z homing if X or Y homing is needed
     if (homing_needed_error(_BV(X_AXIS) | _BV(Y_AXIS))) return;
+
+    // Potentially disable Fixed-Time Motion for homing
+    TERN_(FT_MOTION, FTM_DISABLE_IN_SCOPE());
 
     sync_plan_position();
 
@@ -290,9 +288,8 @@ void GcodeSuite::G28() {
       motion_state_t saved_motion_state = begin_slow_homing();
     #endif
 
-    #if FT_MOTION_DISABLE_FOR_PROBING
-      FTMotionDisableInScope FT_Disabler; // Disable Fixed-Time Motion for homing
-    #endif
+    // Potentially disable Fixed-Time Motion for homing
+    TERN_(FT_MOTION, FTM_DISABLE_IN_SCOPE());
 
     // Always home with tool 0 active
     #if HAS_MULTI_HOTEND

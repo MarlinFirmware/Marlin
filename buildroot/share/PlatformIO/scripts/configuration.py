@@ -7,27 +7,29 @@ import re, os, shutil, configparser, datetime
 from pathlib import Path
 
 verbose = 0
-def blab(str,level=1):
-    if verbose >= level: print(f"[config] {str}")
+def blab(msg, level=1):
+    if verbose >= level: print(f"[config] {msg}")
 
 def config_path(cpath):
     return Path("Marlin", cpath)
 
 # Apply a single name = on/off ; name = value ; etc.
 # TODO: Limit to the given (optional) configuration
-def apply_opt(name, val, conf=None):
+def apply_opt(name, val):
     if name == "lcd": name, val = val, "on"
 
-    # Create a regex to match the option and capture parts of the line
-    # 1: Indentation
-    # 2: Comment
-    # 3: #define and whitespace
-    # 4: Option name
-    # 5: First space after name
-    # 6: Remaining spaces between name and value
-    # 7: Option value
-    # 8: Whitespace after value
-    # 9: End comment
+    """
+    Create a regex to match the option and capture parts of the line
+    1: Indentation
+    2: Comment
+    3: #define and whitespace
+    4: Option name
+    5: First space after name
+    6: Remaining spaces between name and value
+    7: Option value
+    8: Whitespace after value
+    9: End comment
+    """
     regex = re.compile(
         rf"^(\s*)(//\s*)?(#define\s+)({name}\b)(\s?)(\s*)(.*?)(\s*)(//.*)?$",
         re.IGNORECASE
@@ -101,11 +103,16 @@ def apply_opt(name, val, conf=None):
 # Everything in the named sections. Section hint for exceptions may be added.
 def disable_all_options():
     # Create a regex to match the option and capture parts of the line
+    blab("Disabling all configuration options...")
     regex = re.compile(r'^(\s*)(#define\s+)([A-Z0-9_]+\b)(\s?)(\s*)(.*?)(\s*)(//.*)?$', re.IGNORECASE)
 
     # Disable all enabled options in both Config files
     for file in ("Configuration.h", "Configuration_adv.h"):
         fullpath = config_path(file)
+        if not fullpath.exists():
+            blab(f"File not found: {fullpath}", 0)
+            continue
+
         lines = fullpath.read_text(encoding='utf-8').split('\n')
         found = False
         for i in range(len(lines)):
@@ -120,14 +127,18 @@ def disable_all_options():
                 # TODO: Comment more lines in a multi-line define with \ continuation
                 lines[i] = re.sub(r'^(\s*)(#define)(\s{1,3})?(\s*)', r'\1//\2 \4', line)
                 blab(f"Disable {name}")
+                #blab(f"Disable {name}", 2)
+                # TODO: Taken from mc-apply, not sure which
 
         # If the option was found, write the modified lines
         if found:
             fullpath.write_text('\n'.join(lines), encoding='utf-8')
+            blab(f"Updated {file}")
 
 # Fetch configuration files from GitHub given the path.
 # Return True if any files were fetched.
 def fetch_example(url):
+    blab(f"Fetching example configuration from: {url}")
     if url.endswith("/"): url = url[:-1]
     if not url.startswith('http'):
         brch = "bugfix-2.1.x"
@@ -143,9 +154,12 @@ def fetch_example(url):
         fetch = "wget -q -O"
     else:
         blab("Couldn't find curl or wget", -1)
+        #blab("Couldn't find curl or wget", 0)
+        # TODO: Taken from mc-apply, not sure which
         return False
 
     # Reset configurations to default
+    blab("Resetting configurations to default...")
     os.system("git checkout HEAD Marlin/*.h")
 
     # Try to fetch the remote files
@@ -154,8 +168,14 @@ def fetch_example(url):
         if os.system(f"{fetch} wgot {url}/{fn} >/dev/null 2>&1") == 0:
             shutil.move('wgot', config_path(fn))
             gotfile = True
+            blab(f"Fetched {fn}", 2)
 
     if Path('wgot').exists(): shutil.rmtree('wgot')
+
+    if gotfile:
+        blab("Example configuration fetched successfully")
+    else:
+        blab("Failed to fetch example configuration", 0)
 
     return gotfile
 
@@ -217,8 +237,6 @@ def apply_config_ini(cp):
 
     # For each ini_use_config item perform an action
     for ckey in config_keys:
-        addbase = False
-
         # For a key ending in .ini load and parse another .ini file
         if ckey.endswith('.ini'):
             sect = 'base'
@@ -278,12 +296,17 @@ else:
     #
     # From within PlatformIO use the loaded INI file
     #
-    import pioutil
-    if pioutil.is_pio_build():
-        try:
-            verbose = int(pioutil.env.GetProjectOption('custom_verbose'))
-        except:
-            pass
+    try:
+        import pioutil
+        if pioutil.is_pio_build():
+            try:
+                verbose = int(pioutil.env.GetProjectOption('custom_verbose'))
+            except:
+                pass
 
-        from platformio.project.config import ProjectConfig
-        apply_config_ini(ProjectConfig())
+            from platformio.project.config import ProjectConfig
+            apply_config_ini(ProjectConfig())
+    except AttributeError:
+        # Handle the 'IsIntegrationDump' error here, or just continue if
+        # the build is not a PlatformIO build where pioutil would be unavailable.
+        pass

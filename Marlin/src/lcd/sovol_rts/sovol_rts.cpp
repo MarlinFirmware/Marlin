@@ -38,7 +38,6 @@ RTS rts;
 #include <WString.h>
 #include <stdio.h>
 #include <string.h>
-#include "../../MarlinCore.h"
 #include "../../sd/cardreader.h"
 #include "../../module/temperature.h"
 #include "../../module/planner.h"
@@ -518,7 +517,7 @@ void RTS::sdCardStop() {
   updateTempE0();
   updateTempBed();
   thermalManager.zero_fan_speeds();
-  wait_for_heatup = wait_for_user = false;
+  marlin.end_waiting();
   poweroff_continue = false;
   #if ALL(HAS_MEDIA, POWER_LOSS_RECOVERY)
     if (card.flag.mounted) card.removeJobRecoveryFile();
@@ -838,7 +837,7 @@ void RTS::handleData() {
     #endif
 
     case Heater0LoadEnterKey:
-      filament_load_0 = float(recdat.data[0]) / 10.0f;
+      filament_load_0 = float(recdat.data[0]) * 0.1f;
       break;
 
     case AxisPageSelectKey: // Mobile shaft interface
@@ -948,7 +947,7 @@ void RTS::handleData() {
     #if HAS_X_AXIS
       case XaxismoveKey: {
         waitway = 4;
-        current_position.x = float(recdat.data[0] >= 32768 ? recdat.data[0] - 65536 : recdat.data[0]) / 10.0f;
+        current_position.x = float(recdat.data[0] >= 32768 ? recdat.data[0] - 65536 : recdat.data[0]) * 0.1f;
         LIMIT(current_position.x, X_MIN_POS, X_MAX_POS);
         RTS_line_to_current(X_AXIS);
         sendData(current_position.x * 10.0f, AXIS_X_COORD_VP);
@@ -960,7 +959,7 @@ void RTS::handleData() {
     #if HAS_Y_AXIS
       case YaxismoveKey: {
         waitway = 4;
-        current_position.y = float(recdat.data[0]) / 10.0f;
+        current_position.y = float(recdat.data[0]) * 0.1f;
         LIMIT(current_position.y, Y_MIN_POS, Y_MAX_POS);
         RTS_line_to_current(Y_AXIS);
         sendData(current_position.y * 10.0f, AXIS_Y_COORD_VP);
@@ -972,7 +971,7 @@ void RTS::handleData() {
     #if HAS_Z_AXIS
       case ZaxismoveKey: {
         waitway = 4;
-        current_position.z = float(recdat.data[0]) / 10.0f;
+        current_position.z = float(recdat.data[0]) * 0.1f;
         LIMIT(current_position.z, Z_MIN_POS, Z_MAX_POS);
         RTS_line_to_current(Z_AXIS);
         sendData(current_position.z * 10.0f, AXIS_Z_COORD_VP);
@@ -1102,7 +1101,7 @@ void RTS::handleData() {
             }
           #endif
 
-          wait_for_heatup = wait_for_user = false;
+          marlin.end_waiting();
           print_state = 0;
           break;
       }
@@ -1229,7 +1228,7 @@ void RTS::handleData() {
         case 1: { // PID
           #if ENABLED(PIDTEMP)
             const float hot_p = thermalManager.temp_hotend[0].pid.p() * 100.0f,
-                        hot_i = (thermalManager.temp_hotend[0].pid.i() / 8.0f * 10000.0f) + 0.00001f,
+                        hot_i = (thermalManager.temp_hotend[0].pid.i() * 0.125f * 10000.0f) + 0.00001f,
                         hot_d = thermalManager.temp_hotend[0].pid.d() * 8.0f;
             sendData(hot_p, Nozzle_P_VP);
             sendData(hot_i, Nozzle_I_VP);
@@ -1238,7 +1237,7 @@ void RTS::handleData() {
 
           #if ENABLED(PIDTEMPBED)
             const float bed_p = thermalManager.temp_bed.pid.p() * 100.0f,
-                        bed_i = (thermalManager.temp_bed.pid.i() / 8.0f * 10000.0f) + 0.0001f,
+                        bed_i = (thermalManager.temp_bed.pid.i() * 0.125f * 10000.0f) + 0.0001f,
                         bed_d = thermalManager.temp_bed.pid.d() * 0.8f;
 
             sendData(bed_p, Hot_Bed_P_VP);
@@ -1306,51 +1305,51 @@ void RTS::handleData() {
       break;
 
     #if ENABLED(PIDTEMP)
-      case Nozzle_P: SET_HOTEND_PID(Kp, 0, float(recdat.data[0]) / 100.0f); thermalManager.updatePID(); break;
-      case Nozzle_I: SET_HOTEND_PID(Ki, 0, float(recdat.data[0]) * 8.0f / 10000.0f); thermalManager.updatePID(); break;
-      case Nozzle_D: SET_HOTEND_PID(Kd, 0, float(recdat.data[0]) / 8.0f); thermalManager.updatePID(); break;
+      case Nozzle_P: SET_HOTEND_PID(Kp, 0, float(recdat.data[0]) * 0.01f); thermalManager.updatePID(); break;
+      case Nozzle_I: SET_HOTEND_PID(Ki, 0, float(recdat.data[0]) * 8.0f * 0.0001f); thermalManager.updatePID(); break;
+      case Nozzle_D: SET_HOTEND_PID(Kd, 0, float(recdat.data[0]) * 0.125f); thermalManager.updatePID(); break;
     #endif
 
     #if ENABLED(PIDTEMPBED)
-      case Hot_Bed_P: thermalManager.temp_bed.pid.set_Kp(float(recdat.data[0]) / 100.0f); break;
-      case Hot_Bed_I: thermalManager.temp_bed.pid.set_Ki(float(recdat.data[0]) * 8.0f / 10000.0f); break;
-      case Hot_Bed_D: thermalManager.temp_bed.pid.set_Kd(float(recdat.data[0]) / 0.8f); break;
+      case Hot_Bed_P: thermalManager.temp_bed.pid.set_Kp(float(recdat.data[0]) * 0.01f); break;
+      case Hot_Bed_I: thermalManager.temp_bed.pid.set_Ki(float(recdat.data[0]) * 8.0f * 0.0001f); break;
+      case Hot_Bed_D: thermalManager.temp_bed.pid.set_Kd(float(recdat.data[0]) * 1.25); break;
     #endif
 
     #if HAS_X_AXIS
       case Vmax_X: planner.settings.max_feedrate_mm_s[X_AXIS] = recdat.data[0]; break;
       case Amax_X: planner.settings.max_acceleration_mm_per_s2[X_AXIS] = recdat.data[0]; break;
-      case Steps_X: planner.settings.axis_steps_per_mm[X_AXIS] = float(recdat.data[0]) / 10.0f; break;
+      case Steps_X: planner.settings.axis_steps_per_mm[X_AXIS] = float(recdat.data[0]) * 0.1f; break;
       #if ENABLED(CLASSIC_JERK)
-        case Jerk_X: planner.max_jerk.x = float(recdat.data[0]) / 10.0f; break;
+        case Jerk_X: planner.max_jerk.x = float(recdat.data[0]) * 0.1f; break;
       #endif
     #endif
     #if HAS_Y_AXIS
       case Vmax_Y: planner.settings.max_feedrate_mm_s[Y_AXIS] = recdat.data[0]; break;
       case Amax_Y: planner.settings.max_acceleration_mm_per_s2[Y_AXIS] = recdat.data[0]; break;
-      case Steps_Y: planner.settings.axis_steps_per_mm[Y_AXIS] = float(recdat.data[0]) / 10.0f; break;
+      case Steps_Y: planner.settings.axis_steps_per_mm[Y_AXIS] = float(recdat.data[0]) * 0.1f; break;
       #if ENABLED(CLASSIC_JERK)
-        case Jerk_Y: planner.max_jerk.y = float(recdat.data[0]) / 10.0f; break;
+        case Jerk_Y: planner.max_jerk.y = float(recdat.data[0]) * 0.1f; break;
       #endif
     #endif
     #if HAS_Z_AXIS
       case Vmax_Z: planner.settings.max_feedrate_mm_s[Z_AXIS] = recdat.data[0]; break;
       case Amax_Z: planner.settings.max_acceleration_mm_per_s2[Z_AXIS] = recdat.data[0]; break;
-      case Steps_Z: planner.settings.axis_steps_per_mm[Z_AXIS] = float(recdat.data[0]) / 10.0f; break;
+      case Steps_Z: planner.settings.axis_steps_per_mm[Z_AXIS] = float(recdat.data[0]) * 0.1f; break;
       #if ENABLED(CLASSIC_JERK)
-        case Jerk_Z: planner.max_jerk.z = float(recdat.data[0]) / 10.0f; break;
+        case Jerk_Z: planner.max_jerk.z = float(recdat.data[0]) * 0.1f; break;
       #endif
     #endif
     #if HAS_HOTEND
       case Vmax_E: planner.settings.max_feedrate_mm_s[E_AXIS] = recdat.data[0]; break;
       case Amax_E: planner.settings.max_acceleration_mm_per_s2[E_AXIS] = recdat.data[0]; break;
-      case Steps_E: planner.settings.axis_steps_per_mm[E_AXIS] = float(recdat.data[0]) / 10.0f; break;
+      case Steps_E: planner.settings.axis_steps_per_mm[E_AXIS] = float(recdat.data[0]) * 0.1f; break;
       #if ENABLED(CLASSIC_JERK)
-        case Jerk_E: planner.max_jerk.e = float(recdat.data[0]) / 10.0f; break;
+        case Jerk_E: planner.max_jerk.e = float(recdat.data[0]) * 0.1f; break;
       #endif
       case A_Retract: planner.settings.retract_acceleration = recdat.data[0]; break;
       #if ENABLED(LIN_ADVANCE)
-        case Advance_K: planner.set_advance_k(float(recdat.data[0]) / 100.0f); break;
+        case Advance_K: planner.set_advance_k(float(recdat.data[0]) * 0.01f); break;
       #endif
     #endif
     case Accel: planner.settings.acceleration = recdat.data[0]; break;
@@ -1364,7 +1363,7 @@ void RTS::handleData() {
           case 1: if (FILAMENT_IS_OUT()) break;
           case 2:
             updateTempE0();
-            wait_for_heatup = wait_for_user = false;
+            marlin.end_waiting();
             break;
           case 3: pause_menu_response = PAUSE_RESPONSE_EXTRUDE_MORE; break;
           case 4: pause_menu_response = PAUSE_RESPONSE_RESUME_PRINT; break;
@@ -1384,7 +1383,7 @@ void RTS::handleData() {
 
       case ZOffsetKey:
           last_zoffset = zprobe_zoffset;
-          zprobe_zoffset = float(recdat.data[0] >= 32767 ? recdat.data[0] - 65537 : recdat.data[0]) / 100.0f + 0.0001f;
+          zprobe_zoffset = float(recdat.data[0] >= 32767 ? recdat.data[0] - 65537 : recdat.data[0]) * 0.01f + 0.0001f;
           if (WITHIN(zprobe_zoffset, PROBE_OFFSET_ZMIN, PROBE_OFFSET_ZMAX))
             babystep.add_mm(Z_AXIS, zprobe_zoffset - last_zoffset);
           probe.offset.z = zprobe_zoffset;
@@ -1617,7 +1616,7 @@ void RTS::onIdle() {
     }
   }
 
-  if (pause_action_flag && !sdcard_pause_check && printingIsPaused() && !planner.has_blocks_queued()) {
+  if (pause_action_flag && !sdcard_pause_check && marlin.printingIsPaused() && !planner.has_blocks_queued()) {
     pause_action_flag = false;
     queue.enqueue_now(F("G0 F3000 X0 Y0\nM18 S0"));
   }
@@ -1625,15 +1624,17 @@ void RTS::onIdle() {
   TERN_(HAS_Z_AXIS, sendData(current_position.z * 10.0f, AXIS_Z_COORD_VP));
 
   #if HAS_HOTEND
-    if (last_target_temperature[0] != thermalManager.degTargetHotend(0))
+    if (last_target_temperature[0] != thermalManager.degTargetHotend(0)) {
       last_target_temperature[0] = thermalManager.degTargetHotend(0);
-    updateTempE0();
+      updateTempE0();
+    }
   #endif
 
   #if HAS_HEATED_BED
-    if (last_target_temperature_bed != thermalManager.degTargetBed())
+    if (last_target_temperature_bed != thermalManager.degTargetBed()) {
       last_target_temperature_bed = thermalManager.degTargetBed();
-    updateTempBed();
+      updateTempBed();
+    }
   #endif
 
   #if HAS_HOTEND

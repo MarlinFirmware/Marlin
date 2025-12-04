@@ -654,19 +654,19 @@ namespace ExtUI {
 
   #if HAS_SHAPING
     float getShapingZeta(const axis_t axis) {
-      return stepper.get_shaping_damping_ratio(AxisEnum(axis));
+      return stepper.get_shaping_damping_ratio((AxisEnum)axis);
     }
     void setShapingZeta(const float zeta, const axis_t axis) {
       if (!WITHIN(zeta, 0, 1)) return;
-      stepper.set_shaping_damping_ratio(AxisEnum(axis), zeta);
+      stepper.set_shaping_damping_ratio((AxisEnum)axis, zeta);
     }
     float getShapingFrequency(const axis_t axis) {
-      return stepper.get_shaping_frequency(AxisEnum(axis));
+      return stepper.get_shaping_frequency((AxisEnum)axis);
     }
     void setShapingFrequency(const float freq, const axis_t axis) {
       constexpr float min_freq = float(uint32_t(STEPPER_TIMER_RATE) / 2) / shaping_time_t(-2);
       if (freq == 0.0f || freq > min_freq)
-        stepper.set_shaping_frequency(AxisEnum(axis), freq);
+        stepper.set_shaping_frequency((AxisEnum)axis, freq);
     }
   #endif
 
@@ -850,7 +850,7 @@ namespace ExtUI {
                                                       { backlash.set_distance_mm((AxisEnum)axis, constrain(value,0,5)); }
 
     float getBacklashCorrection_percent()             { return backlash.get_correction() * 100.0f; }
-    void setBacklashCorrection_percent(const float value) { backlash.set_correction(constrain(value, 0, 100) / 100.0f); }
+    void setBacklashCorrection_percent(const float value) { backlash.set_correction(constrain(value, 0, 100) * 0.01f); }
 
     #ifdef BACKLASH_SMOOTHING_MM
       float getBacklashSmoothing_mm()                 { return backlash.get_smoothing_mm(); }
@@ -1021,9 +1021,9 @@ namespace ExtUI {
   void coolDown() { thermalManager.cooldown(); }
 
   bool awaitingUserConfirm() {
-    return TERN0(HAS_RESUME_CONTINUE, wait_for_user) || TERN0(HOST_KEEPALIVE_FEATURE, getHostKeepaliveIsPaused());
+    return TERN0(HAS_RESUME_CONTINUE, marlin.wait_for_user) || TERN0(HOST_KEEPALIVE_FEATURE, getHostKeepaliveIsPaused());
   }
-  void setUserConfirmed() { TERN_(HAS_RESUME_CONTINUE, wait_for_user = false); }
+  void setUserConfirmed() { TERN_(HAS_RESUME_CONTINUE, marlin.user_resume()); }
 
   #if ENABLED(ADVANCED_PAUSE_FEATURE)
     void setPauseMenuResponse(PauseMenuResponse response) { pause_menu_response = response; }
@@ -1068,7 +1068,7 @@ namespace ExtUI {
   bool isPrintingFromMediaPaused() { return card.isPaused(); }
 
   bool isPrinting() {
-    return commandsInQueue() || isPrintingFromMedia() || printJobOngoing() || printingIsPaused();
+    return commandsInQueue() || isPrintingFromMedia() || marlin.printJobOngoing() || marlin.printingIsPaused();
   }
 
   bool isPrintingPaused() {
@@ -1076,7 +1076,7 @@ namespace ExtUI {
   }
 
   bool isOngoingPrintJob() {
-    return isPrintingFromMedia() || printJobOngoing();
+    return isPrintingFromMedia() || marlin.printJobOngoing();
   }
 
   bool isMediaMounted()     { return card.isMounted(); }
@@ -1113,7 +1113,7 @@ namespace ExtUI {
   void onSurviveInKilled() {
     thermalManager.disable_all_heaters();
     flags.printer_killed = 0;
-    marlin_state = MarlinState::MF_RUNNING;
+    marlin.setState(MF_RUNNING);
     //SERIAL_ECHOLNPGM("survived at: ", millis());
   }
 

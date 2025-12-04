@@ -96,7 +96,7 @@
 
 // Minimum unit (0.1) : multiple (10)
 #define UNITFDIGITS 1
-#define MINUNITMULT pow(10, UNITFDIGITS)
+#define MINUNITMULT POW(10, UNITFDIGITS)
 
 #define DWIN_VAR_UPDATE_INTERVAL         1024
 #define DWIN_SCROLL_UPDATE_INTERVAL      SEC_TO_MS(2)
@@ -312,7 +312,7 @@ void iconResume() {
 }
 
 void iconResumeOrPause() {
-  if (printingIsPaused() || hmiFlag.pause_flag || hmiFlag.pause_action)
+  if (marlin.printingIsPaused() || hmiFlag.pause_flag || hmiFlag.pause_action)
     iconResume();
   else
     iconPause();
@@ -1388,7 +1388,7 @@ void hmiMoveDone(const AxisEnum axis) {
     LIMIT(hmiValues.offset_value, _OFFSET_ZMIN * 100, _OFFSET_ZMAX * 100);
 
     last_zoffset = dwin_zoffset;
-    dwin_zoffset = hmiValues.offset_value / 100.0f;
+    dwin_zoffset = hmiValues.offset_value * 0.01f;
     #if ANY(BABYSTEP_ZPROBE_OFFSET, JUST_BABYSTEP)
       if (BABYSTEP_ALLOWED()) babystep.add_mm(Z_AXIS, dwin_zoffset - last_zoffset);
     #endif
@@ -1972,7 +1972,7 @@ void hmiSDCardUpdate() {
   if (hmiFlag.home_flag) return;
   if (DWIN_lcd_sd_status != card.isMounted()) {
     DWIN_lcd_sd_status = card.isMounted();
-    //SERIAL_ECHOLNPGM("HMI_SDCardUpdate: ", DWIN_lcd_sd_status);
+    //SERIAL_ECHOLNPGM("hmiSDCardUpdate: ", DWIN_lcd_sd_status);
     if (DWIN_lcd_sd_status) {
       if (checkkey == ID_SelectFile)
         redrawSDList();
@@ -1982,11 +1982,11 @@ void hmiSDCardUpdate() {
       if (checkkey == ID_SelectFile) {
         redrawSDList();
       }
-      else if (checkkey == ID_PrintProcess || checkkey == ID_Tune || printingIsActive()) {
+      else if (checkkey == ID_PrintProcess || checkkey == ID_Tune || marlin.printingIsActive()) {
         // TODO: Move card removed abort handling
         //       to CardReader::manage_media.
         card.abortFilePrintSoon();
-        wait_for_heatup = wait_for_user = false;
+        marlin.end_waiting();
         dwin_abort_flag = true; // Reset feedrate, return to Home
       }
     }
@@ -2389,7 +2389,7 @@ void hmiPauseOrStop() {
     else if (select_print.now == PRINT_STOP) {
       if (hmiFlag.select_flag) {
         checkkey = ID_BackMain;
-        wait_for_heatup = wait_for_user = false;      // Stop waiting for heating/user
+        marlin.end_waiting();                         // Stop waiting for heating/user
         card.abortFilePrintSoon();                    // Let the main loop handle SD abort
         dwin_abort_flag = true;                       // Reset feedrate, return to Home
         #ifdef ACTION_ON_CANCEL
@@ -2992,9 +2992,11 @@ void hmiAxisMove() {
         hmiFlag.cold_flag = false;
         hmiValues.moveScaled.e = current_position.e * MINUNITMULT;
         drawMoveMenu();
-        TERN_(HAS_X_AXIS, drawEditFloat3(1, hmiValues.moveScaled.x));
-        TERN_(HAS_Y_AXIS, drawEditFloat3(2, hmiValues.moveScaled.y));
-        TERN_(HAS_Z_AXIS, drawEditFloat3(3, hmiValues.moveScaled.z));
+        XYZ_CODE(
+          drawEditFloat3(1, hmiValues.moveScaled.x),
+          drawEditFloat3(2, hmiValues.moveScaled.y),
+          drawEditFloat3(3, hmiValues.moveScaled.z)
+        );
         drawEditSignedFloat3(4, 0);
         dwinUpdateLCD();
       }
@@ -4139,15 +4141,15 @@ void eachMomentUpdate() {
       dwinDrawRectangle(1, COLOR_BG_BLACK, 0, 250, DWIN_WIDTH - 1, STATUS_Y);
       dwinIconShow(ICON, hmiIsChinese() ? ICON_Confirm_C : ICON_Confirm_E, 86, 283);
     }
-    else if (hmiFlag.pause_flag != printingIsPaused()) {
+    else if (hmiFlag.pause_flag != marlin.printingIsPaused()) {
       // print status update
-      hmiFlag.pause_flag = printingIsPaused();
+      hmiFlag.pause_flag = marlin.printingIsPaused();
       iconResumeOrPause();
     }
   }
 
   // pause after homing
-  if (hmiFlag.pause_action && printingIsPaused() && !planner.has_blocks_queued()) {
+  if (hmiFlag.pause_action && marlin.printingIsPaused() && !planner.has_blocks_queued()) {
     hmiFlag.pause_action = false;
     #if ENABLED(PAUSE_HEAT)
       TERN_(HAS_HOTEND, resume_hotend_temp = thermalManager.degTargetHotend(0));
@@ -4222,7 +4224,7 @@ void eachMomentUpdate() {
           if (encoder_diffState == ENCODER_DIFF_ENTER) {
             recovery_flag = false;
             if (hmiFlag.select_flag) break;
-            queue.inject(F("M1000C"));
+            TERN_(POWER_LOSS_RECOVERY, queue.inject(F("M1000C")));
             hmiStartFrame(true);
             return;
           }

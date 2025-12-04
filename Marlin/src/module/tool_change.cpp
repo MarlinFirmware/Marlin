@@ -430,7 +430,7 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
       }
       else if (kill_on_error && (!tool_sensor_disabled || disable)) {
         sensor_tries++;
-        if (sensor_tries > 10) kill(F("Tool Sensor error"));
+        if (sensor_tries > 10) marlin.kill(F("Tool Sensor error"));
         safe_delay(5);
       }
       else {
@@ -853,7 +853,7 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
     const float xhome = x_home_pos(active_extruder);
 
     if (dual_x_carriage_mode == DXC_AUTO_PARK_MODE                  // If Auto-Park mode is enabled
-        && IsRunning() && !no_move                                  // ...and movement is permitted
+        && marlin.isRunning() && !no_move                           // ...and movement is permitted
         && (delayed_move_time || current_position.x != xhome)       // ...and delayed_move_time is set OR not "already parked"...
     ) {
       DEBUG_ECHOLNPGM("MoveX to ", xhome);
@@ -924,7 +924,7 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
    * Returns TRUE if too cold to move (also echos message: STR_ERR_HOTEND_TOO_COLD)
    * Returns FALSE if able to  move.
    */
-  bool too_cold(uint8_t toolID){
+  bool too_cold(uint8_t toolID) {
     if (!DEBUGGING(DRYRUN) && thermalManager.targetTooColdToExtrude(toolID)) {
       SERIAL_ECHO_MSG(STR_ERR_HOTEND_TOO_COLD);
       return true;
@@ -1333,7 +1333,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
       #endif
 
       // Return to position and lower again
-      const bool should_move = safe_to_move && !no_move && IsRunning();
+      const bool should_move = safe_to_move && !no_move && marlin.isRunning();
       if (should_move) {
 
         #if ANY(SINGLENOZZLE_STANDBY_TEMP, SINGLENOZZLE_STANDBY_FAN)
@@ -1581,7 +1581,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
     // Migrate the temperature to the new hotend
     #if HAS_MULTI_HOTEND
       thermalManager.setTargetHotend(thermalManager.degTargetHotend(active_extruder), migration_extruder);
-      TERN_(AUTOTEMP, planner.autotemp_update());
+      TERN_(AUTOTEMP, thermalManager.autotemp_update());
       thermalManager.set_heating_message(0);
       thermalManager.wait_for_hotend(active_extruder);
     #endif
