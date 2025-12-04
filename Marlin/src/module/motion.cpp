@@ -625,14 +625,14 @@ void report_current_position_projected() {
    */
   M_StateEnum grbl_state_for_marlin_state() {
     switch (marlin.state) {
-      case MarlinState::MF_INITIALIZING: return M_INIT;
-      case MarlinState::MF_SD_COMPLETE:  return M_ALARM;
-      case MarlinState::MF_WAITING:      return M_IDLE;
-      case MarlinState::MF_STOPPED:      return M_END;
-      case MarlinState::MF_RUNNING:      return M_RUNNING;
-      case MarlinState::MF_PAUSED:       return M_HOLD;
-      case MarlinState::MF_KILLED:       return M_ERROR;
-      default:                           return M_IDLE;
+      case MF_INITIALIZING: return M_INIT;
+      case MF_SD_COMPLETE:  return M_ALARM;
+      case MF_WAITING:      return M_IDLE;
+      case MF_STOPPED:      return M_END;
+      case MF_RUNNING:      return M_RUNNING;
+      case MF_PAUSED:       return M_HOLD;
+      case MF_KILLED:       return M_ERROR;
+      default:              return M_IDLE;
     }
   }
 

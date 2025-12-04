@@ -32,7 +32,7 @@
 #else
   #define MARLIN_LOGO_CHOSEN(W,H) { (void *)marlin_logo_##W##x##H##x16, W, H, HIGHCOLOR }
   #if ENABLED(SHOW_CUSTOM_BOOTSCREEN)
-    #define _CUSTOM_BOOTSCREEN_CHOSEN(W,H){ (void *)custom_bootscreen_##W##x##H##x16, W, H, HIGHCOLOR }
+    #define _CUSTOM_BOOTSCREEN_CHOSEN(W,H) { (void *)custom_bootscreen_##W##x##H##x16, W, H, HIGHCOLOR }
     #define CUSTOM_BOOTSCREEN_CHOSEN(W,H) _CUSTOM_BOOTSCREEN_CHOSEN(W,H)
   #endif
 #endif
