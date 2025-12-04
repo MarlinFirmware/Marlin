@@ -49,15 +49,14 @@ extern const char M23_STR[], M24_STR[];
 
 #include "SdFile.h"
 #include "disk_io_driver.h"
-
 #if HAS_USB_FLASH_DRIVE
   #include "usb_flashdrive/Sd2Card_FlashDrive.h"
 #endif
-
+#if NEED_SD2CARD_SPI
+  #include "Sd2Card.h"
+#endif
 #if NEED_SD2CARD_SDIO
   #include "Sd2Card_sdio.h"
-#elif NEED_SD2CARD_SPI
-  #include "Sd2Card.h"
 #endif
 
 #if ANY(DO_LIST_BIN_FILES, CUSTOM_FIRMWARE_UPLOAD)
@@ -139,25 +138,17 @@ public:
   #endif
 
   static void selectMediaSDCard() {
-    #if NEED_SD2CARD_SPI
-      changeMedia(&media_driver_sdcard);
-    #endif
+    TERN_(NEED_SD2CARD_SPI, changeMedia(&media_driver_sdcard));
   }
-
   static void selectMediaSDIOCard() {
-    #if NEED_SD2CARD_SDIO
-      changeMedia(&media_driver_sdcard);
-    #endif
+    TERN_(NEED_SD2CARD_SDIO, changeMedia(&media_driver_sdcard));
   }
-
   static void selectMediaFlashDrive() {
-    #if HAS_USB_FLASH_DRIVE
-      changeMedia(&media_driver_usbFlash);
-    #endif
+    TERN_(HAS_USB_FLASH_DRIVE, changeMedia(&media_driver_usbFlash));
   }
 
   static bool isSDCardSelected() {
-    return TERN0(HAS_SDCARD, TERN1(HAS_MULTI_VOLUME, driver == &media_driver_sdcard));
+    return TERN0(NEED_SD2CARD_SPI, TERN1(HAS_MULTI_VOLUME, driver == &media_driver_sdcard));
   }
   static bool isSDIOCardSelected() {
     return TERN0(NEED_SD2CARD_SDIO, TERN1(HAS_MULTI_VOLUME, driver == &media_driver_sdcard));
