@@ -573,7 +573,7 @@ void drawPrintProgressBar() {
 
 void drawPrintProgressElapsed() {
   MString<12> buf;
-  duration_t elapsed = print_job_timer.duration(); // Print timer
+  const duration_t elapsed = print_job_timer.duration(); // Print timer
   buf.setf(F("%02i:%02i "), uint16_t(elapsed.value / 3600), (uint16_t(elapsed.value) % 3600) / 60);
   DWINUI::drawString(hmiData.colorText, hmiData.colorBackground, 47, 192, buf);
 }
@@ -1355,39 +1355,42 @@ void eachMomentUpdate() {
   if (ELAPSED(ms, next_rts_update_ms)) {
     next_rts_update_ms = ms + DWIN_UPDATE_INTERVAL;
 
-    if ((isPrinting() != hmiFlag.printing_flag) && !hmiFlag.home_flag) {
-      hmiFlag.printing_flag = isPrinting();
-      if (hmiFlag.printing_flag)
-        dwinPrintStarted();
-      else if (hmiFlag.abort_flag)
-        dwinPrintAborted();
-      else
-        dwinPrintFinished();
-    }
-
-    if ((hmiFlag.pause_flag != marlin.printingIsPaused()) && !hmiFlag.home_flag) {
-      hmiFlag.pause_flag = marlin.printingIsPaused();
-      if (hmiFlag.pause_flag)
-        dwinPrintPause();
-      else if (hmiFlag.abort_flag)
-        dwinPrintAborted();
-      else
-        dwinPrintResume();
+    if (!hmiFlag.home_flag) {
+      if (hmiFlag.printing_flag != isPrinting()) {
+        hmiFlag.printing_flag = isPrinting();
+        if (hmiFlag.printing_flag)
+          dwinPrintStarted();
+        else if (hmiFlag.abort_flag)
+          dwinPrintAborted();
+        else
+          dwinPrintFinished();
+      }
+      if (hmiFlag.pause_flag != marlin.printingIsPaused()) {
+        hmiFlag.pause_flag = marlin.printingIsPaused();
+        if (hmiFlag.pause_flag)
+          dwinPrintPause();
+        else if (hmiFlag.abort_flag)
+          dwinPrintAborted();
+        else
+          dwinPrintResume();
+      }
     }
 
     if (checkkey == ID_PrintProcess) { // Print process
 
       // Progress percent
       static uint8_t _percent_done = 255;
-      if (_percent_done != ui.get_progress_percent()) {
-        _percent_done = ui.get_progress_percent();
+      const uint8_t pp = ui.get_progress_percent();
+      if (_percent_done != pp) {
+        _percent_done = pp;
         drawPrintProgressBar();
       }
 
       // Remaining time
       #if ENABLED(SHOW_REMAINING_TIME)
-        if (_remain_time != ui.get_remaining_time()) {
-          _remain_time = ui.get_remaining_time();
+        const uint32_t rt = ui.get_remaining_time();
+        if (_remain_time != rt) {
+          _remain_time = rt;
           drawPrintProgressRemain();
         }
       #endif

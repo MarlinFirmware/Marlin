@@ -685,7 +685,7 @@ void JyersDWIN::drawPrintScreen() {
   updateStatusBar(true);
   drawPrintProgressBar();
   drawPrintProgressElapsed();
-  TERN_(SET_REMAINING_TIME, drawPrintProgressRemain());
+  TERN_(SHOW_REMAINING_TIME, drawPrintProgressRemain());
   drawPrintFilename(true);
 }
 
@@ -711,10 +711,10 @@ void JyersDWIN::drawPrintProgressBar() {
   dwinDrawString(false, DWIN_FONT_MENU, getColor(eeprom_settings.progress_percent, COLOR_PERCENT), COLOR_BG_BLACK, 133, 133, F("%"));
 }
 
-#if ENABLED(SET_REMAINING_TIME)
+#if ENABLED(SHOW_REMAINING_TIME)
 
   void JyersDWIN::drawPrintProgressRemain() {
-    uint16_t remainingtime = ui.get_remaining_time();
+    const uint16_t remainingtime = ui.get_remaining_time();
     dwinDrawIntValue(true, true, 1, DWIN_FONT_MENU, getColor(eeprom_settings.progress_time, COLOR_WHITE), COLOR_BG_BLACK, 2, 176, 187, remainingtime / 3600);
     dwinDrawIntValue(true, true, 1, DWIN_FONT_MENU, getColor(eeprom_settings.progress_time, COLOR_WHITE), COLOR_BG_BLACK, 2, 200, 187, (remainingtime % 3600) / 60);
     if (eeprom_settings.time_format_textual) {
@@ -4890,7 +4890,7 @@ void JyersDWIN::startPrint(const bool sd) {
     else
       strcpy_P(filename, PSTR("Host Print"));
     TERN_(SET_PROGRESS_PERCENT, ui.set_progress(0));
-    TERN_(SET_REMAINING_TIME, ui.set_remaining_time(0));
+    TERN_(SET_REMAINING_TIME, ui.reset_remaining_time());
     drawPrintScreen();
   }
 }
@@ -4900,7 +4900,7 @@ void JyersDWIN::stopPrint() {
   sdprint = false;
   thermalManager.cooldown();
   TERN_(SET_PROGRESS_PERCENT, ui.set_progress(100 * (PROGRESS_SCALE)));
-  TERN_(SET_REMAINING_TIME, ui.set_remaining_time(0));
+  TERN_(SET_REMAINING_TIME, ui.reset_remaining_time());
   drawPrintConfirm();
 }
 
@@ -4977,7 +4977,7 @@ void JyersDWIN::screenUpdate() {
     if (process == Proc_Print) {
       drawPrintProgressBar();
       drawPrintProgressElapsed();
-      TERN_(SET_REMAINING_TIME, drawPrintProgressRemain());
+      TERN_(SHOW_REMAINING_TIME, drawPrintProgressRemain());
     }
   }
 
