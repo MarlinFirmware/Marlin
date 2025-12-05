@@ -211,28 +211,5 @@ struct duration_t {
     }
   }
 
-  /**
-   * @brief Get the estimated remaining time
-   * @details Use the given start time and sdpos values to estimate the
-   *          remaining time (as reckoned from this duration_t value).
-   *          Should be superseded by 'M73 R' (SET_REMAINING_TIME).
-   *          This estimate is rendered meaningless by M808, but reset start_time for per-object estimates.
-   *          The UI should consider a "start_sdpos" of 0 to be unset and show "---"
-   *
-   * @param start_time  The time to consider the "real" start of the print. Saved time of the first E move with X and/or Y.
-   * @param start_sdpos The sdpos of the first printing move (E move with X and/or Y).
-   * @param end_sdpos   The sdpos of the end of the print (before cooldown).
-   * @param sdpos       The current sdpos of the print job.
-   */
-  uint32_t remainingEstimate(const uint32_t start_time, const uint32_t start_sdpos, const uint32_t end_sdpos, const uint32_t sdpos) const {
-    const float elapsed_data = float(sdpos - start_sdpos),        // Ex:  460b - 280b = 180b
-                total_data   = float(end_sdpos - start_sdpos),    // Ex: 1000b - 280b = 720b
-                sd_percent   = elapsed_data / total_data,         // Ex:  180b / 720b = 0.25
-                sd_ratio     = (1.0f - sd_percent) / sd_percent;  // Ex: (1.0 - 0.25) / 0.25 = 3.0
-
-    const uint32_t elapsed_time = value - start_time;             // Ex:   T2 - T1   = 300s
-    return uint32_t(elapsed_time * sd_ratio);                     // Ex: 300s * 3.0f = 900s
-  }
-
   #pragma GCC diagnostic pop
 };

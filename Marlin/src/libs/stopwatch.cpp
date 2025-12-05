@@ -33,6 +33,12 @@ uint32_t Stopwatch::accumulator;
 uint32_t Stopwatch::startTimestamp;
 uint32_t Stopwatch::stopTimestamp;
 
+#if ANY(REMAINING_TIME_PRIME, REMAINING_TIME_AUTOPRIME)
+  uint32_t Stopwatch::lap_start_time;   // Reckon from this start time
+  float    Stopwatch::lap_start_sdpos,  // Reckon from this start file position
+           Stopwatch::lap_total_data;   // Total size from start_sdpos to end of file
+#endif
+
 bool Stopwatch::stop() {
   debug(F("stop"));
 

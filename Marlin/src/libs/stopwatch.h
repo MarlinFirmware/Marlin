@@ -40,6 +40,12 @@ class Stopwatch {
     static uint32_t startTimestamp;
     static uint32_t stopTimestamp;
 
+    #if ANY(REMAINING_TIME_PRIME, REMAINING_TIME_AUTOPRIME)
+      static uint32_t lap_start_time;   // Reckon from this start time
+      static float    lap_start_sdpos,  // Reckon from this start file position
+                      lap_total_data;   // Total size from start_sdpos to end of file
+    #endif
+
   public:
     /**
      * @brief Initialize the stopwatch
@@ -103,6 +109,57 @@ class Stopwatch {
      * @return the delta since starting the stopwatch
      */
     static uint32_t duration();
+
+    #if ANY(REMAINING_TIME_PRIME, REMAINING_TIME_AUTOPRIME)
+
+      /**
+       * @brief Get the estimated remaining time based on the elapsed time
+       * @details Use the given start time and sdpos values to estimate the
+       *          remaining time as reckoned from duration().
+       *          Should be superseded by 'M73 R' (SET_REMAINING_TIME).
+       *          Get per-object time estimate with M808 by putting 'M75 R' at the start of the loop.
+       *          The UI should consider a "start_sdpos" of 0 to be unset and show ---.
+       *
+       * @param start_time  The time to consider the "real" start of the print. Saved time of the first E move with X and/or Y.
+       * @param sdpos       The current sdpos of the print job.
+       * @param start_sdpos The sdpos of the first printing move (E move with X and/or Y), as a float.
+       * @param total_data  The pre-calculated end_sdpos - start_sdpos as a float.
+       */
+      uint32_t remainingTimeEstimate(const uint32_t start_time, const uint32_t sdpos, const float start_sdpos, const float total_data) const {
+        const float elapsed_data = float(sdpos) - start_sdpos;      // Ex:  460b - 280b = 180b
+        if (elapsed_data < 200 || total_data == 0) return 0;        // ...not yet...
+        const float //total_data = float(end_sdpos - start_sdpos),  // Ex:  999b-280b+1 = 720b
+                    sd_percent = elapsed_data / total_data,         // Ex:  180b / 720b = 0.25
+                    sd_ratio = (1.0f - sd_percent) / sd_percent;    // Ex: (1.0 - 0.25) / 0.25 = 3.0
+        const uint32_t elapsed_time = duration() - start_time;      // Ex:   T2 - T1   = 300s
+        return uint32_t(elapsed_time * sd_ratio);                   // Ex: 300s * 3.0f = 900s
+      }
+
+      FORCE_INLINE uint32_t remainingTimeEstimate(const uint32_t sdpos) const {
+        return remainingTimeEstimate(lap_start_time, sdpos, lap_start_sdpos, lap_total_data);
+      }
+
+      /**
+       * Start a completion time estimate given a time, start spos, and end sdpos,
+       * Use the 'M75 R' command to call primeRemainingTimeEstimate at the first actual printing move.
+       * TODO:
+       *
+       * TODO: Whenever the printer does an E + XY move call primeRemainingTimeEstimate.
+       *       If the flag is still 'false' set it to 'true', record the current
+       *       print time and sdpos to pass to this method.
+       */
+      FORCE_INLINE static void primeRemainingTimeEstimate(const uint32_t start_time, const uint32_t start_sdpos, const uint32_t end_sdpos) {
+        lap_start_time = start_time;
+        lap_start_sdpos = float(start_sdpos);
+        lap_total_data = float(end_sdpos - start_sdpos + 1UL);
+      }
+
+      // Start estimation using the current time as with print_job_timer.primeRemainingTimeEstimate(...)
+      FORCE_INLINE void primeRemainingTimeEstimate(const uint32_t start_sdpos, const uint32_t end_sdpos) {
+        primeRemainingTimeEstimate(duration(), start_sdpos, end_sdpos);
+      }
+
+    #endif // REMAINING_TIME_PRIME || REMAINING_TIME_AUTOPRIME
 
     #ifdef DEBUG_STOPWATCH
 
