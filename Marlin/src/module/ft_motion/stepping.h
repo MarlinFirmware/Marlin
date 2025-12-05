@@ -206,8 +206,8 @@ typedef struct Stepping {
         first_interval_fp += FRAME_TICKS_FP - tick_of_spurious_step_fp + 1;
       }
 
-      stepper_plan.first_interval_fp[A] = _MIN(first_interval_fp, FTM_NEVER);
-      stepper_plan.interval_fp[A]       = _MIN(interval_fp, FTM_NEVER);
+      stepper_plan.first_interval_fp[A] = _MIN(first_interval_fp, (uint32_t)FTM_NEVER);
+      stepper_plan.interval_fp[A]       = _MIN(interval_fp, (uint32_t)FTM_NEVER);
     };
 
     LOGICAL_AXIS_CALL(_run_axis);
