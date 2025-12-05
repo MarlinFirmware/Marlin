@@ -371,9 +371,11 @@ void GcodeSuite::process_parsed_command(bool no_ok/*=false*/) {
         case 6: G6(); break;                                      // G6: Direct Stepper Move
       #endif
 
-      #if ENABLED(FWRETRACT)
+      #if ANY(FWRETRACT, CNC_COORDINATE_SYSTEMS, HAS_TOOL_LENGTH_COMPENSATION)
         case 10: G10(); break;                                    // G10: Retract / Swap Retract
-        case 11: G11(); break;                                    // G11: Recover / Swap Recover
+        #if ENABLED(FWRETRACT)
+          case 11: G11(); break;                                    // G11: Recover / Swap Recover
+        #endif
       #endif
 
       #if ENABLED(NOZZLE_CLEAN_FEATURE)
@@ -438,6 +440,11 @@ void GcodeSuite::process_parsed_command(bool no_ok/*=false*/) {
 
       #if HAS_MESH
         case 42: G42(); break;                                    // G42: Coordinated move to a mesh point
+      #endif
+
+      #if HAS_TOOL_LENGTH_COMPENSATION
+        case 43: G43(); break;                                    // G43.4: Rotational Tool Center Point Control Mode
+        case 49: G49(); break;
       #endif
 
       #if ENABLED(CNC_COORDINATE_SYSTEMS)
