@@ -223,9 +223,9 @@ class FTMotion {
       #endif // HAS_FTM_SHAPING
 
       #if ENABLED(FTM_SMOOTHING)
-        #define _SET_SMOOTH(A) (void)set_smoothing_time(_AXIS(A), FTM_SMOOTHING_TIME_##A);
-        CARTES_MAP(_SET_SMOOTH);
-        #undef _SET_SMOOTH
+        #define _RESET_SMOOTH(A) (void)set_smoothing_time(_AXIS(A), FTM_SMOOTHING_TIME_##A);
+        CARTES_MAP(_RESET_SMOOTH);
+        #undef _RESET_SMOOTH
       #endif
 
       #if ENABLED(FTM_POLYS)

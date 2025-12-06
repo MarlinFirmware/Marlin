@@ -218,11 +218,7 @@ void FTMotion::loop() {
   bool FTMotion::set_smoothing_time(const AxisEnum axis, const float s_time) {
     if (!WITHIN(s_time, 0.0f, FTM_MAX_SMOOTHING_TIME)) return false;
     planner.synchronize();
-    #define _SMOOTH_CASE(A) case _AXIS(A): cfg.smoothingTime.A = s_time; break;
-    switch (axis) {
-      default:
-      CARTES_MAP(_SMOOTH_CASE);
-    }
+    cfg.smoothingTime[axis] = s_time
     update_smoothing_params();
     return true;
   }

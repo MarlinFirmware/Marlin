@@ -24,7 +24,13 @@
 #include "../../inc/MarlinConfig.h"
 
 typedef struct FTSmoothedAxes {
-  float CARTES_AXIS_NAMES;
+  union {
+    struct { float CARTES_AXIS_NAMES;    };
+    struct { float CARTES_AXIS_NAMES_LC; };
+    float data[CARTES_COUNT];
+  };
+        float&  operator[](const int n)       { return data[n]; }
+  const float&  operator[](const int n) const { return data[n]; }
 } ft_smoothed_float_t;
 
 // Smoothing data for each axis
