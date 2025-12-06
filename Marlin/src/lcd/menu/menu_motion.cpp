@@ -311,10 +311,9 @@ void menu_move() {
 #if ENABLED(FT_MOTION_MENU)
 
   #include "../../module/ft_motion.h"
-  AxisEnum selected_axis;
 
-  FSTR_P get_shaper_name() {
-    switch (ftMotion.cfg.shaper[selected_axis]) {
+  FSTR_P get_shaper_name(const AxisEnum axis) {
+    switch (ftMotion.cfg.shaper[axis]) {
       default: return nullptr;
       case ftMotionShaper_NONE:  return GET_TEXT_F(MSG_LCD_OFF);
       case ftMotionShaper_ZV:    return GET_TEXT_F(MSG_FTM_ZV);
@@ -339,40 +338,46 @@ void menu_move() {
     }
   #endif
 
-  void ftm_menu_set_shaper(const ftMotionShaper_t s) {
-    ftMotion.cfg.shaper[selected_axis] = s;
+  void ftm_menu_set_shaper(const AxisEnum axis, const ftMotionShaper_t s) {
+    ftMotion.cfg.shaper[axis] = s;
     ftMotion.update_shaping_params();
     ui.go_back();
   }
 
-  inline void menu_ftm_shaper() { 
-      const ftMotionShaper_t shaper = ftMotion.cfg.shaper[selected_axis]; 
-      START_MENU();
+  void menu_ftm_shaper(const AxisEnum axis) {
+    const ftMotionShaper_t shaper = ftMotion.cfg.shaper[axis];
 
-      BACK_ITEM(MSG_FTM_AXIS_N);
-      
-      if (shaper != ftMotionShaper_NONE)  ACTION_ITEM(MSG_LCD_OFF,  []{ ftm_menu_set_shaper(ftMotionShaper_NONE)  ; }); 
-      if (shaper != ftMotionShaper_ZV)    ACTION_ITEM(MSG_FTM_ZV,   []{ ftm_menu_set_shaper(ftMotionShaper_ZV)    ; }); 
-      if (shaper != ftMotionShaper_ZVD)   ACTION_ITEM(MSG_FTM_ZVD,  []{ ftm_menu_set_shaper(ftMotionShaper_ZVD)   ; }); 
-      if (shaper != ftMotionShaper_ZVDD)  ACTION_ITEM(MSG_FTM_ZVDD, []{ ftm_menu_set_shaper(ftMotionShaper_ZVDD)  ; }); 
-      if (shaper != ftMotionShaper_ZVDDD) ACTION_ITEM(MSG_FTM_ZVDDD,[]{ ftm_menu_set_shaper(ftMotionShaper_ZVDDD) ; }); 
-      if (shaper != ftMotionShaper_EI)    ACTION_ITEM(MSG_FTM_EI,   []{ ftm_menu_set_shaper(ftMotionShaper_EI)    ; }); 
-      if (shaper != ftMotionShaper_2HEI)  ACTION_ITEM(MSG_FTM_2HEI, []{ ftm_menu_set_shaper(ftMotionShaper_2HEI)  ; }); 
-      if (shaper != ftMotionShaper_3HEI)  ACTION_ITEM(MSG_FTM_3HEI, []{ ftm_menu_set_shaper(ftMotionShaper_3HEI)  ; }); 
-      if (shaper != ftMotionShaper_MZV)   ACTION_ITEM(MSG_FTM_MZV,  []{ ftm_menu_set_shaper(ftMotionShaper_MZV)   ; });
-      END_MENU(); 
-    }
-  #if ENABLED(FTM_POLYS)
-    void menu_ftm_trajectory_generator() {
-      const TrajectoryType current_type = ftMotion.getTrajectoryType();
-      START_MENU();
-      BACK_ITEM(MSG_FIXED_TIME_MOTION);
-      if (current_type != TrajectoryType::TRAPEZOIDAL) ACTION_ITEM(MSG_FTM_TRAPEZOIDAL, []{ planner.synchronize(); ftMotion.setTrajectoryType(TrajectoryType::TRAPEZOIDAL);  ui.go_back(); });
-      if (current_type != TrajectoryType::POLY5)       ACTION_ITEM(MSG_FTM_POLY5,       []{ planner.synchronize(); ftMotion.setTrajectoryType(TrajectoryType::POLY5);        ui.go_back(); });
-      if (current_type != TrajectoryType::POLY6)       ACTION_ITEM(MSG_FTM_POLY6,       []{ planner.synchronize(); ftMotion.setTrajectoryType(TrajectoryType::POLY6);        ui.go_back(); });
+    START_MENU();
+    BACK_ITEM(MSG_FTM_AXIS_N);
+
+    if (shaper != ftMotionShaper_NONE)  ACTION_ITEM_N(axis, MSG_LCD_OFF,  []{ ftm_menu_set_shaper(MenuItemBase::itemIndex, ftMotionShaper_NONE)  ; });
+    if (shaper != ftMotionShaper_ZV)    ACTION_ITEM_N(axis, MSG_FTM_ZV,   []{ ftm_menu_set_shaper(MenuItemBase::itemIndex, ftMotionShaper_ZV)    ; });
+    if (shaper != ftMotionShaper_ZVD)   ACTION_ITEM_N(axis, MSG_FTM_ZVD,  []{ ftm_menu_set_shaper(MenuItemBase::itemIndex, ftMotionShaper_ZVD)   ; });
+    if (shaper != ftMotionShaper_ZVDD)  ACTION_ITEM_N(axis, MSG_FTM_ZVDD, []{ ftm_menu_set_shaper(MenuItemBase::itemIndex, ftMotionShaper_ZVDD)  ; });
+    if (shaper != ftMotionShaper_ZVDDD) ACTION_ITEM_N(axis, MSG_FTM_ZVDDD,[]{ ftm_menu_set_shaper(MenuItemBase::itemIndex, ftMotionShaper_ZVDDD) ; });
+    if (shaper != ftMotionShaper_EI)    ACTION_ITEM_N(axis, MSG_FTM_EI,   []{ ftm_menu_set_shaper(MenuItemBase::itemIndex, ftMotionShaper_EI)    ; });
+    if (shaper != ftMotionShaper_2HEI)  ACTION_ITEM_N(axis, MSG_FTM_2HEI, []{ ftm_menu_set_shaper(MenuItemBase::itemIndex, ftMotionShaper_2HEI)  ; });
+    if (shaper != ftMotionShaper_3HEI)  ACTION_ITEM_N(axis, MSG_FTM_3HEI, []{ ftm_menu_set_shaper(MenuItemBase::itemIndex, ftMotionShaper_3HEI)  ; });
+    if (shaper != ftMotionShaper_MZV)   ACTION_ITEM_N(axis, MSG_FTM_MZV,  []{ ftm_menu_set_shaper(MenuItemBase::itemIndex, ftMotionShaper_MZV)   ; });
+
     END_MENU();
   }
-  #endif // FTM_POLYS
+
+  #if ENABLED(FTM_POLYS)
+
+    void menu_ftm_trajectory_generator() {
+      const TrajectoryType traj_type = ftMotion.getTrajectoryType();
+      START_MENU();
+      BACK_ITEM(MSG_FIXED_TIME_MOTION);
+
+      if (traj_type != TrajectoryType::TRAPEZOIDAL) ACTION_ITEM(MSG_FTM_TRAPEZOIDAL, []{ planner.synchronize(); ftMotion.setTrajectoryType(TrajectoryType::TRAPEZOIDAL);  ui.go_back(); });
+      if (traj_type != TrajectoryType::POLY5)       ACTION_ITEM(MSG_FTM_POLY5,       []{ planner.synchronize(); ftMotion.setTrajectoryType(TrajectoryType::POLY5);        ui.go_back(); });
+      if (traj_type != TrajectoryType::POLY6)       ACTION_ITEM(MSG_FTM_POLY6,       []{ planner.synchronize(); ftMotion.setTrajectoryType(TrajectoryType::POLY6);        ui.go_back(); });
+
+      END_MENU();
+    }
+
+  #endif
 
   #if ENABLED(FTM_RESONANCE_TEST)
 
@@ -401,6 +406,7 @@ void menu_move() {
         GCODES_ITEM_N(Z_AXIS, MSG_FTM_RT_START_N, F("M495 Z S"));
         SUBMENU(MSG_FTM_RETRIEVE_FREQ, menu_ftm_resonance_freq);
       }
+
       END_MENU();
     }
 
@@ -427,50 +433,44 @@ void menu_move() {
 
   #endif // HAS_DYNAMIC_FREQ
 
-  void menu_ftm_axis() {
+  void menu_ftm_axis(const AxisEnum axis) {
     ft_config_t &c = ftMotion.cfg;
-    
-    START_MENU();
-      BACK_ITEM(MSG_FIXED_TIME_MOTION);
-      
-      if (selected_axis == X_AXIS || selected_axis == Y_AXIS || (selected_axis == Z_AXIS && TERN(FTM_SHAPER_Z, true, false)) || (selected_axis == E_AXIS && TERN(FTM_SHAPER_E, true, false))) {
-        SUBMENU_N_S(selected_axis, get_shaper_name(), MSG_FTM_CMPN_MODE, [] { menu_ftm_shaper(); });
-        if (c.shaper[selected_axis] != ftMotionShaper_NONE) { 
-          EDIT_ITEM_FAST_N(float42_52, selected_axis, MSG_FTM_BASE_FREQ_N, &c.baseFreq[selected_axis], FTM_MIN_SHAPE_FREQ, (FTM_FS) / 2, ftMotion.update_shaping_params);
-          EDIT_ITEM_FAST_N(float42_52, selected_axis, MSG_FTM_ZETA_N, &c.zeta[selected_axis], 0.0f, 1.0f, ftMotion.update_shaping_params);
-          if WITHIN(c.shaper[selected_axis], ftMotionShaper_EI, ftMotionShaper_3HEI) 
-            EDIT_ITEM_FAST_N(float42_52, selected_axis, MSG_FTM_VTOL_N, &c.vtol[selected_axis], 0.0f, 1.0f, ftMotion.update_shaping_params);
-        }
-      }
-      
-      #if ENABLED(FTM_SMOOTHING)
-       switch(selected_axis) {
-        case X_AXIS:
-          editable.decimal = c.smoothingTime.X;
-        break;
-        case Y_AXIS:
-          editable.decimal = c.smoothingTime.Y;
-        break;
-        case Z_AXIS:
-          editable.decimal = c.smoothingTime.Z;
-        break;
-        case E_AXIS:
-          editable.decimal = c.smoothingTime.E;
-        break;
-       }
-        EDIT_ITEM_FAST_N(float43, selected_axis, MSG_FTM_SMOOTH_TIME_N, &editable.decimal, 0.0f, FTM_MAX_SMOOTHING_TIME, []{ ftMotion.set_smoothing_time(selected_axis, editable.decimal); });
-      #endif
 
-      #if HAS_DYNAMIC_FREQ
-        if (selected_axis == X_AXIS || selected_axis == Y_AXIS) {
-          SUBMENU_S(get_dyn_freq_mode_name(), MSG_FTM_DYN_MODE, menu_ftm_dyn_mode);
-          if (c.dynFreqMode != dynFreqMode_DISABLED)
-            EDIT_ITEM_FAST_N(float42_52, selected_axis, MSG_FTM_DFREQ_K_N, &c.dynFreqK[selected_axis], 0.0f, 20.0f);
-        }
-      #endif
-      
-      END_MENU();
-  }
+    START_MENU();
+    BACK_ITEM(MSG_FIXED_TIME_MOTION);
+
+    if (axis == X_AXIS || axis == Y_AXIS || TERN0(FTM_SHAPER_Z, axis == Z_AXIS) || TERN0(FTM_SHAPER_E, axis == E_AXIS)) {
+      SUBMENU_N_S(axis, get_shaper_name(axis), MSG_FTM_CMPN_MODE, menu_ftm_shaper);
+      if (c.shaper[axis] != ftMotionShaper_NONE) {
+        EDIT_ITEM_FAST_N(float42_52, axis, MSG_FTM_BASE_FREQ_N, &c.baseFreq[axis], FTM_MIN_SHAPE_FREQ, (FTM_FS) / 2, ftMotion.update_shaping_params);
+        EDIT_ITEM_FAST_N(float42_52, axis, MSG_FTM_ZETA_N, &c.zeta[axis], 0.0f, 1.0f, ftMotion.update_shaping_params);
+        if (WITHIN(c.shaper[axis], ftMotionShaper_EI, ftMotionShaper_3HEI))
+          EDIT_ITEM_FAST_N(float42_52, axis, MSG_FTM_VTOL_N, &c.vtol[axis], 0.0f, 1.0f, ftMotion.update_shaping_params);
+      }
+    }
+
+    #if ENABLED(FTM_SMOOTHING)
+      switch (axis) {
+        case X_AXIS: editable.decimal = c.smoothingTime.X; break;
+        case Y_AXIS: editable.decimal = c.smoothingTime.Y; break;
+        case Z_AXIS: editable.decimal = c.smoothingTime.Z; break;
+        case E_AXIS: editable.decimal = c.smoothingTime.E; break;
+      }
+      EDIT_ITEM_FAST_N(float43, axis, MSG_FTM_SMOOTH_TIME_N, &editable.decimal, 0.0f, FTM_MAX_SMOOTHING_TIME, []{ ftMotion.set_smoothing_time(MenuItemBase::itemIndex, editable.decimal); });
+    #endif
+
+    #if HAS_DYNAMIC_FREQ
+      if (axis == X_AXIS || axis == Y_AXIS) {
+        SUBMENU_S(get_dyn_freq_mode_name(), MSG_FTM_DYN_MODE, menu_ftm_dyn_mode);
+        if (c.dynFreqMode != dynFreqMode_DISABLED)
+          EDIT_ITEM_FAST_N(float42_52, axis, MSG_FTM_DFREQ_K_N, &c.dynFreqK[axis], 0.0f, 20.0f);
+      }
+    #endif
+
+    END_MENU();
+  } // menu_ftm_axis
+
+  #define _FTM_AXIS_SUBMENU(A) SUBMENU_N(_AXIS(A), MSG_FTM_AXIS_N, []{ menu_ftm_axis(_AXIS(A)); });
 
   void menu_ft_motion() {
     ft_config_t &c = ftMotion.cfg;
@@ -482,19 +482,15 @@ void menu_move() {
     EDIT_ITEM(bool, MSG_FIXED_TIME_MOTION, &show_state, []{ (void)ftMotion.toggle(); });
 
     // Show only when FT Motion is active (or optionally always show)
-    if (c.active || ENABLED(FT_MOTION_NO_MENU_TOGGLE)) {
-      
-      #if ENABLED(POLYS)
-        SUBMENU_S(get_trajectory_name(), MSG_FTM_TRAJECTORY, menu_ftm_trajectory_generator);
+    if (TERN(FT_MOTION_NO_MENU_TOGGLE, true, c.active)) {
 
+      #if ENABLED(FTM_POLYS)
+        SUBMENU_S(ftMotion.getTrajectoryName(), MSG_FTM_TRAJECTORY, menu_ftm_trajectory_generator);
         if (ftMotion.getTrajectoryType() == TrajectoryType::POLY6)
           EDIT_ITEM(float42_52, MSG_FTM_POLY6_OVERSHOOT, &c.poly6_acceleration_overshoot, 1.25f, 1.875f);
-      #endif // POLYS
+      #endif
 
-      #define AXIS_MENU(A) \
-        SUBMENU_N(_AXIS(A), MSG_FTM_AXIS_N, [] { selected_axis = _AXIS(A); menu_ftm_axis(); });
-
-      CARTES_MAP(AXIS_MENU);
+      CARTES_MAP(_FTM_AXIS_SUBMENU);
 
       EDIT_ITEM(bool, MSG_FTM_AXIS_SYNC, &c.axis_sync_enabled);
 
@@ -502,24 +498,23 @@ void menu_move() {
         SUBMENU(MSG_FTM_RESONANCE_TEST, menu_ftm_resonance_test);
       #endif
     }
+
     END_MENU();
   } // menu_ft_motion
 
   void menu_tune_ft_motion() {
     ft_config_t &c = ftMotion.cfg;
-    
+
     START_MENU();
     BACK_ITEM(MSG_TUNE);
 
-    #if ENABLED(POLYS)
-      SUBMENU_S(get_trajectory_name(), MSG_FTM_TRAJECTORY, menu_ftm_trajectory_generator);
-
+    #if ENABLED(FTM_POLYS)
+      SUBMENU_S(ftMotion.getTrajectoryName(), MSG_FTM_TRAJECTORY, menu_ftm_trajectory_generator);
       if (ftMotion.getTrajectoryType() == TrajectoryType::POLY6)
         EDIT_ITEM(float42_52, MSG_FTM_POLY6_OVERSHOOT, &c.poly6_acceleration_overshoot, 1.25f, 1.875f);
-    #endif // POLYS
+    #endif
 
-    #define _CMPM_MENU_ITEM(A) SUBMENU_N(_AXIS(A), MSG_FTM_AXIS_N, [] { selected_axis = _AXIS(A); menu_ftm_axis(); });
-    SHAPED_MAP(_CMPM_MENU_ITEM);
+    SHAPED_MAP(_FTM_AXIS_SUBMENU);
 
     END_MENU();
   } // menu_tune_ft_motion
@@ -527,7 +522,6 @@ void menu_move() {
 #endif // FT_MOTION_MENU
 
 void menu_motion() {
-
   START_MENU();
 
   //
