@@ -31,7 +31,7 @@ FORCE_INLINE constexpr uint32_t a_times_b_shift_16(uint32_t a, uint32_t b) {
   uint32_t lo = a & 0xFFFFu;
   return (hi * b) + ((lo * b) >> 16);
 }
-#define FTM_NEVER (UINT16_MAX)                                       // Reserved number to indicate "no ticks in this frame" (FRAME_TICKS_FP+1 would work too)
+#define FTM_NEVER uint32_t(UINT16_MAX)                               // Reserved number to indicate "no ticks in this frame" (FRAME_TICKS_FP+1 would work too)
 constexpr uint32_t FRAME_TICKS = STEPPER_TIMER_RATE / FTM_FS;        // Timer ticks in a frame
 static_assert(FRAME_TICKS < FTM_NEVER, "(STEPPER_TIMER_RATE / FTM_FS) must be < 2^16 (otherwise fixed-point numbers exceed uint16 vars).");
 constexpr uint32_t FTM_Q_INT = 32u - __builtin_clz(FRAME_TICKS + 1); // Bits to represent the max value (duration of a frame, +1 one for FTM_NEVER).
@@ -206,8 +206,8 @@ typedef struct Stepping {
         first_interval_fp += FRAME_TICKS_FP - tick_of_spurious_step_fp + 1;
       }
 
-      stepper_plan.first_interval_fp[A] = _MIN(first_interval_fp, (uint32_t)FTM_NEVER);
-      stepper_plan.interval_fp[A]       = _MIN(interval_fp, (uint32_t)FTM_NEVER);
+      stepper_plan.first_interval_fp[A] = _MIN(first_interval_fp, FTM_NEVER);
+      stepper_plan.interval_fp[A]       = _MIN(interval_fp, FTM_NEVER);
     };
 
     LOGICAL_AXIS_CALL(_run_axis);
