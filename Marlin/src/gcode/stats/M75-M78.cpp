@@ -38,9 +38,22 @@
  *
  * ProUI: If the print fails to start and any text is
  *        included in the command, print it in the header.
+ *
+ * With REMAINING_TIME_PRIME:
+ *
+ *   'M75 R' : Prime Remaining Time Estimate with the current job time and SD file position and return.
+ *
  */
 void GcodeSuite::M75() {
+  #if ENABLED(REMAINING_TIME_PRIME)
+    if (parser.seen_test('R')) {
+      print_job_timer.primeRemainingTimeEstimate(card.getIndex(), card.getFileSize());
+      return;
+    }
+  #endif
+
   marlin.startOrResumeJob(); // ... ExtUI::onPrintTimerStarted()
+
   #if ENABLED(DWIN_LCD_PROUI)
     // TODO: Remove if M75 <string> is never used
     if (!card.isStillPrinting()) dwinPrintHeader(parser.has_string() ? parser.string_arg : GET_TEXT(MSG_HOST_START_PRINT));

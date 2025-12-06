@@ -244,7 +244,7 @@ void disp_fan_speed() {
 }
 
 void disp_print_time() {
-  #if ENABLED(SET_REMAINING_TIME)
+  #if ENABLED(SHOW_REMAINING_TIME)
     const uint32_t r = ui.get_remaining_time();
     sprintf_P(public_buf_l, PSTR("%02d:%02d R"), r / 3600, (r % 3600) / 60);
   #else
@@ -294,7 +294,7 @@ void setProBarRate() {
     lv_label_set_text(bar1ValueText, public_buf_l);
     lv_obj_align(bar1ValueText, bar1, LV_ALIGN_CENTER, 0, 0);
 
-    if (marlin.is(MarlinState::MF_SD_COMPLETE)) {
+    if (marlin.is(MF_SD_COMPLETE)) {
       if (once_flag == 0) {
         stop_print_time();
 
@@ -309,7 +309,7 @@ void setProBarRate() {
           if (gCfgItems.finish_power_off) {
             gcode.process_subcommands_now(F("M1001"));
             queue.inject(F("M81"));
-            marlin.setState(MarlinState::MF_RUNNING);
+            marlin.setState(MF_RUNNING);
           }
         #endif
       }

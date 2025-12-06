@@ -143,9 +143,8 @@ FORCE_INLINE static void HAL_timer_isr_prologue(const uint8_t timer_num) {
     Rtc * const rtc = timer_config[timer_num].pRtc;
     // Clear interrupt flag
     rtc->MODE0.INTFLAG.reg = RTC_MODE0_INTFLAG_CMP0| RTC_MODE0_INTFLAG_OVF;
-
   }
-  else if (timer_config[timer_num].type == TimerType::tcc){
+  else if (timer_config[timer_num].type == TimerType::tcc) {
     Tcc * const tc = timer_config[timer_num].pTcc;
     // Clear interrupt flag
     tc->INTFLAG.reg = TCC_INTFLAG_OVF;

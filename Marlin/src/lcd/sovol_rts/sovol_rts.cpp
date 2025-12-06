@@ -1624,15 +1624,17 @@ void RTS::onIdle() {
   TERN_(HAS_Z_AXIS, sendData(current_position.z * 10.0f, AXIS_Z_COORD_VP));
 
   #if HAS_HOTEND
-    if (last_target_temperature[0] != thermalManager.degTargetHotend(0))
+    if (last_target_temperature[0] != thermalManager.degTargetHotend(0)) {
       last_target_temperature[0] = thermalManager.degTargetHotend(0);
-    updateTempE0();
+      updateTempE0();
+    }
   #endif
 
   #if HAS_HEATED_BED
-    if (last_target_temperature_bed != thermalManager.degTargetBed())
+    if (last_target_temperature_bed != thermalManager.degTargetBed()) {
       last_target_temperature_bed = thermalManager.degTargetBed();
-    updateTempBed();
+      updateTempBed();
+    }
   #endif
 
   #if HAS_HOTEND

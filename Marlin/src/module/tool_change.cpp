@@ -924,7 +924,7 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
    * Returns TRUE if too cold to move (also echos message: STR_ERR_HOTEND_TOO_COLD)
    * Returns FALSE if able to  move.
    */
-  bool too_cold(uint8_t toolID){
+  bool too_cold(uint8_t toolID) {
     if (!DEBUGGING(DRYRUN) && thermalManager.targetTooColdToExtrude(toolID)) {
       SERIAL_ECHO_MSG(STR_ERR_HOTEND_TOO_COLD);
       return true;

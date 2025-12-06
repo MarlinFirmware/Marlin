@@ -282,7 +282,7 @@ Marlin marlin;
 #endif
 
 // Global state of the firmware
-MarlinState Marlin::state = MarlinState::MF_INITIALIZING;
+MarlinState Marlin::state = MF_INITIALIZING;
 
 // For M109 and M190, this flag may be cleared (by M108) to exit the wait loop
 bool Marlin::wait_for_heatup = false;
@@ -404,8 +404,8 @@ void Marlin::startOrResumeJob() {
   }
 
   inline void finishSDPrinting() {
-    if (queue.enqueue_one(F("M1001"))) {        // Keep trying until it gets queued
-      marlin.setState(MarlinState::MF_RUNNING); // Signal to stop trying
+    if (queue.enqueue_one(F("M1001"))) {  // Keep trying until it gets queued
+      marlin.setState(MF_RUNNING);        // Signal to stop trying
       TERN_(PASSWORD_AFTER_SD_PRINT_END, password.lock_machine());
       TERN_(DGUS_LCD_UI_MKS, screen.sdPrintingFinished());
     }
@@ -803,7 +803,7 @@ void Marlin::idle(const bool no_stepper_sleep/*=false*/) {
   TERN_(MAX7219_DEBUG, max7219.idle_tasks());
 
   // Return if setup() isn't completed
-  if (state == MarlinState::MF_INITIALIZING) goto IDLE_DONE;
+  if (is(MF_INITIALIZING)) goto IDLE_DONE;
 
   // TODO: Still causing errors
   TERN_(TOOL_SENSOR, (void)check_tool_sensor_stats(active_extruder, true));
@@ -996,7 +996,7 @@ void Marlin::stop() {
     SERIAL_ERROR_MSG(STR_ERR_STOPPED);
     LCD_MESSAGE(MSG_STOPPED);
     safe_delay(350);         // Allow enough time for messages to get out before stopping
-    state = MarlinState::MF_STOPPED;
+    setState(MF_STOPPED);
   }
 } // Marlin::stop()
 
@@ -1709,7 +1709,7 @@ void setup() {
     SETUP_RUN(ftMotion.init());
   #endif
 
-  marlin.setState(MarlinState::MF_RUNNING);
+  marlin.setState(MF_RUNNING);
 
   #ifdef STARTUP_TUNE
     // Play a short startup tune before continuing.
@@ -1741,7 +1741,7 @@ void loop() {
 
     #if HAS_MEDIA
       if (card.flag.abort_sd_printing) abortSDPrinting();
-      if (marlin.is(MarlinState::MF_SD_COMPLETE)) finishSDPrinting();
+      if (marlin.is(MF_SD_COMPLETE)) finishSDPrinting();
     #endif
 
     queue.advance();
