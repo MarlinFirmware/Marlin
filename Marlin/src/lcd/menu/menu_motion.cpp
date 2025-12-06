@@ -348,7 +348,7 @@ void menu_move() {
     const ftMotionShaper_t shaper = ftMotion.cfg.shaper[axis];
 
     START_MENU();
-    BACK_ITEM(MSG_FTM_AXIS_N);
+    BACK_ITEM(MSG_FTM_CONFIGURE_AXIS);
 
     if (shaper != ftMotionShaper_NONE)  ACTION_ITEM_N(axis, MSG_LCD_OFF,  []{ ftm_menu_set_shaper(MenuItemBase::itemIndex, ftMotionShaper_NONE)  ; });
     if (shaper != ftMotionShaper_ZV)    ACTION_ITEM_N(axis, MSG_FTM_ZV,   []{ ftm_menu_set_shaper(MenuItemBase::itemIndex, ftMotionShaper_ZV)    ; });
@@ -418,7 +418,7 @@ void menu_move() {
       const dynFreqMode_t dmode = ftMotion.cfg.dynFreqMode;
 
       START_MENU();
-      BACK_ITEM(MSG_FTM_AXIS_N);
+      BACK_ITEM(MSG_FTM_CONFIGURE_AXIS);
 
       if (dmode != dynFreqMode_DISABLED) ACTION_ITEM(MSG_LCD_OFF, []{ ftMotion.cfg.dynFreqMode = dynFreqMode_DISABLED; ui.go_back(); });
       #if HAS_DYNAMIC_FREQ_MM
@@ -450,12 +450,7 @@ void menu_move() {
     }
 
     #if ENABLED(FTM_SMOOTHING)
-      switch (axis) {
-        case X_AXIS: editable.decimal = c.smoothingTime.X; break;
-        case Y_AXIS: editable.decimal = c.smoothingTime.Y; break;
-        case Z_AXIS: editable.decimal = c.smoothingTime.Z; break;
-        case E_AXIS: editable.decimal = c.smoothingTime.E; break;
-      }
+      editable.decimal = c.smoothingTime[axis];
       EDIT_ITEM_FAST_N(float43, axis, MSG_FTM_SMOOTH_TIME_N, &editable.decimal, 0.0f, FTM_MAX_SMOOTHING_TIME, []{ ftMotion.set_smoothing_time(MenuItemBase::itemIndex, editable.decimal); });
     #endif
 
@@ -470,7 +465,7 @@ void menu_move() {
     END_MENU();
   } // menu_ftm_axis
 
-  #define _FTM_AXIS_SUBMENU(A) SUBMENU_N(_AXIS(A), MSG_FTM_AXIS_N, []{ menu_ftm_axis(_AXIS(A)); });
+  #define _FTM_AXIS_SUBMENU(A) SUBMENU_N(_AXIS(A), MSG_FTM_CONFIGURE_AXIS_N, []{ menu_ftm_axis(_AXIS(A)); });
 
   void menu_ft_motion() {
     ft_config_t &c = ftMotion.cfg;
