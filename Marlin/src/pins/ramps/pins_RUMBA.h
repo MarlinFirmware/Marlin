@@ -112,7 +112,7 @@
 // Temperature Sensors
 //
 #ifndef TEMP_0_PIN
-  #if TEMP_SENSOR_0 == -1
+  #if TEMP_SENSOR_0_IS_AD595
     #define TEMP_0_PIN                         6  // Analog Input (connector *K1* on RUMBA thermocouple ADD ON is used)
   #else
     #define TEMP_0_PIN                        15  // Analog Input (default connector for thermistor *T0* on rumba board is used)
@@ -120,14 +120,14 @@
 #endif
 
 #ifndef TEMP_1_PIN
-  #if TEMP_SENSOR_1 == -1
+  #if TEMP_SENSOR_1_IS_AD595
     #define TEMP_1_PIN                         5  // Analog Input (connector *K2* on RUMBA thermocouple ADD ON is used)
   #else
     #define TEMP_1_PIN                        14  // Analog Input (default connector for thermistor *T1* on rumba board is used)
   #endif
 #endif
 
-#if TEMP_SENSOR_2 == -1
+#if TEMP_SENSOR_2_IS_AD595
   #define TEMP_2_PIN                           7  // Analog Input (connector *K3* on RUMBA thermocouple ADD ON is used <-- this can't be used when TEMP_SENSOR_BED is defined as thermocouple)
 #else
   #define TEMP_2_PIN                          13  // Analog Input (default connector for thermistor *T2* on rumba board is used)
