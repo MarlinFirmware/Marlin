@@ -329,7 +329,7 @@ class FTMotion {
       static TrajectoryType trajectoryType;
       static TrajectoryGenerator* currentGenerator;
     #else
-      static constexpr TrajectoryGenerator *currentGenerator = trapezoidalGenerator;
+      static constexpr TrajectoryGenerator *currentGenerator = &trapezoidalGenerator;
     #endif
 
     #if FTM_HAS_LIN_ADVANCE

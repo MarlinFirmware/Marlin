@@ -28,7 +28,7 @@
 #include <stdlib.h>
 
 // Global State of the firmware
-enum class MarlinState : uint8_t {
+enum MarlinState : uint8_t {
   MF_INITIALIZING = 0,
   MF_STOPPED,
   MF_KILLED,
@@ -54,8 +54,8 @@ public:
   static MarlinState state;
   static void setState(const MarlinState s) { state = s; }
   static bool is(const MarlinState s) { return state == s; }
-  static bool isStopped() { return is(MarlinState::MF_STOPPED); }
-  static bool isRunning() { return state >= MarlinState::MF_RUNNING; }
+  static bool isStopped() { return is(MF_STOPPED); }
+  static bool isRunning() { return state >= MF_RUNNING; }
 
   static bool printingIsActive();
   static bool printJobOngoing();

@@ -504,7 +504,7 @@ void CardReader::mount() {
     cdroot();
   else {
     #if ANY(HAS_SD_DETECT, HAS_USB_FLASH_DRIVE)
-      if (!marlin.is(MarlinState::MF_INITIALIZING)) {
+      if (!marlin.is(MF_INITIALIZING)) {
         if (isSDCardSelected())
           LCD_ALERTMESSAGE(MSG_MEDIA_INIT_FAIL_SD);
         else if (isFlashDriveSelected())
@@ -1650,8 +1650,8 @@ void CardReader::fileHasFinished() {
 
   endFilePrintNow(TERN_(SD_RESORT, true));
 
-  flag.sdprintdone = true;                      // Stop getting bytes from the SD card
-  marlin.setState(MarlinState::MF_SD_COMPLETE); // Tell Marlin to enqueue M1001 soon
+  flag.sdprintdone = true;          // Stop getting bytes from the SD card
+  marlin.setState(MF_SD_COMPLETE);  // Tell Marlin to enqueue M1001 soon
 }
 
 #if ENABLED(AUTO_REPORT_SD_STATUS)

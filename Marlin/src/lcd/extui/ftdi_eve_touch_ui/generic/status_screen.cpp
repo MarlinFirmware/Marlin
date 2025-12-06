@@ -220,7 +220,7 @@ void StatusScreen::draw_temperature(draw_mode_t what) {
     }
     cmd.tag(5).font(font_medium).button(TEXT_POS(FAN_POS), fan_str);
 
-    if DISABLED(HAS_MULTI_HOTEND) {
+    if (DISABLED(HAS_MULTI_HOTEND)) {
       cmd.font(font_xsmall).fgcolor(gray_color_1);
     }
     else if (getTargetTemp_celsius(H1) > 0) {

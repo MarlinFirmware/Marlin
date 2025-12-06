@@ -34,7 +34,7 @@
 #define FORCE_INLINE __attribute__((always_inline)) inline
 
 typedef uint32_t hal_timer_t;
-#define HAL_TIMER_TYPE_MAX 0xFFFFFFFFUL
+#define HAL_TIMER_TYPE_MAX hal_timer_t(UINT32_MAX)
 
 #define FTM0_TIMER_PRESCALE 8
 #define FTM1_TIMER_PRESCALE 4

@@ -69,12 +69,12 @@ printStatistics PrintCounter::data;
 
 const PrintCounter::eeprom_address_t PrintCounter::address = STATS_EEPROM_ADDRESS;
 
-millis_t PrintCounter::lastDuration;
+uint32_t PrintCounter::lastDuration;
 bool PrintCounter::loaded = false;
 
-millis_t PrintCounter::deltaDuration() {
+uint32_t PrintCounter::deltaDuration() {
   TERN_(DEBUG_PRINTCOUNTER, debug(PSTR("deltaDuration")));
-  millis_t tmp = lastDuration;
+  const uint32_t tmp = lastDuration;
   lastDuration = duration();
   return lastDuration - tmp;
 }
@@ -236,25 +236,24 @@ void PrintCounter::showStats() {
 void PrintCounter::tick() {
   if (!isRunning()) return;
 
-  millis_t now = millis();
-
+  const millis_t now = millis();
   static millis_t update_next; // = 0
   if (ELAPSED(now, update_next)) {
     update_next = now + updateInterval;
 
     TERN_(DEBUG_PRINTCOUNTER, debug(PSTR("tick")));
 
-    millis_t delta = deltaDuration();
-    data.printTime += delta;
+    const uint32_t delta_s = deltaDuration();
+    data.printTime += delta_s;
 
     #if SERVICE_INTERVAL_1 > 0
-      data.nextService1 -= _MIN(delta, data.nextService1);
+      data.nextService1 -= _MIN(delta_s, data.nextService1);
     #endif
     #if SERVICE_INTERVAL_2 > 0
-      data.nextService2 -= _MIN(delta, data.nextService2);
+      data.nextService2 -= _MIN(delta_s, data.nextService2);
     #endif
     #if SERVICE_INTERVAL_3 > 0
-      data.nextService3 -= _MIN(delta, data.nextService3);
+      data.nextService3 -= _MIN(delta_s, data.nextService3);
     #endif
   }
 
