@@ -498,13 +498,42 @@ void menu_move() {
   } // menu_ft_motion
 
   void menu_tune_ft_motion() {
+
+    // Define stuff ahead of the menu loop
     ft_config_t &c = ftMotion.cfg;
+
+    #ifdef __AVR__
+
+      // Copy Flash strings to RAM for C-string substitution
+      // For U8G paged rendering check and skip extra string copy
+
+      #if ENABLED(FTM_POLYS)
+        #if CACHE_FOR_SPEED
+          bool got_t = false;
+        #endif
+        MString<20> traj_name;
+        auto _traj_name = [&]{
+          if (TERN1(CACHE_FOR_SPEED, !got_t)) {
+            TERN_(CACHE_FOR_SPEED, got_t = true);
+            traj_name = ftMotion.getTrajectoryName();
+          }
+          return traj_name;
+        };
+      #endif
+
+    #else // !__AVR__
+
+      #if ENABLED(FTM_POLYS)
+        auto _traj_name = []{ return ftMotion.getTrajectoryName(); };
+      #endif
+
+    #endif // !__AVR__
 
     START_MENU();
     BACK_ITEM(MSG_TUNE);
 
     #if ENABLED(FTM_POLYS)
-      SUBMENU_S(ftMotion.getTrajectoryName(), MSG_FTM_TRAJECTORY, menu_ftm_trajectory_generator);
+      SUBMENU_S(_traj_name(), MSG_FTM_TRAJECTORY, menu_ftm_trajectory_generator);
       if (ftMotion.getTrajectoryType() == TrajectoryType::POLY6)
         EDIT_ITEM(float42_52, MSG_FTM_POLY6_OVERSHOOT, &c.poly6_acceleration_overshoot, 1.25f, 1.875f);
     #endif
