@@ -3188,7 +3188,7 @@ void Planner::refresh_acceleration_rates() {
     if (TERN1(DISTINCT_E_FACTORS, i < E_AXIS || i == E_AXIS_N(active_extruder)))
       NOLESS(highest_rate, max_acceleration_steps_per_s2[i]);
   }
-  acceleration_long_cutoff = 4294967295UL / highest_rate; // 0xFFFFFFFFUL
+  acceleration_long_cutoff = UINT32_MAX / highest_rate;
   TERN_(HAS_LINEAR_E_JERK, recalculate_max_e_jerk());
 }
 

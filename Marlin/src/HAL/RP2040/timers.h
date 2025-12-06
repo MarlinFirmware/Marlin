@@ -41,7 +41,7 @@
 #define _HAL_TIMER_ISR(T)  __HAL_TIMER_ISR(T)
 
 typedef uint64_t hal_timer_t;
-#define HAL_TIMER_TYPE_MAX 0xFFFF'FFFF'FFFF'FFFFULL
+#define HAL_TIMER_TYPE_MAX hal_timer_t(UINT64_MAX)
 
 #define HAL_TIMER_RATE         (1'000'000ULL)  // fixed value as we use a microsecond timesource
 #ifndef MF_TIMER_STEP

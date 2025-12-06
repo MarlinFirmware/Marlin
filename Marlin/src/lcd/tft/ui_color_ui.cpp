@@ -346,8 +346,6 @@ void MarlinUI::draw_status_screen() {
     duration_t elapsed = print_job_timer.duration();
   #endif
 
-  const progress_t progress = TERN(HAS_PRINT_PROGRESS_PERMYRIAD, get_progress_permyriad, get_progress_percent)();
-
   #if ENABLED(SHOW_ELAPSED_TIME)
     elapsed.toDigital(buffer);
     tft.canvas(ELAPSED_TIME_X, ELAPSED_TIME_Y, ELAPSED_TIME_W, ELAPSED_TIME_H);
@@ -360,15 +358,8 @@ void MarlinUI::draw_status_screen() {
   #endif
 
   #if ENABLED(SHOW_REMAINING_TIME)
-    // Get the estimate, first from M73
-    uint32_t estimate_remaining = (0
-      #if ALL(SET_PROGRESS_MANUALLY, SET_REMAINING_TIME)
-        + get_remaining_time()
-      #endif
-    );
-    // If no M73 estimate is available but we have progress data, calculate time remaining assuming time elapsed is linear with progress
-    if (!estimate_remaining && progress > 0)
-      estimate_remaining = elapsed.value * (100 * (PROGRESS_SCALE) - progress) / progress;
+    // Get a Remaining Time estimate from M73 R, a primed calculation, or percent/time calculation
+    const uint32_t estimate_remaining = get_remaining_time();
 
     // Generate estimate string
     if (!estimate_remaining)
@@ -387,13 +378,14 @@ void MarlinUI::draw_status_screen() {
       tft.add_image(REMAINING_TIME_IMAGE_X, REMAINING_TIME_IMAGE_Y, imgTimeRemaining, color);
     #endif
     tft.add_text(REMAINING_TIME_TEXT_X, REMAINING_TIME_TEXT_Y, color, tft_string);
-  #endif
+  #endif // SHOW_REMAINING_TIME
 
   // Progress bar
   // TODO: print percentage text for SHOW_PROGRESS_PERCENT
   tft.canvas(PROGRESS_BAR_X, PROGRESS_BAR_Y, PROGRESS_BAR_W, PROGRESS_BAR_H);
   tft.set_background(COLOR_PROGRESS_BG);
   tft.add_rectangle(0, 0, PROGRESS_BAR_W, PROGRESS_BAR_H, COLOR_PROGRESS_FRAME);
+  const progress_t progress = TERN(HAS_PRINT_PROGRESS_PERMYRIAD, get_progress_permyriad, get_progress_percent)();
   if (progress)
     tft.add_bar(1, 1, ((PROGRESS_BAR_W - 2) * progress / (PROGRESS_SCALE)) / 100, 7, COLOR_PROGRESS_BAR);
 

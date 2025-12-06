@@ -192,7 +192,7 @@ public:
   static void drawPrintScreen();
   static void drawPrintFilename(const bool reset=false);
   static void drawPrintProgressBar();
-  #if ENABLED(SET_REMAINING_TIME)
+  #if ENABLED(SHOW_REMAINING_TIME)
     static void drawPrintProgressRemain();
   #endif
   static void drawPrintProgressElapsed();
