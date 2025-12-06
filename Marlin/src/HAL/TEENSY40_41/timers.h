@@ -34,7 +34,7 @@
 #define FORCE_INLINE __attribute__((always_inline)) inline
 
 typedef uint32_t hal_timer_t;
-#define HAL_TIMER_TYPE_MAX 0xFFFFFFFEUL
+#define HAL_TIMER_TYPE_MAX hal_timer_t(UINT32_MAX-1UL)
 
 #define GPT_TIMER_RATE (F_CPU / 4) // 150MHz (Can't use F_BUS_ACTUAL because it's extern volatile)
 

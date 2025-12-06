@@ -1827,7 +1827,7 @@ float get_move_distance(const xyze_pos_t &diff OPTARG(HAS_ROTATIONAL_AXES, bool 
             // This is a travel move (with no extrusion)
             // Skip it, but keep track of the current position
             // (so it can be used as the start of the next non-travel move)
-            if (delayed_move_time != 0xFFFFFFFFUL) {
+            if (delayed_move_time != UINT32_MAX) {
               current_position = destination;
               NOLESS(raised_parked_position.z, destination.z);
               delayed_move_time = millis() + 1000UL;
