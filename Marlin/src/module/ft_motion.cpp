@@ -302,10 +302,8 @@ void FTMotion::init() {
     switch (type) {
       default:
       case TrajectoryType::TRAPEZOIDAL: currentGenerator = &trapezoidalGenerator; break;
-      #if ENABLED(FTM_POLYS)
-        case TrajectoryType::POLY5: currentGenerator = &poly5Generator; break;
-        case TrajectoryType::POLY6: currentGenerator = &poly6Generator; break;
-      #endif
+      case TrajectoryType::POLY5:       currentGenerator = &poly5Generator;       break;
+      case TrajectoryType::POLY6:       currentGenerator = &poly6Generator;       break;
     }
   }
 
