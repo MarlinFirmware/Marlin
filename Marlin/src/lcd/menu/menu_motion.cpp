@@ -338,27 +338,27 @@ void menu_move() {
     }
   #endif
 
-  void ftm_menu_set_shaper(const AxisEnum axis, const ftMotionShaper_t s) {
-    ftMotion.cfg.shaper[axis] = s;
+  void ftm_menu_set_shaper(const ftMotionShaper_t s) {
+    ftMotion.cfg.shaper[MenuItemBase::itemIndex] = s;
     ftMotion.update_shaping_params();
     ui.go_back();
   }
 
-  void menu_ftm_shaper(const AxisEnum axis) {
-    const ftMotionShaper_t shaper = ftMotion.cfg.shaper[axis];
+  void menu_ftm_shaper() {
+    const ftMotionShaper_t shaper = ftMotion.cfg.shaper[MenuItemBase::itemIndex];
 
     START_MENU();
     BACK_ITEM(MSG_FTM_CONFIGURE_AXIS);
 
-    if (shaper != ftMotionShaper_NONE)  ACTION_ITEM_N(axis, MSG_LCD_OFF,  []{ ftm_menu_set_shaper(MenuItemBase::itemIndex, ftMotionShaper_NONE)  ; });
-    if (shaper != ftMotionShaper_ZV)    ACTION_ITEM_N(axis, MSG_FTM_ZV,   []{ ftm_menu_set_shaper(MenuItemBase::itemIndex, ftMotionShaper_ZV)    ; });
-    if (shaper != ftMotionShaper_ZVD)   ACTION_ITEM_N(axis, MSG_FTM_ZVD,  []{ ftm_menu_set_shaper(MenuItemBase::itemIndex, ftMotionShaper_ZVD)   ; });
-    if (shaper != ftMotionShaper_ZVDD)  ACTION_ITEM_N(axis, MSG_FTM_ZVDD, []{ ftm_menu_set_shaper(MenuItemBase::itemIndex, ftMotionShaper_ZVDD)  ; });
-    if (shaper != ftMotionShaper_ZVDDD) ACTION_ITEM_N(axis, MSG_FTM_ZVDDD,[]{ ftm_menu_set_shaper(MenuItemBase::itemIndex, ftMotionShaper_ZVDDD) ; });
-    if (shaper != ftMotionShaper_EI)    ACTION_ITEM_N(axis, MSG_FTM_EI,   []{ ftm_menu_set_shaper(MenuItemBase::itemIndex, ftMotionShaper_EI)    ; });
-    if (shaper != ftMotionShaper_2HEI)  ACTION_ITEM_N(axis, MSG_FTM_2HEI, []{ ftm_menu_set_shaper(MenuItemBase::itemIndex, ftMotionShaper_2HEI)  ; });
-    if (shaper != ftMotionShaper_3HEI)  ACTION_ITEM_N(axis, MSG_FTM_3HEI, []{ ftm_menu_set_shaper(MenuItemBase::itemIndex, ftMotionShaper_3HEI)  ; });
-    if (shaper != ftMotionShaper_MZV)   ACTION_ITEM_N(axis, MSG_FTM_MZV,  []{ ftm_menu_set_shaper(MenuItemBase::itemIndex, ftMotionShaper_MZV)   ; });
+    if (shaper != ftMotionShaper_NONE)  ACTION_ITEM_N(MenuItemBase::itemIndex, MSG_LCD_OFF,  []{ ftm_menu_set_shaper(ftMotionShaper_NONE)  ; });
+    if (shaper != ftMotionShaper_ZV)    ACTION_ITEM_N(MenuItemBase::itemIndex, MSG_FTM_ZV,   []{ ftm_menu_set_shaper(ftMotionShaper_ZV)    ; });
+    if (shaper != ftMotionShaper_ZVD)   ACTION_ITEM_N(MenuItemBase::itemIndex, MSG_FTM_ZVD,  []{ ftm_menu_set_shaper(ftMotionShaper_ZVD)   ; });
+    if (shaper != ftMotionShaper_ZVDD)  ACTION_ITEM_N(MenuItemBase::itemIndex, MSG_FTM_ZVDD, []{ ftm_menu_set_shaper(ftMotionShaper_ZVDD)  ; });
+    if (shaper != ftMotionShaper_ZVDDD) ACTION_ITEM_N(MenuItemBase::itemIndex, MSG_FTM_ZVDDD,[]{ ftm_menu_set_shaper(ftMotionShaper_ZVDDD) ; });
+    if (shaper != ftMotionShaper_EI)    ACTION_ITEM_N(MenuItemBase::itemIndex, MSG_FTM_EI,   []{ ftm_menu_set_shaper(ftMotionShaper_EI)    ; });
+    if (shaper != ftMotionShaper_2HEI)  ACTION_ITEM_N(MenuItemBase::itemIndex, MSG_FTM_2HEI, []{ ftm_menu_set_shaper(ftMotionShaper_2HEI)  ; });
+    if (shaper != ftMotionShaper_3HEI)  ACTION_ITEM_N(MenuItemBase::itemIndex, MSG_FTM_3HEI, []{ ftm_menu_set_shaper(ftMotionShaper_3HEI)  ; });
+    if (shaper != ftMotionShaper_MZV)   ACTION_ITEM_N(MenuItemBase::itemIndex, MSG_FTM_MZV,  []{ ftm_menu_set_shaper(ftMotionShaper_MZV)   ; });
 
     END_MENU();
   }
