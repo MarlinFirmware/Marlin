@@ -286,8 +286,10 @@ class FTMotion {
     }
 
     // Trajectory generator selection
-    static void setTrajectoryType(const TrajectoryType type);
-    static bool updateTrajectoryType(const TrajectoryType type);
+    #if ENABLED(FTM_POLYS)
+      static void setTrajectoryType(const TrajectoryType type);
+      static bool updateTrajectoryType(const TrajectoryType type);
+    #endif
     static TrajectoryType getTrajectoryType() { return TERN(FTM_POLYS, trajectoryType, TrajectoryType::TRAPEZOIDAL); }
     static FSTR_P getTrajectoryName();
 

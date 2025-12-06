@@ -314,24 +314,16 @@ void FTMotion::init() {
 
   // Update trajectory generator type from G-code or UI
   bool FTMotion::updateTrajectoryType(const TrajectoryType type) {
-    if (type == cfg.trajectory_type) return false;
+    if (type == trajectoryType) return false;
     switch (type) {
       default: return false;
       case TrajectoryType::TRAPEZOIDAL:
-      #if ENABLED(FTM_POLYS)
-        case TrajectoryType::POLY5:
-        case TrajectoryType::POLY6:
-      #endif
+      case TrajectoryType::POLY5:
+      case TrajectoryType::POLY6:
         break;
     }
     planner.synchronize();
-    switch (type) {
-      case TrajectoryType::TRAPEZOIDAL: currentGenerator = &trapezoidalGenerator; break;
-      #if ENABLED(FTM_POLYS)
-        case TrajectoryType::POLY5: currentGenerator = &poly5Generator; break;
-        case TrajectoryType::POLY6: currentGenerator = &poly6Generator; break;
-      #endif
-    }
+    setTrajectoryType(type);
     return true;
   }
 
