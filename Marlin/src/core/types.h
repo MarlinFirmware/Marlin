@@ -177,6 +177,7 @@ template <class L, class R> struct IF<true, L, R> { typedef L type; };
 #define CARTES_CODE(x,y,z,e)      XYZ_CODE(x,y,z) CODE_ITEM_E(e)
 #define CARTES_GANG(x,y,z,e)      XYZ_GANG(x,y,z) GANG_ITEM_E(e)
 #define CARTES_AXIS_NAMES         CARTES_LIST(X,Y,Z,E)
+#define CARTES_AXIS_NAMES_LC      CARTES_LIST(x,y,z,e)
 #define CARTES_MAP(F)             MAP(F, CARTES_AXIS_NAMES)
 #if CARTES_COUNT
   #define CARTES_COMMA ,

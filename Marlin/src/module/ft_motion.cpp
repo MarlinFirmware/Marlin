@@ -215,12 +215,8 @@ void FTMotion::loop() {
     smoothing.refresh_largest_delay_samples();
   }
 
-  void FTMotion::set_smoothing_time(uint8_t axis, const float s_time) {
-    #define _SMOOTH_CASE(A) case _AXIS(A): cfg.smoothingTime.A = s_time; break;
-    switch (axis) {
-      default:
-      CARTES_MAP(_SMOOTH_CASE);
-    }
+  void FTMotion::set_smoothing_time(const uint8_t axis, const float s_time) {
+    cfg.smoothingTime[axis] = s_time
     update_smoothing_params();
   }
 
