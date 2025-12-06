@@ -140,7 +140,7 @@
   //#define TEMP_CHAMBER_PIN                  12  // Analog Input (default connector for thermistor *T3* on rumba board is used)
 #endif
 
-#if TEMP_SENSOR_BED == -1
+#if TEMP_SENSOR_BED_IS_AD595
   #define TEMP_BED_PIN                         7  // Analog Input (connector *K3* on RUMBA thermocouple ADD ON is used <-- this can't be used when TEMP_SENSOR_2 is defined as thermocouple)
 #else
   #define TEMP_BED_PIN                        11  // Analog Input (default connector for thermistor *THB* on rumba board is used)

@@ -34,7 +34,7 @@
 #define FORCE_INLINE __attribute__((always_inline)) inline
 
 typedef uint64_t hal_timer_t;
-#define HAL_TIMER_TYPE_MAX 0xFFFF'FFFF'FFFF'FFFFULL
+#define HAL_TIMER_TYPE_MAX hal_timer_t(UINT64_MAX)
 
 #define HAL_TIMER_RATE         ((SystemCoreClock) / 4)  // frequency of timers peripherals
 

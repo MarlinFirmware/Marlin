@@ -724,7 +724,7 @@ void Marlin::manage_inactivity(const bool no_stepper_sleep/*=false*/) {
     // handle delayed move timeout
     if (delayed_move_time && ELAPSED(ms, delayed_move_time) && isRunning()) {
       // travel moves have been received so enact them
-      delayed_move_time = 0xFFFFFFFFUL; // force moves to be done
+      delayed_move_time = UINT32_MAX; // force moves to be done
       destination = current_position;
       prepare_line_to_destination();
       planner.synchronize();

@@ -34,8 +34,8 @@
 #define MF_TIMER_TEMP     1
 #define MF_TIMER_PULSE    MF_TIMER_STEP
 
-#define hal_timer_t         uint32_t
-#define HAL_TIMER_TYPE_MAX  UINT16_MAX
+typedef uint32_t hal_timer_t;
+#define HAL_TIMER_TYPE_MAX hal_timer_t(UINT16_MAX)
 
 extern uint32_t GetStepperTimerClkFreq();
 
