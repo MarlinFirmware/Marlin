@@ -91,15 +91,41 @@ typedef struct FTConfig {
     static constexpr TrajectoryType trajectory_type = TrajectoryType::TRAPEZOIDAL;
   #endif
 
+  bool setActive(const bool a) {
+    if (a == active) return false;
+    stepper.ftMotion_syncPosition();
+    active = a;
+    return true;
+  }
+
   #if HAS_FTM_SHAPING
+
     constexpr bool goodZeta(const float z) { return WITHIN(z, 0.01f, 1.0f); }
     constexpr bool goodVtol(const float v) { return WITHIN(v, 0.00f, 1.0f); }
+
     #if HAS_DYNAMIC_FREQ
+
+      uint8_t setDynFreqMode(const uint8_t m) {
+        if (dynFreqMode_t(m) == dynFreqMode) return 0;
+        switch (dynFreqMode_t(m)) {
+          default: return 2;
+          TERN_(HAS_DYNAMIC_FREQ_MM, case dynFreqMode_Z_BASED:)
+          TERN_(HAS_DYNAMIC_FREQ_G, case dynFreqMode_MASS_BASED:)
+          case dynFreqMode_DISABLED:
+            planner.synchronize();
+            dynFreqMode = dynFreqMode_t(m);
+            break;
+        }
+        return 1;
+      }
+
       bool modeUsesDynFreq() const {
         return (TERN0(HAS_DYNAMIC_FREQ_MM, dynFreqMode == dynFreqMode_Z_BASED)
              || TERN0(HAS_DYNAMIC_FREQ_G,  dynFreqMode == dynFreqMode_MASS_BASED));
       }
-    #endif
+
+    #endif // HAS_DYNAMIC_FREQ
+
   #endif // HAS_FTM_SHAPING
 
   constexpr bool goodBaseFreq(const float f) { return WITHIN(f, FTM_MIN_SHAPE_FREQ, (FTM_FS) / 2); }
@@ -189,14 +215,16 @@ class FTMotion {
 
     // Safely toggle the active state of FT Motion
     static bool toggle() {
-      stepper.ftMotion_syncPosition();
-      FLIP(cfg.active);
+      cfg.setActive(!cfg.active);
       update_shaping_params();
       return cfg.active;
     }
 
     // Trajectory generator selection
-    static void setTrajectoryType(const TrajectoryType type);
+    #if ENABLED(FTM_POLYS)
+      static void setTrajectoryType(const TrajectoryType type);
+      static bool updateTrajectoryType(const TrajectoryType type);
+    #endif
     static TrajectoryType getTrajectoryType() { return TERN(FTM_POLYS, trajectoryType, TrajectoryType::TRAPEZOIDAL); }
     static FSTR_P getTrajectoryName();
 
@@ -286,10 +314,10 @@ extern FTMotion ftMotion; // Use ftMotion.thing, not FTMotion::thing.
     bool isactive;
     FTMotionDisableInScope() {
       isactive = ftMotion.cfg.active;
-      ftMotion.cfg.active = false;
+      ftMotion.cfg.setActive(false);
     }
     ~FTMotionDisableInScope() {
-      ftMotion.cfg.active = isactive;
+      ftMotion.cfg.setActive(isactive);
       if (isactive) ftMotion.init();
     }
   } FTMotionDisableInScope_t;

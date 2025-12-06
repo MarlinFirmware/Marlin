@@ -211,14 +211,8 @@ void GcodeSuite::M493() {
   ft_config_t &c = ftMotion.cfg;
 
   // Parse 'S' mode parameter.
-  if (parser.seen('S')) {
-    const bool active = parser.value_bool();
-    if (active != c.active) {
-      stepper.ftMotion_syncPosition();
-      c.active = active;
-      flag.report = true;
-    }
-  }
+  if (parser.seen('S') && c.setActive(parser.value_bool()))
+    flag.report = true;
 
   #if NUM_AXES_SHAPED > 0
 
@@ -256,21 +250,10 @@ void GcodeSuite::M493() {
     // Dynamic frequency mode parameter.
     if (parser.seenval('D')) {
       if (AXIS_IS_SHAPING(X) || AXIS_IS_SHAPING(Y) || AXIS_IS_SHAPING(Z) || AXIS_IS_SHAPING(E)) {
-        const dynFreqMode_t val = dynFreqMode_t(parser.value_byte());
-        switch (val) {
-          #if HAS_DYNAMIC_FREQ_MM
-            case dynFreqMode_Z_BASED:
-          #endif
-          #if HAS_DYNAMIC_FREQ_G
-            case dynFreqMode_MASS_BASED:
-          #endif
-          case dynFreqMode_DISABLED:
-            c.dynFreqMode = val;
-            flag.report = true;
-            break;
-          default:
-            SERIAL_ECHOLN(F("?Invalid "), F("(D)ynamic Frequency Mode value."));
-            break;
+        switch (c.setDynFreqMode(parser.value_byte())) {
+          case 0: break; // Same value, no update
+          case 1: flag.report = true; break; // New value, updated
+          default: SERIAL_ECHOLN(F("?Invalid "), F("(D)ynamic Frequency Mode value.")); break;
         }
       }
       else

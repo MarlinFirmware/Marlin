@@ -207,6 +207,8 @@ void FTMotion::loop() {
 
 #if ENABLED(FTM_SMOOTHING)
 
+  #include "planner.h"
+
   void FTMotion::update_smoothing_params() {
     #define _SMOOTH_PARAM(A) smoothing.A.set_smoothing_time(cfg.smoothingTime.A);
     CARTES_MAP(_SMOOTH_PARAM);
@@ -302,11 +304,24 @@ void FTMotion::init() {
     switch (type) {
       default:
       case TrajectoryType::TRAPEZOIDAL: currentGenerator = &trapezoidalGenerator; break;
-      #if ENABLED(FTM_POLYS)
-        case TrajectoryType::POLY5: currentGenerator = &poly5Generator; break;
-        case TrajectoryType::POLY6: currentGenerator = &poly6Generator; break;
-      #endif
+      case TrajectoryType::POLY5:       currentGenerator = &poly5Generator;       break;
+      case TrajectoryType::POLY6:       currentGenerator = &poly6Generator;       break;
     }
+  }
+
+  // Update trajectory generator type from G-code or UI
+  bool FTMotion::updateTrajectoryType(const TrajectoryType type) {
+    if (type == trajectoryType) return false;
+    switch (type) {
+      default: return false;
+      case TrajectoryType::TRAPEZOIDAL:
+      case TrajectoryType::POLY5:
+      case TrajectoryType::POLY6:
+        break;
+    }
+    planner.synchronize();
+    setTrajectoryType(type);
+    return true;
   }
 
 #endif // FTM_POLYS

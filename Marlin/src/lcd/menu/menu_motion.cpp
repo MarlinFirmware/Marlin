@@ -331,9 +331,13 @@ void menu_move() {
     FSTR_P get_dyn_freq_mode_name() {
       switch (ftMotion.cfg.dynFreqMode) {
         default:
-        case dynFreqMode_DISABLED:   return GET_TEXT_F(MSG_LCD_OFF);
-        case dynFreqMode_Z_BASED:    return GET_TEXT_F(MSG_FTM_Z_BASED);
-        case dynFreqMode_MASS_BASED: return GET_TEXT_F(MSG_FTM_MASS_BASED);
+        case dynFreqMode_DISABLED:     return GET_TEXT_F(MSG_LCD_OFF);
+        #if HAS_DYNAMIC_FREQ_MM
+          case dynFreqMode_Z_BASED:    return GET_TEXT_F(MSG_FTM_Z_BASED);
+        #endif
+        #if HAS_DYNAMIC_FREQ_G
+          case dynFreqMode_MASS_BASED: return GET_TEXT_F(MSG_FTM_MASS_BASED);
+        #endif
       }
     }
   #endif
@@ -370,14 +374,14 @@ void menu_move() {
       START_MENU();
       BACK_ITEM(MSG_FIXED_TIME_MOTION);
 
-      if (traj_type != TrajectoryType::TRAPEZOIDAL) ACTION_ITEM(MSG_FTM_TRAPEZOIDAL, []{ planner.synchronize(); ftMotion.setTrajectoryType(TrajectoryType::TRAPEZOIDAL);  ui.go_back(); });
-      if (traj_type != TrajectoryType::POLY5)       ACTION_ITEM(MSG_FTM_POLY5,       []{ planner.synchronize(); ftMotion.setTrajectoryType(TrajectoryType::POLY5);        ui.go_back(); });
-      if (traj_type != TrajectoryType::POLY6)       ACTION_ITEM(MSG_FTM_POLY6,       []{ planner.synchronize(); ftMotion.setTrajectoryType(TrajectoryType::POLY6);        ui.go_back(); });
+      if (traj_type != TrajectoryType::TRAPEZOIDAL) ACTION_ITEM(MSG_FTM_TRAPEZOIDAL, []{ ftMotion.updateTrajectoryType(TrajectoryType::TRAPEZOIDAL); ui.go_back(); });
+      if (traj_type != TrajectoryType::POLY5)       ACTION_ITEM(MSG_FTM_POLY5,       []{ ftMotion.updateTrajectoryType(TrajectoryType::POLY5);       ui.go_back(); });
+      if (traj_type != TrajectoryType::POLY6)       ACTION_ITEM(MSG_FTM_POLY6,       []{ ftMotion.updateTrajectoryType(TrajectoryType::POLY6);       ui.go_back(); });
 
       END_MENU();
     }
 
-  #endif
+  #endif // FTM_POLYS
 
   #if ENABLED(FTM_RESONANCE_TEST)
 
@@ -420,12 +424,12 @@ void menu_move() {
       START_MENU();
       BACK_ITEM(MSG_FTM_CONFIGURE_AXIS);
 
-      if (dmode != dynFreqMode_DISABLED) ACTION_ITEM(MSG_LCD_OFF, []{ ftMotion.cfg.dynFreqMode = dynFreqMode_DISABLED; ui.go_back(); });
+      if (dmode != dynFreqMode_DISABLED)     ACTION_ITEM(MSG_LCD_OFF,        []{ (void)ftMotion.cfg.setDynFreqMode(dynFreqMode_DISABLED);   ui.go_back(); });
       #if HAS_DYNAMIC_FREQ_MM
-        if (dmode != dynFreqMode_Z_BASED) ACTION_ITEM(MSG_FTM_Z_BASED, []{ ftMotion.cfg.dynFreqMode = dynFreqMode_Z_BASED; ui.go_back(); });
+        if (dmode != dynFreqMode_Z_BASED)    ACTION_ITEM(MSG_FTM_Z_BASED,    []{ (void)ftMotion.cfg.setDynFreqMode(dynFreqMode_Z_BASED);    ui.go_back(); });
       #endif
       #if HAS_DYNAMIC_FREQ_G
-        if (dmode != dynFreqMode_MASS_BASED) ACTION_ITEM(MSG_FTM_MASS_BASED, []{ ftMotion.cfg.dynFreqMode = dynFreqMode_MASS_BASED; ui.go_back(); });
+        if (dmode != dynFreqMode_MASS_BASED) ACTION_ITEM(MSG_FTM_MASS_BASED, []{ (void)ftMotion.cfg.setDynFreqMode(dynFreqMode_MASS_BASED); ui.go_back(); });
       #endif
 
       END_MENU();
