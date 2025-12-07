@@ -53,7 +53,7 @@
 #ifndef HAL_TIMER_RATE
   #ifdef F_CPU
     #define HAL_TIMER_RATE          ((F_CPU) / 2)
-    //static_assert(false, "HAL_TIMER_RATE is set from F_CPU=" STRINGIFY(F_CPU));
+    //static_assert(false, "HAL_TIMER_RATE is set from F_CPU = " STRINGIFY(F_CPU) " / 8");
     // Stepper Timer calculations
     #define STEPPER_TIMER_RATE      HAL_TIMER_RATE                            // HAL speed, as with others
     #define STEPPER_TIMER_PRESCALE  (CYCLES_PER_MICROSECOND / STEPPER_TIMER_TICKS_PER_US)
