@@ -456,7 +456,7 @@ void menu_move() {
 
     #if ENABLED(FTM_SMOOTHING)
       editable.decimal = c.smoothingTime[axis];
-      EDIT_ITEM_FAST_N(float43, axis, MSG_FTM_SMOOTH_TIME_N, &editable.decimal, 0.0f, FTM_MAX_SMOOTHING_TIME, []{ ftMotion.set_smoothing_time(MenuItemBase::itemIndex, editable.decimal); });
+      EDIT_ITEM_FAST_N(float43, axis, MSG_FTM_SMOOTH_TIME_N, &editable.decimal, 0.0f, FTM_MAX_SMOOTHING_TIME, []{ (void)ftMotion.set_smoothing_time(AxisEnum(MenuItemBase::itemIndex), editable.decimal); });
     #endif
 
     #if HAS_DYNAMIC_FREQ

@@ -175,7 +175,7 @@ class FTMotion {
       #endif // HAS_FTM_SHAPING
 
       #if ENABLED(FTM_SMOOTHING)
-        #define _RESET_SMOOTH(A) set_smoothing_time(_AXIS(A), FTM_SMOOTHING_TIME_##A);
+        #define _RESET_SMOOTH(A) (void)set_smoothing_time(_AXIS(A), FTM_SMOOTHING_TIME_##A);
         CARTES_MAP(_RESET_SMOOTH);
         #undef _RESET_SMOOTH
       #endif
@@ -208,7 +208,7 @@ class FTMotion {
       // Refresh alpha and delay samples used by smoothing functions.
       static void update_smoothing_params();
       // Setters for smoothingTime that update alpha and delay
-      static void set_smoothing_time(const uint8_t axis, const float s_time);
+      static bool set_smoothing_time(const AxisEnum axis, const float s_time);
     #endif
 
     static void reset();                                  // Reset all states of the fixed time conversion to defaults.
