@@ -40,9 +40,9 @@ constexpr uint32_t FTM_Q = 16 - FTM_Q_INT;                           // uint16 i
 
 // The _FP and _fp suffixes mean the number is in fixed point format with the point at the FTM_Q position.
 // See: https://en.wikipedia.org/wiki/Fixed-point_arithmetic
-// E.g number_fp = number << FTM_Q
-//     number == (number_fp >> FTM_Q)
-constexpr uint32_t ONE_FP = 1 << FTM_Q;                   // Number 1 in fixed point format
+// e.g., number_fp = number << FTM_Q
+//       number == (number_fp >> FTM_Q)
+constexpr uint32_t ONE_FP = 1UL << FTM_Q;                 // Number 1 in fixed point format
 constexpr uint32_t FP_FLOOR_MASK = ~(ONE_FP - 1);         // Bit mask to do FLOOR in fixed point
 constexpr uint32_t FRAME_TICKS_FP = FRAME_TICKS << FTM_Q; // Ticks in a frame in fixed point
 

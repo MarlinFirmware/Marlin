@@ -216,7 +216,7 @@ void FTMotion::loop() {
   }
 
   void FTMotion::set_smoothing_time(const uint8_t axis, const float s_time) {
-    cfg.smoothingTime[axis] = s_time
+    cfg.smoothingTime[axis] = s_time;
     update_smoothing_params();
   }
 
