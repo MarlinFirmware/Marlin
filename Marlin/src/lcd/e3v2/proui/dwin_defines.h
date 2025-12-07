@@ -133,7 +133,7 @@
 #if PROUI_TUNING_GRAPH
   #define PROUI_ITEM_PLOT     // Plot temp graph viewer
 #endif
-#define HAS_GCODE_PREVIEW 1   // Preview G-code model thumbnail
+#define HAS_PROUI_GCODE_PREVIEW 1 // Preview G-code model thumbnail
 #define HAS_CUSTOM_COLORS 1   // Change display colors
 #define HAS_ESDIAG 1          // View End-stop/Runout switch continuity
 #define HAS_LOCKSCREEN 1      // Simple lockscreen

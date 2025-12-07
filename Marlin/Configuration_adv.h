@@ -2015,6 +2015,13 @@
     #define DEFAULT_SHARED_VOLUME USB_FLASH_DRIVE  // :[ 'SD_ONBOARD', 'USB_FLASH_DRIVE' ]
   #endif
 
+  // G-code Preview for TFT Color UI uses image data embedded in G-code files
+  #if ENABLED(TFT_COLOR_UI)
+    //#define GCODE_PREVIEW_JPEG  // Enable JPEG thumbnail decoding
+    //#define GCODE_PREVIEW_PNG   // Enable PNG thumbnail decoding
+    //#define GCODE_PREVIEW_QOI   // Enable QOI thumbnail decoding
+  #endif
+
 #endif // HAS_MEDIA
 
 /**

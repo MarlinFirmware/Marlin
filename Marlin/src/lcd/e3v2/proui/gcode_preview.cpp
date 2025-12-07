@@ -33,7 +33,7 @@
 
 #include "dwin_defines.h"
 
-#if HAS_GCODE_PREVIEW
+#if HAS_PROUI_GCODE_PREVIEW
 
 #include "gcode_preview.h"
 
@@ -234,5 +234,5 @@ void Preview::show() {
   dwinIconShow(xpos, ypos, 0x00);
 }
 
-#endif // HAS_GCODE_PREVIEW
+#endif // HAS_PROUI_GCODE_PREVIEW
 #endif // DWIN_LCD_PROUI

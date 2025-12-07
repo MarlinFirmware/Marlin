@@ -66,6 +66,7 @@
 #define UI_INCL_(W, H) STRINGIFY_(ui_##W##x##H.h)
 #define UI_INCL(W, H) UI_INCL_(W, H)
 
+#undef MENU_LINE_HEIGHT  // Redefine for high-res screens
 #include UI_INCL(TFT_WIDTH, TFT_HEIGHT)
 #include "ui_theme.h"
 #include "tft_font.h"

@@ -548,7 +548,7 @@ char *creat_title_text() {
   return public_buf_m;
 }
 
-#if HAS_GCODE_PREVIEW
+#if HAS_MKS_GCODE_PREVIEW
 
   uintptr_t gPicturePreviewStart = 0;
 
@@ -701,7 +701,7 @@ char *creat_title_text() {
     #endif
   }
 
-#endif // HAS_GCODE_PREVIEW
+#endif // HAS_MKS_GCODE_PREVIEW
 
 void print_time_run() {
   static uint8_t lastSec = 0;
@@ -1364,7 +1364,7 @@ void LV_TASK_HANDLER() {
     if (mks_test_flag == 0x1E) mks_hardware_test();
   #endif
 
-  TERN_(HAS_GCODE_PREVIEW, disp_pre_gcode(2, 36));
+  TERN_(HAS_MKS_GCODE_PREVIEW, disp_pre_gcode(2, 36));
 
   GUI_RefreshPage();
 

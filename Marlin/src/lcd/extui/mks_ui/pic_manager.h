@@ -36,8 +36,8 @@
 #ifndef HAS_SPI_FLASH_FONT
   #define HAS_SPI_FLASH_FONT              1 // Disabled until fix the font load code
 #endif
-#ifndef HAS_GCODE_PREVIEW
-  #define HAS_GCODE_PREVIEW               1
+#ifndef HAS_MKS_GCODE_PREVIEW
+  #define HAS_MKS_GCODE_PREVIEW           1
 #endif
 #ifndef HAS_LANG_SELECT_SCREEN
   #define HAS_LANG_SELECT_SCREEN          1

@@ -31,6 +31,11 @@
 #include "menu_item.h"
 #include "../../sd/cardreader.h"
 
+#if HAS_TFT_GCODE_PREVIEW
+  #include "../tft/ui_common.h"
+  #include "../tft/ui_gcode_preview.h"
+#endif
+
 void lcd_sd_updir() {
   ui.encoderPosition = card.cdup() ? ENCODER_STEPS_PER_MENU_ITEM : 0;
   encoderTopLine = 0;
@@ -64,24 +69,33 @@ class MenuItem_sdfile : public MenuItem_sdbase {
       MenuItem_sdbase::draw(sel, row, fstr, theCard, false);
     }
     static void action(FSTR_P const fstr, CardReader &) {
-      #if ENABLED(SD_REPRINT_LAST_SELECTED_FILE)
-        // Save menu state for the selected file
-        sd_encoder_position = ui.encoderPosition;
-        sd_top_line = encoderTopLine;
-        sd_items = screen_items;
-      #endif
-      #if ENABLED(SD_MENU_CONFIRM_START)
-        MenuItem_submenu::action(fstr, []{
-          char * const filename = card.longest_filename();
-          MenuItem_confirm::select_screen(
-            GET_TEXT_F(MSG_BUTTON_PRINT), GET_TEXT_F(MSG_BUTTON_CANCEL),
-            sdcard_start_selected_file, nullptr,
-            GET_TEXT_F(MSG_START_PRINT), filename, F("?")
-          );
-        });
+      #if HAS_TFT_GCODE_PREVIEW
+        // Show preview for TFT_COLOR_UI
+        // First process the preview data
+        preview.invalidate();  // Clear any previous state
+        preview.hasPreview();  // Process the preview data (result doesn't matter)
+        // Always show the preview screen - drawFromSD() handles both cases
+        ui.goto_screen([]{ preview.drawFromSD(); });
       #else
-        sdcard_start_selected_file();
-        UNUSED(fstr);
+        #if ENABLED(SD_REPRINT_LAST_SELECTED_FILE)
+          // Save menu state for the selected file
+          sd_encoder_position = ui.encoderPosition;
+          sd_top_line = encoderTopLine;
+          sd_items = screen_items;
+        #endif
+        #if ENABLED(SD_MENU_CONFIRM_START)
+          MenuItem_submenu::action(fstr, []{
+            char * const filename = card.longest_filename();
+            MenuItem_confirm::select_screen(
+              GET_TEXT_F(MSG_BUTTON_PRINT), GET_TEXT_F(MSG_BUTTON_CANCEL),
+              sdcard_start_selected_file, nullptr,
+              GET_TEXT_F(MSG_START_PRINT), filename, F("?")
+            );
+          });
+        #else
+          sdcard_start_selected_file();
+          UNUSED(fstr);
+        #endif
       #endif
     }
 };
