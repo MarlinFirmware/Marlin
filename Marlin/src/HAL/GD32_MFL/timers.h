@@ -37,18 +37,33 @@
 typedef uint32_t hal_timer_t;
 #define HAL_TIMER_TYPE_MAX hal_timer_t(UINT16_MAX)
 
-extern uint32_t GetStepperTimerClkFreq();
-
 // Timer configuration constants
-#define STEPPER_TIMER_RATE    2000000
 #define TEMP_TIMER_FREQUENCY  1000
 
-// Timer prescaler calculations
-#define STEPPER_TIMER_PRESCALE      (GetStepperTimerClkFreq() / STEPPER_TIMER_RATE)       // Prescaler = 30
-#define STEPPER_TIMER_TICKS_PER_US  ((STEPPER_TIMER_RATE) / 1000000UL)              // (MHz) Stepper Timer ticks per µs
+#ifndef HAL_TIMER_RATE
+  #ifdef F_CPU
+    #define HAL_TIMER_RATE          ((F_CPU) / 2)
+    //static_assert(false, "HAL_TIMER_RATE is set from F_CPU=" STRINGIFY(F_CPU));
+    // Stepper Timer calculations
+    #define STEPPER_TIMER_RATE      HAL_TIMER_RATE                            // HAL speed, as with others
+    #define STEPPER_TIMER_PRESCALE  (CYCLES_PER_MICROSECOND / STEPPER_TIMER_TICKS_PER_US)
+  #else
+    extern uint32_t GetStepperTimerClkFreq();
+    #define HAL_TIMER_RATE GetStepperTimerClkFreq()
+    // Stepper Timer calculations
+    #define STEPPER_TIMER_RATE      2'000'000                                 // 2 Mhz
+    #define STEPPER_TIMER_PRESCALE  ((HAL_TIMER_RATE) / (STEPPER_TIMER_RATE)) // Calculated Prescaler
+  #endif
+#endif
+#define STEPPER_TIMER_TICKS_PER_US ((STEPPER_TIMER_RATE) / 1000000UL)     // (MHz) Stepper Timer ticks per µs
 
-#define PULSE_TIMER_RATE            STEPPER_TIMER_RATE                              // (Hz) Frequency of Pulse Timer
-#define PULSE_TIMER_TICKS_PER_US    STEPPER_TIMER_TICKS_PER_US
+// Stepper Timer calculations
+#define STEPPER_TIMER_RATE          2000000
+#define STEPPER_TIMER_PRESCALE      ((HAL_TIMER_RATE) / (STEPPER_TIMER_RATE)) // Prescaler = 30
+#define STEPPER_TIMER_TICKS_PER_US  ((STEPPER_TIMER_RATE) / 1000000UL)        // (MHz) Stepper Timer ticks per µs
+
+// Pulse Timer (counter) calculations
+#define PULSE_TIMER_RATE            STEPPER_TIMER_RATE                        // (Hz) Frequency of Pulse Timer
 #define PULSE_TIMER_PRESCALE        STEPPER_TIMER_PRESCALE
 
 // Timer interrupt priorities

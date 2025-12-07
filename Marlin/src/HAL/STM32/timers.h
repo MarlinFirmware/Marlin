@@ -50,14 +50,27 @@
 
 #define TEMP_TIMER_FREQUENCY 1000   // Temperature::isr() is expected to be called at around 1kHz
 
-// TODO: get rid of manual rate/prescale/ticks/cycles taken for procedures in stepper.cpp
-#define STEPPER_TIMER_RATE 2'000'000 // 2 Mhz
-extern uint32_t GetStepperTimerClkFreq();
-#define STEPPER_TIMER_PRESCALE (GetStepperTimerClkFreq() / (STEPPER_TIMER_RATE))
-#define STEPPER_TIMER_TICKS_PER_US ((STEPPER_TIMER_RATE) / 1000000UL)               // (MHz) Stepper Timer ticks per µs
+#ifndef HAL_TIMER_RATE
+  #ifdef F_CPU
+    #define HAL_TIMER_RATE          ((F_CPU) / 2)
+    //static_assert(false, "HAL_TIMER_RATE is set from F_CPU=" STRINGIFY(F_CPU));
+    // Stepper Timer calculations
+    #define STEPPER_TIMER_RATE      HAL_TIMER_RATE                            // HAL speed, as with others
+    #define STEPPER_TIMER_PRESCALE  (CYCLES_PER_MICROSECOND / STEPPER_TIMER_TICKS_PER_US)
+  #else
+    extern uint32_t GetStepperTimerClkFreq();
+    #define HAL_TIMER_RATE GetStepperTimerClkFreq()
+    // Stepper Timer calculations
+    #define STEPPER_TIMER_RATE      2'000'000                                 // 2 Mhz
+    #define STEPPER_TIMER_PRESCALE  ((HAL_TIMER_RATE) / (STEPPER_TIMER_RATE)) // Calculated Prescaler
+  #endif
+#endif
+#define STEPPER_TIMER_TICKS_PER_US ((STEPPER_TIMER_RATE) / 1000000UL)     // (MHz) Stepper Timer ticks per µs
 
-#define PULSE_TIMER_RATE            STEPPER_TIMER_RATE                              // (Hz) Frequency of Pulse Timer
-#define PULSE_TIMER_TICKS_PER_US    STEPPER_TIMER_TICKS_PER_US
+// TODO: Get rid of manual rate/prescale/ticks/cycles taken for procedures in stepper.cpp
+
+// Pulse Timer (counter) calculations
+#define PULSE_TIMER_RATE            STEPPER_TIMER_RATE                    // (Hz) Frequency of Pulse Timer
 #define PULSE_TIMER_PRESCALE        STEPPER_TIMER_PRESCALE
 
 #define ENABLE_STEPPER_DRIVER_INTERRUPT()   HAL_timer_enable_interrupt(MF_TIMER_STEP)

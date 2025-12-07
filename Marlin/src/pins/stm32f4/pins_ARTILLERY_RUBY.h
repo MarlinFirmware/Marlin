@@ -35,8 +35,6 @@
 #endif
 #define MARLIN_EEPROM_SIZE               0x1000U  // 4K
 
-#define HAL_TIMER_RATE                     F_CPU
-
 //
 // Limit Switches
 //
