@@ -551,6 +551,7 @@ void menu_move() {
 #endif // FT_MOTION_MENU
 
 void menu_motion() {
+
   START_MENU();
 
   //

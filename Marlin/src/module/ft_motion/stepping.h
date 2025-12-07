@@ -41,8 +41,7 @@ constexpr uint32_t FTM_Q = 16 - FTM_Q_INT;                           // uint16 i
 static_assert(FRAME_TICKS < FTM_NEVER, "(STEPPER_TIMER_RATE / FTM_FS) must be < " STRINGIFY(FTM_NEVER) " to fit 16-bit fixed-point numbers.");
 
 constexpr bool assert_ftm_bits() {
-  if (STEPPER_TIMER_RATE == 2000000 && FTM_FS == 1000) {
-    static_assert(FRAME_TICKS == 2000, "FRAME_TICKS should be 2000");
+  if (FRAME_TICKS == 2000) {
     static_assert(FTM_Q_INT == 11, "FTM_Q_INT should be 11");
     static_assert(FTM_Q == 5, "FTM_Q should be 5");
   }

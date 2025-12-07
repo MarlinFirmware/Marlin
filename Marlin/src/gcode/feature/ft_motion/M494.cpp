@@ -89,12 +89,8 @@ void GcodeSuite::M494() {
 
     // Parse trajectory type parameter.
     if (parser.seenval('T')) {
-      const int val = parser.value_int();
-      if (WITHIN(val, 0, 2)) {
-        planner.synchronize();
-        ftMotion.setTrajectoryType((TrajectoryType)val);
+      if (ftMotion.updateTrajectoryType(TrajectoryType(parser.value_int())))
         report = true;
-      }
       else
         SERIAL_ECHOLN(F("?Invalid "), F("(T)rajectory type value. Use 0=TRAPEZOIDAL, 1=POLY5, 2=POLY6"));
     }
@@ -116,11 +112,8 @@ void GcodeSuite::M494() {
 
     #define SMOOTH_SET(A,N) \
       if (parser.seenval(CHARIFY(A))) { \
-        const float val = parser.value_float(); \
-        if (WITHIN(val, 0.0f, FTM_MAX_SMOOTHING_TIME)) { \
-          ftMotion.set_smoothing_time(_AXIS(A), val); \
+        if (ftMotion.set_smoothing_time(_AXIS(A), parser.value_float())) \
           report = true; \
-        } \
         else \
           SERIAL_ECHOLNPGM("?Invalid ", C(N), " smoothing time (", C(CHARIFY(A)), ") value."); \
       }
