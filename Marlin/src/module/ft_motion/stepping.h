@@ -31,12 +31,24 @@ FORCE_INLINE constexpr uint32_t a_times_b_shift_16(const uint32_t a, const uint3
   return (hi * b) + ((lo * b) >> 16);
 }
 #define FTM_NEVER uint32_t(UINT16_MAX)                               // Reserved number to indicate "no ticks in this frame" (FRAME_TICKS_FP+1 would work too)
-constexpr uint32_t FRAME_TICKS = STEPPER_TIMER_RATE / FTM_FS;        // Timer ticks in a frame
-static_assert(FRAME_TICKS < FTM_NEVER, "(STEPPER_TIMER_RATE / FTM_FS) must be < 2^16 (otherwise fixed-point numbers exceed uint16 vars).");
-constexpr uint32_t FTM_Q_INT = 32u - __builtin_clz(FRAME_TICKS + 1); // Bits to represent the max value (duration of a frame, +1 one for FTM_NEVER).
+constexpr uint32_t FRAME_TICKS = STEPPER_TIMER_RATE / FTM_FS;        // Timer ticks per frame (by default, 1kHz)
+constexpr uint32_t TICKS_BITS = __builtin_clzl(FRAME_TICKS + 1UL);   // Bits to represent the max value (duration of a frame, +1 one for FTM_NEVER).
+constexpr uint32_t FTM_Q_INT = 32u - TICKS_BITS;                     // Bits remaining
                                                                      // "clz" counts leading zeroes.
 constexpr uint32_t FTM_Q = 16 - FTM_Q_INT;                           // uint16 interval fractional bits.
                                                                      // Intervals buffer has fixed point numbers with the point on this position
+
+static_assert(FRAME_TICKS < FTM_NEVER, "(STEPPER_TIMER_RATE / FTM_FS) must be < " STRINGIFY(FTM_NEVER) " to fit 16-bit fixed-point numbers.");
+
+constexpr bool assert_ftm_bits() {
+  if (STEPPER_TIMER_RATE == 2000000 && FTM_FS == 1000) {
+    static_assert(FRAME_TICKS == 2000, "FRAME_TICKS should be 2000");
+    static_assert(FTM_Q_INT == 11, "FTM_Q_INT should be 11");
+    static_assert(FTM_Q == 5, "FTM_Q should be 5");
+  }
+  return false;
+}
+constexpr bool result = assert_ftm_bits();
 
 // The _FP and _fp suffixes mean the number is in fixed point format with the point at the FTM_Q position.
 // See: https://en.wikipedia.org/wiki/Fixed-point_arithmetic
