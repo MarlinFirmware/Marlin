@@ -26,12 +26,11 @@
 //
 // uint64-free equivalent of: ((uint64_t)a * b) >> 16
 //
-FORCE_INLINE constexpr uint32_t a_times_b_shift_16(uint32_t a, uint32_t b) {
-  uint32_t hi = a >> 16;
-  uint32_t lo = a & 0xFFFFu;
+FORCE_INLINE constexpr uint32_t a_times_b_shift_16(const uint32_t a, const uint32_t b) {
+  const uint32_t hi = a >> 16, lo = a & 0x0000FFFF;
   return (hi * b) + ((lo * b) >> 16);
 }
-#define FTM_NEVER (UINT16_MAX)                                       // Reserved number to indicate "no ticks in this frame" (FRAME_TICKS_FP+1 would work too)
+#define FTM_NEVER uint32_t(UINT16_MAX)                               // Reserved number to indicate "no ticks in this frame" (FRAME_TICKS_FP+1 would work too)
 constexpr uint32_t FRAME_TICKS = STEPPER_TIMER_RATE / FTM_FS;        // Timer ticks in a frame
 static_assert(FRAME_TICKS < FTM_NEVER, "(STEPPER_TIMER_RATE / FTM_FS) must be < 2^16 (otherwise fixed-point numbers exceed uint16 vars).");
 constexpr uint32_t FTM_Q_INT = 32u - __builtin_clz(FRAME_TICKS + 1); // Bits to represent the max value (duration of a frame, +1 one for FTM_NEVER).

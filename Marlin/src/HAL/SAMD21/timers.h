@@ -33,7 +33,7 @@
 // --------------------------------------------------------------------------
 
 typedef uint32_t hal_timer_t;
-#define HAL_TIMER_TYPE_MAX 0xFFFFFFFFUL
+#define HAL_TIMER_TYPE_MAX hal_timer_t(UINT32_MAX)
 
 #define HAL_TIMER_RATE      F_CPU   // frequency of timers peripherals
 
