@@ -42,7 +42,17 @@ typedef uint32_t hal_timer_t;
 
 #ifndef HAL_TIMER_RATE
   #ifdef F_CPU
-    #define HAL_TIMER_RATE          ((F_CPU) / 2)
+    #if   F_CPU >= 536,870,912      // 2^29
+      #define HAL_TIMER_RATE        ((F_CPU) / 16)
+    #elif F_CPU >= 268,435,456      // 2^28
+      #define HAL_TIMER_RATE        ((F_CPU) / 8)
+    #elif F_CPU >= 134,217,728      // 2^27
+      #define HAL_TIMER_RATE        ((F_CPU) / 4)
+    #elif F_CPU >= 67,108,864       // 2^26
+      #define HAL_TIMER_RATE        ((F_CPU) / 2)
+    #else
+      #define HAL_TIMER_RATE        ((F_CPU) / 2)
+    #endif
     //static_assert(false, "HAL_TIMER_RATE is set from F_CPU=" STRINGIFY(F_CPU));
     // Stepper Timer calculations
     #define STEPPER_TIMER_RATE      HAL_TIMER_RATE                            // HAL speed, as with others
@@ -53,6 +63,7 @@ typedef uint32_t hal_timer_t;
     // Stepper Timer calculations
     #define STEPPER_TIMER_RATE      2'000'000                                 // 2 Mhz
     #define STEPPER_TIMER_PRESCALE  ((HAL_TIMER_RATE) / (STEPPER_TIMER_RATE)) // Calculated Prescaler
+    #error "No F_CPU available with this board."
   #endif
 #endif
 #define STEPPER_TIMER_TICKS_PER_US ((STEPPER_TIMER_RATE) / 1000000UL)     // (MHz) Stepper Timer ticks per µs
