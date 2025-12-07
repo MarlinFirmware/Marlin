@@ -218,7 +218,7 @@ void FTMotion::loop() {
   bool FTMotion::set_smoothing_time(const AxisEnum axis, const float s_time) {
     if (!WITHIN(s_time, 0.0f, FTM_MAX_SMOOTHING_TIME)) return false;
     planner.synchronize();
-    cfg.smoothingTime[axis] = s_time
+    cfg.smoothingTime[axis] = s_time;
     update_smoothing_params();
     return true;
   }
