@@ -63,6 +63,7 @@
     // Stepper Timer calculations
     #define STEPPER_TIMER_RATE      2'000'000                                 // 2 Mhz
     #define STEPPER_TIMER_PRESCALE  ((HAL_TIMER_RATE) / (STEPPER_TIMER_RATE)) // Calculated Prescaler
+    #error "No F_CPU available with this board."
   #endif
 #endif
 #define STEPPER_TIMER_TICKS_PER_US ((STEPPER_TIMER_RATE) / 1000000UL)     // (MHz) Stepper Timer ticks per µs
