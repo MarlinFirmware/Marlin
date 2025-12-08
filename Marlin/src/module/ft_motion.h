@@ -58,7 +58,11 @@
  * FTConfig - The active configured state of FT Motion
  */
 typedef struct FTConfig {
-  bool active = ENABLED(FTM_IS_DEFAULT_MOTION);           // Active (else standard motion)
+  #if ENABLED(FTM_ALWAYS)
+    static constexpr bool active = true; 
+  #else
+    bool active = ENABLED(FTM_IS_DEFAULT_MOTION);           // Active (else standard motion)
+  #endif
   bool axis_sync_enabled = true;                          // Axis synchronization enabled
 
   #if HAS_FTM_SHAPING
@@ -122,7 +126,9 @@ class FTMotion {
     static bool busy;
 
     static void set_defaults() {
-      cfg.active = ENABLED(FTM_IS_DEFAULT_MOTION);
+      #if DISABLED(FTM_ALWAYS)
+        cfg.active = ENABLED(FTM_IS_DEFAULT_MOTION);
+      #endif
 
       #if HAS_FTM_SHAPING
 
@@ -188,12 +194,14 @@ class FTMotion {
     static void reset();                                  // Reset all states of the fixed time conversion to defaults.
 
     // Safely toggle the active state of FT Motion
-    static bool toggle() {
-      stepper.ftMotion_syncPosition();
-      FLIP(cfg.active);
-      update_shaping_params();
-      return cfg.active;
-    }
+    #if DISABLED(FTM_ALWAYS) 
+      static bool toggle() {
+        stepper.ftMotion_syncPosition();
+        FLIP(cfg.active);
+        update_shaping_params();
+        return cfg.active;
+      }
+    #endif
 
     // Trajectory generator selection
     static void setTrajectoryType(const TrajectoryType type);

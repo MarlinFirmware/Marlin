@@ -213,11 +213,16 @@ void GcodeSuite::M493() {
   // Parse 'S' mode parameter.
   if (parser.seen('S')) {
     const bool active = parser.value_bool();
-    if (active != c.active) {
-      stepper.ftMotion_syncPosition();
-      c.active = active;
-      flag.report = true;
-    }
+    #if DISABLED(FTM_ALWAYS)
+      if (active != c.active) {
+        stepper.ftMotion_syncPosition();
+        c.active = active;
+        flag.report = true;
+      }
+    #else
+      SERIAL_ECHOLN(F("?Invalid "), F("FTM_ALWAYS enabled"));
+      return;
+    #endif
   }
 
   #if NUM_AXES_SHAPED > 0
