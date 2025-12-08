@@ -54,7 +54,6 @@
 #include "../lcd/marlinui.h"
 #include "../libs/vector_3.h"   // for matrix_3x3
 #include "../gcode/gcode.h"
-#include "../MarlinCore.h"
 
 #if ANY(EEPROM_SETTINGS, SD_FIRMWARE_UPDATE)
   #include "../HAL/shared/eeprom_api.h"
@@ -271,8 +270,7 @@ typedef struct SettingsDataStruct {
   // AUTOTEMP
   //
   #if ENABLED(AUTOTEMP)
-    celsius_t planner_autotemp_max, planner_autotemp_min;
-    float planner_autotemp_factor;
+    autotemp_cfg_t planner_autotemp_cfg;                // M104 S B F
   #endif
 
   //
@@ -481,7 +479,7 @@ typedef struct SettingsDataStruct {
   #endif
 
   //
-  // !NO_VOLUMETRIC
+  // HAS_VOLUMETRIC_EXTRUSION
   //
   bool parser_volumetric_enabled;                       // M200 S  parser.volumetric_enabled
   float planner_filament_size[EXTRUDERS];               // M200 T D  planner.filament_size[]
@@ -498,7 +496,7 @@ typedef struct SettingsDataStruct {
   //
   // LIN_ADVANCE
   //
-  #if ENABLED(LIN_ADVANCE)
+  #if HAS_LIN_ADVANCE_K
     float planner_extruder_advance_K[DISTINCT_E];       // M900 K  planner.extruder_advance_K
     #if ENABLED(SMOOTH_LIN_ADVANCE)
       float stepper_extruder_advance_tau[DISTINCT_E];   // M900 U  stepper.extruder_advance_tau
@@ -706,6 +704,13 @@ typedef struct SettingsDataStruct {
     // uint32_t material_changes
   #endif
 
+  //
+  // GCODE_MACROS
+  //
+  #if ENABLED(GCODE_MACROS_IN_EEPROM)
+    char gcode_macros[GCODE_MACROS_SLOTS][GCODE_MACROS_SLOT_SIZE + 1];
+  #endif
+
 } SettingsData;
 
 //static_assert(sizeof(SettingsData) <= MARLIN_EEPROM_SIZE, "EEPROM too small to contain SettingsData!");
@@ -734,7 +739,7 @@ void MarlinSettings::postprocess() {
 
   TERN_(PIDTEMP, thermalManager.updatePID());
 
-  #if DISABLED(NO_VOLUMETRICS)
+  #if HAS_VOLUMETRIC_EXTRUSION
     planner.calculate_volumetric_multipliers();
   #elif EXTRUDERS
     for (uint8_t i = COUNT(planner.e_factor); i--;)
@@ -1012,10 +1017,8 @@ void MarlinSettings::postprocess() {
     // AUTOTEMP
     //
     #if ENABLED(AUTOTEMP)
-      _FIELD_TEST(planner_autotemp_max);
-      EEPROM_WRITE(planner.autotemp.max);
-      EEPROM_WRITE(planner.autotemp.min);
-      EEPROM_WRITE(planner.autotemp.factor);
+      _FIELD_TEST(planner_autotemp_cfg);
+      EEPROM_WRITE(thermalManager.autotemp.cfg);
     #endif
 
     //
@@ -1402,7 +1405,7 @@ void MarlinSettings::postprocess() {
     {
       _FIELD_TEST(parser_volumetric_enabled);
 
-      #if DISABLED(NO_VOLUMETRICS)
+      #if HAS_VOLUMETRIC_EXTRUSION
 
         EEPROM_WRITE(parser.volumetric_enabled);
         EEPROM_WRITE(planner.filament_size);
@@ -1564,7 +1567,7 @@ void MarlinSettings::postprocess() {
     // Linear Advance
     //
     {
-      #if ENABLED(LIN_ADVANCE)
+      #if HAS_LIN_ADVANCE_K
         _FIELD_TEST(planner_extruder_advance_K);
         EEPROM_WRITE(planner.extruder_advance_K);
         #if ENABLED(SMOOTH_LIN_ADVANCE)
@@ -1694,7 +1697,7 @@ void MarlinSettings::postprocess() {
     // CONFIGURABLE_MACHINE_NAME
     //
     #if ENABLED(CONFIGURABLE_MACHINE_NAME)
-      EEPROM_WRITE(machine_name);
+      EEPROM_WRITE(marlin.machine_name);
     #endif
 
     //
@@ -1824,6 +1827,14 @@ void MarlinSettings::postprocess() {
       EEPROM_WRITE(mmu3.cutter_mode); // EEPROM_MMU_CUTTER_ENABLED
       EEPROM_WRITE(mmu3.stealth_mode); // EEPROM_MMU_STEALTH
       EEPROM_WRITE(mmu3.mmu_hw_enabled); // EEPROM_MMU_ENABLED
+    #endif
+
+    //
+    // GCODE_MACROS
+    //
+    #if ENABLED(GCODE_MACROS_IN_EEPROM)
+      _FIELD_TEST(gcode_macros);
+      EEPROM_WRITE(gcode.macros);
     #endif
 
     //
@@ -2066,9 +2077,8 @@ void MarlinSettings::postprocess() {
       // AUTOTEMP
       //
       #if ENABLED(AUTOTEMP)
-        EEPROM_READ(planner.autotemp.max);
-        EEPROM_READ(planner.autotemp.min);
-        EEPROM_READ(planner.autotemp.factor);
+        _FIELD_TEST(planner_autotemp_cfg);
+        EEPROM_READ(thermalManager.autotemp.cfg);
       #endif
 
       //
@@ -2220,7 +2230,7 @@ void MarlinSettings::postprocess() {
         #if ENABLED(PTC_PROBE)
           EEPROM_READ(ptc.z_offsets_probe);
         #endif
-        # if ENABLED(PTC_BED)
+        #if ENABLED(PTC_BED)
           EEPROM_READ(ptc.z_offsets_bed);
         #endif
         #if ENABLED(PTC_HOTEND)
@@ -2492,7 +2502,7 @@ void MarlinSettings::postprocess() {
         _FIELD_TEST(parser_volumetric_enabled);
         EEPROM_READ(storage);
 
-        #if DISABLED(NO_VOLUMETRICS)
+        #if HAS_VOLUMETRIC_EXTRUSION
           if (!validating) {
             parser.volumetric_enabled = storage.volumetric_enabled;
             COPY(planner.filament_size, storage.filament_size);
@@ -2518,7 +2528,7 @@ void MarlinSettings::postprocess() {
 
         #if HAS_TRINAMIC_CONFIG
 
-          #define SET_CURR(Q) stepper##Q.rms_current(currents.Q ? currents.Q : Q##_CURRENT)
+          #define SET_CURR(Q) stepper##Q.rms_current(currents.Q ?: Q##_CURRENT)
           if (!validating) {
             TERN_(X_IS_TRINAMIC,  SET_CURR(X));
             TERN_(Y_IS_TRINAMIC,  SET_CURR(Y));
@@ -2649,7 +2659,7 @@ void MarlinSettings::postprocess() {
       //
       // Linear Advance
       //
-      #if ENABLED(LIN_ADVANCE)
+      #if HAS_LIN_ADVANCE_K
       {
         float extruder_advance_K[DISTINCT_E];
         _FIELD_TEST(planner_extruder_advance_K);
@@ -2665,7 +2675,7 @@ void MarlinSettings::postprocess() {
             DISTINCT_E_LOOP() stepper.set_advance_tau(tau[e], e);
         #endif
       }
-      #endif
+      #endif // HAS_LIN_ADVANCE_K
 
       //
       // Motor Current PWM
@@ -2813,7 +2823,7 @@ void MarlinSettings::postprocess() {
       // CONFIGURABLE_MACHINE_NAME
       //
       #if ENABLED(CONFIGURABLE_MACHINE_NAME)
-        EEPROM_READ(machine_name);
+        EEPROM_READ(marlin.machine_name);
       #endif
 
       //
@@ -2986,6 +2996,13 @@ void MarlinSettings::postprocess() {
       #endif
 
       //
+      // GCODE_MACROS
+      //
+      #if ENABLED(GCODE_MACROS_IN_EEPROM)
+        EEPROM_READ(gcode.macros);
+      #endif
+
+      //
       // Validate Final Size and CRC
       //
       const uint16_t eeprom_total = eeprom_index - (EEPROM_OFFSET);
@@ -3057,7 +3074,7 @@ void MarlinSettings::postprocess() {
 
     #if ENABLED(EEPROM_CHITCHAT) && DISABLED(DISABLE_M503)
       // Report the EEPROM settings
-      if (!validating && TERN1(EEPROM_BOOT_SILENT, IsRunning())) report();
+      if (!validating && TERN1(EEPROM_BOOT_SILENT, marlin.isRunning())) report();
     #endif
 
     return eeprom_error;
@@ -3130,7 +3147,7 @@ void MarlinSettings::postprocess() {
   #if ENABLED(AUTO_BED_LEVELING_UBL)
 
     inline void ubl_invalid_slot(const int s) {
-      DEBUG_ECHOLNPGM("?Invalid slot.\n", s, " mesh slots available.");
+      DEBUG_ECHOLN(F("?Invalid "), F("slot.\n"), s, F(" mesh slots available."));
       UNUSED(s);
     }
 
@@ -3422,7 +3439,7 @@ void MarlinSettings::reset() {
   //
   // CONFIGURABLE_MACHINE_NAME
   //
-  TERN_(CONFIGURABLE_MACHINE_NAME, machine_name = PSTR(MACHINE_NAME));
+  TERN_(CONFIGURABLE_MACHINE_NAME, marlin.machine_name = PSTR(MACHINE_NAME));
 
   //
   // TOUCH_SCREEN_CALIBRATION
@@ -3450,11 +3467,7 @@ void MarlinSettings::reset() {
   //
   // AUTOTEMP
   //
-  #if ENABLED(AUTOTEMP)
-    planner.autotemp.max = AUTOTEMP_MAX;
-    planner.autotemp.min = AUTOTEMP_MIN;
-    planner.autotemp.factor = AUTOTEMP_FACTOR;
-  #endif
+  TERN_(AUTOTEMP, thermalManager.autotemp.reset());
 
   //
   // X Axis Twist Compensation
@@ -3605,7 +3618,7 @@ void MarlinSettings::reset() {
   //
   // Volumetric & Filament Size
   //
-  #if DISABLED(NO_VOLUMETRICS)
+  #if HAS_VOLUMETRIC_EXTRUSION
     parser.volumetric_enabled = ENABLED(VOLUMETRIC_DEFAULT_ON);
     for (uint8_t q = 0; q < COUNT(planner.filament_size); ++q)
       planner.filament_size[q] = DEFAULT_NOMINAL_FILAMENT_DIA;
@@ -3809,6 +3822,11 @@ void MarlinSettings::reset() {
   #endif
 
   //
+  // G-code Macros
+  //
+  TERN_(GCODE_MACROS_IN_EEPROM, gcode.reset_macros());
+
+  //
   // Hotend Idle Timeout
   //
   TERN_(HOTEND_IDLE_TIMEOUT, hotend_idle.cfg.set_defaults());
@@ -3854,6 +3872,11 @@ void MarlinSettings::reset() {
     gcode.say_units(); // " (in/mm)"
 
     //
+    // M104 settings for AUTOTEMP
+    //
+    TERN_(AUTOTEMP, gcode.M104_report(forReplay));
+
+    //
     // M149 Temperature units
     //
     #if ENABLED(TEMPERATURE_UNITS_SUPPORT)
@@ -3866,7 +3889,7 @@ void MarlinSettings::reset() {
     //
     // M200 Volumetric Extrusion
     //
-    IF_DISABLED(NO_VOLUMETRICS, gcode.M200_report(forReplay));
+    TERN_(HAS_VOLUMETRIC_EXTRUSION, gcode.M200_report(forReplay));
 
     //
     // M92 Steps per Unit
@@ -4039,6 +4062,11 @@ void MarlinSettings::reset() {
     TERN_(EDITABLE_HOMING_FEEDRATE, gcode.M210_report(forReplay));
 
     //
+    // G-Code Macros
+    //
+    TERN_(GCODE_MACROS, gcode.M810_819_report(forReplay));
+
+    //
     // Probe Offset
     //
     TERN_(HAS_BED_PROBE, gcode.M851_report(forReplay));
@@ -4098,7 +4126,7 @@ void MarlinSettings::reset() {
     //
     // Linear Advance
     //
-    TERN_(LIN_ADVANCE, gcode.M900_report(forReplay));
+    TERN_(HAS_LIN_ADVANCE_K, gcode.M900_report(forReplay));
 
     //
     // Motor Current (SPI or PWM)

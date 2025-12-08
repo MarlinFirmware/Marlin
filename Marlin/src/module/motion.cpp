@@ -85,19 +85,34 @@ bool relative_mode; // = false
   bool z_min_trusted; // = false
 #endif
 
+// Warn for unexpected TPARA home position
+#if ENABLED(AXEL_TPARA)
+  static_assert(
+    ABS(X_HOME_POS - (TPARA_ARM_X_HOME_POS + TPARA_TCP_OFFSET_X - TPARA_OFFSET_X)) < 0.01f,
+    "X_HOME_POS should be equal to (TPARA_ARM_X_HOME_POS + TPARA_TCP_OFFSET_X - TPARA_OFFSET_X)");
+  static_assert(
+    ABS(Y_HOME_POS - (TPARA_ARM_Y_HOME_POS + TPARA_TCP_OFFSET_Y - TPARA_OFFSET_Y)) < 0.01f,
+    "Y_HOME_POS should be equal to (TPARA_ARM_Y_HOME_POS + TPARA_TCP_OFFSET_Y - TPARA_OFFSET_Y).");
+  static_assert(
+    ABS(Z_HOME_POS - (TPARA_ARM_Z_HOME_POS + TPARA_TCP_OFFSET_Z - TPARA_OFFSET_Z)) < 0.01f,
+    "Z_HOME_POS should be equal to (TPARA_ARM_Z_HOME_POS + TPARA_TCP_OFFSET_Z - TPARA_OFFSET_Z).");
+#endif
+
 /**
  * Cartesian Current Position
  *   Used to track the native machine position as moves are queued.
  *   Used by 'line_to_current_position' to do a move after changing it.
  *   Used by 'sync_plan_position' to update 'planner.position'.
  */
-#ifdef Z_IDLE_HEIGHT
-  #define Z_INIT_POS Z_IDLE_HEIGHT
-#else
-  #define Z_INIT_POS Z_HOME_POS
-#endif
-
-xyze_pos_t current_position = LOGICAL_AXIS_ARRAY(0, X_HOME_POS, Y_HOME_POS, Z_INIT_POS, I_HOME_POS, J_HOME_POS, K_HOME_POS, U_HOME_POS, V_HOME_POS, W_HOME_POS);
+xyze_pos_t current_position = LOGICAL_AXIS_ARRAY(0,
+  X_HOME_POS, Y_HOME_POS,
+  #ifdef Z_IDLE_HEIGHT
+    Z_IDLE_HEIGHT
+  #else
+    Z_HOME_POS
+  #endif
+  , I_HOME_POS, J_HOME_POS, K_HOME_POS, U_HOME_POS, V_HOME_POS, W_HOME_POS
+);
 
 /**
  * Cartesian Destination
@@ -106,12 +121,6 @@ xyze_pos_t current_position = LOGICAL_AXIS_ARRAY(0, X_HOME_POS, Y_HOME_POS, Z_IN
  *   G-codes can set destination using 'get_destination_from_command'
  */
 xyze_pos_t destination; // {0}
-
-// G60/G61 Position Save and Return
-#if SAVED_POSITIONS
-  Flags<SAVED_POSITIONS> did_save_position;
-  xyze_pos_t stored_position[SAVED_POSITIONS];
-#endif
 
 // The active extruder (tool). Set with T<extruder> command.
 #if HAS_MULTI_EXTRUDER
@@ -126,12 +135,12 @@ xyze_pos_t destination; // {0}
 #if HAS_HOTEND_OFFSET
   xyz_pos_t hotend_offset[HOTENDS]; // Initialized by settings.load
   void reset_hotend_offsets() {
-    constexpr float tmp[XYZ][HOTENDS] = { HOTEND_OFFSET_X, HOTEND_OFFSET_Y, HOTEND_OFFSET_Z };
+    constexpr float tmp[3][HOTENDS] = { HOTEND_OFFSET_X, HOTEND_OFFSET_Y, HOTEND_OFFSET_Z };
     static_assert(
       !tmp[X_AXIS][0] && !tmp[Y_AXIS][0] && !tmp[Z_AXIS][0],
       "Offsets for the first hotend must be 0.0."
     );
-    // Transpose from [XYZ][HOTENDS] to [HOTENDS][XYZ]
+    // Transpose from [3][HOTENDS] to [HOTENDS][3]
     HOTEND_LOOP() LOOP_ABC(a) hotend_offset[e][a] = tmp[a][e];
     TERN_(DUAL_X_CARRIAGE, hotend_offset[1].x = _MAX(X2_HOME_POS, X2_MAX_POS));
   }
@@ -160,18 +169,18 @@ xyz_pos_t cartes;
   #if HAS_SCARA_OFFSET
     abc_pos_t scara_home_offset;
   #endif
-
+  // If it does not have software endstops, use the printable radius
   #if HAS_SOFTWARE_ENDSTOPS
     float delta_max_radius, delta_max_radius_2;
   #elif IS_SCARA
     constexpr float delta_max_radius = PRINTABLE_RADIUS,
-                    delta_max_radius_2 = sq(PRINTABLE_RADIUS);
+                    delta_max_radius_2 = sq(float(PRINTABLE_RADIUS));
   #elif ENABLED(POLAR)
     constexpr float delta_max_radius = PRINTABLE_RADIUS,
-                    delta_max_radius_2 = sq(PRINTABLE_RADIUS);
+                    delta_max_radius_2 = sq(float(PRINTABLE_RADIUS));
   #else // DELTA
     constexpr float delta_max_radius = PRINTABLE_RADIUS,
-                    delta_max_radius_2 = sq(PRINTABLE_RADIUS);
+                    delta_max_radius_2 = sq(float(PRINTABLE_RADIUS));
   #endif
 
 #endif
@@ -185,12 +194,13 @@ xyz_pos_t cartes;
   // Set by M206, M428, or menu item. Saved to EEPROM.
   xyz_pos_t home_offset{0};
 #endif
+
 #if HAS_WORKSPACE_OFFSET
   // The above two are combined to save on computes
   xyz_pos_t workspace_offset{0};
 #endif
 
-#if HAS_ABL_NOT_UBL
+#if ABL_USES_GRID
   feedRate_t xy_probe_feedrate_mm_s = MMM_TO_MMS(XY_PROBE_FEEDRATE);
 #endif
 
@@ -611,18 +621,18 @@ void report_current_position_projected() {
   }
 
   /**
-   * Set a Grbl-compatible state from the current marlin_state
+   * Set a Grbl-compatible state from the current marlin.state
    */
   M_StateEnum grbl_state_for_marlin_state() {
-    switch (marlin_state) {
-      case MarlinState::MF_INITIALIZING: return M_INIT;
-      case MarlinState::MF_SD_COMPLETE:  return M_ALARM;
-      case MarlinState::MF_WAITING:      return M_IDLE;
-      case MarlinState::MF_STOPPED:      return M_END;
-      case MarlinState::MF_RUNNING:      return M_RUNNING;
-      case MarlinState::MF_PAUSED:       return M_HOLD;
-      case MarlinState::MF_KILLED:       return M_ERROR;
-      default:                           return M_IDLE;
+    switch (marlin.state) {
+      case MF_INITIALIZING: return M_INIT;
+      case MF_SD_COMPLETE:  return M_ALARM;
+      case MF_WAITING:      return M_IDLE;
+      case MF_STOPPED:      return M_END;
+      case MF_RUNNING:      return M_RUNNING;
+      case MF_PAUSED:       return M_HOLD;
+      case MF_KILLED:       return M_ERROR;
+      default:              return M_IDLE;
     }
   }
 
@@ -639,12 +649,14 @@ void report_current_position_projected() {
       can_reach = HYPOT2(rx, ry) <= sq(PRINTABLE_RADIUS - inset + fslop);
 
     #elif ENABLED(AXEL_TPARA)
-
-      const float R2 = HYPOT2(rx - TPARA_OFFSET_X, ry - TPARA_OFFSET_Y);
+      // TODO: A custom check, as reach depends also on Z destination.
+      // During printing assume destination Z is the current Z.
+      // For now use the max reach of the arm.
+      const float R2 = HYPOT2(rx + TPARA_OFFSET_X, ry + TPARA_OFFSET_Y);
       can_reach = (
-        R2 <= sq(L1 + L2) - inset
+        R2 <= PRINTABLE_RADIUS_2 - inset
         #if MIDDLE_DEAD_ZONE_R > 0
-          && R2 >= FLOAT_SQ(MIDDLE_DEAD_ZONE_R)
+          && R2 >= FLOAT_SQ(MIDDLE_DEAD_ZONE_R + TPARA_TCP_OFFSET_X)
         #endif
       );
 
@@ -732,6 +744,8 @@ void quickstop_stepper() {
 void sync_plan_position() {
   if (DEBUGGING(LEVELING)) DEBUG_POS("sync_plan_position", current_position);
   planner.set_position_mm(current_position);
+  //SERIAL_ECHOLNPGM("Sync_plan_position: ", current_position.x, ", ", current_position.y, ", ", current_position.z);
+  //SERIAL_EOL();
 }
 
 #if HAS_EXTRUDERS
@@ -823,6 +837,9 @@ void line_to_current_position(const feedRate_t fr_mm_s/*=feedrate_mm_s*/) {
    */
   void prepare_fast_move_to_destination(const feedRate_t scaled_fr_mm_s/*=MMS_SCALED(feedrate_mm_s)*/) {
     if (DEBUGGING(LEVELING)) DEBUG_POS("prepare_fast_move_to_destination", destination);
+
+    //SERIAL_ECHOLNPGM("Prepare fast move to destination: ", destination.x , ",", destination.y,  ",", destination.z, "," , destination.e);
+    //SERIAL_EOL();
 
     #if UBL_SEGMENTED
       // UBL segmented line will do Z-only moves in single segment
@@ -1266,6 +1283,8 @@ void restore_feedrate_and_scaling() {
    * radius within the set software endstops.
    */
   void apply_motion_limits(xyz_pos_t &target) {
+    //SERIAL_ECHOLNPGM("Motion limits in: ", target.x, ", ", target.y, ", ", target.z);
+    //SERIAL_EOL();
 
     if (!soft_endstop._enabled) return;
 
@@ -1293,6 +1312,8 @@ void restore_feedrate_and_scaling() {
       #else
         if (TERN1(IS_SCARA, axis_was_homed(X_AXIS) && axis_was_homed(Y_AXIS))) {
           const float dist_2 = HYPOT2(target.x - offs.x, target.y - offs.y);
+          //SERIAL_ECHOLNPGM("Motion limits data: dist_2:", dist_2, " delta_max_radius_2: ", delta_max_radius_2);
+          //SERIAL_EOL();
           if (dist_2 > delta_max_radius_2)
             target *= float(delta_max_radius / SQRT(dist_2)); // 200 / 300 = 0.66
         }
@@ -1406,7 +1427,7 @@ FORCE_INLINE void segment_idle(millis_t &next_idle_ms) {
   const millis_t ms = millis();
   if (ELAPSED(ms, next_idle_ms)) {
     next_idle_ms = ms + 200UL;
-    return idle();
+    return marlin.idle();
   }
   thermalManager.task();  // Returns immediately on most calls
 }
@@ -1544,8 +1565,13 @@ float get_move_distance(const xyze_pos_t &diff OPTARG(HAS_ROTATIONAL_AXES, bool 
 
     const xyze_float_t diff = destination - current_position;
 
-    // If the move is only in Z/E don't split up the move
-    if (!diff.x && !diff.y) {
+    //SERIAL_ECHOLNPGM("Destination: ", destination.x, " , ", destination.y, " , ", destination.z, " , ", destination.e);
+    //SERIAL_ECHOLNPGM("Current pos: ", current_position.x, " , ", current_position.y, " , ", current_position.z, " , ", current_position.e);
+    //SERIAL_ECHOLNPGM("Difference : ", diff.x, " , ", diff.y, " , ", diff.z, " , ", diff.e);
+
+    // For TPARA always split up the move, then skip next code
+    // For DELTA/SCARA if the move is only in Z/E don't split up the move
+    if (TERN0(AXEL_TPARA, !diff.x && !diff.y)) {
       planner.buffer_line(destination, scaled_fr_mm_s);
       return false; // caller will update current_position
     }
@@ -1801,7 +1827,7 @@ float get_move_distance(const xyze_pos_t &diff OPTARG(HAS_ROTATIONAL_AXES, bool 
             // This is a travel move (with no extrusion)
             // Skip it, but keep track of the current position
             // (so it can be used as the start of the next non-travel move)
-            if (delayed_move_time != 0xFFFFFFFFUL) {
+            if (delayed_move_time != UINT32_MAX) {
               current_position = destination;
               NOLESS(raised_parked_position.z, destination.z);
               delayed_move_time = millis() + 1000UL;
@@ -1877,6 +1903,9 @@ float get_move_distance(const xyze_pos_t &diff OPTARG(HAS_ROTATIONAL_AXES, bool 
  */
 void prepare_line_to_destination() {
   apply_motion_limits(destination);
+
+  //SERIAL_ECHOLNPGM(">TPARA Prepare line to destination: ", destination.x , " , ", destination.y,  " , ", destination.z, " , " , destination.e);
+  //SERIAL_EOL();
 
   #if ANY(PREVENT_COLD_EXTRUSION, PREVENT_LENGTHY_EXTRUDE)
 
@@ -2213,7 +2242,7 @@ void prepare_line_to_destination() {
           thermalManager.wait_for_hotend_heating(active_extruder);
         #endif
 
-        TERN_(HAS_QUIET_PROBING, if (final_approach) probe.set_probing_paused(true));
+        TERN_(HAS_QUIET_PROBING, if (final_approach) probe.set_devices_paused_for_probing(true));
       }
 
       // Disable stealthChop if used. Enable diag1 pin on driver.
@@ -2252,7 +2281,7 @@ void prepare_line_to_destination() {
     if (is_home_dir) {
 
       #if HOMING_Z_WITH_PROBE && HAS_QUIET_PROBING
-        if (axis == Z_AXIS && final_approach) probe.set_probing_paused(false);
+        if (axis == Z_AXIS && final_approach) probe.set_devices_paused_for_probing(false);
       #endif
 
       endstops.validate_homing_move();
@@ -2545,9 +2574,9 @@ void prepare_line_to_destination() {
           }
         #endif
 
-        if (TEST(endstops.state(), es)) {
+        if (endstops.state(es)) {
           SERIAL_ECHO_MSG("Bad ", C(AXIS_CHAR(axis)), " Endstop?");
-          kill(GET_TEXT_F(MSG_KILL_HOMING_FAILED));
+          marlin.kill(GET_TEXT_F(MSG_KILL_HOMING_FAILED));
         }
 
       #endif // DETECT_BROKEN_ENDSTOP
@@ -2787,6 +2816,10 @@ void prepare_line_to_destination() {
  * SCARA should wait until all XY homing is done before setting the XY
  * current_position to home, because neither X nor Y is at home until
  * both are at home. Z can however be homed individually.
+ *
+ * TPARA should wait until all YZ homing is done before setting the YZ
+ * current_position to home, because neither Y nor Z is at home until
+ * both are at home. X can however be homed individually.
  *
  * Callers must sync the planner position after calling this!
  */

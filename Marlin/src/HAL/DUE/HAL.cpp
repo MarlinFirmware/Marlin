@@ -27,7 +27,6 @@
 #ifdef ARDUINO_ARCH_SAM
 
 #include "../../inc/MarlinConfig.h"
-#include "../../MarlinCore.h"
 
 #include <Wire.h>
 #include "usb/usb_task.h"

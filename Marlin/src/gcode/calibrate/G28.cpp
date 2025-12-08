@@ -129,14 +129,13 @@
 #if ENABLED(Z_SAFE_HOMING)
 
   inline void home_z_safely() {
-
-    // Potentially disable Fixed-Time Motion for homing
-    TERN_(FT_MOTION, FTMotionDisableInScope FT_Disabler);
-
     DEBUG_SECTION(log_G28, "home_z_safely", DEBUGGING(LEVELING));
 
     // Disallow Z homing if X or Y homing is needed
     if (homing_needed_error(_BV(X_AXIS) | _BV(Y_AXIS))) return;
+
+    // Potentially disable Fixed-Time Motion for homing
+    TERN_(FT_MOTION, FTM_DISABLE_IN_SCOPE());
 
     sync_plan_position();
 
@@ -290,7 +289,7 @@ void GcodeSuite::G28() {
     #endif
 
     // Potentially disable Fixed-Time Motion for homing
-    TERN_(FT_MOTION, FTMotionDisableInScope FT_Disabler);
+    TERN_(FT_MOTION, FTM_DISABLE_IN_SCOPE());
 
     // Always home with tool 0 active
     #if HAS_MULTI_HOTEND

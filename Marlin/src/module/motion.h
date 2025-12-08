@@ -48,12 +48,6 @@ extern bool relative_mode;
 extern xyze_pos_t current_position,  // High-level current tool position
                   destination;       // Destination for a move
 
-// G60/G61 Position Save and Return
-#if SAVED_POSITIONS
-  extern Flags<SAVED_POSITIONS> did_save_position;
-  extern xyze_pos_t stored_position[SAVED_POSITIONS];
-#endif
-
 // Scratch space for a cartesian result
 extern xyz_pos_t cartes;
 
@@ -106,7 +100,9 @@ extern feedRate_t feedrate_mm_s;
 extern int16_t feedrate_percentage;
 #define MMS_SCALED(V) ((V) * 0.01f * feedrate_percentage)
 
-#if HAS_ABL_NOT_UBL
+// Determine XY_PROBE_FEEDRATE_MM_S - The feedrate used between Probe Points
+#if ABL_USES_GRID
+  // ABL LINEAR and BILINEAR use 'G29 S' value, or MMM_TO_MMS(XY_PROBE_FEEDRATE)
   extern feedRate_t xy_probe_feedrate_mm_s;
   #define XY_PROBE_FEEDRATE_MM_S xy_probe_feedrate_mm_s
 #elif defined(XY_PROBE_FEEDRATE)
@@ -150,7 +146,7 @@ inline int8_t pgm_read_any(const int8_t *p) { return TERN(__IMXRT1062__, *p, pgm
 
 #define XYZ_DEFS(T, NAME, OPT) \
   inline T NAME(const AxisEnum axis) { \
-    static const XYZval<T> NAME##_P DEFS_PROGMEM = NUM_AXIS_ARRAY(X_##OPT, Y_##OPT, Z_##OPT, I_##OPT, J_##OPT, K_##OPT, U_##OPT, V_##OPT, W_##OPT); \
+    static constexpr XYZval<T> NAME##_P DEFS_PROGMEM = NUM_AXIS_ARRAY(X_##OPT, Y_##OPT, Z_##OPT, I_##OPT, J_##OPT, K_##OPT, U_##OPT, V_##OPT, W_##OPT); \
     return pgm_read_any(&NAME##_P[axis]); \
   }
 XYZ_DEFS(float,  base_min_pos,  MIN_POS);     // base_min_pos(axis)
@@ -497,12 +493,12 @@ inline bool all_axes_trusted()                        { return main_axes_mask ==
 void home_if_needed(const bool keeplev=false);
 
 #if ENABLED(NO_MOTION_BEFORE_HOMING)
-  #define MOTION_CONDITIONS (IsRunning() && !homing_needed_error())
+  #define MOTION_CONDITIONS (marlin.isRunning() && !homing_needed_error())
 #else
-  #define MOTION_CONDITIONS IsRunning()
+  #define MOTION_CONDITIONS marlin.isRunning()
 #endif
 
-#define BABYSTEP_ALLOWED() ((ENABLED(BABYSTEP_WITHOUT_HOMING) || all_axes_trusted()) && (ENABLED(BABYSTEP_ALWAYS_AVAILABLE) || printer_busy()))
+#define BABYSTEP_ALLOWED() ((ENABLED(BABYSTEP_WITHOUT_HOMING) || all_axes_trusted()) && (ENABLED(BABYSTEP_ALWAYS_AVAILABLE) || marlin.printer_busy()))
 
 #if HAS_HOME_OFFSET
   extern xyz_pos_t home_offset;

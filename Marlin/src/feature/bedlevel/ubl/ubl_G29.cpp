@@ -26,7 +26,6 @@
 
 #include "../bedlevel.h"
 
-#include "../../../MarlinCore.h"
 #include "../../../HAL/shared/eeprom_api.h"
 #include "../../../libs/hex_print.h"
 #include "../../../module/settings.h"
@@ -314,7 +313,7 @@ void unified_bed_leveling::G29() {
   const bool may_move = p_val == 1 || p_val == 2 || p_val == 4 || parser.seen_test('J');
 
   // Potentially disable Fixed-Time Motion for probing
-  TERN_(FT_MOTION, FTMotionDisableInScope FT_Disabler);
+  TERN_(FT_MOTION, FTM_DISABLE_IN_SCOPE());
 
   // Check for commands that require the printer to be homed
   if (may_move) {
@@ -375,7 +374,7 @@ void unified_bed_leveling::G29() {
     bool invalidate_all = count >= GRID_MAX_POINTS;
     if (!invalidate_all) {
       while (count--) {
-        if ((count & 0x0F) == 0x0F) idle();
+        if ((count & 0x0F) == 0x0F) marlin.idle();
         const mesh_index_pair closest = find_closest_mesh_point_of_type(REAL, param.XY_pos);
         // No more REAL mesh points to invalidate? Assume the user meant
         // to invalidate the ENTIRE mesh, which can't be done with
@@ -397,7 +396,7 @@ void unified_bed_leveling::G29() {
   if (parser.seen('Q')) {
     const int16_t test_pattern = parser.has_value() ? parser.value_int() : -99;
     if (!WITHIN(test_pattern, TERN0(UBL_DEVEL_DEBUGGING, -1), 2)) {
-      SERIAL_ECHOLNPGM("?Invalid (Q) test pattern. (" TERN(UBL_DEVEL_DEBUGGING, "-1", "0") " to 2)\n");
+      SERIAL_ECHOLN(F("?Invalid "), F("(Q) test pattern. (" TERN(UBL_DEVEL_DEBUGGING, "-1", "0") " to 2)\n"));
       return;
     }
     SERIAL_ECHOLNPGM("Applying test pattern.\n");
@@ -648,7 +647,7 @@ void unified_bed_leveling::G29() {
     }
 
     if (!WITHIN(param.KLS_storage_slot, 0, a - 1)) {
-      SERIAL_ECHOLNPGM("?Invalid storage slot.\n?Use 0 to ", a - 1);
+      SERIAL_ECHOLN(F("?Invalid "), F("storage slot.\n?Use 0 to "), a - 1);
       return;
     }
 
@@ -676,7 +675,7 @@ void unified_bed_leveling::G29() {
     }
 
     if (!WITHIN(param.KLS_storage_slot, 0, a - 1)) {
-      SERIAL_ECHOLNPGM("?Invalid storage slot.\n?Use 0 to ", a - 1);
+      SERIAL_ECHOLN(F("?Invalid "), F("storage slot.\n?Use 0 to "), a - 1);
       goto LEAVE;
     }
 
@@ -856,7 +855,7 @@ void set_message_with_feedback(FSTR_P const fstr) {
       ui.quick_feedback(false);         // Preserve button state for click-and-hold
       const millis_t nxt = millis() + 1500UL;
       while (ui.button_pressed()) {     // Loop while the encoder is pressed. Uses hardware flag!
-        idle();                         // idle, of course
+        marlin.idle();                  // idle, of course
         if (ELAPSED(millis(), nxt)) {   // After 1.5 seconds
           ui.quick_feedback();
           if (func) (*func)();
@@ -872,7 +871,7 @@ void set_message_with_feedback(FSTR_P const fstr) {
   void unified_bed_leveling::move_z_with_encoder(const float multiplier) {
     ui.wait_for_release();
     while (!ui.button_pressed()) {
-      idle();
+      marlin.idle();
       gcode.reset_stepper_timeout(); // Keep steppers powered
       if (encoder_diff) {
         do_blocking_move_to_z(current_position.z + float(encoder_diff) * multiplier);
@@ -1088,7 +1087,7 @@ void set_message_with_feedback(FSTR_P const fstr) {
       SET_SOFT_ENDSTOP_LOOSE(true);
 
       do {
-        idle_no_sleep();
+        marlin.idle_no_sleep();
         new_z = ui.ubl_mesh_value();
         TERN_(UBL_MESH_EDIT_MOVES_Z, do_blocking_move_to_z(h_offset + new_z)); // Move the nozzle as the point is edited
         SERIAL_FLUSH();                                   // Prevent host M105 buffer overrun.
@@ -1161,16 +1160,16 @@ bool unified_bed_leveling::G29_parse_parameters() {
   }
 
   if (parser.seen('P')) {
-    const uint8_t pv = parser.value_byte();
+    const uint8_t pval = parser.value_byte();
     #if !HAS_BED_PROBE
-      if (pv == 1) {
+      if (pval == 1) {
         SERIAL_ECHOLNPGM("G29 P1 requires a probe.\n");
         err_flag = true;
       }
       else
     #endif
       {
-        param.P_phase = pv;
+        param.P_phase = pval;
         if (!WITHIN(param.P_phase, 0, 6)) {
           SERIAL_ECHOLNPGM("?(P)hase value invalid (0-6).\n");
           err_flag = true;
@@ -1182,7 +1181,7 @@ bool unified_bed_leveling::G29_parse_parameters() {
     #if HAS_BED_PROBE
       param.J_grid_size = parser.value_byte();
       if (param.J_grid_size && !WITHIN(param.J_grid_size, 2, 9)) {
-        SERIAL_ECHOLNPGM("?Invalid grid size (J) specified (2-9).\n");
+        SERIAL_ECHOLN(F("?Invalid "), F("grid size (J) specified (2-9).\n"));
         err_flag = true;
       }
     #else
@@ -1728,7 +1727,7 @@ void unified_bed_leveling::smart_fill_mesh() {
           const float ez = -lsf_results.D - lsf_results.A * ppos.x - lsf_results.B * ppos.y;
           z_values[ix][iy] = ez;
           TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(ix, iy, z_values[ix][iy]));
-          idle(); // housekeeping
+          marlin.idle(); // housekeeping
         }
       }
     }
@@ -1785,7 +1784,7 @@ void unified_bed_leveling::smart_fill_mesh() {
     SERIAL_EOL();
 
     #if HAS_KILL
-      SERIAL_ECHOLNPGM("Kill pin on :", KILL_PIN, "  state:", kill_state());
+      SERIAL_ECHOLNPGM("Kill pin on :", KILL_PIN, "  state:", marlin.kill_state());
     #endif
 
     SERIAL_EOL();
@@ -1823,7 +1822,7 @@ void unified_bed_leveling::smart_fill_mesh() {
     SERIAL_ECHO_MSG("EEPROM Dump:");
     persistentStore.access_start();
     for (uint16_t i = 0; i < persistentStore.capacity(); i += 16) {
-      if (!(i & 0x3)) idle();
+      if (!(i & 0x3)) marlin.idle();
       print_hex_word(i);
       SERIAL_ECHOPGM(": ");
       for (uint16_t j = 0; j < 16; j++) {
@@ -1851,7 +1850,7 @@ void unified_bed_leveling::smart_fill_mesh() {
     }
 
     if (!parser.has_value() || !WITHIN(parser.value_int(), 0, a - 1)) {
-      SERIAL_ECHOLNPGM("?Invalid storage slot.\n?Use 0 to ", a - 1);
+      SERIAL_ECHOLN(F("?Invalid "), F("storage slot.\n?Use 0 to "), a - 1);
       return;
     }
 

@@ -171,7 +171,7 @@ void core_hook_sysclock_init() {
       panic("HRC is not 16 MHz");
     }
 
-    #if defined(BOARD_XTAL_FREQUENCY)
+    #ifdef BOARD_XTAL_FREQUENCY
       #warning "No valid XTAL frequency defined, falling back to HRC."
     #endif
 
