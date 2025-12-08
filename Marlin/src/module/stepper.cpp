@@ -1583,8 +1583,11 @@ void Stepper::isr() {
 
   #if ENABLED(FT_MOTION)
     static uint32_t ftMotion_nextStepperISR = 0U;  // Storage for the next ISR for stepping.
-    //const bool using_ftMotion = ftMotion.cfg.active;
-    constexpr bool using_ftMotion = true;
+    #if ENABLED(FTM_ALWAYS)
+      constexpr bool using_ftMotion = true;
+    #else
+      const bool using_ftMotion = ftMotion.cfg.active;
+    #endif
   #else
     constexpr bool using_ftMotion = false;
   #endif
