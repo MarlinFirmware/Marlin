@@ -21,7 +21,7 @@
  */
 
 /**
- * lcd/e3v2/jyersui/dwin.cpp
+ * lcd/dwin/jyersui/dwin.cpp
  */
 
 #include "../../../inc/MarlinConfigPre.h"

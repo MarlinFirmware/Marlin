@@ -24,9 +24,9 @@
 #include "../../../inc/MarlinConfig.h"
 
 //
-// e3v2/common/dwin_api.h
+// dwin/common/dwin_api.h
 //
-// Included by: e3v2/*/dwin_lcd.h
+// Included by: dwin/*/dwin_lcd.h
 //
 
 #if ENABLED(DWIN_MARLINUI_LANDSCAPE)
