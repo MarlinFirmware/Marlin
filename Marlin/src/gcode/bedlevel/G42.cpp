@@ -25,7 +25,6 @@
 #if HAS_MESH
 
 #include "../gcode.h"
-#include "../../MarlinCore.h" // for IsRunning()
 #include "../../module/motion.h"
 #include "../../feature/bedlevel/bedlevel.h"
 

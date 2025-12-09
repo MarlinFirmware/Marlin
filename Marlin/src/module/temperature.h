@@ -686,7 +686,7 @@ class Temperature {
     #endif
 
     #if ALL(FAN_SOFT_PWM, USE_CONTROLLER_FAN)
-      static uint8_t soft_pwm_controller_speed;
+      static uint8_t soft_pwm_controllerfan_speed;
     #endif
 
     #if ALL(HAS_MARLINUI_MENU, PREVENT_COLD_EXTRUSION) && E_MANUAL > 0

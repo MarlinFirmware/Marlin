@@ -313,3 +313,11 @@ class TemporaryGlobalEndstopsState {
     }
     ~TemporaryGlobalEndstopsState() { endstops.enable_globally(saved); }
 };
+
+#if ENABLED(G38_PROBE_TARGET)
+  typedef struct ProbeTarget {
+    uint8_t type;     // Flag to tell the ISR the type of G38 in progress; 0 for NONE.
+    bool triggered;   // Flag from the ISR to indicate the endstop changed
+  } probe_target_t;
+  extern probe_target_t G38_move;
+#endif

@@ -621,18 +621,18 @@ void report_current_position_projected() {
   }
 
   /**
-   * Set a Grbl-compatible state from the current marlin_state
+   * Set a Grbl-compatible state from the current marlin.state
    */
   M_StateEnum grbl_state_for_marlin_state() {
-    switch (marlin_state) {
-      case MarlinState::MF_INITIALIZING: return M_INIT;
-      case MarlinState::MF_SD_COMPLETE:  return M_ALARM;
-      case MarlinState::MF_WAITING:      return M_IDLE;
-      case MarlinState::MF_STOPPED:      return M_END;
-      case MarlinState::MF_RUNNING:      return M_RUNNING;
-      case MarlinState::MF_PAUSED:       return M_HOLD;
-      case MarlinState::MF_KILLED:       return M_ERROR;
-      default:                           return M_IDLE;
+    switch (marlin.state) {
+      case MF_INITIALIZING: return M_INIT;
+      case MF_SD_COMPLETE:  return M_ALARM;
+      case MF_WAITING:      return M_IDLE;
+      case MF_STOPPED:      return M_END;
+      case MF_RUNNING:      return M_RUNNING;
+      case MF_PAUSED:       return M_HOLD;
+      case MF_KILLED:       return M_ERROR;
+      default:              return M_IDLE;
     }
   }
 
@@ -1427,7 +1427,7 @@ FORCE_INLINE void segment_idle(millis_t &next_idle_ms) {
   const millis_t ms = millis();
   if (ELAPSED(ms, next_idle_ms)) {
     next_idle_ms = ms + 200UL;
-    return idle();
+    return marlin.idle();
   }
   thermalManager.task();  // Returns immediately on most calls
 }
@@ -1827,7 +1827,7 @@ float get_move_distance(const xyze_pos_t &diff OPTARG(HAS_ROTATIONAL_AXES, bool 
             // This is a travel move (with no extrusion)
             // Skip it, but keep track of the current position
             // (so it can be used as the start of the next non-travel move)
-            if (delayed_move_time != 0xFFFFFFFFUL) {
+            if (delayed_move_time != UINT32_MAX) {
               current_position = destination;
               NOLESS(raised_parked_position.z, destination.z);
               delayed_move_time = millis() + 1000UL;
@@ -2576,7 +2576,7 @@ void prepare_line_to_destination() {
 
         if (endstops.state(es)) {
           SERIAL_ECHO_MSG("Bad ", C(AXIS_CHAR(axis)), " Endstop?");
-          kill(GET_TEXT_F(MSG_KILL_HOMING_FAILED));
+          marlin.kill(GET_TEXT_F(MSG_KILL_HOMING_FAILED));
         }
 
       #endif // DETECT_BROKEN_ENDSTOP
