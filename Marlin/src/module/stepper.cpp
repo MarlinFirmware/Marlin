@@ -1581,15 +1581,16 @@ void Stepper::isr() {
   // Limit the amount of iterations
   uint8_t max_loops = 10;
 
+  const bool using_ftMotion = (
+    #if ENABLED(FT_MOTION) && DISABLED(NO_STANDARD_MOTION)
+      ftMotion.cfg.active
+    #else
+      ENABLED(NO_STANDARD_MOTION)
+    #endif
+  );
+
   #if ENABLED(FT_MOTION)
     static uint32_t ftMotion_nextStepperISR = 0U;  // Storage for the next ISR for stepping.
-    #if ENABLED(FTM_ALWAYS)
-      constexpr bool using_ftMotion = true;
-    #else
-      const bool using_ftMotion = ftMotion.cfg.active;
-    #endif
-  #else
-    constexpr bool using_ftMotion = false;
   #endif
 
   // We need this variable here to be able to use it in the following loop

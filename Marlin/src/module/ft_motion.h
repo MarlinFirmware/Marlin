@@ -58,10 +58,10 @@
  * FTConfig - The active configured state of FT Motion
  */
 typedef struct FTConfig {
-  #if ENABLED(FTM_ALWAYS)
-    static constexpr bool active = true; 
+  #if ENABLED(NO_STANDARD_MOTION)
+    static constexpr bool active = true;                  // Always active with NO_STANDARD_MOTION
   #else
-    bool active = ENABLED(FTM_IS_DEFAULT_MOTION);           // Active (else standard motion)
+    bool active = ENABLED(FTM_IS_DEFAULT_MOTION);         // Active (else Standard Motion)
   #endif
   bool axis_sync_enabled = true;                          // Axis synchronization enabled
 
@@ -126,7 +126,7 @@ class FTMotion {
     static bool busy;
 
     static void set_defaults() {
-      #if DISABLED(FTM_ALWAYS)
+      #if DISABLED(NO_STANDARD_MOTION)
         cfg.active = ENABLED(FTM_IS_DEFAULT_MOTION);
       #endif
 
@@ -194,7 +194,7 @@ class FTMotion {
     static void reset();                                  // Reset all states of the fixed time conversion to defaults.
 
     // Safely toggle the active state of FT Motion
-    #if DISABLED(FTM_ALWAYS) 
+    #if DISABLED(NO_STANDARD_MOTION)
       static bool toggle() {
         stepper.ftMotion_syncPosition();
         FLIP(cfg.active);

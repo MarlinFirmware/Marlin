@@ -346,10 +346,17 @@
   #define HAS_CLASSIC_E_JERK 1
 #endif
 
-// Linear advance uses Jerk since E is an isolated axis
-#if ALL(FT_MOTION, HAS_EXTRUDERS)
-  #define FTM_HAS_LIN_ADVANCE 1
+// Fixed-Time Motion
+#if ENABLED(FT_MOTION)
+  #if ENABLED(HAS_EXTRUDERS)
+    #define FTM_HAS_LIN_ADVANCE 1
+  #endif
+  #if ENABLED(NO_STANDARD_MOTION)
+    #define FTM_HOME_AND_PROBE
+  #endif
 #endif
+
+// Linear advance uses Jerk since E is an isolated axis
 #if ANY(FTM_HAS_LIN_ADVANCE, LIN_ADVANCE)
   #define HAS_LIN_ADVANCE_K 1
 #endif
