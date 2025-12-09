@@ -185,10 +185,7 @@ void FTMotion::loop() {
   }
 
   // Set busy status for use by planner.busy()
-  const bool oldBusy = busy;
   busy = stepping.is_busy();
-  if (oldBusy && !busy) moving_axis_flags.reset();
-
 }
 
 #if HAS_FTM_SHAPING
@@ -386,12 +383,8 @@ bool FTMotion::plan_next_block() {
 
     TERN_(FTM_HAS_LIN_ADVANCE, use_advance_lead = current_block->use_advance_lead);
 
-    #define _SET_MOVE_END(A) do{ \
-      if (moveDist.A) { \
-        moving_axis_flags.A = true; \
-        axis_move_dir.A = moveDist.A > 0; \
-      } \
-    }while(0);
+    axis_move_dir = current_block->direction_bits;
+    #define _SET_MOVE_END(A) moving_axis_flags.A = moveDist.A ? true : false;
 
     LOGICAL_AXIS_MAP(_SET_MOVE_END);
 
