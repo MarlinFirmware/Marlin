@@ -366,6 +366,7 @@
   #if ENABLED(NO_STANDARD_MOTION)
     #define FTM_HOME_AND_PROBE
     #undef LIN_ADVANCE
+    #undef SMOOTH_LIN_ADVANCE
     #undef S_CURVE_ACCELERATION
     #undef ADAPTIVE_STEP_SMOOTHING
     #undef INPUT_SHAPING_X
@@ -374,6 +375,9 @@
     #undef MULTISTEPPING_LIMIT
     #define MULTISTEPPING_LIMIT 1
   #endif
+#endif
+#if DISABLED(NO_STANDARD_MOTION)
+  #define HAS_STANDARD_MOTION 1
 #endif
 
 // ZV Input shaping

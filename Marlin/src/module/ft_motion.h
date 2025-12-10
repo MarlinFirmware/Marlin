@@ -58,10 +58,10 @@
  * FTConfig - The active configured state of FT Motion
  */
 typedef struct FTConfig {
-  #if ENABLED(NO_STANDARD_MOTION)
-    static constexpr bool active = true;                  // Always active with NO_STANDARD_MOTION
+  #if HAS_STANDARD_MOTION
+    bool active = ENABLED(FTM_IS_DEFAULT_MOTION);   // Active (else Standard Motion)
   #else
-    bool active = ENABLED(FTM_IS_DEFAULT_MOTION);         // Active (else Standard Motion)
+    static constexpr bool active = true;                  // Always active with NO_STANDARD_MOTION
   #endif
   bool axis_sync_enabled = true;                          // Axis synchronization enabled
 
@@ -109,7 +109,7 @@ typedef struct FTConfig {
   constexpr bool goodBaseFreq(const float f) { return WITHIN(f, FTM_MIN_SHAPE_FREQ, (FTM_FS) / 2); }
 
   void set_defaults() {
-    #if DISABLED(NO_STANDARD_MOTION)
+    #if HAS_STANDARD_MOTION
       active = ENABLED(FTM_IS_DEFAULT_MOTION);
     #endif
 
@@ -194,7 +194,7 @@ class FTMotion {
     static void reset();                                  // Reset all states of the fixed time conversion to defaults.
 
     // Safely toggle the active state of FT Motion
-    #if DISABLED(NO_STANDARD_MOTION)
+    #if ALL(FT_MOTION, HAS_STANDARD_MOTION)
       static bool toggle() {
         stepper.ftMotion_syncPosition();
         FLIP(cfg.active);
@@ -209,7 +209,7 @@ class FTMotion {
     static FSTR_P getTrajectoryName();
 
     FORCE_INLINE static bool axis_is_moving(const AxisEnum axis) {
-      return cfg.active ? moving_axis_flags[axis] : stepper.axis_is_moving(axis);
+      return cfg.active ? moving_axis_flags[axis] : TERN0(HAS_STANDARD_MOTION, stepper.axis_is_moving(axis));
     }
     FORCE_INLINE static bool motor_direction(const AxisEnum axis) {
       return cfg.active ? axis_move_dir[axis] : stepper.last_direction_bits[axis];

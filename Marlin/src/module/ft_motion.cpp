@@ -375,12 +375,8 @@ bool FTMotion::plan_next_block() {
     const xyze_pos_t& moveDist = current_block->dist_mm;
     ratio = moveDist / totalLength;
 
-    const float mmps = totalLength / current_block->step_event_count, // (mm/step) Distance for each step
-                initial_speed = mmps * current_block->initial_rate,   // (mm/s) Start feedrate
-                final_speed = mmps * current_block->final_rate;       // (mm/s) End feedrate
-
     // Plan the trajectory using the trajectory generator
-    currentGenerator->plan(initial_speed, final_speed, current_block->acceleration, current_block->nominal_speed, totalLength);
+    currentGenerator->plan(current_block->entry_speed, current_block->exit_speed, current_block->acceleration, current_block->nominal_speed, totalLength);
 
     endPos_prevBlock += moveDist;
 

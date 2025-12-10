@@ -499,7 +499,7 @@ void menu_move() {
     START_MENU();
     BACK_ITEM(MSG_MOTION);
 
-    #if DISABLED(NO_STANDARD_MOTION)
+    #if HAS_STANDARD_MOTION
       bool show_state = c.active;
       EDIT_ITEM(bool, MSG_FIXED_TIME_MOTION, &show_state, []{ (void)ftMotion.toggle(); });
     #endif

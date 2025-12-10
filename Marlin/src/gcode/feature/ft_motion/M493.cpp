@@ -210,7 +210,7 @@ void GcodeSuite::M493() {
 
   ft_config_t &c = ftMotion.cfg;
 
-  #if DISABLED(NO_STANDARD_MOTION)
+  #if HAS_STANDARD_MOTION
     // Parse 'S' mode parameter.
     if (parser.seen('S')) {
       const bool active = parser.value_bool();
