@@ -27,7 +27,9 @@
 #include "shaping.h"
 
 // Refresh the gains used by shaping functions.
-void AxisShaping::set_axis_shaping_A(const ftMotionShaper_t shaper, const float zeta, const float vtol) {
+void AxisShaping::set_axis_shaping_A(const ftMotionShaper_t shaper, const float zeta, const float vtol/*=0.0f*/) {
+
+  IF_DISABLED(HAS_FTM_EI_SHAPING, UNUSED(vtol));
 
   const float K = exp(-zeta * M_PI / sqrt(1.f - sq(zeta))),
               K2 = sq(K),

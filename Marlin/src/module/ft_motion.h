@@ -72,8 +72,11 @@ typedef struct FTConfig {
       SHAPED_ARRAY(FTM_SHAPING_DEFAULT_FREQ_X, FTM_SHAPING_DEFAULT_FREQ_Y, FTM_SHAPING_DEFAULT_FREQ_Z, FTM_SHAPING_DEFAULT_FREQ_E);
     ft_shaped_float_t zeta =                              // Damping factor
       SHAPED_ARRAY(FTM_SHAPING_ZETA_X, FTM_SHAPING_ZETA_Y, FTM_SHAPING_ZETA_Z, FTM_SHAPING_ZETA_E);
-    ft_shaped_float_t vtol =                              // Vibration Level
-      SHAPED_ARRAY(FTM_SHAPING_V_TOL_X, FTM_SHAPING_V_TOL_Y, FTM_SHAPING_V_TOL_Z, FTM_SHAPING_V_TOL_E);
+
+    #if HAS_FTM_EI_SHAPING
+      ft_shaped_float_t vtol =                              // Vibration Level
+        SHAPED_ARRAY(FTM_SHAPING_V_TOL_X, FTM_SHAPING_V_TOL_Y, FTM_SHAPING_V_TOL_Z, FTM_SHAPING_V_TOL_E);
+    #endif
 
     #if HAS_DYNAMIC_FREQ
       dynFreqMode_t dynFreqMode = FTM_DEFAULT_DYNFREQ_MODE; // Dynamic frequency mode configuration.
@@ -115,11 +118,16 @@ typedef struct FTConfig {
 
     #if HAS_FTM_SHAPING
 
+      #if HAS_FTM_EI_SHAPING
+        #define _SET_VTOL_DEFAULT(A) vtol.A = FTM_SHAPING_V_TOL_##A
+      #else
+        #define _SET_VTOL_DEFAULT(A) NOOP
+      #endif
       #define _SET_CFG_DEFAULTS(A) do{ \
         shaper.A   = FTM_DEFAULT_SHAPER_##A; \
         baseFreq.A = FTM_SHAPING_DEFAULT_FREQ_##A; \
         zeta.A     = FTM_SHAPING_ZETA_##A; \
-        vtol.A     = FTM_SHAPING_V_TOL_##A; \
+        _SET_VTOL_DEFAULT(A); \
       }while(0);
 
       SHAPED_MAP(_SET_CFG_DEFAULTS);

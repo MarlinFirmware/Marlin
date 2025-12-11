@@ -136,13 +136,18 @@ void GcodeSuite::M493_report(const bool forReplay/*=true*/) {
   #else
     #define F_REPORT(A)
   #endif
+  #if HAS_FTM_EI_SHAPING
+    #define _M493_Q_LINE(A) , F(" Q"), c.vtol.A
+  #else
+    #define _M493_Q_LINE(A)
+  #endif
   #define _REPORT_M493_AXIS(A) \
     SERIAL_ECHOLN(F("  M493 "), C(AXIS_CHAR(_AXIS(A))) \
       , F(" C"), c.shaper.A \
       , F(" A"), c.baseFreq.A \
       F_REPORT(A) \
       , F(" I"), c.zeta.A \
-      , F(" Q"), c.vtol.A \
+      _M493_Q_LINE(A) \
     );
   // Shaper type for each axis
   SHAPED_MAP(_REPORT_M493_AXIS);
@@ -351,7 +356,7 @@ void GcodeSuite::M493() {
           SERIAL_ECHOLNPGM("?Wrong mode for ", C(STEPPER_A_NAME), " (I) zeta parameter.");
       }
 
-      #if ANY(FTM_SHAPER_EI, FTM_SHAPER_2HEI, FTM_SHAPER_3HEI)
+      #if HAS_FTM_EI_SHAPING
         // Parse X vtol parameter
         if (seenQ) {
           if (AXIS_IS_EISHAPING(X)) {
@@ -405,7 +410,7 @@ void GcodeSuite::M493() {
       }
 
       // Parse Y vtol parameter
-      #if ANY(FTM_SHAPER_EI, FTM_SHAPER_2HEI, FTM_SHAPER_3HEI)
+      #if HAS_FTM_EI_SHAPING
         if (seenQ) {
           if (AXIS_IS_EISHAPING(Y)) {
             if (goodVtol) {
@@ -458,7 +463,7 @@ void GcodeSuite::M493() {
       }
 
       // Parse Z vtol parameter
-      #if ANY(FTM_SHAPER_EI, FTM_SHAPER_2HEI, FTM_SHAPER_3HEI)
+      #if HAS_FTM_EI_SHAPING
         if (seenQ) {
           if (AXIS_IS_EISHAPING(Z)) {
             if (goodVtol) {
@@ -511,7 +516,7 @@ void GcodeSuite::M493() {
       }
 
       // Parse E vtol parameter
-      #if ANY(FTM_SHAPER_EI, FTM_SHAPER_2HEI, FTM_SHAPER_3HEI)
+      #if HAS_FTM_EI_SHAPING
         if (seenQ) {
           if (AXIS_IS_EISHAPING(E)) {
             if (goodVtol) {

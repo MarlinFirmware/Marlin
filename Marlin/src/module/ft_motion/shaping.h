@@ -41,9 +41,11 @@ enum dynFreqMode_t : uint8_t {
   dynFreqMode_MASS_BASED = 2
 };
 
-#define AXIS_IS_SHAPING(A)    TERN0(FTM_SHAPER_##A, (ftMotion.cfg.shaper.A != ftMotionShaper_NONE))
-#if ANY(FTM_SHAPER_EI, FTM_SHAPER_2HEI, FTM_SHAPER_3HEI)
-  #define AXIS_IS_EISHAPING(A)  TERN0(FTM_SHAPER_##A, WITHIN(ftMotion.cfg.shaper.A, ftMotionShaper_EI, ftMotionShaper_3HEI))
+#define AXIS_IS_SHAPING(A) TERN0(FTM_SHAPER_##A, (ftMotion.cfg.shaper.A != ftMotionShaper_NONE))
+#if HAS_FTM_EI_SHAPING
+  #define AXIS_IS_EISHAPING(A) TERN0(FTM_SHAPER_##A, WITHIN(ftMotion.cfg.shaper.A, ftMotionShaper_EI, ftMotionShaper_3HEI))
+#else
+  #define AXIS_IS_EISHAPING(A) false
 #endif
 
 // Emitters for code that only cares about shaped XYZE
@@ -104,7 +106,7 @@ typedef struct AxisShaping {
   void set_axis_shaping_N(const ftMotionShaper_t shaper, const float f, const float zeta);
 
   // Set the indices (per pulse delays) used by shaping functions
-  void set_axis_shaping_A(const ftMotionShaper_t shaper, const float zeta, const float vtol);
+  void set_axis_shaping_A(const ftMotionShaper_t shaper, const float zeta, const float vtol=0.0f);
 
 } axis_shaping_t;
 

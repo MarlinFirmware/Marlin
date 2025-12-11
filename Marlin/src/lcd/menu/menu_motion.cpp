@@ -512,13 +512,20 @@ void menu_move() {
           EDIT_ITEM(float42_52, MSG_FTM_POLY6_OVERSHOOT, &c.poly6_acceleration_overshoot, 1.25f, 1.875f);
       #endif
 
+      #if HAS_FTM_EI_SHAPING
+        #define EISHAPER_MENU_ITEM(A) \
+          if (AXIS_IS_EISHAPING(A)) \
+            EDIT_ITEM_FAST_N(float42_52, _AXIS(A), MSG_FTM_VTOL_N, &c.vtol.A, 0.0f, 1.0f, ftMotion.update_shaping_params);
+      #else
+        #define EISHAPER_MENU_ITEM(A) NOOP
+      #endif
+
       #define SHAPER_MENU_ITEM(A) \
         SUBMENU_N_S(_AXIS(A), _shaper_name(_AXIS(A)), MSG_FTM_CMPN_MODE, menu_ftm_shaper_##A); \
         if (AXIS_IS_SHAPING(A)) { \
           EDIT_ITEM_FAST_N(float42_52, _AXIS(A), MSG_FTM_BASE_FREQ_N, &c.baseFreq.A, FTM_MIN_SHAPE_FREQ, (FTM_FS) / 2, ftMotion.update_shaping_params); \
           EDIT_ITEM_FAST_N(float42_52, _AXIS(A), MSG_FTM_ZETA_N, &c.zeta.A, 0.0f, 1.0f, ftMotion.update_shaping_params); \
-          if (AXIS_IS_EISHAPING(A)) \
-            EDIT_ITEM_FAST_N(float42_52, _AXIS(A), MSG_FTM_VTOL_N, &c.vtol.A, 0.0f, 1.0f, ftMotion.update_shaping_params); \
+          EISHAPER_MENU_ITEM(A); \
         }
       SHAPED_MAP(SHAPER_MENU_ITEM);
 
