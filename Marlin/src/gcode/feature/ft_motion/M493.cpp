@@ -310,16 +310,14 @@ void GcodeSuite::M493() {
   if (seenI && !goodZeta)
     SERIAL_ECHOLN(F("?Invalid "), F("(I) Zeta value. (0.01-1.0)")); // Zeta out of range
 
-  // Vibration Tolerance parameter
-  #if ALL(NO_FTM_EI, NO_FTM_HEI2, NO_FTM_HEI3)
-    constexpr bool seenQ = false; 
-  #else
+  #if HAS_FTM_EI_SHAPING
+    // Vibration Tolerance parameter
     const bool seenQ = parser.seenval('Q');
+    const float vtolVal = seenQ ? parser.value_float() : 0.0f;
+    const bool goodVtol = seenQ && c.goodVtol(vtolVal);
+    if (seenQ && !goodVtol)
+      SERIAL_ECHOLN(F("?Invalid "), F("(Q) Vibration Tolerance value. (0.0-1.0)")); // VTol out of range
   #endif
-  const float vtolVal = seenQ ? parser.value_float() : 0.0f;
-  const bool goodVtol = seenQ && c.goodVtol(vtolVal);
-  if (seenQ && !goodVtol)
-    SERIAL_ECHOLN(F("?Invalid "), F("(Q) Vibration Tolerance value. (0.0-1.0)")); // VTol out of range
 
   const bool apply_xy = !parser.seen("XYZE");
 

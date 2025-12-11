@@ -118,16 +118,11 @@ typedef struct FTConfig {
 
     #if HAS_FTM_SHAPING
 
-      #if HAS_FTM_EI_SHAPING
-        #define _SET_VTOL_DEFAULT(A) vtol.A = FTM_SHAPING_V_TOL_##A
-      #else
-        #define _SET_VTOL_DEFAULT(A) NOOP
-      #endif
       #define _SET_CFG_DEFAULTS(A) do{ \
         shaper.A   = FTM_DEFAULT_SHAPER_##A; \
         baseFreq.A = FTM_SHAPING_DEFAULT_FREQ_##A; \
         zeta.A     = FTM_SHAPING_ZETA_##A; \
-        _SET_VTOL_DEFAULT(A); \
+        TERN_(HAS_FTM_EI_SHAPING, vtol.A = FTM_SHAPING_V_TOL_##A); \
       }while(0);
 
       SHAPED_MAP(_SET_CFG_DEFAULTS);
