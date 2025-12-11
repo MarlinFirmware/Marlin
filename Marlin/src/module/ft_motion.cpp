@@ -185,10 +185,7 @@ void FTMotion::loop() {
   }
 
   // Set busy status for use by planner.busy()
-  const bool oldBusy = busy;
   busy = stepping.is_busy();
-  if (oldBusy && !busy) moving_axis_flags.reset();
-
 }
 
 #if HAS_FTM_SHAPING
@@ -365,6 +362,7 @@ bool FTMotion::plan_next_block() {
       if (current_block->is_sync_pos()) stepper._set_position(current_block->position);
       continue;
     }
+    ensure_float_precision();
 
     #if ENABLED(POWER_LOSS_RECOVERY)
       recovery.info.sdpos = current_block->sdpos;
@@ -391,23 +389,15 @@ bool FTMotion::plan_next_block() {
     const xyze_pos_t& moveDist = current_block->dist_mm;
     ratio = moveDist / totalLength;
 
-    const float mmps = totalLength / current_block->step_event_count, // (mm/step) Distance for each step
-                initial_speed = mmps * current_block->initial_rate,   // (mm/s) Start feedrate
-                final_speed = mmps * current_block->final_rate;       // (mm/s) End feedrate
-
     // Plan the trajectory using the trajectory generator
-    currentGenerator->plan(initial_speed, final_speed, current_block->acceleration, current_block->nominal_speed, totalLength);
+    currentGenerator->plan(current_block->entry_speed, current_block->exit_speed, current_block->acceleration, current_block->nominal_speed, totalLength);
 
     endPos_prevBlock += moveDist;
 
     TERN_(FTM_HAS_LIN_ADVANCE, use_advance_lead = current_block->use_advance_lead);
 
-    #define _SET_MOVE_END(A) do{ \
-      if (moveDist.A) { \
-        moving_axis_flags.A = true; \
-        axis_move_dir.A = moveDist.A > 0; \
-      } \
-    }while(0);
+    axis_move_dir = current_block->direction_bits;
+    #define _SET_MOVE_END(A) moving_axis_flags.A = moveDist.A ? true : false;
 
     LOGICAL_AXIS_MAP(_SET_MOVE_END);
 
@@ -418,6 +408,39 @@ bool FTMotion::plan_next_block() {
 
     return true;
   }
+}
+
+/**
+ * Ensure extruder position stays within floating point precision bounds.
+ * Float32 numbers have 23 bits of precision, so the minimum increment ("resolution") around a value x is:
+ * resolution = 2^(floor(log2(|x|)) - 23)
+ * By resetting at ±1'000mm (1 meter), we get a minimum resolution of ~ 0.00006mm, enough for smoothing to work well.
+ */
+void FTMotion::ensure_float_precision() {
+  constexpr float FTM_POSITION_WRAP_THRESHOLD = 1'000.0f;  // (mm) Reset when position exceeds this to prevent floating point precision loss
+  #if HAS_EXTRUDERS
+    if (fabs(endPos_prevBlock.E) >= FTM_POSITION_WRAP_THRESHOLD) {
+      const float offset = -endPos_prevBlock.E;
+      endPos_prevBlock.E += offset;
+
+      // Offset extruder shaping buffer
+      #if ALL(HAS_FTM_SHAPING, FTM_SHAPER_E)
+        for (uint32_t i = 0; i < FTM_ZMAX; ++i) shaping.E.d_zi[i] += offset;
+      #endif
+
+      // Offset extruder smoothing buffer
+      #if ENABLED(FTM_SMOOTHING)
+        for (uint8_t i = 0; i < FTM_SMOOTHING_ORDER; ++i) smoothing.E.smoothing_pass[i] += offset;
+      #endif
+
+      // Offset linear advance previous position
+      prev_traj_e += offset;
+
+      // Offset stepper current position
+      const int64_t delta_steps_q48_16 = offset * planner.settings.axis_steps_per_mm[block_extruder_axis] * (1ULL << 16);
+      stepping.curr_steps_q48_16.E += delta_steps_q48_16;
+    };
+  #endif
 }
 
 xyze_float_t FTMotion::calc_traj_point(const float dist) {

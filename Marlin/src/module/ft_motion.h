@@ -58,7 +58,11 @@
  * FTConfig - The active configured state of FT Motion
  */
 typedef struct FTConfig {
-  bool active = ENABLED(FTM_IS_DEFAULT_MOTION);           // Active (else standard motion)
+  #if HAS_STANDARD_MOTION
+    bool active = ENABLED(FTM_IS_DEFAULT_MOTION);   // Active (else Standard Motion)
+  #else
+    static constexpr bool active = true;                  // Always active with NO_STANDARD_MOTION
+  #endif
   bool axis_sync_enabled = true;                          // Axis synchronization enabled
 
   #if HAS_FTM_SHAPING
@@ -178,6 +182,33 @@ typedef struct FTConfig {
     return true;
   }
 
+  void set_defaults() {
+    #if HAS_STANDARD_MOTION
+      active = ENABLED(FTM_IS_DEFAULT_MOTION);
+    #endif
+
+    #if HAS_FTM_SHAPING
+
+      #define _SET_CFG_DEFAULTS(A) do{ \
+        shaper.A   = FTM_DEFAULT_SHAPER_##A; \
+        baseFreq.A = FTM_SHAPING_DEFAULT_FREQ_##A; \
+        zeta.A     = FTM_SHAPING_ZETA_##A; \
+        vtol.A     = FTM_SHAPING_V_TOL_##A; \
+      }while(0);
+
+      SHAPED_MAP(_SET_CFG_DEFAULTS);
+      #undef _SET_CFG_DEFAULTS
+
+      #if HAS_DYNAMIC_FREQ
+        dynFreqMode = FTM_DEFAULT_DYNFREQ_MODE;
+        dynFreqK.reset();
+      #endif
+
+    #endif // HAS_FTM_SHAPING
+
+    TERN_(FTM_POLYS, poly6_acceleration_overshoot = FTM_POLY6_ACCELERATION_OVERSHOOT);
+  }
+
 } ft_config_t;
 
 /**
@@ -196,31 +227,9 @@ class FTMotion {
     static bool busy;
 
     static void set_defaults() {
-      cfg.active = ENABLED(FTM_IS_DEFAULT_MOTION);
+      cfg.set_defaults();
 
-      #if HAS_FTM_SHAPING
-
-        #define _SET_CFG_DEFAULTS(A) do{ \
-          cfg.shaper.A   = FTM_DEFAULT_SHAPER_##A; \
-          cfg.baseFreq.A = FTM_SHAPING_DEFAULT_FREQ_##A; \
-          cfg.zeta.A     = FTM_SHAPING_ZETA_##A; \
-          cfg.vtol.A     = FTM_SHAPING_V_TOL_##A; \
-        }while(0);
-
-        SHAPED_MAP(_SET_CFG_DEFAULTS);
-        #undef _SET_CFG_DEFAULTS
-
-        #if HAS_DYNAMIC_FREQ
-          cfg.dynFreqMode = FTM_DEFAULT_DYNFREQ_MODE;
-          //ZERO(cfg.dynFreqK);
-          #define _DYN_RESET(A) cfg.dynFreqK.A = 0.0f;
-          SHAPED_MAP(_DYN_RESET);
-          #undef _DYN_RESET
-        #endif
-
-        update_shaping_params();
-
-      #endif // HAS_FTM_SHAPING
+      TERN_(HAS_FTM_SHAPING, update_shaping_params());
 
       #if ENABLED(FTM_SMOOTHING)
         #define _RESET_SMOOTH(A) (void)set_smoothing_time(_AXIS(A), FTM_SMOOTHING_TIME_##A);
@@ -228,10 +237,7 @@ class FTMotion {
         #undef _RESET_SMOOTH
       #endif
 
-      #if ENABLED(FTM_POLYS)
-        cfg.poly6_acceleration_overshoot = FTM_POLY6_ACCELERATION_OVERSHOOT;
-        setTrajectoryType(TrajectoryType::FTM_TRAJECTORY_TYPE);
-      #endif
+      TERN_(FTM_POLYS, setTrajectoryType(TrajectoryType::FTM_TRAJECTORY_TYPE));
 
       reset();
     }
@@ -262,11 +268,14 @@ class FTMotion {
     static void reset();                                  // Reset all states of the fixed time conversion to defaults.
 
     // Safely toggle the active state of FT Motion
-    static bool toggle() {
-      cfg.setActive(!cfg.active);
-      update_shaping_params();
-      return cfg.active;
-    }
+    #if ALL(FT_MOTION, HAS_STANDARD_MOTION)
+      static bool toggle() {
+        stepper.ftMotion_syncPosition();
+        cfg.setActive(!cfg.active);
+        update_shaping_params();
+        return cfg.active;
+      }
+    #endif
 
     // Setters for baseFreq, zeta, vtol
     static bool setBaseFreq(const AxisEnum a, const float f) {
@@ -294,7 +303,7 @@ class FTMotion {
     static FSTR_P getTrajectoryName();
 
     FORCE_INLINE static bool axis_is_moving(const AxisEnum axis) {
-      return cfg.active ? moving_axis_flags[axis] : stepper.axis_is_moving(axis);
+      return cfg.active ? moving_axis_flags[axis] : TERN0(HAS_STANDARD_MOTION, stepper.axis_is_moving(axis));
     }
     FORCE_INLINE static bool motor_direction(const AxisEnum axis) {
       return cfg.active ? axis_move_dir[axis] : stepper.last_direction_bits[axis];
@@ -365,6 +374,7 @@ class FTMotion {
     static void fill_stepper_plan_buffer();
     static xyze_float_t calc_traj_point(const float dist);
     static bool plan_next_block();
+    static void ensure_float_precision();
 
 }; // class FTMotion
 

@@ -499,8 +499,10 @@ void menu_move() {
     START_MENU();
     BACK_ITEM(MSG_MOTION);
 
-    bool show_state = c.active;
-    EDIT_ITEM(bool, MSG_FIXED_TIME_MOTION, &show_state, []{ (void)ftMotion.toggle(); });
+    #if HAS_STANDARD_MOTION
+      bool show_state = c.active;
+      EDIT_ITEM(bool, MSG_FIXED_TIME_MOTION, &show_state, []{ (void)ftMotion.toggle(); });
+    #endif
 
     // Show only when FT Motion is active (or optionally always show)
     if (c.active || ENABLED(FT_MOTION_NO_MENU_TOGGLE)) {

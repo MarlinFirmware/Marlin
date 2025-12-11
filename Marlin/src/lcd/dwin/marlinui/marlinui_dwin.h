@@ -22,7 +22,7 @@
 #pragma once
 
 /**
- * lcd/e3v2/marlinui/lcdprint_dwin.h
+ * lcd/dwin/marlinui/lcdprint_dwin.h
  */
 
 #include "../../../inc/MarlinConfigPre.h"

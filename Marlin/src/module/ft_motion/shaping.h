@@ -73,6 +73,7 @@ struct FTShapedAxes {
   T& operator[](const int axis) {
     return val[axis_to_index(axis)];
   }
+  void reset() { ZERO(val); }
 
 private:
   static constexpr int axis_to_index(const int axis) {
