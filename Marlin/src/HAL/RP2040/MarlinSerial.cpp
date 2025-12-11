@@ -30,10 +30,21 @@
   #include "../../feature/e_parser.h"
 #endif
 
-#define _IMPLEMENT_SERIAL(X) DefaultSerial##X MSerial##X(false, Serial##X)
-#define IMPLEMENT_SERIAL(X)  _IMPLEMENT_SERIAL(X)
-#if WITHIN(SERIAL_PORT, 0, 3)
-  IMPLEMENT_SERIAL(SERIAL_PORT);
+#include <HardwareSerial.h>
+
+// Special implementations for RP2040 mapping
+arduino::UART Serial0(
+#if defined(SERIAL0_TX_PIN) && defined(SERIAL0_RX_PIN)
+  SERIAL0_TX_PIN, SERIAL0_RX_PIN
+#else
+  0, 1
 #endif
+);  // UART0 on pins 0/1 (or remapped)
+#if defined(SERIAL1_TX_PIN) && defined(SERIAL1_RX_PIN)
+  #undef Serial1 // remove conflict with Arduino core
+  arduino::UART Serial1(SERIAL1_TX_PIN, SERIAL1_RX_PIN);
+#endif
+DefaultSerial0 MSerial0(false, Serial0);
+DefaultSerial2 MSerial2(false, Serial);
 
 #endif // __PLAT_RP2040__
