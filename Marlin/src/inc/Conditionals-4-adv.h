@@ -346,10 +346,46 @@
   #define HAS_CLASSIC_E_JERK 1
 #endif
 
-// Linear advance uses Jerk since E is an isolated axis
-#if ALL(FT_MOTION, HAS_EXTRUDERS)
-  #define FTM_HAS_LIN_ADVANCE 1
+// Fixed-Time Motion
+#if ENABLED(FT_MOTION)
+  #if HAS_X_AXIS
+    #define HAS_FTM_SHAPING 1
+    #define FTM_SHAPER_X
+  #endif
+  #if HAS_Y_AXIS
+    #define FTM_SHAPER_Y
+  #endif
+  #if !HAS_Z_AXIS
+    #undef FTM_SHAPER_Z
+  #endif
+  #if HAS_EXTRUDERS
+    #define FTM_HAS_LIN_ADVANCE 1
+  #else
+    #undef FTM_SHAPER_E
+  #endif
+  #if ENABLED(NO_STANDARD_MOTION)
+    #define FTM_HOME_AND_PROBE
+    #undef LIN_ADVANCE
+    #undef SMOOTH_LIN_ADVANCE
+    #undef S_CURVE_ACCELERATION
+    #undef ADAPTIVE_STEP_SMOOTHING
+    #undef INPUT_SHAPING_X
+    #undef INPUT_SHAPING_Y
+    #undef INPUT_SHAPING_E_SYNC
+    #undef MULTISTEPPING_LIMIT
+    #define MULTISTEPPING_LIMIT 1
+  #endif
 #endif
+#if DISABLED(NO_STANDARD_MOTION)
+  #define HAS_STANDARD_MOTION 1
+#endif
+
+// ZV Input shaping
+#if ANY(INPUT_SHAPING_X, INPUT_SHAPING_Y, INPUT_SHAPING_Z)
+  #define HAS_ZV_SHAPING 1
+#endif
+
+// Linear advance uses Jerk since E is an isolated axis
 #if ANY(FTM_HAS_LIN_ADVANCE, LIN_ADVANCE)
   #define HAS_LIN_ADVANCE_K 1
 #endif
@@ -1519,28 +1555,6 @@
 #if ENABLED(CONFIGURATION_EMBEDDING) && !defined(FORCE_CONFIG_EMBED) && (defined(__AVR__) || !HAS_MEDIA || ANY(SDCARD_READONLY, DISABLE_M503))
   #undef CONFIGURATION_EMBEDDING
   #define CANNOT_EMBED_CONFIGURATION defined(__AVR__)
-#endif
-
-// Input shaping
-#if ANY(INPUT_SHAPING_X, INPUT_SHAPING_Y, INPUT_SHAPING_Z)
-  #define HAS_ZV_SHAPING 1
-#endif
-
-// FT Motion: Shapers
-#if ENABLED(FT_MOTION)
-  #if HAS_X_AXIS
-    #define HAS_FTM_SHAPING 1
-    #define FTM_SHAPER_X
-  #endif
-  #if HAS_Y_AXIS
-    #define FTM_SHAPER_Y
-  #endif
-  #if !HAS_Z_AXIS
-    #undef FTM_SHAPER_Z
-  #endif
-  #if !HAS_EXTRUDERS
-    #undef FTM_SHAPER_E
-  #endif
 #endif
 
 // Multi-Stepping Limit
