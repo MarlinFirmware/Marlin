@@ -51,6 +51,28 @@
 
 #include "MarlinSerial.h"
 
+#if !WITHIN(SERIAL_PORT, -1, 1)
+  #error "SERIAL_PORT must be from -1 to 1."
+#endif
+
+#ifdef SERIAL_PORT_2
+  #if !WITHIN(SERIAL_PORT_2, -1, 1)
+    #error "SERIAL_PORT_2 must be from -1 to 1."
+  #endif
+#endif
+
+#ifdef SERIAL_PORT_3
+  #if !WITHIN(SERIAL_PORT_3, -1, 1)
+    #error "SERIAL_PORT_3 must be from -1 to 1."
+  #endif
+#endif
+
+#ifdef LCD_SERIAL_PORT
+  #if !WITHIN(LCD_SERIAL_PORT, -1, 1)
+    #error "LCD_SERIAL_PORT must be from -1 to 1."
+  #endif
+#endif
+
 // ------------------------
 // Defines
 // ------------------------
