@@ -3692,7 +3692,7 @@
   #define FTM_SMOOTH_MAX_I uint32_t(TERN0(FTM_SMOOTHING, CEIL(FTM_FS * FTM_MAX_SMOOTHING_TIME))) // Max delays for smoothing
 
   // Maximum delays for shaping functions (even numbers only!)
-  #define FTM_ZMAX (HAS_FTM_EI_SHAPING(FTM_RATIO * 2, FTM_RATIO) + FTM_SMOOTH_MAX_I)
+  #define FTM_ZMAX (TERN(HAS_FTM_EI_SHAPING, 2, 1) * FTM_RATIO + FTM_SMOOTH_MAX_I)
 
   #define FTM_SMOOTHING_ORDER   5 // 3 to 5 is closest to Gaussian
                                   // Calculate as:

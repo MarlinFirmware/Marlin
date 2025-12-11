@@ -137,9 +137,9 @@ void GcodeSuite::M493_report(const bool forReplay/*=true*/) {
     #define F_REPORT(A)
   #endif
   #if HAS_FTM_EI_SHAPING
-    #define _M493_Q_LINE(A) , F(" Q"), c.vtol.A
+    #define Q_REPORT(A) , F(" Q"), c.vtol.A
   #else
-    #define _M493_Q_LINE(A)
+    #define Q_REPORT(A)
   #endif
   #define _REPORT_M493_AXIS(A) \
     SERIAL_ECHOLN(F("  M493 "), C(AXIS_CHAR(_AXIS(A))) \
@@ -147,7 +147,7 @@ void GcodeSuite::M493_report(const bool forReplay/*=true*/) {
       , F(" A"), c.baseFreq.A \
       F_REPORT(A) \
       , F(" I"), c.zeta.A \
-      _M493_Q_LINE(A) \
+      Q_REPORT(A) \
     );
   // Shaper type for each axis
   SHAPED_MAP(_REPORT_M493_AXIS);
