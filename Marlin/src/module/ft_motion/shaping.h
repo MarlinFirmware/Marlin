@@ -42,7 +42,7 @@ enum dynFreqMode_t : uint8_t {
 };
 
 #define AXIS_IS_SHAPING(A)    TERN0(FTM_SHAPER_##A, (ftMotion.cfg.shaper.A != ftMotionShaper_NONE))
-#if NONE(NO_FTM_EI, NO_FTM_2HEI, NO_FTM_3HEI)
+#if ANY(FTM_SHAPER_EI, FTM_SHAPER_2HEI, FTM_SHAPER_3HEI)
   #define AXIS_IS_EISHAPING(A)  TERN0(FTM_SHAPER_##A, WITHIN(ftMotion.cfg.shaper.A, ftMotionShaper_EI, ftMotionShaper_3HEI))
 #endif
 

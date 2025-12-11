@@ -1171,22 +1171,15 @@
     #define FTM_DEFAULT_DYNFREQ_MODE dynFreqMode_DISABLED // Default mode of dynamic frequency calculation. (DISABLED, Z_BASED, MASS_BASED)
   #endif
 
-
-  /**
-   *  Options to disable specific shapers.
-   *  Disable EI shapers to save RAM.
-   *  Disabling all but one shaper // saves about 700 bytes of FLASH.
-   *  None cannot be disabled.
-   */
-
-  //#define NO_FTM_ZV
-  //#define NO_FTM_ZVD
-  //#define NO_FTM_ZVDD
-  //#define NO_FTM_ZVDDD
-  //#define NO_FTM_EI
-  //#define NO_FTM_2HEI
-  //#define NO_FTM_3HEI
-  //#define NO_FTM_MZV
+  // Disable unused shapers if you need more free space
+  #define FTM_SHAPER_ZV
+  #define FTM_SHAPER_ZVD
+  #define FTM_SHAPER_ZVDD
+  #define FTM_SHAPER_ZVDDD
+  #define FTM_SHAPER_EI
+  #define FTM_SHAPER_2HEI
+  #define FTM_SHAPER_3HEI
+  #define FTM_SHAPER_MZV
 
   #define FTM_DEFAULT_SHAPER_X      ftMotionShaper_NONE // Default shaper mode on X axis (NONE, ZV, ZVD, ZVDD, ZVDDD, EI, 2HEI, 3HEI, MZV)
   #define FTM_SHAPING_DEFAULT_FREQ_X   37.0f    // (Hz) Default peak frequency used by input shapers

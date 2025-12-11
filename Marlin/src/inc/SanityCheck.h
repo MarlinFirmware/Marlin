@@ -4519,12 +4519,10 @@ static_assert(_PLUS_TEST(3), "DEFAULT_MAX_ACCELERATION values must be positive."
       #error "Z_LATE_ENABLE is not yet available in FT_MOTION. Disable NO_STANDARD_MOTION if you require it."
     #endif
   #endif
-  #if ANY (FTM_SHAPER_X, FTM_SHAPER_Y, FTM_SHAPER_Z, FTM_SHAPER_E)
-    #if ALL(NO_FTM_ZV, NO_FTM_ZVD, NO_FTM_ZVDD, NO_FTM_ZVDDD, NO_FTM_EI, NO_FTM_2HEI, NO_FTM_3HEI, NO_FTM_MZV)
-      #error "All Shaper algorithms disabled. Select at least one shaper algorithm."
-    #endif
- #endif 
-#endif
+  #if HAS_FTM_SHAPING && NONE(FTM_SHAPER_ZV, FTM_SHAPER_ZVD, FTM_SHAPER_ZVDD, FTM_SHAPER_ZVDDD, FTM_SHAPER_EI, FTM_SHAPER_2HEI, FTM_SHAPER_3HEI, FTM_SHAPER_MZV)
+    #error "For FT_MOTION at least one FTM_SHAPER_* type must be enabled."
+  #endif
+#endif // FT_MOTION
 
 // Multi-Stepping Limit
 static_assert(WITHIN(MULTISTEPPING_LIMIT, 1, 128) && IS_POWER_OF_2(MULTISTEPPING_LIMIT), "MULTISTEPPING_LIMIT must be 1, 2, 4, 8, 16, 32, 64, or 128.");

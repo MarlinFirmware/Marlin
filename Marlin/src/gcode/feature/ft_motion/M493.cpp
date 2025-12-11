@@ -351,10 +351,8 @@ void GcodeSuite::M493() {
           SERIAL_ECHOLNPGM("?Wrong mode for ", C(STEPPER_A_NAME), " (I) zeta parameter.");
       }
 
-      // Parse X vtol parameter
-      #if ALL(NO_FTM_EI, NO_FTM_2HEI, NO_FTM_3HEI)
-        // do not parse Q parameter
-      #else
+      #if ANY(FTM_SHAPER_EI, FTM_SHAPER_2HEI, FTM_SHAPER_3HEI)
+        // Parse X vtol parameter
         if (seenQ) {
           if (AXIS_IS_EISHAPING(X)) {
             if (goodVtol) {
@@ -365,7 +363,7 @@ void GcodeSuite::M493() {
           else
             SERIAL_ECHOLNPGM("?Wrong mode for ", C(STEPPER_A_NAME), " (Q) vtol parameter.");
         }
-    #endif
+      #endif
     }
 
   #endif // HAS_X_AXIS
@@ -407,9 +405,7 @@ void GcodeSuite::M493() {
       }
 
       // Parse Y vtol parameter
-      #if ALL(NO_FTM_EI, NO_FTM_2HEI, NO_FTM_3HEI)
-        // do not parse Q parameter
-      #else
+      #if ANY(FTM_SHAPER_EI, FTM_SHAPER_2HEI, FTM_SHAPER_3HEI)
         if (seenQ) {
           if (AXIS_IS_EISHAPING(Y)) {
             if (goodVtol) {
@@ -462,9 +458,7 @@ void GcodeSuite::M493() {
       }
 
       // Parse Z vtol parameter
-      #if ALL(NO_FTM_EI, NO_FTM_2HEI, NO_FTM_3HEI)
-        // do not parse Q parameter
-      #else
+      #if ANY(FTM_SHAPER_EI, FTM_SHAPER_2HEI, FTM_SHAPER_3HEI)
         if (seenQ) {
           if (AXIS_IS_EISHAPING(Z)) {
             if (goodVtol) {
@@ -493,7 +487,7 @@ void GcodeSuite::M493() {
           }
         }
         else // Mode doesn't use frequency.
-          SERIAL_ECHOLNPGM("?Wrong mode for ", C(STEPPER_E_NAME), " (A) frequency.");
+          SERIAL_ECHOLNPGM("?Wrong mode for ", C('E'), " (A) frequency.");
       }
 
       #if HAS_DYNAMIC_FREQ
@@ -513,13 +507,11 @@ void GcodeSuite::M493() {
           }
         }
         else
-          SERIAL_ECHOLNPGM("?Wrong mode for ", C(STEPPER_E_NAME), " (I) zeta parameter.");
+          SERIAL_ECHOLNPGM("?Wrong mode for ", C('E'), " (I) zeta parameter.");
       }
 
       // Parse E vtol parameter
-      #if ALL(NO_FTM_EI, NO_FTM_2HEI, NO_FTM_3HEI)
-        // do not parse Q parameter
-      #else
+      #if ANY(FTM_SHAPER_EI, FTM_SHAPER_2HEI, FTM_SHAPER_3HEI)
         if (seenQ) {
           if (AXIS_IS_EISHAPING(E)) {
             if (goodVtol) {
@@ -528,7 +520,7 @@ void GcodeSuite::M493() {
             }
           }
           else
-            SERIAL_ECHOLNPGM("?Wrong mode for ", C(STEPPER_E_NAME), " (Q) vtol parameter.");
+            SERIAL_ECHOLNPGM("?Wrong mode for ", C('E'), " (Q) vtol parameter.");
         }
       #endif
     }
