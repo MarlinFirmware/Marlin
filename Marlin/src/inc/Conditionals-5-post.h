@@ -3690,7 +3690,11 @@
   #define FTM_TS (1.0f / FTM_FS)                      // (s) Time step for trajectory generation. (Reciprocal of FTM_FS)
   #define FTM_RATIO (FTM_FS / FTM_MIN_SHAPE_FREQ)     // Factor for use in FTM_ZMAX. DON'T CHANGE.
   #define FTM_SMOOTH_MAX_I uint32_t(TERN0(FTM_SMOOTHING, CEIL(FTM_FS * FTM_MAX_SMOOTHING_TIME))) // Max delays for smoothing
-  #define FTM_ZMAX (FTM_RATIO * 2 + FTM_SMOOTH_MAX_I) // Maximum delays for shaping functions (even numbers only!)
+ #if ALL(NO_FTM_EI, NO_FTM_2HEI, NO_FTM_3HEI)
+    #define FTM_ZMAX (FTM_RATIO + FTM_SMOOTH_MAX_I) // Maximum delays for shaping functions (even numbers only!)
+  #else
+    #define FTM_ZMAX (FTM_RATIO * 2 + FTM_SMOOTH_MAX_I) // Maximum delays for shaping functions (even numbers only!)
+  #endif 
                                                       // Calculate as:
                                                       //   ZV       : FTM_RATIO / 2
                                                       //   ZVD, MZV : FTM_RATIO

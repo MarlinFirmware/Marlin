@@ -36,19 +36,24 @@ void AxisShaping::set_axis_shaping_A(const ftMotionShaper_t shaper, const float 
 
   switch (shaper) {
 
+    #if DISABLED(NO_FTM_ZV)
     case ftMotionShaper_ZV:
       max_i = 1U;
       Ai[0] = 1.0f / (1.0f + K);
       Ai[1] = Ai[0] * K;
       break;
+    #endif
 
+    #if DISABLED(NO_FTM_ZVD)
     case ftMotionShaper_ZVD:
       max_i = 2U;
       Ai[0] = 1.0f / (1.0f + 2.0f * K + K2);
       Ai[1] = Ai[0] * 2.0f * K;
       Ai[2] = Ai[0] * K2;
       break;
+    #endif
 
+    #if DISABLED(NO_FTM_ZVDD)
     case ftMotionShaper_ZVDD:
       max_i = 3U;
       Ai[0] = 1.0f / (1.0f + 3.0f * K + 3.0f * K2 + K3);
@@ -56,7 +61,9 @@ void AxisShaping::set_axis_shaping_A(const ftMotionShaper_t shaper, const float 
       Ai[2] = Ai[0] * 3.0f * K2;
       Ai[3] = Ai[0] * K3;
       break;
+    #endif
 
+   #if DISABLED(NO_FTM_ZVDDD)
     case ftMotionShaper_ZVDDD:
       max_i = 4U;
       Ai[0] = 1.0f / (1.0f + 4.0f * K + 6.0f * K2 + 4.0f * K3 + K4);
@@ -65,7 +72,9 @@ void AxisShaping::set_axis_shaping_A(const ftMotionShaper_t shaper, const float 
       Ai[3] = Ai[0] * 4.0f * K3;
       Ai[4] = Ai[0] * K4;
       break;
+    #endif
 
+    #if DISABLED(NO_FTM_EI)
     case ftMotionShaper_EI: {
       max_i = 2U;
       Ai[0] = 0.25f * (1.0f + vtol);
@@ -75,7 +84,9 @@ void AxisShaping::set_axis_shaping_A(const ftMotionShaper_t shaper, const float 
       const float adj = 1.0f / (Ai[0] + Ai[1] + Ai[2]);
       for (uint32_t i = 0; i < 3U; i++) Ai[i] *= adj;
     } break;
+    #endif
 
+    #if DISABLED(NO_FTM_H2EI)
     case ftMotionShaper_2HEI: {
       max_i = 3U;
       const float vtolx2 = sq(vtol);
@@ -88,7 +99,9 @@ void AxisShaping::set_axis_shaping_A(const ftMotionShaper_t shaper, const float 
       const float adj = 1.0f / (Ai[0] + Ai[1] + Ai[2] + Ai[3]);
       for (uint32_t i = 0; i < 4U; i++) Ai[i] *= adj;
     } break;
+    #endif
 
+    #if DISABLED(NO_FTM_3HEI)
     case ftMotionShaper_3HEI: {
       max_i = 4U;
       Ai[0] = 0.0625f * ( 1.0f + 3.0f * vtol + 2.0f * sqrt( 2.0f * ( vtol + 1.0f ) * vtol ) );
@@ -100,7 +113,9 @@ void AxisShaping::set_axis_shaping_A(const ftMotionShaper_t shaper, const float 
       const float adj = 1.0f / (Ai[0] + Ai[1] + Ai[2] + Ai[3] + Ai[4]);
       for (uint32_t i = 0; i < 5U; i++) Ai[i] *= adj;
     } break;
+    #endif
 
+    #if DISABLED(NO_FTM_MZV)
     case ftMotionShaper_MZV: {
       max_i = 2U;
       const float Bx = 1.4142135623730950488016887242097f * K;
@@ -109,6 +124,7 @@ void AxisShaping::set_axis_shaping_A(const ftMotionShaper_t shaper, const float 
       Ai[2] = Ai[0] * K2;
     }
     break;
+    #endif
 
     case ftMotionShaper_NONE:
       max_i = 0;
