@@ -284,13 +284,15 @@ void flashFirmware(const int16_t) { hal.reboot(); }
 
 extern "C" {
   void * _sbrk(int incr);
-  extern unsigned int __bss_end__; // end of bss section
+  extern unsigned int __StackLimit;    // Lowest address the stack can grow to
 }
 
-// Return free memory between end of heap (or end bss) and whatever is current
+// Return free memory between end of heap and start of stack
 int freeMemory() {
-  int free_memory, heap_end = (int)_sbrk(0);
-  return (int)&free_memory - (heap_end ?: (int)&__bss_end__);
+  void* heap_end = _sbrk(0);
+  // Use the linker-provided stack limit instead of a local variable
+  // __StackLimit is the lowest address the stack can grow to
+  return (char*)&__StackLimit - (char*)heap_end;
 }
 
 #endif // __PLAT_RP2040__
