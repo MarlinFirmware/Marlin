@@ -151,7 +151,7 @@ void GcodeSuite::M493_report(const bool forReplay/*=true*/) {
 /**
  * M493: Set Fixed-time Motion Control parameters
  *
- *    S<bool> Set Fixed-Time motion mode on or off.
+ *    S<bool> Set Fixed-Time motion mode on or off. Ignored with NO_STANDARD_MOTION.
  *       0: Fixed-Time Motion OFF (Standard Motion)
  *       1: Fixed-Time Motion ON
  *
@@ -210,15 +210,17 @@ void GcodeSuite::M493() {
 
   ft_config_t &c = ftMotion.cfg;
 
-  // Parse 'S' mode parameter.
-  if (parser.seen('S')) {
-    const bool active = parser.value_bool();
-    if (active != c.active) {
-      stepper.ftMotion_syncPosition();
-      c.active = active;
-      flag.report = true;
+  #if HAS_STANDARD_MOTION
+    // Parse 'S' mode parameter.
+    if (parser.seen('S')) {
+      const bool active = parser.value_bool();
+      if (active != c.active) {
+        stepper.ftMotion_syncPosition();
+        c.active = active;
+        flag.report = true;
+      }
     }
-  }
+  #endif
 
   #if NUM_AXES_SHAPED > 0
 

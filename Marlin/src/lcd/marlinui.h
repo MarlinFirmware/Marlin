@@ -48,13 +48,13 @@
 #endif
 
 #if ENABLED(DWIN_CREALITY_LCD)
-  #include "e3v2/creality/dwin.h"
+  #include "dwin/creality/dwin.h"
 #elif ENABLED(DWIN_LCD_PROUI)
-  #include "e3v2/proui/dwin.h"
+  #include "dwin/proui/dwin.h"
 #endif
 
 #if ALL(HAS_STATUS_MESSAGE, IS_DWIN_MARLINUI)
-  #include "e3v2/marlinui/marlinui_dwin.h" // for LCD_WIDTH
+  #include "dwin/marlinui/marlinui_dwin.h" // for LCD_WIDTH
 #endif
 
 typedef bool (*statusResetFunc_t)();
