@@ -494,7 +494,7 @@ void GcodeSuite::M493() {
           }
         }
         else // Mode doesn't use frequency.
-          SERIAL_ECHOLNPGM("?Wrong mode for ", C('E'), " (A) frequency.");
+          SERIAL_ECHOLNPGM("?Wrong mode for ", C(STEPPER_E_NAME), " (A) frequency.");
       }
 
       #if HAS_DYNAMIC_FREQ
@@ -514,7 +514,7 @@ void GcodeSuite::M493() {
           }
         }
         else
-          SERIAL_ECHOLNPGM("?Wrong mode for ", C('E'), " (I) zeta parameter.");
+          SERIAL_ECHOLNPGM("?Wrong mode for ", C(STEPPER_E_NAME), " (I) zeta parameter.");
       }
 
       // Parse E vtol parameter
@@ -527,7 +527,7 @@ void GcodeSuite::M493() {
             }
           }
           else
-            SERIAL_ECHOLNPGM("?Wrong mode for ", C('E'), " (Q) vtol parameter.");
+            SERIAL_ECHOLNPGM("?Wrong mode for ", C(STEPPER_E_NAME), " (Q) vtol parameter.");
         }
       #endif
     }
