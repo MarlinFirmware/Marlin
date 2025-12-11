@@ -95,12 +95,14 @@ typedef struct FTConfig {
     static constexpr TrajectoryType trajectory_type = TrajectoryType::TRAPEZOIDAL;
   #endif
 
-  bool setActive(const bool a) {
-    if (a == active) return false;
-    stepper.ftMotion_syncPosition();
-    active = a;
-    return true;
-  }
+  #if HAS_STANDARD_MOTION
+    bool setActive(const bool a) {
+      if (a == active) return false;
+      stepper.ftMotion_syncPosition();
+      active = a;
+      return true;
+    }
+  #endif
 
   #if HAS_FTM_SHAPING
 
