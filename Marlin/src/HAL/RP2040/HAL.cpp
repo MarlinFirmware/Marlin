@@ -53,6 +53,9 @@ volatile uint16_t adc_values[5] = {4095, 4095, 4095, 4095, 4095}; // Averaged AD
 // Core monitoring for watchdog
 volatile uint32_t core0_last_heartbeat = 0; // Timestamp of Core 0's last activity
 volatile uint32_t core1_last_heartbeat = 0; // Timestamp of Core 1's last activity
+#if ENABLED(MARLIN_DEV_MODE)
+  volatile bool core1_freeze_test = false;  // Flag to freeze Core 1 for watchdog testing
+#endif
 volatile uint8_t current_pin;
 volatile bool MarlinHAL::adc_has_result;
 volatile uint8_t adc_channels_enabled[5] = {false}; // Track which ADC channels are enabled
@@ -62,8 +65,15 @@ void core1_adc_task() {
   static uint32_t last_temp_update = 0;
 
   while (true) {
-    // Update Core 1 heartbeat
-    core1_last_heartbeat = time_us_32();
+    #if ENABLED(MARLIN_DEV_MODE)
+      // Check if we should freeze for watchdog test
+      if (core1_freeze_test) {
+        // Stop updating heartbeat and spin forever
+        while (core1_freeze_test) {
+          busy_wait_us(100000); // 100ms delay
+        }
+      }
+    #endif
 
     // Scan all enabled ADC channels
     for (uint8_t channel = 0; channel < 5; channel++) {
@@ -118,11 +128,7 @@ void core1_adc_task() {
         if (core1_start_time == 0) core1_start_time = time_us_32();
 
         if (time_us_32() - core1_start_time > 2000000) {
-          // Check if Core 0 is alive (5 second timeout)
-          if (time_us_32() - core0_last_heartbeat < 5000000) {
-            hal.watchdog_refresh(); // Only refresh if Core 0 is responding
-          }
-          // If Core 0 is stuck, don't refresh - let watchdog reset the system
+          hal.watchdog_refresh(1); // Refresh from Core 1
         }
       #endif
     }
@@ -208,18 +214,33 @@ void MarlinHAL::reboot() { watchdog_reboot(0, 0, 1); }
     #endif
   }
 
-  void MarlinHAL::watchdog_refresh() {
-    // Update Core 0 heartbeat
-    core0_last_heartbeat = time_us_32();
+  void MarlinHAL::watchdog_refresh(uint8_t core) {
+    if (core == 0) {
+      // Update Core 0 heartbeat
+      core0_last_heartbeat = time_us_32();
 
-    // Check if Core 1 is alive (5 second timeout)
-    if (time_us_32() - core1_last_heartbeat < 5000000) {
-      watchdog_update(); // Only refresh if Core 1 is responding
-      #if DISABLED(PINS_DEBUGGING) && PIN_EXISTS(LED)
-        TOGGLE(LED_PIN); // Heartbeat indicator
-      #endif
+      // Check if Core 1 is alive (2 second timeout)
+      if (time_us_32() - core1_last_heartbeat < 2000000) {
+        watchdog_update(); // Only refresh if Core 1 is responding
+        #if DISABLED(PINS_DEBUGGING) && PIN_EXISTS(LED)
+          TOGGLE(LED_PIN); // Heartbeat indicator
+        #endif
+      }
+      // If Core 1 is stuck, don't refresh - let watchdog reset the system
     }
-    // If Core 1 is stuck, don't refresh - let watchdog reset the system
+    else {
+      // Update Core 1 heartbeat
+      core1_last_heartbeat = time_us_32();
+
+      // Check if Core 0 is alive (2 second timeout)
+      if (time_us_32() - core0_last_heartbeat < 2000000) {
+        watchdog_update(); // Only refresh if Core 0 is responding
+        #if DISABLED(PINS_DEBUGGING) && PIN_EXISTS(LED)
+          TOGGLE(LED_PIN); // Heartbeat indicator
+        #endif
+      }
+      // If Core 0 is stuck, don't refresh - let watchdog reset the system
+    }
   }
 
 #endif
