@@ -51,14 +51,20 @@
  * - USB ports (-1) use USB_SERIAL_PORT (MSerial2)
  */
 
-typedef ForwardSerial1Class< decltype(Serial1) > DefaultSerial0;
+// Forward declare our custom Serial objects (defined in MarlinSerial.cpp)
+namespace arduino { class UART; }
+extern arduino::UART Serial0;  // Always declared
+extern arduino::UART Serial1;  // Conditionally defined in .cpp
+
+typedef ForwardSerial1Class< decltype(Serial0) > DefaultSerial0;
 extern DefaultSerial0 MSerial0;
+typedef ForwardSerial1Class< decltype(Serial1) > DefaultSerial1;
+extern DefaultSerial1 MSerial1;
 typedef ForwardSerial1Class< decltype(Serial) > DefaultSerial2;
 extern DefaultSerial2 MSerial2;
 typedef ForwardSerial1Class<decltype(SerialUSB)> USBSerialType;
 extern USBSerialType USBSerial;
 
-#define Serial0 Serial1
 #define _DECLARE_SERIAL(X) \
   typedef ForwardSerial1Class<decltype(Serial##X)> DefaultSerial##X; \
   extern DefaultSerial##X MSerial##X
