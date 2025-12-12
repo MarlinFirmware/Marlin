@@ -74,14 +74,13 @@
 
 #ifdef MAX7219_DEBUG_PROFILE
   // This class sums up the amount of time for which its instances exist.
-  // By default there is one instantiated for the duration of the idle()
-  // function. But an instance can be created in any code block to measure
-  // the time spent from the point of instantiation until the CPU leaves
-  // block. Be careful about having multiple instances of CodeProfiler as
-  // it does not guard against double counting. In general mixing ISR and
-  // non-ISR use will require critical sections but note that mode setting
-  // is atomic so the total or average times can safely be read if you set
-  // mode to FREEZE first.
+  // By default there is one instantiated for the duration of marlin.idle()
+  // but an instance can be created in any code block to measure time spent
+  // from instantiation until the CPU leaves the block.
+  // Be careful about having multiple instances of CodeProfiler as it does
+  // not guard against double counting. In general mixing ISR and non-ISR
+  // use will require critical sections but note that mode setting is atomic
+  // so the total or average times can safely be read if you set mode to FREEZE first.
   class CodeProfiler {
   public:
     enum Mode : uint8_t { ACCUMULATE_AVERAGE, ACCUMULATE_TOTAL, FREEZE };
@@ -166,7 +165,7 @@ public:
     // Draw an integer with optional leading zeros and optional decimal point
     void print(const uint8_t start, int16_t value, uint8_t size, const bool leadzero=false, bool dec=false);
     // Draw a float with a decimal point and optional digits
-    void print(const uint8_t start, const_float_t value, const uint8_t pre_size, const uint8_t post_size, const bool leadzero=false);
+    void print(const uint8_t start, const float value, const uint8_t pre_size, const uint8_t post_size, const bool leadzero=false);
   #endif
 
   // Set a single LED by XY coordinate

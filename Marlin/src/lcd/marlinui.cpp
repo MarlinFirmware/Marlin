@@ -22,7 +22,6 @@
 
 #include "../inc/MarlinConfig.h"
 
-#include "../MarlinCore.h" // for printingIsPaused, machine_name
 #include "../gcode/parser.h" // for axis_is_rotational, using_inch_units
 
 #if HAS_LED_POWEROFF_TIMEOUT || ALL(HAS_WIRED_LCD, PRINTER_EVENT_LEDS) || (HAS_BACKLIGHT_TIMEOUT && defined(NEOPIXEL_BKGD_INDEX_FIRST))
@@ -47,9 +46,9 @@ MarlinUI ui;
 #endif
 
 #if ENABLED(DWIN_CREALITY_LCD)
-  #include "e3v2/creality/dwin.h"
+  #include "dwin/creality/dwin.h"
 #elif ENABLED(DWIN_CREALITY_LCD_JYERSUI)
-  #include "e3v2/jyersui/dwin.h"
+  #include "dwin/jyersui/dwin.h"
 #elif ENABLED(SOVOL_SV06_RTS)
   #include "sovol_rts/sovol_rts.h"
 #endif
@@ -260,7 +259,11 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
 void MarlinUI::init() {
 
   #if HAS_U8GLIB_I2C_OLED && PINS_EXIST(I2C_SCL, I2C_SDA) && DISABLED(SOFT_I2C_EEPROM)
-    Wire.begin(uint8_t(I2C_SDA_PIN), uint8_t(I2C_SCL_PIN));
+    #ifdef TARGET_RP2040
+      Wire.begin();  // RP2040 MbedI2C uses pins configured in pins_arduino.h
+    #else
+      Wire.begin(uint8_t(I2C_SDA_PIN), uint8_t(I2C_SCL_PIN));
+    #endif
   #endif
 
   init_lcd();
@@ -534,9 +537,7 @@ void MarlinUI::init() {
         ui.manual_move.menu_scale = REPRAPWORLD_KEYPAD_MOVE_STEP;
         ui.encoderPosition = dir;
         switch (axis) {
-          TERN_(HAS_X_AXIS, case X_AXIS:)
-          TERN_(HAS_Y_AXIS, case Y_AXIS:)
-          TERN_(HAS_Z_AXIS, case Z_AXIS:)
+          XYZ_GANG(case X_AXIS:, case Y_AXIS:, case Z_AXIS:)
             lcd_move_axis(axis);
           default: break;
         }
@@ -992,8 +993,8 @@ void MarlinUI::init() {
       // Ignore the click when clearing wait_for_user or waking the screen.
       auto do_click = [&]{
         wait_for_unclick = true;
-        lcd_clicked = !wait_for_user && !display_is_asleep();
-        wait_for_user = false;
+        lcd_clicked = !marlin.wait_for_user && !display_is_asleep();
+        marlin.user_resume();
         quick_feedback();
       };
 
@@ -1560,7 +1561,7 @@ uint8_t expand_u8str_P(char * const outstr, PGM_P const ptpl, const int8_t ind, 
    */
   void MarlinUI::reset_status(const bool no_welcome) {
     FSTR_P msg;
-    if (printingIsPaused())
+    if (marlin.printingIsPaused())
       msg = GET_TEXT_F(MSG_PRINT_PAUSED);
     #if HAS_MEDIA
       else if (card.isStillPrinting())
@@ -1582,7 +1583,7 @@ uint8_t expand_u8str_P(char * const outstr, PGM_P const ptpl, const int8_t ind, 
     else if (!no_welcome) {
       #if ENABLED(CONFIGURABLE_MACHINE_NAME)
         char new_status[MAX_MESSAGE_SIZE + 1];
-        expand_u8str_P(new_status, GET_TEXT(WELCOME_MSG), 0, &machine_name);
+        expand_u8str_P(new_status, GET_TEXT(WELCOME_MSG), 0, &marlin.machine_name);
         _set_status_and_level(new_status, -1);
         return;
       #else
@@ -1759,13 +1760,9 @@ uint8_t expand_u8str_P(char * const outstr, PGM_P const ptpl, const int8_t ind, 
 
 #if HAS_DISPLAY
 
-  #if HAS_MEDIA
-    extern bool wait_for_user, wait_for_heatup;
-  #endif
-
   void MarlinUI::abort_print() {
     #if HAS_MEDIA
-      wait_for_heatup = wait_for_user = false;
+      marlin.end_waiting();
       if (card.isStillPrinting())
         card.abortFilePrintSoon();
       else if (card.isMounted())
@@ -1832,7 +1829,7 @@ uint8_t expand_u8str_P(char * const outstr, PGM_P const ptpl, const int8_t ind, 
 
   void MarlinUI::resume_print() {
     reset_status();
-    TERN_(PARK_HEAD_ON_PAUSE, wait_for_heatup = wait_for_user = false);
+    TERN_(PARK_HEAD_ON_PAUSE, marlin.end_waiting());
     TERN_(HAS_MEDIA, if (card.isPaused()) queue.inject_P(M24_STR));
     #ifdef ACTION_ON_RESUME
       hostui.resume();
@@ -1996,7 +1993,7 @@ uint8_t expand_u8str_P(char * const outstr, PGM_P const ptpl, const int8_t ind, 
   }
 
   #if ANY(BABYSTEP_GFX_OVERLAY, MESH_EDIT_GFX_OVERLAY)
-    void MarlinUI::zoffset_overlay(const_float_t zvalue) {
+    void MarlinUI::zoffset_overlay(const float zvalue) {
       // Determine whether the user is raising or lowering the nozzle.
       static int8_t dir;
       static float old_zvalue;
