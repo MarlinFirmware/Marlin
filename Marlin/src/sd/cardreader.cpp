@@ -1544,7 +1544,15 @@ void CardReader::cdroot() {
                 const bool sort = strcasecmp(n1, n2) > 0;
                 return (TERN(SDSORT_GCODE, sort_alpha == AS_REV, ENABLED(SDSORT_REVERSE))) ? !sort : sort;
               };
-              #define _SORT_CMP_FILE() _sort_cmp_file(TERN(SDSORT_USES_RAM, sortnames[o1], name1), TERN(SDSORT_USES_RAM, sortnames[o2], name2))
+              #if ENABLED(SDSORT_USES_RAM)
+                #if ENABLED(SDSORT_DYNAMIC_RAM)
+                  #define _SORT_CMP_FILE() _sort_cmp_file(&sortnames[uint16_t(o1) * SORTED_LONGNAME_STORAGE], &sortnames[uint16_t(o2) * SORTED_LONGNAME_STORAGE])
+                #else
+                  #define _SORT_CMP_FILE() _sort_cmp_file(sortnames[o1], sortnames[o2])
+                #endif
+              #else
+                #define _SORT_CMP_FILE() _sort_cmp_file(name1, name2)
+              #endif
 
               #if HAS_FOLDER_SORTING
                 #if ENABLED(SDSORT_USES_RAM)
@@ -1599,7 +1607,8 @@ void CardReader::cdroot() {
         // Using RAM but not keeping names around
         #if ENABLED(SDSORT_USES_RAM) && DISABLED(SDSORT_CACHE_NAMES)
           #if ENABLED(SDSORT_DYNAMIC_RAM)
-            for (int16_t i = 0; i < fileCnt; ++i) free(sortnames[i]);
+            // Note: With contiguous memory allocation, individual strings are not separately allocated
+            // so there's nothing to free here. Only isDir needs cleanup.
             TERN_(HAS_FOLDER_SORTING, delete [] isDir);
           #endif
         #endif
