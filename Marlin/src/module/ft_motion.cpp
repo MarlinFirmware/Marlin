@@ -193,7 +193,7 @@ void FTMotion::loop() {
   void FTMotion::update_shaping_params() {
     #define UPDATE_SHAPER(A) \
       shaping.A.ena = IS_SHAPING(ftMotion.cfg.shaper.A); \
-      shaping.A.set_axis_shaping_A(cfg.shaper.A, cfg.zeta.A  OPTARG(HAS_FTM_EI_SHAPING, cfg.vtol.A)); \
+      shaping.A.set_axis_shaping_A(cfg.shaper.A, cfg.zeta.A OPTARG(HAS_FTM_EI_SHAPING, cfg.vtol.A)); \
       shaping.A.set_axis_shaping_N(cfg.shaper.A, cfg.baseFreq.A, cfg.zeta.A);
 
     SHAPED_MAP(UPDATE_SHAPER);
