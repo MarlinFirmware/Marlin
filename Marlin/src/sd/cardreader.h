@@ -375,13 +375,15 @@ private:
       #define SORTED_LONGNAME_STORAGE SORTED_LONGNAME_MAXLEN
     #endif
 
+    #define SORTED_SHORTNAME_STORAGE 13
+
     // Cache filenames to speed up SD menus.
     #if ENABLED(SDSORT_USES_RAM)
 
       // If using dynamic ram for names, allocate on the heap.
       #if ENABLED(SDSORT_CACHE_NAMES)
         #if ENABLED(SDSORT_DYNAMIC_RAM)
-          static char **sortshort, **sortnames;
+          static char *sortshort, *sortnames;
         #else
           static char sortshort[SDSORT_LIMIT][FILENAME_LENGTH];
         #endif
