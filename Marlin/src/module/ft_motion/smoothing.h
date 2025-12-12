@@ -24,7 +24,13 @@
 #include "../../inc/MarlinConfig.h"
 
 typedef struct FTSmoothedAxes {
-  float CARTES_AXIS_NAMES;
+  union {
+    struct { float CARTES_AXIS_NAMES;    };
+    struct { float CARTES_AXIS_NAMES_LC; };
+    float data[CARTES_COUNT];
+  };
+        float&  operator[](const int n)       { return data[n]; }
+  const float&  operator[](const int n) const { return data[n]; }
 } ft_smoothed_float_t;
 
 // Smoothing data for each axis
@@ -34,7 +40,7 @@ typedef struct AxisSmoothing {
   float smoothing_pass[FTM_SMOOTHING_ORDER] = { 0.0f }; // Last value of each of the exponential smoothing passes
   float alpha = 0.0f;                                   // Pre-calculated alpha for smoothing.
   uint32_t delay_samples = 0;                           // Pre-calculated delay in samples for smoothing.
-  void set_smoothing_time(const float s_time);          // Set smoothing time, recalculate alpha and delay.
+  void set_time(const float s_time);                    // Set smoothing time, recalculate alpha and delay.
 } axis_smoothing_t;
 
 typedef struct Smoothing {

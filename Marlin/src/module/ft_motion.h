@@ -98,15 +98,43 @@ typedef struct FTConfig {
     static constexpr TrajectoryType trajectory_type = TrajectoryType::TRAPEZOIDAL;
   #endif
 
+  #if HAS_STANDARD_MOTION
+    bool setActive(const bool a) {
+      if (a == active) return false;
+      stepper.ftMotion_syncPosition();
+      active = a;
+      return true;
+    }
+  #endif
+
   #if HAS_FTM_SHAPING
+
     constexpr bool goodZeta(const float z) { return WITHIN(z, 0.01f, 1.0f); }
     constexpr bool goodVtol(const float v) { return WITHIN(v, 0.00f, 1.0f); }
+
     #if HAS_DYNAMIC_FREQ
+
+      uint8_t setDynFreqMode(const uint8_t m) {
+        if (dynFreqMode_t(m) == dynFreqMode) return 0;
+        switch (dynFreqMode_t(m)) {
+          default: return 2;
+          TERN_(HAS_DYNAMIC_FREQ_MM, case dynFreqMode_Z_BASED:)
+          TERN_(HAS_DYNAMIC_FREQ_G, case dynFreqMode_MASS_BASED:)
+          case dynFreqMode_DISABLED:
+            planner.synchronize();
+            dynFreqMode = dynFreqMode_t(m);
+            break;
+        }
+        return 1;
+      }
+
       bool modeUsesDynFreq() const {
         return (TERN0(HAS_DYNAMIC_FREQ_MM, dynFreqMode == dynFreqMode_Z_BASED)
              || TERN0(HAS_DYNAMIC_FREQ_G,  dynFreqMode == dynFreqMode_MASS_BASED));
       }
-    #endif
+
+    #endif // HAS_DYNAMIC_FREQ
+
   #endif // HAS_FTM_SHAPING
 
   constexpr bool goodBaseFreq(const float f) { return WITHIN(f, FTM_MIN_SHAPE_FREQ, (FTM_FS) / 2); }
@@ -161,9 +189,9 @@ class FTMotion {
       TERN_(HAS_FTM_SHAPING, update_shaping_params());
 
       #if ENABLED(FTM_SMOOTHING)
-        #define _SET_SMOOTH(A) set_smoothing_time(_AXIS(A), FTM_SMOOTHING_TIME_##A);
-        CARTES_MAP(_SET_SMOOTH);
-        #undef _SET_SMOOTH
+        #define _RESET_SMOOTH(A) (void)set_smoothing_time(_AXIS(A), FTM_SMOOTHING_TIME_##A);
+        CARTES_MAP(_RESET_SMOOTH);
+        #undef _RESET_SMOOTH
       #endif
 
       TERN_(FTM_POLYS, setTrajectoryType(TrajectoryType::FTM_TRAJECTORY_TYPE));
@@ -191,7 +219,7 @@ class FTMotion {
       // Refresh alpha and delay samples used by smoothing functions.
       static void update_smoothing_params();
       // Setters for smoothingTime that update alpha and delay
-      static void set_smoothing_time(uint8_t axis, const float s_time);
+      static bool set_smoothing_time(const AxisEnum axis, const float s_time);
     #endif
 
     static void reset();                                  // Reset all states of the fixed time conversion to defaults.
@@ -200,14 +228,17 @@ class FTMotion {
     #if ALL(FT_MOTION, HAS_STANDARD_MOTION)
       static bool toggle() {
         stepper.ftMotion_syncPosition();
-        FLIP(cfg.active);
+        cfg.setActive(!cfg.active);
         update_shaping_params();
         return cfg.active;
       }
     #endif
 
     // Trajectory generator selection
-    static void setTrajectoryType(const TrajectoryType type);
+    #if ENABLED(FTM_POLYS)
+      static void setTrajectoryType(const TrajectoryType type);
+      static bool updateTrajectoryType(const TrajectoryType type);
+    #endif
     static TrajectoryType getTrajectoryType() { return TERN(FTM_POLYS, trajectoryType, TrajectoryType::TRAPEZOIDAL); }
     static FSTR_P getTrajectoryName();
 
@@ -283,6 +314,7 @@ class FTMotion {
     static void fill_stepper_plan_buffer();
     static xyze_float_t calc_traj_point(const float dist);
     static bool plan_next_block();
+    static void ensure_float_precision();
 
 }; // class FTMotion
 
@@ -297,10 +329,10 @@ extern FTMotion ftMotion; // Use ftMotion.thing, not FTMotion::thing.
     bool isactive;
     FTMotionDisableInScope() {
       isactive = ftMotion.cfg.active;
-      ftMotion.cfg.active = false;
+      ftMotion.cfg.setActive(false);
     }
     ~FTMotionDisableInScope() {
-      ftMotion.cfg.active = isactive;
+      ftMotion.cfg.setActive(isactive);
       if (isactive) ftMotion.init();
     }
   } FTMotionDisableInScope_t;

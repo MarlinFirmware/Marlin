@@ -41,12 +41,10 @@ enum dynFreqMode_t : uint8_t {
   dynFreqMode_MASS_BASED = 2
 };
 
-#define AXIS_IS_SHAPING(A) TERN0(FTM_SHAPER_##A, (ftMotion.cfg.shaper.A != ftMotionShaper_NONE))
-#if HAS_FTM_EI_SHAPING
-  #define AXIS_IS_EISHAPING(A) TERN0(FTM_SHAPER_##A, WITHIN(ftMotion.cfg.shaper.A, ftMotionShaper_EI, ftMotionShaper_3HEI))
-#else
-  #define AXIS_IS_EISHAPING(A) false
-#endif
+#define IS_SHAPING(S)         ((S) != ftMotionShaper_NONE)
+#define IS_EISHAPING(S)       TERN0(HAS_FTM_EI_SHAPING, WITHIN(S, ftMotionShaper_EI, ftMotionShaper_3HEI))
+#define AXIS_IS_SHAPING(A)    TERN0(FTM_SHAPER_##A, IS_SHAPING(ftMotion.cfg.shaper.A))
+#define AXIS_IS_EISHAPING(A)  TERN0(FTM_SHAPER_##A, IS_EISHAPING(ftMotion.cfg.shaper.A))
 
 // Emitters for code that only cares about shaped XYZE
 #if HAS_FTM_SHAPING
