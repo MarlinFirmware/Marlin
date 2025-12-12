@@ -1450,7 +1450,7 @@ void Planner::check_axes_activity() {
       #endif
       #if ENABLED(CLASSIC_JERK)
         saved_motion_state.jerk_state = max_jerk;
-        max_jerk.set(0, 0 OPTARG(DELTA, 0));
+        max_jerk.set(XY_LIST(0, 0) OPTARG(DELTA, 0));
       #endif
     }
     else {
