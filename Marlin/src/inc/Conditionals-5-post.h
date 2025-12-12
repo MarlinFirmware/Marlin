@@ -3702,7 +3702,7 @@
     TERN0(FTM_SHAPER_MZV,   2.0f / 2)   \
   )
   #define FTM_MAX_DAMPENING 0.25f
-  #define FTM_MIN_DF sqrt( 1.f - sq(FTM_MAX_DAMPENING) )
+  #define FTM_MIN_DF sqrtf( 1.f - sq(FTM_MAX_DAMPENING) )
   #define FTM_SHAPING_MAX_I uint32_t(CEIL(FTM_SHAPING_MAX_DELAY * FTM_FS / (FTM_MIN_SHAPE_FREQ * FTM_MIN_DF)))
   #define FTM_ZMAX (FTM_SHAPING_MAX_I + FTM_SMOOTH_MAX_I)
 
