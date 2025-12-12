@@ -444,13 +444,20 @@ void menu_move() {
     START_MENU();
     BACK_ITEM(MSG_FIXED_TIME_MOTION);
 
-    if (axis == X_AXIS || axis == Y_AXIS || TERN0(FTM_SHAPER_Z, axis == Z_AXIS) || TERN0(FTM_SHAPER_E, axis == E_AXIS)) {
+    #if HAS_FTM_EI_SHAPING
+      #define EISHAPER_MENU_ITEM(A) \
+        if (AXIS_IS_EISHAPING(A)) \
+          EDIT_ITEM_FAST_N(float42_52, axis, MSG_FTM_VTOL_N, &c.vtol[axis], 0.0f, 1.0f, ftMotion.update_shaping_params);
+    #else
+      #define EISHAPER_MENU_ITEM(A) NOOP
+    #endif
+
+    if (false SHAPED_GANG(|| axis == X_AXIS, || axis == Y_AXIS, || axis == Z_AXIS, || axis == E_AXIS)) {
       SUBMENU_N_S(axis, get_shaper_name(axis), MSG_FTM_CMPN_MODE, menu_ftm_shaper);
-      if (IS_SHAPING(c.shaper[axis])) {
+      if (AXIS_IS_SHAPING(axis)) {
         EDIT_ITEM_FAST_N(float42_52, axis, MSG_FTM_BASE_FREQ_N, &c.baseFreq[axis], FTM_MIN_SHAPE_FREQ, (FTM_FS) / 2, ftMotion.update_shaping_params);
         EDIT_ITEM_FAST_N(float42_52, axis, MSG_FTM_ZETA_N, &c.zeta[axis], 0.0f, 1.0f, ftMotion.update_shaping_params);
-        if (IS_EISHAPING(c.shaper[axis]))
-          EDIT_ITEM_FAST_N(float42_52, axis, MSG_FTM_VTOL_N, &c.vtol[axis], 0.0f, 1.0f, ftMotion.update_shaping_params);
+        EISHAPER_MENU_ITEM(axis);
       }
     }
 
@@ -492,30 +499,7 @@ void menu_move() {
           EDIT_ITEM(float42_52, MSG_FTM_POLY6_OVERSHOOT, &c.poly6_acceleration_overshoot, 1.25f, 1.875f);
       #endif
 
-      #if HAS_FTM_EI_SHAPING
-        #define EISHAPER_MENU_ITEM(A) \
-          if (AXIS_IS_EISHAPING(A)) \
-            EDIT_ITEM_FAST_N(float42_52, _AXIS(A), MSG_FTM_VTOL_N, &c.vtol.A, 0.0f, 1.0f, ftMotion.update_shaping_params);
-      #else
-        #define EISHAPER_MENU_ITEM(A) NOOP
-      #endif
-
-      #define SHAPER_MENU_ITEM(A) \
-        SUBMENU_N_S(_AXIS(A), _shaper_name(_AXIS(A)), MSG_FTM_CMPN_MODE, menu_ftm_shaper_##A); \
-        if (AXIS_IS_SHAPING(A)) { \
-          EDIT_ITEM_FAST_N(float42_52, _AXIS(A), MSG_FTM_BASE_FREQ_N, &c.baseFreq.A, FTM_MIN_SHAPE_FREQ, (FTM_FS) / 2, ftMotion.update_shaping_params); \
-          EDIT_ITEM_FAST_N(float42_52, _AXIS(A), MSG_FTM_ZETA_N, &c.zeta.A, 0.0f, 1.0f, ftMotion.update_shaping_params); \
-          EISHAPER_MENU_ITEM(A); \
-        }
-      SHAPED_MAP(SHAPER_MENU_ITEM);
-
-      #if HAS_DYNAMIC_FREQ
-        SUBMENU_S(_dmode(), MSG_FTM_DYN_MODE, menu_ftm_dyn_mode);
-        if (c.dynFreqMode != dynFreqMode_DISABLED) {
-          #define _DYN_MENU_ITEM(A) EDIT_ITEM_FAST_N(float42_52, _AXIS(A), MSG_FTM_DFREQ_K_N, &c.dynFreqK.A, 0.0f, 20.0f);
-          SHAPED_MAP(_DYN_MENU_ITEM);
-        }
-      #endif
+      CARTES_MAP(_FTM_AXIS_SUBMENU);
 
       EDIT_ITEM(bool, MSG_FTM_AXIS_SYNC, &c.axis_sync_enabled);
 

@@ -29,13 +29,12 @@
 #include "../../../module/planner.h"
 
 void say_ftm_settings() {
-  #if ENABLED(FTM_POLYS)
-    SERIAL_ECHOLN(F("  Trajectory: "), ftMotion.getTrajectoryName(), C('('), (uint8_t)ftMotion.getTrajectoryType(), C(')'));
+  #if ANY(FTM_POLYS, FTM_SMOOTHING)
+    const ft_config_t &c = ftMotion.cfg;
   #endif
 
-  const ft_config_t &c = ftMotion.cfg;
-
   #if ENABLED(FTM_POLYS)
+    SERIAL_ECHOLN(F("  Trajectory: "), ftMotion.getTrajectoryName(), C('('), (uint8_t)ftMotion.getTrajectoryType(), C(')'));
     if (ftMotion.getTrajectoryType() == TrajectoryType::POLY6)
       SERIAL_ECHOLNPGM("  Poly6 Overshoot: ", p_float_t(c.poly6_acceleration_overshoot, 3));
   #endif
