@@ -466,8 +466,10 @@ void menu_move() {
       if (IS_SHAPING(c.shaper[axis])) {
         EDIT_ITEM_FAST_N(float42_52, axis, MSG_FTM_BASE_FREQ_N, &c.baseFreq[axis], FTM_MIN_SHAPE_FREQ, (FTM_FS) / 2, ftMotion.update_shaping_params);
         EDIT_ITEM_FAST_N(float42_52, axis, MSG_FTM_ZETA_N, &c.zeta[axis], 0.0f, 1.0f, ftMotion.update_shaping_params);
-        if (IS_EISHAPING(c.shaper[axis]))
-          EDIT_ITEM_FAST_N(float42_52, axis, MSG_FTM_VTOL_N, &c.vtol[axis], 0.0f, 1.0f, ftMotion.update_shaping_params);
+        #if HAS_FTM_EI_SHAPING
+          if (IS_EISHAPING(c.shaper[axis]))
+            EDIT_ITEM_FAST_N(float42_52, axis, MSG_FTM_VTOL_N, &c.vtol[axis], 0.0f, 1.0f, ftMotion.update_shaping_params);
+        #endif
       }
     }
 
