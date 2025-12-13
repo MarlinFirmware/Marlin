@@ -316,14 +316,14 @@ void menu_move() {
     switch (ftMotion.cfg.shaper[axis]) {
       default: return nullptr;
       case ftMotionShaper_NONE:  return GET_TEXT_F(MSG_LCD_OFF);
-      case ftMotionShaper_ZV:    return GET_TEXT_F(MSG_FTM_ZV);
-      case ftMotionShaper_ZVD:   return GET_TEXT_F(MSG_FTM_ZVD);
-      case ftMotionShaper_ZVDD:  return GET_TEXT_F(MSG_FTM_ZVDD);
-      case ftMotionShaper_ZVDDD: return GET_TEXT_F(MSG_FTM_ZVDDD);
-      case ftMotionShaper_EI:    return GET_TEXT_F(MSG_FTM_EI);
-      case ftMotionShaper_2HEI:  return GET_TEXT_F(MSG_FTM_2HEI);
-      case ftMotionShaper_3HEI:  return GET_TEXT_F(MSG_FTM_3HEI);
-      case ftMotionShaper_MZV:   return GET_TEXT_F(MSG_FTM_MZV);
+      TERN_(FTM_SHAPER_ZV,    case ftMotionShaper_ZV:    return GET_TEXT_F(MSG_FTM_ZV));
+      TERN_(FTM_SHAPER_ZVD,   case ftMotionShaper_ZVD:   return GET_TEXT_F(MSG_FTM_ZVD));
+      TERN_(FTM_SHAPER_ZVDD,  case ftMotionShaper_ZVDD:  return GET_TEXT_F(MSG_FTM_ZVDD));
+      TERN_(FTM_SHAPER_ZVDDD, case ftMotionShaper_ZVDDD: return GET_TEXT_F(MSG_FTM_ZVDDD));
+      TERN_(FTM_SHAPER_EI,    case ftMotionShaper_EI:    return GET_TEXT_F(MSG_FTM_EI));
+      TERN_(FTM_SHAPER_2HEI,  case ftMotionShaper_2HEI:  return GET_TEXT_F(MSG_FTM_2HEI));
+      TERN_(FTM_SHAPER_3HEI,  case ftMotionShaper_3HEI:  return GET_TEXT_F(MSG_FTM_3HEI));
+      TERN_(FTM_SHAPER_MZV,   case ftMotionShaper_MZV:   return GET_TEXT_F(MSG_FTM_MZV));
     }
   }
 
@@ -356,14 +356,14 @@ void menu_move() {
     BACK_ITEM_N(axis, MSG_FTM_CONFIGURE_AXIS_N);
 
     if (shaper != ftMotionShaper_NONE)  ACTION_ITEM_N(axis, MSG_LCD_OFF,  []{ ftm_menu_set_shaper(ftMotionShaper_NONE)  ; });
-    if (shaper != ftMotionShaper_ZV)    ACTION_ITEM_N(axis, MSG_FTM_ZV,   []{ ftm_menu_set_shaper(ftMotionShaper_ZV)    ; });
-    if (shaper != ftMotionShaper_ZVD)   ACTION_ITEM_N(axis, MSG_FTM_ZVD,  []{ ftm_menu_set_shaper(ftMotionShaper_ZVD)   ; });
-    if (shaper != ftMotionShaper_ZVDD)  ACTION_ITEM_N(axis, MSG_FTM_ZVDD, []{ ftm_menu_set_shaper(ftMotionShaper_ZVDD)  ; });
-    if (shaper != ftMotionShaper_ZVDDD) ACTION_ITEM_N(axis, MSG_FTM_ZVDDD,[]{ ftm_menu_set_shaper(ftMotionShaper_ZVDDD) ; });
-    if (shaper != ftMotionShaper_EI)    ACTION_ITEM_N(axis, MSG_FTM_EI,   []{ ftm_menu_set_shaper(ftMotionShaper_EI)    ; });
-    if (shaper != ftMotionShaper_2HEI)  ACTION_ITEM_N(axis, MSG_FTM_2HEI, []{ ftm_menu_set_shaper(ftMotionShaper_2HEI)  ; });
-    if (shaper != ftMotionShaper_3HEI)  ACTION_ITEM_N(axis, MSG_FTM_3HEI, []{ ftm_menu_set_shaper(ftMotionShaper_3HEI)  ; });
-    if (shaper != ftMotionShaper_MZV)   ACTION_ITEM_N(axis, MSG_FTM_MZV,  []{ ftm_menu_set_shaper(ftMotionShaper_MZV)   ; });
+    TERN_(FTM_SHAPER_ZV,    if (shaper != ftMotionShaper_ZV)    ACTION_ITEM_N(axis, MSG_FTM_ZV,   []{ ftm_menu_set_shaper(ftMotionShaper_ZV)    ; }));
+    TERN_(FTM_SHAPER_ZVD,   if (shaper != ftMotionShaper_ZVD)   ACTION_ITEM_N(axis, MSG_FTM_ZVD,  []{ ftm_menu_set_shaper(ftMotionShaper_ZVD)   ; }));
+    TERN_(FTM_SHAPER_ZVDD,  if (shaper != ftMotionShaper_ZVDD)  ACTION_ITEM_N(axis, MSG_FTM_ZVDD, []{ ftm_menu_set_shaper(ftMotionShaper_ZVDD)  ; }));
+    TERN_(FTM_SHAPER_ZVDDD, if (shaper != ftMotionShaper_ZVDDD) ACTION_ITEM_N(axis, MSG_FTM_ZVDDD,[]{ ftm_menu_set_shaper(ftMotionShaper_ZVDDD) ; }));
+    TERN_(FTM_SHAPER_EI,    if (shaper != ftMotionShaper_EI)    ACTION_ITEM_N(axis, MSG_FTM_EI,   []{ ftm_menu_set_shaper(ftMotionShaper_EI)    ; }));
+    TERN_(FTM_SHAPER_2HEI,  if (shaper != ftMotionShaper_2HEI)  ACTION_ITEM_N(axis, MSG_FTM_2HEI, []{ ftm_menu_set_shaper(ftMotionShaper_2HEI)  ; }));
+    TERN_(FTM_SHAPER_3HEI,  if (shaper != ftMotionShaper_3HEI)  ACTION_ITEM_N(axis, MSG_FTM_3HEI, []{ ftm_menu_set_shaper(ftMotionShaper_3HEI)  ; }));
+    TERN_(FTM_SHAPER_MZV,   if (shaper != ftMotionShaper_MZV)   ACTION_ITEM_N(axis, MSG_FTM_MZV,  []{ ftm_menu_set_shaper(ftMotionShaper_MZV)   ; }));
 
     END_MENU();
   }

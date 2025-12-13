@@ -91,13 +91,23 @@ typedef FTShapedAxes<float>            ft_shaped_float_t;
 typedef FTShapedAxes<ftMotionShaper_t> ft_shaped_shaper_t;
 typedef FTShapedAxes<dynFreqMode_t>    ft_shaped_dfm_t;
 
+#define FTM_SHAPING_Ni_SIZE _MAX(1, \
+    TERN0(FTM_SHAPER_ZV,    2),  \
+    TERN0(FTM_SHAPER_ZVD,   3),  \
+    TERN0(FTM_SHAPER_ZVDD,  4),  \
+    TERN0(FTM_SHAPER_ZVDDD, 5),  \
+    TERN0(FTM_SHAPER_EI,    3),  \
+    TERN0(FTM_SHAPER_2HEI,  4),  \
+    TERN0(FTM_SHAPER_3HEI,  5),  \
+    TERN0(FTM_SHAPER_MZV,   3) \
+  )
 
 // Shaping data
 typedef struct AxisShaping {
   bool ena = false;                 // Enabled indication
   float d_zi[FTM_ZMAX] = { 0.0f };  // Data point delay vector
-  float Ai[5];                      // Shaping gain vector
-  int32_t Ni[5];                    // Shaping time index vector
+  float Ai[FTM_SHAPING_Ni_SIZE];                      // Shaping gain vector
+  int32_t Ni[FTM_SHAPING_Ni_SIZE] = { 0.0f };         // Shaping time index vector
   uint32_t max_i;                   // Vector length for the selected shaper
 
   // Set the gains used by shaping functions

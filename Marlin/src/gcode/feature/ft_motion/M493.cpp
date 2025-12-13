@@ -33,14 +33,14 @@ void say_shaper_type(const AxisEnum a, bool &sep, const char axis_name) {
   SERIAL_CHAR(axis_name, '=');
   switch (ftMotion.cfg.shaper[a]) {
     default: break;
-    case ftMotionShaper_ZV:    SERIAL_ECHOPGM("ZV");        break;
-    case ftMotionShaper_ZVD:   SERIAL_ECHOPGM("ZVD");       break;
-    case ftMotionShaper_ZVDD:  SERIAL_ECHOPGM("ZVDD");      break;
-    case ftMotionShaper_ZVDDD: SERIAL_ECHOPGM("ZVDDD");     break;
-    case ftMotionShaper_EI:    SERIAL_ECHOPGM("EI");        break;
-    case ftMotionShaper_2HEI:  SERIAL_ECHOPGM("2 Hump EI"); break;
-    case ftMotionShaper_3HEI:  SERIAL_ECHOPGM("3 Hump EI"); break;
-    case ftMotionShaper_MZV:   SERIAL_ECHOPGM("MZV");       break;
+    TERN_(FTM_SHAPER_ZV,    case ftMotionShaper_ZV:    SERIAL_ECHOPGM("ZV");        break);
+    TERN_(FTM_SHAPER_ZVD,   case ftMotionShaper_ZVD:   SERIAL_ECHOPGM("ZVD");       break);
+    TERN_(FTM_SHAPER_ZVDD,  case ftMotionShaper_ZVDD:  SERIAL_ECHOPGM("ZVDD");      break);
+    TERN_(FTM_SHAPER_ZVDDD, case ftMotionShaper_ZVDDD: SERIAL_ECHOPGM("ZVDDD");     break);
+    TERN_(FTM_SHAPER_EI,    case ftMotionShaper_EI:    SERIAL_ECHOPGM("EI");        break);
+    TERN_(FTM_SHAPER_2HEI,  case ftMotionShaper_2HEI:  SERIAL_ECHOPGM("2 Hump EI"); break);
+    TERN_(FTM_SHAPER_3HEI,  case ftMotionShaper_3HEI:  SERIAL_ECHOPGM("3 Hump EI"); break);
+    TERN_(FTM_SHAPER_MZV,   case ftMotionShaper_MZV:   SERIAL_ECHOPGM("MZV");       break);
   }
   sep = true;
 }
