@@ -104,11 +104,11 @@ typedef FTShapedAxes<dynFreqMode_t>    ft_shaped_dfm_t;
 
 // Shaping data
 typedef struct AxisShaping {
-  bool ena = false;                 // Enabled indication
-  float d_zi[FTM_ZMAX] = { 0.0f };  // Data point delay vector
-  float Ai[FTM_SHAPING_Ni_SIZE];                      // Shaping gain vector
-  int32_t Ni[FTM_SHAPING_Ni_SIZE] = { 0.0f };         // Shaping time index vector
-  uint32_t max_i;                   // Vector length for the selected shaper
+  bool ena = false;                         // Enabled indication
+  float d_zi[FTM_ZMAX] = { 0.0f };          // Data point delay vector
+  float Ai[FTM_SHAPING_Ni_SIZE];            // Shaping gain vector
+  int32_t Ni[FTM_SHAPING_Ni_SIZE] = { 0 };  // Shaping time index vector
+  uint32_t max_i;                           // Vector length for the selected shaper
 
   // Set the gains used by shaping functions
   void set_axis_shaping_N(const ftMotionShaper_t shaper, const float f, const float zeta);
