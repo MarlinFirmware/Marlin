@@ -339,6 +339,9 @@ void GcodeSuite::M493() {
           if (AXIS_IS_EISHAPING(X)) {
             if (goodVtol && c.setVtol(X_AXIS, vtolVal))
               flag.update = true;
+          }
+          else
+            SERIAL_ECHOLNPGM("?Wrong mode for ", C(STEPPER_A_NAME), " (Q) vtol parameter.");
         }
       #endif
     }

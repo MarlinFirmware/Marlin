@@ -134,15 +134,19 @@ typedef struct FTConfig {
       return true;
     }
 
-    constexpr bool goodVtol(const float v) { return WITHIN(v, 0.00f, 1.0f); }
+    #if HAS_FTM_EI_SHAPING
 
-    bool setVtol(const AxisEnum a, const float v) {
-      if (v == vtol[a]) return false;
-      if (!goodVtol(v)) return false;
-      planner.synchronize();
-      vtol[a] = v;
-      return true;
-    }
+      constexpr bool goodVtol(const float v) { return WITHIN(v, 0.00f, 1.0f); }
+
+      bool setVtol(const AxisEnum a, const float v) {
+        if (v == vtol[a]) return false;
+        if (!goodVtol(v)) return false;
+        planner.synchronize();
+        vtol[a] = v;
+        return true;
+      }
+
+    #endif
 
     #if HAS_DYNAMIC_FREQ
 
@@ -293,11 +297,14 @@ class FTMotion {
       update_shaping_params();
       return true;
     }
-    static bool setVtol(const AxisEnum a, const float v) {
-      if (!cfg.setVtol(a, v)) return false;
-      update_shaping_params();
-      return true;
-    }
+
+    #if HAS_FTM_EI_SHAPING
+      static bool setVtol(const AxisEnum a, const float v) {
+        if (!cfg.setVtol(a, v)) return false;
+        update_shaping_params();
+        return true;
+      }
+    #endif
 
     // Trajectory generator selection
     #if ENABLED(FTM_POLYS)
