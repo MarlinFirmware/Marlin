@@ -3692,14 +3692,14 @@
 
   // Maximum delays for shaping functions
   #define FTM_SHAPING_MAX_DELAY _MAX(0, \
-    TERN0(FTM_SHAPER_ZV,    1.0f / 2),  \
-    TERN0(FTM_SHAPER_ZVD,   2.0f / 2),  \
-    TERN0(FTM_SHAPER_ZVDD,  3.0f / 2),  \
-    TERN0(FTM_SHAPER_ZVDDD, 4.0f / 2),  \
-    TERN0(FTM_SHAPER_EI,    2.0f / 2),  \
-    TERN0(FTM_SHAPER_2HEI,  3.0f / 2),  \
-    TERN0(FTM_SHAPER_3HEI,  4.0f / 2),  \
-    TERN0(FTM_SHAPER_MZV,   3.0f / 4)   \
+    TERN0(FTM_SHAPER_ZV,    0.5f * 1),  \
+    TERN0(FTM_SHAPER_ZVD,   0.5f * 2),  \
+    TERN0(FTM_SHAPER_ZVDD,  0.5f * 3),  \
+    TERN0(FTM_SHAPER_ZVDDD, 0.5f * 4),  \
+    TERN0(FTM_SHAPER_EI,    0.5f * 2),  \
+    TERN0(FTM_SHAPER_2HEI,  0.5f * 3),  \
+    TERN0(FTM_SHAPER_3HEI,  0.5f * 4),  \
+    TERN0(FTM_SHAPER_MZV,   0.375f * 2) \
   )
   #define FTM_MAX_DAMPENING 0.25f
   #define FTM_MIN_DF sqrtf( 1.f - sq(FTM_MAX_DAMPENING) )
