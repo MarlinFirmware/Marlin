@@ -1569,10 +1569,14 @@ HAL_STEP_TIMER_ISR() {
 
 void Stepper::isr() {
 
-  static hal_timer_t nextMainISR = 0;  // Interval until the next main Stepper Pulse phase (0 = Now)
-
+  #if HAS_STANDARD_MOTION
+    static hal_timer_t nextMainISR = 0;           // Interval until the next main Stepper Pulse phase (0 = Now)
+  #endif
   #if ENABLED(SMOOTH_LIN_ADVANCE)
-    static hal_timer_t smoothLinAdvISR = 0;
+    static hal_timer_t smoothLinAdvISR = 0;       // Interval until the next Smooth Linear Advance phase (0 = Now)
+  #endif
+  #if ENABLED(FT_MOTION)
+    static uint32_t ftMotion_nextStepperISR = 0;  // Interval until the next FT Motion phase (0 = Now)
   #endif
 
   // Program timer compare for the maximum period, so it does NOT
@@ -1585,10 +1589,6 @@ void Stepper::isr() {
 
   // Limit the amount of iterations
   uint8_t max_loops = 10;
-
-  #if ENABLED(FT_MOTION)
-    static uint32_t ftMotion_nextStepperISR = 0U;  // Storage for the next ISR for stepping.
-  #endif
 
   // FT Motion can be toggled if Standard Motion is also active
   const bool using_ftMotion = ENABLED(NO_STANDARD_MOTION) || TERN0(FT_MOTION, ftMotion.cfg.active);

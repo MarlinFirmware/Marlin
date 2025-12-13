@@ -192,8 +192,8 @@ void FTMotion::loop() {
 
   void FTMotion::update_shaping_params() {
     #define UPDATE_SHAPER(A) \
-      shaping.A.ena = ftMotion.cfg.shaper.A != ftMotionShaper_NONE; \
-      shaping.A.set_axis_shaping_A(cfg.shaper.A, cfg.zeta.A, cfg.vtol.A); \
+      shaping.A.ena = IS_SHAPING(ftMotion.cfg.shaper.A); \
+      shaping.A.set_axis_shaping_A(cfg.shaper.A, cfg.zeta.A OPTARG(HAS_FTM_EI_SHAPING, cfg.vtol.A)); \
       shaping.A.set_axis_shaping_N(cfg.shaper.A, cfg.baseFreq.A, cfg.zeta.A);
 
     SHAPED_MAP(UPDATE_SHAPER);
@@ -207,7 +207,7 @@ void FTMotion::loop() {
   #include "planner.h"
 
   void FTMotion::update_smoothing_params() {
-    #define _SMOOTH_PARAM(A) smoothing.A.set_smoothing_time(cfg.smoothingTime.A);
+    #define _SMOOTH_PARAM(A) smoothing.A.set_time(cfg.smoothingTime.A);
     CARTES_MAP(_SMOOTH_PARAM);
     smoothing.refresh_largest_delay_samples();
   }
