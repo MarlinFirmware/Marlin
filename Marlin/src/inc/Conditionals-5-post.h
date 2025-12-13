@@ -3699,7 +3699,7 @@
     TERN0(FTM_SHAPER_EI,    2.0f / 2),  \
     TERN0(FTM_SHAPER_2HEI,  3.0f / 2),  \
     TERN0(FTM_SHAPER_3HEI,  4.0f / 2),  \
-    TERN0(FTM_SHAPER_MZV,   2.0f / 2)   \
+    TERN0(FTM_SHAPER_MZV,   3.0f / 4)   \
   )
   #define FTM_MAX_DAMPENING 0.25f
   #define FTM_MIN_DF sqrtf( 1.f - sq(FTM_MAX_DAMPENING) )
