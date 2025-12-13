@@ -593,5 +593,12 @@
 
 #define BOARD_SIMULATED               9999  // Simulated 3D Printer with LCD / TFT for development
 
-#define _MB_1(B)  (defined(BOARD_##B) && MOTHERBOARD==BOARD_##B)
-#define MB(V...)  DO(MB,||,V)
+#if (0 == MOTHERBOARD)
+  #define MB(V...) 0
+  #define MB_ESP(V...) 0
+#else
+  #define _MB_1(B)      (defined(BOARD_##B) && BOARD_##B==MOTHERBOARD)
+  #define _MB_ESP_1(B)  (defined(B) && B==MOTHERBOARD)
+  #define MB(V...)      DO(MB,||,V)
+  #define MB_ESP(V...)  DO(MB_ESP,||,V)
+#endif
