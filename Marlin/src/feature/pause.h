@@ -106,9 +106,9 @@ void wait_for_confirmation(
 );
 
 void resume_print(
-  const_float_t   slow_load_length=0,                       // (mm) Slow Load Length for finishing move
-  const_float_t   fast_load_length=0,                       // (mm) Fast Load Length for initial move
-  const_float_t   purge_length=ADVANCED_PAUSE_PURGE_LENGTH, // (mm) Purge length
+  const float     slow_load_length=0,                       // (mm) Slow Load Length for finishing move
+  const float     fast_load_length=0,                       // (mm) Fast Load Length for initial move
+  const float     purge_length=ADVANCED_PAUSE_PURGE_LENGTH, // (mm) Purge length
   const int8_t    max_beep_count=0,                         // Beep alert for attention
   const celsius_t targetTemp=0,                             // (°C) A target temperature for the hotend
   const bool      show_lcd=true,                            // Set LCD status messages?
@@ -117,9 +117,9 @@ void resume_print(
 );
 
 bool load_filament(
-  const_float_t   slow_load_length=0,                       // (mm) Slow Load Length for finishing move
-  const_float_t   fast_load_length=0,                       // (mm) Fast Load Length for initial move
-  const_float_t   purge_length=0,                           // (mm) Purge length
+  const float     slow_load_length=0,                       // (mm) Slow Load Length for finishing move
+  const float     fast_load_length=0,                       // (mm) Fast Load Length for initial move
+  const float     purge_length=0,                           // (mm) Purge length
   const int8_t    max_beep_count=0,                         // Beep alert for attention
   const bool      show_lcd=false,                           // Set LCD status messages?
   const bool      pause_for_user=false,                     // Pause for user before returning?
@@ -128,11 +128,11 @@ bool load_filament(
 );
 
 bool unload_filament(
-  const_float_t   unload_length,                            // (mm) Filament Unload Length - 0 to skip
+  const float     unload_length,                            // (mm) Filament Unload Length - 0 to skip
   const bool      show_lcd=false,                           // Set LCD status messages?
   const PauseMode mode=PAUSE_MODE_PAUSE_PRINT               // Pause Mode to apply
   #if ALL(FILAMENT_UNLOAD_ALL_EXTRUDERS, MIXING_EXTRUDER)
-    , const_float_t mix_multiplier=1.0f                     // Extrusion multiplier (for a Mixing Extruder)
+    , const float mix_multiplier=1.0f                       // Extrusion multiplier (for a Mixing Extruder)
   #endif
 );
 

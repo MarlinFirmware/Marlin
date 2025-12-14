@@ -90,7 +90,7 @@ void GcodeSuite::M701() {
       tool_change(target_extruder);
   #endif
 
-  auto move_z_by = [](const_float_t zdist) {
+  auto move_z_by = [](const float zdist) {
     if (zdist) {
       destination = current_position;
       destination.z += zdist;

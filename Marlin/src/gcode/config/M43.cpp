@@ -29,7 +29,6 @@
 #if ENABLED(PINS_DEBUGGING)
 
 #include "../gcode.h"
-#include "../../MarlinCore.h" // For pin_is_protected, wait_for_user
 #include "../../pins/pinsDebug.h"
 #include "../../module/endstops.h"
 
@@ -68,7 +67,7 @@ inline void toggle_pins() {
   for (uint8_t i = start; i <= end; ++i) {
     pin_t pin = GET_PIN_MAP_PIN_M43(i);
     if (!isValidPin(pin)) continue;
-    if (M43_NEVER_TOUCH(i) || (!ignore_protection && pin_is_protected(pin))) {
+    if (M43_NEVER_TOUCH(i) || (!ignore_protection && marlin.pin_is_protected(pin))) {
       printPinStateExt(pin, ignore_protection, true, F("Untouched "));
       SERIAL_EOL();
     }
@@ -158,37 +157,36 @@ inline void servo_probe_test() {
 
     SET_INPUT_PULLUP(PROBE_TEST_PIN);
 
-    // First, check for a probe that recognizes an advanced BLTouch sequence.
-    // In addition to STOW and DEPLOY, it uses SW MODE (and RESET in the beginning)
-    // to see if this is one of the following: BLTOUCH Classic 1.2, 1.3,  or
-    // BLTouch Smart 1.0, 2.0, 2.2, 3.0, 3.1. But only if the user has actually
-    // configured a BLTouch as being present. If the user has not configured this,
-    // the BLTouch will be detected in the last phase of these tests (see further on).
-    bool blt = false;
-    // This code will try to detect a BLTouch probe or clone
+    /**
+     * This code will try to detect a BLTouch probe or clone.
+     * First, check for a probe that recognizes an advanced BLTouch sequence.
+     * In addition to STOW and DEPLOY, it uses SW MODE (and RESET in the beginning)
+     * to see if this is one of the following: BLTOUCH Classic 1.2, 1.3, or
+     * BLTouch Smart 1.0, 2.0, 2.2, 3.0, 3.1. But only if the user has actually
+     * configured a BLTouch as being present. If the user has not configured this,
+     * the BLTouch will be detected in the last phase of these tests (see further on).
+     */
     #if ENABLED(BLTOUCH)
-      SERIAL_ECHOLNPGM(". Check for BLTOUCH");
-      bltouch._reset();
-      bltouch._stow();
-      if (!PROBE_TRIGGERED()) {
-        bltouch._set_SW_mode();
-        if (PROBE_TRIGGERED()) {
-          bltouch._deploy();
-          if (!PROBE_TRIGGERED()) {
-            bltouch._stow();
-            SERIAL_ECHOLNPGM("= BLTouch Classic 1.2, 1.3, Smart 1.0, 2.0, 2.2, 3.0, 3.1 detected.");
-            // Check for a 3.1 by letting the user trigger it, later
-            blt = true;
-        }
-      }
-    }
+      bool blt = false;
+      do {
+        SERIAL_ECHOLNPGM(". Check for BLTOUCH");
+        bltouch._reset();
+        bltouch._stow();          if ( PROBE_TRIGGERED()) break;
+        bltouch._set_SW_mode();   if (!PROBE_TRIGGERED()) break;
+        bltouch._deploy();        if ( PROBE_TRIGGERED()) break;
+        bltouch._stow();
+        SERIAL_ECHOLNPGM("= BLTouch Classic 1.2, 1.3, Smart 1.0, 2.0, 2.2, 3.0, 3.1 detected.");
+        blt = true; // Check for a 3.1 by letting the user trigger it, later
+      } while(0);
+    #else
+      static constexpr bool blt = false;
     #endif
 
     // The following code is common to all kinds of servo probes.
     // Since it could be a real servo or a BLTouch (any kind) or a clone,
     // use only "common" functions - i.e. SERVO_MOVE. No bltouch.xxxx stuff.
 
-    // If it is already recognised as a being a BLTouch, no need for this test
+    // If it is already recognized as a being a BLTouch, no need for this test
     if (!blt) {
       // DEPLOY and STOW 4 times and see if the signal follows
       // Then it is a mechanical switch
@@ -333,7 +331,7 @@ void GcodeSuite::M43() {
     for (uint8_t i = first_pin; i <= last_pin; ++i) {
       pin_t pin = GET_PIN_MAP_PIN_M43(i);
       if (!isValidPin(pin)) continue;
-      if (M43_NEVER_TOUCH(i) || (!ignore_protection && pin_is_protected(pin))) continue;
+      if (M43_NEVER_TOUCH(i) || (!ignore_protection && marlin.pin_is_protected(pin))) continue;
       can_watch = true;
       pinMode(pin, INPUT_PULLUP);
       delay(1);
@@ -363,7 +361,7 @@ void GcodeSuite::M43() {
 
     #if HAS_RESUME_CONTINUE
       KEEPALIVE_STATE(PAUSED_FOR_USER);
-      wait_for_user = true;
+      marlin.wait_start();
       TERN_(HOST_PROMPT_SUPPORT, hostui.continue_prompt(F("M43 Waiting...")));
       #if ENABLED(EXTENSIBLE_UI)
         ExtUI::onUserConfirmRequired(F("M43 Waiting..."));
@@ -376,7 +374,7 @@ void GcodeSuite::M43() {
       for (uint8_t i = first_pin; i <= last_pin; ++i) {
         const pin_t pin = GET_PIN_MAP_PIN_M43(i);
         if (!isValidPin(pin)) continue;
-        if (M43_NEVER_TOUCH(i) || (!ignore_protection && pin_is_protected(pin))) continue;
+        if (M43_NEVER_TOUCH(i) || (!ignore_protection && marlin.pin_is_protected(pin))) continue;
         const byte val =
           /*
           isAnalogPin(pin)
@@ -392,7 +390,7 @@ void GcodeSuite::M43() {
 
       #if HAS_RESUME_CONTINUE
         ui.update();
-        if (!wait_for_user) break;
+        if (!marlin.wait_for_user) break;
       #endif
 
       safe_delay(200);

@@ -99,7 +99,7 @@
 
   void GcodeSuite::G76() {
     auto report_temps = [](millis_t &ntr, millis_t timeout=0) {
-      idle_no_sleep();
+      marlin.idle_no_sleep();
       const millis_t ms = millis();
       if (ELAPSED(ms, ntr)) {
         ntr = ms + 1000;
@@ -323,7 +323,7 @@
  */
 void GcodeSuite::M871() {
 
-  if (parser.seen('R')) {
+  if (parser.seen_test('R')) {
     // Reset z-probe offsets to factory defaults
     ptc.clear_all_offsets();
     SERIAL_ECHOLNPGM("Offsets reset to default.");

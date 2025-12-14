@@ -34,7 +34,7 @@
 #include "../../MarlinCore.h"
 #include "../../module/planner.h"
 
-#if DISABLED(NO_VOLUMETRICS)
+#if HAS_VOLUMETRIC_EXTRUSION
 
   /**
    * M200: Set filament diameter and set E axis units to cubic units
@@ -117,7 +117,7 @@
     #endif
   }
 
-#endif // !NO_VOLUMETRICS
+#endif // HAS_VOLUMETRIC_EXTRUSION
 
 /**
  * M201: Set max acceleration in units/s^2 for print moves.
