@@ -236,16 +236,16 @@ void SERIAL_ECHO_SP(uint8_t count);
 inline FSTR_P const ON_OFF(const bool onoff) { return onoff ? F("ON") : F("OFF"); }
 inline FSTR_P const TRUE_FALSE(const bool tf) { return tf ? F("true") : F("false"); }
 
-void serial_offset(const_float_t v, const uint8_t sp=0); // For v==0 draw space (sp==1) or plus (sp==2)
+void serial_offset(const float v, const uint8_t sp=0); // For v==0 draw space (sp==1) or plus (sp==2)
 
 void print_bin(const uint16_t val);
 
-void print_xyz(NUM_AXIS_ARGS_(const_float_t) FSTR_P const prefix=nullptr, FSTR_P const suffix=nullptr);
+void print_xyz(NUM_AXIS_ARGS_(const float) FSTR_P const prefix=nullptr, FSTR_P const suffix=nullptr);
 inline void print_xyz(const xyz_pos_t &xyz, FSTR_P const prefix=nullptr, FSTR_P const suffix=nullptr) {
   print_xyz(NUM_AXIS_ELEM_(xyz) prefix, suffix);
 }
 
-void print_xyze(LOGICAL_AXIS_ARGS_(const_float_t) FSTR_P const prefix=nullptr, FSTR_P const suffix=nullptr);
+void print_xyze(LOGICAL_AXIS_ARGS_(const float) FSTR_P const prefix=nullptr, FSTR_P const suffix=nullptr);
 inline void print_xyze(const xyze_pos_t &xyze, FSTR_P const prefix=nullptr, FSTR_P const suffix=nullptr) {
   print_xyze(LOGICAL_AXIS_ELEM_LC_(xyze) prefix, suffix);
 }

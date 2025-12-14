@@ -67,7 +67,7 @@
 
 #include "../../../inc/MarlinConfigPre.h"
 
-#if HAS_MARLINUI_U8GLIB
+#if HAS_U8GLIB_I2C_OLED
 
 #include "HAL_LCD_com_defines.h"
 
@@ -97,6 +97,7 @@
 #define CMD_NOOP()            (0xE3)
 
 uint8_t u8g_WriteEscSeqP_2_wire(u8g_t *u8g, u8g_dev_t *dev, const uint8_t *esc_seq);
+uint8_t u8g_Write_Init_Sequence_2_wire(u8g_t *u8g, u8g_dev_t *dev, uint32_t length, const uint8_t *init_seq);
 
 // SH1106 is compatible with SSD1306, but is 132x64. Display 128x64 centered within the 132x64.
 
@@ -133,7 +134,7 @@ uint8_t u8g_dev_sh1106_128x64_2x_2_wire_fn(u8g_t *u8g, u8g_dev_t *dev, uint8_t m
   switch (msg) {
     case U8G_DEV_MSG_INIT:
       u8g_InitCom(u8g, dev, U8G_SPI_CLK_CYCLE_300NS);
-      u8g_WriteEscSeqP_2_wire(u8g, dev, u8g_dev_sh1106_128x64_init_seq_2_wire);
+      u8g_Write_Init_Sequence_2_wire(u8g, dev, COUNT(u8g_dev_sh1106_128x64_init_seq_2_wire), u8g_dev_sh1106_128x64_init_seq_2_wire);
       break;
     case U8G_DEV_MSG_STOP: break;
     case U8G_DEV_MSG_PAGE_NEXT: {
@@ -151,7 +152,7 @@ uint8_t u8g_dev_sh1106_128x64_2x_2_wire_fn(u8g_t *u8g, u8g_dev_t *dev, uint8_t m
       u8g_WriteSequence(u8g, dev, pb->width, (uint8_t *)(pb->buf)+pb->width);
       u8g_SetChipSelect(u8g, dev, 0);
     } break;
-    case U8G_DEV_MSG_SLEEP_ON: return 1;
+    case U8G_DEV_MSG_SLEEP_ON:
     case U8G_DEV_MSG_SLEEP_OFF: return 1;
   }
   return u8g_dev_pb16v1_base_fn(u8g, dev, msg, arg);
@@ -169,7 +170,6 @@ static const uint8_t u8g_dev_ssd1306_128x64_data_start_2_wire[] PROGMEM = {
 };
 
 static const uint8_t u8g_dev_ssd1306_128x64_init_seq_2_wire[] PROGMEM = {
-  U8G_ESC_CS(0),            // Disable chip
   CMD_ON(0),                // Display OFF, sleep mode
   CMD_MUX_RATIO(0x3F),      // Mux ratio
   CMD_DISP_OFFS(0),         // Display offset
@@ -196,7 +196,7 @@ uint8_t u8g_dev_ssd1306_128x64_2x_2_wire_fn(u8g_t *u8g, u8g_dev_t *dev, uint8_t 
   switch (msg) {
     case U8G_DEV_MSG_INIT:
       u8g_InitCom(u8g, dev, U8G_SPI_CLK_CYCLE_300NS);
-      u8g_WriteEscSeqP_2_wire(u8g, dev, u8g_dev_ssd1306_128x64_init_seq_2_wire);
+      u8g_Write_Init_Sequence_2_wire(u8g, dev, COUNT(u8g_dev_ssd1306_128x64_init_seq_2_wire), u8g_dev_ssd1306_128x64_init_seq_2_wire);
       break;
     case U8G_DEV_MSG_STOP: break;
     case U8G_DEV_MSG_PAGE_NEXT: {
@@ -214,7 +214,7 @@ uint8_t u8g_dev_ssd1306_128x64_2x_2_wire_fn(u8g_t *u8g, u8g_dev_t *dev, uint8_t 
       u8g_WriteSequence(u8g, dev, pb->width, (uint8_t *)(pb->buf)+pb->width);
       u8g_SetChipSelect(u8g, dev, 0);
     } break;
-    case U8G_DEV_MSG_SLEEP_ON: return 1;
+    case U8G_DEV_MSG_SLEEP_ON:
     case U8G_DEV_MSG_SLEEP_OFF: return 1;
   }
   return u8g_dev_pb16v1_base_fn(u8g, dev, msg, arg);
@@ -283,4 +283,10 @@ uint8_t u8g_WriteEscSeqP_2_wire(u8g_t *u8g, u8g_dev_t *dev, const uint8_t *esc_s
   return 1;
 }
 
-#endif // HAS_MARLINUI_U8GLIB
+uint8_t u8g_Write_Init_Sequence_2_wire(u8g_t *u8g, u8g_dev_t *dev, uint32_t length, const uint8_t *init_seq) {
+  u8g_SetAddress(u8g, dev, 0);  // Instruction mode
+  u8g_WriteSequence(u8g, dev, length, (uint8_t*)init_seq);
+  return 1;
+}
+
+#endif // HAS_U8GLIB_I2C_OLED

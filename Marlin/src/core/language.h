@@ -212,6 +212,8 @@
 #define STR_KILL_BUTTON                     "KILL button/pin"
 
 // temperature.cpp strings
+#define STR_WAIT_FOR_HOTEND                 "Wait for hotend heating..."
+#define STR_WAIT_FOR_BED                    "Wait for bed heating..."
 #define STR_PID_AUTOTUNE                    "PID Autotune"
 #define STR_PID_AUTOTUNE_START              " start"
 #define STR_PID_BAD_HEATER_ID               " failed! Bad heater id"
@@ -232,6 +234,8 @@
 #define STR_PID_DEBUG_INPUT                 ": Input "
 #define STR_PID_DEBUG_OUTPUT                " Output "
 #define STR_INVALID_EXTRUDER_NUM            " - Invalid extruder number !"
+
+// MPCTEMP strings
 #define STR_MPC_AUTOTUNE_START              "MPC Autotune start for " STR_E
 #define STR_MPC_AUTOTUNE_INTERRUPTED        "MPC Autotune interrupted!"
 #define STR_MPC_AUTOTUNE_FINISHED           "MPC Autotune finished! Put the constants below into Configuration.h"
@@ -240,6 +244,7 @@
 #define STR_MPC_MEASURING_AMBIENT           "Measuring ambient heatloss at "
 #define STR_MPC_TEMPERATURE_ERROR           "Temperature error"
 
+// Temperature Sensors
 #define STR_HEATER_BED                      "bed"
 #define STR_HEATER_CHAMBER                  "chamber"
 #define STR_COOLER                          "cooler"
@@ -249,6 +254,7 @@
 #define STR_REDUNDANT                       "redundant "
 #define STR_LASER_TEMP                      "laser temperature"
 
+// Misc. Errors, Thermal Runaway
 #define STR_STOPPED_HEATER                  ", system stopped! Heater_ID: "
 #define STR_DETECTED_TEMP_B                 " (temp: "
 #define STR_DETECTED_TEMP_E                 ")"
@@ -271,6 +277,7 @@
 #define STR_DEBUG_COMMUNICATION             "COMMUNICATION"
 #define STR_DEBUG_DETAIL                    "DETAIL"
 
+// Password Security
 #define STR_PRINTER_LOCKED                  "Printer locked! (Unlock with M511 or LCD)"
 #define STR_WRONG_PASSWORD                  "Incorrect Password"
 #define STR_PASSWORD_TOO_LONG               "Password too long"
@@ -298,6 +305,7 @@
 #define STR_TOOL_CHANGING                   "Tool-changing"
 #define STR_HOTEND_OFFSETS                  "Hotend offsets"
 #define STR_SERVO_ANGLES                    "Servo Angles"
+#define STR_AUTOTEMP                        "Auto Temp Control"
 #define STR_HOTEND_PID                      "Hotend PID"
 #define STR_BED_PID                         "Bed PID"
 #define STR_CHAMBER_PID                     "Chamber PID"
@@ -360,6 +368,21 @@
 #define STR_Z2 STR_C "2"
 #define STR_Z3 STR_C "3"
 #define STR_Z4 STR_C "4"
+#if CORE_IS_XY || CORE_IS_XZ
+  #define STEPPER_A_NAME 'A'
+#else
+  #define STEPPER_A_NAME 'X'
+#endif
+#if CORE_IS_XY || CORE_IS_YZ
+  #define STEPPER_B_NAME 'B'
+#else
+  #define STEPPER_B_NAME 'Y'
+#endif
+#if CORE_IS_XZ || CORE_IS_YZ
+  #define STEPPER_C_NAME 'C'
+#else
+  #define STEPPER_C_NAME 'Z'
+#endif
 
 //
 // Endstop Names used by Endstops::report_states
