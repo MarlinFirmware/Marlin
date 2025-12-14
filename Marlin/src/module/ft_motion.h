@@ -22,7 +22,7 @@
 #pragma once
 
 /**
- * module/ft_motion.h
+ * ft_motion.h
  */
 
 #include "../inc/MarlinConfigPre.h" // Access the top level configurations.

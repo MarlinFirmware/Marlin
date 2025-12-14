@@ -21,7 +21,7 @@
  */
 
 /**
- * module/stepper.cpp - Singleton to execute motion plans using stepper motors
+ * stepper.cpp - Singleton to execute motion plans using stepper motors
  *
  * Marlin uses the Bresenham algorithm. For a detailed explanation of theory and
  * method see https://www.cs.helsinki.fi/group/goa/mallinnus/lines/bresenh.html

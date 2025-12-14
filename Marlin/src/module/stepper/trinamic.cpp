@@ -21,7 +21,7 @@
  */
 
 /**
- * module/stepper/trinamic.cpp - Stepper driver indirection for Trinamic
+ * stepper/trinamic.cpp - Stepper driver indirection for Trinamic
  */
 
 #include "../../inc/MarlinConfig.h"

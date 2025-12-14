@@ -22,7 +22,7 @@
 #pragma once
 
 /**
- * module/planner.h
+ * planner.h
  *
  * Buffer movement commands and manage the acceleration profile plan
  *

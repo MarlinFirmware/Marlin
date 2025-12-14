@@ -22,7 +22,7 @@
 #pragma once
 
 /**
- * module/temperature.h - Temperature controller
+ * temperature.h - Temperature controller
  */
 
 #include "thermistor/thermistors.h"

@@ -22,7 +22,7 @@
 #pragma once
 
 /**
- * module/stepper.h - Stepper motor driver: executes motion plans of planner.c using the stepper motors
+ * stepper.h - Stepper motor driver: executes motion plans of planner.c using the stepper motors
  *
  * Derived from Grbl
  *

@@ -21,7 +21,7 @@
  */
 
 /**
- * module/delta.cpp - Delta-specific functions
+ * delta.cpp - Delta-specific functions
  */
 
 #include "../inc/MarlinConfig.h"

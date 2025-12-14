@@ -22,7 +22,7 @@
 #pragma once
 
 /**
- * module/servo.h
+ * servo.h
  */
 
 #include "../inc/MarlinConfig.h"

@@ -22,7 +22,7 @@
 #pragma once
 
 /**
- * module/toolchange.h
+ * toolchange.h
  */
 
 #include "../inc/MarlinConfig.h"

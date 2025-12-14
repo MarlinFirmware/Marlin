@@ -22,7 +22,7 @@
 #pragma once
 
 /**
- * module/probe.h - Move, deploy, enable, etc.
+ * probe.h - Move, deploy, enable, etc.
  */
 
 #include "../inc/MarlinConfig.h"

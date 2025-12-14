@@ -22,7 +22,7 @@
 #pragma once
 
 /**
- * module/stepper/speed_lookuptable.h
+ * stepper/speed_lookuptable.h
  */
 
 #if F_CPU == 16000000

@@ -21,7 +21,7 @@
  */
 
 /**
- * module/servo.cpp
+ * servo.cpp
  */
 
 #include "../inc/MarlinConfig.h"

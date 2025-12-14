@@ -21,7 +21,7 @@
  */
 
 /**
- * module/printcounter.cpp
+ * printcounter.cpp
  */
 
 #include "../inc/MarlinConfig.h"

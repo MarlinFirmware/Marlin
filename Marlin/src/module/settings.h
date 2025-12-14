@@ -22,7 +22,7 @@
 #pragma once
 
 /**
- * module/settings.cpp - Settings and EEPROM storage
+ * settings.cpp - Settings and EEPROM storage
  */
 
 #include "../inc/MarlinConfig.h"

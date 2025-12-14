@@ -21,7 +21,7 @@
  */
 
 /**
- * module/toolchange.cpp
+ * toolchange.cpp
  */
 
 #include "../inc/MarlinConfigPre.h"

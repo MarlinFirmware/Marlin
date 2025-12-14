@@ -22,7 +22,7 @@
 #pragma once
 
 /**
- * module/printcounter.h
+ * printcounter.h
  */
 
 #include "../libs/stopwatch.h"
