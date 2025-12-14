@@ -92,10 +92,10 @@ extern uint8_t did_pause_print;
 
 // Pause the print. If unload_length is set, do a Filament Unload
 bool pause_print(
-  const_float_t   retract,                                  // (mm) Retraction length
+  const float     retract,                                  // (mm) Retraction length
   const xyz_pos_t &park_point,                              // Parking XY Position and Z Raise
   const bool      show_lcd=false,                           // Set LCD status messages?
-  const_float_t   unload_length=0                           // (mm) Filament Change Unload Length - 0 to skip
+  const float     unload_length=0                           // (mm) Filament Change Unload Length - 0 to skip
   DXC_PARAMS                                                // Dual-X-Carriage extruder index
 );
 
