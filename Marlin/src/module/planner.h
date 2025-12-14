@@ -469,7 +469,7 @@ typedef struct PlannerSettings {
 
 struct PlannerHints {
   float millimeters = 0.0;            // Move Length, if known, else 0.
-  #if ENABLED(FEEDRATE_SCALING)
+  #if ANY(FEEDRATE_SCALING, FEEDRATE_MODE_SUPPORT)
     float inv_duration = 0.0;         // Reciprocal of the move duration, if known
   #endif
   #if ENABLED(HINTS_CURVE_RADIUS)

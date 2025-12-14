@@ -2198,7 +2198,7 @@ bool Planner::_populate_block(
 
   float inverse_secs;
   if (TERN0(FEEDRATE_MODE_SUPPORT, parser.inverse_time_enabled && parser.print_move)) {
-    #if IS_KINEMATIC && ENABLED(FEEDRATE_MODE_SUPPORT)
+    #if ENABLED(FEEDRATE_MODE_SUPPORT)
       inverse_secs = hints.inv_duration ? : fr_mm_s; 
     #else
       inverse_secs = fr_mm_s;
@@ -2211,7 +2211,7 @@ bool Planner::_populate_block(
     NOLESS(inverse_secs, min_inverse_secs);
   }
   else {
-    #if IS_KINEMATIC && ENABLED(FEEDRATE_MODE_SUPPORT)
+    #if ENABLED(FEEDRATE_MODE_SUPPORT)
       inverse_secs = hints.inv_duration ? : inverse_millimeters * (
     #else
       inverse_secs  = inverse_millimeters * (
