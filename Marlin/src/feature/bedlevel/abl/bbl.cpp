@@ -377,7 +377,7 @@ float LevelingBilinear::get_z_correction(const xy_pos_t &raw) {
    * Prepare a bilinear-leveled linear move on Cartesian,
    * splitting the move where it crosses grid borders.
    */
-  void LevelingBilinear::line_to_destination(const feedRate_t scaled_fr, uint16_t x_splits, uint16_t y_splits) {
+  void LevelingBilinear::line_to_destination(const feedRate_t scaled_fr_mm_s, uint16_t x_splits, uint16_t y_splits) {
     // Get current and destination cells for this line
     xy_int_t c1 { CELL_INDEX(x, motion.position.x), CELL_INDEX(y, motion.position.y) },
              c2 { CELL_INDEX(x, motion.destination.x), CELL_INDEX(y, motion.destination.y) };
@@ -392,27 +392,6 @@ float LevelingBilinear::get_z_correction(const xy_pos_t &raw) {
       motion.goto_current_position(scaled_fr_mm_s);
       return;
     }
-
-    const xyze_pos_t total = motion.destination - motion.position;
-
-    #if ENABLED(FEEDRATE_MODE_SUPPORT)
-      // Get the linear distance in XYZ
-      #if HAS_ROTATIONAL_AXES
-        bool cartes_move = true;
-      #endif
-      float cartesian_mm = get_move_distance(total OPTARG(HAS_ROTATIONAL_AXES, cartes_move));
-
-      // If the move is very short, check the E move distance
-      TERN_(HAS_EXTRUDERS, if (UNEAR_ZERO(cartesian_mm)) cartesian_mm = ABS(total.e));
-
-      const bool old_inverse_time_enabled = parser.inverse_time_enabled;
-
-      const feedrate_t scaled_fr_mm_s = (old_inverse_time_enabled && parser.print_move) ? cartesian_mm * scaled_fr : scaled_fr;
-      parser.inverse_time_enabled = false;
-
-    #else
-      const feedrate_t scaled_fr_mm_s = scaled_fr;
-    #endif
 
     #define LINE_SEGMENT_END(A) (motion.position.A + (motion.destination.A - motion.position.A) * normalized_dist)
 

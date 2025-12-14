@@ -75,7 +75,7 @@
       segments = ecel - scel;
       NOLESS(segments, 1);
       
-      segment_fr = (parser.inverse_time_enabled && parser.print_move) ? scaled_fr_mm_s * segments : scaled_fr_mm_s;
+      segment_fr = (parser.inverse_time_enabled && parser.apply_feedrate_mode) ? scaled_fr_mm_s * segments : scaled_fr_mm_s;
 
       // Start and end in the same cell? No split needed.
       if (scel == ecel) {

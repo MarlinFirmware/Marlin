@@ -52,14 +52,9 @@ void GcodeSuite::G5() {
       return;
     }
   #endif
-
-  #if ENABLED(FEEDRATE_MODE_SUPPORT)
-    if (parser.inverse_time_enabled) {
-      SERIAL_ERROR_MSG(STR_ERR_BAD_FEEDRATE_MODE);
-      return;
-    }
+  #if HAS_ROTATIONAL_AXES || IS_KINEMATIC || HAS_LEVELING || ENABLED(FEEDRATE_MODE_SUPPORT)
+    parser.apply_feedrate_mode = true;
   #endif
-
   get_destination_from_command();
 
   const xy_pos_t offsets[2] = {
@@ -69,6 +64,9 @@ void GcodeSuite::G5() {
 
   cubic_b_spline(motion.position, motion.destination, offsets, motion.mms_scaled(), motion.extruder);
   motion.position = motion.destination;
+  #if HAS_ROTATIONAL_AXES || IS_KINEMATIC || HAS_LEVELING || ENABLED(FEEDRATE_MODE_SUPPORT)
+    parser.apply_feedrate_mode = false;
+  #endif
 }
 
 #endif // BEZIER_CURVE_SUPPORT
