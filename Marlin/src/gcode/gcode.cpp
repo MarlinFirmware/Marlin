@@ -123,6 +123,8 @@ relative_t GcodeSuite::axis_relative; // Init in constructor
     rotation_cos = cosf(angle_rad);
     rotation_sin = sinf(angle_rad);
   }
+#if ENABLED(GCODE_MACROS)
+  char GcodeSuite::macros[GCODE_MACROS_SLOTS][GCODE_MACROS_SLOT_SIZE + 1] = {{ 0 }};
 #endif
 
 void GcodeSuite::report_echo_start(const bool forReplay) { if (!forReplay) SERIAL_ECHO_START(); }
@@ -255,7 +257,7 @@ void GcodeSuite::get_destination_from_command() {
     if ( (seen[i] = parser.seenval(AXIS_CHAR(i))) ) {
       if (!skip_move) {
         const float v = parser.value_axis_units((AxisEnum)i);
-        raw_destination[i] = axis_is_relative(AxisEnum(i)) ? raw_destination[i] + v : LOGICAL_TO_NATIVE(v, i);
+        raw_destination[i] = axis_is_relative((AxisEnum)i) ? raw_destination[i] + v : LOGICAL_TO_NATIVE(v, i);
       }
     }
   }
@@ -331,7 +333,7 @@ void GcodeSuite::get_destination_from_command() {
  */
 void GcodeSuite::dwell(const millis_t time) {
   const millis_t start_ms = millis();
-  while (PENDING(millis(), start_ms, time)) idle();
+  while (PENDING(millis(), start_ms, time)) marlin.idle();
 }
 
 /**
@@ -365,7 +367,7 @@ void GcodeSuite::dwell(const millis_t time) {
       #ifdef ACTION_ON_CANCEL
         hostui.cancel();
       #endif
-      kill(GET_TEXT_F(MSG_LCD_PROBING_FAILED));
+      marlin.kill(GET_TEXT_F(MSG_LCD_PROBING_FAILED));
     #endif
   }
 
@@ -686,17 +688,11 @@ void GcodeSuite::process_parsed_command(bool no_ok/*=false*/) {
       case 110: M110(); break;                                    // M110: Set Current Line Number
       case 111: M111(); break;                                    // M111: Set debug level
 
-      #if DISABLED(EMERGENCY_PARSER)
-        case 108: M108(); break;                                  // M108: Cancel Waiting
-        case 112: M112(); break;                                  // M112: Full Shutdown
-        case 410: M410(); break;                                  // M410: Quickstop - Abort all the planned moves.
-        #if ENABLED(HOST_PROMPT_SUPPORT)
-          case 876: M876(); break;                                // M876: Handle Host prompt responses
-        #endif
-      #else
-        case 108: case 112: case 410:
-        TERN_(HOST_PROMPT_SUPPORT, case 876:)
-        break;
+      case 108: M108(); break;                                    // M108: Cancel Waiting
+      case 112: M112(); break;                                    // M112: Full Shutdown
+      case 410: M410(); break;                                    // M410: Quickstop - Abort all the planned moves.
+      #if ENABLED(HOST_PROMPT_SUPPORT)
+        case 876: M876(); break;                                  // M876: Handle Host prompt responses
       #endif
 
       #if ENABLED(HOST_KEEPALIVE_FEATURE)
@@ -810,7 +806,7 @@ void GcodeSuite::process_parsed_command(bool no_ok/*=false*/) {
         #endif
       #endif
 
-      #if DISABLED(NO_VOLUMETRICS)
+      #if HAS_VOLUMETRIC_EXTRUSION
         case 200: M200(); break;                                  // M200: Set filament diameter, E to cubic units
       #endif
 
@@ -1015,9 +1011,13 @@ void GcodeSuite::process_parsed_command(bool no_ok/*=false*/) {
       #endif
 
       #if ENABLED(FT_MOTION)
-        case 493: M493(); break;                                  // M493: Fixed-Time Motion control
-        #if ENABLED(FTM_SMOOTHING)
+          case 493: M493(); break;                                // M493: Fixed-Time Motion control
+        #if ANY(FTM_SMOOTHING, FTM_POLYS)
           case 494: M494(); break;                                // M494: Fixed-Time Motion extras
+        #endif
+        #if ENABLED(FTM_RESONANCE_TEST)
+          case 495: M495(); break;                                // M495: Resonance test for Input Shaping
+          case 496: M496(); break;                                // M496: Abort resonance test
         #endif
       #endif
 
@@ -1131,7 +1131,7 @@ void GcodeSuite::process_parsed_command(bool no_ok/*=false*/) {
         case 871: M871(); break;                                  // M871: Print/reset/clear first layer temperature offset values
       #endif
 
-      #if ENABLED(LIN_ADVANCE)
+      #if HAS_LIN_ADVANCE_K
         case 900: M900(); break;                                  // M900: Set advance K factor.
       #endif
 

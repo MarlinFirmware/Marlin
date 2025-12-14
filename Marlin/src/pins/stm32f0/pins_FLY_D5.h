@@ -43,6 +43,11 @@
 #endif
 
 //
+// Servos
+//
+#define SERVO0_PIN                          PA8
+
+//
 // Timers
 //
 #define STEP_TIMER  6
@@ -54,6 +59,11 @@
 #define X_STOP_PIN                          PB4
 #define Y_STOP_PIN                          PB3
 #define Z_STOP_PIN                          PD2
+
+#ifndef Z_MIN_PROBE_PIN
+  #define Z_MIN_PROBE_PIN                   PB5
+#endif
+
 //
 // Steppers
 //

@@ -67,18 +67,10 @@ Joystick joystick;
 #if ENABLED(JOYSTICK_DEBUG)
   void Joystick::report() {
     SERIAL_ECHOPGM("Joystick");
-    #if HAS_JOY_ADC_X
-      SERIAL_ECHOPGM_P(SP_X_STR, JOY_X(x.getraw()));
-    #endif
-    #if HAS_JOY_ADC_Y
-      SERIAL_ECHOPGM_P(SP_Y_STR, JOY_Y(y.getraw()));
-    #endif
-    #if HAS_JOY_ADC_Z
-      SERIAL_ECHOPGM_P(SP_Z_STR, JOY_Z(z.getraw()));
-    #endif
-    #if HAS_JOY_ADC_EN
-      SERIAL_ECHO_TERNARY(READ(JOY_EN_PIN), " EN=", "HIGH (dis", "LOW (en", "abled)");
-    #endif
+    TERF(HAS_JOY_ADC_X, SERIAL_ECHOPGM_P)(SP_X_STR, JOY_X(x.getraw()));
+    TERF(HAS_JOY_ADC_Y, SERIAL_ECHOPGM_P)(SP_Y_STR, JOY_Y(y.getraw()));
+    TERF(HAS_JOY_ADC_Z, SERIAL_ECHOPGM_P)(SP_Z_STR, JOY_Z(z.getraw()));
+    TERF(HAS_JOY_ADC_EN, SERIAL_ECHO_TERNARY)(READ(JOY_EN_PIN), " EN=", "HIGH (dis", "LOW (en", "abled)");
     SERIAL_EOL();
   }
 #endif

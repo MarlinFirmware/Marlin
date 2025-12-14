@@ -144,7 +144,7 @@
  * M105 - Report current temperatures.
  * M106 - Set print fan speed.
  * M107 - Print fan off.
- * M108 - Break out of heating loops (M109, M190, M303). With no controller, breaks out of M0/M1. (Requires EMERGENCY_PARSER)
+ * M108 - Break out of heating loops (M109, M190, M303). With no controller, breaks out of M0/M1.
  * M109 - S<temp> Wait for extruder current temp to reach target temp. ** Wait only when heating! **
  *        R<temp> Wait for extruder current temp to reach target temp. ** Wait for heating or cooling. **
  *        If AUTOTEMP is enabled, S<mintemp> B<maxtemp> F<factor>. Exit autotemp by any M109 without F
@@ -256,6 +256,8 @@
  * M485 - Send RS485 packets (Requires RS485_SERIAL_PORT)
  * M486 - Identify and cancel objects. (Requires CANCEL_OBJECTS)
  * M493 - Set / Report input FT Motion/Shaping parameters. (Requires FT_MOTION)
+ * M495 - Set / Start resonance test. (Requires FTM_RESONANCE_TEST)
+ * M496 - Abort resonance test. (Requires FTM_RESONANCE_TEST)
  * M500 - Store parameters in EEPROM. (Requires EEPROM_SETTINGS)
  * M501 - Restore parameters from EEPROM. (Requires EEPROM_SETTINGS)
  * M502 - Revert to the default "factory settings". ** Does not write them to EEPROM! **
@@ -312,8 +314,8 @@
  * M869 - Report position encoder module error.
  *
  * M871 - Print/Reset/Clear first layer temperature offset values. (Requires PTC_PROBE, PTC_BED, or PTC_HOTEND)
- * M876 - Handle Prompt Response. (Requires HOST_PROMPT_SUPPORT and not EMERGENCY_PARSER)
- * M900 - Set / Report Linear Advance K-factor. (Requires LIN_ADVANCE)
+ * M876 - Handle Prompt Response. (Requires HOST_PROMPT_SUPPORT)
+ * M900 - Set / Report Linear Advance K-factor (Requires LIN_ADVANCE or FT_MOTION) and Smoothing Tau factor (Requires SMOOTH_LIN_ADVANCE).
  * M906 - Set / Report motor current in milliamps using axis codes XYZE, etc. Report values if no axis codes given. (Requires *_DRIVER_TYPE TMC(2130|2160|5130|5160|2208|2209|2240|2660))
  * M907 - Set digital trimpot motor current using axis codes. (Requires a board with digital trimpots)
  * M908 - Control digital trimpot directly. (Requires HAS_MOTOR_CURRENT_DAC or DIGIPOTSS_PIN)
@@ -356,6 +358,7 @@
  */
 
 #include "../inc/MarlinConfig.h"
+#include "../module/temperature.h"
 #include "parser.h"
 
 #if ENABLED(I2C_POSITION_ENCODERS)
@@ -384,6 +387,9 @@ typedef bits_t(NUM_REL_MODES) relative_t;
 extern const char G28_STR[];
 
 class GcodeSuite {
+
+  friend void Temperature::task();
+
 public:
 
   static relative_t axis_relative;
@@ -555,6 +561,11 @@ public:
   #endif
 
   static void dwell(const millis_t time);
+
+  #if ENABLED(GCODE_MACROS)
+    static char macros[GCODE_MACROS_SLOTS][GCODE_MACROS_SLOT_SIZE + 1];
+    static void reset_macros() { for (uint8_t i = 0; i < GCODE_MACROS_SLOTS; ++i) macros[i][0] = '\0'; }
+  #endif
 
 private:
 
@@ -821,6 +832,9 @@ private:
     static void M104_M109(const bool isM109);
     FORCE_INLINE static void M104() { M104_M109(false); }
     FORCE_INLINE static void M109() { M104_M109(true); }
+    #if ENABLED(AUTOTEMP)
+      static void M104_report(const bool forReplay=true);
+    #endif
   #endif
 
   static void M105();
@@ -830,14 +844,10 @@ private:
     static void M107();
   #endif
 
-  #if DISABLED(EMERGENCY_PARSER)
-    static void M108();
-    static void M112();
-    static void M410();
-  #endif
-
+  static void M108();
   static void M110();
   static void M111();
+  static void M112();
 
   #if ENABLED(HOST_KEEPALIVE_FEATURE)
     static void M113();
@@ -930,7 +940,7 @@ private:
     #endif
   #endif
 
-  #if DISABLED(NO_VOLUMETRICS)
+  #if HAS_VOLUMETRIC_EXTRUSION
     static void M200();
     static void M200_report(const bool forReplay=true);
   #endif
@@ -1122,6 +1132,8 @@ private:
     static void M407();
   #endif
 
+  static void M410();
+
   #if HAS_FILAMENT_SENSOR
     static void M412();
     static void M412_report(const bool forReplay=true);
@@ -1179,6 +1191,11 @@ private:
     static void M493_report(const bool forReplay=true);
     static void M494();
     static void M494_report(const bool forReplay=true);
+    #if ENABLED(FTM_RESONANCE_TEST)
+      static void M495();
+      static void M495_report(const bool forReplay=true);
+      static void M496();
+    #endif
   #endif
 
   static void M500();
@@ -1291,7 +1308,8 @@ private:
 
   #if ENABLED(GCODE_MACROS)
     static void M810_819();
-    static void M820();
+    static void M810_819_report(const bool forReplay=true);
+    static void M820(const bool withoutEcho=true);
   #endif
 
   #if HAS_BED_PROBE
@@ -1325,7 +1343,7 @@ private:
     static void M876();
   #endif
 
-  #if ENABLED(LIN_ADVANCE)
+  #if HAS_LIN_ADVANCE_K
     static void M900();
     static void M900_report(const bool forReplay=true);
   #endif

@@ -321,7 +321,7 @@ void plan_arc(
       const millis_t ms = millis();
       if (ELAPSED(ms, next_idle_ms)) {
         next_idle_ms = ms + 200UL;
-        idle();
+        marlin.idle();
       }
 
       #if N_ARC_CORRECTION > 1

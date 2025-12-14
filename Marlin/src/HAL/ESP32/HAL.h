@@ -76,7 +76,6 @@
 // Types
 // ------------------------
 
-typedef double isr_float_t;   // FPU ops are used for single-precision, so use double for ISRs.
 typedef int16_t pin_t;
 
 typedef struct pwm_pin {
@@ -194,7 +193,7 @@ public:
 
   static void delay_ms(const int ms) { delay(ms); }
 
-  // Tasks, called from idle()
+  // Tasks, called from marlin.idle()
   static void idletask();
 
   // Reset

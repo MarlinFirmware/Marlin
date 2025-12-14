@@ -1,6 +1,13 @@
 #!/usr/bin/env bash
 #
-# run_tests
+# buildroot/bin/run_tests
+# Used by Makefile tests-single-local, tests-single-ci, tests-all-local
+#
+# Usage:
+#  run_tests path target "[only this title]"
+#
+# With make:
+#  make tests-single-local TEST_TARGET=mega2560 ONLY_TEST=2
 #
 HERE="$( cd "$(dirname "${BASH_SOURCE[0]}")" ; pwd -P )"
 TESTS="$HERE/../tests"

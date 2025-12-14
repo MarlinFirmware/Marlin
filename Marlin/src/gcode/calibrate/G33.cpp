@@ -380,9 +380,9 @@ static float auto_tune_a(const float dcr) {
  *   With HAS_DELTA_SENSORLESS_PROBING:
  *     Use these flags to calibrate stall sensitivity:
  *     Example: G33 P1 Y Z - to calibrate X only
- *     X  Don't activate stallguard on X
- *     Y  Don't activate stallguard on Y
- *     Z  Don't activate stallguard on Z
+ *     X  Don't activate StallGuard on X
+ *     Y  Don't activate StallGuard on Y
+ *     Z  Don't activate StallGuard on Z
  *     S  Save offset_sensorless_adj
  */
 void GcodeSuite::G33() {

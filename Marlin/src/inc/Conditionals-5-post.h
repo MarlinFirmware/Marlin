@@ -313,10 +313,24 @@
 /**
  * SCARA cannot use SLOWDOWN and requires QUICKHOME
  * Printable radius assumes joints can fully extend
+ *
+ * TPARA cannot use SLOWDOWN nor QUICKHOME
+ * Printable radius assumes joints can't fully extend
+ * AXEL_TPARA is assigned a default Home Position unless overridden
  */
 #if IS_SCARA
   #if ENABLED(AXEL_TPARA)
-    #define PRINTABLE_RADIUS (TPARA_LINKAGE_1 + TPARA_LINKAGE_2)
+    #define PRINTABLE_RADIUS_2 HYPOT2(TPARA_LINKAGE_1, TPARA_LINKAGE_2) - 2 * (TPARA_LINKAGE_1) * (TPARA_LINKAGE_2) * cosf(TPARA_MAX_L1L2_ANGLE)
+    #define PRINTABLE_RADIUS SQRT(PRINTABLE_RADIUS_2)
+    #ifndef MANUAL_X_HOME_POS
+      #define MANUAL_X_HOME_POS (TPARA_ARM_X_HOME_POS + TPARA_TCP_OFFSET_X - TPARA_OFFSET_X)
+    #endif
+    #ifndef MANUAL_Y_HOME_POS
+      #define MANUAL_Y_HOME_POS (TPARA_ARM_Y_HOME_POS + TPARA_TCP_OFFSET_Y - TPARA_OFFSET_Y)
+    #endif
+    #ifndef MANUAL_Z_HOME_POS
+      #define MANUAL_Z_HOME_POS (TPARA_ARM_Z_HOME_POS + TPARA_TCP_OFFSET_Z - TPARA_OFFSET_Z)
+    #endif
   #else
     #define QUICK_HOME
     #define PRINTABLE_RADIUS (SCARA_LINKAGE_1 + SCARA_LINKAGE_2)
@@ -352,10 +366,12 @@
   #endif
 #endif
 
-#ifdef MANUAL_Z_HOME_POS
-  #define Z_HOME_POS MANUAL_Z_HOME_POS
-#else
-  #define Z_HOME_POS TERN(Z_HOME_TO_MIN, Z_MIN_POS, Z_MAX_POS)
+#if HAS_Z_AXIS
+  #ifdef MANUAL_Z_HOME_POS
+    #define Z_HOME_POS MANUAL_Z_HOME_POS
+  #else
+    #define Z_HOME_POS TERN(Z_HOME_TO_MIN, Z_MIN_POS, Z_MAX_POS)
+  #endif
 #endif
 
 #if HAS_I_AXIS
@@ -3303,6 +3319,9 @@
 #if ANY(ADVANCED_PAUSE_FEATURE, PROBING_HEATERS_OFF)
   #define HEATER_IDLE_HANDLER 1
 #endif
+#if ENABLED(DELTA)
+  #undef PROBING_STEPPERS_OFF
+#endif
 #if HAS_BED_PROBE && (ANY(PROBING_HEATERS_OFF, PROBING_STEPPERS_OFF, PROBING_ESTEPPERS_OFF, PROBING_FANS_OFF) || DELAY_BEFORE_PROBING > 0)
   #define HAS_QUIET_PROBING 1
 #endif
@@ -3668,16 +3687,27 @@
 
 // Fixed-Time Motion
 #if ENABLED(FT_MOTION)
-  #define FTM_TS (1.0f / FTM_FS)                                    // (s) Time step for trajectory generation. (Reciprocal of FTM_FS)
-  #define FTM_STEPS_PER_UNIT_TIME (FTM_STEPPER_FS / FTM_FS)         // Interpolated stepper commands per unit time
-  #define FTM_MIN_TICKS ((STEPPER_TIMER_RATE) / (FTM_STEPPER_FS))   // Minimum stepper ticks between steps
+  #define FTM_TS (1.0f / FTM_FS)                      // (s) Time step for trajectory generation. (Reciprocal of FTM_FS)
   #define FTM_RATIO (FTM_FS / FTM_MIN_SHAPE_FREQ)     // Factor for use in FTM_ZMAX. DON'T CHANGE.
   #define FTM_SMOOTH_MAX_I uint32_t(TERN0(FTM_SMOOTHING, CEIL(FTM_FS * FTM_MAX_SMOOTHING_TIME))) // Max delays for smoothing
-  #define FTM_ZMAX (FTM_RATIO * 2 + FTM_SMOOTH_MAX_I) // Maximum delays for shaping functions (even numbers only!)
-                                                      // Calculate as:
-                                                      //   ZV       : FTM_RATIO / 2
-                                                      //   ZVD, MZV : FTM_RATIO
-                                                      //   2HEI     : FTM_RATIO * 3 / 2
-                                                      //   3HEI     : FTM_RATIO * 2
-  #define FTM_SMOOTHING_ORDER 5                       // 3 to 5 is closest to gaussian
+
+  // Maximum delays for shaping functions (even numbers only!)
+  #define FTM_ZMAX (TERN(HAS_FTM_EI_SHAPING, 2, 1) * FTM_RATIO + FTM_SMOOTH_MAX_I)
+
+  #define FTM_SMOOTHING_ORDER   5 // 3 to 5 is closest to Gaussian
+                                  // Calculate as:
+                                  //  ZV       : FTM_RATIO / 2
+                                  //  ZVD, MZV : FTM_RATIO
+                                  //  2HEI     : FTM_RATIO * 3 / 2
+                                  //  3HEI     : FTM_RATIO * 2
+  #ifndef FTM_BUFFER_SIZE
+    #define FTM_BUFFER_SIZE 128
+  #endif
+  #define FTM_BUFFER_MASK (FTM_BUFFER_SIZE - 1u)
+  #if ANY(BIQU_MICROPROBE_V1, BIQU_MICROPROBE_V2)
+    #ifndef PROBE_WAKEUP_TIME_MS
+      #define PROBE_WAKEUP_TIME_MS 30
+      #define PROBE_WAKEUP_TIME_WARNING 1
+    #endif
+  #endif
 #endif

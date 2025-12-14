@@ -85,7 +85,7 @@ void GcodeSuite::M115() {
     " MACHINE_TYPE:" MACHINE_NAME
     " KINEMATICS:" MACHINE_KINEMATICS
     " EXTRUDER_COUNT:" STRINGIFY(EXTRUDERS)
-    #if NUM_AXES != XYZ
+    #if NUM_AXES != 3
       " AXIS_COUNT:" STRINGIFY(NUM_AXES)
     #endif
     #if defined(MACHINE_UUID) || ENABLED(HAS_STM32_UID)
@@ -139,7 +139,7 @@ void GcodeSuite::M115() {
     cap_line(F("EEPROM"), ENABLED(EEPROM_SETTINGS));
 
     // Volumetric Extrusion (M200)
-    cap_line(F("VOLUMETRIC"), DISABLED(NO_VOLUMETRICS));
+    cap_line(F("VOLUMETRIC"), ENABLED(HAS_VOLUMETRIC_EXTRUSION));
 
     // AUTOREPORT_POS (M154)
     cap_line(F("AUTOREPORT_POS"), ENABLED(AUTO_REPORT_POSITION));

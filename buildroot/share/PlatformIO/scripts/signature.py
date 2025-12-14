@@ -198,7 +198,7 @@ def compute_build_signature(env):
 
     # Get the CONFIG_EXPORT value and do an extended dump if > 100
     # For example, CONFIG_EXPORT 102 will make a 'config.ini' with a [config:] group for each schema @section
-    config_dump = 101 if is_embed else tryint('CONFIG_EXPORT')
+    config_dump = 1 if is_embed else tryint('CONFIG_EXPORT')
     extended_dump = config_dump > 100
     config_dump %= 100
 

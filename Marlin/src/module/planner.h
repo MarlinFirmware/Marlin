@@ -32,6 +32,8 @@
 
 #include "../MarlinCore.h"
 
+#include "temperature.h"
+
 #if ENABLED(JD_HANDLE_SMALL_SEGMENTS)
   // Enable this option for perfect accuracy but maximum
   // computation. Should be fine on ARM processors.
@@ -165,14 +167,6 @@ typedef struct {
 
 } block_flags_t;
 
-#if ENABLED(AUTOTEMP)
-  typedef struct {
-    celsius_t min, max;
-    float factor;
-    bool enabled;
-  } autotemp_t;
-#endif
-
 #if ENABLED(LASER_FEATURE)
 
   typedef struct {
@@ -260,7 +254,7 @@ typedef struct PlannerBlock {
   #if ENABLED(S_CURVE_ACCELERATION)
     uint32_t acceleration_time_inverse,     // Inverse of acceleration and deceleration periods, expressed as integer. Scale depends on CPU being used
              deceleration_time_inverse;
-  #else
+  #elif HAS_STANDARD_MOTION
     uint32_t acceleration_rate;             // Acceleration rate in (2^24 steps)/timer_ticks*s
   #endif
 
@@ -283,10 +277,17 @@ typedef struct PlannerBlock {
     #endif
   #endif
 
-  uint32_t nominal_rate,                    // The nominal step rate for this block in step_events/sec
-           initial_rate,                    // The jerk-adjusted step rate at start of block
-           final_rate,                      // The minimal rate at exit
-           acceleration_steps_per_s2;       // acceleration steps/sec^2
+  #if ENABLED(FT_MOTION)
+    float entry_speed,                      // Block entry speed in steps units
+          exit_speed;                       // Block exit speed in steps units
+  #endif
+
+  #if HAS_STANDARD_MOTION
+    uint32_t nominal_rate,                  // The nominal step rate for this block in step_events/sec
+             initial_rate,                  // The jerk-adjusted step rate at start of block
+             final_rate,                    // The minimal rate at exit
+             acceleration_steps_per_s2;     // acceleration steps/sec^2
+  #endif
 
   #if ENABLED(DIRECT_STEPPING)
     page_idx_t page_idx;                    // Page index used for direct stepping
@@ -325,11 +326,11 @@ typedef struct PlannerBlock {
   #define HAS_POSITION_FLOAT 1
 #endif
 
-constexpr uint8_t block_dec_mod(const uint8_t v1, const uint8_t v2) {
+constexpr uint8_t block_sub_mod(const uint8_t v1, const uint8_t v2) {
   return v1 >= v2 ? v1 - v2 : v1 - v2 + BLOCK_BUFFER_SIZE;
 }
 
-constexpr uint8_t block_inc_mod(const uint8_t v1, const uint8_t v2) {
+constexpr uint8_t block_add_mod(const uint8_t v1, const uint8_t v2) {
   return v1 + v2 < BLOCK_BUFFER_SIZE ? v1 + v2 : v1 + v2 - BLOCK_BUFFER_SIZE;
 }
 
@@ -480,7 +481,7 @@ class Planner {
       static float e_factor[EXTRUDERS];             // The flow percentage and volumetric multiplier combine to scale E movement
     #endif
 
-    #if DISABLED(NO_VOLUMETRICS)
+    #if HAS_VOLUMETRIC_EXTRUSION
       static float volumetric_area_nominal;           // (mm^3) Nominal cross-sectional area
       static float filament_size[EXTRUDERS],          // (mm) Diameter of filament, typically around 1.75 or 2.85, 0 disables the volumetric calculations for the extruder
                    volumetric_multiplier[EXTRUDERS];  // (1/mm^2) Reciprocal of cross-sectional area of filament. Pre-calculated to reduce computation in the planner
@@ -530,7 +531,7 @@ class Planner {
       static constexpr bool leveling_active = false;
     #endif
 
-    #if ENABLED(LIN_ADVANCE)
+    #if HAS_LIN_ADVANCE_K
       static float extruder_advance_K[DISTINCT_E];
       static void set_advance_k(const float k, const uint8_t e=active_extruder) {
         UNUSED(e);
@@ -541,13 +542,14 @@ class Planner {
         UNUSED(e);
         return extruder_advance_K[E_INDEX_N(e)];
       }
-      #if ENABLED(SMOOTH_LIN_ADVANCE)
-        static uint32_t get_advance_k_q27(const uint8_t e=active_extruder) {
-          UNUSED(e);
-          return extruder_advance_K_q27[E_INDEX_N(e)];
-        }
-      #endif
-    #endif // LIN_ADVANCE
+    #endif
+
+    #if ENABLED(SMOOTH_LIN_ADVANCE)
+      static uint32_t get_advance_k_q27(const uint8_t e=active_extruder) {
+        UNUSED(e);
+        return extruder_advance_K_q27[E_INDEX_N(e)];
+      }
+    #endif
 
     /**
      * The current position of the tool in absolute steps
@@ -665,7 +667,7 @@ class Planner {
 
     #if HAS_EXTRUDERS
       FORCE_INLINE static void refresh_e_factor(const uint8_t e) {
-        e_factor[e] = flow_percentage[e] * 0.01f IF_DISABLED(NO_VOLUMETRICS, * volumetric_multiplier[e]);
+        e_factor[e] = MUL_TERN(HAS_VOLUMETRIC_EXTRUSION, flow_percentage[e] * 0.01f, volumetric_multiplier[e]);
       }
 
       static void set_flow(const uint8_t e, const int16_t flow) {
@@ -677,6 +679,10 @@ class Planner {
 
     // Manage fans, paste pressure, etc.
     static void check_axes_activity();
+
+    #if ENABLED(AUTOTEMP)
+      static float get_high_e_speed();
+    #endif
 
     // Apply fan speeds
     #if HAS_FAN
@@ -703,7 +709,7 @@ class Planner {
       void enable_stall_prevention(const bool onoff);
     #endif
 
-    #if DISABLED(NO_VOLUMETRICS)
+    #if HAS_VOLUMETRIC_EXTRUSION
 
       // Update multipliers based on new diameter measurements
       static void calculate_volumetric_multipliers();
@@ -712,6 +718,10 @@ class Planner {
         // Update pre calculated extruder feedrate limits based on volumetric values
         static void calculate_volumetric_extruder_limit(const uint8_t e);
         static void calculate_volumetric_extruder_limits();
+        FORCE_INLINE static void set_volumetric_extruder_limit(const uint8_t e, const float v) {
+          volumetric_extruder_limit[e] = v;
+          calculate_volumetric_extruder_limit(e);
+        }
       #endif
 
       FORCE_INLINE static void set_filament_size(const uint8_t e, const float v) {
@@ -722,13 +732,6 @@ class Planner {
           if (!filament_size[i]) filament_size[i] = DEFAULT_NOMINAL_FILAMENT_DIA;
       }
 
-    #endif
-
-    #if ENABLED(VOLUMETRIC_EXTRUDER_LIMIT)
-      FORCE_INLINE static void set_volumetric_extruder_limit(const uint8_t e, const float v) {
-        volumetric_extruder_limit[e] = v;
-        calculate_volumetric_extruder_limit(e);
-      }
     #endif
 
     #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
@@ -850,10 +853,10 @@ class Planner {
     #endif // HAS_POSITION_MODIFIERS
 
     // Number of moves currently in the planner including the busy block, if any
-    FORCE_INLINE static uint8_t movesplanned() { return block_dec_mod(block_buffer_head, block_buffer_tail); }
+    FORCE_INLINE static uint8_t movesplanned() { return block_sub_mod(block_buffer_head, block_buffer_tail); }
 
     // Number of nonbusy moves currently in the planner
-    FORCE_INLINE static uint8_t nonbusy_movesplanned() { return block_dec_mod(block_buffer_head, block_buffer_nonbusy); }
+    FORCE_INLINE static uint8_t nonbusy_movesplanned() { return block_sub_mod(block_buffer_head, block_buffer_nonbusy); }
 
     // Remove all blocks from the buffer
     FORCE_INLINE static void clear_block_buffer() {
@@ -879,7 +882,7 @@ class Planner {
     FORCE_INLINE static block_t* get_next_free_block(uint8_t &next_buffer_head, const uint8_t count=1) {
 
       // Wait until there are enough slots free
-      while (moves_free() < count) { idle(); }
+      while (moves_free() < count) { marlin.idle(); }
 
       // Return the first available block
       next_buffer_head = next_block_index(block_buffer_head);
@@ -1103,13 +1106,6 @@ class Planner {
       static void clear_block_buffer_runtime();
     #endif
 
-    #if ENABLED(AUTOTEMP)
-      static autotemp_t autotemp;
-      static void autotemp_update();
-      static void autotemp_M104_M109();
-      static void autotemp_task();
-    #endif
-
     #if HAS_LINEAR_E_JERK
       FORCE_INLINE static void recalculate_max_e_jerk() {
         const float prop = junction_deviation_mm * SQRT(0.5) / (1.0f - SQRT(0.5));
@@ -1120,19 +1116,11 @@ class Planner {
 
   private:
 
-    #if ENABLED(AUTOTEMP)
-      #if ENABLED(AUTOTEMP_PROPORTIONAL)
-        static void _autotemp_update_from_hotend();
-      #else
-        static void _autotemp_update_from_hotend() {}
-      #endif
-    #endif
-
     /**
      * Get the index of the next / previous block in the ring buffer
      */
-    static constexpr uint8_t next_block_index(const uint8_t block_index) { return block_inc_mod(block_index, 1); }
-    static constexpr uint8_t prev_block_index(const uint8_t block_index) { return block_dec_mod(block_index, 1); }
+    static constexpr uint8_t next_block_index(const uint8_t block_index) { return block_add_mod(block_index, 1); }
+    static constexpr uint8_t prev_block_index(const uint8_t block_index) { return block_sub_mod(block_index, 1); }
 
     /**
      * Calculate the maximum allowable speed squared at this point, in order
@@ -1176,12 +1164,14 @@ class Planner {
         vector *= RSQRT(magnitude_sq);
       }
 
+      // max_value is block->acceleration
       FORCE_INLINE static float limit_value_by_axis_maximum(const float max_value, xyze_float_t &unit_vec) {
         float limit_value = max_value;
         LOOP_LOGICAL_AXES(idx) {
           if (unit_vec[idx]) {
-            if (limit_value * ABS(unit_vec[idx]) > settings.max_acceleration_mm_per_s2[idx])
-              limit_value = ABS(settings.max_acceleration_mm_per_s2[idx] / unit_vec[idx]);
+            const uint32_t abs_vec = ABS(unit_vec[idx]);
+            if (limit_value * abs_vec > settings.max_acceleration_mm_per_s2[idx])
+              limit_value = settings.max_acceleration_mm_per_s2[idx] / abs_vec;
           }
         }
         return limit_value;
