@@ -89,10 +89,6 @@
   #include "../lcd/dwin/jyersui/dwin.h"
 #endif
 
-#if ALL(DWIN_LCD_PROUI, AUTO_BED_LEVELING_UBL)
-  #include "../lcd/e3v2/proui/bedlevel_tools.h"
-#endif
-
 #if ENABLED(HOST_PROMPT_SUPPORT)
   #include "../feature/host_actions.h"
 #endif
