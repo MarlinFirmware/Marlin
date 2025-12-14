@@ -241,7 +241,7 @@ void plan_arc(
 
   // Add hints to help optimize the move
   PlannerHints hints;
-  #if IS_KINEMATIC && ENABLED(FEEDRATE_MODE_SUPPORT)
+  #if ENABLED(FEEDRATE_MODE_SUPPORT)
     hints.inv_duration = segments * (parser.inverse_time_enabled ? scaled_fr : (scaled_fr_mm_s / flat_mm));
   #elif ENABLED(FEEDRATE_SCALING)
     hints.inv_duration = segments * (scaled_fr_mm_s / flat_mm);

@@ -430,8 +430,8 @@
 
     // Add hints to help optimize the move
     PlannerHints hints(cartesian_mm * inv_segments);       // Length of each segment
-    #if IS_KINEMATIC && ENABLED(FEEDRATE_MODE_SUPPORT)
-      hints.inv_duration = segments / seconds;
+    #if ENABLED(FEEDRATE_MODE_SUPPORT)
+      hints.inv_duration = (parser.print_move && parser.inverse_time_enabled) ? (segments * scaled_fr_mm_s) : (scaled_fr_mm_s) / hints.millimeters);
     #elif ENABLED(FEEDRATE_SCALING)
       hints.inv_duration = scaled_fr_mm_s / hints.millimeters;
     #endif
