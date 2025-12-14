@@ -254,7 +254,7 @@ typedef struct PlannerBlock {
   #if ENABLED(S_CURVE_ACCELERATION)
     uint32_t acceleration_time_inverse,     // Inverse of acceleration and deceleration periods, expressed as integer. Scale depends on CPU being used
              deceleration_time_inverse;
-  #else
+  #elif HAS_STANDARD_MOTION
     uint32_t acceleration_rate;             // Acceleration rate in (2^24 steps)/timer_ticks*s
   #endif
 
@@ -277,10 +277,17 @@ typedef struct PlannerBlock {
     #endif
   #endif
 
-  uint32_t nominal_rate,                    // The nominal step rate for this block in step_events/sec
-           initial_rate,                    // The jerk-adjusted step rate at start of block
-           final_rate,                      // The minimal rate at exit
-           acceleration_steps_per_s2;       // acceleration steps/sec^2
+  #if ENABLED(FT_MOTION)
+    float entry_speed,                      // Block entry speed in steps units
+          exit_speed;                       // Block exit speed in steps units
+  #endif
+
+  #if HAS_STANDARD_MOTION
+    uint32_t nominal_rate,                  // The nominal step rate for this block in step_events/sec
+             initial_rate,                  // The jerk-adjusted step rate at start of block
+             final_rate,                    // The minimal rate at exit
+             acceleration_steps_per_s2;     // acceleration steps/sec^2
+  #endif
 
   #if ENABLED(DIRECT_STEPPING)
     page_idx_t page_idx;                    // Page index used for direct stepping

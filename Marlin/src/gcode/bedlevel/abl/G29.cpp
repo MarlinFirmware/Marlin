@@ -51,7 +51,7 @@
 #if ENABLED(EXTENSIBLE_UI)
   #include "../../../lcd/extui/ui_api.h"
 #elif ENABLED(DWIN_CREALITY_LCD)
-  #include "../../../lcd/e3v2/creality/dwin.h"
+  #include "../../../lcd/dwin/creality/dwin.h"
 #elif ENABLED(SOVOL_SV06_RTS)
   #include "../../../lcd/sovol_rts/sovol_rts.h"
 #endif

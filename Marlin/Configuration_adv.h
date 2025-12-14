@@ -1160,12 +1160,26 @@
 #if ENABLED(FT_MOTION)
   //#define FTM_IS_DEFAULT_MOTION               // Use FT Motion as the factory default?
   //#define FT_MOTION_MENU                      // Provide a MarlinUI menu to set M493 and M494 parameters
-  //#define FTM_HOME_AND_PROBE                  // Use FT Motion for homing / probing. Disable if FT Motion breaks these functions.
+
+  //#define NO_STANDARD_MOTION                  // Disable the standard motion system entirely to save Flash and RAM
+  #if DISABLED(NO_STANDARD_MOTION)
+    //#define FTM_HOME_AND_PROBE                // Use FT Motion for homing / probing. Disable if FT Motion breaks these functions.
+  #endif
 
   //#define FTM_DYNAMIC_FREQ                    // Enable for linear adjustment of XY shaping frequency according to Z or E
   #if ENABLED(FTM_DYNAMIC_FREQ)
     #define FTM_DEFAULT_DYNFREQ_MODE dynFreqMode_DISABLED // Default mode of dynamic frequency calculation. (DISABLED, Z_BASED, MASS_BASED)
   #endif
+
+  // Disable unused shapers if you need more free space
+  #define FTM_SHAPER_ZV
+  #define FTM_SHAPER_ZVD
+  #define FTM_SHAPER_ZVDD
+  #define FTM_SHAPER_ZVDDD
+  #define FTM_SHAPER_EI
+  #define FTM_SHAPER_2HEI
+  #define FTM_SHAPER_3HEI
+  #define FTM_SHAPER_MZV
 
   #define FTM_DEFAULT_SHAPER_X      ftMotionShaper_NONE // Default shaper mode on X axis (NONE, ZV, ZVD, ZVDD, ZVDDD, EI, 2HEI, 3HEI, MZV)
   #define FTM_SHAPING_DEFAULT_FREQ_X   37.0f    // (Hz) Default peak frequency used by input shapers

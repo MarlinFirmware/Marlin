@@ -136,13 +136,18 @@ void GcodeSuite::M493_report(const bool forReplay/*=true*/) {
   #else
     #define F_REPORT(A)
   #endif
+  #if HAS_FTM_EI_SHAPING
+    #define Q_REPORT(A) , F(" Q"), c.vtol.A
+  #else
+    #define Q_REPORT(A)
+  #endif
   #define _REPORT_M493_AXIS(A) \
     SERIAL_ECHOLN(F("  M493 "), C(AXIS_CHAR(_AXIS(A))) \
       , F(" C"), c.shaper.A \
       , F(" A"), c.baseFreq.A \
       F_REPORT(A) \
       , F(" I"), c.zeta.A \
-      , F(" Q"), c.vtol.A \
+      Q_REPORT(A) \
     );
   // Shaper type for each axis
   SHAPED_MAP(_REPORT_M493_AXIS);
@@ -151,7 +156,7 @@ void GcodeSuite::M493_report(const bool forReplay/*=true*/) {
 /**
  * M493: Set Fixed-time Motion Control parameters
  *
- *    S<bool> Set Fixed-Time motion mode on or off.
+ *    S<bool> Set Fixed-Time motion mode on or off. Ignored with NO_STANDARD_MOTION.
  *       0: Fixed-Time Motion OFF (Standard Motion)
  *       1: Fixed-Time Motion ON
  *
@@ -210,15 +215,16 @@ void GcodeSuite::M493() {
 
   ft_config_t &c = ftMotion.cfg;
 
-  // Parse 'S' mode parameter.
-  if (parser.seen('S')) {
-    const bool active = parser.value_bool();
-    if (active != c.active) {
-      stepper.ftMotion_syncPosition();
-      c.active = active;
-      flag.report = true;
+  #if HAS_STANDARD_MOTION
+    // Parse 'S' mode parameter.
+    if (parser.seen('S')) {
+      const bool active = parser.value_bool();
+      if (active != c.active) {
+        ftMotion.toggle();
+        flag.report = true;
+      }
     }
-  }
+  #endif
 
   #if NUM_AXES_SHAPED > 0
 
@@ -256,21 +262,10 @@ void GcodeSuite::M493() {
     // Dynamic frequency mode parameter.
     if (parser.seenval('D')) {
       if (AXIS_IS_SHAPING(X) || AXIS_IS_SHAPING(Y) || AXIS_IS_SHAPING(Z) || AXIS_IS_SHAPING(E)) {
-        const dynFreqMode_t val = dynFreqMode_t(parser.value_byte());
-        switch (val) {
-          #if HAS_DYNAMIC_FREQ_MM
-            case dynFreqMode_Z_BASED:
-          #endif
-          #if HAS_DYNAMIC_FREQ_G
-            case dynFreqMode_MASS_BASED:
-          #endif
-          case dynFreqMode_DISABLED:
-            c.dynFreqMode = val;
-            flag.report = true;
-            break;
-          default:
-            SERIAL_ECHOLN(F("?Invalid "), F("(D)ynamic Frequency Mode value."));
-            break;
+        switch (c.setDynFreqMode(parser.value_byte())) {
+          case 0: break; // Same value, no update
+          case 1: flag.report = true; break; // New value, updated
+          default: SERIAL_ECHOLN(F("?Invalid "), F("(D)ynamic Frequency Mode value.")); break;
         }
       }
       else
@@ -303,12 +298,14 @@ void GcodeSuite::M493() {
   if (seenI && !goodZeta)
     SERIAL_ECHOLN(F("?Invalid "), F("(I) Zeta value. (0.01-1.0)")); // Zeta out of range
 
-  // Vibration Tolerance parameter
-  const bool seenQ = parser.seenval('Q');
-  const float vtolVal = seenQ ? parser.value_float() : 0.0f;
-  const bool goodVtol = seenQ && c.goodVtol(vtolVal);
-  if (seenQ && !goodVtol)
-    SERIAL_ECHOLN(F("?Invalid "), F("(Q) Vibration Tolerance value. (0.0-1.0)")); // VTol out of range
+  #if HAS_FTM_EI_SHAPING
+    // Vibration Tolerance parameter
+    const bool seenQ = parser.seenval('Q');
+    const float vtolVal = seenQ ? parser.value_float() : 0.0f;
+    const bool goodVtol = seenQ && c.goodVtol(vtolVal);
+    if (seenQ && !goodVtol)
+      SERIAL_ECHOLN(F("?Invalid "), F("(Q) Vibration Tolerance value. (0.0-1.0)")); // VTol out of range
+  #endif
 
   const bool apply_xy = !parser.seen("XYZE");
 
@@ -349,17 +346,19 @@ void GcodeSuite::M493() {
           SERIAL_ECHOLNPGM("?Wrong mode for ", C(STEPPER_A_NAME), " (I) zeta parameter.");
       }
 
-      // Parse X vtol parameter
-      if (seenQ) {
-        if (AXIS_IS_EISHAPING(X)) {
-          if (goodVtol) {
-            c.vtol.x = vtolVal;
-            flag.update = true;
+      #if HAS_FTM_EI_SHAPING
+        // Parse X vtol parameter
+        if (seenQ) {
+          if (AXIS_IS_EISHAPING(X)) {
+            if (goodVtol) {
+              c.vtol.x = vtolVal;
+              flag.update = true;
+            }
           }
+          else
+            SERIAL_ECHOLNPGM("?Wrong mode for ", C(STEPPER_A_NAME), " (Q) vtol parameter.");
         }
-        else
-          SERIAL_ECHOLNPGM("?Wrong mode for ", C(STEPPER_A_NAME), " (Q) vtol parameter.");
-      }
+      #endif
     }
 
   #endif // HAS_X_AXIS
@@ -401,16 +400,18 @@ void GcodeSuite::M493() {
       }
 
       // Parse Y vtol parameter
-      if (seenQ) {
-        if (AXIS_IS_EISHAPING(Y)) {
-          if (goodVtol) {
-            c.vtol.y = vtolVal;
-            flag.update = true;
+      #if HAS_FTM_EI_SHAPING
+        if (seenQ) {
+          if (AXIS_IS_EISHAPING(Y)) {
+            if (goodVtol) {
+              c.vtol.y = vtolVal;
+              flag.update = true;
+            }
           }
+          else
+            SERIAL_ECHOLNPGM("?Wrong mode for ", C(STEPPER_B_NAME), " (Q) vtol parameter.");
         }
-        else
-          SERIAL_ECHOLNPGM("?Wrong mode for ", C(STEPPER_B_NAME), " (Q) vtol parameter.");
-      }
+      #endif
     }
 
   #endif // HAS_Y_AXIS
@@ -452,16 +453,18 @@ void GcodeSuite::M493() {
       }
 
       // Parse Z vtol parameter
-      if (seenQ) {
-        if (AXIS_IS_EISHAPING(Z)) {
-          if (goodVtol) {
-            c.vtol.z = vtolVal;
-            flag.update = true;
+      #if HAS_FTM_EI_SHAPING
+        if (seenQ) {
+          if (AXIS_IS_EISHAPING(Z)) {
+            if (goodVtol) {
+              c.vtol.z = vtolVal;
+              flag.update = true;
+            }
           }
+          else
+            SERIAL_ECHOLNPGM("?Wrong mode for ", C(STEPPER_C_NAME), " (Q) vtol parameter.");
         }
-        else
-          SERIAL_ECHOLNPGM("?Wrong mode for ", C(STEPPER_C_NAME), " (Q) vtol parameter.");
-      }
+      #endif
     }
 
   #endif // FTM_SHAPER_Z
@@ -503,16 +506,18 @@ void GcodeSuite::M493() {
       }
 
       // Parse E vtol parameter
-      if (seenQ) {
-        if (AXIS_IS_EISHAPING(E)) {
-          if (goodVtol) {
-            c.vtol.e = vtolVal;
-            flag.update = true;
+      #if HAS_FTM_EI_SHAPING
+        if (seenQ) {
+          if (AXIS_IS_EISHAPING(E)) {
+            if (goodVtol) {
+              c.vtol.e = vtolVal;
+              flag.update = true;
+            }
           }
+          else
+            SERIAL_ECHOLNPGM("?Wrong mode for ", C('E'), " (Q) vtol parameter.");
         }
-        else
-          SERIAL_ECHOLNPGM("?Wrong mode for ", C('E'), " (Q) vtol parameter.");
-      }
+      #endif
     }
 
   #endif // FTM_SHAPER_E

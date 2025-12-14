@@ -22,7 +22,7 @@
 #pragma once
 
 /**
- * lcd/e3v2/jyersui/dwin.h
+ * lcd/dwin/jyersui/dwin.h
  */
 
 #include "dwin_lcd.h"

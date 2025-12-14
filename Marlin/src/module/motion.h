@@ -31,7 +31,7 @@
 #include "../inc/MarlinConfig.h"
 
 #if ALL(DWIN_LCD_PROUI, INDIVIDUAL_AXIS_HOMING_SUBMENU, MESH_BED_LEVELING)
-  #include "../lcd/e3v2/proui/dwin.h" // for Z_POST_CLEARANCE
+  #include "../lcd/dwin/proui/dwin.h" // for Z_POST_CLEARANCE
 #endif
 
 #if IS_SCARA

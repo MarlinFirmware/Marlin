@@ -46,9 +46,9 @@ MarlinUI ui;
 #endif
 
 #if ENABLED(DWIN_CREALITY_LCD)
-  #include "e3v2/creality/dwin.h"
+  #include "dwin/creality/dwin.h"
 #elif ENABLED(DWIN_CREALITY_LCD_JYERSUI)
-  #include "e3v2/jyersui/dwin.h"
+  #include "dwin/jyersui/dwin.h"
 #elif ENABLED(SOVOL_SV06_RTS)
   #include "sovol_rts/sovol_rts.h"
 #endif

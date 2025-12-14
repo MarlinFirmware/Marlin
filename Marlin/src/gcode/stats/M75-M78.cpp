@@ -30,7 +30,7 @@
 #include "../../MarlinCore.h" // for startOrResumeJob
 
 #if ENABLED(DWIN_LCD_PROUI)
-  #include "../../lcd/e3v2/proui/dwin.h"
+  #include "../../lcd/dwin/proui/dwin.h"
 #endif
 
 /**
