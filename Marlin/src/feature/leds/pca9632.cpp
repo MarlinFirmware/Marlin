@@ -81,7 +81,11 @@
 #define LED_ON    0x01
 #define LED_PWM   0x02
 
-#define PCA9632_ADDRESS 0b01100000
+#if !defined(PCA9632_ADDRESS)
+  #define PCA9632_ADDRESS 0b01100000
+  #warning "Using default PCA9632 I2C address=" STRINGIFY(PCA9632_ADDRESS)
+#endif
+#warning "Using PCA9632 I2C address=" STRINGIFY(PCA9632_ADDRESS)
 
 byte PCA_init = 0;
 
@@ -132,15 +136,28 @@ void PCA9632_set_led_color(const LED1Color_t &color) {
     PCA9632_WriteRegister(PCA9632_ADDRESS,PCA9632_MODE2, PCA9632_MODE2_VALUE);
   }
 
-  const byte LEDOUT = (color.r ? LED_PWM << PCA9632_RED : 0)
-                    | (color.g ? LED_PWM << PCA9632_GRN : 0)
-                    | (color.b ? LED_PWM << PCA9632_BLU : 0)
-                    | (TERN0(PCA9632_RGBW, color.w ? LED_PWM << PCA9632_WHT : 0));
+  #if ENABLED(PCA9632_SWAP_RB)
+    const byte LEDOUT = (color.b ? LED_PWM << PCA9632_RED : 0)
+                      | (color.g ? LED_PWM << PCA9632_GRN : 0)
+                      | (color.r ? LED_PWM << PCA9632_BLU : 0)
+                      | (TERN0(PCA9632_RGBW, color.w ? LED_PWM << PCA9632_WHT : 0));
 
-  PCA9632_WriteAllRegisters(PCA9632_ADDRESS,PCA9632_PWM0, color.r, color.g, color.b
-    OPTARG(PCA9632_RGBW, color.w)
-  );
-  PCA9632_WriteRegister(PCA9632_ADDRESS,PCA9632_LEDOUT, LEDOUT);
+    PCA9632_WriteAllRegisters(PCA9632_ADDRESS,PCA9632_PWM0, color.b, color.g, color.r
+      OPTARG(PCA9632_RGBW, color.w)
+    );
+    PCA9632_WriteRegister(PCA9632_ADDRESS,PCA9632_LEDOUT, LEDOUT);
+  #else
+    const byte LEDOUT = (color.r ? LED_PWM << PCA9632_RED : 0)
+                      | (color.g ? LED_PWM << PCA9632_GRN : 0)
+                      | (color.b ? LED_PWM << PCA9632_BLU : 0)
+                      | (TERN0(PCA9632_RGBW, color.w ? LED_PWM << PCA9632_WHT : 0));
+
+    PCA9632_WriteAllRegisters(PCA9632_ADDRESS,PCA9632_PWM0, color.r, color.g, color.b
+      OPTARG(PCA9632_RGBW, color.w)
+    );
+    PCA9632_WriteRegister(PCA9632_ADDRESS,PCA9632_LEDOUT, LEDOUT);
+  #endif
+
 }
 
 #if ENABLED(PCA9632_BUZZER)
