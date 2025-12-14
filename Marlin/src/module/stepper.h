@@ -52,7 +52,7 @@
 #endif
 
 #if ENABLED(FT_MOTION)
-  #include "ft_types.h"
+  class FTMotion;
 #endif
 
 // TODO: Review and ensure proper handling for special E axes with commands like M17/M18, stepper timeout, etc.
@@ -275,7 +275,7 @@ constexpr ena_mask_t enable_overlap[] = {
     float zeta;
     bool enabled : 1;
     bool forward : 1;
-    int16_t delta_error = 0;    // delta_error for seconday bresenham mod 128
+    int16_t delta_error = 0;    // delta_error for secondary Bresenham mod 128
     uint8_t factor1;
     uint8_t factor2;
     int32_t last_block_end_pos = 0;
@@ -400,11 +400,15 @@ class Stepper {
 
     static block_t* current_block;        // A pointer to the block currently being traced
 
-    static AxisBits last_direction_bits,  // The next stepping-bits to be output
-                    axis_did_move;        // Last Movement in the given direction is not null, as computed when the last movement was fetched from planner
+    static AxisBits last_direction_bits;  // The last set of directions applied to all axes
+
+    #if HAS_STANDARD_MOTION
+      static AxisBits axis_did_move;      // Last Movement in the given direction is not null, as computed when the last movement was fetched from planner
+    #endif
 
     static bool abort_current_block;      // Signals to the stepper that current block should be aborted
 
+    // Motor locking for independent movement of multi-stepper axes
     #if ENABLED(X_DUAL_ENDSTOPS)
       static bool locked_X_motor, locked_X2_motor;
     #endif
@@ -422,7 +426,7 @@ class Stepper {
                   ;
     #endif
 
-    static uint32_t acceleration_time, deceleration_time; // time measured in Stepper Timer ticks
+    static uint32_t acceleration_time, deceleration_time; // Time measured in Stepper Timer ticks
 
     #if MULTISTEPPING_LIMIT == 1
       static constexpr uint8_t steps_per_isr = 1; // Count of steps to perform per Stepper ISR call
@@ -459,7 +463,7 @@ class Stepper {
       static int32_t bezier_A,     // A coefficient in Bézier speed curve
                      bezier_B,     // B coefficient in Bézier speed curve
                      bezier_C;     // C coefficient in Bézier speed curve
-      static uint32_t bezier_F,    // F coefficient in Bézier speed curve
+      static uint32_t bezier_F,    // F/free coefficient in Bézier speed curve
                       bezier_AV;   // AV coefficient in Bézier speed curve
       #ifdef __AVR__
         static bool A_negative;    // If A coefficient was negative
@@ -541,11 +545,13 @@ class Stepper {
     // The ISR scheduler
     static void isr();
 
-    // The stepper pulse ISR phase
-    static void pulse_phase_isr();
+    #if HAS_STANDARD_MOTION
+      // The stepper pulse ISR phase
+      static void pulse_phase_isr();
 
-    // The stepper block processing ISR phase
-    static hal_timer_t block_phase_isr();
+      // The stepper block processing ISR phase
+      static hal_timer_t block_phase_isr();
+    #endif
 
     #if HAS_ZV_SHAPING
       static void shaping_isr();
@@ -617,7 +623,7 @@ class Stepper {
         if (current_block->is_page()) page_manager.free_page(current_block->page_idx);
       #endif
       current_block = nullptr;
-      axis_did_move.reset();
+      TERN_(HAS_STANDARD_MOTION, axis_did_move.reset());
       planner.release_current_block();
       TERN_(HAS_ROUGH_LIN_ADVANCE, la_interval = nextAdvanceISR = LA_ADV_NEVER);
     }
@@ -628,8 +634,10 @@ class Stepper {
     // The direction of a single motor. A true result indicates forward or positive motion.
     FORCE_INLINE static bool motor_direction(const AxisEnum axis) { return last_direction_bits[axis]; }
 
-    // The last movement direction was not null on the specified axis. Note that motor direction is not necessarily the same.
-    FORCE_INLINE static bool axis_is_moving(const AxisEnum axis) { return axis_did_move[axis]; }
+    #if HAS_STANDARD_MOTION
+      // The last movement direction was not null on the specified axis. Note that motor direction is not necessarily the same.
+      FORCE_INLINE static bool axis_is_moving(const AxisEnum axis) { return axis_did_move[axis]; }
+    #endif
 
     // Handle a triggered endstop
     static void endstop_triggered(const AxisEnum axis);
@@ -760,14 +768,14 @@ class Stepper {
     // Set the current position in steps
     static void _set_position(const abce_long_t &spos);
 
-    // Calculate the timing interval for the given step rate
-    static hal_timer_t calc_timer_interval(uint32_t step_rate);
-
-    // Calculate timing interval and steps-per-ISR for the given step rate
-    static hal_timer_t calc_multistep_timer_interval(uint32_t step_rate);
-
-    // Evaluate axis motions and set bits in axis_did_move
-    static void set_axis_moved_for_current_block();
+    #if HAS_STANDARD_MOTION
+      // Calculate the timing interval for the given step rate
+      static hal_timer_t calc_timer_interval(uint32_t step_rate);
+      // Calculate timing interval and steps-per-ISR for the given step rate
+      static hal_timer_t calc_multistep_timer_interval(uint32_t step_rate);
+      // Evaluate axis motions and set bits in axis_did_move
+      static void set_axis_moved_for_current_block();
+    #endif
 
     #if NONLINEAR_EXTRUSION_Q24
       static void calc_nonlinear_e(const uint32_t step_rate);

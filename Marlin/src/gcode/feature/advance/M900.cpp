@@ -22,7 +22,7 @@
 
 #include "../../../inc/MarlinConfig.h"
 
-#if ENABLED(LIN_ADVANCE)
+#if HAS_LIN_ADVANCE_K
 
 #include "../../gcode.h"
 #include "../../../module/planner.h"
@@ -194,4 +194,4 @@ void GcodeSuite::M900_report(const bool forReplay/*=true*/) {
   }
 }
 
-#endif // LIN_ADVANCE
+#endif // HAS_LIN_ADVANCE_K

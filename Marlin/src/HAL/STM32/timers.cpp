@@ -141,7 +141,7 @@ void HAL_timer_start(const uint8_t timer_num, const uint32_t frequency) {
          */
 
         timer_instance[timer_num]->setPrescaleFactor(STEPPER_TIMER_PRESCALE); //the -1 is done internally
-        timer_instance[timer_num]->setOverflow(_MIN(hal_timer_t(HAL_TIMER_TYPE_MAX), (HAL_TIMER_RATE) / (STEPPER_TIMER_PRESCALE) /* /frequency */), TICK_FORMAT);
+        timer_instance[timer_num]->setOverflow(_MIN(HAL_TIMER_TYPE_MAX, hal_timer_t((HAL_TIMER_RATE) / (STEPPER_TIMER_PRESCALE) /* / frequency */)), TICK_FORMAT);
         break;
       case MF_TIMER_TEMP: // TEMP TIMER - any available 16bit timer
         timer_instance[timer_num] = new HardwareTimer(TEMP_TIMER_DEV);

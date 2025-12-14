@@ -25,7 +25,6 @@
 #if ENABLED(CONFIGURABLE_MACHINE_NAME)
 
 #include "../gcode.h"
-#include "../../MarlinCore.h"
 #include "../../lcd/marlinui.h"
 
 /**
@@ -41,11 +40,11 @@
  */
 void GcodeSuite::M550() {
   if (parser.has_string()) {
-      machine_name = parser.string_arg;
-      machine_name.trim();
+      marlin.machine_name = parser.string_arg;
+      marlin.machine_name.trim();
     }
   else {
-    SERIAL_ECHOLNPGM("RepRap name: ", &machine_name);
+    SERIAL_ECHOLNPGM("RepRap name: ", &marlin.machine_name);
     return;
   }
 

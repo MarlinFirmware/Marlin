@@ -215,7 +215,7 @@ void DGUSScreenHandler::handleManualMove(DGUS_VP_Variable &var, void *val_ptr) {
       snprintf_P(buf, 32, PSTR("G0 F%d"), backup_speed);
       queue.enqueue_one_now(buf);
     }
-    //while (!enqueue_and_echo_command(buf)) idle();
+    //while (!enqueue_and_echo_command(buf)) marlin.idle();
     if (!old_relative_mode) queue.enqueue_now(F("G90"));
   }
 

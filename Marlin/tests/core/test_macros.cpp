@@ -21,7 +21,7 @@
  */
 
 #include "../test/unit_tests.h"
-#include <src/core/macros.h>
+#include "src/core/macros.h"
 
 // These represent enabled and disabled configuration options for testing.
 // They will be used by multiple tests.

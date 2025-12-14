@@ -627,7 +627,7 @@ void AnycubicTFT::getCommandFromTFT() {
           break;
 
         case 12: // A12 kill
-          kill(F(STR_ERR_KILLED));
+          marlin.kill(F(STR_ERR_KILLED));
           break;
 
         case 13: // A13 SELECTION FILE

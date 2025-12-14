@@ -50,6 +50,7 @@ template <class L, class R> struct IF<true, L, R> { typedef L type; };
 #define NUM_AXIS_DECL_LC(T,V) NUM_AXIS_LIST(T x=V, T y=V, T z=V, T i=V, T j=V, T k=V, T u=V, T v=V, T w=V)
 #define MAIN_AXIS_NAMES       NUM_AXIS_LIST(X, Y, Z, I, J, K, U, V, W)
 #define MAIN_AXIS_NAMES_LC    NUM_AXIS_LIST(x, y, z, i, j, k, u, v, w)
+#define NUM_AXIS_CALL(G)      do { NUM_AXIS_CODE(G(X_AXIS), G(Y_AXIS), G(Z_AXIS), G(I_AXIS), G(J_AXIS), G(K_AXIS), G(U_AXIS), G(V_AXIS), G(W_AXIS)); } while(0)
 #define STR_AXES_MAIN         NUM_AXIS_GANG("X", "Y", "Z", STR_I, STR_J, STR_K, STR_U, STR_V, STR_W)
 
 #define LOGICAL_AXIS_GANG(N,V...)  NUM_AXIS_GANG(V) GANG_ITEM_E(N)
@@ -68,6 +69,7 @@ template <class L, class R> struct IF<true, L, R> { typedef L type; };
 #define LOGICAL_AXIS_NAMES_LC      LOGICAL_AXIS_LIST(e, x, y, z, i, j, k, u, v, w)
 #define LOGICAL_AXIS_MAP(F)        MAP(F, LOGICAL_AXIS_NAMES)
 #define LOGICAL_AXIS_MAP_LC(F)     MAP(F, LOGICAL_AXIS_NAMES_LC)
+#define LOGICAL_AXIS_CALL(G)       do { LOGICAL_AXIS_CODE(G(E_AXIS), G(X_AXIS), G(Y_AXIS), G(Z_AXIS), G(I_AXIS), G(J_AXIS), G(K_AXIS), G(U_AXIS), G(V_AXIS), G(W_AXIS)); } while(0)
 #define STR_AXES_LOGICAL           LOGICAL_AXIS_GANG("E", "X", "Y", "Z", STR_I, STR_J, STR_K, STR_U, STR_V, STR_W)
 
 #define NUM_AXIS_PAIRED_LIST(V...)           LIST_N(DOUBLE(NUM_AXES), V)
@@ -175,6 +177,7 @@ template <class L, class R> struct IF<true, L, R> { typedef L type; };
 #define CARTES_CODE(x,y,z,e)      XYZ_CODE(x,y,z) CODE_ITEM_E(e)
 #define CARTES_GANG(x,y,z,e)      XYZ_GANG(x,y,z) GANG_ITEM_E(e)
 #define CARTES_AXIS_NAMES         CARTES_LIST(X,Y,Z,E)
+#define CARTES_AXIS_NAMES_LC      CARTES_LIST(x,y,z,e)
 #define CARTES_MAP(F)             MAP(F, CARTES_AXIS_NAMES)
 #if CARTES_COUNT
   #define CARTES_COMMA ,
@@ -238,6 +241,24 @@ struct Flags<N, false> {
   FI bool operator[](const int n) const      { return test(n); }
   FI int size() const                        { return sizeof(b); }
   FI operator bool() const                   { return b != 0; }
+
+  FI Flags<N>& operator|=(Flags<N> &p) const { b |= p.b; return *this; }
+  FI Flags<N>& operator&=(Flags<N> &p) const { b &= p.b; return *this; }
+  FI Flags<N>& operator^=(Flags<N> &p) const { b ^= p.b; return *this; }
+
+  FI Flags<N>& operator|=(const flagbits_t &p) { b |= flagbits_t(p); return *this; }
+  FI Flags<N>& operator&=(const flagbits_t &p) { b &= flagbits_t(p); return *this; }
+  FI Flags<N>& operator^=(const flagbits_t &p) { b ^= flagbits_t(p); return *this; }
+
+  FI Flags<N> operator|(Flags<N> &p) const { return Flags<N>(b | p.b); }
+  FI Flags<N> operator&(Flags<N> &p) const { return Flags<N>(b & p.b); }
+  FI Flags<N> operator^(Flags<N> &p) const { return Flags<N>(b ^ p.b); }
+  FI Flags<N> operator~()            const { return Flags<N>(~b); }
+
+  FI flagbits_t operator|(const flagbits_t &p) const { return b | flagbits_t(p); }
+  FI flagbits_t operator&(const flagbits_t &p) const { return b & flagbits_t(p); }
+  FI flagbits_t operator^(const flagbits_t &p) const { return b ^ flagbits_t(p); }
+
 };
 
 // Flag bits for more than 64 states
@@ -492,7 +513,7 @@ typedef ab_float_t ab_pos_t;
 typedef abc_float_t abc_pos_t;
 typedef abce_float_t abce_pos_t;
 
-// External conversion methods
+// External conversion methods (motion.h)
 void toLogical(xy_pos_t &raw);
 void toLogical(xyz_pos_t &raw);
 void toLogical(xyze_pos_t &raw);
@@ -523,9 +544,9 @@ struct XYval {
   #endif
   #if HAS_Y_AXIS
     FI void set(const T px, const T py)           { x = px; y = py; }
-    FI void set(const T (&arr)[XY])               { x = arr[0]; y = arr[1]; }
+    FI void set(const T (&arr)[2])                { x = arr[0]; y = arr[1]; }
   #endif
-  #if NUM_AXES > XY
+  #if NUM_AXES > 2
     FI void set(const T (&arr)[NUM_AXES])         { x = arr[0]; y = arr[1]; }
   #endif
   #if LOGICAL_AXES > NUM_AXES
@@ -634,6 +655,21 @@ struct XYval {
   // Exact comparison to a single value
   FI bool operator==(const T &p) const { return x == p && y == p; }
   FI bool operator!=(const T &p) const { return !operator==(p);  }
+
+  FI bool operator< (const XYval<T>   &rs) const { return x <  rs.x && y <  rs.y; }
+  FI bool operator<=(const XYval<T>   &rs) const { return x <= rs.x && y <= rs.y; }
+  FI bool operator> (const XYval<T>   &rs) const { return x >  rs.x && y >  rs.y; }
+  FI bool operator>=(const XYval<T>   &rs) const { return x >= rs.x && y >= rs.y; }
+
+  FI bool operator< (const XYZval<T>  &rs) const { return true XY_GANG(&& x <  rs.x, && y <  rs.y); }
+  FI bool operator<=(const XYZval<T>  &rs) const { return true XY_GANG(&& x <= rs.x, && y <= rs.y); }
+  FI bool operator> (const XYZval<T>  &rs) const { return true XY_GANG(&& x >  rs.x, && y >  rs.y); }
+  FI bool operator>=(const XYZval<T>  &rs) const { return true XY_GANG(&& x >= rs.x, && y >= rs.y); }
+
+  FI bool operator< (const XYZEval<T> &rs) const { return true XY_GANG(&& x <  rs.x, && y <  rs.y); }
+  FI bool operator<=(const XYZEval<T> &rs) const { return true XY_GANG(&& x <= rs.x, && y <= rs.y); }
+  FI bool operator> (const XYZEval<T> &rs) const { return true XY_GANG(&& x >  rs.x, && y >  rs.y); }
+  FI bool operator>=(const XYZEval<T> &rs) const { return true XY_GANG(&& x >= rs.x, && y >= rs.y); }
 
 };
 
@@ -783,6 +819,7 @@ struct XYZval {
   FI XYZval<T>& operator/=(const XYZEval<T> &rs) { NUM_AXIS_CODE(x /= rs.x, y /= rs.y, z /= rs.z, i /= rs.i, j /= rs.j, k /= rs.k, u /= rs.u, v /= rs.v, w /= rs.w); return *this; }
   FI XYZval<T>& operator*=(const float &p)       { NUM_AXIS_CODE(x *= p, y *= p, z *= p, i *= p, j *= p, k *= p, u *= p, v *= p, w *= p); return *this; }
   FI XYZval<T>& operator*=(const int &p)         { NUM_AXIS_CODE(x *= p, y *= p, z *= p, i *= p, j *= p, k *= p, u *= p, v *= p, w *= p); return *this; }
+  FI XYZval<T>& operator/=(const float &p)       { NUM_AXIS_CODE(x /= p, y /= p, z /= p, i /= p, j /= p, k /= p, u /= p, v /= p, w /= p); return *this; }
   FI XYZval<T>& operator>>=(const int &p)        { NUM_AXIS_CODE(_RSE(x), _RSE(y), _RSE(z), _RSE(i), _RSE(j), _RSE(k), _RSE(u), _RSE(v), _RSE(w)); return *this; }
   FI XYZval<T>& operator<<=(const int &p)        { NUM_AXIS_CODE(_LSE(x), _LSE(y), _LSE(z), _LSE(i), _LSE(j), _LSE(k), _LSE(u), _LSE(v), _LSE(w)); return *this; }
 
@@ -793,6 +830,16 @@ struct XYZval {
   // Exact comparison to a single value
   FI bool operator==(const T &p) const { return ENABLED(HAS_X_AXIS) NUM_AXIS_GANG(&& x == p, && y == p, && z == p, && i == p, && j == p, && k == p, && u == p, && v == p, && w == p); }
   FI bool operator!=(const T &p) const { return !operator==(p); }
+
+  FI bool operator< (const XYZval<T>  &rs) const { return true NUM_AXIS_GANG(&& x <  rs.x, && y <  rs.y, && z <  rs.z, && i <  rs.i, && j <  rs.j, && k <  rs.k, && u <  rs.u, && v <  rs.v, && w <  rs.w); }
+  FI bool operator<=(const XYZval<T>  &rs) const { return true NUM_AXIS_GANG(&& x <= rs.x, && y <= rs.y, && z <= rs.z, && i <= rs.i, && j <= rs.j, && k <= rs.k, && u <= rs.u, && v <= rs.v, && w <= rs.w); }
+  FI bool operator> (const XYZval<T>  &rs) const { return true NUM_AXIS_GANG(&& x >  rs.x, && y >  rs.y, && z >  rs.z, && i >  rs.i, && j >  rs.j, && k >  rs.k, && u >  rs.u, && v >  rs.v, && w >  rs.w); }
+  FI bool operator>=(const XYZval<T>  &rs) const { return true NUM_AXIS_GANG(&& x >= rs.x, && y >= rs.y, && z >= rs.z, && i >= rs.i, && j >= rs.j, && k >= rs.k, && u >= rs.u, && v >= rs.v, && w >= rs.w); }
+
+  FI bool operator< (const XYZEval<T> &rs) const { return true NUM_AXIS_GANG(&& x <  rs.x, && y <  rs.y, && z <  rs.z, && i <  rs.i, && j <  rs.j, && k <  rs.k, && u <  rs.u, && v <  rs.v, && w <  rs.w); }
+  FI bool operator<=(const XYZEval<T> &rs) const { return true NUM_AXIS_GANG(&& x <= rs.x, && y <= rs.y, && z <= rs.z, && i <= rs.i, && j <= rs.j, && k <= rs.k, && u <= rs.u, && v <= rs.v, && w <= rs.w); }
+  FI bool operator> (const XYZEval<T> &rs) const { return true NUM_AXIS_GANG(&& x >  rs.x, && y >  rs.y, && z >  rs.z, && i >  rs.i, && j >  rs.j, && k >  rs.k, && u >  rs.u, && v >  rs.v, && w >  rs.w); }
+  FI bool operator>=(const XYZEval<T> &rs) const { return true NUM_AXIS_GANG(&& x >= rs.x, && y >= rs.y, && z >= rs.z, && i >= rs.i, && j >= rs.j, && k >= rs.k, && u >= rs.u, && v >= rs.v, && w >= rs.w); }
 
 };
 
@@ -824,7 +871,7 @@ struct XYZEval {
     FI void set(const XYZval<T> &pxyz, const T pe)           { set(pxyz); e = pe; }
     FI void set(LOGICAL_AXIS_ARGS_LC(const T))               { LOGICAL_AXIS_CODE(_e = e, a = x, b = y, c = z, _i = i, _j = j, _k = k, _u = u, _v = v, _w = w); }
     #if DISTINCT_AXES > LOGICAL_AXES
-      FI void set(const T (&arr)[DISTINCT_AXES])             { LOGICAL_AXIS_CODE(e = arr[LOGICAL_AXES-1], x = arr[0], y = arr[1], z = arr[2], i = arr[3], j = arr[4], k = arr[5], u = arr[6], v = arr[7], w = arr[8]); }
+      FI void set(const T (&arr)[DISTINCT_AXES], const uint8_t eindex) { LOGICAL_AXIS_CODE(e = arr[LOGICAL_AXES-1 + eindex], x = arr[0], y = arr[1], z = arr[2], i = arr[3], j = arr[4], k = arr[5], u = arr[6], v = arr[7], w = arr[8]); }
     #endif
   #endif
 
@@ -943,7 +990,10 @@ struct XYZEval {
   FI XYZEval<T>& operator-=(const XYZEval<T> &rs) { LOGICAL_AXIS_CODE(e -= rs.e, x -= rs.x, y -= rs.y, z -= rs.z, i -= rs.i, j -= rs.j, k -= rs.k, u -= rs.u, v -= rs.v, w -= rs.w); return *this; }
   FI XYZEval<T>& operator*=(const XYZEval<T> &rs) { LOGICAL_AXIS_CODE(e *= rs.e, x *= rs.x, y *= rs.y, z *= rs.z, i *= rs.i, j *= rs.j, k *= rs.k, u *= rs.u, v *= rs.v, w *= rs.w); return *this; }
   FI XYZEval<T>& operator/=(const XYZEval<T> &rs) { LOGICAL_AXIS_CODE(e /= rs.e, x /= rs.x, y /= rs.y, z /= rs.z, i /= rs.i, j /= rs.j, k /= rs.k, u /= rs.u, v /= rs.v, w /= rs.w); return *this; }
+  FI XYZEval<T>& operator+=(const T &p)           { LOGICAL_AXIS_CODE(e += p, x += p, y += p, z += p, i += p, j += p, k += p, u += p, v += p, w += p); return *this; }
+  FI XYZEval<T>& operator-=(const T &p)           { LOGICAL_AXIS_CODE(e -= p, x -= p, y -= p, z -= p, i -= p, j -= p, k -= p, u -= p, v -= p, w -= p); return *this; }
   FI XYZEval<T>& operator*=(const T &p)           { LOGICAL_AXIS_CODE(e *= p, x *= p, y *= p, z *= p, i *= p, j *= p, k *= p, u *= p, v *= p, w *= p); return *this; }
+  FI XYZEval<T>& operator/=(const T &p)           { LOGICAL_AXIS_CODE(e /= p, x /= p, y /= p, z /= p, i /= p, j /= p, k /= p, u /= p, v /= p, w /= p); return *this; }
   FI XYZEval<T>& operator>>=(const int &p)        { LOGICAL_AXIS_CODE(_RSE(e), _RSE(x), _RSE(y), _RSE(z), _RSE(i), _RSE(j), _RSE(k), _RSE(u), _RSE(v), _RSE(w)); return *this; }
   FI XYZEval<T>& operator<<=(const int &p)        { LOGICAL_AXIS_CODE(_LSE(e), _LSE(x), _LSE(y), _LSE(z), _LSE(i), _LSE(j), _LSE(k), _LSE(u), _LSE(v), _LSE(w)); return *this; }
 
@@ -956,6 +1006,16 @@ struct XYZEval {
   // Exact comparison to a single value
   FI bool operator==(const T &p) const { return ENABLED(HAS_X_AXIS) LOGICAL_AXIS_GANG(&& e == p, && x == p, && y == p, && z == p, && i == p, && j == p, && k == p, && u == p, && v == p, && w == p); }
   FI bool operator!=(const T &p) const { return !operator==(p); }
+
+  FI bool operator< (const XYZEval<T> &rs) const { return true LOGICAL_AXIS_GANG(&& e <  rs.e, && x <  rs.x, && y <  rs.y, && z <  rs.z, && i <  rs.i, && j <  rs.j, && k <  rs.k, && u <  rs.u, && v <  rs.v, && w <  rs.w); }
+  FI bool operator<=(const XYZEval<T> &rs) const { return true LOGICAL_AXIS_GANG(&& e <= rs.e, && x <= rs.x, && y <= rs.y, && z <= rs.z, && i <= rs.i, && j <= rs.j, && k <= rs.k, && u <= rs.u, && v <= rs.v, && w <= rs.w); }
+  FI bool operator> (const XYZEval<T> &rs) const { return true LOGICAL_AXIS_GANG(&& e >  rs.e, && x >  rs.x, && y >  rs.y, && z >  rs.z, && i >  rs.i, && j >  rs.j, && k >  rs.k, && u >  rs.u, && v >  rs.v, && w >  rs.w); }
+  FI bool operator>=(const XYZEval<T> &rs) const { return true LOGICAL_AXIS_GANG(&& e >= rs.e, && x >= rs.x, && y >= rs.y, && z >= rs.z, && i >= rs.i, && j >= rs.j, && k >= rs.k, && u >= rs.u, && v >= rs.v, && w >= rs.w); }
+
+  FI bool operator< (const XYZval<T>  &rs) const { return true NUM_AXIS_GANG(&& x <  rs.x, && y <  rs.y, && z <  rs.z, && i <  rs.i, && j <  rs.j, && k <  rs.k, && u <  rs.u, && v <  rs.v, && w <  rs.w); }
+  FI bool operator<=(const XYZval<T>  &rs) const { return true NUM_AXIS_GANG(&& x <= rs.x, && y <= rs.y, && z <= rs.z, && i <= rs.i, && j <= rs.j, && k <= rs.k, && u <= rs.u, && v <= rs.v, && w <= rs.w); }
+  FI bool operator> (const XYZval<T>  &rs) const { return true NUM_AXIS_GANG(&& x >  rs.x, && y >  rs.y, && z >  rs.z, && i >  rs.i, && j >  rs.j, && k >  rs.k, && u >  rs.u, && v >  rs.v, && w >  rs.w); }
+  FI bool operator>=(const XYZval<T>  &rs) const { return true NUM_AXIS_GANG(&& x >= rs.x, && y >= rs.y, && z >= rs.z, && i >= rs.i, && j >= rs.j, && k >= rs.k, && u >= rs.u, && v >= rs.v, && w >= rs.w); }
 
 };
 
@@ -1263,6 +1323,7 @@ public:
   FI AxisBits operator|(const AxisBits &p) const { return AxisBits(bits | p.bits); }
   FI AxisBits operator&(const AxisBits &p) const { return AxisBits(bits & p.bits); }
   FI AxisBits operator^(const AxisBits &p) const { return AxisBits(bits ^ p.bits); }
+  FI AxisBits operator~()                  const { return AxisBits(~bits); }
 
   FI operator bool() const { return !!bits; }
   FI operator uint16_t() const { return uint16_t(bits & 0xFFFF); }
@@ -1280,7 +1341,7 @@ public:
 
 // Axis names for G-code parsing, reports, etc.
 constexpr xyze_char_t axis_codes LOGICAL_AXIS_ARRAY('E', 'X', 'Y', 'Z', AXIS4_NAME, AXIS5_NAME, AXIS6_NAME, AXIS7_NAME, AXIS8_NAME, AXIS9_NAME);
-#if NUM_AXES <= XYZ && !HAS_EXTRUDERS
+#if NUM_AXES <= 3 && !HAS_EXTRUDERS
   #define AXIS_CHAR(A) ((char)('X' + A))
   #define IAXIS_CHAR AXIS_CHAR
 #else

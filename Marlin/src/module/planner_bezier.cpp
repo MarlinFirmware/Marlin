@@ -34,7 +34,6 @@
 #include "motion.h"
 #include "temperature.h"
 
-#include "../MarlinCore.h"
 #include "../gcode/queue.h"
 
 // See the meaning in the documentation of cubic_b_spline().
@@ -130,7 +129,7 @@ void cubic_b_spline(
     millis_t now = millis();
     if (ELAPSED(now, next_idle_ms)) {
       next_idle_ms = now + 200UL;
-      idle();
+      marlin.idle();
     }
 
     // First try to reduce the step in order to make it sufficiently
