@@ -22,7 +22,7 @@
 #pragma once
 
 /**
- * lcd/e3v2/jyersui/dwin.h
+ * lcd/dwin/jyersui/dwin.h
  */
 
 #include "dwin_lcd.h"
@@ -126,6 +126,7 @@ enum colorID : uint8_t {
 };
 
 #define Custom_Colors       10
+#define COLOR_AQUA          RGB(0x00, 0x3F, 0x1F)
 #define COLOR_LIGHT_WHITE   0xBDD7
 #define COLOR_GREEN         RGB(0x00, 0x3F, 0x00)
 #define COLOR_LIGHT_GREEN   0x3460
@@ -191,7 +192,7 @@ public:
   static void drawPrintScreen();
   static void drawPrintFilename(const bool reset=false);
   static void drawPrintProgressBar();
-  #if ENABLED(SET_REMAINING_TIME)
+  #if ENABLED(SHOW_REMAINING_TIME)
     static void drawPrintProgressRemain();
   #endif
   static void drawPrintProgressElapsed();

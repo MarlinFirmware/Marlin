@@ -48,14 +48,18 @@
  *             4 = No Z raise; only XY parking.
  */
 void GcodeSuite::G27() {
-  const uint8_t pv = parser.byteval('P');
-  switch (pv) {
+  const uint8_t pval = parser.byteval('P');
+  switch (pval) {
     OPTCODE(G27_BYPASS_TRUST, case 3: break)
     case 4: if (axis_is_trusted(X_AXIS) && axis_is_trusted(Y_AXIS)) break;
-    default: if (homing_needed_error()) return;
+    default: if (homing_needed_error()) return; // Don't allow nozzle parking without homing first
   }
-  nozzle.park(pv);
-  TERN_(SOVOL_SV06_RTS, RTS_MoveAxisHoming());
+  if (WITHIN(pval, 0, 4)) {
+    nozzle.park(pval);
+    TERN_(SOVOL_SV06_RTS, RTS_MoveAxisHoming());
+  }
+  else
+    SERIAL_ECHOLN(F("?Invalid "), F("[P]arking style (0..4)."));
 }
 
 #endif // NOZZLE_PARK_FEATURE

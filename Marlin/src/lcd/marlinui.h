@@ -48,13 +48,13 @@
 #endif
 
 #if ENABLED(DWIN_CREALITY_LCD)
-  #include "e3v2/creality/dwin.h"
+  #include "dwin/creality/dwin.h"
 #elif ENABLED(DWIN_LCD_PROUI)
-  #include "e3v2/proui/dwin.h"
+  #include "dwin/proui/dwin.h"
 #endif
 
 #if ALL(HAS_STATUS_MESSAGE, IS_DWIN_MARLINUI)
-  #include "e3v2/marlinui/marlinui_dwin.h" // for LCD_WIDTH
+  #include "dwin/marlinui/marlinui_dwin.h" // for LCD_WIDTH
 #endif
 
 typedef bool (*statusResetFunc_t)();
@@ -328,9 +328,13 @@ public:
     #endif
     #if ANY(SHOW_REMAINING_TIME, SET_PROGRESS_MANUALLY)
       static uint32_t _calculated_remaining_time() {
-        const duration_t elapsed = print_job_timer.duration();
-        const progress_t progress = _get_progress();
-        return progress ? elapsed.value * (100 * (PROGRESS_SCALE) - progress) / progress : 0;
+        #if ANY(REMAINING_TIME_PRIME, REMAINING_TIME_AUTOPRIME)
+          return print_job_timer.remainingTimeEstimate(card.getIndex());
+        #else
+          const uint32_t elapsed = print_job_timer.duration();
+          const progress_t progress = _get_progress();
+          return progress ? elapsed * (100U * (PROGRESS_SCALE) - progress) / progress : 0;
+        #endif
       }
       #if ENABLED(SET_REMAINING_TIME)
         static uint32_t remaining_time;

@@ -44,15 +44,15 @@ static void TXBegin() {
   #endif
 }
 
-static void TX(char b){
-    #if SERIAL_PORT == -1
-      USBSerial
-    #elif SERIAL_PORT == 0
-      USBSerial
-    #elif SERIAL_PORT == 1
-      Serial1
-    #endif
-    .write(b);
+static void TX(char b) {
+  #if SERIAL_PORT == -1
+    USBSerial
+  #elif SERIAL_PORT == 0
+    USBSerial
+  #elif SERIAL_PORT == 1
+    Serial1
+  #endif
+  .write(b);
 }
 
 // A SW memory barrier, to ensure GCC does not overoptimize loops
