@@ -693,7 +693,7 @@ bool ST7920_Lite_Status_Screen::indicators_changed() {
   #if ENABLED(SHOW_REMAINING_TIME)
     void MarlinUI::drawRemain() { lightUI.drawRemain(); }
     void ST7920_Lite_Status_Screen::drawRemain() {
-      const duration_t remaint = TERN0(SET_REMAINING_TIME, ui.get_remaining_time());
+      const duration_t remaint = ui.get_remaining_time();
       if (marlin.printJobOngoing() && remaint.value) {
         draw_progress_string(PPOS, prepare_time_string(remaint, 'R'));
       }

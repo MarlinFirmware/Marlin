@@ -32,7 +32,7 @@
 // --------------------------------------------------------------------------
 
 typedef uint32_t hal_timer_t;
-#define HAL_TIMER_TYPE_MAX 0xFFFFFFFFUL
+#define HAL_TIMER_TYPE_MAX hal_timer_t(UINT32_MAX)
 
 #define HAL_TIMER_RATE      F_CPU   // frequency of timers peripherals
 
@@ -55,7 +55,6 @@ typedef uint32_t hal_timer_t;
 #define STEPPER_TIMER_PRESCALE      (CYCLES_PER_MICROSECOND / STEPPER_TIMER_TICKS_PER_US)
 
 #define PULSE_TIMER_RATE            STEPPER_TIMER_RATE                              // (Hz) Frequency of Pulse Timer
-#define PULSE_TIMER_TICKS_PER_US    STEPPER_TIMER_TICKS_PER_US
 #define PULSE_TIMER_PRESCALE        STEPPER_TIMER_PRESCALE
 
 #define ENABLE_STEPPER_DRIVER_INTERRUPT()   HAL_timer_enable_interrupt(MF_TIMER_STEP)

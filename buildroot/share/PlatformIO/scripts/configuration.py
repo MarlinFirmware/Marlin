@@ -4,7 +4,7 @@
 # Apply options from config.ini to the existing Configuration headers
 #
 
-import re, os, shutil, configparser, datetime
+import re, os, shutil, subprocess, configparser, datetime
 from pathlib import Path
 
 verbose = 0
@@ -151,9 +151,9 @@ def fetch_example(url):
 
     # Find a suitable fetch command
     if shutil.which("curl") is not None:
-        fetch = "curl -L -s -S -f -o"
+        fetch = [ "curl", "-L", "-s", "-S", "-f", "-o" ]
     elif shutil.which("wget") is not None:
-        fetch = "wget -q -O"
+        fetch = [ "wget", "-q", "-O" ]
     else:
         blab("Couldn't find curl or wget", -1)
         #blab("Couldn't find curl or wget", 0)
@@ -172,7 +172,7 @@ def fetch_example(url):
         "_Bootscreen.h",
         "_Statusscreen.h"
     ):
-        if os.system(f"{fetch} wgot {url}/{fn} >/dev/null 2>&1") == 0:
+        if subprocess.call(fetch + [ "wgot", f"{url}/{fn}" ], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL) == 0:
             shutil.move("wgot", config_path(fn))
             gotfile = True
             blab(f"Fetched {fn}", 2)

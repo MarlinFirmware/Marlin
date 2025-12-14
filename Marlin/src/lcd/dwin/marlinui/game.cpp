@@ -26,7 +26,7 @@
 // Enable performance counters (draw call count, frame timing) for debugging
 //#define GAME_PERFORMANCE_COUNTERS
 
-#include "../../menu/game/types.h" // includes e3v2/marlinui/game.h
+#include "../../menu/game/types.h" // includes dwin/marlinui/game.h
 #include "../../lcdprint.h"
 #include "lcdprint_dwin.h"
 #include "marlinui_dwin.h"

@@ -63,8 +63,6 @@
 // Types
 // ------------------------
 
-typedef double isr_float_t;   // FPU ops are used for single-precision, so use double for ISRs.
-
 typedef int32_t pin_t;        // Parity with platform/ststm32
 
 class libServo;

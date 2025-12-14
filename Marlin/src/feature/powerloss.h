@@ -201,9 +201,11 @@ class PrintJobRecovery {
     static void close() { file.close(); }
 
     static bool check();
+
     #if ENABLED(PLR_HEAT_BED_ON_REBOOT)
       static void set_bed_temp(const bool turn_on);
     #endif
+
     static void resume();
     static void purge();
 

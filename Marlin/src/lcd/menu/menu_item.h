@@ -462,9 +462,11 @@ class MenuItem_bool : public MenuEditItemBase {
 #elif ENABLED(GENERIC_BACK_MENU_ITEM)
   #define BACK_ITEM_F(V...)                              MENU_ITEM_F(back, GET_TEXT_F(MSG_BACK))
   #define BACK_ITEM(V...)                                  MENU_ITEM(back, MSG_BACK)
+  #define BACK_ITEM_N BACK_ITEM
 #else
   #define BACK_ITEM_F(FLABEL)                            MENU_ITEM_F(back, FLABEL)
   #define BACK_ITEM(LABEL)                                 MENU_ITEM(back, LABEL)
+  #define BACK_ITEM_N(N, LABEL)                          MENU_ITEM_N(back, N, LABEL)
 #endif
 
 #define ACTION_ITEM_N_S_F(N, S, FLABEL, ACTION)      MENU_ITEM_N_S_F(function, N, S, FLABEL, ACTION)

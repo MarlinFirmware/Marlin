@@ -1112,7 +1112,7 @@ namespace ExtUI {
   void onSurviveInKilled() {
     thermalManager.disable_all_heaters();
     flags.printer_killed = 0;
-    marlin.setState(MarlinState::MF_RUNNING);
+    marlin.setState(MF_RUNNING);
     //SERIAL_ECHOLNPGM("survived at: ", millis());
   }
 

@@ -22,7 +22,7 @@
 #pragma once
 
 /********************************************************************************
- * @file     lcd/e3v2/marlinui/dwin_lcd.h
+ * @file     lcd/dwin/marlinui/dwin_lcd.h
  * @brief    DWIN screen control functions
  ********************************************************************************/
 

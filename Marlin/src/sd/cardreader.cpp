@@ -36,7 +36,7 @@
 #include "../lcd/marlinui.h"
 
 #if ENABLED(DWIN_CREALITY_LCD)
-  #include "../lcd/e3v2/creality/dwin.h"
+  #include "../lcd/dwin/creality/dwin.h"
 #elif ENABLED(SOVOL_SV06_RTS)
   #include "../lcd/sovol_rts/sovol_rts.h"
 #endif
@@ -504,7 +504,7 @@ void CardReader::mount() {
     cdroot();
   else {
     #if ANY(HAS_SD_DETECT, HAS_USB_FLASH_DRIVE)
-      if (!marlin.is(MarlinState::MF_INITIALIZING)) {
+      if (!marlin.is(MF_INITIALIZING)) {
         if (isSDCardSelected())
           LCD_ALERTMESSAGE(MSG_MEDIA_INIT_FAIL_SD);
         else if (isFlashDriveSelected())
@@ -1103,7 +1103,9 @@ void CardReader::closefile(const bool store_location/*=false*/) {
   flag.saving = flag.logging = false;
   sdpos = 0;
 
-  TERN_(EMERGENCY_PARSER, emergency_parser.enable());
+  #if DISABLED(SDCARD_READONLY)
+    TERN_(EMERGENCY_PARSER, emergency_parser.enable());
+  #endif
 
   if (store_location) {
     // TODO: Store printer state, filename, position
@@ -1648,8 +1650,8 @@ void CardReader::fileHasFinished() {
 
   endFilePrintNow(TERN_(SD_RESORT, true));
 
-  flag.sdprintdone = true;                      // Stop getting bytes from the SD card
-  marlin.setState(MarlinState::MF_SD_COMPLETE); // Tell Marlin to enqueue M1001 soon
+  flag.sdprintdone = true;          // Stop getting bytes from the SD card
+  marlin.setState(MF_SD_COMPLETE);  // Tell Marlin to enqueue M1001 soon
 }
 
 #if ENABLED(AUTO_REPORT_SD_STATUS)

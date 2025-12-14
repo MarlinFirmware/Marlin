@@ -984,23 +984,23 @@ void Endstops::update() {
   void Endstops::clear_endstop_state() {
 
     #define _ES_CLEAR(S) CBI(live_state, S##_ENDSTOP);
-    #define ES_CLEAR(S) TERN_(S##_SPI_SENSORLESS, CBI(live_state, S##_ENDSTOP));
+    #define ES_CLEAR(S) TERN_(S##_SPI_SENSORLESS, _ES_CLEAR(S));
 
     ES_CLEAR(X);
     #if ALL(X_SPI_SENSORLESS, X_DUAL_ENDSTOPS)
-      CBI(live_state, X2_ENDSTOP);
+      _ES_CLEAR(X2);
     #endif
     ES_CLEAR(Y);
     #if ALL(Y_SPI_SENSORLESS, Y_DUAL_ENDSTOPS)
-      CBI(live_state, Y2_ENDSTOP);
+      _ES_CLEAR(Y2);
     #endif
     ES_CLEAR(Z);
     #if ALL(Z_SPI_SENSORLESS, Z_MULTI_ENDSTOPS)
-      CBI(live_state, Z2_ENDSTOP);
+      _ES_CLEAR(Z2);
       #if NUM_Z_STEPPERS >= 3
-        CBI(live_state, Z3_ENDSTOP);
+        _ES_CLEAR(Z3);
         #if NUM_Z_STEPPERS >= 4
-          CBI(live_state, Z4_ENDSTOP);
+          _ES_CLEAR(Z4);
         #endif
       #endif
     #endif
@@ -1040,9 +1040,9 @@ void Endstops::update() {
     #define ES_REPORT_CHANGE(S)  TERF(USE_##S, _ES_REPORT_CHANGE)(S)
 
     if (endstop_change) {
-      MAP(ES_REPORT_CHANGE, X_MIN, X_MAX, Y_MIN, Y_MAX, Z_MIN, Z_MAX,
-                          , Z_MIN_PROBE, CALIBRATION,
-                          , X2_MIN, X2_MAX, Y2_MIN, Y2_MAX, Z2_MIN, Z2_MAX, Z3_MIN, Z3_MAX, Z4_MIN, Z4_MAX,
+      MAP(ES_REPORT_CHANGE, X_MIN, X_MAX, Y_MIN, Y_MAX, Z_MIN, Z_MAX
+                          , Z_MIN_PROBE, CALIBRATION
+                          , X2_MIN, X2_MAX, Y2_MIN, Y2_MAX, Z2_MIN, Z2_MAX, Z3_MIN, Z3_MAX, Z4_MIN, Z4_MAX
                           , I_MIN, I_MAX, J_MIN, J_MAX, K_MIN, K_MAX, U_MIN, U_MAX, V_MIN, V_MAX, W_MIN, W_MAX);
       SERIAL_ECHOLNPGM("\n");
       hal.set_pwm_duty(pin_t(LED_PIN), local_LED_status);
