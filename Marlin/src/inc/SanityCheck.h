@@ -47,31 +47,6 @@
 #define _NUM_AXES_STR NUM_AXIS_GANG("X ", "Y ", "Z ", "I ", "J ", "K ", "U ", "V ", "W ")
 #define _LOGICAL_AXES_STR LOGICAL_AXIS_GANG("E ", "X ", "Y ", "Z ", "I ", "J ", "K ", "U ", "V ", "W ")
 
-// Make sure macros aren't borked
-#define TEST1
-#define TEST2 1
-#define TEST3 0
-#define TEST4 true
-#if ENABLED(TEST0) || !ENABLED(TEST2) || ENABLED(TEST3) || !ENABLED(TEST1, TEST2, TEST4)
-  #error "ENABLED is borked!"
-#endif
-#if ALL(TEST0, TEST1)
-  #error "ALL is borked!"
-#endif
-#if DISABLED(TEST1) || !DISABLED(TEST3) || DISABLED(TEST4) || DISABLED(TEST0, TEST1, TEST2, TEST4) || !DISABLED(TEST0, TEST3)
-  #error "DISABLED is borked!"
-#endif
-#if !ANY(TEST1, TEST2, TEST3, TEST4) || ANY(TEST0, TEST3)
-  #error "ANY is borked!"
-#endif
-#if NONE(TEST0, TEST1, TEST2, TEST4) || !NONE(TEST0, TEST3)
-  #error "NONE is borked!"
-#endif
-#undef TEST1
-#undef TEST2
-#undef TEST3
-#undef TEST4
-
 /**
  * This is to alert you about non-matching versions of config files.
  *
@@ -4508,7 +4483,7 @@ static_assert(_PLUS_TEST(3), "DEFAULT_MAX_ACCELERATION values must be positive."
     #error "FT_MOTION does not currently support MIXING_EXTRUDER."
   #endif
   #if !HAS_X_AXIS
-    static_assert(FTM_DEFAULT_SHAPER_X != ftMotionShaper_NONE, "Without any linear axes FTM_DEFAULT_SHAPER_X must be ftMotionShaper_NONE.");
+    static_assert(FTM_DEFAULT_SHAPER_X == ftMotionShaper_NONE, "Without any linear axes FTM_DEFAULT_SHAPER_X must be ftMotionShaper_NONE.");
   #endif
   #if HAS_DYNAMIC_FREQ_MM
     static_assert(FTM_DEFAULT_DYNFREQ_MODE != dynFreqMode_Z_BASED, "dynFreqMode_Z_BASED requires a Z axis.");
@@ -4525,7 +4500,29 @@ static_assert(_PLUS_TEST(3), "DEFAULT_MAX_ACCELERATION values must be positive."
   #if ENABLED(FTM_RESONANCE_TEST) && DISABLED(EMERGENCY_PARSER)
     #error "EMERGENCY_PARSER is required with FTM_RESONANCE_TEST (to cancel the test)."
   #endif
-#endif
+  #if !HAS_STANDARD_MOTION
+    #if ENABLED(NONLINEAR_EXTRUSION)
+      #error "NONLINEAR_EXTRUSION is not yet available in FT_MOTION. Disable NO_STANDARD_MOTION if you require it."
+    #elif ENABLED(SMOOTH_LIN_ADVANCE)
+      #error "SMOOTH_LIN_ADVANCE is not yet available in FT_MOTION. Disable NO_STANDARD_MOTION if you require it."
+    #elif ENABLED(MIXING_EXTRUDER)
+      #error "MIXING_EXTRUDER is not yet available in FT_MOTION. Disable NO_STANDARD_MOTION if you require it."
+    #elif ENABLED(FREEZE_FEATURE)
+      #error "FREEZE_FEATURE is not yet available in FT_MOTION. Disable NO_STANDARD_MOTION if you require it."
+    #elif ENABLED(DIRECT_STEPPING)
+      #error "DIRECT_STEPPING is not yet available in FT_MOTION. Disable NO_STANDARD_MOTION if you require it."
+    #elif ENABLED(DIFFERENTIAL_EXTRUDER)
+      #error "DIFFERENTIAL_EXTRUDER is not yet available in FT_MOTION. Disable NO_STANDARD_MOTION if you require it."
+    #elif ENABLED(LASER_FEATURE)
+      #error "LASER_FEATURE is not yet available in FT_MOTION. Disable NO_STANDARD_MOTION if you require it."
+    #elif ENABLED(Z_LATE_ENABLE)
+      #error "Z_LATE_ENABLE is not yet available in FT_MOTION. Disable NO_STANDARD_MOTION if you require it."
+    #endif
+  #endif
+  #if HAS_FTM_SHAPING && NONE(FTM_SHAPER_ZV, FTM_SHAPER_ZVD, FTM_SHAPER_ZVDD, FTM_SHAPER_ZVDDD, FTM_SHAPER_EI, FTM_SHAPER_2HEI, FTM_SHAPER_3HEI, FTM_SHAPER_MZV)
+    #error "For FT_MOTION at least one FTM_SHAPER_* type must be enabled."
+  #endif
+#endif // FT_MOTION
 
 // Multi-Stepping Limit
 static_assert(WITHIN(MULTISTEPPING_LIMIT, 1, 128) && IS_POWER_OF_2(MULTISTEPPING_LIMIT), "MULTISTEPPING_LIMIT must be 1, 2, 4, 8, 16, 32, 64, or 128.");

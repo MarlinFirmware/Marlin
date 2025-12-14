@@ -274,7 +274,7 @@ namespace MMU3 {
    */
   void MMU3::checkFINDARunout() {
     if (!findaDetectsFilament()
-        //&& printJobOngoing()
+        //&& marlin.printJobOngoing()
         && parser.codenum != 600
         && TERN1(HAS_LEVELING, planner.leveling_active)
         && xy_are_trusted()
@@ -857,7 +857,7 @@ namespace MMU3 {
     for (;;) {
       // in our new implementation, we know the exact state of the MMU at any moment, we do not have to wait for a timeout
       // So in this case we should decide if the operation is:
-      // - still running -> wait normally in idle()
+      // - still running -> wait normally in marlin.idle()
       // - failed -> then do the safety moves on the printer like before
       // - finished ok -> proceed with reading other commands
       safe_delay_keep_alive(0); // calls logicStep() and remembers its return status

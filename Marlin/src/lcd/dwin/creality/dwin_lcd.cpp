@@ -21,7 +21,7 @@
  */
 
 /********************************************************************************
- * @file     lcd/e3v2/creality/dwin_lcd.cpp
+ * @file     lcd/dwin/creality/dwin_lcd.cpp
  * @author   LEO / Creality3D
  * @date     2019/07/18
  * @version  2.0.1

@@ -246,7 +246,7 @@ void menu_configuration();
 #endif // CUSTOM_MENU_MAIN
 
 void menu_main() {
-  const bool busy = printingIsActive();
+  const bool busy = marlin.printingIsActive();
   #if HAS_MEDIA
     const bool card_is_mounted = card.isMounted(),
                card_open = card_is_mounted && card.isFileOpen();
@@ -410,7 +410,7 @@ void menu_main() {
       INJECT_MENU_ITEMS(media_menu_items());
     #endif
 
-    if (TERN0(MACHINE_CAN_PAUSE, printingIsPaused()))
+    if (TERN0(MACHINE_CAN_PAUSE, marlin.printingIsPaused()))
       ACTION_ITEM(MSG_RESUME_PRINT, ui.resume_print);
 
     #if ENABLED(HOST_START_MENU_ITEM) && defined(ACTION_ON_START)
