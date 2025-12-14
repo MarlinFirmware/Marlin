@@ -286,7 +286,7 @@
      *  The following assumes:
      *   - The X stepper driver socket is empty
      *   - The extruder driver socket has a driver board plugged into it
-     *   - The X stepper wires are attached the the extruder connector
+     *   - The X stepper wires are attached the extruder connector
      */
 
     /**

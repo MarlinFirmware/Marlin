@@ -187,7 +187,7 @@
       }
       // Wait for 5 seconds before displaying the next text.
       for (uint8_t i = 0; i < 100; ++i) {
-        idle(true);
+        marlin.idle(true);
         safe_delay(50);
         if (ui.use_click()) {
           if (fmsg_next == nullptr) {

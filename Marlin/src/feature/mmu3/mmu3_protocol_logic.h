@@ -36,24 +36,8 @@
   #include "mmu_hw/buttons.h"
   #include "mmu_hw/registers.h"
   #include "mmu3_protocol.h"
-
-  // #include <array> std array is not available on AVR ... we need to "fake" it
-  namespace std {
-    template <typename T, uint8_t N>
-    class array {
-      T data[N];
-      public:
-      array() = default;
-      inline constexpr T *begin() const { return data; }
-      inline constexpr T *end() const { return data + N; }
-      static constexpr uint8_t size() { return N; }
-      inline T &operator[](uint8_t i) { return data[i]; }
-    };
-  } // std
-
 #else // !__AVR__
 
-  #include <array>
   #include "mmu_hw/error_codes.h"
   #include "mmu_hw/progress_codes.h"
 
@@ -351,8 +335,7 @@ namespace MMU3 {
 
     Protocol protocol;                       //!< protocol codec
 
-    std::array<uint8_t, 16> lastReceivedBytes; //!< remembers the last few bytes of incoming communication for diagnostic purposes
-    uint8_t lrb;
+    uint8_t lrb, lastReceivedBytes[16];      //!< keep the last few bytes of incoming communication for diagnostic purposes
 
     ErrorCode errorCode;        //!< last received error code from the MMU
     ProgressCode progressCode;  //!< last received progress code from the MMU

@@ -119,7 +119,6 @@ void MarlinHAL::reboot() {
 #if ENABLED(USE_WATCHDOG)
 
   #include <avr/wdt.h>
-  #include "../../MarlinCore.h"
 
   // Initialize watchdog with 8s timeout, if possible. Otherwise, make it 4s.
   void MarlinHAL::watchdog_init() {
@@ -154,7 +153,7 @@ void MarlinHAL::reboot() {
     ISR(WDT_vect) {
       sei();  // With the interrupt driven serial we need to allow interrupts.
       SERIAL_ERROR_MSG(STR_WATCHDOG_FIRED);
-      minkill();  // interrupt-safe final kill and infinite loop
+      marlin.minkill();  // interrupt-safe final kill and infinite loop
     }
   #endif
 

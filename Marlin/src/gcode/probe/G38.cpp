@@ -31,18 +31,27 @@
 #include "../../module/planner.h"
 #include "../../module/probe.h"
 
+probe_target_t G38_move{0};
+
 inline void G38_single_probe(const uint8_t move_value) {
   endstops.enable(true);
-  G38_move = move_value;
+  G38_move.type = move_value;
   prepare_line_to_destination();
   planner.synchronize();
-  G38_move = 0;
+  G38_move.type = 0;
   endstops.hit_on_purpose();
   set_current_from_steppers_for_axis(ALL_AXES_ENUM);
   sync_plan_position();
 }
 
-inline bool G38_run_probe() {
+/**
+ * Handle G38.N where N is the sub-code for the type of probe:
+ *  2 - Probe toward workpiece, stop on contact, signal error if failure
+ *  3 - Probe toward workpiece, stop on contact
+ *  4 - Probe away from workpiece, stop on contact break, signal error if failure
+ *  5 - Probe away from workpiece, stop on contact break
+ */
+FORCE_INLINE bool G38_run_probe() {
 
   bool G38_pass_fail = false;
 
@@ -64,12 +73,12 @@ inline bool G38_run_probe() {
     constexpr uint8_t move_value = 1;
   #endif
 
-  G38_did_trigger = false;
+  G38_move.triggered = false;
 
   // Move until destination reached or target hit
   G38_single_probe(move_value);
 
-  if (G38_did_trigger) {
+  if (G38_move.triggered) {
 
     G38_pass_fail = true;
 

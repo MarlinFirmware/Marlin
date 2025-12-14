@@ -271,7 +271,7 @@ void MarlinHAL::adc_start(const pin_t pin) {
   uint32_t mv;
   esp_adc_cal_get_voltage((adc_channel_t)chan, &characteristics[attenuations[chan]], &mv);
 
-  adc_result = mv * isr_float_t(1023) / isr_float_t(ADC_REFERENCE_VOLTAGE) / isr_float_t(1000);
+  adc_result = (mv * 1023) * (1000.f / (ADC_REFERENCE_VOLTAGE));
 
   // Change the attenuation level based on the new reading
   adc_atten_t atten;
