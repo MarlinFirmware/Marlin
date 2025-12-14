@@ -123,6 +123,8 @@ relative_t GcodeSuite::axis_relative; // Init in constructor
     rotation_cos = cosf(angle_rad);
     rotation_sin = sinf(angle_rad);
   }
+#endif
+
 #if ENABLED(GCODE_MACROS)
   char GcodeSuite::macros[GCODE_MACROS_SLOTS][GCODE_MACROS_SLOT_SIZE + 1] = {{ 0 }};
 #endif
