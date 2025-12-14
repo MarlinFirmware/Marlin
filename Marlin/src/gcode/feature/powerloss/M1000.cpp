@@ -36,9 +36,9 @@
 #if ENABLED(EXTENSIBLE_UI)
   #include "../../../lcd/extui/ui_api.h"
 #elif ENABLED(DWIN_CREALITY_LCD)
-  #include "../../../lcd/e3v2/creality/dwin.h"
+  #include "../../../lcd/dwin/creality/dwin.h"
 #elif ENABLED(DWIN_CREALITY_LCD_JYERSUI)
-  #include "../../../lcd/e3v2/jyersui/dwin.h" // Temporary fix until it can be better implemented
+  #include "../../../lcd/dwin/jyersui/dwin.h" // Temporary fix until it can be better implemented
 #endif
 
 #define DEBUG_OUT ENABLED(DEBUG_POWER_LOSS_RECOVERY)
@@ -72,6 +72,9 @@ void GcodeSuite::M1000() {
     const bool force_resume = TERN0(HAS_PLR_BED_THRESHOLD, recovery.bed_temp_threshold && (thermalManager.degBed() >= recovery.bed_temp_threshold));
 
     if (!force_resume && parser.seen_test('S')) {
+
+      TERN_(PLR_HEAT_BED_ON_REBOOT, recovery.set_bed_temp(true));
+
       #if HAS_MARLINUI_MENU
         ui.goto_screen(menu_job_recovery);
       #elif ENABLED(EXTENSIBLE_UI)

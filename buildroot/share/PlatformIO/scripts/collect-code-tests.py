@@ -28,7 +28,7 @@ if pioutil.is_pio_build():
                 name = f"marlin_{name}",
                 dependencies = None,
                 actions = [
-                    f"echo ====== Configuring for marlin_{name} ======",
+                    f"@echo ====== Configuring for marlin_{name} ======",
                     "restore_configs",
                     f"cp -f {path} ./Marlin/config.ini",
                     "python ./buildroot/share/PlatformIO/scripts/configuration.py",

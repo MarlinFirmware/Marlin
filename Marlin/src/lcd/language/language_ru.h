@@ -708,8 +708,6 @@ namespace LanguageNarrow_ru {
   LSTR MSG_CUTTER                           = _UxGT("Резак");
   LSTR MSG_PID_CYCLE                        = _UxGT("Циклы PID");
   LSTR MSG_PID_AUTOTUNE_FAILED              = _UxGT("Автонастройка PID не удалась!");
-  LSTR MSG_BAD_HEATER_ID                    = _UxGT("Неверный экструдер.");
-  LSTR MSG_TEMP_TOO_HIGH                    = _UxGT("Слишком высокая температура.");
   LSTR MSG_MPC_MEASURING_AMBIENT            = _UxGT("Тест потери тепла");
   LSTR MSG_MPC_HEATING_PAST_200             = _UxGT("Нагрев выше >200C");
   LSTR MSG_MPC_COOLING_TO_AMBIENT           = _UxGT("Охлаждение до окружающей");
@@ -824,6 +822,9 @@ namespace LanguageNarrow_ru {
   LSTR MSG_FTM_MASS_BASED                   = _UxGT("Mass-based");
   LSTR MSG_FTM_BASE_FREQ_N                  = _UxGT("@ Base Freq.");
   LSTR MSG_FTM_DFREQ_K_N                    = _UxGT("@ Dyn. Freq.");
+
+  // DGUS-Specific message strings, not used elsewhere
+  LSTR DGUS_MSG_TEMP_TOO_HIGH               = _UxGT("Слишком высокая температура.");
 }
 
 namespace LanguageWide_ru {

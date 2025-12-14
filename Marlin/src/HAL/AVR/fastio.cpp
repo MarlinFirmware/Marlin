@@ -241,7 +241,7 @@ uint8_t extDigitalRead(const int8_t pin) {
  *
  * DC values -1.0 to 1.0. Negative duty cycle inverts the pulse.
  */
-uint16_t set_pwm_frequency_hz(const_float_t hz, const float dca, const float dcb, const float dcc) {
+uint16_t set_pwm_frequency_hz(const float hz, const float dca, const float dcb, const float dcc) {
   float count = 0;
   if (hz > 0 && (dca || dcb || dcc)) {
     count = float(F_CPU) / hz;            // 1x prescaler, TOP for 16MHz base freq.
@@ -254,7 +254,7 @@ uint16_t set_pwm_frequency_hz(const_float_t hz, const float dca, const float dcb
     else                           { prescaler = 1;    SET_CS(5,    PRESCALER_1); }
 
     count /= float(prescaler);
-    const float pwm_top = round(count);   // Get the rounded count
+    const float pwm_top = roundf(count);   // Get the rounded count
 
     ICR5 = (uint16_t)pwm_top - 1;         // Subtract 1 for TOP
     OCR5A = pwm_top * ABS(dca);           // Update and scale DCs
@@ -280,7 +280,7 @@ uint16_t set_pwm_frequency_hz(const_float_t hz, const float dca, const float dcb
     SET_CS(5, PRESCALER_64);              // 16MHz / 64 = 250kHz
     OCR5A = OCR5B = OCR5C = 0;
   }
-  return round(count);
+  return roundf(count);
 }
 #endif
 

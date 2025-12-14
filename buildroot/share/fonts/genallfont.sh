@@ -64,6 +64,9 @@ fi
 #
 LANGS_DEFAULT="an bg ca cz da de el el_CY en es eu fi fr fr_na gl hr hu it jp_kana ko_KR nl pl pt pt_br ro ru sk sv tr uk vi zh_CN zh_TW test"
 
+DN_WORK=$(mktemp -d)
+open "$DN_WORK"
+
 #
 # Generate data for language list MARLIN_LANGS or all if not provided
 #
@@ -74,16 +77,23 @@ for ALANG in ${LANG_ARG:=$LANGS_DEFAULT} ; do
      ko_* ) FONTFILE="${DN_EXEC}/NanumGothic.bdf" ;;
         * ) FONTFILE="${DN_EXEC}/marlin-6x12-3.bdf" ;;
   esac
-  DN_WORK=$(mktemp -d)
   cp Configuration.h ${DN_WORK}/
   cp src/lcd/language/language_${ALANG}.h ${DN_WORK}/
+  # Find and copy included language files
+  sed -n 's/^#include "\(language_[^"]*\.h\)".*/\1/p' "src/lcd/language/language_${ALANG}.h" |
+    while IFS= read -r f; do
+      src="src/lcd/language/$f"
+      [ -f "$src" ] && cp "$src" "$DN_WORK/"
+    done
   cd "${DN_WORK}"
   ${DN_EXEC}/uxggenpages.sh "${FONTFILE}" $ALANG
   sed -i fontutf8-data.h -e 's|fonts//|fonts/|g' -e 's|fonts//|fonts/|g' -e 's|[/0-9a-zA-Z_\-]*buildroot/share/fonts|buildroot/share/fonts|' 2>/dev/null
   cd - >/dev/null
   mv ${DN_WORK}/fontutf8-data.h src/lcd/dogm/fontdata/langdata_${ALANG}.h
-  rm -rf ${DN_WORK}
+  rm -rf ${DN_WORK}/*
 done
+
+rm -rf ${DN_WORK}
 
 #
 # Generate default ASCII font (char range 0-255):
@@ -126,7 +136,7 @@ if [ 1 = 1 ]; then
 
 #include <U8glib-HAL.h>
 
-#if defined(__AVR__) && ENABLED(NOT_EXTENDED_ISO10646_1_5X7)
+#if ALL(__AVR__, NOT_EXTENDED_ISO10646_1_5X7)
   // reduced font (only symbols 1 - 127) - saves about 1278 bytes of FLASH
 
 $TMP1
