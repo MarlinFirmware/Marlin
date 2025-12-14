@@ -28,7 +28,6 @@
 
 unified_bed_leveling bedlevel;
 
-#include "../../../MarlinCore.h"
 #include "../../../gcode/gcode.h"
 
 #include "../../../module/settings.h"
@@ -102,7 +101,7 @@ void unified_bed_leveling::invalidate() {
   set_all_mesh_points_to_value(NAN);
 }
 
-void unified_bed_leveling::set_all_mesh_points_to_value(const_float_t value) {
+void unified_bed_leveling::set_all_mesh_points_to_value(const float value) {
   GRID_LOOP(x, y) {
     z_values[x][y] = value;
     TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(x, y, value));
@@ -115,7 +114,7 @@ void unified_bed_leveling::set_all_mesh_points_to_value(const_float_t value) {
   constexpr int16_t Z_STEPS_NAN = INT16_MAX;
 
   void unified_bed_leveling::set_store_from_mesh(const bed_mesh_t &in_values, mesh_store_t &stored_values) {
-    auto z_to_store = [](const_float_t z) {
+    auto z_to_store = [](const float z) {
       if (isnan(z)) return Z_STEPS_NAN;
       const int32_t z_scaled = TRUNC(z * mesh_store_scaling);
       if (z_scaled == Z_STEPS_NAN || !WITHIN(z_scaled, INT16_MIN, INT16_MAX))
@@ -221,7 +220,7 @@ void unified_bed_leveling::display_map(const uint8_t map_type) {
       if (human) SERIAL_CHAR(is_current ? ']' : ' ');
 
       SERIAL_FLUSHTX();
-      idle_no_sleep();
+      marlin.idle_no_sleep();
     }
     if (!lcd) SERIAL_EOL();
 

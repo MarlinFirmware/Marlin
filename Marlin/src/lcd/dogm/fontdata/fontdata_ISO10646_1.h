@@ -22,7 +22,7 @@
 
 #include <U8glib-HAL.h>
 
-#if defined(__AVR__) && ENABLED(NOT_EXTENDED_ISO10646_1_5X7)
+#if ALL(__AVR__, NOT_EXTENDED_ISO10646_1_5X7)
   // reduced font (only symbols 1 - 127) - saves about 1278 bytes of FLASH
 
 /**

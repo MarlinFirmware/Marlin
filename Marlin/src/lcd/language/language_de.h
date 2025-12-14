@@ -73,7 +73,7 @@ namespace LanguageNarrow_de {
   LSTR MSG_TRAM_C                         = _UxGT("Mitte");
   LSTR MSG_TRAM_BL                        = _UxGT("Hinten Links");
   LSTR MSG_TRAM_BR                        = _UxGT("Hinten Rechts");
-  LSTR MSG_MANUAL_MESH                    = _UxGT("Manuelles Netz");
+  LSTR MSG_MANUAL_MESH                    = _UxGT("manuelles Netz");
   LSTR MSG_AUTO_MESH                      = _UxGT("Netz auto. erstellen");
   LSTR MSG_AUTO_Z_ALIGN                   = _UxGT("Z-Achsen ausgleichen");
   LSTR MSG_ITERATION                      = _UxGT("G34 Iteration: %i");
@@ -324,8 +324,6 @@ namespace LanguageNarrow_de {
   LSTR MSG_PID_CYCLE                      = _UxGT("PID Zyklus");
   LSTR MSG_PID_AUTOTUNE_DONE              = _UxGT("PID Tuning fertig");
   LSTR MSG_PID_AUTOTUNE_FAILED            = _UxGT("PID Autotune fehlge.!");
-  LSTR MSG_BAD_HEATER_ID                  = _UxGT("ungültiger Extruder.");
-  LSTR MSG_TEMP_TOO_HIGH                  = _UxGT("Temperatur zu hoch.");
   LSTR MSG_PID_BAD_HEATER_ID              = _UxGT("Autotune fehlge.! Ungültiger Extruder");
   LSTR MSG_PID_TEMP_TOO_HIGH              = _UxGT("Autotune fehlge.! Temperatur zu hoch.");
   LSTR MSG_PID_TIMEOUT                    = _UxGT("Autotune fehlge.! Timeout.");
@@ -758,6 +756,9 @@ namespace LanguageNarrow_de {
   LSTR MSG_USB_DISK                       = _UxGT("USB Disk");
 
   LSTR MSG_HOST_SHUTDOWN                  = _UxGT("Host abschalten");
+
+  // DGUS-Specific message strings, not used elsewhere
+  LSTR DGUS_MSG_TEMP_TOO_HIGH             = _UxGT("Temperatur zu hoch.");
 
   LSTR MSG_SHORT_DAY                      = _UxGT("t"); // One character only
   LSTR MSG_SHORT_HOUR                     = _UxGT("h"); // One character only

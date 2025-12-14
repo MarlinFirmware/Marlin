@@ -57,7 +57,6 @@
 #define __bss_end __bss_end__
 
 // Types
-typedef double isr_float_t; // FPU ops are used for single-precision, so use double for ISRs.
 typedef uint8_t pin_t;      // Parity with mfl platform
 
 // Servo

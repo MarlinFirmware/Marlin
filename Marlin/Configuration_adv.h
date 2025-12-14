@@ -297,7 +297,7 @@
  * protect against a broken or disconnected thermistor wire.
  *
  * The issue: If a thermistor falls out, it will report the much lower
- * temperature of the air in the room, and the the firmware will keep
+ * temperature of the air in the room, and the firmware will keep
  * the heater on.
  *
  * The solution: Once the temperature reaches the target, start observing.
@@ -415,14 +415,19 @@
   // A well-chosen Kc value should add just enough power to melt the increased material volume.
   //#define PID_EXTRUSION_SCALING
   #if ENABLED(PID_EXTRUSION_SCALING)
-    #define DEFAULT_Kc (100) // heating power = Kc * e_speed
     #define LPQ_MAX_LEN 50
+    #define DEFAULT_KC 100  // heating power = Kc * e_speed
+    #if ENABLED(PID_PARAMS_PER_HOTEND)
+      // Specify up to one value per hotend here, according to your setup.
+      // If there are fewer values, the last one applies to the remaining hotends.
+      #define DEFAULT_KC_LIST { DEFAULT_KC, DEFAULT_KC }  // heating power = Kc * e_speed
+    #endif
   #endif
 
   /**
    * Add an additional term to the heater power, proportional to the fan speed.
    * A well-chosen Kf value should add just enough power to compensate for power-loss from the cooling fan.
-   * You can either just add a constant compensation with the DEFAULT_Kf value
+   * You can either just add a constant compensation with the DEFAULT_KF value
    * or follow the instruction below to get speed-dependent compensation.
    *
    * Constant compensation (use only with fan speeds of 0% and 100%)
@@ -453,20 +458,25 @@
     #if ENABLED(PID_FAN_SCALING_ALTERNATIVE_DEFINITION)
       // The alternative definition is used for an easier configuration.
       // Just figure out Kf at full speed (255) and PID_FAN_SCALING_MIN_SPEED.
-      // DEFAULT_Kf and PID_FAN_SCALING_LIN_FACTOR are calculated accordingly.
+      // DEFAULT_KF and PID_FAN_SCALING_LIN_FACTOR are calculated accordingly.
 
-      #define PID_FAN_SCALING_AT_FULL_SPEED 13.0        //=PID_FAN_SCALING_LIN_FACTOR*255+DEFAULT_Kf
-      #define PID_FAN_SCALING_AT_MIN_SPEED   6.0        //=PID_FAN_SCALING_LIN_FACTOR*PID_FAN_SCALING_MIN_SPEED+DEFAULT_Kf
+      #define PID_FAN_SCALING_AT_FULL_SPEED 13.0        //=PID_FAN_SCALING_LIN_FACTOR*255+DEFAULT_KF
+      #define PID_FAN_SCALING_AT_MIN_SPEED   6.0        //=PID_FAN_SCALING_LIN_FACTOR*PID_FAN_SCALING_MIN_SPEED+DEFAULT_KF
       #define PID_FAN_SCALING_MIN_SPEED     10.0        // Minimum fan speed at which to enable PID_FAN_SCALING
 
-      #define DEFAULT_Kf (255.0*PID_FAN_SCALING_AT_MIN_SPEED-PID_FAN_SCALING_AT_FULL_SPEED*PID_FAN_SCALING_MIN_SPEED)/(255.0-PID_FAN_SCALING_MIN_SPEED)
-      #define PID_FAN_SCALING_LIN_FACTOR (PID_FAN_SCALING_AT_FULL_SPEED-DEFAULT_Kf)/255.0
+      #define DEFAULT_KF (255.0*PID_FAN_SCALING_AT_MIN_SPEED-PID_FAN_SCALING_AT_FULL_SPEED*PID_FAN_SCALING_MIN_SPEED)/(255.0-PID_FAN_SCALING_MIN_SPEED)
+      #define PID_FAN_SCALING_LIN_FACTOR (PID_FAN_SCALING_AT_FULL_SPEED-DEFAULT_KF)/255.0
 
     #else
       #define PID_FAN_SCALING_LIN_FACTOR (0)             // Power-loss due to cooling = Kf * (fan_speed)
-      #define DEFAULT_Kf 10                              // A constant value added to the PID-tuner
+      #define DEFAULT_KF 10                              // A constant value added to the PID-tuner
       #define PID_FAN_SCALING_MIN_SPEED 10               // Minimum fan speed at which to enable PID_FAN_SCALING
     #endif
+  #endif
+  #if ENABLED(PID_PARAMS_PER_HOTEND)
+    // Specify up to one value per hotend here, according to your setup.
+    // If there are fewer values, the last one applies to the remaining hotends.
+    #define DEFAULT_KF_LIST { DEFAULT_KF, DEFAULT_KF }
   #endif
 #endif
 
@@ -486,15 +496,15 @@
 #define AUTOTEMP
 #if ENABLED(AUTOTEMP)
   #define AUTOTEMP_OLDWEIGHT    0.98  // Factor used to weight previous readings (0.0 < value < 1.0)
-  #define AUTOTEMP_MIN          210
-  #define AUTOTEMP_MAX          250
+  #define AUTOTEMP_MIN        210
+  #define AUTOTEMP_MAX        250
   #define AUTOTEMP_FACTOR       0.1f
   // Turn on AUTOTEMP on M104/M109 by default using proportions set here
   //#define AUTOTEMP_PROPORTIONAL
   #if ENABLED(AUTOTEMP_PROPORTIONAL)
-    #define AUTOTEMP_MIN_P      0 // (°C) Added to the target temperature
-    #define AUTOTEMP_MAX_P      5 // (°C) Added to the target temperature
-    #define AUTOTEMP_FACTOR_P   1 // Apply this F parameter by default (overridden by M104/M109 F)
+    #define AUTOTEMP_MIN_P      0     // (°C) Added to the target temperature
+    #define AUTOTEMP_MAX_P      5     // (°C) Added to the target temperature
+    #define AUTOTEMP_FACTOR_P   1     // Apply this F parameter by default (overridden by M104/M109 F)
   #endif
 #endif
 
@@ -778,7 +788,7 @@
 
 // @section endstops
 
-// If you want endstops to stay on (by default) even when not homing
+// If you want endstops to stay on (by default) even when not homing,
 // enable this option. Override at any time with M120, M121.
 //#define ENDSTOPS_ALWAYS_ON_DEFAULT
 
@@ -1143,67 +1153,91 @@
 
 /**
  * Fixed-time-based Motion Control -- BETA FEATURE
- * Enable/disable and set parameters with G-code M493.
+ * Enable/disable and set parameters with G-code M493 and M494.
  * See ft_types.h for named values used by FTM options.
  */
 //#define FT_MOTION
 #if ENABLED(FT_MOTION)
-  //#define FTM_IS_DEFAULT_MOTION                 // Use FT Motion as the factory default?
-  #define FTM_DEFAULT_DYNFREQ_MODE dynFreqMode_DISABLED // Default mode of dynamic frequency calculation. (DISABLED, Z_BASED, MASS_BASED)
+  //#define FTM_IS_DEFAULT_MOTION               // Use FT Motion as the factory default?
+  //#define FT_MOTION_MENU                      // Provide a MarlinUI menu to set M493 and M494 parameters
 
-  #define FTM_LINEAR_ADV_DEFAULT_ENA   false      // Default linear advance enable (true) or disable (false)
-  #define FTM_LINEAR_ADV_DEFAULT_K      0.0f      // Default linear advance gain. (Acceleration-based scaling factor.)
+  //#define NO_STANDARD_MOTION                  // Disable the standard motion system entirely to save Flash and RAM
+  #if DISABLED(NO_STANDARD_MOTION)
+    //#define FTM_HOME_AND_PROBE                // Use FT Motion for homing / probing. Disable if FT Motion breaks these functions.
+  #endif
+
+  //#define FTM_DYNAMIC_FREQ                    // Enable for linear adjustment of XY shaping frequency according to Z or E
+  #if ENABLED(FTM_DYNAMIC_FREQ)
+    #define FTM_DEFAULT_DYNFREQ_MODE dynFreqMode_DISABLED // Default mode of dynamic frequency calculation. (DISABLED, Z_BASED, MASS_BASED)
+  #endif
+
+  // Disable unused shapers if you need more free space
+  #define FTM_SHAPER_ZV
+  #define FTM_SHAPER_ZVD
+  #define FTM_SHAPER_ZVDD
+  #define FTM_SHAPER_ZVDDD
+  #define FTM_SHAPER_EI
+  #define FTM_SHAPER_2HEI
+  #define FTM_SHAPER_3HEI
+  #define FTM_SHAPER_MZV
 
   #define FTM_DEFAULT_SHAPER_X      ftMotionShaper_NONE // Default shaper mode on X axis (NONE, ZV, ZVD, ZVDD, ZVDDD, EI, 2HEI, 3HEI, MZV)
-  #define FTM_SHAPING_DEFAULT_FREQ_X   37.0f      // (Hz) Default peak frequency used by input shapers
-  #define FTM_SHAPING_ZETA_X            0.1f      // Zeta used by input shapers for X axis
-  #define FTM_SHAPING_V_TOL_X           0.05f     // Vibration tolerance used by EI input shapers for X axis
+  #define FTM_SHAPING_DEFAULT_FREQ_X   37.0f    // (Hz) Default peak frequency used by input shapers
+  #define FTM_SHAPING_ZETA_X            0.1f    // Zeta used by input shapers for X axis
+  #define FTM_SHAPING_V_TOL_X           0.05f   // Vibration tolerance used by EI input shapers for X axis
 
   #define FTM_DEFAULT_SHAPER_Y      ftMotionShaper_NONE // Default shaper mode on Y axis
-  #define FTM_SHAPING_DEFAULT_FREQ_Y   37.0f      // (Hz) Default peak frequency used by input shapers
-  #define FTM_SHAPING_ZETA_Y            0.1f      // Zeta used by input shapers for Y axis
-  #define FTM_SHAPING_V_TOL_Y           0.05f     // Vibration tolerance used by EI input shapers for Y axis
+  #define FTM_SHAPING_DEFAULT_FREQ_Y   37.0f    // (Hz) Default peak frequency used by input shapers
+  #define FTM_SHAPING_ZETA_Y            0.1f    // Zeta used by input shapers for Y axis
+  #define FTM_SHAPING_V_TOL_Y           0.05f   // Vibration tolerance used by EI input shapers for Y axis
 
-  //#define FT_MOTION_MENU                        // Provide a MarlinUI menu to set M493 parameters
+  //#define FTM_SHAPER_Z                        // Include Z shaping support
+  #define FTM_DEFAULT_SHAPER_Z      ftMotionShaper_NONE // Default shaper mode on Z axis
+  #define FTM_SHAPING_DEFAULT_FREQ_Z   21.0f    // (Hz) Default peak frequency used by input shapers
+  #define FTM_SHAPING_ZETA_Z            0.03f   // Zeta used by input shapers for Z axis
+  #define FTM_SHAPING_V_TOL_Z           0.05f   // Vibration tolerance used by EI input shapers for Z axis
+
+  //#define FTM_SHAPER_E                        // Include E shaping support
+                                                // Required to synchronize extruder with XYZ (better quality)
+  #define FTM_DEFAULT_SHAPER_E      ftMotionShaper_NONE // Default shaper mode on Extruder axis
+  #define FTM_SHAPING_DEFAULT_FREQ_E   21.0f    // (Hz) Default peak frequency used by input shapers
+  #define FTM_SHAPING_ZETA_E            0.03f   // Zeta used by input shapers for E axis
+  #define FTM_SHAPING_V_TOL_E           0.05f   // Vibration tolerance used by EI input shapers for E axis
+
+  //#define FTM_RESONANCE_TEST                  // Sine sweep motion for resonance study
+
+  //#define FTM_SMOOTHING                       // Smoothing can reduce artifacts and make steppers quieter
+                                                // on sharp corners, but too much will round corners.
+  #if ENABLED(FTM_SMOOTHING)
+    #define FTM_MAX_SMOOTHING_TIME      0.10f   // (s) Maximum smoothing time. Higher values consume more RAM.
+                                                // Increase smoothing time to reduce jerky motion, ghosting and noises.
+    #define FTM_SMOOTHING_TIME_X        0.00f   // (s) Smoothing time for X axis. Zero means disabled.
+    #define FTM_SMOOTHING_TIME_Y        0.00f   // (s) Smoothing time for Y axis
+    #define FTM_SMOOTHING_TIME_Z        0.00f   // (s) Smoothing time for Z axis
+    #define FTM_SMOOTHING_TIME_E        0.02f   // (s) Smoothing time for E axis. Prevents noise/skipping from LA by
+                                                //     smoothing acceleration peaks, which may also smooth curved surfaces.
+  #endif
+
+  #define FTM_POLYS                             // Disable POLY5/6 to save ~3k of Flash. Preserves TRAPEZOIDAL.
+  #if ENABLED(FTM_POLYS)
+    #define FTM_TRAJECTORY_TYPE TRAPEZOIDAL     // Block acceleration profile (TRAPEZOIDAL, POLY5, POLY6)
+                                                // TRAPEZOIDAL: Continuous Velocity. Max acceleration is respected.
+                                                // POLY5:       Like POLY6 with 1.5x but uses less CPU.
+                                                // POLY6:       Continuous Acceleration (aka S_CURVE).
+                                                // POLY trajectories not only reduce resonances without rounding corners, but also
+                                                // reduce extruder strain due to linear advance.
+
+    #define FTM_POLY6_ACCELERATION_OVERSHOOT 1.875f // Max acceleration overshoot factor for POLY6 (1.25 to 1.875)
+  #endif
 
   /**
    * Advanced configuration
    */
-  #define FTM_UNIFIED_BWS                         // DON'T DISABLE unless you use Ulendo FBS (not implemented)
-  #if ENABLED(FTM_UNIFIED_BWS)
-    #define FTM_BW_SIZE               100         // Unified Window and Batch size with a ratio of 2
-  #else
-    #define FTM_WINDOW_SIZE           200         // Custom Window size for trajectory generation needed by Ulendo FBS
-    #define FTM_BATCH_SIZE            100         // Custom Batch size for trajectory generation needed by Ulendo FBS
-  #endif
+  #define FTM_BUFFER_SIZE             128   // Window size for trajectory generation, must be a power of 2 (e.g 64, 128, 256, ...)
+                                            // The total buffered time in seconds is (FTM_BUFFER_SIZE/FTM_FS)
+  #define FTM_FS                     1000   // (Hz) Frequency for trajectory generation.
+  #define FTM_MIN_SHAPE_FREQ           20   // (Hz) Minimum shaping frequency, lower consumes more RAM
 
-  #define FTM_FS                     1000         // (Hz) Frequency for trajectory generation. (Reciprocal of FTM_TS)
-  #define FTM_TS                        0.001f    // (s) Time step for trajectory generation. (Reciprocal of FTM_FS)
-
-  #if DISABLED(COREXY)
-    #define FTM_STEPPER_FS          20000         // (Hz) Frequency for stepper I/O update
-
-    // Use this to adjust the time required to consume the command buffer.
-    // Try increasing this value if stepper motion is choppy.
-    #define FTM_STEPPERCMD_BUFF_SIZE 3000         // Size of the stepper command buffers
-
-  #else
-    // CoreXY motion needs a larger buffer size. These values are based on our testing.
-    #define FTM_STEPPER_FS          30000
-    #define FTM_STEPPERCMD_BUFF_SIZE 6000
-  #endif
-
-  #define FTM_STEPS_PER_UNIT_TIME (FTM_STEPPER_FS / FTM_FS)       // Interpolated stepper commands per unit time
-  #define FTM_MIN_TICKS ((STEPPER_TIMER_RATE) / (FTM_STEPPER_FS)) // Minimum stepper ticks between steps
-
-  #define FTM_MIN_SHAPE_FREQ           10         // Minimum shaping frequency
-  #define FTM_RATIO (FTM_FS / FTM_MIN_SHAPE_FREQ) // Factor for use in FTM_ZMAX. DON'T CHANGE.
-  #define FTM_ZMAX (FTM_RATIO * 2)                // Maximum delays for shaping functions (even numbers only!)
-                                                  // Calculate as:
-                                                  //   ZV       : FTM_RATIO / 2
-                                                  //   ZVD, MZV : FTM_RATIO
-                                                  //   2HEI     : FTM_RATIO * 3 / 2
-                                                  //   3HEI     : FTM_RATIO * 2
 #endif // FT_MOTION
 
 /**
@@ -1623,7 +1657,7 @@
     #if HAS_MARLINUI_U8GLIB
       //#define BOOT_MARLIN_LOGO_ANIMATED // Animated Marlin logo. Costs ~3260 (or ~940) bytes of flash.
     #endif
-    #if ANY(HAS_MARLINUI_U8GLIB, TOUCH_UI_FTDI_EVE, HAS_MARLINUI_HD44780)
+    #if ANY(HAS_MARLINUI_U8GLIB, TOUCH_UI_FTDI_EVE, HAS_MARLINUI_HD44780, HAS_GRAPHICAL_TFT)
       //#define SHOW_CUSTOM_BOOTSCREEN    // Show the bitmap in Marlin/_Bootscreen.h on startup.
     #endif
   #endif
@@ -1780,6 +1814,14 @@
   #endif
 
   /**
+   * Priming for the Remaining Time estimate
+   * Long processes at the start of a G-code file can skew the Remaining Time estimate.
+   * Enable these options to start this estimation at a later point in the G-code file.
+   */
+  //#define REMAINING_TIME_PRIME      // Provide G-code 'M75 R' to prime the Remaining Time estimate
+  //#define REMAINING_TIME_AUTOPRIME  // Prime the Remaining Time estimate later (e.g., at the end of 'M109')
+
+  /**
    * Continue after Power-Loss (Creality3D)
    *
    * Store the current state to the SD Card at the start of each layer
@@ -1790,6 +1832,8 @@
   //#define POWER_LOSS_RECOVERY
   #if ENABLED(POWER_LOSS_RECOVERY)
     #define PLR_ENABLED_DEFAULT       false // Power-Loss Recovery enabled by default. (Set with 'M413 Sn' & M500)
+    //#define PLR_HEAT_BED_ON_REBOOT        // Heat up bed immediately on reboot to mitigate object detaching/warping.
+    //#define PLR_HEAT_BED_EXTRA          0 // (°C) Relative increase of bed temperature for better adhesion (limited by max temp).
     //#define PLR_BED_THRESHOLD BED_MAXTEMP // (°C) Skip user confirmation at or above this bed temperature (0 to disable)
 
     //#define POWER_LOSS_PIN             44 // Pin to detect power-loss. Set to -1 to disable default pin on boards without module, or comment to use board default.
@@ -1853,6 +1897,7 @@
     #define SDSORT_DYNAMIC_RAM false  // Use dynamic allocation (within SD menus). Least expensive option. Set SDSORT_LIMIT before use!
     #define SDSORT_CACHE_VFATS 2      // Maximum number of 13-byte VFAT entries to use for sorting.
                                       // Note: Only affects SCROLL_LONG_FILENAMES with SDSORT_CACHE_NAMES but not SDSORT_DYNAMIC_RAM.
+    #define SDSORT_QUICK       true   // Use Quick Sort as a sorting algorithm. Otherwise use Bubble Sort.
   #endif
 
   // Allow international symbols in long filenames. To display correctly, the
@@ -2363,13 +2408,17 @@
  * See https://marlinfw.org/docs/features/lin_advance.html for full instructions.
  */
 //#define LIN_ADVANCE
-#if ENABLED(LIN_ADVANCE)
+
+#if ANY(LIN_ADVANCE, FT_MOTION)
   #if ENABLED(DISTINCT_E_FACTORS)
-    #define ADVANCE_K { 0.22 }    // (mm) Compression length per 1mm/s extruder speed, per extruder
+    #define ADVANCE_K { 0.22 }    // (mm) Compression length per 1mm/s extruder speed, per extruder. Override with 'M900 T<tool> K<mm>'.
   #else
-    #define ADVANCE_K 0.22        // (mm) Compression length applying to all extruders
+    #define ADVANCE_K 0.22        // (mm) Compression length for all extruders. Override with 'M900 K<mm>'.
   #endif
-  //#define ADVANCE_K_EXTRA       // Add a second linear advance constant, configurable with M900 L.
+  //#define ADVANCE_K_EXTRA       // Add a second linear advance constant, configurable with 'M900 L'.
+#endif
+
+#if ENABLED(LIN_ADVANCE)
   //#define LA_DEBUG              // Print debug information to serial during operation. Disable for production use.
   //#define EXPERIMENTAL_I2S_LA   // Allow I2S_STEPPER_STREAM to be used with LA. Performance degrades as the LA step rate reaches ~20kHz.
 
@@ -4081,13 +4130,17 @@
 /**
  * G-code Macros
  *
- * Add G-codes M810-M819 to define and run G-code macros.
- * Macros are not saved to EEPROM.
+ * Add G-codes M810-M819 to define and run G-code macros
+ * and M820 to report the current set of macros.
+ * Macros are not saved to EEPROM unless enabled below.
  */
 //#define GCODE_MACROS
 #if ENABLED(GCODE_MACROS)
   #define GCODE_MACROS_SLOTS       5  // Up to 10 may be used
   #define GCODE_MACROS_SLOT_SIZE  50  // Maximum length of a single macro
+  #if ENABLED(EEPROM_SETTINGS)
+    //#define GCODE_MACROS_IN_EEPROM  // Include macros in EEPROM
+  #endif
 #endif
 
 /**
@@ -4109,22 +4162,27 @@
   #define MAIN_MENU_ITEM_1_DESC "Home & UBL Info"
   #define MAIN_MENU_ITEM_1_GCODE "G28\nG29 W"
   //#define MAIN_MENU_ITEM_1_CONFIRM          // Show a confirmation dialog before this action
+  //#define MAIN_MENU_ITEM_1_IMMEDIATE        // Skip the queue and execute immediately. Rarely needed.
 
   #define MAIN_MENU_ITEM_2_DESC "Preheat for " PREHEAT_1_LABEL
   #define MAIN_MENU_ITEM_2_GCODE "M140 S" STRINGIFY(PREHEAT_1_TEMP_BED) "\nM104 S" STRINGIFY(PREHEAT_1_TEMP_HOTEND)
   //#define MAIN_MENU_ITEM_2_CONFIRM
+  //#define MAIN_MENU_ITEM_2_IMMEDIATE
 
   //#define MAIN_MENU_ITEM_3_DESC "Preheat for " PREHEAT_2_LABEL
   //#define MAIN_MENU_ITEM_3_GCODE "M140 S" STRINGIFY(PREHEAT_2_TEMP_BED) "\nM104 S" STRINGIFY(PREHEAT_2_TEMP_HOTEND)
   //#define MAIN_MENU_ITEM_3_CONFIRM
+  //#define MAIN_MENU_ITEM_3_IMMEDIATE
 
   //#define MAIN_MENU_ITEM_4_DESC "Heat Bed/Home/Level"
   //#define MAIN_MENU_ITEM_4_GCODE "M140 S" STRINGIFY(PREHEAT_2_TEMP_BED) "\nG28\nG29"
   //#define MAIN_MENU_ITEM_4_CONFIRM
+  //#define MAIN_MENU_ITEM_4_IMMEDIATE
 
   //#define MAIN_MENU_ITEM_5_DESC "Home & Info"
   //#define MAIN_MENU_ITEM_5_GCODE "G28\nM503"
   //#define MAIN_MENU_ITEM_5_CONFIRM
+  //#define MAIN_MENU_ITEM_5_IMMEDIATE
 #endif
 
 // @section custom config menu
@@ -4141,22 +4199,27 @@
   #define CONFIG_MENU_ITEM_1_DESC "Wifi ON"
   #define CONFIG_MENU_ITEM_1_GCODE "M118 [ESP110] WIFI-STA pwd=12345678"
   //#define CONFIG_MENU_ITEM_1_CONFIRM        // Show a confirmation dialog before this action
+  //#define CONFIG_MENU_ITEM_1_IMMEDIATE      // Skip the queue and execute immediately. Rarely needed.
 
   #define CONFIG_MENU_ITEM_2_DESC "Bluetooth ON"
   #define CONFIG_MENU_ITEM_2_GCODE "M118 [ESP110] BT pwd=12345678"
   //#define CONFIG_MENU_ITEM_2_CONFIRM
+  //#define CONFIG_MENU_ITEM_2_IMMEDIATE
 
   //#define CONFIG_MENU_ITEM_3_DESC "Radio OFF"
   //#define CONFIG_MENU_ITEM_3_GCODE "M118 [ESP110] OFF pwd=12345678"
   //#define CONFIG_MENU_ITEM_3_CONFIRM
+  //#define CONFIG_MENU_ITEM_3_IMMEDIATE
 
   //#define CONFIG_MENU_ITEM_4_DESC "Wifi ????"
   //#define CONFIG_MENU_ITEM_4_GCODE "M118 ????"
   //#define CONFIG_MENU_ITEM_4_CONFIRM
+  //#define CONFIG_MENU_ITEM_4_IMMEDIATE
 
   //#define CONFIG_MENU_ITEM_5_DESC "Wifi ????"
   //#define CONFIG_MENU_ITEM_5_GCODE "M118 ????"
   //#define CONFIG_MENU_ITEM_5_CONFIRM
+  //#define CONFIG_MENU_ITEM_5_IMMEDIATE
 #endif
 
 // @section custom buttons
@@ -4173,6 +4236,7 @@
     #define BUTTON1_WHEN_PRINTING false     // Button allowed to trigger during printing?
     #define BUTTON1_GCODE         "G28"
     #define BUTTON1_DESC          "Homing"  // Optional string to set the LCD status
+    //#define BUTTON1_IMMEDIATE             // Skip the queue and execute immediately. Rarely needed.
   #endif
 
   //#define BUTTON2_PIN -1
@@ -4181,6 +4245,7 @@
     #define BUTTON2_WHEN_PRINTING false
     #define BUTTON2_GCODE         "M140 S" STRINGIFY(PREHEAT_1_TEMP_BED) "\nM104 S" STRINGIFY(PREHEAT_1_TEMP_HOTEND)
     #define BUTTON2_DESC          "Preheat for " PREHEAT_1_LABEL
+    //#define BUTTON2_IMMEDIATE
   #endif
 
   //#define BUTTON3_PIN -1
@@ -4189,6 +4254,7 @@
     #define BUTTON3_WHEN_PRINTING false
     #define BUTTON3_GCODE         "M140 S" STRINGIFY(PREHEAT_2_TEMP_BED) "\nM104 S" STRINGIFY(PREHEAT_2_TEMP_HOTEND)
     #define BUTTON3_DESC          "Preheat for " PREHEAT_2_LABEL
+    //#define BUTTON3_IMMEDIATE
   #endif
 #endif
 
@@ -4261,7 +4327,7 @@
   //#define I2CPE_ENC_1_TICKS_REV     (16 * 200)            // Only needed for rotary encoders; number of stepper
                                                             // steps per full revolution (motor steps/rev * microstepping)
   //#define I2CPE_ENC_1_INVERT                              // Invert the direction of axis travel.
-  #define I2CPE_ENC_1_EC_METHOD     I2CPE_ECM_MICROSTEP     // Type of error error correction.
+  #define I2CPE_ENC_1_EC_METHOD     I2CPE_ECM_MICROSTEP     // Type of error correction.
   #define I2CPE_ENC_1_EC_THRESH     0.10                    // Threshold size for error (in mm) above which the
                                                             // printer will attempt to correct the error; errors
                                                             // smaller than this are ignored to minimize effects of
@@ -4692,6 +4758,11 @@
 // M43 - display pin status, toggle pins, watch pins, watch endstops & toggle LED, test servo probe
 //
 //#define PINS_DEBUGGING
+
+//
+// M265 - I2C Scanner
+//
+//#define I2C_SCANNER
 
 // Enable Tests that will run at startup and produce a report
 //#define MARLIN_TEST_BUILD
