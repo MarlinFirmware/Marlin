@@ -139,7 +139,7 @@ void GcodeSuite::M240() {
     #endif
 
     feedRate_t fr_mm_s = MMM_TO_MMS(parser.feedrateval('F'));
-    if (fr_mm_s) NOLESS(fr_mm_s, TERN(FEEDRATE_MODE_SUPPORT, 0.01f, 10.0f));
+    if (fr_mm_s) NOLESS(fr_mm_s, 10.0f);
 
     constexpr xyz_pos_t photo_position = PHOTO_POSITION;
     xyz_pos_t raw = {

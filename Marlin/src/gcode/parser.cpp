@@ -39,7 +39,13 @@ bool GCodeParser::volumetric_enabled;
 
 #if ENABLED(FEEDRATE_MODE_SUPPORT)
   bool GCodeParser::inverse_time_enabled;
-  bool GCodeParser::print_move;
+#endif
+#if HAS_ROTATIONAL_AXES || IS_KINEMATIC || HAS_LEVELING || ENABLED(FEEDRATE_MODE_SUPPORT)
+  bool GCodeParser::apply_feedrate_mode;
+#endif
+
+#if HAS_ROTATIONAL_AXES
+  bool GCodeParser::cartes_move;
 #endif
 
 #if ENABLED(TEMPERATURE_UNITS_SUPPORT)

@@ -54,27 +54,32 @@ void GcodeSuite::G0_G1(TERN_(HAS_FAST_MOVES, const bool fast_move/*=false*/)) {
   #ifdef G0_FEEDRATE
     feedRate_t old_feedrate;
     #if ENABLED(VARIABLE_G0_FEEDRATE)
-      TERN_(FEEDRATE_MODE_SUPPORT, parser.print_move = true);
+      #if HAS_ROTATIONAL_AXES || IS_KINEMATIC || HAS_LEVELING || ENABLED(FEEDRATE_MODE_SUPPORT)
+        parser.apply_feedrate_mode = true;
+      #endif
       if (fast_move) {
         old_feedrate = motion.feedrate_mm_s;            // Back up the (old) motion mode feedrate
         motion.feedrate_mm_s = fast_move_feedrate;      // Get G0 feedrate from last usage
       }
-    #elif defined(FEEDRATE_MODE_SUPPORT)
+    #elif HAS_ROTATIONAL_AXES || IS_KINEMATIC || HAS_LEVELING || ENABLED(FEEDRATE_MODE_SUPPORT)
       if (fast_move) {
-        parser.print_move = false;
+        parser.apply_feedrate_mode = false;
       }
       else {
-        parser.print_move = true;
+        parser.apply_feedrate_mode = true;
       }
     #endif
-  #elif ENABLED(FEEDRATE_MODE_SUPPORT)
-    parser.print_move = true;
+  #elif HAS_ROTATIONAL_AXES || IS_KINEMATIC || HAS_LEVELING || ENABLED(FEEDRATE_MODE_SUPPORT)
+    parser.apply_feedrate_mode = true;
   #endif
 
   get_destination_from_command();                       // Get X Y [Z[I[J[K]]]] [E] F (and set cutter power)
 
   #ifdef G0_FEEDRATE
     if (fast_move) {
+      #if HAS_ROTATIONAL_AXES || IS_KINEMATIC || HAS_LEVELING || ENABLED(FEEDRATE_MODE_SUPPORT)
+        parser.apply_feedrate_mode = false;
+      #endif
       #if ENABLED(VARIABLE_G0_FEEDRATE)
         fast_move_feedrate = motion.feedrate_mm_s;      // Save feedrate for the next G0
       #else
@@ -114,7 +119,9 @@ void GcodeSuite::G0_G1(TERN_(HAS_FAST_MOVES, const bool fast_move/*=false*/)) {
     if (fast_move) motion.feedrate_mm_s = old_feedrate;
   #endif
 
-  TERN_(FEEDRATE_MODE_SUPPORT, parser.print_move = false);
+  #if HAS_ROTATIONAL_AXES || IS_KINEMATIC || HAS_LEVELING || ENABLED(FEEDRATE_MODE_SUPPORT)
+    parser.apply_feedrate_mode = false;
+  #endif
 
   #if ENABLED(NANODLP_Z_SYNC)
     #if ENABLED(NANODLP_ALL_AXIS)

@@ -78,7 +78,13 @@ public:
 
   #if ENABLED(FEEDRATE_MODE_SUPPORT)
     static bool inverse_time_enabled;
-    static bool print_move;
+  #endif
+  #if HAS_ROTATIONAL_AXES || IS_KINEMATIC || HAS_LEVELING || ENABLED(FEEDRATE_MODE_SUPPORT)
+    static bool apply_feedrate_mode;
+  #endif
+
+  #if HAS_ROTATIONAL_AXES
+      static bool cartes_move;
   #endif
 
   #if ENABLED(TEMPERATURE_UNITS_SUPPORT)
@@ -421,8 +427,8 @@ public:
   #endif // !TEMPERATURE_UNITS_SUPPORT
 
   static feedRate_t value_feedrate() { 
-    #if ENABLED(FEEDRATE_MODE_SUPPORT)
-      return (inverse_time_enabled && print_move) ? value_float() : value_linear_units();
+    #if HAS_ROTATIONAL_AXES || ENABLED(FEEDRATE_MODE_SUPPORT)
+      return ((TERN0(FEEDRATE_MODE_SUPPORT, inverse_time_enabled && apply_feedrate_mode)) || TERN0(HAS_ROTATIONAL_AXES, (!cartes_move))) ? value_float() : value_linear_units();
     #else
       return value_linear_units();
     #endif

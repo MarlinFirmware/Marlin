@@ -46,7 +46,7 @@
   //       corners of cells. To fix the issue, simply check if the start/end of the line
   //       is very close to a cell boundary in advance and don't split the line there.
 
-  void unified_bed_leveling::line_to_destination_cartesian(const feedRate_t scaled_fr, const uint8_t extruder) {
+  void unified_bed_leveling::line_to_destination_cartesian(const feedRate_t scaled_fr_mm_s, const uint8_t extruder) {
     /**
      * Much of the nozzle movement will be within the same cell. So we will do as little computation
      * as possible to determine if this is the case. If this move is within the same cell, we will
@@ -58,27 +58,6 @@
       planner.apply_modifiers(end);
     #else
       const xyze_pos_t &start = motion.position, &end = motion.destination;
-    #endif
-
-    const xyze_pos_t total = end - start;
-
-    #if ENABLED(FEEDRATE_MODE_SUPPORT)
-      // Get the linear distance in XYZ
-      #if HAS_ROTATIONAL_AXES
-        bool cartes_move = true;
-      #endif
-      float cartesian_mm = get_move_distance(total OPTARG(HAS_ROTATIONAL_AXES, cartes_move));
-
-      // If the move is very short, check the E move distance
-      TERN_(HAS_EXTRUDERS, if (UNEAR_ZERO(cartesian_mm)) cartesian_mm = ABS(total.e));
-
-      const bool old_inverse_time_enabled = parser.inverse_time_enabled;
-
-      const feedRate_t scaled_fr_mm_s = (old_inverse_time_enabled && parser.print_move) ? cartesian_mm * scaled_fr : scaled_fr;
-      parser.inverse_time_enabled = false;
-
-    #else
-      const feedRate_t scaled_fr_mm_s = scaled_fr;
     #endif
 
     const xy_uint8_t istart = cell_indexes(start), iend = cell_indexes(end);
@@ -100,7 +79,6 @@
           end.z += UBL_Z_RAISE_WHEN_OFF_MESH;
           planner.buffer_segment(end, scaled_fr_mm_s, extruder);
           motion.position = motion.destination;
-          TERN_(FEEDRATE_MODE_SUPPORT, parser.inverse_time_enabled = old_inverse_time_enabled);
           return;
         }
       #endif
@@ -119,7 +97,6 @@
       if (!isnan(z0)) end.z += z0;
       planner.buffer_segment(end, scaled_fr_mm_s, extruder);
       motion.position = motion.destination;
-      TERN_(FEEDRATE_MODE_SUPPORT, parser.inverse_time_enabled = old_inverse_time_enabled);
       return;
     }
 
@@ -128,7 +105,7 @@
      * case - crossing only one X or Y line - after details are worked out to reduce computation.
      */
 
-    const xy_float_t dist = xy_float_t(total);
+    const xy_float_t dist = xy_float_t(end) - xy_float_t(start);
     const xy_bool_t neg { dist.x < 0, dist.y < 0 };
     const xy_uint8_t ineg { uint8_t(neg.x), uint8_t(neg.y) };
     const xy_float_t sign { neg.x ? -1.0f : 1.0f, neg.y ? -1.0f : 1.0f };
@@ -217,7 +194,6 @@
         goto FINAL_MOVE;
 
       motion.position = motion.destination;
-      TERN_(FEEDRATE_MODE_SUPPORT, parser.inverse_time_enabled = old_inverse_time_enabled);
       return;
     }
 
@@ -387,11 +363,6 @@
       return false; // caller will update current_position
     }
 
-    #if HAS_ROTATIONAL_AXES
-      bool cartes_move = true;
-    #endif
-    float cartesian_mm = get_move_distance(total OPTARG(HAS_ROTATIONAL_AXES, cartes_move));
-
       // If the move is very short, check the E move distance
     TERN_(HAS_EXTRUDERS, if (UNEAR_ZERO(cartesian_mm)) cartesian_mm = ABS(total.e));
 
@@ -400,23 +371,8 @@
 
     #if IS_KINEMATIC
       // Minimum number of seconds to move the given distance
-      #if ENABLED(FEEDRATE_MODE_SUPPORT)
-        const float seconds = (parser.print_move && parser.inverse_time_enabled) ? RECIPROCAL(scaled_fr_mm_s) : cartesian_mm / (
-          #if ALL(HAS_ROTATIONAL_AXES, INCH_MODE_SUPPORT)
-            cartes_move ? scaled_fr_mm_s : LINEAR_UNIT(scaled_fr_mm_s)
-          #else
-            scaled_fr_mm_s
-          #endif
-        );
-      #else
-        const float seconds = cartesian_mm / (
-          #if ALL(HAS_ROTATIONAL_AXES, INCH_MODE_SUPPORT)
-            cartes_move ? scaled_fr_mm_s : LINEAR_UNIT(scaled_fr_mm_s)
-          #else
-            scaled_fr_mm_s
-          #endif
-        );
-      #endif
+      const float seconds = cartesian_mm / scaled_fr_mm_s;
+
       uint16_t segments = LROUND(segments_per_second * seconds),               // Preferred number of segments for distance @ feedrate
                seglimit = LROUND(cartesian_mm * RECIPROCAL(SEGMENT_MIN_LENGTH)); // Number of segments at minimum segment length
     
@@ -430,9 +386,7 @@
 
     // Add hints to help optimize the move
     PlannerHints hints(cartesian_mm * inv_segments);       // Length of each segment
-    #if ENABLED(FEEDRATE_MODE_SUPPORT)
-      hints.inv_duration = (parser.print_move && parser.inverse_time_enabled) ? (segments * scaled_fr_mm_s) : (scaled_fr_mm_s) / hints.millimeters);
-    #elif ENABLED(FEEDRATE_SCALING)
+    #if ENABLED(FEEDRATE_SCALING)
       hints.inv_duration = scaled_fr_mm_s / hints.millimeters;
     #endif
 

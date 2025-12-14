@@ -857,13 +857,6 @@ void MarlinUI::init() {
 
       const feedRate_t fr_mm_s = (axis < LOGICAL_AXES) ? manual_feedrate_mm_s[axis] : PLANNER_XY_FEEDRATE_MM_S;
 
-      /**
-       * For a rotational axis apply the "inch" to "mm" conversion factor. This mimics behaviour of the G-code G1
-       * (see get_destination_from_command). For moves involving only rotational axes, the planner will convert
-       * back to the feedrate in degrees-per-time unit.
-       */
-      const feedRate_t fr = parser.axis_is_rotational(axis) && parser.using_inch_units() ? IN_TO_MM(fr_mm_s) : fr_mm_s;
-
       #if IS_KINEMATIC
 
         #if HAS_MULTI_EXTRUDER
@@ -890,13 +883,13 @@ void MarlinUI::init() {
         // previous invocation is being blocked. Modifications to offset shouldn't be made while
         // processing is true or the planner will get out of sync.
         processing = true;
-        motion.prepare_internal_move_to_destination(fr);  // will set motion.position from destination
+        motion.prepare_internal_move_to_destination(fr_mm_s);  // will set current_position from destination
         processing = false;
 
       #else
 
-        // For Cartesian / Core motion simply move to the motion.position
-        planner.buffer_line(motion.position, fr,
+        // For Cartesian / Core motion simply move to the current_position
+        planner.buffer_line(motion.position, fr_mm_s,
           TERN_(MULTI_E_MANUAL, axis == E_AXIS ? e_index :) motion.extruder
         );
 

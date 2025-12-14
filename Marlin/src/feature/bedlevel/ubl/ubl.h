@@ -315,7 +315,7 @@ public:
   #if UBL_SEGMENTED
     static bool line_to_destination_segmented(const feedRate_t scaled_fr_mm_s);
   #else
-    static void line_to_destination_cartesian(const feedRate_t scaled_fr, const uint8_t e);
+    static void line_to_destination_cartesian(const feedRate_t scaled_fr_mm_s, const uint8_t e);
   #endif
 
   static bool mesh_is_valid() {
