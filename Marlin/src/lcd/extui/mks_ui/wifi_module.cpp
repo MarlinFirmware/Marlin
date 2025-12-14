@@ -2081,7 +2081,7 @@ void get_wifi_commands() {
         while (*command == ' ') command++; // skip any leading spaces
 
         // Movement commands alert when stopped
-        if (IsStopped()) {
+        if (marlin.isStopped()) {
           char* gpos = strchr(command, 'G');
           if (gpos) {
             switch (strtol(gpos + 1, nullptr, 10)) {
@@ -2097,11 +2097,8 @@ void get_wifi_commands() {
 
         #if DISABLED(EMERGENCY_PARSER)
           // Process critical commands early
-          if (strcmp_P(command, PSTR("M108")) == 0) {
-            wait_for_heatup = false;
-            TERN_(HAS_MARLINUI_MENU, wait_for_user = false);
-          }
-          if (strcmp_P(command, PSTR("M112")) == 0) kill(FPSTR(M112_KILL_STR), nullptr, true);
+          if (strcmp_P(command, PSTR("M108")) == 0) marlin.end_waiting();
+          if (strcmp_P(command, PSTR("M112")) == 0) marlin.kill(FPSTR(M112_KILL_STR), nullptr, true);
           if (strcmp_P(command, PSTR("M410")) == 0) quickstop_stepper();
         #endif
 

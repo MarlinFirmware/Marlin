@@ -25,7 +25,6 @@
 #if ENABLED(PINS_DEBUGGING)
 
 #include "../gcode.h"
-#include "../../MarlinCore.h" // for pin_is_protected, wait_for_user
 #include "../../pins/pinsDebug.h"
 #include "../../module/endstops.h"
 
@@ -64,7 +63,7 @@ inline void toggle_pins() {
   for (uint8_t i = start; i <= end; ++i) {
     pin_t pin = GET_PIN_MAP_PIN_M43(i);
     if (!isValidPin(pin)) continue;
-    if (M43_NEVER_TOUCH(i) || (!ignore_protection && pin_is_protected(pin))) {
+    if (M43_NEVER_TOUCH(i) || (!ignore_protection && marlin.pin_is_protected(pin))) {
       printPinStateExt(pin, ignore_protection, true, F("Untouched "));
       SERIAL_EOL();
     }
@@ -328,7 +327,7 @@ void GcodeSuite::M43() {
     for (uint8_t i = first_pin; i <= last_pin; ++i) {
       pin_t pin = GET_PIN_MAP_PIN_M43(i);
       if (!isValidPin(pin)) continue;
-      if (M43_NEVER_TOUCH(i) || (!ignore_protection && pin_is_protected(pin))) continue;
+      if (M43_NEVER_TOUCH(i) || (!ignore_protection && marlin.pin_is_protected(pin))) continue;
       can_watch = true;
       pinMode(pin, INPUT_PULLUP);
       delay(1);
@@ -358,7 +357,7 @@ void GcodeSuite::M43() {
 
     #if HAS_RESUME_CONTINUE
       KEEPALIVE_STATE(PAUSED_FOR_USER);
-      wait_for_user = true;
+      marlin.wait_start();
       TERN_(HOST_PROMPT_SUPPORT, hostui.continue_prompt(F("M43 Waiting...")));
       #if ENABLED(EXTENSIBLE_UI)
         ExtUI::onUserConfirmRequired(F("M43 Waiting..."));
@@ -371,7 +370,7 @@ void GcodeSuite::M43() {
       for (uint8_t i = first_pin; i <= last_pin; ++i) {
         const pin_t pin = GET_PIN_MAP_PIN_M43(i);
         if (!isValidPin(pin)) continue;
-        if (M43_NEVER_TOUCH(i) || (!ignore_protection && pin_is_protected(pin))) continue;
+        if (M43_NEVER_TOUCH(i) || (!ignore_protection && marlin.pin_is_protected(pin))) continue;
         const byte val =
           /*
           isAnalogPin(pin)
@@ -387,7 +386,7 @@ void GcodeSuite::M43() {
 
       #if HAS_RESUME_CONTINUE
         ui.update();
-        if (!wait_for_user) break;
+        if (!marlin.wait_for_user) break;
       #endif
 
       safe_delay(200);

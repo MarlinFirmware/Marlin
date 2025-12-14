@@ -255,7 +255,7 @@ namespace MMU3 {
       uint8_t block_index = planner.block_buffer_tail;
       while (block_index != planner.block_buffer_head) {
         block = &planner.block_buffer[block_index];
-        if (block->steps[E_AXIS] != 0) e_active++;
+        if (block->steps.e != 0) e_active++;
         block_index = (block_index + 1) & (BLOCK_BUFFER_SIZE - 1);
       }
     }
@@ -274,7 +274,7 @@ namespace MMU3 {
    */
   void MMU3::checkFINDARunout() {
     if (!findaDetectsFilament()
-        //&& printJobOngoing()
+        //&& marlin.printJobOngoing()
         && parser.codenum != 600
         && TERN1(HAS_LEVELING, planner.leveling_active)
         && xy_are_trusted()
@@ -760,10 +760,10 @@ namespace MMU3 {
       LogEchoEvent(F("Resuming XYZ"));
 
       // Move XY to starting position, then Z
-      motion_do_blocking_move_to_xy(resume_position.x, resume_position.x, feedRate_t(NOZZLE_PARK_XY_FEEDRATE));
+      motion_blocking_move_xy(resume_position.x, resume_position.y, feedRate_t(NOZZLE_PARK_XY_FEEDRATE));
 
       // Move Z_AXIS to saved position
-      motion_do_blocking_move_to_z(resume_position.z, feedRate_t(NOZZLE_PARK_Z_FEEDRATE));
+      motion_blocking_move_z(resume_position.z, feedRate_t(NOZZLE_PARK_Z_FEEDRATE));
 
       // From this point forward, power panic should not use
       // the partial backup in RAM since the extruder is no
@@ -857,7 +857,7 @@ namespace MMU3 {
     for (;;) {
       // in our new implementation, we know the exact state of the MMU at any moment, we do not have to wait for a timeout
       // So in this case we should decide if the operation is:
-      // - still running -> wait normally in idle()
+      // - still running -> wait normally in marlin.idle()
       // - failed -> then do the safety moves on the printer like before
       // - finished ok -> proceed with reading other commands
       safe_delay_keep_alive(0); // calls logicStep() and remembers its return status

@@ -46,7 +46,7 @@
 #include "../../../core/debug_out.h"
 
 #if ENABLED(FT_MOTION)
-  #include "../../module/ft_motion.h"
+  #include "../../../module/ft_motion.h"
 #endif
 
 // Save 130 bytes with non-duplication of PSTR
@@ -68,7 +68,7 @@ inline void echo_not_entered(const char c) { SERIAL_CHAR(c); SERIAL_ECHOLNPGM(" 
 void GcodeSuite::G29() {
 
   // Potentially disable Fixed-Time Motion for probing
-  TERN_(FT_MOTION, FTMotionDisableInScope FT_Disabler);
+  TERN_(FT_MOTION, FTM_DISABLE_IN_SCOPE());
 
   DEBUG_SECTION(log_G29, "G29", true);
 
@@ -225,7 +225,7 @@ void GcodeSuite::G29() {
         }
       }
       else
-        return echo_not_entered('J');
+        return echo_not_entered('I');
 
       if (parser.seenval('J')) {
         iy = parser.value_int();
