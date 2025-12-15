@@ -1051,6 +1051,12 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
   #endif
 #endif
 
+
+/* PID autotune (M303 command) */
+#if PID_AUTOTUNE_MENU && DISABLE_M303_AUTOTUNE
+  #error "Can't enable PID_AUTOTUNE_MENU and DISABLE_M303_AUTOTUNE at the same time."
+#endif
+
 /**
  * Bed Heating Options - PID vs Limit Switching
  */
