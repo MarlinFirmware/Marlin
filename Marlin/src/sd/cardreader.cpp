@@ -107,13 +107,10 @@ int16_t CardReader::nrItems = -1;
   #if ENABLED(SDSORT_USES_RAM)
 
     #if ENABLED(SDSORT_CACHE_NAMES)
-
       char (*CardReader::sortshort)[FILENAME_LENGTH];
+    #endif
+    #if ENABLED(SDSORT_CACHE_NAMES) || DISABLED(SDSORT_USES_STACK)
       char (*CardReader::sortnames)[SORTED_LONGNAME_STORAGE];
-
-    #elif DISABLED(SDSORT_USES_STACK)
-      static char sortnames_static[SDSORT_LIMIT][SORTED_LONGNAME_STORAGE];
-      char (*CardReader::sortnames)[SORTED_LONGNAME_STORAGE] = sortnames_static;
     #endif
 
     #if HAS_FOLDER_SORTING
@@ -162,12 +159,15 @@ CardReader::CardReader() {
       static uint8_t sort_order_static[SDSORT_LIMIT];
       sort_order = sort_order_static;
     #endif
-    #if ALL(SDSORT_USES_RAM, SDSORT_CACHE_NAMES) && DISABLED(SDSORT_DYNAMIC_RAM)
+    #if ENABLED(SDSORT_CACHE_NAMES) && DISABLED(SDSORT_DYNAMIC_RAM)
       static char sortshort_static[SDSORT_LIMIT][FILENAME_LENGTH];
-      static char sortnames_static[SDSORT_LIMIT][SORTED_LONGNAME_STORAGE];
       sortshort = sortshort_static;
+    #endif
+    #if ENABLED(SDSORT_CACHE_NAMES) && !ALL(SDSORT_DYNAMIC_RAM, SDSORT_USES_STACK)
+      static char sortnames_static[SDSORT_LIMIT][SORTED_LONGNAME_STORAGE];
       sortnames = sortnames_static;
     #endif
+
     sort_count = 0;
     #if ENABLED(SDSORT_GCODE)
       sort_alpha = TERN(SDSORT_REVERSE, AS_REV, AS_FWD);
@@ -1589,12 +1589,8 @@ void CardReader::cdroot() {
         #endif // Bubble Sort
 
         // Using RAM but not keeping names around
-        #if ENABLED(SDSORT_USES_RAM) && DISABLED(SDSORT_CACHE_NAMES)
-          #if ENABLED(SDSORT_DYNAMIC_RAM)
-            // Note: With contiguous memory allocation, individual strings are not separately allocated
-            // so there's nothing to free here. Only isDir needs cleanup.
-            TERN_(HAS_FOLDER_SORTING, delete [] isDir);
-          #endif
+        #if ALL(HAS_FOLDER_SORTING, SDSORT_DYNAMIC_RAM) && DISABLED(SDSORT_CACHE_NAMES)
+          delete [] isDir;
         #endif
       }
       else {

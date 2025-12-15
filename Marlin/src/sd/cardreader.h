@@ -376,8 +376,13 @@ private:
     // Cache filenames to speed up SD menus.
     #if ENABLED(SDSORT_USES_RAM)
 
-      static char (*sortshort)[SORTED_SHORTNAME_STORAGE];
-      static char (*sortnames)[SORTED_LONGNAME_STORAGE];
+      // Pointers to static or dynamic arrays of sorted names
+      #if ENABLED(SDSORT_CACHE_NAMES)
+        static char (*sortshort)[SORTED_SHORTNAME_STORAGE];
+      #endif
+      #if ENABLED(SDSORT_CACHE_NAMES) || DISABLED(SDSORT_USES_STACK)
+        static char (*sortnames)[SORTED_LONGNAME_STORAGE];
+      #endif
 
       // Folder sorting uses an isDir array when caching items.
       #if HAS_FOLDER_SORTING
