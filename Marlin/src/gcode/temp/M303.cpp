@@ -22,7 +22,7 @@
 
 #include "../../inc/MarlinConfig.h"
 
-#if HAS_PID_HEATING
+#if HAS_PID_AUTOTUNE
 
 #include "../gcode.h"
 #include "../queue.h" // for flush_tx
@@ -85,4 +85,4 @@ void GcodeSuite::M303() {
   queue.flush_rx();
 }
 
-#endif // HAS_PID_HEATING
+#endif // HAS_PID_AUTOTUNE
