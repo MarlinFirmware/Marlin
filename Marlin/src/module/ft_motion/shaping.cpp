@@ -90,7 +90,7 @@ void AxisShaping::set_axis_shaping_A(
       } break;
     #endif
 
-    #if ENABLED(FTM_SHAPER_H2EI)
+    #if ENABLED(FTM_SHAPER_2HEI)
       case ftMotionShaper_2HEI: {
         max_i = 3U;
         const float vtolx2 = sq(vtol);
