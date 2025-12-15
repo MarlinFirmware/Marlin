@@ -158,7 +158,7 @@ public:
   MString& append_P(PGM_P const s)            { int sz = length(); if (sz < SIZE) strlcpy_P(str + sz, s, SIZE - sz + 1); debug(F("pstring")); return *this; }
   MString& append(FSTR_P const f)             { return append_P(FTOP(f)); }
   MString& append(const bool &b)              { return append(b ? F("true") : F("false")); }
-  MString& append(const char c)               { int sz = length(); if (sz < SIZE) { str[sz] = c; if (sz < SIZE - 1) str[sz + 1] = '\0'; } return *this; }
+  MString& append(const char c)               { int sz = length(); if (sz < SIZE) { str[sz] = c; if (sz < SIZE - 1) str[sz + 1] = '\0'; } debug(F("char")); return *this; }
   #if ENABLED(FASTER_APPEND)
     MString& append(const int8_t &i)          { int sz = length(); SNPRINTF(&str[sz], SIZE - sz, "%d",  i); return *this; }
     MString& append(const short &i)           { int sz = length(); SNPRINTF(&str[sz], SIZE - sz, "%d",  i); return *this; }
