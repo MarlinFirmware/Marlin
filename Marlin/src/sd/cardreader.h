@@ -360,12 +360,8 @@ private:
       //static bool sort_reverse; // Flag to enable / disable reverse sorting
     #endif
 
-    // By default the sort index is statically allocated
-    #if ENABLED(SDSORT_DYNAMIC_RAM)
-      static uint8_t *sort_order;
-    #else
-      static uint8_t sort_order[SDSORT_LIMIT];
-    #endif
+    // Pointer to the static or dynamic sort index
+    static uint8_t *sort_order;
 
     #if ALL(SDSORT_USES_RAM, SDSORT_CACHE_NAMES) && DISABLED(SDSORT_DYNAMIC_RAM)
       #define SORTED_LONGNAME_MAXLEN (SDSORT_CACHE_VFATS) * (FILENAME_LENGTH)

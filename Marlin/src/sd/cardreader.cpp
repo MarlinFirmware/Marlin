@@ -102,11 +102,7 @@ int16_t CardReader::nrItems = -1;
     //bool CardReader::sort_reverse;
   #endif
 
-  #if ENABLED(SDSORT_DYNAMIC_RAM)
-    uint8_t *CardReader::sort_order;
-  #else
-    uint8_t CardReader::sort_order[SDSORT_LIMIT];
-  #endif
+  uint8_t *CardReader::sort_order;
 
   #if ENABLED(SDSORT_USES_RAM)
 
@@ -162,6 +158,10 @@ uint32_t CardReader::filesize, CardReader::sdpos;
 
 CardReader::CardReader() {
   #if ENABLED(SDCARD_SORT_ALPHA)
+    #if DISABLED(SDSORT_DYNAMIC_RAM)
+      static uint8_t sort_order_static[SDSORT_LIMIT];
+      sort_order = sort_order_static;
+    #endif
     #if ALL(SDSORT_USES_RAM, SDSORT_CACHE_NAMES) && DISABLED(SDSORT_DYNAMIC_RAM)
       static char sortshort_static[SDSORT_LIMIT][FILENAME_LENGTH];
       static char sortnames_static[SDSORT_LIMIT][SORTED_LONGNAME_STORAGE];
