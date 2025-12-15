@@ -398,7 +398,9 @@ void drawMaxAccelMenu();
 // PID
 #if HAS_PID_HEATING
   #include "../../../module/temperature.h"
-  void dwinStartM303(const int count, const heater_id_t hid, const celsius_t temp);
+  #if HAS_PID_AUTOTUNE
+    void dwinStartM303(const int count, const heater_id_t hid, const celsius_t temp);
+  #endif
   void dwinPIDTuning(tempcontrol_t result);
   #if ANY(PID_AUTOTUNE_MENU, PID_EDIT_MENU)
     #if ENABLED(PIDTEMP)

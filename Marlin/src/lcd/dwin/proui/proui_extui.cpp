@@ -213,9 +213,11 @@ namespace ExtUI {
       }
     }
 
-    void onStartM303(const int count, const heater_id_t hid, const celsius_t temp) {
-      dwinStartM303(count, hid, temp);
-    }
+    #if HAS_PID_AUTOTUNE
+      void onStartM303(const int count, const heater_id_t hid, const celsius_t temp) {
+        dwinStartM303(count, hid, temp);
+      }
+    #endif
 
   #endif
 
