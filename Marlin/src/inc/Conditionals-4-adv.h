@@ -336,16 +336,6 @@
   #endif
 #endif
 
-// Use Junction Deviation for motion if Jerk is disabled
-#if DISABLED(CLASSIC_JERK)
-  #define HAS_JUNCTION_DEVIATION 1
-#endif
-
-// E jerk exists with JD disabled (of course) but also when Linear Advance is disabled on Delta/SCARA
-#if HAS_EXTRUDERS && (ENABLED(CLASSIC_JERK) || (IS_KINEMATIC && DISABLED(LIN_ADVANCE)))
-  #define HAS_CLASSIC_E_JERK 1
-#endif
-
 // Fixed-Time Motion
 #if ENABLED(FT_MOTION)
   #if HAS_X_AXIS
@@ -365,38 +355,54 @@
   #endif
   #if ENABLED(NO_STANDARD_MOTION)
     #define FTM_HOME_AND_PROBE
-    #undef LIN_ADVANCE
-    #undef SMOOTH_LIN_ADVANCE
-    #undef S_CURVE_ACCELERATION
-    #undef ADAPTIVE_STEP_SMOOTHING
-    #undef INPUT_SHAPING_X
-    #undef INPUT_SHAPING_Y
-    #undef INPUT_SHAPING_E_SYNC
-    #undef MULTISTEPPING_LIMIT
-    #define MULTISTEPPING_LIMIT 1
   #endif
   #if ANY(FTM_SHAPER_EI, FTM_SHAPER_2HEI, FTM_SHAPER_3HEI)
     #define HAS_FTM_EI_SHAPING 1
   #endif
 #endif
+
+// Standard Motion
 #if DISABLED(NO_STANDARD_MOTION)
   #define HAS_STANDARD_MOTION 1
-#endif
-
-// ZV Input shaping
-#if ANY(INPUT_SHAPING_X, INPUT_SHAPING_Y, INPUT_SHAPING_Z)
-  #define HAS_ZV_SHAPING 1
+#else
+  #undef LIN_ADVANCE
+  #undef SMOOTH_LIN_ADVANCE
+  #undef S_CURVE_ACCELERATION
+  #undef ADAPTIVE_STEP_SMOOTHING
+  #undef INPUT_SHAPING_X
+  #undef INPUT_SHAPING_Y
+  #undef INPUT_SHAPING_Z
+  #undef INPUT_SHAPING_E_SYNC
+  #undef MULTISTEPPING_LIMIT
+  #define MULTISTEPPING_LIMIT 1
 #endif
 
 // Linear advance uses Jerk since E is an isolated axis
 #if ANY(FTM_HAS_LIN_ADVANCE, LIN_ADVANCE)
   #define HAS_LIN_ADVANCE_K 1
 #endif
-#if HAS_JUNCTION_DEVIATION && ENABLED(LIN_ADVANCE)
-  #define HAS_LINEAR_E_JERK 1
-#endif
+// Linear Advance without smoothing
 #if ENABLED(LIN_ADVANCE) && DISABLED(SMOOTH_LIN_ADVANCE)
   #define HAS_ROUGH_LIN_ADVANCE 1
+#endif
+
+// ZV Input Shaping for Standard Motion
+#if ANY(INPUT_SHAPING_X, INPUT_SHAPING_Y, INPUT_SHAPING_Z)
+  #define HAS_ZV_SHAPING 1
+#endif
+
+// Use Junction Deviation for motion if Jerk is disabled
+#if DISABLED(CLASSIC_JERK)
+  #define HAS_JUNCTION_DEVIATION 1
+#endif
+
+// E jerk exists with JD disabled (of course) but also when Linear Advance is disabled on Delta/SCARA
+#if HAS_EXTRUDERS && (ENABLED(CLASSIC_JERK) || (IS_KINEMATIC && DISABLED(LIN_ADVANCE)))
+  #define HAS_CLASSIC_E_JERK 1
+#endif
+// E jerk is derived from JD factors
+#if ALL(HAS_JUNCTION_DEVIATION, LIN_ADVANCE)
+  #define HAS_LINEAR_E_JERK 1
 #endif
 
 // Some displays can toggle Adaptive Step Smoothing.

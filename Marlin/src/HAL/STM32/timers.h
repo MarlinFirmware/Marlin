@@ -56,8 +56,8 @@ extern uint32_t GetStepperTimerClkFreq();
 #define STEPPER_TIMER_PRESCALE (GetStepperTimerClkFreq() / (STEPPER_TIMER_RATE))
 #define STEPPER_TIMER_TICKS_PER_US ((STEPPER_TIMER_RATE) / 1000000UL)               // (MHz) Stepper Timer ticks per µs
 
-#define PULSE_TIMER_RATE            STEPPER_TIMER_RATE                              // (Hz) Frequency of Pulse Timer
-#define PULSE_TIMER_TICKS_PER_US    STEPPER_TIMER_TICKS_PER_US
+// Pulse Timer (counter) calculations
+#define PULSE_TIMER_RATE            STEPPER_TIMER_RATE                    // (Hz) Frequency of Pulse Timer
 #define PULSE_TIMER_PRESCALE        STEPPER_TIMER_PRESCALE
 
 #define ENABLE_STEPPER_DRIVER_INTERRUPT()   HAL_timer_enable_interrupt(MF_TIMER_STEP)
