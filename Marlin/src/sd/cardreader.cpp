@@ -1397,7 +1397,7 @@ void CardReader::cdroot() {
 
         // Init sort order.
         for (int16_t i = 0; i < fileCnt; i++) {
-          sort_order[i] = i;
+          sort_order[i] = uint8_t(i);
           // If using RAM then read all filenames now.
           #if ENABLED(SDSORT_USES_RAM)
             selectFileByIndex(i);
@@ -1594,7 +1594,7 @@ void CardReader::cdroot() {
         #endif
       }
       else {
-        sort_order[0] = 0;
+        sort_order[0] = uint8_t(0);
         #if ALL(SDSORT_USES_RAM, SDSORT_CACHE_NAMES)
           #if ENABLED(SDSORT_DYNAMIC_RAM)
             sortnames = new char[1][SORTED_LONGNAME_STORAGE];
