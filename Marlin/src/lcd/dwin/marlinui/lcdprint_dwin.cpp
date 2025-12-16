@@ -21,7 +21,7 @@
  */
 
 /**
- * lcd/e3v2/marlinui/lcdprint_dwin.cpp
+ * lcd/dwin/marlinui/lcdprint_dwin.cpp
  *
  * Due to DWIN hardware limitations simplified characters are used
  */

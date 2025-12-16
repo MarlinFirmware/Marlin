@@ -21,7 +21,7 @@
  */
 
 /********************************************************************************
- * @file     lcd/e3v2/marlinui/dwin_lcd.cpp
+ * @file     lcd/dwin/marlinui/dwin_lcd.cpp
  * @brief    DWIN screen control functions
  ********************************************************************************/
 

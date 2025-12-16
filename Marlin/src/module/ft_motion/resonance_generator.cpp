@@ -53,7 +53,7 @@ void ResonanceGenerator::reset() {
 void ResonanceGenerator::fill_stepper_plan_buffer() {
   xyze_float_t traj_coords = {};
 
-  while (!ftMotion.stepper_plan_is_full()) {
+  while (!ftMotion.stepping.is_full()) {
     // Calculate current frequency
     // Logarithmic approach with duration per octave
     const float freq = rt_params.min_freq * powf(2.0f, rt_time / rt_params.octave_duration);
@@ -77,9 +77,8 @@ void ResonanceGenerator::fill_stepper_plan_buffer() {
     #define _SET_TRAJ(A) traj_coords.A = rt_params.start_pos.A + (rt_params.axis == A##_AXIS ? pos_offset : 0.0f);
     LOGICAL_AXIS_MAP(_SET_TRAJ);
 
-    stepper_plan_t plan = ftMotion.calc_stepper_plan(traj_coords);
     // Store in buffer
-    ftMotion.enqueue_stepper_plan(plan);
+    ftMotion.stepping_enqueue(traj_coords);
     // Increment time for the next point
     rt_time += FTM_TS;
   }

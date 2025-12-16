@@ -3612,6 +3612,14 @@
   #endif
 #endif
 
+#if ALL(SDCARD_SORT_ALPHA, SDSORT_CACHE_NAMES) && DISABLED(SDSORT_DYNAMIC_RAM)
+  #if SDSORT_CACHE_VFATS > VFAT_ENTRIES_LIMIT
+    #undef SDSORT_CACHE_VFATS
+    #define SDSORT_CACHE_VFATS VFAT_ENTRIES_LIMIT
+    #define SDSORT_CACHE_VFATS_WARNING 1
+  #endif
+#endif
+
 // Fallback SPI Speed for SD
 #if HAS_MEDIA && !defined(SD_SPI_SPEED)
   #define SD_SPI_SPEED SPI_FULL_SPEED
@@ -3687,18 +3695,8 @@
 
 // Fixed-Time Motion
 #if ENABLED(FT_MOTION)
-  #define FTM_TS (1.0f / FTM_FS)                                    // (s) Time step for trajectory generation. (Reciprocal of FTM_FS)
-  #define FTM_STEPS_PER_UNIT_TIME (FTM_STEPPER_FS / FTM_FS)         // Interpolated stepper commands per unit time
-  #define FTM_MIN_TICKS ((STEPPER_TIMER_RATE) / (FTM_STEPPER_FS))   // Minimum stepper ticks between steps
-  #define FTM_RATIO (FTM_FS / FTM_MIN_SHAPE_FREQ)     // Factor for use in FTM_ZMAX. DON'T CHANGE.
-  #define FTM_SMOOTH_MAX_I uint32_t(TERN0(FTM_SMOOTHING, CEIL(FTM_FS * FTM_MAX_SMOOTHING_TIME))) // Max delays for smoothing
-  #define FTM_ZMAX (FTM_RATIO * 2 + FTM_SMOOTH_MAX_I) // Maximum delays for shaping functions (even numbers only!)
-                                                      // Calculate as:
-                                                      //   ZV       : FTM_RATIO / 2
-                                                      //   ZVD, MZV : FTM_RATIO
-                                                      //   2HEI     : FTM_RATIO * 3 / 2
-                                                      //   3HEI     : FTM_RATIO * 2
-  #define FTM_SMOOTHING_ORDER 5                       // 3 to 5 is closest to gaussian
+  #define FTM_TS (1.0f / FTM_FS)  // (s) Time step for trajectory generation. (Reciprocal of FTM_FS)
+  #define FTM_SMOOTHING_ORDER   5 // 3 to 5 is closest to Gaussian
   #ifndef FTM_BUFFER_SIZE
     #define FTM_BUFFER_SIZE 128
   #endif

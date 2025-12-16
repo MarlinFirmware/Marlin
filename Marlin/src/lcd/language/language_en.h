@@ -140,6 +140,7 @@ namespace LanguageNarrow_en {
   LSTR MSG_LEVEL_BED_WAITING              = _UxGT("Click to Begin");
   LSTR MSG_LEVEL_BED_NEXT_POINT           = _UxGT("Next Point");
   LSTR MSG_LEVEL_BED_DONE                 = _UxGT("Leveling Done!");
+  LSTR MSG_ZERO_MESH_POINT                = _UxGT("Zero Current Point");
   LSTR MSG_Z_FADE_HEIGHT                  = _UxGT("Fade Height");
   LSTR MSG_SET_HOME_OFFSETS               = _UxGT("Set Home Offsets");
   LSTR MSG_HOME_OFFSET_X                  = _UxGT("Home Offset X"); // DWIN
@@ -946,6 +947,7 @@ namespace LanguageNarrow_en {
   LSTR MSG_FTM_VTOL_N                     = _UxGT("@ Vib. Level");
   LSTR MSG_FTM_SMOOTH_TIME_N              = _UxGT("@ Smoothing Time");
   LSTR MSG_FTM_POLY6_OVERSHOOT            = _UxGT("@ Poly6 Overshoot");
+  LSTR MSG_FTM_CONFIGURE_AXIS_N           = _UxGT("Configure @ Axis");
 
   LSTR MSG_FTM_RESONANCE_TEST             = _UxGT("Resonance Test");
   LSTR MSG_FTM_RT_RUNNING                 = _UxGT("Res. Test Running...");

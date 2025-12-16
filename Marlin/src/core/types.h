@@ -50,6 +50,7 @@ template <class L, class R> struct IF<true, L, R> { typedef L type; };
 #define NUM_AXIS_DECL_LC(T,V) NUM_AXIS_LIST(T x=V, T y=V, T z=V, T i=V, T j=V, T k=V, T u=V, T v=V, T w=V)
 #define MAIN_AXIS_NAMES       NUM_AXIS_LIST(X, Y, Z, I, J, K, U, V, W)
 #define MAIN_AXIS_NAMES_LC    NUM_AXIS_LIST(x, y, z, i, j, k, u, v, w)
+#define NUM_AXIS_CALL(G)      do { NUM_AXIS_CODE(G(X_AXIS), G(Y_AXIS), G(Z_AXIS), G(I_AXIS), G(J_AXIS), G(K_AXIS), G(U_AXIS), G(V_AXIS), G(W_AXIS)); } while(0)
 #define STR_AXES_MAIN         NUM_AXIS_GANG("X", "Y", "Z", STR_I, STR_J, STR_K, STR_U, STR_V, STR_W)
 
 #define LOGICAL_AXIS_GANG(N,V...)  NUM_AXIS_GANG(V) GANG_ITEM_E(N)
@@ -68,6 +69,7 @@ template <class L, class R> struct IF<true, L, R> { typedef L type; };
 #define LOGICAL_AXIS_NAMES_LC      LOGICAL_AXIS_LIST(e, x, y, z, i, j, k, u, v, w)
 #define LOGICAL_AXIS_MAP(F)        MAP(F, LOGICAL_AXIS_NAMES)
 #define LOGICAL_AXIS_MAP_LC(F)     MAP(F, LOGICAL_AXIS_NAMES_LC)
+#define LOGICAL_AXIS_CALL(G)       do { LOGICAL_AXIS_CODE(G(E_AXIS), G(X_AXIS), G(Y_AXIS), G(Z_AXIS), G(I_AXIS), G(J_AXIS), G(K_AXIS), G(U_AXIS), G(V_AXIS), G(W_AXIS)); } while(0)
 #define STR_AXES_LOGICAL           LOGICAL_AXIS_GANG("E", "X", "Y", "Z", STR_I, STR_J, STR_K, STR_U, STR_V, STR_W)
 
 #define NUM_AXIS_PAIRED_LIST(V...)           LIST_N(DOUBLE(NUM_AXES), V)
@@ -175,6 +177,7 @@ template <class L, class R> struct IF<true, L, R> { typedef L type; };
 #define CARTES_CODE(x,y,z,e)      XYZ_CODE(x,y,z) CODE_ITEM_E(e)
 #define CARTES_GANG(x,y,z,e)      XYZ_GANG(x,y,z) GANG_ITEM_E(e)
 #define CARTES_AXIS_NAMES         CARTES_LIST(X,Y,Z,E)
+#define CARTES_AXIS_NAMES_LC      CARTES_LIST(x,y,z,e)
 #define CARTES_MAP(F)             MAP(F, CARTES_AXIS_NAMES)
 #if CARTES_COUNT
   #define CARTES_COMMA ,
@@ -554,7 +557,7 @@ struct XYval {
   #endif
 
   // Length reduced to one dimension
-  FI constexpr T magnitude()    const { return (T)sqrtf(x*x + y*y); }
+  FI constexpr T magnitude()    const { return (T)SQRT(x*x + y*y); }
   // Pointer to the data as a simple array
   explicit FI operator T* ()          { return pos; }
   // If any element is true then it's true
@@ -731,7 +734,7 @@ struct XYZval {
   #endif
 
   // Length reduced to one dimension
-  FI constexpr T magnitude()    const { return (T)TERN(HAS_X_AXIS, sqrtf(NUM_AXIS_GANG(x*x, + y*y, + z*z, + i*i, + j*j, + k*k, + u*u, + v*v, + w*w)), 0); }
+  FI constexpr T magnitude()    const { return (T)TERN(HAS_X_AXIS, SQRT(NUM_AXIS_GANG(x*x, + y*y, + z*z, + i*i, + j*j, + k*k, + u*u, + v*v, + w*w)), 0); }
   // Pointer to the data as a simple array
   explicit FI operator T* ()          { return pos; }
   // If any element is true then it's true
@@ -816,6 +819,7 @@ struct XYZval {
   FI XYZval<T>& operator/=(const XYZEval<T> &rs) { NUM_AXIS_CODE(x /= rs.x, y /= rs.y, z /= rs.z, i /= rs.i, j /= rs.j, k /= rs.k, u /= rs.u, v /= rs.v, w /= rs.w); return *this; }
   FI XYZval<T>& operator*=(const float &p)       { NUM_AXIS_CODE(x *= p, y *= p, z *= p, i *= p, j *= p, k *= p, u *= p, v *= p, w *= p); return *this; }
   FI XYZval<T>& operator*=(const int &p)         { NUM_AXIS_CODE(x *= p, y *= p, z *= p, i *= p, j *= p, k *= p, u *= p, v *= p, w *= p); return *this; }
+  FI XYZval<T>& operator/=(const float &p)       { NUM_AXIS_CODE(x /= p, y /= p, z /= p, i /= p, j /= p, k /= p, u /= p, v /= p, w /= p); return *this; }
   FI XYZval<T>& operator>>=(const int &p)        { NUM_AXIS_CODE(_RSE(x), _RSE(y), _RSE(z), _RSE(i), _RSE(j), _RSE(k), _RSE(u), _RSE(v), _RSE(w)); return *this; }
   FI XYZval<T>& operator<<=(const int &p)        { NUM_AXIS_CODE(_LSE(x), _LSE(y), _LSE(z), _LSE(i), _LSE(j), _LSE(k), _LSE(u), _LSE(v), _LSE(w)); return *this; }
 
@@ -901,7 +905,7 @@ struct XYZEval {
   #endif
 
   // Length reduced to one dimension
-  FI constexpr T magnitude()    const { return (T)sqrtf(LOGICAL_AXIS_GANG(+ e*e, + x*x, + y*y, + z*z, + i*i, + j*j, + k*k, + u*u, + v*v, + w*w)); }
+  FI constexpr T magnitude()    const { return (T)SQRT(LOGICAL_AXIS_GANG(+ e*e, + x*x, + y*y, + z*z, + i*i, + j*j, + k*k, + u*u, + v*v, + w*w)); }
   // Pointer to the data as a simple array
   explicit FI operator T* ()          { return pos; }
   // If any element is true then it's true
@@ -986,7 +990,10 @@ struct XYZEval {
   FI XYZEval<T>& operator-=(const XYZEval<T> &rs) { LOGICAL_AXIS_CODE(e -= rs.e, x -= rs.x, y -= rs.y, z -= rs.z, i -= rs.i, j -= rs.j, k -= rs.k, u -= rs.u, v -= rs.v, w -= rs.w); return *this; }
   FI XYZEval<T>& operator*=(const XYZEval<T> &rs) { LOGICAL_AXIS_CODE(e *= rs.e, x *= rs.x, y *= rs.y, z *= rs.z, i *= rs.i, j *= rs.j, k *= rs.k, u *= rs.u, v *= rs.v, w *= rs.w); return *this; }
   FI XYZEval<T>& operator/=(const XYZEval<T> &rs) { LOGICAL_AXIS_CODE(e /= rs.e, x /= rs.x, y /= rs.y, z /= rs.z, i /= rs.i, j /= rs.j, k /= rs.k, u /= rs.u, v /= rs.v, w /= rs.w); return *this; }
+  FI XYZEval<T>& operator+=(const T &p)           { LOGICAL_AXIS_CODE(e += p, x += p, y += p, z += p, i += p, j += p, k += p, u += p, v += p, w += p); return *this; }
+  FI XYZEval<T>& operator-=(const T &p)           { LOGICAL_AXIS_CODE(e -= p, x -= p, y -= p, z -= p, i -= p, j -= p, k -= p, u -= p, v -= p, w -= p); return *this; }
   FI XYZEval<T>& operator*=(const T &p)           { LOGICAL_AXIS_CODE(e *= p, x *= p, y *= p, z *= p, i *= p, j *= p, k *= p, u *= p, v *= p, w *= p); return *this; }
+  FI XYZEval<T>& operator/=(const T &p)           { LOGICAL_AXIS_CODE(e /= p, x /= p, y /= p, z /= p, i /= p, j /= p, k /= p, u /= p, v /= p, w /= p); return *this; }
   FI XYZEval<T>& operator>>=(const int &p)        { LOGICAL_AXIS_CODE(_RSE(e), _RSE(x), _RSE(y), _RSE(z), _RSE(i), _RSE(j), _RSE(k), _RSE(u), _RSE(v), _RSE(w)); return *this; }
   FI XYZEval<T>& operator<<=(const int &p)        { LOGICAL_AXIS_CODE(_LSE(e), _LSE(x), _LSE(y), _LSE(z), _LSE(i), _LSE(j), _LSE(k), _LSE(u), _LSE(v), _LSE(w)); return *this; }
 

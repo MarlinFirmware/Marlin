@@ -415,14 +415,19 @@
   // A well-chosen Kc value should add just enough power to melt the increased material volume.
   //#define PID_EXTRUSION_SCALING
   #if ENABLED(PID_EXTRUSION_SCALING)
-    #define DEFAULT_Kc (100) // heating power = Kc * e_speed
     #define LPQ_MAX_LEN 50
+    #define DEFAULT_KC 100  // heating power = Kc * e_speed
+    #if ENABLED(PID_PARAMS_PER_HOTEND)
+      // Specify up to one value per hotend here, according to your setup.
+      // If there are fewer values, the last one applies to the remaining hotends.
+      #define DEFAULT_KC_LIST { DEFAULT_KC, DEFAULT_KC }  // heating power = Kc * e_speed
+    #endif
   #endif
 
   /**
    * Add an additional term to the heater power, proportional to the fan speed.
    * A well-chosen Kf value should add just enough power to compensate for power-loss from the cooling fan.
-   * You can either just add a constant compensation with the DEFAULT_Kf value
+   * You can either just add a constant compensation with the DEFAULT_KF value
    * or follow the instruction below to get speed-dependent compensation.
    *
    * Constant compensation (use only with fan speeds of 0% and 100%)
@@ -453,20 +458,25 @@
     #if ENABLED(PID_FAN_SCALING_ALTERNATIVE_DEFINITION)
       // The alternative definition is used for an easier configuration.
       // Just figure out Kf at full speed (255) and PID_FAN_SCALING_MIN_SPEED.
-      // DEFAULT_Kf and PID_FAN_SCALING_LIN_FACTOR are calculated accordingly.
+      // DEFAULT_KF and PID_FAN_SCALING_LIN_FACTOR are calculated accordingly.
 
-      #define PID_FAN_SCALING_AT_FULL_SPEED 13.0        //=PID_FAN_SCALING_LIN_FACTOR*255+DEFAULT_Kf
-      #define PID_FAN_SCALING_AT_MIN_SPEED   6.0        //=PID_FAN_SCALING_LIN_FACTOR*PID_FAN_SCALING_MIN_SPEED+DEFAULT_Kf
+      #define PID_FAN_SCALING_AT_FULL_SPEED 13.0        //=PID_FAN_SCALING_LIN_FACTOR*255+DEFAULT_KF
+      #define PID_FAN_SCALING_AT_MIN_SPEED   6.0        //=PID_FAN_SCALING_LIN_FACTOR*PID_FAN_SCALING_MIN_SPEED+DEFAULT_KF
       #define PID_FAN_SCALING_MIN_SPEED     10.0        // Minimum fan speed at which to enable PID_FAN_SCALING
 
-      #define DEFAULT_Kf (255.0*PID_FAN_SCALING_AT_MIN_SPEED-PID_FAN_SCALING_AT_FULL_SPEED*PID_FAN_SCALING_MIN_SPEED)/(255.0-PID_FAN_SCALING_MIN_SPEED)
-      #define PID_FAN_SCALING_LIN_FACTOR (PID_FAN_SCALING_AT_FULL_SPEED-DEFAULT_Kf)/255.0
+      #define DEFAULT_KF (255.0*PID_FAN_SCALING_AT_MIN_SPEED-PID_FAN_SCALING_AT_FULL_SPEED*PID_FAN_SCALING_MIN_SPEED)/(255.0-PID_FAN_SCALING_MIN_SPEED)
+      #define PID_FAN_SCALING_LIN_FACTOR (PID_FAN_SCALING_AT_FULL_SPEED-DEFAULT_KF)/255.0
 
     #else
       #define PID_FAN_SCALING_LIN_FACTOR (0)             // Power-loss due to cooling = Kf * (fan_speed)
-      #define DEFAULT_Kf 10                              // A constant value added to the PID-tuner
+      #define DEFAULT_KF 10                              // A constant value added to the PID-tuner
       #define PID_FAN_SCALING_MIN_SPEED 10               // Minimum fan speed at which to enable PID_FAN_SCALING
     #endif
+  #endif
+  #if ENABLED(PID_PARAMS_PER_HOTEND)
+    // Specify up to one value per hotend here, according to your setup.
+    // If there are fewer values, the last one applies to the remaining hotends.
+    #define DEFAULT_KF_LIST { DEFAULT_KF, DEFAULT_KF }
   #endif
 #endif
 
@@ -486,15 +496,15 @@
 #define AUTOTEMP
 #if ENABLED(AUTOTEMP)
   #define AUTOTEMP_OLDWEIGHT    0.98  // Factor used to weight previous readings (0.0 < value < 1.0)
-  #define AUTOTEMP_MIN          210
-  #define AUTOTEMP_MAX          250
+  #define AUTOTEMP_MIN        210
+  #define AUTOTEMP_MAX        250
   #define AUTOTEMP_FACTOR       0.1f
   // Turn on AUTOTEMP on M104/M109 by default using proportions set here
   //#define AUTOTEMP_PROPORTIONAL
   #if ENABLED(AUTOTEMP_PROPORTIONAL)
-    #define AUTOTEMP_MIN_P      0 // (°C) Added to the target temperature
-    #define AUTOTEMP_MAX_P      5 // (°C) Added to the target temperature
-    #define AUTOTEMP_FACTOR_P   1 // Apply this F parameter by default (overridden by M104/M109 F)
+    #define AUTOTEMP_MIN_P      0     // (°C) Added to the target temperature
+    #define AUTOTEMP_MAX_P      5     // (°C) Added to the target temperature
+    #define AUTOTEMP_FACTOR_P   1     // Apply this F parameter by default (overridden by M104/M109 F)
   #endif
 #endif
 
@@ -1150,9 +1160,26 @@
 #if ENABLED(FT_MOTION)
   //#define FTM_IS_DEFAULT_MOTION               // Use FT Motion as the factory default?
   //#define FT_MOTION_MENU                      // Provide a MarlinUI menu to set M493 and M494 parameters
-  //#define FTM_HOME_AND_PROBE                  // Use FT Motion for homing / probing. Disable if FT Motion breaks these functions.
 
-  #define FTM_DEFAULT_DYNFREQ_MODE dynFreqMode_DISABLED // Default mode of dynamic frequency calculation. (DISABLED, Z_BASED, MASS_BASED)
+  //#define NO_STANDARD_MOTION                  // Disable the standard motion system entirely to save Flash and RAM
+  #if DISABLED(NO_STANDARD_MOTION)
+    //#define FTM_HOME_AND_PROBE                // Use FT Motion for homing / probing. Disable if FT Motion breaks these functions.
+  #endif
+
+  //#define FTM_DYNAMIC_FREQ                    // Enable for linear adjustment of XY shaping frequency according to Z or E
+  #if ENABLED(FTM_DYNAMIC_FREQ)
+    #define FTM_DEFAULT_DYNFREQ_MODE dynFreqMode_DISABLED // Default mode of dynamic frequency calculation. (DISABLED, Z_BASED, MASS_BASED)
+  #endif
+
+  // Disable unused shapers if you need more free space
+  #define FTM_SHAPER_ZV
+  #define FTM_SHAPER_ZVD
+  #define FTM_SHAPER_ZVDD
+  #define FTM_SHAPER_ZVDDD
+  #define FTM_SHAPER_EI
+  #define FTM_SHAPER_2HEI
+  #define FTM_SHAPER_3HEI
+  #define FTM_SHAPER_MZV
 
   #define FTM_DEFAULT_SHAPER_X      ftMotionShaper_NONE // Default shaper mode on X axis (NONE, ZV, ZVD, ZVDD, ZVDDD, EI, 2HEI, 3HEI, MZV)
   #define FTM_SHAPING_DEFAULT_FREQ_X   37.0f    // (Hz) Default peak frequency used by input shapers
@@ -1191,14 +1218,17 @@
                                                 //     smoothing acceleration peaks, which may also smooth curved surfaces.
   #endif
 
-  #define FTM_TRAJECTORY_TYPE   TRAPEZOIDAL // Block acceleration profile (TRAPEZOIDAL, POLY5, POLY6)
-                                            // TRAPEZOIDAL: Continuous Velocity. Max acceleration is respected.
-                                            // POLY5:       Like POLY6 with 1.5x but uses less CPU.
-                                            // POLY6:       Continuous Acceleration (aka S_CURVE).
-                                            // POLY trajectories not only reduce resonances without rounding corners, but also
-                                            // reduce extruder strain due to linear advance.
+  #define FTM_POLYS                             // Disable POLY5/6 to save ~3k of Flash. Preserves TRAPEZOIDAL.
+  #if ENABLED(FTM_POLYS)
+    #define FTM_TRAJECTORY_TYPE TRAPEZOIDAL     // Block acceleration profile (TRAPEZOIDAL, POLY5, POLY6)
+                                                // TRAPEZOIDAL: Continuous Velocity. Max acceleration is respected.
+                                                // POLY5:       Like POLY6 with 1.5x but uses less CPU.
+                                                // POLY6:       Continuous Acceleration (aka S_CURVE).
+                                                // POLY trajectories not only reduce resonances without rounding corners, but also
+                                                // reduce extruder strain due to linear advance.
 
-  #define FTM_POLY6_ACCELERATION_OVERSHOOT 1.875f // Max acceleration overshoot factor for POLY6 (1.25 to 1.875)
+    #define FTM_POLY6_ACCELERATION_OVERSHOOT 1.875f // Max acceleration overshoot factor for POLY6 (1.25 to 1.875)
+  #endif
 
   /**
    * Advanced configuration
@@ -1206,7 +1236,6 @@
   #define FTM_BUFFER_SIZE             128   // Window size for trajectory generation, must be a power of 2 (e.g 64, 128, 256, ...)
                                             // The total buffered time in seconds is (FTM_BUFFER_SIZE/FTM_FS)
   #define FTM_FS                     1000   // (Hz) Frequency for trajectory generation.
-  #define FTM_STEPPER_FS        2'000'000   // (Hz) Time resolution of stepper I/O update. Shouldn't affect CPU much (slower board testing needed)
   #define FTM_MIN_SHAPE_FREQ           20   // (Hz) Minimum shaping frequency, lower consumes more RAM
 
 #endif // FT_MOTION
@@ -1785,6 +1814,14 @@
   #endif
 
   /**
+   * Priming for the Remaining Time estimate
+   * Long processes at the start of a G-code file can skew the Remaining Time estimate.
+   * Enable these options to start this estimation at a later point in the G-code file.
+   */
+  //#define REMAINING_TIME_PRIME      // Provide G-code 'M75 R' to prime the Remaining Time estimate
+  //#define REMAINING_TIME_AUTOPRIME  // Prime the Remaining Time estimate later (e.g., at the end of 'M109')
+
+  /**
    * Continue after Power-Loss (Creality3D)
    *
    * Store the current state to the SD Card at the start of each layer
@@ -1795,6 +1832,8 @@
   //#define POWER_LOSS_RECOVERY
   #if ENABLED(POWER_LOSS_RECOVERY)
     #define PLR_ENABLED_DEFAULT       false // Power-Loss Recovery enabled by default. (Set with 'M413 Sn' & M500)
+    //#define PLR_HEAT_BED_ON_REBOOT        // Heat up bed immediately on reboot to mitigate object detaching/warping.
+    //#define PLR_HEAT_BED_EXTRA          0 // (°C) Relative increase of bed temperature for better adhesion (limited by max temp).
     //#define PLR_BED_THRESHOLD BED_MAXTEMP // (°C) Skip user confirmation at or above this bed temperature (0 to disable)
 
     //#define POWER_LOSS_PIN             44 // Pin to detect power-loss. Set to -1 to disable default pin on boards without module, or comment to use board default.
@@ -1848,17 +1887,21 @@
 
   // SD Card Sorting options
   #if ENABLED(SDCARD_SORT_ALPHA)
-    #define SDSORT_REVERSE     false  // Default to sorting file names in reverse order.
-    #define SDSORT_LIMIT       40     // Maximum number of sorted items (10-256). Costs 27 bytes each.
-    #define SDSORT_FOLDERS     -1     // -1=above  0=none  1=below
-    #define SDSORT_GCODE       false  // Enable G-code M34 to set sorting behaviors: M34 S<-1|0|1> F<-1|0|1>
-    #define SDSORT_USES_RAM    false  // Pre-allocate a static array for faster pre-sorting.
-    #define SDSORT_USES_STACK  false  // Prefer the stack for pre-sorting to give back some SRAM. (Negated by next 2 options.)
-    #define SDSORT_CACHE_NAMES false  // Keep sorted items in RAM longer for speedy performance. Most expensive option.
-    #define SDSORT_DYNAMIC_RAM false  // Use dynamic allocation (within SD menus). Least expensive option. Set SDSORT_LIMIT before use!
-    #define SDSORT_CACHE_VFATS 2      // Maximum number of 13-byte VFAT entries to use for sorting.
-                                      // Note: Only affects SCROLL_LONG_FILENAMES with SDSORT_CACHE_NAMES but not SDSORT_DYNAMIC_RAM.
-    #define SDSORT_QUICK       true   // Use Quick Sort as a sorting algorithm. Otherwise use Bubble Sort.
+    #define SDSORT_QUICK           true   // Use Quick Sort as a sorting algorithm. Otherwise use Bubble Sort.
+    #define SDSORT_REVERSE         false  // Default to sorting file names in reverse order.
+    #define SDSORT_LIMIT           40     // Maximum number of sorted items (10-256). Costs 27 bytes each.
+    #define SDSORT_FOLDERS        -1      // -1=above  0=none  1=below
+    #define SDSORT_GCODE           false  // Enable G-code M34 to set sorting behaviors: M34 S<-1|0|1> F<-1|0|1>
+    #define SDSORT_USES_STACK      false  // Prefer the stack for pre-sorting to give back some SRAM. (Negated by next 2 options.)
+    #define SDSORT_USES_RAM        false  // Pre-allocate a static array for faster pre-sorting.
+    #if ENABLED(SDSORT_USES_RAM)
+      #define SDSORT_CACHE_NAMES   false  // Keep sorted items in RAM longer for speedy performance. Most expensive option.
+      #if ENABLED(SDSORT_CACHE_NAMES)
+        #define SDSORT_DYNAMIC_RAM false  // Use dynamic allocation (within SD menus). Least expensive option. Set SDSORT_LIMIT before use!
+        #define SDSORT_CACHE_VFATS 2      // Maximum number of 13-byte VFAT entries to use for sorting.
+                                          // Note: Only affects SCROLL_LONG_FILENAMES with SDSORT_CACHE_NAMES but not SDSORT_DYNAMIC_RAM.
+      #endif
+    #endif
   #endif
 
   // Allow international symbols in long filenames. To display correctly, the
@@ -4197,7 +4240,7 @@
     #define BUTTON1_WHEN_PRINTING false     // Button allowed to trigger during printing?
     #define BUTTON1_GCODE         "G28"
     #define BUTTON1_DESC          "Homing"  // Optional string to set the LCD status
-    //#define BUTTON1_IMMEDIATE             // Skip the queue and run the G-code immediately. Rarely needed.
+    //#define BUTTON1_IMMEDIATE             // Skip the queue and execute immediately. Rarely needed.
   #endif
 
   //#define BUTTON2_PIN -1

@@ -54,7 +54,6 @@
 #include "../lcd/marlinui.h"
 #include "../libs/vector_3.h"   // for matrix_3x3
 #include "../gcode/gcode.h"
-#include "../MarlinCore.h"
 
 #if ANY(EEPROM_SETTINGS, SD_FIRMWARE_UPDATE)
   #include "../HAL/shared/eeprom_api.h"
@@ -80,14 +79,14 @@
 #endif
 
 #if ENABLED(DWIN_LCD_PROUI)
-  #include "../lcd/e3v2/proui/dwin.h"
-  #include "../lcd/e3v2/proui/bedlevel_tools.h"
+  #include "../lcd/dwin/proui/dwin.h"
+  #include "../lcd/dwin/proui/bedlevel_tools.h"
 #endif
 
 #if ENABLED(EXTENSIBLE_UI)
   #include "../lcd/extui/ui_api.h"
 #elif ENABLED(DWIN_CREALITY_LCD_JYERSUI)
-  #include "../lcd/e3v2/jyersui/dwin.h"
+  #include "../lcd/dwin/jyersui/dwin.h"
 #endif
 
 #if ENABLED(HOST_PROMPT_SUPPORT)
@@ -1698,7 +1697,7 @@ void MarlinSettings::postprocess() {
     // CONFIGURABLE_MACHINE_NAME
     //
     #if ENABLED(CONFIGURABLE_MACHINE_NAME)
-      EEPROM_WRITE(machine_name);
+      EEPROM_WRITE(marlin.machine_name);
     #endif
 
     //
@@ -2231,7 +2230,7 @@ void MarlinSettings::postprocess() {
         #if ENABLED(PTC_PROBE)
           EEPROM_READ(ptc.z_offsets_probe);
         #endif
-        # if ENABLED(PTC_BED)
+        #if ENABLED(PTC_BED)
           EEPROM_READ(ptc.z_offsets_bed);
         #endif
         #if ENABLED(PTC_HOTEND)
@@ -2824,7 +2823,7 @@ void MarlinSettings::postprocess() {
       // CONFIGURABLE_MACHINE_NAME
       //
       #if ENABLED(CONFIGURABLE_MACHINE_NAME)
-        EEPROM_READ(machine_name);
+        EEPROM_READ(marlin.machine_name);
       #endif
 
       //
@@ -3075,7 +3074,7 @@ void MarlinSettings::postprocess() {
 
     #if ENABLED(EEPROM_CHITCHAT) && DISABLED(DISABLE_M503)
       // Report the EEPROM settings
-      if (!validating && TERN1(EEPROM_BOOT_SILENT, IsRunning())) report();
+      if (!validating && TERN1(EEPROM_BOOT_SILENT, marlin.isRunning())) report();
     #endif
 
     return eeprom_error;
@@ -3440,7 +3439,7 @@ void MarlinSettings::reset() {
   //
   // CONFIGURABLE_MACHINE_NAME
   //
-  TERN_(CONFIGURABLE_MACHINE_NAME, machine_name = PSTR(MACHINE_NAME));
+  TERN_(CONFIGURABLE_MACHINE_NAME, marlin.machine_name = PSTR(MACHINE_NAME));
 
   //
   // TOUCH_SCREEN_CALIBRATION

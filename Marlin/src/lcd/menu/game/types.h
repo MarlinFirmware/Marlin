@@ -27,7 +27,7 @@
 #if HAS_MARLINUI_U8GLIB
   #include "../../dogm/game.h"
 #elif IS_DWIN_MARLINUI
-  #include "../../e3v2/marlinui/game.h"
+  #include "../../dwin/marlinui/game.h"
 #endif
 
 typedef struct { int8_t x, y; } pos_t;

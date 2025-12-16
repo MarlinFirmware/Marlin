@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2021 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2025 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -21,14 +21,8 @@
  */
 #pragma once
 
-/********************************************************************************
- * @file     lcd/e3v2/jyersui/dwin_lcd.h
- * @brief    DWIN screen control functions
- ********************************************************************************/
-
-#include "../common/dwin_api.h"
-
-// Draw the degree (°) symbol
-// color: color
-//  x/y: Upper-left coordinate of the first pixel
-void dwinDrawDegreeSymbol(uint16_t color, uint16_t x, uint16_t y);
+/**
+ * RP2040 LCD-specific defines
+ */
+uint8_t u8g_com_rp2040_ssd_i2c_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_val, void *arg_ptr); // u8g_com_rp2040_ssd_i2c.cpp
+#define U8G_COM_SSD_I2C_HAL   u8g_com_rp2040_ssd_i2c_fn
