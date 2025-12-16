@@ -30,13 +30,16 @@ FORCE_INLINE constexpr uint32_t a_times_b_shift_16(const uint32_t a, const uint3
   const uint32_t hi = a >> 16, lo = a & 0x0000FFFF;
   return (hi * b) + ((lo * b) >> 16);
 }
-#define FTM_NEVER uint32_t(UINT16_MAX)                               // Reserved number to indicate "no ticks in this frame" (FRAME_TICKS_FP+1 would work too)
-constexpr uint32_t FRAME_TICKS = STEPPER_TIMER_RATE / FTM_FS;        // Timer ticks per frame (by default, 1kHz)
-constexpr uint32_t TICKS_BITS = __builtin_clzl(FRAME_TICKS + 1UL);   // Bits to represent the max value (duration of a frame, +1 one for FTM_NEVER).
-constexpr uint32_t FTM_Q_INT = 32u - TICKS_BITS;                     // Bits remaining
-                                                                     // "clz" counts leading zeroes.
-constexpr uint32_t FTM_Q = 16u - FTM_Q_INT;                          // uint16 interval fractional bits.
-                                                                     // Intervals buffer has fixed point numbers with the point on this position
+constexpr int CLZ32(const uint32_t v, const int c=0) {
+  return v ? (TEST32(v, 31)) ? c : CLZ32(v << 1, c + 1) : 32;
+}
+#define FTM_NEVER uint32_t(UINT16_MAX)                        // Reserved number to indicate "no ticks in this frame" (FRAME_TICKS_FP+1 would work too)
+constexpr uint32_t FRAME_TICKS = STEPPER_TIMER_RATE / FTM_FS; // Timer ticks per frame (by default, 1kHz)
+constexpr uint32_t TICKS_BITS = CLZ32(FRAME_TICKS + 1U);      // Bits to represent the max value (duration of a frame, +1 one for FTM_NEVER).
+constexpr uint32_t FTM_Q_INT = 32u - TICKS_BITS;              // Bits remaining
+                                                              // "clz" counts leading zeroes.
+constexpr uint32_t FTM_Q = 16u - FTM_Q_INT;                   // uint16 interval fractional bits.
+                                                              // Intervals buffer has fixed point numbers with the point on this position
 
 static_assert(FRAME_TICKS < FTM_NEVER, "(STEPPER_TIMER_RATE / FTM_FS) must be < " STRINGIFY(FTM_NEVER) " to fit 16-bit fixed-point numbers.");
 static_assert(FRAME_TICKS !=  2000 || FTM_Q_INT == 11, "FTM_Q_INT should be 11");
