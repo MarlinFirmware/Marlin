@@ -137,7 +137,8 @@ void AxisShaping::set_axis_shaping_A(
       break;
   }
 
-}
+} // set_axis_shaping_A
+
 // Refresh the indices used by shaping functions.
 // Ai[] must be precomputed (if zeta or vtol change, call set_axis_shaping_A first)
 void AxisShaping::set_axis_shaping_N(const ftMotionShaper_t shaper, const float f, const float zeta) {
@@ -188,6 +189,6 @@ void AxisShaping::set_axis_shaping_N(const ftMotionShaper_t shaper, const float 
     for (uint8_t i = 1; i <= max_i; ++i) Ni[i] += Ni[0];
 
   #endif
-}
+} // set_axis_shaping_N
 
 #endif // FT_MOTION
