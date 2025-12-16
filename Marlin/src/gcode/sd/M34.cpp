@@ -33,7 +33,7 @@
  * Set Media Sorting Options
  *
  * Parameters:
- *   S<inr>  Sorting Order:
+ *   S<int>  Sorting Order:
  *     S    Default sorting (i.e., SDSORT_REVERSE)
  *     S-1  Reverse alpha sorting
  *     S0   FID Order (not always newest)
