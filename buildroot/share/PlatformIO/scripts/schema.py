@@ -72,13 +72,16 @@ def group_options(schema):
                 for optkey in s:
                     find_grouping(found_groups, filekey, sectkey, optkey, pindex)
 
-        for kkey, items in list(found_groups.items()):
+        fkeys = [ k for k in found_groups.keys() ]
+        for kkey in fkeys:
+            items = found_groups[kkey]
             if len(items) > 1:
                 f, s, w = kkey.split('|')
                 extend_dict(schema, (f, s, w))                      # Add wildcard group to schema
                 for subkey, optkey in items:                        # Add all items to wildcard group
                     schema[f][s][w][subkey] = schema[f][s][optkey]  # Move non-wildcard item to wildcard group
                     del schema[f][s][optkey]
+            del found_groups[kkey]
 
 # Extract all board names from boards.h
 def load_boards():
