@@ -429,14 +429,8 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
     #error "SDSORT_DYNAMIC_RAM requires SDSORT_CACHE_NAMES."
   #endif
 
-  #if ENABLED(SDSORT_CACHE_NAMES) && DISABLED(SDSORT_DYNAMIC_RAM)
-    #if SDSORT_CACHE_VFATS < 2
-      #error "SDSORT_CACHE_VFATS must be 2 or greater!"
-    #elif SDSORT_CACHE_VFATS > VFAT_ENTRIES_LIMIT
-      #undef SDSORT_CACHE_VFATS
-      #define SDSORT_CACHE_VFATS VFAT_ENTRIES_LIMIT
-      #define SDSORT_CACHE_VFATS_WARNING 1
-    #endif
+  #if ENABLED(SDSORT_CACHE_NAMES) && DISABLED(SDSORT_DYNAMIC_RAM) && SDSORT_CACHE_VFATS < 2
+    #error "SDSORT_CACHE_VFATS must be 2 or greater!"
   #endif
 #endif
 

@@ -90,7 +90,7 @@ void AxisShaping::set_axis_shaping_A(
       } break;
     #endif
 
-    #if ENABLED(FTM_SHAPER_H2EI)
+    #if ENABLED(FTM_SHAPER_2HEI)
       case ftMotionShaper_2HEI: {
         max_i = 3U;
         const float vtolx2 = sq(vtol);
@@ -130,6 +130,7 @@ void AxisShaping::set_axis_shaping_A(
       break;
     #endif
 
+    default:
     case ftMotionShaper_NONE:
       max_i = 0;
       Ai[0] = 1.0f; // No echoes so the whole impulse is applied in the first tap
@@ -144,31 +145,53 @@ void AxisShaping::set_axis_shaping_N(const ftMotionShaper_t shaper, const float 
   // Note that protections are omitted for DBZ and for index exceeding array length.
   const float df = sqrt ( 1.f - sq(zeta) );
   switch (shaper) {
-    case ftMotionShaper_ZV:
-      Ni[1] = LROUND((0.5f / f / df) * (FTM_FS));
-      break;
-    case ftMotionShaper_ZVD:
-    case ftMotionShaper_EI:
-      Ni[1] = LROUND((0.5f / f / df) * (FTM_FS));
-      Ni[2] = Ni[1] + Ni[1];
-      break;
-    case ftMotionShaper_ZVDD:
-    case ftMotionShaper_2HEI:
-      Ni[1] = LROUND((0.5f / f / df) * (FTM_FS));
-      Ni[2] = Ni[1] + Ni[1];
-      Ni[3] = Ni[2] + Ni[1];
-      break;
-    case ftMotionShaper_ZVDDD:
-    case ftMotionShaper_3HEI:
-      Ni[1] = LROUND((0.5f / f / df) * (FTM_FS));
-      Ni[2] = Ni[1] + Ni[1];
-      Ni[3] = Ni[2] + Ni[1];
-      Ni[4] = Ni[3] + Ni[1];
-      break;
-    case ftMotionShaper_MZV:
-      Ni[1] = LROUND((0.375f / f / df) * (FTM_FS));
-      Ni[2] = Ni[1] + Ni[1];
-      break;
+    #if ENABLED(FTM_SHAPER_ZV)
+      case ftMotionShaper_ZV:
+        Ni[1] = LROUND((0.5f / f / df) * (FTM_FS));
+        break;
+    #endif
+
+    #if ENABLED(FTM_SHAPER_ZVD)
+      case ftMotionShaper_ZVD:
+    #endif
+    #if ANY(FTM_SHAPER_ZVD, FTM_SHAPER_EI)
+      case ftMotionShaper_EI:
+        Ni[1] = LROUND((0.5f / f / df) * (FTM_FS));
+        Ni[2] = Ni[1] + Ni[1];
+        break;
+    #endif
+
+    #if ENABLED(FTM_SHAPER_ZVDD)
+      case ftMotionShaper_ZVDD:
+    #endif
+    #if ANY(FTM_SHAPER_ZVDD, FTM_SHAPER_2HEI)
+      case ftMotionShaper_2HEI:
+        Ni[1] = LROUND((0.5f / f / df) * (FTM_FS));
+        Ni[2] = Ni[1] + Ni[1];
+        Ni[3] = Ni[2] + Ni[1];
+        break;
+    #endif
+
+    #if ENABLED(FTM_SHAPER_ZVDDD)
+      case ftMotionShaper_ZVDDD:
+    #endif
+    #if ANY(FTM_SHAPER_ZVDDD, FTM_SHAPER_3HEI)
+      case ftMotionShaper_3HEI:
+        Ni[1] = LROUND((0.5f / f / df) * (FTM_FS));
+        Ni[2] = Ni[1] + Ni[1];
+        Ni[3] = Ni[2] + Ni[1];
+        Ni[4] = Ni[3] + Ni[1];
+        break;
+    #endif
+
+    #if ENABLED(FTM_SHAPER_MZV)
+      case ftMotionShaper_MZV:
+        Ni[1] = LROUND((0.375f / f / df) * (FTM_FS));
+        Ni[2] = Ni[1] + Ni[1];
+        break;
+    #endif
+
+    default:
     case ftMotionShaper_NONE:
       // No echoes.
       // max_i is set to 0 by set_axis_shaping_A, so delay centroid (Ni[0]) will also correctly be 0
