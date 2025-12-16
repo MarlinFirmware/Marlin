@@ -32,7 +32,7 @@ Optional arguments:
 import re, json
 from pathlib import Path
 
-def extend_dict(d: dict, k: tuple):
+def extend_dict(d:dict, k:tuple):
     if len(k) >= 1 and k[0] not in d:
         d[k[0]] = {}
     if len(k) >= 2 and k[1] not in d[k[0]]:
@@ -129,11 +129,11 @@ def extract_files(filekey):
         ERROR           = 9 # Syntax error
 
     # A JSON object to store the data
-    sch_out = { key: {} for key in filekey.values() }
+    sch_out = { key:{} for key in filekey.values() }
     # Regex for #define NAME [VALUE] [COMMENT] with sanitized line
     defgrep = re.compile(r'^(//)?\s*(#define)\s+([A-Za-z0-9_]+)\s*(.*?)\s*(//.+)?$')
     # Pattern to match a float value
-    flt = r'[-+]?(?:\d+\.|\d*\.\d+)(?:[eE][-+]?\d+)?[fF]?'
+    flt = r'[-+]?\s*(?:\d+\.|\d*\.\d+)(?:[eE][-+]?\d+)?[fF]?'
     # Pattern to match an integer expression
     int_expr = r'(?:[-+]?\s*\d+(?:\s*[*\/+\-]\s*\d+)*)'
     # Start with unknown state
@@ -501,12 +501,12 @@ def main():
         if inargs(['-h', '--help']) or unk:
             print("Extract firmware configuration into structured JSON or YAML schema format.")
             print("Usage: schema.py [-h] [some|json|jsons|group|yml|yaml]")
-            print("       some     Generate both JSON and YAML output (schema.json and schema.yml)")
-            print("       json     Generate JSON output (schema.json)")
-            print("       jsons    Generate grouped JSON output with wildcard options (schema.json and schema_grouped.json)")
-            print("       group    Generate grouped JSON output only (schema_grouped.json)")
-            print("       yml      Generate YAML output (schema.yml)")
-            print("       yaml     Same as 'yml'")
+            print("  some    Generate both JSON and YAML output (schema.json and schema.yml)")
+            print("  json    Generate JSON output (schema.json)")
+            print("  jsons   Generate grouped JSON output with wildcard options (schema.json and schema_grouped.json)")
+            print("  group   Generate grouped JSON output only (schema_grouped.json)")
+            print("  yml     Generate YAML output (schema.yml)")
+            print("  yaml    Same as 'yml'")
             return
 
         # JSON schema
