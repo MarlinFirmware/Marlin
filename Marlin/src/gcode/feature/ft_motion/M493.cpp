@@ -296,7 +296,7 @@ void GcodeSuite::M493() {
   const float zetaVal = seenI ? parser.value_float() : 0.0f;
   const bool goodZeta = seenI && c.goodZeta(zetaVal);
   if (seenI && !goodZeta)
-    SERIAL_ECHOLN(F("?Invalid "), F("(I) Zeta value. (0.01-0.25)")); // Zeta out of range
+    SERIAL_ECHOLN(F("?Invalid "), F("(I) Zeta value. (0.01-" STRINGIFY(FTM_MAX_DAMPENING) ")")); // Zeta out of range
 
   #if HAS_FTM_EI_SHAPING
     // Vibration Tolerance parameter

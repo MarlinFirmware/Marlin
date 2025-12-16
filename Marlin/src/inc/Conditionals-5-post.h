@@ -3699,8 +3699,8 @@
   #define FTM_SMOOTH_MAX_I uint32_t(TERN0(FTM_SMOOTHING, CEIL(FTM_FS * FTM_MAX_SMOOTHING_TIME))) // Max delays for smoothing
 
   // See set_axis_shaping_N calculation in ft_motion/shaping.cpp
-  #define FTM_MAX_DAMPENING 0.25f
-  #define FTM_MIN_DF sqrtf( 1.f - sq(FTM_MAX_DAMPENING) )
+  #define FTM_MAX_DAMPENING 0.25
+  #define FTM_MIN_DF sqrtf( 1.f - sq(float(FTM_MAX_DAMPENING)) )
   #define CALC_N1(D) (LROUND((D / FTM_MIN_SHAPE_FREQ / FTM_MIN_DF) * (FTM_FS)))
   // Maximum delays for shaping functions
   #define FTM_SHAPING_MAX_I _MAX(0, \
