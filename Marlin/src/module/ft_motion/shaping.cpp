@@ -130,6 +130,7 @@ void AxisShaping::set_axis_shaping_A(
       break;
     #endif
 
+    default:
     case ftMotionShaper_NONE:
       max_i = 0;
       Ai[0] = 1.0f; // No echoes so the whole impulse is applied in the first tap
@@ -146,6 +147,7 @@ void AxisShaping::set_axis_shaping_N(const ftMotionShaper_t shaper, const float 
   float base = 0.0f;
 
   switch (shaper) {
+
     #if ANY(FTM_SHAPER_ZV, FTM_SHAPER_ZVD, FTM_SHAPER_EI, FTM_SHAPER_ZVDD, FTM_SHAPER_2HEI, FTM_SHAPER_ZVDDD, FTM_SHAPER_3HEI)
       TERN_(FTM_SHAPER_ZV, case ftMotionShaper_ZV:)
       TERN_(FTM_SHAPER_ZVD, case ftMotionShaper_ZVD:)
@@ -159,9 +161,7 @@ void AxisShaping::set_axis_shaping_N(const ftMotionShaper_t shaper, const float 
     #endif
 
     #if ENABLED(FTM_SHAPER_MZV)
-      case ftMotionShaper_MZV:
-        base = 0.375f;
-        break;
+      case ftMotionShaper_MZV: base = 0.375f; break;
     #endif
 
     case ftMotionShaper_NONE:
@@ -169,28 +169,25 @@ void AxisShaping::set_axis_shaping_N(const ftMotionShaper_t shaper, const float 
       // No echoes. max_i already set to 0 by set_axis_shaping_A
       break;
   }
-  #if ANY(FTM_SHAPER_ZV, FTM_SHAPER_ZVD, FTM_SHAPER_EI, FTM_SHAPER_ZVDD, FTM_SHAPER_2HEI, FTM_SHAPER_ZVDDD, FTM_SHAPER_3HEI, FTM_SHAPER_MZV)
+
+  #if HAS_FTM_SHAPING
+
     // Compute echo indices
     Ni[1] = LROUND((base / f / df) * FTM_FS);
-    for (uint8_t i = 2; i <= max_i; ++i)
-      Ni[i] = Ni[i - 1] + Ni[1];
+    for (uint8_t i = 2; i <= max_i; ++i) Ni[i] = Ni[i - 1] + Ni[1];
 
     // Group delay in samples (i.e., Axis delay caused by shaping): sum(Ai * Ni[i]).
     // Skipping i=0 since the uncompensated delay of the first impulse is always zero,
     // so Ai[0] * Ni[0] == 0
     float centroid = 0.0f;
-    for (uint8_t i = 1; i <= max_i; ++i)
-      centroid -= Ai[i] * Ni[i];
-
+    for (uint8_t i = 1; i <= max_i; ++i) centroid -= Ai[i] * Ni[i];
     Ni[0] = LROUND(centroid);
 
     // The resulting echo index can be negative, this is ok because it will be offset
     // by the max delay of all axes before it is used.
-    for (uint8_t i = 1; i <= max_i; ++i)
-      Ni[i] += Ni[0];
+    for (uint8_t i = 1; i <= max_i; ++i) Ni[i] += Ni[0];
+
   #endif
-
 }
-
 
 #endif // FT_MOTION

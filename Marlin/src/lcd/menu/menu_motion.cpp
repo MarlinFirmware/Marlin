@@ -315,15 +315,31 @@ void menu_move() {
   FSTR_P get_shaper_name(const AxisEnum axis) {
     switch (ftMotion.cfg.shaper[axis]) {
       default: return nullptr;
-      case ftMotionShaper_NONE:  return GET_TEXT_F(MSG_LCD_OFF);
-      TERN_(FTM_SHAPER_ZV,    case ftMotionShaper_ZV:    return GET_TEXT_F(MSG_FTM_ZV));
-      TERN_(FTM_SHAPER_ZVD,   case ftMotionShaper_ZVD:   return GET_TEXT_F(MSG_FTM_ZVD));
-      TERN_(FTM_SHAPER_ZVDD,  case ftMotionShaper_ZVDD:  return GET_TEXT_F(MSG_FTM_ZVDD));
-      TERN_(FTM_SHAPER_ZVDDD, case ftMotionShaper_ZVDDD: return GET_TEXT_F(MSG_FTM_ZVDDD));
-      TERN_(FTM_SHAPER_EI,    case ftMotionShaper_EI:    return GET_TEXT_F(MSG_FTM_EI));
-      TERN_(FTM_SHAPER_2HEI,  case ftMotionShaper_2HEI:  return GET_TEXT_F(MSG_FTM_2HEI));
-      TERN_(FTM_SHAPER_3HEI,  case ftMotionShaper_3HEI:  return GET_TEXT_F(MSG_FTM_3HEI));
-      TERN_(FTM_SHAPER_MZV,   case ftMotionShaper_MZV:   return GET_TEXT_F(MSG_FTM_MZV));
+      case ftMotionShaper_NONE:     return GET_TEXT_F(MSG_LCD_OFF);
+      #if ENABLED(FTM_SHAPER_ZV)
+        case ftMotionShaper_ZV:     return GET_TEXT_F(MSG_FTM_ZV);
+      #endif
+      #if ENABLED(FTM_SHAPER_ZVD)
+        case ftMotionShaper_ZVD:    return GET_TEXT_F(MSG_FTM_ZVD);
+      #endif
+      #if ENABLED(FTM_SHAPER_ZVDD)
+        case ftMotionShaper_ZVDD:   return GET_TEXT_F(MSG_FTM_ZVDD);
+      #endif
+      #if ENABLED(FTM_SHAPER_ZVDDD)
+        case ftMotionShaper_ZVDDD:  return GET_TEXT_F(MSG_FTM_ZVDDD);
+      #endif
+      #if ENABLED(FTM_SHAPER_EI)
+        case ftMotionShaper_EI:     return GET_TEXT_F(MSG_FTM_EI);
+      #endif
+      #if ENABLED(FTM_SHAPER_2HEI)
+        case ftMotionShaper_2HEI:   return GET_TEXT_F(MSG_FTM_2HEI);
+      #endif
+      #if ENABLED(FTM_SHAPER_3HEI)
+        case ftMotionShaper_3HEI:   return GET_TEXT_F(MSG_FTM_3HEI);
+      #endif
+      #if ENABLED(FTM_SHAPER_MZV)
+        case ftMotionShaper_MZV:    return GET_TEXT_F(MSG_FTM_MZV);
+      #endif
     }
   }
 

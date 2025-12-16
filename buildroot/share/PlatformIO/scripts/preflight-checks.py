@@ -97,15 +97,21 @@ if pioutil.is_pio_build():
             for f in config_files:
                 if (p / f).is_file():
                     desc = "Redundant" if has_cfgs else "Your"
-                    err = f"ERROR: {desc} config files were found in {p}."
+                    err = f"Error: {desc} config files were found in {p}."
                     err += " Put the configs you want to use into the 'Marlin' subfolder."
                     raise SystemExit(err)
 
         if not has_cfgs:
             raise SystemExit("Error: No configuration files found! Put your config files into the 'Marlin' subfolder.")
 
-        build_env = env['PIOENV']
+        # Check for common errors in MOTHERBOARD setting
         motherboard = env['MARLIN_FEATURES']['MOTHERBOARD']
+        if motherboard.startswith("MOTHERBOARD "):
+            raise SystemExit('Error: MOTHERBOARD setting mangled by an extra instance of "MOTHERBOARD."')
+        if not motherboard.startswith("BOARD_"):
+            raise SystemExit("Error: MOTHERBOARD setting missing BOARD_ prefix.")
+
+        build_env = env['PIOENV']
         board_envs = get_envs_for_board(motherboard)
         config = env.GetProjectConfig()
         result = check_envs("env:"+build_env, board_envs, config)
@@ -162,7 +168,7 @@ if pioutil.is_pio_build():
             if (p / f).is_file():
                 mixedin += [ f ]
         if mixedin:
-            err = "ERROR: Old files fell into your Marlin folder. Remove %s and try again" % ", ".join(mixedin)
+            err = "Error: Old files fell into your Marlin folder. Remove %s and try again" % ", ".join(mixedin)
             raise SystemExit(err)
 
         #
@@ -173,7 +179,7 @@ if pioutil.is_pio_build():
                 if 'FILAMENT_RUNOUT_SCRIPT' in env['MARLIN_FEATURES']:
                     frs = env['MARLIN_FEATURES']['FILAMENT_RUNOUT_SCRIPT']
                     if "M600" in frs and "%c" not in frs:
-                        err = "ERROR: FILAMENT_RUNOUT_SCRIPT needs a %c parameter (e.g., \"M600 T%c\") when NUM_RUNOUT_SENSORS is > 1"
+                        err = "Error: FILAMENT_RUNOUT_SCRIPT needs a %c parameter (e.g., \"M600 T%c\") when NUM_RUNOUT_SENSORS is > 1"
                         raise SystemExit(err)
 
 
