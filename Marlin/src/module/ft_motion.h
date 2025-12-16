@@ -109,7 +109,7 @@ typedef struct FTConfig {
 
   #if HAS_FTM_SHAPING
 
-    constexpr bool goodZeta(const float z) { return WITHIN(z, 0.01f, float(FTM_MAX_DAMPENING)); }
+    constexpr bool goodZeta(const float z) { return WITHIN(z, 0.01f, ftm_max_dampening); }
     constexpr bool goodVtol(const float v) { return WITHIN(v, 0.00f, 1.0f); }
 
     #if HAS_DYNAMIC_FREQ

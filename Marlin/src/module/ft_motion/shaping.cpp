@@ -143,20 +143,20 @@ void AxisShaping::set_axis_shaping_A(
 // Ai[] must be precomputed (if zeta or vtol change, call set_axis_shaping_A first)
 void AxisShaping::set_axis_shaping_N(const ftMotionShaper_t shaper, const float f, const float zeta) {
   // Note that protections are omitted for DBZ and for index exceeding array length.
-  const float df = sqrtf(1.f - sq(zeta));
+  const float df = SQRT(1.f - sq(zeta));
 
   float base = 0.0f;
 
   switch (shaper) {
 
     #if ANY(FTM_SHAPER_ZV, FTM_SHAPER_ZVD, FTM_SHAPER_EI, FTM_SHAPER_ZVDD, FTM_SHAPER_2HEI, FTM_SHAPER_ZVDDD, FTM_SHAPER_3HEI)
-      TERN_(FTM_SHAPER_ZV, case ftMotionShaper_ZV:)
-      TERN_(FTM_SHAPER_ZVD, case ftMotionShaper_ZVD:)
-      TERN_(FTM_SHAPER_EI, case ftMotionShaper_EI:)
-      TERN_(FTM_SHAPER_ZVDD, case ftMotionShaper_ZVDD:)
-      TERN_(FTM_SHAPER_2HEI, case ftMotionShaper_2HEI:)
-      TERN_(FTM_SHAPER_ZVDDD, case ftMotionShaper_ZVDDD:)
-      TERN_(FTM_SHAPER_3HEI, case ftMotionShaper_3HEI:)
+      TERN_(FTM_SHAPER_ZV,    case ftMotionShaper_ZV:    )
+      TERN_(FTM_SHAPER_ZVD,   case ftMotionShaper_ZVD:   )
+      TERN_(FTM_SHAPER_EI,    case ftMotionShaper_EI:    )
+      TERN_(FTM_SHAPER_ZVDD,  case ftMotionShaper_ZVDD:  )
+      TERN_(FTM_SHAPER_2HEI,  case ftMotionShaper_2HEI:  )
+      TERN_(FTM_SHAPER_ZVDDD, case ftMotionShaper_ZVDDD: )
+      TERN_(FTM_SHAPER_3HEI,  case ftMotionShaper_3HEI:  )
         base = 0.5f;
         break;
     #endif
