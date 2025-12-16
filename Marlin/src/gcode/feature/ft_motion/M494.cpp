@@ -116,11 +116,14 @@ void GcodeSuite::M494() {
         else \
           SERIAL_ECHOLNPGM("?Invalid ", C(N), " smoothing time (", C(CHARIFY(A)), ") value."); \
       }
-
-    CARTES_GANG(
-      SMOOTH_SET(X, STEPPER_A_NAME), SMOOTH_SET(Y, STEPPER_B_NAME),
-      SMOOTH_SET(Z, STEPPER_C_NAME), SMOOTH_SET(E, 'E')
-    );
+      if (!Marlin::printer_busy()) {
+        CARTES_GANG(
+          SMOOTH_SET(X, STEPPER_A_NAME), SMOOTH_SET(Y, STEPPER_B_NAME),
+          SMOOTH_SET(Z, STEPPER_C_NAME), SMOOTH_SET(E, 'E')
+        );
+      }
+      else
+        SERIAL_ECHOLNPGM("?Cannot set smoothing time while printer is running.");
 
   #endif // FTM_SMOOTHING
 
