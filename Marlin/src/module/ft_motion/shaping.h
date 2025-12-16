@@ -91,16 +91,16 @@ typedef FTShapedAxes<float>            ft_shaped_float_t;
 typedef FTShapedAxes<ftMotionShaper_t> ft_shaped_shaper_t;
 typedef FTShapedAxes<dynFreqMode_t>    ft_shaped_dfm_t;
 
-#define FTM_SHAPING_Ni_SIZE _MAX(1, \
-    TERN0(FTM_SHAPER_ZV,    2),  \
-    TERN0(FTM_SHAPER_ZVD,   3),  \
-    TERN0(FTM_SHAPER_ZVDD,  4),  \
-    TERN0(FTM_SHAPER_ZVDDD, 5),  \
-    TERN0(FTM_SHAPER_EI,    3),  \
-    TERN0(FTM_SHAPER_2HEI,  4),  \
-    TERN0(FTM_SHAPER_3HEI,  5),  \
-    TERN0(FTM_SHAPER_MZV,   3) \
-  )
+constexpr uint8_t FTM_SHAPING_Ni_SIZE = _MAX(1,
+  TERN0(FTM_SHAPER_ZV,    2),
+  TERN0(FTM_SHAPER_ZVD,   3),
+  TERN0(FTM_SHAPER_ZVDD,  4),
+  TERN0(FTM_SHAPER_ZVDDD, 5),
+  TERN0(FTM_SHAPER_EI,    3),
+  TERN0(FTM_SHAPER_2HEI,  4),
+  TERN0(FTM_SHAPER_3HEI,  5),
+  TERN0(FTM_SHAPER_MZV,   3)
+);
 
 // Shaping data
 typedef struct AxisShaping {

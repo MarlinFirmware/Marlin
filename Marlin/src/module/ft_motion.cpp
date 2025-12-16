@@ -409,38 +409,41 @@ bool FTMotion::plan_next_block() {
   }
 }
 
-/**
- * Ensure extruder position stays within floating point precision bounds.
- * Float32 numbers have 23 bits of precision, so the minimum increment ("resolution") around a value x is:
- * resolution = 2^(floor(log2(|x|)) - 23)
- * By resetting at ±1'000mm (1 meter), we get a minimum resolution of ~ 0.00006mm, enough for smoothing to work well.
- */
-void FTMotion::ensure_float_precision() {
-  constexpr float FTM_POSITION_WRAP_THRESHOLD = 1'000.0f;  // (mm) Reset when position exceeds this to prevent floating point precision loss
-  #if HAS_EXTRUDERS
-    if (fabs(endPos_prevBlock.E) >= FTM_POSITION_WRAP_THRESHOLD) {
-      const float offset = -endPos_prevBlock.E;
-      endPos_prevBlock.E += offset;
+#if HAS_EXTRUDERS
 
-      // Offset extruder shaping buffer
-      #if ALL(HAS_FTM_SHAPING, FTM_SHAPER_E)
-        for (uint32_t i = 0; i < FTM_ZMAX; ++i) shaping.E.d_zi[i] += offset;
-      #endif
+  /**
+   * Ensure extruder position stays within floating point precision bounds.
+   * Float32 numbers have 23 bits of precision, so the minimum increment ("resolution") around a value x is:
+   * resolution = 2^(floor(log2(|x|)) - 23)
+   * By resetting at ±1'000mm (1 meter), we get a minimum resolution of ~ 0.00006mm, enough for smoothing to work well.
+   */
+  void FTMotion::ensure_float_precision() {
+    constexpr float FTM_POSITION_WRAP_THRESHOLD = 1000; // (mm) Reset when position exceeds this to prevent floating point precision loss
+    if (ABS(endPos_prevBlock.E) < FTM_POSITION_WRAP_THRESHOLD) return;
 
-      // Offset extruder smoothing buffer
-      #if ENABLED(FTM_SMOOTHING)
-        for (uint8_t i = 0; i < FTM_SMOOTHING_ORDER; ++i) smoothing.E.smoothing_pass[i] += offset;
-      #endif
+    const float offset = -endPos_prevBlock.E;
 
-      // Offset linear advance previous position
-      prev_traj_e += offset;
+    endPos_prevBlock.E = 0;
 
-      // Offset stepper current position
-      const int64_t delta_steps_q48_16 = offset * planner.settings.axis_steps_per_mm[block_extruder_axis] * (1ULL << 16);
-      stepping.curr_steps_q48_16.E += delta_steps_q48_16;
-    };
-  #endif
-}
+    // Offset extruder shaping buffer
+    #if ALL(HAS_FTM_SHAPING, FTM_SHAPER_E)
+      for (uint32_t i = 0; i < FTM_ZMAX; ++i) shaping.E.d_zi[i] += offset;
+    #endif
+
+    // Offset extruder smoothing buffer
+    #if ENABLED(FTM_SMOOTHING)
+      for (uint8_t i = 0; i < FTM_SMOOTHING_ORDER; ++i) smoothing.E.smoothing_pass[i] += offset;
+    #endif
+
+    // Offset linear advance previous position
+    prev_traj_e += offset;
+
+    // Offset stepper current position
+    const int64_t delta_steps_q48_16 = offset * planner.settings.axis_steps_per_mm[block_extruder_axis] * (1ULL << 16);
+    stepping.curr_steps_q48_16.E += delta_steps_q48_16;
+  }
+
+#endif // HAS_EXTRUDERS
 
 xyze_float_t FTMotion::calc_traj_point(const float dist) {
   xyze_float_t traj_coords;
