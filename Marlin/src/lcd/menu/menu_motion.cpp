@@ -529,9 +529,6 @@ void menu_move() {
 
   void menu_tune_ft_motion() {
 
-    // Define stuff ahead of the menu loop
-    ft_config_t &c = ftMotion.cfg;
-
     #ifdef __AVR__
 
       // Copy Flash strings to RAM for C-string substitution
@@ -565,7 +562,7 @@ void menu_move() {
     #if ENABLED(FTM_POLYS)
       SUBMENU_S(_traj_name(), MSG_FTM_TRAJECTORY, menu_ftm_trajectory_generator);
       if (ftMotion.getTrajectoryType() == TrajectoryType::POLY6)
-        EDIT_ITEM(float42_52, MSG_FTM_POLY6_OVERSHOOT, &c.poly6_acceleration_overshoot, 1.25f, 1.875f);
+        EDIT_ITEM(float42_52, MSG_FTM_POLY6_OVERSHOOT, &ftMotion.cfg.poly6_acceleration_overshoot, 1.25f, 1.875f);
     #endif
 
     SHAPED_MAP(_FTM_AXIS_SUBMENU);

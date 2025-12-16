@@ -427,7 +427,7 @@ bool FTMotion::plan_next_block() {
 
     // Offset extruder shaping buffer
     #if ALL(HAS_FTM_SHAPING, FTM_SHAPER_E)
-      for (uint32_t i = 0; i < FTM_ZMAX; ++i) shaping.E.d_zi[i] += offset;
+      for (uint32_t i = 0; i < ftm_zmax; ++i) shaping.E.d_zi[i] += offset;
     #endif
 
     // Offset extruder smoothing buffer
@@ -541,14 +541,14 @@ xyze_float_t FTMotion::calc_traj_point(const float dist) {
           /* where echo_relative_delay > 0 and group_delay ≤ max_total_delay */ \
           const uint32_t echo_delay = group_delay + shaping.A.Ni[i]; \
           int32_t udiff = shaping.zi_idx - echo_delay; \
-          if (udiff < 0) udiff += FTM_ZMAX; \
+          if (udiff < 0) udiff += ftm_zmax; \
           traj_coords.A += shaping.A.Ai[i] * shaping.A.d_zi[udiff]; \
         } \
       } while (0);
 
     SHAPED_MAP(_SHAPE);
 
-    if (++shaping.zi_idx == (FTM_ZMAX)) shaping.zi_idx = 0;
+    if (++shaping.zi_idx == ftm_zmax) shaping.zi_idx = 0;
 
   #endif // HAS_FTM_SHAPING
 
