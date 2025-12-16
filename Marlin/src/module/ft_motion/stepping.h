@@ -154,6 +154,8 @@ typedef struct Stepping {
   // Buffering part
   //
 
+  #define FTM_BUFFER_MASK (FTM_BUFFER_SIZE - 1u)
+
   stepper_plan_t stepper_plan_buff[FTM_BUFFER_SIZE];
   uint32_t stepper_plan_tail = 0, stepper_plan_head = 0;
   XYZEval<int64_t> curr_steps_q48_16{0};
