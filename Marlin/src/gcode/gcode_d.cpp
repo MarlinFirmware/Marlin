@@ -178,30 +178,33 @@ void GcodeSuite::D(const int16_t dcode) {
       SERIAL_ECHOLN(gtn(&SERIAL_IMPL));
       break;
 
+    case 100: { // D100 Disable heaters and attempt a hard hang (Watchdog Test)
 
-      case 100: { // D100 Disable heaters and attempt a hard hang (Watchdog Test)
       #ifdef __PLAT_RP2040__
         const uint8_t core = parser.byteval('C', 0); // C parameter: which core to freeze (0=Core 0, 1=Core 1)
+      #else
+        constexpr uint8_t core = 0;
       #endif
+
       SERIAL_ECHOLNPGM("Disabling heaters and attempting to trigger Watchdog");
       SERIAL_ECHOLNPGM("(USE_WATCHDOG " TERN(USE_WATCHDOG, "ENABLED", "DISABLED") ")");
       #ifdef __PLAT_RP2040__
         SERIAL_ECHOLNPGM("Freezing Core ", core);
       #endif
+
       thermalManager.disable_all_heaters();
       delay(1000); // Allow time to print
 
-      #ifdef __PLAT_RP2040__
-        if (core == 1) {
+      if (core == 1) {
+        #ifdef __PLAT_RP2040__
           // Freeze Core 1 by setting a flag it will check
           extern volatile bool core1_freeze_test;
           core1_freeze_test = true;
           delay(10000); // Wait 10 seconds for watchdog to trigger
           core1_freeze_test = false;
-        }
-        else
-      #endif
-      {
+        #endif
+      }
+      else {
         // Freeze Core 0 (original behavior)
         hal.isr_off();
         // Use a low-level delay that does not rely on interrupts to function
@@ -210,7 +213,9 @@ void GcodeSuite::D(const int16_t dcode) {
         for (int i = 10000; i--;) DELAY_US(1000UL);
         hal.isr_on();
       }
+
       SERIAL_ECHOLNPGM("FAILURE: Watchdog did not trigger board reset.");
+
     } break;
 
     #if HAS_MEDIA

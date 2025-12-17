@@ -214,7 +214,7 @@ void MarlinHAL::reboot() { watchdog_reboot(0, 0, 1); }
     #endif
   }
 
-  void MarlinHAL::watchdog_refresh(uint8_t core) {
+  void MarlinHAL::watchdog_refresh(const uint8_t core/*=0*/) {
     if (core == 0) {
       // Update Core 0 heartbeat
       core0_last_heartbeat = time_us_32();
@@ -243,7 +243,7 @@ void MarlinHAL::reboot() { watchdog_reboot(0, 0, 1); }
     }
   }
 
-#endif
+#endif // USE_WATCHDOG
 
 // ------------------------
 // ADC

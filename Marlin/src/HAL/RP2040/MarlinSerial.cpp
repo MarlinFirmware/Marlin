@@ -44,23 +44,23 @@
 
 // Create Serial0 as UART0 with custom or default pins
 arduino::UART MarlinSerial0(
-#if defined(SERIAL0_TX_PIN) && defined(SERIAL0_RX_PIN)
-  SERIAL0_TX_PIN, SERIAL0_RX_PIN  // Custom pins for UART0 (Marlin Serial0)
-#else
-  0, 1  // Default UART0 pins (GP0/GP1)
-#endif
+  #if PINS_EXIST(SERIAL0_TX, SERIAL0_RX)
+    SERIAL0_TX_PIN, SERIAL0_RX_PIN  // Custom pins for UART0 (Marlin Serial0)
+  #else
+    0, 1  // Default UART0 pins (GP0/GP1)
+  #endif
 );
 
 // Create Serial1 as UART1 with custom or default pins
-#if defined(SERIAL1_TX_PIN) && defined(SERIAL1_RX_PIN)
+#if PINS_EXIST(SERIAL1_TX, SERIAL1_RX)
   arduino::UART MarlinSerial1(SERIAL1_TX_PIN, SERIAL1_RX_PIN);  // Custom pins for UART1 (Marlin Serial1)
 #endif
 
 // Wrap the serial ports for Marlin
-DefaultSerial0 MSerial0(false, MarlinSerial0);  // Marlin Serial0 = UART0
-#if defined(SERIAL1_TX_PIN) && defined(SERIAL1_RX_PIN)
-  DefaultSerial1 MSerial1(false, MarlinSerial1);  // Marlin Serial1 = UART1
+DefaultSerial0 MSerial0(false, MarlinSerial0);   // Marlin Serial0 = UART0
+#if PINS_EXIST(SERIAL1_TX, SERIAL1_RX)
+  DefaultSerial1 MSerial1(false, MarlinSerial1); // Marlin Serial1 = UART1
 #endif
-DefaultSerial2 MSerial2(false, Serial);   // Marlin Serial-1 = USB
+DefaultSerial2 MSerial2(false, Serial);          // Marlin Serial2 = USB (-1)
 
 #endif // __PLAT_RP2040__

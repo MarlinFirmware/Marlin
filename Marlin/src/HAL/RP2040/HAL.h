@@ -153,7 +153,7 @@ public:
 
   // Watchdog
   static void watchdog_init()    IF_DISABLED(USE_WATCHDOG, {});
-  static void watchdog_refresh(uint8_t core = 0) IF_DISABLED(USE_WATCHDOG, {});
+  static void watchdog_refresh(const uint8_t=0) IF_DISABLED(USE_WATCHDOG, {});
 
   static void init();          // Called early in setup()
   static void init_board() {}  // Called less early in setup()
