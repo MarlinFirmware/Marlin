@@ -33,14 +33,14 @@ void say_shaper_type(const AxisEnum a, bool &sep, const char axis_name) {
   SERIAL_CHAR(axis_name, '=');
   switch (ftMotion.cfg.shaper[a]) {
     default: break;
-    case ftMotionShaper_ZV:    SERIAL_ECHOPGM("ZV");        break;
-    case ftMotionShaper_ZVD:   SERIAL_ECHOPGM("ZVD");       break;
-    case ftMotionShaper_ZVDD:  SERIAL_ECHOPGM("ZVDD");      break;
-    case ftMotionShaper_ZVDDD: SERIAL_ECHOPGM("ZVDDD");     break;
-    case ftMotionShaper_EI:    SERIAL_ECHOPGM("EI");        break;
-    case ftMotionShaper_2HEI:  SERIAL_ECHOPGM("2 Hump EI"); break;
-    case ftMotionShaper_3HEI:  SERIAL_ECHOPGM("3 Hump EI"); break;
-    case ftMotionShaper_MZV:   SERIAL_ECHOPGM("MZV");       break;
+    TERN_(FTM_SHAPER_ZV,    case ftMotionShaper_ZV:    SERIAL_ECHOPGM("ZV");        break);
+    TERN_(FTM_SHAPER_ZVD,   case ftMotionShaper_ZVD:   SERIAL_ECHOPGM("ZVD");       break);
+    TERN_(FTM_SHAPER_ZVDD,  case ftMotionShaper_ZVDD:  SERIAL_ECHOPGM("ZVDD");      break);
+    TERN_(FTM_SHAPER_ZVDDD, case ftMotionShaper_ZVDDD: SERIAL_ECHOPGM("ZVDDD");     break);
+    TERN_(FTM_SHAPER_EI,    case ftMotionShaper_EI:    SERIAL_ECHOPGM("EI");        break);
+    TERN_(FTM_SHAPER_2HEI,  case ftMotionShaper_2HEI:  SERIAL_ECHOPGM("2 Hump EI"); break);
+    TERN_(FTM_SHAPER_3HEI,  case ftMotionShaper_3HEI:  SERIAL_ECHOPGM("3 Hump EI"); break);
+    TERN_(FTM_SHAPER_MZV,   case ftMotionShaper_MZV:   SERIAL_ECHOPGM("MZV");       break);
   }
   sep = true;
 }
@@ -289,7 +289,7 @@ void GcodeSuite::M493() {
   const float zetaVal = seenI ? parser.value_float() : 0.0f;
   const bool goodZeta = seenI && c.goodZeta(zetaVal);
   if (seenI && !goodZeta)
-    SERIAL_ECHOLN(F("?Invalid "), F("(I) Zeta value. (0.01-1.0)")); // Zeta out of range
+    SERIAL_ECHOLN(F("?Invalid "), F("(I) Zeta value. (0.01-" STRINGIFY(FTM_MAX_DAMPENING) ")")); // Zeta out of range
 
   #if HAS_FTM_EI_SHAPING
     // Vibration Tolerance parameter

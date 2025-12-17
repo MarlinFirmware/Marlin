@@ -410,38 +410,41 @@ bool FTMotion::plan_next_block() {
   }
 }
 
-/**
- * Ensure extruder position stays within floating point precision bounds.
- * Float32 numbers have 23 bits of precision, so the minimum increment ("resolution") around a value x is:
- * resolution = 2^(floor(log2(|x|)) - 23)
- * By resetting at ±1'000mm (1 meter), we get a minimum resolution of ~ 0.00006mm, enough for smoothing to work well.
- */
-void FTMotion::ensure_float_precision() {
-  constexpr float FTM_POSITION_WRAP_THRESHOLD = 1'000.0f;  // (mm) Reset when position exceeds this to prevent floating point precision loss
-  #if HAS_EXTRUDERS
-    if (fabs(endPos_prevBlock.E) >= FTM_POSITION_WRAP_THRESHOLD) {
-      const float offset = -endPos_prevBlock.E;
-      endPos_prevBlock.E += offset;
+#if HAS_EXTRUDERS
 
-      // Offset extruder shaping buffer
-      #if ALL(HAS_FTM_SHAPING, FTM_SHAPER_E)
-        for (uint32_t i = 0; i < FTM_ZMAX; ++i) shaping.E.d_zi[i] += offset;
-      #endif
+  /**
+   * Ensure extruder position stays within floating point precision bounds.
+   * Float32 numbers have 23 bits of precision, so the minimum increment ("resolution") around a value x is:
+   * resolution = 2^(floor(log2(|x|)) - 23)
+   * By resetting at ±1'000mm (1 meter), we get a minimum resolution of ~ 0.00006mm, enough for smoothing to work well.
+   */
+  void FTMotion::ensure_float_precision() {
+    constexpr float FTM_POSITION_WRAP_THRESHOLD = 1000; // (mm) Reset when position exceeds this to prevent floating point precision loss
+    if (ABS(endPos_prevBlock.E) < FTM_POSITION_WRAP_THRESHOLD) return;
 
-      // Offset extruder smoothing buffer
-      #if ENABLED(FTM_SMOOTHING)
-        for (uint8_t i = 0; i < FTM_SMOOTHING_ORDER; ++i) smoothing.E.smoothing_pass[i] += offset;
-      #endif
+    const float offset = -endPos_prevBlock.E;
 
-      // Offset linear advance previous position
-      prev_traj_e += offset;
+    endPos_prevBlock.E = 0;
 
-      // Offset stepper current position
-      const int64_t delta_steps_q48_16 = offset * planner.settings.axis_steps_per_mm[block_extruder_axis] * (1ULL << 16);
-      stepping.curr_steps_q48_16.E += delta_steps_q48_16;
-    };
-  #endif
-}
+    // Offset extruder shaping buffer
+    #if ALL(HAS_FTM_SHAPING, FTM_SHAPER_E)
+      for (uint32_t i = 0; i < ftm_zmax; ++i) shaping.E.d_zi[i] += offset;
+    #endif
+
+    // Offset extruder smoothing buffer
+    #if ENABLED(FTM_SMOOTHING)
+      for (uint8_t i = 0; i < FTM_SMOOTHING_ORDER; ++i) smoothing.E.smoothing_pass[i] += offset;
+    #endif
+
+    // Offset linear advance previous position
+    prev_traj_e += offset;
+
+    // Offset stepper current position
+    const int64_t delta_steps_q48_16 = offset * planner.settings.axis_steps_per_mm[block_extruder_axis] * (1ULL << 16);
+    stepping.curr_steps_q48_16.E += delta_steps_q48_16;
+  }
+
+#endif // HAS_EXTRUDERS
 
 xyze_float_t FTMotion::calc_traj_point(const float dist) {
   xyze_float_t traj_coords;
@@ -505,17 +508,20 @@ xyze_float_t FTMotion::calc_traj_point(const float dist) {
 
   #if ENABLED(FTM_SMOOTHING)
 
-    #define _SMOOTHEN(A) /* Approximate gaussian smoothing via chained EMAs */ \
-      if (smoothing.A.alpha > 0.0f) { \
-        float smooth_val = traj_coords.A; \
-        for (uint8_t _i = 0; _i < FTM_SMOOTHING_ORDER; ++_i) { \
-          smoothing.A.smoothing_pass[_i] += (smooth_val - smoothing.A.smoothing_pass[_i]) * smoothing.A.alpha; \
-          smooth_val = smoothing.A.smoothing_pass[_i]; \
-        } \
-        traj_coords.A = smooth_val; \
+    // Approximate Gaussian smoothing via chained EMAs
+    auto _smoothen = [&](const AxisEnum axis, axis_smoothing_t &smoo) {
+      if (smoo.alpha <= 0.0f) return;
+      float smooth_val = traj_coords[axis];
+      for (uint8_t _i = 0; _i < FTM_SMOOTHING_ORDER; ++_i) {
+        smoo.smoothing_pass[_i] += (smooth_val - smoo.smoothing_pass[_i]) * smoo.alpha;
+        smooth_val = smoo.smoothing_pass[_i];
       }
+      traj_coords[axis] = smooth_val;
+    };
 
+    #define _SMOOTHEN(A) _smoothen(_AXIS(A), smoothing.A);
     CARTES_MAP(_SMOOTHEN);
+
     max_total_delay += smoothing.largest_delay_samples;
 
   #endif // FTM_SMOOTHING
@@ -526,27 +532,29 @@ xyze_float_t FTMotion::calc_traj_point(const float dist) {
       max_total_delay += shaping.largest_delay_samples;
 
     // Apply shaping if active on each axis
-    #define _SHAPE(A) \
-      do { \
-        const uint32_t group_delay = ftMotion.cfg.axis_sync_enabled \
-            ? max_total_delay - TERN0(FTM_SMOOTHING, smoothing.A.delay_samples) \
-            : -shaping.A.Ni[0]; \
-        /* α=1−exp(−(dt / (τ / order))) */ \
-        shaping.A.d_zi[shaping.zi_idx] = traj_coords.A; \
-        traj_coords.A = 0; \
-        for (uint32_t i = 0; i <= shaping.A.max_i; i++) { \
-          /* echo_delay is always positive since Ni[i] = echo_relative_delay - group_delay + max_total_delay */ \
-          /* where echo_relative_delay > 0 and group_delay ≤ max_total_delay */ \
-          const uint32_t echo_delay = group_delay + shaping.A.Ni[i]; \
-          int32_t udiff = shaping.zi_idx - echo_delay; \
-          if (udiff < 0) udiff += FTM_ZMAX; \
-          traj_coords.A += shaping.A.Ai[i] * shaping.A.d_zi[udiff]; \
-        } \
-      } while (0);
+    auto _shape = [&](const AxisEnum axis, axis_shaping_t &shap OPTARG(FTM_SMOOTHING, const axis_smoothing_t &smoo)) {
+      const uint32_t group_delay = ftMotion.cfg.axis_sync_enabled
+          ? max_total_delay - TERN0(FTM_SMOOTHING, smoo.delay_samples)
+          : -shap.Ni[0];
+      //
+      // α = 1 − exp(−(dt / (τ / order)))
+      //
+      shap.d_zi[shaping.zi_idx] = traj_coords[axis];
+      traj_coords[axis] = 0;
+      for (uint32_t i = 0; i <= shap.max_i; i++) {
+        // echo_delay is always positive since Ni[i] = echo_relative_delay - group_delay + max_total_delay
+        // where echo_relative_delay > 0 and group_delay ≤ max_total_delay
+        const uint32_t echo_delay = group_delay + shap.Ni[i];
+        int32_t udiff = shaping.zi_idx - echo_delay;
+        if (udiff < 0) udiff += ftm_zmax;
+        traj_coords[axis] += shap.Ai[i] * shap.d_zi[udiff];
+      }
+    };
 
+    #define _SHAPE(A) _shape(_AXIS(A), shaping.A OPTARG(FTM_SMOOTHING, smoothing.A));
     SHAPED_MAP(_SHAPE);
 
-    if (++shaping.zi_idx == (FTM_ZMAX)) shaping.zi_idx = 0;
+    if (++shaping.zi_idx == ftm_zmax) shaping.zi_idx = 0;
 
   #endif // HAS_FTM_SHAPING
 

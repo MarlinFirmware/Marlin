@@ -3695,15 +3695,8 @@
 
 // Fixed-Time Motion
 #if ENABLED(FT_MOTION)
-  #define FTM_TS (1.0f / FTM_FS)                      // (s) Time step for trajectory generation. (Reciprocal of FTM_FS)
-  #define FTM_RATIO (FTM_FS / FTM_MIN_SHAPE_FREQ)     // Factor for use in FTM_ZMAX. DON'T CHANGE.
-  #define FTM_SMOOTH_MAX_I uint32_t(TERN0(FTM_SMOOTHING, CEIL(FTM_FS * FTM_MAX_SMOOTHING_TIME))) // Max delays for smoothing
-
-  // Maximum delays for shaping functions (even numbers only!)
-  #define FTM_ZMAX (TERN(HAS_FTM_EI_SHAPING, 2, 1) * FTM_RATIO + FTM_SMOOTH_MAX_I)
-
+  #define FTM_TS (1.0f / FTM_FS)  // (s) Time step for trajectory generation. (Reciprocal of FTM_FS)
   #define FTM_SMOOTHING_ORDER   5 // 3 to 5 is closest to Gaussian
-
   #ifndef FTM_BUFFER_SIZE
     #define FTM_BUFFER_SIZE 128
   #endif

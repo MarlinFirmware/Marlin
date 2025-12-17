@@ -124,7 +124,7 @@ typedef struct FTConfig {
       return true;
     }
 
-    constexpr bool goodZeta(const float z) { return WITHIN(z, 0.01f, 1.0f); }
+    constexpr bool goodZeta(const float z) { return WITHIN(z, 0.01f, ftm_max_dampening); }
 
     bool setZeta(const AxisEnum a, const float z) {
       if (z == zeta[a]) return false;
@@ -386,7 +386,7 @@ class FTMotion {
     static void fill_stepper_plan_buffer();
     static xyze_float_t calc_traj_point(const float dist);
     static bool plan_next_block();
-    static void ensure_float_precision();
+    static void ensure_float_precision() IF_DISABLED(HAS_EXTRUDERS, {});
 
 }; // class FTMotion
 
