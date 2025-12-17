@@ -72,4 +72,9 @@
 #define FAN1_PIN                            PC1   // FAN1
 #define FAN2_PIN                            PC0   // FAN2
 
+//
+// Misc. Functions
+//
+#define LED_PIN                             PC14
+
 #include "pins_CREALITY_V4.h"
