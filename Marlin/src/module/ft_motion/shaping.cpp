@@ -137,77 +137,58 @@ void AxisShaping::set_axis_shaping_A(
       break;
   }
 
-}
+} // set_axis_shaping_A
 
 // Refresh the indices used by shaping functions.
 // Ai[] must be precomputed (if zeta or vtol change, call set_axis_shaping_A first)
 void AxisShaping::set_axis_shaping_N(const ftMotionShaper_t shaper, const float f, const float zeta) {
   // Note that protections are omitted for DBZ and for index exceeding array length.
-  const float df = sqrt ( 1.f - sq(zeta) );
+  const float df = SQRT(1.f - sq(zeta));
+
+  float base = 0.0f;
+
   switch (shaper) {
-    #if ENABLED(FTM_SHAPER_ZV)
-      case ftMotionShaper_ZV:
-        Ni[1] = LROUND((0.5f / f / df) * (FTM_FS));
-        break;
-    #endif
 
-    #if ENABLED(FTM_SHAPER_ZVD)
-      case ftMotionShaper_ZVD:
-    #endif
-    #if ANY(FTM_SHAPER_ZVD, FTM_SHAPER_EI)
-      case ftMotionShaper_EI:
-        Ni[1] = LROUND((0.5f / f / df) * (FTM_FS));
-        Ni[2] = Ni[1] + Ni[1];
-        break;
-    #endif
-
-    #if ENABLED(FTM_SHAPER_ZVDD)
-      case ftMotionShaper_ZVDD:
-    #endif
-    #if ANY(FTM_SHAPER_ZVDD, FTM_SHAPER_2HEI)
-      case ftMotionShaper_2HEI:
-        Ni[1] = LROUND((0.5f / f / df) * (FTM_FS));
-        Ni[2] = Ni[1] + Ni[1];
-        Ni[3] = Ni[2] + Ni[1];
-        break;
-    #endif
-
-    #if ENABLED(FTM_SHAPER_ZVDDD)
-      case ftMotionShaper_ZVDDD:
-    #endif
-    #if ANY(FTM_SHAPER_ZVDDD, FTM_SHAPER_3HEI)
-      case ftMotionShaper_3HEI:
-        Ni[1] = LROUND((0.5f / f / df) * (FTM_FS));
-        Ni[2] = Ni[1] + Ni[1];
-        Ni[3] = Ni[2] + Ni[1];
-        Ni[4] = Ni[3] + Ni[1];
+    #if ANY(FTM_SHAPER_ZV, FTM_SHAPER_ZVD, FTM_SHAPER_EI, FTM_SHAPER_ZVDD, FTM_SHAPER_2HEI, FTM_SHAPER_ZVDDD, FTM_SHAPER_3HEI)
+      TERN_(FTM_SHAPER_ZV,    case ftMotionShaper_ZV:    )
+      TERN_(FTM_SHAPER_ZVD,   case ftMotionShaper_ZVD:   )
+      TERN_(FTM_SHAPER_EI,    case ftMotionShaper_EI:    )
+      TERN_(FTM_SHAPER_ZVDD,  case ftMotionShaper_ZVDD:  )
+      TERN_(FTM_SHAPER_2HEI,  case ftMotionShaper_2HEI:  )
+      TERN_(FTM_SHAPER_ZVDDD, case ftMotionShaper_ZVDDD: )
+      TERN_(FTM_SHAPER_3HEI,  case ftMotionShaper_3HEI:  )
+        base = 0.5f;
         break;
     #endif
 
     #if ENABLED(FTM_SHAPER_MZV)
-      case ftMotionShaper_MZV:
-        Ni[1] = LROUND((0.375f / f / df) * (FTM_FS));
-        Ni[2] = Ni[1] + Ni[1];
-        break;
+      case ftMotionShaper_MZV: base = 0.375f; break;
     #endif
 
-    default:
     case ftMotionShaper_NONE:
-      // No echoes.
-      // max_i is set to 0 by set_axis_shaping_A, so delay centroid (Ni[0]) will also correctly be 0
+    default:
+      // No echoes. max_i already set to 0 by set_axis_shaping_A
       break;
   }
 
-  // Group delay in samples (i.e., Axis delay caused by shaping): sum(Ai * Ni[i]).
-  // Skipping i=0 since the uncompensated delay of the first impulse is always zero, so Ai[0] * Ni[0] == 0
-  float centroid = 0.0f;
-  for (uint8_t i = 1; i <= max_i; ++i) centroid -= Ai[i] * Ni[i];
+  #if HAS_FTM_SHAPING
 
-  Ni[0] = LROUND(centroid);
+    // Compute echo indices
+    Ni[1] = LROUND((base / f / df) * FTM_FS);
+    for (uint8_t i = 2; i <= max_i; ++i) Ni[i] = Ni[i - 1] + Ni[1];
 
-  // The resulting echo index can be negative, this is ok because it will be offset
-  // by the max delay of all axes before it is used.
-  for (uint8_t i = 1; i <= max_i; ++i) Ni[i] += Ni[0];
-}
+    // Group delay in samples (i.e., Axis delay caused by shaping): sum(Ai * Ni[i]).
+    // Skipping i=0 since the uncompensated delay of the first impulse is always zero,
+    // so Ai[0] * Ni[0] == 0
+    float centroid = 0.0f;
+    for (uint8_t i = 1; i <= max_i; ++i) centroid -= Ai[i] * Ni[i];
+    Ni[0] = LROUND(centroid);
+
+    // The resulting echo index can be negative, this is ok because it will be offset
+    // by the max delay of all axes before it is used.
+    for (uint8_t i = 1; i <= max_i; ++i) Ni[i] += Ni[0];
+
+  #endif
+} // set_axis_shaping_N
 
 #endif // FT_MOTION

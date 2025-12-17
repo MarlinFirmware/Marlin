@@ -41,11 +41,11 @@ constexpr uint32_t FTM_Q_INT = 32u - TICKS_BITS;              // Bits remaining
 constexpr uint32_t FTM_Q = 16u - FTM_Q_INT;                   // uint16 interval fractional bits.
                                                               // Intervals buffer has fixed point numbers with the point on this position
 
-static_assert(FRAME_TICKS < FTM_NEVER, "(STEPPER_TIMER_RATE / FTM_FS) must be < " STRINGIFY(FTM_NEVER) " to fit 16-bit fixed-point numbers.");
-static_assert(FRAME_TICKS !=  2000 || FTM_Q_INT == 11, "FTM_Q_INT should be 11");
-static_assert(FRAME_TICKS !=  2000 || FTM_Q == 5,      "FTM_Q should be 5");
-static_assert(FRAME_TICKS != 25000 || FTM_Q_INT == 15, "FTM_Q_INT should be 15");
-static_assert(FRAME_TICKS != 25000 || FTM_Q == 1,      "FTM_Q should be 1");
+static_assert(FRAME_TICKS < FTM_NEVER, "(STEPPER_TIMER_RATE / FTM_FS) (" STRINGIFY(STEPPER_TIMER_RATE) " / " STRINGIFY(FTM_FS) ") must be < " STRINGIFY(FTM_NEVER) " to fit 16-bit fixed-point numbers.");
+
+// Sanity check
+static_assert(FRAME_TICKS != 2000  || FTM_Q == 5, "FTM_Q should be 5");
+static_assert(FRAME_TICKS != 25000 || FTM_Q == 1, "FTM_Q should be 1");
 
 // The _FP and _fp suffixes mean the number is in fixed point format with the point at the FTM_Q position.
 // See: https://en.wikipedia.org/wiki/Fixed-point_arithmetic
@@ -153,6 +153,8 @@ typedef struct Stepping {
   //
   // Buffering part
   //
+
+  #define FTM_BUFFER_MASK (FTM_BUFFER_SIZE - 1u)
 
   stepper_plan_t stepper_plan_buff[FTM_BUFFER_SIZE];
   uint32_t stepper_plan_tail = 0, stepper_plan_head = 0;

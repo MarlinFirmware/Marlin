@@ -48,10 +48,12 @@ void say_ftm_settings() {
 void GcodeSuite::M494_report(const bool forReplay/*=true*/) {
   TERN_(MARLIN_SMALL_BUILD, return);
 
-  const ft_config_t &c = ftMotion.cfg;
-
   report_heading_etc(forReplay, F("FT Motion"));
   SERIAL_ECHOPGM("  M494 T", (uint8_t)ftMotion.getTrajectoryType());
+
+  #if ANY(FTM_POLYS, FTM_SMOOTHING)
+    const ft_config_t &c = ftMotion.cfg;
+  #endif
 
   #if ENABLED(FTM_SMOOTHING)
     SERIAL_ECHOPGM(CARTES_PAIRED_LIST(
