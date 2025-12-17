@@ -44,12 +44,15 @@
 
 // Create Serial0 as UART0 with custom or default pins
 arduino::UART MarlinSerial0(
-  #if defined(SERIAL0_TX_PIN) && defined(SERIAL0_RX_PIN)
+  #if PINS_EXIST(SERIAL0_TX, SERIAL0_RX)
     SERIAL0_TX_PIN, SERIAL0_RX_PIN  // Custom pins for UART0 (Marlin Serial0)
   #else
     0, 1  // Default UART0 pins (GP0/GP1)
   #endif
 );
+
+// Not using PINS_EXIST(SERIAL1_TX, SERIAL1_RX) because SERIAL1_TX and SERIAL1_RX
+// are defined in framework-arduino-mbed/variants/RASPBERRY_PI_PICO/pins_arduino.h
 
 // Create Serial1 as UART1 with custom or default pins
 #if defined(SERIAL1_TX_PIN) && defined(SERIAL1_RX_PIN)
