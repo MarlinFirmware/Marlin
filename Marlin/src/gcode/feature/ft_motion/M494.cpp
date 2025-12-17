@@ -123,14 +123,10 @@ void GcodeSuite::M494() {
 
     #define SMOOTH_SET(A,N) report |= smooth_set(_AXIS(A), CHARIFY(A), C(N));
 
-    if (!Marlin::printer_busy()) {
-      CARTES_GANG(
-        SMOOTH_SET(X, STEPPER_A_NAME), SMOOTH_SET(Y, STEPPER_B_NAME),
-        SMOOTH_SET(Z, STEPPER_C_NAME), SMOOTH_SET(E, 'E')
-      );
-    }
-    else
-      SERIAL_ECHOLNPGM("?Cannot change Smoothing Time while moving.");
+    CARTES_GANG(
+      SMOOTH_SET(X, STEPPER_A_NAME), SMOOTH_SET(Y, STEPPER_B_NAME),
+      SMOOTH_SET(Z, STEPPER_C_NAME), SMOOTH_SET(E, 'E')
+    );
 
   #endif // FTM_SMOOTHING
 
