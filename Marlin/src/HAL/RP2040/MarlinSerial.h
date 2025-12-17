@@ -39,8 +39,8 @@
  * - SerialUSB: Alias for Serial (USB)
  *
  * Marlin Serial Wrappers:
- * - MSerial0: Wrapper for Serial1 (UART0), used as Serial0
- * - MSerial1: Wrapper for Serial2 (UART1), declared dynamically if used
+ * - MSerial0: Wrapper for MarlinSerial0 (UART0), used as Serial0
+ * - MSerial1: Wrapper for MarlinSerial1 (UART1), declared dynamically if used
  * - MSerial2: Wrapper for Serial (USB)
  * - USBSerial: Wrapper for SerialUSB (USB)
  *
@@ -53,12 +53,12 @@
 
 // Forward declare our custom Serial objects (defined in MarlinSerial.cpp)
 namespace arduino { class UART; }
-extern arduino::UART Serial0;  // Always declared
-extern arduino::UART Serial1;  // Conditionally defined in .cpp
+extern arduino::UART MarlinSerial0;  // Always declared
+extern arduino::UART MarlinSerial1;  // Custom Marlin Serial1 to avoid conflict
 
-typedef ForwardSerial1Class< decltype(Serial0) > DefaultSerial0;
+typedef ForwardSerial1Class< decltype(MarlinSerial0) > DefaultSerial0;
 extern DefaultSerial0 MSerial0;
-typedef ForwardSerial1Class< decltype(Serial1) > DefaultSerial1;
+typedef ForwardSerial1Class< decltype(MarlinSerial1) > DefaultSerial1;
 extern DefaultSerial1 MSerial1;
 typedef ForwardSerial1Class< decltype(Serial) > DefaultSerial2;
 extern DefaultSerial2 MSerial2;
@@ -66,7 +66,7 @@ typedef ForwardSerial1Class<decltype(SerialUSB)> USBSerialType;
 extern USBSerialType USBSerial;
 
 #define _DECLARE_SERIAL(X) \
-  typedef ForwardSerial1Class<decltype(Serial##X)> DefaultSerial##X; \
+  typedef ForwardSerial1Class<decltype(MarlinSerial##X)> DefaultSerial##X; \
   extern DefaultSerial##X MSerial##X
 #define DECLARE_SERIAL(X) _DECLARE_SERIAL(X)
 

@@ -118,10 +118,10 @@
   /**
    * Hardware serial communication ports.
    */
-  #define X_HARDWARE_SERIAL  Serial1
-  #define Y_HARDWARE_SERIAL  Serial1
-  #define Z_HARDWARE_SERIAL  Serial1
-  #define E0_HARDWARE_SERIAL Serial1
+  #define X_HARDWARE_SERIAL  MarlinSerial1
+  #define Y_HARDWARE_SERIAL  MarlinSerial1
+  #define Z_HARDWARE_SERIAL  MarlinSerial1
+  #define E0_HARDWARE_SERIAL MarlinSerial1
 
   // Default TMC slave addresses
   #ifndef X_SLAVE_ADDRESS
