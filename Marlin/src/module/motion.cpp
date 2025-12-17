@@ -1074,19 +1074,19 @@ void do_blocking_move_to(const xyze_pos_t &raw, const feedRate_t fr_mm_s/*=0.0f*
     do_z_clearance(current_position.z + zclear, false);
   }
   /**
-   * Move Z to Z_POST_CLEARANCE,
-   * The axis is allowed to move down.
+   * Move Z to the clearance height;
+   * the axis is allowed to move downward.
    */
   void do_move_after_z_homing() {
     DEBUG_SECTION(mzah, "do_move_after_z_homing", DEBUGGING(LEVELING));
-    #ifdef Z_POST_CLEARANCE
+    #if ENABLED(Z_AFTER_PROBING)
+      probe.move_z_after_probing();
+    #else
       do_z_clearance(
         Z_POST_CLEARANCE,
         ALL(HOMING_Z_WITH_PROBE, HAS_STOWABLE_PROBE) && TERN0(HAS_BED_PROBE, endstops.z_probe_enabled),
         true
       );
-    #elif ENABLED(USE_PROBE_FOR_Z_HOMING)
-      probe.move_z_after_probing();
     #endif
   }
 #endif // HAS_Z_AXIS

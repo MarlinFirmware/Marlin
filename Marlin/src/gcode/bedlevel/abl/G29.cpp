@@ -1009,7 +1009,7 @@ G29_TYPE GcodeSuite::G29() {
   // Restore state after probing
   if (!faux) restore_feedrate_and_scaling();
 
-  TERN_(HAS_BED_PROBE, probe.move_z_after_probing());
+  TERN_(Z_AFTER_PROBING, probe.move_z_after_probing());
 
   #ifdef EVENT_GCODE_AFTER_G29
     if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("After G29 G-code: ", EVENT_GCODE_AFTER_G29);

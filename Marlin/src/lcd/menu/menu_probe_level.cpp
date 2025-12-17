@@ -74,12 +74,10 @@
   //
   void _lcd_level_bed_done() {
     if (!ui.wait_for_move) {
-      #if DISABLED(MESH_BED_LEVELING) && defined(Z_AFTER_PROBING)
-        if (Z_AFTER_PROBING) {
-          // Display "Done" screen and wait for moves to complete
-          line_to_z(Z_AFTER_PROBING);
-          ui.synchronize(GET_TEXT_F(MSG_LEVEL_BED_DONE));
-        }
+      #if DISABLED(MESH_BED_LEVELING) && ENABLED(Z_AFTER_PROBING)
+        // Display "Done" screen and wait for moves to complete
+        line_to_z(Z_AFTER_HOMING);
+        ui.synchronize(GET_TEXT_F(MSG_LEVEL_BED_DONE));
       #endif
       ui.goto_previous_screen_no_defer();
       ui.completion_feedback();

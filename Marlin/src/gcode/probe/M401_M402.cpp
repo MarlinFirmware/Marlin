@@ -74,8 +74,8 @@ void GcodeSuite::M401_report(const bool forReplay/*=true*/) {
  */
 void GcodeSuite::M402() {
   probe.stow(parser.boolval('R'));
-  #ifdef Z_AFTER_PROBING
-    do_z_clearance(Z_AFTER_PROBING);
+  #if ENABLED(Z_AFTER_PROBING)
+    do_z_clearance(Z_AFTER_HOMING);
   #endif
   report_current_position();
 }

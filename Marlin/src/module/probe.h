@@ -219,8 +219,8 @@ public:
 
   static void move_z_after_probing() {
     DEBUG_SECTION(mzah, "move_z_after_probing", DEBUGGING(LEVELING));
-    #ifdef Z_AFTER_PROBING
-      do_z_clearance(Z_AFTER_PROBING, true, true); // Move down still permitted
+    #if ENABLED(Z_AFTER_PROBING)
+      do_z_clearance(Z_AFTER_HOMING, true, true); // Move down still permitted
     #endif
   }
 

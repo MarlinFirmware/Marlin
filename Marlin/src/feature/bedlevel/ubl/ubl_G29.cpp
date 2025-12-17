@@ -825,7 +825,7 @@ void unified_bed_leveling::shift_mesh_height(const float zoffs) {
     probe.stow();
     TERN_(HAS_MARLINUI_MENU, ui.capture());
 
-    probe.move_z_after_probing();
+    TERN_(Z_AFTER_PROBING, probe.move_z_after_probing());
 
     do_blocking_move_to_xy(
       constrain(nearby.x - probe.offset_xy.x, MESH_MIN_X, MESH_MAX_X),
@@ -1523,7 +1523,7 @@ void unified_bed_leveling::smart_fill_mesh() {
       }
 
       probe.stow();
-      probe.move_z_after_probing();
+      TERN_(Z_AFTER_PROBING, probe.move_z_after_probing());
 
       if (abort_flag) {
         SERIAL_ECHOLNPGM("?Error probing point. Aborting operation.");
@@ -1609,7 +1609,7 @@ void unified_bed_leveling::smart_fill_mesh() {
       }
     }
     probe.stow();
-    probe.move_z_after_probing();
+    TERN_(Z_AFTER_PROBING, probe.move_z_after_probing());
 
     if (abort_flag || finish_incremental_LSF(&lsf_results)) {
       SERIAL_ECHOLNPGM("Could not complete LSF!");

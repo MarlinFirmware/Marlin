@@ -1402,7 +1402,7 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
       #error "TOUCH_MI_PROBE requires Z_SAFE_HOMING."
     #elif !defined(TOUCH_MI_RETRACT_Z)
       #error "TOUCH_MI_PROBE requires TOUCH_MI_RETRACT_Z."
-    #elif defined(Z_AFTER_PROBING)
+    #elif ENABLED(Z_AFTER_PROBING)
       #error "TOUCH_MI_PROBE requires Z_AFTER_PROBING to be disabled."
     #elif Z_CLEARANCE_FOR_HOMING < 10
       #error "TOUCH_MI_PROBE requires Z_CLEARANCE_FOR_HOMING >= 10."
@@ -1585,8 +1585,8 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
   #else
     static_assert(Z_CLEARANCE_BETWEEN_PROBES >= 0, "Probes require Z_CLEARANCE_BETWEEN_PROBES >= 0.");
   #endif
-  #ifdef Z_AFTER_PROBING
-    static_assert(Z_AFTER_PROBING >= 0, "Probes require Z_AFTER_PROBING >= 0.");
+  #if ENABLED(Z_AFTER_PROBING)
+    static_assert(Z_AFTER_HOMING >= 0, "Probes with Z_AFTER_PROBING require Z_AFTER_HOMING >= 0.");
   #endif
 
   #if MULTIPLE_PROBING > 0 || EXTRA_PROBING > 0
