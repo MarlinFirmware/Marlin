@@ -531,7 +531,7 @@
 /**
  * Z_AFTER_HOMING
  */
-#ifndef Z_AFTER_HOMING
+#if !defined(Z_AFTER_HOMING) && ENABLED(Z_AFTER_PROBING)
   #define Z_AFTER_HOMING Z_CLEARANCE_FOR_HOMING
 #endif
 
