@@ -37,36 +37,18 @@
 typedef uint32_t hal_timer_t;
 #define HAL_TIMER_TYPE_MAX hal_timer_t(UINT16_MAX)
 
+#ifndef HAL_TIMER_RATE
+  extern uint32_t GetStepperTimerClkFreq();
+  #define HAL_TIMER_RATE GetStepperTimerClkFreq()
+#endif
+
 // Timer configuration constants
+#define STEPPER_TIMER_RATE    2000000
 #define TEMP_TIMER_FREQUENCY  1000
 
-#ifndef HAL_TIMER_RATE
-  #ifdef F_CPU
-    #if   F_CPU >= 536,870,912      // 2^29
-      #define HAL_TIMER_RATE        ((F_CPU) / 16)
-    #elif F_CPU >= 268,435,456      // 2^28
-      #define HAL_TIMER_RATE        ((F_CPU) / 8)
-    #elif F_CPU >= 134,217,728      // 2^27
-      #define HAL_TIMER_RATE        ((F_CPU) / 4)
-    #elif F_CPU >= 67,108,864       // 2^26
-      #define HAL_TIMER_RATE        ((F_CPU) / 2)
-    #else
-      #define HAL_TIMER_RATE        ((F_CPU) / 2)
-    #endif
-    //static_assert(false, "HAL_TIMER_RATE is set from F_CPU=" STRINGIFY(F_CPU));
-    // Stepper Timer calculations
-    #define STEPPER_TIMER_RATE      HAL_TIMER_RATE                            // HAL speed, as with others
-    #define STEPPER_TIMER_PRESCALE  (CYCLES_PER_MICROSECOND / STEPPER_TIMER_TICKS_PER_US)
-  #else
-    extern uint32_t GetStepperTimerClkFreq();
-    #define HAL_TIMER_RATE GetStepperTimerClkFreq()
-    // Stepper Timer calculations
-    #define STEPPER_TIMER_RATE      2'000'000                                 // 2 Mhz
-    #define STEPPER_TIMER_PRESCALE  ((HAL_TIMER_RATE) / (STEPPER_TIMER_RATE)) // Calculated Prescaler
-    #error "No F_CPU available with this board."
-  #endif
-#endif
-#define STEPPER_TIMER_TICKS_PER_US ((STEPPER_TIMER_RATE) / 1000000UL)     // (MHz) Stepper Timer ticks per µs
+// Timer prescaler calculations
+#define STEPPER_TIMER_PRESCALE      ((HAL_TIMER_RATE) / (STEPPER_TIMER_RATE)) // Prescaler = 30
+#define STEPPER_TIMER_TICKS_PER_US  ((STEPPER_TIMER_RATE) / 1000000UL)        // (MHz) Stepper Timer ticks per µs
 
 // Pulse Timer (counter) calculations
 #define PULSE_TIMER_RATE            STEPPER_TIMER_RATE                        // (Hz) Frequency of Pulse Timer
