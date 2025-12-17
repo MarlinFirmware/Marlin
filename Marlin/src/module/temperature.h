@@ -1383,9 +1383,6 @@ class Temperature {
       static void set_heating_message(const uint8_t, const bool=false) {}
     #endif
 
-    // Setter for raw_temps_ready (used by HAL)
-    static void set_raw_temps_ready(bool ready) { raw_temps_ready = ready; }
-
   private:
 
     // Reading raw temperatures and converting to Celsius when ready
