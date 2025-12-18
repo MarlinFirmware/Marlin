@@ -362,30 +362,32 @@
       planner.buffer_line(destination, scaled_fr_mm_s);
       return false; // caller will update current_position
     }
+    if (!parser.process_motion_gcode)  
+      parser.cartesian_mm = get_move_distance(total OPTARG(HAS_ROTATIONAL_AXES, parser.cartes_move));
 
       // If the move is very short, check the E move distance
-    TERN_(HAS_EXTRUDERS, if (UNEAR_ZERO(cartesian_mm)) cartesian_mm = ABS(total.e));
+    TERN_(HAS_EXTRUDERS, if (UNEAR_ZERO(parser.cartesian_mm)) parser.cartesian_mm = ABS(total.e));
 
     // No E move either? Game over.
-    if (UNEAR_ZERO(cartesian_mm)) return true;
+    if (UNEAR_ZERO(parser.cartesian_mm)) return true;
 
     #if IS_KINEMATIC
       // Minimum number of seconds to move the given distance
-      const float seconds = cartesian_mm / scaled_fr_mm_s;
+      const float seconds = parser.cartesian_mm / scaled_fr_mm_s;
 
       uint16_t segments = LROUND(segments_per_second * seconds),               // Preferred number of segments for distance @ feedrate
-               seglimit = LROUND(cartesian_mm * RECIPROCAL(SEGMENT_MIN_LENGTH)); // Number of segments at minimum segment length
+               seglimit = LROUND(parser.cartesian_mm * RECIPROCAL(SEGMENT_MIN_LENGTH)); // Number of segments at minimum segment length
     
       NOMORE(segments, seglimit);                                              // Limit to minimum segment length (fewer segments)
     #else
-      uint16_t segments = LROUND(cartesian_mm * RECIPROCAL(SEGMENT_MIN_LENGTH)); // Cartesian fixed segment length
+      uint16_t segments = LROUND(parser.cartesian_mm * RECIPROCAL(SEGMENT_MIN_LENGTH)); // Cartesian fixed segment length
     #endif
 
     NOLESS(segments, 1U);                                                      // Must have at least one segment
     const float inv_segments = 1.0f / segments;                                // Reciprocal to save calculation
 
     // Add hints to help optimize the move
-    PlannerHints hints(cartesian_mm * inv_segments);       // Length of each segment
+    PlannerHints hints(parser.cartesian_mm * inv_segments);       // Length of each segment
     #if ENABLED(FEEDRATE_SCALING)
       hints.inv_duration = scaled_fr_mm_s / hints.millimeters;
     #endif

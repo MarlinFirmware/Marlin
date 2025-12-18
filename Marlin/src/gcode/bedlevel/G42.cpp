@@ -54,7 +54,7 @@ void GcodeSuite::G42() {
     return;
   }
 
-  TERN_(FEEDRATE_MODE_SUPPORT, parser.apply_feedrate_mode = true);
+  TERN_(FEEDRATE_MODE_SUPPORT, parser.process_motion_gcode = true);
 
   // Move to motion.position, as modified by I, J, P parameters
   motion.destination = motion.position;
@@ -79,7 +79,7 @@ void GcodeSuite::G42() {
     motion.prepare_internal_move_to_destination(fr_mm_s);
   #endif
 
-  TERN_(FEEDRATE_MODE_SUPPORT, parser.apply_feedrate_mode = false);
+  TERN_(FEEDRATE_MODE_SUPPORT, parser.process_motion_gcode = false);
 }
 
 #endif // HAS_MESH

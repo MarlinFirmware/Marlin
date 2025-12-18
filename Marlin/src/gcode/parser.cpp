@@ -37,15 +37,16 @@ bool GCodeParser::volumetric_enabled;
   float GCodeParser::linear_unit_factor, GCodeParser::volumetric_unit_factor;
 #endif
 
-#if ENABLED(FEEDRATE_MODE_SUPPORT)
-  bool GCodeParser::inverse_time_enabled;
-#endif
 #if HAS_ROTATIONAL_AXES || IS_KINEMATIC || HAS_LEVELING || ENABLED(FEEDRATE_MODE_SUPPORT)
-  bool GCodeParser::apply_feedrate_mode;
-#endif
+  bool GCodeParser::process_motion_gcode;
+  float GCodeParser::cartesian_mm;
+  #if ENABLED(FEEDRATE_MODE_SUPPORT)
+    bool GCodeParser::inverse_time_enabled;
+  #endif
+  #if HAS_ROTATIONAL_AXES
+    bool GCodeParser::cartes_move;
+  #endif
 
-#if HAS_ROTATIONAL_AXES
-  bool GCodeParser::cartes_move;
 #endif
 
 #if ENABLED(TEMPERATURE_UNITS_SUPPORT)

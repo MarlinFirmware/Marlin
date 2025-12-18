@@ -57,7 +57,7 @@ void GcodeSuite::M24() {
 
   #if DGUS_LCD_UI_MKS
     if ((print_job_timer.isPaused() || print_job_timer.isRunning()) && !parser.seen("ST"))
-      MKS_resume_apply_feedrate_mode();
+      MKS_resume_print_move();
   #endif
 
   #if ENABLED(POWER_LOSS_RECOVERY)
@@ -112,7 +112,7 @@ void GcodeSuite::M25() {
 
     print_job_timer.pause();
 
-    TERN_(DGUS_LCD_UI_MKS, MKS_pause_apply_feedrate_mode());
+    TERN_(DGUS_LCD_UI_MKS, MKS_pause_print_move());
 
     IF_DISABLED(DWIN_CREALITY_LCD, ui.reset_status());
 

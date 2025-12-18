@@ -202,11 +202,11 @@ void GcodeSuite::get_destination_from_command() {
   #if HAS_ROTATIONAL_AXES || IS_KINEMATIC || HAS_LEVELING || ENABLED(FEEDRATE_MODE_SUPPORT)
     const xyze_pos_t displacement = destination - current_position;
 
-    cartesian_mm = get_move_distance(displacement OPTARG(HAS_ROTATIONAL_AXES, parser.cartes_move));
+    parser.cartesian_mm = get_move_distance(displacement OPTARG(HAS_ROTATIONAL_AXES, parser.cartes_move));
 
     #if HAS_EXTRUDERS
-      if (NEAR_ZERO(cartesian_mm)) {
-        cartesian_mm = ABS(displacement.e);
+      if (NEAR_ZERO(parser.cartesian_mm)) {
+        parser.cartesian_mm = ABS(displacement.e);
       }
     #endif
   #endif
@@ -218,13 +218,7 @@ void GcodeSuite::get_destination_from_command() {
   #endif
 
   if (parser.floatval('F') > 0) {
-    #if ENABLED(FEEDRATE_MODE_SUPPORT)
-      float fr_mm_min = parser.value_feedrate();
-      if (parser.inverse_time_enabled && parser.apply_feedrate_mode)
-        fr_mm_min *= cartesian_mm;
-    #else
-      const float fr_mm_min = parser.value_feedrate();
-    #endif
+    const float fr_mm_min = parser.value_feedrate();
     motion.feedrate_mm_s = MMM_TO_MMS(fr_mm_min);
     // Update the cutter feed rate for use by M4 I set inline moves.
     TERN_(LASER_FEATURE, cutter.feedrate_mm_m = fr_mm_min);

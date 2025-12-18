@@ -200,10 +200,6 @@ int16_t Motion::feedrate_percentage = 100;
 
 #endif // IS_KINEMATIC
 
-#if HAS_ROTATIONAL_AXES || IS_KINEMATIC || HAS_LEVELING || ENABLED(FEEDRATE_MODE_SUPPORT)
-  float cartesian_mm = 0.0f;
-#endif
-
 /**
  * The workspace can be offset by some commands, or
  * these offsets may be omitted to save on computation.
@@ -1623,15 +1619,17 @@ float Motion::get_move_distance(const xyze_pos_t &diff OPTARG(HAS_ROTATIONAL_AXE
 
     // Fail if attempting move outside printable radius
     if (!can_reach(destination)) return true;
+    if (!parser.process_motion_gcode)
+      parser.cartesian_mm = motion.get_move_distance(diff OPTARG(HAS_ROTATIONAL_AXES, parser.cartes_move));
 
     // If the move is very short, check the E move distance
-    TERN_(HAS_EXTRUDERS, if (UNEAR_ZERO(cartesian_mm)) cartesian_mm = ABS(diff.e));
+    TERN_(HAS_EXTRUDERS, if (UNEAR_ZERO(parser.cartesian_mm)) parser.cartesian_mm = ABS(diff.e));
 
     // No E move either? Game over.
-    if (UNEAR_ZERO(cartesian_mm)) return true;
+    if (UNEAR_ZERO(parser.cartesian_mm)) return true;
 
     // Minimum number of seconds to move the given distance
-    const float seconds = cartesian_mm / scaled_fr_mm_s;
+    const float seconds = parser.cartesian_mm / scaled_fr_mm_s;
 
     // The number of segments-per-second times the duration
     // gives the number of segments
@@ -1639,9 +1637,9 @@ float Motion::get_move_distance(const xyze_pos_t &diff OPTARG(HAS_ROTATIONAL_AXE
 
     // For SCARA enforce a minimum segment size
     #if IS_SCARA
-      NOMORE(segments, cartesian_mm * RECIPROCAL(SCARA_MIN_SEGMENT_LENGTH));
+      NOMORE(segments, parser.cartesian_mm * RECIPROCAL(SCARA_MIN_SEGMENT_LENGTH));
     #elif ENABLED(POLAR)
-      NOMORE(segments, cartesian_mm * RECIPROCAL(POLAR_MIN_SEGMENT_LENGTH));
+      NOMORE(segments, parser.cartesian_mm * RECIPROCAL(POLAR_MIN_SEGMENT_LENGTH));
     #endif
 
     // At least one segment is required
@@ -1652,9 +1650,9 @@ float Motion::get_move_distance(const xyze_pos_t &diff OPTARG(HAS_ROTATIONAL_AXE
     const xyze_float_t segment_distance = diff * inv_segments;
 
     // Add hints to help optimize the move
-    PlannerHints hints(cartesian_mm * inv_segments);
+    PlannerHints hints(parser.cartesian_mm * inv_segments);
     #if ENABLED(FEEDRATE_SCALING)
-        hints.inv_duration = scaled_fr_mm_s / hints.millimeters;
+      hints.inv_duration = scaled_fr_mm_s / hints.millimeters;
     #endif
     /*
     SERIAL_ECHOPGM("mm=", cartesian_mm);
@@ -1703,21 +1701,19 @@ float Motion::get_move_distance(const xyze_pos_t &diff OPTARG(HAS_ROTATIONAL_AXE
         return;
       }
 
-      // Get the linear distance in XYZ
-      #if HAS_ROTATIONAL_AXES || IS_KINEMATIC || HAS_LEVELING || ENABLED(FEEDRATE_MODE_SUPPORT)
-        if (!parser.apply_feedrate_mode)
-      #endif
-          cartesian_mm = get_move_distance(diff OPTARG(HAS_ROTATIONAL_AXES, parser.cartes_move));
+      // Get the move distance
+      if (parser.process_motion_gcode)
+        parser.cartesian_mm = get_move_distance(diff OPTARG(HAS_ROTATIONAL_AXES, parser.cartes_move));
 
       // If the move is very short, check the E move distance
-      TERN_(HAS_EXTRUDERS, if (UNEAR_ZERO(cartesian_mm)) cartesian_mm = ABS(diff.e));
+      TERN_(HAS_EXTRUDERS, if (UNEAR_ZERO(parser.cartesian_mm)) parser.cartesian_mm = ABS(diff.e));
 
       // No E move either? Game over.
-      if (UNEAR_ZERO(cartesian_mm)) return;
+      if (UNEAR_ZERO(parser.cartesian_mm)) return;
 
       // The length divided by the segment size
       // At least one segment is required
-      uint16_t segments = cartesian_mm / segment_size;
+      uint16_t segments = parser.cartesian_mm / segment_size;
       NOLESS(segments, 1U);
 
       // The approximate length of each segment
@@ -1725,7 +1721,7 @@ float Motion::get_move_distance(const xyze_pos_t &diff OPTARG(HAS_ROTATIONAL_AXE
       const xyze_float_t segment_distance = diff * inv_segments;
 
       // Add hints to help optimize the move
-      PlannerHints hints(cartesian_mm * inv_segments);
+      PlannerHints hints(parser.cartesian_mm * inv_segments);
       TERN_(FEEDRATE_SCALING, hints.inv_duration = scaled_fr_mm_s / hints.millimeters);
       //SERIAL_ECHOPGM("mm=", cartesian_mm);
       //SERIAL_ECHOLNPGM(" segments=", segments);

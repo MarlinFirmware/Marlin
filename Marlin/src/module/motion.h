@@ -120,9 +120,6 @@ public:
   #if HAS_SCARA_OFFSET
     static abc_pos_t scara_home_offset; // A and B angular offsets, Z mm offset
   #endif
-  #if HAS_ROTATIONAL_AXES || IS_KINEMATIC || HAS_LEVELING || ENABLED(FEEDRATE_MODE_SUPPORT)
-    static float cartesian_mm;
-  #endif
 
   #if HAS_HOTEND_OFFSET
     static xyz_pos_t hotend_offset[HOTENDS];

@@ -79,7 +79,7 @@ xyz_pos_t position_before_pause;
 constexpr feedRate_t park_speed_xy = TERN(NOZZLE_PARK_FEATURE, NOZZLE_PARK_XY_FEEDRATE, 100),
                      park_speed_z  = TERN(NOZZLE_PARK_FEATURE, NOZZLE_PARK_Z_FEEDRATE,    5);
 
-void MKS_pause_apply_feedrate_mode() {
+void MKS_pause_print_move() {
   queue.exhaust();
   position_before_pause = motion.position;
 
