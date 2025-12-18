@@ -38,7 +38,7 @@ bool GCodeParser::volumetric_enabled;
 #endif
 
 #if HAS_ROTATIONAL_AXES || IS_KINEMATIC || HAS_LEVELING || ENABLED(FEEDRATE_MODE_SUPPORT)
-  bool GCodeParser::process_motion_gcode;
+  bool GCodeParser::linear_motion_gcode;
   float GCodeParser::cartesian_mm;
   #if ENABLED(FEEDRATE_MODE_SUPPORT)
     bool GCodeParser::inverse_time_enabled;

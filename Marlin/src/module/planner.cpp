@@ -2982,7 +2982,7 @@ bool Planner::buffer_line(const xyze_pos_t &cart, const feedRate_t fr_mm_s
     // Provide known Cartesian length in the hints structure
     PlannerHints ph = hints;
     if (!hints.millimeters)
-      ph.millimeters = motion.get_move_distance(xyze_pos_t(cart_dist_mm) OPTARG(HAS_ROTATIONAL_AXES, parser.cartesian_move));
+      ph.millimeters = motion.get_move_distance(xyze_pos_t(cart_dist_mm) OPTARG(HAS_ROTATIONAL_AXES, parser.cartes_move));
 
     #if DISABLED(FEEDRATE_SCALING)
 
