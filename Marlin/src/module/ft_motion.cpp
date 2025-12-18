@@ -50,6 +50,10 @@
 #endif
 
 FTMotion ftMotion;
+void ftMotion_prep_for_shaper_change() {
+  planner.synchronize();
+  ftMotion.reset();
+}
 
 //-----------------------------------------------------------------
 // Variables.
@@ -70,6 +74,7 @@ xyze_pos_t   FTMotion::startPos,                    // (mm) Start position of bl
              FTMotion::endPos_prevBlock = { 0.0f }; // (mm) End position of previous block
 xyze_float_t FTMotion::ratio;                       // (ratio) Axis move ratio of block
 float FTMotion::tau = 0.0f;                         // (s) Time since start of block
+bool FTMotion::fastForwardUntilMotion = false;      // Fast forward time if there is no motion.
 
 // Trajectory generators
 TrapezoidalTrajectoryGenerator FTMotion::trapezoidalGenerator;
@@ -191,6 +196,7 @@ void FTMotion::loop() {
 #if HAS_FTM_SHAPING
 
   void FTMotion::update_shaping_params() {
+    ftMotion_prep_for_shaper_change();
     #define UPDATE_SHAPER(A) \
       shaping.A.ena = IS_SHAPING(ftMotion.cfg.shaper.A); \
       shaping.A.set_axis_shaping_A(cfg.shaper.A, cfg.zeta.A OPTARG(HAS_FTM_EI_SHAPING, cfg.vtol.A)); \
@@ -214,7 +220,7 @@ void FTMotion::loop() {
 
   bool FTMotion::set_smoothing_time(const AxisEnum axis, const float s_time) {
     if (!WITHIN(s_time, 0.0f, FTM_MAX_SMOOTHING_TIME)) return false;
-    planner.synchronize();
+    ftMotion_prep_for_shaper_change();
     cfg.smoothingTime[axis] = s_time;
     update_smoothing_params();
     return true;
@@ -229,6 +235,7 @@ void FTMotion::reset() {
   tau = 0;
   stepping.reset();
   shaping.reset();
+  fastForwardUntilMotion = true;
   TERN_(FTM_SMOOTHING, smoothing.reset(););
 
   TERN_(HAS_EXTRUDERS, prev_traj_e = 0.0f);  // Reset linear advance variables.
@@ -315,7 +322,7 @@ void FTMotion::init() {
       case TrajectoryType::POLY6:
         break;
     }
-    planner.synchronize();
+    ftMotion_prep_for_shaper_change();
     setTrajectoryType(type);
     return true;
   }
@@ -590,10 +597,15 @@ void FTMotion::fill_stepper_plan_buffer() {
 
     // Get distance from trajectory generator
     xyze_float_t traj_coords = calc_traj_point(currentGenerator->getDistanceAtTime(tau));
-
-    // Calculate and store stepper plan in buffer
-    stepping_enqueue(traj_coords);
-
+    if (fastForwardUntilMotion && traj_coords == startPos) {
+      // Axis synchronisation delays all axes. When coming from a reset, there is an ramp up time filling all buffers.
+      // If the slowest axis doesn't move and it isn't smoothened, this time can be skipped.
+      // It eliminates idle time when changing smoothing time or shapers and speeds up homing and bed levelling.
+    } else {
+      fastForwardUntilMotion = false;
+      // Calculate and store stepper plan in buffer
+      stepping_enqueue(traj_coords);
+    }
   }
 }
 

@@ -59,7 +59,7 @@
 
 // Timer prescaler calculations
 #define STEPPER_TIMER_PRESCALE      ((HAL_TIMER_RATE) / (STEPPER_TIMER_RATE))
-#define STEPPER_TIMER_TICKS_PER_US  ((STEPPER_TIMER_RATE) / 1000000UL)    // (MHz) Stepper Timer ticks per µs
+#define STEPPER_TIMER_TICKS_PER_US  ((STEPPER_TIMER_RATE) / 1000000UL)    // (ticks/μs) Stepper Timer ticks per µs
 
 // Pulse Timer (counter) calculations
 #define PULSE_TIMER_RATE            STEPPER_TIMER_RATE                    // (Hz) Frequency of Pulse Timer
