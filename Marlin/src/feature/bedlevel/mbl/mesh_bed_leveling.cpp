@@ -75,12 +75,11 @@
       segments = ecel - scel;
       NOLESS(segments, 1);
       
-      segment_fr = (parser.inverse_time_enabled && parser.apply_feedrate_mode) ? scaled_fr_mm_s * segments : scaled_fr_mm_s;
 
       // Start and end in the same cell? No split needed.
       if (scel == ecel) {
-        motion.position = motion.destination;
-        motion.line_to_current_position(segment_fr);
+         motion.position =  motion.destination;
+         motion.line_to_current_position(scaled_fr_mm_s);
         return;
       }
 

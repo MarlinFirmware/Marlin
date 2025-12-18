@@ -76,15 +76,15 @@ public:
     static float linear_unit_factor, volumetric_unit_factor;
   #endif
 
-  #if ENABLED(FEEDRATE_MODE_SUPPORT)
-    static bool inverse_time_enabled;
-  #endif
   #if HAS_ROTATIONAL_AXES || IS_KINEMATIC || HAS_LEVELING || ENABLED(FEEDRATE_MODE_SUPPORT)
-    static bool apply_feedrate_mode;
-  #endif
-
-  #if HAS_ROTATIONAL_AXES
+    static float cartesian_mm;
+    static bool process_motion_gcode;
+    #if ENABLED(FEEDRATE_MODE_SUPPORT)
+      static bool inverse_time_enabled;
+    #endif
+    #if HAS_ROTATIONAL_AXES
       static bool cartes_move;
+    #endif
   #endif
 
   #if ENABLED(TEMPERATURE_UNITS_SUPPORT)
@@ -428,7 +428,12 @@ public:
 
   static feedRate_t value_feedrate() { 
     #if HAS_ROTATIONAL_AXES || ENABLED(FEEDRATE_MODE_SUPPORT)
-      return ((TERN0(FEEDRATE_MODE_SUPPORT, inverse_time_enabled && apply_feedrate_mode)) || TERN0(HAS_ROTATIONAL_AXES, (!cartes_move))) ? value_float() : value_linear_units();
+      float fr = ((TERN0(FEEDRATE_MODE_SUPPORT, inverse_time_enabled && process_motion_gcode)) || TERN0(HAS_ROTATIONAL_AXES, (!cartes_move))) ? value_float() : value_linear_units();
+      #if ENABLED(FEEDRATE_MODE_SUPPORT)
+        if (inverse_time_enabled && process_motion_gcode)
+          fr *= cartesian_mm;
+      #endif
+      return fr
     #else
       return value_linear_units();
     #endif

@@ -54,31 +54,31 @@ void GcodeSuite::G0_G1(TERN_(HAS_FAST_MOVES, const bool fast_move/*=false*/)) {
   #ifdef G0_FEEDRATE
     feedRate_t old_feedrate;
     #if ENABLED(VARIABLE_G0_FEEDRATE)
-      #if HAS_ROTATIONAL_AXES || IS_KINEMATIC || HAS_LEVELING || ENABLED(FEEDRATE_MODE_SUPPORT)
-        parser.apply_feedrate_mode = true;
+      #if ENABLED(FEEDRATE_MODE_SUPPORT)
+        parser.process_motion_gcode = true;
       #endif
       if (fast_move) {
         old_feedrate = motion.feedrate_mm_s;            // Back up the (old) motion mode feedrate
         motion.feedrate_mm_s = fast_move_feedrate;      // Get G0 feedrate from last usage
       }
-    #elif HAS_ROTATIONAL_AXES || IS_KINEMATIC || HAS_LEVELING || ENABLED(FEEDRATE_MODE_SUPPORT)
+    #elif ENABLED(FEEDRATE_MODE_SUPPORT)
       if (fast_move) {
-        parser.apply_feedrate_mode = false;
+        parser.process_motion_gcode = false;
       }
       else {
-        parser.apply_feedrate_mode = true;
+        parser.process_motion_gcode = true;
       }
     #endif
-  #elif HAS_ROTATIONAL_AXES || IS_KINEMATIC || HAS_LEVELING || ENABLED(FEEDRATE_MODE_SUPPORT)
-    parser.apply_feedrate_mode = true;
+  #elif ENABLED(FEEDRATE_MODE_SUPPORT)
+    parser.process_motion_gcode = true;
   #endif
 
   get_destination_from_command();                       // Get X Y [Z[I[J[K]]]] [E] F (and set cutter power)
 
   #ifdef G0_FEEDRATE
     if (fast_move) {
-      #if HAS_ROTATIONAL_AXES || IS_KINEMATIC || HAS_LEVELING || ENABLED(FEEDRATE_MODE_SUPPORT)
-        parser.apply_feedrate_mode = false;
+      #if ENABLED(FEEDRATE_MODE_SUPPORT)
+        parser.process_motion_gcode = false;
       #endif
       #if ENABLED(VARIABLE_G0_FEEDRATE)
         fast_move_feedrate = motion.feedrate_mm_s;      // Save feedrate for the next G0
@@ -119,8 +119,8 @@ void GcodeSuite::G0_G1(TERN_(HAS_FAST_MOVES, const bool fast_move/*=false*/)) {
     if (fast_move) motion.feedrate_mm_s = old_feedrate;
   #endif
 
-  #if HAS_ROTATIONAL_AXES || IS_KINEMATIC || HAS_LEVELING || ENABLED(FEEDRATE_MODE_SUPPORT)
-    parser.apply_feedrate_mode = false;
+  #if ENABLED(FEEDRATE_MODE_SUPPORT)
+    parser.process_motion_gcode = false;
   #endif
 
   #if ENABLED(NANODLP_Z_SYNC)
