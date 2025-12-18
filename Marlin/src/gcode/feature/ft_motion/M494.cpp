@@ -111,13 +111,17 @@ void GcodeSuite::M494() {
 
   #if ENABLED(FTM_SMOOTHING)
 
-    #define SMOOTH_SET(A,N) \
-      if (parser.seenval(CHARIFY(A))) { \
-        if (ftMotion.set_smoothing_time(_AXIS(A), parser.value_float())) \
-          report = true; \
-        else \
-          SERIAL_ECHOLNPGM("?Invalid ", C(N), " smoothing time (", C(CHARIFY(A)), ") value."); \
+    auto smooth_set = [&](AxisEnum axis, serial_char_t param, serial_char_t axis_name) -> bool {
+      if (parser.seenval(param.c)) {
+        if (ftMotion.set_smoothing_time(axis, parser.value_float()))
+          return true;
+        else
+          SERIAL_ECHOLNPGM("?Invalid ", axis_name, " smoothing time (", param, ") value.");
       }
+      return false;
+    };
+
+    #define SMOOTH_SET(A,N) report |= smooth_set(_AXIS(A), CHARIFY(A), C(N));
 
     CARTES_GANG(
       SMOOTH_SET(X, STEPPER_A_NAME), SMOOTH_SET(Y, STEPPER_B_NAME),
