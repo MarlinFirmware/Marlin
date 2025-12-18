@@ -91,14 +91,39 @@ typedef FTShapedAxes<float>            ft_shaped_float_t;
 typedef FTShapedAxes<ftMotionShaper_t> ft_shaped_shaper_t;
 typedef FTShapedAxes<dynFreqMode_t>    ft_shaped_dfm_t;
 
+#define FTM_MAX_DAMPENING 0.25
+constexpr float ftm_max_dampening = float(FTM_MAX_DAMPENING),
+                ftm_min_df = SQRT(1.0f - sq(ftm_max_dampening));
+
+constexpr uint32_t CALC_N1(const float v) { return LROUND((v / FTM_MIN_SHAPE_FREQ / ftm_min_df) * (FTM_FS)); }
+
+// Maximum delays for shaping functions
+constexpr float ftm_shaping_max_i = _MAX(0.0f
+  OPTARG(FTM_SHAPER_ZV,    1 * CALC_N1(0.5f))  OPTARG(FTM_SHAPER_EI,   2 * CALC_N1(0.5f)  )
+  OPTARG(FTM_SHAPER_ZVD,   2 * CALC_N1(0.5f))  OPTARG(FTM_SHAPER_2HEI, 3 * CALC_N1(0.5f)  )
+  OPTARG(FTM_SHAPER_ZVDD,  3 * CALC_N1(0.5f))  OPTARG(FTM_SHAPER_3HEI, 4 * CALC_N1(0.5f)  )
+  OPTARG(FTM_SHAPER_ZVDDD, 4 * CALC_N1(0.5f))  OPTARG(FTM_SHAPER_MZV,  2 * CALC_N1(0.375f))
+);
+
+// Max delays for smoothing
+constexpr uint32_t ftm_smooth_max_i = uint32_t(TERN0(FTM_SMOOTHING, CEIL(FTM_FS * FTM_MAX_SMOOTHING_TIME)));
+
+constexpr size_t ftm_zmax = ftm_shaping_max_i + ftm_smooth_max_i;
+
+constexpr uint8_t ftm_shaping_ni_size = _MAX(1
+  OPTARG(FTM_SHAPER_ZV,    2)  OPTARG(FTM_SHAPER_EI,   3)
+  OPTARG(FTM_SHAPER_ZVD,   3)  OPTARG(FTM_SHAPER_2HEI, 4)
+  OPTARG(FTM_SHAPER_ZVDD,  4)  OPTARG(FTM_SHAPER_3HEI, 5)
+  OPTARG(FTM_SHAPER_ZVDDD, 5)  OPTARG(FTM_SHAPER_MZV,  3)
+);
 
 // Shaping data
 typedef struct AxisShaping {
-  bool ena = false;                 // Enabled indication
-  float d_zi[FTM_ZMAX] = { 0.0f };  // Data point delay vector
-  float Ai[5];                      // Shaping gain vector
-  int32_t Ni[5];                    // Shaping time index vector
-  uint32_t max_i;                   // Vector length for the selected shaper
+  bool ena = false;                         // Enabled indication
+  float d_zi[ftm_zmax] = { 0.0f };          // Data point delay vector
+  float Ai[ftm_shaping_ni_size];            // Shaping gain vector
+  int32_t Ni[ftm_shaping_ni_size] = { 0 };  // Shaping time index vector
+  uint32_t max_i;                           // Vector length for the selected shaper
 
   // Set the gains used by shaping functions
   void set_axis_shaping_N(const ftMotionShaper_t shaper, const float f, const float zeta);

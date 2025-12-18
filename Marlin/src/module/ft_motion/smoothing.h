@@ -34,7 +34,7 @@ typedef struct FTSmoothedAxes {
 } ft_smoothed_float_t;
 
 // Smoothing data for each axis
-// The smoothing algorithm used is an approximation of moving window averaging with gaussian weights, based
+// The smoothing algorithm used is an approximation of moving window averaging with Gaussian weights, based
 // on chained exponential smoothers.
 typedef struct AxisSmoothing {
   float smoothing_pass[FTM_SMOOTHING_ORDER] = { 0.0f }; // Last value of each of the exponential smoothing passes
