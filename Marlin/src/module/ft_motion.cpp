@@ -50,10 +50,8 @@
 #endif
 
 FTMotion ftMotion;
-void ftMotion_prep_for_shaper_change() {
-  planner.synchronize();
-  ftMotion.reset();
-}
+
+void ft_config_t::prep_for_shaper_change() { ftMotion.prep_for_shaper_change(); }
 
 //-----------------------------------------------------------------
 // Variables.
@@ -196,13 +194,16 @@ void FTMotion::loop() {
 #if HAS_FTM_SHAPING
 
   void FTMotion::update_shaping_params() {
-    ftMotion_prep_for_shaper_change();
-    #define UPDATE_SHAPER(A) \
-      shaping.A.ena = IS_SHAPING(ftMotion.cfg.shaper.A); \
-      shaping.A.set_axis_shaping_A(cfg.shaper.A, cfg.zeta.A OPTARG(HAS_FTM_EI_SHAPING, cfg.vtol.A)); \
-      shaping.A.set_axis_shaping_N(cfg.shaper.A, cfg.baseFreq.A, cfg.zeta.A);
+    prep_for_shaper_change();
 
+    auto update_shaper = [&](AxisEnum axis, axis_shaping_t &shap) {
+      shap.ena = IS_SHAPING(ftMotion.cfg.shaper[axis]);
+      shap.set_axis_shaping_A(cfg.shaper[axis], cfg.zeta[axis] OPTARG(HAS_FTM_EI_SHAPING, cfg.vtol[axis]));
+      shap.set_axis_shaping_N(cfg.shaper[axis], cfg.baseFreq[axis], cfg.zeta[axis]);
+    };
+    #define UPDATE_SHAPER(A) update_shaper(_AXIS(A), shaping.A);
     SHAPED_MAP(UPDATE_SHAPER);
+
     shaping.refresh_largest_delay_samples();
   }
 
@@ -220,7 +221,7 @@ void FTMotion::loop() {
 
   bool FTMotion::set_smoothing_time(const AxisEnum axis, const float s_time) {
     if (!WITHIN(s_time, 0.0f, FTM_MAX_SMOOTHING_TIME)) return false;
-    ftMotion_prep_for_shaper_change();
+    prep_for_shaper_change();
     cfg.smoothingTime[axis] = s_time;
     update_smoothing_params();
     return true;
@@ -322,7 +323,7 @@ void FTMotion::init() {
       case TrajectoryType::POLY6:
         break;
     }
-    ftMotion_prep_for_shaper_change();
+    prep_for_shaper_change();
     setTrajectoryType(type);
     return true;
   }

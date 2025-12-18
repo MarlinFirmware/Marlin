@@ -54,8 +54,6 @@
   #endif
 #endif
 
-void ftMotion_prep_for_shaper_change();
-
 /**
  * FTConfig - The active configured state of FT Motion
  */
@@ -100,11 +98,13 @@ typedef struct FTConfig {
     static constexpr TrajectoryType trajectory_type = TrajectoryType::TRAPEZOIDAL;
   #endif
 
+  static void prep_for_shaper_change();
+
   #if HAS_STANDARD_MOTION
     bool setActive(const bool a) {
       if (a == active) return false;
       stepper.ftMotion_syncPosition();
-      ftMotion_prep_for_shaper_change();
+      prep_for_shaper_change();
       active = a;
       return true;
     }
@@ -112,7 +112,7 @@ typedef struct FTConfig {
 
   bool setAxisSync(const bool ena) {
     if (ena == axis_sync_enabled) return false;
-    ftMotion_prep_for_shaper_change();
+    prep_for_shaper_change();
     axis_sync_enabled = ena;
     return true;
   }
@@ -121,7 +121,7 @@ typedef struct FTConfig {
 
     bool setShaper(const AxisEnum a, const ftMotionShaper_t s) {
       if (s == shaper[a]) return false;
-      ftMotion_prep_for_shaper_change();
+      prep_for_shaper_change();
       shaper[a] = s;
       return true;
     }
@@ -131,7 +131,7 @@ typedef struct FTConfig {
     bool setZeta(const AxisEnum a, const float z) {
       if (z == zeta[a]) return false;
       if (!goodZeta(z)) return false;
-      ftMotion_prep_for_shaper_change();
+      prep_for_shaper_change();
       zeta[a] = z;
       return true;
     }
@@ -143,7 +143,7 @@ typedef struct FTConfig {
       bool setVtol(const AxisEnum a, const float v) {
         if (v == vtol[a]) return false;
         if (!goodVtol(v)) return false;
-        ftMotion_prep_for_shaper_change();
+        prep_for_shaper_change();
         vtol[a] = v;
         return true;
       }
@@ -159,7 +159,7 @@ typedef struct FTConfig {
           TERN_(HAS_DYNAMIC_FREQ_MM, case dynFreqMode_Z_BASED:)
           TERN_(HAS_DYNAMIC_FREQ_G, case dynFreqMode_MASS_BASED:)
           case dynFreqMode_DISABLED:
-            ftMotion_prep_for_shaper_change();
+            prep_for_shaper_change();
             dynFreqMode = dynFreqMode_t(m);
             break;
         }
@@ -174,7 +174,7 @@ typedef struct FTConfig {
       bool setDynFreqK(const AxisEnum a, const float k) {
         if (!modeUsesDynFreq()) return false;
         if (k == dynFreqK[a]) return false;
-        ftMotion_prep_for_shaper_change();
+        prep_for_shaper_change();
         dynFreqK[a] = k;
         return true;
       }
@@ -188,7 +188,7 @@ typedef struct FTConfig {
   bool setBaseFreq(const AxisEnum a, const float f) {
     if (f == baseFreq[a]) return false;
     if (!goodBaseFreq(a)) return false;
-    ftMotion_prep_for_shaper_change();
+    prep_for_shaper_change();
     baseFreq[a] = f;
     return true;
   }
@@ -381,6 +381,13 @@ class FTMotion {
     #if HAS_EXTRUDERS
       static float prev_traj_e;
     #endif
+
+    // Synchronize and reset motion prior to parameter changes
+    friend void ft_config_t::prep_for_shaper_change();
+    static void prep_for_shaper_change() {
+      planner.synchronize();
+      reset();
+    }
 
     // Buffers
     static void discard_planner_block_protected();
