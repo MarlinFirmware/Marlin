@@ -213,10 +213,6 @@ void FTMotion::loop() {
   }
 
   bool FTMotion::set_smoothing_time(const AxisEnum axis, const float s_time) {
-    if (Marlin::printer_busy()) {
-      SERIAL_ECHOLN("Cannot change FTM smoothing time while printer is busy");
-      return false;
-    }
     if (!WITHIN(s_time, 0.0f, FTM_MAX_SMOOTHING_TIME)) return false;
     planner.synchronize();
     cfg.smoothingTime[axis] = s_time;
