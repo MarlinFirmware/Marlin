@@ -105,7 +105,7 @@
      * case - crossing only one X or Y line - after details are worked out to reduce computation.
      */
 
-    const xy_float_t dist = xy_float_t(end) - xy_float_t(start);
+    const xy_float_t dist = end - start;
     const xy_bool_t neg { dist.x < 0, dist.y < 0 };
     const xy_uint8_t ineg { uint8_t(neg.x), uint8_t(neg.y) };
     const xy_float_t sign { neg.x ? -1.0f : 1.0f, neg.y ? -1.0f : 1.0f };
@@ -362,32 +362,32 @@
       planner.buffer_line(destination, scaled_fr_mm_s);
       return false; // caller will update current_position
     }
-    if (!parser.process_motion_gcode)  
-      parser.cartesian_mm = get_move_distance(total OPTARG(HAS_ROTATIONAL_AXES, parser.cartes_move));
+    bool cartes_move = true;
+    float cartesian_mm = get_move_distance(total OPTARG(HAS_ROTATIONAL_AXES, cartes_move));
 
       // If the move is very short, check the E move distance
-    TERN_(HAS_EXTRUDERS, if (UNEAR_ZERO(parser.cartesian_mm)) parser.cartesian_mm = ABS(total.e));
+    TERN_(HAS_EXTRUDERS, if (UNEAR_ZERO(cartesian_mm)) cartesian_mm = ABS(total.e));
 
     // No E move either? Game over.
-    if (UNEAR_ZERO(parser.cartesian_mm)) return true;
+    if (UNEAR_ZERO(cartesian_mm)) return true;
 
     #if IS_KINEMATIC
       // Minimum number of seconds to move the given distance
-      const float seconds = parser.cartesian_mm / scaled_fr_mm_s;
+      const float seconds = cartesian_mm / scaled_fr_mm_s;
 
       uint16_t segments = LROUND(segments_per_second * seconds),               // Preferred number of segments for distance @ feedrate
-               seglimit = LROUND(parser.cartesian_mm * RECIPROCAL(SEGMENT_MIN_LENGTH)); // Number of segments at minimum segment length
+               seglimit = LROUND(cartesian_mm * RECIPROCAL(SEGMENT_MIN_LENGTH)); // Number of segments at minimum segment length
     
       NOMORE(segments, seglimit);                                              // Limit to minimum segment length (fewer segments)
     #else
-      uint16_t segments = LROUND(parser.cartesian_mm * RECIPROCAL(SEGMENT_MIN_LENGTH)); // Cartesian fixed segment length
+      uint16_t segments = LROUND(cartesian_mm * RECIPROCAL(SEGMENT_MIN_LENGTH)); // Cartesian fixed segment length
     #endif
 
     NOLESS(segments, 1U);                                                      // Must have at least one segment
     const float inv_segments = 1.0f / segments;                                // Reciprocal to save calculation
 
     // Add hints to help optimize the move
-    PlannerHints hints(parser.cartesian_mm * inv_segments);       // Length of each segment
+    PlannerHints hints(cartesian_mm * inv_segments);       // Length of each segment
     #if ENABLED(FEEDRATE_SCALING)
       hints.inv_duration = scaled_fr_mm_s / hints.millimeters;
     #endif

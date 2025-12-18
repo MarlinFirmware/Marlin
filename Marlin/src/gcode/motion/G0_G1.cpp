@@ -55,7 +55,7 @@ void GcodeSuite::G0_G1(TERN_(HAS_FAST_MOVES, const bool fast_move/*=false*/)) {
     feedRate_t old_feedrate;
     #if ENABLED(VARIABLE_G0_FEEDRATE)
       #if ENABLED(FEEDRATE_MODE_SUPPORT)
-        parser.process_motion_gcode = true;
+        parser.linear_motion_gcode = true;
       #endif
       if (fast_move) {
         old_feedrate = motion.feedrate_mm_s;            // Back up the (old) motion mode feedrate
@@ -63,14 +63,14 @@ void GcodeSuite::G0_G1(TERN_(HAS_FAST_MOVES, const bool fast_move/*=false*/)) {
       }
     #elif ENABLED(FEEDRATE_MODE_SUPPORT)
       if (fast_move) {
-        parser.process_motion_gcode = false;
+        parser.linear_motion_gcode = false;
       }
       else {
-        parser.process_motion_gcode = true;
+        parser.linear_motion_gcode = true;
       }
     #endif
   #elif ENABLED(FEEDRATE_MODE_SUPPORT)
-    parser.process_motion_gcode = true;
+    parser.linear_motion_gcode = true;
   #endif
 
   get_destination_from_command();                       // Get X Y [Z[I[J[K]]]] [E] F (and set cutter power)
@@ -78,7 +78,7 @@ void GcodeSuite::G0_G1(TERN_(HAS_FAST_MOVES, const bool fast_move/*=false*/)) {
   #ifdef G0_FEEDRATE
     if (fast_move) {
       #if ENABLED(FEEDRATE_MODE_SUPPORT)
-        parser.process_motion_gcode = false;
+        parser.linear_motion_gcode = false;
       #endif
       #if ENABLED(VARIABLE_G0_FEEDRATE)
         fast_move_feedrate = motion.feedrate_mm_s;      // Save feedrate for the next G0
@@ -120,7 +120,7 @@ void GcodeSuite::G0_G1(TERN_(HAS_FAST_MOVES, const bool fast_move/*=false*/)) {
   #endif
 
   #if ENABLED(FEEDRATE_MODE_SUPPORT)
-    parser.process_motion_gcode = false;
+    parser.linear_motion_gcode = false;
   #endif
 
   #if ENABLED(NANODLP_Z_SYNC)

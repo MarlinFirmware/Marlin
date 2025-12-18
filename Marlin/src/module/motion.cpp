@@ -1619,7 +1619,7 @@ float Motion::get_move_distance(const xyze_pos_t &diff OPTARG(HAS_ROTATIONAL_AXE
 
     // Fail if attempting move outside printable radius
     if (!can_reach(destination)) return true;
-    if (!parser.process_motion_gcode)
+    if (!parser.linear_motion_gcode)
       parser.cartesian_mm = motion.get_move_distance(diff OPTARG(HAS_ROTATIONAL_AXES, parser.cartes_move));
 
     // If the move is very short, check the E move distance
@@ -1702,7 +1702,7 @@ float Motion::get_move_distance(const xyze_pos_t &diff OPTARG(HAS_ROTATIONAL_AXE
       }
 
       // Get the move distance
-      if (parser.process_motion_gcode)
+      if (!parser.linear_motion_gcode)
         parser.cartesian_mm = get_move_distance(diff OPTARG(HAS_ROTATIONAL_AXES, parser.cartes_move));
 
       // If the move is very short, check the E move distance

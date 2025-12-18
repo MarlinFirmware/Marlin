@@ -429,7 +429,7 @@ void GcodeSuite::G2_G3(const bool clockwise) {
 
   TERN_(FULL_REPORT_TO_HOST_FEATURE, motion.set_and_report_grblstate(M_RUNNING));
   #if HAS_ROTATIONAL_AXES || IS_KINEMATIC || HAS_LEVELING || ENABLED(FEEDRATE_MODE_SUPPORT)
-    parser.process_motion_gcode = false;
+    parser.linear_motion_gcode = false;
   #endif
   
   #if ENABLED(SF_ARC_FIX)
