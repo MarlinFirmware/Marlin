@@ -334,7 +334,7 @@ class FTMotion {
                         endPos_prevBlock; // (mm) End position of previous block
     static xyze_float_t ratio;            // (ratio) Axis move ratio of block
     static float tau;                     // (s) Time since start of block
-    static bool fastForwardUntilMotion;   // Fast forward time if there is no motion.
+    static bool fastForwardUntilMotion;   // Fast forward time if there is no motion
 
     // Trajectory generators
     static TrapezoidalTrajectoryGenerator trapezoidalGenerator;

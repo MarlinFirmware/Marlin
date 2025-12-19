@@ -73,7 +73,7 @@ xyze_pos_t   FTMotion::startPos,                    // (mm) Start position of bl
              FTMotion::endPos_prevBlock = { 0.0f }; // (mm) End position of previous block
 xyze_float_t FTMotion::ratio;                       // (ratio) Axis move ratio of block
 float FTMotion::tau = 0.0f;                         // (s) Time since start of block
-bool FTMotion::fastForwardUntilMotion = false;      // Fast forward time if there is no motion.
+bool FTMotion::fastForwardUntilMotion = false;      // Fast forward time if there is no motion
 
 // Trajectory generators
 TrapezoidalTrajectoryGenerator FTMotion::trapezoidalGenerator;
@@ -600,10 +600,11 @@ void FTMotion::fill_stepper_plan_buffer() {
     // Get distance from trajectory generator
     xyze_float_t traj_coords = calc_traj_point(currentGenerator->getDistanceAtTime(tau));
     if (fastForwardUntilMotion && traj_coords == startPos) {
-      // Axis synchronisation delays all axes. When coming from a reset, there is an ramp up time filling all buffers.
+      // Axis synchronization delays all axes. When coming from a reset, there is an ramp up time filling all buffers.
       // If the slowest axis doesn't move and it isn't smoothened, this time can be skipped.
       // It eliminates idle time when changing smoothing time or shapers and speeds up homing and bed levelling.
-    } else {
+    }
+    else {
       fastForwardUntilMotion = false;
       // Calculate and store stepper plan in buffer
       stepping_enqueue(traj_coords);
