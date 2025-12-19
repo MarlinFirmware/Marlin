@@ -783,22 +783,29 @@ block_t* Planner::get_future_block(const uint8_t offset) {
 }
 
 /**
- * Calculate trapezoid parameters, multiplying the entry- and exit-speeds
- * by the provided factors. If entry_factor is 0 don't change the initial_rate.
- * Assumes that the implied initial_rate and final_rate are no less than
- * sqrt(block->acceleration_steps_per_s2 / 2). This is ensured through
- * minimum_planner_speed_sqr / min_entry_speed_sqr - but there's one
- * exception in recalculate_trapezoids().
+ * Calculate trapezoid (or or update FTM) motion parameters for a block.
+ *
+ * `entry_speed` is an optional override in mm/s.
+ * A value of `0` is a sentinel meaning “do not override the block’s
+ * existing entry speed / initial_rate.”
+ *
+ * This is relied upon by recalculate_trapezoids(), which intentionally
+ * passes `0` to preserve previously propagated speeds.
+ *
+ * Assumes implied entry and exit speeds are >= sqrt(acceleration / 2),
+ * enforced via minimum_planner_speed_sqr / min_entry_speed_sqr, with one
+ * controlled exception in recalculate_trapezoids().
  *
  * ############ VERY IMPORTANT ############
- * NOTE: The PRECONDITION to call this function is that the block is
- * NOT BUSY and it is marked as RECALCULATE. That WARRANTIES the Stepper ISR
- * is not and will not use the block while we modify it.
+ * PRECONDITIONs to run this function:
+ *  - The block is NOT BUSY.
+ *  - The block is marked RECALCULATE.
+ * That WARRANTIES the Stepper ISR is not and will not use the block while we modify it.
  */
 void Planner::calculate_trapezoid_for_block(block_t * const block, const float entry_speed, const float exit_speed) {
 
   #if ENABLED(FT_MOTION)
-    block->entry_speed = entry_speed;
+    if (entry_speed) block->entry_speed = entry_speed;
     block->exit_speed = exit_speed;
   #endif
 

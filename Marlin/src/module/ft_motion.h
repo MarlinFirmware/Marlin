@@ -102,15 +102,51 @@ typedef struct FTConfig {
     bool setActive(const bool a) {
       if (a == active) return false;
       stepper.ftMotion_syncPosition();
+      planner.synchronize();
       active = a;
       return true;
     }
   #endif
 
+  bool setAxisSync(const bool ena) {
+    if (ena == axis_sync_enabled) return false;
+    planner.synchronize();
+    axis_sync_enabled = ena;
+    return true;
+  }
+
   #if HAS_FTM_SHAPING
 
-    constexpr bool goodZeta(const float z) { return WITHIN(z, 0.01f, 1.0f); }
-    constexpr bool goodVtol(const float v) { return WITHIN(v, 0.00f, 1.0f); }
+    bool setShaper(const AxisEnum a, const ftMotionShaper_t s) {
+      if (s == shaper[a]) return false;
+      planner.synchronize();
+      shaper[a] = s;
+      return true;
+    }
+
+    constexpr bool goodZeta(const float z) { return WITHIN(z, 0.01f, ftm_max_dampening); }
+
+    bool setZeta(const AxisEnum a, const float z) {
+      if (z == zeta[a]) return false;
+      if (!goodZeta(z)) return false;
+      planner.synchronize();
+      zeta[a] = z;
+      return true;
+    }
+
+    #if HAS_FTM_EI_SHAPING
+
+      constexpr bool goodVtol(const float v) { return WITHIN(v, 0.00f, 1.0f); }
+
+      bool setVtol(const AxisEnum a, const float v) {
+        if (v == vtol[a]) return false;
+        if (!goodVtol(v)) return false;
+        planner.synchronize();
+        vtol[a] = v;
+        return true;
+      }
+
+    #endif
 
     #if HAS_DYNAMIC_FREQ
 
@@ -133,11 +169,27 @@ typedef struct FTConfig {
              || TERN0(HAS_DYNAMIC_FREQ_G,  dynFreqMode == dynFreqMode_MASS_BASED));
       }
 
+      bool setDynFreqK(const AxisEnum a, const float k) {
+        if (!modeUsesDynFreq()) return false;
+        if (k == dynFreqK[a]) return false;
+        planner.synchronize();
+        dynFreqK[a] = k;
+        return true;
+      }
+
     #endif // HAS_DYNAMIC_FREQ
 
   #endif // HAS_FTM_SHAPING
 
   constexpr bool goodBaseFreq(const float f) { return WITHIN(f, FTM_MIN_SHAPE_FREQ, (FTM_FS) / 2); }
+
+  bool setBaseFreq(const AxisEnum a, const float f) {
+    if (f == baseFreq[a]) return false;
+    if (!goodBaseFreq(a)) return false;
+    planner.synchronize();
+    baseFreq[a] = f;
+    return true;
+  }
 
   void set_defaults() {
     #if HAS_STANDARD_MOTION
@@ -234,6 +286,26 @@ class FTMotion {
       }
     #endif
 
+    // Setters for baseFreq, zeta, vtol
+    static bool setBaseFreq(const AxisEnum a, const float f) {
+      if (!cfg.setBaseFreq(a, f)) return false;
+      update_shaping_params();
+      return true;
+    }
+    static bool setZeta(const AxisEnum a, const float z) {
+      if (!cfg.setZeta(a, z)) return false;
+      update_shaping_params();
+      return true;
+    }
+
+    #if HAS_FTM_EI_SHAPING
+      static bool setVtol(const AxisEnum a, const float v) {
+        if (!cfg.setVtol(a, v)) return false;
+        update_shaping_params();
+        return true;
+      }
+    #endif
+
     // Trajectory generator selection
     #if ENABLED(FTM_POLYS)
       static void setTrajectoryType(const TrajectoryType type);
@@ -314,7 +386,7 @@ class FTMotion {
     static void fill_stepper_plan_buffer();
     static xyze_float_t calc_traj_point(const float dist);
     static bool plan_next_block();
-    static void ensure_float_precision();
+    static void ensure_float_precision() IF_DISABLED(HAS_EXTRUDERS, {});
 
 }; // class FTMotion
 
