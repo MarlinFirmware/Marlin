@@ -596,7 +596,7 @@ void menu_move() {
     #if ENABLED(FTM_POLYS)
       SUBMENU_S(_traj_name(), MSG_FTM_TRAJECTORY, menu_ftm_trajectory_generator);
       if (ftMotion.getTrajectoryType() == TrajectoryType::POLY6) {
-        editable.decimal = c.poly6_acceleration_overshoot;
+        editable.decimal = ftMotion.cfg.poly6_acceleration_overshoot;
         EDIT_ITEM(float42_52, MSG_FTM_POLY6_OVERSHOOT, &editable.decimal, 1.25f, 1.875f, []{
           queue.inject(TS(F("M494"), 'O', editable.decimal));
         });

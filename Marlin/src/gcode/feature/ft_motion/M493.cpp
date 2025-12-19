@@ -27,6 +27,7 @@
 #include "../../gcode.h"
 #include "../../../module/ft_motion.h"
 #include "../../../module/stepper.h"
+#include "../../../lcd/marlinui.h"
 
 void say_shaper_type(const AxisEnum a, bool &sep, const char axis_name) {
   if (sep) SERIAL_ECHOPGM(" ; ");
@@ -492,6 +493,9 @@ void GcodeSuite::M493() {
     }
 
   #endif // FTM_SHAPER_E
+
+  if (flag.update || flag.report)
+    ui.refresh();
 
   if (flag.report) say_shaping();
 }
