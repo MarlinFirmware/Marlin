@@ -470,14 +470,12 @@ void menu_move() {
         EDIT_ITEM_FAST_N(float42_52, axis, MSG_FTM_BASE_FREQ_N, &editable.decimal, FTM_MIN_SHAPE_FREQ, (FTM_FS) / 2, []{
           char cmd[32];
           snprintf_P(cmd, sizeof(cmd), PSTR("M493 %c A%lu.%05lu"), axis_codes[AxisEnum(MenuItemBase::itemIndex)], uint32_t(editable.decimal), frac(editable.decimal));
-          SERIAL_ECHO(F("cmd: "));SERIAL_ECHOLN(cmd);
           queue.inject(cmd);
         });
         editable.decimal = c.zeta[axis];
         EDIT_ITEM_FAST_N(float42_52, axis, MSG_FTM_ZETA_N, &editable.decimal, 0.0f, FTM_MAX_DAMPENING, []{
           char cmd[32];
           snprintf_P(cmd, sizeof(cmd), PSTR("M493 %c I%lu.%05lu"), axis_codes[AxisEnum(MenuItemBase::itemIndex)], uint32_t(editable.decimal), frac(editable.decimal));
-          SERIAL_ECHO(F("cmd: "));SERIAL_ECHOLN(cmd);
           queue.inject(cmd);
         });
         #if HAS_FTM_EI_SHAPING
@@ -486,7 +484,6 @@ void menu_move() {
             EDIT_ITEM_FAST_N(float42_52, axis, MSG_FTM_VTOL_N, &editable.decimal, 0.0f, 1.0f, []{
               char cmd[32];
               snprintf_P(cmd, sizeof(cmd), PSTR("M493 %c Q%lu.%05lu"), axis_codes[AxisEnum(MenuItemBase::itemIndex)], uint32_t(editable.decimal), frac(editable.decimal));
-              SERIAL_ECHO(F("cmd: "));SERIAL_ECHOLN(cmd);
               queue.inject(cmd);
             });
           }
@@ -499,7 +496,6 @@ void menu_move() {
       EDIT_ITEM_FAST_N(float43, axis, MSG_FTM_SMOOTH_TIME_N, &editable.decimal, 0.0f, FTM_MAX_SMOOTHING_TIME, []{
         char cmd[32];
         snprintf_P(cmd, sizeof(cmd), PSTR("M494 %c%lu.%05lu"), axis_codes[AxisEnum(MenuItemBase::itemIndex)], uint32_t(editable.decimal), frac(editable.decimal));
-        SERIAL_ECHO(F("cmd: "));SERIAL_ECHOLN(cmd);
         queue.inject(cmd);
       });
     #endif
@@ -549,7 +545,6 @@ void menu_move() {
       EDIT_ITEM(bool, MSG_FTM_AXIS_SYNC, &editable.state, []{
         char cmd[32];
         snprintf_P(cmd, sizeof(cmd), PSTR("M493 %c T%u"), axis_codes[AxisEnum(MenuItemBase::itemIndex)], editable.state ? 1 : 0);
-        SERIAL_ECHO(F("cmd: "));SERIAL_ECHOLN(cmd);
         queue.inject(cmd);
       });
 
