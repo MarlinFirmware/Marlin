@@ -358,9 +358,11 @@ void menu_move() {
     }
   #endif
 
+  // the fractional part of value as int. E.g frac(123.4567) == 4567
+  uint32_t frac(float value) { return uint32_t(value * 100000.0f) % 100000UL; }
+
   void ftm_menu_set_shaper(const ftMotionShaper_t s) {
-    ftMotion.cfg.shaper[MenuItemBase::itemIndex] = s;
-    ftMotion.update_shaping_params();
+    ftMotion.cfg.setShaper(AxisEnum(MenuItemBase::itemIndex), s);
     ui.go_back();
   }
 
@@ -470,23 +472,52 @@ void menu_move() {
 
     if (false SHAPED_GANG(|| axis == X_AXIS, || axis == Y_AXIS, || axis == Z_AXIS, || axis == E_AXIS)) {
       SUBMENU_N_S(axis, get_shaper_name(axis), MSG_FTM_CMPN_MODE, menu_ftm_shaper);
-      if (AXIS_IS_SHAPING(axis)) {
-        EDIT_ITEM_FAST_N(float42_52, axis, MSG_FTM_BASE_FREQ_N, &c.baseFreq[axis], FTM_MIN_SHAPE_FREQ, (FTM_FS) / 2, ftMotion.update_shaping_params);
-        EDIT_ITEM_FAST_N(float42_52, axis, MSG_FTM_ZETA_N, &c.zeta[axis], 0.0f, 1.0f, ftMotion.update_shaping_params);
-        EISHAPER_MENU_ITEM(axis);
+      if (IS_SHAPING(c.shaper[axis])) {
+        editable.decimal = c.baseFreq[axis];
+        EDIT_ITEM_FAST_N(float42_52, axis, MSG_FTM_BASE_FREQ_N, &editable.decimal, FTM_MIN_SHAPE_FREQ, (FTM_FS) / 2, []{
+          char cmd[32];
+          snprintf_P(cmd, sizeof(cmd), PSTR("M493 %c F%lu.%lu"), axis_codes[AxisEnum(MenuItemBase::itemIndex)], uint32_t(editable.decimal), frac(editable.decimal));
+          queue.inject(cmd);
+        });
+        editable.decimal = c.zeta[axis];
+        EDIT_ITEM_FAST_N(float42_52, axis, MSG_FTM_ZETA_N, &editable.decimal, 0.0f, FTM_MAX_DAMPENING, []{
+          char cmd[32];
+          snprintf_P(cmd, sizeof(cmd), PSTR("M493 %c I%lu.%lu"), axis_codes[AxisEnum(MenuItemBase::itemIndex)], uint32_t(editable.decimal), frac(editable.decimal));
+          queue.inject(cmd);
+        });
+        #if HAS_FTM_EI_SHAPING
+          if (IS_EISHAPING(c.shaper[axis])) {
+            editable.decimal = c.vtol[axis];
+            EDIT_ITEM_FAST_N(float42_52, axis, MSG_FTM_VTOL_N, &editable.decimal, 0.0f, 1.0f, []{
+              char cmd[32];
+              snprintf_P(cmd, sizeof(cmd), PSTR("M493 %c Q%lu.%lu"), axis_codes[AxisEnum(MenuItemBase::itemIndex)], uint32_t(editable.decimal), frac(editable.decimal));
+              queue.inject(cmd);
+            });
+          }
+        #endif
       }
     }
 
     #if ENABLED(FTM_SMOOTHING)
       editable.decimal = c.smoothingTime[axis];
-      EDIT_ITEM_FAST_N(float43, axis, MSG_FTM_SMOOTH_TIME_N, &editable.decimal, 0.0f, FTM_MAX_SMOOTHING_TIME, []{ (void)ftMotion.set_smoothing_time(AxisEnum(MenuItemBase::itemIndex), editable.decimal); });
+      EDIT_ITEM_FAST_N(float43, axis, MSG_FTM_SMOOTH_TIME_N, &editable.decimal, 0.0f, FTM_MAX_SMOOTHING_TIME, []{
+        char cmd[32];
+        snprintf_P(cmd, sizeof(cmd), PSTR("M494 %c%lu.%lu"), axis_codes[AxisEnum(MenuItemBase::itemIndex)], uint32_t(editable.decimal), frac(editable.decimal));
+        queue.inject(cmd);
+      });
     #endif
 
     #if HAS_DYNAMIC_FREQ
       if (axis == X_AXIS || axis == Y_AXIS) {
         SUBMENU_N_S(axis, get_dyn_freq_mode_name(), MSG_FTM_DYN_MODE, menu_ftm_dyn_mode);
-        if (c.dynFreqMode != dynFreqMode_DISABLED)
-          EDIT_ITEM_FAST_N(float42_52, axis, MSG_FTM_DFREQ_K_N, &c.dynFreqK[axis], 0.0f, 20.0f);
+        if (c.dynFreqMode != dynFreqMode_DISABLED) {
+          editable.decimal = c.dynFreqK[axis];
+          EDIT_ITEM_FAST_N(float42_52, axis, MSG_FTM_DFREQ_K_N, &editable.decimal, 0.0f, 20.0f, []{
+            char cmd[32];
+            snprintf_P(cmd, sizeof(cmd), PSTR("M493 %c F%lu.%lu"), axis_codes[AxisEnum(MenuItemBase::itemIndex)], uint32_t(editable.decimal), frac(editable.decimal));
+            queue.inject(cmd);
+          });
+        }
       }
     #endif
 
@@ -518,7 +549,11 @@ void menu_move() {
       CARTES_MAP(_FTM_AXIS_SUBMENU);
 
       editable.state = c.axis_sync_enabled;
-      EDIT_ITEM(bool, MSG_FTM_AXIS_SYNC, &editable.state, []{ c.setAxisSync(editable.state); });
+      EDIT_ITEM(bool, MSG_FTM_AXIS_SYNC, &editable.state, []{
+        char cmd[32];
+        snprintf_P(cmd, sizeof(cmd), PSTR("M493 %c T%u"), axis_codes[AxisEnum(MenuItemBase::itemIndex)], editable.state ? 1 : 0);
+        queue.inject(cmd);
+      });
 
       #if ENABLED(FTM_RESONANCE_TEST)
         SUBMENU(MSG_FTM_RESONANCE_TEST, menu_ftm_resonance_test);
