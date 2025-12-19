@@ -227,6 +227,8 @@ typedef struct FTConfig {
     #endif // HAS_FTM_SHAPING
 
     TERN_(FTM_POLYS, poly6_acceleration_overshoot = FTM_POLY6_ACCELERATION_OVERSHOOT);
+
+    update_shaping_params();
   }
 
 } ft_config_t;
@@ -249,8 +251,6 @@ class FTMotion {
     static void set_defaults() {
       cfg.set_defaults();
 
-      TERN_(HAS_FTM_SHAPING, update_shaping_params());
-
       #if ENABLED(FTM_SMOOTHING)
         #define _RESET_SMOOTH(A) (void)set_smoothing_time(_AXIS(A), FTM_SMOOTHING_TIME_##A);
         CARTES_MAP(_RESET_SMOOTH);
@@ -271,11 +271,6 @@ class FTMotion {
     #if ENABLED(FTM_RESONANCE_TEST)
       static void start_resonance_test();                 // Start a resonance test with given parameters
       static ResonanceGenerator rtg;                      // Resonance trajectory generator instance
-    #endif
-
-    #if HAS_FTM_SHAPING
-      // Refresh gains and indices used by shaping functions.
-      static void update_shaping_params();
     #endif
 
     #if ENABLED(FTM_SMOOTHING)
@@ -369,6 +364,12 @@ class FTMotion {
     // Linear advance variables.
     #if HAS_EXTRUDERS
       static float prev_traj_e;
+    #endif
+
+    #if HAS_FTM_SHAPING
+      // Refresh gains and indices used by shaping functions.
+      friend void ft_config_t::update_shaping_params();
+      static void update_shaping_params();
     #endif
 
     // Synchronize and reset motion prior to parameter changes

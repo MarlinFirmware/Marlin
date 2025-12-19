@@ -52,7 +52,7 @@
 FTMotion ftMotion;
 
 void ft_config_t::prep_for_shaper_change() { ftMotion.prep_for_shaper_change(); }
-void ft_config_t::update_shaping_params() { ftMotion.update_shaping_params(); }
+void ft_config_t::update_shaping_params() { TERN_(HAS_FTM_SHAPING, ftMotion.update_shaping_params()); }
 
 //-----------------------------------------------------------------
 // Variables.
