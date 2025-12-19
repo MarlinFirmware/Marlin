@@ -99,6 +99,7 @@ typedef struct FTConfig {
   #endif
 
   static void prep_for_shaper_change();
+  static void update_shaping_params();
 
   #if HAS_STANDARD_MOTION
     bool setActive(const bool a) {
@@ -106,6 +107,7 @@ typedef struct FTConfig {
       stepper.ftMotion_syncPosition();
       prep_for_shaper_change();
       active = a;
+      update_shaping_params();
       return true;
     }
   #endif
@@ -114,6 +116,7 @@ typedef struct FTConfig {
     if (ena == axis_sync_enabled) return false;
     prep_for_shaper_change();
     axis_sync_enabled = ena;
+    update_shaping_params();
     return true;
   }
 
@@ -123,16 +126,18 @@ typedef struct FTConfig {
       if (s == shaper[a]) return false;
       prep_for_shaper_change();
       shaper[a] = s;
+      update_shaping_params();
       return true;
     }
 
-    constexpr bool goodZeta(const float z) { return WITHIN(z, 0.01f, ftm_max_dampening); }
+    constexpr bool goodZeta(const float z) { return WITHIN(z, 0.00f, ftm_max_dampening); }
 
-    bool setZeta(const AxisEnum a, const float z) {
+    bool setZeta(const AxisEnum a, float z) {
       if (z == zeta[a]) return false;
-      if (!goodZeta(z)) return false;
+      LIMIT(z, 0.00f, ftm_max_dampening);
       prep_for_shaper_change();
       zeta[a] = z;
+      update_shaping_params();
       return true;
     }
 
@@ -140,11 +145,12 @@ typedef struct FTConfig {
 
       constexpr bool goodVtol(const float v) { return WITHIN(v, 0.00f, 1.0f); }
 
-      bool setVtol(const AxisEnum a, const float v) {
+      bool setVtol(const AxisEnum a, float v) {
         if (v == vtol[a]) return false;
-        if (!goodVtol(v)) return false;
+        LIMIT(v, 0.00f, 1.0f);
         prep_for_shaper_change();
         vtol[a] = v;
+        update_shaping_params();
         return true;
       }
 
@@ -163,6 +169,7 @@ typedef struct FTConfig {
             dynFreqMode = dynFreqMode_t(m);
             break;
         }
+        update_shaping_params();
         return 1;
       }
 
@@ -176,6 +183,7 @@ typedef struct FTConfig {
         if (k == dynFreqK[a]) return false;
         prep_for_shaper_change();
         dynFreqK[a] = k;
+        update_shaping_params();
         return true;
       }
 
@@ -185,11 +193,12 @@ typedef struct FTConfig {
 
   constexpr bool goodBaseFreq(const float f) { return WITHIN(f, FTM_MIN_SHAPE_FREQ, (FTM_FS) / 2); }
 
-  bool setBaseFreq(const AxisEnum a, const float f) {
+  bool setBaseFreq(const AxisEnum a, float f) {
     if (f == baseFreq[a]) return false;
-    if (!goodBaseFreq(a)) return false;
+    LIMIT(f, FTM_MIN_SHAPE_FREQ, (FTM_FS) / 2);
     prep_for_shaper_change();
     baseFreq[a] = f;
+    update_shaping_params();
     return true;
   }
 
@@ -285,26 +294,6 @@ class FTMotion {
         cfg.setActive(!cfg.active);
         update_shaping_params();
         return cfg.active;
-      }
-    #endif
-
-    // Setters for baseFreq, zeta, vtol
-    static bool setBaseFreq(const AxisEnum a, const float f) {
-      if (!cfg.setBaseFreq(a, f)) return false;
-      update_shaping_params();
-      return true;
-    }
-    static bool setZeta(const AxisEnum a, const float z) {
-      if (!cfg.setZeta(a, z)) return false;
-      update_shaping_params();
-      return true;
-    }
-
-    #if HAS_FTM_EI_SHAPING
-      static bool setVtol(const AxisEnum a, const float v) {
-        if (!cfg.setVtol(a, v)) return false;
-        update_shaping_params();
-        return true;
       }
     #endif
 
