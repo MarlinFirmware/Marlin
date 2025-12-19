@@ -358,9 +358,6 @@ void menu_move() {
     }
   #endif
 
-  // Get the fractional part of a float value as an int in 100,000ths. e.g., frac5(123.4567) == 45670
-  constexpr uint32_t frac5(const float value) { return uint32_t(value * 100000.0f) % 100000UL; }
-
   void ftm_menu_set_shaper(const ftMotionShaper_t s) {
     ftMotion.cfg.setShaper(AxisEnum(MenuItemBase::itemIndex), s);
     ui.go_back();
@@ -443,12 +440,18 @@ void menu_move() {
       START_MENU();
       BACK_ITEM_N(MenuItemBase::itemIndex, MSG_FTM_CONFIGURE_AXIS_N);
 
-      if (dmode != dynFreqMode_DISABLED)     ACTION_ITEM(MSG_LCD_OFF,        []{ (void)ftMotion.cfg.setDynFreqMode(dynFreqMode_DISABLED);   ui.go_back(); });
+      if (dmode != dynFreqMode_DISABLED) ACTION_ITEM(MSG_LCD_OFF, []{
+        queue.inject(TS(F("M493D"), int(dynFreqMode_DISABLED))); ui.go_back();
+      });
       #if HAS_DYNAMIC_FREQ_MM
-        if (dmode != dynFreqMode_Z_BASED)    ACTION_ITEM(MSG_FTM_Z_BASED,    []{ (void)ftMotion.cfg.setDynFreqMode(dynFreqMode_Z_BASED);    ui.go_back(); });
+        if (dmode != dynFreqMode_Z_BASED) ACTION_ITEM(MSG_FTM_Z_BASED, []{
+          queue.inject(TS(F("M493D"), int(dynFreqMode_Z_BASED))); ui.go_back();
+        });
       #endif
       #if HAS_DYNAMIC_FREQ_G
-        if (dmode != dynFreqMode_MASS_BASED) ACTION_ITEM(MSG_FTM_MASS_BASED, []{ (void)ftMotion.cfg.setDynFreqMode(dynFreqMode_MASS_BASED); ui.go_back(); });
+        if (dmode != dynFreqMode_MASS_BASED) ACTION_ITEM(MSG_FTM_MASS_BASED, []{
+          queue.inject(TS(F("M493D"), int(dynFreqMode_MASS_BASED))); ui.go_back();
+        });
       #endif
 
       END_MENU();
