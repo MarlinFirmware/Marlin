@@ -358,8 +358,8 @@ void menu_move() {
     }
   #endif
 
-  // the fractional part of value as int. E.g frac(123.4567) == 4567
-  uint32_t frac(float value) { return uint32_t(value * 100000.0f) % 100000UL; }
+  // Get the fractional part of a float value as an int in 100,000ths. e.g., frac5(123.4567) == 45670
+  constexpr uint32_t frac5(const float value) { return uint32_t(value * 100000.0f) % 100000UL; }
 
   void ftm_menu_set_shaper(const ftMotionShaper_t s) {
     ftMotion.cfg.setShaper(AxisEnum(MenuItemBase::itemIndex), s);
@@ -468,23 +468,17 @@ void menu_move() {
       if (IS_SHAPING(c.shaper[axis])) {
         editable.decimal = c.baseFreq[axis];
         EDIT_ITEM_FAST_N(float42_52, axis, MSG_FTM_BASE_FREQ_N, &editable.decimal, FTM_MIN_SHAPE_FREQ, (FTM_FS) / 2, []{
-          char cmd[32];
-          snprintf_P(cmd, sizeof(cmd), PSTR("M493 %c A%lu.%05lu"), axis_codes[AxisEnum(MenuItemBase::itemIndex)], uint32_t(editable.decimal), frac(editable.decimal));
-          queue.inject(cmd);
+          queue.inject(TS(F("M493"), axis_codes[AxisEnum(MenuItemBase::itemIndex)], 'A', p_float_t(editable.decimal, 5)));
         });
         editable.decimal = c.zeta[axis];
         EDIT_ITEM_FAST_N(float42_52, axis, MSG_FTM_ZETA_N, &editable.decimal, 0.0f, FTM_MAX_DAMPENING, []{
-          char cmd[32];
-          snprintf_P(cmd, sizeof(cmd), PSTR("M493 %c I%lu.%05lu"), axis_codes[AxisEnum(MenuItemBase::itemIndex)], uint32_t(editable.decimal), frac(editable.decimal));
-          queue.inject(cmd);
+          queue.inject(TS(F("M493"), axis_codes[AxisEnum(MenuItemBase::itemIndex)], 'I', p_float_t(editable.decimal, 5)));
         });
         #if HAS_FTM_EI_SHAPING
           if (IS_EISHAPING(c.shaper[axis])) {
             editable.decimal = c.vtol[axis];
             EDIT_ITEM_FAST_N(float42_52, axis, MSG_FTM_VTOL_N, &editable.decimal, 0.0f, 1.0f, []{
-              char cmd[32];
-              snprintf_P(cmd, sizeof(cmd), PSTR("M493 %c Q%lu.%05lu"), axis_codes[AxisEnum(MenuItemBase::itemIndex)], uint32_t(editable.decimal), frac(editable.decimal));
-              queue.inject(cmd);
+              queue.inject(TS(F("M493"), axis_codes[AxisEnum(MenuItemBase::itemIndex)], 'Q', p_float_t(editable.decimal, 5)));
             });
           }
         #endif
@@ -494,9 +488,7 @@ void menu_move() {
     #if ENABLED(FTM_SMOOTHING)
       editable.decimal = c.smoothingTime[axis];
       EDIT_ITEM_FAST_N(float43, axis, MSG_FTM_SMOOTH_TIME_N, &editable.decimal, 0.0f, FTM_MAX_SMOOTHING_TIME, []{
-        char cmd[32];
-        snprintf_P(cmd, sizeof(cmd), PSTR("M494 %c%lu.%05lu"), axis_codes[AxisEnum(MenuItemBase::itemIndex)], uint32_t(editable.decimal), frac(editable.decimal));
-        queue.inject(cmd);
+        queue.inject(TS(F("M494"), axis_codes[AxisEnum(MenuItemBase::itemIndex)], p_float_t(editable.decimal, 5)));
       });
     #endif
 
@@ -506,9 +498,7 @@ void menu_move() {
         if (c.dynFreqMode != dynFreqMode_DISABLED) {
           editable.decimal = c.dynFreqK[axis];
           EDIT_ITEM_FAST_N(float42_52, axis, MSG_FTM_DFREQ_K_N, &editable.decimal, 0.0f, 20.0f, []{
-            char cmd[32];
-            snprintf_P(cmd, sizeof(cmd), PSTR("M493 %c F%lu.%05lu"), axis_codes[AxisEnum(MenuItemBase::itemIndex)], uint32_t(editable.decimal), frac(editable.decimal));
-            queue.inject(cmd);
+            queue.inject(TS(F("M493"), axis_codes[AxisEnum(MenuItemBase::itemIndex)], 'F', p_float_t(editable.decimal, 5)));
           });
         }
       }
