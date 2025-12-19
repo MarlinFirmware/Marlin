@@ -477,17 +477,17 @@ void menu_move() {
       if (IS_SHAPING(c.shaper[axis])) {
         editable.decimal = c.baseFreq[axis];
         EDIT_ITEM_FAST_N(float42_52, axis, MSG_FTM_BASE_FREQ_N, &editable.decimal, FTM_MIN_SHAPE_FREQ, (FTM_FS) / 2, []{
-          queue.inject(TS(F("M493"), IAXIS_CHAR(MenuItemBase::itemIndex), 'A', p_float_t(editable.decimal, 5)));
+          queue.inject(TS(F("M493"), IAXIS_CHAR(MenuItemBase::itemIndex), 'A', p_float_t(editable.decimal, 3)));
         });
         editable.decimal = c.zeta[axis];
         EDIT_ITEM_FAST_N(float42_52, axis, MSG_FTM_ZETA_N, &editable.decimal, 0.0f, FTM_MAX_DAMPENING, []{
-          queue.inject(TS(F("M493"), IAXIS_CHAR(MenuItemBase::itemIndex), 'I', p_float_t(editable.decimal, 5)));
+          queue.inject(TS(F("M493"), IAXIS_CHAR(MenuItemBase::itemIndex), 'I', p_float_t(editable.decimal, 3)));
         });
         #if HAS_FTM_EI_SHAPING
           if (IS_EISHAPING(c.shaper[axis])) {
             editable.decimal = c.vtol[axis];
             EDIT_ITEM_FAST_N(float42_52, axis, MSG_FTM_VTOL_N, &editable.decimal, 0.0f, 1.0f, []{
-              queue.inject(TS(F("M493"), IAXIS_CHAR(MenuItemBase::itemIndex), 'Q', p_float_t(editable.decimal, 5)));
+              queue.inject(TS(F("M493"), IAXIS_CHAR(MenuItemBase::itemIndex), 'Q', p_float_t(editable.decimal, 3)));
             });
           }
         #endif
@@ -497,7 +497,7 @@ void menu_move() {
     #if ENABLED(FTM_SMOOTHING)
       editable.decimal = c.smoothingTime[axis];
       EDIT_ITEM_FAST_N(float43, axis, MSG_FTM_SMOOTH_TIME_N, &editable.decimal, 0.0f, FTM_MAX_SMOOTHING_TIME, []{
-        queue.inject(TS(F("M494"), IAXIS_CHAR(MenuItemBase::itemIndex), p_float_t(editable.decimal, 5)));
+        queue.inject(TS(F("M494"), IAXIS_CHAR(MenuItemBase::itemIndex), p_float_t(editable.decimal, 4)));
       });
     #endif
 
@@ -507,7 +507,7 @@ void menu_move() {
         if (c.dynFreqMode != dynFreqMode_DISABLED) {
           editable.decimal = c.dynFreqK[axis];
           EDIT_ITEM_FAST_N(float42_52, axis, MSG_FTM_DFREQ_K_N, &editable.decimal, 0.0f, 20.0f, []{
-            queue.inject(TS(F("M493"), IAXIS_CHAR(MenuItemBase::itemIndex), 'F', p_float_t(editable.decimal, 5)));
+            queue.inject(TS(F("M493"), IAXIS_CHAR(MenuItemBase::itemIndex), 'F', p_float_t(editable.decimal, 3)));
           });
         }
       }
