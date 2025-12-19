@@ -359,7 +359,7 @@ void menu_move() {
   #endif
 
   void ftm_menu_set_shaper(const ftMotionShaper_t s) {
-    ftMotion.cfg.setShaper(AxisEnum(MenuItemBase::itemIndex), s);
+    queue.inject(TS(F("M493"), IAXIS_CHAR(MenuItemBase::itemIndex), 'C', int(s)));
     ui.go_back();
   }
 
@@ -370,7 +370,7 @@ void menu_move() {
     START_MENU();
     BACK_ITEM_N(axis, MSG_FTM_CONFIGURE_AXIS_N);
 
-    if (shaper != ftMotionShaper_NONE)  ACTION_ITEM_N(axis, MSG_LCD_OFF,  []{ ftm_menu_set_shaper(ftMotionShaper_NONE)  ; });
+                            if (shaper != ftMotionShaper_NONE)  ACTION_ITEM_N(axis, MSG_LCD_OFF,  []{ ftm_menu_set_shaper(ftMotionShaper_NONE)  ; });
     TERN_(FTM_SHAPER_ZV,    if (shaper != ftMotionShaper_ZV)    ACTION_ITEM_N(axis, MSG_FTM_ZV,   []{ ftm_menu_set_shaper(ftMotionShaper_ZV)    ; }));
     TERN_(FTM_SHAPER_ZVD,   if (shaper != ftMotionShaper_ZVD)   ACTION_ITEM_N(axis, MSG_FTM_ZVD,  []{ ftm_menu_set_shaper(ftMotionShaper_ZVD)   ; }));
     TERN_(FTM_SHAPER_ZVDD,  if (shaper != ftMotionShaper_ZVDD)  ACTION_ITEM_N(axis, MSG_FTM_ZVDD, []{ ftm_menu_set_shaper(ftMotionShaper_ZVDD)  ; }));
@@ -390,9 +390,15 @@ void menu_move() {
       START_MENU();
       BACK_ITEM(MSG_FIXED_TIME_MOTION);
 
-      if (traj_type != TrajectoryType::TRAPEZOIDAL) ACTION_ITEM(MSG_FTM_TRAPEZOIDAL, []{ ftMotion.updateTrajectoryType(TrajectoryType::TRAPEZOIDAL); ui.go_back(); });
-      if (traj_type != TrajectoryType::POLY5)       ACTION_ITEM(MSG_FTM_POLY5,       []{ ftMotion.updateTrajectoryType(TrajectoryType::POLY5);       ui.go_back(); });
-      if (traj_type != TrajectoryType::POLY6)       ACTION_ITEM(MSG_FTM_POLY6,       []{ ftMotion.updateTrajectoryType(TrajectoryType::POLY6);       ui.go_back(); });
+      if (traj_type != TrajectoryType::TRAPEZOIDAL) ACTION_ITEM(MSG_FTM_TRAPEZOIDAL, []{
+        queue.inject(TS(F("M494"), 'T', int(TrajectoryType::TRAPEZOIDAL))); ui.go_back();
+      });
+      if (traj_type != TrajectoryType::POLY5) ACTION_ITEM(MSG_FTM_POLY5, []{
+        queue.inject(TS(F("M494"), 'T', int(TrajectoryType::POLY5))); ui.go_back();
+      });
+      if (traj_type != TrajectoryType::POLY6) ACTION_ITEM(MSG_FTM_POLY6, []{
+        queue.inject(TS(F("M494"), 'T', int(TrajectoryType::POLY6))); ui.go_back();
+      });
 
       END_MENU();
     }
@@ -471,17 +477,17 @@ void menu_move() {
       if (IS_SHAPING(c.shaper[axis])) {
         editable.decimal = c.baseFreq[axis];
         EDIT_ITEM_FAST_N(float42_52, axis, MSG_FTM_BASE_FREQ_N, &editable.decimal, FTM_MIN_SHAPE_FREQ, (FTM_FS) / 2, []{
-          queue.inject(TS(F("M493"), axis_codes[AxisEnum(MenuItemBase::itemIndex)], 'A', p_float_t(editable.decimal, 5)));
+          queue.inject(TS(F("M493"), IAXIS_CHAR(MenuItemBase::itemIndex), 'A', p_float_t(editable.decimal, 5)));
         });
         editable.decimal = c.zeta[axis];
         EDIT_ITEM_FAST_N(float42_52, axis, MSG_FTM_ZETA_N, &editable.decimal, 0.0f, FTM_MAX_DAMPENING, []{
-          queue.inject(TS(F("M493"), axis_codes[AxisEnum(MenuItemBase::itemIndex)], 'I', p_float_t(editable.decimal, 5)));
+          queue.inject(TS(F("M493"), IAXIS_CHAR(MenuItemBase::itemIndex), 'I', p_float_t(editable.decimal, 5)));
         });
         #if HAS_FTM_EI_SHAPING
           if (IS_EISHAPING(c.shaper[axis])) {
             editable.decimal = c.vtol[axis];
             EDIT_ITEM_FAST_N(float42_52, axis, MSG_FTM_VTOL_N, &editable.decimal, 0.0f, 1.0f, []{
-              queue.inject(TS(F("M493"), axis_codes[AxisEnum(MenuItemBase::itemIndex)], 'Q', p_float_t(editable.decimal, 5)));
+              queue.inject(TS(F("M493"), IAXIS_CHAR(MenuItemBase::itemIndex), 'Q', p_float_t(editable.decimal, 5)));
             });
           }
         #endif
@@ -491,7 +497,7 @@ void menu_move() {
     #if ENABLED(FTM_SMOOTHING)
       editable.decimal = c.smoothingTime[axis];
       EDIT_ITEM_FAST_N(float43, axis, MSG_FTM_SMOOTH_TIME_N, &editable.decimal, 0.0f, FTM_MAX_SMOOTHING_TIME, []{
-        queue.inject(TS(F("M494"), axis_codes[AxisEnum(MenuItemBase::itemIndex)], p_float_t(editable.decimal, 5)));
+        queue.inject(TS(F("M494"), IAXIS_CHAR(MenuItemBase::itemIndex), p_float_t(editable.decimal, 5)));
       });
     #endif
 
@@ -501,7 +507,7 @@ void menu_move() {
         if (c.dynFreqMode != dynFreqMode_DISABLED) {
           editable.decimal = c.dynFreqK[axis];
           EDIT_ITEM_FAST_N(float42_52, axis, MSG_FTM_DFREQ_K_N, &editable.decimal, 0.0f, 20.0f, []{
-            queue.inject(TS(F("M493"), axis_codes[AxisEnum(MenuItemBase::itemIndex)], 'F', p_float_t(editable.decimal, 5)));
+            queue.inject(TS(F("M493"), IAXIS_CHAR(MenuItemBase::itemIndex), 'F', p_float_t(editable.decimal, 5)));
           });
         }
       }
@@ -519,8 +525,12 @@ void menu_move() {
     BACK_ITEM(MSG_MOTION);
 
     #if HAS_STANDARD_MOTION
-      bool show_state = c.active;
-      EDIT_ITEM(bool, MSG_FIXED_TIME_MOTION, &show_state, []{ (void)ftMotion.toggle(); });
+      // Because this uses G-code the display of the actual state will be delayed by an unknown period of time.
+      // To fix this G-codes M493/M494 could refresh the UI when they are done.
+      editable.state = c.active;
+      EDIT_ITEM(bool, MSG_FIXED_TIME_MOTION, &editable.state, []{
+        queue.inject(TS(F("M493"), 'S', int(editable.state)));
+      });
     #endif
 
     // Show only when FT Motion is active (or optionally always show)
@@ -528,17 +538,19 @@ void menu_move() {
 
       #if ENABLED(FTM_POLYS)
         SUBMENU_S(ftMotion.getTrajectoryName(), MSG_FTM_TRAJECTORY, menu_ftm_trajectory_generator);
-        if (ftMotion.getTrajectoryType() == TrajectoryType::POLY6)
-          EDIT_ITEM(float42_52, MSG_FTM_POLY6_OVERSHOOT, &c.poly6_acceleration_overshoot, 1.25f, 1.875f);
+        if (ftMotion.getTrajectoryType() == TrajectoryType::POLY6) {
+          editable.decimal = c.poly6_acceleration_overshoot;
+          EDIT_ITEM(float42_52, MSG_FTM_POLY6_OVERSHOOT, &editable.decimal, 1.25f, 1.875f, []{
+            queue.inject(TS(F("M494"), 'O', editable.decimal));
+          });
+        }
       #endif
 
       CARTES_MAP(_FTM_AXIS_SUBMENU);
 
       editable.state = c.axis_sync_enabled;
       EDIT_ITEM(bool, MSG_FTM_AXIS_SYNC, &editable.state, []{
-        char cmd[32];
-        snprintf_P(cmd, sizeof(cmd), PSTR("M493 %c T%u"), axis_codes[AxisEnum(MenuItemBase::itemIndex)], editable.state ? 1 : 0);
-        queue.inject(cmd);
+        queue.inject(TS(F("M493"), IAXIS_CHAR(MenuItemBase::itemIndex), 'T', int(editable.state)));
       });
 
       #if ENABLED(FTM_RESONANCE_TEST)
@@ -583,8 +595,12 @@ void menu_move() {
 
     #if ENABLED(FTM_POLYS)
       SUBMENU_S(_traj_name(), MSG_FTM_TRAJECTORY, menu_ftm_trajectory_generator);
-      if (ftMotion.getTrajectoryType() == TrajectoryType::POLY6)
-        EDIT_ITEM(float42_52, MSG_FTM_POLY6_OVERSHOOT, &ftMotion.cfg.poly6_acceleration_overshoot, 1.25f, 1.875f);
+      if (ftMotion.getTrajectoryType() == TrajectoryType::POLY6) {
+        editable.decimal = c.poly6_acceleration_overshoot;
+        EDIT_ITEM(float42_52, MSG_FTM_POLY6_OVERSHOOT, &editable.decimal, 1.25f, 1.875f, []{
+          queue.inject(TS(F("M494"), 'O', editable.decimal));
+        });
+      }
     #endif
 
     SHAPED_MAP(_FTM_AXIS_SUBMENU);
