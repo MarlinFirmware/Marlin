@@ -198,7 +198,7 @@ void FTMotion::loop() {
     prep_for_shaper_change();
 
     auto update_shaper = [&](AxisEnum axis, axis_shaping_t &shap) {
-      shap.ena = IS_SHAPING(ftMotion.cfg.shaper[axis]);
+      shap.ena = IS_SHAPING(cfg.shaper[axis]);
       shap.set_axis_shaping_A(cfg.shaper[axis], cfg.zeta[axis] OPTARG(HAS_FTM_EI_SHAPING, cfg.vtol[axis]));
       shap.set_axis_shaping_N(cfg.shaper[axis], cfg.baseFreq[axis], cfg.zeta[axis]);
     };
@@ -600,9 +600,9 @@ void FTMotion::fill_stepper_plan_buffer() {
     // Get distance from trajectory generator
     xyze_float_t traj_coords = calc_traj_point(currentGenerator->getDistanceAtTime(tau));
     if (fastForwardUntilMotion && traj_coords == startPos) {
-      // Axis synchronization delays all axes. When coming from a reset, there is an ramp up time filling all buffers.
+      // Axis synchronization delays all axes. When coming from a reset, there is a ramp up time filling all buffers.
       // If the slowest axis doesn't move and it isn't smoothened, this time can be skipped.
-      // It eliminates idle time when changing smoothing time or shapers and speeds up homing and bed levelling.
+      // It eliminates idle time when changing smoothing time or shapers and speeds up homing and bed leveling.
     }
     else {
       fastForwardUntilMotion = false;
