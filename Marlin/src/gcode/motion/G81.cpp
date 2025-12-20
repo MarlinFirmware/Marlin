@@ -29,7 +29,7 @@
 
 /**
  * G73: Shallow peck drill cycle
- * G80: Cancel drill cycle
+ * G80: End drill cycle
  * G81: Basic drill cycle
  * G82: Normal drill cycle (Basic with dwell)
  * G83: Deep drill cycle (Normal with peck)

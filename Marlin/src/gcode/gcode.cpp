@@ -465,10 +465,10 @@ void GcodeSuite::process_parsed_command(bool no_ok/*=false*/) {
 
       #if ENABLED(DRILL_CYCLES)
         #if ENABLED(DRILL_USE_81_ONLY) || ENABLED(GCODE_MOTION_MODES)
-          case 81: G81(parser.subcode); break;                    // G81: Drill cycle  G81: Cancel, G81.18 G81.19 Start, G81.1 G81.2 G81.3 G81.4 Cycles
+          case 81: G81(parser.subcode); break;                    // G81: Drill cycle  G81: End, G81.18 G81.19 Start, G81.1 G81.2 G81.3 G81.4 Cycles
         #else
           case 73: G81(4); break;                                 // G73: Shallow peck drill cycle
-          case 80: G81(0); break;                                 // G80: Cancel drill cycle
+          case 80: G81(0); break;                                 // G80: End drill cycle
           case 81: G81(1); break;                                 // G81: Basic drill cycle
           case 82: G81(2); break;                                 // G82: Normal drill cycle (Basic with dwell)
           case 83: G81(3); break;                                 // G83: Deep drill cycle (Normal with peck)
