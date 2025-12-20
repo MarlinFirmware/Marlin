@@ -4454,7 +4454,7 @@
  * G81.18: Start drill - retract to initial
  * G81.19: Start drill - retract to specified
  */
-#define DRILL_CYCLES
+//#define DRILL_CYCLES
 #if ENABLED(DRILL_CYCLES)
   //#define DRILL_USE_81_ONLY                   //Uses G81.x sub commands
   #define DRILL_CYCLES_XY_FEEDRATE      1600    //Feedrate for xy operations
