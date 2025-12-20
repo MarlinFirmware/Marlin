@@ -1593,8 +1593,10 @@ void Stepper::isr() {
   // FT Motion can be toggled if Standard Motion is also active
   const bool using_ftMotion = ENABLED(NO_STANDARD_MOTION) || TERN0(FT_MOTION, ftMotion.cfg.active);
 
-  // We need this variable here to be able to use it in the following loop
+  // Storage for the timer value of the next possible ISR, used in this do loop
   hal_timer_t min_ticks;
+
+  // Loop until all events for this ISR have been issued
   do {
 
     hal_timer_t interval = 0;
@@ -1744,7 +1746,7 @@ void Stepper::isr() {
      * Get the current tick value + margin
      * Assuming at least 6µs between calls to this ISR...
      * On AVR the ISR epilogue+prologue is estimated at 100 instructions - Give 8µs as margin
-     * On ARM the ISR epilogue+prologue is estimated at 20 instructions - Give 1µs as margin
+     * On ARM the ISR epilogue+prologue is estimated at  20 instructions - Give 1µs as margin
      */
     min_ticks = HAL_timer_get_count(MF_TIMER_STEP) + hal_timer_t(TERN(__AVR__, 8, 1) * (STEPPER_TIMER_TICKS_PER_US));
 

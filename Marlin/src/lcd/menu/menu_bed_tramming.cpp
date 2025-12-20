@@ -274,7 +274,7 @@ static void _lcd_goto_next_corner() {
     }
     TERN_(BLTOUCH, if (!bltouch.high_speed_mode) bltouch.stow());
     ui.goto_screen(_lcd_draw_probing);
-    return (probe_triggered);
+    return probe_triggered;
   }
 
   void _lcd_test_corners() {
