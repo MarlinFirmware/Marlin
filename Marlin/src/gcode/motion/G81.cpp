@@ -86,8 +86,8 @@ void drill_cycle(uint8_t mode) {
   float     drill_current_depth = drill_rapid_z;
 
   drill_feedrate                = parser.seenval('F') ? parser.value_int() : (drill_feedrate > 0 ? drill_feedrate : DRILL_CYCLES_DEFAULT_FEEDRATE);
-  float drill_peck_distance     = allow_peck ? (parser.seenval('Q') ? parser.value_float() : (DRILL_CYCLES_DEFAULT_PECK > 0 ? DRILL_CYCLES_DEFAULT_PECK : 10000)) : 10000;
-  float drill_dwell_time        = allow_dwell ? (parser.seenval('P') ? parser.value_int() : DRILL_CYCLES_DEFAULT_DWELL) : 0;
+  float     drill_peck_distance = allow_peck ? (parser.seenval('Q') ? parser.value_float() : (DRILL_CYCLES_DEFAULT_PECK > 0 ? DRILL_CYCLES_DEFAULT_PECK : 10000)) : 10000;
+  int16_t   drill_dwell_time    = allow_dwell ? (parser.seenval('P') ? parser.value_int() : DRILL_CYCLES_DEFAULT_DWELL) : 0;
 
   //move to initial xy position
   move_to_XYZF(drill_x_position, 
