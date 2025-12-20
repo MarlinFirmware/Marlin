@@ -114,7 +114,6 @@ typedef struct FTConfig {
 
   bool setAxisSync(const bool ena) {
     if (ena == axis_sync_enabled) return false;
-    prep_for_shaper_change();
     axis_sync_enabled = ena;
     update_shaping_params();
     return true;
@@ -124,7 +123,6 @@ typedef struct FTConfig {
 
     bool setShaper(const AxisEnum a, const ftMotionShaper_t s) {
       if (s == shaper[a]) return false;
-      prep_for_shaper_change();
       shaper[a] = s;
       update_shaping_params();
       return true;
@@ -135,7 +133,6 @@ typedef struct FTConfig {
     bool setZeta(const AxisEnum a, float z) {
       if (z == zeta[a]) return false;
       LIMIT(z, 0.00f, ftm_max_dampening);
-      prep_for_shaper_change();
       zeta[a] = z;
       update_shaping_params();
       return true;
@@ -148,7 +145,6 @@ typedef struct FTConfig {
       bool setVtol(const AxisEnum a, float v) {
         if (v == vtol[a]) return false;
         LIMIT(v, 0.00f, 1.0f);
-        prep_for_shaper_change();
         vtol[a] = v;
         update_shaping_params();
         return true;
@@ -165,7 +161,6 @@ typedef struct FTConfig {
           TERN_(HAS_DYNAMIC_FREQ_MM, case dynFreqMode_Z_BASED:)
           TERN_(HAS_DYNAMIC_FREQ_G, case dynFreqMode_MASS_BASED:)
           case dynFreqMode_DISABLED:
-            prep_for_shaper_change();
             dynFreqMode = dynFreqMode_t(m);
             break;
         }
@@ -181,7 +176,6 @@ typedef struct FTConfig {
       bool setDynFreqK(const AxisEnum a, const float k) {
         if (!modeUsesDynFreq()) return false;
         if (k == dynFreqK[a]) return false;
-        prep_for_shaper_change();
         dynFreqK[a] = k;
         update_shaping_params();
         return true;
@@ -196,7 +190,6 @@ typedef struct FTConfig {
   bool setBaseFreq(const AxisEnum a, float f) {
     if (f == baseFreq[a]) return false;
     LIMIT(f, FTM_MIN_SHAPE_FREQ, (FTM_FS) / 2);
-    prep_for_shaper_change();
     baseFreq[a] = f;
     update_shaping_params();
     return true;
