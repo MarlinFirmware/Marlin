@@ -4437,6 +4437,34 @@
 #endif
 
 /**
+ * Adds canned drilling cycle G Codes: 
+ * G73: Shallow peck drill cycle
+ * G80: Cancel drill cycle
+ * G81: Basic drill cycle
+ * G82: Normal drill cycle (Basic with dwell)
+ * G83: Deep drill cycle (Normal with peck)
+ * G98: Start drill - retract to initial
+ * G99: Start drill - retract to specified
+ *   or when DRILL_USE_81_ONLY is specified:
+ * G81.4: Shallow peck drill cycle
+ * G81.0: Cancel drill cycle
+ * G81.1: Basic drill cycle
+ * G81.2: Normal drill cycle (Basic with dwell)
+ * G81.3: Deep drill cycle (Normal with peck)
+ * G81.18: Start drill - retract to initial
+ * G81.19: Start drill - retract to specified
+ */
+#define DRILL_CYCLES
+#if ENABLED(DRILL_CYCLES)
+  //#define DRILL_USE_81_ONLY
+  #define DRILL_CYCLES_XY_FEEDRATE      1600
+  #define DRILL_CYCLES_RETRACT_FEEDRATE 1200
+  #define DRILL_CYCLES_DEFAULT_FEEDRATE 300
+  #define DRILL_CYCLES_DEFAULT_PECK     2.0
+  #define DRILL_CYCLES_DEFAULT_DWELL    0
+#endif
+
+/**
  * MAX7219 Debug Matrix
  *
  * Add support for a low-cost 8x8 LED Matrix based on the Max7219 chip as a realtime status display.
