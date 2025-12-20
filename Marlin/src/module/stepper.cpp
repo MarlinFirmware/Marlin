@@ -203,6 +203,10 @@ uint32_t Stepper::acceleration_time, Stepper::deceleration_time;
   bool Stepper::frozen; // = false
 #endif
 
+#if ENABLED(SPEED_DIAL_FEATURE)
+  uint8_t Stepper::speed_dial_value = 100;
+#endif
+
 // Delta error variables for the Bresenham line tracer
 xyze_long_t Stepper::delta_error{0};
 xyze_long_t Stepper::advance_dividend{0};
@@ -2464,6 +2468,10 @@ void Stepper::isr() {
           interval = calc_multistep_timer_interval(acc_step_rate << oversampling_factor);
           acceleration_time += interval;
           deceleration_time = 0; // Reset since we're doing acceleration first.
+
+          #if ENABLED(SPEED_DIAL_FEATURE)
+            speed_dial_adjust_interval(interval);
+          #endif
 
           // Apply Nonlinear Extrusion, if enabled
           calc_nonlinear_e(acc_step_rate << oversampling_factor);

@@ -4437,6 +4437,20 @@
 #endif
 
 /**
+ * Adds realtime speed control using an external potentiometer and a free thermistor port
+ */
+//#define SPEED_DIAL_FEATURE
+#if ENABLED(SPEED_DIAL_FEATURE)
+  #define SPEED_DIAL_PIN              TEMP_BED_PIN
+  #define SPEED_DIAL_MIN_SPEED        10
+  #define SPEED_DIAL_MAX_SPEED        100
+  #define SPEED_DIAL_BOARD_RESISTOR   4700
+  #define SPEED_DIAL_POT_RESISTOR     50000
+  #define SPEED_DIAL_INVERT           true
+  #define SPEED_DIAL_DIAL_SENSITIVITY -2
+#endif
+
+/**
  * MAX7219 Debug Matrix
  *
  * Add support for a low-cost 8x8 LED Matrix based on the Max7219 chip as a realtime status display.
