@@ -44,9 +44,9 @@
   #ifndef FLASH_EEPROM_EMULATION
     #define FLASH_EEPROM_EMULATION
   #endif
-  #define EEPROM_PAGE_SIZE      (0x800UL) // 2K
-  #define EEPROM_START_ADDRESS  (0x8000000UL + (STM32_FLASH_SIZE) * 1024UL - (EEPROM_PAGE_SIZE) * 1UL)
-  #define MARLIN_EEPROM_SIZE    EEPROM_PAGE_SIZE
+  #define EEPROM_PAGE_SIZE                0x800U  // 2K
+  #define EEPROM_START_ADDRESS (0x8000000UL + (STM32_FLASH_SIZE) * 1024UL - (EEPROM_PAGE_SIZE) * 1UL)
+  #define MARLIN_EEPROM_SIZE     EEPROM_PAGE_SIZE
 #endif
 
 //#define USES_DIAG_JUMPERS
@@ -93,7 +93,7 @@
    */
   //#define E0_HARDWARE_SERIAL MSerial4
 
-  // This is the stable default value after testing, but, higher UART rates could be configured, remeber to test the Steppers with the M122 command to check if everything works.
+  // This is the stable default value after testing, but, higher UART rates could be configured, remember to test the Steppers with the M122 command to check if everything works.
   //#define TMC_BAUD_RATE 250000
 
   #define E0_SERIAL_TX_PIN                  PA15

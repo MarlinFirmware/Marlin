@@ -34,13 +34,13 @@
 
 #if ENABLED(WIFISUPPORT)
   #include <ESPAsyncWebServer.h>
-  #include "wifi.h"
+  #include "wifi/wifi.h"
   #if ENABLED(OTASUPPORT)
-    #include "ota.h"
+    #include "wifi/ota.h"
   #endif
   #if ENABLED(WEBSUPPORT)
-    #include "spiffs.h"
-    #include "web.h"
+    #include "wifi/spiffs.h"
+    #include "wifi/web.h"
   #endif
 #endif
 
@@ -175,8 +175,6 @@ uint8_t MarlinHAL::get_reset_source() { return rtc_get_reset_reason(1); }
 
 void MarlinHAL::reboot() { ESP.restart(); }
 
-void _delay_ms(const int ms) { delay(ms); }
-
 // return free memory between end of heap (or end bss) and whatever is current
 int MarlinHAL::freeMemory() { return ESP.getFreeHeap(); }
 
@@ -244,12 +242,13 @@ void MarlinHAL::adc_init() {
   TERN_(HAS_TEMP_ADC_5,        adc1_set_attenuation(get_channel(TEMP_5_PIN), ADC_ATTEN_11db));
   TERN_(HAS_TEMP_ADC_6,        adc2_set_attenuation(get_channel(TEMP_6_PIN), ADC_ATTEN_11db));
   TERN_(HAS_TEMP_ADC_7,        adc3_set_attenuation(get_channel(TEMP_7_PIN), ADC_ATTEN_11db));
-  TERN_(HAS_HEATED_BED,        adc1_set_attenuation(get_channel(TEMP_BED_PIN), ADC_ATTEN_11db));
-  TERN_(HAS_TEMP_CHAMBER,      adc1_set_attenuation(get_channel(TEMP_CHAMBER_PIN), ADC_ATTEN_11db));
-  TERN_(HAS_TEMP_PROBE,        adc1_set_attenuation(get_channel(TEMP_PROBE_PIN), ADC_ATTEN_11db));
-  TERN_(HAS_TEMP_COOLER,       adc1_set_attenuation(get_channel(TEMP_COOLER_PIN), ADC_ATTEN_11db));
-  TERN_(HAS_TEMP_BOARD,        adc1_set_attenuation(get_channel(TEMP_BOARD_PIN), ADC_ATTEN_11db));
-  TERN_(FILAMENT_WIDTH_SENSOR, adc1_set_attenuation(get_channel(FILWIDTH_PIN), ADC_ATTEN_11db));
+  TERN_(HAS_TEMP_ADC_BED,      adc1_set_attenuation(get_channel(TEMP_BED_PIN), ADC_ATTEN_11db));
+  TERN_(HAS_TEMP_ADC_CHAMBER,  adc1_set_attenuation(get_channel(TEMP_CHAMBER_PIN), ADC_ATTEN_11db));
+  TERN_(HAS_TEMP_ADC_PROBE,    adc1_set_attenuation(get_channel(TEMP_PROBE_PIN), ADC_ATTEN_11db));
+  TERN_(HAS_TEMP_ADC_COOLER,   adc1_set_attenuation(get_channel(TEMP_COOLER_PIN), ADC_ATTEN_11db));
+  TERN_(HAS_TEMP_ADC_BOARD,    adc1_set_attenuation(get_channel(TEMP_BOARD_PIN), ADC_ATTEN_11db));
+  TERN_(HAS_FILWIDTH_ADC,      adc1_set_attenuation(get_channel(FILWIDTH_PIN), ADC_ATTEN_11db));
+  TERN_(HAS_FILWIDTH2_ADC,     adc1_set_attenuation(get_channel(FILWIDTH2_PIN), ADC_ATTEN_11db));
 
   // Note that adc2 is shared with the WiFi module, which has higher priority, so the conversion may fail.
   // That's why we're not setting it up here.
@@ -272,7 +271,7 @@ void MarlinHAL::adc_start(const pin_t pin) {
   uint32_t mv;
   esp_adc_cal_get_voltage((adc_channel_t)chan, &characteristics[attenuations[chan]], &mv);
 
-  adc_result = mv * isr_float_t(1023) / isr_float_t(ADC_REFERENCE_VOLTAGE) / isr_float_t(1000);
+  adc_result = (mv * 1023) * (1000.f / (ADC_REFERENCE_VOLTAGE));
 
   // Change the attenuation level based on the new reading
   adc_atten_t atten;

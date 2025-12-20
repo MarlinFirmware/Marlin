@@ -74,7 +74,7 @@
 //
 // Misc. Functions
 //
-#define SDSS                                  25
+#define SD_SS_PIN                             25
 
 #ifndef CASE_LIGHT_PIN
   #define CASE_LIGHT_PIN                      -1  // Hardware PWM but one is not available on expansion header
@@ -84,13 +84,13 @@
  *  M3/M4/M5 - Spindle/Laser Control
  *
  *  If you want to control the speed of your spindle then you'll have
- *  have to sacrifce the Extruder and pull some signals off the Z stepper
+ *  to sacrifce the Extruder and pull some signals off the Z stepper
  *  driver socket.
  *
  *  The following assumes:
  *   - the Z stepper driver socket is empty
  *   - the extruder driver socket has a driver board plugged into it
- *   - the Z stepper wires are attached the the extruder connector
+ *   - the Z stepper wires are attached the extruder connector
  *
  *  If you want to keep the extruder AND don't have a LCD display then
  *  you can still control the power on/off and spindle direction.

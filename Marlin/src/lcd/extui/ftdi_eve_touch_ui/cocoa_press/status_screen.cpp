@@ -111,7 +111,7 @@ void StatusScreen::send_buffer(CommandProcessor &cmd, const void *data, uint16_t
   const char *ptr = (const char*) data;
   constexpr uint16_t block_size = 512;
   char               block[block_size];
-  for (;len > 0;) {
+  while (len > 0) {
     const uint16_t nBytes = min(len, block_size);
     memcpy_P(block, ptr, nBytes);
     cmd.write((const void*)block, nBytes);
@@ -432,8 +432,10 @@ void StatusScreen::onIdle() {
 }
 
 void StatusScreen::onMediaMounted() {
-  if (AT_SCREEN(StatusScreen))
-    setStatusMessage(GET_TEXT_F(MSG_MEDIA_INSERTED));
+  if (!AT_SCREEN(StatusScreen)) return;
+  setStatusMessage(ExtUI::isMediaMountedSD()  ? GET_TEXT_F(MSG_MEDIA_INSERTED_SD) :
+                   ExtUI::isMediaMountedUSB() ? GET_TEXT_F(MSG_MEDIA_INSERTED_USB) :
+                                                GET_TEXT_F(MSG_MEDIA_INSERTED));
 }
 
 void StatusScreen::onMediaRemoved() {

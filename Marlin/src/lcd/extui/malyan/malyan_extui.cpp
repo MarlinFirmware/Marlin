@@ -187,7 +187,7 @@ namespace ExtUI {
   #endif
 
   #if HAS_MESH
-    void onMeshUpdate(const int8_t, const int8_t, const_float_t) {}
+    void onMeshUpdate(const int8_t, const int8_t, const float) {}
     void onMeshUpdate(const int8_t, const int8_t, const ExtUI::probe_state_t) {}
   #endif
 

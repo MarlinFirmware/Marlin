@@ -115,10 +115,21 @@
 //#define CONTROLLER_FAN_PIN                 148  // FAN2
 //#define E0_AUTO_FAN_PIN                    148  // FAN2
 
-//
-// ADC Reference Voltage
-//
-#define ADC_REFERENCE_VOLTAGE                  2.565  // 2.5V reference VDDA
+/**
+ * ADC Reference Voltage
+ *
+ * In some boards the voltage reference is a bit off due to low quality
+ * components. That is enough to throw off the ADC readings and thus the
+ * temperatures by more than 10°C in some cases. If you experience that
+ * problem, measure the reference voltage (VDDA) at the 2nd pin of
+ * TH1/TH2 (with the sensors disconnected) and set ADC_REFERENCE_VOLTAGE
+ * in your config.
+ */
+
+#ifndef ADC_REFERENCE_VOLTAGE
+  #define EMIT_ADC_REFERENCE_VOLTAGE_WARNING
+  #define ADC_REFERENCE_VOLTAGE              2.565
+#endif
 
 /**
  *                 ------                                 ------
@@ -152,6 +163,8 @@
 #define EXP2_07_PIN                           34
 #define EXP2_08_PIN                           -1  // RESET
 
+#define EXP_REVERSE_KEYED
+
 //
 // MicroSD card
 //
@@ -160,7 +173,7 @@
 //#define SD_SCK_PIN                 EXP2_02_PIN  // uses esp32 default 18
 
 // TODO: Migrate external SD Card to pins/lcd
-#define SDSS                         EXP2_04_PIN
+#define SD_SS_PIN                    EXP2_04_PIN
 #define SD_DETECT_PIN                EXP2_07_PIN  // IO34 default is SD_DET signal (Jump to SDDET)
 #define USES_SHARED_SPI                           // SPI is shared by SD card with TMC SPI drivers
 

@@ -40,9 +40,9 @@
   #ifndef FLASH_EEPROM_EMULATION
     #define FLASH_EEPROM_EMULATION
   #endif
-  #define EEPROM_PAGE_SIZE      (0x800UL) // 2K
-  #define EEPROM_START_ADDRESS  (0x8000000UL + (STM32_FLASH_SIZE) * 1024UL - (EEPROM_PAGE_SIZE) * 2UL)
-  #define MARLIN_EEPROM_SIZE    EEPROM_PAGE_SIZE
+  #define EEPROM_PAGE_SIZE                0x800U  // 2K
+  #define EEPROM_START_ADDRESS (0x8000000UL + (STM32_FLASH_SIZE) * 1024UL - (EEPROM_PAGE_SIZE) * 2UL)
+  #define MARLIN_EEPROM_SIZE     EEPROM_PAGE_SIZE
 #endif
 
 //
@@ -210,8 +210,7 @@
 // Must use soft SPI because Marlin's default hardware SPI is tied to LCD's EXP2
 //
 #if SD_CONNECTION_IS(LCD)
-  #define SDSS                       EXP2_04_PIN
-  #define SD_SS_PIN                         SDSS
+  #define SD_SS_PIN                  EXP2_04_PIN
   #define SD_SCK_PIN                 EXP2_02_PIN
   #define SD_MISO_PIN                EXP2_01_PIN
   #define SD_MOSI_PIN                EXP2_06_PIN
@@ -290,7 +289,7 @@
       #elif ENABLED(FYSETC_MINI_12864_2_1)
         #define NEOPIXEL_PIN         EXP1_06_PIN
       #endif
-    #endif // !FYSETC_MINI_12864
+    #endif // FYSETC_MINI_12864
 
     #if IS_ULTIPANEL
       #define LCD_PINS_D5            EXP1_06_PIN
@@ -309,15 +308,9 @@
 
 // Alter timing for graphical display
 #if IS_U8GLIB_ST7920
-  #ifndef BOARD_ST7920_DELAY_1
-    #define BOARD_ST7920_DELAY_1             120
-  #endif
-  #ifndef BOARD_ST7920_DELAY_2
-    #define BOARD_ST7920_DELAY_2              80
-  #endif
-  #ifndef BOARD_ST7920_DELAY_3
-    #define BOARD_ST7920_DELAY_3             580
-  #endif
+  #define BOARD_ST7920_DELAY_1               120
+  #define BOARD_ST7920_DELAY_2                80
+  #define BOARD_ST7920_DELAY_3               580
 #endif
 
 //

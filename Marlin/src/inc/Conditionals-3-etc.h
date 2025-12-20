@@ -40,42 +40,17 @@
 // Remove irrelevant Configuration.h settings
 //
 
-// Clean up unused temperature sensors and sub-options
-
-#if !TEMP_SENSOR_0
-  #undef TEMP_SENSOR_0
+#if !HAS_HOTEND
+  #undef PREHEAT_1_TEMP_HOTEND
+  #undef PREHEAT_2_TEMP_HOTEND
 #endif
-#if !TEMP_SENSOR_1
-  #undef TEMP_SENSOR_1
-#endif
-#if !TEMP_SENSOR_2
-  #undef TEMP_SENSOR_2
-#endif
-#if !TEMP_SENSOR_3
-  #undef TEMP_SENSOR_3
-#endif
-#if !TEMP_SENSOR_4
-  #undef TEMP_SENSOR_4
-#endif
-#if !TEMP_SENSOR_5
-  #undef TEMP_SENSOR_5
-#endif
-#if !TEMP_SENSOR_6
-  #undef TEMP_SENSOR_6
-#endif
-#if !TEMP_SENSOR_7
-  #undef TEMP_SENSOR_7
-#endif
-
 #if !TEMP_SENSOR_BED
-  #undef TEMP_SENSOR_BED
   #undef THERMAL_PROTECTION_BED
   #undef MAX_BED_POWER
   #undef PREHEAT_1_TEMP_BED
   #undef PREHEAT_2_TEMP_BED
 #endif
 #if !TEMP_SENSOR_CHAMBER
-  #undef TEMP_SENSOR_CHAMBER
   #undef THERMAL_PROTECTION_CHAMBER
   #undef MAX_CHAMBER_POWER
   #undef PREHEAT_1_TEMP_CHAMBER
@@ -84,18 +59,6 @@
 #if !TEMP_SENSOR_COOLER
   #undef TEMP_SENSOR_COOLER
   #undef THERMAL_PROTECTION_COOLER
-#endif
-#if !TEMP_SENSOR_PROBE
-  #undef TEMP_SENSOR_PROBE
-#endif
-#if !TEMP_SENSOR_REDUNDANT
-  #undef TEMP_SENSOR_REDUNDANT
-#endif
-#if !TEMP_SENSOR_BOARD
-  #undef TEMP_SENSOR_BOARD
-#endif
-#if !TEMP_SENSOR_SOC
-  #undef TEMP_SENSOR_SOC
 #endif
 #if !SOFT_PWM_SCALE
   #undef SOFT_PWM_SCALE
@@ -135,7 +98,10 @@
 #ifdef Z_PROBE_SERVO_NR
   #define HAS_Z_SERVO_PROBE 1
 #endif
-#if ANY(HAS_Z_SERVO_PROBE, SWITCHING_EXTRUDER, SWITCHING_NOZZLE)
+#ifdef MAG_MOUNTED_PROBE_SERVO_NR
+  #define HAS_MAG_MOUNTED_SERVO_PROBE 1
+#endif
+#if ANY(HAS_Z_SERVO_PROBE, HAS_MAG_MOUNTED_SERVO_PROBE, SWITCHING_EXTRUDER, SWITCHING_NOZZLE)
   #define HAS_SERVO_ANGLES 1
 #endif
 #if !HAS_SERVO_ANGLES
@@ -551,11 +517,6 @@
   #undef Z_CLEARANCE_DEPLOY_PROBE
 #endif
 
-#if !(ANY(HAS_BED_PROBE, BACKLASH_GCODE) || (ENABLED(EXTENSIBLE_UI) && ANY(MESH_BED_LEVELING, AUTO_BED_LEVELING_UBL)))
-  #undef Z_PROBE_FEEDRATE_FAST
-  #undef Z_PROBE_FEEDRATE_SLOW
-#endif
-
 /**
  * Z_CLEARANCE_FOR_HOMING
  */
@@ -672,8 +633,4 @@
 
 #if ANY(PID_DEBUG, PID_BED_DEBUG, PID_CHAMBER_DEBUG)
   #define HAS_PID_DEBUG 1
-#endif
-
-#if ALL(SPI_FLASH, HAS_MEDIA, MARLIN_DEV_MODE)
-  #define SPI_FLASH_BACKUP 1
 #endif

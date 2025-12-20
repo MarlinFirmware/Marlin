@@ -33,8 +33,12 @@
 #include "../../module/planner.h"
 #include "../../module/stepper.h"
 
-#if DISABLED(NO_VOLUMETRICS)
+#if HAS_VOLUMETRIC_EXTRUSION
   #include "../../gcode/parser.h"
+#endif
+
+#if HAS_SPINDLE_ACCELERATION
+  #include "../../feature/spindle_laser.h"
 #endif
 
 #if HAS_BED_PROBE
@@ -88,7 +92,7 @@ void menu_backlash();
     #if ANY_PIN(MOTOR_CURRENT_PWM_XY, MOTOR_CURRENT_PWM_X, MOTOR_CURRENT_PWM_Y)
       EDIT_CURRENT_PWM(STR_A STR_B, 0);
     #endif
-    #if PIN_EXISTS(MOTOR_CURRENT_PWM_Z)
+    #if HAS_MOTOR_CURRENT_PWM_Z
       EDIT_CURRENT_PWM(STR_C, 1);
     #endif
     #if HAS_MOTOR_CURRENT_PWM_E
@@ -99,7 +103,11 @@ void menu_backlash();
 
 #endif
 
-#if DISABLED(NO_VOLUMETRICS) || ENABLED(ADVANCED_PAUSE_FEATURE)
+#if ANY(HAS_VOLUMETRIC_EXTRUSION, ADVANCED_PAUSE_FEATURE)
+  #define HAS_ADV_FILAMENT_MENU 1
+#endif
+
+#if HAS_ADV_FILAMENT_MENU
   //
   // Advanced Settings > Filament
   //
@@ -108,15 +116,33 @@ void menu_backlash();
     BACK_ITEM(MSG_ADVANCED_SETTINGS);
 
     #if ENABLED(LIN_ADVANCE)
-      #if DISTINCT_E < 2
-        EDIT_ITEM(float42_52, MSG_ADVANCE_K, &planner.extruder_advance_K[0], 0, 10);
+      #if DISABLED(DISTINCT_E_FACTORS)
+        editable.decimal = planner.get_advance_k();
+        EDIT_ITEM(float42_52, MSG_ADVANCE_K, &editable.decimal, 0.0f, 10.0f, []{ planner.set_advance_k(editable.decimal); });
       #else
-        EXTRUDER_LOOP()
-          EDIT_ITEM_N(float42_52, e, MSG_ADVANCE_K_E, &planner.extruder_advance_K[e], 0, 10);
+        EXTRUDER_LOOP() {
+          editable.decimal = planner.get_advance_k(e);
+          EDIT_ITEM_N(float42_52, e, MSG_ADVANCE_K_E, &editable.decimal, 0.0f, 10.0f, []{ planner.set_advance_k(editable.decimal, MenuItemBase::itemIndex); });
+        }
       #endif
+      #if ENABLED(SMOOTH_LIN_ADVANCE)
+        #if DISABLED(DISTINCT_E_FACTORS)
+          editable.decimal = stepper.get_advance_tau();
+          EDIT_ITEM(float54, MSG_ADVANCE_TAU, &editable.decimal, 0.0f, 0.5f, []{ stepper.set_advance_tau(editable.decimal); });
+        #else
+          EXTRUDER_LOOP() {
+            editable.decimal = stepper.get_advance_tau(e);
+            EDIT_ITEM_N(float54, e, MSG_ADVANCE_TAU_E, &editable.decimal, 0.0f, 0.5f, []{ stepper.set_advance_tau(editable.decimal, MenuItemBase::itemIndex); });
+          }
+        #endif
+      #endif
+    #endif // LIN_ADVANCE
+
+    #if ENABLED(NONLINEAR_EXTRUSION)
+      EDIT_ITEM(bool, MSG_NLE_ON, &stepper.ne.settings.enabled);
     #endif
 
-    #if DISABLED(NO_VOLUMETRICS)
+    #if HAS_VOLUMETRIC_EXTRUSION
       EDIT_ITEM(bool, MSG_VOLUMETRIC_ENABLED, &parser.volumetric_enabled, planner.calculate_volumetric_multipliers);
 
       #if ENABLED(VOLUMETRIC_EXTRUDER_LIMIT)
@@ -134,7 +160,7 @@ void menu_backlash();
             EDIT_ITEM_FAST_N(float43, e, MSG_FILAMENT_DIAM_E, &planner.filament_size[e], 1.5f, 3.25f, planner.calculate_volumetric_multipliers);
         #endif
       }
-    #endif
+    #endif // HAS_VOLUMETRIC_EXTRUSION
 
     #if ENABLED(CONFIGURE_FILAMENT_CHANGE)
       constexpr float extrude_maxlength = TERN(PREVENT_LENGTHY_EXTRUDE, EXTRUDE_MAXLENGTH, 999);
@@ -155,17 +181,18 @@ void menu_backlash();
     #if HAS_FILAMENT_RUNOUT_DISTANCE
       editable.decimal = runout.runout_distance();
       auto set_runout_distance = []{ runout.set_runout_distance(editable.decimal); };
-      #if ENABLED(FILAMENT_MOTION_SENSOR)
-        EDIT_ITEM_FAST(float31, MSG_RUNOUT_DISTANCE_MM, &editable.decimal, 0.1, 10, set_runout_distance, true);
-      #else
-        EDIT_ITEM_FAST(float3, MSG_RUNOUT_DISTANCE_MM, &editable.decimal, 1, 999, set_runout_distance, true);
-      #endif
+      EDIT_ITEM_FAST(float3, MSG_RUNOUT_DISTANCE_MM, &editable.decimal, 1, 999, set_runout_distance, true);
+    #endif
+    #if ENABLED(FILAMENT_SWITCH_AND_MOTION)
+      editable.decimal = runout.motion_distance();
+      auto set_motion_distance = []{ runout.set_motion_distance(editable.decimal); };
+      EDIT_ITEM_FAST(float31, MSG_MOTION_DISTANCE_MM, &editable.decimal, 0.1, 10, set_motion_distance, true);
     #endif
 
     END_MENU();
   }
 
-#endif // !NO_VOLUMETRICS || ADVANCED_PAUSE_FEATURE
+#endif // HAS_ADV_FILAMENT_MENU
 
 //
 // Advanced Settings > Temperature helpers
@@ -298,9 +325,14 @@ void menu_backlash();
     // Autotemp, Min, Max, Fact
     //
     #if ALL(AUTOTEMP, HAS_TEMP_HOTEND)
-      EDIT_ITEM(int3, MSG_MIN, &planner.autotemp.min, 0, thermalManager.hotend_max_target(0));
-      EDIT_ITEM(int3, MSG_MAX, &planner.autotemp.max, 0, thermalManager.hotend_max_target(0));
-      EDIT_ITEM(float42_52, MSG_FACTOR, &planner.autotemp.factor, 0, 10);
+      autotemp_cfg_t &c = thermalManager.autotemp.cfg;
+      EDIT_ITEM(int3, MSG_MIN, &c.min, 0, thermalManager.hotend_max_target(0), []{
+        NOLESS(thermalManager.autotemp.cfg.max, thermalManager.autotemp.cfg.min);
+      });
+      EDIT_ITEM(int3, MSG_MAX, &c.max, 0, thermalManager.hotend_max_target(0), []{
+        NOMORE(thermalManager.autotemp.cfg.min, thermalManager.autotemp.cfg.max);
+      });
+      EDIT_ITEM(float42_52, MSG_FACTOR, &c.factor, 0, 10);
     #endif
 
     //
@@ -313,13 +345,15 @@ void menu_backlash();
     //
 
     #if ALL(PIDTEMP, PID_EDIT_MENU)
-      #define __PID_HOTEND_MENU_ITEMS(N) \
+
+      #define __PID_HOTEND_MENU_ITEMS(N) do{ \
         raw_Kp = thermalManager.temp_hotend[N].pid.p(); \
         raw_Ki = thermalManager.temp_hotend[N].pid.i(); \
         raw_Kd = thermalManager.temp_hotend[N].pid.d(); \
-        EDIT_ITEM_FAST_N(float41sign, N, MSG_PID_P_E, &raw_Kp, 1, 9990, []{ apply_PID_p(N); }); \
+        EDIT_ITEM_FAST_N(float41sign, N, MSG_PID_P_E, &raw_Kp, 1.00f, 9990, []{ apply_PID_p(N); }); \
         EDIT_ITEM_FAST_N(float52sign, N, MSG_PID_I_E, &raw_Ki, 0.01f, 9990, []{ apply_PID_i(N); }); \
-        EDIT_ITEM_FAST_N(float41sign, N, MSG_PID_D_E, &raw_Kd, 1, 9990, []{ apply_PID_d(N); })
+        EDIT_ITEM_FAST_N(float41sign, N, MSG_PID_D_E, &raw_Kd, 1.00f, 9990, []{ apply_PID_d(N); }); \
+      }while(0)
 
       #if ENABLED(PID_EXTRUSION_SCALING)
         #define _PID_HOTEND_MENU_ITEMS(N) \
@@ -350,9 +384,9 @@ void menu_backlash();
         raw_Kp = T.pid.p(); \
         raw_Ki = T.pid.i(); \
         raw_Kd = T.pid.d(); \
-        EDIT_ITEM_FAST_N(float41sign, N, MSG_PID_P_E, &raw_Kp, 1, 9990, []{ apply_PID_p(N); }); \
+        EDIT_ITEM_FAST_N(float41sign, N, MSG_PID_P_E, &raw_Kp, 1.00f, 9990, []{ apply_PID_p(N); }); \
         EDIT_ITEM_FAST_N(float52sign, N, MSG_PID_I_E, &raw_Ki, 0.01f, 9990, []{ apply_PID_i(N); }); \
-        EDIT_ITEM_FAST_N(float41sign, N, MSG_PID_D_E, &raw_Kd, 1, 9990, []{ apply_PID_d(N); })
+        EDIT_ITEM_FAST_N(float41sign, N, MSG_PID_D_E, &raw_Kd, 1.00f, 9990, []{ apply_PID_d(N); })
     #endif
 
     #if ENABLED(PIDTEMP)
@@ -511,6 +545,9 @@ void menu_backlash();
     #else
       const xyze_ulong_t &max_accel_edit_scaled = max_accel_edit;
     #endif
+    #if HAS_SPINDLE_ACCELERATION
+      constexpr uint32_t max_spindle_accel_edit = 99000;
+    #endif
 
     START_MENU();
     BACK_ITEM(MSG_ADVANCED_SETTINGS);
@@ -542,6 +579,10 @@ void menu_backlash();
        });
     #elif E_STEPPERS
       EDIT_ITEM_FAST(long5_25, MSG_AMAX_E, &planner.settings.max_acceleration_mm_per_s2[E_AXIS], 100, max_accel_edit_scaled.e, []{ planner.refresh_acceleration_rates(); });
+    #endif
+
+    #if HAS_SPINDLE_ACCELERATION
+      EDIT_ITEM_FAST(long5_25, MSG_A_SPINDLE, &cutter.acceleration_spindle_deg_per_s2, 100, max_spindle_accel_edit);
     #endif
 
     #ifdef XY_FREQUENCY_LIMIT
@@ -643,7 +684,7 @@ void menu_backlash();
 
 void menu_advanced_settings() {
   #if ANY(POLARGRAPH, SHAPING_MENU, HAS_BED_PROBE, EDITABLE_STEPS_PER_UNIT)
-    const bool is_busy = printer_busy();
+    const bool is_busy = marlin.printer_busy();
   #endif
 
   #if ENABLED(SD_FIRMWARE_UPDATE)
@@ -718,16 +759,34 @@ void menu_advanced_settings() {
     SUBMENU(MSG_TEMPERATURE, menu_advanced_temperature);
   #endif
 
-  #if DISABLED(NO_VOLUMETRICS) || ENABLED(ADVANCED_PAUSE_FEATURE)
+  #if HAS_ADV_FILAMENT_MENU
+
     SUBMENU(MSG_FILAMENT, menu_advanced_filament);
+
   #elif ENABLED(LIN_ADVANCE)
-    #if DISTINCT_E < 2
-      EDIT_ITEM(float42_52, MSG_ADVANCE_K, &planner.extruder_advance_K[0], 0, 10);
+
+    #if DISABLED(DISTINCT_E_FACTORS)
+      editable.decimal = planner.get_advance_k();
+      EDIT_ITEM(float42_52, MSG_ADVANCE_K, &editable.decimal, 0.0f, 10.0f, []{ planner.set_advance_k(editable.decimal); });
     #else
-      EXTRUDER_LOOP()
-        EDIT_ITEM_N(float42_52, n, MSG_ADVANCE_K_E, &planner.extruder_advance_K[e], 0, 10);
+      EXTRUDER_LOOP() {
+        editable.decimal = planner.get_advance_k(e);
+        EDIT_ITEM_N(float42_52, e, MSG_ADVANCE_K_E, &editable.decimal, 0.0f, 10.0f, []{ planner.set_advance_k(editable.decimal, MenuItemBase::itemIndex); });
+      }
     #endif
-  #endif
+    #if ENABLED(SMOOTH_LIN_ADVANCE)
+      #if DISABLED(DISTINCT_E_FACTORS)
+        editable.decimal = stepper.get_advance_tau();
+        EDIT_ITEM(float54, MSG_ADVANCE_TAU, &editable.decimal, 0.0f, 0.5f, []{ stepper.set_advance_tau(editable.decimal); });
+      #else
+        EXTRUDER_LOOP() {
+          editable.decimal = stepper.get_advance_tau(e);
+          EDIT_ITEM_N(float54, e, MSG_ADVANCE_TAU_E, &editable.decimal, 0.0f, 0.5f, []{ stepper.set_advance_tau(editable.decimal, MenuItemBase::itemIndex); });
+        }
+      #endif
+    #endif
+
+  #endif // LIN_ADVANCE && !HAS_ADV_FILAMENT_MENU
 
   // M540 S - Abort on endstop hit when SD printing
   #if ENABLED(SD_ABORT_ON_ENDSTOP_HIT)

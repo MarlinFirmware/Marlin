@@ -36,7 +36,12 @@
   #define XATC_Y_POSITION ((probe.max_y() - probe.min_y())/2)
 #endif
 
-void _goto_manual_move_z(const_float_t);
+#if ALL(TOUCH_SCREEN, HAS_GRAPHICAL_TFT)
+  #include "../tft/tft.h"
+  #include "../tft/touch.h"
+#endif
+
+void _goto_manual_move_z(const float);
 
 float measured_z, z_offset;
 
@@ -154,7 +159,7 @@ void xatc_wizard_goto_next_point() {
     z_offset /= XATC_MAX_POINTS;
 
     // Subtract the average from the values found with this wizard.
-    // This way they are indipendent from the z-offset
+    // This way they are independent from the z-offset
     for (uint8_t i = 0; i < XATC_MAX_POINTS; ++i) xatc.z_offset[i] -= z_offset;
 
     ui.goto_screen(xatc_wizard_update_z_offset);

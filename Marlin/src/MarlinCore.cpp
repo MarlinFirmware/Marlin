@@ -74,11 +74,11 @@
 #endif
 
 #if HAS_DWIN_E3V2
-  #include "lcd/e3v2/common/encoder.h"
+  #include "lcd/dwin/common/encoder.h"
   #if ENABLED(DWIN_CREALITY_LCD)
-    #include "lcd/e3v2/creality/dwin.h"
+    #include "lcd/dwin/creality/dwin.h"
   #elif ENABLED(DWIN_CREALITY_LCD_JYERSUI)
-    #include "lcd/e3v2/jyersui/dwin.h"
+    #include "lcd/dwin/jyersui/dwin.h"
   #elif ENABLED(SOVOL_SV06_RTS)
     #include "lcd/sovol_rts/sovol_rts.h"
   #endif
@@ -152,21 +152,12 @@
   #include "feature/encoder_i2c.h"
 #endif
 
-#if (HAS_TRINAMIC_CONFIG || HAS_TMC_SPI) && DISABLED(PSU_DEFAULT_OFF)
-  #include "feature/tmc_util.h"
+#if HAS_TRINAMIC_CONFIG
+  #include "module/stepper/trinamic.h"
 #endif
 
 #if HAS_CUTTER
   #include "feature/spindle_laser.h"
-#endif
-
-#if HAS_MEDIA
-  CardReader card;
-#endif
-
-#if ENABLED(G38_PROBE_TARGET)
-  uint8_t G38_move; // = 0
-  bool G38_did_trigger; // = false
 #endif
 
 #if ENABLED(DELTA)
@@ -269,25 +260,51 @@
   #include "feature/rs485.h"
 #endif
 
-PGMSTR(M112_KILL_STR, "M112 Shutdown");
+/**
+ * Spin in place here while keeping temperature processing alive
+ */
+void safe_delay(millis_t ms) {
+  while (ms > 50) {
+    ms -= 50;
+    delay(50);
+    thermalManager.task();
+  }
+  delay(ms);
+  thermalManager.task(); // This keeps us safe if too many small safe_delay() calls are made
+}
 
-MarlinState marlin_state = MarlinState::MF_INITIALIZING;
+// Singleton for Marlin global data and methods
+Marlin marlin;
+
+// Marlin static data
+#if ENABLED(CONFIGURABLE_MACHINE_NAME)
+  MString<64> Marlin::machine_name;
+#endif
+
+// Global state of the firmware
+MarlinState Marlin::state = MF_INITIALIZING;
 
 // For M109 and M190, this flag may be cleared (by M108) to exit the wait loop
-bool wait_for_heatup = false;
+bool Marlin::wait_for_heatup = false;
+
+#if !HAS_MEDIA
+  CardReader card; // Stub instance with "no media" methods
+#endif
+
+PGMSTR(M112_KILL_STR, "M112 Shutdown");
 
 // For M0/M1, this flag may be cleared (by M108) to exit the wait-for-user loop
 #if HAS_RESUME_CONTINUE
-  bool wait_for_user; // = false
+  bool Marlin::wait_for_user; // = false
 
-  void wait_for_user_response(millis_t ms/*=0*/, const bool no_sleep/*=false*/) {
+  void Marlin::wait_for_user_response(millis_t ms/*=0*/, const bool no_sleep/*=false*/) {
     UNUSED(no_sleep);
     KEEPALIVE_STATE(PAUSED_FOR_USER);
-    wait_for_user = true;
+    wait_start();
     if (ms) ms += millis(); // expire time
     while (wait_for_user && !(ms && ELAPSED(millis(), ms)))
       idle(TERN_(ADVANCED_PAUSE_FEATURE, no_sleep));
-    wait_for_user = false;
+    user_resume();
     while (ui.button_pressed()) safe_delay(50);
   }
 
@@ -317,7 +334,7 @@ bool wait_for_heatup = false;
 #pragma GCC diagnostic ignored "-Wnarrowing"
 #pragma GCC diagnostic ignored "-Wsign-compare"
 
-bool pin_is_protected(const pin_t pin) {
+bool Marlin::pin_is_protected(const pin_t pin) {
   #define pgm_read_pin(P) (sizeof(pin_t) == 2 ? (pin_t)pgm_read_word(P) : (pin_t)pgm_read_byte(P))
   for (uint8_t i = 0; i < COUNT(sensitive_dio); ++i)
     if (pin == pgm_read_pin(&sensitive_dio[i])) return true;
@@ -328,28 +345,28 @@ bool pin_is_protected(const pin_t pin) {
 
 #pragma GCC diagnostic pop
 
-bool printer_busy() {
+bool Marlin::printer_busy() {
   return planner.has_blocks_queued() || printingIsActive();
 }
 
 /**
  * A Print Job exists when the timer is running or SD is printing
  */
-bool printJobOngoing() { return print_job_timer.isRunning() || IS_SD_PRINTING(); }
+bool Marlin::printJobOngoing() { return print_job_timer.isRunning() || card.isStillPrinting(); }
 
 /**
  * Printing is active when a job is underway but not paused
  */
-bool printingIsActive() { return !did_pause_print && printJobOngoing(); }
+bool Marlin::printingIsActive() { return !did_pause_print && printJobOngoing(); }
 
 /**
  * Printing is paused according to SD or host indicators
  */
-bool printingIsPaused() {
-  return did_pause_print || print_job_timer.isPaused() || IS_SD_PAUSED();
+bool Marlin::printingIsPaused() {
+  return did_pause_print || print_job_timer.isPaused() || card.isPaused();
 }
 
-void startOrResumeJob() {
+void Marlin::startOrResumeJob() {
   if (!printingIsPaused()) {
     TERN_(GCODE_REPEAT_MARKERS, repeat.reset());
     TERN_(CANCEL_OBJECTS, cancelable.reset());
@@ -375,7 +392,7 @@ void startOrResumeJob() {
 
     TERN(HAS_CUTTER, cutter.kill(), thermalManager.zero_fan_speeds()); // Full cutter shutdown including ISR control
 
-    wait_for_heatup = false;
+    marlin.heatup_done();
 
     TERN_(POWER_LOSS_RECOVERY, recovery.purge());
 
@@ -387,8 +404,8 @@ void startOrResumeJob() {
   }
 
   inline void finishSDPrinting() {
-    if (queue.enqueue_one(F("M1001"))) {      // Keep trying until it gets queued
-      marlin_state = MarlinState::MF_RUNNING; // Signal to stop trying
+    if (queue.enqueue_one(F("M1001"))) {  // Keep trying until it gets queued
+      marlin.setState(MF_RUNNING);        // Signal to stop trying
       TERN_(PASSWORD_AFTER_SD_PRINT_END, password.lock_machine());
       TERN_(DGUS_LCD_UI_MKS, screen.sdPrintingFinished());
     }
@@ -409,7 +426,7 @@ void startOrResumeJob() {
  *  - Check if an idle but hot extruder needs filament extruded (EXTRUDER_RUNOUT_PREVENT)
  *  - Pulse FET_SAFETY_PIN if it exists
  */
-inline void manage_inactivity(const bool no_stepper_sleep=false) {
+void Marlin::manage_inactivity(const bool no_stepper_sleep/*=false*/) {
 
   queue.get_available_commands();
 
@@ -424,8 +441,7 @@ inline void manage_inactivity(const bool no_stepper_sleep=false) {
 
   if (gcode.stepper_max_timed_out(ms)) {
     SERIAL_ERROR_START();
-    SERIAL_ECHOPGM(STR_KILL_PRE);
-    SERIAL_ECHOLNPGM(STR_KILL_INACTIVE_TIME, parser.command_ptr);
+    SERIAL_ECHOLN(F(STR_KILL_PRE), F(STR_KILL_INACTIVE_TIME), parser.command_ptr);
     kill();
   }
 
@@ -476,7 +492,7 @@ inline void manage_inactivity(const bool no_stepper_sleep=false) {
     // Check if the kill button was pressed and wait to ensure the signal is not noise
     // typically caused by poor insulation and grounding on LCD cables.
     // Lower numbers here will increase response time and therefore safety rating.
-    // It is recommended to set this as low as possibe without false triggers.
+    // It is recommended to set this as low as possible without false triggers.
     // -------------------------------------------------------------------------------
     #ifndef KILL_DELAY
       #define KILL_DELAY 250
@@ -493,8 +509,7 @@ inline void manage_inactivity(const bool no_stepper_sleep=false) {
     // ----------------------------------------------------------------
     if (killCount >= KILL_DELAY) {
       SERIAL_ERROR_START();
-      SERIAL_ECHOPGM(STR_KILL_PRE);
-      SERIAL_ECHOLNPGM(STR_KILL_BUTTON);
+      SERIAL_ECHOLN(F(STR_KILL_PRE), F(STR_KILL_BUTTON));
       kill();
     }
   #endif
@@ -507,7 +522,7 @@ inline void manage_inactivity(const bool no_stepper_sleep=false) {
     // Handle a standalone HOME button
     constexpr millis_t HOME_DEBOUNCE_DELAY = 1000UL;
     static millis_t next_home_key_ms; // = 0
-    if (!IS_SD_PRINTING() && !READ(HOME_PIN)) { // HOME_PIN goes LOW when pressed
+    if (!card.isStillPrinting() && !READ(HOME_PIN)) { // HOME_PIN goes LOW when pressed
       if (ELAPSED(ms, next_home_key_ms)) {
         next_home_key_ms = ms + HOME_DEBOUNCE_DELAY;
         LCD_MESSAGE(MSG_AUTO_HOME);
@@ -525,11 +540,15 @@ inline void manage_inactivity(const bool no_stepper_sleep=false) {
       constexpr millis_t CUB_DEBOUNCE_DELAY_##N = 250UL;               \
       static millis_t next_cub_ms_##N;                                 \
       if (BUTTON##N##_HIT_STATE == READ(BUTTON##N##_PIN)               \
-        && (ENABLED(BUTTON##N##_WHEN_PRINTING) || printer_not_busy)) { \
+        && (ENABLED(BUTTON##N##_WHEN_PRINTING) || printer_not_busy)    \
+      ) {                                                              \
         if (ELAPSED(ms, next_cub_ms_##N)) {                            \
           next_cub_ms_##N = ms + CUB_DEBOUNCE_DELAY_##N;               \
           CODE;                                                        \
-          queue.inject(F(BUTTON##N##_GCODE));                          \
+          if (ENABLED(BUTTON##N##_IMMEDIATE))                          \
+            gcode.process_subcommands_now(F(BUTTON##N##_GCODE));       \
+          else                                                         \
+            queue.inject(F(BUTTON##N##_GCODE));                        \
           TERN_(HAS_MARLINUI_MENU, ui.quick_feedback());               \
         }                                                              \
       }                                                                \
@@ -674,14 +693,14 @@ inline void manage_inactivity(const bool no_stepper_sleep=false) {
   TERN_(HOTEND_IDLE_TIMEOUT, hotend_idle.check());
 
   #if ANY(PSU_CONTROL, AUTO_POWER_CONTROL) && PIN_EXISTS(PS_ON_EDM)
-    if ( ELAPSED(ms, powerManager.last_state_change_ms + PS_EDM_RESPONSE)
+    if ( ELAPSED(ms, powerManager.last_state_change_ms, PS_EDM_RESPONSE)
       && (READ(PS_ON_PIN) != READ(PS_ON_EDM_PIN) || TERN0(PSU_OFF_REDUNDANT, extDigitalRead(PS_ON1_PIN) != extDigitalRead(PS_ON1_EDM_PIN)))
     ) kill(GET_TEXT_F(MSG_POWER_EDM_FAULT));
   #endif
 
   #if ENABLED(EXTRUDER_RUNOUT_PREVENT)
     if (thermalManager.degHotend(active_extruder) > (EXTRUDER_RUNOUT_MINTEMP)
-      && ELAPSED(ms, gcode.previous_move_ms + SEC_TO_MS(EXTRUDER_RUNOUT_SECONDS))
+      && ELAPSED(ms, gcode.previous_move_ms, SEC_TO_MS(EXTRUDER_RUNOUT_SECONDS))
       && !planner.has_blocks_queued()
     ) {
       const int8_t e_stepper = TERN(HAS_SWITCHING_EXTRUDER, active_extruder >> 1, active_extruder);
@@ -703,9 +722,9 @@ inline void manage_inactivity(const bool no_stepper_sleep=false) {
 
   #if ENABLED(DUAL_X_CARRIAGE)
     // handle delayed move timeout
-    if (delayed_move_time && ELAPSED(ms, delayed_move_time) && IsRunning()) {
+    if (delayed_move_time && ELAPSED(ms, delayed_move_time) && isRunning()) {
       // travel moves have been received so enact them
-      delayed_move_time = 0xFFFFFFFFUL; // force moves to be done
+      delayed_move_time = UINT32_MAX; // force moves to be done
       destination = current_position;
       prepare_line_to_destination();
       planner.synchronize();
@@ -732,7 +751,8 @@ inline void manage_inactivity(const bool no_stepper_sleep=false) {
       WRITE(FET_SAFETY_PIN, FET_SAFETY_INVERTED);
     }
   #endif
-}
+
+} // Marlin::manage_inactivity()
 
 #if ALL(EP_BABYSTEPPING, EMERGENCY_PARSER)
   #include "feature/babystep.h"
@@ -760,14 +780,14 @@ inline void manage_inactivity(const bool no_stepper_sleep=false) {
  *  - Update the Průša MMU2
  *  - Handle Joystick jogging
  */
-void idle(const bool no_stepper_sleep/*=false*/) {
+void Marlin::idle(const bool no_stepper_sleep/*=false*/) {
   #ifdef MAX7219_DEBUG_PROFILE
     CodeProfiler idle_profiler;
   #endif
 
   #if ENABLED(MARLIN_DEV_MODE)
     static uint16_t idle_depth = 0;
-    if (++idle_depth > 5) SERIAL_ECHOLNPGM("idle() call depth: ", idle_depth);
+    if (++idle_depth > 5) SERIAL_ECHOLNPGM("Marlin::idle() call depth: ", idle_depth);
   #endif
 
   // Bed Distance Sensor task
@@ -783,7 +803,7 @@ void idle(const bool no_stepper_sleep/*=false*/) {
   TERN_(MAX7219_DEBUG, max7219.idle_tasks());
 
   // Return if setup() isn't completed
-  if (marlin_state == MarlinState::MF_INITIALIZING) goto IDLE_DONE;
+  if (is(MF_INITIALIZING)) goto IDLE_DONE;
 
   // TODO: Still causing errors
   TERN_(TOOL_SENSOR, (void)check_tool_sensor_stats(active_extruder, true));
@@ -802,7 +822,7 @@ void idle(const bool no_stepper_sleep/*=false*/) {
 
   // Handle Power-Loss Recovery
   #if ENABLED(POWER_LOSS_RECOVERY) && PIN_EXISTS(POWER_LOSS)
-    if (IS_SD_PRINTING()) recovery.outage();
+    if (card.isStillPrinting()) recovery.outage();
   #endif
 
   // Run StallGuard endstop checks
@@ -813,9 +833,6 @@ void idle(const bool no_stepper_sleep/*=false*/) {
 
   // Handle SD Card insert / remove
   TERN_(HAS_MEDIA, card.manage_media());
-
-  // Handle USB Flash Drive insert / remove
-  TERN_(USB_FLASH_DRIVE_SUPPORT, card.diskIODriver()->idle());
 
   // Announce Host Keepalive state (if any)
   TERN_(HOST_KEEPALIVE_FEATURE, gcode.host_keepalive());
@@ -886,13 +903,14 @@ void idle(const bool no_stepper_sleep/*=false*/) {
   TERN_(MARLIN_DEV_MODE, idle_depth--);
 
   return;
-}
+
+} // Marlin::idle()
 
 /**
  * Kill all activity and lock the machine.
  * After this the machine will need to be reset.
  */
-void kill(FSTR_P const lcd_error/*=nullptr*/, FSTR_P const lcd_component/*=nullptr*/, const bool steppers_off/*=false*/) {
+void Marlin::kill(FSTR_P const lcd_error/*=nullptr*/, FSTR_P const lcd_component/*=nullptr*/, const bool steppers_off/*=false*/) {
   thermalManager.disable_all_heaters();
 
   TERN_(HAS_CUTTER, cutter.kill()); // Full cutter shutdown including ISR control
@@ -918,7 +936,7 @@ void kill(FSTR_P const lcd_error/*=nullptr*/, FSTR_P const lcd_component/*=nullp
   minkill(steppers_off);
 }
 
-void minkill(const bool steppers_off/*=false*/) {
+void Marlin::minkill(const bool steppers_off/*=false*/) {
 
   // Wait a short time (allows messages to get out before shutting down.
   for (int i = 1000; i--;) DELAY_US(600);
@@ -958,13 +976,14 @@ void minkill(const bool steppers_off/*=false*/) {
     for (;;) hal.watchdog_refresh();  // Wait for RESET button or power-cycle
 
   #endif
-}
+
+} // Marlin::minkill
 
 /**
  * Turn off heaters and stop the print in progress
  * After a stop the machine may be resumed with M999
  */
-void stop() {
+void Marlin::stop() {
   thermalManager.disable_all_heaters(); // 'unpause' taken care of in here
 
   print_job_timer.stop();
@@ -973,13 +992,13 @@ void stop() {
     thermalManager.set_fans_paused(false); // Un-pause fans for safety
   #endif
 
-  if (!IsStopped()) {
+  if (!isStopped()) {
     SERIAL_ERROR_MSG(STR_ERR_STOPPED);
     LCD_MESSAGE(MSG_STOPPED);
-    safe_delay(350);       // allow enough time for messages to get out before stopping
-    marlin_state = MarlinState::MF_STOPPED;
+    safe_delay(350);         // Allow enough time for messages to get out before stopping
+    setState(MF_STOPPED);
   }
-}
+} // Marlin::stop()
 
 inline void tmc_standby_setup() {
   #if PIN_EXISTS(X_STDBY)
@@ -1048,7 +1067,7 @@ inline void tmc_standby_setup() {
   #if PIN_EXISTS(E7_STDBY)
     SET_INPUT_PULLDOWN(E7_STDBY_PIN);
   #endif
-}
+} // tmc_standby_setup()
 
 /**
  * Marlin Firmware entry-point. Abandon Hope All Ye Who Enter Here.
@@ -1346,8 +1365,11 @@ void setup() {
     #endif
   #endif
 
-  #if HAS_MEDIA && ANY(SDCARD_EEPROM_EMULATION, POWER_LOSS_RECOVERY)
-    SETUP_RUN(card.mount());          // Mount media with settings before first_load
+  #if HAS_MEDIA
+    SETUP_RUN(card.init());           // Prepare for media usage
+    #if ANY(SDCARD_EEPROM_EMULATION, POWER_LOSS_RECOVERY)
+      SETUP_RUN(card.mount());        // Mount media with settings before first_load
+    #endif
   #endif
 
   // Prepare some LCDs to display early
@@ -1362,6 +1384,10 @@ void setup() {
 
   SETUP_RUN(settings.first_load());   // Load data from EEPROM if available (or use defaults)
                                       // This also updates variables in the planner, elsewhere
+
+  #if ENABLED(CONFIGURABLE_MACHINE_NAME)
+    SETUP_RUN(ui.reset_status(false)); // machine_name Initialized by settings.load()
+  #endif
 
   #if ENABLED(PROBE_TARE)
     SETUP_RUN(probe.tare_init());
@@ -1683,7 +1709,7 @@ void setup() {
     SETUP_RUN(ftMotion.init());
   #endif
 
-  marlin_state = MarlinState::MF_RUNNING;
+  marlin.setState(MF_RUNNING);
 
   #ifdef STARTUP_TUNE
     // Play a short startup tune before continuing.
@@ -1694,12 +1720,12 @@ void setup() {
   SETUP_LOG("setup() completed.");
 
   TERN_(MARLIN_TEST_BUILD, runStartupTests());
-}
+} // setup()
 
 /**
  * The main Marlin program loop
  *
- *  - Call idle() to handle all tasks between G-code commands
+ *  - Call marlin.idle() to handle all tasks between G-code commands
  *      Note that no G-codes from the queue can be executed during idle()
  *      but many G-codes can be called directly anytime like macros.
  *  - Check whether SD card auto-start is needed now.
@@ -1711,11 +1737,11 @@ void setup() {
  */
 void loop() {
   do {
-    idle();
+    marlin.idle();
 
     #if HAS_MEDIA
       if (card.flag.abort_sd_printing) abortSDPrinting();
-      if (marlin_state == MarlinState::MF_SD_COMPLETE) finishSDPrinting();
+      if (marlin.is(MF_SD_COMPLETE)) finishSDPrinting();
     #endif
 
     queue.advance();

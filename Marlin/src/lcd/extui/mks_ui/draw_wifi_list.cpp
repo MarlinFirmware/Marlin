@@ -92,8 +92,8 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
 void lv_draw_wifi_list() {
   scr = lv_screen_create(WIFI_LIST_UI);
 
-  lv_obj_t *buttonDown = lv_imgbtn_create(scr, "F:/bmp_pageDown.bin", OTHER_BTN_XPIEL * 3 + INTERVAL_V * 4, titleHeight + OTHER_BTN_YPIEL + INTERVAL_H, event_handler, ID_WL_DOWN);
-  lv_obj_t *buttonBack = lv_imgbtn_create(scr, "F:/bmp_back.bin", OTHER_BTN_XPIEL * 3 + INTERVAL_V * 4, titleHeight + (OTHER_BTN_YPIEL + INTERVAL_H) * 2, event_handler, ID_WL_RETURN);
+  lv_obj_t *buttonDown = lv_imgbtn_create(scr, "F:/bmp_pageDown.bin", OTHER_BTN_SIZE_X * 3 + INTERVAL_W * 4, titleHeight + OTHER_BTN_SIZE_Y + INTERVAL_H, event_handler, ID_WL_DOWN);
+  lv_obj_t *buttonBack = lv_imgbtn_create(scr, "F:/bmp_back.bin", OTHER_BTN_SIZE_X * 3 + INTERVAL_W * 4, titleHeight + (OTHER_BTN_SIZE_Y + INTERVAL_H) * 2, event_handler, ID_WL_RETURN);
 
   for (uint8_t i = 0; i < NUMBER_OF_PAGE; i++) {
     buttonWifiN[i] = lv_label_btn_create(scr, 0, NAME_BTN_Y * i + 10 + titleHeight, NAME_BTN_X, NAME_BTN_Y, event_handler, i + 1);

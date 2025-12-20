@@ -31,10 +31,6 @@
   millis_t chdk_timeout; // = 0
 #endif
 
-#if defined(PHOTO_POSITION) && PHOTO_DELAY_MS > 0
-  #include "../../../MarlinCore.h" // for idle()
-#endif
-
 #ifdef PHOTO_RETRACT_MM
 
   #define _PHOTO_RETRACT_MM (PHOTO_RETRACT_MM + 0)
@@ -47,7 +43,7 @@
   #endif
 
   #ifdef PHOTO_RETRACT_MM
-    inline void e_move_m240(const float length, const_feedRate_t fr_mm_s) {
+    inline void e_move_m240(const float length, const feedRate_t fr_mm_s) {
       if (length && thermalManager.hotEnoughToExtrude(active_extruder))
         unscaled_e_move(length, fr_mm_s);
     }
@@ -185,7 +181,7 @@ void GcodeSuite::M240() {
   #ifdef PHOTO_POSITION
     #if PHOTO_DELAY_MS > 0
       const millis_t timeout = millis() + parser.intval('P', PHOTO_DELAY_MS);
-      while (PENDING(millis(), timeout)) idle();
+      while (PENDING(millis(), timeout)) marlin.idle();
     #endif
     do_blocking_move_to(old_pos, fr_mm_s);
     #ifdef PHOTO_RETRACT_MM

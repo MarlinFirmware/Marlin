@@ -18,9 +18,10 @@ TODO: Use the defines and comments above the namespace from existing language fi
 
 import sys, re, requests, csv, datetime
 #from languageUtil import namebyid
+from pathlib import Path
 
 LANGHOME = "Marlin/src/lcd/language"
-OUTDIR = 'out-language'
+OUTDIR = Path('out-language')
 
 # Get the file path from the command line
 FILEPATH = sys.argv[1] if len(sys.argv) > 1 else None
@@ -51,7 +52,7 @@ if download:
     exit(0)
 
 lines = csvdata.splitlines()
-print(lines)
+#print(lines)
 reader = csv.reader(lines, delimiter=',')
 gothead = False
 columns = ['']
@@ -82,8 +83,7 @@ for row in reader:
             strings_per_lang[col['lang']][col['style']][name] = str_key
 
 # Create a folder for the imported language outfiles
-from pathlib import Path
-Path.mkdir(Path(OUTDIR), exist_ok=True)
+OUTDIR.mkdir(exist_ok=True)
 
 FILEHEADER = '''
 /**
@@ -142,8 +142,8 @@ for i in range(1, numcols):
     if not lang in gotlang:
         gotlang[lang] = {}
         if f: f.close()
-        fn = "%s/language_%s.h" % (OUTDIR, lang)
-        f = open(fn, 'w', encoding='utf-8')
+        fn = OUTDIR / f"language_{lang}.h"
+        f = open(fn, 'w', encoding='utf-8', newline='')
         if not f:
             print("Failed to open %s." % fn)
             exit(1)
@@ -199,9 +199,9 @@ for i in range(1, numcols):
         comm = ''
         if lang != 'en' and 'en' in strings_per_lang:
             en = strings_per_lang['en']
-            if name in en[style]: str_key = en[style][name]
-            elif name in en['Narrow']: str_key = en['Narrow'][name]
-            if str_key:
+            if name in en[style]: str_key = en[style][name].strip()
+            elif name in en['Narrow']: str_key = en['Narrow'][name].strip()
+            if str_key and str_key != "English":
                 cfmt = '%%%ss// %%s' % (50 - len(val) if len(val) < 50 else 1)
                 comm = cfmt % (' ', str_key)
 

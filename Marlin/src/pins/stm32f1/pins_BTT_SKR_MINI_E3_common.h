@@ -33,10 +33,12 @@
 
 #if ANY(NO_EEPROM_SELECTED, FLASH_EEPROM_EMULATION)
   #define FLASH_EEPROM_EMULATION
-  #define EEPROM_PAGE_SIZE     (0x800U)           // 2K
+  #define EEPROM_PAGE_SIZE                0x800U  // 2K
   #define EEPROM_START_ADDRESS (0x8000000UL + (STM32_FLASH_SIZE) * 1024UL - (EEPROM_PAGE_SIZE) * 2UL)
   #define MARLIN_EEPROM_SIZE    EEPROM_PAGE_SIZE  // 2K
 #endif
+
+#define BOARD_LCD_SERIAL_PORT 1
 
 //
 // Servos
@@ -329,7 +331,7 @@
      *    TFT-2 ----------- EXP2-5   MOSI
      *    TFT-3 ----------- EXP2-9   SCK
      *
-     * for backlight configuration see steps 2 (V2.1) and 3 in https://wiki.fysetc.com/Mini12864_Panel/
+     * for backlight configuration see steps 2 (V2.1) and 3 in https://wiki.fysetc.com/docs/Mini12864Panel
      */
 
     #define LCD_BACKLIGHT_PIN               -1
@@ -416,7 +418,7 @@
 #define ONBOARD_SD_CS_PIN                   PA4   // Chip select for "System" SD card
 
 #define ENABLE_SPI1
-#define SDSS                   ONBOARD_SD_CS_PIN
+#define SD_SS_PIN              ONBOARD_SD_CS_PIN
 #define SD_SCK_PIN                          PA5
 #define SD_MISO_PIN                         PA6
 #define SD_MOSI_PIN                         PA7

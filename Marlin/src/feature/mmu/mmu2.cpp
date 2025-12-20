@@ -40,7 +40,6 @@ MMU2 mmu2;
 #include "../../module/temperature.h"
 #include "../../module/planner.h"
 #include "../../module/stepper.h"
-#include "../../MarlinCore.h"
 
 #if ENABLED(HOST_PROMPT_SUPPORT)
   #include "../host_actions.h"
@@ -96,7 +95,7 @@ struct E_Step {
   feedRate_t feedRate;  //!< feed rate in mm/s
 };
 
-inline void unscaled_mmu2_e_move(const float &dist, const feedRate_t fr_mm_s, const bool sync=true) {
+inline void unscaled_mmu2_e_move(const float dist, const feedRate_t fr_mm_s, const bool sync=true) {
   current_position.e += dist / planner.e_factor[active_extruder];
   line_to_current_position(fr_mm_s);
   if (sync) planner.synchronize();
@@ -164,7 +163,7 @@ void MMU2::mmu_loop() {
         MMU2_SEND("S1");    // Read Version
         state = -2;
       }
-      else if (ELAPSED(millis(), prev_request + 30000)) { // 30sec after reset disable MMU
+      else if (ELAPSED(millis(), prev_request, 30000)) { // 30sec after reset disable MMU
         SERIAL_ECHOLNPGM("MMU not responding - DISABLED");
         state = 0;
       }
@@ -276,7 +275,7 @@ void MMU2::mmu_loop() {
         last_cmd = cmd;
         cmd = MMU_CMD_NONE;
       }
-      else if (ELAPSED(millis(), prev_P0_request + 300)) {
+      else if (ELAPSED(millis(), prev_P0_request, 300)) {
         MMU2_SEND("P0");  // Read FINDA
         state = 2; // wait for response
       }
@@ -296,7 +295,7 @@ void MMU2::mmu_loop() {
         if (cmd == MMU_CMD_NONE) ready = true;
         state = 1;
       }
-      else if (ELAPSED(millis(), prev_request + MMU_P0_TIMEOUT)) // Resend request after timeout (3s)
+      else if (ELAPSED(millis(), prev_request, MMU_P0_TIMEOUT)) // Resend request after timeout (3s)
         state = 1;
 
       TERN_(HAS_PRUSA_MMU2S, check_filament());
@@ -335,7 +334,7 @@ void MMU2::mmu_loop() {
           last_cmd = MMU_CMD_NONE;
         }
       }
-      else if (ELAPSED(millis(), prev_request + MMU_CMD_TIMEOUT)) {
+      else if (ELAPSED(millis(), prev_request, MMU_CMD_TIMEOUT)) {
         // resend request after timeout
         if (last_cmd) {
           DEBUG_ECHOLNPGM("MMU retry");
@@ -446,7 +445,7 @@ bool MMU2::rx_ok() {
 void MMU2::check_version(const uint16_t buildnr) {
   if (buildnr < MMU_REQUIRED_FW_BUILDNR) {
     SERIAL_ERROR_MSG("Invalid MMU2 firmware. Version >= " STRINGIFY(MMU_REQUIRED_FW_BUILDNR) " required.");
-    kill(GET_TEXT_F(MSG_KILL_MMU2_FIRMWARE));
+    marlin.kill(GET_TEXT_F(MSG_KILL_MMU2_FIRMWARE));
   }
 }
 
@@ -786,10 +785,10 @@ void MMU2::command(const uint8_t mmu_cmd) {
  * Wait for response from MMU
  */
 bool MMU2::get_response() {
-  while (cmd != MMU_CMD_NONE) idle();
+  while (cmd != MMU_CMD_NONE) marlin.idle();
 
   while (!ready) {
-    idle();
+    marlin.idle();
     if (state != 3) break;
   }
 
@@ -985,7 +984,7 @@ bool MMU2::eject_filament(const uint8_t index, const bool recover) {
     mmu2_attn_buzz();
     TERN_(HOST_PROMPT_SUPPORT, hostui.continue_prompt(GET_TEXT_F(MSG_MMU2_EJECT_RECOVER)));
     TERN_(EXTENSIBLE_UI, ExtUI::onUserConfirmRequired(GET_TEXT_F(MSG_MMU2_EJECT_RECOVER)));
-    TERN_(HAS_RESUME_CONTINUE, wait_for_user_response());
+    TERN_(HAS_RESUME_CONTINUE, marlin.wait_for_user_response());
     mmu2_attn_buzz();
 
     command(MMU_CMD_R0);

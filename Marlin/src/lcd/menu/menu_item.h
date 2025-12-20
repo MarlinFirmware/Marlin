@@ -23,6 +23,7 @@
 
 #include "menu.h"
 #include "../marlinui.h"
+#include "../../gcode/gcode.h" // for process_subcommands_now
 #include "../../gcode/queue.h" // for inject
 
 #include "../../inc/MarlinConfigPre.h"
@@ -67,6 +68,12 @@ class MenuItem_gcode : public MenuItem_button {
       _draw(sel, row, fstr, '>', ' ');
     }
     static void action(FSTR_P const, FSTR_P const fgcode) { queue.inject(fgcode); }
+    static void action(FSTR_P const fstr, const uint8_t, FSTR_P const fgcode) { action(fstr, fgcode); }
+};
+
+class MenuItem_command : public MenuItem_gcode {
+  public:
+    static void action(FSTR_P const, FSTR_P const fgcode) { gcode.process_subcommands_now(fgcode); }
     static void action(FSTR_P const fstr, const uint8_t, FSTR_P const fgcode) { action(fstr, fgcode); }
 };
 
@@ -191,7 +198,7 @@ class MenuItem_bool : public MenuEditItemBase {
       draw(sel, row, fstr, pget());
     }
     static void action(FSTR_P const fstr, bool * const ptr, const screenFunc_t callbackFunc=nullptr) {
-      *ptr ^= true; ui.refresh();
+      FLIP(*ptr); ui.refresh();
       if (callbackFunc) (*callbackFunc)();
     }
 };
@@ -225,6 +232,9 @@ class MenuItem_bool : public MenuEditItemBase {
  * To avoid repetition and side-effects, function calls for testing menu item conditions
  * should be done before the menu loop (START_MENU / START_SCREEN).
  */
+
+// CAUTION! When using menu items in a lambda or sub-function always use:
+#define INJECT_MENU_ITEMS(FN) { FN; if (ui.screen_changed) return; }
 
 /**
  * SCREEN_OR_MENU_LOOP generates header code for a screen or menu
@@ -276,6 +286,14 @@ class MenuItem_bool : public MenuEditItemBase {
  *   EDIT_ITEM(int3, MSG_SPEED, &feedrate_percentage, SPEED_EDIT_MIN, SPEED_EDIT_MAX)
  *     MenuItem_int3::action(flabel, &feedrate_percentage, SPEED_EDIT_MIN, SPEED_EDIT_MAX)
  *     MenuItem_int3::draw(sel, row, flabel, &feedrate_percentage, SPEED_EDIT_MIN, SPEED_EDIT_MAX)
+ *
+ * Variants use standard suffixes. N:Number Index, S:C-string for substitution, F:F-string label, f:F-string for substitution
+ * _MENU_ITEM_F(TYPE, V...)              Item with optional data
+ * _MENU_ITEM_N_S_F(TYPE, N, S, V...)    Item with index value, C-string, and optional data
+ * _MENU_ITEM_N_f_F(TYPE, N, f, V...)    Item with index value and F-string
+ * _MENU_ITEM_N_F(TYPE, N, V...)         Item with index value
+ * _MENU_ITEM_S_F(TYPE, S, V...)         Item with a unique string
+ * _MENU_ITEM_f_F(TYPE, f, V...)         Item with a unique F-string
  */
 
 #if ENABLED(ENCODER_RATE_MULTIPLIER)
@@ -358,20 +376,24 @@ class MenuItem_bool : public MenuEditItemBase {
 // STATIC_ITEM draws a styled string with no highlight.
 // Parameters: label [, style [, char *value] ]
 
-#define STATIC_ITEM_INNER_F(FLABEL, V...) do{           \
+#define STATIC_SKIP() do{ \
   if (_skipStatic && encoderLine <= _thisItemNr) {      \
     ui.encoderPosition += ENCODER_STEPS_PER_MENU_ITEM;  \
     ++encoderLine;                                      \
   }                                                     \
-  if (ui.should_draw())                                 \
-    MenuItem_static::draw(_lcdLineNr, FLABEL, ##V);     \
-} while(0)
+}while(0)
+
+#define STATIC_ITEM_INNER_F(FLABEL, V...) do{       \
+  STATIC_SKIP();                                    \
+  if (ui.should_draw())                             \
+    MenuItem_static::draw(_lcdLineNr, FLABEL, ##V); \
+}while(0)
 
 #define STATIC_ITEM_F(FLABEL, V...) do{ \
   if (MY_LINE())                        \
     STATIC_ITEM_INNER_F(FLABEL, ##V);   \
   NEXT_ITEM();                          \
-} while(0)
+}while(0)
 
 #define STATIC_ITEM_N_F(N, FLABEL, V...) do{ \
   if (MY_LINE()) {                           \
@@ -381,13 +403,22 @@ class MenuItem_bool : public MenuEditItemBase {
   NEXT_ITEM();                               \
 }while(0)
 
-// PSTRING_ITEM is like STATIC_ITEM
-// but also takes a PSTR and style.
+#define STATIC_ITEM_N_F_C(N, FLABEL, CSTR, V...) do{ \
+  if (MY_LINE()) {                                   \
+    MenuItemBase::init(N, CSTR);                     \
+    STATIC_ITEM_INNER_F(FLABEL, ##V);                \
+  }                                                  \
+  NEXT_ITEM();                                       \
+}while(0)
+
+#define STATIC_ITEM_C(CSTR, V...) STATIC_ITEM_N_F_C(0, F("$"), CSTR, ##V)
+
+// PSTRING_ITEM is like STATIC_ITEM but also takes a PSTR and style.
 
 #define PSTRING_ITEM_F_P(FLABEL, PVAL, STYL) do{ \
   constexpr int m = 20;                          \
   char msg[m + 1];                               \
-  if (_menuLineNr == _thisItemNr) {              \
+  if (MY_LINE()) {                               \
     msg[0] = ':'; msg[1] = ' ';                  \
     strlcpy_P(msg + 2, PVAL, m - 1);             \
     if (msg[m - 1] & 0x80) msg[m - 1] = '\0';    \
@@ -396,8 +427,7 @@ class MenuItem_bool : public MenuEditItemBase {
 }while(0)
 
 #define PSTRING_ITEM_N_F_P(N, V...) do{ \
-  if (_menuLineNr == _thisItemNr)       \
-    MenuItemBase::init(N);              \
+  if (MY_LINE()) MenuItemBase::init(N); \
   PSTRING_ITEM_F_P(V);                  \
 }while(0)
 
@@ -432,9 +462,11 @@ class MenuItem_bool : public MenuEditItemBase {
 #elif ENABLED(GENERIC_BACK_MENU_ITEM)
   #define BACK_ITEM_F(V...)                              MENU_ITEM_F(back, GET_TEXT_F(MSG_BACK))
   #define BACK_ITEM(V...)                                  MENU_ITEM(back, MSG_BACK)
+  #define BACK_ITEM_N BACK_ITEM
 #else
   #define BACK_ITEM_F(FLABEL)                            MENU_ITEM_F(back, FLABEL)
   #define BACK_ITEM(LABEL)                                 MENU_ITEM(back, LABEL)
+  #define BACK_ITEM_N(N, LABEL)                          MENU_ITEM_N(back, N, LABEL)
 #endif
 
 #define ACTION_ITEM_N_S_F(N, S, FLABEL, ACTION)      MENU_ITEM_N_S_F(function, N, S, FLABEL, ACTION)
@@ -454,6 +486,15 @@ class MenuItem_bool : public MenuEditItemBase {
 #define GCODES_ITEM_N(N, LABEL, GCODES)              GCODES_ITEM_N_F(N, GET_TEXT_F(LABEL), GCODES)
 #define GCODES_ITEM_F(FLABEL, GCODES)                    MENU_ITEM_F(gcode, FLABEL, GCODES)
 #define GCODES_ITEM(LABEL, GCODES)                     GCODES_ITEM_F(GET_TEXT_F(LABEL), GCODES)
+
+#define COMMAND_ITEM_N_S_F(N, S, FLABEL, GCODES)     MENU_ITEM_N_S_F(command, N, S, FLABEL, GCODES)
+#define COMMAND_ITEM_N_S(N, S, LABEL, GCODES)     COMMAND_ITEM_N_S_F(N, S, GET_TEXT_F(LABEL), GCODES)
+#define COMMAND_ITEM_S_F(S, FLABEL, GCODES)            MENU_ITEM_S_F(command, S, FLABEL, GCODES)
+#define COMMAND_ITEM_S(S, LABEL, GCODES)            COMMAND_ITEM_S_F(S, GET_TEXT_F(LABEL), GCODES)
+#define COMMAND_ITEM_N_F(N, FLABEL, GCODES)            MENU_ITEM_N_F(command, N, FLABEL, GCODES)
+#define COMMAND_ITEM_N(N, LABEL, GCODES)            COMMAND_ITEM_N_F(N, GET_TEXT_F(LABEL), GCODES)
+#define COMMAND_ITEM_F(FLABEL, GCODES)                   MENU_ITEM_F(command, FLABEL, GCODES)
+#define COMMAND_ITEM(LABEL, GCODES)                   COMMAND_ITEM_F(GET_TEXT_F(LABEL), GCODES)
 
 #define SUBMENU_N_S_F(N, S, FLABEL, DEST)            MENU_ITEM_N_S_F(submenu, N, S, FLABEL, DEST)
 #define SUBMENU_N_S(N, S, LABEL, DEST)                 SUBMENU_N_S_F(N, S, GET_TEXT_F(LABEL), DEST)

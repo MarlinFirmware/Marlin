@@ -64,6 +64,20 @@ void MarlinUI::tft_idle() {
 #if ENABLED(SHOW_BOOTSCREEN)
 
   void MarlinUI::show_bootscreen() {
+    #if ENABLED(SHOW_CUSTOM_BOOTSCREEN)
+      tft.queue.reset();
+      tft.canvas(CUSTOM_BOOTSCREEN_X, CUSTOM_BOOTSCREEN_Y, CUSTOM_BOOTSCREEN_WIDTH, CUSTOM_BOOTSCREEN_HEIGHT);
+      tft.set_background(COLOR_BACKGROUND);
+      tft.add_image(0, 0, imgCustomBoot);
+      tft.queue.sync();
+      #ifndef CUSTOM_BOOTSCREEN_TIMEOUT
+        #define CUSTOM_BOOTSCREEN_TIMEOUT 2500
+      #endif
+      #if CUSTOM_BOOTSCREEN_TIMEOUT
+        safe_delay(CUSTOM_BOOTSCREEN_TIMEOUT);
+      #endif
+    #endif
+
     tft.queue.reset();
 
     tft.canvas(0, 0, TFT_WIDTH, TFT_HEIGHT);
@@ -248,21 +262,21 @@ void MarlinUI::draw_status_screen() {
   tft.add_rectangle(0, 0, COORDINATES_W, COORDINATES_H, COLOR_AXIS_HOMED);
 
   #if HAS_X_AXIS && defined(X_MARK_X) && defined(X_MARK_Y) && defined(X_VALUE_X) && defined(X_VALUE_Y)
-    tft.add_text(X_MARK_X, X_MARK_Y, COLOR_AXIS_HOMED , "X");
+    tft.add_text(X_MARK_X, X_MARK_Y, COLOR_AXIS_HOMED, "X");
     const bool nhx = axis_should_home(X_AXIS);
     tft_string.set(blink && nhx ? "?" : ftostr4sign(LOGICAL_X_POSITION(current_position.x)));
     tft.add_text(X_VALUE_X, X_VALUE_Y, nhx ? COLOR_AXIS_NOT_HOMED : COLOR_AXIS_HOMED, tft_string);
   #endif
 
   #if HAS_Y_AXIS && defined(Y_MARK_X) && defined(Y_MARK_Y) && defined(Y_VALUE_X) && defined(Y_VALUE_Y)
-    tft.add_text(Y_MARK_X, Y_MARK_Y, COLOR_AXIS_HOMED , "Y");
+    tft.add_text(Y_MARK_X, Y_MARK_Y, COLOR_AXIS_HOMED, "Y");
     const bool nhy = axis_should_home(Y_AXIS);
     tft_string.set(blink && nhy ? "?" : ftostr4sign(LOGICAL_Y_POSITION(current_position.y)));
     tft.add_text(Y_VALUE_X, Y_VALUE_Y, nhy ? COLOR_AXIS_NOT_HOMED : COLOR_AXIS_HOMED, tft_string);
   #endif
 
   #if HAS_Z_AXIS && defined(Z_MARK_X) && defined(Z_MARK_Y) && defined(Z_VALUE_X) && defined(Z_VALUE_Y) && defined(Z_VALUE_OFFSET)
-    tft.add_text(Z_MARK_X, Z_MARK_Y, COLOR_AXIS_HOMED , "Z");
+    tft.add_text(Z_MARK_X, Z_MARK_Y, COLOR_AXIS_HOMED, "Z");
     uint16_t offset = Z_VALUE_OFFSET;
     const bool nhz = axis_should_home(Z_AXIS);
     if (blink && nhz)
@@ -281,7 +295,7 @@ void MarlinUI::draw_status_screen() {
 
   #if ENABLED(LCD_SHOW_E_TOTAL) && defined(E_MARK_X) && defined(E_MARK_Y) && defined(E_VALUE_X) && defined(E_VALUE_Y)
     tft.add_text(E_MARK_X, E_MARK_Y, COLOR_AXIS_HOMED, "E");
-    if (printingIsActive()) {
+    if (marlin.printingIsActive()) {
       const uint8_t escale = e_move_accumulator >= 10000.0f ? 10 : 1; // After 10m switch to cm to fit into 4 digits output of ftostr4sign()
       tft_string.set(ftostr4sign(e_move_accumulator / escale));
       const uint16_t e_value_x = E_VALUE_X;
@@ -319,11 +333,11 @@ void MarlinUI::draw_status_screen() {
   #if ENABLED(TOUCH_SCREEN)
     add_control(MENU_ICON_X, MENU_ICON_Y, menu_main, imgSettings);
     #if HAS_MEDIA
-      const bool cm = card.isMounted(), pa = printingIsActive();
+      const bool cm = card.isMounted(), pa = marlin.printingIsActive();
       if (cm && pa)
         add_control(SDCARD_ICON_X, SDCARD_ICON_Y, STOP, imgCancel, true, COLOR_CONTROL_CANCEL);
       else
-        add_control(SDCARD_ICON_X, SDCARD_ICON_Y, menu_media, imgSD, cm && !pa, COLOR_CONTROL_ENABLED, COLOR_CONTROL_DISABLED);
+        add_control(SDCARD_ICON_X, SDCARD_ICON_Y, menu_file_selector, imgSD, cm && !pa, COLOR_CONTROL_ENABLED, COLOR_CONTROL_DISABLED);
     #endif
   #endif
 
@@ -331,8 +345,6 @@ void MarlinUI::draw_status_screen() {
     char buffer[22];
     duration_t elapsed = print_job_timer.duration();
   #endif
-
-  const progress_t progress = TERN(HAS_PRINT_PROGRESS_PERMYRIAD, get_progress_permyriad, get_progress_percent)();
 
   #if ENABLED(SHOW_ELAPSED_TIME)
     elapsed.toDigital(buffer);
@@ -346,15 +358,8 @@ void MarlinUI::draw_status_screen() {
   #endif
 
   #if ENABLED(SHOW_REMAINING_TIME)
-    // Get the estimate, first from M73
-    uint32_t estimate_remaining = (0
-      #if ALL(SET_PROGRESS_MANUALLY, SET_REMAINING_TIME)
-        + get_remaining_time()
-      #endif
-    );
-    // If no M73 estimate is available but we have progress data, calculate time remaining assuming time elapsed is linear with progress
-    if (!estimate_remaining && progress > 0)
-      estimate_remaining = elapsed.value * (100 * (PROGRESS_SCALE) - progress) / progress;
+    // Get a Remaining Time estimate from M73 R, a primed calculation, or percent/time calculation
+    const uint32_t estimate_remaining = get_remaining_time();
 
     // Generate estimate string
     if (!estimate_remaining)
@@ -368,18 +373,19 @@ void MarlinUI::draw_status_screen() {
     tft.canvas(REMAINING_TIME_X, REMAINING_TIME_Y, REMAINING_TIME_W, REMAINING_TIME_H);
     tft.set_background(COLOR_BACKGROUND);
     tft_string.set(buffer);
-    color = printingIsActive() ? COLOR_PRINT_TIME : COLOR_INACTIVE;
+    color = marlin.printingIsActive() ? COLOR_PRINT_TIME : COLOR_INACTIVE;
     #if defined(REMAINING_TIME_IMAGE_X) && defined(REMAINING_TIME_IMAGE_Y)
       tft.add_image(REMAINING_TIME_IMAGE_X, REMAINING_TIME_IMAGE_Y, imgTimeRemaining, color);
     #endif
     tft.add_text(REMAINING_TIME_TEXT_X, REMAINING_TIME_TEXT_Y, color, tft_string);
-  #endif
+  #endif // SHOW_REMAINING_TIME
 
   // Progress bar
   // TODO: print percentage text for SHOW_PROGRESS_PERCENT
   tft.canvas(PROGRESS_BAR_X, PROGRESS_BAR_Y, PROGRESS_BAR_W, PROGRESS_BAR_H);
   tft.set_background(COLOR_PROGRESS_BG);
   tft.add_rectangle(0, 0, PROGRESS_BAR_W, PROGRESS_BAR_H, COLOR_PROGRESS_FRAME);
+  const progress_t progress = TERN(HAS_PRINT_PROGRESS_PERMYRIAD, get_progress_permyriad, get_progress_percent)();
   if (progress)
     tft.add_bar(1, 1, ((PROGRESS_BAR_W - 2) * progress / (PROGRESS_SCALE)) / 100, 7, COLOR_PROGRESS_BAR);
 

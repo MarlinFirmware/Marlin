@@ -38,8 +38,6 @@
 #include "../gcode/gcode.h"
 #include "../lcd/marlinui.h"
 
-#include "../MarlinCore.h" // for stop(), disable_e_steppers(), wait_for_user_response()
-
 #if HAS_LEVELING
   #include "../feature/bedlevel/bedlevel.h"
 #endif
@@ -52,7 +50,7 @@
   #include "delta.h"
 #endif
 
-#if ENABLED(SENSORLESS_PROBING)
+#if HAS_DELTA_SENSORLESS_PROBING
   abc_float_t offset_sensorless_adj{0};
   float largest_sensorless_adj = 0;
 #endif
@@ -82,7 +80,7 @@
   #include "../feature/host_actions.h" // for PROMPT_USER_CONTINUE
 #endif
 
-#if HAS_Z_SERVO_PROBE
+#if HAS_Z_SERVO_PROBE || HAS_MAG_MOUNTED_SERVO_PROBE
   #include "servo.h"
 #endif
 
@@ -107,6 +105,8 @@ xyz_pos_t Probe::offset; // Initialized by settings.load
 
 #if HAS_PROBE_XY_OFFSET
   const xy_pos_t &Probe::offset_xy = Probe::offset;
+#else
+  constexpr xy_pos_t Probe::offset_xy;
 #endif
 
 #if ENABLED(SENSORLESS_PROBING)
@@ -167,7 +167,7 @@ xyz_pos_t Probe::offset; // Initialized by settings.load
       ui.return_to_status();
 
       TERN_(HOST_PROMPT_SUPPORT, hostui.continue_prompt(F("Deploy TouchMI")));
-      TERN_(HAS_RESUME_CONTINUE, wait_for_user_response());
+      TERN_(HAS_RESUME_CONTINUE, marlin.wait_for_user_response());
       ui.reset_status();
       ui.goto_screen(prev_screen);
 
@@ -272,6 +272,13 @@ xyz_pos_t Probe::offset; // Initialized by settings.load
   typedef struct { float fr_mm_min; xyz_pos_t where; } mag_probe_move_t;
 
   inline void run_deploy_moves() {
+    #ifdef MAG_MOUNTED_PRE_DEPLOY
+      constexpr mag_probe_move_t pre_deploy = MAG_MOUNTED_PRE_DEPLOY;
+      do_blocking_move_to(pre_deploy.where, MMM_TO_MMS(pre_deploy.fr_mm_min));
+    #endif
+    #if HAS_MAG_MOUNTED_SERVO_PROBE
+      servo[MAG_MOUNTED_PROBE_SERVO_NR].move(servo_angles[MAG_MOUNTED_PROBE_SERVO_NR][0]);
+    #endif
     #ifdef MAG_MOUNTED_DEPLOY_1
       constexpr mag_probe_move_t deploy_1 = MAG_MOUNTED_DEPLOY_1;
       do_blocking_move_to(deploy_1.where, MMM_TO_MMS(deploy_1.fr_mm_min));
@@ -292,9 +299,19 @@ xyz_pos_t Probe::offset; // Initialized by settings.load
       constexpr mag_probe_move_t deploy_5 = MAG_MOUNTED_DEPLOY_5;
       do_blocking_move_to(deploy_5.where, MMM_TO_MMS(deploy_5.fr_mm_min));
     #endif
+    #if HAS_MAG_MOUNTED_SERVO_PROBE
+      servo[MAG_MOUNTED_PROBE_SERVO_NR].move(servo_angles[MAG_MOUNTED_PROBE_SERVO_NR][1]);
+    #endif
   }
 
   inline void run_stow_moves() {
+    #ifdef MAG_MOUNTED_PRE_STOW
+      constexpr mag_probe_move_t pre_stow = MAG_MOUNTED_PRE_STOW;
+      do_blocking_move_to(pre_stow.where, MMM_TO_MMS(pre_stow.fr_mm_min));
+    #endif
+    #if HAS_MAG_MOUNTED_SERVO_PROBE
+      servo[MAG_MOUNTED_PROBE_SERVO_NR].move(servo_angles[MAG_MOUNTED_PROBE_SERVO_NR][0]);
+    #endif
     #ifdef MAG_MOUNTED_STOW_1
       constexpr mag_probe_move_t stow_1 = MAG_MOUNTED_STOW_1;
       do_blocking_move_to(stow_1.where, MMM_TO_MMS(stow_1.fr_mm_min));
@@ -315,6 +332,9 @@ xyz_pos_t Probe::offset; // Initialized by settings.load
       constexpr mag_probe_move_t stow_5 = MAG_MOUNTED_STOW_5;
       do_blocking_move_to(stow_5.where, MMM_TO_MMS(stow_5.fr_mm_min));
     #endif
+    #if HAS_MAG_MOUNTED_SERVO_PROBE
+      servo[MAG_MOUNTED_PROBE_SERVO_NR].move(servo_angles[MAG_MOUNTED_PROBE_SERVO_NR][1]);
+    #endif
   }
 
 #endif // MAG_MOUNTED_PROBE
@@ -325,12 +345,16 @@ xyz_pos_t Probe::offset; // Initialized by settings.load
     #define DELAY_BEFORE_PROBING 25
   #endif
 
-  void Probe::set_probing_paused(const bool dopause) {
+  /**
+   * Optionally turn off noisy components so we get a cleaner probe signal.
+   * Pause for at least 25ms when preparing to probe (dopause == true).
+   */
+  void Probe::set_devices_paused_for_probing(const bool dopause) {
     TERN_(PROBING_HEATERS_OFF, thermalManager.pause_heaters(dopause));
     TERN_(PROBING_FANS_OFF, thermalManager.set_fans_paused(dopause));
     TERN_(PROBING_ESTEPPERS_OFF, if (dopause) stepper.disable_e_steppers());
-    #if ENABLED(PROBING_STEPPERS_OFF) && DISABLED(DELTA)
-      static uint8_t old_trusted;
+    #if ENABLED(PROBING_STEPPERS_OFF)
+      static main_axes_bits_t old_trusted;
       if (dopause) {
         old_trusted = axes_trusted;
         stepper.disable_axis(X_AXIS);
@@ -366,9 +390,9 @@ FORCE_INLINE void probe_specific_action(const bool deploy) {
       // Wait for the probe to be attached or detached before asking for explicit user confirmation
       // Allow the user to interrupt
       KEEPALIVE_STATE(PAUSED_FOR_USER);
-      TERN_(HAS_RESUME_CONTINUE, wait_for_user = true);
-      while (deploy == PROBE_TRIGGERED() && TERN1(HAS_RESUME_CONTINUE, wait_for_user)) idle_no_sleep();
-      TERN_(HAS_RESUME_CONTINUE, wait_for_user = false);
+      TERN_(HAS_RESUME_CONTINUE, marlin.wait_start());
+      while (deploy == PROBE_TRIGGERED() && TERN1(HAS_RESUME_CONTINUE, marlin.wait_for_user)) marlin.idle_no_sleep();
+      TERN_(HAS_RESUME_CONTINUE, marlin.user_resume());
       OKAY_BUZZ();
     }
     #endif
@@ -379,12 +403,16 @@ FORCE_INLINE void probe_specific_action(const bool deploy) {
     #elif ENABLED(EXTENSIBLE_UI)
       ExtUI::onUserConfirmRequired(ds_fstr);
     #endif
-    TERN_(HAS_RESUME_CONTINUE, wait_for_user_response());
+    TERN_(HAS_RESUME_CONTINUE, marlin.wait_for_user_response());
 
     ui.reset_alert_level();
     //ui.reset_status();
 
   #endif // PAUSE_BEFORE_DEPLOY_STOW
+
+  #if ENABLED(SWITCHING_NOZZLE_LIFT_TO_PROBE)
+    servo[SWITCHING_NOZZLE_SERVO_NR].move(servo_angles[SWITCHING_NOZZLE_SERVO_NR][deploy ? 1 : 0]);
+  #endif
 
   #if ENABLED(SOLENOID_PROBE)
 
@@ -498,7 +526,7 @@ void Probe::probe_error_stop() {
     SERIAL_ECHOPGM(STR_STOP_BLTOUCH);
   #endif
   SERIAL_ECHOLNPGM(STR_STOP_POST);
-  stop();
+  marlin.stop();
 }
 
 /**
@@ -541,18 +569,18 @@ bool Probe::set_deployed(const bool deploy, const bool no_return/*=false*/) {
   #if ENABLED(PROBE_TRIGGERED_WHEN_STOWED_TEST)
 
     // Only deploy/stow if needed
-    if (PROBE_TRIGGERED() == deploy) {
+    if (PROBE_TRIGGERED() == deploy || !deploy) {
       if (!deploy) endstops.enable_z_probe(false); // Switch off triggered when stowed probes early
                                                    // otherwise an Allen-Key probe can't be stowed.
       probe_specific_action(deploy);
     }
 
     if (PROBE_TRIGGERED() == deploy) {             // Unchanged after deploy/stow action?
-      if (IsRunning()) {
+      if (marlin.isRunning()) {
         SERIAL_ERROR_MSG("Z-Probe failed");
         LCD_ALERTMESSAGE_F("Err: ZPROBE");
       }
-      stop();
+      marlin.stop();
       return true;
     }
 
@@ -569,6 +597,7 @@ bool Probe::set_deployed(const bool deploy, const bool no_return/*=false*/) {
   if (!no_return) do_blocking_move_to(old_xy); // Return to the original location unless handled externally
 
   endstops.enable_z_probe(deploy);
+
   return false;
 }
 
@@ -587,7 +616,7 @@ bool Probe::set_deployed(const bool deploy, const bool no_return/*=false*/) {
  *
  * @return TRUE if the probe failed to trigger.
  */
-bool Probe::probe_down_to_z(const_float_t z, const_feedRate_t fr_mm_s) {
+bool Probe::probe_down_to_z(const float z, const feedRate_t fr_mm_s) {
   DEBUG_SECTION(log_probe, "Probe::probe_down_to_z", DEBUGGING(LEVELING));
 
   #if ALL(HAS_HEATED_BED, WAIT_FOR_BED_HEATER)
@@ -633,7 +662,7 @@ bool Probe::probe_down_to_z(const_float_t z, const_feedRate_t fr_mm_s) {
     endstops.enable(true);
   #endif // SENSORLESS_PROBING
 
-  TERN_(HAS_QUIET_PROBING, set_probing_paused(true));
+  TERN_(HAS_QUIET_PROBING, set_devices_paused_for_probing(true));
 
   // Move down until the probe is triggered
   do_blocking_move_to_z(z, fr_mm_s);
@@ -641,7 +670,7 @@ bool Probe::probe_down_to_z(const_float_t z, const_feedRate_t fr_mm_s) {
   // Check to see if the probe was triggered
   const bool probe_triggered = (
     #if HAS_DELTA_SENSORLESS_PROBING
-      endstops.trigger_state() & (_BV(X_MAX) | _BV(Y_MAX) | _BV(Z_MAX))
+      PROBE_TRIGGERED()
     #else
       TEST(endstops.trigger_state(), Z_MIN_PROBE)
     #endif
@@ -652,7 +681,7 @@ bool Probe::probe_down_to_z(const_float_t z, const_feedRate_t fr_mm_s) {
     if (probe_triggered) refresh_largest_sensorless_adj();
   #endif
 
-  TERN_(HAS_QUIET_PROBING, set_probing_paused(false));
+  TERN_(HAS_QUIET_PROBING, set_devices_paused_for_probing(false));
 
   // Re-enable stealthChop if used. Disable diag1 pin on driver.
   #if ENABLED(SENSORLESS_PROBING)
@@ -748,12 +777,12 @@ bool Probe::probe_down_to_z(const_float_t z, const_feedRate_t fr_mm_s) {
  *
  * @return The Z position of the bed at the current XY or NAN on error.
  */
-float Probe::run_z_probe(const bool sanity_check/*=true*/, const_float_t z_min_point/*=Z_PROBE_LOW_POINT*/, const_float_t z_clearance/*=Z_TWEEN_SAFE_CLEARANCE*/) {
+float Probe::run_z_probe(const bool sanity_check/*=true*/, const float z_min_point/*=Z_PROBE_LOW_POINT*/, const float z_clearance/*=Z_TWEEN_SAFE_CLEARANCE*/) {
   DEBUG_SECTION(log_probe, "Probe::run_z_probe", DEBUGGING(LEVELING));
 
   const float zoffs = SUM_TERN(HAS_HOTEND_OFFSET, -offset.z, hotend_offset[active_extruder].z);
 
-  auto try_to_probe = [&](PGM_P const plbl, const_float_t z_probe_low_point, const feedRate_t fr_mm_s, const bool scheck) -> bool {
+  auto try_to_probe = [&](PGM_P const plbl, const float z_probe_low_point, const feedRate_t fr_mm_s, const bool scheck) -> bool {
     constexpr float error_tolerance = Z_PROBE_ERROR_TOLERANCE;
     if (DEBUGGING(LEVELING)) {
       DEBUG_ECHOPGM_P(plbl);
@@ -830,7 +859,7 @@ float Probe::run_z_probe(const bool sanity_check/*=true*/, const_float_t z_min_p
 
       // Probe downward slowly to find the bed
       if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Slow Probe:");
-      if (try_to_probe(PSTR("SLOW"), z_probe_low_point, MMM_TO_MMS(Z_PROBE_FEEDRATE_SLOW), sanity_check)) return NAN;
+      if (try_to_probe(PSTR("SLOW"), z_probe_low_point, z_probe_slow_mm_s, sanity_check)) return NAN;
 
       TERN_(MEASURE_BACKLASH_WHEN_PROBING, backlash.measure_with_probe());
 
@@ -940,13 +969,13 @@ float Probe::run_z_probe(const bool sanity_check/*=true*/, const_float_t z_min_p
  *
  */
 float Probe::probe_at_point(
-  const_float_t rx, const_float_t ry,
+  const float rx, const float ry,
   const ProbePtRaise raise_after,     // = PROBE_PT_NONE
   const uint8_t verbose_level,        // = 0
   const bool probe_relative,          // = true
   const bool sanity_check,            // = true
-  const_float_t z_min_point,          // = Z_PROBE_LOW_POINT
-  const_float_t z_clearance,          // = Z_TWEEN_SAFE_CLEARANCE
+  const float z_min_point,          // = Z_PROBE_LOW_POINT
+  const float z_clearance,          // = Z_TWEEN_SAFE_CLEARANCE
   const bool raise_after_is_rel       // = false
 ) {
   DEBUG_SECTION(log_probe, "Probe::probe_at_point", DEBUGGING(LEVELING));
@@ -1074,7 +1103,7 @@ float Probe::probe_at_point(
   /**
    * Set the sensorless Z offset
    */
-  void Probe::set_offset_sensorless_adj(const_float_t sz) {
+  void Probe::set_offset_sensorless_adj(const float sz) {
     DEBUG_SECTION(pso, "Probe::set_offset_sensorless_adj", true);
     if (test_sensitivity.x) offset_sensorless_adj.a = sz;
     if (test_sensitivity.y) offset_sensorless_adj.b = sz;
@@ -1102,6 +1131,6 @@ float Probe::probe_at_point(
     }
   }
 
-#endif
+#endif // HAS_DELTA_SENSORLESS_PROBING
 
 #endif // HAS_BED_PROBE
