@@ -98,20 +98,25 @@ typedef struct FTConfig {
     static constexpr TrajectoryType trajectory_type = TrajectoryType::TRAPEZOIDAL;
   #endif
 
+  static void prep_for_shaper_change();
+  static void update_shaping_params();
+
   #if HAS_STANDARD_MOTION
     bool setActive(const bool a) {
       if (a == active) return false;
       stepper.ftMotion_syncPosition();
-      planner.synchronize();
+      prep_for_shaper_change();
       active = a;
+      update_shaping_params();
       return true;
     }
   #endif
 
   bool setAxisSync(const bool ena) {
     if (ena == axis_sync_enabled) return false;
-    planner.synchronize();
+    prep_for_shaper_change();
     axis_sync_enabled = ena;
+    update_shaping_params();
     return true;
   }
 
@@ -119,18 +124,20 @@ typedef struct FTConfig {
 
     bool setShaper(const AxisEnum a, const ftMotionShaper_t s) {
       if (s == shaper[a]) return false;
-      planner.synchronize();
+      prep_for_shaper_change();
       shaper[a] = s;
+      update_shaping_params();
       return true;
     }
 
-    constexpr bool goodZeta(const float z) { return WITHIN(z, 0.01f, ftm_max_dampening); }
+    constexpr bool goodZeta(const float z) { return WITHIN(z, 0.00f, ftm_max_dampening); }
 
-    bool setZeta(const AxisEnum a, const float z) {
+    bool setZeta(const AxisEnum a, float z) {
       if (z == zeta[a]) return false;
-      if (!goodZeta(z)) return false;
-      planner.synchronize();
+      LIMIT(z, 0.00f, ftm_max_dampening);
+      prep_for_shaper_change();
       zeta[a] = z;
+      update_shaping_params();
       return true;
     }
 
@@ -138,11 +145,12 @@ typedef struct FTConfig {
 
       constexpr bool goodVtol(const float v) { return WITHIN(v, 0.00f, 1.0f); }
 
-      bool setVtol(const AxisEnum a, const float v) {
+      bool setVtol(const AxisEnum a, float v) {
         if (v == vtol[a]) return false;
-        if (!goodVtol(v)) return false;
-        planner.synchronize();
+        LIMIT(v, 0.00f, 1.0f);
+        prep_for_shaper_change();
         vtol[a] = v;
+        update_shaping_params();
         return true;
       }
 
@@ -157,10 +165,11 @@ typedef struct FTConfig {
           TERN_(HAS_DYNAMIC_FREQ_MM, case dynFreqMode_Z_BASED:)
           TERN_(HAS_DYNAMIC_FREQ_G, case dynFreqMode_MASS_BASED:)
           case dynFreqMode_DISABLED:
-            planner.synchronize();
+            prep_for_shaper_change();
             dynFreqMode = dynFreqMode_t(m);
             break;
         }
+        update_shaping_params();
         return 1;
       }
 
@@ -172,8 +181,9 @@ typedef struct FTConfig {
       bool setDynFreqK(const AxisEnum a, const float k) {
         if (!modeUsesDynFreq()) return false;
         if (k == dynFreqK[a]) return false;
-        planner.synchronize();
+        prep_for_shaper_change();
         dynFreqK[a] = k;
+        update_shaping_params();
         return true;
       }
 
@@ -183,11 +193,12 @@ typedef struct FTConfig {
 
   constexpr bool goodBaseFreq(const float f) { return WITHIN(f, FTM_MIN_SHAPE_FREQ, (FTM_FS) / 2); }
 
-  bool setBaseFreq(const AxisEnum a, const float f) {
+  bool setBaseFreq(const AxisEnum a, float f) {
     if (f == baseFreq[a]) return false;
-    if (!goodBaseFreq(a)) return false;
-    planner.synchronize();
+    LIMIT(f, FTM_MIN_SHAPE_FREQ, (FTM_FS) / 2);
+    prep_for_shaper_change();
     baseFreq[a] = f;
+    update_shaping_params();
     return true;
   }
 
@@ -216,6 +227,8 @@ typedef struct FTConfig {
     #endif // HAS_FTM_SHAPING
 
     TERN_(FTM_POLYS, poly6_acceleration_overshoot = FTM_POLY6_ACCELERATION_OVERSHOOT);
+
+    update_shaping_params();
   }
 
 } ft_config_t;
@@ -237,8 +250,6 @@ class FTMotion {
 
     static void set_defaults() {
       cfg.set_defaults();
-
-      TERN_(HAS_FTM_SHAPING, update_shaping_params());
 
       #if ENABLED(FTM_SMOOTHING)
         #define _RESET_SMOOTH(A) (void)set_smoothing_time(_AXIS(A), FTM_SMOOTHING_TIME_##A);
@@ -262,11 +273,6 @@ class FTMotion {
       static ResonanceGenerator rtg;                      // Resonance trajectory generator instance
     #endif
 
-    #if HAS_FTM_SHAPING
-      // Refresh gains and indices used by shaping functions.
-      static void update_shaping_params();
-    #endif
-
     #if ENABLED(FTM_SMOOTHING)
       // Refresh alpha and delay samples used by smoothing functions.
       static void update_smoothing_params();
@@ -283,26 +289,6 @@ class FTMotion {
         cfg.setActive(!cfg.active);
         update_shaping_params();
         return cfg.active;
-      }
-    #endif
-
-    // Setters for baseFreq, zeta, vtol
-    static bool setBaseFreq(const AxisEnum a, const float f) {
-      if (!cfg.setBaseFreq(a, f)) return false;
-      update_shaping_params();
-      return true;
-    }
-    static bool setZeta(const AxisEnum a, const float z) {
-      if (!cfg.setZeta(a, z)) return false;
-      update_shaping_params();
-      return true;
-    }
-
-    #if HAS_FTM_EI_SHAPING
-      static bool setVtol(const AxisEnum a, const float v) {
-        if (!cfg.setVtol(a, v)) return false;
-        update_shaping_params();
-        return true;
       }
     #endif
 
@@ -343,6 +329,7 @@ class FTMotion {
                         endPos_prevBlock; // (mm) End position of previous block
     static xyze_float_t ratio;            // (ratio) Axis move ratio of block
     static float tau;                     // (s) Time since start of block
+    static bool fastForwardUntilMotion;   // Fast forward time if there is no motion
 
     // Trajectory generators
     static TrapezoidalTrajectoryGenerator trapezoidalGenerator;
@@ -378,6 +365,19 @@ class FTMotion {
     #if HAS_EXTRUDERS
       static float prev_traj_e;
     #endif
+
+    #if HAS_FTM_SHAPING
+      // Refresh gains and indices used by shaping functions.
+      friend void ft_config_t::update_shaping_params();
+      static void update_shaping_params();
+    #endif
+
+    // Synchronize and reset motion prior to parameter changes
+    friend void ft_config_t::prep_for_shaper_change();
+    static void prep_for_shaper_change() {
+      planner.synchronize();
+      reset();
+    }
 
     // Buffers
     static void discard_planner_block_protected();

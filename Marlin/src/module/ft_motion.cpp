@@ -51,6 +51,9 @@
 
 FTMotion ftMotion;
 
+void ft_config_t::prep_for_shaper_change() { ftMotion.prep_for_shaper_change(); }
+void ft_config_t::update_shaping_params() { TERN_(HAS_FTM_SHAPING, ftMotion.update_shaping_params()); }
+
 //-----------------------------------------------------------------
 // Variables.
 //-----------------------------------------------------------------
@@ -70,6 +73,7 @@ xyze_pos_t   FTMotion::startPos,                    // (mm) Start position of bl
              FTMotion::endPos_prevBlock = { 0.0f }; // (mm) End position of previous block
 xyze_float_t FTMotion::ratio;                       // (ratio) Axis move ratio of block
 float FTMotion::tau = 0.0f;                         // (s) Time since start of block
+bool FTMotion::fastForwardUntilMotion = false;      // Fast forward time if there is no motion
 
 // Trajectory generators
 TrapezoidalTrajectoryGenerator FTMotion::trapezoidalGenerator;
@@ -191,12 +195,16 @@ void FTMotion::loop() {
 #if HAS_FTM_SHAPING
 
   void FTMotion::update_shaping_params() {
-    #define UPDATE_SHAPER(A) \
-      shaping.A.ena = IS_SHAPING(ftMotion.cfg.shaper.A); \
-      shaping.A.set_axis_shaping_A(cfg.shaper.A, cfg.zeta.A OPTARG(HAS_FTM_EI_SHAPING, cfg.vtol.A)); \
-      shaping.A.set_axis_shaping_N(cfg.shaper.A, cfg.baseFreq.A, cfg.zeta.A);
+    prep_for_shaper_change();
 
+    auto update_shaper = [&](AxisEnum axis, axis_shaping_t &shap) {
+      shap.ena = IS_SHAPING(cfg.shaper[axis]);
+      shap.set_axis_shaping_A(cfg.shaper[axis], cfg.zeta[axis] OPTARG(HAS_FTM_EI_SHAPING, cfg.vtol[axis]));
+      shap.set_axis_shaping_N(cfg.shaper[axis], cfg.baseFreq[axis], cfg.zeta[axis]);
+    };
+    #define UPDATE_SHAPER(A) update_shaper(_AXIS(A), shaping.A);
     SHAPED_MAP(UPDATE_SHAPER);
+
     shaping.refresh_largest_delay_samples();
   }
 
@@ -212,9 +220,9 @@ void FTMotion::loop() {
     smoothing.refresh_largest_delay_samples();
   }
 
-  bool FTMotion::set_smoothing_time(const AxisEnum axis, const float s_time) {
-    if (!WITHIN(s_time, 0.0f, FTM_MAX_SMOOTHING_TIME)) return false;
-    planner.synchronize();
+  bool FTMotion::set_smoothing_time(const AxisEnum axis, float s_time) {
+    LIMIT(s_time, 0.0f, FTM_MAX_SMOOTHING_TIME);
+    prep_for_shaper_change();
     cfg.smoothingTime[axis] = s_time;
     update_smoothing_params();
     return true;
@@ -229,6 +237,7 @@ void FTMotion::reset() {
   tau = 0;
   stepping.reset();
   shaping.reset();
+  fastForwardUntilMotion = true;
   TERN_(FTM_SMOOTHING, smoothing.reset(););
 
   TERN_(HAS_EXTRUDERS, prev_traj_e = 0.0f);  // Reset linear advance variables.
@@ -315,7 +324,7 @@ void FTMotion::init() {
       case TrajectoryType::POLY6:
         break;
     }
-    planner.synchronize();
+    prep_for_shaper_change();
     setTrajectoryType(type);
     return true;
   }
@@ -380,8 +389,13 @@ bool FTMotion::plan_next_block() {
       stepper.last_direction_bits.hz = current_block->direction_bits.hz;
     #endif
 
-    // Cache the extruder index for this block
-    TERN_(DISTINCT_E_FACTORS, block_extruder_axis = E_AXIS_N(current_block->extruder));
+    // Cache the extruder index / axis for this block
+    #if ANY(HAS_MULTI_EXTRUDER, MIXING_EXTRUDER)
+      stepper.stepper_extruder = current_block->extruder;
+    #endif
+    #if ENABLED(DISTINCT_E_FACTORS)
+      block_extruder_axis = E_AXIS_N(current_block->extruder);
+    #endif
 
     const float totalLength = current_block->millimeters;
 
@@ -590,10 +604,16 @@ void FTMotion::fill_stepper_plan_buffer() {
 
     // Get distance from trajectory generator
     xyze_float_t traj_coords = calc_traj_point(currentGenerator->getDistanceAtTime(tau));
-
-    // Calculate and store stepper plan in buffer
-    stepping_enqueue(traj_coords);
-
+    if (fastForwardUntilMotion && traj_coords == startPos) {
+      // Axis synchronization delays all axes. When coming from a reset, there is a ramp up time filling all buffers.
+      // If the slowest axis doesn't move and it isn't smoothened, this time can be skipped.
+      // It eliminates idle time when changing smoothing time or shapers and speeds up homing and bed leveling.
+    }
+    else {
+      fastForwardUntilMotion = false;
+      // Calculate and store stepper plan in buffer
+      stepping_enqueue(traj_coords);
+    }
   }
 }
 

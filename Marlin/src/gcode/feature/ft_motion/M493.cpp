@@ -27,6 +27,7 @@
 #include "../../gcode.h"
 #include "../../../module/ft_motion.h"
 #include "../../../module/stepper.h"
+#include "../../../lcd/marlinui.h"
 
 void say_shaper_type(const AxisEnum a, bool &sep, const char axis_name) {
   if (sep) SERIAL_ECHOPGM(" ; ");
@@ -87,7 +88,7 @@ void say_shaping() {
     #if HAS_X_AXIS
       SERIAL_CHAR(STEPPER_A_NAME);
       SERIAL_ECHO_TERNARY(dynamic, " ", "base dynamic", "static", " shaper frequency: ");
-      SERIAL_ECHO(p_float_t(c.baseFreq.x, 2), F("Hz"));
+      SERIAL_ECHO(p_float_t(c.baseFreq.x, 2), F(" Hz"));
       #if HAS_DYNAMIC_FREQ
         if (dynamic) SERIAL_ECHO(F(" scaling: "), p_float_t(c.dynFreqK.x, 2), F("Hz/"), z_based ? F("mm") : F("g"));
       #endif
@@ -110,6 +111,16 @@ void say_shaping() {
       SERIAL_ECHO(p_float_t(c.baseFreq.z, 2), F(" Hz"));
       #if HAS_DYNAMIC_FREQ
         if (dynamic) SERIAL_ECHO(F(" scaling: "), p_float_t(c.dynFreqK.z, 2), F("Hz/"), z_based ? F("mm") : F("g"));
+      #endif
+      SERIAL_EOL();
+    #endif
+
+    #if ENABLED(FTM_SHAPER_E)
+      SERIAL_CHAR('E');
+      SERIAL_ECHO_TERNARY(dynamic, " ", "base dynamic", "static", " shaper frequency: ");
+      SERIAL_ECHO(p_float_t(c.baseFreq.e, 2), F(" Hz"));
+      #if HAS_DYNAMIC_FREQ
+        if (dynamic) SERIAL_ECHO(F(" scaling: "), p_float_t(c.dynFreqK.e, 2), F("Hz/"), z_based ? F("mm") : F("g"));
       #endif
       SERIAL_EOL();
     #endif
@@ -483,7 +494,8 @@ void GcodeSuite::M493() {
 
   #endif // FTM_SHAPER_E
 
-  if (flag.update) ftMotion.update_shaping_params();
+  if (flag.update || flag.report)
+    ui.refresh();
 
   if (flag.report) say_shaping();
 }
