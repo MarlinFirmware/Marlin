@@ -37,6 +37,10 @@
 #include "planner.h"
 #include "printcounter.h"
 
+#if ENABLED(SPEED_DIAL_FEATURE)
+  #include "../feature/speed_dial.h"
+#endif
+
 #if ANY(HAS_COOLER, LASER_COOLANT_FLOW_METER)
   #include "../feature/cooler.h"
   #include "../feature/spindle_laser.h"
@@ -3145,6 +3149,8 @@ void Temperature::init() {
 
   TERF(HAS_JOY_ADC_EN, SET_INPUT_PULLUP)(JOY_EN_PIN);
 
+  TERN_(SPEED_DIAL_FEATURE,     hal.adc_enable(SPEED_DIAL_PIN));
+
   HAL_timer_start(MF_TIMER_TEMP, TEMP_TIMER_FREQUENCY);
   ENABLE_TEMPERATURE_INTERRUPT();
 
@@ -4399,6 +4405,14 @@ void Temperature::isr() {
         break;
     #endif // HAS_ADC_BUTTONS
 
+    #if ENABLED(SPEED_DIAL_FEATURE)
+      case Prepare_Speed_Dial: hal.adc_start(SPEED_DIAL_PIN); break;
+      case Measure_Speed_Dial:
+        if (!hal.adc_ready()) next_sensor_state = adc_sensor_state;
+        else speedDial.set(hal.adc_value());
+        break;
+    #endif
+
     case StartupDelay: break;
 
   } // switch(adc_sensor_state)
@@ -4530,6 +4544,9 @@ void Temperature::isr() {
     #if HAS_MULTI_HOTEND
       HOTEND_LOOP() s.append(F(" @"), e, ':', getHeaterPower((heater_id_t)e));
     #endif
+    #if ENABLED(SPEED_DIAL_FEATURE)
+      s.append(F(" S@:"), speedDial.current());
+#   endif
     s.echo();
   }
 

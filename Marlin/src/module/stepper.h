@@ -371,6 +371,11 @@ class Stepper {
       static bool frozen;                 // Set this flag to instantly freeze motion
     #endif
 
+    #if ENABLED(SPEED_DIAL_FEATURE)
+      static inline void set_speed_dial(uint8_t speed)  { speed_dial_value = speed > 0 ? speed : 1; }
+      static inline uint8_t current_speed_dial()        { return speed_dial_value; }
+    #endif
+
     #if ENABLED(NONLINEAR_EXTRUSION)
       static nonlinear_t ne;
     #endif
@@ -487,6 +492,9 @@ class Stepper {
       static constexpr hal_timer_t LA_ADV_NEVER = HAL_TIMER_TYPE_MAX;
       static hal_timer_t nextAdvanceISR,
                          la_interval;       // Interval between ISR calls for LA
+#if ENABLED(SPEED_DIAL_FEATURE)
+      static hal_timer_t la_interval_nom;
+#endif
       #if ENABLED(SMOOTH_LIN_ADVANCE)
         static uint32_t curr_timer_tick,                        // Current tick relative to block start
                         curr_step_rate;                         // Current motion step rate
@@ -798,6 +806,11 @@ class Stepper {
 
     #if ENABLED(FT_MOTION)
       static void ftMotion_stepper();
+    #endif
+
+    #if ENABLED(SPEED_DIAL_FEATURE)
+      static void speed_dial_adjust_interval(uint32_t& step_rate);
+      static uint8_t speed_dial_value;
     #endif
 
 };
