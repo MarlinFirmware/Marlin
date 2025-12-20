@@ -1593,7 +1593,7 @@ void Stepper::isr() {
   // FT Motion can be toggled if Standard Motion is also active
   const bool using_ftMotion = ENABLED(NO_STANDARD_MOTION) || TERN0(FT_MOTION, ftMotion.cfg.active);
 
-  // Storage for the timer value of the next possible ISR, used in this do loop
+  // Storage for the soonest timer value of the next possible ISR, used in this do loop
   hal_timer_t min_ticks;
 
   // Loop until all events for this ISR have been issued

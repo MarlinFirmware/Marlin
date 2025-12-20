@@ -390,8 +390,10 @@ bool FTMotion::plan_next_block() {
     #endif
 
     // Cache the extruder index / axis for this block
+    #if ANY(HAS_MULTI_EXTRUDER, MIXING_EXTRUDER)
+      stepper.stepper_extruder = current_block->extruder;
+    #endif
     #if ENABLED(DISTINCT_E_FACTORS)
-      stepper_extruder = current_block->extruder;
       block_extruder_axis = E_AXIS_N(current_block->extruder);
     #endif
 
