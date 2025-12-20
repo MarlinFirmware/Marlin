@@ -39,8 +39,9 @@
 
  //#define DRILL_CYCLE_DEBUG
 
-bool  retract_to_initial  = true;
-bool  drill_cycle_started = false;
+bool      retract_to_initial  = true;
+bool      drill_cycle_started = false;
+uint16_t  drill_feedrate      = 0;
 
 void move_to_XYZF(float x, float y, float z, uint16_t f) {
   char gcode_str[50], x_str[10], y_str[10], z_str[10];
@@ -58,7 +59,8 @@ void move_to_XYZF(float x, float y, float z, uint16_t f) {
  void drill_start(bool initial) {
   if(!drill_cycle_started) {
     drill_cycle_started = true;
-    retract_to_initial = initial;
+    retract_to_initial  = initial;
+    drill_feedrate      = 0;
   }
 }
 
@@ -83,9 +85,9 @@ void drill_cycle(uint8_t mode) {
   float     drill_retract_z     = retract_to_initial ? drill_initial_z : drill_rapid_z;
   float     drill_current_depth = drill_rapid_z;
 
-  uint16_t  drill_feedrate      = parser.seenval('F') ? parser.value_int() : (drill_feedrate > 0 ? drill_feedrate : DRILL_CYCLES_DEFAULT_FEEDRATE);
-  float     drill_peck_distance = allow_peck ? (parser.seenval('Q') ? parser.value_float() : (DRILL_CYCLES_DEFAULT_PECK > 0 ? DRILL_CYCLES_DEFAULT_PECK : 10000)) : 10000;
-  uint16_t  drill_dwell_time    = allow_dwell ? (parser.seenval('P') ? parser.value_int() : DRILL_CYCLES_DEFAULT_DWELL) : 0;
+  drill_feedrate                = parser.seenval('F') ? parser.value_int() : (drill_feedrate > 0 ? drill_feedrate : DRILL_CYCLES_DEFAULT_FEEDRATE);
+  float drill_peck_distance     = allow_peck ? (parser.seenval('Q') ? parser.value_float() : (DRILL_CYCLES_DEFAULT_PECK > 0 ? DRILL_CYCLES_DEFAULT_PECK : 10000)) : 10000;
+  float drill_dwell_time        = allow_dwell ? (parser.seenval('P') ? parser.value_int() : DRILL_CYCLES_DEFAULT_DWELL) : 0;
 
   //move to initial xy position
   move_to_XYZF(drill_x_position, 
