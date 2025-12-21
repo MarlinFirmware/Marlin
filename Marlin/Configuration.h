@@ -500,7 +500,7 @@
  *    10 : 100kΩ RS PRO 198-961
  *    11 : 100kΩ Keenovo AC silicone mats, most Wanhao i3 machines - beta 3950, 1%
  *    12 : 100kΩ Vishay 0603 SMD NTCS0603E3104FXT (#8) - calibrated for Makibox hot bed
- *    13 : 100kΩ Hisens up to 300°C - for "Simple ONE" & "All In ONE" hotend - beta 3950, 1%
+ *    13 : 100kΩ Hisense up to 300°C - for "Simple ONE" & "All In ONE" hotend - beta 3950, 1%
  *    14 : 100kΩ  (R25), 4092K (beta25), 4.7kΩ pull-up, bed thermistor as used in Ender-5 S1
  *    15 : 100kΩ Calibrated for JGAurora A5 hotend
  *    17 : 100kΩ Dagoma NTC white thermistor
