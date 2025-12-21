@@ -678,15 +678,15 @@
 // Above this temperature the heater will be switched off.
 // This can protect components from overheating, but NOT from shorts and failures.
 // (Use MINTEMP for thermistor short/failure protection.)
-#define HEATER_0_MAXTEMP 275
-#define HEATER_1_MAXTEMP 275
-#define HEATER_2_MAXTEMP 275
-#define HEATER_3_MAXTEMP 275
-#define HEATER_4_MAXTEMP 275
-#define HEATER_5_MAXTEMP 275
-#define HEATER_6_MAXTEMP 275
-#define HEATER_7_MAXTEMP 275
-#define BED_MAXTEMP      120
+#define HEATER_0_MAXTEMP 255  // Sodapop465, default was 275
+#define HEATER_1_MAXTEMP 255  // Sodapop465, default was 275
+#define HEATER_2_MAXTEMP 255  // Sodapop465, default was 275
+#define HEATER_3_MAXTEMP 255  // Sodapop465, default was 275
+#define HEATER_4_MAXTEMP 255  // Sodapop465, default was 275
+#define HEATER_5_MAXTEMP 255  // Sodapop465, default was 275
+#define HEATER_6_MAXTEMP 255  // Sodapop465, default was 275
+#define HEATER_7_MAXTEMP 255  // Sodapop465, default was 275
+#define BED_MAXTEMP      140  // Sodapop465, default was 120
 #define CHAMBER_MAXTEMP  60
 
 /**
@@ -1368,11 +1368,11 @@
  * Override with M201
  *                                      X, Y, Z [, I [, J [, K...]]], E0 [, E1[, E2...]]
  */
-#define DEFAULT_MAX_ACCELERATION      { 500, 500, 100, 1000 }
+#define DEFAULT_MAX_ACCELERATION      { 2000, 2000, 100, 2000 } // Sodapop465, default { 500, 500, 100, 1000 }
 
 //#define LIMITED_MAX_ACCEL_EDITING     // Limit edit via M201 or LCD to DEFAULT_MAX_ACCELERATION * 2
 #if ENABLED(LIMITED_MAX_ACCEL_EDITING)
-  #define MAX_ACCEL_EDIT_VALUES       { 6000, 6000, 200, 20000 } // ...or, set your own edit limits
+  #define MAX_ACCEL_EDIT_VALUES       { 6000, 6000, 1000, 20000 } // ...or, set your own edit limits  // Sodapop465, default { 6000, 6000, 200, 20000 }
 #endif
 
 /**
@@ -1383,8 +1383,8 @@
  *   M204 R    Retract Acceleration
  *   M204 T    Travel Acceleration
  */
-#define DEFAULT_ACCELERATION           500    // X, Y, Z and E acceleration for printing moves
-#define DEFAULT_RETRACT_ACCELERATION   500    // E acceleration for retracts
+#define DEFAULT_ACCELERATION           2000    // X, Y, Z and E acceleration for printing moves  // Sodapop465, Default 500
+#define DEFAULT_RETRACT_ACCELERATION   2000    // E acceleration for retracts  // Sodapop465, Default 500
 #define DEFAULT_TRAVEL_ACCELERATION   1000    // X, Y, Z acceleration for travel (non printing) moves
 
 /**
@@ -1400,7 +1400,7 @@
   #define DEFAULT_XJERK 10.0
   #define DEFAULT_YJERK 10.0
   #define DEFAULT_ZJERK  0.3
-  #define DEFAULT_EJERK  5.0
+  #define DEFAULT_EJERK  10.0 // Sodapop465, I don't think I respect this
   //#define DEFAULT_IJERK  0.3
   //#define DEFAULT_JJERK  0.3
   //#define DEFAULT_KJERK  0.3
@@ -1412,7 +1412,7 @@
 
   //#define LIMITED_JERK_EDITING        // Limit edit via M205 or LCD to DEFAULT_aJERK * 2
   #if ENABLED(LIMITED_JERK_EDITING)
-    #define MAX_JERK_EDIT_VALUES { 20, 20, 0.6, 10 } // ...or, set your own edit limits
+    #define MAX_JERK_EDIT_VALUES { 25, 25, 0.6, 25 } // ...or, set your own edit limits  // Sodapop465, default { 20, 20, 0.6, 10 }
   #endif
 #endif
 
@@ -1905,8 +1905,8 @@
 
 // @section homing
 
-//#define NO_MOTION_BEFORE_HOMING // Inhibit movement until all axes have been homed. Also enable HOME_AFTER_DEACTIVATE for extra safety.
-//#define HOME_AFTER_DEACTIVATE   // Require rehoming after steppers are deactivated. Also enable NO_MOTION_BEFORE_HOMING for extra safety.
+#define NO_MOTION_BEFORE_HOMING // Inhibit movement until all axes have been homed. Also enable HOME_AFTER_DEACTIVATE for extra safety.   // Sodapop465
+#define HOME_AFTER_DEACTIVATE   // Require rehoming after steppers are deactivated. Also enable NO_MOTION_BEFORE_HOMING for extra safety.    // Sodapop465
 
 /**
  * Set Z_IDLE_HEIGHT if the Z-Axis moves on its own when steppers are disabled.
