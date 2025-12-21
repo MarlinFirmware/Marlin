@@ -1556,7 +1556,7 @@ void unified_bed_leveling::smart_fill_mesh() {
           rpos.y = y_min + dy * (zig_zag ? param.J_grid_size - 1 - iy : iy);
 
           #if ENABLED(UBL_TILT_ON_MESH_POINTS)
-            #if ENABLED(DEBUG_LEVELING_FEATURE)
+            #ifdef DEBUG_OUT
               xy_pos_t oldRpos;
               if (DEBUGGING(LEVELING)) oldRpos = rpos;
             #endif
@@ -1575,7 +1575,7 @@ void unified_bed_leveling::smart_fill_mesh() {
 
           const float zcorr = TERN(UBL_TILT_ON_MESH_POINTS, z_values[cpos.pos.x][cpos.pos.y], get_z_correction(rpos));
 
-          #if ENABLED(DEBUG_LEVELING_FEATURE)
+          #ifdef DEBUG_OUT
             if (DEBUGGING(LEVELING)) {
               #if ENABLED(UBL_TILT_ON_MESH_POINTS)
                 const xy_pos_t oldLpos = oldRpos.asLogical();
@@ -1618,12 +1618,10 @@ void unified_bed_leveling::smart_fill_mesh() {
       return;
     }
 
-    #ifdef DEBUG_OUT
-      vector_3 normal = vector_3(lsf_results.A, lsf_results.B, 1).get_normal();
+    vector_3 normal = vector_3(lsf_results.A, lsf_results.B, 1).get_normal();
 
-      if (param.V_verbosity > 2)
-        DEBUG_ECHOLN(F("bed plane normal = ["), p_float_t(normal.x, 7), C(','), p_float_t(normal.y, 7), C(','), p_float_t(normal.z, 7), C(']'));
-    #endif
+    if ((param.V_verbosity > 2) && DEBUGGING(LEVELING))
+      DEBUG_ECHOLN(F("bed plane normal = ["), p_float_t(normal.x, 7), C(','), p_float_t(normal.y, 7), C(','), p_float_t(normal.z, 7), C(']'));
 
     matrix_3x3 rotation = matrix_3x3::create_look_at(vector_3(lsf_results.A, lsf_results.B, 1));
 
