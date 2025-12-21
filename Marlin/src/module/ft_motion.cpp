@@ -70,7 +70,8 @@ AxisBits FTMotion::moving_axis_flags,           // These axes are moving in the 
 
 // Block data variables.
 xyze_pos_t   FTMotion::startPos,                    // (mm) Start position of block
-             FTMotion::endPos_prevBlock = { 0.0f }; // (mm) End position of previous block
+             FTMotion::endPos_prevBlock = { 0.0f }, // (mm) End position of previous block
+             FTMotion::last_target_traj = { 0.0f }; // (mm) Last target position after shaping and smoothing
 xyze_float_t FTMotion::ratio;                       // (ratio) Axis move ratio of block
 float FTMotion::tau = 0.0f;                         // (s) Time since start of block
 bool FTMotion::fastForwardUntilMotion = false;      // Fast forward time if there is no motion
@@ -524,7 +525,6 @@ xyze_float_t FTMotion::calc_traj_point(const float dist) {
 
     // Approximate Gaussian smoothing via chained EMAs
     auto _smoothen = [&](const AxisEnum axis, axis_smoothing_t &smoo) {
-      if (smoo.alpha <= 0.0f) return;
       float smooth_val = traj_coords[axis];
       for (uint8_t _i = 0; _i < FTM_SMOOTHING_ORDER; ++_i) {
         smoo.smoothing_pass[_i] += (smooth_val - smoo.smoothing_pass[_i]) * smoo.alpha;
@@ -604,7 +604,7 @@ void FTMotion::fill_stepper_plan_buffer() {
 
     // Get distance from trajectory generator
     xyze_float_t traj_coords = calc_traj_point(currentGenerator->getDistanceAtTime(tau));
-    if (fastForwardUntilMotion && traj_coords == startPos) {
+    if (fastForwardUntilMotion && traj_coords == last_target_traj) {
       // Axis synchronization delays all axes. When coming from a reset, there is a ramp up time filling all buffers.
       // If the slowest axis doesn't move and it isn't smoothened, this time can be skipped.
       // It eliminates idle time when changing smoothing time or shapers and speeds up homing and bed leveling.
@@ -614,6 +614,7 @@ void FTMotion::fill_stepper_plan_buffer() {
       // Calculate and store stepper plan in buffer
       stepping_enqueue(traj_coords);
     }
+    last_target_traj = traj_coords;
   }
 }
 
