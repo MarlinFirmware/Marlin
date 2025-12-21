@@ -739,8 +739,10 @@ void unified_bed_leveling::adjust_mesh_to_mean(const bool cflag, const float off
     SERIAL_ECHOLNPGM("# of samples: ", n);
     SERIAL_ECHOLNPGM("Mean Mesh Height: ", p_float_t(mean, 6));
 
-    const float sigma = SQRT(sum_of_diff_squared / (n + 1));
-    SERIAL_ECHOLNPGM("Standard Deviation: ", p_float_t(sigma, 6));
+    #if ENABLED(DEBUG_LEVELING_FEATURE)
+      const float sigma = SQRT(sum_of_diff_squared / (n + 1));
+      DEBUG_ECHOLNPGM("Standard Deviation: ", p_float_t(sigma, 6));
+    #endif
   #endif
 
   if (cflag)
@@ -1596,9 +1598,8 @@ void unified_bed_leveling::smart_fill_mesh() {
           rpos.y = y_min + dy * (zig_zag ? param.J_grid_size - 1 - iy : iy);
 
           #if ENABLED(UBL_TILT_ON_MESH_POINTS)
-            #ifdef DEBUG_OUT
-              xy_pos_t oldRpos;
-              if (DEBUGGING(LEVELING)) oldRpos = rpos;
+            #if ENABLED(DEBUG_LEVELING_FEATURE)
+              if (DEBUGGING(LEVELING)) const xy_pos_t oldRpos = rpos;
             #endif
             mesh_index_pair cpos;
             rpos -= probe.offset;
@@ -1615,7 +1616,7 @@ void unified_bed_leveling::smart_fill_mesh() {
 
           const float zcorr = TERN(UBL_TILT_ON_MESH_POINTS, z_values[cpos.pos.x][cpos.pos.y], get_z_correction(rpos));
 
-          #ifdef DEBUG_OUT
+          #if ENABLED(DEBUG_LEVELING_FEATURE)
             if (DEBUGGING(LEVELING)) {
               #if ENABLED(UBL_TILT_ON_MESH_POINTS)
                 const xy_pos_t oldLpos = oldRpos.asLogical();
