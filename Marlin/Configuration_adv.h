@@ -1526,6 +1526,9 @@
 
 // @section lcd
 
+// Turn off the display blinking that warns about possible accuracy reduction
+//#define DISABLE_REDUCED_ACCURACY_WARNING
+
 #if HAS_MANUAL_MOVE_MENU
   #define MANUAL_FEEDRATE { 50*60, 50*60, 4*60, 2*60 } // (mm/min) Feedrates for manual moves along X, Y, Z, E from panel
   #define FINE_MANUAL_MOVE 0.025    // (mm) Smallest manual move (< 0.1mm) applying to Z on most machines
@@ -2355,7 +2358,7 @@
   //#define WATCHDOG_RESET_MANUAL
 #endif
 
-// @section lcd
+// @section baby-stepping
 
 /**
  * Babystepping enables movement of the axes by tiny increments without changing
@@ -2608,12 +2611,14 @@
   #endif
 #endif // PTC_PROBE || PTC_BED || PTC_HOTEND
 
-// @section extras
+// @section gcode
 
 //
 // G60/G61 Position Save and Return
 //
 //#define SAVED_POSITIONS 1         // Each saved position slot costs 12 bytes
+
+// @section motion
 
 //
 // G2/G3 Arc Support
@@ -2645,6 +2650,8 @@
  * Preparing your G-code: https://github.com/colinrgodsey/step-daemon
  */
 //#define DIRECT_STEPPING
+
+// @section calibrate
 
 /**
  * G38 Probe Target
@@ -2852,7 +2859,7 @@
  */
 //#define EXTRA_FAN_SPEED
 
-// @section gcode
+// @section firmware retraction
 
 /**
  * Firmware-based and LCD-controlled retract
