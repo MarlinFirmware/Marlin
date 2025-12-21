@@ -8,7 +8,7 @@ UA="Mozilla/5.0 (Linux; Android 10; SM-G996U Build/QP1A.190711.020; wv) AppleWeb
 UTMP=$(mktemp)
 #echo "[debug 1] UTMP = ${UTMP}"
 echo "Gathering URLs. Please wait..."
-grep -R -E "https?:\/\/[^ \"''\(\)\<\>]+" . 2>/dev/null \
+find . -type f ! -path "*/\.*" -exec grep -Eo "https?:\/\/[^ \"''$$\<\>]+" {} \; 2>/dev/null \
   | grep -v "Binary file" \
   | sed -E "s/\/https?:\/\//\//" \
   | sed -E 's/.*\((https?:\/\/[^ ]+)\).*$/\1/' \
@@ -30,7 +30,7 @@ grep -R -E "https?:\/\/[^ \"''\(\)\<\>]+" . 2>/dev/null \
     if [[ $HERR > 0 ]]; then
       # Error 92 may be domain blocking curl / wget
       [[ $HERR == 92 ]] || { ISERR=1 ; BADURLS+=($URL) ; }
-      echo "[FAIL ($HERR)]"
+      echo "${URL} ... [FAIL ($HERR)]"
     else
       HEAD1=$(echo $HEAD | head -n1)
       EMSG=
@@ -47,6 +47,7 @@ grep -R -E "https?:\/\/[^ \"''\(\)\<\>]+" . 2>/dev/null \
                *) EMSG="[Other Err]" ;;
       esac
       if [[ -n $EMSG ]]; then
+        echo -n "${URL} ... "
         if [[ -n $WHERE ]]; then
           [[ ${HEAD,,} =~ "location: " ]] && EMSG+=" to $(echo "$HEAD" | grep -i "location: " | sed -E 's/location: (.*)/\1/')"
         else
