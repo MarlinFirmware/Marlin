@@ -949,6 +949,8 @@
 
 #elif MB(RP2040)
   #include "rp2040/pins_RP2040.h"                   // RP2040                               env:RP2040
+#elif MB(RASPBERRY_PI_PICO)
+  #include "rp2040/pins_RASPBERRY_PI_PICO.h"        // RP2040                               env:RP2040
 #elif MB(BTT_SKR_PICO)
   #include "rp2040/pins_BTT_SKR_Pico.h"             // RP2040                               env:SKR_Pico env:SKR_Pico_UART
 
@@ -1070,7 +1072,7 @@
   #elif MB(ERROR)
     #warning "Most likely missing / misplaced Configuration files."
   #elif defined(MOTHERBOARD)
-    #error "Unknown MOTHERBOARD value set in Configuration.h."
+    static_assert(false, "Unknown MOTHERBOARD value (" STRINGIFY(MOTHERBOARD) ") set in Configuration.h.");
   #else
     #error "MOTHERBOARD not defined! Use '#define MOTHERBOARD BOARD_...' in Configuration.h."
   #endif

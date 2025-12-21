@@ -22,7 +22,7 @@
 #pragma once
 
 /**
- * lcd/e3v2/jyersui/dwin.h
+ * lcd/dwin/jyersui/dwin.h
  */
 
 #include "dwin_lcd.h"
@@ -192,7 +192,7 @@ public:
   static void drawPrintScreen();
   static void drawPrintFilename(const bool reset=false);
   static void drawPrintProgressBar();
-  #if ENABLED(SET_REMAINING_TIME)
+  #if ENABLED(SHOW_REMAINING_TIME)
     static void drawPrintProgressRemain();
   #endif
   static void drawPrintProgressElapsed();

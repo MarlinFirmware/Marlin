@@ -162,8 +162,9 @@
 #endif
 
 //
-// LCD Controller
+// LCD / Controller
 //
+
 #define BEEPER_PIN                            18
 
 #if ENABLED(YHCB2004)

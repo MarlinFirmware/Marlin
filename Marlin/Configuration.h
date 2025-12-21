@@ -61,7 +61,7 @@
 // @section info
 
 // Author info of this build printed to the host during boot and M115
-#define STRING_CONFIG_H_AUTHOR "(none, default config)" // Original author or contributor.
+#define STRING_CONFIG_H_AUTHOR "(MarlinFirmware)" // Original author or contributor.
 //#define CUSTOM_VERSION_FILE Version.h // Path from the root directory (no quotes)
 
 // @section machine
@@ -468,7 +468,7 @@
 //===========================================================================
 //============================= Thermal Settings ============================
 //===========================================================================
-// @section temperature
+// @section temperature sensors
 
 /**
  * Temperature Sensors:
@@ -500,7 +500,7 @@
  *    10 : 100kΩ RS PRO 198-961
  *    11 : 100kΩ Keenovo AC silicone mats, most Wanhao i3 machines - beta 3950, 1%
  *    12 : 100kΩ Vishay 0603 SMD NTCS0603E3104FXT (#8) - calibrated for Makibox hot bed
- *    13 : 100kΩ Hisens up to 300°C - for "Simple ONE" & "All In ONE" hotend - beta 3950, 1%
+ *    13 : 100kΩ Hisense up to 300°C - for "Simple ONE" & "All In ONE" hotend - beta 3950, 1%
  *    14 : 100kΩ  (R25), 4092K (beta25), 4.7kΩ pull-up, bed thermistor as used in Ender-5 S1
  *    15 : 100kΩ Calibrated for JGAurora A5 hotend
  *    17 : 100kΩ Dagoma NTC white thermistor
@@ -652,6 +652,8 @@
   #define TEMP_SENSOR_REDUNDANT_MAX_DIFF  10  // (°C) Temperature difference that will trigger a print abort.
 #endif
 
+// @section temperature
+
 // Below this temperature the heater will be switched off
 // because it probably indicates a broken thermistor wire.
 #define HEATER_0_MINTEMP   5
@@ -718,13 +720,13 @@
   #if ENABLED(PID_PARAMS_PER_HOTEND)
     // Specify up to one value per hotend here, according to your setup.
     // If there are fewer values, the last one applies to the remaining hotends.
-    #define DEFAULT_Kp_LIST {  22.20,  22.20 }
-    #define DEFAULT_Ki_LIST {   1.08,   1.08 }
-    #define DEFAULT_Kd_LIST { 114.00, 114.00 }
+    #define DEFAULT_KP_LIST {  22.20,  22.20 }
+    #define DEFAULT_KI_LIST {   1.08,   1.08 }
+    #define DEFAULT_KD_LIST { 114.00, 114.00 }
   #else
-    #define DEFAULT_Kp  22.20
-    #define DEFAULT_Ki   1.08
-    #define DEFAULT_Kd 114.00
+    #define DEFAULT_KP  22.20
+    #define DEFAULT_KI   1.08
+    #define DEFAULT_KD 114.00
   #endif
 #else
   #define BANG_MAX 255    // Limit hotend current while in bang-bang mode; 255=full current
@@ -822,9 +824,9 @@
 
   // 120V 250W silicone heater into 4mm borosilicate (MendelMax 1.5+)
   // from FOPDT model - kp=.39 Tp=405 Tdead=66, Tc set to 79.2, aggressive factor of .15 (vs .1, 1, 10)
-  #define DEFAULT_bedKp  10.00
-  #define DEFAULT_bedKi   0.023
-  #define DEFAULT_bedKd 305.4
+  #define DEFAULT_BED_KP  10.00
+  #define DEFAULT_BED_KI   0.023
+  #define DEFAULT_BED_KD 305.4
 
   // FIND YOUR OWN: "M303 E-1 C8 S90" to run autotune on the bed at 90 degreesC for 8 cycles.
 #else
@@ -905,9 +907,9 @@
 
   // Lasko "MyHeat Personal Heater" (200w) modified with a Fotek SSR-10DA to control only the heating element
   // and placed inside the small Creality printer enclosure tent.
-  #define DEFAULT_chamberKp  37.04
-  #define DEFAULT_chamberKi   1.40
-  #define DEFAULT_chamberKd 655.17
+  #define DEFAULT_CHAMBER_KP  37.04
+  #define DEFAULT_CHAMBER_KI   1.40
+  #define DEFAULT_CHAMBER_KD 655.17
   // M309 P37.04 I1.04 D655.17
 
   // FIND YOUR OWN: "M303 E-2 C8 S50" to run autotune on the chamber at 50 degreesC for 8 cycles.
@@ -1661,7 +1663,7 @@
  * Nozzle-to-Probe offsets { X, Y, Z }
  *
  * X and Y offset
- *   Use a caliper or ruler to measure the distance from the tip of
+ *   Use a caliper or ruler to measure the distance (in mm) from the tip of
  *   the Nozzle to the center-point of the Probe in the X and Y axes.
  *
  * Z offset
@@ -1697,7 +1699,7 @@
  *     |    [-]    |
  *     O-- FRONT --+
  */
-#define NOZZLE_TO_PROBE_OFFSET { 10, 10, 0 }
+#define NOZZLE_TO_PROBE_OFFSET { 10, 10, 0 } // (mm) X, Y, Z distance from Nozzle tip to Probe trigger-point
 
 // Enable and set to use a specific tool for probing. Disable to allow any tool.
 #define PROBING_TOOL 0
@@ -1860,15 +1862,12 @@
 //#define DISABLE_V
 //#define DISABLE_W
 
-// Turn off the display blinking that warns about possible accuracy reduction
-//#define DISABLE_REDUCED_ACCURACY_WARNING
-
 // @section extruder
 
 //#define DISABLE_E               // Disable the extruder when not stepping
 #define DISABLE_OTHER_EXTRUDERS   // Keep only the active extruder enabled
 
-// @section motion
+// @section stepper drivers
 
 // Invert the stepper direction. Change (or reverse the motor connector) if an axis goes the wrong way.
 #define INVERT_X_DIR false
@@ -1880,8 +1879,6 @@
 //#define INVERT_U_DIR false
 //#define INVERT_V_DIR false
 //#define INVERT_W_DIR false
-
-// @section extruder
 
 // For direct drive extruder v9 set to true, for geared extruder set to false.
 #define INVERT_E0_DIR false
@@ -2527,7 +2524,7 @@
 //
 //#define TEMPERATURE_UNITS_SUPPORT
 
-// @section temperature
+// @section temperature presets
 
 //
 // Preheat Constants - Up to 10 are supported without changes

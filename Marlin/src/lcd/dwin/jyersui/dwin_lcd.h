@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2024 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2021 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -21,10 +21,14 @@
  */
 #pragma once
 
-/**
- * strlen_cx.h
- */
+/********************************************************************************
+ * @file     lcd/dwin/jyersui/dwin_lcd.h
+ * @brief    DWIN screen control functions
+ ********************************************************************************/
 
-constexpr inline int strlen_constexpr(const char *str) {
-  return *str ? 1 + strlen_constexpr(str + 1) : 0;
-}
+#include "../common/dwin_api.h"
+
+// Draw the degree (°) symbol
+// color: color
+//  x/y: Upper-left coordinate of the first pixel
+void dwinDrawDegreeSymbol(uint16_t color, uint16_t x, uint16_t y);

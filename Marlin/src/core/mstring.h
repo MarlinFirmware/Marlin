@@ -158,16 +158,16 @@ public:
   MString& append_P(PGM_P const s)            { int sz = length(); if (sz < SIZE) strlcpy_P(str + sz, s, SIZE - sz + 1); debug(F("pstring")); return *this; }
   MString& append(FSTR_P const f)             { return append_P(FTOP(f)); }
   MString& append(const bool &b)              { return append(b ? F("true") : F("false")); }
-  MString& append(const char c)               { int sz = length(); if (sz < SIZE) { str[sz] = c; if (sz < SIZE - 1) str[sz + 1] = '\0'; } return *this; }
+  MString& append(const char c)               { int sz = length(); if (sz < SIZE) { str[sz] = c; if (sz < SIZE - 1) str[sz + 1] = '\0'; } debug(F("char")); return *this; }
   #if ENABLED(FASTER_APPEND)
-    MString& append(const int8_t &i)          { int sz = length(); SNPRINTF(&str[sz], SIZE - sz, "%d",  i); return *this; }
-    MString& append(const short &i)           { int sz = length(); SNPRINTF(&str[sz], SIZE - sz, "%d",  i); return *this; }
-    MString& append(const int &i)             { int sz = length(); SNPRINTF(&str[sz], SIZE - sz, "%d",  i); return *this; }
-    MString& append(const long &l)            { int sz = length(); SNPRINTF(&str[sz], SIZE - sz, "%ld", l); return *this; }
-    MString& append(const unsigned char &i)   { int sz = length(); SNPRINTF(&str[sz], SIZE - sz, "%u",  i); return *this; }
-    MString& append(const unsigned short &i)  { int sz = length(); SNPRINTF(&str[sz], SIZE - sz, "%u",  i); return *this; }
-    MString& append(const unsigned int &i)    { int sz = length(); SNPRINTF(&str[sz], SIZE - sz, "%u",  i); return *this; }
-    MString& append(const unsigned long &l)   { int sz = length(); SNPRINTF(&str[sz], SIZE - sz, "%lu", l); return *this; }
+    MString& append(const int8_t &i)          { int sz = length(); SNPRINTF(&str[sz], SIZE - sz, "%d",  i); debug(F("int8_t")); return *this; }
+    MString& append(const short &i)           { int sz = length(); SNPRINTF(&str[sz], SIZE - sz, "%d",  i); debug(F("short"));  return *this; }
+    MString& append(const int &i)             { int sz = length(); SNPRINTF(&str[sz], SIZE - sz, "%d",  i); debug(F("int"));    return *this; }
+    MString& append(const long &l)            { int sz = length(); SNPRINTF(&str[sz], SIZE - sz, "%ld", l); debug(F("long"));   return *this; }
+    MString& append(const unsigned char &i)   { int sz = length(); SNPRINTF(&str[sz], SIZE - sz, "%u",  i); debug(F("uchar"));  return *this; }
+    MString& append(const unsigned short &i)  { int sz = length(); SNPRINTF(&str[sz], SIZE - sz, "%u",  i); debug(F("ushort")); return *this; }
+    MString& append(const unsigned int &i)    { int sz = length(); SNPRINTF(&str[sz], SIZE - sz, "%u",  i); debug(F("uint"));   return *this; }
+    MString& append(const unsigned long &l)   { int sz = length(); SNPRINTF(&str[sz], SIZE - sz, "%lu", l); debug(F("ulong"));  return *this; }
   #else
     MString& append(const int8_t &i)          { char buf[ 5]; sprintf(buf, "%d",  i); return append(buf); }
     MString& append(const short &i)           { char buf[12]; sprintf(buf, "%d",  i); return append(buf); }

@@ -21,7 +21,7 @@
  */
 
 /**
- * lcd/e3v2/jyersui/dwin.cpp
+ * lcd/dwin/jyersui/dwin.cpp
  */
 
 #include "../../../inc/MarlinConfigPre.h"
@@ -365,7 +365,7 @@ private:
         const auto end_x_px   = start_x_px + cell_width_px - 1 - gridline_width;
         const auto start_y_px = padding_y_top + (GRID_MAX_POINTS_Y - y - 1) * cell_height_px;
         const auto end_y_px   = start_y_px + cell_height_px - 1 - gridline_width;
-        dwinDrawRectangle(1,                                          // RGB565 colors: http://www.barth-dev.de/online/rgb565-color-picker/
+        dwinDrawRectangle(1,                                          // RGB565 colors: https://barth-dev.de/online/rgb565-color-picker/
           isnan(bedlevel.z_values[x][y]) ? COLOR_GREY : (             // gray if undefined
             (bedlevel.z_values[x][y] < 0 ?
               (uint16_t)LROUND(0x1F * -bedlevel.z_values[x][y] / (!viewer_asymmetric_range ? rmax : v_min)) << 11 : // red if mesh point value is negative
@@ -685,7 +685,7 @@ void JyersDWIN::drawPrintScreen() {
   updateStatusBar(true);
   drawPrintProgressBar();
   drawPrintProgressElapsed();
-  TERN_(SET_REMAINING_TIME, drawPrintProgressRemain());
+  TERN_(SHOW_REMAINING_TIME, drawPrintProgressRemain());
   drawPrintFilename(true);
 }
 
@@ -711,10 +711,10 @@ void JyersDWIN::drawPrintProgressBar() {
   dwinDrawString(false, DWIN_FONT_MENU, getColor(eeprom_settings.progress_percent, COLOR_PERCENT), COLOR_BG_BLACK, 133, 133, F("%"));
 }
 
-#if ENABLED(SET_REMAINING_TIME)
+#if ENABLED(SHOW_REMAINING_TIME)
 
   void JyersDWIN::drawPrintProgressRemain() {
-    uint16_t remainingtime = ui.get_remaining_time();
+    const uint16_t remainingtime = ui.get_remaining_time();
     dwinDrawIntValue(true, true, 1, DWIN_FONT_MENU, getColor(eeprom_settings.progress_time, COLOR_WHITE), COLOR_BG_BLACK, 2, 176, 187, remainingtime / 3600);
     dwinDrawIntValue(true, true, 1, DWIN_FONT_MENU, getColor(eeprom_settings.progress_time, COLOR_WHITE), COLOR_BG_BLACK, 2, 200, 187, (remainingtime % 3600) / 60);
     if (eeprom_settings.time_format_textual) {
@@ -4595,7 +4595,7 @@ void JyersDWIN::printScreenControl() {
       case PRINT_PAUSE_RESUME:
         if (paused) {
           if (sdprint) {
-            wait_for_user = false;
+            marlin.user_resume();
             #if ENABLED(PARK_HEAD_ON_PAUSE)
               card.startOrResumeFilePrinting();
               TERN_(POWER_LOSS_RECOVERY, recovery.prepare());
@@ -4780,15 +4780,15 @@ void JyersDWIN::confirmControl() {
         break;
       case Popup_FilInsert:
         popupHandler(Popup_FilChange);
-        wait_for_user = false;
+        marlin.user_resume();
         break;
       case Popup_HeaterTime:
         popupHandler(Popup_Heating);
-        wait_for_user = false;
+        marlin.user_resume();
         break;
       default:
         redrawMenu(true, true, false);
-        wait_for_user = false;
+        marlin.user_resume();
         break;
     }
   }
@@ -4890,7 +4890,7 @@ void JyersDWIN::startPrint(const bool sd) {
     else
       strcpy_P(filename, PSTR("Host Print"));
     TERN_(SET_PROGRESS_PERCENT, ui.set_progress(0));
-    TERN_(SET_REMAINING_TIME, ui.set_remaining_time(0));
+    TERN_(SET_REMAINING_TIME, ui.reset_remaining_time());
     drawPrintScreen();
   }
 }
@@ -4900,7 +4900,7 @@ void JyersDWIN::stopPrint() {
   sdprint = false;
   thermalManager.cooldown();
   TERN_(SET_PROGRESS_PERCENT, ui.set_progress(100 * (PROGRESS_SCALE)));
-  TERN_(SET_REMAINING_TIME, ui.set_remaining_time(0));
+  TERN_(SET_REMAINING_TIME, ui.reset_remaining_time());
   drawPrintConfirm();
 }
 
@@ -4935,7 +4935,7 @@ void JyersDWIN::stateUpdate() {
     if (process == Proc_Print) printScreenIcons();
     if (process == Proc_Wait && !paused) redrawMenu(true, true);
   }
-  if (wait_for_user && !(process == Proc_Confirm) && !print_job_timer.isPaused())
+  if (marlin.wait_for_user && !(process == Proc_Confirm) && !print_job_timer.isPaused())
     confirmHandler(Popup_UserInput);
   #if ENABLED(ADVANCED_PAUSE_FEATURE)
     if (process == Proc_Popup && popup == Popup_PurgeMore) {
@@ -4977,7 +4977,7 @@ void JyersDWIN::screenUpdate() {
     if (process == Proc_Print) {
       drawPrintProgressBar();
       drawPrintProgressElapsed();
-      TERN_(SET_REMAINING_TIME, drawPrintProgressRemain());
+      TERN_(SHOW_REMAINING_TIME, drawPrintProgressRemain());
     }
   }
 

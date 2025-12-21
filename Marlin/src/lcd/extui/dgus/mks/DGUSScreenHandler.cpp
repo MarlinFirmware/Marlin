@@ -28,7 +28,6 @@
 
 #include "../../../../inc/MarlinConfig.h"
 
-#include "../../../../MarlinCore.h"
 #include "../../../../module/settings.h"
 #include "../../../../module/temperature.h"
 #include "../../../../module/motion.h"
@@ -287,7 +286,7 @@ void DGUSScreenHandler::screenChangeHook(DGUS_VP_Variable &var, void *val_ptr) {
   // can change any page to use this function and it will check whether a print
   // job is active. If so DGUS will go to the printing page to continue the job.
   //
-  //if (printJobOngoing() || printingIsPaused()) {
+  //if (marlin.printJobOngoing() || marlin.printingIsPaused()) {
   //  if (target == MKSLCD_PAUSE_SETTING_MOVE || target == MKSLCD_PAUSE_SETTING_EX
   //    || target == MKSLCD_SCREEN_PRINT || target == MKSLCD_SCREEN_PAUSE
   //  ) {
@@ -321,7 +320,7 @@ void DGUSScreenHandlerMKS::screenBackChange(DGUS_VP_Variable &var, void *val_ptr
 
 void DGUSScreenHandlerMKS::zOffsetConfirm(DGUS_VP_Variable &var, void *val_ptr) {
   settings.save();
-  if (printJobOngoing())
+  if (marlin.printJobOngoing())
     gotoScreen(MKSLCD_SCREEN_PRINT);
   else if (print_job_timer.isPaused)
     gotoScreen(MKSLCD_SCREEN_PAUSE);
@@ -1089,7 +1088,7 @@ void DGUSScreenHandlerMKS::filamentUnload(DGUS_VP_Variable &var, void *val_ptr) 
 
     if (filament_data.action == 0) { // Go back to utility screen
       TERN_(HAS_EXTRUDERS, thermalManager.setTargetHotend(e_temp, 0));
-      TERN_(HAS_MULTI_EXTRUDER, thermalManager.setTargetHotend(e_temp, 1));
+      E_TERN_(thermalManager.setTargetHotend(e_temp, 1));
       gotoScreen(DGUS_SCREEN_UTILITY);
       return;
     }
@@ -1192,7 +1191,7 @@ bool DGUSScreenHandlerMKS::loop() {
     }
 
     #if ENABLED(DGUS_MKS_RUNOUT_SENSOR)
-      if (booted && printingIsActive()) runoutIdle();
+      if (booted && marlin.printingIsActive()) runoutIdle();
     #endif
 
   #endif // SHOW_BOOTSCREEN

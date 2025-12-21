@@ -89,7 +89,7 @@ To build and upload Marlin you will use one of these tools:
 
 - The free [Visual Studio Code](//code.visualstudio.com/download) using the [Auto Build Marlin](//marlinfw.org/docs/basics/auto_build_marlin.html) extension.
 - Marlin is optimized to build with the [PlatformIO IDE](//platformio.org/) extension for Visual Studio Code.
-- You can also use VSCode with devcontainer : See [Installing Marlin (VSCode devcontainer)](http://marlinfw.org/docs/basics/install_devcontainer_vscode.html).
+- You can also use VSCode with devcontainer : See [Installing Marlin (VSCode devcontainer)](https://marlinfw.org/docs/basics/install_devcontainer_vscode.html).
 - You can still build Marlin with [Arduino IDE](//www.arduino.cc/en/main/software) : See [Building Marlin with Arduino](//marlinfw.org/docs/basics/install_arduino.html). We hope to improve the Arduino build experience, but at this time, PlatformIO is the preferred choice.
 
 ## 32-bit ARM boards
@@ -98,7 +98,7 @@ Marlin is compatible with a plethora of 32-bit ARM boards, which offer ample com
 
 ## 8-Bit AVR Boards
 
-Marlin originates from the era of Arduino based 8-bit boards, and we aim to support 8-bit AVR boards in perpetuity. Both 32-bit and 8-bit boards are covered by a single code base that can apply to all machines. Our goal is to support casual hobbyists, tinkerers, and owners of older machines and boards, striving to allow them to benefit from the community's innovations just as much as those with fancier machines and newer baords. In addition, these venerable AVR-based machines are often the best for testing and feedback!
+Marlin originates from the era of Arduino based 8-bit boards, and we aim to support 8-bit AVR boards in perpetuity. Both 32-bit and 8-bit boards are covered by a single code base that can apply to all machines. Our goal is to support casual hobbyists, tinkerers, and owners of older machines and boards, striving to allow them to benefit from the community's innovations just as much as those with fancier machines and newer boards. In addition, these venerable AVR-based machines are often the best for testing and feedback!
 
 ## Hardware Abstraction Layer (HAL)
 
@@ -110,17 +110,17 @@ Did you know that Marlin includes a Simulator that can run on Windows, macOS, an
 
 ### Supported Platforms
 
-| Platform                                                                                                                                                                                         | MCU                              | Example Boards                                             |
-| ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | -------------------------------- | ---------------------------------------------------------- |
-| [Arduino AVR](//www.arduino.cc/)                                                                                                                                                                 | ATmega                           | RAMPS, Melzi, RAMBo                                        |
-| [Teensy++ 2.0](//www.microchip.com/en-us/product/AT90USB1286)                                                                                                                                    | AT90USB1286                      | Printrboard                                                |
-| [Arduino Due](//www.arduino.cc/en/Guide/ArduinoDue)                                                                                                                                              | SAM3X8E                          | RAMPS-FD, RADDS, RAMPS4DUE                                 |
-| [ESP32](//github.com/espressif/arduino-esp32)                                                                                                                                                    | ESP32                            | FYSETC E4, E4d@BOX, MRR                                    |
-| [GD32](//www.gigadevice.com/)                                                                                                                                                                    | GD32 ARM Cortex-M4               | Creality MFL GD32 V4.2.2                                   |
-| [HC32](//www.huazhoucn.com/)                                                                                                                                                                     | HC32                             | Ender-2 Pro, Voxelab Aquila                                |
+| Platform                                                                                                                                                                                         | MCU                             | Example Boards                                             |
+| ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------- | ---------------------------------------------------------- |
+| [Arduino AVR](//www.arduino.cc/)                                                                                                                                                                 | ATmega                          | RAMPS, Melzi, RAMBo                                        |
+| [Teensy++ 2.0](//www.microchip.com/en-us/product/AT90USB1286)                                                                                                                                    | AT90USB1286                     | Printrboard                                                |
+| [Arduino Due](//www.arduino.cc/en/Guide/ArduinoDue)                                                                                                                                              | SAM3X8E                         | RAMPS-FD, RADDS, RAMPS4DUE                                 |
+| [ESP32](//github.com/espressif/arduino-esp32)                                                                                                                                                    | ESP32                           | FYSETC E4, E4d@BOX, MRR                                    |
+| [GD32](//www.gigadevice.com/)                                                                                                                                                                    | GD32 ARM Cortex-M4              | Creality MFL GD32 V4.2.2                                   |
+| [HC32](//www.huazhoucn.com/)                                                                                                                                                                     | HC32                            | Ender-2 Pro, Voxelab Aquila                                |
 | [LPC1768](//www.nxp.com/products/processors-and-microcontrollers/arm-microcontrollers/general-purpose-mcus/lpc1700-cortex-m3/512-kb-flash-64-kb-sram-ethernet-usb-lqfp100-package:LPC1768FBD100) | ARM® Cortex-M3                  | MKS SBASE, Re-ARM, Selena Compact                          |
 | [LPC1769](//www.nxp.com/products/processors-and-microcontrollers/arm-microcontrollers/general-purpose-mcus/lpc1700-cortex-m3/512-kb-flash-64-kb-sram-ethernet-usb-lqfp100-package:LPC1769FBD100) | ARM® Cortex-M3                  | Smoothieboard, Azteeg X5 mini, TH3D EZBoard                |
-| [Pico RP2040](//www.raspberrypi.com/documentation/microcontrollers/pico-series.html)                                                                                                             | Dual Cortex M0+                  | BigTreeTech SKR Pico                                       |
+| [Pico RP2040](//www.raspberrypi.com/documentation/microcontrollers/pico-series.html)                                                                                                             | Dual Cortex M0+                 | BigTreeTech SKR Pico                                       |
 | [STM32F103](//www.st.com/en/microcontrollers-microprocessors/stm32f103.html)                                                                                                                     | ARM® Cortex-M3                  | Malyan M200, GTM32 Pro, MKS Robin, BTT SKR Mini            |
 | [STM32F401](//www.st.com/en/microcontrollers-microprocessors/stm32f401.html)                                                                                                                     | ARM® Cortex-M4                  | ARMED, Rumba32, SKR Pro, Lerdge, FYSETC S6, Artillery Ruby |
 | [STM32F7x6](//www.st.com/en/microcontrollers-microprocessors/stm32f7x6.html)                                                                                                                     | ARM® Cortex-M7                  | The Borg, RemRam V1                                        |
@@ -133,9 +133,9 @@ Did you know that Marlin includes a Simulator that can run on Windows, macOS, an
 | [Teensy 3.6](//www.pjrc.com/store/teensy36.html)                                                                                                                                                 | MK66FX1MB-VMD18 ARM® Cortex-M4  |
 | [Teensy 4.0](//www.pjrc.com/store/teensy40.html)                                                                                                                                                 | MIMXRT1062-DVL6B ARM® Cortex-M7 |
 | [Teensy 4.1](//www.pjrc.com/store/teensy41.html)                                                                                                                                                 | MIMXRT1062-DVJ6B ARM® Cortex-M7 |
-| Linux Native                                                                                                                                                                                     | x86 / ARM / RISC-V               | Raspberry Pi GPIO                                          |
-| Simulator                                                                                                                                                                                        | Windows, macOS, Linux            | Desktop OS                                                 |
-| [All supported boards](//marlinfw.org/docs/hardware/boards.html#boards-list)                                                                                                                     | All platforms                    | All boards                                                 |
+| Linux Native                                                                                                                                                                                     | x86 / ARM / RISC-V              | Raspberry Pi GPIO                                          |
+| Simulator                                                                                                                                                                                        | Windows, macOS, Linux           | Desktop OS                                                 |
+| [All supported boards](//marlinfw.org/docs/hardware/boards.html#boards-list)                                                                                                                     | All platforms                   | All boards                                                 |
 
 ## Marlin Support
 
@@ -204,4 +204,4 @@ Marlin Firmware original logo design by Ahmet Cem TURAN [@ahmetcemturan](//githu
 
 ## License
 
-Marlin is published under the [GPL license](/LICENSE) because we believe in open development. The GPL comes with both rights and obligations. Whether you use Marlin firmware as the driver for your open or closed-source product, you must keep Marlin open, and you must provide your compatible Marlin source code to end users upon request. The most straightforward way to comply with the Marlin license is to make a fork of Marlin on Github, perform your modifications, and direct users to your modified fork.
+Marlin is published under the [GPL license](/LICENSE) because we believe in open development. The GPL comes with both rights and obligations. Whether you use Marlin firmware as the driver for your open or closed-source product, you must keep Marlin open, and you must provide your compatible Marlin source code to end users upon request. The most straightforward way to comply with the Marlin license is to make a fork of Marlin on GitHub, perform your modifications, and direct users to your modified fork.
