@@ -26,6 +26,7 @@
 
 #include "../gcode.h"
 #include "../../module/motion.h"
+#include "../../module/planner.h"
 
 /**
  * G73: Shallow peck drill cycle
@@ -42,7 +43,9 @@ feedRate_t  drill_feedrate      = NAN;
 float       drill_rapid_z       = NAN;
 float       drill_finish_depth  = NAN;
 
-void move_to(xyze_pos_t position, float z, feedRate_t f) {
+bool move_to(xyze_pos_t position, float z, feedRate_t f) {
+  if(planner.cleaning_buffer_counter) return false;
+
   LOOP_NUM_AXES(i) {
     destination[i] = position[i];
   }
@@ -51,12 +54,14 @@ void move_to(xyze_pos_t position, float z, feedRate_t f) {
   feedrate_mm_s = f;
 
   prepare_line_to_destination();
+
+  return true;
  }
 
 void drill_cycle(uint8_t mode) {
   //get input values and build positional variables
-  bool        allow_peck          = mode == 83 || mode == 73;
-  bool        allow_dwell         = mode == 82 || mode == 83 || mode == 73;
+  bool  allow_peck    = mode == 83 || mode == 73;
+  bool  allow_dwell   = mode == 82 || mode == 83 || mode == 73;
 
   //drill depth, must not be NAN
   if(parser.seenval(AXIS_CHAR(Z_AXIS))) {
@@ -100,14 +105,14 @@ void drill_cycle(uint8_t mode) {
   }
 
   //move to initial xy position
-  move_to(drill_position, 
+  if(!move_to(drill_position, 
             drill_position[Z_AXIS],
-            DRILL_CYCLES_XY_FEEDRATE);
+            DRILL_CYCLES_XY_FEEDRATE)) return;
 
   //move to rapid z position
-  move_to(drill_position, 
+  if(!move_to(drill_position, 
             drill_rapid_z,
-            DRILL_CYCLES_RETRACT_FEEDRATE);
+            DRILL_CYCLES_RETRACT_FEEDRATE)) return;
 
   //start drill cycle
   float drill_current_depth = drill_rapid_z;
@@ -118,35 +123,35 @@ void drill_cycle(uint8_t mode) {
     if(drill_current_depth < drill_finish_depth) drill_current_depth = drill_finish_depth;
 
     //drill into material
-    move_to(drill_position, 
+    if(!move_to(drill_position, 
             drill_current_depth,
-            drill_feedrate);
+            drill_feedrate)) return;
 
     //do dwell
     if(drill_dwell_time > 0) {
-      char gcode_str[15];
-      sprintf_P(gcode_str, PSTR("G4 P%d"), drill_dwell_time);
-      gcode.process_subcommands_now(gcode_str);
+      if(planner.cleaning_buffer_counter) return;
+      planner.synchronize();
+      gcode.dwell(drill_dwell_time);
     }
 
     //move to rapid z position
-    move_to(drill_position, 
+    if(!move_to(drill_position, 
             mode == 73 ? drill_last_z : drill_rapid_z,
-            DRILL_CYCLES_RETRACT_FEEDRATE);
+            DRILL_CYCLES_RETRACT_FEEDRATE)) return;
 
     //store current depth
     drill_last_z = drill_current_depth;
   }
 
   //retract to final z
-  move_to(drill_position,
+  if(!move_to(drill_position,
             drill_retract_z,
-            DRILL_CYCLES_RETRACT_FEEDRATE);
+            DRILL_CYCLES_RETRACT_FEEDRATE)) return;
 }
 
 void GcodeSuite::G81(uint8_t mode) {
   switch(mode) {
-    case 0:         //End cycle and clear variables
+    case 0:       //End cycle and clear variables
       drill_feedrate      = NAN;
       drill_rapid_z       = NAN;
       drill_finish_depth  = NAN;
