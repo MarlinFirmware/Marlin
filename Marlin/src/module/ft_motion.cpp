@@ -525,12 +525,14 @@ xyze_float_t FTMotion::calc_traj_point(const float dist) {
 
     // Approximate Gaussian smoothing via chained EMAs
     auto _smoothen = [&](const AxisEnum axis, axis_smoothing_t &smoo) {
-      float smooth_val = traj_coords[axis];
-      for (uint8_t _i = 0; _i < FTM_SMOOTHING_ORDER; ++_i) {
-        smoo.smoothing_pass[_i] += (smooth_val - smoo.smoothing_pass[_i]) * smoo.alpha;
-        smooth_val = smoo.smoothing_pass[_i];
+      if (smoo.alpha < 1) {
+        float smooth_val = traj_coords[axis];
+        for (uint8_t _i = 0; _i < FTM_SMOOTHING_ORDER; ++_i) {
+          smoo.smoothing_pass[_i] += (smooth_val - smoo.smoothing_pass[_i]) * smoo.alpha;
+          smooth_val = smoo.smoothing_pass[_i];
+        }
+        traj_coords[axis] = smooth_val;
       }
-      traj_coords[axis] = smooth_val;
     };
 
     #define _SMOOTHEN(A) _smoothen(_AXIS(A), smoothing.A);
