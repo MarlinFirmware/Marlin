@@ -56,6 +56,10 @@ public:
 
     // Calculate the distance traveled during the coast phase
     pos_after_coast = pos_before_coast + nominal_speed * T2;
+
+    // Cache frequently used sums for performance
+    T1_plus_T2 = T1 + T2;
+    total_duration = T1_plus_T2 + T3;
   }
 
   float getDistanceAtTime(const float t) const override {
@@ -63,35 +67,37 @@ public:
       // Acceleration phase
       return (this->initial_speed * t) + (0.5f * this->acceleration * sq(t));
     }
-    else if (t <= (T1 + T2)) {
+    else if (t <= T1_plus_T2) {
       // Coasting phase
       return pos_before_coast + nominal_speed * (t - T1);
     }
     // Deceleration phase
-    const float tau_decel = t - (T1 + T2);
+    const float tau_decel = t - T1_plus_T2;
     return pos_after_coast + this->nominal_speed * tau_decel - 0.5f * this->acceleration * sq(tau_decel);
   }
 
   float getTotalDuration() const override {
-    return T1 + T2 + T3;
+    return total_duration;
   }
 
   void planRunout(const float duration) override {
     reset();
-    T2 = duration; // Coast at zero speed for the entire duration
+    T2 = T1_plus_T2 = total_duration = duration; // Coast at zero speed for the entire duration
   }
 
   void reset() override {
-    T1 = T2 = T3 = 0.0f;
+    T1 = T2 = T3 = T1_plus_T2 = total_duration = 0.0f;
     this->initial_speed = this->nominal_speed = this->acceleration = 0.0f;
     pos_before_coast = pos_after_coast = 0.0f;
   }
 
-private:
-  // Internal trajectory parameters - kept private
+protected:
+  // Internal trajectory parameters - made protected for inheritance
   float T1 = 0.0f;               // Duration of acceleration phase [s]
   float T2 = 0.0f;               // Duration of coasting phase [s]
   float T3 = 0.0f;               // Duration of deceleration phase [s]
+  float T1_plus_T2 = 0.0f;       // Cached sum of T1 + T2 for performance
+  float total_duration = 0.0f;    // Cached total duration T1 + T2 + T3
   float initial_speed = 0.0f;    // Starting feedrate [mm/s]
   float nominal_speed = 0.0f;    // Peak feedrate [mm/s]
   float acceleration = 0.0f;     // Acceleration [mm/s²]
