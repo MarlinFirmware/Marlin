@@ -3045,7 +3045,35 @@
 //
 // #define FF_INTERFACEBOARD
 
-// #define MIGHTYBOARD_LCD
+//
+// MightyBoard LCD/Interface
+//
+
+//#define MIGHTYBOARD_LCD
+//#define MIGHTYBOARD_INTERFACE
+
+// Runtime debug: uncomment to enable lightweight serial runtime traces for UI/button flow
+// Enable runtime debug traces for MightyBoard button diagnostics
+// Uncomment to see serial output of button state reads and encoder changes
+//#define MIGHTYBOARD_RUNTIME_DEBUG
+
+    
+// BTN_ENC (central click) pull-up control (independent flag for click button)
+// Disable this if the button reads stuck HIGH even when pressed
+//#define MIGHTYBOARD_DISABLE_ENC_PULLUP
+
+// Board-specific option: enable internal INPUT_PULLUP for MightyBoard button pins
+// Define `MIGHTYBOARD_BUTTON_PULLUPS` to enable `SET_INPUT_PULLUP(BTN_*)` in Marlin's UI init.
+// #ifndef MIGHTYBOARD_BUTTON_PULLUPS
+//   #define MIGHTYBOARD_BUTTON_PULLUPS
+// #endif
+
+//
+// Optional: Button behavior for LEFT/RIGHT
+// If enabled, LEFT goes back one menu level, RIGHT returns to status screen
+// If disabled (default), LEFT/RIGHT change encoder position (navigate menu items)
+//
+//#define DIGITAL_BUTTON_L_R_MENU_BACK_STATUS
 
 //
 // TFT GLCD Panel with Marlin UI

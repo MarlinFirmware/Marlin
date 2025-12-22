@@ -825,6 +825,12 @@ public:
 
     static void update_buttons();
 
+    #if ENABLED(DIGITAL_BUTTON_L_R_MENU_BACK_STATUS)
+    // Requests set from interrupt context and handled in main loop
+    static volatile bool request_back;
+    static volatile bool request_return_to_status;
+    #endif
+
     #if ENABLED(ENCODER_NOISE_FILTER)
       /**
        * Some printers may have issues with EMI noise especially using a motherboard with 3.3V logic levels

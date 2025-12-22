@@ -70,6 +70,12 @@ MarlinUI ui;
   bool MarlinUI::wait_for_move; // = false
 #endif
 
+#if ENABLED(DIGITAL_BUTTON_L_R_MENU_BACK_STATUS)
+// Flags set from interrupt context; handled in main loop
+volatile bool MarlinUI::request_back = false;
+volatile bool MarlinUI::request_return_to_status = false;
+#endif
+
 constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
 
 #if HAS_STATUS_MESSAGE
@@ -1079,7 +1085,19 @@ void MarlinUI::init() {
         else
           wait_for_unclick = false;
       }
-
+      #if ENABLED(DIGITAL_BUTTON_L_R_MENU_BACK_STATUS)
+      // Handle requests set from interrupt context (ISR-safe)
+      if (MarlinUI::request_back) {
+        MarlinUI::request_back = false;
+        quick_feedback();
+        goto_previous_screen();
+      }
+      if (MarlinUI::request_return_to_status) {
+        MarlinUI::request_return_to_status = false;
+        quick_feedback();
+        return_to_status();
+      }
+      #endif
       if (LCD_BACK_CLICKED()) {
         quick_feedback();
         goto_previous_screen();
@@ -1432,27 +1450,30 @@ void MarlinUI::init() {
           else if (BUTTON_PRESSED(DOWN)) {
             encoderDiff = pulses * -(ENCODER_STEPS_PER_MENU_ITEM);
             next_button_update_ms = now + 300;
-            // #if ENABLED(MIGHTYBOARD_RUNTIME_DEBUG)
-            //   SERIAL_ECHO_MSG("update_buttons(): DOWN -> encoderDiff=", encoderDiff);
-            //   SERIAL_ECHOLN("");
-            // #endif
           }
-          else if (BUTTON_PRESSED(LEFT)) {
-            encoderDiff = -pulses;
-            next_button_update_ms = now + 300;
-            // #if ENABLED(MIGHTYBOARD_RUNTIME_DEBUG)
-            //   SERIAL_ECHO_MSG("update_buttons(): LEFT -> encoderDiff=", encoderDiff);
-            //   SERIAL_ECHOLN("");
-            // #endif
-          }
-          else if (BUTTON_PRESSED(RIGHT)) {
-            encoderDiff = pulses;
-            next_button_update_ms = now + 300;
-            // #if ENABLED(MIGHTYBOARD_RUNTIME_DEBUG)
-            //   SERIAL_ECHO_MSG("update_buttons(): RIGHT -> encoderDiff=", encoderDiff);
-            //   SERIAL_ECHOLN("");
-            // #endif
-          }
+          #if ENABLED(DIGITAL_BUTTON_L_R_MENU_BACK_STATUS)
+            // Alternative behavior: LEFT/RIGHT for menu navigation (back/home) instead of encoder scrolling
+            else if (BUTTON_PRESSED(LEFT)) {
+              // ISR-safe: request action to be handled in main loop
+              MarlinUI::request_back = true;
+              next_button_update_ms = now + 300;
+            }
+            else if (BUTTON_PRESSED(RIGHT)) {
+              // ISR-safe: request action to be handled in main loop
+              MarlinUI::request_return_to_status = true;
+              next_button_update_ms = now + 300;
+            }
+          #else
+            // Default behavior: LEFT/RIGHT change encoder position for menu item selection
+            else if (BUTTON_PRESSED(LEFT)) {
+              encoderDiff = -pulses;
+              next_button_update_ms = now + 300;
+            }
+            else if (BUTTON_PRESSED(RIGHT)) {
+              encoderDiff = pulses;
+              next_button_update_ms = now + 300;
+            }
+          #endif // DIGITAL_BUTTON_L_R_MENU_BACK_STATUS
 
         #endif // UP || DOWN || LEFT || RIGHT
 
