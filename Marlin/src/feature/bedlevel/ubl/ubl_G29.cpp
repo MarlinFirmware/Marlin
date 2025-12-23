@@ -1538,34 +1538,6 @@ void unified_bed_leveling::smart_fill_mesh() {
         incremental_LSF(&lsf_results, points[i], measured_z);
       }
 
-      /**
-       * Use the code below to check the validity of the mesh tilting algorithm.
-       * 3-Point Mesh Tilt uses the same algorithm as grid-based tilting, but only
-       * three points are used in the calculation. This guarantees that each probed point
-       * has an exact match when get_z_correction() for that location is calculated.
-       * The Z error between the probed point locations and the get_z_correction()
-       * numbers for those locations should be 0.
-       */
-      #if ENABLED(VALIDATE_MESH_TILT)
-        auto d_from = []{ DEBUG_ECHOPGM("D from "); };
-        auto normed = [&](const xy_pos_t &pos, const float zadd) {
-          return normal.x * pos.x + normal.y * pos.y + zadd;
-        };
-        auto debug_pt = [&](const int num, const xy_pos_t &pos, const float zadd) {
-          d_from();
-          DEBUG_ECHOLN(F("Point "), num, C(':'), p_float_t(normed(pos, zadd), 6), F("   Z error = "), p_float_t(zadd - get_z_correction(pos), 6));
-        };
-        debug_pt(1, points[0], normal.z * gotz[0]);
-        debug_pt(2, points[1], normal.z * gotz[1]);
-        debug_pt(3, points[2], normal.z * gotz[2]);
-        #if ENABLED(Z_SAFE_HOMING)
-          constexpr xy_float_t safe_xy = { Z_SAFE_HOMING_X_POINT, Z_SAFE_HOMING_Y_POINT };
-          d_from(); DEBUG_ECHOLN(F("safe home with Z="), F("0 : "), p_float_t(normed(safe_xy, 0), 6));
-          d_from(); DEBUG_ECHOLN(F("safe home with Z="), F("mesh value "), p_float_t(normed(safe_xy, get_z_correction(safe_xy)), 6));
-          DEBUG_ECHO(F("   Z error = ("), Z_SAFE_HOMING_X_POINT, C(','), Z_SAFE_HOMING_Y_POINT, F(") = "), p_float_t(get_z_correction(safe_xy), 6));
-        #endif
-      #endif
-
       probe.stow();
       probe.move_z_after_probing();
 
@@ -1692,6 +1664,34 @@ void unified_bed_leveling::smart_fill_mesh() {
       DEBUG_DELAY(55);
       DEBUG_ECHOLN(F("bed plane normal = ["), p_float_t(normal.x, 7), C(','), p_float_t(normal.y, 7), C(','), p_float_t(normal.z, 7), C(']'));
       DEBUG_EOL();
+
+      /**
+       * Use the code below to check the validity of the mesh tilting algorithm.
+       * 3-Point Mesh Tilt uses the same algorithm as grid-based tilting, but only
+       * three points are used in the calculation. This guarantees that each probed point
+       * has an exact match when get_z_correction() for that location is calculated.
+       * The Z error between the probed point locations and the get_z_correction()
+       * numbers for those locations should be 0.
+       */
+      #if ENABLED(VALIDATE_MESH_TILT)
+        auto d_from = []{ DEBUG_ECHOPGM("D from "); };
+        auto normed = [&](const xy_pos_t &pos, const float zadd) {
+          return normal.x * pos.x + normal.y * pos.y + zadd;
+        };
+        auto debug_pt = [&](const int num, const xy_pos_t &pos, const float zadd) {
+          d_from();
+          DEBUG_ECHOLN(F("Point "), num, C(':'), p_float_t(normed(pos, zadd), 6), F("   Z error = "), p_float_t(zadd - get_z_correction(pos), 6));
+        };
+        debug_pt(1, points[0], normal.z * gotz[0]);
+        debug_pt(2, points[1], normal.z * gotz[1]);
+        debug_pt(3, points[2], normal.z * gotz[2]);
+        #if ENABLED(Z_SAFE_HOMING)
+          constexpr xy_float_t safe_xy = { Z_SAFE_HOMING_X_POINT, Z_SAFE_HOMING_Y_POINT };
+          d_from(); DEBUG_ECHOLN(F("safe home with Z="), F("0 : "), p_float_t(normed(safe_xy, 0), 6));
+          d_from(); DEBUG_ECHOLN(F("safe home with Z="), F("mesh value "), p_float_t(normed(safe_xy, get_z_correction(safe_xy)), 6));
+          DEBUG_ECHO(F("   Z error = ("), Z_SAFE_HOMING_X_POINT, C(','), Z_SAFE_HOMING_Y_POINT, F(") = "), p_float_t(get_z_correction(safe_xy), 6));
+        #endif
+      #endif
     } // DEBUGGING(LEVELING)
   }
 
