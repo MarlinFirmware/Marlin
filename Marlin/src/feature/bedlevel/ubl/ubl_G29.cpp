@@ -1571,7 +1571,8 @@ void unified_bed_leveling::smart_fill_mesh() {
 
           #if ENABLED(UBL_TILT_ON_MESH_POINTS)
             #if ENABLED(DEBUG_LEVELING_FEATURE)
-              if (DEBUGGING(LEVELING)) const xy_pos_t oldRpos = rpos;
+              xy_pos_t oldRpos;
+              if (DEBUGGING(LEVELING)) oldRpos = rpos;
             #endif
             mesh_index_pair cpos;
             rpos -= probe.offset;
