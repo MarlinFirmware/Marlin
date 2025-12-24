@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/usr/bin/env python
 #
 # use_example_configs [repo:]configpath
 #
@@ -14,40 +14,127 @@
 #       The fallback branch is bugfix-2.1.x.
 #
 
-which curl >/dev/null && TOOL='curl -L -s -S -f -o wgot'
-which wget >/dev/null && TOOL='wget -q -O wgot'
+import os, subprocess, sys, urllib.request, urllib.error
+from pathlib import Path
 
-CURR=$(git branch 2>/dev/null | grep ^* | sed 's/\* //g')
-case "$CURR" in
-   bugfix-2.*.x ) BRANCH=$CURR ;;
-  *-2.1.x|2.1.x ) BRANCH=latest-2.1.x ;;
-  *-2.0.x|2.0.x ) BRANCH=latest-2.0.x ;;
-  *-1.1.x|1.1.x ) BRANCH=latest-1.1.x ;;
-  *-1.0.x|1.0.x ) BRANCH=latest-1.0.x ;;
-              * ) BRANCH=bugfix-2.1.x ;;
-esac
+DEBUGGING = False
+CONFIG_FILES = ("Configuration.h", "Configuration_adv.h", "_Bootscreen.h", "_Statusscreen.h")
 
-if [[ $# > 0 ]]; then
-  IFS=: read -r PART1 PART2 <<< "$@"
-  [[ -n $PART2 ]] && { UDIR="$PART2" ; BRANCH="$PART1" ; } \
-                  || { UDIR="$PART1" ; }
-  RDIR="${UDIR// /%20}"
-  echo "Fetching $UDIR configurations from $BRANCH..."
-  EXAMPLES="examples/$RDIR"
-else
-  EXAMPLES="default"
-fi
+def debug_print(s):
+    if DEBUGGING: print(s)
 
-CONFIGS="https://raw.githubusercontent.com/MarlinFirmware/Configurations/$BRANCH/config/${EXAMPLES}"
+def get_current_branch():
+    try:
+        result = subprocess.run(['git', 'branch'], capture_output=True, text=True, check=True)
+        for line in result.stdout.splitlines():
+            if line.startswith('*'):
+                return line[2:]
+    except subprocess.CalledProcessError:
+        return None
 
-restore_configs
+def sparse_checkout(branch, config_path, repo_url="https://github.com/MarlinFirmware/Configurations.git"):
+    configs_dir = Path("ConfigurationsRepo")
+    config_subdir = f"config/{config_path}"
 
-cd Marlin
+    if not configs_dir.exists():
+        # Step 1: Clone with no checkout
+        subprocess.run([
+            "git", "clone", "--depth", "1", "--filter=blob:none", "--sparse",
+            "--branch", branch, repo_url, str(configs_dir)
+        ], check=True)
 
-$TOOL "$CONFIGS/Configuration.h"     >/dev/null 2>&1 && mv wgot Configuration.h
-$TOOL "$CONFIGS/Configuration_adv.h" >/dev/null 2>&1 && mv wgot Configuration_adv.h
-$TOOL "$CONFIGS/_Bootscreen.h"       >/dev/null 2>&1 && mv wgot _Bootscreen.h
-$TOOL "$CONFIGS/_Statusscreen.h"     >/dev/null 2>&1 && mv wgot _Statusscreen.h
+    # Step 2: Enable sparse checkout and set the folder
+    subprocess.run(["git", "sparse-checkout", "set", config_subdir], cwd=str(configs_dir), check=True)
+    # Step 3: Pull the latest for that branch/folder
+    subprocess.run(["git", "pull"], cwd=str(configs_dir), check=True)
 
-rm -f wgot
-cd - >/dev/null
+def copy_config_files(branch, config_path, dest_dir):
+    sparse_checkout(branch, config_path)
+
+    src_dir = Path("ConfigurationsRepo") / "config" / config_path
+    for fname in CONFIG_FILES:
+        src_file = src_dir / fname
+        if src_file.exists():
+            dest_file = dest_dir / fname
+            debug_print(f"Copying {src_file} to {dest_file}")
+            dest_file.write_bytes(src_file.read_bytes())
+        else:
+            debug_print(f"{fname} not found in {src_dir}")
+
+def fetch_config_files(branch, config_path, dest_dir):
+    config_path_url = config_path.replace(' ', '%20')
+    base_url = f"https://raw.githubusercontent.com/MarlinFirmware/Configurations/{branch}/config/{config_path_url}"
+
+    for file in CONFIG_FILES:
+        url = f"{base_url}/{file}"
+        dest_file = dest_dir / file
+        if os.getenv('DEBUG', '0') == '1':
+            debug_print(f"Fetching {file} from {url} to {dest_file}")
+
+        try:
+            urllib.request.urlretrieve(url, dest_file)
+        except urllib.error.HTTPError as e:
+            if e.code == 404:
+                if os.getenv('DEBUG', '0') == '1':
+                    print(f"File {file} not found (404), skipping.")
+            else:
+                raise
+
+def fetch_configs(branch, config_path):
+    print(f"Fetching {config_path} configurations from {branch}...")
+
+    marlin_dir = Path("Marlin")
+    if not marlin_dir.exists():
+        print(f"Directory 'Marlin' not found at the current location.")
+        sys.exit(1)
+
+    if os.environ.get('GITHUB_ACTIONS'):        # Running on GitHub ?
+        copy_config_files(branch, config_path, marlin_dir)
+    else:
+        fetch_config_files(branch, config_path, marlin_dir)
+
+def main():
+    branch = get_current_branch()
+    if not branch:
+        print("Not a git repository or no branch found.")
+        sys.exit(1)
+
+    if branch.startswith("bugfix-2."):
+        branch = branch
+    elif branch.endswith("bugfix-2.1.x"):
+        branch = "bugfix-2.1.x"
+    elif branch.endswith("-2.1.x") or branch == "2.1.x":
+        branch = "latest-2.1.x"
+    elif branch.endswith("-2.0.x") or branch == "2.0.x":
+        branch = "latest-2.0.x"
+    elif branch.endswith("-1.1.x") or branch == "1.1.x":
+        branch = "latest-1.1.x"
+    elif branch.endswith("-1.0.x") or branch == "1.0.x":
+        branch = "latest-1.0.x"
+    else:
+        branch = "bugfix-2.1.x"
+
+    if len(sys.argv) > 1:
+        arg = sys.argv[1]
+        if ':' in arg:
+            part1, part2 = arg.split(':', 1)
+            config_path = part2
+            branch = part1
+        else:
+            config_path = arg
+        config_path = 'examples/'+config_path
+    else:
+        config_path = "default"
+
+    try:
+        subprocess.run(['restore_configs'], check=True)
+    except FileNotFoundError:
+        try:
+            subprocess.run(['./buildroot/bin/restore_configs'], check=True)
+        except FileNotFoundError:
+            print("restore_configs not found, skipping.")
+
+    fetch_configs(branch, config_path)
+
+if __name__ == "__main__":
+    main()
