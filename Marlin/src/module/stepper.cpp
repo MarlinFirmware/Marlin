@@ -671,7 +671,9 @@ void Stepper::disable_all_steppers() {
 #if ENABLED(FT_MOTION)
   // We'll compare the updated DIR bits to the last set state
   static AxisBits last_set_direction;
-  xyze_int_t Stepper::pending_hysteresis_steps ={0};  // Accumulated steps offset due to hysteresis delays
+  #if HAS_E_DRIVER(TMC2208) || HAS_E_DRIVER(TMC2208_STANDALONE) || HAS_E_DRIVER(TMC5160) || HAS_E_DRIVER(TMC5160_STANDALONE)
+    xyze_int_t Stepper::pending_hysteresis_steps ={0};  // Accumulated steps offset due to hysteresis delays
+  #endif
 #endif
 
 // Set a single axis direction based on the last set flags.
