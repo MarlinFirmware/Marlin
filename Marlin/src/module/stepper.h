@@ -406,6 +406,12 @@ class Stepper {
       static AxisBits axis_did_move;      // Last Movement in the given direction is not null, as computed when the last movement was fetched from planner
     #endif
 
+    // FT_MOTION Hysteresis tracking for direction changes
+    #if ENABLED(FT_MOTION) && (HAS_E_DRIVER(TMC2208) || HAS_E_DRIVER(TMC2208_STANDALONE) || \
+                               HAS_E_DRIVER(TMC5160) || HAS_E_DRIVER(TMC5160_STANDALONE))
+      static xyze_int_t pending_hysteresis_steps;  // Accumulated steps offset due to hysteresis delays
+    #endif
+
     static bool abort_current_block;      // Signals to the stepper that current block should be aborted
 
     // Motor locking for independent movement of multi-stepper axes

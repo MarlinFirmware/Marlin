@@ -671,6 +671,7 @@ void Stepper::disable_all_steppers() {
 #if ENABLED(FT_MOTION)
   // We'll compare the updated DIR bits to the last set state
   static AxisBits last_set_direction;
+  xyze_int_t Stepper::pending_hysteresis_steps ={0};  // Accumulated steps offset due to hysteresis delays
 #endif
 
 // Set a single axis direction based on the last set flags.
@@ -1809,6 +1810,48 @@ void Stepper::isr() {
   #define ISR_MULTI_STEPS 1
 #endif
 
+/**
+ * ========================================
+ * Hysteresis Macros for TMC Driver Safety
+ * ========================================
+ * When input shaping is active, direction changes can occur rapidly.
+ * This hysteresis prevents TMC2208/TMC2225/TMC5160 shutdown bugs (#16076)
+ * by increasing the step detection threshold, giving the driver time to
+ * stabilize phase currents.
+ */
+
+// Define hysteresis values based on driver type (64 units = ~0.5 step)
+#if AXIS_DRIVER_TYPE_X(TMC2208) || AXIS_DRIVER_TYPE_X(TMC2208_STANDALONE) || \
+    AXIS_DRIVER_TYPE_X(TMC5160) || AXIS_DRIVER_TYPE_X(TMC5160_STANDALONE)
+  #define HYSTERESIS_X 64
+#else
+  #define HYSTERESIS_X 0
+#endif
+
+#if AXIS_DRIVER_TYPE_Y(TMC2208) || AXIS_DRIVER_TYPE_Y(TMC2208_STANDALONE) || \
+    AXIS_DRIVER_TYPE_Y(TMC5160) || AXIS_DRIVER_TYPE_Y(TMC5160_STANDALONE)
+  #define HYSTERESIS_Y 64
+#else
+  #define HYSTERESIS_Y 0
+#endif
+
+#if AXIS_DRIVER_TYPE_Z(TMC2208) || AXIS_DRIVER_TYPE_Z(TMC2208_STANDALONE) || \
+    AXIS_DRIVER_TYPE_Z(TMC5160) || AXIS_DRIVER_TYPE_Z(TMC5160_STANDALONE)
+  #define HYSTERESIS_Z 64
+#else
+  #define HYSTERESIS_Z 0
+#endif
+
+#if HAS_E_DRIVER(TMC2208) || HAS_E_DRIVER(TMC2208_STANDALONE) || \
+    HAS_E_DRIVER(TMC5160) || HAS_E_DRIVER(TMC5160_STANDALONE)
+  #define HYSTERESIS_E 64
+#else
+  #define HYSTERESIS_E 0
+#endif
+
+#define _HYSTERESIS(AXIS) HYSTERESIS_##AXIS
+#define HYSTERESIS(AXIS) _HYSTERESIS(AXIS)
+
 #if HAS_STANDARD_MOTION
   /**
    * This phase of the ISR should ONLY create the pulses for the steppers.
@@ -1883,27 +1926,7 @@ void Stepper::isr() {
       // the TMC2208 / TMC2225 shutdown bug (#16076), add a half step hysteresis
       // in each direction. This results in the position being off by half an
       // average half step during travel but correct at the end of each segment.
-      #if AXIS_DRIVER_TYPE_X(TMC2208) || AXIS_DRIVER_TYPE_X(TMC2208_STANDALONE) || \
-          AXIS_DRIVER_TYPE_X(TMC5160) || AXIS_DRIVER_TYPE_X(TMC5160_STANDALONE)
-        #define HYSTERESIS_X 64
-      #else
-        #define HYSTERESIS_X 0
-      #endif
-      #if AXIS_DRIVER_TYPE_Y(TMC2208) || AXIS_DRIVER_TYPE_Y(TMC2208_STANDALONE) || \
-          AXIS_DRIVER_TYPE_Y(TMC5160) || AXIS_DRIVER_TYPE_Y(TMC5160_STANDALONE)
-        #define HYSTERESIS_Y 64
-      #else
-        #define HYSTERESIS_Y 0
-      #endif
-      #if AXIS_DRIVER_TYPE_Z(TMC2208) || AXIS_DRIVER_TYPE_Z(TMC2208_STANDALONE) || \
-          AXIS_DRIVER_TYPE_Z(TMC5160) || AXIS_DRIVER_TYPE_Z(TMC5160_STANDALONE)
-        #define HYSTERESIS_Z 64
-      #else
-        #define HYSTERESIS_Z 0
-      #endif
-      #define _HYSTERESIS(AXIS) HYSTERESIS_##AXIS
-      #define HYSTERESIS(AXIS) _HYSTERESIS(AXIS)
-
+      
       #define PULSE_PREP_SHAPING(AXIS, DELTA_ERROR, DIVIDEND) do{ \
         int16_t de = DELTA_ERROR + (DIVIDEND); \
         const bool step_fwd = de >=  (64 + HYSTERESIS(AXIS)), \
@@ -3603,6 +3626,38 @@ void Stepper::report_positions() {
     AxisBits &step_bits = ftMotion.stepping.step_bits;            // Aliases for prettier code
     AxisBits &dir_bits = ftMotion.stepping.dir_bits;
 
+    /**
+     * For axes with TMC drivers vulnerable to shutdown (TMC2208/2225/5160),
+     * apply hysteresis to direction changes, just like PULSE_PREP_SHAPING
+     * in the standard motion system.
+     */
+    
+    #if (HYSTERESIS_E > 0) 
+      /**
+       * When a direction change is detected on E axis:
+       * 1. Update last_direction_bits
+       * 2. Accumulate step counter for the new direction
+       * 3. Apply WAIT_BEFORE only when accumulated steps >= HYSTERESIS threshold
+       * 4. Single-direction blocks pass through without suppression
+       */
+      
+        if (step_bits.E && (last_direction_bits.E != dir_bits.E)) { 
+          // Direction change detected - UPDATE immediately to avoid re-accumulation
+          last_direction_bits.E = dir_bits.E;
+          
+          if (++pending_hysteresis_steps.E >= HYSTERESIS_E) {
+            // Threshold reached - apply direction change with TMC protection
+            { USING_TIMED_PULSE(); START_TIMED_PULSE(); AWAIT_LOW_PULSE(); } 
+            DIR_WAIT_BEFORE();
+            pending_hysteresis_steps.E = 0; 
+          } else { 
+            step_bits.E = 0; 
+          } 
+        } else { 
+          pending_hysteresis_steps.E = 0; 
+        } 
+    #endif
+    
     USING_TIMED_PULSE();
 
     /**
