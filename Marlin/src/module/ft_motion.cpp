@@ -467,13 +467,26 @@ xyze_float_t FTMotion::calc_traj_point(const float dist) {
 
   #if FTM_HAS_LIN_ADVANCE
     const float advK = planner.get_advance_k();
-    if (advK) {
-      const float traj_e = traj_coords.e;
-      if (use_advance_lead) {
-        // Don't apply LA to retract/unretract blocks
-        const float e_rate = (traj_e - prev_traj_e) * (FTM_FS);
-        traj_coords.e += e_rate * advK;
-      }
+    // Apply LA/NLE only to printing (not retract/unretract) blocks
+    if (use_advance_lead && (advK TERN(NONLINEAR_EXTRUSION, || stepper.ne.settings.enabled,))) {
+      TERN(NONLINEAR_EXTRUSION,, const) float traj_e = traj_coords.e;
+      const float traj_e_delta = traj_e - prev_traj_e; // extruder delta in mm
+      const float e_rate = traj_e_delta * FTM_FS;      // extruder velocity in mm/s
+
+      traj_coords.e += e_rate * advK;
+
+      #if ENABLED(NONLINEAR_EXTRUSION)
+        if (stepper.ne.settings.enabled) {
+          const float multiplier = max(stepper.ne.settings.coeff.C, stepper.ne.settings.coeff.A * sq(e_rate) + stepper.ne.settings.coeff.B * e_rate + stepper.ne.settings.coeff.C);
+          const float nle_term = traj_e_delta * (multiplier - 1);
+
+          traj_coords.e += nle_term;
+          traj_e += nle_term;
+          startPos.e += nle_term;
+          endPos_prevBlock.e += nle_term;
+        }
+      #endif
+
       prev_traj_e = traj_e;
     }
   #endif
