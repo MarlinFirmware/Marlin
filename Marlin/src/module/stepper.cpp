@@ -671,7 +671,7 @@ void Stepper::disable_all_steppers() {
 #if ENABLED(FT_MOTION)
   // We'll compare the updated DIR bits to the last set state
   static AxisBits last_set_direction;
-  #if HAS_E_DRIVER(TMC2208) || HAS_E_DRIVER(TMC2208_STANDALONE) || HAS_E_DRIVER(TMC5160) || HAS_E_DRIVER(TMC5160_STANDALONE)
+  #if FTM_E_DRIVER_HYSTERESIS
     xyze_int_t Stepper::pending_hysteresis_steps ={0};  // Accumulated steps offset due to hysteresis delays
   #endif
 #endif
@@ -1844,8 +1844,7 @@ void Stepper::isr() {
   #define HYSTERESIS_Z 0
 #endif
 
-#if HAS_E_DRIVER(TMC2208) || HAS_E_DRIVER(TMC2208_STANDALONE) || \
-    HAS_E_DRIVER(TMC5160) || HAS_E_DRIVER(TMC5160_STANDALONE)
+#if FTM_E_DRIVER_HYSTERESIS
   #define HYSTERESIS_E 64
 #else
   #define HYSTERESIS_E 0
@@ -3634,7 +3633,7 @@ void Stepper::report_positions() {
      * in the standard motion system.
      */
     
-    #if (HYSTERESIS_E > 0) 
+    #if FTM_E_DRIVER_HYSTERESIS 
       /**
        * When a direction change is detected on E axis:
        * 1. Update last_direction_bits

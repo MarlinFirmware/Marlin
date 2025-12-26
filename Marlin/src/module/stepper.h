@@ -407,8 +407,7 @@ class Stepper {
     #endif
 
     // FT_MOTION Hysteresis tracking for direction changes
-    #if ENABLED(FT_MOTION) && (HAS_E_DRIVER(TMC2208) || HAS_E_DRIVER(TMC2208_STANDALONE) || \
-                               HAS_E_DRIVER(TMC5160) || HAS_E_DRIVER(TMC5160_STANDALONE))
+    #if FTM_E_DRIVER_HYSTERESIS
       static xyze_int_t pending_hysteresis_steps;  // Accumulated steps offset due to hysteresis delays
     #endif
 
