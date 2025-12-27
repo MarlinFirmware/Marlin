@@ -52,6 +52,7 @@ void GcodeSuite::G5() {
       return;
     }
   #endif
+
   get_destination_from_command();
 
   const xy_pos_t offsets[2] = {
