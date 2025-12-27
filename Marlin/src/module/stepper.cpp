@@ -671,7 +671,7 @@ void Stepper::disable_all_steppers() {
 #if ENABLED(FT_MOTION)
   // We'll compare the updated DIR bits to the last set state
   static AxisBits last_set_direction;
-  #if FTM_E_DRIVER_HYSTERESIS
+  #if ANY(X_DRIVER_HYSTERESIS, Y_DRIVER_HYSTERESIS,Z_DRIVER_HYSTERESIS,E_DRIVER_HYSTERESIS)
     xyze_int_t Stepper::pending_hysteresis_steps ={0};  // Accumulated steps offset due to hysteresis delays
   #endif
 #endif
@@ -3633,30 +3633,29 @@ void Stepper::report_positions() {
      * in the standard motion system.
      */
     
-    #if FTM_E_DRIVER_HYSTERESIS 
+    #if ANY(X_DRIVER_HYSTERESIS, Y_DRIVER_HYSTERESIS,Z_DRIVER_HYSTERESIS,E_DRIVER_HYSTERESIS) 
       /**
-       * When a direction change is detected on E axis:
+       * When a direction change is detected on any axis:
        * 1. Update last_direction_bits
        * 2. Accumulate step counter for the new direction
        * 3. Apply WAIT_BEFORE only when accumulated steps >= HYSTERESIS threshold
        * 4. Single-direction blocks pass through without suppression
        */
       
-        if (step_bits.E && (last_direction_bits.E != dir_bits.E)) { 
-          // Direction change detected - UPDATE immediately to avoid re-accumulation
-          last_direction_bits.E = dir_bits.E;
-          
-          if (++pending_hysteresis_steps.E >= HYSTERESIS_E) {
-            // Threshold reached - apply direction change with TMC protection
-            { USING_TIMED_PULSE(); START_TIMED_PULSE(); AWAIT_LOW_PULSE(); } 
-            DIR_WAIT_BEFORE();
-            pending_hysteresis_steps.E = 0; 
-          } else { 
-            step_bits.E = 0; 
-          } 
-        } else { 
-          pending_hysteresis_steps.E = 0; 
-        } 
+      #define _AXES_HYSTERESIS(A) if(HYSTERESIS_##A) { \
+        if (step_bits.A && (last_direction_bits.A != dir_bits.A)) { \
+            last_direction_bits.A = dir_bits.A; \
+            if (++pending_hysteresis_steps.A >= HYSTERESIS_##A) { \
+              { USING_TIMED_PULSE(); START_TIMED_PULSE(); AWAIT_LOW_PULSE(); } \
+              DIR_WAIT_BEFORE(); \
+              pending_hysteresis_steps.A = 0; } \
+            else { \
+              step_bits.A = 0; } \
+          } else \
+            pending_hysteresis_steps.A = 0; \
+        }
+    
+      LOGICAL_AXIS_MAP(_AXES_HYSTERESIS);
     #endif
     
     USING_TIMED_PULSE();

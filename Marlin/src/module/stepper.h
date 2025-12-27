@@ -407,7 +407,7 @@ class Stepper {
     #endif
 
     // FT_MOTION Hysteresis tracking for direction changes
-    #if FTM_E_DRIVER_HYSTERESIS
+    #if ANY(X_DRIVER_HYSTERESIS, Y_DRIVER_HYSTERESIS,Z_DRIVER_HYSTERESIS,E_DRIVER_HYSTERESIS)
       static xyze_int_t pending_hysteresis_steps;  // Accumulated steps offset due to hysteresis delays
     #endif
 
