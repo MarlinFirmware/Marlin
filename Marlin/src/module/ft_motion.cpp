@@ -470,7 +470,7 @@ xyze_float_t FTMotion::calc_traj_point(const float dist) {
     // Apply LA/NLE only to printing (not retract/unretract) blocks
     if (use_advance_lead && (advK TERN(NONLINEAR_EXTRUSION, || stepper.ne.settings.enabled,))) {
       TERN(NONLINEAR_EXTRUSION,, const) float traj_e = traj_coords.e;
-      const float traj_e_delta = traj_e - prev_traj_e; // extruder delta in mm
+      const float traj_e_delta = traj_e - prev_traj_e; // extruder delta in mm, always positive for use_advance_lead (printing moves)
       const float e_rate = traj_e_delta * FTM_FS;      // extruder velocity in mm/s
 
       traj_coords.e += e_rate * advK;
