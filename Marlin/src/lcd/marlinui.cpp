@@ -1049,17 +1049,23 @@ void MarlinUI::init() {
       TERN_(LCD_HAS_STATUS_INDICATORS, update_indicators());
 
       #if HAS_ENCODER_ACTION
-        TERN_(HAS_SLOW_BUTTONS, slow_buttons = read_slow_buttons()); // Buttons that take too long to read in interrupt context
+        // Read buttons that take too long to read in interrupt context,
+        // as with an external LCD button API.
+        TERN_(HAS_SLOW_BUTTONS, slow_buttons = read_slow_buttons());
 
+        // RRW Keypad interaction resets the timeout to status screen
         if (TERN0(IS_RRW_KEYPAD, handle_keypad()))
           reset_status_timeout(ms);
 
+        // Wake the display for any encoder movement
         static int8_t lastEncoderDiff;
         if (lastEncoderDiff != encoderDiff) wake_display();
         lastEncoderDiff = encoderDiff;
 
+        // Did the encoder turn by more than "Encoder Pulses Per Step" ticks?
         const uint8_t abs_diff = ABS(encoderDiff);
         const bool encoderPastThreshold = (abs_diff >= epps);
+
         if (encoderPastThreshold && TERN1(IS_TFTGLCD_PANEL, !external_control)) {
 
           int32_t encoder_multiplier = 1;
@@ -1103,16 +1109,22 @@ void MarlinUI::init() {
           }
         }
 
+        // Has the wheel advanced by a step or the encoder done a click?
         if (encoderPastThreshold || lcd_clicked) {
+
+          // Retain the current screen
           reset_status_timeout(ms);
 
+          // Keep the lights on
           #if HAS_BACKLIGHT_TIMEOUT
             refresh_backlight_timeout();
           #elif HAS_DISPLAY_SLEEP
             refresh_screen_timeout();
           #endif
 
+          // Make sure the display is updated in response
           refresh(LCDVIEW_REDRAW_NOW);
+          // This will cause paged displays to go to "first page"
           TERN_(HAS_MARLINUI_U8GLIB, drawing_screen = false);
           #if MARLINUI_SCROLL_NAME
             filename_scroll_max = 0;
@@ -1170,6 +1182,7 @@ void MarlinUI::init() {
         TERN_(HAS_ADC_BUTTONS, keypad_buttons = 0);
 
         #if HAS_MARLINUI_U8GLIB
+
           #if ENABLED(LIGHTWEIGHT_UI)
             const bool in_status = on_status_screen(),
                        do_u8g_loop = !in_status;
@@ -1198,11 +1211,14 @@ void MarlinUI::init() {
               return;
             }
           }
-        #else
+
+        #else // !HAS_MARLINUI_U8GLIB
+
           run_current_screen();
 
           // Apply all DWIN drawing after processing
           TERN_(IS_DWIN_MARLINUI, dwinUpdateLCD());
+
         #endif
 
         TERN_(HAS_MARLINUI_MENU, lcd_clicked = false);
