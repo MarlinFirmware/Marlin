@@ -70,7 +70,7 @@ void GcodeSuite::G42() {
   #endif
 
   const feedRate_t fval = parser.feedrateval('F'),
-                   fr_mm_s = MMM_TO_MMS(fval);
+                   fr_mm_s = MMM_TO_MMS(fval > 0 ? fval : 0.0f);
 
   // SCARA kinematic has "safe" XY raw moves
   #if IS_SCARA

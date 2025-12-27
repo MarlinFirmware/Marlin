@@ -422,8 +422,7 @@ float LevelingBilinear::get_z_correction(const xy_pos_t &raw) {
       // Must already have been split on these border(s)
       // This should be a rare case.
       motion.position = motion.destination;
-      motion.line_to_current_position(scaled_fr_mm_s);
-      parser.inverse_time_enabled = old_inverse_time_enabled;
+      motion.goto_current_position(scaled_fr_mm_s);
       return;
     }
 
@@ -436,7 +435,6 @@ float LevelingBilinear::get_z_correction(const xy_pos_t &raw) {
     // Restore destination from stack
     motion.destination = end;
     line_to_destination(scaled_fr_mm_s, x_splits, y_splits);
-    parser.inverse_time_enabled = old_inverse_time_enabled;
   }
 
 #endif // IS_CARTESIAN && !SEGMENT_LEVELED_MOVES
