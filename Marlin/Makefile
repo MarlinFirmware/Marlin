@@ -434,6 +434,9 @@ else ifeq ($(HARDWARE_MOTHERBOARD),1332)
 else ifeq ($(HARDWARE_MOTHERBOARD),1333)
 # Geeetech GT2560 V4.1B for A10(M/T/D)
 else ifeq ($(HARDWARE_MOTHERBOARD),1334)
+#these are shifted by 1 starting somewhere above Einstart Retrofit
+# WEEDO 62B board (Monoprice Maker Ultimate 2)
+else ifeq ($(HARDWARE_MOTHERBOARD),1335)
 
 #
 # ATmega1281, ATmega2561
