@@ -42,7 +42,7 @@
 #define X_MAX_PIN                              2
 //#define Y_MIN_PIN                             -1 //???
 #define Y_MAX_PIN                             41
-//#define Z_MIN_PIN                             18
+#define Z_MIN_PIN                             18  // manuf file has 18, but why not 32 to match probe pin?
 #define Z_MAX_PIN                             19
 
 //
