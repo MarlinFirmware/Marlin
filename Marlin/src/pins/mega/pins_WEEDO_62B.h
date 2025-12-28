@@ -83,7 +83,7 @@
 //#define PS_ON_PIN                             12 //from WEEDO_62A, what is?
 #define LED_PIN                               13
 #define FIL_RUNOUT_PIN						   3
-#define DOOROPEN_PIN						  40
+#define DOOROPEN_PIN						  40  //from manuf file, is this implemented?
 #define Z_MIN_PROBE_PIN						  32
 //#define SOL1_PIN							  19  //from manuf file, same as Z_MAX_PIN?
 
