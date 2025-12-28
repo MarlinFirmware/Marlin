@@ -43,8 +43,9 @@ def run_preprocessor(env, fn=None):
     blab(cmd)
     try:
         define_list = subprocess.check_output(cmd, shell=True).splitlines()
+        blab("define_list: %s" % define_list)
     except:
-        define_list = {}
+        raise RuntimeError(f"A serious error occurred and the build cannot continue. Command `{cmd}` returned no data.")
     preprocessor_cache[filename] = define_list
     return define_list
 
