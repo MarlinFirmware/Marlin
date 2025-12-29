@@ -8,8 +8,10 @@ UA="Mozilla/5.0 (Linux; Android 10; SM-G996U Build/QP1A.190711.020; wv) AppleWeb
 UTMP=$(mktemp)
 #echo "[debug 1] UTMP = ${UTMP}"
 echo "Gathering URLs. Please wait..."
-grep -R -E "https?:\/\/[^ \"''\(\)\<\>]+" . 2>/dev/null \
+find Marlin/src -type f ! -path "*/\.*" -exec grep -Eo "https?:\/\/[^ \"'\$\<\>]+" {} \; 2>/dev/null \
+  | sort -u -R \
   | grep -v "Binary file" \
+  | grep -v "/licenses" | grep -v "MarlinFirmware/Marlin" | grep -v "st.com/resource" \
   | sed -E "s/\/https?:\/\//\//" \
   | sed -E 's/.*\((https?:\/\/[^ ]+)\).*$/\1/' \
   | sed -E 's/.*\[(https?:\/\/[^ ]+)\].*$/\1/' \
@@ -17,7 +19,6 @@ grep -R -E "https?:\/\/[^ \"''\(\)\<\>]+" . 2>/dev/null \
   | grep -vE "(127\.0\.0\.1|localhost|myserver|doc\.qt\.io|docs\.google\.com|raw\.githubusercontent\.com|[\${}])" \
   | sed -E 's/]$//' | sed -E "s/'$//" | sed -E "s/[#.',]+$//" \
   | sed -E 's/youtu\.be\/(.+)/www.youtube.com\/watch?v=\1/' \
-  | sort -u -R \
   >"$UTMP"
 
   #echo "[debug 2] link count = $(wc -l $UTMP)"
@@ -30,7 +31,7 @@ grep -R -E "https?:\/\/[^ \"''\(\)\<\>]+" . 2>/dev/null \
     if [[ $HERR > 0 ]]; then
       # Error 92 may be domain blocking curl / wget
       [[ $HERR == 92 ]] || { ISERR=1 ; BADURLS+=($URL) ; }
-      echo "[FAIL ($HERR)]"
+      echo "${URL} ... [FAIL ($HERR)]"
     else
       HEAD1=$(echo $HEAD | head -n1)
       EMSG=
@@ -47,6 +48,7 @@ grep -R -E "https?:\/\/[^ \"''\(\)\<\>]+" . 2>/dev/null \
                *) EMSG="[Other Err]" ;;
       esac
       if [[ -n $EMSG ]]; then
+        echo -n "${URL} ... "
         if [[ -n $WHERE ]]; then
           [[ ${HEAD,,} =~ "location: " ]] && EMSG+=" to $(echo "$HEAD" | grep -i "location: " | sed -E 's/location: (.*)/\1/')"
         else

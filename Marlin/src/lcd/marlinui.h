@@ -667,6 +667,11 @@ public:
     static void preheat_all(const uint8_t m, const uint8_t e=active_extruder) { apply_preheat(m, PT_ALL, e); }
   #endif
 
+  /**
+   * The current screen will time out unless 'defer_return_to_status' is true,
+   * and the display will go back to the Status Screen.
+   * Call this method whenever the user interacts to reset the timeout.
+   */
   static void reset_status_timeout(const millis_t ms) {
     TERN(HAS_SCREEN_TIMEOUT, return_to_status_ms = ms + LCD_TIMEOUT_TO_STATUS, UNUSED(ms));
   }

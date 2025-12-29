@@ -51,6 +51,28 @@
 
 #include "MarlinSerial.h"
 
+#if !WITHIN(SERIAL_PORT, -1, 1)
+  #error "SERIAL_PORT must be from -1 to 1."
+#endif
+
+#ifdef SERIAL_PORT_2
+  #if !WITHIN(SERIAL_PORT_2, -1, 1)
+    #error "SERIAL_PORT_2 must be from -1 to 1."
+  #endif
+#endif
+
+#ifdef SERIAL_PORT_3
+  #if !WITHIN(SERIAL_PORT_3, -1, 1)
+    #error "SERIAL_PORT_3 must be from -1 to 1."
+  #endif
+#endif
+
+#ifdef LCD_SERIAL_PORT
+  #if !WITHIN(LCD_SERIAL_PORT, -1, 1)
+    #error "LCD_SERIAL_PORT must be from -1 to 1."
+  #endif
+#endif
+
 // ------------------------
 // Defines
 // ------------------------
@@ -131,7 +153,7 @@ public:
 
   // Watchdog
   static void watchdog_init()    IF_DISABLED(USE_WATCHDOG, {});
-  static void watchdog_refresh() IF_DISABLED(USE_WATCHDOG, {});
+  static void watchdog_refresh(const uint8_t=0) IF_DISABLED(USE_WATCHDOG, {});
 
   static void init();          // Called early in setup()
   static void init_board() {}  // Called less early in setup()
