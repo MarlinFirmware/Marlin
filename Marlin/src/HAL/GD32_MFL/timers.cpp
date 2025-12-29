@@ -69,10 +69,6 @@
   #endif
 #endif
 
-#ifndef HAL_TIMER_RATE
-  #define HAL_TIMER_RATE  GetStepperTimerClkFreq()
-#endif
-
 #ifndef STEP_TIMER
   #define STEP_TIMER    MF_TIMER_STEP
 #endif

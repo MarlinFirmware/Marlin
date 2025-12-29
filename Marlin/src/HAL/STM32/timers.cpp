@@ -81,10 +81,6 @@
   #define MCU_TEMP_TIMER 14           // TIM7 is consumed by Software Serial if used.
 #endif
 
-#ifndef HAL_TIMER_RATE
-  #define HAL_TIMER_RATE GetStepperTimerClkFreq()
-#endif
-
 #ifndef STEP_TIMER
   #define STEP_TIMER MCU_STEP_TIMER
 #endif
