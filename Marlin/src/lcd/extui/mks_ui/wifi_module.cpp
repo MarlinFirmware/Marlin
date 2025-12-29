@@ -1072,7 +1072,7 @@ static void wifi_gcode_exec(uint8_t * const cmd_line) {
                   //saved_feedrate_percentage = feedrate_percentage;
                   feedrate_percentage = 100;
                   TERN_(HAS_EXTRUDERS, planner.set_flow(0, 100));
-                  TERN_(HAS_MULTI_EXTRUDER, planner.set_flow(1, 100));
+                  E_TERN_(planner.set_flow(1, 100));
                   card.startOrResumeFilePrinting();
                   TERN_(POWER_LOSS_RECOVERY, recovery.prepare());
                   once_flag = false;

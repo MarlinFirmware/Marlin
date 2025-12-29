@@ -53,7 +53,7 @@ Just searching for `SCB->VTOR` should yield some results. From there, you just n
 > Some vendors publish incomplete source code. But they sometimes leave version control related files in the repo, which can contain previous version of files that were removed. Find these by including folders like `.git` or `.svn` in your search.
 
 > [!NOTE]
-> The example is based on the [Voxelab-64/Aquila_X2](https://github.com/Voxelab-64/Aquila_X2/blob/d1f23adf96920996b979bc31023d1dce236d05db/firmware/Sources/.svn/pristine/ec/ec82bcb480b511906bc3e6658450e3a803ab9813.svn-base#L96) which actually includes deleted files in its repo.
+> The example is based on the [Voxelab-64/Aquila_X2](https://github.com/Voxelab-64/Aquila_X2/blob/main/firmware/Sources/.svn/pristine/ec/ec82bcb480b511906bc3e6658450e3a803ab9813.svn-base#L96) which actually includes deleted files in its repo.
 
 2. Using a linker script
 

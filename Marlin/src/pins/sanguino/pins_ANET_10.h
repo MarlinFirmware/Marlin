@@ -54,7 +54,7 @@
  * Requires this Arduino IDE extension for Boards Manager:
  * https://github.com/Lauszus/Sanguino
  *
- * Follow the installation instructions at https://learn.sparkfun.com/pages/CustomBoardsArduino
+ * Follow the installation instructions at https://learn.sparkfun.com/tutorials/installing-board-definitions-in-the-arduino-ide
  * Just use this JSON URL instead of Sparkfun's:
  * https://raw.githubusercontent.com/Lauszus/Sanguino/master/package_lauszus_sanguino_index.json
  *
@@ -76,7 +76,6 @@
  *   Anet Schematics                    - https://github.com/ralf-e/ANET-3D-Board-V1.0
  *   Wiring RRDFG Smart Controller      - https://www.thingiverse.com/thing:2103748
  *   SkyNet3D Anet software development - https://github.com/SkyNet3D/Marlin/
- *   Anet Users / Skynet SW on Facebook - https://www.facebook.com/skynet3ddevelopment/
  *
  *   Many thanks to Hans Raaf (@oderwat) for developing the Anet-specific software and supporting the Anet community.
  */
