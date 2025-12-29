@@ -306,6 +306,7 @@ void Touch::touch(touch_control_t * const control) {
   }
 }
 
+//
 // Set the control as "held" until the touch is released
 //
 void Touch::hold(touch_control_t * const control, const millis_t delay/*=0*/) {
