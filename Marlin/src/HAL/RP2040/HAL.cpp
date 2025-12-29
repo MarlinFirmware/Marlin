@@ -28,6 +28,7 @@
 
 #include "../../inc/MarlinConfig.h"
 #include "../shared/Delay.h"
+#include "../../module/temperature.h"  // For OVERSAMPLENR
 
 extern "C" {
   #include "pico/bootrom.h"
@@ -41,50 +42,38 @@ extern "C" {
   #include "msc_sd.h"
 #endif
 
-// Core 1 watchdog configuration
-#define CORE1_MAX_RESETS 5  // Maximum number of Core 1 resets before halting system
-
 // ------------------------
 // Public Variables
 // ------------------------
 
 volatile uint32_t adc_accumulators[5] = {0}; // Accumulators for oversampling (sum of readings)
 volatile uint8_t adc_counts[5] = {0};        // Count of readings accumulated per channel
-volatile uint16_t adc_values[5] = {512, 512, 512, 512, 512}; // Final oversampled ADC values (averages) - initialized to mid-range
+volatile uint16_t adc_values[5] = {4095, 4095, 4095, 4095, 4095}; // Averaged ADC values (single reading equivalent) - initialized to max (open circuit)
 
-// Core 1 watchdog monitoring
+// Core monitoring for watchdog
+volatile uint32_t core0_last_heartbeat = 0; // Timestamp of Core 0's last activity
 volatile uint32_t core1_last_heartbeat = 0; // Timestamp of Core 1's last activity
-volatile bool core1_watchdog_triggered = false; // Flag to indicate Core 1 reset
-volatile uint8_t core1_reset_count = 0; // Count of Core 1 resets - halt system if >= CORE1_MAX_RESETS
+#if ENABLED(MARLIN_DEV_MODE)
+  volatile bool core1_freeze_test = false;  // Flag to freeze Core 1 for watchdog testing
+#endif
 volatile uint8_t current_pin;
 volatile bool MarlinHAL::adc_has_result;
 volatile uint8_t adc_channels_enabled[5] = {false}; // Track which ADC channels are enabled
 
-// Helper function for LED blinking patterns
-void blink_led_pattern(uint8_t blink_count, uint32_t blink_duration_us = 100000) {
-  #if DISABLED(PINS_DEBUGGING) && PIN_EXISTS(LED)
-    for (uint8_t i = 0; i < blink_count; i++) {
-      WRITE(LED_PIN, HIGH);
-      busy_wait_us(blink_duration_us);
-      WRITE(LED_PIN, LOW);
-      if (i < blink_count - 1) { // Don't delay after the last blink
-        busy_wait_us(blink_duration_us);
-      }
-    }
-  #endif
-}
-
 // Core 1 ADC reading task - dynamically reads all enabled channels with oversampling
 void core1_adc_task() {
-  static uint32_t last_led_toggle = 0;
-  const uint8_t OVERSAMPLENR = 16; // Standard Marlin oversampling count
-
-  // Signal successful Core 1 startup/restart
-  SERIAL_ECHO_MSG("Core 1 ADC task started");
+  static uint32_t last_temp_update = 0;
 
   while (true) {
-    // Update heartbeat timestamp at start of each scan cycle
-    core1_last_heartbeat = time_us_32();
+    #if ENABLED(MARLIN_DEV_MODE)
+      // Check if we should freeze for watchdog test
+      if (core1_freeze_test) {
+        // Stop updating heartbeat and spin forever
+        while (core1_freeze_test) {
+          busy_wait_us(100000); // 100ms delay
+        }
+      }
+    #endif
 
     // Scan all enabled ADC channels
     for (uint8_t channel = 0; channel < 5; channel++) {
@@ -114,11 +103,9 @@ void core1_adc_task() {
       adc_accumulators[channel] += reading;
       adc_counts[channel]++;
 
-      // Update the averaged value with current accumulation (provides immediate valid data)
-      adc_values[channel] = adc_accumulators[channel] / adc_counts[channel];
-
-      // When we reach the full oversampling count, reset accumulator for next cycle
+      // When we reach the full oversampling count, calculate averaged value (Marlin ISR does its own oversampling)
       if (adc_counts[channel] >= OVERSAMPLENR) {
+        adc_values[channel] = adc_accumulators[channel] / OVERSAMPLENR; // Return single-reading equivalent
         adc_accumulators[channel] = 0;
         adc_counts[channel] = 0;
       }
@@ -129,17 +116,19 @@ void core1_adc_task() {
       }
     }
 
-    // Core 1 LED indicator: Double blink every 2 seconds to show Core 1 is active
+    // Core 1 just provides ADC readings - don't trigger temperature updates from here
+    // Let Marlin's main temperature ISR on Core 0 handle the timing and updates
     uint32_t now = time_us_32();
-    if (now - last_led_toggle >= 2000000) { // 2 seconds
-      last_led_toggle = now;
-      #if DISABLED(PINS_DEBUGGING) && PIN_EXISTS(LED)
-        // Triple blink pattern if watchdog was triggered (shows Core 1 was reset)
-        if (core1_watchdog_triggered) {
-          core1_watchdog_triggered = false; // Clear flag
-          blink_led_pattern(3); // Triple blink for watchdog reset
-        } else {
-          blink_led_pattern(2); // Normal double blink
+    if (now - last_temp_update >= 100000) { // 100ms = 100000 microseconds
+      last_temp_update = now;
+      #if ENABLED(USE_WATCHDOG)
+        // Refresh watchdog here like AVR ISR does indirectly via temperature updates
+        // Use 2 second delay to allow watchdog_init to be called during boot
+        static uint32_t core1_start_time = 0;
+        if (core1_start_time == 0) core1_start_time = time_us_32();
+
+        if (time_us_32() - core1_start_time > 2000000) {
+          hal.watchdog_refresh(1); // Refresh from Core 1
         }
       #endif
     }
@@ -219,37 +208,42 @@ void MarlinHAL::reboot() { watchdog_reboot(0, 0, 1); }
   void MarlinHAL::watchdog_init() {
     #if DISABLED(DISABLE_WATCHDOG_INIT)
       static_assert(WDT_TIMEOUT_US > 1000, "WDT Timeout is too small, aborting");
+      // Initialize Core 0 heartbeat
+      core0_last_heartbeat = time_us_32();
       watchdog_enable(WDT_TIMEOUT_US/1000, true);
     #endif
   }
 
-  void MarlinHAL::watchdog_refresh() {
-    // If Core 1 has reset CORE1_MAX_RESETS+ times, stop updating watchdog to halt system
-    if (core1_reset_count >= CORE1_MAX_RESETS) {
-      SERIAL_ECHO_MSG("Core 1 reset limit exceeded (", core1_reset_count, " resets) - halting system for safety");
-      return; // Don't update watchdog - system will halt
+  void MarlinHAL::watchdog_refresh(const uint8_t core/*=0*/) {
+    if (core == 0) {
+      // Update Core 0 heartbeat
+      core0_last_heartbeat = time_us_32();
+
+      // Check if Core 1 is alive (2 second timeout)
+      if (time_us_32() - core1_last_heartbeat < 2000000) {
+        watchdog_update(); // Only refresh if Core 1 is responding
+        #if DISABLED(PINS_DEBUGGING) && PIN_EXISTS(LED)
+          TOGGLE(LED_PIN); // Heartbeat indicator
+        #endif
+      }
+      // If Core 1 is stuck, don't refresh - let watchdog reset the system
     }
+    else {
+      // Update Core 1 heartbeat
+      core1_last_heartbeat = time_us_32();
 
-    watchdog_update();
-
-    // Check Core 1 watchdog (15 second timeout)
-    uint32_t now = time_us_32();
-    if (now - core1_last_heartbeat > 15000000) { // 15 seconds
-      // Core 1 appears stuck - reset it
-      multicore_reset_core1();
-      multicore_launch_core1(core1_adc_task);
-      core1_watchdog_triggered = true; // Signal for LED indicator
-      core1_reset_count++; // Increment reset counter
-      SERIAL_ECHO_MSG("Core 1 ADC watchdog triggered - resetting Core 1 (attempt ", core1_reset_count, ")");
+      // Check if Core 0 is alive (2 second timeout)
+      if (time_us_32() - core0_last_heartbeat < 2000000) {
+        watchdog_update(); // Only refresh if Core 0 is responding
+        #if DISABLED(PINS_DEBUGGING) && PIN_EXISTS(LED)
+          TOGGLE(LED_PIN); // Heartbeat indicator
+        #endif
+      }
+      // If Core 0 is stuck, don't refresh - let watchdog reset the system
     }
-
-    #if DISABLED(PINS_DEBUGGING) && PIN_EXISTS(LED)
-      // Core 0 LED indicator: Single toggle every watchdog refresh (shows Core 0 activity)
-      TOGGLE(LED_PIN);
-    #endif
   }
 
-#endif
+#endif // USE_WATCHDOG
 
 // ------------------------
 // ADC
@@ -290,13 +284,15 @@ void flashFirmware(const int16_t) { hal.reboot(); }
 
 extern "C" {
   void * _sbrk(int incr);
-  extern unsigned int __bss_end__; // end of bss section
+  extern unsigned int __StackLimit;    // Lowest address the stack can grow to
 }
 
-// Return free memory between end of heap (or end bss) and whatever is current
+// Return free memory between end of heap and start of stack
 int freeMemory() {
-  int free_memory, heap_end = (int)_sbrk(0);
-  return (int)&free_memory - (heap_end ?: (int)&__bss_end__);
+  void* heap_end = _sbrk(0);
+  // Use the linker-provided stack limit instead of a local variable
+  // __StackLimit is the lowest address the stack can grow to
+  return (char*)&__StackLimit - (char*)heap_end;
 }
 
 #endif // __PLAT_RP2040__
