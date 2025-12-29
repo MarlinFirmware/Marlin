@@ -23,7 +23,7 @@
 
 /**
  * Bricolemon Lite Board. Based on atsamd51 (AGCM4), bootloader and credits by ADAFRUIT.
- * https://lemoncrest.com https://bricogeek.com
+ * https://lemoncrest.com https://tienda.bricogeek.com
  *
  * This board its a 3.3V LOGIC Board, following the ADAFRUIT example, all of the board is open source.
  * Schematic: Refer to the Bricolemon
