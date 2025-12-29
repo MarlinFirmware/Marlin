@@ -103,7 +103,7 @@ static void btn_ok_event_cb(lv_obj_t *btn, lv_event_t event) {
         if (card.isFileOpen()) {
           feedrate_percentage = 100;
           TERN_(HAS_EXTRUDERS, planner.set_flow(0, 100));
-          TERN_(HAS_MULTI_EXTRUDER, planner.set_flow(1, 100));
+          E_TERN_(planner.set_flow(1, 100));
           card.startOrResumeFilePrinting();
           TERN_(POWER_LOSS_RECOVERY, recovery.prepare());
           once_flag = false;
