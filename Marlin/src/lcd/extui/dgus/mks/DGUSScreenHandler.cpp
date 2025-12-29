@@ -1088,7 +1088,7 @@ void DGUSScreenHandlerMKS::filamentUnload(DGUS_VP_Variable &var, void *val_ptr) 
 
     if (filament_data.action == 0) { // Go back to utility screen
       TERN_(HAS_EXTRUDERS, thermalManager.setTargetHotend(e_temp, 0));
-      TERN_(HAS_MULTI_EXTRUDER, thermalManager.setTargetHotend(e_temp, 1));
+      E_TERN_(thermalManager.setTargetHotend(e_temp, 1));
       gotoScreen(DGUS_SCREEN_UTILITY);
       return;
     }

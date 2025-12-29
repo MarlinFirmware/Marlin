@@ -49,7 +49,7 @@
  */
 
 void GcodeSuite::M306() {
-  const uint8_t e = TERN0(HAS_MULTI_EXTRUDER, parser.intval('E', active_extruder));
+  const uint8_t e = E_TERN0(parser.intval('E', active_extruder));
   if (e >= (EXTRUDERS)) {
     SERIAL_ECHOLNPGM("?(E)xtruder index out of range (0-", (EXTRUDERS) - 1, ").");
     return;

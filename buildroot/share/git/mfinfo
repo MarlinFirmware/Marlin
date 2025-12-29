@@ -5,7 +5,7 @@
 # Print the following info about the working copy:
 #
 #   - Remote (upstream) Org name (MarlinFirmware)
-#   - Remote (origin) Org name (your Github username)
+#   - Remote (origin) Org name (your GitHub username)
 #   - Repo Name (Marlin, MarlinDocumentation)
 #   - PR Target branch (e.g., bugfix-2.1.x)
 #   - Branch Arg (the branch argument or current branch)
