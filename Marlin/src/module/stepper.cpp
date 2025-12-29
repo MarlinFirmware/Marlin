@@ -1591,8 +1591,10 @@ void Stepper::isr() {
   // FT Motion can be toggled if Standard Motion is also active
   const bool using_ftMotion = ENABLED(NO_STANDARD_MOTION) || TERN0(FT_MOTION, ftMotion.cfg.active);
 
-  // We need this variable here to be able to use it in the following loop
+  // Storage for the soonest timer value of the next possible ISR, used in this do loop
   hal_timer_t min_ticks;
+
+  // Loop until all events for this ISR have been issued
   do {
     hal_timer_t interval = 0;
 
@@ -1741,7 +1743,7 @@ void Stepper::isr() {
      * Get the current tick value + margin
      * Assuming at least 6µs between calls to this ISR...
      * On AVR the ISR epilogue+prologue is estimated at 100 instructions - Give 8µs as margin
-     * On ARM the ISR epilogue+prologue is estimated at 20 instructions - Give 1µs as margin
+     * On ARM the ISR epilogue+prologue is estimated at  20 instructions - Give 1µs as margin
      */
     min_ticks = HAL_timer_get_count(MF_TIMER_STEP) + hal_timer_t(TERN(__AVR__, 8, 1) * (STEPPER_TIMER_TICKS_PER_US));
 
@@ -3611,7 +3613,24 @@ void Stepper::report_positions() {
       DIR_WAIT_AFTER();
     }
 
-    // Start step pulses. Edge stepping will toggle the STEP pin.
+    /**
+     * - For every axis drive STEP pins
+     * - If any axes lack DEDGE stepping:
+     *   - Wait for the longest required Pulse Delay
+     *   - Reset state of all non-DEDGE STEP pins
+     *
+     * The stepper_extruder must be pre-filled at this point.
+     *
+     * Emits macros of the form: [XYZEIJKUVW]_APPLY_STEP(state, ?always?)
+     * For the standard E axis this expands to: E_STEP_WRITE(stepper_extruder, state)
+     *
+     * TODO: For MIXING_EXTRUDER stepping distribute the steps proportionally to the
+     * E stepper drivers' STEP pins according to pre-calculated Bresenham factors.
+     * So the events are timed just like normal E stepping; only the STEP pin varies.
+     */
+
+    // Start step pulses on all axes including the active Extruder.
+    // Edge stepping will simply toggle the STEP pin.
     #define _FTM_STEP_START(A) A##_APPLY_STEP(step_bits.A, false);
     LOGICAL_AXIS_MAP(_FTM_STEP_START);
 

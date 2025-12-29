@@ -373,8 +373,6 @@
   #undef INPUT_SHAPING_Y
   #undef INPUT_SHAPING_Z
   #undef INPUT_SHAPING_E_SYNC
-  #undef MULTISTEPPING_LIMIT
-  #define MULTISTEPPING_LIMIT 1
 #endif
 
 // Linear advance uses Jerk since E is an isolated axis

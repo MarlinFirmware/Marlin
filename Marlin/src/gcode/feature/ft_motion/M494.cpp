@@ -27,6 +27,7 @@
 #include "../../../module/ft_motion.h"
 #include "../../../module/stepper.h"
 #include "../../../module/planner.h"
+#include "../../../lcd/marlinui.h"
 
 void say_ftm_settings() {
   #if ANY(FTM_POLYS, FTM_SMOOTHING)
@@ -48,10 +49,12 @@ void say_ftm_settings() {
 void GcodeSuite::M494_report(const bool forReplay/*=true*/) {
   TERN_(MARLIN_SMALL_BUILD, return);
 
-  const ft_config_t &c = ftMotion.cfg;
-
   report_heading_etc(forReplay, F("FT Motion"));
   SERIAL_ECHOPGM("  M494 T", (uint8_t)ftMotion.getTrajectoryType());
+
+  #if ANY(FTM_POLYS, FTM_SMOOTHING)
+    const ft_config_t &c = ftMotion.cfg;
+  #endif
 
   #if ENABLED(FTM_SMOOTHING)
     SERIAL_ECHOPGM(CARTES_PAIRED_LIST(
@@ -109,14 +112,17 @@ void GcodeSuite::M494() {
 
   #if ENABLED(FTM_SMOOTHING)
 
-    #define SMOOTH_SET(A,N) \
-      if (parser.seenval(CHARIFY(A))) { \
-        if (ftMotion.set_smoothing_time(_AXIS(A), parser.value_float())) \
-          report = true; \
-        else \
-          SERIAL_ECHOLNPGM("?Invalid ", C(N), " smoothing time (", C(CHARIFY(A)), ") value."); \
+    auto smooth_set = [](AxisEnum axis, char axis_name) {
+      if (parser.seenval(IAXIS_CHAR(axis))) {
+        if (ftMotion.set_smoothing_time(axis, parser.value_float()))
+          return true;
+        else
+          SERIAL_ECHOLNPGM("?Invalid ", C(axis_name), " smoothing time (", C(IAXIS_CHAR(axis)), ") value.");
       }
+      return false;
+    };
 
+    #define SMOOTH_SET(A,N) report |= smooth_set(_AXIS(A), N);
     CARTES_GANG(
       SMOOTH_SET(X, STEPPER_A_NAME), SMOOTH_SET(Y, STEPPER_B_NAME),
       SMOOTH_SET(Z, STEPPER_C_NAME), SMOOTH_SET(E, 'E')
@@ -124,7 +130,10 @@ void GcodeSuite::M494() {
 
   #endif // FTM_SMOOTHING
 
-  if (report) say_ftm_settings();
+  if (report) {
+    ui.refresh();
+    say_ftm_settings();
+  }
 }
 
 #endif // FT_MOTION
