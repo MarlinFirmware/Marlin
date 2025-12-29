@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-Extract the builds used in Github CI, so that we can run them locally
+Extract the builds used in GitHub CI, so that we can run them locally
 """
 import yaml
 
