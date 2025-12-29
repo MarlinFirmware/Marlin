@@ -376,10 +376,10 @@ class FTMotion {
     // Synchronize and reset motion prior to parameter changes
     friend void ft_config_t::prep_for_shaper_change();
     static void prep_for_shaper_change() {
-      // planner.synchronize guarantees that motion reached a stand still with no echoes pending execution (including a runout block)
+      // planner.synchronize guarantees that motion reached a standstill with no echoes pending execution (including a runout block)
       planner.synchronize();
       // Due to smoothing, the end position may not have been reached exactly.
-      // This is normally fine, but if smoothing time changes, and we assume it was reached
+      // This is normally fine, but if smoothing time changes, and we assume it was reached,
       // it may cause discontinuities.
       // Therefore, set the next starting position to the exact reached position.
       endPos_prevBlock = last_target_traj;

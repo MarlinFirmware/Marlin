@@ -29,7 +29,7 @@
 // Set smoothing time and recalculate alpha and delay.
 void AxisSmoothing::set_time(const float s_time) {
   if (s_time >= 0.0001f) {
-    alpha = 1.0f - expf(-(FTM_TS) * (FTM_SMOOTHING_ORDER) / s_time );
+    alpha = 1.0f - expf(-(FTM_TS) * (FTM_SMOOTHING_ORDER) / s_time);
     delay_samples = s_time * FTM_FS;
   }
   else {
