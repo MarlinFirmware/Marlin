@@ -38,7 +38,6 @@
 #include "mmu3_progress_converter.h"
 #include "mmu3_reporting.h"
 
-#include "strlen_cx.h"
 #include "SpoolJoin.h"
 
 #include "../../inc/MarlinConfig.h"

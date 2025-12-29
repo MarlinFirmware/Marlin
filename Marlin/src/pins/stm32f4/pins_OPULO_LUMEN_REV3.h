@@ -23,7 +23,7 @@
 
 /**
  * STM32F407VET6 on Opulo Lumen PnP Rev3
- * Website - https://opulo.io/
+ * Website - https://www.opulo.io/
  */
 
 #define ALLOW_STM32DUINO

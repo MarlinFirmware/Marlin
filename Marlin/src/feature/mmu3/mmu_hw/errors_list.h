@@ -37,7 +37,6 @@
   #include <avr/pgmspace.h>
 #endif
 #include "buttons.h"
-#include "../strlen_cx.h"
 #include "../ultralcd.h"
 
 namespace MMU3 {
