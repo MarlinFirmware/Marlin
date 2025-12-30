@@ -412,7 +412,7 @@ bool FTMotion::plan_next_block() {
     TERN_(FTM_HAS_LIN_ADVANCE, use_advance_lead = current_block->use_advance_lead);
 
     axis_move_dir = current_block->direction_bits;
-    #define _SET_MOVE_END(A) moving_axis_flags.A = moveDist.A ? true : false;
+    #define _SET_MOVE_END(A) moving_axis_flags.A = bool(moveDist.A);
 
     LOGICAL_AXIS_MAP(_SET_MOVE_END);
 
@@ -612,6 +612,31 @@ void FTMotion::fill_stepper_plan_buffer() {
       // It eliminates idle time when changing smoothing time or shapers and speeds up homing and bed leveling.
     }
     else {
+      #if ANY(APPLY_TIMING_HACK_ON_X, APPLY_TIMING_HACK_ON_Y, APPLY_TIMING_HACK_ON_Z, APPLY_TIMING_HACK_ON_E)
+        // Detect direction flips per-axis using planner direction bits.
+        // When a flip is detected (and the axis is in stealthChop or is standalone),
+        // hold that axis' trajectory coordinate constant for at least 750µs.
+
+        #define DIR_FLIP_HOLD_S 0.000'750f
+        static constexpr uint32_t DIR_FLIP_HOLD_FRAMES = DIR_FLIP_HOLD_S / FTM_TS + 1;
+        static xyze_uint_t hold_frames = { 0 };
+        static AxisBits last_moved_dir;
+        #define START_HOLD_IF_DIR_FLIP(A)                                                     \
+          if (ENABLED(APPLY_TIMING_HACK_ON_##A)) {                                            \
+            const bool flip = moving_axis_flags.A && axis_move_dir.A != last_moved_dir.A;     \
+            const bool hold = !moving_axis_flags.A || (flip && hold_frames.A > 0);            \
+            if (hold) {                                                                       \
+              if (hold_frames.A) hold_frames.A--;                                             \
+              traj_coords.A = last_target_traj.A;                                             \
+            } else {                                                                          \
+              last_moved_dir.A = axis_move_dir.A;                                             \
+              hold_frames.A = DIR_FLIP_HOLD_FRAMES;                                           \
+            }                                                                                 \
+          }
+        LOGICAL_AXIS_MAP(START_HOLD_IF_DIR_FLIP);
+
+        #undef START_HOLD_IF_DIR_FLIP
+      #endif
       fastForwardUntilMotion = false;
       // Calculate and store stepper plan in buffer
       stepping_enqueue(traj_coords);
