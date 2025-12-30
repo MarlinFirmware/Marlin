@@ -30,55 +30,11 @@
 #include "../../module/motion.h"
 #include "../../module/planner.h"
 #include "../../module/probe.h"
-
-probe_target_t G38_move{0};
-
-inline void G38_single_probe(const uint8_t move_value) {
-  endstops.enable(true);
-  G38_move.type = move_value;
-  prepare_line_to_destination();
-  planner.synchronize();
-  G38_move.type = 0;
-  endstops.hit_on_purpose();
-  set_current_from_steppers_for_axis(ALL_AXES_ENUM);
-  sync_plan_position();
-}
-
-/**
- * Handle G38.N where N is the sub-code for the type of probe:
- *  2 - Probe toward workpiece, stop on contact, signal error if failure
- *  3 - Probe toward workpiece, stop on contact
- *  4 - Probe away from workpiece, stop on contact break, signal error if failure
- *  5 - Probe away from workpiece, stop on contact break
- */
-FORCE_INLINE bool G38_run_probe() {
-
-  bool G38_pass_fail = false;
-  const xyze_pos_t start_pos = current_position;
-  const xyze_pos_t old_destination = destination;
-  probe.use_probing_tool();
-  if (probe.deploy()) {
-    SERIAL_ERROR_MSG("Failed to deploy probe");
-    endstops.not_homing();
-    probe.use_probing_tool(false);
-    return false;
-  }
-  const xyze_pos_t npos_start = start_pos - DIFF_TERN(HAS_HOTEND_OFFSET, probe.offset, hotend_offset[active_extruder]);
-  const xyze_pos_t npos_destination = old_destination - DIFF_TERN(HAS_HOTEND_OFFSET, probe.offset, hotend_offset[active_extruder]);
-  do_blocking_move_to(npos_start);
-  destination = npos_destination;
+#include "../../feature/bedlevel/bedlevel.h"
+#include "../../lcd/marlinui.h"
 
 
-  #if MULTIPLE_PROBING > 1
-    // Get direction of move and retract
-    xyz_float_t retract_mm;
-    LOOP_NUM_AXES(i) {
-      const float dist = npos_destination[i] - npos_start[i];
-      retract_mm[i] = ABS(dist) < G38_MINIMUM_MOVE ? 0 : home_bump_mm((AxisEnum)i) * (dist > 0 ? -1 : 1);
-    }
-  #endif
-
-  planner.synchronize(); // Wait until the machine is idle
+inline bool G38_run_probe(const ProbePtRaise raise_after) {
 
   // Move flag value
   #if ENABLED(G38_PROBE_AWAY)
@@ -87,47 +43,34 @@ FORCE_INLINE bool G38_run_probe() {
     constexpr uint8_t move_value = 1;
   #endif
 
-  G38_move.triggered = false;
-
-  // Move until destination reached or target hit
-  G38_single_probe(move_value);
-
-  if (G38_move.triggered) {
-
-    G38_pass_fail = true;
-
-    #if MULTIPLE_PROBING > 1
-      // Move away by the retract distance
-      destination = current_position + retract_mm;
-      endstops.enable(false);
-      prepare_line_to_destination();
-      planner.synchronize();
-      #if ENABLED(SOLENOID_PROBE)
-        probe.stow();
-        safe_delay(1000);
-        if (probe.deploy()) {
-          endstops.not_homing();
-          probe.use_probing_tool(false);
-          return false;
-        }
-      #endif
-      REMEMBER(fr, feedrate_mm_s, feedrate_mm_s * 0.25);
+  const xyz_pos_t measured = probe.probe_safely(destination, raise_after, move_value, 0, true, true, Z_TWEEN_SAFE_CLEARANCE, true, true);
   
-      // Bump the target more slowly
-      destination -= retract_mm * 2;
-
-      G38_single_probe(move_value);
-    #endif
+  LOOP_NUM_AXES(a) {
+    if (isnan(measured[a])) return true;
   }
 
-  endstops.enable(false);
-  TERN_(SOLENOID_PROBE, probe.stow());
-  const xyze_pos_t probed_pos = current_position + DIFF_TERN(HAS_HOTEND_OFFSET, probe.offset, hotend_offset[active_extruder]);
-  probe.use_probing_tool(false);
-  destination = probed_pos;
-  do_blocking_move_to(destination);
-  planner.synchronize();
-  return G38_pass_fail;
+  // Report a good probe result in machine coordinate system to the host and LCD
+  SString<30> msg(
+    F("Machine X:"), p_float_t(measured.x, 2),
+    F(" Y:"), p_float_t(measured.y, 2),
+    F(" Z:"), p_float_t(measured.z, 3)
+  );
+  msg.echoln();
+  TERN_(VERBOSE_SINGLE_PROBE, ui.set_status(msg));
+
+    // If the probe is stowed, move the nozzle to the position of the probe
+  const xyz_pos_t offs = DIFF_TERN(HAS_HOTEND_OFFSET, probe.offset, hotend_offset[active_extruder]);
+  if ((!endstops.z_probe_enabled) && (probe.offset.z >= TERN0(HAS_HOTEND_OFFSET, hotend_offset[active_extruder].z))) {
+    if ((!NEAR_ZERO(offs.x)) || (!NEAR_ZERO(offs.y)) || offs.z > 0.0f) {
+      do_z_clearance_by(Z_TWEEN_SAFE_CLEARANCE);
+    }
+    destination = measured;
+    do_blocking_move_to(destination);
+    planner.synchronize();
+  }
+
+  report_current_position();
+  return false;
 }
 
 /**
@@ -140,26 +83,46 @@ FORCE_INLINE bool G38_run_probe() {
  *
  *  G38.4 - Probe away from workpiece, stop on contact break, signal error if failure
  *  G38.5 - Probe away from workpiece, stop on contact break
+ *
+ * Parameters:
+ *
+ *   X   Probe X position (default current X)
+ *   Y   Probe Y position (default current Y)
+ *   Z   Probe Z position (default current Z)
+ *   S   Stow the probe after probing (default: 0)
  */
 void GcodeSuite::G38(const int8_t subcode) {
 
   // Get X Y Z E F
   get_destination_from_command();
+  
+  probe.use_probing_tool();
+
+  #if HAS_LEVELING
+    // Temporarily disable leveling so the planner won't mess with us
+    TEMPORARY_BED_LEVELING_STATE(false);
+  #endif
 
   remember_feedrate_scaling_off();
+
+  // Raise after based on the 'S' parameter
+  const ProbePtRaise raise_after = parser.boolval('S', false) ? PROBE_PT_STOW : PROBE_PT_NONE;
 
   const bool error_on_fail = TERN(G38_PROBE_AWAY, !TEST(subcode, 0), subcode == 2);
 
   // If any axis has enough movement, do the move
-  LOOP_NUM_AXES(i)
+  LOOP_NUM_AXES(i) {
     if (ABS(destination[i] - current_position[i]) >= G38_MINIMUM_MOVE) {
       if (!parser.seenval('F')) feedrate_mm_s = homing_feedrate((AxisEnum)i);
       // If G38.2 fails throw an error
-      if (!G38_run_probe() && error_on_fail) SERIAL_ERROR_MSG("Failed to reach target");
+      if (G38_run_probe(raise_after) && error_on_fail) {
+        SERIAL_ERROR_MSG("Failed to reach target");
+      }
       break;
     }
-
+  }
   restore_feedrate_and_scaling();
+  probe.use_probing_tool(false);
 }
 
 #endif // G38_PROBE_TARGET

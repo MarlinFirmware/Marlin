@@ -65,8 +65,10 @@ void GcodeSuite::G30() {
 
   if (probe.can_reach(probepos)) {
 
-    // Disable leveling so the planner won't mess with us
-    TERN_(HAS_LEVELING, set_bed_leveling_enabled(false));
+    #if HAS_LEVELING
+      // Temporarily disable leveling so the planner won't mess with us
+      TEMPORARY_BED_LEVELING_STATE(false);
+    #endif
 
     // Disable feedrate scaling so movement speeds are correct
     remember_feedrate_scaling_off();
@@ -117,7 +119,7 @@ void GcodeSuite::G30() {
     LCD_MESSAGE(MSG_ZPROBE_OUT);
   }
 
-  probe.use_probing_tool(false);
+  probe.use_probing_tool(false); 
 }
 
 #endif // HAS_BED_PROBE

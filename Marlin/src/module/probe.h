@@ -33,7 +33,7 @@
   #include "../feature/bltouch.h"
 #endif
 
-#if ANY(BD_SENSOR, HAS_DELTA_SENSORLESS_PROBING)
+#if ANY(BD_SENSOR, HAS_DELTA_SENSORLESS_PROBING, G38_PROBE_TARGET)
   #include "endstops.h"
 #endif
 
@@ -179,6 +179,18 @@ public:
       }
 
     #endif // !IS_KINEMATIC
+
+    static xyz_pos_t probe_safely(
+      const xyz_pos_t   &target,
+      const ProbePtRaise raise_after        = PROBE_PT_NONE,
+      const uint8_t      move_value         = 0,
+      const uint8_t      verbose_level      = 0,
+      const bool         probe_relative     = true,
+      const bool         sanity_check       = true,
+      const float        z_clearance        = Z_TWEEN_SAFE_CLEARANCE,
+      const bool         raise_after_is_rel = false,
+      const bool         probe_3d           = false
+    );
 
     static float probe_at_point(
       const float        rx,
@@ -371,8 +383,8 @@ public:
 
 private:
   #if HAS_BED_PROBE
-    static bool probe_down_to_z(const float z, const feedRate_t fr_mm_s);
-    static float run_z_probe(const bool sanity_check=true, const float z_min_point=Z_PROBE_LOW_POINT, const float z_clearance=Z_TWEEN_SAFE_CLEARANCE);
+    static bool probe_to_target(const xyz_pos_t &pos, const feedRate_t fr_mm_s, const uint8_t move_value, const bool probe_3d);
+    static xyz_pos_t run_probe(const bool sanity_check, const xyz_pos_t &target, const float z_clearance, const uint8_t move_value, const bool probe_3d);
   #endif
 };
 

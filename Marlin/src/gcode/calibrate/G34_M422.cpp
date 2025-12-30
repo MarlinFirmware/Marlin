@@ -68,6 +68,7 @@
  *     I<int>    Number of test iterations. If omitted, Z_STEPPER_ALIGN_ITERATIONS. (1-30)
  *     T<float>  Target Accuracy factor. If omitted, Z_STEPPER_ALIGN_ACC. (0.01-1.0)
  *     A<float>  Provide an Amplification value. If omitted, Z_STEPPER_ALIGN_AMP. (0.5-2.0)
+ *     E<bool>   Stow or raise the probe after probing. 0=raise (default), 1=stow.
  *     R         Recalculate points based on current probe offsets
  *
  * Example:
