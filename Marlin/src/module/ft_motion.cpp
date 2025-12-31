@@ -75,6 +75,10 @@ xyze_pos_t   FTMotion::startPos,                    // (mm) Start position of bl
 xyze_float_t FTMotion::ratio;                       // (ratio) Axis move ratio of block
 float FTMotion::tau = 0.0f;                         // (s) Time since start of block
 bool FTMotion::fastForwardUntilMotion = false;      // Fast forward time if there is no motion
+#if ANY(APPLY_TIMING_HACK_ON_X, APPLY_TIMING_HACK_ON_Y, APPLY_TIMING_HACK_ON_Z, APPLY_TIMING_HACK_ON_E)
+  xyze_uint_t FTMotion::hold_frames;                // Briefly hold motion after direction changes to fix TMC2208 bug
+  AxisBits FTMotion::last_traj_dir;                 // Direction of the last trajectory point after shaping, smoothing, ...
+#endif
 
 // Trajectory generators
 TrapezoidalTrajectoryGenerator FTMotion::trapezoidalGenerator;
@@ -245,7 +249,11 @@ void FTMotion::reset() {
   TERN_(DISTINCT_E_FACTORS, block_extruder_axis = E_AXIS);
 
   moving_axis_flags.reset();
-
+  last_target_traj.reset();
+  #if ANY(APPLY_TIMING_HACK_ON_X, APPLY_TIMING_HACK_ON_Y, APPLY_TIMING_HACK_ON_Z, APPLY_TIMING_HACK_ON_E)
+    last_traj_dir.reset();
+    hold_frames.reset();
+  #endif
   if (did_suspend) stepper.wake_up();
 }
 
@@ -613,25 +621,25 @@ void FTMotion::fill_stepper_plan_buffer() {
     }
     else {
       #if ANY(APPLY_TIMING_HACK_ON_X, APPLY_TIMING_HACK_ON_Y, APPLY_TIMING_HACK_ON_Z, APPLY_TIMING_HACK_ON_E)
-        // Detect direction flips per-axis using planner direction bits.
         // When a flip is detected (and the axis is in stealthChop or is standalone),
         // hold that axis' trajectory coordinate constant for at least 750µs.
 
         #define DIR_FLIP_HOLD_S 0.000'750f
         static constexpr uint32_t DIR_FLIP_HOLD_FRAMES = DIR_FLIP_HOLD_S / FTM_TS + 1;
-        static xyze_uint_t hold_frames = { 0 };
-        static AxisBits last_moved_dir;
-        #define START_HOLD_IF_DIR_FLIP(A)                                                     \
-          if (ENABLED(APPLY_TIMING_HACK_ON_##A)) {                                            \
-            const bool flip = moving_axis_flags.A && axis_move_dir.A != last_moved_dir.A;     \
-            const bool hold = !moving_axis_flags.A || (flip && hold_frames.A > 0);            \
-            if (hold) {                                                                       \
-              if (hold_frames.A) hold_frames.A--;                                             \
-              traj_coords.A = last_target_traj.A;                                             \
-            } else {                                                                          \
-              last_moved_dir.A = axis_move_dir.A;                                             \
-              hold_frames.A = DIR_FLIP_HOLD_FRAMES;                                           \
-            }                                                                                 \
+
+        #define START_HOLD_IF_DIR_FLIP(A)                                 \
+          if (ENABLED(APPLY_TIMING_HACK_ON_##A)) {                        \
+            const bool direction = traj_coords.A > last_target_traj.A;    \
+            const bool moved = traj_coords.A != last_target_traj.A;       \
+            const bool flipped = moved && (direction != last_traj_dir.A); \
+            const bool hold = !moved || (flipped && hold_frames.A > 0);   \
+            if (hold) {                                                   \
+              if (hold_frames.A) hold_frames.A--;                         \
+              traj_coords.A = last_target_traj.A;                         \
+            } else {                                                      \
+              last_traj_dir.A = direction;                                \
+              hold_frames.A = DIR_FLIP_HOLD_FRAMES;                       \
+            }                                                             \
           }
         LOGICAL_AXIS_MAP(START_HOLD_IF_DIR_FLIP);
 
