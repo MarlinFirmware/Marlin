@@ -160,10 +160,10 @@ static bool ensure_safe_temperature(const bool wait=true, const PauseMode mode=P
   if (wait) return thermalManager.wait_for_hotend(active_extruder);
 
   // Allow interruption by Emergency Parser M108
-  wait_for_heatup = TERN1(PREVENT_COLD_EXTRUSION, !thermalManager.allow_cold_extrude);
-  while (wait_for_heatup && ABS(thermalManager.wholeDegHotend(active_extruder) - thermalManager.degTargetHotend(active_extruder)) > (TEMP_WINDOW))
-    idle();
-  wait_for_heatup = false;
+  marlin.wait_for_heatup = TERN1(PREVENT_COLD_EXTRUSION, !thermalManager.allow_cold_extrude);
+  while (marlin.is_heating() && ABS(thermalManager.wholeDegHotend(active_extruder) - thermalManager.degTargetHotend(active_extruder)) > (TEMP_WINDOW))
+    marlin.idle();
+  marlin.heatup_done();
 
   #if ENABLED(PREVENT_COLD_EXTRUSION)
     // A user can cancel wait-for-heating with M108
@@ -188,10 +188,8 @@ static bool ensure_safe_temperature(const bool wait=true, const PauseMode mode=P
  *
  * Returns 'true' if load was completed, 'false' for abort
  */
-bool load_filament(const_float_t slow_load_length/*=0*/, const_float_t fast_load_length/*=0*/, const_float_t purge_length/*=0*/, const int8_t max_beep_count/*=0*/,
-                   const bool show_lcd/*=false*/, const bool pause_for_user/*=false*/,
-                   const PauseMode mode/*=PAUSE_MODE_PAUSE_PRINT*/
-                   DXC_ARGS
+bool load_filament(const float slow_load_length/*=0*/, const float fast_load_length/*=0*/, const float purge_length/*=0*/, const int8_t max_beep_count/*=0*/,
+  const bool show_lcd/*=false*/, const bool pause_for_user/*=false*/, const PauseMode mode/*=PAUSE_MODE_PAUSE_PRINT*/ DXC_ARGS
 ) {
   DEBUG_SECTION(lf, "load_filament", true);
   DEBUG_ECHOLNPGM("... slowlen:", slow_load_length, " fastlen:", fast_load_length, " purgelen:", purge_length, " maxbeep:", max_beep_count, " showlcd:", show_lcd, " pauseforuser:", pause_for_user, " pausemode:", mode DXC_SAY);
@@ -208,7 +206,7 @@ bool load_filament(const_float_t slow_load_length/*=0*/, const_float_t fast_load
     first_impatient_beep(max_beep_count);
 
     KEEPALIVE_STATE(PAUSED_FOR_USER);
-    wait_for_user = true;    // LCD click or M108 will clear this
+    marlin.wait_start();    // LCD click or M108 will clear this
 
     TERN_(EXTENSIBLE_UI, ExtUI::onUserConfirmRequired(GET_TEXT_F(MSG_FILAMENTLOAD)));
 
@@ -217,19 +215,19 @@ bool load_filament(const_float_t slow_load_length/*=0*/, const_float_t fast_load
       hostui.prompt_do(PROMPT_USER_CONTINUE, F("Load Filament T"), tool, FPSTR(CONTINUE_STR));
     #endif
 
-    while (wait_for_user) {
+    while (marlin.wait_for_user) {
       impatient_beep(max_beep_count);
       #if ALL(HAS_FILAMENT_SENSOR, FILAMENT_CHANGE_RESUME_ON_INSERT)
         #if MULTI_FILAMENT_SENSOR
-          #define _CASE_INSERTED(N) case N-1: if (!FILAMENT_IS_OUT(N)) wait_for_user = false; break;
+          #define _CASE_INSERTED(N) case N-1: if (!FILAMENT_IS_OUT(N)) marlin.user_resume(); break;
           switch (active_extruder) {
             REPEAT_1(NUM_RUNOUT_SENSORS, _CASE_INSERTED)
           }
         #else
-          if (!FILAMENT_IS_OUT()) wait_for_user = false;
+          if (!FILAMENT_IS_OUT()) marlin.user_resume();
         #endif
       #endif
-      idle_no_sleep();
+      marlin.idle_no_sleep();
     }
   }
 
@@ -272,10 +270,10 @@ bool load_filament(const_float_t slow_load_length/*=0*/, const_float_t fast_load
 
     TERN_(EXTENSIBLE_UI, ExtUI::onUserConfirmRequired(GET_TEXT_F(MSG_FILAMENT_CHANGE_PURGE)));
     TERN_(HOST_PROMPT_SUPPORT, hostui.continue_prompt(GET_TEXT_F(MSG_FILAMENT_CHANGE_PURGE)));
-    wait_for_user = true; // A click or M108 breaks the purge_length loop
-    for (float purge_count = purge_length; purge_count > 0 && wait_for_user; --purge_count)
+    marlin.wait_start(); // A click or M108 breaks the purge_length loop
+    for (float purge_count = purge_length; purge_count > 0 && marlin.wait_for_user; --purge_count)
       unscaled_e_move(1, ADVANCED_PAUSE_PURGE_FEEDRATE);
-    wait_for_user = false;
+    marlin.user_resume();
 
   #else
 
@@ -299,14 +297,14 @@ bool load_filament(const_float_t slow_load_length/*=0*/, const_float_t fast_load
         if (show_lcd) {
           // Show "Purge More" / "Resume" menu and wait for reply
           KEEPALIVE_STATE(PAUSED_FOR_USER);
-          wait_for_user = false;
+          marlin.user_resume();
+          pause_menu_response = PAUSE_RESPONSE_WAIT_FOR;
           #if ANY(HAS_MARLINUI_MENU, EXTENSIBLE_UI)
             ui.pause_show_message(PAUSE_MESSAGE_OPTION); // MarlinUI and MKS UI also set PAUSE_RESPONSE_WAIT_FOR
           #else
-            pause_menu_response = PAUSE_RESPONSE_WAIT_FOR;
             TERN_(SOVOL_SV06_RTS, rts.gotoPage(ID_PurgeMore_L, ID_PurgeMore_D));
           #endif
-          while (pause_menu_response == PAUSE_RESPONSE_WAIT_FOR) idle_no_sleep();
+          while (pause_menu_response == PAUSE_RESPONSE_WAIT_FOR) marlin.idle_no_sleep();
         }
       #endif
 
@@ -344,10 +342,10 @@ inline void disable_active_extruder() {
  *
  * Returns 'true' if unload was completed, 'false' for abort
  */
-bool unload_filament(const_float_t unload_length, const bool show_lcd/*=false*/,
+bool unload_filament(const float unload_length, const bool show_lcd/*=false*/,
                      const PauseMode mode/*=PAUSE_MODE_PAUSE_PRINT*/
                      #if ALL(FILAMENT_UNLOAD_ALL_EXTRUDERS, MIXING_EXTRUDER)
-                       , const_float_t mix_multiplier/*=1.0*/
+                       , const float mix_multiplier/*=1.0*/
                      #endif
 ) {
   DEBUG_SECTION(uf, "unload_filament", true);
@@ -418,7 +416,7 @@ bool unload_filament(const_float_t unload_length, const bool show_lcd/*=false*/,
  */
 uint8_t did_pause_print = 0;
 
-bool pause_print(const_float_t retract, const xyz_pos_t &park_point, const bool show_lcd/*=false*/, const_float_t unload_length/*=0*/ DXC_ARGS) {
+bool pause_print(const float retract, const xyz_pos_t &park_point, const bool show_lcd/*=false*/, const float unload_length/*=0*/ DXC_ARGS) {
   DEBUG_SECTION(pp, "pause_print", true);
   DEBUG_ECHOLNPGM("... park.x:", park_point.x, " y:", park_point.y, " z:", park_point.z, " unloadlen:", unload_length, " showlcd:", show_lcd DXC_SAY);
 
@@ -555,8 +553,8 @@ void wait_for_confirmation(const bool is_reload/*=false*/, const int8_t max_beep
   KEEPALIVE_STATE(PAUSED_FOR_USER);
   TERN_(HOST_PROMPT_SUPPORT, hostui.continue_prompt(GET_TEXT_F(MSG_NOZZLE_PARKED)));
   TERN_(EXTENSIBLE_UI, ExtUI::onUserConfirmRequired(GET_TEXT_F(MSG_NOZZLE_PARKED)));
-  wait_for_user = true;    // LCD click or M108 will clear this
-  while (wait_for_user) {
+  marlin.wait_start();    // LCD click or M108 will clear this
+  while (marlin.wait_for_user) {
     impatient_beep(max_beep_count);
 
     // If the nozzle has timed out...
@@ -581,7 +579,7 @@ void wait_for_confirmation(const bool is_reload/*=false*/, const int8_t max_beep
         ExtUI::onUserConfirmRequired(GET_TEXT_F(MSG_HEATER_TIMEOUT));
       #endif
 
-      TERN_(HAS_RESUME_CONTINUE, wait_for_user_response(0, true)); // Wait for LCD click or M108
+      TERN_(HAS_RESUME_CONTINUE, marlin.wait_for_user_response(0, true)); // Wait for LCD click or M108
 
       TERN_(HOST_PROMPT_SUPPORT, hostui.prompt_do(PROMPT_INFO, GET_TEXT_F(MSG_REHEATING)));
 
@@ -608,12 +606,12 @@ void wait_for_confirmation(const bool is_reload/*=false*/, const int8_t max_beep
         LCD_MESSAGE(MSG_REHEATDONE);
       #endif
 
-      IF_DISABLED(PAUSE_REHEAT_FAST_RESUME, wait_for_user = true);
+      IF_DISABLED(PAUSE_REHEAT_FAST_RESUME, marlin.wait_start());
 
       nozzle_timed_out = false;
       first_impatient_beep(max_beep_count);
     }
-    idle_no_sleep();
+    marlin.idle_no_sleep();
   }
   TERN_(DUAL_X_CARRIAGE, set_duplication_enabled(saved_ext_dup_mode, saved_ext));
 }
@@ -639,9 +637,9 @@ void wait_for_confirmation(const bool is_reload/*=false*/, const int8_t max_beep
  * - Resume the current SD print job, if any
  */
 void resume_print(
-  const_float_t   slow_load_length/*=0*/,
-  const_float_t   fast_load_length/*=0*/,
-  const_float_t   purge_length/*=ADVANCED_PAUSE_PURGE_LENGTH*/,
+  const float   slow_load_length/*=0*/,
+  const float   fast_load_length/*=0*/,
+  const float   purge_length/*=ADVANCED_PAUSE_PURGE_LENGTH*/,
   const int8_t    max_beep_count/*=0*/,
   const celsius_t targetTemp/*=0*/,
   const bool      show_lcd/*=true*/,

@@ -67,7 +67,7 @@ void _man_probe_pt(const xy_pos_t &xy) {
     ui.defer_status_screen();
     TERN_(HOST_PROMPT_SUPPORT, hostui.continue_prompt(GET_TEXT_F(MSG_DELTA_CALIBRATION_IN_PROGRESS)));
     TERN_(EXTENSIBLE_UI, ExtUI::onUserConfirmRequired(GET_TEXT_F(MSG_DELTA_CALIBRATION_IN_PROGRESS)));
-    TERN_(HAS_RESUME_CONTINUE, wait_for_user_response());
+    TERN_(HAS_RESUME_CONTINUE, marlin.wait_for_user_response());
     ui.goto_previous_screen_no_defer();
     return current_position.z;
   }
@@ -88,7 +88,7 @@ void _man_probe_pt(const xy_pos_t &xy) {
     ui.goto_screen(_lcd_calibrate_homing);
   }
 
-  void _goto_tower_a(const_float_t a) {
+  void _goto_tower_a(const float a) {
     float dcr = PRINTABLE_RADIUS - PROBING_MARGIN;
     TERN_(HAS_PROBE_XY_OFFSET, dcr -= HYPOT(probe.offset_xy.x, probe.offset_xy.y));
     TERN_(HAS_DELTA_SENSORLESS_PROBING, dcr *= sensorless_radius_factor);

@@ -41,7 +41,7 @@
  * here we define this default string as the date where the latest release
  * version was tagged.
  */
-//#define STRING_DISTRIBUTION_DATE "2025-09-11"
+//#define STRING_DISTRIBUTION_DATE "2025-12-30"
 
 /**
  * The protocol for communication to the host. Protocol indicates communication
@@ -58,7 +58,7 @@
 /**
  * The SOURCE_CODE_URL is the location where users will find the Marlin Source
  * Code which is installed on the device. In most cases —unless the manufacturer
- * has a distinct Github fork— the Source Code URL should just be the main
+ * has a distinct GitHub fork— the Source Code URL should just be the main
  * Marlin repository.
  */
 #define SOURCE_CODE_URL "github.com/MarlinFirmware/Marlin"

@@ -56,17 +56,17 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
       else {
         const int16_t new_flow = _MIN(MAX_EXT_SPEED_PERCENT, planner.flow_percentage[0] + uiCfg.stepPrintSpeed);
         planner.set_flow(0, new_flow);
-        TERN_(HAS_MULTI_EXTRUDER, planner.set_flow(1, new_flow));
+        E_TERN_(planner.set_flow(1, new_flow));
       }
       disp_print_speed();
       break;
     case ID_C_DEC:
       if (!editingFlowrate)
-        feedrate_percentage = _MAX(MIN_EXT_SPEED_PERCENT, feedrate_percentage + uiCfg.stepPrintSpeed);
+        feedrate_percentage = _MAX(MIN_EXT_SPEED_PERCENT, feedrate_percentage - uiCfg.stepPrintSpeed);
       else {
         const int16_t new_flow = _MAX(MIN_EXT_SPEED_PERCENT, planner.flow_percentage[0] - uiCfg.stepPrintSpeed);
         planner.set_flow(0, new_flow);
-        TERN_(HAS_MULTI_EXTRUDER, planner.set_flow(1, new_flow));
+        E_TERN_(planner.set_flow(1, new_flow));
       }
       disp_print_speed();
       break;

@@ -34,7 +34,6 @@
 #include "motion.h"
 #include "temperature.h"
 
-#include "../MarlinCore.h"
 #include "../gcode/queue.h"
 
 // See the meaning in the documentation of cubic_b_spline().
@@ -43,7 +42,7 @@
 #define SIGMA 0.1f
 
 // Compute the linear interpolation between two real numbers.
-static inline float interp(const_float_t a, const_float_t b, const_float_t t) { return (1 - t) * a + t * b; }
+static inline float interp(const float a, const float b, const float t) { return (1 - t) * a + t * b; }
 
 /**
  * Compute a Bézier curve using the De Casteljau's algorithm (see
@@ -51,7 +50,7 @@ static inline float interp(const_float_t a, const_float_t b, const_float_t t) { 
  * easy to code and has good numerical stability (very important,
  * since Arduino works with limited precision real numbers).
  */
-static inline float eval_bezier(const_float_t a, const_float_t b, const_float_t c, const_float_t d, const_float_t t) {
+static inline float eval_bezier(const float a, const float b, const float c, const float d, const float t) {
   const float iab = interp(a, b, t),
               ibc = interp(b, c, t),
               icd = interp(c, d, t),
@@ -64,11 +63,11 @@ static inline float eval_bezier(const_float_t a, const_float_t b, const_float_t 
  * We approximate Euclidean distance with the sum of the coordinates
  * offset (so-called "norm 1"), which is quicker to compute.
  */
-static inline float dist1(const_float_t x1, const_float_t y1, const_float_t x2, const_float_t y2) { return ABS(x1 - x2) + ABS(y1 - y2); }
+static inline float dist1(const float x1, const float y1, const float x2, const float y2) { return ABS(x1 - x2) + ABS(y1 - y2); }
 
 /**
  * The algorithm for computing the step is loosely based on the one in Kig
- * (See https://sources.debian.net/src/kig/4:15.08.3-1/misc/kigpainter.cpp/#L759)
+ * (See https://sources.debian.org/src/kig/4:15.08.3-1/misc/kigpainter.cpp/#L759)
  * However, we do not use the stack.
  *
  * The algorithm goes as it follows: the parameters t runs from 0.0 to
@@ -109,7 +108,7 @@ void cubic_b_spline(
   const xyze_pos_t &position,       // current position
   const xyze_pos_t &target,         // target position
   const xy_pos_t (&offsets)[2],     // a pair of offsets
-  const_feedRate_t scaled_fr_mm_s,  // mm/s scaled by feedrate %
+  const feedRate_t scaled_fr_mm_s,  // mm/s scaled by feedrate %
   const uint8_t extruder
 ) {
   // Absolute first and second control points are recovered.
@@ -130,7 +129,7 @@ void cubic_b_spline(
     millis_t now = millis();
     if (ELAPSED(now, next_idle_ms)) {
       next_idle_ms = now + 200UL;
-      idle();
+      marlin.idle();
     }
 
     // First try to reduce the step in order to make it sufficiently

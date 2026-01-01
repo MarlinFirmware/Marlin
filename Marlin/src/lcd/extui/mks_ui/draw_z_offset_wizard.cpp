@@ -111,7 +111,7 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
       // On cancel the Z position needs correction
       #if HOMING_Z_WITH_PROBE && defined(PROBE_OFFSET_WIZARD_START_Z)
         set_axis_never_homed(Z_AXIS);
-        queue.inject_P(PSTR("G28Z"));
+        queue.inject(F("G28Z"));
       #else
         do_z_post_clearance();
       #endif
@@ -151,7 +151,7 @@ void lv_draw_z_offset_wizard() {
     set_bed_leveling_enabled(mks_leveling_was_active);
   #endif
 
-  queue.inject_P(PSTR("G28"));
+  queue.inject(F("G28"));
 
   z_offset_ref = 0;             // Set Z Value for Wizard Position to 0
   calculated_z_offset = probe.offset.z + current_position.z - z_offset_ref;
