@@ -28,7 +28,7 @@
 /**
  * Marlin release version identifier
  */
-#define SHORT_BUILD_VERSION "bugfix-2.1.x"
+//#define SHORT_BUILD_VERSION "bugfix-2.1.x"
 
 /**
  * Verbose version identifier which should contain a reference to the location
@@ -53,7 +53,7 @@
 /**
  * Defines a generic printer name to be output to the LCD after booting Marlin.
  */
-#define MACHINE_NAME "Monoprice Maker Ultimate 2"
+//#define MACHINE_NAME "3D Printer"
 
 /**
  * The SOURCE_CODE_URL is the location where users will find the Marlin Source
@@ -61,7 +61,7 @@
  * has a distinct GitHub fork— the Source Code URL should just be the main
  * Marlin repository.
  */
-#define SOURCE_CODE_URL "github.com/MarlinFirmware/Marlin"
+//#define SOURCE_CODE_URL "github.com/MarlinFirmware/Marlin"
 
 /**
  * Default generic printer UUID.
