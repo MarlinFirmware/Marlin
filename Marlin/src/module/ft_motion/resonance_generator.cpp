@@ -50,13 +50,19 @@ void ResonanceGenerator::reset() {
   done = false;
 }
 
+float ResonanceGenerator::fast_sin(float x) {
+  // Fast sine approximation
+  x = fmodf(x + M_PI, 2.0f * M_PI) - M_PI;
+  return x * (1.27323954f - 0.405284735f * fabsf(x));
+}
+
 void ResonanceGenerator::fill_stepper_plan_buffer() {
   xyze_float_t traj_coords = {};
 
   while (!ftMotion.stepping.is_full()) {
     // Calculate current frequency
     // Logarithmic approach with duration per octave
-    const float freq = rt_params.min_freq * powf(2.0f, rt_time / rt_params.octave_duration);
+    const float freq = rt_params.min_freq * 2.0f * exp2f((rt_time / rt_params.octave_duration) - 1);
     if (freq > rt_params.max_freq) {
       done = true;
       return;
@@ -71,7 +77,7 @@ void ResonanceGenerator::fill_stepper_plan_buffer() {
     const float phase = 2.0f * M_PI * freq * rt_time;
 
     // Position Offset : between -A and +A
-    const float pos_offset = amplitude * sinf(phase);
+    const float pos_offset = amplitude * fast_sin(phase);
 
     // Set base position and apply offset to the test axis in one step for all axes
     #define _SET_TRAJ(A) traj_coords.A = rt_params.start_pos.A + (rt_params.axis == A##_AXIS ? pos_offset : 0.0f);
