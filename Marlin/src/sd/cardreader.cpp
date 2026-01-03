@@ -1030,11 +1030,16 @@ void CardReader::write_command(char * const buf) {
    * Select the newest file and ask the user if they want to print it.
    */
   bool CardReader::one_click_check() {
+    // Don't proceed if an EEPROM error needs a response
+    #if ENABLED(EEPROM_SETTINGS) && NONE(EEPROM_AUTO_INIT, EEPROM_INIT_NOW)
+      if (settings.eeprom_status() != ERR_EEPROM_NOERR) return false;
+    #endif
+
     const bool found = selectNewestFile();    // Changes the current workDir if found
     if (found) {
       //SERIAL_ECHO_MSG(" OCP File: ", longest_filename(), "\n");
       //ui.init();
-      one_click_print();                      // Restores workkDir to root (eventually)
+      one_click_print();                      // Restores workDir to root (eventually)
     }
     return found;
   }
