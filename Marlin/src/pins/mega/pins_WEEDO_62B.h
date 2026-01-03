@@ -38,9 +38,9 @@
 //
 // Limit Switches (only has max limit switches, but manuf pin file had mins)
 //
-//#define X_MIN_PIN                            3 //manuf file
+//#define X_MIN_PIN                            3  //manuf file
 #define X_MAX_PIN                              2
-//#define Y_MIN_PIN                           -1 //manuf file
+//#define Y_MIN_PIN                           -1  //manuf file
 #define Y_MAX_PIN                             41
 #define Z_MIN_PIN                             18  // manuf file has 18, but why not 32 to match probe pin?
 #define Z_MAX_PIN                             19
@@ -80,13 +80,13 @@
 //
 // Misc. Functions
 //
-//#define PS_ON_PIN                           12 //from WEEDO_62A, what is?
+//#define PS_ON_PIN                           12  //from WEEDO_62A, what is?
 #define LED_PIN                               13
-#define CASE_LIGHT_PIN                        13 //not sure which?
-#define FIL_RUNOUT_PIN						             3
-#define DOOROPEN_PIN						              40  //from manuf file, is this implemented?
-#define Z_MIN_PROBE_PIN						            32
-//#define SOL1_PIN							              19  //from manuf file, same as Z_MAX_PIN?, not sure what it could be
+#define CASE_LIGHT_PIN                        13  //not sure which?
+#define FIL_RUNOUT_PIN                         3
+#define DOOROPEN_PIN                          40  //from manuf file, is this implemented?
+#define Z_MIN_PROBE_PIN                       32
+//#define SOL1_PIN                            19  //from manuf file, same as Z_MAX_PIN?, not sure what it could be
 
 //
 // SD Support
