@@ -54,7 +54,7 @@ class ResonanceGenerator {
     }
 
     float getFrequencyFromTimeline() {
-      return (rt_params.min_freq * powf(2.0f, timeline / rt_params.octave_duration)); // Return frequency based on timeline
+      return (rt_params.min_freq * 2.0f * exp2f((rt_time / rt_params.octave_duration) - 1)); // Return frequency based on timeline
     }
 
     void fill_stepper_plan_buffer();                // Fill stepper plan buffer with trajectory points
@@ -67,6 +67,7 @@ class ResonanceGenerator {
     void abort();               // Abort resonance test
 
   private:
+    float fast_sin(float x); // Fast sine approximation
     static float rt_time;    // Test timer
     static bool active;         // Resonance test active
     static bool done;           // Resonance test done
