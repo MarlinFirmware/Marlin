@@ -2801,8 +2801,8 @@
  *
  * Adds support for commands:
  *  S000 : Report State and Position while moving.
- *  P000 : Instant Pause / Hold while moving. Requires FREEZE_FEATURE for soft deceleration.
- *  R000 : Resume from Pause / Hold. Requires FREEZE_FEATURE for soft acceleration.
+ *  P000 : Instant Pause / Hold while moving. Requires SOFT_FEED_HOLD for soft deceleration.
+ *  R000 : Resume from Pause / Hold. Requires SOFT_FEED_HOLD for soft acceleration.
  *
  * - During Hold all Emergency Parser commands are available, as usual.
  * - Enable NANODLP_Z_SYNC and NANODLP_ALL_AXIS for move command end-state reports.
@@ -4433,18 +4433,30 @@
 
 /**
  * Freeze / unfreeze functionality
- * Soft feed hold that keeps power available and does not stop the spindle can be initiated with command P000 (requires REALTIME_REPORTING_COMMANDS and EMERGENCY_PARSER) or by using a FREEZE_PIN.
- * Decelerates and halts movement at FREEZE_JERK.
- * Motion can be resumed with command R000 (requires REALTIME_REPORTING_COMMANDS and EMERGENCY_PARSER) or by using the FREEZE_PIN
+ * Pause / Hold that keeps power available and does not stop the spindle can be initiated by the FREEZE_PIN.
+ * Halts instantly (default) or performs a soft feed hold that decelerates and halts movement at FREEZE_JERK (requires SOFT_FEED_HOLD).
+ * Motion can be resumed by using the FREEZE_PIN
  * NOTE: Controls Laser PWM but does NOT pause Spindle, Fans, Heaters or other devices.
  * @section freeze
  */
 //#define FREEZE_FEATURE
 #if ENABLED(FREEZE_FEATURE)
-  //NO_FREEZE_PIN             // Don't use FREEZE_PIN, only commands P000 and R000 
   //#define FREEZE_PIN   -1   // Override the default (KILL) pin here
-  #define FREEZE_JERK     2   // (mm/s) Completely halt when motion has decelerated below this value
   #define FREEZE_STATE  LOW   // State of pin indicating freeze
+#endif
+
+#if ANY(FREEZE_FEATURE, REALTIME_REPORTING_COMMANDS)
+  /**
+   * Command P000 (requires REALTIME_REPORTING_COMMANDS and EMERGENCY_PARSER) or FREEZE_PIN (requires FREEZE_FEATURE) initiates a soft feed hold that 
+   * keeps power available and does not stop the spindle.
+   * The soft feed hold decelerates and halts movement at FREEZE_JERK.
+   * Motion can be resumed with command R000 (requires REALTIME_REPORTING_COMMANDS) or by using the FREEZE_PIN (requires FREEZE_FEATURE).
+   * NOTE: Controls Laser PWM but does NOT pause Spindle, Fans, Heaters or other devices.
+   */
+  //#define SOFT_FEED_HOLD
+   #if ENABLED(SOFT_FEED_HOLD)
+    #define FREEZE_JERK     2   // (mm/s) Completely halt when motion has decelerated below this value
+  #endif
 #endif
 
 /**

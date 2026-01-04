@@ -260,7 +260,7 @@
   #include "feature/rs485.h"
 #endif
 
-#if ENABLED(FREEZE_FEATURE)
+#if ENABLED(SOFT_FEED_HOLD)
   #include "feature/e_parser.h"
 #endif
 
@@ -518,12 +518,14 @@ void Marlin::manage_inactivity(const bool no_stepper_sleep/*=false*/) {
     }
   #endif
 
-  #if ENABLED(FREEZE_FEATURE)
-    #if PIN_EXISTS(FREEZE)
+  #if ENABLED(SOFT_FEED_HOLD)
+    #if ENABLED(FREEZE_FEATURE)
       stepper.set_frozen_triggered((READ(FREEZE_PIN) == FREEZE_STATE) || TERN0(REALTIME_REPORTING_COMMANDS, realtime_ramping_pause_flag));
     #elif ENABLED(REALTIME_REPORTING_COMMANDS)
       stepper.set_frozen_triggered(realtime_ramping_pause_flag);
     #endif
+  #elif ENABLED(FREEZE_FEATURE)
+    stepper.frozen_state = READ(FREEZE_PIN) == FREEZE_STATE;
   #endif
 
   #if HAS_HOME

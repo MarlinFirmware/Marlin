@@ -199,8 +199,10 @@ uint32_t Stepper::acceleration_time, Stepper::deceleration_time;
   constexpr uint8_t Stepper::oversampling_factor; // = 0
 #endif
 
-#if ENABLED(FREEZE_FEATURE)
+#if ANY(SOFT_FEED_HOLD, FREEZE_FEATURE) 
   uint8_t Stepper::frozen_state = 0;                  // Frozen flags
+#endif
+#if ENABLED(SOFT_FEED_HOLD)
   uint32_t Stepper::frozen_time = 0;                  // How much time has past since frozen_state was triggered?
   #if ENABLED(LASER_FEATURE)
     uint8_t frozen_last_laser_power = 0;              // Saved laser power prior to halting motion
@@ -1850,8 +1852,10 @@ void Stepper::isr() {
     if (!current_block || step_events_completed >= step_event_count) return;
 
     // Skipping step processing causes motion to freeze
-    #if ENABLED(FREEZE_FEATURE)
+    #if ENABLED(SOFT_FEED_HOLD)
       if (is_frozen_triggered() && is_frozen_solid()) return;
+    #elif ENABLED(FREEZE_FEATURE)
+      if (frozen_state == 0) return;
     #endif
 
     // Count of pending loops and events for this iteration
@@ -2425,7 +2429,7 @@ void Stepper::isr() {
     hal_timer_t interval = (STEPPER_TIMER_RATE) / 1000UL;
 
     // Frozen solid?? Exit and do not fetch blocks.
-    if (TERN0(FREEZE_FEATURE, is_frozen_triggered() && is_frozen_solid())) {
+    if (TERN0(SOFT_FEED_HOLD, is_frozen_triggered() && is_frozen_solid())) {
       return interval;
     }
 
@@ -2472,14 +2476,14 @@ void Stepper::isr() {
           // acc_step_rate is in steps/second
 
         // Modify acc_step_rate if the machine is freezing
-        TERN_(FREEZE_FEATURE, check_frozen_time(acc_step_rate));
+        TERN_(SOFT_FEED_HOLD, check_frozen_time(acc_step_rate));
 
         // step_rate to timer interval and steps per stepper isr
         interval = calc_multistep_timer_interval(acc_step_rate << oversampling_factor);
         acceleration_time += interval;
         deceleration_time = 0; // Reset since we're doing acceleration first.
 
-        TERN_(FREEZE_FEATURE, check_frozen_state(FREEZE_ACCELERATION, interval));
+        TERN_(SOFT_FEED_HOLD, check_frozen_state(FREEZE_ACCELERATION, interval));
 
           // Apply Nonlinear Extrusion, if enabled
           calc_nonlinear_e(acc_step_rate << oversampling_factor);
@@ -2542,13 +2546,13 @@ void Stepper::isr() {
 
           #endif
 
-          TERN_(FREEZE_FEATURE, check_frozen_time(step_rate));
+          TERN_(SOFT_FEED_HOLD, check_frozen_time(step_rate));
 
           // step_rate to timer interval and steps per stepper isr
           interval = calc_multistep_timer_interval(step_rate << oversampling_factor);
           deceleration_time += interval;
 
-          TERN_(FREEZE_FEATURE, check_frozen_state(FREEZE_DECELERATION, interval));
+          TERN_(SOFT_FEED_HOLD, check_frozen_state(FREEZE_DECELERATION, interval));
 
           // Apply Nonlinear Extrusion, if enabled
           calc_nonlinear_e(step_rate << oversampling_factor);
@@ -2596,10 +2600,10 @@ void Stepper::isr() {
         else {  // Must be in cruise phase otherwise
 
           // Calculate the ticks_nominal for this nominal speed, if not done yet
-          if (ticks_nominal == 0 || TERN0(FREEZE_FEATURE, frozen_time)) {
+          if (ticks_nominal == 0 || TERN0(SOFT_FEED_HOLD, frozen_time)) {
             uint32_t step_rate = current_block->nominal_rate;
 
-            TERN_(FREEZE_FEATURE, check_frozen_time(step_rate));
+            TERN_(SOFT_FEED_HOLD, check_frozen_time(step_rate));
 
             // step_rate to timer interval and loops for the nominal speed
             ticks_nominal = calc_multistep_timer_interval(step_rate << oversampling_factor);
@@ -2635,7 +2639,7 @@ void Stepper::isr() {
           // The timer interval is just the nominal value for the nominal speed
           interval = ticks_nominal;
 
-          TERN_(FREEZE_FEATURE, check_frozen_state(FREEZE_CRUISE, interval));
+          TERN_(SOFT_FEED_HOLD, check_frozen_state(FREEZE_CRUISE, interval));
         }
       }
 
@@ -2657,7 +2661,7 @@ void Stepper::isr() {
       #endif
     }
     else { // !current_block
-      TERN_(FREEZE_FEATURE, check_frozen_state(FREEZE_STATIONARY, interval));
+      TERN_(SOFT_FEED_HOLD, check_frozen_state(FREEZE_STATIONARY, interval));
       #if ENABLED(LASER_FEATURE)
         if (cutter.cutter_mode == CUTTER_MODE_DYNAMIC)
           cutter.apply_power(0);  // No movement in dynamic mode so turn Laser off
@@ -2945,14 +2949,14 @@ void Stepper::isr() {
 
         uint32_t step_rate = current_block->initial_rate;
 
-        #if ENABLED(FREEZE_FEATURE)
+        #if ENABLED(SOFT_FEED_HOLD)
           if(frozen_time) check_frozen_time(step_rate);
         #endif
 
         // Calculate the initial timer interval
         interval = calc_multistep_timer_interval(step_rate << oversampling_factor);
 
-        TERN_(FREEZE_FEATURE, check_frozen_state(FREEZE_ACCELERATION, interval));
+        TERN_(SOFT_FEED_HOLD, check_frozen_state(FREEZE_ACCELERATION, interval));
 
         // Initialize ac/deceleration time as if half the time passed.
         acceleration_time = deceleration_time = interval / 2;
@@ -3901,7 +3905,7 @@ void Stepper::report_positions() {
 
 #endif // BABYSTEPPING
 
-#if ENABLED(FREEZE_FEATURE)
+#if ENABLED(SOFT_FEED_HOLD)
 
   void Stepper::set_frozen_solid(const bool state) {
     if (state == is_frozen_solid()) return;
@@ -4006,4 +4010,4 @@ void Stepper::report_positions() {
     }
   }
 
-#endif // FREEZE_FEATURE
+#endif // SOFT_FEED_HOLD

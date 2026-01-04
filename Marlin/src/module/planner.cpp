@@ -2437,7 +2437,7 @@ bool Planner::_populate_block(
     block->acceleration_steps_per_s2 = accel;
     #if DISABLED(S_CURVE_ACCELERATION)
       block->acceleration_rate = uint32_t(accel * (float(_BV32(24)) / (STEPPER_TIMER_RATE)));
-    #elif ENABLED(FREEZE_FEATURE)
+    #elif ENABLED(SOFT_FEED_HOLD)
       // No need to waste time calculating the linear acceleration rate until the freeze_pin is triggered, leave this 0
       block->acceleration_rate = 0;
     #endif
