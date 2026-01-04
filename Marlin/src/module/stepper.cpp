@@ -2593,52 +2593,54 @@ void Stepper::isr() {
           #endif
           TERN_(SMOOTH_LIN_ADVANCE, curr_step_rate = step_rate);
         }
-      else {  // Must be in cruise phase otherwise
+        else {  // Must be in cruise phase otherwise
 
-        // Calculate the ticks_nominal for this nominal speed, if not done yet
-        if (ticks_nominal == 0 || TERN0(FREEZE_FEATURE, frozen_time)) {
-          uint32_t step_rate = current_block->nominal_rate;
+          // Calculate the ticks_nominal for this nominal speed, if not done yet
+          if (ticks_nominal == 0 || TERN0(FREEZE_FEATURE, frozen_time)) {
+            uint32_t step_rate = current_block->nominal_rate;
 
-          TERN_(FREEZE_FEATURE, check_frozen_time(step_rate));
+            TERN_(FREEZE_FEATURE, check_frozen_time(step_rate));
 
-          // step_rate to timer interval and loops for the nominal speed
-          ticks_nominal = calc_multistep_timer_interval(step_rate << oversampling_factor);
+            // step_rate to timer interval and loops for the nominal speed
+            ticks_nominal = calc_multistep_timer_interval(step_rate << oversampling_factor);
+            deceleration_time = ticks_nominal / 2;
 
-          // Prepare for deceleration
-          IF_DISABLED(S_CURVE_ACCELERATION, acc_step_rate = step_rate);
-          deceleration_time = ticks_nominal / 2;
+            // Prepare for deceleration
+            IF_DISABLED(S_CURVE_ACCELERATION, acc_step_rate = step_rate);
+            TERN_(SMOOTH_LIN_ADVANCE, curr_step_rate = current_block->nominal_rate);
 
-          #if ENABLED(NONLINEAR_EXTRUSION)
-            calc_nonlinear_e(step_rate << oversampling_factor);
-          #endif
+            #if ENABLED(NONLINEAR_EXTRUSION)
+              calc_nonlinear_e(step_rate << oversampling_factor);
+            #endif
 
-          #if ENABLED(LIN_ADVANCE)
-            if (la_active)
-              la_interval = calc_timer_interval(step_rate >> current_block->la_scaling);
-          #endif
+            #if ENABLED(LIN_ADVANCE)
+              if (la_active)
+                la_interval = calc_timer_interval(step_rate >> current_block->la_scaling);
+            #endif
 
-          // Adjust Laser Power - Cruise
-          #if ENABLED(LASER_POWER_TRAP)
-            if (cutter.cutter_mode == CUTTER_MODE_CONTINUOUS) {
-              if (planner.laser_inline.status.isPowered && planner.laser_inline.status.isEnabled) {
-                if (current_block->laser.trap_ramp_entry_incr > 0) {
-                  current_block->laser.trap_ramp_active_pwr = current_block->laser.power;
-                  cutter.apply_power(current_block->laser.power);
+            // Adjust Laser Power - Cruise
+            #if ENABLED(LASER_POWER_TRAP)
+              if (cutter.cutter_mode == CUTTER_MODE_CONTINUOUS) {
+                if (planner.laser_inline.status.isPowered && planner.laser_inline.status.isEnabled) {
+                  if (current_block->laser.trap_ramp_entry_incr > 0) {
+                    current_block->laser.trap_ramp_active_pwr = current_block->laser.power;
+                    cutter.apply_power(current_block->laser.power);
+                  }
                 }
+                // Not a powered move.
+                else cutter.apply_power(0);
               }
-              // Not a powered move.
-              else cutter.apply_power(0);
-            }
-          #endif
+            #endif
+          }
+
+          // The timer interval is just the nominal value for the nominal speed
+          interval = ticks_nominal;
+
+          TERN_(FREEZE_FEATURE, check_frozen_state(FREEZE_CRUISE, interval));
+          }
         }
 
-        // The timer interval is just the nominal value for the nominal speed
-        interval = ticks_nominal;
-
-        TERN_(FREEZE_FEATURE, check_frozen_state(FREEZE_CRUISE, interval));
-        }
-      }
-      #if ENABLED(LASER_FEATURE)
+        #if ENABLED(LASER_FEATURE)
         /**
          * CUTTER_MODE_DYNAMIC is experimental and developing.
          * Super-fast method to dynamically adjust the laser power OCR value based on the input feedrate in mm-per-minute.
