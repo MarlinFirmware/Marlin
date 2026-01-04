@@ -43,7 +43,7 @@ inline bool G38_run_probe(const ProbePtRaise raise_after) {
     constexpr uint8_t move_value = 1;
   #endif
 
-  const xyz_pos_t measured = probe.probe_safely(destination, raise_after, move_value, 0, true, true, Z_TWEEN_SAFE_CLEARANCE, true, true);
+  const xyz_pos_t measured = probe.probe_safely(destination, raise_after, move_value, 0, true, true, Z_TWEEN_SAFE_CLEARANCE, true);
   
   LOOP_NUM_AXES(a) {
     if (isnan(measured[a])) return true;

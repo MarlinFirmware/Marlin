@@ -96,6 +96,10 @@ public:
 
     static xyz_pos_t offset;
 
+    #if ENABLED(G38_PROBE_TARGET)
+      static probe_target_t G38_move;
+    #endif
+
     #if ANY(PREHEAT_BEFORE_PROBING, PREHEAT_BEFORE_LEVELING)
       static void preheat_for_probing(const celsius_t hotend_temp, const celsius_t bed_temp, const bool early=false);
     #endif
@@ -382,8 +386,8 @@ public:
 
 private:
   #if HAS_BED_PROBE
-    static bool probe_to_target(const xyz_pos_t &pos, const feedRate_t fr_mm_s, const uint8_t move_value, const bool probe_3d);
-    static xyz_pos_t run_probe(const bool sanity_check, const xyz_pos_t &target, const float z_clearance, const uint8_t move_value, const bool probe_3d);
+    static bool probe_to_target(const xyz_pos_t &pos, const feedRate_t fr_mm_s, const uint8_t move_value);
+    static xyz_pos_t run_probe(const bool sanity_check, const xyz_pos_t &target, const float z_clearance, const uint8_t move_value);
   #endif
 };
 
