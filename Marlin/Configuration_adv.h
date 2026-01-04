@@ -4439,9 +4439,9 @@
  */
 #define FREEZE_FEATURE
 #if ENABLED(FREEZE_FEATURE)
-  #define FREEZE_PIN      5   // Override the default (KILL) pin here
-  #define FREEZE_JERK     2
-  #define FREEZE_STATE    LOW  // State of pin indicating freeze
+  #define FREEZE_PIN      5     // Override the default (KILL) pin here
+  #define FREEZE_JERK     2     // Completely halt when motion has decelerated below this value 
+  #define FREEZE_STATE    LOW   // State of pin indicating freeze
 #endif
 
 /**

@@ -2435,7 +2435,7 @@ bool Planner::_populate_block(
   }
   #if HAS_STANDARD_MOTION
     block->acceleration_steps_per_s2 = accel;
-    #if DISABLED(S_CURVE_ACCELERATION)
+    #if DISABLED(S_CURVE_ACCELERATION) || ENABLED(FREEZE_FEATURE)
       block->acceleration_rate = uint32_t(accel * (float(_BV32(24)) / (STEPPER_TIMER_RATE)));
     #endif
   #endif
