@@ -2478,16 +2478,18 @@ void Stepper::isr() {
 
           // acc_step_rate is in steps/second
 
-          // step_rate to timer interval and steps per stepper isr
-          #if ENABLED(FREEZE_FEATURE)
-            if(frozen_time) check_frozen_time(acc_step_rate);
-          #endif
-          interval = calc_multistep_timer_interval(acc_step_rate << oversampling_factor);
-          acceleration_time += interval;
-          deceleration_time = 0; // Reset since we're doing acceleration first.
-          #if ENABLED(FREEZE_FEATURE)
-            if(frozen_pin && !frozen_solid) frozen_time += interval * 2;
-          #endif
+        #if ENABLED(FREEZE_FEATURE)
+          if(frozen_time) check_frozen_time(acc_step_rate);
+        #endif
+
+        // step_rate to timer interval and steps per stepper isr
+        interval = calc_multistep_timer_interval(acc_step_rate << oversampling_factor);
+        acceleration_time += interval;
+        deceleration_time = 0; // Reset since we're doing acceleration first.
+
+        #if ENABLED(FREEZE_FEATURE)
+          check_frozen_pin(0, interval);
+        #endif
 
           // Apply Nonlinear Extrusion, if enabled
           calc_nonlinear_e(acc_step_rate << oversampling_factor);
@@ -2550,22 +2552,17 @@ void Stepper::isr() {
 
           #endif
 
-          // step_rate to timer interval and steps per stepper isr
-          #if ENABLED(FREEZE_FEATURE)
-            if(frozen_time) check_frozen_time(step_rate);
-          #endif
-          interval = calc_multistep_timer_interval(step_rate << oversampling_factor);
-          deceleration_time += interval;
-          #if ENABLED(FREEZE_FEATURE)
-            if(!frozen_pin) {
-              if(frozen_time) {
-                if(frozen_time > interval * 2) frozen_time -= interval * 2;
-                else frozen_time = 0;
-              }
-              
-              frozen_solid = false;
-            }
-          #endif
+        #if ENABLED(FREEZE_FEATURE)
+          if(frozen_time) check_frozen_time(step_rate);
+        #endif
+
+        // step_rate to timer interval and steps per stepper isr
+        interval = calc_multistep_timer_interval(step_rate << oversampling_factor);
+        deceleration_time += interval;
+
+        #if ENABLED(FREEZE_FEATURE)
+          check_frozen_pin(1, interval);
+        #endif
 
           // Apply Nonlinear Extrusion, if enabled
           calc_nonlinear_e(step_rate << oversampling_factor);
@@ -2619,18 +2616,18 @@ void Stepper::isr() {
             #endif
           ) {
 
+            uint32_t step_rate = current_block->nominal_rate;
+
             #if ENABLED(FREEZE_FEATURE)
               if(frozen_time) check_frozen_time(step_rate);
             #endif
-            uint32_t step_rate = current_block->nominal_rate;
 
             // step_rate to timer interval and loops for the nominal speed
             ticks_nominal = calc_multistep_timer_interval(step_rate << oversampling_factor);
-            deceleration_time = ticks_nominal / 2;
-
+  
             // Prepare for deceleration
             IF_DISABLED(S_CURVE_ACCELERATION, acc_step_rate = step_rate);
-            TERN_(SMOOTH_LIN_ADVANCE, curr_step_rate = step_rate);
+            deceleration_time = ticks_nominal / 2;
 
             // Apply Nonlinear Extrusion, if enabled
             calc_nonlinear_e(step_rate << oversampling_factor);
@@ -2657,16 +2654,9 @@ void Stepper::isr() {
 
           // The timer interval is just the nominal value for the nominal speed
           interval = ticks_nominal;
-  
+
           #if ENABLED(FREEZE_FEATURE)
-            if(frozen_pin) {
-               if(!frozen_solid) frozen_time += ticks_nominal;
-            } else {
-              if (frozen_time > ticks_nominal) frozen_time -= ticks_nominal;
-              else frozen_time = 0;
-                
-              frozen_solid = false;
-            }
+            check_frozen_pin(2, interval);
           #endif
         }
       }
@@ -2974,14 +2964,19 @@ void Stepper::isr() {
           }
         #endif
 
-        // Calculate the initial timer interval
         uint32_t step_rate = current_block->initial_rate;
+
         #if ENABLED(FREEZE_FEATURE)
           if(frozen_time) check_frozen_time(step_rate);
         #endif
 
-
+        // Calculate the initial timer interval
         interval = calc_multistep_timer_interval(step_rate << oversampling_factor);
+
+        #if ENABLED(FREEZE_FEATURE)
+          check_frozen_pin(0, interval);
+        #endif
+
         // Initialize ac/deceleration time as if half the time passed.
         acceleration_time = deceleration_time = interval / 2;
 
@@ -3935,6 +3930,44 @@ void Stepper::report_positions() {
     if(freeze_rate >= step_rate) step_rate = 1;
     else step_rate -= freeze_rate;
     
-    frozen_solid = step_rate < (current_block->acceleration_steps_per_s2 / current_block->acceleration * FREEZE_JERK);
+  frozen_solid = step_rate < (current_block->acceleration_steps_per_s2 / current_block->acceleration * FREEZE_JERK);
+}
+
+void Stepper::check_frozen_pin(uint8_t type, uint32_t interval) {
+  switch(type) {
+    case 0: //acceleration
+      if(frozen_pin && !frozen_solid) frozen_time += interval * 2;
+    break;
+
+    case 1: //deceleration
+      if(!frozen_pin) {
+        if(frozen_time) {
+          if(frozen_time > interval * 2) frozen_time -= interval * 2;
+          else frozen_time = 0;
+        }
+        
+        frozen_solid = false;
+      }
+    break;
+
+    case 2: //cruise
+      if(frozen_pin) {
+          if(!frozen_solid) frozen_time += interval;
+      } else {
+        if(frozen_time) {
+          if (frozen_time > interval) {
+            frozen_time -= interval;
+          }
+          else {
+            frozen_time = 0;
+            ticks_nominal = 0;      //Reset ticks_nominal to allow for recalculation of interval at nominal_rate
+          }
+        }
+          
+        frozen_solid = false;
+      }
+    break;
   }
+}
+
 #endif
