@@ -57,7 +57,7 @@ float ResonanceGenerator::fast_sin(float x) {
 }
 
 void ResonanceGenerator::fill_stepper_plan_buffer() {
-  xyze_float_t traj_coords = {};
+  xyze_float_t traj_coords = rt_params.start_pos;
 
   const float amplitude_numerator = rt_params.amplitude_correction * rt_params.accel_per_hz * 0.25f;
 
@@ -80,15 +80,14 @@ void ResonanceGenerator::fill_stepper_plan_buffer() {
     // Position Offset : between -A and +A
     const float pos_offset = amplitude * fast_sin(phase);
 
-    // Set base position and apply offset to the test axis in one step for all axes
-    #define _SET_TRAJ(A) traj_coords.A = rt_params.start_pos.A + (rt_params.axis == A##_AXIS ? pos_offset : 0.0f);
-    LOGICAL_AXIS_MAP(_SET_TRAJ);
+    // Resonate the axis being tested
+    traj_coords[rt_params.axis] = rt_params.start_pos[rt_params.axis] + pos_offset;
+
+    // Increment time for the next point (before calling out)
+    rt_time += FTM_TS;
 
     // Store in buffer
     ftMotion.stepping_enqueue(traj_coords);
-
-    // Increment time for the next point
-    rt_time += FTM_TS;
   }
 }
 
