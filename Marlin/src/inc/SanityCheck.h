@@ -579,8 +579,12 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
 /**
  * Instant Freeze
  */
-#if ENABLED(FREEZE_FEATURE) && !(PIN_EXISTS(FREEZE) && defined(FREEZE_STATE) && defined(FREEZE_JERK))
-  #error "FREEZE_FEATURE requires FREEZE_PIN, FREEZE_STATE and FREEZE_JERK."
+#if ENABLED(FREEZE_FEATURE) && !defined(FREEZE_JERK)
+  #error "FREEZE_FEATURE requires FREEZE_JERK."
+#elif ENABLED(USE_FREEZE_PIN) && !(defined(FREEZE_PIN)&& defined(FREEZE_STATE))
+  #error "USE_FREEZE_PIN requires FREEZE_PIN and FREEZE_STATE."
+#elif ENABLED(FREEZE_FEATURE) && !(defined(REALTIME_REPORTING_COMMANDS))
+  #error "FREEZE_FEATURE requires REALTIME_REPORTING_COMMANDS or USE_FREEZE_PIN"
 #endif
 
 /**

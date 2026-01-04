@@ -318,12 +318,6 @@ constexpr ena_mask_t enable_overlap[] = {
 
 #endif // NONLINEAR_EXTRUSION
 
-// Pause resume ramping constants
-#if ENABLED(REALTIME_RAMPING)
-  #define MIN_REALTIME_RAMPING_FACTOR   500
-  #define MAX_REALTIME_RAMPING_FACTOR 10000
-#endif
-
 #if ENABLED(FREEZE_FEATURE)
   enum FreezePhase : uint8_t {
     FREEZE_STATIONARY,
