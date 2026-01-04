@@ -2609,11 +2609,10 @@ void Stepper::isr() {
             IF_DISABLED(S_CURVE_ACCELERATION, acc_step_rate = step_rate);
             TERN_(SMOOTH_LIN_ADVANCE, curr_step_rate = current_block->nominal_rate);
 
-            #if ENABLED(NONLINEAR_EXTRUSION)
-              calc_nonlinear_e(step_rate << oversampling_factor);
-            #endif
+            // Apply Nonlinear Extrusion, if enabled
+            calc_nonlinear_e(step_rate << oversampling_factor);
 
-            #if ENABLED(LIN_ADVANCE)
+            #if HAS_ROUGH_LIN_ADVANCE
               if (la_active)
                 la_interval = calc_timer_interval(step_rate >> current_block->la_scaling);
             #endif
@@ -2637,10 +2636,10 @@ void Stepper::isr() {
           interval = ticks_nominal;
 
           TERN_(FREEZE_FEATURE, check_frozen_state(FREEZE_CRUISE, interval));
-          }
         }
+      }
 
-        #if ENABLED(LASER_FEATURE)
+      #if ENABLED(LASER_FEATURE)
         /**
          * CUTTER_MODE_DYNAMIC is experimental and developing.
          * Super-fast method to dynamically adjust the laser power OCR value based on the input feedrate in mm-per-minute.
@@ -4001,7 +4000,6 @@ void Stepper::report_positions() {
               ticks_nominal = 0;      // Reset ticks_nominal to allow for recalculation of interval at nominal_rate
             }
           }
-
           set_frozen_solid(false);
         }
         break;

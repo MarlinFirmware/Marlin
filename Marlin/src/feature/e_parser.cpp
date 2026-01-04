@@ -19,6 +19,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
+
 /**
  * e_parser.cpp - Intercept special commands directly in the serial stream
  */
