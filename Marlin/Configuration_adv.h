@@ -2801,8 +2801,8 @@
  *
  * Adds support for commands:
  *  S000 : Report State and Position while moving.
- *  P000 : Instant Pause / Hold while moving.
- *  R000 : Resume from Pause / Hold.
+ *  P000 : Instant Pause / Hold while moving. Requires FREEZE_FEATURE for soft deceleration.
+ *  R000 : Resume from Pause / Hold. Requires FREEZE_FEATURE for soft acceleration.
  *
  * - During Hold all Emergency Parser commands are available, as usual.
  * - Enable NANODLP_Z_SYNC and NANODLP_ALL_AXIS for move command end-state reports.
@@ -4433,13 +4433,15 @@
 
 /**
  * Freeze / unfreeze functionality
- * Potentially useful for rapid stop that allows being resumed.
- * Rapidly decelerates and halts movement at FREEZE_JERK.
+ * Soft feed hold that keeps power available and does not stop the spindle can be initiated with command P000 (requires REALTIME_REPORTING_COMMANDS and EMERGENCY_PARSER) or by using a FREEZE_PIN.
+ * Decelerates and halts movement at FREEZE_JERK.
+ * Motion can be resumed with command R000 (requires REALTIME_REPORTING_COMMANDS and EMERGENCY_PARSER) or by using the FREEZE_PIN
  * NOTE: Controls Laser PWM but does NOT pause Spindle, Fans, Heaters or other devices.
  * @section freeze
  */
 //#define FREEZE_FEATURE
 #if ENABLED(FREEZE_FEATURE)
+  //NO_FREEZE_PIN             // Don't use FREEZE_PIN, only commands P000 and R000 
   //#define FREEZE_PIN   -1   // Override the default (KILL) pin here
   #define FREEZE_JERK     2   // (mm/s) Completely halt when motion has decelerated below this value
   #define FREEZE_STATE  LOW   // State of pin indicating freeze
