@@ -50,8 +50,8 @@ void ResonanceGenerator::reset() {
   done = false;
 }
 
+// Fast sine approximation
 float ResonanceGenerator::fast_sin(float x) {
-  // Fast sine approximation
   x = fmodf(x + M_PI, 2.0f * M_PI) - M_PI;
   return x * (1.27323954f - 0.405284735f * fabsf(x));
 }
@@ -61,8 +61,7 @@ void ResonanceGenerator::fill_stepper_plan_buffer() {
 
   while (!ftMotion.stepping.is_full()) {
     // Calculate current frequency
-    // Logarithmic approach with duration per octave
-    const float freq = rt_params.min_freq * 2.0f * exp2f((rt_time / rt_params.octave_duration) - 1);
+    const float freq = getFrequencyFromTimeline();
     if (freq > rt_params.max_freq) {
       done = true;
       return;
