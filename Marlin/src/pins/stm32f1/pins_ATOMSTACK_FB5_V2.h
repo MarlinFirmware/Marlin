@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2026 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -22,13 +22,13 @@
 #pragma once
 
 /**
- * AtomStrack FB5 V2.0 (STM32F103RCT6) common board pin assignments
+ * AtomStack FB5 V2.0 (STM32F103RCT6) common board pin assignments
  */
 
 #include "env_validate.h"
 
 #ifndef BOARD_INFO_NAME
-  #define BOARD_INFO_NAME      "AtomStrack FB5 V2.0"
+  #define BOARD_INFO_NAME      "AtomStack FB5 V2.0"
 #endif
 #ifndef DEFAULT_MACHINE_NAME
   #define DEFAULT_MACHINE_NAME "ATOMSTACK Cambrian"
@@ -106,16 +106,9 @@
   //#define E0_HARDWARE_SERIAL MSerial1
 
   #define X_SERIAL_TX_PIN                   PC7
-  #define X_SERIAL_RX_PIN                   PC7
-
   #define Y_SERIAL_TX_PIN                   PD2
-  #define Y_SERIAL_RX_PIN                   PD2
-
   #define Z_SERIAL_TX_PIN                   PC12
-  #define Z_SERIAL_RX_PIN                   PC12
-
   #define E0_SERIAL_TX_PIN                  PC11
-  #define E0_SERIAL_RX_PIN                  PC11
 
   // Reduce baud rate to improve software serial reliability
   #ifndef TMC_BAUD_RATE
@@ -125,17 +118,18 @@
 #endif // HAS_TMC_UART
 
 //
-// Heaters 0,1 / Fans / Bed
+// Heaters / Fans
 //
 #define HEATER_0_PIN                        PC9
-#define FAN0_PIN                            PA8
 #define HEATER_BED_PIN                      PC8
+
+#define FAN0_PIN                            PA8
 
 //
 // Temperature Sensors
 //
-#define TEMP_BED_PIN                        PA1   // TB
 #define TEMP_0_PIN                          PA0   // TH1
+#define TEMP_BED_PIN                        PA1   // TB
 
 //
 // Filament Runout Sensor
@@ -159,7 +153,7 @@
 #endif
 
 /**
- *   AtomStrack FB5 V2.0
+ *   AtomStack FB5 V2.0
  *        ------
  *    5V | 1  2 | 5V
  *   GND | 3  4 | GND
