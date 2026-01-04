@@ -26,13 +26,13 @@
 #include <math.h>
 
 typedef struct FTMResonanceTestParams {
-  AxisEnum axis       = NO_AXIS_ENUM; // Axis to test
-  float min_freq      = 5.0f;         // Minimum frequency [Hz]
-  float max_freq      = 100.0f;       // Maximum frequency [Hz]
-  float octave_duration = 40.0f;      // Octave duration for logarithmic progression
-  float accel_per_hz  = 60.0f;        // Acceleration per Hz [mm/sec/Hz] or [g/Hz]
-  int16_t amplitude_correction = 5;   // Amplitude correction factor
-  xyze_pos_t start_pos;               // Initial stepper position
+  AxisEnum axis         = NO_AXIS_ENUM; // Axis to test
+  float min_freq        =   5.0f;       // Minimum frequency [Hz]
+  float max_freq        = 100.0f;       // Maximum frequency [Hz]
+  float octave_duration =  40.0f;       // Octave duration for logarithmic progression
+  float accel_per_hz    =  60.0f;       // Acceleration per Hz [mm/sec/Hz] or [g/Hz]
+  int16_t amplitude_correction = 5;     // Amplitude correction factor
+  xyze_pos_t start_pos;                 // Initial stepper position
 } ftm_resonance_test_params_t;
 
 class ResonanceGenerator {
@@ -61,10 +61,11 @@ class ResonanceGenerator {
 
     void fill_stepper_plan_buffer();                // Fill stepper plan buffer with trajectory points
 
+    void setActive(const bool state) { active = state; }
     bool isActive() const { return active; }
+
+    void setDone(const bool state) { done = state; }
     bool isDone() const { return done; }
-    void setActive(bool state) { active = state; }
-    void setDone(bool state) { done = state; }
 
     void abort();             // Abort resonance test
 

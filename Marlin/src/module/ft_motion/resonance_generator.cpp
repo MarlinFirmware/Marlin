@@ -59,6 +59,8 @@ float ResonanceGenerator::fast_sin(float x) {
 void ResonanceGenerator::fill_stepper_plan_buffer() {
   xyze_float_t traj_coords = {};
 
+  const float amplitude_numerator = rt_params.amplitude_correction * rt_params.accel_per_hz * 0.25f;
+
   while (!ftMotion.stepping.is_full()) {
     // Calculate current frequency
     const float freq = getFrequencyFromTimeline();
@@ -70,7 +72,7 @@ void ResonanceGenerator::fill_stepper_plan_buffer() {
     // Amplitude based on a sinusoidal wave : A = accel / (4 * PI^2 * f^2)
     //const float accel_magnitude = rt_params.accel_per_hz * freq;
     //const float amplitude = rt_params.amplitude_correction * accel_magnitude / (4.0f * sq(M_PI) * sq(freq));
-    const float amplitude = rt_params.amplitude_correction * rt_params.accel_per_hz * 0.25f / (sq(M_PI) * freq);
+    const float amplitude = amplitude_numerator / (sq(M_PI) * freq);
 
     // Phase in radians
     const float phase = 2.0f * M_PI * freq * rt_time;
@@ -84,6 +86,7 @@ void ResonanceGenerator::fill_stepper_plan_buffer() {
 
     // Store in buffer
     ftMotion.stepping_enqueue(traj_coords);
+
     // Increment time for the next point
     rt_time += FTM_TS;
   }
