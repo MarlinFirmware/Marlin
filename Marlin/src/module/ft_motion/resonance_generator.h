@@ -25,6 +25,10 @@
 
 #include <math.h>
 
+#ifndef M_TAU
+  #define M_TAU (2.0f * M_PI)
+#endif
+
 typedef struct FTMResonanceTestParams {
   AxisEnum axis         = NO_AXIS_ENUM; // Axis to test
   float min_freq        =   5.0f;       // Minimum frequency [Hz]

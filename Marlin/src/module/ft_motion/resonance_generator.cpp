@@ -52,14 +52,16 @@ void ResonanceGenerator::reset() {
 
 // Fast sine approximation
 float ResonanceGenerator::fast_sin(float x) {
-  x = fmodf(x + M_PI, 2.0f * M_PI) - M_PI;
+  x = fmodf(x + M_PI, M_TAU) - M_PI;
   return x * (1.27323954f - 0.405284735f * fabsf(x));
 }
 
 void ResonanceGenerator::fill_stepper_plan_buffer() {
   xyze_float_t traj_coords = rt_params.start_pos;
 
-  const float amplitude_numerator = rt_params.amplitude_correction * rt_params.accel_per_hz * 0.25f;
+  const float amplitude_precalc = (rt_params.amplitude_correction * rt_params.accel_per_hz * 0.25f) / sq(M_PI);
+
+  float rt_factor = rt_time * M_TAU;
 
   while (!ftMotion.stepping.is_full()) {
     // Calculate current frequency
@@ -72,10 +74,10 @@ void ResonanceGenerator::fill_stepper_plan_buffer() {
     // Amplitude based on a sinusoidal wave : A = accel / (4 * PI^2 * f^2)
     //const float accel_magnitude = rt_params.accel_per_hz * freq;
     //const float amplitude = rt_params.amplitude_correction * accel_magnitude / (4.0f * sq(M_PI) * sq(freq));
-    const float amplitude = amplitude_numerator / (sq(M_PI) * freq);
+    const float amplitude = amplitude_precalc / freq;
 
     // Phase in radians
-    const float phase = 2.0f * M_PI * freq * rt_time;
+    const float phase = freq * rt_factor;
 
     // Position Offset : between -A and +A
     const float pos_offset = amplitude * fast_sin(phase);
@@ -83,8 +85,9 @@ void ResonanceGenerator::fill_stepper_plan_buffer() {
     // Resonate the axis being tested
     traj_coords[rt_params.axis] = rt_params.start_pos[rt_params.axis] + pos_offset;
 
-    // Increment time for the next point (before calling out)
+    // Increment for the next point (before calling out)
     rt_time += FTM_TS;
+    rt_factor += FTM_TS * M_TAU;
 
     // Store in buffer
     ftMotion.stepping_enqueue(traj_coords);
