@@ -318,6 +318,9 @@ constexpr ena_mask_t enable_overlap[] = {
 
 #endif // NONLINEAR_EXTRUSION
 
+#if ANY(FREEZE_FEATURE, SOFT_FEED_HOLD)
+  enum FrozenState { FROZEN_TRIGGERED, FROZEN_SOLID };
+#endif
 #if ENABLED(SOFT_FEED_HOLD)
   enum FreezePhase : uint8_t {
     FREEZE_STATIONARY,
@@ -325,7 +328,6 @@ constexpr ena_mask_t enable_overlap[] = {
     FREEZE_DECELERATION,
     FREEZE_CRUISE
   };
-  enum FrozenState { FROZEN_TRIGGERED, FROZEN_SOLID };
 #endif
 
 //
@@ -377,8 +379,10 @@ class Stepper {
       static constexpr uint8_t last_moved_extruder = 0;
     #endif
 
-    #if ENABLED(SOFT_FEED_HOLD)
+    #if ANY(FREEZE_FEATURE, SOFT_FEED_HOLD)
       static void set_frozen_triggered(const bool state) { set_frozen_flag(state, FROZEN_TRIGGERED); }
+    #endif
+    #if ENABLED(SOFT_FEED_HOLD)
       static bool is_frozen_triggered() { return TEST(frozen_state, FROZEN_TRIGGERED); }
     #endif
 
