@@ -817,15 +817,16 @@ class Stepper {
 
     #if ANY(FREEZE_FEATURE, SOFT_FEED_HOLD)
       static uint8_t frozen_state;                  // Frozen flags
+      static void set_frozen_flag(const bool state, const uint8_t flag) { SET_BIT_TO(frozen_state, flag, state); }
     #endif
+
     #if ENABLED(SOFT_FEED_HOLD)
       static uint32_t frozen_time;                  // How much time passed since frozen_state was triggered?
       #if ENABLED(LASER_FEATURE)
         static uint8_t frozen_last_laser_power;     // Saved laser power prior to halting motion
       #endif
-      static void check_frozen_time(uint32_t &step_rate);
       static void check_frozen_state(const FreezePhase type, const uint32_t interval);
-      static void set_frozen_flag(const bool state, const uint8_t flag) { SET_BIT_TO(frozen_state, flag, state); }
+      static void check_frozen_time(uint32_t &step_rate);
       static void set_frozen_solid(const bool state);
       static bool is_frozen_solid() { return TEST(frozen_state, FROZEN_SOLID); }
     #endif // SOFT_FEED_HOLD
