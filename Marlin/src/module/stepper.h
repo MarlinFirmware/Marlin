@@ -820,7 +820,7 @@ class Stepper {
       static void ftMotion_stepper();
     #endif
 
-    #if ENABLED(SOFT_FEED_HOLD) && DISABLED(FREEZE_FEATURE)
+    #if ENABLED(SOFT_FEED_HOLD)
       static uint8_t frozen_state;                  // Frozen flags
       static void set_frozen_flag(const bool state, const uint8_t flag) { SET_BIT_TO(frozen_state, flag, state); }
     #endif
