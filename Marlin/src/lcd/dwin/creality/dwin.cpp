@@ -701,19 +701,20 @@ void itemPrepareHome(const uint8_t row) {
     }
   #endif
 
-  void itemPrepareCool(const uint8_t row) {
-    if (hmiIsChinese())
-      itemAreaCopy(1, 104,  56, 117, row);
-    else {
-      #ifdef USE_STRING_TITLES
-        dwinDrawLabel(row, GET_TEXT_F(MSG_COOLDOWN));
-      #else
-        itemAreaCopy(200, 76, 264, 86, row); // "Cooldown"
-      #endif
-    }
-    drawMenuLine(row, ICON_Cool);
-  }
 #endif
+
+void itemPrepareCool(const uint8_t row) {
+  if (hmiIsChinese())
+    itemAreaCopy(1, 104,  56, 117, row);
+  else {
+    #ifdef USE_STRING_TITLES
+      dwinDrawLabel(row, GET_TEXT_F(MSG_COOLDOWN));
+    #else
+      itemAreaCopy(200, 76, 264, 86, row); // "Cooldown"
+    #endif
+  }
+  drawMenuLine(row, ICON_Cool);
+}
 
 void itemPrepareLang(const uint8_t row) {
   if (hmiIsChinese())
@@ -3612,13 +3613,13 @@ void hmiAdvSet() {
           break;
       #endif
 
-      #if HAS_HOTEND
+      #if HAS_HOTEND && HAS_PREHEAT
         case ADVSET_CASE_HEPID:
           thermalManager.PID_autotune(ui.material_preset[0].hotend_temp, H_E0, 10, true);
           break;
       #endif
 
-      #if HAS_HEATED_BED
+      #if HAS_HEATED_BED && HAS_PREHEAT
         case ADVSET_CASE_BEDPID:
           thermalManager.PID_autotune(ui.material_preset[0].bed_temp, H_BED, 10, true);
           break;
