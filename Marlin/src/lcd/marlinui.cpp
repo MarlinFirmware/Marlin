@@ -65,6 +65,10 @@ MarlinUI ui;
   #include "../module/temperature.h"
 #endif
 
+#if ENABLED(POWER_LOSS_RECOVERY)
+  #include "../feature/powerloss.h"
+#endif
+
 #if LCD_HAS_WAIT_FOR_MOVE
   bool MarlinUI::wait_for_move; // = false
 #endif
