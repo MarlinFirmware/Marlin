@@ -1974,11 +1974,11 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
       #define TEMP_FAN (TEMP_BED + ENABLED(HAS_FAN))
       #define TEMP_PID (TEMP_FAN + ANY(PIDTEMP, PIDTEMPBED))
       #define TEMP_MPC (TEMP_PID + ANY(MPC_EDIT_MENU, MPC_AUTOTUNE_MENU))
-      #define TEMP_PREHEAT1 (TEMP_MPC + (PREHEAT_COUNT >= 1))
-      #define TEMP_PREHEAT2 (TEMP_PREHEAT1 + (PREHEAT_COUNT >= 2))
-      #define TEMP_PREHEAT3 (TEMP_PREHEAT2 + (PREHEAT_COUNT >= 3))
-      #define TEMP_PREHEAT4 (TEMP_PREHEAT3 + (PREHEAT_COUNT >= 4))
-      #define TEMP_PREHEAT5 (TEMP_PREHEAT4 + (PREHEAT_COUNT >= 5))
+      #define TEMP_PREHEAT1 (TEMP_MPC PLUS_TERN0(1, PREHEAT_COUNT >= 1))
+      #define TEMP_PREHEAT2 (TEMP_PREHEAT1 PLUS_TERN0(HAS_PREHEAT, PREHEAT_COUNT >= 2))
+      #define TEMP_PREHEAT3 (TEMP_PREHEAT2 PLUS_TERN0(HAS_PREHEAT, PREHEAT_COUNT >= 3))
+      #define TEMP_PREHEAT4 (TEMP_PREHEAT3 PLUS_TERN0(HAS_PREHEAT, PREHEAT_COUNT >= 4))
+      #define TEMP_PREHEAT5 (TEMP_PREHEAT4 PLUS_TERN0(HAS_PREHEAT, PREHEAT_COUNT >= 5))
       #define TEMP_TOTAL TEMP_PREHEAT5
 
       switch (item) {
@@ -2034,14 +2034,15 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
               drawMenu(ID_MPC);
             break;
         #endif
+        #if HAS_PREHEAT
+          #define _TEMP_PREHEAT_CASE(N) \
+            case TEMP_PREHEAT##N: { \
+              if (draw) drawMenuItem(row, ICON_Step, F(PREHEAT_## N ##_LABEL), nullptr, true); \
+              else drawMenu(ID_Preheat##N); \
+            } break;
 
-        #define _TEMP_PREHEAT_CASE(N) \
-          case TEMP_PREHEAT##N: { \
-            if (draw) drawMenuItem(row, ICON_Step, F(PREHEAT_## N ##_LABEL), nullptr, true); \
-            else drawMenu(ID_Preheat##N); \
-          } break;
-
-        REPEAT_1(PREHEAT_COUNT, _TEMP_PREHEAT_CASE)
+          REPEAT_1(PREHEAT_COUNT, _TEMP_PREHEAT_CASE)
+        #endif
       }
       break;
 
