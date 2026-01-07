@@ -701,20 +701,19 @@ void itemPrepareHome(const uint8_t row) {
     }
   #endif
 
-#endif
-
-void itemPrepareCool(const uint8_t row) {
-  if (hmiIsChinese())
-    itemAreaCopy(1, 104,  56, 117, row);
-  else {
-    #ifdef USE_STRING_TITLES
-      dwinDrawLabel(row, GET_TEXT_F(MSG_COOLDOWN));
-    #else
-      itemAreaCopy(200, 76, 264, 86, row); // "Cooldown"
-    #endif
+  void itemPrepareCool(const uint8_t row) {
+    if (hmiIsChinese())
+      itemAreaCopy(1, 104,  56, 117, row);
+    else {
+      #ifdef USE_STRING_TITLES
+        dwinDrawLabel(row, GET_TEXT_F(MSG_COOLDOWN));
+      #else
+        itemAreaCopy(200, 76, 264, 86, row); // "Cooldown"
+      #endif
+    }
+    drawMenuLine(row, ICON_Cool);
   }
-  drawMenuLine(row, ICON_Cool);
-}
+#endif
 
 void itemPrepareLang(const uint8_t row) {
   if (hmiIsChinese())
@@ -761,8 +760,6 @@ void drawPrepareMenu() {
     #if PREHEAT_COUNT > 1
       if (PVISI(PREPARE_CASE_ABS)) itemPrepare_ABS(PSCROL(PREPARE_CASE_ABS));    // Preheat ABS
     #endif
-  #endif
-  #if HAS_HOTEND || HAS_HEATED_BED
     if (PVISI(PREPARE_CASE_COOL)) itemPrepareCool(PSCROL(PREPARE_CASE_COOL));   // Cooldown
   #endif
   if (PVISI(PREPARE_CASE_LANG)) itemPrepareLang(PSCROL(PREPARE_CASE_LANG));     // Language CN/EN
@@ -2684,11 +2681,11 @@ void hmiPrepare() {
 
         // Draw "More" icon for sub-menus
         if (index_prepare < 7) drawMoreIcon(MROWS - index_prepare + 1);
-
-        #if PREHEAT_COUNT > 1
-          if (index_prepare == PREPARE_CASE_ABS) itemPrepare_ABS(MROWS);
-        #endif
-        #if HAS_HOTEND || HAS_HEATED_BED
+        #if HAS_PREHEAT
+          if (index_prepare == PREPARE_CASE_PLA) itemPrepare_PLA(MROWS);
+          #if PREHEAT_COUNT > 1
+            if (index_prepare == PREPARE_CASE_ABS) itemPrepare_ABS(MROWS);
+          #endif
           if (index_prepare == PREPARE_CASE_COOL) itemPrepareCool(MROWS);
         #endif
         if (index_prepare == PREPARE_CASE_LANG) itemPrepareLang(MROWS);

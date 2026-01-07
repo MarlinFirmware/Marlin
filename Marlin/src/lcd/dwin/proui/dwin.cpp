@@ -2206,9 +2206,8 @@ void autoHome() { queue.inject_P(G28_STR); }
   #define _doPreheat(N) void DoPreheat##N() { ui.preheat_all(N-1); }\
                         void DoPreheatHotend##N() { ui.preheat_hotend(N-1); }
   REPEAT_1(PREHEAT_COUNT, _doPreheat)
+  void doCoolDown() { thermalManager.cooldown(); }
 #endif
-
-void doCoolDown() { thermalManager.cooldown(); }
 
 void setLanguage() {
   hmiToggleLanguage();
@@ -2826,7 +2825,7 @@ void onDrawAutoHome(MenuItem* menuitem, int8_t line) {
   #endif
 #endif
 
-#if HAS_HOTEND
+#if HAS_PREHEAT
   void onDrawPreheat1(MenuItem* menuitem, int8_t line) {
     if (hmiIsChinese()) menuitem->setFrame(1, 100, 89, 151, 101);
     onDrawMenuItem(menuitem, line);
@@ -2837,9 +2836,6 @@ void onDrawAutoHome(MenuItem* menuitem, int8_t line) {
       onDrawMenuItem(menuitem, line);
     }
   #endif
-#endif
-
-#if HAS_PREHEAT
   void onDrawCooldown(MenuItem* menuitem, int8_t line) {
     if (hmiIsChinese()) menuitem->setFrame(1, 1, 104,  56, 117);
     onDrawMenuItem(menuitem, line);
@@ -3149,7 +3145,7 @@ void drawPrepareMenu() {
     + 2
     + TERN(MESH_BED_LEVELING, 1, ENABLED(HAS_BED_PROBE))
     + TERN(HAS_ZOFFSET_ITEM, ENABLED(HAS_BED_PROBE), ENABLED(BABYSTEPPING))
-    + PREHEAT_COUNT
+    PLUS_TERN0(HAS_PREHEAT, PREHEAT_COUNT)
     + 1
     + 2 * ALL(PROUI_TUNING_GRAPH, PROUI_ITEM_PLOT)
     + 1
@@ -3183,8 +3179,8 @@ void drawPrepareMenu() {
     #if HAS_PREHEAT
       #define _ITEM_PREHEAT(N) MENU_ITEM(ICON_Preheat##N, MSG_PREHEAT_##N, onDrawMenuItem, DoPreheat##N);
       REPEAT_1(PREHEAT_COUNT, _ITEM_PREHEAT)
+      MENU_ITEM(ICON_Cool, MSG_COOLDOWN, onDrawCooldown, doCoolDown);
     #endif
-    MENU_ITEM(ICON_Cool, MSG_COOLDOWN, onDrawCooldown, doCoolDown);
     #if ALL(PROUI_TUNING_GRAPH, PROUI_ITEM_PLOT)
       MENU_ITEM(ICON_PIDNozzle, MSG_HOTEND_TEMP_GRAPH, onDrawMenuItem, drawHPlot);
       MENU_ITEM(ICON_PIDBed, MSG_BED_TEMP_GRAPH, onDrawMenuItem, drawBPlot);
@@ -3816,7 +3812,7 @@ void drawFilamentManMenu() {
 void drawTemperatureMenu() {
   constexpr uint8_t items = (1
     + COUNT_ENABLED(HAS_HOTEND, HAS_HEATED_BED, HAS_FAN)
-    + PREHEAT_COUNT
+    PLUS_TERN0(HAS_PREHEAT, PREHEAT_COUNT)
   );
   checkkey = ID_Menu;
   if (SET_MENU_R(temperatureMenu, selrect({236, 2, 28, 12}), MSG_TEMPERATURE, items)) {
