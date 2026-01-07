@@ -325,6 +325,7 @@ void MarlinUI::init() {
 
   TERN_(HAS_ENCODER_ACTION, encoderDiff = 0);
 
+  if (TERN1(POWER_LOSS_RECOVERY, !recovery.check())) print_job_timer.stop();
   reset_status(); // Set welcome message
 }
 
