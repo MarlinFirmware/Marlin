@@ -4546,12 +4546,8 @@ void Temperature::isr() {
     void Temperature::set_heating_message(const uint8_t e, const bool isM104/*=false*/) {
       const bool heating = isHeatingHotend(e);
       ui.status_printf(0,
-        #if HAS_MULTI_HOTEND
-          F("E%c " S_FMT), '1' + e
-        #else
-          F("E%c " S_FMT), '0' + e
-        #endif
-        , heating ? GET_TEXT(MSG_HEATING) : GET_TEXT(MSG_COOLING)
+        F("E%c " S_FMT), '1' + e,
+        heating ? GET_TEXT(MSG_HEATING) : GET_TEXT(MSG_COOLING)
       );
 
       if (isM104) {
