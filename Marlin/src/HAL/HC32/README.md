@@ -6,7 +6,7 @@ This document provides notes on the HAL for the HC32F460 MCU.
 
 The HC32F460 HAL is designed to be generic enough for any HC32F460-based board. Adding support for a new HC32F460-based board will require the following steps:
 
-1. Follow [the usual instructions](https://marlinfw.org/docs/development/boards.html#adding-a-new-board) to add a new board to Marlin. (i.e., Add a pins file, edit `boards.h` and `pins.h`, etc.)
+1. Follow [the usual instructions](//marlinfw.org/docs/development/boards.html#adding-a-new-board) to add a new board to Marlin. (i.e., Add a pins file, edit `boards.h` and `pins.h`, etc.)
 2. Determine the flash size your board uses:
    - Examine the board's main processor. (Refer the naming key in `hc32.ini`.)
    - Extend the `HC32F460C_common` base env for 256K, or `HC32F460E_common` for 512K.
@@ -49,11 +49,9 @@ SCB->VTOR = ((uint32_t) APP_START_ADDRESS & SCB_VTOR_TBLOFF_Msk);
 
 Just searching for `SCB->VTOR` should yield some results. From there, you just need to look at the value that's assigned to it. The example uses `APP_START_ADDRESS`.
 
-> [!NOTE]
-> Some vendors publish incomplete source code. But they sometimes leave version control related files in the repo, which can contain previous version of files that were removed. Find these by including folders like `.git` or `.svn` in your search.
+> [!NOTE] Some vendors publish incomplete source code. But they sometimes leave version control related files in the repo, which can contain previous version of files that were removed. Find these by including folders like `.git` or `.svn` in your search.
 
-> [!NOTE]
-> The example is based on the [Voxelab-64/Aquila_X2](https://github.com/Voxelab-64/Aquila_X2/blob/main/firmware/Sources/.svn/pristine/ec/ec82bcb480b511906bc3e6658450e3a803ab9813.svn-base#L96) which actually includes deleted files in its repo.
+> [!NOTE] The example is based on the [Voxelab-64/Aquila_X2](//github.com/Voxelab-64/Aquila_X2/blob/main/firmware/Sources/.svn/pristine/ec/ec82bcb480b511906bc3e6658450e3a803ab9813.svn-base#L96) which actually includes deleted files in its repo.
 
 2. Using a linker script
 
@@ -71,8 +69,7 @@ MEMORY
 }
 ```
 
-> [!NOTE]
-> This example is based on [Voxelab-64/Aquila_X2](https://github.com/Voxelab-64/Aquila_X2/blob/d1f23adf96920996b979bc31023d1dce236d05db/firmware/Sources/main/hdsc32core/hc32f46x_flash.ld#L55)
+> [!NOTE] This example is based on [Voxelab-64/Aquila_X2](//github.com/Voxelab-64/Aquila_X2/blob/d1f23adf96920996b979bc31023d1dce236d05db/firmware/Sources/main/hdsc32core/hc32f46x_flash.ld#L55)
 
 ## Documentation on the HC32F460
 
@@ -96,15 +93,15 @@ Contact me on Discord (@shadow578) if you need it.
 
 This HAL depends on the following projects:
 
-- [shadow578/platform-hc32f46x](https://github.com/shadow578/platform-hc32f46x) (PlatformIO platform for HC32F46x)
-- [shadow578/framework-arduino-hc32f46x](https://github.com/shadow578/framework-arduino-hc32f46x) (Arduino framework for HC32F46x)
-- [shadow578/framework-hc32f46x-ddl](https://github.com/shadow578/framework-hc32f46x-ddl) (HC32F46x DDL framework)
+- [shadow578/platform-hc32f46x](//github.com/shadow578/platform-hc32f46x) (PlatformIO platform for HC32F46x)
+- [shadow578/framework-arduino-hc32f46x](//github.com/shadow578/framework-arduino-hc32f46x) (Arduino framework for HC32F46x)
+- [shadow578/framework-hc32f46x-ddl](//github.com/shadow578/framework-hc32f46x-ddl) (HC32F46x DDL framework)
 
 ## Credits
 
 This HAL wouldn't be possible without the following projects:
 
-- [Voxelab-64/Aquila_X2](https://github.com/Voxelab-64/Aquila_X2) (original implementation)
-- [alexqzd/Marlin-H32](https://github.com/alexqzd/Marlin-H32) (misc. fixes to the original implementation)
-- [kgoveas/Arduino-Core-Template](https://github.com/kgoveas/Arduino-Core-Template) (template for Arduino headers)
-- [stm32duino/Arduino_Core_STM32](https://github.com/stm32duino/Arduino_Core_STM32) (misc. Arduino functions)
+- [Voxelab-64/Aquila_X2](//github.com/Voxelab-64/Aquila_X2) (original implementation)
+- [alexqzd/Marlin-H32](//github.com/alexqzd/Marlin-H32) (misc. fixes to the original implementation)
+- [kgoveas/Arduino-Core-Template](//github.com/kgoveas/Arduino-Core-Template) (template for Arduino headers)
+- [stm32duino/Arduino_Core_STM32](//github.com/stm32duino/Arduino_Core_STM32) (misc. Arduino functions)
