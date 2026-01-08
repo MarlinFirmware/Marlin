@@ -1,0 +1,93 @@
+name: Build Artillery_Ruby
+
+on:
+  pull_request:
+    paths-ignore:
+    - config/**
+    - data/**
+    - docs/**
+    - test/**
+    - Marlin/tests/**
+    - '**/*.md'
+  push:
+    branches:
+    - '*swx2*'
+    paths-ignore:
+    - config/**
+    - data/**
+    - docs/**
+    - test/**
+    - Marlin/tests/**
+    - '**/*.md'
+    tags:
+      - 'v*.*.*.swx2-*'
+
+env:
+  platform-env: Artillery_Ruby
+
+jobs:
+  build:
+    name: Build Artillery_Ruby
+    if: github.repository == 'freakydude/Marlin'
+
+    runs-on: ubuntu-latest
+
+    steps:
+
+    - name: Check out the PR
+      uses: actions/checkout@v4
+
+    - name: Cache pip
+      uses: actions/cache@v4
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-build-v1
+        restore-keys: |
+          ${{ runner.os }}-pip-build-
+
+    - name: Cache PlatformIO
+      uses: actions/cache@v4
+      with:
+        path: |
+          ~/.platformio
+          .pio/build
+          .pio/libdeps
+        key: ${{ runner.os }}-pio-build-v1
+        restore-keys: |
+          ${{ runner.os }}-pio-build-
+
+    - name: Select Python 3.9
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.9'
+        architecture: 'x64'
+
+    - name: Install PlatformIO
+      run: |
+        pip install -U platformio
+        pio upgrade --dev
+        pio pkg update --global
+
+    - name: Build Artillery Ruby
+      run: |
+        platformio run --environment ${{ env.platform-env }}
+
+    - name: Upload firmware artifact
+      uses: actions/upload-artifact@v6
+      with:
+        #name: ${{ env.firmware-name }}
+        path: |
+          Marlin/*.h
+          .pio/build/Artillery_Ruby/firmware.bin
+
+    - name: Upload tagged release
+      uses: softprops/action-gh-release@v1
+      if: startsWith(github.ref, 'refs/tags/')
+      with:
+        # tag_name: ${{ env.marlin-tag }}.${{ env.firmware-name }}.latest
+        # name: ${{ env.marlin-tag }}.${{ env.firmware-name }}.latest
+        generate_release_notes: true
+        # prerelease: true
+        files: |
+          Marlin/*.h
+          .pio/build/Artillery_Ruby/firmware.bin
