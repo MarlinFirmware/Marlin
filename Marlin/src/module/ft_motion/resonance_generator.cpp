@@ -50,13 +50,33 @@ void ResonanceGenerator::reset() {
   done = false;
 }
 
+// Fast sine approximation
+float ResonanceGenerator::fast_sin(float x) {
+  static constexpr float INV_TAU = (1.0f / M_TAU);
+
+  // Reduce the angle to [-π, π]
+  const float y = x * INV_TAU;      // Multiples of 2π
+  int k = static_cast<int>(y);      // Truncates toward zero
+
+  // Negative? The truncation is one too high.
+  if (y < 0.0f) --k;                // Correct for negatives
+
+  const float r = x - k * M_TAU;    // -π <= r <= π
+
+  // Cheap polynomial approximation of sin(r)
+  return r * (1.27323954f - 0.405284735f * ABS(r));
+}
+
 void ResonanceGenerator::fill_stepper_plan_buffer() {
-  xyze_float_t traj_coords = {};
+  xyze_float_t traj_coords = rt_params.start_pos;
+
+  const float amplitude_precalc = (rt_params.amplitude_correction * rt_params.accel_per_hz * 0.25f) / sq(M_PI);
+
+  float rt_factor = rt_time * M_TAU;
 
   while (!ftMotion.stepping.is_full()) {
     // Calculate current frequency
-    // Logarithmic approach with duration per octave
-    const float freq = rt_params.min_freq * powf(2.0f, rt_time / rt_params.octave_duration);
+    const float freq = getFrequencyFromTimeline();
     if (freq > rt_params.max_freq) {
       done = true;
       return;
@@ -65,22 +85,23 @@ void ResonanceGenerator::fill_stepper_plan_buffer() {
     // Amplitude based on a sinusoidal wave : A = accel / (4 * PI^2 * f^2)
     //const float accel_magnitude = rt_params.accel_per_hz * freq;
     //const float amplitude = rt_params.amplitude_correction * accel_magnitude / (4.0f * sq(M_PI) * sq(freq));
-    const float amplitude = rt_params.amplitude_correction * rt_params.accel_per_hz * 0.25f / (sq(M_PI) * freq);
+    const float amplitude = amplitude_precalc / freq;
 
     // Phase in radians
-    const float phase = 2.0f * M_PI * freq * rt_time;
+    const float phase = freq * rt_factor;
 
     // Position Offset : between -A and +A
-    const float pos_offset = amplitude * sinf(phase);
+    const float pos_offset = amplitude * fast_sin(phase);
 
-    // Set base position and apply offset to the test axis in one step for all axes
-    #define _SET_TRAJ(A) traj_coords.A = rt_params.start_pos.A + (rt_params.axis == A##_AXIS ? pos_offset : 0.0f);
-    LOGICAL_AXIS_MAP(_SET_TRAJ);
+    // Resonate the axis being tested
+    traj_coords[rt_params.axis] = rt_params.start_pos[rt_params.axis] + pos_offset;
+
+    // Increment for the next point (before calling out)
+    rt_time += FTM_TS;
+    rt_factor += FTM_TS * M_TAU;
 
     // Store in buffer
     ftMotion.stepping_enqueue(traj_coords);
-    // Increment time for the next point
-    rt_time += FTM_TS;
   }
 }
 
