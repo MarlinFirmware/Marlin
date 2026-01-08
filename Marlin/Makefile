@@ -438,6 +438,8 @@ else ifeq ($(HARDWARE_MOTHERBOARD),1333)
 else ifeq ($(HARDWARE_MOTHERBOARD),1334)
 # WEEDO 62A board (TINA2, Monoprice Cadet, etc.)
 else ifeq ($(HARDWARE_MOTHERBOARD),1335)
+# WEEDO 62B board (Monoprice Maker Ultimate 2)
+else ifeq ($(HARDWARE_MOTHERBOARD),1336)
 
 #
 # ATmega1281, ATmega2561
