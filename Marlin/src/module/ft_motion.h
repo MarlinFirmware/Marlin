@@ -332,11 +332,10 @@ class FTMotion {
     static float tau;                     // (s) Time since start of block
     static bool fastForwardUntilMotion;   // Fast forward time if there is no motion
 
-    #if ANY(APPLY_TIMING_HACK_ON_X, APPLY_TIMING_HACK_ON_Y, APPLY_TIMING_HACK_ON_Z, APPLY_TIMING_HACK_ON_E)
+    #if HAS_FTM_DIR_CHANGE_HOLD
       static xyze_uint_t hold_frames;     // Briefly hold motion after direction changes to fix TMC2208 bug
       static AxisBits last_traj_dir;      // Direction of the last trajectory point after shaping, smoothing, ...
     #endif
-
 
     // Trajectory generators
     static TrapezoidalTrajectoryGenerator trapezoidalGenerator;
