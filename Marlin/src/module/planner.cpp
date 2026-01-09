@@ -1372,7 +1372,7 @@ void Planner::check_axes_activity() {
     float high = 0.0f;
     for (uint8_t b = block_buffer_tail; b != block_buffer_head; b = next_block_index(b)) {
       const block_t * const block = &block_buffer[b];
-      if (NUM_AXIS_GANG(block->steps.x, || block->steps.y, || block->steps.z, || block->steps.i, || block->steps.j, || block->steps.k, || block->steps.u, || block->steps.v, || block->steps.w)) {
+      if (XYZ_HAS_STEPS(block)) {
         const float se = float(block->steps.e) / block->step_event_count * block->nominal_speed; // mm/sec
         NOLESS(high, se);
       }
@@ -2023,12 +2023,7 @@ bool Planner::_populate_block(
     bool cartesian_move = hints.cartesian_move;
   #endif
 
-  if (true NUM_AXIS_GANG(
-      && block->steps.a < MIN_STEPS_PER_SEGMENT, && block->steps.b < MIN_STEPS_PER_SEGMENT, && block->steps.c < MIN_STEPS_PER_SEGMENT,
-      && block->steps.i < MIN_STEPS_PER_SEGMENT, && block->steps.j < MIN_STEPS_PER_SEGMENT, && block->steps.k < MIN_STEPS_PER_SEGMENT,
-      && block->steps.u < MIN_STEPS_PER_SEGMENT, && block->steps.v < MIN_STEPS_PER_SEGMENT, && block->steps.w < MIN_STEPS_PER_SEGMENT
-    )
-  ) {
+  if (!XYZ_HAS_ENOUGH_STEPS(block)) {
     block->millimeters = TERN0(HAS_EXTRUDERS, ABS(dist_mm.e));
   }
   else {
@@ -2098,11 +2093,7 @@ bool Planner::_populate_block(
   E_TERN_(block->extruder = extruder);
 
   #if ENABLED(AUTO_POWER_CONTROL)
-    if (NUM_AXIS_GANG(
-         block->steps.x, || block->steps.y, || block->steps.z,
-      || block->steps.i, || block->steps.j, || block->steps.k,
-      || block->steps.u, || block->steps.v, || block->steps.w
-    )) powerManager.power_on();
+    if (XYZ_HAS_STEPS(block)) powerManager.power_on();
   #endif
 
   // Enable active axes
@@ -2352,7 +2343,7 @@ bool Planner::_populate_block(
   #if ANY(LIN_ADVANCE, FTM_HAS_LIN_ADVANCE)
     bool use_adv_lead = false;
   #endif
-  if (!ANY_AXIS_MOVES(block)) {                                   // Is this a retract / recover move?
+  if (!XYZ_HAS_STEPS(block)) {                                   // Is this a retract / recover move?
     accel = CEIL(settings.retract_acceleration * steps_per_mm);   // Convert to: acceleration steps/sec^2
   }
   else {
