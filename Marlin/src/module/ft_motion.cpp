@@ -629,7 +629,7 @@ void FTMotion::fill_stepper_plan_buffer() {
         #define DIR_FLIP_HOLD_S 0.000'750f
         static constexpr uint32_t dir_flip_hold_frames = DIR_FLIP_HOLD_S / (FTM_TS + 1);
 
-        auto start_hold_if_dir_flip = [](const AxisEnum a) {
+        auto start_hold_if_dir_flip = [&](const AxisEnum a) {
           const bool dir = traj_coords[a] > last_target_traj[a],
                      moved = traj_coords[a] != last_target_traj[a],
                      flipped = moved && (dir != last_traj_dir[a]),
