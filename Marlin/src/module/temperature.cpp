@@ -876,41 +876,51 @@ void Temperature::factory_reset() {
           ONHEATING(start_temp, current_temp, target);
         #endif
 
-        if (heating && current_temp > target && ELAPSED(ms, t2, 5000UL)) {
+        // Logic for dynamic delay: fast response for hotends (3s), slower for beds/chambers (5s)
+        const millis_t relay_delay = (isbed || ischamber) ? 5000UL : 3000UL;
+
+        if (heating && current_temp > target && ELAPSED(ms, t2, relay_delay)) {
           heating = false;
           SET_CBH(soft_pwm_amount, (bias - d) >> 1);
+          t_high = ms - t2;
           t1 = ms;
-          t_high = t1 - t2;
           maxT = target;
         }
 
-        if (!heating && current_temp < target && ELAPSED(ms, t1, 5000UL)) {
+        if (!heating && current_temp < target && ELAPSED(ms, t1, relay_delay)) {
           heating = true;
+          t_low = ms - t1;
           t2 = ms;
-          t_low = t2 - t1;
           if (cycles > 0) {
             const long max_pow = PER_CBH(MAX_CHAMBER_POWER, MAX_BED_POWER, PID_MAX);
-            bias += (d * (t_high - t_low)) / (t_low + t_high);
+
+            const float delta_t = (float)t_high - (float)t_low;
+            const float total_t = (float)t_high + (float)t_low;
+            if (total_t > 0) bias += lroundf((float)d * delta_t / total_t);
+
             LIMIT(bias, 20, max_pow - 20);
             d = (bias > max_pow >> 1) ? max_pow - 1 - bias : bias;
 
             SERIAL_ECHOPGM(STR_BIAS, bias, STR_D_COLON, d, STR_T_MIN, minT, STR_T_MAX, maxT);
             if (cycles > 2) {
-              const float Ku = (4.0f * d) / (float(M_PI) * (maxT - minT) * 0.5f),
-                          Tu = float(t_low + t_high) * 0.001f,
-                          pf = (ischamber || isbed) ? 0.2f : 0.6f,
-                          df = (ischamber || isbed) ? 1.0f / 3.0f : 1.0f / 8.0f;
+              const float diff = maxT - minT;
+              if (diff > 0.001f) { // Division-by-zero guard
+                const float Ku = (4.0f * d) / (float(M_PI) * diff * 0.5f),
+                            Tu = total_t * 0.001f,
+                            pf = (ischamber || isbed) ? 0.2f : 0.6f,
+                            df = (ischamber || isbed) ? 1.0f / 3.0f : 1.0f / 8.0f;
 
-              tune_pid.p = Ku * pf;
-              tune_pid.i = tune_pid.p * 2.0f / Tu;
-              tune_pid.d = tune_pid.p * Tu * df;
+                tune_pid.p = Ku * pf;
+                tune_pid.i = tune_pid.p * 2.0f / Tu;
+                tune_pid.d = tune_pid.p * Tu * df;
 
-              SERIAL_ECHOLNPGM(STR_KU, Ku, STR_TU, Tu);
-              if (ischamber || isbed)
-                SERIAL_ECHOLNPGM(" No overshoot");
-              else
-                SERIAL_ECHOLNPGM(STR_CLASSIC_PID);
-              SERIAL_ECHOLNPGM(STR_KP, tune_pid.p, STR_KI, tune_pid.i, STR_KD, tune_pid.d);
+                SERIAL_ECHOLNPGM(STR_KU, Ku, STR_TU, Tu);
+                if (ischamber || isbed)
+                  SERIAL_ECHOLNPGM(" No overshoot");
+                else
+                  SERIAL_ECHOLNPGM(STR_CLASSIC_PID);
+                SERIAL_ECHOLNPGM(STR_KP, tune_pid.p, STR_KI, tune_pid.i, STR_KD, tune_pid.d);
+              }
             }
           }
           SET_CBH(soft_pwm_amount, (bias + d) >> 1);
@@ -1020,14 +1030,11 @@ void Temperature::factory_reset() {
         goto EXIT_M303;
       }
     }
-    marlin.heatup_done();
-
-    disable_all_heaters();
 
     EXIT_M303:
+      marlin.heatup_done(); // Correctly reset the printer state machine
+      disable_all_heaters();
       TERN_(PRINTER_EVENT_LEDS, printerEventLEDs.onPIDTuningDone(oldcolor));
-      TERN_(EXTENSIBLE_UI, ExtUI::onPIDTuning(ExtUI::pidresult_t::PID_DONE));
-      TERN_(TEMP_TUNING_MAINTAIN_FAN, adaptive_fan_slowing = true);
       return;
   }
 
