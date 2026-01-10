@@ -1238,31 +1238,6 @@
   #define FTM_FS                     1000   // (Hz) Frequency for trajectory generation.
   #define FTM_MIN_SHAPE_FREQ           20   // (Hz) Minimum shaping frequency, lower consumes more RAM
 
-  /**
-   * TMC2208 Direction-Flip Delay
-   *
-   * Some TMC2208 / TMC2208_STANDALONE drivers may require a short delay after a DIR change
-   * to prevent a standstill error, especially when using stealthChop (the standalone default).
-   *
-   * When enabled for an axis, FT Motion will hold that axis for > 750µs after a DIR change
-   * by holding its trajectory coordinate constant for a multiple of FTM_TS frames. For the
-   * default FTM_FS = 1000, it is a single 1ms frame.
-   *
-   * Other axes keep moving normally, and the wait is canceled if the axis flips again.
-   */
-  #if AXIS_DRIVER_TYPE_X(TMC2208) || AXIS_DRIVER_TYPE_X(TMC2208_STANDALONE)
-    //#define FTM_DIR_CHANGE_HOLD_X
-  #endif
-  #if AXIS_DRIVER_TYPE_Y(TMC2208) || AXIS_DRIVER_TYPE_Y(TMC2208_STANDALONE)
-    //#define FTM_DIR_CHANGE_HOLD_Y
-  #endif
-  #if AXIS_DRIVER_TYPE_Z(TMC2208) || AXIS_DRIVER_TYPE_Z(TMC2208_STANDALONE)
-    //#define FTM_DIR_CHANGE_HOLD_Z
-  #endif
-  #if AXIS_DRIVER_TYPE_E0(TMC2208) || AXIS_DRIVER_TYPE_E0(TMC2208_STANDALONE)
-    //#define FTM_DIR_CHANGE_HOLD_E
-  #endif
-
 #endif // FT_MOTION
 
 /**
