@@ -3610,13 +3610,13 @@ void hmiAdvSet() {
           break;
       #endif
 
-      #if HAS_HOTEND && HAS_PREHEAT
+      #if ALL(HAS_HOTEND, HAS_PID_HEATING)
         case ADVSET_CASE_HEPID:
           thermalManager.PID_autotune(ui.material_preset[0].hotend_temp, H_E0, 10, true);
           break;
       #endif
 
-      #if HAS_HEATED_BED && HAS_PREHEAT
+      #if ALL(HAS_HEATED_BED, HAS_PID_HEATING)
         case ADVSET_CASE_BEDPID:
           thermalManager.PID_autotune(ui.material_preset[0].bed_temp, H_BED, 10, true);
           break;
