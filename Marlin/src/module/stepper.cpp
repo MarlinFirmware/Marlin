@@ -3377,6 +3377,10 @@ void Stepper::init() {
 #endif // HAS_ZV_SHAPING
 
 /**
+ * Position
+ */
+
+/**
  * Set the stepper positions directly in steps
  *
  * The input is based on the typical per-axis XYZE steps.
@@ -3502,20 +3506,11 @@ void Stepper::set_axis_position(const AxisEnum a, const int32_t &v) {
     AVR_ATOMIC_SECTION_END();
   }
 
-#endif // HAS_EXTRUDERS
+#endif
 
-#if ENABLED(FT_MOTION)
-
-  void Stepper::ftMotion_syncPosition() {
-    planner.synchronize();
-
-    // Update stepper positions from the planner
-    AVR_ATOMIC_SECTION_START();
-    count_position = planner.position;
-    AVR_ATOMIC_SECTION_END();
-  }
-
-#endif // FT_MOTION
+/**
+ * Endstops
+ */
 
 /**
  * Record stepper positions and discard the rest of the current block
@@ -3561,6 +3556,10 @@ int32_t Stepper::triggered_position(const AxisEnum axis) {
   return v;
 }
 
+/**
+ * Reporting
+ */
+
 #if ANY(CORE_IS_XY, CORE_IS_XZ, MARKFORGED_XY, MARKFORGED_YX, IS_SCARA, DELTA)
   #define SAYS_A 1
 #endif
@@ -3591,6 +3590,15 @@ void Stepper::report_positions() {
 }
 
 #if ENABLED(FT_MOTION)
+
+  void Stepper::ftMotion_syncPosition() {
+    planner.synchronize();
+
+    // Update stepper positions from the planner
+    AVR_ATOMIC_SECTION_START();
+    count_position = planner.position;
+    AVR_ATOMIC_SECTION_END();
+  }
 
   /**
    * Run stepping for FT Motion from the Stepper ISR at regular short intervals.
@@ -3685,6 +3693,10 @@ void Stepper::report_positions() {
   } // Stepper::ftMotion_stepper
 
 #endif // FT_MOTION
+
+/**
+ * Babystepping
+ */
 
 #if ENABLED(BABYSTEPPING)
 
