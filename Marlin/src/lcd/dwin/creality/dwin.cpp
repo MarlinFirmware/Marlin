@@ -2680,7 +2680,7 @@ void hmiPrepare() {
         drawMenuIcon(MROWS, ICON_Axis + select_prepare.now - 1);
 
         // Draw "More" icon for sub-menus
-        if (index_prepare < 7) drawMoreIcon(MROWS - index_prepare + 1);
+        if (index_prepare < 8) drawMoreIcon(MROWS - index_prepare + 1);
         #if HAS_PREHEAT
           if (index_prepare == PREPARE_CASE_PLA) itemPrepare_PLA(MROWS);
           #if PREHEAT_COUNT > 1
@@ -2706,7 +2706,7 @@ void hmiPrepare() {
         else
           drawMenuLine(0, ICON_Axis + select_prepare.now - 1);
 
-        if (index_prepare < 7) drawMoreIcon(MROWS - index_prepare + 1);
+        if (index_prepare < 8) drawMoreIcon(MROWS - index_prepare + 1);
 
              if (index_prepare == 6) itemPrepareMove(0);
         else if (index_prepare == 7) itemPrepareDisable(0);
