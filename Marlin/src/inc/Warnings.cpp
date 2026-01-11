@@ -993,3 +993,12 @@
 #if ALL(SMOOTH_LIN_ADVANCE, MIXING_EXTRUDER)
   #warning "SMOOTH_LIN_ADVANCE with MIXING_EXTRUDER is untested. Use with caution."
 #endif
+
+/**
+ * Some LCDs need re-init to deal with flaky SPI bus sharing
+ */
+#if HAS_SD_DETECT && NONE(REINIT_NOISY_LCD, HAS_GRAPHICAL_TFT, LCD_USE_DMA_FSMC, HAS_FSMC_GRAPHICAL_TFT, HAS_SPI_GRAPHICAL_TFT, IS_DWIN_MARLINUI, EXTENSIBLE_UI, HAS_DWIN_E3V2, HAS_U8GLIB_I2C_OLED)
+  #warning "It is recommended to enable REINIT_NOISY_LCD with your LCD controller model."
+#elif ENABLED(REINIT_NOISY_LCD)
+  #warning "REINIT_NOISY_LCD is probably not required with your LCD controller model."
+#endif
