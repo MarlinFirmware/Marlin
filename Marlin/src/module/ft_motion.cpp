@@ -70,10 +70,15 @@ AxisBits FTMotion::moving_axis_flags,           // These axes are moving in the 
 
 // Block data variables.
 xyze_pos_t   FTMotion::startPos,                    // (mm) Start position of block
-             FTMotion::endPos_prevBlock = { 0.0f }; // (mm) End position of previous block
+             FTMotion::endPos_prevBlock = { 0.0f }, // (mm) End position of previous block
+             FTMotion::last_target_traj = { 0.0f }; // (mm) Last target position after shaping and smoothing
 xyze_float_t FTMotion::ratio;                       // (ratio) Axis move ratio of block
 float FTMotion::tau = 0.0f;                         // (s) Time since start of block
 bool FTMotion::fastForwardUntilMotion = false;      // Fast forward time if there is no motion
+#if HAS_FTM_DIR_CHANGE_HOLD
+  xyze_uint_t FTMotion::hold_frames;                // Briefly hold motion after direction changes to fix TMC2208 bug
+  AxisBits FTMotion::last_traj_dir;                 // Direction of the last trajectory point after shaping, smoothing, ...
+#endif
 
 // Trajectory generators
 TrapezoidalTrajectoryGenerator FTMotion::trapezoidalGenerator;
@@ -244,7 +249,11 @@ void FTMotion::reset() {
   TERN_(DISTINCT_E_FACTORS, block_extruder_axis = E_AXIS);
 
   moving_axis_flags.reset();
-
+  last_target_traj.reset();
+  #if HAS_FTM_DIR_CHANGE_HOLD
+    last_traj_dir.reset();
+    hold_frames.reset();
+  #endif
   if (did_suspend) stepper.wake_up();
 }
 
@@ -411,7 +420,7 @@ bool FTMotion::plan_next_block() {
     TERN_(FTM_HAS_LIN_ADVANCE, use_advance_lead = current_block->use_advance_lead);
 
     axis_move_dir = current_block->direction_bits;
-    #define _SET_MOVE_END(A) moving_axis_flags.A = moveDist.A ? true : false;
+    #define _SET_MOVE_END(A) moving_axis_flags.A = bool(moveDist.A);
 
     LOGICAL_AXIS_MAP(_SET_MOVE_END);
 
@@ -524,13 +533,14 @@ xyze_float_t FTMotion::calc_traj_point(const float dist) {
 
     // Approximate Gaussian smoothing via chained EMAs
     auto _smoothen = [&](const AxisEnum axis, axis_smoothing_t &smoo) {
-      if (smoo.alpha <= 0.0f) return;
-      float smooth_val = traj_coords[axis];
-      for (uint8_t _i = 0; _i < FTM_SMOOTHING_ORDER; ++_i) {
-        smoo.smoothing_pass[_i] += (smooth_val - smoo.smoothing_pass[_i]) * smoo.alpha;
-        smooth_val = smoo.smoothing_pass[_i];
+      if (smoo.alpha != 1.0f) {
+        float smooth_val = traj_coords[axis];
+        for (uint8_t _i = 0; _i < FTM_SMOOTHING_ORDER; ++_i) {
+          smoo.smoothing_pass[_i] += (smooth_val - smoo.smoothing_pass[_i]) * smoo.alpha;
+          smooth_val = smoo.smoothing_pass[_i];
+        }
+        traj_coords[axis] = smooth_val;
       }
-      traj_coords[axis] = smooth_val;
     };
 
     #define _SMOOTHEN(A) _smoothen(_AXIS(A), smoothing.A);
@@ -584,7 +594,7 @@ void FTMotion::fill_stepper_plan_buffer() {
     float total_duration = currentGenerator->getTotalDuration(); // If the current plan is empty, it will have zero duration.
     while (tau + FTM_TS > total_duration) {
       /**
-       * We’ve reached the end of the current block.
+       * We've reached the end of the current block.
        *
        * `tau` is the time that has elapsed inside this block. After a block is finished, the next one may
        * start at any point between *just before* the last sampled time (one step earlier, i.e. `-FTM_TS`)
@@ -593,7 +603,7 @@ void FTMotion::fill_stepper_plan_buffer() {
        *
        * To account for that uncertainty we simply subtract the duration of the finished block from `tau`.
        * This brings us back to a time value that is valid for the next block, while still allowing the next
-       * block’s start to be offset by up to one time step into the past.
+       * block's start to be offset by up to one time step into the past.
        */
       tau -= total_duration;
       const bool plan_available = plan_next_block();
@@ -604,16 +614,48 @@ void FTMotion::fill_stepper_plan_buffer() {
 
     // Get distance from trajectory generator
     xyze_float_t traj_coords = calc_traj_point(currentGenerator->getDistanceAtTime(tau));
-    if (fastForwardUntilMotion && traj_coords == startPos) {
+    if (fastForwardUntilMotion && traj_coords == last_target_traj) {
       // Axis synchronization delays all axes. When coming from a reset, there is a ramp up time filling all buffers.
       // If the slowest axis doesn't move and it isn't smoothened, this time can be skipped.
       // It eliminates idle time when changing smoothing time or shapers and speeds up homing and bed leveling.
     }
     else {
+
+      #if HAS_FTM_DIR_CHANGE_HOLD
+
+        // When a flip is detected (and the axis is in stealthChop or is standalone),
+        // hold that axis' trajectory coordinate constant for at least 750µs.
+
+        #define DIR_FLIP_HOLD_S 0.000'750f
+        static constexpr uint32_t dir_flip_hold_frames = 1 + (DIR_FLIP_HOLD_S) / (FTM_TS);
+
+        auto start_hold_if_dir_flip = [&](const AxisEnum a) {
+          const bool dir = traj_coords[a] > last_target_traj[a],
+                     moved = traj_coords[a] != last_target_traj[a],
+                     flipped = moved && (dir != last_traj_dir[a]),
+                     hold = !moved || (flipped && hold_frames[a] > 0);
+          if (hold) {
+            if (hold_frames[a]) hold_frames[a]--;
+            traj_coords[a] = last_target_traj[a];
+          }
+          else {
+            last_traj_dir[a] = dir;
+            hold_frames[a] = dir_flip_hold_frames;
+          }
+        };
+
+        #define START_HOLD_IF_DIR_FLIP(A) TERN_(FTM_DIR_CHANGE_HOLD_##A, start_hold_if_dir_flip(_AXIS(A)));
+
+        LOGICAL_AXIS_MAP(START_HOLD_IF_DIR_FLIP);
+
+      #endif // HAS_FTM_DIR_CHANGE_HOLD
+
       fastForwardUntilMotion = false;
+
       // Calculate and store stepper plan in buffer
       stepping_enqueue(traj_coords);
     }
+    last_target_traj = traj_coords;
   }
 }
 
