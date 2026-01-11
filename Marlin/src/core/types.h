@@ -50,6 +50,7 @@ template <class L, class R> struct IF<true, L, R> { typedef L type; };
 #define NUM_AXIS_DECL_LC(T,V) NUM_AXIS_LIST(T x=V, T y=V, T z=V, T i=V, T j=V, T k=V, T u=V, T v=V, T w=V)
 #define MAIN_AXIS_NAMES       NUM_AXIS_LIST(X, Y, Z, I, J, K, U, V, W)
 #define MAIN_AXIS_NAMES_LC    NUM_AXIS_LIST(x, y, z, i, j, k, u, v, w)
+#define NUM_AXIS_CALL(G)      do { NUM_AXIS_CODE(G(X_AXIS), G(Y_AXIS), G(Z_AXIS), G(I_AXIS), G(J_AXIS), G(K_AXIS), G(U_AXIS), G(V_AXIS), G(W_AXIS)); } while(0)
 #define STR_AXES_MAIN         NUM_AXIS_GANG("X", "Y", "Z", STR_I, STR_J, STR_K, STR_U, STR_V, STR_W)
 
 #define LOGICAL_AXIS_GANG(N,V...)  NUM_AXIS_GANG(V) GANG_ITEM_E(N)
@@ -68,6 +69,7 @@ template <class L, class R> struct IF<true, L, R> { typedef L type; };
 #define LOGICAL_AXIS_NAMES_LC      LOGICAL_AXIS_LIST(e, x, y, z, i, j, k, u, v, w)
 #define LOGICAL_AXIS_MAP(F)        MAP(F, LOGICAL_AXIS_NAMES)
 #define LOGICAL_AXIS_MAP_LC(F)     MAP(F, LOGICAL_AXIS_NAMES_LC)
+#define LOGICAL_AXIS_CALL(G)       do { LOGICAL_AXIS_CODE(G(E_AXIS), G(X_AXIS), G(Y_AXIS), G(Z_AXIS), G(I_AXIS), G(J_AXIS), G(K_AXIS), G(U_AXIS), G(V_AXIS), G(W_AXIS)); } while(0)
 #define STR_AXES_LOGICAL           LOGICAL_AXIS_GANG("E", "X", "Y", "Z", STR_I, STR_J, STR_K, STR_U, STR_V, STR_W)
 
 #define NUM_AXIS_PAIRED_LIST(V...)           LIST_N(DOUBLE(NUM_AXES), V)
@@ -175,6 +177,7 @@ template <class L, class R> struct IF<true, L, R> { typedef L type; };
 #define CARTES_CODE(x,y,z,e)      XYZ_CODE(x,y,z) CODE_ITEM_E(e)
 #define CARTES_GANG(x,y,z,e)      XYZ_GANG(x,y,z) GANG_ITEM_E(e)
 #define CARTES_AXIS_NAMES         CARTES_LIST(X,Y,Z,E)
+#define CARTES_AXIS_NAMES_LC      CARTES_LIST(x,y,z,e)
 #define CARTES_MAP(F)             MAP(F, CARTES_AXIS_NAMES)
 #if CARTES_COUNT
   #define CARTES_COMMA ,
@@ -554,7 +557,7 @@ struct XYval {
   #endif
 
   // Length reduced to one dimension
-  FI constexpr T magnitude()    const { return (T)sqrtf(x*x + y*y); }
+  FI constexpr T magnitude()    const { return (T)SQRT(x*x + y*y); }
   // Pointer to the data as a simple array
   explicit FI operator T* ()          { return pos; }
   // If any element is true then it's true
@@ -576,7 +579,7 @@ struct XYval {
   FI constexpr XYval<uint32_t> asUInt32() const { return { uint32_t(x), uint32_t(y) }; }
   FI constexpr XYval<int64_t>   asInt64() const { return { int64_t(x), int64_t(y) }; }
   FI constexpr XYval<uint64_t> asUInt64() const { return { uint64_t(x), uint64_t(y) }; }
-  FI constexpr XYval<float>     asFloat() const { return { static_cast<float>(x), static_cast<float>(y) }; }
+  FI constexpr XYval<float>     asFloat() const { return { float(x), float(y) }; }
 
   // Marlin workspace shifting is done with G92 and M206
   FI XYval<float> asLogical() const { XYval<float> o = asFloat(); toLogical(o); return o; }
@@ -731,7 +734,7 @@ struct XYZval {
   #endif
 
   // Length reduced to one dimension
-  FI constexpr T magnitude()    const { return (T)TERN(HAS_X_AXIS, sqrtf(NUM_AXIS_GANG(x*x, + y*y, + z*z, + i*i, + j*j, + k*k, + u*u, + v*v, + w*w)), 0); }
+  FI constexpr T magnitude()    const { return (T)TERN(HAS_X_AXIS, SQRT(NUM_AXIS_GANG(x*x, + y*y, + z*z, + i*i, + j*j, + k*k, + u*u, + v*v, + w*w)), 0); }
   // Pointer to the data as a simple array
   explicit FI operator T* ()          { return pos; }
   // If any element is true then it's true
@@ -753,13 +756,13 @@ struct XYZval {
   FI constexpr XYZval<uint32_t> asUInt32() const { return NUM_AXIS_ARRAY(uint32_t(x), uint32_t(y), uint32_t(z), uint32_t(i), uint32_t(j), uint32_t(k), uint32_t(u), uint32_t(v), uint32_t(w)); }
   FI constexpr XYZval<int64_t>   asInt64() const { return NUM_AXIS_ARRAY(int64_t(x), int64_t(y), int64_t(z), int64_t(i), int64_t(j), int64_t(k), int64_t(u), int64_t(v), int64_t(w)); }
   FI constexpr XYZval<uint64_t> asUInt64() const { return NUM_AXIS_ARRAY(uint64_t(x), uint64_t(y), uint64_t(z), uint64_t(i), uint64_t(j), uint64_t(k), uint64_t(u), uint64_t(v), uint64_t(w)); }
-  FI constexpr XYZval<float>     asFloat() const { return NUM_AXIS_ARRAY(static_cast<float>(x), static_cast<float>(y), static_cast<float>(z), static_cast<float>(i), static_cast<float>(j), static_cast<float>(k), static_cast<float>(u), static_cast<float>(v), static_cast<float>(w)); }
+  FI constexpr XYZval<float>     asFloat() const { return NUM_AXIS_ARRAY(float(x), float(y), float(z), float(i), float(j), float(k), float(u), float(v), float(w)); }
 
   // Marlin workspace shifting is done with G92 and M206
   FI XYZval<float> asLogical() const { XYZval<float> o = asFloat(); toLogical(o); return o; }
   FI XYZval<float>  asNative() const { XYZval<float> o = asFloat(); toNative(o);  return o; }
 
-  // In-place cast to types having fewer fields
+  // In-place reinterpret-cast to types having fewer fields
   FI operator       XYval<T>&()       { return *(XYval<T>*)this; }
   FI operator const XYval<T>&() const { return *(const XYval<T>*)this; }
 
@@ -816,6 +819,7 @@ struct XYZval {
   FI XYZval<T>& operator/=(const XYZEval<T> &rs) { NUM_AXIS_CODE(x /= rs.x, y /= rs.y, z /= rs.z, i /= rs.i, j /= rs.j, k /= rs.k, u /= rs.u, v /= rs.v, w /= rs.w); return *this; }
   FI XYZval<T>& operator*=(const float &p)       { NUM_AXIS_CODE(x *= p, y *= p, z *= p, i *= p, j *= p, k *= p, u *= p, v *= p, w *= p); return *this; }
   FI XYZval<T>& operator*=(const int &p)         { NUM_AXIS_CODE(x *= p, y *= p, z *= p, i *= p, j *= p, k *= p, u *= p, v *= p, w *= p); return *this; }
+  FI XYZval<T>& operator/=(const float &p)       { NUM_AXIS_CODE(x /= p, y /= p, z /= p, i /= p, j /= p, k /= p, u /= p, v /= p, w /= p); return *this; }
   FI XYZval<T>& operator>>=(const int &p)        { NUM_AXIS_CODE(_RSE(x), _RSE(y), _RSE(z), _RSE(i), _RSE(j), _RSE(k), _RSE(u), _RSE(v), _RSE(w)); return *this; }
   FI XYZval<T>& operator<<=(const int &p)        { NUM_AXIS_CODE(_LSE(x), _LSE(y), _LSE(z), _LSE(i), _LSE(j), _LSE(k), _LSE(u), _LSE(v), _LSE(w)); return *this; }
 
@@ -901,7 +905,7 @@ struct XYZEval {
   #endif
 
   // Length reduced to one dimension
-  FI constexpr T magnitude()    const { return (T)sqrtf(LOGICAL_AXIS_GANG(+ e*e, + x*x, + y*y, + z*z, + i*i, + j*j, + k*k, + u*u, + v*v, + w*w)); }
+  FI constexpr T magnitude()    const { return (T)SQRT(LOGICAL_AXIS_GANG(+ e*e, + x*x, + y*y, + z*z, + i*i, + j*j, + k*k, + u*u, + v*v, + w*w)); }
   // Pointer to the data as a simple array
   explicit FI operator T* ()          { return pos; }
   // If any element is true then it's true
@@ -923,13 +927,13 @@ struct XYZEval {
   FI constexpr XYZEval<uint32_t> asUInt32() const { return LOGICAL_AXIS_ARRAY(uint32_t(e), uint32_t(x), uint32_t(y), uint32_t(z), uint32_t(i), uint32_t(j), uint32_t(k), uint32_t(u), uint32_t(v), uint32_t(w)); }
   FI constexpr XYZEval<int64_t>   asInt64() const { return LOGICAL_AXIS_ARRAY(int64_t(e), int64_t(x), int64_t(y), int64_t(z), int64_t(i), int64_t(j), int64_t(k), int64_t(u), int64_t(v), int64_t(w)); }
   FI constexpr XYZEval<uint64_t> asUInt64() const { return LOGICAL_AXIS_ARRAY(uint64_t(e), uint64_t(x), uint64_t(y), uint64_t(z), uint64_t(i), uint64_t(j), uint64_t(k), uint64_t(u), uint64_t(v), uint64_t(w)); }
-  FI constexpr XYZEval<float>     asFloat() const { return LOGICAL_AXIS_ARRAY(static_cast<float>(e), static_cast<float>(x), static_cast<float>(y), static_cast<float>(z), static_cast<float>(i), static_cast<float>(j), static_cast<float>(k), static_cast<float>(u), static_cast<float>(v), static_cast<float>(w)); }
+  FI constexpr XYZEval<float>     asFloat() const { return LOGICAL_AXIS_ARRAY(float(e), float(x), float(y), float(z), float(i), float(j), float(k), float(u), float(v), float(w)); }
 
   // Marlin workspace shifting is done with G92 and M206
   FI XYZEval<float> asLogical() const { XYZEval<float> o = asFloat(); toLogical(o); return o; }
   FI XYZEval<float>  asNative() const { XYZEval<float> o = asFloat(); toNative(o);  return o; }
 
-  // In-place cast to types having fewer fields
+  // In-place reinterpret-cast to types having fewer fields
   FI operator       XYval<T>&()        { return *(XYval<T>*)this; }
   FI operator const XYval<T>&()  const { return *(const XYval<T>*)this; }
   FI operator       XYZval<T>&()       { return *(XYZval<T>*)this; }
@@ -986,7 +990,10 @@ struct XYZEval {
   FI XYZEval<T>& operator-=(const XYZEval<T> &rs) { LOGICAL_AXIS_CODE(e -= rs.e, x -= rs.x, y -= rs.y, z -= rs.z, i -= rs.i, j -= rs.j, k -= rs.k, u -= rs.u, v -= rs.v, w -= rs.w); return *this; }
   FI XYZEval<T>& operator*=(const XYZEval<T> &rs) { LOGICAL_AXIS_CODE(e *= rs.e, x *= rs.x, y *= rs.y, z *= rs.z, i *= rs.i, j *= rs.j, k *= rs.k, u *= rs.u, v *= rs.v, w *= rs.w); return *this; }
   FI XYZEval<T>& operator/=(const XYZEval<T> &rs) { LOGICAL_AXIS_CODE(e /= rs.e, x /= rs.x, y /= rs.y, z /= rs.z, i /= rs.i, j /= rs.j, k /= rs.k, u /= rs.u, v /= rs.v, w /= rs.w); return *this; }
+  FI XYZEval<T>& operator+=(const T &p)           { LOGICAL_AXIS_CODE(e += p, x += p, y += p, z += p, i += p, j += p, k += p, u += p, v += p, w += p); return *this; }
+  FI XYZEval<T>& operator-=(const T &p)           { LOGICAL_AXIS_CODE(e -= p, x -= p, y -= p, z -= p, i -= p, j -= p, k -= p, u -= p, v -= p, w -= p); return *this; }
   FI XYZEval<T>& operator*=(const T &p)           { LOGICAL_AXIS_CODE(e *= p, x *= p, y *= p, z *= p, i *= p, j *= p, k *= p, u *= p, v *= p, w *= p); return *this; }
+  FI XYZEval<T>& operator/=(const T &p)           { LOGICAL_AXIS_CODE(e /= p, x /= p, y /= p, z /= p, i /= p, j /= p, k /= p, u /= p, v /= p, w /= p); return *this; }
   FI XYZEval<T>& operator>>=(const int &p)        { LOGICAL_AXIS_CODE(_RSE(e), _RSE(x), _RSE(y), _RSE(z), _RSE(i), _RSE(j), _RSE(k), _RSE(u), _RSE(v), _RSE(w)); return *this; }
   FI XYZEval<T>& operator<<=(const int &p)        { LOGICAL_AXIS_CODE(_LSE(e), _LSE(x), _LSE(y), _LSE(z), _LSE(i), _LSE(j), _LSE(k), _LSE(u), _LSE(v), _LSE(w)); return *this; }
 

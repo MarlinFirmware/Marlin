@@ -35,7 +35,7 @@
 #if HAS_FILAMENT_SENSOR
   #include "../../feature/runout.h"
 #endif
-#if ENABLED(FILAMENT_LOAD_UNLOAD_GCODES)
+#if E_STEPPERS > 1 || ENABLED(FILAMENT_LOAD_UNLOAD_GCODES)
   #include "../../MarlinCore.h"
 #endif
 
@@ -110,14 +110,10 @@ void _menu_temp_filament_op(const PauseMode mode, const int8_t extruder) {
 /**
  * "Change Filament" submenu
  */
-#if E_STEPPERS > 1 || ENABLED(FILAMENT_LOAD_UNLOAD_GCODES)
-  bool printingIsPaused();
-#endif
-
 void menu_change_filament() {
   #if E_STEPPERS > 1 || ENABLED(FILAMENT_LOAD_UNLOAD_GCODES)
     // Say "filament change" when no print is active
-    editable.int8 = printingIsPaused() ? PAUSE_MODE_PAUSE_PRINT : PAUSE_MODE_CHANGE_FILAMENT;
+    editable.int8 = marlin.printingIsPaused() ? PAUSE_MODE_PAUSE_PRINT : PAUSE_MODE_CHANGE_FILAMENT;
 
     #if E_STEPPERS > 1 && ENABLED(FILAMENT_UNLOAD_ALL_EXTRUDERS)
       bool too_cold = false;
@@ -126,7 +122,7 @@ void menu_change_filament() {
     #endif
 
     #if ENABLED(FILAMENT_LOAD_UNLOAD_GCODES)
-      const bool is_busy = printer_busy();
+      const bool is_busy = marlin.printer_busy();
     #endif
 
     START_MENU();

@@ -252,7 +252,7 @@ void GcodeSuite::get_destination_from_command() {
  */
 void GcodeSuite::dwell(const millis_t time) {
   const millis_t start_ms = millis();
-  while (PENDING(millis(), start_ms, time)) idle();
+  while (PENDING(millis(), start_ms, time)) marlin.idle();
 }
 
 /**
@@ -286,7 +286,7 @@ void GcodeSuite::dwell(const millis_t time) {
       #ifdef ACTION_ON_CANCEL
         hostui.cancel();
       #endif
-      kill(GET_TEXT_F(MSG_LCD_PROBING_FAILED));
+      marlin.kill(GET_TEXT_F(MSG_LCD_PROBING_FAILED));
     #endif
   }
 
@@ -597,17 +597,11 @@ void GcodeSuite::process_parsed_command(bool no_ok/*=false*/) {
       case 110: M110(); break;                                    // M110: Set Current Line Number
       case 111: M111(); break;                                    // M111: Set debug level
 
-      #if DISABLED(EMERGENCY_PARSER)
-        case 108: M108(); break;                                  // M108: Cancel Waiting
-        case 112: M112(); break;                                  // M112: Full Shutdown
-        case 410: M410(); break;                                  // M410: Quickstop - Abort all the planned moves.
-        #if ENABLED(HOST_PROMPT_SUPPORT)
-          case 876: M876(); break;                                // M876: Handle Host prompt responses
-        #endif
-      #else
-        case 108: case 112: case 410:
-        TERN_(HOST_PROMPT_SUPPORT, case 876:)
-        break;
+      case 108: M108(); break;                                    // M108: Cancel Waiting
+      case 112: M112(); break;                                    // M112: Full Shutdown
+      case 410: M410(); break;                                    // M410: Quickstop - Abort all the planned moves.
+      #if ENABLED(HOST_PROMPT_SUPPORT)
+        case 876: M876(); break;                                  // M876: Handle Host prompt responses
       #endif
 
       #if ENABLED(HOST_KEEPALIVE_FEATURE)
@@ -926,8 +920,8 @@ void GcodeSuite::process_parsed_command(bool no_ok/*=false*/) {
       #endif
 
       #if ENABLED(FT_MOTION)
-        case 493: M493(); break;                                  // M493: Fixed-Time Motion control
-        #if ENABLED(FTM_SMOOTHING)
+          case 493: M493(); break;                                // M493: Fixed-Time Motion control
+        #if ANY(FTM_SMOOTHING, FTM_POLYS)
           case 494: M494(); break;                                // M494: Fixed-Time Motion extras
         #endif
         #if ENABLED(FTM_RESONANCE_TEST)

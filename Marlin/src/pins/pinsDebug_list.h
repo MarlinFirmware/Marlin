@@ -33,7 +33,7 @@
   #define ANALOG_OK(PN) WITHIN(PN, 0, NUM_ANALOG_INPUTS - 1)
 #endif
 
-#line 35 // set __LINE__ to a known value for both passes
+#line 37 // set __LINE__ to a known value for both passes
 
 //
 // Analog Pin Assignments

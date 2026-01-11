@@ -48,13 +48,13 @@
 #endif
 
 #if ENABLED(DWIN_CREALITY_LCD)
-  #include "e3v2/creality/dwin.h"
+  #include "dwin/creality/dwin.h"
 #elif ENABLED(DWIN_LCD_PROUI)
-  #include "e3v2/proui/dwin.h"
+  #include "dwin/proui/dwin.h"
 #endif
 
 #if ALL(HAS_STATUS_MESSAGE, IS_DWIN_MARLINUI)
-  #include "e3v2/marlinui/marlinui_dwin.h" // for LCD_WIDTH
+  #include "dwin/marlinui/marlinui_dwin.h" // for LCD_WIDTH
 #endif
 
 typedef bool (*statusResetFunc_t)();
@@ -328,9 +328,13 @@ public:
     #endif
     #if ANY(SHOW_REMAINING_TIME, SET_PROGRESS_MANUALLY)
       static uint32_t _calculated_remaining_time() {
-        const duration_t elapsed = print_job_timer.duration();
-        const progress_t progress = _get_progress();
-        return progress ? elapsed.value * (100 * (PROGRESS_SCALE) - progress) / progress : 0;
+        #if ANY(REMAINING_TIME_PRIME, REMAINING_TIME_AUTOPRIME)
+          return print_job_timer.remainingTimeEstimate(card.getIndex());
+        #else
+          const uint32_t elapsed = print_job_timer.duration();
+          const progress_t progress = _get_progress();
+          return progress ? elapsed * (100U * (PROGRESS_SCALE) - progress) / progress : 0;
+        #endif
       }
       #if ENABLED(SET_REMAINING_TIME)
         static uint32_t remaining_time;
@@ -663,6 +667,11 @@ public:
     static void preheat_all(const uint8_t m, const uint8_t e=active_extruder) { apply_preheat(m, PT_ALL, e); }
   #endif
 
+  /**
+   * The current screen will time out unless 'defer_return_to_status' is true,
+   * and the display will go back to the Status Screen.
+   * Call this method whenever the user interacts to reset the timeout.
+   */
   static void reset_status_timeout(const millis_t ms) {
     TERN(HAS_SCREEN_TIMEOUT, return_to_status_ms = ms + LCD_TIMEOUT_TO_STATUS, UNUSED(ms));
   }
