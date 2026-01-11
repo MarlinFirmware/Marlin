@@ -54,7 +54,6 @@
 #include "../lcd/marlinui.h"
 #include "../libs/vector_3.h"   // for matrix_3x3
 #include "../gcode/gcode.h"
-#include "../MarlinCore.h"
 
 #if ANY(EEPROM_SETTINGS, SD_FIRMWARE_UPDATE)
   #include "../HAL/shared/eeprom_api.h"
@@ -80,14 +79,14 @@
 #endif
 
 #if ENABLED(DWIN_LCD_PROUI)
-  #include "../lcd/e3v2/proui/dwin.h"
-  #include "../lcd/e3v2/proui/bedlevel_tools.h"
+  #include "../lcd/dwin/proui/dwin.h"
+  #include "../lcd/dwin/proui/bedlevel_tools.h"
 #endif
 
 #if ENABLED(EXTENSIBLE_UI)
   #include "../lcd/extui/ui_api.h"
 #elif ENABLED(DWIN_CREALITY_LCD_JYERSUI)
-  #include "../lcd/e3v2/jyersui/dwin.h"
+  #include "../lcd/dwin/jyersui/dwin.h"
 #endif
 
 #if ENABLED(HOST_PROMPT_SUPPORT)
@@ -703,6 +702,13 @@ typedef struct SettingsDataStruct {
     uint8_t stealth_mode;         // EEPROM_MMU_STEALTH
     bool mmu_hw_enabled;          // EEPROM_MMU_ENABLED
     // uint32_t material_changes
+  #endif
+
+  //
+  // GCODE_MACROS
+  //
+  #if ENABLED(GCODE_MACROS_IN_EEPROM)
+    char gcode_macros[GCODE_MACROS_SLOTS][GCODE_MACROS_SLOT_SIZE + 1];
   #endif
 
 } SettingsData;
@@ -1691,7 +1697,7 @@ void MarlinSettings::postprocess() {
     // CONFIGURABLE_MACHINE_NAME
     //
     #if ENABLED(CONFIGURABLE_MACHINE_NAME)
-      EEPROM_WRITE(machine_name);
+      EEPROM_WRITE(marlin.machine_name);
     #endif
 
     //
@@ -1824,6 +1830,14 @@ void MarlinSettings::postprocess() {
     #endif
 
     //
+    // GCODE_MACROS
+    //
+    #if ENABLED(GCODE_MACROS_IN_EEPROM)
+      _FIELD_TEST(gcode_macros);
+      EEPROM_WRITE(gcode.macros);
+    #endif
+
+    //
     // Report final CRC and Data Size
     //
     if (eeprom_error == ERR_EEPROM_NOERR) {
@@ -1862,8 +1876,13 @@ void MarlinSettings::postprocess() {
 
     TERN_(EXTENSIBLE_UI, ExtUI::onSettingsStored(success));
 
+    // Remember the error condition so One-Click Printing can be skipped
+    #if ENABLED(ONE_CLICK_PRINT) && NONE(EEPROM_AUTO_INIT, EEPROM_INIT_NOW)
+      working_crc = uint16_t(eeprom_error);
+    #endif
+
     return success;
-  }
+  } // save
 
   EEPROM_Error MarlinSettings::check_version() {
     if (!EEPROM_START(EEPROM_OFFSET)) return ERR_EEPROM_NOPROM;
@@ -2216,7 +2235,7 @@ void MarlinSettings::postprocess() {
         #if ENABLED(PTC_PROBE)
           EEPROM_READ(ptc.z_offsets_probe);
         #endif
-        # if ENABLED(PTC_BED)
+        #if ENABLED(PTC_BED)
           EEPROM_READ(ptc.z_offsets_bed);
         #endif
         #if ENABLED(PTC_HOTEND)
@@ -2809,7 +2828,7 @@ void MarlinSettings::postprocess() {
       // CONFIGURABLE_MACHINE_NAME
       //
       #if ENABLED(CONFIGURABLE_MACHINE_NAME)
-        EEPROM_READ(machine_name);
+        EEPROM_READ(marlin.machine_name);
       #endif
 
       //
@@ -2982,6 +3001,13 @@ void MarlinSettings::postprocess() {
       #endif
 
       //
+      // GCODE_MACROS
+      //
+      #if ENABLED(GCODE_MACROS_IN_EEPROM)
+        EEPROM_READ(gcode.macros);
+      #endif
+
+      //
       // Validate Final Size and CRC
       //
       const uint16_t eeprom_total = eeprom_index - (EEPROM_OFFSET);
@@ -3053,11 +3079,16 @@ void MarlinSettings::postprocess() {
 
     #if ENABLED(EEPROM_CHITCHAT) && DISABLED(DISABLE_M503)
       // Report the EEPROM settings
-      if (!validating && TERN1(EEPROM_BOOT_SILENT, IsRunning())) report();
+      if (!validating && TERN1(EEPROM_BOOT_SILENT, marlin.isRunning())) report();
+    #endif
+
+    // Remember the error condition so One-Click Printing can be skipped
+    #if ENABLED(ONE_CLICK_PRINT) && NONE(EEPROM_AUTO_INIT, EEPROM_INIT_NOW)
+      working_crc = uint16_t(eeprom_error);
     #endif
 
     return eeprom_error;
-  }
+  } // _load
 
   #ifdef ARCHIM2_SPI_FLASH_EEPROM_BACKUP_SIZE
     extern bool restoreEEPROM();
@@ -3125,7 +3156,7 @@ void MarlinSettings::postprocess() {
 
   #if ENABLED(AUTO_BED_LEVELING_UBL)
 
-    inline void ubl_invalid_slot(const int s) {
+    static void ubl_invalid_slot(const int s) {
       DEBUG_ECHOLN(F("?Invalid "), F("slot.\n"), s, F(" mesh slots available."));
       UNUSED(s);
     }
@@ -3418,7 +3449,7 @@ void MarlinSettings::reset() {
   //
   // CONFIGURABLE_MACHINE_NAME
   //
-  TERN_(CONFIGURABLE_MACHINE_NAME, machine_name = PSTR(MACHINE_NAME));
+  TERN_(CONFIGURABLE_MACHINE_NAME, marlin.machine_name = PSTR(MACHINE_NAME));
 
   //
   // TOUCH_SCREEN_CALIBRATION
@@ -3801,6 +3832,11 @@ void MarlinSettings::reset() {
   #endif
 
   //
+  // G-code Macros
+  //
+  TERN_(GCODE_MACROS_IN_EEPROM, gcode.reset_macros());
+
+  //
   // Hotend Idle Timeout
   //
   TERN_(HOTEND_IDLE_TIMEOUT, hotend_idle.cfg.set_defaults());
@@ -3848,7 +3884,7 @@ void MarlinSettings::reset() {
     //
     // M104 settings for AUTOTEMP
     //
-    TERN_(AUTOTEMP, gcode.M104_report());
+    TERN_(AUTOTEMP, gcode.M104_report(forReplay));
 
     //
     // M149 Temperature units
@@ -4034,6 +4070,11 @@ void MarlinSettings::reset() {
     // Homing Feedrate
     //
     TERN_(EDITABLE_HOMING_FEEDRATE, gcode.M210_report(forReplay));
+
+    //
+    // G-Code Macros
+    //
+    TERN_(GCODE_MACROS, gcode.M810_819_report(forReplay));
 
     //
     // Probe Offset

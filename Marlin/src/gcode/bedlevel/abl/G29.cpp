@@ -51,7 +51,7 @@
 #if ENABLED(EXTENSIBLE_UI)
   #include "../../../lcd/extui/ui_api.h"
 #elif ENABLED(DWIN_CREALITY_LCD)
-  #include "../../../lcd/e3v2/creality/dwin.h"
+  #include "../../../lcd/dwin/creality/dwin.h"
 #elif ENABLED(SOVOL_SV06_RTS)
   #include "../../../lcd/sovol_rts/sovol_rts.h"
 #endif
@@ -759,7 +759,7 @@ G29_TYPE GcodeSuite::G29() {
             for (;;) {
               pos = planner.get_axis_position_mm(axis);
               if (inInc > 0 ? (pos >= cmp) : (pos <= cmp)) break;
-              idle_no_sleep();
+              marlin.idle_no_sleep();
             }
             //if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM_P(axis == Y_AXIS ? PSTR("Y=") : PSTR("X=", pos);
 
@@ -803,7 +803,7 @@ G29_TYPE GcodeSuite::G29() {
           #endif
 
           abl.reenable = false; // Don't re-enable after modifying the mesh
-          idle_no_sleep();
+          marlin.idle_no_sleep();
 
         } // inner
       } // outer

@@ -251,7 +251,7 @@ void menu_info_board() {
     STATIC_ITEM_F(F(SHORT_BUILD_VERSION));                        // x.x.x-Branch
     STATIC_ITEM_F(F(STRING_DISTRIBUTION_DATE));                   // YYYY-MM-DD HH:MM
     #if ENABLED(CONFIGURABLE_MACHINE_NAME)
-      STATIC_ITEM_C(&machine_name, SS_DEFAULT|SS_INVERT);         // My3DPrinter
+      STATIC_ITEM_C(&marlin.machine_name, SS_DEFAULT|SS_INVERT);  // My3DPrinter
     #else
       STATIC_ITEM_F(F(MACHINE_NAME), SS_DEFAULT|SS_INVERT);       // My3DPrinter
     #endif

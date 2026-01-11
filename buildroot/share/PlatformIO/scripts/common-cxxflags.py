@@ -14,7 +14,7 @@ if pioutil.is_pio_build():
         # "-Wno-sign-compare",
         "-fno-sized-deallocation"
     ]
-    if "teensy" not in env["PIOENV"]:
+    if "teensy" not in env["PIOENV"] and "esp32" not in env["PIOENV"]:
         cxxflags += ["-Wno-register"]
     env.Append(CXXFLAGS=cxxflags)
     env.Append(CFLAGS=["-Wno-implicit-function-declaration"])

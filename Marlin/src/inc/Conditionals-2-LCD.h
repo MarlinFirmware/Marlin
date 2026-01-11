@@ -570,7 +570,7 @@
   #define EXTENSIBLE_UI
 #endif
 
-// E3V2 extras
+// DWIN extras
 #if ANY(HAS_DWIN_E3V2, IS_DWIN_MARLINUI, SOVOL_SV06_RTS)
   #define SERIAL_CATCHALL 0
   #define HAS_LCD_BRIGHTNESS 1

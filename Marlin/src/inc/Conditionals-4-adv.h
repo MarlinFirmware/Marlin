@@ -336,6 +336,87 @@
   #endif
 #endif
 
+// Fixed-Time Motion
+#if ENABLED(FT_MOTION)
+  #if HAS_X_AXIS
+    #define HAS_FTM_SHAPING 1
+    #define FTM_SHAPER_X
+  #endif
+  #if HAS_Y_AXIS
+    #define FTM_SHAPER_Y
+  #endif
+  #if !HAS_Z_AXIS
+    #undef FTM_SHAPER_Z
+  #endif
+  #if HAS_EXTRUDERS
+    #define FTM_HAS_LIN_ADVANCE 1
+  #else
+    #undef FTM_SHAPER_E
+  #endif
+  #if ENABLED(NO_STANDARD_MOTION)
+    #define FTM_HOME_AND_PROBE
+  #endif
+  #if ANY(FTM_SHAPER_EI, FTM_SHAPER_2HEI, FTM_SHAPER_3HEI)
+    #define HAS_FTM_EI_SHAPING 1
+  #endif
+
+  /**
+   * TMC2208 Direction-Flip Delay
+   *
+   * Some TMC2208 / TMC2208_STANDALONE drivers may require a short delay after a DIR change
+   * to prevent a standstill error, especially when using stealthChop (the standalone default).
+   *
+   * When enabled for an axis, FT Motion will hold that axis for > 750µs after a DIR change
+   * by holding its trajectory coordinate constant for a multiple of FTM_TS frames. For the
+   * default FTM_FS = 1000, it is a single 1ms frame.
+   *
+   * Other axes keep moving normally, and the wait is canceled if the axis flips again.
+   */
+  #if AXIS_DRIVER_TYPE_X(TMC2208) || AXIS_DRIVER_TYPE_X(TMC2208_STANDALONE)
+    #define FTM_DIR_CHANGE_HOLD_X 1
+  #endif
+  #if AXIS_DRIVER_TYPE_Y(TMC2208) || AXIS_DRIVER_TYPE_Y(TMC2208_STANDALONE)
+    #define FTM_DIR_CHANGE_HOLD_Y 1
+  #endif
+  #if AXIS_DRIVER_TYPE_Z(TMC2208) || AXIS_DRIVER_TYPE_Z(TMC2208_STANDALONE)
+    #define FTM_DIR_CHANGE_HOLD_Z 1
+  #endif
+  #if HAS_E_DRIVER(TMC2208) || HAS_E_DRIVER(TMC2208_STANDALONE)
+    #define FTM_DIR_CHANGE_HOLD_E 1
+  #endif
+  #if ANY(FTM_DIR_CHANGE_HOLD_X, FTM_DIR_CHANGE_HOLD_Y, FTM_DIR_CHANGE_HOLD_Z, FTM_DIR_CHANGE_HOLD_E)
+    #define HAS_FTM_DIR_CHANGE_HOLD 1
+  #endif
+#endif
+
+// Standard Motion
+#if DISABLED(NO_STANDARD_MOTION)
+  #define HAS_STANDARD_MOTION 1
+#else
+  #undef LIN_ADVANCE
+  #undef SMOOTH_LIN_ADVANCE
+  #undef S_CURVE_ACCELERATION
+  #undef ADAPTIVE_STEP_SMOOTHING
+  #undef INPUT_SHAPING_X
+  #undef INPUT_SHAPING_Y
+  #undef INPUT_SHAPING_Z
+  #undef INPUT_SHAPING_E_SYNC
+#endif
+
+// Linear advance uses Jerk since E is an isolated axis
+#if ANY(FTM_HAS_LIN_ADVANCE, LIN_ADVANCE)
+  #define HAS_LIN_ADVANCE_K 1
+#endif
+// Linear Advance without smoothing
+#if ENABLED(LIN_ADVANCE) && DISABLED(SMOOTH_LIN_ADVANCE)
+  #define HAS_ROUGH_LIN_ADVANCE 1
+#endif
+
+// ZV Input Shaping for Standard Motion
+#if ANY(INPUT_SHAPING_X, INPUT_SHAPING_Y, INPUT_SHAPING_Z)
+  #define HAS_ZV_SHAPING 1
+#endif
+
 // Use Junction Deviation for motion if Jerk is disabled
 #if DISABLED(CLASSIC_JERK)
   #define HAS_JUNCTION_DEVIATION 1
@@ -345,19 +426,9 @@
 #if HAS_EXTRUDERS && (ENABLED(CLASSIC_JERK) || (IS_KINEMATIC && DISABLED(LIN_ADVANCE)))
   #define HAS_CLASSIC_E_JERK 1
 #endif
-
-// Linear advance uses Jerk since E is an isolated axis
-#if ALL(FT_MOTION, HAS_EXTRUDERS)
-  #define FTM_HAS_LIN_ADVANCE 1
-#endif
-#if ANY(FTM_HAS_LIN_ADVANCE, LIN_ADVANCE)
-  #define HAS_LIN_ADVANCE_K 1
-#endif
-#if HAS_JUNCTION_DEVIATION && ENABLED(LIN_ADVANCE)
+// E jerk is derived from JD factors
+#if ALL(HAS_JUNCTION_DEVIATION, LIN_ADVANCE)
   #define HAS_LINEAR_E_JERK 1
-#endif
-#if ENABLED(LIN_ADVANCE) && DISABLED(SMOOTH_LIN_ADVANCE)
-  #define HAS_ROUGH_LIN_ADVANCE 1
 #endif
 
 // Some displays can toggle Adaptive Step Smoothing.
@@ -1136,7 +1207,7 @@
   #undef SERIAL_XON_XOFF
 #endif
 
-#if ENABLED(HOST_PROMPT_SUPPORT) && DISABLED(EMERGENCY_PARSER)
+#if ENABLED(HOST_PROMPT_SUPPORT)
   #define HAS_GCODE_M876 1
 #endif
 
@@ -1519,28 +1590,6 @@
 #if ENABLED(CONFIGURATION_EMBEDDING) && !defined(FORCE_CONFIG_EMBED) && (defined(__AVR__) || !HAS_MEDIA || ANY(SDCARD_READONLY, DISABLE_M503))
   #undef CONFIGURATION_EMBEDDING
   #define CANNOT_EMBED_CONFIGURATION defined(__AVR__)
-#endif
-
-// Input shaping
-#if ANY(INPUT_SHAPING_X, INPUT_SHAPING_Y, INPUT_SHAPING_Z)
-  #define HAS_ZV_SHAPING 1
-#endif
-
-// FT Motion unified window and batch size
-#if ENABLED(FT_MOTION)
-  #if HAS_X_AXIS
-    #define HAS_FTM_SHAPING 1
-    #define FTM_SHAPER_X
-  #endif
-  #if HAS_Y_AXIS
-    #define FTM_SHAPER_Y
-  #endif
-  #if !HAS_Z_AXIS
-    #undef FTM_SHAPER_Z
-  #endif
-  #if !HAS_EXTRUDERS
-    #undef FTM_SHAPER_E
-  #endif
 #endif
 
 // Multi-Stepping Limit

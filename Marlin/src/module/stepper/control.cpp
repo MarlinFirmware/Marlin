@@ -96,12 +96,8 @@
         #if ANY_PIN(MOTOR_CURRENT_PWM_XY, MOTOR_CURRENT_PWM_X, MOTOR_CURRENT_PWM_Y, MOTOR_CURRENT_PWM_I, MOTOR_CURRENT_PWM_J, MOTOR_CURRENT_PWM_K, MOTOR_CURRENT_PWM_U, MOTOR_CURRENT_PWM_V, MOTOR_CURRENT_PWM_W)
           case 0:
         #endif
-        #if HAS_MOTOR_CURRENT_PWM_Z
-          case 1:
-        #endif
-        #if HAS_MOTOR_CURRENT_PWM_E
-          case 2:
-        #endif
+        TERN_(HAS_MOTOR_CURRENT_PWM_Z, case 1:)
+        TERN_(HAS_MOTOR_CURRENT_PWM_E, case 2:)
             set_digipot_current(i, motor_current_setting[i]);
         default: break;
       }
@@ -385,38 +381,22 @@
       if (ms1 >= 0) switch (driver) {
         #if HAS_X_MS_PINS || HAS_X2_MS_PINS
           case X_AXIS:
-            #if HAS_X_MS_PINS
-              WRITE(X_MS1_PIN, ms1);
-            #endif
-            #if HAS_X2_MS_PINS
-              WRITE(X2_MS1_PIN, ms1);
-            #endif
+            TERF(HAS_X_MS_PINS, WRITE)(X_MS1_PIN, ms1);
+            TERF(HAS_X2_MS_PINS, WRITE)(X2_MS1_PIN, ms1);
             break;
         #endif
         #if HAS_Y_MS_PINS || HAS_Y2_MS_PINS
           case Y_AXIS:
-            #if HAS_Y_MS_PINS
-              WRITE(Y_MS1_PIN, ms1);
-            #endif
-            #if HAS_Y2_MS_PINS
-              WRITE(Y2_MS1_PIN, ms1);
-            #endif
+            TERF(HAS_Y_MS_PINS, WRITE)(Y_MS1_PIN, ms1);
+            TERF(HAS_Y2_MS_PINS, WRITE)(Y2_MS1_PIN, ms1);
             break;
         #endif
         #if HAS_SOME_Z_MS_PINS
           case Z_AXIS:
-            #if HAS_Z_MS_PINS
-              WRITE(Z_MS1_PIN, ms1);
-            #endif
-            #if HAS_Z2_MS_PINS
-              WRITE(Z2_MS1_PIN, ms1);
-            #endif
-            #if HAS_Z3_MS_PINS
-              WRITE(Z3_MS1_PIN, ms1);
-            #endif
-            #if HAS_Z4_MS_PINS
-              WRITE(Z4_MS1_PIN, ms1);
-            #endif
+            TERF(HAS_Z_MS_PINS, WRITE)(Z_MS1_PIN, ms1);
+            TERF(HAS_Z2_MS_PINS, WRITE)(Z2_MS1_PIN, ms1);
+            TERF(HAS_Z3_MS_PINS, WRITE)(Z3_MS1_PIN, ms1);
+            TERF(HAS_Z4_MS_PINS, WRITE)(Z4_MS1_PIN, ms1);
             break;
         #endif
         #if HAS_I_MS_PINS
@@ -465,38 +445,22 @@
       if (ms2 >= 0) switch (driver) {
         #if HAS_X_MS_PINS || HAS_X2_MS_PINS
           case X_AXIS:
-            #if HAS_X_MS_PINS
-              WRITE(X_MS2_PIN, ms2);
-            #endif
-            #if HAS_X2_MS_PINS
-              WRITE(X2_MS2_PIN, ms2);
-            #endif
+            TERF(HAS_X_MS_PINS, WRITE)(X_MS2_PIN, ms2);
+            TERF(HAS_X2_MS_PINS, WRITE)(X2_MS2_PIN, ms2);
             break;
         #endif
         #if HAS_Y_MS_PINS || HAS_Y2_MS_PINS
           case Y_AXIS:
-            #if HAS_Y_MS_PINS
-              WRITE(Y_MS2_PIN, ms2);
-            #endif
-            #if HAS_Y2_MS_PINS
-              WRITE(Y2_MS2_PIN, ms2);
-            #endif
+            TERF(HAS_Y_MS_PINS, WRITE)(Y_MS2_PIN, ms2);
+            TERF(HAS_Y2_MS_PINS, WRITE)(Y2_MS2_PIN, ms2);
             break;
         #endif
         #if HAS_SOME_Z_MS_PINS
           case Z_AXIS:
-            #if HAS_Z_MS_PINS
-              WRITE(Z_MS2_PIN, ms2);
-            #endif
-            #if HAS_Z2_MS_PINS
-              WRITE(Z2_MS2_PIN, ms2);
-            #endif
-            #if HAS_Z3_MS_PINS
-              WRITE(Z3_MS2_PIN, ms2);
-            #endif
-            #if HAS_Z4_MS_PINS
-              WRITE(Z4_MS2_PIN, ms2);
-            #endif
+            TERF(HAS_Z_MS_PINS, WRITE)(Z_MS2_PIN, ms2);
+            TERF(HAS_Z2_MS_PINS, WRITE)(Z2_MS2_PIN, ms2);
+            TERF(HAS_Z3_MS_PINS, WRITE)(Z3_MS2_PIN, ms2);
+            TERF(HAS_Z4_MS_PINS, WRITE)(Z4_MS2_PIN, ms2);
             break;
         #endif
         #if HAS_I_MS_PINS

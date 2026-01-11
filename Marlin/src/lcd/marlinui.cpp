@@ -22,7 +22,6 @@
 
 #include "../inc/MarlinConfig.h"
 
-#include "../MarlinCore.h" // for printingIsPaused, machine_name
 #include "../gcode/parser.h" // for axis_is_rotational, using_inch_units
 
 #if HAS_LED_POWEROFF_TIMEOUT || ALL(HAS_WIRED_LCD, PRINTER_EVENT_LEDS) || (HAS_BACKLIGHT_TIMEOUT && defined(NEOPIXEL_BKGD_INDEX_FIRST))
@@ -47,9 +46,9 @@ MarlinUI ui;
 #endif
 
 #if ENABLED(DWIN_CREALITY_LCD)
-  #include "e3v2/creality/dwin.h"
+  #include "dwin/creality/dwin.h"
 #elif ENABLED(DWIN_CREALITY_LCD_JYERSUI)
-  #include "e3v2/jyersui/dwin.h"
+  #include "dwin/jyersui/dwin.h"
 #elif ENABLED(SOVOL_SV06_RTS)
   #include "sovol_rts/sovol_rts.h"
 #endif
@@ -260,7 +259,11 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
 void MarlinUI::init() {
 
   #if HAS_U8GLIB_I2C_OLED && PINS_EXIST(I2C_SCL, I2C_SDA) && DISABLED(SOFT_I2C_EEPROM)
-    Wire.begin(uint8_t(I2C_SDA_PIN), uint8_t(I2C_SCL_PIN));
+    #ifdef TARGET_RP2040
+      Wire.begin();  // RP2040 MbedI2C uses pins configured in pins_arduino.h
+    #else
+      Wire.begin(uint8_t(I2C_SDA_PIN), uint8_t(I2C_SCL_PIN));
+    #endif
   #endif
 
   init_lcd();
@@ -990,8 +993,8 @@ void MarlinUI::init() {
       // Ignore the click when clearing wait_for_user or waking the screen.
       auto do_click = [&]{
         wait_for_unclick = true;
-        lcd_clicked = !wait_for_user && !display_is_asleep();
-        wait_for_user = false;
+        lcd_clicked = !marlin.wait_for_user && !display_is_asleep();
+        marlin.user_resume();
         quick_feedback();
       };
 
@@ -1046,17 +1049,23 @@ void MarlinUI::init() {
       TERN_(LCD_HAS_STATUS_INDICATORS, update_indicators());
 
       #if HAS_ENCODER_ACTION
-        TERN_(HAS_SLOW_BUTTONS, slow_buttons = read_slow_buttons()); // Buttons that take too long to read in interrupt context
+        // Read buttons that take too long to read in interrupt context,
+        // as with an external LCD button API.
+        TERN_(HAS_SLOW_BUTTONS, slow_buttons = read_slow_buttons());
 
+        // RRW Keypad interaction resets the timeout to status screen
         if (TERN0(IS_RRW_KEYPAD, handle_keypad()))
           reset_status_timeout(ms);
 
+        // Wake the display for any encoder movement
         static int8_t lastEncoderDiff;
         if (lastEncoderDiff != encoderDiff) wake_display();
         lastEncoderDiff = encoderDiff;
 
+        // Did the encoder turn by more than "Encoder Pulses Per Step" ticks?
         const uint8_t abs_diff = ABS(encoderDiff);
         const bool encoderPastThreshold = (abs_diff >= epps);
+
         if (encoderPastThreshold && TERN1(IS_TFTGLCD_PANEL, !external_control)) {
 
           int32_t encoder_multiplier = 1;
@@ -1100,16 +1109,22 @@ void MarlinUI::init() {
           }
         }
 
+        // Has the wheel advanced by a step or the encoder done a click?
         if (encoderPastThreshold || lcd_clicked) {
+
+          // Retain the current screen
           reset_status_timeout(ms);
 
+          // Keep the lights on
           #if HAS_BACKLIGHT_TIMEOUT
             refresh_backlight_timeout();
           #elif HAS_DISPLAY_SLEEP
             refresh_screen_timeout();
           #endif
 
+          // Make sure the display is updated in response
           refresh(LCDVIEW_REDRAW_NOW);
+          // This will cause paged displays to go to "first page"
           TERN_(HAS_MARLINUI_U8GLIB, drawing_screen = false);
           #if MARLINUI_SCROLL_NAME
             filename_scroll_max = 0;
@@ -1167,6 +1182,7 @@ void MarlinUI::init() {
         TERN_(HAS_ADC_BUTTONS, keypad_buttons = 0);
 
         #if HAS_MARLINUI_U8GLIB
+
           #if ENABLED(LIGHTWEIGHT_UI)
             const bool in_status = on_status_screen(),
                        do_u8g_loop = !in_status;
@@ -1195,11 +1211,14 @@ void MarlinUI::init() {
               return;
             }
           }
-        #else
+
+        #else // !HAS_MARLINUI_U8GLIB
+
           run_current_screen();
 
           // Apply all DWIN drawing after processing
           TERN_(IS_DWIN_MARLINUI, dwinUpdateLCD());
+
         #endif
 
         TERN_(HAS_MARLINUI_MENU, lcd_clicked = false);
@@ -1558,7 +1577,7 @@ uint8_t expand_u8str_P(char * const outstr, PGM_P const ptpl, const int8_t ind, 
    */
   void MarlinUI::reset_status(const bool no_welcome) {
     FSTR_P msg;
-    if (printingIsPaused())
+    if (marlin.printingIsPaused())
       msg = GET_TEXT_F(MSG_PRINT_PAUSED);
     #if HAS_MEDIA
       else if (card.isStillPrinting())
@@ -1580,7 +1599,7 @@ uint8_t expand_u8str_P(char * const outstr, PGM_P const ptpl, const int8_t ind, 
     else if (!no_welcome) {
       #if ENABLED(CONFIGURABLE_MACHINE_NAME)
         char new_status[MAX_MESSAGE_SIZE + 1];
-        expand_u8str_P(new_status, GET_TEXT(WELCOME_MSG), 0, &machine_name);
+        expand_u8str_P(new_status, GET_TEXT(WELCOME_MSG), 0, &marlin.machine_name);
         _set_status_and_level(new_status, -1);
         return;
       #else
@@ -1757,13 +1776,9 @@ uint8_t expand_u8str_P(char * const outstr, PGM_P const ptpl, const int8_t ind, 
 
 #if HAS_DISPLAY
 
-  #if HAS_MEDIA
-    extern bool wait_for_user, wait_for_heatup;
-  #endif
-
   void MarlinUI::abort_print() {
     #if HAS_MEDIA
-      wait_for_heatup = wait_for_user = false;
+      marlin.end_waiting();
       if (card.isStillPrinting())
         card.abortFilePrintSoon();
       else if (card.isMounted())
@@ -1830,7 +1845,7 @@ uint8_t expand_u8str_P(char * const outstr, PGM_P const ptpl, const int8_t ind, 
 
   void MarlinUI::resume_print() {
     reset_status();
-    TERN_(PARK_HEAD_ON_PAUSE, wait_for_heatup = wait_for_user = false);
+    TERN_(PARK_HEAD_ON_PAUSE, marlin.end_waiting());
     TERN_(HAS_MEDIA, if (card.isPaused()) queue.inject_P(M24_STR));
     #ifdef ACTION_ON_RESUME
       hostui.resume();

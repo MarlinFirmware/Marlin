@@ -24,7 +24,7 @@
 
 #if ENABLED(FILAMENT_RUNOUT_SENSOR)
 
-#include <src/feature/runout.h>
+#include "src/feature/runout.h"
 
 MARLIN_TEST(runout, poll_runout_states) {
   FilamentSensorBase sensor;

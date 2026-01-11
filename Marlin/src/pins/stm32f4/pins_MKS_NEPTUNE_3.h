@@ -111,7 +111,7 @@
 #define HEATER_0_PIN                        PA6   // HEATER1
 #define HEATER_BED_PIN                      PA5   // HOT BED
 
-#define FAN_PIN                             PB0   // FAN
+#define FAN0_PIN                            PB0   // FAN
 //#define FAN1_PIN                          PA7   // FAN1
 
 #if NEED_TOUCH_PINS

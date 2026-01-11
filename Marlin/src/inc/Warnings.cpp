@@ -31,6 +31,10 @@
 // Warnings! Located here so they will appear just once in the build output.
 //
 
+#if __cplusplus < 201703L
+  #warning "This build does not have access to >= c++17 features."
+#endif
+
 // static_warning works like a static_assert but only emits a (messy) warning.
 #ifdef __GNUC__
   namespace mfwarn {
@@ -724,6 +728,10 @@
   #warning "BIQU MicroProbe V2 detect signal requires a strong pull-up. Some processors have weak internal pull-up capabilities, so we recommended connecting MicroProbe SIGNAL / GND to Z-MIN / Z-STOP instead of the dedicated PROBE port. (Define NO_MICROPROBE_WARNING to suppress this warning.)"
 #endif
 
+#if PROBE_WAKEUP_TIME_WARNING
+  #warning "PROBE_WAKEUP_TIME_MS has been set to the default 30ms."
+#endif
+
 //
 // Warn users of potential endstop/DIAG pin conflicts to prevent homing issues when not using sensorless homing
 //
@@ -791,7 +799,7 @@
 
 #if ANY(FYSETC_MINI_12864_1_2, FYSETC_MINI_12864_2_0) && DISABLED(RGB_LED)
   #warning "Your FYSETC Mini Panel works best with RGB_LED."
-#elif ANY(FYSETC_MINI_12864_2_0, FYSETC_MINI_12864_2_1) && DISABLED(LED_USER_PRESET_STARTUP)
+#elif ENABLED(FYSETC_MINI_12864_2_0) && DISABLED(LED_USER_PRESET_STARTUP)
   #warning "Your FYSETC/MKS/BTT/BEEZ Mini Panel works best with LED_USER_PRESET_STARTUP."
 #endif
 
@@ -938,11 +946,20 @@
   #endif
   #if ENABLED(LIN_ADVANCE)
     #warning "Be aware that FT_MOTION K factor is now set with M900 K (same as LIN_ADVANCE)."
+    #if DISABLED(FTM_SMOOTHING)
+      #warning "For higher print quality enable FTM_SMOOTHING with FTM_SMOOTHING_TIME_E to tame Linear Advance accelerations."
+    #endif
+  #endif
+  #if DISABLED(FTM_SHAPER_E)
+    #warning "For higher print quality enable FTM_SHAPER_E (even if shaper is NONE) to allow axis synchronization."
   #endif
 #endif
 #if ENABLED(FTM_HOME_AND_PROBE)
   #if ANY(BIQU_MICROPROBE_V1, BIQU_MICROPROBE_V2)
     #warning "Let us know if you experience any issues with BIQU Microprobe and FT_MOTION."
+    #if PROBE_WAKEUP_TIME_MS <= 25
+      #warning "A PROBE_WAKEUP_TIME_MS over 25 ms is recommended with FT_MOTION and BIQU_MICROPROBE_V1 or BIQU_MICROPROBE_V2."
+    #endif
   #endif
   #if PROBE_WAKEUP_TIME_MS < 30
     #warning "A PROBE_WAKEUP_TIME_MS over 30 ms is recommended with FT_MOTION."
@@ -973,8 +990,6 @@
 /**
  * Smooth Linear Advance with Mixing Extruder, S-Curve Acceleration
  */
-#if ENABLED(SMOOTH_LIN_ADVANCE)
-  #if ENABLED(MIXING_EXTRUDER)
-    #warning "SMOOTH_LIN_ADVANCE with MIXING_EXTRUDER is untested. Use with caution."
-  #endif
+#if ALL(SMOOTH_LIN_ADVANCE, MIXING_EXTRUDER)
+  #warning "SMOOTH_LIN_ADVANCE with MIXING_EXTRUDER is untested. Use with caution."
 #endif

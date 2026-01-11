@@ -61,7 +61,7 @@
 // @section info
 
 // Author info of this build printed to the host during boot and M115
-#define STRING_CONFIG_H_AUTHOR "(none, default config)" // Original author or contributor.
+#define STRING_CONFIG_H_AUTHOR "(MarlinFirmware)" // Original author or contributor.
 //#define CUSTOM_VERSION_FILE Version.h // Path from the root directory (no quotes)
 
 // @section machine
@@ -306,6 +306,18 @@
 #endif
 
 /**
+ * Differential Extruder
+ *
+ * The X and E steppers work together to create a differential drive system.
+ * Simple  : E steps = X + E   ; X steps = X  (E drives a loop, X stays the same)
+ * Balanced: E steps = X + E/2 ; X steps = X - E/2  (Dual loop system)
+ */
+//#define DIFFERENTIAL_EXTRUDER
+#if ENABLED(DIFFERENTIAL_EXTRUDER)
+  //#define BALANCED_DIFFERENTIAL_EXTRUDER
+#endif
+
+/**
  * Switching Toolhead
  *
  * Support for swappable and dockable toolheads, such as
@@ -456,7 +468,7 @@
 //===========================================================================
 //============================= Thermal Settings ============================
 //===========================================================================
-// @section temperature
+// @section temperature sensors
 
 /**
  * Temperature Sensors:
@@ -488,7 +500,7 @@
  *    10 : 100kΩ RS PRO 198-961
  *    11 : 100kΩ Keenovo AC silicone mats, most Wanhao i3 machines - beta 3950, 1%
  *    12 : 100kΩ Vishay 0603 SMD NTCS0603E3104FXT (#8) - calibrated for Makibox hot bed
- *    13 : 100kΩ Hisens up to 300°C - for "Simple ONE" & "All In ONE" hotend - beta 3950, 1%
+ *    13 : 100kΩ Hisense up to 300°C - for "Simple ONE" & "All In ONE" hotend - beta 3950, 1%
  *    14 : 100kΩ  (R25), 4092K (beta25), 4.7kΩ pull-up, bed thermistor as used in Ender-5 S1
  *    15 : 100kΩ Calibrated for JGAurora A5 hotend
  *    17 : 100kΩ Dagoma NTC white thermistor
@@ -640,6 +652,8 @@
   #define TEMP_SENSOR_REDUNDANT_MAX_DIFF  10  // (°C) Temperature difference that will trigger a print abort.
 #endif
 
+// @section temperature
+
 // Below this temperature the heater will be switched off
 // because it probably indicates a broken thermistor wire.
 #define HEATER_0_MINTEMP   5
@@ -706,13 +720,13 @@
   #if ENABLED(PID_PARAMS_PER_HOTEND)
     // Specify up to one value per hotend here, according to your setup.
     // If there are fewer values, the last one applies to the remaining hotends.
-    #define DEFAULT_Kp_LIST {  22.20,  22.20 }
-    #define DEFAULT_Ki_LIST {   1.08,   1.08 }
-    #define DEFAULT_Kd_LIST { 114.00, 114.00 }
+    #define DEFAULT_KP_LIST {  22.20,  22.20 }
+    #define DEFAULT_KI_LIST {   1.08,   1.08 }
+    #define DEFAULT_KD_LIST { 114.00, 114.00 }
   #else
-    #define DEFAULT_Kp  22.20
-    #define DEFAULT_Ki   1.08
-    #define DEFAULT_Kd 114.00
+    #define DEFAULT_KP  22.20
+    #define DEFAULT_KI   1.08
+    #define DEFAULT_KD 114.00
   #endif
 #else
   #define BANG_MAX 255    // Limit hotend current while in bang-bang mode; 255=full current
@@ -810,9 +824,9 @@
 
   // 120V 250W silicone heater into 4mm borosilicate (MendelMax 1.5+)
   // from FOPDT model - kp=.39 Tp=405 Tdead=66, Tc set to 79.2, aggressive factor of .15 (vs .1, 1, 10)
-  #define DEFAULT_bedKp  10.00
-  #define DEFAULT_bedKi   0.023
-  #define DEFAULT_bedKd 305.4
+  #define DEFAULT_BED_KP  10.00
+  #define DEFAULT_BED_KI   0.023
+  #define DEFAULT_BED_KD 305.4
 
   // FIND YOUR OWN: "M303 E-1 C8 S90" to run autotune on the bed at 90 degreesC for 8 cycles.
 #else
@@ -893,9 +907,9 @@
 
   // Lasko "MyHeat Personal Heater" (200w) modified with a Fotek SSR-10DA to control only the heating element
   // and placed inside the small Creality printer enclosure tent.
-  #define DEFAULT_chamberKp  37.04
-  #define DEFAULT_chamberKi   1.40
-  #define DEFAULT_chamberKd 655.17
+  #define DEFAULT_CHAMBER_KP  37.04
+  #define DEFAULT_CHAMBER_KI   1.40
+  #define DEFAULT_CHAMBER_KD 655.17
   // M309 P37.04 I1.04 D655.17
 
   // FIND YOUR OWN: "M303 E-2 C8 S50" to run autotune on the chamber at 50 degreesC for 8 cycles.
@@ -1053,7 +1067,8 @@
   // Delta radius and diagonal rod adjustments
   //#define DELTA_RADIUS_TRIM_TOWER       { 0.0, 0.0, 0.0 } // (mm)
   //#define DELTA_DIAGONAL_ROD_TRIM_TOWER { 0.0, 0.0, 0.0 } // (mm)
-#endif
+
+#endif // DELTA
 
 // @section scara
 
@@ -1109,17 +1124,37 @@
   #define TPARA_LINKAGE_1 120     // (mm)
   #define TPARA_LINKAGE_2 120     // (mm)
 
-  // TPARA tower offset (position of Tower relative to bed zero position)
+  // Height of the Shoulder axis (pivot) relative to the tower floor
+  #define TPARA_SHOULDER_AXIS_HEIGHT 135.0     // (mm)
+
+  // The position of the last linkage relative to the robot arm origin
+  // (intersection of the base axis and floor) when at the home position
+  #define TPARA_ARM_X_HOME_POS  28.75  // (mm) Measured from shoulder axis to tool holder axis in home position
+  #define TPARA_ARM_Y_HOME_POS   0     // (mm)
+  #define TPARA_ARM_Z_HOME_POS 250.00  // (mm) Measured from tool holder axis to the floor
+
+  // TPARA Workspace offset relative to the tower (position of workspace origin relative to robot Tower origin )
   // This needs to be reasonably accurate as it defines the printbed position in the TPARA space.
-  #define TPARA_OFFSET_X    0     // (mm)
-  #define TPARA_OFFSET_Y    0     // (mm)
-  #define TPARA_OFFSET_Z    0     // (mm)
+  #define TPARA_OFFSET_X    127.0     // (mm) to coincide with minimum radius MIDDLE_DEAD_ZONE_R, and W(0,0,0) is reachable
+  #define TPARA_OFFSET_Y      0.0     // (mm)
+  #define TPARA_OFFSET_Z      0.0     // (mm)
+
+  // TPARA tool connection point offset, relative to the tool moving frame origin which is in the last linkage axis,
+  // (TCP: tool center/connection point) of the robot,
+  // the plane of measured offset must be alligned with home position plane
+  #define TPARA_TCP_OFFSET_X    27.0     // (mm) Tool flange: 27 (distance from pivot to bolt holes), extruder tool: 50.0,
+  #define TPARA_TCP_OFFSET_Y     0.0     // (mm)
+  #define TPARA_TCP_OFFSET_Z   -65.0     // (mm) Tool flange (bottom): -6 (caution as Z 0 posiion will crash second linkage to the floor, -35 is safe for testing with no tool), extruder tool (depends on extruder): -65.0
 
   #define FEEDRATE_SCALING        // Convert XY feedrate from mm/s to degrees/s on the fly
 
   // Radius around the center where the arm cannot reach
-  #define MIDDLE_DEAD_ZONE_R   0  // (mm)
-#endif
+  // For now use a hardcoded uniform limit, although it should be calculated, or fix a limit for each axis angle
+  #define MIDDLE_DEAD_ZONE_R   100    // (mm)
+
+  // Max angle between L1 and L2
+  #define TPARA_MAX_L1L2_ANGLE 140.0f // (degrees)
+#endif // AXEL_TPARA
 
 // @section polar
 
@@ -1628,7 +1663,7 @@
  * Nozzle-to-Probe offsets { X, Y, Z }
  *
  * X and Y offset
- *   Use a caliper or ruler to measure the distance from the tip of
+ *   Use a caliper or ruler to measure the distance (in mm) from the tip of
  *   the Nozzle to the center-point of the Probe in the X and Y axes.
  *
  * Z offset
@@ -1664,7 +1699,7 @@
  *     |    [-]    |
  *     O-- FRONT --+
  */
-#define NOZZLE_TO_PROBE_OFFSET { 10, 10, 0 }
+#define NOZZLE_TO_PROBE_OFFSET { 10, 10, 0 } // (mm) X, Y, Z distance from Nozzle tip to Probe trigger-point
 
 // Enable and set to use a specific tool for probing. Disable to allow any tool.
 #define PROBING_TOOL 0
@@ -1827,15 +1862,12 @@
 //#define DISABLE_V
 //#define DISABLE_W
 
-// Turn off the display blinking that warns about possible accuracy reduction
-//#define DISABLE_REDUCED_ACCURACY_WARNING
-
 // @section extruder
 
 //#define DISABLE_E               // Disable the extruder when not stepping
 #define DISABLE_OTHER_EXTRUDERS   // Keep only the active extruder enabled
 
-// @section motion
+// @section stepper drivers
 
 // Invert the stepper direction. Change (or reverse the motor connector) if an axis goes the wrong way.
 #define INVERT_X_DIR false
@@ -1847,8 +1879,6 @@
 //#define INVERT_U_DIR false
 //#define INVERT_V_DIR false
 //#define INVERT_W_DIR false
-
-// @section extruder
 
 // For direct drive extruder v9 set to true, for geared extruder set to false.
 #define INVERT_E0_DIR false
@@ -2494,7 +2524,7 @@
 //
 //#define TEMPERATURE_UNITS_SUPPORT
 
-// @section temperature
+// @section temperature presets
 
 //
 // Preheat Constants - Up to 10 are supported without changes
