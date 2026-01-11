@@ -4741,8 +4741,10 @@ void Temperature::isr() {
 
       if (parser.seenval('S')) autotemp.cfg.min = parser.value_celsius();
       if (parser.seenval('B')) autotemp.cfg.max = parser.value_celsius();
-      if (parser.seenval('F')) autotemp.cfg.factor = parser.value_float();
 
+      if (parser.seen('F')) {
+        autotemp.cfg.factor = parser.has_value() ? parser.value_float() : TERN(AUTOTEMP_PROPORTIONAL, AUTOTEMP_FACTOR_P, AUTOTEMP_FACTOR);
+      }
       autotemp.enabled = autotemp.cfg.factor != 0;
     }
 
