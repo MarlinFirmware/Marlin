@@ -424,12 +424,18 @@ void menu_move() {
 
       if (ftMotion.rtg.isActive() && !ftMotion.rtg.isDone()) {
         STATIC_ITEM(MSG_FTM_RT_RUNNING);
-        ACTION_ITEM(MSG_FTM_RT_STOP, []{ ftMotion.rtg.abort(); ui.refresh(); });
+        GCODES_ITEM(MSG_FTM_RT_STOP, F("M496"));
       }
       else {
-        GCODES_ITEM_N(X_AXIS, MSG_FTM_RT_START_N, F("M495 X S"));
-        GCODES_ITEM_N(Y_AXIS, MSG_FTM_RT_START_N, F("M495 Y S"));
-        GCODES_ITEM_N(Z_AXIS, MSG_FTM_RT_START_N, F("M495 Z S"));
+        #if HAS_X_AXIS
+          GCODES_ITEM_N(X_AXIS, MSG_FTM_RT_START_N, F("M495 X S"));
+        #endif
+        #if HAS_Y_AXIS
+          GCODES_ITEM_N(Y_AXIS, MSG_FTM_RT_START_N, F("M495 Y S"));
+        #endif
+        #if HAS_Z_AXIS
+          GCODES_ITEM_N(Z_AXIS, MSG_FTM_RT_START_N, F("M495 Z S"));
+        #endif
         SUBMENU(MSG_FTM_RETRIEVE_FREQ, menu_ftm_resonance_freq);
       }
 

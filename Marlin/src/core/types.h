@@ -579,7 +579,7 @@ struct XYval {
   FI constexpr XYval<uint32_t> asUInt32() const { return { uint32_t(x), uint32_t(y) }; }
   FI constexpr XYval<int64_t>   asInt64() const { return { int64_t(x), int64_t(y) }; }
   FI constexpr XYval<uint64_t> asUInt64() const { return { uint64_t(x), uint64_t(y) }; }
-  FI constexpr XYval<float>     asFloat() const { return { static_cast<float>(x), static_cast<float>(y) }; }
+  FI constexpr XYval<float>     asFloat() const { return { float(x), float(y) }; }
 
   // Marlin workspace shifting is done with G92 and M206
   FI XYval<float> asLogical() const { XYval<float> o = asFloat(); toLogical(o); return o; }
@@ -756,13 +756,13 @@ struct XYZval {
   FI constexpr XYZval<uint32_t> asUInt32() const { return NUM_AXIS_ARRAY(uint32_t(x), uint32_t(y), uint32_t(z), uint32_t(i), uint32_t(j), uint32_t(k), uint32_t(u), uint32_t(v), uint32_t(w)); }
   FI constexpr XYZval<int64_t>   asInt64() const { return NUM_AXIS_ARRAY(int64_t(x), int64_t(y), int64_t(z), int64_t(i), int64_t(j), int64_t(k), int64_t(u), int64_t(v), int64_t(w)); }
   FI constexpr XYZval<uint64_t> asUInt64() const { return NUM_AXIS_ARRAY(uint64_t(x), uint64_t(y), uint64_t(z), uint64_t(i), uint64_t(j), uint64_t(k), uint64_t(u), uint64_t(v), uint64_t(w)); }
-  FI constexpr XYZval<float>     asFloat() const { return NUM_AXIS_ARRAY(static_cast<float>(x), static_cast<float>(y), static_cast<float>(z), static_cast<float>(i), static_cast<float>(j), static_cast<float>(k), static_cast<float>(u), static_cast<float>(v), static_cast<float>(w)); }
+  FI constexpr XYZval<float>     asFloat() const { return NUM_AXIS_ARRAY(float(x), float(y), float(z), float(i), float(j), float(k), float(u), float(v), float(w)); }
 
   // Marlin workspace shifting is done with G92 and M206
   FI XYZval<float> asLogical() const { XYZval<float> o = asFloat(); toLogical(o); return o; }
   FI XYZval<float>  asNative() const { XYZval<float> o = asFloat(); toNative(o);  return o; }
 
-  // In-place cast to types having fewer fields
+  // In-place reinterpret-cast to types having fewer fields
   FI operator       XYval<T>&()       { return *(XYval<T>*)this; }
   FI operator const XYval<T>&() const { return *(const XYval<T>*)this; }
 
@@ -927,13 +927,13 @@ struct XYZEval {
   FI constexpr XYZEval<uint32_t> asUInt32() const { return LOGICAL_AXIS_ARRAY(uint32_t(e), uint32_t(x), uint32_t(y), uint32_t(z), uint32_t(i), uint32_t(j), uint32_t(k), uint32_t(u), uint32_t(v), uint32_t(w)); }
   FI constexpr XYZEval<int64_t>   asInt64() const { return LOGICAL_AXIS_ARRAY(int64_t(e), int64_t(x), int64_t(y), int64_t(z), int64_t(i), int64_t(j), int64_t(k), int64_t(u), int64_t(v), int64_t(w)); }
   FI constexpr XYZEval<uint64_t> asUInt64() const { return LOGICAL_AXIS_ARRAY(uint64_t(e), uint64_t(x), uint64_t(y), uint64_t(z), uint64_t(i), uint64_t(j), uint64_t(k), uint64_t(u), uint64_t(v), uint64_t(w)); }
-  FI constexpr XYZEval<float>     asFloat() const { return LOGICAL_AXIS_ARRAY(static_cast<float>(e), static_cast<float>(x), static_cast<float>(y), static_cast<float>(z), static_cast<float>(i), static_cast<float>(j), static_cast<float>(k), static_cast<float>(u), static_cast<float>(v), static_cast<float>(w)); }
+  FI constexpr XYZEval<float>     asFloat() const { return LOGICAL_AXIS_ARRAY(float(e), float(x), float(y), float(z), float(i), float(j), float(k), float(u), float(v), float(w)); }
 
   // Marlin workspace shifting is done with G92 and M206
   FI XYZEval<float> asLogical() const { XYZEval<float> o = asFloat(); toLogical(o); return o; }
   FI XYZEval<float>  asNative() const { XYZEval<float> o = asFloat(); toNative(o);  return o; }
 
-  // In-place cast to types having fewer fields
+  // In-place reinterpret-cast to types having fewer fields
   FI operator       XYval<T>&()        { return *(XYval<T>*)this; }
   FI operator const XYval<T>&()  const { return *(const XYval<T>*)this; }
   FI operator       XYZval<T>&()       { return *(XYZval<T>*)this; }

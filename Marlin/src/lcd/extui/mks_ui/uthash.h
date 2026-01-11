@@ -592,7 +592,7 @@ do {                                                                            
 
 
 /* SAX/FNV/OAT/JEN hash functions are macro variants of those listed at
- * http://eternallyconfuzzled.com/tuts/algorithms/jsw_tut_hashing.aspx
+ * https://eternallyconfuzzled.com/tuts/algorithms/jsw_tut_hashing.aspx
  * (archive link: https://archive.is/Ivcan )
  */
 #define HASH_SAX(key,keylen,hashv)                                               \
