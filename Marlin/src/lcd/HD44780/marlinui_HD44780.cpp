@@ -67,19 +67,19 @@
 //
 
 #if ENABLED(LCD_I2C_TYPE_PCF8575)
-  #warning "LCD_CLASS: LiquidCrystal_I2C (PCF8575)"
+
   LCD_CLASS lcd(LCD_I2C_ADDRESS, LCD_I2C_PIN_EN, LCD_I2C_PIN_RW, LCD_I2C_PIN_RS, LCD_I2C_PIN_D4, LCD_I2C_PIN_D5, LCD_I2C_PIN_D6, LCD_I2C_PIN_D7);
 
 #elif ANY(LCD_I2C_TYPE_MCP23017, LCD_I2C_TYPE_MCP23008)
-  #warning "LCD_CLASS: LiquidTWI2 (MCP23017/MCP23008)"
+
   LCD_CLASS lcd(LCD_I2C_ADDRESS OPTARG(DETECT_I2C_LCD_DEVICE, 1));
 
 #elif ENABLED(LCD_I2C_TYPE_PCA8574)
-  #warning "LCD_CLASS: LiquidCrystal_I2C (PCA8574)"
+
   LCD_CLASS lcd(LCD_I2C_ADDRESS, LCD_WIDTH, LCD_HEIGHT);
 
 #elif ENABLED(SR_LCD_2W_NL)
-  #warning "LCD_CLASS: LiquidCrystal_SR (2-Wire)"
+
   // 2 wire Non-latching LCD SR from:
   // https://github.com/fmalpartida/New-LiquidCrystal/wiki/schematics#user-content-ShiftRegister_connection
 
@@ -90,19 +90,17 @@
   );
 
 #elif ENABLED(MIGHTYBOARD_LCD)
-  #warning "LCD_CLASS: MightyboardLCDSerial (MIGHTYBOARD_LCD)"
+
   // 3-wire shift-register LCD for Mightyboard
   // Optimized in-tree implementation
   #if PIN_EXISTS(LCD_PWR)
-    #warning "MIGHTYBOARD: LCD_PWR_PIN defined - power control enabled"
     LCD_CLASS lcd(SR_STROBE_PIN, SR_DATA_PIN, SR_CLK_PIN, LCD_PWR_PIN);
   #else
-    #warning "MIGHTYBOARD: LCD_PWR_PIN not defined - power control disabled"
     LCD_CLASS lcd(SR_STROBE_PIN, SR_DATA_PIN, SR_CLK_PIN);
   #endif
 
 #elif ENABLED(SR_LCD_3W_NL)
-  #warning "LCD_CLASS: LiquidCrystalSerial (Sailfish SR_LCD_3W_NL)"
+
   // NewLiquidCrystal was not working
   // https://github.com/mikeshub/SailfishLCD
   // uses the code directly from Sailfish
@@ -110,7 +108,7 @@
   LCD_CLASS lcd(SR_STROBE_PIN, SR_DATA_PIN, SR_CLK_PIN);
 
 #elif ENABLED(LCM1602)
-  #warning "LCD_CLASS: LiquidCrystal_I2C (LCM1602)"
+
   LCD_CLASS lcd(0x27, 2, 1, 0, 4, 5, 6, 7, 3, POSITIVE);
 
 #elif ENABLED(YHCB2004)
@@ -131,11 +129,10 @@
     #error "YHCB2004 display requires YHCB2004_SS_PIN, YHCB2004_SCK_PIN, YHCB2004_MOSI_PIN, and YHCB2004_MISO_PIN."
   #endif
 
-  #warning "LCD_CLASS: LiquidCrystal_AIP31068_SPI (YHCB2004)"
   LCD_CLASS lcd(YHCB2004_SS_PIN, 20, 4, YHCB2004_SCK_PIN, YHCB2004_MOSI_PIN, YHCB2004_MISO_PIN); // SS, cols, rows, SCK, MOSI, MISO
 
 #else
-  #warning "LCD_CLASS: LiquidCrystal (Standard Direct)"
+
   // Standard direct-connected LCD implementations
   LCD_CLASS lcd(LCD_PINS_RS, LCD_PINS_EN, LCD_PINS_D4, LCD_PINS_D5, LCD_PINS_D6, LCD_PINS_D7);
 
@@ -391,8 +388,6 @@ void MarlinUI::set_custom_characters(const HD44780CharSet screen_charset/*=CHARS
 
 void MarlinUI::init_lcd() {
 
-  SERIAL_ECHOLN("DEBUG_LCD: about to call lcd.begin()");
-
   #if ENABLED(LCD_I2C_TYPE_PCF8575)
     lcd.begin(LCD_WIDTH, LCD_HEIGHT);
     #ifdef LCD_I2C_PIN_BL
@@ -416,8 +411,6 @@ void MarlinUI::init_lcd() {
   #else
     lcd.begin(LCD_WIDTH, LCD_HEIGHT);
   #endif
-
-  SERIAL_ECHOLN("DEBUG_LCD: lcd.begin returned");
 
   set_custom_characters(on_status_screen() ? CHARSET_INFO : CHARSET_MENU);
 

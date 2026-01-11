@@ -307,6 +307,12 @@
   #define IS_RRD_SC 1
   #define U8GLIB_SSD1309
 
+#elif ENABLED(MIGHTYBOARD_LCD)
+
+  #define IS_ULTIPANEL 1
+  #define LCD_WIDTH 20
+  #define LCD_HEIGHT 4
+
 #endif
 
 // ST7920-based graphical displays
@@ -541,54 +547,9 @@
   #define IS_ULTIPANEL 1
 #endif
 
-#if ENABLED(MIGHTYBOARD_INTERFACE)
-  #define MIGHTYBOARD_LCD
-  #define IS_ULTIPANEL 1    // Enables button menu navigation and functions (Marlin UI)
-  // #define HAS_WIRED_LCD 1
-  #define LCD_WIDTH 20
-  #define LCD_HEIGHT 4
+#if ANY(IS_ULTIPANEL, ULTRA_LCD)
+  #define HAS_WIRED_LCD 1
 #endif
-
-#if ANY(IS_ULTIPANEL, ULTRA_LCD, MIGHTYBOARD_LCD)
-  #define HAS_WIRED_LCD 1   // Enables LCD and button detection
-#endif
-
-
-// // Compile-time diagnostic warnings for MightyBoard builds
-// #if ENABLED(MIGHTYBOARD_LCD)
-//   #warning "MightyBoard build: MIGHTYBOARD_LCD is ENABLED"
-//   #if ENABLED(IS_ULTIPANEL)
-//     #warning "MightyBoard build: IS_ULTIPANEL is defined"
-//   #else
-//     #warning "MightyBoard build: IS_ULTIPANEL is NOT defined"
-//   #endif
-//   #if ENABLED(HAS_WIRED_LCD)
-//     #warning "MightyBoard build: HAS_WIRED_LCD is defined"
-//   #else
-//     #warning "MightyBoard build: HAS_WIRED_LCD is NOT defined"
-//   #endif
-//   #if ENABLED(HAS_MARLINUI_HD44780)
-//     #warning "MightyBoard build: HAS_MARLINUI_HD44780 is defined"
-//   #else
-//     #warning "MightyBoard build: HAS_MARLINUI_HD44780 is NOT defined"
-//   #endif
-//   #if ENABLED(HAS_MARLINUI_MENU)
-//     #warning "MightyBoard build: HAS_MARLINUI_MENU is defined"
-//   #else
-//     #warning "MightyBoard build: HAS_MARLINUI_MENU is NOT defined"
-//   #endif
-//   #if ENABLED(HAS_SHIFT_ENCODER)
-//     #warning "MightyBoard build: HAS_SHIFT_ENCODER is defined"
-//   #else
-//     #warning "MightyBoard build: HAS_SHIFT_ENCODER is NOT defined"
-//   #endif
-//   #if ENABLED(HAS_DIGITAL_BUTTONS)
-//     #warning "HAS_DIGITAL_BUTTONS enabled"
-//   #else
-//     #warning "MightyBoard build: HAS_DIGITAL_BUTTONS is NOT defined"
-//   #endif  
-// #endif
-
 
 #if ANY(IS_ULTIPANEL, REPRAPWORLD_KEYPAD)
   #define IS_NEWPANEL 1
@@ -967,7 +928,7 @@
   + ENABLED(CARTESIO_UI) \
   + ENABLED(ELB_FULL_GRAPHIC_CONTROLLER) \
   + ENABLED(FF_INTERFACEBOARD) \
-  + ENABLED(MIGHTYBOARD_INTERFACE) \
+  + ENABLED(MIGHTYBOARD_LCD) \
   + ENABLED(FYSETC_242_OLED_12864) \
   + ENABLED(G3D_PANEL) \
   + ENABLED(LCD_FOR_MELZI) \

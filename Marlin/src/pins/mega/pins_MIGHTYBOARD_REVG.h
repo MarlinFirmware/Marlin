@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2026 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -66,12 +66,12 @@
 #define E1_DIR_PIN                            15  // K7
 #define E1_ENABLE_PIN                         23  // A1
 
-//
-// I2C Digipots - MCP4018
-// Address 5E (2F << 1)
-// Set from 0 - 127 with stop bit.
-// (Ex. 3F << 1 | 1)
-//
+/**
+ * I2C Digipots - MCP4018
+ * Address 5E (2F << 1)
+ * Set from 0 - 127 with stop bit.
+ * (Ex. 3F << 1 | 1)
+ */
 #define DIGIPOTS_I2C_SCL                      28  // A6
 #define DIGIPOTS_I2C_SDA_X                    82  // D5
 #define DIGIPOTS_I2C_SDA_Y                    43  // L6
@@ -80,19 +80,18 @@
 #define DIGIPOTS_I2C_SDA_E1                   74  // J7
 
 #ifndef DIGIPOT_I2C_ADDRESS_A
-    #define DIGIPOT_I2C_ADDRESS_A           0x2F  // unshifted slave address (5E <- 2F << 1)
+  #define DIGIPOT_I2C_ADDRESS_A             0x2F  // unshifted slave address (5E <- 2F << 1)
 #endif
 #define DIGIPOT_ENABLE_I2C_PULLUPS                // MightyBoard doesn't have hardware I2C pin pull-ups.
 
 // Bed temp sensor pin
 #define TEMP_BED_PIN                           3  // F3
 
-/*
-*  Temperature Sensors
-*  Uses ADS1118 as ADC converter to read the hotend temperature sensors
-*  SPI for ADS1118 ADC, Uses software SPI
-*
-*/
+/**
+ * Temperature Sensors
+ * Uses ADS1118 as ADC converter to read the hotend temperature sensors
+ * SPI for ADS1118 ADC, Uses software SPI
+ */
 #define TEMP_0_CS_PIN                         79  // E6
 #define TEMP_0_SCK_PIN                        78  // E2
 #define TEMP_0_MISO_PIN                       80  // E7
@@ -123,90 +122,81 @@
 #define HEATER_BED_PIN              MOSFET_C_PIN  // H5
 
 #ifndef E0_AUTO_FAN_PIN
-    #define E0_AUTO_FAN_PIN         MOSFET_D_PIN
+  #define E0_AUTO_FAN_PIN           MOSFET_D_PIN
 #elif !defined(FAN0_PIN)
-    #define FAN0_PIN                MOSFET_D_PIN
+  #define FAN0_PIN                  MOSFET_D_PIN
 #endif
 
 #ifndef E1_AUTO_FAN_PIN
-    #define E1_AUTO_FAN_PIN         MOSFET_E_PIN
+  #define E1_AUTO_FAN_PIN           MOSFET_E_PIN
 #elif !defined(FAN1_PIN)
-    #define FAN1_PIN                MOSFET_E_PIN
+  #define FAN1_PIN                  MOSFET_E_PIN
 #endif
 
 //
 // LCD / Controller
 //
 
-#if HAS_WIRED_LCD
-#warning "HAS_WIRED_LCD is defined."
-  #if IS_RRD_FG_SC
+#if IS_RRD_FG_SC
 
-    #define LCD_PINS_RS                       33  // C4: LCD-STROBE
-    #define LCD_PINS_EN                       72  // J2: LEFT
-    #define LCD_PINS_D4                       35  // C2: LCD-CLK
-    #define LCD_PINS_D5                       32  // C5: RLED
-    #define LCD_PINS_D6                       34  // C3: LCD-DATA
-    #define LCD_PINS_D7                       31  // C6: GLED
+  #define BEEPER_PIN                           8  // H5, SD_WP
 
-    #define BTN_EN2                           75  // J4, UP
-    #define BTN_EN1                           73  // J3, DOWN
-    // STOP button connected as KILL_PIN
-    #define KILL_PIN                          14  // J1, RIGHT (not connected)
+  #define BTN_EN2                             75  // J4, UP
+  #define BTN_EN1                             73  // J3, DOWN
 
-    #define BEEPER_PIN                         8  // H5, SD_WP
+  #define LCD_PINS_RS                         33  // C4: LCD-STROBE
+  #define LCD_PINS_EN                         72  // J2: LEFT
+  #define LCD_PINS_D4                         35  // C2: LCD-CLK
+  #define LCD_PINS_D5                         32  // C5: RLED
+  #define LCD_PINS_D6                         34  // C3: LCD-DATA
+  #define LCD_PINS_D7                         31  // C6: GLED
 
-    // Onboard leds
-    #define STAT_LED_RED_PIN          SERVO0_PIN  // C1 (1280-EX1, DEBUG2)
-    #define STAT_LED_BLUE_PIN         SERVO1_PIN  // C0 (1280-EX2, DEBUG3)
+  // STOP button connected as KILL_PIN
+  #define KILL_PIN                            14  // J1, RIGHT (not connected)
 
-  #else
-    #warning "Using SR pins."
-    // Replicator 2 and 2X uses a HD44780 SPI display, pins: mosi, sclk, miso (not used),  missing: latch, click, power
+  // Onboard leds
+  #define STAT_LED_RED_PIN            SERVO0_PIN  // C1 (1280-EX1, DEBUG2)
+  #define STAT_LED_BLUE_PIN           SERVO1_PIN  // C0 (1280-EX2, DEBUG3)
 
-    #define SR_DATA_PIN                       37  // C0
-    #define SR_CLK_PIN                        36  // C1
-    #define SR_STROBE_PIN                     34  // C3
+#elif HAS_WIRED_LCD
 
-    #define SR_DETECT_PIN                     33  // C4
+  // Replicator 2 and 2X uses a HD44780 SPI display, pins: mosi, sclk, miso (not used),  missing: latch, click, power
 
-    #define BUTTON_LED_PIN                    35  // C2 To be implemented...
+  #define BEEPER_PIN                           6  // H3
 
-    #define BTN_CENTER                        39  // G2
-    #define BTN_UP                            76  // J5
-    #define BTN_DOWN                          75  // J4
-    #define BTN_LEFT                          77  // J6
-    #define BTN_RIGHT                         73  // J3
-
-    // Map the CLICK button to the encoder 'click' so Marlin treats it as SELECT
-    #ifndef BTN_ENC
-      #define BTN_ENC                 BTN_CENTER
-    #endif
-
-    #define LCD_PWR_PIN                       29  // A7
-
-    // Disable encoder
-    #undef BTN_EN1
-    #undef BTN_EN2
-
-    #define BEEPER_PIN                         6  // H3
-
-    //
-    // SD Card
-    //
-    // --- Secure Digital Card configuration ---
-    // NOTE: If SD support is enabled, it is implicitly assumed that the
-    // following pins are connected:
-    //  AVR    |   SD header
-    //---------|--------------
-    //  MISO   |   DATA_OUT
-    //  MOSI   |   DATA_IN
-    //  SCK    |   CLK
-
-    #define SD_WRITE_PIN                      41  // Sailfish mighty two: G0(41)  H5(D8)  -
-    #define SD_DETECT_PIN                     40  // Sailfish mighty two: G1(40) H6(D9)  L0(D49)
-    #define SD_SS_PIN                         53  // Sailfish mighty two: B0(53)
-
+  // Map the CLICK button to the encoder 'click' so Marlin treats it as SELECT
+  #ifndef BTN_ENC
+    #define BTN_ENC                   BTN_CENTER
   #endif
+
+  #define BTN_CENTER                          39  // G2
+  #define BTN_UP                              76  // J5
+  #define BTN_DOWN                            75  // J4
+  #define BTN_LEFT                            77  // J6
+  #define BTN_RIGHT                           73  // J3
+
+  #define SR_DATA_PIN                         37  // C0
+  #define SR_CLK_PIN                          36  // C1
+  #define SR_STROBE_PIN                       34  // C3
+  #define SR_DETECT_PIN                       33  // C4
+
+  #define LCD_PWR_PIN                         29  // A7
+
+  #define BUTTON_LED_PIN                      35  // C2 To be implemented...
+
+  /**
+   * SD Card
+   *
+   * NOTE: With SD support enabled it is implicitly assumed
+   * that the following pins are connected:
+   *  AVR    |   SD header
+   *---------|--------------
+   *  MISO   |   DATA_OUT
+   *  MOSI   |   DATA_IN
+   *  SCK    |   CLK
+   */
+  //#define SD_WRITE_PIN                      41  // Sailfish mighty two: G0(41)  H5(D8)  -
+  #define SD_DETECT_PIN                       40  // Sailfish mighty two: G1(40) H6(D9)  L0(D49)
+  #define SD_SS_PIN                           53  // Sailfish mighty two: B0(53)
 
 #endif // HAS_WIRED_LCD

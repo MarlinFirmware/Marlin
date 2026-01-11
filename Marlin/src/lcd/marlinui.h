@@ -825,10 +825,9 @@ public:
 
     static void update_buttons();
 
-    #if ENABLED(DIGITAL_BUTTON_L_R_MENU_BACK_STATUS)
-    // Requests set from interrupt context and handled in main loop
-    static volatile bool request_back;
-    static volatile bool request_return_to_status;
+    #if ENABLED(MIGHTYBOARD_BACK_STATUS_BUTTONS)
+      // Requests set from interrupt context and handled in main loop
+      static volatile bool request_back, request_return_to_status;
     #endif
 
     #if ENABLED(ENCODER_NOISE_FILTER)

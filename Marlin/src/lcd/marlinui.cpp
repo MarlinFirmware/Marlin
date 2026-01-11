@@ -70,10 +70,10 @@ MarlinUI ui;
   bool MarlinUI::wait_for_move; // = false
 #endif
 
-#if ENABLED(DIGITAL_BUTTON_L_R_MENU_BACK_STATUS)
-// Flags set from interrupt context; handled in main loop
-volatile bool MarlinUI::request_back = false;
-volatile bool MarlinUI::request_return_to_status = false;
+#if ENABLED(MIGHTYBOARD_BACK_STATUS_BUTTONS)
+  // Flags set from interrupt context; handled in main loop
+  volatile bool MarlinUI::request_back = false,
+                MarlinUI::request_return_to_status = false;
 #endif
 
 constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
@@ -320,39 +320,39 @@ void MarlinUI::init() {
     #endif
   #endif
 
-  // // Compile-time warnings to confirm whether this directional-button init block
-  // // is compiled for the current board. These will appear in the compiler output
-  // // only when ANY_BUTTON(UP, DOWN, LFT, RT) evaluates true for the current build.
-  // #if ENABLED(MIGHTYBOARD_RUNTIME_DEBUG) && ANY_BUTTON(UP, DOWN, LFT, RT)
-  //   #warning "Marlin: Compiling directional button init (UP/DOWN/LEFT/RIGHT)"
-  // #endif
+  // Compile-time warnings to confirm whether this directional-button init block
+  // is compiled for the current board. These will appear in the compiler output
+  // only when ANY_BUTTON(UP, DOWN, LFT, RT) evaluates true for the current build.
+  //#if ENABLED(MIGHTYBOARD_RUNTIME_DEBUG) && ANY_BUTTON(UP, DOWN, LFT, RT)
+  //  #warning "Marlin: Compiling directional button init (UP/DOWN/LEFT/RIGHT)"
+  //#endif
 
-  // // Optional runtime trace for MightyBoard UI/button flow.
-  // // Enable by uncommenting `#define MIGHTYBOARD_RUNTIME_DEBUG` in the board pins file.
-  // #if ENABLED(MIGHTYBOARD_RUNTIME_DEBUG)
-  //   SERIAL_ECHOLN("MarlinUI::init() - MIGHTYBOARD_RUNTIME_DEBUG active");
-  //   #if ENABLED(MIGHTYBOARD_BUTTON_PULLUPS)
-  //     SERIAL_ECHOLN("MIGHTYBOARD_BUTTON_PULLUPS: ENABLED");
-  //   #else
-  //     SERIAL_ECHOLN("MIGHTYBOARD_BUTTON_PULLUPS: DISABLED");
-  //   #endif
-  //   SERIAL_ECHO_MSG("LCD dimensions: ", LCD_WIDTH, " x ", LCD_HEIGHT);
-  //   SERIAL_ECHOLN("");
-
-  //   // Report encoder/click compile-time presence and pin numbers (if defined)
-  //   #if BUTTON_EXISTS(ENC)
-  //     SERIAL_ECHOLN("BUTTON_EXISTS(ENC): defined");
-  //     SERIAL_ECHO_MSG("BTN_ENC pin: ", BTN_ENC);
-  //     SERIAL_ECHOLN("");
-  //   #else
-  //     SERIAL_ECHOLN("BUTTON_EXISTS(ENC): NOT defined");
-  //   #endif
-
-  //   #ifdef BTN_CLICK
-  //     SERIAL_ECHO_MSG("BTN_CLICK pin: ", BTN_CLICK);
-  //     SERIAL_ECHOLN("");
-  //   #endif
-  // #endif
+  // Optional runtime trace for MightyBoard UI/button flow.
+  // Enable by uncommenting `#define MIGHTYBOARD_RUNTIME_DEBUG` in the board pins file.
+  //#if ENABLED(MIGHTYBOARD_RUNTIME_DEBUG)
+  //  SERIAL_ECHOLN("MarlinUI::init() - MIGHTYBOARD_RUNTIME_DEBUG active");
+  //  #if ENABLED(MIGHTYBOARD_BUTTON_PULLUPS)
+  //    SERIAL_ECHOLN("MIGHTYBOARD_BUTTON_PULLUPS: ENABLED");
+  //  #else
+  //    SERIAL_ECHOLN("MIGHTYBOARD_BUTTON_PULLUPS: DISABLED");
+  //  #endif
+  //  SERIAL_ECHO_MSG("LCD dimensions: ", LCD_WIDTH, " x ", LCD_HEIGHT);
+  //  SERIAL_ECHOLN("");
+  //
+  //// Report encoder/click compile-time presence and pin numbers (if defined)
+  //  #if BUTTON_EXISTS(ENC)
+  //    SERIAL_ECHOLN("BUTTON_EXISTS(ENC): defined");
+  //    SERIAL_ECHO_MSG("BTN_ENC pin: ", BTN_ENC);
+  //    SERIAL_ECHOLN("");
+  //  #else
+  //    SERIAL_ECHOLN("BUTTON_EXISTS(ENC): NOT defined");
+  //  #endif
+  //
+  //  #ifdef BTN_CLICK
+  //    SERIAL_ECHO_MSG("BTN_CLICK pin: ", BTN_CLICK);
+  //    SERIAL_ECHOLN("");
+  //  #endif
+  //#endif // MIGHTYBOARD_RUNTIME_DEBUG
 
   #if HAS_SHIFT_ENCODER
 
@@ -1085,19 +1085,20 @@ void MarlinUI::init() {
         else
           wait_for_unclick = false;
       }
-      #if ENABLED(DIGITAL_BUTTON_L_R_MENU_BACK_STATUS)
-      // Handle requests set from interrupt context (ISR-safe)
-      if (MarlinUI::request_back) {
-        MarlinUI::request_back = false;
-        quick_feedback();
-        goto_previous_screen();
-      }
-      if (MarlinUI::request_return_to_status) {
-        MarlinUI::request_return_to_status = false;
-        quick_feedback();
-        return_to_status();
-      }
+      #if ENABLED(MIGHTYBOARD_BACK_STATUS_BUTTONS)
+        // Handle requests set from interrupt context (ISR-safe)
+        if (request_back) {
+          request_back = false;
+          quick_feedback();
+          goto_previous_screen();
+        }
+        if (request_return_to_status) {
+          request_return_to_status = false;
+          quick_feedback();
+          return_to_status();
+        }
       #endif
+
       if (LCD_BACK_CLICKED()) {
         quick_feedback();
         goto_previous_screen();
@@ -1398,17 +1399,17 @@ void MarlinUI::init() {
     void MarlinUI::update_buttons() {
       const millis_t now = millis();
 
-        // #if ENABLED(MIGHTYBOARD_RUNTIME_DEBUG)
-        //   // Debug: print raw pin reads for encoder/click to diagnose BTN_ENC alias
-        //   #if BUTTON_EXISTS(ENC)
-        //     SERIAL_ECHO_MSG("DBG: READ(BTN_ENC) = ", READ(BTN_ENC));
-        //     SERIAL_ECHOLN("");
-        //   #endif
-        //   #ifdef BTN_CLICK
-        //     SERIAL_ECHO_MSG("DBG: READ(BTN_CLICK) = ", READ(BTN_CLICK));
-        //     SERIAL_ECHOLN("");
-        //   #endif
-        // #endif
+      //#if ENABLED(MIGHTYBOARD_RUNTIME_DEBUG)
+      //  // Debug: print raw pin reads for encoder/click to diagnose BTN_ENC alias
+      //  #if BUTTON_EXISTS(ENC)
+      //    SERIAL_ECHO_MSG("DBG: READ(BTN_ENC) = ", READ(BTN_ENC));
+      //    SERIAL_ECHOLN("");
+      //  #endif
+      //  #ifdef BTN_CLICK
+      //    SERIAL_ECHO_MSG("DBG: READ(BTN_CLICK) = ", READ(BTN_CLICK));
+      //    SERIAL_ECHOLN("");
+      //  #endif
+      //#endif
 
       #if HAS_MARLINUI_ENCODER
 
@@ -1442,38 +1443,31 @@ void MarlinUI::init() {
           if (BUTTON_PRESSED(UP)) {
             encoderDiff = pulses * (ENCODER_STEPS_PER_MENU_ITEM);
             next_button_update_ms = now + 300;
-            // #if ENABLED(MIGHTYBOARD_RUNTIME_DEBUG)
-            //   SERIAL_ECHO_MSG("update_buttons(): UP -> encoderDiff=", encoderDiff);
-            //   SERIAL_ECHOLN("");
-            // #endif
+            //#if ENABLED(MIGHTYBOARD_RUNTIME_DEBUG)
+            //  SERIAL_ECHO_MSG("update_buttons(): UP -> encoderDiff=", encoderDiff);
+            //  SERIAL_ECHOLN("");
+            //#endif
           }
           else if (BUTTON_PRESSED(DOWN)) {
             encoderDiff = pulses * -(ENCODER_STEPS_PER_MENU_ITEM);
             next_button_update_ms = now + 300;
           }
-          #if ENABLED(DIGITAL_BUTTON_L_R_MENU_BACK_STATUS)
-            // Alternative behavior: LEFT/RIGHT for menu navigation (back/home) instead of encoder scrolling
-            else if (BUTTON_PRESSED(LEFT)) {
-              // ISR-safe: request action to be handled in main loop
-              MarlinUI::request_back = true;
-              next_button_update_ms = now + 300;
-            }
-            else if (BUTTON_PRESSED(RIGHT)) {
-              // ISR-safe: request action to be handled in main loop
-              MarlinUI::request_return_to_status = true;
-              next_button_update_ms = now + 300;
-            }
-          #else
-            // Default behavior: LEFT/RIGHT change encoder position for menu item selection
-            else if (BUTTON_PRESSED(LEFT)) {
+          else if (BUTTON_PRESSED(LEFT)) {
+            #if ENABLED(MIGHTYBOARD_BACK_STATUS_BUTTONS)
+              request_back = true;              // ISR-safe: flag action run in the main loop
+            #else
               encoderDiff = -pulses;
-              next_button_update_ms = now + 300;
-            }
-            else if (BUTTON_PRESSED(RIGHT)) {
-              encoderDiff = pulses;
-              next_button_update_ms = now + 300;
-            }
-          #endif // DIGITAL_BUTTON_L_R_MENU_BACK_STATUS
+            #endif
+            next_button_update_ms = now + 300;
+          }
+          else if (BUTTON_PRESSED(RIGHT)) {
+            #if ENABLED(MIGHTYBOARD_BACK_STATUS_BUTTONS)
+              request_return_to_status = true;  // ISR-safe: flag action run in the main loop
+            #else
+              encoderDiff = -pulses;
+            #endif
+            next_button_update_ms = now + 300;
+          }
 
         #endif // UP || DOWN || LEFT || RIGHT
 

@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2026 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -58,33 +58,25 @@ void MightyboardLCDSerial::begin(uint8_t cols, uint8_t rows, uint8_t charsize) {
   _rows = rows;
 
   // Diagnostic output showing LCD configuration
-  #ifdef MIGHTYBOARD_RUNTIME_DEBUG
-    SERIAL_ECHOLN("MightyboardLCDSerial::begin() - LCD Configuration:");
-    SERIAL_ECHO("  Dimensions: ");
-    SERIAL_ECHO(_cols);
-    SERIAL_ECHO(" x ");
-    SERIAL_ECHOLN(_rows);
+  #if ENABLED(MIGHTYBOARD_RUNTIME_DEBUG)
+    SERIAL_ECHOLNPGM("MightyboardLCDSerial::begin() - LCD Configuration:");
+    SERIAL_ECHOLNPGM("  Dimensions: ", _cols, " x ", _rows);
     #ifdef LCD_WIDTH
-      SERIAL_ECHO("  Expected from config: ");
-      SERIAL_ECHO(LCD_WIDTH);
-      SERIAL_ECHO(" x ");
-      SERIAL_ECHOLN(LCD_HEIGHT);
+      SERIAL_ECHOLNPGM("  Expected from config: ", LCD_WIDTH, " x ", LCD_HEIGHT);
     #endif
-    SERIAL_ECHO("  Charsize: ");
+    SERIAL_ECHOPGM("  Charsize: ");
     if (charsize == LCD_5x8DOTS)
-      SERIAL_ECHOLN("5x8 dots");
+      SERIAL_ECHOLNPGM("5x8 dots");
     else if (charsize == LCD_5x10DOTS)
-      SERIAL_ECHOLN("5x10 dots");
+      SERIAL_ECHOLNPGM("5x10 dots");
     else
-      SERIAL_ECHOLN("unknown");
+      SERIAL_ECHOLNPGM("unknown");
   #endif
-  if (rows > 1) {
-    _displayfunction |= LCD_2LINE;
-  }
 
-  if ((charsize != LCD_5x8DOTS) && (rows == 1)) {
+  if (rows > 1)
+    _displayfunction |= LCD_2LINE;
+  else if (rows == 1 && charsize != LCD_5x8DOTS)
     _displayfunction |= LCD_5x10DOTS;
-  }
 
   // Power-up delay as per HD44780 datasheet (> 40ms required)
   delay(50);
@@ -220,9 +212,7 @@ void MightyboardLCDSerial::noAutoscroll() {
 void MightyboardLCDSerial::createChar(uint8_t location, uint8_t charmap[]) {
   location &= 0x7; // Only 8 locations available
   sendCommand(LCD_SETCGRAMADDR | (location << 3));
-  for (int8_t i = 0; i < 8; i++) {
-    sendData(charmap[i]);
-  }
+  for (int8_t i = 0; i < 8; i++) sendData(charmap[i]);
 }
 
 /**
@@ -293,12 +283,11 @@ inline void MightyboardLCDSerial::sendData(uint8_t value) {
 void MightyboardLCDSerial::write4bits(uint8_t value, bool dataMode) {
   // Shift data to upper 4 bits (D7-D4 in HD44780)
   uint8_t bits = value << 4;
-  
+
   // Set RS bit (bit 1) based on mode
   // On Mightyboard: RS = 0b0010
-  if (dataMode)
-    bits |= 0b0010;  // RS = 1 for data
-  
+  if (dataMode) bits |= 0b0010;  // RS = 1 for data
+
   // Pulse enable to latch the nibble
   pulseEnable(bits);
 }
@@ -310,7 +299,7 @@ void MightyboardLCDSerial::write4bits(uint8_t value, bool dataMode) {
  */
 void MightyboardLCDSerial::pulseEnable(uint8_t value) {
   _delay_us(1);
-  value |= 0b01000;  // Set enable HIGH
+  value |= 0b00001000;  // Set enable HIGH
   writeSerial(value);
   _delay_us(1);
   value &= 0b11110111;  // Set enable LOW
@@ -332,7 +321,7 @@ void MightyboardLCDSerial::writeSerial(uint8_t value) {
     digitalWrite(_clk_pin, HIGH);
     _delay_us(1);  // Clock pulse width
   }
-  
+
   // Pulse strobe to latch data into display shift register
   digitalWrite(_strobe_pin, HIGH);
   _delay_us(1);

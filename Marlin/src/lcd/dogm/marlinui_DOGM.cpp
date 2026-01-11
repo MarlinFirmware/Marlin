@@ -304,10 +304,9 @@ void MarlinUI::init_lcd() {
     u8g.init(U8G_PARAM);
     did_init_u8g = true;
   }
-    SERIAL_ECHOLN("init LCD");
-  #if PIN_EXISTS(LCD_PWR_PIN)
-    SERIAL_ECHOLN("Pwr pin low");
-    digitalWrite(LCD_PWR_PIN, LOW); 
+
+  #if PIN_EXISTS(LCD_PWR)
+    OUT_WRITE(LCD_PWR_PIN, LOW);
   #endif
 
   #if PIN_EXISTS(LCD_BACKLIGHT)
@@ -344,7 +343,6 @@ void MarlinUI::init_lcd() {
 
   #if PIN_EXISTS(LCD_BACKLIGHT) && ENABLED(DELAYED_BACKLIGHT_INIT)
     WRITE(LCD_BACKLIGHT_PIN, HIGH);
-    SERIAL_ECHOLN("Backlight high");
   #endif
 
   TERN_(HAS_LCD_CONTRAST, refresh_contrast());
