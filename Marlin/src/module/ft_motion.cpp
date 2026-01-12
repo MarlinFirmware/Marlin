@@ -462,6 +462,10 @@ bool FTMotion::plan_next_block() {
     // Offset linear advance previous position
     prev_traj_e += offset;
 
+    #if ENABLED(HAS_FTM_DIR_CHANGE_HOLD)
+      last_target_traj.e += offset;
+    #endif
+
     // Offset stepper current position
     const int64_t delta_steps_q48_16 = offset * planner.settings.axis_steps_per_mm[block_extruder_axis] * (1ULL << 16);
     stepping.curr_steps_q48_16.E += delta_steps_q48_16;
