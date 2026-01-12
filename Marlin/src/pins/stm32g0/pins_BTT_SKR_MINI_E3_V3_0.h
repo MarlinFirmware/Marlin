@@ -455,9 +455,9 @@
 //
 #define BOARD_NEOPIXEL_PIN                  PA8   // LED driving pin
 #ifndef BOARD_HAS_DCDC5V
-  #define BOARD_NEOPIXEL_MAX                  8   // Max number of NEOPIXELS supported on this board
+  #define BOARD_NEOPIXEL_MAX                  7   // Max number of NEOPIXELS supported on this board
 #else
-  #define BOARD_NEOPIXEL_MAX                 30   // With 5V DC-DC converter
+  #define BOARD_NEOPIXEL_MAX                 29   // With 5V DC-DC converter
 #endif
 
 // Pins for documentation and sanity checks only.
