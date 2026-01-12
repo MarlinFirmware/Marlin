@@ -466,34 +466,42 @@ xyze_float_t FTMotion::calc_traj_point(const float dist) {
   LOGICAL_AXIS_MAP_LC(_SET_TRAJ);
 
   #if FTM_HAS_LIN_ADVANCE
-    const float advK = planner.get_advance_k();
+
     // Apply LA/NLE only to printing (not retract/unretract) blocks
-    if (use_advance_lead && (advK TERN(NONLINEAR_EXTRUSION, || stepper.ne.settings.enabled,))) {
-      TERN(NONLINEAR_EXTRUSION,, const) float traj_e = traj_coords.e;
-      const float traj_e_delta = traj_e - prev_traj_e; // extruder delta in mm, always positive for use_advance_lead (printing moves)
-      const float e_rate = traj_e_delta * FTM_FS;      // extruder velocity in mm/s
 
-      traj_coords.e += e_rate * advK;
+    if (use_advance_lead) {
+      const float advK = planner.get_advance_k();
+      if (advK || TERN0(NONLINEAR_EXTRUSION, stepper.ne.settings.enabled)) {
+        float traj_e = traj_coords.e;
+        const float traj_e_delta = traj_e - prev_traj_e; // extruder delta in mm, always positive for use_advance_lead (printing moves)
+        const float e_rate = traj_e_delta * FTM_FS;      // extruder velocity in mm/s
 
-      #if ENABLED(NONLINEAR_EXTRUSION)
-        if (stepper.ne.settings.enabled) {
-          const float multiplier = max(stepper.ne.settings.coeff.C, stepper.ne.settings.coeff.A * sq(e_rate) + stepper.ne.settings.coeff.B * e_rate + stepper.ne.settings.coeff.C);
-          const float nle_term = traj_e_delta * (multiplier - 1);
+        traj_coords.e += e_rate * advK;
 
-          traj_coords.e += nle_term;
-          traj_e += nle_term;
-          startPos.e += nle_term;
-          endPos_prevBlock.e += nle_term;
-        }
-      #endif
+        #if ENABLED(NONLINEAR_EXTRUSION)
+          if (stepper.ne.settings.enabled) {
+            const nonlinear_coeff_t &coeff = stepper.ne.settings.coeff;
+            const float multiplier = max(coeff.C, coeff.A * sq(e_rate) + coeff.B * e_rate + coeff.C),
+                        nle_term = traj_e_delta * (multiplier - 1);
 
-      prev_traj_e = traj_e;
+            traj_coords.e += nle_term;
+            traj_e += nle_term;
+            startPos.e += nle_term;
+            endPos_prevBlock.e += nle_term;
+          }
+        #endif
+
+        prev_traj_e = traj_e;
+      }
     }
-  #endif
+
+  #endif // FTM_HAS_LIN_ADVANCE
 
   // Update shaping parameters if needed.
   switch (cfg.dynFreqMode) {
+
     #if HAS_DYNAMIC_FREQ_MM
+
       case dynFreqMode_Z_BASED: {
         static float oldz = 0.0f;
         const float z = traj_coords.z;
@@ -510,9 +518,11 @@ xyze_float_t FTMotion::calc_traj_point(const float dist) {
           shaping.refresh_largest_delay_samples();
         }
       } break;
+
     #endif
 
     #if HAS_DYNAMIC_FREQ_G
+
       case dynFreqMode_MASS_BASED:
         // Update constantly. The optimization done for Z value makes
         // less sense for E, as E is expected to constantly change.
@@ -524,6 +534,7 @@ xyze_float_t FTMotion::calc_traj_point(const float dist) {
         #endif
         shaping.refresh_largest_delay_samples();
         break;
+
     #endif
 
     default: break;

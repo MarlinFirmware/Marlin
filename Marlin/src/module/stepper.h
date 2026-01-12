@@ -293,11 +293,13 @@ constexpr ena_mask_t enable_overlap[] = {
   #endif
 
   typedef struct {
+    float A, B, C;
+    void reset() { A = B = 0.0f; C = 1.0f; }
+  } nonlinear_coeff_t;
+
+  typedef struct {
     bool enabled;
-    struct {
-      float A, B, C;
-      void reset() { A = B = 0.0f; C = 1.0f; }
-    } coeff;
+    nonlinear_coeff_t coeff;
     void reset() {
       enabled = ENABLED(NONLINEAR_EXTRUSION_DEFAULT_ON);
       coeff.reset();
