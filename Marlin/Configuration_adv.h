@@ -1239,26 +1239,22 @@
   #define FTM_MIN_SHAPE_FREQ           20   // (Hz) Minimum shaping frequency, lower consumes more RAM
 
   /**
-   * TMC2208 Direction-Flip Delay
-   *
-   * Enable on axes that use stealthchop and if you notice that motor turns off during print,
-   * typically only necessary on E.
-   *
-   * TMC2208 / TMC2208_STANDALONE drivers may require a short delay after a DIR change
-   * to prevent a standstill error when using stealthChop (the standalone default).
-   * When enabled, FT Motion will hold that axis still for > 750µs after a DIR change.
+   * TMC2208 / TMC2208_STANDALONE drivers require a brief pause after a DIR change
+   * to prevent a standstill shutdown when using StealthChop (the standalone default).
+   * These options cause FT Motion to delay for > 750µs after a DIR change on a given axis.
+   * Disable only if you are certain that this can never happen with your TMC2208s.
    */
   #if AXIS_DRIVER_TYPE_X(TMC2208) || AXIS_DRIVER_TYPE_X(TMC2208_STANDALONE)
-    //#define FTM_DIR_CHANGE_HOLD_X 1
+    #define FTM_DIR_CHANGE_HOLD_X
   #endif
   #if AXIS_DRIVER_TYPE_Y(TMC2208) || AXIS_DRIVER_TYPE_Y(TMC2208_STANDALONE)
-    //#define FTM_DIR_CHANGE_HOLD_Y 1
+    #define FTM_DIR_CHANGE_HOLD_Y
   #endif
   #if AXIS_DRIVER_TYPE_Z(TMC2208) || AXIS_DRIVER_TYPE_Z(TMC2208_STANDALONE)
-    //#define FTM_DIR_CHANGE_HOLD_Z 1
+    #define FTM_DIR_CHANGE_HOLD_Z
   #endif
   #if HAS_E_DRIVER(TMC2208) || HAS_E_DRIVER(TMC2208_STANDALONE)
-    //#define FTM_DIR_CHANGE_HOLD_E 1
+    #define FTM_DIR_CHANGE_HOLD_E
   #endif
 
 #endif // FT_MOTION
