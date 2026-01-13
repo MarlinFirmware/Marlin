@@ -380,7 +380,7 @@ bool FTMotion::plan_next_block() {
       if (current_block->is_sync_pos()) stepper._set_position(current_block->position);
       continue;
     }
-    ensure_float_precision();
+    ensure_extruder_float_precision();
 
     #if ENABLED(POWER_LOSS_RECOVERY)
       recovery.info.sdpos = current_block->sdpos;
@@ -441,7 +441,7 @@ bool FTMotion::plan_next_block() {
    * resolution = 2^(floor(log2(|x|)) - 23)
    * By resetting at ±1'000mm (1 meter), we get a minimum resolution of ~ 0.00006mm, enough for smoothing to work well.
    */
-  void FTMotion::ensure_float_precision() {
+  void FTMotion::ensure_extruder_float_precision() {
     constexpr float FTM_POSITION_WRAP_THRESHOLD = 1000; // (mm) Reset when position exceeds this to prevent floating point precision loss
     if (ABS(endPos_prevBlock.E) < FTM_POSITION_WRAP_THRESHOLD) return;
 
@@ -462,6 +462,7 @@ bool FTMotion::plan_next_block() {
     // Offset linear advance previous position
     prev_traj_e += offset;
 
+    // Make sure the difference is accounted-for in the past
     last_target_traj.e += offset;
 
     // Offset stepper current position
