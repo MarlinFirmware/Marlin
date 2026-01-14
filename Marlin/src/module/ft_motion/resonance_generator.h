@@ -55,12 +55,16 @@ class ResonanceGenerator {
       rt_time = t;
       active = true;
       done = false;
+      // Precompute frequency multiplier
+      current_freq = rt_params.min_freq;
+      const float inv_octave_duration = 1.0f / rt_params.octave_duration;
+      freq_mul = exp2f(FTM_TS * inv_octave_duration);
     }
 
     // Return frequency based on timeline
     float getFrequencyFromTimeline() {
       // Logarithmic approach with duration per octave
-      return rt_params.min_freq * 2.0f * exp2f((rt_time / rt_params.octave_duration) - 1);
+      return rt_params.min_freq * exp2f(timeline / rt_params.octave_duration);
     }
 
     void fill_stepper_plan_buffer();                // Fill stepper plan buffer with trajectory points
@@ -76,6 +80,8 @@ class ResonanceGenerator {
   private:
     float fast_sin(float x);  // Fast sine approximation
     static float rt_time;     // Test timer
+    float freq_mul;           // Frequency multiplier for sine sweeping
+    float current_freq;       // Current frequency being generated in sinusoidal motion
     static bool active;       // Resonance test active
     static bool done;         // Resonance test done
 };

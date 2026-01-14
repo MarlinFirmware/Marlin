@@ -1188,10 +1188,18 @@ class Planner {
   #define PLANNER_XY_FEEDRATE_MM_S 60.0f
 #endif
 
-#define ANY_AXIS_MOVES(BLOCK)  \
-  (false NUM_AXIS_GANG(        \
-  || BLOCK->steps.a, || BLOCK->steps.b, || BLOCK->steps.c, \
-  || BLOCK->steps.i, || BLOCK->steps.j, || BLOCK->steps.k, \
-  || BLOCK->steps.u, || BLOCK->steps.v, || BLOCK->steps.w))
+#define XYZ_HAS_STEPS(B) NUM_AXIS_ANY( \
+  B->steps.a, B->steps.b, B->steps.c,  \
+  B->steps.i, B->steps.j, B->steps.k,  \
+  B->steps.u, B->steps.v, B->steps.w)
+
+#if MIN_STEPS_PER_SEGMENT <= 1
+  #define XYZ_HAS_ENOUGH_STEPS XYZ_HAS_STEPS
+#else
+  #define XYZ_HAS_ENOUGH_STEPS(B) NUM_AXIS_ANY( \
+    B->steps.a >= MIN_STEPS_PER_SEGMENT, B->steps.b >= MIN_STEPS_PER_SEGMENT, B->steps.c >= MIN_STEPS_PER_SEGMENT, \
+    B->steps.i >= MIN_STEPS_PER_SEGMENT, B->steps.j >= MIN_STEPS_PER_SEGMENT, B->steps.k >= MIN_STEPS_PER_SEGMENT, \
+    B->steps.u >= MIN_STEPS_PER_SEGMENT, B->steps.v >= MIN_STEPS_PER_SEGMENT, B->steps.w >= MIN_STEPS_PER_SEGMENT)
+#endif
 
 extern Planner planner;

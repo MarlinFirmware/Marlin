@@ -2905,7 +2905,7 @@ void Stepper::isr() {
           ne.edividend = advance_dividend.e;
           const float scale = (float(ne.edividend) / advance_divisor) * planner.mm_per_step[E_AXIS_N(current_block->extruder)];
           ne.scale_q24 = _BV32(24) * scale;
-          if (ne.settings.enabled && current_block->direction_bits.e && ANY_AXIS_MOVES(current_block)) {
+          if (ne.settings.enabled && current_block->direction_bits.e && XYZ_HAS_STEPS(current_block)) {
             ne.q24.A = _BV32(24) * ne.settings.coeff.A;
             ne.q24.B = _BV32(24) * ne.settings.coeff.B;
             ne.q24.C = _BV32(24) * ne.settings.coeff.C;
@@ -2959,7 +2959,7 @@ void Stepper::isr() {
         const bool forward_e = step_rate > 0;
 
         #if ENABLED(NONLINEAR_EXTRUSION)
-          if (ne.settings.enabled && forward_e && ANY_AXIS_MOVES(current_block)) {
+          if (ne.settings.enabled && forward_e && XYZ_HAS_STEPS(current_block)) {
             // Maximum polynomial value is just above 1, like 1.05..1.2, less than 2 anyway, so we can use 30 bits for fractional part
             int32_t vd_q30 = ne.q30.A * sq(step_rate) + ne.q30.B * step_rate;
             NOLESS(vd_q30, 0);
@@ -3377,6 +3377,10 @@ void Stepper::init() {
 #endif // HAS_ZV_SHAPING
 
 /**
+ * Position
+ */
+
+/**
  * Set the stepper positions directly in steps
  *
  * The input is based on the typical per-axis XYZE steps.
@@ -3502,20 +3506,11 @@ void Stepper::set_axis_position(const AxisEnum a, const int32_t &v) {
     AVR_ATOMIC_SECTION_END();
   }
 
-#endif // HAS_EXTRUDERS
+#endif
 
-#if ENABLED(FT_MOTION)
-
-  void Stepper::ftMotion_syncPosition() {
-    planner.synchronize();
-
-    // Update stepper positions from the planner
-    AVR_ATOMIC_SECTION_START();
-    count_position = planner.position;
-    AVR_ATOMIC_SECTION_END();
-  }
-
-#endif // FT_MOTION
+/**
+ * Endstops
+ */
 
 /**
  * Record stepper positions and discard the rest of the current block
@@ -3561,6 +3556,10 @@ int32_t Stepper::triggered_position(const AxisEnum axis) {
   return v;
 }
 
+/**
+ * Reporting
+ */
+
 #if ANY(CORE_IS_XY, CORE_IS_XZ, MARKFORGED_XY, MARKFORGED_YX, IS_SCARA, DELTA)
   #define SAYS_A 1
 #endif
@@ -3591,6 +3590,15 @@ void Stepper::report_positions() {
 }
 
 #if ENABLED(FT_MOTION)
+
+  void Stepper::ftMotion_syncPosition() {
+    planner.synchronize();
+
+    // Update stepper positions from the planner
+    AVR_ATOMIC_SECTION_START();
+    count_position = planner.position;
+    AVR_ATOMIC_SECTION_END();
+  }
 
   /**
    * Run stepping for FT Motion from the Stepper ISR at regular short intervals.
@@ -3668,11 +3676,11 @@ void Stepper::report_positions() {
     #endif
 
     // Only wait for axes without edge stepping
-    const bool any_wait = false LOGICAL_AXIS_GANG(
-      || (!e_axis_has_dedge  && step_bits.E),
-      || (!AXIS_HAS_DEDGE(X) && step_bits.X), || (!AXIS_HAS_DEDGE(Y) && step_bits.Y), || (!AXIS_HAS_DEDGE(Z) && step_bits.Z),
-      || (!AXIS_HAS_DEDGE(I) && step_bits.I), || (!AXIS_HAS_DEDGE(J) && step_bits.J), || (!AXIS_HAS_DEDGE(K) && step_bits.K),
-      || (!AXIS_HAS_DEDGE(U) && step_bits.U), || (!AXIS_HAS_DEDGE(V) && step_bits.V), || (!AXIS_HAS_DEDGE(W) && step_bits.W)
+    const bool any_wait = LOGICAL_AXIS_ANY(
+      !e_axis_has_dedge  && step_bits.E,
+      !AXIS_HAS_DEDGE(X) && step_bits.X, !AXIS_HAS_DEDGE(Y) && step_bits.Y, !AXIS_HAS_DEDGE(Z) && step_bits.Z,
+      !AXIS_HAS_DEDGE(I) && step_bits.I, !AXIS_HAS_DEDGE(J) && step_bits.J, !AXIS_HAS_DEDGE(K) && step_bits.K,
+      !AXIS_HAS_DEDGE(U) && step_bits.U, !AXIS_HAS_DEDGE(V) && step_bits.V, !AXIS_HAS_DEDGE(W) && step_bits.W
     );
 
     // Allow pulses to be registered by stepper drivers
@@ -3685,6 +3693,10 @@ void Stepper::report_positions() {
   } // Stepper::ftMotion_stepper
 
 #endif // FT_MOTION
+
+/**
+ * Babystepping
+ */
 
 #if ENABLED(BABYSTEPPING)
 

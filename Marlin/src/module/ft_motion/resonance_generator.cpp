@@ -61,7 +61,11 @@ float ResonanceGenerator::fast_sin(float x) {
   // Negative? The truncation is one too high.
   if (y < 0.0f) --k;                // Correct for negatives
 
-  const float r = x - k * M_TAU;    // -π <= r <= π
+  float r = x - k * M_TAU;    // -π <= r <= π
+  if (r > M_PI)
+    r -= M_TAU;
+  else if (r < -M_PI)
+    r += M_TAU;
 
   // Cheap polynomial approximation of sin(r)
   return r * (1.27323954f - 0.405284735f * ABS(r));
@@ -76,8 +80,8 @@ void ResonanceGenerator::fill_stepper_plan_buffer() {
 
   while (!ftMotion.stepping.is_full()) {
     // Calculate current frequency
-    const float freq = getFrequencyFromTimeline();
-    if (freq > rt_params.max_freq) {
+    current_freq *= freq_mul;
+    if (current_freq > rt_params.max_freq) {
       done = true;
       return;
     }
@@ -85,10 +89,10 @@ void ResonanceGenerator::fill_stepper_plan_buffer() {
     // Amplitude based on a sinusoidal wave : A = accel / (4 * PI^2 * f^2)
     //const float accel_magnitude = rt_params.accel_per_hz * freq;
     //const float amplitude = rt_params.amplitude_correction * accel_magnitude / (4.0f * sq(M_PI) * sq(freq));
-    const float amplitude = amplitude_precalc / freq;
+    const float amplitude = amplitude_precalc / current_freq;
 
     // Phase in radians
-    const float phase = freq * rt_factor;
+    const float phase = current_freq * rt_factor;
 
     // Position Offset : between -A and +A
     const float pos_offset = amplitude * fast_sin(phase);

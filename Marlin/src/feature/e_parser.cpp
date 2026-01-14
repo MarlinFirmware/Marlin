@@ -150,7 +150,7 @@ void EmergencyParser::update(EmergencyParser::State &state, const uint8_t c) {
     case EP_M4:
       switch (c) {
         case '1' :state = EP_M41;    break;
-        #if ENABLED(FT_MOTION_RESONANCE_TEST)
+        #if ENABLED(FTM_RESONANCE_TEST)
           case '9': state = EP_M49;  break;
         #endif
         default: state  = EP_IGNORE;
