@@ -30,8 +30,8 @@
   #include "ft_motion/trajectory_poly5.h"
   #include "ft_motion/trajectory_poly6.h"
 #endif
-#if ENABLED(FTM_RESONANCE_TEST)
-  #include "ft_motion/resonance_generator.h"
+#if ENABLED(RESONANCE_TEST)
+  #include "../feature/resonance/resonance_generator.h"
 #endif
 
 #if HAS_FTM_SHAPING
@@ -238,7 +238,7 @@ typedef struct FTConfig {
  */
 class FTMotion {
 
-  #if ENABLED(FTM_RESONANCE_TEST)
+  #if ENABLED(RESONANCE_TEST)
     friend void ResonanceGenerator::fill_stepper_plan_buffer();
   #endif
 
@@ -268,9 +268,8 @@ class FTMotion {
     // Public methods
     static void init();
     static void loop();                                   // Controller main, to be invoked from non-isr task.
-    #if ENABLED(FTM_RESONANCE_TEST)
+    #if ENABLED(RESONANCE_TEST)
       static void start_resonance_test();                 // Start a resonance test with given parameters
-      static ResonanceGenerator rtg;                      // Resonance trajectory generator instance
     #endif
 
     #if ENABLED(FTM_SMOOTHING)

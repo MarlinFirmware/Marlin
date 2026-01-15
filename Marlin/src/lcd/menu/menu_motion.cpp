@@ -405,15 +405,15 @@ void menu_move() {
 
   #endif // FTM_POLYS
 
-  #if ENABLED(FTM_RESONANCE_TEST)
+  #if ENABLED(RESONANCE_TEST)
 
     void menu_ftm_resonance_freq() {
       START_MENU();
       BACK_ITEM(MSG_FTM_RESONANCE_TEST);
 
       STATIC_ITEM(MSG_FTM_RETRIEVE_FREQ);
-      EDIT_ITEM(float62, MSG_FTM_TIMELINE_FREQ, &ftMotion.rtg.timeline, 0.0f, 600.0f);
-      PSTRING_ITEM(MSG_FTM_RESONANCE_FREQ, ftostr53_63(ftMotion.rtg.getFrequencyFromTimeline()), SS_FULL);
+      EDIT_ITEM(float62, MSG_FTM_TIMELINE_FREQ, &rtg.timeline, 0.0f, 600.0f);
+      PSTRING_ITEM(MSG_FTM_RESONANCE_FREQ, ftostr53_63(rtg.getFrequencyFromTimeline()), SS_FULL);
 
       END_MENU();
     }
@@ -422,7 +422,7 @@ void menu_move() {
       START_MENU();
       BACK_ITEM(MSG_FIXED_TIME_MOTION);
 
-      if (ftMotion.rtg.isActive() && !ftMotion.rtg.isDone()) {
+      if (rtg.isActive() && !rtg.isDone()) {
         STATIC_ITEM(MSG_FTM_RT_RUNNING);
         GCODES_ITEM(MSG_FTM_RT_STOP, F("M496"));
       }
@@ -442,7 +442,7 @@ void menu_move() {
       END_MENU();
     }
 
-  #endif // FTM_RESONANCE_TEST
+  #endif // RESONANCE_TEST
 
   #if HAS_DYNAMIC_FREQ
 
@@ -559,7 +559,7 @@ void menu_move() {
         queue.inject(TS(F("M493"), IAXIS_CHAR(MenuItemBase::itemIndex), 'T', int(editable.state)));
       });
 
-      #if ENABLED(FTM_RESONANCE_TEST)
+      #if ENABLED(RESONANCE_TEST)
         SUBMENU(MSG_FTM_RESONANCE_TEST, menu_ftm_resonance_test);
       #endif
     }
