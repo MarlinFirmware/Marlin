@@ -48,16 +48,7 @@ class ResonanceGenerator {
 
     void reset();
 
-    void start(const xyze_pos_t &spos, const float t) {
-      rt_params.start_pos = spos;
-      rt_time = t;
-      active = true;
-      done = false;
-      // Precompute frequency multiplier
-      current_freq = rt_params.min_freq;
-      const float inv_octave_duration = 1.0f / rt_params.octave_duration;
-      freq_mul = exp2f(FTM_TS * inv_octave_duration);
-    }
+    void start();
 
     // Return frequency based on timeline
     float getFrequencyFromTimeline() {
@@ -76,9 +67,18 @@ class ResonanceGenerator {
     void abort();             // Abort resonance test
 
   private:
+    float calc_next_pos() {
+      // Amplitude based on a sinusoidal wave : A = accel / (4 * PI^2 * f^2)
+      const float amplitude = amplitude_precalc / current_freq;
+      // Phase in radians
+      const float phase = current_freq * M_TAU * rt_time;
+      // Position Offset : between -A and +A
+      return (rt_params.start_pos[rt_params.axis] + amplitude * fast_sin(phase));
+    }
     float fast_sin(float x);  // Fast sine approximation
     static float rt_time;     // Test timer
     float freq_mul;           // Frequency multiplier for sine sweeping
+    float amplitude_precalc;  // Precalculated part of amplitude formula
     float current_freq;       // Current frequency being generated in sinusoidal motion
     static bool active;       // Resonance test active
     static bool done;         // Resonance test done
