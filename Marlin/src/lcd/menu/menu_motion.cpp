@@ -407,7 +407,7 @@ void menu_move() {
 
   #if ENABLED(RESONANCE_TEST)
 
-    void menu_ftm_resonance_freq() {
+    void menu_resonance_freq() {
       START_MENU();
       BACK_ITEM(MSG_FTM_RESONANCE_TEST);
 
@@ -418,7 +418,7 @@ void menu_move() {
       END_MENU();
     }
 
-    void menu_ftm_resonance_test() {
+    void menu_resonance_test() {
       START_MENU();
       BACK_ITEM(MSG_FIXED_TIME_MOTION);
 
@@ -436,7 +436,7 @@ void menu_move() {
         #if HAS_Z_AXIS
           GCODES_ITEM_N(Z_AXIS, MSG_FTM_RT_START_N, F("M495 Z S"));
         #endif
-        SUBMENU(MSG_FTM_RETRIEVE_FREQ, menu_ftm_resonance_freq);
+        SUBMENU(MSG_FTM_RETRIEVE_FREQ, menu_resonance_freq);
       }
 
       END_MENU();
@@ -560,7 +560,7 @@ void menu_move() {
       });
 
       #if ENABLED(RESONANCE_TEST)
-        SUBMENU(MSG_FTM_RESONANCE_TEST, menu_ftm_resonance_test);
+        SUBMENU(MSG_FTM_RESONANCE_TEST, menu_resonance_test);
       #endif
     }
 

@@ -75,13 +75,13 @@ class ResonanceGenerator {
       // Position Offset : between -A and +A
       return (rt_params.start_pos[rt_params.axis] + amplitude * fast_sin(phase));
     }
-    float fast_sin(float x);  // Fast sine approximation
-    static float rt_time;     // Test timer
-    float freq_mul;           // Frequency multiplier for sine sweeping
-    float amplitude_precalc;  // Precalculated part of amplitude formula
-    float current_freq;       // Current frequency being generated in sinusoidal motion
-    static bool active;       // Resonance test active
-    static bool done;         // Resonance test done
+    float fast_sin(float x);          // Fast sine approximation
+    static float rt_time;             // Test timer
+    static float freq_mul;            // Frequency multiplier for sine sweeping
+    static float amplitude_precalc;   // Precalculated part of amplitude formula
+    float current_freq;               // Current frequency being generated in sinusoidal motion
+    static bool active;               // Resonance test active
+    static bool done;                 // Resonance test done
 };
 
 extern ResonanceGenerator rtg;

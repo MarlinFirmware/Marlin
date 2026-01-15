@@ -36,6 +36,8 @@ bool ResonanceGenerator::active = false;                       // Resonance test
 bool ResonanceGenerator::done = false;                         // Resonance test done
 float ResonanceGenerator::rt_time = FTM_TS;                    // Resonance test timer
 float ResonanceGenerator::timeline = 0.0f;
+float ResonanceGenerator::amplitude_precalc;
+float ResonanceGenerator::freq_mul;
 
 ResonanceGenerator rtg;
 
