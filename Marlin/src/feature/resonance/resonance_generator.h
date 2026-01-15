@@ -29,7 +29,7 @@
   #define M_TAU (2.0f * M_PI)
 #endif
 
-typedef struct FTMResonanceTestParams {
+typedef struct ResonanceTestParams {
   AxisEnum axis         = NO_AXIS_ENUM; // Axis to test
   float min_freq        =   5.0f;       // Minimum frequency [Hz]
   float max_freq        = 100.0f;       // Maximum frequency [Hz]
@@ -37,11 +37,11 @@ typedef struct FTMResonanceTestParams {
   float accel_per_hz    =  60.0f;       // Acceleration per Hz [mm/sec/Hz] or [g/Hz]
   int16_t amplitude_correction = 5;     // Amplitude correction factor
   xyze_pos_t start_pos;                 // Initial stepper position
-} ftm_resonance_test_params_t;
+} resonance_test_params_t;
 
 class ResonanceGenerator {
   public:
-    static ftm_resonance_test_params_t rt_params; // Resonance test parameters
+    static resonance_test_params_t rt_params; // Resonance test parameters
     static float timeline;                        // Timeline Value to calculate resonance frequency
 
     ResonanceGenerator();
@@ -83,3 +83,5 @@ class ResonanceGenerator {
     static bool active;       // Resonance test active
     static bool done;         // Resonance test done
 };
+
+extern ResonanceGenerator rtg;

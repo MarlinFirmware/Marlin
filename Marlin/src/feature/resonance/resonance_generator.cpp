@@ -22,19 +22,21 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-#if ENABLED(FTM_RESONANCE_TEST)
+#if ENABLED(RESONANCE_TEST)
 
-#include "../ft_motion.h"
+#include "../../module/ft_motion.h"
 #include "resonance_generator.h"
 
 #include <math.h>
 
-ftm_resonance_test_params_t ResonanceGenerator::rt_params;     // Resonance test parameters
+resonance_test_params_t ResonanceGenerator::rt_params;     // Resonance test parameters
 
 bool ResonanceGenerator::active = false;                       // Resonance test active
 bool ResonanceGenerator::done = false;                         // Resonance test done
 float ResonanceGenerator::rt_time = FTM_TS;                    // Resonance test timer
 float ResonanceGenerator::timeline = 0.0f;
+
+ResonanceGenerator rtg;
 
 ResonanceGenerator::ResonanceGenerator() {}
 
@@ -44,7 +46,7 @@ void ResonanceGenerator::abort() {
 }
 
 void ResonanceGenerator::reset() {
-  rt_params = ftm_resonance_test_params_t();
+  rt_params = resonance_test_params_t();
   rt_time = FTM_TS;
   active = false;
   done = false;
@@ -109,4 +111,4 @@ void ResonanceGenerator::fill_stepper_plan_buffer() {
   }
 }
 
-#endif // FTM_RESONANCE_TEST
+#endif // RESONANCE_TEST

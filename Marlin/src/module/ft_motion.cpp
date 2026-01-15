@@ -37,8 +37,8 @@
   #include "ft_motion/trajectory_poly5.h"
   #include "ft_motion/trajectory_poly6.h"
 #endif
-#if ENABLED(FTM_RESONANCE_TEST)
-  #include "ft_motion/resonance_generator.h"
+#if ENABLED(RESONANCE_TEST)
+  #include "../feature/resonance/resonance_generator.h"
   #include "../gcode/gcode.h" // for home_all_axes
 #endif
 
@@ -87,11 +87,6 @@ TrapezoidalTrajectoryGenerator FTMotion::trapezoidalGenerator;
   Poly5TrajectoryGenerator FTMotion::poly5Generator;
   Poly6TrajectoryGenerator FTMotion::poly6Generator;
   TrajectoryGenerator* FTMotion::currentGenerator = &FTMotion::trapezoidalGenerator;
-#endif
-
-// Resonance Test
-#if ENABLED(FTM_RESONANCE_TEST)
-  ResonanceGenerator FTMotion::rtg; // Resonance trajectory generator instance
 #endif
 
 #if FTM_HAS_LIN_ADVANCE
@@ -167,9 +162,9 @@ void FTMotion::loop() {
    * 4. Signal ready for new block.
    */
 
-  const bool using_resonance = TERN(FTM_RESONANCE_TEST, rtg.isActive(), false);
+  const bool using_resonance = TERN(RESONANCE_TEST, rtg.isActive(), false);
 
-  #if ENABLED(FTM_RESONANCE_TEST)
+  #if ENABLED(RESONANCE_TEST)
     if (using_resonance) {
       // Resonance Test has priority over normal ft_motion operation.
       // Process resonance test if active. When it's done, generate the last data points for a clean ending.
@@ -686,13 +681,13 @@ void FTMotion::fill_stepper_plan_buffer() {
   }
 }
 
-#if ENABLED(FTM_RESONANCE_TEST)
+#if ENABLED(RESONANCE_TEST)
 
   // Start Resonance Testing
   void FTMotion::start_resonance_test() {
     home_if_needed(); // Ensure known axes first
 
-    ftm_resonance_test_params_t &p = rtg.rt_params;
+    resonance_test_params_t &p = rtg.rt_params;
 
     // Safe Acceleration per Hz for Z axis
     if (p.axis == Z_AXIS && p.accel_per_hz > 15.0f)
@@ -705,6 +700,6 @@ void FTMotion::fill_stepper_plan_buffer() {
     rtg.start(current_position, FTM_TS);
   }
 
-#endif // FTM_RESONANCE_TEST
+#endif // RESONANCE_TEST
 
 #endif // FT_MOTION
