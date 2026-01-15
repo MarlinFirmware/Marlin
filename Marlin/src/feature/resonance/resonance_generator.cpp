@@ -26,6 +26,7 @@
 
 #include "../../module/ft_motion.h"
 #include "resonance_generator.h"
+#include "../../gcode/gcode.h" // for home_all_axes
 
 #include <math.h>
 
@@ -39,6 +40,27 @@ float ResonanceGenerator::timeline = 0.0f;
 ResonanceGenerator rtg;
 
 ResonanceGenerator::ResonanceGenerator() {}
+
+void ResonanceGenerator::start() {
+  home_if_needed(); // Ensure known axes first
+
+  // Safe Acceleration per Hz for Z axis
+  if (rt_params.axis == Z_AXIS && rt_params.accel_per_hz > 15.0f)
+    rt_params.accel_per_hz = 15.0f;
+
+  // Always move to the center of the bed
+  do_blocking_move_to_xy(X_CENTER, Y_CENTER, Z_CLEARANCE_FOR_HOMING);
+      
+  rt_params.start_pos = current_position;
+  rt_time = FTM_TS;
+  active = true;
+  done = false;
+  // Precompute sine sweep const
+  amplitude_precalc = (rt_params.amplitude_correction * rt_params.accel_per_hz * 0.25f) / sq(M_PI);
+  current_freq = rt_params.min_freq;
+  const float inv_octave_duration = 1.0f / rt_params.octave_duration;
+  freq_mul = exp2f(FTM_TS * inv_octave_duration);
+}
 
 void ResonanceGenerator::abort() {
   reset();
@@ -76,10 +98,6 @@ float ResonanceGenerator::fast_sin(float x) {
 void ResonanceGenerator::fill_stepper_plan_buffer() {
   xyze_float_t traj_coords = rt_params.start_pos;
 
-  const float amplitude_precalc = (rt_params.amplitude_correction * rt_params.accel_per_hz * 0.25f) / sq(M_PI);
-
-  float rt_factor = rt_time * M_TAU;
-
   while (!ftMotion.stepping.is_full()) {
     // Calculate current frequency
     current_freq *= freq_mul;
@@ -88,23 +106,11 @@ void ResonanceGenerator::fill_stepper_plan_buffer() {
       return;
     }
 
-    // Amplitude based on a sinusoidal wave : A = accel / (4 * PI^2 * f^2)
-    //const float accel_magnitude = rt_params.accel_per_hz * freq;
-    //const float amplitude = rt_params.amplitude_correction * accel_magnitude / (4.0f * sq(M_PI) * sq(freq));
-    const float amplitude = amplitude_precalc / current_freq;
-
-    // Phase in radians
-    const float phase = current_freq * rt_factor;
-
-    // Position Offset : between -A and +A
-    const float pos_offset = amplitude * fast_sin(phase);
-
     // Resonate the axis being tested
-    traj_coords[rt_params.axis] = rt_params.start_pos[rt_params.axis] + pos_offset;
+    traj_coords[rt_params.axis] = calc_next_pos();
 
     // Increment for the next point (before calling out)
     rt_time += FTM_TS;
-    rt_factor += FTM_TS * M_TAU;
 
     // Store in buffer
     ftMotion.stepping_enqueue(traj_coords);

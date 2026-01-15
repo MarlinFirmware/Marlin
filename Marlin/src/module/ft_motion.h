@@ -268,9 +268,6 @@ class FTMotion {
     // Public methods
     static void init();
     static void loop();                                   // Controller main, to be invoked from non-isr task.
-    #if ENABLED(RESONANCE_TEST)
-      static void start_resonance_test();                 // Start a resonance test with given parameters
-    #endif
 
     #if ENABLED(FTM_SMOOTHING)
       // Refresh alpha and delay samples used by smoothing functions.

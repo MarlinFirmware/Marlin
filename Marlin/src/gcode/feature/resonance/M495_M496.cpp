@@ -150,7 +150,7 @@ void GcodeSuite::M495() {
       if (p.axis != NO_AXIS_ENUM) {
         if (p.max_freq > p.min_freq) {
           SERIAL_ECHOLN(F("Starting "), F("Resonance Test"));
-          ftMotion.start_resonance_test();
+          rtg.startt();
           // The function returns immediately, the test runs in the background.
         }
         else {

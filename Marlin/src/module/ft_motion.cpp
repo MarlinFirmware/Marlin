@@ -37,10 +37,6 @@
   #include "ft_motion/trajectory_poly5.h"
   #include "ft_motion/trajectory_poly6.h"
 #endif
-#if ENABLED(RESONANCE_TEST)
-  #include "../feature/resonance/resonance_generator.h"
-  #include "../gcode/gcode.h" // for home_all_axes
-#endif
 
 #include "stepper.h" // Access stepper block queue function and abort status.
 #include "endstops.h"
@@ -680,26 +676,5 @@ void FTMotion::fill_stepper_plan_buffer() {
     last_target_traj = traj_coords;
   }
 }
-
-#if ENABLED(RESONANCE_TEST)
-
-  // Start Resonance Testing
-  void FTMotion::start_resonance_test() {
-    home_if_needed(); // Ensure known axes first
-
-    resonance_test_params_t &p = rtg.rt_params;
-
-    // Safe Acceleration per Hz for Z axis
-    if (p.axis == Z_AXIS && p.accel_per_hz > 15.0f)
-      p.accel_per_hz = 15.0f;
-
-    // Always move to the center of the bed
-    do_blocking_move_to_xy(X_CENTER, Y_CENTER, Z_CLEARANCE_FOR_HOMING);
-
-    // Start test at the current position with the configured time-step
-    rtg.start(current_position, FTM_TS);
-  }
-
-#endif // RESONANCE_TEST
 
 #endif // FT_MOTION
