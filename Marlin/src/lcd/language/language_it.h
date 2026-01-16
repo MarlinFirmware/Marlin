@@ -907,13 +907,13 @@ namespace LanguageNarrow_it {
   LSTR MSG_FTM_SMOOTH_TIME_N              = _UxGT("@ Tempo smorzamento");
   LSTR MSG_FTM_POLY6_OVERSHOOT            = _UxGT("@ Overshoot Poly6");
 
-  LSTR MSG_FTM_RESONANCE_TEST             = _UxGT("Test risonanza");
-  LSTR MSG_FTM_RT_RUNNING                 = _UxGT("Test ris.in corso...");
-  LSTR MSG_FTM_RT_START_N                 = _UxGT("Avvia Test Asse @");
-  LSTR MSG_FTM_RT_STOP                    = _UxGT("Annulla Test");
-  LSTR MSG_FTM_RETRIEVE_FREQ              = _UxGT("Calc. Res. Freq.");
-  LSTR MSG_FTM_RESONANCE_FREQ             = _UxGT("Freq.Risonanza");
-  LSTR MSG_FTM_TIMELINE_FREQ              = _UxGT("Cronologia (s)");
+  LSTR MSG_RESONANCE_TEST             = _UxGT("Test risonanza");
+  LSTR MSG_RT_RUNNING                 = _UxGT("Test ris.in corso...");
+  LSTR MSG_RT_START_N                 = _UxGT("Avvia Test Asse @");
+  LSTR MSG_RT_STOP                    = _UxGT("Annulla Test");
+  LSTR MSG_RETRIEVE_FREQ              = _UxGT("Calc. Res. Freq.");
+  LSTR MSG_RESONANCE_FREQ             = _UxGT("Freq.Risonanza");
+  LSTR MSG_TIMELINE_FREQ              = _UxGT("Cronologia (s)");
 
   LSTR MSG_LEVEL_X_AXIS                   = _UxGT("Livello asse X");
   LSTR MSG_AUTO_CALIBRATE                 = _UxGT("Auto Calibra");

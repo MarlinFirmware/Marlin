@@ -950,13 +950,13 @@ namespace LanguageNarrow_en {
   LSTR MSG_FTM_POLY6_OVERSHOOT            = _UxGT("@ Poly6 Overshoot");
   LSTR MSG_FTM_CONFIGURE_AXIS_N           = _UxGT("Configure @ Axis");
 
-  LSTR MSG_FTM_RESONANCE_TEST             = _UxGT("Resonance Test");
-  LSTR MSG_FTM_RT_RUNNING                 = _UxGT("Res. Test Running...");
-  LSTR MSG_FTM_RT_START_N                 = _UxGT("Start @ Axis Test");
-  LSTR MSG_FTM_RT_STOP                    = _UxGT("Abort Test");
-  LSTR MSG_FTM_RETRIEVE_FREQ              = _UxGT("Calc. Res. Freq.");
-  LSTR MSG_FTM_RESONANCE_FREQ             = _UxGT("Resonance Freq.");
-  LSTR MSG_FTM_TIMELINE_FREQ              = _UxGT("Timeline (s)");
+  LSTR MSG_RESONANCE_TEST             = _UxGT("Resonance Test");
+  LSTR MSG_RT_RUNNING                 = _UxGT("Res. Test Running...");
+  LSTR MSG_RT_START_N                 = _UxGT("Start @ Axis Test");
+  LSTR MSG_RT_STOP                    = _UxGT("Abort Test");
+  LSTR MSG_RETRIEVE_FREQ              = _UxGT("Calc. Res. Freq.");
+  LSTR MSG_RESONANCE_FREQ             = _UxGT("Resonance Freq.");
+  LSTR MSG_TIMELINE_FREQ              = _UxGT("Timeline (s)");
 
   LSTR MSG_LEVEL_X_AXIS                   = _UxGT("Level X Axis");
   LSTR MSG_AUTO_CALIBRATE                 = _UxGT("Auto Calibrate");
@@ -1173,8 +1173,8 @@ namespace LanguageWide_en {
     LSTR MSG_HOMING_FEEDRATE_Y            = _UxGT("Y Homing Feedrate");
     LSTR MSG_HOMING_FEEDRATE_Z            = _UxGT("Z Homing Feedrate");
     LSTR MSG_EEPROM_INITIALIZED           = _UxGT("Default Settings Restored");
-    LSTR MSG_FTM_RT_RUNNING               = _UxGT("Resonance Test Running...");
-    LSTR MSG_FTM_RESONANCE_FREQ           = _UxGT("Resonance frequency");
+    LSTR MSG_RT_RUNNING               = _UxGT("Resonance Test Running...");
+    LSTR MSG_RESONANCE_FREQ           = _UxGT("Resonance frequency");
   #endif
 }
 
