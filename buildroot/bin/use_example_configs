@@ -108,7 +108,7 @@ def main():
     elif branch.endswith("-2.0.x") or branch == "2.0.x":
         branch = "latest-2.0.x"
     else:
-        branch = branch
+        branch = "bugfix-2.1.x"
 
     if len(sys.argv) > 1:
         arg = sys.argv[1]
