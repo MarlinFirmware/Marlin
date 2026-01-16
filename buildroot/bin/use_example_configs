@@ -94,28 +94,30 @@ def fetch_configs(branch, config_path):
         fetch_config_files(branch, config_path, marlin_dir)
 
 def main():
-    branch = get_current_branch()
-    if not branch:
+    mbranch = get_current_branch()
+    if not mbranch:
         print("Not a git repository or no branch found.")
         sys.exit(1)
 
-    if "bugfix-2.1.x" in branch:
-        branch = "bugfix-2.1.x"
-    elif "bugfix-2.0.x" in branch:
-        branch = "bugfix-2.0.x"
-    elif branch.endswith("-2.1.x") or branch == "2.1.x":
-        branch = "latest-2.1.x"
-    elif branch.endswith("-2.0.x") or branch == "2.0.x":
-        branch = "latest-2.0.x"
+    if mbranch.startswith("bugfix-"):
+        cbranch = mbranch
+    elif mbranch.endswith("-2.1.x") or mbranch == "2.1.x":
+        cbranch = "latest-2.1.x"
+    elif mbranch.endswith("-2.0.x") or mbranch == "2.0.x":
+        cbranch = "latest-2.0.x"
+    elif mbranch.endswith("-1.1.x") or mbranch == "1.1.x":
+        cbranch = "latest-1.1.x"
+    elif mbranch == "1.0.x":
+        cbranch = "latest-1.0.x"
     else:
-        branch = "bugfix-2.1.x"
+        cbranch = "bugfix-2.1.x"
 
     if len(sys.argv) > 1:
         arg = sys.argv[1]
         if ':' in arg:
             part1, part2 = arg.split(':', 1)
             config_path = part2
-            branch = part1
+            cbranch = part1
         else:
             config_path = arg
         config_path = 'examples/'+config_path
@@ -130,7 +132,7 @@ def main():
         except FileNotFoundError:
             print("restore_configs not found, skipping.")
 
-    fetch_configs(branch, config_path)
+    fetch_configs(cbranch, config_path)
 
 if __name__ == "__main__":
     main()
