@@ -1124,11 +1124,12 @@ private:
     static void M493_report(const bool forReplay=true);
     static void M494();
     static void M494_report(const bool forReplay=true);
-    #if ENABLED(RESONANCE_TEST)
+  #endif
+
+  #if ENABLED(RESONANCE_TEST)
       static void M495();
       static void M495_report(const bool forReplay=true);
       static void M496();
-    #endif
   #endif
 
   static void M500();
