@@ -99,20 +99,16 @@ def main():
         print("Not a git repository or no branch found.")
         sys.exit(1)
 
-    if branch.startswith("bugfix-2."):
-        branch = branch
-    elif branch.endswith("bugfix-2.1.x"):
+    if "bugfix-2.1.x" in branch:
         branch = "bugfix-2.1.x"
+    elif "bugfix-2.0.x" in branch:
+        branch = "bugfix-2.0.x"
     elif branch.endswith("-2.1.x") or branch == "2.1.x":
         branch = "latest-2.1.x"
     elif branch.endswith("-2.0.x") or branch == "2.0.x":
         branch = "latest-2.0.x"
-    elif branch.endswith("-1.1.x") or branch == "1.1.x":
-        branch = "latest-1.1.x"
-    elif branch.endswith("-1.0.x") or branch == "1.0.x":
-        branch = "latest-1.0.x"
     else:
-        branch = "bugfix-2.1.x"
+        branch = branch
 
     if len(sys.argv) > 1:
         arg = sys.argv[1]
