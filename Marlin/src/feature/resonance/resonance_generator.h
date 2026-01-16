@@ -80,6 +80,7 @@ class ResonanceGenerator {
     static float freq_mul;            // Frequency multiplier for sine sweeping
     static float amplitude_precalc;   // Precalculated part of amplitude formula
     float current_freq;               // Current frequency being generated in sinusoidal motion
+    static xyze_float_t traj_coords;
     static bool active;               // Resonance test active
     static bool done;                 // Resonance test done
 };

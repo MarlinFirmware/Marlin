@@ -308,6 +308,46 @@ void menu_move() {
   }
 #endif
 
+#if ENABLED(RESONANCE_TEST)
+  #include "../../feature/resonance/resonance_generator.h"
+
+  void menu_resonance_freq() {
+    START_MENU();
+    BACK_ITEM(MSG_RESONANCE_TEST);
+
+    STATIC_ITEM(MSG_RETRIEVE_FREQ);
+    EDIT_ITEM(float62, MSG_TIMELINE_FREQ, &rtg.timeline, 0.0f, 600.0f);
+    PSTRING_ITEM(MSG_RESONANCE_FREQ, ftostr53_63(rtg.getFrequencyFromTimeline()), SS_FULL);
+
+    END_MENU();
+  }
+
+  void menu_resonance_test() {
+    START_MENU();
+    BACK_ITEM(MSG_FIXED_TIME_MOTION);
+
+    if (rtg.isActive() && !rtg.isDone()) {
+      STATIC_ITEM(MSG_RT_RUNNING);
+      GCODES_ITEM(MSG_RT_STOP, F("M496"));
+    }
+    else {
+      #if HAS_X_AXIS
+        GCODES_ITEM_N(X_AXIS, MSG_RT_START_N, F("M495 X S"));
+      #endif
+      #if HAS_Y_AXIS
+        GCODES_ITEM_N(Y_AXIS, MSG_RT_START_N, F("M495 Y S"));
+      #endif
+      #if HAS_Z_AXIS
+        GCODES_ITEM_N(Z_AXIS, MSG_RT_START_N, F("M495 Z S"));
+      #endif
+      SUBMENU(MSG_RETRIEVE_FREQ, menu_resonance_freq);
+    }
+
+    END_MENU();
+  }
+
+#endif // RESONANCE_TEST
+
 #if ENABLED(FT_MOTION_MENU)
 
   #include "../../module/ft_motion.h"
@@ -404,45 +444,6 @@ void menu_move() {
     }
 
   #endif // FTM_POLYS
-
-  #if ENABLED(RESONANCE_TEST)
-
-    void menu_resonance_freq() {
-      START_MENU();
-      BACK_ITEM(MSG_FTM_RESONANCE_TEST);
-
-      STATIC_ITEM(MSG_FTM_RETRIEVE_FREQ);
-      EDIT_ITEM(float62, MSG_FTM_TIMELINE_FREQ, &rtg.timeline, 0.0f, 600.0f);
-      PSTRING_ITEM(MSG_FTM_RESONANCE_FREQ, ftostr53_63(rtg.getFrequencyFromTimeline()), SS_FULL);
-
-      END_MENU();
-    }
-
-    void menu_resonance_test() {
-      START_MENU();
-      BACK_ITEM(MSG_FIXED_TIME_MOTION);
-
-      if (rtg.isActive() && !rtg.isDone()) {
-        STATIC_ITEM(MSG_FTM_RT_RUNNING);
-        GCODES_ITEM(MSG_FTM_RT_STOP, F("M496"));
-      }
-      else {
-        #if HAS_X_AXIS
-          GCODES_ITEM_N(X_AXIS, MSG_FTM_RT_START_N, F("M495 X S"));
-        #endif
-        #if HAS_Y_AXIS
-          GCODES_ITEM_N(Y_AXIS, MSG_FTM_RT_START_N, F("M495 Y S"));
-        #endif
-        #if HAS_Z_AXIS
-          GCODES_ITEM_N(Z_AXIS, MSG_FTM_RT_START_N, F("M495 Z S"));
-        #endif
-        SUBMENU(MSG_FTM_RETRIEVE_FREQ, menu_resonance_freq);
-      }
-
-      END_MENU();
-    }
-
-  #endif // RESONANCE_TEST
 
   #if HAS_DYNAMIC_FREQ
 
@@ -560,7 +561,7 @@ void menu_move() {
       });
 
       #if ENABLED(RESONANCE_TEST)
-        SUBMENU(MSG_FTM_RESONANCE_TEST, menu_resonance_test);
+        SUBMENU(MSG_RESONANCE_TEST, menu_resonance_test);
       #endif
     }
 
