@@ -109,7 +109,7 @@ def main():
         cbranch = "latest-2.0.x"
     elif mbranch.endswith("-1.1.x") or mbranch == "1.1.x":
         cbranch = "latest-1.1.x"
-    elif mbranch == "1.0.x":
+    elif mbranch.endswith("-1.0.x") or mbranch == "1.0.x":
         cbranch = "latest-1.0.x"
     else:
         cbranch = "bugfix-2.1.x"
