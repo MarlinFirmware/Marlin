@@ -33,9 +33,14 @@ class TrapezoidalTrajectoryGenerator : public TrajectoryGenerator {
 public:
   TrapezoidalTrajectoryGenerator() = default;
 
-  void plan(const float initial_speed, const float final_speed, const float acceleration, float nominal_speed, const float distance) override {
-    this->initial_speed = initial_speed;
-    this->acceleration = acceleration;
+  void plan(const float initial_speed_, const float final_speed_, const float acceleration_, float nominal_speed_, const float distance_) override {
+    
+    this->initial_speed = initial_speed_;
+    this->acceleration = acceleration_;
+    this->nominal_speed = nominal_speed_;
+    const float distance = distance_;
+    const float final_speed = final_speed_; // just for consistency
+
 
     const float one_over_accel = 1.0f / acceleration;
     const float ldiff = distance + 0.5f * one_over_accel * (sq(initial_speed) + sq(final_speed));
@@ -46,7 +51,6 @@ public:
       nominal_speed = SQRT(ldiff * acceleration);
     }
 
-    this->nominal_speed = nominal_speed;
 
     T1 = (nominal_speed - initial_speed) * one_over_accel;
     T3 = (nominal_speed - final_speed) * one_over_accel;

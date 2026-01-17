@@ -34,9 +34,11 @@ class Poly5TrajectoryGenerator : public TrapezoidalTrajectoryGenerator {
 public:
   Poly5TrajectoryGenerator() = default;
 
-  void plan(const float initial_speed, const float final_speed, const float acceleration, float nominal_speed, const float distance) override {
-    // Use base class to calculate T1, T2, T3 and basic positions
-    TrapezoidalTrajectoryGenerator::plan(initial_speed, final_speed, acceleration, nominal_speed, distance);
+  void plan(const float initial_speed_, const float final_speed_, const float acceleration_, float nominal_speed_, const float distance_) override {
+    // Use base class to calculate T1, T2, T3, actual nominal (top) speed and basic positions
+    TrapezoidalTrajectoryGenerator::plan(initial_speed_, final_speed_, acceleration_, nominal_speed_, distance_);
+
+    const float final_speed = final_speed_; // just for consistency with the other parameters that otherwise shadow the member variables
 
     const float d1 = (initial_speed + nominal_speed) * T1 * 0.5f;
     const float T1_2 = sq(T1);

@@ -30,9 +30,11 @@
 
 Poly6TrajectoryGenerator::Poly6TrajectoryGenerator() {}
 
-void Poly6TrajectoryGenerator::plan(const float initial_speed, const float final_speed, const float acceleration, float nominal_speed, const float distance) {
+void Poly6TrajectoryGenerator::plan(const float initial_speed_, const float final_speed_, const float acceleration_, float nominal_speed_, const float distance_) {
   // Use base class to calculate T1, T2, T3 and basic positions
-  TrapezoidalTrajectoryGenerator::plan(initial_speed, final_speed, acceleration, nominal_speed, distance);
+  TrapezoidalTrajectoryGenerator::plan(initial_speed_, final_speed_, acceleration_, nominal_speed_, distance_);
+
+  const float final_speed = final_speed_; // just for consistency with the other parameters that otherwise shadow the member variables
 
   // --- Build sextic (in position) for each phase ---
   // We start from a quintic-in-position s5(u) that meets endpoints with a(0)=a(1)=0,
