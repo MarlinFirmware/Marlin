@@ -33,13 +33,13 @@ class TrapezoidalTrajectoryGenerator : public TrajectoryGenerator {
 public:
   TrapezoidalTrajectoryGenerator() = default;
 
-  void plan(const float initial_speed_, const float final_speed_, const float acceleration_, float nominal_speed_, const float distance_) override {
+  void plan(const float initial_speed_in, const float final_speed_in, const float acceleration_in, const float nominal_speed_in, const float distance_in) override {
     
-    this->initial_speed = initial_speed_;
-    this->acceleration = acceleration_;
-    this->nominal_speed = nominal_speed_;
-    const float distance = distance_;
-    const float final_speed = final_speed_; // just for consistency
+    initial_speed = initial_speed_in;
+    acceleration = acceleration_in;
+    nominal_speed = nominal_speed_in;
+    const float distance = distance_in;
+    const float final_speed = final_speed_in; // just for consistency
 
 
     const float one_over_accel = 1.0f / acceleration;
@@ -69,7 +69,7 @@ public:
   float getDistanceAtTime(const float t) const override {
     if (t < T1) {
       // Acceleration phase
-      return (this->initial_speed * t) + (0.5f * this->acceleration * sq(t));
+      return (initial_speed * t) + (0.5f * acceleration * sq(t));
     }
     else if (t <= T1_plus_T2) {
       // Coasting phase
@@ -77,7 +77,7 @@ public:
     }
     // Deceleration phase
     const float tau_decel = t - T1_plus_T2;
-    return pos_after_coast + this->nominal_speed * tau_decel - 0.5f * this->acceleration * sq(tau_decel);
+    return pos_after_coast + nominal_speed * tau_decel - 0.5f * acceleration * sq(tau_decel);
   }
 
   float getTotalDuration() const override {
@@ -91,7 +91,7 @@ public:
 
   void reset() override {
     T1 = T2 = T3 = T1_plus_T2 = total_duration = 0.0f;
-    this->initial_speed = this->nominal_speed = this->acceleration = 0.0f;
+    initial_speed = nominal_speed = acceleration = 0.0f;
     pos_before_coast = pos_after_coast = 0.0f;
   }
 

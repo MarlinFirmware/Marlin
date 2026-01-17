@@ -35,7 +35,7 @@ class Poly6TrajectoryGenerator : public TrapezoidalTrajectoryGenerator {
 public:
   Poly6TrajectoryGenerator();
 
-  void plan(const float initial_speed, const float final_speed, const float acceleration, float nominal_speed, const float distance) override;
+  void plan(const float initial_speed, const float final_speed, const float acceleration, const float nominal_speed, const float distance) override;
 
   float getDistanceAtTime(const float t) const override;
 

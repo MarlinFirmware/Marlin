@@ -30,11 +30,11 @@
 
 Poly6TrajectoryGenerator::Poly6TrajectoryGenerator() {}
 
-void Poly6TrajectoryGenerator::plan(const float initial_speed_, const float final_speed_, const float acceleration_, float nominal_speed_, const float distance_) {
+void Poly6TrajectoryGenerator::plan(const float initial_speed_in, const float final_speed_in, const float acceleration_in, const float nominal_speed_in, const float distance_in) {
   // Use base class to calculate T1, T2, T3 and basic positions
-  TrapezoidalTrajectoryGenerator::plan(initial_speed_, final_speed_, acceleration_, nominal_speed_, distance_);
+  TrapezoidalTrajectoryGenerator::plan(initial_speed_in, final_speed_in, acceleration_in, nominal_speed_in, distance_in);
 
-  const float final_speed = final_speed_; // just for consistency with the other parameters that otherwise shadow the member variables
+  const float final_speed = final_speed_in; // just for consistency with the other parameters that otherwise shadow the member variables
 
   // --- Build sextic (in position) for each phase ---
   // We start from a quintic-in-position s5(u) that meets endpoints with a(0)=a(1)=0,
@@ -98,13 +98,13 @@ float Poly6TrajectoryGenerator::getDistanceAtTime(const float t) const {
   }
   else if (t <= T1_plus_T2) {
     // Coast
-    return pos_before_coast + this->nominal_speed * (t - T1);
+    return pos_before_coast + nominal_speed * (t - T1);
   }
   // Decel phase
   const float tau = t - T1_plus_T2,
               u = tau / T3;
-  return s5_u(pos_after_coast, this->nominal_speed, T3, dec_c3, dec_c4, dec_c5, u)
-       + dec_c6 * K_u(pos_after_coast, this->nominal_speed, T3, u);
+  return s5_u(pos_after_coast, nominal_speed, T3, dec_c3, dec_c4, dec_c5, u)
+       + dec_c6 * K_u(pos_after_coast, nominal_speed, T3, u);
 }
 
 void Poly6TrajectoryGenerator::reset() {

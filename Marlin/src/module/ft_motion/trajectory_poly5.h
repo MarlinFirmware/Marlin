@@ -34,11 +34,11 @@ class Poly5TrajectoryGenerator : public TrapezoidalTrajectoryGenerator {
 public:
   Poly5TrajectoryGenerator() = default;
 
-  void plan(const float initial_speed_, const float final_speed_, const float acceleration_, float nominal_speed_, const float distance_) override {
+  void plan(const float initial_speed_in, const float final_speed_in, const float acceleration_in, const float nominal_speed_in, const float distance_in) override {
     // Use base class to calculate T1, T2, T3, actual nominal (top) speed and basic positions
-    TrapezoidalTrajectoryGenerator::plan(initial_speed_, final_speed_, acceleration_, nominal_speed_, distance_);
+    TrapezoidalTrajectoryGenerator::plan(initial_speed_in, final_speed_in, acceleration_in, nominal_speed_in, distance_in);
 
-    const float final_speed = final_speed_; // just for consistency with the other parameters that otherwise shadow the member variables
+    const float final_speed = final_speed_in; // just for consistency with the other parameters that otherwise shadow the member variables
 
     const float d1 = (initial_speed + nominal_speed) * T1 * 0.5f;
     const float T1_2 = sq(T1);
@@ -76,7 +76,7 @@ public:
     }
     else if (t <= T1_plus_T2) {
       // Coasting phase
-      return pos_before_coast + this->nominal_speed * (t - T1);
+      return pos_before_coast + nominal_speed * (t - T1);
     }
     // Deceration phase
     const float tau = t - T1_plus_T2;
