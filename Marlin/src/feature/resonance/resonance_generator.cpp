@@ -80,11 +80,10 @@ void ResonanceGenerator::reset() {
 
 // Fast sine approximation
 float ResonanceGenerator::fast_sin(float x) {
-  static constexpr float INV_TAU = (1.0f / M_TAU);
 
   // Reduce the angle to [-π, π]
-  const float y = x * INV_TAU;      // Multiples of 2π
-  int k = static_cast<int>(y);      // Truncates toward zero
+  const float y = x * (1.0f / M_TAU); // Multiples of 2π
+  int k = static_cast<int>(y);        // Truncates toward zero
 
   // Negative? The truncation is one too high.
   if (y < 0.0f) --k;                // Correct for negatives
@@ -95,8 +94,11 @@ float ResonanceGenerator::fast_sin(float x) {
   else if (r < -M_PI)
     r += M_TAU;
 
-  // Cheap polynomial approximation of sin(r)
-  return r * (1.27323954f - 0.405284735f * ABS(r));
+  // Optimized polynomial approximation
+  // Using sin(x) ≈ x(1 - (x²/π²) * 0.785398163) where 0.785398163 ≈ 1/π
+  const float r2 = r * r;
+
+  return r * (1.0f - 0.101321184f * r2);
 }
 
 void ResonanceGenerator::fill_stepper_plan_buffer() {
