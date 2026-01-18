@@ -324,7 +324,7 @@ void menu_move() {
 
   void menu_resonance_test() {
     START_MENU();
-    BACK_ITEM(MSG_FIXED_TIME_MOTION);
+    BACK_ITEM(MSG_MOTION);
 
     if (rtg.isActive() && !rtg.isDone()) {
       STATIC_ITEM(MSG_RT_RUNNING);
@@ -560,9 +560,6 @@ void menu_move() {
         queue.inject(TS(F("M493"), IAXIS_CHAR(MenuItemBase::itemIndex), 'T', int(editable.state)));
       });
 
-      #if ENABLED(RESONANCE_TEST)
-        SUBMENU(MSG_RESONANCE_TEST, menu_resonance_test);
-      #endif
     }
 
     END_MENU();
@@ -649,6 +646,13 @@ void menu_motion() {
   //
   #if ENABLED(FT_MOTION_MENU)
     SUBMENU(MSG_FIXED_TIME_MOTION, menu_ft_motion);
+  #endif
+
+  //
+  // M495 Resonance Test
+  //
+  #if ENABLED(RESONANCE_TEST)
+    SUBMENU(MSG_RESONANCE_TEST, menu_resonance_test);
   #endif
 
   //
