@@ -19,38 +19,30 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-
-#include "../gcode.h"
-#include "../../module/temperature.h"
-
-#if ENABLED(SPEED_DIAL_FEATURE)
-  #include "../../feature/speed_dial.h"
-#endif
+#pragma once
 
 /**
- * M105: Read hot end and bed temperature
+ * speed_dial.h - speed dial feature
  */
-void GcodeSuite::M105() {
 
-  const int8_t target_extruder = get_target_extruder_from_command();
-  if (target_extruder < 0) return;
+#include "../inc/MarlinConfig.h"
 
-  SERIAL_ECHOPGM(STR_OK);
+#if ENABLED(SPEED_DIAL_FEATURE)
 
-  #if HAS_TEMP_SENSOR
+class SpeedDial {
+  public:
+    static inline uint8_t    current()                       { return current_speed_dial; }
+    static inline raw_adc_t  raw()                           { return current_speed_dial_raw; }
+    static void              set(raw_adc_t value);
 
-    thermalManager.print_heater_states(target_extruder OPTARG(HAS_TEMP_REDUNDANT, parser.boolval('R')));
+  private:
+    static void       updateStepper();
+    
+    static raw_adc_t  current_speed_dial_raw;
+    static uint8_t    current_speed_dial;
+    static uint8_t    next_value_change;
+};
 
-    SERIAL_EOL();
+extern SpeedDial speedDial;
 
-  #else
-
-  #if ENABLED(SPEED_DIAL_FEATURE)
-    SERIAL_ECHOPGM(" T:", speedDial.current());
-    SERIAL_ECHOLNPGM(" S@:", speedDial.raw());
-  #else
-    SERIAL_ECHOLNPGM(" T:0"); // Some hosts send M105 to test the serial connection
-  #endif
-
-  #endif
-}
+#endif

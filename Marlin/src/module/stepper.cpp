@@ -203,6 +203,10 @@ uint32_t Stepper::acceleration_time, Stepper::deceleration_time;
   bool Stepper::frozen; // = false
 #endif
 
+#if ENABLED(SPEED_DIAL_FEATURE)
+  uint8_t Stepper::speed_dial_value = 100;
+#endif
+
 // Delta error variables for the Bresenham line tracer
 xyze_long_t Stepper::delta_error{0};
 xyze_long_t Stepper::advance_dividend{0};
@@ -240,8 +244,11 @@ uint32_t Stepper::advance_divisor = 0,
  * Standard Motion Linear Advance state
  */
 #if ENABLED(LIN_ADVANCE)
-  hal_timer_t Stepper::nextAdvanceISR = LA_ADV_NEVER,
-              Stepper::la_interval = LA_ADV_NEVER;
+  hal_timer_t Stepper::nextAdvanceISR   = LA_ADV_NEVER,
+              Stepper::la_interval      = LA_ADV_NEVER;
+  #if ENABLED(SPEED_DIAL_FEATURE)
+              Stepper::la_interval_nom  = LA_ADV_NEVER;
+  #endif
   #if ENABLED(SMOOTH_LIN_ADVANCE)
     uint32_t  Stepper::curr_step_rate,
               Stepper::curr_timer_tick = 0;
@@ -2465,6 +2472,10 @@ void Stepper::isr() {
           acceleration_time += interval;
           deceleration_time = 0; // Reset since we're doing acceleration first.
 
+          #if ENABLED(SPEED_DIAL_FEATURE)
+            speed_dial_adjust_interval(interval);
+          #endif
+
           // Apply Nonlinear Extrusion, if enabled
           calc_nonlinear_e(acc_step_rate << oversampling_factor);
 
@@ -2472,6 +2483,9 @@ void Stepper::isr() {
             if (la_active) {
               const uint32_t la_step_rate = la_advance_steps < current_block->max_adv_steps ? current_block->la_advance_rate : 0;
               la_interval = calc_timer_interval((acc_step_rate + la_step_rate) >> current_block->la_scaling);
+            #if ENABLED(SPEED_DIAL_FEATURE)
+              speed_dial_adjust_interval(la_interval);
+            #endif
             }
           #endif
 
@@ -2530,6 +2544,10 @@ void Stepper::isr() {
           interval = calc_multistep_timer_interval(step_rate << oversampling_factor);
           deceleration_time += interval;
 
+          #if ENABLED(SPEED_DIAL_FEATURE)
+            speed_dial_adjust_interval(interval);
+          #endif
+
           // Apply Nonlinear Extrusion, if enabled
           calc_nonlinear_e(step_rate << oversampling_factor);
 
@@ -2539,6 +2557,9 @@ void Stepper::isr() {
               if (la_step_rate != step_rate) {
                 const bool forward_e = la_step_rate < step_rate;
                 la_interval = calc_timer_interval((forward_e ? step_rate - la_step_rate : la_step_rate - step_rate) >> current_block->la_scaling);
+                #if ENABLED(SPEED_DIAL_FEATURE)
+                  speed_dial_adjust_interval(la_interval);
+                #endif
 
                 if (forward_e != motor_direction(E_AXIS)) {
                   last_direction_bits.toggle(E_AXIS);
@@ -2589,8 +2610,13 @@ void Stepper::isr() {
             calc_nonlinear_e(current_block->nominal_rate << oversampling_factor);
 
             #if HAS_ROUGH_LIN_ADVANCE
-              if (la_active)
-                la_interval = calc_timer_interval(current_block->nominal_rate >> current_block->la_scaling);
+              if (la_active) {
+                #if ENABLED(SPEED_DIAL_FEATURE)
+                  la_interval_nom = calc_timer_interval(current_block->nominal_rate >> current_block->la_scaling);
+                #else
+                  la_interval = calc_timer_interval(current_block->nominal_rate >> current_block->la_scaling);
+                #endif
+              }
             #endif
 
             // Adjust Laser Power - Cruise
@@ -2610,6 +2636,15 @@ void Stepper::isr() {
 
           // The timer interval is just the nominal value for the nominal speed
           interval = ticks_nominal;
+
+          #if ENABLED(SPEED_DIAL_FEATURE)
+            speed_dial_adjust_interval(interval);
+
+          #if HAS_ROUGH_LIN_ADVANCE
+            la_interval = la_interval_nom;
+            speed_dial_adjust_interval(la_interval);
+          #endif
+          #endif
         }
       }
 
@@ -2921,6 +2956,10 @@ void Stepper::isr() {
         // Initialize ac/deceleration time as if half the time passed.
         acceleration_time = deceleration_time = interval / 2;
 
+        #if ENABLED(SPEED_DIAL_FEATURE)
+          speed_dial_adjust_interval(interval);
+        #endif
+
         // Apply Nonlinear Extrusion, if enabled
         calc_nonlinear_e(current_block->initial_rate << oversampling_factor);
 
@@ -2931,6 +2970,9 @@ void Stepper::isr() {
             if (la_active) {
               const uint32_t la_step_rate = la_advance_steps < current_block->max_adv_steps ? current_block->la_advance_rate : 0;
               la_interval = calc_timer_interval((current_block->initial_rate + la_step_rate) >> current_block->la_scaling);
+            #if ENABLED(SPEED_DIAL_FEATURE)
+              speed_dial_adjust_interval(la_interval);
+          #endif
             }
           #endif
         #endif
@@ -3876,3 +3918,13 @@ void Stepper::report_positions() {
   }
 
 #endif // BABYSTEPPING
+
+#if ENABLED(SPEED_DIAL_FEATURE)
+
+  void Stepper::speed_dial_adjust_interval(uint32_t& interval) {
+    interval *= 100;
+    interval /= speed_dial_value;
+    if (interval == 0) interval = 1;
+  }
+
+#endif // SPEED_DIAL_FEATURE
