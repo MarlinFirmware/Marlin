@@ -1238,6 +1238,25 @@
   #define FTM_FS                     1000   // (Hz) Frequency for trajectory generation.
   #define FTM_MIN_SHAPE_FREQ           20   // (Hz) Minimum shaping frequency, lower consumes more RAM
 
+  /**
+   * TMC2208 / TMC2208_STANDALONE drivers require a brief pause after a DIR change
+   * to prevent a standstill shutdown when using StealthChop (the standalone default).
+   * These options cause FT Motion to delay for > 750µs after a DIR change on a given axis.
+   * Disable only if you are certain that this can never happen with your TMC2208s.
+   */
+  #if AXIS_DRIVER_TYPE_X(TMC2208) || AXIS_DRIVER_TYPE_X(TMC2208_STANDALONE)
+    #define FTM_DIR_CHANGE_HOLD_X
+  #endif
+  #if AXIS_DRIVER_TYPE_Y(TMC2208) || AXIS_DRIVER_TYPE_Y(TMC2208_STANDALONE)
+    #define FTM_DIR_CHANGE_HOLD_Y
+  #endif
+  #if AXIS_DRIVER_TYPE_Z(TMC2208) || AXIS_DRIVER_TYPE_Z(TMC2208_STANDALONE)
+    #define FTM_DIR_CHANGE_HOLD_Z
+  #endif
+  #if HAS_E_DRIVER(TMC2208) || HAS_E_DRIVER(TMC2208_STANDALONE)
+    #define FTM_DIR_CHANGE_HOLD_E
+  #endif
+
 #endif // FT_MOTION
 
 /**
@@ -1781,6 +1800,12 @@
    * :['SPI_HALF_SPEED', 'SPI_QUARTER_SPEED', 'SPI_EIGHTH_SPEED']
    */
   //#define SD_SPI_SPEED SPI_HALF_SPEED
+
+  /**
+   * Reinit the LCD after SD Card insert/remove or when entering the menu.
+   * Required for some LCDs that use shared SPI with an external SD Card reader.
+   */
+  #define REINIT_NOISY_LCD
 
   // The standard SD detect circuit reads LOW when media is inserted and HIGH when empty.
   // Enable this option and set to HIGH if your SD cards are incorrectly detected.
