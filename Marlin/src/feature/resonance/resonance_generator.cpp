@@ -45,7 +45,7 @@ ResonanceGenerator rtg;
 ResonanceGenerator::ResonanceGenerator() {}
 
 void ResonanceGenerator::start() {
-  home_if_needed(); // Ensure known axes first
+  gcode.home_all_axes; // For safety and ensure known axes
 
   // Safe Acceleration per Hz for Z axis
   if (rt_params.axis == Z_AXIS && rt_params.accel_per_hz > 15.0f)
