@@ -199,7 +199,7 @@ uint32_t Stepper::acceleration_time, Stepper::deceleration_time;
   constexpr uint8_t Stepper::oversampling_factor; // = 0
 #endif
 
-#if ANY(SOFT_FEED_HOLD, FREEZE_FEATURE) 
+#if ANY(SOFT_FEED_HOLD, FREEZE_FEATURE)
   uint8_t Stepper::frozen_state = 0;                  // Frozen flags
 #endif
 #if ENABLED(SOFT_FEED_HOLD)
@@ -1853,9 +1853,9 @@ void Stepper::isr() {
 
     // Skipping step processing causes motion to freeze
     #if ENABLED(SOFT_FEED_HOLD)
-      if (is_frozen_triggered() && is_frozen_solid()) return;
+      if (frozen_state.triggered && frozen_state.solid) return;
     #elif ENABLED(FREEZE_FEATURE)
-      if (frozen_state == 0) return;
+      if (frozen_state.state == 0) return;
     #endif
 
     // Count of pending loops and events for this iteration
@@ -2429,7 +2429,7 @@ void Stepper::isr() {
     hal_timer_t interval = (STEPPER_TIMER_RATE) / 1000UL;
 
     // Frozen solid?? Exit and do not fetch blocks.
-    if (TERN0(SOFT_FEED_HOLD, is_frozen_triggered() && is_frozen_solid())) {
+    if (TERN0(SOFT_FEED_HOLD, frozen_state.triggered && frozen_state.solid)) {
       return interval;
     }
 
@@ -2950,7 +2950,7 @@ void Stepper::isr() {
         uint32_t step_rate = current_block->initial_rate;
 
         #if ENABLED(SOFT_FEED_HOLD)
-          if(frozen_time) check_frozen_time(step_rate);
+          if (frozen_time) check_frozen_time(step_rate);
         #endif
 
         // Calculate the initial timer interval
@@ -3908,9 +3908,9 @@ void Stepper::report_positions() {
 #if ENABLED(SOFT_FEED_HOLD)
 
   void Stepper::set_frozen_solid(const bool state) {
-    if (state == is_frozen_solid()) return;
+    if (state == frozen_state.solid) return;
 
-    set_frozen_flag(state, FROZEN_SOLID);
+    frozen_state.solid = true;
 
     #if ENABLED(LASER_FEATURE)
       if (state) {
@@ -3933,41 +3933,40 @@ void Stepper::report_positions() {
     #if ENABLED(S_CURVE_ACCELERATION)
       // If the machine is configured to use S_CURVE_ACCELERATION standard ramp acceleration
       // rate will not have been calculated at this point
-      if (!current_block->acceleration_rate) {
-        current_block->acceleration_rate = (uint32_t)(current_block->acceleration_steps_per_s2 * (float(1UL << 24) / (STEPPER_TIMER_RATE)));
-      }
+      if (!current_block->acceleration_rate)
+        current_block->acceleration_rate = uint32_t(current_block->acceleration_steps_per_s2 * (float(1UL << 24) / (STEPPER_TIMER_RATE)));
     #endif
 
     const uint32_t freeze_rate = STEP_MULTIPLY(frozen_time, current_block->acceleration_rate);
-    const uint32_t min_step_rate = (current_block->steps_per_mm * FREEZE_JERK);
+    const uint32_t min_step_rate = current_block->steps_per_mm * (FREEZE_JERK);
 
     if (step_rate > freeze_rate)
       step_rate -= freeze_rate;
     else
       step_rate = 0;
+
     if (step_rate <= min_step_rate) {
       set_frozen_solid(true);
       step_rate = min_step_rate;
     }
   }
 
-  void Stepper::check_frozen_state(const FreezePhase type, const uint32_t interval) {
-    switch (type) {
+  void Stepper::check_frozen_state(const FreezePhase phase, const uint32_t interval) {
+    switch (phase) {
       case FREEZE_STATIONARY:
         // If triggered while stationary immediately set solid flag
-        if (is_frozen_triggered()) {
+        if (frozen_state.triggered) {
           frozen_time = 0;
           set_frozen_solid(true);
         }
-        else {
+        else
           set_frozen_solid(false);
-        }
         break;
 
       case FREEZE_ACCELERATION:
         // If frozen state is activated during the acceleration phase of a block we need to double our decceleration efforts
-        if (is_frozen_triggered()) {
-          if (!is_frozen_solid()) {
+        if (frozen_state.triggered) {
+          if (!frozen_state.solid) {
             frozen_time += interval * 2;
           }
         }
@@ -3978,7 +3977,7 @@ void Stepper::report_positions() {
 
       case FREEZE_DECELERATION:
         // If frozen state is deactivated during the deceleration phase we need to double our acceleration efforts
-        if (!is_frozen_triggered()) {
+        if (!frozen_state.triggered) {
           if (frozen_time) {
             if (frozen_time > interval * 2)
               frozen_time -= interval * 2;
@@ -3991,14 +3990,13 @@ void Stepper::report_positions() {
 
       case FREEZE_CRUISE:
         // During cruise stage acceleration/deceleration take place at regular rate
-        if (is_frozen_triggered()) {
-          if (!is_frozen_solid()) frozen_time += interval;
+        if (frozen_state.triggered) {
+          if (!frozen_state.solid) frozen_time += interval;
         }
         else {
           if (frozen_time) {
-            if (frozen_time > interval) {
+            if (frozen_time > interval)
               frozen_time -= interval;
-            }
             else {
               frozen_time = 0;
               ticks_nominal = 0;      // Reset ticks_nominal to allow for recalculation of interval at nominal_rate

@@ -319,15 +319,23 @@ constexpr ena_mask_t enable_overlap[] = {
 #endif // NONLINEAR_EXTRUSION
 
 #if ANY(FREEZE_FEATURE, SOFT_FEED_HOLD)
+
+  typedef union {
+    uint8_t state;
+    struct { bool triggered:1, solid:1; };
+  } frozen_state_t;
+
   enum FrozenState { FROZEN_TRIGGERED, FROZEN_SOLID };
-#endif
-#if ENABLED(SOFT_FEED_HOLD)
-  enum FreezePhase : uint8_t {
-    FREEZE_STATIONARY,
-    FREEZE_ACCELERATION,
-    FREEZE_DECELERATION,
-    FREEZE_CRUISE
-  };
+
+  #if ENABLED(SOFT_FEED_HOLD)
+    enum FreezePhase : uint8_t {
+      FREEZE_STATIONARY,
+      FREEZE_ACCELERATION,
+      FREEZE_DECELERATION,
+      FREEZE_CRUISE
+    };
+  #endif
+
 #endif
 
 //
@@ -380,10 +388,10 @@ class Stepper {
     #endif
 
     #if ANY(FREEZE_FEATURE, SOFT_FEED_HOLD)
-      static void set_frozen_triggered(const bool state) { set_frozen_flag(state, FROZEN_TRIGGERED); }
+      static void set_frozen_triggered(const bool state) { frozen_state.triggered = state; }
     #endif
     #if ENABLED(SOFT_FEED_HOLD)
-      static bool is_frozen_triggered() { return TEST(frozen_state, FROZEN_TRIGGERED); }
+      static bool is_frozen_triggered() { return frozen_state.triggered; }
     #endif
 
     #if ENABLED(NONLINEAR_EXTRUSION)
@@ -779,8 +787,7 @@ class Stepper {
     #endif
 
     #if DISABLED(SOFT_FEED_HOLD) && ENABLED(FREEZE_FEATURE)
-      static uint8_t frozen_state;                  // Frozen flags
-      static void set_frozen_flag(const bool state, const uint8_t flag) { SET_BIT_TO(frozen_state, flag, state); }
+      static frozen_state_t frozen_state;           // Frozen flags
     #endif
 
   private:
@@ -821,8 +828,7 @@ class Stepper {
     #endif
 
     #if ENABLED(SOFT_FEED_HOLD)
-      static uint8_t frozen_state;                  // Frozen flags
-      static void set_frozen_flag(const bool state, const uint8_t flag) { SET_BIT_TO(frozen_state, flag, state); }
+      static frozen_state_t frozen_state;           // Frozen flags
     #endif
 
     #if ENABLED(SOFT_FEED_HOLD)
@@ -833,8 +839,7 @@ class Stepper {
       static void check_frozen_state(const FreezePhase type, const uint32_t interval);
       static void check_frozen_time(uint32_t &step_rate);
       static void set_frozen_solid(const bool state);
-      static bool is_frozen_solid() { return TEST(frozen_state, FROZEN_SOLID); }
-    #endif // SOFT_FEED_HOLD
+    #endif
 };
 
 extern Stepper stepper;

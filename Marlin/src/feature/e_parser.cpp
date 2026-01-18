@@ -227,7 +227,7 @@ void EmergencyParser::update(EmergencyParser::State &state, const uint8_t c) {
           #endif
           #if ENABLED(REALTIME_REPORTING_COMMANDS)
             case EP_GRBL_STATUS: report_current_position_moving(); break;
-            case EP_GRBL_PAUSE: TERN(SOFT_FEED_HOLD, realtime_ramping_pause_flag = true, quickpause_stepper()); break;
+            case EP_GRBL_PAUSE:  TERN(SOFT_FEED_HOLD, realtime_ramping_pause_flag = true,  quickpause_stepper()); break;
             case EP_GRBL_RESUME: TERN(SOFT_FEED_HOLD, realtime_ramping_pause_flag = false, quickresume_stepper()); break;
           #endif
           #if ENABLED(SOFT_RESET_VIA_SERIAL)
