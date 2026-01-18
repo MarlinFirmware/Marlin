@@ -2429,9 +2429,8 @@ void Stepper::isr() {
     hal_timer_t interval = (STEPPER_TIMER_RATE) / 1000UL;
 
     // Frozen solid?? Exit and do not fetch blocks.
-    if (TERN0(SOFT_FEED_HOLD, frozen_state.triggered && frozen_state.solid)) {
+    if (TERN0(SOFT_FEED_HOLD, frozen_state.triggered && frozen_state.solid))
       return interval;
-    }
 
     // If there is a current block
     if (current_block) {
@@ -2475,15 +2474,15 @@ void Stepper::isr() {
 
           // acc_step_rate is in steps/second
 
-        // Modify acc_step_rate if the machine is freezing
-        TERN_(SOFT_FEED_HOLD, check_frozen_time(acc_step_rate));
+          // Modify acc_step_rate if the machine is freezing
+          TERN_(SOFT_FEED_HOLD, check_frozen_time(acc_step_rate));
 
-        // step_rate to timer interval and steps per stepper isr
-        interval = calc_multistep_timer_interval(acc_step_rate << oversampling_factor);
-        acceleration_time += interval;
-        deceleration_time = 0; // Reset since we're doing acceleration first.
+          // step_rate to timer interval and steps per stepper isr
+          interval = calc_multistep_timer_interval(acc_step_rate << oversampling_factor);
+          acceleration_time += interval;
+          deceleration_time = 0; // Reset since we're doing acceleration first.
 
-        TERN_(SOFT_FEED_HOLD, check_frozen_state(FREEZE_ACCELERATION, interval));
+          TERN_(SOFT_FEED_HOLD, check_frozen_state(FREEZE_ACCELERATION, interval));
 
           // Apply Nonlinear Extrusion, if enabled
           calc_nonlinear_e(acc_step_rate << oversampling_factor);
@@ -2662,9 +2661,11 @@ void Stepper::isr() {
     }
     else { // !current_block
       TERN_(SOFT_FEED_HOLD, check_frozen_state(FREEZE_STATIONARY, interval));
+
       #if ENABLED(LASER_FEATURE)
+        // If no movement in dynamic mode turn Laser off
         if (cutter.cutter_mode == CUTTER_MODE_DYNAMIC)
-          cutter.apply_power(0);  // No movement in dynamic mode so turn Laser off
+          cutter.apply_power(0);
       #endif
     }
 
@@ -2947,14 +2948,14 @@ void Stepper::isr() {
           }
         #endif
 
-        uint32_t step_rate = current_block->initial_rate;
+        uint32_t initial_rate = current_block->initial_rate;
 
         #if ENABLED(SOFT_FEED_HOLD)
-          if (frozen_time) check_frozen_time(step_rate);
+          if (frozen_time) check_frozen_time(initial_rate);
         #endif
 
         // Calculate the initial timer interval
-        interval = calc_multistep_timer_interval(step_rate << oversampling_factor);
+        interval = calc_multistep_timer_interval(initial_rate << oversampling_factor);
 
         TERN_(SOFT_FEED_HOLD, check_frozen_state(FREEZE_ACCELERATION, interval));
 
@@ -2962,7 +2963,7 @@ void Stepper::isr() {
         acceleration_time = deceleration_time = interval / 2;
 
         // Apply Nonlinear Extrusion, if enabled
-        calc_nonlinear_e(step_rate << oversampling_factor);
+        calc_nonlinear_e(initial_rate << oversampling_factor);
 
         #if ENABLED(LIN_ADVANCE)
           #if ENABLED(SMOOTH_LIN_ADVANCE)
@@ -2970,7 +2971,7 @@ void Stepper::isr() {
           #else
             if (la_active) {
               const uint32_t la_step_rate = la_advance_steps < current_block->max_adv_steps ? current_block->la_advance_rate : 0;
-              la_interval = calc_timer_interval((step_rate + la_step_rate) >> current_block->la_scaling);
+              la_interval = calc_timer_interval((initial_rate + la_step_rate) >> current_block->la_scaling);
             }
           #endif
         #endif
@@ -3929,10 +3930,10 @@ void Stepper::report_positions() {
         frozen_last_laser_power = cutter.last_power_applied;
         cutter.apply_power(0);                        // No movement in dynamic mode so turn Laser off
       }
-      else {
+      else
         cutter.apply_power(frozen_last_laser_power);  // Restore frozen laser power
-      }
     #endif
+
     #if ENABLED(REALTIME_REPORTING_COMMANDS)
       set_and_report_grblstate(state ? M_HOLD : M_RUNNING);
     #endif
@@ -3978,13 +3979,10 @@ void Stepper::report_positions() {
       case FREEZE_ACCELERATION:
         // If frozen state is activated during the acceleration phase of a block we need to double our decceleration efforts
         if (frozen_state.triggered) {
-          if (!frozen_state.solid) {
-            frozen_time += interval * 2;
-          }
+          if (!frozen_state.solid) frozen_time += interval * 2;
         }
-        else {
+        else
           set_frozen_solid(false);
-        }
         break;
 
       case FREEZE_DECELERATION:

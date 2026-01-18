@@ -388,10 +388,11 @@ class Stepper {
     #endif
 
     #if ANY(FREEZE_FEATURE, SOFT_FEED_HOLD)
+      static frozen_state_t frozen_state;           // Frozen flags
       static void set_frozen_triggered(const bool state) { frozen_state.triggered = state; }
-    #endif
-    #if ENABLED(SOFT_FEED_HOLD)
-      static bool is_frozen_triggered() { return frozen_state.triggered; }
+      #if ENABLED(SOFT_FEED_HOLD)
+        static bool is_frozen_triggered() { return frozen_state.triggered; }
+      #endif
     #endif
 
     #if ENABLED(NONLINEAR_EXTRUSION)
@@ -786,10 +787,6 @@ class Stepper {
       static float get_shaping_frequency(const AxisEnum axis);
     #endif
 
-    #if DISABLED(SOFT_FEED_HOLD) && ENABLED(FREEZE_FEATURE)
-      static frozen_state_t frozen_state;           // Frozen flags
-    #endif
-
   private:
 
     // Set the current position in steps
@@ -825,10 +822,6 @@ class Stepper {
 
     #if ENABLED(FT_MOTION)
       static void ftMotion_stepper();
-    #endif
-
-    #if ENABLED(SOFT_FEED_HOLD)
-      static frozen_state_t frozen_state;           // Frozen flags
     #endif
 
     #if ENABLED(SOFT_FEED_HOLD)

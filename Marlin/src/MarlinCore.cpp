@@ -518,18 +518,14 @@ void Marlin::manage_inactivity(const bool no_stepper_sleep/*=false*/) {
     }
   #endif
 
-  #if ANY(SOFT_FEED_HOLD, FREEZE_FEATURE)
-    // Handle the FREEZE button
-    #define FREEZE_PRESSED() (READ(FREEZE_PIN) == FREEZE_STATE)
-    #if ENABLED(SOFT_FEED_HOLD)
-      #if ENABLED(FREEZE_FEATURE)
-        stepper.set_frozen_triggered(FREEZE_PRESSED() || TERN0(REALTIME_REPORTING_COMMANDS, realtime_ramping_pause_flag));
-      #elif ENABLED(REALTIME_REPORTING_COMMANDS)
-        stepper.set_frozen_triggered(realtime_ramping_pause_flag);
+  // Handle the FREEZE button
+  #if ANY(FREEZE_FEATURE, SOFT_FEED_HOLD)
+    stepper.set_frozen_triggered(
+      TERN0(FREEZE_FEATURE, READ(FREEZE_PIN) == FREEZE_STATE)
+      #if ALL(SOFT_FEED_HOLD, REALTIME_REPORTING_COMMANDS)
+        || realtime_ramping_pause_flag
       #endif
-    #elif ENABLED(FREEZE_FEATURE)
-      stepper.frozen_state = FREEZE_PRESSED();
-    #endif
+    );
   #endif
 
   #if HAS_HOME
