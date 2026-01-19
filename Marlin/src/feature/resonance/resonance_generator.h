@@ -67,19 +67,12 @@ class ResonanceGenerator {
     void abort();             // Abort resonance test
 
   private:
-    float calc_next_pos() {
-      // Amplitude based on a sinusoidal wave : A = accel / (4 * PI^2 * f^2)
-      const float amplitude = amplitude_precalc / current_freq;
-      // Phase in radians
-      const float phase = current_freq * M_TAU * rt_time;
-      // Position Offset : between -A and +A
-      return (rt_params.start_pos[rt_params.axis] + amplitude * fast_sin(phase));
-    }
-    float fast_sin(float x);          // Fast sine approximation
+    float calc_next_pos();            // Calculate next position
     static float rt_time;             // Test timer
     static float freq_mul;            // Frequency multiplier for sine sweeping
     static float amplitude_precalc;   // Precalculated part of amplitude formula
     float current_freq;               // Current frequency being generated in sinusoidal motion
+    static float phase;               // Current phase in radians
     static xyze_float_t traj_coords;
     static bool active;               // Resonance test active
     static bool done;                 // Resonance test done
