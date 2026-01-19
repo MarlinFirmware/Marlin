@@ -77,7 +77,7 @@ public:
    * Use SPISettings with SPI.beginTransaction() to configure SPI parameters.
    */
   void setBitOrder(BitOrder order) {
-    if(_bitOrder == order) return;
+    if (_bitOrder == order) return;
     _bitOrder = order;
     _mustInit = true;
   }
@@ -91,7 +91,7 @@ public:
       case SPI_MODE3: _dataMode = SPI_MODE_3; break;
       default: return;
     }
-    if(previous_mode != _dataMode)
+    if (previous_mode != _dataMode)
       _mustInit = true;
   }
 
