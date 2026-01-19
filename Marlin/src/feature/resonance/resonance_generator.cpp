@@ -37,6 +37,7 @@ bool ResonanceGenerator::done = false;                         // Resonance test
 float ResonanceGenerator::rt_time = FTM_TS;                    // Resonance test timer
 float ResonanceGenerator::timeline = 0.0f;
 float ResonanceGenerator::amplitude_precalc;
+float ResonanceGenerator::phase = 0.0f;
 float ResonanceGenerator::freq_mul;
 xyze_float_t ResonanceGenerator:: traj_coords;
 
@@ -78,27 +79,19 @@ void ResonanceGenerator::reset() {
   done = false;
 }
 
-// Fast sine approximation
-float ResonanceGenerator::fast_sin(float x) {
+float ResoanaceGenerator::calc_next_pos() {
+  // Amplitude based on a sinusoidal wave : A = accel / (4 * PI^2 * f^2)
+  const float amplitude = amplitude_precalc / current_freq;
 
-  // Reduce the angle to [-π, π]
-  const float y = x * (1.0f / M_TAU); // Multiples of 2π
-  int k = static_cast<int>(y);        // Truncates toward zero
+  // Phase accumulation in radians
+  phase += current_freq * M_TAU * rt_time;
+  if (phase >= M_TAU) phase -= M_TAU;
 
-  // Negative? The truncation is one too high.
-  if (y < 0.0f) --k;                // Correct for negatives
-
-  float r = x - k * M_TAU;    // -π <= r <= π
-  if (r > M_PI)
-    r -= M_TAU;
-  else if (r < -M_PI)
-    r += M_TAU;
-
-  // Optimized polynomial approximation
-  // Using sin(x) ≈ x(1 - (x²/π²) * 0.785398163) where 0.785398163 ≈ 1/π
+  const float r = (phase > M_PI) ? (phase - M_TAU) : phase; 
   const float r2 = r * r;
-
-  return r * (1.0f - 0.101321184f * r2);
+  
+  // New postion
+  return rt_params.start_pos[rt_params.axis] + amplitude * r * (1.0f - 0.101321184f * r2);
 }
 
 void ResonanceGenerator::fill_stepper_plan_buffer() {
@@ -114,9 +107,6 @@ void ResonanceGenerator::fill_stepper_plan_buffer() {
 
     // Resonate the axis being tested
     traj_coords[rt_params.axis] = calc_next_pos();
-
-    // Increment for the next point (before calling out)
-    rt_time += FTM_TS;
 
     // Store in buffer
     ftMotion.stepping_enqueue(traj_coords);
