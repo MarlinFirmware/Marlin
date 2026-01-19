@@ -79,7 +79,7 @@ void ResonanceGenerator::reset() {
   done = false;
 }
 
-float ResoanaceGenerator::calc_next_pos() {
+float ResonanceGenerator::calc_next_pos() {
   // Amplitude based on a sinusoidal wave : A = accel / (4 * PI^2 * f^2)
   const float amplitude = amplitude_precalc / current_freq;
 
