@@ -515,7 +515,7 @@ void Marlin::manage_inactivity(const bool no_stepper_sleep/*=false*/) {
   #endif
 
   #if ENABLED(FREEZE_FEATURE)
-    stepper.frozen = READ(FREEZE_PIN) == FREEZE_STATE;
+    stepper.set_frozen_triggered(READ(FREEZE_PIN) == FREEZE_STATE);
   #endif
 
   #if HAS_HOME

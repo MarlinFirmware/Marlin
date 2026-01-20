@@ -4457,15 +4457,47 @@
 #endif
 
 /**
- * Instant freeze / unfreeze functionality
- * Potentially useful for rapid stop that allows being resumed. Halts stepper movement.
- * Note this does NOT pause spindles, lasers, fans, heaters or any other auxiliary device.
- * @section interface
+ * Freeze / unfreeze functionality
+ * Potentially useful for rapid stop that allows being resumed.
+ * Rapidly decelerates and halts movement at FREEZE_JERK.
+ * NOTE: Controls Laser PWM but does NOT pause Spindle, Fans, Heaters or other devices.
+ * @section freeze
  */
 //#define FREEZE_FEATURE
 #if ENABLED(FREEZE_FEATURE)
-  //#define FREEZE_PIN 41   // Override the default (KILL) pin here
-  #define FREEZE_STATE LOW  // State of pin indicating freeze
+  //#define FREEZE_PIN   -1   // Override the default (KILL) pin here
+  #define FREEZE_JERK     2   // (mm/s) Completely halt when motion has decelerated below this value
+  #define FREEZE_STATE  LOW   // State of pin indicating freeze
+#endif
+
+/**
+ * Canned drill cycle functionality
+ * Adds the following Gcode:
+ * G73: Shallow peck drill cycle
+ * G80: Cancel drill cycle
+ * G81: Basic drill cycle
+ * G82: Normal drill cycle (Basic with dwell)
+ * G83: Deep drill cycle (Normal with peck)
+ * G98: Start - retract to initial
+ * G99: Start - retract to specified
+ * or if DRILL_USE_81_ONLY is specified (or GCODE_MOTION_MODES):
+ * G81.0: Cancel drill cycle
+ * G81.1: Basic drill cycle
+ * G81.2: Normal drill cycle (Basic with dwell)
+ * G81.3: Deep drill cycle (Normal with peck)
+ * G81.4: Shallow peck drill cycle
+ * G81.18: Start - retract to initial
+ * G81.19: Start - retract to specified
+ * @section drill cycles
+ */
+#define DRILL_CYCLES
+#if ENABLED(DRILL_CYCLES)
+  //#define DRILL_USE_81_ONLY
+  #define DRILL_CYCLES_XY_FEEDRATE      1600
+  #define DRILL_CYCLES_RETRACT_FEEDRATE 1200
+  #define DRILL_CYCLES_DEFAULT_FEEDRATE 300
+  #define DRILL_CYCLES_DEFAULT_PECK     2.0
+  #define DRILL_CYCLES_DEFAULT_DWELL    0
 #endif
 
 /**
