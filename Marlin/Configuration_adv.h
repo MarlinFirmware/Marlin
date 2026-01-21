@@ -4456,8 +4456,6 @@
   #define GANTRY_CALIBRATION_COMMANDS_POST  "G28"     // G28 highly recommended to ensure an accurate position
 #endif
 
-// @section freeze
-
 /**
  * Freeze / Unfreeze
  *
@@ -4467,6 +4465,7 @@
  * Motion can be resumed by using the FREEZE_PIN.
  *
  * NOTE: Controls Laser PWM but does NOT pause Spindle, Fans, Heaters or other devices.
+ * @section freeze
  */
 //#define FREEZE_FEATURE
 #if ENABLED(FREEZE_FEATURE)
