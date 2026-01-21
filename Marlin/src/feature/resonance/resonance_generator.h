@@ -73,7 +73,6 @@ class ResonanceGenerator {
     static float amplitude_precalc;   // Precalculated part of amplitude formula
     float current_freq;               // Current frequency being generated in sinusoidal motion
     static float phase;               // Current phase in radians
-    static xyze_float_t traj_coords;
     static bool active;               // Resonance test active
     static bool done;                 // Resonance test done
 };
