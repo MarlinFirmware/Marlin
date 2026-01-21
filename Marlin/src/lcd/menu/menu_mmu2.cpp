@@ -82,7 +82,8 @@ void _mmu2_eject_filament(uint8_t index) {
   ui.reset_status();
   ui.return_to_status();
   ui.status_printf(0, GET_TEXT_F(MSG_MMU2_EJECTING_FILAMENT), int(index + 1));
-  if (mmu3.eject_filament(index, true)) ui.reset_status();
+  if (TERN(HAS_PRUSA_MMU3, mmu3.eject_filament(index, true), mmu2.eject_filament(index, true)))
+    ui.reset_status();
 }
 
 void _mmu2_cut_filament(uint8_t index) {
@@ -342,7 +343,7 @@ void menu_mmu2_choose_filament() {
 //
 
 void menu_mmu2_pause() {
-  feeder_index = mmu3.get_current_tool();
+  feeder_index = TERN(HAS_PRUSA_MMU3, mmu3.get_current_tool(), mmu2.get_current_tool());
   START_MENU();
   #if LCD_HEIGHT > 2
     STATIC_ITEM(MSG_FILAMENT_CHANGE_HEADER, SS_DEFAULT|SS_INVERT);
