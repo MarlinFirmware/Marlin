@@ -2206,6 +2206,9 @@ void autoHome() { queue.inject_P(G28_STR); }
   #define _doPreheat(N) void DoPreheat##N() { ui.preheat_all(N-1); }\
                         void DoPreheatHotend##N() { ui.preheat_hotend(N-1); }
   REPEAT_1(PREHEAT_COUNT, _doPreheat)
+#endif
+
+#if ANY(HAS_HOTEND, HAS_HEATED_BED)
   void doCoolDown() { thermalManager.cooldown(); }
 #endif
 
@@ -2836,6 +2839,9 @@ void onDrawAutoHome(MenuItem* menuitem, int8_t line) {
       onDrawMenuItem(menuitem, line);
     }
   #endif
+#endif
+
+#if ANY(HAS_HOTEND, HAS_HEATED_BED)
   void onDrawCooldown(MenuItem* menuitem, int8_t line) {
     if (hmiIsChinese()) menuitem->setFrame(1, 1, 104,  56, 117);
     onDrawMenuItem(menuitem, line);
@@ -3179,6 +3185,8 @@ void drawPrepareMenu() {
     #if HAS_PREHEAT
       #define _ITEM_PREHEAT(N) MENU_ITEM(ICON_Preheat##N, MSG_PREHEAT_##N, onDrawMenuItem, DoPreheat##N);
       REPEAT_1(PREHEAT_COUNT, _ITEM_PREHEAT)
+    #endif
+    #if ANY(HAS_HOTEND, HAS_HEATED_BED)
       MENU_ITEM(ICON_Cool, MSG_COOLDOWN, onDrawCooldown, doCoolDown);
     #endif
     #if ALL(PROUI_TUNING_GRAPH, PROUI_ITEM_PLOT)
