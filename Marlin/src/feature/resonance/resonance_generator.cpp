@@ -39,7 +39,6 @@ float ResonanceGenerator::timeline = 0.0f;
 float ResonanceGenerator::amplitude_precalc;
 float ResonanceGenerator::phase = 0.0f;
 float ResonanceGenerator::freq_mul;
-xyze_float_t ResonanceGenerator:: traj_coords;
 
 ResonanceGenerator rtg;
 
@@ -56,7 +55,6 @@ void ResonanceGenerator::start() {
   do_blocking_move_to_xy(X_CENTER, Y_CENTER, Z_CLEARANCE_FOR_HOMING);
       
   rt_params.start_pos = current_position;
-  traj_coords = rt_params.start_pos;
   rt_time = FTM_TS;
   active = true;
   done = false;
@@ -95,7 +93,7 @@ float ResonanceGenerator::calc_next_pos() {
 }
 
 void ResonanceGenerator::fill_stepper_plan_buffer() {
-  //xyze_float_t traj_coords = rt_params.start_pos;
+  xyze_float_t traj_coords = rt_params.start_pos;
 
   while (!ftMotion.stepping.is_full()) {
     // Calculate current frequency
