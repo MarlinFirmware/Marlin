@@ -61,9 +61,9 @@ def copy_config_files(branch, config_path, dest_dir):
         else:
             debug_print(f"{fname} not found in {src_dir}")
 
-def fetch_config_files(branch, config_path, dest_dir):
+def fetch_config_files(cref, config_path, dest_dir):
     config_path_url = config_path.replace(' ', '%20')
-    base_url = f"https://raw.githubusercontent.com/MarlinFirmware/Configurations/{branch}/config/{config_path_url}"
+    base_url = f"https://raw.githubusercontent.com/MarlinFirmware/Configurations/{cref}/config/{config_path_url}"
 
     for file in CONFIG_FILES:
         url = f"{base_url}/{file}"
@@ -80,8 +80,8 @@ def fetch_config_files(branch, config_path, dest_dir):
             else:
                 raise
 
-def fetch_configs(branch, config_path):
-    print(f"Fetching {config_path} configurations from {branch}...")
+def fetch_configs(cref, config_path):
+    print(f"Fetching {config_path} configurations from {cref}...")
 
     marlin_dir = Path("Marlin")
     if not marlin_dir.exists():
@@ -89,37 +89,37 @@ def fetch_configs(branch, config_path):
         sys.exit(1)
 
     if os.environ.get('GITHUB_ACTIONS'):        # Running on GitHub ?
-        copy_config_files(branch, config_path, marlin_dir)
+        copy_config_files(cref, config_path, marlin_dir)
     else:
-        fetch_config_files(branch, config_path, marlin_dir)
+        fetch_config_files(cref, config_path, marlin_dir)
 
 def main():
-    branch = get_current_branch()
-    if not branch:
+    mbranch = get_current_branch()
+    if not mbranch:
         print("Not a git repository or no branch found.")
         sys.exit(1)
 
-    if branch.startswith("bugfix-2."):
-        branch = branch
-    elif branch.endswith("bugfix-2.1.x"):
-        branch = "bugfix-2.1.x"
-    elif branch.endswith("-2.1.x") or branch == "2.1.x":
-        branch = "latest-2.1.x"
-    elif branch.endswith("-2.0.x") or branch == "2.0.x":
-        branch = "latest-2.0.x"
-    elif branch.endswith("-1.1.x") or branch == "1.1.x":
-        branch = "latest-1.1.x"
-    elif branch.endswith("-1.0.x") or branch == "1.0.x":
-        branch = "latest-1.0.x"
+    if mbranch.startswith("bugfix-"):
+        cref = mbranch
+    elif mbranch.startswith("lts-"):
+        cref = mbranch.replace("lts-", "latest-")
+    elif mbranch.endswith("-2.1.x") or mbranch == "2.1.x":
+        cref = "latest-2.1.x"
+    elif mbranch.endswith("-2.0.x") or mbranch == "2.0.x":
+        cref = "latest-2.0.x"
+    elif mbranch.endswith("-1.1.x") or mbranch == "1.1.x":
+        cref = "latest-1.1.x"
+    elif mbranch == "1.0.x":
+        cref = "latest-1.0.x"
     else:
-        branch = "bugfix-2.1.x"
+        cref = "bugfix-2.1.x"
 
     if len(sys.argv) > 1:
         arg = sys.argv[1]
         if ':' in arg:
             part1, part2 = arg.split(':', 1)
             config_path = part2
-            branch = part1
+            cref = part1
         else:
             config_path = arg
         config_path = 'examples/'+config_path
@@ -134,7 +134,7 @@ def main():
         except FileNotFoundError:
             print("restore_configs not found, skipping.")
 
-    fetch_configs(branch, config_path)
+    fetch_configs(cref, config_path)
 
 if __name__ == "__main__":
     main()

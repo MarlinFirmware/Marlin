@@ -993,3 +993,22 @@
 #if ALL(SMOOTH_LIN_ADVANCE, MIXING_EXTRUDER)
   #warning "SMOOTH_LIN_ADVANCE with MIXING_EXTRUDER is untested. Use with caution."
 #endif
+
+/**
+ * Some LCDs need re-init to deal with flaky SPI bus sharing
+ */
+#if HAS_SD_DETECT && NONE(HAS_GRAPHICAL_TFT, LCD_USE_DMA_FSMC, HAS_FSMC_GRAPHICAL_TFT, HAS_SPI_GRAPHICAL_TFT, IS_DWIN_MARLINUI, EXTENSIBLE_UI, HAS_DWIN_E3V2, HAS_U8GLIB_I2C_OLED)
+  #define RECOMMEND_REINIT_NOISY_LCD 1
+#endif
+#if RECOMMEND_REINIT_NOISY_LCD && DISABLED(REINIT_NOISY_LCD)
+  #warning "It is recommended to enable REINIT_NOISY_LCD with your LCD controller model."
+#elif !RECOMMEND_REINIT_NOISY_LCD && ENABLED(REINIT_NOISY_LCD)
+  #warning "REINIT_NOISY_LCD is probably not required with your LCD controller model."
+#endif
+
+/**
+ * FREEZE_FEATURE may override the KILL_PIN
+ */
+#if FREEZE_STOLE_KILL_PIN_WARNING
+  #warning "FREEZE_FEATURE uses KILL_PIN replacing the KILL button. Define a separate FREEZE_PIN if you don't want this behavior."
+#endif
