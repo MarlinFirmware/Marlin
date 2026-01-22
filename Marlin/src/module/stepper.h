@@ -318,6 +318,26 @@ constexpr ena_mask_t enable_overlap[] = {
 
 #endif // NONLINEAR_EXTRUSION
 
+#if ANY(FREEZE_FEATURE, SOFT_FEED_HOLD)
+
+  typedef union {
+    uint8_t state;
+    struct { bool triggered:1, solid:1; };
+  } frozen_state_t;
+
+  enum FrozenState { FROZEN_TRIGGERED, FROZEN_SOLID };
+
+  #if ENABLED(SOFT_FEED_HOLD)
+    enum FreezePhase : uint8_t {
+      FREEZE_STATIONARY,
+      FREEZE_ACCELERATION,
+      FREEZE_DECELERATION,
+      FREEZE_CRUISE
+    };
+  #endif
+
+#endif
+
 //
 // Stepper class definition
 //
@@ -367,8 +387,12 @@ class Stepper {
       static constexpr uint8_t last_moved_extruder = 0;
     #endif
 
-    #if ENABLED(FREEZE_FEATURE)
-      static bool frozen;                 // Set this flag to instantly freeze motion
+    #if ANY(FREEZE_FEATURE, SOFT_FEED_HOLD)
+      static frozen_state_t frozen_state;           // Frozen flags
+      static void set_frozen_triggered(const bool state) { frozen_state.triggered = state; }
+      #if ENABLED(SOFT_FEED_HOLD)
+        static bool is_frozen_triggered() { return frozen_state.triggered; }
+      #endif
     #endif
 
     #if ENABLED(NONLINEAR_EXTRUSION)
@@ -800,6 +824,15 @@ class Stepper {
       static void ftMotion_stepper();
     #endif
 
+    #if ENABLED(SOFT_FEED_HOLD)
+      static uint32_t frozen_time;                  // How much time passed since frozen_state was triggered?
+      #if ENABLED(LASER_FEATURE)
+        static uint8_t frozen_last_laser_power;     // Saved laser power prior to halting motion
+      #endif
+      static void check_frozen_state(const FreezePhase type, const uint32_t interval);
+      static void check_frozen_time(uint32_t &step_rate);
+      static void set_frozen_solid(const bool state);
+    #endif
 };
 
 extern Stepper stepper;

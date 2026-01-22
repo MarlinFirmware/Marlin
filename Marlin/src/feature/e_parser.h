@@ -93,3 +93,7 @@ private:
 };
 
 extern EmergencyParser emergency_parser;
+
+#if ENABLED(SOFT_FEED_HOLD)
+  extern bool realtime_ramping_pause_flag;
+#endif
