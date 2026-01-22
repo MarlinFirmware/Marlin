@@ -326,10 +326,16 @@ class FTMotion {
   private:
     // Block data variables.
     static xyze_pos_t   startPos,         // (mm) Start position of block
-                        endPos_prevBlock; // (mm) End position of previous block
+                        endPos_prevBlock, // (mm) End position of previous block
+                        last_target_traj; // (mm) Last target position after shaping and smoothing
     static xyze_float_t ratio;            // (ratio) Axis move ratio of block
     static float tau;                     // (s) Time since start of block
     static bool fastForwardUntilMotion;   // Fast forward time if there is no motion
+
+    #if HAS_FTM_DIR_CHANGE_HOLD
+      static xyze_uint_t hold_frames;     // Briefly hold motion after direction changes to fix TMC2208 bug
+      static AxisBits last_traj_dir;      // Direction of the last trajectory point after shaping, smoothing, ...
+    #endif
 
     // Trajectory generators
     static TrapezoidalTrajectoryGenerator trapezoidalGenerator;
@@ -375,8 +381,19 @@ class FTMotion {
     // Synchronize and reset motion prior to parameter changes
     friend void ft_config_t::prep_for_shaper_change();
     static void prep_for_shaper_change() {
+      // planner.synchronize guarantees that motion reached a standstill with no echoes pending execution (including a runout block)
       planner.synchronize();
-      reset();
+      // Due to smoothing, the end position may not have been reached exactly.
+      // This is normally fine, but if smoothing time changes, and we assume it was reached,
+      // it may cause discontinuities.
+      // Therefore, set the next starting position to the exact reached position.
+      endPos_prevBlock = last_target_traj;
+      // We now know that we are not moving and there are no pending echoes,
+      // so set all shaping buffers to current position in case the new smoothing/shaping
+      // parameters force input shaping to look in a past position for echoes.
+      shaping.fill(endPos_prevBlock);
+      TERN_(FTM_SMOOTHING, smoothing.fill(endPos_prevBlock));
+      fastForwardUntilMotion = true;
     }
 
     // Buffers
@@ -386,7 +403,7 @@ class FTMotion {
     static void fill_stepper_plan_buffer();
     static xyze_float_t calc_traj_point(const float dist);
     static bool plan_next_block();
-    static void ensure_float_precision() IF_DISABLED(HAS_EXTRUDERS, {});
+    static void ensure_extruder_float_precision() IF_DISABLED(HAS_EXTRUDERS, {});
 
 }; // class FTMotion
 

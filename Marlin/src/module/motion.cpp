@@ -1438,7 +1438,7 @@ FORCE_INLINE void segment_idle(millis_t &next_idle_ms) {
 float get_move_distance(const xyze_pos_t &diff OPTARG(HAS_ROTATIONAL_AXES, bool &is_cartesian_move)) {
   #if NUM_AXES
 
-    if (!(NUM_AXIS_GANG(diff.x, || diff.y, /* skip z */, || diff.i, || diff.j, || diff.k, || diff.u, || diff.v, || diff.w)))
+    if (NUM_AXIS_NONE(diff.x, diff.y, 0, diff.i, diff.j, diff.k, diff.u, diff.v, diff.w))
       return TERN0(HAS_Z_AXIS, ABS(diff.z));
 
     #if ENABLED(ARTICULATED_ROBOT_ARM)
