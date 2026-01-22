@@ -1,4 +1,4 @@
-On the Bresenham algorithm as implemented by Marlin:
+On the Bresenham algorithm as implemented by Marlin:\
 (Taken from (https://www.cs.helsinki.fi/group/goa/mallinnus/lines/bresenh.html)
 
 The basic Bresenham algorithm:
