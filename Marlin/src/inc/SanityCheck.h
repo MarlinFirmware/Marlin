@@ -2713,17 +2713,17 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
   #endif
   #ifdef BOARD_NEOPIXEL_MAX
     #if (NEOPIXEL_PIXELS > BOARD_NEOPIXEL_MAX && NEOPIXEL_PIN == BOARD_NEOPIXEL_PIN) || (NEOPIXEL_PIXELS > BOARD_NEOPIXEL_MAX && DISABLED(NEOPIXEL2_SEPARATE) && NEOPIXEL2_PIN == BOARD_NEOPIXEL_PIN)
-      #ifdef BOARD_HAS_DCDC5V
-        #error "NEOPIXEL_PIXELS exceeds the recommended maximum supported by this board."
+      #if ENABLED(BOARD_HAS_DCDC5V)
+        #error "NEOPIXEL_PIXELS exceeds the recommended maximum for your MOTHERBOARD."
       #elif MB(BTT_SKR_MINI_E3_V2_0, BTT_SKR_MINI_E3_V3_0)
-        #error "NEOPIXEL_PIXELS exceeds the recommended maximum supported by this board. Consider adding a 5V DC-DC converter and #define BOARD_HAS_DCDC5V to your Configuration,h."
+        static_assert(false, "\nNEOPIXEL_PIXELS exceeds the recommended maximum for your MOTHERBOARD.\nConsider adding a 5V DC-DC converter and #define BOARD_HAS_DCDC5V to your Configuration.h.");
       #endif
     #endif
     #if ENABLED(NEOPIXEL2_SEPARATE) && NEOPIXEL2_PIXELS > BOARD_NEOPIXEL_MAX && NEOPIXEL2_PIN == BOARD_NEOPIXEL_PIN
-      #ifdef BOARD_HAS_DCDC5V
-        #error "NEOPIXEL2_PIXELS exceeds the recommended maximum supported by this board."
+      #if ENABLED(BOARD_HAS_DCDC5V)
+        #error "NEOPIXEL2_PIXELS exceeds the recommended maximum for your MOTHERBOARD."
       #elif MB(BTT_SKR_MINI_E3_V2_0, BTT_SKR_MINI_E3_V3_0)
-        #error "NEOPIXEL2_PIXELS exceeds the recommended maximum supported by this board. Consider adding a 5V DC-DC converter and #define BOARD_HAS_DCDC5V to your Configuration,h."
+        static_assert(false, "\nNEOPIXEL2_PIXELS exceeds the recommended maximum for your MOTHERBOARD.\nConsider adding a 5V DC-DC converter and #define BOARD_HAS_DCDC5V to your Configuration.h.");
       #endif
     #endif
   #endif
