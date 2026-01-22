@@ -167,3 +167,6 @@ __pycache__
 # Simulation / Native
 eeprom.dat
 imgui.ini
+mczip.h
+spi_flash.bin
+*.sublime-workspace
