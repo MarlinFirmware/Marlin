@@ -92,7 +92,7 @@
 #ifdef Z_AFTER_HOMING
   #define DEF_Z_AFTER_HOMING Z_AFTER_HOMING
 #else
-  #define DEF_Z_AFTER_HOMING 0
+  #define DEF_Z_AFTER_HOMING 10
 #endif
 
 #ifdef PREHEAT_1_TEMP_HOTEND

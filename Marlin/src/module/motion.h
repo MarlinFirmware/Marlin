@@ -415,13 +415,6 @@ void remember_feedrate_scaling_off();
 void restore_feedrate_and_scaling();
 
 #if HAS_Z_AXIS
-  #ifndef Z_POST_CLEARANCE  // May be set by proui/dwin.h :-P
-    #ifdef Z_AFTER_HOMING
-      #define Z_POST_CLEARANCE Z_AFTER_HOMING
-    #else
-      #define Z_POST_CLEARANCE Z_CLEARANCE_FOR_HOMING
-    #endif
-  #endif
   void do_z_clearance(const float zclear, const bool with_probe=true, const bool lower_allowed=false);
   void do_z_clearance_by(const float zclear);
   void do_move_after_z_homing();

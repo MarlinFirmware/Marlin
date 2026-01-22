@@ -561,14 +561,24 @@
 #endif
 
 /**
- * Z_AFTER_HOMING
+ * Z_POST_CLEARANCE
+ */
+#if HAS_Z_AXIS && NONE(INDIVIDUAL_AXIS_HOMING_SUBMENU, MESH_BED_LEVELING, DWIN_LCD_PROUI)
+  #ifndef Z_POST_CLEARANCE  // May be set by proui/dwin.h :-P
+    #ifdef Z_AFTER_HOMING
+      #define Z_POST_CLEARANCE Z_AFTER_HOMING
+    #else
+      #define Z_POST_CLEARANCE Z_CLEARANCE_FOR_HOMING
+    #endif
+  #endif
+#endif
+
+/**
+ * Z_AFTER_PROBING
  */
 #if PROBE_SELECTED && ENABLED(AUTO_BED_LEVELING_UBL) && !Z_HOME_TO_MAX || ENABLED(ALLOW_Z_AFTER_HOMING)
   #ifndef Z_AFTER_PROBING
     #define Z_AFTER_PROBING
-  #endif
-  #ifndef Z_AFTER_HOMING
-    #define Z_AFTER_HOMING Z_CLEARANCE_FOR_HOMING
   #endif
 #endif
 

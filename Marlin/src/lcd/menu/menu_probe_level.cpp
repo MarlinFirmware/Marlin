@@ -76,7 +76,7 @@
     if (!ui.wait_for_move) {
       #if DISABLED(MESH_BED_LEVELING) && ENABLED(Z_AFTER_PROBING)
         // Display "Done" screen and wait for moves to complete
-        line_to_z(Z_AFTER_HOMING);
+        line_to_z(Z_POST_CLEARANCE);
         ui.synchronize(GET_TEXT_F(MSG_LEVEL_BED_DONE));
       #endif
       ui.goto_previous_screen_no_defer();

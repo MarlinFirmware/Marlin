@@ -1590,7 +1590,7 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
     static_assert(Z_CLEARANCE_BETWEEN_PROBES >= 0, "Probes require Z_CLEARANCE_BETWEEN_PROBES >= 0.");
   #endif
   #if ENABLED(Z_AFTER_PROBING)
-    static_assert(Z_AFTER_HOMING >= 0, "Probes with Z_AFTER_PROBING require Z_AFTER_HOMING >= 0.");
+    static_assert(Z_POST_CLEARANCE >= 0, "Probes with Z_AFTER_PROBING require Z_POST_CLEARANCE >= 0.");
   #endif
 
   #if MULTIPLE_PROBING > 0 || EXTRA_PROBING > 0
