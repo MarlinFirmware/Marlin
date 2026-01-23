@@ -380,7 +380,7 @@ bool FTMotion::plan_next_block() {
       if (current_block->is_sync_pos()) stepper._set_position(current_block->position);
       continue;
     }
-    ensure_float_precision();
+    ensure_extruder_float_precision();
 
     #if ENABLED(POWER_LOSS_RECOVERY)
       recovery.info.sdpos = current_block->sdpos;
@@ -441,7 +441,7 @@ bool FTMotion::plan_next_block() {
    * resolution = 2^(floor(log2(|x|)) - 23)
    * By resetting at ±1'000mm (1 meter), we get a minimum resolution of ~ 0.00006mm, enough for smoothing to work well.
    */
-  void FTMotion::ensure_float_precision() {
+  void FTMotion::ensure_extruder_float_precision() {
     constexpr float FTM_POSITION_WRAP_THRESHOLD = 1000; // (mm) Reset when position exceeds this to prevent floating point precision loss
     if (ABS(endPos_prevBlock.E) < FTM_POSITION_WRAP_THRESHOLD) return;
 
@@ -462,6 +462,9 @@ bool FTMotion::plan_next_block() {
     // Offset linear advance previous position
     prev_traj_e += offset;
 
+    // Make sure the difference is accounted-for in the past
+    last_target_traj.e += offset;
+
     // Offset stepper current position
     const int64_t delta_steps_q48_16 = offset * planner.settings.axis_steps_per_mm[block_extruder_axis] * (1ULL << 16);
     stepping.curr_steps_q48_16.E += delta_steps_q48_16;
@@ -475,21 +478,42 @@ xyze_float_t FTMotion::calc_traj_point(const float dist) {
   LOGICAL_AXIS_MAP_LC(_SET_TRAJ);
 
   #if FTM_HAS_LIN_ADVANCE
-    const float advK = planner.get_advance_k();
-    if (advK) {
-      const float traj_e = traj_coords.e;
-      if (use_advance_lead) {
-        // Don't apply LA to retract/unretract blocks
-        const float e_rate = (traj_e - prev_traj_e) * (FTM_FS);
+
+    // Apply LA/NLE only to printing (not retract/unretract) blocks
+
+    if (use_advance_lead) {
+      const float advK = planner.get_advance_k();
+      if (advK || TERN0(NONLINEAR_EXTRUSION, stepper.ne.settings.enabled)) {
+        float traj_e = traj_coords.e;
+        const float traj_e_delta = traj_e - prev_traj_e; // extruder delta in mm, always positive for use_advance_lead (printing moves)
+        const float e_rate = traj_e_delta * FTM_FS;      // extruder velocity in mm/s
+
         traj_coords.e += e_rate * advK;
+
+        #if ENABLED(NONLINEAR_EXTRUSION)
+          if (stepper.ne.settings.enabled) {
+            const nonlinear_coeff_t &coeff = stepper.ne.settings.coeff;
+            const float multiplier = max(coeff.C, coeff.A * sq(e_rate) + coeff.B * e_rate + coeff.C),
+                        nle_term = traj_e_delta * (multiplier - 1);
+
+            traj_coords.e += nle_term;
+            traj_e += nle_term;
+            startPos.e += nle_term;
+            endPos_prevBlock.e += nle_term;
+          }
+        #endif
+
+        prev_traj_e = traj_e;
       }
-      prev_traj_e = traj_e;
     }
-  #endif
+
+  #endif // FTM_HAS_LIN_ADVANCE
 
   // Update shaping parameters if needed.
   switch (cfg.dynFreqMode) {
+
     #if HAS_DYNAMIC_FREQ_MM
+
       case dynFreqMode_Z_BASED: {
         static float oldz = 0.0f;
         const float z = traj_coords.z;
@@ -506,9 +530,11 @@ xyze_float_t FTMotion::calc_traj_point(const float dist) {
           shaping.refresh_largest_delay_samples();
         }
       } break;
+
     #endif
 
     #if HAS_DYNAMIC_FREQ_G
+
       case dynFreqMode_MASS_BASED:
         // Update constantly. The optimization done for Z value makes
         // less sense for E, as E is expected to constantly change.
@@ -520,6 +546,7 @@ xyze_float_t FTMotion::calc_traj_point(const float dist) {
         #endif
         shaping.refresh_largest_delay_samples();
         break;
+
     #endif
 
     default: break;

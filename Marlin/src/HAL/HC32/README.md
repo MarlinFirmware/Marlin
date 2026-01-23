@@ -49,9 +49,13 @@ SCB->VTOR = ((uint32_t) APP_START_ADDRESS & SCB_VTOR_TBLOFF_Msk);
 
 Just searching for `SCB->VTOR` should yield some results. From there, you just need to look at the value that's assigned to it. The example uses `APP_START_ADDRESS`.
 
-> [!NOTE] Some vendors publish incomplete source code. But they sometimes leave version control related files in the repo, which can contain previous version of files that were removed. Find these by including folders like `.git` or `.svn` in your search.
+> [!NOTE]
+>
+> Some vendors publish incomplete source code. But they sometimes leave version control related files in the repo, which can contain previous version of files that were removed. Find these by including folders like `.git` or `.svn` in your search.
 
-> [!NOTE] The example is based on the [Voxelab-64/Aquila_X2](//github.com/Voxelab-64/Aquila_X2/blob/main/firmware/Sources/.svn/pristine/ec/ec82bcb480b511906bc3e6658450e3a803ab9813.svn-base#L96) which actually includes deleted files in its repo.
+> [!NOTE]
+>
+> The example is based on the [Voxelab-64/Aquila_X2](//github.com/Voxelab-64/Aquila_X2/blob/main/firmware/Sources/.svn/pristine/ec/ec82bcb480b511906bc3e6658450e3a803ab9813.svn-base#L96) which actually includes deleted files in its repo.
 
 2. Using a linker script
 
@@ -69,7 +73,9 @@ MEMORY
 }
 ```
 
-> [!NOTE] This example is based on [Voxelab-64/Aquila_X2](//github.com/Voxelab-64/Aquila_X2/blob/d1f23adf96920996b979bc31023d1dce236d05db/firmware/Sources/main/hdsc32core/hc32f46x_flash.ld#L55)
+> [!NOTE]
+>
+> This example is based on [Voxelab-64/Aquila_X2](//github.com/Voxelab-64/Aquila_X2/blob/d1f23adf96920996b979bc31023d1dce236d05db/firmware/Sources/main/hdsc32core/hc32f46x_flash.ld#L55)
 
 ## Documentation on the HC32F460
 

@@ -203,4 +203,4 @@ namespace ExtUI {
   void onAxisEnabled(const axis_t) {}
 }
 
-#endif // DGUS_LCD_UI_RELOADED
+#endif // DGUS_LCD_UI_E3S1PRO
