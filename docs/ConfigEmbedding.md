@@ -8,7 +8,7 @@ At the start of the PlatformIO build process, we create an embedded configuratio
 
 ## Extracting configurations from a Marlin binary
 
-To get the configuration out of a binary firmware, you'll need a non-write-protected SD card inserted into the printer while running the firmware.
+To get the configuration out of a binary firmware, you'll need a non-write-protected SD card inserted into the printer while running the firmware.\
 Send the command `M503 C` to write the file `mc.zip` to the SD card. Copy the file to your computer, ideally in the same folder as the Marlin repository.
 
 Run the following commands to extract and apply the configuration:

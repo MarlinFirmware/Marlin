@@ -69,6 +69,3 @@ def format_text(argv):
 # Python standard startup for command line with arguments
 if __name__ == '__main__':
     format_text(sys.argv[1:])
-
-# Usage
-apply_editorconfig_rules('/path/to/your/folder')

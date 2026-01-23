@@ -1876,8 +1876,13 @@ void MarlinSettings::postprocess() {
 
     TERN_(EXTENSIBLE_UI, ExtUI::onSettingsStored(success));
 
+    // Remember the error condition so One-Click Printing can be skipped
+    #if ENABLED(ONE_CLICK_PRINT) && NONE(EEPROM_AUTO_INIT, EEPROM_INIT_NOW)
+      working_crc = uint16_t(eeprom_error);
+    #endif
+
     return success;
-  }
+  } // save
 
   EEPROM_Error MarlinSettings::check_version() {
     if (!EEPROM_START(EEPROM_OFFSET)) return ERR_EEPROM_NOPROM;
@@ -3077,8 +3082,13 @@ void MarlinSettings::postprocess() {
       if (!validating && TERN1(EEPROM_BOOT_SILENT, marlin.isRunning())) report();
     #endif
 
+    // Remember the error condition so One-Click Printing can be skipped
+    #if ENABLED(ONE_CLICK_PRINT) && NONE(EEPROM_AUTO_INIT, EEPROM_INIT_NOW)
+      working_crc = uint16_t(eeprom_error);
+    #endif
+
     return eeprom_error;
-  }
+  } // _load
 
   #ifdef ARCHIM2_SPI_FLASH_EEPROM_BACKUP_SIZE
     extern bool restoreEEPROM();
@@ -3146,7 +3156,7 @@ void MarlinSettings::postprocess() {
 
   #if ENABLED(AUTO_BED_LEVELING_UBL)
 
-    inline void ubl_invalid_slot(const int s) {
+    static void ubl_invalid_slot(const int s) {
       DEBUG_ECHOLN(F("?Invalid "), F("slot.\n"), s, F(" mesh slots available."));
       UNUSED(s);
     }
