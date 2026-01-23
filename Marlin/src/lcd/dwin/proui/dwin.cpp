@@ -2168,6 +2168,13 @@ void autoHome() { queue.inject_P(G28_STR); }
 
 #if HAS_ZOFFSET_ITEM
 
+  #ifndef PROBE_OFFSET_ZMIN
+    #define PROBE_OFFSET_ZMIN -20
+  #endif
+  #ifndef PROBE_OFFSET_ZMAX
+    #define PROBE_OFFSET_ZMAX  20
+  #endif
+
   void applyZOffset() { TERN_(EEPROM_SETTINGS, settings.save()); }
   void liveZOffset() {
     #if ANY(BABYSTEP_ZPROBE_OFFSET, JUST_BABYSTEP)
