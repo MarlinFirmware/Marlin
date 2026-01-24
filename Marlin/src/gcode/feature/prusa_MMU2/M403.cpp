@@ -22,7 +22,7 @@
 
 #include "../../../inc/MarlinConfigPre.h"
 
-#if ANY(HAS_PRUSA_MMU2, HAS_PRUSA_MMU3)
+#if HAS_PRUSA_MMU2 || HAS_PRUSA_MMU3
 
 #include "../../gcode.h"
 

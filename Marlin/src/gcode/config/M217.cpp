@@ -122,7 +122,7 @@ void GcodeSuite::M217() {
     #endif
   #endif
 
-  #if ALL(HAS_Z_AXIS, HAS_TOOLCHANGE)
+  #if HAS_Z_AXIS && HAS_TOOLCHANGE
     if (parser.seenval('Z')) { toolchange_settings.z_raise = parser.value_linear_units(); }
   #endif
 

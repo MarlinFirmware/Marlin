@@ -30,11 +30,11 @@
 
 #if MB(PRINTRBOARD_G2)
   #include HAL_PATH(../.., fastio/G2_PWM.h)
-#elif ANY(HAS_MOTOR_CURRENT_SPI, HAS_MOTOR_CURRENT_PWM)
+#elif HAS_MOTOR_CURRENT_SPI || HAS_MOTOR_CURRENT_PWM
   #define HAS_NON_G2_MOTOR_CURRENT 1
 #endif
 
-#if ANY(HAS_MOTOR_CURRENT_PWM, HAS_NON_G2_MOTOR_CURRENT)
+#if HAS_MOTOR_CURRENT_PWM || HAS_NON_G2_MOTOR_CURRENT
   bool Stepper::initialized; // = false
   uint32_t Stepper::motor_current_setting[MOTOR_CURRENT_COUNT]; // Initialized by settings.load
 #endif
@@ -379,13 +379,13 @@
       // MS3 is not shared, handled per-driver below
     #else // !HAS_SHARED_MICROSTEPPING_PINS
       if (ms1 >= 0) switch (driver) {
-        #if ANY(HAS_X_MS_PINS, HAS_X2_MS_PINS)
+        #if HAS_X_MS_PINS || HAS_X2_MS_PINS
           case X_AXIS:
             TERF(HAS_X_MS_PINS, WRITE)(X_MS1_PIN, ms1);
             TERF(HAS_X2_MS_PINS, WRITE)(X2_MS1_PIN, ms1);
             break;
         #endif
-        #if ANY(HAS_Y_MS_PINS, HAS_Y2_MS_PINS)
+        #if HAS_Y_MS_PINS || HAS_Y2_MS_PINS
           case Y_AXIS:
             TERF(HAS_Y_MS_PINS, WRITE)(Y_MS1_PIN, ms1);
             TERF(HAS_Y2_MS_PINS, WRITE)(Y2_MS1_PIN, ms1);
@@ -443,13 +443,13 @@
         #endif
       }
       if (ms2 >= 0) switch (driver) {
-        #if ANY(HAS_X_MS_PINS, HAS_X2_MS_PINS)
+        #if HAS_X_MS_PINS || HAS_X2_MS_PINS
           case X_AXIS:
             TERF(HAS_X_MS_PINS, WRITE)(X_MS2_PIN, ms2);
             TERF(HAS_X2_MS_PINS, WRITE)(X2_MS2_PIN, ms2);
             break;
         #endif
-        #if ANY(HAS_Y_MS_PINS, HAS_Y2_MS_PINS)
+        #if HAS_Y_MS_PINS || HAS_Y2_MS_PINS
           case Y_AXIS:
             TERF(HAS_Y_MS_PINS, WRITE)(Y_MS2_PIN, ms2);
             TERF(HAS_Y2_MS_PINS, WRITE)(Y2_MS2_PIN, ms2);
@@ -507,7 +507,7 @@
         #endif
       }
       if (ms3 >= 0) switch (driver) {
-        #if ANY(HAS_X_MS_PINS, HAS_X2_MS_PINS)
+        #if HAS_X_MS_PINS || HAS_X2_MS_PINS
           case X_AXIS:
             #if HAS_X_MS_PINS && PIN_EXISTS(X_MS3)
               WRITE(X_MS3_PIN, ms3);
@@ -517,7 +517,7 @@
             #endif
             break;
         #endif
-        #if ANY(HAS_Y_MS_PINS, HAS_Y2_MS_PINS)
+        #if HAS_Y_MS_PINS || HAS_Y2_MS_PINS
           case Y_AXIS:
             #if HAS_Y_MS_PINS && PIN_EXISTS(Y_MS3)
               WRITE(Y_MS3_PIN, ms3);

@@ -29,7 +29,7 @@
  * Test SAMD21 specific configuration values for errors at compile-time.
  */
 
-#if ANY(HAS_SPI_TFT, HAS_FSMC_TFT)
+#if HAS_SPI_TFT || HAS_FSMC_TFT
   #error "Sorry! TFT displays are not available for HAL/SAMD21."
 #endif
 

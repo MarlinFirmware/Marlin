@@ -247,7 +247,7 @@ public:
   static bool deploy(const bool no_return=false) { return set_deployed(true, no_return); }
   static bool stow(const bool no_return=false)   { return set_deployed(false, no_return); }
 
-  #if ANY(HAS_BED_PROBE, HAS_LEVELING)
+  #if HAS_BED_PROBE || HAS_LEVELING
     #if IS_KINEMATIC
       static constexpr float probe_radius(const xy_pos_t &probe_offset_xy=offset_xy) {
         return float(PRINTABLE_RADIUS) - _MAX(PROBING_MARGIN, HYPOT(probe_offset_xy.x, probe_offset_xy.y));

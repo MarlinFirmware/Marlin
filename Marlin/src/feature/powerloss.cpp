@@ -535,7 +535,7 @@ void PrintJobRecovery::resume() {
   #endif
 
   // Restore the previously active tool (with no_move)
-  #if ANY(HAS_MULTI_EXTRUDER, HAS_MULTI_HOTEND)
+  #if HAS_MULTI_EXTRUDER || HAS_MULTI_HOTEND
     PROCESS_SUBCOMMANDS_NOW(TS('T', info.active_extruder, 'S'));
   #endif
 

@@ -1583,7 +1583,7 @@ void MarlinSettings::postprocess() {
     {
       _FIELD_TEST(motor_current_setting);
 
-      #if ANY(HAS_MOTOR_CURRENT_SPI, HAS_MOTOR_CURRENT_PWM)
+      #if HAS_MOTOR_CURRENT_SPI || HAS_MOTOR_CURRENT_PWM
         EEPROM_WRITE(stepper.motor_current_setting);
       #else
         const uint32_t no_current[MOTOR_CURRENT_COUNT] = { 0 };
@@ -2699,7 +2699,7 @@ void MarlinSettings::postprocess() {
         #if HAS_MOTOR_CURRENT_SPI
           DEBUG_ECHO_MSG("DIGIPOTS Loaded");
         #endif
-        #if ANY(HAS_MOTOR_CURRENT_SPI, HAS_MOTOR_CURRENT_PWM)
+        #if HAS_MOTOR_CURRENT_SPI || HAS_MOTOR_CURRENT_PWM
           if (!validating)
             COPY(stepper.motor_current_setting, motor_current_setting);
         #endif
@@ -4124,7 +4124,7 @@ void MarlinSettings::reset() {
     //
     // Motor Current (SPI or PWM)
     //
-    #if ANY(HAS_MOTOR_CURRENT_SPI, HAS_MOTOR_CURRENT_PWM)
+    #if HAS_MOTOR_CURRENT_SPI || HAS_MOTOR_CURRENT_PWM
       gcode.M907_report(forReplay);
     #endif
 

@@ -22,7 +22,7 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-#if ANY(HAS_SPI_TFT, HAS_FSMC_TFT, HAS_LTDC_TFT)
+#if HAS_SPI_TFT || HAS_FSMC_TFT || HAS_LTDC_TFT
 
 #include "tft_io.h"
 #include "tft_ids.h"

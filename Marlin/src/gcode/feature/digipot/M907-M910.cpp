@@ -22,11 +22,11 @@
 
 #include "../../../inc/MarlinConfig.h"
 
-#if ANY(HAS_MOTOR_CURRENT_SPI, HAS_MOTOR_CURRENT_PWM, HAS_MOTOR_CURRENT_I2C, HAS_MOTOR_CURRENT_DAC)
+#if HAS_MOTOR_CURRENT_SPI || HAS_MOTOR_CURRENT_PWM || HAS_MOTOR_CURRENT_I2C || HAS_MOTOR_CURRENT_DAC
 
 #include "../../gcode.h"
 
-#if ANY(HAS_MOTOR_CURRENT_SPI, HAS_MOTOR_CURRENT_PWM)
+#if HAS_MOTOR_CURRENT_SPI || HAS_MOTOR_CURRENT_PWM
   #include "../../../module/stepper.h"
 #endif
 
@@ -170,7 +170,7 @@ void GcodeSuite::M907() {
   #endif
 }
 
-#if ANY(HAS_MOTOR_CURRENT_SPI, HAS_MOTOR_CURRENT_PWM)
+#if HAS_MOTOR_CURRENT_SPI || HAS_MOTOR_CURRENT_PWM
 
   void GcodeSuite::M907_report(const bool forReplay/*=true*/) {
     TERN_(MARLIN_SMALL_BUILD, return);
@@ -205,7 +205,7 @@ void GcodeSuite::M907() {
 
 #endif // HAS_MOTOR_CURRENT_SPI || HAS_MOTOR_CURRENT_PWM
 
-#if ANY(HAS_MOTOR_CURRENT_SPI, HAS_MOTOR_CURRENT_DAC)
+#if HAS_MOTOR_CURRENT_SPI || HAS_MOTOR_CURRENT_DAC
 
   /**
    * M908: Control digital trimpot directly (M908 P<pin> S<current>)

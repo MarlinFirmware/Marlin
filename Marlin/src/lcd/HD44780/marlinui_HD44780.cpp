@@ -1199,7 +1199,7 @@ void MarlinUI::draw_status_screen() {
     lcd_moveto(0, 2);
     #if HOTENDS > 2
       _draw_heater_status(H_E2, LCD_STR_THERMOMETER[0], blink);
-    #elif ALL(HAS_MULTI_HOTEND, HAS_HEATED_BED)
+    #elif HAS_MULTI_HOTEND && HAS_HEATED_BED
       _draw_bed_status(blink);
     #elif HAS_PRINT_PROGRESS
       #define DREW_PRINT_PROGRESS 1

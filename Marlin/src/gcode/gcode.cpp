@@ -868,7 +868,7 @@ void GcodeSuite::process_parsed_command(bool no_ok/*=false*/) {
         case 402: M402(); break;                                  // M402: Stow probe
       #endif
 
-      #if ANY(HAS_PRUSA_MMU2, HAS_PRUSA_MMU3)
+      #if HAS_PRUSA_MMU2 || HAS_PRUSA_MMU3
         case 403: M403(); break;
       #endif
 

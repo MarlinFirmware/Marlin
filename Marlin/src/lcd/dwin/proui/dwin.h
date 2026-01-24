@@ -208,7 +208,7 @@ extern hmi_flag_t hmiFlag;
 extern uint8_t checkkey;
 
 // Popups
-#if ANY(HAS_HOTEND, HAS_HEATED_BED, HAS_HEATED_CHAMBER)
+#if HAS_HOTEND || HAS_HEATED_BED || HAS_HEATED_CHAMBER
   void dwinPopupTemperature(const int_fast8_t heater_id, const uint8_t state);
 #endif
 #if ENABLED(POWER_LOSS_RECOVERY)

@@ -437,7 +437,7 @@ FORCE_INLINE void _draw_axis_value(const AxisEnum axis, const char *value, const
     lcd_put_u8str(value);
 }
 
-#if ANY(HAS_HOTEND, HAS_HEATED_BED)
+#if HAS_HOTEND || HAS_HEATED_BED
 
   FORCE_INLINE void _draw_heater_status(const heater_id_t heater_id, const char *prefix, const bool blink) {
     uint8_t pic_hot_bits;

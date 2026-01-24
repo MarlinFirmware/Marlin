@@ -175,7 +175,7 @@ void GCodeParser::parse(char *p) {
       // Skip spaces to get the numeric part
       while (*p == ' ') p++;
 
-      #if ANY(HAS_PRUSA_MMU2, HAS_PRUSA_MMU3)
+      #if HAS_PRUSA_MMU2 || HAS_PRUSA_MMU3
         if (letter == 'T') {
           // check for special MMU2 T?/Tx/Tc commands
           if (*p == '?' || *p == 'x' || *p == 'c') {

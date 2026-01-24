@@ -756,7 +756,7 @@ namespace ExtUI {
           probe.offset.z += mm;
       #endif
 
-      #if ALL(HAS_MULTI_EXTRUDER, HAS_HOTEND_OFFSET)
+      #if HAS_MULTI_EXTRUDER && HAS_HOTEND_OFFSET
         /**
          * When linked_nozzles is false, as an axis is babystepped
          * adjust the hotend offsets so that the other nozzles are

@@ -84,7 +84,7 @@
   #include "../../sd/cardreader.h"
 #endif
 
-#if ANY(LCD_SHOW_E_TOTAL, HAS_PRINT_PROGRESS)
+#if ENABLED(LCD_SHOW_E_TOTAL) || HAS_PRINT_PROGRESS
   #include "../../MarlinCore.h" // for printingIsActive
 #endif
 

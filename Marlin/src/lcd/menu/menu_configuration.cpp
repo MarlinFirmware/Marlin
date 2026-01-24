@@ -105,7 +105,7 @@ void menu_advanced_settings();
 
   #define __STOP_ITEM(F,S) PSTRING_ITEM_F_P(F, TEST(stops, S) ? PSTR(STR_ENDSTOP_HIT) : PSTR(STR_ENDSTOP_OPEN), SS_FULL);
   #define _STOP_ITEM(L,S) __STOP_ITEM(F(L), S)
-  #if ANY(HAS_X2_STATE, HAS_Y2_STATE, HAS_Z2_STATE)
+  #if HAS_X2_STATE || HAS_Y2_STATE || HAS_Z2_STATE
     #define _S1_EXP_  ~,
     #define _S1_SP_(I) THIRD(I, " ", "")
     #define S1_SPACE(I) _S1_SP_(_CAT(_S1_EXP_,I))

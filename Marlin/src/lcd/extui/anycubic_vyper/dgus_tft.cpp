@@ -1190,7 +1190,7 @@ namespace Anycubic {
         break;
     }
 
-    #if ANY(HAS_HOTEND, HAS_HEATED_BED)
+    #if HAS_HOTEND || HAS_HEATED_BED
       static millis_t flash_time = 0;
       const millis_t ms = millis();
       if (PENDING(ms, flash_time)) return;
@@ -1909,7 +1909,7 @@ namespace Anycubic {
         changePageOfTFT(PAGE_PreLEVEL);
         break;
 
-      #if ANY(HAS_HOTEND, HAS_HEATED_BED)
+      #if HAS_HOTEND || HAS_HEATED_BED
         case 3: {
           changePageOfTFT(PAGE_PREHEAT);
           TERN_(HAS_HOTEND, send_temperature_hotend(TXT_PREHEAT_HOTEND));
@@ -2015,7 +2015,7 @@ namespace Anycubic {
     }
   }
 
-  #if ANY(HAS_HOTEND, HAS_HEATED_BED)
+  #if HAS_HOTEND || HAS_HEATED_BED
 
     void DgusTFT::page18() {     // preheat
     debugPage(18);
@@ -2397,7 +2397,7 @@ namespace Anycubic {
     void DgusTFT::page34() {
       debugPage(34);
 
-      #if ANY(HAS_HOTEND, HAS_HEATED_BED)
+      #if HAS_HOTEND || HAS_HEATED_BED
         static millis_t flash_time = 0;
         const millis_t ms = millis();
         if (PENDING(ms, flash_time)) return;
@@ -2591,7 +2591,7 @@ namespace Anycubic {
     void DgusTFT::page175() {     // CHS probe preheating handler
       debugPage(175);
 
-      #if ANY(HAS_HOTEND, HAS_HEATED_BED)
+      #if HAS_HOTEND || HAS_HEATED_BED
         static millis_t flash_time = 0;
         const millis_t ms = millis();
         if (PENDING(ms, flash_time)) return;
@@ -2605,7 +2605,7 @@ namespace Anycubic {
     void DgusTFT::page176() {     // ENG probe preheating handler
       debugPage(176);
 
-      #if ANY(HAS_HOTEND, HAS_HEATED_BED)
+      #if HAS_HOTEND || HAS_HEATED_BED
         static millis_t flash_time = 0;
         const millis_t ms = millis();
         if (PENDING(ms, flash_time)) return;
@@ -2790,7 +2790,7 @@ namespace Anycubic {
     //static millis_t probe_check_counter = 0;
     //static uint8_t probe_state_last = 0;
 
-    #if ANY(HAS_HOTEND, HAS_HEATED_BED)
+    #if HAS_HOTEND || HAS_HEATED_BED
       static millis_t flash_time = 0;
       const millis_t ms = millis();
       if (PENDING(ms, flash_time)) return;

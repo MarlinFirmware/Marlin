@@ -599,7 +599,7 @@ typedef struct { raw_adc_t raw_min, raw_max; celsius_t mintemp, maxtemp; } temp_
 
 #endif
 
-#if ANY(HAS_AUTO_FAN, HAS_FANCHECK)
+#if HAS_AUTO_FAN || HAS_FANCHECK
   #define HAS_FAN_LOGIC 1
 #endif
 

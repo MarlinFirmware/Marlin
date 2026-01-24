@@ -499,7 +499,7 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
 #if HAS_FILAMENT_SENSOR
   #if !PIN_EXISTS(FIL_RUNOUT)
     #error "FILAMENT_RUNOUT_SENSOR requires FIL_RUNOUT_PIN."
-  #elif ANY(HAS_PRUSA_MMU2, HAS_PRUSA_MMU3) && NUM_RUNOUT_SENSORS != 1
+  #elif (HAS_PRUSA_MMU2 || HAS_PRUSA_MMU3) && NUM_RUNOUT_SENSORS != 1
       #error "NUM_RUNOUT_SENSORS must be 1 with MMU2 / MMU2S / MMU3."
   #elif NUM_RUNOUT_SENSORS != 1 && NUM_RUNOUT_SENSORS != E_STEPPERS
     #error "NUM_RUNOUT_SENSORS must be either 1 or number of E steppers."
@@ -597,7 +597,7 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
 /**
  * Multi-Material-Unit 2 / EXTENDABLE_EMU_MMU2 requirements
  */
-#if ANY(HAS_PRUSA_MMU2, HAS_PRUSA_MMU3)
+#if HAS_PRUSA_MMU2 || HAS_PRUSA_MMU3
   #if !HAS_EXTENDABLE_MMU && EXTRUDERS != 5
     #undef SINGLENOZZLE
     #error "PRUSA_MMU2(S) requires exactly 5 EXTRUDERS. Please update your Configuration."
@@ -605,7 +605,7 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
     #error "EXTRUDERS is too large for MMU(S) emulation mode. The maximum value is 15."
   #elif DISABLED(NOZZLE_PARK_FEATURE)
     #error "PRUSA_MMU2(S) requires NOZZLE_PARK_FEATURE. Enable it to continue."
-  #elif ANY(HAS_PRUSA_MMU2S, HAS_PRUSA_MMU3) && DISABLED(FILAMENT_RUNOUT_SENSOR)
+  #elif (HAS_PRUSA_MMU2S || HAS_PRUSA_MMU3) && DISABLED(FILAMENT_RUNOUT_SENSOR)
     #error "PRUSA_MMU2S and HAS_PRUSA_MMU3 requires FILAMENT_RUNOUT_SENSOR. Enable it to continue."
   #elif ENABLED(MMU2_EXTRUDER_SENSOR) && DISABLED(FILAMENT_RUNOUT_SENSOR)
     #error "MMU2_EXTRUDER_SENSOR requires FILAMENT_RUNOUT_SENSOR. Enable it to continue."
@@ -669,7 +669,7 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
     #error "TOOLCHANGE_ZRAISE required for EXTRUDERS > 1."
   #endif
 
-#elif ANY(HAS_PRUSA_MMU1, HAS_EXTENDABLE_MMU)
+#elif HAS_PRUSA_MMU1 || HAS_EXTENDABLE_MMU
 
   #error "Multi-Material-Unit requires 2 or more EXTRUDERS."
 
@@ -694,7 +694,7 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
     #error "MECHANICAL_SWITCHING_NOZZLE and DUAL_X_CARRIAGE are incompatible."
   #elif ENABLED(SINGLENOZZLE)
     #error "MECHANICAL_SWITCHING_NOZZLE and SINGLENOZZLE are incompatible."
-  #elif ANY(HAS_PRUSA_MMU2, HAS_PRUSA_MMU3)
+  #elif HAS_PRUSA_MMU2 || HAS_PRUSA_MMU3
     #error "MECHANICAL_SWITCHING_NOZZLE and PRUSA_MMU2(2S,3) are incompatible."
   #elif !defined(EVENT_GCODE_TOOLCHANGE_T0)
     #error "MECHANICAL_SWITCHING_NOZZLE requires EVENT_GCODE_TOOLCHANGE_T0."
@@ -708,7 +708,7 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
     #error "SWITCHING_NOZZLE and DUAL_X_CARRIAGE are incompatible."
   #elif ENABLED(SINGLENOZZLE)
     #error "SWITCHING_NOZZLE and SINGLENOZZLE are incompatible."
-  #elif ANY(HAS_PRUSA_MMU2, HAS_PRUSA_MMU3)
+  #elif HAS_PRUSA_MMU2 || HAS_PRUSA_MMU3
     #error "SWITCHING_NOZZLE and PRUSA_MMU2(2S,3) are incompatible."
   #elif NUM_SERVOS < 1
     #error "SWITCHING_NOZZLE requires NUM_SERVOS >= 1."
@@ -1225,7 +1225,7 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
     #error "DELTA kinematics require homing "XYZ" axes to MAX. Set [XYZ]_HOME_DIR to 1."
   #elif ENABLED(ENABLE_LEVELING_FADE_HEIGHT) && DISABLED(AUTO_BED_LEVELING_BILINEAR) && !UBL_SEGMENTED
     #error "ENABLE_LEVELING_FADE_HEIGHT on DELTA requires AUTO_BED_LEVELING_BILINEAR or AUTO_BED_LEVELING_UBL."
-  #elif ENABLED(DELTA_AUTO_CALIBRATION) && NONE(HAS_BED_PROBE, HAS_MARLINUI_MENU)
+  #elif ENABLED(DELTA_AUTO_CALIBRATION) && !(HAS_BED_PROBE || HAS_MARLINUI_MENU)
     #error "DELTA_AUTO_CALIBRATION requires a probe or LCD Controller."
   #elif ENABLED(DELTA_CALIBRATION_MENU) && !HAS_MARLINUI_MENU
     #error "DELTA_CALIBRATION_MENU requires an LCD Controller."

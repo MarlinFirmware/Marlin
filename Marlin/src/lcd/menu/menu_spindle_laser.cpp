@@ -26,7 +26,7 @@
 
 #include "../../inc/MarlinConfig.h"
 
-#if ALL(HAS_MARLINUI_MENU, HAS_CUTTER)
+#if HAS_MARLINUI_MENU && HAS_CUTTER
 
   #include "menu_item.h"
 

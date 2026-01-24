@@ -171,7 +171,7 @@ typedef struct {
 extern hmi_value_t hmiValues;
 extern hmi_flag_t hmiFlag;
 
-#if ANY(HAS_HOTEND, HAS_HEATED_BED)
+#if HAS_HOTEND || HAS_HEATED_BED
   // Popup message window
   void dwinPopupTemperature(const bool toohigh);
 #endif
