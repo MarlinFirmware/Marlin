@@ -80,7 +80,7 @@
   #include "../feature/host_actions.h" // for PROMPT_USER_CONTINUE
 #endif
 
-#if HAS_Z_SERVO_PROBE || HAS_MAG_MOUNTED_SERVO_PROBE
+#if ANY(HAS_Z_SERVO_PROBE, HAS_MAG_MOUNTED_SERVO_PROBE)
   #include "servo.h"
 #endif
 

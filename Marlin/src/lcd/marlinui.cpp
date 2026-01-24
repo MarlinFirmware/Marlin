@@ -61,7 +61,7 @@ MarlinUI ui;
   #include "../module/printcounter.h"
 #endif
 
-#if HAS_WIRED_LCD || HAS_PREHEAT
+#if ANY(HAS_WIRED_LCD, HAS_PREHEAT)
   #include "../module/temperature.h"
 #endif
 
@@ -527,7 +527,7 @@ void MarlinUI::init() {
 
   #endif // HAS_MARLINUI_MENU
 
-  #if IS_RRW_KEYPAD && HAS_ENCODER_ACTION
+  #if ALL(IS_RRW_KEYPAD, HAS_ENCODER_ACTION)
 
     volatile uint8_t MarlinUI::keypad_buttons;
 
@@ -800,7 +800,7 @@ void MarlinUI::init() {
 
     chirp();  // Buzz and wait. Is the delay needed for buttons to settle?
 
-    #if HAS_CHIRP && HAS_MARLINUI_MENU
+    #if ALL(HAS_CHIRP, HAS_MARLINUI_MENU)
       #if HAS_BEEPER
         for (int8_t i = 5; i--;) { buzzer.tick(); delay(2); }
       #else
@@ -1965,7 +1965,7 @@ uint8_t expand_u8str_P(char * const outstr, PGM_P const ptpl, const int8_t ind, 
 
           ExtUI::onMediaRemoved();
 
-        #elif HAS_SD_DETECT || HAS_USB_FLASH_DRIVE // Q: Does "Media Removed" need to be shown for manual release too?
+        #elif ANY(HAS_SD_DETECT, HAS_USB_FLASH_DRIVE) // Q: Does "Media Removed" need to be shown for manual release too?
 
           if ((old_status ^ status) & INSERT_SD)
             LCD_MESSAGE(MSG_MEDIA_REMOVED_SD);
@@ -1989,7 +1989,7 @@ uint8_t expand_u8str_P(char * const outstr, PGM_P const ptpl, const int8_t ind, 
 
     refresh();
 
-    #if HAS_WIRED_LCD || HAS_LED_POWEROFF_TIMEOUT
+    #if ANY(HAS_WIRED_LCD, HAS_LED_POWEROFF_TIMEOUT)
       const millis_t ms = millis();
       TERN_(HAS_WIRED_LCD, next_lcd_update_ms = ms + LCD_UPDATE_INTERVAL); // Delay LCD update for SD activity
       TERN_(HAS_LED_POWEROFF_TIMEOUT, leds.reset_timeout(ms));

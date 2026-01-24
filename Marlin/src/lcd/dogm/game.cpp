@@ -21,7 +21,7 @@
  */
 #include "../../inc/MarlinConfigPre.h"
 
-#if HAS_MARLINUI_U8GLIB && HAS_GAMES
+#if ALL(HAS_MARLINUI_U8GLIB, HAS_GAMES)
 
 #include "../menu/game/types.h" // includes dogm/game.h
 

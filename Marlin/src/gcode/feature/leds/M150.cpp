@@ -83,7 +83,7 @@ void GcodeSuite::M150() {
   const uint8_t valR = parser.seen('R') ? (parser.has_value() ? parser.value_byte() : 255) : (old_color >> 16) & 0xFF,
                 valU = parser.seen('U') ? (parser.has_value() ? parser.value_byte() : 255) : (old_color >>  8) & 0xFF,
                 valB = parser.seen('B') ? (parser.has_value() ? parser.value_byte() : 255) : old_color & 0xFF;
-  #if HAS_WHITE_LED || HAS_WHITE_LED2
+  #if ANY(HAS_WHITE_LED, HAS_WHITE_LED2)
     const uint8_t valW = parser.seen('W') ? (parser.has_value() ? parser.value_byte() : 255) : (old_color >> 24) & 0xFF;
   #endif
   #if ENABLED(NEOPIXEL_LED)

@@ -1071,7 +1071,7 @@ private:
     static void M402();
   #endif
 
-  #if HAS_PRUSA_MMU2 || HAS_PRUSA_MMU3
+  #if ANY(HAS_PRUSA_MMU2, HAS_PRUSA_MMU3)
     static void M403();
   #endif
 
@@ -1295,13 +1295,13 @@ private:
     #endif
   #endif
 
-  #if HAS_MOTOR_CURRENT_SPI || HAS_MOTOR_CURRENT_PWM || HAS_MOTOR_CURRENT_I2C || HAS_MOTOR_CURRENT_DAC
+  #if ANY(HAS_MOTOR_CURRENT_SPI, HAS_MOTOR_CURRENT_PWM, HAS_MOTOR_CURRENT_I2C, HAS_MOTOR_CURRENT_DAC)
     static void M907();
-    #if HAS_MOTOR_CURRENT_SPI || HAS_MOTOR_CURRENT_PWM
+    #if ANY(HAS_MOTOR_CURRENT_SPI, HAS_MOTOR_CURRENT_PWM)
       static void M907_report(const bool forReplay=true);
     #endif
   #endif
-  #if HAS_MOTOR_CURRENT_SPI || HAS_MOTOR_CURRENT_DAC
+  #if ANY(HAS_MOTOR_CURRENT_SPI, HAS_MOTOR_CURRENT_DAC)
     static void M908();
   #endif
   #if HAS_MOTOR_CURRENT_DAC

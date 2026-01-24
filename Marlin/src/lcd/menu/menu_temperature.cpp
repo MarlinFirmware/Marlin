@@ -26,12 +26,12 @@
 
 #include "../../inc/MarlinConfig.h"
 
-#if HAS_MARLINUI_MENU && HAS_TEMPERATURE
+#if ALL(HAS_MARLINUI_MENU, HAS_TEMPERATURE)
 
 #include "menu_item.h"
 #include "../../module/temperature.h"
 
-#if HAS_FAN || ENABLED(SINGLENOZZLE)
+#if ANY(HAS_FAN, SINGLENOZZLE)
   #include "../../module/motion.h"
 #endif
 
@@ -60,7 +60,7 @@
     void do_precool_laser_m() { _precool_laser(editable.int8, thermalManager.temp_cooler.target); }
   #endif
 
-  #if HAS_TEMP_HOTEND && (HAS_HEATED_BED || HAS_HEATED_CHAMBER)
+  #if HAS_TEMP_HOTEND && ANY(HAS_HEATED_BED, HAS_HEATED_CHAMBER)
     inline void _preheat_all(const uint8_t m, const uint8_t e) { ui.preheat_all(m, e); ui.return_to_status(); }
 
     // Indexed "Preheat ABC" and "Heat Bed" items
@@ -76,7 +76,7 @@
 
   #endif
 
-  #if HAS_MULTI_HOTEND || HAS_HEATED_BED
+  #if ANY(HAS_MULTI_HOTEND, HAS_HEATED_BED)
 
     // Set editable.int8 to the Material index before entering this menu
     // because MenuItemBase::itemIndex will be re-used by PREHEAT_ITEMS
@@ -88,7 +88,7 @@
 
       #if HOTENDS == 1
 
-        #if HAS_HEATED_BED || HAS_HEATED_CHAMBER
+        #if ANY(HAS_HEATED_BED, HAS_HEATED_CHAMBER)
           ACTION_ITEM_f(ui.get_preheat_label(m), MSG_PREHEAT_M, []{ _preheat_all(editable.int8, 0); });
           ACTION_ITEM_f(ui.get_preheat_label(m), MSG_PREHEAT_M_END, do_preheat_end_m);
         #else
@@ -121,7 +121,7 @@
 
 #endif // HAS_PREHEAT
 
-#if HAS_TEMP_HOTEND || HAS_HEATED_BED
+#if ANY(HAS_TEMP_HOTEND, HAS_HEATED_BED)
 
   void lcd_cooldown() {
     thermalManager.cooldown();
@@ -131,7 +131,7 @@
 #endif // HAS_TEMP_HOTEND || HAS_HEATED_BED
 
 void menu_temperature() {
-  #if HAS_TEMP_HOTEND || HAS_HEATED_BED
+  #if ANY(HAS_TEMP_HOTEND, HAS_HEATED_BED)
     bool has_heat = false;
     #if HAS_TEMP_HOTEND
       HOTEND_LOOP() if (thermalManager.degTargetHotend(HOTEND_INDEX)) { has_heat = true; break; }
@@ -249,7 +249,7 @@ void menu_temperature() {
     //
     for (uint8_t m = 0; m < PREHEAT_COUNT; ++m) {
       editable.int8 = m;
-      #if HAS_MULTI_HOTEND || HAS_HEATED_BED
+      #if ANY(HAS_MULTI_HOTEND, HAS_HEATED_BED)
         SUBMENU_f(ui.get_preheat_label(m), MSG_PREHEAT_M, menu_preheat_m);
       #elif HAS_HOTEND
         ACTION_ITEM_f(ui.get_preheat_label(m), MSG_PREHEAT_M, do_preheat_end_m);
@@ -257,7 +257,7 @@ void menu_temperature() {
     }
   #endif
 
-  #if HAS_TEMP_HOTEND || HAS_HEATED_BED
+  #if ANY(HAS_TEMP_HOTEND, HAS_HEATED_BED)
     //
     // Cooldown
     //
@@ -276,7 +276,7 @@ void menu_temperature() {
 
     for (uint8_t m = 0; m < PREHEAT_COUNT; ++m) {
       editable.int8 = m;
-      #if HAS_MULTI_HOTEND || HAS_HEATED_BED
+      #if ANY(HAS_MULTI_HOTEND, HAS_HEATED_BED)
         SUBMENU_f(ui.get_preheat_label(m), MSG_PREHEAT_M, menu_preheat_m);
       #else
         ACTION_ITEM_f(ui.get_preheat_label(m), MSG_PREHEAT_M, do_preheat_end_m);

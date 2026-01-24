@@ -761,7 +761,7 @@ void drawPrepareMenu() {
       if (PVISI(PREPARE_CASE_ABS)) itemPrepare_ABS(PSCROL(PREPARE_CASE_ABS));    // Preheat ABS
     #endif
   #endif
-  #if HAS_HOTEND || HAS_HEATED_BED
+  #if ANY(HAS_HOTEND, HAS_HEATED_BED)
     if (PVISI(PREPARE_CASE_COOL)) itemPrepareCool(PSCROL(PREPARE_CASE_COOL));   // Cooldown
   #endif
   if (PVISI(PREPARE_CASE_LANG)) itemPrepareLang(PSCROL(PREPARE_CASE_LANG));     // Language CN/EN
@@ -1050,7 +1050,7 @@ void drawMotionMenu() {
 // Draw Popup Windows
 //
 
-#if HAS_HOTEND || HAS_HEATED_BED
+#if ANY(HAS_HOTEND, HAS_HEATED_BED)
 
   void dwinPopupTemperature(const bool toohigh) {
     clearPopupArea();
@@ -1496,7 +1496,7 @@ void hmiMoveDone(const AxisEnum axis) {
 
 #endif // HAS_HEATED_BED
 
-#if HAS_PREHEAT && HAS_FAN
+#if ALL(HAS_PREHEAT, HAS_FAN)
 
   void hmiFanSpeed() {
     EncoderState encoder_diffState = encoderReceiveAnalyze();
@@ -2687,7 +2687,7 @@ void hmiPrepare() {
         #if PREHEAT_COUNT > 1
           if (index_prepare == PREPARE_CASE_ABS) itemPrepare_ABS(MROWS);
         #endif
-        #if HAS_HOTEND || HAS_HEATED_BED
+        #if ANY(HAS_HOTEND, HAS_HEATED_BED)
           if (index_prepare == PREPARE_CASE_COOL) itemPrepareCool(MROWS);
         #endif
         if (index_prepare == PREPARE_CASE_LANG) itemPrepareLang(MROWS);
@@ -2771,7 +2771,7 @@ void hmiPrepare() {
         #endif
       #endif
 
-      #if HAS_HOTEND || HAS_HEATED_BED
+      #if ANY(HAS_HOTEND, HAS_HEATED_BED)
         case PREPARE_CASE_COOL:
           thermalManager.cooldown();
           ui.reset_status();
@@ -4297,7 +4297,7 @@ void dwinHandleScreen() {
     #if HAS_HEATED_BED
       case ID_BedTemp:      hmiBedTemp(); break;
     #endif
-    #if HAS_PREHEAT && HAS_FAN
+    #if ALL(HAS_PREHEAT, HAS_FAN)
       case ID_FanSpeed:     hmiFanSpeed(); break;
     #endif
     case ID_PrintSpeed:     hmiPrintSpeed(); break;

@@ -30,11 +30,11 @@
   #error "SPINDLE_LASER_PWM_PIN must use SERVO0, SERVO1 or SERVO3 connector"
 #endif
 
-#if ENABLED(FAST_PWM_FAN) || SPINDLE_LASER_FREQUENCY
+#if ANY(FAST_PWM_FAN, SPINDLE_LASER_FREQUENCY)
   #error "Features requiring Hardware PWM (FAST_PWM_FAN, SPINDLE_LASER_FREQUENCY) are not yet supported for HAL/LINUX."
 #endif
 
-#if HAS_SPI_TFT || HAS_FSMC_TFT
+#if ANY(HAS_SPI_TFT, HAS_FSMC_TFT)
   #error "Sorry! TFT displays are not available for HAL/LINUX."
 #endif
 

@@ -60,7 +60,7 @@
   #define E_STATES EXTRUDERS  // All steppers are set together for each mixer. (Currently limited to 1.)
 #elif HAS_SWITCHING_EXTRUDER
   #define E_STATES E_STEPPERS // One stepper for every two EXTRUDERS. The last extruder can be non-switching.
-#elif HAS_PRUSA_MMU2 || HAS_PRUSA_MMU3
+#elif ANY(HAS_PRUSA_MMU2, HAS_PRUSA_MMU3)
   #define E_STATES E_STEPPERS // One E stepper shared with all EXTRUDERS, so setting any only sets one.
 #else
   #define E_STATES E_STEPPERS // One stepper for each extruder, so each can be disabled individually.
@@ -365,7 +365,7 @@ class Stepper {
       static bool separate_multi_axis;
     #endif
 
-    #if HAS_MOTOR_CURRENT_SPI || HAS_MOTOR_CURRENT_PWM
+    #if ANY(HAS_MOTOR_CURRENT_SPI, HAS_MOTOR_CURRENT_PWM)
       #if HAS_MOTOR_CURRENT_PWM
         #ifndef PWM_MOTOR_CURRENT
           #define PWM_MOTOR_CURRENT DEFAULT_PWM_MOTOR_CURRENT
@@ -671,7 +671,7 @@ class Stepper {
     // Triggered position of an axis in steps
     static int32_t triggered_position(const AxisEnum axis);
 
-    #if HAS_MOTOR_CURRENT_SPI || HAS_MOTOR_CURRENT_PWM
+    #if ANY(HAS_MOTOR_CURRENT_SPI, HAS_MOTOR_CURRENT_PWM)
       static void set_digipot_value_spi(const int16_t address, const int16_t value);
       static void set_digipot_current(const uint8_t driver, const int16_t current);
     #endif
@@ -814,7 +814,7 @@ class Stepper {
       static int32_t _eval_bezier_curve(const uint32_t curr_step);
     #endif
 
-    #if HAS_MOTOR_CURRENT_SPI || HAS_MOTOR_CURRENT_PWM
+    #if ANY(HAS_MOTOR_CURRENT_SPI, HAS_MOTOR_CURRENT_PWM)
       static void digipot_init();
     #endif
 

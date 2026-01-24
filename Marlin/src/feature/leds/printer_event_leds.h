@@ -54,7 +54,7 @@ public:
     static void onChamberHeating(const celsius_t start, const celsius_t current, const celsius_t target);
   #endif
 
-  #if HAS_TEMP_HOTEND || HAS_HEATED_BED || HAS_HEATED_CHAMBER
+  #if ANY(HAS_TEMP_HOTEND, HAS_HEATED_BED, HAS_HEATED_CHAMBER)
     static void onHeatingDone()             { leds.set_white(); }
     static void onPIDTuningDone(LED1Color_t c) { leds.set_color(c); }
   #endif

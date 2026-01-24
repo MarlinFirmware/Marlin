@@ -26,7 +26,7 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-#if HAS_MARLINUI_MENU && HAS_TRINAMIC_CONFIG
+#if ALL(HAS_MARLINUI_MENU, HAS_TRINAMIC_CONFIG)
 
 #include "menu_item.h"
 #include "../../module/stepper/indirection.h"

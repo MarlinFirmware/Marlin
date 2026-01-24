@@ -4600,7 +4600,7 @@
   //#define E_MUX1_PIN 42  // Needed for 3 to 8 inputs
   //#define E_MUX2_PIN 44  // Needed for 5 to 8 inputs
 
-#elif HAS_PRUSA_MMU2 || HAS_PRUSA_MMU3
+#elif ANY(HAS_PRUSA_MMU2, HAS_PRUSA_MMU3)
   // Common settings for MMU2/MMU2S/MMU3
   // Serial port used for communication with MMU2/MMU2S/MMU3.
   #define MMU_SERIAL_PORT 2

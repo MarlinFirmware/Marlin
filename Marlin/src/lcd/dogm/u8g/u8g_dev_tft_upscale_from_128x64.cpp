@@ -55,7 +55,7 @@
 
 #include "../../../inc/MarlinConfig.h"
 
-#if HAS_MARLINUI_U8GLIB && (PIN_EXISTS(FSMC_CS) || HAS_SPI_GRAPHICAL_TFT || HAS_LTDC_GRAPHICAL_TFT)
+#if HAS_MARLINUI_U8GLIB && (PIN_EXISTS(FSMC_CS) || ANY(HAS_SPI_GRAPHICAL_TFT, HAS_LTDC_GRAPHICAL_TFT))
 
 #include "HAL_LCD_com_defines.h"
 #include "../marlinui_DOGM.h"
@@ -405,7 +405,7 @@ uint8_t u8g_dev_tft_320x240_upscale_from_128x64_fn(u8g_t *u8g, u8g_dev_t *dev, u
     } break;
 
     case U8G_DEV_MSG_PAGE_NEXT:
-      #if HAS_TOUCH_BUTTONS && HAS_DISPLAY_SLEEP
+      #if ALL(HAS_TOUCH_BUTTONS, HAS_DISPLAY_SLEEP)
         if (touchBt.isSleeping()) break;
       #endif
       if (++page > (HEIGHT / PAGE_HEIGHT)) return 1;

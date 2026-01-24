@@ -763,7 +763,7 @@ void resume_print(
     }
   #endif
 
-  #if ENABLED(ADVANCED_PAUSE_FANS_PAUSE) && HAS_FAN
+  #if ALL(ADVANCED_PAUSE_FANS_PAUSE, HAS_FAN)
     thermalManager.set_fans_paused(false);
   #endif
 

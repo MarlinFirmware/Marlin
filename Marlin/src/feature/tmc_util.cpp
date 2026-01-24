@@ -77,7 +77,7 @@
          #endif
       ;
     #if ENABLED(TMC_DEBUG)
-      #if HAS_TMCX1X0_OR_2240 || HAS_TMC220x
+      #if ANY(HAS_TMCX1X0_OR_2240, HAS_TMC220x)
         uint8_t cs_actual;
       #endif
       #if HAS_STALLGUARD
@@ -304,7 +304,7 @@
       const uint32_t pwm_scale = get_pwm_scale(st);
       st.printLabel();
       SString<60> report(':', pwm_scale);
-      #if HAS_TMCX1X0_OR_2240 || HAS_TMC220x
+      #if ANY(HAS_TMCX1X0_OR_2240, HAS_TMC220x)
         report.append('/', data.cs_actual);
       #endif
       #if HAS_STALLGUARD
@@ -990,7 +990,7 @@
     TMC_REPORT("uStep count",        TMC_MSCNT);
 
     DRV_REPORT("DRVSTATUS",          TMC_DRV_CODES);
-    #if HAS_TMCX1X0_OR_2240 || HAS_TMC220x
+    #if ANY(HAS_TMCX1X0_OR_2240, HAS_TMC220x)
       DRV_REPORT("sg_result",        TMC_SG_RESULT);
     #endif
     #if HAS_TMCX1X0_OR_2240

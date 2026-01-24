@@ -145,7 +145,7 @@
   #endif
 #endif
 
-#if HAS_MAX6675_LIBRARY || HAS_MAX31855_LIBRARY || HAS_MAX31865
+#if ANY(HAS_MAX6675_LIBRARY, HAS_MAX31855_LIBRARY, HAS_MAX31865)
   #define HAS_MAXTC_LIBRARIES 1
 #endif
 
@@ -1675,7 +1675,7 @@ void Temperature::_temp_error(
  * @param deg:  The detected temperature (if ERR_INCLUDE_TEMP)
  */
 void Temperature::maxtemp_error(const heater_id_t heater_id OPTARG(ERR_INCLUDE_TEMP, const celsius_float_t deg)) {
-  #if HAS_HOTEND || HAS_HEATED_BED
+  #if ANY(HAS_HOTEND, HAS_HEATED_BED)
     TERN_(SOVOL_SV06_RTS, rts.gotoPageBeep(ID_KillBadTemp_L, ID_KillBadTemp_D));
     TERN_(DWIN_CREALITY_LCD, dwinPopupTemperature(1));
     TERN_(EXTENSIBLE_UI, ExtUI::onMaxTempError(heater_id));
@@ -1691,7 +1691,7 @@ void Temperature::maxtemp_error(const heater_id_t heater_id OPTARG(ERR_INCLUDE_T
  * @param deg:  The detected temperature (if ERR_INCLUDE_TEMP)
  */
 void Temperature::mintemp_error(const heater_id_t heater_id OPTARG(ERR_INCLUDE_TEMP, const celsius_float_t deg)) {
-  #if HAS_HOTEND || HAS_HEATED_BED
+  #if ANY(HAS_HOTEND, HAS_HEATED_BED)
     TERN_(SOVOL_SV06_RTS, rts.gotoPageBeep(ID_KillBadTemp_L, ID_KillBadTemp_D));
     TERN_(DWIN_CREALITY_LCD, dwinPopupTemperature(0));
     TERN_(EXTENSIBLE_UI, ExtUI::onMinTempError(heater_id));
@@ -4542,7 +4542,7 @@ void Temperature::isr() {
     }
   #endif
 
-  #if HAS_HOTEND && HAS_STATUS_MESSAGE
+  #if ALL(HAS_HOTEND, HAS_STATUS_MESSAGE)
     void Temperature::set_heating_message(const uint8_t e, const bool isM104/*=false*/) {
       const bool heating = isHeatingHotend(e);
       ui.status_printf(0,

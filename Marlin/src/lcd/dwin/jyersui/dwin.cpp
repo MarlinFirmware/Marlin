@@ -1124,7 +1124,7 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
             break;
         #endif
 
-        #if HAS_HOTEND || HAS_HEATED_BED
+        #if ANY(HAS_HOTEND, HAS_HEATED_BED)
           case PREPARE_COOLDOWN:
             if (draw)
               drawMenuItem(row, ICON_Cool, GET_TEXT_F(MSG_COOLDOWN));
@@ -3974,7 +3974,7 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
       }
       break;
 
-    #if HAS_PREHEAT && HAS_HOTEND
+    #if ALL(HAS_PREHEAT, HAS_HOTEND)
 
       case ID_PreheatHotend:
 
@@ -4285,7 +4285,7 @@ uint8_t JyersDWIN::getMenuSize(const uint8_t menu) {
     #endif
     case ID_Tune:           return TUNE_TOTAL;
 
-    #if HAS_PREHEAT && HAS_HOTEND
+    #if ALL(HAS_PREHEAT, HAS_HOTEND)
       case ID_PreheatHotend: return PREHEATHOTEND_TOTAL;
     #endif
 
