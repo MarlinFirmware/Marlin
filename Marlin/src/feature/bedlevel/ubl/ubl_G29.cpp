@@ -36,10 +36,8 @@
 #include "../../../gcode/gcode.h"
 #include "../../../libs/least_squares_fit.h"
 
-#if ENABLED(DEBUG_LEVELING_FEATURE) || DISABLED(DISABLE_UBL_SERIAL_CHITCHAT)
-  #define DEBUG_OUT 1
-  #include "../../../core/debug_out.h"
-#endif
+#define DEBUG_OUT (ENABLED(DEBUG_LEVELING_FEATURE) || DISABLED(DISABLE_UBL_SERIAL_CHITCHAT))
+#include "../../../core/debug_out.h"
 
 #if ENABLED(EXTENSIBLE_UI)
   #include "../../../lcd/extui/ui_api.h"
@@ -1487,7 +1485,7 @@ void unified_bed_leveling::smart_fill_mesh() {
 
 #if HAS_BED_PROBE
 
-  //\\#define VALIDATE_MESH_TILT
+  //#define VALIDATE_MESH_TILT
 
   #include "../../../libs/vector_3.h"
 
@@ -1499,11 +1497,11 @@ void unified_bed_leveling::smart_fill_mesh() {
     struct linear_fit_data lsf_results;
     incremental_LSF_reset(&lsf_results);
 
-    #if ENABLED(VALIDATE_MESH_TILT) || DISABLED(DISABLE_UBL_SERIAL_CHITCHAT)
+    #if ENABLED(VALIDATE_MESH_TILT) || (ENABLED(DEBUG_LEVELING_FEATURE) || DISABLED(DISABLE_UBL_SERIAL_CHITCHAT))
       vector_3 normal = vector_3(lsf_results.A, lsf_results.B, 1).get_normal();
     #endif
 
-    #if ENABLED(VALIDATE_MESH_TILT) && ENABLED(DEBUG_LEVELING_FEATURE)
+    #if ALL(VALIDATE_MESH_TILT, DEBUG_LEVELING_FEATURE)
       float gotz[3];  // Used for algorithm validation below
     #endif
 
@@ -1635,8 +1633,10 @@ void unified_bed_leveling::smart_fill_mesh() {
       return;
     }
 
-    if (param.V_verbosity > 2)
-      DEBUG_ECHOLN(F("bed plane normal = ["), p_float_t(normal.x, 7), C(','), p_float_t(normal.y, 7), C(','), p_float_t(normal.z, 7), C(']'));
+    #if ENABLED(DEBUG_LEVELING_FEATURE) || DISABLED(DISABLE_UBL_SERIAL_CHITCHAT)
+      if (param.V_verbosity > 2)
+        DEBUG_ECHOLN(F("bed plane normal = ["), p_float_t(normal.x, 7), C(','), p_float_t(normal.y, 7), C(','), p_float_t(normal.z, 7), C(']'));
+    #endif
 
     matrix_3x3 rotation = matrix_3x3::create_look_at(vector_3(lsf_results.A, lsf_results.B, 1));
 
