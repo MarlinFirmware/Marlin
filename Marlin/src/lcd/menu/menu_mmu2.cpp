@@ -43,7 +43,7 @@ inline void action_mmu2_load_to_nozzle(const uint8_t tool) {
   ui.reset_status();
   ui.return_to_status();
   ui.status_printf(0, GET_TEXT_F(MSG_MMU2_LOADING_FILAMENT), int(tool + 1));
-  TERN(HAS_PRUSA_MMU3, mmu3.load_to_nozzle(tool), mmu2.load_to_nozzle(tool));
+  TERN(HAS_PRUSA_MMU3, mmu3, mmu2).load_to_nozzle(tool);
   ui.reset_status();
 }
 
@@ -51,7 +51,7 @@ void _mmu2_load_to_feeder(const uint8_t tool) {
   ui.reset_status();
   ui.return_to_status();
   ui.status_printf(0, GET_TEXT_F(MSG_MMU2_LOADING_FILAMENT), int(tool + 1));
-  TERN(HAS_PRUSA_MMU3, mmu3.load_to_feeder(tool), mmu2.load_to_feeder(tool));
+  TERN(HAS_PRUSA_MMU3, mmu3, mmu2).load_to_feeder(tool);
   ui.reset_status();
 }
 
@@ -82,7 +82,8 @@ void _mmu2_eject_filament(uint8_t index) {
   ui.reset_status();
   ui.return_to_status();
   ui.status_printf(0, GET_TEXT_F(MSG_MMU2_EJECTING_FILAMENT), int(index + 1));
-  if (mmu3.eject_filament(index, true)) ui.reset_status();
+  if (TERN(HAS_PRUSA_MMU3, mmu3, mmu2).eject_filament(index, true))
+    ui.reset_status();
 }
 
 void _mmu2_cut_filament(uint8_t index) {
@@ -97,7 +98,7 @@ void action_mmu2_unload_filament() {
   ui.reset_status();
   ui.return_to_status();
   LCD_MESSAGE(MSG_MMU2_UNLOADING_FILAMENT);
-  while (!TERN(HAS_PRUSA_MMU3, mmu3.unload(), mmu2.unload())) {
+  while (!TERN(HAS_PRUSA_MMU3, mmu3, mmu2).unload()) {
     safe_delay(50);
     TERN(HAS_PRUSA_MMU3, MMU3::marlin_idle(true), marlin.idle());
   }
@@ -342,7 +343,7 @@ void menu_mmu2_choose_filament() {
 //
 
 void menu_mmu2_pause() {
-  feeder_index = mmu3.get_current_tool();
+  feeder_index = TERN(HAS_PRUSA_MMU3, mmu3, mmu2).get_current_tool();
   START_MENU();
   #if LCD_HEIGHT > 2
     STATIC_ITEM(MSG_FILAMENT_CHANGE_HEADER, SS_DEFAULT|SS_INVERT);

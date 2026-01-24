@@ -157,6 +157,7 @@ namespace LanguageNarrow_en {
   LSTR MSG_PREHEAT_1_END_E                = _UxGT("Preheat ") PREHEAT_1_LABEL _UxGT(" End ~");
   LSTR MSG_PREHEAT_1_ALL                  = _UxGT("Preheat ") PREHEAT_1_LABEL _UxGT(" All");
   LSTR MSG_PREHEAT_1_BEDONLY              = _UxGT("Preheat ") PREHEAT_1_LABEL _UxGT(" Bed");
+  LSTR MSG_PREHEAT_1_CHAMBER              = _UxGT("Preheat ") PREHEAT_1_LABEL _UxGT(" Chmb");
   LSTR MSG_PREHEAT_1_SETTINGS             = _UxGT("Preheat ") PREHEAT_1_LABEL _UxGT(" Conf");
 
   LSTR MSG_PREHEAT_2                      = _UxGT("Preheat ") PREHEAT_2_LABEL;
@@ -1183,6 +1184,14 @@ namespace LanguageWide_en {
     LSTR MSG_OUTAGE_RECOVERY2             = _UxGT("It looks like the last");
     LSTR MSG_OUTAGE_RECOVERY3             = _UxGT("file was interrupted.");
 
+    LSTR MSG_PREHEAT_1_END                = _UxGT("Preheat ") PREHEAT_1_LABEL _UxGT(" Hotend");
+    LSTR MSG_PREHEAT_1_END_E              = _UxGT("Preheat ") PREHEAT_1_LABEL _UxGT(" Hotend ~");
+    LSTR MSG_PREHEAT_1_CHAMBER            = _UxGT("Preheat ") PREHEAT_1_LABEL _UxGT(" Chamber");
+    LSTR MSG_PREHEAT_1_SETTINGS           = _UxGT("Preheat ") PREHEAT_1_LABEL _UxGT(" Settings");
+    LSTR MSG_PREHEAT_M_END                = _UxGT("Preheat $ Hotend");
+    LSTR MSG_PREHEAT_M_END_E              = _UxGT("Preheat $ Hotend ~");
+    LSTR MSG_PREHEAT_M_CHAMBER            = _UxGT("Preheat $ Chamber");
+    LSTR MSG_PREHEAT_M_SETTINGS           = _UxGT("Preheat $ Settings");
     LSTR MSG_HOST_START_PRINT             = _UxGT("Start Host Print");
     LSTR MSG_PRINTING_OBJECT              = _UxGT("Printing Object");
     LSTR MSG_CANCEL_OBJECT                = _UxGT("Cancel Object");
@@ -1207,8 +1216,6 @@ namespace LanguageWide_en {
     LSTR MSG_HOMING_FEEDRATE_Y            = _UxGT("Y Homing Feedrate");
     LSTR MSG_HOMING_FEEDRATE_Z            = _UxGT("Z Homing Feedrate");
     LSTR MSG_EEPROM_INITIALIZED           = _UxGT("Default Settings Restored");
-    LSTR MSG_PREHEAT_M_CHAMBER            = _UxGT("Preheat $ Chamber");
-    LSTR MSG_PREHEAT_M_SETTINGS           = _UxGT("Preheat $ Config");
     LSTR MSG_FTM_RT_RUNNING               = _UxGT("Resonance Test Running...");
     LSTR MSG_FTM_RESONANCE_FREQ           = _UxGT("Resonance frequency");
 

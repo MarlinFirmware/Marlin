@@ -25,6 +25,7 @@
 #if ENABLED(FTM_RESONANCE_TEST)
 
 #include "../../gcode.h"
+#include "../../../lcd/marlinui.h"
 #include "../../../module/ft_motion.h"
 #include "../../../module/ft_motion/resonance_generator.h"
 
@@ -173,6 +174,7 @@ void GcodeSuite::M496() {
   if (ftMotion.rtg.isActive()) {
       ftMotion.rtg.abort();
       EmergencyParser::rt_stop_by_M496 = false;
+      ui.refresh();
       #if DISABLED(MARLIN_SMALL_BUILD)
         SERIAL_ECHOLN(F("Resonance Test"), F(" aborted."));
       #endif
