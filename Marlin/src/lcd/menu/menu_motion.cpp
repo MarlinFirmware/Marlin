@@ -559,7 +559,6 @@ void menu_move() {
       EDIT_ITEM(bool, MSG_FTM_AXIS_SYNC, &editable.state, []{
         queue.inject(TS(F("M493"), IAXIS_CHAR(MenuItemBase::itemIndex), 'T', int(editable.state)));
       });
-
     }
 
     END_MENU();

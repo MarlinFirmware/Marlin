@@ -24,55 +24,102 @@
 
 #if ENABLED(RESONANCE_TEST)
 
-#include "../../module/ft_motion.h"
+#if ENABLED(FT_MOTION)
+  #include "../../module/ft_motion.h"
+#endif
+
+#if HAS_STANDARD_MOTION
+  #include "../../module/stepper.h"
+#endif
+
 #include "resonance_generator.h"
 #include "../../gcode/gcode.h" // for home_all_axes
-
-#include <math.h>
 
 resonance_test_params_t ResonanceGenerator::rt_params;     // Resonance test parameters
 
 bool ResonanceGenerator::active = false;                       // Resonance test active
 bool ResonanceGenerator::done = false;                         // Resonance test done
-float ResonanceGenerator::rt_time = FTM_TS;                    // Resonance test timer
+float ResonanceGenerator::rt_time;                             // Resonance test timer
 float ResonanceGenerator::timeline = 0.0f;
 float ResonanceGenerator::amplitude_precalc;
-float ResonanceGenerator::phase = 0.0f;
 float ResonanceGenerator::freq_mul;
+float ResonanceGenerator::phase = 0.0f;
+
+#if HAS_STANDARD_MOTION
+  block_t ResonanceGenerator::block;
+#endif
 
 ResonanceGenerator rtg;
 
 ResonanceGenerator::ResonanceGenerator() {}
 
 void ResonanceGenerator::start() {
-  gcode.home_all_axes(); // For safety and ensure known axes
-
-  // Safe Acceleration per Hz for Z axis
-  if (rt_params.axis == Z_AXIS && rt_params.accel_per_hz > 15.0f)
-    rt_params.accel_per_hz = 15.0f;
+  gcode.home_all_axes(); // Always home axes first
 
   // Always move to the center of the bed
   do_blocking_move_to_xy(X_CENTER, Y_CENTER, Z_CLEARANCE_FOR_HOMING);
       
   rt_params.start_pos = current_position;
-  rt_time = FTM_TS;
   active = true;
   done = false;
+
+  #if ENABLED(FT_MOTION)
+    if (ftMotion.cfg.active)
+      rt_time = FTM_TS;
+    #if HAS_STANDARD_MOTION
+      else
+        rt_time = 0.001f;
+    #endif
+  #else
+    rt_time = 0.001f;
+  #endif
+
+  // Safe Acceleration per Hz for Z axis
+  if (rt_params.axis == Z_AXIS && rt_params.accel_per_hz > 15.0f)
+    rt_params.accel_per_hz = 15.0f;
+
+  #if HAS_STANDARD_MOTION
+    if (TERN1(FT_MOTION, !ftMotion.cfg.active)){ 
+      // Constant speed to be adjusted if necessary
+      block.reset();
+      block.initial_rate = (rt_params.axis == Z_AXIS) ? 2000 : 8000;
+    }
+  #endif
+ 
   // Precompute sine sweep const
   amplitude_precalc = (rt_params.amplitude_correction * rt_params.accel_per_hz * 0.25f) / sq(M_PI);
   current_freq = rt_params.min_freq;
-  const float inv_octave_duration = 1.0f / rt_params.octave_duration;
-  freq_mul = exp2f(FTM_TS * inv_octave_duration);
+  freq_mul = exp2f(rt_time / rt_params.octave_duration);
 }
 
 void ResonanceGenerator::abort() {
   reset();
-  ftMotion.reset();
+  #if(HAS_STANDARD_MOTION)
+    if (!TERN0(FT_MOTION, ftMotion.cfg.active))
+      return;
+  #endif
+  #if ENABLED(FT_MOTION)
+    ftMotion.reset();
+  #endif    
 }
 
 void ResonanceGenerator::reset() {
   rt_params = resonance_test_params_t();
-  rt_time = FTM_TS;
+
+  #if ENABLED(FT_MOTION)
+    if (ftMotion.cfg.active) {
+      rt_time = FTM_TS;
+    }
+    #if HAS_STANDARD_MOTION
+      else {
+        rt_time = 0.001f;
+        block.reset();
+      }
+    #endif
+  #else 
+    rt_time = 0.001f;
+    block.reset();
+  #endif
   active = false;
   done = false;
 }
@@ -92,23 +139,59 @@ float ResonanceGenerator::calc_next_pos() {
   return rt_params.start_pos[rt_params.axis] + amplitude * r * (1.0f - 0.101321184f * r2);
 }
 
-void ResonanceGenerator::fill_stepper_plan_buffer() {
-  xyze_float_t traj_coords = rt_params.start_pos;
+#if ENABLED(FT_MOTION)
+  void ResonanceGenerator::fill_stepper_plan_buffer() {
+    xyze_pos_t traj_coords = rt_params.start_pos;
 
-  while (!ftMotion.stepping.is_full()) {
+    while (!ftMotion.stepping.is_full()) {
+      // Calculate current frequency
+      current_freq *= freq_mul;
+      if (current_freq > rt_params.max_freq) {
+        done = true;
+        return;
+      }
+
+      // Resonate the axis being tested
+      traj_coords[rt_params.axis] = calc_next_pos();
+
+      // Store in buffer
+      ftMotion.stepping_enqueue(traj_coords);
+    }
+  }
+#endif
+
+#if HAS_STANDARD_MOTION
+  block_t *ResonanceGenerator::generate_resonance_block() {
+    const float step_mm = planner.settings.axis_steps_per_mm[rt_params.axis];
+    static float last_pos = 0.0f;
+    
     // Calculate current frequency
     current_freq *= freq_mul;
     if (current_freq > rt_params.max_freq) {
       done = true;
-      return;
+      return nullptr;
     }
+    
+    // Calculate next point position
+    const float target_pos = calc_next_pos();
 
-    // Resonate the axis being tested
-    traj_coords[rt_params.axis] = calc_next_pos();
+    // mm → steps
+    const float delta_mm = (target_pos - last_pos);
+    const int32_t delta_steps = abs(lround(delta_mm * step_mm));
+    last_pos = target_pos;
+    // Steps for target axis
+    block.steps[rt_params.axis] = delta_steps;
+    // Total event count
+    block.step_event_count = delta_steps;
 
-    // Store in buffer
-    ftMotion.stepping_enqueue(traj_coords);
-  }
-}
+    // Direction
+    if (delta_mm > 0)
+      block.direction_bits &= ~(1 << rt_params.axis);
+    else
+      block.direction_bits |= (1 << rt_params.axis);
+
+    return &block;
+  } 
+#endif
 
 #endif // RESONANCE_TEST

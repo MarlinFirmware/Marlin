@@ -26,7 +26,6 @@
 
 #include "../../gcode.h"
 #include "../../../lcd/marlinui.h"
-#include "../../../module/ft_motion.h"
 #include "../../../feature/resonance/resonance_generator.h"
 
 void say_resonance_test() {
@@ -146,23 +145,18 @@ void GcodeSuite::M495() {
   }
 
   if (parser.seen_test('S')) {
-    if (ftMotion.cfg.active) {
-      if (p.axis != NO_AXIS_ENUM) {
-        if (p.max_freq > p.min_freq) {
-          SERIAL_ECHOLN(F("Starting "), F("Resonance Test"));
-          rtg.start();
-          // The function returns immediately, the test runs in the background.
-        }
-        else {
-          SERIAL_ECHOLNPGM("?End Frequency must be greater than Start Frequency");
-        }
+    if (p.axis != NO_AXIS_ENUM) {
+      if (p.max_freq > p.min_freq) {
+        SERIAL_ECHOLN(F("Starting "), F("Resonance Test"));
+        rtg.start();
+        // The function returns immediately, the test runs in the background.
       }
       else {
-        SERIAL_ECHOLN(F("?Specify X, Y, or Z axis"), F(" first"));
+        SERIAL_ECHOLNPGM("?End Frequency must be greater than Start Frequency");
       }
     }
     else {
-      SERIAL_ECHOLN(F("?Activate FT Motion to run the "), F("Resonance Test"));
+      SERIAL_ECHOLN(F("?Specify X, Y, or Z axis"), F(" first"));
     }
   }
 }

@@ -25,6 +25,10 @@
 
 #include <math.h>
 
+#if HAS_STANDARD_MOTION
+#include "../../module/planner.h"
+#endif
+
 #ifndef M_TAU
   #define M_TAU (2.0f * M_PI)
 #endif
@@ -41,7 +45,7 @@ typedef struct ResonanceTestParams {
 
 class ResonanceGenerator {
   public:
-    static resonance_test_params_t rt_params; // Resonance test parameters
+    static resonance_test_params_t rt_params;     // Resonance test parameters
     static float timeline;                        // Timeline Value to calculate resonance frequency
 
     ResonanceGenerator();
@@ -56,7 +60,13 @@ class ResonanceGenerator {
       return rt_params.min_freq * exp2f(timeline / rt_params.octave_duration);
     }
 
-    void fill_stepper_plan_buffer();                // Fill stepper plan buffer with trajectory points
+    #if HAS_STANDARD_MOTION
+      block_t *generate_resonance_block();  // Generate planner block for standard motion
+    #endif
+
+    #if ENABLED(FT_MOTION)
+      void fill_stepper_plan_buffer();                // Fill stepper plan buffer with trajectory points
+    #endif
 
     void setActive(const bool state) { active = state; }
     bool isActive() const { return active; }
@@ -67,12 +77,15 @@ class ResonanceGenerator {
     void abort();             // Abort resonance test
 
   private:
-    float calc_next_pos();            // Calculate next position
+    float calc_next_pos();            // Calculate next position point based on current frequency
     static float rt_time;             // Test timer
     static float freq_mul;            // Frequency multiplier for sine sweeping
     static float amplitude_precalc;   // Precalculated part of amplitude formula
     float current_freq;               // Current frequency being generated in sinusoidal motion
     static float phase;               // Current phase in radians
+    #if HAS_STANDARD_MOTION
+      static block_t block;
+    #endif
     static bool active;               // Resonance test active
     static bool done;                 // Resonance test done
 };
