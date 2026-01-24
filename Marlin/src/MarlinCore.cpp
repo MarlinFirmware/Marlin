@@ -260,6 +260,10 @@
   #include "feature/rs485.h"
 #endif
 
+#if ENABLED(SOFT_FEED_HOLD)
+  #include "feature/e_parser.h"
+#endif
+
 /**
  * Spin in place here while keeping temperature processing alive
  */
@@ -514,8 +518,14 @@ void Marlin::manage_inactivity(const bool no_stepper_sleep/*=false*/) {
     }
   #endif
 
-  #if ENABLED(FREEZE_FEATURE)
-    stepper.frozen = READ(FREEZE_PIN) == FREEZE_STATE;
+  // Handle the FREEZE button
+  #if ANY(FREEZE_FEATURE, SOFT_FEED_HOLD)
+    stepper.set_frozen_triggered(
+      TERN0(FREEZE_FEATURE, READ(FREEZE_PIN) == FREEZE_STATE)
+      #if ALL(SOFT_FEED_HOLD, REALTIME_REPORTING_COMMANDS)
+        || realtime_ramping_pause_flag
+      #endif
+    );
   #endif
 
   #if HAS_HOME
@@ -1221,7 +1231,7 @@ void setup() {
     #endif
   #endif
 
-  #if ENABLED(FREEZE_FEATURE)
+  #if ENABLED(FREEZE_FEATURE) && DISABLED(NO_FREEZE_PIN)
     SETUP_LOG("FREEZE_PIN");
     #if FREEZE_STATE
       SET_INPUT_PULLDOWN(FREEZE_PIN);
