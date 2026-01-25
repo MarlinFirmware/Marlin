@@ -238,10 +238,6 @@ typedef struct FTConfig {
  */
 class FTMotion {
 
-  #if ENABLED(RESONANCE_TEST)
-    friend void ResonanceGenerator::fill_stepper_plan_buffer();
-  #endif
-
   public:
 
     // Public variables
