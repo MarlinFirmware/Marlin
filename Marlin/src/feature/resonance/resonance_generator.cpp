@@ -28,10 +28,6 @@
   #include "../../module/ft_motion.h"
 #endif
 
-#if HAS_STANDARD_MOTION
-  #include "../../module/stepper.h"
-#endif
-
 #include "resonance_generator.h"
 #include "../../gcode/gcode.h" // for home_all_axes
 
