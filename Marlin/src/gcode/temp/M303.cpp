@@ -59,7 +59,7 @@ void GcodeSuite::M303() {
   celsius_t default_temp;
   switch (hid) {
     OPTCODE(PIDTEMP,        case 0 ... HOTENDS - 1: default_temp = TERN(HAS_PREHEAT, PREHEAT_1_TEMP_HOTEND, 180); break)
-    OPTCODE(PIDTEMPBED,     case H_BED:             default_temp = TERN(HAS_PREHEAT, PREHEAT_1_TEMP_BED, 70);     break)
+    OPTCODE(PIDTEMPBED,     case H_BED:             default_temp = TERN(HAS_PREHEAT, PREHEAT_1_TEMP_BED, 60);     break)
     OPTCODE(PIDTEMPCHAMBER, case H_CHAMBER:         default_temp = TERN(HAS_PREHEAT, PREHEAT_1_TEMP_CHAMBER, 35); break)
     default:
       SERIAL_ECHOPGM(STR_PID_AUTOTUNE);
