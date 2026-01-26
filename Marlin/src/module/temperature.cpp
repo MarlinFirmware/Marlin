@@ -882,15 +882,15 @@ void Temperature::factory_reset() {
         if (heating && current_temp > target && ELAPSED(ms, t2, relay_delay)) {
           heating = false;
           SET_CBH(soft_pwm_amount, (bias - d) >> 1);
-          t_high = ms - t2;
           t1 = ms;
+          t_high = t1 - t2;
           maxT = target;
         }
 
         if (!heating && current_temp < target && ELAPSED(ms, t1, relay_delay)) {
           heating = true;
-          t_low = ms - t1;
           t2 = ms;
+          t_low = t2 - t1;
           if (cycles > 0) {
             const long max_pow = PER_CBH(MAX_CHAMBER_POWER, MAX_BED_POWER, PID_MAX);
 
