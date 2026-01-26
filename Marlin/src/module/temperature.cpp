@@ -894,10 +894,8 @@ void Temperature::factory_reset() {
           if (cycles > 0) {
             const long max_pow = PER_CBH(MAX_CHAMBER_POWER, MAX_BED_POWER, PID_MAX);
 
-            const float delta_t = (float)t_high - (float)t_low;
-            const float total_t = (float)t_high + (float)t_low;
-            if (total_t > 0) bias += lroundf((float)d * delta_t / total_t);
-
+            const float delta_t = t_high - t_low, total_t = t_high + t_low;
+            if (total_t) bias += LROUND(float(d) * delta_t / total_t);
             LIMIT(bias, 20, max_pow - 20);
             d = (bias > max_pow >> 1) ? max_pow - 1 - bias : bias;
 

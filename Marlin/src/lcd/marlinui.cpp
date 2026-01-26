@@ -61,7 +61,7 @@ MarlinUI ui;
   #include "../module/printcounter.h"
 #endif
 
-#if HAS_WIRED_LCD || HAS_PREHEAT || ENABLED(PRINTJOB_TIMER_AUTOSTART)
+#if ANY(HAS_WIRED_LCD, HAS_PREHEAT, PRINTJOB_TIMER_AUTOSTART)
   #include "../module/temperature.h"
 #endif
 
