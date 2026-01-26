@@ -4729,7 +4729,7 @@ void Temperature::isr() {
      */
     void Temperature::autotemp_update() {
       _autotemp_update_from_hotend();
-      autotemp.cfg.factor = TERN(AUTOTEMP_PROPORTIONAL, AUTOTEMP_FACTOR_P, AUTOTEMP_FACTOR);
+      autotemp.cfg.factor = TERN0(AUTOTEMP_PROPORTIONAL, AUTOTEMP_FACTOR_P);
       autotemp.enabled = autotemp.cfg.factor != 0;
     }
 
@@ -4742,9 +4742,9 @@ void Temperature::isr() {
       if (parser.seenval('S')) autotemp.cfg.min = parser.value_celsius();
       if (parser.seenval('B')) autotemp.cfg.max = parser.value_celsius();
 
-      if (parser.seen('F')) {
-        autotemp.cfg.factor = parser.has_value() ? parser.value_float() : TERN(AUTOTEMP_PROPORTIONAL, AUTOTEMP_FACTOR_P, AUTOTEMP_FACTOR);
-      }
+      // When AUTOTEMP_PROPORTIONAL is enabled, F0 disables autotemp.
+      // Normally, leaving off F also disables autotemp.
+      autotemp.cfg.factor = parser.seen('F') ? parser.value_float() : TERN0(AUTOTEMP_PROPORTIONAL, AUTOTEMP_FACTOR_P);
       autotemp.enabled = autotemp.cfg.factor != 0;
     }
 
