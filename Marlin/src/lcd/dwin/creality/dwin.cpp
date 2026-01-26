@@ -761,7 +761,7 @@ void drawPrepareMenu() {
       if (PVISI(PREPARE_CASE_ABS)) itemPrepare_ABS(PSCROL(PREPARE_CASE_ABS));   // Preheat ABS
     #endif
   #endif
-  #if ANY(HAS_HOTEND, HAS_HEATED_BED)
+  #if HAS_HOTEND || HAS_HEATED_BED
     if (PVISI(PREPARE_CASE_COOL)) itemPrepareCool(PSCROL(PREPARE_CASE_COOL));   // Cooldown
   #endif
   if (PVISI(PREPARE_CASE_LANG)) itemPrepareLang(PSCROL(PREPARE_CASE_LANG));     // Language CN/EN
@@ -2689,7 +2689,7 @@ void hmiPrepare() {
             if (index_prepare == PREPARE_CASE_ABS) itemPrepare_ABS(MROWS);
           #endif
         #endif
-        #if ANY(HAS_HOTEND, HAS_HEATED_BED)
+        #if HAS_HOTEND || HAS_HEATED_BED
           if (index_prepare == PREPARE_CASE_COOL) itemPrepareCool(MROWS);
         #endif
         if (index_prepare == PREPARE_CASE_LANG) itemPrepareLang(MROWS);
@@ -2773,7 +2773,7 @@ void hmiPrepare() {
         #endif
       #endif
 
-      #if ANY(HAS_HOTEND, HAS_HEATED_BED)
+      #if HAS_HOTEND || HAS_HEATED_BED
         case PREPARE_CASE_COOL:
           thermalManager.cooldown();
           ui.reset_status();
@@ -3614,13 +3614,13 @@ void hmiAdvSet() {
           break;
       #endif
 
-      #if ALL(HAS_HOTEND, HAS_PID_HEATING)
+      #if ENABLED(PIDTEMP)
         case ADVSET_CASE_HEPID:
           thermalManager.PID_autotune(ui.material_preset[0].hotend_temp, H_E0, 10, true);
           break;
       #endif
 
-      #if ALL(HAS_HEATED_BED, HAS_PID_HEATING)
+      #if ENABLED(PIDTEMPBED)
         case ADVSET_CASE_BEDPID:
           thermalManager.PID_autotune(ui.material_preset[0].bed_temp, H_BED, 10, true);
           break;

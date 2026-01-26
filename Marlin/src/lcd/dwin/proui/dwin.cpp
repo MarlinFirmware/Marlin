@@ -2208,7 +2208,7 @@ void autoHome() { queue.inject_P(G28_STR); }
   REPEAT_1(PREHEAT_COUNT, _doPreheat)
 #endif
 
-#if ANY(HAS_HOTEND, HAS_HEATED_BED)
+#if HAS_HOTEND || HAS_HEATED_BED
   void doCoolDown() { thermalManager.cooldown(); }
 #endif
 
@@ -2841,7 +2841,7 @@ void onDrawAutoHome(MenuItem* menuitem, int8_t line) {
   #endif
 #endif
 
-#if ANY(HAS_HOTEND, HAS_HEATED_BED)
+#if HAS_HOTEND || HAS_HEATED_BED
   void onDrawCooldown(MenuItem* menuitem, int8_t line) {
     if (hmiIsChinese()) menuitem->setFrame(1, 1, 104,  56, 117);
     onDrawMenuItem(menuitem, line);
@@ -3151,7 +3151,7 @@ void drawPrepareMenu() {
     + 2
     + TERN(MESH_BED_LEVELING, 1, ENABLED(HAS_BED_PROBE))
     + TERN(HAS_ZOFFSET_ITEM, ENABLED(HAS_BED_PROBE), ENABLED(BABYSTEPPING))
-    PLUS_TERN0(HAS_PREHEAT, PREHEAT_COUNT)
+    + PREHEAT_COUNT
     + 1
     + 2 * ALL(PROUI_TUNING_GRAPH, PROUI_ITEM_PLOT)
     + 1
@@ -3186,7 +3186,7 @@ void drawPrepareMenu() {
       #define _ITEM_PREHEAT(N) MENU_ITEM(ICON_Preheat##N, MSG_PREHEAT_##N, onDrawMenuItem, DoPreheat##N);
       REPEAT_1(PREHEAT_COUNT, _ITEM_PREHEAT)
     #endif
-    #if ANY(HAS_HOTEND, HAS_HEATED_BED)
+    #if HAS_HOTEND || HAS_HEATED_BED
       MENU_ITEM(ICON_Cool, MSG_COOLDOWN, onDrawCooldown, doCoolDown);
     #endif
     #if ALL(PROUI_TUNING_GRAPH, PROUI_ITEM_PLOT)
@@ -3820,7 +3820,7 @@ void drawFilamentManMenu() {
 void drawTemperatureMenu() {
   constexpr uint8_t items = (1
     + COUNT_ENABLED(HAS_HOTEND, HAS_HEATED_BED, HAS_FAN)
-    PLUS_TERN0(HAS_PREHEAT, PREHEAT_COUNT)
+    + PREHEAT_COUNT
   );
   checkkey = ID_Menu;
   if (SET_MENU_R(temperatureMenu, selrect({236, 2, 28, 12}), MSG_TEMPERATURE, items)) {

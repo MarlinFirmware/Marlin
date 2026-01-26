@@ -3206,6 +3206,7 @@
 #endif
 
 #if !HAS_PREHEAT
+  #define PREHEAT_COUNT 0
   #undef PREHEAT_SHORTCUT_MENU_ITEM
   #undef DGUS_PREHEAT_UI
 #endif

@@ -233,7 +233,7 @@ void autoHome();
   #define _DOPREHEAT(N) void DoPreheat##N();
   REPEAT_1(PREHEAT_COUNT, _DOPREHEAT)
 #endif
-#if ANY(HAS_HOTEND, HAS_HEATED_BED)
+#if HAS_HOTEND || HAS_HEATED_BED
   void doCoolDown();
 #endif
 #if ENABLED(BAUD_RATE_GCODE)
