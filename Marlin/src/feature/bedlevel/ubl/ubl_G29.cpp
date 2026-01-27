@@ -442,163 +442,163 @@ bool unified_bed_leveling::G29_handle_phase_ops() {
   }
 
   switch (param.P_phase) {
-      case 0:
+    case 0:
+      //
+      // Zero Mesh Data
+      //
+      reset();
+      SERIAL_ECHOLNPGM("Mesh zeroed.");
+      break;
+
+    #if HAS_BED_PROBE
+
+      case 1: {
         //
-        // Zero Mesh Data
+        // Invalidate Entire Mesh and Automatically Probe Mesh in areas that can be reached by the probe
         //
-        reset();
-        SERIAL_ECHOLNPGM("Mesh zeroed.");
-        break;
+        if (!parser.seen_test('C')) {
+          invalidate();
+          SERIAL_ECHOLNPGM("Mesh invalidated. Probing mesh.");
+        }
+        if (param.V_verbosity > 1)
+          SERIAL_ECHOLN(F("Probing around ("), param.XY_pos.x, C(','), param.XY_pos.y, F(").\n"));
+        probe_entire_mesh(param.XY_pos, parser.seen_test('T'), parser.seen_test('E'), parser.seen_test('U'));
 
-      #if HAS_BED_PROBE
-
-        case 1: {
-          //
-          // Invalidate Entire Mesh and Automatically Probe Mesh in areas that can be reached by the probe
-          //
-          if (!parser.seen_test('C')) {
-            invalidate();
-            SERIAL_ECHOLNPGM("Mesh invalidated. Probing mesh.");
-          }
-          if (param.V_verbosity > 1)
-            SERIAL_ECHOLN(F("Probing around ("), param.XY_pos.x, C(','), param.XY_pos.y, F(").\n"));
-          probe_entire_mesh(param.XY_pos, parser.seen_test('T'), parser.seen_test('E'), parser.seen_test('U'));
-
-          report_current_position();
-          SET_PROBE_DEPLOYED(true);
-        } break;
-
-      #endif // HAS_BED_PROBE
-
-      case 2: {
-        #if HAS_MARLINUI_MENU
-          //
-          // Manually Probe Mesh in areas that can't be reached by the probe
-          //
-          SERIAL_ECHOLNPGM("Manually probing unreachable points.");
-          do_z_clearance(Z_CLEARANCE_BETWEEN_PROBES);
-
-          if (parser.seen_test('C') && !param.XY_seen) {
-
-            /**
-             * Use a good default location for the path.
-             * The flipped > and < operators in these comparisons is intentional.
-             * It should cause the probed points to follow a nice path on Cartesian printers.
-             * It may make sense to have Delta printers default to the center of the bed.
-             * Until that is decided, this can be forced with the X and Y parameters.
-             */
-            param.XY_pos.set(
-              #if IS_KINEMATIC
-                X_HOME_POS, Y_HOME_POS
-              #else
-                probe.offset_xy.x > 0 ? X_BED_SIZE : 0,
-                probe.offset_xy.y < 0 ? Y_BED_SIZE : 0
-              #endif
-            );
-          }
-
-          if (parser.seen('B')) {
-            param.B_shim_thickness = parser.has_value() ? parser.value_float() : measure_business_card_thickness();
-            if (ABS(param.B_shim_thickness) > 1.5f) {
-              SERIAL_ECHOLNPGM("?Error in Business Card measurement.");
-              return false;
-            }
-            SET_PROBE_DEPLOYED(true);
-          }
-
-          if (!position_is_reachable(param.XY_pos)) {
-            SERIAL_ECHOLNPGM("XY outside printable radius.");
-            return false;
-          }
-
-          const float height = parser.floatval('H', Z_CLEARANCE_BETWEEN_PROBES);
-          manually_probe_remaining_mesh(param.XY_pos, height, param.B_shim_thickness, parser.seen_test('T'));
-
-          SERIAL_ECHOLNPGM("G29 P2 finished.");
-
-          report_current_position();
-
-        #else
-
-          SERIAL_ECHOLNPGM("?P2 is only available when an LCD is present.");
-          return false;
-
-        #endif
+        report_current_position();
+        SET_PROBE_DEPLOYED(true);
       } break;
 
-      case 3: {
-        /**
-         * Populate invalid mesh areas. Proceed with caution.
-         * Two choices are available:
-         *   - Specify a constant with the 'C' parameter.
-         *   - Allow 'G29 P3' to choose a 'reasonable' constant.
-         */
+    #endif // HAS_BED_PROBE
 
-        if (param.C_seen) {
-          if (param.R_repetition >= GRID_MAX_POINTS) {
-            set_all_mesh_points_to_value(param.C_constant);
+    case 2: {
+      #if HAS_MARLINUI_MENU
+        //
+        // Manually Probe Mesh in areas that can't be reached by the probe
+        //
+        SERIAL_ECHOLNPGM("Manually probing unreachable points.");
+        do_z_clearance(Z_CLEARANCE_BETWEEN_PROBES);
+
+        if (parser.seen_test('C') && !param.XY_seen) {
+
+          /**
+           * Use a good default location for the path.
+           * The flipped > and < operators in these comparisons is intentional.
+           * It should cause the probed points to follow a nice path on Cartesian printers.
+           * It may make sense to have Delta printers default to the center of the bed.
+           * Until that is decided, this can be forced with the X and Y parameters.
+           */
+          param.XY_pos.set(
+            #if IS_KINEMATIC
+              X_HOME_POS, Y_HOME_POS
+            #else
+              probe.offset_xy.x > 0 ? X_BED_SIZE : 0,
+              probe.offset_xy.y < 0 ? Y_BED_SIZE : 0
+            #endif
+          );
+        }
+
+        if (parser.seen('B')) {
+          param.B_shim_thickness = parser.has_value() ? parser.value_float() : measure_business_card_thickness();
+          if (ABS(param.B_shim_thickness) > 1.5f) {
+            SERIAL_ECHOLNPGM("?Error in Business Card measurement.");
+            return false;
           }
-          else {
-            while (param.R_repetition--) {  // this only populates reachable mesh points near
-              const mesh_index_pair closest = find_closest_mesh_point_of_type(INVALID, param.XY_pos);
-              const xy_int8_t &cpos = closest.pos;
-              if (cpos.x < 0) {
-                // No more REAL INVALID mesh points to populate, so we ASSUME
-                // user meant to populate ALL INVALID mesh points to value
-                GRID_LOOP(x, y) if (isnan(z_values[x][y])) z_values[x][y] = param.C_constant;
-                break; // No more invalid Mesh Points to populate
-              }
-              else {
-                z_values[cpos.x][cpos.y] = param.C_constant;
-                TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(cpos, param.C_constant));
-              }
+          SET_PROBE_DEPLOYED(true);
+        }
+
+        if (!position_is_reachable(param.XY_pos)) {
+          SERIAL_ECHOLNPGM("XY outside printable radius.");
+          return false;
+        }
+
+        const float height = parser.floatval('H', Z_CLEARANCE_BETWEEN_PROBES);
+        manually_probe_remaining_mesh(param.XY_pos, height, param.B_shim_thickness, parser.seen_test('T'));
+
+        SERIAL_ECHOLNPGM("G29 P2 finished.");
+
+        report_current_position();
+
+      #else
+
+        SERIAL_ECHOLNPGM("?P2 is only available when an LCD is present.");
+        return false;
+
+      #endif
+    } break;
+
+    case 3: {
+      /**
+       * Populate invalid mesh areas. Proceed with caution.
+       * Two choices are available:
+       *   - Specify a constant with the 'C' parameter.
+       *   - Allow 'G29 P3' to choose a 'reasonable' constant.
+       */
+
+      if (param.C_seen) {
+        if (param.R_repetition >= GRID_MAX_POINTS) {
+          set_all_mesh_points_to_value(param.C_constant);
+        }
+        else {
+          while (param.R_repetition--) {  // this only populates reachable mesh points near
+            const mesh_index_pair closest = find_closest_mesh_point_of_type(INVALID, param.XY_pos);
+            const xy_int8_t &cpos = closest.pos;
+            if (cpos.x < 0) {
+              // No more REAL INVALID mesh points to populate, so we ASSUME
+              // user meant to populate ALL INVALID mesh points to value
+              GRID_LOOP(x, y) if (isnan(z_values[x][y])) z_values[x][y] = param.C_constant;
+              break; // No more invalid Mesh Points to populate
+            }
+            else {
+              z_values[cpos.x][cpos.y] = param.C_constant;
+              TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(cpos, param.C_constant));
             }
           }
         }
-        else {
-          const float cvf = parser.value_float();
-          switch ((int)TRUNC(cvf * 10.0f) - 30) {   // 3.1 -> 1
-            #if ENABLED(UBL_G29_P31)
-              case 1: {
-
-                // P3.1  use least squares fit to fill missing mesh values
-                // P3.10 zero weighting for distance, all grid points equal, best fit tilted plane
-                // P3.11 10X weighting for nearest grid points versus farthest grid points
-                // P3.12 100X distance weighting
-                // P3.13 1000X distance weighting, approaches simple average of nearest points
-
-                const float weight_power  = (cvf - 3.10f) * 100.0f,  // 3.12345 -> 2.345
-                            weight_factor = weight_power ? POW(10.0f, weight_power) : 0;
-                smart_fill_wlsf(weight_factor);
-              }
-              break;
-            #endif
-            case 0:   // P3 or P3.0
-            default:  // and anything P3.x that's not P3.1
-              smart_fill_mesh();  // Do a 'Smart' fill using nearby known values
-              break;
-          }
-        }
-        break;
       }
+      else {
+        const float cvf = parser.value_float();
+        switch ((int)TRUNC(cvf * 10.0f) - 30) {   // 3.1 -> 1
+          #if ENABLED(UBL_G29_P31)
+            case 1: {
 
-      case 4: // Fine Tune (i.e., Edit) the Mesh
-        #if HAS_MARLINUI_MENU
-          fine_tune_mesh(param.XY_pos, parser.seen_test('T'));
-        #else
-          SERIAL_ECHOLNPGM("?P4 is only available when an LCD is present.");
-          return false;
-        #endif
-        break;
+              // P3.1  use least squares fit to fill missing mesh values
+              // P3.10 zero weighting for distance, all grid points equal, best fit tilted plane
+              // P3.11 10X weighting for nearest grid points versus farthest grid points
+              // P3.12 100X distance weighting
+              // P3.13 1000X distance weighting, approaches simple average of nearest points
 
-      case 5: adjust_mesh_to_mean(param.C_seen, param.C_constant); break;
-
-      case 6: shift_mesh_height(param.C_constant); break;
-
-      default:
-        SERIAL_ECHOLNPGM("?Invalid P value.\n");
-        return false;
+              const float weight_power  = (cvf - 3.10f) * 100.0f,  // 3.12345 -> 2.345
+                          weight_factor = weight_power ? POW(10.0f, weight_power) : 0;
+              smart_fill_wlsf(weight_factor);
+            }
+            break;
+          #endif
+          case 0:   // P3 or P3.0
+          default:  // and anything P3.x that's not P3.1
+            smart_fill_mesh();  // Do a 'Smart' fill using nearby known values
+            break;
+        }
+      }
+      break;
     }
+
+    case 4: // Fine Tune (i.e., Edit) the Mesh
+      #if HAS_MARLINUI_MENU
+        fine_tune_mesh(param.XY_pos, parser.seen_test('T'));
+      #else
+        SERIAL_ECHOLNPGM("?P4 is only available when an LCD is present.");
+        return false;
+      #endif
+      break;
+
+    case 5: adjust_mesh_to_mean(param.C_seen, param.C_constant); break;
+
+    case 6: shift_mesh_height(param.C_constant); break;
+
+    default:
+      SERIAL_ECHOLNPGM("?Invalid P value.\n");
+      return false;
+  }
 
   return true;
 }
