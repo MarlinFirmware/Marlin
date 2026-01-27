@@ -84,7 +84,7 @@ private:
   }
 
   // G29 sub-function handlers
-  static bool G29_handle_homing_and_setup(const bool may_move);
+  static void G29_handle_homing_and_setup();
   static void G29_handle_invalidate();
   static bool G29_handle_test_patterns();
   #if HAS_BED_PROBE

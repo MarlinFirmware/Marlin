@@ -312,8 +312,11 @@ void unified_bed_leveling::G29() {
   const uint8_t p_val = parser.byteval('P');
   const bool may_move = p_val == 1 || p_val == 2 || p_val == 4 || parser.seen_test('J');
 
+  // Potentially disable Fixed-Time Motion for probing
+  TERN_(FT_MOTION, FTM_DISABLE_IN_SCOPE());
+
   // Handle homing and initial setup
-  if (!G29_handle_homing_and_setup(may_move)) return;
+  if (may_move) G29_handle_homing_and_setup();
 
   // Handle mesh invalidation (I parameter)
   if (parser.seen('I')) G29_handle_invalidate();
@@ -608,64 +611,55 @@ bool unified_bed_leveling::G29_handle_phase_ops() {
  * @param may_move Whether the command requires printer movement
  * @return true if successful, false if error occurred
  */
-bool unified_bed_leveling::G29_handle_homing_and_setup(const bool may_move) {
-  // Potentially disable Fixed-Time Motion for probing
-  TERN_(FT_MOTION, FTM_DISABLE_IN_SCOPE());
+void unified_bed_leveling::G29_handle_homing_and_setup() {
+  planner.synchronize();
+  #if ALL(DWIN_LCD_PROUI, ZHOME_BEFORE_LEVELING)
+    save_ubl_active_state_and_disable();
+    gcode.process_subcommands_now(F("G28Z"));
+    restore_ubl_active_state(false); // ...without telling ExtUI "done"
+  #else
+    // Send 'N' to force homing before G29 (internal only)
+    if (axes_should_home() || parser.seen_test('N')) gcode.home_all_axes();
+  #endif
+  probe.use_probing_tool();
 
-  // Check for commands that require the printer to be homed
-  if (may_move) {
-    planner.synchronize();
-    #if ALL(DWIN_LCD_PROUI, ZHOME_BEFORE_LEVELING)
-      save_ubl_active_state_and_disable();
-      gcode.process_subcommands_now(F("G28Z"));
-      restore_ubl_active_state(false); // ...without telling ExtUI "done"
-    #else
-      // Send 'N' to force homing before G29 (internal only)
-      if (axes_should_home() || parser.seen_test('N')) gcode.home_all_axes();
+  #ifdef EVENT_GCODE_BEFORE_G29
+    if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Before G29 G-code: ", EVENT_GCODE_BEFORE_G29);
+    gcode.process_subcommands_now(F(EVENT_GCODE_BEFORE_G29));
+  #endif
+
+  // Position bed horizontally and Z probe vertically.
+  #if HAS_SAFE_BED_LEVELING
+    xyze_pos_t safe_position = current_position;
+    #ifdef SAFE_BED_LEVELING_START_X
+      safe_position.x = SAFE_BED_LEVELING_START_X;
     #endif
-    probe.use_probing_tool();
-
-    #ifdef EVENT_GCODE_BEFORE_G29
-      if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Before G29 G-code: ", EVENT_GCODE_BEFORE_G29);
-      gcode.process_subcommands_now(F(EVENT_GCODE_BEFORE_G29));
+    #ifdef SAFE_BED_LEVELING_START_Y
+      safe_position.y = SAFE_BED_LEVELING_START_Y;
     #endif
-
-    // Position bed horizontally and Z probe vertically.
-    #if HAS_SAFE_BED_LEVELING
-      xyze_pos_t safe_position = current_position;
-      #ifdef SAFE_BED_LEVELING_START_X
-        safe_position.x = SAFE_BED_LEVELING_START_X;
-      #endif
-      #ifdef SAFE_BED_LEVELING_START_Y
-        safe_position.y = SAFE_BED_LEVELING_START_Y;
-      #endif
-      #ifdef SAFE_BED_LEVELING_START_Z
-        safe_position.z = SAFE_BED_LEVELING_START_Z;
-      #endif
-      #ifdef SAFE_BED_LEVELING_START_I
-        safe_position.i = SAFE_BED_LEVELING_START_I;
-      #endif
-      #ifdef SAFE_BED_LEVELING_START_J
-        safe_position.j = SAFE_BED_LEVELING_START_J;
-      #endif
-      #ifdef SAFE_BED_LEVELING_START_K
-        safe_position.k = SAFE_BED_LEVELING_START_K;
-      #endif
-      #ifdef SAFE_BED_LEVELING_START_U
-        safe_position.u = SAFE_BED_LEVELING_START_U;
-      #endif
-      #ifdef SAFE_BED_LEVELING_START_V
-        safe_position.v = SAFE_BED_LEVELING_START_V;
-      #endif
-      #ifdef SAFE_BED_LEVELING_START_W
-        safe_position.w = SAFE_BED_LEVELING_START_W;
-      #endif
-
-      do_blocking_move_to(safe_position);
-    #endif // HAS_SAFE_BED_LEVELING
-  }
-
-  return true;
+    #ifdef SAFE_BED_LEVELING_START_Z
+      safe_position.z = SAFE_BED_LEVELING_START_Z;
+    #endif
+    #ifdef SAFE_BED_LEVELING_START_I
+      safe_position.i = SAFE_BED_LEVELING_START_I;
+    #endif
+    #ifdef SAFE_BED_LEVELING_START_J
+      safe_position.j = SAFE_BED_LEVELING_START_J;
+    #endif
+    #ifdef SAFE_BED_LEVELING_START_K
+      safe_position.k = SAFE_BED_LEVELING_START_K;
+    #endif
+    #ifdef SAFE_BED_LEVELING_START_U
+      safe_position.u = SAFE_BED_LEVELING_START_U;
+    #endif
+    #ifdef SAFE_BED_LEVELING_START_V
+      safe_position.v = SAFE_BED_LEVELING_START_V;
+    #endif
+    #ifdef SAFE_BED_LEVELING_START_W
+      safe_position.w = SAFE_BED_LEVELING_START_W;
+    #endif
+    do_blocking_move_to(safe_position);
+  #endif // HAS_SAFE_BED_LEVELING
 }
 
 /**
