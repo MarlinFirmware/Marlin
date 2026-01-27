@@ -87,7 +87,7 @@ void say_shaping() {
     #endif
 
     #if HAS_X_AXIS
-      if (ftMotion.cfg.shaper[X_AXIS]) {  
+      if (ftMotion.cfg.shaper[X_AXIS]) {
         SERIAL_CHAR(STEPPER_A_NAME);
         SERIAL_ECHO_TERNARY(dynamic, " ", "base dynamic", "static", " shaper frequency: ");
         SERIAL_ECHO(p_float_t(c.baseFreq.x, 2), F(" Hz"));
@@ -95,7 +95,7 @@ void say_shaping() {
           if (dynamic) SERIAL_ECHO(F(" scaling: "), p_float_t(c.dynFreqK.x, 2), F("Hz/"), z_based ? F("mm") : F("g"));
         #endif
         SERIAL_EOL();
-       }
+      }
     #endif
 
     #if HAS_Y_AXIS
@@ -321,10 +321,9 @@ void GcodeSuite::M493() {
   #if HAS_X_AXIS
 
     if (apply_xy || parser.seen_test('X')) {
-      
+
       // Set shaper if given
-      if (seenC)
-        set_shaper(X_AXIS, shaperVal);
+      if (seenC) set_shaper(X_AXIS, shaperVal);
 
       // Parse X frequency parameter
       if (seenA) {
@@ -373,8 +372,7 @@ void GcodeSuite::M493() {
     if (apply_xy || parser.seen_test('Y')) {
 
       // Set shaper if given
-      if (seenC)
-        set_shaper(Y_AXIS, shaperVal);
+      if (seenC) set_shaper(Y_AXIS, shaperVal);
 
       // Parse Y frequency parameter
       if (seenA) {
@@ -422,8 +420,7 @@ void GcodeSuite::M493() {
     if (parser.seen_test('Z')) {
 
       // Set shaper if given
-      if (seenC)
-        set_shaper(Z_AXIS, shaperVal);
+      if (seenC) set_shaper(Z_AXIS, shaperVal);
 
       // Parse Z frequency parameter
       if (seenA) {
@@ -471,8 +468,7 @@ void GcodeSuite::M493() {
     if (parser.seen_test('E')) {
 
       // Set shaper if given
-      if (seenC)
-        set_shaper(E_AXIS, shaperVal);
+      if (seenC) set_shaper(E_AXIS, shaperVal);
 
       // Parse E frequency parameter
       if (seenA) {
