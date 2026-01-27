@@ -729,7 +729,8 @@ bool unified_bed_leveling::G29_handle_test_patterns() {
     case -1: TERN_(UBL_DEVEL_DEBUGGING, g29_eeprom_dump()); break;
 
     case 0:
-      GRID_LOOP(x, y) {                                     // Create a bowl shape similar to a poorly-calibrated Delta
+      // Create a bowl shape similar to a poorly-calibrated Delta
+      GRID_LOOP(x, y) {
         const float p1 = 0.5f * (GRID_MAX_POINTS_X) - x,
                     p2 = 0.5f * (GRID_MAX_POINTS_Y) - y;
         z_values[x][y] += 2.0f * HYPOT(p1, p2);
@@ -738,7 +739,8 @@ bool unified_bed_leveling::G29_handle_test_patterns() {
       break;
 
     case 1:
-      for (uint8_t x = 0; x < GRID_MAX_POINTS_X; ++x) {                     // Create a diagonal line several Mesh cells thick that is raised
+      // Create a diagonal line several Mesh cells thick that is raised
+      for (uint8_t x = 0; x < GRID_MAX_POINTS_X; ++x) {
         const uint8_t x2 = x + (x < (GRID_MAX_POINTS_Y) - 1 ? 1 : -1);
         z_values[x][x] += 9.999f;
         z_values[x][x2] += 9.999f; // We want the altered line several mesh points thick
