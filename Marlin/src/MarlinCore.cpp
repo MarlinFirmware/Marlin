@@ -1373,6 +1373,12 @@ void setup() {
     #endif
   #endif
 
+  //#if ENABLED(PRINTJOB_TIMER_AUTOSTART)
+  //  // Stop timer and set welcome message
+  //  if (TERN1(POWER_LOSS_RECOVERY, !recovery.check()))
+  //    thermalManager.auto_job_check_timer(false, true);
+  //#endif
+
   // Prepare some LCDs to display early
   #if HAS_EARLY_LCD_SETTINGS
     SETUP_RUN(settings.load_lcd_state());

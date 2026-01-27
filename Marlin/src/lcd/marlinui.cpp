@@ -61,12 +61,8 @@ MarlinUI ui;
   #include "../module/printcounter.h"
 #endif
 
-#if ANY(HAS_WIRED_LCD, HAS_PREHEAT, PRINTJOB_TIMER_AUTOSTART)
+#if HAS_WIRED_LCD || HAS_PREHEAT
   #include "../module/temperature.h"
-#endif
-
-#if ENABLED(POWER_LOSS_RECOVERY)
-  #include "../feature/powerloss.h"
 #endif
 
 #if LCD_HAS_WAIT_FOR_MOVE
@@ -329,13 +325,7 @@ void MarlinUI::init() {
 
   TERN_(HAS_ENCODER_ACTION, encoderDiff = 0);
 
-  #if ENABLED(PRINTJOB_TIMER_AUTOSTART)
-    // Stop timer and set welcome message
-    if (TERN1(POWER_LOSS_RECOVERY, !recovery.check()))
-      thermalManager.auto_job_check_timer(false, true);
-  #else
-    reset_status(); // Set welcome message
-  #endif
+  reset_status(); // Set welcome message
 }
 
 #if HAS_WIRED_LCD
