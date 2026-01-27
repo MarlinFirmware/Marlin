@@ -312,153 +312,136 @@ void unified_bed_leveling::G29() {
   const uint8_t p_val = parser.byteval('P');
   const bool may_move = p_val == 1 || p_val == 2 || p_val == 4 || parser.seen_test('J');
 
-  // Potentially disable Fixed-Time Motion for probing
-  TERN_(FT_MOTION, FTM_DISABLE_IN_SCOPE());
+  // Handle homing and initial setup
+  if (!G29_handle_homing_and_setup(may_move)) return;
 
-  // Check for commands that require the printer to be homed
-  if (may_move) {
-    planner.synchronize();
-    #if ALL(DWIN_LCD_PROUI, ZHOME_BEFORE_LEVELING)
-      save_ubl_active_state_and_disable();
-      gcode.process_subcommands_now(F("G28Z"));
-      restore_ubl_active_state(false); // ...without telling ExtUI "done"
-    #else
-      // Send 'N' to force homing before G29 (internal only)
-      if (axes_should_home() || parser.seen_test('N')) gcode.home_all_axes();
-    #endif
-    probe.use_probing_tool();
+  // Handle mesh invalidation (I parameter)
+  if (parser.seen('I')) G29_handle_invalidate();
 
-    #ifdef EVENT_GCODE_BEFORE_G29
-      if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Before G29 G-code: ", EVENT_GCODE_BEFORE_G29);
-      gcode.process_subcommands_now(F(EVENT_GCODE_BEFORE_G29));
-    #endif
+  // Handle test patterns (Q parameter)
+  if (parser.seen('Q') && !G29_handle_test_patterns()) return;
 
-    // Position bed horizontally and Z probe vertically.
-    #if HAS_SAFE_BED_LEVELING
-      xyze_pos_t safe_position = current_position;
-      #ifdef SAFE_BED_LEVELING_START_X
-        safe_position.x = SAFE_BED_LEVELING_START_X;
-      #endif
-      #ifdef SAFE_BED_LEVELING_START_Y
-        safe_position.y = SAFE_BED_LEVELING_START_Y;
-      #endif
-      #ifdef SAFE_BED_LEVELING_START_Z
-        safe_position.z = SAFE_BED_LEVELING_START_Z;
-      #endif
-      #ifdef SAFE_BED_LEVELING_START_I
-        safe_position.i = SAFE_BED_LEVELING_START_I;
-      #endif
-      #ifdef SAFE_BED_LEVELING_START_J
-        safe_position.j = SAFE_BED_LEVELING_START_J;
-      #endif
-      #ifdef SAFE_BED_LEVELING_START_K
-        safe_position.k = SAFE_BED_LEVELING_START_K;
-      #endif
-      #ifdef SAFE_BED_LEVELING_START_U
-        safe_position.u = SAFE_BED_LEVELING_START_U;
-      #endif
-      #ifdef SAFE_BED_LEVELING_START_V
-        safe_position.v = SAFE_BED_LEVELING_START_V;
-      #endif
-      #ifdef SAFE_BED_LEVELING_START_W
-        safe_position.w = SAFE_BED_LEVELING_START_W;
-      #endif
+  // Handle tilt mesh (J parameter)
+  #if HAS_BED_PROBE
+    if (parser.seen_test('J')) G29_handle_tilt_mesh();
+  #endif
 
-      do_blocking_move_to(safe_position);
-    #endif // HAS_SAFE_BED_LEVELING
-  }
+  // Handle phase operations (P parameter)
+  if (parser.seen_test('P') && !G29_handle_phase_ops()) return;
 
-  // Invalidate one or more nearby mesh points, possibly all.
-  if (parser.seen('I')) {
-    grid_count_t count = parser.has_value() ? parser.value_ushort() : 1;
-    bool invalidate_all = count >= GRID_MAX_POINTS;
-    if (!invalidate_all) {
-      while (count--) {
-        if ((count & 0x0F) == 0x0F) marlin.idle();
-        const mesh_index_pair closest = find_closest_mesh_point_of_type(REAL, param.XY_pos);
-        // No more REAL mesh points to invalidate? Assume the user meant
-        // to invalidate the ENTIRE mesh, which can't be done with
-        // find_closest_mesh_point (which only returns REAL points).
-        if (closest.pos.x < 0) { invalidate_all = true; break; }
-        z_values[closest.pos.x][closest.pos.y] = NAN;
-        TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(closest.pos, 0.0f));
-      }
-    }
-    if (invalidate_all) {
-      invalidate();
-      SERIAL_ECHOPGM("Entire Mesh");
-    }
-    else
-      SERIAL_ECHOPGM("Locations");
-    SERIAL_ECHOLNPGM(" invalidated.\n");
-  }
+  // Handle post-processing and cleanup
+  G29_handle_post_processing();
+}
 
-  if (parser.seen('Q')) {
-    const int16_t test_pattern = parser.has_value() ? parser.value_int() : -99;
-    if (!WITHIN(test_pattern, TERN0(UBL_DEVEL_DEBUGGING, -1), 2)) {
-      SERIAL_ECHOLN(F("?Invalid "), F("(Q) test pattern. (" TERN(UBL_DEVEL_DEBUGGING, "-1", "0") " to 2)\n"));
+/**
+ * Handle post-processing and cleanup
+ */
+void unified_bed_leveling::G29_handle_post_processing() {
+  #if ENABLED(UBL_DEVEL_DEBUGGING)
+
+    //
+    // Much of the 'What?' command can be eliminated. But until we are fully debugged, it is
+    // good to have the extra information. Soon... we prune this to just a few items
+    //
+    if (parser.seen_test('W')) g29_what_command();
+
+    //
+    // When we are fully debugged, this may go away. But there are some valid
+    // use cases for the users. So we can wait and see what to do with it.
+    //
+
+    if (parser.seen('K')) // Kompare Current Mesh Data to Specified Stored Mesh
+      g29_compare_current_mesh_to_stored_mesh();
+
+  #endif // UBL_DEVEL_DEBUGGING
+
+  //
+  // Load a Mesh from the EEPROM
+  //
+
+  if (parser.seen('L')) {     // Load Current Mesh Data
+    param.KLS_storage_slot = parser.has_value() ? (int8_t)parser.value_int() : storage_slot;
+
+    int16_t a = settings.calc_num_meshes();
+
+    if (!a) {
+      SERIAL_ECHOLNPGM("?EEPROM storage not available.");
       return;
     }
-    SERIAL_ECHOLNPGM("Applying test pattern.\n");
-    switch (test_pattern) {
 
-      default:
-      case -1: TERN_(UBL_DEVEL_DEBUGGING, g29_eeprom_dump()); break;
-
-      case 0:
-        GRID_LOOP(x, y) {                                     // Create a bowl shape similar to a poorly-calibrated Delta
-          const float p1 = 0.5f * (GRID_MAX_POINTS_X) - x,
-                      p2 = 0.5f * (GRID_MAX_POINTS_Y) - y;
-          z_values[x][y] += 2.0f * HYPOT(p1, p2);
-          TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(x, y, z_values[x][y]));
-        }
-        break;
-
-      case 1:
-        for (uint8_t x = 0; x < GRID_MAX_POINTS_X; ++x) {                     // Create a diagonal line several Mesh cells thick that is raised
-          const uint8_t x2 = x + (x < (GRID_MAX_POINTS_Y) - 1 ? 1 : -1);
-          z_values[x][x] += 9.999f;
-          z_values[x][x2] += 9.999f; // We want the altered line several mesh points thick
-          #if ENABLED(EXTENSIBLE_UI)
-            ExtUI::onMeshUpdate(x, x, z_values[x][x]);
-            ExtUI::onMeshUpdate(x, x2, z_values[x][x2]);
-          #endif
-        }
-        break;
-
-      case 2:
-        // Allow the user to specify the height because 10mm is a little extreme in some cases.
-        for (uint8_t x = (GRID_MAX_POINTS_X) / 3; x < 2 * (GRID_MAX_POINTS_X) / 3; x++)     // Create a rectangular raised area in
-          for (uint8_t y = (GRID_MAX_POINTS_Y) / 3; y < 2 * (GRID_MAX_POINTS_Y) / 3; y++) { // the center of the bed
-            z_values[x][y] += parser.seen_test('C') ? param.C_constant : 9.99f;
-            TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(x, y, z_values[x][y]));
-          }
-        break;
+    if (!WITHIN(param.KLS_storage_slot, 0, a - 1)) {
+      SERIAL_ECHOLN(F("?Invalid "), F("storage slot.\n?Use 0 to "), a - 1);
+      return;
     }
+
+    settings.load_mesh(param.KLS_storage_slot);
+    storage_slot = param.KLS_storage_slot;
+
+    SERIAL_ECHOLNPGM(STR_DONE);
   }
 
-  #if HAS_BED_PROBE
+  //
+  // Store a Mesh in the EEPROM
+  //
 
-    if (parser.seen_test('J')) {
-      save_ubl_active_state_and_disable();
-      tilt_mesh_based_on_probed_grid(param.J_grid_size == 0); // Zero size does 3-Point
-      restore_ubl_active_state();
-      #if ENABLED(UBL_G29_J_RECENTER)
-        do_blocking_move_to_xy(0.5f * ((MESH_MIN_X) + (MESH_MAX_X)), 0.5f * ((MESH_MIN_Y) + (MESH_MAX_Y)));
-      #endif
-      report_current_position();
-      SET_PROBE_DEPLOYED(true);
+  else if (parser.seen('S')) {     // Store (or Save) Current Mesh Data
+    param.KLS_storage_slot = parser.has_value() ? (int8_t)parser.value_int() : storage_slot;
+
+    if (param.KLS_storage_slot == -1)               // Special case: 'Export' the mesh to the
+      return report_current_mesh();                 // host so it can be saved in a file.
+
+    int16_t a = settings.calc_num_meshes();
+
+    if (!a) {
+      SERIAL_ECHOLNPGM("?EEPROM storage not available.");
+      goto LEAVE;
     }
 
-  #endif // HAS_BED_PROBE
-
-  if (parser.seen_test('P')) {
-    if (WITHIN(param.P_phase, 0, 1) && storage_slot == -1) {
-      storage_slot = 0;
-      SERIAL_ECHOLNPGM("Default storage slot 0 selected.");
+    if (!WITHIN(param.KLS_storage_slot, 0, a - 1)) {
+      SERIAL_ECHOLN(F("?Invalid "), F("storage slot.\n?Use 0 to "), a - 1);
+      goto LEAVE;
     }
 
-    switch (param.P_phase) {
+    settings.store_mesh(param.KLS_storage_slot);
+    storage_slot = param.KLS_storage_slot;
+
+    SERIAL_ECHOLNPGM(STR_DONE);
+  }
+
+  if (parser.seen_test('T'))
+    display_map(param.T_map_type);
+
+  LEAVE:
+
+  #if HAS_MARLINUI_MENU
+    ui.reset_alert_level();
+    ui.quick_feedback();
+    ui.reset_status();
+    ui.release();
+  #endif
+
+  #ifdef EVENT_GCODE_AFTER_G29
+    if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("After G29 G-code: ", EVENT_GCODE_AFTER_G29);
+    if (probe_deployed) {
+      planner.synchronize();
+      gcode.process_subcommands_now(F(EVENT_GCODE_AFTER_G29));
+    }
+  #endif
+
+  probe.use_probing_tool(false);
+}
+
+/**
+ * Handle phase operations (P parameter)
+ * @return true if successful, false if error occurred
+ */
+bool unified_bed_leveling::G29_handle_phase_ops() {
+  if (WITHIN(param.P_phase, 0, 1) && storage_slot == -1) {
+    storage_slot = 0;
+    SERIAL_ECHOLNPGM("Default storage slot 0 selected.");
+  }
+
+  switch (param.P_phase) {
       case 0:
         //
         // Zero Mesh Data
@@ -518,14 +501,14 @@ void unified_bed_leveling::G29() {
             param.B_shim_thickness = parser.has_value() ? parser.value_float() : measure_business_card_thickness();
             if (ABS(param.B_shim_thickness) > 1.5f) {
               SERIAL_ECHOLNPGM("?Error in Business Card measurement.");
-              return;
+              return false;
             }
             SET_PROBE_DEPLOYED(true);
           }
 
           if (!position_is_reachable(param.XY_pos)) {
             SERIAL_ECHOLNPGM("XY outside printable radius.");
-            return;
+            return false;
           }
 
           const float height = parser.floatval('H', Z_CLEARANCE_BETWEEN_PROBES);
@@ -538,7 +521,7 @@ void unified_bed_leveling::G29() {
         #else
 
           SERIAL_ECHOLNPGM("?P2 is only available when an LCD is present.");
-          return;
+          return false;
 
         #endif
       } break;
@@ -604,109 +587,186 @@ void unified_bed_leveling::G29() {
           fine_tune_mesh(param.XY_pos, parser.seen_test('T'));
         #else
           SERIAL_ECHOLNPGM("?P4 is only available when an LCD is present.");
-          return;
+          return false;
         #endif
         break;
 
       case 5: adjust_mesh_to_mean(param.C_seen, param.C_constant); break;
 
       case 6: shift_mesh_height(param.C_constant); break;
+
+      default:
+        SERIAL_ECHOLNPGM("?Invalid P value.\n");
+        return false;
     }
+
+  return true;
+}
+
+/**
+ * Handle homing and initial setup for G29 command
+ * @param may_move Whether the command requires printer movement
+ * @return true if successful, false if error occurred
+ */
+bool unified_bed_leveling::G29_handle_homing_and_setup(const bool may_move) {
+  // Potentially disable Fixed-Time Motion for probing
+  TERN_(FT_MOTION, FTM_DISABLE_IN_SCOPE());
+
+  // Check for commands that require the printer to be homed
+  if (may_move) {
+    planner.synchronize();
+    #if ALL(DWIN_LCD_PROUI, ZHOME_BEFORE_LEVELING)
+      save_ubl_active_state_and_disable();
+      gcode.process_subcommands_now(F("G28Z"));
+      restore_ubl_active_state(false); // ...without telling ExtUI "done"
+    #else
+      // Send 'N' to force homing before G29 (internal only)
+      if (axes_should_home() || parser.seen_test('N')) gcode.home_all_axes();
+    #endif
+    probe.use_probing_tool();
+
+    #ifdef EVENT_GCODE_BEFORE_G29
+      if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Before G29 G-code: ", EVENT_GCODE_BEFORE_G29);
+      gcode.process_subcommands_now(F(EVENT_GCODE_BEFORE_G29));
+    #endif
+
+    // Position bed horizontally and Z probe vertically.
+    #if HAS_SAFE_BED_LEVELING
+      xyze_pos_t safe_position = current_position;
+      #ifdef SAFE_BED_LEVELING_START_X
+        safe_position.x = SAFE_BED_LEVELING_START_X;
+      #endif
+      #ifdef SAFE_BED_LEVELING_START_Y
+        safe_position.y = SAFE_BED_LEVELING_START_Y;
+      #endif
+      #ifdef SAFE_BED_LEVELING_START_Z
+        safe_position.z = SAFE_BED_LEVELING_START_Z;
+      #endif
+      #ifdef SAFE_BED_LEVELING_START_I
+        safe_position.i = SAFE_BED_LEVELING_START_I;
+      #endif
+      #ifdef SAFE_BED_LEVELING_START_J
+        safe_position.j = SAFE_BED_LEVELING_START_J;
+      #endif
+      #ifdef SAFE_BED_LEVELING_START_K
+        safe_position.k = SAFE_BED_LEVELING_START_K;
+      #endif
+      #ifdef SAFE_BED_LEVELING_START_U
+        safe_position.u = SAFE_BED_LEVELING_START_U;
+      #endif
+      #ifdef SAFE_BED_LEVELING_START_V
+        safe_position.v = SAFE_BED_LEVELING_START_V;
+      #endif
+      #ifdef SAFE_BED_LEVELING_START_W
+        safe_position.w = SAFE_BED_LEVELING_START_W;
+      #endif
+
+      do_blocking_move_to(safe_position);
+    #endif // HAS_SAFE_BED_LEVELING
   }
 
-  #if ENABLED(UBL_DEVEL_DEBUGGING)
+  return true;
+}
 
-    //
-    // Much of the 'What?' command can be eliminated. But until we are fully debugged, it is
-    // good to have the extra information. Soon... we prune this to just a few items
-    //
-    if (parser.seen_test('W')) g29_what_command();
-
-    //
-    // When we are fully debugged, this may go away. But there are some valid
-    // use cases for the users. So we can wait and see what to do with it.
-    //
-
-    if (parser.seen('K')) // Kompare Current Mesh Data to Specified Stored Mesh
-      g29_compare_current_mesh_to_stored_mesh();
-
-  #endif // UBL_DEVEL_DEBUGGING
-
-  //
-  // Load a Mesh from the EEPROM
-  //
-
-  if (parser.seen('L')) {     // Load Current Mesh Data
-    param.KLS_storage_slot = parser.has_value() ? (int8_t)parser.value_int() : storage_slot;
-
-    int16_t a = settings.calc_num_meshes();
-
-    if (!a) {
-      SERIAL_ECHOLNPGM("?EEPROM storage not available.");
-      return;
+/**
+ * Handle mesh invalidation (I parameter)
+ */
+void unified_bed_leveling::G29_handle_invalidate() {
+  // Invalidate one or more nearby mesh points, possibly all.
+  grid_count_t count = parser.has_value() ? parser.value_ushort() : 1;
+    bool invalidate_all = count >= GRID_MAX_POINTS;
+    if (!invalidate_all) {
+      while (count--) {
+        if ((count & 0x0F) == 0x0F) marlin.idle();
+        const mesh_index_pair closest = find_closest_mesh_point_of_type(REAL, param.XY_pos);
+        // No more REAL mesh points to invalidate? Assume the user meant
+        // to invalidate the ENTIRE mesh, which can't be done with
+        // find_closest_mesh_point (which only returns REAL points).
+        if (closest.pos.x < 0) { invalidate_all = true; break; }
+        z_values[closest.pos.x][closest.pos.y] = NAN;
+        TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(closest.pos, 0.0f));
+      }
     }
-
-    if (!WITHIN(param.KLS_storage_slot, 0, a - 1)) {
-      SERIAL_ECHOLN(F("?Invalid "), F("storage slot.\n?Use 0 to "), a - 1);
-      return;
+    if (invalidate_all) {
+      invalidate();
+      SERIAL_ECHOPGM("Entire Mesh");
     }
+    else
+      SERIAL_ECHOPGM("Locations");
+    SERIAL_ECHOLNPGM(" invalidated.\n");
+}
 
-    settings.load_mesh(param.KLS_storage_slot);
-    storage_slot = param.KLS_storage_slot;
-
-    SERIAL_ECHOLNPGM(STR_DONE);
+#if HAS_BED_PROBE
+  /**
+   * Handle tilt mesh (J parameter)
+   */
+  void unified_bed_leveling::G29_handle_tilt_mesh() {
+    save_ubl_active_state_and_disable();
+    tilt_mesh_based_on_probed_grid(param.J_grid_size == 0); // Zero size does 3-Point
+    restore_ubl_active_state();
+    #if ENABLED(UBL_G29_J_RECENTER)
+      do_blocking_move_to_xy(0.5f * ((MESH_MIN_X) + (MESH_MAX_X)), 0.5f * ((MESH_MIN_Y) + (MESH_MAX_Y)));
+    #endif
+    report_current_position();
+    SET_PROBE_DEPLOYED(true);
   }
+#endif // HAS_BED_PROBE
 
-  //
-  // Store a Mesh in the EEPROM
-  //
-
-  if (parser.seen('S')) {     // Store (or Save) Current Mesh Data
-    param.KLS_storage_slot = parser.has_value() ? (int8_t)parser.value_int() : storage_slot;
-
-    if (param.KLS_storage_slot == -1)               // Special case: 'Export' the mesh to the
-      return report_current_mesh();                 // host so it can be saved in a file.
-
-    int16_t a = settings.calc_num_meshes();
-
-    if (!a) {
-      SERIAL_ECHOLNPGM("?EEPROM storage not available.");
-      goto LEAVE;
-    }
-
-    if (!WITHIN(param.KLS_storage_slot, 0, a - 1)) {
-      SERIAL_ECHOLN(F("?Invalid "), F("storage slot.\n?Use 0 to "), a - 1);
-      goto LEAVE;
-    }
-
-    settings.store_mesh(param.KLS_storage_slot);
-    storage_slot = param.KLS_storage_slot;
-
-    SERIAL_ECHOLNPGM(STR_DONE);
+/**
+ * Handle test patterns (Q parameter)
+ * @return true if successful, false if error occurred
+ */
+bool unified_bed_leveling::G29_handle_test_patterns() {
+  const int16_t test_pattern = parser.has_value() ? parser.value_int() : -99;
+  if (!WITHIN(test_pattern, TERN0(UBL_DEVEL_DEBUGGING, -1), 2)) {
+    SERIAL_ECHOLN(F("?Invalid "), F("(Q) test pattern. (" TERN(UBL_DEVEL_DEBUGGING, "-1", "0") " to 2)\n"));
+    return false;
   }
+  SERIAL_ECHOLNPGM("Applying test pattern.\n");
+  switch (test_pattern) {
 
-  if (parser.seen_test('T'))
-    display_map(param.T_map_type);
+    default:
+    case -1: TERN_(UBL_DEVEL_DEBUGGING, g29_eeprom_dump()); break;
 
-  LEAVE:
+    case 0:
+      GRID_LOOP(x, y) {                                     // Create a bowl shape similar to a poorly-calibrated Delta
+        const float p1 = 0.5f * (GRID_MAX_POINTS_X) - x,
+                    p2 = 0.5f * (GRID_MAX_POINTS_Y) - y;
+        z_values[x][y] += 2.0f * HYPOT(p1, p2);
+        TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(x, y, z_values[x][y]));
+      }
+      break;
 
-  #if HAS_MARLINUI_MENU
-    ui.reset_alert_level();
-    ui.quick_feedback();
-    ui.reset_status();
-    ui.release();
-  #endif
+    case 1:
+      for (uint8_t x = 0; x < GRID_MAX_POINTS_X; ++x) {                     // Create a diagonal line several Mesh cells thick that is raised
+        const uint8_t x2 = x + (x < (GRID_MAX_POINTS_Y) - 1 ? 1 : -1);
+        z_values[x][x] += 9.999f;
+        z_values[x][x2] += 9.999f; // We want the altered line several mesh points thick
+        #if ENABLED(EXTENSIBLE_UI)
+          ExtUI::onMeshUpdate(x, x, z_values[x][x]);
+          ExtUI::onMeshUpdate(x, x2, z_values[x][x2]);
+        #endif
+      }
+      break;
 
-  #ifdef EVENT_GCODE_AFTER_G29
-    if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("After G29 G-code: ", EVENT_GCODE_AFTER_G29);
-    if (probe_deployed) {
-      planner.synchronize();
-      gcode.process_subcommands_now(F(EVENT_GCODE_AFTER_G29));
+    case 2:
+      // Allow the user to specify the height because 10mm is a little extreme in some cases.
+      for (uint8_t x = (GRID_MAX_POINTS_X) / 3; x < 2 * (GRID_MAX_POINTS_X) / 3; x++)     // Create a rectangular raised area in
+        for (uint8_t y = (GRID_MAX_POINTS_Y) / 3; y < 2 * (GRID_MAX_POINTS_Y) / 3; y++) { // the center of the bed
+          z_values[x][y] += parser.seen_test('C') ? param.C_constant : 9.99f;
+          TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(x, y, z_values[x][y]));
+        }
+      break;
+  }
+  return true;
+}
+
+void unified_bed_leveling::shift_mesh_height(const float zoffs) {
+  GRID_LOOP(x, y)
+    if (!isnan(z_values[x][y])) {
+      z_values[x][y] += zoffs;
+      TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(x, y, z_values[x][y]));
     }
-  #endif
-
-  probe.use_probing_tool(false);
-  return;
 }
 
 /**
@@ -745,17 +805,6 @@ void unified_bed_leveling::adjust_mesh_to_mean(const bool cflag, const float off
         z_values[x][y] -= mean + offset;
         TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(x, y, z_values[x][y]));
       }
-}
-
-/**
- * G29 P6 C<offset> : Shift Mesh Height by a uniform constant.
- */
-void unified_bed_leveling::shift_mesh_height(const float zoffs) {
-  GRID_LOOP(x, y)
-    if (!isnan(z_values[x][y])) {
-      z_values[x][y] += zoffs;
-      TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(x, y, z_values[x][y]));
-    }
 }
 
 #if HAS_BED_PROBE
