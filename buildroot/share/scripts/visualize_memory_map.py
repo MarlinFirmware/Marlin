@@ -329,8 +329,10 @@ def categorize_symbol(name, warn_conflicts=False):
     name_lower = name.lower()
 
     # Pattern definitions with their categories
+    # NOTE: Order matters! More specific patterns should come before general ones
     patterns = [
         (['ubl', 'unified_bed_leveling'], 'UBL'),
+        (['tmcstepper', 'tmc2130', 'tmc2208', 'tmc2209', 'tmc2660', 'tmc5160', 'tmcmarlin'], 'TMCLibrary'),
         (['planner'], 'Planner'),
         (['stepper'], 'Stepper'),
         (['temperature'], 'Temperature'),
@@ -462,10 +464,12 @@ def generate_memory_blocks_html(items, module_colors, zoom_level=1, total_memory
                 # Mark heap region
                 for i in range(heap_start_idx, heap_end_idx):
                     if 0 <= i < total_size and memory_map[i] is None:
+                        addr = min_addr + i
                         memory_map[i] = {
                             'color': '#404040',
                             'name': 'Heap (available)',
-                            'addr': min_addr + i,
+                            'addr': addr,
+                            'addr_raw': addr + addr_base if arch == 'arm' else addr,
                             'size': heap_end_idx - heap_start_idx,
                             'section': '.heap',
                             'module': 'Heap'
@@ -474,10 +478,12 @@ def generate_memory_blocks_html(items, module_colors, zoom_level=1, total_memory
                 # Mark stack reserve region (top 256 bytes)
                 for i in range(stack_start_idx, total_size):
                     if 0 <= i < total_size and memory_map[i] is None:
+                        addr = min_addr + i
                         memory_map[i] = {
                             'color': '#505050',
                             'name': 'Stack (reserve)',
-                            'addr': min_addr + i,
+                            'addr': addr,
+                            'addr_raw': addr + addr_base if arch == 'arm' else addr,
                             'size': stack_reserve_bytes,
                             'section': '.stack',
                             'module': 'Stack'
@@ -547,7 +553,7 @@ def generate_memory_blocks_html(items, module_colors, zoom_level=1, total_memory
 
                 # For display: ARM uses raw addresses (0x08000000/0x20000000 ranges), AVR uses normalized
                 display_addr = byte_info['addr_raw'] if arch == 'arm' else byte_info['addr']
-                
+
                 if needs_delimiter:
                     html += f'''          <div class="memory-pixel"
                    style="flex-grow: {count}; background: {byte_info['color']};"
@@ -763,6 +769,7 @@ def generate_html(symbols, special_symbols, output_path, flash_size, ram_size, a
         'Endstops': '#FF6F00',
         'Serial': '#3F51B5',
         'Settings': '#009688',
+        'TMCLibrary': "#C10091",
         'Core': '#795548',
         'Other': '#757575'
     }
@@ -1224,7 +1231,7 @@ def generate_html(symbols, special_symbols, output_path, flash_size, ram_size, a
 """
 
         for item in flash_items_sorted:
-            # For AVR use normalized address, for ARM use raw address  
+            # For AVR use normalized address, for ARM use raw address
             addr = item['addr_raw'] if arch == 'arm' else item['addr']
             size = item['size']
             percentage = (size / total_flash_used * 100) if total_flash_used > 0 else 0
