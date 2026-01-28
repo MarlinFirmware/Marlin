@@ -159,7 +159,7 @@ float ResonanceGenerator::calc_next_pos() {
 #if HAS_STANDARD_MOTION
   block_t *ResonanceGenerator::generate_resonance_block() {
     const float step_mm = planner.settings.axis_steps_per_mm[rt_params.axis];
-    static float last_pos = 0.0f;
+    static float last_pos = rt_params.start_pos[rt_params.axis];
     
     // Calculate current frequency
     current_freq *= freq_mul;
@@ -173,12 +173,14 @@ float ResonanceGenerator::calc_next_pos() {
 
     // mm → steps
     const float delta_mm = (target_pos - last_pos);
-    const int32_t delta_steps = abs(lround(delta_mm * step_mm));
+    const float prod = delta_mm * step_mm;
+    const int32_t delta_steps = (int32_t)(prod > 0.0f ? prod + 0.5f : prod - 0.5f);
     last_pos = target_pos;
+
     // Steps for target axis
-    block.steps[rt_params.axis] = delta_steps;
+    block.steps[rt_params.axis] = abs(delta_steps);
     // Total event count
-    block.step_event_count = delta_steps;
+    block.step_event_count = abs(delta_steps);
 
     // Direction
     if (delta_mm > 0)
