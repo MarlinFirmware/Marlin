@@ -36,7 +36,6 @@ resonance_test_params_t ResonanceGenerator::rt_params;     // Resonance test par
 bool ResonanceGenerator::active = false;                       // Resonance test active
 bool ResonanceGenerator::done = false;                         // Resonance test done
 float ResonanceGenerator::rt_time;                             // Resonance test timer
-float ResonanceGenerator::timeline = 0.0f;
 float ResonanceGenerator::amplitude_precalc;
 float ResonanceGenerator::freq_mul;
 float ResonanceGenerator::phase = 0.0f;
@@ -120,6 +119,7 @@ void ResonanceGenerator::reset() {
   done = false;
 }
 
+// Returns the next position offset for the current frequency
 float ResonanceGenerator::calc_next_pos() {
   // Amplitude based on a sinusoidal wave : A = accel / (4 * PI^2 * f^2)
   const float amplitude = amplitude_precalc / current_freq;
@@ -132,12 +132,13 @@ float ResonanceGenerator::calc_next_pos() {
   const float r2 = r * r;
   
   // New postion
-  return rt_params.start_pos[rt_params.axis] + amplitude * r * (1.0f - 0.101321184f * r2);
+  return (amplitude * r * (1.0f - 0.101321184f * r2));
 }
 
 #if ENABLED(FT_MOTION)
   void ResonanceGenerator::fill_stepper_plan_buffer() {
     xyze_pos_t traj_coords = rt_params.start_pos;
+    const float start_pos = rt_params.start_pos[rt_params.axis];
 
     while (!ftMotion.stepping.is_full()) {
       // Calculate current frequency
@@ -148,7 +149,7 @@ float ResonanceGenerator::calc_next_pos() {
       }
 
       // Resonate the axis being tested
-      traj_coords[rt_params.axis] = calc_next_pos();
+      traj_coords[rt_params.axis] = start_pos + calc_next_pos();
 
       // Store in buffer
       ftMotion.stepping_enqueue(traj_coords);
@@ -159,7 +160,6 @@ float ResonanceGenerator::calc_next_pos() {
 #if HAS_STANDARD_MOTION
   block_t *ResonanceGenerator::generate_resonance_block() {
     const float step_mm = planner.settings.axis_steps_per_mm[rt_params.axis];
-    static float last_pos = rt_params.start_pos[rt_params.axis];
     
     // Calculate current frequency
     current_freq *= freq_mul;
@@ -167,15 +167,11 @@ float ResonanceGenerator::calc_next_pos() {
       done = true;
       return nullptr;
     }
-    
-    // Calculate next point position
-    const float target_pos = calc_next_pos();
 
     // mm → steps
-    const float delta_mm = (target_pos - last_pos);
+    const float delta_mm = calc_next_pos();
     const float prod = delta_mm * step_mm;
     const int32_t delta_steps = (int32_t)(prod > 0.0f ? prod + 0.5f : prod - 0.5f);
-    last_pos = target_pos;
 
     // Steps for target axis
     block.steps[rt_params.axis] = abs(delta_steps);
@@ -183,7 +179,7 @@ float ResonanceGenerator::calc_next_pos() {
     block.step_event_count = abs(delta_steps);
 
     // Direction
-    if (delta_mm > 0)
+    if (delta_steps > 0)
       block.direction_bits &= ~(1 << rt_params.axis);
     else
       block.direction_bits |= (1 << rt_params.axis);

@@ -46,7 +46,7 @@ typedef struct ResonanceTestParams {
 class ResonanceGenerator {
   public:
     static resonance_test_params_t rt_params;     // Resonance test parameters
-    static float timeline;                        // Timeline Value to calculate resonance frequency
+    float timeline;                               // Timeline Value to calculate resonance frequency
 
     ResonanceGenerator();
 
