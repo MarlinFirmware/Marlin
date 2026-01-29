@@ -7,6 +7,7 @@
 # Uses nm to extract symbols from ELF file
 #
 # Author: Dust
+# Additional contributor: Thomas Toka (Windows support)
 # Implementation assistance: Claude Sonnet 4.5
 #
 
@@ -15,6 +16,8 @@ import sys
 import subprocess
 import argparse
 import struct
+import os
+import shutil
 from pathlib import Path
 from collections import defaultdict
 import glob
@@ -79,37 +82,54 @@ def detect_architecture(elf_path):
         return 'avr'  # Default to AVR if reading fails
 
 def find_nm_tool(arch):
-    """Find the appropriate nm tool for the architecture"""
-    home = Path.home()
+    """
+    Find the appropriate nm tool for the architecture (Windows/Linux/macOS).
+
+    Search order:
+      1) PATH (shutil.which)
+      2) Project-local PlatformIO: <project>/.pio/packages/...
+      3) User PlatformIO: ~.platformio/packages/...
+      4) Fallback to bare tool name (keeps legacy behavior)
+    """
+    exe = '.exe' if os.name == 'nt' else ''
+    tool = f'avr-nm{exe}' if arch == 'avr' else f'arm-none-eabi-nm{exe}'
+
+    # 1) PATH
+    found = shutil.which(tool)
+    if found:
+        return found
+
+    # Script path: <project>/buildroot/share/scripts/visualize_memory_map.py
+    # Project root is 3 parents up from scripts/
+    script_dir = Path(__file__).resolve().parent
+    try:
+        project_root = script_dir.parents[3]
+    except IndexError:
+        project_root = Path.cwd()
+
+    # 2) Project-local PlatformIO
+    pio_packages = project_root / '.pio' / 'packages'
+
+    # 3) User PlatformIO
+    user_packages = Path.home() / '.platformio' / 'packages'
 
     if arch == 'avr':
-        # Try to find avr-nm in common PlatformIO locations
-        search_paths = [
-            home / '.platformio/packages/toolchain-atmelavr/bin/avr-nm',
-            home / '.platformio/packages/toolchain-atmelavr@*/bin/avr-nm',
+        candidates = [
+            pio_packages / 'toolchain-atmelavr' / 'bin' / tool,
+            user_packages / 'toolchain-atmelavr' / 'bin' / tool,
+        ]
+    else:
+        candidates = [
+            pio_packages / 'toolchain-gccarmnoneeabi' / 'bin' / tool,
+            user_packages / 'toolchain-gccarmnoneeabi' / 'bin' / tool,
         ]
 
-        for pattern in search_paths:
-            matches = glob.glob(str(pattern))
-            if matches:
-                return str(matches[0])
+    for c in candidates:
+        if c.exists():
+            return str(c)
 
-        # Fall back to hoping it's in PATH
-        return 'avr-nm'
-    else:  # ARM
-        # Try to find arm-none-eabi-nm in common PlatformIO locations
-        search_paths = [
-            home / '.platformio/packages/toolchain-gccarmnoneeabi/bin/arm-none-eabi-nm',
-            home / '.platformio/packages/toolchain-gccarmnoneeabi@*/bin/arm-none-eabi-nm',
-        ]
-
-        for pattern in search_paths:
-            matches = glob.glob(str(pattern))
-            if matches:
-                return str(matches[0])
-
-        # Fall back to hoping it's in PATH
-        return 'arm-none-eabi-nm'
+    # 4) Fallback
+    return tool
 
 def normalize_address(addr, arch):
     """Normalize addresses for different architectures
@@ -143,6 +163,14 @@ def parse_nm_output(elf_path, arch):
     zero_size_important = []  # For important symbols that nm doesn't report size for
 
     nm_tool = find_nm_tool(arch)
+
+    # Early, explicit failure with a helpful hint (prevents WinError 2 confusion)
+    nm_tool_path = Path(nm_tool)
+    if not nm_tool_path.exists() and shutil.which(nm_tool) is None:
+        print(f"Error: nm tool not found: {nm_tool}", file=sys.stderr)
+        print("Hint: Build once with PlatformIO so .pio/packages is populated, or add the toolchain bin directory to PATH.", file=sys.stderr)
+        print("On Windows for ARM builds, expected path looks like: .pio\\packages\\toolchain-gccarmnoneeabi\\bin\\arm-none-eabi-nm.exe", file=sys.stderr)
+        sys.exit(1)
 
     # First, get special symbols and important zero-size markers (without --print-size)
     try:
