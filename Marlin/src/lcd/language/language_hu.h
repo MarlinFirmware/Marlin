@@ -24,13 +24,21 @@
 /**
  * Hungarian / Magyar
  *
- * LCD Menu Messages. See also https://marlinfw.org/docs/development/lcd_language.html
+ * LCD Menu Messages
+ * See also https://marlinfw.org/docs/development/lcd_language.html
+ *
+ * Substitutions are applied for the following characters when used in menu items titles:
+ *
+ *   $ displays an inserted string
+ *   { displays  '0'....'10' for indexes 0 - 10
+ *   ~ displays  '1'....'11' for indexes 0 - 10
+ *   * displays 'E1'...'E11' for indexes 0 - 10 (By default. Uses LCD_FIRST_TOOL)
+ *   @ displays an axis name such as XYZUVW, or E for an extruder
+ */
+
+/**
  * Hungarian translation by AntoszHUN. I am constantly improving and updating the translation.
  * Translation last updated: 08/30/2021 - 22:20
- *
- * LCD Menü Üzenetek. Lásd még https://marlinfw.org/docs/development/lcd_language.html
- * A Magyar fordítást készítette: AntoszHUN. A fordítást folyamatosan javítom és frissítem.
- * A Fordítás utolsó frissítése: 2021.08.30. - 22:20
  */
 
 namespace LanguageNarrow_hu {

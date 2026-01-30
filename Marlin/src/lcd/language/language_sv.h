@@ -13,7 +13,7 @@
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License för more details.
+ * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
@@ -26,6 +26,14 @@
  *
  * LCD Menu Messages
  * See also https://marlinfw.org/docs/development/lcd_language.html
+ *
+ * Substitutions are applied for the following characters when used in menu items titles:
+ *
+ *   $ displays an inserted string
+ *   { displays  '0'....'10' for indexes 0 - 10
+ *   ~ displays  '1'....'11' for indexes 0 - 10
+ *   * displays 'E1'...'E11' for indexes 0 - 10 (By default. Uses LCD_FIRST_TOOL)
+ *   @ displays an axis name such as XYZUVW, or E for an extruder
  */
 
 #define DISPLAY_CHARSET_ISO10646_1
@@ -47,9 +55,9 @@ namespace LanguageNarrow_sv {
   LSTR MSG_MEDIA_ABORTING                 = _UxGT("Avbryter...");
   LSTR MSG_MEDIA_INSERTED                 = _UxGT("Minneskort isatt");
   LSTR MSG_MEDIA_REMOVED                  = _UxGT("Minneskort avlägsnat");
-  LSTR MSG_MEDIA_WAITING                  = _UxGT("Väntar på minneskort");
   LSTR MSG_MEDIA_INIT_FAIL                = _UxGT("Misslyckad läsning av minneskort");
   LSTR MSG_MEDIA_READ_ERROR               = _UxGT("Läsningsfel minneskort");
+  LSTR MSG_USB_FD_WAITING_FOR_MEDIA       = _UxGT("Väntar på minneskort");
   LSTR MSG_USB_FD_DEVICE_REMOVED          = _UxGT("USB-minne avlägsnat");
   LSTR MSG_USB_FD_USB_FAILED              = _UxGT("USB-start misslyckad");
   LSTR MSG_KILL_SUBCALL_OVERFLOW          = _UxGT("Underanrop överskriden");
@@ -58,15 +66,13 @@ namespace LanguageNarrow_sv {
   LSTR MSG_LCD_SOFT_ENDSTOPS              = _UxGT("Mjukvarugränslägen");
   LSTR MSG_MAIN_MENU                      = _UxGT("Huvudmeny");
   LSTR MSG_ADVANCED_SETTINGS              = _UxGT("Advancerade inställningar");
-  LSTR MSG_TOOLBAR_SETUP                  = _UxGT("Inställningar verktygsfält");
-  LSTR MSG_OPTION_DISABLED                = _UxGT("Alternativ avaktiverad");
   LSTR MSG_CONFIGURATION                  = _UxGT("Konfiguration");
   LSTR MSG_DISABLE_STEPPERS               = _UxGT("Inaktivera stegmotorer");
   LSTR MSG_DEBUG_MENU                     = _UxGT("Debugmeny");
   LSTR MSG_PROGRESS_BAR_TEST              = _UxGT("Förloppindikator test");
   LSTR MSG_HOMING                         = _UxGT("Hemkörning");
   LSTR MSG_AUTO_HOME                      = _UxGT("Auto hem");
-  LSTR MSG_AUTO_HOME_A                    = _UxGT("Hem @");
+  LSTR MSG_AUTO_HOME_N                    = _UxGT("Hem @");
   LSTR MSG_AUTO_HOME_X                    = _UxGT("Hem X");
   LSTR MSG_AUTO_HOME_Y                    = _UxGT("Hem Y");
   LSTR MSG_AUTO_HOME_Z                    = _UxGT("Hem Z");
@@ -74,11 +80,11 @@ namespace LanguageNarrow_sv {
   LSTR MSG_FILAMENT_SET                   = _UxGT("Trådinställningar");
   LSTR MSG_FILAMENT_MAN                   = _UxGT("Trådhantering");
   LSTR MSG_MANUAL_LEVELING                = _UxGT("Manuell höjdjustering");
-  LSTR MSG_LEVBED_FL                      = _UxGT("Övre vänster");
-  LSTR MSG_LEVBED_FR                      = _UxGT("Övre höger");
-  LSTR MSG_LEVBED_C                       = _UxGT("Mittpunkt");
-  LSTR MSG_LEVBED_BL                      = _UxGT("Nedre vänster");
-  LSTR MSG_LEVBED_BR                      = _UxGT("Nedre höger");
+  LSTR MSG_TRAM_FL                        = _UxGT("Övre vänster");
+  LSTR MSG_TRAM_FR                        = _UxGT("Övre höger");
+  LSTR MSG_TRAM_C                         = _UxGT("Mittpunkt");
+  LSTR MSG_TRAM_BL                        = _UxGT("Nedre vänster");
+  LSTR MSG_TRAM_BR                        = _UxGT("Nedre höger");
   LSTR MSG_MANUAL_MESH                    = _UxGT("Manellt meshmät");
   LSTR MSG_AUTO_MESH                      = _UxGT("Automatiskt meshnät");
 
@@ -130,10 +136,6 @@ namespace LanguageNarrow_sv {
   LSTR MSG_SPINDLE_TOGGLE                 = _UxGT("Växla spindel");
   LSTR MSG_SPINDLE_FORWARD                = _UxGT("Spindel framåt");
   LSTR MSG_SPINDLE_REVERSE                = _UxGT("Spindel bakåt");
-  LSTR MSG_LASER_OFF                      = _UxGT("Laser från");
-  LSTR MSG_LASER_ON                       = _UxGT("Laser till");
-  LSTR MSG_SPINDLE_OFF                    = _UxGT("Spindel från");
-  LSTR MSG_SPINDLE_ON                     = _UxGT("Spindel till");
   LSTR MSG_SWITCH_PS_ON                   = _UxGT("Spänning till");
   LSTR MSG_SWITCH_PS_OFF                  = _UxGT("Spänning från");
   LSTR MSG_EXTRUDE                        = _UxGT("Extrudera");
@@ -155,7 +157,7 @@ namespace LanguageNarrow_sv {
   LSTR MSG_MESH_X                         = _UxGT("Index X");
   LSTR MSG_MESH_Y                         = _UxGT("Index Y");
   LSTR MSG_MESH_EDIT_Z                    = _UxGT("Z-värde");
-  LSTR MSG_USER_MENU                      = _UxGT("Anpassade kommandon");
+  LSTR MSG_CUSTOM_COMMANDS                = _UxGT("Anpassade kommandon");
   LSTR MSG_M48_TEST                       = _UxGT("M48 probtest");
   LSTR MSG_M48_POINT                      = _UxGT("M48 punkt");
   LSTR MSG_M48_OUT_OF_BOUNDS              = _UxGT("Mätprob utanför tolerans");
@@ -556,9 +558,6 @@ namespace LanguageNarrow_sv {
   LSTR MSG_FILAMENT_CHANGE_NOZZLE         = _UxGT("  Munstycke: ");
   LSTR MSG_RUNOUT_SENSOR                  = _UxGT("Trådkontrollgivare");
   LSTR MSG_RUNOUT_DISTANCE_MM             = _UxGT("Förbrukad trådlängd mm");
-  LSTR MSG_RUNOUT_ENABLE                  = _UxGT("Aktivera trådövervakning");
-  LSTR MSG_RUNOUT_ACTIVE                  = _UxGT("Trådövervakning i drift");
-  LSTR MSG_INVERT_EXTRUDER                = _UxGT("Invertera extruder");
   LSTR MSG_EXTRUDER_MIN_TEMP              = _UxGT("Extruder Minimumtemp.");
   LSTR MSG_FANCHECK                       = _UxGT("Fläktvarvövervakning");
   LSTR MSG_KILL_HOMING_FAILED             = _UxGT("Hemkörning misslyckad");

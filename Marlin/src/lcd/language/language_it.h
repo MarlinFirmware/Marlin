@@ -999,7 +999,7 @@ namespace LanguageNarrow_it {
   LSTR MSG_DESC_FILAMENT_CHANGE           = _UxGT("Sostituzione del filamento M600. Carica un nuovo filamento o espelli quello vecchio.");
   LSTR MSG_DESC_UNKNOWN_ERROR             = _UxGT("Si è verificato un errore imprevisto.");
 
-  LSTR MSG_DESC_FW_UPDATE_NEEDED          = _UxGT("LA versione di FW della MMU non è supportato. Aggiornare alla versione " STRINGIFY(mmuVersionMajor) "." STRINGIFY(mmuVersionMinor) "." STRINGIFY(mmuVersionPatch) ".");
+  LSTR MSG_DESC_FW_UPDATE_NEEDED          = _UxGT("LA versione di FW della MMU non è supportato. Aggiornare alla versione " MMU_VERSION ".");
 
   LSTR MSG_BTN_RETRY                      = _UxGT("Riprova");
   LSTR MSG_BTN_RESET_MMU                  = _UxGT("Resetta MMU");

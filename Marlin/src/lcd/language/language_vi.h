@@ -26,7 +26,16 @@
  *
  * LCD Menu Messages
  * See also https://marlinfw.org/docs/development/lcd_language.html
+ *
+ * Substitutions are applied for the following characters when used in menu items titles:
+ *
+ *   $ displays an inserted string
+ *   { displays  '0'....'10' for indexes 0 - 10
+ *   ~ displays  '1'....'11' for indexes 0 - 10
+ *   * displays 'E1'...'E11' for indexes 0 - 10 (By default. Uses LCD_FIRST_TOOL)
+ *   @ displays an axis name such as XYZUVW, or E for an extruder
  */
+
 namespace LanguageNarrow_vi {
   using namespace Language_en; // Inherit undefined strings from English
 
@@ -102,12 +111,8 @@ namespace LanguageNarrow_vi {
   LSTR MSG_IDEX_MENU                      = _UxGT("chế độ IDEX");                          // IDEX Mode
   LSTR MSG_IDEX_MODE_AUTOPARK             = _UxGT("Đậu tự động");                          // Auto-Park
   LSTR MSG_IDEX_MODE_DUPLICATE            = _UxGT("Sự gấp đôi");                           // Duplication
-  LSTR MSG_IDEX_MODE_SCALED_COPY          = _UxGT("Bản sao thu nhỏ");
+  LSTR MSG_IDEX_MODE_MIRRORED_COPY        = _UxGT("Bản sao thu nhỏ");
   LSTR MSG_IDEX_MODE_FULL_CTRL            = _UxGT("Toàn quyền điều khiển");                // Full control
-  LSTR MSG_IDEX_X_OFFSET                  = _UxGT("Đầu phun X nhì");                       // 2nd nozzle X
-  LSTR MSG_IDEX_Y_OFFSET                  = _UxGT("Đầu phun Y nhì");
-  LSTR MSG_IDEX_Z_OFFSET                  = _UxGT("Đầu phun Z nhì");
-  LSTR MSG_IDEX_SAVE_OFFSETS              = _UxGT("Lưu bù đắp");                           // Save offsets
   LSTR MSG_UBL_MANUAL_MESH                = _UxGT("Tự xây dựng lưới");                     // Manually Build Mesh
   LSTR MSG_UBL_BC_INSERT                  = _UxGT("Đặt chêm và đo");                       // Place shim & measure
   LSTR MSG_UBL_BC_INSERT2                 = _UxGT("Đo");                                   // Measure
@@ -156,7 +161,7 @@ namespace LanguageNarrow_vi {
   LSTR MSG_UBL_SAVE_MESH                  = _UxGT("Lưu lưới bàn");                         // Save Bed Mesh
   LSTR MSG_MESH_LOADED                    = _UxGT("%i lưới được nạp");                     // Mesh %i loaded
   LSTR MSG_MESH_SAVED                     = _UxGT("%i lưới đã lưu");
-  LSTR MSG_NO_STORAGE                     = _UxGT("Không lưu trữ");                        // No Storage
+  LSTR MSG_UBL_NO_STORAGE                 = _UxGT("Không lưu trữ");                        // No Storage
   LSTR MSG_UBL_SAVE_ERROR                 = _UxGT("Điều sai: Lưu UBL");                    // Err: UBL Save
   LSTR MSG_UBL_RESTORE_ERROR              = _UxGT("Điều Sai: Khôi Phục UBL");              // Err: UBL Restore
   LSTR MSG_UBL_Z_OFFSET_STOPPED           = _UxGT("Đầu Dò-Z Đã Ngừng");                    // Z-Offset Stopped
@@ -391,7 +396,6 @@ namespace LanguageNarrow_vi {
   LSTR MSG_FILAMENT_CHANGE_OPTION_PURGE   = _UxGT("Xả thêm");                             // Purge more
   LSTR MSG_FILAMENT_CHANGE_OPTION_RESUME  = _UxGT("Tiếp tục");                            // Continue
   LSTR MSG_FILAMENT_CHANGE_NOZZLE         = _UxGT("  Đầu Phun: ");                        // Nozzle
-  LSTR MSG_RUNOUT_SENSOR_ENABLE           = _UxGT("Cảm Biến Hết");                        // Runout Sensor
   LSTR MSG_KILL_HOMING_FAILED             = _UxGT("Sự nhà không thành công");             // Homing failed
   LSTR MSG_LCD_PROBING_FAILED             = _UxGT(" không thành công");                   // Probing failed
 

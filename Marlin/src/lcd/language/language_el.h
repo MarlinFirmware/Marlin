@@ -26,6 +26,14 @@
  *
  * LCD Menu Messages
  * See also https://marlinfw.org/docs/development/lcd_language.html
+ *
+ * Substitutions are applied for the following characters when used in menu items titles:
+ *
+ *   $ displays an inserted string
+ *   { displays  '0'....'10' for indexes 0 - 10
+ *   ~ displays  '1'....'11' for indexes 0 - 10
+ *   * displays 'E1'...'E11' for indexes 0 - 10 (By default. Uses LCD_FIRST_TOOL)
+ *   @ displays an axis name such as XYZUVW, or E for an extruder
  */
 
 #define DISPLAY_CHARSET_ISO10646_GREEK
@@ -187,8 +195,6 @@ namespace LanguageNarrow_el {
   LSTR MSG_RUN_AUTOFILES                  = _UxGT("Αυτόματη εκκίνηση");
 
   LSTR MSG_ZPROBE_OUT                     = _UxGT("Διερεύνηση Z εκτός Επ.Εκτύπωσης"); // SHORTEN
-  LSTR MSG_YX_UNHOMED                     = _UxGT("Επαναφορά Χ/Υ πρώτα");
-  LSTR MSG_XYZ_UNHOMED                    = _UxGT("Επαναφορά ΧΥZ πρώτα");
   LSTR MSG_ZPROBE_XOFFSET                 = _UxGT("Μετατόπιση X");
   LSTR MSG_ZPROBE_YOFFSET                 = _UxGT("Μετατόπιση Y");
   LSTR MSG_ZPROBE_ZOFFSET                 = _UxGT("Μετατόπιση Z");

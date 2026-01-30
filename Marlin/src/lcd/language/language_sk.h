@@ -23,12 +23,10 @@
 
 /**
  * Slovak
- * UTF-8 for Graphical Display
  *
  * LCD Menu Messages
  * See also https://marlinfw.org/docs/development/lcd_language.html
  *
- * Translated by Michal Holeš, Farma MaM
  * https://www.facebook.com/farmamam
  *
  * Substitutions are applied for the following characters when used in menu items titles:
@@ -39,6 +37,12 @@
  *   * displays 'E1'...'E11' for indexes 0 - 10 (By default. Uses LCD_FIRST_TOOL)
  *   @ displays an axis name such as XYZUVW, or E for an extruder
  */
+
+/**
+ * Translated by Michal Holeš, Farma MaM
+ * https://www.facebook.com/farmamam
+ */
+
 #define DISPLAY_CHARSET_ISO10646_SK
 
 namespace LanguageNarrow_sk {

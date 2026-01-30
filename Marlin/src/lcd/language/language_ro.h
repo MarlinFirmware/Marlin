@@ -21,14 +21,25 @@
  */
 #pragma once
 
- /**
-  * Romanian
-  *
-  * LCD Menu Messages
-  * See also https://marlinfw.org/docs/development/lcd_language.html
-  *
-  * Translation by cristyanul
-  */
+/**
+ * Romanian
+ *
+ * LCD Menu Messages
+ * See also https://marlinfw.org/docs/development/lcd_language.html
+ *
+ * Substitutions are applied for the following characters when used in menu items titles:
+ *
+ *   $ displays an inserted string
+ *   { displays  '0'....'10' for indexes 0 - 10
+ *   ~ displays  '1'....'11' for indexes 0 - 10
+ *   * displays 'E1'...'E11' for indexes 0 - 10 (By default. Uses LCD_FIRST_TOOL)
+ *   @ displays an axis name such as XYZUVW, or E for an extruder
+ */
+
+/**
+ * Translation by cristyanul
+ */
+
 namespace LanguageNarrow_ro {
   using namespace Language_en; // Inherit undefined strings from English
 

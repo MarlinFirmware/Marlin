@@ -53,21 +53,20 @@
 #ifndef PREHEAT_1_LABEL
   #define PREHEAT_1_LABEL ""
 #endif
-
 #ifndef PREHEAT_2_LABEL
   #define PREHEAT_2_LABEL ""
 #endif
-
 #ifndef PREHEAT_3_LABEL
   #define PREHEAT_3_LABEL ""
 #endif
-
 #ifndef PREHEAT_4_LABEL
   #define PREHEAT_4_LABEL ""
 #endif
-
 #ifndef CUSTOM_MENU_MAIN_TITLE
   #define CUSTOM_MENU_MAIN_TITLE ""
+#endif
+#ifndef MMU_VERSION
+  #define MMU_VERSION ""
 #endif
 
 namespace LanguageNarrow_en {
@@ -1092,7 +1091,7 @@ namespace LanguageNarrow_en {
   LSTR MSG_DESC_FILAMENT_CHANGE           = _UxGT("M600 Filament Change. Load a new filament or eject the old one.");
   LSTR MSG_DESC_UNKNOWN_ERROR             = _UxGT("Unexpected error occurred.");
 
-  LSTR MSG_DESC_FW_UPDATE_NEEDED          = _UxGT("MMU FW version is not supported. Update to version " STRINGIFY(mmuVersionMajor) "." STRINGIFY(mmuVersionMinor) "." STRINGIFY(mmuVersionPatch) ".");
+  LSTR MSG_DESC_FW_UPDATE_NEEDED          = _UxGT("MMU FW version is not supported. Update to version " MMU_VERSION ".");
 
   LSTR MSG_BTN_RETRY                      = _UxGT("Retry");
   LSTR MSG_BTN_RESET_MMU                  = _UxGT("ResetMMU");

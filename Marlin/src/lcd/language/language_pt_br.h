@@ -23,11 +23,19 @@
 
 /**
  * Portuguese (Brazil)
- * UTF-8 for Graphical Display
  *
  * LCD Menu Messages
  * See also https://marlinfw.org/docs/development/lcd_language.html
+ *
+ * Substitutions are applied for the following characters when used in menu items titles:
+ *
+ *   $ displays an inserted string
+ *   { displays  '0'....'10' for indexes 0 - 10
+ *   ~ displays  '1'....'11' for indexes 0 - 10
+ *   * displays 'E1'...'E11' for indexes 0 - 10 (By default. Uses LCD_FIRST_TOOL)
+ *   @ displays an axis name such as XYZUVW, or E for an extruder
  */
+
 namespace LanguageNarrow_pt_br {
   using namespace Language_en; // Inherit undefined strings from English
 
@@ -441,7 +449,7 @@ namespace LanguageNarrow_pt_br {
   LSTR MSG_MAZE                           = _UxGT("Labirinto");
 
   LSTR MSG_ADVANCED_PAUSE_WAITING         = _UxGT(MSG_1_LINE("Clique p. continuar"));
-  LSTR MSG_PAUSE_PRINT_INIT               = _UxGT(MSG_1_LINE("Estacionando..."));
+  LSTR MSG_PAUSE_PRINT_PARKING            = _UxGT(MSG_1_LINE("Estacionando..."));
   LSTR MSG_FILAMENT_CHANGE_INIT           = _UxGT(MSG_1_LINE("Aguarde..."));
   LSTR MSG_FILAMENT_CHANGE_INSERT         = _UxGT(MSG_1_LINE("Insira e Clique"));
   LSTR MSG_FILAMENT_CHANGE_HEAT           = _UxGT(MSG_1_LINE("Clique para Aquecer"));

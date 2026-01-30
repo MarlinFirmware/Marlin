@@ -22,7 +22,7 @@
 #pragma once
 
 /**
- * Polish - includes accented characters
+ * Polish
  *
  * LCD Menu Messages
  * See also https://marlinfw.org/docs/development/lcd_language.html
