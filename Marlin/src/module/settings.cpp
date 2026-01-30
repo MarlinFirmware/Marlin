@@ -1809,7 +1809,7 @@ void MarlinSettings::postprocess() {
     // Nonlinear Extrusion
     //
     #if ENABLED(NONLINEAR_EXTRUSION)
-      EEPROM_WRITE(stepper.ne.settings);
+      EEPROM_WRITE(stepper.nle.settings);
     #endif
 
     //
@@ -2962,7 +2962,7 @@ void MarlinSettings::postprocess() {
       // Nonlinear Extrusion
       //
       #if ENABLED(NONLINEAR_EXTRUSION)
-        EEPROM_READ(stepper.ne.settings);
+        EEPROM_READ(stepper.nle.settings);
       #endif
 
       //
@@ -3800,7 +3800,7 @@ void MarlinSettings::reset() {
   //
   // Nonlinear Extrusion
   //
-  TERN_(NONLINEAR_EXTRUSION, stepper.ne.settings.reset());
+  TERN_(NONLINEAR_EXTRUSION, stepper.nle.settings.reset());
 
   //
   // Input Shaping

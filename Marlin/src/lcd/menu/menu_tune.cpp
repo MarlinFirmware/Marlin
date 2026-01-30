@@ -244,7 +244,7 @@ void menu_tune() {
   // Nonlinear Extrusion state
   //
   #if ENABLED(NONLINEAR_EXTRUSION)
-    EDIT_ITEM(bool, MSG_NLE_ON, &stepper.ne.settings.enabled);
+    EDIT_ITEM(bool, MSG_NLE_ON, &stepper.nle.settings.enabled);
   #endif
 
   //
