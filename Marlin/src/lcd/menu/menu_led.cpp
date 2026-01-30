@@ -30,7 +30,7 @@
 
 #include "menu_item.h"
 
-#if ENABLED(LED_CONTROL_MENU)
+#if HAS_COLOR_LEDS
   #include "../../feature/leds/leds.h"
 #endif
 
@@ -109,12 +109,12 @@ void menu_led_custom() {
     EDIT_ITEM(uint8, MSG_INTENSITY_R, &leds.color.r, 0, 255, leds.update, true);
     EDIT_ITEM(uint8, MSG_INTENSITY_G, &leds.color.g, 0, 255, leds.update, true);
     EDIT_ITEM(uint8, MSG_INTENSITY_B, &leds.color.b, 0, 255, leds.update, true);
-  #endif
-  #if HAS_WHITE_LED
-    EDIT_ITEM(uint8, MSG_INTENSITY_W, &leds.color.w, 0, 255, leds.update, true);
-  #endif
-  #if ENABLED(NEOPIXEL_LED)
-    EDIT_ITEM(uint8, MSG_LED_BRIGHTNESS, &leds.color.i, 0, 255, leds.update, true);
+    #if HAS_WHITE_LED
+      EDIT_ITEM(uint8, MSG_INTENSITY_W, &leds.color.w, 0, 255, leds.update, true);
+    #endif
+    #if ENABLED(NEOPIXEL_LED)
+      EDIT_ITEM(uint8, MSG_LED_BRIGHTNESS, &leds.color.i, 0, 255, leds.update, true);
+    #endif
   #endif
 
   #if ENABLED(NEOPIXEL2_SEPARATE)
@@ -171,7 +171,9 @@ void menu_led() {
   //
   // Directly set RGBW and Brightness
   //
-  SUBMENU(MSG_CUSTOM_LEDS, menu_led_custom);
+  #if ENABLED(LED_CONTROL_MENU)
+    SUBMENU(MSG_CUSTOM_LEDS, menu_led_custom);
+  #endif
 
   //
   // Set Case light on/off/brightness
