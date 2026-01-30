@@ -637,7 +637,7 @@ bool Stepper::disable_axis(const AxisEnum axis) {
 
     // If current block is finished, reset pointer and finalize state
     if (step_events_completed >= step_event_count)
-      discard_current_block();
+      current_block = nullptr;
     else
       return calc_multistep_timer_interval(current_block->initial_rate);
 
