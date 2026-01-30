@@ -70,8 +70,8 @@ void ResonanceGenerator::start() {
   #endif
 
   // Safe Acceleration per Hz for Z axis
-  if (rt_params.axis == Z_AXIS && rt_params.accel_per_hz > 15.0f)
-    rt_params.accel_per_hz = 15.0f;
+  if (rt_params.axis == Z_AXIS)
+    NOMORE(rt_params.accel_per_hz, 15.0f);
 
   #if HAS_STANDARD_MOTION
     if (TERN1(FT_MOTION, !ftMotion.cfg.active)){ 
@@ -127,8 +127,7 @@ float ResonanceGenerator::calc_next_pos() {
 
 #if ENABLED(FT_MOTION)
   void ResonanceGenerator::fill_stepper_plan_buffer() {
-    xyze_pos_t traj_coords = rt_params.start_pos;
-    const float start_pos = rt_params.start_pos[rt_params.axis];
+    static xyze_pos_t traj_coords = rt_params.start_pos;
 
     while (!ftMotion.stepping.is_full()) {
       // Calculate current frequency
@@ -139,7 +138,7 @@ float ResonanceGenerator::calc_next_pos() {
       }
 
       // Resonate the axis being tested
-      traj_coords[rt_params.axis] = start_pos + calc_next_pos();
+      traj_coords[rt_params.axis] += calc_next_pos();
 
       // Store in buffer
       ftMotion.stepping_enqueue(traj_coords);
