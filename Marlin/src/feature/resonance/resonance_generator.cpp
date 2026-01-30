@@ -101,11 +101,9 @@ void ResonanceGenerator::abort() {
 void ResonanceGenerator::reset() {
   rt_params = resonance_test_params_t();
 
-  #if ENABLED(FT_MOTION)
-    if (!ftMotion.cfg.active)
+  #if HAS_STANDARD_MOTION
+    if (!TERN0(FT_MOTION, ftMotion.cfg.active))
       block.reset();
-  #else 
-    block.reset();
   #endif
   active = false;
   done = false;
