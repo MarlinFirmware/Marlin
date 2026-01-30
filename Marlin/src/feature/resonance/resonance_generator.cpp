@@ -102,17 +102,9 @@ void ResonanceGenerator::reset() {
   rt_params = resonance_test_params_t();
 
   #if ENABLED(FT_MOTION)
-    if (ftMotion.cfg.active) {
-      rt_time = FTM_TS;
-    }
-    #if HAS_STANDARD_MOTION
-      else {
-        rt_time = 0.001f;
-        block.reset();
-      }
-    #endif
+    if (!ftMotion.cfg.active)
+      block.reset();
   #else 
-    rt_time = 0.001f;
     block.reset();
   #endif
   active = false;
