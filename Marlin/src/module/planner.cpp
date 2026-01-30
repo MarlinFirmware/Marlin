@@ -2340,7 +2340,7 @@ bool Planner::_populate_block(
   const float steps_per_mm = block->step_event_count * inverse_millimeters;
   block->steps_per_mm = steps_per_mm;
   uint32_t accel;
-  #if ANY(LIN_ADVANCE, FTM_HAS_LIN_ADVANCE)
+  #if HAS_LIN_ADVANCE_K
     bool use_adv_lead = false;
   #endif
   if (!XYZ_HAS_STEPS(block)) {                                   // Is this a retract / recover move?

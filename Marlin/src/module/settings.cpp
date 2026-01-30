@@ -494,7 +494,7 @@ typedef struct SettingsDataStruct {
   per_stepper_bool_t tmc_stealth_enabled;               // M569 X Y Z...
 
   //
-  // LIN_ADVANCE
+  // Linear Advance
   //
   #if HAS_LIN_ADVANCE_K
     float planner_extruder_advance_K[DISTINCT_E];       // M900 K  planner.extruder_advance_K
@@ -3645,7 +3645,7 @@ void MarlinSettings::reset() {
   //
   // Linear Advance
   //
-  #if ENABLED(LIN_ADVANCE)
+  #if HAS_LIN_ADVANCE_K
     #if ENABLED(DISTINCT_E_FACTORS)
 
       constexpr float linAdvanceK[] = ADVANCE_K;
@@ -3669,7 +3669,7 @@ void MarlinSettings::reset() {
       #endif
 
     #endif
-  #endif // LIN_ADVANCE
+  #endif // HAS_LIN_ADVANCE_K
 
   //
   // Motor Current PWM
