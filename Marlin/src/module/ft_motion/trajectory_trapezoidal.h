@@ -41,9 +41,16 @@ public:
     const float distance = distance_in;
     const float final_speed = final_speed_in; // just for consistency
 
-
     const float one_over_accel = 1.0f / acceleration;
     const float ldiff = distance + 0.5f * one_over_accel * (sq(initial_speed) + sq(final_speed));
+
+    if (FTM_MINIMUM_CRUISE_RATIO > 0) {
+      const float min_cruise_dist = distance * FTM_MINIMUM_CRUISE_RATIO;
+      const float max_nominal_from_ratio = (distance - min_cruise_dist) * acceleration
+                                           + 0.5f * (sq(initial_speed) + sq(final_speed));
+      const float ratio_limited_speed = SQRT(max_nominal_from_ratio);
+      nominal_speed = _MIN(ratio_limited_speed, nominal_speed);
+    }
 
     T2 = ldiff / nominal_speed - one_over_accel * nominal_speed;
     if (T2 < 0.0f) {
