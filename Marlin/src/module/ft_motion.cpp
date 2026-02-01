@@ -504,6 +504,8 @@ xyze_float_t FTMotion::calc_traj_point(const float dist) {
         #endif
 
         prev_traj_e = traj_e;
+      } else {
+        prev_traj_e = traj_coords.e;
       }
     }
 
