@@ -187,11 +187,18 @@ void MarlinUI::goto_screen(screenFunc_t screen, const uint16_t encoder/*=0*/, co
    */
   #if ALL(DOUBLECLICK_FOR_Z_BABYSTEPPING, BABYSTEPPING)
     static millis_t doubleclick_expire_ms = 0;
+    static uint32_t doubleclick_encoder_position = 0;
     if (screen == menu_main) {
-      if (on_status_screen())
+      if (on_status_screen()) {
         doubleclick_expire_ms = millis() + DOUBLECLICK_MAX_INTERVAL;
+        doubleclick_encoder_position = encoderPosition;
+      }
     }
-    else if (screen == status_screen && currentScreen == menu_main && PENDING(millis(), doubleclick_expire_ms)) {
+    else if (screen == status_screen &&
+             currentScreen == menu_main &&
+             PENDING(millis(), doubleclick_expire_ms) &&
+             encoderPosition == doubleclick_encoder_position
+    ) {
       if (BABYSTEP_ALLOWED())
         screen = TERN(BABYSTEP_ZPROBE_OFFSET, lcd_babystep_zoffset, lcd_babystep_z);
       else {
