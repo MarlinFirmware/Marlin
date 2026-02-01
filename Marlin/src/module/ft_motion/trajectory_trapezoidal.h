@@ -24,6 +24,10 @@
 #include "trajectory_generator.h"
 #include <math.h>
 
+#ifndef FTM_MINIMUM_CRUISE_RATIO
+  #define FTM_MINIMUM_CRUISE_RATIO 0
+#endif
+
 /**
  * Trapezoidal trajectory generator.
  * Provides continuous velocity, but acceleration is discontinuous.
