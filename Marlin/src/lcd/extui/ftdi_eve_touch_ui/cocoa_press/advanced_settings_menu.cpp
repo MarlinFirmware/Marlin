@@ -76,10 +76,10 @@ bool AdvancedSettingsMenu::onTouchEnd(uint8_t tag) {
     case  1: SaveSettingsDialogBox::promptToSaveSettings(); break;
     case  2: GOTO_SCREEN(StepsScreen); break;
     #if HAS_TRINAMIC_CONFIG
-    case  3: GOTO_SCREEN(StepperCurrentScreen); break;
+      case  3: GOTO_SCREEN(StepperCurrentScreen); break;
     #endif
     #if HAS_LIN_ADVANCE_K
-    case  4: GOTO_SCREEN(LinearAdvanceScreen);  break;
+      case  4: GOTO_SCREEN(LinearAdvanceScreen);  break;
     #endif
     case  5: GOTO_SCREEN(MaxVelocityScreen); break;
     case  6: GOTO_SCREEN(DefaultAccelerationScreen);  break;

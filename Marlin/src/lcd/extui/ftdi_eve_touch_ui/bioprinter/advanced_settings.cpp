@@ -88,7 +88,7 @@ bool AdvancedSettingsMenu::onTouchEnd(uint8_t tag) {
     #if ENABLED(BACKLASH_GCODE)
       case 11: GOTO_SCREEN(BacklashCompensationScreen);    break;
     #endif
-    #if ENABLED(HAS_LIN_ADVANCE_K)
+    #if HAS_LIN_ADVANCE_K
       case 12: GOTO_SCREEN(LinearAdvanceScreen);           break;
     #endif
     case 13: GOTO_SCREEN(InterfaceSettingsScreen);         break;
