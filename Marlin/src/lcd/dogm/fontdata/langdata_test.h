@@ -226,7 +226,7 @@ const u8g_fntpgm_uint8_t fontpage_97_193_255[822] U8G_FONT_SECTION("fontpage_97_
   0xF8,0x08,0x08,0x08,0x08,0x08};
 
 static const uxg_fontinfo_t g_fontinfo_test[] PROGMEM = {
-  FONTDATA_ITEM(8, 128, 255, fontpage_8_128_255), // 'Ѐ' -- 'ѿ'
-  FONTDATA_ITEM(97, 129, 191, fontpage_97_129_191), // 'め' -- 'タ'
-  FONTDATA_ITEM(97, 193, 255, fontpage_97_193_255), // 'チ' -- 'ヿ'
+  FONTDATA_ITEM(8, 128, 255, fontpage_8_128_255), // ' Ѐ ' - ' ѿ '
+  FONTDATA_ITEM(97, 129, 191, fontpage_97_129_191), // ' め ' - ' タ '
+  FONTDATA_ITEM(97, 193, 255, fontpage_97_193_255), // ' チ ' - ' ヿ '
 };
