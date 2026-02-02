@@ -483,30 +483,26 @@ xyze_float_t FTMotion::calc_traj_point(const float dist) {
 
     if (use_advance_lead) {
       const float advK = planner.get_advance_k();
-      if (advK || TERN0(NONLINEAR_EXTRUSION, stepper.ne.settings.enabled)) {
-        float traj_e = traj_coords.e;
-        const float traj_e_delta = traj_e - prev_traj_e; // extruder delta in mm, always positive for use_advance_lead (printing moves)
-        const float e_rate = traj_e_delta * FTM_FS;      // extruder velocity in mm/s
+      float traj_e = traj_coords.e;
+      const float traj_e_delta = traj_e - prev_traj_e; // extruder delta in mm, always positive for use_advance_lead (printing moves)
+      const float e_rate = traj_e_delta * FTM_FS;      // extruder velocity in mm/s
 
-        traj_coords.e += e_rate * advK;
+      traj_coords.e += e_rate * advK;
 
-        #if ENABLED(NONLINEAR_EXTRUSION)
-          if (stepper.ne.settings.enabled) {
-            const nonlinear_coeff_t &coeff = stepper.ne.settings.coeff;
-            const float multiplier = max(coeff.C, coeff.A * sq(e_rate) + coeff.B * e_rate + coeff.C),
-                        nle_term = traj_e_delta * (multiplier - 1);
+      #if ENABLED(NONLINEAR_EXTRUSION)
+        if (stepper.ne.settings.enabled) {
+          const nonlinear_coeff_t &coeff = stepper.ne.settings.coeff;
+          const float multiplier = max(coeff.C, coeff.A * sq(e_rate) + coeff.B * e_rate + coeff.C),
+                      nle_term = traj_e_delta * (multiplier - 1);
 
-            traj_coords.e += nle_term;
-            traj_e += nle_term;
-            startPos.e += nle_term;
-            endPos_prevBlock.e += nle_term;
-          }
-        #endif
+          traj_coords.e += nle_term;
+          traj_e += nle_term;
+          startPos.e += nle_term;
+          endPos_prevBlock.e += nle_term;
+        }
+      #endif
 
-        prev_traj_e = traj_e;
-      } else {
-        prev_traj_e = traj_coords.e;
-      }
+      prev_traj_e = traj_e;
     }
 
   #endif // FTM_HAS_LIN_ADVANCE
