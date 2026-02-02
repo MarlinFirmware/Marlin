@@ -478,12 +478,11 @@ xyze_float_t FTMotion::calc_traj_point(const float dist) {
   LOGICAL_AXIS_MAP_LC(_SET_TRAJ);
 
   #if FTM_HAS_LIN_ADVANCE
+    float traj_e = traj_coords.e;
 
     // Apply LA/NLE only to printing (not retract/unretract) blocks
-
     if (use_advance_lead) {
       const float advK = planner.get_advance_k();
-      float traj_e = traj_coords.e;
       const float traj_e_delta = traj_e - prev_traj_e; // extruder delta in mm, always positive for use_advance_lead (printing moves)
       const float e_rate = traj_e_delta * FTM_FS;      // extruder velocity in mm/s
 
@@ -501,9 +500,9 @@ xyze_float_t FTMotion::calc_traj_point(const float dist) {
           endPos_prevBlock.e += nle_term;
         }
       #endif
-
-      prev_traj_e = traj_e;
     }
+
+    prev_traj_e = traj_e;
 
   #endif // FTM_HAS_LIN_ADVANCE
 
