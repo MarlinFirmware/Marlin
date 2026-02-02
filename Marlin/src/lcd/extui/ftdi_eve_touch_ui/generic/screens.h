@@ -75,7 +75,7 @@ enum {
   #if ENABLED(CASE_LIGHT_ENABLE)
     CASE_LIGHT_SCREEN_CACHE,
   #endif
-  #if ANY(HAS_LIN_ADVANCE_K, HAS_FILAMENT_SENSOR)
+  #if HAS_LIN_ADVANCE_K || HAS_FILAMENT_SENSOR
     FILAMENT_MENU_CACHE,
   #endif
   #if HAS_LIN_ADVANCE_K
@@ -197,7 +197,7 @@ enum {
   #include "case_light_screen.h"
 #endif
 
-#if ANY(HAS_LIN_ADVANCE_K, HAS_FILAMENT_SENSOR)
+#if HAS_LIN_ADVANCE_K || HAS_FILAMENT_SENSOR
   #include "filament_menu.h"
 #endif
 
