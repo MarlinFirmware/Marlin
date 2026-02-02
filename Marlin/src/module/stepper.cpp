@@ -635,40 +635,33 @@ bool Stepper::disable_axis(const AxisEnum axis) {
 
     hal_timer_t interval = 0;
 
-    // If current block is finished, reset pointer and finalize state
-    if (step_events_completed >= step_event_count)
-      current_block = nullptr;
-    else
+    // If current block is not finished, continue with it
+    if (step_events_completed < step_event_count)
       return calc_multistep_timer_interval(current_block->initial_rate);
 
-    // If there is no current block at this point, generate a new block
-    if (!current_block){
-      if ((current_block = rtg.generate_resonance_block())) {
-        
-        //Apply direction
-        DIR_WAIT_BEFORE();
-        const uint8_t axis = rtg.rt_params.axis;
-        const bool fwd = current_block->direction_bits[axis];
-        switch (axis) {
-          case X_AXIS: X_APPLY_DIR(fwd, false);
-            break;
-          case Y_AXIS: Y_APPLY_DIR(fwd, false);
-            break;
-          case Z_AXIS: Z_APPLY_DIR(fwd, false);
-            break;
-        }
+    // Current block is finished, reset pointer
+    current_block = nullptr;
 
-        step_event_count = current_block->step_event_count;
-
-        // No step events completed so far
-        step_events_completed = 0;
-        interval = calc_multistep_timer_interval(current_block->initial_rate);
+    // Generate a new block
+    if ((current_block = rtg.generate_resonance_block())) {
+      // Apply direction
+      DIR_WAIT_BEFORE();
+      const uint8_t axis = rtg.rt_params.axis;
+      const bool fwd = current_block->direction_bits[axis];
+      switch (axis) {
+        case X_AXIS: X_APPLY_DIR(fwd, false); break;
+        case Y_AXIS: Y_APPLY_DIR(fwd, false); break;
+        case Z_AXIS: Z_APPLY_DIR(fwd, false); break;
       }
-      else
-        rtg.abort();
+
+      step_event_count = current_block->step_event_count;
+      step_events_completed = 0;
+      interval = calc_multistep_timer_interval(current_block->initial_rate);
     }
-    // Return the interval to wait
-    return interval;
+    else
+      rtg.abort();
+    
+    return interval;;
   }
 
   void Stepper::resonance_pulse_phase_isr() {
