@@ -676,39 +676,60 @@ bool Stepper::disable_axis(const AxisEnum axis) {
     // Just update the value we will get at the end of the loop
     step_events_completed += events_to_do;
 
+    #define RESONANCE_STEP_SEQUENCE(A) do { \
+      A##_APPLY_STEP(STEP_STATE_##A, false); \
+      START_TIMED_PULSE(); \
+      AWAIT_HIGH_PULSE(); \
+      A##_APPLY_STEP(!STEP_STATE_##A, false); \
+    } while(0)
+
     USING_TIMED_PULSE();
 
-    // Take multiple steps per interrupt. For high speed moves.
-    bool firstStep = true;
     const uint8_t axis = rtg.rt_params.axis;
 
-    do {
-
-      if (firstStep)
-        firstStep = false;
-      
-      switch (axis) {
+    switch (axis) {
       case X_AXIS:
-        X_APPLY_STEP(STEP_STATE_X, false);
-        START_TIMED_PULSE();
-        AWAIT_HIGH_PULSE();
-        X_APPLY_STEP(!STEP_STATE_X, false);
+        #if ISR_MULTI_STEPS
+          RESONANCE_STEP_SEQUENCE(X);
+          while (--events_to_do) {
+            AWAIT_LOW_PULSE();
+            RESONANCE_STEP_SEQUENCE(X);
+          }
+        #else
+          do {
+            RESONANCE_STEP_SEQUENCE(X);
+          } while (--events_to_do);
+        #endif
         break;
-      case Y_AXIS:
-        Y_APPLY_STEP(STEP_STATE_Y, false);
-        START_TIMED_PULSE();
-        AWAIT_HIGH_PULSE();
-        Y_APPLY_STEP(!STEP_STATE_Y, false);
-        break;
-      case Z_AXIS:
-        Z_APPLY_STEP(STEP_STATE_Z, false);
-        START_TIMED_PULSE();
-        AWAIT_HIGH_PULSE();
-        Z_APPLY_STEP(!STEP_STATE_Z, false);
-        break;
-      }
 
-    } while (--events_to_do);
+      case Y_AXIS:
+        #if ISR_MULTI_STEPS
+          RESONANCE_STEP_SEQUENCE(Y);
+          while (--events_to_do) {
+            AWAIT_LOW_PULSE();
+            RESONANCE_STEP_SEQUENCE(Y);
+          }
+        #else
+          do {
+            RESONANCE_STEP_SEQUENCE(Y);
+          } while (--events_to_do);
+        #endif
+        break;
+
+      case Z_AXIS:
+        #if ISR_MULTI_STEPS
+          RESONANCE_STEP_SEQUENCE(Z);
+          while (--events_to_do) {
+            AWAIT_LOW_PULSE();
+            RESONANCE_STEP_SEQUENCE(Z);
+          }
+        #else
+          do {
+            RESONANCE_STEP_SEQUENCE(Z);
+          } while (--events_to_do);
+        #endif
+        break;
+    }
   }
 #endif
 
