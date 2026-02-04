@@ -376,6 +376,11 @@
   #undef INPUT_SHAPING_X
   #undef INPUT_SHAPING_Y
   #undef INPUT_SHAPING_Z
+#endif
+
+// Disallowed with no shaping
+#if NONE(INPUT_SHAPING_X, INPUT_SHAPING_Y, INPUT_SHAPING_Z)
+  #undef SHAPING_MENU
   #undef INPUT_SHAPING_E_SYNC
 #endif
 
