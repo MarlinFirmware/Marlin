@@ -87,6 +87,16 @@ if pioutil.is_pio_build():
                     raise SystemExit(err)
 
         #
+        # Check for DGUS_UI_IS in Configuration.h
+        #
+        config_path = epath / "Marlin" / "Configuration.h"
+        if config_path.is_file():
+            with config_path.open() as f:
+                if "DGUS_UI_IS" in f.read():
+                    err = "ERROR: Future Configurations (2.1.3 and up) are not supported for Marlin 2.1.2."
+                    raise SystemExit(err)
+
+        #
         # Find the name.cpp.o or name.o and remove it
         #
         def rm_ofile(subdir, name):
