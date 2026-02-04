@@ -35,11 +35,11 @@ const u8g_fntpgm_uint8_t fontpage_2_252_252[30] U8G_FONT_SECTION("fontpage_2_252
   0x00,0x05,0x07,0x07,0x06,0x00,0x00,0x20,0x00,0xF8,0x10,0x20,0x40,0xF8};
 
 static const uxg_fontinfo_t g_fontinfo_pl[] PROGMEM = {
-  FONTDATA_ITEM(2, 132, 133, fontpage_2_132_133), // 'Ą' -- 'ą'
-  FONTDATA_ITEM(2, 135, 135, fontpage_2_135_135), // 'ć' -- 'ć'
-  FONTDATA_ITEM(2, 153, 153, fontpage_2_153_153), // 'ę' -- 'ę'
-  FONTDATA_ITEM(2, 193, 196, fontpage_2_193_196), // 'Ł' -- 'ń'
-  FONTDATA_ITEM(2, 218, 219, fontpage_2_218_219), // 'Ś' -- 'ś'
-  FONTDATA_ITEM(2, 250, 250, fontpage_2_250_250), // 'ź' -- 'ź'
-  FONTDATA_ITEM(2, 252, 252, fontpage_2_252_252), // 'ż' -- 'ż'
+  FONTDATA_ITEM(2, 132, 133, fontpage_2_132_133), // ' Ą ' - ' ą '
+  FONTDATA_ITEM(2, 135, 135, fontpage_2_135_135), // ' ć ' - ' ć '
+  FONTDATA_ITEM(2, 153, 153, fontpage_2_153_153), // ' ę ' - ' ę '
+  FONTDATA_ITEM(2, 193, 196, fontpage_2_193_196), // ' Ł ' - ' ń '
+  FONTDATA_ITEM(2, 218, 219, fontpage_2_218_219), // ' Ś ' - ' ś '
+  FONTDATA_ITEM(2, 250, 250, fontpage_2_250_250), // ' ź ' - ' ź '
+  FONTDATA_ITEM(2, 252, 252, fontpage_2_252_252), // ' ż ' - ' ż '
 };

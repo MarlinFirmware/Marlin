@@ -2363,7 +2363,7 @@ bool Planner::_populate_block(
   const float steps_per_mm = block->step_event_count * inverse_millimeters;
   block->steps_per_mm = steps_per_mm;
   uint32_t accel;
-  #if ANY(LIN_ADVANCE, FTM_HAS_LIN_ADVANCE)
+  #if HAS_LIN_ADVANCE_K
     bool use_adv_lead = false;
   #endif
   if (!XYZ_HAS_STEPS(block)) {                                  // Is this a retract / recover move?
@@ -3278,8 +3278,8 @@ void Planner::refresh_positioning() {
   #if ENABLED(EDITABLE_STEPS_PER_UNIT)
     LOOP_DISTINCT_AXES(i) mm_per_step[i] = 1.0f / settings.axis_steps_per_mm[i];
     #if ALL(NONLINEAR_EXTRUSION, SMOOTH_LIN_ADVANCE)
-      stepper.ne.q30.A = _BV32(30) * (stepper.ne.settings.coeff.A * sq(mm_per_step[E_AXIS_N(0)]));
-      stepper.ne.q30.B = _BV32(30) * (stepper.ne.settings.coeff.B * mm_per_step[E_AXIS_N(0)]);
+      stepper.nle.q30.A = _BV32(30) * (stepper.nle.settings.coeff.A * sq(mm_per_step[E_AXIS_N(0)]));
+      stepper.nle.q30.B = _BV32(30) * (stepper.nle.settings.coeff.B * mm_per_step[E_AXIS_N(0)]);
     #endif
   #endif
   set_position_mm(current_position);

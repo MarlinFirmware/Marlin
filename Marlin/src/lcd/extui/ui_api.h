@@ -327,7 +327,7 @@ namespace ExtUI {
     PauseMode getPauseMode();
   #endif
 
-  #if ENABLED(LIN_ADVANCE)
+  #if HAS_LIN_ADVANCE_K
     // Linear Advance Control
     float getLinearAdvance_mm_mm_s(const extruder_t);
     void setLinearAdvance_mm_mm_s(const float, const extruder_t);

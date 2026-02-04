@@ -217,7 +217,7 @@ void menu_tune() {
   //
   // Advance K:
   //
-  #if ENABLED(LIN_ADVANCE) && DISABLED(SLIM_LCD_MENUS)
+  #if HAS_LIN_ADVANCE_K && DISABLED(SLIM_LCD_MENUS)
     #if DISABLED(DISTINCT_E_FACTORS)
       editable.decimal = planner.get_advance_k();
       EDIT_ITEM(float42_52, MSG_ADVANCE_K, &editable.decimal, 0.0f, 10.0f, []{ planner.set_advance_k(editable.decimal); });
@@ -238,13 +238,13 @@ void menu_tune() {
         }
       #endif
     #endif
-  #endif
+  #endif // HAS_LIN_ADVANCE_K && !SLIM_LCD_MENUS
 
   //
   // Nonlinear Extrusion state
   //
   #if ENABLED(NONLINEAR_EXTRUSION)
-    EDIT_ITEM(bool, MSG_NLE_ON, &stepper.ne.settings.enabled);
+    EDIT_ITEM(bool, MSG_NLE_ON, &stepper.nle.settings.enabled);
   #endif
 
   //
