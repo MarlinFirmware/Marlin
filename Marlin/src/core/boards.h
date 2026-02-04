@@ -494,6 +494,7 @@
 #define BOARD_ZNP_ROBIN_NANO_V1_3           5259  // Elegoo Neptune 2 v1.3 board
 #define BOARD_MKS_NEPTUNE_X                 5260  // Elegoo Neptune X
 #define BOARD_MKS_NEPTUNE_3                 5261  // Elegoo Neptune 3
+#define BOARD_LDO_LEVIATHAN_V1_2            5262  // LDO Leviathan V1.2 (STM32F446ZE)
 
 //
 // Other ARM Cortex-M4
