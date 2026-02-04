@@ -31,10 +31,10 @@
 
 ftm_resonance_test_params_t ResonanceGenerator::rt_params;     // Resonance test parameters
 
-bool ResonanceGenerator::active = false;                       // Resonance test active
-bool ResonanceGenerator::done = false;                         // Resonance test done
-float ResonanceGenerator::rt_time = FTM_TS;                    // Resonance test timer
-float ResonanceGenerator::timeline = 0.0f;
+bool  ResonanceGenerator::active = false,                      // Resonance test active
+      ResonanceGenerator::done = false;                        // Resonance test done
+float ResonanceGenerator::rt_time = FTM_TS,                    // Resonance test timer
+      ResonanceGenerator::timeline = 0.0f;
 
 ResonanceGenerator::ResonanceGenerator() {}
 

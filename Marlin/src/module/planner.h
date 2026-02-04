@@ -140,11 +140,9 @@ typedef struct {
     uint8_t bits;
 
     struct {
-      bool recalculate:1;
-
-      bool continued:1;
-
-      bool sync_position:1;
+      bool recalculate:1,
+           continued:1,
+           sync_position:1;
 
       #if ENABLED(DIRECT_STEPPING)
         bool page:1;
@@ -170,21 +168,21 @@ typedef struct {
 #if ENABLED(LASER_FEATURE)
 
   typedef struct {
-    bool isEnabled:1;                                 // Set to engage the inline laser power output.
-    bool dir:1;
-    bool isPowered:1;                                 // Set on any parsed G1, G2, G3, or G5 powered move, cleared on G0 and G28.
-    bool isSyncPower:1;                               // Set on a M3 sync based set laser power, used to determine active trap power
-    bool Reserved:4;
+    bool isEnabled:1,                       // Set to engage the inline laser power output.
+         dir:1,
+         isPowered:1,                       // Set on any parsed G1, G2, G3, or G5 powered move, cleared on G0 and G28.
+         isSyncPower:1,                     // Set on a M3 sync based set laser power, used to determine active trap power
+         Reserved:4;
   } power_status_t;
 
   typedef struct {
-    power_status_t status;                            // See planner settings for meaning
-    uint8_t power;                                    // Ditto; When in trapezoid mode this is nominal power
+    power_status_t status;                  // See planner settings for meaning
+    uint8_t power;                          // Ditto; When in trapezoid mode this is nominal power
 
     #if ENABLED(LASER_POWER_TRAP)
-      float trap_ramp_active_pwr;                     // Laser power level during active trapezoid smoothing
-      float trap_ramp_entry_incr;                     // Acceleration per step laser power increment (trap entry)
-      float trap_ramp_exit_decr;                      // Deceleration per step laser power decrement (trap exit)
+      float trap_ramp_active_pwr,           // Laser power level during active trapezoid smoothing
+            trap_ramp_entry_incr,           // Acceleration per step laser power increment (trap entry)
+            trap_ramp_exit_decr;            // Deceleration per step laser power decrement (trap exit)
     #endif
   } block_laser_t;
 
@@ -200,7 +198,6 @@ typedef struct {
  * may never actually be reached due to acceleration limits.
  */
 typedef struct PlannerBlock {
-
   volatile block_flags_t flag;              // Block flags
 
   bool is_sync_pos() const { return flag.sync_position; }
@@ -447,7 +444,6 @@ struct PlannerHints {
 
 class Planner {
   public:
-
     /**
      * The move buffer, calculated in stepper steps
      *
@@ -461,12 +457,12 @@ class Planner {
      *  Writer of head is Planner::buffer_segment().
      *  Reader of tail is Stepper::isr(). Always consider tail busy / read-only
      */
-    static block_t block_buffer[BLOCK_BUFFER_SIZE];
     static volatile uint8_t block_buffer_head,      // Index of the next block to be pushed
                             block_buffer_nonbusy,   // Index of the first non busy block
                             block_buffer_tail;      // Index of the busy block, if any
     static uint16_t cleaning_buffer_counter;        // A counter to disable queuing of blocks
-    static uint8_t delay_before_delivering;         // This counter delays delivery of blocks when queue becomes empty to allow the opportunity of merging blocks
+    static uint8_t  delay_before_delivering;        // This counter delays delivery of blocks when queue becomes empty to allow the opportunity of merging blocks
+    static block_t  block_buffer[BLOCK_BUFFER_SIZE];
 
     #if ENABLED(DISTINCT_E_FACTORS)
       static uint8_t last_extruder;                 // Respond to extruder change
@@ -494,14 +490,6 @@ class Planner {
                    volumetric_extruder_feedrate_limit[EXTRUDERS]; // (mm/s) Feedrate limit calculated from volume limit
     #endif
 
-    static planner_settings_t settings;
-
-    #if ENABLED(LASER_FEATURE)
-      static laser_state_t laser_inline;
-    #endif
-
-    static uint32_t max_acceleration_steps_per_s2[DISTINCT_AXES]; // (steps/s^2) Derived from mm_per_s2
-
     #if ENABLED(EDITABLE_STEPS_PER_UNIT)
       static float mm_per_step[DISTINCT_AXES];        // Millimeters per step
     #else
@@ -520,6 +508,14 @@ class Planner {
       static xyze_pos_t max_jerk;
     #endif
 
+    static uint32_t max_acceleration_steps_per_s2[DISTINCT_AXES]; // (steps/s^2) Derived from mm_per_s2
+
+    static planner_settings_t settings;
+
+    #if ENABLED(LASER_FEATURE)
+      static laser_state_t laser_inline;
+    #endif
+
     #if HAS_LEVELING
       static bool leveling_active;          // Flag that bed leveling is enabled
       #if ABL_PLANAR
@@ -532,24 +528,12 @@ class Planner {
       static constexpr bool leveling_active = false;
     #endif
 
-    #if HAS_LIN_ADVANCE_K
-      static float extruder_advance_K[DISTINCT_E];
-      static void set_advance_k(const float k, const uint8_t e=active_extruder) {
-        UNUSED(e);
-        extruder_advance_K[E_INDEX_N(e)] = k;
-        TERN_(SMOOTH_LIN_ADVANCE, extruder_advance_K_q27[E_INDEX_N(e)] = k * _BV32(27));
-      }
-      static float get_advance_k(const uint8_t e=active_extruder) {
-        UNUSED(e);
-        return extruder_advance_K[E_INDEX_N(e)];
-      }
+    #if ENABLED(SKEW_CORRECTION)
+      static skew_factor_t skew_factor;
     #endif
 
-    #if ENABLED(SMOOTH_LIN_ADVANCE)
-      static uint32_t get_advance_k_q27(const uint8_t e=active_extruder) {
-        UNUSED(e);
-        return extruder_advance_K_q27[E_INDEX_N(e)];
-      }
+    #if HAS_LIN_ADVANCE_K
+      static float extruder_advance_K[DISTINCT_E];
     #endif
 
     /**
@@ -564,10 +548,6 @@ class Planner {
 
     #if IS_KINEMATIC
       static xyze_pos_t position_cart;
-    #endif
-
-    #if ENABLED(SKEW_CORRECTION)
-      static skew_factor_t skew_factor;
     #endif
 
     #if ENABLED(SD_ABORT_ON_ENDSTOP_HIT)
@@ -608,6 +588,11 @@ class Planner {
      */
     static uint32_t acceleration_long_cutoff;
 
+    #if ENABLED(DISABLE_OTHER_EXTRUDERS)
+      // Counters to manage disabling inactive extruder steppers
+      static last_move_t extruder_last_move[E_STEPPERS];
+    #endif
+
     #ifdef MAX7219_DEBUG_SLOWDOWN
       friend class Max7219;
       static uint8_t slowdown_count;
@@ -615,11 +600,6 @@ class Planner {
 
     #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
       static float last_fade_z;
-    #endif
-
-    #if ENABLED(DISABLE_OTHER_EXTRUDERS)
-      // Counters to manage disabling inactive extruder steppers
-      static last_move_t extruder_last_move[E_STEPPERS];
     #endif
 
     #if HAS_WIRED_LCD
@@ -775,6 +755,23 @@ class Planner {
 
     #endif
 
+    #if HAS_LEVELING
+      /**
+       * Apply leveling to transform a cartesian position
+       * as it will be given to the planner and steppers.
+       */
+      static void apply_leveling(xyz_pos_t &raw);
+      static void unapply_leveling(xyz_pos_t &raw);
+      FORCE_INLINE static void force_unapply_leveling(xyz_pos_t &raw) {
+        leveling_active = true;
+        unapply_leveling(raw);
+        leveling_active = false;
+      }
+    #else
+      FORCE_INLINE static void apply_leveling(xyz_pos_t&) {}
+      FORCE_INLINE static void unapply_leveling(xyz_pos_t&) {}
+    #endif
+
     #if ENABLED(SKEW_CORRECTION)
 
       FORCE_INLINE static void skew(float &cx, float &cy, const float cz) {
@@ -801,21 +798,22 @@ class Planner {
 
     #endif // SKEW_CORRECTION
 
-    #if HAS_LEVELING
-      /**
-       * Apply leveling to transform a cartesian position
-       * as it will be given to the planner and steppers.
-       */
-      static void apply_leveling(xyz_pos_t &raw);
-      static void unapply_leveling(xyz_pos_t &raw);
-      FORCE_INLINE static void force_unapply_leveling(xyz_pos_t &raw) {
-        leveling_active = true;
-        unapply_leveling(raw);
-        leveling_active = false;
+    #if HAS_LIN_ADVANCE_K
+      static void set_advance_k(const float k, const uint8_t e=active_extruder) {
+        UNUSED(e);
+        extruder_advance_K[E_INDEX_N(e)] = k;
+        TERN_(SMOOTH_LIN_ADVANCE, extruder_advance_K_q27[E_INDEX_N(e)] = k * _BV32(27));
       }
-    #else
-      FORCE_INLINE static void apply_leveling(xyz_pos_t&) {}
-      FORCE_INLINE static void unapply_leveling(xyz_pos_t&) {}
+      static float get_advance_k(const uint8_t e=active_extruder) {
+        UNUSED(e);
+        return extruder_advance_K[E_INDEX_N(e)];
+      }
+    #endif
+    #if ENABLED(SMOOTH_LIN_ADVANCE)
+      static uint32_t get_advance_k_q27(const uint8_t e=active_extruder) {
+        UNUSED(e);
+        return extruder_advance_K_q27[E_INDEX_N(e)];
+      }
     #endif
 
     #if ENABLED(FWRETRACT)

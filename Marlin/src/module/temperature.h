@@ -176,8 +176,8 @@ typedef struct { float p, i, d, c, f; } raw_pidcf_t;
   struct PID_t {
     protected:
       bool pid_reset = true;
-      float temp_dState = 0;
-      float work_p = 0, work_i = 0, work_d = 0;
+      float temp_dState = 0,
+            work_p = 0, work_i = 0, work_d = 0;
 
     public:
       float Kp = 0, Ki = 0, Kd = 0;

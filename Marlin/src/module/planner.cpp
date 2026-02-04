@@ -125,44 +125,12 @@ Planner planner;
 /**
  * A ring buffer of moves described in steps
  */
-block_t Planner::block_buffer[BLOCK_BUFFER_SIZE];
 volatile uint8_t Planner::block_buffer_head,    // Index of the next block to be pushed
                  Planner::block_buffer_nonbusy, // Index of the first non-busy block
                  Planner::block_buffer_tail;    // Index of the busy block, if any
 uint16_t Planner::cleaning_buffer_counter;      // A counter to disable queuing of blocks
-uint8_t Planner::delay_before_delivering;       // Delay block delivery so initial blocks in an empty queue may merge
-
-#if ENABLED(EDITABLE_STEPS_PER_UNIT)
-  float Planner::mm_per_step[DISTINCT_AXES];    // (mm) Millimeters per step
-#else
-  constexpr float PlannerSettings::axis_steps_per_mm[DISTINCT_AXES],
-                  Planner::mm_per_step[DISTINCT_AXES];
-#endif
-planner_settings_t Planner::settings;           // Initialized by settings.load
-
-/**
- * Set up inline block variables
- * Set laser_power_floor based on SPEED_POWER_MIN to prevent a zero power output state with LASER_POWER_TRAP
- */
-#if ENABLED(LASER_FEATURE)
-  laser_state_t Planner::laser_inline;          // Current state for blocks
-  const uint8_t laser_power_floor = cutter.pct_to_ocr(SPEED_POWER_MIN);
-#endif
-
-uint32_t Planner::max_acceleration_steps_per_s2[DISTINCT_AXES]; // (steps/s^2) Derived from mm_per_s2
-
-#if HAS_JUNCTION_DEVIATION
-  float Planner::junction_deviation_mm;         // (mm) M205 J
-  #if HAS_LINEAR_E_JERK
-    float Planner::max_e_jerk[DISTINCT_E];      // Calculated from junction_deviation_mm
-  #endif
-#else // CLASSIC_JERK
-  xyze_pos_t Planner::max_jerk;
-#endif
-
-#if ENABLED(SD_ABORT_ON_ENDSTOP_HIT)
-  bool Planner::abort_on_endstop_hit = false;
-#endif
+uint8_t  Planner::delay_before_delivering;      // Delay block delivery so initial blocks in an empty queue may merge
+block_t  Planner::block_buffer[BLOCK_BUFFER_SIZE];
 
 #if ENABLED(DISTINCT_E_FACTORS)
   uint8_t Planner::last_extruder = 0;     // Respond to extruder change
@@ -189,8 +157,33 @@ uint32_t Planner::max_acceleration_steps_per_s2[DISTINCT_AXES]; // (steps/s^2) D
         Planner::volumetric_extruder_feedrate_limit[EXTRUDERS]; // pre calculated extruder feedrate limit based on volumetric_extruder_limit; pre-calculated to reduce computation in the planner
 #endif
 
-#ifdef MAX7219_DEBUG_SLOWDOWN
-  uint8_t Planner::slowdown_count = 0;
+#if ENABLED(EDITABLE_STEPS_PER_UNIT)
+  float Planner::mm_per_step[DISTINCT_AXES];    // (mm) Millimeters per step
+#else
+  constexpr float PlannerSettings::axis_steps_per_mm[DISTINCT_AXES],
+                  Planner::mm_per_step[DISTINCT_AXES];
+#endif
+
+#if HAS_JUNCTION_DEVIATION
+  float Planner::junction_deviation_mm;         // (mm) M205 J
+  #if HAS_LINEAR_E_JERK
+    float Planner::max_e_jerk[DISTINCT_E];      // Calculated from junction_deviation_mm
+  #endif
+#else // CLASSIC_JERK
+  xyze_pos_t Planner::max_jerk;
+#endif
+
+uint32_t Planner::max_acceleration_steps_per_s2[DISTINCT_AXES]; // (steps/s^2) Derived from mm_per_s2
+
+planner_settings_t Planner::settings;           // Initialized by settings.load
+
+/**
+ * Set up inline block variables
+ * Set laser_power_floor based on SPEED_POWER_MIN to prevent a zero power output state with LASER_POWER_TRAP
+ */
+#if ENABLED(LASER_FEATURE)
+  laser_state_t Planner::laser_inline;          // Current state for blocks
+  const uint8_t laser_power_floor = cutter.pct_to_ocr(SPEED_POWER_MIN);
 #endif
 
 #if HAS_LEVELING
@@ -199,7 +192,7 @@ uint32_t Planner::max_acceleration_steps_per_s2[DISTINCT_AXES]; // (steps/s^2) D
     matrix_3x3 Planner::bed_level_matrix; // Transform to compensate for bed level
   #endif
   #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
-    float Planner::z_fade_height,      // Initialized by settings.load
+    float Planner::z_fade_height,     // Initialized by settings.load
           Planner::inverse_z_fade_height,
           Planner::last_fade_z;
   #endif
@@ -211,31 +204,11 @@ uint32_t Planner::max_acceleration_steps_per_s2[DISTINCT_AXES]; // (steps/s^2) D
   skew_factor_t Planner::skew_factor; // Initialized by settings.load
 #endif
 
-// private:
-
-xyze_long_t Planner::position{0};
-
-uint32_t Planner::acceleration_long_cutoff;
-
-xyze_float_t Planner::previous_speed;
-float Planner::previous_nominal_speed;
-
-#if ENABLED(DISABLE_OTHER_EXTRUDERS)
-  last_move_t Planner::extruder_last_move[E_STEPPERS] = { 0 };
-#endif
-
-#ifdef XY_FREQUENCY_LIMIT
-  int8_t Planner::xy_freq_limit_hz = XY_FREQUENCY_LIMIT;
-  float Planner::xy_freq_min_speed_factor = (XY_FREQUENCY_MIN_PERCENT) * 0.01f;
-  int32_t Planner::xy_freq_min_interval_us = LROUND(1000000.0f / (XY_FREQUENCY_LIMIT));
-#endif
-
 #if HAS_LIN_ADVANCE_K
   float Planner::extruder_advance_K[DISTINCT_E]; // Initialized by settings.load
-  #if ENABLED(SMOOTH_LIN_ADVANCE)
-    uint32_t Planner::extruder_advance_K_q27[DISTINCT_E];
-  #endif
 #endif
+
+xyze_long_t Planner::position{0};
 
 #if HAS_POSITION_FLOAT
   xyze_pos_t Planner::position_float; // Needed for accurate maths. Steps cannot be used!
@@ -245,8 +218,37 @@ float Planner::previous_nominal_speed;
   xyze_pos_t Planner::position_cart;
 #endif
 
+#if ENABLED(SD_ABORT_ON_ENDSTOP_HIT)
+  bool Planner::abort_on_endstop_hit = false;
+#endif
+
+#ifdef XY_FREQUENCY_LIMIT
+  int8_t Planner::xy_freq_limit_hz = XY_FREQUENCY_LIMIT;
+  float Planner::xy_freq_min_speed_factor = (XY_FREQUENCY_MIN_PERCENT) * 0.01f;
+  int32_t Planner::xy_freq_min_interval_us = LROUND(1000000.0f / (XY_FREQUENCY_LIMIT));
+#endif
+
+// private:
+
+xyze_float_t Planner::previous_speed;
+float Planner::previous_nominal_speed;
+
+uint32_t Planner::acceleration_long_cutoff;
+
+#if ENABLED(DISABLE_OTHER_EXTRUDERS)
+  last_move_t Planner::extruder_last_move[E_STEPPERS] = { 0 };
+#endif
+
+#ifdef MAX7219_DEBUG_SLOWDOWN
+  uint8_t Planner::slowdown_count = 0;
+#endif
+
 #if HAS_WIRED_LCD
   volatile uint32_t Planner::block_buffer_runtime_us = 0;
+#endif
+
+#if ENABLED(SMOOTH_LIN_ADVANCE)
+  uint32_t Planner::extruder_advance_K_q27[DISTINCT_E];
 #endif
 
 /**

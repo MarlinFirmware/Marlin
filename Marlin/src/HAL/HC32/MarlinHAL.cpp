@@ -290,7 +290,7 @@ uint16_t MarlinHAL::adc_value() {
   return getAnalogReadValue(MarlinHAL::last_adc_pin);
 }
 
-void MarlinHAL::set_pwm_duty(const pin_t pin, const uint16_t value, const uint16_t scale, const bool invert) {
+void MarlinHAL::set_pwm_duty(const pin_t pin, const uint16_t value, const uint16_t scale,/*=255*/ const bool invert/*=false*/) {
   // Invert value if requested
   const uint16_t val = invert ? scale - value : value;
 

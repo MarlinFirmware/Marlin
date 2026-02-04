@@ -98,8 +98,8 @@ Endstops::endstop_mask_t Endstops::live_state = 0;
 #endif
 
 #if ENABLED(CALIBRATION_GCODE)
-  volatile bool Endstops::calibration_probe_enabled = false;
-  volatile bool Endstops::calibration_stop_state;
+  volatile bool Endstops::calibration_probe_enabled = false,
+                Endstops::calibration_stop_state;
 #endif
 
 // Initialized by settings.load

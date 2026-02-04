@@ -101,16 +101,16 @@ private:
   void setupDma(SPI_HandleTypeDef &_spiHandle, DMA_HandleTypeDef &_dmaHandle, uint32_t direction, bool minc = false);
 
   spi_t _spi;
-  DMA_HandleTypeDef _dmaTx;
-  DMA_HandleTypeDef _dmaRx;
+  DMA_HandleTypeDef _dmaTx,
+                    _dmaRx;
   BitOrder _bitOrder;
   spi_mode_e _dataMode;
   uint8_t _clockDivider;
-  uint32_t _speed;
-  uint32_t _dataSize;
-  pin_t _mosiPin;
-  pin_t _misoPin;
-  pin_t _sckPin;
-  pin_t _ssPin;
+  uint32_t _speed,
+           _dataSize;
+  pin_t _mosiPin,
+        _misoPin,
+        _sckPin,
+        _ssPin;
   bool _mustInit = true;
 };

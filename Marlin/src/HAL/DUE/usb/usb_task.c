@@ -54,8 +54,8 @@
 #if HAS_MEDIA
   static volatile bool main_b_msc_enable = false;
 #endif
-static volatile bool main_b_cdc_enable = false;
-static volatile bool main_b_dtr_active = false;
+static volatile bool main_b_cdc_enable = false,
+					 main_b_dtr_active = false;
 
 void usb_task_idle(void) {
   #if HAS_MEDIA
@@ -126,11 +126,11 @@ bool usb_task_cdc_dtr_active(void)             { return main_b_dtr_active; }
 
 /// Microsoft WCID descriptor
 typedef struct USB_MicrosoftCompatibleDescriptor_Interface {
-  uint8_t bFirstInterfaceNumber;
-  uint8_t reserved1;
-  uint8_t compatibleID[8];
-  uint8_t subCompatibleID[8];
-  uint8_t reserved2[6];
+  uint8_t bFirstInterfaceNumber,
+  		  reserved1;
+  uint8_t compatibleID[8],
+  		  subCompatibleID[8],
+  		  reserved2[6];
 } __attribute__((packed)) USB_MicrosoftCompatibleDescriptor_Interface;
 
 typedef struct USB_MicrosoftCompatibleDescriptor {

@@ -18,7 +18,7 @@ def addCompressedData(input_file, output_file):
     raw_data = []
     arrname = ''
 
-    c_data_section = False ; c_skip_data = False ; c_footer = False
+    c_data_section, c_skip_data, c_footer = False, False, False
     for line in input_lines:
         if not line: break
 
@@ -29,9 +29,7 @@ def addCompressedData(input_file, output_file):
         if mat: bytewidth = (int(mat[1]) + 7) // 8
 
         if "};" in line:
-            c_skip_data = False
-            c_data_section = False
-            c_footer = True
+            c_skip_data, c_data_section, c_footer = False, False, True
 
         if c_data_section:
             cleaned = re.sub(r"\s|,|\n", "", line)

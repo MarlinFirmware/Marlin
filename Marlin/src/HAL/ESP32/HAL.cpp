@@ -331,7 +331,7 @@ int8_t get_pwm_channel(const pin_t pin, const uint32_t freq, const uint16_t res)
   return cid; // -1 if no channel avail
 }
 
-void MarlinHAL::set_pwm_duty(const pin_t pin, const uint16_t v, const uint16_t v_size/*=_BV(PWM_RESOLUTION)-1*/, const bool invert/*=false*/) {
+void MarlinHAL::set_pwm_duty(const pin_t pin, const uint16_t v, const uint16_t v_size/*=255*/, const bool invert/*=false*/) {
   #if ENABLED(I2S_STEPPER_STREAM)
     if (pin > 127) {
       const uint8_t pinlo = pin & 0x7F;

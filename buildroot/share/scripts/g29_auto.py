@@ -43,8 +43,7 @@ lines_of_g1 = 0
 
 gcode = []
 
-g29_found = False
-g28_found = False
+g28_found, g29_found = False, False
 
 YELLOW = '\033[33m'
 GREEN = '\033[32m'

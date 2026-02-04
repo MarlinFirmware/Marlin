@@ -81,7 +81,7 @@ struct MarlinSerial : public Usart {
       setPriority();
     }
 
-    void begin(uint32_t baud, const stc_usart_uart_init_t *config, const bool rxNoiseFilter = true) {
+    void begin(uint32_t baud, const stc_usart_uart_init_t *config, const bool rxNoiseFilter=true) {
       Usart::begin(baud, config, rxNoiseFilter);
       setPriority();
     }

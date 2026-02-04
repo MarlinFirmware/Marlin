@@ -139,22 +139,22 @@
   class MarlinSerial {
   protected:
     // Registers
-    static constexpr R_UCSRxA<Cfg::PORT> R_UCSRA = 0;
-    static constexpr R_UDRx<Cfg::PORT>   R_UDR   = 0;
-    static constexpr R_UBRRxH<Cfg::PORT> R_UBRRH = 0;
-    static constexpr R_UBRRxL<Cfg::PORT> R_UBRRL = 0;
+    static constexpr R_UCSRxA<Cfg::PORT> R_UCSRA = 0,
+                     R_UDRx<Cfg::PORT>   R_UDR   = 0,
+                     R_UBRRxH<Cfg::PORT> R_UBRRH = 0,
+                     R_UBRRxL<Cfg::PORT> R_UBRRL = 0;
 
     // Bits
-    static constexpr B_RXENx<Cfg::PORT>  B_RXEN  = 0;
-    static constexpr B_TXENx<Cfg::PORT>  B_TXEN  = 0;
-    static constexpr B_TXCx<Cfg::PORT>   B_TXC   = 0;
-    static constexpr B_RXCIEx<Cfg::PORT> B_RXCIE = 0;
-    static constexpr B_UDREx<Cfg::PORT>  B_UDRE  = 0;
-    static constexpr B_FEx<Cfg::PORT>    B_FE    = 0;
-    static constexpr B_DORx<Cfg::PORT>   B_DOR   = 0;
-    static constexpr B_UDRIEx<Cfg::PORT> B_UDRIE = 0;
-    static constexpr B_RXCx<Cfg::PORT>   B_RXC   = 0;
-    static constexpr B_U2Xx<Cfg::PORT>   B_U2X   = 0;
+    static constexpr B_RXENx<Cfg::PORT>  B_RXEN  = 0,
+                     B_TXENx<Cfg::PORT>  B_TXEN  = 0,
+                     B_TXCx<Cfg::PORT>   B_TXC   = 0,
+                     B_RXCIEx<Cfg::PORT> B_RXCIE = 0,
+                     B_UDREx<Cfg::PORT>  B_UDRE  = 0,
+                     B_FEx<Cfg::PORT>    B_FE    = 0,
+                     B_DORx<Cfg::PORT>   B_DOR   = 0,
+                     B_UDRIEx<Cfg::PORT> B_UDRIE = 0,
+                     B_RXCx<Cfg::PORT>   B_RXC   = 0,
+                     B_U2Xx<Cfg::PORT>   B_U2X   = 0;
 
     // Base size of type on buffer size
     typedef uvalue_t(Cfg::RX_SIZE - 1) ring_buffer_pos_t;
@@ -221,14 +221,14 @@
   template <uint8_t serial>
   struct MarlinSerialCfg {
     static constexpr int PORT               = serial;
-    static constexpr unsigned int RX_SIZE   = RX_BUFFER_SIZE;
-    static constexpr unsigned int TX_SIZE   = TX_BUFFER_SIZE;
-    static constexpr bool XONOFF            = ENABLED(SERIAL_XON_XOFF);
-    static constexpr bool EMERGENCYPARSER   = ENABLED(EMERGENCY_PARSER);
-    static constexpr bool DROPPED_RX        = ENABLED(SERIAL_STATS_DROPPED_RX);
-    static constexpr bool RX_OVERRUNS       = ENABLED(SERIAL_STATS_RX_BUFFER_OVERRUNS);
-    static constexpr bool RX_FRAMING_ERRORS = ENABLED(SERIAL_STATS_RX_FRAMING_ERRORS);
-    static constexpr bool MAX_RX_QUEUED     = ENABLED(SERIAL_STATS_MAX_RX_QUEUED);
+    static constexpr unsigned int RX_SIZE   = RX_BUFFER_SIZE,
+                                  TX_SIZE   = TX_BUFFER_SIZE;
+    static constexpr bool XONOFF            = ENABLED(SERIAL_XON_XOFF),
+                          EMERGENCYPARSER   = ENABLED(EMERGENCY_PARSER),
+                          DROPPED_RX        = ENABLED(SERIAL_STATS_DROPPED_RX),
+                          RX_OVERRUNS       = ENABLED(SERIAL_STATS_RX_BUFFER_OVERRUNS),
+                          RX_FRAMING_ERRORS = ENABLED(SERIAL_STATS_RX_FRAMING_ERRORS),
+                          MAX_RX_QUEUED     = ENABLED(SERIAL_STATS_MAX_RX_QUEUED);
   };
 
   typedef Serial1Class< MarlinSerial< MarlinSerialCfg<SERIAL_PORT> > > MSerialT1;
@@ -250,14 +250,14 @@
   template <uint8_t serial>
   struct MMU2SerialCfg {
     static constexpr int PORT               = serial;
-    static constexpr unsigned int RX_SIZE   = 32;
-    static constexpr unsigned int TX_SIZE   = 32;
-    static constexpr bool XONOFF            = false;
-    static constexpr bool EMERGENCYPARSER   = false;
-    static constexpr bool DROPPED_RX        = false;
-    static constexpr bool RX_FRAMING_ERRORS = false;
-    static constexpr bool MAX_RX_QUEUED     = false;
-    static constexpr bool RX_OVERRUNS       = false;
+    static constexpr unsigned int RX_SIZE   = 32,
+                                  TX_SIZE   = 32;
+    static constexpr bool XONOFF            = false,
+                          EMERGENCYPARSER   = false,
+                          DROPPED_RX        = false,
+                          RX_FRAMING_ERRORS = false,
+                          MAX_RX_QUEUED     = false,
+                          RX_OVERRUNS       = false;
   };
 
   typedef Serial1Class< MarlinSerial< MMU2SerialCfg<MMU_SERIAL_PORT> > > MSerialMMU2;
@@ -269,14 +269,14 @@
   template <uint8_t serial>
   struct LCDSerialCfg {
     static constexpr int PORT               = serial;
-    static constexpr unsigned int RX_SIZE   = TERN(HAS_DGUS_LCD, DGUS_RX_BUFFER_SIZE,  64);
-    static constexpr unsigned int TX_SIZE   = TERN(HAS_DGUS_LCD, DGUS_TX_BUFFER_SIZE, 128);
-    static constexpr bool XONOFF            = false;
-    static constexpr bool EMERGENCYPARSER   = ENABLED(EMERGENCY_PARSER);
-    static constexpr bool DROPPED_RX        = false;
-    static constexpr bool RX_FRAMING_ERRORS = false;
-    static constexpr bool MAX_RX_QUEUED     = false;
-    static constexpr bool RX_OVERRUNS       = ALL(HAS_DGUS_LCD, SERIAL_STATS_RX_BUFFER_OVERRUNS);
+    static constexpr unsigned int RX_SIZE   = TERN(HAS_DGUS_LCD, DGUS_RX_BUFFER_SIZE,  64),
+                                  TX_SIZE   = TERN(HAS_DGUS_LCD, DGUS_TX_BUFFER_SIZE, 128);
+    static constexpr bool XONOFF            = false,
+                          EMERGENCYPARSER   = ENABLED(EMERGENCY_PARSER),
+                          DROPPED_RX        = false,
+                          RX_FRAMING_ERRORS = false,
+                          MAX_RX_QUEUED     = false,
+                          RX_OVERRUNS       = ALL(HAS_DGUS_LCD, SERIAL_STATS_RX_BUFFER_OVERRUNS);
   };
 
   typedef Serial1Class< MarlinSerial< LCDSerialCfg<LCD_SERIAL_PORT> > > MSerialLCD;
