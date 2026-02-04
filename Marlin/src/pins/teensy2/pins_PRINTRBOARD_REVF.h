@@ -271,7 +271,7 @@
 // Misc. Functions
 //
 //      PIN       FASTIO PIN#  ATUSB90 PIN# Teensy2.0++ PIN#  Printrboard RevF Conn.
-#ifndef SDSS
+#ifndef SD_SS_PIN
   #define SD_SS_PIN                           20  //       10               B0
 #endif
 
