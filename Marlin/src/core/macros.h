@@ -802,3 +802,6 @@
 #define _HAS_E_TEMP(N) || TEMP_SENSOR(N)
 #define HAS_E_TEMP_SENSOR (0 REPEAT(EXTRUDERS, _HAS_E_TEMP))
 #define TEMP_SENSOR_IS_MAX_TC(T) (TEMP_SENSOR(T) == -5 || TEMP_SENSOR(T) == -3 || TEMP_SENSOR(T) == -2)
+
+// DGUS_UI_IS is only supported in Marlin >= 2.1.3
+#define DGUS_UI_IS(...) static_assert(false, "DGUS_UI_IS is only supported in Marlin Configuration.h >= 2.1.3; this version does not support it")
