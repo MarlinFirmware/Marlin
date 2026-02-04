@@ -478,21 +478,38 @@ xyze_float_t FTMotion::calc_traj_point(const float dist) {
   LOGICAL_AXIS_MAP_LC(_SET_TRAJ);
 
   #if FTM_HAS_LIN_ADVANCE
-    const float advK = planner.get_advance_k();
-    if (advK) {
-      const float traj_e = traj_coords.e;
-      if (use_advance_lead) {
-        // Don't apply LA to retract/unretract blocks
-        const float e_rate = (traj_e - prev_traj_e) * (FTM_FS);
-        traj_coords.e += e_rate * advK;
-      }
-      prev_traj_e = traj_e;
+    float traj_e = traj_coords.e;
+
+    // Apply LA/NLE only to printing (not retract/unretract) blocks
+    if (use_advance_lead) {
+      const float traj_e_delta = traj_e - prev_traj_e; // Extruder delta in mm, always positive for use_advance_lead (printing moves)
+      const float e_rate = traj_e_delta * (FTM_FS);    // Extruder velocity in mm/s
+
+      traj_coords.e += e_rate * planner.get_advance_k();
+
+      #if ENABLED(NONLINEAR_EXTRUSION)
+        if (stepper.nle.settings.enabled) {
+          const nonlinear_coeff_t &coeff = stepper.nle.settings.coeff;
+          const float multiplier = max(coeff.C, coeff.A * sq(e_rate) + coeff.B * e_rate + coeff.C),
+                      nle_term = traj_e_delta * (multiplier - 1);
+
+          traj_coords.e += nle_term;
+          traj_e += nle_term;
+          startPos.e += nle_term;
+          endPos_prevBlock.e += nle_term;
+        }
+      #endif
     }
-  #endif
+
+    prev_traj_e = traj_e;
+
+  #endif // FTM_HAS_LIN_ADVANCE
 
   // Update shaping parameters if needed.
   switch (cfg.dynFreqMode) {
+
     #if HAS_DYNAMIC_FREQ_MM
+
       case dynFreqMode_Z_BASED: {
         static float oldz = 0.0f;
         const float z = traj_coords.z;
@@ -509,9 +526,11 @@ xyze_float_t FTMotion::calc_traj_point(const float dist) {
           shaping.refresh_largest_delay_samples();
         }
       } break;
+
     #endif
 
     #if HAS_DYNAMIC_FREQ_G
+
       case dynFreqMode_MASS_BASED:
         // Update constantly. The optimization done for Z value makes
         // less sense for E, as E is expected to constantly change.
@@ -523,6 +542,7 @@ xyze_float_t FTMotion::calc_traj_point(const float dist) {
         #endif
         shaping.refresh_largest_delay_samples();
         break;
+
     #endif
 
     default: break;

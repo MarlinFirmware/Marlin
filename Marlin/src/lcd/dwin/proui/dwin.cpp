@@ -2168,6 +2168,13 @@ void autoHome() { queue.inject_P(G28_STR); }
 
 #if HAS_ZOFFSET_ITEM
 
+  #ifndef PROBE_OFFSET_ZMIN
+    #define PROBE_OFFSET_ZMIN -20
+  #endif
+  #ifndef PROBE_OFFSET_ZMAX
+    #define PROBE_OFFSET_ZMAX  20
+  #endif
+
   void applyZOffset() { TERN_(EEPROM_SETTINGS, settings.save()); }
   void liveZOffset() {
     #if ANY(BABYSTEP_ZPROBE_OFFSET, JUST_BABYSTEP)
@@ -2684,7 +2691,7 @@ void applyMaxAccel() { planner.set_max_acceleration(hmiValue.axis, menuData.valu
     void setMaxJerkE() { hmiValue.axis = E_AXIS; setFloatOnClick(min_jerk_edit_values.e, max_jerk_edit_values.e, UNITFDIGITS, planner.max_jerk.e, applyMaxJerk); }
   #endif
 #elif HAS_JUNCTION_DEVIATION
-  void applyJDmm() { TERN_(LIN_ADVANCE, planner.recalculate_max_e_jerk()); }
+  void applyJDmm() { TERN_(HAS_LINEAR_E_JERK, planner.recalculate_max_e_jerk()); }
   void setJDmm() { setPFloatOnClick(MIN_JD_MM, MAX_JD_MM, 3, applyJDmm); }
 #endif
 

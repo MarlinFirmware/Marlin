@@ -46,8 +46,6 @@ class ResonanceGenerator {
 
     ResonanceGenerator();
 
-    void planRunout(const float duration);
-
     void reset();
 
     void start(const xyze_pos_t &spos, const float t) {

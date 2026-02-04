@@ -17,7 +17,7 @@ TODO: Use the defines and comments above the namespace from existing language fi
 """
 
 import sys, re, requests, csv, datetime
-#from languageUtil import namebyid
+from languageUtil import *
 from pathlib import Path
 
 LANGHOME = "Marlin/src/lcd/language"
@@ -85,10 +85,9 @@ for row in reader:
 # Create a folder for the imported language outfiles
 OUTDIR.mkdir(exist_ok=True)
 
-FILEHEADER = '''
-/**
+FILEHEADER = '''/**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2023 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -149,8 +148,14 @@ for i in range(1, numcols):
             exit(1)
 
         # Write the opening header for the new language file
-        #f.write(FILEHEADER % namebyid(lang))
+        f.write(FILEHEADER % language_name(lang))
         f.write('/**\n * Imported from %s on %s at %s\n */\n' % (FILEPATH, datetime.date.today(), datetime.datetime.now().strftime("%H:%M:%S")))
+
+        iso = language_iso(lang)
+        if iso: f.write(f"\n#define DISPLAY_CHARSET_ISO10646_{iso}")
+        noext = language_noext(lang)
+        if noext: f.write("\n#define NOT_EXTENDED_ISO10646_1_5X7")
+        if iso or noext: f.write("\n")
 
     # Start a namespace for the language and style
     f.write('\nnamespace Language%s_%s {\n' % (style, lang))
@@ -158,12 +163,16 @@ for i in range(1, numcols):
     # Wide and tall namespaces inherit from the others
     if style == 'Wide':
         f.write('  using namespace LanguageNarrow_%s;\n' % lang)
-        f.write('  #if LCD_WIDTH >= 20 || HAS_DWIN_E3V2\n')
+        f.write('  #if LCD_WIDTH > 20 || HAS_DWIN_E3V2\n')
     elif style == 'Tall':
         f.write('  using namespace LanguageWide_%s;\n' % lang)
         f.write('  #if LCD_HEIGHT >= 4\n')
-    elif lang != 'en':
-        f.write('  using namespace Language_en; // Inherit undefined strings from English\n')
+        f.write('    // Filament Change screens show up to 3 lines on a 4-line display\n')
+    elif style == 'Narrow':
+        if lang != 'en':
+            f.write('  using namespace Language_en; // Inherit undefined strings from English\n')
+        charsize = language_charsize(lang)
+        if charsize: f.write(f"\n  constexpr uint8_t CHARSIZE              = {charsize};\n")
 
     # Formatting for the lines
     indent = '  ' if style == 'Narrow' else '    '
@@ -186,8 +195,8 @@ for i in range(1, numcols):
         val = re.sub(r'\(([A-Z0-9]+_[A-Z0-9_]+)\)', r'") \1 _UxGT("', val)
         # Remove all empty _UxGT("") that result from the above
         val = re.sub(r'\s*_UxGT\(""\)\s*', '', val)
-        # No wrapper needed for just spaces
-        val = re.sub(r'_UxGT\((" +")\)', r'\1', val)
+        # No wrapper needed for just spaces or punctuation
+        val = re.sub(r'_UxGT\(("[ .~]+")\)', r'\1', val)
         # Multi-line strings start with a bar...
         if bars:
             # Wrap the string in MSG_#_LINE(...) and split on bars
@@ -207,6 +216,7 @@ for i in range(1, numcols):
 
         # Write out the string definition
         f.write(lstr_fmt % (name, val, comm))
+        if name == 'LANGUAGE': f.write("\n")
 
     if style == 'Wide' or style == 'Tall': f.write('  #endif\n')
 

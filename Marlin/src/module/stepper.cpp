@@ -263,7 +263,7 @@ uint32_t Stepper::advance_divisor = 0,
  * Standard Motion Non-linear Extrusion state
  */
 #if ENABLED(NONLINEAR_EXTRUSION)
-  nonlinear_t Stepper::ne;              // Initialized by settings.load
+  nonlinear_t Stepper::nle;             // Initialized by settings.load
 #endif
 
 #if HAS_ZV_SHAPING
@@ -2255,11 +2255,11 @@ void Stepper::isr() {
 
   #if NONLINEAR_EXTRUSION_Q24
     void Stepper::calc_nonlinear_e(const uint32_t step_rate) {
-      const uint32_t velocity_q24 = ne.scale_q24 * step_rate; // Scale step_rate first so all intermediate values stay in range of 8.24 fixed point math
-      int32_t vd_q24 = ((((int64_t(ne.q24.A) * velocity_q24) >> 24) * velocity_q24) >> 24) + ((int64_t(ne.q24.B) * velocity_q24) >> 24);
+      const uint32_t velocity_q24 = nle.scale_q24 * step_rate; // Scale step_rate first so all intermediate values stay in range of 8.24 fixed point math
+      int32_t vd_q24 = ((((int64_t(nle.q24.A) * velocity_q24) >> 24) * velocity_q24) >> 24) + ((int64_t(nle.q24.B) * velocity_q24) >> 24);
       NOLESS(vd_q24, 0);
 
-      advance_dividend.e = (uint64_t(ne.q24.C + vd_q24) * ne.edividend) >> 24;
+      advance_dividend.e = (uint64_t(nle.q24.C + vd_q24) * nle.edividend) >> 24;
     }
   #endif
 
@@ -2934,17 +2934,17 @@ void Stepper::isr() {
 
         // Calculate Nonlinear Extrusion fixed-point quotients
         #if NONLINEAR_EXTRUSION_Q24
-          ne.edividend = advance_dividend.e;
-          const float scale = (float(ne.edividend) / advance_divisor) * planner.mm_per_step[E_AXIS_N(current_block->extruder)];
-          ne.scale_q24 = _BV32(24) * scale;
-          if (ne.settings.enabled && current_block->direction_bits.e && XYZ_HAS_STEPS(current_block)) {
-            ne.q24.A = _BV32(24) * ne.settings.coeff.A;
-            ne.q24.B = _BV32(24) * ne.settings.coeff.B;
-            ne.q24.C = _BV32(24) * ne.settings.coeff.C;
+          nle.edividend = advance_dividend.e;
+          const float scale = (float(nle.edividend) / advance_divisor) * planner.mm_per_step[E_AXIS_N(current_block->extruder)];
+          nle.scale_q24 = _BV32(24) * scale;
+          if (nle.settings.enabled && current_block->direction_bits.e && XYZ_HAS_STEPS(current_block)) {
+            nle.q24.A = _BV32(24) * nle.settings.coeff.A;
+            nle.q24.B = _BV32(24) * nle.settings.coeff.B;
+            nle.q24.C = _BV32(24) * nle.settings.coeff.C;
           }
           else {
-            ne.q24.A = ne.q24.B = 0;
-            ne.q24.C = _BV32(24);
+            nle.q24.A = nle.q24.B = 0;
+            nle.q24.C = _BV32(24);
           }
         #endif
 
@@ -3000,11 +3000,11 @@ void Stepper::isr() {
         const bool forward_e = step_rate > 0;
 
         #if ENABLED(NONLINEAR_EXTRUSION)
-          if (ne.settings.enabled && forward_e && XYZ_HAS_STEPS(current_block)) {
+          if (nle.settings.enabled && forward_e && XYZ_HAS_STEPS(current_block)) {
             // Maximum polynomial value is just above 1, like 1.05..1.2, less than 2 anyway, so we can use 30 bits for fractional part
-            int32_t vd_q30 = ne.q30.A * sq(step_rate) + ne.q30.B * step_rate;
+            int32_t vd_q30 = nle.q30.A * sq(step_rate) + nle.q30.B * step_rate;
             NOLESS(vd_q30, 0);
-            step_rate = (int64_t(step_rate) * (ne.q30.C + vd_q30)) >> 30;
+            step_rate = (int64_t(step_rate) * (nle.q30.C + vd_q30)) >> 30;
           }
         #endif
 
