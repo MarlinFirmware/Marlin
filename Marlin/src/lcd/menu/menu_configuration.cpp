@@ -366,7 +366,7 @@ void menu_advanced_settings();
       }
     #endif
     #if ENABLED(HAS_E_AUTO_FAN)
-      EDIT_ITEM_FAST(percent, MSG_EXTRUDER_AUTO_FAN_SPEED, &Temperature::extruder_fan_speed, 0, 255);
+      EDIT_ITEM_FAST(percent, MSG_EXTRUDER_AUTO_FAN_SPEED, &thermalManager.extruder_fan_speed, 0, 255);
     #endif
     END_MENU();
   }

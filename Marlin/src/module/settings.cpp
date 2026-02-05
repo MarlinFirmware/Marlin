@@ -1325,8 +1325,8 @@ void MarlinSettings::postprocess() {
     //
     {
       #if ENABLED(HAS_E_AUTO_FAN)
-        _FIELD_TEST(Temperature::extruder_fan_speed);
-        EEPROM_WRITE(Temperature::extruder_fan_speed);
+        _FIELD_TEST(thermalManager.extruder_fan_speed);
+        EEPROM_WRITE(thermalManager.extruder_fan_speed);
       #endif
     }
 
@@ -2426,9 +2426,9 @@ void MarlinSettings::postprocess() {
       {
         #if ENABLED(HAS_E_AUTO_FAN)
           uint8_t extruder_fan_speed;
-          _FIELD_TEST(Temperature::extruder_fan_speed);
+          _FIELD_TEST(thermalManager.extruder_fan_speed);
           EEPROM_READ(extruder_fan_speed);
-          TERN_(CONTROLLER_FAN_EDITABLE, if (!validating) Temperature::extruder_fan_speed = extruder_fan_speed);
+          TERN_(CONTROLLER_FAN_EDITABLE, if (!validating) thermalManager.extruder_fan_speed = extruder_fan_speed);
         #endif
       }
 
@@ -3698,7 +3698,7 @@ void MarlinSettings::reset() {
   //
   // Extruder Fan
   //
-  TERN_(HAS_E_AUTO_FAN, Temperature::extruder_fan_speed = EXTRUDER_AUTO_FAN_SPEED);
+  TERN_(HAS_E_AUTO_FAN, thermalManager.extruder_fan_speed = EXTRUDER_AUTO_FAN_SPEED);
 
   //
   // Power-Loss Recovery
