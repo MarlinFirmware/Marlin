@@ -391,24 +391,7 @@ namespace LanguageNarrow_en {
   LSTR MSG_EXTRA_FAN_SPEED                = _UxGT("Extra Fan Speed");
   LSTR MSG_EXTRA_FAN_SPEED_N              = _UxGT("Extra Fan Speed ~");
   LSTR MSG_FANS                           = _UxGT("Fans");
-  LSTR MSG_CONTROLLER_FAN_IDLE_SPEED      = _UxGT("Idle Speed");
-  LSTR MSG_CONTROLLER_FAN_AUTO_ON         = _UxGT("Auto Mode");
-  LSTR MSG_CONTROLLER_FAN_SPEED           = _UxGT("Active Speed");
-  LSTR MSG_CONTROLLER_FAN_DURATION        = _UxGT("Idle Period");
   LSTR MSG_EXTRUDER_AUTO_FAN_SPEED        = _UxGT("Extruder fan speed");
-  LSTR MSG_FLOW_PERCENTAGE                = _UxGT("Set Flowrate Percentage");
-  LSTR MSG_FLOW                           = _UxGT("Flow");
-  LSTR MSG_FLOW_N                         = _UxGT("Flow ~");
-  LSTR MSG_CONTROL                        = _UxGT("Control");
-  LSTR MSG_MIN                            = " " LCD_STR_THERMOMETER _UxGT(" Min");
-  LSTR MSG_MAX                            = " " LCD_STR_THERMOMETER _UxGT(" Max");
-  LSTR MSG_FACTOR                         = " " LCD_STR_THERMOMETER _UxGT(" Fact");
-  LSTR MSG_AUTOTEMP                       = _UxGT("Autotemp");
-  LSTR MSG_TIMEOUT                        = _UxGT("Timeout");
-  LSTR MSG_LCD_ON                         = _UxGT("On");
-  LSTR MSG_LCD_OFF                        = _UxGT("Off");
-
-
   LSTR MSG_PID_AUTOTUNE                   = _UxGT("PID Autotune");
   LSTR MSG_PID_AUTOTUNE_E                 = _UxGT("Autotune * PID");
   LSTR MSG_JERK                           = _UxGT("Jerk");
