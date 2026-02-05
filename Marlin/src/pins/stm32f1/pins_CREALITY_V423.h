@@ -28,6 +28,8 @@
 #define BOARD_INFO_NAME      "Creality v4.2.3"
 #define DEFAULT_MACHINE_NAME "Creality3D"
 
+#define BOARD_LCD_SERIAL_PORT 2
+
 //
 // Heaters
 //

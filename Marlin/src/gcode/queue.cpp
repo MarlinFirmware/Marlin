@@ -191,8 +191,8 @@ bool GCodeQueue::process_injected_command() {
  * Enqueue and return only when commands are actually enqueued.
  * Never call this from a G-code handler!
  */
-void GCodeQueue::enqueue_one_now(const char * const cmd) { while (!enqueue_one(cmd)) idle(); }
-void GCodeQueue::enqueue_one_now(FSTR_P const fcmd) { while (!enqueue_one(fcmd)) idle(); }
+void GCodeQueue::enqueue_one_now(const char * const cmd) { while (!enqueue_one(cmd)) marlin.idle(); }
+void GCodeQueue::enqueue_one_now(FSTR_P const fcmd) { while (!enqueue_one(fcmd)) marlin.idle(); }
 
 /**
  * Attempt to enqueue a single G-code command
@@ -232,7 +232,7 @@ void GCodeQueue::enqueue_now_P(PGM_P const pgcode) {
  * Send an "ok" message to the host, indicating
  * that a command was successfully processed.
  *
- * If ADVANCED_OK is enabled also include:
+ * With ADVANCED_OK:
  *   N<int>  Line number of the command, if any
  *   P<int>  Planner space remaining
  *   B<int>  Block queue space remaining
@@ -426,7 +426,7 @@ void GCodeQueue::get_serial_commands() {
   // send "wait" to indicate Marlin is still waiting.
   #if NO_TIMEOUTS > 0
     const millis_t ms = millis();
-    if (ring_buffer.empty() && !any_serial_data_available() && ELAPSED(ms, last_command_time + NO_TIMEOUTS)) {
+    if (ring_buffer.empty() && !any_serial_data_available() && ELAPSED(ms, last_command_time, NO_TIMEOUTS)) {
       SERIAL_ECHOLNPGM(STR_WAIT);
       last_command_time = ms;
     }
@@ -520,7 +520,7 @@ void GCodeQueue::get_serial_commands() {
         // Movement commands give an alert when the machine is stopped
         //
 
-        if (IsStopped()) {
+        if (marlin.isStopped()) {
           char* gpos = strchr(command, 'G');
           if (gpos) {
             switch (strtol(gpos + 1, nullptr, 10)) {
@@ -535,14 +535,12 @@ void GCodeQueue::get_serial_commands() {
           }
         }
 
-        #if DISABLED(EMERGENCY_PARSER)
-          // Process critical commands early
-          if (command[0] == 'M') switch (command[3]) {
-            case '8': if (command[2] == '0' && command[1] == '1') { wait_for_heatup = false; TERN_(HAS_MARLINUI_MENU, wait_for_user = false); } break;
-            case '2': if (command[2] == '1' && command[1] == '1') kill(FPSTR(M112_KILL_STR), nullptr, true); break;
-            case '0': if (command[1] == '4' && command[2] == '1') quickstop_stepper(); break;
-          }
-        #endif
+        // Process critical commands early
+        if (command[0] == 'M') switch (command[3]) {
+          case '8': if (command[2] == '0' && command[1] == '1') { marlin.end_waiting(); } break;
+          case '2': if (command[2] == '1' && command[1] == '1') marlin.kill(FPSTR(M112_KILL_STR), nullptr, true); break;
+          case '0': if (command[1] == '4' && command[2] == '1') quickstop_stepper(); break;
+        }
 
         #if NO_TIMEOUTS > 0
           last_command_time = ms;
@@ -570,7 +568,7 @@ void GCodeQueue::get_serial_commands() {
     static uint8_t sd_input_state = PS_NORMAL;
 
     // Get commands if there are more in the file
-    if (!IS_SD_FETCHING()) return;
+    if (!card.isStillFetching()) return;
 
     int sd_count = 0;
     while (!ring_buffer.full() && !card.eof()) {

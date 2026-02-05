@@ -91,7 +91,7 @@
 #define SD_MOSI_PIN                           23
 #define SD_MISO_PIN                           19
 #define SD_SCK_PIN                            18
-#define SDSS                                   5
+#define SD_SS_PIN                              5
 #define USES_SHARED_SPI                           // SPI is shared by SD card with TMC SPI drivers
 
 #if HAS_TMC_UART
@@ -130,7 +130,6 @@
 //
 
 #if ANY(EDUTRONICS_12864OLED_SH1106, EDUTRONICS_12864OLED_SSD1306)
-  #define LCDSCREEN_NAME "EDUTRONICS 12864 OLED"
   #define BTN_EN2                              1
   #define BTN_EN1                              3
   #define BTN_ENC                              0

@@ -26,6 +26,14 @@
  *
  * LCD Menu Messages
  * See also https://marlinfw.org/docs/development/lcd_language.html
+ *
+ * Substitutions are applied for the following characters when used in menu items titles:
+ *
+ *   $ displays an inserted string
+ *   { displays  '0'....'10' for indexes 0 - 10
+ *   ~ displays  '1'....'11' for indexes 0 - 10
+ *   * displays 'E1'...'E11' for indexes 0 - 10 (By default. Uses LCD_FIRST_TOOL)
+ *   @ displays an axis name such as XYZUVW, or E for an extruder
  */
 
 namespace LanguageNarrow_de {
@@ -756,20 +764,21 @@ namespace LanguageNarrow_de {
   LSTR MSG_SHORT_DAY                      = _UxGT("t"); // One character only
   LSTR MSG_SHORT_HOUR                     = _UxGT("h"); // One character only
   LSTR MSG_SHORT_MINUTE                   = _UxGT("m"); // One character only
+
 }
 
 namespace LanguageWide_de {
   using namespace LanguageNarrow_de;
-  #if LCD_WIDTH >= 20 || HAS_DWIN_E3V2
-    LSTR MSG_MEDIA_NOT_INSERTED           = _UxGT("Kein Medium eingelegt.");      // ProUI
-    LSTR MSG_PLEASE_WAIT_REBOOT           = _UxGT("Bitte auf Neustart warten.");  // ProUI
-    LSTR MSG_PLEASE_PREHEAT               = _UxGT("Bitte das Hotend vorheizen."); // ProUI
-    LSTR MSG_INFO_PRINT_COUNT_RESET       = _UxGT("Druckzähler zurücksetzen");    // ProUI
-    LSTR MSG_INFO_PRINT_COUNT             = _UxGT("Gesamte Drucke");
-    LSTR MSG_INFO_COMPLETED_PRINTS        = _UxGT("Komplette Drucke");
-    LSTR MSG_INFO_PRINT_TIME              = _UxGT("Gesamte Druckzeit");
-    LSTR MSG_INFO_PRINT_LONGEST           = _UxGT("Längste Druckzeit");
-    LSTR MSG_INFO_PRINT_FILAMENT          = _UxGT("Gesamt Extrudiert");
+  #if LCD_WIDTH > 20 || HAS_DWIN_E3V2
+    LSTR MSG_INFO_PRINT_COUNT             = _UxGT("Gesamte Drucke");                           // Print Count
+    LSTR MSG_INFO_COMPLETED_PRINTS        = _UxGT("Komplette Drucke");                         // Completed
+    LSTR MSG_INFO_PRINT_TIME              = _UxGT("Gesamte Druckzeit");                        // Print Time
+    LSTR MSG_INFO_PRINT_LONGEST           = _UxGT("Längste Druckzeit");                        // Longest Job Time
+    LSTR MSG_INFO_PRINT_FILAMENT          = _UxGT("Gesamt Extrudiert");                        // Extruded Total
+    LSTR MSG_PLEASE_WAIT_REBOOT           = _UxGT("Bitte auf Neustart warten.");               // Please wait for reboot.
+    LSTR MSG_PLEASE_PREHEAT               = _UxGT("Bitte das Hotend vorheizen.");              // Please preheat the hot end.
+    LSTR MSG_MEDIA_NOT_INSERTED           = _UxGT("Kein Medium eingelegt.");                   // No media inserted.
+    LSTR MSG_INFO_PRINT_COUNT_RESET       = _UxGT("Druckzähler zurücksetzen");                 // Reset Print Count
   #endif
 }
 
@@ -777,17 +786,17 @@ namespace LanguageTall_de {
   using namespace LanguageWide_de;
   #if LCD_HEIGHT >= 4
     // Filament Change screens show up to 3 lines on a 4-line display
-    LSTR MSG_ADVANCED_PAUSE_WAITING       = _UxGT(MSG_2_LINE("Knopf drücken um", "Druck fortzusetzen"));
-    LSTR MSG_PAUSE_PRINT_PARKING          = _UxGT(MSG_2_LINE("Druck ist", "pausiert..."));
-    LSTR MSG_FILAMENT_CHANGE_INIT         = _UxGT(MSG_3_LINE("Warte auf den", "Start des", "Filamentwechsels..."));
-    LSTR MSG_FILAMENT_CHANGE_INSERT       = _UxGT(MSG_3_LINE("Filament einlegen", "und Knopf drücken", "um fortzusetzen"));
-    LSTR MSG_FILAMENT_CHANGE_HEAT         = _UxGT(MSG_2_LINE("Knopf drücken um", "Düse aufzuheizen"));
-    LSTR MSG_FILAMENT_CHANGE_HEATING      = _UxGT(MSG_2_LINE("Düse heizt auf", "bitte warten..."));
-    LSTR MSG_FILAMENT_CHANGE_UNLOAD       = _UxGT(MSG_3_LINE("Warte auf", "Entnahme", "des Filaments..."));
-    LSTR MSG_FILAMENT_CHANGE_LOAD         = _UxGT(MSG_3_LINE("Warte auf", "Laden des", "Filaments..."));
-    LSTR MSG_FILAMENT_CHANGE_PURGE        = _UxGT(MSG_3_LINE("Warte auf", "Spülung", "der Düse..."));
-    LSTR MSG_FILAMENT_CHANGE_CONT_PURGE   = _UxGT(MSG_3_LINE("Klicke um", "die Düsenspülung", "zu beenden"));
-    LSTR MSG_FILAMENT_CHANGE_RESUME       = _UxGT(MSG_3_LINE("Warte auf", "Fortsetzen des", "Drucks..."));
+    LSTR MSG_FILAMENT_CHANGE_INIT         = _UxGT(MSG_3_LINE("Warte auf den", "Start des", "Filamentwechsels...")); // |Wait for|filament change|to start
+    LSTR MSG_FILAMENT_CHANGE_INSERT       = _UxGT(MSG_3_LINE("Filament einlegen", "und Knopf drücken", "um fortzusetzen")); // |Insert filament|and press button|to continue
+    LSTR MSG_FILAMENT_CHANGE_UNLOAD       = _UxGT(MSG_3_LINE("Warte auf", "Entnahme", "des Filaments...")); // |Wait for|filament unload
+    LSTR MSG_FILAMENT_CHANGE_LOAD         = _UxGT(MSG_3_LINE("Warte auf", "Laden des", "Filaments...")); // |Wait for|filament load
+    LSTR MSG_FILAMENT_CHANGE_RESUME       = _UxGT(MSG_3_LINE("Warte auf", "Fortsetzen des", "Drucks...")); // |Wait for print|to resume...
+    LSTR MSG_FILAMENT_CHANGE_HEATING      = _UxGT(MSG_2_LINE("Düse heizt auf", "bitte warten...")); // |Nozzle heating|Please wait...
+    LSTR MSG_FILAMENT_CHANGE_HEAT         = _UxGT(MSG_2_LINE("Knopf drücken um", "Düse aufzuheizen")); // |Press button|to heat nozzle
+    LSTR MSG_ADVANCED_PAUSE_WAITING       = _UxGT(MSG_2_LINE("Knopf drücken um", "Druck fortzusetzen")); // |Press Button|to resume print
+    LSTR MSG_PAUSE_PRINT_PARKING          = _UxGT(MSG_2_LINE("Druck ist", "pausiert..."));     // |Parking...
+    LSTR MSG_FILAMENT_CHANGE_PURGE        = _UxGT(MSG_3_LINE("Warte auf", "Spülung", "der Düse...")); // |Wait for|filament purge
+    LSTR MSG_FILAMENT_CHANGE_CONT_PURGE   = _UxGT(MSG_3_LINE("Klicke um", "die Düsenspülung", "zu beenden")); // |Click to finish|filament purge
   #endif
 }
 

@@ -188,7 +188,7 @@ void GCodeParser::parse(char *p) {
 
       // Bail if there's no command code number
       if (!TERN(SIGNED_CODENUM, NUMERIC_SIGNED(*p), NUMERIC(*p))) {
-        if (TERN0(HAS_MULTI_EXTRUDER, letter == 'T')) {
+        if (E_TERN0(letter == 'T')) {
           p[0] = '*'; p[1] = '\0'; string_arg = p; // Convert 'T' alone into 'T*'
           command_letter = letter;
         }
@@ -273,7 +273,7 @@ void GCodeParser::parse(char *p) {
   // Only use string_arg for these M codes
   if (letter == 'M') switch (codenum) {
     TERN_(EXPECTED_PRINTER_CHECK, case 16:)
-    TERN_(SDSUPPORT, case 23: case 28: case 30: case 928:)
+    TERN_(HAS_MEDIA, case 23: case 28: case 30: case 928:)
     TERN_(HAS_STATUS_MESSAGE, case 117:)
     TERN_(HAS_RS485_SERIAL, case 485:)
     TERN_(GCODE_MACROS, case 810 ... 819:)
@@ -348,7 +348,7 @@ void GCodeParser::parse(char *p) {
       if (!has_val && !string_arg) {            // No value? First time, keep as string_arg
         string_arg = p - 1;
         #if ENABLED(DEBUG_GCODE_PARSER)
-          if (debug) SERIAL_ECHOPGM(" string_arg: ", hex_address((void*)string_arg)); // DEBUG
+          if (debug) SERIAL_ECHOPGM(" string_arg: ", hex_address(string_arg)); // DEBUG
         #endif
       }
 
@@ -359,7 +359,7 @@ void GCodeParser::parse(char *p) {
     else if (!string_arg) {                     // Not A-Z? First time, keep as the string_arg
       string_arg = p - 1;
       #if ENABLED(DEBUG_GCODE_PARSER)
-        if (debug) SERIAL_ECHOPGM(" string_arg: ", hex_address((void*)string_arg)); // DEBUG
+        if (debug) SERIAL_ECHOPGM(" string_arg: ", hex_address(string_arg)); // DEBUG
       #endif
     }
 

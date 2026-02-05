@@ -24,13 +24,21 @@
 /**
  * Hungarian / Magyar
  *
- * LCD Menu Messages. See also https://marlinfw.org/docs/development/lcd_language.html
+ * LCD Menu Messages
+ * See also https://marlinfw.org/docs/development/lcd_language.html
+ *
+ * Substitutions are applied for the following characters when used in menu items titles:
+ *
+ *   $ displays an inserted string
+ *   { displays  '0'....'10' for indexes 0 - 10
+ *   ~ displays  '1'....'11' for indexes 0 - 10
+ *   * displays 'E1'...'E11' for indexes 0 - 10 (By default. Uses LCD_FIRST_TOOL)
+ *   @ displays an axis name such as XYZUVW, or E for an extruder
+ */
+
+/**
  * Hungarian translation by AntoszHUN. I am constantly improving and updating the translation.
  * Translation last updated: 08/30/2021 - 22:20
- *
- * LCD Menü Üzenetek. Lásd még https://marlinfw.org/docs/development/lcd_language.html
- * A Magyar fordítást készítette: AntoszHUN. A fordítást folyamatosan javítom és frissítem.
- * A Fordítás utolsó frissítése: 2021.08.30. - 22:20
  */
 
 namespace LanguageNarrow_hu {
@@ -660,16 +668,17 @@ namespace LanguageNarrow_hu {
   LSTR MSG_SHORT_DAY                      = _UxGT("n"); // Csak egy karakter
   LSTR MSG_SHORT_HOUR                     = _UxGT("ó"); // Csak egy karakter
   LSTR MSG_SHORT_MINUTE                   = _UxGT("p"); // Csak egy karakter
+
 }
 
 namespace LanguageWide_hu {
   using namespace LanguageNarrow_hu;
-  #if LCD_WIDTH >= 20 || HAS_DWIN_E3V2
-    LSTR MSG_INFO_PRINT_COUNT             = _UxGT("Nyomtatás számláló");
-    LSTR MSG_INFO_COMPLETED_PRINTS        = _UxGT("Befejezett");
-    LSTR MSG_INFO_PRINT_TIME              = _UxGT("Összes nyomtatási idö");
-    LSTR MSG_INFO_PRINT_LONGEST           = _UxGT("Leghosszabb munkaidö");
-    LSTR MSG_INFO_PRINT_FILAMENT          = _UxGT("Összes anyag");
+  #if LCD_WIDTH > 20 || HAS_DWIN_E3V2
+    LSTR MSG_INFO_PRINT_COUNT             = _UxGT("Nyomtatás számláló");                       // Print Count
+    LSTR MSG_INFO_COMPLETED_PRINTS        = _UxGT("Befejezett");                               // Completed
+    LSTR MSG_INFO_PRINT_TIME              = _UxGT("Összes nyomtatási idö");                    // Print Time
+    LSTR MSG_INFO_PRINT_LONGEST           = _UxGT("Leghosszabb munkaidö");                     // Longest Job Time
+    LSTR MSG_INFO_PRINT_FILAMENT          = _UxGT("Összes anyag");                             // Extruded Total
   #endif
 }
 
@@ -677,16 +686,16 @@ namespace LanguageTall_hu {
   using namespace LanguageWide_hu;
   #if LCD_HEIGHT >= 4
     // Filament Change screens show up to 3 lines on a 4-line display
-    LSTR MSG_ADVANCED_PAUSE_WAITING       = _UxGT(MSG_2_LINE("Nyomj gombot", "nyomtatás folytatáshoz"));
-    LSTR MSG_FILAMENT_CHANGE_INIT         = _UxGT(MSG_3_LINE("Várj míg", "szálcsere", "indítás"));
-    LSTR MSG_FILAMENT_CHANGE_INSERT       = _UxGT(MSG_3_LINE("Szál behelyezés", "majd nyomj gombot", "a folytatáshoz"));
-    LSTR MSG_FILAMENT_CHANGE_HEAT         = _UxGT(MSG_2_LINE("Nyomj gombot", "a fej fütéséhez"));
-    LSTR MSG_FILAMENT_CHANGE_HEATING      = _UxGT(MSG_2_LINE("Fej fütése", "Kérlek várj..."));
-    LSTR MSG_FILAMENT_CHANGE_UNLOAD       = _UxGT(MSG_2_LINE("Várj a", "szál kiadására"));
-    LSTR MSG_FILAMENT_CHANGE_LOAD         = _UxGT(MSG_2_LINE("Várj a", "szál betöltésére"));
-    LSTR MSG_FILAMENT_CHANGE_PURGE        = _UxGT(MSG_2_LINE("Várj a", "szál tisztításra"));
-    LSTR MSG_FILAMENT_CHANGE_CONT_PURGE   = _UxGT(MSG_2_LINE("Kattints a készre", "szál tiszta"));
-    LSTR MSG_FILAMENT_CHANGE_RESUME       = _UxGT(MSG_2_LINE("Várj a nyomtatóra", "majd folytat..."));
+    LSTR MSG_FILAMENT_CHANGE_INIT         = _UxGT(MSG_3_LINE("Várj míg", "szálcsere", "indítás")); // |Wait for|filament change|to start
+    LSTR MSG_FILAMENT_CHANGE_INSERT       = _UxGT(MSG_3_LINE("Szál behelyezés", "majd nyomj gombot", "a folytatáshoz")); // |Insert filament|and press button|to continue
+    LSTR MSG_FILAMENT_CHANGE_UNLOAD       = _UxGT(MSG_2_LINE("Várj a", "szál kiadására"));     // |Wait for|filament unload
+    LSTR MSG_FILAMENT_CHANGE_LOAD         = _UxGT(MSG_2_LINE("Várj a", "szál betöltésére"));   // |Wait for|filament load
+    LSTR MSG_FILAMENT_CHANGE_RESUME       = _UxGT(MSG_2_LINE("Várj a nyomtatóra", "majd folytat...")); // |Wait for print|to resume...
+    LSTR MSG_FILAMENT_CHANGE_HEATING      = _UxGT(MSG_2_LINE("Fej fütése", "Kérlek várj...")); // |Nozzle heating|Please wait...
+    LSTR MSG_FILAMENT_CHANGE_HEAT         = _UxGT(MSG_2_LINE("Nyomj gombot", "a fej fütéséhez")); // |Press button|to heat nozzle
+    LSTR MSG_ADVANCED_PAUSE_WAITING       = _UxGT(MSG_2_LINE("Nyomj gombot", "nyomtatás folytatáshoz")); // |Press Button|to resume print
+    LSTR MSG_FILAMENT_CHANGE_PURGE        = _UxGT(MSG_2_LINE("Várj a", "szál tisztításra"));   // |Wait for|filament purge
+    LSTR MSG_FILAMENT_CHANGE_CONT_PURGE   = _UxGT(MSG_2_LINE("Kattints a készre", "szál tiszta")); // |Click to finish|filament purge
   #endif
 }
 

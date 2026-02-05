@@ -190,7 +190,7 @@ void ChangeFilamentScreen::onRedraw(draw_mode_t what) {
        .text(TEXT_POS(E0_TEMP_POS), e0_str)
        .colors(normal_btn);
 
-    if DISABLED(HAS_MULTI_HOTEND) {
+    if (DISABLED(HAS_MULTI_HOTEND)) {
       cmd.font(font_small).cmd(COLOR_RGB(gray_color_1));
     }
     else if (getTargetTemp_celsius(H1) > 0) {

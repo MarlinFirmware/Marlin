@@ -23,12 +23,10 @@
 
 /**
  * Slovak
- * UTF-8 for Graphical Display
  *
  * LCD Menu Messages
  * See also https://marlinfw.org/docs/development/lcd_language.html
  *
- * Translated by Michal Holeš, Farma MaM
  * https://www.facebook.com/farmamam
  *
  * Substitutions are applied for the following characters when used in menu items titles:
@@ -39,6 +37,12 @@
  *   * displays 'E1'...'E11' for indexes 0 - 10 (By default. Uses LCD_FIRST_TOOL)
  *   @ displays an axis name such as XYZUVW, or E for an extruder
  */
+
+/**
+ * Translated by Michal Holeš, Farma MaM
+ * https://www.facebook.com/farmamam
+ */
+
 #define DISPLAY_CHARSET_ISO10646_SK
 
 namespace LanguageNarrow_sk {
@@ -796,26 +800,27 @@ namespace LanguageNarrow_sk {
   LSTR MSG_USB_DISK                       = _UxGT("USB disk");
 
   LSTR MSG_HOST_SHUTDOWN                  = _UxGT("Vypnúť hosta");
+
 }
 
 namespace LanguageWide_sk {
   using namespace LanguageNarrow_sk;
-  #if LCD_WIDTH >= 20 || HAS_DWIN_E3V2
-    LSTR MSG_HOST_START_PRINT             = _UxGT("Spustiť z hosta");
-    LSTR MSG_PRINTING_OBJECT              = _UxGT("Tlačím objekt");
-    LSTR MSG_CANCEL_OBJECT                = _UxGT("Zrušiť objekt");
-    LSTR MSG_CANCEL_OBJECT_N              = _UxGT("Zrušiť objekt {");
-    LSTR MSG_CONTINUE_PRINT_JOB           = _UxGT("Pokračovať v úlohe");
-    LSTR MSG_MEDIA_MENU                   = _UxGT("Vytlačiť z karty");
-    LSTR MSG_TURN_OFF                     = _UxGT("Vypnite tlačiareň");
-    LSTR MSG_END_LOOPS                    = _UxGT("Ukončiť opak. sluč.");
-    LSTR MSG_MEDIA_NOT_INSERTED           = _UxGT("Nie je vložená karta.");   // ProUI
-    LSTR MSG_PLEASE_PREHEAT               = _UxGT("Prosím zahrejte hotend."); // ProUI
-    LSTR MSG_INFO_PRINT_COUNT_RESET       = _UxGT("Vynulovať počítadlo");     // ProUI
-    LSTR MSG_INFO_PRINT_COUNT             = _UxGT("Počet tlačí");
-    LSTR MSG_INFO_PRINT_TIME              = _UxGT("Celkový čas");
-    LSTR MSG_INFO_PRINT_LONGEST           = _UxGT("Najdlhšia tlač");
-    LSTR MSG_INFO_PRINT_FILAMENT          = _UxGT("Celkom vytlačené");
+  #if LCD_WIDTH > 20 || HAS_DWIN_E3V2
+    LSTR MSG_MEDIA_MENU                   = _UxGT("Vytlačiť z karty");                         // Select from (MEDIA_TYPE_EN)
+    LSTR MSG_INFO_PRINT_COUNT             = _UxGT("Počet tlačí");                              // Print Count
+    LSTR MSG_INFO_PRINT_TIME              = _UxGT("Celkový čas");                              // Print Time
+    LSTR MSG_INFO_PRINT_LONGEST           = _UxGT("Najdlhšia tlač");                           // Longest Job Time
+    LSTR MSG_INFO_PRINT_FILAMENT          = _UxGT("Celkom vytlačené");                         // Extruded Total
+    LSTR MSG_PRINTING_OBJECT              = _UxGT("Tlačím objekt");                            // Printing Object
+    LSTR MSG_CANCEL_OBJECT                = _UxGT("Zrušiť objekt");                            // Cancel Object
+    LSTR MSG_CANCEL_OBJECT_N              = _UxGT("Zrušiť objekt {");                          // Cancel Object {
+    LSTR MSG_HOST_START_PRINT             = _UxGT("Spustiť z hosta");                          // Start Host Print
+    LSTR MSG_END_LOOPS                    = _UxGT("Ukončiť opak. sluč.");                      // End Repeat Loops
+    LSTR MSG_CONTINUE_PRINT_JOB           = _UxGT("Pokračovať v úlohe");                       // Continue Print Job
+    LSTR MSG_TURN_OFF                     = _UxGT("Vypnite tlačiareň");                        // Turn off the printer
+    LSTR MSG_PLEASE_PREHEAT               = _UxGT("Prosím zahrejte hotend.");                  // Please preheat the hot end.
+    LSTR MSG_MEDIA_NOT_INSERTED           = _UxGT("Nie je vložená karta.");                    // No media inserted.
+    LSTR MSG_INFO_PRINT_COUNT_RESET       = _UxGT("Vynulovať počítadlo");                      // Reset Print Count
   #endif
 }
 
@@ -823,17 +828,17 @@ namespace LanguageTall_sk {
   using namespace LanguageWide_sk;
   #if LCD_HEIGHT >= 4
     // Filament Change screens show up to 3 lines on a 4-line display
-    LSTR MSG_ADVANCED_PAUSE_WAITING       = _UxGT(MSG_2_LINE("Stlačte tlačidlo", "pre obnovu tlače"));
-    LSTR MSG_PAUSE_PRINT_PARKING          = _UxGT(MSG_1_LINE("Parkovanie..."));
-    LSTR MSG_FILAMENT_CHANGE_INIT         = _UxGT(MSG_3_LINE("Čakajte prosím", "na spustenie", "výmeny filamentu"));
-    LSTR MSG_FILAMENT_CHANGE_INSERT       = _UxGT(MSG_3_LINE("Vložte filament", "a stlačte tlačidlo", "pre pokračovanie"));
-    LSTR MSG_FILAMENT_CHANGE_HEAT         = _UxGT(MSG_2_LINE("Stlačte tlačidlo", "pre ohrev trysky"));
-    LSTR MSG_FILAMENT_CHANGE_HEATING      = _UxGT(MSG_2_LINE("Ohrev trysky", "Čakajte prosím..."));
-    LSTR MSG_FILAMENT_CHANGE_UNLOAD       = _UxGT(MSG_3_LINE("Čakajte prosím", "na vysunutie", "filamentu"));
-    LSTR MSG_FILAMENT_CHANGE_LOAD         = _UxGT(MSG_3_LINE("Čakajte prosím", "na zavedenie", "filamentu"));
-    LSTR MSG_FILAMENT_CHANGE_PURGE        = _UxGT(MSG_3_LINE("Čakajte prosím", "na vytlačenie", "filamentu"));
-    LSTR MSG_FILAMENT_CHANGE_CONT_PURGE   = _UxGT(MSG_3_LINE("Stlačte tlačidlo", "pre dokončenie", "vytláčania filam."));
-    LSTR MSG_FILAMENT_CHANGE_RESUME       = _UxGT(MSG_2_LINE("Čakajte prosím na", "obnovenie tlače..."));
+    LSTR MSG_FILAMENT_CHANGE_INIT         = _UxGT(MSG_3_LINE("Čakajte prosím", "na spustenie", "výmeny filamentu")); // |Wait for|filament change|to start
+    LSTR MSG_FILAMENT_CHANGE_INSERT       = _UxGT(MSG_3_LINE("Vložte filament", "a stlačte tlačidlo", "pre pokračovanie")); // |Insert filament|and press button|to continue
+    LSTR MSG_FILAMENT_CHANGE_UNLOAD       = _UxGT(MSG_3_LINE("Čakajte prosím", "na vysunutie", "filamentu")); // |Wait for|filament unload
+    LSTR MSG_FILAMENT_CHANGE_LOAD         = _UxGT(MSG_3_LINE("Čakajte prosím", "na zavedenie", "filamentu")); // |Wait for|filament load
+    LSTR MSG_FILAMENT_CHANGE_RESUME       = _UxGT(MSG_2_LINE("Čakajte prosím na", "obnovenie tlače...")); // |Wait for print|to resume...
+    LSTR MSG_FILAMENT_CHANGE_HEATING      = _UxGT(MSG_2_LINE("Ohrev trysky", "Čakajte prosím...")); // |Nozzle heating|Please wait...
+    LSTR MSG_FILAMENT_CHANGE_HEAT         = _UxGT(MSG_2_LINE("Stlačte tlačidlo", "pre ohrev trysky")); // |Press button|to heat nozzle
+    LSTR MSG_ADVANCED_PAUSE_WAITING       = _UxGT(MSG_2_LINE("Stlačte tlačidlo", "pre obnovu tlače")); // |Press Button|to resume print
+    LSTR MSG_PAUSE_PRINT_PARKING          = _UxGT(MSG_1_LINE("Parkovanie..."));                // |Parking...
+    LSTR MSG_FILAMENT_CHANGE_PURGE        = _UxGT(MSG_3_LINE("Čakajte prosím", "na vytlačenie", "filamentu")); // |Wait for|filament purge
+    LSTR MSG_FILAMENT_CHANGE_CONT_PURGE   = _UxGT(MSG_3_LINE("Stlačte tlačidlo", "pre dokončenie", "vytláčania filam.")); // |Click to finish|filament purge
   #endif
 }
 

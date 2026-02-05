@@ -220,7 +220,7 @@ void StatusScreen::draw_temperature(draw_mode_t what) {
     }
     cmd.tag(5).font(font_medium).button(TEXT_POS(FAN_POS), fan_str);
 
-    if DISABLED(HAS_MULTI_HOTEND) {
+    if (DISABLED(HAS_MULTI_HOTEND)) {
       cmd.font(font_xsmall).fgcolor(gray_color_1);
     }
     else if (getTargetTemp_celsius(H1) > 0) {
@@ -588,8 +588,10 @@ bool StatusScreen::onTouchEnd(uint8_t tag) {
 }
 
 void StatusScreen::onMediaMounted() {
-  if (AT_SCREEN(StatusScreen))
-    setStatusMessage(GET_TEXT_F(MSG_MEDIA_INSERTED));
+  if (!AT_SCREEN(StatusScreen)) return;
+  setStatusMessage(ExtUI::isMediaMountedSD()  ? GET_TEXT_F(MSG_MEDIA_INSERTED_SD) :
+                   ExtUI::isMediaMountedUSB() ? GET_TEXT_F(MSG_MEDIA_INSERTED_USB) :
+                                                GET_TEXT_F(MSG_MEDIA_INSERTED));
 }
 
 void StatusScreen::onMediaRemoved() {

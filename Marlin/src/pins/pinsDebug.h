@@ -163,7 +163,7 @@ const PinInfo pin_array[] PROGMEM = {
   #endif
 
   #include "pinsDebug_list.h"
-  #line 168
+  #line 167
 
 };
 
@@ -172,8 +172,6 @@ const PinInfo pin_array[] PROGMEM = {
 #ifndef M43_NEVER_TOUCH
   #define M43_NEVER_TOUCH(Q) false
 #endif
-
-bool pin_is_protected(const pin_t pin);
 
 static void printPinIOState(const bool isout) {
   SERIAL_ECHO(isout ? F("Output ") : F("Input  "));
@@ -191,14 +189,14 @@ inline void printPinStateExt(const pin_t pin, const bool ignore, const bool exte
   auto alt_pin_echo = [](const pin_t &pin) {
     #if AVR_AT90USB1286_FAMILY
       // Use FastIO for pins Teensy doesn't expose
-      if (pin == 46) {
-        printPinIOState(IS_OUTPUT(46));
-        printPinState(READ(46));
+      if (pin == PIN_E2) {
+        printPinIOState(IS_OUTPUT(PIN_E2));
+        printPinState(READ(PIN_E2));
         return false;
       }
-      else if (pin == 47) {
-        printPinIOState(IS_OUTPUT(47));
-        printPinState(READ(47));
+      else if (pin == PIN_E3) {
+        printPinIOState(IS_OUTPUT(PIN_E3));
+        printPinState(READ(PIN_E3));
         return false;
       }
     #endif
@@ -221,7 +219,7 @@ inline void printPinStateExt(const pin_t pin, const bool ignore, const bool exte
       }
       printPinNameByIndex(x);
       if (extended) {
-        if (pin_is_protected(pin) && !ignore)
+        if (marlin.pin_is_protected(pin) && !ignore)
           SERIAL_ECHOPGM("protected ");
         else {
           if (alt_pin_echo(pin)) {

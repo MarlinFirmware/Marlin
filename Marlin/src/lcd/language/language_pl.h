@@ -22,7 +22,7 @@
 #pragma once
 
 /**
- * Polish - includes accented characters
+ * Polish
  *
  * LCD Menu Messages
  * See also https://marlinfw.org/docs/development/lcd_language.html
@@ -510,16 +510,17 @@ namespace LanguageNarrow_pl {
   LSTR MSG_CALIBRATION_COMPLETED          = _UxGT("Kalibracja zakończona");
   LSTR MSG_CALIBRATION_FAILED             = _UxGT("Kalibracja nie powiodła się");
 
+
 }
 
 namespace LanguageWide_pl {
   using namespace LanguageNarrow_pl;
-  #if LCD_WIDTH >= 20 || HAS_DWIN_E3V2
-    LSTR MSG_INFO_PRINT_COUNT             = _UxGT("Wydrukowano");
-    LSTR MSG_INFO_COMPLETED_PRINTS        = _UxGT("Ukończono");
-    LSTR MSG_INFO_PRINT_TIME              = _UxGT("Czas druku");
-    LSTR MSG_INFO_PRINT_LONGEST           = _UxGT("Najdł. druk");
-    LSTR MSG_INFO_PRINT_FILAMENT          = _UxGT("Użyty fil.");
+  #if LCD_WIDTH > 20 || HAS_DWIN_E3V2
+    LSTR MSG_INFO_PRINT_COUNT             = _UxGT("Wydrukowano");                              // Print Count
+    LSTR MSG_INFO_COMPLETED_PRINTS        = _UxGT("Ukończono");                                // Completed
+    LSTR MSG_INFO_PRINT_TIME              = _UxGT("Czas druku");                               // Print Time
+    LSTR MSG_INFO_PRINT_LONGEST           = _UxGT("Najdł. druk");                              // Longest Job Time
+    LSTR MSG_INFO_PRINT_FILAMENT          = _UxGT("Użyty fil.");                               // Extruded Total
   #endif
 }
 
@@ -527,16 +528,16 @@ namespace LanguageTall_pl {
   using namespace LanguageWide_pl;
   #if LCD_HEIGHT >= 4
     // Filament Change screens show up to 3 lines on a 4-line display
-    LSTR MSG_ADVANCED_PAUSE_WAITING       = _UxGT(MSG_2_LINE("Nacisnik przycisk", "by wznowić drukowanie"));
-    LSTR MSG_FILAMENT_CHANGE_INIT         = _UxGT(MSG_3_LINE("Czekam na", "zmianę filamentu", "by wystartować"));
-    LSTR MSG_FILAMENT_CHANGE_INSERT       = _UxGT(MSG_3_LINE("Włóż filament", "i naciśnij przycisk", "by kontynuować"));
-    LSTR MSG_FILAMENT_CHANGE_HEAT         = _UxGT(MSG_2_LINE("Naciśnij przycisk", "by nagrzać dyszę"));
-    LSTR MSG_FILAMENT_CHANGE_HEATING      = _UxGT(MSG_2_LINE("Nagrzewanie dyszy", "Proszę czekać..."));
-    LSTR MSG_FILAMENT_CHANGE_UNLOAD       = _UxGT(MSG_2_LINE("Czekam na", "wyjęcie filamentu"));
-    LSTR MSG_FILAMENT_CHANGE_LOAD         = _UxGT(MSG_2_LINE("Czekam na", "włożenie filamentu"));
-    LSTR MSG_FILAMENT_CHANGE_PURGE        = _UxGT(MSG_2_LINE("Czekam na", "oczyszczenie filamentu"));
-    LSTR MSG_FILAMENT_CHANGE_CONT_PURGE   = _UxGT(MSG_2_LINE("Kliknij by zakończyć", "oczyszczanie filamentu"));
-    LSTR MSG_FILAMENT_CHANGE_RESUME       = _UxGT(MSG_2_LINE("Czekam na", "wznowienie wydruku..."));
+    LSTR MSG_FILAMENT_CHANGE_INIT         = _UxGT(MSG_3_LINE("Czekam na", "zmianę filamentu", "by wystartować")); // |Wait for|filament change|to start
+    LSTR MSG_FILAMENT_CHANGE_INSERT       = _UxGT(MSG_3_LINE("Włóż filament", "i naciśnij przycisk", "by kontynuować")); // |Insert filament|and press button|to continue
+    LSTR MSG_FILAMENT_CHANGE_UNLOAD       = _UxGT(MSG_2_LINE("Czekam na", "wyjęcie filamentu")); // |Wait for|filament unload
+    LSTR MSG_FILAMENT_CHANGE_LOAD         = _UxGT(MSG_2_LINE("Czekam na", "włożenie filamentu")); // |Wait for|filament load
+    LSTR MSG_FILAMENT_CHANGE_RESUME       = _UxGT(MSG_2_LINE("Czekam na", "wznowienie wydruku...")); // |Wait for print|to resume...
+    LSTR MSG_FILAMENT_CHANGE_HEATING      = _UxGT(MSG_2_LINE("Nagrzewanie dyszy", "Proszę czekać...")); // |Nozzle heating|Please wait...
+    LSTR MSG_FILAMENT_CHANGE_HEAT         = _UxGT(MSG_2_LINE("Naciśnij przycisk", "by nagrzać dyszę")); // |Press button|to heat nozzle
+    LSTR MSG_ADVANCED_PAUSE_WAITING       = _UxGT(MSG_2_LINE("Nacisnik przycisk", "by wznowić drukowanie")); // |Press Button|to resume print
+    LSTR MSG_FILAMENT_CHANGE_PURGE        = _UxGT(MSG_2_LINE("Czekam na", "oczyszczenie filamentu")); // |Wait for|filament purge
+    LSTR MSG_FILAMENT_CHANGE_CONT_PURGE   = _UxGT(MSG_2_LINE("Kliknij by zakończyć", "oczyszczanie filamentu")); // |Click to finish|filament purge
   #endif
 }
 

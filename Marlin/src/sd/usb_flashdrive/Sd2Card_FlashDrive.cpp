@@ -30,7 +30,7 @@
  *    3 - perform block range checking
  *    4 - print each block access
  */
-#define USB_DEBUG         1
+#define USB_DEBUG         TERN(MARLIN_DEV_MODE, 1, 0)
 #define USB_STARTUP_DELAY 0
 
 // uncomment to get 'printf' console debugging. NOT FOR UNO!
@@ -38,14 +38,14 @@
 //#define BS_HOST_DEBUG(...)  {char s[255]; sprintf(s,__VA_ARGS__); SERIAL_ECHOLNPGM("UHS:",s);}
 //#define MAX_HOST_DEBUG(...) {char s[255]; sprintf(s,__VA_ARGS__); SERIAL_ECHOLNPGM("UHS:",s);}
 
-#if ENABLED(USB_FLASH_DRIVE_SUPPORT)
+#if HAS_USB_FLASH_DRIVE
 
 #include "../../MarlinCore.h"
 #include "../../core/serial.h"
 #include "../../module/temperature.h"
 
 #if DISABLED(USE_OTG_USB_HOST) && !PINS_EXIST(USB_CS, USB_INTR)
-  #error "USB_FLASH_DRIVE_SUPPORT requires USB_CS_PIN and USB_INTR_PIN to be defined."
+  #error "USB_FLASH_DRIVE_SUPPORT requires USB_CS_PIN and USB_INTR_PIN (or USE_OTG_USB_HOST) to be defined."
 #endif
 
 #if ENABLED(USE_UHS3_USB)
@@ -84,10 +84,10 @@
 #elif ENABLED(USE_OTG_USB_HOST)
 
   #if HAS_SD_HOST_DRIVE
-    #include HAL_PATH(../.., msc_sd.h)
+    #include HAL_PATH(../.., sd/msc_sd.h)
   #endif
 
-  #include HAL_PATH(../.., usb_host.h)
+  #include HAL_PATH(../.., sd/usb_host.h)
 
   #define UHS_START usb.start()
   #define rREVISION 0
@@ -128,7 +128,7 @@ bool DiskIODriver_USBFlash::usbStartup() {
     SERIAL_ECHOPGM("Starting USB host...");
     if (!UHS_START) {
       SERIAL_ECHOLNPGM(" failed.");
-      LCD_MESSAGE(MSG_MEDIA_USB_FAILED);
+      LCD_MESSAGE(MSG_USB_FD_USB_FAILED);
       return false;
     }
 
@@ -179,82 +179,82 @@ void DiskIODriver_USBFlash::idle() {
     }
   #endif
 
-  static millis_t next_state_ms = millis();
+  static millis_t next_state_ms = 0;
 
   #define GOTO_STATE_AFTER_DELAY(STATE, DELAY) do{ state = STATE; next_state_ms  = millis() + DELAY; }while(0)
 
-  if (ELAPSED(millis(), next_state_ms)) {
-    GOTO_STATE_AFTER_DELAY(state, 250); // Default delay
+  if (PENDING(millis(), next_state_ms)) return;
 
-    switch (state) {
+  GOTO_STATE_AFTER_DELAY(state, 250); // Default delay
 
-      case UNINITIALIZED:
-        #ifndef MANUAL_USB_STARTUP
-          GOTO_STATE_AFTER_DELAY( DO_STARTUP, USB_STARTUP_DELAY );
+  switch (state) {
+
+    case UNINITIALIZED:
+      #ifndef MANUAL_USB_STARTUP
+        GOTO_STATE_AFTER_DELAY( DO_STARTUP, USB_STARTUP_DELAY );
+      #endif
+      break;
+
+    case DO_STARTUP: usbStartup(); break;
+
+    case WAIT_FOR_DEVICE:
+      if (task_state == UHS_STATE(RUNNING)) {
+        #if USB_DEBUG >= 1
+          SERIAL_ECHOLNPGM("USB device inserted");
         #endif
-        break;
+        GOTO_STATE_AFTER_DELAY( WAIT_FOR_LUN, 250 );
+      }
+      break;
 
-      case DO_STARTUP: usbStartup(); break;
+    case WAIT_FOR_LUN:
+      /* USB device is inserted, but if it is an SD card,
+       * adapter it may not have an SD card in it yet. */
+      if (bulk.LUNIsGood(0)) {
+        #if USB_DEBUG >= 1
+          SERIAL_ECHOLNPGM("LUN is good");
+        #endif
+        GOTO_STATE_AFTER_DELAY( MEDIA_READY, 100 );
+      }
+      else {
+        #ifdef USB_HOST_MANUAL_POLL
+          // Make sure we catch disconnect events
+          usb.busprobe();
+          usb.VBUS_changed();
+        #endif
+        #if USB_DEBUG >= 1
+          SERIAL_ECHOLNPGM("Waiting for media");
+          LCD_MESSAGE(MSG_USB_FD_WAITING_FOR_MEDIA);
+        #endif
+        GOTO_STATE_AFTER_DELAY(state, 2000);
+      }
+      break;
 
-      case WAIT_FOR_DEVICE:
-        if (task_state == UHS_STATE(RUNNING)) {
-          #if USB_DEBUG >= 1
-            SERIAL_ECHOLNPGM("USB device inserted");
-          #endif
-          GOTO_STATE_AFTER_DELAY( WAIT_FOR_LUN, 250 );
-        }
-        break;
+    case MEDIA_READY: break;
+    case MEDIA_ERROR: break;
+  }
 
-      case WAIT_FOR_LUN:
-        /* USB device is inserted, but if it is an SD card,
-         * adapter it may not have an SD card in it yet. */
-        if (bulk.LUNIsGood(0)) {
-          #if USB_DEBUG >= 1
-            SERIAL_ECHOLNPGM("LUN is good");
-          #endif
-          GOTO_STATE_AFTER_DELAY( MEDIA_READY, 100 );
-        }
-        else {
-          #ifdef USB_HOST_MANUAL_POLL
-            // Make sure we catch disconnect events
-            usb.busprobe();
-            usb.VBUS_changed();
-          #endif
-          #if USB_DEBUG >= 1
-            SERIAL_ECHOLNPGM("Waiting for media");
-          #endif
-          LCD_MESSAGE(MSG_MEDIA_WAITING);
-          GOTO_STATE_AFTER_DELAY(state, 2000);
-        }
-        break;
-
-      case MEDIA_READY: break;
-      case MEDIA_ERROR: break;
-    }
-
-    if (state > WAIT_FOR_DEVICE && task_state != UHS_STATE(RUNNING)) {
-      // Handle device removal events
-      #if USB_DEBUG >= 1
-        SERIAL_ECHOLNPGM("USB device removed");
-      #endif
+  if (state > WAIT_FOR_DEVICE && task_state != UHS_STATE(RUNNING)) {
+    // Handle device removal events
+    #if USB_DEBUG >= 1
+      SERIAL_ECHOLNPGM("USB device removed");
       if (state != MEDIA_READY)
-        LCD_MESSAGE(MSG_MEDIA_USB_REMOVED);
-      GOTO_STATE_AFTER_DELAY(WAIT_FOR_DEVICE, 0);
-    }
+        LCD_MESSAGE(MSG_USB_FD_DEVICE_REMOVED);
+    #endif
+    GOTO_STATE_AFTER_DELAY(WAIT_FOR_DEVICE, 0);
+  }
 
-    else if (state > WAIT_FOR_LUN && !bulk.LUNIsGood(0)) {
-      // Handle media removal events
-      #if USB_DEBUG >= 1
-        SERIAL_ECHOLNPGM("Media removed");
-      #endif
-      LCD_MESSAGE(MSG_MEDIA_REMOVED);
-      GOTO_STATE_AFTER_DELAY(WAIT_FOR_DEVICE, 0);
-    }
+  else if (state > WAIT_FOR_LUN && !bulk.LUNIsGood(0)) {
+    // Handle media removal events
+    #if USB_DEBUG >= 1
+      SERIAL_ECHOLNPGM("Media removed");
+      LCD_MESSAGE(MSG_USB_FD_MEDIA_REMOVED);
+    #endif
+    GOTO_STATE_AFTER_DELAY(WAIT_FOR_DEVICE, 0);
+  }
 
-    else if (task_state == UHS_STATE(ERROR)) {
-      LCD_MESSAGE(MSG_MEDIA_READ_ERROR);
-      GOTO_STATE_AFTER_DELAY(MEDIA_ERROR, 0);
-    }
+  else if (task_state == UHS_STATE(ERROR)) {
+    LCD_MESSAGE(MSG_MEDIA_READ_ERROR);
+    GOTO_STATE_AFTER_DELAY(MEDIA_ERROR, 0);
   }
 }
 
@@ -293,7 +293,7 @@ uint32_t DiskIODriver_USBFlash::cardSize() {
   #if USB_DEBUG < 3
     const uint32_t
   #endif
-      lun0_capacity = bulk.GetCapacity(0);
+  lun0_capacity = bulk.GetCapacity(0);
   return lun0_capacity;
 }
 
@@ -325,4 +325,4 @@ bool DiskIODriver_USBFlash::writeBlock(uint32_t block, const uint8_t *src) {
   return bulk.Write(0, block, 512, 1, src) == 0;
 }
 
-#endif // USB_FLASH_DRIVE_SUPPORT
+#endif // HAS_USB_FLASH_DRIVE

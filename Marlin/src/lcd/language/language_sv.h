@@ -13,7 +13,7 @@
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License för more details.
+ * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
@@ -26,6 +26,14 @@
  *
  * LCD Menu Messages
  * See also https://marlinfw.org/docs/development/lcd_language.html
+ *
+ * Substitutions are applied for the following characters when used in menu items titles:
+ *
+ *   $ displays an inserted string
+ *   { displays  '0'....'10' for indexes 0 - 10
+ *   ~ displays  '1'....'11' for indexes 0 - 10
+ *   * displays 'E1'...'E11' for indexes 0 - 10 (By default. Uses LCD_FIRST_TOOL)
+ *   @ displays an axis name such as XYZUVW, or E for an extruder
  */
 
 #define DISPLAY_CHARSET_ISO10646_1
@@ -635,16 +643,17 @@ namespace LanguageNarrow_sv {
   LSTR MSG_BOTTOM_RIGHT                   = _UxGT("Nere Höger");
   LSTR MSG_CALIBRATION_COMPLETED          = _UxGT("Kalibrering Färdig");
   LSTR MSG_CALIBRATION_FAILED             = _UxGT("Kalibrering Misslyckad");
+
 }
 
 namespace LanguageWide_sv {
   using namespace LanguageNarrow_sv;
-  #if LCD_WIDTH >= 20 || HAS_DWIN_E3V2
-    LSTR MSG_INFO_PRINT_COUNT             = _UxGT("Utskriftsantal");
-    LSTR MSG_INFO_COMPLETED_PRINTS        = _UxGT("Färdiga");
-    LSTR MSG_INFO_PRINT_TIME              = _UxGT("Total Utskriftstid");
-    LSTR MSG_INFO_PRINT_LONGEST           = _UxGT("Längsta Jobbtid");
-    LSTR MSG_INFO_PRINT_FILAMENT          = _UxGT("Extruderade Totalt");
+  #if LCD_WIDTH > 20 || HAS_DWIN_E3V2
+    LSTR MSG_INFO_PRINT_COUNT             = _UxGT("Utskriftsantal");                           // Print Count
+    LSTR MSG_INFO_COMPLETED_PRINTS        = _UxGT("Färdiga");                                  // Completed
+    LSTR MSG_INFO_PRINT_TIME              = _UxGT("Total Utskriftstid");                       // Print Time
+    LSTR MSG_INFO_PRINT_LONGEST           = _UxGT("Längsta Jobbtid");                          // Longest Job Time
+    LSTR MSG_INFO_PRINT_FILAMENT          = _UxGT("Extruderade Totalt");                       // Extruded Total
   #endif
 }
 
@@ -652,16 +661,16 @@ namespace LanguageTall_sv {
   using namespace LanguageWide_sv;
   #if LCD_HEIGHT >= 4
     // Filament Change screens show up to 3 lines on a 4-line display
-    LSTR MSG_ADVANCED_PAUSE_WAITING       = _UxGT(MSG_2_LINE("Tryck på knappen", "för att fortsätta utskrift"));
-    LSTR MSG_FILAMENT_CHANGE_INIT         = _UxGT(MSG_3_LINE("Vänta på", "trådbyte", "att börja"));
-    LSTR MSG_FILAMENT_CHANGE_INSERT       = _UxGT(MSG_3_LINE("Sätt in tråd", "och tryck på knappen", "för att fortsätta"));
-    LSTR MSG_FILAMENT_CHANGE_HEAT         = _UxGT(MSG_2_LINE("Tryck på knappen", "för att värma munstycke"));
-    LSTR MSG_FILAMENT_CHANGE_HEATING      = _UxGT(MSG_2_LINE("Munstycke värms", "Var snäll och vänta..."));
-    LSTR MSG_FILAMENT_CHANGE_UNLOAD       = _UxGT(MSG_2_LINE("Väntar på", "trådlossning"));
-    LSTR MSG_FILAMENT_CHANGE_LOAD         = _UxGT(MSG_2_LINE("Väntar på", "trådladdning"));
-    LSTR MSG_FILAMENT_CHANGE_PURGE        = _UxGT(MSG_2_LINE("Väntar på", "tråd utrensning"));
-    LSTR MSG_FILAMENT_CHANGE_CONT_PURGE   = _UxGT(MSG_2_LINE("Klicka för att slutföra", "tråd utrensning"));
-    LSTR MSG_FILAMENT_CHANGE_RESUME       = _UxGT(MSG_2_LINE("Väntar på utskrift", "att återstarta..."));
+    LSTR MSG_FILAMENT_CHANGE_INIT         = _UxGT(MSG_3_LINE("Vänta på", "trådbyte", "att börja")); // |Wait for|filament change|to start
+    LSTR MSG_FILAMENT_CHANGE_INSERT       = _UxGT(MSG_3_LINE("Sätt in tråd", "och tryck på knappen", "för att fortsätta")); // |Insert filament|and press button|to continue
+    LSTR MSG_FILAMENT_CHANGE_UNLOAD       = _UxGT(MSG_2_LINE("Väntar på", "trådlossning"));    // |Wait for|filament unload
+    LSTR MSG_FILAMENT_CHANGE_LOAD         = _UxGT(MSG_2_LINE("Väntar på", "trådladdning"));    // |Wait for|filament load
+    LSTR MSG_FILAMENT_CHANGE_RESUME       = _UxGT(MSG_2_LINE("Väntar på utskrift", "att återstarta...")); // |Wait for print|to resume...
+    LSTR MSG_FILAMENT_CHANGE_HEATING      = _UxGT(MSG_2_LINE("Munstycke värms", "Var snäll och vänta...")); // |Nozzle heating|Please wait...
+    LSTR MSG_FILAMENT_CHANGE_HEAT         = _UxGT(MSG_2_LINE("Tryck på knappen", "för att värma munstycke")); // |Press button|to heat nozzle
+    LSTR MSG_ADVANCED_PAUSE_WAITING       = _UxGT(MSG_2_LINE("Tryck på knappen", "för att fortsätta utskrift")); // |Press Button|to resume print
+    LSTR MSG_FILAMENT_CHANGE_PURGE        = _UxGT(MSG_2_LINE("Väntar på", "tråd utrensning")); // |Wait for|filament purge
+    LSTR MSG_FILAMENT_CHANGE_CONT_PURGE   = _UxGT(MSG_2_LINE("Klicka för att slutföra", "tråd utrensning")); // |Click to finish|filament purge
   #endif
 }
 

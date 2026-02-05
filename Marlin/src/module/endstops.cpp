@@ -27,9 +27,10 @@
 #include "endstops.h"
 #include "stepper.h"
 
-#include "../sd/cardreader.h"
-#include "temperature.h"
-#include "../lcd/marlinui.h"
+#if ANY(HAS_STATUS_MESSAGE, VALIDATE_HOMING_ENDSTOPS)
+  #include "../lcd/marlinui.h"
+#endif
+
 #if ENABLED(SOVOL_SV06_RTS)
   #include "../lcd/sovol_rts/sovol_rts.h"
 #endif
@@ -44,6 +45,8 @@
 
 #if ENABLED(SD_ABORT_ON_ENDSTOP_HIT)
   #include "printcounter.h" // for print_job_timer
+  #include "temperature.h"
+  #include "../sd/cardreader.h"
 #endif
 
 #if ENABLED(BLTOUCH)
@@ -52,6 +55,10 @@
 
 #if ENABLED(JOYSTICK)
   #include "../feature/joystick.h"
+#endif
+
+#if HAS_FILAMENT_SENSOR
+  #include "../feature/runout.h"
 #endif
 
 #if HAS_BED_PROBE
@@ -126,90 +133,9 @@ Endstops::endstop_mask_t Endstops::live_state = 0;
 void Endstops::init() {
 
   #define _INIT_ENDSTOP(T,A,N) TERN(ENDSTOPPULLUP_##A##T, SET_INPUT_PULLUP, TERN(ENDSTOPPULLDOWN_##A##T, SET_INPUT_PULLDOWN, SET_INPUT))(A##N##_##T##_PIN)
-  #if USE_X_MIN
-    _INIT_ENDSTOP(MIN,X,);
-  #endif
-  #if USE_X_MAX
-    _INIT_ENDSTOP(MAX,X,);
-  #endif
-  #if USE_X2_MIN
-    _INIT_ENDSTOP(MIN,X,2);
-  #endif
-  #if USE_X2_MAX
-    _INIT_ENDSTOP(MAX,X,2);
-  #endif
-  #if USE_Y_MIN
-    _INIT_ENDSTOP(MIN,Y,);
-  #endif
-  #if USE_Y_MAX
-    _INIT_ENDSTOP(MAX,Y,);
-  #endif
-  #if USE_Y2_MIN
-    _INIT_ENDSTOP(MIN,Y,2);
-  #endif
-  #if USE_Y2_MAX
-    _INIT_ENDSTOP(MAX,Y,2);
-  #endif
-  #if USE_Z_MIN
-    _INIT_ENDSTOP(MIN,Z,);
-  #endif
-  #if USE_Z_MAX
-    _INIT_ENDSTOP(MAX,Z,);
-  #endif
-  #if USE_Z2_MIN
-    _INIT_ENDSTOP(MIN,Z,2);
-  #endif
-  #if USE_Z2_MAX
-    _INIT_ENDSTOP(MAX,Z,2);
-  #endif
-  #if USE_Z3_MIN
-    _INIT_ENDSTOP(MIN,Z,3);
-  #endif
-  #if USE_Z3_MAX
-    _INIT_ENDSTOP(MAX,Z,3);
-  #endif
-  #if USE_Z4_MIN
-    _INIT_ENDSTOP(MIN,Z,4);
-  #endif
-  #if USE_Z4_MAX
-    _INIT_ENDSTOP(MAX,Z,4);
-  #endif
-  #if USE_I_MIN
-    _INIT_ENDSTOP(MIN,I,);
-  #endif
-  #if USE_I_MAX
-    _INIT_ENDSTOP(MAX,I,);
-  #endif
-  #if USE_J_MIN
-    _INIT_ENDSTOP(MIN,J,);
-  #endif
-  #if USE_J_MAX
-    _INIT_ENDSTOP(MAX,J,);
-  #endif
-  #if USE_K_MIN
-    _INIT_ENDSTOP(MIN,K,);
-  #endif
-  #if USE_K_MAX
-    _INIT_ENDSTOP(MAX,K,);
-  #endif
-  #if USE_U_MIN
-    _INIT_ENDSTOP(MIN,U,);
-  #endif
-  #if USE_U_MAX
-    _INIT_ENDSTOP(MAX,U,);
-  #endif
-  #if USE_V_MIN
-    _INIT_ENDSTOP(MIN,V,);
-  #endif
-  #if USE_V_MAX
-    _INIT_ENDSTOP(MAX,V,);
-  #endif
-  #if USE_W_MIN
-    _INIT_ENDSTOP(MIN,W,);
-  #endif
-  #if USE_W_MAX
-    _INIT_ENDSTOP(MAX,W,);
-  #endif
+  #define _INIT_ES_MINMAX(A,N) do{ TERF(USE_##A##N##_MIN, _INIT_ENDSTOP)(MIN,A,N); TERF(USE_##A##N##_MAX, _INIT_ENDSTOP)(MAX,A,N); }while(0);
+  #define INIT_AXIS_ENDSTOPS(S) do{ _INIT_ES_MINMAX(S, ); _INIT_ES_MINMAX(S,2); _INIT_ES_MINMAX(S,3); _INIT_ES_MINMAX(S,4); }while(0);
+  MAIN_AXIS_MAP(INIT_AXIS_ENDSTOPS);
 
   #if USE_CALIBRATION
     #if ENABLED(CALIBRATION_PIN_PULLUP)
@@ -244,6 +170,41 @@ void Endstops::init() {
 
 } // Endstops::init
 
+void Endstops::factory_reset() {
+  #if ENABLED(X_DUAL_ENDSTOPS)
+    #ifndef X2_ENDSTOP_ADJUSTMENT
+      #define X2_ENDSTOP_ADJUSTMENT 0
+    #endif
+    endstops.x2_endstop_adj = X2_ENDSTOP_ADJUSTMENT;
+  #endif
+
+  #if ENABLED(Y_DUAL_ENDSTOPS)
+    #ifndef Y2_ENDSTOP_ADJUSTMENT
+      #define Y2_ENDSTOP_ADJUSTMENT 0
+    #endif
+    endstops.y2_endstop_adj = Y2_ENDSTOP_ADJUSTMENT;
+  #endif
+
+  #if ENABLED(Z_MULTI_ENDSTOPS)
+    #ifndef Z2_ENDSTOP_ADJUSTMENT
+      #define Z2_ENDSTOP_ADJUSTMENT 0
+    #endif
+    endstops.z2_endstop_adj = Z2_ENDSTOP_ADJUSTMENT;
+    #if NUM_Z_STEPPERS >= 3
+      #ifndef Z3_ENDSTOP_ADJUSTMENT
+        #define Z3_ENDSTOP_ADJUSTMENT 0
+      #endif
+      endstops.z3_endstop_adj = Z3_ENDSTOP_ADJUSTMENT;
+    #endif
+    #if NUM_Z_STEPPERS >= 4
+      #ifndef Z4_ENDSTOP_ADJUSTMENT
+        #define Z4_ENDSTOP_ADJUSTMENT 0
+      #endif
+      endstops.z4_endstop_adj = Z4_ENDSTOP_ADJUSTMENT;
+    #endif
+  #endif
+}
+
 // Called at ~1kHz from Temperature ISR: Poll endstop state if required
 void Endstops::poll() {
 
@@ -267,11 +228,6 @@ void Endstops::enable(const bool onoff) {
   resync();
 }
 
-// Disable / Enable endstops based on ENSTOPS_ONLY_FOR_HOMING and global enable
-void Endstops::not_homing() {
-  enabled = enabled_globally;
-}
-
 #if ENABLED(VALIDATE_HOMING_ENDSTOPS)
   // If the last move failed to trigger an endstop, call kill
   void Endstops::validate_homing_move() {
@@ -279,7 +235,7 @@ void Endstops::not_homing() {
       hit_on_purpose();
     else {
       TERN_(SOVOL_SV06_RTS, rts.gotoPageBeep(ID_KillHome_L, ID_KillHome_D));
-      kill(GET_TEXT_F(MSG_KILL_HOMING_FAILED));
+      marlin.kill(GET_TEXT_F(MSG_KILL_HOMING_FAILED));
     }
   }
 #endif
@@ -290,6 +246,9 @@ void Endstops::not_homing() {
     z_probe_enabled = onoff;
     #if PIN_EXISTS(PROBE_ENABLE)
       WRITE(PROBE_ENABLE_PIN, onoff);
+    #endif
+    #if PROBE_WAKEUP_TIME_MS
+      if (onoff) safe_delay(PROBE_WAKEUP_TIME_MS);
     #endif
     resync();
   }
@@ -375,13 +334,13 @@ void Endstops::event_handler() {
     #endif
     SERIAL_EOL();
 
-    TERN_(HAS_STATUS_MESSAGE,
+    #if HAS_STATUS_MESSAGE
       ui.status_printf(0,
         F(S_FMT GANG_N_1(NUM_AXES, " %c") " %c"),
         GET_TEXT_F(MSG_LCD_ENDSTOPS),
         NUM_AXIS_LIST_(chrX, chrY, chrZ, chrI, chrJ, chrK, chrU, chrV, chrW) chrP
-      )
-    );
+      );
+    #endif
 
     #if ENABLED(SD_ABORT_ON_ENDSTOP_HIT)
       if (planner.abort_on_endstop_hit) {
@@ -415,118 +374,32 @@ void Endstops::event_handler() {
 #endif
 
 void __O2 Endstops::report_states() {
+
   TERN_(BLTOUCH, bltouch._set_SW_mode());
+
   SERIAL_ECHOLNPGM(STR_M119_REPORT);
-  #define ES_REPORT(S) print_es_state(READ_ENDSTOP(S##_PIN) == S##_ENDSTOP_HIT_STATE, F(STR_##S))
-  #if USE_X_MIN
-    ES_REPORT(X_MIN);
-  #endif
-  #if USE_X2_MIN
-    ES_REPORT(X2_MIN);
-  #endif
-  #if USE_X_MAX
-    ES_REPORT(X_MAX);
-  #endif
-  #if USE_X2_MAX
-    ES_REPORT(X2_MAX);
-  #endif
-  #if USE_Y_MIN
-    ES_REPORT(Y_MIN);
-  #endif
-  #if USE_Y2_MIN
-    ES_REPORT(Y2_MIN);
-  #endif
-  #if USE_Y_MAX
-    ES_REPORT(Y_MAX);
-  #endif
-  #if USE_Y2_MAX
-    ES_REPORT(Y2_MAX);
-  #endif
-  #if USE_Z_MIN
-    ES_REPORT(Z_MIN);
-  #endif
-  #if USE_Z2_MIN
-    ES_REPORT(Z2_MIN);
-  #endif
-  #if USE_Z3_MIN
-    ES_REPORT(Z3_MIN);
-  #endif
-  #if USE_Z4_MIN
-    ES_REPORT(Z4_MIN);
-  #endif
-  #if USE_Z_MAX
-    ES_REPORT(Z_MAX);
-  #endif
-  #if USE_Z2_MAX
-    ES_REPORT(Z2_MAX);
-  #endif
-  #if USE_Z3_MAX
-    ES_REPORT(Z3_MAX);
-  #endif
-  #if USE_Z4_MAX
-    ES_REPORT(Z4_MAX);
-  #endif
-  #if USE_I_MIN
-    ES_REPORT(I_MIN);
-  #endif
-  #if USE_I_MAX
-    ES_REPORT(I_MAX);
-  #endif
-  #if USE_J_MIN
-    ES_REPORT(J_MIN);
-  #endif
-  #if USE_J_MAX
-    ES_REPORT(J_MAX);
-  #endif
-  #if USE_K_MIN
-    ES_REPORT(K_MIN);
-  #endif
-  #if USE_K_MAX
-    ES_REPORT(K_MAX);
-  #endif
-  #if USE_U_MIN
-    ES_REPORT(U_MIN);
-  #endif
-  #if USE_U_MAX
-    ES_REPORT(U_MAX);
-  #endif
-  #if USE_V_MIN
-    ES_REPORT(V_MIN);
-  #endif
-  #if USE_V_MAX
-    ES_REPORT(V_MAX);
-  #endif
-  #if USE_W_MIN
-    ES_REPORT(W_MIN);
-  #endif
-  #if USE_W_MAX
-    ES_REPORT(W_MAX);
-  #endif
-  #if ENABLED(PROBE_ACTIVATION_SWITCH)
-    print_es_state(probe_switch_activated(), F(STR_PROBE_EN));
-  #endif
-  #if USE_Z_MIN_PROBE
-    print_es_state(PROBE_TRIGGERED(), F(STR_Z_PROBE));
-  #endif
-  #if USE_CALIBRATION
-    print_es_state(READ(CALIBRATION_PIN) != CALIBRATION_PIN_INVERTING, F(STR_CALIBRATION));
-  #endif
+
+  #define _ES_REPORT(S) print_es_state(READ_ENDSTOP(S##_PIN) == S##_ENDSTOP_HIT_STATE, F(STR_##S))
+  #define ES_REPORT(S) TERF(USE_##S, _ES_REPORT)(S);
+  MAP(ES_REPORT, X_MIN, X2_MIN, X_MAX, X2_MAX, Y_MIN, Y2_MIN, Y_MAX, Y2_MAX, Z_MIN, Z2_MIN, Z3_MIN, Z4_MIN, Z_MAX, Z2_MAX, Z3_MAX, Z4_MAX);
+  MAP(ES_REPORT, I_MIN, I_MAX, J_MIN, J_MAX, K_MIN, K_MAX, U_MIN, U_MAX, V_MIN, V_MAX, W_MIN, W_MAX)
+
+  TERF(PROBE_ACTIVATION_SWITCH, print_es_state)(probe_switch_activated(), F(STR_PROBE_EN));
+
+  TERF(USE_Z_MIN_PROBE, print_es_state)(PROBE_TRIGGERED(), F(STR_Z_PROBE));
+
+  TERF(USE_CALIBRATION, print_es_state)(READ(CALIBRATION_PIN) != CALIBRATION_PIN_INVERTING, F(STR_CALIBRATION));
+
   #if MULTI_FILAMENT_SENSOR
-    #define _CASE_RUNOUT(N) case N: pin = FIL_RUNOUT##N##_PIN; state = FIL_RUNOUT##N##_STATE; break;
-    for (uint8_t i = 1; i <= NUM_RUNOUT_SENSORS; ++i) {
-      pin_t pin;
-      uint8_t state;
-      switch (i) {
-        default: continue;
-        REPEAT_1(NUM_RUNOUT_SENSORS, _CASE_RUNOUT)
-      }
-      SERIAL_ECHOPGM(STR_FILAMENT);
-      if (i > 1) SERIAL_CHAR(' ', '0' + i);
-      print_es_state(extDigitalRead(pin) != state);
-    }
+    #define _CASE_RUNOUT(N) do{ \
+      SERIAL_ECHO(F(STR_FILAMENT)); \
+      if ((N) > 1) SERIAL_CHAR(' ', '0' + char(N)); \
+      print_es_state(!FILAMENT_IS_OUT(N)); \
+    }while(0);
+    REPEAT_1(NUM_RUNOUT_SENSORS, _CASE_RUNOUT)
     #undef _CASE_RUNOUT
   #elif HAS_FILAMENT_SENSOR
-    print_es_state(READ(FIL_RUNOUT1_PIN) != FIL_RUNOUT1_STATE, F(STR_FILAMENT));
+    print_es_state(!FILAMENT_IS_OUT(), F(STR_FILAMENT));
   #endif
 
   TERN_(BLTOUCH, bltouch._reset_SW_mode());
@@ -553,7 +426,7 @@ void Endstops::update() {
 
   #if ENABLED(G38_PROBE_TARGET)
     // For G38 moves check the probe's pin for ALL movement
-    if (G38_move) UPDATE_LIVE_STATE(Z, TERN(USE_Z_MIN_PROBE, MIN_PROBE, MIN));
+    if (G38_move.type) UPDATE_LIVE_STATE(Z, TERN(USE_Z_MIN_PROBE, MIN_PROBE, MIN));
   #endif
 
   #if ENABLED(CALIBRATION_GCODE)
@@ -685,42 +558,8 @@ void Endstops::update() {
     COPY_LIVE_STATE(Z_MAX, Z4_MAX);
   #endif
 
-  #if USE_I_MIN
-    UPDATE_LIVE_STATE(I, MIN);
-  #endif
-  #if USE_I_MAX
-    UPDATE_LIVE_STATE(I, MAX);
-  #endif
-  #if USE_J_MIN
-    UPDATE_LIVE_STATE(J, MIN);
-  #endif
-  #if USE_J_MAX
-    UPDATE_LIVE_STATE(J, MAX);
-  #endif
-  #if USE_K_MIN
-    UPDATE_LIVE_STATE(K, MIN);
-  #endif
-  #if USE_K_MAX
-    UPDATE_LIVE_STATE(K, MAX);
-  #endif
-  #if USE_U_MIN
-    UPDATE_LIVE_STATE(U, MIN);
-  #endif
-  #if USE_U_MAX
-    UPDATE_LIVE_STATE(U, MAX);
-  #endif
-  #if USE_V_MIN
-    UPDATE_LIVE_STATE(V, MIN);
-  #endif
-  #if USE_V_MAX
-    UPDATE_LIVE_STATE(V, MAX);
-  #endif
-  #if USE_W_MIN
-    UPDATE_LIVE_STATE(W, MIN);
-  #endif
-  #if USE_W_MAX
-    UPDATE_LIVE_STATE(W, MAX);
-  #endif
+  #define _LIVE_UPDATE(A) TERF(USE_##A##_MIN, UPDATE_LIVE_STATE)(A, MIN); TERF(USE_##A##_MAX, UPDATE_LIVE_STATE)(A, MAX);
+  SECONDARY_AXIS_MAP(_LIVE_UPDATE);
 
   #if ENDSTOP_NOISE_THRESHOLD
 
@@ -822,11 +661,14 @@ void Endstops::update() {
     #define PROCESS_ENDSTOP_Z(MINMAX) PROCESS_DUAL_ENDSTOP(Z, MINMAX)
   #endif
 
+  #define AXIS_IS_MOVING(A) TERN(FT_MOTION, ftMotion, stepper).axis_is_moving(_AXIS(A))
+  #define AXIS_DIR_REV(A)  !TERN(FT_MOTION, ftMotion, stepper).motor_direction(A)
+
   #if ENABLED(G38_PROBE_TARGET)
     // For G38 moves check the probe's pin for ALL movement
-    if (G38_move && TEST_ENDSTOP(Z_MIN_PROBE) == TERN1(G38_PROBE_AWAY, (G38_move < 4))) {
-      G38_did_trigger = true;
-      #define _G38_SET(Q) | (stepper.axis_is_moving(_AXIS(Q)) << _AXIS(Q))
+    if (G38_move.type && TEST_ENDSTOP(Z_MIN_PROBE) == TERN1(G38_PROBE_AWAY, (G38_move.type < 4))) {
+      G38_move.triggered = true;
+      #define _G38_SET(Q) | (AXIS_IS_MOVING(Q) << _AXIS(Q))
       #define _G38_RESP(Q) if (moving[_AXIS(Q)]) { _ENDSTOP_HIT(Q, ENDSTOP); planner.endstop_triggered(_AXIS(Q)); }
       const Flags<NUM_AXES> moving = { uvalue_t(NUM_AXES)(0 MAIN_AXIS_MAP(_G38_SET)) };
       MAIN_AXIS_MAP(_G38_RESP);
@@ -840,9 +682,6 @@ void Endstops::update() {
   #endif
 
   // Signal, after validation, if an endstop limit is pressed or not
-
-  #define AXIS_IS_MOVING(A) TERN(FT_MOTION, ftMotion, stepper).axis_is_moving(_AXIS(A))
-  #define AXIS_DIR_REV(A)  !TERN(FT_MOTION, ftMotion, stepper).motor_direction(A)
 
   #if HAS_X_AXIS
     if (AXIS_IS_MOVING(X)) {
@@ -1054,7 +893,7 @@ void Endstops::update() {
 
 #if ENABLED(SPI_ENDSTOPS)
 
-  // Called from idle() to read Trinamic stall states
+  // Called from marlin.idle() to read Trinamic stall states
   bool Endstops::tmc_spi_homing_check() {
     bool hit = false;
 
@@ -1143,30 +982,29 @@ void Endstops::update() {
   }
 
   void Endstops::clear_endstop_state() {
-    TERN_(X_SPI_SENSORLESS, CBI(live_state, X_ENDSTOP));
+
+    #define _ES_CLEAR(S) CBI(live_state, S##_ENDSTOP);
+    #define ES_CLEAR(S) TERN_(S##_SPI_SENSORLESS, _ES_CLEAR(S));
+
+    ES_CLEAR(X);
     #if ALL(X_SPI_SENSORLESS, X_DUAL_ENDSTOPS)
-      CBI(live_state, X2_ENDSTOP);
+      _ES_CLEAR(X2);
     #endif
-    TERN_(Y_SPI_SENSORLESS, CBI(live_state, Y_ENDSTOP));
+    ES_CLEAR(Y);
     #if ALL(Y_SPI_SENSORLESS, Y_DUAL_ENDSTOPS)
-      CBI(live_state, Y2_ENDSTOP);
+      _ES_CLEAR(Y2);
     #endif
-    TERN_(Z_SPI_SENSORLESS, CBI(live_state, Z_ENDSTOP));
+    ES_CLEAR(Z);
     #if ALL(Z_SPI_SENSORLESS, Z_MULTI_ENDSTOPS)
-      CBI(live_state, Z2_ENDSTOP);
+      _ES_CLEAR(Z2);
       #if NUM_Z_STEPPERS >= 3
-        CBI(live_state, Z3_ENDSTOP);
+        _ES_CLEAR(Z3);
         #if NUM_Z_STEPPERS >= 4
-          CBI(live_state, Z4_ENDSTOP);
+          _ES_CLEAR(Z4);
         #endif
       #endif
     #endif
-    TERN_(I_SPI_SENSORLESS, CBI(live_state, I_ENDSTOP));
-    TERN_(J_SPI_SENSORLESS, CBI(live_state, J_ENDSTOP));
-    TERN_(K_SPI_SENSORLESS, CBI(live_state, K_ENDSTOP));
-    TERN_(U_SPI_SENSORLESS, CBI(live_state, U_ENDSTOP));
-    TERN_(V_SPI_SENSORLESS, CBI(live_state, V_ENDSTOP));
-    TERN_(W_SPI_SENSORLESS, CBI(live_state, W_ENDSTOP));
+    SECONDARY_AXIS_MAP(ES_CLEAR);
   }
 
 #endif // SPI_ENDSTOPS
@@ -1190,194 +1028,22 @@ void Endstops::update() {
     static uint8_t local_LED_status = 0;
     uint16_t live_state_local = 0;
 
-    #define ES_GET_STATE(S) if (READ_ENDSTOP(S##_PIN)) SBI(live_state_local, S)
-
-    #if USE_X_MIN
-      ES_GET_STATE(X_MIN);
-    #endif
-    #if USE_X_MAX
-      ES_GET_STATE(X_MAX);
-    #endif
-    #if USE_Y_MIN
-      ES_GET_STATE(Y_MIN);
-    #endif
-    #if USE_Y_MAX
-      ES_GET_STATE(Y_MAX);
-    #endif
-    #if USE_Z_MIN
-      ES_GET_STATE(Z_MIN);
-    #endif
-    #if USE_Z_MAX
-      ES_GET_STATE(Z_MAX);
-    #endif
-    #if USE_Z_MIN_PROBE
-      ES_GET_STATE(Z_MIN_PROBE);
-    #endif
-    #if USE_CALIBRATION
-      ES_GET_STATE(CALIBRATION);
-    #endif
-    #if USE_X2_MIN
-      ES_GET_STATE(X2_MIN);
-    #endif
-    #if USE_X2_MAX
-      ES_GET_STATE(X2_MAX);
-    #endif
-    #if USE_Y2_MIN
-      ES_GET_STATE(Y2_MIN);
-    #endif
-    #if USE_Y2_MAX
-      ES_GET_STATE(Y2_MAX);
-    #endif
-    #if USE_Z2_MIN
-      ES_GET_STATE(Z2_MIN);
-    #endif
-    #if USE_Z2_MAX
-      ES_GET_STATE(Z2_MAX);
-    #endif
-    #if USE_Z3_MIN
-      ES_GET_STATE(Z3_MIN);
-    #endif
-    #if USE_Z3_MAX
-      ES_GET_STATE(Z3_MAX);
-    #endif
-    #if USE_Z4_MIN
-      ES_GET_STATE(Z4_MIN);
-    #endif
-    #if USE_Z4_MAX
-      ES_GET_STATE(Z4_MAX);
-    #endif
-    #if USE_I_MAX
-      ES_GET_STATE(I_MAX);
-    #endif
-    #if USE_I_MIN
-      ES_GET_STATE(I_MIN);
-    #endif
-    #if USE_J_MAX
-      ES_GET_STATE(J_MAX);
-    #endif
-    #if USE_J_MIN
-      ES_GET_STATE(J_MIN);
-    #endif
-    #if USE_K_MAX
-      ES_GET_STATE(K_MAX);
-    #endif
-    #if USE_K_MIN
-      ES_GET_STATE(K_MIN);
-    #endif
-    #if USE_U_MAX
-      ES_GET_STATE(U_MAX);
-    #endif
-    #if USE_U_MIN
-      ES_GET_STATE(U_MIN);
-    #endif
-    #if USE_V_MAX
-      ES_GET_STATE(V_MAX);
-    #endif
-    #if USE_V_MIN
-      ES_GET_STATE(V_MIN);
-    #endif
-    #if USE_W_MAX
-      ES_GET_STATE(W_MAX);
-    #endif
-    #if USE_W_MIN
-      ES_GET_STATE(W_MIN);
-    #endif
+    #define _ES_GET_STATE(S) if (READ_ENDSTOP(S##_PIN)) SBI(live_state_local, S);
+    #define ES_GET_STATE(S) TERF(USE_##S, _ES_GET_STATE)(S)
+    MAP(ES_GET_STATE, X_MIN, X_MAX, Y_MIN, Y_MAX, Z_MIN, Z_MAX);
+    MAP(ES_GET_STATE, Z_MIN_PROBE, CALIBRATION);
+    MAP(ES_GET_STATE, X2_MIN, X2_MAX, Y2_MIN, Y2_MAX, Z2_MIN, Z2_MAX, Z3_MIN, Z3_MAX, Z4_MIN, Z4_MAX)
+    MAP(ES_GET_STATE, I_MIN, I_MAX, J_MIN, J_MAX, K_MIN, K_MAX, U_MIN, U_MAX, V_MIN, V_MAX, W_MIN, W_MAX);
 
     const uint16_t endstop_change = live_state_local ^ old_live_state_local;
-    #define ES_REPORT_CHANGE(S) if (TEST(endstop_change, S)) SERIAL_ECHOPGM("  " STRINGIFY(S) ":", TEST(live_state_local, S))
+    #define _ES_REPORT_CHANGE(S) SERIAL_ECHO(F("  " STRINGIFY(S) ":"), TEST(live_state_local, S));
+    #define ES_REPORT_CHANGE(S)  TERF(USE_##S, _ES_REPORT_CHANGE)(S)
 
     if (endstop_change) {
-      #if USE_X_MIN
-        ES_REPORT_CHANGE(X_MIN);
-      #endif
-      #if USE_X_MAX
-        ES_REPORT_CHANGE(X_MAX);
-      #endif
-      #if USE_Y_MIN
-        ES_REPORT_CHANGE(Y_MIN);
-      #endif
-      #if USE_Y_MAX
-        ES_REPORT_CHANGE(Y_MAX);
-      #endif
-      #if USE_Z_MIN
-        ES_REPORT_CHANGE(Z_MIN);
-      #endif
-      #if USE_Z_MAX
-        ES_REPORT_CHANGE(Z_MAX);
-      #endif
-      #if USE_Z_MIN_PROBE
-        ES_REPORT_CHANGE(Z_MIN_PROBE);
-      #endif
-      #if USE_CALIBRATION
-        ES_REPORT_CHANGE(CALIBRATION);
-      #endif
-      #if USE_X2_MIN
-        ES_REPORT_CHANGE(X2_MIN);
-      #endif
-      #if USE_X2_MAX
-        ES_REPORT_CHANGE(X2_MAX);
-      #endif
-      #if USE_Y2_MIN
-        ES_REPORT_CHANGE(Y2_MIN);
-      #endif
-      #if USE_Y2_MAX
-        ES_REPORT_CHANGE(Y2_MAX);
-      #endif
-      #if USE_Z2_MIN
-        ES_REPORT_CHANGE(Z2_MIN);
-      #endif
-      #if USE_Z2_MAX
-        ES_REPORT_CHANGE(Z2_MAX);
-      #endif
-      #if USE_Z3_MIN
-        ES_REPORT_CHANGE(Z3_MIN);
-      #endif
-      #if USE_Z3_MAX
-        ES_REPORT_CHANGE(Z3_MAX);
-      #endif
-      #if USE_Z4_MIN
-        ES_REPORT_CHANGE(Z4_MIN);
-      #endif
-      #if USE_Z4_MAX
-        ES_REPORT_CHANGE(Z4_MAX);
-      #endif
-      #if USE_I_MIN
-        ES_REPORT_CHANGE(I_MIN);
-      #endif
-      #if USE_I_MAX
-        ES_REPORT_CHANGE(I_MAX);
-      #endif
-      #if USE_J_MIN
-        ES_REPORT_CHANGE(J_MIN);
-      #endif
-      #if USE_J_MAX
-        ES_REPORT_CHANGE(J_MAX);
-      #endif
-      #if USE_K_MIN
-        ES_REPORT_CHANGE(K_MIN);
-      #endif
-      #if USE_K_MAX
-        ES_REPORT_CHANGE(K_MAX);
-      #endif
-      #if USE_U_MIN
-        ES_REPORT_CHANGE(U_MIN);
-      #endif
-      #if USE_U_MAX
-        ES_REPORT_CHANGE(U_MAX);
-      #endif
-      #if USE_V_MIN
-        ES_REPORT_CHANGE(V_MIN);
-      #endif
-      #if USE_V_MAX
-        ES_REPORT_CHANGE(V_MAX);
-      #endif
-      #if USE_W_MIN
-        ES_REPORT_CHANGE(W_MIN);
-      #endif
-      #if USE_W_MAX
-        ES_REPORT_CHANGE(W_MAX);
-      #endif
-
+      MAP(ES_REPORT_CHANGE, X_MIN, X_MAX, Y_MIN, Y_MAX, Z_MIN, Z_MAX
+                          , Z_MIN_PROBE, CALIBRATION
+                          , X2_MIN, X2_MAX, Y2_MIN, Y2_MAX, Z2_MIN, Z2_MAX, Z3_MIN, Z3_MAX, Z4_MIN, Z4_MAX
+                          , I_MIN, I_MAX, J_MIN, J_MAX, K_MIN, K_MAX, U_MIN, U_MAX, V_MIN, V_MAX, W_MIN, W_MAX);
       SERIAL_ECHOLNPGM("\n");
       hal.set_pwm_duty(pin_t(LED_PIN), local_LED_status);
       local_LED_status ^= 255;

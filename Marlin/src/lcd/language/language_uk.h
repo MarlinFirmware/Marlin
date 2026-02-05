@@ -26,6 +26,14 @@
  *
  * LCD Menu Messages
  * See also https://marlinfw.org/docs/development/lcd_language.html
+ *
+ * Substitutions are applied for the following characters when used in menu items titles:
+ *
+ *   $ displays an inserted string
+ *   { displays  '0'....'10' for indexes 0 - 10
+ *   ~ displays  '1'....'11' for indexes 0 - 10
+ *   * displays 'E1'...'E11' for indexes 0 - 10 (By default. Uses LCD_FIRST_TOOL)
+ *   @ displays an axis name such as XYZUVW, or E for an extruder
  */
 
 #define DISPLAY_CHARSET_ISO10646_5
@@ -33,8 +41,8 @@
 namespace LanguageNarrow_uk {
   using namespace Language_en; // Inherit undefined strings from English
 
-  constexpr uint8_t CHARSIZE                = 2;
-  LSTR LANGUAGE                             = _UxGT("Ukrainian");
+  constexpr uint8_t CHARSIZE              = 2;
+  LSTR LANGUAGE                           = _UxGT("Ukrainian");
 
   LSTR WELCOME_MSG                          = MACHINE_NAME _UxGT(" Готовий.");
   LSTR MSG_YES                              = _UxGT("ТАК");
@@ -694,90 +702,91 @@ namespace LanguageNarrow_uk {
   LSTR MSG_SHORT_DAY                        = _UxGT("д"); // One character only
   LSTR MSG_SHORT_HOUR                       = _UxGT("г"); // One character only
   LSTR MSG_SHORT_MINUTE                     = _UxGT("х"); // One character only
+
 }
 
 namespace LanguageWide_uk {
   using namespace LanguageNarrow_uk;
-  #if LCD_WIDTH >= 20 || HAS_DWIN_E3V2
-    LSTR MSG_MEDIA_INIT_FAIL                = _UxGT("Збій ініціалізації SD");
-    LSTR MSG_KILL_SUBCALL_OVERFLOW          = _UxGT("Переповнення виклику");
-    LSTR MSG_LCD_SOFT_ENDSTOPS              = _UxGT("Програмні кінцевики");
-    LSTR MSG_SET_HOME_OFFSETS               = _UxGT("Встанов. зміщення дому");
-    LSTR MSG_HOME_OFFSET_X                  = _UxGT("Зміщення дому X"); // DWIN
-    LSTR MSG_HOME_OFFSET_Y                  = _UxGT("Зміщення дому Y"); // DWIN
-    LSTR MSG_HOME_OFFSET_Z                  = _UxGT("Зміщення дому Z"); // DWIN
-    LSTR MSG_LAST_VALUE_SP                  = _UxGT("Останнє значення ");
-    LSTR MSG_LASER_POWER                    = _UxGT("Потужність лазера");
-    LSTR MSG_SPINDLE_TOGGLE                 = _UxGT("Перемкн. шпіндель");
-    LSTR MSG_SPINDLE_EVAC_TOGGLE            = _UxGT("Перемкнути вакуум");
-    LSTR MSG_LASER_TOGGLE                   = _UxGT("Перемкнути лазер");
-    LSTR MSG_SPINDLE_POWER                  = _UxGT("Потужн. шпінделя");
-    LSTR MSG_LASER_PULSE_MS                 = _UxGT("Тестовий імпульс мс");
-    LSTR MSG_LASER_EVAC_TOGGLE              = _UxGT("Перемкнути обдув");
-    LSTR MSG_BED_TRAMMING_RAISE             = _UxGT("Вгору до спрацюв. зонду");
-    LSTR MSG_BED_TRAMMING_IN_RANGE          = _UxGT("Кути в межах. Вирів.столу");
-    LSTR MSG_MESH_EDITOR                    = _UxGT("Зміщення по Z");
-    LSTR MSG_UBL_MANUAL_MESH                = _UxGT("Ручне введення сітки");
-    LSTR MSG_UBL_BC_INSERT                  = _UxGT("Розмістити шайбу і вимір.");
-    LSTR MSG_UBL_BC_REMOVE                  = _UxGT("Видалити і виміряти стіл");
-    LSTR MSG_UBL_EDIT_CUSTOM_MESH           = _UxGT("Редагувати свою сітку");
-    LSTR MSG_UBL_FINE_TUNE_MESH             = _UxGT("Точне редагування сітки");
-    LSTR MSG_UBL_BUILD_CUSTOM_MESH          = _UxGT("Будувати свою сітку");
-    LSTR MSG_UBL_GRID_MESH_LEVELING         = _UxGT("Вирівнювання растру");
-    LSTR MSG_UBL_FILLIN_AMOUNT              = _UxGT("Обсяг заповнюв.");
-    LSTR MSG_UBL_FINE_TUNE_ALL              = _UxGT("Точно налаштувати все");
-    LSTR MSG_UBL_FINE_TUNE_CLOSEST          = _UxGT("Точно налашт.найближчу");
-    LSTR MSG_LED_PRESETS                    = _UxGT("Передустановки світла");
-    LSTR MSG_NEO2_PRESETS                   = _UxGT("Передустановка світла #2");
-    LSTR MSG_COOLER                         = _UxGT("Охолодження лазеру");
-    LSTR MSG_COOLER_TOGGLE                  = _UxGT("Перемк. охолодж.");
-    LSTR MSG_STORED_FAN_N                   = _UxGT("Збереж.швидк.вент. ~");
-    LSTR MSG_EXTRA_FAN_SPEED_N              = _UxGT("Дод. швидк. вент. ~");
-    LSTR MSG_JUNCTION_DEVIATION             = _UxGT("Відхилення вузла");
-    LSTR MSG_VTRAV_MIN                      = _UxGT("Переміщення мін");
-    LSTR MSG_CONTRAST                       = _UxGT("Контраст екрану");
-    LSTR MSG_BRIGHTNESS                     = _UxGT("Яскравість LCD");
-    LSTR MSG_INIT_EEPROM                    = _UxGT("Ініціалізація EEPROM");
-    LSTR MSG_CONTROL_RETRACT                = _UxGT("Втягування, мм");
-    LSTR MSG_CONTROL_RETRACT_SWAP           = _UxGT("Зміна втягув.,мм");
-    LSTR MSG_CONTROL_RETRACT_RECOVER        = _UxGT("Повернення, мм");
-    LSTR MSG_CONTROL_RETRACT_RECOVER_SWAP   = _UxGT("Поверн.зміни, мм");
-    LSTR MSG_AUTORETRACT                    = _UxGT("Автовтягування");
-    LSTR MSG_SINGLENOZZLE_PRIME_SPEED       = _UxGT("Початк.швидкість");
-    LSTR MSG_SINGLENOZZLE_RETRACT_SPEED     = _UxGT("Швидкість втягув.");
-    LSTR MSG_SINGLENOZZLE_FAN_SPEED         = _UxGT("Оберти вентилятора");
-    LSTR MSG_SINGLENOZZLE_FAN_TIME          = _UxGT("Час вентилятора");
-    LSTR MSG_ERR_COOLING_FAILED             = _UxGT("ОХОЛОДЖЕННЯ НЕ ВДАЛОСЬ");
-    LSTR MSG_BED_COOLING                    = _UxGT("Охолодження столу...");
-    LSTR MSG_PROBE_COOLING                  = _UxGT("Охолодження зонду...");
-    LSTR MSG_CHAMBER_COOLING                = _UxGT("Охолодження камери...");
-    LSTR MSG_LASER_COOLING                  = _UxGT("Охолодження лазеру...");
-    LSTR MSG_3POINT_LEVELING                = _UxGT("3-точкове вирівнювання");
-    LSTR MSG_LINEAR_LEVELING                = _UxGT("Лінійне вирівнювання");
-    LSTR MSG_BILINEAR_LEVELING              = _UxGT("Білінійне вирівнювання");
-    LSTR MSG_MESH_DONE                      = _UxGT("Зондування сітки виконано");
-    LSTR MSG_INFO_RUNAWAY_OFF               = _UxGT("Контроль витіку ") LCD_STR_THERMOMETER _UxGT(" Вимк");
-    LSTR MSG_INFO_RUNAWAY_ON                = _UxGT("Контроль витіку ") LCD_STR_THERMOMETER _UxGT(" Увімк");
-    LSTR MSG_HOTEND_IDLE_TIMEOUT            = _UxGT("Час простою хотенду");
-    LSTR MSG_MEDIA_NOT_INSERTED             = _UxGT("Носій не вставлений");
-    LSTR MSG_PLEASE_WAIT_REBOOT             = _UxGT("Перезавантаження...");
-    LSTR MSG_INFO_PRINT_COUNT               = _UxGT("Кількість друків");
-    LSTR MSG_INFO_PRINT_TIME                = _UxGT("Час друку");
-    LSTR MSG_INFO_PRINT_LONGEST             = _UxGT("Найдовший час");
-    LSTR MSG_COLORS_SELECT                  = _UxGT("Обрати кольори");
-    LSTR MSG_COLORS_APPLIED                 = _UxGT("Кольори застосовані");
-    LSTR MSG_FILAMENT_CHANGE_OPTION_HEADER  = _UxGT("ПАРАМЕТРИ ПРОДОВЖЕННЯ:");
-    LSTR MSG_RUNOUT_SENSOR                  = _UxGT("Датчик закінчення прутка");
-    LSTR MSG_RUNOUT_DISTANCE_MM             = _UxGT("Відстань закінч.,мм");
-    LSTR MSG_MMU2_LOAD_TO_NOZZLE            = _UxGT("MMU Завантажити в сопло");
-    LSTR MSG_MIX                            = _UxGT("Змішування");
-    LSTR MSG_TOGGLE_MIX                     = _UxGT("Переключити змішування");
-    LSTR MSG_ACTIVE_VTOOL                   = _UxGT("Активація В-інструменту");
-    LSTR MSG_GRADIENT_ALIAS                 = _UxGT("Псевдонім В-інструменту");
-    LSTR MSG_RESET_VTOOLS                   = _UxGT("Зкидання В-інструментів");
-    LSTR MSG_BAD_PAGE_SPEED                 = _UxGT("Погана швидкість стор.");
-    LSTR MSG_PROBE_WIZARD_PROBING           = _UxGT("Зондув. контрольної точки Z");
-    LSTR MSG_PROBE_WIZARD_MOVING            = _UxGT("Рух до точки зондування");
+  #if LCD_WIDTH > 20 || HAS_DWIN_E3V2
+    LSTR MSG_SET_HOME_OFFSETS             = _UxGT("Встанов. зміщення дому");                   // Set Home Offsets
+    LSTR MSG_VTRAV_MIN                    = _UxGT("Переміщення мін");                          // Min Travel Speed
+    LSTR MSG_CONTRAST                     = _UxGT("Контраст екрану");                          // LCD Contrast
+    LSTR MSG_CONTROL_RETRACT              = _UxGT("Втягування, мм");                           // Retract mm
+    LSTR MSG_CONTROL_RETRACT_SWAP         = _UxGT("Зміна втягув.,мм");                         // Swap Re.mm
+    LSTR MSG_CONTROL_RETRACT_RECOVER      = _UxGT("Повернення, мм");                           // Unretr. mm
+    LSTR MSG_CONTROL_RETRACT_RECOVER_SWAP = _UxGT("Поверн.зміни, мм");                         // S Unretr. mm
+    LSTR MSG_AUTORETRACT                  = _UxGT("Автовтягування");                           // Auto-Retract
+    LSTR MSG_INFO_PRINT_COUNT             = _UxGT("Кількість друків");                         // Print Count
+    LSTR MSG_INFO_PRINT_TIME              = _UxGT("Час друку");                                // Print Time
+    LSTR MSG_INFO_PRINT_LONGEST           = _UxGT("Найдовший час");                            // Longest Job Time
+    LSTR MSG_LCD_SOFT_ENDSTOPS            = _UxGT("Програмні кінцевики");                      // Soft Endstops
+    LSTR MSG_LASER_POWER                  = _UxGT("Потужність лазера");                        // Laser Power
+    LSTR MSG_SPINDLE_POWER                = _UxGT("Потужн. шпінделя");                         // Spindle Pwr
+    LSTR MSG_MESH_EDITOR                  = _UxGT("Зміщення по Z");                            // Mesh Editor
+    LSTR MSG_UBL_MANUAL_MESH              = _UxGT("Ручне введення сітки");                     // Manually Build Mesh
+    LSTR MSG_UBL_BC_INSERT                = _UxGT("Розмістити шайбу і вимір.");                // Place Shim & Measure
+    LSTR MSG_UBL_BC_REMOVE                = _UxGT("Видалити і виміряти стіл");                 // Remove & Measure Bed
+    LSTR MSG_UBL_EDIT_CUSTOM_MESH         = _UxGT("Редагувати свою сітку");                    // Edit Custom Mesh
+    LSTR MSG_UBL_FINE_TUNE_MESH           = _UxGT("Точне редагування сітки");                  // Fine Tuning Mesh
+    LSTR MSG_UBL_BUILD_CUSTOM_MESH        = _UxGT("Будувати свою сітку");                      // Build Custom Mesh
+    LSTR MSG_UBL_GRID_MESH_LEVELING       = _UxGT("Вирівнювання растру");                      // Grid Mesh Leveling
+    LSTR MSG_UBL_FILLIN_AMOUNT            = _UxGT("Обсяг заповнюв.");                          // Fill-in Amount
+    LSTR MSG_UBL_FINE_TUNE_ALL            = _UxGT("Точно налаштувати все");                    // Fine Tune All
+    LSTR MSG_UBL_FINE_TUNE_CLOSEST        = _UxGT("Точно налашт.найближчу");                   // Fine Tune Closest
+    LSTR MSG_LED_PRESETS                  = _UxGT("Передустановки світла");                    // Light Presets
+    LSTR MSG_STORED_FAN_N                 = _UxGT("Збереж.швидк.вент. ~");                     // Stored Fan ~
+    LSTR MSG_EXTRA_FAN_SPEED_N            = _UxGT("Дод. швидк. вент. ~");                      // Extra Fan Speed ~
+    LSTR MSG_JUNCTION_DEVIATION           = _UxGT("Відхилення вузла");                         // Junction Dev
+    LSTR MSG_INIT_EEPROM                  = _UxGT("Ініціалізація EEPROM");                     // Initialize EEPROM
+    LSTR MSG_SINGLENOZZLE_PRIME_SPEED     = _UxGT("Початк.швидкість");                         // Prime Speed
+    LSTR MSG_SINGLENOZZLE_RETRACT_SPEED   = _UxGT("Швидкість втягув.");                        // Retract Speed
+    LSTR MSG_BED_COOLING                  = _UxGT("Охолодження столу...");                     // Bed Cooling...
+    LSTR MSG_CHAMBER_COOLING              = _UxGT("Охолодження камери...");                    // Chamber Cooling...
+    LSTR MSG_3POINT_LEVELING              = _UxGT("3-точкове вирівнювання");                   // 3-Point Leveling
+    LSTR MSG_LINEAR_LEVELING              = _UxGT("Лінійне вирівнювання");                     // Linear Leveling
+    LSTR MSG_BILINEAR_LEVELING            = _UxGT("Білінійне вирівнювання");                   // Bilinear Leveling
+    LSTR MSG_INFO_RUNAWAY_OFF             = _UxGT("Контроль витіку ") LCD_STR_THERMOMETER _UxGT(" Вимк"); // Runaway Watch: OFF
+    LSTR MSG_INFO_RUNAWAY_ON              = _UxGT("Контроль витіку ") LCD_STR_THERMOMETER _UxGT(" Увімк"); // Runaway Watch: ON
+    LSTR MSG_FILAMENT_CHANGE_OPTION_HEADER = _UxGT("ПАРАМЕТРИ ПРОДОВЖЕННЯ:");                   // RESUME OPTIONS:
+    LSTR MSG_RUNOUT_SENSOR                = _UxGT("Датчик закінчення прутка");                 // Runout Sensor
+    LSTR MSG_RUNOUT_DISTANCE_MM           = _UxGT("Відстань закінч.,мм");                      // Runout Dist mm
+    LSTR MSG_MMU2_LOAD_TO_NOZZLE          = _UxGT("MMU Завантажити в сопло");                  // Load to Nozzle
+    LSTR MSG_MIX                          = _UxGT("Змішування");                               // Mix
+    LSTR MSG_TOGGLE_MIX                   = _UxGT("Переключити змішування");                   // Toggle Mix
+    LSTR MSG_ACTIVE_VTOOL                 = _UxGT("Активація В-інструменту");                  // Active V-tool
+    LSTR MSG_GRADIENT_ALIAS               = _UxGT("Псевдонім В-інструменту");                  // Alias V-tool
+    LSTR MSG_RESET_VTOOLS                 = _UxGT("Зкидання В-інструментів");                  // Reset V-tools
+    LSTR MSG_MEDIA_INIT_FAIL              = _UxGT("Збій ініціалізації SD");                    // (MEDIA_TYPE_EN) Init Fail
+    LSTR MSG_KILL_SUBCALL_OVERFLOW        = _UxGT("Переповнення виклику");                     // Subcall Overflow
+    LSTR MSG_HOME_OFFSET_X                = _UxGT("Зміщення дому X");                          // Home Offset X
+    LSTR MSG_HOME_OFFSET_Y                = _UxGT("Зміщення дому Y");                          // Home Offset Y
+    LSTR MSG_HOME_OFFSET_Z                = _UxGT("Зміщення дому Z");                          // Home Offset Z
+    LSTR MSG_LAST_VALUE_SP                = _UxGT("Останнє значення ");                        // Last value
+    LSTR MSG_LASER_TOGGLE                 = _UxGT("Перемкнути лазер");                         // Toggle Laser
+    LSTR MSG_LASER_EVAC_TOGGLE            = _UxGT("Перемкнути обдув");                         // Toggle Blower
+    LSTR MSG_LASER_PULSE_MS               = _UxGT("Тестовий імпульс мс");                      // Test Pulse ms
+    LSTR MSG_SPINDLE_TOGGLE               = _UxGT("Перемкн. шпіндель");                        // Toggle Spindle
+    LSTR MSG_SPINDLE_EVAC_TOGGLE          = _UxGT("Перемкнути вакуум");                        // Toggle Vacuum
+    LSTR MSG_BED_TRAMMING_RAISE           = _UxGT("Вгору до спрацюв. зонду");                  // Adjust bed until the probe triggers.
+    LSTR MSG_BED_TRAMMING_IN_RANGE        = _UxGT("Кути в межах. Вирів.столу");                // Corners within tolerance. Bed trammed.
+    LSTR MSG_NEO2_PRESETS                 = _UxGT("Передустановка світла #2");                 // Light #2 Presets
+    LSTR MSG_COOLER                       = _UxGT("Охолодження лазеру");                       // Laser Coolant
+    LSTR MSG_COOLER_TOGGLE                = _UxGT("Перемк. охолодж.");                         // Toggle Cooler
+    LSTR MSG_BRIGHTNESS                   = _UxGT("Яскравість LCD");                           // LCD Brightness
+    LSTR MSG_SINGLENOZZLE_FAN_SPEED       = _UxGT("Оберти вентилятора");                       // Fan Speed
+    LSTR MSG_SINGLENOZZLE_FAN_TIME        = _UxGT("Час вентилятора");                          // Fan Time
+    LSTR MSG_ERR_COOLING_FAILED           = _UxGT("ОХОЛОДЖЕННЯ НЕ ВДАЛОСЬ");                   // Cooling Failed
+    LSTR MSG_PROBE_COOLING                = _UxGT("Охолодження зонду...");                     // Probe Cooling...
+    LSTR MSG_LASER_COOLING                = _UxGT("Охолодження лазеру...");                    // Laser Cooling...
+    LSTR MSG_MESH_DONE                    = _UxGT("Зондування сітки виконано");                // Mesh probing done
+    LSTR MSG_HOTEND_IDLE_TIMEOUT          = _UxGT("Час простою хотенду");                      // Hotend Idle Timeout
+    LSTR MSG_COLORS_SELECT                = _UxGT("Обрати кольори");                           // Select Colors
+    LSTR MSG_COLORS_APPLIED               = _UxGT("Кольори застосовані");                      // Colors applied
+    LSTR MSG_PLEASE_WAIT_REBOOT           = _UxGT("Перезавантаження...");                      // Please wait for reboot.
+    LSTR MSG_BAD_PAGE_SPEED               = _UxGT("Погана швидкість стор.");                   // Bad page speed
+    LSTR MSG_PROBE_WIZARD_PROBING         = _UxGT("Зондув. контрольної точки Z");              // Probing Z Reference
+    LSTR MSG_PROBE_WIZARD_MOVING          = _UxGT("Рух до точки зондування");                  // Moving to Probing Pos
+    LSTR MSG_MEDIA_NOT_INSERTED           = _UxGT("Носій не вставлений");                      // No media inserted.
   #endif
 }
 
@@ -785,16 +794,16 @@ namespace LanguageTall_uk {
   using namespace LanguageWide_uk;
   #if LCD_HEIGHT >= 4
     // Filament Change screens show up to 3 lines on a 4-line display
-    LSTR MSG_ADVANCED_PAUSE_WAITING         = _UxGT(MSG_3_LINE("Натисніть кнопку", "для продовження", "друку"));
-    LSTR MSG_FILAMENT_CHANGE_INIT           = _UxGT(MSG_3_LINE("Зачекайте", "на початок", "заміни прутка"));
-    LSTR MSG_FILAMENT_CHANGE_INSERT         = _UxGT(MSG_3_LINE("Вставте пруток", "та натисніть", "для продовження"));
-    LSTR MSG_FILAMENT_CHANGE_HEAT           = _UxGT(MSG_2_LINE("Натисніть кнопку", "для нагріву сопла"));
-    LSTR MSG_FILAMENT_CHANGE_HEATING        = _UxGT(MSG_2_LINE("Сопло нагрівається", "зачекайте..."));
-    LSTR MSG_FILAMENT_CHANGE_UNLOAD         = _UxGT(MSG_2_LINE("Зачекайте", "на вивід прутка"));
-    LSTR MSG_FILAMENT_CHANGE_LOAD           = _UxGT(MSG_2_LINE("Зачекайте", "на ввід прутка"));
-    LSTR MSG_FILAMENT_CHANGE_PURGE          = _UxGT(MSG_2_LINE("Дочекайтесь", "очищення прутка"));
-    LSTR MSG_FILAMENT_CHANGE_CONT_PURGE     = _UxGT(MSG_3_LINE("Натисніть кнопку", "для завершення", "очищення прутка"));
-    LSTR MSG_FILAMENT_CHANGE_RESUME         = _UxGT(MSG_3_LINE("Зачекайте", "на відновлення", "друку"));
+    LSTR MSG_FILAMENT_CHANGE_INIT         = _UxGT(MSG_3_LINE("Зачекайте", "на початок", "заміни прутка")); // |Wait for|filament change|to start
+    LSTR MSG_FILAMENT_CHANGE_INSERT       = _UxGT(MSG_3_LINE("Вставте пруток", "та натисніть", "для продовження")); // |Insert filament|and press button|to continue
+    LSTR MSG_FILAMENT_CHANGE_UNLOAD       = _UxGT(MSG_2_LINE("Зачекайте", "на вивід прутка")); // |Wait for|filament unload
+    LSTR MSG_FILAMENT_CHANGE_LOAD         = _UxGT(MSG_2_LINE("Зачекайте", "на ввід прутка"));  // |Wait for|filament load
+    LSTR MSG_FILAMENT_CHANGE_RESUME       = _UxGT(MSG_3_LINE("Зачекайте", "на відновлення", "друку")); // |Wait for print|to resume...
+    LSTR MSG_FILAMENT_CHANGE_HEATING      = _UxGT(MSG_2_LINE("Сопло нагрівається", "зачекайте...")); // |Nozzle heating|Please wait...
+    LSTR MSG_FILAMENT_CHANGE_HEAT         = _UxGT(MSG_2_LINE("Натисніть кнопку", "для нагріву сопла")); // |Press button|to heat nozzle
+    LSTR MSG_ADVANCED_PAUSE_WAITING       = _UxGT(MSG_3_LINE("Натисніть кнопку", "для продовження", "друку")); // |Press Button|to resume print
+    LSTR MSG_FILAMENT_CHANGE_PURGE        = _UxGT(MSG_2_LINE("Дочекайтесь", "очищення прутка")); // |Wait for|filament purge
+    LSTR MSG_FILAMENT_CHANGE_CONT_PURGE   = _UxGT(MSG_3_LINE("Натисніть кнопку", "для завершення", "очищення прутка")); // |Click to finish|filament purge
   #endif
 }
 

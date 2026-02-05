@@ -81,6 +81,7 @@ def Upload(source, target, env):
         _Send('M21')
         Responses = _Recv()
         if len(Responses) < 1 or not any('SD card ok' in r for r in Responses):
+            debugPrint(Responses)
             raise Exception('Error accessing SD card')
         debugPrint('SD Card OK')
         return True

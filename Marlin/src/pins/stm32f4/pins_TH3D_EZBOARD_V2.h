@@ -38,7 +38,7 @@
 // Onboard I2C EEPROM
 #if NO_EEPROM_SELECTED
   #define I2C_EEPROM
-  #define MARLIN_EEPROM_SIZE              0x1000  // 4K
+  #define MARLIN_EEPROM_SIZE             0x1000U  // 4K
   #define I2C_SCL_PIN                       PB6
   #define I2C_SDA_PIN                       PB7
   #undef NO_EEPROM_SELECTED
@@ -63,13 +63,13 @@
 //
 #if ANY(SENSORLESS_HOMING, SENSORLESS_PROBING)
   // Sensorless homing pins
-  #if ENABLED(X_AXIS_SENSORLESS_HOMING)
+  #if AXIS_HAS_STALLGUARD(X) && defined(X_STALL_SENSITIVITY)
     #define X_STOP_PIN                      PB4
   #else
     #define X_STOP_PIN                      PC1
   #endif
 
-  #if ENABLED(Y_AXIS_SENSORLESS_HOMING)
+  #if AXIS_HAS_STALLGUARD(Y) && defined(Y_STALL_SENSITIVITY)
     #define Y_STOP_PIN                      PB9
   #else
     #define Y_STOP_PIN                      PC2
@@ -190,13 +190,13 @@
 
 //#define SOFTWARE_SPI
 #define CUSTOM_SPI_PINS
-#define SDSS                                PA4
+#define ONBOARD_SD_CS_PIN                   PA4
+//#define SD_DETECT_PIN                     -1
+
+#define SD_SS_PIN              ONBOARD_SD_CS_PIN
 #define SD_SCK_PIN                          PA5
 #define SD_MISO_PIN                         PA6
 #define SD_MOSI_PIN                         PA7
-#define SD_SS_PIN                           SDSS
-//#define SD_DETECT_PIN                     -1
-//#define ONBOARD_SD_CS_PIN                 SDSS
 
 //
 // LCD / Controller

@@ -26,7 +26,16 @@
  *
  * LCD Menu Messages
  * See also https://marlinfw.org/docs/development/lcd_language.html
+ *
+ * Substitutions are applied for the following characters when used in menu items titles:
+ *
+ *   $ displays an inserted string
+ *   { displays  '0'....'10' for indexes 0 - 10
+ *   ~ displays  '1'....'11' for indexes 0 - 10
+ *   * displays 'E1'...'E11' for indexes 0 - 10 (By default. Uses LCD_FIRST_TOOL)
+ *   @ displays an axis name such as XYZUVW, or E for an extruder
  */
+
 namespace LanguageNarrow_zh_CN {
   using namespace Language_en; // Inherit undefined strings from English
 
@@ -591,16 +600,17 @@ namespace LanguageNarrow_zh_CN {
   LSTR MSG_SHORT_DAY                      = _UxGT("天"); // "d" // One character only
   LSTR MSG_SHORT_HOUR                     = _UxGT("时"); // "h" // One character only
   LSTR MSG_SHORT_MINUTE                   = _UxGT("分"); // "m" // One character only
+
 }
 
 namespace LanguageWide_zh_CN {
   using namespace LanguageNarrow_zh_CN;
-  #if LCD_WIDTH >= 20 || HAS_DWIN_E3V2
-    LSTR MSG_INFO_PRINT_COUNT             = _UxGT("打印计数"); // "Print Count"
-    LSTR MSG_INFO_COMPLETED_PRINTS        = _UxGT("完成了"); // "Completed"
-    LSTR MSG_INFO_PRINT_TIME              = _UxGT("总打印时间"); // "Total print time"
-    LSTR MSG_INFO_PRINT_LONGEST           = _UxGT("最长工作时间"); // "Longest job time"
-    LSTR MSG_INFO_PRINT_FILAMENT          = _UxGT("总计挤出"); // "Extruded total"
+  #if LCD_WIDTH > 20 || HAS_DWIN_E3V2
+    LSTR MSG_INFO_PRINT_COUNT             = _UxGT("打印计数");                                     // Print Count
+    LSTR MSG_INFO_COMPLETED_PRINTS        = _UxGT("完成了");                                      // Completed
+    LSTR MSG_INFO_PRINT_TIME              = _UxGT("总打印时间");                                    // Print Time
+    LSTR MSG_INFO_PRINT_LONGEST           = _UxGT("最长工作时间");                                   // Longest Job Time
+    LSTR MSG_INFO_PRINT_FILAMENT          = _UxGT("总计挤出");                                     // Extruded Total
   #endif
 }
 
@@ -608,17 +618,17 @@ namespace LanguageTall_zh_CN {
   using namespace LanguageWide_zh_CN;
   #if LCD_HEIGHT >= 4
     // Filament Change screens show up to 3 lines on a 4-line display
-    LSTR MSG_ADVANCED_PAUSE_WAITING       = _UxGT(MSG_2_LINE("按下按钮", "恢复打印"));
-    LSTR MSG_PAUSE_PRINT_PARKING          = _UxGT(MSG_1_LINE("停靠中..."));
-    LSTR MSG_FILAMENT_CHANGE_INIT         = _UxGT(MSG_3_LINE("等待开始", "丝料", "变更")); // "Wait for start of the filament change"
-    LSTR MSG_FILAMENT_CHANGE_INSERT       = _UxGT(MSG_3_LINE("插入料", "并按下", "以继续"));
-    LSTR MSG_FILAMENT_CHANGE_HEAT         = _UxGT(MSG_2_LINE("按下按钮来", "加热喷嘴.")); // "Press button to heat nozzle."
-    LSTR MSG_FILAMENT_CHANGE_HEATING      = _UxGT(MSG_2_LINE("加热喷嘴", "请等待 ...")); // "Heating nozzle Please wait..."
-    LSTR MSG_FILAMENT_CHANGE_UNLOAD       = _UxGT(MSG_2_LINE("等待", "卸下丝料")); // "Wait for filament unload"
-    LSTR MSG_FILAMENT_CHANGE_LOAD         = _UxGT(MSG_2_LINE("等待", "进料")); // "Wait for filament load"
-    LSTR MSG_FILAMENT_CHANGE_PURGE        = _UxGT(MSG_2_LINE("等待", "丝料清除")); // "Wait for filament purge"
-    LSTR MSG_FILAMENT_CHANGE_CONT_PURGE   = _UxGT(MSG_2_LINE("按下已完成", "料的清洗"));
-    LSTR MSG_FILAMENT_CHANGE_RESUME       = _UxGT(MSG_2_LINE("等待打印", "恢复")); // "Wait for print to resume"
+    LSTR MSG_FILAMENT_CHANGE_INIT         = _UxGT(MSG_3_LINE("等待开始", "丝料", "变更"));             // |Wait for|filament change|to start
+    LSTR MSG_FILAMENT_CHANGE_INSERT       = _UxGT(MSG_3_LINE("插入料", "并按下", "以继续"));            // |Insert filament|and press button|to continue
+    LSTR MSG_FILAMENT_CHANGE_UNLOAD       = _UxGT(MSG_2_LINE("等待", "卸下丝料"));                   // |Wait for|filament unload
+    LSTR MSG_FILAMENT_CHANGE_LOAD         = _UxGT(MSG_2_LINE("等待", "进料"));                     // |Wait for|filament load
+    LSTR MSG_FILAMENT_CHANGE_RESUME       = _UxGT(MSG_2_LINE("等待打印", "恢复"));                   // |Wait for print|to resume...
+    LSTR MSG_FILAMENT_CHANGE_HEATING      = _UxGT(MSG_2_LINE("加热喷嘴", "请等待 ..."));              // |Nozzle heating|Please wait...
+    LSTR MSG_FILAMENT_CHANGE_HEAT         = _UxGT(MSG_2_LINE("按下按钮来", "加热喷嘴."));               // |Press button|to heat nozzle
+    LSTR MSG_ADVANCED_PAUSE_WAITING       = _UxGT(MSG_2_LINE("按下按钮", "恢复打印"));                 // |Press Button|to resume print
+    LSTR MSG_PAUSE_PRINT_PARKING          = _UxGT(MSG_1_LINE("停靠中..."));                       // |Parking...
+    LSTR MSG_FILAMENT_CHANGE_PURGE        = _UxGT(MSG_2_LINE("等待", "丝料清除"));                   // |Wait for|filament purge
+    LSTR MSG_FILAMENT_CHANGE_CONT_PURGE   = _UxGT(MSG_2_LINE("按下已完成", "料的清洗"));                // |Click to finish|filament purge
   #endif
 }
 

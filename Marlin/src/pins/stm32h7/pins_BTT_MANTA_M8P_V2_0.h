@@ -36,9 +36,9 @@
   #ifndef FLASH_EEPROM_EMULATION
     #define FLASH_EEPROM_EMULATION                // Use Flash-based EEPROM emulation
   #endif
-  #define EEPROM_PAGE_SIZE      (0x800UL) // 2K
-  #define EEPROM_START_ADDRESS  (0x8000000UL + (STM32_FLASH_SIZE) * 1024UL - (EEPROM_PAGE_SIZE) * 2UL)
-  #define MARLIN_EEPROM_SIZE    EEPROM_PAGE_SIZE
+  #define EEPROM_PAGE_SIZE                0x800U  // 2K
+  #define EEPROM_START_ADDRESS (0x8000000UL + (STM32_FLASH_SIZE) * 1024UL - (EEPROM_PAGE_SIZE) * 2UL)
+  #define MARLIN_EEPROM_SIZE    EEPROM_PAGE_SIZE  // 2K
 #endif
 
 // Avoid conflict with TIMER_TONE
@@ -64,59 +64,12 @@
 //
 // Limit Switches
 //
-#ifdef X_STALL_SENSITIVITY
-  #define X_STOP_PIN                  X_DIAG_PIN  // M1-STOP
-  #if X_HOME_TO_MIN
-    #define X_MAX_PIN                E0_DIAG_PIN  // M4-STOP
-  #else
-    #define X_MIN_PIN                E0_DIAG_PIN  // M4-STOP
-  #endif
-#elif NEEDS_X_MINMAX
-  #ifndef X_MIN_PIN
-    #define X_MIN_PIN                 X_DIAG_PIN  // M1-STOP
-  #endif
-  #ifndef X_MAX_PIN
-    #define X_MAX_PIN                E0_DIAG_PIN  // M4-STOP
-  #endif
-#else
-  #define X_STOP_PIN                  X_DIAG_PIN  // M1-STOP
-#endif
-
-#ifdef Y_STALL_SENSITIVITY
-  #define Y_STOP_PIN                  Y_DIAG_PIN  // M2-STOP
-  #if Y_HOME_TO_MIN
-    #define Y_MAX_PIN                E1_DIAG_PIN  // M5-STOP
-  #else
-    #define Y_MIN_PIN                E1_DIAG_PIN  // M5-STOP
-  #endif
-#elif NEEDS_Y_MINMAX
-  #ifndef Y_MIN_PIN
-    #define Y_MIN_PIN                 Y_DIAG_PIN  // M2-STOP
-  #endif
-  #ifndef Y_MAX_PIN
-    #define Y_MAX_PIN                E1_DIAG_PIN  // M5-STOP
-  #endif
-#else
-  #define Y_STOP_PIN                  Y_DIAG_PIN  // M2-STOP
-#endif
-
-#ifdef Z_STALL_SENSITIVITY
-  #define Z_STOP_PIN                  Z_DIAG_PIN  // M3-STOP
-  #if Z_HOME_TO_MIN
-    #define Z_MAX_PIN                E2_DIAG_PIN  // M6-STOP
-  #else
-    #define Z_MIN_PIN                E2_DIAG_PIN  // M6-STOP
-  #endif
-#elif NEEDS_Z_MINMAX
-  #ifndef Z_MIN_PIN
-    #define Z_MIN_PIN                 Z_DIAG_PIN  // M3-STOP
-  #endif
-  #ifndef Z_MAX_PIN
-    #define Z_MAX_PIN                E2_DIAG_PIN  // M6-STOP
-  #endif
-#else
-  #define Z_STOP_PIN                  Z_DIAG_PIN  // M3-STOP
-#endif
+#define X_STOP_PIN                    X_DIAG_PIN  // M1-STOP
+#define Y_STOP_PIN                    Y_DIAG_PIN  // M2-STOP
+#define Z_STOP_PIN                    Z_DIAG_PIN  // M3-STOP
+#define X_OTHR_PIN                   E0_DIAG_PIN  // M4-STOP
+#define Y_OTHR_PIN                   E1_DIAG_PIN  // M5-STOP
+#define Z_OTHR_PIN                   E2_DIAG_PIN  // M6-STOP
 
 //
 // Z Probe (when not Z_MIN_PIN)
@@ -307,7 +260,6 @@
   //#define Y_HARDWARE_SERIAL  Serial1
   //#define Y2_HARDWARE_SERIAL Serial1
   //#define Z_HARDWARE_SERIAL  Serial1
-  //#define Z2_HARDWARE_SERIAL Serial1
   //#define E0_HARDWARE_SERIAL Serial1
   //#define E1_HARDWARE_SERIAL Serial1
   //#define E2_HARDWARE_SERIAL Serial1
@@ -317,11 +269,11 @@
   #define X_SERIAL_TX_PIN                   PC13
   #define Y_SERIAL_TX_PIN                   PE3
   #define Z_SERIAL_TX_PIN                   PB9
-  #define Z2_SERIAL_TX_PIN                  PB5
-  #define E0_SERIAL_TX_PIN                  PG14
-  #define E1_SERIAL_TX_PIN                  PG10
-  #define E2_SERIAL_TX_PIN                  PD5
-  #define E3_SERIAL_TX_PIN                  PC6
+  #define E0_SERIAL_TX_PIN                  PB5
+  #define E1_SERIAL_TX_PIN                  PG14
+  #define E2_SERIAL_TX_PIN                  PG10
+  #define E3_SERIAL_TX_PIN                  PD5
+  #define E4_SERIAL_TX_PIN                  PC6
 
   // Reduce baud rate to improve software serial reliability
   #ifndef TMC_BAUD_RATE
@@ -383,16 +335,14 @@
   #elif SD_DETECT_STATE == LOW
     #error "BOARD_BTT_MANTA_M8P_V2_0 onboard SD requires SD_DETECT_STATE set to HIGH."
   #endif
-  #define SDSS                              PB12
-  #define SD_SS_PIN                         SDSS
+  #define SD_SS_PIN                         PB12
   #define SD_SCK_PIN                        PB13
   #define SD_MISO_PIN                       PB14
   #define SD_MOSI_PIN                       PB15
   #define SD_DETECT_PIN                     -1
   #define SOFTWARE_SPI
 #elif SD_CONNECTION_IS(LCD)
-  #define SDSS                       EXP2_04_PIN
-  #define SD_SS_PIN                         SDSS
+  #define SD_SS_PIN                  EXP2_04_PIN
   #define SD_SCK_PIN                 EXP2_02_PIN
   #define SD_MISO_PIN                EXP2_01_PIN
   #define SD_MOSI_PIN                EXP2_06_PIN

@@ -882,27 +882,27 @@ namespace LanguageNarrow_tr {
   LSTR DGUS_MSG_WRITE_EEPROM_FAILED       = _UxGT("EEPROM yazımı başarısız");
   LSTR DGUS_MSG_READ_EEPROM_FAILED        = _UxGT("EEPROM okuma başarısız");
   LSTR DGUS_MSG_FILAMENT_RUNOUT           = _UxGT("E%d Filaman Tükenme");
+
 }
 
 namespace LanguageWide_tr {
   using namespace LanguageNarrow_tr;
-  #if LCD_WIDTH >= 20 || HAS_DWIN_E3V2
-    LSTR MSG_LIVE_MOVE                    = _UxGT("Canlı Hareket");
-    LSTR MSG_HOST_START_PRINT             = _UxGT("Host Baskıyı başlat");
-    LSTR MSG_PRINTING_OBJECT              = _UxGT("Yazdırma Nesnesi");
-    LSTR MSG_CANCEL_OBJECT                = _UxGT("Nesneyi İptal Et");
-    LSTR MSG_CANCEL_OBJECT_N              = _UxGT("Nesneyi İptal Et {");
-    LSTR MSG_CONTINUE_PRINT_JOB           = _UxGT("Yazdırmaya Devam Et");
-    LSTR MSG_MEDIA_MENU                   = _UxGT("SD Karttan Yazdır");
-    LSTR MSG_TURN_OFF                     = _UxGT("Yazıcıyı kapat");
-    LSTR MSG_END_LOOPS                    = _UxGT("Tekrr Döngüler Bitir");
-    LSTR MSG_MEDIA_NOT_INSERTED           = _UxGT("Ortam yerleştirilmedi.");        // ProUI
-    LSTR MSG_PLEASE_PREHEAT               = _UxGT("Lütfen önce hotend'i ısıtın.");  // ProUI
-    LSTR MSG_INFO_PRINT_COUNT_RESET       = _UxGT("Baskı Sayısını Sıfırla");        // ProUI
-    LSTR MSG_INFO_PRINT_COUNT             = _UxGT("Baskı Sayısı");
-    LSTR MSG_INFO_PRINT_TIME              = _UxGT("Toplam Baskı Süresi");
-    LSTR MSG_INFO_PRINT_LONGEST           = _UxGT("En Uzun Baskı Süresi");
-    LSTR MSG_INFO_PRINT_FILAMENT          = _UxGT("Toplam Filaman");
+  #if LCD_WIDTH > 20 || HAS_DWIN_E3V2
+    LSTR MSG_MEDIA_MENU                   = _UxGT("SD Karttan Yazdır");                        // Select from (MEDIA_TYPE_EN)
+    LSTR MSG_INFO_PRINT_COUNT             = _UxGT("Baskı Sayısı");                             // Print Count
+    LSTR MSG_INFO_PRINT_TIME              = _UxGT("Toplam Baskı Süresi");                      // Print Time
+    LSTR MSG_INFO_PRINT_LONGEST           = _UxGT("En Uzun Baskı Süresi");                     // Longest Job Time
+    LSTR MSG_INFO_PRINT_FILAMENT          = _UxGT("Toplam Filaman");                           // Extruded Total
+    LSTR MSG_PRINTING_OBJECT              = _UxGT("Yazdırma Nesnesi");                         // Printing Object
+    LSTR MSG_CANCEL_OBJECT                = _UxGT("Nesneyi İptal Et");                         // Cancel Object
+    LSTR MSG_CANCEL_OBJECT_N              = _UxGT("Nesneyi İptal Et {");                       // Cancel Object {
+    LSTR MSG_HOST_START_PRINT             = _UxGT("Host Baskıyı başlat");                      // Start Host Print
+    LSTR MSG_END_LOOPS                    = _UxGT("Tekrr Döngüler Bitir");                     // End Repeat Loops
+    LSTR MSG_CONTINUE_PRINT_JOB           = _UxGT("Yazdırmaya Devam Et");                      // Continue Print Job
+    LSTR MSG_TURN_OFF                     = _UxGT("Yazıcıyı kapat");                           // Turn off the printer
+    LSTR MSG_PLEASE_PREHEAT               = _UxGT("Lütfen önce hotend'i ısıtın.");             // Please preheat the hot end.
+    LSTR MSG_MEDIA_NOT_INSERTED           = _UxGT("Ortam yerleştirilmedi.");                   // No media inserted.
+    LSTR MSG_INFO_PRINT_COUNT_RESET       = _UxGT("Baskı Sayısını Sıfırla");                   // Reset Print Count
   #endif
 }
 
@@ -910,17 +910,17 @@ namespace LanguageTall_tr {
   using namespace LanguageWide_tr;
   #if LCD_HEIGHT >= 4
     // Filament Change screens show up to 3 lines on a 4-line display
-    LSTR MSG_ADVANCED_PAUSE_WAITING       = _UxGT(MSG_2_LINE("Baskıya devam etmek", "için Butona bas"));
-    LSTR MSG_PAUSE_PRINT_PARKING          = _UxGT(MSG_1_LINE("Park Ediliyor..."));
-    LSTR MSG_FILAMENT_CHANGE_INIT         = _UxGT(MSG_3_LINE("Filaman değişimi", "için başlama", "bekleniyor"));
-    LSTR MSG_FILAMENT_CHANGE_INSERT       = _UxGT(MSG_3_LINE("Filamanı yükle", "ve devam için", "tuşa bas..."));
-    LSTR MSG_FILAMENT_CHANGE_HEAT         = _UxGT(MSG_2_LINE("Nozulü Isıtmak için", "Butona Bas."));
-    LSTR MSG_FILAMENT_CHANGE_HEATING      = _UxGT(MSG_2_LINE("Nozul Isınıyor", "Lütfen Bekleyin..."));
-    LSTR MSG_FILAMENT_CHANGE_UNLOAD       = _UxGT(MSG_2_LINE("Filamanın çıkması", "bekleniyor"));
-    LSTR MSG_FILAMENT_CHANGE_LOAD         = _UxGT(MSG_2_LINE("Filamanın yüklenmesi", "bekleniyor.."));
-    LSTR MSG_FILAMENT_CHANGE_PURGE        = _UxGT(MSG_2_LINE("Filaman Temizlemesi", "için bekle"));
-    LSTR MSG_FILAMENT_CHANGE_CONT_PURGE   = _UxGT(MSG_2_LINE("Filaman Temizlemesi", "bitirmek için tıkla"));
-    LSTR MSG_FILAMENT_CHANGE_RESUME       = _UxGT(MSG_2_LINE("Baskının devam ", "etmesi için bekle"));
+    LSTR MSG_FILAMENT_CHANGE_INIT         = _UxGT(MSG_3_LINE("Filaman değişimi", "için başlama", "bekleniyor")); // |Wait for|filament change|to start
+    LSTR MSG_FILAMENT_CHANGE_INSERT       = _UxGT(MSG_3_LINE("Filamanı yükle", "ve devam için", "tuşa bas...")); // |Insert filament|and press button|to continue
+    LSTR MSG_FILAMENT_CHANGE_UNLOAD       = _UxGT(MSG_2_LINE("Filamanın çıkması", "bekleniyor")); // |Wait for|filament unload
+    LSTR MSG_FILAMENT_CHANGE_LOAD         = _UxGT(MSG_2_LINE("Filamanın yüklenmesi", "bekleniyor..")); // |Wait for|filament load
+    LSTR MSG_FILAMENT_CHANGE_RESUME       = _UxGT(MSG_2_LINE("Baskının devam ", "etmesi için bekle")); // |Wait for print|to resume...
+    LSTR MSG_FILAMENT_CHANGE_HEATING      = _UxGT(MSG_2_LINE("Nozul Isınıyor", "Lütfen Bekleyin...")); // |Nozzle heating|Please wait...
+    LSTR MSG_FILAMENT_CHANGE_HEAT         = _UxGT(MSG_2_LINE("Nozulü Isıtmak için", "Butona Bas.")); // |Press button|to heat nozzle
+    LSTR MSG_ADVANCED_PAUSE_WAITING       = _UxGT(MSG_2_LINE("Baskıya devam etmek", "için Butona bas")); // |Press Button|to resume print
+    LSTR MSG_PAUSE_PRINT_PARKING          = _UxGT(MSG_1_LINE("Park Ediliyor..."));             // |Parking...
+    LSTR MSG_FILAMENT_CHANGE_PURGE        = _UxGT(MSG_2_LINE("Filaman Temizlemesi", "için bekle")); // |Wait for|filament purge
+    LSTR MSG_FILAMENT_CHANGE_CONT_PURGE   = _UxGT(MSG_2_LINE("Filaman Temizlemesi", "bitirmek için tıkla")); // |Click to finish|filament purge
   #endif
 }
 

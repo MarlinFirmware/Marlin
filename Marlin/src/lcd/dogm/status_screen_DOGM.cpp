@@ -506,19 +506,19 @@ FORCE_INLINE void _draw_axis_value(const AxisEnum axis, const char *value, const
   #endif
   #if ENABLED(SHOW_REMAINING_TIME)
     void MarlinUI::drawRemain() {
-      if (printJobOngoing() && get_remaining_time() != 0)
+      if (marlin.printJobOngoing() && get_remaining_time() != 0)
         prepare_time_string(get_remaining_time(), 'R');
     }
   #endif
   #if ENABLED(SHOW_INTERACTION_TIME)
     void MarlinUI::drawInter() {
-      if (printingIsActive() && interaction_time)
+      if (marlin.printingIsActive() && interaction_time)
         prepare_time_string(interaction_time, 'C');
     }
   #endif
   #if ENABLED(SHOW_ELAPSED_TIME)
     void MarlinUI::drawElapsed() {
-      if (printJobOngoing())
+      if (marlin.printJobOngoing())
         prepare_time_string(print_job_timer.duration(), 'E');
     }
   #endif
@@ -549,7 +549,7 @@ void MarlinUI::draw_status_screen() {
     static char wstring[5], mstring[4];
   #endif
 
-  const bool show_e_total = TERN1(HAS_X_AXIS, TERN0(LCD_SHOW_E_TOTAL, printingIsActive()));
+  const bool show_e_total = TERN1(HAS_X_AXIS, TERN0(LCD_SHOW_E_TOTAL, marlin.printingIsActive()));
 
   #if HAS_PRINT_PROGRESS
     static u8g_uint_t progress_bar_solid_width = 0;
@@ -584,8 +584,10 @@ void MarlinUI::draw_status_screen() {
       #endif
     }
     else {
-      TERN_(HAS_X_AXIS, strcpy(xstring, is_inch ? ftostr53_63(LINEAR_UNIT(lpos.x)) : ftostr4sign(lpos.x)));
-      TERN_(HAS_Y_AXIS, strcpy(ystring, is_inch ? ftostr53_63(LINEAR_UNIT(lpos.y)) : ftostr4sign(lpos.y)));
+      XY_CODE(
+        strcpy(xstring, is_inch ? ftostr53_63(LINEAR_UNIT(lpos.x)) : ftostr4sign(lpos.x)),
+        strcpy(ystring, is_inch ? ftostr53_63(LINEAR_UNIT(lpos.y)) : ftostr4sign(lpos.y))
+      );
     }
 
     TERN_(HAS_Z_AXIS, strcpy(zstring, is_inch ? ftostr42_52(LINEAR_UNIT(lpos.z)) : ftostr52sp(lpos.z)));
@@ -868,8 +870,10 @@ void MarlinUI::draw_status_screen() {
           #endif
         }
         else {
-          TERN_(HAS_X_AXIS, _draw_axis_value(X_AXIS, xstring, blink));
-          TERN_(HAS_Y_AXIS, _draw_axis_value(Y_AXIS, ystring, blink));
+          XY_CODE(
+            _draw_axis_value(X_AXIS, xstring, blink),
+            _draw_axis_value(Y_AXIS, ystring, blink)
+          );
         }
 
       #endif

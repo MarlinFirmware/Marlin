@@ -21,6 +21,11 @@
  */
 #pragma once
 
+/**
+ * Bootloader Download
+ * https://mellow.klipper.cn/docs/ProductDoc/MainBoard/fly-e3/fly-e3-v2/flash/bl
+ */
+
 #include "env_validate.h"
 
 #ifndef BOARD_INFO_NAME
@@ -32,7 +37,7 @@
 #if NO_EEPROM_SELECTED
   #define FLASH_EEPROM_EMULATION
 #endif
-#define MARLIN_EEPROM_SIZE 0x1000                 // 4K
+#define MARLIN_EEPROM_SIZE               0x1000U  // 4K
 
 //
 // Servos

@@ -26,7 +26,23 @@
  *
  * LCD Menu Messages
  * See also https://marlinfw.org/docs/development/lcd_language.html
+ *
+ * Substitutions are applied for the following characters when used in menu items titles:
+ *
+ *   $ displays an inserted string
+ *   { displays  '0'....'10' for indexes 0 - 10
+ *   ~ displays  '1'....'11' for indexes 0 - 10
+ *   * displays 'E1'...'E11' for indexes 0 - 10 (By default. Uses LCD_FIRST_TOOL)
+ *   @ displays an axis name such as XYZUVW, or E for an extruder
  */
+
+#if HAS_SDCARD && !HAS_USB_FLASH_DRIVE
+  #define MEDIA_TYPE_ES "SD"
+#elif HAS_USB_FLASH_DRIVE && !HAS_SDCARD
+  #define MEDIA_TYPE_ES "USB"
+#else
+  #define MEDIA_TYPE_ES "SD/FD"
+#endif
 
 namespace LanguageNarrow_es {
   using namespace Language_en; // Inherit undefined strings from English
@@ -548,16 +564,17 @@ namespace LanguageNarrow_es {
   LSTR MSG_HEATER_TIMEOUT                 = _UxGT("T. de esp. Calent.");
   LSTR MSG_REHEAT                         = _UxGT("Recalentar");
   LSTR MSG_REHEATING                      = _UxGT("Recalentando...");
+
 }
 
 namespace LanguageWide_es {
   using namespace LanguageNarrow_es;
-  #if LCD_WIDTH >= 20 || HAS_DWIN_E3V2
-    LSTR MSG_INFO_PRINT_COUNT             = _UxGT("Cont. de impresión");
-    LSTR MSG_INFO_COMPLETED_PRINTS        = _UxGT("Completadas");
-    LSTR MSG_INFO_PRINT_TIME              = _UxGT("Tiempo total de imp.");
-    LSTR MSG_INFO_PRINT_LONGEST           = _UxGT("Impresión más larga");
-    LSTR MSG_INFO_PRINT_FILAMENT          = _UxGT("Total Extruido");
+  #if LCD_WIDTH > 20 || HAS_DWIN_E3V2
+    LSTR MSG_INFO_PRINT_COUNT             = _UxGT("Cont. de impresión");                       // Print Count
+    LSTR MSG_INFO_COMPLETED_PRINTS        = _UxGT("Completadas");                              // Completed
+    LSTR MSG_INFO_PRINT_TIME              = _UxGT("Tiempo total de imp.");                     // Print Time
+    LSTR MSG_INFO_PRINT_LONGEST           = _UxGT("Impresión más larga");                      // Longest Job Time
+    LSTR MSG_INFO_PRINT_FILAMENT          = _UxGT("Total Extruido");                           // Extruded Total
   #endif
 }
 
@@ -565,17 +582,17 @@ namespace LanguageTall_es {
   using namespace LanguageWide_es;
   #if LCD_HEIGHT >= 4
     // Filament Change screens show up to 3 lines on a 4-line display
-    LSTR MSG_ADVANCED_PAUSE_WAITING       = _UxGT(MSG_2_LINE("Pulsar el botón para", "reanudar impresión"));
-    LSTR MSG_PAUSE_PRINT_PARKING          = _UxGT(MSG_1_LINE("Aparcando..."));
-    LSTR MSG_FILAMENT_CHANGE_INIT         = _UxGT(MSG_3_LINE("Esperando para", "iniciar el cambio", "de filamento"));
-    LSTR MSG_FILAMENT_CHANGE_INSERT       = _UxGT(MSG_3_LINE("Inserte el filamento", "y pulse el botón", "para continuar..."));
-    LSTR MSG_FILAMENT_CHANGE_HEAT         = _UxGT(MSG_2_LINE("Pulse el botón para", "calentar la boquilla"));
-    LSTR MSG_FILAMENT_CHANGE_HEATING      = _UxGT(MSG_2_LINE("Calentando boquilla", "Espere por favor..."));
-    LSTR MSG_FILAMENT_CHANGE_UNLOAD       = _UxGT(MSG_2_LINE("Espere para", "liberar el filamento"));
-    LSTR MSG_FILAMENT_CHANGE_LOAD         = _UxGT(MSG_2_LINE("Espere para", "cargar el filamento"));
-    LSTR MSG_FILAMENT_CHANGE_PURGE        = _UxGT(MSG_2_LINE("Espere para", "purgar el filamento"));
-    LSTR MSG_FILAMENT_CHANGE_CONT_PURGE   = _UxGT(MSG_2_LINE("Pulse para finalizar", "la purga de filamen."));
-    LSTR MSG_FILAMENT_CHANGE_RESUME       = _UxGT(MSG_2_LINE("Esperando impresora", "para reanudar..."));
+    LSTR MSG_FILAMENT_CHANGE_INIT         = _UxGT(MSG_3_LINE("Esperando para", "iniciar el cambio", "de filamento")); // |Wait for|filament change|to start
+    LSTR MSG_FILAMENT_CHANGE_INSERT       = _UxGT(MSG_3_LINE("Inserte el filamento", "y pulse el botón", "para continuar...")); // |Insert filament|and press button|to continue
+    LSTR MSG_FILAMENT_CHANGE_UNLOAD       = _UxGT(MSG_2_LINE("Espere para", "liberar el filamento")); // |Wait for|filament unload
+    LSTR MSG_FILAMENT_CHANGE_LOAD         = _UxGT(MSG_2_LINE("Espere para", "cargar el filamento")); // |Wait for|filament load
+    LSTR MSG_FILAMENT_CHANGE_RESUME       = _UxGT(MSG_2_LINE("Esperando impresora", "para reanudar...")); // |Wait for print|to resume...
+    LSTR MSG_FILAMENT_CHANGE_HEATING      = _UxGT(MSG_2_LINE("Calentando boquilla", "Espere por favor...")); // |Nozzle heating|Please wait...
+    LSTR MSG_FILAMENT_CHANGE_HEAT         = _UxGT(MSG_2_LINE("Pulse el botón para", "calentar la boquilla")); // |Press button|to heat nozzle
+    LSTR MSG_ADVANCED_PAUSE_WAITING       = _UxGT(MSG_2_LINE("Pulsar el botón para", "reanudar impresión")); // |Press Button|to resume print
+    LSTR MSG_PAUSE_PRINT_PARKING          = _UxGT(MSG_1_LINE("Aparcando..."));                 // |Parking...
+    LSTR MSG_FILAMENT_CHANGE_PURGE        = _UxGT(MSG_2_LINE("Espere para", "purgar el filamento")); // |Wait for|filament purge
+    LSTR MSG_FILAMENT_CHANGE_CONT_PURGE   = _UxGT(MSG_2_LINE("Pulse para finalizar", "la purga de filamen.")); // |Click to finish|filament purge
   #endif
 }
 

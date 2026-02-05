@@ -31,7 +31,7 @@
 #if NO_EEPROM_SELECTED
   #define I2C_EEPROM
   #define SOFT_I2C_EEPROM
-  #define MARLIN_EEPROM_SIZE              0x1000  // 4K
+  #define MARLIN_EEPROM_SIZE             0x1000U  // 4K
   #define I2C_SDA_PIN                       PB7
   #define I2C_SCL_PIN                       PB6
   #undef NO_EEPROM_SELECTED
@@ -69,8 +69,11 @@
 // Release PA13/PA14 (led, usb control) from SWD pins
 #define DISABLE_DEBUG
 
-#ifndef BOARD_NEOPIXEL_PIN
-  #define BOARD_NEOPIXEL_PIN                PA8   // LED driving pin
+#define BOARD_NEOPIXEL_PIN                  PA8   // LED driving pin
+#ifndef BOARD_HAS_DCDC5V
+  #define BOARD_NEOPIXEL_MAX                  7   // Max number of NEOPIXELS supported on this board
+#else
+  #define BOARD_NEOPIXEL_MAX                 29   // With 5V DC-DC converter
 #endif
 
 #ifndef PS_ON_PIN

@@ -164,9 +164,8 @@ void FWRetract::retract(const bool retracting E_OPTARG(bool swapping/*=false*/))
     current_retract[active_extruder] = 0;
 
     // Recover E, set_current_to_destination
-    prepare_internal_move_to_destination(
-      MUL_TERN(RETRACT_SYNC_MIXING, swapping ? settings.swap_retract_recover_feedrate_mm_s : settings.retract_recover_feedrate_mm_s, MIXING_STEPPERS)
-    );
+    const feedRate_t fr_mm_s = swapping ? settings.swap_retract_recover_feedrate_mm_s : settings.retract_recover_feedrate_mm_s;
+    prepare_internal_move_to_destination(MUL_TERN(RETRACT_SYNC_MIXING, fr_mm_s, MIXING_STEPPERS));
   }
 
   TERN_(RETRACT_SYNC_MIXING, mixer.T(old_mixing_tool));   // Restore original mixing tool
@@ -244,6 +243,7 @@ void FWRetract::M208_report() {
       "  M208 S", LINEAR_UNIT(settings.retract_recover_extra)
     , " W", LINEAR_UNIT(settings.swap_retract_recover_extra)
     , " F", LINEAR_UNIT(MMS_TO_MMM(settings.retract_recover_feedrate_mm_s))
+    , " R", LINEAR_UNIT(MMS_TO_MMM(settings.swap_retract_recover_feedrate_mm_s))
   );
 }
 

@@ -33,7 +33,7 @@
 
 #if ANY(NO_EEPROM_SELECTED, FLASH_EEPROM_EMULATION)
   #define FLASH_EEPROM_EMULATION
-  #define EEPROM_PAGE_SIZE     (0x800U)           // 2K
+  #define EEPROM_PAGE_SIZE                0x800U  // 2K
   #define EEPROM_START_ADDRESS (0x8000000UL + (STM32_FLASH_SIZE) * 1024UL - (EEPROM_PAGE_SIZE) * 2UL)
   #define MARLIN_EEPROM_SIZE    EEPROM_PAGE_SIZE  // 2K
 #endif
@@ -300,8 +300,14 @@
     #define LCD_BACKLIGHT_PIN               -1
     #define FORCE_SOFT_SPI
 
+  #elif ENABLED(ULTI_CONTROLLER)
+
+    #define LCD_PINS_D6              EXP1_03_PIN
+    #define DOGLCD_SCL_PIN           EXP1_07_PIN  // I2C1
+    #define DOGLCD_SDA_PIN           EXP1_08_PIN  // I2C1
+
   #else
-    #error "Only CR10_STOCKDISPLAY, ZONESTAR_LCD, ENDER2_STOCKDISPLAY, MKS_MINI_12864, FYSETC_MINI_12864_2_1 and MKS_LCD12864A/B are currently supported on the SKR E3 DIP."
+    #error "Only CR10_STOCKDISPLAY, ZONESTAR_LCD, ENDER2_STOCKDISPLAY, ULTI_CONTROLLER, MKS_MINI_12864, FYSETC_MINI_12864_2_1 and MKS_LCD12864A/B are currently supported on the SKR E3 DIP."
   #endif
 
 #endif // HAS_WIRED_LCD
@@ -368,4 +374,4 @@
 
 #define ONBOARD_SPI_DEVICE                     1  // SPI1
 #define ONBOARD_SD_CS_PIN                   PA4   // Chip select for "System" SD card
-#define SDSS                   ONBOARD_SD_CS_PIN
+#define SD_SS_PIN              ONBOARD_SD_CS_PIN
