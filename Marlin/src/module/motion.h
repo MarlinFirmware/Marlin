@@ -67,11 +67,21 @@ extern xyz_pos_t cartes;
   #define XY_PROBE_FEEDRATE_MM_S PLANNER_XY_FEEDRATE_MM_S
 #endif
 
-#ifdef Z_PROBE_FEEDRATE_SLOW
-  TERN(DWIN_LCD_PROUI, const, constexpr) feedRate_t z_probe_slow_mm_s = MMM_TO_MMS(Z_PROBE_FEEDRATE_SLOW);
+#if ENABLED(DWIN_LCD_PROUI)
+  extern uint16_t z_probe_slow_mm_s;
+#elif defined(Z_PROBE_FEEDRATE_SLOW)
+  constexpr feedRate_t z_probe_slow_mm_s = MMM_TO_MMS(Z_PROBE_FEEDRATE_SLOW);
 #endif
 #ifdef Z_PROBE_FEEDRATE_FAST
   constexpr feedRate_t z_probe_fast_mm_s = MMM_TO_MMS(Z_PROBE_FEEDRATE_FAST);
+#endif
+
+#if ANY(MESH_BED_LEVELING, AUTO_BED_LEVELING_UBL)
+  #if ENABLED(PROUI_MESH_EDIT)
+    extern xy_pos_t mesh_min, mesh_max;
+  #else
+    constexpr xy_pos_t mesh_min{ MESH_MIN_X, MESH_MIN_Y }, mesh_max{ MESH_MAX_X, MESH_MAX_Y };
+  #endif
 #endif
 
 /**

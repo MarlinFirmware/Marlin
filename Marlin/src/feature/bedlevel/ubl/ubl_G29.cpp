@@ -448,7 +448,7 @@ void unified_bed_leveling::G29() {
       tilt_mesh_based_on_probed_grid(param.J_grid_size == 0); // Zero size does 3-Point
       restore_ubl_active_state();
       #if ENABLED(UBL_G29_J_RECENTER)
-        do_blocking_move_to_xy(0.5f * ((MESH_MIN_X) + (MESH_MAX_X)), 0.5f * ((MESH_MIN_Y) + (MESH_MAX_Y)));
+        do_blocking_move_to_xy(0.5f * (mesh_min.x + mesh_max.x), 0.5f * (mesh_min.y + mesh_max.y));
       #endif
       report_current_position();
       SET_PROBE_DEPLOYED(true);
@@ -786,7 +786,10 @@ void unified_bed_leveling::shift_mesh_height(const float zoffs) {
       SERIAL_ECHOLNPGM("Probing mesh point ", point_num, "/", GRID_MAX_POINTS, ".");
       TERN_(HAS_STATUS_MESSAGE, ui.status_printf(0, F(S_FMT " %i/%i"), GET_TEXT(MSG_PROBING_POINT), point_num, int(GRID_MAX_POINTS)));
       TERN_(HAS_BACKLIGHT_TIMEOUT, ui.refresh_backlight_timeout());
-      TERN_(DWIN_LCD_PROUI, if (!hmiFlag.cancel_lev) { dwinRedrawScreen(); } else { break; })
+
+      #if ENABLED(DWIN_LCD_PROUI)
+        if (!hmiFlag.cancel_lev) dwinRedrawScreen(); else break;
+      #endif
 
       #if HAS_MARLINUI_MENU
         if (ui.button_pressed()) {
@@ -816,13 +819,14 @@ void unified_bed_leveling::shift_mesh_height(const float zoffs) {
           ExtUI::onMeshUpdate(best.pos, ExtUI::G29_POINT_FINISH);
           ExtUI::onMeshUpdate(best.pos, measured_z);
         #endif
-        TERN_(DWIN_LCD_PROUI, meshViewer.drawMeshPoint(best.pos.x, best.pos.y, measured_z));
+        TERN_(DWIN_LCD_PROUI, meshViewer.drawMeshPoint(best.pos, measured_z));
       }
       SERIAL_FLUSH(); // Prevent host M105 buffer overrun.
 
     } while (best.pos.x >= 0 && --count);
 
-    TERN_(DWIN_LCD_PROUI, if (hmiFlag.cancel_lev) { goto EXIT_PROBE_MESH; })
+    if (TERN0(DWIN_LCD_PROUI, hmiFlag.cancel_lev))
+      goto EXIT_PROBE_MESH;
 
     GRID_LOOP(x, y) if (z_values[x][y] == HUGE_VALF) z_values[x][y] = NAN; // Restore NAN for HUGE_VALF marks
 
@@ -833,18 +837,19 @@ void unified_bed_leveling::shift_mesh_height(const float zoffs) {
     probe.stow();
     TERN_(HAS_MARLINUI_MENU, ui.capture());
 
-    TERN_(Z_AFTER_PROBING, probe.move_z_after_probing());
+    probe.move_z_after_probing();
 
     #if ENABLED(DWIN_LCD_PROUI)
       bedlevel.smart_fill_mesh();
     #else
       do_blocking_move_to_xy(
-        constrain(nearby.x - probe.offset_xy.x, MESH_MIN_X, MESH_MAX_X),
-        constrain(nearby.y - probe.offset_xy.y, MESH_MIN_Y, MESH_MAX_Y)
+        constrain(nearby.x - probe.offset_xy.x, mesh_min.x, mesh_max.x),
+        constrain(nearby.y - probe.offset_xy.y, mesh_min.y, mesh_max.y)
       );
     #endif
 
-    TERN_(DWIN_LCD_PROUI, EXIT_PROBE_MESH:);
+    EXIT_PROBE_MESH:
+
     restore_ubl_active_state();
   }
 
@@ -908,8 +913,8 @@ void set_message_with_feedback(FSTR_P const fstr) {
 
     do_blocking_move_to(
       xyz_pos_t({
-        0.5f * ((MESH_MIN_X) + (MESH_MAX_X)),
-        0.5f * ((MESH_MIN_Y) + (MESH_MAX_Y)),
+        0.5f * (mesh_min.x + mesh_max.x),
+        0.5f * (mesh_min.y + mesh_max.y),
         MANUAL_PROBE_START_Z
         #ifdef SAFE_BED_LEVELING_START_I
           , SAFE_BED_LEVELING_START_I
@@ -1204,9 +1209,9 @@ bool unified_bed_leveling::G29_parse_parameters() {
   }
 
   param.XY_seen.x = parser.seenval('X');
-  float sx = param.XY_seen.x ? parser.value_float() : current_position.x - TERN0(HAS_BED_PROBE, probe.offset.x);
+  float sx = param.XY_seen.x ? parser.value_float() : DIFF_TERN(HAS_BED_PROBE, current_position.x, probe.offset.x);
   param.XY_seen.y = parser.seenval('Y');
-  float sy = param.XY_seen.y ? parser.value_float() : current_position.y - TERN0(HAS_BED_PROBE, probe.offset.y);
+  float sy = param.XY_seen.y ? parser.value_float() : DIFF_TERN(HAS_BED_PROBE, current_position.y, probe.offset.y);
 
   if (param.XY_seen.x != param.XY_seen.y) {
     SERIAL_ECHOLNPGM("Both X & Y locations must be specified.\n");
@@ -1215,8 +1220,8 @@ bool unified_bed_leveling::G29_parse_parameters() {
 
   // If X or Y are not valid, use center of the bed values
   // (for UBL_HILBERT_CURVE default to lower-left corner instead)
-  if (!COORDINATE_OKAY(sx, X_MIN_BED, X_MAX_BED)) sx = TERN(UBL_HILBERT_CURVE, 0, X_CENTER - TERN0(HAS_BED_PROBE, probe.offset.x));
-  if (!COORDINATE_OKAY(sy, Y_MIN_BED, Y_MAX_BED)) sy = TERN(UBL_HILBERT_CURVE, 0, Y_CENTER - TERN0(HAS_BED_PROBE, probe.offset.y));
+  if (!COORDINATE_OKAY(sx, X_MIN_BED, X_MAX_BED)) sx = TERN(UBL_HILBERT_CURVE, 0, DIFF_TERN(HAS_BED_PROBE, X_CENTER, probe.offset.x));
+  if (!COORDINATE_OKAY(sy, Y_MIN_BED, Y_MAX_BED)) sy = TERN(UBL_HILBERT_CURVE, 0, DIFF_TERN(HAS_BED_PROBE, Y_CENTER, probe.offset.y));
 
   if (err_flag) return UBL_ERR;
 
@@ -1536,7 +1541,7 @@ void unified_bed_leveling::smart_fill_mesh() {
       }
 
       probe.stow();
-      TERN_(Z_AFTER_PROBING, probe.move_z_after_probing());
+      probe.move_z_after_probing();
 
       if (abort_flag) {
         SERIAL_ECHOLNPGM("?Error probing point. Aborting operation.");
@@ -1548,10 +1553,10 @@ void unified_bed_leveling::smart_fill_mesh() {
       #ifndef G29J_MESH_TILT_MARGIN
         #define G29J_MESH_TILT_MARGIN 0
       #endif
-      const float x_min = _MAX((X_MIN_POS) + (G29J_MESH_TILT_MARGIN), MESH_MIN_X, probe.min_x()),
-                  x_max = _MIN((X_MAX_POS) - (G29J_MESH_TILT_MARGIN), MESH_MAX_X, probe.max_x()),
-                  y_min = _MAX((Y_MIN_POS) + (G29J_MESH_TILT_MARGIN), MESH_MIN_Y, probe.min_y()),
-                  y_max = _MIN((Y_MAX_POS) - (G29J_MESH_TILT_MARGIN), MESH_MAX_Y, probe.max_y()),
+      const float x_min = _MAX((X_MIN_POS) + (G29J_MESH_TILT_MARGIN), mesh_min.x, probe.min_x()),
+                  x_max = _MIN((X_MAX_POS) - (G29J_MESH_TILT_MARGIN), mesh_max.x, probe.max_x()),
+                  y_min = _MAX((Y_MIN_POS) + (G29J_MESH_TILT_MARGIN), mesh_min.y, probe.min_y()),
+                  y_max = _MIN((Y_MAX_POS) - (G29J_MESH_TILT_MARGIN), mesh_max.y, probe.max_y()),
                   dx = (x_max - x_min) / (param.J_grid_size - 1),
                   dy = (y_max - y_min) / (param.J_grid_size - 1);
 
@@ -1622,7 +1627,7 @@ void unified_bed_leveling::smart_fill_mesh() {
       }
     }
     probe.stow();
-    TERN_(Z_AFTER_PROBING, probe.move_z_after_probing());
+    probe.move_z_after_probing();
 
     if (abort_flag || finish_incremental_LSF(&lsf_results)) {
       SERIAL_ECHOLNPGM("Could not complete LSF!");
@@ -1773,14 +1778,12 @@ void unified_bed_leveling::smart_fill_mesh() {
       SERIAL_ECHOLNPGM("Probe Offset M851 Z", p_float_t(probe.offset.z, 7));
     #endif
 
-    SERIAL_ECHOLNPGM("MESH_MIN_X  " STRINGIFY(MESH_MIN_X) "=", MESH_MIN_X); serial_delay(50);
-    SERIAL_ECHOLNPGM("MESH_MIN_Y  " STRINGIFY(MESH_MIN_Y) "=", MESH_MIN_Y); serial_delay(50);
-    SERIAL_ECHOLNPGM("MESH_MAX_X  " STRINGIFY(MESH_MAX_X) "=", MESH_MAX_X); serial_delay(50);
-    SERIAL_ECHOLNPGM("MESH_MAX_Y  " STRINGIFY(MESH_MAX_Y) "=", MESH_MAX_Y); serial_delay(50);
-    SERIAL_ECHOLNPGM("GRID_MAX_POINTS_X  ", GRID_MAX_POINTS_X);             serial_delay(50);
-    SERIAL_ECHOLNPGM("GRID_MAX_POINTS_Y  ", GRID_MAX_POINTS_Y);             serial_delay(50);
+    SERIAL_ECHOLNPGM("mesh_min ", mesh_min.x, ", ", mesh_min.y); serial_delay(50);
+    SERIAL_ECHOLNPGM("mesh_max ", mesh_max.x, ", ", mesh_max.y); serial_delay(50);
+    SERIAL_ECHOLNPGM("GRID_MAX_POINTS_X  ", GRID_MAX_POINTS_X);  serial_delay(50);
+    SERIAL_ECHOLNPGM("GRID_MAX_POINTS_Y  ", GRID_MAX_POINTS_Y);  serial_delay(50);
     SERIAL_ECHOLNPGM("MESH_X_DIST  ", MESH_X_DIST);
-    SERIAL_ECHOLNPGM("MESH_Y_DIST  ", MESH_Y_DIST);                         serial_delay(50);
+    SERIAL_ECHOLNPGM("MESH_Y_DIST  ", MESH_Y_DIST);              serial_delay(50);
 
     SERIAL_ECHOPGM("X-Axis Mesh Points at: ");
     for (uint8_t i = 0; i < GRID_MAX_POINTS_X; ++i) {
@@ -1790,8 +1793,8 @@ void unified_bed_leveling::smart_fill_mesh() {
     SERIAL_EOL();
 
     SERIAL_ECHOPGM("Y-Axis Mesh Points at: ");
-    for (uint8_t j = 0; j < GRID_MAX_POINTS_Y; ++j) {
-      SERIAL_ECHO(p_float_t(LOGICAL_Y_POSITION(get_mesh_y(j)), 3), F("  "));
+    for (uint8_t i = 0; i < GRID_MAX_POINTS_Y; ++i) {
+      SERIAL_ECHO(p_float_t(LOGICAL_Y_POSITION(get_mesh_y(i)), 3), F("  "));
       serial_delay(25);
     }
     SERIAL_EOL();

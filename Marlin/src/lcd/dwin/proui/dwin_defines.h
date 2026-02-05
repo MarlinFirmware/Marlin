@@ -33,9 +33,9 @@
 #include <stddef.h>
 #include "../../../core/types.h"
 
-//#define TJC_DISPLAY     // Enable for TJC display
-//#define DACAI_DISPLAY   // Enable for DACAI display
-//#define TITLE_CENTERED  // Center Menu Title Text
+//#define TJC_DISPLAY           // Enable for TJC display
+//#define DACAI_DISPLAY         // Enable for DACAI display
+//#define TITLE_CENTERED        // Center Menu Title Text
 
 #if defined(__STM32F1__) || defined(STM32F1)
   #define DASH_REDRAW 1
@@ -79,27 +79,10 @@
   #define defCaseLightBrightness 255
 #endif
 
-#ifdef Z_AFTER_HOMING
-  #define DEF_Z_AFTER_HOMING Z_AFTER_HOMING
-#else
-  #define DEF_Z_AFTER_HOMING 0
+#ifndef Z_AFTER_HOMING
+  #define Z_AFTER_HOMING 0
 #endif
 
-#ifdef PREHEAT_1_TEMP_HOTEND
-  #define DEF_HOTENDPIDT PREHEAT_1_TEMP_HOTEND
-#else
-  #define DEF_HOTENDPIDT 195
-#endif
-#ifdef PREHEAT_1_TEMP_BED
-  #define DEF_BEDPIDT PREHEAT_1_TEMP_BED
-#else
-  #define DEF_BEDPIDT 60
-#endif
-#ifdef PREHEAT_1_TEMP_CHAMBER
-  #define DEF_CHAMBERPIDT PREHEAT_1_TEMP_CHAMBER
-#else
-  #define DEF_CHAMBERPIDT 0
-#endif
 #define DEF_PIDCYCLES 5
 
 /**
@@ -139,39 +122,15 @@
 #define USE_GRID_MESHVIEWER 1 // Enable for two mesh graph types
 
 #if ENABLED(PROUI_MESH_EDIT)
-  #ifndef   MESH_INSET
+  #ifndef MESH_INSET
     #define MESH_INSET 10
   #endif
-  #ifndef   MESH_MIN_X
-    #define MESH_MIN_X MESH_INSET
-  #endif
-  #ifndef   MESH_MIN_Y
-    #define MESH_MIN_Y MESH_INSET
-  #endif
-  #ifndef   MESH_MAX_X
-    #define MESH_MAX_X X_BED_SIZE - (MESH_INSET)
-  #endif
-  #ifndef   MESH_MAX_Y
-    #define MESH_MAX_Y Y_BED_SIZE - (MESH_INSET)
-  #endif
-  constexpr uint16_t DEF_MESH_MIN_X = MESH_MIN_X;
-  constexpr uint16_t DEF_MESH_MAX_X = MESH_MAX_X;
-  constexpr uint16_t DEF_MESH_MIN_Y = MESH_MIN_Y;
-  constexpr uint16_t DEF_MESH_MAX_Y = MESH_MAX_Y;
   #define MIN_MESH_INSET 0
   #define MAX_MESH_INSET X_BED_SIZE
 #endif
 
 #ifndef MULTIPLE_PROBING
   #define MULTIPLE_PROBING 0
-#endif
-
-#if HAS_BED_PROBE
-  constexpr uint16_t DEF_Z_PROBE_FEEDRATE_SLOW = Z_PROBE_FEEDRATE_SLOW;
-#endif
-
-#if HAS_EXTRUDERS
-  constexpr bool DEF_INVERT_E0_DIR = INVERT_E0_DIR;
 #endif
 
 typedef struct {
@@ -200,13 +159,22 @@ typedef struct {
     int16_t pidCycles = DEF_PIDCYCLES;
   #endif
   #if ENABLED(PIDTEMP)
-    celsius_t hotendPIDT = DEF_HOTENDPIDT;
+    #ifndef PREHEAT_1_TEMP_HOTEND
+      #define PREHEAT_1_TEMP_HOTEND 195
+    #endif
+    celsius_t hotendPIDT = PREHEAT_1_TEMP_HOTEND;
   #endif
   #if ENABLED(PIDTEMPBED)
-    celsius_t bedPIDT = DEF_BEDPIDT;
+    #ifndef PREHEAT_1_TEMP_BED
+      #define PREHEAT_1_TEMP_BED 60
+    #endif
+    celsius_t bedPIDT = PREHEAT_1_TEMP_BED;
   #endif
   #if ENABLED(PIDTEMPCHAMBER)
-    celsius_t chamberPIDT = DEF_CHAMBERPIDT;
+    #ifndef PREHEAT_1_TEMP_CHAMBER
+      #define PREHEAT_1_TEMP_CHAMBER 0
+    #endif
+    celsius_t chamberPIDT = PREHEAT_1_TEMP_CHAMBER;
   #endif
   #if ENABLED(PREVENT_COLD_EXTRUSION)
     celsius_t extMinT = EXTRUDE_MINTEMP;
@@ -227,7 +195,7 @@ typedef struct {
   #endif
   bool mediaAutoMount = ENABLED(HAS_SD_EXTENDER);
   #if ALL(INDIVIDUAL_AXIS_HOMING_SUBMENU, MESH_BED_LEVELING)
-    uint8_t zAfterHoming = DEF_Z_AFTER_HOMING;
+    uint8_t zAfterHoming = Z_AFTER_HOMING;
     #define Z_POST_CLEARANCE hmiData.zAfterHoming
   #endif
   #if ALL(LED_CONTROL_MENU, HAS_COLOR_LEDS)
@@ -236,43 +204,11 @@ typedef struct {
   #if HAS_GCODE_PREVIEW
     bool enablePreview = true;
   #endif
-  #if ENABLED(PROUI_MESH_EDIT)
-    float mesh_min_x = DEF_MESH_MIN_X;
-    float mesh_max_x = DEF_MESH_MAX_X;
-    float mesh_min_y = DEF_MESH_MIN_Y;
-    float mesh_max_y = DEF_MESH_MAX_Y;
-  #endif
-  #if HAS_BED_PROBE
-    IF_DISABLED(BD_SENSOR, uint8_t multiple_probing = MULTIPLE_PROBING);
-    uint16_t zprobeFeed = DEF_Z_PROBE_FEEDRATE_SLOW;
-  #endif
-  #if HAS_EXTRUDERS
-    bool Invert_E0 = DEF_INVERT_E0_DIR;
+  #if HAS_BED_PROBE && DISABLED(BD_SENSOR)
+    uint8_t multiple_probing = MULTIPLE_PROBING;
   #endif
 } hmi_data_t;
 
 extern hmi_data_t hmiData;
 
 #define EXTUI_EEPROM_DATA_SIZE sizeof(hmi_data_t)
-
-// ProUI extra feature redefines
-#if ENABLED(PROUI_MESH_EDIT)
-  #undef  MESH_MIN_X
-  #undef  MESH_MAX_X
-  #undef  MESH_MIN_Y
-  #undef  MESH_MAX_Y
-  #define MESH_MIN_X hmiData.mesh_min_x
-  #define MESH_MAX_X hmiData.mesh_max_x
-  #define MESH_MIN_Y hmiData.mesh_min_y
-  #define MESH_MAX_Y hmiData.mesh_max_y
-#endif
-
-#if HAS_BED_PROBE
-  #undef Z_PROBE_FEEDRATE_SLOW
-  #define Z_PROBE_FEEDRATE_SLOW hmiData.zprobeFeed
-#endif
-
-#if HAS_EXTRUDERS
-  #undef INVERT_E0_DIR
-  #define INVERT_E0_DIR hmiData.Invert_E0
-#endif

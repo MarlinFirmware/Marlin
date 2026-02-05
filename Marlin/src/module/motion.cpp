@@ -85,6 +85,14 @@ bool relative_mode; // = false
   bool z_min_trusted; // = false
 #endif
 
+#if ANY(MESH_BED_LEVELING, AUTO_BED_LEVELING_UBL)
+  #if ENABLED(DWIN_LCD_PROUI)
+    uint16_t z_probe_slow_mm_s = MMM_TO_MMS(Z_PROBE_FEEDRATE_SLOW);
+    xy_pos_t mesh_min{ MESH_MIN_X, MESH_MIN_Y },
+             mesh_max{ MESH_MAX_X, MESH_MAX_Y };
+  #endif
+#endif
+
 // Warn for unexpected TPARA home position
 #if ENABLED(AXEL_TPARA)
   static_assert(
@@ -1061,7 +1069,7 @@ void do_blocking_move_to(const xyze_pos_t &raw, const feedRate_t fr_mm_s/*=0.0f*
    *  - Execute the move at the probing (or homing) feedrate
    */
   void do_z_clearance(const float zclear, const bool with_probe/*=true*/, const bool lower_allowed/*=false*/) {
-    IF_DISABLED(HAS_BED_PROBE, UNUSED(with_probe));
+    UNUSED(with_probe);
     float zdest = zclear;
     TERN_(HAS_BED_PROBE, if (with_probe && probe.offset.z < 0) zdest -= probe.offset.z);
     NOMORE(zdest, Z_MAX_POS);

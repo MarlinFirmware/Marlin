@@ -53,6 +53,7 @@ public:
   static bool goto_mesh_value;
   static uint8_t mesh_x, mesh_y;
   static uint8_t tilt_grid;
+
   #if ENABLED(AUTO_BED_LEVELING_UBL)
     static bool createPlaneFromMesh();
   #endif

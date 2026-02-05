@@ -69,7 +69,7 @@ BedLevelTools bedLevelTools;
   bool BedLevelTools::grid_meshview = false;
   bool BedLevelTools::viewer_print_value = false;
 #endif
-bool    BedLevelTools::goto_mesh_value = false;
+bool BedLevelTools::goto_mesh_value = false;
 uint8_t BedLevelTools::mesh_x = 0;
 uint8_t BedLevelTools::mesh_y = 0;
 uint8_t BedLevelTools::tilt_grid = 1;
@@ -100,21 +100,17 @@ bool drawing_mesh = false;
     GRID_LOOP(i, j) {
       float mx = bedlevel.get_mesh_x(i), my = bedlevel.get_mesh_y(j), mz = bedlevel.z_values[i][j];
 
-      #if DEBUG_OUT
-        if (DEBUGGING(LEVELING)) {
-          DEBUG_ECHOLN(F("before rotation = ["), p_float_t(mx, 7), C(','), p_float_t(my, 7), C(','), p_float_t(mz, 7), F("]   ---> "));
-          DEBUG_DELAY(20);
-        }
-      #endif
+      if (DEBUGGING(LEVELING)) {
+        DEBUG_ECHOLN(F("before rotation = ["), p_float_t(mx, 7), C(','), p_float_t(my, 7), C(','), p_float_t(mz, 7), F("]   ---> "));
+        DEBUG_DELAY(20);
+      }
 
       rotation.apply_rotation_xyz(mx, my, mz);
 
-      #if DEBUG_OUT
-        if (DEBUGGING(LEVELING)) {
-          DEBUG_ECHOLN(F("after rotation = ["), p_float_t(mx, 7), C(','), p_float_t(my, 7), C(','), p_float_t(mz, 7), F("]   ---> "));
-          DEBUG_DELAY(20);
-        }
-      #endif
+      if (DEBUGGING(LEVELING)) {
+        DEBUG_ECHOLN(F("after rotation = ["), p_float_t(mx, 7), C(','), p_float_t(my, 7), C(','), p_float_t(mz, 7), F("]   ---> "));
+        DEBUG_DELAY(20);
+      }
 
       bedlevel.z_values[i][j] = mz - lsf_results.D;
     }
@@ -134,7 +130,7 @@ void BedLevelTools::manualMove(const uint8_t mesh_x, const uint8_t mesh_y, bool 
   if (!zmove) {
     dwinShowPopup(ICON_BLTouch, F("Moving to Point"), F("Please wait until done."));
     hmiSaveProcessID(ID_NothingToDo);
-    gcode.process_subcommands_now(F("G0F600Z" STRINGIFY(Z_CLEARANCE_BETWEEN_PROBES)));
+    gcode.process_subcommands_now(TS(F("G0 F300 Z"), p_float_t(Z_CLEARANCE_BETWEEN_PROBES, 3)));
     gcode.process_subcommands_now(TS(F("G42 F4000 I"), mesh_x, F(" J"), mesh_y));
   }
   planner.synchronize();
@@ -176,25 +172,20 @@ void BedLevelTools::meshReset() {
 // Accessors
 float BedLevelTools::getMaxValue() {
   float max = -(__FLT_MAX__);
-  GRID_LOOP(x, y) {
-    const float z = bedlevel.z_values[x][y];
-    if (!isnan(z)) NOLESS(max, z);
-  }
+  GRID_LOOP(x, y) { const float z = bedlevel.z_values[x][y]; if (!isnan(z)) NOLESS(max, z); }
   return max;
 }
 
 float BedLevelTools::getMinValue() {
   float min = __FLT_MAX__;
-  GRID_LOOP(x, y) {
-    const float z = bedlevel.z_values[x][y];
-    if (!isnan(z)) NOMORE(min, z);
-  }
+  GRID_LOOP(x, y) { const float z = bedlevel.z_values[x][y]; if (!isnan(z)) NOMORE(min, z); }
   return min;
 }
 
 // Return 'true' if mesh is good and within LCD limits
 bool BedLevelTools::meshValidate() {
-  TERN_(PROUI_MESH_EDIT, if ((MESH_MAX_X <= MESH_MIN_X) || (MESH_MAX_Y <= MESH_MIN_Y)) return false);
+  if (TERN0(mesh_max.x <= mesh_min.x || mesh_max.y <= mesh_min.y))
+    return false;
   GRID_LOOP(x, y) {
     const float z = bedlevel.z_values[x][y];
     if (isnan(z) || !WITHIN(z, Z_OFFSET_MIN, Z_OFFSET_MAX)) return false;
@@ -249,7 +240,7 @@ bool BedLevelTools::meshValidate() {
       }
       else {          // has value
         MString<12> msg;
-        const bool is_wide = (GRID_MAX_POINTS_X) >= TERN(TJC_DISPLAY, 8, 10);
+        constexpr bool is_wide = (GRID_MAX_POINTS_X) >= TERN(TJC_DISPLAY, 8, 10);
         if (is_wide)
           msg.setf(F("%02i"), uint16_t(z * 100) % 100);
         else

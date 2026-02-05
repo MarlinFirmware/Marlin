@@ -264,11 +264,11 @@ void DWINUI::drawCircle(uint16_t color, uint16_t x, uint16_t y, uint8_t r) {
 //  x: the abscissa of the center of the circle
 //  y: ordinate of the center of the circle
 //  r: circle radius
-void DWINUI::drawFillCircle(uint16_t bcolor, uint16_t x, uint16_t y, uint8_t r) {
+void DWINUI::drawFillCircle(const uint16_t bcolor, const uint16_t x, const uint16_t y, const uint8_t r) {
   dwinDrawLine(bcolor, x - r, y, x + r, y);
   uint16_t b = 1;
   while (b <= r) {
-    uint16_t a = SQRT(sq(r) - sq(b));
+    const uint16_t a = SQRT(sq(r) - sq(b));
     dwinDrawLine(bcolor, x - a, y + b, x + a, y + b);
     dwinDrawLine(bcolor, x - a, y - b, x + a, y - b);
     b += TERN(TJC_DISPLAY, 2, 1);

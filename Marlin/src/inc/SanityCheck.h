@@ -1593,15 +1593,13 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
     static_assert(Z_AFTER_PROBING >= 0, "Probes require Z_AFTER_PROBING >= 0.");
   #endif
 
-  #if DISABLED(DWIN_LCD_PROUI)
-    #if MULTIPLE_PROBING > 0 || EXTRA_PROBING > 0
-      #if MULTIPLE_PROBING == 0
-        #error "EXTRA_PROBING requires MULTIPLE_PROBING."
-      #elif MULTIPLE_PROBING < 2
-        #error "MULTIPLE_PROBING must be 2 or more."
-      #elif MULTIPLE_PROBING <= EXTRA_PROBING
-        #error "EXTRA_PROBING must be less than MULTIPLE_PROBING."
-      #endif
+  #if DISABLED(DWIN_LCD_PROUI) && (MULTIPLE_PROBING > 0 || EXTRA_PROBING > 0)
+    #if MULTIPLE_PROBING == 0
+      #error "EXTRA_PROBING requires MULTIPLE_PROBING."
+    #elif MULTIPLE_PROBING < 2
+      #error "MULTIPLE_PROBING must be 2 or more."
+    #elif MULTIPLE_PROBING <= EXTRA_PROBING
+      #error "EXTRA_PROBING must be less than MULTIPLE_PROBING."
     #endif
   #endif
 

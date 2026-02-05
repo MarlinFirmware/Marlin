@@ -51,11 +51,13 @@
 #endif
 
 bool leveling_is_valid() {
-  #if ALL(HAS_MESH, DWIN_LCD_PROUI)
-    return bedLevelTools.meshValidate();
-  #else
-    return TERN1(HAS_MESH, bedlevel.mesh_is_valid());
-  #endif
+  return (
+    #if ALL(HAS_MESH, DWIN_LCD_PROUI)
+      bedLevelTools.meshValidate()
+    #else
+      TERN1(HAS_MESH, bedlevel.mesh_is_valid())
+    #endif
+  );
 }
 
 /**
