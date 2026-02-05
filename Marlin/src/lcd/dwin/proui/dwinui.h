@@ -57,7 +57,6 @@
 #define ICON_HSMode           ICON_MaxAccZ
 #define ICON_InputShaping     ICON_MaxAccelerated
 #define ICON_JDmm             ICON_MaxJerk
-#define ICON_Level            ICON_Mesh
 #define ICON_Lock             ICON_Checkbox
 #define ICON_ManualMesh       ICON_Mesh
 #define ICON_MaxPosX          ICON_MoveX
@@ -209,6 +208,7 @@ typedef struct { uint16_t x, y, w, h; } frame_rect_t;
 
 class Title {
 public:
+  const uint8_t meshfont = TERN(TJC_DISPLAY, font8x16, font6x12);
   char caption[32] = "";
   uint8_t frameid = 0;
   rect_t frame = {0};

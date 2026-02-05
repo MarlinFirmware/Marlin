@@ -34,7 +34,6 @@
 
 #include "../../../core/types.h"
 #include "../../marlinui.h"
-#include "dwin.h"
 #include "dwin_popup.h"
 #include "../../../feature/bedlevel/bedlevel.h"
 #include "meshviewer.h"
@@ -55,8 +54,6 @@ uint8_t rmax;                               // Maximum radius
 #define px(xp) (margin + (xp) * (width) / (sizex - 1))
 #define py(yp) (30 + DWIN_WIDTH - margin - (yp) * (width) / (sizey - 1))
 
-constexpr uint8_t meshfont = TERN(TJC_DISPLAY, font8x16, font6x12);
-
 MeshViewer meshViewer;
 
 float MeshViewer::max, MeshViewer::min;
@@ -74,7 +71,7 @@ void MeshViewer::drawMeshGrid(const uint8_t csizex, const uint8_t csizey) {
 }
 
 void MeshViewer::drawMeshPoint(const uint8_t x, const uint8_t y, const float z) {
-  const uint8_t fs = DWINUI::fontWidth(meshfont);
+  const uint8_t fs = DWINUI::fontWidth(title.meshfont);
   const int16_t v = isnan(z) ? int16_t(0) : int16_t(LROUND(z * 100));
   NOLESS(max, z); NOMORE(min, z);
 
@@ -84,21 +81,21 @@ void MeshViewer::drawMeshPoint(const uint8_t x, const uint8_t y, const float z) 
 
   const uint16_t fy = py(y) - fs;
   if (sizex < TERN(TJC_DISPLAY, 8, 9)) {
-    if (v == 0) DWINUI::drawFloat(meshfont, 1, 2, px(x) - 2 * fs, fy, 0);
-    else DWINUI::drawSignedFloat(meshfont, 1, 2, px(x) - 3 * fs, fy, z);
+    if (v == 0) DWINUI::drawFloat(title.meshfont, 1, 2, px(x) - 2 * fs, fy, 0);
+    else DWINUI::drawSignedFloat(title.meshfont, 1, 2, px(x) - 3 * fs, fy, z);
   }
   else {
     char msg[9]; msg[0] = '\0';
     switch (v) {
       case -999 ... -100:
-      case  100 ...  999: DWINUI::drawSignedFloat(meshfont, 1, 1, px(x) - 3 * fs, fy, z); break;
+      case  100 ...  999: DWINUI::drawSignedFloat(title.meshfont, 1, 1, px(x) - 3 * fs, fy, z); break;
       case  -99 ...   -1: sprintf_P(msg, PSTR("-.%2i"), -v); break;
       case    1 ...   99: sprintf_P(msg, PSTR( ".%2i"),  v); break;
       default:
-        dwinDrawString(false, meshfont, DWINUI::textColor, DWINUI::backColor, px(x) - 4, fy, "0");
+        dwinDrawString(false, title.meshfont, DWINUI::textColor, DWINUI::backColor, px(x) - 4, fy, "0");
         return;
     }
-    dwinDrawString(false, meshfont, DWINUI::textColor, DWINUI::backColor, px(x) - 2 * fs, fy, msg);
+    dwinDrawString(false, title.meshfont, DWINUI::textColor, DWINUI::backColor, px(x) - 2 * fs, fy, msg);
   }
 }
 

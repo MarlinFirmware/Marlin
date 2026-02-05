@@ -68,7 +68,7 @@ extern xyz_pos_t cartes;
 #endif
 
 #ifdef Z_PROBE_FEEDRATE_SLOW
-  constexpr feedRate_t z_probe_slow_mm_s = MMM_TO_MMS(Z_PROBE_FEEDRATE_SLOW);
+  TERN(DWIN_LCD_PROUI, const, constexpr) feedRate_t z_probe_slow_mm_s = MMM_TO_MMS(Z_PROBE_FEEDRATE_SLOW);
 #endif
 #ifdef Z_PROBE_FEEDRATE_FAST
   constexpr feedRate_t z_probe_fast_mm_s = MMM_TO_MMS(Z_PROBE_FEEDRATE_FAST);
