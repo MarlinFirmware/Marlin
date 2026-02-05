@@ -350,7 +350,7 @@ void menu_advanced_settings();
 
 #endif
 
-#if ANY(CONTROLLER_FAN_MENU, HAS_E_AUTO_FAN)
+#if ANY(CONTROLLER_FAN_MENU, EDITABLE_AUTO_FAN_SPEED)
 
   #include "../../feature/controllerfan.h"
 
@@ -365,7 +365,7 @@ void menu_advanced_settings();
         EDIT_ITEM(uint16_4, MSG_CONTROLLER_FAN_DURATION, &controllerFan.settings.duration, 0, 4800);
       }
     #endif
-    #if ENABLED(HAS_E_AUTO_FAN)
+    #if ENABLED(EDITABLE_AUTO_FAN_SPEED)
       EDIT_ITEM_FAST(percent, MSG_EXTRUDER_AUTO_FAN_SPEED, &thermalManager.extruder_fan_speed, 0, 255);
     #endif
     END_MENU();

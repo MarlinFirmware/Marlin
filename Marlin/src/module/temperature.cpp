@@ -402,8 +402,10 @@ PGMSTR(str_t_heating_failed, STR_T_HEATING_FAILED);
   uint8_t Temperature::autofan_speed[HOTENDS] = ARRAY_N_1(HOTENDS, FAN_OFF_PWM);
 #endif
 
-#if ENABLED(HAS_E_AUTO_FAN)
-  uint8_t Temperature::extruder_fan_speed = EXTRUDER_AUTO_FAN_SPEED;
+#if ENABLED(EDITABLE_AUTO_FAN_SPEED)
+  uint8_t Temperature::extruder_fan_speed;  // Initialized by settings.load
+#elif HAS_E_AUTO_FAN
+  constexpr uint8_t Temperature::extruder_fan_speed;
 #endif
 
 #if ENABLED(AUTO_POWER_CHAMBER_FAN)

@@ -674,8 +674,10 @@ class Temperature {
       static uint8_t autofan_speed[HOTENDS];
     #endif
 
-    #if HAS_E_AUTO_FAN
+    #if ENABLED(EDITABLE_AUTO_FAN_SPEED)
       static uint8_t extruder_fan_speed;
+    #elif HAS_E_AUTO_FAN
+      static constexpr uint8_t extruder_fan_speed = EXTRUDER_AUTO_FAN_SPEED;
     #endif
 
     #if ENABLED(AUTO_POWER_CHAMBER_FAN)

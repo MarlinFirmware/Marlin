@@ -707,6 +707,9 @@
 #define E5_AUTO_FAN_PIN -1
 #define E6_AUTO_FAN_PIN -1
 #define E7_AUTO_FAN_PIN -1
+
+//#define EDITABLE_AUTO_FAN_SPEED   // Add G-code and menu items to modify Extruder Auto Fan Speeds
+
 #define CHAMBER_AUTO_FAN_PIN -1
 #define COOLER_AUTO_FAN_PIN -1
 
