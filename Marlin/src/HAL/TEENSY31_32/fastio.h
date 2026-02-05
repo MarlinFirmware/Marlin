@@ -53,17 +53,17 @@
 
 #define _SET_INPUT(P) do{ \
   CORE_PIN ## P ## _CONFIG = PORT_PCR_MUX(1); \
-  GPIO_BITBAND(CORE_PIN ## P ## _DDRREG , CORE_PIN ## P ## _BIT) = 0; \
+  GPIO_BITBAND(CORE_PIN ## P ## _DDRREG, CORE_PIN ## P ## _BIT) = 0; \
 }while(0)
 
 #define _SET_OUTPUT(P) do{ \
   CORE_PIN ## P ## _CONFIG = PORT_PCR_MUX(1)|PORT_PCR_SRE|PORT_PCR_DSE; \
-  GPIO_BITBAND(CORE_PIN ## P ## _DDRREG , CORE_PIN ## P ## _BIT) = 1; \
+  GPIO_BITBAND(CORE_PIN ## P ## _DDRREG, CORE_PIN ## P ## _BIT) = 1; \
 }while(0)
 
 #define _SET_INPUT_PULLUP(P) do{ \
   CORE_PIN ## P ## _CONFIG = PORT_PCR_MUX(1) | PORT_PCR_PE | PORT_PCR_PS; \
-  GPIO_BITBAND(CORE_PIN ## P ## _DDRREG , CORE_PIN ## P ## _BIT) = 0; \
+  GPIO_BITBAND(CORE_PIN ## P ## _DDRREG, CORE_PIN ## P ## _BIT) = 0; \
 }while(0)
 
 #define _IS_INPUT(P)    ((CORE_PIN ## P ## _DDRREG & CORE_PIN ## P ## _BITMASK) == 0)

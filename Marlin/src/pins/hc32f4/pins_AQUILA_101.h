@@ -37,6 +37,8 @@
   #define DEFAULT_MACHINE_NAME "Aquila"
 #endif
 
+#define BOARD_LCD_SERIAL_PORT 1
+
 //
 // Onboard crystal oscillator
 //
@@ -219,10 +221,6 @@
 // Host
 #define BOARD_USART2_TX_PIN                 PA9
 #define BOARD_USART2_RX_PIN                 PA15
-
-// Unused / Debug
-#define BOARD_USART3_TX_PIN                 PE5
-#define BOARD_USART3_RX_PIN                 PE4
 
 // Onboard LED (HIGH = off, LOW = on)
 #ifndef LED_BUILTIN

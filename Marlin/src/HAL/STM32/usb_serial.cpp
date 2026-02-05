@@ -26,7 +26,7 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-#if ENABLED(EMERGENCY_PARSER) && (USBD_USE_CDC || USBD_USE_CDC_MSC)
+#if ENABLED(EMERGENCY_PARSER) && ANY(USBD_USE_CDC, USBD_USE_CDC_MSC)
 
 #include "usb_serial.h"
 #include "../../feature/e_parser.h"
@@ -56,5 +56,5 @@ void USB_Hook_init() {
   USBD_CDC_fops.Receive = USBD_CDC_Receive_hook;
 }
 
-#endif // EMERGENCY_PARSER && USBD_USE_CDC
+#endif // EMERGENCY_PARSER && (USBD_USE_CDC || USBD_USE_CDC_MSC)
 #endif // HAL_STM32

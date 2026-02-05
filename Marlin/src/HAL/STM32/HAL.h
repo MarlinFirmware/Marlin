@@ -23,17 +23,13 @@
 
 #define CPU_32_BIT
 
-#include "../../core/macros.h"
-#include "../shared/Marduino.h"
+#include "../../inc/MarlinConfigPre.h"
+
 #include "../shared/math_32bit.h"
 #include "../shared/HAL_SPI.h"
 #include "temp_soc.h"
 #include "fastio.h"
 #include "Servo.h"
-
-#include "../../inc/MarlinConfigPre.h"
-
-#include <stdint.h>
 
 //
 // Default graphical display delays
@@ -66,8 +62,6 @@
 // ------------------------
 // Types
 // ------------------------
-
-typedef double isr_float_t;   // FPU ops are used for single-precision, so use double for ISRs.
 
 typedef int32_t pin_t;        // Parity with platform/ststm32
 
@@ -161,7 +155,7 @@ public:
 
   static void delay_ms(const int ms) { delay(ms); }
 
-  // Tasks, called from idle()
+  // Tasks, called from marlin.idle()
   static void idletask();
 
   // Reset

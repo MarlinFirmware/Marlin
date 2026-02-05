@@ -79,61 +79,18 @@
 //
 // Limit Switches
 //
-#ifdef X_STALL_SENSITIVITY
-  #define X_STOP_PIN                  X_DIAG_PIN
-  #if X_HOME_TO_MIN
-    #define X_MAX_PIN                       PF4   // E0_DET
-  #else
-    #define X_MIN_PIN                       PF4   // E0_DET
-  #endif
-#elif ENABLED(X_DUAL_ENDSTOPS)
-  #ifndef X_MIN_PIN
-    #define X_MIN_PIN                       PB5   // X-STOP
-  #endif
-  #ifndef X_MAX_PIN
-    #define X_MAX_PIN                       PF4   // E0_DET
-  #endif
-#else
-  #define X_STOP_PIN                        PB5   // X-STOP
+#ifndef X_STOP_PIN
+  #define X_STOP_PIN                  X_DIAG_PIN  // X-STOP
 #endif
-
-#ifdef Y_STALL_SENSITIVITY
-  #define Y_STOP_PIN                  Y_DIAG_PIN
-  #if Y_HOME_TO_MIN
-    #define Y_MAX_PIN                       PF5   // E1_DET
-  #else
-    #define Y_MIN_PIN                       PF5   // E1_DET
-  #endif
-#elif ENABLED(Y_DUAL_ENDSTOPS)
-  #ifndef Y_MIN_PIN
-    #define Y_MIN_PIN                       PC1   // Y-STOP
-  #endif
-  #ifndef Y_MAX_PIN
-    #define Y_MAX_PIN                       PF5   // E1_DET
-  #endif
-#else
-  #define Y_STOP_PIN                        PC1   // Y-STOP
+#ifndef Y_STOP_PIN
+  #define Y_STOP_PIN                  Y_DIAG_PIN  // Y-STOP
 #endif
-
-#ifdef Z_STALL_SENSITIVITY
-  #define Z_STOP_PIN                  Z_DIAG_PIN
-  #if Z_HOME_TO_MIN
-    #define Z_MAX_PIN                       PE12  // PWR_DET
-  #else
-    #define Z_MIN_PIN                       PE12  // PWR_DET
-  #endif
-#elif ENABLED(Z_MULTI_ENDSTOPS)
-  #ifndef Z_MIN_PIN
-    #define Z_MIN_PIN                       PC0   // Z-STOP
-  #endif
-  #ifndef Z_MAX_PIN
-    #define Z_MAX_PIN                       PE12  // PWR_DET
-  #endif
-#else
-  #ifndef Z_STOP_PIN
-    #define Z_STOP_PIN                      PC0   // Z-STOP
-  #endif
+#ifndef Z_STOP_PIN
+  #define Z_STOP_PIN                  Z_DIAG_PIN  // Z-STOP
 #endif
+#define X_OTHR_PIN                          PF4   // E0_DET
+#define Y_OTHR_PIN                   E1_DIAG_PIN  // E1_DET
+#define Z_OTHR_PIN                          PE12  // PWR_DET
 
 //
 // Z Probe (when not Z_MIN_PIN)
@@ -225,10 +182,10 @@
 #ifndef TEMP_BED_PIN
   #define TEMP_BED_PIN                      PB2   // TB
 #endif
-#ifndef TEMP_SENSOR_PROBE
+#ifndef TEMP_PROBE_PIN
   #define TEMP_PROBE_PIN                    PA1   // TH2
 #endif
-#ifndef TEMP_SENSOR_CHAMBER
+#ifndef TEMP_CHAMBER_PIN
   #define TEMP_CHAMBER_PIN                  PA0   // TH3
 #endif
 
@@ -441,8 +398,9 @@
 #endif // BTT_MOTOR_EXPANSION
 
 //
-// LCDs and Controllers
+// LCD / Controller
 //
+
 #if IS_TFTGLCD_PANEL
 
   #if ENABLED(TFTGLCD_PANEL_SPI)
@@ -499,7 +457,7 @@
       #elif ENABLED(FYSETC_MINI_12864_2_1)
         #define NEOPIXEL_PIN         EXP1_06_PIN
       #endif
-    #endif // !FYSETC_MINI_12864
+    #endif // FYSETC_MINI_12864
 
     #if IS_ULTIPANEL
       #define LCD_PINS_D5            EXP1_06_PIN
@@ -518,15 +476,9 @@
 
 // Alter timing for graphical display
 #if IS_U8GLIB_ST7920
-  #ifndef BOARD_ST7920_DELAY_1
-    #define BOARD_ST7920_DELAY_1             120
-  #endif
-  #ifndef BOARD_ST7920_DELAY_2
-    #define BOARD_ST7920_DELAY_2              80
-  #endif
-  #ifndef BOARD_ST7920_DELAY_3
-    #define BOARD_ST7920_DELAY_3             580
-  #endif
+  #define BOARD_ST7920_DELAY_1               120
+  #define BOARD_ST7920_DELAY_2                80
+  #define BOARD_ST7920_DELAY_3               580
 #endif
 
 #if HAS_SPI_TFT

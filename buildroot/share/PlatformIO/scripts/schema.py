@@ -1,16 +1,34 @@
 #!/usr/bin/env python3
-#
-# schema.py
-#
-# Used by signature.py via common-dependencies.py to generate a schema file during the PlatformIO build
-# when CONFIG_EXPORT is defined in the configuration.
-#
-# This script can also be run standalone from within the Marlin repo to generate JSON and YAML schema files.
-#
-# This script is a companion to abm/js/schema.js in the MarlinFirmware/AutoBuildMarlin project, which has
-# been extended to evaluate conditions and can determine what options are actually enabled, not just which
-# options are uncommented. That will be migrated to this script for standalone migration.
-#
+"""
+schema.py
+
+Extract firmware configuration into structured JSON or YAML schema format.
+
+Used by signature.py via common-dependencies.py to generate a schema file during the
+PlatformIO build when CONFIG_EXPORT is defined in the configuration.
+
+This script can also be run standalone from within the Marlin repo, and is a companion to
+abm/js/schema.js in the MarlinFirmware/AutoBuildMarlin project, which has been extended to
+evaluate conditions and can determine what options are actually enabled, not just which
+options are uncommented. That will be migrated to this script for standalone migration.
+
+Usage: schema.py [-h] [some|json|jsons|group|yml|yaml]
+
+Process Marlin firmware configuration files (Configuration.h and Configuration_adv.h)
+to produce structured output suitable for documentation, tooling, or automated processing.
+
+Positional arguments:
+  some      Generate both JSON and YAML output (schema.json and schema.yml)
+  json      Generate JSON output (schema.json)
+  jsons     Generate grouped JSON output with wildcard options (schema.json and schema_grouped.json)
+  group     Generate grouped JSON output only (schema_grouped.json)
+  yml       Generate YAML output (schema.yml)
+  yaml      Same as 'yml'
+
+Optional arguments:
+  -h, --help  Show this help message and exit
+"""
+
 import re, json
 from pathlib import Path
 
@@ -43,8 +61,7 @@ def find_grouping(gdict, filekey, sectkey, optkey, pindex):
                 optparts[pindex] = '*'
                 wildkey = '_'.join(optparts)
                 kkey = f'{filekey}|{sectkey}|{wildkey}'
-                if kkey not in gdict: gdict[kkey] = []
-                gdict[kkey].append((subkey, modkey))
+                gdict.setdefault(kkey, []).append((subkey, modkey))
 
 # Build a list of potential groups. Only those with multiple items will be grouped.
 def group_options(schema):
@@ -70,7 +87,7 @@ def group_options(schema):
 def load_boards():
     bpath = Path("Marlin/src/core/boards.h")
     if bpath.is_file():
-        with bpath.open() as bfile:
+        with bpath.open(encoding='utf-8') as bfile:
             boards = []
             for line in bfile:
                 if line.startswith("#define BOARD_"):
@@ -119,7 +136,9 @@ def extract_files(filekey):
     # Regex for #define NAME [VALUE] [COMMENT] with sanitized line
     defgrep = re.compile(r'^(//)?\s*(#define)\s+([A-Za-z0-9_]+)\s*(.*?)\s*(//.+)?$')
     # Pattern to match a float value
-    flt = r'[-+]?\s*(\d+\.|\d*\.\d+)([eE][-+]?\d+)?[fF]?'
+    flt = r'[-+]?\s*(?:\d+\.|\d*\.\d+)(?:[eE][-+]?\d+)?[fF]?'
+    # Pattern to match an integer expression
+    int_expr = r'(?:[-+]?\s*\d+(?:\s*[*\/+\-]\s*\d+)*)'
     # Start with unknown state
     state = Parse.NORMAL
     # Serial ID
@@ -296,9 +315,11 @@ def extract_files(filekey):
 
                     # Parenthesize the given expression if needed
                     def atomize(s):
-                        if s == '' \
-                        or re.match(r'^[A-Za-z0-9_]*(\([^)]+\))?$', s) \
-                        or re.match(r'^[A-Za-z0-9_]+ == \d+?$', s):
+                        s = s.strip()
+                        if not s or s.isidentifier() or (s.startswith('(') and s.endswith(')')):
+                            return s
+                        if re.match(r'^[A-Za-z0-9_]*(\([^)]+\))$', s) \
+                        or re.match(r'^[A-Za-z0-9_]+\s*[=!<>]=?\s*.*$', s):
                             return s
                         return f'({s})'
 
@@ -351,27 +372,30 @@ def extract_files(filekey):
                         }
 
                         # Type is based on the value
-                        value_type = \
-                             'switch'  if val == '' \
-                        else 'int'     if re.match(r'^[-+]?\s*\d+$', val) \
-                        else 'ints'    if re.match(r'^([-+]?\s*\d+)(\s*,\s*[-+]?\s*\d+)+$', val) \
-                        else 'floats'  if re.match(rf'({flt}(\s*,\s*{flt})+)', val) \
-                        else 'float'   if re.match(f'^({flt})$', val) \
-                        else 'string'  if val[0] == '"' \
-                        else 'char'    if val[0] == "'" \
-                        else 'bool'    if val in ('true', 'false') \
-                        else 'state'   if val in ('HIGH', 'LOW') \
-                        else 'enum'    if re.match(r'^[A-Za-z0-9_]{3,}$', val) \
-                        else 'int[]'   if re.match(r'^{\s*[-+]?\s*\d+(\s*,\s*[-+]?\s*\d+)*\s*}$', val) \
-                        else 'float[]' if re.match(r'^{{\s*{flt}(\s*,\s*{flt})*\s*}}$', val) \
-                        else 'array'   if val[0] == '{' \
-                        else ''
+                        value_type = (
+                                 'switch'  if val == ''
+                            else 'int'     if re.match(r'^[-+]?\s*\d+$', val)
+                            else 'ints'    if re.match(r'^[-+]?\s*\d+(?:\s*,\s*[-+]?\s*\d+)+$', val)
+                            else 'floats'  if re.match(rf"^{flt}(?:\s*,\s*{flt})+$", val)
+                            else 'float'   if re.match(rf"^{flt}$", val)
+                            else 'string'  if val.startswith('"')
+                            else 'char'    if val.startswith("'")
+                            else 'bool'    if val in ('true', 'false')
+                            else 'state'   if val in ('HIGH', 'LOW')
+                            else 'int[]'   if re.match(rf"^\{{\s*{int_expr}(?:\s*,\s*{int_expr})*\s*\}}$", val)
+                            else 'float[]' if re.match(rf"^\{{\s*{flt}(?:\s*,\s*{flt})*\s*\}}$", val)
+                            else 'array'   if val.startswith('{')
+                            else 'enum'    if re.match(r'^[A-Za-z0-9_]{3,}$', val)
+                            else ''
+                        )
 
-                        val = (val == 'true')           if value_type == 'bool' \
-                        else int(val)                   if value_type == 'int' \
-                        else val.replace('f','')        if value_type == 'floats' \
-                        else float(val.replace('f','')) if value_type == 'float' \
-                        else val
+                        val = (
+                                 (val == 'true')            if value_type == 'bool'
+                            else int(val)                   if value_type == 'int'
+                            else val.replace('f','')        if value_type == 'floats'
+                            else float(val.replace('f','')) if value_type == 'float'
+                            else val
+                        )
 
                         if val != '': define_info['value'] = val
                         if value_type != '': define_info['type'] = value_type
@@ -475,12 +499,17 @@ def main():
         def inargs(c): return len(set(args) & set(c)) > 0
 
         # Help / Unknown option
-        unk = not inargs(['some','json','jsons','group','yml','yaml'])
+        unk = not inargs(['some','json','jsons','group','yml','yaml', '-h', '--help'])
         if (unk): print(f"Unknown option: '{args[0]}'")
         if inargs(['-h', '--help']) or unk:
-            print("Usage: schema.py [some|json|jsons|group|yml|yaml]...")
-            print("       some  = json + yml")
-            print("       jsons = json + group")
+            print("Extract firmware configuration into structured JSON or YAML schema format.")
+            print("Usage: schema.py [-h] [some|json|jsons|group|yml|yaml]")
+            print("  some    Generate both JSON and YAML output (schema.json and schema.yml)")
+            print("  json    Generate JSON output (schema.json)")
+            print("  jsons   Generate grouped JSON output with wildcard options (schema.json and schema_grouped.json)")
+            print("  group   Generate grouped JSON output only (schema_grouped.json)")
+            print("  yml     Generate YAML output (schema.yml)")
+            print("  yaml    Same as 'yml'")
             return
 
         # JSON schema

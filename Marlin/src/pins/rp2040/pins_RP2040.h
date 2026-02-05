@@ -89,10 +89,7 @@
 #define TEMP_2_PIN                            A2  // Analog Input
 #define TEMP_BED_PIN                          A1  // Analog Input
 
-#define TEMP_MCU      HAL_ADC_MCU_TEMP_DUMMY_PIN  // this is a flag value, don´t change
-
 #define TEMP_CHAMBER_PIN              TEMP_1_PIN
-#define TEMP_BOARD_PIN                  TEMP_MCU
 
 // SPI for MAX Thermocouple
 #if !HAS_MEDIA
@@ -293,7 +290,7 @@
     #define SPI_FLASH_SCK_PIN         SD_SCK_PIN
   #endif
 
-  #define TFT_BUFFER_SIZE                 0xFFFF
+  #define TFT_BUFFER_WORDS                0xFFFF
   #ifndef TFT_DRIVER
     #define TFT_DRIVER                    ST7796
   #endif
@@ -320,13 +317,13 @@
   #if ENABLED(REPRAPWORLD_GRAPHICAL_LCD)
 
     #define LCD_PINS_RS                       49  // CS chip select /SS chip slave select
-    #define LCD_PINS_ENABLE                   51  // SID (MOSI)
+    #define LCD_PINS_EN                       51  // SID (MOSI)
     #define LCD_PINS_D4                       52  // SCK (CLK) clock
 
   #elif ALL(IS_NEWPANEL, PANEL_ONE)
 
     #define LCD_PINS_RS                       40
-    #define LCD_PINS_ENABLE                   42
+    #define LCD_PINS_EN                       42
     #define LCD_PINS_D4                       65
     #define LCD_PINS_D5                       66
     #define LCD_PINS_D6                       44
@@ -337,7 +334,7 @@
     #if ENABLED(CR10_STOCKDISPLAY)
 
       #define LCD_PINS_RS                     27
-      #define LCD_PINS_ENABLE                 29
+      #define LCD_PINS_EN                     29
       #define LCD_PINS_D4                     25
 
       #if !IS_NEWPANEL
@@ -347,7 +344,7 @@
     #elif ENABLED(ZONESTAR_LCD)
 
       #define LCD_PINS_RS                     64
-      #define LCD_PINS_ENABLE                 44
+      #define LCD_PINS_EN                     44
       #define LCD_PINS_D4                     63
       #define LCD_PINS_D5                     40
       #define LCD_PINS_D6                     42
@@ -365,7 +362,7 @@
         #define DOGLCD_A0            LCD_PINS_DC
       #else
         #define LCD_PINS_RS                   16
-        #define LCD_PINS_ENABLE               17
+        #define LCD_PINS_EN                   17
         #define LCD_PINS_D4                   23
         #define LCD_PINS_D5                   25
         #define LCD_PINS_D6                   27
@@ -560,3 +557,28 @@
   #endif // IS_NEWPANEL
 
 #endif // HAS_WIRED_LCD
+
+/*
+┌───────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│                                     PIN CONFLICTS and ERRORS                                                  │
+├───────────────────────────────────────────────────────────────────────────────────────────────────────────────┤
+│                                                                                                               │
+│ VIRTUAL PINS - NOT REAL GPIO:                                                                                 │
+│ • GP40+: E_MUX pins, TMC_SW pins are virtual/extended pins, not physical RP2040 GPIO                          │
+│ • GP64, GP66: TMC Software SPI pins - these don't exist on RP2040 hardware                                    │
+│                                                                                                               │
+│ MULTIPLE ASSIGNMENTS - REVIEW NEEDED:                                                                         │
+│ • GP4:  Z_DIR_PIN + Z_CS_PIN + SPINDLE_LASER_ENA_PIN (conditional conflicts)                                  │
+│ • GP5:  Z_STEP_PIN + FILWIDTH_PIN + SPINDLE_DIR_PIN (conditional conflicts)                                   │
+│ • GP6:  CASE_LIGHT_PIN + SPINDLE_LASER_PWM_PIN (conditional - both PWM)                                       │
+│ • GP21: FAN1_PIN + FIL_RUNOUT_PIN (may conflict if both features enabled)                                     │
+│ • GP29: ALL assigned to same pin:                                                                             │
+│   - X_STEP_PIN, X_DIR_PIN, X_ENABLE_PIN, X_CS_PIN (4 pins)                                                    │
+│   - Y_STEP_PIN, Y_DIR_PIN, Y_ENABLE_PIN, Y_CS_PIN (4 pins)                                                    │
+│   - E0_STEP_PIN, E0_DIR_PIN, E0_ENABLE_PIN, E0_CS_PIN (4 pins)                                                │
+│   - LCD_PINS_EN (CR10_STOCKDISPLAY), LCD_PINS_D7, DOGLCD_CS (ELB_FULL_GRAPHIC_CONTROLLER)                     │
+│   → 12+ critical functions sharing ONE GPIO - PRINTER CANNOT FUNCTION!                                        │
+└───────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+*/
+
+#error "Pin assignments for this board are not for practical use. See comments in pins_RP2040.h"

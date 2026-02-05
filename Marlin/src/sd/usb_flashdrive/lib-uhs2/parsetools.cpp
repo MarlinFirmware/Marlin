@@ -25,7 +25,7 @@
 
 #include "../../../inc/MarlinConfigPre.h"
 
-#if HAS_USB_FLASH_DRIVE && DISABLED(USE_UHS3_USB)
+#if ALL(HAS_USB_FLASH_DRIVE, USE_UHS2_USB)
 
 #include "Usb.h"
 
@@ -74,4 +74,4 @@ bool PTPListParser::Parse(uint8_t **pp, uint16_t *pcntdn, PTP_ARRAY_EL_FUNC pf, 
   return true;
 }
 
-#endif // HAS_USB_FLASH_DRIVE && !USE_UHS3_USB
+#endif // HAS_USB_FLASH_DRIVE && USE_UHS2_USB

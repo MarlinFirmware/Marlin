@@ -35,7 +35,7 @@
 #if HAS_FILAMENT_SENSOR
   #include "../../feature/runout.h"
 #endif
-#if ENABLED(FILAMENT_LOAD_UNLOAD_GCODES)
+#if E_STEPPERS > 1 || ENABLED(FILAMENT_LOAD_UNLOAD_GCODES)
   #include "../../MarlinCore.h"
 #endif
 
@@ -110,14 +110,10 @@ void _menu_temp_filament_op(const PauseMode mode, const int8_t extruder) {
 /**
  * "Change Filament" submenu
  */
-#if E_STEPPERS > 1 || ENABLED(FILAMENT_LOAD_UNLOAD_GCODES)
-  bool printingIsPaused();
-#endif
-
 void menu_change_filament() {
   #if E_STEPPERS > 1 || ENABLED(FILAMENT_LOAD_UNLOAD_GCODES)
     // Say "filament change" when no print is active
-    editable.int8 = printingIsPaused() ? PAUSE_MODE_PAUSE_PRINT : PAUSE_MODE_CHANGE_FILAMENT;
+    editable.int8 = marlin.printingIsPaused() ? PAUSE_MODE_PAUSE_PRINT : PAUSE_MODE_CHANGE_FILAMENT;
 
     #if E_STEPPERS > 1 && ENABLED(FILAMENT_UNLOAD_ALL_EXTRUDERS)
       bool too_cold = false;
@@ -126,7 +122,7 @@ void menu_change_filament() {
     #endif
 
     #if ENABLED(FILAMENT_LOAD_UNLOAD_GCODES)
-      const bool is_busy = printer_busy();
+      const bool is_busy = marlin.printer_busy();
     #endif
 
     START_MENU();
@@ -235,18 +231,15 @@ static FSTR_P pause_header() {
 
 // Portions from STATIC_ITEM...
 #define HOTEND_STATUS_ITEM() do { \
-  if (_menuLineNr == _thisItemNr) { \
+  if ( MY_LINE()) { \
     if (ui.should_draw()) { \
       IF_DISABLED(HAS_GRAPHICAL_TFT, MenuItem_static::draw(_lcdLineNr, GET_TEXT_F(MSG_FILAMENT_CHANGE_NOZZLE), SS_INVERT)); \
       ui.draw_hotend_status(_lcdLineNr, hotend_status_extruder); \
     } \
-    if (_skipStatic && encoderLine <= _thisItemNr) { \
-      ui.encoderPosition += ENCODER_STEPS_PER_MENU_ITEM; \
-      ++encoderLine; \
-    } \
+    STATIC_SKIP(); \
     ui.refresh(LCDVIEW_CALL_REDRAW_NEXT); \
   } \
-  ++_thisItemNr; \
+  NEXT_ITEM(); \
 }while(0)
 
 void menu_pause_option() {
@@ -307,11 +300,9 @@ void lcd_pause_waiting_message()  { _lcd_pause_message(GET_TEXT_F(MSG_ADVANCED_P
 void lcd_pause_resume_message()   { _lcd_pause_message(GET_TEXT_F(MSG_FILAMENT_CHANGE_RESUME));  }
 
 void lcd_pause_purge_message() {
-  #if ENABLED(ADVANCED_PAUSE_CONTINUOUS_PURGE)
-    _lcd_pause_message(GET_TEXT_F(MSG_FILAMENT_CHANGE_CONT_PURGE));
-  #else
-    _lcd_pause_message(GET_TEXT_F(MSG_FILAMENT_CHANGE_PURGE));
-  #endif
+  _lcd_pause_message(GET_TEXT_F(
+    TERN(ADVANCED_PAUSE_CONTINUOUS_PURGE, MSG_FILAMENT_CHANGE_CONT_PURGE, MSG_FILAMENT_CHANGE_PURGE)
+  ));
 }
 
 FORCE_INLINE screenFunc_t ap_message_screen(const PauseMessage message) {

@@ -11,27 +11,27 @@ from __future__ import print_function
 folder = './'
 my_file = 'test.gcode'
 
-# this is the minimum of G1 instructions which should be between 2 different heights
-min_g1 = 3
+# The minimum number of G1 instructions that should be between 2 different heights
+min_g = 3
 
-# maximum number of lines to parse, I don't want to parse the complete file
-# only the first plane is we are interested in
-max_g1 = 100000000
+# Maximum number of lines to parse. We don't want to parse the
+# whole file since we're only interested in the first plane.
+max_g = 100000000
 
-# g29 keyword
-g29_keyword = 'g29'
-g29_keyword = g29_keyword.upper()
+# G29 keyword
+g29_keyword = 'G29'
 
-# output filename
+# Output filename
 output_file = folder + 'g29_' + my_file
-# input filename
+# Input filename
 input_file = folder + my_file
 
-# minimum scan size
+# Minimum scan size
 min_size = 40
 probing_points = 3  # points x points
+max_lines = 1500
 
-# other stuff
+# Other stuff
 min_x = 500
 min_y = min_x
 max_x = -500
@@ -43,13 +43,19 @@ lines_of_g1 = 0
 
 gcode = []
 
+g29_found = False
+g28_found = False
 
-# return only g1-lines
-def has_g1(line):
-    return line[:2].upper() == "G1"
+YELLOW = '\033[33m'
+GREEN = '\033[32m'
+RED = '\033[31m'
+RESET = '\033[0m'
 
+# Return only G0-G1 lines
+def has_g_move(line):
+    return line[:2].upper() in ("G0", "G1")
 
-# find position in g1 (x,y,z)
+# Find position in G move (x,y,z)
 def find_axis(line, axis):
     found = False
     number = ""
@@ -73,7 +79,7 @@ def find_axis(line, axis):
         return None
 
 
-# save the min or max-values for each axis
+# Save the min or max-values for each axis
 def set_mima(line):
     global min_x, max_x, min_y, max_y, last_z
 
@@ -90,7 +96,7 @@ def set_mima(line):
     return min_x, max_x, min_y, max_y
 
 
-# find z in the code and return it
+# Find z in the code and return it
 def find_z(gcode, start_at_line=0):
     for i in range(start_at_line, len(gcode)):
         my_z = find_axis(gcode[i], 'Z')
@@ -103,65 +109,74 @@ def z_parse(gcode, start_at_line=0, end_at_line=0):
     all_z = []
     line_between_z = []
     z_at_line = []
-    # last_z = 0
+    #last_z = 0
     last_i = -1
 
     while len(gcode) > i:
-        try:
-            z, i = find_z(gcode, i + 1)
-        except TypeError:
-            break
+        result = find_z(gcode, i + 1)
+
+        if result is None:
+            raise ValueError(f'{RED}Unable to determine Z height.{RESET}')
+
+        z, i = result
 
         all_z.append(z)
         z_at_line.append(i)
         temp_line = i - last_i -1
         line_between_z.append(i - last_i - 1)
-        # last_z = z
+        #last_z = z
         last_i = i
-        if 0 < end_at_line <= i or temp_line >= min_g1:
-            # print('break at line {} at height {}'.format(i, z))
+        if 0 < end_at_line <= i or temp_line >= min_g:
+            #print('break at line {} at height {}'.format(i, z))
             break
 
     line_between_z = line_between_z[1:]
     return all_z, line_between_z, z_at_line
 
 
-# get the lines which should be the first layer
+# Get the lines which should be the first layer
 def get_lines(gcode, minimum):
     i = 0
-    all_z, line_between_z, z_at_line = z_parse(gcode, end_at_line=max_g1)
+    all_z, line_between_z, z_at_line = z_parse(gcode, end_at_line=max_g)
+    #print('Detected Z heights:', all_z)
     for count in line_between_z:
         i += 1
         if count > minimum:
-            # print('layer: {}:{}'.format(z_at_line[i-1], z_at_line[i]))
+            #print('layer: {}:{}'.format(z_at_line[i-1], z_at_line[i]))
             return z_at_line[i - 1], z_at_line[i]
 
 
-with open(input_file, 'r') as file:
+with open(input_file, 'r', encoding='utf_8') as file:
     lines = 0
     for line in file:
         lines += 1
-        if lines > 1000:
+        if lines > max_lines:
             break
-        if has_g1(line):
+        if has_g_move(line):
             gcode.append(line)
 file.close()
 
-start, end = get_lines(gcode, min_g1)
+layer_range = get_lines(gcode, min_g)
+
+if layer_range is None:
+    raise ValueError(f'{RED}Unable to determine layer range.{RESET}')
+
+start, end = layer_range
+
 for i in range(start, end):
     set_mima(gcode[i])
 
 print('x_min:{} x_max:{}\ny_min:{} y_max:{}'.format(min_x, max_x, min_y, max_y))
 
-# resize min/max - values for minimum scan
+# Resize min/max - values for minimum scan
 if max_x - min_x < min_size:
     offset_x = int((min_size - (max_x - min_x)) / 2 + 0.5)  # int round up
-    # print('min_x! with {}'.format(int(max_x - min_x)))
+    #print('min_x! with {}'.format(int(max_x - min_x)))
     min_x = int(min_x) - offset_x
     max_x = int(max_x) + offset_x
 if max_y - min_y < min_size:
     offset_y = int((min_size - (max_y - min_y)) / 2 + 0.5)  # int round up
-    # print('min_y! with {}'.format(int(max_y - min_y)))
+    #print('min_y! with {}'.format(int(max_y - min_y)))
     min_y = int(min_y) - offset_y
     max_y = int(max_y) + offset_y
 
@@ -172,17 +187,24 @@ new_command = 'G29 L{0} R{1} F{2} B{3} P{4}\n'.format(min_x,
                                                       max_y,
                                                       probing_points)
 
-out_file = open(output_file, 'w')
-in_file = open(input_file, 'r')
+with open(input_file, 'r', encoding='utf_8') as in_file, open(output_file, 'w', encoding='utf_8') as out_file:
+    for line in in_file:
+        # Check if G29 already exists
+        if line.strip().upper().startswith(g29_keyword):
+            g29_found = True
+            out_file.write(new_command)
+            print(f'{YELLOW}Write G29.{RESET}')
+        else:
+            out_file.write(line)
 
-for line in in_file:
-    if line[:len(g29_keyword)].upper() == g29_keyword:
-        out_file.write(new_command)
-        print('write G29')
-    else:
-        out_file.write(line)
+        # If we find G28 and G29 wasn't found earlier, insert G29 after G28
+        if not g29_found and line.strip().upper().startswith('G28'):
+            g28_found = True  # Mark that G28 was found
+            out_file.write(new_command)  # Insert G29 command
+            print(f'{YELLOW}Note: G29 was not found.\nInserted G29 after G28.{RESET}')
 
-file.close()
-out_file.close()
-
-print('auto G29 finished')
+# Debugging messages
+if not g28_found and not g29_found:
+    print(f'{RED}Error: G28 not found! G29 was not added.{RESET}')
+else:
+    print(f'{GREEN}auto G29 finished!{RESET}')

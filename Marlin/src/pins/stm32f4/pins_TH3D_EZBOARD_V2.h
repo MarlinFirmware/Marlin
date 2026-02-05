@@ -63,13 +63,13 @@
 //
 #if ANY(SENSORLESS_HOMING, SENSORLESS_PROBING)
   // Sensorless homing pins
-  #if ENABLED(X_AXIS_SENSORLESS_HOMING)
+  #if AXIS_HAS_STALLGUARD(X) && defined(X_STALL_SENSITIVITY)
     #define X_STOP_PIN                      PB4
   #else
     #define X_STOP_PIN                      PC1
   #endif
 
-  #if ENABLED(Y_AXIS_SENSORLESS_HOMING)
+  #if AXIS_HAS_STALLGUARD(Y) && defined(Y_STALL_SENSITIVITY)
     #define Y_STOP_PIN                      PB9
   #else
     #define Y_STOP_PIN                      PC2

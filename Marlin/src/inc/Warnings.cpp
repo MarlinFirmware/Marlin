@@ -31,6 +31,10 @@
 // Warnings! Located here so they will appear just once in the build output.
 //
 
+#if __cplusplus < 201703L
+  #warning "This build does not have access to >= c++17 features."
+#endif
+
 // static_warning works like a static_assert but only emits a (messy) warning.
 #ifdef __GNUC__
   namespace mfwarn {
@@ -696,9 +700,16 @@
   #warning "Don't forget to update your TFT settings in Configuration.h."
 #endif
 
-#if ENABLED(EMIT_CREALITY_422_WARNING) && DISABLED(NO_CREALITY_422_DRIVER_WARNING)
-  // Driver labels: A=TMC2208, B=TMC2209, C=HR4988, E=A4988, H=TMC2225, H8=HR4988
-  #warning "Creality 4.2.2 boards come with a variety of stepper drivers. Check the board label (typically on SD Card module) and set the correct *_DRIVER_TYPE! (A/H: TMC2208_STANDALONE  B: TMC2209_STANDALONE  C/E/H8: A4988). (Define NO_CREALITY_422_DRIVER_WARNING to suppress this warning.)"
+#if ENABLED(EMIT_CREALITY_422_WARNING)
+  #if DISABLED(NO_CREALITY_422_MCU_WARNING)
+    #warning "Double-check your 4.2.2 board for STM32 / GD32. Use BOARD_CREALITY_V422 or BOARD_CREALITY_V422_GD32_MFL as appropriate for your MCU."
+    #warning "GD32 Serial Ports are numbered starting from 0. STM32 Serial Ports are numbered starting from 1."
+    #warning "(Define NO_CREALITY_422_MCU_WARNING to suppress these warnings.)"
+  #endif
+  #if DISABLED(NO_CREALITY_422_DRIVER_WARNING)
+    // Driver labels: A=TMC2208, B=TMC2209, C=HR4988, E=A4988, H=TMC2225, H8=HR4988
+    #warning "Creality 4.2.2 boards come with a variety of stepper drivers. Check the board label (typically on SD Card module) and set the correct *_DRIVER_TYPE! (A/H: TMC2208_STANDALONE  B: TMC2209_STANDALONE  C/E/H8: A4988). (Define NO_CREALITY_422_DRIVER_WARNING to suppress this warning.)"
+  #endif
 #endif
 
 #if ENABLED(PRINTCOUNTER_SYNC)
@@ -715,6 +726,10 @@
 
 #if ENABLED(BIQU_MICROPROBE_V2) && NONE(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN, NO_MICROPROBE_WARNING)
   #warning "BIQU MicroProbe V2 detect signal requires a strong pull-up. Some processors have weak internal pull-up capabilities, so we recommended connecting MicroProbe SIGNAL / GND to Z-MIN / Z-STOP instead of the dedicated PROBE port. (Define NO_MICROPROBE_WARNING to suppress this warning.)"
+#endif
+
+#if PROBE_WAKEUP_TIME_WARNING
+  #warning "PROBE_WAKEUP_TIME_MS has been set to the default 30ms."
 #endif
 
 //
@@ -742,24 +757,24 @@
 #endif
 
 #if USE_SENSORLESS && DISABLED(NO_HOMING_CURRENT_WARNING)
-  #if ENABLED(X_SENSORLESS) && defined(X_CURRENT_HOME) && !HAS_CURRENT_HOME(X)
-    #warning "It's recommended to set X_CURRENT_HOME lower than X_CURRENT with SENSORLESS_HOMING. (Define NO_HOMING_CURRENT_WARNING to suppress this warning.)"
-  #elif ENABLED(X2_SENSORLESS) && defined(X2_CURRENT_HOME) && !HAS_CURRENT_HOME(X2)
-    #warning "It's recommended to set X2_CURRENT_HOME lower than X2_CURRENT with SENSORLESS_HOMING. (Define NO_HOMING_CURRENT_WARNING to suppress this warning.)"
+  #if ENABLED(X_SENSORLESS) && defined(X_CURRENT_HOME) && !X_HAS_HOME_CURRENT
+    #warning "With SENSORLESS_HOMING it is recommended to set X_CURRENT_HOME less than X_CURRENT. (Define NO_HOMING_CURRENT_WARNING to suppress this warning.)"
+  #elif ENABLED(X2_SENSORLESS) && defined(X2_CURRENT_HOME) && !X2_HAS_HOME_CURRENT
+    #warning "With SENSORLESS_HOMING it is recommended to set X2_CURRENT_HOME less than X2_CURRENT. (Define NO_HOMING_CURRENT_WARNING to suppress this warning.)"
   #endif
-  #if ENABLED(Y_SENSORLESS) && defined(Y_CURRENT_HOME) && !HAS_CURRENT_HOME(Y)
-    #warning "It's recommended to set Y_CURRENT_HOME lower than Y_CURRENT with SENSORLESS_HOMING. (Define NO_HOMING_CURRENT_WARNING to suppress this warning.)"
-  #elif ENABLED(Y2_SENSORLESS) && defined(Y2_CURRENT_HOME) && !HAS_CURRENT_HOME(Y2)
-    #warning "It's recommended to set Y2_CURRENT_HOME lower than Y2_CURRENT with SENSORLESS_HOMING. (Define NO_HOMING_CURRENT_WARNING to suppress this warning.)"
+  #if ENABLED(Y_SENSORLESS) && defined(Y_CURRENT_HOME) && !Y_HAS_HOME_CURRENT
+    #warning "With SENSORLESS_HOMING it is recommended to set Y_CURRENT_HOME less than Y_CURRENT. (Define NO_HOMING_CURRENT_WARNING to suppress this warning.)"
+  #elif ENABLED(Y2_SENSORLESS) && defined(Y2_CURRENT_HOME) && !Y2_HAS_HOME_CURRENT
+    #warning "With SENSORLESS_HOMING it is recommended to set Y2_CURRENT_HOME less than Y2_CURRENT. (Define NO_HOMING_CURRENT_WARNING to suppress this warning.)"
   #endif
-  #if ENABLED(Z_SENSORLESS) && defined(Z_CURRENT_HOME) && !HAS_CURRENT_HOME(Z)
-    #warning "It's recommended to set Z_CURRENT_HOME lower than Z_CURRENT with SENSORLESS_HOMING. (Define NO_HOMING_CURRENT_WARNING to suppress this warning.)"
-  #elif ENABLED(Z2_SENSORLESS) && defined(Z2_CURRENT_HOME) && !HAS_CURRENT_HOME(Z2)
-    #warning "It's recommended to set Z2_CURRENT_HOME lower than Z2_CURRENT with SENSORLESS_HOMING. (Define NO_HOMING_CURRENT_WARNING to suppress this warning.)"
-  #elif ENABLED(Z3_SENSORLESS) && defined(Z3_CURRENT_HOME) && !HAS_CURRENT_HOME(Z3)
-    #warning "It's recommended to set Z3_CURRENT_HOME lower than Z3_CURRENT with SENSORLESS_HOMING. (Define NO_HOMING_CURRENT_WARNING to suppress this warning.)"
-  #elif ENABLED(Z4_SENSORLESS) && defined(Z4_CURRENT_HOME) && !HAS_CURRENT_HOME(Z4)
-    #warning "It's recommended to set Z4_CURRENT_HOME lower than Z4_CURRENT with SENSORLESS_HOMING. (Define NO_HOMING_CURRENT_WARNING to suppress this warning.)"
+  #if ENABLED(Z_SENSORLESS) && defined(Z_CURRENT_HOME) && !Z_HAS_HOME_CURRENT
+    #warning "With SENSORLESS_HOMING it is recommended to set Z_CURRENT_HOME less than Z_CURRENT. (Define NO_HOMING_CURRENT_WARNING to suppress this warning.)"
+  #elif ENABLED(Z2_SENSORLESS) && defined(Z2_CURRENT_HOME) && !Z2_HAS_HOME_CURRENT
+    #warning "With SENSORLESS_HOMING it is recommended to set Z2_CURRENT_HOME less than Z2_CURRENT. (Define NO_HOMING_CURRENT_WARNING to suppress this warning.)"
+  #elif ENABLED(Z3_SENSORLESS) && defined(Z3_CURRENT_HOME) && !Z3_HAS_HOME_CURRENT
+    #warning "With SENSORLESS_HOMING it is recommended to set Z3_CURRENT_HOME less than Z3_CURRENT. (Define NO_HOMING_CURRENT_WARNING to suppress this warning.)"
+  #elif ENABLED(Z4_SENSORLESS) && defined(Z4_CURRENT_HOME) && !Z4_HAS_HOME_CURRENT
+    #warning "With SENSORLESS_HOMING it is recommended to set Z4_CURRENT_HOME less than Z4_CURRENT. (Define NO_HOMING_CURRENT_WARNING to suppress this warning.)"
   #endif
 #endif
 
@@ -784,7 +799,7 @@
 
 #if ANY(FYSETC_MINI_12864_1_2, FYSETC_MINI_12864_2_0) && DISABLED(RGB_LED)
   #warning "Your FYSETC Mini Panel works best with RGB_LED."
-#elif ANY(FYSETC_MINI_12864_2_0, FYSETC_MINI_12864_2_1) && DISABLED(LED_USER_PRESET_STARTUP)
+#elif ENABLED(FYSETC_MINI_12864_2_0) && DISABLED(LED_USER_PRESET_STARTUP)
   #warning "Your FYSETC/MKS/BTT/BEEZ Mini Panel works best with LED_USER_PRESET_STARTUP."
 #endif
 
@@ -899,6 +914,13 @@
 #endif
 
 /**
+ * MKS_TINYBEE Analog Reference
+ */
+#if ENABLED(EMIT_ADC_REFERENCE_VOLTAGE_WARNING)
+  #warning "Check your ADC_REFERENCE_VOLTAGE on MKS TinyBee! Measure the Analog Reference voltage on the board. See pins_MKS_TINYBEE.h for details."
+#endif
+
+/**
  * No PWM on the Piezo Beeper?
  */
 #if PIN_EXISTS(BEEPER) && ALL(SPEAKER, NO_SPEAKER)
@@ -906,10 +928,39 @@
 #endif
 
 /**
+ * Delay for probes that need time to boot up when enabled
+ */
+#if defined(DELAY_BEFORE_PROBING) && DELAY_BEFORE_PROBING < 25
+  #warning "The actual DELAY_BEFORE_PROBING will be the minimum 25 ms. Leave DELAY_BEFORE_PROBING disabled to use the minimum."
+#endif
+
+/**
  * Fixed-Time Motion
  */
-#if ALL(FT_MOTION, I2S_STEPPER_STREAM)
-  #warning "FT_MOTION has not been tested with I2S_STEPPER_STREAM."
+#if ENABLED(FT_MOTION)
+  #if ENABLED(I2S_STEPPER_STREAM)
+    #warning "FT_MOTION has not been tested with I2S_STEPPER_STREAM."
+  #endif
+  #if ENABLED(LIN_ADVANCE)
+    #warning "Be aware that FT_MOTION K factor is now set with M900 K (same as LIN_ADVANCE)."
+    #if DISABLED(FTM_SMOOTHING)
+      #warning "For higher print quality enable FTM_SMOOTHING with FTM_SMOOTHING_TIME_E to tame Linear Advance accelerations."
+    #endif
+  #endif
+  #if DISABLED(FTM_SHAPER_E)
+    #warning "For higher print quality enable FTM_SHAPER_E (even if shaper is NONE) to allow axis synchronization."
+  #endif
+#endif
+#if ENABLED(FTM_HOME_AND_PROBE)
+  #if ANY(BIQU_MICROPROBE_V1, BIQU_MICROPROBE_V2)
+    #warning "Let us know if you experience any issues with BIQU Microprobe and FT_MOTION."
+    #if PROBE_WAKEUP_TIME_MS <= 25
+      #warning "A PROBE_WAKEUP_TIME_MS over 25 ms is recommended with FT_MOTION and BIQU_MICROPROBE_V1 or BIQU_MICROPROBE_V2."
+    #endif
+  #endif
+  #if PROBE_WAKEUP_TIME_MS < 30
+    #warning "A PROBE_WAKEUP_TIME_MS over 30 ms is recommended with FT_MOTION."
+  #endif
 #endif
 
 /**
@@ -924,4 +975,37 @@
  */
 #if ALL(PELTIER_BED, PIDTEMPBED)
   #warning "PELTIER_BED with PIDTEMPBED requires extra circuitry. Use with caution."
+#endif
+
+/**
+ * Board recommended LCD_SERIAL_PORT
+ */
+#if LCD_IS_SERIAL_HOST && defined(BOARD_LCD_SERIAL_PORT) && LCD_SERIAL_PORT != BOARD_LCD_SERIAL_PORT && DISABLED(NO_LCD_SERIAL_PORT_WARNING)
+  #warning "LCD_SERIAL_PORT overrides the default (BOARD_LCD_SERIAL_PORT)."
+#endif
+
+/**
+ * Smooth Linear Advance with Mixing Extruder, S-Curve Acceleration
+ */
+#if ALL(SMOOTH_LIN_ADVANCE, MIXING_EXTRUDER)
+  #warning "SMOOTH_LIN_ADVANCE with MIXING_EXTRUDER is untested. Use with caution."
+#endif
+
+/**
+ * Some LCDs need re-init to deal with flaky SPI bus sharing
+ */
+#if HAS_SD_DETECT && NONE(HAS_GRAPHICAL_TFT, LCD_USE_DMA_FSMC, HAS_FSMC_GRAPHICAL_TFT, HAS_SPI_GRAPHICAL_TFT, IS_DWIN_MARLINUI, EXTENSIBLE_UI, HAS_DWIN_E3V2, HAS_U8GLIB_I2C_OLED)
+  #define RECOMMEND_REINIT_NOISY_LCD 1
+#endif
+#if RECOMMEND_REINIT_NOISY_LCD && DISABLED(REINIT_NOISY_LCD)
+  #warning "It is recommended to enable REINIT_NOISY_LCD with your LCD controller model."
+#elif !RECOMMEND_REINIT_NOISY_LCD && ENABLED(REINIT_NOISY_LCD)
+  #warning "REINIT_NOISY_LCD is probably not required with your LCD controller model."
+#endif
+
+/**
+ * FREEZE_FEATURE may override the KILL_PIN
+ */
+#if FREEZE_STOLE_KILL_PIN_WARNING
+  #warning "FREEZE_FEATURE uses KILL_PIN replacing the KILL button. Define a separate FREEZE_PIN if you don't want this behavior."
 #endif

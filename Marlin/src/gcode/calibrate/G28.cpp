@@ -52,7 +52,7 @@
   #include "../../feature/bltouch.h"
 #endif
 
-#if FT_MOTION_DISABLE_FOR_PROBING
+#if ENABLED(FT_MOTION)
   #include "../../module/ft_motion.h"
 #endif
 
@@ -61,7 +61,7 @@
 #if ENABLED(EXTENSIBLE_UI)
   #include "../../lcd/extui/ui_api.h"
 #elif ENABLED(DWIN_CREALITY_LCD)
-  #include "../../lcd/e3v2/creality/dwin.h"
+  #include "../../lcd/dwin/creality/dwin.h"
 #elif ENABLED(SOVOL_SV06_RTS)
   #include "../../lcd/sovol_rts/sovol_rts.h"
 #endif
@@ -88,10 +88,8 @@
                 fr_mm_s = HYPOT(minfr, minfr);
 
     // Set homing current to X and Y axis if defined
-    #if HAS_CURRENT_HOME(X)
-      set_homing_current(X_AXIS);
-    #endif
-    #if HAS_CURRENT_HOME(Y) && NONE(CORE_IS_XY, MARKFORGED_XY, MARKFORGED_YX)
+    TERN_(X_HAS_HOME_CURRENT, set_homing_current(X_AXIS));
+    #if Y_HAS_HOME_CURRENT && NONE(CORE_IS_XY, MARKFORGED_XY, MARKFORGED_YX)
       set_homing_current(Y_AXIS);
     #endif
 
@@ -113,10 +111,8 @@
 
     current_position.set(0.0, 0.0);
 
-    #if HAS_CURRENT_HOME(X)
-      restore_homing_current(X_AXIS);
-    #endif
-    #if HAS_CURRENT_HOME(Y) && NONE(CORE_IS_XY, MARKFORGED_XY, MARKFORGED_YX)
+    TERN_(X_HAS_HOME_CURRENT, restore_homing_current(X_AXIS));
+    #if Y_HAS_HOME_CURRENT && NONE(CORE_IS_XY, MARKFORGED_XY, MARKFORGED_YX)
       restore_homing_current(Y_AXIS);
     #endif
 
@@ -133,15 +129,13 @@
 #if ENABLED(Z_SAFE_HOMING)
 
   inline void home_z_safely() {
-
-    #if FT_MOTION_DISABLE_FOR_PROBING
-      FTMotionDisableInScope FT_Disabler; // Disable Fixed-Time Motion for homing
-    #endif
-
     DEBUG_SECTION(log_G28, "home_z_safely", DEBUGGING(LEVELING));
 
     // Disallow Z homing if X or Y homing is needed
     if (homing_needed_error(_BV(X_AXIS) | _BV(Y_AXIS))) return;
+
+    // Potentially disable Fixed-Time Motion for homing
+    TERN_(FT_MOTION, FTM_DISABLE_IN_SCOPE());
 
     sync_plan_position();
 
@@ -204,11 +198,12 @@
 #endif // IMPROVE_HOMING_RELIABILITY
 
 /**
- * G28: Home all axes according to settings
+ * G28: Auto Home
  *
- * Parameters
+ * Home all axes according to settings
  *
- *  None  Home to all axes with no parameters.
+ * Parameters:
+ *  None  Home all axes
  *        With QUICK_HOME enabled XY will home together, then Z.
  *
  *  L<bool>   Force leveling state ON (if possible) or OFF after homing (Requires RESTORE_LEVELING_AFTER_G28 or ENABLE_LEVELING_AFTER_G28)
@@ -220,7 +215,7 @@
  *            fail with position unreachable due to probe/nozzle offset.  This
  *            can be used to avoid a model.
  *
- * Cartesian/SCARA parameters
+ * Cartesian/SCARA parameters:
  *
  *  X   Home to the X endstop
  *  Y   Home to the Y endstop
@@ -293,9 +288,8 @@ void GcodeSuite::G28() {
       motion_state_t saved_motion_state = begin_slow_homing();
     #endif
 
-    #if FT_MOTION_DISABLE_FOR_PROBING
-      FTMotionDisableInScope FT_Disabler; // Disable Fixed-Time Motion for homing
-    #endif
+    // Potentially disable Fixed-Time Motion for homing
+    TERN_(FT_MOTION, FTM_DISABLE_IN_SCOPE());
 
     // Always home with tool 0 active
     #if HAS_MULTI_HOTEND
@@ -304,7 +298,8 @@ void GcodeSuite::G28() {
       #endif
       // PARKING_EXTRUDER homing requires different handling of movement / solenoid activation, depending on the side of homing
       #if ENABLED(PARKING_EXTRUDER)
-        const bool pe_final_change_must_unpark = parking_extruder_unpark_after_homing(old_tool_index, X_HOME_DIR + 1 == old_tool_index * 2);
+        const bool homed_towards_tool = old_tool_index == TERN(X_HOME_TO_MIN, 0, 1),
+                   pe_final_change_must_unpark = parking_extruder_unpark_after_homing(old_tool_index, homed_towards_tool);
       #endif
       tool_change(0, true);
     #endif
@@ -382,7 +377,7 @@ void GcodeSuite::G28() {
         float z_homing_height = seenR ? parser.value_linear_units() : Z_CLEARANCE_FOR_HOMING;
 
         // Check for any lateral motion that might require clearance
-        const bool may_skate = seenR NUM_AXIS_GANG(|| doX, || doY, || TERN0(Z_SAFE_HOMING, doZ), || doI, || doJ, || doK, || doU, || doV, || doW);
+        const bool may_skate = seenR || NUM_AXIS_ANY(doX, doY, TERN0(Z_SAFE_HOMING, doZ), doI, doJ, doK, doU, doV, doW);
 
         if (seenR && z_homing_height == 0) {
           if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("R0 = No Z raise");

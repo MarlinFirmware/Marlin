@@ -45,10 +45,13 @@
   #include "../../lcd/extui/dgus/DGUSDisplayDef.h"
 #endif
 
-#include "../../MarlinCore.h" // for startOrResumeJob
-
 /**
- * M24: Start or Resume SD Print
+ * M24: Start or Resume Media Print
+ *
+ * Parameters:
+ *   With POWER_LOSS_RECOVERY:
+ *     S<pos>   Position in file to resume from
+ *     T<time>  Elapsed time since start of print
  */
 void GcodeSuite::M24() {
 
@@ -71,7 +74,7 @@ void GcodeSuite::M24() {
 
   if (card.isFileOpen()) {
     card.startOrResumeFilePrinting(); // SD card will now be read for commands
-    startOrResumeJob();               // Start (or resume) the print job timer
+    marlin.startOrResumeJob();        // Start (or resume) the print job timer
     TERN_(POWER_LOSS_RECOVERY, recovery.prepare());
   }
 
@@ -86,11 +89,11 @@ void GcodeSuite::M24() {
 }
 
 /**
- * M25: Pause SD Print
+ * M25: Pause Media Print
  *
  * With PARK_HEAD_ON_PAUSE:
- *   Invoke M125 to store the current position and move to the park
- *   position. M24 will move the head back before resuming the print.
+ *   Invoke 'M125' to store the current position and move to the park
+ *   position. 'M24' will move the head back before resuming the print.
  */
 void GcodeSuite::M25() {
 
@@ -101,7 +104,7 @@ void GcodeSuite::M25() {
   #else
 
     // Set initial pause flag to prevent more commands from landing in the queue while we try to pause
-    if (IS_SD_PRINTING()) card.pauseSDPrint();
+    if (card.isStillPrinting()) card.pauseSDPrint();
 
     #if ENABLED(POWER_LOSS_RECOVERY) && DISABLED(DGUS_LCD_UI_MKS)
       if (recovery.enabled) recovery.save(true);

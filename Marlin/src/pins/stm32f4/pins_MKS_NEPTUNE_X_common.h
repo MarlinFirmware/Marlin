@@ -133,7 +133,7 @@
 #define HEATER_1_PIN                        PB0   // HEATER2
 #define HEATER_BED_PIN                      PA0   // HOT BED
 
-#define FAN_PIN                             PC14  // FAN
+#define FAN0_PIN                            PC14  // FAN
 #define FAN1_PIN                            PB1   // FAN1
 
 //
@@ -209,48 +209,13 @@
 #endif
 
 //
-// TFT with FSMC interface
-//
-#if HAS_FSMC_TFT
-  /**
-   * Note: MKS Robin TFT screens use various TFT controllers.
-   * If the screen stays white, disable 'TFT_RESET_PIN'
-   * to let the bootloader init the screen.
-   */
-  #define TFT_RESET_PIN                     PC6   // FSMC_RST
-  #define TFT_BACKLIGHT_PIN                 PD13
-
-  #define DOGLCD_MOSI                       -1    // Prevent auto-define by Conditionals_post.h
-  #define DOGLCD_SCK                        -1
-
-  #define TOUCH_CS_PIN                      PA7   // SPI2_NSS
-  #define TOUCH_SCK_PIN                     PB13  // SPI2_SCK
-  #define TOUCH_MISO_PIN                    PB14  // SPI2_MISO
-  #define TOUCH_MOSI_PIN                    PB15  // SPI2_MOSI
-
-  #define LCD_USE_DMA_FSMC                        // Use DMA transfers to send data to the TFT
-  #define FSMC_CS_PIN                       PD7
-  #define FSMC_RS_PIN                       PD11
-  #define FSMC_DMA_DEV                      DMA2
-  #define FSMC_DMA_CHANNEL               DMA_CH5
-
-  #define TFT_CS_PIN                 FSMC_CS_PIN
-  #define TFT_RS_PIN                 FSMC_RS_PIN
-
-  #define TOUCH_BUTTONS_HW_SPI
-  #define TOUCH_BUTTONS_HW_SPI_DEVICE          2
-
-  #define TFT_BUFFER_SIZE                  14400
-#endif
-
-//
 // Onboard SD card
 //
 // detect pin doesn't work when ONBOARD and NO_SD_HOST_DRIVE disabled
 #if SD_CONNECTION_IS(ONBOARD)
   #define ENABLE_SPI3
   #define SD_SS_PIN                         -1
-  #define SDSS                              PC9
+  #define SD_SS_PIN                         PC9
   #define SD_SCK_PIN                        PC10
   #define SD_MISO_PIN                       PC11
   #define SD_MOSI_PIN                       PC12
@@ -261,7 +226,7 @@
 #if ENABLED(SPI_FLASH)
   #define HAS_SPI_FLASH                        1
   #define SPI_DEVICE                           2
-  #define SPI_FLASH_SIZE               0x1000000
+  #define SPI_FLASH_SIZE               0x1000000  // 16MB
   #define SPI_FLASH_CS_PIN                  PB12
   #define SPI_FLASH_MOSI_PIN                PC3
   #define SPI_FLASH_MISO_PIN                PC2
@@ -305,5 +270,5 @@
   #define TOUCH_BUTTONS_HW_SPI
   #define TOUCH_BUTTONS_HW_SPI_DEVICE          2
 
-  #define TFT_BUFFER_SIZE                  14400
-#endif
+  #define TFT_BUFFER_WORDS                 14400
+#endif // HAS_FSMC_TFT

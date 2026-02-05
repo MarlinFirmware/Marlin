@@ -28,7 +28,9 @@
 #include "../../sd/cardreader.h"
 
 /**
- * M20: List SD card to serial output in [name] [size] format.
+ * M20: List Media Files
+ *
+ * By default output in [name] [size] format.
  *
  * With CUSTOM_FIRMWARE_UPLOAD:
  *   F<bool> - List BIN files only, for use with firmware upload

@@ -47,6 +47,8 @@
 // 32Mb FLASH
 //#define SPI_FLASH_CS      ?
 
+#define BOARD_LCD_SERIAL_PORT 2
+
 //
 // Servos
 //
@@ -73,7 +75,7 @@
 //
 // Filament runout
 //
-#if ENABLED(FILAMENT_RUNOUT_SENSOR)
+#ifndef FIL_RUNOUT_PIN
   #define FIL_RUNOUT_PIN                    PC15
 #endif
 

@@ -43,6 +43,11 @@
 #endif
 
 //
+// Servos
+//
+#define SERVO0_PIN                          PA8
+
+//
 // Timers
 //
 #define STEP_TIMER  6
@@ -54,6 +59,11 @@
 #define X_STOP_PIN                          PB4
 #define Y_STOP_PIN                          PB3
 #define Z_STOP_PIN                          PD2
+
+#ifndef Z_MIN_PROBE_PIN
+  #define Z_MIN_PROBE_PIN                   PB5
+#endif
+
 //
 // Steppers
 //
@@ -114,6 +124,12 @@
   #define Z_SERIAL_TX_PIN                   PA3
   #define E0_SERIAL_TX_PIN                  PA7
   #define E1_SERIAL_TX_PIN                  PB1
+
+// Reduce baud rate to improve software serial reliability
+#ifndef TMC_BAUD_RATE
+  #define TMC_BAUD_RATE                    9600
+#endif
+
 #endif
 
 //
@@ -173,7 +189,7 @@
   #define SD_SCK_PIN                 EXP2_02_PIN
   #define SD_MISO_PIN                EXP2_01_PIN
   #define SD_MOSI_PIN                EXP2_06_PIN
-  #define SDSS                       EXP2_04_PIN
+  #define SD_SS_PIN                  EXP2_04_PIN
   #define SD_DETECT_PIN              EXP2_07_PIN
 
 #endif

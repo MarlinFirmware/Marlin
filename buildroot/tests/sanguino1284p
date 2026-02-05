@@ -14,7 +14,7 @@ opt_set MOTHERBOARD BOARD_SANGUINOLOLU_12 \
         LCD_LANGUAGE de \
         CONTROLLER_FAN_PIN 27
 opt_enable MINIPANEL USE_CONTROLLER_FAN CONTROLLER_FAN_EDITABLE
-exec_test $1 $2 "Default Configuration | MINIPANAL | CONTROLLER_FAN" "$3"
+exec_test $1 $2 "Default Configuration | MINIPANEL | CONTROLLER_FAN" "$3"
 
 #
 # Start with default configurations...

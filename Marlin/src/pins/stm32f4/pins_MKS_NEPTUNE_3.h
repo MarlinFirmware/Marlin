@@ -111,7 +111,7 @@
 #define HEATER_0_PIN                        PA6   // HEATER1
 #define HEATER_BED_PIN                      PA5   // HOT BED
 
-#define FAN_PIN                             PB0   // FAN
+#define FAN0_PIN                            PB0   // FAN
 //#define FAN1_PIN                          PA7   // FAN1
 
 #if NEED_TOUCH_PINS
@@ -131,7 +131,7 @@
 #if SD_CONNECTION_IS(ONBOARD)
   #define ENABLE_SPI3
   #define SD_SS_PIN                         -1
-  #define SDSS                              PB12
+  #define SD_SS_PIN                         PB12
   #define SD_SCK_PIN                        PB13
   #define SD_MISO_PIN                       PB14
   #define SD_MOSI_PIN                       PB15
