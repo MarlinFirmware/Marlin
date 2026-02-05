@@ -36,8 +36,8 @@ inline uint8_t timer_and_index_for_pin(const pin_t pin, timer_dev **timer_ptr) {
   return 0;
 }
 
-void MarlinHAL::set_pwm_duty(const pin_t pin, const uint16_t v, const uint16_t v_size/*=255*/, const bool invert/*=false*/) {
-  const uint16_t duty = invert ? v_size - v : v;
+void MarlinHAL::set_pwm_duty(const pin_t pin, const uint16_t value, const uint16_t scale/*=255*/, const bool invert/*=false*/) {
+  const uint16_t duty = invert ? scale - value : value;
   if (PWM_PIN(pin)) {
     timer_dev *timer;
     if (timer_freq[timer_and_index_for_pin(pin, &timer)] == 0)
@@ -48,7 +48,7 @@ void MarlinHAL::set_pwm_duty(const pin_t pin, const uint16_t v, const uint16_t v
   }
   else {
     pinMode(pin, OUTPUT);
-    digitalWrite(pin, duty < v_size / 2 ? LOW : HIGH);
+    digitalWrite(pin, duty < scale / 2 ? LOW : HIGH);
   }
 }
 

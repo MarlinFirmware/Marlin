@@ -24,10 +24,10 @@
 #include "../../inc/MarlinConfig.h"
 #include <pwm.h>
 
-void MarlinHAL::set_pwm_duty(const pin_t pin, const uint16_t v, const uint16_t v_size/*=255*/, const bool invert/*=false*/) {
+void MarlinHAL::set_pwm_duty(const pin_t pin, const uint16_t value, const uint16_t scale/*=255*/, const bool invert/*=false*/) {
   if (!LPC176x::pin_is_valid(pin)) return;
   if (LPC176x::pwm_attach_pin(pin)) {
-    const uint32_t duty = map(invert ? v_size - v : v, 0, v_size, 0, LPC176x::pwm_get_period(pin));
+    const uint32_t duty = map(invert ? scale - value : value, 0, scale, 0, LPC176x::pwm_get_period(pin));
     LPC176x::pwm_write(pin, duty);
   }
 }

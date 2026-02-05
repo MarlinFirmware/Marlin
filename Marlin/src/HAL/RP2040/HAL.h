@@ -201,7 +201,7 @@ public:
    * Optionally invert the duty cycle [default = false]
    * Optionally change the scale of the provided value to enable finer PWM duty control [default = 255]
    */
-  static void set_pwm_duty(const pin_t pin, const uint16_t v, const uint16_t v_size=255, const bool invert=false);
+  static void set_pwm_duty(const pin_t pin, const uint16_t value, const uint16_t scale=255, const bool invert=false);
 
   /**
    * Set the frequency of the timer for the given pin as close as

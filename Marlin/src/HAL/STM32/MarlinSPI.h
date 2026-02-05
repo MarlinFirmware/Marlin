@@ -98,8 +98,7 @@ public:
   void setClockDivider(uint8_t _div);
 
 private:
-  void setupDma(SPI_HandleTypeDef &_spiHandle, DMA_HandleTypeDef &_dmaHandle, uint32_t direction, bool minc = false);
-
+  void setupDma(SPI_HandleTypeDef &_spiHandle, DMA_HandleTypeDef &_dmaHandle, uint32_t direction, bool minc=false);
   spi_t _spi;
   DMA_HandleTypeDef _dmaTx;
   DMA_HandleTypeDef _dmaRx;

@@ -331,12 +331,12 @@ int8_t get_pwm_channel(const pin_t pin, const uint32_t freq, const uint16_t res)
   return cid; // -1 if no channel avail
 }
 
-void MarlinHAL::set_pwm_duty(const pin_t pin, const uint16_t v, const uint16_t v_size/*=_BV(PWM_RESOLUTION)-1*/, const bool invert/*=false*/) {
+void MarlinHAL::set_pwm_duty(const pin_t pin, const uint16_t value, const uint16_t scale/*=255*/, const bool invert/*=false*/) {
   #if ENABLED(I2S_STEPPER_STREAM)
     if (pin > 127) {
       const uint8_t pinlo = pin & 0x7F;
       pwm_pin_t &pindata = pwm_pin_data[pinlo];
-      const uint32_t duty = map(invert ? v_size - v : v, 0, v_size, 0, pindata.pwm_cycle_ticks);
+      const uint32_t duty = map(invert ? scale - value : value, 0, scale, 0, pindata.pwm_cycle_ticks);
       if (duty == 0 || duty == pindata.pwm_cycle_ticks) { // max or min (i.e., on/off)
         pindata.pwm_duty_ticks = 0;  // turn off PWM for this pin
         duty ? SBI32(i2s_port_data, pinlo) : CBI32(i2s_port_data, pinlo); // set pin level
@@ -350,7 +350,7 @@ void MarlinHAL::set_pwm_duty(const pin_t pin, const uint16_t v, const uint16_t v
 
   const int8_t cid = get_pwm_channel(pin, PWM_FREQUENCY, PWM_RESOLUTION);
   if (cid >= 0) {
-    const uint32_t duty = map(invert ? v_size - v : v, 0, v_size, 0, _BV(PWM_RESOLUTION)-1);
+    const uint32_t duty = map(invert ? scale - value : value, 0, scale, 0, _BV(PWM_RESOLUTION)-1);
     ledcWrite(cid, duty);
   }
 }

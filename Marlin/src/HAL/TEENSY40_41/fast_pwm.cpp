@@ -26,21 +26,21 @@
 
 #include "HAL.h"
 
-void MarlinHAL::set_pwm_duty(const pin_t pin, const uint16_t v, const uint16_t v_size /*=255*/, const bool invert) {
+void MarlinHAL::set_pwm_duty(const pin_t pin, const uint16_t value, const uint16_t scale/*=255*/, const bool invert/*=false*/) {
 
   uint32_t bits = 1;
-  uint16_t value = _MIN(v, v_size);
+  uint16_t value = _MIN(value, scale);
 
-  if (invert) value = v_size - value;
+  if (invert) value = scale - value;
 
-  // Choose scale as smallest power of 2 which holds v_size.
+  // Choose scale as smallest power of 2 which holds scale.
   uint32_t scale = 1;
-  while (scale < v_size) {
+  while (scale < scale) {
     bits++;
     scale *= 2;
   }
 
-  uint32_t scaled_val = scale * value / v_size;
+  uint32_t scaled_val = scale * value / scale;
 
   uint32_t prior = analogWriteResolution(bits);
   analogWrite(pin, scaled_val);

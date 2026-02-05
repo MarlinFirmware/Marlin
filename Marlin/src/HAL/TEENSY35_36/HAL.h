@@ -183,8 +183,8 @@ public:
    * No option to invert the duty cycle [default = false]
    * No option to change the scale of the provided value to enable finer PWM duty control [default = 255]
    */
-  static void set_pwm_duty(const pin_t pin, const uint16_t v, const uint16_t=255, const bool=false) {
-    analogWrite(pin, v);
+  static void set_pwm_duty(const pin_t pin, const uint16_t value, const uint16_t scale=255, const bool invert=false) {
+    analogWrite(pin, value);
   }
 
 };

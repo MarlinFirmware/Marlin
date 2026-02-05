@@ -32,7 +32,7 @@
 
 static uint16_t timer_frequency[TIMER_COUNT];
 
-void MarlinHAL::set_pwm_duty(const pin_t pin, const uint16_t value, const uint16_t scale, const bool invert) {
+void MarlinHAL::set_pwm_duty(const pin_t pin, const uint16_t value, const uint16_t scale/*=255*/, const bool invert/*=false*/) {
   // Calculate duty cycle based on inversion flag
   const uint16_t duty = invert ? scale - value : value;
 

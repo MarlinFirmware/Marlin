@@ -162,8 +162,8 @@ public:
    * Set the PWM duty cycle for the pin to the given value.
    * No option to change the resolution or invert the duty cycle.
    */
-  static void set_pwm_duty(const pin_t pin, const uint16_t v, const uint16_t=255, const bool=false) {
-    analogWrite(pin, v);
+  static void set_pwm_duty(const pin_t pin, const uint16_t value, const uint16_t scale=255, const bool invert=false) {
+    analogWrite(pin, value);
   }
 
   static void set_pwm_frequency(const pin_t, int) {}
