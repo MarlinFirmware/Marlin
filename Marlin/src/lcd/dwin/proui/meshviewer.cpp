@@ -69,7 +69,7 @@ void MeshViewer::drawMeshGrid(const uint8_t csizex, const uint8_t csizey) {
   for (uint8_t y = 1; y < sizey - 1; ++y) dwinDrawHLine(hmiData.colorSplitLine, px(0), py(y), width);
 }
 
-void MeshViewer::drawMeshPoint(const xy_uint8_t xy, const float z) {
+void MeshViewer::drawMeshPoint(const xy_int8_t xy, const float z) {
   const uint8_t fs = DWINUI::fontWidth(title.meshfont);
   const int16_t v = isnan(z) ? int16_t(0) : int16_t(LROUND(z * 100));
   NOLESS(max, z); NOMORE(min, z);
@@ -103,7 +103,7 @@ void MeshViewer::drawMesh(const bed_mesh_t zval, const uint8_t csizex, const uin
   drawMeshGrid(csizex, csizey);
   for (uint8_t y = 0; y < csizey; ++y) {
     hal.watchdog_refresh();
-    for (uint8_t x = 0; x < csizex; ++x) drawMeshPoint(xy_uint8_t({x, y}), zval[x][y]);
+    for (uint8_t x = 0; x < csizex; ++x) drawMeshPoint(xy_int8_t({x, y}), zval[x][y]);
   }
 }
 

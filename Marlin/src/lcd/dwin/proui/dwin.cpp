@@ -1903,8 +1903,8 @@ static_assert(ExtUI::eeprom_data_size >= EXTUI_EEPROM_DATA_SIZE, "Insufficient s
 void dwinSetDataDefaults() {
   dwinSetColorDefaults();
   DWINUI::setColors(hmiData.colorText, hmiData.colorBackground, hmiData.colorStatusBg);
-  TERN_(PIDTEMP, hmiData.hotendPIDT = DEF_HOTENDPIDT);
-  TERN_(PIDTEMPBED, hmiData.bedPIDT = DEF_BEDPIDT);
+  TERN_(PIDTEMP, hmiData.hotendPIDT = PREHEAT_1_TEMP_HOTEND);
+  TERN_(PIDTEMPBED, hmiData.bedPIDT = PREHEAT_1_TEMP_BED);
   TERN_(HAS_PID_HEATING, hmiData.pidCycles = DEF_PIDCYCLES);
   #if ENABLED(PREVENT_COLD_EXTRUSION)
     hmiData.extMinT = EXTRUDE_MINTEMP;

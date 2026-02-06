@@ -88,8 +88,10 @@ bool relative_mode; // = false
 #if ANY(MESH_BED_LEVELING, AUTO_BED_LEVELING_UBL)
   #if ENABLED(DWIN_LCD_PROUI)
     uint16_t z_probe_slow_mm_s = MMM_TO_MMS(Z_PROBE_FEEDRATE_SLOW);
-    xy_pos_t mesh_min{ MESH_MIN_X, MESH_MIN_Y },
-             mesh_max{ MESH_MAX_X, MESH_MAX_Y };
+    #if ENABLED(PROUI_MESH_EDIT)
+      xy_pos_t mesh_min{ MESH_MIN_X, MESH_MIN_Y },
+               mesh_max{ MESH_MAX_X, MESH_MAX_Y };
+    #endif
   #endif
 #endif
 

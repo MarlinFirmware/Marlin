@@ -36,7 +36,7 @@ class MeshViewer {
 public:
   static float max, min;
   static void drawMeshGrid(const uint8_t csizex, const uint8_t csizey);
-  static void drawMeshPoint(const xy_uint8_t xy, const float z);
+  static void drawMeshPoint(const xy_int8_t xy, const float z);
   static void draw(const bool withsave=false, const bool redraw=true);
   static void drawMesh(const bed_mesh_t zval, const uint8_t csizex, const uint8_t csizey);
 };
