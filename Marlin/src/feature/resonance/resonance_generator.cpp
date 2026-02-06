@@ -33,12 +33,9 @@
 
 resonance_test_params_t ResonanceGenerator::rt_params;     // Resonance test parameters
 
-bool ResonanceGenerator::active = false;                       // Resonance test active
-bool ResonanceGenerator::done = false;                         // Resonance test done
-float ResonanceGenerator::rt_time;                             // Resonance test timer
-float ResonanceGenerator::amplitude_precalc;
-float ResonanceGenerator::freq_mul;
-float ResonanceGenerator::phase = 0.0f;
+bool ResonanceGenerator::active = false;                   // Resonance test active
+bool ResonanceGenerator::done = false;                     // Resonance test done
+int32_t ResonanceGenerator::freq_to_phase_fp;
 
 #if HAS_STANDARD_MOTION
   block_t ResonanceGenerator::block;
@@ -50,41 +47,32 @@ ResonanceGenerator::ResonanceGenerator() {}
 
 void ResonanceGenerator::start() {
   gcode.home_all_axes(); // Always home axes first
-
-  // Always move to the center of the bed
   do_blocking_move_to_xy(X_CENTER, Y_CENTER, Z_CLEARANCE_FOR_HOMING);
-      
+  
   rt_params.start_pos = current_position;
   active = true;
   done = false;
 
-  #if ENABLED(FT_MOTION)
-    if (ftMotion.cfg.active)
-      rt_time = FTM_TS;
-    #if HAS_STANDARD_MOTION
-      else
-        rt_time = 0.001f;
-    #endif
-  #else
-    rt_time = 0.001f;
-  #endif
-
-  // Safe Acceleration per Hz for Z axis
+  // Clamp Z-axis acceleration for safety
   if (rt_params.axis == Z_AXIS)
     NOMORE(rt_params.accel_per_hz, 15.0f);
 
+  // Calculate time constant for sine sweep
+  const float rt_time = rt_params.octave_duration * (logf(RATIO) / logf(2.0f));
+
   #if HAS_STANDARD_MOTION
-    if (TERN1(FT_MOTION, !ftMotion.cfg.active)){ 
-      // Constant speed to be adjusted if necessary
+    if (TERN1(FT_MOTION, !ftMotion.cfg.active)) {
       block.reset();
       block.initial_rate = (rt_params.axis == Z_AXIS) ? 2000 : 8000;
     }
   #endif
  
-  // Precompute sine sweep const
-  amplitude_precalc = (rt_params.amplitude_correction * rt_params.accel_per_hz * 0.25f) / sq(M_PI);
-  current_freq = rt_params.min_freq;
-  freq_mul = exp2f(rt_time / rt_params.octave_duration);
+  // Precompute fixed-point sine sweep parameters
+  amplitude_precalc_fp = F2FP((rt_params.amplitude_correction * rt_params.accel_per_hz * 0.25f) / sq(M_PI));
+  current_freq_fp = F2FP(rt_params.min_freq);
+  freq_to_phase_fp = F2FP(2.0f * M_PI * rt_time);
+  max_freq_fp = F2FP(rt_params.max_freq);
+  phase_fp = 0;
 }
 
 void ResonanceGenerator::abort() {
@@ -109,36 +97,41 @@ void ResonanceGenerator::reset() {
   done = false;
 }
 
-// Returns the next position offset for the current frequency
 float ResonanceGenerator::calc_next_pos() {
-  // Amplitude based on a sinusoidal wave : A = accel / (4 * PI^2 * f^2)
-  const float amplitude = amplitude_precalc / current_freq;
-
-  // Phase accumulation in radians
-  phase += current_freq * M_TAU * rt_time;
-  if (phase >= M_TAU) phase -= M_TAU;
-
-  const float r = (phase > M_PI) ? (phase - M_TAU) : phase; 
-  const float r2 = r * r;
+  // Phase accumulation and wrapping within [0, 2π)
+  phase_fp += (int32_t)(((int64_t)current_freq_fp * freq_to_phase_fp) >> FP_BITS);
+  if (phase_fp >= M_TAU_FP) phase_fp -= M_TAU_FP;
+  else if (phase_fp < 0) phase_fp += M_TAU_FP;
   
-  // New postion
-  return (amplitude * r * (1.0f - 0.101321184f * r2));
+  // -π <= r_fp <= π
+  int32_t r_fp = (phase_fp > M_PI_FP) ? phase_fp - M_TAU_FP : phase_fp;
+  
+  // Calculate windowing polynomial: 1.0 - 0.101321184 * r²
+  int32_t poly_fp = FP_ONE - ((C0101321184_FP * ((r_fp * r_fp) >> FP_BITS)) >> FP_BITS);
+  
+  // Combine amplitude, phase, and polynomial and return new position
+  int32_t amplitude_fp = (int32_t)(((int64_t)amplitude_precalc_fp * FP_ONE) / current_freq_fp);
+  int32_t pos_fp = (int32_t)((((int64_t)amplitude_fp * r_fp) >> FP_BITS) * poly_fp) >> FP_BITS;
+  
+  return FP2F(pos_fp);
 }
 
 #if ENABLED(FT_MOTION)
   void ResonanceGenerator::fill_stepper_plan_buffer() {
-    static xyze_pos_t traj_coords = rt_params.start_pos;
+    xyze_pos_t traj_coords = rt_params.start_pos;
+    // Save starting position, avoid cumulative errors
+    const float start_pos = rt_params.start_pos[rt_params.axis];
 
     while (!ftMotion.stepping.is_full()) {
-      // Calculate current frequency
-      current_freq *= freq_mul;
-      if (current_freq > rt_params.max_freq) {
+      // Calculate current frequency with exponential sweep
+      current_freq_fp += current_freq_fp >> 16; 
+      if (current_freq_fp > max_freq_fp) {
         done = true;
         return;
       }
 
       // Resonate the axis being tested
-      traj_coords[rt_params.axis] += calc_next_pos();
+      traj_coords[rt_params.axis] = start_pos + calc_next_pos();
 
       // Store in buffer
       ftMotion.stepping_enqueue(traj_coords);
@@ -148,31 +141,37 @@ float ResonanceGenerator::calc_next_pos() {
 
 #if HAS_STANDARD_MOTION
   block_t *ResonanceGenerator::generate_resonance_block() {
+    // Static variables to retain state between calls and avoid cumulative errors
+    static float prev_pos = 0.0f, step_accumulator = 0.0f;
+
     const float step_mm = planner.settings.axis_steps_per_mm[rt_params.axis];
+    const uint8_t axis_bit = 1 << rt_params.axis;
     
-    // Calculate current frequency
-    current_freq *= freq_mul;
-    if (current_freq > rt_params.max_freq) {
+    // Calculate current frequency with exponential sweep
+    current_freq_fp += current_freq_fp >> 16;
+    if (current_freq_fp > max_freq_fp) {
       done = true;
       return nullptr;
     }
 
-    // mm → steps
-    const float delta_mm = calc_next_pos();
-    const float prod = delta_mm * step_mm;
-    const int32_t delta_steps = (int32_t)(prod > 0.0f ? prod + 0.5f : prod - 0.5f);
+    // Calculate position and accumulate steps
+    float current_pos = calc_next_pos();
+    step_accumulator += (current_pos - prev_pos) * step_mm;
+    prev_pos = current_pos;
+    
+    // Extract steps
+    int32_t delta_steps = (int32_t)floor(step_accumulator);
+    step_accumulator -= delta_steps;
+    uint32_t abs_steps = abs(delta_steps);
 
-    // Steps for target axis
-    block.steps[rt_params.axis] = abs(delta_steps);
-    // Total event count
-    block.step_event_count = abs(delta_steps);
-
-    // Direction
-    if (delta_steps > 0)
-      block.direction_bits &= ~(1 << rt_params.axis);
+    // Update block
+    block.steps[rt_params.axis] = abs_steps;
+    block.step_event_count = abs_steps;
+    if (delta_steps < 0)
+      block.direction_bits |= axis_bit;
     else
-      block.direction_bits |= (1 << rt_params.axis);
-
+      block.direction_bits &= ~axis_bit;
+  
     return &block;
   } 
 #endif

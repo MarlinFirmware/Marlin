@@ -29,9 +29,23 @@
 #include "../../module/planner.h"
 #endif
 
-#ifndef M_TAU
-  #define M_TAU (2.0f * M_PI)
-#endif
+// Fixed-point configuration
+#define FP_BITS 16  // 16 bits for fractional part
+#define FP_ONE (1UL << FP_BITS)  // Fixed-point 1.0
+
+// Convert float to fixed-point
+#define F2FP(x) ((int32_t)((x) * FP_ONE + 0.5f))
+
+// Convert fixed-point to float
+#define FP2F(x) ((float)(x) / FP_ONE)
+
+// Fixed-point constants
+#define M_TAU_FP F2FP(2.0f * M_PI)
+#define M_PI_FP F2FP(M_PI)
+#define C0101321184_FP F2FP(0.101321184f)
+
+// For rt_time calculation, perfect match between octave duration and frequency sweep
+#define RATIO (1.0f + 1.0f / 65536.0f) // 1 + 1/2^16
 
 typedef struct ResonanceTestParams {
   AxisEnum axis         = NO_AXIS_ENUM; // Axis to test
@@ -46,7 +60,7 @@ typedef struct ResonanceTestParams {
 class ResonanceGenerator {
   public:
     static resonance_test_params_t rt_params;     // Resonance test parameters
-    float timeline;                               // Timeline Value to calculate resonance frequency
+    float timeline;                        // Timeline Value to calculate resonance frequency
 
     ResonanceGenerator();
 
@@ -78,11 +92,16 @@ class ResonanceGenerator {
 
   private:
     float calc_next_pos();            // Calculate next position point based on current frequency
-    static float rt_time;             // Test timer
-    static float freq_mul;            // Frequency multiplier for sine sweeping
-    static float amplitude_precalc;   // Precalculated part of amplitude formula
-    float current_freq;               // Current frequency being generated in sinusoidal motion
-    static float phase;               // Current phase in radians
+    
+    // Fixed-point variables
+    int32_t amplitude_precalc_fp;     // Fixed-point amplitude precalculation
+    int32_t current_freq_fp;          // Fixed-point current frequency
+    
+    // Phase variables (in radians, stored as fixed-point)
+    int32_t phase_fp;                 // Fixed-point phase accumulator
+    static int32_t freq_to_phase_fp;  // Fixed-point frequency to phase conversion
+    
+    int32_t max_freq_fp;              // Fixed-point maximum frequency
     #if HAS_STANDARD_MOTION
       static block_t block;
     #endif

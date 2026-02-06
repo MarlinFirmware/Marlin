@@ -660,8 +660,8 @@ bool Stepper::disable_axis(const AxisEnum axis) {
     }
     else
       rtg.abort();
-    
-    return interval;;
+
+    return interval;
   }
 
   void Stepper::resonance_pulse_phase_isr() {

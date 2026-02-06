@@ -2908,7 +2908,7 @@
 //
 // Note: Usually sold with a white PCB.
 //
-//#define REPRAP_DISCOUNT_SMART_CONTROLLER
+#define REPRAP_DISCOUNT_SMART_CONTROLLER
 
 //
 // GT2560 (YHCB2004) LCD Display
@@ -3320,7 +3320,7 @@
  *
  * :[ 'ORIGIN', 'FYSETC', 'HYPRECY', 'MKS', 'RELOADED', 'IA_CREALITY', 'E3S1PRO' ]
  */
-#define DGUS_LCD_UI MKS
+//#define DGUS_LCD_UI MKS
 #if DGUS_UI_IS(MKS)
   #define USE_MKS_GREEN_UI
 #elif DGUS_UI_IS(IA_CREALITY)
