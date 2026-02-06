@@ -641,7 +641,7 @@ namespace ExtUI {
     void setPowerLossRecoveryEnabled(const bool value) { recovery.enable(value); }
   #endif
 
-  #if ENABLED(LIN_ADVANCE)
+  #if HAS_LIN_ADVANCE_K
     float getLinearAdvance_mm_mm_s(const extruder_t extruder) {
       return (extruder < EXTRUDERS) ? planner.get_advance_k(E_INDEX_N(extruder - E0)) : 0;
     }
@@ -676,7 +676,7 @@ namespace ExtUI {
 
     void setJunctionDeviation_mm(const float value) {
       planner.junction_deviation_mm = constrain(value, 0.001, 0.3);
-      TERN_(LIN_ADVANCE, planner.recalculate_max_e_jerk());
+      TERN_(HAS_LIN_ADVANCE_K, planner.recalculate_max_e_jerk());
     }
 
   #else

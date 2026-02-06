@@ -2325,7 +2325,7 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
       #define MOTION_JERK (MOTION_ACCEL + ENABLED(CLASSIC_JERK))
       #define MOTION_STEPS (MOTION_JERK + 1)
       #define MOTION_FLOW (MOTION_STEPS + ENABLED(HAS_HOTEND))
-      #define MOTION_LA (MOTION_FLOW + ENABLED(LIN_ADVANCE))
+      #define MOTION_LA (MOTION_FLOW + ENABLED(HAS_LIN_ADVANCE_K))
       #define MOTION_TOTAL MOTION_LA
 
       switch (item) {
@@ -2383,7 +2383,7 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
             break;
         #endif
 
-        #if ENABLED(LIN_ADVANCE)
+        #if HAS_LIN_ADVANCE_K
           case MOTION_LA:
             if (draw) {
               drawMenuItem(row, ICON_MaxAccelerated, GET_TEXT_F(MSG_ADVANCE_K));
@@ -2845,7 +2845,7 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
       #define ADVANCED_PROBE (ADVANCED_BEEPER + ENABLED(HAS_BED_PROBE))
       #define ADVANCED_TMC (ADVANCED_PROBE + ENABLED(HAS_TRINAMIC_CONFIG))
       #define ADVANCED_CORNER (ADVANCED_TMC + 1)
-      #define ADVANCED_LA (ADVANCED_CORNER + ENABLED(LIN_ADVANCE))
+      #define ADVANCED_LA (ADVANCED_CORNER + ENABLED(HAS_LIN_ADVANCE_K))
       #define ADVANCED_LOAD (ADVANCED_LA + ENABLED(ADVANCED_PAUSE_FEATURE))
       #define ADVANCED_UNLOAD (ADVANCED_LOAD + ENABLED(ADVANCED_PAUSE_FEATURE))
       #define ADVANCED_COLD_EXTRUDE  (ADVANCED_UNLOAD + ENABLED(PREVENT_COLD_EXTRUSION))
@@ -2902,7 +2902,7 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
             modifyValue(corner_pos, 1, 100, 10);
           break;
 
-        #if ENABLED(LIN_ADVANCE)
+        #if HAS_LIN_ADVANCE_K
           case ADVANCED_LA:
             if (draw) {
               drawMenuItem(row, ICON_MaxAccelerated, GET_TEXT_F(MSG_ADVANCE_K));
@@ -3819,7 +3819,7 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
       #define TUNE_ZOFFSET (TUNE_FAN + ENABLED(HAS_ZOFFSET_ITEM))
       #define TUNE_ZUP (TUNE_ZOFFSET + ENABLED(HAS_ZOFFSET_ITEM))
       #define TUNE_ZDOWN (TUNE_ZUP + ENABLED(HAS_ZOFFSET_ITEM))
-      #define TUNE_LA (TUNE_ZDOWN + ENABLED(LIN_ADVANCE))
+      #define TUNE_LA (TUNE_ZDOWN + ENABLED(HAS_LIN_ADVANCE_K))
       #define TUNE_CHANGEFIL (TUNE_LA + ENABLED(FILAMENT_LOAD_UNLOAD_GCODES))
       #define TUNE_FWRETRACT (TUNE_CHANGEFIL + ENABLED(FWRETRACT))
       #define TUNE_FILSENSORENABLED (TUNE_FWRETRACT + ENABLED(HAS_FILAMENT_SENSOR))
@@ -3913,7 +3913,7 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
             break;
         #endif
 
-        #if ENABLED(LIN_ADVANCE)
+        #if HAS_LIN_ADVANCE_K
           case TUNE_LA:
             if (draw) {
               drawMenuItem(row, ICON_MaxAccelerated, GET_TEXT_F(MSG_ADVANCE_K));

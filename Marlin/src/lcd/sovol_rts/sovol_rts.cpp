@@ -893,7 +893,7 @@ void RTS::handleData() {
           break;
 
         case 4: // Go to Advanced Settings
-          TERN_(LIN_ADVANCE, sendData(planner.get_advance_k() * 100, Advance_K_VP));
+          TERN_(HAS_LIN_ADVANCE_K, sendData(planner.get_advance_k() * 100, Advance_K_VP));
           gotoPage(ID_AdvWarn_L, ID_AdvWarn_D);
           break;
 
@@ -1289,7 +1289,7 @@ void RTS::handleData() {
 
         case 6: gotoPage(ID_Settings_L, ID_Settings_D); break;  // Return
 
-        #if ENABLED(LIN_ADVANCE)
+        #if HAS_LIN_ADVANCE_K
           case 7: // Confirm
             sendData(planner.get_advance_k() * 100, Advance_K_VP);
             gotoPage(ID_Advanced_L, ID_Advanced_D);
@@ -1348,7 +1348,7 @@ void RTS::handleData() {
         case Jerk_E: planner.max_jerk.e = float(recdat.data[0]) * 0.1f; break;
       #endif
       case A_Retract: planner.settings.retract_acceleration = recdat.data[0]; break;
-      #if ENABLED(LIN_ADVANCE)
+      #if HAS_LIN_ADVANCE_K
         case Advance_K: planner.set_advance_k(float(recdat.data[0]) * 0.01f); break;
       #endif
     #endif
