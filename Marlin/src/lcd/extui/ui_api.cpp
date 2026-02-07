@@ -881,26 +881,21 @@ namespace ExtUI {
       }
 
       void moveToMeshPoint(const xy_uint8_t &pos, const float z) {
-        #if HAS_MESH
-          REMEMBER(fr, feedrate_mm_s);
-          const float x_target = mesh_min.x + pos.x * (MESH_X_DIST),
-                      y_target = mesh_min.y + pos.y * (MESH_Y_DIST);
-          if (x_target != current_position.x || y_target != current_position.y) {
-            // If moving across bed, raise nozzle to safe height over bed
-            feedrate_mm_s = z_probe_fast_mm_s;
-            destination.set(current_position.x, current_position.y, Z_CLEARANCE_BETWEEN_PROBES);
-            prepare_line_to_destination();
-            if (XY_PROBE_FEEDRATE_MM_S) feedrate_mm_s = XY_PROBE_FEEDRATE_MM_S;
-            destination.set(x_target, y_target);
-            prepare_line_to_destination();
-          }
+        REMEMBER(fr, feedrate_mm_s);
+        const float x_target = mesh_min.x + pos.x * (MESH_X_DIST),
+                    y_target = mesh_min.y + pos.y * (MESH_Y_DIST);
+        if (x_target != current_position.x || y_target != current_position.y) {
+          // If moving across bed, raise nozzle to safe height over bed
           feedrate_mm_s = z_probe_fast_mm_s;
-          destination.z = z;
+          destination.set(current_position.x, current_position.y, Z_CLEARANCE_BETWEEN_PROBES);
           prepare_line_to_destination();
-        #else
-          UNUSED(pos);
-          UNUSED(z);
-        #endif
+          if (XY_PROBE_FEEDRATE_MM_S) feedrate_mm_s = XY_PROBE_FEEDRATE_MM_S;
+          destination.set(x_target, y_target);
+          prepare_line_to_destination();
+        }
+        feedrate_mm_s = z_probe_fast_mm_s;
+        destination.z = z;
+        prepare_line_to_destination();
       }
 
     #endif // HAS_MESH
