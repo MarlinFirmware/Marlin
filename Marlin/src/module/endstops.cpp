@@ -446,18 +446,24 @@ void Endstops::update() {
   // Use HEAD for core axes, AXIS for others
   #if ANY(CORE_IS_XY, CORE_IS_XZ, MARKFORGED_XY, MARKFORGED_YX)
     #define X_AXIS_HEAD X_HEAD
+    #define X_AXIS_CHECK TERN(FT_MOTION, X_HEAD, X_AXIS)
   #else
     #define X_AXIS_HEAD X_AXIS
+    #define X_AXIS_CHECK X_AXIS
   #endif
   #if ANY(CORE_IS_XY, CORE_IS_YZ, MARKFORGED_XY, MARKFORGED_YX)
     #define Y_AXIS_HEAD Y_HEAD
+    #define Y_AXIS_CHECK TERN(FT_MOTION, Y_HEAD, Y_AXIS)
   #else
     #define Y_AXIS_HEAD Y_AXIS
+    #define Y_AXIS_CHECK Y_AXIS
   #endif
   #if CORE_IS_XZ || CORE_IS_YZ
     #define Z_AXIS_HEAD Z_HEAD
+    #define Z_AXIS_CHECK TERN(FT_MOTION, Z_HEAD, Z_AXIS)
   #else
     #define Z_AXIS_HEAD Z_AXIS
+    #define Z_AXIS_CHECK Z_AXIS
   #endif
 
   #define I_AXIS_HEAD I_AXIS
@@ -662,6 +668,7 @@ void Endstops::update() {
   #endif
 
   #define AXIS_IS_MOVING(A) TERN(FT_MOTION, ftMotion, stepper).axis_is_moving(_AXIS(A))
+  #define AXIS_ENUM_IS_MOVING(A) TERN(FT_MOTION, ftMotion, stepper).axis_is_moving(AxisEnum(A))
   #define AXIS_DIR_REV(A)  !TERN(FT_MOTION, ftMotion, stepper).motor_direction(A)
 
   #if ENABLED(G38_PROBE_TARGET)
@@ -684,8 +691,8 @@ void Endstops::update() {
   // Signal, after validation, if an endstop limit is pressed or not
 
   #if HAS_X_AXIS
-    if (AXIS_IS_MOVING(X)) {
-      const AxisEnum x_head = TERN0(FT_MOTION, ftMotion.cfg.active) ? X_AXIS : X_AXIS_HEAD;
+    if (AXIS_ENUM_IS_MOVING(X_AXIS_CHECK)) {
+      const AxisEnum x_head = X_AXIS_HEAD;
       if (AXIS_DIR_REV(x_head)) {
         #if HAS_X_MIN_STATE
           PROCESS_ENDSTOP_X(MIN);
@@ -718,8 +725,8 @@ void Endstops::update() {
   #endif // HAS_X_AXIS
 
   #if HAS_Y_AXIS
-    if (AXIS_IS_MOVING(Y)) {
-      const AxisEnum y_head = TERN0(FT_MOTION, ftMotion.cfg.active) ? Y_AXIS : Y_AXIS_HEAD;
+    if (AXIS_ENUM_IS_MOVING(Y_AXIS_CHECK)) {
+      const AxisEnum y_head = Y_AXIS_HEAD;
       if (AXIS_DIR_REV(y_head)) {
         #if HAS_Y_MIN_STATE
           PROCESS_ENDSTOP_Y(MIN);
@@ -752,8 +759,8 @@ void Endstops::update() {
   #endif // HAS_Y_AXIS
 
   #if HAS_Z_AXIS
-    if (AXIS_IS_MOVING(Z)) {
-      const AxisEnum z_head = TERN0(FT_MOTION, ftMotion.cfg.active) ? Z_AXIS : Z_AXIS_HEAD;
+    if (AXIS_ENUM_IS_MOVING(Z_AXIS_CHECK)) {
+      const AxisEnum z_head = Z_AXIS_HEAD;
       if (AXIS_DIR_REV(z_head)) {
         // Z- : Gantry down, bed up
         #if HAS_Z_MIN_STATE

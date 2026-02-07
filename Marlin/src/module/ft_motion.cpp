@@ -420,9 +420,63 @@ bool FTMotion::plan_next_block() {
     TERN_(FTM_HAS_LIN_ADVANCE, use_advance_lead = current_block->use_advance_lead);
 
     axis_move_dir = current_block->direction_bits;
-    #define _SET_MOVE_END(A) moving_axis_flags.A = bool(moveDist.A);
 
-    LOGICAL_AXIS_MAP(_SET_MOVE_END);
+    // Set moving flags for axes that have movement in this block
+    // For CORE kinematics: moveDist.x/.y/.z contain motor distances (a/b/c)
+    // HEAD movement flags need to be inferred: if either motor moves, the head moves
+    #if ANY(IS_CORE, MARKFORGED_XY, MARKFORGED_YX)
+      bool x_head_moving = false, y_head_moving = false, z_head_moving = false;
+
+      #if CORE_IS_XY
+        // X = (A+B)/2, Y = (A-B)/2
+        x_head_moving = !NEAR_ZERO(moveDist.a + moveDist.b);
+        y_head_moving = !NEAR_ZERO(moveDist.a - moveDist.b);
+        moving_axis_flags[X_AXIS] = bool(moveDist.a);
+        moving_axis_flags[Y_AXIS] = bool(moveDist.b);
+        moving_axis_flags[Z_AXIS] = bool(moveDist.z);
+      #elif CORE_IS_XZ
+        // X = (A+C)/2, Z = (A-C)/2
+        x_head_moving = !NEAR_ZERO(moveDist.a + moveDist.c);
+        z_head_moving = !NEAR_ZERO(moveDist.a - moveDist.c);
+        moving_axis_flags[X_AXIS] = bool(moveDist.a);
+        moving_axis_flags[Z_AXIS] = bool(moveDist.c);
+        moving_axis_flags[Y_AXIS] = bool(moveDist.y);
+      #elif CORE_IS_YZ
+        // Y = (B+C)/2, Z = (B-C)/2
+        y_head_moving = !NEAR_ZERO(moveDist.b + moveDist.c);
+        z_head_moving = !NEAR_ZERO(moveDist.b - moveDist.c);
+        moving_axis_flags[Y_AXIS] = bool(moveDist.b);
+        moving_axis_flags[Z_AXIS] = bool(moveDist.c);
+        moving_axis_flags[X_AXIS] = bool(moveDist.x);
+      #else
+        // Markforged or other - conservative fallback
+        // X head moves if motor A OR motor B moves (for CORE_XY/MARKFORGED) or motor A moves
+        x_head_moving = bool(moveDist.a) || TERN0(MARKFORGED_XY, bool(moveDist.b));
+        moving_axis_flags[X_AXIS] = bool(moveDist.a);  // Motor A
+
+        // Y head moves if motor A OR motor B moves (for CORE_XY/MARKFORGED) or motor B moves
+        y_head_moving = bool(moveDist.b) || TERN0(MARKFORGED_XY, bool(moveDist.a));
+        moving_axis_flags[Y_AXIS] = bool(moveDist.b);  // Motor B
+
+        // Z head moves
+        z_head_moving = bool(moveDist.z);
+        moving_axis_flags[Z_AXIS] = bool(moveDist.z);
+      #endif
+
+      if (x_head_moving) moving_axis_flags[X_HEAD] = true; else moving_axis_flags[X_HEAD] = false;
+      if (y_head_moving) moving_axis_flags[Y_HEAD] = true; else moving_axis_flags[Y_HEAD] = false;
+      #if defined(Z_HEAD)
+        if (z_head_moving) moving_axis_flags[Z_HEAD] = true; else moving_axis_flags[Z_HEAD] = false;
+      #else
+        UNUSED(z_head_moving);
+      #endif
+
+      TERN_(HAS_EXTRUDERS, moving_axis_flags[E_AXIS] = bool(moveDist.e));
+    #else
+      #define _SET_MOVE_END(A) moving_axis_flags.A = bool(moveDist.A);
+      LOGICAL_AXIS_MAP(_SET_MOVE_END);
+      #undef _SET_MOVE_END
+    #endif
 
     // If the endstop is already pressed, endstop interrupts won't invoke
     // endstop_triggered and the move will grind. So check here for a
