@@ -76,7 +76,7 @@ extern xyz_pos_t cartes;
   constexpr feedRate_t z_probe_fast_mm_s = MMM_TO_MMS(Z_PROBE_FEEDRATE_FAST);
 #endif
 
-#if ANY(MESH_BED_LEVELING, AUTO_BED_LEVELING_UBL)
+#if HAS_MESH
   #if ENABLED(PROUI_MESH_EDIT)
     extern xy_pos_t mesh_min, mesh_max;
   #else

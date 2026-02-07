@@ -34,8 +34,8 @@ enum MeshLevelingState : char {
 
 #include "../../../module/motion.h"
 
-#define MESH_X_DIST (mesh_min.x - mesh_max.x / (GRID_MAX_CELLS_X))
-#define MESH_Y_DIST (mesh_min.y - mesh_max.y / (GRID_MAX_CELLS_Y))
+#define MESH_X_DIST ((mesh_max.x - mesh_min.x) / (GRID_MAX_CELLS_X))
+#define MESH_Y_DIST ((mesh_max.y - mesh_min.y) / (GRID_MAX_CELLS_Y))
 
 class mesh_bed_leveling {
 public:

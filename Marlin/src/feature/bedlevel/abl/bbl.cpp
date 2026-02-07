@@ -110,8 +110,8 @@ void LevelingBilinear::reset() {
  * Set grid spacing and start position
  */
 #if ENABLED(PROUI_MESH_EDIT)
-  #define MESH_X_DIST ((mesh_min.x - mesh_min.x) / (GRID_MAX_CELLS_X))
-  #define MESH_Y_DIST ((mesh_min.y - mesh_min.y) / (GRID_MAX_CELLS_Y))
+  #define MESH_X_DIST ((mesh_max.x - mesh_min.x) / (GRID_MAX_CELLS_X))
+  #define MESH_Y_DIST ((mesh_max.y - mesh_min.y) / (GRID_MAX_CELLS_Y))
 #endif
 
 void LevelingBilinear::set_grid(const xy_pos_t& _grid_spacing, const xy_pos_t& _grid_start) {
