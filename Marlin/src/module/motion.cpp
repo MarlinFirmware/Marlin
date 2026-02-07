@@ -85,7 +85,7 @@ bool relative_mode; // = false
   bool z_min_trusted; // = false
 #endif
 
-#if ANY(MESH_BED_LEVELING, AUTO_BED_LEVELING_UBL)
+#if HAS_MESH
   #if ENABLED(DWIN_LCD_PROUI)
     uint16_t z_probe_slow_mm_s = MMM_TO_MMS(Z_PROBE_FEEDRATE_SLOW);
     #if ENABLED(PROUI_MESH_EDIT)
