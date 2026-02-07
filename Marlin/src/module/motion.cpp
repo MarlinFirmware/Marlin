@@ -85,14 +85,12 @@ bool relative_mode; // = false
   bool z_min_trusted; // = false
 #endif
 
-#if HAS_MESH
-  #if ENABLED(DWIN_LCD_PROUI)
-    uint16_t z_probe_slow_mm_s = MMM_TO_MMS(Z_PROBE_FEEDRATE_SLOW);
+#if ENABLED(DWIN_LCD_PROUI)
+  uint16_t z_probe_slow_mm_s = MMM_TO_MMS(Z_PROBE_FEEDRATE_SLOW);
     #if ENABLED(PROUI_MESH_EDIT)
       xy_pos_t mesh_min{ MESH_MIN_X, MESH_MIN_Y },
                mesh_max{ MESH_MAX_X, MESH_MAX_Y };
     #endif
-  #endif
 #endif
 
 // Warn for unexpected TPARA home position
