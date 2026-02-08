@@ -390,9 +390,9 @@ bool FTMotion::plan_next_block() {
     #endif
 
     // Some kinematics track axis motion in HX, HY, HZ
-    TERN_(HAS_X_HEAD, stepper.last_direction_bits.hx = current_block->direction_bits.hx);
-    TERN_(HAS_Y_HEAD, stepper.last_direction_bits.hy = current_block->direction_bits.hy);
-    TERN_(HAS_Z_HEAD, stepper.last_direction_bits.hz = current_block->direction_bits.hz);
+    TERN_(HAS_HEAD_X, stepper.last_direction_bits.hx = current_block->direction_bits.hx);
+    TERN_(HAS_HEAD_Y, stepper.last_direction_bits.hy = current_block->direction_bits.hy);
+    TERN_(HAS_HEAD_Z, stepper.last_direction_bits.hz = current_block->direction_bits.hz);
 
     // Cache the extruder index / axis for this block
     #if ANY(HAS_MULTI_EXTRUDER, MIXING_EXTRUDER)
@@ -421,10 +421,10 @@ bool FTMotion::plan_next_block() {
     // For CORE kinematics: moveDist.x/.y/.z contain motor distances (a/b/c)
     // HEAD movement flags need to be inferred: if either motor moves, the head moves
     #define _SET_MOVE_END(A) moving_axis_flags.A = bool(moveDist.A);
-    #if ANY(HAS_X_HEAD, HAS_Y_HEAD, HAS_Z_HEAD)
-      moving_axis_flags.hx = bool(moveDist.TERN(HAS_X_HEAD, head.x, x));
-      moving_axis_flags.hy = bool(moveDist.TERN(HAS_Y_HEAD, head.y, y));
-      TERN_(HAS_Z_AXIS, moving_axis_flags.hz = bool(moveDist.TERN(HAS_Z_HEAD, head.z, z)));
+    #if ANY(HAS_HEAD_X, HAS_HEAD_Y, HAS_HEAD_Z)
+      moving_axis_flags.hx = bool(moveDist.TERN(HAS_HEAD_X, head.x, x));
+      moving_axis_flags.hy = bool(moveDist.TERN(HAS_HEAD_Y, head.y, y));
+      TERN_(HAS_Z_AXIS, moving_axis_flags.hz = bool(moveDist.TERN(HAS_HEAD_Z, head.z, z)));
       SECONDARY_AXIS_MAP(_SET_MOVE_END);
       TERN_(HAS_EXTRUDERS, moving_axis_flags.e = bool(moveDist.e));
     #else

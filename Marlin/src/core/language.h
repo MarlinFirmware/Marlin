@@ -366,17 +366,17 @@
 #define STR_Z2 STR_C "2"
 #define STR_Z3 STR_C "3"
 #define STR_Z4 STR_C "4"
-#if HAS_X_HEAD
+#if ANY(HAS_HEAD_X, IS_SCARA, DELTA)
   #define STEPPER_A_NAME 'A'
 #else
   #define STEPPER_A_NAME 'X'
 #endif
-#if HAS_Y_HEAD
+#if ANY(HAS_HEAD_Y, IS_SCARA, DELTA, POLAR)
   #define STEPPER_B_NAME 'B'
 #else
   #define STEPPER_B_NAME 'Y'
 #endif
-#if HAS_Z_HEAD
+#if ANY(HAS_HEAD_Z, DELTA)
   #define STEPPER_C_NAME 'C'
 #else
   #define STEPPER_C_NAME 'Z'

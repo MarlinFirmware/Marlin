@@ -1855,9 +1855,9 @@ bool Planner::_populate_block(
 
   // Compute direction bit-mask for this block
   AxisBits dm;
-  TERN_(HAS_X_HEAD, dm.hx = (dist.a > 0));      // True direction in X
-  TERN_(HAS_Y_HEAD, dm.hy = (dist.b > 0));      // True direction in Y
-  TERN_(HAS_Z_HEAD, dm.hz = (dist.c > 0));      // True direction in Z
+  TERN_(HAS_HEAD_X, dm.hx = (dist.a > 0));      // True direction in X
+  TERN_(HAS_HEAD_Y, dm.hy = (dist.b > 0));      // True direction in Y
+  TERN_(HAS_HEAD_Z, dm.hz = (dist.c > 0));      // True direction in Z
   #if CORE_IS_XY
     dm.a  = (dist.a + dist.b > 0);              // Motor A direction
     dm.b  = (CORESIGN(dist.a - dist.b) > 0);    // Motor B direction
@@ -2024,9 +2024,9 @@ bool Planner::_populate_block(
     else {
       const xyze_pos_t displacement = LOGICAL_AXIS_ARRAY(
         dist_mm.e,
-        dist_mm.TERN(HAS_X_HEAD, head.x, x),
-        dist_mm.TERN(HAS_Y_HEAD, head.y, y),
-        dist_mm.TERN(HAS_Z_HEAD, head.z, z),
+        dist_mm.TERN(HAS_HEAD_X, head.x, x),
+        dist_mm.TERN(HAS_HEAD_Y, head.y, y),
+        dist_mm.TERN(HAS_HEAD_Z, head.z, z),
         dist_mm.i, dist_mm.j, dist_mm.k,
         dist_mm.u, dist_mm.v, dist_mm.w
       );

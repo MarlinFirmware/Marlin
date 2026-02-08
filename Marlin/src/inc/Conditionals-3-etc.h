@@ -585,13 +585,13 @@
   #define CORE_IS_YZ 1
 #endif
 #if ANY(CORE_IS_XY, CORE_IS_XZ, MARKFORGED_XY, MARKFORGED_YX)
-  #define HAS_X_HEAD 1
+  #define HAS_HEAD_X 1
 #endif
 #if ANY(CORE_IS_XY, CORE_IS_YZ, MARKFORGED_XY, MARKFORGED_YX)
-  #define HAS_Y_HEAD 1
+  #define HAS_HEAD_Y 1
 #endif
 #if CORE_IS_XZ || CORE_IS_YZ
-  #define HAS_Z_HEAD 1
+  #define HAS_HEAD_Z 1
 #endif
 #if CORE_IS_XY || CORE_IS_XZ || CORE_IS_YZ
   #define IS_CORE 1

@@ -364,13 +364,13 @@ enum AxisEnum : uint8_t {
   #undef _EN_ITEM
 
   // Core also keeps toolhead directions
-  #if HAS_X_HEAD
+  #if HAS_HEAD_X
     X_HEAD,
   #endif
-  #if HAS_Y_HEAD
+  #if HAS_HEAD_Y
     Y_HEAD,
   #endif
-  #if HAS_Z_HEAD
+  #if HAS_HEAD_Z
     Z_HEAD,
   #endif
 
@@ -394,13 +394,13 @@ enum AxisEnum : uint8_t {
   #endif
 
   // Aliases to distinguish tool axes from stepper indexes
-  #if HAS_X_AXIS && !HAS_X_HEAD
+  #if HAS_X_AXIS && !HAS_HEAD_X
     X_HEAD = X_AXIS,
   #endif
-  #if HAS_Y_AXIS && !HAS_Y_HEAD
+  #if HAS_Y_AXIS && !HAS_HEAD_Y
     Y_HEAD = Y_AXIS,
   #endif
-  #if HAS_Z_AXIS && !HAS_Z_HEAD
+  #if HAS_Z_AXIS && !HAS_HEAD_Z
     Z_HEAD = Z_AXIS,
   #endif
   #if HAS_I_AXIS
@@ -1188,13 +1188,13 @@ public:
       #define _EN_ITEM(N) bool e##N:1;
       REPEAT(EXTRUDERS,_EN_ITEM)
       #undef _EN_ITEM
-      #if HAS_X_HEAD
+      #if HAS_HEAD_X
         bool hx:1;
       #endif
-      #if HAS_Y_HEAD
+      #if HAS_HEAD_Y
         bool hy:1;
       #endif
-      #if HAS_Z_HEAD
+      #if HAS_HEAD_Z
         bool hz:1;
       #endif
     };
@@ -1206,13 +1206,13 @@ public:
       #define _EN_ITEM(N) bool E##N:1;
       REPEAT(EXTRUDERS,_EN_ITEM)
       #undef _EN_ITEM
-      #if HAS_X_HEAD
+      #if HAS_HEAD_X
         bool HX:1;
       #endif
-      #if HAS_Y_HEAD
+      #if HAS_HEAD_Y
         bool HY:1;
       #endif
-      #if HAS_Z_HEAD
+      #if HAS_HEAD_Z
         bool HZ:1;
       #endif
     };
@@ -1224,13 +1224,13 @@ public:
         REPEAT_S(1,EXTRUDERS,_EN_ITEM)
         #undef _EN_ITEM
       #endif
-      #if HAS_X_HEAD
+      #if HAS_HEAD_X
         bool ha:1;
       #endif
-      #if HAS_Y_HEAD
+      #if HAS_HEAD_Y
         bool hb:1;
       #endif
-      #if HAS_Z_HEAD
+      #if HAS_HEAD_Z
         bool hc:1;
       #endif
     };
@@ -1242,13 +1242,13 @@ public:
         REPEAT_S(1,EXTRUDERS,_EN_ITEM)
         #undef _EN_ITEM
       #endif
-      #if HAS_X_HEAD
+      #if HAS_HEAD_X
         bool HA:1;
       #endif
-      #if HAS_Y_HEAD
+      #if HAS_HEAD_Y
         bool HB:1;
       #endif
-      #if HAS_Z_HEAD
+      #if HAS_HEAD_Z
         bool HC:1;
       #endif
     };
