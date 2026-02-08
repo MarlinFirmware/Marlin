@@ -3601,13 +3601,13 @@ int32_t Stepper::triggered_position(const AxisEnum axis) {
  * Reporting
  */
 
-#if ANY(CORE_IS_XY, CORE_IS_XZ, MARKFORGED_XY, MARKFORGED_YX, IS_SCARA, DELTA)
+#if ANY(HAS_X_HEAD, IS_SCARA, DELTA)
   #define SAYS_A 1
 #endif
-#if ANY(CORE_IS_XY, CORE_IS_YZ, MARKFORGED_XY, MARKFORGED_YX, IS_SCARA, DELTA, POLAR)
+#if ANY(HAS_Y_HEAD, IS_SCARA, DELTA, POLAR)
   #define SAYS_B 1
 #endif
-#if ANY(CORE_IS_XZ, CORE_IS_YZ, DELTA)
+#if ANY(HAS_Z_HEAD, DELTA)
   #define SAYS_C 1
 #endif
 

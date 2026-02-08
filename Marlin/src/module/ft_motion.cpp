@@ -353,7 +353,7 @@ FSTR_P FTMotion::getTrajectoryName() {
 // Called from FTMotion::loop() at the fetch of the next planner block.
 // Return whether a plan is available.
 bool FTMotion::plan_next_block() {
-  while (true) {
+  for (;;) {
 
     const bool had_block = !!stepper.current_block;
     discard_planner_block_protected();                                  // Always clears stepper.current_block...
@@ -380,6 +380,8 @@ bool FTMotion::plan_next_block() {
       if (current_block->is_sync_pos()) stepper._set_position(current_block->position);
       continue;
     }
+
+    // Keep extruder position within float precision
     ensure_extruder_float_precision();
 
     #if ENABLED(POWER_LOSS_RECOVERY)
@@ -388,15 +390,9 @@ bool FTMotion::plan_next_block() {
     #endif
 
     // Some kinematics track axis motion in HX, HY, HZ
-    #if ANY(CORE_IS_XY, CORE_IS_XZ, MARKFORGED_XY, MARKFORGED_YX)
-      stepper.last_direction_bits.hx = current_block->direction_bits.hx;
-    #endif
-    #if ANY(CORE_IS_XY, CORE_IS_YZ, MARKFORGED_XY, MARKFORGED_YX)
-      stepper.last_direction_bits.hy = current_block->direction_bits.hy;
-    #endif
-    #if ANY(CORE_IS_XZ, CORE_IS_YZ)
-      stepper.last_direction_bits.hz = current_block->direction_bits.hz;
-    #endif
+    TERN_(HAS_X_HEAD, stepper.last_direction_bits.hx = current_block->direction_bits.hx);
+    TERN_(HAS_Y_HEAD, stepper.last_direction_bits.hy = current_block->direction_bits.hy);
+    TERN_(HAS_Z_HEAD, stepper.last_direction_bits.hz = current_block->direction_bits.hz);
 
     // Cache the extruder index / axis for this block
     #if ANY(HAS_MULTI_EXTRUDER, MIXING_EXTRUDER)
@@ -430,7 +426,7 @@ bool FTMotion::plan_next_block() {
         // X = (A+B)/2, Y = (A-B)/2
         moving_axis_flags.hx = !NEAR_ZERO(moveDist.a + moveDist.b);
         moving_axis_flags.hy = !NEAR_ZERO(moveDist.a - moveDist.b);
-        moving_axis_flags.hz = bool(moveDist.z);
+        TERN_(HAS_Z_AXIS, moving_axis_flags.hz = bool(moveDist.z));
       #elif CORE_IS_XZ
         // X = (A+C)/2, Z = (A-C)/2
         moving_axis_flags.hx = !NEAR_ZERO(moveDist.a + moveDist.c);
@@ -450,9 +446,7 @@ bool FTMotion::plan_next_block() {
       #endif
 
       SECONDARY_AXIS_MAP(_SET_MOVE_END);
-
       TERN_(HAS_EXTRUDERS, moving_axis_flags.e = bool(moveDist.e));
-
     #else
       LOGICAL_AXIS_MAP(_SET_MOVE_END);
     #endif
@@ -463,7 +457,7 @@ bool FTMotion::plan_next_block() {
     endstops.update();
 
     return true;
-  }
+  } // infinite loop
 }
 
 #if HAS_EXTRUDERS

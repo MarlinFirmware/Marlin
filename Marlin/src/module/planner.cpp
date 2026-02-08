@@ -1855,15 +1855,9 @@ bool Planner::_populate_block(
 
   // Compute direction bit-mask for this block
   AxisBits dm;
-  #if ANY(CORE_IS_XY, CORE_IS_XZ, MARKFORGED_XY, MARKFORGED_YX)
-    dm.hx = (dist.a > 0);                       // True direction in X
-  #endif
-  #if ANY(CORE_IS_XY, CORE_IS_YZ, MARKFORGED_XY, MARKFORGED_YX)
-    dm.hy = (dist.b > 0);                       // True direction in Y
-  #endif
-  #if ANY(CORE_IS_XZ, CORE_IS_YZ)
-    dm.hz = (dist.c > 0);                       // True direction in Z
-  #endif
+  TERN_(HAS_X_HEAD, dm.hx = (dist.a > 0));      // True direction in X
+  TERN_(HAS_Y_HEAD, dm.hy = (dist.b > 0));      // True direction in Y
+  TERN_(HAS_Z_HEAD, dm.hz = (dist.c > 0));      // True direction in Z
   #if CORE_IS_XY
     dm.a  = (dist.a + dist.b > 0);              // Motor A direction
     dm.b  = (CORESIGN(dist.a - dist.b) > 0);    // Motor B direction
@@ -1971,8 +1965,18 @@ bool Planner::_populate_block(
    * Next we can calculate the total movement length and apply the desired speed.
    */
   struct DistanceMM : abce_float_t {
-    #if ANY(IS_CORE, MARKFORGED_XY, MARKFORGED_YX)
-      struct { float x, y, z; } head;
+    #if ANY(HAS_X_HEAD, HAS_Y_HEAD, HAS_Z_HEAD)
+      struct {
+        #if HAS_X_HEAD
+          float x;
+        #endif
+        #if HAS_Y_HEAD
+          float y;
+        #endif
+        #if HAS_Z_HEAD
+          float z;
+        #endif
+      } head;
     #endif
   } dist_mm;
 
@@ -2032,15 +2036,9 @@ bool Planner::_populate_block(
     else {
       const xyze_pos_t displacement = LOGICAL_AXIS_ARRAY(
         dist_mm.e,
-        #if ANY(CORE_IS_XY, MARKFORGED_XY, MARKFORGED_YX)
-          dist_mm.head.x, dist_mm.head.y, dist_mm.z,
-        #elif CORE_IS_XZ
-          dist_mm.head.x, dist_mm.y, dist_mm.head.z,
-        #elif CORE_IS_YZ
-          dist_mm.x, dist_mm.head.y, dist_mm.head.z,
-        #else
-          dist_mm.x, dist_mm.y, dist_mm.z,
-        #endif
+        dist_mm.TERN(HAS_X_HEAD, head.x, x),
+        dist_mm.TERN(HAS_Y_HEAD, head.y, y),
+        dist_mm.TERN(HAS_Z_HEAD, head.z, z),
         dist_mm.i, dist_mm.j, dist_mm.k,
         dist_mm.u, dist_mm.v, dist_mm.w
       );

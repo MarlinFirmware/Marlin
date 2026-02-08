@@ -364,13 +364,13 @@ enum AxisEnum : uint8_t {
   #undef _EN_ITEM
 
   // Core also keeps toolhead directions
-  #if ANY(CORE_IS_XY, CORE_IS_XZ, MARKFORGED_XY, MARKFORGED_YX)
+  #if HAS_X_HEAD
     X_HEAD,
   #endif
-  #if ANY(CORE_IS_XY, CORE_IS_YZ, MARKFORGED_XY, MARKFORGED_YX)
+  #if HAS_Y_HEAD
     Y_HEAD,
   #endif
-  #if CORE_IS_XZ || CORE_IS_YZ
+  #if HAS_Z_HEAD
     Z_HEAD,
   #endif
 
@@ -394,13 +394,13 @@ enum AxisEnum : uint8_t {
   #endif
 
   // Aliases to distinguish tool axes from stepper indexes
-  #if HAS_X_AXIS && NONE(CORE_IS_XY, CORE_IS_XZ, MARKFORGED_XY, MARKFORGED_YX)
+  #if HAS_X_AXIS && !HAS_X_HEAD
     X_HEAD = X_AXIS,
   #endif
-  #if HAS_Y_AXIS && NONE(CORE_IS_XY, CORE_IS_YZ, MARKFORGED_XY, MARKFORGED_YX)
+  #if HAS_Y_AXIS && !HAS_Y_HEAD
     Y_HEAD = Y_AXIS,
   #endif
-  #if HAS_Z_AXIS && !(CORE_IS_XZ || CORE_IS_YZ)
+  #if HAS_Z_AXIS && !HAS_Z_HEAD
     Z_HEAD = Z_AXIS,
   #endif
   #if HAS_I_AXIS
@@ -1188,8 +1188,14 @@ public:
       #define _EN_ITEM(N) bool e##N:1;
       REPEAT(EXTRUDERS,_EN_ITEM)
       #undef _EN_ITEM
-      #if ANY(IS_CORE, MARKFORGED_XY, MARKFORGED_YX)
-        bool hx:1, hy:1, hz:1;
+      #if HAS_X_HEAD
+        bool hx:1;
+      #endif
+      #if HAS_Y_HEAD
+        bool hy:1;
+      #endif
+      #if HAS_Z_HEAD
+        bool hz:1;
       #endif
     };
     // Axes X, Y, Z ... E0, E1, E2 ... HX, HY, HZ
@@ -1200,8 +1206,14 @@ public:
       #define _EN_ITEM(N) bool E##N:1;
       REPEAT(EXTRUDERS,_EN_ITEM)
       #undef _EN_ITEM
-      #if ANY(IS_CORE, MARKFORGED_XY, MARKFORGED_YX)
-        bool HX:1, HY:1, HZ:1;
+      #if HAS_X_HEAD
+        bool HX:1;
+      #endif
+      #if HAS_Y_HEAD
+        bool HY:1;
+      #endif
+      #if HAS_Z_HEAD
+        bool HZ:1;
       #endif
     };
     // a, b, c, e ... ha, hb, hc
@@ -1212,8 +1224,14 @@ public:
         REPEAT_S(1,EXTRUDERS,_EN_ITEM)
         #undef _EN_ITEM
       #endif
-      #if ANY(IS_CORE, MARKFORGED_XY, MARKFORGED_YX)
-        bool ha:1, hb:1, hc:1;
+      #if HAS_X_HEAD
+        bool ha:1;
+      #endif
+      #if HAS_Y_HEAD
+        bool hb:1;
+      #endif
+      #if HAS_Z_HEAD
+        bool hc:1;
       #endif
     };
     // A, B, C, E ... HA, HB, HC
@@ -1224,8 +1242,14 @@ public:
         REPEAT_S(1,EXTRUDERS,_EN_ITEM)
         #undef _EN_ITEM
       #endif
-      #if ANY(IS_CORE, MARKFORGED_XY, MARKFORGED_YX)
-        bool HA:1, HB:1, HC:1;
+      #if HAS_X_HEAD
+        bool HA:1;
+      #endif
+      #if HAS_Y_HEAD
+        bool HB:1;
+      #endif
+      #if HAS_Z_HEAD
+        bool HC:1;
       #endif
     };
   };
