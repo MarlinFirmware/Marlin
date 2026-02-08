@@ -1964,7 +1964,7 @@ bool Planner::_populate_block(
    * displacements in joints space using forward kinematics (A=X+Y and B=X-Y in the case of CORE_XY).
    * Next we can calculate the total movement length and apply the desired speed.
    */
-  dist_mm_t dist_mm;
+  ext_distance_t dist_mm;
 
   #if ANY(CORE_IS_XY, MARKFORGED_XY, MARKFORGED_YX)
     dist_mm.head.x = dist.a * mm_per_step[A_AXIS];
@@ -2009,7 +2009,7 @@ bool Planner::_populate_block(
 
   TERN_(LCD_SHOW_E_TOTAL, e_move_accumulator += dist_mm.e);
 
-  TERN_(FT_MOTION, block->distance_mm = dist_mm);   // Store the distance for all axes in mm for this block
+  TERN_(FT_MOTION, block->ext_distance_mm = dist_mm); // Store the distance for all axes in mm for this block
 
   #if HAS_ROTATIONAL_AXES
     bool cartesian_move = hints.cartesian_move;

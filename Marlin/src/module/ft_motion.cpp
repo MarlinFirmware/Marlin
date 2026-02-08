@@ -405,7 +405,7 @@ bool FTMotion::plan_next_block() {
     const float totalLength = current_block->millimeters;
 
     startPos = endPos_prevBlock;
-    const dist_mm_t &moveDist = current_block->distance_mm;
+    const ext_distance_t &moveDist = current_block->ext_distance_mm;
     ratio = moveDist / totalLength;
 
     // Plan the trajectory using the trajectory generator

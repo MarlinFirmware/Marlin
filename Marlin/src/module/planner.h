@@ -204,7 +204,7 @@ typedef struct DistanceMM : abce_float_t {
       #endif
     } head;
   #endif
-} dist_mm_t;
+} ext_distance_t;
 
 /**
  * struct block_t
@@ -278,7 +278,7 @@ typedef struct PlannerBlock {
   AxisBits direction_bits;                  // Direction bits set for this block, where 1 is negative motion
 
   #if ENABLED(FT_MOTION)
-    dist_mm_t distance_mm;                  // The distance traveled in mm along each axis
+    ext_distance_t ext_distance_mm;         // The distance traveled in mm along each axis
   #endif
 
   #if ANY(SMOOTH_LIN_ADVANCE, FTM_HAS_LIN_ADVANCE)
