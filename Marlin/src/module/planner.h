@@ -191,18 +191,18 @@ typedef struct {
 #endif
 
 typedef struct DistanceMM : abce_float_t {
-  #if ANY(HAS_HEAD_X, HAS_HEAD_Y, HAS_HEAD_Z)
+  #if ANY(HAS_REAL_X, HAS_REAL_Y, HAS_REAL_Z)
     struct {
-      #if HAS_HEAD_X
+      #if HAS_REAL_X
         float x;
       #endif
-      #if HAS_HEAD_Y
+      #if HAS_REAL_Y
         float y;
       #endif
-      #if HAS_HEAD_Z
+      #if HAS_REAL_Z
         float z;
       #endif
-    } head;
+    } real;
   #endif
 } ext_distance_t;
 

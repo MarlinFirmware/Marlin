@@ -352,7 +352,7 @@ typedef struct {
 //
 //  - X_AXIS, Y_AXIS, and Z_AXIS should be used for axes in Cartesian space
 //  - A_AXIS, B_AXIS, and C_AXIS should be used for Steppers, corresponding to XYZ on Cartesians
-//  - X_HEAD, Y_HEAD, and Z_HEAD should be used for axes on Core kinematics
+//  - X_REAL, Y_REAL, and Z_REAL should be used for axes on Core kinematics
 //
 enum AxisEnum : uint8_t {
 
@@ -364,14 +364,14 @@ enum AxisEnum : uint8_t {
   #undef _EN_ITEM
 
   // Core also keeps toolhead directions
-  #if HAS_HEAD_X
-    X_HEAD,
+  #if HAS_REAL_X
+    X_REAL,
   #endif
-  #if HAS_HEAD_Y
-    Y_HEAD,
+  #if HAS_REAL_Y
+    Y_REAL,
   #endif
-  #if HAS_HEAD_Z
-    Z_HEAD,
+  #if HAS_REAL_Z
+    Z_REAL,
   #endif
 
   // Distinct axes, including all E and Core
@@ -394,32 +394,32 @@ enum AxisEnum : uint8_t {
   #endif
 
   // Aliases to distinguish tool axes from stepper indexes
-  #if HAS_X_AXIS && !HAS_HEAD_X
-    X_HEAD = X_AXIS,
+  #if HAS_X_AXIS && !HAS_REAL_X
+    X_REAL = X_AXIS,
   #endif
-  #if HAS_Y_AXIS && !HAS_HEAD_Y
-    Y_HEAD = Y_AXIS,
+  #if HAS_Y_AXIS && !HAS_REAL_Y
+    Y_REAL = Y_AXIS,
   #endif
-  #if HAS_Z_AXIS && !HAS_HEAD_Z
-    Z_HEAD = Z_AXIS,
+  #if HAS_Z_AXIS && !HAS_REAL_Z
+    Z_REAL = Z_AXIS,
   #endif
   #if HAS_I_AXIS
-    I_HEAD = I_AXIS,
+    I_REAL = I_AXIS,
   #endif
   #if HAS_J_AXIS
-    J_HEAD = J_AXIS,
+    J_REAL = J_AXIS,
   #endif
   #if HAS_K_AXIS
-    K_HEAD = K_AXIS,
+    K_REAL = K_AXIS,
   #endif
   #if HAS_U_AXIS
-    U_HEAD = U_AXIS,
+    U_REAL = U_AXIS,
   #endif
   #if HAS_V_AXIS
-    V_HEAD = V_AXIS,
+    V_REAL = V_AXIS,
   #endif
   #if HAS_W_AXIS
-    W_HEAD = W_AXIS,
+    W_REAL = W_AXIS,
   #endif
 
   // To refer to all or none
@@ -1180,7 +1180,7 @@ public:
   typedef bits_t(NUM_AXIS_HEADS) el;
   union {
     el bits;
-    // Axes x, y, z ... e0, e1, e2 ... hx, hy, hz
+    // Axes x, y, z ... e0, e1, e2 ... rx, ry, rz
     struct {
       #if NUM_AXES
         bool NUM_AXIS_LIST(x:1, y:1, z:1, i:1, j:1, k:1, u:1, v:1, w:1);
@@ -1188,17 +1188,17 @@ public:
       #define _EN_ITEM(N) bool e##N:1;
       REPEAT(EXTRUDERS,_EN_ITEM)
       #undef _EN_ITEM
-      #if HAS_HEAD_X
-        bool hx:1;
+      #if HAS_REAL_X
+        bool rx:1;
       #endif
-      #if HAS_HEAD_Y
-        bool hy:1;
+      #if HAS_REAL_Y
+        bool ry:1;
       #endif
-      #if HAS_HEAD_Z
-        bool hz:1;
+      #if HAS_REAL_Z
+        bool rz:1;
       #endif
     };
-    // Axes X, Y, Z ... E0, E1, E2 ... HX, HY, HZ
+    // Axes X, Y, Z ... E0, E1, E2 ... RX, RY, RZ
     struct {
       #if NUM_AXES
         bool NUM_AXIS_LIST(X:1, Y:1, Z:1, I:1, J:1, K:1, U:1, V:1, W:1);
@@ -1206,17 +1206,17 @@ public:
       #define _EN_ITEM(N) bool E##N:1;
       REPEAT(EXTRUDERS,_EN_ITEM)
       #undef _EN_ITEM
-      #if HAS_HEAD_X
-        bool HX:1;
+      #if HAS_REAL_X
+        bool RX:1;
       #endif
-      #if HAS_HEAD_Y
-        bool HY:1;
+      #if HAS_REAL_Y
+        bool RY:1;
       #endif
-      #if HAS_HEAD_Z
-        bool HZ:1;
+      #if HAS_REAL_Z
+        bool RZ:1;
       #endif
     };
-    // a, b, c, e ... ha, hb, hc
+    // a, b, c, e ... ra, rb, rc
     struct {
       bool LOGICAL_AXIS_LIST(e:1, a:1, b:1, c:1, ii:1, jj:1, kk:1, uu:1, vv:1, ww:1);
       #if EXTRUDERS > 1
@@ -1224,17 +1224,17 @@ public:
         REPEAT_S(1,EXTRUDERS,_EN_ITEM)
         #undef _EN_ITEM
       #endif
-      #if HAS_HEAD_X
-        bool ha:1;
+      #if HAS_REAL_X
+        bool ra:1;
       #endif
-      #if HAS_HEAD_Y
-        bool hb:1;
+      #if HAS_REAL_Y
+        bool rb:1;
       #endif
-      #if HAS_HEAD_Z
-        bool hc:1;
+      #if HAS_REAL_Z
+        bool rc:1;
       #endif
     };
-    // A, B, C, E ... HA, HB, HC
+    // A, B, C, E ... RA, RB, RC
     struct {
       bool LOGICAL_AXIS_LIST(E:1, A:1, B:1, C:1, II:1, JJ:1, KK:1, UU:1, VV:1, WW:1);
       #if EXTRUDERS > 1
@@ -1242,14 +1242,14 @@ public:
         REPEAT_S(1,EXTRUDERS,_EN_ITEM)
         #undef _EN_ITEM
       #endif
-      #if HAS_HEAD_X
-        bool HA:1;
+      #if HAS_REAL_X
+        bool RA:1;
       #endif
-      #if HAS_HEAD_Y
-        bool HB:1;
+      #if HAS_REAL_Y
+        bool RB:1;
       #endif
-      #if HAS_HEAD_Z
-        bool HC:1;
+      #if HAS_REAL_Z
+        bool RC:1;
       #endif
     };
   };

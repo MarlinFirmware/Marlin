@@ -2389,14 +2389,12 @@ void Stepper::isr() {
     #endif
 
     // Set flags for all axes that move in this block
-    // These are set per-axis, not per-stepper
-    // TODO: Does this compile less efficiently with 'if' ?
     AxisBits didmove;
     #define _DID_MOVE(A) didmove.A = bool(current_block->steps.A);
     MAIN_AXIS_MAP(_DID_MOVE);
-    TERN_(HAS_HEAD_X, didmove.hx = X_MOVE_TEST);  // Cartesian X
-    TERN_(HAS_HEAD_Y, didmove.hy = Y_MOVE_TEST);  //       ... Y
-    TERN_(HAS_HEAD_Z, didmove.hz = Z_MOVE_TEST);  //       ... Z
+    TERN_(HAS_REAL_X, didmove.rx = X_MOVE_TEST);  // Cartesian X
+    TERN_(HAS_REAL_Y, didmove.ry = Y_MOVE_TEST);  //       ... Y
+    TERN_(HAS_REAL_Z, didmove.rz = Z_MOVE_TEST);  //       ... Z
     axis_did_move = didmove;
   }
 
@@ -3596,13 +3594,13 @@ int32_t Stepper::triggered_position(const AxisEnum axis) {
  * Reporting
  */
 
-#if ANY(HAS_HEAD_X, IS_SCARA, DELTA)
+#if ANY(HAS_REAL_X, IS_SCARA, DELTA)
   #define SAYS_A 1
 #endif
-#if ANY(HAS_HEAD_Y, IS_SCARA, DELTA, POLAR)
+#if ANY(HAS_REAL_Y, IS_SCARA, DELTA, POLAR)
   #define SAYS_B 1
 #endif
-#if ANY(HAS_HEAD_Z, DELTA)
+#if ANY(HAS_REAL_Z, DELTA)
   #define SAYS_C 1
 #endif
 

@@ -390,9 +390,9 @@ bool FTMotion::plan_next_block() {
     #endif
 
     // Some kinematics track axis motion in HX, HY, HZ
-    TERN_(HAS_HEAD_X, stepper.last_direction_bits.hx = current_block->direction_bits.hx);
-    TERN_(HAS_HEAD_Y, stepper.last_direction_bits.hy = current_block->direction_bits.hy);
-    TERN_(HAS_HEAD_Z, stepper.last_direction_bits.hz = current_block->direction_bits.hz);
+    TERN_(HAS_REAL_X, stepper.last_direction_bits.rx = current_block->direction_bits.rx);
+    TERN_(HAS_REAL_Y, stepper.last_direction_bits.ry = current_block->direction_bits.ry);
+    TERN_(HAS_REAL_Z, stepper.last_direction_bits.rz = current_block->direction_bits.rz);
 
     // Cache the extruder index / axis for this block
     #if ANY(HAS_MULTI_EXTRUDER, MIXING_EXTRUDER)
@@ -422,9 +422,9 @@ bool FTMotion::plan_next_block() {
     // HEAD movement flags need to be inferred: if either motor moves, the head moves
     #define _SET_MOVE_END(A) moving_axis_flags.A = bool(moveDist.A);
     LOGICAL_AXIS_MAP(_SET_MOVE_END);
-    TERN_(HAS_HEAD_X, moving_axis_flags.hx = bool(moveDist.head.x));
-    TERN_(HAS_HEAD_Y, moving_axis_flags.hy = bool(moveDist.head.y));
-    TERN_(HAS_HEAD_Z, moving_axis_flags.hz = bool(moveDist.head.z));
+    TERN_(HAS_REAL_X, moving_axis_flags.rx = bool(moveDist.real.x));
+    TERN_(HAS_REAL_Y, moving_axis_flags.ry = bool(moveDist.real.y));
+    TERN_(HAS_REAL_Z, moving_axis_flags.rz = bool(moveDist.real.z));
 
     // If the endstop is already pressed, endstop interrupts won't invoke
     // endstop_triggered and the move will grind. So check here for a
