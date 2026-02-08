@@ -829,19 +829,16 @@ float Probe::run_z_probe(const bool sanity_check/*=true*/, const float z_min_poi
       // Raise to give the probe clearance
       do_z_clearance(z1 + (Z_CLEARANCE_MULTI_PROBE), false);
 
-    #else
+    #elif Z_PROBE_FEEDRATE_FAST != Z_PROBE_FEEDRATE_SLOW
 
-      if (z_probe_fast_mm_s != z_probe_slow_mm_s) {
-        // If the nozzle is well over the travel height then
-        // move down quickly before doing the slow probe
-        const float z = (Z_CLEARANCE_DEPLOY_PROBE) + 5.0f + _MAX(zoffs, 0.0f);
-        if (current_position.z > z) {
-          // Probe down fast. If the probe never triggered, raise for probe clearance
-          if (!probe_down_to_z(z, z_probe_fast_mm_s))
-            do_z_clearance(z_clearance);
-        }
+      // If the nozzle is well over the travel height then
+      // move down quickly before doing the slow probe
+      const float z = (Z_CLEARANCE_DEPLOY_PROBE) + 5.0f + _MAX(zoffs, 0.0f);
+      if (current_position.z > z) {
+        // Probe down fast. If the probe never triggered, raise for probe clearance
+        if (!probe_down_to_z(z, z_probe_fast_mm_s))
+          do_z_clearance(z_clearance);
       }
-
     #endif
 
     #if EXTRA_PROBING > 0
