@@ -895,8 +895,8 @@ void set_message_with_feedback(FSTR_P const fstr) {
 
     do_blocking_move_to(
       xyz_pos_t({
-        0.5f * ((MESH_MAX_X) - (MESH_MIN_X)),
-        0.5f * ((MESH_MAX_Y) - (MESH_MIN_Y)),
+        0.5f * ((MESH_MIN_X) + (MESH_MAX_X)),
+        0.5f * ((MESH_MIN_Y) + (MESH_MAX_Y)),
         MANUAL_PROBE_START_Z
         #ifdef SAFE_BED_LEVELING_START_I
           , SAFE_BED_LEVELING_START_I
