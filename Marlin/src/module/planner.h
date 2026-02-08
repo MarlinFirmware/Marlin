@@ -262,7 +262,7 @@ typedef struct PlannerBlock {
   AxisBits direction_bits;                  // Direction bits set for this block, where 1 is negative motion
 
   #if ENABLED(FT_MOTION)
-    xyze_pos_t dist_mm;                     // The distance traveled in mm along each axis
+    xyze_pos_t distance_mm;                 // The distance traveled in mm along each axis
   #endif
 
   #if ANY(SMOOTH_LIN_ADVANCE, FTM_HAS_LIN_ADVANCE)

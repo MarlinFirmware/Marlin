@@ -77,17 +77,6 @@ bool Endstops::enabled, Endstops::enabled_globally; // Initialized by settings.l
 volatile Endstops::endstop_mask_t Endstops::hit_state;
 Endstops::endstop_mask_t Endstops::live_state = 0;
 
-#if ENABLED(BD_SENSOR)
-  bool Endstops::bdp_state; // = false
-  #if HOMING_Z_WITH_PROBE
-    #define READ_ENDSTOP(P) ((P == TERN(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN, Z_MIN_PIN, Z_MIN_PROBE_PIN)) ? bdp_state : READ(P))
-  #else
-    #define READ_ENDSTOP(P) READ(P)
-  #endif
-#else
-  #define READ_ENDSTOP(P) READ(P)
-#endif
-
 #if ENDSTOP_NOISE_THRESHOLD
   Endstops::endstop_mask_t Endstops::validated_live_state;
   uint8_t Endstops::endstop_poll_count;
@@ -97,10 +86,33 @@ Endstops::endstop_mask_t Endstops::live_state = 0;
   volatile bool Endstops::z_probe_enabled = false;
 #endif
 
+//
+// Standard Endstop READ
+//
+#define READ_ENDSTOP(P) READ(P)
+
+//
+// Bed Distance Sensor
+//
+#if ENABLED(BD_SENSOR)
+  bool Endstops::bdp_state; // = false
+  #if HOMING_Z_WITH_PROBE
+    #undef READ_ENDSTOP
+    #define READ_ENDSTOP(P) ((P == TERN(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN, Z_MIN_PIN, Z_MIN_PROBE_PIN)) ? bdp_state : READ(P))
+  #endif
+#endif
+
+//
+// Calibration Probe
+//
 #if ENABLED(CALIBRATION_GCODE)
   volatile bool Endstops::calibration_probe_enabled = false;
   volatile bool Endstops::calibration_stop_state;
 #endif
+
+//
+// Multi-Endstop Alignment
+//
 
 // Initialized by settings.load
 #if ENABLED(X_DUAL_ENDSTOPS)
@@ -119,9 +131,16 @@ Endstops::endstop_mask_t Endstops::live_state = 0;
   #endif
 #endif
 
+//
+// SPI Endstops
+//
 #if ENABLED(SPI_ENDSTOPS)
   Endstops::tmc_spi_homing_t Endstops::tmc_spi_homing; // = 0
 #endif
+
+//
+// StallGuard Debounce
+//
 #if ENABLED(IMPROVE_HOMING_RELIABILITY)
   millis_t sg_guard_period; // = 0
 #endif
