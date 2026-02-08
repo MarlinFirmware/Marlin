@@ -251,4 +251,11 @@ typedef struct Stepping {
     return ((stepper_plan_head + 1) & FTM_BUFFER_MASK) == stepper_plan_tail;
   }
 
+  // Buffer runtime in milliseconds (ignoring ticks left in current frame)
+  FORCE_INLINE uint16_t buffer_runtime() const {
+    const uint32_t queued_frames = (stepper_plan_head - stepper_plan_tail) & FTM_BUFFER_MASK;
+    const uint32_t queued_ms = queued_frames * (1000UL * FTM_TS);
+    return queued_ms;
+  }
+
 } stepping_t;
