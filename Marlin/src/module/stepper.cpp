@@ -2390,6 +2390,7 @@ void Stepper::isr() {
 
     // Set flags for all axes that move in this block
     // These are set per-axis, not per-stepper
+    // TODO: Does this compile more efficiently without 'if' ?
     AxisBits didmove;
     NUM_AXIS_CODE(
       if (X_MOVE_TEST)              didmove.a = true, // Cartesian X or Kinematic A
@@ -2402,6 +2403,9 @@ void Stepper::isr() {
       if (!!current_block->steps.v) didmove.v = true,
       if (!!current_block->steps.w) didmove.w = true
     );
+    TERN_(HAS_HEAD_X, if (X_MOVE_TEST) didmove.hx = true); // Cartesian X
+    TERN_(HAS_HEAD_Y, if (Y_MOVE_TEST) didmove.hy = true); // Cartesian Y
+    TERN_(HAS_HEAD_Z, if (Z_MOVE_TEST) didmove.hz = true); // Cartesian Z
     axis_did_move = didmove;
   }
 
