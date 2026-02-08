@@ -462,36 +462,6 @@ void Endstops::update() {
   #define X_MIN_TEST() TERN1(DUAL_X_CARRIAGE, stepper.last_moved_extruder == 0) // Check min for the left carriage
   #define X_MAX_TEST() TERN1(DUAL_X_CARRIAGE, stepper.last_moved_extruder != 0) // Check max for the right carriage
 
-  // Use HEAD for core axes, AXIS for others
-  #if ANY(CORE_IS_XY, CORE_IS_XZ, MARKFORGED_XY, MARKFORGED_YX)
-    #define X_AXIS_HEAD X_HEAD
-    #define X_AXIS_CHECK TERN(FT_MOTION, X_HEAD, X_AXIS)
-  #else
-    #define X_AXIS_HEAD X_AXIS
-    #define X_AXIS_CHECK X_AXIS
-  #endif
-  #if ANY(CORE_IS_XY, CORE_IS_YZ, MARKFORGED_XY, MARKFORGED_YX)
-    #define Y_AXIS_HEAD Y_HEAD
-    #define Y_AXIS_CHECK TERN(FT_MOTION, Y_HEAD, Y_AXIS)
-  #else
-    #define Y_AXIS_HEAD Y_AXIS
-    #define Y_AXIS_CHECK Y_AXIS
-  #endif
-  #if CORE_IS_XZ || CORE_IS_YZ
-    #define Z_AXIS_HEAD Z_HEAD
-    #define Z_AXIS_CHECK TERN(FT_MOTION, Z_HEAD, Z_AXIS)
-  #else
-    #define Z_AXIS_HEAD Z_AXIS
-    #define Z_AXIS_CHECK Z_AXIS
-  #endif
-
-  #define I_AXIS_HEAD I_AXIS
-  #define J_AXIS_HEAD J_AXIS
-  #define K_AXIS_HEAD K_AXIS
-  #define U_AXIS_HEAD U_AXIS
-  #define V_AXIS_HEAD V_AXIS
-  #define W_AXIS_HEAD W_AXIS
-
   /**
    * Check and update endstops
    */
@@ -686,8 +656,7 @@ void Endstops::update() {
     #define PROCESS_ENDSTOP_Z(MINMAX) PROCESS_DUAL_ENDSTOP(Z, MINMAX)
   #endif
 
-  #define AXIS_IS_MOVING(A) TERN(FT_MOTION, ftMotion, stepper).axis_is_moving(_AXIS(A))
-  #define AXIS_ENUM_IS_MOVING(A) TERN(FT_MOTION, ftMotion, stepper).axis_is_moving(AxisEnum(A))
+  #define AXIS_IS_MOVING(A) TERN(FT_MOTION, ftMotion, stepper).axis_is_moving(A##_HEAD)
   #define AXIS_DIR_REV(A)  !TERN(FT_MOTION, ftMotion, stepper).motor_direction(A)
 
   #if ENABLED(G38_PROBE_TARGET)
@@ -710,9 +679,8 @@ void Endstops::update() {
   // Signal, after validation, if an endstop limit is pressed or not
 
   #if HAS_X_AXIS
-    if (AXIS_ENUM_IS_MOVING(X_AXIS_CHECK)) {
-      const AxisEnum x_head = X_AXIS_HEAD;
-      if (AXIS_DIR_REV(x_head)) {
+    if (AXIS_IS_MOVING(X)) {
+      if (AXIS_DIR_REV(X_HEAD)) {
         #if HAS_X_MIN_STATE
           PROCESS_ENDSTOP_X(MIN);
           #if   CORE_DIAG(XY, Y, MIN)
@@ -744,9 +712,8 @@ void Endstops::update() {
   #endif // HAS_X_AXIS
 
   #if HAS_Y_AXIS
-    if (AXIS_ENUM_IS_MOVING(Y_AXIS_CHECK)) {
-      const AxisEnum y_head = Y_AXIS_HEAD;
-      if (AXIS_DIR_REV(y_head)) {
+    if (AXIS_IS_MOVING(Y)) {
+      if (AXIS_DIR_REV(Y_HEAD)) {
         #if HAS_Y_MIN_STATE
           PROCESS_ENDSTOP_Y(MIN);
           #if   CORE_DIAG(XY, X, MIN)
@@ -778,9 +745,8 @@ void Endstops::update() {
   #endif // HAS_Y_AXIS
 
   #if HAS_Z_AXIS
-    if (AXIS_ENUM_IS_MOVING(Z_AXIS_CHECK)) {
-      const AxisEnum z_head = Z_AXIS_HEAD;
-      if (AXIS_DIR_REV(z_head)) {
+    if (AXIS_IS_MOVING(Z)) {
+      if (AXIS_DIR_REV(Z_HEAD)) {
         // Z- : Gantry down, bed up
         #if HAS_Z_MIN_STATE
           // If the Z_MIN_PIN is being used for the probe there's no
@@ -827,7 +793,7 @@ void Endstops::update() {
 
   #if HAS_I_AXIS && HAS_I_STATE
     if (AXIS_IS_MOVING(I)) {
-      if (AXIS_DIR_REV(I_AXIS_HEAD)) {
+      if (AXIS_DIR_REV(I_HEAD)) {
         #if HAS_I_MIN_STATE
           PROCESS_ENDSTOP(I, MIN);
         #endif
@@ -842,7 +808,7 @@ void Endstops::update() {
 
   #if HAS_J_AXIS && HAS_J_STATE
     if (AXIS_IS_MOVING(J)) {
-      if (AXIS_DIR_REV(J_AXIS_HEAD)) {
+      if (AXIS_DIR_REV(J_HEAD)) {
         #if HAS_J_MIN_STATE
           PROCESS_ENDSTOP(J, MIN);
         #endif
@@ -857,7 +823,7 @@ void Endstops::update() {
 
   #if HAS_K_AXIS && HAS_K_STATE
     if (AXIS_IS_MOVING(K)) {
-      if (AXIS_DIR_REV(K_AXIS_HEAD)) {
+      if (AXIS_DIR_REV(K_HEAD)) {
         #if HAS_K_MIN_STATE
           PROCESS_ENDSTOP(K, MIN);
         #endif
@@ -872,7 +838,7 @@ void Endstops::update() {
 
   #if HAS_U_AXIS && HAS_U_STATE
     if (AXIS_IS_MOVING(U)) {
-      if (AXIS_DIR_REV(U_AXIS_HEAD)) {
+      if (AXIS_DIR_REV(U_HEAD)) {
         #if HAS_U_MIN_STATE
           PROCESS_ENDSTOP(U, MIN);
         #endif
@@ -887,7 +853,7 @@ void Endstops::update() {
 
   #if HAS_V_AXIS && HAS_V_STATE
     if (AXIS_IS_MOVING(V)) {
-      if (AXIS_DIR_REV(V_AXIS_HEAD)) {
+      if (AXIS_DIR_REV(V_HEAD)) {
         #if HAS_V_MIN_STATE
           PROCESS_ENDSTOP(V, MIN);
         #endif
@@ -902,7 +868,7 @@ void Endstops::update() {
 
   #if HAS_W_AXIS && HAS_W_STATE
     if (AXIS_IS_MOVING(W)) {
-      if (AXIS_DIR_REV(W_AXIS_HEAD)) {
+      if (AXIS_DIR_REV(W_HEAD)) {
         #if HAS_W_MIN_STATE
           PROCESS_ENDSTOP(W, MIN);
         #endif

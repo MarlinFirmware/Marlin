@@ -364,8 +364,14 @@ enum AxisEnum : uint8_t {
   #undef _EN_ITEM
 
   // Core also keeps toolhead directions
-  #if ANY(IS_CORE, MARKFORGED_XY, MARKFORGED_YX)
-    X_HEAD, Y_HEAD, Z_HEAD,
+  #if ANY(CORE_IS_XY, CORE_IS_XZ, MARKFORGED_XY, MARKFORGED_YX)
+    X_HEAD,
+  #endif
+  #if ANY(CORE_IS_XY, CORE_IS_YZ, MARKFORGED_XY, MARKFORGED_YX)
+    Y_HEAD,
+  #endif
+  #if CORE_IS_XZ || CORE_IS_YZ
+    Z_HEAD,
   #endif
 
   // Distinct axes, including all E and Core
@@ -385,6 +391,35 @@ enum AxisEnum : uint8_t {
   #endif
   #if HAS_Z_AXIS
     C_AXIS = Z_AXIS,
+  #endif
+
+  // Aliases to distinguish tool axes from stepper indexes
+  #if HAS_X_AXIS && NONE(CORE_IS_XY, CORE_IS_XZ, MARKFORGED_XY, MARKFORGED_YX)
+    X_HEAD = X_AXIS,
+  #endif
+  #if HAS_Y_AXIS && NONE(CORE_IS_XY, CORE_IS_YZ, MARKFORGED_XY, MARKFORGED_YX)
+    Y_HEAD = Y_AXIS,
+  #endif
+  #if HAS_Z_AXIS && !(CORE_IS_XZ || CORE_IS_YZ)
+    Z_HEAD = Z_AXIS,
+  #endif
+  #if HAS_I_AXIS
+    I_HEAD = I_AXIS,
+  #endif
+  #if HAS_J_AXIS
+    J_HEAD = J_AXIS,
+  #endif
+  #if HAS_K_AXIS
+    K_HEAD = K_AXIS,
+  #endif
+  #if HAS_U_AXIS
+    U_HEAD = U_AXIS,
+  #endif
+  #if HAS_V_AXIS
+    V_HEAD = V_AXIS,
+  #endif
+  #if HAS_W_AXIS
+    W_HEAD = W_AXIS,
   #endif
 
   // To refer to all or none

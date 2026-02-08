@@ -428,25 +428,25 @@ bool FTMotion::plan_next_block() {
     #if ANY(IS_CORE, MARKFORGED_XY, MARKFORGED_YX)
       #if CORE_IS_XY
         // X = (A+B)/2, Y = (A-B)/2
-        moving_axis_flags.x = !NEAR_ZERO(moveDist.a + moveDist.b);
-        moving_axis_flags.y = !NEAR_ZERO(moveDist.a - moveDist.b);
-        moving_axis_flags.z = bool(moveDist.z);
+        moving_axis_flags.hx = !NEAR_ZERO(moveDist.a + moveDist.b);
+        moving_axis_flags.hy = !NEAR_ZERO(moveDist.a - moveDist.b);
+        moving_axis_flags.hz = bool(moveDist.z);
       #elif CORE_IS_XZ
         // X = (A+C)/2, Z = (A-C)/2
-        moving_axis_flags.x = !NEAR_ZERO(moveDist.a + moveDist.c);
-        moving_axis_flags.y = bool(moveDist.y);
-        moving_axis_flags.z = !NEAR_ZERO(moveDist.a - moveDist.c);
+        moving_axis_flags.hx = !NEAR_ZERO(moveDist.a + moveDist.c);
+        moving_axis_flags.hy = bool(moveDist.y);
+        moving_axis_flags.hz = !NEAR_ZERO(moveDist.a - moveDist.c);
       #elif CORE_IS_YZ
         // Y = (B+C)/2, Z = (B-C)/2
-        moving_axis_flags.x = bool(moveDist.x);
-        moving_axis_flags.y = !NEAR_ZERO(moveDist.b + moveDist.c);
-        moving_axis_flags.z = !NEAR_ZERO(moveDist.b - moveDist.c);
+        moving_axis_flags.hx = bool(moveDist.x);
+        moving_axis_flags.hy = !NEAR_ZERO(moveDist.b + moveDist.c);
+        moving_axis_flags.hz = !NEAR_ZERO(moveDist.b - moveDist.c);
       #else // Markforged or other - conservative fallback
         // X head moves if motor A OR motor B moves (for CORE_XY/MARKFORGED) or motor A moves
-        moving_axis_flags.x = bool(moveDist.a) || TERN0(MARKFORGED_XY, bool(moveDist.b));
+        moving_axis_flags.hx = bool(moveDist.a) || TERN0(MARKFORGED_XY, bool(moveDist.b));
         // Y head moves if motor A OR motor B moves (for CORE_XY/MARKFORGED) or motor B moves
-        moving_axis_flags.y = bool(moveDist.b) || TERN0(MARKFORGED_XY, bool(moveDist.a));
-        TERN_(HAS_Z_AXIS, moving_axis_flags.z = bool(moveDist.z));
+        moving_axis_flags.hy = bool(moveDist.b) || TERN0(MARKFORGED_XY, bool(moveDist.a));
+        TERN_(HAS_Z_AXIS, moving_axis_flags.hz = bool(moveDist.z));
       #endif
 
       SECONDARY_AXIS_MAP(_SET_MOVE_END);
