@@ -80,7 +80,8 @@ extern xyz_pos_t cartes;
   #if ENABLED(PROUI_MESH_EDIT)
     extern xy_pos_t mesh_min, mesh_max;
   #else
-    constexpr xy_pos_t mesh_min{ MESH_MIN_X, MESH_MIN_Y }, mesh_max{ MESH_MAX_X, MESH_MAX_Y };
+    constexpr xy_pos_t mesh_min{ MESH_MIN_X, MESH_MIN_Y },
+                       mesh_max{ MESH_MAX_X, MESH_MAX_Y };
   #endif
 #endif
 
