@@ -190,6 +190,22 @@ typedef struct {
 
 #endif
 
+typedef struct DistanceMM : abce_float_t {
+  #if ANY(HAS_X_HEAD, HAS_Y_HEAD, HAS_Z_HEAD)
+    struct {
+      #if HAS_X_HEAD
+        float x;
+      #endif
+      #if HAS_Y_HEAD
+        float y;
+      #endif
+      #if HAS_Z_HEAD
+        float z;
+      #endif
+    } head;
+  #endif
+} dist_mm_t;
+
 /**
  * struct block_t
  *
@@ -262,7 +278,7 @@ typedef struct PlannerBlock {
   AxisBits direction_bits;                  // Direction bits set for this block, where 1 is negative motion
 
   #if ENABLED(FT_MOTION)
-    xyze_pos_t distance_mm;                 // The distance traveled in mm along each axis
+    dist_mm_t distance_mm;                  // The distance traveled in mm along each axis
   #endif
 
   #if ANY(SMOOTH_LIN_ADVANCE, FTM_HAS_LIN_ADVANCE)

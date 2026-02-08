@@ -1964,21 +1964,7 @@ bool Planner::_populate_block(
    * displacements in joints space using forward kinematics (A=X+Y and B=X-Y in the case of CORE_XY).
    * Next we can calculate the total movement length and apply the desired speed.
    */
-  struct DistanceMM : abce_float_t {
-    #if ANY(HAS_X_HEAD, HAS_Y_HEAD, HAS_Z_HEAD)
-      struct {
-        #if HAS_X_HEAD
-          float x;
-        #endif
-        #if HAS_Y_HEAD
-          float y;
-        #endif
-        #if HAS_Z_HEAD
-          float z;
-        #endif
-      } head;
-    #endif
-  } dist_mm;
+  dist_mm_t dist_mm;
 
   #if ANY(CORE_IS_XY, MARKFORGED_XY, MARKFORGED_YX)
     dist_mm.head.x = dist.a * mm_per_step[A_AXIS];

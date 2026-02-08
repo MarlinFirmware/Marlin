@@ -405,7 +405,7 @@ bool FTMotion::plan_next_block() {
     const float totalLength = current_block->millimeters;
 
     startPos = endPos_prevBlock;
-    const xyze_pos_t &moveDist = current_block->distance_mm;
+    const dist_mm_t &moveDist = current_block->distance_mm;
     ratio = moveDist / totalLength;
 
     // Plan the trajectory using the trajectory generator
@@ -421,30 +421,10 @@ bool FTMotion::plan_next_block() {
     // For CORE kinematics: moveDist.x/.y/.z contain motor distances (a/b/c)
     // HEAD movement flags need to be inferred: if either motor moves, the head moves
     #define _SET_MOVE_END(A) moving_axis_flags.A = bool(moveDist.A);
-    #if ANY(IS_CORE, MARKFORGED_XY, MARKFORGED_YX)
-      #if CORE_IS_XY
-        // X = (A+B)/2, Y = (A-B)/2
-        moving_axis_flags.hx = !NEAR_ZERO(moveDist.a + moveDist.b);
-        moving_axis_flags.hy = !NEAR_ZERO(moveDist.a - moveDist.b);
-        TERN_(HAS_Z_AXIS, moving_axis_flags.hz = bool(moveDist.z));
-      #elif CORE_IS_XZ
-        // X = (A+C)/2, Z = (A-C)/2
-        moving_axis_flags.hx = !NEAR_ZERO(moveDist.a + moveDist.c);
-        moving_axis_flags.hy = bool(moveDist.y);
-        moving_axis_flags.hz = !NEAR_ZERO(moveDist.a - moveDist.c);
-      #elif CORE_IS_YZ
-        // Y = (B+C)/2, Z = (B-C)/2
-        moving_axis_flags.hx = bool(moveDist.x);
-        moving_axis_flags.hy = !NEAR_ZERO(moveDist.b + moveDist.c);
-        moving_axis_flags.hz = !NEAR_ZERO(moveDist.b - moveDist.c);
-      #else // Markforged or other - conservative fallback
-        // X head moves if motor A OR motor B moves (for CORE_XY/MARKFORGED) or motor A moves
-        moving_axis_flags.hx = bool(moveDist.a) || TERN0(MARKFORGED_XY, bool(moveDist.b));
-        // Y head moves if motor A OR motor B moves (for CORE_XY/MARKFORGED) or motor B moves
-        moving_axis_flags.hy = bool(moveDist.b) || TERN0(MARKFORGED_XY, bool(moveDist.a));
-        TERN_(HAS_Z_AXIS, moving_axis_flags.hz = bool(moveDist.z));
-      #endif
-
+    #if ANY(HAS_X_HEAD, HAS_Y_HEAD, HAS_Z_HEAD)
+      moving_axis_flags.hx = bool(moveDist.TERN(HAS_X_HEAD, head.x, x));
+      moving_axis_flags.hy = bool(moveDist.TERN(HAS_Y_HEAD, head.y, y));
+      TERN_(HAS_Z_AXIS, moving_axis_flags.hz = bool(moveDist.TERN(HAS_Z_HEAD, head.z, z)));
       SECONDARY_AXIS_MAP(_SET_MOVE_END);
       TERN_(HAS_EXTRUDERS, moving_axis_flags.e = bool(moveDist.e));
     #else
