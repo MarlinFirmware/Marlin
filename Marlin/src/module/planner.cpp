@@ -2009,6 +2009,8 @@ bool Planner::_populate_block(
 
   TERN_(LCD_SHOW_E_TOTAL, e_move_accumulator += dist_mm.e);
 
+  TERN_(FT_MOTION, block->distance_mm = dist_mm);   // Store the distance for all axes in mm for this block
+
   #if HAS_ROTATIONAL_AXES
     bool cartesian_move = hints.cartesian_move;
   #endif
@@ -2043,8 +2045,6 @@ bool Planner::_populate_block(
      */
     TERN_(BACKLASH_COMPENSATION, backlash.add_correction_steps(dist, dm, block));
   }
-
-  TERN_(FT_MOTION, block->distance_mm = dist_mm);   // Store the distance for all axes in mm for this block
 
   TERN_(HAS_EXTRUDERS, block->steps.e = esteps);
 
