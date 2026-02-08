@@ -29,18 +29,18 @@
 void MarlinHAL::set_pwm_duty(const pin_t pin, const uint16_t value, const uint16_t scale/*=255*/, const bool invert/*=false*/) {
 
   uint32_t bits = 1;
-  uint16_t value = _MIN(value, scale);
+  uint16_t v = _MIN(value, scale);
 
-  if (invert) value = scale - value;
+  if (invert) v = scale - v;
 
-  // Choose scale as smallest power of 2 which holds scale.
-  uint32_t scale = 1;
-  while (scale < scale) {
+  // Choose v_size as smallest power of 2 which holds scale.
+  uint32_t v_size = 1;
+  while (v_size < scale) {
     bits++;
-    scale *= 2;
+    v_size *= 2;
   }
 
-  uint32_t scaled_val = scale * value / scale;
+  uint32_t scaled_val = v_size * v / scale;
 
   uint32_t prior = analogWriteResolution(bits);
   analogWrite(pin, scaled_val);
