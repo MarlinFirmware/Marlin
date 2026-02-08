@@ -421,21 +421,10 @@ bool FTMotion::plan_next_block() {
     // For CORE kinematics: moveDist.x/.y/.z contain motor distances (a/b/c)
     // HEAD movement flags need to be inferred: if either motor moves, the head moves
     #define _SET_MOVE_END(A) moving_axis_flags.A = bool(moveDist.A);
-    #if ANY(HAS_HEAD_X, HAS_HEAD_Y, HAS_HEAD_Z)
-      #if HAS_HEAD_X
-        moving_axis_flags.hx = bool(moveDist.TERN(HAS_HEAD_X, head.x, x));
-      #endif
-      #if HAS_HEAD_Y
-        moving_axis_flags.hy = bool(moveDist.TERN(HAS_HEAD_Y, head.y, y));
-      #endif
-      #if ALL(HAS_HEAD_Z, HAS_Z_AXIS)
-        moving_axis_flags.hz = bool(moveDist.TERN(HAS_HEAD_Z, head.z, z));
-      #endif
-      SECONDARY_AXIS_MAP(_SET_MOVE_END);
-      TERN_(HAS_EXTRUDERS, moving_axis_flags.e = bool(moveDist.e));
-    #else
-      LOGICAL_AXIS_MAP(_SET_MOVE_END);
-    #endif
+    LOGICAL_AXIS_MAP(_SET_MOVE_END);
+    TERN_(HAS_HEAD_X, moving_axis_flags.hx = bool(moveDist.head.x));
+    TERN_(HAS_HEAD_Y, moving_axis_flags.hy = bool(moveDist.head.y));
+    TERN_(HAS_HEAD_Z, moving_axis_flags.hz = bool(moveDist.head.z));
 
     // If the endstop is already pressed, endstop interrupts won't invoke
     // endstop_triggered and the move will grind. So check here for a
