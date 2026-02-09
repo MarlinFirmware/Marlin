@@ -2033,9 +2033,7 @@ bool Planner::_populate_block(
     else {
       const xyze_pos_t displacement = LOGICAL_AXIS_ARRAY(
         dist_mm.e,
-        dist_mm.TERN(HAS_REAL_X, real.x, x),
-        dist_mm.TERN(HAS_REAL_Y, real.y, y),
-        dist_mm.TERN(HAS_REAL_Z, real.z, z),
+        dx, dy, dz,
         dist_mm.i, dist_mm.j, dist_mm.k,
         dist_mm.u, dist_mm.v, dist_mm.w
       );
