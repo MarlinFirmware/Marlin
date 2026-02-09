@@ -853,6 +853,17 @@ void Marlin::idle(const bool no_stepper_sleep/*=false*/) {
   // Update the Beeper queue
   TERN_(HAS_BEEPER, buzzer.tick());
 
+  // Async Babystepping via the Emergency Parser
+  #if ALL(EP_BABYSTEPPING, EMERGENCY_PARSER)
+    babystep.do_ep_steps();
+  #endif
+
+  // Direct Stepping
+  TERN_(DIRECT_STEPPING, page_manager.write_responses());
+
+  // Manage Fixed-time Motion Control
+  TERN_(FT_MOTION, ftMotion.loop());
+
   // Handle UI input / draw events
   #if ENABLED(SOVOL_SV06_RTS)
     RTS_Update();
@@ -895,19 +906,8 @@ void Marlin::idle(const bool no_stepper_sleep/*=false*/) {
   // Handle Joystick jogging
   TERN_(POLL_JOG, joystick.inject_jog_moves());
 
-  // Async Babystepping via the Emergency Parser
-  #if ALL(EP_BABYSTEPPING, EMERGENCY_PARSER)
-    babystep.do_ep_steps();
-  #endif
-
-  // Direct Stepping
-  TERN_(DIRECT_STEPPING, page_manager.write_responses());
-
   // Update the LVGL interface
   TERN_(HAS_TFT_LVGL_UI, LV_TASK_HANDLER());
-
-  // Manage Fixed-time Motion Control
-  TERN_(FT_MOTION, ftMotion.loop());
 
   IDLE_DONE:
   TERN_(MARLIN_DEV_MODE, idle_depth--);

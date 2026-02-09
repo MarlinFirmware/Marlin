@@ -1938,7 +1938,8 @@ void Temperature::mintemp_error(const heater_id_t heater_id OPTARG(ERR_INCLUDE_T
       #endif
 
       temp_hotend[e].soft_pwm_amount = (temp_hotend[e].celsius > temp_range[e].mintemp || is_hotend_preheating(e))
-        && temp_hotend[e].celsius < temp_range[e].maxtemp ? (int)get_pid_output_hotend(e) >> 1 : 0;
+                                    && (temp_hotend[e].celsius < temp_range[e].maxtemp)
+                                     ? (int)get_pid_output_hotend(e) >> 1 : 0;
 
       #if WATCH_HOTENDS
         // Make sure temperature is increasing

@@ -353,10 +353,10 @@ FSTR_P FTMotion::getTrajectoryName() {
 // Called from FTMotion::loop() at the fetch of the next planner block.
 // Return whether a plan is available.
 bool FTMotion::plan_next_block() {
-  while (true) {
+  for (;;) {
 
     const bool had_block = !!stepper.current_block;
-    discard_planner_block_protected();                                  // Always clears stepper.current_block...
+    discard_planner_block_protected();                            // Always clears stepper.current_block...
     block_t * const current_block = planner.get_current_block();  // ...so get the current block from the queue
 
     // The planner had a block and there was not another one?
@@ -380,6 +380,8 @@ bool FTMotion::plan_next_block() {
       if (current_block->is_sync_pos()) stepper._set_position(current_block->position);
       continue;
     }
+
+    // Keep extruder position within float precision
     ensure_extruder_float_precision();
 
     #if ENABLED(POWER_LOSS_RECOVERY)
@@ -388,15 +390,9 @@ bool FTMotion::plan_next_block() {
     #endif
 
     // Some kinematics track axis motion in HX, HY, HZ
-    #if ANY(CORE_IS_XY, CORE_IS_XZ, MARKFORGED_XY, MARKFORGED_YX)
-      stepper.last_direction_bits.hx = current_block->direction_bits.hx;
-    #endif
-    #if ANY(CORE_IS_XY, CORE_IS_YZ, MARKFORGED_XY, MARKFORGED_YX)
-      stepper.last_direction_bits.hy = current_block->direction_bits.hy;
-    #endif
-    #if ANY(CORE_IS_XZ, CORE_IS_YZ)
-      stepper.last_direction_bits.hz = current_block->direction_bits.hz;
-    #endif
+    TERN_(HAS_REAL_X, stepper.last_direction_bits.rx = current_block->direction_bits.rx);
+    TERN_(HAS_REAL_Y, stepper.last_direction_bits.ry = current_block->direction_bits.ry);
+    TERN_(HAS_REAL_Z, stepper.last_direction_bits.rz = current_block->direction_bits.rz);
 
     // Cache the extruder index / axis for this block
     #if ANY(HAS_MULTI_EXTRUDER, MIXING_EXTRUDER)
@@ -409,7 +405,7 @@ bool FTMotion::plan_next_block() {
     const float totalLength = current_block->millimeters;
 
     startPos = endPos_prevBlock;
-    const xyze_pos_t& moveDist = current_block->dist_mm;
+    const ext_distance_t &moveDist = current_block->ext_distance_mm;
     ratio = moveDist / totalLength;
 
     // Plan the trajectory using the trajectory generator
@@ -420,9 +416,15 @@ bool FTMotion::plan_next_block() {
     TERN_(FTM_HAS_LIN_ADVANCE, use_advance_lead = current_block->use_advance_lead);
 
     axis_move_dir = current_block->direction_bits;
-    #define _SET_MOVE_END(A) moving_axis_flags.A = bool(moveDist.A);
 
+    // Set moving flags for axes that have movement in this block
+    // For CORE kinematics: moveDist.x/.y/.z contain motor distances (a/b/c)
+    // HEAD movement flags need to be inferred: if either motor moves, the head moves
+    #define _SET_MOVE_END(A) moving_axis_flags.A = bool(moveDist.A);
     LOGICAL_AXIS_MAP(_SET_MOVE_END);
+    TERN_(HAS_REAL_X, moving_axis_flags.rx = bool(moveDist.real.x));
+    TERN_(HAS_REAL_Y, moving_axis_flags.ry = bool(moveDist.real.y));
+    TERN_(HAS_REAL_Z, moving_axis_flags.rz = bool(moveDist.real.z));
 
     // If the endstop is already pressed, endstop interrupts won't invoke
     // endstop_triggered and the move will grind. So check here for a
@@ -430,7 +432,7 @@ bool FTMotion::plan_next_block() {
     endstops.update();
 
     return true;
-  }
+  } // infinite loop
 }
 
 #if HAS_EXTRUDERS

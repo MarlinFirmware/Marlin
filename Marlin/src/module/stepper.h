@@ -657,18 +657,18 @@ class Stepper {
     // Quickly stop all steppers
     FORCE_INLINE static void quick_stop() { abort_current_block = true; }
 
-    // The direction of a single motor. A true result indicates forward or positive motion.
-    FORCE_INLINE static bool motor_direction(const AxisEnum axis) { return last_direction_bits[axis]; }
+    // The direction of a single motor and/or real axis. A true result indicates forward or positive motion.
+    FORCE_INLINE static bool axis_direction(const AxisEnum real) { return last_direction_bits[real]; }
 
     #if HAS_STANDARD_MOTION
-      // The last movement direction was not null on the specified axis. Note that motor direction is not necessarily the same.
-      FORCE_INLINE static bool axis_is_moving(const AxisEnum axis) { return axis_did_move[axis]; }
+      // The last segment moved on the specified motor and/or real axis.
+      FORCE_INLINE static bool axis_is_moving(const AxisEnum real) { return axis_did_move[real]; }
     #endif
 
     // Handle a triggered endstop
     static void endstop_triggered(const AxisEnum axis);
 
-    // Triggered position of an axis in steps
+    // Triggered position of an axis in steps, converted as needed from Core kinematics
     static int32_t triggered_position(const AxisEnum axis);
 
     #if HAS_MOTOR_CURRENT_SPI || HAS_MOTOR_CURRENT_PWM

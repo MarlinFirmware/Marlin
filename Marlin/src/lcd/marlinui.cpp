@@ -337,6 +337,9 @@ void MarlinUI::init() {
   #include "lcdprint.h"
 
   #include "../module/planner.h"
+  #if ENABLED(FT_MOTION)
+    #include "../module/ft_motion.h"
+  #endif
   #include "../module/motion.h"
 
   #if HAS_MARLINUI_MENU
@@ -1161,8 +1164,17 @@ void MarlinUI::init() {
     }
 
     if (lcd_update_ms_elapsed || drawing_screen) {
+      const auto buffer_runtime = [&]() -> uint16_t {
+        #if ENABLED(FT_MOTION)
+          // In ftmotion, the isr only looks at the stepping buffer and the planner buffer is
+          // consumed from the idle loop.
+          if (ftMotion.cfg.active) return ftMotion.stepping.buffer_runtime();
+        #endif
+        return planner.block_buffer_runtime();
+      };
+
       // Then we want to use only 50% of the time
-      const uint16_t bbr2 = planner.block_buffer_runtime() >> 1;
+      const uint16_t bbr2 = buffer_runtime() >> 1;
 
       if ((should_draw() || drawing_screen) && (!bbr2 || bbr2 > max_display_update_time)) {
 
