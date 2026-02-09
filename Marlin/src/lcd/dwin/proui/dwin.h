@@ -106,6 +106,86 @@ enum processID : uint8_t {
 #define DWIN_ENGLISH 0
 
 typedef struct {
+  // Color settings
+  uint16_t colorBackground;
+  uint16_t colorCursor;
+  uint16_t colorTitleBg;
+  uint16_t colorTitleTxt;
+  uint16_t colorText;
+  uint16_t colorSelected;
+  uint16_t colorSplitLine;
+  uint16_t colorHighlight;
+  uint16_t colorStatusBg;
+  uint16_t colorStatusTxt;
+  uint16_t colorPopupBg;
+  uint16_t colorPopupTxt;
+  uint16_t colorAlertBg;
+  uint16_t colorAlertTxt;
+  uint16_t colorPercentTxt;
+  uint16_t colorBarfill;
+  uint16_t colorIndicator;
+  uint16_t colorCoordinate;
+
+  // Temperatures
+  #if ANY(PIDTEMP, PIDTEMPBED, PIDTEMPCHAMBER)
+    int16_t pidCycles = DEF_PIDCYCLES;
+  #endif
+  #if ENABLED(PIDTEMP)
+    #ifndef PREHEAT_1_TEMP_HOTEND
+      #define PREHEAT_1_TEMP_HOTEND 195
+    #endif
+    celsius_t hotendPIDT = PREHEAT_1_TEMP_HOTEND;
+  #endif
+  #if ENABLED(PIDTEMPBED)
+    #ifndef PREHEAT_1_TEMP_BED
+      #define PREHEAT_1_TEMP_BED 60
+    #endif
+    celsius_t bedPIDT = PREHEAT_1_TEMP_BED;
+  #endif
+  #if ENABLED(PIDTEMPCHAMBER)
+    #ifndef PREHEAT_1_TEMP_CHAMBER
+      #define PREHEAT_1_TEMP_CHAMBER 0
+    #endif
+    celsius_t chamberPIDT = PREHEAT_1_TEMP_CHAMBER;
+  #endif
+  #if ENABLED(PREVENT_COLD_EXTRUSION)
+    celsius_t extMinT = EXTRUDE_MINTEMP;
+  #endif
+  #if ENABLED(PREHEAT_BEFORE_LEVELING)
+    celsius_t bedLevT = LEVELING_BED_TEMP;
+  #endif
+
+  // Various Options
+  #if ENABLED(BAUD_RATE_GCODE)
+    bool baud115K = false;
+  #endif
+  #if ALL(LCD_BED_TRAMMING, HAS_BED_PROBE)
+    bool fullManualTramming = false;
+  #endif
+  #if ENABLED(PROUI_MEDIASORT)
+    bool mediaSort = true;
+  #endif
+  bool mediaAutoMount = ENABLED(HAS_SD_EXTENDER);
+  #if ALL(INDIVIDUAL_AXIS_HOMING_SUBMENU, MESH_BED_LEVELING)
+    uint8_t zAfterHoming = Z_AFTER_HOMING;
+    #define Z_POST_CLEARANCE hmiData.zAfterHoming
+  #endif
+  #if ALL(LED_CONTROL_MENU, HAS_COLOR_LEDS)
+    LED1Color_t ledColor = defColorLeds;
+  #endif
+  #if HAS_GCODE_PREVIEW
+    bool enablePreview = true;
+  #endif
+  #if HAS_BED_PROBE && DISABLED(BD_SENSOR)
+    uint8_t multiple_probing = MULTIPLE_PROBING;
+  #endif
+} hmi_data_t;
+
+extern hmi_data_t hmiData;
+
+#define EXTUI_EEPROM_DATA_SIZE sizeof(hmi_data_t)
+
+typedef struct {
   int8_t r, g, b;
   void set(int8_t _r, int8_t _g, int8_t _b) { r = _r; g = _g; b = _b; }
   int8_t& operator[](const int i) {
