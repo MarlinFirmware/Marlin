@@ -2010,9 +2010,9 @@ bool Planner::_populate_block(
     dist_mm.u = steps_dist.u * mm_per_step[U_AXIS], dist_mm.v = steps_dist.v * mm_per_step[V_AXIS], dist_mm.w = steps_dist.w * mm_per_step[W_AXIS]
   );
 
-  TERN(HAS_REAL_X, dist_mm.real.x = dx);
-  TERN(HAS_REAL_Y, dist_mm.real.y = dy);
-  TERN(HAS_REAL_Z, dist_mm.real.z = dz);
+  TERN_(HAS_REAL_X, dist_mm.real.x = dx);
+  TERN_(HAS_REAL_Y, dist_mm.real.y = dy);
+  TERN_(HAS_REAL_Z, dist_mm.real.z = dz);
 
   TERN_(HAS_EXTRUDERS, dist_mm.e = esteps_float * mm_per_step[E_AXIS_N(extruder)]);
   TERN_(LCD_SHOW_E_TOTAL, e_move_accumulator += dist_mm.e);
