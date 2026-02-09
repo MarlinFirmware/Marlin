@@ -237,28 +237,6 @@ void DWINUI::drawButton(uint8_t id, uint16_t x, uint16_t y) {
 
 // -------------------------- Extra -------------------------------//
 
-// Draw a circle
-//  color: circle color
-//  x: the abscissa of the center of the circle
-//  y: ordinate of the center of the circle
-//  r: circle radius
-void DWINUI::drawCircle(uint16_t color, uint16_t x, uint16_t y, uint8_t r) {
-  int a = 0, b = 0;
-  while (a <= b) {
-    b = SQRT(sq(r) - sq(a));
-    if (a == 0) b--;
-    dwinDrawPoint(color, 1, 1, x + a, y + b);   // Draw some sector 1
-    dwinDrawPoint(color, 1, 1, x + b, y + a);   // Draw some sector 2
-    dwinDrawPoint(color, 1, 1, x + b, y - a);   // Draw some sector 3
-    dwinDrawPoint(color, 1, 1, x + a, y - b);   // Draw some sector 4
-    dwinDrawPoint(color, 1, 1, x - a, y - b);   // Draw some sector 5
-    dwinDrawPoint(color, 1, 1, x - b, y - a);   // Draw some sector 6
-    dwinDrawPoint(color, 1, 1, x - b, y + a);   // Draw some sector 7
-    dwinDrawPoint(color, 1, 1, x - a, y + b);   // Draw some sector 8
-    a++;
-  }
-}
-
 // Draw a circle filled with color
 //  bcolor: fill color
 //  x: the abscissa of the center of the circle
@@ -274,21 +252,6 @@ void DWINUI::drawFillCircle(const uint16_t bcolor, const uint16_t x, const uint1
     dwinDrawLine(bcolor, x - a, y + b, x + a, y + b);
     dwinDrawLine(bcolor, x - a, y - b, x + a, y - b);
   }
-}
-
-// Color Interpolator
-//  val : Interpolator minv..maxv
-//  minv : Minimum value
-//  maxv : Maximum value
-//  color1 : Start color
-//  color2 : End color
-uint16_t DWINUI::colorInt(int16_t val, int16_t minv, int16_t maxv, uint16_t color1, uint16_t color2) {
-  uint8_t B, G, R;
-  const float n = float(val - minv) / (maxv - minv + 1);
-  R = (1.0f - n) * GetRColor(color1) + n * GetRColor(color2);
-  G = (1.0f - n) * GetGColor(color1) + n * GetGColor(color2);
-  B = (1.0f - n) * GetBColor(color1) + n * GetBColor(color2);
-  return RGB(R, G, B);
 }
 
 // Color Interpolator through Red->Yellow->Green->Blue (Pro UI)

@@ -525,16 +525,6 @@ namespace DWINUI {
     dwinDrawBox(mode, color, frame.x, frame.y, frame.w, frame.h);
   }
 
-  // Draw a circle
-  //  Color: circle color
-  //  x: abscissa of the center of the circle
-  //  y: ordinate of the center of the circle
-  //  r: circle radius
-  void drawCircle(uint16_t color, uint16_t x,uint16_t y,uint8_t r);
-  inline void drawCircle(uint16_t color, uint8_t r) {
-    drawCircle(color, cursor.x, cursor.y, r);
-  }
-
   // Draw a checkbox
   //  Color: frame color
   //  bColor: Background color
@@ -544,14 +534,6 @@ namespace DWINUI {
   inline void drawCheckbox(uint16_t x, uint16_t y, bool checked=false) {
     drawCheckbox(textColor, backColor, x, y, checked);
   }
-
-  // Color Interpolator
-  //  val : Interpolator minv..maxv
-  //  minv : Minimum value
-  //  maxv : Maximum value
-  //  color1 : Start color
-  //  color2 : End color
-  uint16_t colorInt(int16_t val, int16_t minv, int16_t maxv, uint16_t color1, uint16_t color2);
 
   // ------------------------- Buttons ------------------------------//
 
