@@ -380,6 +380,10 @@ enum AxisEnum : uint8_t {
   // Most of the time we refer only to the single E_AXIS
   #if HAS_EXTRUDERS
     E_AXIS = E0_AXIS,
+    E_REAL = E_AXIS,
+    #define _EN_REAL(N) E##N##_REAL = E##N##_AXIS,
+    REPEAT(EXTRUDERS, _EN_REAL)
+    #undef _EN_REAL
   #endif
 
   // A, B, and C are for DELTA, SCARA, etc.
