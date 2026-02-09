@@ -303,7 +303,7 @@ class FTMotion {
     FORCE_INLINE static bool axis_is_moving(const AxisEnum real) {
       return cfg.active ? moving_axis_flags[real] : TERN0(HAS_STANDARD_MOTION, stepper.axis_is_moving(real));
     }
-    FORCE_INLINE static bool motor_direction(const AxisEnum real) {
+    FORCE_INLINE static bool axis_direction(const AxisEnum real) {
       return cfg.active ? axis_move_dir[real] : stepper.last_direction_bits[real];
     }
 

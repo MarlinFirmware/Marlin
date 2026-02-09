@@ -1959,7 +1959,7 @@ bool Planner::_populate_block(
   /**
    * This part of the code calculates the total length of the movement.
    * For Cartesian bots, the distance in XY axes equals the X_AXIS/Y_AXIS joint displacement.
-   * For Core/H-bot geometrieswe use X_REAL and Y_REAL to store the real XY displacement of the head in Cartesian coordinates.
+   * For Core/H-bot geometries we use X_REAL and Y_REAL to store the real XY displacement of the head in Cartesian coordinates.
    * The Cartesian head displacement is calculated from a combined ABC stepper positions.
    * For the joint displacements use forward kinematics (A=X+Y and B=X-Y in the case of CORE_XY).
    * Next we can calculate the total movement length and apply the desired speed.

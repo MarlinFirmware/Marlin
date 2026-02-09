@@ -682,7 +682,7 @@ void Stepper::disable_all_steppers() {
 // Set a single axis direction based on the last set flags.
 // A direction bit of "1" indicates forward or positive motion.
 #define SET_STEP_DIR(A) do{                     \
-    const bool fwd = motor_direction(_AXIS(A)); \
+    const bool fwd = axis_direction(_AXIS(A));  \
     A##_APPLY_DIR(fwd, false);                  \
     count_direction[_AXIS(A)] = fwd ? 1 : -1;   \
   }while(0)
@@ -2556,7 +2556,7 @@ void Stepper::isr() {
                 const bool forward_e = la_step_rate < step_rate;
                 la_interval = calc_timer_interval((forward_e ? step_rate - la_step_rate : la_step_rate - step_rate) >> current_block->la_scaling);
 
-                if (forward_e != motor_direction(E_AXIS)) {
+                if (forward_e != axis_direction(E_AXIS)) {
                   last_direction_bits.toggle(E_AXIS);
                   count_direction.e *= -1;
 
@@ -3002,7 +3002,7 @@ void Stepper::isr() {
         #endif
 
         la_interval = calc_timer_interval(uint32_t(ABS(step_rate)));
-        if (forward_e != motor_direction(E_AXIS)) {
+        if (forward_e != axis_direction(E_AXIS)) {
           last_direction_bits.toggle(E_AXIS);
           count_direction.e *= -1;
           DIR_WAIT_BEFORE();
