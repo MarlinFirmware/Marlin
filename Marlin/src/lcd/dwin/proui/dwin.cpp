@@ -2328,7 +2328,7 @@ void setMoveZ() { hmiValue.axis = Z_AXIS; setPFloatOnClick(Z_MIN_POS, Z_MAX_POS,
       void setLEDColorW() { setIntOnClick(0, 255, leds.color.w, applyLEDColor, liveLEDColorW); }
     #endif
   #endif
-#endif
+#endif // LED_CONTROL_MENU
 
 #if ENABLED(SOUND_MENU_ITEM)
   void setEnableSound() {

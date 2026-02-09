@@ -29,7 +29,7 @@
 #include "../module/motion.h"
 #include "../module/planner.h"
 
-AxisBits Backlash::last_direction_bits;
+AxisBits Backlash::last_direction;
 xyz_long_t Backlash::residual_error{0};
 
 #ifdef BACKLASH_DISTANCE_MM
@@ -64,7 +64,7 @@ Backlash backlash;
  */
 
 void Backlash::add_correction_steps(const xyze_long_t &dist, const AxisBits dm, block_t * const block) {
-  AxisBits changed_dir = last_direction_bits ^ dm;
+  AxisBits changed_dir = last_direction ^ dm;
   // Ignore direction change unless steps are taken in that direction
   #if DISABLED(CORE_BACKLASH) || ANY(MARKFORGED_XY, MARKFORGED_YX)
     if (!dist.a)            changed_dir.x = false;
@@ -83,7 +83,7 @@ void Backlash::add_correction_steps(const xyze_long_t &dist, const AxisBits dm, 
     if (!(dist.b - dist.c)) changed_dir.z = false;
     if (!dist.a)            changed_dir.x = false;
   #endif
-  last_direction_bits ^= changed_dir;
+  last_direction ^= changed_dir;
 
   if (!correction && !residual_error) return;
 
@@ -167,7 +167,7 @@ void Backlash::add_correction_steps(const xyze_long_t &dist, const AxisBits dm, 
 int32_t Backlash::get_applied_steps(const AxisEnum axis) {
   if (axis >= NUM_AXES) return 0;
 
-  const bool forward = last_direction_bits[axis];
+  const bool forward = last_direction[axis];
 
   const int32_t residual_error_axis = residual_error[axis];
 
