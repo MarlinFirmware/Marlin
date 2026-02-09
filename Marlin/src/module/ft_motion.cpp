@@ -356,7 +356,7 @@ bool FTMotion::plan_next_block() {
   for (;;) {
 
     const bool had_block = !!stepper.current_block;
-    discard_planner_block_protected();                                  // Always clears stepper.current_block...
+    discard_planner_block_protected();                            // Always clears stepper.current_block...
     block_t * const current_block = planner.get_current_block();  // ...so get the current block from the queue
 
     // The planner had a block and there was not another one?

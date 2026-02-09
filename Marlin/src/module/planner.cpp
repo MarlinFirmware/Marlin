@@ -2002,6 +2002,7 @@ bool Planner::_populate_block(
       dist_mm.z = dz
     );
   #else
+    // Cartesian, Delta, SCARA, etc.
     XYZ_CODE(dist_mm.a = dx, dist_mm.b = dy, dist_mm.c = dz);
   #endif
 

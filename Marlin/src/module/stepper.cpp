@@ -3649,7 +3649,7 @@ void Stepper::report_positions() {
 
     /**
      * Update direction bits for steppers that were stepped by this command.
-     * HX, HY, HZ direction bits were set for Core kinematics
+     * RX, RY, RZ direction bits were set for Core kinematics
      * when the block was fetched and are not overwritten here.
      */
 
