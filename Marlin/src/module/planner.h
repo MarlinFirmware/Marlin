@@ -190,6 +190,52 @@ typedef struct {
 
 #endif
 
+typedef struct DistanceMM : abce_float_t {
+  #if ANY(HAS_REAL_X, HAS_REAL_Y, HAS_REAL_Z)
+    struct {
+      #if HAS_REAL_X
+        float x;
+      #endif
+      #if HAS_REAL_Y
+        float y;
+      #endif
+      #if HAS_REAL_Z
+        float z;
+      #endif
+    } real;
+  #endif
+  const float& operator[](const int n) const {
+    switch (n) {
+      #if HAS_REAL_X
+        case X_REAL: return real.x;
+      #endif
+      #if HAS_REAL_Y
+        case Y_REAL: return real.y;
+      #endif
+      #if HAS_REAL_Z
+        case Z_REAL: return real.z;
+      #endif
+      default: break;
+    }
+    return pos[n];
+  }
+  float& operator[](const int n) {
+    switch (n) {
+      #if HAS_REAL_X
+        case X_REAL: return real.x;
+      #endif
+      #if HAS_REAL_Y
+        case Y_REAL: return real.y;
+      #endif
+      #if HAS_REAL_Z
+        case Z_REAL: return real.z;
+      #endif
+      default: break;
+    }
+    return pos[n];
+  }
+} ext_distance_t;
+
 /**
  * struct block_t
  *
@@ -262,7 +308,7 @@ typedef struct PlannerBlock {
   AxisBits direction_bits;                  // Direction bits set for this block, where 1 is negative motion
 
   #if ENABLED(FT_MOTION)
-    xyze_pos_t distance_mm;                 // The distance traveled in mm along each axis
+    ext_distance_t ext_distance_mm;         // The distance traveled in mm along each axis
   #endif
 
   #if ANY(SMOOTH_LIN_ADVANCE, FTM_HAS_LIN_ADVANCE)

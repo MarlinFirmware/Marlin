@@ -352,7 +352,7 @@ typedef struct {
 //
 //  - X_AXIS, Y_AXIS, and Z_AXIS should be used for axes in Cartesian space
 //  - A_AXIS, B_AXIS, and C_AXIS should be used for Steppers, corresponding to XYZ on Cartesians
-//  - X_HEAD, Y_HEAD, and Z_HEAD should be used for axes on Core kinematics
+//  - X_REAL, Y_REAL, and Z_REAL should be used for axes on Core kinematics
 //
 enum AxisEnum : uint8_t {
 
@@ -364,8 +364,14 @@ enum AxisEnum : uint8_t {
   #undef _EN_ITEM
 
   // Core also keeps toolhead directions
-  #if ANY(IS_CORE, MARKFORGED_XY, MARKFORGED_YX)
-    X_HEAD, Y_HEAD, Z_HEAD,
+  #if HAS_REAL_X
+    X_REAL,
+  #endif
+  #if HAS_REAL_Y
+    Y_REAL,
+  #endif
+  #if HAS_REAL_Z
+    Z_REAL,
   #endif
 
   // Distinct axes, including all E and Core
@@ -374,6 +380,10 @@ enum AxisEnum : uint8_t {
   // Most of the time we refer only to the single E_AXIS
   #if HAS_EXTRUDERS
     E_AXIS = E0_AXIS,
+    E_REAL = E_AXIS,
+    #define _EN_REAL(N) E##N##_REAL = E##N##_AXIS,
+    REPEAT(EXTRUDERS, _EN_REAL)
+    #undef _EN_REAL
   #endif
 
   // A, B, and C are for DELTA, SCARA, etc.
@@ -385,6 +395,35 @@ enum AxisEnum : uint8_t {
   #endif
   #if HAS_Z_AXIS
     C_AXIS = Z_AXIS,
+  #endif
+
+  // Aliases to distinguish tool axes from stepper indexes
+  #if HAS_X_AXIS && !HAS_REAL_X
+    X_REAL = X_AXIS,
+  #endif
+  #if HAS_Y_AXIS && !HAS_REAL_Y
+    Y_REAL = Y_AXIS,
+  #endif
+  #if HAS_Z_AXIS && !HAS_REAL_Z
+    Z_REAL = Z_AXIS,
+  #endif
+  #if HAS_I_AXIS
+    I_REAL = I_AXIS,
+  #endif
+  #if HAS_J_AXIS
+    J_REAL = J_AXIS,
+  #endif
+  #if HAS_K_AXIS
+    K_REAL = K_AXIS,
+  #endif
+  #if HAS_U_AXIS
+    U_REAL = U_AXIS,
+  #endif
+  #if HAS_V_AXIS
+    V_REAL = V_AXIS,
+  #endif
+  #if HAS_W_AXIS
+    W_REAL = W_AXIS,
   #endif
 
   // To refer to all or none
@@ -1153,8 +1192,14 @@ public:
       #define _EN_ITEM(N) bool e##N:1;
       REPEAT(EXTRUDERS,_EN_ITEM)
       #undef _EN_ITEM
-      #if ANY(IS_CORE, MARKFORGED_XY, MARKFORGED_YX)
-        bool rx:1, ry:1, rz:1;
+      #if HAS_REAL_X
+        bool rx:1;
+      #endif
+      #if HAS_REAL_Y
+        bool ry:1;
+      #endif
+      #if HAS_REAL_Z
+        bool rz:1;
       #endif
     };
     // Axes X, Y, Z ... E0, E1, E2 ... RX, RY, RZ
@@ -1165,8 +1210,14 @@ public:
       #define _EN_ITEM(N) bool E##N:1;
       REPEAT(EXTRUDERS,_EN_ITEM)
       #undef _EN_ITEM
-      #if ANY(IS_CORE, MARKFORGED_XY, MARKFORGED_YX)
-        bool RX:1, RY:1, RZ:1;
+      #if HAS_REAL_X
+        bool RX:1;
+      #endif
+      #if HAS_REAL_Y
+        bool RY:1;
+      #endif
+      #if HAS_REAL_Z
+        bool RZ:1;
       #endif
     };
     // a, b, c, e ... ra, rb, rc
@@ -1177,8 +1228,14 @@ public:
         REPEAT_S(1,EXTRUDERS,_EN_ITEM)
         #undef _EN_ITEM
       #endif
-      #if ANY(IS_CORE, MARKFORGED_XY, MARKFORGED_YX)
-        bool ra:1, rb:1, rc:1;
+      #if HAS_REAL_X
+        bool ra:1;
+      #endif
+      #if HAS_REAL_Y
+        bool rb:1;
+      #endif
+      #if HAS_REAL_Z
+        bool rc:1;
       #endif
     };
     // A, B, C, E ... RA, RB, RC
@@ -1189,8 +1246,14 @@ public:
         REPEAT_S(1,EXTRUDERS,_EN_ITEM)
         #undef _EN_ITEM
       #endif
-      #if ANY(IS_CORE, MARKFORGED_XY, MARKFORGED_YX)
-        bool RA:1, RB:1, RC:1;
+      #if HAS_REAL_X
+        bool RA:1;
+      #endif
+      #if HAS_REAL_Y
+        bool RB:1;
+      #endif
+      #if HAS_REAL_Z
+        bool RC:1;
       #endif
     };
   };
