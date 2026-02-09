@@ -762,28 +762,28 @@ struct XYZval {
 
   // Setters with fewer elements leave the rest untouched
   #if HAS_Y_AXIS
-    FI void set(const T px) { x = px; }
+    FI void set(const T px)                                                                                     { x = px; }
   #endif
   #if HAS_Z_AXIS
-    FI void set(const T px, const T py) { x = px; y = py; }
+    FI void set(const T px, const T py)                                                                         { set(px); y = py; }
   #endif
   #if HAS_I_AXIS
-    FI void set(const T px, const T py, const T pz) { x = px; y = py; z = pz; }
+    FI void set(const T px, const T py, const T pz)                                                             { set(px, py); z = pz; }
   #endif
   #if HAS_J_AXIS
-    FI void set(const T px, const T py, const T pz, const T pi) { x = px; y = py; z = pz; i = pi; }
+    FI void set(const T px, const T py, const T pz, const T pi)                                                 { set(px, py, pz); i = pi; }
   #endif
   #if HAS_K_AXIS
-    FI void set(const T px, const T py, const T pz, const T pi, const T pj) { x = px; y = py; z = pz; i = pi; j = pj; }
+    FI void set(const T px, const T py, const T pz, const T pi, const T pj)                                     { set(px, py, pz, pi); j = pj; }
   #endif
   #if HAS_U_AXIS
-    FI void set(const T px, const T py, const T pz, const T pi, const T pj, const T pk) { x = px; y = py; z = pz; i = pi; j = pj; k = pk; }
+    FI void set(const T px, const T py, const T pz, const T pi, const T pj, const T pk)                         { set(px, py, pz, pi, pj); k = pk; }
   #endif
   #if HAS_V_AXIS
-    FI void set(const T px, const T py, const T pz, const T pi, const T pj, const T pk, const T pu) { x = px; y = py; z = pz; i = pi; j = pj; k = pk; u = pu; }
+    FI void set(const T px, const T py, const T pz, const T pi, const T pj, const T pk, const T pu)             { set(px, py, pz, pi, pj, pk); u = pu; }
   #endif
   #if HAS_W_AXIS
-    FI void set(const T px, const T py, const T pz, const T pi, const T pj, const T pk, const T pu, const T pv) { x = px; y = py; z = pz; i = pi; j = pj; k = pk; u = pu; v = pv; }
+    FI void set(const T px, const T py, const T pz, const T pi, const T pj, const T pk, const T pu, const T pv) { set(px, py, pz, pi, pj, pk, pu); v = pv; }
   #endif
 
   // Length reduced to one dimension
@@ -911,7 +911,7 @@ struct XYZEval {
     T pos[LOGICAL_AXES];
   };
   // Reset all to 0
-  FI void reset()                                { LOGICAL_AXIS_GANG(e =, x =, y =, z =, i =, j =, k =, u =, v =, w =) 0; }
+  FI void reset()                                            { LOGICAL_AXIS_GANG(e =, x =, y =, z =, i =, j =, k =, u =, v =, w =) 0; }
 
   // Setters taking struct types and arrays
   FI void set(const XYval<T> &pxy)                           { XY_CODE(x = pxy.x, y = pxy.y); }
@@ -936,25 +936,25 @@ struct XYZEval {
     FI void set(const T px)                                                                                     { x = px; }
   #endif
   #if HAS_Z_AXIS
-    FI void set(const T px, const T py)                                                                         { x = px; y = py; }
+    FI void set(const T px, const T py)                                                                         { set(px); y = py; }
   #endif
   #if HAS_I_AXIS
-    FI void set(const T px, const T py, const T pz)                                                             { x = px; y = py; z = pz; }
+    FI void set(const T px, const T py, const T pz)                                                             { set(px, py); z = pz; }
   #endif
   #if HAS_J_AXIS
-    FI void set(const T px, const T py, const T pz, const T pi)                                                 { x = px; y = py; z = pz; i = pi; }
+    FI void set(const T px, const T py, const T pz, const T pi)                                                 { set(px, py, pz); i = pi; }
   #endif
   #if HAS_K_AXIS
-    FI void set(const T px, const T py, const T pz, const T pi, const T pj)                                     { x = px; y = py; z = pz; i = pi; j = pj; }
+    FI void set(const T px, const T py, const T pz, const T pi, const T pj)                                     { set(px, py, pz, pi); j = pj; }
   #endif
   #if HAS_U_AXIS
-    FI void set(const T px, const T py, const T pz, const T pi, const T pj, const T pk)                         { x = px; y = py; z = pz; i = pi; j = pj; k = pk; }
+    FI void set(const T px, const T py, const T pz, const T pi, const T pj, const T pk)                         { set(px, py, pz, pi, pj); k = pk; }
   #endif
   #if HAS_V_AXIS
-    FI void set(const T px, const T py, const T pz, const T pi, const T pj, const T pk, const T pu)             { x = px; y = py; z = pz; i = pi; j = pj; k = pk; u = pu; }
+    FI void set(const T px, const T py, const T pz, const T pi, const T pj, const T pk, const T pu)             { set(px, py, pz, pi, pj, pk); u = pu; }
   #endif
   #if HAS_W_AXIS
-    FI void set(const T px, const T py, const T pz, const T pi, const T pj, const T pk, const T pu, const T pv) { x = px; y = py; z = pz; i = pi; j = pj; k = pk; u = pu; v = pv; }
+    FI void set(const T px, const T py, const T pz, const T pi, const T pj, const T pk, const T pu, const T pv) { set(px, py, pz, pi, pj, pk, pu); v = pv; }
   #endif
 
   // Length reduced to one dimension
@@ -1098,28 +1098,28 @@ struct XYZarray {
 
   // Setters with fewer elements leave the rest untouched
   #if HAS_Y_AXIS
-    FI void set(const int n, const T px) { x[n] = px; }
+    FI void set(const int n, const T px)                                                                                     { x[n] = px; }
   #endif
   #if HAS_Z_AXIS
-    FI void set(const int n, const T px, const T py) { x[n] = px; y[n] = py; }
+    FI void set(const int n, const T px, const T py)                                                                         { set(n, px); y[n] = py; }
   #endif
   #if HAS_I_AXIS
-    FI void set(const int n, const T px, const T py, const T pz) { x[n] = px; y[n] = py; z[n] = pz; }
+    FI void set(const int n, const T px, const T py, const T pz)                                                             { set(n, px, py); z[n] = pz; }
   #endif
   #if HAS_J_AXIS
-    FI void set(const int n, const T px, const T py, const T pz, const T pi) { x[n] = px; y[n] = py; z[n] = pz; i[n] = pi; }
+    FI void set(const int n, const T px, const T py, const T pz, const T pi)                                                 { set(n, px, py, pz); i[n] = pi; }
   #endif
   #if HAS_K_AXIS
-    FI void set(const int n, const T px, const T py, const T pz, const T pi, const T pj) { x[n] = px; y[n] = py; z[n] = pz; i[n] = pi; j[n] = pj; }
+    FI void set(const int n, const T px, const T py, const T pz, const T pi, const T pj)                                     { set(n, px, py, pz, pi); j[n] = pj; }
   #endif
   #if HAS_U_AXIS
-    FI void set(const int n, const T px, const T py, const T pz, const T pi, const T pj, const T pk) { x[n] = px; y[n] = py; z[n] = pz; i[n] = pi; j[n] = pj; k[n] = pk; }
+    FI void set(const int n, const T px, const T py, const T pz, const T pi, const T pj, const T pk)                         { set(n, px, py, pz, pi, pj); k[n] = pk; }
   #endif
   #if HAS_V_AXIS
-    FI void set(const int n, const T px, const T py, const T pz, const T pi, const T pj, const T pk, const T pu) { x[n] = px; y[n] = py; z[n] = pz; i[n] = pi; j[n] = pj; k[n] = pk; u[n] = pu; }
+    FI void set(const int n, const T px, const T py, const T pz, const T pi, const T pj, const T pk, const T pu)             { set(n, px, py, pz, pi, pj, pk); u[n] = pu; }
   #endif
   #if HAS_W_AXIS
-    FI void set(const int n, const T px, const T py, const T pz, const T pi, const T pj, const T pk, const T pu, const T pv) { x[n] = px; y[n] = py; z[n] = pz; i[n] = pi; j[n] = pj; k[n] = pk; u[n] = pu; v[n] = pv; }
+    FI void set(const int n, const T px, const T py, const T pz, const T pi, const T pj, const T pk, const T pu, const T pv) { set(n, px, py, pz, pi, pj, pk, pu); v[n] = pv; }
   #endif
 
   FI XYZval<T> operator[](const int n) const { return XYZval<T>(NUM_AXIS_ARRAY(x[n], y[n], z[n], i[n], j[n], k[n], u[n], v[n], w[n])); }

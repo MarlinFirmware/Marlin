@@ -204,6 +204,36 @@ typedef struct DistanceMM : abce_float_t {
       #endif
     } real;
   #endif
+  const float& operator[](const int n) const {
+    switch (n) {
+      #if HAS_REAL_X
+        case X_REAL: return real.x;
+      #endif
+      #if HAS_REAL_Y
+        case Y_REAL: return real.y;
+      #endif
+      #if HAS_REAL_Z
+        case Z_REAL: return real.z;
+      #endif
+      default: break;
+    }
+    return pos[n];
+  }
+  float& operator[](const int n) {
+    switch (n) {
+      #if HAS_REAL_X
+        case X_REAL: return real.x;
+      #endif
+      #if HAS_REAL_Y
+        case Y_REAL: return real.y;
+      #endif
+      #if HAS_REAL_Z
+        case Z_REAL: return real.z;
+      #endif
+      default: break;
+    }
+    return pos[n];
+  }
 } ext_distance_t;
 
 /**
