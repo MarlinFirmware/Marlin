@@ -1854,7 +1854,7 @@ bool Planner::_populate_block(
   #endif // PREVENT_COLD_EXTRUSION || PREVENT_LENGTHY_EXTRUDE
 
   // Compute direction bit-mask for this block
-  // In this context Core kinematics "head" bits pertain to Cartesian XYZ
+  // In this context Core kinematics "real" bits pertain to Cartesian
   // directions and others pertain directly to stepper directions.
   AxisBits dm;
   TERN_(HAS_REAL_X, dm.rx = (steps_dist.x > 0));          // True direction in X
@@ -1902,7 +1902,7 @@ bool Planner::_populate_block(
   // Clear all flags, including the "busy" bit
   block->flag.clear();
 
-  // Set direction bits for steppers
+  // Set direction bits for steppers, plus Cartesian elements for Core kinematics
   block->direction_bits = dm;
 
   /**
