@@ -1967,13 +1967,13 @@ bool Planner::_populate_block(
   ext_distance_t dist_mm;
 
   #if HAS_X_AXIS
-    const float dx = steps_dist.x * mm_per_step[X_AXIS];
+    const float dx = steps_dist.x * mm_per_step[X_AXIS];  // Axis X or Tower A Steps
   #endif
   #if HAS_Y_AXIS
-    const float dy = steps_dist.y * mm_per_step[Y_AXIS];
+    const float dy = steps_dist.y * mm_per_step[Y_AXIS];  // Axis Y or Tower B Steps
   #endif
   #if HAS_Z_AXIS
-    const float dz = steps_dist.z * mm_per_step[Z_AXIS];
+    const float dz = steps_dist.z * mm_per_step[Z_AXIS];  // Axis Z or Tower C Steps
   #endif
   #if CORE_IS_XY
     XYZ_CODE(
@@ -2007,8 +2007,9 @@ bool Planner::_populate_block(
   #endif
 
   SECONDARY_AXIS_CODE(
-    dist_mm.i = steps_dist.i * mm_per_step[I_AXIS], dist_mm.j = steps_dist.j * mm_per_step[J_AXIS], dist_mm.k = steps_dist.k * mm_per_step[K_AXIS],
-    dist_mm.u = steps_dist.u * mm_per_step[U_AXIS], dist_mm.v = steps_dist.v * mm_per_step[V_AXIS], dist_mm.w = steps_dist.w * mm_per_step[W_AXIS]
+    dist_mm.i = steps_dist.i * mm_per_step[I_AXIS], dist_mm.j = steps_dist.j * mm_per_step[J_AXIS],
+    dist_mm.k = steps_dist.k * mm_per_step[K_AXIS], dist_mm.u = steps_dist.u * mm_per_step[U_AXIS],
+    dist_mm.v = steps_dist.v * mm_per_step[V_AXIS], dist_mm.w = steps_dist.w * mm_per_step[W_AXIS]
   );
 
   TERN_(HAS_REAL_X, dist_mm.real.x = dx);
@@ -2024,13 +2025,17 @@ bool Planner::_populate_block(
     bool cartesian_move = hints.cartesian_move;
   #endif
 
+  // Determine linear distance for block->millimeters
+
   if (!XYZ_HAS_ENOUGH_STEPS(block)) {
     block->millimeters = TERN0(HAS_EXTRUDERS, ABS(dist_mm.e));
   }
   else {
-    if (hints.millimeters)
+    // Use a provided move length (e.g., always provided by Kinematic robots)
+    if (/* ANY(DELTA, IS_SCARA, TPARA) || */ hints.millimeters)
       block->millimeters = hints.millimeters;
     else {
+      // Calculate move length from axis positions
       const xyze_pos_t displacement = LOGICAL_AXIS_ARRAY(
         dist_mm.e,
         dx, dy, dz,
@@ -2044,16 +2049,18 @@ bool Planner::_populate_block(
     /**
      * At this point at least one of the axes has more steps than
      * MIN_STEPS_PER_SEGMENT, ensuring the segment won't get dropped as
-     * zero-length. It's important to not apply corrections
-     * to blocks that would get dropped!
+     * zero-length. It's important to not apply corrections to blocks
+     * that would get dropped!
      *
-     * A correction function is permitted to add steps to an axis, it
-     * should *never* remove steps!
+     * A correction function is permitted to add steps to an axis, but
+     * it should *never* remove steps!
      */
     TERN_(BACKLASH_COMPENSATION, backlash.add_correction_steps(steps_dist, dm, block));
   }
 
   TERN_(HAS_EXTRUDERS, block->steps.e = esteps);
+
+  // Set the block's Step Event Count based from the axis with the most steps
 
   block->step_event_count = (
     #if NUM_AXES
@@ -2067,8 +2074,10 @@ bool Planner::_populate_block(
     #endif
   );
 
-  // Bail if this is a zero-length block
+  // Bail if this is a "zero-length" block
   if (block->step_event_count < MIN_STEPS_PER_SEGMENT) return false;
+
+  E_TERN_(block->extruder = extruder);
 
   TERN_(MIXING_EXTRUDER, mixer.populate_block(block->b_color));
 
@@ -2080,8 +2089,6 @@ bool Planner::_populate_block(
     block->valve_pressure = baricuda_valve_pressure;
     block->e_to_p_pressure = baricuda_e_to_p_pressure;
   #endif
-
-  E_TERN_(block->extruder = extruder);
 
   #if ENABLED(AUTO_POWER_CONTROL)
     if (XYZ_HAS_STEPS(block)) powerManager.power_on();
@@ -2974,6 +2981,7 @@ bool Planner::buffer_line(const xyze_pos_t &cart, const feedRate_t fr_mm_s
     // Cartesian XYZ to kinematic ABC, stored in global 'delta'
     inverse_kinematics(machine);
 
+    // Provide known Cartesian length in the hints structure
     PlannerHints ph = hints;
     if (!hints.millimeters)
       ph.millimeters = get_move_distance(xyze_pos_t(cart_dist_mm) OPTARG(HAS_ROTATIONAL_AXES, ph.cartesian_move));
