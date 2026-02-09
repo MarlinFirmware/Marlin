@@ -32,10 +32,10 @@
 
 #if ALL(DWIN_LCD_PROUI, HAS_MESH)
 
-#include "meshviewer.h"
-
 #include "../../marlinui.h"
+#include "../../../feature/bedlevel/bedlevel.h"
 #include "dwin_popup.h"
+#include "meshviewer.h"
 
 #if USE_GRID_MESHVIEWER
   #include "bedlevel_tools.h"
@@ -69,33 +69,33 @@ void MeshViewer::drawMeshGrid(const uint8_t csizex, const uint8_t csizey) {
   for (uint8_t y = 1; y < sizey - 1; ++y) dwinDrawHLine(hmiData.colorSplitLine, px(0), py(y), width);
 }
 
-void MeshViewer::drawMeshPoint(const xy_int8_t xy, const float z) {
+void MeshViewer::drawMeshPoint(const uint8_t x, const uint8_t y, const float z) {
   const uint8_t fs = DWINUI::fontWidth(title.meshfont);
   const int16_t v = isnan(z) ? int16_t(0) : int16_t(LROUND(z * 100));
   NOLESS(max, z); NOMORE(min, z);
 
   const uint16_t color = DWINUI::rainbowInt(v, zmin, zmax);
-  const uint8_t x = px(xy.x), y = py(xy.y);
-  DWINUI::drawFillCircle(color, x, y, r(_MAX(_MIN(v, zmax), zmin)));
+  const uint8_t xp = px(x), yp = py(y);
+  DWINUI::drawFillCircle(color, xp, yp, r(_MAX(_MIN(v, zmax), zmin)));
   TERN_(TJC_DISPLAY, delay(100));
 
-  const uint16_t fy = y - fs;
+  const uint16_t fy = yp - fs;
   if (sizex < TERN(TJC_DISPLAY, 8, 9)) {
-    if (v == 0) DWINUI::drawFloat(title.meshfont, 1, 2, x - 2 * fs, fy, 0);
-    else DWINUI::drawSignedFloat(title.meshfont, 1, 2, x - 3 * fs, fy, z);
+    if (v == 0) DWINUI::drawFloat(title.meshfont, 1, 2, xp - 2 * fs, fy, 0);
+    else DWINUI::drawSignedFloat(title.meshfont, 1, 2, xp - 3 * fs, fy, z);
   }
   else {
     char msg[9]; msg[0] = '\0';
     switch (v) {
       case -999 ... -100:
-      case  100 ...  999: DWINUI::drawSignedFloat(title.meshfont, 1, 1, x - 3 * fs, fy, z); break;
+      case  100 ...  999: DWINUI::drawSignedFloat(title.meshfont, 1, 1, xp - 3 * fs, fy, z); break;
       case  -99 ...   -1: sprintf_P(msg, PSTR("-.%2i"), -v); break;
       case    1 ...   99: sprintf_P(msg, PSTR( ".%2i"),  v); break;
       default:
-        dwinDrawString(false, title.meshfont, DWINUI::textColor, DWINUI::backColor, x - 4, fy, "0");
+        dwinDrawString(false, title.meshfont, DWINUI::textColor, DWINUI::backColor, xp - 4, fy, "0");
         return;
     }
-    dwinDrawString(false, title.meshfont, DWINUI::textColor, DWINUI::backColor, x - 2 * fs, fy, msg);
+    dwinDrawString(false, title.meshfont, DWINUI::textColor, DWINUI::backColor, xp - 2 * fs, fy, msg);
   }
 }
 
@@ -103,7 +103,7 @@ void MeshViewer::drawMesh(const bed_mesh_t zval, const uint8_t csizex, const uin
   drawMeshGrid(csizex, csizey);
   for (uint8_t y = 0; y < csizey; ++y) {
     hal.watchdog_refresh();
-    for (uint8_t x = 0; x < csizex; ++x) drawMeshPoint(xy_int8_t({x, y}), zval[x][y]);
+    for (uint8_t x = 0; x < csizex; ++x) drawMeshPoint(x, y, zval[x][y]);
   }
 }
 

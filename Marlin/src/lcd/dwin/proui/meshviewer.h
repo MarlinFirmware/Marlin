@@ -29,14 +29,12 @@
  * Date: 2023/05/05
  */
 
-#include "../../../core/types.h"
-#include "../../../feature/bedlevel/bedlevel.h"
-
 class MeshViewer {
 public:
   static float max, min;
   static void drawMeshGrid(const uint8_t csizex, const uint8_t csizey);
-  static void drawMeshPoint(const xy_int8_t xy, const float z);
+  static void drawMeshPoint(const uint8_t x, const uint8_t y, const float z);
+  inline static void drawMeshPoint(const xy_int8_t xy, const float z) { drawMeshPoint(uint8_t(xy.x), uint8_t(xy.y), z); }
   static void draw(const bool withsave=false, const bool redraw=true);
   static void drawMesh(const bed_mesh_t zval, const uint8_t csizex, const uint8_t csizey);
 };
