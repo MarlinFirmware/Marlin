@@ -1886,6 +1886,11 @@
     #if ENABLED(POWER_LOSS_RECOVER_ZHOME)
       //#define POWER_LOSS_ZHOME_POS { 0, 0 } // Safe XY position to home Z while avoiding objects on the bed
     #endif
+
+    // Maximum number of consecutive SD card read errors before aborting the print
+    // Prevents infinite loops when reading from SD card with hardware/communication faults
+    #define SD_MAX_READ_ERRORS 5
+
   #endif
 
   /**

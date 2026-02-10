@@ -570,11 +570,30 @@ void GCodeQueue::get_serial_commands() {
     // Get commands if there are more in the file
     if (!card.isStillFetching()) return;
 
+    #if HAS_SD_DETECT
+      // Abort print if SD card was removed mid-print
+      if (!card.isInserted()) {
+        SERIAL_ERROR_MSG(STR_SD_ERR_CARD_REMOVED);
+        card.abortFilePrintNow();
+        return;
+      }
+    #endif
+
     int sd_count = 0;
+    uint16_t sd_read_errors = 0;
     while (!ring_buffer.full() && !card.eof()) {
       const int16_t n = card.get();
       const bool card_eof = card.eof();
-      if (n < 0 && !card_eof) { SERIAL_ERROR_MSG(STR_SD_ERR_READ); continue; }
+      if (n < 0 && !card_eof) {
+        SERIAL_ERROR_MSG(STR_SD_ERR_READ);
+        if (++sd_read_errors >= SD_MAX_READ_ERRORS) {
+          SERIAL_ERROR_MSG(STR_SD_ERR_TOO_MANY_READ_ERRORS);
+          card.abortFilePrintNow();
+          break;
+        }
+        continue;
+      }
+      sd_read_errors = 0; // Reset on successful read
 
       CommandLine &command = ring_buffer.commands[ring_buffer.index_w];
       const char sd_char = (char)n;
