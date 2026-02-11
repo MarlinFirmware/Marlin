@@ -640,18 +640,20 @@ class Stepper {
     // Report the positions of the steppers, in steps
     static void report_a_position(const xyz_long_t &pos);
     static void report_positions();
-
-    // Discard current block and free any resources
-    FORCE_INLINE static void discard_current_block() {
-      #if ENABLED(DIRECT_STEPPING)
-        if (current_block->is_page()) page_manager.free_page(current_block->page_idx);
-      #endif
-      current_block = nullptr;
-      TERN_(HAS_STANDARD_MOTION, axis_did_move.reset());
-      planner.release_current_block();
-      TERN_(HAS_ROUGH_LIN_ADVANCE, la_interval = nextAdvanceISR = LA_ADV_NEVER);
-    }
-
+    
+    #if HAS_STANDARD_MOTION
+      // Discard current block and free any resources
+      FORCE_INLINE static void discard_current_block() {
+        #if ENABLED(DIRECT_STEPPING)
+          if (current_block->is_page()) page_manager.free_page(current_block->page_idx);
+        #endif
+        current_block = nullptr;
+        axis_did_move.reset();
+        planner.release_current_block();
+        TERN_(HAS_ROUGH_LIN_ADVANCE, la_interval = nextAdvanceISR = LA_ADV_NEVER);
+      }
+    #endif
+    
     // Quickly stop all steppers
     FORCE_INLINE static void quick_stop() { abort_current_block = true; }
 
