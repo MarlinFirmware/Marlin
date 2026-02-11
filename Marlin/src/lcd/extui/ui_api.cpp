@@ -189,7 +189,7 @@ namespace ExtUI {
       // Marlin by GCODE routines, but should remain untouched
       // during manual jogging, allowing us to reuse the space
       // for our direction vector.
-      destination = dir;
+      motion.destination = dir;
       flags.jogging = !NEAR_ZERO(dir.x) || !NEAR_ZERO(dir.y) || !NEAR_ZERO(dir.z);
     }
 
@@ -198,7 +198,7 @@ namespace ExtUI {
       if (flags.jogging) {
         #define OUT_OF_RANGE(VALUE) (VALUE < -1.0f || VALUE > 1.0f)
 
-        if (OUT_OF_RANGE(destination.x) || OUT_OF_RANGE(destination.y) || OUT_OF_RANGE(destination.z)) {
+        if (OUT_OF_RANGE(motion.destination.x) || OUT_OF_RANGE(motion.destination.y) || OUT_OF_RANGE(motion.destination.z)) {
           // If destination on any axis is out of range, it
           // probably means the UI forgot to stop jogging and
           // ran GCODE that wrote a position to destination.
@@ -206,7 +206,7 @@ namespace ExtUI {
           flags.jogging = false;
           return;
         }
-        norm_jog = destination;
+        norm_jog = motion.destination;
       }
     }
   #endif
@@ -326,13 +326,13 @@ namespace ExtUI {
   // High level axis and extruder positions
   //
   float getAxisPosition_mm(const axis_t axis) {
-    return current_position[axis];
+    return motion.position[axis];
   }
 
   float getAxisPosition_mm(const extruder_t extruder) {
     const extruder_t old_tool = getActiveTool();
     setActiveTool(extruder, true);
-    const float epos = TERN0(JOYSTICK, flags.jogging) ? destination.e : current_position.e;
+    const float epos = TERN0(JOYSTICK, flags.jogging) ? motion.destination.e : motion.position.e;
     setActiveTool(old_tool, true);
     return epos;
   }
@@ -340,26 +340,26 @@ namespace ExtUI {
   void setAxisPosition_mm(const float position, const axis_t axis, const feedRate_t feedrate/*=0*/) {
     // Get motion limit from software endstops, if any
     float min, max;
-    soft_endstop.get_manual_axis_limits((AxisEnum)axis, min, max);
+    motion.soft_endstop.get_manual_axis_limits((AxisEnum)axis, min, max);
 
     // Delta limits XY based on the current offset from center
     // This assumes the center is 0,0
     #if ENABLED(DELTA)
       if (axis != Z) {
-        max = SQRT(FLOAT_SQ(PRINTABLE_RADIUS) - sq(current_position[Y - axis])); // (Y - axis) == the other axis
+        max = SQRT(FLOAT_SQ(PRINTABLE_RADIUS) - sq(motion.position[Y - axis])); // (Y - axis) == the other axis
         min = -max;
       }
     #endif
 
-    current_position[axis] = constrain(position, min, max);
-    line_to_current_position(feedrate ?: manual_feedrate_mm_s[axis]);
+    motion.position[axis] = constrain(position, min, max);
+    motion.goto_current_position(feedrate ?: manual_feedrate_mm_s[axis]);
   }
 
   void setAxisPosition_mm(const float position, const extruder_t extruder, const feedRate_t feedrate/*=0*/) {
     setActiveTool(extruder, true);
 
-    current_position.e = position;
-    line_to_current_position(feedrate ?: manual_feedrate_mm_s.e);
+    motion.position.e = position;
+    motion.goto_current_position(feedrate ?: manual_feedrate_mm_s.e);
   }
 
   //
@@ -368,8 +368,8 @@ namespace ExtUI {
   void setActiveTool(const extruder_t extruder, bool no_move) {
     #if HAS_MULTI_EXTRUDER
       const uint8_t e = extruder - E0;
-      if (e != active_extruder) tool_change(e, no_move);
-      active_extruder = e;
+      if (e != motion.extruder) tool_change(e, no_move);
+      motion.extruder = e;
     #else
       UNUSED(extruder);
       UNUSED(no_move);
@@ -384,7 +384,7 @@ namespace ExtUI {
     }
   }
 
-  extruder_t getActiveTool() { return getTool(active_extruder); }
+  extruder_t getActiveTool() { return getTool(motion.extruder); }
 
   //
   // Moving axes and extruders
@@ -397,9 +397,9 @@ namespace ExtUI {
   bool canMove(const axis_t axis) {
     switch (axis) {
       #if ANY(IS_KINEMATIC, NO_MOTION_BEFORE_HOMING)
-        OPTCODE(HAS_X_AXIS, case X: return !axis_should_home(X_AXIS))
-        OPTCODE(HAS_Y_AXIS, case Y: return !axis_should_home(Y_AXIS))
-        OPTCODE(HAS_Z_AXIS, case Z: return !axis_should_home(Z_AXIS))
+        OPTCODE(HAS_X_AXIS, case X: return !motion.axis_should_home(X_AXIS))
+        OPTCODE(HAS_Y_AXIS, case Y: return !motion.axis_should_home(Y_AXIS))
+        OPTCODE(HAS_Z_AXIS, case Z: return !motion.axis_should_home(Z_AXIS))
       #else
         case X: case Y: case Z: return true;
       #endif
@@ -427,8 +427,8 @@ namespace ExtUI {
   //
 
   #if HAS_SOFTWARE_ENDSTOPS
-    bool getSoftEndstopState() { return soft_endstop._enabled; }
-    void setSoftEndstopState(const bool value) { soft_endstop._enabled = value; }
+    bool getSoftEndstopState() { return motion.soft_endstop._enabled; }
+    void setSoftEndstopState(const bool value) { motion.soft_endstop._enabled = value; }
   #endif
 
   //
@@ -700,14 +700,14 @@ namespace ExtUI {
     #endif
   #endif
 
-  feedRate_t getFeedrate_mm_s()                       { return feedrate_mm_s; }
+  feedRate_t getFeedrate_mm_s()                       { return motion.feedrate_mm_s; }
   int16_t getFlow_percent(const extruder_t extr)      { return planner.flow_percentage[extr]; }
   feedRate_t getMinFeedrate_mm_s()                    { return planner.settings.min_feedrate_mm_s; }
   feedRate_t getMinTravelFeedrate_mm_s()              { return planner.settings.min_travel_feedrate_mm_s; }
   float getPrintingAcceleration_mm_s2()               { return planner.settings.acceleration; }
   float getRetractAcceleration_mm_s2()                { return planner.settings.retract_acceleration; }
   float getTravelAcceleration_mm_s2()                 { return planner.settings.travel_acceleration; }
-  void setFeedrate_mm_s(const feedRate_t fr)          { feedrate_mm_s = fr; }
+  void setFeedrate_mm_s(const feedRate_t fr)          { motion.feedrate_mm_s = fr; }
   void setFlow_percent(const int16_t flow, const extruder_t extr) { planner.set_flow(extr, flow); }
   void setMinFeedrate_mm_s(const feedRate_t fr)       { planner.settings.min_feedrate_mm_s = fr; }
   void setMinTravelFeedrate_mm_s(const feedRate_t fr) { planner.settings.min_travel_feedrate_mm_s = fr; }
@@ -752,7 +752,7 @@ namespace ExtUI {
 
       #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
         // Make it so babystepping in Z adjusts the Z probe offset.
-        if (axis == Z && TERN1(HAS_MULTI_EXTRUDER, (linked_nozzles || active_extruder == 0)))
+        if (axis == Z && TERN1(HAS_MULTI_EXTRUDER, (linked_nozzles || motion.extruder == 0)))
           probe.offset.z += mm;
       #endif
 
@@ -764,7 +764,7 @@ namespace ExtUI {
          */
         if (!linked_nozzles) {
           HOTEND_LOOP()
-            if (e != active_extruder)
+            if (e != motion.extruder)
               hotend_offset[e][axis] += mm;
 
           TERN_(HAS_X_AXIS, normalizeNozzleOffset(X));
@@ -882,21 +882,21 @@ namespace ExtUI {
 
       void moveToMeshPoint(const xy_uint8_t &pos, const float z) {
         #if ANY(MESH_BED_LEVELING, AUTO_BED_LEVELING_UBL)
-          REMEMBER(fr, feedrate_mm_s);
+          REMEMBER(fr, motion.feedrate_mm_s);
           const float x_target = MESH_MIN_X + pos.x * (MESH_X_DIST),
                       y_target = MESH_MIN_Y + pos.y * (MESH_Y_DIST);
-          if (x_target != current_position.x || y_target != current_position.y) {
+          if (x_target != motion.position.x || y_target != motion.position.y) {
             // If moving across bed, raise nozzle to safe height over bed
-            feedrate_mm_s = z_probe_fast_mm_s;
-            destination.set(current_position.x, current_position.y, Z_CLEARANCE_BETWEEN_PROBES);
-            prepare_line_to_destination();
-            if (XY_PROBE_FEEDRATE_MM_S) feedrate_mm_s = XY_PROBE_FEEDRATE_MM_S;
-            destination.set(x_target, y_target);
-            prepare_line_to_destination();
+            motion.feedrate_mm_s = z_probe_fast_mm_s;
+            motion.destination.set(motion.position.x, motion.position.y, Z_CLEARANCE_BETWEEN_PROBES);
+            motion.prepare_line_to_destination();
+            if (XY_PROBE_FEEDRATE_MM_S) motion.feedrate_mm_s = XY_PROBE_FEEDRATE_MM_S;
+            motion.destination.set(x_target, y_target);
+            motion.prepare_line_to_destination();
           }
-          feedrate_mm_s = z_probe_fast_mm_s;
-          destination.z = z;
-          prepare_line_to_destination();
+          motion.feedrate_mm_s = z_probe_fast_mm_s;
+          motion.destination.z = z;
+          motion.prepare_line_to_destination();
         #else
           UNUSED(pos);
           UNUSED(z);
@@ -924,7 +924,7 @@ namespace ExtUI {
     }
   #endif
 
-  float getFeedrate_percent() { return feedrate_percentage; }
+  float getFeedrate_percent() { return motion.feedrate_percentage; }
 
   #if ENABLED(PIDTEMP)
     float getPID_Kp(const extruder_t tool) { return thermalManager.temp_hotend[tool].pid.p(); }
@@ -959,10 +959,10 @@ namespace ExtUI {
 
   bool commandsInQueue() { return (planner.has_blocks_queued() || queue.has_commands_queued()); }
 
-  bool isAxisPositionKnown(const axis_t axis) { return axis_is_trusted((AxisEnum)axis); }
-  bool isAxisPositionKnown(const extruder_t) { return axis_is_trusted(E_AXIS); }
-  bool isPositionKnown() { return all_axes_trusted(); }
-  bool isMachineHomed() { return all_axes_homed(); }
+  bool isAxisPositionKnown(const axis_t axis) { return motion.axis_is_trusted((AxisEnum)axis); }
+  bool isAxisPositionKnown(const extruder_t) { return motion.axis_is_trusted(E_AXIS); }
+  bool isPositionKnown() { return motion.all_axes_trusted(); }
+  bool isMachineHomed() { return motion.all_axes_homed(); }
 
   PGM_P getFirmwareName_str() {
     static PGMSTR(firmware_name, "Marlin " SHORT_BUILD_VERSION);
@@ -1016,7 +1016,7 @@ namespace ExtUI {
     #endif
   }
 
-  void setFeedrate_percent(const float value) { feedrate_percentage = constrain(value, 10, 500); }
+  void setFeedrate_percent(const float value) { motion.feedrate_percentage = constrain(value, 10, 500); }
 
   void coolDown() { thermalManager.cooldown(); }
 
@@ -1034,7 +1034,7 @@ namespace ExtUI {
     void stdOnPauseMode(
       const PauseMessage message,
       const PauseMode mode/*=PAUSE_MODE_SAME*/,
-      const uint8_t extruder/*=active_extruder*/
+      const uint8_t extruder/*=motion.extruder*/
     ) {
       if (mode != PAUSE_MODE_SAME) pause_mode = mode;
       pauseModeStatus = message;
@@ -1191,7 +1191,7 @@ namespace ExtUI {
   void MarlinUI::pause_show_message(
     const PauseMessage message,
     const PauseMode mode/*=PAUSE_MODE_SAME*/,
-    const uint8_t extruder/*=active_extruder*/
+    const uint8_t extruder/*=motion.extruder*/
   ) {
     ExtUI::onPauseMode(message, mode, extruder);
   }

@@ -93,7 +93,7 @@ void unified_bed_leveling::reset() {
   #if ENABLED(EXTENSIBLE_UI)
     GRID_LOOP(x, y) ExtUI::onMeshUpdate(x, y, 0);
   #endif
-  if (was_enabled) report_current_position();
+  if (was_enabled) motion.report_position();
 }
 
 void unified_bed_leveling::invalidate() {
@@ -184,7 +184,7 @@ void unified_bed_leveling::display_map(const uint8_t map_type) {
   // Add XY probe offset from extruder because probe.probe_at_point() subtracts them when
   // moving to the XY position to be measured. This ensures better agreement between
   // the current Z position after G28 and the mesh values.
-  const xy_int8_t curr = closest_indexes(xy_pos_t(current_position) + probe.offset_xy);
+  const xy_int8_t curr = closest_indexes(xy_pos_t(motion.position) + probe.offset_xy);
 
   if (!lcd) SERIAL_EOL();
   for (int8_t j = (GRID_MAX_POINTS_Y) - 1; j >= 0; j--) {

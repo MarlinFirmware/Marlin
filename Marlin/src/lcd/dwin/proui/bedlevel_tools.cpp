@@ -117,7 +117,7 @@ bool drawing_mesh = false;
 #endif
 
 void BedLevelTools::manualValueUpdate(const uint8_t mesh_x, const uint8_t mesh_y, const bool reset/*=false*/) {
-  const float zval = reset ? 0.0f : current_position.z;
+  const float zval = reset ? 0.0f : motion.position.z;
   queue.inject(TS(F("M421I"), mesh_x, F("J"), mesh_y, F("Z"), p_float_t(zval, 3)));
   planner.synchronize();
 }
@@ -131,8 +131,8 @@ void BedLevelTools::manualMove(const uint8_t mesh_x, const uint8_t mesh_y, bool 
     gcode.process_subcommands_now(TS(F("G42 F4000 I"), mesh_x, F(" J"), mesh_y));
   }
   planner.synchronize();
-  current_position.z = goto_mesh_value ? bedlevel.z_values[mesh_x][mesh_y] : Z_CLEARANCE_BETWEEN_PROBES;
-  planner.buffer_line(current_position, homing_feedrate(Z_AXIS), active_extruder);
+  motion.position.z = goto_mesh_value ? bedlevel.z_values[mesh_x][mesh_y] : Z_CLEARANCE_BETWEEN_PROBES;
+  planner.buffer_line(motion.position, motion.homing_feedrate(Z_AXIS), motion.extruder);
   planner.synchronize();
   if (!zmove) hmiReturnScreen();
 }
