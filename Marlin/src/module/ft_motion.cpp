@@ -63,9 +63,6 @@ void ft_config_t::update_shaping_params() { TERN_(HAS_FTM_SHAPING, ftMotion.upda
 ft_config_t FTMotion::cfg;
 bool FTMotion::busy; // = false
 
-AxisBits FTMotion::moving_axis_flags,           // These axes are moving in the planner block being processed
-         FTMotion::axis_move_dir;               // ...in these directions
-
 // Private variables.
 
 // Block data variables.
@@ -248,7 +245,7 @@ void FTMotion::reset() {
   TERN_(HAS_EXTRUDERS, prev_traj_e = 0.0f);  // Reset linear advance variables.
   TERN_(DISTINCT_E_FACTORS, block_extruder_axis = E_AXIS);
 
-  moving_axis_flags.reset();
+  stepper.axis_did_move.reset();
   last_target_traj.reset();
   #if HAS_FTM_DIR_CHANGE_HOLD
     last_traj_dir.reset();
@@ -389,11 +386,6 @@ bool FTMotion::plan_next_block() {
       recovery.info.current_position = current_block->start_position;
     #endif
 
-    // Some kinematics track axis motion in RX, RY, RZ
-    TERN_(HAS_REAL_X, stepper.last_direction_bits.rx = current_block->direction_bits.rx);
-    TERN_(HAS_REAL_Y, stepper.last_direction_bits.ry = current_block->direction_bits.ry);
-    TERN_(HAS_REAL_Z, stepper.last_direction_bits.rz = current_block->direction_bits.rz);
-
     // Cache the extruder index / axis for this block
     #if ANY(HAS_MULTI_EXTRUDER, MIXING_EXTRUDER)
       stepper.stepper_extruder = current_block->extruder;
@@ -415,16 +407,17 @@ bool FTMotion::plan_next_block() {
 
     TERN_(FTM_HAS_LIN_ADVANCE, use_advance_lead = current_block->use_advance_lead);
 
-    axis_move_dir = current_block->direction_bits;
+    // Update stepper direction bits for the next block whatever printer type.
+    stepper.last_direction_bits = current_block->direction_bits;
 
     // Set moving flags for axes that have movement in this block
     // For CORE kinematics: moveDist.x/.y/.z contain motor distances (a/b/c)
     // HEAD movement flags need to be inferred: if either motor moves, the head moves
-    #define _SET_MOVE_END(A) moving_axis_flags.A = bool(moveDist.A);
+    #define _SET_MOVE_END(A) stepper.axis_did_move.A = bool(moveDist.A);
     LOGICAL_AXIS_MAP(_SET_MOVE_END);
-    TERN_(HAS_REAL_X, moving_axis_flags.rx = bool(moveDist.real.x));
-    TERN_(HAS_REAL_Y, moving_axis_flags.ry = bool(moveDist.real.y));
-    TERN_(HAS_REAL_Z, moving_axis_flags.rz = bool(moveDist.real.z));
+    TERN_(HAS_REAL_X, stepper.axis_did_move.rx = bool(moveDist.real.x));
+    TERN_(HAS_REAL_Y, stepper.axis_did_move.ry = bool(moveDist.real.y));
+    TERN_(HAS_REAL_Z, stepper.axis_did_move.rz = bool(moveDist.real.z));
 
     // If the endstop is already pressed, endstop interrupts won't invoke
     // endstop_triggered and the move will grind. So check here for a

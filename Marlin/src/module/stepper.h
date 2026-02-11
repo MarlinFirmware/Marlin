@@ -428,9 +428,7 @@ class Stepper {
 
     static AxisBits last_direction_bits;  // The last set of directions applied to all axes
 
-    #if HAS_STANDARD_MOTION
-      static AxisBits axis_did_move;      // Last Movement in the given direction is not null, as computed when the last movement was fetched from planner
-    #endif
+    static AxisBits axis_did_move;      // Last Movement in the given direction is not null, as computed when the last movement was fetched from planner
 
     static bool abort_current_block;      // Signals to the stepper that current block should be aborted
 
@@ -660,10 +658,8 @@ class Stepper {
     // The direction of a single motor and/or real axis. A true result indicates forward or positive motion.
     FORCE_INLINE static bool axis_direction(const AxisEnum real) { return last_direction_bits[real]; }
 
-    #if HAS_STANDARD_MOTION
-      // The last segment moved on the specified motor and/or real axis.
-      FORCE_INLINE static bool axis_is_moving(const AxisEnum real) { return axis_did_move[real]; }
-    #endif
+    // The last segment moved on the specified motor and/or real axis.
+    FORCE_INLINE static bool axis_is_moving(const AxisEnum real) { return axis_did_move[real]; }
 
     // Handle a triggered endstop
     static void endstop_triggered(const AxisEnum axis);

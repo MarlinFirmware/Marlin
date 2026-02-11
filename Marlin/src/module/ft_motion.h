@@ -262,9 +262,6 @@ class FTMotion {
       reset();
     }
 
-    static AxisBits moving_axis_flags,                    // These axes are moving in the planner block being processed
-                    axis_move_dir;                        // ...in these directions
-
     // Public methods
     static void init();
     static void loop();                                   // Controller main, to be invoked from non-isr task.
@@ -299,13 +296,6 @@ class FTMotion {
     #endif
     static TrajectoryType getTrajectoryType() { return TERN(FTM_POLYS, trajectoryType, TrajectoryType::TRAPEZOIDAL); }
     static FSTR_P getTrajectoryName();
-
-    FORCE_INLINE static bool axis_is_moving(const AxisEnum real) {
-      return cfg.active ? moving_axis_flags[real] : TERN0(HAS_STANDARD_MOTION, stepper.axis_is_moving(real));
-    }
-    FORCE_INLINE static bool axis_direction(const AxisEnum real) {
-      return cfg.active ? axis_move_dir[real] : stepper.last_direction_bits[real];
-    }
 
     // A frame of the stepping plan
     static stepping_t stepping;
