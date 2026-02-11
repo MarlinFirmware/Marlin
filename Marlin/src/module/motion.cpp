@@ -1085,17 +1085,6 @@ void Motion::blocking_move(const xy_pos_t &raw, const feedRate_t fr_mm_s/*=0.0f*
     #endif
   }
 
-  #if ALL(DWIN_LCD_PROUI, INDIVIDUAL_AXIS_HOMING_SUBMENU, MESH_BED_LEVELING)
-    #include "../lcd/e3v2/proui/dwin.h" // for Z_POST_CLEARANCE
-  #endif
-  #ifndef Z_POST_CLEARANCE  // May be set by proui/dwin.h :-P
-    #ifdef Z_AFTER_HOMING
-      #define Z_POST_CLEARANCE Z_AFTER_HOMING
-    #else
-      #define Z_POST_CLEARANCE Z_CLEARANCE_FOR_HOMING
-    #endif
-  #endif
-
   void Motion::do_z_post_clearance() { do_z_clearance(Z_POST_CLEARANCE); }
 
 #endif // HAS_Z_AXIS
