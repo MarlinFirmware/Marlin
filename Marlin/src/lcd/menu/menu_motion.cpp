@@ -55,13 +55,13 @@ void lcd_move_axis(const AxisEnum axis) {
   if (ui.encoderPosition && !ui.manual_move.processing) {
     // Get motion limit from software endstops, if any
     float min, max;
-    soft_endstop.get_manual_axis_limits(axis, min, max);
+    motion.soft_endstop.get_manual_axis_limits(axis, min, max);
 
     // Delta limits XY based on the current offset from center
     // This assumes the center is 0,0
     #if ENABLED(DELTA)
       if (axis != Z_AXIS) {
-        max = SQRT(FLOAT_SQ(PRINTABLE_RADIUS) - sq(current_position[Y_AXIS - axis])); // (Y_AXIS - axis) == the other axis
+        max = SQRT(FLOAT_SQ(PRINTABLE_RADIUS) - sq(motion.position[Y_AXIS - axis])); // (Y_AXIS - axis) == the other axis
         min = -max;
       }
     #endif
@@ -87,12 +87,12 @@ void lcd_move_axis(const AxisEnum axis) {
 
 #if E_MANUAL
 
-  static void lcd_move_e(TERN_(MULTI_E_MANUAL, const int8_t eindex=active_extruder)) {
+  static void lcd_move_e(TERN_(MULTI_E_MANUAL, const int8_t eindex=motion.extruder)) {
     if (ui.use_click()) return ui.goto_previous_screen_no_defer();
     if (ui.encoderPosition) {
       if (!ui.manual_move.processing) {
         const float diff = float(int32_t(ui.encoderPosition)) * ui.manual_move.menu_scale;
-        TERN(IS_KINEMATIC, ui.manual_move.offset, current_position.e) += diff;
+        TERN(IS_KINEMATIC, ui.manual_move.offset, motion.position.e) += diff;
         ui.manual_move.soon(E_AXIS OPTARG(MULTI_E_MANUAL, eindex));
         ui.refresh(LCDVIEW_REDRAW_NOW);
       }
@@ -102,7 +102,7 @@ void lcd_move_axis(const AxisEnum axis) {
       TERN_(MULTI_E_MANUAL, MenuItemBase::init(eindex));
       MenuEditItemBase::draw_edit_screen(
         GET_TEXT_F(TERN(MULTI_E_MANUAL, MSG_MOVE_EN, MSG_MOVE_E)),
-        ftostr41sign(current_position.e
+        ftostr41sign(motion.position.e
           PLUS_TERN0(IS_KINEMATIC, ui.manual_move.offset)
           MINUS_TERN0(MANUAL_E_MOVES_RELATIVE, ui.manual_move.e_origin)
         )
@@ -136,14 +136,14 @@ void _goto_manual_move(const float scale) {
   thermalManager.set_menu_cold_override(true);
 }
 
-void _menu_move_distance(const AxisEnum axis, const screenFunc_t func, const int8_t eindex=active_extruder) {
+void _menu_move_distance(const AxisEnum axis, const screenFunc_t func, const int8_t eindex=motion.extruder) {
   ui.manual_move.screen_ptr = func;
   START_MENU();
   if (LCD_HEIGHT >= 4) {
     if (axis < NUM_AXES)
       STATIC_ITEM_N(axis, MSG_MOVE_N, SS_DEFAULT|SS_INVERT);
     else {
-      TERN_(MANUAL_E_MOVES_RELATIVE, ui.manual_move.e_origin = current_position.e);
+      TERN_(MANUAL_E_MOVES_RELATIVE, ui.manual_move.e_origin = motion.position.e);
       STATIC_ITEM_N(eindex, MSG_MOVE_EN, SS_DEFAULT|SS_INVERT);
     }
   }
@@ -193,7 +193,7 @@ void _menu_move_distance(const AxisEnum axis, const screenFunc_t func, const int
   }
 
   inline void _menu_move_distance_e_maybe() {
-    if (thermalManager.tooColdToExtrude(active_extruder)) {
+    if (thermalManager.tooColdToExtrude(motion.extruder)) {
       ui.goto_screen([]{
         MenuItem_confirm::select_screen(
           GET_TEXT_F(MSG_BUTTON_PROCEED), GET_TEXT_F(MSG_BACK),
@@ -213,12 +213,12 @@ void menu_move() {
   BACK_ITEM(MSG_MOTION);
 
   #if ALL(HAS_SOFTWARE_ENDSTOPS, SOFT_ENDSTOPS_MENU_ITEM)
-    EDIT_ITEM(bool, MSG_LCD_SOFT_ENDSTOPS, &soft_endstop._enabled);
+    EDIT_ITEM(bool, MSG_LCD_SOFT_ENDSTOPS, &motion.soft_endstop._enabled);
   #endif
 
   // Move submenu for each axis
-  if (NONE(IS_KINEMATIC, NO_MOTION_BEFORE_HOMING) || all_axes_homed()) {
-    if (TERN1(DELTA, current_position.z <= delta_clip_start_height)) {
+  if (NONE(IS_KINEMATIC, NO_MOTION_BEFORE_HOMING) || motion.all_axes_homed()) {
+    if (TERN1(DELTA, motion.position.z <= delta_clip_start_height)) {
       #if HAS_X_AXIS
         SUBMENU_N(X_AXIS, MSG_MOVE_N, []{ _menu_move_distance(X_AXIS, []{ lcd_move_axis(X_AXIS); }); });
       #endif
@@ -242,7 +242,7 @@ void menu_move() {
   #if ANY(HAS_SWITCHING_EXTRUDER, HAS_SWITCHING_NOZZLE, MAGNETIC_SWITCHING_TOOLHEAD)
 
     #if EXTRUDERS >= 4
-      switch (active_extruder) {
+      switch (motion.extruder) {
         case 0: GCODES_ITEM_N(1, MSG_SELECT_E, F("T1")); break;
         case 1: GCODES_ITEM_N(0, MSG_SELECT_E, F("T0")); break;
         case 2: GCODES_ITEM_N(3, MSG_SELECT_E, F("T3")); break;
@@ -253,15 +253,15 @@ void menu_move() {
         #endif
       }
     #elif EXTRUDERS == 3
-      if (active_extruder < 2)
-        GCODES_ITEM_N(1 - active_extruder, MSG_SELECT_E, active_extruder ? F("T0") : F("T1"));
+      if (motion.extruder < 2)
+        GCODES_ITEM_N(1 - motion.extruder, MSG_SELECT_E, motion.extruder ? F("T0") : F("T1"));
     #else
-      GCODES_ITEM_N(1 - active_extruder, MSG_SELECT_E, active_extruder ? F("T0") : F("T1"));
+      GCODES_ITEM_N(1 - motion.extruder, MSG_SELECT_E, motion.extruder ? F("T0") : F("T1"));
     #endif
 
   #elif ENABLED(DUAL_X_CARRIAGE)
 
-    GCODES_ITEM_N(1 - active_extruder, MSG_SELECT_E, active_extruder ? F("T0") : F("T1"));
+    GCODES_ITEM_N(1 - motion.extruder, MSG_SELECT_E, motion.extruder ? F("T0") : F("T1"));
 
   #endif
 
@@ -628,7 +628,7 @@ void menu_motion() {
   //
   // Move Axis
   //
-  if (TERN1(DELTA, all_axes_homed()))
+  if (TERN1(DELTA, motion.all_axes_homed()))
     SUBMENU(MSG_MOVE_AXIS, menu_move);
 
   //

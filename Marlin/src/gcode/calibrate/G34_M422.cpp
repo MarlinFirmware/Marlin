@@ -167,7 +167,7 @@ void GcodeSuite::G34() {
       ));
 
       // Home before the alignment procedure
-      home_if_needed();
+      motion.home_if_needed();
 
       #if !HAS_Z_STEPPER_ALIGN_STEPPER_XY
         float last_z_align_move[NUM_Z_STEPPERS] = ARRAY_N_1(NUM_Z_STEPPERS, 10000.0f);
@@ -217,7 +217,7 @@ void GcodeSuite::G34() {
 
           // Probe a Z height for each stepper.
           // Probing sanity check is disabled, as it would trigger even in normal cases because
-          // current_position.z has been manually altered in the "dirty trick" above.
+          // motion.position.z has been manually altered in the "dirty trick" above.
 
           const float minz = (Z_PROBE_LOW_POINT) - (z_probe * 0.5f);
 
@@ -228,7 +228,7 @@ void GcodeSuite::G34() {
           }
 
           const float z_probed_height = probe.probe_at_point(
-            DIFF_TERN(HAS_HOME_OFFSET, ppos, xy_pos_t(home_offset)),   // xy
+            DIFF_TERN(HAS_HOME_OFFSET, ppos, xy_pos_t(motion.home_offset)), // xy
             raise_after,                                               // raise_after
             (DEBUGGING(LEVELING) || DEBUGGING(INFO)) ? 3 : 0,          // verbose_level
             true, false,                                               // probe_relative, sanity_check
@@ -396,7 +396,7 @@ void GcodeSuite::G34() {
           #endif
 
           // Do a move to correct part of the misalignment for the current stepper
-          do_blocking_move_to_z(amplification * z_align_move + current_position.z);
+          motion.blocking_move_z(amplification * z_align_move + motion.position.z);
         } // for (zstepper)
 
         // Back to normal stepper operations
@@ -440,8 +440,8 @@ void GcodeSuite::G34() {
           );
 
         if (!err_break)
-          current_position.z -= z_measured_min - (Z_TWEEN_SAFE_CLEARANCE + zoffs); // We shouldn't want to subtract the clearance from here right? (Depends if we added it further up)
-        sync_plan_position();
+          motion.position.z -= z_measured_min - (Z_TWEEN_SAFE_CLEARANCE + zoffs); // We shouldn't want to subtract the clearance from here right? (Depends if we added it further up)
+        motion.sync_plan_position();
       #endif
 
       #ifdef EVENT_GCODE_AFTER_G34

@@ -3047,9 +3047,10 @@
 #endif
 
 // User Interface
-#if ENABLED(FREEZE_FEATURE) && !PIN_EXISTS(FREEZE) && PIN_EXISTS(KILL)
+#if ENABLED(FREEZE_FEATURE) && DISABLED(NO_FREEZE_PIN) && !PIN_EXISTS(FREEZE) && PIN_EXISTS(KILL)
   #define FREEZE_PIN KILL_PIN
-#elif PIN_EXISTS(KILL) && TERN1(FREEZE_FEATURE, KILL_PIN != FREEZE_PIN)
+  #define FREEZE_STOLE_KILL_PIN_WARNING 1
+#elif PIN_EXISTS(KILL) && TERN1(HAS_FREEZE_PIN, KILL_PIN != FREEZE_PIN)
   #define HAS_KILL 1
 #endif
 #if PIN_EXISTS(HOME)
@@ -3250,7 +3251,7 @@
     #define ENDSTOPPULLUP_ZMIN_PROBE
   #endif
   #ifndef XY_PROBE_FEEDRATE
-    #define XY_PROBE_FEEDRATE ((homing_feedrate_mm_m.x + homing_feedrate_mm_m.y) / 2)
+    #define XY_PROBE_FEEDRATE ((motion.homing_feedrate_mm_m.x + motion.homing_feedrate_mm_m.y) / 2)
   #endif
   #ifndef NOZZLE_TO_PROBE_OFFSET
     #define NOZZLE_TO_PROBE_OFFSET { 0, 0, 0 }

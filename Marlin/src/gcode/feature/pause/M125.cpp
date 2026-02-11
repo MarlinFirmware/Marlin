@@ -68,15 +68,15 @@ void GcodeSuite::M125() {
 
   // Move to filament change position or given position
   NUM_AXIS_CODE(
-    if (parser.seenval('X')) park_point.x = RAW_X_POSITION(parser.linearval('X')),
-    if (parser.seenval('Y')) park_point.y = RAW_Y_POSITION(parser.linearval('Y')),
+    if (parser.seenval('X')) park_point.x = motion.raw_x(parser.linearval('X')),
+    if (parser.seenval('Y')) park_point.y = motion.raw_y(parser.linearval('Y')),
     NOOP,
-    if (parser.seenval(AXIS4_NAME)) park_point.i = RAW_I_POSITION(parser.linearval(AXIS4_NAME)),
-    if (parser.seenval(AXIS5_NAME)) park_point.j = RAW_J_POSITION(parser.linearval(AXIS5_NAME)),
-    if (parser.seenval(AXIS6_NAME)) park_point.k = RAW_K_POSITION(parser.linearval(AXIS6_NAME)),
-    if (parser.seenval(AXIS7_NAME)) park_point.u = RAW_U_POSITION(parser.linearval(AXIS7_NAME)),
-    if (parser.seenval(AXIS8_NAME)) park_point.v = RAW_V_POSITION(parser.linearval(AXIS8_NAME)),
-    if (parser.seenval(AXIS9_NAME)) park_point.w = RAW_W_POSITION(parser.linearval(AXIS9_NAME))
+    if (parser.seenval(AXIS4_NAME)) park_point.i = motion.raw_i(parser.linearval(AXIS4_NAME)),
+    if (parser.seenval(AXIS5_NAME)) park_point.j = motion.raw_j(parser.linearval(AXIS5_NAME)),
+    if (parser.seenval(AXIS6_NAME)) park_point.k = motion.raw_k(parser.linearval(AXIS6_NAME)),
+    if (parser.seenval(AXIS7_NAME)) park_point.u = motion.raw_u(parser.linearval(AXIS7_NAME)),
+    if (parser.seenval(AXIS8_NAME)) park_point.v = motion.raw_v(parser.linearval(AXIS8_NAME)),
+    if (parser.seenval(AXIS9_NAME)) park_point.w = motion.raw_w(parser.linearval(AXIS9_NAME))
   );
 
   // Lift Z axis
@@ -85,7 +85,7 @@ void GcodeSuite::M125() {
   #endif
 
   #if HAS_HOTEND_OFFSET && NONE(DUAL_X_CARRIAGE, DELTA)
-    park_point += hotend_offset[active_extruder];
+    park_point += hotend_offset[motion.extruder];
   #endif
 
   const bool sd_printing = card.isStillPrinting();

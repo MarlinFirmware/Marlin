@@ -199,8 +199,14 @@ uint32_t Stepper::acceleration_time, Stepper::deceleration_time;
   constexpr uint8_t Stepper::oversampling_factor; // = 0
 #endif
 
-#if ENABLED(FREEZE_FEATURE)
-  bool Stepper::frozen; // = false
+#if ANY(SOFT_FEED_HOLD, FREEZE_FEATURE)
+  frozen_state_t Stepper::frozen_state; // Frozen flags
+#endif
+#if ENABLED(SOFT_FEED_HOLD)
+  uint32_t Stepper::frozen_time;        // How much time has passed since frozen_state was triggered?
+  #if ENABLED(LASER_FEATURE)
+    uint8_t frozen_last_laser_power;    // Saved laser power prior to halting motion
+  #endif
 #endif
 
 // Delta error variables for the Bresenham line tracer
@@ -257,7 +263,7 @@ uint32_t Stepper::advance_divisor = 0,
  * Standard Motion Non-linear Extrusion state
  */
 #if ENABLED(NONLINEAR_EXTRUSION)
-  nonlinear_t Stepper::ne;              // Initialized by settings.load
+  nonlinear_t Stepper::nle;             // Initialized by settings.load
 #endif
 
 #if HAS_ZV_SHAPING
@@ -676,7 +682,7 @@ void Stepper::disable_all_steppers() {
 // Set a single axis direction based on the last set flags.
 // A direction bit of "1" indicates forward or positive motion.
 #define SET_STEP_DIR(A) do{                     \
-    const bool fwd = motor_direction(_AXIS(A)); \
+    const bool fwd = axis_direction(_AXIS(A));  \
     A##_APPLY_DIR(fwd, false);                  \
     count_direction[_AXIS(A)] = fwd ? 1 : -1;   \
   }while(0)
@@ -1846,7 +1852,11 @@ void Stepper::isr() {
     if (!current_block || step_events_completed >= step_event_count) return;
 
     // Skipping step processing causes motion to freeze
-    if (TERN0(FREEZE_FEATURE, frozen)) return;
+    #if ENABLED(SOFT_FEED_HOLD)
+      if (frozen_state.triggered && frozen_state.solid) return;
+    #elif ENABLED(FREEZE_FEATURE)
+      if (frozen_state.state == 0) return;
+    #endif
 
     // Count of pending loops and events for this iteration
     const uint32_t pending_events = step_event_count - step_events_completed;
@@ -2245,11 +2255,11 @@ void Stepper::isr() {
 
   #if NONLINEAR_EXTRUSION_Q24
     void Stepper::calc_nonlinear_e(const uint32_t step_rate) {
-      const uint32_t velocity_q24 = ne.scale_q24 * step_rate; // Scale step_rate first so all intermediate values stay in range of 8.24 fixed point math
-      int32_t vd_q24 = ((((int64_t(ne.q24.A) * velocity_q24) >> 24) * velocity_q24) >> 24) + ((int64_t(ne.q24.B) * velocity_q24) >> 24);
+      const uint32_t velocity_q24 = nle.scale_q24 * step_rate; // Scale step_rate first so all intermediate values stay in range of 8.24 fixed point math
+      int32_t vd_q24 = ((((int64_t(nle.q24.A) * velocity_q24) >> 24) * velocity_q24) >> 24) + ((int64_t(nle.q24.B) * velocity_q24) >> 24);
       NOLESS(vd_q24, 0);
 
-      advance_dividend.e = (uint64_t(ne.q24.C + vd_q24) * ne.edividend) >> 24;
+      advance_dividend.e = (uint64_t(nle.q24.C + vd_q24) * nle.edividend) >> 24;
     }
   #endif
 
@@ -2379,19 +2389,12 @@ void Stepper::isr() {
     #endif
 
     // Set flags for all axes that move in this block
-    // These are set per-axis, not per-stepper
     AxisBits didmove;
-    NUM_AXIS_CODE(
-      if (X_MOVE_TEST)              didmove.a = true, // Cartesian X or Kinematic A
-      if (Y_MOVE_TEST)              didmove.b = true, // Cartesian Y or Kinematic B
-      if (Z_MOVE_TEST)              didmove.c = true, // Cartesian Z or Kinematic C
-      if (!!current_block->steps.i) didmove.i = true,
-      if (!!current_block->steps.j) didmove.j = true,
-      if (!!current_block->steps.k) didmove.k = true,
-      if (!!current_block->steps.u) didmove.u = true,
-      if (!!current_block->steps.v) didmove.v = true,
-      if (!!current_block->steps.w) didmove.w = true
-    );
+    #define _DID_MOVE(A) didmove.A = bool(current_block->steps.A);
+    MAIN_AXIS_MAP(_DID_MOVE);
+    TERN_(HAS_REAL_X, didmove.rx = X_MOVE_TEST);  // Cartesian X
+    TERN_(HAS_REAL_Y, didmove.ry = Y_MOVE_TEST);  //       ... Y
+    TERN_(HAS_REAL_Z, didmove.rz = Z_MOVE_TEST);  //       ... Z
     axis_did_move = didmove;
   }
 
@@ -2417,6 +2420,10 @@ void Stepper::isr() {
 
     // If no queued movements, just wait 1ms for the next block
     hal_timer_t interval = (STEPPER_TIMER_RATE) / 1000UL;
+
+    // Frozen solid?? Exit and do not fetch blocks.
+    if (TERN0(SOFT_FEED_HOLD, frozen_state.triggered && frozen_state.solid))
+      return interval;
 
     // If there is a current block
     if (current_block) {
@@ -2460,10 +2467,15 @@ void Stepper::isr() {
 
           // acc_step_rate is in steps/second
 
+          // Modify acc_step_rate if the machine is freezing
+          TERN_(SOFT_FEED_HOLD, check_frozen_time(acc_step_rate));
+
           // step_rate to timer interval and steps per stepper isr
           interval = calc_multistep_timer_interval(acc_step_rate << oversampling_factor);
           acceleration_time += interval;
           deceleration_time = 0; // Reset since we're doing acceleration first.
+
+          TERN_(SOFT_FEED_HOLD, check_frozen_state(FREEZE_ACCELERATION, interval));
 
           // Apply Nonlinear Extrusion, if enabled
           calc_nonlinear_e(acc_step_rate << oversampling_factor);
@@ -2526,9 +2538,13 @@ void Stepper::isr() {
 
           #endif
 
+          TERN_(SOFT_FEED_HOLD, check_frozen_time(step_rate));
+
           // step_rate to timer interval and steps per stepper isr
           interval = calc_multistep_timer_interval(step_rate << oversampling_factor);
           deceleration_time += interval;
+
+          TERN_(SOFT_FEED_HOLD, check_frozen_state(FREEZE_DECELERATION, interval));
 
           // Apply Nonlinear Extrusion, if enabled
           calc_nonlinear_e(step_rate << oversampling_factor);
@@ -2540,7 +2556,7 @@ void Stepper::isr() {
                 const bool forward_e = la_step_rate < step_rate;
                 la_interval = calc_timer_interval((forward_e ? step_rate - la_step_rate : la_step_rate - step_rate) >> current_block->la_scaling);
 
-                if (forward_e != motor_direction(E_AXIS)) {
+                if (forward_e != axis_direction(E_AXIS)) {
                   last_direction_bits.toggle(E_AXIS);
                   count_direction.e *= -1;
 
@@ -2576,21 +2592,25 @@ void Stepper::isr() {
         else {  // Must be in cruise phase otherwise
 
           // Calculate the ticks_nominal for this nominal speed, if not done yet
-          if (ticks_nominal == 0) {
+          if (ticks_nominal == 0 || TERN0(SOFT_FEED_HOLD, frozen_time)) {
+            uint32_t step_rate = current_block->nominal_rate;
+
+            TERN_(SOFT_FEED_HOLD, check_frozen_time(step_rate));
+
             // step_rate to timer interval and loops for the nominal speed
-            ticks_nominal = calc_multistep_timer_interval(current_block->nominal_rate << oversampling_factor);
+            ticks_nominal = calc_multistep_timer_interval(step_rate << oversampling_factor);
             deceleration_time = ticks_nominal / 2;
 
             // Prepare for deceleration
-            IF_DISABLED(S_CURVE_ACCELERATION, acc_step_rate = current_block->nominal_rate);
+            IF_DISABLED(S_CURVE_ACCELERATION, acc_step_rate = step_rate);
             TERN_(SMOOTH_LIN_ADVANCE, curr_step_rate = current_block->nominal_rate);
 
             // Apply Nonlinear Extrusion, if enabled
-            calc_nonlinear_e(current_block->nominal_rate << oversampling_factor);
+            calc_nonlinear_e(step_rate << oversampling_factor);
 
             #if HAS_ROUGH_LIN_ADVANCE
               if (la_active)
-                la_interval = calc_timer_interval(current_block->nominal_rate >> current_block->la_scaling);
+                la_interval = calc_timer_interval(step_rate >> current_block->la_scaling);
             #endif
 
             // Adjust Laser Power - Cruise
@@ -2610,6 +2630,8 @@ void Stepper::isr() {
 
           // The timer interval is just the nominal value for the nominal speed
           interval = ticks_nominal;
+
+          TERN_(SOFT_FEED_HOLD, check_frozen_state(FREEZE_CRUISE, interval));
         }
       }
 
@@ -2631,9 +2653,12 @@ void Stepper::isr() {
       #endif
     }
     else { // !current_block
+      TERN_(SOFT_FEED_HOLD, check_frozen_state(FREEZE_STATIONARY, interval));
+
       #if ENABLED(LASER_FEATURE)
+        // If no movement in dynamic mode turn Laser off
         if (cutter.cutter_mode == CUTTER_MODE_DYNAMIC)
-          cutter.apply_power(0);  // No movement in dynamic mode so turn Laser off
+          cutter.apply_power(0);
       #endif
     }
 
@@ -2902,27 +2927,36 @@ void Stepper::isr() {
 
         // Calculate Nonlinear Extrusion fixed-point quotients
         #if NONLINEAR_EXTRUSION_Q24
-          ne.edividend = advance_dividend.e;
-          const float scale = (float(ne.edividend) / advance_divisor) * planner.mm_per_step[E_AXIS_N(current_block->extruder)];
-          ne.scale_q24 = _BV32(24) * scale;
-          if (ne.settings.enabled && current_block->direction_bits.e && XYZ_HAS_STEPS(current_block)) {
-            ne.q24.A = _BV32(24) * ne.settings.coeff.A;
-            ne.q24.B = _BV32(24) * ne.settings.coeff.B;
-            ne.q24.C = _BV32(24) * ne.settings.coeff.C;
+          nle.edividend = advance_dividend.e;
+          const float scale = (float(nle.edividend) / advance_divisor) * planner.mm_per_step[E_AXIS_N(current_block->extruder)];
+          nle.scale_q24 = _BV32(24) * scale;
+          if (nle.settings.enabled && current_block->direction_bits.e && XYZ_HAS_STEPS(current_block)) {
+            nle.q24.A = _BV32(24) * nle.settings.coeff.A;
+            nle.q24.B = _BV32(24) * nle.settings.coeff.B;
+            nle.q24.C = _BV32(24) * nle.settings.coeff.C;
           }
           else {
-            ne.q24.A = ne.q24.B = 0;
-            ne.q24.C = _BV32(24);
+            nle.q24.A = nle.q24.B = 0;
+            nle.q24.C = _BV32(24);
           }
         #endif
 
+        uint32_t initial_rate = current_block->initial_rate;
+
+        #if ENABLED(SOFT_FEED_HOLD)
+          if (frozen_time) check_frozen_time(initial_rate);
+        #endif
+
         // Calculate the initial timer interval
-        interval = calc_multistep_timer_interval(current_block->initial_rate << oversampling_factor);
+        interval = calc_multistep_timer_interval(initial_rate << oversampling_factor);
+
+        TERN_(SOFT_FEED_HOLD, check_frozen_state(FREEZE_ACCELERATION, interval));
+
         // Initialize ac/deceleration time as if half the time passed.
         acceleration_time = deceleration_time = interval / 2;
 
         // Apply Nonlinear Extrusion, if enabled
-        calc_nonlinear_e(current_block->initial_rate << oversampling_factor);
+        calc_nonlinear_e(initial_rate << oversampling_factor);
 
         #if ENABLED(LIN_ADVANCE)
           #if ENABLED(SMOOTH_LIN_ADVANCE)
@@ -2930,7 +2964,7 @@ void Stepper::isr() {
           #else
             if (la_active) {
               const uint32_t la_step_rate = la_advance_steps < current_block->max_adv_steps ? current_block->la_advance_rate : 0;
-              la_interval = calc_timer_interval((current_block->initial_rate + la_step_rate) >> current_block->la_scaling);
+              la_interval = calc_timer_interval((initial_rate + la_step_rate) >> current_block->la_scaling);
             }
           #endif
         #endif
@@ -2959,16 +2993,16 @@ void Stepper::isr() {
         const bool forward_e = step_rate > 0;
 
         #if ENABLED(NONLINEAR_EXTRUSION)
-          if (ne.settings.enabled && forward_e && XYZ_HAS_STEPS(current_block)) {
+          if (nle.settings.enabled && forward_e && XYZ_HAS_STEPS(current_block)) {
             // Maximum polynomial value is just above 1, like 1.05..1.2, less than 2 anyway, so we can use 30 bits for fractional part
-            int32_t vd_q30 = ne.q30.A * sq(step_rate) + ne.q30.B * step_rate;
+            int32_t vd_q30 = nle.q30.A * sq(step_rate) + nle.q30.B * step_rate;
             NOLESS(vd_q30, 0);
-            step_rate = (int64_t(step_rate) * (ne.q30.C + vd_q30)) >> 30;
+            step_rate = (int64_t(step_rate) * (nle.q30.C + vd_q30)) >> 30;
           }
         #endif
 
         la_interval = calc_timer_interval(uint32_t(ABS(step_rate)));
-        if (forward_e != motor_direction(E_AXIS)) {
+        if (forward_e != axis_direction(E_AXIS)) {
           last_direction_bits.toggle(E_AXIS);
           count_direction.e *= -1;
           DIR_WAIT_BEFORE();
@@ -3070,7 +3104,7 @@ void Stepper::isr() {
     hal_timer_t Stepper::smooth_lin_adv_isr() {
       int32_t target_adv_steps = 0;
       if (current_block) {
-        const uint32_t stepper_ticks = extruder_advance_tau_ticks[E_INDEX_N(active_extruder)] + curr_timer_tick;
+        const uint32_t stepper_ticks = extruder_advance_tau_ticks[E_INDEX_N(motion.extruder)] + curr_timer_tick;
         target_adv_steps = MULT_Q(27, smooth_lin_adv_lookahead(stepper_ticks), planner.get_advance_k_q27());
       }
       else {
@@ -3085,7 +3119,7 @@ void Stepper::isr() {
 
       for (uint8_t i = 0; i < SMOOTH_LIN_ADV_EXP_ORDER; i++) {
         // Approximate Gaussian smoothing via higher order exponential smoothing
-        smoothed_vals[i] += MULT_Q(30, la_step_rate - smoothed_vals[i], extruder_advance_alpha_q30[E_INDEX_N(active_extruder)]);
+        smoothed_vals[i] += MULT_Q(30, la_step_rate - smoothed_vals[i], extruder_advance_alpha_q30[E_INDEX_N(motion.extruder)]);
         la_step_rate = smoothed_vals[i];
       }
 
@@ -3523,24 +3557,18 @@ void Stepper::endstop_triggered(const AxisEnum axis) {
 
   ATOMIC_SECTION_START();   // Suspend the Stepper ISR on all platforms
 
-  endstops_trigsteps[axis] = (
-    #if IS_CORE
-      (axis == CORE_AXIS_2
-        ? CORESIGN(count_position[CORE_AXIS_1] - count_position[CORE_AXIS_2])
-        : count_position[CORE_AXIS_1] + count_position[CORE_AXIS_2]
-      ) * double(0.5)
-    #elif ENABLED(MARKFORGED_XY)
-      axis == CORE_AXIS_1
-        ? count_position[CORE_AXIS_1] TERN(MARKFORGED_INVERSE, +, -) count_position[CORE_AXIS_2]
-        : count_position[CORE_AXIS_2]
-    #elif ENABLED(MARKFORGED_YX)
-      axis == CORE_AXIS_1
-        ? count_position[CORE_AXIS_1]
-        : count_position[CORE_AXIS_2] TERN(MARKFORGED_INVERSE, +, -) count_position[CORE_AXIS_1]
-    #else // !IS_CORE
-      count_position[axis]
-    #endif
-  );
+  float axis_pos = count_position[axis];
+  #if IS_CORE
+    if (axis == CORE_AXIS_2)
+      axis_pos = CORESIGN(count_position[CORE_AXIS_1] - axis_pos) * 0.5f;
+    else if (axis == CORE_AXIS_1)
+      axis_pos = (axis_pos + count_position[CORE_AXIS_2]) * 0.5f;
+  #elif ENABLED(MARKFORGED_XY)
+    if (axis == CORE_AXIS_1) axis_pos TERN(MARKFORGED_INVERSE, +=, -=) count_position[CORE_AXIS_2];
+  #elif ENABLED(MARKFORGED_YX)
+    if (axis == CORE_AXIS_2) axis_pos TERN(MARKFORGED_INVERSE, +=, -=) count_position[CORE_AXIS_1];
+  #endif
+  endstops_trigsteps[axis] = axis_pos;
 
   // Discard the rest of the move if there is a current block
   quick_stop();
@@ -3560,13 +3588,13 @@ int32_t Stepper::triggered_position(const AxisEnum axis) {
  * Reporting
  */
 
-#if ANY(CORE_IS_XY, CORE_IS_XZ, MARKFORGED_XY, MARKFORGED_YX, IS_SCARA, DELTA)
+#if ANY(HAS_REAL_X, IS_SCARA, DELTA)
   #define SAYS_A 1
 #endif
-#if ANY(CORE_IS_XY, CORE_IS_YZ, MARKFORGED_XY, MARKFORGED_YX, IS_SCARA, DELTA, POLAR)
+#if ANY(HAS_REAL_Y, IS_SCARA, DELTA, POLAR)
   #define SAYS_B 1
 #endif
-#if ANY(CORE_IS_XZ, CORE_IS_YZ, DELTA)
+#if ANY(HAS_REAL_Z, DELTA)
   #define SAYS_C 1
 #endif
 
@@ -3615,7 +3643,7 @@ void Stepper::report_positions() {
 
     /**
      * Update direction bits for steppers that were stepped by this command.
-     * HX, HY, HZ direction bits were set for Core kinematics
+     * RX, RY, RZ direction bits were set for Core kinematics
      * when the block was fetched and are not overwritten here.
      */
 
@@ -3876,3 +3904,105 @@ void Stepper::report_positions() {
   }
 
 #endif // BABYSTEPPING
+
+#if ENABLED(SOFT_FEED_HOLD)
+
+  void Stepper::set_frozen_solid(const bool state) {
+    if (state == frozen_state.solid) return;
+
+    frozen_state.solid = true;
+
+    #if ENABLED(LASER_FEATURE)
+      if (state) {
+        frozen_last_laser_power = cutter.last_power_applied;
+        cutter.apply_power(0);                        // No movement in dynamic mode so turn Laser off
+      }
+      else
+        cutter.apply_power(frozen_last_laser_power);  // Restore frozen laser power
+    #endif
+
+    #if ENABLED(REALTIME_REPORTING_COMMANDS)
+      set_and_report_grblstate(state ? M_HOLD : M_RUNNING);
+    #endif
+  }
+
+  void Stepper::check_frozen_time(uint32_t &step_rate) {
+    // If frozen_time is 0 there is no need to modify the current step_rate
+    if (!frozen_time) return;
+
+    #if ENABLED(S_CURVE_ACCELERATION)
+      // If the machine is configured to use S_CURVE_ACCELERATION standard ramp acceleration
+      // rate will not have been calculated at this point
+      if (!current_block->acceleration_rate)
+        current_block->acceleration_rate = uint32_t(current_block->acceleration_steps_per_s2 * (float(1UL << 24) / (STEPPER_TIMER_RATE)));
+    #endif
+
+    const uint32_t freeze_rate = STEP_MULTIPLY(frozen_time, current_block->acceleration_rate);
+    const uint32_t min_step_rate = current_block->steps_per_mm * (FREEZE_JERK);
+
+    if (step_rate > freeze_rate)
+      step_rate -= freeze_rate;
+    else
+      step_rate = 0;
+
+    if (step_rate <= min_step_rate) {
+      set_frozen_solid(true);
+      step_rate = min_step_rate;
+    }
+  }
+
+  void Stepper::check_frozen_state(const FreezePhase phase, const uint32_t interval) {
+    switch (phase) {
+      case FREEZE_STATIONARY:
+        // If triggered while stationary immediately set solid flag
+        if (frozen_state.triggered) {
+          frozen_time = 0;
+          set_frozen_solid(true);
+        }
+        else
+          set_frozen_solid(false);
+        break;
+
+      case FREEZE_ACCELERATION:
+        // If frozen state is activated during the acceleration phase of a block we need to double our decceleration efforts
+        if (frozen_state.triggered) {
+          if (!frozen_state.solid) frozen_time += interval * 2;
+        }
+        else
+          set_frozen_solid(false);
+        break;
+
+      case FREEZE_DECELERATION:
+        // If frozen state is deactivated during the deceleration phase we need to double our acceleration efforts
+        if (!frozen_state.triggered) {
+          if (frozen_time) {
+            if (frozen_time > interval * 2)
+              frozen_time -= interval * 2;
+            else
+              frozen_time = 0;
+          }
+          set_frozen_solid(false);
+        }
+        break;
+
+      case FREEZE_CRUISE:
+        // During cruise stage acceleration/deceleration take place at regular rate
+        if (frozen_state.triggered) {
+          if (!frozen_state.solid) frozen_time += interval;
+        }
+        else {
+          if (frozen_time) {
+            if (frozen_time > interval)
+              frozen_time -= interval;
+            else {
+              frozen_time = 0;
+              ticks_nominal = 0;      // Reset ticks_nominal to allow for recalculation of interval at nominal_rate
+            }
+          }
+          set_frozen_solid(false);
+        }
+        break;
+    }
+  }
+
+#endif // SOFT_FEED_HOLD

@@ -43,8 +43,11 @@
   #error "FAST_PWM_FAN is not yet implemented for this platform."
 #endif
 
-#if !defined(HAVE_SW_SERIAL) && HAS_TMC_SW_SERIAL
-  #error "Missing SoftwareSerial implementation."
+// SoftwareSerial introduced in arduino core version 1.3.1
+#if ARDUINO_CORE_VERSION_INT < GET_VERSION_INT(1, 3, 1)
+  #if !defined(HAVE_SW_SERIAL) && HAS_TMC_SW_SERIAL
+    #error "Missing SoftwareSerial implementation."
+  #endif
 #endif
 
 #if ENABLED(SDCARD_EEPROM_EMULATION) && !HAS_MEDIA

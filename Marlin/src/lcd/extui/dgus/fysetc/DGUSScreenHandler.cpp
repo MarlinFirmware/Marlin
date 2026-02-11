@@ -199,10 +199,10 @@ void DGUSScreenHandler::handleManualMove(DGUS_VP_Variable &var, void *val_ptr) {
   }
   else {
     // movement
-    bool old_relative_mode = relative_mode;
-    if (!relative_mode) queue.enqueue_now(F("G91"));
+    const bool old_relative_mode = motion.relative_mode;
+    if (!old_relative_mode) queue.enqueue_now(F("G91"));
     char buf[32]; // G1 X9999.99 F12345
-    const uint16_t backup_speed = MMS_TO_MMM(feedrate_mm_s);
+    const uint16_t backup_speed = MMS_TO_MMM(motion.feedrate_mm_s);
     char sign[] = "\0";
     int16_t value = movevalue / 100;
     if (movevalue < 0) { value *= -1; sign[0] = '-'; }
