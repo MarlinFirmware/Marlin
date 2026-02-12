@@ -73,7 +73,7 @@ void ac_setup(const bool reset_bed) {
   TERN_(HAS_BED_PROBE, probe.use_probing_tool());
 
   planner.synchronize();
-  remember_feedrate_scaling_off();
+  motion.remember_feedrate_scaling_off();
 
   #if HAS_LEVELING
     if (reset_bed) reset_bed_level(); // After full calibration bed-level data is no longer valid
@@ -81,9 +81,9 @@ void ac_setup(const bool reset_bed) {
 }
 
 void ac_cleanup() {
-  TERN_(DELTA_HOME_TO_SAFE_ZONE, do_blocking_move_to_z(delta_clip_start_height));
+  TERN_(DELTA_HOME_TO_SAFE_ZONE, motion.blocking_move_z(delta_clip_start_height));
   TERN_(HAS_BED_PROBE, probe.stow());
-  restore_feedrate_and_scaling();
+  motion.restore_feedrate_and_scaling();
   TERN_(HAS_BED_PROBE, probe.use_probing_tool(false));
 }
 
@@ -247,7 +247,7 @@ static bool probe_calibration_points(float z_pt[NPP + 1], const int8_t probe_poi
         LOOP_CAL_RAD(rad)
           z_pt[rad] /= _7P_STEP / steps;
 
-      do_blocking_move_to_xy(0.0f, 0.0f);
+      motion.blocking_move_xy(0.0f, 0.0f);
     }
   }
   return true;
@@ -268,7 +268,7 @@ static void reverse_kinematics_probe_points(float z_pt[NPP + 1], abc_float_t mm_
                 r = (rad == CEN ? 0.0f : dcr);
     pos.set(cos(a) * r, sin(a) * r, z_pt[rad]);
     inverse_kinematics(pos);
-    mm_at_pt_axis[rad] = delta;
+    mm_at_pt_axis[rad] = motion.delta;
   }
 }
 
@@ -387,7 +387,7 @@ static float auto_tune_a(const float dcr) {
  */
 void GcodeSuite::G33() {
 
-  TERN_(FULL_REPORT_TO_HOST_FEATURE, set_and_report_grblstate(M_PROBE));
+  TERN_(FULL_REPORT_TO_HOST_FEATURE, motion.set_and_report_grblstate(M_PROBE));
 
   const int8_t probe_points = parser.intval('P', DELTA_CALIBRATION_DEFAULT_POINTS);
   if (!WITHIN(probe_points, 0, 10)) {
@@ -677,7 +677,7 @@ void GcodeSuite::G33() {
 
   ac_cleanup();
 
-  TERN_(FULL_REPORT_TO_HOST_FEATURE, set_and_report_grblstate(M_IDLE));
+  TERN_(FULL_REPORT_TO_HOST_FEATURE, motion.set_and_report_grblstate(M_IDLE));
   #if HAS_DELTA_SENSORLESS_PROBING
     probe.test_sensitivity = { true, true, true };
   #endif

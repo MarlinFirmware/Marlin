@@ -682,7 +682,7 @@ void Stepper::disable_all_steppers() {
 // Set a single axis direction based on the last set flags.
 // A direction bit of "1" indicates forward or positive motion.
 #define SET_STEP_DIR(A) do{                     \
-    const bool fwd = motor_direction(_AXIS(A)); \
+    const bool fwd = axis_direction(_AXIS(A));  \
     A##_APPLY_DIR(fwd, false);                  \
     count_direction[_AXIS(A)] = fwd ? 1 : -1;   \
   }while(0)
@@ -2389,19 +2389,12 @@ void Stepper::isr() {
     #endif
 
     // Set flags for all axes that move in this block
-    // These are set per-axis, not per-stepper
     AxisBits didmove;
-    NUM_AXIS_CODE(
-      if (X_MOVE_TEST)              didmove.a = true, // Cartesian X or Kinematic A
-      if (Y_MOVE_TEST)              didmove.b = true, // Cartesian Y or Kinematic B
-      if (Z_MOVE_TEST)              didmove.c = true, // Cartesian Z or Kinematic C
-      if (!!current_block->steps.i) didmove.i = true,
-      if (!!current_block->steps.j) didmove.j = true,
-      if (!!current_block->steps.k) didmove.k = true,
-      if (!!current_block->steps.u) didmove.u = true,
-      if (!!current_block->steps.v) didmove.v = true,
-      if (!!current_block->steps.w) didmove.w = true
-    );
+    #define _DID_MOVE(A) didmove.A = bool(current_block->steps.A);
+    MAIN_AXIS_MAP(_DID_MOVE);
+    TERN_(HAS_REAL_X, didmove.rx = X_MOVE_TEST);  // Cartesian X
+    TERN_(HAS_REAL_Y, didmove.ry = Y_MOVE_TEST);  //       ... Y
+    TERN_(HAS_REAL_Z, didmove.rz = Z_MOVE_TEST);  //       ... Z
     axis_did_move = didmove;
   }
 
@@ -2563,7 +2556,7 @@ void Stepper::isr() {
                 const bool forward_e = la_step_rate < step_rate;
                 la_interval = calc_timer_interval((forward_e ? step_rate - la_step_rate : la_step_rate - step_rate) >> current_block->la_scaling);
 
-                if (forward_e != motor_direction(E_AXIS)) {
+                if (forward_e != axis_direction(E_AXIS)) {
                   last_direction_bits.toggle(E_AXIS);
                   count_direction.e *= -1;
 
@@ -3009,7 +3002,7 @@ void Stepper::isr() {
         #endif
 
         la_interval = calc_timer_interval(uint32_t(ABS(step_rate)));
-        if (forward_e != motor_direction(E_AXIS)) {
+        if (forward_e != axis_direction(E_AXIS)) {
           last_direction_bits.toggle(E_AXIS);
           count_direction.e *= -1;
           DIR_WAIT_BEFORE();
@@ -3111,7 +3104,7 @@ void Stepper::isr() {
     hal_timer_t Stepper::smooth_lin_adv_isr() {
       int32_t target_adv_steps = 0;
       if (current_block) {
-        const uint32_t stepper_ticks = extruder_advance_tau_ticks[E_INDEX_N(active_extruder)] + curr_timer_tick;
+        const uint32_t stepper_ticks = extruder_advance_tau_ticks[E_INDEX_N(motion.extruder)] + curr_timer_tick;
         target_adv_steps = MULT_Q(27, smooth_lin_adv_lookahead(stepper_ticks), planner.get_advance_k_q27());
       }
       else {
@@ -3126,7 +3119,7 @@ void Stepper::isr() {
 
       for (uint8_t i = 0; i < SMOOTH_LIN_ADV_EXP_ORDER; i++) {
         // Approximate Gaussian smoothing via higher order exponential smoothing
-        smoothed_vals[i] += MULT_Q(30, la_step_rate - smoothed_vals[i], extruder_advance_alpha_q30[E_INDEX_N(active_extruder)]);
+        smoothed_vals[i] += MULT_Q(30, la_step_rate - smoothed_vals[i], extruder_advance_alpha_q30[E_INDEX_N(motion.extruder)]);
         la_step_rate = smoothed_vals[i];
       }
 
@@ -3564,24 +3557,18 @@ void Stepper::endstop_triggered(const AxisEnum axis) {
 
   ATOMIC_SECTION_START();   // Suspend the Stepper ISR on all platforms
 
-  endstops_trigsteps[axis] = (
-    #if IS_CORE
-      (axis == CORE_AXIS_2
-        ? CORESIGN(count_position[CORE_AXIS_1] - count_position[CORE_AXIS_2])
-        : count_position[CORE_AXIS_1] + count_position[CORE_AXIS_2]
-      ) * double(0.5)
-    #elif ENABLED(MARKFORGED_XY)
-      axis == CORE_AXIS_1
-        ? count_position[CORE_AXIS_1] TERN(MARKFORGED_INVERSE, +, -) count_position[CORE_AXIS_2]
-        : count_position[CORE_AXIS_2]
-    #elif ENABLED(MARKFORGED_YX)
-      axis == CORE_AXIS_1
-        ? count_position[CORE_AXIS_1]
-        : count_position[CORE_AXIS_2] TERN(MARKFORGED_INVERSE, +, -) count_position[CORE_AXIS_1]
-    #else // !IS_CORE
-      count_position[axis]
-    #endif
-  );
+  float axis_pos = count_position[axis];
+  #if IS_CORE
+    if (axis == CORE_AXIS_2)
+      axis_pos = CORESIGN(count_position[CORE_AXIS_1] - axis_pos) * 0.5f;
+    else if (axis == CORE_AXIS_1)
+      axis_pos = (axis_pos + count_position[CORE_AXIS_2]) * 0.5f;
+  #elif ENABLED(MARKFORGED_XY)
+    if (axis == CORE_AXIS_1) axis_pos TERN(MARKFORGED_INVERSE, +=, -=) count_position[CORE_AXIS_2];
+  #elif ENABLED(MARKFORGED_YX)
+    if (axis == CORE_AXIS_2) axis_pos TERN(MARKFORGED_INVERSE, +=, -=) count_position[CORE_AXIS_1];
+  #endif
+  endstops_trigsteps[axis] = axis_pos;
 
   // Discard the rest of the move if there is a current block
   quick_stop();
@@ -3601,13 +3588,13 @@ int32_t Stepper::triggered_position(const AxisEnum axis) {
  * Reporting
  */
 
-#if ANY(CORE_IS_XY, CORE_IS_XZ, MARKFORGED_XY, MARKFORGED_YX, IS_SCARA, DELTA)
+#if ANY(HAS_REAL_X, IS_SCARA, DELTA)
   #define SAYS_A 1
 #endif
-#if ANY(CORE_IS_XY, CORE_IS_YZ, MARKFORGED_XY, MARKFORGED_YX, IS_SCARA, DELTA, POLAR)
+#if ANY(HAS_REAL_Y, IS_SCARA, DELTA, POLAR)
   #define SAYS_B 1
 #endif
-#if ANY(CORE_IS_XZ, CORE_IS_YZ, DELTA)
+#if ANY(HAS_REAL_Z, DELTA)
   #define SAYS_C 1
 #endif
 
@@ -3656,7 +3643,7 @@ void Stepper::report_positions() {
 
     /**
      * Update direction bits for steppers that were stepped by this command.
-     * HX, HY, HZ direction bits were set for Core kinematics
+     * RX, RY, RZ direction bits were set for Core kinematics
      * when the block was fetched and are not overwritten here.
      */
 

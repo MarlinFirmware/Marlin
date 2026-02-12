@@ -80,7 +80,7 @@
           if (parser.seenval('X')) duplicate_extruder_x_offset = _MAX(parser.value_linear_units(), (X2_MIN_POS) - (X1_MIN_POS));
           if (parser.seenval('R')) duplicate_extruder_temp_offset = parser.value_celsius_diff();
           // Always switch back to tool 0
-          if (active_extruder != 0) tool_change(0);
+          if (motion.extruder != 0) tool_change(0);
           break;
 
         case DXC_MIRRORED_MODE: {
@@ -93,9 +93,9 @@
           idex_set_mirrored_mode(true);
 
           // Do a small 'jog' motion in the X axis
-          xyze_pos_t dest = current_position; dest.x -= 0.1f;
+          xyze_pos_t dest = motion.position; dest.x -= 0.1f;
           for (uint8_t i = 2; --i;) {
-            planner.buffer_line(dest, feedrate_mm_s, 0);
+            planner.buffer_line(dest, motion.feedrate_mm_s, 0);
             dest.x += 0.1f;
           }
         } return;
@@ -126,10 +126,10 @@
           case DXC_DUPLICATION_MODE:  DEBUG_ECHOPGM("DUPLICATION");  break;
           case DXC_MIRRORED_MODE:     DEBUG_ECHOPGM("MIRRORED");     break;
         }
-        DEBUG_ECHOPGM("\nActive Ext: ", active_extruder);
+        DEBUG_ECHOPGM("\nActive Ext: ", motion.extruder);
         if (!active_extruder_parked) DEBUG_ECHOPGM(" NOT ", F(" parked."));
         DEBUG_ECHOLNPGM(
-          "\nactive_extruder_x_pos: ", current_position.x,
+          "\nactive_extruder_x_pos: ", motion.position.x,
           "\ninactive_extruder_x: ", inactive_extruder_x,
           "\nextruder_duplication_enabled: ", extruder_duplication_enabled,
           "\nduplicate_extruder_x_offset: ", duplicate_extruder_x_offset,

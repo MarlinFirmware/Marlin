@@ -57,8 +57,8 @@ void GcodeSuite::M218() {
   #endif
 
   #if ENABLED(DELTA)
-    if (target_extruder == active_extruder)
-      do_blocking_move_to_xy(current_position, planner.settings.max_feedrate_mm_s[X_AXIS]);
+    if (target_extruder == motion.extruder)
+      motion.blocking_move_xy(motion.position, planner.settings.max_feedrate_mm_s[X_AXIS]);
   #endif
 }
 
