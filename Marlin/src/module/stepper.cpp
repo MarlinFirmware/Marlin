@@ -138,9 +138,8 @@ stepper_flags_t Stepper::axis_enabled; // {0}
 
 block_t* Stepper::current_block; // (= nullptr) A pointer to the block currently being traced
 
-#if HAS_STANDARD_MOTION
-  AxisBits Stepper::axis_did_move; // = 0
-#endif
+AxisBits Stepper::axis_did_move; // = 0
+
 AxisBits Stepper::last_direction_bits; // = 0
 
 bool Stepper::abort_current_block;
