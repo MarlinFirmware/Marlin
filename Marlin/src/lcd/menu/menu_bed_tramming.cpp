@@ -144,12 +144,12 @@ static void _lcd_goto_next_corner() {
     }
   }
 
-  float z = _MIN(current_position.z + (BED_TRAMMING_Z_HOP), Z_MAX_POS);
+  float z = _MIN(motion.position.z + (BED_TRAMMING_Z_HOP), Z_MAX_POS);
   #if ALL(BED_TRAMMING_USE_PROBE, BLTOUCH)
     z += bltouch.z_extra_clearance();
   #endif
   line_to_z(z);
-  do_blocking_move_to_xy(DIFF_TERN(BED_TRAMMING_USE_PROBE, corner_point, probe.offset_xy), manual_feedrate_mm_s.x);
+  motion.blocking_move_xy(DIFF_TERN(BED_TRAMMING_USE_PROBE, corner_point, probe.offset_xy), manual_feedrate_mm_s.x);
   #if DISABLED(BED_TRAMMING_USE_PROBE)
     line_to_z(BED_TRAMMING_HEIGHT);
     if (++bed_corner >= available_points) bed_corner = 0;
@@ -232,25 +232,25 @@ static void _lcd_goto_next_corner() {
 
   // Probe down and return 'true' if the probe triggered
   bool _lcd_bed_tramming_probe(const bool verify=false) {
-    if (verify) do_z_clearance_by(BED_TRAMMING_Z_HOP);                                // Do clearance if needed
+    if (verify) motion.do_z_clearance_by(BED_TRAMMING_Z_HOP);                         // Do clearance if needed
     TERN_(BLTOUCH, if (!bltouch.high_speed_mode) bltouch.deploy());                   // Deploy in LOW SPEED MODE on every probe action
-    do_blocking_move_to_z(last_z - BED_TRAMMING_PROBE_TOLERANCE, z_probe_slow_mm_s);  // Move down to lower tolerance
+    motion.blocking_move_z(last_z - BED_TRAMMING_PROBE_TOLERANCE, z_probe_slow_mm_s); // Move down to lower tolerance
     if (TEST(endstops.trigger_state(), Z_MIN_PROBE)) {                                // Probe triggered?
       endstops.hit_on_purpose();
-      set_current_from_steppers_for_axis(Z_AXIS);
-      sync_plan_position();
+      motion.set_current_from_steppers_for_axis(Z_AXIS);
+      motion.sync_plan_position();
 
       TERN_(BLTOUCH, if (!bltouch.high_speed_mode) bltouch.stow()); // Stow in LOW SPEED MODE on every trigger
 
       // Triggered outside tolerance range?
-      if (ABS(current_position.z - last_z) > BED_TRAMMING_PROBE_TOLERANCE) {
-        last_z = current_position.z; // Above tolerance. Set a new Z for subsequent corners.
-        good_points = 0;             // ...and start over
+      if (ABS(motion.position.z - last_z) > BED_TRAMMING_PROBE_TOLERANCE) {
+        last_z = motion.position.z; // Above tolerance. Set a new Z for subsequent corners.
+        good_points = 0;            // ...and start over
       }
 
       // Raise the probe after the last point to give clearance for stow
       if (TERN0(NEEDS_PROBE_DEPLOY, good_points == nr_edge_points - 1))
-        do_z_clearance(BED_TRAMMING_Z_HOP);
+        motion.do_z_clearance(BED_TRAMMING_Z_HOP);
 
       return true; // Triggered
     }
@@ -314,7 +314,7 @@ static void _lcd_goto_next_corner() {
       if (bltouch.high_speed_mode) {
         // In HIGH SPEED MODE do stow and clearance at the very end
         bltouch.stow();
-        do_z_clearance(BED_TRAMMING_Z_HOP);
+        motion.do_z_clearance(BED_TRAMMING_Z_HOP);
       }
     #endif
 
@@ -325,7 +325,7 @@ static void _lcd_goto_next_corner() {
 #endif // BED_TRAMMING_USE_PROBE
 
 void _lcd_bed_tramming_homing() {
-  if (!all_axes_homed() && TERN1(NEEDS_PROBE_DEPLOY, probe.deploy())) return;
+  if (!motion.all_axes_homed() && TERN1(NEEDS_PROBE_DEPLOY, probe.deploy())) return;
 
   #if HAS_LEVELING // Disable leveling so the planner won't mess with us
     menu_leveling_was_active = planner.leveling_active;
@@ -380,11 +380,11 @@ void _lcd_bed_tramming_homing() {
 void _lcd_bed_tramming() {
   TERN_(BED_TRAMMING_USE_PROBE, tramming_done = false);
   ui.defer_status_screen();
-  set_all_unhomed();
+  motion.set_all_unhomed();
   queue.inject(TERN(CAN_SET_LEVELING_AFTER_G28, F("G28L0"), FPSTR(G28_STR)));
   ui.goto_screen([]{
     _lcd_draw_homing();
-    if (!all_axes_homed()) return;
+    if (!motion.all_axes_homed()) return;
     TERN(NEEDS_PROBE_DEPLOY, deploy_probe(), ui.goto_screen(_lcd_bed_tramming_homing));
   });
 }

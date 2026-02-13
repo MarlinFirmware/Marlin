@@ -311,20 +311,20 @@ FORCE_INLINE void _draw_centered_temp(const celsius_t temp, const uint8_t tx, co
           const bool draw_partial = isHeat && tall < BAR_TALL;
           if (draw_partial) {
             const uint8_t ph = STATUS_HEATERS_HEIGHT - 1 - tall;
-            u8g.drawBitmapP(hx, STATUS_HEATERS_Y, bw, ph, HOTEND_BITMAP(TERN(HAS_MMU, active_extruder, heater_id), false));
-            u8g.drawBitmapP(hx, STATUS_HEATERS_Y + ph, bw, tall + 1, HOTEND_BITMAP(TERN(HAS_MMU, active_extruder, heater_id), true) + ph * bw);
+            u8g.drawBitmapP(hx, STATUS_HEATERS_Y, bw, ph, HOTEND_BITMAP(TERN(HAS_MMU, motion.extruder, heater_id), false));
+            u8g.drawBitmapP(hx, STATUS_HEATERS_Y + ph, bw, tall + 1, HOTEND_BITMAP(TERN(HAS_MMU, motion.extruder, heater_id), true) + ph * bw);
           }
         #else
           constexpr bool draw_partial = false;
         #endif
 
         if (!draw_partial)
-          u8g.drawBitmapP(hx, STATUS_HEATERS_Y, bw, STATUS_HEATERS_HEIGHT, HOTEND_BITMAP(TERN(HAS_MMU, active_extruder, heater_id), isHeat));
+          u8g.drawBitmapP(hx, STATUS_HEATERS_Y, bw, STATUS_HEATERS_HEIGHT, HOTEND_BITMAP(TERN(HAS_MMU, motion.extruder, heater_id), isHeat));
 
       } // PAGE_CONTAINS
 
       #if HAS_MULTI_EXTRUDER && NONE(SLIM_LCD_MENUS, STATUS_HOTEND_NUMBERLESS, SINGLENOZZLE)
-        if (active_extruder == heater_id)
+        if (motion.extruder == heater_id)
           u8g.drawBitmapP(_MAX(0, STATUS_HOTEND_X(heater_id) - 6), STATUS_HEATERS_Y + 3, 1, 5, status_active_extruder_indicator_bmp);
       #endif
 
@@ -472,9 +472,9 @@ FORCE_INLINE void _draw_axis_value(const AxisEnum axis, const char *value, const
 
   if (blink)
     lcd_put_u8str(value);
-  else if (axis_should_home(axis))
+  else if (motion.axis_should_home(axis))
     while (const char c = *value++) lcd_put_lchar(c <= '.' ? c : '?');
-  else if (NONE(HOME_AFTER_DEACTIVATE, DISABLE_REDUCED_ACCURACY_WARNING) && !axis_is_trusted(axis))
+  else if (NONE(HOME_AFTER_DEACTIVATE, DISABLE_REDUCED_ACCURACY_WARNING) && !motion.axis_is_trusted(axis))
     lcd_put_u8str(TERN0(HAS_Z_AXIS, axis == Z_AXIS) ? F("       ") : F("    "));
   else
     lcd_put_u8str(value);
@@ -573,14 +573,14 @@ void MarlinUI::draw_status_screen() {
     #endif
 
     #if NUM_AXES
-      const xyz_pos_t lpos = current_position.asLogical();
+      const xyz_pos_t lpos = motion.position.asLogical();
       const bool is_inch = parser.using_inch_units();
     #endif
 
     if (show_e_total) {
       #if ENABLED(LCD_SHOW_E_TOTAL)
-        const uint8_t escale = e_move_accumulator >= 100000.0f ? 10 : 1; // After 100m switch to cm
-        sprintf_P(xstring, PSTR("%ld%cm"), uint32_t(_MAX(e_move_accumulator, 0.0f)) / escale, escale == 10 ? 'c' : 'm'); // 1234567mm
+        const uint8_t escale = motion.e_move_accumulator >= 100000.0f ? 10 : 1; // After 100m switch to cm
+        sprintf_P(xstring, PSTR("%ld%cm"), uint32_t(_MAX(motion.e_move_accumulator, 0.0f)) / escale, escale == 10 ? 'c' : 'm'); // 1234567mm
       #endif
     }
     else {
@@ -898,9 +898,9 @@ void MarlinUI::draw_status_screen() {
     set_font(FONT_STATUSMENU);
 
     #if ENABLED(ULTIPANEL_FLOWPERCENT)
-      lcd_put_u8str(12, EXTRAS_2_BASELINE, i16tostr3rj(planner.flow_percentage[active_extruder]));
+      lcd_put_u8str(12, EXTRAS_2_BASELINE, i16tostr3rj(planner.flow_percentage[motion.extruder]));
     #else
-      lcd_put_u8str(12, EXTRAS_2_BASELINE, i16tostr3rj(feedrate_percentage));
+      lcd_put_u8str(12, EXTRAS_2_BASELINE, i16tostr3rj(motion.feedrate_percentage));
     #endif
     lcd_put_u8str(F("%"));
 
