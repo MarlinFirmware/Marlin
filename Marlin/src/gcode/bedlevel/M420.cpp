@@ -90,7 +90,7 @@ void GcodeSuite::M420() {
     }
   #endif
 
-  xyz_pos_t oldpos = current_position;
+  xyz_pos_t oldpos = motion.position;
 
   // If disabling leveling do it right away
   // (Don't disable for just M420 or M420 V)
@@ -240,8 +240,8 @@ void GcodeSuite::M420() {
   #endif
 
   // Report change in position
-  if (oldpos != current_position)
-    report_current_position();
+  if (oldpos != motion.position)
+    motion.report_position();
 }
 
 void GcodeSuite::M420_report(const bool forReplay/*=true*/) {

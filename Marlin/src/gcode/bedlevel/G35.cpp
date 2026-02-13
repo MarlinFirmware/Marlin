@@ -87,7 +87,7 @@ void GcodeSuite::G35() {
   TERN_(HAS_DUPLICATION_MODE, set_duplication_enabled(false));
 
   // Home only Z axis when X and Y is trusted, otherwise all axes, if needed before this procedure
-  if (!all_axes_trusted()) process_subcommands_now(F("G28Z"));
+  if (!motion.all_axes_trusted()) process_subcommands_now(F("G28Z"));
 
   bool err_break = false;
 
@@ -153,7 +153,7 @@ void GcodeSuite::G35() {
   move_to_tramming_wait_pos();
 
   // After this operation the Z position needs correction
-  set_axis_never_homed(Z_AXIS);
+  motion.set_axis_never_homed(Z_AXIS);
 }
 
 #endif // ASSISTED_TRAMMING

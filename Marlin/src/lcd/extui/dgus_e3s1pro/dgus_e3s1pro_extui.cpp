@@ -99,7 +99,7 @@ namespace ExtUI {
     void onPauseMode(
       const PauseMessage message,
       const PauseMode mode/*=PAUSE_MODE_SAME*/,
-      const uint8_t extruder/*=active_extruder*/
+      const uint8_t extruder/*=motion.extruder*/
     ) {
       stdOnPauseMode(message, mode, extruder);
     }
@@ -203,4 +203,4 @@ namespace ExtUI {
   void onAxisEnabled(const axis_t) {}
 }
 
-#endif // DGUS_LCD_UI_RELOADED
+#endif // DGUS_LCD_UI_E3S1PRO

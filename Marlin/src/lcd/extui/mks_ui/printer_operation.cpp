@@ -61,9 +61,9 @@ void printer_state_polling() {
         gcode.process_subcommands_now(F("M25"));
 
         // save the position
-        uiCfg.current_x_position_bak = current_position.x;
-        uiCfg.current_y_position_bak = current_position.y;
-        uiCfg.current_z_position_bak = current_position.z;
+        uiCfg.current_x_position_bak = motion.position.x;
+        uiCfg.current_y_position_bak = motion.position.y;
+        uiCfg.current_z_position_bak = motion.position.z;
 
         if (gCfgItems.pausePosZ != (float)-1) {
           sprintf_P(public_buf_l, PSTR("G91\nG1 Z%s\nG90"), dtostrf(gCfgItems.pausePosZ, 1, 1, str_1));
@@ -74,7 +74,7 @@ void printer_state_polling() {
           gcode.process_subcommands_now(public_buf_l);
         }
         uiCfg.print_state = PAUSED;
-        uiCfg.current_e_position_bak = current_position.e;
+        uiCfg.current_e_position_bak = motion.position.e;
 
         gCfgItems.pause_reprint = true;
         update_spi_flash();
