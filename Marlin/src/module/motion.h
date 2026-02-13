@@ -534,9 +534,9 @@ private:
   #define XY_PROBE_FEEDRATE_MM_S MMM_TO_MMS(XY_PROBE_FEEDRATE)
 #else
   #if HAS_Y_AXIS
-    #define XY_PROBE_FEEDRATE_MM_S MMM_TO_MMS((homing_feedrate_mm_m.x + homing_feedrate_mm_m.y) / 2)
+    #define XY_PROBE_FEEDRATE_MM_S MMM_TO_MMS((motion.homing_feedrate_mm_m.x + motion.homing_feedrate_mm_m.y) / 2)
   #elif HAS_X_AXIS
-    #define XY_PROBE_FEEDRATE_MM_S MMM_TO_MMS(homing_feedrate_mm_m.x)
+    #define XY_PROBE_FEEDRATE_MM_S MMM_TO_MMS(motion.homing_feedrate_mm_m.x)
   #else
     #define XY_PROBE_FEEDRATE_MM_S XY_PROBE_FEEDRATE_MIN
   #endif
