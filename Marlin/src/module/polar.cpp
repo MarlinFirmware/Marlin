@@ -60,8 +60,10 @@ void forward_kinematics(const float r, const float theta) {
   const float absTheta = absoluteAngle(theta);
   float radius = r;
   if (polar_center_offset > 0.0) radius = SQRT( ABS( sq(r) - sq(-polar_center_offset) ) );
-  cartes.x = cos(RADIANS(absTheta))*radius;
-  cartes.y = sin(RADIANS(absTheta))*radius;
+  motion.cartes.set(
+    cos(RADIANS(absTheta)) * radius,
+    sin(RADIANS(absTheta)) * radius
+  );
 }
 
 void inverse_kinematics(const xyz_pos_t &raw) {
@@ -91,7 +93,7 @@ void inverse_kinematics(const xyz_pos_t &raw) {
 
     current_polar_theta = theta;
 
-    delta.set(r, theta, raw.z);
+    motion.delta.set(r, theta, raw.z);
 }
 
 void polar_report_positions() {

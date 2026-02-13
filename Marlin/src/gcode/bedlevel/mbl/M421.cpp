@@ -43,9 +43,9 @@
  */
 void GcodeSuite::M421() {
   const bool hasX = parser.seen('X'), hasI = parser.seen('I');
-  const int8_t ix = hasI ? parser.value_int() : hasX ? bedlevel.probe_index_x(RAW_X_POSITION(parser.value_linear_units())) : -1;
+  const int8_t ix = hasI ? parser.value_int() : hasX ? bedlevel.probe_index_x(motion.raw_x(parser.value_linear_units())) : -1;
   const bool hasY = parser.seen('Y'), hasJ = parser.seen('J');
-  const int8_t iy = hasJ ? parser.value_int() : hasY ? bedlevel.probe_index_y(RAW_Y_POSITION(parser.value_linear_units())) : -1;
+  const int8_t iy = hasJ ? parser.value_int() : hasY ? bedlevel.probe_index_y(motion.raw_y(parser.value_linear_units())) : -1;
   const bool hasZ = parser.seen('Z'), hasQ = !hasZ && parser.seen('Q');
 
   if (int(hasI && hasJ) + int(hasX && hasY) != 1 || !(hasZ || hasQ))

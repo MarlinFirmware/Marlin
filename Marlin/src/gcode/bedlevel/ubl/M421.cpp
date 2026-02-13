@@ -54,7 +54,7 @@ void GcodeSuite::M421() {
              hasZ = parser.seen('Z'),
              hasQ = !hasZ && parser.seen('Q');
 
-  if (hasC) ij = bedlevel.find_closest_mesh_point_of_type(CLOSEST, current_position);
+  if (hasC) ij = bedlevel.find_closest_mesh_point_of_type(CLOSEST, motion.position);
 
   // Test for bad parameter combinations
   if (int(hasC) + int(hasI && hasJ) != 1 || !(hasZ || hasQ || hasN))

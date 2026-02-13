@@ -21,7 +21,7 @@
  */
 #pragma once
 
-#include "trajectory_generator.h"
+#include "trajectory_trapezoidal.h"
 #include <math.h>
 
 /**
@@ -31,17 +31,13 @@
  * - a(mid-phase) = overshoot * a_max (accel)  and  = -overshoot * a_max (decel)
  * - v,a start/end at 0 within each phase; joins are continuous.
  */
-class Poly6TrajectoryGenerator : public TrajectoryGenerator {
+class Poly6TrajectoryGenerator : public TrapezoidalTrajectoryGenerator {
 public:
   Poly6TrajectoryGenerator();
 
-  void plan(const float initial_speed, const float final_speed, const float acceleration, float nominal_speed, const float distance) override;
-
-  void planRunout(const float duration) override;
+  void plan(const float initial_speed, const float final_speed, const float acceleration, const float nominal_speed, const float distance) override;
 
   float getDistanceAtTime(const float t) const override;
-
-  float getTotalDuration() const override;
 
   void reset() override;
 
@@ -64,12 +60,7 @@ private:
     return cu(u) * cu(um1);
   }
 
-  // Timings and kinematics
-  float T1 = 0.0f, T2 = 0.0f, T3 = 0.0f;
-  float initial_speed = 0.0f, nominal_speed = 0.0f;
-  float pos_before_coast = 0.0f, pos_after_coast = 0.0f;
-
-  // New phase polynomials
+  // New phase polynomials (only the polynomial coefficients are specific to Poly6)
   float acc_c3 = 0.0f, acc_c4 = 0.0f, acc_c5 = 0.0f, acc_c6 = 0.0f;
   float dec_c3 = 0.0f, dec_c4 = 0.0f, dec_c5 = 0.0f, dec_c6 = 0.0f;
 };

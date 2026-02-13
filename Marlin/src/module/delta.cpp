@@ -64,7 +64,7 @@ float delta_safe_distance_from_top();
 
 void refresh_delta_clip_start_height() {
   delta_clip_start_height = TERN(HAS_SOFTWARE_ENDSTOPS,
-    soft_endstop.max.z,
+    motion.soft_endstop.max.z,
     DIFF_TERN(HAS_BED_PROBE, delta_height, probe.offset.z)
   ) - delta_safe_distance_from_top();
 }
@@ -84,8 +84,8 @@ void recalc_delta_settings() {
   delta_diagonal_rod_2_tower.set(sq(delta_diagonal_rod + delta_diagonal_rod_trim.a),
                                  sq(delta_diagonal_rod + delta_diagonal_rod_trim.b),
                                  sq(delta_diagonal_rod + delta_diagonal_rod_trim.c));
-  update_software_endstops(Z_AXIS);
-  set_all_unhomed();
+  motion.update_software_endstops(Z_AXIS);
+  motion.set_all_unhomed();
 }
 
 /**
@@ -106,14 +106,14 @@ void recalc_delta_settings() {
 
 #define DELTA_DEBUG(VAR) do { \
     SERIAL_ECHOLNPGM_P(PSTR("Cartesian X"), VAR.x, SP_Y_STR, VAR.y, SP_Z_STR, VAR.z); \
-    SERIAL_ECHOLNPGM_P(PSTR("Delta A"), delta.a, SP_B_STR, delta.b, SP_C_STR, delta.c); \
+    SERIAL_ECHOLNPGM_P(PSTR("Delta A"), motion.delta.a, SP_B_STR, motion.delta.b, SP_C_STR, motion.delta.c); \
   }while(0)
 
 void inverse_kinematics(const xyz_pos_t &raw) {
   #if HAS_HOTEND_OFFSET
     // Delta hotend offsets must be applied in Cartesian space with no "spoofing"
-    xyz_pos_t pos = { raw.x - hotend_offset[active_extruder].x,
-                      raw.y - hotend_offset[active_extruder].y,
+    xyz_pos_t pos = { raw.x - hotend_offset[motion.extruder].x,
+                      raw.y - hotend_offset[motion.extruder].y,
                       raw.z };
     DELTA_IK(pos);
     //DELTA_DEBUG(pos);
@@ -130,10 +130,10 @@ void inverse_kinematics(const xyz_pos_t &raw) {
 float delta_safe_distance_from_top() {
   xyz_pos_t cartesian{0};
   inverse_kinematics(cartesian);
-  const float centered_extent = delta.a;
+  const float centered_extent = motion.delta.a;
   cartesian.y = PRINTABLE_RADIUS;
   inverse_kinematics(cartesian);
-  return ABS(centered_extent - delta.a);
+  return ABS(centered_extent - motion.delta.a);
 }
 
 /**
@@ -159,7 +159,7 @@ float delta_safe_distance_from_top() {
  * based on a Java function from "Delta Robot Kinematics V3"
  * by Steve Graves
  *
- * The result is stored in the cartes[] array.
+ * The result is stored in the motion.cartes[] array.
  */
 void forward_kinematics(const float z1, const float z2, const float z3) {
   // Create a vector in old coordinates along x axis of new coordinate
@@ -207,9 +207,9 @@ void forward_kinematics(const float z1, const float z2, const float z3) {
   // Start from the origin of the old coordinates and add vectors in the
   // old coords that represent the Xnew, Ynew and Znew to find the point
   // in the old system.
-  cartes.set(delta_tower[A_AXIS].x + ex[0] * Xnew + ey[0] * Ynew - ez[0] * Znew,
-             delta_tower[A_AXIS].y + ex[1] * Xnew + ey[1] * Ynew - ez[1] * Znew,
-                                z1 + ex[2] * Xnew + ey[2] * Ynew - ez[2] * Znew);
+  motion.cartes.set(delta_tower[A_AXIS].x + ex[0] * Xnew + ey[0] * Ynew - ez[0] * Znew,
+                    delta_tower[A_AXIS].y + ex[1] * Xnew + ey[1] * Ynew - ez[1] * Znew,
+                                       z1 + ex[2] * Xnew + ey[2] * Ynew - ez[2] * Znew);
 }
 
 /**
@@ -220,9 +220,9 @@ void home_delta() {
   DEBUG_SECTION(log_home_delta, "home_delta", DEBUGGING(LEVELING));
 
   // Init the current position of all carriages to 0,0,0
-  current_position.reset();
-  destination.reset();
-  sync_plan_position();
+  motion.position.reset();
+  motion.destination.reset();
+  motion.sync_plan_position();
 
   // Disable stealthChop if used. Enable diag1 pin on driver.
   #if ENABLED(SENSORLESS_HOMING)
@@ -244,8 +244,8 @@ void home_delta() {
   TERN_(HAS_HOMING_CURRENT, set_homing_current(Z_AXIS));
 
   // Move all carriages together linearly until an endstop is hit.
-  current_position.z = DIFF_TERN(HAS_BED_PROBE, delta_height + 10, probe.offset.z);
-  line_to_current_position(homing_feedrate(Z_AXIS));
+  motion.position.z = DIFF_TERN(HAS_BED_PROBE, delta_height + 10, probe.offset.z);
+  motion.goto_current_position(motion.homing_feedrate(Z_AXIS));
   planner.synchronize();
   TERN_(HAS_DELTA_SENSORLESS_PROBING, endstops.report_states());
 
@@ -272,23 +272,23 @@ void home_delta() {
 
   // At least one carriage has reached the top.
   // Now re-home each carriage separately.
-  homeaxis(A_AXIS);
-  homeaxis(B_AXIS);
-  homeaxis(C_AXIS);
+  motion.homeaxis(A_AXIS);
+  motion.homeaxis(B_AXIS);
+  motion.homeaxis(C_AXIS);
 
   // Set all carriages to their home positions
   // Do this here all at once for Delta, because
   // XYZ isn't ABC. Applying this per-tower would
   // give the impression that they are the same.
-  LOOP_ABC(i) set_axis_is_at_home((AxisEnum)i);
+  LOOP_ABC(i) motion.set_axis_is_at_home((AxisEnum)i);
 
-  sync_plan_position();
+  motion.sync_plan_position();
 
   #if DISABLED(DELTA_HOME_TO_SAFE_ZONE) && defined(HOMING_BACKOFF_POST_MM)
     constexpr xyz_float_t endstop_backoff = HOMING_BACKOFF_POST_MM;
     if (endstop_backoff.z) {
-      current_position.z -= ABS(endstop_backoff.z) * Z_HOME_DIR;
-      line_to_current_position(homing_feedrate(Z_AXIS));
+      motion.position.z -= ABS(endstop_backoff.z) * Z_HOME_DIR;
+      motion.goto_current_position(motion.homing_feedrate(Z_AXIS));
     }
   #endif
 }
