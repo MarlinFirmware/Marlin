@@ -359,6 +359,10 @@
   #if ANY(FTM_SHAPER_EI, FTM_SHAPER_2HEI, FTM_SHAPER_3HEI)
     #define HAS_FTM_EI_SHAPING 1
   #endif
+
+  #if ANY(FTM_DIR_CHANGE_HOLD_X, FTM_DIR_CHANGE_HOLD_Y, FTM_DIR_CHANGE_HOLD_Z, FTM_DIR_CHANGE_HOLD_E)
+    #define HAS_FTM_DIR_CHANGE_HOLD 1
+  #endif
 #endif
 
 // Standard Motion
@@ -372,6 +376,11 @@
   #undef INPUT_SHAPING_X
   #undef INPUT_SHAPING_Y
   #undef INPUT_SHAPING_Z
+#endif
+
+// Disallowed with no shaping
+#if NONE(INPUT_SHAPING_X, INPUT_SHAPING_Y, INPUT_SHAPING_Z)
+  #undef SHAPING_MENU
   #undef INPUT_SHAPING_E_SYNC
 #endif
 

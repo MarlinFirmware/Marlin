@@ -30,7 +30,7 @@
 
 #include "menu_item.h"
 
-#if ENABLED(LED_CONTROL_MENU)
+#if ANY(LED_CONTROL_MENU, LED_COLOR_PRESETS, NEO2_COLOR_PRESETS, NEOPIXEL2_SEPARATE)
   #include "../../feature/leds/leds.h"
 #endif
 
@@ -98,38 +98,41 @@
 
 #endif // NEO2_COLOR_PRESETS
 
-void menu_led_custom() {
-  START_MENU();
-  BACK_ITEM(MSG_LED_CONTROL);
+#if ENABLED(LED_CONTROL_MENU)
 
-  #if ENABLED(NEOPIXEL2_SEPARATE)
-    STATIC_ITEM_N(1, MSG_LED_CHANNEL_N, SS_DEFAULT|SS_INVERT);
-  #endif
-  #if ENABLED(LED_CONTROL_MENU)
+  void menu_led_custom() {
+    START_MENU();
+    BACK_ITEM(MSG_LED_CONTROL);
+
+    #if ENABLED(NEOPIXEL2_SEPARATE)
+      STATIC_ITEM_N(1, MSG_LED_CHANNEL_N, SS_DEFAULT|SS_INVERT);
+    #endif
+
     EDIT_ITEM(uint8, MSG_INTENSITY_R, &leds.color.r, 0, 255, leds.update, true);
     EDIT_ITEM(uint8, MSG_INTENSITY_G, &leds.color.g, 0, 255, leds.update, true);
     EDIT_ITEM(uint8, MSG_INTENSITY_B, &leds.color.b, 0, 255, leds.update, true);
-  #endif
-  #if HAS_WHITE_LED
-    EDIT_ITEM(uint8, MSG_INTENSITY_W, &leds.color.w, 0, 255, leds.update, true);
-  #endif
-  #if ENABLED(NEOPIXEL_LED)
-    EDIT_ITEM(uint8, MSG_LED_BRIGHTNESS, &leds.color.i, 0, 255, leds.update, true);
-  #endif
-
-  #if ENABLED(NEOPIXEL2_SEPARATE)
-    STATIC_ITEM_N(2, MSG_LED_CHANNEL_N, SS_DEFAULT|SS_INVERT);
-    EDIT_ITEM(uint8, MSG_INTENSITY_R, &leds2.color.r, 0, 255, leds2.update, true);
-    EDIT_ITEM(uint8, MSG_INTENSITY_G, &leds2.color.g, 0, 255, leds2.update, true);
-    EDIT_ITEM(uint8, MSG_INTENSITY_B, &leds2.color.b, 0, 255, leds2.update, true);
-    #if HAS_WHITE_LED2
-      EDIT_ITEM(uint8, MSG_INTENSITY_W, &leds2.color.w, 0, 255, leds2.update, true);
+    #if HAS_WHITE_LED
+      EDIT_ITEM(uint8, MSG_INTENSITY_W, &leds.color.w, 0, 255, leds.update, true);
     #endif
-    EDIT_ITEM(uint8, MSG_NEO2_BRIGHTNESS, &leds2.color.i, 0, 255, leds2.update, true);
-  #endif
+    #if ENABLED(NEOPIXEL_LED)
+      EDIT_ITEM(uint8, MSG_LED_BRIGHTNESS, &leds.color.i, 0, 255, leds.update, true);
+    #endif
 
-  END_MENU();
-}
+    #if ENABLED(NEOPIXEL2_SEPARATE)
+      STATIC_ITEM_N(2, MSG_LED_CHANNEL_N, SS_DEFAULT|SS_INVERT);
+      EDIT_ITEM(uint8, MSG_INTENSITY_R, &leds2.color.r, 0, 255, leds2.update, true);
+      EDIT_ITEM(uint8, MSG_INTENSITY_G, &leds2.color.g, 0, 255, leds2.update, true);
+      EDIT_ITEM(uint8, MSG_INTENSITY_B, &leds2.color.b, 0, 255, leds2.update, true);
+      #if HAS_WHITE_LED2
+        EDIT_ITEM(uint8, MSG_INTENSITY_W, &leds2.color.w, 0, 255, leds2.update, true);
+      #endif
+      EDIT_ITEM(uint8, MSG_NEO2_BRIGHTNESS, &leds2.color.i, 0, 255, leds2.update, true);
+    #endif
+
+    END_MENU();
+  }
+
+#endif // LED_CONTROL_MENU
 
 void menu_led() {
   #if ENABLED(CASE_LIGHT_MENU)
@@ -171,7 +174,9 @@ void menu_led() {
   //
   // Directly set RGBW and Brightness
   //
-  SUBMENU(MSG_CUSTOM_LEDS, menu_led_custom);
+  #if ENABLED(LED_CONTROL_MENU)
+    SUBMENU(MSG_CUSTOM_LEDS, menu_led_custom);
+  #endif
 
   //
   // Set Case light on/off/brightness

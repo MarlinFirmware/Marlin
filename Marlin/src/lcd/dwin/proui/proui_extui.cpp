@@ -107,7 +107,7 @@ namespace ExtUI {
   void onStatusChanged(const char * const) { dwinCheckStatusMessage(); }
 
   #if ENABLED(ADVANCED_PAUSE_FEATURE)
-    void onPauseMode(const PauseMessage message, const PauseMode mode/*=PAUSE_MODE_SAME*/, const uint8_t extruder/*=active_extruder*/) {
+    void onPauseMode(const PauseMessage message, const PauseMode mode/*=PAUSE_MODE_SAME*/, const uint8_t extruder/*=motion.extruder*/) {
       if (mode != PAUSE_MODE_SAME) pause_mode = mode;
       switch (message) {
         case PAUSE_MESSAGE_PARKING:  dwinPopupPause(GET_TEXT_F(MSG_PAUSE_PRINT_PARKING)); break; // M125
@@ -238,7 +238,7 @@ namespace ExtUI {
   void onSteppersDisabled() {}
   void onSteppersEnabled() {}
   void onAxisDisabled(const axis_t axis) {
-    set_axis_untrusted((AxisEnum)axis); // MRISCOC workaround: https://github.com/MarlinFirmware/Marlin/issues/23095
+    motion.set_axis_untrusted((AxisEnum)axis); // MRISCOC workaround: https://github.com/MarlinFirmware/Marlin/issues/23095
   }
   void onAxisEnabled(const axis_t) {}
 

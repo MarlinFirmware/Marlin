@@ -200,7 +200,7 @@ void PrintJobRecovery::save(const bool force/*=false*/, const float zraise/*=POW
         || ELAPSED(ms, next_save_ms)
       #endif
       // Save if Z is above the last-saved position by some minimum height
-      || current_position.z > info.current_position.z + POWER_LOSS_MIN_Z_CHANGE
+      || motion.position.z > info.current_position.z + POWER_LOSS_MIN_Z_CHANGE
     #endif
   ) {
 
@@ -216,8 +216,8 @@ void PrintJobRecovery::save(const bool force/*=false*/, const float zraise/*=POW
     // Machine state
     // info.sdpos and info.current_position are pre-filled from the Stepper ISR
 
-    info.feedrate = uint16_t(MMS_TO_MMM(feedrate_mm_s));
-    info.feedrate_percentage = feedrate_percentage;
+    info.feedrate = uint16_t(MMS_TO_MMM(motion.feedrate_mm_s));
+    info.feedrate_percentage = motion.feedrate_percentage;
     COPY(info.flow_percentage, planner.flow_percentage);
 
     info.zraise = zraise;
@@ -225,16 +225,16 @@ void PrintJobRecovery::save(const bool force/*=false*/, const float zraise/*=POW
 
     TERN_(CANCEL_OBJECTS, info.cancel_state = cancelable.state);
     TERN_(GCODE_REPEAT_MARKERS, info.stored_repeat = repeat);
-    TERN_(HAS_HOME_OFFSET, info.home_offset = home_offset);
-    TERN_(HAS_WORKSPACE_OFFSET, info.workspace_offset = workspace_offset);
-    E_TERN_(info.active_extruder = active_extruder);
+    TERN_(HAS_HOME_OFFSET, info.home_offset = motion.home_offset);
+    TERN_(HAS_WORKSPACE_OFFSET, info.workspace_offset = motion.workspace_offset);
+    E_TERN_(info.extruder = motion.extruder);
 
     #if HAS_VOLUMETRIC_EXTRUSION
       info.flag.volumetric_enabled = parser.volumetric_enabled;
       #if HAS_MULTI_EXTRUDER
         COPY(info.filament_size, planner.filament_size);
       #else
-        if (parser.volumetric_enabled) info.filament_size[0] = planner.filament_size[active_extruder];
+        if (parser.volumetric_enabled) info.filament_size[0] = planner.filament_size[motion.extruder];
       #endif
     #endif
 
@@ -285,10 +285,10 @@ void PrintJobRecovery::save(const bool force/*=false*/, const float zraise/*=POW
 
         #if POWER_LOSS_RETRACT_LEN
           // Retract filament now
-          const uint16_t old_flow = planner.flow_percentage[active_extruder];
-          planner.set_flow(active_extruder, 100);
+          const uint16_t old_flow = planner.flow_percentage[motion.extruder];
+          planner.set_flow(motion.extruder, 100);
           gcode.process_subcommands_now(F("G1F3000E-" STRINGIFY(POWER_LOSS_RETRACT_LEN)));
-          planner.set_flow(active_extruder, old_flow);
+          planner.set_flow(motion.extruder, old_flow);
         #endif
 
         #if POWER_LOSS_ZRAISE
@@ -327,7 +327,7 @@ void PrintJobRecovery::save(const bool force/*=false*/, const float zraise/*=POW
 
     #if POWER_LOSS_ZRAISE
       // Get the limited Z-raise to do now or on resume
-      const float zraise = _MAX(0, _MIN(current_position.z + POWER_LOSS_ZRAISE, Z_MAX_POS - 1) - current_position.z);
+      const float zraise = _MAX(0, _MIN(motion.position.z + POWER_LOSS_ZRAISE, Z_MAX_POS - 1) - motion.position.z);
     #else
       constexpr float zraise = 0;
     #endif
@@ -344,15 +344,15 @@ void PrintJobRecovery::save(const bool force/*=false*/, const float zraise/*=POW
 
     #if ENABLED(BACKUP_POWER_SUPPLY)
       // Do a hard-stop of the steppers (with possibly a loud thud)
-      quickstop_stepper();
+      motion.quickstop_stepper();
       // With backup power a retract and raise can be done now
       retract_and_lift(zraise);
     #endif
 
     if (TERN0(DEBUG_POWER_LOSS_RECOVERY, simulated)) {
       card.fileHasFinished();
-      current_position.reset();
-      sync_plan_position();
+      motion.position.reset();
+      motion.sync_plan_position();
     }
     else
       marlin.kill(GET_TEXT_F(MSG_OUTAGE_RECOVERY));
@@ -489,8 +489,8 @@ void PrintJobRecovery::resume() {
     PROCESS_SUBCOMMANDS_NOW(TS(F("G1F1000X"), p_float_t(p.x, 3), 'Y', p_float_t(p.y, 3), F("\nG28HZ")));
   #endif
 
-  // Mark all axes as having been homed (no effect on current_position)
-  set_all_homed();
+  // Mark all axes as having been homed (no effect on motion.position)
+  motion.set_all_homed();
 
   #if HAS_LEVELING
     // Restore Z fade and possibly re-enable bed leveling compensation.
@@ -516,7 +516,7 @@ void PrintJobRecovery::resume() {
       EXTRUDER_LOOP()
         PROCESS_SUBCOMMANDS_NOW(TS(F("M200T"), e, F("D"), p_float_t(info.filament_size[e], 3)));
       if (!info.flag.volumetric_enabled)
-        PROCESS_SUBCOMMANDS_NOW(TS(F("M200D0T"), info.active_extruder));
+        PROCESS_SUBCOMMANDS_NOW(TS(F("M200D0T"), info.extruder));
     #else
       if (info.flag.volumetric_enabled)
         PROCESS_SUBCOMMANDS_NOW(TS(F("M200D"), p_float_t(info.filament_size[0], 3)));
@@ -536,7 +536,7 @@ void PrintJobRecovery::resume() {
 
   // Restore the previously active tool (with no_move)
   #if HAS_MULTI_EXTRUDER || HAS_MULTI_HOTEND
-    PROCESS_SUBCOMMANDS_NOW(TS('T', info.active_extruder, 'S'));
+    PROCESS_SUBCOMMANDS_NOW(TS('T', info.extruder, 'S'));
   #endif
 
   // Restore print cooling fan speeds
@@ -586,7 +586,7 @@ void PrintJobRecovery::resume() {
 
   // Restore the feedrate and percentage
   PROCESS_SUBCOMMANDS_NOW(TS(F("G1F"), info.feedrate));
-  feedrate_percentage = info.feedrate_percentage;
+  motion.feedrate_percentage = info.feedrate_percentage;
 
   // Flowrate percentage
   EXTRUDER_LOOP() planner.set_flow(e, info.flow_percentage[e]);
@@ -600,8 +600,8 @@ void PrintJobRecovery::resume() {
   #endif
 
   TERN_(GCODE_REPEAT_MARKERS, repeat = info.stored_repeat);
-  TERN_(HAS_HOME_OFFSET, home_offset = info.home_offset);
-  TERN_(HAS_WORKSPACE_OFFSET, workspace_offset = info.workspace_offset);
+  TERN_(HAS_HOME_OFFSET, motion.home_offset = info.home_offset);
+  TERN_(HAS_WORKSPACE_OFFSET, motion.workspace_offset = info.workspace_offset);
 
   // Relative axis modes
   gcode.axis_relative = info.axis_relative;
@@ -625,7 +625,7 @@ void PrintJobRecovery::resume() {
     DEBUG_ECHOLN(prefix, F(" Job Recovery Info...\nvalid_head:"), info.valid_head, F(" valid_foot:"), info.valid_foot);
     if (info.valid_head) {
       if (info.valid_head == info.valid_foot) {
-        DEBUG_ECHOPGM("current_position: ");
+        DEBUG_ECHOPGM("curr.position: ");
         LOOP_LOGICAL_AXES(i) {
           if (i) DEBUG_CHAR(',');
           DEBUG_ECHO(info.current_position[i]);
@@ -671,7 +671,7 @@ void PrintJobRecovery::resume() {
         #endif
 
         #if HAS_MULTI_EXTRUDER
-          DEBUG_ECHOLNPGM("active_extruder: ", info.active_extruder);
+          DEBUG_ECHOLNPGM("extruder: ", info.extruder);
         #endif
 
         #if HAS_VOLUMETRIC_EXTRUSION

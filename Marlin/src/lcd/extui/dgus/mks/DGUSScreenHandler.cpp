@@ -94,7 +94,7 @@ void DGUSScreenHandlerMKS::sendFanToDisplay(DGUS_VP_Variable &var) {
 }
 
 void DGUSScreenHandlerMKS::sendBabyStepToDisplay(DGUS_VP_Variable &var) {
-  float value = current_position.z;
+  float value = motion.position.z;
   value *= 100; //cpow(10, 2);
   dgus.writeVariable(VP_SD_Print_Baby, (uint16_t)value);
 }
@@ -449,7 +449,7 @@ void DGUSScreenHandlerMKS::levelControl(DGUS_VP_Variable &var, void *val_ptr) {
       break;
 
     case 1:
-      soft_endstop._enabled = true;
+      motion.soft_endstop._enabled = true;
       gotoScreen(MKSLCD_SCREEM_TOOL);
       break;
 
@@ -480,7 +480,7 @@ void DGUSScreenHandlerMKS::meshLevel(DGUS_VP_Variable &var, void *val_ptr) {
         integer = offset; // get int
         Deci = (offset * 10) % 10;
         Deci2 = (offset * 100) % 10;
-        soft_endstop._enabled = false;
+        motion.soft_endstop._enabled = false;
         queue.enqueue_now(F("G91"));
         snprintf_P(cmd_buf, 30, PSTR("G1 Z%d.%d%d"), integer, Deci, Deci2);
         queue.enqueue_one_now(cmd_buf);
@@ -492,7 +492,7 @@ void DGUSScreenHandlerMKS::meshLevel(DGUS_VP_Variable &var, void *val_ptr) {
         integer = offset;       // get int
         Deci = (offset * 10) % 10;
         Deci2 = (offset * 100) % 10;
-        soft_endstop._enabled = false;
+        motion.soft_endstop._enabled = false;
         queue.enqueue_now(F("G91"));
         snprintf_P(cmd_buf, 30, PSTR("G1 Z-%d.%d%d"), integer, Deci, Deci2);
         queue.enqueue_one_now(cmd_buf);
@@ -549,7 +549,7 @@ void DGUSScreenHandlerMKS::meshLevel(DGUS_VP_Variable &var, void *val_ptr) {
         }
         else if (mesh_point_count == 0) {
           mesh_point_count = GRID_MAX_POINTS;
-          soft_endstop._enabled = true;
+          motion.soft_endstop._enabled = true;
           settings.save();
           gotoScreen(MKSLCD_SCREEM_TOOL);
         }
@@ -769,8 +769,8 @@ void DGUSScreenHandler::handleManualMove(DGUS_VP_Variable &var, void *val_ptr) {
   }
 
   // Movement
-  const bool old_relative_mode = relative_mode;
-  if (!relative_mode) queue.enqueue_now(F("G91"));
+  const bool old_relative_mode = motion.relative_mode;
+  if (!old_relative_mode) queue.enqueue_now(F("G91"));
 
   // TODO: Use MString / TS() ...
 
