@@ -581,7 +581,7 @@ inline float home_bump_mm(const AxisEnum axis) {
 #endif
 
 #if ENABLED(NO_MOTION_BEFORE_HOMING)
-  #define MOTION_CONDITIONS (marlin.isRunning() && !homing_needed_error())
+  #define MOTION_CONDITIONS (marlin.isRunning() && !motion.homing_needed_error())
 #else
   #define MOTION_CONDITIONS marlin.isRunning()
 #endif
