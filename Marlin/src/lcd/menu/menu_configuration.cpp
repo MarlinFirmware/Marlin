@@ -196,7 +196,7 @@ void menu_advanced_settings();
 
   #if ENABLED(TOOLCHANGE_MIGRATION_FEATURE)
 
-    #include "../../module/motion.h" // for active_extruder
+    #include "../../module/motion.h" // for motion.extruder
     #include "../../gcode/queue.h"
 
     void menu_toolchange_migration() {
@@ -211,7 +211,7 @@ void menu_advanced_settings();
 
       // Migrate to a chosen extruder
       EXTRUDER_LOOP() {
-        if (e != active_extruder) {
+        if (e != motion.extruder) {
           ACTION_ITEM_N_F(e, msg_migrate, []{
             char cmd[12];
             sprintf_P(cmd, PSTR("M217 T%i"), int(MenuItemBase::itemIndex));
@@ -232,9 +232,9 @@ void menu_advanced_settings();
   void menu_tool_offsets() {
 
     auto _recalc_offsets = []{
-      if (active_extruder && all_axes_trusted()) {  // For the 2nd extruder re-home so the next tool-change gets the new offsets.
+      if (motion.extruder && motion.all_axes_trusted()) {  // For the 2nd extruder re-home so the next tool-change gets the new offsets.
         queue.inject_P(G28_STR); // In future, we can babystep the 2nd extruder (if active), making homing unnecessary.
-        active_extruder = 0;
+        motion.extruder = 0;
       }
     };
 
@@ -277,7 +277,7 @@ void menu_advanced_settings();
 #if ENABLED(DUAL_X_CARRIAGE)
 
   void menu_idex() {
-    const bool need_g28 = axes_should_home(_BV(Y_AXIS)|_BV(Z_AXIS));
+    const bool need_g28 = motion.axes_should_home(_BV(Y_AXIS)|_BV(Z_AXIS));
 
     START_MENU();
     BACK_ITEM(MSG_CONFIGURATION);
@@ -410,17 +410,17 @@ void menu_advanced_settings();
 
     #if ENABLED(MENUS_ALLOW_INCH_UNITS)
       #define _EDIT_HOMING_FR(A) do{ \
-        const float minfr = MMS_TO_MMM(planner.settings.min_feedrate_mm_s); \
-        const float maxfr = MMS_TO_MMM(planner.settings.max_feedrate_mm_s[_AXIS(A)]); \
-        editable.decimal = A##_AXIS_UNIT(homing_feedrate_mm_m.A); \
+        const float minfr = MMS_TO_MMM(planner.settings.min_feedrate_mm_s), \
+                    maxfr = MMS_TO_MMM(planner.settings.max_feedrate_mm_s[_AXIS(A)]); \
+        editable.decimal = A##_AXIS_UNIT(motion.homing_feedrate_mm_m.A); \
         EDIT_ITEM_FAST_N(float5, _AXIS(A), MSG_HOMING_FEEDRATE_N, &editable.decimal, \
           A##_AXIS_UNIT(minfr), A##_AXIS_UNIT(maxfr), []{ \
-          homing_feedrate_mm_m.A = parser.axis_value_to_mm(_AXIS(A), editable.decimal); \
+          motion.homing_feedrate_mm_m.A = parser.axis_value_to_mm(_AXIS(A), editable.decimal); \
         }); \
       }while(0);
     #else
       #define _EDIT_HOMING_FR(A) \
-        EDIT_ITEM_FAST_N(float5, _AXIS(A), MSG_HOMING_FEEDRATE_N, &homing_feedrate_mm_m.A, MMS_TO_MMM(planner.settings.min_feedrate_mm_s), MMS_TO_MMM(planner.settings.max_feedrate_mm_s[_AXIS(A)]));
+        EDIT_ITEM_FAST_N(float5, _AXIS(A), MSG_HOMING_FEEDRATE_N, &motion.homing_feedrate_mm_m.A, MMS_TO_MMM(planner.settings.min_feedrate_mm_s), MMS_TO_MMM(planner.settings.max_feedrate_mm_s[_AXIS(A)]));
     #endif
 
     MAIN_AXIS_MAP(_EDIT_HOMING_FR);

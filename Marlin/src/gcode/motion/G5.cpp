@@ -60,8 +60,8 @@ void GcodeSuite::G5() {
     { parser.linearval('P'), parser.linearval('Q') }
   };
 
-  cubic_b_spline(current_position, destination, offsets, MMS_SCALED(feedrate_mm_s), active_extruder);
-  current_position = destination;
+  cubic_b_spline(motion.position, motion.destination, offsets, motion.mms_scaled(), motion.extruder);
+  motion.position = motion.destination;
 }
 
 #endif // BEZIER_CURVE_SUPPORT

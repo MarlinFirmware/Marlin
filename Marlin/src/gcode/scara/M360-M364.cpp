@@ -31,7 +31,7 @@
 inline bool SCARA_move_to_cal(const uint8_t delta_a, const uint8_t delta_b) {
   if (marlin.isRunning()) {
     forward_kinematics(delta_a, delta_b);
-    do_blocking_move_to_xy(cartes);
+    motion.blocking_move_xy(motion.cartes);
     return true;
   }
   return false;

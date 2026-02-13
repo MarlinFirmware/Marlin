@@ -941,9 +941,6 @@
   #if ENABLED(I2S_STEPPER_STREAM)
     #warning "FT_MOTION has not been tested with I2S_STEPPER_STREAM."
   #endif
-  #if ENABLED(NONLINEAR_EXTRUSION)
-    #warning "NONLINEAR_EXTRUSION does not (currently) operate when FT_MOTION is the active motion system."
-  #endif
   #if ENABLED(LIN_ADVANCE)
     #warning "Be aware that FT_MOTION K factor is now set with M900 K (same as LIN_ADVANCE)."
     #if DISABLED(FTM_SMOOTHING)
