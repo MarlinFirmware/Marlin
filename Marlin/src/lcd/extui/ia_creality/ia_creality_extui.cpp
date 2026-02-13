@@ -244,7 +244,7 @@ void onUserConfirmRequired(const int, FSTR_P const fstr, FSTR_P const) {
   void onPauseMode(
     const PauseMessage message,
     const PauseMode mode/*=PAUSE_MODE_SAME*/,
-    const uint8_t extruder/*=active_extruder*/
+    const uint8_t extruder/*=motion.extruder*/
   ) {
     stdOnPauseMode(message, mode, extruder);
   }

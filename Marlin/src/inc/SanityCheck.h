@@ -870,8 +870,8 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
 #if ENABLED(NONLINEAR_EXTRUSION)
   #if HAS_MULTI_EXTRUDER
     #error "NONLINEAR_EXTRUSION doesn't currently support multi-extruder setups."
-  #elif DISABLED(CPU_32_BIT)
-    #error "NONLINEAR_EXTRUSION requires a 32-bit CPU."
+  #elif NONE(CPU_32_BIT, NO_STANDARD_MOTION)
+    #error "NONLINEAR_EXTRUSION requires a 32-bit CPU or NO_STANDARD_MOTION."
   #endif
 #endif
 
@@ -1943,7 +1943,7 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
 #if ENABLED(DUAL_X_CARRIAGE)
   #if EXTRUDERS < 2
     #error "DUAL_X_CARRIAGE requires 2 (or more) extruders."
-  #elif ANY(CORE_IS_XY, CORE_IS_XZ, MARKFORGED_XY, MARKFORGED_YX)
+  #elif HAS_REAL_X
     #error "DUAL_X_CARRIAGE cannot be used with COREXY, COREYX, COREXZ, COREZX, MARKFORGED_YX, or MARKFORGED_XY."
   #elif !GOOD_AXIS_PINS(X2)
     #error "DUAL_X_CARRIAGE requires X2 stepper pins to be defined."
@@ -2714,6 +2714,22 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
     #error "NEOPIXEL2_SEPARATE requires NEOPIXEL2_TYPE, NEOPIXEL2_PIN and NEOPIXEL2_PIXELS."
   #elif ENABLED(NEO2_COLOR_PRESETS) && DISABLED(NEOPIXEL2_SEPARATE)
     #error "NEO2_COLOR_PRESETS requires NEOPIXEL2_SEPARATE to be enabled."
+  #endif
+  #ifdef BOARD_NEOPIXEL_MAX
+    #if (NEOPIXEL_PIXELS > BOARD_NEOPIXEL_MAX && NEOPIXEL_PIN == BOARD_NEOPIXEL_PIN) || (NEOPIXEL_PIXELS > BOARD_NEOPIXEL_MAX && DISABLED(NEOPIXEL2_SEPARATE) && NEOPIXEL2_PIN == BOARD_NEOPIXEL_PIN)
+      #if ENABLED(BOARD_HAS_DCDC5V)
+        #error "NEOPIXEL_PIXELS exceeds the recommended maximum for your MOTHERBOARD."
+      #elif MB(BTT_SKR_MINI_E3_V2_0, BTT_SKR_MINI_E3_V3_0)
+        static_assert(false, "\nNEOPIXEL_PIXELS exceeds the recommended maximum for your MOTHERBOARD.\nConsider adding a 5V DC-DC converter and #define BOARD_HAS_DCDC5V to your Configuration.h.");
+      #endif
+    #endif
+    #if ENABLED(NEOPIXEL2_SEPARATE) && NEOPIXEL2_PIXELS > BOARD_NEOPIXEL_MAX && NEOPIXEL2_PIN == BOARD_NEOPIXEL_PIN
+      #if ENABLED(BOARD_HAS_DCDC5V)
+        #error "NEOPIXEL2_PIXELS exceeds the recommended maximum for your MOTHERBOARD."
+      #elif MB(BTT_SKR_MINI_E3_V2_0, BTT_SKR_MINI_E3_V3_0)
+        static_assert(false, "\nNEOPIXEL2_PIXELS exceeds the recommended maximum for your MOTHERBOARD.\nConsider adding a 5V DC-DC converter and #define BOARD_HAS_DCDC5V to your Configuration.h.");
+      #endif
+    #endif
   #endif
 #endif
 
@@ -4499,9 +4515,7 @@ static_assert(_PLUS_TEST(3), "DEFAULT_MAX_ACCELERATION values must be positive."
     #error "EMERGENCY_PARSER is required with FTM_RESONANCE_TEST (to cancel the test)."
   #endif
   #if !HAS_STANDARD_MOTION
-    #if ENABLED(NONLINEAR_EXTRUSION)
-      #error "NONLINEAR_EXTRUSION is not yet available in FT_MOTION. Disable NO_STANDARD_MOTION if you require it."
-    #elif ENABLED(SMOOTH_LIN_ADVANCE)
+    #if ENABLED(SMOOTH_LIN_ADVANCE)
       #error "SMOOTH_LIN_ADVANCE is not yet available in FT_MOTION. Disable NO_STANDARD_MOTION if you require it."
     #elif ENABLED(MIXING_EXTRUDER)
       #error "MIXING_EXTRUDER is not yet available in FT_MOTION. Disable NO_STANDARD_MOTION if you require it."
