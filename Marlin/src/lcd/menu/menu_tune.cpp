@@ -111,7 +111,7 @@ void menu_tune() {
   //
   // Speed:
   //
-  EDIT_ITEM(int3, MSG_SPEED, &feedrate_percentage, SPEED_EDIT_MIN, SPEED_EDIT_MAX);
+  EDIT_ITEM(int3, MSG_SPEED, &motion.feedrate_percentage, SPEED_EDIT_MIN, SPEED_EDIT_MAX);
 
   //
   // Manual bed leveling, Bed Z:
@@ -206,7 +206,7 @@ void menu_tune() {
   // Flow:
   //
   #if HAS_EXTRUDERS
-    EDIT_ITEM(int3, MSG_FLOW, &planner.flow_percentage[active_extruder], FLOW_EDIT_MIN, FLOW_EDIT_MAX, []{ planner.refresh_e_factor(active_extruder); });
+    EDIT_ITEM(int3, MSG_FLOW, &planner.flow_percentage[motion.extruder], FLOW_EDIT_MIN, FLOW_EDIT_MAX, []{ planner.refresh_e_factor(motion.extruder); });
     // Flow En:
     #if HAS_MULTI_EXTRUDER
       EXTRUDER_LOOP()

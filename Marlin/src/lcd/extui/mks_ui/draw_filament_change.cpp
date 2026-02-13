@@ -96,9 +96,9 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
         if (uiCfg.print_state != IDLE && uiCfg.print_state != REPRINTED)
           gcode.process_subcommands_now(uiCfg.extruderIndexBak == 1 ? F("T1") : F("T0"));
       #endif
-      feedrate_mm_s = (float)uiCfg.moveSpeed_bak;
+      motion.feedrate_mm_s = (float)uiCfg.moveSpeed_bak;
       if (uiCfg.print_state == PAUSED)
-        planner.set_e_position_mm((destination.e = current_position.e = uiCfg.current_e_position_bak));
+        planner.set_e_position_mm((motion.destination.e = motion.position.e = uiCfg.current_e_position_bak));
       thermalManager.setTargetHotend(uiCfg.hotendTargetTempBak, uiCfg.extruderIndex);
 
       goto_previous_ui();

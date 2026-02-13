@@ -154,12 +154,12 @@ class TFilamentMonitor : public FilamentMonitorBase {
           uint8_t extruder = 0;
           if (ran_out) while (!runout_flags.test(extruder)) extruder++;
         #else
-          const bool ran_out = runout_flags[active_extruder];  // suppress non active extruders
-          uint8_t extruder = active_extruder;
+          const bool ran_out = runout_flags[motion.extruder];  // suppress non active extruders
+          uint8_t extruder = motion.extruder;
         #endif
       #else
         const bool ran_out = bool(runout_flags);
-        uint8_t extruder = active_extruder;
+        uint8_t extruder = motion.extruder;
       #endif
 
       if (!ran_out) return;
