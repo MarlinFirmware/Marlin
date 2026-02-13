@@ -3256,6 +3256,9 @@
     #define NOZZLE_TO_PROBE_OFFSET { 0, 0, 0 }
   #endif
 #endif
+#ifndef XY_PROBE_FEEDRATE_MIN
+  #define XY_PROBE_FEEDRATE_MIN 60 // Minimum mm/min value for 'G29 S<feedrate>' / XY_PROBE_FEEDRATE_MM_S
+#endif
 
 /**
  * XYZ Bed Skew Correction
