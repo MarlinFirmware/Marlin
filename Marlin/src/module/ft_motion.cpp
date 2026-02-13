@@ -396,6 +396,7 @@ bool FTMotion::plan_next_block() {
 
     // Cache the extruder index / axis for this block
     #if ANY(HAS_MULTI_EXTRUDER, MIXING_EXTRUDER)
+      TERN_(MIXING_EXTRUDER, mixer.stepper_setup(current_block->b_color));
       stepper.stepper_extruder = current_block->extruder;
     #endif
     #if ENABLED(DISTINCT_E_FACTORS)
