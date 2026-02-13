@@ -293,11 +293,13 @@ constexpr ena_mask_t enable_overlap[] = {
   #endif
 
   typedef struct {
+    float A, B, C;
+    void reset() { A = B = 0.0f; C = 1.0f; }
+  } nonlinear_coeff_t;
+
+  typedef struct {
     bool enabled;
-    struct {
-      float A, B, C;
-      void reset() { A = B = 0.0f; C = 1.0f; }
-    } coeff;
+    nonlinear_coeff_t coeff;
     void reset() {
       enabled = ENABLED(NONLINEAR_EXTRUSION_DEFAULT_ON);
       coeff.reset();
@@ -317,6 +319,26 @@ constexpr ena_mask_t enable_overlap[] = {
   } nonlinear_t;
 
 #endif // NONLINEAR_EXTRUSION
+
+#if ANY(FREEZE_FEATURE, SOFT_FEED_HOLD)
+
+  typedef union {
+    uint8_t state;
+    struct { bool triggered:1, solid:1; };
+  } frozen_state_t;
+
+  enum FrozenState { FROZEN_TRIGGERED, FROZEN_SOLID };
+
+  #if ENABLED(SOFT_FEED_HOLD)
+    enum FreezePhase : uint8_t {
+      FREEZE_STATIONARY,
+      FREEZE_ACCELERATION,
+      FREEZE_DECELERATION,
+      FREEZE_CRUISE
+    };
+  #endif
+
+#endif
 
 //
 // Stepper class definition
@@ -367,12 +389,16 @@ class Stepper {
       static constexpr uint8_t last_moved_extruder = 0;
     #endif
 
-    #if ENABLED(FREEZE_FEATURE)
-      static bool frozen;                 // Set this flag to instantly freeze motion
+    #if ANY(FREEZE_FEATURE, SOFT_FEED_HOLD)
+      static frozen_state_t frozen_state;           // Frozen flags
+      static void set_frozen_triggered(const bool state) { frozen_state.triggered = state; }
+      #if ENABLED(SOFT_FEED_HOLD)
+        static bool is_frozen_triggered() { return frozen_state.triggered; }
+      #endif
     #endif
 
     #if ENABLED(NONLINEAR_EXTRUSION)
-      static nonlinear_t ne;
+      static nonlinear_t nle;
     #endif
 
     #if ENABLED(ADAPTIVE_STEP_SMOOTHING_TOGGLE)
@@ -383,7 +409,7 @@ class Stepper {
 
     #if ENABLED(SMOOTH_LIN_ADVANCE)
       static float extruder_advance_tau[DISTINCT_E]; // Smoothing time; also the lookahead time of the smoother
-      static void set_advance_tau(const float tau, const uint8_t e=active_extruder) {
+      static void set_advance_tau(const float tau, const uint8_t e=motion.extruder) {
         const uint8_t i = E_INDEX_N(e);
         extruder_advance_tau[i] = tau;
         extruder_advance_tau_ticks[i] = tau * STEPPER_TIMER_RATE;
@@ -391,7 +417,7 @@ class Stepper {
         const float alpha_float = 1.0f - expf(-float(SMOOTH_LIN_ADV_INTERVAL) * (SMOOTH_LIN_ADV_EXP_ORDER) / extruder_advance_tau_ticks[i]);
         extruder_advance_alpha_q30[i] = int32_t(alpha_float * _BV32(30));
       }
-      static float get_advance_tau(const uint8_t e=active_extruder) {
+      static float get_advance_tau(const uint8_t e=motion.extruder) {
         return extruder_advance_tau[E_INDEX_N(e)];
       }
     #endif
@@ -631,18 +657,18 @@ class Stepper {
     // Quickly stop all steppers
     FORCE_INLINE static void quick_stop() { abort_current_block = true; }
 
-    // The direction of a single motor. A true result indicates forward or positive motion.
-    FORCE_INLINE static bool motor_direction(const AxisEnum axis) { return last_direction_bits[axis]; }
+    // The direction of a single motor and/or real axis. A true result indicates forward or positive motion.
+    FORCE_INLINE static bool axis_direction(const AxisEnum real) { return last_direction_bits[real]; }
 
     #if HAS_STANDARD_MOTION
-      // The last movement direction was not null on the specified axis. Note that motor direction is not necessarily the same.
-      FORCE_INLINE static bool axis_is_moving(const AxisEnum axis) { return axis_did_move[axis]; }
+      // The last segment moved on the specified motor and/or real axis.
+      FORCE_INLINE static bool axis_is_moving(const AxisEnum real) { return axis_did_move[real]; }
     #endif
 
     // Handle a triggered endstop
     static void endstop_triggered(const AxisEnum axis);
 
-    // Triggered position of an axis in steps
+    // Triggered position of an axis in steps, converted as needed from Core kinematics
     static int32_t triggered_position(const AxisEnum axis);
 
     #if HAS_MOTOR_CURRENT_SPI || HAS_MOTOR_CURRENT_PWM
@@ -703,15 +729,15 @@ class Stepper {
     }
     static void mark_axis_enabled(const AxisEnum axis E_OPTARG(const uint8_t eindex=0)) {
       SBI(axis_enabled.bits, INDEX_OF_AXIS(axis, eindex));
-      TERN_(HAS_Z_AXIS, if (axis == Z_AXIS) z_min_trusted = true);
+      TERN_(HAS_Z_AXIS, if (axis == Z_AXIS) motion.z_min_trusted = true);
       // TODO: DELTA should have "Z" state affect all (ABC) motors and treat "XY" on/off as meaningless
     }
     static void mark_axis_disabled(const AxisEnum axis E_OPTARG(const uint8_t eindex=0)) {
       CBI(axis_enabled.bits, INDEX_OF_AXIS(axis, eindex));
       #if HAS_Z_AXIS
         if (TERN0(Z_CAN_FALL_DOWN, axis == Z_AXIS)) {
-          z_min_trusted = false;
-          current_position.z = 0;
+          motion.z_min_trusted = false;
+          motion.position.z = 0;
         }
       #endif
       // TODO: DELTA should have "Z" state affect all (ABC) motors and treat "XY" on/off as meaningless
@@ -800,6 +826,15 @@ class Stepper {
       static void ftMotion_stepper();
     #endif
 
+    #if ENABLED(SOFT_FEED_HOLD)
+      static uint32_t frozen_time;                  // How much time passed since frozen_state was triggered?
+      #if ENABLED(LASER_FEATURE)
+        static uint8_t frozen_last_laser_power;     // Saved laser power prior to halting motion
+      #endif
+      static void check_frozen_state(const FreezePhase type, const uint32_t interval);
+      static void check_frozen_time(uint32_t &step_rate);
+      static void set_frozen_solid(const bool state);
+    #endif
 };
 
 extern Stepper stepper;
