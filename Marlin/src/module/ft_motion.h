@@ -300,11 +300,11 @@ class FTMotion {
     static TrajectoryType getTrajectoryType() { return TERN(FTM_POLYS, trajectoryType, TrajectoryType::TRAPEZOIDAL); }
     static FSTR_P getTrajectoryName();
 
-    FORCE_INLINE static bool axis_is_moving(const AxisEnum axis) {
-      return cfg.active ? moving_axis_flags[axis] : TERN0(HAS_STANDARD_MOTION, stepper.axis_is_moving(axis));
+    FORCE_INLINE static bool axis_is_moving(const AxisEnum real) {
+      return cfg.active ? moving_axis_flags[real] : TERN0(HAS_STANDARD_MOTION, stepper.axis_is_moving(real));
     }
-    FORCE_INLINE static bool motor_direction(const AxisEnum axis) {
-      return cfg.active ? axis_move_dir[axis] : stepper.last_direction_bits[axis];
+    FORCE_INLINE static bool axis_direction(const AxisEnum real) {
+      return cfg.active ? axis_move_dir[real] : stepper.last_direction_bits[real];
     }
 
     // A frame of the stepping plan

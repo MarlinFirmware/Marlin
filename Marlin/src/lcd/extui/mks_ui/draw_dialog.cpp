@@ -101,7 +101,7 @@ static void btn_ok_event_cb(lv_obj_t *btn, lv_event_t event) {
         }
         card.openFileRead(cur_name);
         if (card.isFileOpen()) {
-          feedrate_percentage = 100;
+          motion.feedrate_percentage = 100;
           TERN_(HAS_EXTRUDERS, planner.set_flow(0, 100));
           E_TERN_(planner.set_flow(1, 100));
           card.startOrResumeFilePrinting();

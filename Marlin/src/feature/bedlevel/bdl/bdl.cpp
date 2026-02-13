@@ -72,8 +72,8 @@ void BDS_Leveling::init(uint8_t _sda, uint8_t _scl, uint16_t delay_s) {
   config_state = BDS_IDLE;
   const int ret = BD_I2C_SENSOR.i2c_init(_sda, _scl, BD_SENSOR_I2C_ADDR, delay_s);
   if (ret != 1) SERIAL_ECHOLNPGM("BD Sensor Init Fail (", ret, ")");
-  sync_plan_position();
-  pos_zero_offset = planner.get_axis_position_mm(Z_AXIS) - current_position.z;
+  motion.sync_plan_position();
+  pos_zero_offset = planner.get_axis_position_mm(Z_AXIS) - motion.position.z;
   SERIAL_ECHOLNPGM("BD Sensor Zero Offset:", pos_zero_offset);
 }
 
@@ -119,7 +119,7 @@ void BDS_Leveling::process() {
 
     uint16_t tmp = 0;
     const float cur_z = planner.get_axis_position_mm(Z_AXIS) - pos_zero_offset;
-    static float old_cur_z = cur_z, old_buf_z = current_position.z;
+    static float old_cur_z = cur_z, old_buf_z = motion.position.z;
     tmp = BD_I2C_SENSOR.BD_i2c_read();
     if (BD_I2C_SENSOR.BD_Check_OddEven(tmp) && good_data(tmp)) {
       const float z_sensor = interpret(tmp);
@@ -127,11 +127,11 @@ void BDS_Leveling::process() {
         if (config_state > 0) {
           if (cur_z < config_state * 0.1f
             && old_cur_z == cur_z
-            && old_buf_z == current_position.z
+            && old_buf_z == motion.position.z
             && z_sensor < (MAX_BD_HEIGHT) - 0.1f
           ) {
             babystep.set_mm(Z_AXIS, cur_z - z_sensor);
-            DEBUG_ECHOLNPGM("BD:", z_sensor, ", Z:", cur_z, "|", current_position.z);
+            DEBUG_ECHOLNPGM("BD:", z_sensor, ", Z:", cur_z, "|", motion.position.z);
           }
           else
             babystep.set_mm(Z_AXIS, 0);
@@ -139,7 +139,7 @@ void BDS_Leveling::process() {
       #endif
 
       old_cur_z = cur_z;
-      old_buf_z = current_position.z;
+      old_buf_z = motion.position.z;
       endstops.bdp_state_update(z_sensor <= BD_SENSOR_HOME_Z_POSITION);
 
       #if HAS_STATUS_MESSAGE
@@ -158,7 +158,7 @@ void BDS_Leveling::process() {
       marlin.kill(F("BDsensor connect Err!"));
     }
 
-    DEBUG_ECHOLNPGM("BD:", tmp & 0x3FF, " Z:", cur_z, "|", current_position.z);
+    DEBUG_ECHOLNPGM("BD:", tmp & 0x3FF, " Z:", cur_z, "|", motion.position.z);
     if (TERN0(DEBUG_OUT_BD, BD_I2C_SENSOR.BD_Check_OddEven(tmp) == 0)) DEBUG_ECHOLNPGM("CRC error");
 
     if (!good_data(tmp)) {
@@ -204,15 +204,15 @@ void BDS_Leveling::process() {
         SERIAL_ECHOLNPGM("c_z0:", planner.get_axis_position_mm(Z_AXIS), "-", pos_zero_offset);
 
         // Move the z axis instead of enabling the Z axis with M17
-        // TODO: Use do_blocking_move_to_z for synchronized move.
-        current_position.z = 0;
-        sync_plan_position();
+        // TODO: Use motion.blocking_move_z for synchronized move.
+        motion.position.z = 0;
+        motion.sync_plan_position();
         gcode.process_subcommands_now(F("G1Z0.05"));
         safe_delay(300);
         gcode.process_subcommands_now(F("G1Z0.00"));
         safe_delay(300);
-        current_position.z = 0;
-        sync_plan_position();
+        motion.position.z = 0;
+        motion.sync_plan_position();
         //safe_delay(1000);
 
         while ((planner.get_axis_position_mm(Z_AXIS) - pos_zero_offset) > 0.00001f) {
@@ -235,10 +235,10 @@ void BDS_Leveling::process() {
         }
         else {
           char tmp_1[32];
-          // TODO: Use prepare_internal_move_to_destination to guarantee machine space
+          // TODO: Use motion.prepare_internal_move_to_destination to guarantee machine space
           sprintf_P(tmp_1, PSTR("G1Z%d.%d"), int(zpos), int(zpos * 10) % 10);
           gcode.process_subcommands_now(tmp_1);
-          SERIAL_ECHO(tmp_1); SERIAL_ECHOLNPGM(", Z:", current_position.z);
+          SERIAL_ECHO(tmp_1); SERIAL_ECHOLNPGM(", Z:", motion.position.z);
           uint16_t failcount = 300;
           for (float tmp_k = 0; abs(zpos - tmp_k) > 0.006f && failcount--;) {
             tmp_k = planner.get_axis_position_mm(Z_AXIS) - pos_zero_offset;
