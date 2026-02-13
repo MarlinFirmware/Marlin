@@ -151,4 +151,9 @@ typedef struct Shaping {
     SHAPED_MAP(_RESET_ZI);
     zi_idx = 0;
   }
+  void fill(const xyze_float_t pos) {
+    #define _FILL_ZI(A) for (uint32_t i = 0; i < ftm_zmax; i++) A.d_zi[i] = pos.A;
+    SHAPED_MAP(_FILL_ZI);
+    #undef _FILL_ZI
+  }
 } shaping_t;

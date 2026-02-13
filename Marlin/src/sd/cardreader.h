@@ -353,17 +353,17 @@ private:
   // Alphabetical file and folder sorting
   //
   #if ENABLED(SDCARD_SORT_ALPHA)
-    static int16_t sort_count;    // Count of sorted items in the current directory
+
     #if ENABLED(SDSORT_GCODE)
       static SortFlag sort_alpha; // Sorting: REV, OFF, FWD
       static int8_t sort_folders; // Folder sorting before/none/after
       //static bool sort_reverse; // Flag to enable / disable reverse sorting
     #endif
 
-    // Pointer to the static or dynamic sort index
-    static uint8_t *sort_order;
+    static int16_t sort_count;    // Count of sorted items in the current directory
+    static uint8_t *sort_order;   // Pointer to the static or dynamic sort index
 
-    #if ALL(SDSORT_USES_RAM, SDSORT_CACHE_NAMES) && DISABLED(SDSORT_DYNAMIC_RAM)
+    #if ENABLED(SDSORT_CACHE_NAMES) && DISABLED(SDSORT_DYNAMIC_RAM)
       #define SORTED_LONGNAME_MAXLEN (SDSORT_CACHE_VFATS) * (FILENAME_LENGTH)
       #define SORTED_LONGNAME_STORAGE (SORTED_LONGNAME_MAXLEN + 1)
     #else

@@ -99,7 +99,7 @@ void GcodeSuite::G60() {
   }
 
   // G60 S
-  stored_position[slot] = current_position;
+  stored_position[slot] = motion.position;
   did_save_position.set(slot);
   report_stored_position(slot);
 }
@@ -130,7 +130,7 @@ void GcodeSuite::G61(int8_t slot/*=-1*/) {
 
   if (slot < 0) slot = parser.byteval('S');
 
-  #define SYNC_E(E) planner.set_e_position_mm(current_position.e = (E))
+  #define SYNC_E(E) planner.set_e_position_mm(motion.position.e = (E))
 
   if (SAVED_POSITIONS < 256 && slot >= SAVED_POSITIONS) {
     SERIAL_ERROR_MSG(STR_INVALID_POS_SLOT STRINGIFY(SAVED_POSITIONS));
@@ -141,9 +141,9 @@ void GcodeSuite::G61(int8_t slot/*=-1*/) {
   if (!did_save_position[slot]) return;
 
   // Apply any given feedrate over 0.0
-  REMEMBER(saved, feedrate_mm_s);
+  REMEMBER(saved, motion.feedrate_mm_s);
   const float fr = parser.linearval('F');
-  if (fr > 0.0) feedrate_mm_s = MMM_TO_MMS(fr);
+  if (fr > 0.0) motion.feedrate_mm_s = MMM_TO_MMS(fr);
 
   // No XYZ...E parameters, move to stored position
 
@@ -153,10 +153,10 @@ void GcodeSuite::G61(int8_t slot/*=-1*/) {
   if (!parser.seen_axis()) {
     DEBUG_ECHOLNPGM(STR_RESTORING_POSITION, slot, " (all axes)");
     // Move to the saved position, all axes except E
-    do_blocking_move_to(stored_position[slot], feedrate_mm_s);
+    motion.blocking_move(stored_position[slot], motion.feedrate_mm_s);
     // Just set E to the saved position without moving it
     TERN_(HAS_EXTRUDERS, SYNC_E(stored_position[slot].e));
-    report_current_position();
+    motion.report_position();
     return;
   }
 
@@ -165,14 +165,14 @@ void GcodeSuite::G61(int8_t slot/*=-1*/) {
   DEBUG_ECHOPGM(STR_RESTORING_POSITION " S", slot);
 
   if (parser.seen(STR_AXES_MAIN)) {
-    destination = current_position;
+    motion.destination = motion.position;
     LOOP_NUM_AXES(i) {
       if (parser.seen(AXIS_CHAR(i))) {
-        destination[i] = stored_position[slot][i] + parser.value_axis_units((AxisEnum)i);
-        DEBUG_ECHO(C(' '), C(AXIS_CHAR(i)), p_float_t(destination[i], 2));
+        motion.destination[i] = stored_position[slot][i] + parser.value_axis_units((AxisEnum)i);
+        DEBUG_ECHO(C(' '), C(AXIS_CHAR(i)), p_float_t(motion.destination[i], 2));
       }
     }
-    prepare_line_to_destination();
+    motion.prepare_line_to_destination();
   }
 
   #if HAS_EXTRUDERS
@@ -185,7 +185,7 @@ void GcodeSuite::G61(int8_t slot/*=-1*/) {
 
   DEBUG_EOL();
 
-  report_current_position();
+  motion.report_position();
 }
 
 #endif // SAVED_POSITIONS

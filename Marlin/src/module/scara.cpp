@@ -53,8 +53,8 @@ float segments_per_second = DEFAULT_SEGMENTS_PER_SECOND;
                 b_sin = sin(RADIANS(SUM_TERN(MP_SCARA, b, a))) * L2,
                 b_cos = cos(RADIANS(SUM_TERN(MP_SCARA, b, a))) * L2;
 
-    cartes.x = a_cos + b_cos + scara_offset.x;  // theta
-    cartes.y = a_sin + b_sin + scara_offset.y;  // phi
+    motion.cartes.x = a_cos + b_cos + scara_offset.x;  // theta
+    motion.cartes.y = a_sin + b_sin + scara_offset.y;  // phi
 
     /*
       DEBUG_ECHOLNPGM(
@@ -65,7 +65,7 @@ float segments_per_second = DEFAULT_SEGMENTS_PER_SECOND;
         " b_sin=", b_sin,
         " b_cos=", b_cos
       );
-      DEBUG_ECHOLNPGM(" cartes (X,Y) = "(cartes.x, ", ", cartes.y, ")");
+      DEBUG_ECHOLNPGM(" cartes (X,Y) = "(motion.cartes.x, ", ", motion.cartes.y, ")");
     //*/
   }
 
@@ -75,23 +75,23 @@ float segments_per_second = DEFAULT_SEGMENTS_PER_SECOND;
 
   void scara_set_axis_is_at_home(const AxisEnum axis) {
     if (axis == Z_AXIS)
-      current_position.z = Z_HOME_POS;
+      motion.position.z = Z_HOME_POS;
     else {
       // MORGAN_SCARA uses a Cartesian XY home position
       xyz_pos_t homeposition = { X_HOME_POS, Y_HOME_POS, Z_HOME_POS };
       //DEBUG_ECHOLNPGM_P(PSTR("homeposition X"), homeposition.x, SP_Y_LBL, homeposition.y);
 
-      delta = homeposition;
-      forward_kinematics(delta.a, delta.b);
-      current_position[axis] = cartes[axis];
+      motion.delta = homeposition;
+      forward_kinematics(motion.delta.a, motion.delta.b);
+      motion.position[axis] = motion.cartes[axis];
 
-      //DEBUG_ECHOLNPGM_P(PSTR("Cartesian X"), current_position.x, SP_Y_LBL, current_position.y);
-      update_software_endstops(axis);
+      //DEBUG_ECHOLNPGM_P(PSTR("Cartesian X"), motion.position.x, SP_Y_LBL, motion.position.y);
+      motion.update_software_endstops(axis);
     }
   }
 
   /**
-   * Morgan SCARA Inverse Kinematics. Results are stored in 'delta'.
+   * Morgan SCARA Inverse Kinematics. Results are stored in 'motion.delta'.
    *
    * See https://reprap.org/forum/read.php?185,283327
    *
@@ -126,11 +126,11 @@ float segments_per_second = DEFAULT_SEGMENTS_PER_SECOND;
     // Angle of Arm2
     PSI = ATAN2(S2, C2);
 
-    delta.set(DEGREES(THETA), DEGREES(SUM_TERN(MORGAN_SCARA, PSI, THETA)), raw.z);
+    motion.delta.set(DEGREES(THETA), DEGREES(SUM_TERN(MORGAN_SCARA, PSI, THETA)), raw.z);
 
     /*
       DEBUG_POS("SCARA IK", raw);
-      DEBUG_POS("SCARA IK", delta);
+      DEBUG_POS("SCARA IK", motion.delta);
       DEBUG_ECHOLNPGM("  SCARA (x,y) ", sx, ",", sy, " C2=", C2, " S2=", S2, " Theta=", THETA, " Psi=", PSI);
     //*/
   }
@@ -139,7 +139,7 @@ float segments_per_second = DEFAULT_SEGMENTS_PER_SECOND;
 
   void scara_set_axis_is_at_home(const AxisEnum axis) {
     if (axis == Z_AXIS)
-      current_position.z = Z_HOME_POS;
+      motion.position.z = Z_HOME_POS;
     else {
       // MP_SCARA uses arm angles for AB home position
       #ifndef SCARA_OFFSET_THETA1
@@ -152,11 +152,11 @@ float segments_per_second = DEFAULT_SEGMENTS_PER_SECOND;
       //DEBUG_ECHOLNPGM("homeposition A:", homeposition.a, " B:", homeposition.b);
 
       inverse_kinematics(homeposition);
-      forward_kinematics(delta.a, delta.b);
-      current_position[axis] = cartes[axis];
+      forward_kinematics(motion.delta.a, motion.delta.b);
+      motion.position[axis] = motion.cartes[axis];
 
-      //DEBUG_ECHOLNPGM_P(PSTR("Cartesian X"), current_position.x, SP_Y_LBL, current_position.y);
-      update_software_endstops(axis);
+      //DEBUG_ECHOLNPGM_P(PSTR("Cartesian X"), motion.position.x, SP_Y_LBL, motion.position.y);
+      motion.update_software_endstops(axis);
     }
   }
 
@@ -166,11 +166,11 @@ float segments_per_second = DEFAULT_SEGMENTS_PER_SECOND;
                 THETA1 = THETA3 + ACOS((sq(c) + sq(L1) - sq(L2)) / (2.0f * c * L1)),
                 THETA2 = THETA3 - ACOS((sq(c) + sq(L2) - sq(L1)) / (2.0f * c * L2));
 
-    delta.set(DEGREES(THETA1), DEGREES(THETA2), raw.z);
+    motion.delta.set(DEGREES(THETA1), DEGREES(THETA2), raw.z);
 
     /*
       DEBUG_POS("SCARA IK", raw);
-      DEBUG_POS("SCARA IK", delta);
+      DEBUG_POS("SCARA IK", motion.delta);
       SERIAL_ECHOLNPGM("  SCARA (x,y) ", x, ",", y," Theta1=", THETA1, " Theta2=", THETA2);
     //*/
   }
@@ -238,32 +238,32 @@ float segments_per_second = DEFAULT_SEGMENTS_PER_SECOND;
   /**
    * Set an axis' current position to its home position (after homing).
    *
-   * TPARA must wait for YZ homing before setting current_position.Y/Z to home.
+   * TPARA must wait for YZ homing before setting motion.position.Y/Z to home.
    * Neither Y nor Z is home until both are at home.
    */
   void scara_set_axis_is_at_home(const AxisEnum axis) {
     // Home position should be arm end position -+ offsets (+ tool offset - workspace offset), measured at home robot position
-    xyz_pos_t homeposition = { X_HOME_POS , Y_HOME_POS , Z_HOME_POS };
+    xyz_pos_t homeposition = { X_HOME_POS, Y_HOME_POS, Z_HOME_POS };
 
     //SERIAL_ECHOLNPGM("TPARA Set axis is at home: ", C(iaxis_codes[axis]));
     //SERIAL_XYZ("Home: ", homeposition);
-    //SERIAL_XYZ("Pos before IK: ", current_position);
-    //SERIAL_ECHOLNPGM("Angles Before: Theta: ", delta.a, " Phi: ", delta.b, " Psi: ", delta.c);
+    //SERIAL_XYZ("Pos before IK: ", motion.position);
+    //SERIAL_ECHOLNPGM("Angles Before: Theta: ", motion.delta.a, " Phi: ", motion.delta.b, " Psi: ", motion.delta.c);
 
     inverse_kinematics(homeposition);
 
-    //SERIAL_ECHOLNPGM("Angles After IK: Theta: ", delta.a, " Phi: ", delta.b, " Psi: ", delta.c);
+    //SERIAL_ECHOLNPGM("Angles After IK: Theta: ", motion.delta.a, " Phi: ", motion.delta.b, " Psi: ", motion.delta.c);
 
-    forward_kinematics(delta.a, delta.b, delta.c);
-    current_position[axis] = cartes[axis];
+    forward_kinematics(motion.delta.a, motion.delta.b, motion.delta.c);
+    motion.position[axis] = motion.cartes[axis];
 
-    //SERIAL_XYZ("'current' after FK: ", current_position);
-    //SERIAL_XYZ("'cartes' after FK: ", cartes);
+    //SERIAL_XYZ("'position' after FK: ", motion.position);
+    //SERIAL_XYZ("'cartes' after FK: ", motion.cartes);
 
-    update_software_endstops(axis);
+    motion.update_software_endstops(axis);
 
-    //SERIAL_ECHOLNPGM("Final Angles: Theta: ", delta.a, " Phi: ", delta.b, " Psi: ", delta.c);
-    //SERIAL_XYZ("Final Pos: ", current_position);
+    //SERIAL_ECHOLNPGM("Final Angles: Theta: ", motion.delta.a, " Phi: ", motion.delta.b, " Psi: ", motion.delta.c);
+    //SERIAL_XYZ("Final Pos: ", motion.position);
     //SERIAL_XYZ("Robot Offsets Shoulder:", robot_shoulder_offset);
     //SERIAL_XYZ("Robot Offsets Tool:", tool_offset);
     //SERIAL_XYZ("Robot Offsets Workspace:", robot_workspace_offset);
@@ -279,27 +279,28 @@ float segments_per_second = DEFAULT_SEGMENTS_PER_SECOND;
                 rho2 = L1_2 + L2_2 - 2.0f * L1 * L2 * cos(RADIANS(w));
 
     const xyz_pos_t calculated_fk = xyz_pos_t({ x, y, SQRT(rho2 - sq(x) - sq(y)) }) ;
-    cartes = calculated_fk + robot_shoulder_offset + tool_offset - robot_workspace_offset;
+    motion.cartes = calculated_fk + robot_shoulder_offset + tool_offset - robot_workspace_offset;
 
     //SERIAL_ECHOPGM("TPARA FK Theta:", a, " Phi: ", b, " Psi: ", c);
     //SERIAL_ECHOPGM(" Calculated X':", calculated_fk.x, " Y':", calculated_fk.y, " Z':", calculated_fk.z);
-    //SERIAL_XYZ(" Workspace", cartes);
+    //SERIAL_XYZ(" Workspace", motion.cartes);
+    //SERIAL_EOL();
   }
 
   // Home YZ together, then X (or all at once). Based on quick_home_xy & home_delta
   void home_TPARA() {
     // First Init the current position of all carriages to 0,0,0
-    current_position.reset();
-    destination.reset();
-    sync_plan_position();
+    motion.position.reset();
+    motion.destination.reset();
+    motion.sync_plan_position();
 
-    //SERIAL_ECHOLNPGM("Reset and sync position to the assumed start position of the robot" );
+    //SERIAL_ECHOLNPGM("Reset and sync position to the assumed start position of the robot");
     // Set the assumed start position of the robot for homing, so it home ZY axis at same time preserving the B and C motor angle
     constexpr xyz_pos_t init_w_offset = apply_T_W_offset(xyz_pos_t({ L2, 0, 0 }));
 
-    current_position.set(init_w_offset.x, init_w_offset.y, init_w_offset.z);
-    destination.set(init_w_offset.x, init_w_offset.y, init_w_offset.z);
-    sync_plan_position();
+    motion.position.set(init_w_offset.x, init_w_offset.y, init_w_offset.z);
+    motion.destination.set(init_w_offset.x, init_w_offset.y, init_w_offset.z);
+    motion.sync_plan_position();
 
     // Disable stealthChop if used. Enable diag1 pin on driver.
     #if ENABLED(SENSORLESS_HOMING)
@@ -320,9 +321,9 @@ float segments_per_second = DEFAULT_SEGMENTS_PER_SECOND;
     // Move to home, should move Z, Y, then X. Move X to near 0 (to avoid div by zero
     // and sign/angle stability around 0 for trigonometric functions), Y to 0 and Z to max_length
     constexpr xyz_pos_t homing_pos_dir = apply_T_W_offset(xyz_pos_t({ 1, 0, Z_MAX_LENGTH }));
-    current_position.set(homing_pos_dir.x, homing_pos_dir.y, homing_pos_dir.z);
+    motion.position.set(homing_pos_dir.x, homing_pos_dir.y, homing_pos_dir.z);
 
-    line_to_current_position(homing_feedrate(Z_AXIS));
+    motion.goto_current_position(motion.homing_feedrate(Z_AXIS));
     planner.synchronize();
 
     // Restore the homing current for all motors
@@ -339,21 +340,21 @@ float segments_per_second = DEFAULT_SEGMENTS_PER_SECOND;
 
     // At least one motor has reached its endstop.
     // Now re-home each motor separately.
-    TERN_(HOME_Z_FIRST, homeaxis(C_AXIS));
-    homeaxis(TERN(HOME_Y_BEFORE_X, B_AXIS, A_AXIS));
-    homeaxis(TERN(HOME_Y_BEFORE_X, A_AXIS, B_AXIS));
-    IF_DISABLED(HOME_Z_FIRST, homeaxis(C_AXIS));
+    TERN_(HOME_Z_FIRST, motion.homeaxis(C_AXIS));
+    motion.homeaxis(TERN(HOME_Y_BEFORE_X, B_AXIS, A_AXIS));
+    motion.homeaxis(TERN(HOME_Y_BEFORE_X, A_AXIS, B_AXIS));
+    IF_DISABLED(HOME_Z_FIRST, motion.homeaxis(C_AXIS));
 
-    //SERIAL_ECHOLNPGM("current_position After Homeaxis: ", current_position.x, ", ", current_position.y, ", ", current_position.z);
+    //SERIAL_XYZ("Position after homeaxis: ", motion.position);
 
     // Set all carriages to their home positions
     // Do this here all at once for Delta, because
     // XYZ isn't ABC. Applying this per-tower would
     // give the impression that they are the same.
-    LOOP_NUM_AXES(i) set_axis_is_at_home((AxisEnum)i);
+    LOOP_NUM_AXES(i) motion.set_axis_is_at_home((AxisEnum)i);
 
     //SERIAL_ECHOLNPGM("Sync_plan_position after home");
-    sync_plan_position();
+    motion.sync_plan_position();
   }
 
   void inverse_kinematics(const xyz_pos_t &raw) {
@@ -386,7 +387,7 @@ float segments_per_second = DEFAULT_SEGMENTS_PER_SECOND;
                 // Elbow motor angle measured from horizontal, same reference frame as shoulder angle (r+)
                 PSI = PHI + GAMMA;
 
-    delta.set(DEGREES(THETA), DEGREES(PHI), DEGREES(PSI));
+    motion.delta.set(DEGREES(THETA), DEGREES(PHI), DEGREES(PSI));
 
     //SERIAL_ECHOLNPGM(" TPARA IK raw(x,y,z) ", raw.x, ",", raw.y, ",", raw.z, " Robot pos(x,y,z) ", tpos.x, ",", tpos.y, ",", tpos.z + robot_shoulder_offset.z, " Rho^2=", RHO_2, " Theta=", DEGREES(THETA), " Phi=", DEGREES(PHI), " Psi=", DEGREES(PSI), " Gamma=", DEGREES(GAMMA));
   }
