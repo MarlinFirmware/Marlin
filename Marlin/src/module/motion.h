@@ -347,7 +347,9 @@ public:
   #if HAS_SOFTWARE_ENDSTOPS
     static void apply_limits(xyz_pos_t &target);
     static void update_software_endstops(const AxisEnum axis
-      OPTARG(HAS_HOTEND_OFFSET, const uint8_t old_tool_index=0, const uint8_t new_tool_index=0)
+      #if HAS_HOTEND_OFFSET
+        , const uint8_t old_tool_index=0, const uint8_t new_tool_index=0
+      #endif
     );
     static void set_soft_endstop_loose(const bool loose) { soft_endstop._loose = loose; }
   #else
