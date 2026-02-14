@@ -58,11 +58,11 @@
 
 void GcodeSuite::M48() {
 
-  #if ENABLED(DWIN_LCD_PROUI)
-    TERN_(ADVANCED_PAUSE_FEATURE, dwinPopupPause(GET_TEXT_F(MSG_M48_TEST)));
+  #if ALL(DWIN_LCD_PROUI, ADVANCED_PAUSE_FEATURE)
+    dwinPopupPause(GET_TEXT_F(MSG_M48_TEST));
   #endif
 
-  if (homing_needed_error()) {
+  if (motion.homing_needed_error()) {
     TERN_(DWIN_LCD_PROUI, hmiReturnScreen());
     return;
   }
@@ -83,8 +83,8 @@ void GcodeSuite::M48() {
 
   // Test at the current position by default, overridden by X and Y
   const xy_pos_t test_position = {
-    parser.linearval('X', current_position.x + probe.offset_xy.x),  // If no X use the probe's current X position
-    parser.linearval('Y', current_position.y + probe.offset_xy.y)   // If no Y, ditto
+    parser.linearval('X', motion.position.x + probe.offset_xy.x),  // If no X use the probe's current X position
+    parser.linearval('Y', motion.position.y + probe.offset_xy.y)   // If no Y, ditto
   };
 
   if (!probe.can_reach(test_position)) {
@@ -122,7 +122,7 @@ void GcodeSuite::M48() {
   TERN_(HAS_PTC, ptc.set_enabled(parser.boolval('C', true)));
 
   // Work with reasonable feedrates
-  remember_feedrate_scaling_off();
+  motion.remember_feedrate_scaling_off();
 
   // Working variables
   float mean = 0.0,     // The average of all points so far, used to calculate deviation
@@ -223,7 +223,7 @@ void GcodeSuite::M48() {
           if (verbose_level > 3)
             SERIAL_ECHOLN(F("Going to: X"), next_pos.x, FPSTR(SP_Y_STR), next_pos.y);
 
-          do_blocking_move_to_xy(next_pos);
+          motion.blocking_move_xy(next_pos);
         } // n_legs loop
       } // n_legs
 
@@ -284,7 +284,7 @@ void GcodeSuite::M48() {
     #endif
   }
 
-  restore_feedrate_and_scaling();
+  motion.restore_feedrate_and_scaling();
 
   // Re-enable bed level correction if it had been on
   TERN_(HAS_LEVELING, set_bed_leveling_enabled(was_enabled));
@@ -292,7 +292,7 @@ void GcodeSuite::M48() {
   // Re-enable probe temperature correction
   TERN_(HAS_PTC, ptc.set_enabled(true));
 
-  report_current_position();
+  motion.report_position();
 
   TERN_(DWIN_LCD_PROUI, hmiReturnScreen());
 }

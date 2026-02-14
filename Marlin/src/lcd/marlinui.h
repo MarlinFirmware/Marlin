@@ -155,27 +155,32 @@ typedef bool (*statusResetFunc_t)();
     #if ENABLED(MANUAL_E_MOVES_RELATIVE)
       static float e_origin;
     #endif
+
     template <typename T>
     static void set_destination(const T& dest) {
       #if IS_KINEMATIC
         // Moves are segmented, so the entire move is not submitted at once.
         // Using a separate variable prevents corrupting the in-progress move.
-        all_axes_destination = current_position;
+        all_axes_destination = motion.position;
         all_axes_destination.set(dest);
       #else
         // Moves are submitted as single line to the planner using buffer_line.
-        current_position.set(dest);
+        motion.position.set(dest);
       #endif
     }
+
     static float axis_value(const AxisEnum axis) {
-      return NATIVE_TO_LOGICAL(processing ? destination[axis] : SUM_TERN(IS_KINEMATIC, current_position[axis], offset), axis);
+      return motion.native_to_logical(
+        processing ? motion.destination[axis] : SUM_TERN(IS_KINEMATIC, motion.position[axis], offset),
+        axis
+      );
     }
     static bool apply_diff(const AxisEnum axis, const float diff, const float min, const float max) {
       #if IS_KINEMATIC
         float &valref = offset;
-        const float rmin = min - current_position[axis], rmax = max - current_position[axis];
+        const float rmin = min - motion.position[axis], rmax = max - motion.position[axis];
       #else
-        float &valref = current_position[axis];
+        float &valref = motion.position[axis];
         const float rmin = min, rmax = max;
       #endif
       valref += diff;
@@ -189,7 +194,7 @@ typedef bool (*statusResetFunc_t)();
       static bool constexpr processing = false;
     #endif
     static void task();
-    static void soon(const AxisEnum move_axis OPTARG(MULTI_E_MANUAL, const int8_t eindex=active_extruder));
+    static void soon(const AxisEnum move_axis OPTARG(MULTI_E_MANUAL, const int8_t eindex=motion.extruder));
   };
 
   void lcd_move_axis(const AxisEnum);
@@ -658,13 +663,13 @@ public:
     static preheat_t material_preset[PREHEAT_COUNT];
     static void reset_material_presets();
     static FSTR_P get_preheat_label(const uint8_t m);
-    static void apply_preheat(const uint8_t m, const uint8_t pmask, const uint8_t e=active_extruder);
+    static void apply_preheat(const uint8_t m, const uint8_t pmask, const uint8_t e=motion.extruder);
     static void preheat_set_fan(const uint8_t m) { TERN_(HAS_FAN, apply_preheat(m, _BV(PT_FAN))); }
-    static void preheat_hotend(const uint8_t m, const uint8_t e=active_extruder) { TERN_(HAS_HOTEND, apply_preheat(m, _BV(PT_HOTEND), e)); }
-    static void preheat_hotend_and_fan(const uint8_t m, const uint8_t e=active_extruder) { preheat_hotend(m, e); preheat_set_fan(m); }
+    static void preheat_hotend(const uint8_t m, const uint8_t e=motion.extruder) { TERN_(HAS_HOTEND, apply_preheat(m, _BV(PT_HOTEND), e)); }
+    static void preheat_hotend_and_fan(const uint8_t m, const uint8_t e=motion.extruder) { preheat_hotend(m, e); preheat_set_fan(m); }
     static void preheat_bed(const uint8_t m) { TERN_(HAS_HEATED_BED, apply_preheat(m, _BV(PT_BED))); }
     static void preheat_chamber(const uint8_t m) { TERN_(HAS_HEATED_CHAMBER, apply_preheat(m, _BV(PT_CHAMBER))); }
-    static void preheat_all(const uint8_t m, const uint8_t e=active_extruder) { apply_preheat(m, PT_ALL, e); }
+    static void preheat_all(const uint8_t m, const uint8_t e=motion.extruder) { apply_preheat(m, PT_ALL, e); }
   #endif
 
   /**
@@ -774,7 +779,7 @@ public:
   #endif
 
   #if ENABLED(ADVANCED_PAUSE_FEATURE) && ANY(HAS_MARLINUI_MENU, EXTENSIBLE_UI, DWIN_CREALITY_LCD_JYERSUI)
-    static void pause_show_message(const PauseMessage message, const PauseMode mode=PAUSE_MODE_SAME, const uint8_t extruder=active_extruder);
+    static void pause_show_message(const PauseMessage message, const PauseMode mode=PAUSE_MODE_SAME, const uint8_t extruder=motion.extruder);
   #else
     static void _pause_show_message() {}
     #define pause_show_message(...) _pause_show_message()

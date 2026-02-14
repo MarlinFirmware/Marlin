@@ -114,7 +114,7 @@ namespace ExtUI {
   }
 
   #if ENABLED(ADVANCED_PAUSE_FEATURE)
-    void onPauseMode(const PauseMessage message, const PauseMode mode/*=PAUSE_MODE_SAME*/, const uint8_t extruder/*=active_extruder*/) {
+    void onPauseMode(const PauseMessage message, const PauseMode mode/*=PAUSE_MODE_SAME*/, const uint8_t extruder/*=motion.extruder*/) {
       if (mode != PAUSE_MODE_SAME) pause_mode = mode;
       switch (message) {
         case PAUSE_MESSAGE_PARKING:  dwinPopupPause(GET_TEXT_F(MSG_PAUSE_PRINT_PARKING)); break; // M125
@@ -238,7 +238,7 @@ namespace ExtUI {
 
   void onSteppersDisabled() {}
   void onSteppersEnabled() {}
-  void onAxisDisabled(const axis_t a) {
+ /** void onAxisDisabled(const axis_t a) {
     AxisEnum axis;
     switch (a) {
       TERN_(HAS_X_AXIS, case X:)
@@ -252,7 +252,10 @@ namespace ExtUI {
       OPTCODE(HAS_V_AXIS, case V: axis = V_AXIS)
       OPTCODE(HAS_W_AXIS, case W: axis = W_AXIS)
     }
-    set_axis_never_homed((AxisEnum)axis); // MRISCOC workaround: https://github.com/MarlinFirmware/Marlin/issues/23095
+    motion.set_axis_untrusted((AxisEnum)axis); // MRISCOC workaround: https://github.com/MarlinFirmware/Marlin/issues/23095
+  }*/
+  void onAxisDisabled(const axis_t axis) {
+    motion.set_axis_untrusted((AxisEnum)axis); // MRISCOC workaround: https://github.com/MarlinFirmware/Marlin/issues/23095
   }
   void onAxisEnabled(const axis_t) {}
 } // ExtUI

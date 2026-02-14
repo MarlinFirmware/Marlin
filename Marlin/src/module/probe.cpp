@@ -129,7 +129,7 @@ xyz_pos_t Probe::offset; // Initialized by settings.load
     if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("dock_sled(", stow, ")");
 
     // Dock sled a bit closer to ensure proper capturing
-    do_blocking_move_to_x(X_MAX_POS + SLED_DOCKING_OFFSET - ((stow) ? 1 : 0));
+    motion.blocking_move_x(X_MAX_POS + SLED_DOCKING_OFFSET - ((stow) ? 1 : 0));
 
     #if HAS_SOLENOID_1 && DISABLED(EXT_SOLENOID)
       WRITE(SOL1_PIN, !stow); // switch solenoid
@@ -145,7 +145,7 @@ xyz_pos_t Probe::offset; // Initialized by settings.load
     WRITE(MAGLEV_TRIGGER_PIN, LOW);
   }
 
-  inline void maglev_idle() { do_z_clearance(10); }
+  inline void maglev_idle() { motion.do_z_clearance(10); }
 
 #elif ENABLED(TOUCH_MI_PROBE)
 
@@ -172,21 +172,21 @@ xyz_pos_t Probe::offset; // Initialized by settings.load
       ui.goto_screen(prev_screen);
 
     #elif defined(TOUCH_MI_DEPLOY_XPOS) && defined(TOUCH_MI_DEPLOY_YPOS)
-      do_blocking_move_to_xy(TOUCH_MI_DEPLOY_XPOS, TOUCH_MI_DEPLOY_YPOS);
+      motion.blocking_move_xy(TOUCH_MI_DEPLOY_XPOS, TOUCH_MI_DEPLOY_YPOS);
     #elif defined(TOUCH_MI_DEPLOY_XPOS)
-      do_blocking_move_to_x(TOUCH_MI_DEPLOY_XPOS);
+      motion.blocking_move_x(TOUCH_MI_DEPLOY_XPOS);
     #elif defined(TOUCH_MI_DEPLOY_YPOS)
-      do_blocking_move_to_y(TOUCH_MI_DEPLOY_YPOS);
+      motion.blocking_move_y(TOUCH_MI_DEPLOY_YPOS);
     #endif
   }
 
   // Move down to the bed to stow the probe
   // TODO: Handle cases where it would be a bad idea to move down.
   inline void run_stow_moves() {
-    const float oldz = current_position.z;
+    const float oldz = motion.position.z;
     endstops.enable_z_probe(false);
-    do_blocking_move_to_z(TOUCH_MI_RETRACT_Z, homing_feedrate(Z_AXIS));
-    do_blocking_move_to_z(oldz, homing_feedrate(Z_AXIS));
+    motion.blocking_move_z(TOUCH_MI_RETRACT_Z, motion.homing_feedrate(Z_AXIS));
+    motion.blocking_move_z(oldz, motion.homing_feedrate(Z_AXIS));
   }
 
 #elif ENABLED(Z_PROBE_ALLEN_KEY)
@@ -197,35 +197,35 @@ xyz_pos_t Probe::offset; // Initialized by settings.load
         #define Z_PROBE_ALLEN_KEY_DEPLOY_1_FEEDRATE 0.0f
       #endif
       constexpr xyz_pos_t deploy_1 = Z_PROBE_ALLEN_KEY_DEPLOY_1;
-      do_blocking_move_to(deploy_1, MMM_TO_MMS(Z_PROBE_ALLEN_KEY_DEPLOY_1_FEEDRATE));
+      motion.blocking_move(deploy_1, MMM_TO_MMS(Z_PROBE_ALLEN_KEY_DEPLOY_1_FEEDRATE));
     #endif
     #ifdef Z_PROBE_ALLEN_KEY_DEPLOY_2
       #ifndef Z_PROBE_ALLEN_KEY_DEPLOY_2_FEEDRATE
         #define Z_PROBE_ALLEN_KEY_DEPLOY_2_FEEDRATE 0.0f
       #endif
       constexpr xyz_pos_t deploy_2 = Z_PROBE_ALLEN_KEY_DEPLOY_2;
-      do_blocking_move_to(deploy_2, MMM_TO_MMS(Z_PROBE_ALLEN_KEY_DEPLOY_2_FEEDRATE));
+      motion.blocking_move(deploy_2, MMM_TO_MMS(Z_PROBE_ALLEN_KEY_DEPLOY_2_FEEDRATE));
     #endif
     #ifdef Z_PROBE_ALLEN_KEY_DEPLOY_3
       #ifndef Z_PROBE_ALLEN_KEY_DEPLOY_3_FEEDRATE
         #define Z_PROBE_ALLEN_KEY_DEPLOY_3_FEEDRATE 0.0f
       #endif
       constexpr xyz_pos_t deploy_3 = Z_PROBE_ALLEN_KEY_DEPLOY_3;
-      do_blocking_move_to(deploy_3, MMM_TO_MMS(Z_PROBE_ALLEN_KEY_DEPLOY_3_FEEDRATE));
+      motion.blocking_move(deploy_3, MMM_TO_MMS(Z_PROBE_ALLEN_KEY_DEPLOY_3_FEEDRATE));
     #endif
     #ifdef Z_PROBE_ALLEN_KEY_DEPLOY_4
       #ifndef Z_PROBE_ALLEN_KEY_DEPLOY_4_FEEDRATE
         #define Z_PROBE_ALLEN_KEY_DEPLOY_4_FEEDRATE 0.0f
       #endif
       constexpr xyz_pos_t deploy_4 = Z_PROBE_ALLEN_KEY_DEPLOY_4;
-      do_blocking_move_to(deploy_4, MMM_TO_MMS(Z_PROBE_ALLEN_KEY_DEPLOY_4_FEEDRATE));
+      motion.blocking_move(deploy_4, MMM_TO_MMS(Z_PROBE_ALLEN_KEY_DEPLOY_4_FEEDRATE));
     #endif
     #ifdef Z_PROBE_ALLEN_KEY_DEPLOY_5
       #ifndef Z_PROBE_ALLEN_KEY_DEPLOY_5_FEEDRATE
         #define Z_PROBE_ALLEN_KEY_DEPLOY_5_FEEDRATE 0.0f
       #endif
       constexpr xyz_pos_t deploy_5 = Z_PROBE_ALLEN_KEY_DEPLOY_5;
-      do_blocking_move_to(deploy_5, MMM_TO_MMS(Z_PROBE_ALLEN_KEY_DEPLOY_5_FEEDRATE));
+      motion.blocking_move(deploy_5, MMM_TO_MMS(Z_PROBE_ALLEN_KEY_DEPLOY_5_FEEDRATE));
     #endif
   }
 
@@ -235,35 +235,35 @@ xyz_pos_t Probe::offset; // Initialized by settings.load
         #define Z_PROBE_ALLEN_KEY_STOW_1_FEEDRATE 0.0f
       #endif
       constexpr xyz_pos_t stow_1 = Z_PROBE_ALLEN_KEY_STOW_1;
-      do_blocking_move_to(stow_1, MMM_TO_MMS(Z_PROBE_ALLEN_KEY_STOW_1_FEEDRATE));
+      motion.blocking_move(stow_1, MMM_TO_MMS(Z_PROBE_ALLEN_KEY_STOW_1_FEEDRATE));
     #endif
     #ifdef Z_PROBE_ALLEN_KEY_STOW_2
       #ifndef Z_PROBE_ALLEN_KEY_STOW_2_FEEDRATE
         #define Z_PROBE_ALLEN_KEY_STOW_2_FEEDRATE 0.0f
       #endif
       constexpr xyz_pos_t stow_2 = Z_PROBE_ALLEN_KEY_STOW_2;
-      do_blocking_move_to(stow_2, MMM_TO_MMS(Z_PROBE_ALLEN_KEY_STOW_2_FEEDRATE));
+      motion.blocking_move(stow_2, MMM_TO_MMS(Z_PROBE_ALLEN_KEY_STOW_2_FEEDRATE));
     #endif
     #ifdef Z_PROBE_ALLEN_KEY_STOW_3
       #ifndef Z_PROBE_ALLEN_KEY_STOW_3_FEEDRATE
         #define Z_PROBE_ALLEN_KEY_STOW_3_FEEDRATE 0.0f
       #endif
       constexpr xyz_pos_t stow_3 = Z_PROBE_ALLEN_KEY_STOW_3;
-      do_blocking_move_to(stow_3, MMM_TO_MMS(Z_PROBE_ALLEN_KEY_STOW_3_FEEDRATE));
+      motion.blocking_move(stow_3, MMM_TO_MMS(Z_PROBE_ALLEN_KEY_STOW_3_FEEDRATE));
     #endif
     #ifdef Z_PROBE_ALLEN_KEY_STOW_4
       #ifndef Z_PROBE_ALLEN_KEY_STOW_4_FEEDRATE
         #define Z_PROBE_ALLEN_KEY_STOW_4_FEEDRATE 0.0f
       #endif
       constexpr xyz_pos_t stow_4 = Z_PROBE_ALLEN_KEY_STOW_4;
-      do_blocking_move_to(stow_4, MMM_TO_MMS(Z_PROBE_ALLEN_KEY_STOW_4_FEEDRATE));
+      motion.blocking_move(stow_4, MMM_TO_MMS(Z_PROBE_ALLEN_KEY_STOW_4_FEEDRATE));
     #endif
     #ifdef Z_PROBE_ALLEN_KEY_STOW_5
       #ifndef Z_PROBE_ALLEN_KEY_STOW_5_FEEDRATE
         #define Z_PROBE_ALLEN_KEY_STOW_5_FEEDRATE 0.0f
       #endif
       constexpr xyz_pos_t stow_5 = Z_PROBE_ALLEN_KEY_STOW_5;
-      do_blocking_move_to(stow_5, MMM_TO_MMS(Z_PROBE_ALLEN_KEY_STOW_5_FEEDRATE));
+      motion.blocking_move(stow_5, MMM_TO_MMS(Z_PROBE_ALLEN_KEY_STOW_5_FEEDRATE));
     #endif
   }
 
@@ -274,30 +274,30 @@ xyz_pos_t Probe::offset; // Initialized by settings.load
   inline void run_deploy_moves() {
     #ifdef MAG_MOUNTED_PRE_DEPLOY
       constexpr mag_probe_move_t pre_deploy = MAG_MOUNTED_PRE_DEPLOY;
-      do_blocking_move_to(pre_deploy.where, MMM_TO_MMS(pre_deploy.fr_mm_min));
+      motion.blocking_move(pre_deploy.where, MMM_TO_MMS(pre_deploy.fr_mm_min));
     #endif
     #if HAS_MAG_MOUNTED_SERVO_PROBE
       servo[MAG_MOUNTED_PROBE_SERVO_NR].move(servo_angles[MAG_MOUNTED_PROBE_SERVO_NR][0]);
     #endif
     #ifdef MAG_MOUNTED_DEPLOY_1
       constexpr mag_probe_move_t deploy_1 = MAG_MOUNTED_DEPLOY_1;
-      do_blocking_move_to(deploy_1.where, MMM_TO_MMS(deploy_1.fr_mm_min));
+      motion.blocking_move(deploy_1.where, MMM_TO_MMS(deploy_1.fr_mm_min));
     #endif
     #ifdef MAG_MOUNTED_DEPLOY_2
       constexpr mag_probe_move_t deploy_2 = MAG_MOUNTED_DEPLOY_2;
-      do_blocking_move_to(deploy_2.where, MMM_TO_MMS(deploy_2.fr_mm_min));
+      motion.blocking_move(deploy_2.where, MMM_TO_MMS(deploy_2.fr_mm_min));
     #endif
     #ifdef MAG_MOUNTED_DEPLOY_3
       constexpr mag_probe_move_t deploy_3 = MAG_MOUNTED_DEPLOY_3;
-      do_blocking_move_to(deploy_3.where, MMM_TO_MMS(deploy_3.fr_mm_min));
+      motion.blocking_move(deploy_3.where, MMM_TO_MMS(deploy_3.fr_mm_min));
     #endif
     #ifdef MAG_MOUNTED_DEPLOY_4
       constexpr mag_probe_move_t deploy_4 = MAG_MOUNTED_DEPLOY_4;
-      do_blocking_move_to(deploy_4.where, MMM_TO_MMS(deploy_4.fr_mm_min));
+      motion.blocking_move(deploy_4.where, MMM_TO_MMS(deploy_4.fr_mm_min));
     #endif
     #ifdef MAG_MOUNTED_DEPLOY_5
       constexpr mag_probe_move_t deploy_5 = MAG_MOUNTED_DEPLOY_5;
-      do_blocking_move_to(deploy_5.where, MMM_TO_MMS(deploy_5.fr_mm_min));
+      motion.blocking_move(deploy_5.where, MMM_TO_MMS(deploy_5.fr_mm_min));
     #endif
     #if HAS_MAG_MOUNTED_SERVO_PROBE
       servo[MAG_MOUNTED_PROBE_SERVO_NR].move(servo_angles[MAG_MOUNTED_PROBE_SERVO_NR][1]);
@@ -307,30 +307,30 @@ xyz_pos_t Probe::offset; // Initialized by settings.load
   inline void run_stow_moves() {
     #ifdef MAG_MOUNTED_PRE_STOW
       constexpr mag_probe_move_t pre_stow = MAG_MOUNTED_PRE_STOW;
-      do_blocking_move_to(pre_stow.where, MMM_TO_MMS(pre_stow.fr_mm_min));
+      motion.blocking_move(pre_stow.where, MMM_TO_MMS(pre_stow.fr_mm_min));
     #endif
     #if HAS_MAG_MOUNTED_SERVO_PROBE
       servo[MAG_MOUNTED_PROBE_SERVO_NR].move(servo_angles[MAG_MOUNTED_PROBE_SERVO_NR][0]);
     #endif
     #ifdef MAG_MOUNTED_STOW_1
       constexpr mag_probe_move_t stow_1 = MAG_MOUNTED_STOW_1;
-      do_blocking_move_to(stow_1.where, MMM_TO_MMS(stow_1.fr_mm_min));
+      motion.blocking_move(stow_1.where, MMM_TO_MMS(stow_1.fr_mm_min));
     #endif
     #ifdef MAG_MOUNTED_STOW_2
       constexpr mag_probe_move_t stow_2 = MAG_MOUNTED_STOW_2;
-      do_blocking_move_to(stow_2.where, MMM_TO_MMS(stow_2.fr_mm_min));
+      motion.blocking_move(stow_2.where, MMM_TO_MMS(stow_2.fr_mm_min));
     #endif
     #ifdef MAG_MOUNTED_STOW_3
       constexpr mag_probe_move_t stow_3 = MAG_MOUNTED_STOW_3;
-      do_blocking_move_to(stow_3.where, MMM_TO_MMS(stow_3.fr_mm_min));
+      motion.blocking_move(stow_3.where, MMM_TO_MMS(stow_3.fr_mm_min));
     #endif
     #ifdef MAG_MOUNTED_STOW_4
       constexpr mag_probe_move_t stow_4 = MAG_MOUNTED_STOW_4;
-      do_blocking_move_to(stow_4.where, MMM_TO_MMS(stow_4.fr_mm_min));
+      motion.blocking_move(stow_4.where, MMM_TO_MMS(stow_4.fr_mm_min));
     #endif
     #ifdef MAG_MOUNTED_STOW_5
       constexpr mag_probe_move_t stow_5 = MAG_MOUNTED_STOW_5;
-      do_blocking_move_to(stow_5.where, MMM_TO_MMS(stow_5.fr_mm_min));
+      motion.blocking_move(stow_5.where, MMM_TO_MMS(stow_5.fr_mm_min));
     #endif
     #if HAS_MAG_MOUNTED_SERVO_PROBE
       servo[MAG_MOUNTED_PROBE_SERVO_NR].move(servo_angles[MAG_MOUNTED_PROBE_SERVO_NR][1]);
@@ -356,14 +356,14 @@ xyz_pos_t Probe::offset; // Initialized by settings.load
     #if ENABLED(PROBING_STEPPERS_OFF)
       static main_axes_bits_t old_trusted;
       if (dopause) {
-        old_trusted = axes_trusted;
+        old_trusted = motion.axes_trusted;
         stepper.disable_axis(X_AXIS);
         stepper.disable_axis(Y_AXIS);
       }
       else {
         if (TEST(old_trusted, X_AXIS)) stepper.enable_axis(X_AXIS);
         if (TEST(old_trusted, Y_AXIS)) stepper.enable_axis(Y_AXIS);
-        axes_trusted = old_trusted;
+        motion.axes_trusted = old_trusted;
       }
     #endif
     if (dopause) safe_delay(_MAX(DELAY_BEFORE_PROBING, 25));
@@ -450,7 +450,7 @@ FORCE_INLINE void probe_specific_action(const bool deploy) {
 
   #elif ENABLED(RACK_AND_PINION_PROBE)
 
-    do_blocking_move_to_x(deploy ? Z_PROBE_DEPLOY_X : Z_PROBE_RETRACT_X);
+    motion.blocking_move_x(deploy ? Z_PROBE_DEPLOY_X : Z_PROBE_RETRACT_X);
 
   #elif DISABLED(PAUSE_BEFORE_DEPLOY_STOW)
 
@@ -536,7 +536,7 @@ void Probe::probe_error_stop() {
  */
 bool Probe::set_deployed(const bool deploy, const bool no_return/*=false*/) {
   if (DEBUGGING(LEVELING)) {
-    DEBUG_POS("Probe::set_deployed", current_position);
+    DEBUG_POS("Probe::set_deployed", motion.position);
     DEBUG_ECHOLNPGM("deploy=", deploy, " no_return=", no_return);
   }
 
@@ -552,19 +552,19 @@ bool Probe::set_deployed(const bool deploy, const bool no_return/*=false*/) {
   #endif
 
   if (z_raise_wanted) {
-    const float zdest = DIFF_TERN(HAS_HOTEND_OFFSET, Z_CLEARANCE_DEPLOY_PROBE, hotend_offset[active_extruder].z);
+    const float zdest = DIFF_TERN(HAS_HOTEND_OFFSET, Z_CLEARANCE_DEPLOY_PROBE, hotend_offset[motion.extruder].z);
     if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Raise Z to ", zdest);
-    do_z_clearance(zdest);
+    motion.do_z_clearance(zdest);
   }
 
   #if ANY(Z_PROBE_SLED, Z_PROBE_ALLEN_KEY)
-    if (homing_needed_error(TERN_(Z_PROBE_SLED, _BV(X_AXIS)))) {
+    if (motion.homing_needed_error(TERN_(Z_PROBE_SLED, _BV(X_AXIS)))) {
       probe_error_stop();
       return true;
     }
   #endif
 
-  const xy_pos_t old_xy = current_position;        // Remember location before probe deployment
+  const xy_pos_t old_xy = motion.position;        // Remember location before probe deployment
 
   #if ENABLED(PROBE_TRIGGERED_WHEN_STOWED_TEST)
 
@@ -594,7 +594,7 @@ bool Probe::set_deployed(const bool deploy, const bool no_return/*=false*/) {
   // TODO: Consider skipping this for things like M401, G34, etc.
   TERN_(PREHEAT_BEFORE_PROBING, if (deploy) preheat_for_probing(PROBING_NOZZLE_TEMP, PROBING_BED_TEMP));
 
-  if (!no_return) do_blocking_move_to(old_xy); // Return to the original location unless handled externally
+  if (!no_return) motion.blocking_move(old_xy); // Return to the original location unless handled externally
 
   endstops.enable_z_probe(deploy);
 
@@ -610,7 +610,7 @@ bool Probe::set_deployed(const bool deploy, const bool no_return/*=false*/) {
  * @return true to indicate an error
  *
  * @details Used by run_z_probe to get each bed Z height measurement.
- *          Sets current_position.z to the height where the probe triggered
+ *          Sets motion.position.z to the height where the probe triggered
  *          (according to the Z stepper count). The float Z is propagated
  *          back to the planner.position to preempt any rounding error.
  *
@@ -624,7 +624,7 @@ bool Probe::probe_down_to_z(const float z, const feedRate_t fr_mm_s) {
   #endif
 
   #if ALL(HAS_TEMP_HOTEND, WAIT_FOR_HOTEND)
-    thermalManager.wait_for_hotend_heating(active_extruder);
+    thermalManager.wait_for_hotend_heating(motion.extruder);
   #endif
 
   #if ENABLED(BLTOUCH)
@@ -665,7 +665,7 @@ bool Probe::probe_down_to_z(const float z, const feedRate_t fr_mm_s) {
   TERN_(HAS_QUIET_PROBING, set_devices_paused_for_probing(true));
 
   // Move down until the probe is triggered
-  do_blocking_move_to_z(z, fr_mm_s);
+  motion.blocking_move_z(z, fr_mm_s);
 
   // Check to see if the probe was triggered
   const bool probe_triggered = (
@@ -718,10 +718,10 @@ bool Probe::probe_down_to_z(const float z, const feedRate_t fr_mm_s) {
   endstops.hit_on_purpose();
 
   // Get Z where the steppers were interrupted
-  set_current_from_steppers_for_axis(Z_AXIS);
+  motion.set_current_from_steppers_for_axis(Z_AXIS);
 
   // Tell the planner where we actually are
-  sync_plan_position();
+  motion.sync_plan_position();
 
   return !probe_triggered;
 }
@@ -767,7 +767,7 @@ bool Probe::probe_down_to_z(const float z, const feedRate_t fr_mm_s) {
  * @brief Probe at the current XY (possibly more than once) to find the bed Z.
  *
  * @details Used by probe_at_point to get the bed Z height at the current XY.
- *          Leaves current_position.z at the height where the probe triggered.
+ *          Leaves motion.position.z at the height where the probe triggered.
  *
  * @param sanity_check Flag to compare the probe result with the expected result
  *                     based on the probe Z offset. If the result is too far away
@@ -780,7 +780,7 @@ bool Probe::probe_down_to_z(const float z, const feedRate_t fr_mm_s) {
 float Probe::run_z_probe(const bool sanity_check/*=true*/, const float z_min_point/*=Z_PROBE_LOW_POINT*/, const float z_clearance/*=Z_TWEEN_SAFE_CLEARANCE*/) {
   DEBUG_SECTION(log_probe, "Probe::run_z_probe", DEBUGGING(LEVELING));
 
-  const float zoffs = SUM_TERN(HAS_HOTEND_OFFSET, -offset.z, hotend_offset[active_extruder].z);
+  const float zoffs = SUM_TERN(HAS_HOTEND_OFFSET, -offset.z, hotend_offset[motion.extruder].z);
 
   auto try_to_probe = [&](PGM_P const plbl, const float z_probe_low_point, const feedRate_t fr_mm_s, const bool scheck) -> bool {
     constexpr float error_tolerance = Z_PROBE_ERROR_TOLERANCE;
@@ -794,7 +794,7 @@ float Probe::run_z_probe(const bool sanity_check/*=true*/, const float z_min_poi
 
     // Do a first probe at the fast speed
     const bool probe_fail = probe_down_to_z(z_probe_low_point, fr_mm_s),              // No probe trigger?
-               early_fail = (scheck && current_position.z > zoffs + error_tolerance); // Probe triggered too high?
+               early_fail = (scheck && motion.position.z > zoffs + error_tolerance); // Probe triggered too high?
     #if ENABLED(DEBUG_LEVELING_FEATURE)
       if (DEBUGGING(LEVELING) && (probe_fail || early_fail)) {
         DEBUG_ECHOPGM(" Probe fail! - ");
@@ -809,7 +809,7 @@ float Probe::run_z_probe(const bool sanity_check/*=true*/, const float z_min_poi
 
   // Stop the probe before it goes too low to prevent damage.
   // For known Z probe below the expected trigger point, otherwise -10mm lower.
-  const float z_probe_low_point = zoffs + z_min_point -float((!axis_is_trusted(Z_AXIS)) * 10);
+  const float z_probe_low_point = zoffs + z_min_point -float((!motion.axis_is_trusted(Z_AXIS)) * 10);
   if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Probe Low Point: ", z_probe_low_point);
 
   // Double-probing does a fast probe followed by a slow probe
@@ -821,21 +821,21 @@ float Probe::run_z_probe(const bool sanity_check/*=true*/, const float z_min_poi
     // Do a first probe at the fast speed
     if (try_to_probe(PSTR("FAST"), z_probe_low_point, z_probe_fast_mm_s, sanity_check)) return NAN;
 
-    const float z1 = DIFF_TERN(HAS_DELTA_SENSORLESS_PROBING, current_position.z, largest_sensorless_adj);
+    const float z1 = DIFF_TERN(HAS_DELTA_SENSORLESS_PROBING, motion.position.z, largest_sensorless_adj);
     if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("1st Probe Z:", z1);
 
     // Raise to give the probe clearance
-    do_z_clearance(z1 + (Z_CLEARANCE_MULTI_PROBE), false);
+    motion.do_z_clearance(z1 + (Z_CLEARANCE_MULTI_PROBE), false);
 
   #elif Z_PROBE_FEEDRATE_FAST != Z_PROBE_FEEDRATE_SLOW
 
     // If the nozzle is well over the travel height then
     // move down quickly before doing the slow probe
     const float z = (Z_CLEARANCE_DEPLOY_PROBE) + 5.0f + _MAX(zoffs, 0.0f);
-    if (current_position.z > z) {
+    if (motion.position.z > z) {
       // Probe down fast. If the probe never triggered, raise for probe clearance
       if (!probe_down_to_z(z, z_probe_fast_mm_s))
-        do_z_clearance(z_clearance);
+        motion.do_z_clearance(z_clearance);
     }
   #endif
 
@@ -863,7 +863,7 @@ float Probe::run_z_probe(const bool sanity_check/*=true*/, const float z_min_poi
 
       TERN_(MEASURE_BACKLASH_WHEN_PROBING, backlash.measure_with_probe());
 
-      const float z = DIFF_TERN(HAS_DELTA_SENSORLESS_PROBING, current_position.z, largest_sensorless_adj);
+      const float z = DIFF_TERN(HAS_DELTA_SENSORLESS_PROBING, motion.position.z, largest_sensorless_adj);
 
       #if EXTRA_PROBING > 0
         // Insert Z measurement into probes[]. Keep it sorted ascending.
@@ -886,7 +886,7 @@ float Probe::run_z_probe(const bool sanity_check/*=true*/, const float z_min_poi
           #if EXTRA_PROBING > 0
             < TOTAL_PROBING - 1
           #endif
-        ) do_z_clearance(z + (Z_CLEARANCE_MULTI_PROBE), false);
+        ) motion.do_z_clearance(z + (Z_CLEARANCE_MULTI_PROBE), false);
       #endif
     }
 
@@ -914,7 +914,7 @@ float Probe::run_z_probe(const bool sanity_check/*=true*/, const float z_min_poi
 
   #elif TOTAL_PROBING == 2
 
-    const float z2 = DIFF_TERN(HAS_DELTA_SENSORLESS_PROBING, current_position.z, largest_sensorless_adj);
+    const float z2 = DIFF_TERN(HAS_DELTA_SENSORLESS_PROBING, motion.position.z, largest_sensorless_adj);
 
     if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("2nd Probe Z:", z2, " Discrepancy:", z1 - z2);
 
@@ -924,11 +924,11 @@ float Probe::run_z_probe(const bool sanity_check/*=true*/, const float z_min_poi
   #else
 
     // Return the single probe result
-    const float measured_z = current_position.z;
+    const float measured_z = motion.position.z;
 
   #endif
 
-  return DIFF_TERN(HAS_HOTEND_OFFSET, measured_z, hotend_offset[active_extruder].z);
+  return DIFF_TERN(HAS_HOTEND_OFFSET, measured_z, hotend_offset[motion.extruder].z);
 }
 
 #if DO_TOOLCHANGE_FOR_PROBING
@@ -945,9 +945,9 @@ float Probe::run_z_probe(const bool sanity_check/*=true*/, const float z_min_poi
     static bool old_state = false;
     if (probing == old_state) return;
     old_state = probing;
-    if (probing) old_tool = active_extruder;
+    if (probing) old_tool = motion.extruder;
     const uint8_t tool = probing ? PROBING_TOOL : old_tool;
-    if (tool != active_extruder)
+    if (tool != motion.extruder)
       tool_change(tool, ENABLED(PROBE_TOOLCHANGE_NO_MOVE));
   }
 
@@ -982,22 +982,22 @@ float Probe::probe_at_point(
 
   if (DEBUGGING(LEVELING)) {
     DEBUG_ECHOLNPGM(
-      "...(", LOGICAL_X_POSITION(rx), ", ", LOGICAL_Y_POSITION(ry),
+      "...(", motion.logical_x(rx), ", ", motion.logical_y(ry),
       ", ", raise_after == PROBE_PT_RAISE ? "raise" : raise_after == PROBE_PT_LAST_STOW ? "stow (last)" : raise_after == PROBE_PT_STOW ? "stow" : "none",
       ", ", verbose_level,
       ", ", probe_relative ? "probe" : "nozzle", "_relative)"
     );
-    DEBUG_POS("", current_position);
+    DEBUG_POS("", motion.position);
   }
 
   // Use a safe Z height for the XY move
-  const float safe_z = _MAX(current_position.z, z_clearance);
+  const float safe_z = _MAX(motion.position.z, z_clearance);
 
-  // On delta keep Z below clip height or do_blocking_move_to will abort
+  // On delta keep Z below clip height or motion.blocking_move will abort
   xyz_pos_t npos = NUM_AXIS_ARRAY(
     rx, ry, TERN(DELTA, _MIN(delta_clip_start_height, safe_z), safe_z),
-    current_position.i, current_position.j, current_position.k,
-    current_position.u, current_position.v, current_position.w
+    motion.position.i, motion.position.j, motion.position.k,
+    motion.position.u, motion.position.v, motion.position.w
   );
   if (!can_reach(npos, probe_relative)) {
     if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Not Reachable");
@@ -1007,12 +1007,12 @@ float Probe::probe_at_point(
   if (DEBUGGING(LEVELING)) DEBUG_ECHOPGM("Move to probe");
   if (probe_relative) { // Get the nozzle position, adjust for active hotend if not 0
     if (DEBUGGING(LEVELING)) DEBUG_ECHOPGM("-relative");
-    npos -= DIFF_TERN(HAS_HOTEND_OFFSET, offset_xy, xy_pos_t(hotend_offset[active_extruder]));
+    npos -= DIFF_TERN(HAS_HOTEND_OFFSET, offset_xy, xy_pos_t(hotend_offset[motion.extruder]));
   }
   if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM(" point");
 
   // Move the probe to the starting XYZ
-  do_blocking_move_to(npos, feedRate_t(XY_PROBE_FEEDRATE_MM_S));
+  motion.blocking_move(npos, feedRate_t(XY_PROBE_FEEDRATE_MM_S));
 
   // Change Z motor current to homing current
   TERN_(PROBING_USE_CURRENT_HOME, set_homing_current(Z_AXIS));
@@ -1023,7 +1023,7 @@ float Probe::probe_at_point(
 
     safe_delay(4);
 
-    measured_z = current_position.z - bdl.read(); // Difference between Z-home-relative Z and sensor reading
+    measured_z = motion.position.z - bdl.read(); // Difference between Z-home-relative Z and sensor reading
 
   #else // !BD_SENSOR
 
@@ -1043,9 +1043,9 @@ float Probe::probe_at_point(
         default: break;
         case PROBE_PT_RAISE:
           if (raise_after_is_rel)
-            do_z_clearance_by(z_clearance);
+            motion.do_z_clearance_by(z_clearance);
           else
-            do_z_clearance(z_clearance);
+            motion.do_z_clearance(z_clearance);
           break;
         case PROBE_PT_STOW: case PROBE_PT_LAST_STOW:
           if (stow()) measured_z = NAN;   // Error on stow?
@@ -1069,7 +1069,7 @@ float Probe::probe_at_point(
       TERN_(HAS_PTC, ptc.apply_compensation(measured_z));
       TERN_(X_AXIS_TWIST_COMPENSATION, measured_z += xatc.compensation(npos + offset_xy));
       if (verbose_level > 2 || DEBUGGING(LEVELING))
-        SERIAL_ECHOLNPGM("Bed X: ", LOGICAL_X_POSITION(rx), " Y: ", LOGICAL_Y_POSITION(ry), " Z: ", measured_z);
+        SERIAL_ECHOLNPGM("Bed X: ", motion.logical_x(rx), " y: ", motion.logical_y(ry), " Z: ", measured_z);
     }
 
   #endif // !BD_SENSOR
