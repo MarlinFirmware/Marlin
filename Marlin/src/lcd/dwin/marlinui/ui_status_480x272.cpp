@@ -85,9 +85,9 @@ void _draw_axis_value(const AxisEnum axis, const char *value, const bool blink, 
   dwin_string.set();
   if (blink)
     dwin_string.add(value);
-  else if (!TEST(axes_homed, axis))
+  else if (!motion.axis_was_homed(axis))
     while (const char c = *value++) dwin_string.add(c <= '.' ? c : '?');
-  else if (NONE(HOME_AFTER_DEACTIVATE, DISABLE_REDUCED_ACCURACY_WARNING) && !TEST(axes_trusted, axis))
+  else if (NONE(HOME_AFTER_DEACTIVATE, DISABLE_REDUCED_ACCURACY_WARNING) && !TEST(motion.axes_trusted, axis))
     dwin_string.add(TERN1(DWIN_MARLINUI_PORTRAIT, axis == Z_AXIS) ? PSTR("       ") : PSTR("    "));
   else
     dwin_string.add(value);
@@ -307,12 +307,12 @@ void MarlinUI::draw_status_screen() {
   #endif
 
   // Axis values
-  const xyz_pos_t lpos = current_position.asLogical();
+  const xyz_pos_t lpos = motion.position.asLogical();
   const bool show_e_total = TERN1(HAS_X_AXIS, TERN0(LCD_SHOW_E_TOTAL, marlin.printingIsActive()));
 
   constexpr int16_t cpy = TERN(DWIN_MARLINUI_PORTRAIT, 195, 117);
   if (show_e_total) {
-    TERN_(LCD_SHOW_E_TOTAL, _draw_e_value(e_move_accumulator, TERN(DWIN_MARLINUI_PORTRAIT, 6, 75), cpy));
+    TERN_(LCD_SHOW_E_TOTAL, _draw_e_value(motion.e_move_accumulator, TERN(DWIN_MARLINUI_PORTRAIT, 6, 75), cpy));
   }
   else {
     XY_CODE(
@@ -324,9 +324,9 @@ void MarlinUI::draw_status_screen() {
 
   // Feedrate
   static uint16_t old_fp = 0;
-  if (!ui.did_first_redraw || old_fp != feedrate_percentage) {
-    old_fp = feedrate_percentage;
-    _draw_feedrate_status(i16tostr3rj(feedrate_percentage),
+  if (!ui.did_first_redraw || old_fp != motion.feedrate_percentage) {
+    old_fp = motion.feedrate_percentage;
+    _draw_feedrate_status(i16tostr3rj(motion.feedrate_percentage),
       #if ENABLED(DWIN_MARLINUI_PORTRAIT)
          5, 290
       #else

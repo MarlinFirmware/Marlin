@@ -30,3 +30,5 @@
 #define mmuVersionMajor 3
 #define mmuVersionMinor 0
 #define mmuVersionPatch 2
+
+#define MMU_VERSION STRINGIFY(mmuVersionMajor) "." STRINGIFY(mmuVersionMinor) "." STRINGIFY(mmuVersionPatch)

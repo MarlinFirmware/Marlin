@@ -539,7 +539,7 @@ void GCodeQueue::get_serial_commands() {
         if (command[0] == 'M') switch (command[3]) {
           case '8': if (command[2] == '0' && command[1] == '1') { marlin.end_waiting(); } break;
           case '2': if (command[2] == '1' && command[1] == '1') marlin.kill(FPSTR(M112_KILL_STR), nullptr, true); break;
-          case '0': if (command[1] == '4' && command[2] == '1') quickstop_stepper(); break;
+          case '0': if (command[1] == '4' && command[2] == '1') motion.quickstop_stepper(); break;
         }
 
         #if NO_TIMEOUTS > 0

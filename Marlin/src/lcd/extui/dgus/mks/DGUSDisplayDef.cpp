@@ -81,23 +81,23 @@ constexpr feedRate_t park_speed_xy = TERN(NOZZLE_PARK_FEATURE, NOZZLE_PARK_XY_FE
 
 void MKS_pause_print_move() {
   queue.exhaust();
-  position_before_pause = current_position;
+  position_before_pause = motion.position;
 
   // Save the current position, the raise amount, and 'already raised'
   TERN_(POWER_LOSS_RECOVERY, if (recovery.enabled) recovery.save(true, mks_park_pos.z, true));
 
-  destination.z = _MIN(current_position.z + mks_park_pos.z, Z_MAX_POS);
-  prepare_internal_move_to_destination(park_speed_z);
+  motion.destination.z = _MIN(motion.position.z + mks_park_pos.z, Z_MAX_POS);
+  motion.prepare_internal_move_to_destination(park_speed_z);
 
-  destination.set(X_MIN_POS + mks_park_pos.x, Y_MIN_POS + mks_park_pos.y);
-  prepare_internal_move_to_destination(park_speed_xy);
+  motion.destination.set(X_MIN_POS + mks_park_pos.x, Y_MIN_POS + mks_park_pos.y);
+  motion.prepare_internal_move_to_destination(park_speed_xy);
 }
 
 void MKS_resume_print_move() {
-  destination.set(position_before_pause.x, position_before_pause.y);
-  prepare_internal_move_to_destination(park_speed_xy);
-  destination.z = position_before_pause.z;
-  prepare_internal_move_to_destination(park_speed_z);
+  motion.destination.set(position_before_pause.x, position_before_pause.y);
+  motion.prepare_internal_move_to_destination(park_speed_xy);
+  motion.destination.z = position_before_pause.z;
+  motion.prepare_internal_move_to_destination(park_speed_z);
   TERN_(POWER_LOSS_RECOVERY, if (recovery.enabled) recovery.save(true));
 }
 
@@ -471,7 +471,7 @@ const struct DGUS_VP_Variable ListOfVP[] PROGMEM = {
     VPHELPER(VP_T_E0_Is, &thermalManager.temp_hotend[0].celsius, nullptr, screen.sendFloatAsLongValueToDisplay<0>),
     VPHELPER(VP_T_E0_Set, &thermalManager.temp_hotend[0].target, screen.handleTemperatureChanged, screen.sendWordValueToDisplay),
     VPHELPER(VP_Flowrate_E0, &planner.flow_percentage[0], screen.handleFlowRateChanged, screen.sendWordValueToDisplay),
-    VPHELPER(VP_EPos, &destination.e, nullptr, screen.sendFloatAsLongValueToDisplay<2>),
+    VPHELPER(VP_EPos, &motion.destination.e, nullptr, screen.sendFloatAsLongValueToDisplay<2>),
     VPHELPER(VP_MOVE_E0, nullptr, screen.handleManualExtrude, nullptr),
     VPHELPER(VP_E0_CONTROL, &thermalManager.temp_hotend[0].target, screen.handleHeaterControl, nullptr),
     VPHELPER(VP_E0_STATUS, &thermalManager.temp_hotend[0].target, nullptr, screen.sendHeaterStatusToDisplay),
@@ -542,12 +542,12 @@ const struct DGUS_VP_Variable ListOfVP[] PROGMEM = {
   #endif
 
   // Feedrate
-  VPHELPER(VP_Feedrate_Percentage, &feedrate_percentage, screen.setValueDirectly<int16_t>, screen.sendWordValueToDisplay),
+  VPHELPER(VP_Feedrate_Percentage, &motion.feedrate_percentage, screen.setValueDirectly<int16_t>, screen.sendWordValueToDisplay),
 
   // Position Data
-  VPHELPER(VP_XPos, &current_position.x, nullptr, screen.sendFloatAsLongValueToDisplay<2>),
-  VPHELPER(VP_YPos, &current_position.y, nullptr, screen.sendFloatAsLongValueToDisplay<2>),
-  VPHELPER(VP_ZPos, &current_position.z, nullptr, screen.sendFloatAsLongValueToDisplay<2>),
+  VPHELPER(VP_XPos, &motion.position.x, nullptr, screen.sendFloatAsLongValueToDisplay<2>),
+  VPHELPER(VP_YPos, &motion.position.y, nullptr, screen.sendFloatAsLongValueToDisplay<2>),
+  VPHELPER(VP_ZPos, &motion.position.z, nullptr, screen.sendFloatAsLongValueToDisplay<2>),
 
   // Level Point Set
   VPHELPER(VP_Level_Point_One_X, &mks_corner_offsets[0].x, screen.handleChangeLevelPoint, screen.sendWordValueToDisplay),
