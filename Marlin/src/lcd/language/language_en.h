@@ -1116,7 +1116,7 @@ namespace LanguageWide_en {
     LSTR MSG_MEDIA_MENU                   = _UxGT("Select from ") MEDIA_TYPE_EN;
     LSTR MSG_NO_MEDIA                     = _UxGT("No ") MEDIA_TYPE_EN _UxGT(" Found");
     LSTR MSG_INFO_PRINT_COUNT             = _UxGT("Print Count");
-    LSTR MSG_INFO_PRINT_COUNT_RESET       = _UxGT("Reset Print Count");       // ProUI
+    LSTR MSG_INFO_PRINT_COUNT_RESET       = _UxGT("Reset Print Count");
     LSTR MSG_INFO_PRINT_TIME              = _UxGT("Print Time");
     LSTR MSG_INFO_PRINT_LONGEST           = _UxGT("Longest Job Time");
     LSTR MSG_INFO_PRINT_FILAMENT          = _UxGT("Extruded Total");
@@ -1133,7 +1133,6 @@ namespace LanguageWide_en {
     LSTR MSG_PID_TARGET                   = _UxGT("PID target:     Celsius");
     LSTR MSG_TARGET                       = _UxGT("Target:     Celsius");
     LSTR MSG_MEDIA_NOT_INSERTED           = MEDIA_TYPE_EN _UxGT(" not inserted.");
-    LSTR MSG_INFO_PRINT_COUNT_RESET       = _UxGT("Reset Print Count");
     LSTR MSG_HOMING_FEEDRATE_N            = _UxGT("@ Homing Feedrate");
     LSTR MSG_PREHEAT_1_CHAMBER            = _UxGT("Preheat ") PREHEAT_1_LABEL _UxGT(" Chamber");
     LSTR MSG_PREHEAT_M_CHAMBER            = _UxGT("Preheat $ Chamber");
