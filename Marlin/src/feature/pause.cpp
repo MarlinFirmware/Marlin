@@ -146,8 +146,8 @@ static bool ensure_safe_temperature(const bool wait=true, const PauseMode mode=P
   DEBUG_ECHOLNPGM("... wait:", wait, " mode:", mode);
 
   #if ENABLED(PREVENT_COLD_EXTRUSION)
-    if (!DEBUGGING(DRYRUN) && thermalManager.targetTooColdToExtrude(active_extruder))
-      thermalManager.setTargetHotend(thermalManager.extrude_min_temp, active_extruder);
+    if (!DEBUGGING(DRYRUN) && thermalManager.targetTooColdToExtrude(motion.extruder))
+      thermalManager.setTargetHotend(thermalManager.extrude_min_temp, motion.extruder);
   #endif
 
   ui.pause_show_message(PAUSE_MESSAGE_HEATING, mode);
@@ -157,17 +157,17 @@ static bool ensure_safe_temperature(const bool wait=true, const PauseMode mode=P
     rts.updateTempE0();
   #endif
 
-  if (wait) return thermalManager.wait_for_hotend(active_extruder);
+  if (wait) return thermalManager.wait_for_hotend(motion.extruder);
 
   // Allow interruption by Emergency Parser M108
   marlin.wait_for_heatup = TERN1(PREVENT_COLD_EXTRUSION, !thermalManager.allow_cold_extrude);
-  while (marlin.is_heating() && ABS(thermalManager.wholeDegHotend(active_extruder) - thermalManager.degTargetHotend(active_extruder)) > (TEMP_WINDOW))
+  while (marlin.is_heating() && ABS(thermalManager.wholeDegHotend(motion.extruder) - thermalManager.degTargetHotend(motion.extruder)) > (TEMP_WINDOW))
     marlin.idle();
   marlin.heatup_done();
 
   #if ENABLED(PREVENT_COLD_EXTRUSION)
     // A user can cancel wait-for-heating with M108
-    if (!DEBUGGING(DRYRUN) && thermalManager.targetTooColdToExtrude(active_extruder)) {
+    if (!DEBUGGING(DRYRUN) && thermalManager.targetTooColdToExtrude(motion.extruder)) {
       SERIAL_ECHO_MSG(STR_ERR_HOTEND_TOO_COLD);
       return false;
     }
@@ -211,7 +211,7 @@ bool load_filament(const float slow_load_length/*=0*/, const float fast_load_len
     TERN_(EXTENSIBLE_UI, ExtUI::onUserConfirmRequired(GET_TEXT_F(MSG_FILAMENTLOAD)));
 
     #if ENABLED(HOST_PROMPT_SUPPORT)
-      const char tool = '0' + TERN0(MULTI_FILAMENT_SENSOR, active_extruder);
+      const char tool = '0' + TERN0(MULTI_FILAMENT_SENSOR, motion.extruder);
       hostui.prompt_do(PROMPT_USER_CONTINUE, F("Load Filament T"), tool, FPSTR(CONTINUE_STR));
     #endif
 
@@ -220,7 +220,7 @@ bool load_filament(const float slow_load_length/*=0*/, const float fast_load_len
       #if ALL(HAS_FILAMENT_SENSOR, FILAMENT_CHANGE_RESUME_ON_INSERT)
         #if MULTI_FILAMENT_SENSOR
           #define _CASE_INSERTED(N) case N-1: if (!FILAMENT_IS_OUT(N)) marlin.user_resume(); break;
-          switch (active_extruder) {
+          switch (motion.extruder) {
             REPEAT_1(NUM_RUNOUT_SENSORS, _CASE_INSERTED)
           }
         #else
@@ -234,17 +234,17 @@ bool load_filament(const float slow_load_length/*=0*/, const float fast_load_len
   if (show_lcd) ui.pause_show_message(PAUSE_MESSAGE_LOAD, mode);
 
   #if ENABLED(DUAL_X_CARRIAGE)
-    const int8_t saved_ext        = active_extruder;
+    const int8_t saved_ext        = motion.extruder;
     const bool saved_ext_dup_mode = extruder_duplication_enabled;
     set_duplication_enabled(false, DXC_ext);
   #endif
 
-  TERN_(BELTPRINTER, do_blocking_move_to_xy(0.00, 50.00));
+  TERN_(BELTPRINTER, motion.blocking_move_xy(0.00, 50.00));
 
   TERN_(MPCTEMP, MPC::e_paused = true);
 
   // Slow Load filament
-  if (slow_load_length) unscaled_e_move(slow_load_length, FILAMENT_CHANGE_SLOW_LOAD_FEEDRATE);
+  if (slow_load_length) motion.unscaled_e_move(slow_load_length, FILAMENT_CHANGE_SLOW_LOAD_FEEDRATE);
 
   // Fast Load Filament
   if (fast_load_length) {
@@ -253,7 +253,7 @@ bool load_filament(const float slow_load_length/*=0*/, const float fast_load_len
       planner.settings.retract_acceleration = FILAMENT_CHANGE_FAST_LOAD_ACCEL;
     #endif
 
-    unscaled_e_move(fast_load_length, FILAMENT_CHANGE_FAST_LOAD_FEEDRATE);
+    motion.unscaled_e_move(fast_load_length, FILAMENT_CHANGE_FAST_LOAD_FEEDRATE);
 
     #if FILAMENT_CHANGE_FAST_LOAD_ACCEL > 0
       planner.settings.retract_acceleration = saved_acceleration;
@@ -272,7 +272,7 @@ bool load_filament(const float slow_load_length/*=0*/, const float fast_load_len
     TERN_(HOST_PROMPT_SUPPORT, hostui.continue_prompt(GET_TEXT_F(MSG_FILAMENT_CHANGE_PURGE)));
     marlin.wait_start(); // A click or M108 breaks the purge_length loop
     for (float purge_count = purge_length; purge_count > 0 && marlin.wait_for_user; --purge_count)
-      unscaled_e_move(1, ADVANCED_PAUSE_PURGE_FEEDRATE);
+      motion.unscaled_e_move(1, ADVANCED_PAUSE_PURGE_FEEDRATE);
     marlin.user_resume();
 
   #else
@@ -288,7 +288,7 @@ bool load_filament(const float slow_load_length/*=0*/, const float fast_load_len
         #endif
 
         // Extrude filament to get into hotend
-        unscaled_e_move(purge_length, ADVANCED_PAUSE_PURGE_FEEDRATE);
+        motion.unscaled_e_move(purge_length, ADVANCED_PAUSE_PURGE_FEEDRATE);
       }
 
       TERN_(HOST_PROMPT_SUPPORT, hostui.filament_load_prompt()); // Initiate another host prompt.
@@ -327,7 +327,7 @@ bool load_filament(const float slow_load_length/*=0*/, const float fast_load_len
  */
 inline void disable_active_extruder() {
   #if HAS_EXTRUDERS
-    stepper.DISABLE_EXTRUDER(active_extruder);
+    stepper.DISABLE_EXTRUDER(motion.extruder);
     safe_delay(100);
   #endif
 }
@@ -372,13 +372,13 @@ bool unload_filament(const float unload_length, const bool show_lcd/*=false*/,
   #endif
 
   // Retract filament
-  unscaled_e_move(-(FILAMENT_UNLOAD_PURGE_RETRACT) * mix_multiplier, (PAUSE_PARK_RETRACT_FEEDRATE) * mix_multiplier);
+  motion.unscaled_e_move(-(FILAMENT_UNLOAD_PURGE_RETRACT) * mix_multiplier, (PAUSE_PARK_RETRACT_FEEDRATE) * mix_multiplier);
 
   // Wait for filament to cool
   safe_delay(FILAMENT_UNLOAD_PURGE_DELAY);
 
   // Quickly purge
-  unscaled_e_move((FILAMENT_UNLOAD_PURGE_RETRACT + FILAMENT_UNLOAD_PURGE_LENGTH) * mix_multiplier,
+  motion.unscaled_e_move((FILAMENT_UNLOAD_PURGE_RETRACT + FILAMENT_UNLOAD_PURGE_LENGTH) * mix_multiplier,
                   (FILAMENT_UNLOAD_PURGE_FEEDRATE) * mix_multiplier);
 
   // Unload filament
@@ -387,7 +387,7 @@ bool unload_filament(const float unload_length, const bool show_lcd/*=false*/,
     planner.settings.retract_acceleration = FILAMENT_CHANGE_UNLOAD_ACCEL;
   #endif
 
-  unscaled_e_move(unload_length * mix_multiplier, (FILAMENT_CHANGE_UNLOAD_FEEDRATE) * mix_multiplier);
+  motion.unscaled_e_move(unload_length * mix_multiplier, (FILAMENT_CHANGE_UNLOAD_FEEDRATE) * mix_multiplier);
 
   #if FILAMENT_CHANGE_FAST_LOAD_ACCEL > 0
     planner.settings.retract_acceleration = saved_acceleration;
@@ -447,14 +447,14 @@ bool pause_print(const float retract, const xyz_pos_t &park_point, const bool sh
   print_job_timer.pause();
 
   // Save current position
-  resume_position = current_position;
+  resume_position = motion.position;
 
   // Will the nozzle be parking?
-  const bool do_park = !axes_should_home();
+  const bool do_park = !motion.axes_should_home();
 
   #if ENABLED(POWER_LOSS_RECOVERY)
     // Save PLR info in case the power goes out while parked
-    const float park_raise = do_park ? nozzle.park_mode_0_height(park_point.z) - current_position.z : POWER_LOSS_ZRAISE;
+    const float park_raise = do_park ? nozzle.park_mode_0_height(park_point.z) - motion.position.z : POWER_LOSS_ZRAISE;
     if (was_sd_printing && recovery.enabled) recovery.save(true, park_raise, do_park);
   #endif
 
@@ -466,7 +466,7 @@ bool pause_print(const float retract, const xyz_pos_t &park_point, const bool sh
   #endif
 
   // Initial retract before move to filament change position
-  if (retract && thermalManager.hotEnoughToExtrude(active_extruder)) {
+  if (retract && thermalManager.hotEnoughToExtrude(motion.extruder)) {
     DEBUG_ECHOLNPGM("... retract:", retract);
 
     #if ENABLED(AUTO_BED_LEVELING_UBL)
@@ -474,7 +474,7 @@ bool pause_print(const float retract, const xyz_pos_t &park_point, const bool sh
       set_bed_leveling_enabled(false);  // turn off leveling
     #endif
 
-    unscaled_e_move(retract, PAUSE_PARK_RETRACT_FEEDRATE);
+    motion.unscaled_e_move(retract, PAUSE_PARK_RETRACT_FEEDRATE);
 
     TERN_(AUTO_BED_LEVELING_UBL, set_bed_leveling_enabled(leveling_was_enabled)); // restore leveling
   }
@@ -484,7 +484,7 @@ bool pause_print(const float retract, const xyz_pos_t &park_point, const bool sh
   if (!do_park) LCD_MESSAGE(MSG_PARK_FAILED);
 
   #if ENABLED(DUAL_X_CARRIAGE)
-    const int8_t saved_ext        = active_extruder;
+    const int8_t saved_ext        = motion.extruder;
     const bool saved_ext_dup_mode = extruder_duplication_enabled;
     set_duplication_enabled(false, DXC_ext);
   #endif
@@ -544,7 +544,7 @@ void wait_for_confirmation(const bool is_reload/*=false*/, const int8_t max_beep
   HOTEND_LOOP() thermalManager.heater_idle[e].start(nozzle_timeout);
 
   #if ENABLED(DUAL_X_CARRIAGE)
-    const int8_t saved_ext        = active_extruder;
+    const int8_t saved_ext        = motion.extruder;
     const bool saved_ext_dup_mode = extruder_duplication_enabled;
     set_duplication_enabled(false, DXC_ext);
   #endif
@@ -662,7 +662,7 @@ void resume_print(
   SERIAL_ECHOLNPGM(
     "start of resume_print()\ndual_x_carriage_mode:", dual_x_carriage_mode,
     "\nextruder_duplication_enabled:", extruder_duplication_enabled,
-    "\nactive_extruder:", active_extruder,
+    "\nactive_extruder:", motion.extruder,
     "\n"
   );
   //*/
@@ -676,15 +676,15 @@ void resume_print(
     thermalManager.reset_hotend_idle_timer(e);
   }
 
-  if (targetTemp > thermalManager.degTargetHotend(active_extruder))
-    thermalManager.setTargetHotend(targetTemp, active_extruder);
+  if (targetTemp > thermalManager.degTargetHotend(motion.extruder))
+    thermalManager.setTargetHotend(targetTemp, motion.extruder);
 
   // Load the new filament
   load_filament(slow_load_length, fast_load_length, purge_length, max_beep_count, show_lcd, nozzle_timed_out, PAUSE_MODE_SAME DXC_PASS);
 
   if (targetTemp > 0) {
-    thermalManager.setTargetHotend(targetTemp, active_extruder);
-    thermalManager.wait_for_hotend(active_extruder, false);
+    thermalManager.setTargetHotend(targetTemp, motion.extruder);
+    thermalManager.wait_for_hotend(motion.extruder, false);
   }
 
   ui.pause_show_message(PAUSE_MESSAGE_RESUME);
@@ -693,16 +693,16 @@ void resume_print(
   ensure_safe_temperature(DISABLED(BELTPRINTER));
 
   // Retract to prevent oozing
-  unscaled_e_move(-(PAUSE_PARK_RETRACT_LENGTH), feedRate_t(PAUSE_PARK_RETRACT_FEEDRATE));
+  motion.unscaled_e_move(-(PAUSE_PARK_RETRACT_LENGTH), feedRate_t(PAUSE_PARK_RETRACT_FEEDRATE));
 
-  if (!axes_should_home()) {
+  if (!motion.axes_should_home()) {
     // Move XY back to saved position
-    destination.set(resume_position.x, resume_position.y, current_position.z, current_position.e);
-    prepare_internal_move_to_destination(NOZZLE_PARK_XY_FEEDRATE);
+    motion.destination.set(resume_position.x, resume_position.y, motion.position.z, motion.position.e);
+    motion.prepare_internal_move_to_destination(NOZZLE_PARK_XY_FEEDRATE);
 
     // Move Z back to saved position
-    destination.z = resume_position.z;
-    prepare_internal_move_to_destination(NOZZLE_PARK_Z_FEEDRATE);
+    motion.destination.z = resume_position.z;
+    motion.prepare_internal_move_to_destination(NOZZLE_PARK_Z_FEEDRATE);
   }
 
   #if ENABLED(AUTO_BED_LEVELING_UBL)
@@ -711,27 +711,27 @@ void resume_print(
   #endif
 
   // Unretract
-  unscaled_e_move(PAUSE_PARK_RETRACT_LENGTH, feedRate_t(PAUSE_PARK_RETRACT_FEEDRATE));
+  motion.unscaled_e_move(PAUSE_PARK_RETRACT_LENGTH, feedRate_t(PAUSE_PARK_RETRACT_FEEDRATE));
 
   TERN_(AUTO_BED_LEVELING_UBL, set_bed_leveling_enabled(leveling_was_enabled)); // restore leveling
 
   // Intelligent resuming
   #if ENABLED(FWRETRACT)
     // If retracted before goto pause
-    if (fwretract.retracted[active_extruder])
-      unscaled_e_move(-fwretract.settings.retract_length, fwretract.settings.retract_feedrate_mm_s);
+    if (fwretract.retracted[motion.extruder])
+      motion.unscaled_e_move(-fwretract.settings.retract_length, fwretract.settings.retract_feedrate_mm_s);
   #endif
 
   // If resume_position is negative
-  if (resume_position.e < 0) unscaled_e_move(resume_position.e, feedRate_t(PAUSE_PARK_RETRACT_FEEDRATE));
+  if (resume_position.e < 0) motion.unscaled_e_move(resume_position.e, feedRate_t(PAUSE_PARK_RETRACT_FEEDRATE));
   #ifdef ADVANCED_PAUSE_RESUME_PRIME
     if (ADVANCED_PAUSE_RESUME_PRIME != 0)
-      unscaled_e_move(ADVANCED_PAUSE_RESUME_PRIME, feedRate_t(ADVANCED_PAUSE_PURGE_FEEDRATE));
+      motion.unscaled_e_move(ADVANCED_PAUSE_RESUME_PRIME, feedRate_t(ADVANCED_PAUSE_PURGE_FEEDRATE));
   #endif
 
   // Now all extrusion positions are resumed and ready to be confirmed
   // Set extruder to saved position
-  planner.set_e_position_mm((destination.e = current_position.e = resume_position.e));
+  planner.set_e_position_mm((motion.destination.e = motion.position.e = resume_position.e));
 
   ui.pause_show_message(PAUSE_MESSAGE_STATUS);
   #if ENABLED(SOVOL_SV06_RTS)

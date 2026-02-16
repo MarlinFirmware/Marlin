@@ -106,7 +106,7 @@ void GcodeSuite::M104_M109(const bool isM109) {
   if (got_temp) {
     #if ENABLED(SINGLENOZZLE_STANDBY_TEMP)
       thermalManager.singlenozzle_temp[target_extruder] = temp;
-      if (target_extruder != active_extruder) return;
+      if (target_extruder != motion.extruder) return;
     #endif
     thermalManager.setTargetHotend(temp, target_extruder);
 

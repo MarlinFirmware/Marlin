@@ -34,7 +34,7 @@ public:
   TrapezoidalTrajectoryGenerator() = default;
 
   void plan(const float initial_speed_in, const float final_speed_in, const float acceleration_in, const float nominal_speed_in, const float distance_in) override {
-    
+
     initial_speed = initial_speed_in;
     acceleration = acceleration_in;
     nominal_speed = nominal_speed_in;
