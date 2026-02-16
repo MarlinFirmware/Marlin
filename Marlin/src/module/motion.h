@@ -347,9 +347,7 @@ public:
   #if HAS_SOFTWARE_ENDSTOPS
     static void apply_limits(xyz_pos_t &target);
     static void update_software_endstops(const AxisEnum axis
-      #if HAS_HOTEND_OFFSET
-        , const uint8_t old_tool_index=0, const uint8_t new_tool_index=0
-      #endif
+      OPTARG(HAS_HOTEND_OFFSET, const uint8_t old_tool_index=0, const uint8_t new_tool_index=0)
     );
     static void set_soft_endstop_loose(const bool loose) { soft_endstop._loose = loose; }
   #else
@@ -603,7 +601,7 @@ inline float home_bump_mm(const AxisEnum axis) {
 #endif
 
 #if ENABLED(NO_MOTION_BEFORE_HOMING)
-  #define MOTION_CONDITIONS (marlin.isRunning() && !homing_needed_error())
+  #define MOTION_CONDITIONS (marlin.isRunning() && !motion.homing_needed_error())
 #else
   #define MOTION_CONDITIONS marlin.isRunning()
 #endif
