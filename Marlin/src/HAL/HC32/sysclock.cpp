@@ -204,7 +204,7 @@ void core_hook_sysclock_init() {
   power_mode_update_post(F_SYSTEM_CLOCK);
 
   // Verify clocks match expected values (at runtime)
-  #if ENABLED(MARLIN_DEV_MODE) || ENABLED(ALWAYS_VALIDATE_CLOCKS)
+  #if ANY(MARLIN_DEV_MODE, ALWAYS_VALIDATE_CLOCKS)
     validate_system_clocks();
   #endif
 
