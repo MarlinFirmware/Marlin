@@ -35,6 +35,7 @@
 #include "../../../gcode/queue.h"
 #include "../../../module/temperature.h"
 #include "../../../module/planner.h"
+#include "../../../module/motion.h"
 #include "../../../gcode/gcode.h"
 #include "../../../inc/MarlinConfig.h"
 
@@ -168,6 +169,16 @@ static void btn_ok_event_cb(lv_obj_t *btn, lv_event_t event) {
     uiCfg.filament_heat_completed_unload = true;
   else if (DIALOG_IS(TYPE_FILAMENT_LOAD_COMPLETED, TYPE_FILAMENT_UNLOAD_COMPLETED)) {
     goto_previous_ui();
+  }
+  else if (DIALOG_IS(TYPE_FILAMENT_NO_PRESS)) {
+    if(uiCfg.print_state == PAUSED)
+    {
+      uiCfg.hotendTargetTempBak = thermalManager.degTargetHotend(active_extruder);
+      uiCfg.moveSpeed_bak = (uint16_t)feedrate_mm_s;
+      lv_clear_dialog();
+      disp_state_stack._disp_index--;  
+      lv_draw_filament_change();
+    }
   }
   #if ENABLED(MKS_WIFI_MODULE)
     else if (DIALOG_IS(TYPE_UNBIND)) {
@@ -436,6 +447,10 @@ void lv_draw_dialog(uint8_t type) {
   else if (DIALOG_IS(TYPE_FILAMENT_UNLOADING)) {
     lv_label_set_text(labelDialog, filament_menu.filament_dialog_unloading);
     lv_obj_align(labelDialog, nullptr, LV_ALIGN_CENTER, 0, -70);
+  }
+  else if (DIALOG_IS(TYPE_FILAMENT_NO_PRESS)) {
+    lv_label_set_text(labelDialog, print_file_dialog_menu.filament_no_press);
+    lv_obj_align(labelDialog, nullptr, LV_ALIGN_CENTER, 0, -20);
   }
   #if ENABLED(MKS_WIFI_MODULE)
     else if (DIALOG_IS(TYPE_UNBIND)) {
