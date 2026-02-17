@@ -2447,7 +2447,7 @@ void Motion::prepare_line_to_destination() {
 
       if (mmDelta != 0) {
         // Retrace by the amount computed in mmDelta.
-        do_homing_move(axis, mmDelta, get_homing_bump_feedrate(axis));
+        motion.do_homing_move(axis, mmDelta, motion.get_homing_bump_feedrate(axis));
       }
     }
   #endif
