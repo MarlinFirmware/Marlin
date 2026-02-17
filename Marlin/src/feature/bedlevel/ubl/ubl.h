@@ -106,8 +106,8 @@ public:
   static bool sanity_check();
   static void smart_fill_mesh();
 
-  static void G29() __O0;                           // O0 for no optimization
-  static void smart_fill_wlsf(const float ) __O2; // O2 gives smaller code than Os on A2560
+  static void G29() __O0; // O0 for no optimization
+  static void smart_fill_wlsf(const float ) TERN(AVR_ATmega2560_FAMILY, __O2, __Os); // O2 gives smaller code than Os on A2560
 
   static int8_t storage_slot;
 
