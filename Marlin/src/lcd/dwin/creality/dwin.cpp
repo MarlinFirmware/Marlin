@@ -75,7 +75,7 @@
   #include "../../../feature/babystep.h"
 #endif
 
-#if ENABLED(POWER_LOSS_RECOVERY)
+
   #include "../../../feature/powerloss.h"
 #endif
 
@@ -2511,7 +2511,7 @@ void itemAdvBedPID(const uint8_t row) {
   drawMenuLine(row, ICON_PIDBed);
 }
 
-#if ENABLED(POWER_LOSS_RECOVERY)
+
 
   void itemAdv_PLR(const uint8_t row) {
     if (false && hmiIsChinese()) {
@@ -4175,40 +4175,6 @@ void eachMomentUpdate() {
     select_page.set(0);
     gotoMainMenu();
   }
-  #if ENABLED(POWER_LOSS_RECOVERY)
-    else if (DWIN_lcd_sd_status && recovery.ui_flag_resume) { // Resume interrupted print
-      recovery.ui_flag_resume = false;
-      auto update_selection = [&](const bool sel) {
-        hmiFlag.select_flag = sel;
-        const uint16_t c1 = sel ? COLOR_BG_WINDOW : COLOR_SELECT;
-        dwinDrawRectangle(0, c1, 25, 306, 126, 345);
-        dwinDrawRectangle(0, c1, 24, 305, 127, 346);
-        const uint16_t c2 = sel ? COLOR_SELECT : COLOR_BG_WINDOW;
-        dwinDrawRectangle(0, c2, 145, 306, 246, 345);
-        dwinDrawRectangle(0, c2, 144, 305, 247, 346);
-      };
-      popupWindowResume();
-      update_selection(true);
-      char * const name = card.longest_filename();
-      const int8_t npos = _MAX(0U, DWIN_WIDTH - strlen(name) * (MENU_CHR_W)) / 2;
-      dwinDrawString(true, font8x16, COLOR_POPUP_TEXT, COLOR_BG_WINDOW, npos, 252, name);
-      dwinUpdateLCD();
-      bool recovery_flag = true;
-      while (recovery_flag) {
-        EncoderState encoder_diffState = encoderReceiveAnalyze();
-        if (encoder_diffState != ENCODER_DIFF_NO) {
-          if (encoder_diffState == ENCODER_DIFF_ENTER) {
-            recovery_flag = false;
-            if (hmiFlag.select_flag) break;
-            TERN_(POWER_LOSS_RECOVERY, queue.inject(F("M1000C")));
-            hmiStartFrame(true);
-            return;
-          }
-          else
-            update_selection(encoder_diffState == ENCODER_DIFF_CW);
-          dwinUpdateLCD();
-        }
-      }
 
       // Print time so far
       duration_t elapsed = print_job_timer.duration();
