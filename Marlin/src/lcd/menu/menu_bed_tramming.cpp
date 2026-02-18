@@ -234,7 +234,7 @@ static void _lcd_goto_next_corner() {
   bool _lcd_bed_tramming_probe(const bool verify=false) {
     if (verify) motion.do_z_clearance_by(BED_TRAMMING_Z_HOP);                         // Do clearance if needed
     TERN_(BLTOUCH, if (!bltouch.high_speed_mode) bltouch.deploy());                   // Deploy in LOW SPEED MODE on every probe action
-    motion.blocking_move_z(last_z - BED_TRAMMING_PROBE_TOLERANCE, z_probe_slow_mm_s); // Move down to lower tolerance
+    motion.blocking_move_z(last_z - BED_TRAMMING_PROBE_TOLERANCE, motion.z_probe_slow_mm_s); // Move down to lower tolerance
     if (TEST(endstops.trigger_state(), Z_MIN_PROBE)) {                                // Probe triggered?
       endstops.hit_on_purpose();
       motion.set_current_from_steppers_for_axis(Z_AXIS);

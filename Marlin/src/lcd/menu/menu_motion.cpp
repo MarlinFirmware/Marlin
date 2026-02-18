@@ -150,7 +150,7 @@ void _menu_move_distance(const AxisEnum axis, const screenFunc_t func, const int
 
   BACK_ITEM(MSG_MOVE_AXIS);
 
-  #define __LINEAR_LIMIT(D) ((D) < max_length(axis) / 2 + 1)
+  #define __LINEAR_LIMIT(D) ((D) < motion.max_axis_length(axis) / 2 + 1)
   #if HAS_EXTRUDERS
     #ifndef EXTRUDE_MAXLENGTH
       #define EXTRUDE_MAXLENGTH 50
@@ -159,9 +159,9 @@ void _menu_move_distance(const AxisEnum axis, const screenFunc_t func, const int
   #else
     #define _LINEAR_LIMIT __LINEAR_LIMIT
   #endif
-  #define __MOVE_SUB(L,T,D) if (rotational[axis] || _LINEAR_LIMIT(D)) SUBMENU_S(F(T), L, []{ _goto_manual_move(D); })
+  #define __MOVE_SUB(L,T,D) if (motion.rotational[axis] || _LINEAR_LIMIT(D)) SUBMENU_S(F(T), L, []{ _goto_manual_move(D); })
 
-  if (rotational[axis]) {
+  if (motion.rotational[axis]) {
     #ifdef MANUAL_MOVE_DISTANCE_DEG
       #define _MOVE_DEG(D) __MOVE_SUB(MSG_MOVE_N_DEG, STRINGIFY(D), D);
       MAP(_MOVE_DEG, MANUAL_MOVE_DISTANCE_DEG)
