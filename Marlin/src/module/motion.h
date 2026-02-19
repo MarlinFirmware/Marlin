@@ -69,6 +69,22 @@ constexpr float fslop = 0.0001;
 #endif
 
 /**
+ * Dual X Carriage
+ */
+#if ENABLED(DUAL_X_CARRIAGE)
+  enum DualXMode : char {
+    DXC_FULL_CONTROL_MODE,
+    DXC_AUTO_PARK_MODE,
+    DXC_DUPLICATION_MODE,
+    DXC_MIRRORED_MODE
+  };
+#endif
+
+#if USE_SENSORLESS
+  struct sensorless_t;
+#endif
+
+/**
  * Homing and Trusted Axes
  */
 typedef bits_t(NUM_AXES) main_axes_bits_t;
@@ -77,6 +93,13 @@ constexpr main_axes_bits_t main_axes_mask = _BV(NUM_AXES) - 1;
 class Motion {
 public:
   static bool relative_mode;            // Relative Mode - G90/G91
+
+  // Flags for rotational axes
+  static constexpr AxisFlags rotational{0 LOGICAL_AXIS_GANG(
+      | 0, | 0, | 0, | 0,
+      | (ENABLED(AXIS4_ROTATES)<<I_AXIS), | (ENABLED(AXIS5_ROTATES)<<J_AXIS), | (ENABLED(AXIS6_ROTATES)<<K_AXIS),
+      | (ENABLED(AXIS7_ROTATES)<<U_AXIS), | (ENABLED(AXIS8_ROTATES)<<V_AXIS), | (ENABLED(AXIS9_ROTATES)<<W_AXIS))
+  };
 
   #if HAS_MULTI_EXTRUDER
     static uint8_t extruder;            // Selected extruder (tool) - T<extruder>
@@ -100,6 +123,21 @@ public:
   #endif
   #if HAS_SCARA_OFFSET
     static abc_pos_t scara_home_offset; // A and B angular offsets, Z mm offset
+  #endif
+
+  #if HAS_HOTEND_OFFSET
+    static xyz_pos_t hotend_offset[HOTENDS];
+    static void reset_hotend_offsets();
+  #elif HOTENDS
+    static constexpr xyz_pos_t hotend_offset[HOTENDS] = { { TERN_(HAS_X_AXIS, 0) } };
+  #else
+    static constexpr xyz_pos_t hotend_offset[1] = { { TERN_(HAS_X_AXIS, 0) } };
+  #endif
+
+  #if HAS_HOTEND_OFFSET
+    static xyz_pos_t& active_hotend_offset() { return hotend_offset[extruder]; }
+  #else
+    static const xyz_pos_t& active_hotend_offset() { return hotend_offset[extruder]; }
   #endif
 
   #if ENABLED(LCD_SHOW_E_TOTAL)
@@ -173,6 +211,93 @@ public:
   #if HAS_HOME_OFFSET
     static xyz_pos_t home_offset;
     static void set_home_offset(const AxisEnum axis, const float v) { home_offset[axis] = v; }
+  #endif
+
+  #if HAS_DUPLICATION_MODE
+    static bool extruder_duplication;   // Used in Dual X mode 2
+    static void _set_duplication_enabled(const bool dupe) { extruder_duplication = dupe; }
+  #endif
+
+  #if ENABLED(DUAL_X_CARRIAGE)
+    static DualXMode idex_mode;
+    static bool idex_is_duplicating() { return idex_mode >= DXC_DUPLICATION_MODE; }
+
+    static float inactive_extruder_x,                 // Used in mode 0 & 1
+                 duplicate_extruder_x_offset;         // Used in mode 2 & 3
+
+    static bool active_extruder_parked;               // Used in mode 1, 2 & 3
+    static millis_t delayed_move_time;                // Used in mode 1
+    static celsius_t duplicate_extruder_temp_offset;  // Used in mode 2 & 3
+
+    static bool idex_mirrored_mode;                   // Used in mode 3
+    static void idex_set_mirrored_mode(const bool mirr);
+
+    static float x_home_pos(const uint8_t tool) {
+      if (tool == 0) return X_HOME_POS;
+
+      /**
+       * In dual carriage mode the extruder offset provides an override of the
+       * second X-carriage position when homed - otherwise X2_HOME_POS is used.
+       * This allows soft recalibration of the second extruder home position
+       * (with M218 T1 Xn) without firmware reflash.
+       */
+      return hotend_offset[1].x > 0 ? hotend_offset[1].x : X2_HOME_POS;
+    }
+    static void idex_set_parked(const bool park=true);
+    static bool unpark_before_move();
+    static void set_extruder_duplication(const bool dupe, const int8_t tool_index=-1);
+    static void idex_home_x();
+  #else
+    static bool unpark_before_move() { return false; }
+    #if ENABLED(MULTI_NOZZLE_DUPLICATION)
+      static uint8_t duplication_e_mask;
+      static void set_extruder_duplication(const bool dupe) { _set_duplication_enabled(dupe); }
+    #endif
+  #endif
+
+  //
+  // Probing
+  //
+  #if HAS_VARIABLE_XY_PROBE_FEEDRATE
+    static feedRate_t xy_probe_feedrate_mm_s;   // Set with 'G29 S' for ABL LINEAR/BILINEAR. TODO: Store to EEPROM.
+  #endif
+  #ifdef Z_PROBE_FEEDRATE_SLOW
+    static constexpr feedRate_t z_probe_slow_mm_s = MMM_TO_MMS(Z_PROBE_FEEDRATE_SLOW);
+  #endif
+  #ifdef Z_PROBE_FEEDRATE_FAST
+    static constexpr feedRate_t z_probe_fast_mm_s = MMM_TO_MMS(Z_PROBE_FEEDRATE_FAST);
+  #endif
+
+  #ifdef __IMXRT1062__
+    #define DEFS_PROGMEM
+  #else
+    #define DEFS_PROGMEM PROGMEM
+  #endif
+
+  static float pgm_read_any(const float *p)   { return TERN(__IMXRT1062__, *p, pgm_read_float(p)); }
+  static int8_t pgm_read_any(const int8_t *p) { return TERN(__IMXRT1062__, *p, pgm_read_byte(p)); }
+
+  #define XYZ_DEFS(T, NAME, OPT) \
+    static T NAME(const AxisEnum axis) { \
+      static constexpr XYZval<T> NAME##_P DEFS_PROGMEM = NUM_AXIS_ARRAY(X_##OPT, Y_##OPT, Z_##OPT, I_##OPT, J_##OPT, K_##OPT, U_##OPT, V_##OPT, W_##OPT); \
+      return pgm_read_any(&NAME##_P[axis]); \
+    }
+  XYZ_DEFS(float,  base_min_pos,  MIN_POS);     // base_min_pos(axis)
+  XYZ_DEFS(float,  base_max_pos,  MAX_POS);     // base_max_pos(axis)
+  XYZ_DEFS(float,  base_home_pos, HOME_POS);    // base_home_pos(axis)
+  XYZ_DEFS(float,  max_axis_length, MAX_LENGTH); // max_axis_length(axis)
+  XYZ_DEFS(int8_t, home_dir,      HOME_DIR);    // home_dir(axis)
+
+  static float home_bump_mm(const AxisEnum axis) {
+    static const xyz_pos_t home_bump_mm_P DEFS_PROGMEM = HOMING_BUMP_MM;
+    return pgm_read_any(&home_bump_mm_P[axis]);
+  }
+
+  #if HAS_X_AXIS
+    static int8_t tool_x_home_dir(const uint8_t tool=extruder) {
+      UNUSED(tool);
+      return TERN(DUAL_X_CARRIAGE, tool ? 1 : -1, X_HOME_DIR);
+    }
   #endif
 
   //
@@ -251,6 +376,9 @@ public:
    *   Cleared whenever a stepper powers off, potentially losing its position.
    */
   #if HAS_ENDSTOPS
+    #ifdef TMC_HOME_PHASE
+      static void backout_to_tmc_homing_phase(const AxisEnum axis);
+    #endif
     static main_axes_bits_t axes_homed, axes_trusted;
     static void homeaxis(const AxisEnum axis);
     static void set_axis_never_homed(const AxisEnum axis);
@@ -280,6 +408,8 @@ public:
   static bool all_axes_trusted()                      { return main_axes_mask == (axes_trusted & main_axes_mask); }
 
   static void home_if_needed(const bool keeplev=false);
+
+  static bool gcode_motion_ignored();
 
   //
   // Software Endstops
@@ -503,7 +633,23 @@ public:
     static void quickresume_stepper();
   #endif // REALTIME_REPORTING_COMMANDS
 
+  //
+  // Trinamic Stepper Drivers
+  //
+  #if USE_SENSORLESS
+    static sensorless_t sensorless_axis_homing_start(const AxisEnum axis);
+    static void sensorless_axis_homing_end(const AxisEnum axis, sensorless_t enable_stealth);
+  #endif
+
+  #if HAS_HOMING_CURRENT
+    static void set_homing_current(const AxisEnum axis);
+    static void restore_homing_current(const AxisEnum axis);
+  #endif
+
 private:
+  #if ENABLED(DUAL_X_CARRIAGE)
+    static xyz_pos_t raised_parked_position;    // Used in mode 1
+  #endif
   #if SECONDARY_AXES
     static void secondary_axis_moves(SECONDARY_AXIS_ARGS_LC(const float), const feedRate_t fr_mm_s);
   #endif
@@ -519,136 +665,19 @@ private:
 
 }; // class Motion
 
-// Determine XY_PROBE_FEEDRATE_MM_S - The feedrate used between Probe Points
-#if ABL_USES_GRID
+// Specify read-only XY_PROBE_FEEDRATE_MM_S, feed rate between Probe Points.
+#if HAS_VARIABLE_XY_PROBE_FEEDRATE
   // ABL LINEAR and BILINEAR use 'G29 S' value, or MMM_TO_MMS(XY_PROBE_FEEDRATE)
-  extern feedRate_t xy_probe_feedrate_mm_s;
-  #define XY_PROBE_FEEDRATE_MM_S xy_probe_feedrate_mm_s
+  #define XY_PROBE_FEEDRATE_MM_S motion.xy_probe_feedrate_mm_s
 #elif defined(XY_PROBE_FEEDRATE)
+  // Probe feedrate can be hard-coded by configuration
   #define XY_PROBE_FEEDRATE_MM_S MMM_TO_MMS(XY_PROBE_FEEDRATE)
 #else
+  // Defer to Planner XY max feedrate, or 60 mm/s
   #define XY_PROBE_FEEDRATE_MM_S PLANNER_XY_FEEDRATE_MM_S
 #endif
 
-#ifdef Z_PROBE_FEEDRATE_SLOW
-  constexpr feedRate_t z_probe_slow_mm_s = MMM_TO_MMS(Z_PROBE_FEEDRATE_SLOW);
-#endif
-#ifdef Z_PROBE_FEEDRATE_FAST
-  constexpr feedRate_t z_probe_fast_mm_s = MMM_TO_MMS(Z_PROBE_FEEDRATE_FAST);
-#endif
-
-#ifdef __IMXRT1062__
-  #define DEFS_PROGMEM
-#else
-  #define DEFS_PROGMEM PROGMEM
-#endif
-
-inline float pgm_read_any(const float *p)   { return TERN(__IMXRT1062__, *p, pgm_read_float(p)); }
-inline int8_t pgm_read_any(const int8_t *p) { return TERN(__IMXRT1062__, *p, pgm_read_byte(p)); }
-
-#define XYZ_DEFS(T, NAME, OPT) \
-  inline T NAME(const AxisEnum axis) { \
-    static constexpr XYZval<T> NAME##_P DEFS_PROGMEM = NUM_AXIS_ARRAY(X_##OPT, Y_##OPT, Z_##OPT, I_##OPT, J_##OPT, K_##OPT, U_##OPT, V_##OPT, W_##OPT); \
-    return pgm_read_any(&NAME##_P[axis]); \
-  }
-XYZ_DEFS(float,  base_min_pos,  MIN_POS);     // base_min_pos(axis)
-XYZ_DEFS(float,  base_max_pos,  MAX_POS);     // base_max_pos(axis)
-XYZ_DEFS(float,  base_home_pos, HOME_POS);    // base_home_pos(axis)
-XYZ_DEFS(float,  max_length,    MAX_LENGTH);  // max_length(axis)
-XYZ_DEFS(int8_t, home_dir,      HOME_DIR);    // home_dir(axis)
-
-// Flags for rotational axes
-constexpr AxisFlags rotational{0 LOGICAL_AXIS_GANG(
-    | 0, | 0, | 0, | 0,
-    | (ENABLED(AXIS4_ROTATES)<<I_AXIS), | (ENABLED(AXIS5_ROTATES)<<J_AXIS), | (ENABLED(AXIS6_ROTATES)<<K_AXIS),
-    | (ENABLED(AXIS7_ROTATES)<<U_AXIS), | (ENABLED(AXIS8_ROTATES)<<V_AXIS), | (ENABLED(AXIS9_ROTATES)<<W_AXIS))
-};
-
-inline float home_bump_mm(const AxisEnum axis) {
-  static const xyz_pos_t home_bump_mm_P DEFS_PROGMEM = HOMING_BUMP_MM;
-  return pgm_read_any(&home_bump_mm_P[axis]);
-}
-
-#if HAS_HOTEND_OFFSET
-  extern xyz_pos_t hotend_offset[HOTENDS];
-  void reset_hotend_offsets();
-#elif HOTENDS
-  constexpr xyz_pos_t hotend_offset[HOTENDS] = { { TERN_(HAS_X_AXIS, 0) } };
-#else
-  constexpr xyz_pos_t hotend_offset[1] = { { TERN_(HAS_X_AXIS, 0) } };
-#endif
-
-#if ENABLED(NO_MOTION_BEFORE_HOMING)
-  #define MOTION_CONDITIONS (marlin.isRunning() && !motion.homing_needed_error())
-#else
-  #define MOTION_CONDITIONS marlin.isRunning()
-#endif
-
 #define BABYSTEP_ALLOWED() ((ENABLED(BABYSTEP_WITHOUT_HOMING) || motion.all_axes_trusted()) && (ENABLED(BABYSTEP_ALWAYS_AVAILABLE) || marlin.printer_busy()))
-
-/**
- * Duplication mode
- */
-#if HAS_DUPLICATION_MODE
-  extern bool extruder_duplication_enabled;       // Used in Dual X mode 2
-#endif
-
-/**
- * Dual X Carriage
- */
-#if ENABLED(DUAL_X_CARRIAGE)
-
-  enum DualXMode : char {
-    DXC_FULL_CONTROL_MODE,
-    DXC_AUTO_PARK_MODE,
-    DXC_DUPLICATION_MODE,
-    DXC_MIRRORED_MODE
-  };
-
-  extern DualXMode dual_x_carriage_mode;
-  extern float inactive_extruder_x,                 // Used in mode 0 & 1
-               duplicate_extruder_x_offset;         // Used in mode 2 & 3
-  extern xyz_pos_t raised_parked_position;          // Used in mode 1
-  extern bool active_extruder_parked;               // Used in mode 1, 2 & 3
-  extern millis_t delayed_move_time;                // Used in mode 1
-  extern celsius_t duplicate_extruder_temp_offset;  // Used in mode 2 & 3
-  extern bool idex_mirrored_mode;                   // Used in mode 3
-
-  FORCE_INLINE bool idex_is_duplicating() { return dual_x_carriage_mode >= DXC_DUPLICATION_MODE; }
-
-  float x_home_pos(const uint8_t extruder);
-
-  #define TOOL_X_HOME_DIR(T) ((T) ? 1 : -1)
-
-  void set_duplication_enabled(const bool dupe, const int8_t tool_index=-1);
-  void idex_set_mirrored_mode(const bool mirr);
-  void idex_set_parked(const bool park=true);
-
-#else
-
-  #if ENABLED(MULTI_NOZZLE_DUPLICATION)
-    extern uint8_t duplication_e_mask;
-    enum DualXMode : char { DXC_DUPLICATION_MODE = 2 };
-    FORCE_INLINE void set_duplication_enabled(const bool dupe) { extruder_duplication_enabled = dupe; }
-  #endif
-
-  #define TOOL_X_HOME_DIR(T) X_HOME_DIR
-
-#endif
-
-//
-// Trinamic Stepper Drivers
-//
-#if USE_SENSORLESS
-  struct sensorless_t;
-  sensorless_t start_sensorless_homing_per_axis(const AxisEnum axis);
-  void end_sensorless_homing_per_axis(const AxisEnum axis, sensorless_t enable_stealth);
-#endif
-
-#if HAS_HOMING_CURRENT
-  void set_homing_current(const AxisEnum axis);
-  void restore_homing_current(const AxisEnum axis);
-#endif
 
 extern Motion motion;
 
