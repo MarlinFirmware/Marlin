@@ -305,21 +305,21 @@ float segments_per_second = DEFAULT_SEGMENTS_PER_SECOND;
     // Disable stealthChop if used. Enable diag1 pin on driver.
     #if ENABLED(SENSORLESS_HOMING)
       #if X_SENSORLESS
-        sensorless_t stealth_states_x = start_sensorless_homing_per_axis(X_AXIS);
+        sensorless_t stealth_states_x = motion.sensorless_axis_homing_start(X_AXIS);
       #endif
       #if Y_SENSORLESS
-        sensorless_t stealth_states_y = start_sensorless_homing_per_axis(Y_AXIS);
+        sensorless_t stealth_states_y = motion.sensorless_axis_homing_start(Y_AXIS);
       #endif
       #if Z_SENSORLESS
-        sensorless_t stealth_states_z = start_sensorless_homing_per_axis(Z_AXIS);
+        sensorless_t stealth_states_z = motion.sensorless_axis_homing_start(Z_AXIS);
       #endif
     #endif
 
     // Set the homing current for all motors
-    TERN_(HAS_HOMING_CURRENT, set_homing_current(Z_AXIS));
+    TERN_(HAS_HOMING_CURRENT, motion.set_homing_current(Z_AXIS));
 
     // Move to home, should move Z, Y, then X. Move X to near 0 (to avoid div by zero
-    // and sign/angle stability around 0 for trigonometric functions), Y to 0 and Z to max_length
+    // and sign/angle stability around 0 for trigonometric functions), Y to 0 and Z to Z_MAX_LENGTH
     constexpr xyz_pos_t homing_pos_dir = apply_T_W_offset(xyz_pos_t({ 1, 0, Z_MAX_LENGTH }));
     motion.position.set(homing_pos_dir.x, homing_pos_dir.y, homing_pos_dir.z);
 
@@ -327,13 +327,13 @@ float segments_per_second = DEFAULT_SEGMENTS_PER_SECOND;
     planner.synchronize();
 
     // Restore the homing current for all motors
-    TERN_(HAS_HOMING_CURRENT, restore_homing_current(Z_AXIS));
+    TERN_(HAS_HOMING_CURRENT, motion.restore_homing_current(Z_AXIS));
 
     // Re-enable stealthChop if used. Disable diag1 pin on driver.
     #if ENABLED(SENSORLESS_HOMING)
-      TERN_(X_SENSORLESS, end_sensorless_homing_per_axis(X_AXIS, stealth_states_x));
-      TERN_(Y_SENSORLESS, end_sensorless_homing_per_axis(Y_AXIS, stealth_states_y));
-      TERN_(Z_SENSORLESS, end_sensorless_homing_per_axis(Z_AXIS, stealth_states_z));
+      TERN_(X_SENSORLESS, motion.sensorless_axis_homing_end(X_AXIS, stealth_states_x));
+      TERN_(Y_SENSORLESS, motion.sensorless_axis_homing_end(Y_AXIS, stealth_states_y));
+      TERN_(Z_SENSORLESS, motion.sensorless_axis_homing_end(Z_AXIS, stealth_states_z));
     #endif
 
     endstops.validate_homing_move();
