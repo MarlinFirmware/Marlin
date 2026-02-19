@@ -409,7 +409,7 @@ class Stepper {
 
     #if ENABLED(SMOOTH_LIN_ADVANCE)
       static float extruder_advance_tau[DISTINCT_E]; // Smoothing time; also the lookahead time of the smoother
-      static void set_advance_tau(const float tau, const uint8_t e=active_extruder) {
+      static void set_advance_tau(const float tau, const uint8_t e=motion.extruder) {
         const uint8_t i = E_INDEX_N(e);
         extruder_advance_tau[i] = tau;
         extruder_advance_tau_ticks[i] = tau * STEPPER_TIMER_RATE;
@@ -417,7 +417,7 @@ class Stepper {
         const float alpha_float = 1.0f - expf(-float(SMOOTH_LIN_ADV_INTERVAL) * (SMOOTH_LIN_ADV_EXP_ORDER) / extruder_advance_tau_ticks[i]);
         extruder_advance_alpha_q30[i] = int32_t(alpha_float * _BV32(30));
       }
-      static float get_advance_tau(const uint8_t e=active_extruder) {
+      static float get_advance_tau(const uint8_t e=motion.extruder) {
         return extruder_advance_tau[E_INDEX_N(e)];
       }
     #endif
@@ -729,15 +729,15 @@ class Stepper {
     }
     static void mark_axis_enabled(const AxisEnum axis E_OPTARG(const uint8_t eindex=0)) {
       SBI(axis_enabled.bits, INDEX_OF_AXIS(axis, eindex));
-      TERN_(HAS_Z_AXIS, if (axis == Z_AXIS) z_min_trusted = true);
+      TERN_(HAS_Z_AXIS, if (axis == Z_AXIS) motion.z_min_trusted = true);
       // TODO: DELTA should have "Z" state affect all (ABC) motors and treat "XY" on/off as meaningless
     }
     static void mark_axis_disabled(const AxisEnum axis E_OPTARG(const uint8_t eindex=0)) {
       CBI(axis_enabled.bits, INDEX_OF_AXIS(axis, eindex));
       #if HAS_Z_AXIS
         if (TERN0(Z_CAN_FALL_DOWN, axis == Z_AXIS)) {
-          z_min_trusted = false;
-          current_position.z = 0;
+          motion.z_min_trusted = false;
+          motion.position.z = 0;
         }
       #endif
       // TODO: DELTA should have "Z" state affect all (ABC) motors and treat "XY" on/off as meaningless

@@ -398,13 +398,13 @@ void ubl_map_move_to_xy() {
   const xy_pos_t xy = { bedlevel.get_mesh_x(x_plot), bedlevel.get_mesh_y(y_plot) };
 
   // Some printers have unreachable areas in the mesh. Skip the move if unreachable.
-  if (!position_is_reachable(xy)) return;
+  if (!motion.can_reach(xy)) return;
 
   #if ENABLED(DELTA)
-    if (current_position.z > delta_clip_start_height) { // Make sure the delta has fully free motion
-      destination = current_position;
-      destination.z = delta_clip_start_height;
-      prepare_internal_fast_move_to_destination(homing_feedrate(Z_AXIS)); // Set current_position from destination
+    if (motion.position.z > delta_clip_start_height) { // Make sure the delta has fully free motion
+      motion.destination = motion.position;
+      motion.destination.z = delta_clip_start_height;
+      motion.prepare_internal_fast_move_to_destination(motion.homing_feedrate(Z_AXIS)); // Set motion.position from destination
     }
   #endif
 
@@ -455,7 +455,7 @@ void ubl_map_screen() {
       // Validate if needed
       #if IS_KINEMATIC
         const xy_pos_t xy = { bedlevel.get_mesh_x(x), bedlevel.get_mesh_y(y) };
-        if (position_is_reachable(xy)) break; // Found a valid point
+        if (motion.can_reach(xy)) break; // Found a valid point
         ui.encoderPosition += step_dir;       // Test the next point
       #endif
     } while (ENABLED(IS_KINEMATIC));
@@ -494,7 +494,7 @@ void ubl_map_screen() {
 void _ubl_map_screen_homing() {
   ui.defer_status_screen();
   _lcd_draw_homing();
-  if (all_axes_homed()) {
+  if (motion.all_axes_homed()) {
     bedlevel.lcd_map_control = true;     // Return to the map screen after editing Z
     ui.goto_screen(ubl_map_screen, grid_index(x_plot, y_plot)); // Pre-set the encoder value
     ui.manual_move.menu_scale = 0;  // Immediate move
@@ -508,8 +508,8 @@ void _ubl_map_screen_homing() {
  */
 void _ubl_goto_map_screen() {
   if (planner.has_blocks_queued()) return; // The ACTION_ITEM will do nothing
-  if (!all_axes_trusted()) {
-    set_all_unhomed();
+  if (!motion.all_axes_trusted()) {
+    motion.set_all_unhomed();
     queue.inject_P(G28_STR);
   }
   ui.goto_screen(_ubl_map_screen_homing); // Go to the "Homing" screen

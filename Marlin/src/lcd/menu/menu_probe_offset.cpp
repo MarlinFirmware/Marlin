@@ -47,7 +47,7 @@ float z_offset_backup, calculated_z_offset, z_offset_ref;
 // "Done" - Set the offset, re-enable leveling, go back to the previous screen.
 void set_offset_and_go_back(const float z) {
   probe.offset.z = z;
-  SET_SOFT_ENDSTOP_LOOSE(false);
+  motion.set_soft_endstop_loose(false);
   TERN_(HAS_LEVELING, set_bed_leveling_enabled(menu_leveling_was_active));
   ui.goto_previous_screen_no_defer();
 }
@@ -58,12 +58,12 @@ void set_offset_and_go_back(const float z) {
  */
 void probe_offset_wizard_menu() {
   START_MENU();
-  calculated_z_offset = probe.offset.z + current_position.z - z_offset_ref;
+  calculated_z_offset = probe.offset.z + motion.position.z - z_offset_ref;
 
   if (LCD_HEIGHT >= 4)
     STATIC_ITEM(MSG_MOVE_NOZZLE_TO_BED, SS_CENTER|SS_INVERT);
 
-  STATIC_ITEM_F(F("Z"), SS_CENTER, ftostr42_52(current_position.z));
+  STATIC_ITEM_F(F("Z"), SS_CENTER, ftostr42_52(motion.position.z));
   STATIC_ITEM_N(Z_AXIS, MSG_ZPROBE_OFFSET_N, SS_FULL, ftostr42_52(calculated_z_offset));
 
   SUBMENU_S(F("1.0"), MSG_MOVE_N_MM, []{ _goto_manual_move_z( 1.0f); });
@@ -74,19 +74,19 @@ void probe_offset_wizard_menu() {
 
   ACTION_ITEM(MSG_BUTTON_DONE, []{
     set_offset_and_go_back(calculated_z_offset);
-    current_position.z = z_offset_ref;  // Set Z to z_offset_ref, as we can expect it is at probe height
-    sync_plan_position();
-    do_z_post_clearance();
+    motion.position.z = z_offset_ref;  // Set Z to z_offset_ref, as we can expect it is at probe height
+    motion.sync_plan_position();
+    motion.do_z_post_clearance();
   });
 
   ACTION_ITEM(MSG_BUTTON_CANCEL, []{
     set_offset_and_go_back(z_offset_backup);
     // On cancel the Z position needs correction
     #if HOMING_Z_WITH_PROBE && defined(PROBE_OFFSET_WIZARD_START_Z)
-      set_axis_never_homed(Z_AXIS);
+      motion.set_axis_never_homed(Z_AXIS);
       queue.inject(F("G28Z"));
     #else
-      do_z_post_clearance();
+      motion.do_z_post_clearance();
     #endif
   });
 
@@ -129,12 +129,12 @@ void prepare_for_probe_offset_wizard() {
 
   // Move Nozzle to Probing/Homing Position
   ui.wait_for_move = true;
-  current_position += probe.offset_xy;
-  line_to_current_position(XY_PROBE_FEEDRATE_MM_S);
+  motion.position += probe.offset_xy;
+  motion.goto_current_position(XY_PROBE_FEEDRATE_MM_S);
   ui.synchronize(GET_TEXT_F(MSG_PROBE_WIZARD_MOVING));
   ui.wait_for_move = false;
 
-  SET_SOFT_ENDSTOP_LOOSE(true); // Disable soft endstops for free Z movement
+  motion.set_soft_endstop_loose(true); // Disable soft endstops for free Z movement
 
   // Go to Calibration Menu
   ui.goto_screen(probe_offset_wizard_menu);
@@ -145,7 +145,7 @@ void prepare_for_probe_offset_wizard() {
 // When homing is completed go to prepare_for_probe_offset_wizard().
 void goto_probe_offset_wizard() {
   ui.defer_status_screen();
-  set_all_unhomed();
+  motion.set_all_unhomed();
 
   // Store probe.offset.z for Case: Cancel
   z_offset_backup = probe.offset.z;
@@ -166,7 +166,7 @@ void goto_probe_offset_wizard() {
   // Show "Homing XYZ" display until homing completes
   ui.goto_screen([]{
     _lcd_draw_homing();
-    if (all_axes_homed()) {
+    if (motion.all_axes_homed()) {
       z_offset_ref = 0;             // Set Z Value for Wizard Position to 0
       ui.goto_screen(prepare_for_probe_offset_wizard);
       ui.defer_status_screen();
