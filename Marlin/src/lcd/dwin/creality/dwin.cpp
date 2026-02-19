@@ -75,7 +75,7 @@
   #include "../../../feature/babystep.h"
 #endif
 
-
+#if ENABLED(POWER_LOSS_RECOVERY)
   #include "../../../feature/powerloss.h"
 #endif
 
@@ -2511,8 +2511,7 @@ void itemAdvBedPID(const uint8_t row) {
   drawMenuLine(row, ICON_PIDBed);
 }
 
-
-
+#if ENABLED(POWER_LOSS_RECOVERY)
   void itemAdv_PLR(const uint8_t row) {
     if (false && hmiIsChinese()) {
       // TODO: Chinese "Power-loss Recovery"
