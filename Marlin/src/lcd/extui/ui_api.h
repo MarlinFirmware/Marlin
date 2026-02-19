@@ -534,8 +534,8 @@ namespace ExtUI {
   #if ENABLED(ADVANCED_PAUSE_FEATURE)
     // Standard stdOnPauseMode sets pauseModeStatus and calls onUserConfirmRequired
     extern PauseMessage pauseModeStatus;
-    void stdOnPauseMode(const PauseMessage message, const PauseMode mode=PAUSE_MODE_SAME, const uint8_t extruder=active_extruder);
-    void onPauseMode(const PauseMessage message, const PauseMode mode=PAUSE_MODE_SAME, const uint8_t extruder=active_extruder);
+    void stdOnPauseMode(const PauseMessage message, const PauseMode mode=PAUSE_MODE_SAME, const uint8_t extruder=motion.extruder);
+    void onPauseMode(const PauseMessage message, const PauseMode mode=PAUSE_MODE_SAME, const uint8_t extruder=motion.extruder);
   #endif
 
   void onStatusChanged_P(PGM_P const msg);

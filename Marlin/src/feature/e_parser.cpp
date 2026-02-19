@@ -54,10 +54,7 @@ EmergencyParser emergency_parser;
 #endif
 
 #if ENABLED(REALTIME_REPORTING_COMMANDS)
-  // From motion.h, which cannot be included here
-  void report_current_position_moving();
-  void quickpause_stepper();
-  void quickresume_stepper();
+  #include "../module/motion.h"
 #endif
 
 #if ENABLED(SOFT_FEED_HOLD)
@@ -226,9 +223,9 @@ void EmergencyParser::update(EmergencyParser::State &state, const uint8_t c) {
             case EP_M876SN: hostui.handle_response(M876_reason); break;
           #endif
           #if ENABLED(REALTIME_REPORTING_COMMANDS)
-            case EP_GRBL_STATUS: report_current_position_moving(); break;
-            case EP_GRBL_PAUSE:  TERN(SOFT_FEED_HOLD, realtime_ramping_pause_flag = true,  quickpause_stepper()); break;
-            case EP_GRBL_RESUME: TERN(SOFT_FEED_HOLD, realtime_ramping_pause_flag = false, quickresume_stepper()); break;
+            case EP_GRBL_STATUS: motion.report_position_moving(); break;
+            case EP_GRBL_PAUSE:  TERN(SOFT_FEED_HOLD, realtime_ramping_pause_flag = true,  motion.quickpause_stepper()); break;
+            case EP_GRBL_RESUME: TERN(SOFT_FEED_HOLD, realtime_ramping_pause_flag = false, motion.quickresume_stepper()); break;
           #endif
           #if ENABLED(SOFT_RESET_VIA_SERIAL)
             case EP_KILL: hal.reboot(); break;

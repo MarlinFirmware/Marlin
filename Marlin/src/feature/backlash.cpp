@@ -224,12 +224,12 @@ class Backlash::StepAdjuster {
   void Backlash::measure_with_probe() {
     if (measured_count.z == 255) return;
 
-    const float start_height = current_position.z;
-    while (current_position.z < (start_height + BACKLASH_MEASUREMENT_LIMIT) && PROBE_TRIGGERED())
-      do_blocking_move_to_z(current_position.z + BACKLASH_MEASUREMENT_RESOLUTION, MMM_TO_MMS(BACKLASH_MEASUREMENT_FEEDRATE));
+    const float start_height = motion.position.z;
+    while (motion.position.z < (start_height + BACKLASH_MEASUREMENT_LIMIT) && PROBE_TRIGGERED())
+      motion.blocking_move_z(motion.position.z + BACKLASH_MEASUREMENT_RESOLUTION, MMM_TO_MMS(BACKLASH_MEASUREMENT_FEEDRATE));
 
     // The backlash from all probe points is averaged, so count the number of measurements
-    measured_mm.z += current_position.z - start_height;
+    measured_mm.z += motion.position.z - start_height;
     measured_count.z++;
   }
 

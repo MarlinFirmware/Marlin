@@ -126,7 +126,7 @@ void GcodeSuite::say_units() {
 }
 
 /**
- * Get the target extruder from the T parameter or the active_extruder
+ * Get the target extruder from the T parameter or the motion.extruder
  * Return -1 if the T parameter is out of range
  */
 int8_t GcodeSuite::get_target_extruder_from_command() {
@@ -137,7 +137,7 @@ int8_t GcodeSuite::get_target_extruder_from_command() {
     SERIAL_ECHOLN(C('M'), parser.codenum, F(" " STR_INVALID_EXTRUDER " "), e);
     return -1;
   }
-  return active_extruder;
+  return motion.extruder;
 }
 
 /**
@@ -181,22 +181,22 @@ void GcodeSuite::get_destination_from_command() {
     if ( (seen[i] = parser.seenval(AXIS_CHAR(i))) ) {
       const float v = parser.value_axis_units((AxisEnum)i);
       if (skip_move)
-        destination[i] = current_position[i];
+        motion.destination[i] = motion.position[i];
       else
-        destination[i] = axis_is_relative((AxisEnum)i) ? current_position[i] + v : LOGICAL_TO_NATIVE(v, i);
+        motion.destination[i] = axis_is_relative((AxisEnum)i) ? motion.position[i] + v : motion.logical_to_native(v, (AxisEnum)i);
     }
     else
-      destination[i] = current_position[i];
+      motion.destination[i] = motion.position[i];
   }
 
   #if HAS_EXTRUDERS
     // Get new E position, whether absolute or relative
     if ( (seen.e = parser.seenval('E')) ) {
       const float v = parser.value_axis_units(E_AXIS);
-      destination.e = axis_is_relative(E_AXIS) ? current_position.e + v : v;
+      motion.destination.e = axis_is_relative(E_AXIS) ? motion.position.e + v : v;
     }
     else
-      destination.e = current_position.e;
+      motion.destination.e = motion.position.e;
   #endif
 
   #if ENABLED(POWER_LOSS_RECOVERY) && !PIN_EXISTS(POWER_LOSS)
@@ -207,14 +207,14 @@ void GcodeSuite::get_destination_from_command() {
 
   if (parser.floatval('F') > 0) {
     const float fr_mm_min = parser.value_linear_units();
-    feedrate_mm_s = MMM_TO_MMS(fr_mm_min);
+    motion.feedrate_mm_s = MMM_TO_MMS(fr_mm_min);
     // Update the cutter feed rate for use by M4 I set inline moves.
     TERN_(LASER_FEATURE, cutter.feedrate_mm_m = fr_mm_min);
   }
 
   #if ALL(PRINTCOUNTER, HAS_EXTRUDERS)
     if (!DEBUGGING(DRYRUN) && !skip_move)
-      print_job_timer.incFilamentUsed(destination.e - current_position.e);
+      print_job_timer.incFilamentUsed(motion.destination.e - motion.position.e);
   #endif
 
   // Get ABCDHI mixing factors
@@ -904,7 +904,7 @@ void GcodeSuite::process_parsed_command(bool no_ok/*=false*/) {
       #endif
 
       #if HAS_HOME_OFFSET
-        case 428: M428(); break;                                  // M428: Apply current_position to home_offset
+        case 428: M428(); break;                                  // M428: Apply position to home_offset
       #endif
 
       #if HAS_POWER_MONITOR
@@ -1273,15 +1273,15 @@ void GcodeSuite::process_subcommands_now(char * gcode) {
         case IN_HANDLER:
         case IN_PROCESS:
           SERIAL_ECHO_MSG(STR_BUSY_PROCESSING);
-          TERN_(FULL_REPORT_TO_HOST_FEATURE, report_current_position_moving());
+          TERN_(FULL_REPORT_TO_HOST_FEATURE, motion.report_position_moving());
           break;
         case PAUSED_FOR_USER:
           SERIAL_ECHO_MSG(STR_BUSY_PAUSED_FOR_USER);
-          TERN_(FULL_REPORT_TO_HOST_FEATURE, set_and_report_grblstate(M_HOLD));
+          TERN_(FULL_REPORT_TO_HOST_FEATURE, motion.set_and_report_grblstate(M_HOLD));
           break;
         case PAUSED_FOR_INPUT:
           SERIAL_ECHO_MSG(STR_BUSY_PAUSED_FOR_INPUT);
-          TERN_(FULL_REPORT_TO_HOST_FEATURE, set_and_report_grblstate(M_HOLD));
+          TERN_(FULL_REPORT_TO_HOST_FEATURE, motion.set_and_report_grblstate(M_HOLD));
           break;
         default:
           break;

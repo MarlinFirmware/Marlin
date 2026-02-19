@@ -63,7 +63,7 @@
      */
     void mesh_bed_leveling::line_to_destination(const feedRate_t scaled_fr_mm_s, uint8_t x_splits, uint8_t y_splits) {
       // Get current and destination cells for this line
-      xy_uint8_t scel = cell_indexes(current_position), ecel = cell_indexes(destination);
+      xy_uint8_t scel = cell_indexes(motion.position), ecel = cell_indexes(motion.destination);
       NOMORE(scel.x, GRID_MAX_CELLS_X - 1);
       NOMORE(scel.y, GRID_MAX_CELLS_Y - 1);
       NOMORE(ecel.x, GRID_MAX_CELLS_X - 1);
@@ -71,12 +71,12 @@
 
       // Start and end in the same cell? No split needed.
       if (scel == ecel) {
-        current_position = destination;
-        line_to_current_position(scaled_fr_mm_s);
+        motion.position = motion.destination;
+        motion.goto_current_position(scaled_fr_mm_s);
         return;
       }
 
-      #define MBL_SEGMENT_END(A) (current_position.A + (destination.A - current_position.A) * normalized_dist)
+      #define MBL_SEGMENT_END(A) (motion.position.A + (motion.destination.A - motion.position.A) * normalized_dist)
 
       float normalized_dist;
       xyze_pos_t dest;
@@ -87,36 +87,36 @@
       if (ecel.x != scel.x && TEST(x_splits, gcx)) {
         // Split on the X grid line
         CBI(x_splits, gcx);
-        dest = destination;
-        destination.x = index_to_xpos[gcx];
-        normalized_dist = (destination.x - current_position.x) / (dest.x - current_position.x);
-        destination.y = MBL_SEGMENT_END(y);
+        dest = motion.destination;
+        motion.destination.x = index_to_xpos[gcx];
+        normalized_dist = (motion.destination.x - motion.position.x) / (dest.x - motion.position.x);
+        motion.destination.y = MBL_SEGMENT_END(y);
       }
       // Crosses on the Y and not already split on this Y?
       else if (ecel.y != scel.y && TEST(y_splits, gcy)) {
         // Split on the Y grid line
         CBI(y_splits, gcy);
-        dest = destination;
-        destination.y = index_to_ypos[gcy];
-        normalized_dist = (destination.y - current_position.y) / (dest.y - current_position.y);
-        destination.x = MBL_SEGMENT_END(x);
+        dest = motion.destination;
+        motion.destination.y = index_to_ypos[gcy];
+        normalized_dist = (motion.destination.y - motion.position.y) / (dest.y - motion.position.y);
+        motion.destination.x = MBL_SEGMENT_END(x);
       }
       else {
         // Must already have been split on these border(s)
         // This should be a rare case.
-        current_position = destination;
-        line_to_current_position(scaled_fr_mm_s);
+        motion.position = motion.destination;
+        motion.goto_current_position(scaled_fr_mm_s);
         return;
       }
 
-      destination.z = MBL_SEGMENT_END(z);
-      destination.e = MBL_SEGMENT_END(e);
+      motion.destination.z = MBL_SEGMENT_END(z);
+      motion.destination.e = MBL_SEGMENT_END(e);
 
       // Do the split and look for more borders
       line_to_destination(scaled_fr_mm_s, x_splits, y_splits);
 
       // Restore destination from stack
-      destination = dest;
+      motion.destination = dest;
       line_to_destination(scaled_fr_mm_s, x_splits, y_splits);
     }
 

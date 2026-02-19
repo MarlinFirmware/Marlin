@@ -171,7 +171,7 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
     return FPSTR((PGM_P)pgm_read_ptr(&preheat_labels[m]));
   }
 
-  void MarlinUI::apply_preheat(const uint8_t m, const uint8_t pmask, const uint8_t e/*=active_extruder*/) {
+  void MarlinUI::apply_preheat(const uint8_t m, const uint8_t pmask, const uint8_t e/*=motion.extruder*/) {
     const preheat_t &pre = material_preset[m];
     TERN_(HAS_HOTEND,         if (TEST(pmask, PT_HOTEND))  thermalManager.setTargetHotend(pre.hotend_temp, e));
     TERN_(HAS_HEATED_BED,     if (TEST(pmask, PT_BED))     thermalManager.setTargetBed(pre.bed_temp));
@@ -593,7 +593,7 @@ void MarlinUI::init() {
         else if (!keypad_debounce) {
           keypad_debounce = 2;
 
-          const bool homed = all_axes_homed();
+          const bool homed = motion.all_axes_homed();
 
           #if HAS_MARLINUI_MENU
 
@@ -710,7 +710,7 @@ void MarlinUI::init() {
 
     #if ENABLED(ULTIPANEL_FEEDMULTIPLY)
 
-      const int16_t old_frm = feedrate_percentage;
+      const int16_t old_frm = motion.feedrate_percentage;
             int16_t new_frm = old_frm + int16_t(encoderPosition);
 
       // Dead zone at 100% feedrate
@@ -728,7 +728,7 @@ void MarlinUI::init() {
       LIMIT(new_frm, SPEED_EDIT_MIN, SPEED_EDIT_MAX);
 
       if (old_frm != new_frm) {
-        feedrate_percentage = new_frm;
+        motion.feedrate_percentage = new_frm;
         encoderPosition = 0;
         #if ALL(HAS_SOUND, BEEP_ON_FEEDRATE_CHANGE)
           static millis_t next_beep;
@@ -744,7 +744,7 @@ void MarlinUI::init() {
 
     #elif ENABLED(ULTIPANEL_FLOWPERCENT)
 
-      const int16_t old_fp = planner.flow_percentage[active_extruder];
+      const int16_t old_fp = planner.flow_percentage[motion.extruder];
             int16_t new_fp = old_fp + int16_t(encoderPosition);
 
       // Dead zone at 100% flow percentage
@@ -762,7 +762,7 @@ void MarlinUI::init() {
       LIMIT(new_fp, FLOW_EDIT_MIN, FLOW_EDIT_MAX);
 
       if (old_fp != new_fp) {
-        planner.set_flow(active_extruder, new_fp);
+        planner.set_flow(motion.extruder, new_fp);
         encoderPosition = 0;
       }
 
@@ -834,13 +834,13 @@ void MarlinUI::init() {
 
     /**
      * If a manual move has been posted and its time has arrived, and if the planner
-     * has a space for it, then add a linear move to current_position the planner.
+     * has a space for it, then add a linear move to motion.position the planner.
      *
      * If any manual move needs to be interrupted, make sure to force a manual move
-     * by setting manual_move.start_time to millis() after updating current_position.
+     * by setting manual_move.start_time to millis() after updating motion.position.
      *
      * To post a manual move:
-     *   - Update current_position to the new place you want to go.
+     *   - Update motion.position to the new place you want to go.
      *   - Set manual_move.axis to an axis like X_AXIS. Use ALL_AXES_ENUM for diagonal moves.
      *   - Set manual_move.start_time to a point in the future (in ms) when the move should be done.
      *
@@ -867,18 +867,18 @@ void MarlinUI::init() {
       #if IS_KINEMATIC
 
         #if HAS_MULTI_EXTRUDER
-          REMEMBER(ae, active_extruder);
+          REMEMBER(ae, motion.extruder);
           #if MULTI_E_MANUAL
-            if (axis == E_AXIS) active_extruder = e_index;
+            if (axis == E_AXIS) motion.extruder = e_index;
           #endif
         #endif
 
         // Apply a linear offset to a single axis
         if (axis == ALL_AXES_ENUM)
-          destination = all_axes_destination;
+          motion.destination = all_axes_destination;
         else if (axis <= LOGICAL_AXES) {
-          destination = current_position;
-          destination[axis] += offset;
+          motion.destination = motion.position;
+          motion.destination[axis] += offset;
         }
 
         // Reset for the next move
@@ -890,14 +890,14 @@ void MarlinUI::init() {
         // previous invocation is being blocked. Modifications to offset shouldn't be made while
         // processing is true or the planner will get out of sync.
         processing = true;
-        prepare_internal_move_to_destination(fr);  // will set current_position from destination
+        motion.prepare_internal_move_to_destination(fr);  // will set motion.position from destination
         processing = false;
 
       #else
 
-        // For Cartesian / Core motion simply move to the current_position
-        planner.buffer_line(current_position, fr,
-          TERN_(MULTI_E_MANUAL, axis == E_AXIS ? e_index :) active_extruder
+        // For Cartesian / Core motion simply move to the motion.position
+        planner.buffer_line(motion.position, fr,
+          TERN_(MULTI_E_MANUAL, axis == E_AXIS ? e_index :) motion.extruder
         );
 
         //SERIAL_ECHOLNPGM("Add planner.move with Axis ", C(AXIS_CHAR(axis)), " at FR ", fr_mm_s);
@@ -908,10 +908,10 @@ void MarlinUI::init() {
     }
 
     //
-    // Tell ui.update() to start a move to current_position after a short delay.
+    // Tell ui.update() to start a move to motion.position after a short delay.
     //
     void ManualMove::soon(const AxisEnum move_axis
-      OPTARG(MULTI_E_MANUAL, const int8_t eindex/*=active_extruder*/)
+      OPTARG(MULTI_E_MANUAL, const int8_t eindex/*=motion.extruder*/)
     ) {
       TERN_(MULTI_E_MANUAL, if (move_axis == E_AXIS) e_index = eindex);
       start_time = millis() + (menu_scale < 0.99f ? 0UL : 250UL); // delay for bigger moves
