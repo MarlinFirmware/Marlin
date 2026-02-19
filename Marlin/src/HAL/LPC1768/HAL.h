@@ -137,12 +137,12 @@ extern DefaultSerial1 USBSerial;
 //
 
 // Test whether the pin is valid
-constexpr bool VALID_PIN(const pin_t pin) {
+constexpr bool isValidPin(const pin_t pin) {
   return LPC176x::pin_is_valid(pin);
 }
 
 // Get the analog index for a digital pin
-constexpr int8_t DIGITAL_PIN_TO_ANALOG_PIN(const pin_t pin) {
+constexpr int8_t digitalPinToAnalogIndex(const pin_t pin) {
   return (LPC176x::pin_is_valid(pin) && LPC176x::pin_has_adc(pin)) ? pin : -1;
 }
 
