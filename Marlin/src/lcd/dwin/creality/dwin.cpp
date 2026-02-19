@@ -4128,7 +4128,7 @@ void eachMomentUpdate() {
   if (!PENDING(ms, next_rts_update_ms)) {
     next_rts_update_ms = ms + DWIN_SCROLL_UPDATE_INTERVAL;
     if (checkkey == ID_PrintProcess) {
-      // if print done
+      // If print done
       if (hmiFlag.print_finish && !hmiFlag.done_confirm_flag) {
         hmiFlag.print_finish = false;
         hmiFlag.done_confirm_flag = true;
@@ -4137,18 +4137,18 @@ void eachMomentUpdate() {
         // show percent bar and value
         _card_percent = 0;
         drawPrintProgressBar();
-        // show print done confirm
+        // Show print done confirm
         dwinDrawRectangle(1, COLOR_BG_BLACK, 0, 250, DWIN_WIDTH - 1, STATUS_Y);
         dwinIconShow(ICON, hmiIsChinese() ? ICON_Confirm_C : ICON_Confirm_E, 86, 283);
       }
       else if (hmiFlag.pause_flag != marlin.printingIsPaused()) {
-        // print status update
+        // Print status update
         hmiFlag.pause_flag = marlin.printingIsPaused();
         iconResumeOrPause();
       }
     }
 
-    // pause after homing
+    // Pause after homing
     if (hmiFlag.pause_action && marlin.printingIsPaused() && !planner.has_blocks_queued()) {
       hmiFlag.pause_action = false;
       #if ENABLED(PAUSE_HEAT)
@@ -4159,21 +4159,16 @@ void eachMomentUpdate() {
       queue.inject(F("G1 F1200 X0 Y0"));
     }
 
-    // Estimate remaining time every 20 seconds
-    static millis_t next_remain_time_update = 0;
-    if (_card_percent > 1 && ELAPSED(ms, next_remain_time_update) && !hmiFlag.heat_flag) {
-      _remain_time = (elapsed.value - dwin_heat_time) / (_card_percent * 0.01f) - (elapsed.value - dwin_heat_time);
-      next_remain_time_update += DWIN_REMAIN_TIME_UPDATE_INTERVAL;
-      drawPrintProgressRemain();
-    }
-  }
-  else if (dwin_abort_flag && !hmiFlag.home_flag) { // Print Stop
-    dwin_abort_flag = false;
-    hmiValues.printSpeed = motion.feedrate_percentage = 100;
-    dwin_zoffset = BABY_Z_VAR;
-    select_page.set(0);
-    gotoMainMenu();
-  }
+    if (card.isPrinting() && checkkey == ID_PrintProcess) { // Print process
+      const uint8_t card_pct = card.percentDone();
+      static uint8_t last_cardpercentValue = 101;
+      if (last_cardpercentValue != card_pct) { // Print percent
+        last_cardpercentValue = card_pct;
+        if (card_pct) {
+          _card_percent = card_pct;
+          drawPrintProgressBar();
+        }
+      }
 
       // Print time so far
       duration_t elapsed = print_job_timer.duration();
@@ -4199,50 +4194,49 @@ void eachMomentUpdate() {
       select_page.set(0);
       gotoMainMenu();
     }
-    #if ENABLED(POWER_LOSS_RECOVERY)
-      else if (DWIN_lcd_sd_status && recovery.ui_flag_resume) { // Resume interrupted print
-        recovery.ui_flag_resume = false;
-        auto update_selection = [&](const bool sel) {
-          hmiFlag.select_flag = sel;
-          const uint16_t c1 = sel ? COLOR_BG_WINDOW : COLOR_SELECT;
-          dwinDrawRectangle(0, c1, 25, 306, 126, 345);
-          dwinDrawRectangle(0, c1, 24, 305, 127, 346);
-          const uint16_t c2 = sel ? COLOR_SELECT : COLOR_BG_WINDOW;
-          dwinDrawRectangle(0, c2, 145, 306, 246, 345);
-          dwinDrawRectangle(0, c2, 144, 305, 247, 346);
-        };
-        popupWindowResume();
-        update_selection(true);
-        char * const name = card.longest_filename();
-        const int8_t npos = _MAX(0U, DWIN_WIDTH - strlen(name) * (MENU_CHR_W)) / 2;
-        dwinDrawString(true, font8x16, COLOR_POPUP_TEXT, COLOR_BG_WINDOW, npos, 252, name);
-        dwinUpdateLCD();
-        bool recovery_flag = true;
-        while (recovery_flag) {
-          EncoderState encoder_diffState = encoderReceiveAnalyze();
-          if (encoder_diffState != ENCODER_DIFF_NO) {
-            if (encoder_diffState == ENCODER_DIFF_ENTER) {
-              recovery_flag = false;
-              if (hmiFlag.select_flag) break;
-              TERN_(POWER_LOSS_RECOVERY, queue.inject(F("M1000C")));
-              hmiStartFrame(true);
-              return;
-            }
-            else
-              update_selection(encoder_diffState == ENCODER_DIFF_CW);
-            dwinUpdateLCD();
+  #if ENABLED(POWER_LOSS_RECOVERY)
+    else if (DWIN_lcd_sd_status && recovery.ui_flag_resume) { // Resume interrupted print
+      recovery.ui_flag_resume = false;
+      auto update_selection = [&](const bool sel) {
+        hmiFlag.select_flag = sel;
+        const uint16_t c1 = sel ? COLOR_BG_WINDOW : COLOR_SELECT;
+        dwinDrawRectangle(0, c1, 25, 306, 126, 345);
+        dwinDrawRectangle(0, c1, 24, 305, 127, 346);
+        const uint16_t c2 = sel ? COLOR_SELECT : COLOR_BG_WINDOW;
+        dwinDrawRectangle(0, c2, 145, 306, 246, 345);
+        dwinDrawRectangle(0, c2, 144, 305, 247, 346);
+      };
+      popupWindowResume();
+      update_selection(true);
+      char * const name = card.longest_filename();
+      const int8_t npos = _MAX(0U, DWIN_WIDTH - strlen(name) * (MENU_CHR_W)) / 2;
+      dwinDrawString(true, font8x16, COLOR_POPUP_TEXT, COLOR_BG_WINDOW, npos, 252, name);
+      dwinUpdateLCD();
+      bool recovery_flag = true;
+      while (recovery_flag) {
+        EncoderState encoder_diffState = encoderReceiveAnalyze();
+        if (encoder_diffState != ENCODER_DIFF_NO) {
+          if (encoder_diffState == ENCODER_DIFF_ENTER) {
+            recovery_flag = false;
+            if (hmiFlag.select_flag) break;
+            TERN_(POWER_LOSS_RECOVERY, queue.inject(F("M1000C")));
+            hmiStartFrame(true);
+            return;
           }
+          else
+            update_selection(encoder_diffState == ENCODER_DIFF_CW);
+          dwinUpdateLCD();
         }
-        select_print.set(0);
-        hmiValues.show_mode = 0;
-        queue.inject(F("M1000"));
-        gotoPrintProcess();
-        drawStatusArea(true);
       }
-    #endif // POWER_LOSS_RECOVERY
+      select_print.set(0);
+      hmiValues.show_mode = 0;
+      queue.inject(F("M1000"));
+      gotoPrintProcess();
+      drawStatusArea(true);
+    }
+  #endif // POWER_LOSS_RECOVERY
 
-    dwinUpdateLCD();
-  }
+  dwinUpdateLCD();
 }
 
 void dwinHandleScreen() {
