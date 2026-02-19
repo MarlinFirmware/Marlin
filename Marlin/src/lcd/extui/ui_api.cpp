@@ -687,7 +687,7 @@ namespace ExtUI {
   #endif
 
   #if ENABLED(DUAL_X_CARRIAGE)
-    uint8_t getIDEX_Mode() { return dual_x_carriage_mode; }
+    uint8_t getIDEX_Mode() { return motion.idex_mode; }
   #endif
 
   #if HAS_PREHEAT
@@ -765,7 +765,7 @@ namespace ExtUI {
         if (!linked_nozzles) {
           HOTEND_LOOP()
             if (e != motion.extruder)
-              hotend_offset[e][axis] += mm;
+              motion.hotend_offset[e][axis] += mm;
 
           TERN_(HAS_X_AXIS, normalizeNozzleOffset(X));
           TERN_(HAS_Y_AXIS, normalizeNozzleOffset(Y));
@@ -818,12 +818,12 @@ namespace ExtUI {
 
     float getNozzleOffset_mm(const axis_t axis, const extruder_t extruder) {
       if (extruder - E0 >= HOTENDS) return 0;
-      return hotend_offset[extruder - E0][axis];
+      return motion.hotend_offset[extruder - E0][axis];
     }
 
     void setNozzleOffset_mm(const float value, const axis_t axis, const extruder_t extruder) {
       if (extruder - E0 >= HOTENDS) return;
-      hotend_offset[extruder - E0][axis] = value;
+      motion.hotend_offset[extruder - E0][axis] = value;
     }
 
     /**
@@ -832,8 +832,8 @@ namespace ExtUI {
      * user to edit the offset the first nozzle).
      */
     void normalizeNozzleOffset(const axis_t axis) {
-      const float offs = hotend_offset[0][axis];
-      HOTEND_LOOP() hotend_offset[e][axis] -= offs;
+      const float offs = motion.hotend_offset[0][axis];
+      HOTEND_LOOP() motion.hotend_offset[e][axis] -= offs;
     }
 
   #endif // HAS_HOTEND_OFFSET
@@ -887,14 +887,14 @@ namespace ExtUI {
                       y_target = MESH_MIN_Y + pos.y * (MESH_Y_DIST);
           if (x_target != motion.position.x || y_target != motion.position.y) {
             // If moving across bed, raise nozzle to safe height over bed
-            motion.feedrate_mm_s = z_probe_fast_mm_s;
-            motion.destination.set(motion.position.x, motion.position.y, Z_CLEARANCE_BETWEEN_PROBES);
+            motion.feedrate_mm_s = motion.z_probe_fast_mm_s;
+            motion.destination.set(motion.position.x, motion.position.y, Z_TWEEN_SAFE_CLEARANCE);
             motion.prepare_line_to_destination();
             if (XY_PROBE_FEEDRATE_MM_S) motion.feedrate_mm_s = XY_PROBE_FEEDRATE_MM_S;
             motion.destination.set(x_target, y_target);
             motion.prepare_line_to_destination();
           }
-          motion.feedrate_mm_s = z_probe_fast_mm_s;
+          motion.feedrate_mm_s = motion.z_probe_fast_mm_s;
           motion.destination.z = z;
           motion.prepare_line_to_destination();
         #else
