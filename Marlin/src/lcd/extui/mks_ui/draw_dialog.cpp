@@ -173,8 +173,8 @@ static void btn_ok_event_cb(lv_obj_t *btn, lv_event_t event) {
   else if (DIALOG_IS(TYPE_FILAMENT_NO_PRESS)) {
     if(uiCfg.print_state == PAUSED)
     {
-      uiCfg.hotendTargetTempBak = thermalManager.degTargetHotend(active_extruder);
-      uiCfg.moveSpeed_bak = (uint16_t)feedrate_mm_s;
+      uiCfg.hotendTargetTempBak = thermalManager.degTargetHotend(motion.extruder);
+      uiCfg.moveSpeed_bak = (uint16_t)motion.feedrate_mm_s;
       lv_clear_dialog();
       disp_state_stack._disp_index--;
       lv_draw_filament_change();

@@ -105,7 +105,7 @@ void printer_state_polling() {
         gcode.process_subcommands_now(public_buf_m);
       }
       card.startOrResumeFilePrinting();
-      startOrResumeJob();
+      marlin.startOrResumeJob();
       TERN_(POWER_LOSS_RECOVERY, recovery.prepare());
       uiCfg.print_state = WORKING;
       start_print_time();
