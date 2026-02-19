@@ -116,9 +116,7 @@ void gCfgItems_init() {
   gCfgItems.curFilesize       = 0;
   gCfgItems.finish_power_off  = false;
   gCfgItems.pause_reprint     = false;
-  gCfgItems.pausePosX         = -1;
-  gCfgItems.pausePosY         = -1;
-  gCfgItems.pausePosZ         = 5;
+  gCfgItems.pausePos.set(-1, -1, 5);
   gCfgItems.trammingPos[0].x  = X_MIN_POS + 30;
   gCfgItems.trammingPos[0].y  = Y_MIN_POS + 30;
   gCfgItems.trammingPos[1].x  = X_MAX_POS - 30;

@@ -721,7 +721,7 @@ void Marlin::manage_inactivity(const bool no_stepper_sleep/*=false*/) {
       motion.position.e += EXTRUDER_RUNOUT_EXTRUDE;
       motion.goto_current_position(MMM_TO_MMS(EXTRUDER_RUNOUT_SPEED));
       motion.position.e = olde;
-      planner.set_e_position_mm(olde);
+      motion.sync_plan_position_e();
       planner.synchronize();
 
       if (e_off) stepper.DISABLE_EXTRUDER(e_stepper);
