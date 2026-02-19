@@ -176,7 +176,7 @@ static void btn_ok_event_cb(lv_obj_t *btn, lv_event_t event) {
       uiCfg.hotendTargetTempBak = thermalManager.degTargetHotend(active_extruder);
       uiCfg.moveSpeed_bak = (uint16_t)feedrate_mm_s;
       lv_clear_dialog();
-      disp_state_stack._disp_index--;  
+      disp_state_stack._disp_index--;
       lv_draw_filament_change();
     }
   }

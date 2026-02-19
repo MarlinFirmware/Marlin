@@ -48,7 +48,7 @@
 extern uint32_t To_pre_view;
 extern bool flash_preview_begin, default_preview_flg, gcode_preview_over;
 
-void printer_state_polling() {  
+void printer_state_polling() {
   char str_1[16], str_2[16];
   if (uiCfg.print_state == PAUSING) {
     #if HAS_MEDIA
@@ -58,7 +58,7 @@ void printer_state_polling() {
       if (uiCfg.waitEndMoves > 20) {
         uiCfg.waitEndMoves = 0;
         planner.synchronize();
-       
+
         card.pauseSDPrint();
         print_job_timer.pause();
 
@@ -75,7 +75,7 @@ void printer_state_polling() {
           sprintf_P(public_buf_l, PSTR("G91\nG1 Z%s\nG90"), dtostrf(gCfgItems.pausePosZ, 1, 1, str_1));
           gcode.process_subcommands_now(public_buf_l);
         }
-        if (gCfgItems.pausePosX != (float)-1 && gCfgItems.pausePosY != (float)-1) {          
+        if (gCfgItems.pausePosX != (float)-1 && gCfgItems.pausePosY != (float)-1) {
           sprintf_P(public_buf_l, PSTR("G1 X%s Y%s"), dtostrf(gCfgItems.pausePosX, 1, 1, str_1), dtostrf(gCfgItems.pausePosY, 1, 1, str_2));
           gcode.process_subcommands_now(public_buf_l);
         }
@@ -95,7 +95,7 @@ void printer_state_polling() {
 
   if (uiCfg.print_state == RESUMING) {
     if (card.isPaused()) {
-      if (gCfgItems.pausePosX != (float)-1 && gCfgItems.pausePosY != (float)-1) {        
+      if (gCfgItems.pausePosX != (float)-1 && gCfgItems.pausePosY != (float)-1) {
         sprintf_P(public_buf_m, PSTR("G1 X%s Y%s"), dtostrf(uiCfg.current_x_position_bak, 1, 1, str_1), dtostrf(uiCfg.current_y_position_bak, 1, 1, str_2));
         gcode.process_subcommands_now(public_buf_m);
       }
@@ -103,7 +103,7 @@ void printer_state_polling() {
         ZERO(public_buf_m);
         sprintf_P(public_buf_m, PSTR("G1 Z%s"), dtostrf(uiCfg.current_z_position_bak, 1, 1, str_1));
         gcode.process_subcommands_now(public_buf_m);
-      }      
+      }
       card.startOrResumeFilePrinting();
       startOrResumeJob();
       TERN_(POWER_LOSS_RECOVERY, recovery.prepare());
@@ -217,7 +217,7 @@ void filament_check() {
       flash_preview_begin = true;
     else
       default_preview_flg = true;
-    
+
     lv_draw_dialog(DIALOG_TYPE_FILAMENT_NO_PRESS);
   }
 }
