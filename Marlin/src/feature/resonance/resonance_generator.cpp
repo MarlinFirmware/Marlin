@@ -47,7 +47,7 @@ ResonanceGenerator::ResonanceGenerator() {}
 
 void ResonanceGenerator::start() {
   gcode.home_all_axes(); // Always home axes first
-  do_blocking_move_to_xy(X_CENTER, Y_CENTER, Z_CLEARANCE_FOR_HOMING);
+  motion.do_blocking_move_to_xy(X_CENTER, Y_CENTER, Z_CLEARANCE_FOR_HOMING);
   
   rt_params.start_pos = current_position;
   active = true;
