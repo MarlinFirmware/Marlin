@@ -318,9 +318,9 @@ bool I2CPositionEncoder::test_axis() {
   // Only works on XYZ Cartesian machines for the time being
   if (!(encoderAxis == X_AXIS || encoderAxis == Y_AXIS || encoderAxis == Z_AXIS)) return false;
 
-  const float startPosition = soft_endstop.min[encoderAxis] + 10,
-              endPosition = soft_endstop.max[encoderAxis] - 10;
-  const feedRate_t fr_mm_s = FLOOR(homing_feedrate(encoderAxis));
+  const float startPosition = motion.soft_endstop.min[encoderAxis] + 10,
+              endPosition = motion.soft_endstop.max[encoderAxis] - 10;
+  const feedRate_t fr_mm_s = FLOOR(motion.homing_feedrate(encoderAxis));
 
   ec = false;
 
@@ -373,13 +373,13 @@ void I2CPositionEncoder::calibrate_steps_mm(const uint8_t iter) {
 
   int32_t startCount, stopCount;
 
-  const feedRate_t fr_mm_s = homing_feedrate(encoderAxis);
+  const feedRate_t fr_mm_s = motion.homing_feedrate(encoderAxis);
 
   bool oldec = ec;
   ec = false;
 
   startDistance = 20;
-  endDistance = soft_endstop.max[encoderAxis] - 20;
+  endDistance = motion.soft_endstop.max[encoderAxis] - 20;
   travelDistance = endDistance - startDistance;
 
   xyze_pos_t startCoord, endCoord;
@@ -400,7 +400,7 @@ void I2CPositionEncoder::calibrate_steps_mm(const uint8_t iter) {
     delay(250);
     startCount = get_position();
 
-    //do_blocking_move_to(endCoord);
+    //motion.blocking_move(endCoord);
 
     TERN_(HAS_EXTRUDERS, endCoord.e = planner.get_axis_position_mm(E_AXIS));
     planner.buffer_line(endCoord, fr_mm_s, 0);

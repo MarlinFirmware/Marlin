@@ -350,9 +350,9 @@ typedef struct {
 //
 // Enumerated axis indices
 //
-//  - X_AXIS, Y_AXIS, and Z_AXIS should be used for axes in Cartesian space
-//  - A_AXIS, B_AXIS, and C_AXIS should be used for Steppers, corresponding to XYZ on Cartesians
-//  - X_REAL, Y_REAL, and Z_REAL should be used for axes on Core kinematics
+//  - X_REAL, Y_REAL, and Z_REAL should be used for axes in Cartesian space
+//  - A_AXIS, B_AXIS, and C_AXIS should be used for Steppers
+//  - X_AXIS, Y_AXIS, and Z_AXIS are now more generic interchangeble indexes
 //
 enum AxisEnum : uint8_t {
 

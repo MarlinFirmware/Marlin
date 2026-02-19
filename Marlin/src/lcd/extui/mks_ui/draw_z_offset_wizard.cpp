@@ -82,7 +82,7 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
   if (do_inject) {
     sprintf_P(public_buf_l, PSTR("G91\nG1 %c%s F%d\nG90"), cur_label, dtostrf(dist, 1, 3, str_1), uiCfg.moveSpeed);
     queue.inject(public_buf_l);
-    //calculated_z_offset = probe.offset.z + current_position.z - z_offset_ref;
+    //calculated_z_offset = probe.offset.z + motion.position.z - z_offset_ref;
     disp_cur_wizard_pos();
   }
 
@@ -97,23 +97,23 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
       disp_move_wizard_dist();
       break;
     case ID_M_SAVE:
-      current_position.z = z_offset_ref;  // Set Z to z_offset_ref, as we can expect it is at probe height
+      motion.position.z = z_offset_ref;  // Set Z to z_offset_ref, as we can expect it is at probe height
       probe.offset.z = calculated_z_offset;
-      sync_plan_position();
-      do_z_post_clearance();
+      motion.sync_plan_position();
+      motion.do_z_post_clearance();
       hal.watchdog_refresh();
       draw_return_ui();
       return;
     case ID_M_RETURN:
       probe.offset.z = z_offset_backup;
-      SET_SOFT_ENDSTOP_LOOSE(false);
+      motion.set_soft_endstop_loose(false);
       TERN_(HAS_LEVELING, set_bed_leveling_enabled(mks_leveling_was_active));
       // On cancel the Z position needs correction
       #if HOMING_Z_WITH_PROBE && defined(PROBE_OFFSET_WIZARD_START_Z)
-        set_axis_never_homed(Z_AXIS);
+        motion.set_axis_never_homed(Z_AXIS);
         queue.inject(F("G28Z"));
       #else
-        do_z_post_clearance();
+        motion.do_z_post_clearance();
       #endif
       hal.watchdog_refresh();
       draw_return_ui();
@@ -125,8 +125,8 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
 void refresh_wizard_pos(lv_task_t *) {
   switch (cur_label) {
     case 'Z':
-      cur_pos = current_position.z;
-      calculated_z_offset = probe.offset.z + current_position.z - z_offset_ref;
+      cur_pos = motion.position.z;
+      calculated_z_offset = probe.offset.z + motion.position.z - z_offset_ref;
       cur_OffsetPos = calculated_z_offset;
     break;
     default: return;
@@ -136,7 +136,7 @@ void refresh_wizard_pos(lv_task_t *) {
 
 void lv_draw_z_offset_wizard() {
 
-  set_all_unhomed();
+  motion.set_all_unhomed();
 
   // Store probe.offset.z for Case: Cancel
   z_offset_backup = probe.offset.z;
@@ -154,7 +154,7 @@ void lv_draw_z_offset_wizard() {
   queue.inject(F("G28"));
 
   z_offset_ref = 0;             // Set Z Value for Wizard Position to 0
-  calculated_z_offset = probe.offset.z + current_position.z - z_offset_ref;
+  calculated_z_offset = probe.offset.z + motion.position.z - z_offset_ref;
   cur_OffsetPos = calculated_z_offset;
 
   scr = lv_screen_create(Z_OFFSET_WIZARD_UI, machine_menu.LevelingZoffsetTitle);

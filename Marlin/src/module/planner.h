@@ -580,19 +580,19 @@ class Planner {
 
     #if HAS_LIN_ADVANCE_K
       static float extruder_advance_K[DISTINCT_E];
-      static void set_advance_k(const float k, const uint8_t e=active_extruder) {
+      static void set_advance_k(const float k, const uint8_t e=motion.extruder) {
         UNUSED(e);
         extruder_advance_K[E_INDEX_N(e)] = k;
         TERN_(SMOOTH_LIN_ADVANCE, extruder_advance_K_q27[E_INDEX_N(e)] = k * _BV32(27));
       }
-      static float get_advance_k(const uint8_t e=active_extruder) {
+      static float get_advance_k(const uint8_t e=motion.extruder) {
         UNUSED(e);
         return extruder_advance_K[E_INDEX_N(e)];
       }
     #endif
 
     #if ENABLED(SMOOTH_LIN_ADVANCE)
-      static uint32_t get_advance_k_q27(const uint8_t e=active_extruder) {
+      static uint32_t get_advance_k_q27(const uint8_t e=motion.extruder) {
         UNUSED(e);
         return extruder_advance_K_q27[E_INDEX_N(e)];
       }
@@ -1003,7 +1003,7 @@ class Planner {
      * @param abce          Target position in mm and/or degrees
      * @param cart_dist_mm  The pre-calculated move lengths for all axes, in mm
      * @param fr_mm_s       (Target) speed of the move
-     * @param extruder      Optional target extruder (otherwise active_extruder)
+     * @param extruder      Optional target extruder (otherwise motion.extruder)
      * @param hints         Optional parameters to aid planner calculations
      *
      * @return  false if no segment was queued due to cleaning, cold extrusion, full queue, etc...
@@ -1011,7 +1011,7 @@ class Planner {
     static bool buffer_segment(const abce_pos_t &abce
       OPTARG(HAS_DIST_MM_ARG, const xyze_float_t &cart_dist_mm)
       , const feedRate_t fr_mm_s
-      , const uint8_t extruder=active_extruder
+      , const uint8_t extruder=motion.extruder
       , const PlannerHints &hints=PlannerHints()
     );
 
@@ -1024,13 +1024,13 @@ class Planner {
      *
      * @param cart      Target position in mm or degrees
      * @param fr_mm_s   (Target) speed of the move (mm/s)
-     * @param extruder  Optional target extruder (otherwise active_extruder)
+     * @param extruder  Optional target extruder (otherwise motion.extruder)
      * @param hints     Optional parameters to aid planner calculations
      *
      * @return  false if no segment was queued due to cleaning, cold extrusion, full queue, etc...
      */
     static bool buffer_line(const xyze_pos_t &cart, const feedRate_t fr_mm_s
-      , const uint8_t extruder=active_extruder
+      , const uint8_t extruder=motion.extruder
       , const PlannerHints &hints=PlannerHints()
     );
 
@@ -1200,7 +1200,7 @@ class Planner {
 
     #if IS_KINEMATIC
       // Allow do_homing_move to access internal functions, such as buffer_segment.
-      friend void do_homing_move(const AxisEnum, const float, const feedRate_t, const bool);
+      friend void Motion::do_homing_move(const AxisEnum, const float, const feedRate_t, const bool);
     #endif
 
     #if HAS_JUNCTION_DEVIATION

@@ -389,7 +389,7 @@ bool FTMotion::plan_next_block() {
       recovery.info.current_position = current_block->start_position;
     #endif
 
-    // Some kinematics track axis motion in HX, HY, HZ
+    // Some kinematics track axis motion in RX, RY, RZ
     TERN_(HAS_REAL_X, stepper.last_direction_bits.rx = current_block->direction_bits.rx);
     TERN_(HAS_REAL_Y, stepper.last_direction_bits.ry = current_block->direction_bits.ry);
     TERN_(HAS_REAL_Z, stepper.last_direction_bits.rz = current_block->direction_bits.rz);
@@ -688,7 +688,7 @@ void FTMotion::fill_stepper_plan_buffer() {
 
   // Start Resonance Testing
   void FTMotion::start_resonance_test() {
-    home_if_needed(); // Ensure known axes first
+    motion.home_if_needed();  // Ensure known axes first
 
     ftm_resonance_test_params_t &p = rtg.rt_params;
 
@@ -697,10 +697,10 @@ void FTMotion::fill_stepper_plan_buffer() {
       p.accel_per_hz = 15.0f;
 
     // Always move to the center of the bed
-    do_blocking_move_to_xy(X_CENTER, Y_CENTER, Z_CLEARANCE_FOR_HOMING);
+    motion.blocking_move_xy(X_CENTER, Y_CENTER, Z_CLEARANCE_FOR_HOMING);
 
     // Start test at the current position with the configured time-step
-    rtg.start(current_position, FTM_TS);
+    rtg.start(motion.position, FTM_TS);
   }
 
 #endif // FTM_RESONANCE_TEST
