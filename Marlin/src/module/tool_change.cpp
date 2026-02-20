@@ -171,7 +171,7 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
 
     const float oldx = motion.position.x,
                 grabpos = mpe_settings.parking_xpos[new_tool] + (new_tool ? mpe_settings.grab_distance : -mpe_settings.grab_distance),
-                offsetcompensation = TERN0(HAS_HOTEND_OFFSET, hotend_offset[motion.extruder].x * mpe_settings.compensation_factor);
+                offsetcompensation = TERN0(HAS_HOTEND_OFFSET, motion.active_hotend_offset().x * mpe_settings.compensation_factor);
 
     if (motion.homing_needed_error(_BV(X_AXIS))) return;
 
@@ -295,7 +295,7 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
       constexpr float parkingposx[] = PARKING_EXTRUDER_PARKING_X;
 
       #if HAS_HOTEND_OFFSET
-        const float x_offset = hotend_offset[motion.extruder].x;
+        const float x_offset = motion.active_hotend_offset().x;
       #else
         constexpr float x_offset = 0;
       #endif
@@ -364,7 +364,7 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
 
       // STEP 6
 
-      motion.position.x = DIFF_TERN(HAS_HOTEND_OFFSET, midpos, hotend_offset[new_tool].x);
+      motion.position.x = DIFF_TERN(HAS_HOTEND_OFFSET, midpos, motion.hotend_offset[new_tool].x);
 
       DEBUG_SYNCHRONIZE();
       DEBUG_POS("(6) Move midway between hotends", motion.position);
@@ -732,7 +732,7 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
     constexpr float toolheadposx[] = SWITCHING_TOOLHEAD_X_POS;
     const float placexpos = toolheadposx[motion.extruder],
                 grabxpos = toolheadposx[new_tool];
-    const xyz_pos_t &hoffs = hotend_offset[motion.extruder];
+    const xyz_pos_t &hoffs = motion.active_hotend_offset();
 
     /**
      * 1. Raise Z-Axis to give enough clearance
@@ -815,7 +815,7 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
     // 9. Apply Z hotend offset to current position
 
     DEBUG_POS("(9) Applying Z-offset", motion.position);
-    motion.position.z += hoffs.z - hotend_offset[new_tool].z;
+    motion.position.z += hoffs.z - motion.hotend_offset[new_tool].z;
 
     DEBUG_POS("EMST Tool-Change done.", motion.position);
   }
@@ -842,7 +842,7 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
   inline void dualx_tool_change(const uint8_t new_tool, bool &no_move) {
 
     DEBUG_ECHOPGM("Dual X Carriage Mode ");
-    switch (dual_x_carriage_mode) {
+    switch (motion.idex_mode) {
       case DXC_FULL_CONTROL_MODE: DEBUG_ECHOLNPGM("FULL_CONTROL"); break;
       case DXC_AUTO_PARK_MODE:    DEBUG_ECHOLNPGM("AUTO_PARK");    break;
       case DXC_DUPLICATION_MODE:  DEBUG_ECHOLNPGM("DUPLICATION");  break;
@@ -850,13 +850,13 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
     }
 
     // Get the home position of the currently-active tool
-    const float xhome = x_home_pos(motion.extruder);
+    const float xhome = motion.x_home_pos(motion.extruder);
 
-    if (dual_x_carriage_mode == DXC_AUTO_PARK_MODE                  // If Auto-Park mode is enabled
+    if (motion.idex_mode == DXC_AUTO_PARK_MODE                      // If Auto-Park mode is enabled
         && marlin.isRunning() && !no_move                           // ...and movement is permitted
-        && (delayed_move_time || motion.position.x != xhome)        // ...and delayed_move_time is set OR not "already parked"...
+        && (motion.delayed_move_time || motion.position.x != xhome) // ...and delayed_move_time is set OR not "already parked"...
     ) {
-      DEBUG_ECHOLNPGM("MoveX to ", xhome);
+      DEBUG_ECHOLNPGM("Move X to ", xhome);
       motion.position.x = xhome;
       motion.goto_current_position(planner.settings.max_feedrate_mm_s[X_AXIS]); // Park the current head
       planner.synchronize();
@@ -870,16 +870,16 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
 
     DEBUG_POS("New Extruder", motion.position);
 
-    switch (dual_x_carriage_mode) {
+    switch (motion.idex_mode) {
       case DXC_FULL_CONTROL_MODE:
         // New current position is the position of the activated extruder
-        motion.position.x = inactive_extruder_x;
+        motion.position.x = motion.inactive_extruder_x;
         // Save the inactive extruder's position (from the old motion.position)
-        inactive_extruder_x = motion.destination.x;
+        motion.inactive_extruder_x = motion.destination.x;
         DEBUG_ECHOLNPGM("DXC Full Control curr.x=", motion.position.x, " dest.x=", motion.destination.x);
         break;
       case DXC_AUTO_PARK_MODE:
-        idex_set_parked();
+        motion.idex_set_parked();
         break;
       default:
         break;
@@ -888,7 +888,7 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
     // Ensure X axis DIR pertains to the correct carriage
     stepper.apply_directions();
 
-    DEBUG_ECHOLNPGM("Active extruder parked: ", active_extruder_parked ? "yes" : "no");
+    DEBUG_ECHOLNPGM("Active extruder parked: ", motion.active_extruder_parked ? "yes" : "no");
     DEBUG_POS("New extruder (parked)", motion.position);
   }
 
@@ -1150,7 +1150,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
     planner.synchronize();
 
     #if ENABLED(DUAL_X_CARRIAGE)  // Only T0 allowed if the Printer is in DXC_DUPLICATION_MODE or DXC_MIRRORED_MODE
-      if (new_tool != 0 && idex_is_duplicating())
+      if (new_tool != 0 && motion.idex_is_duplicating())
          return invalid_extruder_error(new_tool);
     #endif
 
@@ -1164,12 +1164,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
 
     TERN_(HAS_MARLINUI_MENU, if (!no_move) ui.update());
 
-    #if ENABLED(DUAL_X_CARRIAGE)
-      const bool idex_full_control = dual_x_carriage_mode == DXC_FULL_CONTROL_MODE;
-    #else
-      constexpr bool idex_full_control = false;
-    #endif
-
+    const bool idex_full_control = TERN0(DUAL_X_CARRIAGE, motion.idex_mode == DXC_FULL_CONTROL_MODE);
     const uint8_t old_tool = motion.extruder;
     const bool can_move_away = !no_move && !idex_full_control;
 
@@ -1267,7 +1262,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
       #endif
 
       #if HAS_HOTEND_OFFSET
-        xyz_pos_t diff = hotend_offset[new_tool] - hotend_offset[old_tool];
+        xyz_pos_t diff = motion.hotend_offset[new_tool] - motion.hotend_offset[old_tool];
         TERN_(DUAL_X_CARRIAGE, diff.x = 0);
       #else
         constexpr xyz_pos_t diff{0};
@@ -1402,7 +1397,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
           }
         #endif
 
-        TERN_(DUAL_X_CARRIAGE, idex_set_parked(false));
+        TERN_(DUAL_X_CARRIAGE, motion.idex_set_parked(false));
       } // should_move
 
       #if HAS_SWITCHING_NOZZLE
@@ -1446,7 +1441,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
         xyz_pos_t old_workspace_offset;
         if (new_tool > 0) {
           old_workspace_offset = motion.workspace_offset;
-          const xyz_pos_t &he = hotend_offset[new_tool];
+          const xyz_pos_t &he = motion.hotend_offset[new_tool];
           TERN_(TC_GCODE_USE_GLOBAL_X, motion.workspace_offset.x -= he.x);
           TERN_(TC_GCODE_USE_GLOBAL_Y, motion.workspace_offset.y -= he.y);
           TERN_(TC_GCODE_USE_GLOBAL_Z, motion.workspace_offset.z -= he.z);
@@ -1489,7 +1484,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
       // so that nozzle does not lower below print surface if new hotend Z offset is higher than old hotend Z offset.
       #if ANY(MECHANICAL_SWITCHING_EXTRUDER, MECHANICAL_SWITCHING_NOZZLE)
         #if HAS_HOTEND_OFFSET
-          xyz_pos_t diff = hotend_offset[new_tool] - hotend_offset[old_tool];
+          xyz_pos_t diff = motion.hotend_offset[new_tool] - motion.hotend_offset[old_tool];
           TERN_(DUAL_X_CARRIAGE, diff.x = 0);
         #else
           constexpr xyz_pos_t diff{0};
@@ -1509,7 +1504,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
       #endif
 
       #ifdef EVENT_GCODE_AFTER_TOOLCHANGE
-        if (TERN1(DUAL_X_CARRIAGE, dual_x_carriage_mode == DXC_AUTO_PARK_MODE))
+        if (TERN1(DUAL_X_CARRIAGE, motion.idex_mode == DXC_AUTO_PARK_MODE))
           gcode.process_subcommands_now(F(EVENT_GCODE_AFTER_TOOLCHANGE));
       #endif
 

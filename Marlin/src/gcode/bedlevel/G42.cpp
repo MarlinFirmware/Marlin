@@ -42,7 +42,7 @@
  *   P           : Flag to put the probe at the given point
  */
 void GcodeSuite::G42() {
-  if (!MOTION_CONDITIONS) return;
+  if (motion.gcode_motion_ignored()) return;
 
   const bool hasI = parser.seenval('I');
   const int8_t ix = hasI ? parser.value_int() : 0;

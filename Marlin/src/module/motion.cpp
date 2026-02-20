@@ -78,6 +78,9 @@ Motion motion;
 // Relative Mode. Enable with G91, disable with G90.
 bool Motion::relative_mode; // = false
 
+// Flags for rotational axes
+constexpr AxisFlags Motion::rotational;
+
 // The active extruder (tool). Set with T<extruder> command.
 #if HAS_MULTI_EXTRUDER
   uint8_t Motion::extruder = 0; // = 0
@@ -134,10 +137,14 @@ xyz_pos_t Motion::cartes;
   float Motion::e_move_accumulator; // = 0
 #endif
 
+#if ENABLED(DUAL_X_CARRIAGE)
+  DualXMode Motion::idex_mode = DEFAULT_DUAL_X_CARRIAGE_MODE;
+#endif
+
 // Extruder offsets
 #if HAS_HOTEND_OFFSET
-  xyz_pos_t hotend_offset[HOTENDS]; // Initialized by settings.load
-  void reset_hotend_offsets() {
+  xyz_pos_t Motion::hotend_offset[HOTENDS]; // Initialized by settings.load
+  void Motion::reset_hotend_offsets() {
     constexpr float tmp[3][HOTENDS] = { HOTEND_OFFSET_X, HOTEND_OFFSET_Y, HOTEND_OFFSET_Z };
     static_assert(
       !tmp[X_AXIS][0] && !tmp[Y_AXIS][0] && !tmp[Z_AXIS][0],
@@ -147,6 +154,10 @@ xyz_pos_t Motion::cartes;
     HOTEND_LOOP() LOOP_ABC(a) hotend_offset[e][a] = tmp[a][e];
     TERN_(DUAL_X_CARRIAGE, hotend_offset[1].x = _MAX(X2_HOME_POS, X2_MAX_POS));
   }
+#elif HOTENDS
+  constexpr xyz_pos_t Motion::hotend_offset[HOTENDS];
+#else
+  constexpr xyz_pos_t Motion::hotend_offset[1];
 #endif
 
 // The feedrate for the current move, often used as the default if
@@ -203,8 +214,15 @@ int16_t Motion::feedrate_percentage = 100;
   xyz_pos_t Motion::workspace_offset{0};
 #endif
 
-#if ABL_USES_GRID
-  feedRate_t xy_probe_feedrate_mm_s = MMM_TO_MMS(XY_PROBE_FEEDRATE);
+#if HAS_VARIABLE_XY_PROBE_FEEDRATE
+  feedRate_t Motion::xy_probe_feedrate_mm_s = MMM_TO_MMS(XY_PROBE_FEEDRATE);
+#endif
+
+#ifdef Z_PROBE_FEEDRATE_SLOW
+  constexpr feedRate_t Motion::z_probe_slow_mm_s;
+#endif
+#ifdef Z_PROBE_FEEDRATE_FAST
+  constexpr feedRate_t Motion::z_probe_fast_mm_s;
 #endif
 
 /**
@@ -280,7 +298,7 @@ void Motion::report_position_projected() {
    * Set motors to their homing / probing currents.
    * Currents are saved first so they can be restored afterward.
    */
-  void set_homing_current(const AxisEnum axis) {
+  void Motion::set_homing_current(const AxisEnum axis) {
 
     #define HOMING_CURRENT(A) TERN(EDITABLE_HOMING_CURRENT, homing_current_mA.A, A##_CURRENT_HOME)
 
@@ -439,7 +457,7 @@ void Motion::report_position_projected() {
    * Restore motors to their previously-stored currents.
    * Always call set_homing_current() first!
    */
-  void restore_homing_current(const AxisEnum axis) {
+  void Motion::restore_homing_current(const AxisEnum axis) {
 
     // Restore the saved current
     #define _RESTORE_CURRENT(A) \
@@ -746,7 +764,7 @@ void Motion::quickstop_stepper() {
  */
 void Motion::sync_plan_position() {
   if (DEBUGGING(LEVELING)) DEBUG_POS("sync_plan_position", position);
-  planner.set_position_mm(motion.position);
+  planner.set_position_mm(position);
   //SERIAL_ECHOLNPGM("Sync_plan_position: ", position.x, ", ", position.y, ", ", position.z);
   //SERIAL_EOL();
 }
@@ -814,6 +832,10 @@ void Motion::set_current_from_steppers_for_axis(const AxisEnum axis) {
     position = pos;
   else
     position[axis] = pos[axis];
+}
+
+bool Motion::gcode_motion_ignored() {
+  return !marlin.isRunning() || TERN0(NO_MOTION_BEFORE_HOMING, homing_needed_error());
 }
 
 /**
@@ -1264,7 +1286,7 @@ void Motion::restore_feedrate_and_scaling() {
       // retain the same physical limit when other tools are selected.
 
       if (new_tool_index == old_tool_index || axis == Z_AXIS) { // The Z axis is "special" and shouldn't be modified
-        const float offs = (axis == Z_AXIS) ? 0 : hotend_offset[extruder][axis];
+        const float offs = (axis == Z_AXIS) ? 0 : active_hotend_offset()[axis];
         soft_endstop.min[axis] = base_min_pos(axis) + offs;
         soft_endstop.max[axis] = base_max_pos(axis) + offs;
       }
@@ -1303,7 +1325,7 @@ void Motion::restore_feedrate_and_scaling() {
 
       #if ALL(HAS_HOTEND_OFFSET, DELTA)
         // The effector center position will be the target minus the hotend offset.
-        const xy_pos_t offs = hotend_offset[extruder];
+        const xy_pos_t offs = active_hotend_offset();
       #elif ENABLED(POLARGRAPH)
         // POLARGRAPH uses draw_area_* below...
       #elif ENABLED(POLAR)
@@ -1774,50 +1796,37 @@ float Motion::get_move_distance(const xyze_pos_t &diff OPTARG(HAS_ROTATIONAL_AXE
 #endif // !IS_KINEMATIC
 
 #if HAS_DUPLICATION_MODE
-  bool extruder_duplication_enabled;
+  bool Motion::extruder_duplication;
   #if ENABLED(MULTI_NOZZLE_DUPLICATION)
-    uint8_t duplication_e_mask; // = 0
+    uint8_t Motion::duplication_e_mask; // = 0
   #endif
 #endif
 
 #if ENABLED(DUAL_X_CARRIAGE)
 
-  DualXMode dual_x_carriage_mode         = DEFAULT_DUAL_X_CARRIAGE_MODE;
-  float inactive_extruder_x              = X2_MAX_POS,                    // Used in mode 0 & 1
-        duplicate_extruder_x_offset      = DEFAULT_DUPLICATION_X_OFFSET;  // Used in mode 2 & 3
-  xyz_pos_t raised_parked_position;                                       // Used in mode 1
-  bool active_extruder_parked            = false;                         // Used in mode 1, 2 & 3
-  millis_t delayed_move_time             = 0;                             // Used in mode 1
-  celsius_t duplicate_extruder_temp_offset = 0;                           // Used in mode 2 & 3
-  bool idex_mirrored_mode                = false;                         // Used in mode 3
+  float Motion::inactive_extruder_x         = X2_MAX_POS,                   // Used in mode 0 & 1
+        Motion::duplicate_extruder_x_offset = DEFAULT_DUPLICATION_X_OFFSET; // Used in mode 2 & 3
+  bool Motion::idex_mirrored_mode           = false;                        // Used in mode 3
+  xyz_pos_t Motion::raised_parked_position;                                 // Used in mode 1
+  bool Motion::active_extruder_parked       = false;                        // Used in mode 1, 2 & 3
+  millis_t Motion::delayed_move_time        = 0;                            // Used in mode 1
+  celsius_t Motion::duplicate_extruder_temp_offset = 0;                     // Used in mode 2 & 3
 
-  float x_home_pos(const uint8_t extruder) {
-    if (extruder == 0) return X_HOME_POS;
-
-    /**
-     * In dual carriage mode the extruder offset provides an override of the
-     * second X-carriage position when homed - otherwise X2_HOME_POS is used.
-     * This allows soft recalibration of the second extruder home position
-     * (with M218 T1 Xn) without firmware reflash.
-     */
-    return hotend_offset[1].x > 0 ? hotend_offset[1].x : X2_HOME_POS;
+  void Motion::set_extruder_duplication(const bool dupe, const int8_t tool_index/*=-1*/) {
+    _set_duplication_enabled(dupe);
+    if (tool_index >= 0) extruder = tool_index;
+    stepper.apply_directions();
   }
 
-  void idex_set_mirrored_mode(const bool mirr) {
+  void Motion::idex_set_mirrored_mode(const bool mirr) {
     idex_mirrored_mode = mirr;
     stepper.apply_directions();
   }
 
-  void set_duplication_enabled(const bool dupe, const int8_t tool_index/*=-1*/) {
-    extruder_duplication_enabled = dupe;
-    if (tool_index >= 0) motion.extruder = tool_index;
-    stepper.apply_directions();
-  }
-
-  void idex_set_parked(const bool park/*=true*/) {
+  void Motion::idex_set_parked(const bool park/*=true*/) {
     delayed_move_time = 0;
     active_extruder_parked = park;
-    if (park) raised_parked_position = motion.position;  // Remember current raised toolhead position for use by unpark
+    if (park) raised_parked_position = position;  // Remember current raised toolhead position for use by unpark
   }
 
   /**
@@ -1825,20 +1834,20 @@ float Motion::get_move_distance(const xyze_pos_t &diff OPTARG(HAS_ROTATIONAL_AXE
    *
    * Return true if position[] was set to destination[]
    */
-  inline bool dual_x_carriage_unpark() {
+  bool Motion::unpark_before_move() {
     if (active_extruder_parked) {
-      switch (dual_x_carriage_mode) {
+      switch (idex_mode) {
 
         case DXC_FULL_CONTROL_MODE: break;
 
         case DXC_AUTO_PARK_MODE: {
-          if (motion.position.e == motion.destination.e) {
+          if (position.e == destination.e) {
             // This is a travel move (with no extrusion)
             // Skip it, but keep track of the current position
             // (so it can be used as the start of the next non-travel move)
             if (delayed_move_time != UINT32_MAX) {
-              motion.position = motion.destination;
-              NOLESS(raised_parked_position.z, motion.destination.z);
+              position = destination;
+              NOLESS(raised_parked_position.z, destination.z);
               delayed_move_time = millis() + 1000UL;
               return true;
             }
@@ -1848,13 +1857,13 @@ float Motion::get_move_distance(const xyze_pos_t &diff OPTARG(HAS_ROTATIONAL_AXE
           //
           const feedRate_t fr_zfast = planner.settings.max_feedrate_mm_s[Z_AXIS];
           //  1. Move to the raised parked XYZ. Presumably the tool is already at XY.
-          xyze_pos_t raised = raised_parked_position; raised.e = motion.position.e;
+          xyze_pos_t raised = raised_parked_position; raised.e = position.e;
           if (planner.buffer_line(raised, fr_zfast)) {
             //  2. Move to the current native XY and raised Z. Presumably this is a null move.
-            xyze_pos_t curpos = motion.position; curpos.z = raised_parked_position.z;
+            xyze_pos_t curpos = position; curpos.z = raised_parked_position.z;
             if (planner.buffer_line(curpos, PLANNER_XY_FEEDRATE_MM_S)) {
               //  3. Lower Z back down
-              motion.goto_current_position(fr_zfast);
+              goto_current_position(fr_zfast);
             }
           }
           stepper.apply_directions();
@@ -1865,17 +1874,17 @@ float Motion::get_move_distance(const xyze_pos_t &diff OPTARG(HAS_ROTATIONAL_AXE
 
         case DXC_MIRRORED_MODE:
         case DXC_DUPLICATION_MODE:
-          if (motion.extruder == 0) {
-            set_duplication_enabled(false); // Clear stale duplication state
+          if (extruder == 0) {
+            set_extruder_duplication(false); // Clear stale duplication state
             // Restore planner to parked head (T1) X position
-            float x0_pos = motion.position.x;
-            xyze_pos_t pos_now = motion.position;
+            float x0_pos = position.x;
+            xyze_pos_t pos_now = position;
             pos_now.x = inactive_extruder_x;
             planner.set_position_mm(pos_now);
 
             // Keep the same X or add the duplication X offset
             xyze_pos_t new_pos = pos_now;
-            if (dual_x_carriage_mode == DXC_DUPLICATION_MODE)
+            if (idex_mode == DXC_DUPLICATION_MODE)
               new_pos.x = x0_pos + duplicate_extruder_x_offset;
             else
               new_pos.x = _MIN(X_BED_SIZE - x0_pos, X_MAX_POS);
@@ -1885,16 +1894,32 @@ float Motion::get_move_distance(const xyze_pos_t &diff OPTARG(HAS_ROTATIONAL_AXE
             if (!planner.buffer_line(new_pos, planner.settings.max_feedrate_mm_s[X_AXIS], 1)) break;
             planner.synchronize();
 
-            motion.sync_plan_position();      // Extra sync for good measure
-            set_duplication_enabled(true);    // Enable Duplication
-            idex_set_parked(false);           // No longer parked
-            if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("set_duplication_enabled(true)\nidex_set_parked(false)");
+            sync_plan_position();          // Extra sync for good measure
+            set_extruder_duplication(true); // Enable Duplication
+            idex_set_parked(false);        // No longer parked
+            if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("set_extruder_duplication(true)\nidex_set_parked(false)");
           }
           else if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Active extruder not 0");
           break;
       }
     }
     return false;
+  }
+
+  void Motion::idex_home_x() {
+    // Always home the 2nd (right) extruder first
+    extruder = 1;
+    homeaxis(X_AXIS);
+
+    // Remember this extruder's position for later tool change
+    inactive_extruder_x = position.x;
+
+    // Home the 1st (left) extruder
+    extruder = 0;
+    homeaxis(X_AXIS);
+
+    // Consider the active extruder to be in its "parked" position
+    idex_set_parked();
   }
 
 #endif // DUAL_X_CARRIAGE
@@ -1950,7 +1975,7 @@ void Motion::prepare_line_to_destination() {
 
   #endif // PREVENT_COLD_EXTRUSION || PREVENT_LENGTHY_EXTRUDE
 
-  if (TERN0(DUAL_X_CARRIAGE, dual_x_carriage_unpark())) return;
+  if (unpark_before_move()) return;
 
   if (
     #if UBL_SEGMENTED
@@ -2028,7 +2053,7 @@ void Motion::prepare_line_to_destination() {
     /**
      * Set sensorless homing if the axis has it, accounting for Core Kinematics.
      */
-    sensorless_t start_sensorless_homing_per_axis(const AxisEnum axis) {
+    sensorless_t Motion::sensorless_axis_homing_start(const AxisEnum axis) {
       sensorless_t stealth_states { false };
 
       switch (axis) {
@@ -2124,7 +2149,7 @@ void Motion::prepare_line_to_destination() {
       return stealth_states;
     }
 
-    void end_sensorless_homing_per_axis(const AxisEnum axis, sensorless_t enable_stealth) {
+    void Motion::sensorless_axis_homing_end(const AxisEnum axis, sensorless_t enable_stealth) {
       switch (axis) {
         default: break;
         #if X_SENSORLESS
@@ -2235,7 +2260,7 @@ void Motion::prepare_line_to_destination() {
 
     // Only do some things when moving towards an endstop
     const int8_t axis_home_dir = TERN0(DUAL_X_CARRIAGE, axis == X_AXIS)
-                  ? TOOL_X_HOME_DIR(extruder) : home_dir(axis);
+                  ? tool_x_home_dir() : home_dir(axis);
     const bool is_home_dir = (axis_home_dir > 0) == (distance > 0);
 
     #if ENABLED(SENSORLESS_HOMING)
@@ -2260,12 +2285,12 @@ void Motion::prepare_line_to_destination() {
 
       // Disable stealthChop if used. Enable diag1 pin on driver.
       #if ENABLED(SENSORLESS_HOMING)
-        stealth_states = start_sensorless_homing_per_axis(axis);
+        stealth_states = sensorless_axis_homing_start(axis);
         #if SENSORLESS_STALLGUARD_DELAY
           safe_delay(SENSORLESS_STALLGUARD_DELAY); // Short delay needed to settle
         #endif
       #endif
-    }
+    } // is_home_dir
 
     #if ANY(MORGAN_SCARA, MP_SCARA)
       // Tell the planner the axis is at 0
@@ -2301,13 +2326,15 @@ void Motion::prepare_line_to_destination() {
 
       // Re-enable stealthChop if used. Disable diag1 pin on driver.
       #if ENABLED(SENSORLESS_HOMING)
-        end_sensorless_homing_per_axis(axis, stealth_states);
+        sensorless_axis_homing_end(axis, stealth_states);
         #if SENSORLESS_STALLGUARD_DELAY
           safe_delay(SENSORLESS_STALLGUARD_DELAY); // Short delay needed to settle
         #endif
       #endif
-    }
-  }
+
+    } // is_home_dir
+
+  } // do_homing_move
 
   /**
    * Set an axis to be unhomed. (Unless we are on a machine - e.g. a cheap Chinese CNC machine -
@@ -2333,7 +2360,7 @@ void Motion::prepare_line_to_destination() {
      * phase position. Trinamic drivers use a stepper phase table with 1024 values
      * spanning 4 full steps with 256 positions each (ergo, 1024 positions).
      */
-    void backout_to_tmc_homing_phase(const AxisEnum axis) {
+    void Motion::backout_to_tmc_homing_phase(const AxisEnum axis) {
       const xyz_long_t home_phase = TMC_HOME_PHASE;
 
       // check if home phase is disabled for this axis.
@@ -2477,7 +2504,7 @@ void Motion::prepare_line_to_destination() {
     if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM(">>> homeaxis(", C(AXIS_CHAR(axis)), ")");
 
     const int axis_home_dir = TERN0(DUAL_X_CARRIAGE, axis == X_AXIS)
-                ? TOOL_X_HOME_DIR(extruder) : home_dir(axis);
+                ? tool_x_home_dir() : home_dir(axis);
 
     //
     // Homing Z with a probe? Raise Z (maybe) and deploy the Z probe.
@@ -2556,7 +2583,7 @@ void Motion::prepare_line_to_destination() {
     //
     // Fast move towards endstop until triggered
     //
-    const float move_length = 1.5f * max_length(TERN(DELTA, Z_AXIS, axis)) * axis_home_dir;
+    const float move_length = 1.5f * max_axis_length(TERN(DELTA, Z_AXIS, axis)) * axis_home_dir;
     if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Home Fast: ", move_length, "mm");
     do_homing_move(axis, move_length, 0.0, !use_probe_bump);
 
@@ -2843,7 +2870,7 @@ void Motion::set_axis_is_at_home(const AxisEnum axis) {
   set_axis_homed(axis);
 
   #if ENABLED(DUAL_X_CARRIAGE)
-    if (axis == X_AXIS && (extruder == 1 || dual_x_carriage_mode == DXC_DUPLICATION_MODE)) {
+    if (axis == X_AXIS && (extruder == 1 || idex_mode == DXC_DUPLICATION_MODE)) {
       position.x = SUM_TERN(HAS_HOME_OFFSET, x_home_pos(extruder), home_offset.x);
       return;
     }

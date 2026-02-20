@@ -148,7 +148,7 @@ void GcodeSuite::G34() {
         gcode.process_subcommands_now(F(EVENT_GCODE_BEFORE_G34));
       #endif
 
-      TERN_(HAS_DUPLICATION_MODE, set_duplication_enabled(false));
+      TERN_(HAS_DUPLICATION_MODE, motion.set_extruder_duplication(false));
 
       // Compute a worst-case clearance height to probe from. After the first
       // iteration this will be re-calculated based on the actual bed position
