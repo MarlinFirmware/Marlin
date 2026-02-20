@@ -1833,7 +1833,6 @@ void stopEspTransfer() {
   if (wifi_link_state == WIFI_TRANS_FILE)
     wifi_link_state = WIFI_CONNECTED;
 
-
   upload_file.close();
   TERN_(HAS_MEDIA, card.closefile());
 
