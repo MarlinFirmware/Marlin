@@ -24,10 +24,6 @@
 #include "trajectory_constant_jerk.h"
 #include "../planner.h"
 
-#ifndef FTM_MERGE_BUFFER_THRESHOLD
-  #define FTM_MERGE_BUFFER_THRESHOLD 0.75f
-#endif
-
 #define CJP_MERGE_AMAX_RATIO 1.1f
 #define CJP_MAX_LOOKAHEAD 16
 
@@ -45,9 +41,8 @@
  * - Runs its own jerk-aware reverse/forward pass on all visible blocks
  * - Optionally merges compatible consecutive blocks into a single S-curve
  *
- * Merging rules (unchanged):
- * - Only when buffer >= 75% full (FTM_MERGE_BUFFER_THRESHOLD)
- * - Only up to half the queued blocks
+ * Merging rules:
+ * - Only up to half the visible blocks (leave rest for look-ahead)
  * - Compatible = same nominal_speed, a_max within 10% ratio
  */
 class ConstantJerkBlockPlanner {
@@ -148,22 +143,15 @@ public:
 
     // --- 4. Determine merge group ---
     // Merging rules:
-    // - Only when buffer >= 75% full
     // - Only up to half the visible blocks (never merge ALL visible blocks)
     //   This ensures the reverse pass has blocks beyond the merge group to
     //   propagate speeds from, and those blocks can merge with future arrivals.
     // - Compatible = same nominal_speed, a_max within 10% ratio
     // - Interior junction speeds must not exceed max_junction_v
 
-    const uint8_t queued = planner.movesplanned();
-    const uint8_t threshold = (uint8_t)(BLOCK_BUFFER_SIZE * FTM_MERGE_BUFFER_THRESHOLD);
-
     uint8_t merge_count = 1;
 
-    if (queued >= threshold && block_count > 2) {
-      // Never merge more than half the visible blocks — always leave at least
-      // half for look-ahead so the exit speed isn't forced to 0, and so the
-      // remaining blocks can merge with new arrivals later.
+    if (block_count > 2) {
       uint8_t max_merge = block_count / 2;
       if (max_merge < 2) max_merge = 2;
 
