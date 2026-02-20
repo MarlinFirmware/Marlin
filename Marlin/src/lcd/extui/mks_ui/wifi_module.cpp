@@ -1560,7 +1560,6 @@ static void file_first_msg_handle(const uint8_t * const msg, const uint16_t msgL
   memset(&file_writer, 0, sizeof(file_writer));
 
   file_writer.fileLen = *((uint32_t *)(msg + 1));
- 
 
   memcpy(file_writer.saveFileName, msg + 5, fileNameLen);
 
@@ -1619,7 +1618,7 @@ static void file_first_msg_handle(const uint8_t * const msg, const uint16_t msgL
     upload_file = MediaFile();
     const char * const fname = card.diveToFile(false, upload_curDir, saveFilePath);
 
-    if (!upload_file.open(upload_curDir, fname, O_CREAT | O_WRITE | O_TRUNC)) {    
+    if (!upload_file.open(upload_curDir, fname, O_CREAT | O_WRITE | O_TRUNC)) {
       clear_cur_ui();
       upload_result = 2;
 
@@ -1682,21 +1681,21 @@ static void file_fragment_msg_handle(const uint8_t * const msg, const uint16_t m
       }
       upload_file.sync();
       upload_file.close();
+
+      ZERO(public_buf);
+      file_writer.write_index = 0;
+
       MediaFile file, *curDir;
       const char * const fname = card.diveToFile(false, curDir, saveFilePath);
-      if (file.open(curDir, fname, O_READ)) {      
-        gCfgItems.curFilesize = file.fileSize();
-        file.close();
-      }
-      else {
-        ZERO(public_buf);
-        file_writer.write_index = 0;
+      const bool success = file.open(curDir, fname, O_READ);
+      if (!success) {
         wifi_link_state = WIFI_CONNECTED;
         upload_result = 2;
         return;
       }
-      ZERO(public_buf);
-      file_writer.write_index = 0;
+      gCfgItems.curFilesize = file.fileSize();
+      file.close();
+
       file_writer.tick_end = getWifiTick();
       upload_time_sec = getWifiTickDiff(file_writer.tick_begin, file_writer.tick_end) / 1000;
       upload_size = gCfgItems.curFilesize;
