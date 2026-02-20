@@ -1376,7 +1376,7 @@ static void net_msg_handle(const uint8_t * const msg, const uint16_t msgLen) {
     ZERO(wifiPara.ap_name);
     memcpy(wifiPara.ap_name, &msg[9], wifiNameLen);
 
-    memset(&wifi_list.wifiConnectedName, 0, sizeof(wifi_list.wifiConnectedName));
+    OBJZERO(wifi_list.wifiConnectedName);
     memcpy(&wifi_list.wifiConnectedName, &msg[9], wifiNameLen);
 
     // WiFi key
