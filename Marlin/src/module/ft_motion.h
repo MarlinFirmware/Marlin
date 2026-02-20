@@ -30,6 +30,10 @@
   #include "ft_motion/trajectory_poly5.h"
   #include "ft_motion/trajectory_poly6.h"
 #endif
+#if ENABLED(FTM_CONSTANT_JERK)
+  #include "ft_motion/trajectory_constant_jerk.h"
+  #include "ft_motion/constant_jerk_planner.h"
+#endif
 #if ENABLED(FTM_RESONANCE_TEST)
   #include "ft_motion/resonance_generator.h"
 #endif
@@ -93,9 +97,14 @@ typedef struct FTConfig {
 
   #if ENABLED(FTM_POLYS)
     float poly6_acceleration_overshoot; // Overshoot factor for Poly6 (1.25 to 2.0)
+  #endif
+  #if HAS_FTM_TRAJECTORY_SELECTION
     TrajectoryType trajectory_type = TrajectoryType::FTM_TRAJECTORY_TYPE; // Trajectory generator type
   #else
     static constexpr TrajectoryType trajectory_type = TrajectoryType::TRAPEZOIDAL;
+  #endif
+  #if ENABLED(FTM_CONSTANT_JERK)
+    float jerk_max = FTM_DEFAULT_JERK_MAX;    // (mm/s³) Maximum jerk for constant-jerk trajectory
   #endif
 
   static void prep_for_shaper_change();
@@ -227,6 +236,7 @@ typedef struct FTConfig {
     #endif // HAS_FTM_SHAPING
 
     TERN_(FTM_POLYS, poly6_acceleration_overshoot = FTM_POLY6_ACCELERATION_OVERSHOOT);
+    TERN_(FTM_CONSTANT_JERK, jerk_max = FTM_DEFAULT_JERK_MAX);
 
     update_shaping_params();
   }
@@ -248,6 +258,11 @@ class FTMotion {
     static ft_config_t cfg;
     static bool busy;
 
+    #if ENABLED(FTM_CONSTANT_JERK)
+      static ConstantJerkTrajectoryGenerator constantJerkGenerator;
+      static ConstantJerkBlockPlanner cjPlanner;
+    #endif
+
     static void set_defaults() {
       cfg.set_defaults();
 
@@ -257,7 +272,9 @@ class FTMotion {
         #undef _RESET_SMOOTH
       #endif
 
-      TERN_(FTM_POLYS, setTrajectoryType(TrajectoryType::FTM_TRAJECTORY_TYPE));
+      #if HAS_FTM_TRAJECTORY_SELECTION
+        setTrajectoryType(TrajectoryType::FTM_TRAJECTORY_TYPE);
+      #endif
 
       reset();
     }
@@ -293,11 +310,11 @@ class FTMotion {
     #endif
 
     // Trajectory generator selection
-    #if ENABLED(FTM_POLYS)
+    #if HAS_FTM_TRAJECTORY_SELECTION
       static void setTrajectoryType(const TrajectoryType type);
       static bool updateTrajectoryType(const TrajectoryType type);
     #endif
-    static TrajectoryType getTrajectoryType() { return TERN(FTM_POLYS, trajectoryType, TrajectoryType::TRAPEZOIDAL); }
+    static TrajectoryType getTrajectoryType() { return TERN(HAS_FTM_TRAJECTORY_SELECTION, trajectoryType, TrajectoryType::TRAPEZOIDAL); }
     static FSTR_P getTrajectoryName();
 
     FORCE_INLINE static bool axis_is_moving(const AxisEnum real) {
@@ -342,6 +359,8 @@ class FTMotion {
     #if ENABLED(FTM_POLYS)
       static Poly5TrajectoryGenerator poly5Generator;
       static Poly6TrajectoryGenerator poly6Generator;
+    #endif
+    #if HAS_FTM_TRAJECTORY_SELECTION
       static TrajectoryType trajectoryType;
       static TrajectoryGenerator* currentGenerator;
     #else
