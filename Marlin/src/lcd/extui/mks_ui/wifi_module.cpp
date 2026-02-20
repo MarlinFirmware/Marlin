@@ -1376,7 +1376,7 @@ static void net_msg_handle(const uint8_t * const msg, const uint16_t msgLen) {
     ZERO(wifiPara.ap_name);
     memcpy(wifiPara.ap_name, &msg[9], wifiNameLen);
 
-    memset(&wifi_list.wifiConnectedName, 0, sizeof(wifi_list.wifiConnectedName));
+    OBJZERO(wifi_list.wifiConnectedName);
     memcpy(&wifi_list.wifiConnectedName, &msg[9], wifiNameLen);
 
     // WiFi key
@@ -1557,7 +1557,7 @@ static void file_first_msg_handle(const uint8_t * const msg, const uint16_t msgL
   if (msgLen != fileNameLen + 5) return;
 
   // Reset file_writer completely to prevent stale state from a previous transfer
-  memset(&file_writer, 0, sizeof(file_writer));
+  OBJZERO(file_writer);
 
   file_writer.fileLen = *((uint32_t *)(msg + 1));
 
@@ -1846,7 +1846,7 @@ void stopEspTransfer() {
    // Reset all transfer state to init-like condition for a clean next transfer
   ZERO(esp_msg_buf);
   esp_msg_index = 0;
-  memset(&file_writer, 0, sizeof(file_writer));
+  OBJZERO(file_writer);
   ZERO(public_buf);
   ZERO(saveFilePath);
   lastFragment = 0;

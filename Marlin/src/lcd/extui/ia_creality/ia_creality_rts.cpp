@@ -513,7 +513,7 @@ void RTS::sendData() {
       delay_us(1);
     }
 
-    memset(&snddat, 0, sizeof(snddat));
+    OBJZERO(snddat);
     ZERO(databuf);
     snddat.head[0] = FHONE;
     snddat.head[1] = FHTWO;
@@ -626,7 +626,7 @@ void RTS::sendData(const unsigned long n, uint32_t addr, uint8_t cmd/*=VarAddr_W
 void RTS::handleData() {
   int16_t Checkkey = -1;
   if (waitway > 0) { // for waiting
-    memset(&recdat, 0, sizeof(recdat));
+    OBJZERO(recdat);
     recdat.head[0] = FHONE;
     recdat.head[1] = FHTWO;
     return;
@@ -684,7 +684,7 @@ void RTS::handleData() {
   }
 
   if (Checkkey < 0) {
-    memset(&recdat, 0, sizeof(recdat));
+    OBJZERO(recdat);
     recdat.head[0] = FHONE;
     recdat.head[1] = FHTWO;
     return;
@@ -1639,7 +1639,7 @@ void RTS::handleData() {
     default: break;
   }
 
-  memset(&recdat, 0, sizeof(recdat));
+  OBJZERO(recdat);
   recdat.head[0] = FHONE;
   recdat.head[1] = FHTWO;
 }

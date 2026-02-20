@@ -192,8 +192,8 @@ void ui_cfg_init() {
   uiCfg.filament_unloading_time_cnt  = 0;
 
   #if ENABLED(MKS_WIFI_MODULE)
-    memset(&wifiPara, 0, sizeof(wifiPara));
-    memset(&ipPara, 0, sizeof(ipPara));
+    OBJZERO(wifiPara);
+    OBJZERO(ipPara);
     strcpy_P(wifiPara.ap_name, PSTR(WIFI_AP_NAME));
     strcpy_P(wifiPara.keyCode, PSTR(WIFI_KEY_CODE));
     // client
