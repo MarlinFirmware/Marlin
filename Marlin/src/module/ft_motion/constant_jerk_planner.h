@@ -97,9 +97,11 @@ public:
 
     uint8_t block_count = 1;
 
-    // Look ahead at future blocks
+    // Look ahead at future blocks.
+    // get_future_block(offset) returns block_buffer[tail + offset].
+    // The current block is at tail (offset 0), so offset 1 = next block.
     for (uint8_t i = 1; i < CJP_MAX_LOOKAHEAD; i++) {
-      block_t* blk = planner.get_future_block(i - 1); // offset 0 = next block after current
+      block_t* blk = planner.get_future_block(i); // offset 1 = next block after current
       if (!blk || blk->is_sync()) break;
 
       mm[i] = blk->millimeters;
@@ -145,15 +147,25 @@ public:
     }
 
     // --- 4. Determine merge group ---
+    // Merging rules:
+    // - Only when buffer >= 75% full
+    // - Only up to half the visible blocks (never merge ALL visible blocks)
+    //   This ensures the reverse pass has blocks beyond the merge group to
+    //   propagate speeds from, and those blocks can merge with future arrivals.
+    // - Compatible = same nominal_speed, a_max within 10% ratio
+    // - Interior junction speeds must not exceed max_junction_v
+
     const uint8_t queued = planner.movesplanned();
     const uint8_t threshold = (uint8_t)(BLOCK_BUFFER_SIZE * FTM_MERGE_BUFFER_THRESHOLD);
 
     uint8_t merge_count = 1;
 
-    if (queued >= threshold && block_count > 1) {
-      // Can merge up to half the buffer, capped by what we can see
-      uint8_t max_merge = _MIN((uint8_t)(queued / 2), block_count);
-      if (max_merge < 2) max_merge = 1;
+    if (queued >= threshold && block_count > 2) {
+      // Never merge more than half the visible blocks — always leave at least
+      // half for look-ahead so the exit speed isn't forced to 0, and so the
+      // remaining blocks can merge with new arrivals later.
+      uint8_t max_merge = block_count / 2;
+      if (max_merge < 2) max_merge = 2;
 
       float group_nominal = nominal[0];
       float group_a_min = accel[0];
@@ -167,18 +179,20 @@ public:
         float new_max = _MAX(group_a_max, accel[i]);
         if (new_max > new_min * CJP_MERGE_AMAX_RATIO) break;
 
-        // Check that the interior junction speed from our pass doesn't
-        // need to be lower than what a single merged trajectory would produce.
-        // The merged trajectory has no interior junctions, so the speed at
-        // the junction point must not exceed max_junction_v[i].
-        float v_from_entry = maxReachableSpeed(entry_v[0], sumDist(mm, i),
-                                                group_nominal, _MIN(group_a_min, accel[i]), jerk_max);
-        float remaining = sumDist(mm + i, merge_count - i + 1);
-        float v_from_exit_side = maxReachableSpeed(exit_v[merge_count - 1], remaining,
-                                                    group_nominal, _MIN(group_a_min, accel[i]), jerk_max);
-        float v_at_junction = _MIN(v_from_entry, v_from_exit_side);
+        // Verify interior junction: the merged trajectory has no speed
+        // constraint at this point, so check that the unconstrained speed
+        // here won't exceed the junction limit.
+        float dist_to_junction = sumDist(mm, i);
+        float dist_after_junction = sumDist(mm, merge_count + 1) - dist_to_junction;
+        float cons_a = _MIN(group_a_min, accel[i]);
 
-        if (v_at_junction > max_junction_v[i]) break;  // Junction violated, stop merging
+        float v_from_entry = maxReachableSpeed(entry_v[0], dist_to_junction,
+                                                group_nominal, cons_a, jerk_max);
+        float v_from_exit = maxReachableSpeed(exit_v[merge_count], dist_after_junction,
+                                               group_nominal, cons_a, jerk_max);
+        float v_at_junction = _MIN(v_from_entry, v_from_exit);
+
+        if (v_at_junction > max_junction_v[i]) break;
 
         group_a_min = new_min;
         group_a_max = new_max;
@@ -187,31 +201,30 @@ public:
     }
 
     // --- 5. Plan trajectory ---
+    float plan_entry = entry_v[0];
+    float plan_exit = exit_v[merge_count - 1];
+    float plan_mm, plan_a, plan_nominal;
+
     if (merge_count > 1) {
-      float total_mm = sumDist(mm, merge_count);
-      float group_a = accel[0];
+      plan_mm = sumDist(mm, merge_count);
+      plan_a = accel[0];
+      plan_nominal = nominal[0];
       for (uint8_t i = 1; i < merge_count; i++)
-        group_a = _MIN(group_a, accel[i]);
-
-      traj.plan_full(entry_v[0], exit_v[merge_count - 1],
-                     group_a, jerk_max, total_mm, nominal[0]);
-
-      // Set up execution tracking
-      group_block_count = merge_count;
-      orig_block_index = 0;
-      orig_block_start_dist = 0;
-      orig_block_end_dist = mm[0];
+        plan_a = _MIN(plan_a, accel[i]);
     }
     else {
-      // Single block — still uses jerk-aware speeds from our pass
-      traj.plan_full(entry_v[0], exit_v[0],
-                     accel[0], jerk_max, mm[0], nominal[0]);
-
-      group_block_count = 1;
-      orig_block_index = 0;
-      orig_block_start_dist = 0;
-      orig_block_end_dist = mm[0];
+      plan_mm = mm[0];
+      plan_a = accel[0];
+      plan_nominal = nominal[0];
     }
+
+    traj.plan_full(plan_entry, plan_exit, plan_a, jerk_max, plan_mm, plan_nominal);
+
+    // Set up execution tracking
+    group_block_count = merge_count;
+    orig_block_index = 0;
+    orig_block_start_dist = 0;
+    orig_block_end_dist = mm[0];
 
     has_plan = true;
     return true;
