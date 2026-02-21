@@ -108,27 +108,35 @@ public:
       block_count++;
     }
 
-    // --- 2. Jerk-aware reverse pass ---
+    // --- 2. Jerk-aware reverse/forward pass ---
     float entry_v[CJP_MAX_LOOKAHEAD];
     float exit_v[CJP_MAX_LOOKAHEAD];
 
-    exit_v[block_count - 1] = 0.0f;
-
-    for (int8_t i = block_count - 1; i >= 0; i--) {
-      float v_reachable = maxReachableSpeed(exit_v[i], mm[i], nominal[i], accel[i], jerk_max);
-      entry_v[i] = _MIN(v_reachable, max_junction_v[i], nominal[i]);
-      if (i > 0) exit_v[i - 1] = entry_v[i];
+    if (block_count == 1) {
+      // Single block: must decelerate to 0
+      exit_v[0] = 0.0f;
+      entry_v[0] = _MIN(max_junction_v[0], nominal[0],
+                         maxReachableSpeed(0.0f, mm[0], nominal[0], accel[0], jerk_max));
     }
-
-    // --- 3. Jerk-aware forward pass ---
-    for (uint8_t i = 0; i < block_count; i++) {
-      float v_reachable = maxReachableSpeed(entry_v[i], mm[i], nominal[i], accel[i], jerk_max);
-      if (i < block_count - 1) {
-        exit_v[i] = _MIN(v_reachable, entry_v[i + 1], nominal[i]);
-        entry_v[i + 1] = _MIN(entry_v[i + 1], exit_v[i]);
+    else {
+      // Reverse pass
+      exit_v[block_count - 1] = 0.0f;
+      for (int8_t i = block_count - 1; i >= 0; i--) {
+        float v_reachable = maxReachableSpeed(exit_v[i], mm[i], nominal[i], accel[i], jerk_max);
+        entry_v[i] = _MIN(v_reachable, max_junction_v[i], nominal[i]);
+        if (i > 0) exit_v[i - 1] = entry_v[i];
       }
-      else {
-        exit_v[i] = _MIN(v_reachable, exit_v[i], nominal[i]);
+
+      // Forward pass
+      for (uint8_t i = 0; i < block_count; i++) {
+        float v_reachable = maxReachableSpeed(entry_v[i], mm[i], nominal[i], accel[i], jerk_max);
+        if (i < block_count - 1) {
+          exit_v[i] = _MIN(v_reachable, entry_v[i + 1], nominal[i]);
+          entry_v[i + 1] = _MIN(entry_v[i + 1], exit_v[i]);
+        }
+        else {
+          exit_v[i] = _MIN(v_reachable, exit_v[i], nominal[i]);
+        }
       }
     }
 
@@ -144,8 +152,15 @@ public:
     uint8_t merge_count = 1;
 
     if (block_count > 2) {
-      // Find left-compatible group starting at block 0
+      // Find left-compatible group, tracking cumulative mm, min accel, min junction
       float group_a_min = accel[0], group_a_max = accel[0];
+      float cum_mm[CJP_MAX_LOOKAHEAD];  // cum_mm[i] = sumDist(mm, i+1)
+      float cum_min_a[CJP_MAX_LOOKAHEAD]; // cum_min_a[i] = minVal(accel, 0, i+1)
+      float cum_min_jv[CJP_MAX_LOOKAHEAD]; // cum_min_jv[i] = minVal(max_junction_v, 1, i+1) for i>=1
+      cum_mm[0] = mm[0];
+      cum_min_a[0] = accel[0];
+      cum_min_jv[0] = max_junction_v[0]; // unused but initialized
+
       uint8_t left_end = 1;
       for (uint8_t i = 1; i < block_count; i++) {
         if (nominal[i] != nominal[0]) break;
@@ -154,6 +169,9 @@ public:
         if (new_max > new_min * CJP_MERGE_AMAX_RATIO) break;
         group_a_min = new_min;
         group_a_max = new_max;
+        cum_mm[i] = cum_mm[i - 1] + mm[i];
+        cum_min_a[i] = _MIN(cum_min_a[i - 1], accel[i]);
+        cum_min_jv[i] = (i == 1) ? max_junction_v[1] : _MIN(cum_min_jv[i - 1], max_junction_v[i]);
         left_end = i + 1;
       }
 
@@ -183,8 +201,8 @@ public:
         while (true) {
           if (left_end < 2) break;
 
-          float left_mm = sumDist(mm, left_end);
-          float left_a = minVal(accel, 0, left_end);
+          float left_mm = cum_mm[left_end - 1];
+          float left_a = cum_min_a[left_end - 1];
           float left_nominal = nominal[0];
 
           // Compute the exit speed for the left group.
@@ -222,7 +240,7 @@ public:
 
           // Check v_peak against min interior junction limit
           float v_peak = peakSpeed(left_entry, left_exit, left_a, jerk_max, left_mm, left_nominal);
-          float min_jv = minVal(max_junction_v, 1, left_end);
+          float min_jv = cum_min_jv[left_end - 1];
 
           if (v_peak <= min_jv) {
             // Left group valid. Check right group if it's a superblock.
