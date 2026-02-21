@@ -96,7 +96,7 @@ public:
     // get_future_block(offset) returns block_buffer[tail + offset].
     // The current block is at tail (offset 0), so offset 1 = next block.
     for (uint8_t i = 1; i < CJP_MAX_LOOKAHEAD; i++) {
-      block_t* blk = planner.get_future_block(i); // offset 1 = next block after current
+      block_t* blk = planner.get_future_block(i);
       if (!blk || blk->is_sync()) break;
 
       mm[i] = blk->millimeters;
@@ -106,38 +106,38 @@ public:
       block_count++;
     }
 
-    // --- 2. Jerk-aware reverse pass ---
-    // Compute achievable entry/exit speeds for each block
-
     float entry_v[CJP_MAX_LOOKAHEAD];
     float exit_v[CJP_MAX_LOOKAHEAD];
 
-    // Last block must be able to stop (safe exit = 0)
-    exit_v[block_count - 1] = 0.0f;
-
-    for (int8_t i = block_count - 1; i >= 0; i--) {
-      // What entry speed can reach this block's exit speed over its distance?
-      float v_reachable = maxReachableSpeed(exit_v[i], mm[i], nominal[i], accel[i], jerk_max);
-      // Cap by junction ceiling and nominal
-      entry_v[i] = _MIN(v_reachable, max_junction_v[i], nominal[i]);
-      // This block's entry speed becomes the previous block's exit speed
-      if (i > 0) exit_v[i - 1] = entry_v[i];
+    if (block_count == 1) {
+      // Fast path: single block, must decelerate to 0
+      entry_v[0] = _MIN(max_junction_v[0], nominal[0],
+                         maxReachableSpeed(0.0f, mm[0], nominal[0], accel[0], jerk_max));
+      exit_v[0] = 0.0f;
     }
+    else {
+      // --- 2. Jerk-aware reverse pass ---
+      exit_v[block_count - 1] = 0.0f;
 
-    // --- 3. Jerk-aware forward pass ---
-    // entry_v[0] is already set from reverse pass; propagate forward
-
-    for (uint8_t i = 0; i < block_count; i++) {
-      // What exit speed can be reached from this block's entry speed?
-      float v_reachable = maxReachableSpeed(entry_v[i], mm[i], nominal[i], accel[i], jerk_max);
-      // Cap by what the next block can accept
-      if (i < block_count - 1) {
-        exit_v[i] = _MIN(v_reachable, entry_v[i + 1], nominal[i]);
-        // Propagate: next block's entry can't exceed what we can deliver
-        entry_v[i + 1] = _MIN(entry_v[i + 1], exit_v[i]);
+      for (int8_t i = block_count - 1; i >= 0; i--) {
+        float v_reachable = maxReachableSpeed(exit_v[i], mm[i], nominal[i], accel[i], jerk_max);
+        entry_v[i] = _MIN(v_reachable, max_junction_v[i], nominal[i]);
+        if (i > 0) exit_v[i - 1] = entry_v[i];
       }
-      else {
-        exit_v[i] = _MIN(v_reachable, exit_v[i], nominal[i]);
+
+      // --- 3. Jerk-aware forward pass ---
+      for (uint8_t i = 0; i < block_count; i++) {
+        const float next_entry = (i < block_count - 1) ? entry_v[i + 1] : exit_v[i];
+        // Only call maxReachableSpeed if entry_v might exceed what the next block accepts
+        if (entry_v[i] > next_entry) {
+          float v_reachable = maxReachableSpeed(entry_v[i], mm[i], nominal[i], accel[i], jerk_max);
+          float capped = _MIN(v_reachable, next_entry, nominal[i]);
+          exit_v[i] = capped;
+          if (i < block_count - 1) entry_v[i + 1] = _MIN(entry_v[i + 1], capped);
+        }
+        else {
+          exit_v[i] = next_entry;
+        }
       }
     }
 
@@ -270,13 +270,14 @@ private:
     float s = cj_planRamp(v_from, hi, j_max_val, a_max_val, false, pa, pb, pc);
     if (s <= total_mm) return hi;
 
-    for (int i = 0; i < 32; i++) {
+    for (int i = 0; i < 16; i++) {
       float mid = 0.5f * (lo + hi);
       s = cj_planRamp(v_from, mid, j_max_val, a_max_val, false, pa, pb, pc);
       if (s <= total_mm)
         lo = mid;
       else
         hi = mid;
+      if (hi - lo < 0.01f) break;
     }
     return lo;
   }
