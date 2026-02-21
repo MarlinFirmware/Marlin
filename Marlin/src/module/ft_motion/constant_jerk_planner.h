@@ -180,7 +180,7 @@ public:
         }
 
         // Iteratively refine: split groups until junction constraints are met
-        for (uint8_t iter = 0; iter < 8; iter++) {
+        while (true) {
           if (left_end < 2) break;
 
           float left_mm = sumDist(mm, left_end);
@@ -337,6 +337,7 @@ private:
         lo = mid;
       else
         hi = mid;
+      if (hi - lo < 0.01f) break;
     }
     return lo;
   }
