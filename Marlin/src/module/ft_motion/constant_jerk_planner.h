@@ -278,6 +278,8 @@ public:
     // --- 5. Plan trajectory ---
     float plan_entry = entry_v[0];
     float plan_exit = exit_v[merge_count - 1];
+    if (merge_count < block_count)
+      plan_exit = _MIN(plan_exit, entry_v[merge_count]);
     float plan_mm = sumDist(mm, merge_count);
     float plan_a = minVal(accel, 0, merge_count);
     float plan_nominal = nominal[0];
