@@ -686,8 +686,8 @@ void FTMotion::fill_stepper_plan_buffer() {
           stepper.current_block = next_block;
           if (!next_block->is_sync()) {
             startPos = endPos_prevBlock;
-            endPos_prevBlock += next_block->dist_mm;
-            ratio = next_block->dist_mm / next_block->millimeters;
+            endPos_prevBlock += next_block->ext_distance_mm;
+            ratio = next_block->ext_distance_mm / next_block->millimeters;
             cjPlanner.advanceBlock(next_block->millimeters);
             TERN_(FTM_HAS_LIN_ADVANCE, use_advance_lead = next_block->use_advance_lead);
           }
