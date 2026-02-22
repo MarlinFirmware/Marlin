@@ -836,8 +836,8 @@ namespace LanguageNarrow_en {
   LSTR MSG_FTM_TRAPEZOIDAL                = _UxGT("Trapezoidal");
   LSTR MSG_FTM_POLY5                      = _UxGT("5th Order");
   LSTR MSG_FTM_POLY6                      = _UxGT("6th Order");
-  LSTR MSG_FTM_CONSTANT_JERK             = _UxGT("Constant Jerk");
-  LSTR MSG_FTM_JERK_MAX                  = _UxGT("@ Jerk Max");
+  LSTR MSG_FTM_CONSTANT_JERK              = _UxGT("Constant Jerk");
+  LSTR MSG_FTM_JERK_MAX                   = _UxGT("Jerk (m/s3)");
   LSTR MSG_FTM_TRAJECTORY                 = _UxGT("Trajectory: $");
   LSTR MSG_FILAMENT_EN                    = _UxGT("Filament *");
   LSTR MSG_SEGMENTS_PER_SECOND            = _UxGT("Segments/Sec");

@@ -130,15 +130,8 @@ void GcodeSuite::M494() {
 
     // Parse jerk max parameter.
     if (parser.seenval('J')) {
-      const float val = parser.value_float();
-      if (val > 0.0f) {
-        ftMotion.cfg.jerk_max = val;
-        ftMotion.cjPlanner.setJerkMax(val);
-        ftMotion.constantJerkGenerator.setJerkMax(val);
-        report = true;
-      }
-      else
-        SERIAL_ECHOLN(F("?Invalid (J)erk value. Must be positive."));
+      ftMotion.cfg.set_jerkMax(parser.value_float());
+      report = true;
     }
 
   #endif // FTM_CONSTANT_JERK

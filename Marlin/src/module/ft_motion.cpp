@@ -87,7 +87,6 @@ TrapezoidalTrajectoryGenerator FTMotion::trapezoidalGenerator;
   Poly6TrajectoryGenerator FTMotion::poly6Generator;
 #endif
 #if ENABLED(FTM_CONSTANT_JERK)
-  ConstantJerkTrajectoryGenerator FTMotion::constantJerkGenerator;
   ConstantJerkBlockPlanner FTMotion::cjPlanner;
 #endif
 #if HAS_FTM_TRAJECTORY_SELECTION
@@ -330,8 +329,7 @@ void FTMotion::init() {
       #endif
       #if ENABLED(FTM_CONSTANT_JERK)
         case TrajectoryType::CONSTANT_JERK:
-          constantJerkGenerator.setJerkMax(cfg.jerk_max);
-          currentGenerator = &constantJerkGenerator;
+          // CJ planner sets currentGenerator per-block in plan_next_block()
           break;
       #endif
     }
@@ -436,7 +434,7 @@ bool FTMotion::plan_next_block() {
       if (trajectoryType == TrajectoryType::CONSTANT_JERK) {
         // CJ planner runs its own jerk-aware reverse/forward pass on all
         // visible blocks, then plans a single or merged S-curve trajectory.
-        cjPlanner.planNext(current_block);
+        cjPlanner.planNext(current_block, cfg.jerk_max);
         currentGenerator = &cjPlanner.trajectory();
         endPos_prevBlock += moveDist;
       }

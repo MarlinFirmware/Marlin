@@ -561,9 +561,9 @@ void menu_move() {
         #endif
         #if ENABLED(FTM_CONSTANT_JERK)
           if (ftMotion.getTrajectoryType() == TrajectoryType::CONSTANT_JERK) {
-            editable.decimal = c.jerk_max;
-            EDIT_ITEM(float62, MSG_FTM_JERK_MAX, &editable.decimal, 100.0f, 200000.0f, []{
-              queue.inject(TS(F("M494"), 'J', editable.decimal));
+            editable.decimal = c.jerk_max / 1000;
+            EDIT_ITEM(float4, MSG_FTM_JERK_MAX, &editable.decimal, 1.0f, 9999.0f, []{
+              queue.inject(TS(F("M494"), 'J', editable.decimal * 1000));
             });
           }
         #endif
@@ -628,9 +628,9 @@ void menu_move() {
       #endif
       #if ENABLED(FTM_CONSTANT_JERK)
         if (ftMotion.getTrajectoryType() == TrajectoryType::CONSTANT_JERK) {
-          editable.decimal = ftMotion.cfg.jerk_max;
-          EDIT_ITEM(float62, MSG_FTM_JERK_MAX, &editable.decimal, 100.0f, 200000.0f, []{
-            queue.inject(TS(F("M494"), 'J', editable.decimal));
+          editable.decimal = ftMotion.cfg.jerk_max / 1000;
+          EDIT_ITEM(float4, MSG_FTM_JERK_MAX, &editable.decimal, 1.0f, 9999.0f, []{
+            queue.inject(TS(F("M494"), 'J', editable.decimal * 1000));
           });
         }
       #endif

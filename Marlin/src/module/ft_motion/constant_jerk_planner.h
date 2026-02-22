@@ -50,9 +50,6 @@
 class ConstantJerkBlockPlanner {
 public:
 
-  void setJerkMax(float j) { jerk_max = j; }
-  float getJerkMax() const { return jerk_max; }
-
   void reset() {
     has_plan = false;
     orig_block_index = 0;
@@ -73,7 +70,7 @@ public:
    *
    * Returns true if a trajectory is ready for execution.
    */
-  bool planNext(const block_t* current_block) {
+  bool planNext(const block_t* current_block, const float jerk_max) {
     has_plan = false;
 
     if (!current_block) return false;
@@ -397,8 +394,6 @@ private:
     for (uint8_t i = from + 1; i < to; i++) v = _MIN(v, arr[i]);
     return v;
   }
-
-  float jerk_max = 30000.0f;
 
   ConstantJerkTrajectoryGenerator traj;
   uint8_t group_block_count = 0;

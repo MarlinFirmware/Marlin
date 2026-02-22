@@ -1230,9 +1230,10 @@
     #define FTM_POLY6_ACCELERATION_OVERSHOOT 1.875f // Max acceleration overshoot factor for POLY6 (1.25 to 1.875)
   #endif
 
-  #define FTM_CONSTANT_JERK                     // Enable constant-jerk (7-phase S-curve) trajectory with block merging
+  #define FTM_CONSTANT_JERK                     // Enable constant-jerk (7-phase S-curve) trajectory
   #if ENABLED(FTM_CONSTANT_JERK)
-    #define FTM_DEFAULT_JERK_MAX 30000.0f       // (mm/s³) Default maximum jerk for constant-jerk trajectory
+    #define FTM_DEFAULT_JERK_MAX 500'000.0f     // (mm/s³) Default maximum jerk for constant-jerk trajectory
+                                                // Higher prints faster at the cost of increased resonance and extruder stress
   #endif
 
   /**

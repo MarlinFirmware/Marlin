@@ -105,6 +105,12 @@ typedef struct FTConfig {
   #endif
   #if ENABLED(FTM_CONSTANT_JERK)
     float jerk_max = FTM_DEFAULT_JERK_MAX;    // (mm/s³) Maximum jerk for constant-jerk trajectory
+
+    void set_jerkMax(float j) {
+      NOLESS(j, 1000.0f);
+      prep_for_shaper_change();
+      jerk_max = j;
+    }
   #endif
 
   static void prep_for_shaper_change();
@@ -259,7 +265,6 @@ class FTMotion {
     static bool busy;
 
     #if ENABLED(FTM_CONSTANT_JERK)
-      static ConstantJerkTrajectoryGenerator constantJerkGenerator;
       static ConstantJerkBlockPlanner cjPlanner;
     #endif
 

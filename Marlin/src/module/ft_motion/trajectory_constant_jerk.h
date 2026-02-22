@@ -86,19 +86,12 @@ class ConstantJerkTrajectoryGenerator : public TrajectoryGenerator {
 public:
   ConstantJerkTrajectoryGenerator() = default;
 
-  void setJerkMax(float j) { jerk_max = j; }
-  float getJerkMax() const { return jerk_max; }
+  // plan() override is unused — the CJ block planner calls plan_full() directly.
+  // Kept to satisfy the pure virtual interface.
+  void plan(const float, const float, const float, const float, const float) override {}
 
-  void plan(const float initial_speed_in, const float final_speed_in,
-            const float acceleration_in, const float nominal_speed_in,
-            const float distance_in) override {
-    // acceleration_in is from Marlin's planner (trapezoidal accel limit).
-    // We use it as a_max for the S-curve.
-    plan_internal(initial_speed_in, final_speed_in, acceleration_in,
-                  jerk_max, distance_in, nominal_speed_in);
-  }
-
-  // Full plan with explicit jerk and a_max (used by the block merging planner)
+  // Plan with explicit jerk and a_max (used by the block merging planner).
+  // Jerk comes from cfg.jerk_max, passed through by the caller.
   void plan_full(float initial_speed_in, float final_speed_in,
                  float accel_max_in, float jerk_in,
                  float distance_in, float nominal_in) {
@@ -235,7 +228,6 @@ private:
     }
   }
 
-  float jerk_max = 30000.0f;
   float v0 = 0, v1 = 0;
   float a_max = 0, j = 0, distance = 0;
   float total_duration = 0;
