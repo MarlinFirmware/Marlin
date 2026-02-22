@@ -1224,6 +1224,7 @@
                                                 // TRAPEZOIDAL: Continuous Velocity. Max acceleration is respected.
                                                 // POLY5:       Like POLY6 with 1.5x but uses less CPU.
                                                 // POLY6:       Continuous Acceleration (aka S_CURVE).
+                                                // CONSTANT_JERK: requires FTM_CONSTANT_JERK.
                                                 // POLY trajectories not only reduce resonances without rounding corners, but also
                                                 // reduce extruder strain due to linear advance.
 
