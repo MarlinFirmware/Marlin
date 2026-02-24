@@ -288,7 +288,7 @@
   #define BTN_ENC                    EXP1_02_PIN
   #define BTN_EN1                    EXP2_03_PIN
   #define BTN_EN2                    EXP2_05_PIN
-#elif ENABLED(HAS_GRAPHICAL_TFT)
+#elif HAS_GRAPHICAL_TFT
   #define TFT_BUFFER_WORDS                 14400
 #endif
 

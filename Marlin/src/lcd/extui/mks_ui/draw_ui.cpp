@@ -34,7 +34,7 @@
 
 #include <SPI.h>
 
-#include "../../../MarlinCore.h" // for marlin_state
+#include "../../../MarlinCore.h" // for marlin.is()
 #include "../../../sd/cardreader.h"
 #include "../../../module/motion.h"
 #include "../../../module/planner.h"
@@ -116,9 +116,7 @@ void gCfgItems_init() {
   gCfgItems.curFilesize       = 0;
   gCfgItems.finish_power_off  = false;
   gCfgItems.pause_reprint     = false;
-  gCfgItems.pausePosX         = -1;
-  gCfgItems.pausePosY         = -1;
-  gCfgItems.pausePosZ         = 5;
+  gCfgItems.pausePos.set(-1, -1, 5);
   gCfgItems.trammingPos[0].x  = X_MIN_POS + 30;
   gCfgItems.trammingPos[0].y  = Y_MIN_POS + 30;
   gCfgItems.trammingPos[1].x  = X_MAX_POS - 30;
@@ -194,8 +192,8 @@ void ui_cfg_init() {
   uiCfg.filament_unloading_time_cnt  = 0;
 
   #if ENABLED(MKS_WIFI_MODULE)
-    memset(&wifiPara, 0, sizeof(wifiPara));
-    memset(&ipPara, 0, sizeof(ipPara));
+    OBJZERO(wifiPara);
+    OBJZERO(ipPara);
     strcpy_P(wifiPara.ap_name, PSTR(WIFI_AP_NAME));
     strcpy_P(wifiPara.keyCode, PSTR(WIFI_KEY_CODE));
     // client
@@ -649,9 +647,9 @@ char *creat_title_text() {
 
         card.openFileRead(cur_name);
         if (card.isFileOpen()) {
-          feedrate_percentage = 100;
+          motion.feedrate_percentage = 100;
           TERN_(HAS_EXTRUDERS, planner.set_flow(0, 100));
-          TERN_(HAS_MULTI_EXTRUDER, planner.set_flow(1, 100));
+          E_TERN_(planner.set_flow(1, 100));
           card.startOrResumeFilePrinting();
           TERN_(POWER_LOSS_RECOVERY, recovery.prepare());
           once_flag = false;
@@ -757,7 +755,7 @@ void GUI_RefreshPage() {
         disp_print_time();
         disp_fan_Zpos();
       }
-      if (printing_rate_update_flag || marlin_state == MarlinState::MF_SD_COMPLETE) {
+      if (printing_rate_update_flag || marlin.is(MF_SD_COMPLETE)) {
         printing_rate_update_flag = false;
         if (!gcode_preview_over) setProBarRate();
       }

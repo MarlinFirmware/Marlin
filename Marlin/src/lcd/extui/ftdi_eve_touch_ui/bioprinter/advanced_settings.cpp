@@ -58,7 +58,7 @@ void AdvancedSettingsMenu::onRedraw(draw_mode_t what) {
       .tag(10) .button(BTN_POS(2,4), BTN_SIZE(1,1), GET_TEXT_F(TERN(HAS_JUNCTION_DEVIATION, MSG_JUNCTION_DEVIATION, MSG_JERK)))
                .enabled(ENABLED(BACKLASH_GCODE))
       .tag(11) .button(BTN_POS(2,5), BTN_SIZE(1,1), GET_TEXT_F(MSG_BACKLASH))
-               .enabled(ENABLED(LIN_ADVANCE))
+               .enabled(ENABLED(HAS_LIN_ADVANCE_K))
       .tag(12) .button(BTN_POS(1,6), BTN_SIZE(2,1), GET_TEXT_F(MSG_LINEAR_ADVANCE))
       .tag(13) .button(BTN_POS(1,7), BTN_SIZE(2,1), GET_TEXT_F(MSG_INTERFACE))
       .tag(14) .button(BTN_POS(1,8), BTN_SIZE(2,1), GET_TEXT_F(MSG_RESTORE_DEFAULTS))
@@ -88,7 +88,7 @@ bool AdvancedSettingsMenu::onTouchEnd(uint8_t tag) {
     #if ENABLED(BACKLASH_GCODE)
       case 11: GOTO_SCREEN(BacklashCompensationScreen);    break;
     #endif
-    #if ENABLED(LIN_ADVANCE)
+    #if HAS_LIN_ADVANCE_K
       case 12: GOTO_SCREEN(LinearAdvanceScreen);           break;
     #endif
     case 13: GOTO_SCREEN(InterfaceSettingsScreen);         break;

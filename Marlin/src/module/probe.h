@@ -33,6 +33,10 @@
   #include "../feature/bltouch.h"
 #endif
 
+#if ANY(BD_SENSOR, HAS_DELTA_SENSORLESS_PROBING)
+  #include "endstops.h"
+#endif
+
 #define DEBUG_OUT ENABLED(DEBUG_LEVELING_FEATURE)
 #include "../core/debug_out.h"
 
@@ -56,19 +60,24 @@
   };
 #endif
 
-#if ENABLED(BD_SENSOR)
-  #define PROBE_READ() bdp_state
-#elif USE_Z_MIN_PROBE
-  #define PROBE_READ() READ(Z_MIN_PROBE_PIN)
+#if HAS_DELTA_SENSORLESS_PROBING
+  #define PROBE_READ() (endstops.trigger_state() & (_BV(X_MAX) | _BV(Y_MAX) | _BV(Z_MAX)))
+  #define PROBE_TRIGGERED() (PROBE_READ() != 0)
 #else
-  #define PROBE_READ() READ(Z_MIN_PIN)
+  #if ENABLED(BD_SENSOR)
+    #define PROBE_READ() endstops.bdp_state
+  #elif USE_Z_MIN_PROBE
+    #define PROBE_READ() READ(Z_MIN_PROBE_PIN)
+  #else
+    #define PROBE_READ() READ(Z_MIN_PIN)
+  #endif
+  #if USE_Z_MIN_PROBE
+    #define PROBE_HIT_STATE Z_MIN_PROBE_ENDSTOP_HIT_STATE
+  #else
+    #define PROBE_HIT_STATE Z_MIN_ENDSTOP_HIT_STATE
+  #endif
+  #define PROBE_TRIGGERED() (PROBE_READ() == PROBE_HIT_STATE)
 #endif
-#if USE_Z_MIN_PROBE
-  #define PROBE_HIT_STATE Z_MIN_PROBE_ENDSTOP_HIT_STATE
-#else
-  #define PROBE_HIT_STATE Z_MIN_ENDSTOP_HIT_STATE
-#endif
-#define PROBE_TRIGGERED() (PROBE_READ() == PROBE_HIT_STATE)
 
 // In BLTOUCH HS mode, the probe travels in a deployed state.
 #define Z_TWEEN_SAFE_CLEARANCE SUM_TERN(BLTOUCH, Z_CLEARANCE_BETWEEN_PROBES, bltouch.z_extra_clearance())
@@ -114,31 +123,31 @@ public:
         static bool can_reach(const float rx, const float ry, const bool probe_relative=true) {
           if (probe_relative) {
             #if ENABLED(DYNAMIC_MARGINS)
-              return position_is_reachable(rx - offset_xy.x, ry - offset_xy.y) // The nozzle can go where it needs to go?
-                  && position_is_reachable(rx, ry, bedlevel.margin_l);         // Can the probe also go near there?
+              return motion.can_reach(rx - offset_xy.x, ry - offset_xy.y) // The nozzle can go where it needs to go?
+                  && motion.can_reach(rx, ry, bedlevel.margin_l);         // Can the probe also go near there?
             #else
-              return position_is_reachable(rx - offset_xy.x, ry - offset_xy.y) // The nozzle can go where it needs to go?
-                  && position_is_reachable(rx, ry, PROBING_MARGIN);            // Can the probe also go near there?
+              return motion.can_reach(rx - offset_xy.x, ry - offset_xy.y) // The nozzle can go where it needs to go?
+                  && motion.can_reach(rx, ry, PROBING_MARGIN);            // Can the probe also go near there?
             #endif
           }
           else {
             #if ENABLED(DYNAMIC_MARGINS)
-              return position_is_reachable(rx, ry)
-                  && position_is_reachable(rx + offset_xy.x, ry + offset_xy.y, bedlevel.margin_r);
+              return motion.can_reach(rx, ry)
+                  && motion.can_reach(rx + offset_xy.x, ry + offset_xy.y, bedlevel.margin_r);
             #else
-              return position_is_reachable(rx, ry)
-                  && position_is_reachable(rx + offset_xy.x, ry + offset_xy.y, PROBING_MARGIN);
+              return motion.can_reach(rx, ry)
+                  && motion.can_reach(rx + offset_xy.x, ry + offset_xy.y, PROBING_MARGIN);
             #endif
           }
         }
       #else
         static bool can_reach(const float rx, const float ry, const bool=true) {
           #if ENABLED(DYNAMIC_MARGINS)
-            return position_is_reachable(rx, ry)
-              && position_is_reachable(rx, ry, bedlevel.margin_l);
+            return motion.can_reach(rx, ry)
+              && motion.can_reach(rx, ry, bedlevel.margin_l);
           #else
-            return position_is_reachable(rx, ry)
-              && position_is_reachable(rx, ry, PROBING_MARGIN);
+            return motion.can_reach(rx, ry)
+              && motion.can_reach(rx, ry, PROBING_MARGIN);
           #endif
         }
       #endif
@@ -180,14 +189,14 @@ public:
        */
       static bool can_reach(const float rx, const float ry, const bool probe_relative=true) {
         if (probe_relative) {
-          return position_is_reachable(rx - offset_xy.x, ry - offset_xy.y)
+          return motion.can_reach(rx - offset_xy.x, ry - offset_xy.y)
               && COORDINATE_OKAY(rx, min_x() - fslop, max_x() + fslop)
               && COORDINATE_OKAY(ry, min_y() - fslop, max_y() + fslop)
               && obstacle_check(rx, ry)
               && obstacle_check(rx - offset_xy.x, ry - offset_xy.y);
         }
         else {
-          return position_is_reachable(rx, ry)
+          return motion.can_reach(rx, ry)
               && COORDINATE_OKAY(rx + offset_xy.x, min_x() - fslop, max_x() + fslop)
               && COORDINATE_OKAY(ry + offset_xy.y, min_y() - fslop, max_y() + fslop)
               && obstacle_check(rx, ry)
@@ -228,7 +237,7 @@ public:
 
     static bool set_deployed(const bool, const bool=false) { return false; }
 
-    static bool can_reach(const float rx, const float ry, const bool=true) { return position_is_reachable(XY_LIST(rx, ry)); }
+    static bool can_reach(const float rx, const float ry, const bool=true) { return motion.can_reach(XY_LIST(rx, ry)); }
 
   #endif // !HAS_BED_PROBE
 
@@ -237,7 +246,7 @@ public:
   static void move_z_after_probing() {
     DEBUG_SECTION(mzah, "move_z_after_probing", DEBUGGING(LEVELING));
     #ifdef Z_AFTER_PROBING
-      do_z_clearance(Z_AFTER_PROBING, true, true); // Move down still permitted
+      motion.do_z_clearance(Z_AFTER_PROBING, true, true); // Move down still permitted
     #endif
   }
 
@@ -339,10 +348,10 @@ public:
       }
     #endif
 
-    static float min_x() { return _min_x() TERN_(NOZZLE_AS_PROBE, TERN_(HAS_HOME_OFFSET, - home_offset.x)); }
-    static float max_x() { return _max_x() TERN_(NOZZLE_AS_PROBE, TERN_(HAS_HOME_OFFSET, - home_offset.x)); }
-    static float min_y() { return _min_y() TERN_(NOZZLE_AS_PROBE, TERN_(HAS_HOME_OFFSET, - home_offset.y)); }
-    static float max_y() { return _max_y() TERN_(NOZZLE_AS_PROBE, TERN_(HAS_HOME_OFFSET, - home_offset.y)); }
+    static float min_x() { return _min_x() TERN_(NOZZLE_AS_PROBE, TERN_(HAS_HOME_OFFSET, - motion.home_offset.x)); }
+    static float max_x() { return _max_x() TERN_(NOZZLE_AS_PROBE, TERN_(HAS_HOME_OFFSET, - motion.home_offset.x)); }
+    static float min_y() { return _min_y() TERN_(NOZZLE_AS_PROBE, TERN_(HAS_HOME_OFFSET, - motion.home_offset.y)); }
+    static float max_y() { return _max_y() TERN_(NOZZLE_AS_PROBE, TERN_(HAS_HOME_OFFSET, - motion.home_offset.y)); }
 
     // constexpr helpers used in build-time static_asserts, relying on default probe offsets.
     class build_time {
@@ -412,7 +421,7 @@ public:
   #endif
 
   #if HAS_QUIET_PROBING
-    static void set_probing_paused(const bool p);
+    static void set_devices_paused_for_probing(const bool p);
   #endif
 
   #if ENABLED(PROBE_TARE)

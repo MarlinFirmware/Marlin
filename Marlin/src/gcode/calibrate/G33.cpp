@@ -73,7 +73,7 @@ void ac_setup(const bool reset_bed) {
   TERN_(HAS_BED_PROBE, probe.use_probing_tool());
 
   planner.synchronize();
-  remember_feedrate_scaling_off();
+  motion.remember_feedrate_scaling_off();
 
   #if HAS_LEVELING
     if (reset_bed) reset_bed_level(); // After full calibration bed-level data is no longer valid
@@ -81,9 +81,9 @@ void ac_setup(const bool reset_bed) {
 }
 
 void ac_cleanup() {
-  TERN_(DELTA_HOME_TO_SAFE_ZONE, do_blocking_move_to_z(delta_clip_start_height));
+  TERN_(DELTA_HOME_TO_SAFE_ZONE, motion.blocking_move_z(delta_clip_start_height));
   TERN_(HAS_BED_PROBE, probe.stow());
-  restore_feedrate_and_scaling();
+  motion.restore_feedrate_and_scaling();
   TERN_(HAS_BED_PROBE, probe.use_probing_tool(false));
 }
 
@@ -154,7 +154,7 @@ static float std_dev_points(float z_pt[NPP + 1], const bool _0p_cal, const bool 
         S2 += sq(z_pt[rad]);
         N++;
       }
-      return LROUND(SQRT(S2 / N) * 1000.0f) / 1000.0f + 0.00001f;
+      return LROUND(SQRT(S2 / N) * 1000.0f) * 0.001f + 0.00001f;
     }
   }
   return 0.00001f;
@@ -247,7 +247,7 @@ static bool probe_calibration_points(float z_pt[NPP + 1], const int8_t probe_poi
         LOOP_CAL_RAD(rad)
           z_pt[rad] /= _7P_STEP / steps;
 
-      do_blocking_move_to_xy(0.0f, 0.0f);
+      motion.blocking_move_xy(0.0f, 0.0f);
     }
   }
   return true;
@@ -268,7 +268,7 @@ static void reverse_kinematics_probe_points(float z_pt[NPP + 1], abc_float_t mm_
                 r = (rad == CEN ? 0.0f : dcr);
     pos.set(cos(a) * r, sin(a) * r, z_pt[rad]);
     inverse_kinematics(pos);
-    mm_at_pt_axis[rad] = delta;
+    mm_at_pt_axis[rad] = motion.delta;
   }
 }
 
@@ -315,7 +315,7 @@ static void calc_kinematics_diff_probe_points(float z_pt[NPP + 1], const float d
 
 static float auto_tune_h(const float dcr) {
   const float r_quot = dcr / delta_radius;
-  return RECIPROCAL(r_quot / (2.0f / 3.0f));  // (2/3)/CR
+  return RECIPROCAL(r_quot * (3.0f / 2.0f));  // (2/3)/CR
 }
 
 static float auto_tune_r(const float dcr) {
@@ -380,14 +380,14 @@ static float auto_tune_a(const float dcr) {
  *   With HAS_DELTA_SENSORLESS_PROBING:
  *     Use these flags to calibrate stall sensitivity:
  *     Example: G33 P1 Y Z - to calibrate X only
- *     X  Don't activate stallguard on X
- *     Y  Don't activate stallguard on Y
- *     Z  Don't activate stallguard on Z
+ *     X  Don't activate StallGuard on X
+ *     Y  Don't activate StallGuard on Y
+ *     Z  Don't activate StallGuard on Z
  *     S  Save offset_sensorless_adj
  */
 void GcodeSuite::G33() {
 
-  TERN_(FULL_REPORT_TO_HOST_FEATURE, set_and_report_grblstate(M_PROBE));
+  TERN_(FULL_REPORT_TO_HOST_FEATURE, motion.set_and_report_grblstate(M_PROBE));
 
   const int8_t probe_points = parser.intval('P', DELTA_CALIBRATION_DEFAULT_POINTS);
   if (!WITHIN(probe_points, 0, 10)) {
@@ -490,7 +490,7 @@ void GcodeSuite::G33() {
 
     float z_at_pt[NPP + 1] = { 0.0f };
 
-    test_precision = zero_std_dev_old != 999.0f ? (zero_std_dev + zero_std_dev_old) / 2.0f : zero_std_dev;
+    test_precision = zero_std_dev_old != 999.0f ? (zero_std_dev + zero_std_dev_old) * 0.5f : zero_std_dev;
     iterations++;
 
     // Probe the points
@@ -527,7 +527,7 @@ void GcodeSuite::G33() {
        *  - Definition of the matrix scaling parameters
        *  - Matrices for 4 and 7 point calibration
        */
-      #define ZP(N,I) ((N) * z_at_pt[I] / 4.0f) // 4.0 = divider to normalize to integers
+      #define ZP(N,I) ((N) * z_at_pt[I] * 0.25f) // 4.0 = divider to normalize to integers
       #define Z12(I) ZP(12, I)
       #define Z4(I) ZP(4, I)
       #define Z2(I) ZP(2, I)
@@ -677,7 +677,7 @@ void GcodeSuite::G33() {
 
   ac_cleanup();
 
-  TERN_(FULL_REPORT_TO_HOST_FEATURE, set_and_report_grblstate(M_IDLE));
+  TERN_(FULL_REPORT_TO_HOST_FEATURE, motion.set_and_report_grblstate(M_IDLE));
   #if HAS_DELTA_SENSORLESS_PROBING
     probe.test_sensitivity = { true, true, true };
   #endif

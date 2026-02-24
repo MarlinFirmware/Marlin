@@ -31,15 +31,15 @@ uint16_t Canvas::startLine, Canvas::endLine;
 uint16_t Canvas::background_color;
 uint16_t *Canvas::buffer = TFT::buffer;
 
-void Canvas::instantiate(uint16_t x, uint16_t y, uint16_t width, uint16_t height) {
-  Canvas::width = width;
-  Canvas::height = height;
+void Canvas::instantiate(uint16_t x, uint16_t y, uint16_t w, uint16_t h) {
+  width = w;
+  height = h;
   startLine = 0;
   endLine = 0;
 
   // The TFT handles DMA within the given canvas rectangle
   // so whatever is drawn will be offset on the screen by x,y.
-  tft.set_window(x, y, x + width - 1, y + height - 1);
+  tft.set_window(x, y, x + w - 1, y + h - 1);
 }
 
 void Canvas::next() {
@@ -134,10 +134,21 @@ void Canvas::addImage(int16_t x, int16_t y, MarlinImage image, uint16_t *colors)
       uint32_t rle_offset;
     } rle_state;
 
+    #if ENABLED(SHOW_CUSTOM_BOOTSCREEN)
+      static MarlinImage last_image = noImage;
+    #endif
+
     // RLE16 HIGHCOLOR - 16 bits per pixel
     if (color_mode == RLE16) {
       uint8_t *bytedata = (uint8_t *)images[image].data;
       if (!bytedata) return;
+
+      #if ENABLED(SHOW_CUSTOM_BOOTSCREEN)           // Reset RLE state if a different image
+        if (image != last_image) {
+          rle_state.has_rle_state = false;
+          last_image = image;
+        }
+      #endif
 
       // Loop through the image data advancing the row and column as needed
       int16_t srcy = 0, srcx = 0,                   // Image data line / column index
