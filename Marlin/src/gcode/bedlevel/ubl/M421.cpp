@@ -74,7 +74,7 @@ void GcodeSuite::M421() {
              hasQ = !hasZ && parser.seen('Q');
 
   const bool mesh_command = hasZ || hasQ || hasN;
-  if (hasC) ij = bedlevel.find_closest_mesh_point_of_type(CLOSEST, current_position);
+  if (hasC) ij = bedlevel.find_closest_mesh_point_of_type(CLOSEST, motion.position);
   bool did_something = false;
   // Mesh point modification
   if (mesh_command) {
@@ -135,12 +135,12 @@ void GcodeSuite::M421() {
     }
     if (parser.seen('L')) {
       // Left margin: X_MIN_POS + probe_offset must reach >= 0, but min 10
-      bedlevel.margin_l = safe_margin(parser.value_int(), constrain(_MAX(10, TERN(HAS_HOME_OFFSET, home_offset.x, X_MIN_POS) - ceilf(fabs(probe.offset_xy.x))), 10, X_BED_SIZE), 'L');
+      bedlevel.margin_l = safe_margin(parser.value_int(), constrain(_MAX(10, TERN(HAS_HOME_OFFSET, motion.home_offset.x, X_MIN_POS) - ceilf(fabs(probe.offset_xy.x))), 10, X_BED_SIZE), 'L');
       did_something = true;
     }
     if (parser.seen('F')) {
       // Front margin: Y_MIN_POS + probe_offset must reach >= 0, but min 10
-      bedlevel.margin_f = safe_margin(parser.value_int(), constrain(_MAX(10, TERN(HAS_HOME_OFFSET, home_offset.y, Y_MIN_POS) - ceilf(fabs(probe.offset_xy.y))), 10, Y_BED_SIZE), 'F');
+      bedlevel.margin_f = safe_margin(parser.value_int(), constrain(_MAX(10, TERN(HAS_HOME_OFFSET, motion.home_offset.y, Y_MIN_POS) - ceilf(fabs(probe.offset_xy.y))), 10, Y_BED_SIZE), 'F');
       did_something = true;
     }
     if (parser.seen('R')) {
