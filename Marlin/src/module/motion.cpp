@@ -2898,6 +2898,11 @@ void Motion::set_axis_is_at_home(const AxisEnum axis) {
         #endif
         if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("*** Z homed with PROBE" TERN_(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN, " (Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN)") " ***\n> (M851 Z", probe.offset.z, ")");
       #else
+      /**
+       * This is critical for machines with z_min endstops + probes (probe and Z endstop are independent), 
+       * force Z to be 0 so that auto MESH bed leveling correctly applies probe offset from a properly endstop zeroed bed.
+       */      
+        position.z = 0; //critical for machines with z_min endstops + probes
         if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("*** Z homed to ENDSTOP ***");
       #endif
     }
