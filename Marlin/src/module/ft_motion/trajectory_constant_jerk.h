@@ -94,64 +94,7 @@ public:
   // Jerk comes from cfg.jerk_max, passed through by the caller.
   void plan_full(float initial_speed_in, float final_speed_in,
                  float accel_max_in, float jerk_in,
-                 float distance_in, float nominal_in) {
-    plan_internal(initial_speed_in, final_speed_in, accel_max_in,
-                  jerk_in, distance_in, nominal_in);
-  }
-
-  void planRunout(const float duration) override {
-    reset();
-    // Cruise at zero speed for the entire duration (same as trapezoidal)
-    phase_dt[3] = duration;
-    total_duration = duration;
-    buildPhaseCache();
-  }
-
-  float getDistanceAtTime(const float t) const override {
-    if (t <= 0.0f) return 0.0f;
-    if (t >= total_duration) return distance;
-    const int ph = findPhase(t);
-    const float dt = t - phase_start_time[ph];
-    const float v = phase_start_v[ph];
-    const float a = phase_start_a[ph];
-    const float jk = phaseJerk(ph);
-    return phase_start_pos[ph] + v * dt + 0.5f * a * dt * dt + (1.0f / 6.0f) * jk * dt * dt * dt;
-  }
-
-  float getTotalDuration() const override { return total_duration; }
-
-  float getVelocityAtTime(const float t) const {
-    if (t <= 0.0f) return v0;
-    if (t >= total_duration) return v1;
-    const int ph = findPhase(t);
-    const float dt = t - phase_start_time[ph];
-    return phase_start_v[ph] + phase_start_a[ph] * dt + 0.5f * phaseJerk(ph) * dt * dt;
-  }
-
-  float getAccelerationAtTime(const float t) const {
-    if (t <= 0.0f || t >= total_duration) return 0.0f;
-    const int ph = findPhase(t);
-    const float dt = t - phase_start_time[ph];
-    return phase_start_a[ph] + phaseJerk(ph) * dt;
-  }
-
-  void reset() override {
-    v0 = v1 = 0.0f;
-    a_max = j = distance = 0.0f;
-    for (int i = 0; i < 7; ++i) {
-      phase_dt[i] = 0.0f;
-      phase_start_time[i] = 0.0f;
-      phase_start_pos[i] = 0.0f;
-      phase_start_v[i] = 0.0f;
-      phase_start_a[i] = 0.0f;
-    }
-    total_duration = 0.0f;
-  }
-
-private:
-  void plan_internal(float initial_speed_in, float final_speed_in,
-                     float accel_max_in, float jerk_in,
-                     float distance_in, float v_nominal_in) {
+                 float distance_in, float v_nominal_in) {
     reset();
 
     v0 = initial_speed_in;
@@ -200,6 +143,62 @@ private:
     buildPhaseCache();
   }
 
+  void planRunout(const float duration) override {
+    reset();
+    // Cruise at zero speed for the entire duration (same as trapezoidal)
+    phase_dt[3] = duration;
+    total_duration = duration;
+    buildPhaseCache();
+  }
+
+  float getDistanceAtTime(const float t) const override {
+    if (t <= 0.0f) return 0.0f;
+    if (t >= total_duration) return distance;
+    const int ph = findPhase(t);
+    const float dt = t - phase_start_time[ph];
+    const float v = phase_start_v[ph];
+    const float a = phase_start_a[ph];
+    const float jk = phaseJerk(ph);
+    return phase_start_pos[ph] + v * dt + 0.5f * a * dt * dt + (1.0f / 6.0f) * jk * dt * dt * dt;
+  }
+
+  float getTotalDuration() const override { return total_duration; }
+
+  float getVelocityAtTime(const float t) const {
+    if (t <= 0.0f) return v0;
+    if (t >= total_duration) return v1;
+    const int ph = findPhase(t);
+    const float dt = t - phase_start_time[ph];
+    return phase_start_v[ph] + phase_start_a[ph] * dt + 0.5f * phaseJerk(ph) * dt * dt;
+  }
+
+  float getAccelerationAtTime(const float t) const {
+    if (t <= 0.0f || t >= total_duration) return 0.0f;
+    const int ph = findPhase(t);
+    const float dt = t - phase_start_time[ph];
+    return phase_start_a[ph] + phaseJerk(ph) * dt;
+  }
+
+  float getJerkAtTime(const float t) const {
+    if (t <= 0.0f || t >= total_duration) return 0.0f;
+    const int ph = findPhase(t);
+    return phaseJerk(ph);
+  }
+
+  void reset() override {
+    v0 = v1 = 0.0f;
+    a_max = j = distance = 0.0f;
+    for (int i = 0; i < 7; ++i) {
+      phase_dt[i] = 0.0f;
+      phase_start_time[i] = 0.0f;
+      phase_start_pos[i] = 0.0f;
+      phase_start_v[i] = 0.0f;
+      phase_start_a[i] = 0.0f;
+    }
+    total_duration = 0.0f;
+  }
+
+private:
   void buildPhaseCache() {
     float v = v0, a = 0.0f, s = 0.0f, t = 0.0f;
     for (int i = 0; i < 7; ++i) {
