@@ -22,11 +22,17 @@
 #pragma once
 
 #include "../../../inc/MarlinConfigPre.h"
+#if ENABLED(DYNAMIC_MARGINS)
+  #include "../../../feature/bedlevel/bedlevel.h"
+#endif
 
 class LevelingBilinear {
 public:
   static bed_mesh_t z_values;
   static xy_pos_t grid_spacing, grid_start;
+  #if ENABLED(DYNAMIC_MARGINS)
+    static int16_t margin_l, margin_r, margin_f, margin_b;
+  #endif
 
 private:
   static xy_float_t grid_factor;

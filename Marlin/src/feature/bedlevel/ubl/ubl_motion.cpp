@@ -84,8 +84,8 @@
       #endif
 
       // The distance is always MESH_X_DIST so multiply by the constant reciprocal.
-      const float xratio = (end.x - get_mesh_x(iend.x)) * RECIPROCAL(MESH_X_DIST),
-                  yratio = (end.y - get_mesh_y(iend.y)) * RECIPROCAL(MESH_Y_DIST),
+      const float xratio = (end.x - get_mesh_x(iend.x)) * TERN(DYNAMIC_MARGINS, RECIPROCAL(get_mesh_x_dist()), RECIPROCAL(MESH_X_DIST));
+      const float yratio = (end.y - get_mesh_y(iend.y)) * TERN(DYNAMIC_MARGINS, RECIPROCAL(get_mesh_y_dist()), RECIPROCAL(MESH_Y_DIST)),
                   z1 = z_values[iend.x][iend.y    ] + xratio * (z_values[iend.x + 1][iend.y    ] - z_values[iend.x][iend.y    ]),
                   z2 = z_values[iend.x][iend.y + 1] + xratio * (z_values[iend.x + 1][iend.y + 1] - z_values[iend.x][iend.y + 1]);
 
@@ -414,8 +414,8 @@
       // for mesh inset area.
 
       xy_int8_t icell = {
-        int8_t((raw.x - (MESH_MIN_X)) * RECIPROCAL(MESH_X_DIST)),
-        int8_t((raw.y - (MESH_MIN_Y)) * RECIPROCAL(MESH_Y_DIST))
+        int8_t((raw.x - (TERN(DYNAMIC_MARGINS, bedlevel.margin_l, MESH_MIN_X))) * TERN(DYNAMIC_MARGINS, RECIPROCAL(get_mesh_x_dist()), RECIPROCAL(MESH_X_DIST))),
+        int8_t((raw.y - (TERN(DYNAMIC_MARGINS, bedlevel.margin_f, MESH_MIN_Y))) * TERN(DYNAMIC_MARGINS, RECIPROCAL(get_mesh_y_dist()), RECIPROCAL(MESH_Y_DIST)))
       };
       LIMIT(icell.x, 0, GRID_MAX_CELLS_X);
       LIMIT(icell.y, 0, GRID_MAX_CELLS_Y);
@@ -435,15 +435,15 @@
       const xy_pos_t pos = { get_mesh_x(icell.x), get_mesh_y(icell.y) };
       xy_pos_t cell = raw - pos;
 
-      const float z_xmy0 = (z_x1y0 - z_x0y0) * RECIPROCAL(MESH_X_DIST),   // z slope per x along y0 (lower left to lower right)
-                  z_xmy1 = (z_x1y1 - z_x0y1) * RECIPROCAL(MESH_X_DIST);   // z slope per x along y1 (upper left to upper right)
+      const float z_xmy0 = (z_x1y0 - z_x0y0) * TERN(DYNAMIC_MARGINS, RECIPROCAL(get_mesh_x_dist()), RECIPROCAL(MESH_X_DIST));   // z slope per x along y0 (lower left to lower right)
+      const float z_xmy1 = (z_x1y1 - z_x0y1) * TERN(DYNAMIC_MARGINS, RECIPROCAL(get_mesh_x_dist()), RECIPROCAL(MESH_X_DIST));   // z slope per x along y1 (upper left to upper right)
 
             float z_cxy0 = z_x0y0 + z_xmy0 * cell.x;        // z height along y0 at cell.x (changes for each cell.x in cell)
 
       const float z_cxy1 = z_x0y1 + z_xmy1 * cell.x,        // z height along y1 at cell.x
                   z_cxyd = z_cxy1 - z_cxy0;                 // z height difference along cell.x from y0 to y1
 
-            float z_cxym = z_cxyd * RECIPROCAL(MESH_Y_DIST); // z slope per y along cell.x from pos.y to y1 (changes for each cell.x in cell)
+            float z_cxym = z_cxyd * TERN(DYNAMIC_MARGINS, RECIPROCAL(get_mesh_y_dist()), RECIPROCAL(MESH_Y_DIST)); // z slope per y along cell.x from pos.y to y1 (changes for each cell.x in cell)
 
       //    float z_cxcy = z_cxy0 + z_cxym * cell.y;        // interpolated mesh z height along cell.x at cell.y (do inside the segment loop)
 
@@ -451,8 +451,8 @@
       // and the z_cxym slope will change, both as a function of cell.x within the cell, and
       // each change by a constant for fixed segment lengths.
 
-      const float z_sxy0 = z_xmy0 * diff.x,                                       // per-segment adjustment to z_cxy0
-                  z_sxym = (z_xmy1 - z_xmy0) * RECIPROCAL(MESH_Y_DIST) * diff.x;  // per-segment adjustment to z_cxym
+      const float z_sxy0 = z_xmy0 * diff.x;                                                                                             // per-segment adjustment to z_cxy0
+      const float z_sxym = (z_xmy1 - z_xmy0) * TERN(DYNAMIC_MARGINS, RECIPROCAL(get_mesh_y_dist()), RECIPROCAL(MESH_Y_DIST)) * diff.x;  // per-segment adjustment to z_cxym
 
       for (;;) {  // for all segments within this mesh cell
 
@@ -471,7 +471,7 @@
         raw += diff;
         cell += diff;
 
-        if (!WITHIN(cell.x, 0, MESH_X_DIST) || !WITHIN(cell.y, 0, MESH_Y_DIST))    // done within this cell, break to next
+        if (!WITHIN(cell.x, 0, TERN(DYNAMIC_MARGINS, get_mesh_x_dist(), MESH_X_DIST)) || !WITHIN(cell.y, 0, TERN(DYNAMIC_MARGINS, get_mesh_y_dist(), MESH_Y_DIST)))    // done within this cell, break to next
           break;
 
         // Next segment still within same mesh cell, adjust the per-segment

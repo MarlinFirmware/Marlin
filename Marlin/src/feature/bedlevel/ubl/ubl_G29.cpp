@@ -444,7 +444,7 @@ void unified_bed_leveling::G29() {
       tilt_mesh_based_on_probed_grid(param.J_grid_size == 0); // Zero size does 3-Point
       restore_ubl_active_state();
       #if ENABLED(UBL_G29_J_RECENTER)
-        motion.blocking_move_xy(0.5f * ((MESH_MIN_X) + (MESH_MAX_X)), 0.5f * ((MESH_MIN_Y) + (MESH_MAX_Y)));
+        motion.blocking_move_xy(0.5f * ((TERN(DYNAMIC_MARGINS, bedlevel.margin_l, MESH_MIN_X)) + (TERN(DYNAMIC_MARGINS, X_BED_SIZE - bedlevel.margin_r, MESH_MAX_X))), 0.5f * ((TERN(DYNAMIC_MARGINS, bedlevel.margin_f, MESH_MIN_Y)) + (TERN(DYNAMIC_MARGINS, Y_BED_SIZE - bedlevel.margin_b, MESH_MAX_Y))));
       #endif
       motion.report_position();
       SET_PROBE_DEPLOYED(true);
@@ -828,8 +828,8 @@ void unified_bed_leveling::shift_mesh_height(const float zoffs) {
     probe.move_z_after_probing();
 
     motion.blocking_move_xy(
-      constrain(nearby.x - probe.offset_xy.x, MESH_MIN_X, MESH_MAX_X),
-      constrain(nearby.y - probe.offset_xy.y, MESH_MIN_Y, MESH_MAX_Y)
+      constrain(TERN(DYNAMIC_MARGINS, nearby.x, nearby.x - probe.offset_xy.x), TERN(DYNAMIC_MARGINS, bedlevel.margin_l, MESH_MIN_X), (TERN(DYNAMIC_MARGINS, (X_BED_SIZE - bedlevel.margin_r), MESH_MAX_X))),
+      constrain(TERN(DYNAMIC_MARGINS, nearby.y, nearby.y - probe.offset_xy.y), TERN(DYNAMIC_MARGINS, bedlevel.margin_f, MESH_MIN_Y), (TERN(DYNAMIC_MARGINS, (Y_BED_SIZE - bedlevel.margin_b), MESH_MAX_Y)))
     );
 
     restore_ubl_active_state();
@@ -895,8 +895,8 @@ void set_message_with_feedback(FSTR_P const fstr) {
 
     motion.blocking_move(
       xyz_pos_t({
-        0.5f * ((MESH_MIN_X) + (MESH_MAX_X)),
-        0.5f * ((MESH_MIN_Y) + (MESH_MAX_Y)),
+        0.5f * ((TERN(DYNAMIC_MARGINS, (X_BED_SIZE - unified_bed_leveling::margin_r), MESH_MAX_X)) - TERN(DYNAMIC_MARGINS, unified_bed_leveling::margin_l, MESH_MIN_X)),
+        0.5f * ((TERN(DYNAMIC_MARGINS, (Y_BED_SIZE - unified_bed_leveling::margin_b), MESH_MAX_Y)) - TERN(DYNAMIC_MARGINS, unified_bed_leveling::margin_f, MESH_MIN_Y)),
         MANUAL_PROBE_START_Z
         #ifdef SAFE_BED_LEVELING_START_I
           , SAFE_BED_LEVELING_START_I
@@ -1392,7 +1392,7 @@ mesh_index_pair unified_bed_leveling::find_closest_mesh_point_of_type(const Mesh
     float best_so_far = 99999.99f;
 
     GRID_LOOP(i, j) {
-      if (  type == CLOSEST || type == (isnan(z_values[i][j]) ? INVALID : REAL)
+      if (type == CLOSEST || type == (isnan(z_values[i][j]) ? INVALID : REAL)
         || (type == SET_IN_BITMAP && !done_flags->marked(i, j))
       ) {
         // Found a Mesh Point of the specified type!
@@ -1535,10 +1535,10 @@ void unified_bed_leveling::smart_fill_mesh() {
       #ifndef G29J_MESH_TILT_MARGIN
         #define G29J_MESH_TILT_MARGIN 0
       #endif
-      const float x_min = _MAX((X_MIN_POS) + (G29J_MESH_TILT_MARGIN), MESH_MIN_X, probe.min_x()),
-                  x_max = _MIN((X_MAX_POS) - (G29J_MESH_TILT_MARGIN), MESH_MAX_X, probe.max_x()),
-                  y_min = _MAX((Y_MIN_POS) + (G29J_MESH_TILT_MARGIN), MESH_MIN_Y, probe.min_y()),
-                  y_max = _MIN((Y_MAX_POS) - (G29J_MESH_TILT_MARGIN), MESH_MAX_Y, probe.max_y()),
+      const float x_min = _MAX((X_MIN_POS) + (G29J_MESH_TILT_MARGIN), TERN(DYNAMIC_MARGINS, unified_bed_leveling::margin_l, MESH_MIN_X), probe.min_x()),
+                  x_max = _MIN((X_MAX_POS) - (G29J_MESH_TILT_MARGIN), TERN(DYNAMIC_MARGINS, (X_BED_SIZE - unified_bed_leveling::margin_r), MESH_MAX_X), probe.max_x()),
+                  y_min = _MAX((Y_MIN_POS) + (G29J_MESH_TILT_MARGIN), TERN(DYNAMIC_MARGINS, unified_bed_leveling::margin_f, MESH_MIN_Y), probe.min_y()),
+                  y_max = _MIN((Y_MAX_POS) - (G29J_MESH_TILT_MARGIN), TERN(DYNAMIC_MARGINS, (Y_BED_SIZE - unified_bed_leveling::margin_b), MESH_MAX_Y), probe.max_y()),
                   dx = (x_max - x_min) / (param.J_grid_size - 1),
                   dy = (y_max - y_min) / (param.J_grid_size - 1);
 
@@ -1696,7 +1696,7 @@ void unified_bed_leveling::smart_fill_mesh() {
 
     SERIAL_ECHOPGM("Extrapolating mesh...");
 
-    const float weight_scaled = weight_factor * _MAX(MESH_X_DIST, MESH_Y_DIST);
+    const float weight_scaled = weight_factor * _MAX(TERN(DYNAMIC_MARGINS, unified_bed_leveling::get_mesh_x_dist(), MESH_X_DIST), TERN(DYNAMIC_MARGINS, unified_bed_leveling::get_mesh_y_dist(), MESH_Y_DIST));
 
     GRID_LOOP(jx, jy) if (!isnan(z_values[jx][jy])) SBI(bitmap[jx], jy);
 
@@ -1760,14 +1760,14 @@ void unified_bed_leveling::smart_fill_mesh() {
       SERIAL_ECHOLNPGM("Probe Offset M851 Z", p_float_t(probe.offset.z, 7));
     #endif
 
-    SERIAL_ECHOLNPGM("MESH_MIN_X  " STRINGIFY(MESH_MIN_X) "=", MESH_MIN_X); serial_delay(50);
-    SERIAL_ECHOLNPGM("MESH_MIN_Y  " STRINGIFY(MESH_MIN_Y) "=", MESH_MIN_Y); serial_delay(50);
-    SERIAL_ECHOLNPGM("MESH_MAX_X  " STRINGIFY(MESH_MAX_X) "=", MESH_MAX_X); serial_delay(50);
-    SERIAL_ECHOLNPGM("MESH_MAX_Y  " STRINGIFY(MESH_MAX_Y) "=", MESH_MAX_Y); serial_delay(50);
-    SERIAL_ECHOLNPGM("GRID_MAX_POINTS_X  ", GRID_MAX_POINTS_X);             serial_delay(50);
-    SERIAL_ECHOLNPGM("GRID_MAX_POINTS_Y  ", GRID_MAX_POINTS_Y);             serial_delay(50);
-    SERIAL_ECHOLNPGM("MESH_X_DIST  ", MESH_X_DIST);
-    SERIAL_ECHOLNPGM("MESH_Y_DIST  ", MESH_Y_DIST);                         serial_delay(50);
+    SERIAL_ECHOLNPGM("MESH_MIN_X  " STRINGIFY(TERN(DYNAMIC_MARGINS, unified_bed_leveling::margin_l, MESH_MIN_X)) "=", TERN(DYNAMIC_MARGINS, unified_bed_leveling::margin_l, MESH_MIN_X)); serial_delay(50);
+    SERIAL_ECHOLNPGM("MESH_MIN_Y  " STRINGIFY(TERN(DYNAMIC_MARGINS, unified_bed_leveling::margin_f, MESH_MIN_Y)) "=", TERN(DYNAMIC_MARGINS, unified_bed_leveling::margin_f, MESH_MIN_Y)); serial_delay(50);
+    SERIAL_ECHOLNPGM("MESH_MAX_X  " STRINGIFY(TERN(DYNAMIC_MARGINS, unified_bed_leveling::margin_r, MESH_MAX_X)) "=", TERN(DYNAMIC_MARGINS, unified_bed_leveling::margin_r, MESH_MAX_X)); serial_delay(50);
+    SERIAL_ECHOLNPGM("MESH_MAX_Y  " STRINGIFY(TERN(DYNAMIC_MARGINS, unified_bed_leveling::margin_b, MESH_MAX_Y)) "=", TERN(DYNAMIC_MARGINS, unified_bed_leveling::margin_b, MESH_MAX_Y)); serial_delay(50);
+    SERIAL_ECHOLNPGM("GRID_MAX_POINTS_X  ", GRID_MAX_POINTS_X); serial_delay(50);
+    SERIAL_ECHOLNPGM("GRID_MAX_POINTS_Y  ", GRID_MAX_POINTS_Y); serial_delay(50);
+    SERIAL_ECHOLNPGM("MESH_X_DIST  ", TERN(DYNAMIC_MARGINS, unified_bed_leveling::mesh_x_dist(), MESH_X_DIST)); serial_delay(50);
+    SERIAL_ECHOLNPGM("MESH_Y_DIST  ", TERN(DYNAMIC_MARGINS, unified_bed_leveling::mesh_y_dist(), MESH_Y_DIST)); serial_delay(50);
 
     SERIAL_ECHOPGM("X-Axis Mesh Points at: ");
     for (uint8_t i = 0; i < GRID_MAX_POINTS_X; ++i) {

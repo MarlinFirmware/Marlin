@@ -28,6 +28,10 @@
 #define DEBUG_OUT ENABLED(DEBUG_LEVELING_FEATURE)
 #include "../../../core/debug_out.h"
 
+#if ENABLED(DYNAMIC_MARGINS)
+  class unified_bed_leveling;
+  extern unified_bed_leveling bedlevel;
+#endif
 #define UBL_VERSION "1.01"
 #define UBL_OK false
 #define UBL_ERR true
@@ -37,9 +41,10 @@ enum MeshPointType : char { INVALID, REAL, SET_IN_BITMAP, CLOSEST };
 // External references
 
 struct mesh_index_pair;
-
-#define MESH_X_DIST (float((MESH_MAX_X) - (MESH_MIN_X)) / (GRID_MAX_CELLS_X))
-#define MESH_Y_DIST (float((MESH_MAX_Y) - (MESH_MIN_Y)) / (GRID_MAX_CELLS_Y))
+#if DISABLED(DYNAMIC_MARGINS)
+  #define MESH_X_DIST (float((MESH_MAX_X) - (MESH_MIN_X)) / (GRID_MAX_CELLS_X))
+  #define MESH_Y_DIST (float((MESH_MAX_Y) - (MESH_MIN_Y)) / (GRID_MAX_CELLS_Y))
+#endif
 
 #if ENABLED(OPTIMIZED_MESH_STORAGE)
   typedef int16_t mesh_store_t[GRID_MAX_POINTS_X][GRID_MAX_POINTS_Y];
@@ -110,14 +115,20 @@ public:
   static void smart_fill_wlsf(const float ) __O2; // O2 gives smaller code than Os on A2560
 
   static int8_t storage_slot;
+  #if ENABLED(DYNAMIC_MARGINS)
+    typedef float bed_mesh_t[GRID_MAX_POINTS_X][GRID_MAX_POINTS_Y];
+    static int16_t margin_l, margin_r, margin_f, margin_b;
+  #endif
 
   static bed_mesh_t z_values;
   #if ENABLED(OPTIMIZED_MESH_STORAGE)
     static void set_store_from_mesh(const bed_mesh_t &in_values, mesh_store_t &stored_values);
     static void set_mesh_from_store(const mesh_store_t &stored_values, bed_mesh_t &out_values);
   #endif
-  static const float _mesh_index_to_xpos[GRID_MAX_POINTS_X],
-                     _mesh_index_to_ypos[GRID_MAX_POINTS_Y];
+  #if DISABLED(DYNAMIC_MARGINS)
+    static const float _mesh_index_to_xpos[GRID_MAX_POINTS_X],
+                       _mesh_index_to_ypos[GRID_MAX_POINTS_Y];
+  #endif
 
   #if HAS_MARLINUI_MENU
     static bool lcd_map_control;
@@ -133,12 +144,12 @@ public:
   FORCE_INLINE static void set_z(const int8_t px, const int8_t py, const float z) { z_values[px][py] = z; }
 
   static int8_t cell_index_x_raw(const float x) {
-    return FLOOR((x - (MESH_MIN_X)) * RECIPROCAL(MESH_X_DIST));
+    return FLOOR((x - (TERN(DYNAMIC_MARGINS, bedlevel.margin_l, MESH_MIN_X))) * TERN(DYNAMIC_MARGINS, RECIPROCAL(get_mesh_x_dist()), RECIPROCAL(MESH_X_DIST)));
   }
 
   static int8_t cell_index_y_raw(const float y) {
-    return FLOOR((y - (MESH_MIN_Y)) * RECIPROCAL(MESH_Y_DIST));
-  }
+    return FLOOR((y - (TERN(DYNAMIC_MARGINS, bedlevel.margin_f, MESH_MIN_Y))) * TERN(DYNAMIC_MARGINS, RECIPROCAL(get_mesh_y_dist()), RECIPROCAL(MESH_Y_DIST)));
+  }  
 
   static bool cell_index_x_valid(const float x) {
     return WITHIN(cell_index_x_raw(x), 0, GRID_MAX_CELLS_X - 1);
@@ -162,11 +173,11 @@ public:
   static xy_uint8_t cell_indexes(const xy_pos_t &xy) { return cell_indexes(xy.x, xy.y); }
 
   static int8_t closest_x_index(const float x) {
-    const int8_t px = (x - (MESH_MIN_X) + (MESH_X_DIST) * 0.5) * RECIPROCAL(MESH_X_DIST);
+    const int8_t px = (x -  (TERN(DYNAMIC_MARGINS, bedlevel.margin_l, MESH_MIN_X)) + (TERN(DYNAMIC_MARGINS, get_mesh_x_dist(), MESH_X_DIST)) * 0.5) * TERN(DYNAMIC_MARGINS, RECIPROCAL(get_mesh_x_dist()), RECIPROCAL(MESH_X_DIST));
     return WITHIN(px, 0, (GRID_MAX_POINTS_X) - 1) ? px : -1;
   }
   static int8_t closest_y_index(const float y) {
-    const int8_t py = (y - (MESH_MIN_Y) + (MESH_Y_DIST) * 0.5) * RECIPROCAL(MESH_Y_DIST);
+    const int8_t py = (y - (TERN(DYNAMIC_MARGINS, bedlevel.margin_f, MESH_MIN_Y)) + (TERN(DYNAMIC_MARGINS, get_mesh_y_dist(), MESH_Y_DIST)) * 0.5) * TERN(DYNAMIC_MARGINS, RECIPROCAL(get_mesh_y_dist()), RECIPROCAL(MESH_Y_DIST));
     return WITHIN(py, 0, (GRID_MAX_POINTS_Y) - 1) ? py : -1;
   }
   static xy_int8_t closest_indexes(const xy_pos_t &xy) {
@@ -214,7 +225,7 @@ public:
       return _UBL_OUTER_Z_RAISE;
     }
 
-    const float xratio = (rx0 - get_mesh_x(x1_i)) * RECIPROCAL(MESH_X_DIST),
+    const float xratio = (rx0 - get_mesh_x(x1_i)) * TERN(DYNAMIC_MARGINS, RECIPROCAL(get_mesh_x_dist()), RECIPROCAL(MESH_X_DIST)),
                 z1 = z_values[x1_i][yi];
 
     return z1 + xratio * (z_values[_MIN(x1_i, (GRID_MAX_POINTS_X) - 2) + 1][yi] - z1);  // Don't allow x1_i+1 to be past the end of the array
@@ -237,7 +248,7 @@ public:
       return _UBL_OUTER_Z_RAISE;
     }
 
-    const float yratio = (ry0 - get_mesh_y(y1_i)) * RECIPROCAL(MESH_Y_DIST),
+    const float yratio = (ry0 - get_mesh_y(y1_i)) * TERN(DYNAMIC_MARGINS, RECIPROCAL(get_mesh_y_dist()), RECIPROCAL(MESH_Y_DIST)),
                 z1 = z_values[xi][y1_i];
 
     return z1 + yratio * (z_values[xi][_MIN(y1_i, (GRID_MAX_POINTS_Y) - 2) + 1] - z1);  // Don't allow y1_i+1 to be past the end of the array
@@ -259,12 +270,12 @@ public:
      * UBL_Z_RAISE_WHEN_OFF_MESH is specified, that value is returned.
      */
     #ifdef UBL_Z_RAISE_WHEN_OFF_MESH
-      if (!WITHIN(rx0, MESH_MIN_X, MESH_MAX_X) || !WITHIN(ry0, MESH_MIN_Y, MESH_MAX_Y))
+      if (!WITHIN(rx0, TERN(DYNAMIC_MARGINS, bedlevel.margin_l, MESH_MIN_X), TERN(DYNAMIC_MARGINS, X_BED_SIZE - bedlevel.margin_r, MESH_MAX_X)) || !WITHIN(ry0, TERN(DYNAMIC_MARGINS, bedlevel.margin_f, MESH_MIN_Y), TERN(DYNAMIC_MARGINS, Y_BED_SIZE - bedlevel.margin_b, MESH_MAX_Y)))
         return UBL_Z_RAISE_WHEN_OFF_MESH;
     #endif
 
-    const uint8_t mx = _MIN(cx, (GRID_MAX_POINTS_X) - 2) + 1, my = _MIN(cy, (GRID_MAX_POINTS_Y) - 2) + 1;
-    const float x0 = get_mesh_x(cx), x1 = get_mesh_x(cx + 1),
+    IF_DISABLED(DYNAMIC_MARGINS, const) uint8_t mx = _MIN(cx, (GRID_MAX_POINTS_X) - 2) + 1, my = _MIN(cy, (GRID_MAX_POINTS_Y) - 2) + 1;
+    IF_DISABLED(DYNAMIC_MARGINS, const) float x0 = get_mesh_x(cx), x1 = get_mesh_x(cx + 1),
                 z1 = calc_z0(rx0, x0, z_values[cx][cy], x1, z_values[mx][cy]),
                 z2 = calc_z0(rx0, x0, z_values[cx][my], x1, z_values[mx][my]);
     float z0 = calc_z0(ry0, get_mesh_y(cy), z1, get_mesh_y(cy + 1), z2);
@@ -286,13 +297,28 @@ public:
   static float get_z_correction(const xy_pos_t &pos) { return get_z_correction(pos.x, pos.y); }
 
   static constexpr float get_z_offset() { return 0.0f; }
-
-  static float get_mesh_x(const uint8_t i) {
-    return i < (GRID_MAX_POINTS_X) ? pgm_read_float(&_mesh_index_to_xpos[i]) : MESH_MIN_X + i * (MESH_X_DIST);
-  }
-  static float get_mesh_y(const uint8_t i) {
-    return i < (GRID_MAX_POINTS_Y) ? pgm_read_float(&_mesh_index_to_ypos[i]) : MESH_MIN_Y + i * (MESH_Y_DIST);
-  }
+  #if DISABLED(DYNAMIC_MARGINS)
+    static float get_mesh_x(const uint8_t i) {
+      return i < (GRID_MAX_POINTS_X) ? pgm_read_float(&_mesh_index_to_xpos[i]) : MESH_MIN_X + i * (MESH_X_DIST);
+    }
+    static float get_mesh_y(const uint8_t i) {
+      return i < (GRID_MAX_POINTS_Y) ? pgm_read_float(&_mesh_index_to_ypos[i]) : MESH_MIN_Y + i * (MESH_Y_DIST);
+    }
+  #endif
+  #if ENABLED(DYNAMIC_MARGINS)
+    static float get_mesh_x(const uint8_t i) {
+      return bedlevel.margin_l + i * get_mesh_x_dist();
+    }
+    static float get_mesh_y(const uint8_t i) {
+      return bedlevel.margin_f + i * get_mesh_y_dist();
+    }
+    static float get_mesh_x_dist() {
+        return float((X_BED_SIZE - bedlevel.margin_r) - bedlevel.margin_l) / (GRID_MAX_POINTS_X - 1);
+    }
+    static float get_mesh_y_dist() {
+        return float((Y_BED_SIZE - bedlevel.margin_b) - bedlevel.margin_f) / (GRID_MAX_POINTS_Y - 1);
+    }
+  #endif
 
   #if UBL_SEGMENTED
     static bool line_to_destination_segmented(const feedRate_t scaled_fr_mm_s);
@@ -307,7 +333,9 @@ public:
 
 }; // class unified_bed_leveling
 
-extern unified_bed_leveling bedlevel;
+#if DISABLED(DYNAMIC_MARGINS)
+  extern unified_bed_leveling bedlevel;
+#endif
 
 // Prevent debugging propagating to other files
 #include "../../../core/debug_out.h"

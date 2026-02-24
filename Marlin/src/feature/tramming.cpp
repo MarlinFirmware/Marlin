@@ -29,6 +29,9 @@
 #define DEBUG_OUT ENABLED(DEBUG_LEVELING_FEATURE)
 #include "../core/debug_out.h"
 
+#if ALL(DYNAMIC_MARGINS, DYNAMIC_TRAMMING)
+  xy_pos_t tramming_points[] = TRAMMING_POINT_XY;
+#endif
 #define _TRAM_NAME_DEF(N) PGMSTR(point_name_##N, TRAMMING_POINT_NAME_##N);
 #define _TRAM_NAME_ITEM(N) point_name_##N
 REPEAT_1(_NR_TRAM_NAMES, _TRAM_NAME_DEF)

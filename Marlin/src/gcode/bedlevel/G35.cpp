@@ -41,6 +41,18 @@
 //
 
 #include "../../feature/tramming.h"
+#if ALL(DYNAMIC_MARGINS, DYNAMIC_TRAMMING)
+  void updateTrammingPoints() {
+      tramming_points[0].x = bedlevel.margin_l;
+      tramming_points[0].y = bedlevel.margin_f;
+      tramming_points[1].x = X_BED_SIZE - bedlevel.margin_r;
+      tramming_points[1].y = bedlevel.margin_f;
+      tramming_points[2].x = bedlevel.margin_l;
+      tramming_points[2].y = Y_BED_SIZE - bedlevel.margin_b;
+      tramming_points[3].x = X_BED_SIZE - bedlevel.margin_r;
+      tramming_points[3].y = Y_BED_SIZE - bedlevel.margin_b;
+  }
+#endif
 
 /**
  * G35: Read bed corners to help adjust bed screws
@@ -59,6 +71,10 @@ void GcodeSuite::G35() {
   DEBUG_SECTION(log_G35, "G35", DEBUGGING(LEVELING));
 
   if (DEBUGGING(LEVELING)) log_machine_info();
+
+  #if ALL(DYNAMIC_MARGINS, DYNAMIC_TRAMMING)
+    updateTrammingPoints();
+  #endif
 
   float z_measured[G35_PROBE_COUNT] = { 0 };
 
