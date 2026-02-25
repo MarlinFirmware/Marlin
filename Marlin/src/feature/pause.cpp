@@ -731,7 +731,8 @@ void resume_print(
 
   // Now all extrusion positions are resumed and ready to be confirmed
   // Set extruder to saved position
-  planner.set_e_position_mm((motion.destination.e = motion.position.e = resume_position.e));
+  motion.destination.e = motion.position.e = resume_position.e;
+  motion.sync_plan_position_e();
 
   ui.pause_show_message(PAUSE_MESSAGE_STATUS);
   #if ENABLED(SOVOL_SV06_RTS)
