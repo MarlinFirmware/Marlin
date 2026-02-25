@@ -713,6 +713,14 @@ void menu_advanced_settings() {
       ACTION_ITEM(MSG_SET_HOME_OFFSETS, []{ queue.inject(F("M428")); ui.return_to_status(); });
     #endif
 
+    #if ENABLED(ADAPTIVE_FL_Z_OFFSET)
+      // M429 - Set adaptive first layer Z offset
+      EDIT_ITEM(bool, MSG_ADAPTIVE_FL_Z_OFFSET, &parser.adaptive_flzo_enabled);
+      if(parser.adaptive_flzo_enabled) {
+        EDIT_ITEM(float31, MSG_ADAPTIVE_FL_Z_OFFSET, &parser.calibrated_first_layer_height, 0.1f, 1.0f);
+      }
+    #endif
+
     // M203 / M205 - Feedrate items
     SUBMENU(MSG_MAX_SPEED, menu_advanced_velocity);
 

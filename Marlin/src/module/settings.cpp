@@ -241,6 +241,14 @@ typedef struct SettingsDataStruct {
   #endif
 
   //
+  // First Layer Height Compensation
+  //
+  #if ENABLED(ADAPTIVE_FL_Z_OFFSET)
+    float calibrated_first_layer_height;                // M420 H parser.calibrated_first_layer_height
+    bool adaptive_flzo_active;                       // M420 S parser.adaptive_flzo_active
+  #endif
+
+  //
   // Hotend Offset
   //
   #if HAS_HOTEND_OFFSET
@@ -954,6 +962,18 @@ void MarlinSettings::postprocess() {
     #endif // NUM_AXES
 
     //
+    // First Layer Height Compensation
+    //
+
+    #if ENABLED(ADAPTIVE_FL_Z_OFFSET)
+    {
+      _FIELD_TEST(calibrated_first_layer_height);
+      EEPROM_WRITE(parser.calibrated_first_layer_height);
+      _FIELD_TEST(adaptive_flzo_active);
+      EEPROM_WRITE(parser.adaptive_flzo_active);
+    }
+    #endif
+
     // Hotend Offsets
     //
     {
@@ -2023,6 +2043,19 @@ void MarlinSettings::postprocess() {
         #endif
       }
       #endif // NUM_AXES
+
+      //
+      // First Layer Height Compensation
+      //
+
+      #if ENABLED(ADAPTIVE_FL_Z_OFFSET)
+      {
+        _FIELD_TEST(adaptive_flzo_active);
+        EEPROM_READ(parser.adaptive_flzo_active);
+        _FIELD_TEST(calibrated_first_layer_height);
+        EEPROM_READ(parser.calibrated_first_layer_height);
+      }
+      #endif
 
       //
       // Hotend Offsets
@@ -3368,6 +3401,14 @@ void MarlinSettings::reset() {
     motion.scara_home_offset.reset();
   #elif HAS_HOME_OFFSET
     motion.home_offset.reset();
+  #endif
+
+  //
+  // First Layer Height
+  //
+  #if ENABLED(ADAPTIVE_FL_Z_OFFSET)
+    parser.calibrated_first_layer_height = DEFAULT_CAL_FL_HEIGHT;
+    parser.adaptive_flzo_active = false;
   #endif
 
   //

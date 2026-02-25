@@ -226,6 +226,15 @@ public:
   // Seen any axis parameter
   static bool seen_axis() { return seen(STR_AXES_LOGICAL); }
 
+  // Automatic Z offset based on first calibration and detection of first layer height
+  #if ENABLED(ADAPTIVE_FL_Z_OFFSET)
+    static bool adaptive_flzo_active;
+    static bool first_layer_detected;
+    static bool first_layer_offset_applied;
+    static float first_layer_height;
+    static float calibrated_first_layer_height;
+  #endif
+
   #if ENABLED(GCODE_QUOTED_STRINGS)
     static char* unescape_string(char* &src);
   #else

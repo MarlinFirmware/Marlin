@@ -907,6 +907,10 @@ void GcodeSuite::process_parsed_command(bool no_ok/*=false*/) {
         case 428: M428(); break;                                  // M428: Apply position to home_offset
       #endif
 
+      #if ENABLED(ADAPTIVE_FL_Z_OFFSET)
+        case 429: M429(); break;                                  // M429: Set calibrated first layer Z height
+      #endif
+
       #if HAS_POWER_MONITOR
         case 430: M430(); break;                                  // M430: Read the system current (A), voltage (V), and power (W)
       #endif

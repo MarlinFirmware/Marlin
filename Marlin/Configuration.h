@@ -1963,6 +1963,11 @@
 //#define W_MIN_POS 0
 //#define W_MAX_POS 50
 
+//#define ADAPTIVE_FL_Z_OFFSET
+#if ENABLED(ADAPTIVE_FL_Z_OFFSET)
+  #define DEFAULT_CAL_FL_HEIGHT 0.3f               // (mm) Default calibrated first layer height when using ADAPTIVE_FL_Z_OFFSET
+#endif
+
 /**
  * Software Endstops
  *
