@@ -209,6 +209,15 @@ int16_t Motion::feedrate_percentage = 100;
   xyz_pos_t Motion::home_offset{0};
 #endif
 
+#if ENABLED(AUTO_FIRST_LAYER_Z_ADJUST)
+  bool Motion::first_layer_started = false;
+  bool Motion::aflza_active = false;
+  bool Motion::print_started = false;
+  float Motion::calibrated_first_layer_height;
+  float Motion::aflza_last_x = 0.0f;
+  float Motion::aflza_last_y = 0.0f;
+#endif
+
 #if HAS_WORKSPACE_OFFSET
   // The above two are combined to save on computes
   xyz_pos_t Motion::workspace_offset{0};
@@ -1974,6 +1983,26 @@ void Motion::prepare_line_to_destination() {
     }
 
   #endif // PREVENT_COLD_EXTRUSION || PREVENT_LENGTHY_EXTRUDE
+  
+  #if ENABLED(AUTO_FIRST_LAYER_Z_ADJUST)
+    if (!first_layer_started && destination.e > position.e && print_started) {
+      // Detect movement on BOTH axes (priming is single-axis: X OR Y, real print is dual-axis: X AND Y)
+      const bool x_moved = (destination.x - aflza_last_x) != 0.0f;
+      const bool y_moved = (destination.y - aflza_last_y) != 0.0f;
+      
+      // Apply correction when BOTH X and Y axes move with extrusion (first real print line)
+      if (x_moved && y_moved) {
+        home_offset[Z_AXIS] += position.z - calibrated_first_layer_height;
+        first_layer_started = true;
+      }
+      else
+      {
+        // If not both axes moved, reset tracking to avoid applying correction on non-print moves
+        aflza_last_x = destination.x;
+        aflza_last_y = destination.y;
+      }
+    }
+  #endif
 
   if (unpark_before_move()) return;
 

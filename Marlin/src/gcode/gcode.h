@@ -248,7 +248,7 @@
  * M422 - Set Z Stepper automatic alignment position using probe. X<units> Y<units> A<axis> (Requires Z_STEPPER_AUTO_ALIGN)
  * M425 - Enable/Disable and tune backlash correction. (Requires BACKLASH_COMPENSATION and BACKLASH_GCODE)
  * M428 - Set the home_offset based on the position. Nearest edge applies. (Disabled by NO_WORKSPACE_OFFSETS or DELTA)
- * M429 - Set calibrated first layer Z height for ADAPTIVE_FL_Z_OFFSET. (Requires ADAPTIVE_FL_Z_OFFSET)
+ * M429 - Set calibrated first layer Z height for AUTO_FIRST_LAYER_Z_ADJUST. (Requires AUTO_FIRST_LAYER_Z_ADJUST)
  * M430 - Read the system current, voltage, and power (Requires POWER_MONITOR_CURRENT, POWER_MONITOR_VOLTAGE, or POWER_MONITOR_FIXED_VOLTAGE)
  * M485 - Send RS485 packets (Requires RS485_SERIAL_PORT)
  * M486 - Identify and cancel objects. (Requires CANCEL_OBJECTS)
@@ -1108,7 +1108,7 @@ private:
     static void M428();
   #endif
 
-  #if ENABLED(ADAPTIVE_FL_Z_OFFSET)
+  #if ENABLED(AUTO_FIRST_LAYER_Z_ADJUST)
     static void M429();
   #endif
 

@@ -907,7 +907,7 @@ void GcodeSuite::process_parsed_command(bool no_ok/*=false*/) {
         case 428: M428(); break;                                  // M428: Apply position to home_offset
       #endif
 
-      #if ENABLED(ADAPTIVE_FL_Z_OFFSET)
+      #if ENABLED(AUTO_FIRST_LAYER_Z_ADJUST)
         case 429: M429(); break;                                  // M429: Set calibrated first layer Z height
       #endif
 

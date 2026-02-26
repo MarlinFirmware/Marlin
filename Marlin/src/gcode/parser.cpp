@@ -28,7 +28,7 @@
 
 #include "../MarlinCore.h"
 
-#if ENABLED(ADAPTIVE_FL_Z_OFFSET)
+#if ENABLED(AUTO_FIRST_LAYER_Z_ADJUST)
   #include "../module/motion.h"
 #endif
 
@@ -68,14 +68,6 @@ uint16_t GCodeParser::codenum;
   uint8_t GCodeParser::param[26];  // parameter offsets from command_ptr
 #else
   char *GCodeParser::command_args; // start of parameters
-#endif
-
-#if ENABLED(ADAPTIVE_FL_Z_OFFSET)
-  bool GCodeParser::adaptive_flzo_active = false;
-  bool GCodeParser::first_layer_detected = false;
-  bool GCodeParser::first_layer_offset_applied = false;
-  float GCodeParser::first_layer_height;
-  float GCodeParser::calibrated_first_layer_height;
 #endif
 
 // Create a global instance of the G-Code parser singleton
@@ -174,32 +166,6 @@ void GCodeParser::parse(char *p) {
           command_letter = letter;
           return;
         }
-      }
-    }
-  #endif
-
-  #if ENABLED(ADAPTIVE_FL_Z_OFFSET)
-    // Adaptive First Layer Height Detection
-    if (adaptive_flzo_active) {
-      if (!first_layer_detected && seen('Z')) {
-        const float z = value_float();
-
-        if (z > 0.0f) {
-          first_layer_detected = true;
-          first_layer_height = z;
-        }
-      } 
-
-      // First Layer Z Offset Compensation
-      if (first_layer_detected && !first_layer_offset_applied) {
-        const float delta = first_layer_height - calibrated_first_layer_height;
-
-        motion.home_offset[Z_AXIS] += delta;
-        first_layer_offset_applied = true;
-
-        SERIAL_ECHOLN(F("Adaptive First Layer: detected="), first_layer_height,
-                      F(" calibrated="), calibrated_first_layer_height,
-                      F(" new Z offset="), motion.home_offset[Z_AXIS]);
       }
     }
   #endif

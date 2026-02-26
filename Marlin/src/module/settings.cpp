@@ -243,9 +243,9 @@ typedef struct SettingsDataStruct {
   //
   // First Layer Height Compensation
   //
-  #if ENABLED(ADAPTIVE_FL_Z_OFFSET)
+  #if ENABLED(AUTO_FIRST_LAYER_Z_ADJUST)
     float calibrated_first_layer_height;                // M420 H parser.calibrated_first_layer_height
-    bool adaptive_flzo_active;                       // M420 S parser.adaptive_flzo_active
+    bool aflza_active;                                  // M420 S parser.adaptive_flzo_active
   #endif
 
   //
@@ -965,12 +965,12 @@ void MarlinSettings::postprocess() {
     // First Layer Height Compensation
     //
 
-    #if ENABLED(ADAPTIVE_FL_Z_OFFSET)
+    #if ENABLED(AUTO_FIRST_LAYER_Z_ADJUST)
     {
       _FIELD_TEST(calibrated_first_layer_height);
-      EEPROM_WRITE(parser.calibrated_first_layer_height);
-      _FIELD_TEST(adaptive_flzo_active);
-      EEPROM_WRITE(parser.adaptive_flzo_active);
+      EEPROM_WRITE(motion.calibrated_first_layer_height);
+      _FIELD_TEST(aflza_active);
+      EEPROM_WRITE(motion.aflza_active);
     }
     #endif
 
@@ -2048,12 +2048,12 @@ void MarlinSettings::postprocess() {
       // First Layer Height Compensation
       //
 
-      #if ENABLED(ADAPTIVE_FL_Z_OFFSET)
+      #if ENABLED(AUTO_FIRST_LAYER_Z_ADJUST)
       {
-        _FIELD_TEST(adaptive_flzo_active);
-        EEPROM_READ(parser.adaptive_flzo_active);
+        _FIELD_TEST(aflza_active);
+        EEPROM_READ(motion.aflza_active);
         _FIELD_TEST(calibrated_first_layer_height);
-        EEPROM_READ(parser.calibrated_first_layer_height);
+        EEPROM_READ(motion.calibrated_first_layer_height);
       }
       #endif
 
@@ -3406,9 +3406,9 @@ void MarlinSettings::reset() {
   //
   // First Layer Height
   //
-  #if ENABLED(ADAPTIVE_FL_Z_OFFSET)
-    parser.calibrated_first_layer_height = DEFAULT_CAL_FL_HEIGHT;
-    parser.adaptive_flzo_active = false;
+  #if ENABLED(AUTO_FIRST_LAYER_Z_ADJUST)
+    motion.calibrated_first_layer_height = CALIBRATED_FIRST_LAYER_Z;
+    motion.aflza_active = false;
   #endif
 
   //

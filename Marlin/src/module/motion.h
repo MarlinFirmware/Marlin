@@ -213,6 +213,14 @@ public:
     static void set_home_offset(const AxisEnum axis, const float v) { home_offset[axis] = v; }
   #endif
 
+  #if ENABLED(AUTO_FIRST_LAYER_Z_ADJUST)
+    static bool first_layer_started;
+    static bool aflza_active; // Whether to apply the first layer Z offset correction
+    static bool print_started;
+    static float calibrated_first_layer_height; // The first layer height as determined by calibration, used to calculate the Z offset
+    static float aflza_last_x, aflza_last_y;  // Track last positions to detect dual-axis movement (priming is single-axis)
+  #endif
+
   #if HAS_DUPLICATION_MODE
     static bool extruder_duplication;   // Used in Dual X mode 2
     static void _set_duplication_enabled(const bool dupe) { extruder_duplication = dupe; }

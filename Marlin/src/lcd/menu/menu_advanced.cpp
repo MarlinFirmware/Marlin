@@ -713,11 +713,11 @@ void menu_advanced_settings() {
       ACTION_ITEM(MSG_SET_HOME_OFFSETS, []{ queue.inject(F("M428")); ui.return_to_status(); });
     #endif
 
-    #if ENABLED(ADAPTIVE_FL_Z_OFFSET)
+    #if ENABLED(AUTO_FIRST_LAYER_Z_ADJUST)
       // M429 - Set adaptive first layer Z offset
-      EDIT_ITEM(bool, MSG_ADAPTIVE_FL_Z_OFFSET, &parser.adaptive_flzo_enabled);
-      if(parser.adaptive_flzo_enabled) {
-        EDIT_ITEM(float31, MSG_ADAPTIVE_FL_Z_OFFSET, &parser.calibrated_first_layer_height, 0.1f, 1.0f);
+      EDIT_ITEM(bool, MSG_AUTO_FIRST_LAYER_Z_ADJUST, &motion.aflza_active);
+      if(motion.aflza_active) {
+        EDIT_ITEM(float31, MSG_AUTO_FIRST_LAYER_Z_ADJUST, &motion.calibrated_first_layer_height, 0.1f, 1.0f);
       }
     #endif
 
