@@ -311,7 +311,7 @@ void MarlinUI::init_lcd() {
 
   #if ANY(MKS_12864OLED, MKS_12864OLED_SSD1306, FYSETC_242_OLED_12864, ZONESTAR_12864OLED, K3D_242_OLED_CONTROLLER)
 
-    #if defined(LCD_PINS_DC) && LCD_PINS_DC != -1
+    #if defined(LCD_PINS_DC) && LCD_PINS_DC >= 0
       #if IS_I2C_LCD
         I2C_TypeDef *i2cInstance1 = (I2C_TypeDef *)pinmap_peripheral(digitalPinToPinName(DOGLCD_SDA_PIN), PinMap_I2C_SDA);
         I2C_TypeDef *i2cInstance2 = (I2C_TypeDef *)pinmap_peripheral(digitalPinToPinName(DOGLCD_SCL_PIN), PinMap_I2C_SCL);
@@ -454,18 +454,21 @@ void MarlinUI::clear_for_drawing() {
   // Mark a menu item and set font color if selected.
   // Return 'false' if the item is not on screen.
   static bool mark_as_selected(const uint8_t row, const bool sel) {
-    row_y1 = row * (MENU_FONT_HEIGHT) + 1;
-    row_y2 = row_y1 + MENU_FONT_HEIGHT - 1;
+    // Menu page has 2px top margin
+    row_y1 = 2 + row * (MENU_LINE_HEIGHT);
+    row_y2 = row_y1 + MENU_FONT_HEIGHT;
 
-    if (!PAGE_CONTAINS(row_y1 + 1, row_y2 + 2)) return false;
+    // Nothing at all to draw?
+    if (!PAGE_CONTAINS(row_y1, row_y2)) return false;
 
+    // Selected or not, draw background and set foreground color
     if (sel) {
       #if ENABLED(MENU_HOLLOW_FRAME)
-        u8g.drawHLine(0, row_y1 + 1, LCD_PIXEL_WIDTH);
-        u8g.drawHLine(0, row_y2 + 2, LCD_PIXEL_WIDTH);
+        u8g.drawHLine(0, row_y1, LCD_PIXEL_WIDTH); // solid line top
+        u8g.drawHLine(0, row_y2, LCD_PIXEL_WIDTH); // solid line bottom
       #else
-        u8g.setColorIndex(1); // solid outline
-        u8g.drawBox(0, row_y1 + 2, LCD_PIXEL_WIDTH, MENU_FONT_HEIGHT - 1);
+        u8g.setColorIndex(1); // solid fill
+        u8g.drawBox(0, row_y1 + 1, LCD_PIXEL_WIDTH, MENU_FONT_HEIGHT - 1);
         u8g.setColorIndex(0); // inverted text
       #endif
     }
@@ -473,9 +476,11 @@ void MarlinUI::clear_for_drawing() {
       else u8g.setColorIndex(1); // solid text
     #endif
 
-    if (!PAGE_CONTAINS(row_y1, row_y2)) return false;
+    // Will text not fit? Return false.
+    if (!PAGE_CONTAINS(row_y1 - 1, row_y2 - MENU_FONT_DESCENT)) return false;
 
-    lcd_moveto(0, row_y2);
+    // Place the cursor at X = 0, Y = row, return true
+    lcd_moveto(0, row_y2 - MENU_FONT_DESCENT);
     return true;
   }
 

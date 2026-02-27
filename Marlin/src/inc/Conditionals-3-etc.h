@@ -462,6 +462,7 @@
 #endif
 #if ANY(AUTO_BED_LEVELING_LINEAR, AUTO_BED_LEVELING_BILINEAR)
   #define ABL_USES_GRID 1
+  #define HAS_VARIABLE_XY_PROBE_FEEDRATE 1
   #ifndef XY_PROBE_FEEDRATE_MIN
     #define XY_PROBE_FEEDRATE_MIN 60 // Minimum mm/min value for 'G29 S<feedrate>'
   #endif
@@ -583,6 +584,15 @@
 #endif
 #if ANY(COREYZ, COREZY)
   #define CORE_IS_YZ 1
+#endif
+#if ANY(CORE_IS_XY, CORE_IS_XZ, MARKFORGED_XY)
+  #define HAS_REAL_X 1
+#endif
+#if ANY(CORE_IS_XY, CORE_IS_YZ, MARKFORGED_YX)
+  #define HAS_REAL_Y 1
+#endif
+#if CORE_IS_XZ || CORE_IS_YZ
+  #define HAS_REAL_Z 1
 #endif
 #if CORE_IS_XY || CORE_IS_XZ || CORE_IS_YZ
   #define IS_CORE 1

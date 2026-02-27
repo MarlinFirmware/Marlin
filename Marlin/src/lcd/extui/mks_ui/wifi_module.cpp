@@ -1069,8 +1069,8 @@ static void wifi_gcode_exec(uint8_t * const cmd_line) {
                 }
                 card.openFileRead(cur_name);
                 if (card.isFileOpen()) {
-                  //saved_feedrate_percentage = feedrate_percentage;
-                  feedrate_percentage = 100;
+                  //saved_feedrate_percentage = motion.feedrate_percentage;
+                  motion.feedrate_percentage = 100;
                   TERN_(HAS_EXTRUDERS, planner.set_flow(0, 100));
                   E_TERN_(planner.set_flow(1, 100));
                   card.startOrResumeFilePrinting();
@@ -1376,7 +1376,7 @@ static void net_msg_handle(const uint8_t * const msg, const uint16_t msgLen) {
     ZERO(wifiPara.ap_name);
     memcpy(wifiPara.ap_name, &msg[9], wifiNameLen);
 
-    memset(&wifi_list.wifiConnectedName, 0, sizeof(wifi_list.wifiConnectedName));
+    OBJZERO(wifi_list.wifiConnectedName);
     memcpy(&wifi_list.wifiConnectedName, &msg[9], wifiNameLen);
 
     // WiFi key
@@ -2099,7 +2099,7 @@ void get_wifi_commands() {
           // Process critical commands early
           if (strcmp_P(command, PSTR("M108")) == 0) marlin.end_waiting();
           if (strcmp_P(command, PSTR("M112")) == 0) marlin.kill(FPSTR(M112_KILL_STR), nullptr, true);
-          if (strcmp_P(command, PSTR("M410")) == 0) quickstop_stepper();
+          if (strcmp_P(command, PSTR("M410")) == 0) motion.quickstop_stepper();
         #endif
 
         // Add the command to the queue

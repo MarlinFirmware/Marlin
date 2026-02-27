@@ -82,9 +82,9 @@ exec_test $1 $2 "MEGA2560 RAMPS | AXEL_TPARA" "$3"
 # Extruder Only. No XYZ axes at all.
 #
 restore_configs
-opt_set DEFAULT_AXIS_STEPS_PER_UNIT '{ 4000 }' \
-        DEFAULT_MAX_FEEDRATE '{ 5 }' \
-        DEFAULT_MAX_ACCELERATION '{ 100 }' \
+opt_set DEFAULT_AXIS_STEPS_PER_UNIT '{ 500 }' \
+        DEFAULT_MAX_FEEDRATE '{ 25 }' \
+        DEFAULT_MAX_ACCELERATION '{ 10000 }' \
         MANUAL_FEEDRATE '{ 4*60 }' \
         AXIS_RELATIVE_MODES '{ false }' \
         HOMING_BUMP_MM '{}' HOMING_BUMP_DIVISOR '{}' HOMING_FEEDRATE_MM_M '{}'

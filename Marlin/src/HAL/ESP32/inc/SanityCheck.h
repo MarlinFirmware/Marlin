@@ -57,7 +57,7 @@
 #endif
 
 #if ALL(I2S_STEPPER_STREAM, LIN_ADVANCE) && DISABLED(EXPERIMENTAL_I2S_LA)
-  #error "I2S stream is currently incompatible with LIN_ADVANCE."
+  #error "I2S stream is currently incompatible with LIN_ADVANCE. Enable EXPERIMENTAL_I2S_LA to proceed anyway."
 #endif
 
 #if ALL(I2S_STEPPER_STREAM, PRINTCOUNTER) && PRINTCOUNTER_SAVE_INTERVAL > 0 && DISABLED(PRINTCOUNTER_SYNC)

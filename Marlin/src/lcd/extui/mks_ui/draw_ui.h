@@ -205,7 +205,7 @@ typedef struct {
             filamentchange_unload_length,
             filamentchange_unload_speed;
   celsius_t filament_limit_temp;
-  float     pausePosX, pausePosY, pausePosZ;
+  xyz_pos_t pausePos;
   uint32_t  curFilesize;
 } CFG_ITMES;
 
@@ -255,10 +255,7 @@ typedef struct UI_Config_Struct {
            filament_unloading_time_cnt;
   float move_dist;
   celsius_t hotendTargetTempBak;
-  float current_x_position_bak,
-        current_y_position_bak,
-        current_z_position_bak,
-        current_e_position_bak;
+  xyze_pos_t current_position_bak;
 } UI_CFG;
 
 typedef enum {

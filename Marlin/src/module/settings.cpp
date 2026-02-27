@@ -494,7 +494,7 @@ typedef struct SettingsDataStruct {
   per_stepper_bool_t tmc_stealth_enabled;               // M569 X Y Z...
 
   //
-  // LIN_ADVANCE
+  // Linear Advance
   //
   #if HAS_LIN_ADVANCE_K
     float planner_extruder_advance_K[DISTINCT_E];       // M900 K  planner.extruder_advance_K
@@ -728,7 +728,7 @@ uint16_t MarlinSettings::datasize() { return sizeof(SettingsData); }
 #endif
 
 void MarlinSettings::postprocess() {
-  xyze_pos_t oldpos = current_position;
+  xyze_pos_t oldpos = motion.position;
 
   // steps per s2 needs to be updated to agree with units per s2
   planner.refresh_acceleration_rates();
@@ -747,7 +747,7 @@ void MarlinSettings::postprocess() {
   #endif
 
   // Software endstops depend on home_offset
-  LOOP_NUM_AXES(i) update_software_endstops((AxisEnum)i);
+  LOOP_NUM_AXES(i) motion.update_software_endstops((AxisEnum)i);
 
   TERN_(ENABLE_LEVELING_FADE_HEIGHT, set_z_fade_height(new_z_fade_height, false)); // false = no report
 
@@ -764,12 +764,12 @@ void MarlinSettings::postprocess() {
   TERN_(EXTENSIBLE_UI, ExtUI::onPostprocessSettings());
 
   // Refresh mm_per_step with the reciprocal of axis_steps_per_mm
-  // and init stepper.count[], planner.position[] with current_position
+  // and init stepper.count[], planner.position[] with motion.position
   planner.refresh_positioning();
 
   // Various factors can change the current position
-  if (oldpos != current_position)
-    report_current_position();
+  if (oldpos != motion.position)
+    motion.report_position();
 
   // Moved as last update due to interference with NeoPixel init
   TERN_(HAS_LCD_CONTRAST, ui.refresh_contrast());
@@ -942,14 +942,13 @@ void MarlinSettings::postprocess() {
     #if NUM_AXES
     {
       _FIELD_TEST(home_offset);
-
       #if HAS_SCARA_OFFSET
-        EEPROM_WRITE(scara_home_offset);
+        EEPROM_WRITE(motion.scara_home_offset);
+      #elif HAS_HOME_OFFSET
+        EEPROM_WRITE(motion.home_offset);
       #else
-        #if !HAS_HOME_OFFSET
-          const xyz_pos_t home_offset{0};
-        #endif
-        EEPROM_WRITE(home_offset);
+        const xyz_pos_t _home_offset{0};
+        EEPROM_WRITE(_home_offset);
       #endif
     }
     #endif // NUM_AXES
@@ -961,7 +960,7 @@ void MarlinSettings::postprocess() {
       #if HAS_HOTEND_OFFSET
         // Skip hotend 0 which must be 0
         for (uint8_t e = 1; e < HOTENDS; ++e)
-          EEPROM_WRITE(hotend_offset[e]);
+          EEPROM_WRITE(motion.hotend_offset[e]);
       #endif
     }
 
@@ -1388,7 +1387,7 @@ void MarlinSettings::postprocess() {
     //
     #if ENABLED(EDITABLE_HOMING_FEEDRATE)
       _FIELD_TEST(homing_feedrate_mm_m);
-      EEPROM_WRITE(homing_feedrate_mm_m);
+      EEPROM_WRITE(motion.homing_feedrate_mm_m);
     #endif
 
     //
@@ -1809,7 +1808,7 @@ void MarlinSettings::postprocess() {
     // Nonlinear Extrusion
     //
     #if ENABLED(NONLINEAR_EXTRUSION)
-      EEPROM_WRITE(stepper.ne.settings);
+      EEPROM_WRITE(stepper.nle.settings);
     #endif
 
     //
@@ -2014,14 +2013,13 @@ void MarlinSettings::postprocess() {
       #if NUM_AXES
       {
         _FIELD_TEST(home_offset);
-
         #if HAS_SCARA_OFFSET
-          EEPROM_READ(scara_home_offset);
+          EEPROM_READ(motion.scara_home_offset);
+        #elif HAS_HOME_OFFSET
+          EEPROM_READ(motion.home_offset);
         #else
-          #if !HAS_HOME_OFFSET
-            xyz_pos_t home_offset;
-          #endif
-          EEPROM_READ(home_offset);
+          const xyz_pos_t _home_offset{0};
+          EEPROM_READ(_home_offset);
         #endif
       }
       #endif // NUM_AXES
@@ -2033,7 +2031,7 @@ void MarlinSettings::postprocess() {
         #if HAS_HOTEND_OFFSET
           // Skip hotend 0 which must be 0
           for (uint8_t e = 1; e < HOTENDS; ++e)
-            EEPROM_READ(hotend_offset[e]);
+            EEPROM_READ(motion.hotend_offset[e]);
         #endif
       }
 
@@ -2483,7 +2481,7 @@ void MarlinSettings::postprocess() {
       //
       #if ENABLED(EDITABLE_HOMING_FEEDRATE)
         _FIELD_TEST(homing_feedrate_mm_m);
-        EEPROM_READ(homing_feedrate_mm_m);
+        EEPROM_READ(motion.homing_feedrate_mm_m);
       #endif
 
       //
@@ -2962,7 +2960,7 @@ void MarlinSettings::postprocess() {
       // Nonlinear Extrusion
       //
       #if ENABLED(NONLINEAR_EXTRUSION)
-        EEPROM_READ(stepper.ne.settings);
+        EEPROM_READ(stepper.nle.settings);
       #endif
 
       //
@@ -3367,15 +3365,15 @@ void MarlinSettings::reset() {
   // Home Offset
   //
   #if HAS_SCARA_OFFSET
-    scara_home_offset.reset();
+    motion.scara_home_offset.reset();
   #elif HAS_HOME_OFFSET
-    home_offset.reset();
+    motion.home_offset.reset();
   #endif
 
   //
   // Hotend Offsets
   //
-  TERN_(HAS_HOTEND_OFFSET, reset_hotend_offsets());
+  TERN_(HAS_HOTEND_OFFSET, motion.reset_hotend_offsets());
 
   //
   // Spindle Acceleration
@@ -3600,7 +3598,7 @@ void MarlinSettings::reset() {
   //
   // Homing Feedrate
   //
-  TERN_(EDITABLE_HOMING_FEEDRATE, homing_feedrate_mm_m = xyz_feedrate_t(HOMING_FEEDRATE_MM_M));
+  TERN_(EDITABLE_HOMING_FEEDRATE, motion.homing_feedrate_mm_m = xyz_feedrate_t(HOMING_FEEDRATE_MM_M));
 
   //
   // TMC Homing Current
@@ -3645,7 +3643,7 @@ void MarlinSettings::reset() {
   //
   // Linear Advance
   //
-  #if ENABLED(LIN_ADVANCE)
+  #if HAS_LIN_ADVANCE_K
     #if ENABLED(DISTINCT_E_FACTORS)
 
       constexpr float linAdvanceK[] = ADVANCE_K;
@@ -3669,7 +3667,7 @@ void MarlinSettings::reset() {
       #endif
 
     #endif
-  #endif // LIN_ADVANCE
+  #endif // HAS_LIN_ADVANCE_K
 
   //
   // Motor Current PWM
@@ -3800,7 +3798,7 @@ void MarlinSettings::reset() {
   //
   // Nonlinear Extrusion
   //
-  TERN_(NONLINEAR_EXTRUSION, stepper.ne.settings.reset());
+  TERN_(NONLINEAR_EXTRUSION, stepper.nle.settings.reset());
 
   //
   // Input Shaping
