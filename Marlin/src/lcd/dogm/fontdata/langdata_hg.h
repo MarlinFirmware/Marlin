@@ -8,4 +8,4 @@
 #include "langdata.h"
 
 // Hinglish uses the base ISO10646-1 pages, so no extra glyphs are needed.
-static const uxg_fontinfo_t g_fontinfo_hinglish[] PROGMEM = {};
+static const uxg_fontinfo_t g_fontinfo_hg[] PROGMEM = {};

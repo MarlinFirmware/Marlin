@@ -31,7 +31,7 @@
 #define DISPLAY_CHARSET_ISO10646_1
 #define NOT_EXTENDED_ISO10646_1_5X7
 
-namespace LanguageNarrow_hinglish {
+namespace LanguageNarrow_hg {
   using namespace Language_en; // Inherit undefined strings from English
 
   constexpr uint8_t CHARSIZE              = 2;
@@ -83,6 +83,6 @@ namespace LanguageNarrow_hinglish {
   LSTR MSG_BUTTON_INIT                    = _UxGT("Shuru");
 }
 
-namespace Language_hinglish {
-  using namespace LanguageNarrow_hinglish;
+namespace Language_hg {
+  using namespace LanguageNarrow_hg;
 }

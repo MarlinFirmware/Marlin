@@ -57,7 +57,7 @@
 // fr         French
 // fr_na      French without accents (DWIN T5UID1 touchscreen)
 // gl         Galician
-// hinglish   Hinglish (Hindi in Latin script)
+// hg         Hinglish (Hindi in Latin script)
 // hr         Croatian
 // hu         Hungarian
 // id         Indonesian (Bahasa)

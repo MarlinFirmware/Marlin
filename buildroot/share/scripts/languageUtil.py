@@ -18,7 +18,7 @@ LANGNAME = {
     'fi': "Finnish",
     'fr': "French", 'fr_na': "French (no accent)",
     'gl': "Galician",
-    'hinglish': "Hinglish (Hindi-Latin)",
+    'hg': "Hinglish (Hindi-Latin)",
     'hr': "Croatian (Hrvatski)",
     'hu': "Hungarian / Magyar",
     'id': "Indonesian",
