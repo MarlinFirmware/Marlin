@@ -377,14 +377,6 @@ void Marlin::startOrResumeJob() {
     TERN_(LCD_SHOW_E_TOTAL, motion.e_move_accumulator = 0);
     TERN_(SET_REMAINING_TIME, ui.reset_remaining_time());
     TERN_(HAS_PRUSA_MMU3, MMU3::operation_statistics.reset_per_print_stats());
-    #if ENABLED(AUTO_FIRST_LAYER_Z_ADJUST)
-      motion.first_layer_started = false;
-      if (motion.aflza_active) {
-        motion.print_started = true;
-        motion.aflza_last_x = motion.position.x;
-        motion.aflza_last_y = motion.position.y;
-      }
-    #endif
   }
   print_job_timer.start();
 }
@@ -1009,14 +1001,7 @@ void Marlin::stop() {
   #if ANY(PROBING_FANS_OFF, ADVANCED_PAUSE_FANS_PAUSE)
     thermalManager.set_fans_paused(false); // Un-pause fans for safety
   #endif
-
-  #if ENABLED(AUTO_FIRST_LAYER_Z_ADJUST)
-    motion.first_layer_started = false;
-    motion.print_started = false;
-    motion.aflza_last_x = 0.0f;
-    motion.aflza_last_y = 0.0f;
-  #endif
-
+  
   if (!isStopped()) {
     SERIAL_ERROR_MSG(STR_ERR_STOPPED);
     LCD_MESSAGE(MSG_STOPPED);

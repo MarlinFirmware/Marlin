@@ -51,6 +51,13 @@ char *GCodeParser::command_ptr,
 char GCodeParser::command_letter;
 uint16_t GCodeParser::codenum;
 
+#if ENABLED(AUTO_FIRST_LAYER_Z_ADJUST)
+  bool GCodeParser::first_layer_detected = false;
+  bool GCodeParser::aflza_active = false;
+  float GCodeParser::aflza_delta = 0.0f;
+  float GCodeParser::calibrated_first_layer_height;
+#endif
+
 #if USE_GCODE_SUBCODES
   uint8_t GCodeParser::subcode;
 #endif
@@ -372,6 +379,29 @@ void GCodeParser::parse(char *p) {
       while (*p == ' ') p++;                    // Skip over all spaces
     }
   }
+
+  #if ENABLED(AUTO_FIRST_LAYER_Z_ADJUST)
+    if(aflza_active && !first_layer_detected) {
+      if (letter == 'G' && (codenum == 0 || codenum == 1) && seen('Z')) {
+
+        // First layer detection is based on the presence of a Z parameter without any X, Y, or E parameters.
+        const bool hasXYE = seen('X') || seen('Y') || seen('E');
+
+        if (!hasXYE) {
+          const float z = value_linear_units();
+
+          // Maximum layer height for the first layer
+          // Value just above the maximum recommended layer height for a 1 mm nozzle.
+          if (z < 0.80f) {
+            first_layer_detected = true;
+            aflza_delta = z - calibrated_first_layer_height;
+            if(aflza_delta == 0.0f)
+              aflza_active = false; // No correction needed
+          }
+        }
+      }
+    }
+  #endif
 }
 
 #if ENABLED(CNC_COORDINATE_SYSTEMS)

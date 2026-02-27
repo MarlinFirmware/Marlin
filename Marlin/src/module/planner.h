@@ -85,6 +85,10 @@
   #include "../feature/closedloop.h"
 #endif
 
+#if ENABLED(AUTO_FIRST_LAYER_Z_ADJUST)
+  #include "../gcode/parser.h"  
+#endif
+
 // Feedrate for manual moves
 #ifdef MANUAL_FEEDRATE
   #define _RATE_MM_SEC(A) MMM_TO_MMS(manual_feedrate_mm_m.A),
@@ -883,6 +887,7 @@ class Planner {
         TERN_(SKEW_CORRECTION, skew(pos));
         if (leveling) apply_leveling(pos);
         TERN_(FWRETRACT, apply_retract(pos));
+        TERN_(AUTO_FIRST_LAYER_Z_ADJUST, if(parser.aflza_active) pos.z += parser.aflza_delta);
       }
 
       /**

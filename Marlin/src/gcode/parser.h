@@ -89,6 +89,13 @@ public:
     static uint8_t subcode;               // .1
   #endif
 
+  #if ENABLED(AUTO_FIRST_LAYER_Z_ADJUST)
+    static bool first_layer_detected;
+    static bool aflza_active; // Whether to apply the first layer Z offset correction
+    static float aflza_delta; // The Z offset to apply to the first layer, calculated as the difference between the detected first layer Z and the calibrated first layer height
+    static float calibrated_first_layer_height; // The first layer height as determined by calibration, used to calculate the Z offset
+  #endif
+
   #if ENABLED(GCODE_MOTION_MODES)
     static int16_t motion_mode_codenum;
     #if USE_GCODE_SUBCODES

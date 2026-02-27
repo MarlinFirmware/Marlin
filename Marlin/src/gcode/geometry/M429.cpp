@@ -25,7 +25,7 @@
 #if ENABLED(AUTO_FIRST_LAYER_Z_ADJUST)
 
 #include "../gcode.h"
-#include "../../module/motion.h"
+#include "../parser.h"
 
 /**
  * M429: Configure and run the resonance test.
@@ -44,14 +44,14 @@
 void GcodeSuite::M429() {
     if (parser.seen('S')) {
         const bool val = parser.value_bool();
-        motion.aflza_active = val;
+        parser.aflza_active = val;
         SERIAL_ECHOLN(F("Auto First Layer Z Adjust "), val ? F("A") : F("Dea"), F("ctivated"));
     }
     if (parser.seenval('H')) {
         const float val = parser.value_float();
         if WITHIN(val, 0.0f, 1.0f) {
-            motion.calibrated_first_layer_height = val;
-            SERIAL_ECHOLN(F("Calibrated First Layer Height set to "), motion.calibrated_first_layer_height, F(" mm"));
+            parser.calibrated_first_layer_height = val;
+            SERIAL_ECHOLN(F("Calibrated First Layer Height set to "), parser.calibrated_first_layer_height, F(" mm"));
         }
         else {
             SERIAL_ECHOLN(F("?Invalid Calibrated First Layer Height [H]. (0.0 .. 1.0 mm)"));

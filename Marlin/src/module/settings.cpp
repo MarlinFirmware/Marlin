@@ -968,9 +968,9 @@ void MarlinSettings::postprocess() {
     #if ENABLED(AUTO_FIRST_LAYER_Z_ADJUST)
     {
       _FIELD_TEST(calibrated_first_layer_height);
-      EEPROM_WRITE(motion.calibrated_first_layer_height);
+      EEPROM_WRITE(parser.calibrated_first_layer_height);
       _FIELD_TEST(aflza_active);
-      EEPROM_WRITE(motion.aflza_active);
+      EEPROM_WRITE(parser.aflza_active);
     }
     #endif
 
@@ -2051,9 +2051,9 @@ void MarlinSettings::postprocess() {
       #if ENABLED(AUTO_FIRST_LAYER_Z_ADJUST)
       {
         _FIELD_TEST(aflza_active);
-        EEPROM_READ(motion.aflza_active);
+        EEPROM_READ(parser.aflza_active);
         _FIELD_TEST(calibrated_first_layer_height);
-        EEPROM_READ(motion.calibrated_first_layer_height);
+        EEPROM_READ(parser.calibrated_first_layer_height);
       }
       #endif
 
@@ -3407,8 +3407,8 @@ void MarlinSettings::reset() {
   // First Layer Height
   //
   #if ENABLED(AUTO_FIRST_LAYER_Z_ADJUST)
-    motion.calibrated_first_layer_height = CALIBRATED_FIRST_LAYER_Z;
-    motion.aflza_active = false;
+    parser.calibrated_first_layer_height = CALIBRATED_FIRST_LAYER_Z;
+    parser.aflza_active = false;
   #endif
 
   //

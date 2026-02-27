@@ -715,9 +715,9 @@ void menu_advanced_settings() {
 
     #if ENABLED(AUTO_FIRST_LAYER_Z_ADJUST)
       // M429 - Set adaptive first layer Z offset
-      EDIT_ITEM(bool, MSG_AUTO_FIRST_LAYER_Z_ADJUST, &motion.aflza_active);
-      if(motion.aflza_active) {
-        EDIT_ITEM(float31, MSG_AUTO_FIRST_LAYER_Z_ADJUST, &motion.calibrated_first_layer_height, 0.1f, 1.0f);
+      EDIT_ITEM(bool, MSG_AUTO_FIRST_LAYER_Z_ADJUST, &parser.aflza_active);
+      if(parser.aflza_active) {
+        EDIT_ITEM(float31, MSG_AUTO_FIRST_LAYER_Z_ADJUST, &parser.calibrated_first_layer_height, 0.1f, 1.0f);
       }
     #endif
 
