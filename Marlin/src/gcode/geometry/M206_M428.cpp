@@ -83,8 +83,8 @@ void GcodeSuite::M428() {
 
   xyz_float_t diff;
   LOOP_NUM_AXES(i) {
-    diff[i] = base_home_pos((AxisEnum)i) - motion.position[i];
-    if (!WITHIN(diff[i], -20, 20) && home_dir((AxisEnum)i) > 0)
+    diff[i] = motion.base_home_pos((AxisEnum)i) - motion.position[i];
+    if (!WITHIN(diff[i], -20, 20) && motion.home_dir((AxisEnum)i) > 0)
       diff[i] = -motion.position[i];
     if (!WITHIN(diff[i], -20, 20)) {
       SERIAL_ERROR_MSG(STR_ERR_M428_TOO_FAR);

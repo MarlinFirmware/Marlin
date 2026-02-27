@@ -408,7 +408,7 @@
   #define HAS_CLASSIC_E_JERK 1
 #endif
 // E jerk is derived from JD factors
-#if ALL(HAS_JUNCTION_DEVIATION, LIN_ADVANCE)
+#if HAS_JUNCTION_DEVIATION && ANY(LIN_ADVANCE, FTM_HAS_LIN_ADVANCE)
   #define HAS_LINEAR_E_JERK 1
 #endif
 

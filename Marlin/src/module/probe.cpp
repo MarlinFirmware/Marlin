@@ -552,7 +552,7 @@ bool Probe::set_deployed(const bool deploy, const bool no_return/*=false*/) {
   #endif
 
   if (z_raise_wanted) {
-    const float zdest = DIFF_TERN(HAS_HOTEND_OFFSET, Z_CLEARANCE_DEPLOY_PROBE, hotend_offset[motion.extruder].z);
+    const float zdest = DIFF_TERN(HAS_HOTEND_OFFSET, Z_CLEARANCE_DEPLOY_PROBE, motion.active_hotend_offset().z);
     if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Raise Z to ", zdest);
     motion.do_z_clearance(zdest);
   }
@@ -780,7 +780,7 @@ bool Probe::probe_down_to_z(const float z, const feedRate_t fr_mm_s) {
 float Probe::run_z_probe(const bool sanity_check/*=true*/, const float z_min_point/*=Z_PROBE_LOW_POINT*/, const float z_clearance/*=Z_TWEEN_SAFE_CLEARANCE*/) {
   DEBUG_SECTION(log_probe, "Probe::run_z_probe", DEBUGGING(LEVELING));
 
-  const float zoffs = SUM_TERN(HAS_HOTEND_OFFSET, -offset.z, hotend_offset[motion.extruder].z);
+  const float zoffs = SUM_TERN(HAS_HOTEND_OFFSET, -offset.z, motion.active_hotend_offset().z);
 
   auto try_to_probe = [&](PGM_P const plbl, const float z_probe_low_point, const feedRate_t fr_mm_s, const bool scheck) -> bool {
     constexpr float error_tolerance = Z_PROBE_ERROR_TOLERANCE;
@@ -819,7 +819,7 @@ float Probe::run_z_probe(const bool sanity_check/*=true*/, const float z_min_poi
     if (TERN0(PROBE_TARE, tare())) return NAN;
 
     // Do a first probe at the fast speed
-    if (try_to_probe(PSTR("FAST"), z_probe_low_point, z_probe_fast_mm_s, sanity_check)) return NAN;
+    if (try_to_probe(PSTR("FAST"), z_probe_low_point, motion.z_probe_fast_mm_s, sanity_check)) return NAN;
 
     const float z1 = DIFF_TERN(HAS_DELTA_SENSORLESS_PROBING, motion.position.z, largest_sensorless_adj);
     if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("1st Probe Z:", z1);
@@ -834,7 +834,7 @@ float Probe::run_z_probe(const bool sanity_check/*=true*/, const float z_min_poi
     const float z = (Z_CLEARANCE_DEPLOY_PROBE) + 5.0f + _MAX(zoffs, 0.0f);
     if (motion.position.z > z) {
       // Probe down fast. If the probe never triggered, raise for probe clearance
-      if (!probe_down_to_z(z, z_probe_fast_mm_s))
+      if (!probe_down_to_z(z, motion.z_probe_fast_mm_s))
         motion.do_z_clearance(z_clearance);
     }
   #endif
@@ -859,7 +859,7 @@ float Probe::run_z_probe(const bool sanity_check/*=true*/, const float z_min_poi
 
       // Probe downward slowly to find the bed
       if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Slow Probe:");
-      if (try_to_probe(PSTR("SLOW"), z_probe_low_point, z_probe_slow_mm_s, sanity_check)) return NAN;
+      if (try_to_probe(PSTR("SLOW"), z_probe_low_point, motion.z_probe_slow_mm_s, sanity_check)) return NAN;
 
       TERN_(MEASURE_BACKLASH_WHEN_PROBING, backlash.measure_with_probe());
 
@@ -928,7 +928,7 @@ float Probe::run_z_probe(const bool sanity_check/*=true*/, const float z_min_poi
 
   #endif
 
-  return DIFF_TERN(HAS_HOTEND_OFFSET, measured_z, hotend_offset[motion.extruder].z);
+  return DIFF_TERN(HAS_HOTEND_OFFSET, measured_z, motion.active_hotend_offset().z);
 }
 
 #if DO_TOOLCHANGE_FOR_PROBING
@@ -1007,7 +1007,7 @@ float Probe::probe_at_point(
   if (DEBUGGING(LEVELING)) DEBUG_ECHOPGM("Move to probe");
   if (probe_relative) { // Get the nozzle position, adjust for active hotend if not 0
     if (DEBUGGING(LEVELING)) DEBUG_ECHOPGM("-relative");
-    npos -= DIFF_TERN(HAS_HOTEND_OFFSET, offset_xy, xy_pos_t(hotend_offset[motion.extruder]));
+    npos -= DIFF_TERN(HAS_HOTEND_OFFSET, offset_xy, motion.active_hotend_offset());
   }
   if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM(" point");
 
@@ -1015,7 +1015,7 @@ float Probe::probe_at_point(
   motion.blocking_move(npos, feedRate_t(XY_PROBE_FEEDRATE_MM_S));
 
   // Change Z motor current to homing current
-  TERN_(PROBING_USE_CURRENT_HOME, set_homing_current(Z_AXIS));
+  TERN_(PROBING_USE_CURRENT_HOME, motion.set_homing_current(Z_AXIS));
 
   float measured_z;
 
@@ -1075,7 +1075,7 @@ float Probe::probe_at_point(
   #endif // !BD_SENSOR
 
   // Restore the Z homing current
-  TERN_(PROBING_USE_CURRENT_HOME, restore_homing_current(Z_AXIS));
+  TERN_(PROBING_USE_CURRENT_HOME, motion.restore_homing_current(Z_AXIS));
 
   return measured_z;
 }

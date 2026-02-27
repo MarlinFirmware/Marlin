@@ -112,8 +112,8 @@ void recalc_delta_settings() {
 void inverse_kinematics(const xyz_pos_t &raw) {
   #if HAS_HOTEND_OFFSET
     // Delta hotend offsets must be applied in Cartesian space with no "spoofing"
-    xyz_pos_t pos = { raw.x - hotend_offset[motion.extruder].x,
-                      raw.y - hotend_offset[motion.extruder].y,
+    xyz_pos_t pos = { raw.x - motion.active_hotend_offset().x,
+                      raw.y - motion.active_hotend_offset().y,
                       raw.z };
     DELTA_IK(pos);
     //DELTA_DEBUG(pos);
@@ -226,22 +226,22 @@ void home_delta() {
 
   // Disable stealthChop if used. Enable diag1 pin on driver.
   #if ENABLED(SENSORLESS_HOMING)
-    TERN_(X_SENSORLESS, sensorless_t stealth_states_x = start_sensorless_homing_per_axis(X_AXIS));
-    TERN_(Y_SENSORLESS, sensorless_t stealth_states_y = start_sensorless_homing_per_axis(Y_AXIS));
-    TERN_(Z_SENSORLESS, sensorless_t stealth_states_z = start_sensorless_homing_per_axis(Z_AXIS));
-    TERN_(I_SENSORLESS, sensorless_t stealth_states_i = start_sensorless_homing_per_axis(I_AXIS));
-    TERN_(J_SENSORLESS, sensorless_t stealth_states_j = start_sensorless_homing_per_axis(J_AXIS));
-    TERN_(K_SENSORLESS, sensorless_t stealth_states_k = start_sensorless_homing_per_axis(K_AXIS));
-    TERN_(U_SENSORLESS, sensorless_t stealth_states_u = start_sensorless_homing_per_axis(U_AXIS));
-    TERN_(V_SENSORLESS, sensorless_t stealth_states_v = start_sensorless_homing_per_axis(V_AXIS));
-    TERN_(W_SENSORLESS, sensorless_t stealth_states_w = start_sensorless_homing_per_axis(W_AXIS));
+    TERN_(X_SENSORLESS, sensorless_t stealth_states_x = motion.sensorless_axis_homing_start(X_AXIS));
+    TERN_(Y_SENSORLESS, sensorless_t stealth_states_y = motion.sensorless_axis_homing_start(Y_AXIS));
+    TERN_(Z_SENSORLESS, sensorless_t stealth_states_z = motion.sensorless_axis_homing_start(Z_AXIS));
+    TERN_(I_SENSORLESS, sensorless_t stealth_states_i = motion.sensorless_axis_homing_start(I_AXIS));
+    TERN_(J_SENSORLESS, sensorless_t stealth_states_j = motion.sensorless_axis_homing_start(J_AXIS));
+    TERN_(K_SENSORLESS, sensorless_t stealth_states_k = motion.sensorless_axis_homing_start(K_AXIS));
+    TERN_(U_SENSORLESS, sensorless_t stealth_states_u = motion.sensorless_axis_homing_start(U_AXIS));
+    TERN_(V_SENSORLESS, sensorless_t stealth_states_v = motion.sensorless_axis_homing_start(V_AXIS));
+    TERN_(W_SENSORLESS, sensorless_t stealth_states_w = motion.sensorless_axis_homing_start(W_AXIS));
     #if SENSORLESS_STALLGUARD_DELAY
       safe_delay(SENSORLESS_STALLGUARD_DELAY); // Short delay needed to settle
     #endif
   #endif
 
   // Set homing current for all motors
-  TERN_(HAS_HOMING_CURRENT, set_homing_current(Z_AXIS));
+  TERN_(HAS_HOMING_CURRENT, motion.set_homing_current(Z_AXIS));
 
   // Move all carriages together linearly until an endstop is hit.
   motion.position.z = DIFF_TERN(HAS_BED_PROBE, delta_height + 10, probe.offset.z);
@@ -250,19 +250,19 @@ void home_delta() {
   TERN_(HAS_DELTA_SENSORLESS_PROBING, endstops.report_states());
 
   // Restore the homing current for all motors
-  TERN_(HAS_HOMING_CURRENT, restore_homing_current(Z_AXIS));
+  TERN_(HAS_HOMING_CURRENT, motion.restore_homing_current(Z_AXIS));
 
   // Re-enable stealthChop if used. Disable diag1 pin on driver.
   #if ENABLED(SENSORLESS_HOMING) && DISABLED(ENDSTOPS_ALWAYS_ON_DEFAULT)
-    TERN_(X_SENSORLESS, end_sensorless_homing_per_axis(X_AXIS, stealth_states_x));
-    TERN_(Y_SENSORLESS, end_sensorless_homing_per_axis(Y_AXIS, stealth_states_y));
-    TERN_(Z_SENSORLESS, end_sensorless_homing_per_axis(Z_AXIS, stealth_states_z));
-    TERN_(I_SENSORLESS, end_sensorless_homing_per_axis(I_AXIS, stealth_states_i));
-    TERN_(J_SENSORLESS, end_sensorless_homing_per_axis(J_AXIS, stealth_states_j));
-    TERN_(K_SENSORLESS, end_sensorless_homing_per_axis(K_AXIS, stealth_states_k));
-    TERN_(U_SENSORLESS, end_sensorless_homing_per_axis(U_AXIS, stealth_states_u));
-    TERN_(V_SENSORLESS, end_sensorless_homing_per_axis(V_AXIS, stealth_states_v));
-    TERN_(W_SENSORLESS, end_sensorless_homing_per_axis(W_AXIS, stealth_states_w));
+    TERN_(X_SENSORLESS, motion.sensorless_axis_homing_end(X_AXIS, stealth_states_x));
+    TERN_(Y_SENSORLESS, motion.sensorless_axis_homing_end(Y_AXIS, stealth_states_y));
+    TERN_(Z_SENSORLESS, motion.sensorless_axis_homing_end(Z_AXIS, stealth_states_z));
+    TERN_(I_SENSORLESS, motion.sensorless_axis_homing_end(I_AXIS, stealth_states_i));
+    TERN_(J_SENSORLESS, motion.sensorless_axis_homing_end(J_AXIS, stealth_states_j));
+    TERN_(K_SENSORLESS, motion.sensorless_axis_homing_end(K_AXIS, stealth_states_k));
+    TERN_(U_SENSORLESS, motion.sensorless_axis_homing_end(U_AXIS, stealth_states_u));
+    TERN_(V_SENSORLESS, motion.sensorless_axis_homing_end(V_AXIS, stealth_states_v));
+    TERN_(W_SENSORLESS, motion.sensorless_axis_homing_end(W_AXIS, stealth_states_w));
     #if SENSORLESS_STALLGUARD_DELAY
       safe_delay(SENSORLESS_STALLGUARD_DELAY); // Short delay needed to settle
     #endif

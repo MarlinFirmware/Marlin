@@ -303,8 +303,8 @@ class FilamentSensorBase {
       static bool poll_runout_state(const uint8_t extruder) {
         const uint8_t runout_states = poll_runout_states();
         #if MULTI_FILAMENT_SENSOR
-          if ( !TERN0(DUAL_X_CARRIAGE, idex_is_duplicating())
-            && !TERN0(MULTI_NOZZLE_DUPLICATION, extruder_duplication_enabled)
+          if ( !TERN0(DUAL_X_CARRIAGE, motion.idex_is_duplicating())
+            && !TERN0(MULTI_NOZZLE_DUPLICATION, motion.extruder_duplication)
           ) return TEST(runout_states, extruder); // A specific extruder ran out
         #else
           UNUSED(extruder);

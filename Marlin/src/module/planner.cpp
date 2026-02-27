@@ -2151,7 +2151,7 @@ bool Planner::_populate_block(
         #define E_STEPPER_INDEX(E) TERN(HAS_SWITCHING_EXTRUDER, (E) / 2, E)
 
         // Enable all (i.e., both) E steppers for IDEX-style duplication, but only active E steppers for multi-nozzle (i.e., single wide X carriage) duplication
-        #define _IS_DUPE(N) TERN0(HAS_DUPLICATION_MODE, (extruder_duplication_enabled && TERN1(MULTI_NOZZLE_DUPLICATION, TEST(duplication_e_mask, N))))
+        #define _IS_DUPE(N) TERN0(HAS_DUPLICATION_MODE, (motion.extruder_duplication && TERN1(MULTI_NOZZLE_DUPLICATION, TEST(motion.duplication_e_mask, N))))
 
         #define ENABLE_ONE_E(N) do{ \
           if (N == E_STEPPER_INDEX(extruder) || _IS_DUPE(N)) {  /* N is 'extruder', or N is duplicating */ \
