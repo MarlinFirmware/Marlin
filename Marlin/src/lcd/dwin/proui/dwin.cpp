@@ -3228,15 +3228,12 @@ frame_rect_t selrect(frame_rect_t) {
 }
 
 void drawPrepareMenu() {
-  constexpr uint8_t items = (3
-    + COUNT_ENABLED(LCD_BED_TRAMMING)
-    + 2
-    + TERN(MESH_BED_LEVELING, 1, ENABLED(HAS_BED_PROBE))
+  constexpr uint8_t items = (5
     + TERN(HAS_ZOFFSET_ITEM, ENABLED(HAS_BED_PROBE), ENABLED(BABYSTEPPING))
-    + PREHEAT_COUNT
+    + COUNT_ENABLED(LCD_BED_TRAMMING)
+    + ENABLED(HAS_PREHEAT)
     + 1
     + 2 * ALL(PROUI_TUNING_GRAPH, PROUI_ITEM_PLOT)
-    + 1
   );
   checkkey = ID_Menu;
   if (SET_MENU_R(prepareMenu, selrect({133, 1, 28, 13}), MSG_PREPARE, items)) {
@@ -3309,9 +3306,11 @@ void drawPrepareMenu() {
 
 void drawControlMenu() {
   constexpr uint8_t items = (3
-    + COUNT_ENABLED(CASE_LIGHT_MENU, LED_CONTROL_MENU)
+    + ENABLED(HAS_CUSTOM_COLORS)
+    + ENABLED(HAS_ESDIAG)
+    + ENABLED(HAS_LOCKSCREEN)
     + TERN0(EEPROM_SETTINGS, 3)
-    + 2
+    + 4
   );
   checkkey = ID_Menu;
   if (SET_MENU_R(controlMenu, selrect({103, 1, 28, 14}), MSG_CONTROL, items)) {
@@ -3343,16 +3342,16 @@ void drawControlMenu() {
 
 void drawAdvancedSettingsMenu() {
   constexpr uint8_t items = (1
-    + COUNT_ENABLED(EEPROM_SETTINGS, HAS_MESH, HAS_BED_PROBE, HAS_HOME_OFFSET, HAS_TRINAMIC_CONFIG, HAS_ESDIAG, \
-                    HAS_LOCKSCREEN, EDITABLE_DISPLAY_TIMEOUT, SOUND_MENU_ITEM, POWER_LOSS_RECOVERY, HAS_GCODE_PREVIEW, \
-                    PROUI_MEDIASORT, BAUD_RATE_GCODE, HAS_CUSTOM_COLORS)
-    + 1
+    + COUNT_ENABLED(EEPROM_SETTINGS, HAS_BED_PROBE, HAS_HOME_OFFSET)
     + (ENABLED(PIDTEMP) && ANY(PID_AUTOTUNE_MENU, PID_EDIT_MENU))
     + ANY(MPC_EDIT_MENU, MPC_AUTOTUNE_MENU)
     + (ENABLED(PIDTEMPBED) && ANY(PID_AUTOTUNE_MENU, PID_EDIT_MENU))
     + TERN0(PRINTCOUNTER, 2)
+    + COUNT_ENABLED(EDITABLE_DISPLAY_TIMEOUT, SOUND_MENU_ITEM, POWER_LOSS_RECOVERY, HAS_GCODE_PREVIEW, PROUI_MEDIASORT)
     + 1
     + TERN0(HAS_LCD_BRIGHTNESS, 2)
+    + ENABLED(CASE_LIGHT_MENU)
+    + ENABLED(LED_CONTROL_MENU)
   );
   checkkey = ID_Menu;
   if (SET_MENU(advancedSettingsMenu, MSG_ADVANCED_SETTINGS, items)) {
@@ -3469,8 +3468,9 @@ void drawMoveMenu() {
 
   void drawProbeSetMenu() {
     constexpr uint8_t items = (1
-      + COUNT_ENABLED(HAS_X_AXIS, HAS_Y_AXIS, HAS_Z_AXIS, Z_MIN_PROBE_REPEATABILITY_TEST)
+      + COUNT_ENABLED(HAS_X_AXIS, HAS_Y_AXIS, HAS_Z_AXIS, BD_SENSOR, PROUI_ITEM_ZFR, Z_MIN_PROBE_REPEATABILITY_TEST)
       + TERN0(BLTOUCH, 3 + ENABLED(HAS_BLTOUCH_HS_MODE))
+      + ENABLED(Z_MIN_PROBE_REPEATABILITY_TEST)
     );
     checkkey = ID_Menu;
     if (SET_MENU(probeSettingsMenu, MSG_ZPROBE_SETTINGS, items)) {
@@ -3484,9 +3484,11 @@ void drawMoveMenu() {
       #if HAS_Z_AXIS
         EDIT_ITEM(ICON_ProbeOffsetZ, MSG_ZPROBE_ZOFFSET, onDrawPFloat2Menu, setProbeOffsetZ, &probe.offset.z);
       #endif
-      IF_DISABLED(BD_SENSOR, EDIT_ITEM(ICON_Cancel, MSG_ZPROBE_MULTIPLE, onDrawPInt8Menu, setProbeMultiple, &hmiData.multiple_probing));
+      #if DISABLED(BD_SENSOR)
+        EDIT_ITEM(ICON_Cancel, MSG_ZPROBE_MULTIPLE, onDrawPInt8Menu, setProbeMultiple, &hmiData.multiple_probing);
+      #endif
       #if ENABLED(PROUI_ITEM_ZFR)
-        EDIT_ITEM(ICON_ProbeZSpeed, MSG_Z_FEED_RATE, onDrawPIntMenu, setProbeZSpeed, &z_probe_slow_mm_s);
+        EDIT_ITEM(ICON_ProbeZSpeed, MSG_Z_FEED_RATE, onDrawPIntMenu, setProbeZSpeed, &motion.z_probe_slow_mm_s);
       #endif
       #if ENABLED(BLTOUCH)
         MENU_ITEM(ICON_ProbeStow, MSG_MANUAL_STOW, onDrawMenuItem, probeStow);
@@ -3524,7 +3526,7 @@ void drawMoveMenu() {
   void drawLedControlMenu() {
     constexpr uint8_t items = (1
       + !ALL(CASE_LIGHT_MENU, CASE_LIGHT_USE_NEOPIXEL)
-      + ENABLED(HAS_COLOR_LEDS) * TERN(LED_COLOR_PRESETS, 8, 3 + ENABLED(HAS_WHITE_LED)),
+      + TERN0(HAS_COLOR_LEDS, TERN(LED_COLOR_PRESETS, 8, 3 + ENABLED(HAS_WHITE_LED))),
     );
     checkkey = ID_Menu;
     if (SET_MENU(ledControlMenu, MSG_LED_CONTROL, items)) {
@@ -3558,11 +3560,13 @@ void drawMoveMenu() {
 #endif // LED_CONTROL_MENU
 
 void drawTuneMenu() {
-  constexpr uint8_t items = (2
-    + COUNT_ENABLED(HAS_HOTEND, HAS_HEATED_BED, HAS_FAN)
-    + ALL(HAS_ZOFFSET_ITEM, BABYSTEPPING)
+  constexpr uint8_t items = (1
+    + COUNT_ENABLED(HAS_FEEDRATE_EDIT, HAS_FLOW_EDIT, HAS_HOTEND, HAS_HEATED_BED, HAS_FAN)
+    + (ALL(HAS_ZOFFSET_ITEM, HAS_BED_PROBE, BABYSTEP_ZPROBE_OFFSET, BABYSTEPPING) || ALL(HAS_ZOFFSET_ITEM, MESH_BED_LEVELING, BABYSTEPPING))
     + 1
-    + COUNT_ENABLED(ADVANCED_PAUSE_FEATURE, HAS_FILAMENT_SENSOR, PROUI_ITEM_PLR, FWRETRACT, PROUI_ITEM_JD, PROUI_ITEM_ADVK, HAS_LOCKSCREEN)
+    + COUNT_ENABLED(ADVANCED_PAUSE_FEATURE, HAS_FILAMENT_SENSOR, PROUI_ITEM_PLR, FWRETRACT, PROUI_ITEM_JD)
+    + TERN0(PROUI_ITEM_ADVK, 1 + ENABLED(SMOOTH_LIN_ADVANCE))
+    + ENABLED(HAS_LOCKSCREEN)
     + TERN0(HAS_LCD_BRIGHTNESS, 2)
     + ENABLED(EDITABLE_DISPLAY_TIMEOUT)
     + 2 * ALL(PROUI_TUNING_GRAPH, PROUI_ITEM_PLOT)
@@ -3829,8 +3833,10 @@ void drawFilSetMenu() {
 void drawFilamentManMenu() {
   constexpr uint8_t items = (1
     + ENABLED(NOZZLE_PARK_FEATURE)
+    + 1
     + TERN0(ADVANCED_PAUSE_FEATURE, 1 + ENABLED(HAS_PREHEAT))
     + TERN0(FILAMENT_LOAD_UNLOAD_GCODES, 2)
+    + ENABLED(FWRETRACT)
   );
   checkkey = ID_Menu;
   if (SET_MENU(filamentMenu, MSG_FILAMENT_MAN, items)) {
@@ -3909,6 +3915,9 @@ void drawFilamentManMenu() {
 void drawTemperatureMenu() {
   constexpr uint8_t items = (1
     + COUNT_ENABLED(HAS_HOTEND, HAS_HEATED_BED, HAS_FAN)
+    + ((ENABLED(PIDTEMP) && ANY(PID_AUTOTUNE_MENU, PID_EDIT_MENU)) || ENABLED(MPCTEMP) && ANY(MPC_EDIT_MENU, MPC_AUTOTUNE_MENU))
+    + (ENABLED(PIDTEMPBED) && ANY(PID_AUTOTUNE_MENU, PID_EDIT_MENU))
+    + (ENABLED(PIDTEMPCHAMBER) && ANY(PID_AUTOTUNE_MENU, PID_EDIT_MENU))
     + PREHEAT_COUNT
   );
   checkkey = ID_Menu;
@@ -4409,7 +4418,6 @@ void drawMaxAccelMenu() {
       + ENABLED(PROUI_MESH_EDIT)
       + ENABLED(PREHEAT_BEFORE_LEVELING)
       + 2
-      + ENABLED(HAS_BED_PROBE)
       + ENABLED(AUTO_BED_LEVELING_UBL)
     );
     checkkey = ID_Menu;
@@ -4483,6 +4491,7 @@ void drawMaxAccelMenu() {
     }
 
     void drawEditMeshMenu() {
+      constexpr uint8_t items = (6 + ENABLED(HAS_BED_PROBE));
       if (!leveling_is_valid()) {
         LCD_MESSAGE(MSG_UBL_MESH_INVALID);
         dwinPopupConfirm(ICON_Leveling_1, GET_TEXT_F(MSG_NO_VALID_MESH), GET_TEXT_F(MSG_UBL_LOAD_MESH));
@@ -4490,14 +4499,16 @@ void drawMaxAccelMenu() {
       }
       set_bed_leveling_enabled(false);
       checkkey = ID_Menu;
-      if (SET_MENU(editMeshMenu, MSG_MESH_EDITOR, 7)) {
+      if (SET_MENU(editMeshMenu, MSG_MESH_EDITOR, items)) {
         bedLevelTools.mesh_x = bedLevelTools.mesh_y = 0;
         BACK_ITEM(drawLevelMenu);
         EDIT_ITEM(ICON_SetHome, MSG_PROBE_WIZARD_MOVING, onDrawChkbMenu, setAutoMovToMesh, &autoMovToMesh);
         EDIT_ITEM(ICON_MeshEditX, MSG_MESH_X, onDrawPInt8Menu, setEditMeshX, &bedLevelTools.mesh_x);
         EDIT_ITEM(ICON_MeshEditY, MSG_MESH_Y, onDrawPInt8Menu, setEditMeshY, &bedLevelTools.mesh_y);
         editZValueItem = EDIT_ITEM(ICON_MeshEditZ, MSG_MESH_EDIT_Z, onDrawPFloat2Menu, setEditZValue, &bedlevel.z_values[bedLevelTools.mesh_x][bedLevelTools.mesh_y]);
-        TERN_(HAS_BED_PROBE, MENU_ITEM(ICON_Probe, MSG_PROBE_WIZARD_PROBING, onDrawMenuItem, bedLevelTools.probeXY);)
+        #if HAS_BED_PROBE
+          MENU_ITEM(ICON_Probe, MSG_PROBE_WIZARD_PROBING, onDrawMenuItem, bedLevelTools.probeXY);
+        #endif
         MENU_ITEM(ICON_SetZOffset, MSG_ZERO_MESH_POINT, onDrawMenuItem, zeroPoint);
       }
       updateMenu(editMeshMenu);
@@ -4512,9 +4523,7 @@ void drawLevelMenu() {
     + ENABLED(MESH_BED_LEVELING)
     + TERN0(HAS_BED_PROBE, 2)
     + ENABLED(HAS_HOME_OFFSET)
-    + TERN0(HAS_MESH, 2)
-    + ENABLED(USE_GRID_MESHVIEWER)
-    + TERN0(PROUI_MESH_EDIT, 2)
+    + TERN0(HAS_MESH, 2 + ENABLED(USE_GRID_MESHVIEWER) + TERN0(PROUI_MESH_EDIT, 2))
     + TERN0(AUTO_BED_LEVELING_UBL, 5)
   );
   checkkey = ID_Menu;

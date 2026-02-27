@@ -861,7 +861,7 @@ float Probe::run_z_probe(const bool sanity_check/*=true*/, const float z_min_poi
 
         // Probe downward slowly to find the bed
         if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Slow Probe:");
-        if (try_to_probe(PSTR("SLOW"), z_probe_low_point, z_probe_slow_mm_s, sanity_check)) return NAN;
+        if (try_to_probe(PSTR("SLOW"), z_probe_low_point, motion.z_probe_slow_mm_s, sanity_check)) return NAN;
 
         TERN_(MEASURE_BACKLASH_WHEN_PROBING, backlash.measure_with_probe());
 
