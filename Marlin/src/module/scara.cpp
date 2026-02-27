@@ -31,9 +31,14 @@
 #include "scara.h"
 #include "motion.h"
 #include "planner.h"
+#include "../core/debug_out.h"
 
 #if ENABLED(AXEL_TPARA)
   #include "endstops.h"
+#endif
+
+#ifdef SCARA_CROSSTALK_FACTOR
+  #define HAS_CROSSTALK 1 // Needed for TERN macros which don't work with the floating point value of SCARA_CROSSTALK_FACTOR itself
 #endif
 
 float segments_per_second = DEFAULT_SEGMENTS_PER_SECOND;
@@ -50,8 +55,8 @@ float segments_per_second = DEFAULT_SEGMENTS_PER_SECOND;
   void forward_kinematics(const float a, const float b) {
     const float a_sin = sin(RADIANS(a)) * L1,
                 a_cos = cos(RADIANS(a)) * L1,
-                b_sin = sin(RADIANS(SUM_TERN(MP_SCARA, b, a))) * L2,
-                b_cos = cos(RADIANS(SUM_TERN(MP_SCARA, b, a))) * L2;
+                b_sin = sin(RADIANS(SUM_TERN(HAS_CROSSTALK, b, a * SCARA_CROSSTALK_FACTOR))) * L2,
+                b_cos = cos(RADIANS(SUM_TERN(HAS_CROSSTALK, b, a * SCARA_CROSSTALK_FACTOR))) * L2;
 
     motion.cartes.x = a_cos + b_cos + scara_offset.x;  // theta
     motion.cartes.y = a_sin + b_sin + scara_offset.y;  // phi
@@ -138,40 +143,47 @@ float segments_per_second = DEFAULT_SEGMENTS_PER_SECOND;
 #elif ENABLED(MP_SCARA)
 
   void scara_set_axis_is_at_home(const AxisEnum axis) {
-    if (axis == Z_AXIS)
-      motion.position.z = Z_HOME_POS;
-    else {
-      // MP_SCARA uses arm angles for AB home position
-      #ifndef SCARA_OFFSET_THETA1
-        #define SCARA_OFFSET_THETA1  12 // degrees
-      #endif
-      #ifndef SCARA_OFFSET_THETA2
-        #define SCARA_OFFSET_THETA2 131 // degrees
-      #endif
-      ab_float_t homeposition = { SCARA_OFFSET_THETA1, SCARA_OFFSET_THETA2 };
-      //DEBUG_ECHOLNPGM("homeposition A:", homeposition.a, " B:", homeposition.b);
-
-      inverse_kinematics(homeposition);
-      forward_kinematics(motion.delta.a, motion.delta.b);
-      motion.position[axis] = motion.cartes[axis];
-
-      //DEBUG_ECHOLNPGM_P(PSTR("Cartesian X"), motion.position.x, SP_Y_LBL, motion.position.y);
-      motion.update_software_endstops(axis);
-    }
+    #ifdef SCARA_OFFSET_THETA1
+      // Special handling for X and Y if home angles are used rather than a cartesian position
+      if (axis == X_AXIS || axis == Y_AXIS) {
+        motion.delta.a = SCARA_OFFSET_THETA1 - motion.scara_home_offset.a;
+        motion.delta.b = SCARA_OFFSET_THETA2 - motion.scara_home_offset.a - 
+          SUM_TERN(HAS_CROSSTALK, motion.scara_home_offset.b, motion.delta.a * SCARA_CROSSTALK_FACTOR);
+        forward_kinematics(motion.delta.a, motion.delta.b);
+        motion.position[axis] = motion.cartes[axis];
+        //DEBUG_ECHOLNPGM("homeposition (a,b):", motion.delta.a, ",", motion.delta.b);
+        //DEBUG_ECHOLNPGM("  (x,y)", motion.position.x, ",", motion.position.y);
+        motion.update_software_endstops(axis);
+        return;
+      }
+    #endif
+    // Normal handling for Z axis or cartesian home position
+    motion.position[axis] = SUM_TERN(HAS_HOME_OFFSET, motion.base_home_pos(axis), motion.home_offset[axis]);
+    motion.update_software_endstops(axis);
+    // Note: For X and Y, inverse_kinematics needs to be called after this to update delta.a and b.
+    // As of this writing, Motion::homeaxis calls sync_plan_position after set_axis_is_at_home, which does it.
   }
 
   void inverse_kinematics(const xyz_pos_t &raw) {
-    const float x = raw.x, y = raw.y, c = HYPOT(x, y),
-                THETA3 = ATAN2(y, x),
-                THETA1 = THETA3 + ACOS((sq(c) + sq(L1) - sq(L2)) / (2.0f * c * L1)),
-                THETA2 = THETA3 - ACOS((sq(c) + sq(L2) - sq(L1)) / (2.0f * c * L2));
-
-    motion.delta.set(DEGREES(THETA1), DEGREES(THETA2), raw.z);
+    // Theta3 is angle from shoulder to nozzle. c is distance from shoulder to nozzle.
+    // The shoulder-to-nozzle line, proximal arm, and distal arm make up a triangle,
+    // so the "law of cosines" can be used to calculate the shoulder and elbow angles.
+    const float x = raw.x - scara_offset.x, y = raw.y - scara_offset.y,
+                c2 = HYPOT2(x, y), c = SQRT(c2), THETA3 = ATAN2(y, x),
+              #if ENABLED(SCARA_IS_RIGHT_HANDED)
+                THETA1 = THETA3 - ACOS((c2 + (sq(L1) - sq(L2))) / (c * (2.0f * L1))),
+                THETA2 = THETA3 + ACOS((c2 + (sq(L2) - sq(L1))) / (c * (2.0f * L2)));
+              #else
+                THETA1 = THETA3 + ACOS((c2 + (sq(L1) - sq(L2))) / (c * (2.0f * L1))),
+                THETA2 = THETA3 - ACOS((c2 + (sq(L2) - sq(L1))) / (c * (2.0f * L2)));
+              #endif
+    motion.delta.set(DEGREES(THETA1), DEGREES(DIFF_TERN(HAS_CROSSTALK, THETA2, THETA1 * SCARA_CROSSTALK_FACTOR)), raw.z);
 
     /*
-      DEBUG_POS("SCARA IK", raw);
-      DEBUG_POS("SCARA IK", motion.delta);
-      SERIAL_ECHOLNPGM("  SCARA (x,y) ", x, ",", y," Theta1=", THETA1, " Theta2=", THETA2);
+      DEBUG_ECHOLNPGM("SCARA IK");
+      DEBUG_ECHOLNPGM("  (x,y) raw ", raw.x, ",", raw.y, "  offset ", x, ",", y);
+      DEBUG_ECHOLNPGM("  (a,b)", motion.delta.a, ",", motion.delta.b);
+      DEBUG_ECHOLNPGM("  Theta1=", DEGREES(THETA1), " Theta2=", DEGREES(THETA2), " Theta3=", DEGREES(THETA3));
     //*/
   }
 

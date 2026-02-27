@@ -1105,6 +1105,14 @@
 
   #elif ENABLED(MP_SCARA)
 
+    #define SCARA_IS_RIGHT_HANDED true   // Direction of elbow bend
+
+    // If distal arm angle (relative to cartesian X axis) is affected by shoulder
+    // movement, #define this to counteract it. Leave it undefined for original MPSCARA.
+    //#define SCARA_CROSSTALK_FACTOR 0.3333333
+
+    // Proximal and distal arm angles (degrees relative to cartesian X axis) when in home position.
+    // If left undefined, cartesian home is used and angles are calculated by inverse kinematics.
     #define SCARA_OFFSET_THETA1  12 // degrees
     #define SCARA_OFFSET_THETA2 131 // degrees
 
