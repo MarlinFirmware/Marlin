@@ -311,7 +311,7 @@
 #endif
 
 /**
- * SCARA cannot use SLOWDOWN and requires QUICKHOME
+ * SCARA cannot use SLOWDOWN
  * Printable radius assumes joints can fully extend
  *
  * TPARA cannot use SLOWDOWN nor QUICKHOME
@@ -332,7 +332,6 @@
       #define MANUAL_Z_HOME_POS (TPARA_ARM_Z_HOME_POS + TPARA_TCP_OFFSET_Z - TPARA_OFFSET_Z)
     #endif
   #else
-    #define QUICK_HOME
     #define PRINTABLE_RADIUS (SCARA_LINKAGE_1 + SCARA_LINKAGE_2)
   #endif
 #endif
