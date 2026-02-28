@@ -1097,6 +1097,11 @@ void Motion::blocking_move(const xy_pos_t &raw, const feedRate_t fr_mm_s/*=0.0f*
     if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("do_z_clearance_by(", zclear, ")");
     do_z_clearance(position.z + zclear, false);
   }
+
+  #if ENABLED(DWIN_LCD_PROUI) && (HAS_MESH || ALL(INDIVIDUAL_AXIS_HOMING_SUBMENU, MESH_BED_LEVELING))
+    #include "../lcd/dwin/proui/dwin.h" // for Z_POST_CLEARANCE
+  #endif
+
   /**
    * Move Z to Z_POST_CLEARANCE,
    * The axis is allowed to move down.
@@ -1114,9 +1119,6 @@ void Motion::blocking_move(const xy_pos_t &raw, const feedRate_t fr_mm_s/*=0.0f*
     #endif
   }
 
-  #if ALL(DWIN_LCD_PROUI, INDIVIDUAL_AXIS_HOMING_SUBMENU, MESH_BED_LEVELING)
-    #include "../lcd/e3v2/proui/dwin.h" // for Z_POST_CLEARANCE
-  #endif
   #ifndef Z_POST_CLEARANCE  // May be set by proui/dwin.h :-P
     #ifdef Z_AFTER_HOMING
       #define Z_POST_CLEARANCE Z_AFTER_HOMING
