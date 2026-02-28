@@ -75,11 +75,11 @@ void MeshViewer::drawMeshPoint(const uint8_t x, const uint8_t y, const float z) 
   NOLESS(max, z); NOMORE(min, z);
 
   const uint16_t color = DWINUI::rainbowInt(v, zmin, zmax);
-  const uint8_t xp = px(x), yp = py(y);
+  const int16_t xp = px(x), yp = py(y);
   DWINUI::drawFillCircle(color, xp, yp, r(_MAX(_MIN(v, zmax), zmin)));
   TERN_(TJC_DISPLAY, delay(100));
 
-  const uint16_t fy = yp - fs;
+  const int16_t fy = yp - fs;
   if (sizex < TERN(TJC_DISPLAY, 8, 9)) {
     if (v == 0) DWINUI::drawFloat(title.meshfont, 1, 2, xp - 2 * fs, fy, 0);
     else DWINUI::drawSignedFloat(title.meshfont, 1, 2, xp - 3 * fs, fy, z);
