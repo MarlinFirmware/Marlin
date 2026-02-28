@@ -881,21 +881,26 @@ namespace ExtUI {
       }
 
       void moveToMeshPoint(const xy_uint8_t &pos, const float z) {
-        REMEMBER(fr, motion.feedrate_mm_s);
-        const float x_target = mesh_min.x + pos.x * (MESH_X_DIST),
-                    y_target = mesh_min.y + pos.y * (MESH_Y_DIST);
-        if (x_target != motion.position.x || y_target != motion.position.y) {
-          // If moving across bed, raise nozzle to safe height over bed
-          motion.feedrate_mm_s = z_probe_fast_mm_s;
-          motion.destination.set(motion.position.x, motion.position.y, Z_TWEEN_SAFE_CLEARANCE);
+        #if ANY(MESH_BED_LEVELING, AUTO_BED_LEVELING_UBL)
+          REMEMBER(fr, motion.feedrate_mm_s);
+          const float x_target = mesh_min.x + pos.x * (MESH_X_DIST),
+                      y_target = mesh_min.y + pos.y * (MESH_Y_DIST);
+          if (x_target != motion.position.x || y_target != motion.position.y) {
+            // If moving across bed, raise nozzle to safe height over bed
+            motion.feedrate_mm_s = motion.z_probe_fast_mm_s;
+            motion.destination.set(motion.position.x, motion.position.y, Z_TWEEN_SAFE_CLEARANCE);
+            motion.prepare_line_to_destination();
+            if (XY_PROBE_FEEDRATE_MM_S) motion.feedrate_mm_s = XY_PROBE_FEEDRATE_MM_S;
+            motion.destination.set(x_target, y_target);
+            motion.prepare_line_to_destination();
+          }
+          motion.feedrate_mm_s = motion.z_probe_fast_mm_s;
+          motion.destination.z = z;
           motion.prepare_line_to_destination();
-          if (XY_PROBE_FEEDRATE_MM_S) motion.feedrate_mm_s = XY_PROBE_FEEDRATE_MM_S;
-          motion.destination.set(x_target, y_target);
-          motion.prepare_line_to_destination();
-        }
-        motion.feedrate_mm_s = z_probe_fast_mm_s;
-        motion.destination.z = z;
-        motion.prepare_line_to_destination();
+        #else
+          UNUSED(pos);
+          UNUSED(z);
+        #endif
       }
 
     #endif // HAS_MESH
