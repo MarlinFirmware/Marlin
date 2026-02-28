@@ -1556,8 +1556,10 @@ static void file_first_msg_handle(const uint8_t * const msg, const uint16_t msgL
 
   if (msgLen != fileNameLen + 5) return;
 
+  // Reset file_writer completely to prevent stale state from a previous transfer
+  OBJZERO(file_writer);
+
   file_writer.fileLen = *((uint32_t *)(msg + 1));
-  ZERO(file_writer.saveFileName);
 
   memcpy(file_writer.saveFileName, msg + 5, fileNameLen);
 
@@ -1571,7 +1573,17 @@ static void file_first_msg_handle(const uint8_t * const msg, const uint16_t msgL
   ZERO(saveFilePath);
 
   if (gCfgItems.fileSysType == FILE_SYS_SD) {
-    TERN_(HAS_MEDIA, card.mount());
+    #if HAS_MEDIA
+      card.mount();
+      if (!card.isMounted()) {
+        clear_cur_ui();
+        upload_result = 2;
+        wifiTransError.flag = 1;
+        wifiTransError.start_tick = getWifiTick();
+        lv_draw_dialog(DIALOG_TYPE_UPLOAD_FILE);
+        return;
+      }
+    #endif
   }
   else if (gCfgItems.fileSysType == FILE_SYS_USB) {
     // nothing
@@ -1602,9 +1614,11 @@ static void file_first_msg_handle(const uint8_t * const msg, const uint16_t msgL
 
     card.cdroot();
     upload_file.close();
+
+    upload_file = MediaFile();
     const char * const fname = card.diveToFile(false, upload_curDir, saveFilePath);
 
-    if (!upload_file.open(upload_curDir, fname, O_CREAT | O_APPEND | O_WRITE | O_TRUNC)) {
+    if (!upload_file.open(upload_curDir, fname, O_CREAT | O_WRITE | O_TRUNC)) {
       clear_cur_ui();
       upload_result = 2;
 
@@ -1615,6 +1629,7 @@ static void file_first_msg_handle(const uint8_t * const msg, const uint16_t msgL
       return;
     }
 
+    upload_file.getpos(&pos);
   #endif // HAS_MEDIA
 
   wifi_link_state = WIFI_TRANS_FILE;
@@ -1636,6 +1651,7 @@ static void file_first_msg_handle(const uint8_t * const msg, const uint16_t msgL
 static void file_fragment_msg_handle(const uint8_t * const msg, const uint16_t msgLen) {
   const uint32_t frag = *((uint32_t *)msg);
   if ((frag & FRAG_MASK) != (uint32_t)(lastFragment + 1)) {
+    upload_file.close();  // Close file before aborting to prevent FAT corruption
     ZERO(public_buf);
     file_writer.write_index = 0;
     wifi_link_state = WIFI_CONNECTED;
@@ -1643,6 +1659,7 @@ static void file_fragment_msg_handle(const uint8_t * const msg, const uint16_t m
   }
   else {
     if (write_to_file((char *)msg + 4, msgLen - 4) < 0) {
+      upload_file.close();  // Close file before aborting to prevent FAT corruption
       ZERO(public_buf);
       file_writer.write_index = 0;
       wifi_link_state = WIFI_CONNECTED;
@@ -1662,22 +1679,23 @@ static void file_fragment_msg_handle(const uint8_t * const msg, const uint16_t m
           res = upload_file.write(public_buf, file_writer.write_index);
         }
       }
+      upload_file.sync();
       upload_file.close();
+
+      ZERO(public_buf);
+      file_writer.write_index = 0;
+
       MediaFile file, *curDir;
       const char * const fname = card.diveToFile(false, curDir, saveFilePath);
-      if (file.open(curDir, fname, O_RDWR)) {
-        gCfgItems.curFilesize = file.fileSize();
-        file.close();
-      }
-      else {
-        ZERO(public_buf);
-        file_writer.write_index = 0;
+      const bool success = file.open(curDir, fname, O_READ);
+      if (!success) {
         wifi_link_state = WIFI_CONNECTED;
         upload_result = 2;
         return;
       }
-      ZERO(public_buf);
-      file_writer.write_index = 0;
+      gCfgItems.curFilesize = file.fileSize();
+      file.close();
+
       file_writer.tick_end = getWifiTick();
       upload_time_sec = getWifiTickDiff(file_writer.tick_begin, file_writer.tick_end) / 1000;
       upload_size = gCfgItems.curFilesize;
@@ -1815,6 +1833,7 @@ void stopEspTransfer() {
   if (wifi_link_state == WIFI_TRANS_FILE)
     wifi_link_state = WIFI_CONNECTED;
 
+  upload_file.close();
   TERN_(HAS_MEDIA, card.closefile());
 
   if (upload_result != 3) {
@@ -1822,6 +1841,26 @@ void stopEspTransfer() {
     wifiTransError.start_tick = getWifiTick();
     card.removeFile((const char *)saveFilePath);
   }
+
+   // Reset all transfer state to init-like condition for a clean next transfer
+  ZERO(esp_msg_buf);
+  esp_msg_index = 0;
+  OBJZERO(file_writer);
+  ZERO(public_buf);
+  ZERO(saveFilePath);
+  lastFragment = 0;
+  upload_result = 0;
+  upload_time_sec = 0;
+  upload_size = 0;
+  esp_state = TRANSFER_IDLE;
+  need_ok_later = false;
+
+  // Reset DMA receive FIFO so no stale buffers leak into the next transfer
+  for (uint8_t i = 0; i < TRANS_RCV_FIFO_BLOCK_NUM; i++)
+    wifiDmaRcvFifo.state[i] = udisk_buf_empty;
+  wifiDmaRcvFifo.read_cur = 0;
+  wifiDmaRcvFifo.write_cur = 0;
+  wifiDmaRcvFifo.receiveEspData = false;
 
   wifi_delay(200);
   WIFI_IO1_SET();
