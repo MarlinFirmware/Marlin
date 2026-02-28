@@ -683,6 +683,17 @@ private:
 
 extern Motion motion;
 
+#if ENABLED(PROUI_MESH_EDIT)
+  #define MESH_X_DIST ((mesh_max.x - mesh_min.x) / (GRID_MAX_CELLS_X))
+  #define MESH_Y_DIST ((mesh_max.y - mesh_min.y) / (GRID_MAX_CELLS_Y))
+  extern xy_pos_t mesh_min, mesh_max;
+#elif HAS_MESH
+  #define MESH_X_DIST (float((MESH_MAX_X) - (MESH_MIN_X)) / (GRID_MAX_CELLS_X))
+  #define MESH_Y_DIST (float((MESH_MAX_Y) - (MESH_MIN_Y)) / (GRID_MAX_CELLS_Y))
+  constexpr xy_pos_t mesh_min{ MESH_MIN_X, MESH_MIN_Y },
+                     mesh_max{ MESH_MAX_X, MESH_MAX_Y };
+#endif
+
 // External conversion methods (motion.h)
 inline void toLogical(xy_pos_t &raw)   { motion.toLogical(raw); }
 inline void toLogical(xyz_pos_t &raw)  { motion.toLogical(raw); }

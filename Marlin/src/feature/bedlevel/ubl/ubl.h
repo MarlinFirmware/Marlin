@@ -38,9 +38,6 @@ enum MeshPointType : char { INVALID, REAL, SET_IN_BITMAP, CLOSEST };
 
 struct mesh_index_pair;
 
-#define MESH_X_DIST ((mesh_max.x - mesh_min.x) / (GRID_MAX_CELLS_X))
-#define MESH_Y_DIST ((mesh_max.y - mesh_min.y) / (GRID_MAX_CELLS_Y))
-
 #if ENABLED(OPTIMIZED_MESH_STORAGE)
   typedef int16_t mesh_store_t[GRID_MAX_POINTS_X][GRID_MAX_POINTS_Y];
 #endif

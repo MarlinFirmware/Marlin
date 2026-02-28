@@ -93,14 +93,6 @@ constexpr AxisFlags Motion::rotational;
   bool Motion::z_min_trusted; // = false
 #endif
 
-#if ENABLED(DWIN_LCD_PROUI)
-  uint16_t z_probe_slow_mm_s = MMM_TO_MMS(Z_PROBE_FEEDRATE_SLOW);
-    #if ENABLED(PROUI_MESH_EDIT)
-      xy_pos_t mesh_min{ MESH_MIN_X, MESH_MIN_Y },
-               mesh_max{ MESH_MAX_X, MESH_MAX_Y };
-    #endif
-#endif
-
 // Warn for unexpected TPARA home position
 #if ENABLED(AXEL_TPARA)
   static_assert(
@@ -226,11 +218,18 @@ int16_t Motion::feedrate_percentage = 100;
   feedRate_t Motion::xy_probe_feedrate_mm_s = MMM_TO_MMS(XY_PROBE_FEEDRATE);
 #endif
 
-#ifdef Z_PROBE_FEEDRATE_SLOW
+#if ENABLED(DWIN_LCD_PROUI)
+  uint16_t Motion::z_probe_slow_mm_s = MMM_TO_MMS(Z_PROBE_FEEDRATE_SLOW);
+#elif Z_PROBE_FEEDRATE_SLOW
   constexpr feedRate_t Motion::z_probe_slow_mm_s;
 #endif
 #ifdef Z_PROBE_FEEDRATE_FAST
   constexpr feedRate_t Motion::z_probe_fast_mm_s;
+#endif
+
+#if ENABLED(PROUI_MESH_EDIT)
+  xy_pos_t mesh_min{ MESH_MIN_X, MESH_MIN_Y },
+           mesh_max{ MESH_MAX_X, MESH_MAX_Y };
 #endif
 
 /**
