@@ -28,10 +28,6 @@
 
 #include "../MarlinCore.h"
 
-#if ENABLED(AUTO_FIRST_LAYER_Z_ADJUST)
-  #include "../module/motion.h"
-#endif
-
 // Must be declared for allocation and to satisfy the linker
 // Zero values need no initialization.
 
