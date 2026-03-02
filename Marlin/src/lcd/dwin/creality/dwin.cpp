@@ -4237,6 +4237,7 @@ void eachMomentUpdate() {
   #endif // POWER_LOSS_RECOVERY
 
   dwinUpdateLCD();
+  }
 }
 
 void dwinHandleScreen() {
