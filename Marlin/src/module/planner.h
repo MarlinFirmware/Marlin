@@ -887,7 +887,6 @@ class Planner {
         TERN_(SKEW_CORRECTION, skew(pos));
         if (leveling) apply_leveling(pos);
         TERN_(FWRETRACT, apply_retract(pos));
-        TERN_(AUTO_FIRST_LAYER_Z_ADJUST, if(parser.aflza_active && parser.first_layer_detected) pos.z += parser.aflza_delta);
       }
 
       /**
