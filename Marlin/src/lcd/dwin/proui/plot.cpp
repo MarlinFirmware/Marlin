@@ -27,13 +27,9 @@
  * Date: 2023/01/29
  */
 
-#include "../../../inc/MarlinConfig.h"
+#include "../../../inc/MarlinConfigPre.h"
 
-#if ENABLED(DWIN_LCD_PROUI)
-
-#include "dwin_defines.h"
-
-#if PROUI_TUNING_GRAPH
+#if ALL(DWIN_LCD_PROUI, PROUI_TUNING_GRAPH)
 
 #include "dwin.h"
 #include "../../marlinui.h"
@@ -78,5 +74,4 @@ void Plot::update(const celsius_float_t value) {
   TERN_(HAS_BACKLIGHT_TIMEOUT, ui.refresh_backlight_timeout());
 }
 
-#endif // PROUI_TUNING_GRAPH
-#endif // DWIN_LCD_PROUI
+#endif // DWIN_LCD_PROUI && PROUI_TUNING_GRAPH

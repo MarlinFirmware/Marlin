@@ -31,7 +31,6 @@
 
 #include "../../../inc/MarlinConfig.h"
 
-#include "dwin_defines.h"
 #include "dwinui.h"
 #include "../common/encoder.h"
 #include "../common/limits.h"
