@@ -35,6 +35,7 @@
 #include "../../../gcode/queue.h"
 #include "../../../module/temperature.h"
 #include "../../../module/planner.h"
+#include "../../../module/motion.h"
 #include "../../../gcode/gcode.h"
 #include "../../../inc/MarlinConfig.h"
 
@@ -75,9 +76,7 @@ extern bool temps_update_flag;
 static void btn_ok_event_cb(lv_obj_t *btn, lv_event_t event) {
   if (event != LV_EVENT_RELEASED) return;
   if (DIALOG_IS(TYPE_PRINT_FILE)) {
-    #if HAS_GCODE_PREVIEW
-      preview_gcode_prehandle(list_file.file_name[sel_id]);
-    #endif
+    TERN_(HAS_GCODE_PREVIEW, preview_gcode_prehandle(list_file.file_name[sel_id]));
     reset_print_time();
     start_print_time();
 
@@ -128,10 +127,12 @@ static void btn_ok_event_cb(lv_obj_t *btn, lv_event_t event) {
     lv_draw_ready_print();
   }
   #if ENABLED(ADVANCED_PAUSE_FEATURE)
-    else if (DIALOG_IS(PAUSE_MESSAGE_WAITING, PAUSE_MESSAGE_INSERT, PAUSE_MESSAGE_HEAT))
+    else if (DIALOG_IS(PAUSE_MESSAGE_WAITING, PAUSE_MESSAGE_INSERT, PAUSE_MESSAGE_HEAT)) {
       marlin.user_resume();
-    else if (DIALOG_IS(PAUSE_MESSAGE_OPTION))
+    }
+    else if (DIALOG_IS(PAUSE_MESSAGE_OPTION)) {
       pause_menu_response = PAUSE_RESPONSE_EXTRUDE_MORE;
+    }
     else if (DIALOG_IS(PAUSE_MESSAGE_RESUME)) {
       goto_previous_ui();
     }
@@ -162,12 +163,23 @@ static void btn_ok_event_cb(lv_obj_t *btn, lv_event_t event) {
     uiCfg.configWifi = true;
     goto_previous_ui();
   }
-  else if (DIALOG_IS(TYPE_FILAMENT_HEAT_LOAD_COMPLETED))
+  else if (DIALOG_IS(TYPE_FILAMENT_HEAT_LOAD_COMPLETED)) {
     uiCfg.filament_heat_completed_load = true;
-  else if (DIALOG_IS(TYPE_FILAMENT_HEAT_UNLOAD_COMPLETED))
+  }
+  else if (DIALOG_IS(TYPE_FILAMENT_HEAT_UNLOAD_COMPLETED)) {
     uiCfg.filament_heat_completed_unload = true;
+  }
   else if (DIALOG_IS(TYPE_FILAMENT_LOAD_COMPLETED, TYPE_FILAMENT_UNLOAD_COMPLETED)) {
     goto_previous_ui();
+  }
+  else if (DIALOG_IS(TYPE_FILAMENT_NO_PRESS)) {
+    if (uiCfg.print_state == PAUSED) {
+      uiCfg.hotendTargetTempBak = thermalManager.degTargetHotend(motion.extruder);
+      uiCfg.moveSpeed_bak = (uint16_t)motion.feedrate_mm_s;
+      lv_clear_dialog();
+      disp_state_stack._disp_index--;
+      lv_draw_filament_change();
+    }
   }
   #if ENABLED(MKS_WIFI_MODULE)
     else if (DIALOG_IS(TYPE_UNBIND)) {
@@ -184,10 +196,10 @@ static void btn_cancel_event_cb(lv_obj_t *btn, lv_event_t event) {
   if (event != LV_EVENT_RELEASED) return;
   if (DIALOG_IS(PAUSE_MESSAGE_OPTION)) {
     TERN_(ADVANCED_PAUSE_FEATURE, pause_menu_response = PAUSE_RESPONSE_RESUME_PRINT);
+    return;
   }
-  else if (DIALOG_IS(TYPE_FILAMENT_LOAD_HEAT, TYPE_FILAMENT_UNLOAD_HEAT, TYPE_FILAMENT_HEAT_LOAD_COMPLETED, TYPE_FILAMENT_HEAT_UNLOAD_COMPLETED)) {
+  if (DIALOG_IS(TYPE_FILAMENT_LOAD_HEAT, TYPE_FILAMENT_UNLOAD_HEAT, TYPE_FILAMENT_HEAT_LOAD_COMPLETED, TYPE_FILAMENT_HEAT_UNLOAD_COMPLETED)) {
     thermalManager.setTargetHotend(uiCfg.hotendTargetTempBak, uiCfg.extruderIndex);
-    goto_previous_ui();
   }
   else if (DIALOG_IS(TYPE_FILAMENT_LOADING, TYPE_FILAMENT_UNLOADING)) {
     queue.enqueue_one(F("M410"));
@@ -199,11 +211,8 @@ static void btn_cancel_event_cb(lv_obj_t *btn, lv_event_t event) {
     uiCfg.filament_unloading_time_flg  = false;
     uiCfg.filament_unloading_time_cnt  = 0;
     thermalManager.setTargetHotend(uiCfg.hotendTargetTempBak, uiCfg.extruderIndex);
-    goto_previous_ui();
   }
-  else {
-    goto_previous_ui();
-  }
+  goto_previous_ui();
 }
 
 void lv_draw_dialog(uint8_t type) {
@@ -436,6 +445,10 @@ void lv_draw_dialog(uint8_t type) {
   else if (DIALOG_IS(TYPE_FILAMENT_UNLOADING)) {
     lv_label_set_text(labelDialog, filament_menu.filament_dialog_unloading);
     lv_obj_align(labelDialog, nullptr, LV_ALIGN_CENTER, 0, -70);
+  }
+  else if (DIALOG_IS(TYPE_FILAMENT_NO_PRESS)) {
+    lv_label_set_text(labelDialog, print_file_dialog_menu.filament_no_press);
+    lv_obj_align(labelDialog, nullptr, LV_ALIGN_CENTER, 0, -20);
   }
   #if ENABLED(MKS_WIFI_MODULE)
     else if (DIALOG_IS(TYPE_UNBIND)) {

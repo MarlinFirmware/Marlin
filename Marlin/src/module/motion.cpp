@@ -1968,8 +1968,8 @@ void Motion::prepare_line_to_destination() {
       #endif
 
       if (ignore_e) {
-        position.e = destination.e;       // Behave as if the E move really took place
-        planner.set_e_position_mm(destination.e); // Prevent the planner from complaining too
+        position.e = destination.e; // Behave as if the E move really took place
+        sync_plan_position_e();     // Prevent the planner from complaining too
       }
     }
 
