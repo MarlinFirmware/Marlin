@@ -1079,45 +1079,82 @@
  * Mostly Printed SCARA is an open source design by Tyler Williams. See:
  *   https://www.thingiverse.com/thing:2487048
  *   https://www.thingiverse.com/thing:1241491
+ * 
+ * Merged into STANDARD_SCARA + crosstalk/elbow dir settings added by dekutree64 in Mar, 2026.
+ * Positive angles rotate counterclockwise when looking down from above.
+ * Theta is the shoulder angle. 0 degrees points along positive cartesian X axis.
+ * Psi is elbow bend. 0° is straight, ±180° is completely folded (right-handed positive, left-handed negative)
  */
-//#define MORGAN_SCARA
-//#define MP_SCARA
-#if ANY(MORGAN_SCARA, MP_SCARA)
+
+//#define STANDARD_SCARA // Typical SCARA arm with two segments in series
+// Note: Some arms such as Reprap Morgan use a parallellogram linkage to convey the 
+//  elbow motion, but are kinematically equivalent to serial SCARA.
+//#define MORGAN_SCARA // Preset of STANDARD_SCARA for Reprap Morgan
+//#define MP_SCARA // Preset of STANDARD_SCARA for Mostly Printed SCARA
+
+#if MANY(MP_SCARA, MORGAN_SCARA)
+  #error "Select only one SCARA preset."
+#endif
+
+#if ENABLED(MORGAN_SCARA)
+    #define STANDARD_SCARA
+    #define DEFAULT_SEGMENTS_PER_SECOND 200
+    #define SCARA_LINKAGE_1  150   // (mm)
+    #define SCARA_LINKAGE_2  150   // (mm)
+    #define SCARA_OFFSET_X   100   // (mm)
+    #define SCARA_OFFSET_Y   -56   // (mm)
+    #define SCARA_HOME_THETA (90+10)   // (degrees)
+    #define SCARA_HOME_PSI   (180-20)  // (degrees)
+    #define MIDDLE_DEAD_ZONE_R 50      // (mm)
+    #define SCARA_ELBOW_DIR    1
+    #define SCARA_CROSSTALK_FACTOR 1
+    #define QUICKHOME
+
+#elif ENABLED(MP_SCARA)
+    #define STANDARD_SCARA
+    #define DEFAULT_SEGMENTS_PER_SECOND 200
+    #define SCARA_LINKAGE_1  98.5  // (mm)
+    #define SCARA_LINKAGE_2  100   // (mm)
+    #define SCARA_OFFSET_X   0     // (mm)
+    #define SCARA_OFFSET_Y   -120  // (mm)
+    #define SCARA_HOME_THETA -20   // (degrees)
+    #define SCARA_HOME_PSI     0   // (degrees)
+    #define MIDDLE_DEAD_ZONE_R 50  // (mm)
+    #define SCARA_ELBOW_DIR    1
+    #define SCARA_CROSSTALK_FACTOR 1
+    #define BED_CENTER_AT_0_0
+    #define QUICKHOME
+
+#elif ENABLED(STANDARD_SCARA) // Custom configuration
   // If movement is choppy try lowering this value
   #define DEFAULT_SEGMENTS_PER_SECOND 200
 
   // Length of inner and outer support arms. Measure arm lengths precisely.
-  #define SCARA_LINKAGE_1 150       // (mm)
-  #define SCARA_LINKAGE_2 150       // (mm)
+  #define SCARA_LINKAGE_1  135   // (mm)
+  #define SCARA_LINKAGE_2  135   // (mm)
 
-  // SCARA tower offset (position of Tower relative to bed zero position)
+  // SCARA tower offset (position of shoulder axis relative to bed zero position)
   // This needs to be reasonably accurate as it defines the printbed position in the SCARA space.
-  #define SCARA_OFFSET_X  100       // (mm)
-  #define SCARA_OFFSET_Y  -56       // (mm)
+  #define SCARA_OFFSET_X    0      // (mm)
+  #define SCARA_OFFSET_Y    -150   // (mm)
 
-  #if ENABLED(MORGAN_SCARA)
+  // Radius of unreachable area near shoulder axis
+  #define MIDDLE_DEAD_ZONE_R   0  // (mm)
 
-    //#define DEBUG_SCARA_KINEMATICS
-    #define FEEDRATE_SCALING        // Convert XY feedrate from mm/s to degrees/s on the fly
+  // Direction of elbow bend. 1 = right-handed (counterclockwise), -1 = left-handed (clockwise)
+  #define SCARA_ELBOW_DIR 1
 
-    // Radius around the center where the arm cannot reach
-    #define MIDDLE_DEAD_ZONE_R   0  // (mm)
+  // This defines how shoulder movement affects the distal arm angle. Common values:
+  // 0.0 if distal arm retains its angle relative to proximal arm (e.g. if elbow motor rides on proximal arm)
+  // 1.0 if distal arm retains its angle relative to cartesian X axis (e.g. Morgan and MPSCARA)
+  // A two-stage reduction with an intermediate pulley on the shoulder axis has crosstalk =
+  //   intermediate_pulley_teeth/elbow_pulley_teeth (first reduction stage does not affect crosstalk)
+  #define SCARA_CROSSTALK_FACTOR (40.0/60.0)
 
-  #elif ENABLED(MP_SCARA)
-
-    #define SCARA_IS_RIGHT_HANDED true   // Direction of elbow bend
-
-    // If distal arm angle (relative to cartesian X axis) is affected by shoulder
-    // movement, #define this to counteract it. Leave it undefined for original MPSCARA.
-    //#define SCARA_CROSSTALK_FACTOR 0.3333333
-
-    // Proximal and distal arm angles (degrees relative to cartesian X axis) when in home position.
-    // If left undefined, cartesian home is used and angles are calculated by inverse kinematics.
-    #define SCARA_OFFSET_THETA1  12 // degrees
-    #define SCARA_OFFSET_THETA2 131 // degrees
-
-  #endif
-
+  // Shoulder and elbow angles when in home position. If left undefined, cartesian home is used and 
+  // angles are calculated by inverse kinematics (note: M665 home offsets are still angles)
+  #define SCARA_HOME_THETA -40
+  #define SCARA_HOME_PSI   160
 #endif
 
 // @section tpara
