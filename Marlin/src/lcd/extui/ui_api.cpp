@@ -676,7 +676,7 @@ namespace ExtUI {
 
     void setJunctionDeviation_mm(const float value) {
       planner.junction_deviation_mm = constrain(value, 0.001, 0.3);
-      TERN_(HAS_LIN_ADVANCE_K, planner.recalculate_max_e_jerk());
+      TERN_(HAS_LINEAR_E_JERK, planner.recalculate_max_e_jerk());
     }
 
   #else
