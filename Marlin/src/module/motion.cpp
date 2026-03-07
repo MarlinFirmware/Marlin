@@ -1725,7 +1725,7 @@ float Motion::get_move_distance(const xyze_pos_t &diff OPTARG(HAS_ROTATIONAL_AXE
       // Add hints to help optimize the move
       PlannerHints hints(cartesian_mm * inv_segments);
       TERN_(HAS_ROTATIONAL_AXES, hints.cartesian_move = cartes_move);
-      TERN_(FEEDRATE_SCALING, hints.inv_duration = scaled_fr_mm_s / hints.millimeters);
+      TERN_(FEEDRATE_SCALING, hints.inv_duration = fr_mm_s / hints.millimeters);
 
       //SERIAL_ECHOPGM("mm=", cartesian_mm);
       //SERIAL_ECHOLNPGM(" segments=", segments);
