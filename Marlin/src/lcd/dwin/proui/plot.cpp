@@ -33,7 +33,7 @@
 
 #include "dwin.h"
 
-#if ENABLED(PROUI_TUNING_GRAPH)
+#if PROUI_TUNING_GRAPH
 
 #include "../../marlinui.h"
 #include "plot.h"

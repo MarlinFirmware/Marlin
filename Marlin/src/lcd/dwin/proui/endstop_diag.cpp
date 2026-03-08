@@ -30,7 +30,11 @@
 
 #include "../../../inc/MarlinConfigPre.h"
 
-#if ALL(DWIN_LCD_PROUI, HAS_ESDIAG)
+#if ENABLED(DWIN_LCD_PROUI)
+
+#include "dwin.h"
+
+#if HAS_ESDIAG
 
 #include "endstop_diag.h"
 #include "../../marlinui.h"
@@ -85,4 +89,5 @@ void ESDiag::update() {
   dwinUpdateLCD();
 }
 
-#endif // DWIN_LCD_PROUI && HAS_ESDIAG
+#endif // HAS_ESDIAG
+#endif // DWIN_LCD_PROUI
