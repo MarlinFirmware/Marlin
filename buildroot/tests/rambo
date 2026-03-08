@@ -100,6 +100,7 @@ exec_test $1 $2 "Rambo with PRUSA_MMU3 " "$3"
 restore_configs
 opt_set MOTHERBOARD BOARD_EINSY_RAMBO \
         X_DRIVER_TYPE TMC2130 Y_DRIVER_TYPE TMC2130 Z_DRIVER_TYPE TMC2130 E0_DRIVER_TYPE TMC2130
+opt_enable GCODE_VARIABLES
 exec_test $1 $2 "Einsy RAMBo with TMC2130" "$3"
 
 #
