@@ -679,7 +679,7 @@ private:
 
 extern Motion motion;
 
-#if ENABLED(PROUI_MESH_EDIT)
+#if HAS_PROUI_MESH_EDIT
   #define MESH_X_DIST ((mesh_max.x - mesh_min.x) / (GRID_MAX_CELLS_X))
   #define MESH_Y_DIST ((mesh_max.y - mesh_min.y) / (GRID_MAX_CELLS_Y))
   extern xy_pos_t mesh_min, mesh_max;

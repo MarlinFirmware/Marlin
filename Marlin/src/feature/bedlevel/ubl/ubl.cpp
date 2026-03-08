@@ -65,7 +65,7 @@ int8_t unified_bed_leveling::storage_slot;
 
 bed_mesh_t unified_bed_leveling::z_values;
 
-#if DISABLED(PROUI_MESH_EDIT)
+#if !HAS_PROUI_MESH_EDIT
   #define _GRIDPOS(A,N) (MESH_MIN_##A + N * (MESH_##A##_DIST))
 
   const float

@@ -51,7 +51,3 @@
 #ifndef __MARLIN_DEPS__
   #include HAL_PATH(.., inc/Conditionals_adv.h)
 #endif
-
-#if ENABLED(DWIN_LCD_PROUI)
-  #include "../lcd/dwin/proui/dwin_defines.h" // for ProUI extra features
-#endif

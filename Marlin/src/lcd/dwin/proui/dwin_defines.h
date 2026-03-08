@@ -88,11 +88,6 @@
 /**
  * ProUI internal feature flags
  */
-#if HAS_MESH
-  #define PROUI_MESH_EDIT     // Add a menu to edit mesh inset + points
-  #define Z_OFFSET_MIN  -3.0  // (mm)
-  #define Z_OFFSET_MAX   3.0  // (mm)
-#endif
 #if HAS_BED_PROBE
   #define PROUI_ITEM_ZFR      // Add a menu item to change Z_PROBE_FEEDRATE_SLOW - probe speed
 #endif
@@ -121,7 +116,9 @@
 #define HAS_SD_EXTENDER 1     // Enable to support SD card extender cables
 #define USE_GRID_MESHVIEWER 1 // Enable for two mesh graph types
 
-#if ENABLED(PROUI_MESH_EDIT)
+#if HAS_PROUI_MESH_EDIT
+  #define Z_OFFSET_MIN  -3.0  // (mm)
+  #define Z_OFFSET_MAX   3.0  // (mm)
   #ifndef MESH_INSET
     #define MESH_INSET 10
   #endif

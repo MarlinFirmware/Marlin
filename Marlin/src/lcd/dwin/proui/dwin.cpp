@@ -276,7 +276,7 @@ Menu *stepsMenu = nullptr;
 #endif
 #if HAS_MESH
   Menu *meshMenu = nullptr;
-  #if ENABLED(PROUI_MESH_EDIT)
+  #if HAS_PROUI_MESH_EDIT
     Menu *meshInsetMenu = nullptr;
     Menu *editMeshMenu = nullptr;
   #endif
@@ -4415,7 +4415,7 @@ void drawMaxAccelMenu() {
 
   void drawMeshSetMenu() {
     constexpr uint8_t items = (1
-      + ENABLED(PROUI_MESH_EDIT)
+      + ENABLED(HAS_PROUI_MESH_EDIT)
       + ENABLED(PREHEAT_BEFORE_LEVELING)
       + 2
       + ENABLED(AUTO_BED_LEVELING_UBL)
@@ -4423,7 +4423,7 @@ void drawMaxAccelMenu() {
     checkkey = ID_Menu;
     if (SET_MENU(meshMenu, MSG_MESH_LEVELING, items)) {
       BACK_ITEM(drawLevelMenu);
-      #if ENABLED(PROUI_MESH_EDIT)
+      #if HAS_PROUI_MESH_EDIT
         MENU_ITEM(ICON_ProbeMargin, MSG_MESH_INSET, onDrawSubMenu, drawMeshInsetMenu);
       #endif
       #if ENABLED(PREHEAT_BEFORE_LEVELING)
@@ -4438,7 +4438,7 @@ void drawMaxAccelMenu() {
     updateMenu(meshMenu);
   }
 
-  #if ENABLED(PROUI_MESH_EDIT)
+  #if HAS_PROUI_MESH_EDIT
     bool autoMovToMesh = false;
     void setAutoMovToMesh() { toggleCheckboxLine(autoMovToMesh); }
 
@@ -4523,7 +4523,7 @@ void drawLevelMenu() {
     + ENABLED(MESH_BED_LEVELING)
     + TERN0(HAS_BED_PROBE, 2)
     + ENABLED(HAS_HOME_OFFSET)
-    + TERN0(HAS_MESH, 2 + ENABLED(USE_GRID_MESHVIEWER) + TERN0(PROUI_MESH_EDIT, 2))
+    + TERN0(HAS_MESH, 2 + ENABLED(USE_GRID_MESHVIEWER) + TERN0(HAS_PROUI_MESH_EDIT, 2))
     + TERN0(AUTO_BED_LEVELING_UBL, 5)
   );
   checkkey = ID_Menu;
@@ -4547,7 +4547,7 @@ void drawLevelMenu() {
         MENU_ITEM(ICON_MeshViewer, MSG_MESH_VIEW_GRID, onDrawSubMenu, dwinMeshViewerGrid);
       #endif
       MENU_ITEM(ICON_Mesh, MSG_MESH_SETTINGS, onDrawSubMenu, drawMeshSetMenu);
-      #if ENABLED(PROUI_MESH_EDIT)
+      #if HAS_PROUI_MESH_EDIT
         MENU_ITEM(ICON_MeshEdit, MSG_EDIT_MESH, onDrawSubMenu, drawEditMeshMenu);
         MENU_ITEM(ICON_MeshReset, MSG_MESH_RESET, onDrawMenuItem, resetMesh);
       #endif

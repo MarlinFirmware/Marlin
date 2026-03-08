@@ -45,6 +45,11 @@
 
 #if ALL(DWIN_LCD_PROUI, HAS_LEVELING)
 
+#include "dwin.h"
+#include "dwinui.h"
+#include "dwin_popup.h"
+#include "bedlevel_tools.h"
+
 #include "../../marlinui.h"
 #include "../../../core/types.h"
 #include "../../../feature/bedlevel/bedlevel.h"
@@ -54,11 +59,6 @@
 #include "../../../gcode/queue.h"
 #include "../../../libs/least_squares_fit.h"
 #include "../../../libs/vector_3.h"
-
-#include "dwin.h"
-#include "dwinui.h"
-#include "dwin_popup.h"
-#include "bedlevel_tools.h"
 
 #define DEBUG_OUT ENABLED(DEBUG_LEVELING_FEATURE)
 #include "../../../core/debug_out.h"
@@ -188,7 +188,8 @@ bool BedLevelTools::meshValidate() {
     return false;
   GRID_LOOP(x, y) {
     const float z = bedlevel.z_values[x][y];
-    if (isnan(z) || !WITHIN(z, Z_OFFSET_MIN, Z_OFFSET_MAX)) return false;
+    if (isnan(z) || TERN0(HAS_PROUI_MESH_EDIT, !WITHIN(z, Z_OFFSET_MIN, Z_OFFSET_MAX)))
+      return false;
   }
   return true;
 }

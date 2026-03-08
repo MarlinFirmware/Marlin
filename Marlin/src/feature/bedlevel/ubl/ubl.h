@@ -114,7 +114,7 @@ public:
     static void set_mesh_from_store(const mesh_store_t &stored_values, bed_mesh_t &out_values);
   #endif
 
-  #if DISABLED(PROUI_MESH_EDIT)
+  #if !HAS_PROUI_MESH_EDIT
     static const float _mesh_index_to_xpos[GRID_MAX_POINTS_X],
                        _mesh_index_to_ypos[GRID_MAX_POINTS_Y];
   #endif
@@ -290,7 +290,7 @@ public:
   static float _get_mesh_x(const uint8_t i) { return mesh_min.x + i * (MESH_X_DIST); }
   static float _get_mesh_y(const uint8_t i) { return mesh_min.y + i * (MESH_Y_DIST); }
 
-  #if ENABLED(PROUI_MESH_EDIT)
+  #if HAS_PROUI_MESH_EDIT
     static float get_mesh_x(const uint8_t i) { return _get_mesh_x(i); }
     static float get_mesh_y(const uint8_t i) { return _get_mesh_y(i); }
   #else

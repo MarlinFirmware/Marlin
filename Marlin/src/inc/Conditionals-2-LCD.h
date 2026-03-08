@@ -581,6 +581,9 @@
   #define DO_LIST_BIN_FILES 1
   #define LCD_BRIGHTNESS_DEFAULT 127
   #define STATUS_DO_CLEAR_EMPTY
+  #if HAS_MESH
+    #define HAS_PROUI_MESH_EDIT 1
+  #endif
 #endif
 
 // Serial Controllers require LCD_SERIAL_PORT

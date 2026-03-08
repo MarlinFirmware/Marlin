@@ -33,6 +33,7 @@
 #if ENABLED(DWIN_LCD_PROUI)
 
 #include "dwinui.h"
+#include "dwin_defines.h"
 
 xy_int_t DWINUI::cursor = { 0 };
 uint16_t DWINUI::penColor = COLOR_WHITE;

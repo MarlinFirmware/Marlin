@@ -46,13 +46,13 @@
   #include "../../lcd/extui/ui_api.h"
 #endif
 
-#if ALL(HAS_MESH, DWIN_LCD_PROUI)
+#if HAS_PROUI_MESH_EDIT
   #include "../../lcd/dwin/proui/bedlevel_tools.h"
 #endif
 
 bool leveling_is_valid() {
   return (
-    #if ALL(HAS_MESH, DWIN_LCD_PROUI)
+    #if HAS_PROUI_MESH_EDIT
       bedLevelTools.meshValidate()
     #else
       TERN1(HAS_MESH, bedlevel.mesh_is_valid())
