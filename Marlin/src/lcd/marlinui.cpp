@@ -71,6 +71,10 @@ MarlinUI ui;
 
 constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
 
+#if ENABLED(REVERSE_ENCODER_MENU_ITEM)
+  bool MarlinUI::reverse_encoder; // = false
+#endif
+
 #if HAS_STATUS_MESSAGE
   #if ENABLED(STATUS_MESSAGE_SCROLLING)
     uint8_t MarlinUI::status_scroll_offset; // = 0
