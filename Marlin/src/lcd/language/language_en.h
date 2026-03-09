@@ -1107,6 +1107,7 @@ namespace LanguageWide_en {
     LSTR MSG_HOMING_FEEDRATE_X            = _UxGT("X Homing Feedrate");
     LSTR MSG_HOMING_FEEDRATE_Y            = _UxGT("Y Homing Feedrate");
     LSTR MSG_HOMING_FEEDRATE_Z            = _UxGT("Z Homing Feedrate");
+    LSTR MSG_REVERSE_ENCODER              = _UxGT("Reverse Encoder");
   #endif
 }
 
