@@ -4465,12 +4465,12 @@ void drawMaxAccelMenu() {
     }
 
     void centerMeshArea() {
-      float max = (mesh_min.x + mesh_min.y) * 0.5f;
-      NOLESS(max, (X_BED_SIZE) - mesh_max.x);
-      NOLESS(max, mesh_min.y);
-      NOLESS(max, (Y_BED_SIZE) - mesh_min.y);
-      mesh_min.set(max, max);
-      mesh_max.set((X_BED_SIZE) - max, (Y_BED_SIZE) - max);
+      const float half_width  = 0.5 * (mesh_max.x - mesh_min.x);
+      const float half_height = 0.5 * (mesh_max.y - mesh_min.y);
+      const float half_extent = min(min(half_width, half_height), min((float)X_CENTER, (float)Y_CENTER));
+
+      mesh_min.set(X_CENTER - half_extent, Y_CENTER - half_extent);
+      mesh_max.set(X_CENTER + half_extent, Y_CENTER + half_extent);
       resetMeshInset();
       redrawMenu();
     }
