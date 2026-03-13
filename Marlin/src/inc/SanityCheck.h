@@ -1238,6 +1238,10 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
   #endif
 #endif
 
+#if ALL(MP_SCARA, MORGAN_SCARA)
+  #error "Select only one of MP_SCARA or MORGAN_SCARA, or use CUSTOM_SCARA."
+#endif
+
 /**
  * Axel TPARA requirements
  */

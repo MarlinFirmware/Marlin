@@ -1073,59 +1073,26 @@
 // @section scara
 
 /**
- * MORGAN_SCARA was developed by QHARLEY in South Africa in 2012-2013.
+ * The Morgan SCARA was developed by QHARLEY in South Africa in 2012-2013.
  * Implemented and slightly reworked by JCERNY in June, 2014.
  *
  * Mostly Printed SCARA is an open source design by Tyler Williams. See:
  *   https://www.thingiverse.com/thing:2487048
  *   https://www.thingiverse.com/thing:1241491
- * 
+ *
  * Merged into STANDARD_SCARA + crosstalk/elbow dir settings added by dekutree64 in Mar, 2026.
  * Positive angles rotate counterclockwise when looking down from above.
  * Theta is the shoulder angle. 0 degrees points along positive cartesian X axis.
  * Psi is elbow bend. 0° is straight, ±180° is completely folded (right-handed positive, left-handed negative)
  */
 
-//#define STANDARD_SCARA // Typical SCARA arm with two segments in series
-// Note: Some arms such as Reprap Morgan use a parallellogram linkage to convey the 
-//  elbow motion, but are kinematically equivalent to serial SCARA.
-//#define MORGAN_SCARA // Preset of STANDARD_SCARA for Reprap Morgan
-//#define MP_SCARA // Preset of STANDARD_SCARA for Mostly Printed SCARA
+//#define STANDARD_SCARA  // Typical SCARA arm with two segments in series
+                          // Note: Reprap Morgan uses a parallellogram linkage to convey the
+                          //       elbow motion but is kinematically equivalent to serial SCARA.
+//#define MORGAN_SCARA    // Preset for Reprap Morgan
+//#define MP_SCARA        // Preset for Mostly Printed SCARA
 
-#if MANY(MP_SCARA, MORGAN_SCARA)
-  #error "Select only one SCARA preset."
-#endif
-
-#if ENABLED(MORGAN_SCARA)
-    #define STANDARD_SCARA
-    #define DEFAULT_SEGMENTS_PER_SECOND 200
-    #define SCARA_LINKAGE_1  150   // (mm)
-    #define SCARA_LINKAGE_2  150   // (mm)
-    #define SCARA_OFFSET_X   100   // (mm)
-    #define SCARA_OFFSET_Y   -56   // (mm)
-    #define SCARA_HOME_THETA (90+10)   // (degrees)
-    #define SCARA_HOME_PSI   (180-20)  // (degrees)
-    #define MIDDLE_DEAD_ZONE_R 50      // (mm)
-    #define SCARA_ELBOW_DIR    1
-    #define SCARA_CROSSTALK_FACTOR 1
-    #define QUICKHOME
-
-#elif ENABLED(MP_SCARA)
-    #define STANDARD_SCARA
-    #define DEFAULT_SEGMENTS_PER_SECOND 200
-    #define SCARA_LINKAGE_1  98.5  // (mm)
-    #define SCARA_LINKAGE_2  100   // (mm)
-    #define SCARA_OFFSET_X   0     // (mm)
-    #define SCARA_OFFSET_Y   -120  // (mm)
-    #define SCARA_HOME_THETA -20   // (degrees)
-    #define SCARA_HOME_PSI     0   // (degrees)
-    #define MIDDLE_DEAD_ZONE_R 50  // (mm)
-    #define SCARA_ELBOW_DIR    1
-    #define SCARA_CROSSTALK_FACTOR 1
-    #define BED_CENTER_AT_0_0
-    #define QUICKHOME
-
-#elif ENABLED(STANDARD_SCARA) // Custom configuration
+#if ENABLED(STANDARD_SCARA) // Custom configuration
   // If movement is choppy try lowering this value
   #define DEFAULT_SEGMENTS_PER_SECOND 200
 
@@ -1151,10 +1118,42 @@
   //   intermediate_pulley_teeth/elbow_pulley_teeth (first reduction stage does not affect crosstalk)
   #define SCARA_CROSSTALK_FACTOR (40.0/60.0)
 
-  // Shoulder and elbow angles when in home position. If left undefined, cartesian home is used and 
+  // Shoulder and elbow angles when in home position. If left undefined, cartesian home is used and
   // angles are calculated by inverse kinematics (note: M665 home offsets are still angles)
   #define SCARA_HOME_THETA -40
   #define SCARA_HOME_PSI   160
+
+#elif ENABLED(MORGAN_SCARA)
+
+  // Defaults for Morgan unless modified here
+  //#define DEFAULT_SEGMENTS_PER_SECOND  200
+  //#define SCARA_LINKAGE_1              150    // (mm)
+  //#define SCARA_LINKAGE_2              150    // (mm)
+  //#define SCARA_OFFSET_X               100    // (mm)
+  //#define SCARA_OFFSET_Y               -56    // (mm)
+  //#define SCARA_HOME_THETA          (90+10)   // (degrees)
+  //#define SCARA_HOME_PSI           (180-20)   // (degrees)
+  //#define MIDDLE_DEAD_ZONE_R            50    // (mm)
+  //#define SCARA_ELBOW_DIR                1
+  //#define SCARA_CROSSTALK_FACTOR         1
+  //#define QUICKHOME
+
+#elif ENABLED(MP_SCARA)
+
+  // Defaults for M.P. unless modified here
+  //#define DEFAULT_SEGMENTS_PER_SECOND  200
+  //#define SCARA_LINKAGE_1               98.5  // (mm)
+  //#define SCARA_LINKAGE_2              100    // (mm)
+  //#define SCARA_OFFSET_X                 0    // (mm)
+  //#define SCARA_OFFSET_Y              -120    // (mm)
+  //#define SCARA_HOME_THETA             -20    // (degrees)
+  //#define SCARA_HOME_PSI                 0    // (degrees)
+  //#define MIDDLE_DEAD_ZONE_R            50    // (mm)
+  //#define SCARA_ELBOW_DIR                1
+  //#define SCARA_CROSSTALK_FACTOR         1
+  //#define BED_CENTER_AT_0_0
+  //#define QUICKHOME
+
 #endif
 
 // @section tpara
