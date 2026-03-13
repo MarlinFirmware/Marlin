@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-
 """
 Visualize memory map
 
@@ -402,15 +401,15 @@ def categorize_symbol(name, warn_conflicts=False):
 def categorize_section(section_name):
     """Categorize section for color coding"""
     if section_name.startswith('.text'):
-        return 'code', '#4CAF50', 'flash'  # Green for code
+        return 'code', '#4CAF50', 'flash'       # Green code
     elif section_name.startswith('.data'):
-        return 'data', '#2196F3', 'ram'  # Blue for initialized data
+        return 'data', '#2196F3', 'ram'         # Blue initialized data
     elif section_name.startswith('.bss'):
-        return 'bss', '#FF9800', 'ram'   # Orange for uninitialized data
+        return 'bss', '#FF9800', 'ram'          # Orange uninitialized data
     elif section_name.startswith('.rodata'):
-        return 'rodata', '#9C27B0', 'flash'  # Purple for read-only data
+        return 'rodata', '#9C27B0', 'flash'     # Purple read-only data
     else:
-        return 'other', '#757575', 'flash'  # Gray for other
+        return 'other', '#757575', 'flash'      # Gray other
 
 def generate_memory_blocks_html(items, module_colors, zoom_level=1, total_memory_size=None, special_symbols=None, arch='avr'):
     """Generate HTML for memory blocks as a byte-by-byte map
