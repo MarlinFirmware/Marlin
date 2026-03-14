@@ -1086,11 +1086,11 @@
  * Psi is elbow bend. 0° is straight, ±180° is completely folded (right-handed positive, left-handed negative)
  */
 
-//#define STANDARD_SCARA  // Typical SCARA arm with two segments in series
+//#define MORGAN_SCARA    // Preset for Reprap Morgan
                           // Note: Reprap Morgan uses a parallellogram linkage to convey the
                           //       elbow motion but is kinematically equivalent to serial SCARA.
-//#define MORGAN_SCARA    // Preset for Reprap Morgan
 //#define MP_SCARA        // Preset for Mostly Printed SCARA
+//#define CUSTOM_SCARA    // A SCARA arm with two segments in series, with custom settings.
 
 #if ENABLED(STANDARD_SCARA) // Custom configuration
   // If movement is choppy try lowering this value
