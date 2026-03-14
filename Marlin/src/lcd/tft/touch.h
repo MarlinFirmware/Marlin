@@ -64,12 +64,12 @@ typedef struct __attribute__((__packed__)) {
   intptr_t data;
 } touch_control_t;
 
-#define MAX_CONTROLS        16
-#define MINIMUM_HOLD_TIME   15
-#define TOUCH_REPEAT_DELAY  75
-#define MIN_REPEAT_DELAY    25
-#define UBL_REPEAT_DELAY    125
-#define FREE_MOVE_RANGE     32
+#define MAX_CONTROLS               16
+#define MINIMUM_HOLD_TIME          15   // Debounce delay for ignoring short accidental touch
+#define TOUCH_REPEAT_DELAY        100   // 1/10s Repeat delay for key-like buttons
+#define MIN_REPEAT_DELAY           25   // Smallest permitted repeat delay for controls that speed up the longer they are held
+#define UBL_REPEAT_DELAY          125   // Repeat delay for a held control
+#define FREE_MOVE_RANGE            32   // Area around a control allowed before aborting a held control
 
 #define TSLP_SLEEPING 1
 

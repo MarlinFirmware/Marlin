@@ -124,7 +124,7 @@ int16_t fan_speed;
 
 inline void RTS_line_to_current(const AxisEnum axis) {
   if (!planner.is_full())
-    planner.buffer_line(current_position, MMM_TO_MMS(manual_feedrate_mm_m[axis]), active_extruder);
+    planner.buffer_line(motion.position, MMM_TO_MMS(manual_feedrate_mm_m[axis]), motion.extruder);
 }
 
 RTS::RTS() {
@@ -177,7 +177,7 @@ void RTS::sdCardInit() {
     for (uint8_t j = 0; j < MAX_NUM_FILES; j++)
       for (uint8_t i = 0; i < FILENAME_LEN; i++)
         sendData(0, cardRec.addr[j] + i);
-    ZERO(&cardRec);
+    OBJZERO(cardRec);
   }
 }
 
@@ -221,7 +221,7 @@ void RTS::sdCardUpdate() {
         sendData(0, PRINT_FILE_TEXT_VP + j);
         sendData(0, SELECT_FILE_TEXT_VP + j);
       }
-      ZERO(&cardRec);
+      OBJZERO(cardRec);
     }
     lcd_sd_status = sd_status;
   }
@@ -271,8 +271,8 @@ void RTS::init() {
   TERN_(HAS_HOTEND, last_target_temperature[0] = thermalManager.degTargetHotend(0));
   TERN_(HAS_HEATED_BED, last_target_temperature_bed = thermalManager.degTargetBed());
 
-  feedrate_percentage = 100;
-  sendData(feedrate_percentage, PRINT_SPEED_RATE_VP);
+  motion.feedrate_percentage = 100;
+  sendData(motion.feedrate_percentage, PRINT_SPEED_RATE_VP);
 
   /***************turn off motor*****************/
   sendData(1, MOTOR_FREE_ICON_VP);
@@ -422,7 +422,7 @@ void RTS::sendData() {
     for (uint16_t i = 0; i < snddat.len + 3; i++)
       LCD_SERIAL.write(databuf[i]);
 
-    ZERO(&snddat);
+    OBJZERO(snddat);
     ZERO(databuf);
     snddat.head[0] = FHONE;
     snddat.head[1] = FHTWO;
@@ -543,7 +543,7 @@ void RTS::handleData() {
   int16_t checkKey = -1;
   // For waiting
   if (waitway > 0) {
-    memset(&recdat, 0, sizeof(recdat));
+    OBJZERO(recdat);
     recdat.head[0] = FHONE;
     recdat.head[1] = FHTWO;
     return;
@@ -556,7 +556,7 @@ void RTS::handleData() {
   }
 
   if (checkKey < 0) {
-    ZERO(&recdat);
+    OBJZERO(recdat);
     recdat.head[0] = FHONE;
     recdat.head[1] = FHTWO;
     return;
@@ -577,7 +577,7 @@ void RTS::handleData() {
       else if (recdat.data[0] == 2) { // Complete printing
         waitway = 7;
         card.flag.abort_sd_printing = true;
-        quickstop_stepper();
+        motion.quickstop_stepper();
         print_job_timer.reset();
         queue.clear();
         sendData(0, MOTOR_FREE_ICON_VP);
@@ -652,8 +652,8 @@ void RTS::handleData() {
       break;
 
     case PrintSpeedKey: // Set the print speed
-      feedrate_percentage = recdat.data[0];
-      sendData(feedrate_percentage, PRINT_SPEED_RATE_VP);
+      motion.feedrate_percentage = recdat.data[0];
+      sendData(motion.feedrate_percentage, PRINT_SPEED_RATE_VP);
       break;
 
     case StopPrintKey: // Stop printing
@@ -753,8 +753,8 @@ void RTS::handleData() {
           sendData(cardRec.display_filename[cardRec.recordcount], PRINT_FILE_TEXT_VP);
           delay(2);
           TERN_(BABYSTEPPING, sendData(0, AUTO_BED_LEVEL_ZOFFSET_VP));
-          feedrate_percentage = 100;
-          sendData(feedrate_percentage, PRINT_SPEED_RATE_VP);
+          motion.feedrate_percentage = 100;
+          sendData(motion.feedrate_percentage, PRINT_SPEED_RATE_VP);
           zprobe_zoffset = last_zoffset;
           sendData(probe.offset.z * 100, AUTO_BED_LEVEL_ZOFFSET_VP);
           poweroff_continue = true;
@@ -886,14 +886,14 @@ void RTS::handleData() {
 
         case 3: // Go to Move Axis
           AxisUnitMode = 1;
-          TERN_(HAS_X_AXIS, sendData(current_position.x * 10.0f, AXIS_X_COORD_VP));
-          TERN_(HAS_Y_AXIS, sendData(current_position.y * 10.0f, AXIS_Y_COORD_VP));
-          TERN_(HAS_Z_AXIS, sendData(current_position.z * 10.0f, AXIS_Z_COORD_VP));
+          TERN_(HAS_X_AXIS, sendData(motion.position.x * 10.0f, AXIS_X_COORD_VP));
+          TERN_(HAS_Y_AXIS, sendData(motion.position.y * 10.0f, AXIS_Y_COORD_VP));
+          TERN_(HAS_Z_AXIS, sendData(motion.position.z * 10.0f, AXIS_Z_COORD_VP));
           gotoPage(ID_Move10_L, ID_Move10_D);
           break;
 
         case 4: // Go to Advanced Settings
-          TERN_(LIN_ADVANCE, sendData(planner.get_advance_k() * 100, Advance_K_VP));
+          TERN_(HAS_LIN_ADVANCE_K, sendData(planner.get_advance_k() * 100, Advance_K_VP));
           gotoPage(ID_AdvWarn_L, ID_AdvWarn_D);
           break;
 
@@ -947,10 +947,10 @@ void RTS::handleData() {
     #if HAS_X_AXIS
       case XaxismoveKey: {
         waitway = 4;
-        current_position.x = float(recdat.data[0] >= 32768 ? recdat.data[0] - 65536 : recdat.data[0]) * 0.1f;
-        LIMIT(current_position.x, X_MIN_POS, X_MAX_POS);
+        motion.position.x = float(recdat.data[0] >= 32768 ? recdat.data[0] - 65536 : recdat.data[0]) * 0.1f;
+        LIMIT(motion.position.x, X_MIN_POS, X_MAX_POS);
         RTS_line_to_current(X_AXIS);
-        sendData(current_position.x * 10.0f, AXIS_X_COORD_VP);
+        sendData(motion.position.x * 10.0f, AXIS_X_COORD_VP);
         sendData(0, MOTOR_FREE_ICON_VP);
         waitway = 0;
       } break;
@@ -959,10 +959,10 @@ void RTS::handleData() {
     #if HAS_Y_AXIS
       case YaxismoveKey: {
         waitway = 4;
-        current_position.y = float(recdat.data[0]) * 0.1f;
-        LIMIT(current_position.y, Y_MIN_POS, Y_MAX_POS);
+        motion.position.y = float(recdat.data[0]) * 0.1f;
+        LIMIT(motion.position.y, Y_MIN_POS, Y_MAX_POS);
         RTS_line_to_current(Y_AXIS);
-        sendData(current_position.y * 10.0f, AXIS_Y_COORD_VP);
+        sendData(motion.position.y * 10.0f, AXIS_Y_COORD_VP);
         sendData(0, MOTOR_FREE_ICON_VP);
         waitway = 0;
       } break;
@@ -971,10 +971,10 @@ void RTS::handleData() {
     #if HAS_Z_AXIS
       case ZaxismoveKey: {
         waitway = 4;
-        current_position.z = float(recdat.data[0]) * 0.1f;
-        LIMIT(current_position.z, Z_MIN_POS, Z_MAX_POS);
+        motion.position.z = float(recdat.data[0]) * 0.1f;
+        LIMIT(motion.position.z, Z_MIN_POS, Z_MAX_POS);
         RTS_line_to_current(Z_AXIS);
-        sendData(current_position.z * 10.0f, AXIS_Z_COORD_VP);
+        sendData(motion.position.z * 10.0f, AXIS_Z_COORD_VP);
         sendData(0, MOTOR_FREE_ICON_VP);
         waitway = 0;
       } break;
@@ -985,7 +985,7 @@ void RTS::handleData() {
         case 1:
           if (planner.has_blocks_queued()) break;
           if (TERN0(CHECKFILAMENT, runout.filament_ran_out)) gotoPage(ID_NoFilament_L, ID_NoFilament_D);
-          current_position.e -= filament_load_0;
+          motion.position.e -= filament_load_0;
 
           if (thermalManager.degHotend(0) < change_filament_temp_0 - 5) {
             sendData(int16_t(change_filament_temp_0), CHANGE_FILAMENT0_TEMP_VP);
@@ -1000,7 +1000,7 @@ void RTS::handleData() {
         case 2:
           if (planner.has_blocks_queued()) break;
           if (TERN0(CHECKFILAMENT, runout.filament_ran_out)) gotoPage(ID_NoFilament_L, ID_NoFilament_D);
-          current_position.e += filament_load_0;
+          motion.position.e += filament_load_0;
 
           if (thermalManager.degHotend(0) < change_filament_temp_0 - 5) {
             sendData(int16_t(change_filament_temp_0), CHANGE_FILAMENT0_TEMP_VP);
@@ -1077,7 +1077,7 @@ void RTS::handleData() {
           sdcard_pause_check = true;
           zprobe_zoffset = probe.offset.z;
           sendData(probe.offset.z * 100, AUTO_BED_LEVEL_ZOFFSET_VP);
-          sendData(feedrate_percentage, PRINT_SPEED_RATE_VP);
+          sendData(motion.feedrate_percentage, PRINT_SPEED_RATE_VP);
           print_state = 2;
           break;
 
@@ -1087,7 +1087,7 @@ void RTS::handleData() {
           poweroff_continue = false;
           sdcard_pause_check = true;
           queue.clear();
-          quickstop_stepper();
+          motion.quickstop_stepper();
           print_job_timer.abort();
           thermalManager.disable_all_heaters();
           print_job_timer.reset();
@@ -1160,8 +1160,8 @@ void RTS::handleData() {
 
           TERN_(BABYSTEPPING, sendData(0, AUTO_BED_LEVEL_ZOFFSET_VP));
 
-          feedrate_percentage = 100;
-          sendData(feedrate_percentage, PRINT_SPEED_RATE_VP);
+          motion.feedrate_percentage = 100;
+          sendData(motion.feedrate_percentage, PRINT_SPEED_RATE_VP);
           #if HAS_BED_PROBE
             zprobe_zoffset = last_zoffset;
             sendData(probe.offset.z * 100, AUTO_BED_LEVEL_ZOFFSET_VP);
@@ -1289,7 +1289,7 @@ void RTS::handleData() {
 
         case 6: gotoPage(ID_Settings_L, ID_Settings_D); break;  // Return
 
-        #if ENABLED(LIN_ADVANCE)
+        #if HAS_LIN_ADVANCE_K
           case 7: // Confirm
             sendData(planner.get_advance_k() * 100, Advance_K_VP);
             gotoPage(ID_Advanced_L, ID_Advanced_D);
@@ -1348,7 +1348,7 @@ void RTS::handleData() {
         case Jerk_E: planner.max_jerk.e = float(recdat.data[0]) * 0.1f; break;
       #endif
       case A_Retract: planner.settings.retract_acceleration = recdat.data[0]; break;
-      #if ENABLED(LIN_ADVANCE)
+      #if HAS_LIN_ADVANCE_K
         case Advance_K: planner.set_advance_k(float(recdat.data[0]) * 0.01f); break;
       #endif
     #endif
@@ -1504,7 +1504,7 @@ void RTS::handleData() {
 
       TERN_(HAS_BED_PROBE, sendData(probe.offset.z * 100.0f, AUTO_BED_LEVEL_ZOFFSET_VP));
 
-      sendData(feedrate_percentage, PRINT_SPEED_RATE_VP);
+      sendData(motion.feedrate_percentage, PRINT_SPEED_RATE_VP);
       updateTempE0();
       updateTempBed();
 
@@ -1512,7 +1512,7 @@ void RTS::handleData() {
 
     default: break;
   }
-  ZERO(&recdat);
+  OBJZERO(recdat);
   recdat.head[0] = FHONE;
   recdat.head[1] = FHTWO;
 }
@@ -1621,7 +1621,7 @@ void RTS::onIdle() {
     queue.enqueue_now(F("G0 F3000 X0 Y0\nM18 S0"));
   }
 
-  TERN_(HAS_Z_AXIS, sendData(current_position.z * 10.0f, AXIS_Z_COORD_VP));
+  TERN_(HAS_Z_AXIS, sendData(motion.position.z * 10.0f, AXIS_Z_COORD_VP));
 
   #if HAS_HOTEND
     if (last_target_temperature[0] != thermalManager.degTargetHotend(0)) {
@@ -1736,9 +1736,9 @@ void RTS_MoveAxisHoming() {
     waitway = 0;
   }
 
-  TERN_(HAS_X_AXIS, rts.sendData(current_position.x * 10.0f, AXIS_X_COORD_VP));
-  TERN_(HAS_Y_AXIS, rts.sendData(current_position.y * 10.0f, AXIS_Y_COORD_VP));
-  TERN_(HAS_Z_AXIS, rts.sendData(current_position.z * 10.0f, AXIS_Z_COORD_VP));
+  TERN_(HAS_X_AXIS, rts.sendData(motion.position.x * 10.0f, AXIS_X_COORD_VP));
+  TERN_(HAS_Y_AXIS, rts.sendData(motion.position.y * 10.0f, AXIS_Y_COORD_VP));
+  TERN_(HAS_Z_AXIS, rts.sendData(motion.position.z * 10.0f, AXIS_Z_COORD_VP));
 }
 
 #endif // SOVOL_SV06_RTS
