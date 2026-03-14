@@ -282,11 +282,7 @@ void MarlinUI::init() {
     SET_INPUT_PULLUP(BTN_EN2);
   #endif
   #if BUTTON_EXISTS(ENC)
-    #if ENABLED(MIGHTYBOARD_DISABLE_ENC_PULLUP)
-      SET_INPUT(BTN_ENC);
-    #else
-      SET_INPUT_PULLUP(BTN_ENC);
-    #endif
+    TERN(MIGHTYBOARD_DISABLE_ENC_PULLUP, SET_INPUT, SET_INPUT_PULLUP)(BTN_ENC);
   #endif
   #if BUTTON_EXISTS(ENC_EN)
     SET_INPUT_PULLUP(BTN_ENC_EN);
@@ -295,32 +291,16 @@ void MarlinUI::init() {
     SET_INPUT_PULLUP(BTN_BACK);
   #endif
   #if BUTTON_EXISTS(UP)
-    #if ENABLED(MIGHTYBOARD_BUTTON_PULLUPS)
-      SET_INPUT_PULLUP(BTN_UP);
-    #else
-      SET_INPUT(BTN_UP);
-    #endif
+    TERN(MIGHTYBOARD_BUTTON_PULLUPS, SET_INPUT_PULLUP, SET_INPUT)(BTN_UP);
   #endif
   #if BUTTON_EXISTS(DOWN)
-    #if ENABLED(MIGHTYBOARD_BUTTON_PULLUPS)
-      SET_INPUT_PULLUP(BTN_DOWN);
-    #else
-      SET_INPUT(BTN_DOWN);
-    #endif
+    TERN(MIGHTYBOARD_BUTTON_PULLUPS, SET_INPUT_PULLUP, SET_INPUT)(BTN_DOWN);
   #endif
   #if BUTTON_EXISTS(LFT)
-    #if ENABLED(MIGHTYBOARD_BUTTON_PULLUPS)
-      SET_INPUT_PULLUP(BTN_LEFT);
-    #else
-      SET_INPUT(BTN_LEFT);
-    #endif
+    TERN(MIGHTYBOARD_BUTTON_PULLUPS, SET_INPUT_PULLUP, SET_INPUT)(BTN_LEFT);
   #endif
   #if BUTTON_EXISTS(RT)
-    #if ENABLED(MIGHTYBOARD_BUTTON_PULLUPS)
-      SET_INPUT_PULLUP(BTN_RIGHT);
-    #else
-      SET_INPUT(BTN_RIGHT);
-    #endif
+    TERN(MIGHTYBOARD_BUTTON_PULLUPS, SET_INPUT_PULLUP, SET_INPUT)(BTN_RIGHT);
   #endif
 
   // Compile-time warnings to confirm whether this directional-button init block
@@ -333,27 +313,23 @@ void MarlinUI::init() {
   // Optional runtime trace for MightyBoard UI/button flow.
   // Enable by uncommenting `#define MIGHTYBOARD_RUNTIME_DEBUG` in the board pins file.
   //#if ENABLED(MIGHTYBOARD_RUNTIME_DEBUG)
-  //  SERIAL_ECHOLN("MarlinUI::init() - MIGHTYBOARD_RUNTIME_DEBUG active");
-  //  #if ENABLED(MIGHTYBOARD_BUTTON_PULLUPS)
-  //    SERIAL_ECHOLN("MIGHTYBOARD_BUTTON_PULLUPS: ENABLED");
-  //  #else
-  //    SERIAL_ECHOLN("MIGHTYBOARD_BUTTON_PULLUPS: DISABLED");
-  //  #endif
+  //  SERIAL_ECHOLNPGM("MarlinUI::init() - MIGHTYBOARD_RUNTIME_DEBUG active");
+  //  SERIAL_ECHOLNPGM("MIGHTYBOARD_BUTTON_PULLUPS: " TERN(MIGHTYBOARD_BUTTON_PULLUPS, "EN", "DIS") "ABLED");
   //  SERIAL_ECHO_MSG("LCD dimensions: ", LCD_WIDTH, " x ", LCD_HEIGHT);
-  //  SERIAL_ECHOLN("");
+  //  SERIAL_EOL();
   //
   //// Report encoder/click compile-time presence and pin numbers (if defined)
   //  #if BUTTON_EXISTS(ENC)
-  //    SERIAL_ECHOLN("BUTTON_EXISTS(ENC): defined");
+  //    SERIAL_ECHOLNPGM("BUTTON_EXISTS(ENC): defined");
   //    SERIAL_ECHO_MSG("BTN_ENC pin: ", BTN_ENC);
-  //    SERIAL_ECHOLN("");
+  //    SERIAL_EOL("");
   //  #else
-  //    SERIAL_ECHOLN("BUTTON_EXISTS(ENC): NOT defined");
+  //    SERIAL_ECHOLNPGM("BUTTON_EXISTS(ENC): NOT defined");
   //  #endif
   //
   //  #ifdef BTN_CLICK
   //    SERIAL_ECHO_MSG("BTN_CLICK pin: ", BTN_CLICK);
-  //    SERIAL_ECHOLN("");
+  //    SERIAL_EOL();
   //  #endif
   //#endif // MIGHTYBOARD_RUNTIME_DEBUG
 
