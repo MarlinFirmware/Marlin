@@ -229,11 +229,11 @@ void Touch::touch(touch_control_t * const control) {
 
     // Increase / Decrease controls are held with an ever-decreasing repeat delay
     case INCREASE:
-      hold(control, repeat_delay - 5, TOUCH_REPEAT_FIRST_DELAY);
+      hold(control, repeat_delay - (FAST_REPEAT_DECREMENT));
       TERN(AUTO_BED_LEVELING_UBL, ui.external_control ? bedlevel.encoder_diff++ : ui.encoderPosition++, ui.encoderPosition++);
       break;
     case DECREASE:
-      hold(control, repeat_delay - 5, TOUCH_REPEAT_FIRST_DELAY);
+      hold(control, repeat_delay - (FAST_REPEAT_DECREMENT));
       TERN(AUTO_BED_LEVELING_UBL, ui.external_control ? bedlevel.encoder_diff-- : ui.encoderPosition--, ui.encoderPosition--);
       break;
 
@@ -311,7 +311,7 @@ void Touch::touch(touch_control_t * const control) {
 
     #if ENABLED(AUTO_BED_LEVELING_UBL)
       case UBL:
-        hold(control, UBL_REPEAT_DELAY, TOUCH_REPEAT_FIRST_DELAY);
+        hold(control, UBL_REPEAT_DELAY);
         ui.encoderPosition += control->data;
         break;
     #endif
