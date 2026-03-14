@@ -972,7 +972,7 @@ void drawTuneMenu() {
   if (select_tune.now != CASE_BACK) drawMenuCursor(select_tune.now);
 
   drawMenuLine(TUNE_CASE_SPEED, ICON_Speed);
-  drawEditInteger3(TUNE_CASE_SPEED, feedrate_percentage);
+  drawEditInteger3(TUNE_CASE_SPEED, motion.feedrate_percentage);
 
   #if HAS_HOTEND
     drawMenuLine(TUNE_CASE_TEMP, ICON_HotendTemp);
@@ -1267,7 +1267,7 @@ void gotoMainMenu() {
 void hmiPlanMove(const feedRate_t fr_mm_s) {
   if (!planner.is_full()) {
     planner.synchronize();
-    planner.buffer_line(current_position, fr_mm_s);
+    planner.buffer_line(motion.position, fr_mm_s);
     dwinUpdateLCD();
   }
 }
@@ -1289,10 +1289,10 @@ void hmiMoveDone(const AxisEnum axis) {
       return hmiMoveDone(X_AXIS);
     }
     LIMIT(hmiValues.moveScaled.x, (X_MIN_POS) * MINUNITMULT, (X_MAX_POS) * MINUNITMULT);
-    current_position.x = hmiValues.moveScaled.x / MINUNITMULT;
+    motion.position.x = hmiValues.moveScaled.x / MINUNITMULT;
     drawEditFloat3(1, hmiValues.moveScaled.x, true);
     dwinUpdateLCD();
-    hmiPlanMove(homing_feedrate(X_AXIS));
+    hmiPlanMove(motion.homing_feedrate(X_AXIS));
   }
 
 #endif
@@ -1307,10 +1307,10 @@ void hmiMoveDone(const AxisEnum axis) {
       return hmiMoveDone(Y_AXIS);
     }
     LIMIT(hmiValues.moveScaled.y, (Y_MIN_POS) * MINUNITMULT, (Y_MAX_POS) * MINUNITMULT);
-    current_position.y = hmiValues.moveScaled.y / MINUNITMULT;
+    motion.position.y = hmiValues.moveScaled.y / MINUNITMULT;
     drawEditFloat3(2, hmiValues.moveScaled.y, true);
     dwinUpdateLCD();
-    hmiPlanMove(homing_feedrate(Y_AXIS));
+    hmiPlanMove(motion.homing_feedrate(Y_AXIS));
   }
 
 #endif
@@ -1325,10 +1325,10 @@ void hmiMoveDone(const AxisEnum axis) {
       return hmiMoveDone(Z_AXIS);
     }
     LIMIT(hmiValues.moveScaled.z, (Z_MIN_POS) * MINUNITMULT, (Z_MAX_POS) * MINUNITMULT);
-    current_position.z = hmiValues.moveScaled.z / MINUNITMULT;
+    motion.position.z = hmiValues.moveScaled.z / MINUNITMULT;
     drawEditFloat3(3, hmiValues.moveScaled.z, true);
     dwinUpdateLCD();
-    hmiPlanMove(homing_feedrate(Z_AXIS));
+    hmiPlanMove(motion.homing_feedrate(Z_AXIS));
   }
 
 #endif
@@ -1345,7 +1345,7 @@ void hmiMoveDone(const AxisEnum axis) {
       return hmiMoveDone(E_AXIS);
     }
     LIMIT(hmiValues.moveScaled.e, last_E_scaled - (EXTRUDE_MAXLENGTH) * MINUNITMULT, last_E_scaled + (EXTRUDE_MAXLENGTH) * MINUNITMULT);
-    current_position.e = hmiValues.moveScaled.e / MINUNITMULT;
+    motion.position.e = hmiValues.moveScaled.e / MINUNITMULT;
     drawEditSignedFloat3(4, hmiValues.moveScaled.e, true);
     dwinUpdateLCD();
     hmiPlanMove(MMM_TO_MMS(FEEDRATE_E));
@@ -1544,7 +1544,7 @@ void hmiPrintSpeed() {
   if (applyEncoder(encoder_diffState, hmiValues.printSpeed)) {
     checkkey = ID_Tune;
     encoderRate.enabled = false;
-    feedrate_percentage = hmiValues.printSpeed;
+    motion.feedrate_percentage = hmiValues.printSpeed;
     drawEditInteger3(select_tune.now + MROWS - index_tune, hmiValues.printSpeed);
     return;
   }
@@ -1659,12 +1659,12 @@ void hmiMaxAccelerationXYZE() {
 
 // Draw X, Y, Z and blink if in an un-homed or un-trusted state
 void _update_axis_value(const AxisEnum axis, const uint16_t x, const uint16_t y, const bool blink, const bool force) {
-  const bool draw_qmark = axis_should_home(axis),
-             draw_empty = NONE(HOME_AFTER_DEACTIVATE, DISABLE_REDUCED_ACCURACY_WARNING) && !draw_qmark && !axis_is_trusted(axis);
+  const bool draw_qmark = motion.axis_should_home(axis),
+             draw_empty = NONE(HOME_AFTER_DEACTIVATE, DISABLE_REDUCED_ACCURACY_WARNING) && !draw_qmark && !motion.axis_is_trusted(axis);
 
   // Check for a position change
   static xyz_pos_t oldpos = { -1, -1, -1 };
-  const float p = current_position[axis];
+  const float p = motion.position[axis];
   const bool changed = oldpos[axis] != p;
   if (changed) oldpos[axis] = p;
 
@@ -1768,8 +1768,8 @@ void updateVariable() {
   #endif
 
   static int16_t _feedrate = 0;
-  if (_feedrate != feedrate_percentage) {
-    _feedrate = feedrate_percentage;
+  if (_feedrate != motion.feedrate_percentage) {
+    _feedrate = motion.feedrate_percentage;
     drawStatInt(116 + 2 * STAT_CHR_W, 384, _feedrate);
   }
 
@@ -2021,7 +2021,7 @@ void drawStatusArea(const bool with_update) {
   #endif
 
   dwinIconShow(ICON, ICON_Speed, 113, 383);
-  drawStatInt(116 + 2 * STAT_CHR_W, 384, feedrate_percentage);
+  drawStatInt(116 + 2 * STAT_CHR_W, 384, motion.feedrate_percentage);
   dwinDrawString(false, DWIN_FONT_STAT, COLOR_WHITE, COLOR_BG_BLACK, 116 + 5 * STAT_CHR_W + 2, 384, F("%"));
 
   #if HAS_FAN
@@ -2730,11 +2730,11 @@ void hmiPrepare() {
         select_axis.reset();
         drawMoveMenu();
 
-        drawEditFloat3(1, current_position.x * MINUNITMULT);
-        drawEditFloat3(2, current_position.y * MINUNITMULT);
-        drawEditFloat3(3, current_position.z * MINUNITMULT);
+        drawEditFloat3(1, motion.position.x * MINUNITMULT);
+        drawEditFloat3(2, motion.position.y * MINUNITMULT);
+        drawEditFloat3(3, motion.position.z * MINUNITMULT);
         #if HAS_HOTEND
-          hmiValues.moveScaled.e = current_position.e * MINUNITMULT;
+          hmiValues.moveScaled.e = motion.position.e * MINUNITMULT;
           drawEditSignedFloat3(4, hmiValues.moveScaled.e);
         #endif
         break;
@@ -2990,7 +2990,7 @@ void hmiAxisMove() {
     if (hmiFlag.cold_flag) {
       if (encoder_diffState == ENCODER_DIFF_ENTER) {
         hmiFlag.cold_flag = false;
-        hmiValues.moveScaled.e = current_position.e * MINUNITMULT;
+        hmiValues.moveScaled.e = motion.position.e * MINUNITMULT;
         drawMoveMenu();
         XYZ_CODE(
           drawEditFloat3(1, hmiValues.moveScaled.x),
@@ -3023,7 +3023,7 @@ void hmiAxisMove() {
       #if HAS_X_AXIS
         case 1: // X axis move
           checkkey = ID_MoveX;
-          hmiValues.moveScaled.x = current_position.x * MINUNITMULT;
+          hmiValues.moveScaled.x = motion.position.x * MINUNITMULT;
           drawEditFloat3(1, hmiValues.moveScaled.x, true);
           encoderRate.enabled = true;
           break;
@@ -3031,7 +3031,7 @@ void hmiAxisMove() {
       #if HAS_Y_AXIS
         case 2: // Y axis move
           checkkey = ID_MoveY;
-          hmiValues.moveScaled.y = current_position.y * MINUNITMULT;
+          hmiValues.moveScaled.y = motion.position.y * MINUNITMULT;
           drawEditFloat3(2, hmiValues.moveScaled.y, true);
           encoderRate.enabled = true;
           break;
@@ -3039,7 +3039,7 @@ void hmiAxisMove() {
       #if HAS_Z_AXIS
         case 3: // Z axis move
           checkkey = ID_MoveZ;
-          hmiValues.moveScaled.z = current_position.z * MINUNITMULT;
+          hmiValues.moveScaled.z = motion.position.z * MINUNITMULT;
           drawEditFloat3(3, hmiValues.moveScaled.z, true);
           encoderRate.enabled = true;
           break;
@@ -3055,7 +3055,7 @@ void hmiAxisMove() {
             }
           #endif
           checkkey = ID_Extruder;
-          hmiValues.moveScaled.e = current_position.e * MINUNITMULT;
+          hmiValues.moveScaled.e = motion.position.e * MINUNITMULT;
           drawEditSignedFloat3(4, hmiValues.moveScaled.e, true);
           encoderRate.enabled = true;
           break;
@@ -3595,9 +3595,9 @@ void hmiAdvSet() {
         case ADVSET_CASE_HOMEOFF:
           checkkey = ID_HomeOff;
           select_item.reset();
-          hmiValues.homeOffsScaled.x = home_offset.x * 10;
-          hmiValues.homeOffsScaled.y = home_offset.y * 10;
-          hmiValues.homeOffsScaled.z = home_offset.z * 10;
+          hmiValues.homeOffsScaled.x = motion.home_offset.x * 10;
+          hmiValues.homeOffsScaled.y = motion.home_offset.y * 10;
+          hmiValues.homeOffsScaled.z = motion.home_offset.z * 10;
           drawHomeOffMenu();
           break;
       #endif
@@ -3685,7 +3685,7 @@ void hmiAdvSet() {
     if (applyEncoder(encoder_diffState, posScaled)) {
       checkkey = ID_HomeOff;
       encoderRate.enabled = false;
-      set_home_offset(axis, posScaled / 10);
+      motion.set_home_offset(axis, posScaled / 10);
       drawEditSignedFloat3(select_item.now, posScaled);
       return;
     }
@@ -3808,7 +3808,7 @@ void hmiTune() {
       break;
       case TUNE_CASE_SPEED: // Print speed
         checkkey = ID_PrintSpeed;
-        hmiValues.printSpeed = feedrate_percentage;
+        hmiValues.printSpeed = motion.feedrate_percentage;
         drawEditInteger3(TUNE_CASE_SPEED + MROWS - index_tune, hmiValues.printSpeed, true);
         encoderRate.enabled = true;
         break;
@@ -4190,7 +4190,7 @@ void eachMomentUpdate() {
   }
   else if (dwin_abort_flag && !hmiFlag.home_flag) { // Print Stop
     dwin_abort_flag = false;
-    hmiValues.printSpeed = feedrate_percentage = 100;
+    hmiValues.printSpeed = motion.feedrate_percentage = 100;
     dwin_zoffset = BABY_Z_VAR;
     select_page.set(0);
     gotoMainMenu();
@@ -4326,7 +4326,7 @@ void dwinHomingDone() {
     drawPrepareMenu();
   }
   else if (checkkey == ID_BackMain) {
-    hmiValues.printSpeed = feedrate_percentage = 100;
+    hmiValues.printSpeed = motion.feedrate_percentage = 100;
     planner.finish_and_disable();
     gotoMainMenu();
   }

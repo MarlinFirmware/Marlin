@@ -38,9 +38,6 @@ enum MeshPointType : char { INVALID, REAL, SET_IN_BITMAP, CLOSEST };
 
 struct mesh_index_pair;
 
-#define MESH_X_DIST (float((MESH_MAX_X) - (MESH_MIN_X)) / (GRID_MAX_CELLS_X))
-#define MESH_Y_DIST (float((MESH_MAX_Y) - (MESH_MIN_Y)) / (GRID_MAX_CELLS_Y))
-
 #if ENABLED(OPTIMIZED_MESH_STORAGE)
   typedef int16_t mesh_store_t[GRID_MAX_POINTS_X][GRID_MAX_POINTS_Y];
 #endif
@@ -116,8 +113,11 @@ public:
     static void set_store_from_mesh(const bed_mesh_t &in_values, mesh_store_t &stored_values);
     static void set_mesh_from_store(const mesh_store_t &stored_values, bed_mesh_t &out_values);
   #endif
-  static const float _mesh_index_to_xpos[GRID_MAX_POINTS_X],
-                     _mesh_index_to_ypos[GRID_MAX_POINTS_Y];
+
+  #if !HAS_PROUI_MESH_EDIT
+    static const float _mesh_index_to_xpos[GRID_MAX_POINTS_X],
+                       _mesh_index_to_ypos[GRID_MAX_POINTS_Y];
+  #endif
 
   #if HAS_MARLINUI_MENU
     static bool lcd_map_control;
@@ -133,11 +133,11 @@ public:
   FORCE_INLINE static void set_z(const int8_t px, const int8_t py, const float z) { z_values[px][py] = z; }
 
   static int8_t cell_index_x_raw(const float x) {
-    return FLOOR((x - (MESH_MIN_X)) * RECIPROCAL(MESH_X_DIST));
+    return FLOOR((x - mesh_min.x) * RECIPROCAL(MESH_X_DIST));
   }
 
   static int8_t cell_index_y_raw(const float y) {
-    return FLOOR((y - (MESH_MIN_Y)) * RECIPROCAL(MESH_Y_DIST));
+    return FLOOR((y - mesh_min.y) * RECIPROCAL(MESH_Y_DIST));
   }
 
   static bool cell_index_x_valid(const float x) {
@@ -162,11 +162,11 @@ public:
   static xy_uint8_t cell_indexes(const xy_pos_t &xy) { return cell_indexes(xy.x, xy.y); }
 
   static int8_t closest_x_index(const float x) {
-    const int8_t px = (x - (MESH_MIN_X) + (MESH_X_DIST) * 0.5) * RECIPROCAL(MESH_X_DIST);
+    const int8_t px = (x - mesh_min.x + (MESH_X_DIST) * 0.5) * RECIPROCAL(MESH_X_DIST);
     return WITHIN(px, 0, (GRID_MAX_POINTS_X) - 1) ? px : -1;
   }
   static int8_t closest_y_index(const float y) {
-    const int8_t py = (y - (MESH_MIN_Y) + (MESH_Y_DIST) * 0.5) * RECIPROCAL(MESH_Y_DIST);
+    const int8_t py = (y - mesh_min.y + (MESH_Y_DIST) * 0.5) * RECIPROCAL(MESH_Y_DIST);
     return WITHIN(py, 0, (GRID_MAX_POINTS_Y) - 1) ? py : -1;
   }
   static xy_int8_t closest_indexes(const xy_pos_t &xy) {
@@ -259,7 +259,7 @@ public:
      * UBL_Z_RAISE_WHEN_OFF_MESH is specified, that value is returned.
      */
     #ifdef UBL_Z_RAISE_WHEN_OFF_MESH
-      if (!WITHIN(rx0, MESH_MIN_X, MESH_MAX_X) || !WITHIN(ry0, MESH_MIN_Y, MESH_MAX_Y))
+      if (!WITHIN(rx0, mesh_min.x, mesh_max.x) || !WITHIN(ry0, mesh_min.y, mesh_max.y))
         return UBL_Z_RAISE_WHEN_OFF_MESH;
     #endif
 
@@ -287,12 +287,20 @@ public:
 
   static constexpr float get_z_offset() { return 0.0f; }
 
-  static float get_mesh_x(const uint8_t i) {
-    return i < (GRID_MAX_POINTS_X) ? pgm_read_float(&_mesh_index_to_xpos[i]) : MESH_MIN_X + i * (MESH_X_DIST);
-  }
-  static float get_mesh_y(const uint8_t i) {
-    return i < (GRID_MAX_POINTS_Y) ? pgm_read_float(&_mesh_index_to_ypos[i]) : MESH_MIN_Y + i * (MESH_Y_DIST);
-  }
+  static float _get_mesh_x(const uint8_t i) { return mesh_min.x + i * (MESH_X_DIST); }
+  static float _get_mesh_y(const uint8_t i) { return mesh_min.y + i * (MESH_Y_DIST); }
+
+  #if HAS_PROUI_MESH_EDIT
+    static float get_mesh_x(const uint8_t i) { return _get_mesh_x(i); }
+    static float get_mesh_y(const uint8_t i) { return _get_mesh_y(i); }
+  #else
+    static float get_mesh_x(const uint8_t i) {
+      return i < (GRID_MAX_POINTS_X) ? pgm_read_float(&_mesh_index_to_xpos[i]) : _get_mesh_x(i);
+    }
+    static float get_mesh_y(const uint8_t i) {
+      return i < (GRID_MAX_POINTS_Y) ? pgm_read_float(&_mesh_index_to_ypos[i]) : _get_mesh_y(i);
+    }
+  #endif
 
   #if UBL_SEGMENTED
     static bool line_to_destination_segmented(const feedRate_t scaled_fr_mm_s);
