@@ -57,7 +57,6 @@
 #define ICON_HSMode           ICON_MaxAccZ
 #define ICON_InputShaping     ICON_MaxAccelerated
 #define ICON_JDmm             ICON_MaxJerk
-#define ICON_Level            ICON_Mesh
 #define ICON_Lock             ICON_Checkbox
 #define ICON_ManualMesh       ICON_Mesh
 #define ICON_MaxPosX          ICON_MoveX
@@ -210,6 +209,7 @@ typedef struct { uint16_t x, y, w, h; } frame_rect_t;
 
 class Title {
 public:
+  const uint8_t meshfont = TERN(TJC_DISPLAY, font8x16, font6x12);
   char caption[32] = "";
   uint8_t frameid = 0;
   rect_t frame = {0};
@@ -526,16 +526,6 @@ namespace DWINUI {
     dwinDrawBox(mode, color, frame.x, frame.y, frame.w, frame.h);
   }
 
-  // Draw a circle
-  //  Color: circle color
-  //  x: abscissa of the center of the circle
-  //  y: ordinate of the center of the circle
-  //  r: circle radius
-  void drawCircle(uint16_t color, uint16_t x,uint16_t y,uint8_t r);
-  inline void drawCircle(uint16_t color, uint8_t r) {
-    drawCircle(color, cursor.x, cursor.y, r);
-  }
-
   // Draw a checkbox
   //  Color: frame color
   //  bColor: Background color
@@ -545,14 +535,6 @@ namespace DWINUI {
   inline void drawCheckbox(uint16_t x, uint16_t y, bool checked=false) {
     drawCheckbox(textColor, backColor, x, y, checked);
   }
-
-  // Color Interpolator
-  //  val : Interpolator minv..maxv
-  //  minv : Minimum value
-  //  maxv : Maximum value
-  //  color1 : Start color
-  //  color2 : End color
-  uint16_t colorInt(int16_t val, int16_t minv, int16_t maxv, uint16_t color1, uint16_t color2);
 
   // ------------------------- Buttons ------------------------------//
 
@@ -572,8 +554,8 @@ namespace DWINUI {
   //  x: abscissa of the center of the circle
   //  y: ordinate of the center of the circle
   //  r: circle radius
-  void drawFillCircle(uint16_t bcolor, uint16_t x,uint16_t y,uint8_t r);
-  inline void drawFillCircle(uint16_t bcolor, uint8_t r) {
+  void drawFillCircle(const uint16_t bcolor, const uint16_t x, const uint16_t y, const uint8_t r);
+  inline void drawFillCircle(const uint16_t bcolor, const uint8_t r) {
     drawFillCircle(bcolor, cursor.x, cursor.y, r);
   }
 

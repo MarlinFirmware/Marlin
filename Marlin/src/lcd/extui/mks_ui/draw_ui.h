@@ -458,7 +458,7 @@ void update_gcode_command(int addr, uint8_t *s);
 void get_gcode_command(int addr, uint8_t *d);
 void lv_serial_capt_hook(void *, uint8_t);
 void lv_eom_hook(void *);
-#if HAS_GCODE_PREVIEW
+#if MKS_GCODE_PREVIEW
   void disp_pre_gcode(int xpos_pixel, int ypos_pixel);
 #endif
 void GUI_RefreshPage();

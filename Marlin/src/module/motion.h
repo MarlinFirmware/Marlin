@@ -30,10 +30,6 @@
 
 #include "../inc/MarlinConfig.h"
 
-//#if ALL(DWIN_LCD_PROUI, INDIVIDUAL_AXIS_HOMING_SUBMENU, MESH_BED_LEVELING)
-//  #include "../lcd/dwin/proui/dwin.h" // for Z_POST_CLEARANCE
-//#endif
-
 #if IS_SCARA
   #include "scara.h"
 #elif ENABLED(POLAR)
@@ -261,7 +257,9 @@ public:
   #if HAS_VARIABLE_XY_PROBE_FEEDRATE
     static feedRate_t xy_probe_feedrate_mm_s;   // Set with 'G29 S' for ABL LINEAR/BILINEAR. TODO: Store to EEPROM.
   #endif
-  #ifdef Z_PROBE_FEEDRATE_SLOW
+  #if ENABLED(DWIN_LCD_PROUI)
+    static uint16_t z_probe_slow_mm_s;
+  #elif defined(Z_PROBE_FEEDRATE_SLOW)
     static constexpr feedRate_t z_probe_slow_mm_s = MMM_TO_MMS(Z_PROBE_FEEDRATE_SLOW);
   #endif
   #ifdef Z_PROBE_FEEDRATE_FAST
@@ -680,6 +678,17 @@ private:
 #define BABYSTEP_ALLOWED() ((ENABLED(BABYSTEP_WITHOUT_HOMING) || motion.all_axes_trusted()) && (ENABLED(BABYSTEP_ALWAYS_AVAILABLE) || marlin.printer_busy()))
 
 extern Motion motion;
+
+#if HAS_PROUI_MESH_EDIT
+  #define MESH_X_DIST ((mesh_max.x - mesh_min.x) / (GRID_MAX_CELLS_X))
+  #define MESH_Y_DIST ((mesh_max.y - mesh_min.y) / (GRID_MAX_CELLS_Y))
+  extern xy_pos_t mesh_min, mesh_max;
+#elif HAS_MESH
+  #define MESH_X_DIST (float((MESH_MAX_X) - (MESH_MIN_X)) / (GRID_MAX_CELLS_X))
+  #define MESH_Y_DIST (float((MESH_MAX_Y) - (MESH_MIN_Y)) / (GRID_MAX_CELLS_Y))
+  constexpr xy_pos_t mesh_min{ MESH_MIN_X, MESH_MIN_Y },
+                     mesh_max{ MESH_MAX_X, MESH_MAX_Y };
+#endif
 
 // External conversion methods (motion.h)
 inline void toLogical(xy_pos_t &raw)   { motion.toLogical(raw); }

@@ -45,6 +45,11 @@
 
 #if ALL(DWIN_LCD_PROUI, HAS_LEVELING)
 
+#include "dwin.h"
+#include "dwinui.h"
+#include "dwin_popup.h"
+#include "bedlevel_tools.h"
+
 #include "../../marlinui.h"
 #include "../../../core/types.h"
 #include "../../../feature/bedlevel/bedlevel.h"
@@ -55,14 +60,12 @@
 #include "../../../libs/least_squares_fit.h"
 #include "../../../libs/vector_3.h"
 
-#include "dwin.h"
-#include "dwinui.h"
-#include "dwin_popup.h"
-#include "bedlevel_tools.h"
+#define DEBUG_OUT ENABLED(DEBUG_LEVELING_FEATURE)
+#include "../../../core/debug_out.h"
 
 BedLevelTools bedLevelTools;
 
-#if ENABLED(USE_GRID_MESHVIEWER)
+#if USE_GRID_MESHVIEWER
   bool BedLevelTools::grid_meshview = false;
   bool BedLevelTools::viewer_print_value = false;
 #endif
@@ -152,7 +155,7 @@ void BedLevelTools::moveToZ() {
 }
 void BedLevelTools::probeXY() {
   gcode.process_subcommands_now(
-    MString<MAX_CMD_SIZE>(
+    TS(
       F("G28O\nG0Z"), uint16_t(Z_CLEARANCE_DEPLOY_PROBE),
       F("\nG30X"), p_float_t(bedlevel.get_mesh_x(mesh_x), 2),
       F("Y"), p_float_t(bedlevel.get_mesh_y(mesh_y), 2)
@@ -161,6 +164,7 @@ void BedLevelTools::probeXY() {
 }
 
 void BedLevelTools::meshReset() {
+  set_bed_leveling_enabled(false);
   ZERO(bedlevel.z_values);
   TERN_(AUTO_BED_LEVELING_BILINEAR, bedlevel.refresh_bed_level());
 }
@@ -180,16 +184,17 @@ float BedLevelTools::getMinValue() {
 
 // Return 'true' if mesh is good and within LCD limits
 bool BedLevelTools::meshValidate() {
+  if (mesh_max.x <= mesh_min.x || mesh_max.y <= mesh_min.y)
+    return false;
   GRID_LOOP(x, y) {
     const float z = bedlevel.z_values[x][y];
-    if (isnan(z) || !WITHIN(z, Z_OFFSET_MIN, Z_OFFSET_MAX)) return false;
+    if (isnan(z) || TERN0(HAS_PROUI_MESH_EDIT, !WITHIN(z, Z_OFFSET_MIN, Z_OFFSET_MAX)))
+      return false;
   }
   return true;
 }
 
-#if ENABLED(USE_GRID_MESHVIEWER)
-
-  constexpr uint8_t meshfont = TERN(TJC_DISPLAY, font8x16, font6x12);
+#if USE_GRID_MESHVIEWER
 
   void BedLevelTools::drawBedMesh(int16_t selected/*=-1*/, uint8_t gridline_width/*=1*/, uint16_t padding_x/*=8*/, uint16_t padding_y_top/*=(40 + 53 - 7)*/) {
     drawing_mesh = true;
@@ -216,8 +221,8 @@ bool BedLevelTools::meshValidate() {
       const auto end_y_px   = start_y_px + cell_height_px - 1 - gridline_width;
       const float z = bedlevel.z_values[x][y];
       const uint16_t color = isnan(z) ? COLOR_GREY : (    // Gray if undefined
-        (z < 0 ? uint16_t(LROUND(0x1F * -z / rmax)) << 11 // Red for negative mesh point
-               : uint16_t(LROUND(0x3F *  z / rmax)) << 5) // Green for positive mesh point
+        (z > 0 ? uint16_t(LROUND(0x1F *  z / rmax)) << 11 // Red for positive mesh point
+               : uint16_t(LROUND(0x3F * -z / rmax)) << 5) // Green for negative mesh point
                | _MIN(0x1F, (uint8_t(abs(z) * 0.4)))      // + Blue stepping for every mm
       );
 
@@ -229,10 +234,10 @@ bool BedLevelTools::meshValidate() {
       // Draw value text on
       if (!viewer_print_value) continue;
 
-      const uint8_t fs = DWINUI::fontWidth(meshfont);
+      const uint8_t fs = DWINUI::fontWidth(title.meshfont);
       const int8_t offset_y = cell_height_px / 2 - fs;
       if (isnan(z)) { // undefined
-        dwinDrawString(false, meshfont, COLOR_WHITE, COLOR_BG_BLUE, start_x_px + cell_width_px / 2 - 5, start_y_px + offset_y, F("X"));
+        dwinDrawString(false, title.meshfont, COLOR_WHITE, COLOR_BG_BLUE, start_x_px + cell_width_px / 2 - 5, start_y_px + offset_y, F("X"));
       }
       else {          // has value
         MString<12> msg;
@@ -243,8 +248,8 @@ bool BedLevelTools::meshValidate() {
           msg.set(p_float_t(abs(z), 2));
         const int8_t offset_x = cell_width_px / 2 - (fs / 2) * msg.length() - 2;
         if (is_wide)
-          dwinDrawString(false, meshfont, COLOR_WHITE, COLOR_BG_BLUE, start_x_px - 2 + offset_x, start_y_px + offset_y, F("."));
-        dwinDrawString(false, meshfont, COLOR_WHITE, COLOR_BG_BLUE, start_x_px + 1 + offset_x, start_y_px + offset_y, msg);
+          dwinDrawString(false, title.meshfont, COLOR_WHITE, COLOR_BG_BLUE, start_x_px - 2 + offset_x, start_y_px + offset_y, F("."));
+        dwinDrawString(false, title.meshfont, COLOR_WHITE, COLOR_BG_BLUE, start_x_px + 1 + offset_x, start_y_px + offset_y, msg);
       }
 
       safe_delay(10);
