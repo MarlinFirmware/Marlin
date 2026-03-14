@@ -105,7 +105,14 @@
   #endif
 #endif
 
-#if !(ANY(HAS_BED_PROBE, BACKLASH_GCODE) || (ENABLED(EXTENSIBLE_UI) && ANY(MESH_BED_LEVELING, AUTO_BED_LEVELING_UBL)))
+#if HAS_BED_PROBE
+  #ifndef Z_PROBE_FEEDRATE_SLOW
+    #define Z_PROBE_FEEDRATE_SLOW (4*60)
+  #endif
+  #ifndef Z_PROBE_FEEDRATE_FAST
+    #define Z_PROBE_FEEDRATE_FAST (Z_PROBE_FEEDRATE_SLOW / 2)
+  #endif
+#elif !(ANY(HAS_BED_PROBE, BACKLASH_GCODE) || ALL(EXTENSIBLE_UI, HAS_MESH))
   #undef Z_PROBE_FEEDRATE_FAST
   #undef Z_PROBE_FEEDRATE_SLOW
 #endif
@@ -360,30 +367,6 @@
     #define HAS_FTM_EI_SHAPING 1
   #endif
 
-  /**
-   * TMC2208 Direction-Flip Delay
-   *
-   * Some TMC2208 / TMC2208_STANDALONE drivers may require a short delay after a DIR change
-   * to prevent a standstill error, especially when using stealthChop (the standalone default).
-   *
-   * When enabled for an axis, FT Motion will hold that axis for > 750µs after a DIR change
-   * by holding its trajectory coordinate constant for a multiple of FTM_TS frames. For the
-   * default FTM_FS = 1000, it is a single 1ms frame.
-   *
-   * Other axes keep moving normally, and the wait is canceled if the axis flips again.
-   */
-  #if AXIS_DRIVER_TYPE_X(TMC2208) || AXIS_DRIVER_TYPE_X(TMC2208_STANDALONE)
-    #define FTM_DIR_CHANGE_HOLD_X 1
-  #endif
-  #if AXIS_DRIVER_TYPE_Y(TMC2208) || AXIS_DRIVER_TYPE_Y(TMC2208_STANDALONE)
-    #define FTM_DIR_CHANGE_HOLD_Y 1
-  #endif
-  #if AXIS_DRIVER_TYPE_Z(TMC2208) || AXIS_DRIVER_TYPE_Z(TMC2208_STANDALONE)
-    #define FTM_DIR_CHANGE_HOLD_Z 1
-  #endif
-  #if HAS_E_DRIVER(TMC2208) || HAS_E_DRIVER(TMC2208_STANDALONE)
-    #define FTM_DIR_CHANGE_HOLD_E 1
-  #endif
   #if ANY(FTM_DIR_CHANGE_HOLD_X, FTM_DIR_CHANGE_HOLD_Y, FTM_DIR_CHANGE_HOLD_Z, FTM_DIR_CHANGE_HOLD_E)
     #define HAS_FTM_DIR_CHANGE_HOLD 1
   #endif
@@ -400,6 +383,11 @@
   #undef INPUT_SHAPING_X
   #undef INPUT_SHAPING_Y
   #undef INPUT_SHAPING_Z
+#endif
+
+// Disallowed with no shaping
+#if NONE(INPUT_SHAPING_X, INPUT_SHAPING_Y, INPUT_SHAPING_Z)
+  #undef SHAPING_MENU
   #undef INPUT_SHAPING_E_SYNC
 #endif
 
@@ -427,7 +415,7 @@
   #define HAS_CLASSIC_E_JERK 1
 #endif
 // E jerk is derived from JD factors
-#if ALL(HAS_JUNCTION_DEVIATION, LIN_ADVANCE)
+#if HAS_JUNCTION_DEVIATION && ANY(LIN_ADVANCE, FTM_HAS_LIN_ADVANCE)
   #define HAS_LINEAR_E_JERK 1
 #endif
 

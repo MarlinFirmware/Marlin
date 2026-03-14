@@ -73,7 +73,7 @@ XPT2046 touch;
   #define TFT_HEIGHT 320
 #endif
 
-#if HAS_SPI_FLASH_FONT
+#if MKS_SPI_FLASH_FONT
   void init_gb2312_font();
 #endif
 
@@ -133,7 +133,7 @@ void tft_lvgl_init() {
   SPI_TFT.lcdInit();
   hal.watchdog_refresh();     // LVGL init takes time
 
-  #if HAS_LOGO_IN_FLASH
+  #if MKS_LOGO_IN_FLASH
     // Leave the boot screen visible for a moment
     delay(1000);
     hal.watchdog_refresh();     // LVGL init takes time
@@ -202,7 +202,7 @@ void tft_lvgl_init() {
 
   systick_attach_callback(SysTick_Callback);
 
-  TERN_(HAS_SPI_FLASH_FONT, init_gb2312_font());
+  TERN_(MKS_SPI_FLASH_FONT, init_gb2312_font());
 
   tft_style_init();
   filament_pin_setup();

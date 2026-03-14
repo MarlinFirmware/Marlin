@@ -82,9 +82,9 @@ exec_test $1 $2 "MEGA2560 RAMPS | AXEL_TPARA" "$3"
 # Extruder Only. No XYZ axes at all.
 #
 restore_configs
-opt_set DEFAULT_AXIS_STEPS_PER_UNIT '{ 4000 }' \
-        DEFAULT_MAX_FEEDRATE '{ 5 }' \
-        DEFAULT_MAX_ACCELERATION '{ 100 }' \
+opt_set DEFAULT_AXIS_STEPS_PER_UNIT '{ 500 }' \
+        DEFAULT_MAX_FEEDRATE '{ 25 }' \
+        DEFAULT_MAX_ACCELERATION '{ 10000 }' \
         MANUAL_FEEDRATE '{ 4*60 }' \
         AXIS_RELATIVE_MODES '{ false }' \
         HOMING_BUMP_MM '{}' HOMING_BUMP_DIVISOR '{}' HOMING_FEEDRATE_MM_M '{}'
@@ -251,11 +251,11 @@ exec_test $1 $2 "Azteeg X3 | Mixing Extruder (x5) | Gradient Mix | Input Shaping
 #
 #restore_configs
 #opt_enable REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER SDSUPPORT
-#for lang in an bg ca cz da de el el_CY en es eu fi fr gl hr hu it jp_kana nl pl pt pt_br ro ru sk sv tr uk vi zh_CN zh_TW test; do opt_set LCD_LANGUAGE $lang; echo "compile with language $lang ..."; exec_test $1 $2 "Stuff" "$3"; done
+#for lang in an bg ca cz da de el el_CY en es eu fi fr gl hg hr hu id it jp_kana nl pl pt pt_br ro ru sk sv tr uk vi zh_CN zh_TW test; do opt_set LCD_LANGUAGE $lang; echo "compile with language $lang ..."; exec_test $1 $2 "Stuff" "$3"; done
 #
 #restore_configs
 #opt_enable REPRAP_DISCOUNT_SMART_CONTROLLER SDSUPPORT
-#for lang in an bg ca cz da de el el_CY en es eu fi fr gl hr hu it jp_kana nl pl pt pt_br ro ru sk sv tr uk vi zh_CN zh_TW test; do opt_set LCD_LANGUAGE $lang; echo "compile with language $lang ..."; exec_test $1 $2 "Stuff" "$3"; done
+#for lang in an bg ca cz da de el el_CY en es eu fi fr gl hg hr hu id it jp_kana nl pl pt pt_br ro ru sk sv tr uk vi zh_CN zh_TW test; do opt_set LCD_LANGUAGE $lang; echo "compile with language $lang ..."; exec_test $1 $2 "Stuff" "$3"; done
 
 ######## Example Configurations ##############
 #

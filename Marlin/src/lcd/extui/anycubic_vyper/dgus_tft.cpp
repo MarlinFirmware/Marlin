@@ -1047,7 +1047,7 @@ namespace Anycubic {
         else if (control_index == TXT_PRINT_SPEED_TARGET || control_index == TXT_ADJUST_SPEED) { // print speed
           control_value = (uint16_t(data_buf[4]) << 8) | uint16_t(data_buf[5]);
           const uint16_t feedrate = constrain(uint16_t(control_value), 40, 999);
-          //feedrate_percentage=constrain(control_value,40,999);
+          //motion.feedrate_percentage = constrain(control_value, 40, 999);
           sendTxtToTFT(MString<6>(feedrate), TXT_PRINT_SPEED);
           sendValueToTFT(feedrate, TXT_PRINT_SPEED_NOW);
           sendValueToTFT(feedrate, TXT_PRINT_SPEED_TARGET);

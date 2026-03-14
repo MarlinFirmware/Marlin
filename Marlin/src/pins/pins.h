@@ -557,7 +557,7 @@
 #elif MB(STM32F103RE)
   #include "stm32f1/pins_STM32F1R.h"                // STM32F1                              env:STM32F103RE env:STM32F103RE_maple
 #elif MB(MALYAN_M200)
-  #include "stm32f1/pins_MALYAN_M200.h"             // STM32F1                              env:STM32F103CB_malyan env:STM32F103CB_malyan_maple
+  #include "stm32f1/pins_MALYAN_M200.h"             // STM32F1                              env:STM32F103CB_malyan
 #elif MB(STM3R_MINI)
   #include "stm32f1/pins_STM3R_MINI.h"              // STM32F1                              env:STM32F103VE env:STM32F103RE_maple
 #elif MB(GTM32_PRO_VB)
@@ -805,7 +805,9 @@
 #elif MB(I3DBEEZ9_V1)
   #include "stm32f4/pins_I3DBEEZ9.h"                // STM32F4                              env:I3DBEEZ9_V1
 #elif MB(MELLOW_FLY_E3_V2)
-  #include "stm32f4/pins_MELLOW_FLY_E3_V2.h"        // STM32F4                              env:FLY_E3_V2
+  #include "stm32f4/pins_MELLOW_FLY_E3_V2.h"        // STM32F4                              env:STM32F407VG_mellow_fly_e3
+#elif MB(MELLOW_FLY_E3_PRO_V3)
+  #include "stm32f4/pins_MELLOW_FLY_E3_PRO_V3.h"    // STM32F4                              env:STM32F407VG_mellow_fly_e3
 #elif MB(BLACKBEEZMINI_V1)
   #include "stm32f4/pins_BLACKBEEZMINI.h"           // STM32F4                              env:BLACKBEEZMINI_V1
 #elif MB(XTLW_CLIMBER_8TH)
@@ -927,9 +929,9 @@
 //
 
 #elif MB(AQUILA_V101)
-  #include "hc32f4/pins_AQUILA_101.h"               // HC32F460                             env:HC32F460C_aquila_101
+  #include "hc32f4/pins_AQUILA_101.h"               // HC32F460                             env:HC32F460C_aquila_101 env:HC32F460C_openhc32boot
 #elif MB(CREALITY_ENDER2P_V24S4)
-  #include "hc32f4/pins_CREALITY_ENDER2P_V24S4.h"   // HC32F460                             env:HC32F460C_e2p24s4
+  #include "hc32f4/pins_CREALITY_ENDER2P_V24S4.h"   // HC32F460                             env:HC32F460C_e2p24s4 env:HC32F460C_openhc32boot
 
 //
 // GD32 ARM Cortex-M3
