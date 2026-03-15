@@ -209,7 +209,7 @@
       {&DDRE, &PINE, &PORTE, 2},  // E2 78
       {&DDRE, &PINE, &PORTE, 6},  // E6 79
 
-      // pins MIGHTYBOARD_REVG.h
+      // pins_MIGHTYBOARD_REVG.h
       // TODO: Only include with a -D define in build
       {&DDRE, &PINE, &PORTE, 7},  // E7 80
       {&DDRD, &PIND, &PORTD, 4},  // D4 81

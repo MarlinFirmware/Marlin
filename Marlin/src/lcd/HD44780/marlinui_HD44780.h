@@ -95,7 +95,7 @@
   // Optimized in-tree implementation
   // Pin mapping: SR_STROBE_PIN, SR_DATA_PIN, SR_CLK_PIN
 
-  #include "MightyboardLCDSerial.h"
+  #include "mighty/mighty_lcd_serial.h"
   #define LCD_CLASS MightyboardLCDSerial
 
 #elif ENABLED(SR_LCD_3W_NL)

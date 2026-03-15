@@ -20,13 +20,12 @@
  *
  */
 
-#include "MightyboardLCDSerial.h"
+#include "../../../inc/MarlinConfigPre.h"
 
-#include "../../inc/MarlinConfigPre.h"
-#include "../../core/serial.h"
+#if ENABLED(MIGHTYBOARD_LCD)
 
-#if HAS_MARLINUI_HD44780 && ENABLED(MIGHTYBOARD_LCD)
-
+#include "mighty_lcd_serial.h"
+#include "../../../core/serial.h"
 #include <util/delay.h>
 
 /**
@@ -58,19 +57,14 @@ void MightyboardLCDSerial::begin(uint8_t cols, uint8_t rows, uint8_t charsize) {
   _rows = rows;
 
   // Diagnostic output showing LCD configuration
-  #if ENABLED(MIGHTYBOARD_RUNTIME_DEBUG)
+  #if ENABLED(MIGHTYBOARD_DEBUG)
     SERIAL_ECHOLNPGM("MightyboardLCDSerial::begin() - LCD Configuration:");
     SERIAL_ECHOLNPGM("  Dimensions: ", _cols, " x ", _rows);
     #ifdef LCD_WIDTH
       SERIAL_ECHOLNPGM("  Expected from config: ", LCD_WIDTH, " x ", LCD_HEIGHT);
     #endif
     SERIAL_ECHOPGM("  Charsize: ");
-    if (charsize == LCD_5x8DOTS)
-      SERIAL_ECHOLNPGM("5x8 dots");
-    else if (charsize == LCD_5x10DOTS)
-      SERIAL_ECHOLNPGM("5x10 dots");
-    else
-      SERIAL_ECHOLNPGM("unknown");
+    SERIAL_ECHOLN(charsize == LCD_5x8DOTS ? F("5x8 dots") : charsize == LCD_5x10DOTS ? F("5x10 dots") : F("unknown"));
   #endif
 
   if (rows > 1)
@@ -299,10 +293,10 @@ void MightyboardLCDSerial::write4bits(uint8_t value, bool dataMode) {
  */
 void MightyboardLCDSerial::pulseEnable(uint8_t value) {
   _delay_us(1);
-  value |= 0b00001000;  // Set enable HIGH
+  SBI(value, 3);        // Set enable HIGH
   writeSerial(value);
   _delay_us(1);
-  value &= 0b11110111;  // Set enable LOW
+  CBI(value, 3);        // Set enable LOW
   writeSerial(value);
   _delay_us(50);  // Wait for command execution
 }
@@ -328,4 +322,4 @@ void MightyboardLCDSerial::writeSerial(uint8_t value) {
   digitalWrite(_strobe_pin, LOW);
 }
 
-#endif // HAS_MARLINUI_HD44780 && ENABLED(MIGHTYBOARD_LCD)
+#endif // MIGHTYBOARD_LCD

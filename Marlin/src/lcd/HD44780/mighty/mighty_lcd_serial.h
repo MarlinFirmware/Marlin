@@ -27,7 +27,9 @@
  * Provides HD44780 compatible interface with minimal CPU overhead
  */
 
-#include <Arduino.h>
+#include <Print.h>
+#include <stdio.h>
+#include <stdint.h>
 
 class MightyboardLCDSerial : public Print {
 public:
@@ -38,14 +40,14 @@ public:
    * @param clk Clock pin (SCLK_PIN / SR_CLK_PIN)
    * @param pwrPin Power control pin (LCD_PWR_PIN)
    */
-  MightyboardLCDSerial(uint8_t strobe, uint8_t data, uint8_t clk, uint8_t pwrPin = 255);
+  MightyboardLCDSerial(uint8_t strobe, uint8_t data, uint8_t clk, uint8_t pwrPin=255);
 
   /**
    * Initialize display with given dimensions
    * @param cols Number of columns (typically 20)
    * @param rows Number of rows (typically 4)
    */
-  void begin(uint8_t cols, uint8_t rows, uint8_t charsize = LCD_5x8DOTS);
+  void begin(uint8_t cols, uint8_t rows, uint8_t charsize=LCD_5x8DOTS);
 
   // Basic display control
   void clear();

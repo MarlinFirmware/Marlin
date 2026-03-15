@@ -3047,13 +3047,11 @@
 //
 //#define MIGHTYBOARD_LCD
 #if ENABLED(MIGHTYBOARD_LCD)
-  //#define MIGHTYBOARD_RUNTIME_DEBUG       // Lightweight debug output for buttons and encoder
-  //#define MIGHTYBOARD_DISABLE_ENC_PULLUP  // Enable if the encoder button doesn't work correctly
-  //#define MIGHTYBOARD_BUTTON_PULLUPS      // Enable if other buttons don't work correctly
-
-  // Enable to use LEFT/RIGHT for Back and Status Screen.
-  // Otherwise LEFT/RIGHT act like the encoder in menu navigation and value editing.
-  //#define MIGHTYBOARD_BACK_STATUS_BUTTONS
+  //#define MIGHTYBOARD_DEBUG               // Lightweight debug output for buttons and encoder
+  //#define MIGHTYBOARD_DISABLE_ENC_PULLUP  // Enable if the encoder button is unreliable
+  //#define MIGHTYBOARD_BUTTON_PULLUPS      // Enable if other buttons are unreliable
+  //#define MIGHTYBOARD_BACK_STATUS_BUTTONS // Use LEFT/RIGHT buttons for Back / Home.
+                                            // Otherwise they act like encoder down / up.
 #endif
 
 //
