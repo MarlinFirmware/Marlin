@@ -40,7 +40,7 @@ public:
    * @param clk Clock pin (SCLK_PIN / SR_CLK_PIN)
    * @param pwrPin Power control pin (LCD_PWR_PIN)
    */
-  MightyboardLCDSerial(uint8_t strobe, uint8_t data, uint8_t clk, uint8_t pwrPin=255);
+  MightyboardLCDSerial();
 
   /**
    * Initialize display with given dimensions
@@ -79,11 +79,6 @@ public:
   void command(uint8_t value);
 
 private:
-  uint8_t _strobe_pin;
-  uint8_t _data_pin;
-  uint8_t _clk_pin;
-  uint8_t _pwr_pin;
-
   uint8_t _cols;
   uint8_t _rows;
   uint8_t _displayfunction;

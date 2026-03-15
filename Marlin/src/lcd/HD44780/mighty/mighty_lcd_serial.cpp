@@ -28,12 +28,13 @@
 #include "../../../core/serial.h"
 #include <util/delay.h>
 
+#include "../../../inc/MarlinConfig.h"
+
 /**
  * Constructor: store pin assignments
  */
-MightyboardLCDSerial::MightyboardLCDSerial(uint8_t strobe, uint8_t data, uint8_t clk, uint8_t pwrPin)
-  : _strobe_pin(strobe), _data_pin(data), _clk_pin(clk), _pwr_pin(pwrPin),
-    _displayfunction(LCD_4BITMODE | LCD_1LINE | LCD_5x8DOTS),
+MightyboardLCDSerial::MightyboardLCDSerial()
+  : _displayfunction(LCD_4BITMODE | LCD_1LINE | LCD_5x8DOTS),
     _displaycontrol(LCD_DISPLAYON | LCD_CURSOROFF | LCD_BLINKOFF),
     _displaymode(LCD_ENTRYLEFT | LCD_ENTRYSHIFTDECREMENT),
     _xcursor(0), _ycursor(0) {}
@@ -43,15 +44,15 @@ MightyboardLCDSerial::MightyboardLCDSerial(uint8_t strobe, uint8_t data, uint8_t
  * Follows HD44780 initialization sequence from datasheet
  */
 void MightyboardLCDSerial::begin(uint8_t cols, uint8_t rows, uint8_t charsize) {
-  pinMode(_strobe_pin, OUTPUT);
-  pinMode(_data_pin, OUTPUT);
-  pinMode(_clk_pin, OUTPUT);
+  SET_OUTPUT(SR_STROBE_PIN);
+  SET_OUTPUT(SR_DATA_PIN);
+  SET_OUTPUT(SR_CLK_PIN);
 
   // Power on LCD if power pin is defined
-  if (_pwr_pin != 255) {
-    pinMode(_pwr_pin, OUTPUT);
-    digitalWrite(_pwr_pin, LOW); // Power on (active low)
-  }
+  // Already handled in MarlinUI::init_lcd()
+  //#if PIN_EXISTS(LCD_PWR)
+  //  OUT_WRITE(LCD_PWR_PIN, LOW); // Power on (active low)
+  //#endif
 
   _cols = cols;
   _rows = rows;
@@ -63,8 +64,9 @@ void MightyboardLCDSerial::begin(uint8_t cols, uint8_t rows, uint8_t charsize) {
     #ifdef LCD_WIDTH
       SERIAL_ECHOLNPGM("  Expected from config: ", LCD_WIDTH, " x ", LCD_HEIGHT);
     #endif
-    SERIAL_ECHOPGM("  Charsize: ");
-    SERIAL_ECHOLN(charsize == LCD_5x8DOTS ? F("5x8 dots") : charsize == LCD_5x10DOTS ? F("5x10 dots") : F("unknown"));
+    SERIAL_ECHOLN(F("  Charsize: "),
+      charsize == LCD_5x8DOTS ? F("5x8 dots") : charsize == LCD_5x10DOTS ? F("5x10 dots") : F("unknown")
+    );
   #endif
 
   if (rows > 1)
@@ -309,17 +311,17 @@ void MightyboardLCDSerial::pulseEnable(uint8_t value) {
 void MightyboardLCDSerial::writeSerial(uint8_t value) {
   // Shift out each bit, MSB first
   for (int8_t i = 7; i >= 0; i--) {
-    digitalWrite(_clk_pin, LOW);
+    WRITE(SR_CLK_PIN, LOW);
     bool data = (value >> i) & 0x01;
-    digitalWrite(_data_pin, data);
-    digitalWrite(_clk_pin, HIGH);
+    WRITE(SR_DATA_PIN, data);
+    WRITE(SR_CLK_PIN, HIGH);
     _delay_us(1);  // Clock pulse width
   }
 
   // Pulse strobe to latch data into display shift register
-  digitalWrite(_strobe_pin, HIGH);
+  WRITE(SR_STROBE_PIN, HIGH);
   _delay_us(1);
-  digitalWrite(_strobe_pin, LOW);
+  WRITE(SR_STROBE_PIN, LOW);
 }
 
 #endif // MIGHTYBOARD_LCD
