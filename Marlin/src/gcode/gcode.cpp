@@ -200,9 +200,9 @@ void GcodeSuite::get_destination_from_command() {
   #endif
 
   #if HAS_ROTATIONAL_AXES || IS_KINEMATIC || HAS_LEVELING || ENABLED(FEEDRATE_MODE_SUPPORT)
-    const xyze_pos_t displacement = destination - current_position;
+    const xyze_pos_t displacement = motion.destination - motion.position;
 
-    parser.cartesian_mm = get_move_distance(displacement OPTARG(HAS_ROTATIONAL_AXES, parser.cartes_move));
+    parser.cartesian_mm = motion.get_move_distance(displacement OPTARG(HAS_ROTATIONAL_AXES, parser.cartes_move));
 
     #if HAS_EXTRUDERS
       if (NEAR_ZERO(parser.cartesian_mm)) {
