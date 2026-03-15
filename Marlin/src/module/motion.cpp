@@ -1629,13 +1629,14 @@ float Motion::get_move_distance(const xyze_pos_t &diff OPTARG(HAS_ROTATIONAL_AXE
       bool cartesian_move = true;
     #endif
     float cartesian_mm = parser.cartesian_mm;
-    if (!parser.linear_motion_gcode)
+    if (!parser.linear_motion_gcode) {
       cartesian_mm = motion.get_move_distance(diff OPTARG(HAS_ROTATIONAL_AXES, cartesian_move));
 
-    // If the move is very short, check the E move distance
-    TERN_(HAS_EXTRUDERS, if (UNEAR_ZERO(cartesian_mm)) cartesian_mm = ABS(diff.e));
+      // If the move is very short, check the E move distance
+      TERN_(HAS_EXTRUDERS, if (UNEAR_ZERO(cartesian_mm)) parser.cartesian_mm = ABS(diff.e));
+    }
 
-    // No E move either? Game over.
+    // No move ? Game over.
     if (UNEAR_ZERO(cartesian_mm)) return true;
 
     // Minimum number of seconds to move the given distance
@@ -1715,12 +1716,15 @@ float Motion::get_move_distance(const xyze_pos_t &diff OPTARG(HAS_ROTATIONAL_AXE
         bool cartesian_move = true;
       #endif
       // Get the move distance
-      float cartesian_mm = get_move_distance(diff OPTARG(HAS_ROTATIONAL_AXES, cartesian_move));
+      float cartesian_mm = parser.cartesian_mm;
 
-      // If the move is very short, check the E move distance
-      TERN_(HAS_EXTRUDERS, if (UNEAR_ZERO(cartesian_mm)) cartesian_mm = ABS(diff.e));
+      if (!parser.linear_motion_gcode) {
+        cartesian_mm = get_move_distance(diff OPTARG(HAS_ROTATIONAL_AXES, cartesian_move));
+        // If the move is very short, check the E move distance
+        TERN_(HAS_EXTRUDERS, if (UNEAR_ZERO(cartesian_mm)) cartesian_mm = ABS(diff.e));
+      }
 
-      // No E move either? Game over.
+      // No move? Game over.
       if (UNEAR_ZERO(cartesian_mm)) return;
 
       // The length divided by the segment size
