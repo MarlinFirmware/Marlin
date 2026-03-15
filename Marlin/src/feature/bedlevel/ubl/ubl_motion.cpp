@@ -359,13 +359,13 @@
 
     // If the move is only in Z/E don't split up the move
     if (!total.x && !total.y) {
-      planner.buffer_line(destination, scaled_fr_mm_s);
+      planner.buffer_line(motion.destination, scaled_fr_mm_s);
       return false; // caller will update current_position
     }
     bool cartes_move = true;
-    float cartesian_mm = get_move_distance(total OPTARG(HAS_ROTATIONAL_AXES, cartes_move));
+    float cartesian_mm = motion.get_move_distance(total OPTARG(HAS_ROTATIONAL_AXES, cartes_move));
 
-      // If the move is very short, check the E move distance
+    // If the move is very short, check the E move distance
     TERN_(HAS_EXTRUDERS, if (UNEAR_ZERO(cartesian_mm)) cartesian_mm = ABS(total.e));
 
     // No E move either? Game over.
