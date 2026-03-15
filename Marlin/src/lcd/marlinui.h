@@ -838,7 +838,7 @@ public:
 
     #if ENABLED(MIGHTYBOARD_BACK_STATUS_BUTTONS)
       // Requests set from interrupt context and handled in main loop
-      static volatile bool request_back, request_return_to_status;
+      static volatile uint8_t request_back;
     #endif
 
     #if ENABLED(ENCODER_NOISE_FILTER)

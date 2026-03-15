@@ -71,8 +71,7 @@ MarlinUI ui;
 
 #if ENABLED(MIGHTYBOARD_BACK_STATUS_BUTTONS)
   // Flags set from interrupt context; handled in main loop
-  volatile bool MarlinUI::request_back = false,
-                MarlinUI::request_return_to_status = false;
+  volatile uint8_t MarlinUI::request_back = 0;
 #endif
 
 constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
@@ -1067,17 +1066,14 @@ void MarlinUI::init() {
         else
           wait_for_unclick = false;
       }
+
       #if ENABLED(MIGHTYBOARD_BACK_STATUS_BUTTONS)
         // Handle requests set from interrupt context (ISR-safe)
         if (request_back) {
-          request_back = false;
           quick_feedback();
-          goto_previous_screen();
-        }
-        if (request_return_to_status) {
-          request_return_to_status = false;
-          quick_feedback();
-          return_to_status();
+          if (request_back == 1) goto_previous_screen();
+          else if (request_back == 2) return_to_status();
+          request_back = 0;
         }
       #endif
 
@@ -1461,7 +1457,7 @@ void MarlinUI::init() {
           }
           else if (BUTTON_PRESSED(LEFT)) {
             #if ENABLED(MIGHTYBOARD_BACK_STATUS_BUTTONS)
-              request_back = true;              // ISR-safe: flag action run in the main loop
+              request_back = 1;                // ISR-safe: flag action run in the main loop
             #else
               encoderDiff = -pulses;
             #endif
@@ -1469,7 +1465,7 @@ void MarlinUI::init() {
           }
           else if (BUTTON_PRESSED(RIGHT)) {
             #if ENABLED(MIGHTYBOARD_BACK_STATUS_BUTTONS)
-              request_return_to_status = true;  // ISR-safe: flag action run in the main loop
+              request_back = 2;               // ISR-safe: flag action run in the main loop
             #else
               encoderDiff = -pulses;
             #endif

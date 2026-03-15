@@ -3054,7 +3054,7 @@
   // Enable to use LEFT/RIGHT for Back and Status Screen.
   // Otherwise LEFT/RIGHT act like the encoder in menu navigation and value editing.
   //#define MIGHTYBOARD_BACK_STATUS_BUTTONS
-#endif // MIGHTYBOARD_LCD
+#endif
 
 //
 // TFT GLCD Panel with Marlin UI
