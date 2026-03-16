@@ -362,7 +362,9 @@
       planner.buffer_line(motion.destination, scaled_fr_mm_s);
       return false; // caller will update current_position
     }
-    bool cartes_move = true;
+    #if HAS_ROTATIONAL_AXES
+      bool cartes_move = true;
+    #endif
     float cartesian_mm = motion.get_move_distance(total OPTARG(HAS_ROTATIONAL_AXES, cartes_move));
 
     // If the move is very short, check the E move distance

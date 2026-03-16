@@ -62,7 +62,6 @@ void GcodeSuite::G5() {
 
   cubic_b_spline(motion.position, motion.destination, offsets, motion.mms_scaled(), motion.extruder);
   motion.position = motion.destination;
-
 }
 
 #endif // BEZIER_CURVE_SUPPORT

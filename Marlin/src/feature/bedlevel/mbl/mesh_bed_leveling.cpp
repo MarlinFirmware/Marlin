@@ -74,8 +74,8 @@
 
       // Start and end in the same cell? No split needed.
       if (scel == ecel) {
-         motion.position =  motion.destination;
-         motion.goto_current_position(scaled_fr_mm_s);
+        motion.position =  motion.destination;
+        motion.goto_current_position(scaled_fr_mm_s);
         return;
       }
 
@@ -120,7 +120,7 @@
 
       // Restore destination from stack
       motion.destination = dest;
-      motion.line_to_destination(scaled_fr_mm_s, x_splits, y_splits);
+      line_to_destination(scaled_fr_mm_s, x_splits, y_splits);
     }
 
   #endif // IS_CARTESIAN && !SEGMENT_LEVELED_MOVES
