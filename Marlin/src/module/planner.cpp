@@ -2022,7 +2022,7 @@ bool Planner::_populate_block(
   TERN_(FT_MOTION, block->ext_distance_mm = dist_mm); // Store the distance for all axes in mm for this block
 
   #if HAS_ROTATIONAL_AXES
-    bool cartesian_move;
+    bool cartesian_move = true;
   #endif
 
   // Determine linear distance for block->millimeters
@@ -2980,7 +2980,7 @@ bool Planner::buffer_line(const xyze_pos_t &cart, const feedRate_t fr_mm_s
     inverse_kinematics(machine);
 
     #if HAS_ROTATIONAL_AXES
-      bool cartesian_move;
+      bool cartesian_move = true;
     #endif
     // Provide known Cartesian length in the hints structure
     PlannerHints ph = hints;

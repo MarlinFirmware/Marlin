@@ -167,7 +167,6 @@ xyz_pos_t Motion::cartes;
 #ifndef DEFAULT_FEEDRATE_MM_M
   #define DEFAULT_FEEDRATE_MM_M 4000
 #endif
-
 feedRate_t Motion::feedrate_mm_s = MMM_TO_MMS(DEFAULT_FEEDRATE_MM_M);
 int16_t Motion::feedrate_percentage = 100;
 
@@ -1545,16 +1544,23 @@ float Motion::get_move_distance(const xyze_pos_t &diff OPTARG(HAS_ROTATIONAL_AXE
       #endif
 
       #if HAS_ROTATIONAL_AXES
+       
         if (UNEAR_ZERO(distance_sqr)) {
           // Move involves no linear axes. Calculate angular distance in accordance with LinuxCNC
           distance_sqr = ROTATIONAL_AXIS_GANG(sq(diff.i), + sq(diff.j), + sq(diff.k), + sq(diff.u), + sq(diff.v), + sq(diff.w));
+          if (!UNEAR_ZERO(distance_sqr)) {
+            // Move involves rotational axes, not just the extruder
+            is_cartesian_move = false;
+          }
+          else {
+            // Move involves just the extruder
+            is_cartesian_move = true;
+          }
         }
-        if (!UNEAR_ZERO(distance_sqr)) {
-          // Move involves rotational axes, not just the extruder
-          is_cartesian_move = false;
+        else {
+          is_cartesian_move = true;
         }
       #endif
-
     #endif
 
     return SQRT(distance_sqr);
@@ -1704,13 +1710,12 @@ float Motion::get_move_distance(const xyze_pos_t &diff OPTARG(HAS_ROTATIONAL_AXE
         planner.buffer_line(destination, fr_mm_s);
         return;
       }
+
       #if HAS_ROTATIONAL_AXES
         bool cartesian_move = true;
       #endif
-      float cartesian_mm;
       // Get the move distance
-      if (!parser.linear_motion_gcode)
-        cartesian_mm = get_move_distance(diff OPTARG(HAS_ROTATIONAL_AXES, cartesian_move));
+      float cartesian_mm = get_move_distance(diff OPTARG(HAS_ROTATIONAL_AXES, cartesian_move));
 
       // If the move is very short, check the E move distance
       TERN_(HAS_EXTRUDERS, if (UNEAR_ZERO(cartesian_mm)) cartesian_mm = ABS(diff.e));
@@ -1730,6 +1735,7 @@ float Motion::get_move_distance(const xyze_pos_t &diff OPTARG(HAS_ROTATIONAL_AXE
       // Add hints to help optimize the move
       PlannerHints hints(cartesian_mm * inv_segments);
       TERN_(FEEDRATE_SCALING, hints.inv_duration = scaled_fr_mm_s / hints.millimeters);
+
       //SERIAL_ECHOPGM("mm=", cartesian_mm);
       //SERIAL_ECHOLNPGM(" segments=", segments);
       //SERIAL_ECHOLNPGM(" segment_mm=", hints.millimeters);
