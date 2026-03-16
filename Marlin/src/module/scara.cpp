@@ -31,11 +31,14 @@
 #include "scara.h"
 #include "motion.h"
 #include "planner.h"
-#include "../core/debug_out.h"
 
 #if ENABLED(AXEL_TPARA)
   #include "endstops.h"
 #endif
+
+//#define SCARA_DEBUG
+#define DEBUG_OUT ENABLED(SCARA_DEBUG)
+#include "../core/debug_out.h"
 
 float segments_per_second = DEFAULT_SEGMENTS_PER_SECOND;
 
@@ -169,7 +172,7 @@ float segments_per_second = DEFAULT_SEGMENTS_PER_SECOND;
         tool_offset_cyl.x * rpos.y * inv_r,
         tool_offset_cyl.z
       };
-      //SERIAL_ECHOLNPGM(" Tool_offset_rotated(x,y,z) ", tool_offset_rotated.x, ",", tool_offset_rotated.y, ",", tool_offset_rotated.z );
+      //DEBUG_ECHOLNPGM(" Tool_offset_rotated(x,y,z) ", tool_offset_rotated.x, ",", tool_offset_rotated.y, ",", tool_offset_rotated.z );
       return rpos + tool_offset_rotated - robot_workspace_offset;
     }
   }
@@ -184,29 +187,29 @@ float segments_per_second = DEFAULT_SEGMENTS_PER_SECOND;
     // Home position should be arm end position -+ offsets (+ tool offset - workspace offset), measured at home robot position
     xyz_pos_t homeposition = { X_HOME_POS, Y_HOME_POS, Z_HOME_POS };
 
-    //SERIAL_ECHOLNPGM("TPARA Set axis is at home: ", C(iaxis_codes[axis]));
-    //SERIAL_XYZ("Home: ", homeposition);
-    //SERIAL_XYZ("Pos before IK: ", motion.position);
-    //SERIAL_ECHOLNPGM("Angles Before: Theta: ", motion.delta.a, " Phi: ", motion.delta.b, " Psi: ", motion.delta.c);
+    //DEBUG_ECHOLNPGM("TPARA Set axis is at home: ", C(iaxis_codes[axis]));
+    //DEBUG_XYZ("Home: ", homeposition);
+    //DEBUG_XYZ("Pos before IK: ", motion.position);
+    //DEBUG_ECHOLNPGM("Angles Before: Theta: ", motion.delta.a, " Phi: ", motion.delta.b, " Psi: ", motion.delta.c);
 
     inverse_kinematics(homeposition);
 
-    //SERIAL_ECHOLNPGM("Angles After IK: Theta: ", motion.delta.a, " Phi: ", motion.delta.b, " Psi: ", motion.delta.c);
+    //DEBUG_ECHOLNPGM("Angles After IK: Theta: ", motion.delta.a, " Phi: ", motion.delta.b, " Psi: ", motion.delta.c);
 
     forward_kinematics(motion.delta.a, motion.delta.b, motion.delta.c);
     motion.position[axis] = motion.cartes[axis];
 
-    //SERIAL_XYZ("'position' after FK: ", motion.position);
-    //SERIAL_XYZ("'cartes' after FK: ", motion.cartes);
+    //DEBUG_XYZ("'position' after FK: ", motion.position);
+    //DEBUG_XYZ("'cartes' after FK: ", motion.cartes);
 
     motion.update_software_endstops(axis);
 
-    //SERIAL_ECHOLNPGM("Final Angles: Theta: ", motion.delta.a, " Phi: ", motion.delta.b, " Psi: ", motion.delta.c);
-    //SERIAL_XYZ("Final Pos: ", motion.position);
-    //SERIAL_XYZ("Robot Offsets Shoulder:", robot_shoulder_offset);
-    //SERIAL_XYZ("Robot Offsets Tool:", tool_offset);
-    //SERIAL_XYZ("Robot Offsets Workspace:", robot_workspace_offset);
-    //SERIAL_EOL();
+    //DEBUG_ECHOLNPGM("Final Angles: Theta: ", motion.delta.a, " Phi: ", motion.delta.b, " Psi: ", motion.delta.c);
+    //DEBUG_XYZ("Final Pos: ", motion.position);
+    //DEBUG_XYZ("Robot Offsets Shoulder:", robot_shoulder_offset);
+    //DEBUG_XYZ("Robot Offsets Tool:", tool_offset);
+    //DEBUG_XYZ("Robot Offsets Workspace:", robot_workspace_offset);
+    //DEBUG_EOL();
   }
 
   // Convert ABC inputs in degrees to XYZ outputs in mm
@@ -220,10 +223,10 @@ float segments_per_second = DEFAULT_SEGMENTS_PER_SECOND;
     const xyz_pos_t calculated_fk = xyz_pos_t({ x, y, SQRT(rho2 - sq(x) - sq(y)) }) ;
     motion.cartes = calculated_fk + robot_shoulder_offset + tool_offset - robot_workspace_offset;
 
-    //SERIAL_ECHOPGM("TPARA FK Theta:", a, " Phi: ", b, " Psi: ", c);
-    //SERIAL_ECHOPGM(" Calculated X':", calculated_fk.x, " Y':", calculated_fk.y, " Z':", calculated_fk.z);
-    //SERIAL_XYZ(" Workspace", motion.cartes);
-    //SERIAL_EOL();
+    //DEBUG_ECHOPGM("TPARA FK Theta:", a, " Phi: ", b, " Psi: ", c);
+    //DEBUG_ECHOPGM(" Calculated X':", calculated_fk.x, " Y':", calculated_fk.y, " Z':", calculated_fk.z);
+    //DEBUG_XYZ(" Workspace", motion.cartes);
+    //DEBUG_EOL();
   }
 
   // Home YZ together, then X (or all at once). Based on quick_home_xy & home_delta
@@ -233,7 +236,7 @@ float segments_per_second = DEFAULT_SEGMENTS_PER_SECOND;
     motion.destination.reset();
     motion.sync_plan_position();
 
-    //SERIAL_ECHOLNPGM("Reset and sync position to the assumed start position of the robot");
+    //DEBUG_ECHOLNPGM("Reset and sync position to the assumed start position");
     // Set the assumed start position of the robot for homing, so it home ZY axis at same time preserving the B and C motor angle
     constexpr xyz_pos_t init_w_offset = apply_T_W_offset(xyz_pos_t({ L2, 0, 0 }));
 
@@ -284,7 +287,7 @@ float segments_per_second = DEFAULT_SEGMENTS_PER_SECOND;
     motion.homeaxis(TERN(HOME_Y_BEFORE_X, A_AXIS, B_AXIS));
     IF_DISABLED(HOME_Z_FIRST, motion.homeaxis(C_AXIS));
 
-    //SERIAL_XYZ("Position after homeaxis: ", motion.position);
+    //DEBUG_XYZ("Position after homeaxis: ", motion.position);
 
     // Set all carriages to their home positions
     // Do this here all at once for Delta, because
@@ -292,7 +295,7 @@ float segments_per_second = DEFAULT_SEGMENTS_PER_SECOND;
     // give the impression that they are the same.
     LOOP_NUM_AXES(i) motion.set_axis_is_at_home((AxisEnum)i);
 
-    //SERIAL_ECHOLNPGM("Sync_plan_position after home");
+    //DEBUG_ECHOLNPGM("Sync_plan_position after home");
     motion.sync_plan_position();
   }
 
@@ -328,7 +331,7 @@ float segments_per_second = DEFAULT_SEGMENTS_PER_SECOND;
 
     motion.delta.set(DEGREES(THETA), DEGREES(PHI), DEGREES(PSI));
 
-    //SERIAL_ECHOLNPGM(" TPARA IK raw(x,y,z) ", raw.x, ",", raw.y, ",", raw.z, " Robot pos(x,y,z) ", tpos.x, ",", tpos.y, ",", tpos.z + robot_shoulder_offset.z, " Rho^2=", RHO_2, " Theta=", DEGREES(THETA), " Phi=", DEGREES(PHI), " Psi=", DEGREES(PSI), " Gamma=", DEGREES(GAMMA));
+    //DEBUG_ECHOLNPGM(" TPARA IK raw(x,y,z) ", raw.x, ",", raw.y, ",", raw.z, " Robot pos(x,y,z) ", tpos.x, ",", tpos.y, ",", tpos.z + robot_shoulder_offset.z, " Rho^2=", RHO_2, " Theta=", DEGREES(THETA), " Phi=", DEGREES(PHI), " Psi=", DEGREES(PSI), " Gamma=", DEGREES(GAMMA));
   }
 
 #endif // AXEL_TPARA
