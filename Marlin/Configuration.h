@@ -1005,7 +1005,9 @@
 
 // @section polargraph
 
-// Enable for Polargraph Kinematics
+/**
+ * Polargraph Kinematics
+ */
 //#define POLARGRAPH
 #if ENABLED(POLARGRAPH)
   #define POLARGRAPH_MAX_BELT_LEN  1035.0 // (mm) Belt length at full extension. Override with M665 H.
@@ -1015,7 +1017,9 @@
 
 // @section delta
 
-// Enable for DELTA kinematics and configure below
+/**
+ * DELTA kinematics
+ */
 //#define DELTA
 #if ENABLED(DELTA)
 
@@ -1073,40 +1077,36 @@
 // @section scara
 
 /**
+ * SCARA kinematics
+ *
+ * - Positive angles rotate counterclockwise when looking down from above.
+ * - Theta is the shoulder angle. 0 degrees aligns to Cartesian positive X.
+ * - Psi is the elbow angle. 0° is straight, ±180° is completely folded (right-handed positive, left-handed negative).
+ *
  * The Morgan SCARA was developed by QHARLEY in South Africa in 2012-2013.
  * Implemented and slightly reworked by JCERNY in June, 2014.
  *
  * Mostly Printed SCARA is an open source design by Tyler Williams. See:
  *   https://www.thingiverse.com/thing:2487048
  *   https://www.thingiverse.com/thing:1241491
- *
- * Merged into STANDARD_SCARA + crosstalk/elbow dir settings added by dekutree64 in Mar, 2026.
- * Positive angles rotate counterclockwise when looking down from above.
- * Theta is the shoulder angle. 0 degrees points along positive cartesian X axis.
- * Psi is elbow bend. 0° is straight, ±180° is completely folded (right-handed positive, left-handed negative)
  */
 
-//#define MORGAN_SCARA    // Preset for Reprap Morgan
-                          // Note: Reprap Morgan uses a parallellogram linkage to convey the
-                          //       elbow motion but is kinematically equivalent to serial SCARA.
-//#define MP_SCARA        // Preset for Mostly Printed SCARA
-//#define CUSTOM_SCARA    // A SCARA arm with two segments in series, with custom settings.
-
-#if ENABLED(STANDARD_SCARA) // Custom configuration
+//#define SCARA
+#if ENABLED(SCARA)
   // If movement is choppy try lowering this value
   #define DEFAULT_SEGMENTS_PER_SECOND 200
 
   // Length of inner and outer support arms. Measure arm lengths precisely.
-  #define SCARA_LINKAGE_1  135   // (mm)
-  #define SCARA_LINKAGE_2  135   // (mm)
+  #define SCARA_LINKAGE_1    135    // (mm)
+  #define SCARA_LINKAGE_2    135    // (mm)
 
   // SCARA tower offset (position of shoulder axis relative to bed zero position)
   // This needs to be reasonably accurate as it defines the printbed position in the SCARA space.
-  #define SCARA_OFFSET_X    0      // (mm)
-  #define SCARA_OFFSET_Y    -150   // (mm)
+  #define SCARA_OFFSET_X       0    // (mm)
+  #define SCARA_OFFSET_Y    -150    // (mm)
 
   // Radius of unreachable area near shoulder axis
-  #define MIDDLE_DEAD_ZONE_R   0  // (mm)
+  #define MIDDLE_DEAD_ZONE_R   0    // (mm)
 
   // Direction of elbow bend. 1 = right-handed (counterclockwise), -1 = left-handed (clockwise)
   #define SCARA_ELBOW_DIR 1
@@ -1120,41 +1120,9 @@
 
   // Shoulder and elbow angles when in home position. If left undefined, cartesian home is used and
   // angles are calculated by inverse kinematics (note: M665 home offsets are still angles)
-  #define SCARA_HOME_THETA -40
-  #define SCARA_HOME_PSI   160
-
-#elif ENABLED(MORGAN_SCARA)
-
-  // Defaults for Morgan unless modified here
-  //#define DEFAULT_SEGMENTS_PER_SECOND  200
-  //#define SCARA_LINKAGE_1              150    // (mm)
-  //#define SCARA_LINKAGE_2              150    // (mm)
-  //#define SCARA_OFFSET_X               100    // (mm)
-  //#define SCARA_OFFSET_Y               -56    // (mm)
-  //#define SCARA_HOME_THETA          (90+10)   // (degrees)
-  //#define SCARA_HOME_PSI           (180-20)   // (degrees)
-  //#define MIDDLE_DEAD_ZONE_R            50    // (mm)
-  //#define SCARA_ELBOW_DIR                1
-  //#define SCARA_CROSSTALK_FACTOR         1
-  //#define QUICKHOME
-
-#elif ENABLED(MP_SCARA)
-
-  // Defaults for M.P. unless modified here
-  //#define DEFAULT_SEGMENTS_PER_SECOND  200
-  //#define SCARA_LINKAGE_1               98.5  // (mm)
-  //#define SCARA_LINKAGE_2              100    // (mm)
-  //#define SCARA_OFFSET_X                 0    // (mm)
-  //#define SCARA_OFFSET_Y              -120    // (mm)
-  //#define SCARA_HOME_THETA             -20    // (degrees)
-  //#define SCARA_HOME_PSI                 0    // (degrees)
-  //#define MIDDLE_DEAD_ZONE_R            50    // (mm)
-  //#define SCARA_ELBOW_DIR                1
-  //#define SCARA_CROSSTALK_FACTOR         1
-  //#define BED_CENTER_AT_0_0
-  //#define QUICKHOME
-
-#endif
+  #define SCARA_HOME_THETA   -40
+  #define SCARA_HOME_PSI     160
+#endif // SCARA
 
 // @section tpara
 

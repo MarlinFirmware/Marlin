@@ -1675,7 +1675,7 @@ float Planner::get_axis_position_mm(const AxisEnum axis) {
     else
       axis_steps = DIFF_TERN(BACKLASH_COMPENSATION, stepper.position(axis), backlash.get_applied_steps(axis));
 
-  #elif ENABLED(STANDARD_SCARA)
+  #elif ENABLED(SCARA)
 
     axis_steps = stepper.position(axis);
     TERN_(BACKLASH_COMPENSATION, axis_steps -= backlash.get_applied_steps(axis));

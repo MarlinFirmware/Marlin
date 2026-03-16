@@ -438,7 +438,7 @@ void GcodeSuite::G28() {
             motion.idex_home_x();
           #else
 
-            #if (ENABLED(STANDARD_SCARA) && DISABLED(HOME_Y_BEFORE_X))
+            #if ENABLED(SCARA) && DISABLED(HOME_Y_BEFORE_X)
               DISABLE_AXIS_Y(); // Allow elbow to be dragged around freely during shoulder homing
             #endif
 

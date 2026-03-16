@@ -39,7 +39,7 @@
 
 float segments_per_second = DEFAULT_SEGMENTS_PER_SECOND;
 
-#if ENABLED(STANDARD_SCARA)
+#if ENABLED(SCARA)
 
   constexpr xy_pos_t scara_offset = { SCARA_OFFSET_X, SCARA_OFFSET_Y };
 

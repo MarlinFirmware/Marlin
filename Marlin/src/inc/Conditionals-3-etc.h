@@ -631,11 +631,7 @@
   #define NORMAL_AXIS Z_AXIS
 #endif
 
-#if ANY(MP_SCARA, MORGAN_SCARA, CUSTOM_SCARA)
-  #define STANDARD_SCARA 1
-#endif
-
-#if ANY(STANDARD_SCARA, AXEL_TPARA)
+#if ANY(SCARA, AXEL_TPARA)
   #define IS_SCARA 1
   #define IS_KINEMATIC 1
 #elif ANY(DELTA, POLARGRAPH, POLAR)
@@ -652,80 +648,6 @@
 #endif
 #if ANY(DELTA, AXEL_TPARA)
   #define Z_CAN_FALL_DOWN
-#endif
-
-// SCARA Presets for Morgan and M.P.
-#if ENABLED(MORGAN_SCARA)
-  #ifndef DEFAULT_SEGMENTS_PER_SECOND
-    #define DEFAULT_SEGMENTS_PER_SECOND 200
-  #endif
-  #ifndef SCARA_LINKAGE_1
-    #define SCARA_LINKAGE_1       150
-  #endif
-  #ifndef SCARA_LINKAGE_2
-    #define SCARA_LINKAGE_2       150
-  #endif
-  #ifndef SCARA_OFFSET_X
-    #define SCARA_OFFSET_X        100
-  #endif
-  #ifndef SCARA_OFFSET_Y
-    #define SCARA_OFFSET_Y        -56
-  #endif
-  #ifndef SCARA_HOME_THETA
-    #define SCARA_HOME_THETA   (90+10)
-  #endif
-  #ifndef SCARA_HOME_PSI
-    #define SCARA_HOME_PSI    (180-20)
-  #endif
-  #ifndef MIDDLE_DEAD_ZONE_R
-    #define MIDDLE_DEAD_ZONE_R     50
-  #endif
-  #ifndef SCARA_ELBOW_DIR
-    #define SCARA_ELBOW_DIR         1
-  #endif
-  #ifndef SCARA_CROSSTALK_FACTOR
-    #define SCARA_CROSSTALK_FACTOR  1
-  #endif
-  #ifndef QUICKHOME
-    #define QUICKHOME
-  #endif
-#elif ENABLED(MP_SCARA)
-  #ifndef DEFAULT_SEGMENTS_PER_SECOND
-    #define DEFAULT_SEGMENTS_PER_SECOND 200
-  #endif
-  #ifndef SCARA_LINKAGE_1
-    #define SCARA_LINKAGE_1        98.5
-  #endif
-  #ifndef SCARA_LINKAGE_2
-    #define SCARA_LINKAGE_2       100
-  #endif
-  #ifndef SCARA_OFFSET_X
-    #define SCARA_OFFSET_X          0
-  #endif
-  #ifndef SCARA_OFFSET_Y
-    #define SCARA_OFFSET_Y       -120
-  #endif
-  #ifndef SCARA_HOME_THETA
-    #define SCARA_HOME_THETA      -20
-  #endif
-  #ifndef SCARA_HOME_PSI
-    #define SCARA_HOME_PSI          0
-  #endif
-  #ifndef MIDDLE_DEAD_ZONE_R
-    #define MIDDLE_DEAD_ZONE_R     50
-  #endif
-  #ifndef SCARA_ELBOW_DIR
-    #define SCARA_ELBOW_DIR         1
-  #endif
-  #ifndef SCARA_CROSSTALK_FACTOR
-    #define SCARA_CROSSTALK_FACTOR  1
-  #endif
-  #ifndef BED_CENTER_AT_0_0
-    #define BED_CENTER_AT_0_0
-  #endif
-  #ifndef QUICKHOME
-    #define QUICKHOME
-  #endif
 #endif
 
 /**
