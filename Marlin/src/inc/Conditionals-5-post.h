@@ -314,7 +314,7 @@
  * SCARA cannot use SLOWDOWN
  * Printable radius assumes joints can fully extend
  *
- * TPARA cannot use SLOWDOWN nor QUICKHOME
+ * TPARA cannot use SLOWDOWN nor QUICK_HOME
  * Printable radius assumes joints can't fully extend
  * AXEL_TPARA is assigned a default Home Position unless overridden
  */
