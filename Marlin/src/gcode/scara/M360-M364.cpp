@@ -22,7 +22,7 @@
 
 #include "../../inc/MarlinConfig.h"
 
-#if ENABLED(SCARA)
+#if ENABLED(SCARA_CALIBRATION)
 
 #include "../gcode.h"
 #include "../../module/scara.h"
@@ -77,4 +77,4 @@ bool GcodeSuite::M364() {
   return SCARA_move_to_cal(45, 90);
 }
 
-#endif // SCARA
+#endif // SCARA_CALIBRATION

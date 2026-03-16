@@ -1122,6 +1122,10 @@
   // angles are calculated by inverse kinematics (note: M665 home offsets are still angles)
   #define SCARA_HOME_THETA   -40
   #define SCARA_HOME_PSI     160
+
+  // Enable M360-M364 to calibrate SCARA angles
+  //#define SCARA_CALIBRATION
+
 #endif // SCARA
 
 // @section tpara
