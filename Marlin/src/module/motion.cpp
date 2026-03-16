@@ -1705,21 +1705,22 @@ float Motion::get_move_distance(const xyze_pos_t &diff OPTARG(HAS_ROTATIONAL_AXE
         return;
       }
       #if HAS_ROTATIONAL_AXES
-        cartesian_move = true;
+        xyze_pos_t cartesian_mm;
+        bool cartesian_move = true;
       #endif
       // Get the move distance
       if (!parser.linear_motion_gcode)
-        parser.cartesian_mm = get_move_distance(diff OPTARG(HAS_ROTATIONAL_AXES, cartesian_move));
+        cartesian_mm = get_move_distance(diff OPTARG(HAS_ROTATIONAL_AXES, cartesian_move));
 
       // If the move is very short, check the E move distance
-      TERN_(HAS_EXTRUDERS, if (UNEAR_ZERO(parser.cartesian_mm)) parser.cartesian_mm = ABS(diff.e));
+      TERN_(HAS_EXTRUDERS, if (UNEAR_ZERO(cartesian_mm)) cartesian_mm = ABS(diff.e));
 
       // No E move either? Game over.
-      if (UNEAR_ZERO(parser.cartesian_mm)) return;
+      if (UNEAR_ZERO(cartesian_mm)) return;
 
       // The length divided by the segment size
       // At least one segment is required
-      uint16_t segments = parser.cartesian_mm / segment_size;
+      uint16_t segments = cartesian_mm / segment_size;
       NOLESS(segments, 1U);
 
       // The approximate length of each segment
@@ -1727,7 +1728,7 @@ float Motion::get_move_distance(const xyze_pos_t &diff OPTARG(HAS_ROTATIONAL_AXE
       const xyze_float_t segment_distance = diff * inv_segments;
 
       // Add hints to help optimize the move
-      PlannerHints hints(parser.cartesian_mm * inv_segments);
+      PlannerHints hints(cartesian_mm * inv_segments);
       TERN_(FEEDRATE_SCALING, hints.inv_duration = scaled_fr_mm_s / hints.millimeters);
       //SERIAL_ECHOPGM("mm=", cartesian_mm);
       //SERIAL_ECHOLNPGM(" segments=", segments);

@@ -2043,7 +2043,7 @@ bool Planner::_populate_block(
         dist_mm.u, dist_mm.v, dist_mm.w
       );
 
-      block->millimeters = motion.get_move_distance(displacement OPTARG(HAS_ROTATIONAL_AXES, parser.cartes_move));
+      block->millimeters = motion.get_move_distance(displacement OPTARG(HAS_ROTATIONAL_AXES, cartesian_move));
     }
 
     /**
