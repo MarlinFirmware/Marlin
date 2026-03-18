@@ -1,15 +1,15 @@
 #!/usr/bin/env python3
-#
-# Visualize memory map
-#
-# Memory Map Visualizer for Marlin Firmware (AVR and ARM/STM32)
-# Generates an interactive HTML page showing memory layout with color coding
-# Uses nm to extract symbols from ELF file
-#
-# Author: Dust
-# Additional contributor: Thomas Toka (Windows support)
-# Implementation assistance: Claude Sonnet 4.5
-#
+"""
+Visualize memory map
+
+Memory Map Visualizer for Marlin Firmware (AVR and ARM/STM32)
+Generates an interactive HTML page showing memory layout with color coding
+Uses nm to extract symbols from ELF file
+
+Author: Dust
+Additional contributor: Thomas Toka (Windows support)
+Implementation assistance: Claude Sonnet 4.5
+"""
 
 import re
 import sys
@@ -20,7 +20,6 @@ import os
 import shutil
 from pathlib import Path
 from collections import defaultdict
-import glob
 
 def parse_size(size_str):
     """Parse size string with optional KB/MB suffix to bytes.
@@ -391,7 +390,6 @@ def categorize_symbol(name, warn_conflicts=False):
     # Warn if multiple categories match
     if warn_conflicts and len(matches) > 1:
         categories = [m[0] for m in matches]
-        patterns_matched = [m[1] for m in matches]
         print(f"  ⚠ Ambiguous: '{name}' matches {len(matches)} categories: {', '.join([f'{c} ({p})' for c, p in matches])} → using {categories[0]}")
 
     # Return first match or 'Other'
@@ -403,15 +401,15 @@ def categorize_symbol(name, warn_conflicts=False):
 def categorize_section(section_name):
     """Categorize section for color coding"""
     if section_name.startswith('.text'):
-        return 'code', '#4CAF50', 'flash'  # Green for code
+        return 'code', '#4CAF50', 'flash'       # Green code
     elif section_name.startswith('.data'):
-        return 'data', '#2196F3', 'ram'  # Blue for initialized data
+        return 'data', '#2196F3', 'ram'         # Blue initialized data
     elif section_name.startswith('.bss'):
-        return 'bss', '#FF9800', 'ram'   # Orange for uninitialized data
+        return 'bss', '#FF9800', 'ram'          # Orange uninitialized data
     elif section_name.startswith('.rodata'):
-        return 'rodata', '#9C27B0', 'flash'  # Purple for read-only data
+        return 'rodata', '#9C27B0', 'flash'     # Purple read-only data
     else:
-        return 'other', '#757575', 'flash'  # Gray for other
+        return 'other', '#757575', 'flash'      # Gray other
 
 def generate_memory_blocks_html(items, module_colors, zoom_level=1, total_memory_size=None, special_symbols=None, arch='avr'):
     """Generate HTML for memory blocks as a byte-by-byte map
@@ -425,7 +423,6 @@ def generate_memory_blocks_html(items, module_colors, zoom_level=1, total_memory
 
     # Calculate actual pixels per byte and delimiter size
     pixels_per_byte = zoom_level * 2
-    delimiter_width = zoom_level * 1
 
     # Find memory range
     min_addr = min(item['addr'] for item in items)
@@ -557,14 +554,14 @@ def generate_memory_blocks_html(items, module_colors, zoom_level=1, total_memory
                     # Unused space at end
                     if needs_delimiter:
                         html += f'          <div class="memory-pixel" style="flex-grow: {count}; background: #1a1a1a;" data-unused="true" data-addr="0x{display_addr:08x}" data-size="{count}" title="Unused: {count} bytes"></div>\n'
-                        html += f'          <div class="memory-delimiter"></div>\n'
+                        html +=  '          <div class="memory-delimiter"></div>\n'
                     else:
                         html += f'          <div class="memory-pixel" style="flex-grow: {count}; background: #1a1a1a;" data-unused="true" data-addr="0x{display_addr:08x}" data-size="{count}" title="Unused: {count} bytes"></div>\n'
                 else:
                     # Gap between symbols - likely linker-inserted code, padding, or alignment
                     if needs_delimiter:
                         html += f'          <div class="memory-pixel" style="flex-grow: {count}; background: #3a3a3a;" data-unallocated="true" data-addr="0x{display_addr:08x}" data-size="{count}" title="Linker code/padding: {count} bytes"></div>\n'
-                        html += f'          <div class="memory-delimiter"></div>\n'
+                        html +=  '          <div class="memory-delimiter"></div>\n'
                     else:
                         html += f'          <div class="memory-pixel" style="flex-grow: {count}; background: #3a3a3a;" data-unallocated="true" data-addr="0x{display_addr:08x}" data-size="{count}" title="Linker code/padding: {count} bytes"></div>\n'
             else:
@@ -645,7 +642,7 @@ def check_pattern_conflicts():
 
     if conflicts:
         print("Pattern conflict analysis:")
-        for p1, c1, p2, c2, conflict_type in conflicts:
+        for p1, c1, p2, c2 in conflicts:
             print(f"  ℹ '{p1}' ({c1}) vs '{p2}' ({c2}) - '{p1}' has priority")
 
     return len(conflicts)
@@ -719,7 +716,7 @@ def generate_html(symbols, special_symbols, output_path, flash_size, ram_size, a
     ram_items = []
 
     for item in symbols:
-        cat, color, mem_type = categorize_section(item['section'])
+        color, mem_type = categorize_section(item['section'])
         if mem_type == 'flash':
             total_flash += item['size']
             module_stats[item['module']]['flash'] += item['size']
