@@ -69,6 +69,11 @@ MarlinUI ui;
   bool MarlinUI::wait_for_move; // = false
 #endif
 
+#if ENABLED(MIGHTYBOARD_BACK_STATUS_BUTTONS)
+  // Flags set from interrupt context; handled in main loop
+  volatile uint8_t MarlinUI::request_back = 0;
+#endif
+
 constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
 
 #if HAS_STATUS_MESSAGE
@@ -276,7 +281,7 @@ void MarlinUI::init() {
     SET_INPUT_PULLUP(BTN_EN2);
   #endif
   #if BUTTON_EXISTS(ENC)
-    SET_INPUT_PULLUP(BTN_ENC);
+    TERN(MIGHTYBOARD_DISABLE_ENC_PULLUP, SET_INPUT, SET_INPUT_PULLUP)(BTN_ENC);
   #endif
   #if BUTTON_EXISTS(ENC_EN)
     SET_INPUT_PULLUP(BTN_ENC_EN);
@@ -285,16 +290,16 @@ void MarlinUI::init() {
     SET_INPUT_PULLUP(BTN_BACK);
   #endif
   #if BUTTON_EXISTS(UP)
-    SET_INPUT(BTN_UP);
+    TERN(MIGHTYBOARD_BUTTON_PULLUPS, SET_INPUT_PULLUP, SET_INPUT)(BTN_UP);
   #endif
   #if BUTTON_EXISTS(DOWN)
-    SET_INPUT(BTN_DOWN);
+    TERN(MIGHTYBOARD_BUTTON_PULLUPS, SET_INPUT_PULLUP, SET_INPUT)(BTN_DOWN);
   #endif
   #if BUTTON_EXISTS(LFT)
-    SET_INPUT(BTN_LEFT);
+    TERN(MIGHTYBOARD_BUTTON_PULLUPS, SET_INPUT_PULLUP, SET_INPUT)(BTN_LEFT);
   #endif
   #if BUTTON_EXISTS(RT)
-    SET_INPUT(BTN_RIGHT);
+    TERN(MIGHTYBOARD_BUTTON_PULLUPS, SET_INPUT_PULLUP, SET_INPUT)(BTN_RIGHT);
   #endif
 
   #if HAS_SHIFT_ENCODER
@@ -1032,6 +1037,16 @@ void MarlinUI::init() {
           wait_for_unclick = false;
       }
 
+      #if ENABLED(MIGHTYBOARD_BACK_STATUS_BUTTONS)
+        // Handle requests set from interrupt context (ISR-safe)
+        if (request_back) {
+          quick_feedback();
+          if (request_back == 1) goto_previous_screen();
+          else if (request_back == 2) return_to_status();
+          request_back = 0;
+        }
+      #endif
+
       if (LCD_BACK_CLICKED()) {
         quick_feedback();
         goto_previous_screen();
@@ -1395,11 +1410,19 @@ void MarlinUI::init() {
             next_button_update_ms = now + 300;
           }
           else if (BUTTON_PRESSED(LEFT)) {
-            encoderDiff = -pulses;
+            #if ENABLED(MIGHTYBOARD_BACK_STATUS_BUTTONS)
+              request_back = 1;                // ISR-safe: flag action run in the main loop
+            #else
+              encoderDiff = -pulses;
+            #endif
             next_button_update_ms = now + 300;
           }
           else if (BUTTON_PRESSED(RIGHT)) {
-            encoderDiff = pulses;
+            #if ENABLED(MIGHTYBOARD_BACK_STATUS_BUTTONS)
+              request_back = 2;               // ISR-safe: flag action run in the main loop
+            #else
+              encoderDiff = -pulses;
+            #endif
             next_button_update_ms = now + 300;
           }
 

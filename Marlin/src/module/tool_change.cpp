@@ -1094,7 +1094,7 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
       if (motion.position.e < 0) motion.unscaled_e_move(motion.position.e, MMM_TO_MMS(toolchange_settings.retract_speed));
 
       planner.synchronize();
-      planner.set_e_position_mm(motion.position.e); // Extruder primed and ready
+      motion.sync_plan_position_e(); // Extruder primed and ready
     }
   }
 
@@ -1630,7 +1630,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
     motion.position.e = resume_current_e;
 
     planner.synchronize();
-    planner.set_e_position_mm(motion.position.e); // New extruder primed and ready
+    motion.sync_plan_position_e();  // New extruder primed and ready
 
     DEBUG_ECHOLNPGM("Migration Complete");
     return true;

@@ -400,6 +400,14 @@
   #ifndef Z_PROBE_ERROR_TOLERANCE
     #define Z_PROBE_ERROR_TOLERANCE Z_CLEARANCE_MULTI_PROBE
   #endif
+  #if ENABLED(DWIN_LCD_PROUI) && DISABLED(BD_SENSOR)
+    #ifndef MULTIPLE_PROBING
+      #define MULTIPLE_PROBING 2
+    #endif
+    #ifdef EXTRA_PROBING
+      #undef EXTRA_PROBING // Not used with MULTIPLE_PROBING
+    #endif
+  #endif
   #if MULTIPLE_PROBING > 1
     #if EXTRA_PROBING > 0
       #define TOTAL_PROBING (MULTIPLE_PROBING + EXTRA_PROBING)
@@ -502,6 +510,12 @@
 
 #if !HAS_MESH
   #undef MESH_INSET
+#endif
+#if ALL(DWIN_LCD_PROUI, HAS_MESH)
+  #define HAS_PROUI_MESH_EDIT 1
+  #ifndef MESH_INSET
+    #define MESH_INSET 10
+  #endif
 #endif
 
 #if NONE(PROBE_SELECTED, AUTO_BED_LEVELING_UBL)

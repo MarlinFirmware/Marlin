@@ -190,12 +190,12 @@
   #define TOUCH_MOSI_PIN                    PB15
 
   #if ENABLED(TFT_LVGL_UI)
-    #define HAS_SPI_FLASH_FONT                    1
-    #define HAS_GCODE_PREVIEW                     1
-    #define HAS_GCODE_DEFAULT_VIEW_IN_FLASH       0
-    #define HAS_LANG_SELECT_SCREEN                1
-    #define HAS_BAK_VIEW_IN_FLASH                 0
-    #define HAS_LOGO_IN_FLASH                     0
+    #define MKS_SPI_FLASH_FONT                 1
+    #define MKS_GCODE_PREVIEW                  1
+    #define MKS_GCODE_DEFAULT_VIEW_IN_FLASH    0
+    #define MKS_LANG_SELECT_SCREEN             1
+    #define MKS_BAK_VIEW_IN_FLASH              0
+    #define MKS_LOGO_IN_FLASH                  0
   #elif ANY(TFT_CLASSIC_UI, TFT_COLOR_UI)
     //#define TFT_DRIVER                 ILI9488
     #define TFT_BUFFER_WORDS               14400
