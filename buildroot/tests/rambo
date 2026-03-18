@@ -95,7 +95,7 @@ opt_enable REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER FILAMENT_RUNOUT_SENSOR 
 exec_test $1 $2 "Rambo with PRUSA_MMU3 " "$3"
 
 #
-# Build with the default configurations
+# Einsy RAMBo with TMC2130
 #
 restore_configs
 opt_set MOTHERBOARD BOARD_EINSY_RAMBO \

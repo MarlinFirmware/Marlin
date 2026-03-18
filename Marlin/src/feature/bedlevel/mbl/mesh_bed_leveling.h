@@ -32,8 +32,7 @@ enum MeshLevelingState : char {
   MeshReset       // G29 S5
 };
 
-#define MESH_X_DIST (float((MESH_MAX_X) - (MESH_MIN_X)) / (GRID_MAX_CELLS_X))
-#define MESH_Y_DIST (float((MESH_MAX_Y) - (MESH_MIN_Y)) / (GRID_MAX_CELLS_Y))
+#include "../../../module/motion.h"
 
 class mesh_bed_leveling {
 public:
@@ -44,9 +43,11 @@ public:
 
   mesh_bed_leveling();
 
-  static void report_mesh();
-
   static void reset();
+
+  static void initialize();
+
+  static void report_mesh();
 
   FORCE_INLINE static bool has_mesh() {
     GRID_LOOP(x, y) if (z_values[x][y]) return true;
@@ -73,11 +74,11 @@ public:
   static float get_mesh_y(const uint8_t i) { return index_to_ypos[i]; }
 
   static uint8_t cell_index_x(const float x) {
-    int8_t cx = (x - (MESH_MIN_X)) * RECIPROCAL(MESH_X_DIST);
+    const int8_t cx = (x - mesh_min.x) * RECIPROCAL(MESH_X_DIST);
     return constrain(cx, 0, GRID_MAX_CELLS_X - 1);
   }
   static uint8_t cell_index_y(const float y) {
-    int8_t cy = (y - (MESH_MIN_Y)) * RECIPROCAL(MESH_Y_DIST);
+    const int8_t cy = (y - mesh_min.y) * RECIPROCAL(MESH_Y_DIST);
     return constrain(cy, 0, GRID_MAX_CELLS_Y - 1);
   }
   static xy_uint8_t cell_indexes(const float x, const float y) {
@@ -86,11 +87,11 @@ public:
   static xy_uint8_t cell_indexes(const xy_pos_t &xy) { return cell_indexes(xy.x, xy.y); }
 
   static int8_t probe_index_x(const float x) {
-    int8_t px = (x - (MESH_MIN_X) + 0.5f * (MESH_X_DIST)) * RECIPROCAL(MESH_X_DIST);
+    const int8_t px = (x - mesh_min.x + 0.5f * (MESH_X_DIST)) * RECIPROCAL(MESH_X_DIST);
     return WITHIN(px, 0, (GRID_MAX_POINTS_X) - 1) ? px : -1;
   }
   static int8_t probe_index_y(const float y) {
-    int8_t py = (y - (MESH_MIN_Y) + 0.5f * (MESH_Y_DIST)) * RECIPROCAL(MESH_Y_DIST);
+    const int8_t py = (y - mesh_min.y + 0.5f * (MESH_Y_DIST)) * RECIPROCAL(MESH_Y_DIST);
     return WITHIN(py, 0, (GRID_MAX_POINTS_Y) - 1) ? py : -1;
   }
   static xy_int8_t probe_indexes(const float x, const float y) {
