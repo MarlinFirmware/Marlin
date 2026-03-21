@@ -83,39 +83,41 @@ public:
     return pos_after_coast + tau * (dec_c1 + sq(tau) * (dec_c3 + tau * (dec_c4 + tau * dec_c5)));
   }
 
-  /**
-   * Get velocity at time t for Poly5.
-   * Velocity is the derivative of position.
-   * Phase 1 (accel): d/dt[t * (c1 + t²*(c3 + t*(c4 + t*c5)))]
-   * = c1 + 3*t²*c3 + 4*t³*c4 + 5*t⁴*c5 + 2*t*(c3 + t*(c4 + t*c5))
-   */
-  float getVelocityAtTime(const float t) const override {
-    if (t < T1) {
-      // Acceleration phase: polynomial derivative
-      const float t2 = sq(t);
-      const float t3 = t2 * t;
-      const float t4 = t3 * t;
-      return acc_c1 + 2.0f * t * (acc_c3 + t * (acc_c4 + t * acc_c5))
-                    + t2 * (3.0f * acc_c3 + t * (4.0f * acc_c4 + 5.0f * t * acc_c5));
+  #if ENABLED(LASER_FEATURE)
+    /**
+     * Get velocity at time t for Poly5.
+     * Velocity is the derivative of position.
+     * Phase 1 (accel): d/dt[t * (c1 + t²*(c3 + t*(c4 + t*c5)))]
+     * = c1 + 3*t²*c3 + 4*t³*c4 + 5*t⁴*c5 + 2*t*(c3 + t*(c4 + t*c5))
+     */
+    float getVelocityAtTime(const float t) const override {
+      if (t < T1) {
+        // Acceleration phase: polynomial derivative
+        const float t2 = sq(t);
+        const float t3 = t2 * t;
+        const float t4 = t3 * t;
+        return acc_c1 + 2.0f * t * (acc_c3 + t * (acc_c4 + t * acc_c5))
+                      + t2 * (3.0f * acc_c3 + t * (4.0f * acc_c4 + 5.0f * t * acc_c5));
+      }
+      else if (t <= T1_plus_T2) {
+        // Coasting phase: constant velocity
+        return nominal_speed;
+      }
+      // Deceleration phase
+      const float tau = t - T1_plus_T2;
+      const float tau2 = sq(tau);
+      return dec_c1 + 2.0f * tau * (dec_c3 + tau * (dec_c4 + tau * dec_c5))
+                    + tau2 * (3.0f * dec_c3 + tau * (4.0f * dec_c4 + 5.0f * tau * dec_c5));
     }
-    else if (t <= T1_plus_T2) {
-      // Coasting phase: constant velocity
+
+    /**
+     * Get nominal speed for power ratio calculation
+     */
+    float getNominalSpeed() const override {
       return nominal_speed;
     }
-    // Deceleration phase
-    const float tau = t - T1_plus_T2;
-    const float tau2 = sq(tau);
-    return dec_c1 + 2.0f * tau * (dec_c3 + tau * (dec_c4 + tau * dec_c5))
-                  + tau2 * (3.0f * dec_c3 + tau * (4.0f * dec_c4 + 5.0f * tau * dec_c5));
-  }
-
-  /**
-   * Get nominal speed for power ratio calculation
-   */
-  float getNominalSpeed() const override {
-    return nominal_speed;
-  }
-
+  #endif
+  
   void reset() override {
     acc_c1 = acc_c3 = acc_c4 = acc_c5 = 0.0f;
     dec_c1 = dec_c3 = dec_c4 = dec_c5 = 0.0f;
