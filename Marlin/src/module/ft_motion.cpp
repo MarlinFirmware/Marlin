@@ -49,6 +49,10 @@
   #include "../feature/powerloss.h"
 #endif
 
+#if HAS_CUTTER
+  #include "../feature/spindle_laser.h"
+#endif
+
 FTMotion ftMotion;
 
 void ft_config_t::prep_for_shaper_change() { ftMotion.prep_for_shaper_change(); }
@@ -368,6 +372,14 @@ bool FTMotion::plan_next_block() {
 
     // There was never a block? Run out the plan and bail.
     if (!current_block) {
+      #if ENABLED(LASER_FEATURE)
+      // If no movement, turn laser/cutter off
+        cutter.apply_power(0);
+      #endif
+      #if HAS_CUTTER
+        // Turn off non-laser cutter when no movement
+        cutter.apply_power(0);
+      #endif
       currentGenerator->planRunout(0);
       return false;
     }
@@ -377,12 +389,40 @@ bool FTMotion::plan_next_block() {
 
     // Handle sync blocks and skip others
     if (current_block->is_sync()) {
+      // Set laser power
+      #if ENABLED(LASER_POWER_SYNC)
+        if (cutter.cutter_mode == CUTTER_MODE_CONTINUOUS) {
+          if (current_block->is_sync_pwr()) {
+            planner.laser_inline.status.isSyncPower = true;
+            cutter.apply_power(current_block->laser.power);
+          }
+        }
+      #endif
+      // Set "fan speeds" for a laser module
+      #if ENABLED(LASER_SYNCHRONOUS_M106_M107)
+        if (current_block->is_sync_fan()) planner.sync_fan_speeds(current_block->fan_speed);
+      #endif
       if (current_block->is_sync_pos()) stepper._set_position(current_block->position);
       continue;
     }
 
     // Keep extruder position within float precision
     ensure_extruder_float_precision();
+
+    #if ENABLED(LASER_FEATURE)
+      // Apply standard laser power for non-sync blocks
+      if (cutter.cutter_mode == CUTTER_MODE_STANDARD) {
+        cutter.apply_power(current_block->laser.power);
+      }
+      // Note: CUTTER_MODE_DYNAMIC est géré dans fill_stepper_plan_buffer()
+    #endif
+
+    // For non-inline cutter, grossly apply power
+    #if HAS_CUTTER
+      if (cutter.cutter_mode == CUTTER_MODE_STANDARD) {
+        cutter.apply_power(current_block->cutter_power);
+      }
+    #endif
 
     #if ENABLED(POWER_LOSS_RECOVERY)
       recovery.info.sdpos = current_block->sdpos;
@@ -636,6 +676,42 @@ void FTMotion::fill_stepper_plan_buffer() {
       total_duration = currentGenerator->getTotalDuration();
     }
     tau += FTM_TS; // (s) Time since start of block
+
+    #if ENABLED(LASER_FEATURE)
+    /**
+    * CUTTER_MODE_DYNAMIC: Apply laser power based on feed velocity
+    * This replaces the block_phase_isr() dynamic mode handling
+    */
+      if (cutter.cutter_mode == CUTTER_MODE_DYNAMIC
+      && planner.laser_inline.status.isPowered
+      && stepper.current_block
+      && cutter.last_block_power != stepper.current_block->laser.power
+      ) {
+        cutter.apply_power(stepper.current_block->laser.power);
+        cutter.last_block_power = stepper.current_block->laser.power;
+      }
+
+    /**
+     * LASER_POWER_TRAP: Adjust laser power during acceleration/deceleration
+     * Power is ramped up during acceleration and down during deceleration.
+     * Delegates to trajectory generator for velocity calculation 
+     */
+      #if ENABLED(LASER_POWER_TRAP)
+        if (cutter.cutter_mode == CUTTER_MODE_CONTINUOUS) {
+          if (planner.laser_inline.status.isPowered && planner.laser_inline.status.isEnabled) {
+            // Get power ratio from trajectory generator (handles all trajectory types)
+            const float power_ratio = currentGenerator->getPowerRatioAtTime(tau);
+            stepper.current_block->laser.trap_ramp_active_pwr = 
+              stepper.current_block->laser.power * power_ratio;
+            cutter.apply_power(stepper.current_block->laser.trap_ramp_active_pwr);
+          }
+          // Not a powered move
+          else {
+            cutter.apply_power(0);
+          }
+        }
+      #endif
+    #endif
 
     // Get distance from trajectory generator
     xyze_float_t traj_coords = calc_traj_point(currentGenerator->getDistanceAtTime(tau));

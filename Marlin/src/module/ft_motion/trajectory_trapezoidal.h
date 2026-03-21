@@ -84,6 +84,32 @@ public:
     return total_duration;
   }
 
+  /**
+   * Get velocity at time t based on trapezoidal profile
+   */
+  float getVelocityAtTime(const float t) const override {
+    if (t <= T1) {
+      // Acceleration phase: v = v0 + a*t
+      return initial_speed + acceleration * t;
+    }
+    else if (t <= T1_plus_T2) {
+      // Cruise phase: v = v_nominal
+      return nominal_speed;
+    }
+    else if (t <= total_duration) {
+      // Deceleration phase: v = v_nominal - a*(t - T1_plus_T2)
+      return nominal_speed - acceleration * (t - T1_plus_T2);
+    }
+    return 0.0f;
+  }
+
+  /**
+   * Get nominal speed for power ratio calculation
+   */
+  float getNominalSpeed() const override {
+    return nominal_speed;
+  }
+
   void planRunout(const float duration) override {
     reset();
     T2 = T1_plus_T2 = total_duration = duration; // Coast at zero speed for the entire duration

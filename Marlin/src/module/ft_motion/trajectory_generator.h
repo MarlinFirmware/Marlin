@@ -59,6 +59,36 @@ public:
   virtual float getTotalDuration() const = 0;
 
   /**
+   * Get the velocity at time t.
+   * @param t Time since start of trajectory [s]
+   * @return Velocity [mm/s]
+   */
+  virtual float getVelocityAtTime(const float t) const = 0;
+
+  /**
+   * Get the laser power ratio at time t (relative to nominal power).
+   * Used for LASER_POWER_TRAP: interpolates power based on velocity during accel/decel phases.
+   * Returns 1.0 during cruise, < 1.0 during accel/decel phases.
+   * @param t Time since start of trajectory [s]
+   * @return Power ratio [0.0 to 1.0]
+   */
+  virtual float getPowerRatioAtTime(const float t) const {
+    // Default implementation: power proportional to velocity ratio
+    // Can be overridden by subclasses for different behavior
+    const float velocity = getVelocityAtTime(t);
+    const float nominal_speed = getNominalSpeed();
+    if (nominal_speed <= 0.0f) return 0.0f;
+    const float ratio = velocity / nominal_speed;
+    return ratio > 1.0f ? 1.0f : ratio;
+  }
+
+  /**
+   * Get the nominal speed of the trajectory.
+   * @return Nominal speed [mm/s]
+   */
+  virtual float getNominalSpeed() const = 0;
+
+  /**
    * Reset the trajectory generator to initial state.
    */
   virtual void reset() = 0;
