@@ -2128,7 +2128,7 @@ void autoHome() { queue.inject_P(G28_STR); }
 #endif // HAS_ZOFFSET_ITEM
 
 #if HAS_PREHEAT
-  #define _doPreheat(N) void DoPreheat##N() { ui.preheat_all(N-1); }
+  #define _doPreheat(N) void doPreheat##N() { ui.preheat_all(N-1); }
   REPEAT_1(PREHEAT_COUNT, _doPreheat)
 #endif
 
@@ -3260,7 +3260,7 @@ void drawPrepareMenu() {
       #if PREHEAT_COUNT > 1
         MENU_ITEM(ICON_SetEndTemp, MSG_PREHEAT_HOTEND, onDrawSubMenu, drawPreheatHotendMenu);
       #else
-        MENU_ITEM(ICON_Preheat1, MSG_PREHEAT_1, onDrawPreheat1, DoPreheat1);
+        MENU_ITEM(ICON_Preheat1, MSG_PREHEAT_1, onDrawPreheat1, doPreheat1);
       #endif
     #endif
     #if HAS_HOTEND || HAS_HEATED_BED
@@ -3797,7 +3797,7 @@ void drawMotionMenu() {
       checkkey = ID_Menu;
       if (SET_MENU(preheatHotendMenu, MSG_PREHEAT_HOTEND, 1 + PREHEAT_COUNT)) {
         BACK_ITEM(drawPrepareMenu);
-        #define _ITEM_PREHEAT(N) MENU_ITEM(ICON_Preheat##N, MSG_PREHEAT_##N, onDrawPreheat##N, DoPreheat##N);
+        #define _ITEM_PREHEAT(N) MENU_ITEM(ICON_Preheat##N, MSG_PREHEAT_##N, onDrawPreheat##N, doPreheat##N);
         REPEAT_1(PREHEAT_COUNT, _ITEM_PREHEAT)
       }
       updateMenu(preheatHotendMenu);
