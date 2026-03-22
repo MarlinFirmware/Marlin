@@ -105,7 +105,7 @@ void GcodeSuite::M600() {
     if (!parser.seen_test('T')) {  // If no tool index is specified, M600 was (probably) sent in response to filament runout.
                                    // In this case, for duplicating modes set DXC_ext to the extruder that ran out.
       #if MULTI_FILAMENT_SENSOR
-        if (idex_is_duplicating())
+        if (motion.idex_is_duplicating())
           DXC_ext = (READ(FIL_RUNOUT2_PIN) == FIL_RUNOUT2_STATE) ? 1 : 0;
       #else
         DXC_ext = motion.extruder;
@@ -127,7 +127,7 @@ void GcodeSuite::M600() {
   #if HAS_MULTI_EXTRUDER
     // Change toolhead if specified
     const uint8_t active_extruder_before_filament_change = motion.extruder;
-    if (motion.extruder != target_extruder && TERN1(DUAL_X_CARRIAGE, !idex_is_duplicating()))
+    if (motion.extruder != target_extruder && TERN1(DUAL_X_CARRIAGE, !motion.idex_is_duplicating()))
       tool_change(target_extruder);
   #endif
 
@@ -150,7 +150,7 @@ void GcodeSuite::M600() {
   );
 
   #if HAS_HOTEND_OFFSET && NONE(DUAL_X_CARRIAGE, DELTA)
-    park_point += hotend_offset[motion.extruder];
+    park_point += motion.active_hotend_offset();
   #endif
 
   // Unload filament

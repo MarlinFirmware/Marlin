@@ -580,7 +580,7 @@ void MarlinUI::draw_status_screen() {
     if (show_e_total) {
       #if ENABLED(LCD_SHOW_E_TOTAL)
         const uint8_t escale = motion.e_move_accumulator >= 100000.0f ? 10 : 1; // After 100m switch to cm
-        sprintf_P(xstring, PSTR("%ld%cm"), uint32_t(_MAX(motion.e_move_accumulator, 0.0f)) / escale, escale == 10 ? 'c' : 'm'); // 1234567mm
+        sprintf_P(xstring, PSTR("%" PRIu32 "%cm"), uint32_t(_MAX(motion.e_move_accumulator, 0.0f)) / escale, escale == 10 ? 'c' : 'm'); // 1234567mm
       #endif
     }
     else {

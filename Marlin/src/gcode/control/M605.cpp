@@ -64,12 +64,12 @@
     planner.synchronize();
 
     if (parser.seenval('S')) {
-      const DualXMode previous_mode = dual_x_carriage_mode;
+      const DualXMode previous_mode = motion.idex_mode;
 
-      dual_x_carriage_mode = (DualXMode)parser.value_byte();
-      idex_set_mirrored_mode(false);
+      motion.idex_mode = (DualXMode)parser.value_byte();
+      motion.idex_set_mirrored_mode(false);
 
-      switch (dual_x_carriage_mode) {
+      switch (motion.idex_mode) {
 
         case DXC_FULL_CONTROL_MODE:
         case DXC_AUTO_PARK_MODE:
@@ -77,8 +77,8 @@
 
         case DXC_DUPLICATION_MODE:
           // Set the X offset, but no less than the safety gap
-          if (parser.seenval('X')) duplicate_extruder_x_offset = _MAX(parser.value_linear_units(), (X2_MIN_POS) - (X1_MIN_POS));
-          if (parser.seenval('R')) duplicate_extruder_temp_offset = parser.value_celsius_diff();
+          if (parser.seenval('X')) motion.duplicate_extruder_x_offset = _MAX(parser.value_linear_units(), (X2_MIN_POS) - (X1_MIN_POS));
+          if (parser.seenval('R')) motion.duplicate_extruder_temp_offset = parser.value_celsius_diff();
           // Always switch back to tool 0
           if (motion.extruder != 0) tool_change(0);
           break;
@@ -87,10 +87,10 @@
           if (previous_mode != DXC_DUPLICATION_MODE) {
             SERIAL_ECHOLNPGM("Printer must be in DXC_DUPLICATION_MODE prior to ");
             SERIAL_ECHOLNPGM("specifying DXC_MIRRORED_MODE.");
-            dual_x_carriage_mode = DEFAULT_DUAL_X_CARRIAGE_MODE;
+            motion.idex_mode = DEFAULT_DUAL_X_CARRIAGE_MODE;
             return;
           }
-          idex_set_mirrored_mode(true);
+          motion.idex_set_mirrored_mode(true);
 
           // Do a small 'jog' motion in the X axis
           xyze_pos_t dest = motion.position; dest.x -= 0.1f;
@@ -101,50 +101,50 @@
         } return;
 
         default:
-          dual_x_carriage_mode = DEFAULT_DUAL_X_CARRIAGE_MODE;
+          motion.idex_mode = DEFAULT_DUAL_X_CARRIAGE_MODE;
           break;
       }
 
-      idex_set_parked(false);
-      set_duplication_enabled(false);
+      motion.idex_set_parked(false);
+      motion.set_extruder_duplication(false);
 
       #ifdef EVENT_GCODE_IDEX_AFTER_MODECHANGE
         process_subcommands_now(F(EVENT_GCODE_IDEX_AFTER_MODECHANGE));
       #endif
     }
     else if (!parser.seen('W'))  // if no S or W parameter, the DXC mode gets reset to the user's default
-      dual_x_carriage_mode = DEFAULT_DUAL_X_CARRIAGE_MODE;
+      motion.idex_mode = DEFAULT_DUAL_X_CARRIAGE_MODE;
 
     #if ENABLED(DEBUG_DXC_MODE)
 
       if (parser.seen('W')) {
         DEBUG_ECHO_START();
         DEBUG_ECHOPGM("Dual X Carriage Mode ");
-        switch (dual_x_carriage_mode) {
+        switch (motion.idex_mode) {
           case DXC_FULL_CONTROL_MODE: DEBUG_ECHOPGM("FULL_CONTROL"); break;
           case DXC_AUTO_PARK_MODE:    DEBUG_ECHOPGM("AUTO_PARK");    break;
           case DXC_DUPLICATION_MODE:  DEBUG_ECHOPGM("DUPLICATION");  break;
           case DXC_MIRRORED_MODE:     DEBUG_ECHOPGM("MIRRORED");     break;
         }
         DEBUG_ECHOPGM("\nActive Ext: ", motion.extruder);
-        if (!active_extruder_parked) DEBUG_ECHOPGM(" NOT ", F(" parked."));
+        if (!motion.active_extruder_parked) DEBUG_ECHOPGM(" NOT ", F(" parked."));
         DEBUG_ECHOLNPGM(
-          "\nactive_extruder_x_pos: ", motion.position.x,
-          "\ninactive_extruder_x: ", inactive_extruder_x,
-          "\nextruder_duplication_enabled: ", extruder_duplication_enabled,
-          "\nduplicate_extruder_x_offset: ", duplicate_extruder_x_offset,
-          "\nduplicate_extruder_temp_offset: ", duplicate_extruder_temp_offset,
-          "\ndelayed_move_time: ", delayed_move_time,
-          "\nX1 Home: ", x_home_pos(0), " X1_MIN_POS=", X1_MIN_POS, " X1_MAX_POS=", X1_MAX_POS,
-          "\nX2 Home: ", x_home_pos(1), " X2_MIN_POS=", X2_MIN_POS, " X2_MAX_POS=", X2_MAX_POS,
+          "\nmotion.position.x: ", motion.position.x,
+          "\nmotion.inactive_extruder_x: ", motion.inactive_extruder_x,
+          "\nmotion.extruder_duplication: ", motion.extruder_duplication,
+          "\nmotion.duplicate_extruder_x_offset: ", motion.duplicate_extruder_x_offset,
+          "\nmotion.duplicate_extruder_temp_offset: ", motion.duplicate_extruder_temp_offset,
+          "\nmotion.delayed_move_time: ", motion.delayed_move_time,
+          "\nX1 Home: ", motion.x_home_pos(0), " X1_MIN_POS=", X1_MIN_POS, " X1_MAX_POS=", X1_MAX_POS,
+          "\nX2 Home: ", motion.x_home_pos(1), " X2_MIN_POS=", X2_MIN_POS, " X2_MAX_POS=", X2_MAX_POS,
           "\nDEFAULT_DUAL_X_CARRIAGE_MODE=", STRINGIFY(DEFAULT_DUAL_X_CARRIAGE_MODE),
-          "\toolchange_settings.z_raise=", toolchange_settings.z_raise,
+          "\ntoolchange_settings.z_raise=", toolchange_settings.z_raise,
           "\nDEFAULT_DUPLICATION_X_OFFSET=", DEFAULT_DUPLICATION_X_OFFSET
         );
 
         HOTEND_LOOP() {
           DEBUG_ECHOPGM_P(SP_T_STR, e);
-          LOOP_NUM_AXES(a) DEBUG_ECHOPGM("  hotend_offset[", e, "].", C(AXIS_CHAR(a) | 0x20), "=", hotend_offset[e][a]);
+          LOOP_NUM_AXES(a) DEBUG_ECHOPGM("  hotend_offset[", e, "].", C(AXIS_CHAR(a) | 0x20), "=", motion.hotend_offset[e][a]);
           DEBUG_EOL();
         }
         DEBUG_EOL();
@@ -170,16 +170,16 @@
     bool ena = false;
     if (parser.seen("EPS")) {
       planner.synchronize();
-      if (parser.seenval('P')) duplication_e_mask = parser.value_int();   // Set the mask directly
-      else if (parser.seenval('E')) duplication_e_mask = _BV(parser.value_int() + 1) - 1; // Set the mask by E index
-      ena = (2 == parser.intval('S', extruder_duplication_enabled ? 2 : 0));
-      set_duplication_enabled(ena && (duplication_e_mask >= 3));
+      if (parser.seenval('P')) motion.duplication_e_mask = parser.value_int();   // Set the mask directly
+      else if (parser.seenval('E')) motion.duplication_e_mask = _BV(parser.value_int() + 1) - 1; // Set the mask by E index
+      ena = (2 == parser.intval('S', motion.extruder_duplication ? 2 : 0));
+      motion.set_extruder_duplication(ena && (motion.duplication_e_mask >= 3));
     }
     SERIAL_ECHO_START();
-    SERIAL_ECHOPGM(STR_DUPLICATION_MODE, ON_OFF(extruder_duplication_enabled));
+    SERIAL_ECHOPGM(STR_DUPLICATION_MODE, ON_OFF(motion.extruder_duplication));
     if (ena) {
       SERIAL_ECHOPGM(" ( ");
-      HOTEND_LOOP() if (TEST(duplication_e_mask, e)) { SERIAL_ECHO(e); SERIAL_CHAR(' '); }
+      HOTEND_LOOP() if (TEST(motion.duplication_e_mask, e)) { SERIAL_ECHO(e); SERIAL_CHAR(' '); }
       SERIAL_CHAR(')');
     }
     SERIAL_EOL();
