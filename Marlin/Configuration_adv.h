@@ -2443,18 +2443,18 @@
 
 #if ANY(LIN_ADVANCE, FT_MOTION)
   #if ENABLED(DISTINCT_E_FACTORS)
-    #define ADVANCE_K { 0.22 }    // (mm) Compression length per 1mm/s extruder speed, per extruder. Override with 'M900 T<tool> K<mm>'.
+    #define ADVANCE_K  { 0.22 }  // (mm) Compression length per 1mm/s extruder speed, per extruder. Override with 'M900 T<tool> K<mm>'.
   #else
-    #define ADVANCE_K 0.22        // (mm) Compression length for all extruders. Override with 'M900 K<mm>'.
+    #define ADVANCE_K  0.22      // (mm) Compression length for all extruders. Override with 'M900 K<mm>'.
   #endif
-  //#define ADVANCE_K_EXTRA       // Add a second linear advance constant, configurable with 'M900 L'.
+  //#define ADVANCE_K_EXTRA      // Add a second linear advance constant, configurable with 'M900 L'.
 #endif
 
 #if ENABLED(LIN_ADVANCE)
-  //#define LA_DEBUG              // Print debug information to serial during operation. Disable for production use.
-  //#define EXPERIMENTAL_I2S_LA   // Allow I2S_STEPPER_STREAM to be used with LA. Performance degrades as the LA step rate reaches ~20kHz.
+  //#define LA_DEBUG             // Print debug information to serial during operation. Disable for production use.
+  //#define EXPERIMENTAL_I2S_LA  // Allow I2S_STEPPER_STREAM to be used with LA. Performance degrades as the LA step rate reaches ~20kHz.
 
-  //#define SMOOTH_LIN_ADVANCE    // Remove limits on acceleration by gradual increase of nozzle pressure
+  //#define SMOOTH_LIN_ADVANCE   // Remove limits on acceleration by gradual increase of nozzle pressure
   #if ENABLED(SMOOTH_LIN_ADVANCE)
     /**
      * ADVANCE_TAU is also the time ahead that the smoother needs to look
@@ -2464,11 +2464,11 @@
      * Higher k and higher XY acceleration may require larger ADVANCE_TAU to avoid skipping steps.
      */
     #if ENABLED(DISTINCT_E_FACTORS)
-      #define ADVANCE_TAU { 0.02 }   // (s) Smoothing time to reduce extruder acceleration, per extruder
+      #define ADVANCE_TAU  { 0.02 }  // (s) Smoothing time to reduce extruder acceleration, per extruder
     #else
-      #define ADVANCE_TAU 0.02       // (s) Smoothing time to reduce extruder acceleration
+      #define ADVANCE_TAU  0.02      // (s) Smoothing time to reduce extruder acceleration
     #endif
-    #define SMOOTH_LIN_ADV_HZ 1000   // (Hz) How often to update extruder speed
+    #define SMOOTH_LIN_ADV_HZ  1000  // (Hz) How often to update extruder speed
     #define INPUT_SHAPING_E_SYNC     // Synchronize the extruder-shaped XY axes (to increase precision)
   #endif
 #endif
@@ -2482,7 +2482,7 @@
  */
 //#define NONLINEAR_EXTRUSION
 #if ENABLED(NONLINEAR_EXTRUSION)
-  //#define NONLINEAR_EXTRUSION_DEFAULT_ON    // Enable if NLE should be ON by default
+  //#define NONLINEAR_EXTRUSION_DEFAULT_ON  // Enable if NLE should be ON by default
 #endif
 
 // @section leveling
@@ -2492,24 +2492,24 @@
  * For example, after homing a rotational axis the Z probe might not be perpendicular to the bed.
  * Choose values the orient the bed horizontally and the Z-probe vertically.
  */
-//#define SAFE_BED_LEVELING_START_X 0.0
-//#define SAFE_BED_LEVELING_START_Y 0.0
-//#define SAFE_BED_LEVELING_START_Z 0.0
-//#define SAFE_BED_LEVELING_START_I 0.0
-//#define SAFE_BED_LEVELING_START_J 0.0
-//#define SAFE_BED_LEVELING_START_K 0.0
-//#define SAFE_BED_LEVELING_START_U 0.0
-//#define SAFE_BED_LEVELING_START_V 0.0
-//#define SAFE_BED_LEVELING_START_W 0.0
+//#define SAFE_BED_LEVELING_START_X  0.0
+//#define SAFE_BED_LEVELING_START_Y  0.0
+//#define SAFE_BED_LEVELING_START_Z  0.0
+//#define SAFE_BED_LEVELING_START_I  0.0
+//#define SAFE_BED_LEVELING_START_J  0.0
+//#define SAFE_BED_LEVELING_START_K  0.0
+//#define SAFE_BED_LEVELING_START_U  0.0
+//#define SAFE_BED_LEVELING_START_V  0.0
+//#define SAFE_BED_LEVELING_START_W  0.0
 
 /**
  * Points to probe for all 3-point Leveling procedures.
  * Override if the automatically selected points are inadequate.
  */
 #if NEEDS_THREE_PROBE_POINTS
-  //#define PROBE_PT_1 {  15, 180 }   // (mm) { x, y }
-  //#define PROBE_PT_2 {  15,  20 }
-  //#define PROBE_PT_3 { 170,  20 }
+  //#define PROBE_PT_1  {  15, 180 }  // (mm) { x, y }
+  //#define PROBE_PT_2  {  15,  20 }
+  //#define PROBE_PT_3  { 170,  20 }
 #endif
 
 /**
@@ -2532,18 +2532,18 @@
  * the probe to be unable to reach any points.
  */
 #if PROBE_SELECTED && !IS_KINEMATIC
-  //#define PROBING_MARGIN_LEFT PROBING_MARGIN
-  //#define PROBING_MARGIN_RIGHT PROBING_MARGIN
-  //#define PROBING_MARGIN_FRONT PROBING_MARGIN
-  //#define PROBING_MARGIN_BACK PROBING_MARGIN
+  //#define PROBING_MARGIN_LEFT   PROBING_MARGIN
+  //#define PROBING_MARGIN_RIGHT  PROBING_MARGIN
+  //#define PROBING_MARGIN_FRONT  PROBING_MARGIN
+  //#define PROBING_MARGIN_BACK   PROBING_MARGIN
 #endif
 
 #if ANY(MESH_BED_LEVELING, AUTO_BED_LEVELING_UBL)
   // Override the mesh area if the automatic (max) area is too large
-  //#define MESH_MIN_X MESH_INSET
-  //#define MESH_MIN_Y MESH_INSET
-  //#define MESH_MAX_X X_BED_SIZE - (MESH_INSET)
-  //#define MESH_MAX_Y Y_BED_SIZE - (MESH_INSET)
+  //#define MESH_MIN_X  MESH_INSET
+  //#define MESH_MIN_Y  MESH_INSET
+  //#define MESH_MAX_X  X_BED_SIZE - (MESH_INSET)
+  //#define MESH_MAX_Y  Y_BED_SIZE - (MESH_INSET)
 #endif
 
 #if ALL(AUTO_BED_LEVELING_UBL, EEPROM_SETTINGS)
@@ -2562,9 +2562,9 @@
    * Specify the GCODE commands that will be executed when leveling succeeds,
    * between attempts, and after the maximum number of retries have been tried.
    */
-  #define G29_SUCCESS_COMMANDS "M117 Bed leveling done."
-  #define G29_RECOVER_COMMANDS "M117 Probe failed. Rewiping.\nG28\nG12 P0 S12 T0"
-  #define G29_FAILURE_COMMANDS "M117 Bed leveling failed.\nG0 Z10\nM300 P25 S880\nM300 P50 S0\nM300 P25 S880\nM300 P50 S0\nM300 P25 S880\nM300 P50 S0\nG4 S1"
+  #define G29_SUCCESS_COMMANDS  "M117 Bed leveling done."
+  #define G29_RECOVER_COMMANDS  "M117 Probe failed. Rewiping.\nG28\nG12 P0 S12 T0"
+  #define G29_FAILURE_COMMANDS  "M117 Bed leveling failed.\nG0 Z10\nM300 P25 S880\nM300 P50 S0\nM300 P25 S880\nM300 P50 S0\nM300 P25 S880\nM300 P50 S0\nG4 S1"
 
 #endif
 
@@ -2580,9 +2580,9 @@
  * Use M871 to set temperature/offset values manually.
  * For more details see https://marlinfw.org/docs/features/probe_temp_compensation.html
  */
-//#define PTC_PROBE    // Compensate based on probe temperature
-//#define PTC_BED      // Compensate based on bed temperature
-//#define PTC_HOTEND   // Compensate based on hotend temperature
+//#define PTC_PROBE   // Compensate based on probe temperature
+//#define PTC_BED     // Compensate based on bed temperature
+//#define PTC_HOTEND  // Compensate based on hotend temperature
 
 #if ANY(PTC_PROBE, PTC_BED, PTC_HOTEND)
   /**
@@ -2590,30 +2590,30 @@
    * point and the point with index PTC_LINEAR_EXTRAPOLATION. e.g., If set to 4 it will use the
    * linear extrapolation between data[0] and data[4] for values below PTC_PROBE_START.
    */
-  //#define PTC_LINEAR_EXTRAPOLATION 4
+  //#define PTC_LINEAR_EXTRAPOLATION  4
 
   #if ENABLED(PTC_PROBE)
     // Probe temperature calibration generates a table of values starting at PTC_PROBE_START
     // (e.g., 30), in steps of PTC_PROBE_RES (e.g., 5) with PTC_PROBE_COUNT (e.g., 10) samples.
-    #define PTC_PROBE_START   30    // (°C)
-    #define PTC_PROBE_RES      5    // (°C)
-    #define PTC_PROBE_COUNT   10
+    #define PTC_PROBE_START    30   // (°C)
+    #define PTC_PROBE_RES       5   // (°C)
+    #define PTC_PROBE_COUNT    10
     #define PTC_PROBE_ZOFFS   { 0 } // (µm) Z adjustments per sample
   #endif
 
   #if ENABLED(PTC_BED)
     // Bed temperature calibration builds a similar table.
-    #define PTC_BED_START     60    // (°C)
-    #define PTC_BED_RES        5    // (°C)
-    #define PTC_BED_COUNT     10
+    #define PTC_BED_START      60   // (°C)
+    #define PTC_BED_RES         5   // (°C)
+    #define PTC_BED_COUNT      10
     #define PTC_BED_ZOFFS     { 0 } // (µm) Z adjustments per sample
   #endif
 
   #if ENABLED(PTC_HOTEND)
     // Note: There is no automatic calibration for the hotend. Use M871.
-    #define PTC_HOTEND_START 180    // (°C)
-    #define PTC_HOTEND_RES     5    // (°C)
-    #define PTC_HOTEND_COUNT  20
+    #define PTC_HOTEND_START  180   // (°C)
+    #define PTC_HOTEND_RES      5   // (°C)
+    #define PTC_HOTEND_COUNT   20
     #define PTC_HOTEND_ZOFFS  { 0 } // (µm) Z adjustments per sample
   #endif
 
@@ -2641,22 +2641,22 @@
 //
 // G60/G61 Position Save and Return
 //
-//#define SAVED_POSITIONS 1 // Each saved position slot costs 12 bytes
+//#define SAVED_POSITIONS  1  // Each saved position slot costs 12 bytes
 
 // @section motion
 
 //
 // G2/G3 Arc Support
 //
-#define ARC_SUPPORT                    // Requires ~3226 bytes
+#define ARC_SUPPORT                     // Requires ~3226 bytes
 #if ENABLED(ARC_SUPPORT)
-  #define MIN_ARC_SEGMENT_MM       0.1 // (mm) Minimum length of each arc segment
-  #define MAX_ARC_SEGMENT_MM       1.0 // (mm) Maximum length of each arc segment
-  #define MIN_CIRCLE_SEGMENTS     72   // Minimum number of segments in a complete circle
-  //#define ARC_SEGMENTS_PER_SEC  50   // Use the feedrate to choose the segment length
-  #define N_ARC_CORRECTION        25   // Number of interpolated segments between corrections
-  //#define ARC_P_CIRCLES              // Enable the 'P' parameter to specify complete circles
-  //#define SF_ARC_FIX                 // Enable only if using SkeinForge with "Arc Point" fillet procedure
+  #define MIN_ARC_SEGMENT_MM       0.1  // (mm) Minimum length of each arc segment
+  #define MAX_ARC_SEGMENT_MM       1.0  // (mm) Maximum length of each arc segment
+  #define MIN_CIRCLE_SEGMENTS     72    // Minimum number of segments in a complete circle
+  //#define ARC_SEGMENTS_PER_SEC  50    // Use the feedrate to choose the segment length
+  #define N_ARC_CORRECTION        25    // Number of interpolated segments between corrections
+  //#define ARC_P_CIRCLES               // Enable the 'P' parameter to specify complete circles
+  //#define SF_ARC_FIX                  // Enable only if using SkeinForge with "Arc Point" fillet procedure
 #endif
 
 // G5 Bézier Curve Support with XYZE destination and IJPQ offsets
@@ -2687,8 +2687,8 @@
  */
 //#define G38_PROBE_TARGET
 #if ENABLED(G38_PROBE_TARGET)
-  //#define G38_PROBE_AWAY         // Include G38.4 and G38.5 to probe away from target
-  #define G38_MINIMUM_MOVE 0.0275  // (mm) Minimum distance that will produce a move.
+  //#define G38_PROBE_AWAY          // Include G38.4 and G38.5 to probe away from target
+  #define G38_MINIMUM_MOVE  0.0275  // (mm) Minimum distance that will produce a move.
 #endif
 
 // @section motion
@@ -2709,8 +2709,8 @@
  *
  * Override the default value based on the driver type set in Configuration.h.
  */
-//#define MINIMUM_STEPPER_POST_DIR_DELAY 650
-//#define MINIMUM_STEPPER_PRE_DIR_DELAY 650
+//#define MINIMUM_STEPPER_POST_DIR_DELAY  650
+//#define MINIMUM_STEPPER_PRE_DIR_DELAY   650
 
 /**
  * Minimum stepper driver pulse width (in ns)
@@ -2724,7 +2724,7 @@
  *
  * Override the default value based on the driver type set in Configuration.h.
  */
-//#define MINIMUM_STEPPER_PULSE_NS 2000
+//#define MINIMUM_STEPPER_PULSE_NS  2000
 
 /**
  * Maximum stepping rate (in Hz) the stepper driver allows
@@ -2738,7 +2738,7 @@
  *
  * Override the default value based on the driver type set in Configuration.h.
  */
-//#define MAXIMUM_STEPPER_RATE 250000
+//#define MAXIMUM_STEPPER_RATE  250000
 
 // @section temperature
 
@@ -2753,18 +2753,18 @@
 
 // The number of linear moves that can be in the planner at once.
 #if ALL(HAS_MEDIA, DIRECT_STEPPING)
-  #define BLOCK_BUFFER_SIZE  8
+  #define BLOCK_BUFFER_SIZE   8
 #elif HAS_MEDIA
-  #define BLOCK_BUFFER_SIZE 16
+  #define BLOCK_BUFFER_SIZE  16
 #else
-  #define BLOCK_BUFFER_SIZE 16
+  #define BLOCK_BUFFER_SIZE  16
 #endif
 
 // @section serial
 
 // The ASCII buffer for serial input
-#define MAX_CMD_SIZE 96
-#define BUFSIZE 4
+#define MAX_CMD_SIZE  96
+#define BUFSIZE  4
 
 /**
  * Host Transmit Buffer Size
@@ -2775,7 +2775,7 @@
  *  - Other output doesn't need to be that speedy.
  * :[0, 2, 4, 8, 16, 32, 64, 128, 256]
  */
-#define TX_BUFFER_SIZE 0
+#define TX_BUFFER_SIZE  0
 
 /**
  * Host Receive Buffer Size
@@ -2783,7 +2783,7 @@
  * To use flow control, set this buffer size to at least 1024 bytes.
  * :[0, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048]
  */
-//#define RX_BUFFER_SIZE 1024
+//#define RX_BUFFER_SIZE  1024
 
 #if RX_BUFFER_SIZE >= 1024
   // Enable to have the controller send XON/XOFF control characters to
@@ -2876,7 +2876,7 @@
  * For clients that use a fixed-width font (like OctoPrint), leave this set to 1.0.
  * Otherwise, adjust according to your client and font.
  */
-#define PROPORTIONAL_FONT_RATIO 1.0
+#define PROPORTIONAL_FONT_RATIO  1.0
 
 // @section extras
 
@@ -2907,21 +2907,21 @@
  */
 //#define FWRETRACT
 #if ENABLED(FWRETRACT)
-  #define FWRETRACT_AUTORETRACT             // Override slicer retractions
+  #define FWRETRACT_AUTORETRACT               // Override slicer retractions
   #if ENABLED(FWRETRACT_AUTORETRACT)
-    #define MIN_AUTORETRACT             0.1 // (mm) Don't convert E moves under this length
-    #define MAX_AUTORETRACT            10.0 // (mm) Don't convert E moves over this length
+    #define MIN_AUTORETRACT              0.1  // (mm) Don't convert E moves under this length
+    #define MAX_AUTORETRACT             10.0  // (mm) Don't convert E moves over this length
   #endif
-  #define RETRACT_LENGTH                3   // (mm) Default retract length (positive value)
-  #define RETRACT_LENGTH_SWAP          13   // (mm) Default swap retract length (positive value)
-  #define RETRACT_FEEDRATE             45   // (mm/s) Default feedrate for retracting
-  #define RETRACT_ZRAISE                0   // (mm) Default retract Z-raise
-  #define RETRACT_RECOVER_LENGTH        0   // (mm) Default additional recover length (added to retract length on recover)
-  #define RETRACT_RECOVER_LENGTH_SWAP   0   // (mm) Default additional swap recover length (added to retract length on recover from toolchange)
-  #define RETRACT_RECOVER_FEEDRATE      8   // (mm/s) Default feedrate for recovering from retraction
-  #define RETRACT_RECOVER_FEEDRATE_SWAP 8   // (mm/s) Default feedrate for recovering from swap retraction
+  #define RETRACT_LENGTH                 3    // (mm) Default retract length (positive value)
+  #define RETRACT_LENGTH_SWAP           13    // (mm) Default swap retract length (positive value)
+  #define RETRACT_FEEDRATE              45    // (mm/s) Default feedrate for retracting
+  #define RETRACT_ZRAISE                 0    // (mm) Default retract Z-raise
+  #define RETRACT_RECOVER_LENGTH         0    // (mm) Default additional recover length (added to retract length on recover)
+  #define RETRACT_RECOVER_LENGTH_SWAP    0    // (mm) Default additional swap recover length (added to retract length on recover from toolchange)
+  #define RETRACT_RECOVER_FEEDRATE       8    // (mm/s) Default feedrate for recovering from retraction
+  #define RETRACT_RECOVER_FEEDRATE_SWAP  8    // (mm/s) Default feedrate for recovering from swap retraction
   #if ENABLED(MIXING_EXTRUDER)
-    //#define RETRACT_SYNC_MIXING           // Retract and restore all mixing steppers simultaneously
+    //#define RETRACT_SYNC_MIXING             // Retract and restore all mixing steppers simultaneously
   #endif
 #endif
 
@@ -2937,16 +2937,16 @@
   //#define TOOLCHANGE_ZRAISE_BEFORE_RETRACT  // Apply raise before swap retraction (if enabled)
   //#define TOOLCHANGE_NO_RETURN              // Never return to previous position on tool-change
   #if ENABLED(TOOLCHANGE_NO_RETURN)
-    //#define EVENT_GCODE_AFTER_TOOLCHANGE "G12X"  // Extra G-code to run after tool-change
+    //#define EVENT_GCODE_AFTER_TOOLCHANGE  "G12X"  // Extra G-code to run after tool-change
   #endif
 
   /**
    * Extra G-code to run while executing tool-change commands. Can be used to use an additional
    * stepper motor (e.g., I axis in Configuration.h) to drive the tool-changer.
    */
-  //#define EVENT_GCODE_TOOLCHANGE_T0 "G28 A\nG1 A0"  // Extra G-code to run while executing tool-change command T0
-  //#define EVENT_GCODE_TOOLCHANGE_T1 "G1 A10"        // Extra G-code to run while executing tool-change command T1
-  //#define EVENT_GCODE_TOOLCHANGE_ALWAYS_RUN         // Always execute above G-code sequences. Use with caution!
+  //#define EVENT_GCODE_TOOLCHANGE_T0  "G28 A\nG1 A0"  // Extra G-code to run while executing tool-change command T0
+  //#define EVENT_GCODE_TOOLCHANGE_T1  "G1 A10"        // Extra G-code to run while executing tool-change command T1
+  //#define EVENT_GCODE_TOOLCHANGE_ALWAYS_RUN          // Always execute above G-code sequences. Use with caution!
 
   /**
    * Consider coordinates for EVENT_GCODE_TOOLCHANGE_Tx as relative to T0
