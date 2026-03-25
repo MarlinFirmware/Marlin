@@ -1890,7 +1890,8 @@ void MarlinSettings::postprocess() {
 
     // Version has to match or defaults are used
     if (strncmp(stored_ver, version_str, 3) != 0) {
-      if (stored_ver[3] != '\0') {
+      stored_ver[3] = '\0'; // Ensure null termination for debug output
+      if (stored_ver[0] < ' ' || stored_ver[0] > '~') {
         stored_ver[0] = '?';
         stored_ver[1] = '\0';
       }
@@ -1909,7 +1910,7 @@ void MarlinSettings::postprocess() {
     const EEPROM_Error check = check_version();
     if (check == ERR_EEPROM_NOPROM) return eeprom_error;
 
-    uint16_t stored_crc;
+    uint16_t stored_crc = 0;
 
     do { // A block to break out of on error
 

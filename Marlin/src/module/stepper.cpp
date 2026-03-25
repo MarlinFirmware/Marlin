@@ -136,7 +136,7 @@ stepper_flags_t Stepper::axis_enabled; // {0}
 
 // private:
 
-block_t* Stepper::current_block; // (= nullptr) A pointer to the block currently being traced
+block_t* volatile Stepper::current_block; // (= nullptr) A pointer to the block currently being traced
 
 #if HAS_STANDARD_MOTION
   AxisBits Stepper::axis_did_move; // = 0

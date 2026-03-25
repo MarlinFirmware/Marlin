@@ -424,7 +424,7 @@ class Stepper {
 
   private:
 
-    static block_t* current_block;        // A pointer to the block currently being traced
+    static block_t* volatile current_block;        // A pointer to the block currently being traced
 
     static AxisBits last_direction_bits;  // The last set of directions applied to all axes
 

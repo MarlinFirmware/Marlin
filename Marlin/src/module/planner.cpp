@@ -836,8 +836,8 @@ void Planner::calculate_trapezoid_for_block(block_t * const block, const float e
       const float half_inverse_accel = 0.5f * inverse_accel,
                   nominal_rate_sq = FLOAT_SQ(block->nominal_rate),
                   // Steps required for acceleration, deceleration to/from nominal rate
-                  decelerate_steps_float = half_inverse_accel * (nominal_rate_sq - FLOAT_SQ(final_rate)),
-                  accelerate_steps_float = half_inverse_accel * (nominal_rate_sq - FLOAT_SQ(initial_rate));
+                  decelerate_steps_float = _MAX(0.0f, half_inverse_accel * (nominal_rate_sq - FLOAT_SQ(final_rate))),
+                  accelerate_steps_float = _MAX(0.0f, half_inverse_accel * (nominal_rate_sq - FLOAT_SQ(initial_rate)));
       // Aims to fully reach nominal and final rates
       accelerate_steps = CEIL(accelerate_steps_float);
       decelerate_steps = CEIL(decelerate_steps_float);
@@ -926,10 +926,10 @@ void Planner::calculate_trapezoid_for_block(block_t * const block, const float e
         if (block->laser.power > 0) {
           NOLESS(block->laser.power, laser_power_floor);
           block->laser.trap_ramp_active_pwr = (block->laser.power - laser_power_floor) * (initial_rate / float(block->nominal_rate)) + laser_power_floor;
-          block->laser.trap_ramp_entry_incr = (block->laser.power - block->laser.trap_ramp_active_pwr) / accelerate_steps;
+          block->laser.trap_ramp_entry_incr = accelerate_steps ? (block->laser.power - block->laser.trap_ramp_active_pwr) / accelerate_steps : 0;
           float laser_pwr = block->laser.power * (final_rate / float(block->nominal_rate));
           NOLESS(laser_pwr, laser_power_floor);
-          block->laser.trap_ramp_exit_decr = (block->laser.power - laser_pwr) / decelerate_steps;
+          block->laser.trap_ramp_exit_decr = decelerate_steps ? (block->laser.power - laser_pwr) / decelerate_steps : 0;
           #if ENABLED(DEBUG_LASER_TRAP)
             SERIAL_ECHO_MSG("lp:", block->laser.power);
             SERIAL_ECHO_MSG("as:", accelerate_steps);
@@ -2177,6 +2177,7 @@ bool Planner::_populate_block(
   else
     NOLESS(fr_mm_s, settings.min_travel_feedrate_mm_s);
 
+  if (block->millimeters < 0.0001f) return false;  // Reject near-zero-length moves
   const float inverse_millimeters = 1.0f / block->millimeters;  // Inverse millimeters to remove multiple divides
 
   /**

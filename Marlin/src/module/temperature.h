@@ -418,14 +418,24 @@ typedef struct { float p, i, d, c, f; } raw_pidcf_t;
 typedef struct TempInfo {
   private:
     raw_adc_t acc;
-    raw_adc_t raw;
+    volatile raw_adc_t raw;
   public:
     celsius_float_t celsius;
     inline void reset() { acc = 0; }
     inline void sample(const raw_adc_t s) { acc += s; }
     inline void update() { raw = acc; }
     void setraw(const raw_adc_t r) { raw = r; }
-    raw_adc_t getraw() const { return raw; }
+    raw_adc_t getraw() const {
+      #ifndef CPU_32_BIT
+        // On 8-bit AVR, 16-bit reads are not atomic; guard against torn reads
+        CRITICAL_SECTION_START();
+        const raw_adc_t r = raw;
+        CRITICAL_SECTION_END();
+        return r;
+      #else
+        return raw;
+      #endif
+    }
 } temp_info_t;
 
 #if HAS_TEMP_REDUNDANT

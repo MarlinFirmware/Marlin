@@ -113,7 +113,7 @@ bool GCodeQueue::RingBuffer::enqueue(const char *cmd, const bool skip_ok/*=true*
   OPTARG(HAS_MULTI_SERIAL, serial_index_t serial_ind/*=-1*/)
 ) {
   if (*cmd == ';' || length >= BUFSIZE) return false;
-  strcpy(commands[index_w].buffer, cmd);
+  strlcpy(commands[index_w].buffer, cmd, sizeof(commands[index_w].buffer));
   commit_command(skip_ok OPTARG(HAS_MULTI_SERIAL, serial_ind));
   return true;
 }
@@ -383,9 +383,10 @@ inline void process_stream_char(const char c, uint8_t &sis, char (&buff)[MAX_CMD
     if (ind) buff[--ind] = '\0';
   }
   else {
-    buff[ind++] = c;
     if (ind >= MAX_CMD_SIZE - 1)
       sis = PS_EOL;             // Skip the rest on overflow
+    else
+      buff[ind++] = c;
   }
 }
 
