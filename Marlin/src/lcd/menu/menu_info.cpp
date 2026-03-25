@@ -60,6 +60,7 @@
 
     STATIC_ITEM(MSG_INFO_PRINT_LONGEST, SS_FULL);                                         // Longest job time:
     STATIC_ITEM_F(nullptr, SS_FULL, duration_t(stats.longestPrint).toString(buffer));     // > 99y 364d 23h 59m 59s
+
     #if HAS_EXTRUDERS
       STATIC_ITEM(MSG_INFO_PRINT_FILAMENT, SS_FULL);                                        // Extruded total:
       sprintf_P(buffer, PSTR("%ld.%im")
@@ -68,6 +69,7 @@
       );
       STATIC_ITEM_F(nullptr, SS_FULL, buffer);                                              // > 125m
     #endif
+
     #if SERVICE_INTERVAL_1 > 0 || SERVICE_INTERVAL_2 > 0 || SERVICE_INTERVAL_3 > 0
       strcpy_P(buffer, GET_TEXT(MSG_SERVICE_IN));
     #endif
