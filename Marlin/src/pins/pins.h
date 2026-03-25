@@ -317,6 +317,8 @@
   #include "mega/pins_PROTONEER_CNC_SHIELD_V3.h"    // ATmega2560                           env:mega2560
 #elif MB(WEEDO_62A)
   #include "mega/pins_WEEDO_62A.h"                  // ATmega2560                           env:mega2560
+#elif MB(MIGHTYBOARD_REVG)
+  #include "mega/pins_MIGHTYBOARD_REVG.h"           // ATmega2560, ATmega1280               env:MightyBoard2560 env:MightyBoard1280 env:mega2560ext
 
 //
 // ATmega1281, ATmega2561
@@ -555,7 +557,7 @@
 #elif MB(STM32F103RE)
   #include "stm32f1/pins_STM32F1R.h"                // STM32F1                              env:STM32F103RE env:STM32F103RE_maple
 #elif MB(MALYAN_M200)
-  #include "stm32f1/pins_MALYAN_M200.h"             // STM32F1                              env:STM32F103CB_malyan env:STM32F103CB_malyan_maple
+  #include "stm32f1/pins_MALYAN_M200.h"             // STM32F1                              env:STM32F103CB_malyan
 #elif MB(STM3R_MINI)
   #include "stm32f1/pins_STM3R_MINI.h"              // STM32F1                              env:STM32F103VE env:STM32F103RE_maple
 #elif MB(GTM32_PRO_VB)
@@ -686,6 +688,8 @@
   #include "gd32f1/pins_VOXELAB_AQUILA.h"           // GD32F1, N32G4, STM32F1               env:GD32F103RC_voxelab_maple env:N32G455RE_voxelab_maple env:STM32F103RE_creality_maple env:STM32F103RE_creality
 #elif MB(SPRINGER_CONTROLLER)
   #include "stm32f1/pins_ORCA_3D_SPRINGER.h"        // STM32F1                              env:STM32F103VC_orca3d
+#elif MB(ATOMSTACK_FB5_V2)
+  #include "stm32f1/pins_ATOMSTACK_FB5_V2.h"        // STM32F1                              env:STM32F103RC_atomstack
 
 //
 // ARM Cortex-M4F
@@ -801,7 +805,9 @@
 #elif MB(I3DBEEZ9_V1)
   #include "stm32f4/pins_I3DBEEZ9.h"                // STM32F4                              env:I3DBEEZ9_V1
 #elif MB(MELLOW_FLY_E3_V2)
-  #include "stm32f4/pins_MELLOW_FLY_E3_V2.h"        // STM32F4                              env:FLY_E3_V2
+  #include "stm32f4/pins_MELLOW_FLY_E3_V2.h"        // STM32F4                              env:STM32F407VG_mellow_fly_e3
+#elif MB(MELLOW_FLY_E3_PRO_V3)
+  #include "stm32f4/pins_MELLOW_FLY_E3_PRO_V3.h"    // STM32F4                              env:STM32F407VG_mellow_fly_e3
 #elif MB(BLACKBEEZMINI_V1)
   #include "stm32f4/pins_BLACKBEEZMINI.h"           // STM32F4                              env:BLACKBEEZMINI_V1
 #elif MB(XTLW_CLIMBER_8TH)
@@ -923,9 +929,9 @@
 //
 
 #elif MB(AQUILA_V101)
-  #include "hc32f4/pins_AQUILA_101.h"               // HC32F460                             env:HC32F460C_aquila_101
+  #include "hc32f4/pins_AQUILA_101.h"               // HC32F460                             env:HC32F460C_aquila_101 env:HC32F460C_openhc32boot
 #elif MB(CREALITY_ENDER2P_V24S4)
-  #include "hc32f4/pins_CREALITY_ENDER2P_V24S4.h"   // HC32F460                             env:HC32F460C_e2p24s4
+  #include "hc32f4/pins_CREALITY_ENDER2P_V24S4.h"   // HC32F460                             env:HC32F460C_e2p24s4 env:HC32F460C_openhc32boot
 
 //
 // GD32 ARM Cortex-M3
@@ -949,6 +955,8 @@
 
 #elif MB(RP2040)
   #include "rp2040/pins_RP2040.h"                   // RP2040                               env:RP2040
+#elif MB(RASPBERRY_PI_PICO)
+  #include "rp2040/pins_RASPBERRY_PI_PICO.h"        // RP2040                               env:RP2040
 #elif MB(BTT_SKR_PICO)
   #include "rp2040/pins_BTT_SKR_Pico.h"             // RP2040                               env:SKR_Pico env:SKR_Pico_UART
 
@@ -1070,7 +1078,7 @@
   #elif MB(ERROR)
     #warning "Most likely missing / misplaced Configuration files."
   #elif defined(MOTHERBOARD)
-    #error "Unknown MOTHERBOARD value set in Configuration.h."
+    static_assert(false, "Unknown MOTHERBOARD value (" STRINGIFY(MOTHERBOARD) ") set in Configuration.h.");
   #else
     #error "MOTHERBOARD not defined! Use '#define MOTHERBOARD BOARD_...' in Configuration.h."
   #endif

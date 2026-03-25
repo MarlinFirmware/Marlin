@@ -38,7 +38,6 @@
 #include "mmu3_progress_converter.h"
 #include "mmu3_reporting.h"
 
-#include "strlen_cx.h"
 #include "SpoolJoin.h"
 
 #include "../../inc/MarlinConfig.h"
@@ -274,7 +273,7 @@ namespace MMU3 {
    */
   void MMU3::checkFINDARunout() {
     if (!findaDetectsFilament()
-        //&& printJobOngoing()
+        //&& marlin.printJobOngoing()
         && parser.codenum != 600
         && TERN1(HAS_LEVELING, planner.leveling_active)
         && xy_are_trusted()
@@ -363,12 +362,12 @@ namespace MMU3 {
      * in the slope's sign or check the last machine position.
      *              y(x)
      *              ▲
-     *              │     ^◄────────── tryload_length + current_position
+     *              │     ^◄────────── tryload_length + motion.position
      *   machine    │    / \
-     *   position   │   /   \◄────────── stepper_position_mm + current_position
+     *   position   │   /   \◄────────── stepper_position_mm + motion.position
      *    (mm)      │  /     \
      *              │ /       \
-     *              │/         \◄───────current_position
+     *              │/         \◄───────motion.position
      *              └──────────────► x
      *              0           19
      *                 pixel #
@@ -857,7 +856,7 @@ namespace MMU3 {
     for (;;) {
       // in our new implementation, we know the exact state of the MMU at any moment, we do not have to wait for a timeout
       // So in this case we should decide if the operation is:
-      // - still running -> wait normally in idle()
+      // - still running -> wait normally in marlin.idle()
       // - failed -> then do the safety moves on the printer like before
       // - finished ok -> proceed with reading other commands
       safe_delay_keep_alive(0); // calls logicStep() and remembers its return status

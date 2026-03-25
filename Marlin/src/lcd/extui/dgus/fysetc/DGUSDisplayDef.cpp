@@ -362,7 +362,7 @@ const struct DGUS_VP_Variable ListOfVP[] PROGMEM = {
     VPHELPER(VP_T_E0_Is, &thermalManager.temp_hotend[0].celsius, nullptr, screen.sendFloatAsLongValueToDisplay<0>),
     VPHELPER(VP_T_E0_Set, &thermalManager.temp_hotend[0].target, screen.handleTemperatureChanged, screen.sendWordValueToDisplay),
     VPHELPER(VP_Flowrate_E0, &planner.flow_percentage[0], screen.handleFlowRateChanged, screen.sendWordValueToDisplay),
-    VPHELPER(VP_EPos, &destination.e, nullptr, screen.sendFloatAsLongValueToDisplay<2>),
+    VPHELPER(VP_EPos, &motion.destination.e, nullptr, screen.sendFloatAsLongValueToDisplay<2>),
     VPHELPER(VP_MOVE_E0, nullptr, screen.handleManualExtrude, nullptr),
     VPHELPER(VP_E0_CONTROL, &thermalManager.temp_hotend[0].target, screen.handleHeaterControl, nullptr),
     VPHELPER(VP_E0_STATUS, &thermalManager.temp_hotend[0].target, nullptr, screen.sendHeaterStatusToDisplay),
@@ -421,12 +421,12 @@ const struct DGUS_VP_Variable ListOfVP[] PROGMEM = {
   #endif
 
   // Feedrate
-  VPHELPER(VP_Feedrate_Percentage, &feedrate_percentage, screen.setValueDirectly<int16_t>, screen.sendWordValueToDisplay),
+  VPHELPER(VP_Feedrate_Percentage, &motion.feedrate_percentage, screen.setValueDirectly<int16_t>, screen.sendWordValueToDisplay),
 
   // Position Data
-  VPHELPER(VP_XPos, &current_position.x, nullptr, screen.sendFloatAsLongValueToDisplay<2>),
-  VPHELPER(VP_YPos, &current_position.y, nullptr, screen.sendFloatAsLongValueToDisplay<2>),
-  VPHELPER(VP_ZPos, &current_position.z, nullptr, screen.sendFloatAsLongValueToDisplay<2>),
+  VPHELPER(VP_XPos, &motion.position.x, nullptr, screen.sendFloatAsLongValueToDisplay<2>),
+  VPHELPER(VP_YPos, &motion.position.y, nullptr, screen.sendFloatAsLongValueToDisplay<2>),
+  VPHELPER(VP_ZPos, &motion.position.z, nullptr, screen.sendFloatAsLongValueToDisplay<2>),
 
   // Print Progress
   VPHELPER(VP_PrintProgress_Percentage, nullptr, nullptr, screen.sendPrintProgressToDisplay),

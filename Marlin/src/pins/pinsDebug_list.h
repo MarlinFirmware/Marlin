@@ -33,7 +33,7 @@
   #define ANALOG_OK(PN) WITHIN(PN, 0, NUM_ANALOG_INPUTS - 1)
 #endif
 
-#line 35 // set __LINE__ to a known value for both passes
+#line 37 // set __LINE__ to a known value for both passes
 
 //
 // Analog Pin Assignments
@@ -959,6 +959,9 @@
 #endif
 #if PIN_EXISTS(LCD_BACKLIGHT)
   REPORT_NAME_DIGITAL(__LINE__, LCD_BACKLIGHT_PIN)
+#endif
+#if PIN_EXISTS(LCD_PWR)
+  REPORT_NAME_DIGITAL(__LINE__, LCD_PWR_PIN)
 #endif
 #if PIN_EXISTS(DOGLCD_SCL)
   REPORT_NAME_DIGITAL(__LINE__, DOGLCD_SCL_PIN)

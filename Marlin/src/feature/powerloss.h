@@ -85,7 +85,7 @@ typedef struct {
     xyz_pos_t workspace_offset;
   #endif
   #if HAS_MULTI_EXTRUDER
-    uint8_t active_extruder;
+    uint8_t extruder;
   #endif
 
   #if HAS_VOLUMETRIC_EXTRUSION
@@ -201,10 +201,15 @@ class PrintJobRecovery {
     static void close() { file.close(); }
 
     static bool check();
+
+    #if ENABLED(PLR_HEAT_BED_ON_REBOOT)
+      static void set_bed_temp(const bool turn_on);
+    #endif
+
     static void resume();
     static void purge();
 
-    static void cancel() { purge(); }
+    static void cancel();
 
     static void load();
     static void save(const bool force=ENABLED(SAVE_EACH_CMD_MODE), const float zraise=POWER_LOSS_ZRAISE, const bool raised=false);

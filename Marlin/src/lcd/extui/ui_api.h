@@ -132,6 +132,8 @@ namespace ExtUI {
   inline void injectCommands(FSTR_P const fstr) { injectCommands_P(FTOP(fstr)); }
   void injectCommands(char * const);
   bool commandsInQueue();
+  inline void executeCommands(FSTR_P const fstr) { gcode.process_subcommands_now(fstr); }
+  inline void executeCommands(char * const cstr) { gcode.process_subcommands_now(cstr); }
 
   #if ENABLED(HOST_KEEPALIVE_FEATURE)
     GcodeSuite::MarlinBusyState getHostKeepaliveState();
@@ -325,7 +327,7 @@ namespace ExtUI {
     PauseMode getPauseMode();
   #endif
 
-  #if ENABLED(LIN_ADVANCE)
+  #if HAS_LIN_ADVANCE_K
     // Linear Advance Control
     float getLinearAdvance_mm_mm_s(const extruder_t);
     void setLinearAdvance_mm_mm_s(const float, const extruder_t);
@@ -532,8 +534,8 @@ namespace ExtUI {
   #if ENABLED(ADVANCED_PAUSE_FEATURE)
     // Standard stdOnPauseMode sets pauseModeStatus and calls onUserConfirmRequired
     extern PauseMessage pauseModeStatus;
-    void stdOnPauseMode(const PauseMessage message, const PauseMode mode=PAUSE_MODE_SAME, const uint8_t extruder=active_extruder);
-    void onPauseMode(const PauseMessage message, const PauseMode mode=PAUSE_MODE_SAME, const uint8_t extruder=active_extruder);
+    void stdOnPauseMode(const PauseMessage message, const PauseMode mode=PAUSE_MODE_SAME, const uint8_t extruder=motion.extruder);
+    void onPauseMode(const PauseMessage message, const PauseMode mode=PAUSE_MODE_SAME, const uint8_t extruder=motion.extruder);
   #endif
 
   void onStatusChanged_P(PGM_P const msg);

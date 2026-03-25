@@ -59,8 +59,8 @@ class MenuItemBase {
     static const char* itemStringC;
 
     // Store an index and string for later substitution
-    FORCE_INLINE static void init(const int8_t ind=0, FSTR_P const fstr=nullptr) { itemIndex = ind; itemStringF = fstr; itemStringC = nullptr; }
-    FORCE_INLINE static void init(const int8_t ind, const char * const cstr) { itemIndex = ind; itemStringC = cstr; itemStringF = nullptr; }
+    FORCE_INLINE static void init(const int8_t ind=-1, FSTR_P const fstr=nullptr) { itemStringF = fstr; itemStringC = nullptr; if (ind >= 0) itemIndex = ind; }
+    FORCE_INLINE static void init(const int8_t ind, const char * const cstr)      { itemStringC = cstr; itemStringF = nullptr; if (ind >= 0) itemIndex = ind; }
 
     // Implementation-specific:
     // Draw an item either selected (pre_char) or not (space) with post_char
@@ -268,4 +268,8 @@ inline void clear_menu_history() { screen_history_depth = 0; }
 
 #if ANY(PROBE_MANUALLY, MESH_BED_LEVELING, X_AXIS_TWIST_COMPENSATION)
   extern uint8_t manual_probe_index;
+#endif
+
+#if ANY(CUSTOM_MENU_MAIN, CUSTOM_MENU_CONFIG)
+  template<bool> void _lcd_custom_menu_gcode(FSTR_P const fstr);
 #endif

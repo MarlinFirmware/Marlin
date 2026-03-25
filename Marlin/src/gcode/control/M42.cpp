@@ -37,8 +37,6 @@
   #define OUTPUT_OPEN_DRAIN OUTPUT_OPEN_DRAIN
 #endif
 
-bool pin_is_protected(const pin_t pin);
-
 void protected_pin_err() {
   SERIAL_ERROR_MSG(STR_ERR_PROTECTED_PIN);
 }
@@ -63,7 +61,7 @@ void GcodeSuite::M42() {
 
   const pin_t pin = GET_PIN_MAP_PIN(pin_index);
 
-  if (!parser.boolval('I') && pin_is_protected(pin)) return protected_pin_err();
+  if (!parser.boolval('I') && marlin.pin_is_protected(pin)) return protected_pin_err();
 
   bool avoidWrite = false;
   if (parser.seenval('T')) {

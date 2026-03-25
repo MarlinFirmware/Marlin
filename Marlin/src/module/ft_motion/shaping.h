@@ -41,8 +41,10 @@ enum dynFreqMode_t : uint8_t {
   dynFreqMode_MASS_BASED = 2
 };
 
-#define AXIS_IS_SHAPING(A)    TERN0(FTM_SHAPER_##A, (ftMotion.cfg.shaper.A != ftMotionShaper_NONE))
-#define AXIS_IS_EISHAPING(A)  TERN0(FTM_SHAPER_##A, WITHIN(ftMotion.cfg.shaper.A, ftMotionShaper_EI, ftMotionShaper_3HEI))
+#define IS_SHAPING(S)         ((S) != ftMotionShaper_NONE)
+#define IS_EISHAPING(S)       TERN0(HAS_FTM_EI_SHAPING, WITHIN(S, ftMotionShaper_EI, ftMotionShaper_3HEI))
+#define AXIS_IS_SHAPING(A)    TERN0(FTM_SHAPER_##A, IS_SHAPING(ftMotion.cfg.shaper.A))
+#define AXIS_IS_EISHAPING(A)  TERN0(FTM_SHAPER_##A, IS_EISHAPING(ftMotion.cfg.shaper.A))
 
 // Emitters for code that only cares about shaped XYZE
 #if HAS_FTM_SHAPING
@@ -73,6 +75,7 @@ struct FTShapedAxes {
   T& operator[](const int axis) {
     return val[axis_to_index(axis)];
   }
+  void reset() { ZERO(val); }
 
 private:
   static constexpr int axis_to_index(const int axis) {
@@ -88,20 +91,49 @@ typedef FTShapedAxes<float>            ft_shaped_float_t;
 typedef FTShapedAxes<ftMotionShaper_t> ft_shaped_shaper_t;
 typedef FTShapedAxes<dynFreqMode_t>    ft_shaped_dfm_t;
 
+#define FTM_MAX_DAMPENING 0.25
+constexpr float ftm_max_dampening = float(FTM_MAX_DAMPENING),
+                ftm_min_df = SQRT(1.0f - sq(ftm_max_dampening));
+
+constexpr uint32_t CALC_N1(const float v) { return LROUND((v / FTM_MIN_SHAPE_FREQ / ftm_min_df) * (FTM_FS)); }
+
+// Maximum delays for shaping functions
+constexpr float ftm_shaping_max_i = _MAX(0.0f
+  OPTARG(FTM_SHAPER_ZV,    1 * CALC_N1(0.5f))  OPTARG(FTM_SHAPER_EI,   2 * CALC_N1(0.5f)  )
+  OPTARG(FTM_SHAPER_ZVD,   2 * CALC_N1(0.5f))  OPTARG(FTM_SHAPER_2HEI, 3 * CALC_N1(0.5f)  )
+  OPTARG(FTM_SHAPER_ZVDD,  3 * CALC_N1(0.5f))  OPTARG(FTM_SHAPER_3HEI, 4 * CALC_N1(0.5f)  )
+  OPTARG(FTM_SHAPER_ZVDDD, 4 * CALC_N1(0.5f))  OPTARG(FTM_SHAPER_MZV,  2 * CALC_N1(0.375f))
+);
+
+// Max delays for smoothing
+constexpr uint32_t ftm_smooth_max_i = uint32_t(TERN0(FTM_SMOOTHING, CEIL(FTM_FS * FTM_MAX_SMOOTHING_TIME)));
+
+constexpr size_t ftm_zmax = ftm_shaping_max_i + ftm_smooth_max_i;
+
+constexpr uint8_t ftm_shaping_ni_size = _MAX(1
+  OPTARG(FTM_SHAPER_ZV,    2)  OPTARG(FTM_SHAPER_EI,   3)
+  OPTARG(FTM_SHAPER_ZVD,   3)  OPTARG(FTM_SHAPER_2HEI, 4)
+  OPTARG(FTM_SHAPER_ZVDD,  4)  OPTARG(FTM_SHAPER_3HEI, 5)
+  OPTARG(FTM_SHAPER_ZVDDD, 5)  OPTARG(FTM_SHAPER_MZV,  3)
+);
 
 // Shaping data
 typedef struct AxisShaping {
-  bool ena = false;                 // Enabled indication
-  float d_zi[FTM_ZMAX] = { 0.0f };  // Data point delay vector
-  float Ai[5];                      // Shaping gain vector
-  int32_t Ni[5];                    // Shaping time index vector
-  uint32_t max_i;                   // Vector length for the selected shaper
+  bool ena = false;                         // Enabled indication
+  float d_zi[ftm_zmax] = { 0.0f };          // Data point delay vector
+  float Ai[ftm_shaping_ni_size];            // Shaping gain vector
+  int32_t Ni[ftm_shaping_ni_size] = { 0 };  // Shaping time index vector
+  uint32_t max_i;                           // Vector length for the selected shaper
 
   // Set the gains used by shaping functions
   void set_axis_shaping_N(const ftMotionShaper_t shaper, const float f, const float zeta);
 
   // Set the indices (per pulse delays) used by shaping functions
-  void set_axis_shaping_A(const ftMotionShaper_t shaper, const float zeta, const float vtol);
+  void set_axis_shaping_A(
+    const ftMotionShaper_t shaper,
+    const float zeta
+    OPTARG(HAS_FTM_EI_SHAPING, const float vtol)
+  );
 
 } axis_shaping_t;
 
@@ -110,8 +142,18 @@ typedef struct Shaping {
   axis_shaping_t SHAPED_AXIS_NAMES;
   uint32_t largest_delay_samples;
   // Shaping an axis makes it lag with respect to the others by certain amount, the "centroid delay"
-  // Ni[0] stores how far in the past the first step would need to happen to avoid desynchronisation (it is therefore negative).
+  // Ni[0] stores how far in the past the first step would need to happen to avoid desynchronization (it is therefore negative).
   // Of course things can't be done in the past, so when shaping is applied, the all axes are delayed by largest_delay_samples
   // minus their own centroid delay. This makes them all be equally delayed and therefore in synch.
   void refresh_largest_delay_samples() { largest_delay_samples = -_MIN(SHAPED_LIST(X.Ni[0], Y.Ni[0], Z.Ni[0], E.Ni[0])); }
+  void reset() {
+    #define _RESET_ZI(A) ZERO(A.d_zi);
+    SHAPED_MAP(_RESET_ZI);
+    zi_idx = 0;
+  }
+  void fill(const xyze_float_t pos) {
+    #define _FILL_ZI(A) for (uint32_t i = 0; i < ftm_zmax; i++) A.d_zi[i] = pos.A;
+    SHAPED_MAP(_FILL_ZI);
+    #undef _FILL_ZI
+  }
 } shaping_t;

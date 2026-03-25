@@ -263,26 +263,26 @@ void MarlinUI::draw_status_screen() {
 
   #if HAS_X_AXIS && defined(X_MARK_X) && defined(X_MARK_Y) && defined(X_VALUE_X) && defined(X_VALUE_Y)
     tft.add_text(X_MARK_X, X_MARK_Y, COLOR_AXIS_HOMED, "X");
-    const bool nhx = axis_should_home(X_AXIS);
-    tft_string.set(blink && nhx ? "?" : ftostr4sign(LOGICAL_X_POSITION(current_position.x)));
+    const bool nhx = motion.axis_should_home(X_AXIS);
+    tft_string.set(blink && nhx ? "?" : ftostr4sign(motion.logical_x(motion.position.x)));
     tft.add_text(X_VALUE_X, X_VALUE_Y, nhx ? COLOR_AXIS_NOT_HOMED : COLOR_AXIS_HOMED, tft_string);
   #endif
 
   #if HAS_Y_AXIS && defined(Y_MARK_X) && defined(Y_MARK_Y) && defined(Y_VALUE_X) && defined(Y_VALUE_Y)
     tft.add_text(Y_MARK_X, Y_MARK_Y, COLOR_AXIS_HOMED, "Y");
-    const bool nhy = axis_should_home(Y_AXIS);
-    tft_string.set(blink && nhy ? "?" : ftostr4sign(LOGICAL_Y_POSITION(current_position.y)));
+    const bool nhy = motion.axis_should_home(Y_AXIS);
+    tft_string.set(blink && nhy ? "?" : ftostr4sign(motion.logical_y(motion.position.y)));
     tft.add_text(Y_VALUE_X, Y_VALUE_Y, nhy ? COLOR_AXIS_NOT_HOMED : COLOR_AXIS_HOMED, tft_string);
   #endif
 
   #if HAS_Z_AXIS && defined(Z_MARK_X) && defined(Z_MARK_Y) && defined(Z_VALUE_X) && defined(Z_VALUE_Y) && defined(Z_VALUE_OFFSET)
     tft.add_text(Z_MARK_X, Z_MARK_Y, COLOR_AXIS_HOMED, "Z");
     uint16_t offset = Z_VALUE_OFFSET;
-    const bool nhz = axis_should_home(Z_AXIS);
+    const bool nhz = motion.axis_should_home(Z_AXIS);
     if (blink && nhz)
       tft_string.set('?');
     else {
-      const float z = LOGICAL_Z_POSITION(current_position.z);
+      const float z = motion.logical_z(motion.position.z);
       tft_string.set(ftostr52sp((int16_t)z));
       tft_string.rtrim();
       offset += tft_string.width();
@@ -295,9 +295,9 @@ void MarlinUI::draw_status_screen() {
 
   #if ENABLED(LCD_SHOW_E_TOTAL) && defined(E_MARK_X) && defined(E_MARK_Y) && defined(E_VALUE_X) && defined(E_VALUE_Y)
     tft.add_text(E_MARK_X, E_MARK_Y, COLOR_AXIS_HOMED, "E");
-    if (printingIsActive()) {
-      const uint8_t escale = e_move_accumulator >= 10000.0f ? 10 : 1; // After 10m switch to cm to fit into 4 digits output of ftostr4sign()
-      tft_string.set(ftostr4sign(e_move_accumulator / escale));
+    if (marlin.printingIsActive()) {
+      const uint8_t escale = motion.e_move_accumulator >= 10000.0f ? 10 : 1; // After 10m switch to cm to fit into 4 digits output of ftostr4sign()
+      tft_string.set(ftostr4sign(motion.e_move_accumulator / escale));
       const uint16_t e_value_x = E_VALUE_X;
       tft_string.add(escale == 10 ? " cm" : " mm");
       tft.add_text(e_value_x, E_VALUE_Y, COLOR_AXIS_HOMED, tft_string);
@@ -311,9 +311,9 @@ void MarlinUI::draw_status_screen() {
   // Feed rate
   tft.canvas(FEEDRATE_X, FEEDRATE_Y, FEEDRATE_W, FEEDRATE_H);
   tft.set_background(COLOR_BACKGROUND);
-  uint16_t color = feedrate_percentage == 100 ? COLOR_RATE_100 : COLOR_RATE_ALTERED;
+  uint16_t color = motion.feedrate_percentage == 100 ? COLOR_RATE_100 : COLOR_RATE_ALTERED;
   tft.add_image(0, 0, imgFeedRate, color);
-  tft_string.set(i16tostr3rj(feedrate_percentage));
+  tft_string.set(i16tostr3rj(motion.feedrate_percentage));
   tft_string.add('%');
   tft.add_text(36, tft_string.vcenter(30), color, tft_string);
   TERN_(TOUCH_SCREEN, touch.add_control(FEEDRATE, FEEDRATE_X, FEEDRATE_Y, FEEDRATE_W, FEEDRATE_H));
@@ -324,16 +324,16 @@ void MarlinUI::draw_status_screen() {
     tft.set_background(COLOR_BACKGROUND);
     color = planner.flow_percentage[0] == 100 ? COLOR_RATE_100 : COLOR_RATE_ALTERED;
     tft.add_image(FLOWRATE_ICON_X, FLOWRATE_ICON_X, imgFlowRate, color);
-    tft_string.set(i16tostr3rj(planner.flow_percentage[active_extruder]));
+    tft_string.set(i16tostr3rj(planner.flow_percentage[motion.extruder]));
     tft_string.add('%');
     tft.add_text(FLOWRATE_TEXT_X, FLOWRATE_TEXT_Y, color, tft_string);
-    TERN_(TOUCH_SCREEN, touch.add_control(FLOWRATE, FLOWRATE_X, FLOWRATE_Y, FLOWRATE_W, FLOWRATE_H, active_extruder));
+    TERN_(TOUCH_SCREEN, touch.add_control(FLOWRATE, FLOWRATE_X, FLOWRATE_Y, FLOWRATE_W, FLOWRATE_H, motion.extruder));
   #endif
 
   #if ENABLED(TOUCH_SCREEN)
     add_control(MENU_ICON_X, MENU_ICON_Y, menu_main, imgSettings);
     #if HAS_MEDIA
-      const bool cm = card.isMounted(), pa = printingIsActive();
+      const bool cm = card.isMounted(), pa = marlin.printingIsActive();
       if (cm && pa)
         add_control(SDCARD_ICON_X, SDCARD_ICON_Y, STOP, imgCancel, true, COLOR_CONTROL_CANCEL);
       else
@@ -345,8 +345,6 @@ void MarlinUI::draw_status_screen() {
     char buffer[22];
     duration_t elapsed = print_job_timer.duration();
   #endif
-
-  const progress_t progress = TERN(HAS_PRINT_PROGRESS_PERMYRIAD, get_progress_permyriad, get_progress_percent)();
 
   #if ENABLED(SHOW_ELAPSED_TIME)
     elapsed.toDigital(buffer);
@@ -360,15 +358,8 @@ void MarlinUI::draw_status_screen() {
   #endif
 
   #if ENABLED(SHOW_REMAINING_TIME)
-    // Get the estimate, first from M73
-    uint32_t estimate_remaining = (0
-      #if ALL(SET_PROGRESS_MANUALLY, SET_REMAINING_TIME)
-        + get_remaining_time()
-      #endif
-    );
-    // If no M73 estimate is available but we have progress data, calculate time remaining assuming time elapsed is linear with progress
-    if (!estimate_remaining && progress > 0)
-      estimate_remaining = elapsed.value * (100 * (PROGRESS_SCALE) - progress) / progress;
+    // Get a Remaining Time estimate from M73 R, a primed calculation, or percent/time calculation
+    const uint32_t estimate_remaining = get_remaining_time();
 
     // Generate estimate string
     if (!estimate_remaining)
@@ -382,18 +373,19 @@ void MarlinUI::draw_status_screen() {
     tft.canvas(REMAINING_TIME_X, REMAINING_TIME_Y, REMAINING_TIME_W, REMAINING_TIME_H);
     tft.set_background(COLOR_BACKGROUND);
     tft_string.set(buffer);
-    color = printingIsActive() ? COLOR_PRINT_TIME : COLOR_INACTIVE;
+    color = marlin.printingIsActive() ? COLOR_PRINT_TIME : COLOR_INACTIVE;
     #if defined(REMAINING_TIME_IMAGE_X) && defined(REMAINING_TIME_IMAGE_Y)
       tft.add_image(REMAINING_TIME_IMAGE_X, REMAINING_TIME_IMAGE_Y, imgTimeRemaining, color);
     #endif
     tft.add_text(REMAINING_TIME_TEXT_X, REMAINING_TIME_TEXT_Y, color, tft_string);
-  #endif
+  #endif // SHOW_REMAINING_TIME
 
   // Progress bar
   // TODO: print percentage text for SHOW_PROGRESS_PERCENT
   tft.canvas(PROGRESS_BAR_X, PROGRESS_BAR_Y, PROGRESS_BAR_W, PROGRESS_BAR_H);
   tft.set_background(COLOR_PROGRESS_BG);
   tft.add_rectangle(0, 0, PROGRESS_BAR_W, PROGRESS_BAR_H, COLOR_PROGRESS_FRAME);
+  const progress_t progress = TERN(HAS_PRINT_PROGRESS_PERMYRIAD, get_progress_permyriad, get_progress_percent)();
   if (progress)
     tft.add_bar(1, 1, ((PROGRESS_BAR_W - 2) * progress / (PROGRESS_SCALE)) / 100, 7, COLOR_PROGRESS_BAR);
 
@@ -430,13 +422,13 @@ void MenuEditItemBase::draw_edit_screen(FSTR_P const ftpl, const char * const va
 
       tft_string.set(X_LBL);
       tft.add_text(UBL_X_LABEL_X, MENU_TEXT_Y, COLOR_MENU_TEXT, tft_string);
-      tft_string.set(ftostr52(LOGICAL_X_POSITION(current_position.x)));
+      tft_string.set(ftostr52(motion.logical_x(motion.position.x)));
       tft_string.trim();
       tft.add_text(UBL_X_TEXT_X, MENU_TEXT_Y, COLOR_MENU_VALUE, tft_string);
 
       tft_string.set(Y_LBL);
       tft.add_text(UBL_Y_LABEL_X, MENU_TEXT_Y, COLOR_MENU_TEXT, tft_string);
-      tft_string.set(ftostr52(LOGICAL_X_POSITION(current_position.y)));
+      tft_string.set(ftostr52(motion.logical_x(motion.position.y)));
       tft_string.trim();
       tft.add_text(UBL_Y_TEXT_X, MENU_TEXT_Y, COLOR_MENU_VALUE, tft_string);
     }
@@ -538,7 +530,7 @@ void MenuItem_confirm::draw_select_screen(FSTR_P const yes, FSTR_P const no, con
 
     for (uint16_t x = 0; x < (GRID_MAX_POINTS_X); x++)
       for (uint16_t y = 0; y < (GRID_MAX_POINTS_Y); y++)
-        if (position_is_reachable({ bedlevel.get_mesh_x(x), bedlevel.get_mesh_y(y) }))
+        if (motion.can_reach({ bedlevel.get_mesh_x(x), bedlevel.get_mesh_y(y) }))
           tft.add_bar(1 + (x * 2 + 1) * (UBL_GRID_W - 4) / (GRID_MAX_POINTS_X) / 2, UBL_GRID_H - 3 - ((y * 2 + 1) * (UBL_GRID_H - 4) / (GRID_MAX_POINTS_Y) / 2), 2, 2, COLOR_UBL);
 
     tft.add_rectangle((x_plot * 2 + 1) * (UBL_GRID_W - 4) / (GRID_MAX_POINTS_X) / 2 - 1, UBL_GRID_H - 5 - ((y_plot * 2 + 1) * (UBL_GRID_H - 4) / (GRID_MAX_POINTS_Y) / 2), 6, 6, COLOR_UBL);

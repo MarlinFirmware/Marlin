@@ -140,7 +140,7 @@
  * M105 - Report current temperatures.
  * M106 - Set print fan speed.
  * M107 - Print fan off.
- * M108 - Break out of heating loops (M109, M190, M303). With no controller, breaks out of M0/M1. (Requires EMERGENCY_PARSER)
+ * M108 - Break out of heating loops (M109, M190, M303). With no controller, breaks out of M0/M1.
  * M109 - S<temp> Wait for extruder current temp to reach target temp. ** Wait only when heating! **
  *        R<temp> Wait for extruder current temp to reach target temp. ** Wait for heating or cooling. **
  *        If AUTOTEMP is enabled, S<mintemp> B<maxtemp> F<factor>. Exit autotemp by any M109 without F
@@ -247,7 +247,7 @@
  * M421 - Set a single Z coordinate in the Mesh Leveling grid. X<units> Y<units> Z<units> (Requires MESH_BED_LEVELING, AUTO_BED_LEVELING_BILINEAR, or AUTO_BED_LEVELING_UBL)
  * M422 - Set Z Stepper automatic alignment position using probe. X<units> Y<units> A<axis> (Requires Z_STEPPER_AUTO_ALIGN)
  * M425 - Enable/Disable and tune backlash correction. (Requires BACKLASH_COMPENSATION and BACKLASH_GCODE)
- * M428 - Set the home_offset based on the current_position. Nearest edge applies. (Disabled by NO_WORKSPACE_OFFSETS or DELTA)
+ * M428 - Set the home_offset based on the position. Nearest edge applies. (Disabled by NO_WORKSPACE_OFFSETS or DELTA)
  * M430 - Read the system current, voltage, and power (Requires POWER_MONITOR_CURRENT, POWER_MONITOR_VOLTAGE, or POWER_MONITOR_FIXED_VOLTAGE)
  * M485 - Send RS485 packets (Requires RS485_SERIAL_PORT)
  * M486 - Identify and cancel objects. (Requires CANCEL_OBJECTS)
@@ -310,7 +310,7 @@
  * M869 - Report position encoder module error.
  *
  * M871 - Print/Reset/Clear first layer temperature offset values. (Requires PTC_PROBE, PTC_BED, or PTC_HOTEND)
- * M876 - Handle Prompt Response. (Requires HOST_PROMPT_SUPPORT and not EMERGENCY_PARSER)
+ * M876 - Handle Prompt Response. (Requires HOST_PROMPT_SUPPORT)
  * M900 - Set / Report Linear Advance K-factor (Requires LIN_ADVANCE or FT_MOTION) and Smoothing Tau factor (Requires SMOOTH_LIN_ADVANCE).
  * M906 - Set / Report motor current in milliamps using axis codes XYZE, etc. Report values if no axis codes given. (Requires *_DRIVER_TYPE TMC(2130|2160|5130|5160|2208|2209|2240|2660))
  * M907 - Set digital trimpot motor current using axis codes. (Requires a board with digital trimpots)
@@ -354,6 +354,7 @@
  */
 
 #include "../inc/MarlinConfig.h"
+#include "../module/temperature.h"
 #include "parser.h"
 
 #if ENABLED(I2C_POSITION_ENCODERS)
@@ -382,6 +383,9 @@ typedef bits_t(NUM_REL_MODES) relative_t;
 extern const char G28_STR[];
 
 class GcodeSuite {
+
+  friend void Temperature::task();
+
 public:
 
   static relative_t axis_relative;
@@ -509,6 +513,11 @@ public:
   #endif
 
   static void dwell(const millis_t time);
+
+  #if ENABLED(GCODE_MACROS)
+    static char macros[GCODE_MACROS_SLOTS][GCODE_MACROS_SLOT_SIZE + 1];
+    static void reset_macros() { for (uint8_t i = 0; i < GCODE_MACROS_SLOTS; ++i) macros[i][0] = '\0'; }
+  #endif
 
 private:
 
@@ -780,13 +789,11 @@ private:
     static void M107();
   #endif
 
-  #if DISABLED(EMERGENCY_PARSER)
-    static void M108();
-    static void M112();
-    static void M410();
-    #if ENABLED(HOST_PROMPT_SUPPORT)
-      static void M876();
-    #endif
+  static void M108();
+  static void M112();
+  static void M410();
+  #if ENABLED(HOST_PROMPT_SUPPORT)
+    static void M876();
   #endif
 
   static void M110();
@@ -1229,7 +1236,8 @@ private:
 
   #if ENABLED(GCODE_MACROS)
     static void M810_819();
-    static void M820();
+    static void M810_819_report(const bool forReplay=true);
+    static void M820(const bool withoutEcho=true);
   #endif
 
   #if HAS_BED_PROBE

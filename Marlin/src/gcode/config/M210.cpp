@@ -47,33 +47,17 @@ void GcodeSuite::M210() {
   if (!parser.seen_any())
     return M210_report();
 
-  #if HAS_X_AXIS
-    if (parser.floatval(AXIS1_PARAM) > 0) homing_feedrate_mm_m.x = parser.value_axis_units(X_AXIS);
-  #endif
-  #if HAS_Y_AXIS
-    if (parser.floatval(AXIS2_PARAM) > 0) homing_feedrate_mm_m.y = parser.value_axis_units(Y_AXIS);
-  #endif
-  #if HAS_Z_AXIS
-    if (parser.floatval(AXIS3_PARAM) > 0) homing_feedrate_mm_m.z = parser.value_axis_units(Z_AXIS);
-  #endif
-  #if HAS_I_AXIS
-    if (parser.floatval(AXIS4_PARAM) > 0) homing_feedrate_mm_m.i = parser.value_axis_units(I_AXIS);
-  #endif
-  #if HAS_J_AXIS
-    if (parser.floatval(AXIS5_PARAM) > 0) homing_feedrate_mm_m.j = parser.value_axis_units(J_AXIS);
-  #endif
-  #if HAS_K_AXIS
-    if (parser.floatval(AXIS6_PARAM) > 0) homing_feedrate_mm_m.k = parser.value_axis_units(K_AXIS);
-  #endif
-  #if HAS_U_AXIS
-    if (parser.floatval(AXIS7_PARAM) > 0) homing_feedrate_mm_m.u = parser.value_axis_units(U_AXIS);
-  #endif
-  #if HAS_V_AXIS
-    if (parser.floatval(AXIS8_PARAM) > 0) homing_feedrate_mm_m.v = parser.value_axis_units(V_AXIS);
-  #endif
-  #if HAS_W_AXIS
-    if (parser.floatval(AXIS9_PARAM) > 0) homing_feedrate_mm_m.w = parser.value_axis_units(W_AXIS);
-  #endif
+  NUM_AXIS_CODE(
+    if (parser.floatval(AXIS1_PARAM) > 0) motion.homing_feedrate_mm_m.x = parser.value_axis_units(X_AXIS),
+    if (parser.floatval(AXIS2_PARAM) > 0) motion.homing_feedrate_mm_m.y = parser.value_axis_units(Y_AXIS),
+    if (parser.floatval(AXIS3_PARAM) > 0) motion.homing_feedrate_mm_m.z = parser.value_axis_units(Z_AXIS),
+    if (parser.floatval(AXIS4_PARAM) > 0) motion.homing_feedrate_mm_m.i = parser.value_axis_units(I_AXIS),
+    if (parser.floatval(AXIS5_PARAM) > 0) motion.homing_feedrate_mm_m.j = parser.value_axis_units(J_AXIS),
+    if (parser.floatval(AXIS6_PARAM) > 0) motion.homing_feedrate_mm_m.k = parser.value_axis_units(K_AXIS),
+    if (parser.floatval(AXIS7_PARAM) > 0) motion.homing_feedrate_mm_m.u = parser.value_axis_units(U_AXIS),
+    if (parser.floatval(AXIS8_PARAM) > 0) motion.homing_feedrate_mm_m.v = parser.value_axis_units(V_AXIS),
+    if (parser.floatval(AXIS9_PARAM) > 0) motion.homing_feedrate_mm_m.w = parser.value_axis_units(W_AXIS)
+  );
 }
 
 void GcodeSuite::M210_report(const bool forReplay/*=true*/) {
@@ -83,15 +67,15 @@ void GcodeSuite::M210_report(const bool forReplay/*=true*/) {
 
   SERIAL_ECHOPGM("  M210");
   SERIAL_ECHOLNPGM_P(NUM_AXIS_PAIRED_LIST(
-    SP_X_STR, X_AXIS_UNIT(homing_feedrate_mm_m.x),
-    SP_Y_STR, Y_AXIS_UNIT(homing_feedrate_mm_m.y),
-    SP_Z_STR, Z_AXIS_UNIT(homing_feedrate_mm_m.z),
-    SP_I_STR, I_AXIS_UNIT(homing_feedrate_mm_m.i),
-    SP_J_STR, J_AXIS_UNIT(homing_feedrate_mm_m.j),
-    SP_K_STR, K_AXIS_UNIT(homing_feedrate_mm_m.k),
-    SP_U_STR, U_AXIS_UNIT(homing_feedrate_mm_m.u),
-    SP_V_STR, V_AXIS_UNIT(homing_feedrate_mm_m.v),
-    SP_W_STR, W_AXIS_UNIT(homing_feedrate_mm_m.w)
+    SP_X_STR, X_AXIS_UNIT(motion.homing_feedrate_mm_m.x),
+    SP_Y_STR, Y_AXIS_UNIT(motion.homing_feedrate_mm_m.y),
+    SP_Z_STR, Z_AXIS_UNIT(motion.homing_feedrate_mm_m.z),
+    SP_I_STR, I_AXIS_UNIT(motion.homing_feedrate_mm_m.i),
+    SP_J_STR, J_AXIS_UNIT(motion.homing_feedrate_mm_m.j),
+    SP_K_STR, K_AXIS_UNIT(motion.homing_feedrate_mm_m.k),
+    SP_U_STR, U_AXIS_UNIT(motion.homing_feedrate_mm_m.u),
+    SP_V_STR, V_AXIS_UNIT(motion.homing_feedrate_mm_m.v),
+    SP_W_STR, W_AXIS_UNIT(motion.homing_feedrate_mm_m.w)
   ));
 }
 

@@ -47,31 +47,6 @@
 #define _NUM_AXES_STR NUM_AXIS_GANG("X ", "Y ", "Z ", "I ", "J ", "K ", "U ", "V ", "W ")
 #define _LOGICAL_AXES_STR LOGICAL_AXIS_GANG("E ", "X ", "Y ", "Z ", "I ", "J ", "K ", "U ", "V ", "W ")
 
-// Make sure macros aren't borked
-#define TEST1
-#define TEST2 1
-#define TEST3 0
-#define TEST4 true
-#if ENABLED(TEST0) || !ENABLED(TEST2) || ENABLED(TEST3) || !ENABLED(TEST1, TEST2, TEST4)
-  #error "ENABLED is borked!"
-#endif
-#if ALL(TEST0, TEST1)
-  #error "ALL is borked!"
-#endif
-#if DISABLED(TEST1) || !DISABLED(TEST3) || DISABLED(TEST4) || DISABLED(TEST0, TEST1, TEST2, TEST4) || !DISABLED(TEST0, TEST3)
-  #error "DISABLED is borked!"
-#endif
-#if !ANY(TEST1, TEST2, TEST3, TEST4) || ANY(TEST0, TEST3)
-  #error "ANY is borked!"
-#endif
-#if NONE(TEST0, TEST1, TEST2, TEST4) || !NONE(TEST0, TEST3)
-  #error "NONE is borked!"
-#endif
-#undef TEST1
-#undef TEST2
-#undef TEST3
-#undef TEST4
-
 /**
  * This is to alert you about non-matching versions of config files.
  *
@@ -454,14 +429,8 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
     #error "SDSORT_DYNAMIC_RAM requires SDSORT_CACHE_NAMES."
   #endif
 
-  #if ENABLED(SDSORT_CACHE_NAMES) && DISABLED(SDSORT_DYNAMIC_RAM)
-    #if SDSORT_CACHE_VFATS < 2
-      #error "SDSORT_CACHE_VFATS must be 2 or greater!"
-    #elif SDSORT_CACHE_VFATS > VFAT_ENTRIES_LIMIT
-      #undef SDSORT_CACHE_VFATS
-      #define SDSORT_CACHE_VFATS VFAT_ENTRIES_LIMIT
-      #define SDSORT_CACHE_VFATS_WARNING 1
-    #endif
+  #if ENABLED(SDSORT_CACHE_NAMES) && DISABLED(SDSORT_DYNAMIC_RAM) && SDSORT_CACHE_VFATS < 2
+    #error "SDSORT_CACHE_VFATS must be 2 or greater!"
   #endif
 #endif
 
@@ -600,7 +569,7 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
 
 #if ENABLED(NOZZLE_PARK_FEATURE)
   constexpr float npp[] = NOZZLE_PARK_POINT;
-  static_assert(COUNT(npp) == _MIN(NUM_AXES, XYZ), "NOZZLE_PARK_POINT requires coordinates for enabled axes, but only up to X,Y,Z.");
+  static_assert(COUNT(npp) == _MIN(NUM_AXES, 3), "NOZZLE_PARK_POINT requires coordinates for enabled axes, but only up to X,Y,Z.");
   constexpr xyz_pos_t npp_xyz = NOZZLE_PARK_POINT;
   static_assert(WITHIN(npp_xyz.x, X_MIN_POS, X_MAX_POS), "NOZZLE_PARK_POINT.X is out of bounds (X_MIN_POS, X_MAX_POS).");
   static_assert(TERN1(HAS_Y_AXIS, WITHIN(npp_xyz.y, Y_MIN_POS, Y_MAX_POS)), "NOZZLE_PARK_POINT.Y is out of bounds (Y_MIN_POS, Y_MAX_POS).");
@@ -610,8 +579,12 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
 /**
  * Instant Freeze
  */
-#if ENABLED(FREEZE_FEATURE) && !(PIN_EXISTS(FREEZE) && defined(FREEZE_STATE))
-  #error "FREEZE_FEATURE requires both FREEZE_PIN and FREEZE_STATE."
+#if ENABLED(SOFT_FEED_HOLD) && !defined(FREEZE_JERK)
+  #error "SOFT_FEED_HOLD requires FREEZE_JERK."
+#elif ENABLED(FREEZE_FEATURE) && DISABLED(NO_FREEZE_PIN) && !(defined(FREEZE_PIN) && defined(FREEZE_STATE))
+  #error "FREEZE_FEATURE requires FREEZE_PIN and FREEZE_STATE."
+#elif ENABLED(NO_FREEZE_PIN) && !(defined(REALTIME_REPORTING_COMMANDS))
+  #error "NO_FREEZE_PIN requires REALTIME_REPORTING_COMMANDS."
 #endif
 
 /**
@@ -897,8 +870,8 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
 #if ENABLED(NONLINEAR_EXTRUSION)
   #if HAS_MULTI_EXTRUDER
     #error "NONLINEAR_EXTRUSION doesn't currently support multi-extruder setups."
-  #elif DISABLED(CPU_32_BIT)
-    #error "NONLINEAR_EXTRUSION requires a 32-bit CPU."
+  #elif NONE(CPU_32_BIT, NO_STANDARD_MOTION)
+    #error "NONLINEAR_EXTRUSION requires a 32-bit CPU or NO_STANDARD_MOTION."
   #endif
 #endif
 
@@ -931,6 +904,19 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
     #elif !defined(PARKING_EXTRUDER_SOLENOIDS_DELAY) || !WITHIN(PARKING_EXTRUDER_SOLENOIDS_DELAY, 0, 2000)
       #error "PARKING_EXTRUDER_SOLENOIDS_DELAY must be between 0 and 2000 (ms)."
     #endif
+  #endif
+#endif
+
+/**
+ * Differential Extruder requirements
+ */
+#if ENABLED(DIFFERENTIAL_EXTRUDER)
+  #if EXTRUDERS != 1
+    #error "DIFFERENTIAL EXTRUDER currently requires a single extruder (EXTRUDERS = 1)."
+  #elif !IS_FULL_CARTESIAN
+    #error "DIFFERENTIAL EXTRUDER requires standard Cartesian kinematics."
+  #elif !defined(CPU_32_BIT)
+    #error "DIFFERENTIAL EXTRUDER requires a 32-bit CPU."
   #endif
 #endif
 
@@ -1122,7 +1108,7 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
   #error "Leveling in Marlin requires three or more axes, with Z as the vertical axis."
 #elif ENABLED(CNC_WORKSPACE_PLANES) && !HAS_Z_AXIS
   #error "CNC_WORKSPACE_PLANES currently requires a Z axis"
-#elif ENABLED(DIRECT_STEPPING) && NUM_AXES > XYZ
+#elif ENABLED(DIRECT_STEPPING) && NUM_AXES > 3
   #error "DIRECT_STEPPING does not currently support more than 3 axes (i.e., XYZ)."
 #elif ENABLED(FOAMCUTTER_XYUV) && !(HAS_I_AXIS && HAS_J_AXIS)
   #error "FOAMCUTTER_XYUV requires I and J steppers to be enabled."
@@ -1250,6 +1236,13 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
       #error "DELTA requires GRID_MAX_POINTS_X and GRID_MAX_POINTS_Y to be 3 or higher."
     #endif
   #endif
+#endif
+
+/**
+ * Axel TPARA requirements
+ */
+#if ENABLED(AXEL_TPARA) && !ALL(HOME_Z_FIRST, HOME_Y_BEFORE_X)
+  #error "AXEL_TPARA requires both HOME_Z_FIRST and HOME_Y_BEFORE_X to be enabled."
 #endif
 
 /**
@@ -1600,7 +1593,7 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
     static_assert(Z_AFTER_PROBING >= 0, "Probes require Z_AFTER_PROBING >= 0.");
   #endif
 
-  #if MULTIPLE_PROBING > 0 || EXTRA_PROBING > 0
+  #if DISABLED(DWIN_LCD_PROUI) && (MULTIPLE_PROBING > 0 || EXTRA_PROBING > 0)
     #if MULTIPLE_PROBING == 0
       #error "EXTRA_PROBING requires MULTIPLE_PROBING."
     #elif MULTIPLE_PROBING < 2
@@ -1950,7 +1943,7 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
 #if ENABLED(DUAL_X_CARRIAGE)
   #if EXTRUDERS < 2
     #error "DUAL_X_CARRIAGE requires 2 (or more) extruders."
-  #elif ANY(CORE_IS_XY, CORE_IS_XZ, MARKFORGED_XY, MARKFORGED_YX)
+  #elif HAS_REAL_X
     #error "DUAL_X_CARRIAGE cannot be used with COREXY, COREYX, COREXZ, COREZX, MARKFORGED_YX, or MARKFORGED_XY."
   #elif !GOOD_AXIS_PINS(X2)
     #error "DUAL_X_CARRIAGE requires X2 stepper pins to be defined."
@@ -2721,6 +2714,22 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
     #error "NEOPIXEL2_SEPARATE requires NEOPIXEL2_TYPE, NEOPIXEL2_PIN and NEOPIXEL2_PIXELS."
   #elif ENABLED(NEO2_COLOR_PRESETS) && DISABLED(NEOPIXEL2_SEPARATE)
     #error "NEO2_COLOR_PRESETS requires NEOPIXEL2_SEPARATE to be enabled."
+  #endif
+  #ifdef BOARD_NEOPIXEL_MAX
+    #if (NEOPIXEL_PIXELS > BOARD_NEOPIXEL_MAX && NEOPIXEL_PIN == BOARD_NEOPIXEL_PIN) || (NEOPIXEL_PIXELS > BOARD_NEOPIXEL_MAX && DISABLED(NEOPIXEL2_SEPARATE) && NEOPIXEL2_PIN == BOARD_NEOPIXEL_PIN)
+      #if ENABLED(BOARD_HAS_DCDC5V)
+        #error "NEOPIXEL_PIXELS exceeds the recommended maximum for your MOTHERBOARD."
+      #elif MB(BTT_SKR_MINI_E3_V2_0, BTT_SKR_MINI_E3_V3_0)
+        static_assert(false, "\nNEOPIXEL_PIXELS exceeds the recommended maximum for your MOTHERBOARD.\nConsider adding a 5V DC-DC converter and #define BOARD_HAS_DCDC5V to your Configuration.h.");
+      #endif
+    #endif
+    #if ENABLED(NEOPIXEL2_SEPARATE) && NEOPIXEL2_PIXELS > BOARD_NEOPIXEL_MAX && NEOPIXEL2_PIN == BOARD_NEOPIXEL_PIN
+      #if ENABLED(BOARD_HAS_DCDC5V)
+        #error "NEOPIXEL2_PIXELS exceeds the recommended maximum for your MOTHERBOARD."
+      #elif MB(BTT_SKR_MINI_E3_V2_0, BTT_SKR_MINI_E3_V3_0)
+        static_assert(false, "\nNEOPIXEL2_PIXELS exceeds the recommended maximum for your MOTHERBOARD.\nConsider adding a 5V DC-DC converter and #define BOARD_HAS_DCDC5V to your Configuration.h.");
+      #endif
+    #endif
   #endif
 #endif
 
@@ -4483,12 +4492,12 @@ static_assert(_PLUS_TEST(3), "DEFAULT_MAX_ACCELERATION values must be positive."
  * Fixed-Time Motion limitations
  */
 #if ENABLED(FT_MOTION)
-  static_assert(FTM_BUFFER_SIZE >= 4 && (FTM_BUFFER_SIZE & FTM_BUFFER_MASK) == 0, "FTM_BUFFER_SIZE must be a power of two (128, 256, 512, ...).");
+  static_assert(FTM_BUFFER_SIZE >= 4 && (FTM_BUFFER_SIZE & (FTM_BUFFER_SIZE - 1u)) == 0, "FTM_BUFFER_SIZE must be a power of two (128, 256, 512, ...).");
   #if ENABLED(MIXING_EXTRUDER)
     #error "FT_MOTION does not currently support MIXING_EXTRUDER."
   #endif
   #if !HAS_X_AXIS
-    static_assert(FTM_DEFAULT_SHAPER_X != ftMotionShaper_NONE, "Without any linear axes FTM_DEFAULT_SHAPER_X must be ftMotionShaper_NONE.");
+    static_assert(FTM_DEFAULT_SHAPER_X == ftMotionShaper_NONE, "Without any linear axes FTM_DEFAULT_SHAPER_X must be ftMotionShaper_NONE.");
   #endif
   #if HAS_DYNAMIC_FREQ_MM
     static_assert(FTM_DEFAULT_DYNFREQ_MODE != dynFreqMode_Z_BASED, "dynFreqMode_Z_BASED requires a Z axis.");
@@ -4505,7 +4514,27 @@ static_assert(_PLUS_TEST(3), "DEFAULT_MAX_ACCELERATION values must be positive."
   #if ENABLED(FTM_RESONANCE_TEST) && DISABLED(EMERGENCY_PARSER)
     #error "EMERGENCY_PARSER is required with FTM_RESONANCE_TEST (to cancel the test)."
   #endif
-#endif
+  #if !HAS_STANDARD_MOTION
+    #if ENABLED(SMOOTH_LIN_ADVANCE)
+      #error "SMOOTH_LIN_ADVANCE is not yet available in FT_MOTION. Disable NO_STANDARD_MOTION if you require it."
+    #elif ENABLED(MIXING_EXTRUDER)
+      #error "MIXING_EXTRUDER is not yet available in FT_MOTION. Disable NO_STANDARD_MOTION if you require it."
+    #elif ENABLED(SOFT_FEED_HOLD)
+      #error "SOFT_FEED_HOLD is not yet available in FT_MOTION. Disable NO_STANDARD_MOTION if you require it."
+    #elif ENABLED(DIRECT_STEPPING)
+      #error "DIRECT_STEPPING is not yet available in FT_MOTION. Disable NO_STANDARD_MOTION if you require it."
+    #elif ENABLED(DIFFERENTIAL_EXTRUDER)
+      #error "DIFFERENTIAL_EXTRUDER is not yet available in FT_MOTION. Disable NO_STANDARD_MOTION if you require it."
+    #elif ENABLED(LASER_FEATURE)
+      #error "LASER_FEATURE is not yet available in FT_MOTION. Disable NO_STANDARD_MOTION if you require it."
+    #elif ENABLED(Z_LATE_ENABLE)
+      #error "Z_LATE_ENABLE is not yet available in FT_MOTION. Disable NO_STANDARD_MOTION if you require it."
+    #endif
+  #endif
+  #if HAS_FTM_SHAPING && NONE(FTM_SHAPER_ZV, FTM_SHAPER_ZVD, FTM_SHAPER_ZVDD, FTM_SHAPER_ZVDDD, FTM_SHAPER_EI, FTM_SHAPER_2HEI, FTM_SHAPER_3HEI, FTM_SHAPER_MZV)
+    #error "For FT_MOTION at least one FTM_SHAPER_* type must be enabled."
+  #endif
+#endif // FT_MOTION
 
 // Multi-Stepping Limit
 static_assert(WITHIN(MULTISTEPPING_LIMIT, 1, 128) && IS_POWER_OF_2(MULTISTEPPING_LIMIT), "MULTISTEPPING_LIMIT must be 1, 2, 4, 8, 16, 32, 64, or 128.");
