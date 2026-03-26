@@ -103,10 +103,16 @@ def main():
         cref = mbranch
     elif mbranch.startswith("lts-"):
         cref = mbranch.replace("lts-", "latest-")
+    elif mbranch.endswith("bugfix-2.1.x"):
+        cref = "bugfix-2.1.x"
     elif mbranch.endswith("-2.1.x") or mbranch == "2.1.x":
         cref = "latest-2.1.x"
+    elif mbranch.endswith("bugfix-2.0.x"):
+        cref = "bugfix-2.0.x"
     elif mbranch.endswith("-2.0.x") or mbranch == "2.0.x":
         cref = "latest-2.0.x"
+    elif mbranch.endswith("bugfix-1.1.x"):
+        cref = "bugfix-1.1.x"
     elif mbranch.endswith("-1.1.x") or mbranch == "1.1.x":
         cref = "latest-1.1.x"
     elif mbranch == "1.0.x":
