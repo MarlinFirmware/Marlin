@@ -49,6 +49,10 @@
   #include "../feature/powerloss.h"
 #endif
 
+#if HAS_FILAMENT_RUNOUT_DISTANCE
+  #include "../feature/runout.h"
+#endif
+
 FTMotion ftMotion;
 
 void ft_config_t::prep_for_shaper_change() { ftMotion.prep_for_shaper_change(); }
@@ -263,6 +267,7 @@ void FTMotion::discard_planner_block_protected() {
   if (stepper.current_block) {  // Safeguard in case current_block must not be null (it will
                                 // be null when the "block" is a runout or generated) in order
                                 // to use planner.release_current_block().
+    TERN_(HAS_FILAMENT_RUNOUT_DISTANCE, runout.block_completed(stepper.current_block));
     stepper.current_block = nullptr;
     planner.release_current_block();  // FTM uses release_current_block() instead of discard_current_block(),
                                       // as in block_phase_isr(). This change is to avoid invoking axis_did_move.reset().
