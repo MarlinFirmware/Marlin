@@ -1909,7 +1909,7 @@ void MarlinSettings::postprocess() {
     const EEPROM_Error check = check_version();
     if (check == ERR_EEPROM_NOPROM) return eeprom_error;
 
-    uint16_t stored_crc = 0;
+    uint16_t stored_crc;
 
     do { // A block to break out of on error
 
