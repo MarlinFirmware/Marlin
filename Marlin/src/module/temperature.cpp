@@ -3354,13 +3354,13 @@ void Temperature::init() {
         #define VARIANCE_WINDOW period_seconds
       #endif
 
-      if (state == TRMalfunction) { // temperature invariance may continue, regardless of heater state
-        variance += ABS(current - last_temp); // no need for detection window now, a single change in variance is enough
+      if (state == TRMalfunction) {           // Temperature invariance may continue, regardless of heater state
+        variance += ABS(current - last_temp); // No need for detection window now, a single change in variance is enough
         last_temp = current;
-        if (variance > 0.5f) { // Require meaningful temperature change, not just ADC noise
+        if (variance > 0.5f) {                // Require meaningful temperature change, not just ADC noise
           variance_timer = millis() + SEC_TO_MS(VARIANCE_WINDOW);
           variance = 0.0;
-          state = TRStable; // resume from where we detected the problem
+          state = TRStable;                   // Resume from where we detected the problem
         }
       }
     #endif
