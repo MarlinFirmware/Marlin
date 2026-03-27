@@ -2920,9 +2920,9 @@ void Temperature::updateTemperaturesFromRawValues() {
   #endif // HAS_HOTEND
 
   #if ENABLED(THERMAL_PROTECTION_BED)
-    if (TP_CMP(BED, rawCoolerTemp(), temp_sensor_range_bed.raw_max))
+    if (TP_CMP(BED, rawBedTemp(), temp_sensor_range_bed.raw_max))
       MAXTEMP_ERROR(H_BED, temp_bed.celsius);
-    if (temp_bed.target > 0 && !is_bed_preheating() && TP_CMP(BED, temp_sensor_range_bed.raw_min, rawCoolerTemp()))
+    if (temp_bed.target > 0 && !is_bed_preheating() && TP_CMP(BED, temp_sensor_range_bed.raw_min, rawBedTemp()))
       MINTEMP_ERROR(H_BED, temp_bed.celsius);
   #endif
 
@@ -3357,7 +3357,7 @@ void Temperature::init() {
       if (state == TRMalfunction) {           // Temperature invariance may continue, regardless of heater state
         variance += ABS(current - last_temp); // No need for detection window now, a single change in variance is enough
         last_temp = current;
-        if (variance > 0.5f) {                // Require meaningful temperature change, not just ADC noise
+        if (variance > 0.25f) {               // Require meaningful temperature change, not just ADC noise
           variance_timer = millis() + SEC_TO_MS(VARIANCE_WINDOW);
           variance = 0.0;
           state = TRStable;                   // Resume from where we detected the problem
