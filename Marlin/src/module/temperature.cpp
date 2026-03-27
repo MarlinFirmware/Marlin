@@ -793,7 +793,7 @@ void Temperature::factory_reset() {
     long t_high = 0, t_low = 0;
 
     raw_pid_t tune_pid = { 0, 0, 0 };
-    celsius_float_t maxT = -100, minT = 10000.0f;
+    celsius_float_t maxT = 0, minT = 10000;
 
     const bool isbed = TERN0(PIDTEMPBED,     heater_id == H_BED),
            ischamber = TERN0(PIDTEMPCHAMBER, heater_id == H_CHAMBER);

@@ -383,10 +383,9 @@ inline void process_stream_char(const char c, uint8_t &sis, char (&buff)[MAX_CMD
     if (ind) buff[--ind] = '\0';
   }
   else {
+    buff[ind++] = c;
     if (ind >= MAX_CMD_SIZE - 1)
       sis = PS_EOL;             // Skip the rest on overflow
-    else
-      buff[ind++] = c;
   }
 }
 
