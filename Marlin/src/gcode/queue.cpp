@@ -113,7 +113,7 @@ bool GCodeQueue::RingBuffer::enqueue(const char *cmd, const bool skip_ok/*=true*
   OPTARG(HAS_MULTI_SERIAL, serial_index_t serial_ind/*=-1*/)
 ) {
   if (*cmd == ';' || length >= BUFSIZE) return false;
-  strlcpy(commands[index_w].buffer, cmd, sizeof(commands[index_w].buffer));
+  strcpy(commands[index_w].buffer, cmd);
   commit_command(skip_ok OPTARG(HAS_MULTI_SERIAL, serial_ind));
   return true;
 }

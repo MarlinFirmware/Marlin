@@ -2438,7 +2438,7 @@ void Temperature::task() {
     else {                                                                \
       const celsius_t v01 = celsius_t(pgm_read_word(&TBL[m-1].celsius)),  \
                       v11 = celsius_t(pgm_read_word(&TBL[m-0].celsius));  \
-      return (v10 == v00) ? v01 : v01 + (raw - v00) * float(v11 - v01) / float(v10 - v00); \
+      return v01 + (raw - v00) * float(v11 - v01) / float(v10 - v00);     \
     }                                                                     \
   }                                                                       \
 }while(0)
@@ -2534,7 +2534,6 @@ void Temperature::task() {
     user_thermistor_t &t = user_thermistor[t_index];
     if (t.pre_calc) { // pre-calculate some variables
       t.pre_calc     = false;
-      if (t.res_25 <= 0 || t.beta <= 0) return 25; // Protect against division by zero
       t.res_25_recip = 1.0f / t.res_25;
       t.res_25_log   = logf(t.res_25);
       t.beta_recip   = 1.0f / t.beta;
@@ -3900,8 +3899,6 @@ void Temperature::update_raw_temperatures() {
 void Temperature::readings_ready() {
 
   // Update raw values only if they're not already set.
-  // This runs in ISR context so no critical section needed here.
-  // The volatile flag ensures the main loop sees the update.
   if (!raw_temps_ready) {
     update_raw_temperatures();
     raw_temps_ready = true;

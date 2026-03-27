@@ -418,7 +418,7 @@ typedef struct { float p, i, d, c, f; } raw_pidcf_t;
 typedef struct TempInfo {
   private:
     raw_adc_t acc;
-    volatile raw_adc_t raw;
+    raw_adc_t raw;
   public:
     celsius_float_t celsius;
     inline void reset() { acc = 0; }
