@@ -73,14 +73,18 @@ void GcodeSuite::M303() {
       return;
   }
 
-  const bool seenC = parser.seenval('C');
-  const int c = seenC ? parser.value_int() : 5;
+  const int cycles = parser.intval('C', 5);
+  if (cycles < 3) {
+    SERIAL_ECHOLNPGM("?(C)ycles not plausible (>=3).");
+    return;
+  }
+
   const bool seenS = parser.seenval('S');
   const celsius_t temp = seenS ? parser.value_celsius() : default_temp;
-  const bool u = parser.boolval('U');
+  const bool uflag = parser.boolval('U');
 
   #if ENABLED(DWIN_LCD_PROUI) && ANY(PIDTEMP, PIDTEMPBED)
-    if (seenC) HMI_data.PidCycles = c;
+    HMI_data.PidCycles = cycles;
     if (seenS) {
       switch (hid) {
         OPTCODE(PIDTEMP,    case 0 ... HOTENDS - 1: HMI_data.HotendPidT = temp; break)
@@ -93,7 +97,7 @@ void GcodeSuite::M303() {
   IF_DISABLED(BUSY_WHILE_HEATING, KEEPALIVE_STATE(NOT_BUSY));
 
   LCD_MESSAGE(MSG_PID_AUTOTUNE);
-  thermalManager.PID_autotune(temp, hid, c, u);
+  thermalManager.PID_autotune(temp, hid, cycles, uflag);
   ui.reset_status();
 
   queue.flush_rx();
