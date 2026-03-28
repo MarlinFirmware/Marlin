@@ -1017,7 +1017,8 @@ void Temperature::factory_reset() {
         if (set_result)
           PER_CBH(_set_chamber_pid(tune_pid), _set_bed_pid(tune_pid), _set_hotend_pid(heater_id, tune_pid));
 
-        goto EXIT_M303;
+          marlin.heatup_done();
+          goto EXIT_M303;
       }
     }
     marlin.heatup_done();
