@@ -835,11 +835,6 @@ volatile bool Temperature::raw_temps_ready = false;
         if (set_result)
           GHV(_set_chamber_pid(tune_pid), _set_bed_pid(tune_pid), _set_hotend_pid(heater_id, tune_pid));
 
-        TERN_(PRINTER_EVENT_LEDS, printerEventLEDs.onPidTuningDone(color));
-
-        TERN_(EXTENSIBLE_UI, ExtUI::onPidTuning(ExtUI::result_t::PID_DONE));
-        TERN_(DWIN_LCD_PROUI, DWIN_PidTuning(PID_DONE));
-
         goto EXIT_M303;
       }
 
@@ -849,18 +844,15 @@ volatile bool Temperature::raw_temps_ready = false;
       // Run UI update
       TERN(DWIN_CREALITY_LCD, DWIN_Update(), ui.update());
     }
-    wait_for_heatup = false;
 
     disable_all_heaters();
 
+    EXIT_M303:
+    wait_for_heatup = false;
     TERN_(PRINTER_EVENT_LEDS, printerEventLEDs.onPidTuningDone(color));
-
     TERN_(EXTENSIBLE_UI, ExtUI::onPidTuning(ExtUI::result_t::PID_DONE));
     TERN_(DWIN_LCD_PROUI, DWIN_PidTuning(PID_DONE));
-
-    EXIT_M303:
-      TERN_(NO_FAN_SLOWING_IN_PID_TUNING, adaptive_fan_slowing = true);
-      return;
+    TERN_(NO_FAN_SLOWING_IN_PID_TUNING, adaptive_fan_slowing = true);
   }
 
 #endif // HAS_PID_HEATING
