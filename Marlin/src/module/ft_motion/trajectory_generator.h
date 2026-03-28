@@ -97,6 +97,10 @@ protected:
   // Protected constructor to prevent direct instantiation
   TrajectoryGenerator() = default;
   virtual ~TrajectoryGenerator() = default;
+
+  // Member variable available for all trajectory generators
+  // Used by getNominalSpeed() in implementations
+  float nominal_speed = 0.0f;    // Peak feedrate [mm/s]
 };
 
 /**

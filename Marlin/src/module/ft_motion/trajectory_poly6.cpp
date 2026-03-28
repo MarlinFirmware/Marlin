@@ -124,7 +124,6 @@ static inline float Kp_u(const float u) {
   return 3.0f * sq(u) * sq(um1) * (1.0f - 2.0f * u);
 }
 
-
 #if ENABLED(LASER_FEATURE)
   float Poly6TrajectoryGenerator::getVelocityAtTime(const float t) const {
     if (t < T1) {

@@ -131,7 +131,7 @@ protected:
   float T1_plus_T2 = 0.0f;       // Cached sum of T1 + T2 for performance
   float total_duration = 0.0f;    // Cached total duration T1 + T2 + T3
   float initial_speed = 0.0f;    // Starting feedrate [mm/s]
-  float nominal_speed = 0.0f;    // Peak feedrate [mm/s]
+  // nominal_speed inherited from TrajectoryGenerator base class
   float acceleration = 0.0f;     // Acceleration [mm/s²]
   float pos_before_coast = 0.0f; // Position after acceleration phase [mm]
   float pos_after_coast = 0.0f;  // Position after acceleration and coasting phase [mm]
