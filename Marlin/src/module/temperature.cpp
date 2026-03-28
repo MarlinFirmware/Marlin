@@ -1017,15 +1017,14 @@ void Temperature::factory_reset() {
         if (set_result)
           PER_CBH(_set_chamber_pid(tune_pid), _set_bed_pid(tune_pid), _set_hotend_pid(heater_id, tune_pid));
 
-        marlin.heatup_done();
         goto EXIT_M303;
       }
     }
-    marlin.heatup_done();
 
     disable_all_heaters();
 
     EXIT_M303:
+      marlin.heatup_done();
       TERN_(PRINTER_EVENT_LEDS, printerEventLEDs.onPIDTuningDone(oldcolor));
       TERN_(EXTENSIBLE_UI, ExtUI::onPIDTuning(ExtUI::pidresult_t::PID_DONE));
       TERN_(TEMP_TUNING_MAINTAIN_FAN, adaptive_fan_slowing = true);
