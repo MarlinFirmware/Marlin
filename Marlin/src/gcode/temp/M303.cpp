@@ -78,14 +78,18 @@ void GcodeSuite::M303() {
       return;
   }
 
-  const bool seenC = parser.seenval('C');
-  const int c = seenC ? parser.value_int() : 5;
+  const int cycles = parser.intval('C', 5);
+  if (cycles < 3) {
+    SERIAL_ECHOLNPGM("?(C)ycles not plausible (>=3).");
+    return;
+  }
+
   const bool seenS = parser.seenval('S');
   const celsius_t temp = seenS ? parser.value_celsius() : default_temp;
-  const bool u = parser.boolval('U');
+  const bool uflag = parser.boolval('U');
 
   #if ENABLED(DWIN_LCD_PROUI)
-    if (seenC) HMI_data.PidCycles = c;
+    HMI_data.PidCycles = cycles;
     if (seenS) { if (hid == H_BED) HMI_data.BedPidT = temp; else HMI_data.HotendPidT = temp; }
   #endif
 
@@ -94,7 +98,7 @@ void GcodeSuite::M303() {
   #endif
 
   LCD_MESSAGE(MSG_PID_AUTOTUNE);
-  thermalManager.PID_autotune(temp, hid, c, u);
+  thermalManager.PID_autotune(temp, hid, cycles, uflag);
   ui.reset_status();
 }
 
