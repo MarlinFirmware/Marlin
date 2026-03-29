@@ -191,7 +191,12 @@ void MarlinUI::goto_screen(screenFunc_t screen, const uint16_t encoder/*=0*/, co
       if (on_status_screen())
         doubleclick_expire_ms = millis() + DOUBLECLICK_MAX_INTERVAL;
     }
-    else if (screen == status_screen && currentScreen == menu_main && PENDING(millis(), doubleclick_expire_ms)) {
+    else if (
+      screen == status_screen
+      && currentScreen == menu_main
+      && encoderPosition == 0
+      && PENDING(millis(), doubleclick_expire_ms)
+    ) {
       if (BABYSTEP_ALLOWED())
         screen = TERN(BABYSTEP_ZPROBE_OFFSET, lcd_babystep_zoffset, lcd_babystep_z);
       else {
