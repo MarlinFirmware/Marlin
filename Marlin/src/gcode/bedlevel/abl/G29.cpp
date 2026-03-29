@@ -308,7 +308,7 @@ G29_TYPE GcodeSuite::G29() {
       }
       if (!parse_grid_parameters(abl)) G29_RETURN(false, false);
       bedlevel.fill(init_val);
-      bedlevel.set_grid(abl.gridSpacing, abl.probe_position_lf.x);
+      bedlevel.set_grid(abl.gridSpacing, abl.probe_position_lf);
       G29_RETURN(false, false);
     }
   #endif
