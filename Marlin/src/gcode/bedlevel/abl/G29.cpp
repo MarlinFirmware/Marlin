@@ -317,14 +317,14 @@ G29_TYPE GcodeSuite::G29() {
 
     if (seenW) {
 
-      const float rz = parser.seenval('Z') ? RAW_Z_POSITION(parser.value_linear_units()) : current_position.z;
+      const float rz = parser.seenval('Z') ? motion.raw_z(parser.value_linear_units()) : motion.position.z;
       if (!WITHIN(rz, -10, 10)) {
         SERIAL_ERROR_MSG("(W) value out of range (-10-10).");
         G29_RETURN(false, false);
       }
 
-      const float rx = RAW_X_POSITION(parser.linearval('X', NAN)),
-                  ry = RAW_Y_POSITION(parser.linearval('Y', NAN));
+      const float rx = motion.raw_x(parser.linearval('X', NAN)),
+                  ry = motion.raw_y(parser.linearval('Y', NAN));
       int8_t i = parser.byteval('I', -1), j = parser.byteval('J', -1);
 
       #pragma GCC diagnostic push
@@ -348,7 +348,7 @@ G29_TYPE GcodeSuite::G29() {
         if (!leveling_is_valid()) SERIAL_WARN_MSG("Bilinear grid is invalid.");
         if (abl.reenable) {
           set_bed_leveling_enabled(true);
-          report_current_position();
+          motion.report_position();
         }
       }
 
