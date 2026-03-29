@@ -96,7 +96,7 @@ void MarlinHAL::init() {
     // Might disable other peripherals using the pin; to circumvent that please undefine one of the above things!
     // The true culprit is the AVR ArduinoCore that enables peripherals redundantly.
     // (USART1 on the GeeeTech GT2560)
-    // https://www.youtube.com/watch?v=jMgCvRXkexk
+    // https://youtube.be/jMgCvRXkexk
     _ATmega_savePinAlternate(BEEPER_PIN);
 
     OUT_WRITE(BEEPER_PIN, LOW);
@@ -119,7 +119,6 @@ void MarlinHAL::reboot() {
 #if ENABLED(USE_WATCHDOG)
 
   #include <avr/wdt.h>
-  #include "../../MarlinCore.h"
 
   // Initialize watchdog with 8s timeout, if possible. Otherwise, make it 4s.
   void MarlinHAL::watchdog_init() {
@@ -154,7 +153,7 @@ void MarlinHAL::reboot() {
     ISR(WDT_vect) {
       sei();  // With the interrupt driven serial we need to allow interrupts.
       SERIAL_ERROR_MSG(STR_WATCHDOG_FIRED);
-      minkill();  // interrupt-safe final kill and infinite loop
+      marlin.minkill();  // interrupt-safe final kill and infinite loop
     }
   #endif
 

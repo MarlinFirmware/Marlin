@@ -244,7 +244,7 @@ void onUserConfirmRequired(const int, FSTR_P const fstr, FSTR_P const) {
   void onPauseMode(
     const PauseMessage message,
     const PauseMode mode/*=PAUSE_MODE_SAME*/,
-    const uint8_t extruder/*=active_extruder*/
+    const uint8_t extruder/*=motion.extruder*/
   ) {
     stdOnPauseMode(message, mode, extruder);
   }
@@ -366,7 +366,7 @@ void onPostprocessSettings() {}
 #if HAS_MESH
   void onMeshUpdate(const int8_t xpos, const int8_t ypos, probe_state_t state) {}
 
-  void onMeshUpdate(const int8_t xpos, const int8_t ypos, const_float_t zval) {
+  void onMeshUpdate(const int8_t xpos, const int8_t ypos, const float zval) {
     if (waitway == 3)
       if (isPositionKnown() && (getActualTemp_celsius(BED) >= (getTargetTemp_celsius(BED) - 1)))
         rts.sendData(ExchangePageBase + 64, ExchangepageAddr);

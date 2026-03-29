@@ -23,6 +23,7 @@
 
 #include "menu.h"
 #include "../marlinui.h"
+#include "../../gcode/gcode.h" // for process_subcommands_now
 #include "../../gcode/queue.h" // for inject
 
 #include "../../inc/MarlinConfigPre.h"
@@ -67,6 +68,12 @@ class MenuItem_gcode : public MenuItem_button {
       _draw(sel, row, fstr, '>', ' ');
     }
     static void action(FSTR_P const, FSTR_P const fgcode) { queue.inject(fgcode); }
+    static void action(FSTR_P const fstr, const uint8_t, FSTR_P const fgcode) { action(fstr, fgcode); }
+};
+
+class MenuItem_command : public MenuItem_gcode {
+  public:
+    static void action(FSTR_P const, FSTR_P const fgcode) { gcode.process_subcommands_now(fgcode); }
     static void action(FSTR_P const fstr, const uint8_t, FSTR_P const fgcode) { action(fstr, fgcode); }
 };
 
@@ -276,9 +283,9 @@ class MenuItem_bool : public MenuEditItemBase {
  *     MenuItem_function::action(flabel, lcd_sdcard_pause)
  *     MenuItem_function::draw(sel, row, flabel, lcd_sdcard_pause)
  *
- *   EDIT_ITEM(int3, MSG_SPEED, &feedrate_percentage, SPEED_EDIT_MIN, SPEED_EDIT_MAX)
- *     MenuItem_int3::action(flabel, &feedrate_percentage, SPEED_EDIT_MIN, SPEED_EDIT_MAX)
- *     MenuItem_int3::draw(sel, row, flabel, &feedrate_percentage, SPEED_EDIT_MIN, SPEED_EDIT_MAX)
+ *   EDIT_ITEM(int3, MSG_SPEED, &motion.feedrate_percentage, SPEED_EDIT_MIN, SPEED_EDIT_MAX)
+ *     MenuItem_int3::action(flabel, &motion.feedrate_percentage, SPEED_EDIT_MIN, SPEED_EDIT_MAX)
+ *     MenuItem_int3::draw(sel, row, flabel, &motion.feedrate_percentage, SPEED_EDIT_MIN, SPEED_EDIT_MAX)
  *
  * Variants use standard suffixes. N:Number Index, S:C-string for substitution, F:F-string label, f:F-string for substitution
  * _MENU_ITEM_F(TYPE, V...)              Item with optional data
@@ -406,8 +413,7 @@ class MenuItem_bool : public MenuEditItemBase {
 
 #define STATIC_ITEM_C(CSTR, V...) STATIC_ITEM_N_F_C(0, F("$"), CSTR, ##V)
 
-// PSTRING_ITEM is like STATIC_ITEM
-// but also takes a PSTR and style.
+// PSTRING_ITEM is like STATIC_ITEM but also takes a PSTR and style.
 
 #define PSTRING_ITEM_F_P(FLABEL, PVAL, STYL) do{ \
   constexpr int m = 20;                          \
@@ -456,9 +462,11 @@ class MenuItem_bool : public MenuEditItemBase {
 #elif ENABLED(GENERIC_BACK_MENU_ITEM)
   #define BACK_ITEM_F(V...)                              MENU_ITEM_F(back, GET_TEXT_F(MSG_BACK))
   #define BACK_ITEM(V...)                                  MENU_ITEM(back, MSG_BACK)
+  #define BACK_ITEM_N BACK_ITEM
 #else
   #define BACK_ITEM_F(FLABEL)                            MENU_ITEM_F(back, FLABEL)
   #define BACK_ITEM(LABEL)                                 MENU_ITEM(back, LABEL)
+  #define BACK_ITEM_N(N, LABEL)                          MENU_ITEM_N(back, N, LABEL)
 #endif
 
 #define ACTION_ITEM_N_S_F(N, S, FLABEL, ACTION)      MENU_ITEM_N_S_F(function, N, S, FLABEL, ACTION)
@@ -478,6 +486,15 @@ class MenuItem_bool : public MenuEditItemBase {
 #define GCODES_ITEM_N(N, LABEL, GCODES)              GCODES_ITEM_N_F(N, GET_TEXT_F(LABEL), GCODES)
 #define GCODES_ITEM_F(FLABEL, GCODES)                    MENU_ITEM_F(gcode, FLABEL, GCODES)
 #define GCODES_ITEM(LABEL, GCODES)                     GCODES_ITEM_F(GET_TEXT_F(LABEL), GCODES)
+
+#define COMMAND_ITEM_N_S_F(N, S, FLABEL, GCODES)     MENU_ITEM_N_S_F(command, N, S, FLABEL, GCODES)
+#define COMMAND_ITEM_N_S(N, S, LABEL, GCODES)     COMMAND_ITEM_N_S_F(N, S, GET_TEXT_F(LABEL), GCODES)
+#define COMMAND_ITEM_S_F(S, FLABEL, GCODES)            MENU_ITEM_S_F(command, S, FLABEL, GCODES)
+#define COMMAND_ITEM_S(S, LABEL, GCODES)            COMMAND_ITEM_S_F(S, GET_TEXT_F(LABEL), GCODES)
+#define COMMAND_ITEM_N_F(N, FLABEL, GCODES)            MENU_ITEM_N_F(command, N, FLABEL, GCODES)
+#define COMMAND_ITEM_N(N, LABEL, GCODES)            COMMAND_ITEM_N_F(N, GET_TEXT_F(LABEL), GCODES)
+#define COMMAND_ITEM_F(FLABEL, GCODES)                   MENU_ITEM_F(command, FLABEL, GCODES)
+#define COMMAND_ITEM(LABEL, GCODES)                   COMMAND_ITEM_F(GET_TEXT_F(LABEL), GCODES)
 
 #define SUBMENU_N_S_F(N, S, FLABEL, DEST)            MENU_ITEM_N_S_F(submenu, N, S, FLABEL, DEST)
 #define SUBMENU_N_S(N, S, LABEL, DEST)                 SUBMENU_N_S_F(N, S, GET_TEXT_F(LABEL), DEST)

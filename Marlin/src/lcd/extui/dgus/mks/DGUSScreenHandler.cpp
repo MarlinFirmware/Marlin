@@ -28,7 +28,6 @@
 
 #include "../../../../inc/MarlinConfig.h"
 
-#include "../../../../MarlinCore.h"
 #include "../../../../module/settings.h"
 #include "../../../../module/temperature.h"
 #include "../../../../module/motion.h"
@@ -95,7 +94,7 @@ void DGUSScreenHandlerMKS::sendFanToDisplay(DGUS_VP_Variable &var) {
 }
 
 void DGUSScreenHandlerMKS::sendBabyStepToDisplay(DGUS_VP_Variable &var) {
-  float value = current_position.z;
+  float value = motion.position.z;
   value *= 100; //cpow(10, 2);
   dgus.writeVariable(VP_SD_Print_Baby, (uint16_t)value);
 }
@@ -287,7 +286,7 @@ void DGUSScreenHandler::screenChangeHook(DGUS_VP_Variable &var, void *val_ptr) {
   // can change any page to use this function and it will check whether a print
   // job is active. If so DGUS will go to the printing page to continue the job.
   //
-  //if (printJobOngoing() || printingIsPaused()) {
+  //if (marlin.printJobOngoing() || marlin.printingIsPaused()) {
   //  if (target == MKSLCD_PAUSE_SETTING_MOVE || target == MKSLCD_PAUSE_SETTING_EX
   //    || target == MKSLCD_SCREEN_PRINT || target == MKSLCD_SCREEN_PAUSE
   //  ) {
@@ -321,7 +320,7 @@ void DGUSScreenHandlerMKS::screenBackChange(DGUS_VP_Variable &var, void *val_ptr
 
 void DGUSScreenHandlerMKS::zOffsetConfirm(DGUS_VP_Variable &var, void *val_ptr) {
   settings.save();
-  if (printJobOngoing())
+  if (marlin.printJobOngoing())
     gotoScreen(MKSLCD_SCREEN_PRINT);
   else if (print_job_timer.isPaused)
     gotoScreen(MKSLCD_SCREEN_PAUSE);
@@ -382,7 +381,7 @@ void DGUSScreenHandlerMKS::zOffsetSelect(DGUS_VP_Variable &var, void *val_ptr) {
 
 void DGUSScreenHandlerMKS::getOffsetValue(DGUS_VP_Variable &var, void *val_ptr) {
   #if HAS_BED_PROBE
-    const float offset = BE32_P(val_ptr) / 100.0f;
+    const float offset = BE32_P(val_ptr) * 0.01f;
     switch (var.VP) {
       default: break;
       case VP_OFFSET_X: probe.offset.x = offset; break;
@@ -450,7 +449,7 @@ void DGUSScreenHandlerMKS::levelControl(DGUS_VP_Variable &var, void *val_ptr) {
       break;
 
     case 1:
-      soft_endstop._enabled = true;
+      motion.soft_endstop._enabled = true;
       gotoScreen(MKSLCD_SCREEM_TOOL);
       break;
 
@@ -481,7 +480,7 @@ void DGUSScreenHandlerMKS::meshLevel(DGUS_VP_Variable &var, void *val_ptr) {
         integer = offset; // get int
         Deci = (offset * 10) % 10;
         Deci2 = (offset * 100) % 10;
-        soft_endstop._enabled = false;
+        motion.soft_endstop._enabled = false;
         queue.enqueue_now(F("G91"));
         snprintf_P(cmd_buf, 30, PSTR("G1 Z%d.%d%d"), integer, Deci, Deci2);
         queue.enqueue_one_now(cmd_buf);
@@ -493,7 +492,7 @@ void DGUSScreenHandlerMKS::meshLevel(DGUS_VP_Variable &var, void *val_ptr) {
         integer = offset;       // get int
         Deci = (offset * 10) % 10;
         Deci2 = (offset * 100) % 10;
-        soft_endstop._enabled = false;
+        motion.soft_endstop._enabled = false;
         queue.enqueue_now(F("G91"));
         snprintf_P(cmd_buf, 30, PSTR("G1 Z-%d.%d%d"), integer, Deci, Deci2);
         queue.enqueue_one_now(cmd_buf);
@@ -550,7 +549,7 @@ void DGUSScreenHandlerMKS::meshLevel(DGUS_VP_Variable &var, void *val_ptr) {
         }
         else if (mesh_point_count == 0) {
           mesh_point_count = GRID_MAX_POINTS;
-          soft_endstop._enabled = true;
+          motion.soft_endstop._enabled = true;
           settings.save();
           gotoScreen(MKSLCD_SCREEM_TOOL);
         }
@@ -770,15 +769,15 @@ void DGUSScreenHandler::handleManualMove(DGUS_VP_Variable &var, void *val_ptr) {
   }
 
   // Movement
-  const bool old_relative_mode = relative_mode;
-  if (!relative_mode) queue.enqueue_now(F("G91"));
+  const bool old_relative_mode = motion.relative_mode;
+  if (!old_relative_mode) queue.enqueue_now(F("G91"));
 
   // TODO: Use MString / TS() ...
 
   char buf[32]; // G1 X9999.99 F12345
   char sign[] = "\0";
   int16_t value = movevalue / 100;
-  if (movevalue < 0) { value = -value; sign[0] = '-'; }
+  if (movevalue < 0) { value *= -1; sign[0] = '-'; }
   const int16_t fraction = ABS(movevalue) % 100;
   snprintf_P(buf, 32, PSTR("G0 %c%s%d.%02d F%d"), axiscode, sign, value, fraction, speed);
   queue.enqueue_one_now(buf);
@@ -1089,7 +1088,7 @@ void DGUSScreenHandlerMKS::filamentUnload(DGUS_VP_Variable &var, void *val_ptr) 
 
     if (filament_data.action == 0) { // Go back to utility screen
       TERN_(HAS_EXTRUDERS, thermalManager.setTargetHotend(e_temp, 0));
-      TERN_(HAS_MULTI_EXTRUDER, thermalManager.setTargetHotend(e_temp, 1));
+      E_TERN_(thermalManager.setTargetHotend(e_temp, 1));
       gotoScreen(DGUS_SCREEN_UTILITY);
       return;
     }
@@ -1192,7 +1191,7 @@ bool DGUSScreenHandlerMKS::loop() {
     }
 
     #if ENABLED(DGUS_MKS_RUNOUT_SENSOR)
-      if (booted && printingIsActive()) runoutIdle();
+      if (booted && marlin.printingIsActive()) runoutIdle();
     #endif
 
   #endif // SHOW_BOOTSCREEN

@@ -31,7 +31,6 @@
  */
 
 #include "tmc_util.h"
-#include "../MarlinCore.h"
 
 #include "../module/stepper/indirection.h"
 #include "../module/printcounter.h"
@@ -283,7 +282,7 @@
       if (data.is_s2g) SERIAL_ECHOLNPGM("coil short circuit");
       TERN_(TMC_DEBUG, tmc_report_all());
       TERN_(SOVOL_SV06_RTS, rts.gotoPage(ID_DriverError_L, ID_DriverError_D));
-      kill(F("Driver error"));
+      marlin.kill(F("Driver error"));
     }
   #endif
 
@@ -973,14 +972,14 @@
     TMC_REPORT("[mm/s]\t",           TMC_TPWMTHRS_MMS);
     TMC_REPORT("OT prewarn",         TMC_DEBUG_OTPW);
     #if ENABLED(MONITOR_DRIVER_STATUS)
-      TMC_REPORT("triggered\n OTP\t", TMC_OTPW_TRIGGERED);
+      TMC_REPORT("OTPW trig.\t",     TMC_OTPW_TRIGGERED);
     #endif
 
     #if HAS_TMC220x
-      TMC_REPORT("pwm scale sum",     TMC_PWM_SCALE_SUM);
-      TMC_REPORT("pwm scale auto",    TMC_PWM_SCALE_AUTO);
-      TMC_REPORT("pwm offset auto",   TMC_PWM_OFS_AUTO);
-      TMC_REPORT("pwm grad auto",     TMC_PWM_GRAD_AUTO);
+      TMC_REPORT("pwm scale sum",    TMC_PWM_SCALE_SUM);
+      TMC_REPORT("pwm scale auto",   TMC_PWM_SCALE_AUTO);
+      TMC_REPORT("pwm offset auto",  TMC_PWM_OFS_AUTO);
+      TMC_REPORT("pwm grad auto",    TMC_PWM_GRAD_AUTO);
     #endif
 
     TMC_REPORT("off time",           TMC_TOFF);

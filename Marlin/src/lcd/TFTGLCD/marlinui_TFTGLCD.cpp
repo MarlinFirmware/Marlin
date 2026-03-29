@@ -429,9 +429,9 @@ FORCE_INLINE void _draw_axis_value(const AxisEnum axis, const char *value, const
   lcd.write('X' + uint8_t(axis));
   if (blink)
     lcd.print(value);
-  else if (axis_should_home(axis))
+  else if (motion.axis_should_home(axis))
     while (const char c = *value++) lcd.write(c <= '.' ? c : '?');
-  else if (NONE(HOME_AFTER_DEACTIVATE, DISABLE_REDUCED_ACCURACY_WARNING) && !axis_is_trusted(axis))
+  else if (NONE(HOME_AFTER_DEACTIVATE, DISABLE_REDUCED_ACCURACY_WARNING) && !motion.axis_is_trusted(axis))
     lcd_put_u8str(axis == Z_AXIS ? F("       ") : F("    "));
   else
     lcd_put_u8str(value);
@@ -607,7 +607,7 @@ FORCE_INLINE void _draw_axis_value(const AxisEnum axis, const char *value, const
   #endif
   #if ENABLED(SHOW_REMAINING_TIME)
     void MarlinUI::drawRemain() {
-      if (printJobOngoing()) {
+      if (marlin.printJobOngoing()) {
         const duration_t remaint = ui.get_remaining_time();
         char buffer[10];
         const uint8_t timepos = TPOFFSET - remaint.toDigital(buffer);
@@ -620,7 +620,7 @@ FORCE_INLINE void _draw_axis_value(const AxisEnum axis, const char *value, const
   #if ENABLED(SHOW_INTERACTION_TIME)
     void MarlinUI::drawInter() {
       const duration_t interactt = ui.interaction_time;
-      if (printingIsActive() && interactt.value) {
+      if (marlin.printingIsActive() && interactt.value) {
         char buffer[10];
         const uint8_t timepos = TPOFFSET - interactt.toDigital(buffer);
         lcd_moveto(timepos, 1);
@@ -631,7 +631,7 @@ FORCE_INLINE void _draw_axis_value(const AxisEnum axis, const char *value, const
   #endif
   #if ENABLED(SHOW_ELAPSED_TIME)
     void MarlinUI::drawElapsed() {
-      if (printJobOngoing()) {
+      if (marlin.printJobOngoing()) {
         const duration_t elapsedt = print_job_timer.duration();
         char buffer[10];
         const uint8_t timepos = TPOFFSET - elapsedt.toDigital(buffer);
@@ -816,7 +816,7 @@ void MarlinUI::draw_status_screen() {
 
   #if NUM_AXES
     lcd_moveto(0, 0);
-    const xyz_pos_t lpos = current_position.asLogical();
+    const xyz_pos_t lpos = motion.position.asLogical();
     _draw_axis_value(X_AXIS, ftostr4sign(lpos.x), blink);
     #if HAS_Y_AXIS
       lcd.write(' '); _draw_axis_value(Y_AXIS, ftostr4sign(lpos.y), blink);
@@ -835,7 +835,7 @@ void MarlinUI::draw_status_screen() {
   //
 
   lcd_moveto(0, 1);
-  lcd_put_u8str(F("FR")); lcd.print(i16tostr3rj(feedrate_percentage)); lcd.write('%');
+  lcd_put_u8str(F("FR")); lcd.print(i16tostr3rj(motion.feedrate_percentage)); lcd.write('%');
   ui.rotate_progress();   // UNTESTED!!!
 
   //
@@ -1126,9 +1126,9 @@ void MarlinUI::draw_status_screen() {
 
       // Show all values
       lcd_moveto(_LCD_W_POS, 1); lcd_put_u8str(F("X:"));
-      lcd.print(ftostr52(LOGICAL_X_POSITION(pgm_read_float(&bedlevel._mesh_index_to_xpos[x_plot]))));
+      lcd.print(ftostr52(motion.logical_x(pgm_read_float(&bedlevel._mesh_index_to_xpos[x_plot]))));
       lcd_moveto(_LCD_W_POS, 2); lcd_put_u8str(F("Y:"));
-      lcd.print(ftostr52(LOGICAL_Y_POSITION(pgm_read_float(&bedlevel._mesh_index_to_ypos[y_plot]))));
+      lcd.print(ftostr52(motion.logical_y(pgm_read_float(&bedlevel._mesh_index_to_ypos[y_plot]))));
 
       // Show the location value
       lcd_moveto(_LCD_W_POS, 3); lcd_put_u8str(F("Z:"));

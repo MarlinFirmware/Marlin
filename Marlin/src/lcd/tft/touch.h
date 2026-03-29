@@ -64,12 +64,13 @@ typedef struct __attribute__((__packed__)) {
   intptr_t data;
 } touch_control_t;
 
-#define MAX_CONTROLS        16
-#define MINIMUM_HOLD_TIME   15
-#define TOUCH_REPEAT_DELAY  75
-#define MIN_REPEAT_DELAY    25
-#define UBL_REPEAT_DELAY    125
-#define FREE_MOVE_RANGE     32
+#define MAX_CONTROLS               16
+#define MINIMUM_HOLD_TIME          15   // Debounce delay for ignoring short accidental touch
+#define TOUCH_REPEAT_DELAY        100   // 1/10s Repeat delay for key-like buttons
+#define MIN_REPEAT_DELAY           25   // Smallest permitted repeat delay for controls that speed up the longer they are held
+#define FAST_REPEAT_DECREMENT       5   // Repeat delay may decrease for a control as it is held
+#define UBL_REPEAT_DELAY          125   // Repeat delay for a held control
+#define FREE_MOVE_RANGE            32   // Area around a control allowed before aborting a held control
 
 #define TSLP_SLEEPING 1
 
@@ -83,16 +84,20 @@ class Touch {
     static touch_control_t *current_control;
     static uint16_t controls_count;
 
-    static millis_t next_touch_ms, time_to_hold, repeat_delay, touch_time;
+    static millis_t next_touch_ms, time_to_hold, repeat_delay, nada_start_ms;
     static TouchControlType touch_control_type;
 
     static bool get_point(int16_t * const x, int16_t * const y);
-    static void touch(touch_control_t *control);
-    static void hold(touch_control_t *control, millis_t delay=0);
+
+    // Touch first detected in a control
+    static void touch(touch_control_t * const control);
+
+    // Set the control as "held" until the touch is released
+    static void hold(touch_control_t * const control, const millis_t delay=0);
 
   public:
     static void init();
-    static void reset() { controls_count = 0; touch_time = 0; current_control = nullptr; }
+    static void reset() { controls_count = 0; nada_start_ms = 0; current_control = nullptr; }
     static void clear() { controls_count = 0; }
     static void idle();
     static bool is_clicked() {

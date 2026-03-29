@@ -34,14 +34,14 @@
 #include "../../../module/stepper.h"
 
 void DGUSRxHandler::printSpeedPercentage(DGUS_VP &vp, void *data) {
-  const_float_t feedratePercentage = dgus.fromFixedPoint<int16_t, const_float_t, 0>(Endianness::fromBE_P<int16_t>(data));
+  const float feedratePercentage = dgus.fromFixedPoint<int16_t, const float, 0>(Endianness::fromBE_P<int16_t>(data));
   ExtUI::setFeedrate_percent(feedratePercentage);
 }
 
 void DGUSRxHandler::zOffset(DGUS_VP &vp, void *data) {
-  const_float_t zoffset = dgus.fromFixedPoint<int16_t, const_float_t, 2>(Endianness::fromBE_P<int16_t>(data));
-  const_float_t currentzOffset = ExtUI::getZOffset_mm();
-  const_float_t zStepsPerMm = ExtUI::getAxisSteps_per_mm(ExtUI::Z);
+  const float zoffset = dgus.fromFixedPoint<int16_t, const float, 2>(Endianness::fromBE_P<int16_t>(data));
+  const float currentzOffset = ExtUI::getZOffset_mm();
+  const float zStepsPerMm = ExtUI::getAxisSteps_per_mm(ExtUI::Z);
   int16_t zStepsDiff = zStepsPerMm * (zoffset - currentzOffset);
 
   ExtUI::babystepAxis_steps(zStepsDiff, ExtUI::Z);
@@ -49,33 +49,33 @@ void DGUSRxHandler::zOffset(DGUS_VP &vp, void *data) {
 }
 
 void DGUSRxHandler::extruderTargetTemp(DGUS_VP &vp, void *data) {
-  const_float_t temperature = dgus.fromFixedPoint<int16_t, const_float_t, 0>(Endianness::fromBE_P<int16_t>(data));
+  const float temperature = dgus.fromFixedPoint<int16_t, const float, 0>(Endianness::fromBE_P<int16_t>(data));
   ExtUI::setTargetTemp_celsius(temperature, ExtUI::H0);
 }
 
 void DGUSRxHandler::bedTargetTemp(DGUS_VP &vp, void *data) {
-  const_float_t temperature = dgus.fromFixedPoint<int16_t, const_float_t, 0>(Endianness::fromBE_P<int16_t>(data));
+  const float temperature = dgus.fromFixedPoint<int16_t, const float, 0>(Endianness::fromBE_P<int16_t>(data));
   ExtUI::setTargetTemp_celsius(temperature, ExtUI::BED);
 }
 
 void DGUSRxHandler::axis_X(DGUS_VP &vp, void *data) {
-  const_float_t axisValue = dgus.fromFixedPoint<int16_t, float, 1>(Endianness::fromBE_P<int16_t>(data));
+  const float axisValue = dgus.fromFixedPoint<int16_t, float, 1>(Endianness::fromBE_P<int16_t>(data));
   ExtUI::setAxisPosition_mm(axisValue, ExtUI::X);
 }
 
 void DGUSRxHandler::axis_Y(DGUS_VP &vp, void *data) {
-  const_float_t axisValue = dgus.fromFixedPoint<int16_t, float, 1>(Endianness::fromBE_P<int16_t>(data));
+  const float axisValue = dgus.fromFixedPoint<int16_t, float, 1>(Endianness::fromBE_P<int16_t>(data));
   ExtUI::setAxisPosition_mm(axisValue, ExtUI::Y);
 }
 
 void DGUSRxHandler::axis_Z(DGUS_VP &vp, void *data) {
-  const_float_t axisValue = dgus.fromFixedPoint<int16_t, float, 1>(Endianness::fromBE_P<int16_t>(data));
+  const float axisValue = dgus.fromFixedPoint<int16_t, float, 1>(Endianness::fromBE_P<int16_t>(data));
   ExtUI::setAxisPosition_mm(axisValue, ExtUI::Z);
 }
 
 void DGUSRxHandler::extrudeLength(DGUS_VP &vp, void *data) {
-  const_float_t length = dgus.fromFixedPoint<int16_t, const_float_t, 1>(Endianness::fromBE_P<int16_t>(data));
-  const_float_t currentPosition = ExtUI::getAxisPosition_mm(ExtUI::E0);
+  const float length = dgus.fromFixedPoint<int16_t, const float, 1>(Endianness::fromBE_P<int16_t>(data));
+  const float currentPosition = ExtUI::getAxisPosition_mm(ExtUI::E0);
 
   #if HAS_FILAMENT_SENSOR
     if (ExtUI::getFilamentRunoutEnabled() && ExtUI::getFilamentRunoutState()) {
@@ -87,8 +87,8 @@ void DGUSRxHandler::extrudeLength(DGUS_VP &vp, void *data) {
 }
 
 void DGUSRxHandler::retractLength(DGUS_VP &vp, void *data) {
-  const_float_t length = dgus.fromFixedPoint<int16_t, const_float_t, 1>(Endianness::fromBE_P<int16_t>(data));
-  const_float_t currentPosition = ExtUI::getAxisPosition_mm(ExtUI::E0);
+  const float length = dgus.fromFixedPoint<int16_t, const float, 1>(Endianness::fromBE_P<int16_t>(data));
+  const float currentPosition = ExtUI::getAxisPosition_mm(ExtUI::E0);
 
   #if HAS_FILAMENT_SENSOR
     if (ExtUI::getFilamentRunoutEnabled() && ExtUI::getFilamentRunoutState()) {
@@ -138,7 +138,7 @@ void DGUSRxHandler::setLanguage(DGUS_VP &vp, void *data) {
 #endif // PIDTEMPBED
 
 void DGUSRxHandler::fanSpeed(DGUS_VP &vp, void *data) {
-  const_float_t percentage = dgus.fromFixedPoint<int16_t, float, 0>(Endianness::fromBE_P<int16_t>(data));
+  const float percentage = dgus.fromFixedPoint<int16_t, float, 0>(Endianness::fromBE_P<int16_t>(data));
   ExtUI::setTargetFan_percent(percentage, ExtUI::FAN0);
 }
 
