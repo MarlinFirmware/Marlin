@@ -244,6 +244,11 @@ public:
     static constexpr xy_pos_t offset_xy = xy_pos_t({ 0, 0 });   // See #16767
   #endif
 
+  // Convert a probe-space XY point to the active nozzle's motion-space coordinates.
+  static xy_pos_t convert_to_nozzle_xy(const xy_pos_t &probe_xy) {
+    return probe_xy - DIFF_TERN(HAS_HOTEND_OFFSET, offset_xy, xy_pos_t(motion.active_hotend_offset()));
+  }
+
   static bool deploy(const bool no_return=false) { return set_deployed(true, no_return); }
   static bool stow(const bool no_return=false)   { return set_deployed(false, no_return); }
 

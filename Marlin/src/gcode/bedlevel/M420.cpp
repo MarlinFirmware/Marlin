@@ -74,7 +74,7 @@ void GcodeSuite::M420() {
         start.set(x_min, y_min);
         spacing.set((x_max - x_min) / (GRID_MAX_CELLS_X),
                     (y_max - y_min) / (GRID_MAX_CELLS_Y));
-        bedlevel.set_grid(spacing, start);
+        bedlevel.set_grid(spacing, Probe::convert_to_nozzle_xy(start));
       #endif
       GRID_LOOP(x, y) {
         bedlevel.z_values[x][y] = 0.001 * random(-200, 200);
