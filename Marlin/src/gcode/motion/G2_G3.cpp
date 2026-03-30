@@ -235,7 +235,9 @@ void plan_arc(
 
   // Add hints to help optimize the move
   PlannerHints hints;
-  #if ENABLED(FEEDRATE_SCALING)
+  #if ENABLED(FEEDRATE_MODE_SUPPORT)
+    hints.inv_duration = segments * (parser.inverse_time_enabled ? scaled_fr_mm_s : (scaled_fr_mm_s / flat_mm));
+  #elif ENABLED(FEEDRATE_SCALING)
     hints.inv_duration = (scaled_fr_mm_s / flat_mm) * segments;
   #endif
 
@@ -426,7 +428,10 @@ void GcodeSuite::G2_G3(const bool clockwise) {
   if (motion.gcode_motion_ignored()) return;
 
   TERN_(FULL_REPORT_TO_HOST_FEATURE, motion.set_and_report_grblstate(M_RUNNING));
-
+  #if HAS_ROTATIONAL_AXES || IS_KINEMATIC || HAS_LEVELING || ENABLED(FEEDRATE_MODE_SUPPORT)
+    parser.linear_motion_gcode = false;
+  #endif
+  
   #if ENABLED(SF_ARC_FIX)
     const bool relative_mode_backup = motion.relative_mode;
     motion.relative_mode = true;

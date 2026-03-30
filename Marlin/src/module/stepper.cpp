@@ -3921,9 +3921,7 @@ void Stepper::report_positions() {
         cutter.apply_power(frozen_last_laser_power);  // Restore frozen laser power
     #endif
 
-    #if ENABLED(REALTIME_REPORTING_COMMANDS)
-      set_and_report_grblstate(state ? M_HOLD : M_RUNNING);
-    #endif
+    TERN_(FULL_REPORT_TO_HOST_FEATURE, motion.set_and_report_grblstate(state ? M_HOLD : M_RUNNING));
   }
 
   void Stepper::check_frozen_time(uint32_t &step_rate) {

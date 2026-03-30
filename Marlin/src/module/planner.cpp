@@ -2022,7 +2022,7 @@ bool Planner::_populate_block(
   TERN_(FT_MOTION, block->ext_distance_mm = dist_mm); // Store the distance for all axes in mm for this block
 
   #if HAS_ROTATIONAL_AXES
-    bool cartesian_move = hints.cartesian_move;
+    bool cartesian_move = true;
   #endif
 
   // Determine linear distance for block->millimeters
@@ -2172,11 +2172,12 @@ bool Planner::_populate_block(
     }
   #endif // HAS_EXTRUDERS
 
-  if (esteps)
-    NOLESS(fr_mm_s, settings.min_feedrate_mm_s);
-  else
-    NOLESS(fr_mm_s, settings.min_travel_feedrate_mm_s);
-
+  if (esteps) {
+     NOLESS(fr_mm_s, settings.min_feedrate_mm_s);
+  }
+  else {
+      NOLESS(fr_mm_s, settings.min_travel_feedrate_mm_s);
+  }
   const float inverse_millimeters = 1.0f / block->millimeters;  // Inverse millimeters to remove multiple divides
 
   /**
@@ -2184,15 +2185,12 @@ bool Planner::_populate_block(
    * EXAMPLE: At 120mm/s a 60mm move involving XYZ axes takes 0.5s. So this will give 2.0.
    * EXAMPLE: At 120°/s a 60° move involving only rotational axes takes 0.5s. So this will give 2.0.
    */
-  float inverse_secs = inverse_millimeters * (
-    #if ALL(HAS_ROTATIONAL_AXES, INCH_MODE_SUPPORT)
-      /**
-       * Workaround for premature feedrate conversion
-       * from in/s to mm/s by get_distance_from_command.
-       */
-      cartesian_move ? fr_mm_s : LINEAR_UNIT(fr_mm_s)
+
+  float inverse_secs = (
+    #if ANY(FEEDRATE_SCALING, FEEDRATE_MODE_SUPPORT)
+      hints.inv_duration ? : inverse_millimeters * fr_mm_s
     #else
-      fr_mm_s
+      inverse_millimeters * fr_mm_s
     #endif
   );
 
@@ -2202,7 +2200,7 @@ bool Planner::_populate_block(
   // Slow down when the buffer starts to empty, rather than wait at the corner for a buffer refill
   #if ANY(SLOWDOWN, HAS_WIRED_LCD) || defined(XY_FREQUENCY_LIMIT)
     // Segment time in microseconds
-    int32_t segment_time_us = LROUND(1000000.0f / inverse_secs);
+    int32_t segment_time_us = LROUND(1000000.0f * RECIPROCAL(inverse_secs));
   #endif
 
   #if ENABLED(SLOWDOWN)
@@ -2981,10 +2979,13 @@ bool Planner::buffer_line(const xyze_pos_t &cart, const feedRate_t fr_mm_s
     // Cartesian XYZ to kinematic ABC, stored in global 'delta'
     inverse_kinematics(machine);
 
+    #if HAS_ROTATIONAL_AXES
+      bool cartesian_move = true;
+    #endif
     // Provide known Cartesian length in the hints structure
     PlannerHints ph = hints;
     if (!hints.millimeters)
-      ph.millimeters = motion.get_move_distance(xyze_pos_t(cart_dist_mm) OPTARG(HAS_ROTATIONAL_AXES, ph.cartesian_move));
+      ph.millimeters = motion.get_move_distance(xyze_pos_t(cart_dist_mm) OPTARG(HAS_ROTATIONAL_AXES, cartesian_move));
 
     #if DISABLED(FEEDRATE_SCALING)
 

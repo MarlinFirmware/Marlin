@@ -76,6 +76,17 @@ public:
     static float linear_unit_factor, volumetric_unit_factor;
   #endif
 
+  #if HAS_ROTATIONAL_AXES || IS_KINEMATIC || HAS_LEVELING || ENABLED(FEEDRATE_MODE_SUPPORT)
+    static float cartesian_mm;
+    static bool linear_motion_gcode;
+    #if ENABLED(FEEDRATE_MODE_SUPPORT)
+      static bool inverse_time_enabled;
+    #endif
+    #if HAS_ROTATIONAL_AXES
+      static bool cartes_move;
+    #endif
+  #endif
+
   #if ENABLED(TEMPERATURE_UNITS_SUPPORT)
     static TempUnit input_temp_units;
   #endif
@@ -415,7 +426,18 @@ public:
 
   #endif // !TEMPERATURE_UNITS_SUPPORT
 
-  static feedRate_t value_feedrate() { return MMM_TO_MMS(value_linear_units()); }
+  static feedRate_t value_feedrate() { 
+    #if HAS_ROTATIONAL_AXES || ENABLED(FEEDRATE_MODE_SUPPORT)
+      float fr = ((TERN0(FEEDRATE_MODE_SUPPORT, inverse_time_enabled && linear_motion_gcode)) || TERN0(HAS_ROTATIONAL_AXES, (!cartes_move))) ? value_float() : value_linear_units();
+      #if ENABLED(FEEDRATE_MODE_SUPPORT)
+        if (inverse_time_enabled && linear_motion_gcode)
+          fr *= cartesian_mm;
+      #endif
+      return fr;
+    #else
+      return value_linear_units();
+    #endif
+  }
 
   void unknown_command_warning();
 

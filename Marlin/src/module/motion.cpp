@@ -1544,16 +1544,23 @@ float Motion::get_move_distance(const xyze_pos_t &diff OPTARG(HAS_ROTATIONAL_AXE
       #endif
 
       #if HAS_ROTATIONAL_AXES
+       
         if (UNEAR_ZERO(distance_sqr)) {
           // Move involves no linear axes. Calculate angular distance in accordance with LinuxCNC
           distance_sqr = ROTATIONAL_AXIS_GANG(sq(diff.i), + sq(diff.j), + sq(diff.k), + sq(diff.u), + sq(diff.v), + sq(diff.w));
+          if (!UNEAR_ZERO(distance_sqr)) {
+            // Move involves rotational axes, not just the extruder
+            is_cartesian_move = false;
+          }
+          else {
+            // Move involves just the extruder
+            is_cartesian_move = true;
+          }
         }
-        if (!UNEAR_ZERO(distance_sqr)) {
-          // Move involves rotational axes, not just the extruder
-          is_cartesian_move = false;
+        else {
+          is_cartesian_move = true;
         }
       #endif
-
     #endif
 
     return SQRT(distance_sqr);
@@ -1618,12 +1625,12 @@ float Motion::get_move_distance(const xyze_pos_t &diff OPTARG(HAS_ROTATIONAL_AXE
 
     // Fail if attempting move outside printable radius
     if (!can_reach(destination)) return true;
-
-    // Get the linear distance in XYZ
     #if HAS_ROTATIONAL_AXES
-      bool cartes_move = true;
+      bool cartesian_move = true;
     #endif
-    float cartesian_mm = get_move_distance(diff OPTARG(HAS_ROTATIONAL_AXES, cartes_move));
+    float cartesian_mm = parser.cartesian_mm;
+    if (!parser.linear_motion_gcode)
+      cartesian_mm = motion.get_move_distance(diff OPTARG(HAS_ROTATIONAL_AXES, cartesian_move));
 
     // If the move is very short, check the E move distance
     TERN_(HAS_EXTRUDERS, if (UNEAR_ZERO(cartesian_mm)) cartesian_mm = ABS(diff.e));
@@ -1632,13 +1639,7 @@ float Motion::get_move_distance(const xyze_pos_t &diff OPTARG(HAS_ROTATIONAL_AXE
     if (UNEAR_ZERO(cartesian_mm)) return true;
 
     // Minimum number of seconds to move the given distance
-    const float seconds = cartesian_mm / (
-      #if ALL(HAS_ROTATIONAL_AXES, INCH_MODE_SUPPORT)
-        cartes_move ? scaled_fr_mm_s : LINEAR_UNIT(scaled_fr_mm_s)
-      #else
-        scaled_fr_mm_s
-      #endif
-    );
+    const float seconds = cartesian_mm / scaled_fr_mm_s;
 
     // The number of segments-per-second times the duration
     // gives the number of segments
@@ -1660,9 +1661,9 @@ float Motion::get_move_distance(const xyze_pos_t &diff OPTARG(HAS_ROTATIONAL_AXE
 
     // Add hints to help optimize the move
     PlannerHints hints(cartesian_mm * inv_segments);
-    TERN_(HAS_ROTATIONAL_AXES, hints.cartesian_move = cartes_move);
-    TERN_(FEEDRATE_SCALING, hints.inv_duration = scaled_fr_mm_s / hints.millimeters);
-
+    #if ENABLED(FEEDRATE_SCALING)
+      hints.inv_duration = scaled_fr_mm_s / hints.millimeters;
+    #endif
     /*
     SERIAL_ECHOPGM("mm=", cartesian_mm);
     SERIAL_ECHOPGM(" seconds=", seconds);
@@ -1710,11 +1711,11 @@ float Motion::get_move_distance(const xyze_pos_t &diff OPTARG(HAS_ROTATIONAL_AXE
         return;
       }
 
-      // Get the linear distance in XYZ
       #if HAS_ROTATIONAL_AXES
-        bool cartes_move = true;
+        bool cartesian_move = true;
       #endif
-      float cartesian_mm = get_move_distance(diff OPTARG(HAS_ROTATIONAL_AXES, cartes_move));
+      // Get the move distance
+      float cartesian_mm = get_move_distance(diff OPTARG(HAS_ROTATIONAL_AXES, cartesian_move));
 
       // If the move is very short, check the E move distance
       TERN_(HAS_EXTRUDERS, if (UNEAR_ZERO(cartesian_mm)) cartesian_mm = ABS(diff.e));
@@ -1733,7 +1734,6 @@ float Motion::get_move_distance(const xyze_pos_t &diff OPTARG(HAS_ROTATIONAL_AXE
 
       // Add hints to help optimize the move
       PlannerHints hints(cartesian_mm * inv_segments);
-      TERN_(HAS_ROTATIONAL_AXES, hints.cartesian_move = cartes_move);
       TERN_(FEEDRATE_SCALING, hints.inv_duration = scaled_fr_mm_s / hints.millimeters);
 
       //SERIAL_ECHOPGM("mm=", cartesian_mm);

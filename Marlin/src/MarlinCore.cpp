@@ -1231,7 +1231,7 @@ void setup() {
     #endif
   #endif
 
-  #if ENABLED(FREEZE_FEATURE) && DISABLED(NO_FREEZE_PIN)
+  #if ENABLED(FREEZE_FEATURE)
     SETUP_LOG("FREEZE_PIN");
     #if FREEZE_STATE
       SET_INPUT_PULLDOWN(FREEZE_PIN);
@@ -1334,7 +1334,10 @@ void setup() {
   #endif
   SERIAL_ECHO_MSG(" Compiled: " __DATE__);
   SERIAL_ECHO_MSG(STR_FREE_MEMORY, hal.freeMemory(), STR_PLANNER_BUFFER_BYTES, sizeof(block_t) * (BLOCK_BUFFER_SIZE));
-
+  
+  #if HAS_ROTATIONAL_AXES
+    parser.cartes_move = true;
+  #endif
   // Some HAL need precise delay adjustment
   calibrate_delay_loop();
 

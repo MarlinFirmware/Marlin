@@ -581,10 +581,8 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
  */
 #if ENABLED(SOFT_FEED_HOLD) && !defined(FREEZE_JERK)
   #error "SOFT_FEED_HOLD requires FREEZE_JERK."
-#elif ENABLED(FREEZE_FEATURE) && DISABLED(NO_FREEZE_PIN) && !(defined(FREEZE_PIN) && defined(FREEZE_STATE))
+#elif ENABLED(FREEZE_FEATURE) && !(defined(FREEZE_PIN) && defined(FREEZE_STATE))
   #error "FREEZE_FEATURE requires FREEZE_PIN and FREEZE_STATE."
-#elif ENABLED(NO_FREEZE_PIN) && !(defined(REALTIME_REPORTING_COMMANDS))
-  #error "NO_FREEZE_PIN requires REALTIME_REPORTING_COMMANDS."
 #endif
 
 /**
@@ -873,6 +871,13 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
   #elif NONE(CPU_32_BIT, NO_STANDARD_MOTION)
     #error "NONLINEAR_EXTRUSION requires a 32-bit CPU or NO_STANDARD_MOTION."
   #endif
+#endif
+
+/**
+ * Feedrate mode requirements
+ */
+#if ALL(FEEDRATE_MODE_SUPPORT, BEZIER_CURVE_SUPPORT)
+    #error "FEEDRATE_MODE_SUPPORT is currently incompatible with BEZIER_CURVE_SUPPORT."
 #endif
 
 /**
