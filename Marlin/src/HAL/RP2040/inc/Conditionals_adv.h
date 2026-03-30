@@ -21,7 +21,7 @@
  */
 #pragma once
 
-#if HAS_MEDIA && DISABLED(NO_SD_HOST_DRIVE)
+#if ANY_VOLUME_IS(ONBOARD) && DISABLED(NO_SD_HOST_DRIVE)
   #define HAS_SD_HOST_DRIVE 1
 #endif
 

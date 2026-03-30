@@ -122,6 +122,6 @@
 //#define PS_ON_PIN                            1
 //#define FILWIDTH_PIN                         6  // A6
 
-#ifndef SDCARD_CONNECTION
-  #define SDCARD_CONNECTION              ONBOARD
+#ifndef VOLUME0
+  #define VOLUME0                        ONBOARD
 #endif

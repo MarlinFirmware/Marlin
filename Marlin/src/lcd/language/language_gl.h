@@ -168,7 +168,11 @@ namespace LanguageNarrow_gl {
   LSTR MSG_ATTACH_SD                      = _UxGT("Iniciar SD");                               // Attach SD Card
   LSTR MSG_ATTACH_USB                     = _UxGT("Iniciar USB");                              // Attach USB Drive
   LSTR MSG_CHANGE_MEDIA                   = _UxGT("Cambiar ") MEDIA_TYPE_GL;                   // Refresh (MEDIA_TYPE_EN)
+  LSTR MSG_CHANGE_SD                      = _UxGT("Cambiar SD");
+  LSTR MSG_CHANGE_USB                     = _UxGT("Cambiar USB");
   LSTR MSG_RUN_AUTOFILES                  = _UxGT("Autoarranque");                             // Run Autofiles
+  LSTR MSG_RUN_AUTOFILES_SD               = _UxGT("Autoarranque SD");
+  LSTR MSG_RUN_AUTOFILES_USB              = _UxGT("Autoarranque USB");
   LSTR MSG_ZPROBE_OUT                     = _UxGT("Sonda-Z fóra Cama");                        // Z Probe Past Bed
   LSTR MSG_BLTOUCH_RESET                  = _UxGT("Reiniciar");                                // Reset
   LSTR MSG_ZPROBE_XOFFSET                 = _UxGT("Desfase Sonda X");                          // Probe X Offset
@@ -420,6 +424,8 @@ namespace LanguageNarrow_gl {
   LSTR MSG_FILAMENTUNLOAD_E               = _UxGT("Descargar Filamento *");                    // Unload * Filament
   LSTR MSG_FILAMENTUNLOAD_ALL             = _UxGT("Descargar Todo");                           // Unload All
   LSTR MSG_RELEASE_MEDIA                  = _UxGT("Lanzar ") MEDIA_TYPE_GL;                    // Release (MEDIA_TYPE_EN)
+  LSTR MSG_RELEASE_SD                     = _UxGT("Lanzar SD");
+  LSTR MSG_RELEASE_USB                    = _UxGT("Lanzar USB");
   LSTR MSG_SKEW_FACTOR                    = _UxGT("Factor de Desviación");                     // Skew Factor
   LSTR MSG_BLTOUCH                        = _UxGT("BLTouch");                                  // BLTouch
   LSTR MSG_BLTOUCH_SELFTEST               = _UxGT("Auto-Test");                                // Self-Test

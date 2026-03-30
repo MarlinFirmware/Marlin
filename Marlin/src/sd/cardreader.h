@@ -50,14 +50,16 @@ extern const char M23_STR[], M24_STR[];
 #include "SdFile.h"
 #include "disk_io_driver.h"
 
-#if HAS_USB_FLASH_DRIVE
-  #include "usb_flashdrive/Sd2Card_FlashDrive.h"
+#if NEED_SD2CARD_SPI
+  #include "Sd2Card.h"
+  typedef DiskIODriver_SPI_SD sdcard_driver_t;
 #endif
-
 #if NEED_SD2CARD_SDIO
   #include "Sd2Card_sdio.h"
-#elif NEED_SD2CARD_SPI
-  #include "Sd2Card.h"
+  typedef DiskIODriver_SDIO sdiocard_driver_t;
+#endif
+#if HAS_USB_FLASH_DRIVE
+  #include "usb_flashdrive/Sd2Card_FlashDrive.h"
 #endif
 
 #if ANY(DO_LIST_BIN_FILES, CUSTOM_FIRMWARE_UPLOAD)
@@ -126,9 +128,14 @@ public:
 
   static DiskIODriver* diskIODriver() { return driver; }
 
-  #if HAS_SDCARD
-    typedef TERN(NEED_SD2CARD_SDIO, DiskIODriver_SDIO, DiskIODriver_SPI_SD) sdcard_driver_t;
+  // Onboard and/or external SPI SD Card
+  #if NEED_SD2CARD_SPI
     static sdcard_driver_t media_driver_sdcard;
+  #endif
+
+  // Onboard SDIO SD Card
+  #if NEED_SD2CARD_SDIO
+    static sdiocard_driver_t media_driver_sdiocard;
   #endif
 
   #if HAS_USB_FLASH_DRIVE
@@ -136,8 +143,14 @@ public:
   #endif
 
   static void selectMediaSDCard() {
-    #if HAS_SDCARD
+    #if NEED_SD2CARD_SPI
       changeMedia(&media_driver_sdcard);
+    #endif
+  }
+
+  static void selectMediaSDIOCard() {
+    #if NEED_SD2CARD_SDIO
+      changeMedia(&media_driver_sdiocard);
     #endif
   }
 
@@ -148,13 +161,16 @@ public:
   }
 
   static bool isSDCardSelected() {
-    return TERN0(HAS_SDCARD, TERN1(HAS_MULTI_VOLUME, driver == &media_driver_sdcard));
+    return TERN0(NEED_SD2CARD_SDIO, TERN1(HAS_MULTI_VOLUME, driver == &media_driver_sdcard));
+  }
+  static bool isSDIOCardSelected() {
+    return TERN0(NEED_SD2CARD_SDIO, TERN1(HAS_MULTI_VOLUME, driver == &media_driver_sdiocard));
   }
   static bool isFlashDriveSelected() {
     return TERN0(HAS_USB_FLASH_DRIVE, TERN1(HAS_MULTI_VOLUME, driver == &media_driver_usbFlash));
   }
   static bool isMediaSelected() {
-    return isSDCardSelected() || isFlashDriveSelected();
+    return isSDCardSelected() || isSDIOCardSelected() || isFlashDriveSelected();
   }
 
   /**
@@ -176,11 +192,22 @@ public:
     );
   }
 
+  // Assume SDIO uses main SD Detect pin
+  static bool isSDIOCardInserted() {
+    return (
+      #if HAS_SD_DETECT
+        READ(SD_DETECT_PIN) == SD_DETECT_STATE
+      #else
+        ENABLED(NEED_SD2CARD_SDIO)
+      #endif
+    );
+  }
+
   // Use the isInserted state from the driver
   static bool isFlashDriveInserted() { return TERN0(HAS_USB_FLASH_DRIVE, DiskIODriver_USBFlash::isInserted()); }
 
   // NOTE: If the SD Card has no DETECT line this always returns true
-  static bool isInserted() { return isFlashDriveInserted() || isSDCardInserted(); }
+  static bool isInserted() { return isFlashDriveInserted() || isSDCardInserted() || isSDIOCardInserted(); }
 
   // Mount and release physical media
   static void mount();
@@ -190,6 +217,9 @@ public:
 
   static bool isSDCardMounted() {
     return isMounted() && isSDCardSelected();
+  }
+  static bool isSDIOCardMounted() {
+    return isMounted() && isSDIOCardSelected();
   }
   static bool isFlashDriveMounted() {
     return isMounted() && isFlashDriveSelected();
@@ -425,13 +455,18 @@ private:
 class CardReader {
 public:
   static constexpr bool isSDCardSelected()      { return false; }
+  static constexpr bool isSDIOCardSelected()    { return false; }
   static constexpr bool isFlashDriveSelected()  { return false; }
+  static constexpr bool isMediaSelected()       { return false; }
 
   static constexpr bool isSDCardInserted()      { return false; }
+  static constexpr bool isSDIOCardInserted()    { return false; }
   static constexpr bool isFlashDriveInserted()  { return false; }
+  static constexpr bool isMediaInserted()       { return false; }
   static constexpr bool isInserted()            { return false; }
 
   static constexpr bool isSDCardMounted()       { return false; }
+  static constexpr bool isSDIOCardMounted()     { return false; }
   static constexpr bool isFlashDriveMounted()   { return false; }
   static constexpr bool isMounted()             { return false; }
 

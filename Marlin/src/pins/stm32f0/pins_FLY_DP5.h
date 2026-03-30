@@ -171,18 +171,16 @@
 //
 // Onboard SD support
 //
-#ifndef SDCARD_CONNECTION
-  #define SDCARD_CONNECTION              ONBOARD
+#ifndef VOLUME0
+  #define VOLUME0                        ONBOARD
 #endif
 
-#if ENABLED(SDSUPPORT)
-
+#if ANY_VOLUME_IS(LCD) || ANY_VOLUME_IS(ONBOARD)
   #define SD_SCK_PIN                 EXP2_02_PIN
   #define SD_MISO_PIN                EXP2_01_PIN
   #define SD_MOSI_PIN                EXP2_06_PIN
   #define SD_SS_PIN                  EXP2_04_PIN
   #define SD_DETECT_PIN              EXP2_07_PIN
-
 #endif
 
 //

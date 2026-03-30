@@ -1972,8 +1972,7 @@
    *
    * [1] On AVR an interrupt-capable pin is best for UHS3 compatibility.
    */
-  //#define USB_FLASH_DRIVE_SUPPORT
-  #if ENABLED(USB_FLASH_DRIVE_SUPPORT)
+  #if ANY_VOLUME_IS(USBFD)
     /**
      * USB Host Shield Library
      *
@@ -2035,30 +2034,19 @@
   // "Over-the-air" Firmware Update with M936 - Required to set EEPROM flag
   //#define OTA_FIRMWARE_UPDATE
 
-  /**
-   * Set this option to one of the following (or the board's defaults apply):
-   *
-   *           LCD - Use the SD drive in the external LCD controller.
-   *       ONBOARD - Use the SD drive on the control board.
-   *  CUSTOM_CABLE - Use a custom cable to access the SD (as defined in a pins file).
-   *
-   * :[ 'LCD', 'ONBOARD', 'CUSTOM_CABLE' ]
-   */
-  //#define SDCARD_CONNECTION LCD
-
   // Enable if SD detect is rendered useless (e.g., by using an SD extender)
   //#define NO_SD_DETECT
 
   /**
    * Multiple volume support - EXPERIMENTAL.
-   * Adds 'M21 Pm' / 'M21 S' / 'M21 U' to mount SD Card / USB Drive.
+   * Adds 'M21 Pm' / 'M21 S' / 'M21 U' / 'M21 O' to mount SD Card / USB Drive / SDIO Card.
    */
-  //#define MULTI_VOLUME
-  #if ENABLED(MULTI_VOLUME)
-    #define VOLUME_SD_ONBOARD
-    #define VOLUME_USB_FLASH_DRIVE
-    #define DEFAULT_VOLUME        SD_ONBOARD       // :[ 'SD_ONBOARD', 'USB_FLASH_DRIVE' ]
-    #define DEFAULT_SHARED_VOLUME USB_FLASH_DRIVE  // :[ 'SD_ONBOARD', 'USB_FLASH_DRIVE' ]
+  #if HAS_MULTI_VOLUME
+    #if HAS_USB_FLASH_DRIVE
+      #define DEFAULT_SHARED_VOLUME USBFD     // :[ 'ONBOARD', 'SDIO', 'LCD', 'USBFD', 'CUSTOM' ]
+    #else
+      #define DEFAULT_SHARED_VOLUME ONBOARD   // :[ 'ONBOARD', 'SDIO', 'LCD', 'USBFD', 'CUSTOM' ]
+    #endif
   #endif
 
 #endif // HAS_MEDIA

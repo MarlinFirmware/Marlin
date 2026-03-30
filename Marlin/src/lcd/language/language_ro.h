@@ -159,10 +159,12 @@ namespace LanguageNarrow_ro {
   LSTR MSG_AUTORETRACT                    = _UxGT("Auto-Retract");                             // Auto-Retract
   LSTR MSG_FILAMENTCHANGE                 = _UxGT("Inlocuire Filament");                       // Change Filament
   LSTR MSG_FILAMENTCHANGE_E               = _UxGT("Inlocuire Filament *");                     // Change * Filament
-  LSTR MSG_ATTACH_MEDIA                   = _UxGT("Atasare card SD");                          // Attach (MEDIA_TYPE_EN)
+  LSTR MSG_ATTACH_MEDIA                   = _UxGT("Atasare media");                            // Attach (MEDIA_TYPE_EN)
   LSTR MSG_ATTACH_SD                      = _UxGT("Atasare card SD");                          // Attach SD Card
   LSTR MSG_ATTACH_USB                     = _UxGT("Atasare FD USB");                           // Attach USB Drive
   LSTR MSG_CHANGE_MEDIA                   = _UxGT("Inlocuire Media");                          // Refresh (MEDIA_TYPE_EN)
+  LSTR MSG_CHANGE_SD                      = _UxGT("Inlocuire card SD");
+  LSTR MSG_CHANGE_USB                     = _UxGT("Inlocuire FD USB");
   LSTR MSG_RUN_AUTOFILES                  = _UxGT("Autostart");                                // Run Autofiles
   LSTR MSG_ZPROBE_OUT                     = _UxGT("Z Probe Past Bed");                         // Z Probe Past Bed
   LSTR MSG_BLTOUCH_RESET                  = _UxGT("Reset");                                    // Reset
@@ -415,6 +417,8 @@ namespace LanguageNarrow_ro {
   LSTR MSG_FILAMENTUNLOAD_E               = _UxGT("Scoatere Filament *");                      // Unload * Filament
   LSTR MSG_FILAMENTUNLOAD_ALL             = _UxGT("Scoate Tot");                               // Unload All
   LSTR MSG_RELEASE_MEDIA                  = _UxGT("Eliberare Media");                          // Release (MEDIA_TYPE_EN)
+  LSTR MSG_RELEASE_SD                     = _UxGT("Eliberare card SD");
+  LSTR MSG_RELEASE_USB                    = _UxGT("Eliberare FD USB");
   LSTR MSG_SKEW_FACTOR                    = _UxGT("Skew Factor");                              // Skew Factor
   LSTR MSG_BLTOUCH                        = _UxGT("BLTouch");                                  // BLTouch
   LSTR MSG_BLTOUCH_SELFTEST               = _UxGT("Self-Test");                                // Self-Test

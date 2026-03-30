@@ -159,7 +159,7 @@ namespace LanguageNarrow_an {
   LSTR MSG_AUTORETRACT                    = _UxGT("Retraccion auto.");                         // Auto-Retract
   LSTR MSG_FILAMENTCHANGE                 = _UxGT("Cambear filamento");                        // Change Filament
   LSTR MSG_FILAMENTCHANGE_E               = _UxGT("Cambear filamento *");                      // Change * Filament
-  LSTR MSG_ATTACH_MEDIA                   = _UxGT("Encetan. media");                           // Attach (MEDIA_TYPE_EN)
+  LSTR MSG_ATTACH_MEDIA                   = _UxGT("Encetan. tarcheta");                        // Attach (MEDIA_TYPE_EN)
   LSTR MSG_ATTACH_SD                      = _UxGT("Encetan. SD");                              // Attach SD Card
   LSTR MSG_ATTACH_USB                     = _UxGT("Encetan. USB");                             // Attach USB Drive
   LSTR MSG_CHANGE_MEDIA                   = _UxGT("Cambiar tarcheta");                         // Refresh (MEDIA_TYPE_EN)

@@ -207,15 +207,15 @@
 //
 //#define SD_CARD_DETECT_PIN                PC13
 
-#ifndef SDCARD_CONNECTION
-  #define SDCARD_CONNECTION              ONBOARD
+#ifndef VOLUME0
+  #define VOLUME0                        ONBOARD
 #endif
 
-#if SD_CONNECTION_IS(ONBOARD)
+#if ANY_VOLUME_IS(ONBOARD)
 
   #define ONBOARD_SDIO                            // Use SDIO for onboard SD
 
-#elif SD_CONNECTION_IS(LCD)
+#elif ANY_VOLUME_IS(LCD)
 
   #define SD_SCK_PIN                 EXP2_02_PIN
   #define SD_MISO_PIN                EXP2_01_PIN

@@ -563,13 +563,15 @@
  */
 #if HAS_MEDIA
 
-  #if HAS_SD_HOST_DRIVE && SD_CONNECTION_IS(ONBOARD) && DISABLED(KEEP_SD_DETECT)
+  #if HAS_SD_HOST_DRIVE && ANY_VOLUME_IS(ONBOARD)
     //
     // The external SD card is not used. Hardware SPI is used to access the card.
     // When sharing the SD card with a PC we want the menu options to
     // mount/unmount the card and refresh it. So we disable card detect.
     //
-    #undef SD_DETECT_PIN
+    #if DISABLED(KEEP_SD_DETECT)
+      #undef SD_DETECT_PIN
+    #endif
     #define HAS_SHARED_MEDIA 1
   #endif
 
@@ -579,7 +581,7 @@
   #endif
 
   // Not onboard or custom cable
-  #if SD_CONNECTION_IS(LCD) || !defined(SDCARD_CONNECTION)
+  #if VOLUME_IS(1, LCD) || !defined(VOLUME0)
     #define SD_CONNECTION_TYPICAL 1
   #endif
 
@@ -595,13 +597,14 @@
     #endif
   #endif
 
-  // Tests indicating a single or multi-volume SD Card
-  #if !HAS_USB_FLASH_DRIVE || ALL(HAS_MULTI_VOLUME, VOLUME_SD_ONBOARD)
+  // SD Card driver types needed
+  #if ANY_VOLUME_IS(LCD) || ANY_VOLUME_IS(ONBOARD)
     #define HAS_SDCARD 1
-    #if ENABLED(ONBOARD_SDIO)
-      #define NEED_SD2CARD_SDIO 1
-    #else
+    #if ANY_VOLUME_IS(LCD) || (ANY_VOLUME_IS(ONBOARD) && DISABLED(ONBOARD_SDIO))
       #define NEED_SD2CARD_SPI 1
+    #endif
+    #if ANY_VOLUME_IS(ONBOARD) && ENABLED(ONBOARD_SDIO)
+      #define NEED_SD2CARD_SDIO 1
     #endif
   #endif
 

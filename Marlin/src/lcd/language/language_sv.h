@@ -162,7 +162,11 @@ namespace LanguageNarrow_sv {
   LSTR MSG_ATTACH_SD                      = _UxGT("Bifoga SD-kort");                           // Attach SD Card
   LSTR MSG_ATTACH_USB                     = _UxGT("Bifoga USB-minne");                         // Attach USB Drive
   LSTR MSG_CHANGE_MEDIA                   = _UxGT("Byt minneskort");                           // Refresh (MEDIA_TYPE_EN)
+  LSTR MSG_CHANGE_SD                      = _UxGT("Byt SD-kort");
+  LSTR MSG_CHANGE_USB                     = _UxGT("Byt USB-minne");
   LSTR MSG_RUN_AUTOFILES                  = _UxGT("Autostarta filer");                         // Run Autofiles
+  LSTR MSG_RUN_AUTOFILES_SD               = _UxGT("Autostarta SD карту");
+  LSTR MSG_RUN_AUTOFILES_USB              = _UxGT("Autostarta USB");
   LSTR MSG_ZPROBE_OUT                     = _UxGT("Z-prob utanför bädd");                      // Z Probe Past Bed
   LSTR MSG_BLTOUCH_RESET                  = _UxGT("Återställ");                                // Reset
   LSTR MSG_ZPROBE_XOFFSET                 = _UxGT("X-offset mätprob");                         // Probe X Offset
@@ -414,6 +418,8 @@ namespace LanguageNarrow_sv {
   LSTR MSG_FILAMENTUNLOAD_E               = _UxGT("Lossa * tråd");                             // Unload * Filament
   LSTR MSG_FILAMENTUNLOAD_ALL             = _UxGT("Lossa allt");                               // Unload All
   LSTR MSG_RELEASE_MEDIA                  = _UxGT("Mata ut minneskort");                       // Release (MEDIA_TYPE_EN)
+  LSTR MSG_RELEASE_SD                     = _UxGT("Släpp SD-kort");
+  LSTR MSG_RELEASE_USB                    = _UxGT("Släpp USB-minne");
   LSTR MSG_SKEW_FACTOR                    = _UxGT("Skevhetsfaktor");                           // Skew Factor
   LSTR MSG_BLTOUCH                        = _UxGT("BLTouch");                                  // BLTouch
   LSTR MSG_BLTOUCH_SELFTEST               = _UxGT("Självtest");                                // Self-Test
