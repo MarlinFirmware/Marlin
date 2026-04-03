@@ -76,7 +76,7 @@ extern bool temps_update_flag;
 static void btn_ok_event_cb(lv_obj_t *btn, lv_event_t event) {
   if (event != LV_EVENT_RELEASED) return;
   if (DIALOG_IS(TYPE_PRINT_FILE)) {
-    TERN_(HAS_GCODE_PREVIEW, preview_gcode_prehandle(list_file.file_name[sel_id]));
+    TERN_(MKS_GCODE_PREVIEW, preview_gcode_prehandle(list_file.file_name[sel_id]));
     reset_print_time();
     start_print_time();
 

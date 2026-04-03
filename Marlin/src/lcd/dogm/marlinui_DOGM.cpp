@@ -305,6 +305,10 @@ void MarlinUI::init_lcd() {
     did_init_u8g = true;
   }
 
+  #if PIN_EXISTS(LCD_PWR)
+    OUT_WRITE(LCD_PWR_PIN, LOW);
+  #endif
+
   #if PIN_EXISTS(LCD_BACKLIGHT)
     OUT_WRITE(LCD_BACKLIGHT_PIN, DISABLED(DELAYED_BACKLIGHT_INIT)); // Illuminate after reset or right away
   #endif
