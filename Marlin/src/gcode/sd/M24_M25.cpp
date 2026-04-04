@@ -145,8 +145,8 @@ void GcodeSuite::M25() {
 
     #if MEDIA_PAUSE_PARK_NOZZLE_TIMEOUT
       // Start the heater idle timers
-      const millis_t nozzle_timeout = SEC_TO_MS(PAUSE_PARK_NOZZLE_TIMEOUT);
-      HOTEND_LOOP() thermalManager.heater_idle[e].start(nozzle_timeout);
+      constexpr millis_t nozzle_timeout_ms = SEC_TO_MS(PAUSE_PARK_NOZZLE_TIMEOUT);
+      HOTEND_LOOP() thermalManager.heater_idle[e].start(nozzle_timeout_ms);
     #endif
 
   #endif
