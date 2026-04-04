@@ -3793,15 +3793,15 @@ void drawMotionMenu() {
 }
 
 #if PREHEAT_COUNT > 1
-    void drawPreheatHotendMenu() {
-      checkkey = ID_Menu;
-      if (SET_MENU(preheatHotendMenu, MSG_PREHEAT_HOTEND, 1 + PREHEAT_COUNT)) {
-        BACK_ITEM(drawPrepareMenu);
-        #define _ITEM_PREHEAT(N) MENU_ITEM(ICON_Preheat##N, MSG_PREHEAT_##N, onDrawPreheat##N, doPreheat##N);
-        REPEAT_1(PREHEAT_COUNT, _ITEM_PREHEAT)
-      }
-      updateMenu(preheatHotendMenu);
+  void drawPreheatHotendMenu() {
+    checkkey = ID_Menu;
+    if (SET_MENU(preheatHotendMenu, MSG_PREHEAT_HOTEND, 1 + PREHEAT_COUNT)) {
+      BACK_ITEM(drawPrepareMenu);
+      #define _ITEM_PREHEAT(N) MENU_ITEM(ICON_Preheat##N, MSG_PREHEAT_##N, onDrawPreheat##N, doPreheat##N);
+      REPEAT_1(PREHEAT_COUNT, _ITEM_PREHEAT)
     }
+    updateMenu(preheatHotendMenu);
+  }
 #endif
 
 void drawFilSetMenu() {
