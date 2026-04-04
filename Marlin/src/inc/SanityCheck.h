@@ -2901,6 +2901,8 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
 #if ENABLED(DWIN_CREALITY_LCD)
   #if !HAS_MEDIA
     #error "DWIN_CREALITY_LCD requires SDSUPPORT to be enabled."
+  #elif HAS_PID_HEATING && !HAS_PREHEAT
+    #error "DWIN_CREALITY_LCD and HAS_PID_HEATING requires temperature presets."
   #elif ANY(PID_EDIT_MENU, PID_AUTOTUNE_MENU)
     #error "DWIN_CREALITY_LCD does not support PID_EDIT_MENU or PID_AUTOTUNE_MENU."
   #elif ANY(MPC_EDIT_MENU, MPC_AUTOTUNE_MENU)
