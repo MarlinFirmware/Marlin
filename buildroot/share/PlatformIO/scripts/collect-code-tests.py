@@ -22,16 +22,16 @@ if pioutil.is_pio_build():
         test_suites = collect_test_suites()
         for path in test_suites:
             name = re.sub(r'^\d+-|\.ini$', '', path.name)
-            targets += [name];
+            targets += [name]
 
             env.AddCustomTarget(
                 name = f"marlin_{name}",
                 dependencies = None,
                 actions = [
-                    f"echo ====== Configuring for marlin_{name} ======",
+                    f"@echo ====== Configuring for marlin_{name} ======",
                     "restore_configs",
                     f"cp -f {path} ./Marlin/config.ini",
-                    "python ./buildroot/share/PlatformIO/scripts/configuration.py",
+                    "python3 ./buildroot/share/PlatformIO/scripts/configuration.py",
                     f"platformio test -e {env['PIOENV']} -f {name}",
                     "restore_configs",
                 ],

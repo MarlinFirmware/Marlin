@@ -37,10 +37,10 @@
 #endif
 
 #if ENABLED(SINGLENOZZLE)
-  #define _ALT_P active_extruder
+  #define _ALT_P motion.extruder
   #define _CNT_P EXTRUDERS
 #else
-  #define _ALT_P _MIN(active_extruder, FAN_COUNT - 1)
+  #define _ALT_P _MIN(motion.extruder, FAN_COUNT - 1)
   #define _CNT_P FAN_COUNT
 #endif
 
@@ -71,7 +71,7 @@ void GcodeSuite::M106() {
     }
   #endif
 
-  const uint16_t dspeed = parser.seen_test('A') ? thermalManager.fan_speed[active_extruder] : 255;
+  const uint16_t dspeed = parser.seen_test('A') ? thermalManager.fan_speed[motion.extruder] : 255;
 
   uint16_t speed = dspeed;
 
@@ -93,7 +93,7 @@ void GcodeSuite::M106() {
 
   TERN_(LASER_SYNCHRONOUS_M106_M107, planner.buffer_sync_block(BLOCK_BIT_SYNC_FANS));
 
-  if (TERN0(DUAL_X_CARRIAGE, idex_is_duplicating()))  // pfan == 0 when duplicating
+  if (TERN0(DUAL_X_CARRIAGE, motion.idex_is_duplicating()))  // pfan == 0 when duplicating
     thermalManager.set_fan_speed(1 - pfan, speed);
 }
 
@@ -107,7 +107,7 @@ void GcodeSuite::M107() {
 
   thermalManager.set_fan_speed(pfan, 0);
 
-  if (TERN0(DUAL_X_CARRIAGE, idex_is_duplicating()))  // pfan == 0 when duplicating
+  if (TERN0(DUAL_X_CARRIAGE, motion.idex_is_duplicating()))  // pfan == 0 when duplicating
     thermalManager.set_fan_speed(1 - pfan, 0);
 
   TERN_(LASER_SYNCHRONOUS_M106_M107, planner.buffer_sync_block(BLOCK_BIT_SYNC_FANS));

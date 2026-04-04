@@ -24,6 +24,7 @@
 /**
  * ReprapWorld Minitronics v2.0
  * https://reprap.org/wiki/Minitronics_20
+ * https://www.123-3d.nl/pdf/datasheet_minitronics_20_20181003.pdf
  * 48MHz Atmel SAMD21J18 ARM Cortex-M0+
  */
 
@@ -393,7 +394,7 @@
 
       #elif ENABLED(FYSETC_MINI_12864)
 
-        // From https://wiki.fysetc.com/Mini12864_Panel/
+        // From https://wiki.fysetc.com/docs/Mini12864Panel
 
         // TO TEST
         //#define DOGLCD_A0                   16

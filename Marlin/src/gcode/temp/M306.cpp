@@ -39,7 +39,7 @@
  *  F<watts/kelvin>           Ambient heat transfer coefficient (fan on full).
  *  H<joules/kelvin/mm>       Filament heat capacity per mm.
  *  P<watts>                  Heater power.
- *  R<kelvin/second/kelvin>   Sensor responsiveness (= transfer coefficient / heat capcity).
+ *  R<kelvin/second/kelvin>   Sensor responsiveness (= transfer coefficient / heat capacity).
  *
  *  With MPC_AUTOTUNE:
  *  T                         Autotune the extruder specified with 'E' or the active extruder.
@@ -49,7 +49,7 @@
  */
 
 void GcodeSuite::M306() {
-  const uint8_t e = TERN0(HAS_MULTI_EXTRUDER, parser.intval('E', active_extruder));
+  const uint8_t e = E_TERN0(parser.intval('E', motion.extruder));
   if (e >= (EXTRUDERS)) {
     SERIAL_ECHOLNPGM("?(E)xtruder index out of range (0-", (EXTRUDERS) - 1, ").");
     return;
@@ -65,7 +65,7 @@ void GcodeSuite::M306() {
         default: tuning_type = Temperature::MPCTuningType::AUTO; break;
       }
       if (TERN0(MPC_PTC, tuning_type == Temperature::MPCTuningType::FORCE_ASYMPTOTIC))
-        SERIAL_ECHOLNPGM("Aymptotic tuning not avaiable for PTC hotends");
+        SERIAL_ECHOLNPGM("Asymptotic tuning not available for PTC hotends");
       else {
         LCD_MESSAGE(MSG_MPC_AUTOTUNE);
         thermalManager.MPC_autotune(e, tuning_type);

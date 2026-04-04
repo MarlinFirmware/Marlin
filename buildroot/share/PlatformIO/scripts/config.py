@@ -32,7 +32,7 @@ def set(file_path, define_name, value):
 
     # Write the modified content back to the file only if changes were made
     if modified:
-        with open(file_path, 'w', encoding='utf-8') as f:
+        with open(file_path, 'w', encoding='utf-8', newline='') as f:
             f.writelines(content)
             return True
 
@@ -59,7 +59,7 @@ def add(file_path, define_name, value=""):
         # If no blank line is found, append to the end
         content.append(f"#define {define_name}{value}\n")
 
-    with open(file_path, 'w', encoding='utf-8') as f:
+    with open(file_path, 'w', encoding='utf-8', newline='') as f:
         f.writelines(content)
 
 def enable(file_path, define_name, enable=True):
@@ -96,7 +96,7 @@ def enable(file_path, define_name, enable=True):
 
     # Write the modified content back to the file only if changes were made
     if modified:
-        with open(file_path, 'w', encoding='utf-8') as f:
+        with open(file_path, 'w', encoding='utf-8', newline='') as f:
             f.writelines(content)
 
     return found

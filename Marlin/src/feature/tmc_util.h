@@ -434,7 +434,7 @@ void test_tmc_connection(LOGICAL_AXIS_DECL_LC(const bool, true));
     bool TMCMarlin<TMC, AXIS_LETTER, DRIVER_ID, AXIS_ID>::test_stall_status() {
       this->switchCSpin(LOW);
 
-      // read stallGuard flag from TMC library, will handle HW and SW SPI
+      // Read stallGuard flag from TMC library, will handle HW and SW SPI
       TMC2130_n::DRV_STATUS_t drv_status{0};
       drv_status.sr = this->DRV_STATUS();
 
