@@ -105,7 +105,26 @@
       };
     #endif
 
-    motion.blocking_move_xy(1.5 * motion.max_axis_length(X_AXIS) * x_axis_home_dir, 1.5 * motion.max_axis_length(Y_AXIS) * Y_HOME_DIR, fr_mm_s);
+    // SCARA should move in angular coordinates
+    #if IS_SCARA
+      // This code is similar to Motion::do_homing_move, but for two axes at once
+
+      #if HAS_DIST_MM_ARG
+        const xyze_float_t cart_dist_mm{0};
+      #endif
+
+      abce_pos_t target = planner.get_axis_positions_mm();
+
+      target[X_AXIS] += 360 * x_axis_home_dir; // Move 360 degrees towards the endstop
+      target[Y_AXIS] += 360 * Y_HOME_DIR;      // Move 360 degrees towards the endstop
+      planner.buffer_segment(target OPTARG(HAS_DIST_MM_ARG, cart_dist_mm), fr_mm_s, motion.extruder);
+      planner.synchronize();
+
+    #else
+
+      motion.blocking_move_xy(1.5 * motion.max_axis_length(X_AXIS) * x_axis_home_dir, 1.5 * motion.max_axis_length(Y_AXIS) * Y_HOME_DIR, fr_mm_s);
+
+    #endif
 
     endstops.validate_homing_move();
 
@@ -418,6 +437,11 @@ void GcodeSuite::G28() {
           #if ENABLED(DUAL_X_CARRIAGE)
             motion.idex_home_x();
           #else
+
+            #if ENABLED(SCARA) && DISABLED(HOME_Y_BEFORE_X)
+              DISABLE_AXIS_Y(); // Allow elbow to be dragged around freely during shoulder homing
+            #endif
+
             motion.homeaxis(X_AXIS);
           #endif
         }
