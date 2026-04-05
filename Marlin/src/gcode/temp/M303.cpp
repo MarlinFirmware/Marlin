@@ -58,9 +58,9 @@ void GcodeSuite::M303() {
   const heater_id_t hid = (heater_id_t)parser.intval('E');
   celsius_t default_temp;
   switch (hid) {
-    OPTCODE(PIDTEMP,        case 0 ... HOTENDS - 1: default_temp = PREHEAT_1_TEMP_HOTEND;  break)
-    OPTCODE(PIDTEMPBED,     case H_BED:             default_temp = PREHEAT_1_TEMP_BED;     break)
-    OPTCODE(PIDTEMPCHAMBER, case H_CHAMBER:         default_temp = PREHEAT_1_TEMP_CHAMBER; break)
+    OPTCODE(PIDTEMP,        case 0 ... HOTENDS - 1: default_temp = TERN(HAS_PREHEAT, PREHEAT_1_TEMP_HOTEND, 180); break)
+    OPTCODE(PIDTEMPBED,     case H_BED:             default_temp = TERN(HAS_PREHEAT, PREHEAT_1_TEMP_BED, 60);     break)
+    OPTCODE(PIDTEMPCHAMBER, case H_CHAMBER:         default_temp = TERN(HAS_PREHEAT, PREHEAT_1_TEMP_CHAMBER, 35); break)
     default:
       SERIAL_ECHOPGM(STR_PID_AUTOTUNE);
       SERIAL_ECHOLNPGM(STR_PID_BAD_HEATER_ID);
