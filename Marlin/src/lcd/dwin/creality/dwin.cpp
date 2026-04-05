@@ -756,9 +756,9 @@ void drawPrepareMenu() {
     if (PVISI(PREPARE_CASE_ZOFF)) itemPrepareOffset(PSCROL(PREPARE_CASE_ZOFF)); // Edit Z-Offset / Babystep / Set Home Offset
   #endif
   #if HAS_PREHEAT
-    if (PVISI(PREPARE_CASE_PLA)) itemPrepare_PLA(PSCROL(PREPARE_CASE_PLA));      // Preheat PLA
+    if (PVISI(PREPARE_CASE_PLA)) itemPrepare_PLA(PSCROL(PREPARE_CASE_PLA));     // Preheat PLA
     #if PREHEAT_COUNT > 1
-      if (PVISI(PREPARE_CASE_ABS)) itemPrepare_ABS(PSCROL(PREPARE_CASE_ABS));    // Preheat ABS
+      if (PVISI(PREPARE_CASE_ABS)) itemPrepare_ABS(PSCROL(PREPARE_CASE_ABS));   // Preheat ABS
     #endif
   #endif
   #if HAS_HOTEND || HAS_HEATED_BED
@@ -2682,10 +2682,12 @@ void hmiPrepare() {
         drawMenuIcon(MROWS, ICON_Axis + select_prepare.now - 1);
 
         // Draw "More" icon for sub-menus
-        if (index_prepare < 7) drawMoreIcon(MROWS - index_prepare + 1);
-
-        #if PREHEAT_COUNT > 1
-          if (index_prepare == PREPARE_CASE_ABS) itemPrepare_ABS(MROWS);
+        if (index_prepare < 8) drawMoreIcon(MROWS - index_prepare + 1);
+        #if HAS_PREHEAT
+          if (index_prepare == PREPARE_CASE_PLA) itemPrepare_PLA(MROWS);
+          #if PREHEAT_COUNT > 1
+            if (index_prepare == PREPARE_CASE_ABS) itemPrepare_ABS(MROWS);
+          #endif
         #endif
         #if HAS_HOTEND || HAS_HEATED_BED
           if (index_prepare == PREPARE_CASE_COOL) itemPrepareCool(MROWS);
@@ -2708,7 +2710,7 @@ void hmiPrepare() {
         else
           drawMenuLine(0, ICON_Axis + select_prepare.now - 1);
 
-        if (index_prepare < 7) drawMoreIcon(MROWS - index_prepare + 1);
+        if (index_prepare < 8) drawMoreIcon(MROWS - index_prepare + 1);
 
              if (index_prepare == 6) itemPrepareMove(0);
         else if (index_prepare == 7) itemPrepareDisable(0);
@@ -3612,13 +3614,13 @@ void hmiAdvSet() {
           break;
       #endif
 
-      #if HAS_HOTEND
+      #if ENABLED(PIDTEMP)
         case ADVSET_CASE_HEPID:
           thermalManager.PID_autotune(ui.material_preset[0].hotend_temp, H_E0, 10, true);
           break;
       #endif
 
-      #if HAS_HEATED_BED
+      #if ENABLED(PIDTEMPBED)
         case ADVSET_CASE_BEDPID:
           thermalManager.PID_autotune(ui.material_preset[0].bed_temp, H_BED, 10, true);
           break;
