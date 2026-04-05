@@ -1675,6 +1675,16 @@ float Planner::get_axis_position_mm(const AxisEnum axis) {
     else
       axis_steps = DIFF_TERN(BACKLASH_COMPENSATION, stepper.position(axis), backlash.get_applied_steps(axis));
 
+  #elif ENABLED(SCARA)
+
+    axis_steps = stepper.position(axis);
+    TERN_(BACKLASH_COMPENSATION, axis_steps -= backlash.get_applied_steps(axis));
+    if (axis == Y_AXIS) { // Convert from motor position to psi (elbow angle)
+      float theta_steps = stepper.position(X_AXIS);
+      TERN_(BACKLASH_COMPENSATION, theta_steps -= backlash.get_applied_steps(X_AXIS));
+      axis_steps -= theta_steps * SCARA_CROSSTALK_FACTOR;
+    }
+
   #else
 
     axis_steps = stepper.position(axis);

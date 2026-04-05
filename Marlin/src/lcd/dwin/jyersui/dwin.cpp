@@ -2034,14 +2034,15 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
               drawMenu(ID_MPC);
             break;
         #endif
+        #if HAS_PREHEAT
+          #define _TEMP_PREHEAT_CASE(N) \
+            case TEMP_PREHEAT##N: { \
+              if (draw) drawMenuItem(row, ICON_Step, F(PREHEAT_## N ##_LABEL), nullptr, true); \
+              else drawMenu(ID_Preheat##N); \
+            } break;
 
-        #define _TEMP_PREHEAT_CASE(N) \
-          case TEMP_PREHEAT##N: { \
-            if (draw) drawMenuItem(row, ICON_Step, F(PREHEAT_## N ##_LABEL), nullptr, true); \
-            else drawMenu(ID_Preheat##N); \
-          } break;
-
-        REPEAT_1(PREHEAT_COUNT, _TEMP_PREHEAT_CASE)
+          REPEAT_1(PREHEAT_COUNT, _TEMP_PREHEAT_CASE)
+        #endif
       }
       break;
 
