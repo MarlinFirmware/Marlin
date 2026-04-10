@@ -2129,23 +2129,13 @@ void autoHome() { queue.inject_P(G28_STR); }
 #endif // HAS_ZOFFSET_ITEM
 
 #if HAS_PREHEAT
-
-  #if HAS_HOTEND
-    #define _DRAW_PREHEAT(N) void onDrawPreheat##N(MenuItem* menuitem, int8_t line) \
-      { if (N == 1) { \
-          if (hmiIsChinese()) menuitem->setFrame(1, 100, 89, 151, 101); } \
-        else if (N == 2) { \
-          if (hmiIsChinese()) menuitem->setFrame(1, 180, 89, 233, 100); } \
-        onDrawMenuItem(menuitem, line); }
-    REPEAT_1(PREHEAT_COUNT, _DRAW_PREHEAT)
-  #endif
-
-  #define _doPreheat(N) void DoPreheat##N() { ui.preheat_all(N-1); }
+  #define _doPreheat(N) void doPreheat##N() { ui.preheat_all(N-1); }
   REPEAT_1(PREHEAT_COUNT, _doPreheat)
-
 #endif
 
-void doCoolDown() { thermalManager.cooldown(); }
+#if HAS_HOTEND || HAS_HEATED_BED
+  void doCoolDown() { thermalManager.cooldown(); }
+#endif
 
 void setLanguage() {
   hmiToggleLanguage();
@@ -2928,7 +2918,17 @@ void onDrawAutoHome(MenuItem* menuitem, int8_t line) {
   #endif
 #endif
 
-#if HAS_PREHEAT
+#if HAS_PREHEAT && HAS_HOTEND
+  #define _DRAW_PREHEAT(N) void onDrawPreheat##N(MenuItem* menuitem, int8_t line) \
+    { if (N == 1) { \
+        if (hmiIsChinese()) menuitem->setFrame(1, 100, 89, 151, 101); } \
+      else if (N == 2) { \
+        if (hmiIsChinese()) menuitem->setFrame(1, 180, 89, 233, 100); } \
+      onDrawMenuItem(menuitem, line); }
+  REPEAT_1(PREHEAT_COUNT, _DRAW_PREHEAT)
+#endif
+
+#if HAS_HOTEND || HAS_HEATED_BED
   void onDrawCooldown(MenuItem* menuitem, int8_t line) {
     if (hmiIsChinese()) menuitem->setFrame(1, 1, 104,  56, 117);
     onDrawMenuItem(menuitem, line);
@@ -3265,10 +3265,12 @@ void drawPrepareMenu() {
       #if PREHEAT_COUNT > 1
         MENU_ITEM(ICON_SetEndTemp, MSG_PREHEAT_HOTEND, onDrawSubMenu, drawPreheatHotendMenu);
       #else
-        MENU_ITEM(ICON_Preheat1, MSG_PREHEAT_1, onDrawPreheat1, DoPreheat1);
+        MENU_ITEM(ICON_Preheat1, MSG_PREHEAT_1, onDrawPreheat1, doPreheat1);
       #endif
     #endif
-    MENU_ITEM(ICON_Cool, MSG_COOLDOWN, onDrawCooldown, doCoolDown);
+    #if HAS_HOTEND || HAS_HEATED_BED
+      MENU_ITEM(ICON_Cool, MSG_COOLDOWN, onDrawCooldown, doCoolDown);
+    #endif
     #if ALL(PROUI_TUNING_GRAPH, PROUI_ITEM_PLOT)
       MENU_ITEM(ICON_PIDNozzle, MSG_HOTEND_TEMP_GRAPH, onDrawMenuItem, drawHPlot);
       MENU_ITEM(ICON_PIDBed, MSG_BED_TEMP_GRAPH, onDrawMenuItem, drawBPlot);
@@ -3799,16 +3801,16 @@ void drawMotionMenu() {
   updateMenu(motionMenu);
 }
 
-#if HAS_PREHEAT
-    void drawPreheatHotendMenu() {
-      checkkey = ID_Menu;
-      if (SET_MENU(preheatHotendMenu, MSG_PREHEAT_HOTEND, 1 + PREHEAT_COUNT)) {
-        BACK_ITEM(drawPrepareMenu);
-        #define _ITEM_PREHEAT(N) MENU_ITEM(ICON_Preheat##N, MSG_PREHEAT_##N, onDrawPreheat##N, DoPreheat##N);
-        REPEAT_1(PREHEAT_COUNT, _ITEM_PREHEAT)
-      }
-      updateMenu(preheatHotendMenu);
+#if PREHEAT_COUNT > 1
+  void drawPreheatHotendMenu() {
+    checkkey = ID_Menu;
+    if (SET_MENU(preheatHotendMenu, MSG_PREHEAT_HOTEND, 1 + PREHEAT_COUNT)) {
+      BACK_ITEM(drawPrepareMenu);
+      #define _ITEM_PREHEAT(N) MENU_ITEM(ICON_Preheat##N, MSG_PREHEAT_##N, onDrawPreheat##N, doPreheat##N);
+      REPEAT_1(PREHEAT_COUNT, _ITEM_PREHEAT)
     }
+    updateMenu(preheatHotendMenu);
+  }
 #endif
 
 void drawFilSetMenu() {
@@ -4474,12 +4476,12 @@ void drawMaxAccelMenu() {
     }
 
     void centerMeshArea() {
-      float max = (mesh_min.x + mesh_min.y) * 0.5f;
-      NOLESS(max, (X_BED_SIZE) - mesh_max.x);
-      NOLESS(max, mesh_min.y);
-      NOLESS(max, (Y_BED_SIZE) - mesh_min.y);
-      mesh_min.set(max, max);
-      mesh_max.set((X_BED_SIZE) - max, (Y_BED_SIZE) - max);
+      const float half_width  = 0.5 * (mesh_max.x - mesh_min.x);
+      const float half_height = 0.5 * (mesh_max.y - mesh_min.y);
+      const float half_extent = min(min(half_width, half_height), min((float)X_CENTER, (float)Y_CENTER));
+
+      mesh_min.set(X_CENTER - half_extent, Y_CENTER - half_extent);
+      mesh_max.set(X_CENTER + half_extent, Y_CENTER + half_extent);
       resetMeshInset();
       redrawMenu();
     }

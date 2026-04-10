@@ -80,6 +80,16 @@ private:
     return smart_fill_one(pos.x, pos.y, dir.x, dir.y);
   }
 
+  // G29 sub-function handlers
+  static void G29_handle_homing_and_setup();
+  static void G29_handle_invalidate();
+  static bool G29_handle_test_patterns();
+  #if HAS_BED_PROBE
+    static void G29_handle_tilt_mesh();
+  #endif
+  static bool G29_handle_phase_ops();
+  static void G29_handle_post_processing();
+
   #if ENABLED(UBL_DEVEL_DEBUGGING)
     static void g29_what_command();
     static void g29_eeprom_dump();

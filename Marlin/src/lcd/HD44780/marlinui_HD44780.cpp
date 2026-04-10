@@ -89,6 +89,11 @@
     #endif
   );
 
+#elif ENABLED(MIGHTYBOARD_LCD)
+
+  // 3-wire shift-register LCD for Mightyboard
+  LCD_CLASS lcd;
+
 #elif ENABLED(SR_LCD_3W_NL)
 
   // NewLiquidCrystal was not working

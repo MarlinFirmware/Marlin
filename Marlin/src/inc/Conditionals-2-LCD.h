@@ -307,6 +307,12 @@
   #define IS_RRD_SC 1
   #define U8GLIB_SSD1309
 
+#elif ENABLED(MIGHTYBOARD_LCD)
+
+  #define IS_ULTIPANEL 1
+  #define LCD_WIDTH 20
+  #define LCD_HEIGHT 4
+
 #endif
 
 // ST7920-based graphical displays
@@ -581,9 +587,6 @@
   #define DO_LIST_BIN_FILES 1
   #define LCD_BRIGHTNESS_DEFAULT 127
   #define STATUS_DO_CLEAR_EMPTY
-  #if HAS_MESH
-    #define HAS_PROUI_MESH_EDIT 1
-  #endif
 #endif
 
 // Serial Controllers require LCD_SERIAL_PORT
@@ -925,6 +928,7 @@
   + ENABLED(CARTESIO_UI) \
   + ENABLED(ELB_FULL_GRAPHIC_CONTROLLER) \
   + ENABLED(FF_INTERFACEBOARD) \
+  + ENABLED(MIGHTYBOARD_LCD) \
   + ENABLED(FYSETC_242_OLED_12864) \
   + ENABLED(G3D_PANEL) \
   + ENABLED(LCD_FOR_MELZI) \
