@@ -315,6 +315,10 @@ class FTMotion {
       stepping.enqueue(next_steps_q48_16);
     }
 
+    #if HAS_FTM_DIR_CHANGE_HOLD
+      static xyze_float_t ftm_hold_frames(xyze_float_t hold_coords);
+    #endif
+
   private:
     // Block data variables.
     static xyze_pos_t   startPos,         // (mm) Start position of block

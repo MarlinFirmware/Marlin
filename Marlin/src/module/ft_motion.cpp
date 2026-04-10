@@ -605,6 +605,36 @@ xyze_float_t FTMotion::calc_traj_point(const float dist) {
 
   return traj_coords;
 }
+    
+#if HAS_FTM_DIR_CHANGE_HOLD
+    // When a flip is detected (and the axis is in stealthChop or is standalone),
+    // hold that axis' trajectory coordinate constant for at least 750µs.
+    xyze_float_t FTMotion::ftm_hold_frames(xyze_float_t hold_coords) {
+      #define DIR_FLIP_HOLD_S 0.000'750f
+        static constexpr uint32_t dir_flip_hold_frames = 1 + (DIR_FLIP_HOLD_S) / (FTM_TS);
+
+        auto start_hold_if_dir_flip = [&](const AxisEnum a) {
+          const bool dir = hold_coords[a] > last_target_traj[a],
+                     moved = hold_coords[a] != last_target_traj[a],
+                     flipped = moved && (dir != last_traj_dir[a]),
+                     hold = !moved || (flipped && hold_frames[a] > 0);
+          if (hold) {
+            if (hold_frames[a]) hold_frames[a]--;
+            hold_coords[a] = last_target_traj[a];
+          }
+          else {
+            last_traj_dir[a] = dir;
+            hold_frames[a] = dir_flip_hold_frames;
+          }
+        };
+
+        #define START_HOLD_IF_DIR_FLIP(A) TERN_(FTM_DIR_CHANGE_HOLD_##A, start_hold_if_dir_flip(_AXIS(A)));
+
+        LOGICAL_AXIS_MAP(START_HOLD_IF_DIR_FLIP);
+        last_target_traj = hold_coords;
+        return hold_coords;
+    }
+#endif
 
 /**
  * Generate stepper data of the trajectory.
@@ -644,30 +674,7 @@ void FTMotion::fill_stepper_plan_buffer() {
 
       #if HAS_FTM_DIR_CHANGE_HOLD
 
-        // When a flip is detected (and the axis is in stealthChop or is standalone),
-        // hold that axis' trajectory coordinate constant for at least 750µs.
-
-        #define DIR_FLIP_HOLD_S 0.000'750f
-        static constexpr uint32_t dir_flip_hold_frames = 1 + (DIR_FLIP_HOLD_S) / (FTM_TS);
-
-        auto start_hold_if_dir_flip = [&](const AxisEnum a) {
-          const bool dir = traj_coords[a] > last_target_traj[a],
-                     moved = traj_coords[a] != last_target_traj[a],
-                     flipped = moved && (dir != last_traj_dir[a]),
-                     hold = !moved || (flipped && hold_frames[a] > 0);
-          if (hold) {
-            if (hold_frames[a]) hold_frames[a]--;
-            traj_coords[a] = last_target_traj[a];
-          }
-          else {
-            last_traj_dir[a] = dir;
-            hold_frames[a] = dir_flip_hold_frames;
-          }
-        };
-
-        #define START_HOLD_IF_DIR_FLIP(A) TERN_(FTM_DIR_CHANGE_HOLD_##A, start_hold_if_dir_flip(_AXIS(A)));
-
-        LOGICAL_AXIS_MAP(START_HOLD_IF_DIR_FLIP);
+        traj_coords = ftm_hold_frames(traj_coords);
 
       #endif // HAS_FTM_DIR_CHANGE_HOLD
 

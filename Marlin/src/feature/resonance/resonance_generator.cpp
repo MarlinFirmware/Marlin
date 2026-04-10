@@ -133,6 +133,12 @@ float ResonanceGenerator::calc_next_pos() {
       // Resonate the axis being tested
       traj_coords[rt_params.axis] = start_pos + calc_next_pos();
 
+      #if HAS_FTM_DIR_CHANGE_HOLD
+
+        traj_coords = ftMotion.ftm_hold_frames(traj_coords);
+
+      #endif // HAS_FTM_DIR_CHANGE_HOLD
+
       // Store in buffer
       ftMotion.stepping_enqueue(traj_coords);
     }
