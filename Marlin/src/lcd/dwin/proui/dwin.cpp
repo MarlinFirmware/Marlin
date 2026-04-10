@@ -176,9 +176,9 @@ hmi_flag_t hmiFlag{0};
 hmi_data_t hmiData;
 #if ENABLED(GCODE_MACROS)
   hmi_macro_t hmiMacro;
-  static const char macroChars[] PROGMEM = " GM0123456789.XYZABCDEFHIJKLNOPQRSTUVW|";
+  static const char macroChars[] PROGMEM = "=< GM0123456789.XYZABCDEFHIJKLNOPQRSTUVW";
   char hmi_macro_data[GCODE_MACROS_SLOTS][GCODE_MACROS_SLOT_SIZE + 1] = {};
-  char run_labels[GCODE_MACROS_SLOTS][GCODE_MACROS_SLOT_SIZE + 20] = {};
+  static char macro_label[GCODE_MACROS_SLOT_SIZE + 20] = {0};
 #endif
 
 enum SelectItem : uint8_t {
@@ -3256,11 +3256,11 @@ void onDrawAcc(MenuItem* menuitem, int8_t line) {
       case ENCODER_DIFF_ENTER: {
         char selectedChar = macroChars[hmiMacro.char_index];
 
-        // Check if the selected character is the end-and-save character.
+        // Check if the selected character is the end-and-save character
         if (selectedChar == '=') {
           hmiMacro.edit_buffer[hmiMacro.cursor_pos] = '\0';
 
-          // Build and process the G-code command.
+          // Build and process the G-code command
           char cmd[80];
           sprintf(cmd, "M81%u %s", hmiMacro.slot_edit, hmiMacro.edit_buffer);
           gcode.process_subcommands_now(cmd);
@@ -3268,19 +3268,30 @@ void onDrawAcc(MenuItem* menuitem, int8_t line) {
             gcode.process_subcommands_now(F("M500"));
           #endif
 
-          // Copy the edited buffer to the permanent storage array.
+          // Copy the edited buffer to the permanent storage array
           memcpy(hmi_macro_data[hmiMacro.slot_edit], hmiMacro.edit_buffer, sizeof(hmiMacro.edit_buffer));
 
-          // UI updates and return.
+          // UI updates and return
           DWINUI::clearMainArea();
           hmiReturnScreen();
-          ReDrawMenu();
+          reDrawMenu();
           return;
         }
+        else if (selectedChar == '<') { // For backspace
+          if (hmiMacro.cursor_pos > 0) {
+            hmiMacro.cursor_pos--;
+            hmiMacro.edit_buffer[hmiMacro.cursor_pos] = '\0'; // Clear the char
+          }
+        }
         else {
-          hmiMacro.edit_buffer[hmiMacro.cursor_pos] = selectedChar;
-          hmiMacro.cursor_pos++;
-          hmiMacro.char_index = 0; // Reset character index for next selection
+          if (hmiMacro.cursor_pos < GCODE_MACROS_SLOT_SIZE) {
+            hmiMacro.edit_buffer[hmiMacro.cursor_pos] = selectedChar;
+            hmiMacro.cursor_pos++;
+            hmiMacro.char_index = 0; // Reset character index for next selection
+          }
+          else {
+            ERR_BUZZ();
+          }
         }
       }
         break;
@@ -3317,6 +3328,7 @@ void onDrawAcc(MenuItem* menuitem, int8_t line) {
     DWINUI::clearMainArea();
     DWINUI::drawString(10, 80, F("Macro:"));
     DWINUI::drawString(10, 160, F("Select  =  to save and exit"));
+    DWINUI::drawString(10, 180, F("Select  <  to backspace"));
     drawMacroEditor();
   }
 
@@ -3324,14 +3336,6 @@ void onDrawAcc(MenuItem* menuitem, int8_t line) {
     checkkey = ID_Menu;
     if (SET_MENU_F(macroMenu, "Custom Macros", (GCODE_MACROS_SLOTS * 2) + 1)) {
       BACK_ITEM(drawControlMenu);
-      for (uint8_t i = 0; i < GCODE_MACROS_SLOTS; i++) {
-        const char* gcode_str = hmi_macro_data[i];
-        if (gcode_str[0] != '\0') {
-          sprintf_P(run_labels[i], PSTR("Run M81%u (%s)"), i, hmi_macro_data[i]);
-        } else {
-          sprintf_P(run_labels[i], PSTR("Run M81%u"), i);
-        }
-      }
       #define _ITEM_MACRO(N) \
         MENU_ITEM_F(ICON_File, "Run M81"#N, onDrawMenuItem, []{ (void)runMacro(N); }); \
         MENU_ITEM_F(ICON_Info, "Edit M81"#N, onDrawMenuItem, []{ (void)editMacro(N); });
