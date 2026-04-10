@@ -1734,7 +1734,7 @@ float Motion::get_move_distance(const xyze_pos_t &diff OPTARG(HAS_ROTATIONAL_AXE
       // Add hints to help optimize the move
       PlannerHints hints(cartesian_mm * inv_segments);
       TERN_(HAS_ROTATIONAL_AXES, hints.cartesian_move = cartes_move);
-      TERN_(FEEDRATE_SCALING, hints.inv_duration = scaled_fr_mm_s / hints.millimeters);
+      TERN_(FEEDRATE_SCALING, hints.inv_duration = fr_mm_s / hints.millimeters);
 
       //SERIAL_ECHOPGM("mm=", cartesian_mm);
       //SERIAL_ECHOLNPGM(" segments=", segments);
@@ -2301,27 +2301,19 @@ void Motion::prepare_line_to_destination() {
       #endif
     } // is_home_dir
 
-    #if ANY(MORGAN_SCARA, MP_SCARA)
-      // Tell the planner the axis is at 0
-      position[axis] = 0;
-      sync_plan_position();
-      position[axis] = distance;
-      goto_current_position(home_fr_mm_s);
-    #else
-      // Get the ABC or XYZ positions in mm
-      abce_pos_t target = planner.get_axis_positions_mm();
+    // Get the ABC or XYZ positions in mm
+    abce_pos_t target = planner.get_axis_positions_mm();
 
-      target[axis] = 0;                         // Set the single homing axis to 0
-      planner.set_machine_position_mm(target);  // Update the machine position
+    target[axis] = 0;                         // Set the single homing axis to 0
+    planner.set_machine_position_mm(target);  // Update the machine position
 
-      #if HAS_DIST_MM_ARG
-        const xyze_float_t cart_dist_mm{0};
-      #endif
-
-      // Set delta/cartesian axes directly
-      target[axis] = distance;                  // The move will be towards the endstop
-      planner.buffer_segment(target OPTARG(HAS_DIST_MM_ARG, cart_dist_mm), home_fr_mm_s, extruder);
+    #if HAS_DIST_MM_ARG
+      const xyze_float_t cart_dist_mm{0};
     #endif
+
+    // Set delta/cartesian axes directly
+    target[axis] = distance;                  // The move will be towards the endstop
+    planner.buffer_segment(target OPTARG(HAS_DIST_MM_ARG, cart_dist_mm), home_fr_mm_s, extruder);
 
     planner.synchronize();
 
@@ -2501,14 +2493,9 @@ void Motion::prepare_line_to_destination() {
 
   void Motion::homeaxis(const AxisEnum axis) {
 
-    #if ANY(MORGAN_SCARA, MP_SCARA)
-      // Only Z homing (with probe) is permitted
-      if (axis != Z_AXIS) { BUZZ(100, 880); return; }
-    #else
-      #define _CAN_HOME(A) (axis == _AXIS(A) && (ANY(A##_SPI_SENSORLESS, HAS_##A##_STATE) || TERN0(HOMING_Z_WITH_PROBE, _AXIS(A) == Z_AXIS)))
-      #define _ANDCANT(N) && !_CAN_HOME(N)
-      if (true MAIN_AXIS_MAP(_ANDCANT)) return;
-    #endif
+    #define _CAN_HOME(A) (axis == _AXIS(A) && (ANY(A##_SPI_SENSORLESS, HAS_##A##_STATE) || TERN0(HOMING_Z_WITH_PROBE, _AXIS(A) == Z_AXIS)))
+    #define _ANDCANT(N) && !_CAN_HOME(N)
+    if (true MAIN_AXIS_MAP(_ANDCANT)) return;
 
     if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM(">>> homeaxis(", C(AXIS_CHAR(axis)), ")");
 
@@ -2885,7 +2872,7 @@ void Motion::set_axis_is_at_home(const AxisEnum axis) {
     }
   #endif
 
-  #if ANY(MORGAN_SCARA, AXEL_TPARA)
+  #if IS_SCARA
     scara_set_axis_is_at_home(axis);
   #elif ENABLED(DELTA)
     position[axis] = (axis == Z_AXIS) ? DIFF_TERN(HAS_BED_PROBE, delta_height, probe.offset.z) : base_home_pos(axis);
