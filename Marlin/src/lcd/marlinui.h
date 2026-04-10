@@ -745,9 +745,6 @@ public:
 
     #if ENABLED(AUTO_BED_LEVELING_UBL)
       static void ubl_plot(const uint8_t x_plot, const uint8_t y_plot);
-    #endif
-
-    #if ENABLED(AUTO_BED_LEVELING_UBL)
       static void ubl_mesh_edit_start(const float initial);
       static float ubl_mesh_value();
     #endif
@@ -838,6 +835,11 @@ public:
     #endif
 
     static void update_buttons();
+
+    #if ENABLED(MIGHTYBOARD_BACK_STATUS_BUTTONS)
+      // Requests set from interrupt context and handled in main loop
+      static volatile uint8_t request_back;
+    #endif
 
     #if ENABLED(ENCODER_NOISE_FILTER)
       /**
