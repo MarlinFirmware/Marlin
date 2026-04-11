@@ -60,48 +60,46 @@ typedef struct ResonanceTestParams {
 class ResonanceGenerator {
   public:
     static resonance_test_params_t rt_params;     // Resonance test parameters
-    float timeline;                        // Timeline Value to calculate resonance frequency
+    static float timeline;                        // Timeline Value to calculate resonance frequency
 
     ResonanceGenerator();
 
-    void reset();
-
-    void start();
+    static void reset();
+    static void start();
 
     // Return frequency based on timeline
-    float getFrequencyFromTimeline() {
+    static float getFrequencyFromTimeline() {
       // Logarithmic approach with duration per octave
       return rt_params.min_freq * exp2f(timeline / rt_params.octave_duration);
     }
 
     #if HAS_STANDARD_MOTION
-      block_t *generate_resonance_block();  // Generate planner block for standard motion
+      static block_t* generate_resonance_block(); // Generate planner block for standard motion
     #endif
-
     #if ENABLED(FT_MOTION)
-      void fill_stepper_plan_buffer();                // Fill stepper plan buffer with trajectory points
+      static void fill_stepper_plan_buffer();     // Fill stepper plan buffer with trajectory points
     #endif
 
-    void setActive(const bool state) { active = state; }
-    bool isActive() const { return active; }
+    static void setActive(const bool state) { active = state; }
+    static bool isActive() const { return active; }
 
-    void setDone(const bool state) { done = state; }
-    bool isDone() const { return done; }
+    static void setDone(const bool state) { done = state; }
+    static bool isDone() const { return done; }
 
-    void abort();             // Abort resonance test
+    static void abort();             // Abort resonance test
 
   private:
-    float calc_next_pos();            // Calculate next position point based on current frequency
+    static float calc_next_pos();     // Calculate next position point based on current frequency
 
     // Fixed-point variables
-    int32_t amplitude_precalc_fp;     // Fixed-point amplitude precalculation
-    int32_t current_freq_fp;          // Fixed-point current frequency
+    static int32_t amplitude_precalc_fp;  // Fixed-point amplitude precalculation
+    static int32_t current_freq_fp;       // Fixed-point current frequency
 
     // Phase variables (in radians, stored as fixed-point)
-    int32_t phase_fp;                 // Fixed-point phase accumulator
+    static int32_t phase_fp;          // Fixed-point phase accumulator
     static int32_t freq_to_phase_fp;  // Fixed-point frequency to phase conversion
 
-    int32_t max_freq_fp;              // Fixed-point maximum frequency
+    static int32_t max_freq_fp;       // Fixed-point maximum frequency
     #if HAS_STANDARD_MOTION
       static block_t block;
     #endif

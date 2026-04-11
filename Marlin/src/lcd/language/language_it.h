@@ -51,6 +51,7 @@ namespace LanguageNarrow_it {
 
   constexpr uint8_t CHARSIZE              = 1;
   LSTR LANGUAGE                           = _UxGT("Italiano");
+
   LSTR WELCOME_MSG                        = MACHINE_NAME_SUBST _UxGT(" pronta.");              // (MACHINE_NAME_SUBST) Ready.
   LSTR MSG_MEDIA_INSERTED                 = MEDIA_TYPE_IT _UxGT(" inserita");                  // (MEDIA_TYPE_EN) Inserted
   LSTR MSG_MEDIA_REMOVED                  = MEDIA_TYPE_IT _UxGT(" rimossa");                   // (MEDIA_TYPE_EN) Removed
