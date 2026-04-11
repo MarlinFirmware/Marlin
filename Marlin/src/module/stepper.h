@@ -577,11 +577,11 @@ class Stepper {
 
       // The stepper block processing ISR phase
       static hal_timer_t block_phase_isr();
-    #endif
 
-    #if (ENABLED(RESONANCE_TEST) && HAS_STANDARD_MOTION)
-      static void resonance_pulse_phase_isr();
-      static hal_timer_t resonance_block_phase_isr();
+      #if ENABLED(RESONANCE_TEST)
+        static void resonance_pulse_phase_isr();
+        static hal_timer_t resonance_block_phase_isr();
+      #endif
     #endif
 
     #if HAS_ZV_SHAPING

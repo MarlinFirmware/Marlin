@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2025 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2026 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -24,11 +24,12 @@
 
 #if ENABLED(RESONANCE_TEST)
 
+#include "resonance_generator.h"
+
 #if ENABLED(FT_MOTION)
   #include "../../module/ft_motion.h"
 #endif
 
-#include "resonance_generator.h"
 #include "../../gcode/gcode.h" // for home_all_axes
 
 resonance_test_params_t ResonanceGenerator::rt_params;     // Resonance test parameters
@@ -48,7 +49,7 @@ ResonanceGenerator::ResonanceGenerator() {}
 void ResonanceGenerator::start() {
   gcode.home_all_axes(); // Always home axes first
   motion.blocking_move_xy(X_CENTER, Y_CENTER, Z_CLEARANCE_FOR_HOMING);
-  
+
   rt_params.start_pos = motion.position;
   active = true;
   done = false;
@@ -66,7 +67,7 @@ void ResonanceGenerator::start() {
       block.initial_rate = (rt_params.axis == Z_AXIS) ? 2000 : 8000;
     }
   #endif
- 
+
   // Precompute fixed-point sine sweep parameters
   amplitude_precalc_fp = F2FP((rt_params.amplitude_correction * rt_params.accel_per_hz * 0.25f) / sq(M_PI));
   current_freq_fp = F2FP(rt_params.min_freq);
@@ -77,18 +78,15 @@ void ResonanceGenerator::start() {
 
 void ResonanceGenerator::abort() {
   reset();
-  #if(HAS_STANDARD_MOTION)
+  #if HAS_STANDARD_MOTION
     if (!TERN0(FT_MOTION, ftMotion.cfg.active))
       return;
   #endif
-  #if ENABLED(FT_MOTION)
-    ftMotion.reset();
-  #endif    
+  TERN_(FT_MOTION, ftMotion.reset());
 }
 
 void ResonanceGenerator::reset() {
   rt_params = resonance_test_params_t();
-
   #if HAS_STANDARD_MOTION
     if (!TERN0(FT_MOTION, ftMotion.cfg.active))
       block.reset();
@@ -102,21 +100,22 @@ float ResonanceGenerator::calc_next_pos() {
   phase_fp += (int32_t)(((int64_t)current_freq_fp * freq_to_phase_fp) >> FP_BITS);
   if (phase_fp >= M_TAU_FP) phase_fp -= M_TAU_FP;
   else if (phase_fp < 0) phase_fp += M_TAU_FP;
-  
+
   // -π <= r_fp <= π
-  int32_t r_fp = (phase_fp > M_PI_FP) ? phase_fp - M_TAU_FP : phase_fp;
-  
+  const int32_t r_fp = (phase_fp > M_PI_FP) ? phase_fp - M_TAU_FP : phase_fp;
+
   // Calculate windowing polynomial: 1.0 - 0.101321184 * r²
-  int32_t poly_fp = FP_ONE - ((C0101321184_FP * ((r_fp * r_fp) >> FP_BITS)) >> FP_BITS);
-  
+  const int32_t poly_fp = FP_ONE - ((C0101321184_FP * ((r_fp * r_fp) >> FP_BITS)) >> FP_BITS);
+
   // Combine amplitude, phase, and polynomial and return new position
-  int32_t amplitude_fp = (int32_t)(((int64_t)amplitude_precalc_fp * FP_ONE) / current_freq_fp);
-  int32_t pos_fp = (int32_t)((((int64_t)amplitude_fp * r_fp) >> FP_BITS) * poly_fp) >> FP_BITS;
-  
+  const int32_t amplitude_fp = (int32_t)(((int64_t)amplitude_precalc_fp * FP_ONE) / current_freq_fp);
+  const int32_t pos_fp = (int32_t)((((int64_t)amplitude_fp * r_fp) >> FP_BITS) * poly_fp) >> FP_BITS;
+
   return FP2F(pos_fp);
 }
 
 #if ENABLED(FT_MOTION)
+
   void ResonanceGenerator::fill_stepper_plan_buffer() {
     xyze_pos_t traj_coords = rt_params.start_pos;
     // Save starting position, avoid cumulative errors
@@ -124,7 +123,7 @@ float ResonanceGenerator::calc_next_pos() {
 
     while (!ftMotion.stepping.is_full()) {
       // Calculate current frequency with exponential sweep
-      current_freq_fp += current_freq_fp >> 16; 
+      current_freq_fp += current_freq_fp >> 16;
       if (current_freq_fp > max_freq_fp) {
         done = true;
         return;
@@ -133,26 +132,24 @@ float ResonanceGenerator::calc_next_pos() {
       // Resonate the axis being tested
       traj_coords[rt_params.axis] = start_pos + calc_next_pos();
 
-      #if HAS_FTM_DIR_CHANGE_HOLD
-
-        traj_coords = ftMotion.ftm_hold_frames(traj_coords);
-
-      #endif // HAS_FTM_DIR_CHANGE_HOLD
+      TERN_(HAS_FTM_DIR_CHANGE_HOLD, traj_coords = ftMotion.ftm_hold_frames(traj_coords));
 
       // Store in buffer
       ftMotion.stepping_enqueue(traj_coords);
     }
   }
-#endif
+
+#endif // FT_MOTION
 
 #if HAS_STANDARD_MOTION
-  block_t *ResonanceGenerator::generate_resonance_block() {
+
+  block_t* ResonanceGenerator::generate_resonance_block() {
     // Static variables to retain state between calls and avoid cumulative errors
     static float prev_pos = 0.0f, step_accumulator = 0.0f;
 
     const float step_mm = planner.settings.axis_steps_per_mm[rt_params.axis];
     const uint8_t axis_bit = 1 << rt_params.axis;
-    
+
     // Calculate current frequency with exponential sweep
     current_freq_fp += current_freq_fp >> 16;
     if (current_freq_fp > max_freq_fp) {
@@ -161,14 +158,14 @@ float ResonanceGenerator::calc_next_pos() {
     }
 
     // Calculate position and accumulate steps
-    float current_pos = calc_next_pos();
+    const float current_pos = calc_next_pos();
     step_accumulator += (current_pos - prev_pos) * step_mm;
     prev_pos = current_pos;
-    
+
     // Extract steps
-    int32_t delta_steps = (int32_t)floor(step_accumulator);
+    const int32_t delta_steps = (int32_t)floor(step_accumulator);
     step_accumulator -= delta_steps;
-    uint32_t abs_steps = abs(delta_steps);
+    const suint32_t abs_steps = abs(delta_steps);
 
     // Update block
     block.steps[rt_params.axis] = abs_steps;
@@ -177,9 +174,10 @@ float ResonanceGenerator::calc_next_pos() {
       block.direction_bits |= axis_bit;
     else
       block.direction_bits &= ~axis_bit;
-  
+
     return &block;
-  } 
-#endif
+  }
+
+#endif // HAS_STANDARD_MOTION
 
 #endif // RESONANCE_TEST

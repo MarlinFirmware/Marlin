@@ -26,7 +26,7 @@
 #include <math.h>
 
 #if HAS_STANDARD_MOTION
-#include "../../module/planner.h"
+  #include "../../module/planner.h"
 #endif
 
 // Fixed-point configuration
@@ -92,15 +92,15 @@ class ResonanceGenerator {
 
   private:
     float calc_next_pos();            // Calculate next position point based on current frequency
-    
+
     // Fixed-point variables
     int32_t amplitude_precalc_fp;     // Fixed-point amplitude precalculation
     int32_t current_freq_fp;          // Fixed-point current frequency
-    
+
     // Phase variables (in radians, stored as fixed-point)
     int32_t phase_fp;                 // Fixed-point phase accumulator
     static int32_t freq_to_phase_fp;  // Fixed-point frequency to phase conversion
-    
+
     int32_t max_freq_fp;              // Fixed-point maximum frequency
     #if HAS_STANDARD_MOTION
       static block_t block;
