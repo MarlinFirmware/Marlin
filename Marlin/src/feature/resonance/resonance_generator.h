@@ -81,10 +81,10 @@ class ResonanceGenerator {
     #endif
 
     static void setActive(const bool state) { active = state; }
-    static bool isActive() const { return active; }
+    static bool isActive() { return active; }
 
     static void setDone(const bool state) { done = state; }
-    static bool isDone() const { return done; }
+    static bool isDone() { return done; }
 
     static void abort();             // Abort resonance test
 

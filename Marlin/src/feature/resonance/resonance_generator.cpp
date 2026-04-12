@@ -33,10 +33,16 @@
 #include "../../gcode/gcode.h" // for home_all_axes
 
 resonance_test_params_t ResonanceGenerator::rt_params;     // Resonance test parameters
+float ResonanceGenerator::timeline;
 
 bool ResonanceGenerator::active = false;                   // Resonance test active
 bool ResonanceGenerator::done = false;                     // Resonance test done
 int32_t ResonanceGenerator::freq_to_phase_fp;
+int32_t ResonanceGenerator::max_freq_fp;
+int32_t ResonanceGenerator::phase_fp;
+int32_t ResonanceGenerator::current_freq_fp;
+int32_t ResonanceGenerator::amplitude_precalc_fp; 
+
 
 #if HAS_STANDARD_MOTION
   block_t ResonanceGenerator::block;
@@ -165,7 +171,7 @@ float ResonanceGenerator::calc_next_pos() {
     // Extract steps
     const int32_t delta_steps = (int32_t)floor(step_accumulator);
     step_accumulator -= delta_steps;
-    const suint32_t abs_steps = abs(delta_steps);
+    const uint32_t abs_steps = abs(delta_steps);
 
     // Update block
     block.steps[rt_params.axis] = abs_steps;
