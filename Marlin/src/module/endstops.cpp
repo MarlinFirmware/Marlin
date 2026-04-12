@@ -361,6 +361,41 @@ void Endstops::event_handler() {
       );
     #endif
 
+    #define _AX_ENUM(A) A##_AXIS
+    #define AX_ENUM(A) _AX_ENUM(A)
+
+    #define _AX_MAX_EHS(A) A##_MAX_ENDSTOP_HIT_STATE
+    #define AX_MAX_EHS(A) _AX_MAX_EHS(A)
+
+    #define _AX_MIN_EHS(A) A##_MIN_ENDSTOP_HIT_STATE
+    #define AX_MIN_EHS(A) _AX_MIN_EHS(A)
+
+    #define ENDSTOP_SET_POS(A) do { \
+      if (TERN0(HAS_##A##_MIN_STATE, TEST(hit_state, ES_ENUM(A,MIN)))) { \
+        motion.position[AX_ENUM(A)] = motion.base_min_pos(AX_ENUM(A)); \
+        motion.destination[AX_ENUM(A)] = motion.position[AX_ENUM(A)];  \
+      } \
+      if (TERN0(HAS_##A##_MAX_STATE, TEST(hit_state, ES_ENUM(A,MAX)))) { \
+        motion.position[AX_ENUM(A)] = motion.base_max_pos(AX_ENUM(A)); \
+        motion.destination[AX_ENUM(A)] = motion.position[AX_ENUM(A)]; \
+      } \
+    } while(0);
+
+    if (abort_enabled()) {
+      NUM_AXIS_CODE(
+        ENDSTOP_SET_POS(X),
+        ENDSTOP_SET_POS(Y),
+        ENDSTOP_SET_POS(Z),
+        ENDSTOP_SET_POS(I),
+        ENDSTOP_SET_POS(J),
+        ENDSTOP_SET_POS(K),
+        ENDSTOP_SET_POS(U),
+        ENDSTOP_SET_POS(V),
+        ENDSTOP_SET_POS(W)
+      );
+      motion.sync_plan_position();
+    }
+  
     #if ENABLED(SD_ABORT_ON_ENDSTOP_HIT)
       if (planner.abort_on_endstop_hit) {
         card.abortFilePrintNow();
