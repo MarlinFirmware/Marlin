@@ -634,16 +634,11 @@ bool Stepper::disable_axis(const AxisEnum axis) {
     time_spent_in_isr = -time_spent;    // Unsigned but guaranteed to be +ve when needed
     time_spent_out_isr = 0;
 
-    hal_timer_t interval = 0;
-
     // If current block is not finished, continue with it
     if (step_events_completed < step_event_count)
       return calc_multistep_timer_interval(current_block->initial_rate);
 
-    // Current block is finished, reset pointer
-    current_block = nullptr;
-
-    // Generate a new block
+    // Generate a new block or abort if there are no more blocks to execute
     if ((current_block = rtg.generate_resonance_block())) {
       // Apply direction
       DIR_WAIT_BEFORE();
@@ -657,12 +652,12 @@ bool Stepper::disable_axis(const AxisEnum axis) {
 
       step_event_count = current_block->step_event_count;
       step_events_completed = 0;
-      interval = calc_multistep_timer_interval(current_block->initial_rate);
+      return calc_multistep_timer_interval(current_block->initial_rate);
     }
-    else
+    else {
       rtg.abort();
-
-    return interval;
+      return 0; // No more blocks to execute
+    }
   }
 
   void Stepper::resonance_pulse_phase_isr() {
