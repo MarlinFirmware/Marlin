@@ -23,7 +23,7 @@
 
 /**
  * Geeetech GTM32 Pro VB board pin assignments
- * https://www.geeetech.com/wiki/index.php/File:Hardware_GTM32_PRO_VB.pdf
+ * https://wiki.geeetech.com/index.php/File:Hardware_GTM32_PRO_VB.pdf
  *
  * Also applies to GTM32 Pro VD
  */

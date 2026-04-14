@@ -611,11 +611,11 @@ void ST7920_Lite_Status_Screen::draw_position(const xyze_pos_t &pos, const bool 
   // If position is unknown, flash the labels.
   const unsigned char alt_label = position_trusted ? 0 : (ui.get_blink() ? ' ' : 0);
 
-  if (TERN0(LCD_SHOW_E_TOTAL, printingIsActive())) {
+  if (TERN0(LCD_SHOW_E_TOTAL, marlin.printingIsActive())) {
     #if ENABLED(LCD_SHOW_E_TOTAL)
       char tmp[15];
-      const uint8_t escale = e_move_accumulator >= 100000.0f ? 10 : 1; // After 100m switch to cm
-      sprintf_P(tmp, PSTR("E%-7ld%cm "), uint32_t(_MAX(e_move_accumulator, 0.0f)) / escale, escale == 10 ? 'c' : 'm'); // 1234567mm
+      const uint8_t escale = motion.e_move_accumulator >= 100000.0f ? 10 : 1; // After 100m switch to cm
+      sprintf_P(tmp, PSTR("E%-7" PRIu32 "%cm "), uint32_t(_MAX(motion.e_move_accumulator, 0.0f)) / escale, escale == 10 ? 'c' : 'm'); // 1234567mm
       write_str(tmp);
     #endif
   }
@@ -636,7 +636,7 @@ bool ST7920_Lite_Status_Screen::indicators_changed() {
   // because the actual temps fluctuate so by updating
   // them only during blinks we gain a bit of stability.
   const bool blink = ui.get_blink();
-  const uint16_t feedrate_perc = feedrate_percentage;
+  const uint16_t feedrate_perc = motion.feedrate_percentage;
   const uint16_t fs = thermalManager.scaledFanSpeed(0);
   const celsius_t extruder_1_target = thermalManager.degTargetHotend(0);
   #if HAS_MULTI_HOTEND
@@ -693,8 +693,8 @@ bool ST7920_Lite_Status_Screen::indicators_changed() {
   #if ENABLED(SHOW_REMAINING_TIME)
     void MarlinUI::drawRemain() { lightUI.drawRemain(); }
     void ST7920_Lite_Status_Screen::drawRemain() {
-      const duration_t remaint = TERN0(SET_REMAINING_TIME, ui.get_remaining_time());
-      if (printJobOngoing() && remaint.value) {
+      const duration_t remaint = ui.get_remaining_time();
+      if (marlin.printJobOngoing() && remaint.value) {
         draw_progress_string(PPOS, prepare_time_string(remaint, 'R'));
       }
     }
@@ -703,7 +703,7 @@ bool ST7920_Lite_Status_Screen::indicators_changed() {
     void MarlinUI::drawInter() { lightUI.drawInter(); }
     void ST7920_Lite_Status_Screen::drawInter() {
       const duration_t interactt = ui.interaction_time;
-      if (printingIsActive() && interactt.value) {
+      if (marlin.printingIsActive() && interactt.value) {
         draw_progress_string(PPOS, prepare_time_string(interactt, 'C'));
       }
     }
@@ -711,7 +711,7 @@ bool ST7920_Lite_Status_Screen::indicators_changed() {
   #if ENABLED(SHOW_ELAPSED_TIME)
     void MarlinUI::drawElapsed() { lightUI.drawElapsed(); }
     void ST7920_Lite_Status_Screen::drawElapsed() {
-      if (printJobOngoing()) {
+      if (marlin.printJobOngoing()) {
         const duration_t elapsedt = print_job_timer.duration();
         draw_progress_string(PPOS, prepare_time_string(elapsedt, 'E'));
       }
@@ -802,7 +802,7 @@ bool ST7920_Lite_Status_Screen::indicators_changed() {
 void ST7920_Lite_Status_Screen::update_indicators(const bool forceUpdate) {
   if (forceUpdate || indicators_changed()) {
     const bool       blink              = ui.get_blink();
-    const uint16_t   feedrate_perc      = feedrate_percentage;
+    const uint16_t   feedrate_perc      = motion.feedrate_percentage;
     const celsius_t  extruder_1_temp    = thermalManager.wholeDegHotend(0),
                      extruder_1_target  = thermalManager.degTargetHotend(0);
     #if HAS_MULTI_HOTEND
@@ -836,7 +836,7 @@ void ST7920_Lite_Status_Screen::update_indicators(const bool forceUpdate) {
 }
 
 bool ST7920_Lite_Status_Screen::position_changed() {
-  const xyz_pos_t pos = current_position;
+  const xyz_pos_t pos = motion.position;
   const uint8_t checksum = uint8_t(pos.x) ^ uint8_t(pos.y) ^ uint8_t(pos.z);
   static uint8_t last_checksum = 0, changed = last_checksum != checksum;
   if (changed) last_checksum = checksum;
@@ -906,7 +906,7 @@ void ST7920_Lite_Status_Screen::update_status_or_position(bool forceUpdate) {
     }
 
     if (countdown == 0 && (forceUpdate || position_changed() || TERN(DISABLE_REDUCED_ACCURACY_WARNING, 0, blink_changed())))
-      draw_position(current_position, TERN(DISABLE_REDUCED_ACCURACY_WARNING, 1, all_axes_trusted()));
+      draw_position(motion.position, TERN(DISABLE_REDUCED_ACCURACY_WARNING, 1, motion.all_axes_trusted()));
   #endif
 }
 

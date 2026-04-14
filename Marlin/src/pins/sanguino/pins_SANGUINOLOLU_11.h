@@ -34,7 +34,7 @@
  * Requires this Arduino IDE extension for Boards Manager:
  * https://github.com/Lauszus/Sanguino
  *
- * Follow the installation instructions at https://learn.sparkfun.com/pages/CustomBoardsArduino
+ * Follow the installation instructions at https://learn.sparkfun.com/tutorials/installing-board-definitions-in-the-arduino-ide
  * Just use this JSON URL instead of Sparkfun's:
  * https://raw.githubusercontent.com/Lauszus/Sanguino/master/package_lauszus_sanguino_index.json
  *
@@ -286,7 +286,7 @@
      *  The following assumes:
      *   - The X stepper driver socket is empty
      *   - The extruder driver socket has a driver board plugged into it
-     *   - The X stepper wires are attached the the extruder connector
+     *   - The X stepper wires are attached the extruder connector
      */
 
     /**

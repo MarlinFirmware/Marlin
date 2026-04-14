@@ -25,7 +25,6 @@
 #if HAS_MESH
 
 #include "../gcode.h"
-#include "../../MarlinCore.h" // for IsRunning()
 #include "../../module/motion.h"
 #include "../../feature/bedlevel/bedlevel.h"
 
@@ -43,7 +42,7 @@
  *   P           : Flag to put the probe at the given point
  */
 void GcodeSuite::G42() {
-  if (!MOTION_CONDITIONS) return;
+  if (motion.gcode_motion_ignored()) return;
 
   const bool hasI = parser.seenval('I');
   const int8_t ix = hasI ? parser.value_int() : 0;
@@ -55,16 +54,16 @@ void GcodeSuite::G42() {
     return;
   }
 
-  // Move to current_position, as modified by I, J, P parameters
-  destination = current_position;
+  // Move to motion.position, as modified by I, J, P parameters
+  motion.destination = motion.position;
 
-  if (hasI) destination.x = bedlevel.get_mesh_x(ix);
-  if (hasJ) destination.y = bedlevel.get_mesh_y(iy);
+  if (hasI) motion.destination.x = bedlevel.get_mesh_x(ix);
+  if (hasJ) motion.destination.y = bedlevel.get_mesh_y(iy);
 
   #if HAS_PROBE_XY_OFFSET
     if (parser.seen_test('P')) {
-      if (hasI) destination.x -= probe.offset_xy.x;
-      if (hasJ) destination.y -= probe.offset_xy.y;
+      if (hasI) motion.destination.x -= probe.offset_xy.x;
+      if (hasJ) motion.destination.y -= probe.offset_xy.y;
     }
   #endif
 
@@ -73,9 +72,9 @@ void GcodeSuite::G42() {
 
   // SCARA kinematic has "safe" XY raw moves
   #if IS_SCARA
-    prepare_internal_fast_move_to_destination(fr_mm_s);
+    motion.prepare_internal_fast_move_to_destination(fr_mm_s);
   #else
-    prepare_internal_move_to_destination(fr_mm_s);
+    motion.prepare_internal_move_to_destination(fr_mm_s);
   #endif
 }
 

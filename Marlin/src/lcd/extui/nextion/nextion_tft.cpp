@@ -67,7 +67,7 @@ void NextionTFT::startup() {
   SEND_TXT("tmppage.compiled", __DATE__ " / " __TIME__);
   SEND_VALasTXT("tmppage.extruder", EXTRUDERS);
   #if ENABLED(CONFIGURABLE_MACHINE_NAME)
-    SEND_VALasTXT("tmppage.printer", &machine_name);
+    SEND_VALasTXT("tmppage.printer", &marlin.machine_name);
   #else
     SEND_TXT("tmppage.printer", MACHINE_NAME);
   #endif
@@ -230,7 +230,7 @@ void NextionTFT::panelInfo(uint8_t req) {
       SEND_TXT("tmppage.compiled", __DATE__ " / " __TIME__);
       SEND_VALasTXT("tmppage.extruder", EXTRUDERS);
       #if ENABLED(CONFIGURABLE_MACHINE_NAME)
-        SEND_VALasTXT("tmppage.printer", &machine_name);
+        SEND_VALasTXT("tmppage.printer", &marlin.machine_name);
       #else
         SEND_TXT("tmppage.printer", MACHINE_NAME);
       #endif
@@ -263,7 +263,7 @@ void NextionTFT::panelInfo(uint8_t req) {
     break;
 
   case 23: // Linear Advance
-    #if ENABLED(LIN_ADVANCE)
+    #if HAS_LIN_ADVANCE_K
       SEND_VALasTXT("linadvance", getLinearAdvance_mm_mm_s(getActiveTool()));
     #else
       SEND_NA("linadvance");

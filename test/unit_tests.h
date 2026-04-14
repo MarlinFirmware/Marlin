@@ -21,6 +21,10 @@
  */
 #pragma once
 
+/**
+ * unit_tests.h - Unit Tests class used by cpp files in the Marlin/tests/ folder.
+ */
+
 #include <list>
 #include <string>
 #include <unity.h>
@@ -33,7 +37,7 @@
  */
 class MarlinTest {
 public:
-    MarlinTest(const std::string name, const void(*test)(), const char *_file, const int line);
+    MarlinTest(const std::string& name, const void(*test)(), const char *_file, const int line);
     /**
      * Run the test via Unity
      */

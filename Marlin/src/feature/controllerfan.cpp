@@ -134,7 +134,7 @@ void ControllerFan::update() {
     } while (0)
 
     #if ENABLED(FAN_SOFT_PWM)
-      soft_pwm_speed = speed;
+      soft_pwm_speed = speed >> 1;   // Controller Fan Soft PWM uses 0-127 as 0-100% so cut the 0-255 range in half.
     #else
       SET_CONTROLLER_FAN();
       #if PIN_EXISTS(CONTROLLER_FAN2)

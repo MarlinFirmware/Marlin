@@ -59,7 +59,7 @@ void GcodeSuite::M701() {
   xyz_pos_t park_point = NOZZLE_PARK_POINT;
 
   // Don't raise Z if the machine isn't homed
-  if (TERN0(NO_MOTION_BEFORE_HOMING, axes_should_home())) park_point.z = 0;
+  if (TERN0(NO_MOTION_BEFORE_HOMING, motion.axes_should_home())) park_point.z = 0;
 
   #if ENABLED(MIXING_EXTRUDER)
     const int8_t eindex = get_target_e_stepper_from_command();
@@ -71,7 +71,7 @@ void GcodeSuite::M701() {
     MIXER_STEPPER_LOOP(i) mixer.set_collector(i, i == uint8_t(eindex) ? 1.0 : 0.0);
     mixer.normalize();
 
-    const int8_t target_extruder = active_extruder;
+    const int8_t target_extruder = motion.extruder;
   #else
     const int8_t target_extruder = get_target_extruder_from_command();
     if (target_extruder < 0) return;
@@ -85,21 +85,21 @@ void GcodeSuite::M701() {
 
   #if HAS_MULTI_EXTRUDER && (HAS_PRUSA_MMU1 || !HAS_MMU)
     // Change toolhead if specified
-    uint8_t active_extruder_before_filament_change = active_extruder;
-    if (active_extruder != target_extruder)
+    uint8_t active_extruder_before_filament_change = motion.extruder;
+    if (motion.extruder != target_extruder)
       tool_change(target_extruder);
   #endif
 
   auto move_z_by = [](const float zdist) {
     if (zdist) {
-      destination = current_position;
-      destination.z += zdist;
-      prepare_internal_move_to_destination(NOZZLE_PARK_Z_FEEDRATE);
+      motion.destination = motion.position;
+      motion.destination.z += zdist;
+      motion.prepare_internal_move_to_destination(NOZZLE_PARK_Z_FEEDRATE);
     }
   };
 
   // Raise the Z axis (with max limit)
-  const float park_raise = _MIN(park_point.z, (Z_MAX_POS) - current_position.z);
+  const float park_raise = _MIN(park_point.z, (Z_MAX_POS) - motion.position.z);
   move_z_by(park_raise);
 
   // Load filament
@@ -111,7 +111,7 @@ void GcodeSuite::M701() {
     constexpr float     purge_length = ADVANCED_PAUSE_PURGE_LENGTH,
                     slow_load_length = FILAMENT_CHANGE_SLOW_LOAD_LENGTH;
         const float fast_load_length = ABS(parser.seenval('L') ? parser.value_axis_units(E_AXIS)
-                                                            : fc_settings[active_extruder].load_length);
+                                                            : fc_settings[motion.extruder].load_length);
     load_filament(
       slow_load_length, fast_load_length, purge_length,
       FILAMENT_CHANGE_ALERT_BEEPS,
@@ -127,7 +127,7 @@ void GcodeSuite::M701() {
 
   #if HAS_MULTI_EXTRUDER && (HAS_PRUSA_MMU1 || !HAS_MMU)
     // Restore toolhead if it was changed
-    if (active_extruder_before_filament_change != active_extruder)
+    if (active_extruder_before_filament_change != motion.extruder)
       tool_change(active_extruder_before_filament_change);
   #endif
 
@@ -152,7 +152,7 @@ void GcodeSuite::M702() {
   xyz_pos_t park_point = NOZZLE_PARK_POINT;
 
   // Don't raise Z if the machine isn't homed
-  if (TERN0(NO_MOTION_BEFORE_HOMING, axes_should_home())) park_point.z = 0;
+  if (TERN0(NO_MOTION_BEFORE_HOMING, motion.axes_should_home())) park_point.z = 0;
 
   #if ENABLED(MIXING_EXTRUDER)
     const uint8_t old_mixing_tool = mixer.get_current_vtool();
@@ -176,7 +176,7 @@ void GcodeSuite::M702() {
       mixer.normalize();
     }
 
-    const int8_t target_extruder = active_extruder;
+    const int8_t target_extruder = motion.extruder;
   #else
     const int8_t target_extruder = get_target_extruder_from_command();
     if (target_extruder < 0) return;
@@ -190,14 +190,14 @@ void GcodeSuite::M702() {
 
   #if HAS_MULTI_EXTRUDER && (HAS_PRUSA_MMU1 || !HAS_MMU)
     // Change toolhead if specified
-    uint8_t active_extruder_before_filament_change = active_extruder;
-    if (active_extruder != target_extruder)
+    uint8_t active_extruder_before_filament_change = motion.extruder;
+    if (motion.extruder != target_extruder)
       tool_change(target_extruder);
   #endif
 
   // Lift Z axis
   if (park_point.z > 0)
-    do_blocking_move_to_z(_MIN(current_position.z + park_point.z, Z_MAX_POS), feedRate_t(NOZZLE_PARK_Z_FEEDRATE));
+    motion.blocking_move_z(_MIN(motion.position.z + park_point.z, Z_MAX_POS), feedRate_t(NOZZLE_PARK_Z_FEEDRATE));
 
   // Unload filament
   #if HAS_PRUSA_MMU3
@@ -208,7 +208,7 @@ void GcodeSuite::M702() {
     #if ALL(HAS_MULTI_EXTRUDER, FILAMENT_UNLOAD_ALL_EXTRUDERS)
       if (!parser.seenval('T')) {
         HOTEND_LOOP() {
-          if (e != active_extruder) tool_change(e);
+          if (e != motion.extruder) tool_change(e);
           unload_filament(-fc_settings[e].unload_length, true, PAUSE_MODE_UNLOAD_FILAMENT);
         }
       }
@@ -229,11 +229,11 @@ void GcodeSuite::M702() {
 
   // Restore Z axis
   if (park_point.z > 0)
-    do_blocking_move_to_z(_MAX(current_position.z - park_point.z, 0), feedRate_t(NOZZLE_PARK_Z_FEEDRATE));
+    motion.blocking_move_z(_MAX(motion.position.z - park_point.z, 0), feedRate_t(NOZZLE_PARK_Z_FEEDRATE));
 
   #if HAS_MULTI_EXTRUDER && (HAS_PRUSA_MMU1 || !HAS_MMU)
     // Restore toolhead if it was changed
-    if (active_extruder_before_filament_change != active_extruder)
+    if (active_extruder_before_filament_change != motion.extruder)
       tool_change(active_extruder_before_filament_change);
   #endif
 

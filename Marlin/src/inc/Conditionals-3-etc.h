@@ -40,48 +40,17 @@
 // Remove irrelevant Configuration.h settings
 //
 
-// Clean up unused temperature sensors and sub-options
-
-#define UNUSED_TEMP_SENSOR(N) (!TEMP_SENSOR_##N || N >= HOTENDS)
-#if UNUSED_TEMP_SENSOR(0)
-  #undef TEMP_SENSOR_0
-#endif
-#if UNUSED_TEMP_SENSOR(1)
-  #undef TEMP_SENSOR_1
-#endif
-#if UNUSED_TEMP_SENSOR(2)
-  #undef TEMP_SENSOR_2
-#endif
-#if UNUSED_TEMP_SENSOR(3)
-  #undef TEMP_SENSOR_3
-#endif
-#if UNUSED_TEMP_SENSOR(4)
-  #undef TEMP_SENSOR_4
-#endif
-#if UNUSED_TEMP_SENSOR(5)
-  #undef TEMP_SENSOR_5
-#endif
-#if UNUSED_TEMP_SENSOR(6)
-  #undef TEMP_SENSOR_6
-#endif
-#if UNUSED_TEMP_SENSOR(7)
-  #undef TEMP_SENSOR_7
-#endif
-#undef UNUSED_TEMP_SENSOR
-
 #if !HAS_HOTEND
   #undef PREHEAT_1_TEMP_HOTEND
   #undef PREHEAT_2_TEMP_HOTEND
 #endif
 #if !TEMP_SENSOR_BED
-  #undef TEMP_SENSOR_BED
   #undef THERMAL_PROTECTION_BED
   #undef MAX_BED_POWER
   #undef PREHEAT_1_TEMP_BED
   #undef PREHEAT_2_TEMP_BED
 #endif
 #if !TEMP_SENSOR_CHAMBER
-  #undef TEMP_SENSOR_CHAMBER
   #undef THERMAL_PROTECTION_CHAMBER
   #undef MAX_CHAMBER_POWER
   #undef PREHEAT_1_TEMP_CHAMBER
@@ -90,18 +59,6 @@
 #if !TEMP_SENSOR_COOLER
   #undef TEMP_SENSOR_COOLER
   #undef THERMAL_PROTECTION_COOLER
-#endif
-#if !TEMP_SENSOR_PROBE
-  #undef TEMP_SENSOR_PROBE
-#endif
-#if !TEMP_SENSOR_REDUNDANT
-  #undef TEMP_SENSOR_REDUNDANT
-#endif
-#if !TEMP_SENSOR_BOARD
-  #undef TEMP_SENSOR_BOARD
-#endif
-#if !TEMP_SENSOR_SOC
-  #undef TEMP_SENSOR_SOC
 #endif
 #if !SOFT_PWM_SCALE
   #undef SOFT_PWM_SCALE
@@ -443,6 +400,14 @@
   #ifndef Z_PROBE_ERROR_TOLERANCE
     #define Z_PROBE_ERROR_TOLERANCE Z_CLEARANCE_MULTI_PROBE
   #endif
+  #if ENABLED(DWIN_LCD_PROUI) && DISABLED(BD_SENSOR)
+    #ifndef MULTIPLE_PROBING
+      #define MULTIPLE_PROBING 2
+    #endif
+    #ifdef EXTRA_PROBING
+      #undef EXTRA_PROBING // Not used with MULTIPLE_PROBING
+    #endif
+  #endif
   #if MULTIPLE_PROBING > 1
     #if EXTRA_PROBING > 0
       #define TOTAL_PROBING (MULTIPLE_PROBING + EXTRA_PROBING)
@@ -463,8 +428,6 @@
   #undef Z_PROBE_LOW_POINT
   #undef MULTIPLE_PROBING
   #undef EXTRA_PROBING
-  #undef PROBE_OFFSET_ZMIN
-  #undef PROBE_OFFSET_ZMAX
   #undef PAUSE_BEFORE_DEPLOY_STOW
   #undef PAUSE_PROBE_DEPLOY_WHEN_TRIGGERED
   #undef PROBING_HEATERS_OFF
@@ -478,6 +441,11 @@
   #undef PROBING_NOZZLE_TEMP
   #undef PROBING_BED_TEMP
   #undef NOZZLE_TO_PROBE_OFFSET
+#endif
+
+#if NONE(BABYSTEPPING, HAS_BED_PROBE, HAS_WORKSPACE_OFFSET)
+  #undef PROBE_OFFSET_ZMIN
+  #undef PROBE_OFFSET_ZMAX
 #endif
 
 #if ENABLED(BELTPRINTER) && !defined(HOME_Y_BEFORE_X)
@@ -502,6 +470,7 @@
 #endif
 #if ANY(AUTO_BED_LEVELING_LINEAR, AUTO_BED_LEVELING_BILINEAR)
   #define ABL_USES_GRID 1
+  #define HAS_VARIABLE_XY_PROBE_FEEDRATE 1
   #ifndef XY_PROBE_FEEDRATE_MIN
     #define XY_PROBE_FEEDRATE_MIN 60 // Minimum mm/min value for 'G29 S<feedrate>'
   #endif
@@ -541,6 +510,12 @@
 
 #if !HAS_MESH
   #undef MESH_INSET
+#endif
+#if ALL(DWIN_LCD_PROUI, HAS_MESH)
+  #define HAS_PROUI_MESH_EDIT 1
+  #ifndef MESH_INSET
+    #define MESH_INSET 10
+  #endif
 #endif
 
 #if NONE(PROBE_SELECTED, AUTO_BED_LEVELING_UBL)
@@ -624,6 +599,15 @@
 #if ANY(COREYZ, COREZY)
   #define CORE_IS_YZ 1
 #endif
+#if ANY(CORE_IS_XY, CORE_IS_XZ, MARKFORGED_XY)
+  #define HAS_REAL_X 1
+#endif
+#if ANY(CORE_IS_XY, CORE_IS_YZ, MARKFORGED_YX)
+  #define HAS_REAL_Y 1
+#endif
+#if CORE_IS_XZ || CORE_IS_YZ
+  #define HAS_REAL_Z 1
+#endif
 #if CORE_IS_XY || CORE_IS_XZ || CORE_IS_YZ
   #define IS_CORE 1
   #if CORE_IS_XY
@@ -647,7 +631,7 @@
   #define NORMAL_AXIS Z_AXIS
 #endif
 
-#if ANY(MORGAN_SCARA, MP_SCARA, AXEL_TPARA)
+#if ANY(SCARA, AXEL_TPARA)
   #define IS_SCARA 1
   #define IS_KINEMATIC 1
 #elif ANY(DELTA, POLARGRAPH, POLAR)

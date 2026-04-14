@@ -21,52 +21,64 @@
  */
 #include "../../../inc/MarlinConfigPre.h"
 
-#if ENABLED(FTM_SMOOTHING)
+#if ENABLED(FT_MOTION)
 
 #include "../../gcode.h"
 #include "../../../module/ft_motion.h"
 #include "../../../module/stepper.h"
+#include "../../../module/planner.h"
+#include "../../../lcd/marlinui.h"
 
-void say_smoothing() {
-  #if HAS_X_AXIS
-    SERIAL_ECHOLN(F("  "), C('X'), F(" smoothing time: "), p_float_t(ftMotion.cfg.smoothingTime.x, 3), C('s'));
+void say_ftm_settings() {
+  #if ANY(FTM_POLYS, FTM_SMOOTHING)
+    const ft_config_t &c = ftMotion.cfg;
   #endif
-  #if HAS_Y_AXIS
-    SERIAL_ECHOLN(F("  "), C('Y'), F(" smoothing time: "), p_float_t(ftMotion.cfg.smoothingTime.y, 3), C('s'));
+
+  #if ENABLED(FTM_POLYS)
+    SERIAL_ECHOLN(F("  Trajectory: "), ftMotion.getTrajectoryName(), C('('), (uint8_t)ftMotion.getTrajectoryType(), C(')'));
+    if (ftMotion.getTrajectoryType() == TrajectoryType::POLY6)
+      SERIAL_ECHOLNPGM("  Poly6 Overshoot: ", p_float_t(c.poly6_acceleration_overshoot, 3));
   #endif
-  #if HAS_Z_AXIS
-    SERIAL_ECHOLN(F("  "), C('Z'), F(" smoothing time: "), p_float_t(ftMotion.cfg.smoothingTime.z, 3), C('s'));
-  #endif
-  #if HAS_EXTRUDERS
-    SERIAL_ECHOLN(F("  "), C('E'), F(" smoothing time: "), p_float_t(ftMotion.cfg.smoothingTime.e, 3), C('s'));
+
+  #if ENABLED(FTM_SMOOTHING)
+    #define _SMOO_REPORT(A) SERIAL_ECHOLN(F("  "), C(IAXIS_CHAR(_AXIS(A))), F(" smoothing time: "), p_float_t(c.smoothingTime.A, 3), C('s'));
+    CARTES_MAP(_SMOO_REPORT);
   #endif
 }
 
 void GcodeSuite::M494_report(const bool forReplay/*=true*/) {
   TERN_(MARLIN_SMALL_BUILD, return);
 
-  report_heading_etc(forReplay, F("FTM Smoothing"));
-  const ft_config_t &c = ftMotion.cfg;
-  SERIAL_ECHOLN(F("  M494")
-    #if HAS_X_AXIS
-      , F(" X"), c.smoothingTime.x
-    #endif
-    #if HAS_Y_AXIS
-      , F(" Y"), c.smoothingTime.y
-    #endif
-    #if HAS_Z_AXIS
-      , F(" Z"), c.smoothingTime.z
-    #endif
-    #if HAS_EXTRUDERS
-      , F(" E"), c.smoothingTime.e
-    #endif
-  );
+  report_heading_etc(forReplay, F("FT Motion"));
+  SERIAL_ECHOPGM("  M494 T", (uint8_t)ftMotion.getTrajectoryType());
+
+  #if ANY(FTM_POLYS, FTM_SMOOTHING)
+    const ft_config_t &c = ftMotion.cfg;
+  #endif
+
+  #if ENABLED(FTM_SMOOTHING)
+    SERIAL_ECHOPGM(CARTES_PAIRED_LIST(
+      " X", c.smoothingTime.X,
+      " Y", c.smoothingTime.Y,
+      " Z", c.smoothingTime.Z,
+      " E", c.smoothingTime.E
+    ));
+  #endif
+
+  #if ENABLED(FTM_POLYS)
+    if (ftMotion.getTrajectoryType() == TrajectoryType::POLY6)
+      SERIAL_ECHOPGM(" O", c.poly6_acceleration_overshoot);
+  #endif
+
+  SERIAL_EOL();
 }
 
 /**
- * M494: Set Fixed-time Motion Control Smoothing parameters
+ * M494: Set Fixed-time Motion Control parameters
  *
  * Parameters:
+ *    T<type> Set trajectory generator type (0=TRAPEZOIDAL, 1=POLY5, 2=POLY6)
+ *    O<overshoot> Set acceleration overshoot for POLY6 (1.25-1.875)
  *    X<time> Set smoothing time for the X axis
  *    Y<time> Set smoothing time for the Y axis
  *    Z<time> Set smoothing time for the Z axis
@@ -75,59 +87,53 @@ void GcodeSuite::M494_report(const bool forReplay/*=true*/) {
 void GcodeSuite::M494() {
   bool report = !parser.seen_any();
 
-  #if HAS_X_AXIS
-    // Parse X axis smoothing time parameter.
-    if (parser.seenval('X')) {
+  #if ENABLED(FTM_POLYS)
+
+    // Parse trajectory type parameter.
+    if (parser.seenval('T')) {
+      if (ftMotion.updateTrajectoryType(TrajectoryType(parser.value_int())))
+        report = true;
+      else
+        SERIAL_ECHOLN(F("?Invalid "), F("(T)rajectory type value. Use 0=TRAPEZOIDAL, 1=POLY5, 2=POLY6"));
+    }
+
+    // Parse overshoot parameter.
+    if (parser.seenval('O')) {
       const float val = parser.value_float();
-      if (WITHIN(val, 0.0f, FTM_MAX_SMOOTHING_TIME)) {
-        ftMotion.set_smoothing_time(X_AXIS, val);
+      if (WITHIN(val, 1.25f, 1.875f)) {
+        ftMotion.cfg.poly6_acceleration_overshoot = val;
         report = true;
       }
       else
-        SERIAL_ECHOLNPGM("?Invalid ", C(STEPPER_A_NAME), " smoothing time [", C('X'), "] value.");
+        SERIAL_ECHOLN(F("?Invalid "), F("(O)vershoot value. Range 1.25-1.875"));
     }
-  #endif
 
-  #if HAS_Y_AXIS
-    // Parse Y axis smoothing time parameter.
-    if (parser.seenval('Y')) {
-      const float val = parser.value_float();
-      if (WITHIN(val, 0.0f, FTM_MAX_SMOOTHING_TIME)) {
-        ftMotion.set_smoothing_time(Y_AXIS, val);
-        report = true;
+  #endif // FTM_POLYS
+
+  #if ENABLED(FTM_SMOOTHING)
+
+    auto smooth_set = [](AxisEnum axis, char axis_name) {
+      if (parser.seenval(IAXIS_CHAR(axis))) {
+        if (ftMotion.set_smoothing_time(axis, parser.value_float()))
+          return true;
+        else
+          SERIAL_ECHOLNPGM("?Invalid ", C(axis_name), " smoothing time (", C(IAXIS_CHAR(axis)), ") value.");
       }
-      else
-        SERIAL_ECHOLNPGM("?Invalid ", C(STEPPER_B_NAME), " smoothing time [", C('Y'), "] value.");
-    }
-  #endif
+      return false;
+    };
 
-  #if HAS_Z_AXIS
-    // Parse Z axis smoothing time parameter.
-    if (parser.seenval('Z')) {
-      const float val = parser.value_float();
-      if (WITHIN(val, 0.0f, FTM_MAX_SMOOTHING_TIME)) {
-        ftMotion.set_smoothing_time(Z_AXIS, val);
-        report = true;
-      }
-      else
-        SERIAL_ECHOLNPGM("?Invalid ", C(STEPPER_C_NAME), " smoothing time [", C('Z'), "] value.");
-    }
-  #endif
+    #define SMOOTH_SET(A,N) report |= smooth_set(_AXIS(A), N);
+    CARTES_GANG(
+      SMOOTH_SET(X, STEPPER_A_NAME), SMOOTH_SET(Y, STEPPER_B_NAME),
+      SMOOTH_SET(Z, STEPPER_C_NAME), SMOOTH_SET(E, 'E')
+    );
 
-  #if HAS_EXTRUDERS
-    // Parse E axis smoothing time parameter.
-    if (parser.seenval('E')) {
-      const float val = parser.value_float();
-      if (WITHIN(val, 0.0f, FTM_MAX_SMOOTHING_TIME)) {
-        ftMotion.set_smoothing_time(E_AXIS, val);
-        report = true;
-      }
-      else
-        SERIAL_ECHOLNPGM("?Invalid ", C('E'), " smoothing time [", C('E'), "] value.");
-    }
-  #endif
+  #endif // FTM_SMOOTHING
 
-  if (report) say_smoothing();
+  if (report) {
+    ui.refresh();
+    say_ftm_settings();
+  }
 }
 
-#endif // FTM_SMOOTHING
+#endif // FT_MOTION
