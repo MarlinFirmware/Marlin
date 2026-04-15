@@ -402,12 +402,13 @@ G29_TYPE GcodeSuite::G29() {
     #endif
 
     #if HAS_VARIABLE_XY_PROBE_FEEDRATE
-      constexpr feedRate_t min_probe_feedrate_mm_s = XY_PROBE_FEEDRATE_MIN;
-      motion.xy_probe_feedrate_mm_s = MMM_TO_MMS(parser.linearval('S', XY_PROBE_FEEDRATE));
-      if (motion.xy_probe_feedrate_mm_s < min_probe_feedrate_mm_s) {
-        motion.xy_probe_feedrate_mm_s = min_probe_feedrate_mm_s;
-        SERIAL_ECHOLNPGM(GCODE_ERR_MSG("Feedrate (S) too low. (Using ", min_probe_feedrate_mm_s, ")"));
+      constexpr feedRate_t min_probe_feedrate_mm_m = XY_PROBE_FEEDRATE_MIN;
+      feedRate_t xy_probe_feedrate_mm_m = parser.linearval('S', XY_PROBE_FEEDRATE);
+      if (xy_probe_feedrate_mm_m < min_probe_feedrate_mm_m) {
+        xy_probe_feedrate_mm_m = min_probe_feedrate_mm_m;
+        SERIAL_ECHOLNPGM(GCODE_ERR_MSG("Feedrate (S) too low. (Using ", min_probe_feedrate_mm_m, " units/min)"));
       }
+      motion.xy_probe_feedrate_mm_s = MMM_TO_MMS(xy_probe_feedrate_mm_m);
     #endif
 
     #if ABL_USES_GRID
