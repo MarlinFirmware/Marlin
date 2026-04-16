@@ -1106,6 +1106,14 @@ void Motion::blocking_move(const xy_pos_t &raw, const feedRate_t fr_mm_s/*=0.0f*
    * Move Z to Z_POST_CLEARANCE,
    * The axis is allowed to move down.
    */
+  #ifndef Z_POST_CLEARANCE  // May be set by proui/dwin.h :-P
+    #ifdef Z_AFTER_HOMING
+      #define Z_POST_CLEARANCE Z_AFTER_HOMING
+    #else
+      #define Z_POST_CLEARANCE Z_CLEARANCE_FOR_HOMING
+    #endif
+  #endif
+
   void Motion::do_move_after_z_homing() {
     DEBUG_SECTION(mzah, "do_move_after_z_homing", DEBUGGING(LEVELING));
     #ifdef Z_POST_CLEARANCE
@@ -1118,14 +1126,6 @@ void Motion::blocking_move(const xy_pos_t &raw, const feedRate_t fr_mm_s/*=0.0f*
       probe.move_z_after_probing();
     #endif
   }
-
-  #ifndef Z_POST_CLEARANCE  // May be set by proui/dwin.h :-P
-    #ifdef Z_AFTER_HOMING
-      #define Z_POST_CLEARANCE Z_AFTER_HOMING
-    #else
-      #define Z_POST_CLEARANCE Z_CLEARANCE_FOR_HOMING
-    #endif
-  #endif
 
   void Motion::do_z_post_clearance() { do_z_clearance(Z_POST_CLEARANCE); }
 
