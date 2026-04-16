@@ -27,6 +27,7 @@
 #include "../gcode.h"
 #include "../../lcd/marlinui.h"
 #include "../../module/temperature.h"
+#include "../../libs/numtostr.h"
 
 #if ENABLED(CAN_TOOLHEAD)
   #include "../../HAL/shared/CAN.h"
@@ -53,19 +54,17 @@
  */
 
 void GcodeSuite::M306() {
-  const uint8_t e = TERN0(HAS_MULTI_EXTRUDER, parser.intval('E', active_extruder));
+  const uint8_t e = E_TERN0(parser.intval('E', motion.extruder));
   if (e >= (EXTRUDERS)) {
     SERIAL_ECHOLNPGM("?(E)xtruder index out of range (0-", (EXTRUDERS) - 1, ").");
     return;
   }
 
   #if ENABLED(MPC_AUTOTUNE)
-
     if (parser.seen_test('T')) {
 
-      #if ENABLED(CAN_HOST)
+      #if ENABLED(CAN_HOST) // Execute MPC autotune on toolhead
 
-        // Execute MPC autotune on toolhead
         SERIAL_ECHOLNPGM(
           ">>> Forwarding M306 to toolhead\n"
           ">>> Store MPC setup in the host Configuration.h or use M500\n"
@@ -75,30 +74,29 @@ void GcodeSuite::M306() {
 
       #else // !CAN_HOST
 
-        Temperature::MPCTuningType tuning_type;
-        const uint8_t type = parser.byteval('S', 0);
-        switch (type) {
-          case 1: tuning_type = Temperature::MPCTuningType::FORCE_DIFFERENTIAL; break;
-          case 2: tuning_type = Temperature::MPCTuningType::FORCE_ASYMPTOTIC; break;
-          default: tuning_type = Temperature::MPCTuningType::AUTO; break;
-        }
-        if (TERN0(MPC_PTC, tuning_type == Temperature::MPCTuningType::FORCE_ASYMPTOTIC))
-          SERIAL_ECHOLNPGM("Asymptotic tuning not avaiable for PTC hotends");
-        else {
-          LCD_MESSAGE(MSG_MPC_AUTOTUNE);
-          thermalManager.MPC_autotune(e, tuning_type);
-          ui.reset_status();
-        }
+      Temperature::MPCTuningType tuning_type;
+      const uint8_t type = parser.byteval('S', 0);
+      switch (type) {
+        case 1: tuning_type = Temperature::MPCTuningType::FORCE_DIFFERENTIAL; break;
+        case 2: tuning_type = Temperature::MPCTuningType::FORCE_ASYMPTOTIC; break;
+        default: tuning_type = Temperature::MPCTuningType::AUTO; break;
+      }
+      if (TERN0(MPC_PTC, tuning_type == Temperature::MPCTuningType::FORCE_ASYMPTOTIC))
+        SERIAL_ECHOLNPGM("Asymptotic tuning not available for PTC hotends");
+      else {
+        LCD_MESSAGE(MSG_MPC_AUTOTUNE);
+        thermalManager.MPC_autotune(e, tuning_type);
+        ui.reset_status();
+      }
+
 
         TERN_(CAN_TOOLHEAD, M306_report(true)); // Report MPC autotune results to CAN host
 
       #endif // !CAN_HOST
 
       return;
-
-    } // seen(T)
-
-  #endif // MPC_AUTOTUNE
+    }
+  #endif
 
   if (parser.seen("ACFPRH")) {
     MPC_t &mpc = thermalManager.temp_hotend[e].mpc;

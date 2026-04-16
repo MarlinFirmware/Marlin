@@ -24,6 +24,17 @@
 #define ALLOW_STM32DUINO
 #include "env_validate.h"
 
+#ifdef CAN_HOST
+  #define CAN_RD_PIN   PB8
+  #define CAN_TD_PIN   PB9
+
+  #define Z_MIN_PROBE_PIN     PB12 // VIRTUAL, CAN CONTROLLED
+  #define Z_MIN_PIN           Z_MIN_PROBE_PIN
+  #define FIL_RUNOUT_PIN      PB12 // Z-MAX ENDSTOP, VIRTUAL, CAN CONTROLLED
+
+  #define RESET_LED_PIN       PA13 // RED RESET BUTTON LED
+#endif
+
 #if HOTENDS > 3 || E_STEPPERS > 5
   #error "MKS Monster supports up to 3 hotends and 5 E steppers."
 #elif HAS_FSMC_TFT
@@ -272,6 +283,10 @@
 #elif SD_CONNECTION_IS(CUSTOM_CABLE)
   #error "CUSTOM_CABLE is not a supported SDCARD_CONNECTION for BOARD_MKS_MONSTER8_V1/V2."
 #endif
+
+//
+// LCD / Controller
+//
 
 #if HAS_WIRED_LCD
 

@@ -99,7 +99,7 @@ namespace ExtUI {
     void onPauseMode(
       const PauseMessage message,
       const PauseMode mode/*=PAUSE_MODE_SAME*/,
-      const uint8_t extruder/*=active_extruder*/
+      const uint8_t extruder/*=motion.extruder*/
     ) {
       stdOnPauseMode(message, mode, extruder);
     }
@@ -148,7 +148,7 @@ namespace ExtUI {
   #endif
 
   #if HAS_MESH
-    void onMeshUpdate(const int8_t xpos, const int8_t ypos, const_float_t zval) {
+    void onMeshUpdate(const int8_t xpos, const int8_t ypos, const float zval) {
       screen.meshUpdate(xpos, ypos);
     }
     void onMeshUpdate(const int8_t xpos, const int8_t ypos, const probe_state_t state) { }
@@ -203,4 +203,4 @@ namespace ExtUI {
   void onAxisEnabled(const axis_t) {}
 }
 
-#endif // DGUS_LCD_UI_RELOADED
+#endif // DGUS_LCD_UI_E3S1PRO

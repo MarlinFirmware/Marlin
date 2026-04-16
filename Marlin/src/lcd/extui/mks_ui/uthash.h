@@ -592,7 +592,7 @@ do {                                                                            
 
 
 /* SAX/FNV/OAT/JEN hash functions are macro variants of those listed at
- * http://eternallyconfuzzled.com/tuts/algorithms/jsw_tut_hashing.aspx
+ * https://eternallyconfuzzled.com/tuts/algorithms/jsw_tut_hashing.aspx
  * (archive link: https://archive.is/Ivcan )
  */
 #define HASH_SAX(key,keylen,hashv)                                               \
@@ -975,7 +975,7 @@ do {                                                                            
  * The end result is that the selected items have dual presence
  * in both hashes. There is no copy of the items made; rather
  * they are added into the new hash through a secondary hash
- * hash handle that must be present in the structure. */
+ * handle that must be present in the structure. */
 #define HASH_SELECT(hh_dst, dst, hh_src, src, cond)                              \
 do {                                                                             \
   unsigned _src_bkt, _dst_bkt;                                                   \

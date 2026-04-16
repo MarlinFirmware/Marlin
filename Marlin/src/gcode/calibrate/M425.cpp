@@ -32,14 +32,14 @@
 /**
  * M425: Enable and tune backlash correction.
  *
- *   F<fraction>     Enable/disable/fade-out backlash correction (0.0 to 1.0)
- *   S<smoothing_mm> Distance over which backlash correction is spread
- *   X<distance_mm>  Set the backlash distance on X (0 to disable)
- *   Y<distance_mm>                        ... on Y
- *   Z<distance_mm>                        ... on Z
- *   X               If a backlash measurement was done on X, copy that value
- *   Y                                              ... on Y
- *   Z                                              ... on Z
+ *   F<fraction>  Enable/disable/fade-out backlash correction (0.0 to 1.0)
+ *   S<length>    Distance over which backlash correction is spread
+ *   X<length>    Set the backlash distance on X (0 to disable)
+ *   Y<length>                          ... on Y
+ *   Z<length>                          ... on Z
+ *   X            If a backlash measurement was done on X, copy that value
+ *   Y                                           ... on Y
+ *   Z                                           ... on Z
  *
  * Type M425 without any arguments to show active values.
  */
@@ -94,7 +94,7 @@ void GcodeSuite::M425() {
     #if ENABLED(MEASURE_BACKLASH_WHEN_PROBING)
       SERIAL_ECHOPGM("  Average measured backlash (mm):");
       if (backlash.has_any_measurement()) {
-        LOOP_NUM_AXES(a) if (axis_can_calibrate(a) && backlash.has_measurement(AxisEnum(a))) {
+        LOOP_NUM_AXES(a) if (axis_can_calibrate(a) && backlash.has_measurement((AxisEnum)a)) {
           SERIAL_ECHOPGM_P((PGM_P)pgm_read_ptr(&SP_AXIS_STR[a]), backlash.get_measurement((AxisEnum)a));
         }
       }

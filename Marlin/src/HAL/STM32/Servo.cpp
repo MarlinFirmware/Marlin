@@ -43,8 +43,8 @@ static_assert(COUNT(servoDelay) == NUM_SERVOS, "SERVO_DELAY must be an array NUM
 static uint32_t servo_interrupt_priority = NVIC_EncodePriority(NVIC_GetPriorityGrouping(), TIM_IRQ_PRIO, TIM_IRQ_SUBPRIO);
 
 // This must be called after the STM32 Servo class has initialized the timer.
-// It may only be needed after the first call to attach(), but it is possible
-// that is is necessary after every detach() call. To be safe this is currently
+// It may only be needed after the first call to attach(), but it's possible
+// that this is needed after every detach() call. To be safe this is currently
 // called after every call to attach().
 static void fixServoTimerInterruptPriority() {
   NVIC_SetPriority(getTimerUpIrq(TIMER_SERVO), servo_interrupt_priority);
@@ -89,7 +89,15 @@ void libServo::move(const int value) {
 
   if (attach(0) >= 0) {
     stm32_servo.write(value);
-    safe_delay(delay);
+    safe_delay(SERVO_DELAY); // SERVO_DELAY (at end of configuration.h)
+
+    #ifndef _3DTOUCH // LET BLTOUCH ACT LIKE 3D TOUCH
+      if ((value == BLTOUCH_DEPLOY) || (value == BLTOUCH_STOW)) { // FOR BLTOUCH, ALWAYS GO TO SWITCH MODE, EXCEPT FOR SELFTEST
+        stm32_servo.write(BLTOUCH_SW_MODE); // GO TO SWITCH MODE, NOT SUPPORTED/NEEDED BY 3DTOUCH
+        safe_delay(BLTOUCH_SWITCH_DELAY);
+      }
+    #endif
+
     TERN_(DEACTIVATE_SERVOS_AFTER_MOVE, detach());
   }
 }

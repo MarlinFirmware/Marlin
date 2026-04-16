@@ -23,11 +23,11 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
+#define CAN_GCODE_TIMESYNC                               7777 // A unique unused Gcode number to trigger a time sync
+#define CAN_GCODE_CONFIGURATION_COMPLETE                 7778 // Signal the configuration is complete
 #define CAN_HOST_MAX_STRING_MSG_LENGTH                    128 // Max string message length to receive from the toolhead
-#define CAN_HOST_GCODE_TIME_SYNC_NO                      7777 // A unique unused Gcode number to trigger a time sync
-#define CAN_HOST_CONFIGURATION_COMPLETE                  7778 // Signal the configuration is complete
 #define CAN_HOST_MAX_WAIT_TIME                             25 // Time in ms to wait for CAN FIFO buffers
-#define CAN_HOST_E0_TEMP_UPDATE_WATCHDOG_TIME            3000 // An E0 temp update must be received withing this time
+#define CAN_HOST_E0_TEMP_UPDATE_WATCHDOG_TIME            3000 // An E0 temp update must be received within this time
 #define CAN_HOST_ERROR_REPEAT_TIME                      10000 // Time between report repeats of an error message
 
 #define STDID_FIFO_TOGGLE_BIT                   0b10000000000
@@ -89,11 +89,11 @@
 #define CAN_ERROR_MSG_RX_FIFO_OVERFLOW               "CAN RX FIFO overflow"
 #define CAN_ERROR_MSG_TX_FIFO_OVERFLOW               "CAN TX FIFO overflow"
 #define CAN_ERROR_MSG_INCOMPLETE_GCODE               "Incomplete Gcode message received"
-#define CAN_ERROR_MSG_MARLIN_CMM_BUF_OVERFLOW        "Marlin CMD buffer overflow"
+#define CAN_ERROR_MSG_MARLIN_CMD_BUF_OVERFLOW        "Marlin CMD buffer overflow"
 #define CAN_ERROR_MSG_INVALID_BAUDRATE               "Incorrect CAN baudrate"
 
 void CAN_host_idle();                                // CAN idle task
-void CAN_host_send_setup(const bool change_status=false);  // Send configuration to toolhead
+void CAN_host_send_setup(const bool change_status=false); // Send configuration to toolhead
 uint32_t CAN_host_get_iostate();                     // Read the CAN virtual IO state
 HAL_StatusTypeDef CAN_host_start();                  // Start the CAN device
 HAL_StatusTypeDef CAN_host_stop();                   // Stop the CAN device

@@ -144,7 +144,7 @@ namespace ExtUI {
     void onPauseMode(
       const PauseMessage message,
       const PauseMode mode/*=PAUSE_MODE_SAME*/,
-      const uint8_t extruder/*=active_extruder*/
+      const uint8_t extruder/*=motion.extruder*/
     ) {
       stdOnPauseMode(message, mode, extruder);
     }
@@ -159,7 +159,7 @@ namespace ExtUI {
   #endif
 
   #if HAS_MESH
-    void onMeshUpdate(const int8_t x, const int8_t y, const_float_t val) {
+    void onMeshUpdate(const int8_t x, const int8_t y, const float val) {
       BedMeshViewScreen::onMeshUpdate(x, y, val);
     }
     void onMeshUpdate(const int8_t x, const int8_t y, const ExtUI::probe_state_t state) {

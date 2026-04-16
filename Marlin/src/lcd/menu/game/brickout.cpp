@@ -53,7 +53,7 @@ void reset_ball() {
   bdat.ballv = FTOF(1.3f);
   bdat.ballh = -FTOF(1.25f);
   uint8_t bx = bdat.paddle_x + (PADDLE_W) / 2 + ball_dist;
-  if (bx >= GAME_WIDTH - 10) { bx -= ball_dist * 2; bdat.ballh = -bdat.ballh; }
+  if (bx >= GAME_WIDTH - 10) { bx -= ball_dist * 2; bdat.ballh *= -1; }
   bdat.ballx = BTOF(bx);
   bdat.hit_dir = -1;
 }
@@ -71,10 +71,10 @@ void BrickoutGame::game_screen() {
       // Provisionally update the ball position
       const fixed_t newx = bdat.ballx + bdat.ballh, newy = bdat.bally + bdat.ballv;  // current next position
       if (!WITHIN(newx, 0, BTOF(GAME_WIDTH - 1))) {    // out in x?
-        bdat.ballh = -bdat.ballh; _BUZZ(5, 220);            // bounce x
+        bdat.ballh *= -1; _BUZZ(5, 220);            // bounce x
       }
       if (newy < 0) {                                       // out in y?
-        bdat.ballv = -bdat.ballv; _BUZZ(5, 280);            // bounce v
+        bdat.ballv *= -1; _BUZZ(5, 280);            // bounce v
         bdat.hit_dir = 1;
       }
       // Did the ball go below the bottom?
@@ -96,8 +96,8 @@ void BrickoutGame::game_screen() {
           // If bricks are gone, go to reset state
           if (!--bdat.brick_count) game_state = 2;
           // Bounce the ball cleverly
-          if ((bdat.ballv < 0) == (bdat.hit_dir < 0)) { bdat.ballv = -bdat.ballv; bdat.ballh += fixed_t(random(-16, 16)); _BUZZ(5, 880); }
-                                       else { bdat.ballh = -bdat.ballh; bdat.ballv += fixed_t(random(-16, 16)); _BUZZ(5, 640); }
+          if ((bdat.ballv < 0) == (bdat.hit_dir < 0)) { bdat.ballv *= -1; bdat.ballh += fixed_t(random(-16, 16)); _BUZZ(5, 880); }
+                                       else { bdat.ballh *= -1; bdat.ballv += fixed_t(random(-16, 16)); _BUZZ(5, 640); }
         }
       }
       // Is the ball moving down and in paddle range?
@@ -107,13 +107,13 @@ void BrickoutGame::game_screen() {
         if (WITHIN(diff, 0, PADDLE_W - 1)) {
 
           // Reverse Y direction
-          bdat.ballv = -bdat.ballv; _BUZZ(3, 880);
+          bdat.ballv *= -1; _BUZZ(3, 880);
           bdat.hit_dir = -1;
 
           // Near edges affects X velocity
           const bool is_left_edge = (diff <= 1);
           if (is_left_edge || diff >= PADDLE_W-1 - 1) {
-            if ((bdat.ballh > 0) == is_left_edge) bdat.ballh = -bdat.ballh;
+            if ((bdat.ballh > 0) == is_left_edge) bdat.ballh *= -1;
           }
           else if (diff <= 3) {
             bdat.ballh += fixed_t(random(-64, 0));
