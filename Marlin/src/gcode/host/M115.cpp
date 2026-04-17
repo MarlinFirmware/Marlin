@@ -86,7 +86,6 @@ void GcodeSuite::M115() {
    CAN_toolhead_send_string(TS("FW ", __DATE__, " ", __TIME__, "  Thermistor=", TEMP_SENSOR_0));
 #endif
 
-  // IRON, COMMENT OUT USELESS LINES, SOURCE_CODE_URL IS USED BY TFT
   SERIAL_ECHOPGM("FIRMWARE_NAME:Marlin"
     " " DETAILED_BUILD_VERSION " (" __DATE__ " " __TIME__ ")"
     " SOURCE_CODE_URL:" SOURCE_CODE_URL

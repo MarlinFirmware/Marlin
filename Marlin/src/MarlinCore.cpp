@@ -1749,7 +1749,7 @@ void setup() {
     SETUP_RUN(ftMotion.init());
   #endif
 
-  marlin_state = MarlinState::MF_RUNNING;
+  marlin.setState(MF_RUNNING);
 
   #ifdef STARTUP_TUNE
     // Play a short startup tune before continuing.
@@ -1765,7 +1765,7 @@ void setup() {
 /**
  * The main Marlin program loop
  *
- *  - Call idle() to handle all tasks between G-code commands
+ *  - Call marlin.idle() to handle all tasks between G-code commands
  *      Note that no G-codes from the queue can be executed during idle()
  *      but many G-codes can be called directly anytime like macros.
  *  - Check whether SD card auto-start is needed now.
@@ -1777,11 +1777,11 @@ void setup() {
  */
 void loop() {
   do {
-    idle();
+    marlin.idle();
 
     #if HAS_MEDIA
       if (card.flag.abort_sd_printing) abortSDPrinting();
-      if (marlin_state == MarlinState::MF_SD_COMPLETE) finishSDPrinting();
+      if (marlin.is(MF_SD_COMPLETE)) finishSDPrinting();
     #endif
 
     queue.advance();

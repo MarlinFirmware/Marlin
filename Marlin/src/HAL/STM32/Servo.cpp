@@ -89,15 +89,7 @@ void libServo::move(const int value) {
 
   if (attach(0) >= 0) {
     stm32_servo.write(value);
-    safe_delay(SERVO_DELAY); // SERVO_DELAY (at end of configuration.h)
-
-    #ifndef _3DTOUCH // LET BLTOUCH ACT LIKE 3D TOUCH
-      if ((value == BLTOUCH_DEPLOY) || (value == BLTOUCH_STOW)) { // FOR BLTOUCH, ALWAYS GO TO SWITCH MODE, EXCEPT FOR SELFTEST
-        stm32_servo.write(BLTOUCH_SW_MODE); // GO TO SWITCH MODE, NOT SUPPORTED/NEEDED BY 3DTOUCH
-        safe_delay(BLTOUCH_SWITCH_DELAY);
-      }
-    #endif
-
+    safe_delay(delay);
     TERN_(DEACTIVATE_SERVOS_AFTER_MOVE, detach());
   }
 }

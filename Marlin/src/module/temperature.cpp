@@ -3488,7 +3488,7 @@ void Temperature::disable_all_heaters() {
   TERN_(PROBING_HEATERS_OFF, pause_heaters(false));
 
   #if HAS_HOTEND
-    // IRON
+
     #if ENABLED(CAN_HOST) // Shut down the hotend in the head too
       CAN_host_send_gcode_2params('M', 104, 'S',   0, 0, 0); // M104 S0 .... Switch off hotend heating
       CAN_host_send_gcode_2params('M', 107,   0,   0, 0, 0); // M107 ....... Switch off part cooling fan

@@ -89,7 +89,6 @@ void GcodeSuite::M306() {
         ui.reset_status();
       }
 
-
         TERN_(CAN_TOOLHEAD, M306_report(true)); // Report MPC autotune results to CAN host
 
       #endif // !CAN_HOST
@@ -124,7 +123,8 @@ void GcodeSuite::M306_report(const bool forReplay/*=true*/) {
   report_heading(forReplay, F("Model predictive control"));
 
   // MPC Autotune info
-  if (TERN0(CAN_HOST, forReplay)) SERIAL_ECHOLNPGM(">>> Host M306 MPC settings:");
+  if (TERN0(CAN_HOST, forReplay))
+    SERIAL_ECHOLNPGM(">>> Host M306 MPC settings:");
 
   HOTEND_LOOP() {
     report_echo_start(forReplay);
