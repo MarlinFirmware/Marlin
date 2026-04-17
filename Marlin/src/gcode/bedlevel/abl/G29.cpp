@@ -524,7 +524,8 @@ G29_TYPE GcodeSuite::G29() {
   //the abl.Z_offset before leveling. (abl.Z_offset = abl.Z_offset - probe trigger height) retains 
   //any user configured Z offset.
     #ifndef USE_PROBE_FOR_Z_HOMING 
-     const ProbePtRaise raise_after = parser.boolval('E') ? PROBE_PT_STOW : PROBE_PT_RAISE;
+    reset_bed_level();      // Reset grid to 0.0 or "not probed". (Also disables ABL)
+    const ProbePtRaise raise_after = parser.boolval('E') ? PROBE_PT_STOW : PROBE_PT_RAISE;
      abl.measured_z = probe.probe_at_point(Z_SAFE_HOMING_X_POINT,Z_SAFE_HOMING_Y_POINT, raise_after, abl.verbose_level ,false);
      SERIAL_ECHOLNPGM("Probe Z  Reference: ", abl.measured_z);
      abl.Z_offset = (abl.Z_offset - abl.measured_z);
