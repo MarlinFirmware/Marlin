@@ -519,16 +519,6 @@ G29_TYPE GcodeSuite::G29() {
       }
     #endif
 
-  //As the probe is not being used to home. (Z Home = 0) will not be the same as the probe trigger height
-  //To avoide the Z home/probe Z offset being stored in the mesh take the probe trigger height away from 
-  //the abl.Z_offset before leveling. (abl.Z_offset = abl.Z_offset - probe trigger height) retains 
-  //any user configured Z offset.
-    #ifndef USE_PROBE_FOR_Z_HOMING 
-     const ProbePtRaise raise_after = parser.boolval('E') ? PROBE_PT_STOW : PROBE_PT_RAISE;
-     abl.measured_z = probe.probe_at_point(Z_SAFE_HOMING_X_POINT,Z_SAFE_HOMING_Y_POINT, raise_after, abl.verbose_level ,false);
-     SERIAL_ECHOLNPGM("Probe Z  Reference: ", abl.measured_z);
-     abl.Z_offset = abl.Z_offset - abl.measured_z;
-    #endif
 
     #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
       if (!abl.dryrun && (abl.gridSpacing != bedlevel.grid_spacing || abl.probe_position_lf != bedlevel.grid_start)) {
