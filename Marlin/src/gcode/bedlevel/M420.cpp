@@ -56,7 +56,7 @@
  *
  * With mesh-based leveling only:
  *
- *   C         Center mesh on the mean of the lowest and highest
+ *   C<offset>  Re-center the mesh Z values around zero, with optional global offset
  *
  * With MARLIN_DEV_MODE:
  *   S2        Create a simple random mesh and enable
@@ -144,7 +144,7 @@ void GcodeSuite::M420() {
 
     if (leveling_is_valid()) {
 
-      // Subtract the given value or the mean from all mesh values
+      // Re-center the mesh Z values around the midrange (or mean), plus any given offset
       if (parser.seen('C')) {
         const float cval = parser.value_float();
         #if ENABLED(AUTO_BED_LEVELING_UBL)
