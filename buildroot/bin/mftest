@@ -19,13 +19,14 @@ usage() {
 Usage: mftest [-a|--autobuild]
        mftest [-r|--rebuild]
        mftest [-s|--silent]
-       mftest [-t|--env=<env|index>] [-n|--num=<num>] [-m|--make] [-y|--build=<Y|n>]
+       mftest [-t|--env=<env|index>] [-n|--num=<num>] [-m|--make] [[-d|--default] [-y|--build=<Y|n>] [-i|--ini]]
        mftest [-u|--autoupload] [-n|--num=<num>]
 
 OPTIONS
   -a --autobuild   PIO Build using the MOTHERBOARD environment.
   -d --default     Restore to defaults before applying configs.
   -h --help        Print this help.
+  -i --ini         Don't build, just emit the config changes.
   -m --make        Use the make / Docker method for the build.
   -n --num         The index of the test to run. (In file order.)
   -r --rebuild     Rebuild previous PIO Build.
@@ -37,6 +38,15 @@ OPTIONS
 
 env shortcuts: tree due esp lin lp8|lpc8 lp9|lpc9 m128 m256|mega stm|f1 f4 f7 s6 teensy|t31|t32 t35|t36 t40|t41
 "
+}
+
+get_desc() {
+  local file="$1"
+  awk '
+  /^# Test:/ { found=1; next }
+  found && /^#$/ { found=2; next }
+  found==2 && /^# / { print substr($0,3); exit }
+  ' "$file"
 }
 
 TESTPATH=buildroot/tests
@@ -57,11 +67,12 @@ TESTENV='-'
 CHOICE=0
 DEBUG=0
 
-while getopts 'adhmn:rst:uvy-:' OFLAG; do
+while getopts 'adhimn:rst:uvy-:' OFLAG; do
   case "${OFLAG}" in
     a) AUTO_BUILD=1 ; bugout "Auto-Build target..." ;;
     d) DL_DEFAULTS=1 ; bugout "Restore to defaults..." ;;
     h) EXIT_USAGE=1 ;;
+    i) INFO=1 ; BUILD_YES='N' ; bugout "Info mode..." ;;
     m) USE_MAKE=1 ; bugout "Using make with Docker..." ;;
     n) case "$OPTARG" in
          *[!0-9]*) perror "option requires a number" $OFLAG ; EXIT_USAGE=2 ;;
@@ -94,6 +105,7 @@ while getopts 'adhmn:rst:uvy-:' OFLAG; do
          make) USE_MAKE=1 ; bugout "Using make with Docker..." ;;
 debug|verbose) DEBUG=1    ; bugout "Debug ON" ;;
       default) DL_DEFAULTS=1 ; bugout "Restore to defaults..." ;;
+          ini) INFO=1 ; BUILD_YES='N' ; bugout "Info mode..." ;;
         build) case "$OVAL" in
                  ''|y|yes) BUILD_YES='Y' ;;
                      n|no) BUILD_YES='N' ;;
@@ -225,6 +237,12 @@ if ((AUTO_BUILD)); then
   exit $?
 fi
 
+if [[ $TESTNUM -gt 0 ]]; then
+  NAMES=( $(cd "$TESTPATH" && ls -d */ | LC_ALL=C sort -f) )
+  TESTENV=${NAMES[$TESTNUM-1]%/}
+  ((INFO)) || echo "Preselected test $TESTNUM ... ($TESTENV)"
+fi
+
 #
 # List available tests and ask for selection
 #
@@ -234,10 +252,11 @@ if [[ $TESTENV == '-' ]]; then
   NAMES=()
   MENU=()
   BIGLEN=0
-  for FILE in $( ls -1 $TESTPATH/* | sort -f )
+  for DIR in $( ls -d $TESTPATH/*/ | LC_ALL=C sort -f )
   do
     let IND++
-    TNAME=${FILE/$TESTPATH\//}
+    TNAME=${DIR#$TESTPATH/}
+    TNAME=${TNAME%/}
     NAMES+=($TNAME)
     IFS=""
     ITEM=$( printf "%2i) %s" $IND $TNAME )
@@ -257,24 +276,15 @@ if [[ $TESTENV == '-' ]]; then
   echo
   for (( ; ; ))
   do
-    if [[ $TESTNUM -gt 0 ]]; then
-      NAMEIND=$TESTNUM
-    else
-      read -p "Select a test to apply (1-$IND) : " NAMEIND
-    fi
+    read -p "Select a test to apply (1-$IND) : " NAMEIND
     [[ -z $NAMEIND ]] && { errout "(canceled)" ; exit 1 ; }
-    TESTENV=${NAMES[$NAMEIND-1]}
-    [[ $TESTNUM -gt 0 ]] && { echo "Preselected test $TESTNUM ... ($TESTENV)" ; TESTNUM='' ; }
     [[ $NAMEIND =~ $ISNUM ]] && ((NAMEIND >= 1 && NAMEIND <= IND)) && { TESTENV=${NAMES[$NAMEIND-1]} ; echo ; break ; }
     errout "Invalid selection."
   done
 fi
 
-# Get the contents of the test file
-OUT=$( cat $TESTPATH/$TESTENV 2>/dev/null ) || { errout "Can't find test '$TESTENV'." ; exit 1 ; }
-
 # Count up the number of tests
-TESTCOUNT=$( awk "/$ISEXEC/{a++}END{print a}" <<<"$OUT" )
+TESTCOUNT=$(ls -1 "$TESTPATH/$TESTENV"/config-*.ini 2>/dev/null | wc -l)
 
 # User entered a number?
 (( CHOICE && CHOICE > TESTCOUNT )) && { errout "Invalid test selection '$CHOICE' (1-$TESTCOUNT)." ; exit 1 ; }
@@ -283,17 +293,15 @@ if [[ $CHOICE == 0 ]]; then
   #
   # List test descriptions with numbers and get selection
   #
-  echo "Available '$TESTENV' tests:" ; echo "$OUT" | {
-    IND=0
-    while IFS= read -r LINE
-    do
-      if [[ $LINE =~ $ISEXEC ]]; then
-        DESC=$( sed -E 's/^exec_test \$1 \$2 "([^"]+)".*$/\1/g' <<<"$LINE" )
-        (( ++IND < 10 )) && echo -n " "
-        echo " $IND) $DESC"
-      fi
-    done
-  }
+  echo "Available '$TESTENV' tests:"
+  IND=0
+  mapfile -t config_files < <(ls -1 "$TESTPATH/$TESTENV"/config-*.ini | sort -V)
+  for config_file in "${config_files[@]}"; do
+    (( ++IND ))
+    DESC=$(get_desc "$config_file")
+    (( IND < 10 )) && echo -n " "
+    echo " $IND) $DESC"
+  done
   CHOICE=1
   if [[ $TESTCOUNT > 1 ]]; then
     for (( ; ; ))
@@ -309,50 +317,44 @@ fi
 #
 # Restore to defaults if requested
 #
-((DL_DEFAULTS)) && use_example_configs
+((DL_DEFAULTS && !INFO)) && use_example_configs
 
 #
-# Run the specified test lines
+# Find the config file for the selected test
 #
-echo -ne "\033[0;33m"
-echo "$OUT" | {
-  IND=0
-  GOTX=0
-  CMD=""
-  while IFS= read -r LINE
-  do
-    if [[ $LINE =~ $ISCMD || $GOTX == 1 ]]; then
-      ((!IND)) && let IND++
-      if [[ $LINE =~ $ISEXEC ]]; then
-        ((IND++ > CHOICE)) && break
-      else
-        ((!HEADER)) && {
-          HEADER=1
-          echo -e "\n#\n# Test $TESTENV ($CHOICE) $DESC\n#"
-        }
-        ((IND == CHOICE)) && {
-          GOTX=1
-          [[ -n $DL_DEFAULTS && $LINE =~ $ISRST ]] && LINE="use_example_configs"
-          [[ $CMD == "" ]] && CMD="$LINE" || CMD=$( echo -e "$CMD$LINE" | sed -e 's/\\//g' | sed -E 's/ +/ /g' )
-          [[ $LINE =~ $ISCONT ]] || { echo "$CMD" ; eval "$CMD" ; CMD="" ; }
-        }
-      fi
-    fi
-  done
-}
-echo -ne "\033[0m"
+config_file="$TESTPATH/$TESTENV/config-$(printf "%02d" $CHOICE).ini"
+[[ -f "$config_file" ]] || { errout "Config file '$config_file' not found." ; exit 1 ; }
+DESC=$(get_desc "$config_file")
 
-# Make clear it's a TEST
-opt_set CUSTOM_MACHINE_NAME "\"Test $TESTENV ($CHOICE)\""
-
-# Build the test too?
-if [[ -z "$BUILD_YES" ]]; then
-  echo
-  read -p "Build $TESTENV test #$CHOICE (y/N) ? " BUILD_YES
+if ((INFO)); then
+  cat "$config_file"
+else
+  cp "$config_file" Marlin/config.ini
 fi
 
-[[ $BUILD_YES == 'Y' || $BUILD_YES == 'Yes' ]] && {
-  ((USE_MAKE)) && make tests-single-local TEST_TARGET=$TESTENV ONLY_TEST=$CHOICE
-  ((USE_MAKE)) || pio run $SILENT_FLAG -d . -e $TESTENV
-  echo "$TESTENV" >"$STATE_FILE"
-}
+if [[ ! $INFO ]] ; then
+
+  # Make clear that it's a TEST
+  opt_set CUSTOM_MACHINE_NAME "\"Test $TESTENV ($CHOICE)\""
+
+  # Build the test too?
+  if [[ -z "$BUILD_YES" ]]; then
+    echo
+    read -p "Build $TESTENV test #$CHOICE (y/N) ? " BUILD_YES
+  fi
+
+  [[ $BUILD_YES == 'Y' || $BUILD_YES == 'Yes' ]] && {
+
+    # Remember the last-built environment for mftest -r
+    echo "$TESTENV" >"$STATE_FILE"
+
+    # Check for target mega2560 and index 1
+    [[ $TESTENV == 'mega2560' && $CHOICE -eq 1 ]] && IS_MEGA_1=1 || IS_MEGA_1=0
+
+    ((IS_MEGA_1)) && ci_src_filter -n
+    ((USE_MAKE)) && make tests-single-local TEST_TARGET=$TESTENV ONLY_TEST=$CHOICE
+    ((USE_MAKE)) || pio run $SILENT_FLAG -d . -e $TESTENV
+    ((IS_MEGA_1)) && ci_src_filter -y
+  }
+
+fi
