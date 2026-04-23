@@ -53,10 +53,11 @@
  *
  *   L<index>  Load UBL mesh from index (0 is default)
  *   T<map>    0:Human-readable 1:CSV 2:"LCD" 4:Compact
+ *   C<offset> Adjust Mesh To Mean (and subtract the given offset)
  *
  * With mesh-based leveling only:
  *
- *   C<offset>  Re-center the mesh Z values around zero, with optional global offset
+ *   C<offset> Center Mesh on the Midrange (and subtract the given offset)
  *
  * With MARLIN_DEV_MODE:
  *   S2        Create a simple random mesh and enable
@@ -159,7 +160,7 @@ void GcodeSuite::M420() {
             // Get the sum and average of all mesh values
             float mesh_sum = 0;
             GRID_LOOP(x, y) mesh_sum += bedlevel.z_values[x][y];
-            const float zmean = mesh_sum / float(GRID_MAX_POINTS);
+            const float zmean = mesh_sum / float(GRID_MAX_POINTS) + cval;
 
           #else // midrange
 
