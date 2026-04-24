@@ -309,6 +309,10 @@ void DGUSRxHandler::tempPreset(DGUS_VP &vp, void *data_ptr) {
 void DGUSRxHandler::tempTarget(DGUS_VP &vp, void *data_ptr) {
   const int16_t temp = BE16_P(data_ptr);
 
+  // Ignore zero/negative values - the display may send these when resetting its
+  // input widget after a user interaction. Use the Cool button (tempCool) to turn off heaters.
+  if (temp <= 0) return;
+
   switch (vp.addr) {
     default: return;
     case DGUS_Addr::TEMP_SetTarget_Bed:  ExtUI::setTargetTemp_celsius(temp, ExtUI::BED); break;
