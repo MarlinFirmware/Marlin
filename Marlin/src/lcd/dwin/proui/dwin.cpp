@@ -4470,7 +4470,7 @@ void drawMaxAccelMenu() {
     void setEditMeshX() { hmiValue.select = 0; setIntOnClick(0, GRID_MAX_POINTS_X - 1, bedLevelTools.mesh_x, applyEditMeshX, liveEditMesh); }
     void setEditMeshY() { hmiValue.select = 1; setIntOnClick(0, GRID_MAX_POINTS_Y - 1, bedLevelTools.mesh_y, applyEditMeshY, liveEditMesh); }
     void setEditZValue() { setPFloatOnClick(Z_OFFSET_MIN, Z_OFFSET_MAX, 3); }
-    void zeroPoint() { bedLevelTools.manualValueUpdate(bedLevelTools.mesh_x, bedLevelTools.mesh_y, true); editZValueItem->redraw(); LCD_MESSAGE(MSG_ZERO_MESH); }
+    void zeroPoint() { bedLevelTools.manualValueUpdate(bedLevelTools.mesh_x, bedLevelTools.mesh_y, true); editZValueItem->redraw(); LCD_MESSAGE(MSG_ZERO_MESH_POINT); }
     void resetMesh() { bedLevelTools.meshReset(); LCD_MESSAGE(MSG_MESH_RESET); }
 
     // Mesh Inset
