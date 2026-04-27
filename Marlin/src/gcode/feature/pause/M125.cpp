@@ -85,7 +85,7 @@ void GcodeSuite::M125() {
   #endif
 
   #if HAS_HOTEND_OFFSET && NONE(DUAL_X_CARRIAGE, DELTA)
-    park_point += hotend_offset[motion.extruder];
+    park_point += motion.active_hotend_offset();
   #endif
 
   const bool sd_printing = card.isStillPrinting();
