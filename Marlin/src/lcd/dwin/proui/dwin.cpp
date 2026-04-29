@@ -1671,10 +1671,10 @@ void dwinHomingDone() {
       hmiSaveProcessID(ID_PlotProcess);
 
       switch (result) {
-        #if ENABLED(MPCTEMP)
-          case MPC_STARTED:
-        #elif ENABLED(PIDTEMP)
+        #if ENABLED(PIDTEMP)
           case PID_STARTED:
+        #elif ENABLED(MPCTEMP)
+          case MPC_STARTED:
         #endif
             title.showCaption(GET_TEXT_F(MSG_HOTEND_TEMP_GRAPH));
             DWINUI::drawCenteredString(3, hmiData.colorPopupTxt, 75, GET_TEXT_F(MSG_TEMP_NOZZLE));
@@ -1780,7 +1780,7 @@ void dwinHomingDone() {
         checkkey = last_checkkey;
         dwinPopupContinue(ICON_TempTooHigh, GET_TEXT_F(MSG_PID_AUTOTUNE_FAILED), GET_TEXT_F(DGUS_MSG_TEMP_TOO_HIGH));
         break;
-      case AUTOTUNE_DONE:
+      case PID_DONE:
         checkkey = last_checkkey;
         dwinPopupConfirm(ICON_TempTooLow, GET_TEXT_F(MSG_PID_AUTOTUNE), GET_TEXT_F(MSG_BUTTON_DONE));
         break;
@@ -1816,7 +1816,7 @@ void dwinHomingDone() {
         dwinPopupContinue(ICON_TempTooHigh, GET_TEXT_F(MSG_ERROR), F(STR_MPC_AUTOTUNE_INTERRUPTED));
         ui.reset_alert_level();
         break;
-      case AUTOTUNE_DONE:
+      case MPC_DONE:
         checkkey = last_checkkey;
         dwinPopupConfirm(ICON_TempTooLow, GET_TEXT_F(MSG_MPC_AUTOTUNE), GET_TEXT_F(MSG_BUTTON_DONE));
         ui.reset_alert_level();

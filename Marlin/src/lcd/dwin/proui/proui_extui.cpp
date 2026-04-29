@@ -216,12 +216,7 @@ namespace ExtUI {
   #if HAS_PID_HEATING
     void onPIDTuning(const pidresult_t rst) {
       // Called for temperature PID tuning result
-      if (rst == PID_DONE) {
-        dwinPIDTuning(AUTOTUNE_DONE);
-      }
-      else {
-        dwinPIDTuning(tempcontrol_t(rst));
-      }
+      dwinPIDTuning(tempcontrol_t(rst));
     }
     void onStartM303(const int count, const heater_id_t hid, const celsius_t temp) {
       dwinStartM303(count, hid, temp);
@@ -231,12 +226,7 @@ namespace ExtUI {
   #if ENABLED(MPC_AUTOTUNE)
     void onMPCTuning(const mpcresult_t rst) {
       // Called for temperature MPC tuning result
-      if (rst == MPC_DONE) {
-        dwinMPCTuning(AUTOTUNE_DONE);
-      }
-      else {
-        dwinMPCTuning(tempcontrol_t(rst));
-      }
+      dwinMPCTuning(tempcontrol_t(rst));
     }
   #endif
 
@@ -246,22 +236,6 @@ namespace ExtUI {
 
   void onSteppersDisabled() {}
   void onSteppersEnabled() {}
- /** void onAxisDisabled(const axis_t a) {
-    AxisEnum axis;
-    switch (a) {
-      TERN_(HAS_X_AXIS, case X:)
-      default: axis = X_AXIS;
-      OPTCODE(HAS_Y_AXIS, case Y: axis = Y_AXIS)
-      OPTCODE(HAS_Z_AXIS, case Z: axis = Z_AXIS)
-      OPTCODE(HAS_I_AXIS, case I: axis = I_AXIS)
-      OPTCODE(HAS_J_AXIS, case J: axis = J_AXIS)
-      OPTCODE(HAS_K_AXIS, case K: axis = K_AXIS)
-      OPTCODE(HAS_U_AXIS, case U: axis = U_AXIS)
-      OPTCODE(HAS_V_AXIS, case V: axis = V_AXIS)
-      OPTCODE(HAS_W_AXIS, case W: axis = W_AXIS)
-    }
-    motion.set_axis_untrusted((AxisEnum)axis); // MRISCOC workaround: https://github.com/MarlinFirmware/Marlin/issues/23095
-  }*/
   void onAxisDisabled(const axis_t axis) {
     motion.set_axis_untrusted((AxisEnum)axis); // MRISCOC workaround: https://github.com/MarlinFirmware/Marlin/issues/23095
   }

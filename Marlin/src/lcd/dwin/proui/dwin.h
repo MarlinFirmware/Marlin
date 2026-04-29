@@ -75,19 +75,20 @@ enum processID : uint8_t {
 #if ANY(HAS_PID_HEATING, MPC_AUTOTUNE)
 
   enum tempcontrol_t : uint8_t {
-    AUTOTUNE_DONE,
     #if HAS_PID_HEATING
-      OPTITEM(PIDTEMP, PID_STARTED)
-      OPTITEM(PIDTEMPBED, PID_BED_STARTED)
-      OPTITEM(PIDTEMPCHAMBER, PID_CHAMBER_STARTED)
+      PID_STARTED,
+      PID_BED_STARTED,
+      PID_CHAMBER_STARTED,
       PID_BAD_HEATER_ID,
       PID_TEMP_TOO_HIGH,
       PID_TUNING_TIMEOUT,
+      PID_DONE,
     #endif
     #if ENABLED(MPC_AUTOTUNE)
       MPC_STARTED,
       MPC_TEMP_ERROR,
       MPC_INTERRUPTED,
+      MPC_DONE
     #endif
   };
 
@@ -191,8 +192,10 @@ typedef struct {
 
 typedef struct {
   rgb_t color;                        // Color
-  #if ANY(HAS_PID_HEATING, MPC_AUTOTUNE)
-    tempcontrol_t tempControl = AUTOTUNE_DONE;
+  #if HAS_PID_HEATING
+    tempcontrol_t tempControl = PID_STARTED;
+  #elif ENABLED(MPC_AUTOTUNE)
+    tempcontrol_t tempControl = MPC_STARTED;
   #endif
   uint8_t select = 0;                 // Auxiliary selector variable
   AxisEnum axis = X_AXIS;             // Axis Select
