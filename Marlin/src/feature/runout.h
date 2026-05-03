@@ -172,7 +172,10 @@ class TFilamentMonitor : public FilamentMonitorBase {
 
       filament_ran_out = true;
       event_filament_runout(extruder);
-      planner.synchronize();
+      // FT_MOTION manages its own motion buffer separately; synchronize() causes deadlock
+      #if !ENABLED(FT_MOTION)
+        planner.synchronize();
+      #endif
     }
 
     // Reset after a filament runout or upon resuming a job

@@ -245,7 +245,7 @@ typedef struct SettingsDataStruct {
   //
   #if ENABLED(AUTO_FIRST_LAYER_Z_ADJUST)
     float calibrated_first_layer_height;                // M420 H parser.calibrated_first_layer_height
-    bool aflza_active;                                  // M420 S parser.adaptive_flzo_active
+    bool aflza_active;                                  // M420 S parser.aflza_active
   #endif
 
   //
@@ -3407,7 +3407,7 @@ void MarlinSettings::reset() {
   // First Layer Height
   //
   #if ENABLED(AUTO_FIRST_LAYER_Z_ADJUST)
-    parser.calibrated_first_layer_height = CALIBRATED_FIRST_LAYER_Z;
+    parser.calibrated_first_layer_height = CALIBRATED_FIRST_LAYER_Z_HEIGHT;
     parser.aflza_active = false;
   #endif
 
