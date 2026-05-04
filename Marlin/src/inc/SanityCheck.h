@@ -1962,7 +1962,7 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
 #undef GOOD_AXIS_PINS
 
 /**
- * Make sure each extruder auto fan pin doesn't conflict with its own part cooling fan pin
+ * Make sure each extruder's auto fan pin doesn't conflict with its own part cooling fan pin
  */
 #if HAS_AUTO_FAN
   #if PINS_EXIST(E0_AUTO_FAN, PART_COOLING_FAN0) && E0_AUTO_FAN_PIN == PART_COOLING_FAN0_PIN
