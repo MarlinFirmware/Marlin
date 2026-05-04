@@ -169,7 +169,7 @@ void _menu_move_distance(const AxisEnum axis, const screenFunc_t func, const int
   }
   else if (parser.using_inch_units()) {
     #ifdef MANUAL_MOVE_DISTANCE_IN
-      #define _MOVE_IN(I) __MOVE_SUB(MSG_MOVE_N_MM, STRINGIFY(I), IN_TO_MM(I));
+      #define _MOVE_IN(I) __MOVE_SUB(MSG_MOVE_N_IN, STRINGIFY(I), IN_TO_MM(I));
       MAP(_MOVE_IN, MANUAL_MOVE_DISTANCE_IN)
     #endif
   }
@@ -556,7 +556,7 @@ void menu_move() {
 
       editable.state = c.axis_sync_enabled;
       EDIT_ITEM(bool, MSG_FTM_AXIS_SYNC, &editable.state, []{
-        queue.inject(TS(F("M493"), IAXIS_CHAR(MenuItemBase::itemIndex), 'T', int(editable.state)));
+        queue.inject(TS(F("M493"), IAXIS_CHAR(MenuItemBase::itemIndex), 'H', int(editable.state)));
       });
 
       #if ENABLED(FTM_RESONANCE_TEST)

@@ -883,8 +883,8 @@ namespace ExtUI {
       void moveToMeshPoint(const xy_uint8_t &pos, const float z) {
         #if ANY(MESH_BED_LEVELING, AUTO_BED_LEVELING_UBL)
           REMEMBER(fr, motion.feedrate_mm_s);
-          const float x_target = MESH_MIN_X + pos.x * (MESH_X_DIST),
-                      y_target = MESH_MIN_Y + pos.y * (MESH_Y_DIST);
+          const float x_target = mesh_min.x + pos.x * (MESH_X_DIST),
+                      y_target = mesh_min.y + pos.y * (MESH_Y_DIST);
           if (x_target != motion.position.x || y_target != motion.position.y) {
             // If moving across bed, raise nozzle to safe height over bed
             motion.feedrate_mm_s = motion.z_probe_fast_mm_s;

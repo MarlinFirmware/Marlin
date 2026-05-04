@@ -276,7 +276,7 @@
  * M603 - Configure filament change: 'M603 T<tool> U<unload_length> L<load_length>'. (Requires ADVANCED_PAUSE_FEATURE)
  * M605 - Set Dual X-Carriage movement mode: 'M605 S<mode> [X<x_offset>] [R<temp_offset>]'. (Requires DUAL_X_CARRIAGE)
  * M665 - Set Delta configurations: 'M665 H<delta height> L<diagonal rod> R<delta radius> S<segments/s> B<calibration radius> X<Alpha angle trim> Y<Beta angle trim> Z<Gamma angle trim>' (Requires DELTA)
- *        Set SCARA configurations: 'M665 S<segments-per-second> P<theta-psi-offset> T<theta-offset> Z<z-offset>' (Requires MORGAN_SCARA or MP_SCARA)
+ *        Set SCARA configurations: 'M665 S<segments-per-second> P<theta-psi-offset> T<theta-offset> Z<z-offset>' (Requires SCARA)
  *        Set Polargraph draw area and belt length: 'M665 S<segments-per-second> L<draw-area-left> R<draw-area-right> T<draw-area-top> B<draw-area-bottom> H<max-belt-length>'
  * M666 - Set / Report offsets for delta (Requires DELTA) or dual endstops. (Requires [XYZ]_DUAL_ENDSTOPS)
  * M672 - Set/Reset Duet Smart Effector's sensitivity. (Requires DUET_SMART_EFFECTOR and SMART_EFFECTOR_MOD_PIN)
@@ -1050,7 +1050,7 @@ private:
     static void M360();
   #endif
 
-  #if ENABLED(MORGAN_SCARA)
+  #if ENABLED(SCARA)
     static bool M360();
     static bool M361();
     static bool M362();

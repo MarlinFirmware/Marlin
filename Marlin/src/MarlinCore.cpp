@@ -1165,6 +1165,7 @@ inline void tmc_standby_setup() {
  *  - Apply Password Lock - Hold for Authentication
  *  - Open Touch Screen Calibration screen, if not calibrated
  *  - Set Marlin to RUNNING State
+ *  - Stop print timer
  */
 void setup() {
   #ifdef FASTIO_INIT
@@ -1381,6 +1382,12 @@ void setup() {
       SETUP_RUN(card.mount());        // Mount media with settings before first_load
     #endif
   #endif
+
+  //#if ENABLED(PRINTJOB_TIMER_AUTOSTART)
+  //  // Stop timer and set welcome message
+  //  if (TERN1(POWER_LOSS_RECOVERY, !recovery.check()))
+  //    thermalManager.auto_job_check_timer(false, true);
+  //#endif
 
   // Prepare some LCDs to display early
   #if HAS_EARLY_LCD_SETTINGS

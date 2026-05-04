@@ -46,8 +46,18 @@
   #include "../../lcd/extui/ui_api.h"
 #endif
 
+#if ALL(HAS_MESH, DWIN_LCD_PROUI)
+  #include "../../lcd/dwin/proui/bedlevel_tools.h"
+#endif
+
 bool leveling_is_valid() {
-  return TERN1(HAS_MESH, bedlevel.mesh_is_valid());
+  return (
+    #if ALL(HAS_MESH, DWIN_LCD_PROUI)
+      bedLevelTools.meshValidate()
+    #else
+      TERN1(HAS_MESH, bedlevel.mesh_is_valid())
+    #endif
+  );
 }
 
 /**
