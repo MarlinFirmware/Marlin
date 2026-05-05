@@ -84,7 +84,7 @@ void GcodeSuite::G35() {
   probe.use_probing_tool();
 
   // Disable duplication mode on homing
-  TERN_(HAS_DUPLICATION_MODE, set_duplication_enabled(false));
+  TERN_(HAS_DUPLICATION_MODE, motion.set_extruder_duplication(false));
 
   // Home only Z axis when X and Y is trusted, otherwise all axes, if needed before this procedure
   if (!motion.all_axes_trusted()) process_subcommands_now(F("G28Z"));
