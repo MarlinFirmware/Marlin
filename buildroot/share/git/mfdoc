@@ -5,9 +5,15 @@
 # Start Jekyll in watch mode to work on Marlin Documentation and preview locally
 #
 
-[[ $# == 0 ]] || { echo "Usage: `basename $0`" 1>&2 ; exit 1; }
+TEST=0
+case "$1" in
+  -t) TEST=1; shift ;;
+  "") ;;
+  *) echo "Usage: `basename $0` [-t]" 1>&2 ; exit 1 ;;
+esac
+[[ $# == 0 ]] || { echo "Usage: `basename $0` [-t]" 1>&2 ; exit 1; }
 
-MFINFO=$(mfinfo "$@") || exit 1
+MFINFO=$(mfinfo) || exit 1
 IFS=' ' read -a INFO <<< "$MFINFO"
 ORG=${INFO[0]}
 REPO=${INFO[2]}
@@ -26,6 +32,11 @@ opensite() {
     "$OPEN" "$URL"
   fi
 }
+
+if [[ $TEST == 1 ]]; then
+  echo "Testing MarlinDocumentation..."
+  exec bundle exec jekyll build
+fi
 
 echo "Previewing MarlinDocumentation..."
 
