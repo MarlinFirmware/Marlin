@@ -1205,18 +1205,26 @@ class Planner {
 
     #if HAS_JUNCTION_DEVIATION
 
-      FORCE_INLINE static void normalize_junction_vector(xyze_float_t &vector) {
-        float magnitude_sq = 0;
+      FORCE_INLINE static int normalize_junction_vector(xyze_float_t &vector) {
+        float magnitude_sq = 0.0f;
         LOOP_LOGICAL_AXES(idx) if (vector[idx]) magnitude_sq += sq(vector[idx]);
-        vector *= RSQRT(magnitude_sq);
+        // Avoid divide by almost-zero (solves real-live motion issue). Threshold consistent with
+        // junction_cos_theta. TODO: *might* need to increase _both_ a bit, e.g. 6.4e-5f here, 8e-3f for
+        // limit_value_by_axis_maximum below and NOLESS(junction_cos_theta,-0.999968f) in planner.cpp
+        if (magnitude_sq > 2.0e-6f) {
+          vector *= RSQRT(magnitude_sq);
+          return 0;
+        } else return 1;
       }
 
       // max_value is block->acceleration
+      // unit_vec is the direction of the normal (i.e. perpendicular) acceleration _only_
       FORCE_INLINE static float limit_value_by_axis_maximum(const float max_value, xyze_float_t &unit_vec) {
         float limit_value = max_value;
         LOOP_LOGICAL_AXES(idx) {
-          if (unit_vec[idx]) {
-            const uint32_t abs_vec = ABS(unit_vec[idx]);
+          const float abs_vec = ABS(unit_vec[idx]);
+          // Skip small components, avoiding divide by almost-zero
+          if (abs_vec > 1.5e-3f) {  // sqrt of normalize_junction_vector() threshold (for good measure)
             if (limit_value * abs_vec > settings.max_acceleration_mm_per_s2[idx])
               limit_value = settings.max_acceleration_mm_per_s2[idx] / abs_vec;
           }
