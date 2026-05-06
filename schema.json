@@ -14801,16 +14801,6 @@
         "requires": "(ENABLED(FT_MOTION))",
         "comment": "Vibration tolerance used by EI input shapers for E axis"
       },
-      "FTM_RESONANCE_TEST": {
-        "section": "motion control",
-        "name": "FTM_RESONANCE_TEST",
-        "enabled": false,
-        "line": 1207,
-        "sid": 1434,
-        "type": "switch",
-        "requires": "(ENABLED(FT_MOTION))",
-        "comment": "Sine sweep motion for resonance study"
-      },
       "FTM_SMOOTHING": {
         "section": "motion control",
         "name": "FTM_SMOOTHING",
@@ -15112,7 +15102,17 @@
         "type": "switch",
         "requires": "(ANY(INPUT_SHAPING_X, INPUT_SHAPING_Y, INPUT_SHAPING_Z))",
         "comment": "Add a menu to the LCD to set shaping parameters."
-      }
+      },
+      "RESONANCE_TEST": {
+        "section": "motion control",
+        "name": "RESONANCE_TEST",
+        "enabled": false,
+        "line": 1316,
+        "sid": 1434,
+        "type": "switch",
+        "requires": "(ANY(INPUT_SHAPING_X, INPUT_SHAPING_Y, INPUT_SHAPING_Z, FTM_SHAPER_ZV, FTM_SHAPER_ZVD, FTM_SHAPER_ZVDD, FTM_SHAPER_ZVDDD, FTM_SHAPER_EI, FTM_SHAPER_2HEI, FTM_SHAPER_3HEI, FTM_SHAPER_MZV))",
+        "comment": "Sine sweep motion for resonance study"
+      },
     },
     "motion": {
       "AXIS_RELATIVE_MODES": {

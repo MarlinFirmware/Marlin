@@ -763,8 +763,6 @@
   #error "MORGAN_SCARA is now just SCARA."
 #elif defined(MP_SCARA)
   #error "MP_SCARA is now just SCARA."
-#elif defined(FTM_RESONANCE_TEST)
-  #error "FTM_RESONANCE_TEST is now RESONANCE_TEST and also applies to INPUT_SHAPING_[XYZ]."
 #endif
 
 // SDSS renamed to SD_SS_PIN
