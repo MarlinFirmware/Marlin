@@ -41,7 +41,7 @@
  * here we define this default string as the date where the latest release
  * version was tagged.
  */
-//#define STRING_DISTRIBUTION_DATE "2026-05-05"
+//#define STRING_DISTRIBUTION_DATE "2026-05-06"
 
 /**
  * The protocol for communication to the host. Protocol indicates communication
