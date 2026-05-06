@@ -794,7 +794,7 @@ float Probe::run_z_probe(const bool sanity_check/*=true*/, const float z_min_poi
 
     // Do a first probe at the fast speed
     const bool probe_fail = probe_down_to_z(z_probe_low_point, fr_mm_s),              // No probe trigger?
-               early_fail = (scheck && motion.position.z > zoffs + error_tolerance); // Probe triggered too high?
+               early_fail = (scheck && motion.position.z > zoffs + error_tolerance);  // Probe triggered too high?
     #if ENABLED(DEBUG_LEVELING_FEATURE)
       if (DEBUGGING(LEVELING) && (probe_fail || early_fail)) {
         DEBUG_ECHOPGM(" Probe fail! - ");
@@ -816,9 +816,6 @@ float Probe::run_z_probe(const bool sanity_check/*=true*/, const float z_min_poi
 
     // Double-probing does a fast probe followed by a slow probe
     #if TOTAL_PROBING == 2
-
-      // Attempt to tare the probe
-      if (TERN0(PROBE_TARE, tare())) return NAN;
 
       // Do a first probe at the fast speed
       if (try_to_probe(PSTR("FAST"), z_probe_low_point, motion.z_probe_fast_mm_s, sanity_check)) return NAN;
