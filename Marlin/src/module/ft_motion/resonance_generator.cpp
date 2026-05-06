@@ -106,8 +106,8 @@ void ResonanceGenerator::fill_stepper_plan_buffer() {
 
     #if HAS_FTM_DIR_CHANGE_HOLD
 
-    // When a flip is detected (and the axis is in stealthChop or is standalone),
-    // hold that axis' trajectory coordinate constant for at least 750µs.
+      // When a flip is detected (and the axis is in stealthChop or is standalone),
+      // hold that axis' trajectory coordinate constant for at least 750µs.
 
       #define DIR_FLIP_HOLD_S 0.000'750f
       static constexpr uint32_t dir_flip_hold_frames = 1 + (DIR_FLIP_HOLD_S) / (FTM_TS);
