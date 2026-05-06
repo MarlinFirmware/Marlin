@@ -104,6 +104,36 @@ void ResonanceGenerator::fill_stepper_plan_buffer() {
     rt_time += FTM_TS;
     rt_factor += FTM_TS * M_TAU;
 
+    #if HAS_FTM_DIR_CHANGE_HOLD
+
+      // When a flip is detected (and the axis is in stealthChop or is standalone),
+      // hold that axis' trajectory coordinate constant for at least 750µs.
+
+      #define DIR_FLIP_HOLD_S 0.000'750f
+      static constexpr uint32_t dir_flip_hold_frames = 1 + (DIR_FLIP_HOLD_S) / (FTM_TS);
+
+      auto start_hold_if_dir_flip = [&](const AxisEnum a) {
+        const bool dir = traj_coords[a] > ftMotion.last_target_traj[a],
+                   moved = traj_coords[a] != ftMotion.last_target_traj[a],
+                   flipped = moved && (dir != ftMotion.last_traj_dir[a]),
+                   hold = !moved || (flipped && ftMotion.hold_frames[a] > 0);
+        if (hold) {
+          if (ftMotion.hold_frames[a]) ftMotion.hold_frames[a]--;
+          traj_coords[a] = ftMotion.last_target_traj[a];
+        }
+        else {
+          ftMotion.last_traj_dir[a] = dir;
+          ftMotion.hold_frames[a] = dir_flip_hold_frames;
+        }
+      };
+
+      #define START_HOLD_IF_DIR_FLIP(A) TERN_(FTM_DIR_CHANGE_HOLD_##A, start_hold_if_dir_flip(_AXIS(A)));
+
+      LOGICAL_AXIS_MAP(START_HOLD_IF_DIR_FLIP);
+      ftMotion.last_target_traj = traj_coords;
+
+    #endif // HAS_FTM_DIR_CHANGE_HOLD
+
     // Store in buffer
     ftMotion.stepping_enqueue(traj_coords);
   }
