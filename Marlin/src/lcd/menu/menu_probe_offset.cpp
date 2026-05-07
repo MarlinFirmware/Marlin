@@ -26,7 +26,7 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-#if ENABLED(PROBE_OFFSET_WIZARD)
+#if ALL(HAS_MARLINUI_MENU, PROBE_OFFSET_WIZARD)
 
 #include "menu_item.h"
 #include "menu_addon.h"
