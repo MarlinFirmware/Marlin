@@ -175,4 +175,4 @@ void goto_probe_offset_wizard() {
 
 }
 
-#endif // PROBE_OFFSET_WIZARD
+#endif // HAS_MARLINUI_MENU && PROBE_OFFSET_WIZARD
