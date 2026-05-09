@@ -70,6 +70,10 @@ using namespace Theme;
   #define BACK_POS           BTN_POS(1,6), BTN_SIZE(3,1)
 #endif
 
+#ifndef Z_ALIGN_COMMANDS
+  #define Z_ALIGN_COMMANDS "G34"
+#endif
+
 void LevelingMenu::onRedraw(draw_mode_t what) {
   if (what & BACKGROUND) {
     CommandProcessor cmd;
@@ -116,7 +120,7 @@ bool LevelingMenu::onTouchEnd(uint8_t tag) {
   switch (tag) {
     case 1: GOTO_PREVIOUS(); break;
     #if ANY(Z_STEPPER_AUTO_ALIGN, MECHANICAL_GANTRY_CALIBRATION, X_LEVEL_SEQUENCE)
-      case 2: SpinnerDialogBox::enqueueAndWait(F(LEVELING_COMMANDS)); break;
+      case 2: SpinnerDialogBox::enqueueAndWait(F(Z_ALIGN_COMMANDS)); break;
     #endif
     #if HAS_BED_PROBE
       case 3:
@@ -142,9 +146,9 @@ bool LevelingMenu::onTouchEnd(uint8_t tag) {
         break;
     #endif
     #if ENABLED(BLTOUCH)
-      case 8: injectCommands(F("M280 P0 S60")); break;
-      case 9: SpinnerDialogBox::enqueueAndWait(F("M280 P0 S90\nG4 P100\nM280 P0 S120")); break;
-      case 10: injectCommands(F("M401\nM140 S0")); break;
+      case  8: injectCommands(F("M280P0S160")); break;
+      case  9: SpinnerDialogBox::enqueueAndWait(F("M280P0S90\nG4P100\nM280P0S120")); break;
+      case 10: injectCommands(F("M401\nM140S0")); break;
       case 11: injectCommands(F("M402")); break;
     #endif
     default: return false;

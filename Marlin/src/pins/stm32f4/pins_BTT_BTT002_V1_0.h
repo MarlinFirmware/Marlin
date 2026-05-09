@@ -108,16 +108,19 @@
 #endif
 
 //
-// SPI pins for TMC2130 stepper drivers
+// SPI pins for TMC2130, TMC2160, TMC2240, TMC2660, TMC5130, or TMC5160 stepper drivers
 //
-#ifndef TMC_SPI_MOSI
-  #define TMC_SPI_MOSI                      PB15
-#endif
-#ifndef TMC_SPI_MISO
-  #define TMC_SPI_MISO                      PB14
-#endif
-#ifndef TMC_SPI_SCK
-  #define TMC_SPI_SCK                       PB13
+#if HAS_TMC_SPI
+  #define TMC_USE_SW_SPI
+  #ifndef TMC_SPI_MOSI
+    #define TMC_SPI_MOSI                    PB15
+  #endif
+  #ifndef TMC_SPI_MISO
+    #define TMC_SPI_MISO                    PB14
+  #endif
+  #ifndef TMC_SPI_SCK
+    #define TMC_SPI_SCK                     PB13
+  #endif
 #endif
 
 #if HAS_TMC_UART
@@ -140,16 +143,9 @@
   //#define E4_HARDWARE_SERIAL Serial1
 
   #define X_SERIAL_TX_PIN                   PE2
-  #define X_SERIAL_RX_PIN        X_SERIAL_TX_PIN
-
   #define Y_SERIAL_TX_PIN                   PE3
-  #define Y_SERIAL_RX_PIN        Y_SERIAL_TX_PIN
-
   #define Z_SERIAL_TX_PIN                   PE4
-  #define Z_SERIAL_RX_PIN        Z_SERIAL_TX_PIN
-
   #define E0_SERIAL_TX_PIN                  PD7
-  #define E0_SERIAL_RX_PIN      E0_SERIAL_TX_PIN
 
   // Reduce baud rate to improve software serial reliability
   #ifndef TMC_BAUD_RATE
@@ -235,8 +231,6 @@
 #define SD_MISO_PIN                  EXP2_01_PIN  // SPI1 MISO
 #define SD_MOSI_PIN                  EXP2_06_PIN  // SPI1 MOSI
 
-#define SDSS                         EXP2_04_PIN
-
 //
 // LCD / Controller
 //
@@ -299,7 +293,7 @@
       #elif ENABLED(FYSETC_MINI_12864_2_1)
         #define NEOPIXEL_PIN         EXP1_06_PIN
       #endif
-    #endif // !FYSETC_MINI_12864
+    #endif // FYSETC_MINI_12864
 
     #if IS_ULTIPANEL
       #define LCD_PINS_D5            EXP1_06_PIN

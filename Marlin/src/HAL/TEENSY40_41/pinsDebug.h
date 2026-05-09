@@ -22,25 +22,40 @@
 #pragma once
 
 /**
- * HAL Pins Debugging for Teensy 4.0 (IMXRT1062DVL6A) / 4.1 (IMXRT1062DVJ6A)
+ * Pins Debugging for Teensy 4.0 (IMXRT1062DVL6A) / 4.1 (IMXRT1062DVJ6A)
+ *
+ *   - NUMBER_PINS_TOTAL
+ *   - MULTI_NAME_PAD
+ *   - getPinByIndex(index)
+ *   - printPinNameByIndex(index)
+ *   - getPinIsDigitalByIndex(index)
+ *   - digitalPinToAnalogIndex(pin)
+ *   - getValidPinMode(pin)
+ *   - isValidPin(pin)
+ *   - isAnalogPin(pin)
+ *   - digitalRead_mod(pin)
+ *   - pwm_status(pin)
+ *   - printPinPWM(pin)
+ *   - printPinPort(pin)
+ *   - printPinNumber(pin)
+ *   - printPinAnalog(pin)
  */
 
 #warning "PINS_DEBUGGING is not fully supported for Teensy 4.0 / 4.1 so 'M43' may cause hangs."
 
 #define NUMBER_PINS_TOTAL NUM_DIGITAL_PINS
 
-#define digitalRead_mod(p) extDigitalRead(p)  // AVR digitalRead disabled PWM before it read the pin
+#define getPinByIndex(x) pin_array[x].pin
 #define printPinNameByIndex(x) do{ sprintf_P(buffer, PSTR("%-" STRINGIFY(MAX_NAME_LENGTH) "s"), pin_array[x].name); SERIAL_ECHO(buffer); }while(0)
-#define printPinNumber(p) do{ sprintf_P(buffer, PSTR("%02d"), p); SERIAL_ECHO(buffer); }while(0)
-#define printPinAnalog(p) do{ sprintf_P(buffer, PSTR(" (A%2d)  "), digitalPinToAnalogIndex(pin)); SERIAL_ECHO(buffer); }while(0)
-#define getPinByIndex(p) pin_array[p].pin
-#define getPinIsDigitalByIndex(p) pin_array[p].is_digital
-#define isValidPin(pin) (pin >= 0 && pin < int8_t(NUMBER_PINS_TOTAL))
-#define digitalPinToAnalogIndex(p) int(p - analogInputToDigitalPin(0))
-#define getValidPinMode(PIN) (isValidPin(pin) && IS_OUTPUT(pin))
-#define MULTI_NAME_PAD 16 // space needed to be pretty if not first name assigned to a pin
-
+#define getPinIsDigitalByIndex(x) pin_array[x].is_digital
+#define digitalPinToAnalogIndex(P) int(P - analogInputToDigitalPin(0))
+#define getValidPinMode(P) (isValidPin(P) && IS_OUTPUT(P))
+#define isValidPin(P) (P >= 0 && P < pin_t(NUMBER_PINS_TOTAL))
 #define isAnalogPin(P) (pin_t(P) >= analogInputToDigitalPin(0) && pin_t(P) <= analogInputToDigitalPin(13)) || (pin_t(P) >= analogInputToDigitalPin(14) && pin_t(P) <= analogInputToDigitalPin(17))
+#define digitalRead_mod(P) extDigitalRead(P)  // AVR digitalRead disabled PWM before it read the pin
+#define printPinNumber(P) do{ sprintf_P(buffer, PSTR("%02d"), P); SERIAL_ECHO(buffer); }while(0)
+#define printPinAnalog(P) do{ sprintf_P(buffer, PSTR(" (A%2d)  "), digitalPinToAnalogIndex(P)); SERIAL_ECHO(buffer); }while(0)
+#define MULTI_NAME_PAD 16 // space needed to be pretty if not first name assigned to a pin
 
 struct pwm_pin_info_struct {
   uint8_t type;    // 0=no pwm, 1=flexpwm, 2=quad

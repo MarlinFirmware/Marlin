@@ -55,15 +55,9 @@
 
 // Alter timing for graphical display
 #if IS_U8GLIB_ST7920
-  #ifndef BOARD_ST7920_DELAY_1
-    #define BOARD_ST7920_DELAY_1               0
-  #endif
-  #ifndef BOARD_ST7920_DELAY_2
-    #define BOARD_ST7920_DELAY_2             250
-  #endif
-  #ifndef BOARD_ST7920_DELAY_3
-    #define BOARD_ST7920_DELAY_3             250
-  #endif
+  #define BOARD_ST7920_DELAY_1                 0
+  #define BOARD_ST7920_DELAY_2               250
+  #define BOARD_ST7920_DELAY_3               250
 #endif
 
 #define KILL_PIN                              -1  // NC
@@ -75,18 +69,13 @@
 // the jumper next to the limit switch socket when using sensorless homing.
 //
 #if HAS_TMC_UART
-  /**
-   * TMC2208/TMC2209 stepper drivers
-   */
-  #define X_SERIAL_RX_PIN                     73
+  //
+  // TMC2208/TMC2209 stepper drivers
+  //
   #define X_SERIAL_TX_PIN                     73
-  #define Y_SERIAL_RX_PIN                     73
   #define Y_SERIAL_TX_PIN                     73
-  #define Z_SERIAL_RX_PIN                     73
   #define Z_SERIAL_TX_PIN                     73
-  #define E0_SERIAL_RX_PIN                    73
   #define E0_SERIAL_TX_PIN                    73
-  #define E1_SERIAL_RX_PIN                    12
   #define E1_SERIAL_TX_PIN                    12
 
   // Default TMC slave addresses

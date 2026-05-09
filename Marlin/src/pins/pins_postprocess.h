@@ -307,74 +307,167 @@
   #define E7_CS_PIN -1
 #endif
 
+// If only TX is defined, use the same pin for RX
+#if HAS_TMC_UART
+  #if !defined(X_SERIAL_RX_PIN) && PIN_EXISTS(X_SERIAL_TX)
+    #define X_SERIAL_RX_PIN      X_SERIAL_TX_PIN
+  #endif
+  #if !defined(X2_SERIAL_RX_PIN) && PIN_EXISTS(X2_SERIAL_TX)
+    #define X2_SERIAL_RX_PIN    X2_SERIAL_TX_PIN
+  #endif
+  #if !defined(Y_SERIAL_RX_PIN) && PIN_EXISTS(Y_SERIAL_TX)
+    #define Y_SERIAL_RX_PIN      Y_SERIAL_TX_PIN
+  #endif
+  #if !defined(Y2_SERIAL_RX_PIN) && PIN_EXISTS(Y2_SERIAL_TX)
+    #define Y2_SERIAL_RX_PIN    Y2_SERIAL_TX_PIN
+  #endif
+  #if !defined(Z_SERIAL_RX_PIN) && PIN_EXISTS(Z_SERIAL_TX)
+    #define Z_SERIAL_RX_PIN      Z_SERIAL_TX_PIN
+  #endif
+  #if !defined(Z2_SERIAL_RX_PIN) && PIN_EXISTS(Z2_SERIAL_TX)
+    #define Z2_SERIAL_RX_PIN    Z2_SERIAL_TX_PIN
+  #endif
+  #if !defined(Z3_SERIAL_RX_PIN) && PIN_EXISTS(Z3_SERIAL_TX)
+    #define Z3_SERIAL_RX_PIN    Z3_SERIAL_TX_PIN
+  #endif
+  #if !defined(Z4_SERIAL_RX_PIN) && PIN_EXISTS(Z4_SERIAL_TX)
+    #define Z4_SERIAL_RX_PIN    Z4_SERIAL_TX_PIN
+  #endif
+  #if !defined(I_SERIAL_RX_PIN) && PIN_EXISTS(I_SERIAL_TX)
+    #define I_SERIAL_RX_PIN      I_SERIAL_TX_PIN
+  #endif
+  #if !defined(J_SERIAL_RX_PIN) && PIN_EXISTS(J_SERIAL_TX)
+    #define J_SERIAL_RX_PIN      J_SERIAL_TX_PIN
+  #endif
+  #if !defined(K_SERIAL_RX_PIN) && PIN_EXISTS(K_SERIAL_TX)
+    #define K_SERIAL_RX_PIN      K_SERIAL_TX_PIN
+  #endif
+  #if !defined(U_SERIAL_RX_PIN) && PIN_EXISTS(U_SERIAL_TX)
+    #define U_SERIAL_RX_PIN      U_SERIAL_TX_PIN
+  #endif
+  #if !defined(V_SERIAL_RX_PIN) && PIN_EXISTS(V_SERIAL_TX)
+    #define V_SERIAL_RX_PIN      V_SERIAL_TX_PIN
+  #endif
+  #if !defined(W_SERIAL_RX_PIN) && PIN_EXISTS(W_SERIAL_TX)
+    #define W_SERIAL_RX_PIN      W_SERIAL_TX_PIN
+  #endif
+  #if !defined(EX_SERIAL_RX_PIN) && PIN_EXISTS(EX_SERIAL_TX)
+    #define EX_SERIAL_RX_PIN    EX_SERIAL_TX_PIN
+  #endif
+  #if !defined(E0_SERIAL_RX_PIN) && PIN_EXISTS(E0_SERIAL_TX)
+    #define E0_SERIAL_RX_PIN    E0_SERIAL_TX_PIN
+  #endif
+  #if !defined(E1_SERIAL_RX_PIN) && PIN_EXISTS(E1_SERIAL_TX)
+    #define E1_SERIAL_RX_PIN    E1_SERIAL_TX_PIN
+  #endif
+  #if !defined(E2_SERIAL_RX_PIN) && PIN_EXISTS(E2_SERIAL_TX)
+    #define E2_SERIAL_RX_PIN    E2_SERIAL_TX_PIN
+  #endif
+  #if !defined(E3_SERIAL_RX_PIN) && PIN_EXISTS(E3_SERIAL_TX)
+    #define E3_SERIAL_RX_PIN    E3_SERIAL_TX_PIN
+  #endif
+  #if !defined(E4_SERIAL_RX_PIN) && PIN_EXISTS(E4_SERIAL_TX)
+    #define E4_SERIAL_RX_PIN    E4_SERIAL_TX_PIN
+  #endif
+  #if !defined(E5_SERIAL_RX_PIN) && PIN_EXISTS(E5_SERIAL_TX)
+    #define E5_SERIAL_RX_PIN    E5_SERIAL_TX_PIN
+  #endif
+  #if !defined(E6_SERIAL_RX_PIN) && PIN_EXISTS(E6_SERIAL_TX)
+    #define E6_SERIAL_RX_PIN    E6_SERIAL_TX_PIN
+  #endif
+  #if !defined(E7_SERIAL_RX_PIN) && PIN_EXISTS(E7_SERIAL_TX)
+    #define E7_SERIAL_RX_PIN    E7_SERIAL_TX_PIN
+  #endif
+#endif
+
 //
 // Destroy stepper driver RX and TX pins when set to -1
+// Some RX depend on TX, so RX needs to be un-defined before TX
+// or it breaks "PIN_EXISTS(NAME_OF_UNDEF)".
 //
-#if !PIN_EXISTS(Z2_SERIAL_TX)
-  #undef Z2_SERIAL_TX_PIN
-#endif
-#if !PIN_EXISTS(Z2_SERIAL_RX)
-  #undef Z2_SERIAL_RX_PIN
-#endif
-#if !PIN_EXISTS(Z3_SERIAL_TX)
-  #undef Z3_SERIAL_TX_PIN
-#endif
-#if !PIN_EXISTS(Z3_SERIAL_RX)
-  #undef Z3_SERIAL_RX_PIN
-#endif
-#if !PIN_EXISTS(Z4_SERIAL_TX)
-  #undef Z4_SERIAL_TX_PIN
-#endif
-#if !PIN_EXISTS(Z4_SERIAL_RX)
-  #undef Z4_SERIAL_RX_PIN
-#endif
-#if !PIN_EXISTS(X2_SERIAL_TX)
-  #undef X2_SERIAL_TX_PIN
-#endif
-#if !PIN_EXISTS(X2_SERIAL_RX)
-  #undef X2_SERIAL_RX_PIN
-#endif
-#if !PIN_EXISTS(Y2_SERIAL_TX)
-  #undef Y2_SERIAL_TX_PIN
-#endif
-#if !PIN_EXISTS(Y2_SERIAL_RX)
-  #undef Y2_SERIAL_RX_PIN
-#endif
-#if !PIN_EXISTS(I_SERIAL_TX)
-  #undef I_SERIAL_TX_PIN
-#endif
-#if !PIN_EXISTS(I_SERIAL_RX)
-  #undef I_SERIAL_RX_PIN
-#endif
-#if !PIN_EXISTS(J_SERIAL_TX)
-  #undef J_SERIAL_TX_PIN
-#endif
-#if !PIN_EXISTS(J_SERIAL_RX)
-  #undef J_SERIAL_RX_PIN
-#endif
-#if !PIN_EXISTS(K_SERIAL_TX)
-  #undef K_SERIAL_TX_PIN
-#endif
-#if !PIN_EXISTS(K_SERIAL_RX)
-  #undef K_SERIAL_RX_PIN
-#endif
-#if !PIN_EXISTS(U_SERIAL_TX)
-  #undef U_SERIAL_TX_PIN
-#endif
-#if !PIN_EXISTS(U_SERIAL_RX)
-  #undef U_SERIAL_RX_PIN
-#endif
-#if !PIN_EXISTS(V_SERIAL_TX)
-  #undef V_SERIAL_TX_PIN
-#endif
-#if !PIN_EXISTS(V_SERIAL_RX)
-  #undef V_SERIAL_RX_PIN
+#if !PIN_EXISTS(W_SERIAL_RX)
+  #undef W_SERIAL_RX_PIN
 #endif
 #if !PIN_EXISTS(W_SERIAL_TX)
   #undef W_SERIAL_TX_PIN
 #endif
-#if !PIN_EXISTS(W_SERIAL_RX)
-  #undef W_SERIAL_RX_PIN
+#if !PIN_EXISTS(V_SERIAL_RX)
+  #undef V_SERIAL_RX_PIN
+#endif
+#if !PIN_EXISTS(V_SERIAL_TX)
+  #undef V_SERIAL_TX_PIN
+#endif
+#if !PIN_EXISTS(U_SERIAL_RX)
+  #undef U_SERIAL_RX_PIN
+#endif
+#if !PIN_EXISTS(U_SERIAL_TX)
+  #undef U_SERIAL_TX_PIN
+#endif
+#if !PIN_EXISTS(K_SERIAL_RX)
+  #undef K_SERIAL_RX_PIN
+#endif
+#if !PIN_EXISTS(K_SERIAL_TX)
+  #undef K_SERIAL_TX_PIN
+#endif
+#if !PIN_EXISTS(J_SERIAL_RX)
+  #undef J_SERIAL_RX_PIN
+#endif
+#if !PIN_EXISTS(J_SERIAL_TX)
+  #undef J_SERIAL_TX_PIN
+#endif
+#if !PIN_EXISTS(I_SERIAL_RX)
+  #undef I_SERIAL_RX_PIN
+#endif
+#if !PIN_EXISTS(I_SERIAL_TX)
+  #undef I_SERIAL_TX_PIN
+#endif
+#if !PIN_EXISTS(Z4_SERIAL_RX)
+  #undef Z4_SERIAL_RX_PIN
+#endif
+#if !PIN_EXISTS(Z4_SERIAL_TX)
+  #undef Z4_SERIAL_TX_PIN
+#endif
+#if !PIN_EXISTS(Z3_SERIAL_RX)
+  #undef Z3_SERIAL_RX_PIN
+#endif
+#if !PIN_EXISTS(Z3_SERIAL_TX)
+  #undef Z3_SERIAL_TX_PIN
+#endif
+#if !PIN_EXISTS(Z2_SERIAL_RX)
+  #undef Z2_SERIAL_RX_PIN
+#endif
+#if !PIN_EXISTS(Z2_SERIAL_TX)
+  #undef Z2_SERIAL_TX_PIN
+#endif
+#if !PIN_EXISTS(Y2_SERIAL_RX)
+  #undef Y2_SERIAL_RX_PIN
+#endif
+#if !PIN_EXISTS(Y2_SERIAL_TX)
+  #undef Y2_SERIAL_TX_PIN
+#endif
+#if !PIN_EXISTS(X2_SERIAL_RX)
+  #undef X2_SERIAL_RX_PIN
+#endif
+#if !PIN_EXISTS(X2_SERIAL_TX)
+  #undef X2_SERIAL_TX_PIN
+#endif
+#if !PIN_EXISTS(Z_SERIAL_RX)
+  #undef Z_SERIAL_RX_PIN
+#endif
+#if !PIN_EXISTS(Z_SERIAL_TX)
+  #undef Z_SERIAL_TX_PIN
+#endif
+#if !PIN_EXISTS(Y_SERIAL_RX)
+  #undef Y_SERIAL_RX_PIN
+#endif
+#if !PIN_EXISTS(Y_SERIAL_TX)
+  #undef Y_SERIAL_TX_PIN
+#endif
+#if !PIN_EXISTS(X_SERIAL_RX)
+  #undef X_SERIAL_RX_PIN
+#endif
+#if !PIN_EXISTS(X_SERIAL_TX)
+  #undef X_SERIAL_TX_PIN
 #endif
 
 #ifndef FAN0_PIN
@@ -386,6 +479,72 @@
 #ifndef FAN2_PIN
   #define FAN2_PIN -1
 #endif
+#ifndef FAN3_PIN
+  #define FAN3_PIN -1
+#endif
+#ifndef FAN4_PIN
+  #define FAN4_PIN -1
+#endif
+#ifndef FAN5_PIN
+  #define FAN5_PIN -1
+#endif
+#ifndef FAN6_PIN
+  #define FAN6_PIN -1
+#endif
+#ifndef FAN7_PIN
+  #define FAN7_PIN -1
+#endif
+#ifndef FAN8_PIN
+  #define FAN8_PIN -1
+#endif
+#ifndef FAN9_PIN
+  #define FAN9_PIN -1
+#endif
+#ifndef FAN10_PIN
+  #define FAN10_PIN -1
+#endif
+#ifndef FAN11_PIN
+  #define FAN11_PIN -1
+#endif
+
+// Part cooling fan pin defaults - allows remapping fans to different pins
+#ifndef PART_COOLING_FAN0_PIN
+  #define PART_COOLING_FAN0_PIN FAN0_PIN
+#endif
+#ifndef PART_COOLING_FAN1_PIN
+  #define PART_COOLING_FAN1_PIN FAN1_PIN
+#endif
+#ifndef PART_COOLING_FAN2_PIN
+  #define PART_COOLING_FAN2_PIN FAN2_PIN
+#endif
+#ifndef PART_COOLING_FAN3_PIN
+  #define PART_COOLING_FAN3_PIN FAN3_PIN
+#endif
+#ifndef PART_COOLING_FAN4_PIN
+  #define PART_COOLING_FAN4_PIN FAN4_PIN
+#endif
+#ifndef PART_COOLING_FAN5_PIN
+  #define PART_COOLING_FAN5_PIN FAN5_PIN
+#endif
+#ifndef PART_COOLING_FAN6_PIN
+  #define PART_COOLING_FAN6_PIN FAN6_PIN
+#endif
+#ifndef PART_COOLING_FAN7_PIN
+  #define PART_COOLING_FAN7_PIN FAN7_PIN
+#endif
+#ifndef PART_COOLING_FAN8_PIN
+  #define PART_COOLING_FAN8_PIN FAN8_PIN
+#endif
+#ifndef PART_COOLING_FAN9_PIN
+  #define PART_COOLING_FAN9_PIN FAN9_PIN
+#endif
+#ifndef PART_COOLING_FAN10_PIN
+  #define PART_COOLING_FAN10_PIN FAN10_PIN
+#endif
+#ifndef PART_COOLING_FAN11_PIN
+  #define PART_COOLING_FAN11_PIN FAN11_PIN
+#endif
+
 #ifndef CONTROLLER_FAN_PIN
   #define CONTROLLER_FAN_PIN  -1
 #endif
@@ -456,9 +615,13 @@
   #define TEMP_BED_PIN -1
 #endif
 
-// Use ATEMP if TEMP_SOC_PIN is not defined
-#if !defined(TEMP_SOC_PIN) && defined(ATEMP)
-  #define TEMP_SOC_PIN ATEMP
+// Get TEMP_SOC_PIN from the platform, if not defined
+#ifndef TEMP_SOC_PIN
+  #ifdef ATEMP
+    #define TEMP_SOC_PIN ATEMP
+  #elif defined(HAL_ADC_MCU_TEMP_DUMMY_PIN)
+    #define TEMP_SOC_PIN HAL_ADC_MCU_TEMP_DUMMY_PIN
+  #endif
 #endif
 
 #ifndef SD_DETECT_PIN
@@ -467,8 +630,8 @@
 #ifndef SDPOWER_PIN
   #define SDPOWER_PIN -1
 #endif
-#ifndef SDSS
-  #define SDSS -1
+#ifndef SD_SS_PIN
+  #define SD_SS_PIN -1
 #endif
 #ifndef LED_PIN
   #define LED_PIN -1
@@ -507,16 +670,32 @@
   #define NUM_SERVO_PLUGS 0
 #endif
 
-// Only used within pins files
-#undef NEEDS_X_MINMAX
-#undef NEEDS_Y_MINMAX
-#undef NEEDS_Z_MINMAX
+/**
+ * Endstop Pins
+ *
+ * The general idea is to provide STOP and MIN|MAX pins as needed...
+ *
+ *  - Standard Homing   : X_STOP_PIN with alias X_(MIN|MAX)_PIN. Same for Y, Z, etc.
+ *  - DUAL_X_CARRIAGE   : Asserts both X_MIN_PIN and X_MAX_PIN must be defined.
+ *  - X_DUAL_ENDSTOPS   : Also define X2_STOP_PIN with alias X2_(MIN|MAX)_PIN.
+ *  - Y_DUAL_ENDSTOPS   : Also define Y2_STOP_PIN with alias Y2_(MIN|MAX)_PIN.
+ *  - Z_MULTI_ENDSTOPS  : Also define Z2_STOP_PIN with alias Z2_(MIN|MAX)_PIN. Same for Z3, Z4.
+ *
+ *  Pins files should define pins according to usability:
+ *    - Define X_STOP_PIN for boards with a preferred endstop plug, including Sensorless.
+ *    - Define X_OTHR_PIN for the "other" endstop pin on the axis.
+ *    - Define X_MIN_PIN and/or X_MAX_PIN as preferred connectors.
+ *    - Allow user override of these pins for easier swapping.
+ *
+ * See also Conditionals-5-post.h >> "Endstop and probe flags"
+ */
 
 //
 // Assign endstop pins, with handling for boards that have only 3 connectors
 //
+
 #if HAS_X_AXIS
-  #ifdef X_STOP_PIN
+  #if PIN_EXISTS(X_STOP)
     #if X_HOME_TO_MIN
       #define X_MIN_PIN X_STOP_PIN
     #elif X_HOME_TO_MAX
@@ -527,13 +706,24 @@
   #elif X_HOME_TO_MAX
     #define X_STOP_PIN X_MAX_PIN
   #endif
-  #if !defined(X2_STOP_PIN) && ENABLED(X_DUAL_ENDSTOPS) && PIN_EXISTS(X_STOP)
-    #define X2_STOP_PIN X_STOP_PIN
+  #if ENABLED(X_DUAL_ENDSTOPS) && PIN_EXISTS(X_STOP)
+    #ifndef X_MIN_PIN
+      #define X_MIN_PIN X_STOP_PIN
+    #endif
+    #ifndef X2_STOP_PIN
+      #define X2_STOP_PIN X_STOP_PIN
+    #endif
+  #endif
+  #if !defined(X_MIN_PIN) && X_HOME_TO_MAX && defined(X_OTHR_PIN)
+    #define X_MIN_PIN X_OTHR_PIN
+  #endif
+  #if !defined(X_MAX_PIN) && X_HOME_TO_MIN && defined(X_OTHR_PIN)
+    #define X_MAX_PIN X_OTHR_PIN
   #endif
 #endif
 
 #if HAS_Y_AXIS
-  #ifdef Y_STOP_PIN
+  #if PIN_EXISTS(Y_STOP)
     #if Y_HOME_TO_MIN
       #define Y_MIN_PIN Y_STOP_PIN
     #elif Y_HOME_TO_MAX
@@ -541,21 +731,38 @@
     #endif
   #elif Y_HOME_TO_MIN
     #define Y_STOP_PIN Y_MIN_PIN
-  #elif X_HOME_TO_MAX
+  #elif Y_HOME_TO_MAX
     #define Y_STOP_PIN Y_MAX_PIN
   #endif
-  #if !defined(Y2_STOP_PIN) && ENABLED(Y_DUAL_ENDSTOPS) && PIN_EXISTS(Y_STOP)
-    #define Y2_STOP_PIN Y_STOP_PIN
+  #if ENABLED(Y_DUAL_ENDSTOPS) && PIN_EXISTS(Y_STOP)
+    #ifndef Y_MIN_PIN
+      #define Y_MIN_PIN Y_STOP_PIN
+    #endif
+    #ifndef Y2_STOP_PIN
+      #define Y2_STOP_PIN Y_STOP_PIN
+    #endif
+  #endif
+  #if !defined(Y_MIN_PIN) && Y_HOME_TO_MAX && defined(Y_OTHR_PIN)
+    #define Y_MIN_PIN Y_OTHR_PIN
+  #endif
+  #if !defined(Y_MAX_PIN) && Y_HOME_TO_MIN && defined(Y_OTHR_PIN)
+    #define Y_MAX_PIN Y_OTHR_PIN
   #endif
 #endif
 
 #if HAS_Z_AXIS
-  #ifdef Z_STOP_PIN
+  #if PIN_EXISTS(Z_STOP)
     #if Z_HOME_TO_MIN
       #define Z_MIN_PIN Z_STOP_PIN
     #elif Z_HOME_TO_MAX
       #define Z_MAX_PIN Z_STOP_PIN
     #endif
+  #endif
+  #if !defined(Z_MIN_PIN) && Z_HOME_TO_MAX && defined(Z_OTHR_PIN)
+    #define Z_MIN_PIN Z_OTHR_PIN
+  #endif
+  #if !defined(Z_MAX_PIN) && Z_HOME_TO_MIN && defined(Z_OTHR_PIN)
+    #define Z_MAX_PIN Z_OTHR_PIN
   #endif
   #if ENABLED(Z_MULTI_ENDSTOPS)
     #if ((Z_HOME_TO_MIN && !defined(Z2_MIN_PIN)) || (Z_HOME_TO_MAX && !defined(Z2_MAX_PIN))) && !defined(Z2_STOP_PIN)
@@ -575,7 +782,7 @@
 #endif
 
 #if HAS_I_AXIS
-  #ifdef I_STOP_PIN
+  #if PIN_EXISTS(I_STOP)
     #if I_HOME_TO_MIN
       #define I_MIN_PIN I_STOP_PIN
     #elif I_HOME_TO_MAX
@@ -589,7 +796,7 @@
 #endif
 
 #if HAS_J_AXIS
-  #ifdef J_STOP_PIN
+  #if PIN_EXISTS(J_STOP)
     #if J_HOME_TO_MIN
       #define J_MIN_PIN J_STOP_PIN
     #elif J_HOME_TO_MAX
@@ -603,7 +810,7 @@
 #endif
 
 #if HAS_K_AXIS
-  #ifdef K_STOP_PIN
+  #if PIN_EXISTS(K_STOP)
     #if K_HOME_TO_MIN
       #define K_MIN_PIN K_STOP_PIN
     #elif K_HOME_TO_MAX
@@ -617,7 +824,7 @@
 #endif
 
 #if HAS_U_AXIS
-  #ifdef U_STOP_PIN
+  #if PIN_EXISTS(U_STOP)
     #if U_HOME_TO_MIN
       #define U_MIN_PIN U_STOP_PIN
     #elif U_HOME_TO_MAX
@@ -631,7 +838,7 @@
 #endif
 
 #if HAS_V_AXIS
-  #ifdef V_STOP_PIN
+  #if PIN_EXISTS(V_STOP)
     #if V_HOME_TO_MIN
       #define V_MIN_PIN V_STOP_PIN
     #elif V_HOME_TO_MAX
@@ -645,7 +852,7 @@
 #endif
 
 #if HAS_W_AXIS
-  #ifdef W_STOP_PIN
+  #if PIN_EXISTS(W_STOP)
     #if W_HOME_TO_MIN
       #define W_MIN_PIN W_STOP_PIN
     #elif W_HOME_TO_MAX
@@ -794,7 +1001,7 @@
     #endif
     #define AUTO_ASSIGNED_X2_DIAG 1
   #endif
-#endif
+#endif // HAS_X2_STEPPER
 
 #ifndef X2_CS_PIN
   #define X2_CS_PIN  -1
@@ -879,7 +1086,7 @@
     #endif
     #define AUTO_ASSIGNED_Y2_DIAG 1
   #endif
-#endif
+#endif // HAS_Y2_STEPPER
 
 #ifndef Y2_CS_PIN
   #define Y2_CS_PIN  -1
@@ -964,7 +1171,7 @@
     #endif
     #define AUTO_ASSIGNED_Z2_DIAG 1
   #endif
-#endif
+#endif // NUM_Z_STEPPERS >= 2
 
 #ifndef Z2_CS_PIN
   #define Z2_CS_PIN  -1
@@ -1049,7 +1256,7 @@
     #endif
     #define AUTO_ASSIGNED_Z3_DIAG 1
   #endif
-#endif
+#endif // NUM_Z_STEPPERS >= 3
 
 #ifndef Z3_CS_PIN
   #define Z3_CS_PIN  -1
@@ -1134,7 +1341,7 @@
     #endif
     #define AUTO_ASSIGNED_Z4_DIAG 1
   #endif
-#endif
+#endif // NUM_Z_STEPPERS >= 4
 
 #ifndef Z4_CS_PIN
   #define Z4_CS_PIN  -1
@@ -1219,7 +1426,7 @@
     #endif
     #define AUTO_ASSIGNED_I_DIAG 1
   #endif
-#endif
+#endif // HAS_I_AXIS
 
 #ifndef I_CS_PIN
   #define I_CS_PIN  -1
@@ -1304,7 +1511,7 @@
     #endif
     #define AUTO_ASSIGNED_J_DIAG 1
   #endif
-#endif
+#endif // HAS_J_AXIS
 
 #ifndef J_CS_PIN
   #define J_CS_PIN  -1
@@ -1389,7 +1596,7 @@
     #endif
     #define AUTO_ASSIGNED_K_DIAG 1
   #endif
-#endif
+#endif // HAS_K_AXIS
 
 #ifndef K_CS_PIN
   #define K_CS_PIN  -1
@@ -1474,7 +1681,7 @@
     #endif
     #define AUTO_ASSIGNED_U_DIAG 1
   #endif
-#endif
+#endif // HAS_U_AXIS
 
 #ifndef U_CS_PIN
   #define U_CS_PIN  -1
@@ -1559,7 +1766,7 @@
     #endif
     #define AUTO_ASSIGNED_V_DIAG 1
   #endif
-#endif
+#endif // HAS_V_AXIS
 
 #ifndef V_CS_PIN
   #define V_CS_PIN  -1
@@ -1637,7 +1844,7 @@
     #endif
     #define AUTO_ASSIGNED_W_DIAG 1
   #endif
-#endif
+#endif // HAS_W_AXIS
 
 #ifndef W_CS_PIN
   #define W_CS_PIN  -1
@@ -1730,9 +1937,9 @@
 
 // Get a NeoPixel pin from the LCD or board, if provided
 #ifndef NEOPIXEL_PIN
-  #ifdef LCD_NEOPIXEL_PIN
+  #if PIN_EXISTS(LCD_NEOPIXEL)
     #define NEOPIXEL_PIN LCD_NEOPIXEL_PIN
-  #elif defined(BOARD_NEOPIXEL_PIN)
+  #elif PIN_EXISTS(BOARD_NEOPIXEL)
     #define NEOPIXEL_PIN BOARD_NEOPIXEL_PIN
   #endif
 #endif

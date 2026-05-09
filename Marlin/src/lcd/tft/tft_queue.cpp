@@ -116,25 +116,29 @@ void TFT_Queue::canvas(queueTask_t *task) {
       case CANVAS_SET_BACKGROUND:
         tftCanvas.setBackground(((parametersCanvasBackground_t *)item)->color);
         break;
-      case CANVAS_ADD_TEXT:
-        tftCanvas.addText(((parametersCanvasText_t *)item)->x, ((parametersCanvasText_t *)item)->y, ((parametersCanvasText_t *)item)->color, (uint16_t*)(item + sizeof(parametersCanvasText_t)), ((parametersCanvasText_t *)item)->maxWidth);
-        break;
 
-      case CANVAS_ADD_IMAGE:
-        MarlinImage image;
-        uint16_t *colors;
+      case CANVAS_ADD_TEXT: {
+        parametersCanvasText_t *p_text = (parametersCanvasText_t *)item;
+        uint16_t *str = (uint16_t*)(item + sizeof(parametersCanvasText_t));
+        tftCanvas.addText(p_text->x, p_text->y, p_text->color, str, p_text->maxWidth);
+      } break;
 
-        image = ((parametersCanvasImage_t *)item)->image;
-        colors = (uint16_t *)(item + sizeof(parametersCanvasImage_t));
-        tftCanvas.addImage(((parametersCanvasImage_t *)item)->x, ((parametersCanvasImage_t *)item)->y, image, colors);
-        break;
+      case CANVAS_ADD_IMAGE: {
+        parametersCanvasImage_t *p_img = (parametersCanvasImage_t *)item;
+        MarlinImage image = p_img->image;
+        uint16_t *colors = (uint16_t *)(item + sizeof(parametersCanvasImage_t));
+        tftCanvas.addImage(p_img->x, p_img->y, image, colors);
+      } break;
 
-      case CANVAS_ADD_BAR:
-        tftCanvas.addBar(((parametersCanvasBar_t *)item)->x, ((parametersCanvasBar_t *)item)->y, ((parametersCanvasBar_t *)item)->width, ((parametersCanvasBar_t *)item)->height, ((parametersCanvasBar_t *)item)->color);
-        break;
-      case CANVAS_ADD_RECT:
-        tftCanvas.addRect(((parametersCanvasRectangle_t *)item)->x, ((parametersCanvasRectangle_t *)item)->y, ((parametersCanvasRectangle_t *)item)->width, ((parametersCanvasRectangle_t *)item)->height, ((parametersCanvasRectangle_t *)item)->color);
-        break;
+      case CANVAS_ADD_BAR: {
+        parametersCanvasBar_t *p_bar = (parametersCanvasBar_t *)item;
+        tftCanvas.addBar(p_bar->x, p_bar->y, p_bar->width, p_bar->height, p_bar->color);
+      } break;
+
+      case CANVAS_ADD_RECT: {
+        parametersCanvasRectangle_t *p_rect = (parametersCanvasRectangle_t *)item;
+        tftCanvas.addRect(p_rect->x, p_rect->y, p_rect->width, p_rect->height, p_rect->color);
+      } break;
     }
     item = ((parametersCanvasBackground_t *)item)->nextParameter;
   }

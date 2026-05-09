@@ -111,11 +111,11 @@ void TFT_FSMC::init() {
 
   HAL_SRAM_Init(&SRAMx, &timing, &extTiming);
 
+  __HAL_RCC_DMA2_CLK_ENABLE();
+
   #ifdef STM32F1xx
-    __HAL_RCC_DMA1_CLK_ENABLE();
-    DMAtx.Instance                = DMA1_Channel1;
+    DMAtx.Instance                = DMA2_Channel1;
   #elif defined(STM32F4xx)
-    __HAL_RCC_DMA2_CLK_ENABLE();
     DMAtx.Instance                = DMA2_Stream0;
     DMAtx.Init.Channel            = DMA_CHANNEL_0;
     DMAtx.Init.FIFOMode           = DMA_FIFOMODE_ENABLE;
@@ -132,6 +132,9 @@ void TFT_FSMC::init() {
   DMAtx.Init.Priority             = DMA_PRIORITY_HIGH;
 
   LCD = (LCD_CONTROLLER_TypeDef *)controllerAddress;
+
+  DMAtx.Init.PeriphInc = DMA_PINC_DISABLE;
+  HAL_DMA_Init(&DMAtx);
 }
 
 uint32_t TFT_FSMC::getID() {
@@ -179,15 +182,19 @@ void TFT_FSMC::abort() {
 }
 
 void TFT_FSMC::transmitDMA(uint32_t memoryIncrease, uint16_t *data, uint16_t count) {
-  DMAtx.Init.PeriphInc = memoryIncrease;
-  HAL_DMA_Init(&DMAtx);
+  if (!__IS_DMA_CONFIGURED(&DMAtx) || DMAtx.Init.PeriphInc != memoryIncrease) {
+    DMAtx.Init.PeriphInc = memoryIncrease;
+    HAL_DMA_Init(&DMAtx);
+  }
   HAL_DMA_Start(&DMAtx, (uint32_t)data, (uint32_t)&(LCD->RAM), count);
   TERN_(TFT_SHARED_IO, while (isBusy()));
 }
 
 void TFT_FSMC::transmit(uint32_t memoryIncrease, uint16_t *data, uint16_t count) {
-  DMAtx.Init.PeriphInc = memoryIncrease;
-  HAL_DMA_Init(&DMAtx);
+  if (!__IS_DMA_CONFIGURED(&DMAtx) || DMAtx.Init.PeriphInc != memoryIncrease) {
+    DMAtx.Init.PeriphInc = memoryIncrease;
+    HAL_DMA_Init(&DMAtx);
+  }
   dataTransferBegin();
   HAL_DMA_Start(&DMAtx, (uint32_t)data, (uint32_t)&(LCD->RAM), count);
   HAL_DMA_PollForTransfer(&DMAtx, HAL_DMA_FULL_TRANSFER, HAL_MAX_DELAY);

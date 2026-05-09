@@ -24,7 +24,7 @@
 /**
  * Velleman K8400 (Vertex)
  * 3DRAG clone
- * Schematic: https://filimprimante3d.fr/documents/k8400-schema-electronique.jpg
+ * Schematic: https://www.filimprimante3d.fr/documents/k8400-schema-electronique.jpg
  * ATmega2560, ATmega1280
  *
  * K8400 has some minor differences over a normal 3Drag:

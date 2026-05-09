@@ -15,6 +15,7 @@ def blab(str):
 # Invoke GCC to run the preprocessor and extract enabled features
 #
 preprocessor_cache = {}
+
 def run_preprocessor(env, fn=None):
     filename = fn or 'buildroot/share/PlatformIO/scripts/common-dependencies.h'
     if filename in preprocessor_cache:
@@ -36,15 +37,20 @@ def run_preprocessor(env, fn=None):
         else:
             cmd += ['-D' + s]
 
-    cmd += ['-D__MARLIN_DEPS__ -w -dM -E -x c++']
-    depcmd = cmd + [ filename ]
-    cmd = ' '.join(depcmd)
+    cmd += ['-D__MARLIN_DEPS__ -w -dM -E -x c++', filename]
+
+    cmd = ' '.join(cmd)
     blab(cmd)
+
     try:
-        define_list = subprocess.check_output(cmd, shell=True).splitlines()
+        define_list_text = subprocess.check_output(cmd, shell=True)
     except:
-        define_list = {}
+        raise RuntimeError(f"Command `{cmd}` failed during build pre-processing.")
+
+    define_list = define_list_text.splitlines() if define_list_text else []
+
     preprocessor_cache[filename] = define_list
+
     return define_list
 
 
@@ -86,8 +92,8 @@ def search_compiler(env):
         # Use any item in $PATH corresponding to a platformio toolchain bin folder
         if ppath.match(env['PROJECT_PACKAGES_DIR'] + "/**/bin"):
             for gpath in ppath.glob(gcc_exe):
-                # Skip '*-elf-g++' (crosstool-NG)
-                if not gpath.stem.endswith('-elf-g++'):
+                # Skip '*-elf-g++' (crosstool-NG) except for xtensa32/xtensa-esp32
+                if not gpath.stem.endswith('-elf-g++') or "xtensa" in str(gpath):
                     gccpath = str(gpath.resolve())
                     break
 
@@ -95,7 +101,7 @@ def search_compiler(env):
         for ppath in envpath:
             for gpath in ppath.glob(gcc_exe):
                 # Skip macOS Clang
-                if gpath != 'usr/bin/g++' or env['PLATFORM'] != 'darwin':
+                if not (gpath == 'usr/bin/g++' and env['PLATFORM'] == 'darwin'):
                     gccpath = str(gpath.resolve())
                     break
 

@@ -26,7 +26,7 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-#if HAS_MARLINUI_MENU && (HAS_LEVELING || HAS_BED_PROBE)
+#if HAS_MARLINUI_MENU && ANY(HAS_LEVELING, HAS_BED_PROBE, ASSISTED_TRAMMING_WIZARD, LCD_BED_TRAMMING)
 
 #include "menu_item.h"
 
@@ -44,11 +44,9 @@
   #include "../../feature/babystep.h"
 #endif
 
-#if HAS_GRAPHICAL_TFT
+#if ALL(TOUCH_SCREEN, HAS_GRAPHICAL_TFT)
   #include "../tft/tft.h"
-  #if ENABLED(TOUCH_SCREEN)
-    #include "../tft/touch.h"
-  #endif
+  #include "../tft/touch.h"
 #endif
 
 #if ENABLED(LCD_BED_LEVELING) && ANY(PROBE_MANUALLY, MESH_BED_LEVELING)
@@ -126,7 +124,7 @@
     // Encoder knob or keypad buttons adjust the Z position
     //
     if (ui.encoderPosition) {
-      const float z = current_position.z + float(int32_t(ui.encoderPosition)) * (MESH_EDIT_Z_STEP);
+      const float z = motion.position.z + float(int32_t(ui.encoderPosition)) * (MESH_EDIT_Z_STEP);
       line_to_z(constrain(z, -(LCD_PROBE_Z_RANGE) * 0.5f, (LCD_PROBE_Z_RANGE) * 0.5f));
       ui.refresh(LCDVIEW_CALL_REDRAW_NEXT);
       ui.encoderPosition = 0;
@@ -136,7 +134,7 @@
     // Draw on first display, then only on Z change
     //
     if (ui.should_draw()) {
-      const float v = current_position.z;
+      const float v = motion.position.z;
       MenuEditItemBase::draw_edit_screen(GET_TEXT_F(MSG_MOVE_Z), ftostr43sign(v + (v < 0 ? -0.0001f : 0.0001f), '+'));
     }
   }
@@ -192,7 +190,7 @@
   //
   void _lcd_level_bed_homing() {
     _lcd_draw_homing();
-    if (all_axes_homed()) ui.goto_screen(_lcd_level_bed_homing_done);
+    if (motion.all_axes_homed()) ui.goto_screen(_lcd_level_bed_homing_done);
   }
 
   #if ENABLED(PROBE_MANUALLY)
@@ -204,7 +202,7 @@
   //
   void _lcd_level_bed_continue() {
     ui.defer_status_screen();
-    set_all_unhomed();
+    motion.set_all_unhomed();
     ui.goto_screen(_lcd_level_bed_homing);
     queue.inject_P(G28_STR);
   }
@@ -214,8 +212,8 @@
 #if ENABLED(MESH_EDIT_MENU)
 
   inline void refresh_planner() {
-    set_current_from_steppers_for_axis(ALL_AXES_ENUM);
-    sync_plan_position();
+    motion.set_current_from_steppers_for_axis(ALL_AXES_ENUM);
+    motion.sync_plan_position();
   }
 
   void menu_edit_mesh() {
@@ -244,12 +242,12 @@ void menu_probe_level() {
   const bool can_babystep_z = TERN0(BABYSTEP_ZPROBE_OFFSET, babystep.can_babystep(Z_AXIS));
 
   #if HAS_LEVELING
-    const bool is_homed = all_axes_homed(),
+    const bool is_homed = motion.all_axes_homed(),
                is_valid = leveling_is_valid();
   #endif
 
   #if NONE(PROBE_MANUALLY, MESH_BED_LEVELING)
-    const bool is_trusted = all_axes_trusted();
+    const bool is_trusted = motion.all_axes_trusted();
   #endif
 
   START_MENU();
@@ -338,8 +336,8 @@ void menu_probe_level() {
     // Probe XY Offsets
     //
     #if HAS_PROBE_XY_OFFSET
-      EDIT_ITEM(float31sign, MSG_ZPROBE_XOFFSET, &probe.offset.x, PROBE_OFFSET_XMIN, PROBE_OFFSET_XMAX);
-      EDIT_ITEM(float31sign, MSG_ZPROBE_YOFFSET, &probe.offset.y, PROBE_OFFSET_YMIN, PROBE_OFFSET_YMAX);
+      EDIT_ITEM_N(float31sign, X_AXIS, MSG_ZPROBE_OFFSET_N, &probe.offset.x, PROBE_OFFSET_XMIN, PROBE_OFFSET_XMAX);
+      EDIT_ITEM_N(float31sign, Y_AXIS, MSG_ZPROBE_OFFSET_N, &probe.offset.y, PROBE_OFFSET_YMIN, PROBE_OFFSET_YMAX);
     #endif
 
     //
@@ -352,7 +350,7 @@ void menu_probe_level() {
     }
     else {
       #if HAS_BED_PROBE
-        EDIT_ITEM(LCD_Z_OFFSET_TYPE, MSG_ZPROBE_ZOFFSET, &probe.offset.z, PROBE_OFFSET_ZMIN, PROBE_OFFSET_ZMAX);
+        EDIT_ITEM_N(LCD_Z_OFFSET_TYPE, Z_AXIS, MSG_ZPROBE_OFFSET_N, &probe.offset.z, PROBE_OFFSET_ZMIN, PROBE_OFFSET_ZMAX);
       #endif
     }
 
@@ -410,4 +408,4 @@ void menu_probe_level() {
   END_MENU();
 }
 
-#endif // HAS_MARLINUI_MENU && (HAS_LEVELING || HAS_BED_PROBE)
+#endif // HAS_MARLINUI_MENU && (HAS_LEVELING || HAS_BED_PROBE || ASSISTED_TRAMMING_WIZARD || LCD_BED_TRAMMING)

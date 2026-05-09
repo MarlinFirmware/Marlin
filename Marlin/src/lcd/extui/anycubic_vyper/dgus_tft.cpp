@@ -45,6 +45,10 @@
   #include "../../../feature/powerloss.h"
 #endif
 
+#if HAS_FILAMENT_SENSOR
+  #include "../../../feature/runout.h"
+#endif
+
 #define DEBUG_OUT ACDEBUGLEVEL
 #include "../../../core/debug_out.h"
 
@@ -60,7 +64,7 @@ namespace Anycubic {
     DgusTFT::page25, DgusTFT::page26, DgusTFT::page27, DgusTFT::page28, DgusTFT::page29, DgusTFT::page30,
     DgusTFT::page31, DgusTFT::page32
     #if HAS_LEVELING
-      , DgusTFT::page33 , DgusTFT::page34
+      , DgusTFT::page33, DgusTFT::page34
     #endif
   };
 
@@ -438,7 +442,7 @@ namespace Anycubic {
     }
   }
 
-  #if ENABLED(FILAMENT_RUNOUT_SENSOR)
+  #if HAS_FILAMENT_SENSOR
 
     void DgusTFT::filamentRunout() {
       #if ACDEBUG(AC_MARLIN)
@@ -453,7 +457,7 @@ namespace Anycubic {
 
       pop_up_index = 15;  // show filament lack.
 
-      if (READ(FIL_RUNOUT_PIN) == FIL_RUNOUT_STATE) {
+      if (FILAMENT_IS_OUT()) {
         playTune(FilamentOut);
 
         feedrate_back = getFeedrate_percent();
@@ -466,7 +470,7 @@ namespace Anycubic {
       }
     }
 
-  #endif // FILAMENT_RUNOUT_SENSOR
+  #endif // HAS_FILAMENT_SENSOR
 
   void DgusTFT::confirmationRequest(const char * const msg) {
     // M108 continue
@@ -492,7 +496,7 @@ namespace Anycubic {
       #endif
       case AC_printer_printing:
       case AC_printer_paused:
-        // Heater timout, send acknowledgement
+        // Heater timeout, send acknowledgement
         if (strcmp_P(msg, MARLIN_msg_heater_timeout) == 0) {
           pause_state = AC_paused_heater_timed_out;
           tftSendLn(AC_msg_paused); // enable continue button
@@ -598,7 +602,7 @@ namespace Anycubic {
           printer_state = AC_printer_stopping_from_media_remove;
         }
         else {
-          #if ENABLED(FILAMENT_RUNOUT_SENSOR)
+          #if HAS_FILAMENT_SENSOR
             #if ACDEBUG(AC_MARLIN)
               DEBUG_ECHOLNPGM("setFilamentRunoutState: ", __LINE__);
             #endif
@@ -1043,7 +1047,7 @@ namespace Anycubic {
         else if (control_index == TXT_PRINT_SPEED_TARGET || control_index == TXT_ADJUST_SPEED) { // print speed
           control_value = (uint16_t(data_buf[4]) << 8) | uint16_t(data_buf[5]);
           const uint16_t feedrate = constrain(uint16_t(control_value), 40, 999);
-          //feedrate_percentage=constrain(control_value,40,999);
+          //motion.feedrate_percentage = constrain(control_value, 40, 999);
           sendTxtToTFT(MString<6>(feedrate), TXT_PRINT_SPEED);
           sendValueToTFT(feedrate, TXT_PRINT_SPEED_NOW);
           sendValueToTFT(feedrate, TXT_PRINT_SPEED_TARGET);
@@ -1104,7 +1108,7 @@ namespace Anycubic {
         */
       }
       else if (0x82 == data_buf[0]) {
-        // send_cmd_to_pc(cmd ,start );
+        // send_cmd_to_pc(cmd, start );
       }
     }
   }
@@ -1130,7 +1134,7 @@ namespace Anycubic {
   }
 
   void DgusTFT::toggle_audio() {
-    lcd_info.audio_on = !lcd_info.audio_on;
+    FLIP(lcd_info.audio_on);
     goto_system_page();
     lcdAudioSet(lcd_info.audio_on);
   }
@@ -1963,14 +1967,14 @@ namespace Anycubic {
 
         setSoftEndstopState(false);
 
-        z_off = getZOffset_mm() - 0.01f;
+        z_off = getZOffset_mm() - BABYSTEP_SIZE_Z;
         setZOffset_mm(z_off);
 
         sendTxtToTFT(ftostr52sprj(getZOffset_mm()) + 2, TXT_LEVEL_OFFSET);
 
         if (isAxisPositionKnown(Z)) {
           const float currZpos = getAxisPosition_mm(Z);
-          setAxisPosition_mm(currZpos - 0.01f, Z);
+          setAxisPosition_mm(currZpos - BABYSTEP_SIZE_Z, Z);
         }
 
         setSoftEndstopState(true);
@@ -1981,14 +1985,14 @@ namespace Anycubic {
 
         setSoftEndstopState(false);
 
-        z_off = getZOffset_mm() + 0.01f;
+        z_off = getZOffset_mm() + BABYSTEP_SIZE_Z;
         setZOffset_mm(z_off);
 
         sendTxtToTFT(ftostr52sprj(getZOffset_mm()) + 2, TXT_LEVEL_OFFSET);
 
         if (isAxisPositionKnown(Z)) {          // Move Z axis
           const float currZpos = getAxisPosition_mm(Z);
-          setAxisPosition_mm(currZpos + 0.01f, Z);
+          setAxisPosition_mm(currZpos + BABYSTEP_SIZE_Z, Z);
         }
 
         setSoftEndstopState(true);

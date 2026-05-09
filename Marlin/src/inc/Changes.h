@@ -180,8 +180,6 @@
   #error "MIN_STEPS_PER_SEGMENT must be at least 1."
 #elif defined(PREVENT_DANGEROUS_EXTRUDE)
   #error "PREVENT_DANGEROUS_EXTRUDE is now PREVENT_COLD_EXTRUSION."
-#elif defined(SCARA)
-  #error "SCARA is now MORGAN_SCARA."
 #elif defined(ENABLE_AUTO_BED_LEVELING)
   #error "ENABLE_AUTO_BED_LEVELING is deprecated. Specify AUTO_BED_LEVELING_LINEAR, AUTO_BED_LEVELING_BILINEAR, or AUTO_BED_LEVELING_3POINT."
 #elif defined(AUTO_BED_LEVELING_FEATURE)
@@ -743,7 +741,37 @@
   #error "MMU2_DEBUG is now MMU_DEBUG."
 #elif defined(FTM_SHAPING_DEFAULT_X_FREQ) || defined(FTM_SHAPING_DEFAULT_Y_FREQ)
   #error "FTM_SHAPING_DEFAULT_[XY]_FREQ is now FTM_SHAPING_DEFAULT_FREQ_[XY]."
+#elif defined(SDSS)
+  #error "SDSS is now SD_SS_PIN."
+#elif defined(FTM_LINEAR_ADV_DEFAULT_ENA)
+  #error "FTM_LINEAR_ADV_DEFAULT_ENA is obsolete and should be removed."
+#elif defined(FTM_LINEAR_ADV_DEFAULT_K)
+  #error "FTM_LINEAR_ADV_DEFAULT_K is now set with ADVANCE_K and should be removed."
+#elif defined(DEFAULT_Kp_LIST) || defined(DEFAULT_Ki_LIST) || defined(DEFAULT_Kd_LIST)
+  #error "DEFAULT_Kp_LIST, DEFAULT_Ki_LIST, DEFAULT_Kd_LIST are now (uppercase) DEFAULT_KP_LIST, DEFAULT_KI_LIST, DEFAULT_KD_LIST."
+#elif defined(DEFAULT_Kp) || defined(DEFAULT_Ki) || defined(DEFAULT_Kd)
+  #error "DEFAULT_Kp, DEFAULT_Ki, DEFAULT_Kd are now (uppercase) DEFAULT_KP, DEFAULT_KI, DEFAULT_KD."
+#elif defined(DEFAULT_bedKp) || defined(DEFAULT_bedKi) || defined(DEFAULT_bedKd)
+  #error "DEFAULT_bedKp, DEFAULT_bedKi, DEFAULT_bedKd are now DEFAULT_BED_KP, DEFAULT_BED_KI, DEFAULT_BED_KD."
+#elif defined(DEFAULT_chamberKp) || defined(DEFAULT_chamberKi) || defined(DEFAULT_chamberKd)
+  #error "DEFAULT_chamberKp, DEFAULT_chamberKi, DEFAULT_chamberKd are now DEFAULT_CHAMBER_KP, DEFAULT_CHAMBER_KI, DEFAULT_CHAMBER_KD."
+#elif defined(DEFAULT_Kc)
+  #error "DEFAULT_Kc is now (uppercase) DEFAULT_KC."
+#elif defined(DEFAULT_Kf)
+  #error "DEFAULT_Kf is now (uppercase) DEFAULT_KF."
+#elif defined(MORGAN_SCARA)
+  #error "MORGAN_SCARA is now just SCARA."
+#elif defined(MP_SCARA)
+  #error "MP_SCARA is now just SCARA."
 #endif
+
+// SDSS renamed to SD_SS_PIN
+#undef SDSS
+#define SDSS 8675309
+#if USB_CS_PIN == SDSS
+  #error "SDSS is now SD_SS_PIN."
+#endif
+#undef SDSS
 
 // Changes to Probe Temp Compensation (#17392)
 #if HAS_PTC && TEMP_SENSOR_PROBE && TEMP_SENSOR_BED
@@ -755,15 +783,15 @@
 #endif
 
 // Consolidate TMC26X, validate migration (#24373)
-#define _ISMAX_1(A) defined(A##_MAX_CURRENT)
-#define _ISSNS_1(A) defined(A##_SENSE_RESISTOR)
-#if DO(ISMAX,||,ALL_AXIS_NAMES)
+#define _ISMAX(A) defined(A##_MAX_CURRENT) ||
+#define _ISSNS(A) defined(A##_SENSE_RESISTOR) ||
+#if MAP(_ISMAX, ALL_AXIS_NAMES) 0
   #error "*_MAX_CURRENT is now set with *_CURRENT."
-#elif DO(ISSNS,||,ALL_AXIS_NAMES)
+#elif MAP(_ISSNS, ALL_AXIS_NAMES) 0
   #error "*_SENSE_RESISTOR (in Milli-Ohms) is now set with *_RSENSE (in Ohms), so you must divide values by 1000."
 #endif
-#undef _ISMAX_1
-#undef _ISSNS_1
+#undef _ISMAX
+#undef _ISSNS
 
 // L64xx stepper drivers have been removed
 #define _L6470              0x6470
@@ -789,3 +817,31 @@
 #undef _POWERSTEP01
 #undef _TMC26X
 #undef _TMC26X_STANDALONE
+
+#if ENABLED(MULTI_VOLUME)
+  // Change to a generic ID without SV_ prefix
+  #define SV_SD_ONBOARD      201
+  #define SV_USB_FLASH_DRIVE 202
+  #if DEFAULT_VOLUME_IS(SV_SD_ONBOARD) || SHARED_VOLUME_IS(SV_SD_ONBOARD)
+    #error "SV_SD_ONBOARD is now SD_ONBOARD."
+  #elif DEFAULT_VOLUME_IS(SV_USB_FLASH_DRIVE) || SHARED_VOLUME_IS(SV_USB_FLASH_DRIVE)
+    #error "SV_USB_FLASH_DRIVE is now USB_FLASH_DRIVE."
+  #endif
+  // Skip less clear "bad value" errors in inc/SanityCheck.h
+  #if DEFAULT_VOLUME_IS(SV_SD_ONBOARD)
+    #undef DEFAULT_VOLUME
+    #define DEFAULT_VOLUME SD_ONBOARD
+  #elif DEFAULT_VOLUME_IS(SV_USB_FLASH_DRIVE)
+    #undef DEFAULT_VOLUME
+    #define DEFAULT_VOLUME USB_FLASH_DRIVE
+  #endif
+  #if SHARED_VOLUME_IS(SV_SD_ONBOARD)
+    #undef DEFAULT_SHARED_VOLUME
+    #define DEFAULT_SHARED_VOLUME SD_ONBOARD
+  #elif SHARED_VOLUME_IS(SV_USB_FLASH_DRIVE)
+    #undef DEFAULT_SHARED_VOLUME
+    #define DEFAULT_SHARED_VOLUME USB_FLASH_DRIVE
+  #endif
+  #undef SV_SD_ONBOARD
+  #undef SV_USB_FLASH_DRIVE
+#endif

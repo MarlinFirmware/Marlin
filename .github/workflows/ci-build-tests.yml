@@ -21,6 +21,7 @@ on:
     branches:
     - bugfix-2.1.x
     - 2.1.x
+    - release-*
     paths-ignore:
     - config/**
     - data/**
@@ -34,12 +35,18 @@ jobs:
     name: Build Test
     if: github.repository == 'MarlinFirmware/Marlin'
 
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
+
+    env:
+      CONFIG_BRANCH: ${{ github.base_ref || github.ref_name }}
 
     strategy:
       fail-fast: true
       matrix:
         test-platform:
+
+        # RP2040
+        - SKR_Pico
 
         # Native
         - linux_native
@@ -51,7 +58,7 @@ jobs:
         - at90usb1286_dfu
 
         # AVR Extended
-        - FYSETC_F6
+        - mega2560ext
         - melzi_optiboot
         - rambo
         - sanguino1284p
@@ -110,7 +117,7 @@ jobs:
         - BTT_GTR_V1_0
         - BTT_SKR_PRO
         - FLYF407ZG
-        - FYSETC_S6
+        - STM32F446VE_fysetc
         - LERDGEK
         - LERDGEX
         - mks_robin_pro2
@@ -148,6 +155,12 @@ jobs:
         # HC32
         - HC32F460C_aquila_101
 
+        # GD32F3
+        - GD32F303RE_creality_mfl
+
+        # GD32F1
+        - GD32F103RC_aquila_mfl
+
         # LPC176x - Lengthy tests
         - LPC1768
         - LPC1769
@@ -161,15 +174,20 @@ jobs:
       uses: actions/cache@v4
       with:
         path: ~/.cache/pip
-        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+        key: ${{ runner.os }}-pip-build-v1
         restore-keys: |
-          ${{ runner.os }}-pip-
+          ${{ runner.os }}-pip-build-
 
     - name: Cache PlatformIO
       uses: actions/cache@v4
       with:
-        path: ~/.platformio
-        key: ${{ runner.os }}-${{ hashFiles('**/lockfiles') }}
+        path: |
+          ~/.platformio
+          .pio/build
+          .pio/libdeps
+        key: ${{ runner.os }}-pio-build-v1
+        restore-keys: |
+          ${{ runner.os }}-pio-build-
 
     - name: Select Python 3.9
       uses: actions/setup-python@v5
@@ -185,6 +203,7 @@ jobs:
 
     - name: Install Simulator dependencies
       run: |
+        sudo apt-get update
         sudo apt-get install build-essential
         sudo apt-get install libsdl2-dev
         sudo apt-get install libsdl2-net-dev

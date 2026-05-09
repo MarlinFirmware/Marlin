@@ -22,11 +22,23 @@
 #pragma once
 
 /**
- * Support routines for MAPLE_STM32F1
- */
-
-/**
- * Translation of routines & variables used by pinsDebug.h
+ * Pins Debugging for Maple STM32F1
+ *
+ *   - NUMBER_PINS_TOTAL
+ *   - MULTI_NAME_PAD
+ *   - getPinByIndex(index)
+ *   - printPinNameByIndex(index)
+ *   - getPinIsDigitalByIndex(index)
+ *   - digitalPinToAnalogIndex(pin)
+ *   - getValidPinMode(pin)
+ *   - isValidPin(pin)
+ *   - isAnalogPin(pin)
+ *   - digitalRead_mod(pin)
+ *   - pwm_status(pin)
+ *   - printPinPWM(pin)
+ *   - printPinPort(pin)
+ *   - printPinNumber(pin)
+ *   - printPinAnalog(pin)
  */
 
 #ifndef BOARD_NR_GPIO_PINS // Only in MAPLE_STM32F1
@@ -39,11 +51,11 @@ extern const stm32_pin_info PIN_MAP[BOARD_NR_GPIO_PINS];
 
 #define NUM_DIGITAL_PINS BOARD_NR_GPIO_PINS
 #define NUMBER_PINS_TOTAL BOARD_NR_GPIO_PINS
-#define isValidPin(pin) (pin >= 0 && pin < BOARD_NR_GPIO_PINS)
-#define getPinByIndex(p) pin_t(pin_array[p].pin)
-#define digitalRead_mod(p) extDigitalRead(p)
-#define printPinNumber(p) do{ sprintf_P(buffer, PSTR("%3hd "), int16_t(p)); SERIAL_ECHO(buffer); }while(0)
-#define printPinAnalog(p) do{ sprintf_P(buffer, PSTR(" (A%2d)  "), digitalPinToAnalogIndex(pin)); SERIAL_ECHO(buffer); }while(0)
+#define isValidPin(P) (P >= 0 && P < BOARD_NR_GPIO_PINS)
+#define getPinByIndex(x) pin_t(pin_array[x].pin)
+#define digitalRead_mod(P) extDigitalRead(P)
+#define printPinNumber(P) do{ sprintf_P(buffer, PSTR("%3hd "), int16_t(P)); SERIAL_ECHO(buffer); }while(0)
+#define printPinAnalog(P) do{ sprintf_P(buffer, PSTR(" (A%2d)  "), digitalPinToAnalogIndex(P)); SERIAL_ECHO(buffer); }while(0)
 #define printPinNameByIndex(x) do{ sprintf_P(buffer, PSTR("%-" STRINGIFY(MAX_NAME_LENGTH) "s"), pin_array[x].name); SERIAL_ECHO(buffer); }while(0)
 #define MULTI_NAME_PAD 21 // space needed to be pretty if not first name assigned to a pin
 
@@ -78,8 +90,8 @@ bool getValidPinMode(const pin_t pin) {
   return isValidPin(pin) && !IS_INPUT(pin);
 }
 
-bool getPinIsDigitalByIndex(const int16_t array_pin) {
-  const pin_t pin = getPinByIndex(array_pin);
+bool getPinIsDigitalByIndex(const int16_t index) {
+  const pin_t pin = getPinByIndex(index);
   return (!isAnalogPin(pin)
     #ifdef NUM_ANALOG_INPUTS
       || PIN_MAP[pin].adc_channel >= NUM_ANALOG_INPUTS

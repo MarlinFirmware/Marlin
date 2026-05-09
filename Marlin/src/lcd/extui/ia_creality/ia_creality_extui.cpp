@@ -171,7 +171,7 @@ void onUserConfirmRequired(const char *const msg) {
       case PAUSE_MESSAGE_PURGE: {
         rts.sendData(ExchangePageBase + 78, ExchangepageAddr);
         char newMsg[40] = "Yes to ";
-        strcat_P(newMsg, TERN1(FILAMENT_RUNOUT_SENSOR, !ExtUI::getFilamentRunoutState() && getFilamentRunoutEnabled()) ? PSTR("Continue") : PSTR("Disable "));
+        strcat_P(newMsg, TERN1(HAS_FILAMENT_SENSOR, !ExtUI::getFilamentRunoutState() && getFilamentRunoutEnabled()) ? PSTR("Continue") : PSTR("Disable "));
         strcat_P(newMsg, PSTR("           No to Purge"));
         onStatusChanged(newMsg);
         break;
@@ -181,7 +181,7 @@ void onUserConfirmRequired(const char *const msg) {
     case PAUSE_MESSAGE_OPTION: {
       rts.sendData(ExchangePageBase + 78, ExchangepageAddr);
       char newMsg[40] = "Yes to ";
-      strcat_P(newMsg, TERN1(FILAMENT_RUNOUT_SENSOR, !ExtUI::getFilamentRunoutState() && getFilamentRunoutEnabled()) ? PSTR("Continue") : PSTR("Disable "));
+      strcat_P(newMsg, TERN1(HAS_FILAMENT_SENSOR, !ExtUI::getFilamentRunoutState() && getFilamentRunoutEnabled()) ? PSTR("Continue") : PSTR("Disable "));
       strcat_P(newMsg, PSTR("           No to Purge"));
       onStatusChanged(newMsg);
       break;
@@ -233,28 +233,32 @@ void onUserConfirmRequired(const char *const msg) {
 }
 
 // For fancy LCDs include an icon ID, message, and translated button title
-void onUserConfirmRequired(const int icon, const char * const cstr, FSTR_P const fBtn) {
+void onUserConfirmRequired(const int, const char * const cstr, FSTR_P const) {
   onUserConfirmRequired(cstr);
-  UNUSED(icon); UNUSED(fBtn);
 }
-void onUserConfirmRequired(const int icon, FSTR_P const fstr, FSTR_P const fBtn) {
+void onUserConfirmRequired(const int, FSTR_P const fstr, FSTR_P const) {
   onUserConfirmRequired(fstr);
-  UNUSED(icon); UNUSED(fBtn);
 }
 
 #if ENABLED(ADVANCED_PAUSE_FEATURE)
   void onPauseMode(
     const PauseMessage message,
     const PauseMode mode/*=PAUSE_MODE_SAME*/,
-    const uint8_t extruder/*=active_extruder*/
+    const uint8_t extruder/*=motion.extruder*/
   ) {
     stdOnPauseMode(message, mode, extruder);
   }
 #endif
 
-void onStatusChanged(const char *const statMsg) {
-  for (int16_t j = 0; j < 20; j++) // Clear old message
+static constexpr int16_t STATUS_MESSAGE_SIZE = 20;
+
+void clearStatus() {
+  for (int16_t j = 0; j < STATUS_MESSAGE_SIZE; j++) // Clear old message
     rts.sendData(' ', StatusMessageString + j);
+}
+
+void onStatusChanged(const char * const statMsg) {
+  clearStatus();
   rts.sendData(statMsg, StatusMessageString);
 }
 
@@ -362,7 +366,7 @@ void onPostprocessSettings() {}
 #if HAS_MESH
   void onMeshUpdate(const int8_t xpos, const int8_t ypos, probe_state_t state) {}
 
-  void onMeshUpdate(const int8_t xpos, const int8_t ypos, const_float_t zval) {
+  void onMeshUpdate(const int8_t xpos, const int8_t ypos, const float zval) {
     if (waitway == 3)
       if (isPositionKnown() && (getActualTemp_celsius(BED) >= (getTargetTemp_celsius(BED) - 1)))
         rts.sendData(ExchangePageBase + 64, ExchangepageAddr);

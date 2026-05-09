@@ -21,14 +21,14 @@
  */
 
 // adapted from  I2C/master/master.c example
-//   https://www-users.cs.york.ac.uk/~pcc/MCP/HAPR-Course-web/CMSIS/examples/html/master_8c_source.html
+//   https://www-users.york.ac.uk/~pcc1/MCP/HAPR-Course-web/CMSIS/examples/html/master_8c_source.html
 
 #ifdef TARGET_LPC1768
 
 #include "../include/i2c_util.h"
 #include "../../../core/millis_t.h"
 
-extern int millis();
+uint32_t millis();
 
 #ifdef __cplusplus
   extern "C" {

@@ -30,6 +30,10 @@
 
 #include "menu_item.h"
 
+#if ENABLED(CONFIGURABLE_MACHINE_NAME)
+  #include "../../MarlinCore.h"
+#endif
+
 #if HAS_GAMES
   #include "game/game.h"
 #endif
@@ -61,12 +65,14 @@
     STATIC_ITEM(MSG_INFO_PRINT_LONGEST, SS_FULL);                                         // Longest job time:
     STATIC_ITEM_F(nullptr, SS_FULL, duration_t(stats.longestPrint).toString(buffer));     // > 99y 364d 23h 59m 59s
 
-    STATIC_ITEM(MSG_INFO_PRINT_FILAMENT, SS_FULL);                                        // Extruded total:
-    sprintf_P(buffer, PSTR("%ld.%im")
-      , long(stats.filamentUsed / 1000)
-      , int16_t(stats.filamentUsed / 100) % 10
-    );
-    STATIC_ITEM_F(nullptr, SS_FULL, buffer);                                              // > 125m
+    #if HAS_EXTRUDERS
+      STATIC_ITEM(MSG_INFO_PRINT_FILAMENT, SS_FULL);                                        // Extruded total:
+      sprintf_P(buffer, PSTR("%ld.%im")
+        , long(stats.filamentUsed / 1000)
+        , int16_t(stats.filamentUsed / 100) % 10
+      );
+      STATIC_ITEM_F(nullptr, SS_FULL, buffer);                                              // > 125m
+    #endif
 
     #if SERVICE_INTERVAL_1 > 0 || SERVICE_INTERVAL_2 > 0 || SERVICE_INTERVAL_3 > 0
       strcpy_P(buffer, GET_TEXT(MSG_SERVICE_IN));
@@ -246,7 +252,11 @@ void menu_info_board() {
     STATIC_ITEM(MSG_MARLIN, SS_DEFAULT|SS_INVERT);                // Marlin
     STATIC_ITEM_F(F(SHORT_BUILD_VERSION));                        // x.x.x-Branch
     STATIC_ITEM_F(F(STRING_DISTRIBUTION_DATE));                   // YYYY-MM-DD HH:MM
-    STATIC_ITEM_F(F(MACHINE_NAME), SS_DEFAULT|SS_INVERT);         // My3DPrinter
+    #if ENABLED(CONFIGURABLE_MACHINE_NAME)
+      STATIC_ITEM_C(&marlin.machine_name, SS_DEFAULT|SS_INVERT);  // My3DPrinter
+    #else
+      STATIC_ITEM_F(F(MACHINE_NAME), SS_DEFAULT|SS_INVERT);       // My3DPrinter
+    #endif
     STATIC_ITEM_F(F(WEBSITE_URL));                                // www.my3dprinter.com
     PSTRING_ITEM(MSG_INFO_EXTRUDERS, STRINGIFY(EXTRUDERS), SS_CENTER); // Extruders: 2
     #if HAS_LEVELING
@@ -261,6 +271,18 @@ void menu_info_board() {
     END_SCREEN();
   }
 
+#endif
+
+//
+// "Build Info" submenu
+//
+#if ENABLED(BUILD_INFO_MENU_ITEM)
+  void menu_info_build() {
+    if (ui.use_click()) return ui.go_back();
+    START_SCREEN();
+    STATIC_ITEM_F(F(__DATE__ " " __TIME__));                      // YYYY-MM-DD HH:MM
+    END_SCREEN();
+  }
 #endif
 
 //
@@ -304,6 +326,10 @@ void menu_info() {
       #endif
     );
   }
+  #endif
+
+  #if ENABLED(BUILD_INFO_MENU_ITEM)
+    SUBMENU(MSG_INFO_BUILD, menu_info_build);               // Build Info >
   #endif
 
   END_MENU();

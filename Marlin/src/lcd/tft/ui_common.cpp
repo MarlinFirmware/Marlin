@@ -82,11 +82,11 @@ void moveAxis(const AxisEnum axis, const int8_t direction) {
         diff = 0;
 
         const int16_t babystep_increment = direction * BABYSTEP_SIZE_Z;
-        const bool do_probe = DISABLED(BABYSTEP_HOTEND_Z_OFFSET) || active_extruder == 0;
+        const bool do_probe = DISABLED(BABYSTEP_HOTEND_Z_OFFSET) || motion.extruder == 0;
         const float bsDiff = planner.mm_per_step[Z_AXIS] * babystep_increment,
                     new_probe_offset = probe.offset.z + bsDiff,
                     new_offs = TERN(BABYSTEP_HOTEND_Z_OFFSET
-                      , do_probe ? new_probe_offset : hotend_offset[active_extruder].z - bsDiff
+                      , do_probe ? new_probe_offset : motion.active_hotend_offset().z - bsDiff
                       , new_probe_offset
                     );
         if (WITHIN(new_offs, PROBE_OFFSET_ZMIN, PROBE_OFFSET_ZMAX)) {
@@ -94,7 +94,7 @@ void moveAxis(const AxisEnum axis, const int8_t direction) {
           if (do_probe)
             probe.offset.z = new_offs;
           else
-            TERN(BABYSTEP_HOTEND_Z_OFFSET, hotend_offset[active_extruder].z = new_offs, NOOP);
+            TERN(BABYSTEP_HOTEND_Z_OFFSET, motion.active_hotend_offset().z = new_offs, NOOP);
           drawMessage_P(NUL_STR); // Clear the error
         }
         else
@@ -104,12 +104,12 @@ void moveAxis(const AxisEnum axis, const int8_t direction) {
 
         // Only change probe.offset.z
         probe.offset.z += diff;
-        if (direction < 0 && current_position.z < PROBE_OFFSET_ZMIN) {
-          current_position.z = PROBE_OFFSET_ZMIN;
+        if (direction < 0 && motion.position.z < PROBE_OFFSET_ZMIN) {
+          motion.position.z = PROBE_OFFSET_ZMIN;
           drawMessage(GET_TEXT_F(MSG_LCD_SOFT_ENDSTOPS));
         }
-        else if (direction > 0 && current_position.z > PROBE_OFFSET_ZMAX) {
-          current_position.z = PROBE_OFFSET_ZMAX;
+        else if (direction > 0 && motion.position.z > PROBE_OFFSET_ZMAX) {
+          motion.position.z = PROBE_OFFSET_ZMAX;
           drawMessage(GET_TEXT_F(MSG_LCD_SOFT_ENDSTOPS));
         }
         else
@@ -123,13 +123,13 @@ void moveAxis(const AxisEnum axis, const int8_t direction) {
   if (diff && !ui.manual_move.processing) {
     // Get motion limit from software endstops, if any
     float min, max;
-    soft_endstop.get_manual_axis_limits(axis, min, max);
+    motion.soft_endstop.get_manual_axis_limits(axis, min, max);
 
     // Delta limits XY based on the current offset from center
     // This assumes the center is 0,0
     #if ENABLED(DELTA)
       if (axis != Z_AXIS && TERN1(HAS_EXTRUDERS, axis != E_AXIS)) {
-        max = SQRT(FLOAT_SQ(PRINTABLE_RADIUS) - sq(current_position[Y_AXIS - axis])); // (Y_AXIS - axis) == the other axis
+        max = SQRT(FLOAT_SQ(PRINTABLE_RADIUS) - sq(motion.position[Y_AXIS - axis])); // (Y_AXIS - axis) == the other axis
         min = -max;
       }
     #endif
@@ -390,10 +390,12 @@ void MenuItem_static::draw(const uint8_t row, FSTR_P const ftpl, const uint8_t s
   else
     tft_string.set();
 
+  const uint16_t color = (style & SS_INVERT) ? COLOR_MENU_INVERT_TEXT : COLOR_MENU_STATIC_TEXT;
+
   const bool center = bool(style & SS_CENTER), full = bool(style & SS_FULL);
   if (!full || !vstr) {
     if (vstr) tft_string.add(vstr);
-    tft.add_text(center ? tft_string.center(TFT_WIDTH) : 0, MENU_TEXT_Y, COLOR_MENU_STATIC_TEXT, tft_string);
+    tft.add_text(center ? tft_string.center(TFT_WIDTH) : 0, MENU_TEXT_Y, color, tft_string);
     return;
   }
 
@@ -401,12 +403,12 @@ void MenuItem_static::draw(const uint8_t row, FSTR_P const ftpl, const uint8_t s
   if (*vstr == ':') { tft_string.add(':'); vstr++; }
 
   // Left-justified label
-  tft.add_text(0, MENU_TEXT_Y, COLOR_MENU_STATIC_TEXT, tft_string);
+  tft.add_text(0, MENU_TEXT_Y, color, tft_string);
 
   // Right-justified value, after spaces
   while (*vstr == ' ') vstr++;
   tft_string.set(vstr);
-  tft.add_text(TFT_WIDTH - 1 - tft_string.width(), MENU_TEXT_Y, COLOR_MENU_STATIC_TEXT, tft_string);
+  tft.add_text(TFT_WIDTH - 1 - tft_string.width(), MENU_TEXT_Y, color, tft_string);
 }
 
 #if HAS_MEDIA
@@ -487,6 +489,11 @@ void MarlinUI::clear_for_drawing() { clear_lcd(); }
     touch.clear();
 
     if (stage < CALIBRATION_SUCCESS) {
+      tft_string.set(GET_TEXT(MSG_TOUCH_CALIBRATION));
+      tft.canvas(0, 0, TFT_WIDTH, tft_string.font_height());
+      tft.set_background(COLOR_BACKGROUND);
+      tft.add_text(tft_string.center(TFT_WIDTH), 0, COLOR_MENU_TEXT, tft_string);
+
       switch (stage) {
         case CALIBRATION_TOP_LEFT:     tft_string.set(GET_TEXT(MSG_TOP_LEFT));     break;
         case CALIBRATION_TOP_RIGHT:    tft_string.set(GET_TEXT(MSG_TOP_RIGHT));    break;

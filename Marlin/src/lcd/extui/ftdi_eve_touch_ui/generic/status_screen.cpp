@@ -220,7 +220,7 @@ void StatusScreen::draw_temperature(draw_mode_t what) {
     }
     cmd.tag(5).font(font_medium).button(TEXT_POS(FAN_POS), fan_str);
 
-    if DISABLED(HAS_MULTI_HOTEND) {
+    if (DISABLED(HAS_MULTI_HOTEND)) {
       cmd.font(font_xsmall).fgcolor(gray_color_1);
     }
     else if (getTargetTemp_celsius(H1) > 0) {
@@ -374,9 +374,9 @@ void StatusScreen::draw_interaction_buttons(draw_mode_t what) {
           .button(TOOL_HEAD_POS, !ExtUI::isPrintingPaused() ? GET_TEXT_F(MSG_BUTTON_PAUSE) : GET_TEXT_F(MSG_BUTTON_RESUME))
           .tag(!ExtUI::isPrintingPaused() ? 7 : 14)
           .button(CHANGE_FILAMENT_POS, !ExtUI::isPrintingPaused() ? GET_TEXT_F(MSG_SPEED) : F(""));
-        #if ENABLED(FILAMENT_RUNOUT_SENSOR)
-          cmd.tag(8).button(PREHEAT_POS, GET_TEXT_F(MSG_SENSOR));
-        #endif
+      #if HAS_FILAMENT_SENSOR
+        cmd.tag(8).button(PREHEAT_POS, GET_TEXT_F(MSG_SENSOR));
+      #endif
       if (ExtUI::isPrintingPaused())
         draw_text_box(cmd, CHANGE_FILAMENT_POS, F("Change\nFilament"), OPT_CENTER, font_medium);
     }
@@ -536,7 +536,7 @@ bool StatusScreen::onTouchEnd(uint8_t tag) {
       }
       break;
     case 7:  GOTO_SCREEN(FeedratePercentScreen); break;
-    #if ENABLED(FILAMENT_RUNOUT_SENSOR)
+    #if HAS_FILAMENT_SENSOR
       case 8:  GOTO_SCREEN(FilamentRunoutScreen); break;
     #endif
     case 9:  injectCommands(F("G28")); break;
@@ -588,8 +588,10 @@ bool StatusScreen::onTouchEnd(uint8_t tag) {
 }
 
 void StatusScreen::onMediaMounted() {
-  if (AT_SCREEN(StatusScreen))
-    setStatusMessage(GET_TEXT_F(MSG_MEDIA_INSERTED));
+  if (!AT_SCREEN(StatusScreen)) return;
+  setStatusMessage(ExtUI::isMediaMountedSD()  ? GET_TEXT_F(MSG_MEDIA_INSERTED_SD) :
+                   ExtUI::isMediaMountedUSB() ? GET_TEXT_F(MSG_MEDIA_INSERTED_USB) :
+                                                GET_TEXT_F(MSG_MEDIA_INSERTED));
 }
 
 void StatusScreen::onMediaRemoved() {

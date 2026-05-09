@@ -38,47 +38,53 @@
 #include "../../lcd/marlinui.h"
 
 /**
- * G76: calibrate probe and/or bed temperature offsets
- *  Notes:
- *  - When calibrating probe, bed temperature is held constant.
- *    Compensation values are deltas to first probe measurement at probe temp. = 30°C.
- *  - When calibrating bed, probe temperature is held constant.
- *    Compensation values are deltas to first probe measurement at bed temp. = 60°C.
- *  - The hotend will not be heated at any time.
- *  - On my Průša MK3S clone I put a piece of paper between the probe and the hotend
- *    so the hotend fan would not cool my probe constantly. Alternatively you could just
- *    make sure the fan is not running while running the calibration process.
+ * G76: Probe Temperature Calibration
  *
- *  Probe calibration:
- *  - Moves probe to cooldown point.
- *  - Heats up bed to 100°C.
- *  - Moves probe to probing point (1mm above heatbed).
- *  - Waits until probe reaches target temperature (30°C).
- *  - Does a z-probing (=base value) and increases target temperature by 5°C.
- *  - Waits until probe reaches increased target temperature.
- *  - Does a z-probing (delta to base value will be a compensation value) and increases target temperature by 5°C.
- *  - Repeats last two steps until max. temperature reached or timeout (i.e. probe does not heat up any further).
- *  - Compensation values of higher temperatures will be extrapolated (using linear regression first).
- *    While this is not exact by any means it is still better than simply using the last compensation value.
+ * Calibrate probe and/or bed temperature offsets.
  *
- *  Bed calibration:
- *  - Moves probe to cooldown point.
- *  - Heats up bed to 60°C.
- *  - Moves probe to probing point (1mm above heatbed).
- *  - Waits until probe reaches target temperature (30°C).
- *  - Does a z-probing (=base value) and increases bed temperature by 5°C.
- *  - Moves probe to cooldown point.
- *  - Waits until probe is below 30°C and bed has reached target temperature.
- *  - Moves probe to probing point and waits until it reaches target temperature (30°C).
- *  - Does a z-probing (delta to base value will be a compensation value) and increases bed temperature by 5°C.
- *  - Repeats last four points until max. bed temperature reached (110°C) or timeout.
- *  - Compensation values of higher temperatures will be extrapolated (using linear regression first).
- *    While this is not exact by any means it is still better than simply using the last compensation value.
+ * Probe calibration:
+ *   - Moves probe to cooldown point.
+ *   - Heats up bed to 100°C.
+ *   - Moves probe to probing point (1mm above heatbed).
+ *   - Waits until probe reaches target temperature (30°C).
+ *   - Does a z-probing (=base value) and increases target temperature by 5°C.
+ *   - Waits until probe reaches increased target temperature.
+ *   - Does a z-probing (delta to base value will be a compensation value) and increases target temperature by 5°C.
+ *   - Repeats last two steps until max. temperature reached or timeout (i.e. probe does not heat up any further).
+ *   - Compensation values of higher temperatures will be extrapolated (using linear regression first).
+ *     While this is not exact by any means it is still better than simply using the last compensation value.
  *
- *  G76 [B | P]
- *  - no flag - Both calibration procedures will be run.
- *  - `B` - Run bed temperature calibration.
- *  - `P` - Run probe temperature calibration.
+ * Bed calibration:
+ *   - Moves probe to cooldown point.
+ *   - Heats up bed to 60°C.
+ *   - Moves probe to probing point (1mm above heatbed).
+ *   - Waits until probe reaches target temperature (30°C).
+ *   - Does a z-probing (=base value) and increases bed temperature by 5°C.
+ *   - Moves probe to cooldown point.
+ *   - Waits until probe is below 30°C and bed has reached target temperature.
+ *   - Moves probe to probing point and waits until it reaches target temperature (30°C).
+ *   - Does a z-probing (delta to base value will be a compensation value) and increases bed temperature by 5°C.
+ *   - Repeats last four points until max. bed temperature reached (110°C) or timeout.
+ *   - Compensation values of higher temperatures will be extrapolated (using linear regression first).
+ *     While this is not exact by any means it is still better than simply using the last compensation value.
+ *
+ * Usage:
+ *   G76 [ B | P ]
+ *
+ * Parameters:
+ *   None  Run Both calibration procedures
+ *   B     Calibrate bed only
+ *   P     Calibrate probe only
+ *
+ * NOTES:
+ *   - When calibrating probe, bed temperature is held constant.
+ *     Compensation values are deltas to first probe measurement at probe temp. = 30°C.
+ *   - When calibrating bed, probe temperature is held constant.
+ *     Compensation values are deltas to first probe measurement at bed temp. = 60°C.
+ *   - The hotend will not be heated at any time.
+ *   - On my Průša MK3S clone I put a piece of paper between the probe and the hotend
+ *     so the hotend fan would not cool my probe constantly. Alternatively you could just
+ *     make sure the fan is not running while running the calibration process.
  */
 
 #if ALL(PTC_PROBE, PTC_BED)
@@ -90,11 +96,11 @@
 
   void GcodeSuite::G76() {
     auto report_temps = [](millis_t &ntr, millis_t timeout=0) {
-      idle_no_sleep();
+      marlin.idle_no_sleep();
       const millis_t ms = millis();
       if (ELAPSED(ms, ntr)) {
         ntr = ms + 1000;
-        thermalManager.print_heater_states(active_extruder);
+        thermalManager.print_heater_states(motion.extruder);
       }
       return (timeout && ELAPSED(ms, timeout));
     };
@@ -144,7 +150,7 @@
 
     if (do_bed_cal || do_probe_cal) {
       // Ensure park position is reachable
-      bool reachable = position_is_reachable(parkpos) || WITHIN(parkpos.z, Z_MIN_POS - fslop, Z_MAX_POS + fslop);
+      bool reachable = motion.can_reach(parkpos) || WITHIN(parkpos.z, Z_MIN_POS - fslop, Z_MAX_POS + fslop);
       if (!reachable)
         SERIAL_ECHOLNPGM("!Park");
       else {
@@ -161,7 +167,7 @@
       process_subcommands_now(FPSTR(G28_STR));
     }
 
-    remember_feedrate_scaling_off();
+    motion.remember_feedrate_scaling_off();
 
     /******************************************
      * Calibrate bed temperature offsets
@@ -192,7 +198,7 @@
         report_targets(target_bed, target_probe);
 
         // Park nozzle
-        do_blocking_move_to(parkpos);
+        motion.blocking_move(parkpos);
 
         // Wait for heatbed to reach target temp and probe to cool below target temp
         if (wait_for_temps(target_bed, target_probe, next_temp_report, millis() + MIN_TO_MS(15))) {
@@ -201,7 +207,7 @@
         }
 
         // Move the nozzle to the probing point and wait for the probe to reach target temp
-        do_blocking_move_to(noz_pos_xyz);
+        motion.blocking_move(noz_pos_xyz);
         say_waiting_for_probe_heating();
         SERIAL_EOL();
         while (thermalManager.wholeDegProbe() < target_probe)
@@ -233,7 +239,7 @@
     if (do_probe_cal) {
 
       // Park nozzle
-      do_blocking_move_to(parkpos);
+      motion.blocking_move(parkpos);
 
       // Initialize temperatures
       const celsius_t target_bed = BED_MAX_TARGET;
@@ -252,7 +258,7 @@
       bool timeout = false;
       for (uint8_t idx = 0; idx <= PTC_PROBE_COUNT; idx++) {
         // Move probe to probing point and wait for it to reach target temperature
-        do_blocking_move_to(noz_pos_xyz);
+        motion.blocking_move(noz_pos_xyz);
 
         say_waiting_for_probe_heating();
         SERIAL_ECHOLNPGM(" Bed:", target_bed, " Probe:", target_probe);
@@ -285,32 +291,36 @@
       ptc.print_offsets();
     } // do_probe_cal
 
-    restore_feedrate_and_scaling();
+    motion.restore_feedrate_and_scaling();
   }
 
 #endif // PTC_PROBE && PTC_BED
 
 /**
- * M871: Report / reset temperature compensation offsets.
- *       Note: This does not affect values in EEPROM until M500.
+ * M871: Probe Temperature Config
  *
+ * Report / reset temperature compensation offsets.
+ * NOTE: This does not affect values in EEPROM until M500.
+ *
+ * Usage:
  *   M871 [ R | B | P | E ]
  *
- *    No Parameters - Print current offset values.
+ * Parameters:
+ *   None  Print current offset values
  *
- * Select only one of these flags:
- *    R - Reset all offsets to zero (i.e., disable compensation).
- *    B - Manually set offset for bed
- *    P - Manually set offset for probe
- *    E - Manually set offset for extruder
+ *   Select only one of these flags:
+ *     R  Reset all offsets to zero (i.e., disable compensation)
+ *     B  Manually set offset for bed
+ *     P  Manually set offset for probe
+ *     E  Manually set offset for extruder
  *
- * With B, P, or E:
- *    I[index] - Index in the array
- *    V[value] - Adjustment in µm
+ *   With B, P, or E:
+ *     I<index>  Index in the array
+ *     V<value>  Adjustment in µm
  */
 void GcodeSuite::M871() {
 
-  if (parser.seen('R')) {
+  if (parser.seen_test('R')) {
     // Reset z-probe offsets to factory defaults
     ptc.clear_all_offsets();
     SERIAL_ECHOLNPGM("Offsets reset to default.");

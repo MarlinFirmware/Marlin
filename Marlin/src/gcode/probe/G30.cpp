@@ -34,6 +34,10 @@
   #include "../../feature/probe_temp_comp.h"
 #endif
 
+#if ENABLED(FT_MOTION)
+  #include "../../module/ft_motion.h"
+#endif
+
 #if ANY(DWIN_CREALITY_LCD_JYERSUI, EXTENSIBLE_UI)
   #define VERBOSE_SINGLE_PROBE
 #endif
@@ -50,12 +54,12 @@
  */
 void GcodeSuite::G30() {
 
-  xy_pos_t probepos = current_position;
+  xy_pos_t probepos = motion.position;
 
   const bool seenX = parser.seenval('X');
-  if (seenX) probepos.x = RAW_X_POSITION(parser.value_linear_units());
+  if (seenX) probepos.x = motion.raw_x(parser.value_linear_units());
   const bool seenY = parser.seenval('Y');
-  if (seenY) probepos.y = RAW_Y_POSITION(parser.value_linear_units());
+  if (seenY) probepos.y = motion.raw_y(parser.value_linear_units());
 
   probe.use_probing_tool();
 
@@ -65,7 +69,7 @@ void GcodeSuite::G30() {
     TERN_(HAS_LEVELING, set_bed_leveling_enabled(false));
 
     // Disable feedrate scaling so movement speeds are correct
-    remember_feedrate_scaling_off();
+    motion.remember_feedrate_scaling_off();
 
     // With VERBOSE_SINGLE_PROBE home only if needed
     TERN_(VERBOSE_SINGLE_PROBE, process_subcommands_now(F("G28O")));
@@ -75,6 +79,9 @@ void GcodeSuite::G30() {
 
     // Use 'C' to set Probe Temperature Compensation ON/OFF (on by default)
     TERN_(HAS_PTC, ptc.set_enabled(parser.boolval('C', true)));
+
+    // Potentially disable Fixed-Time Motion for probing
+    TERN_(FT_MOTION, FTM_DISABLE_IN_SCOPE());
 
     // Probe the bed, optionally raise, and return the measured height
     const float measured_z = probe.probe_at_point(probepos, raise_after);
@@ -95,15 +102,15 @@ void GcodeSuite::G30() {
     }
 
     // Restore feedrate scaling
-    restore_feedrate_and_scaling();
+    motion.restore_feedrate_and_scaling();
 
     // Move the nozzle to the position of the probe
-    do_blocking_move_to(probepos);
+    motion.blocking_move(probepos);
 
     if (raise_after == PROBE_PT_STOW)
       probe.move_z_after_probing();
 
-    report_current_position();
+    motion.report_position();
   }
   else {
     SERIAL_ECHOLN(GET_EN_TEXT_F(MSG_ZPROBE_OUT));

@@ -71,13 +71,13 @@ static uint8_t SPI_speed = 0;
 
 static uint8_t swSpiTransfer(uint8_t b, const uint8_t spi_speed, const pin_t sck_pin, const pin_t miso_pin, const pin_t mosi_pin) {
   for (uint8_t i = 0; i < 8; i++) {
-    WRITE_PIN(mosi_pin, !!(b & 0x80));
+    WRITE_PIN(sck_pin, TERN(U8G_SPI_USE_MODE_3, LOW, HIGH));
     DELAY_CYCLES(SPI_SPEED);
-    WRITE_PIN(sck_pin, HIGH);
+    WRITE_PIN(mosi_pin, !!(b & 0x80));
     DELAY_CYCLES(SPI_SPEED);
     b <<= 1;
     if (miso_pin >= 0 && READ_PIN(miso_pin)) b |= 1;
-    WRITE_PIN(sck_pin, LOW);
+    WRITE_PIN(sck_pin, TERN(U8G_SPI_USE_MODE_3, HIGH, LOW));
     DELAY_CYCLES(SPI_SPEED);
   }
   return b;
@@ -85,7 +85,7 @@ static uint8_t swSpiTransfer(uint8_t b, const uint8_t spi_speed, const pin_t sck
 
 static uint8_t swSpiInit(const uint8_t spiRate, const pin_t sck_pin, const pin_t mosi_pin) {
   WRITE_PIN(mosi_pin, HIGH);
-  WRITE_PIN(sck_pin, LOW);
+  WRITE_PIN(sck_pin, TERN(U8G_SPI_USE_MODE_3, HIGH, LOW));
   return spiRate;
 }
 
@@ -93,11 +93,11 @@ static void u8g_com_st7920_write_byte_sw_spi(uint8_t rs, uint8_t val) {
   static uint8_t rs_last_state = 255;
   if (rs != rs_last_state) {
     // Transfer Data (FA) or Command (F8)
-    swSpiTransfer(rs ? 0x0FA : 0x0F8, SPI_speed, SCK_pin_ST7920_HAL, -1, MOSI_pin_ST7920_HAL_HAL);
+    swSpiTransfer(rs ? 0xFA : 0xF8, SPI_speed, SCK_pin_ST7920_HAL, -1, MOSI_pin_ST7920_HAL_HAL);
     rs_last_state = rs;
     DELAY_US(40); // Give the controller time to process the data: 20 is bad, 30 is OK, 40 is safe
   }
-  swSpiTransfer(val & 0x0F0, SPI_speed, SCK_pin_ST7920_HAL, -1, MOSI_pin_ST7920_HAL_HAL);
+  swSpiTransfer(val & 0xF0, SPI_speed, SCK_pin_ST7920_HAL, -1, MOSI_pin_ST7920_HAL_HAL);
   swSpiTransfer(val << 4, SPI_speed, SCK_pin_ST7920_HAL, -1, MOSI_pin_ST7920_HAL_HAL);
 }
 
@@ -168,6 +168,33 @@ uint8_t u8g_com_ST7920_sw_spi_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_val, void 
 #ifdef __cplusplus
   }
 #endif
+
+#if ENABLED(LIGHTWEIGHT_UI)
+
+  #define ST7920_CS()              { WRITE(LCD_PINS_RS, HIGH); }
+  #define ST7920_NCS()             { WRITE(LCD_PINS_RS, LOW); }
+  #define ST7920_SET_CMD()         { ST7920_SWSPI_SND_8BIT(0xF8); }
+  #define ST7920_SET_DAT()         { ST7920_SWSPI_SND_8BIT(0xFA); }
+  #define ST7920_WRITE_BYTE(a)     { ST7920_SWSPI_SND_8BIT((uint8_t)((a)&0xF0u)); ST7920_SWSPI_SND_8BIT((uint8_t)((a)<<4U)); }
+
+  #define ST7920_DAT(V) !!((V) & 0x80)
+
+  #define ST7920_SND_BIT(...) do{        \
+    WRITE(LCD_PINS_D4, LOW);             \
+    WRITE(LCD_PINS_EN, ST7920_DAT(val)); \
+    WRITE(LCD_PINS_D4, HIGH);            \
+    val <<= 1; }while(0);
+
+  void ST7920_SWSPI_SND_8BIT(uint8_t val) {
+    REPEAT(8, ST7920_SND_BIT);
+  }
+
+  void ST7920_cs()                          { ST7920_CS(); }
+  void ST7920_ncs()                         { ST7920_NCS(); }
+  void ST7920_set_cmd()                     { ST7920_SET_CMD(); }
+  void ST7920_set_dat()                     { ST7920_SET_DAT(); }
+  void ST7920_write_byte(const uint8_t val) { ST7920_WRITE_BYTE(val); }
+#endif // LIGHTWEIGHT_UI
 
 #endif // IS_U8GLIB_ST7920
 #endif // __PLAT_NATIVE_SIM__

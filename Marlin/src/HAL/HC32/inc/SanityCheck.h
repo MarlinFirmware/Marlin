@@ -43,8 +43,11 @@
   #error "FAST_PWM_FAN is not yet implemented for this platform."
 #endif
 
-#if !defined(HAVE_SW_SERIAL) && HAS_TMC_SW_SERIAL
-  #error "Missing SoftwareSerial implementation."
+// SoftwareSerial introduced in arduino core version 1.3.1
+#if ARDUINO_CORE_VERSION_INT < GET_VERSION_INT(1, 3, 1)
+  #if !defined(HAVE_SW_SERIAL) && HAS_TMC_SW_SERIAL
+    #error "Missing SoftwareSerial implementation."
+  #endif
 #endif
 
 #if ENABLED(SDCARD_EEPROM_EMULATION) && !HAS_MEDIA
@@ -83,7 +86,7 @@
   #error "POSTMORTEM_DEBUGGING requires CORE_DISABLE_FAULT_HANDLER to be set."
 #endif
 
-#if defined(PANIC_ENABLE)
+#ifdef PANIC_ENABLE
   #if defined(PANIC_USART1_TX_PIN) || defined(PANIC_USART2_TX_PIN) || defined(PANIC_USART3_TX_PIN) || defined(PANIC_USART3_TX_PIN)
     #error "HC32 HAL uses a custom panic handler. Do not define PANIC_USARTx_TX_PIN."
   #endif
@@ -94,7 +97,7 @@
     #error "SERIAL_DMA requires USART_RX_DMA_SUPPORT to be enabled in the arduino core."
   #endif
 
-  // Before arduino core version 1.2.0, USART_RX_DMA_SUPPORT did not implement 
+  // Before arduino core version 1.2.0, USART_RX_DMA_SUPPORT did not implement
   // core_hook_usart_rx_irq, which is required for the emergency parser.
   // With 1.2.0, this was fixed (see https://github.com/shadow578/framework-arduino-hc32f46x/pull/25).
   #if ENABLED(EMERGENCY_PARSER) && ARDUINO_CORE_VERSION_INT < GET_VERSION_INT(1, 2, 0)

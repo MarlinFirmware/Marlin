@@ -30,12 +30,16 @@
 
 #include "../inc/MarlinConfig.h"
 
+#if ENABLED(CANCEL_OBJECTS)
+  #include "cancel_object.h"
+#endif
+
 #if ENABLED(GCODE_REPEAT_MARKERS)
-  #include "../feature/repeat.h"
+  #include "repeat.h"
 #endif
 
 #if ENABLED(MIXING_EXTRUDER)
-  #include "../feature/mixing.h"
+  #include "mixing.h"
 #endif
 
 #if !defined(POWER_LOSS_STATE) && PIN_EXISTS(POWER_LOSS)
@@ -64,6 +68,11 @@ typedef struct {
 
   float zraise;
 
+  // Canceled objects
+  #if ENABLED(CANCEL_OBJECTS)
+    cancel_state_t cancel_state;
+  #endif
+
   // Repeat information
   #if ENABLED(GCODE_REPEAT_MARKERS)
     Repeat stored_repeat;
@@ -76,10 +85,10 @@ typedef struct {
     xyz_pos_t workspace_offset;
   #endif
   #if HAS_MULTI_EXTRUDER
-    uint8_t active_extruder;
+    uint8_t extruder;
   #endif
 
-  #if DISABLED(NO_VOLUMETRICS)
+  #if HAS_VOLUMETRIC_EXTRUSION
     float filament_size[EXTRUDERS];
   #endif
 
@@ -131,7 +140,7 @@ typedef struct {
     #if HAS_LEVELING
       bool leveling:1;            // M420 S
     #endif
-    #if DISABLED(NO_VOLUMETRICS)
+    #if HAS_VOLUMETRIC_EXTRUSION
       bool volumetric_enabled:1;  // M200 S D
     #endif
   } flag;
@@ -192,10 +201,15 @@ class PrintJobRecovery {
     static void close() { file.close(); }
 
     static bool check();
+
+    #if ENABLED(PLR_HEAT_BED_ON_REBOOT)
+      static void set_bed_temp(const bool turn_on);
+    #endif
+
     static void resume();
     static void purge();
 
-    static void cancel() { purge(); }
+    static void cancel();
 
     static void load();
     static void save(const bool force=ENABLED(SAVE_EACH_CMD_MODE), const float zraise=POWER_LOSS_ZRAISE, const bool raised=false);
@@ -228,7 +242,7 @@ class PrintJobRecovery {
     static void write();
 
     #if ENABLED(BACKUP_POWER_SUPPLY)
-      static void retract_and_lift(const_float_t zraise);
+      static void retract_and_lift(const float zraise);
     #endif
 
     #if PIN_EXISTS(POWER_LOSS) || ENABLED(DEBUG_POWER_LOSS_RECOVERY)

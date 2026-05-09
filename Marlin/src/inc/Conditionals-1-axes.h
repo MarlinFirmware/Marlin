@@ -45,6 +45,7 @@
  */
 #if EXTRUDERS
   #define HAS_EXTRUDERS 1
+  #define HAS_E_AXIS 1
   #if EXTRUDERS > 1
     #define HAS_MULTI_EXTRUDER 1
   #endif
@@ -52,14 +53,6 @@
 #else
   #undef EXTRUDERS
   #define EXTRUDERS 0
-  #undef TEMP_SENSOR_0
-  #undef TEMP_SENSOR_1
-  #undef TEMP_SENSOR_2
-  #undef TEMP_SENSOR_3
-  #undef TEMP_SENSOR_4
-  #undef TEMP_SENSOR_5
-  #undef TEMP_SENSOR_6
-  #undef TEMP_SENSOR_7
   #undef SINGLENOZZLE
   #undef SWITCHING_EXTRUDER
   #undef MECHANICAL_SWITCHING_EXTRUDER
@@ -67,10 +60,14 @@
   #undef MECHANICAL_SWITCHING_NOZZLE
   #undef MIXING_EXTRUDER
   #undef HOTEND_IDLE_TIMEOUT
+  #undef HOTEND_OVERSHOOT
   #undef DISABLE_E
   #undef PREVENT_LENGTHY_EXTRUDE
+  #undef FILAMENT_SWITCH_AND_MOTION
   #undef FILAMENT_RUNOUT_SENSOR
   #undef FILAMENT_RUNOUT_DISTANCE_MM
+  #undef FILAMENT_MOTION_SENSOR
+  #undef FILAMENT_MOTION_DISTANCE_MM
   #undef DISABLE_OTHER_EXTRUDERS
 #endif
 
@@ -86,7 +83,7 @@
 #endif
 
 /**
- *  Multi-Material-Unit supported models
+ * Multi-Material-Unit supported models
  */
 #ifdef MMU_MODEL
   #define HAS_MMU 1
@@ -188,6 +185,9 @@
   #ifndef HOTEND_OVERSHOOT
     #define HOTEND_OVERSHOOT 15
   #endif
+  #ifndef MIN_POWER
+    #define MIN_POWER 0
+  #endif
 #else
   #undef MPCTEMP
   #undef PIDTEMP
@@ -213,6 +213,52 @@
   #undef HOTEND_OFFSET_Y
   #undef HOTEND_OFFSET_Z
 #endif
+
+// Clean up unused temperature sensors and sub-options
+#define UNUSED_TEMP_SENSOR(N) (!TEMP_SENSOR_##N || N >= HOTENDS)
+#if UNUSED_TEMP_SENSOR(0)
+  #undef TEMP_SENSOR_0
+#endif
+#if UNUSED_TEMP_SENSOR(1)
+  #undef TEMP_SENSOR_1
+#endif
+#if UNUSED_TEMP_SENSOR(2)
+  #undef TEMP_SENSOR_2
+#endif
+#if UNUSED_TEMP_SENSOR(3)
+  #undef TEMP_SENSOR_3
+#endif
+#if UNUSED_TEMP_SENSOR(4)
+  #undef TEMP_SENSOR_4
+#endif
+#if UNUSED_TEMP_SENSOR(5)
+  #undef TEMP_SENSOR_5
+#endif
+#if UNUSED_TEMP_SENSOR(6)
+  #undef TEMP_SENSOR_6
+#endif
+#if UNUSED_TEMP_SENSOR(7)
+  #undef TEMP_SENSOR_7
+#endif
+#if !TEMP_SENSOR_BED
+  #undef TEMP_SENSOR_BED
+#endif
+#if !TEMP_SENSOR_CHAMBER
+  #undef TEMP_SENSOR_CHAMBER
+#endif
+#if !TEMP_SENSOR_PROBE
+  #undef TEMP_SENSOR_PROBE
+#endif
+#if !TEMP_SENSOR_REDUNDANT
+  #undef TEMP_SENSOR_REDUNDANT
+#endif
+#if !TEMP_SENSOR_BOARD
+  #undef TEMP_SENSOR_BOARD
+#endif
+#if !TEMP_SENSOR_SOC
+  #undef TEMP_SENSOR_SOC
+#endif
+#undef UNUSED_TEMP_SENSOR
 
 /**
  * Number of Linear Axes (e.g., XYZIJKUVW)
@@ -247,10 +293,10 @@
 #if NUM_AXES >= 1
   #define HAS_X_AXIS 1
   #define HAS_A_AXIS 1
-  #if NUM_AXES >= XY
+  #if NUM_AXES >= 2
     #define HAS_Y_AXIS 1
     #define HAS_B_AXIS 1
-    #if NUM_AXES >= XYZ
+    #if NUM_AXES >= 3
       #define HAS_Z_AXIS 1
       #define HAS_C_AXIS 1
       #if NUM_AXES >= 4
@@ -540,6 +586,8 @@
 #endif
 
 // Helper macros for extruder and hotend arrays
+#define _DISTINCT_E_LOOP(E) for (int8_t E = 0; E < DISTINCT_E; E++)
+#define DISTINCT_E_LOOP() _DISTINCT_E_LOOP(e)
 #define _EXTRUDER_LOOP(E) for (int8_t E = 0; E < EXTRUDERS; E++)
 #define EXTRUDER_LOOP() _EXTRUDER_LOOP(e)
 #define _HOTEND_LOOP(H) for (int8_t H = 0; H < HOTENDS; H++)

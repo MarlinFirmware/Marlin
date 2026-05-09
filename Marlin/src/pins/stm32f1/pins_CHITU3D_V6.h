@@ -27,7 +27,11 @@
 #define Z2_STEP_PIN                         PF5
 #define Z2_DIR_PIN                          PF1
 
-#define Z_STOP_PIN                          PA14
+// Some Chitu v6 boards use PA14 and some use PG9.
+// The CXY-V6-191017 in early Tronxy X5SA Pro printers apparently use PG9.
+#ifndef Z_STOP_PIN
+  #define Z_STOP_PIN                        PA14
+#endif
 
 #ifndef FIL_RUNOUT2_PIN
   #define FIL_RUNOUT2_PIN                   PF13

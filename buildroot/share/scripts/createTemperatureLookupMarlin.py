@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """Thermistor Value Lookup Table Generator
 
 Generates lookup to temperature values for use in a microcontroller in C format based on:
@@ -7,7 +7,7 @@ https://en.wikipedia.org/wiki/Steinhart-Hart_equation
 The main use is for Arduino programs that read data from the circuit board described here:
 https://reprap.org/wiki/Temperature_Sensor_v2.0
 
-Usage: python createTemperatureLookupMarlin.py [options]
+Usage: python3 createTemperatureLookupMarlin.py [options]
 
 Options:
   -h, --help        show this help
@@ -18,8 +18,7 @@ Options:
   --num-temps=...   the number of temperature points to calculate (default: 36)
 """
 
-from __future__ import print_function
-from __future__ import division
+from __future__ import print_function, division
 
 from math import *
 import sys, getopt
@@ -142,7 +141,7 @@ def main(argv):
 
     for temp in temps:
         adc = t.adc(temp)
-        print("    { OV(%7.2f), %4s }%s // v=%.3f\tr=%.3f\tres=%.3f degC/count" % (adc , temp, \
+        print("    { OV(%7.2f), %4s }%s // v=%.3f\tr=%.3f\tres=%.3f degC/count" % (adc, temp, \
                         ',' if temp != temps[-1] else ' ', \
                         t.voltage(adc), \
                         t.resist( adc), \

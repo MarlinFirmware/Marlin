@@ -77,19 +77,17 @@
 //
 // Temperature Sensors
 //
-#if TEMP_SENSOR_0 == -1
+#if TEMP_SENSOR_0_IS_AD595
   #define TEMP_0_PIN                           4  // Analog Input
 #else
   #define TEMP_0_PIN                          13  // Analog Input
 #endif
-
-#if TEMP_SENSOR_1 == -1
+#if TEMP_SENSOR_1_IS_AD595
   #define TEMP_1_PIN                           8  // Analog Input
 #else
   #define TEMP_1_PIN                          15  // Analog Input
 #endif
-
-#if TEMP_SENSOR_BED == -1
+#if TEMP_SENSOR_BED_IS_AD595
   #define TEMP_BED_PIN                         8  // Analog Input
 #else
   #define TEMP_BED_PIN                        14  // Analog Input
@@ -110,7 +108,7 @@
 //
 // Misc. Functions
 //
-#define SDSS                                  53
+#define SD_SS_PIN                             53
 #define LED_PIN                               13
 #define PS_ON_PIN                             12
 

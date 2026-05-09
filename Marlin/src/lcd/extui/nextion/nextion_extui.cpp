@@ -56,20 +56,18 @@ namespace ExtUI {
   void onUserConfirmRequired(const char * const msg) { nextion.confirmationRequest(msg); }
 
   // For fancy LCDs include an icon ID, message, and translated button title
-  void onUserConfirmRequired(const int icon, const char * const cstr, FSTR_P const fBtn) {
+  void onUserConfirmRequired(const int, const char * const cstr, FSTR_P const) {
     onUserConfirmRequired(cstr);
-    UNUSED(icon); UNUSED(fBtn);
   }
-  void onUserConfirmRequired(const int icon, FSTR_P const fstr, FSTR_P const fBtn) {
+  void onUserConfirmRequired(const int, FSTR_P const fstr, FSTR_P const) {
     onUserConfirmRequired(fstr);
-    UNUSED(icon); UNUSED(fBtn);
   }
 
   #if ENABLED(ADVANCED_PAUSE_FEATURE)
     void onPauseMode(
       const PauseMessage message,
       const PauseMode mode/*=PAUSE_MODE_SAME*/,
-      const uint8_t extruder/*=active_extruder*/
+      const uint8_t extruder/*=motion.extruder*/
     ) {
       stdOnPauseMode(message, mode, extruder);
     }

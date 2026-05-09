@@ -33,26 +33,21 @@
 #define DISABLE_JTAG
 
 #define FLASH_EEPROM_EMULATION
-#define EEPROM_PAGE_SIZE     (0x800U)           // 2KB
-#define EEPROM_START_ADDRESS (0x8000000UL + (512) * 1024UL - (EEPROM_PAGE_SIZE) * 2UL)
-#define MARLIN_EEPROM_SIZE    EEPROM_PAGE_SIZE  // 2KB
+#define EEPROM_PAGE_SIZE                  0x800U  // 2K
+#define EEPROM_START_ADDRESS   (0x8000000UL + (STM32_FLASH_SIZE) * 1024UL - (EEPROM_PAGE_SIZE) * 2UL)
+#define MARLIN_EEPROM_SIZE      EEPROM_PAGE_SIZE  // 2K
 
 /**
  * This board works with this SERIAL_PORT_* configuration
  * #define SERIAL_PORT 3
  * #define BAUDRATE 115200
  * #define SERIAL_PORT_2 -1
-*/
+ */
 
 //
 // Servos
 //
 #define SERVO0_PIN                          PB0
-
-//
-// Z Probe must be this pin
-//
-#define Z_MIN_PROBE_PIN                     PB1
 
 //
 // Limit Switches
@@ -61,12 +56,19 @@
 #define X_MAX_PIN                           PF11
 #define Y_MIN_PIN                           PF14
 #define Y_MAX_PIN                           PF13
-#ifdef Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN
-  #define Z_MIN_PIN                         PB1
-#else
-  #define Z_MIN_PIN                         PG0
-#endif
+#define Z_MIN_PIN                           PG0
 #define Z_MAX_PIN                           PF15
+
+//
+// Z Probe must be this pin
+//
+#ifndef Z_MIN_PROBE_PIN
+  #define Z_MIN_PROBE_PIN                   PB1
+#endif
+
+#if ENABLED(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN)
+  #error "It's physically impossible to connect the Z Probe to the Z Min Endstop pin on this board."
+#endif
 
 //
 // Filament Sensor
@@ -120,19 +122,10 @@
   // Software serial
   //
   #define X_SERIAL_TX_PIN                   PD6
-  #define X_SERIAL_RX_PIN                   PD6
-
   #define Y_SERIAL_TX_PIN                   PC11
-  #define Y_SERIAL_RX_PIN                   PC11
-
   #define Z_SERIAL_TX_PIN                   PA8
-  #define Z_SERIAL_RX_PIN                   PA8
-
   #define E0_SERIAL_TX_PIN                  PG2
-  #define E0_SERIAL_RX_PIN                  PG2
-
   #define Z2_SERIAL_TX_PIN                  PG6
-  #define Z2_SERIAL_RX_PIN                  PG6
 
   // Reduce baud rate to improve software serial reliability
   #define TMC_BAUD_RATE 19200
@@ -168,7 +161,7 @@
 
 #define ONBOARD_SPI_DEVICE                     1  // SPI1
 #define ONBOARD_SD_CS_PIN                   PA4   // Chip select for "System" SD card
-#define SDSS                   ONBOARD_SD_CS_PIN
+#define SD_SS_PIN              ONBOARD_SD_CS_PIN
 
 //
 // Misc. Functions

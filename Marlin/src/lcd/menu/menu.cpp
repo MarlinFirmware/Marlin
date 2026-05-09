@@ -167,65 +167,86 @@ void MenuEditItemBase::goto_edit_screen(
  * General function to go directly to a screen
  */
 void MarlinUI::goto_screen(screenFunc_t screen, const uint16_t encoder/*=0*/, const uint8_t top/*=0*/, const uint8_t items/*=0*/) {
-  if (currentScreen != screen) {
+  if (currentScreen == screen) return;
 
-    wake_display();
+  wake_display();
 
-    thermalManager.set_menu_cold_override(false);
+  thermalManager.set_menu_cold_override(false);
 
-    TERN_(IS_DWIN_MARLINUI, did_first_redraw = false);
+  TERN_(IS_DWIN_MARLINUI, did_first_redraw = false);
 
-    TERN_(HAS_TOUCH_BUTTONS, repeat_delay = BUTTON_DELAY_MENU);
+  TERN_(HAS_TOUCH_BUTTONS, repeat_delay = BUTTON_DELAY_MENU);
 
-    TERN_(SET_PROGRESS_PERCENT, progress_reset());
+  TERN_(SET_PROGRESS_PERCENT, progress_reset());
 
-    #if ALL(DOUBLECLICK_FOR_Z_BABYSTEPPING, BABYSTEPPING)
-      static millis_t doubleclick_expire_ms = 0;
-      // Going to menu_main from status screen? Remember first click time.
-      // Going back to status screen within a very short time? Go to Z babystepping.
-      if (screen == menu_main) {
-        if (on_status_screen())
-          doubleclick_expire_ms = millis() + DOUBLECLICK_MAX_INTERVAL;
-      }
-      else if (screen == status_screen && currentScreen == menu_main && PENDING(millis(), doubleclick_expire_ms)) {
-        if (BABYSTEP_ALLOWED())
-          screen = TERN(BABYSTEP_ZPROBE_OFFSET, lcd_babystep_zoffset, lcd_babystep_z);
-        else {
-          #if ENABLED(MOVE_Z_WHEN_IDLE)
-            ui.manual_move.menu_scale = MOVE_Z_IDLE_MULTIPLICATOR;
-            screen = []{ lcd_move_axis(Z_AXIS); };
-          #endif
-        }
-      }
-    #endif
-
-    currentScreen = screen;
-    encoderPosition = encoder;
-    encoderTopLine = top;
-    screen_items = items;
-    if (on_status_screen()) {
-      defer_status_screen(false);
-      clear_menu_history();
-      TERN_(AUTO_BED_LEVELING_UBL, bedlevel.lcd_map_control = false);
+  /**
+   * Double-click on the status screen is a shortcut for one of these:
+   *   - Babystep the Probe Z Offset
+   *   - Babystep the Z axis
+   *   - Move the Z axis
+   */
+  #if ALL(DOUBLECLICK_FOR_Z_BABYSTEPPING, BABYSTEPPING)
+    static millis_t doubleclick_expire_ms = 0;
+    if (screen == menu_main) {
+      if (on_status_screen())
+        doubleclick_expire_ms = millis() + DOUBLECLICK_MAX_INTERVAL;
     }
+    else if (
+      screen == status_screen
+      && currentScreen == menu_main
+      && encoderPosition == 0
+      && PENDING(millis(), doubleclick_expire_ms)
+    ) {
+      if (BABYSTEP_ALLOWED())
+        screen = TERN(BABYSTEP_ZPROBE_OFFSET, lcd_babystep_zoffset, lcd_babystep_z);
+      else {
+        #if ENABLED(MOVE_Z_WHEN_IDLE)
+          ui.manual_move.menu_scale = MOVE_Z_IDLE_MULTIPLICATOR;
+          screen = []{ lcd_move_axis(Z_AXIS); };
+        #endif
+      }
+    }
+  #endif
 
-    clear_for_drawing();
+  //
+  // Clear alerts when exiting the Status Screen to the Main Menu
+  //
 
-    // Re-initialize custom characters that may be re-used
-    #if HAS_MARLINUI_HD44780
-      if (TERN1(AUTO_BED_LEVELING_UBL, !bedlevel.lcd_map_control))
-        set_custom_characters(on_status_screen() ? CHARSET_INFO : CHARSET_MENU);
-    #endif
-
-    refresh(LCDVIEW_CALL_REDRAW_NEXT);
-    screen_changed = true;
-    TERN_(HAS_MARLINUI_U8GLIB, drawing_screen = false);
-
-    TERN_(HAS_MARLINUI_MENU, encoder_direction_normal());
-    enable_encoder_multiplier(false);
-
-    set_selection(false);
+  if (currentScreen == status_screen && screen == menu_main) {
+    reset_alert_level();
+    reset_status();
   }
+
+  //
+  // Go to the new screen
+  //
+
+  currentScreen = screen;
+  encoderPosition = encoder;
+  encoderTopLine = top;
+  screen_items = items;
+  if (on_status_screen()) {
+    defer_status_screen(false);
+    clear_menu_history();
+    TERN_(AUTO_BED_LEVELING_UBL, bedlevel.lcd_map_control = false);
+  }
+
+  clear_for_drawing();
+
+  // Re-initialize custom characters that may be re-used
+  #if HAS_MARLINUI_HD44780
+    if (TERN1(AUTO_BED_LEVELING_UBL, !bedlevel.lcd_map_control))
+      set_custom_characters(on_status_screen() ? CHARSET_INFO : CHARSET_MENU);
+  #endif
+
+  refresh(LCDVIEW_CALL_REDRAW_NEXT);
+  screen_changed = true;
+  TERN_(HAS_MARLINUI_U8GLIB, drawing_screen = false);
+
+  TERN_(HAS_MARLINUI_MENU, encoder_direction_normal());
+  enable_encoder_multiplier(false);
+
+  set_selection(false);
 }
 
 ////////////////////////////////////////////
@@ -279,9 +300,9 @@ void scroll_screen(const uint8_t limit, const bool is_menu) {
 
 #if HAS_LINE_TO_Z
 
-  void line_to_z(const_float_t z) {
-    current_position.z = z;
-    line_to_current_position(manual_feedrate_mm_s.z);
+  void line_to_z(const float z) {
+    motion.position.z = z;
+    motion.goto_current_position(manual_feedrate_mm_s.z);
   }
 
 #endif
@@ -293,7 +314,7 @@ void scroll_screen(const uint8_t limit, const bool is_menu) {
   void lcd_babystep_zoffset() {
     if (ui.use_click()) return ui.goto_previous_screen_no_defer();
     ui.defer_status_screen();
-    const bool do_probe = DISABLED(BABYSTEP_HOTEND_Z_OFFSET) || active_extruder == 0;
+    const bool do_probe = DISABLED(BABYSTEP_HOTEND_Z_OFFSET) || motion.extruder == 0;
     if (ui.encoderPosition) {
       const int16_t babystep_increment = int16_t(ui.encoderPosition) * (BABYSTEP_SIZE_Z);
       ui.encoderPosition = 0;
@@ -301,7 +322,7 @@ void scroll_screen(const uint8_t limit, const bool is_menu) {
       const float diff = planner.mm_per_step[Z_AXIS] * babystep_increment,
                   new_probe_offset = probe.offset.z + diff,
                   new_offs = TERN(BABYSTEP_HOTEND_Z_OFFSET
-                    , do_probe ? new_probe_offset : hotend_offset[active_extruder].z - diff
+                    , do_probe ? new_probe_offset : motion.active_hotend_offset().z - diff
                     , new_probe_offset
                   );
       if (WITHIN(new_offs, PROBE_OFFSET_ZMIN, PROBE_OFFSET_ZMAX)) {
@@ -311,7 +332,7 @@ void scroll_screen(const uint8_t limit, const bool is_menu) {
         if (do_probe)
           probe.offset.z = new_offs;
         else
-          TERN(BABYSTEP_HOTEND_Z_OFFSET, hotend_offset[active_extruder].z = new_offs, NOOP);
+          TERN(BABYSTEP_HOTEND_Z_OFFSET, motion.active_hotend_offset().z = new_offs, NOOP);
 
         ui.refresh(LCDVIEW_CALL_REDRAW_NEXT);
       }
@@ -323,7 +344,7 @@ void scroll_screen(const uint8_t limit, const bool is_menu) {
       }
       else {
         #if ENABLED(BABYSTEP_HOTEND_Z_OFFSET)
-          MenuEditItemBase::draw_edit_screen(GET_TEXT_F(MSG_HOTEND_OFFSET_Z), ftostr54sign(hotend_offset[active_extruder].z));
+          MenuEditItemBase::draw_edit_screen(GET_TEXT_F(MSG_HOTEND_OFFSET_Z), ftostr54sign(motion.active_hotend_offset().z));
         #endif
       }
     }
