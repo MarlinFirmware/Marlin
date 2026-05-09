@@ -1444,11 +1444,11 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
 
       #if HAS_EVENT_GCODE_PARK
 
-        old_workspace_offset = workspace_offset;
-        const xyz_pos_t &ho = hotend_offset[new_tool];
-        TERN_(TC_GCODE_USE_GLOBAL_X, workspace_offset.x -= ho.x);
-        TERN_(TC_GCODE_USE_GLOBAL_Y, workspace_offset.y -= ho.y);
-        TERN_(TC_GCODE_USE_GLOBAL_Z, workspace_offset.z -= ho.z);
+        old_workspace_offset = motion.workspace_offset;
+        const xyz_pos_t &ho = motion.hotend_offset[new_tool];
+        TERN_(TC_GCODE_USE_GLOBAL_X, motion.workspace_offset.x -= ho.x);
+        TERN_(TC_GCODE_USE_GLOBAL_Y, motion.workspace_offset.y -= ho.y);
+        TERN_(TC_GCODE_USE_GLOBAL_Z, motion.workspace_offset.z -= ho.z);
 
         switch (old_tool) {
           default: break;
