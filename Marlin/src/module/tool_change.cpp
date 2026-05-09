@@ -1436,19 +1436,26 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
     #if defined(EVENT_GCODE_PARK_T0) || defined(EVENT_GCODE_PARK_T1) || defined(EVENT_GCODE_PARK_T2) || defined(EVENT_GCODE_PARK_T3) || defined(EVENT_GCODE_PARK_T4) || defined(EVENT_GCODE_PARK_T5) || defined(EVENT_GCODE_PARK_T6) || defined(EVENT_GCODE_PARK_T7)
       #define HAS_EVENT_GCODE_PARK 1
     #endif
+    #if ANY(TC_GCODE_USE_GLOBAL_X, TC_GCODE_USE_GLOBAL_Y, TC_GCODE_USE_GLOBAL_Z)
+      #define HAS_TC_GCODE_USE_GLOBAL 1
+    #endif
 
     if (ENABLED(EVENT_GCODE_TOOLCHANGE_ALWAYS_RUN) || !no_move) {
-      #if ANY(HAS_EVENT_GCODE_PARK, TC_GCODE_USE_GLOBAL_X, TC_GCODE_USE_GLOBAL_Y, TC_GCODE_USE_GLOBAL_Z)
+
+      #if ANY(HAS_EVENT_GCODE_PARK, HAS_TC_GCODE_USE_GLOBAL)
         xyz_pos_t old_workspace_offset;
       #endif
 
       #if HAS_EVENT_GCODE_PARK
 
         old_workspace_offset = motion.workspace_offset;
-        const xyz_pos_t &ho = motion.hotend_offset[new_tool];
-        TERN_(TC_GCODE_USE_GLOBAL_X, motion.workspace_offset.x -= ho.x);
-        TERN_(TC_GCODE_USE_GLOBAL_Y, motion.workspace_offset.y -= ho.y);
-        TERN_(TC_GCODE_USE_GLOBAL_Z, motion.workspace_offset.z -= ho.z);
+
+        #if HAS_TC_GCODE_USE_GLOBAL
+          const xyz_pos_t &ho = motion.hotend_offset[new_tool];
+          TERN_(TC_GCODE_USE_GLOBAL_X, motion.workspace_offset.x -= ho.x);
+          TERN_(TC_GCODE_USE_GLOBAL_Y, motion.workspace_offset.y -= ho.y);
+          TERN_(TC_GCODE_USE_GLOBAL_Z, motion.workspace_offset.z -= ho.z);
+        #endif
 
         switch (old_tool) {
           default: break;
@@ -1478,11 +1485,11 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
           #endif
         }
 
-        workspace_offset = old_workspace_offset;
+        motion.workspace_offset = old_workspace_offset;
 
       #endif // HAS_EVENT_GCODE_PARK
 
-      #if ANY(TC_GCODE_USE_GLOBAL_X, TC_GCODE_USE_GLOBAL_Y, TC_GCODE_USE_GLOBAL_Z)
+      #if HAS_TC_GCODE_USE_GLOBAL
         // G0/G1/G2/G3/G5 moves are relative to the active tool.
         // Shift the workspace to make custom moves relative to T0.
         if (new_tool > 0) {
@@ -1522,7 +1529,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
         #endif
       }
 
-      #if ANY(TC_GCODE_USE_GLOBAL_X, TC_GCODE_USE_GLOBAL_Y, TC_GCODE_USE_GLOBAL_Z)
+      #if HAS_TC_GCODE_USE_GLOBAL
         if (new_tool > 0) motion.workspace_offset = old_workspace_offset;
       #endif
 
