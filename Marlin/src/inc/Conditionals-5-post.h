@@ -2542,6 +2542,85 @@
   #define HAS_HEATED_BED 1
   #define HAS_TEMP_BED 1
 #endif
+#if ENABLED(BED_ZONES)
+  #if !HAS_HEATED_BED
+    #error "BED_ZONES requires a heated bed (TEMP_SENSOR_BED)."
+  #endif
+  #if !defined(BED_ZONES_COUNT) || BED_ZONES_COUNT < 1 || BED_ZONES_COUNT > 16
+    #error "BED_ZONES_COUNT must be between 1 and 16."
+  #endif
+  #if BED_ZONES_COUNT > 1
+    #define HAS_BED_ZONES 1
+  #endif
+#endif
+
+// Bed zone sensor types — zones 1-15 default to TEMP_SENSOR_BED if not user-defined.
+// Zone 0 always uses TEMP_SENSOR_BED directly. These are used by ANY_THERMISTOR_IS
+// (Conditionals-4-adv.h) at thermistors.h parse time to pull in the right temp tables.
+#if ENABLED(BED_ZONES)
+  #ifndef BED_ZONE_SENSOR_TYPE_1
+    #define BED_ZONE_SENSOR_TYPE_1  TEMP_SENSOR_BED
+  #endif
+  #ifndef BED_ZONE_SENSOR_TYPE_2
+    #define BED_ZONE_SENSOR_TYPE_2  TEMP_SENSOR_BED
+  #endif
+  #ifndef BED_ZONE_SENSOR_TYPE_3
+    #define BED_ZONE_SENSOR_TYPE_3  TEMP_SENSOR_BED
+  #endif
+  #ifndef BED_ZONE_SENSOR_TYPE_4
+    #define BED_ZONE_SENSOR_TYPE_4  TEMP_SENSOR_BED
+  #endif
+  #ifndef BED_ZONE_SENSOR_TYPE_5
+    #define BED_ZONE_SENSOR_TYPE_5  TEMP_SENSOR_BED
+  #endif
+  #ifndef BED_ZONE_SENSOR_TYPE_6
+    #define BED_ZONE_SENSOR_TYPE_6  TEMP_SENSOR_BED
+  #endif
+  #ifndef BED_ZONE_SENSOR_TYPE_7
+    #define BED_ZONE_SENSOR_TYPE_7  TEMP_SENSOR_BED
+  #endif
+  #ifndef BED_ZONE_SENSOR_TYPE_8
+    #define BED_ZONE_SENSOR_TYPE_8  TEMP_SENSOR_BED
+  #endif
+  #ifndef BED_ZONE_SENSOR_TYPE_9
+    #define BED_ZONE_SENSOR_TYPE_9  TEMP_SENSOR_BED
+  #endif
+  #ifndef BED_ZONE_SENSOR_TYPE_10
+    #define BED_ZONE_SENSOR_TYPE_10 TEMP_SENSOR_BED
+  #endif
+  #ifndef BED_ZONE_SENSOR_TYPE_11
+    #define BED_ZONE_SENSOR_TYPE_11 TEMP_SENSOR_BED
+  #endif
+  #ifndef BED_ZONE_SENSOR_TYPE_12
+    #define BED_ZONE_SENSOR_TYPE_12 TEMP_SENSOR_BED
+  #endif
+  #ifndef BED_ZONE_SENSOR_TYPE_13
+    #define BED_ZONE_SENSOR_TYPE_13 TEMP_SENSOR_BED
+  #endif
+  #ifndef BED_ZONE_SENSOR_TYPE_14
+    #define BED_ZONE_SENSOR_TYPE_14 TEMP_SENSOR_BED
+  #endif
+  #ifndef BED_ZONE_SENSOR_TYPE_15
+    #define BED_ZONE_SENSOR_TYPE_15 TEMP_SENSOR_BED
+  #endif
+#else
+  // When BED_ZONES is disabled, use 0 (no thermistor) so ANY_THERMISTOR_IS checks are harmless.
+  #define BED_ZONE_SENSOR_TYPE_1  0
+  #define BED_ZONE_SENSOR_TYPE_2  0
+  #define BED_ZONE_SENSOR_TYPE_3  0
+  #define BED_ZONE_SENSOR_TYPE_4  0
+  #define BED_ZONE_SENSOR_TYPE_5  0
+  #define BED_ZONE_SENSOR_TYPE_6  0
+  #define BED_ZONE_SENSOR_TYPE_7  0
+  #define BED_ZONE_SENSOR_TYPE_8  0
+  #define BED_ZONE_SENSOR_TYPE_9  0
+  #define BED_ZONE_SENSOR_TYPE_10 0
+  #define BED_ZONE_SENSOR_TYPE_11 0
+  #define BED_ZONE_SENSOR_TYPE_12 0
+  #define BED_ZONE_SENSOR_TYPE_13 0
+  #define BED_ZONE_SENSOR_TYPE_14 0
+  #define BED_ZONE_SENSOR_TYPE_15 0
+#endif
 #if TEMP_SENSOR(CHAMBER)
   #define HAS_TEMP_CHAMBER 1
 #endif

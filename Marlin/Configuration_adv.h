@@ -211,6 +211,82 @@
 #endif
 
 //
+// Bed Heating Zones
+// Divide the heated bed into independently controlled zones, each with its own
+// heater output pin and thermistor input pin. Zones are selected by bitmask or
+// individual index via G-code (M140/M190 K<mask> / I<index>, M142 to set the
+// persistent active mask).
+//
+// Requires HAS_HEATED_BED.
+//
+#define BED_ZONES
+#if ENABLED(BED_ZONES)
+
+  // Number of zones (1–16). Must be an explicit integer — used in preprocessor
+  // #if guards. SanityCheck.h verifies the pin arrays match this count.
+  #define BED_ZONES_COUNT  4
+
+  // Heater output pins for each zone.
+  // Zone 0 defaults to the board's HEATER_BED_PIN.
+  // Additional zones require explicit pin assignments.
+  #define BED_ZONE_HEATER_PINS  { HEATER_BED_PIN, 4, 5, 6 }
+
+  // Thermistor input pins for each zone.
+  // Zone 0 defaults to the board's TEMP_BED_PIN.
+  #define BED_ZONE_SENSOR_PINS  { TEMP_BED_PIN, 3, 4, 5 }
+
+  // Thermistor types for each zone (same type codes as TEMP_SENSOR_BED).
+  // Zone 0 always uses TEMP_SENSOR_BED. Define zone 1+ only when they differ from TEMP_SENSOR_BED.
+  // The correct thermistor table will be included automatically via ANY_THERMISTOR_IS.
+  //#define BED_ZONE_SENSOR_TYPE_1  1   // EPCOS 100kΩ
+  #define BED_ZONE_SENSOR_TYPE_2  5
+  //#define BED_ZONE_SENSOR_TYPE_3  1
+
+  //
+  // Named zone mask presets (numbered 0-based, no string names).
+  // Each mask is a uint16_t bitmask: bit n selects zone n.
+  // Preset 0 is the power-on default (also the M502 reset value).
+  // Use M142 P<index> to select a preset, M142 K<bitmask> for a raw mask.
+  //
+  // Example: 4-zone bed (zones 0-3), two presets:
+  //   P0 — all four zones (0b00001111 = 15)
+  //   P1 — front two zones only (0b00000011 = 3)
+  //
+  #define BED_ZONE_MASK_COUNT  2
+  #define BED_ZONE_MASKS       { 0b00001111, 0b00000011 }
+
+  //
+  // Example: 4x4 grid (16 zones, index 0–15, row-major order)
+  //   Preset 0 — all perimeter zones
+  //   Preset 1 — 2x2 centre zones
+  //
+  //#define BED_ZONE_MASK_COUNT  2
+  //#define BED_ZONE_MASKS       { 0b1111100110011111, 0b0000011001100000 }
+
+  //
+  // Per-zone PID defaults — only applicable when PIDTEMPBED is enabled.
+  // Each entry is { Kp, Ki, Kd }. Zones not listed here fall back to
+  // DEFAULT_BED_KP / DEFAULT_BED_KI / DEFAULT_BED_KD from Configuration.h.
+  // Saved to EEPROM by M500; restored by M501; reset to these values by M502.
+  // Run "M303 E-1 I<zone> C8 S<temp>" to autotune a specific zone.
+  // Apply results with "M304 Z<zone> P... I... D..." then save with M500.
+  //
+  // Format: { {Kp, Ki, Kd}, {Kp, Ki, Kd}, ... } — must have BED_ZONES_COUNT entries.
+  //
+  #if ENABLED(PIDTEMPBED)
+    // Per-zone { Kp, Ki, Kd } — must have exactly BED_ZONES_COUNT entries.
+    // Zone 0 uses DEFAULT_BED_K* from Configuration.h; adjust zones 1+ as needed.
+    #define BED_ZONE_PID_VALUES {                               \
+      { DEFAULT_BED_KP, DEFAULT_BED_KI, DEFAULT_BED_KD },      \
+      {          10.00,          0.023,          305.4  },      \
+      {          10.00,          0.023,          305.4  },      \
+      {          10.00,          0.023,          305.4  }       \
+    }
+  #endif // PIDTEMPBED
+
+#endif // BED_ZONES
+
+//
 // Heated Chamber options
 //
 

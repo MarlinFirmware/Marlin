@@ -70,6 +70,48 @@ enum ADCSensorState : char {
   #if HAS_TEMP_ADC_BED
     PrepareTemp_BED, MeasureTemp_BED,
   #endif
+  #if HAS_BED_ZONES && BED_ZONES_COUNT > 1
+    PrepareTemp_BED_ZONE1, MeasureTemp_BED_ZONE1,
+  #endif
+  #if HAS_BED_ZONES && BED_ZONES_COUNT > 2
+    PrepareTemp_BED_ZONE2, MeasureTemp_BED_ZONE2,
+  #endif
+  #if HAS_BED_ZONES && BED_ZONES_COUNT > 3
+    PrepareTemp_BED_ZONE3, MeasureTemp_BED_ZONE3,
+  #endif
+  #if HAS_BED_ZONES && BED_ZONES_COUNT > 4
+    PrepareTemp_BED_ZONE4, MeasureTemp_BED_ZONE4,
+  #endif
+  #if HAS_BED_ZONES && BED_ZONES_COUNT > 5
+    PrepareTemp_BED_ZONE5, MeasureTemp_BED_ZONE5,
+  #endif
+  #if HAS_BED_ZONES && BED_ZONES_COUNT > 6
+    PrepareTemp_BED_ZONE6, MeasureTemp_BED_ZONE6,
+  #endif
+  #if HAS_BED_ZONES && BED_ZONES_COUNT > 7
+    PrepareTemp_BED_ZONE7, MeasureTemp_BED_ZONE7,
+  #endif
+  #if HAS_BED_ZONES && BED_ZONES_COUNT > 8
+    PrepareTemp_BED_ZONE8, MeasureTemp_BED_ZONE8,
+  #endif
+  #if HAS_BED_ZONES && BED_ZONES_COUNT > 9
+    PrepareTemp_BED_ZONE9, MeasureTemp_BED_ZONE9,
+  #endif
+  #if HAS_BED_ZONES && BED_ZONES_COUNT > 10
+    PrepareTemp_BED_ZONE10, MeasureTemp_BED_ZONE10,
+  #endif
+  #if HAS_BED_ZONES && BED_ZONES_COUNT > 11
+    PrepareTemp_BED_ZONE11, MeasureTemp_BED_ZONE11,
+  #endif
+  #if HAS_BED_ZONES && BED_ZONES_COUNT > 12
+    PrepareTemp_BED_ZONE12, MeasureTemp_BED_ZONE12,
+  #endif
+  #if HAS_BED_ZONES && BED_ZONES_COUNT > 13
+    PrepareTemp_BED_ZONE13, MeasureTemp_BED_ZONE13,
+  #endif
+  #if HAS_BED_ZONES && BED_ZONES_COUNT > 14
+    PrepareTemp_BED_ZONE14, MeasureTemp_BED_ZONE14,
+  #endif
   #if HAS_TEMP_ADC_CHAMBER
     PrepareTemp_CHAMBER, MeasureTemp_CHAMBER,
   #endif
@@ -657,7 +699,12 @@ class Temperature {
     #endif
 
     #if HAS_HEATED_BED
-      static bed_info_t temp_bed;
+      #if HAS_BED_ZONES
+        static bed_info_t temp_bed[BED_ZONES_COUNT];
+        static uint16_t bed_zone_mask; // Active zone bitmask
+      #else
+        static bed_info_t temp_bed;
+      #endif
     #endif
     #if HAS_TEMP_PROBE
       static probe_info_t temp_probe;
@@ -792,7 +839,11 @@ class Temperature {
 
     #if HAS_HEATED_BED
       #if WATCH_BED
-        static bed_watch_t watch_bed;
+        #if HAS_BED_ZONES
+          static bed_watch_t watch_bed_zone[BED_ZONES_COUNT]; // per-zone heating watchdog
+        #else
+          static bed_watch_t watch_bed;
+        #endif
       #endif
       #if DISABLED(PIDTEMPBED)
         static millis_t next_bed_check_ms;
@@ -902,7 +953,7 @@ class Temperature {
       static celsius_float_t analog_to_celsius_hotend(const raw_adc_t raw, const uint8_t e);
     #endif
     #if HAS_HEATED_BED
-      static celsius_float_t analog_to_celsius_bed(const raw_adc_t raw);
+      static celsius_float_t analog_to_celsius_bed(const raw_adc_t raw OPTARG(HAS_BED_ZONES, const uint8_t zone=0));
     #endif
     #if HAS_TEMP_CHAMBER
       static celsius_float_t analog_to_celsius_chamber(const raw_adc_t raw);
@@ -1106,30 +1157,97 @@ class Temperature {
     #endif
 
     #if HAS_HEATED_BED
-      static raw_adc_t rawBedTemp()    { return temp_bed.getraw(); }
-      static celsius_float_t degBed()  { return temp_bed.celsius; }
-      static celsius_t wholeDegBed()   { return static_cast<celsius_t>(degBed() + 0.5f); }
-      static celsius_t degTargetBed()  { return temp_bed.target; }
-      static bool isHeatingBed()       { return temp_bed.target > temp_bed.celsius; }
-      static bool isCoolingBed()       { return temp_bed.target < temp_bed.celsius; }
-      static bool degBedNear(const celsius_t temp) {
-        return ABS(wholeDegBed() - temp) < (TEMP_BED_HYSTERESIS);
-      }
-
-      // Start watching the Bed to make sure it's really heating up
-      static void start_watching_bed() { OPTCODE(WATCH_BED, watch_bed.restart(degBed(), degTargetBed())) }
-
-      static void setTargetBed(const celsius_t celsius) {
-        #if PREHEAT_TIME_BED_MS > 0
-          if (celsius == 0)
-            reset_bed_preheat_time();
-          else if (temp_bed.target == 0)
-            start_bed_preheat_time();
-        #endif
-        TERN_(AUTO_POWER_CONTROL, if (celsius) powerManager.power_on());
-        temp_bed.target = _MIN(celsius, BED_MAX_TARGET);
-        start_watching_bed();
-      }
+      #if HAS_BED_ZONES
+        // Zone-aware accessors
+        static raw_adc_t rawBedTemp(const uint8_t z=0) { return temp_bed[z].getraw(); }
+        static celsius_float_t degBedZone(const uint8_t z) { return temp_bed[z].celsius; }
+        // Return the hottest active-zone temperature (for status screen / back-compat)
+        static celsius_float_t degBed() {
+          celsius_float_t hottest = temp_bed[0].celsius;
+          for (uint8_t z = 1; z < BED_ZONES_COUNT; z++)
+            if (TEST(bed_zone_mask, z) && temp_bed[z].celsius > hottest) hottest = temp_bed[z].celsius;
+          return hottest;
+        }
+        static celsius_t wholeDegBed()   { return static_cast<celsius_t>(degBed() + 0.5f); }
+        // Return the target of the hottest active zone
+        static celsius_t degTargetBed() {
+          celsius_t hottest_target = temp_bed[0].target;
+          celsius_float_t hottest_actual = temp_bed[0].celsius;
+          for (uint8_t z = 1; z < BED_ZONES_COUNT; z++) {
+            if (TEST(bed_zone_mask, z) && temp_bed[z].celsius > hottest_actual) {
+              hottest_actual = temp_bed[z].celsius;
+              hottest_target = temp_bed[z].target;
+            }
+          }
+          return hottest_target;
+        }
+        static celsius_t degTargetBedZone(const uint8_t z) { return temp_bed[z].target; }
+        static bool isHeatingBed() {
+          for (uint8_t z = 0; z < BED_ZONES_COUNT; z++) if (TEST(bed_zone_mask, z) && temp_bed[z].target > temp_bed[z].celsius) return true;
+          return false;
+        }
+        static bool isCoolingBed() {
+          for (uint8_t z = 0; z < BED_ZONES_COUNT; z++) if (TEST(bed_zone_mask, z) && temp_bed[z].target < temp_bed[z].celsius) return true;
+          return false;
+        }
+        static bool degBedNear(const celsius_t temp) {
+          for (uint8_t z = 0; z < BED_ZONES_COUNT; z++) {
+            if (TEST(bed_zone_mask, z) && ABS(static_cast<celsius_t>(temp_bed[z].celsius + 0.5f) - temp) >= (TEMP_BED_HYSTERESIS))
+              return false;
+          }
+          return true;
+        }
+        // True if ALL active zones are within 'window' degrees of 'target'.
+        static bool allBedsNearTarget(const celsius_float_t target, const celsius_float_t window) {
+          for (uint8_t z = 0; z < BED_ZONES_COUNT; z++) {
+            if (TEST(bed_zone_mask, z) && ABS(temp_bed[z].celsius - target) >= window)
+              return false;
+          }
+          return true;
+        }
+        static void start_watching_bed() {
+          #if WATCH_BED
+            for (uint8_t z = 0; z < BED_ZONES_COUNT; z++)
+              watch_bed_zone[z].restart(temp_bed[z].celsius, temp_bed[z].target);
+          #endif
+        }
+        // Set target for all zones in mask (default = active mask)
+        static void setTargetBed(const celsius_t celsius, const uint16_t mask=0xFFFF) {
+          const uint16_t zmask = mask & ((1U << BED_ZONES_COUNT) - 1U);
+          for (uint8_t z = 0; z < BED_ZONES_COUNT; z++) {
+            if (!TEST(zmask, z)) continue;
+            #if PREHEAT_TIME_BED_MS > 0
+              if (celsius == 0) reset_bed_preheat_time();
+              else if (temp_bed[z].target == 0) start_bed_preheat_time();
+            #endif
+            temp_bed[z].target = _MIN(celsius, BED_MAX_TARGET);
+          }
+          TERN_(AUTO_POWER_CONTROL, if (celsius) powerManager.power_on());
+          start_watching_bed();
+        }
+      #else
+        static raw_adc_t rawBedTemp()    { return temp_bed.getraw(); }
+        static celsius_float_t degBed()  { return temp_bed.celsius; }
+        static celsius_t wholeDegBed()   { return static_cast<celsius_t>(degBed() + 0.5f); }
+        static celsius_t degTargetBed()  { return temp_bed.target; }
+        static bool isHeatingBed()       { return temp_bed.target > temp_bed.celsius; }
+        static bool isCoolingBed()       { return temp_bed.target < temp_bed.celsius; }
+        static bool degBedNear(const celsius_t temp) {
+          return ABS(wholeDegBed() - temp) < (TEMP_BED_HYSTERESIS);
+        }
+        static void start_watching_bed() { OPTCODE(WATCH_BED, watch_bed.restart(degBed(), degTargetBed())) }
+        static void setTargetBed(const celsius_t celsius) {
+          #if PREHEAT_TIME_BED_MS > 0
+            if (celsius == 0)
+              reset_bed_preheat_time();
+            else if (temp_bed.target == 0)
+              start_bed_preheat_time();
+          #endif
+          TERN_(AUTO_POWER_CONTROL, if (celsius) powerManager.power_on());
+          temp_bed.target = _MIN(celsius, BED_MAX_TARGET);
+          start_watching_bed();
+        }
+      #endif
 
       static bool wait_for_bed(const bool no_wait_for_cooling=true
         OPTARG(G26_CLICK_CAN_CANCEL, const bool click_to_cancel=false)
@@ -1257,7 +1375,7 @@ class Temperature {
         static bool pid_debug_flag;
       #endif
 
-      static void PID_autotune(const celsius_t target, const heater_id_t heater_id, const int8_t ncycles, const bool set_result=false);
+      static void PID_autotune(const celsius_t target, const heater_id_t heater_id, const int8_t ncycles, const bool set_result=false, const uint8_t bed_zone=0);
 
       // Update the temp manager when PID values change
       #if ENABLED(PIDTEMP)
@@ -1415,7 +1533,7 @@ class Temperature {
       static float get_pid_output_hotend(const uint8_t e);
     #endif
     #if ENABLED(PIDTEMPBED)
-      static float get_pid_output_bed();
+      static float get_pid_output_bed(TERN_(HAS_BED_ZONES, const uint8_t z=0));
     #endif
     #if ENABLED(PIDTEMPCHAMBER)
       static float get_pid_output_chamber();
@@ -1471,6 +1589,9 @@ class Temperature {
       } tr_state_machine_t;
 
       static tr_state_machine_t tr_state_machine[NR_HEATER_RUNAWAY];
+      #if HAS_BED_ZONES && ENABLED(THERMAL_PROTECTION_BED)
+        static tr_state_machine_t tr_state_machine_bed[BED_ZONES_COUNT]; // per-zone runaway
+      #endif
 
     #endif // HAS_THERMAL_PROTECTION
 };

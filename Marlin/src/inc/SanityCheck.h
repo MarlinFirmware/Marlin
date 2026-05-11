@@ -121,6 +121,31 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
 #endif
 
 /**
+ * BED_ZONES requirements
+ */
+#if ENABLED(BED_ZONES)
+  #if !defined(BED_ZONE_HEATER_PINS)
+    #error "BED_ZONES requires BED_ZONE_HEATER_PINS to be defined."
+  #elif !defined(BED_ZONE_SENSOR_PINS)
+    #error "BED_ZONES requires BED_ZONE_SENSOR_PINS to be defined."
+  #endif
+  constexpr pin_t _bed_zone_heater_pins[] = BED_ZONE_HEATER_PINS;
+  constexpr pin_t _bed_zone_sensor_pins[] = BED_ZONE_SENSOR_PINS;
+  static_assert(COUNT(_bed_zone_heater_pins) == BED_ZONES_COUNT,
+    "BED_ZONE_HEATER_PINS must have exactly BED_ZONES_COUNT entries.");
+  static_assert(COUNT(_bed_zone_sensor_pins) == BED_ZONES_COUNT,
+    "BED_ZONE_SENSOR_PINS must have exactly BED_ZONES_COUNT entries.");
+  #if defined(BED_ZONE_MASK_COUNT) && BED_ZONE_MASK_COUNT > 0
+    #if !defined(BED_ZONE_MASKS)
+      #error "BED_ZONE_MASK_COUNT > 0 requires BED_ZONE_MASKS to be defined."
+    #endif
+    constexpr uint16_t _bed_zone_masks[] = BED_ZONE_MASKS;
+    static_assert(COUNT(_bed_zone_masks) == BED_ZONE_MASK_COUNT,
+      "BED_ZONE_MASKS must have exactly BED_ZONE_MASK_COUNT entries.");
+  #endif
+#endif
+
+/**
  * Hephestos 2 Heated Bed Kit requirements
  */
 #if ENABLED(HEPHESTOS2_HEATED_BED_KIT)

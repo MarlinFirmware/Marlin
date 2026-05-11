@@ -36,7 +36,7 @@
  */
 
 // Change EEPROM version if the structure changes
-#define EEPROM_VERSION "V90"
+#define EEPROM_VERSION "V91"
 #define EEPROM_OFFSET 100
 
 // Check the integrity of data offsets.
@@ -407,7 +407,21 @@ typedef struct SettingsDataStruct {
   //
   // PIDTEMPBED
   //
-  raw_pid_t bedPID;                                     // M304 PID / M303 E-1 U
+  raw_pid_t bedPID;                                     // M304 PID / M303 E-1 U (zone 0)
+
+  //
+  // BED_ZONES active mask
+  //
+  #if HAS_BED_ZONES
+    uint16_t bedZoneMask;                               // M142 K / M500 / M501 / M502
+  #endif
+
+  //
+  // BED_ZONES per-zone PID (zones 0..BED_ZONES_COUNT-1)
+  //
+  #if HAS_BED_ZONES && ENABLED(PIDTEMPBED)
+    raw_pid_t bedZonePIDs[BED_ZONES_COUNT];             // M304 Z<n> P I D
+  #endif
 
   //
   // PIDTEMPCHAMBER
@@ -1270,13 +1284,42 @@ void MarlinSettings::postprocess() {
     {
       _FIELD_TEST(bedPID);
       #if ENABLED(PIDTEMPBED)
-        const auto &pid = thermalManager.temp_bed.pid;
+        #if HAS_BED_ZONES
+          const auto &pid = thermalManager.temp_bed[0].pid;
+        #else
+          const auto &pid = thermalManager.temp_bed.pid;
+        #endif
         const raw_pid_t bed_pid = { pid.p(), pid.i(), pid.d() };
       #else
         const raw_pid_t bed_pid = { NAN, NAN, NAN };
       #endif
       EEPROM_WRITE(bed_pid);
     }
+
+    //
+    // BED_ZONES active mask
+    //
+    #if HAS_BED_ZONES
+    {
+      _FIELD_TEST(bedZoneMask);
+      EEPROM_WRITE(thermalManager.bed_zone_mask);
+    }
+    #endif
+
+    //
+    // BED_ZONES per-zone PID
+    //
+    #if HAS_BED_ZONES && ENABLED(PIDTEMPBED)
+    {
+      _FIELD_TEST(bedZonePIDs);
+      raw_pid_t zone_pids[BED_ZONES_COUNT];
+      for (uint8_t z = 0; z < BED_ZONES_COUNT; z++) {
+        const auto &pid = thermalManager.temp_bed[z].pid;
+        zone_pids[z] = { pid.p(), pid.i(), pid.d() };
+      }
+      EEPROM_WRITE(zone_pids);
+    }
+    #endif
 
     //
     // PIDTEMPCHAMBER
@@ -2364,9 +2407,35 @@ void MarlinSettings::postprocess() {
         EEPROM_READ(pid);
         #if ENABLED(PIDTEMPBED)
           if (!validating && !isnan(pid.p))
-            thermalManager.temp_bed.pid.set(pid);
+            TERN(HAS_BED_ZONES, thermalManager.temp_bed[0], thermalManager.temp_bed).pid.set(pid);
         #endif
       }
+
+      //
+      // BED_ZONES active mask
+      //
+      #if HAS_BED_ZONES
+      {
+        uint16_t zmask;
+        _FIELD_TEST(bedZoneMask);
+        EEPROM_READ(zmask);
+        if (!validating) thermalManager.bed_zone_mask = zmask & ((1U << BED_ZONES_COUNT) - 1U);
+      }
+      #endif
+
+      //
+      // BED_ZONES per-zone PID
+      //
+      #if HAS_BED_ZONES && ENABLED(PIDTEMPBED)
+      {
+        raw_pid_t zone_pids[BED_ZONES_COUNT];
+        _FIELD_TEST(bedZonePIDs);
+        EEPROM_READ(zone_pids);
+        if (!validating)
+          for (uint8_t z = 0; z < BED_ZONES_COUNT; z++)
+            if (!isnan(zone_pids[z].p)) thermalManager.temp_bed[z].pid.set(zone_pids[z]);
+      }
+      #endif
 
       //
       // Heated Chamber PID

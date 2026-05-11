@@ -40,6 +40,7 @@
  *  E<extruder>     Extruder number to tune, or -1 for the bed. (Default: E0)
  *  C<cycles>       Number of times to repeat the procedure. (Minimum: 3, Default: 5)
  *  U<bool>         Flag to apply the result to the current PID values
+ *  A<index>        Bed area (zone) index (0-based). Only used with E-1 and BED_ZONES. (Default: 0)
  *
  * With PID_DEBUG, PID_BED_DEBUG, or PID_CHAMBER_DEBUG:
  *  D               Toggle PID debugging and EXIT without further action.
@@ -78,12 +79,19 @@ void GcodeSuite::M303() {
   const celsius_t temp = seenS ? parser.value_celsius() : default_temp;
   const bool uflag = parser.boolval('U');
 
+  // Area (zone) index for bed-zone PID autotune (M303 E-1 A<n>)
+  uint8_t bed_zone = 0;
+  #if HAS_BED_ZONES && ENABLED(PIDTEMPBED)
+    if (hid == H_BED && parser.seenval('A'))
+      bed_zone = _MIN((uint8_t)parser.value_byte(), (uint8_t)(BED_ZONES_COUNT - 1));
+  #endif
+
   TERN_(EXTENSIBLE_UI, ExtUI::onStartM303(cycles, hid, temp));
 
   IF_DISABLED(BUSY_WHILE_HEATING, KEEPALIVE_STATE(NOT_BUSY));
 
   LCD_MESSAGE(MSG_PID_AUTOTUNE);
-  thermalManager.PID_autotune(temp, hid, cycles, uflag);
+  thermalManager.PID_autotune(temp, hid, cycles, uflag, bed_zone);
   ui.reset_status();
 
   queue.flush_rx();
