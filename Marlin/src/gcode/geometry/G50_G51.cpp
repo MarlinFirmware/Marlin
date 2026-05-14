@@ -94,9 +94,9 @@ void GcodeSuite::G51() {
   }
   scaling_center.x = (
     (use_current_pos && seenX)
-      ? current_position.x
+      ? motion.position.x
       : hasX
-        ? LOGICAL_TO_NATIVE(parser.value_axis_units(X_AXIS), X_AXIS)
+        ? motion.logical_to_native(parser.value_axis_units(X_AXIS), X_AXIS)
         : rotation_center.x
   );
 
@@ -109,9 +109,9 @@ void GcodeSuite::G51() {
     }
     scaling_center.y = (
       (use_current_pos && seenY)
-        ? current_position.y
+        ? motion.position.y
         : hasY
-          ? LOGICAL_TO_NATIVE(parser.value_axis_units(Y_AXIS), Y_AXIS)
+          ? motion.logical_to_native(parser.value_axis_units(Y_AXIS), Y_AXIS)
           : rotation_center.y
     );
   #endif
@@ -125,9 +125,9 @@ void GcodeSuite::G51() {
     }
     scaling_center.z = (
       (use_current_pos && seenZ)
-        ? current_position.z
+        ? motion.position.z
         : hasZ
-          ? LOGICAL_TO_NATIVE(parser.value_axis_units(Z_AXIS), Z_AXIS)
+          ? motion.logical_to_native(parser.value_axis_units(Z_AXIS), Z_AXIS)
           : 0.0f
     );
   #endif
