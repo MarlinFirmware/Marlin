@@ -21,8 +21,8 @@ for ((i = 0; i < ${#codes[@]}; i++)) do
   id=$(cat $filename | grep "${code#04*}" | cut -d "=" -f1 | cut -d "_" -f3- | cut -d " " -f1)
   title=$(cat $filename | grep "${id}" | grep --max-count=1 "MSG_TITLE" | cut -d '"' -f2)
   text=$(cat $filename | grep "${id}" | grep --max-count=1 "MSG_DESC" | cut -d '"' -f2)
-  action1=$(cat $filename | grep "),//$id"| cut -d "," -f1)
-  action2=$(cat $filename | grep "),//$id"| cut -d "," -f2)
+  action1=$(cat $filename | grep "),//$id" | cut -d "," -f1)
+  action2=$(cat $filename | grep "),//$id" | cut -d "," -f2)
   action1=$(echo $action1 | cut -d ":" -f2- | cut -d ":" -f2)
   action2=$(echo $action2 | cut -d ":" -f2- | cut -d ":" -f2 | cut -d ")" -f1)
   if [ "$action2" == "NoOperation" ]; then

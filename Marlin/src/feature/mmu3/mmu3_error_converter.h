@@ -22,7 +22,7 @@
 #pragma once
 
 /**
- * mmu2_error_converter.h
+ * mmu3_error_converter.h
  */
 
 #include <stdint.h>
