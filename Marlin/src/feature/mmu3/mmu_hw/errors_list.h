@@ -109,6 +109,7 @@ typedef enum : uint16_t {
   ERR_SYSTEM_FW_RUNTIME_ERROR = 505,
   ERR_SYSTEM_UNLOAD_MANUALLY = 506,
   ERR_SYSTEM_FILAMENT_EJECTED = 507,
+  ERR_SYSTEM_FILAMENT_CHANGE = 508,
 
   ERR_OTHER_UNKNOWN_ERROR = 900
 } err_num_t;
@@ -164,6 +165,7 @@ static const constexpr err_num_t errorCodes[] PROGMEM = {
   ERR_SYSTEM_FW_RUNTIME_ERROR,
   ERR_SYSTEM_UNLOAD_MANUALLY,
   ERR_SYSTEM_FILAMENT_EJECTED,
+  ERR_SYSTEM_FILAMENT_CHANGE,
   ERR_OTHER_UNKNOWN_ERROR
 };
 
@@ -212,6 +214,7 @@ FSTR_P const errorTitles[] PROGMEM = {
   GET_TEXT_F(MSG_TITLE_FW_RUNTIME_ERROR),
   GET_TEXT_F(MSG_TITLE_UNLOAD_MANUALLY),
   GET_TEXT_F(MSG_TITLE_FILAMENT_EJECTED),
+  GET_TEXT_F(MSG_TITLE_FILAMENT_CHANGE),
   GET_TEXT_F(MSG_TITLE_UNKNOWN_ERROR)
 };
 
@@ -263,6 +266,7 @@ FSTR_P const errorDescs[] PROGMEM = {
   GET_TEXT_F(MSG_DESC_FW_RUNTIME_ERROR),
   GET_TEXT_F(MSG_DESC_UNLOAD_MANUALLY),
   GET_TEXT_F(MSG_DESC_FILAMENT_EJECTED),
+  GET_TEXT_F(MSG_DESC_FILAMENT_CHANGE),
   GET_TEXT_F(MSG_DESC_UNKNOWN_ERROR)
 };
 
@@ -283,13 +287,13 @@ FSTR_P const btnOperation[] PROGMEM = {
   GET_TEXT_F(MSG_DONE),
   GET_TEXT_F(MSG_BTN_RESET_MMU),
   GET_TEXT_F(MSG_BTN_UNLOAD),
-  //GET_TEXT_F(MSG_BTN_LOAD),
-  //GET_TEXT_F(MSG_BTN_EJECT),
-  //GET_TEXT_F(MSG_TUNE),
-  GET_TEXT_F(MSG_BTN_STOP),
+  GET_TEXT_F(MSG_BTN_LOAD),
+  GET_TEXT_F(MSG_BTN_EJECT),
+  GET_TEXT_F(MSG_TUNE),
+  GET_TEXT_F(MSG_BUTTON_STOP),
   GET_TEXT_F(MSG_BTN_DISABLE_MMU),
-  GET_TEXT_F(MSG_BUTTON_SKIP)
-  //GET_TEXT_F(MSG_BTN_MORE)
+  GET_TEXT_F(MSG_BUTTON_SKIP),
+  GET_TEXT_F(MSG_BTN_MORE)
 };
 
 /**
@@ -310,15 +314,15 @@ static const uint8_t errorButtons[] PROGMEM = {
   Btns(ButtonOperations::Retry,    ButtonOperations::NoOperation), // PULLEY_CANNOT_MOVE
   Btns(ButtonOperations::Retry,    ButtonOperations::NoOperation), // FSENSOR_TOO_EARLY
   Btns(ButtonOperations::Retry,    ButtonOperations::NoOperation), // INSPECT_FINDA
-  Btns(ButtonOperations::Continue, ButtonOperations::NoOperation), // LOAD_TO_EXTRUDER_FAILED
-  Btns(ButtonOperations::Retry,    ButtonOperations::NoOperation), // SELECTOR_CANNOT_HOME
+  Btns(ButtonOperations::Done,     ButtonOperations::NoOperation), // LOAD_TO_EXTRUDER_FAILED
+  Btns(ButtonOperations::Retry,    ButtonOperations::Tune),        // SELECTOR_CANNOT_HOME
   Btns(ButtonOperations::Retry,    ButtonOperations::NoOperation), // SELECTOR_CANNOT_MOVE
-  Btns(ButtonOperations::Retry,    ButtonOperations::NoOperation), // IDLER_CANNOT_HOME
+  Btns(ButtonOperations::Retry,    ButtonOperations::Tune),        // IDLER_CANNOT_HOME
   Btns(ButtonOperations::Retry,    ButtonOperations::NoOperation), // IDLER_CANNOT_MOVE
 
-  Btns(ButtonOperations::Continue, ButtonOperations::ResetMMU),    // WARNING_TMC_PULLEY_TOO_HOT
-  Btns(ButtonOperations::Continue, ButtonOperations::ResetMMU),    // WARNING_TMC_SELECTOR_TOO_HOT
-  Btns(ButtonOperations::Continue, ButtonOperations::ResetMMU),    // WARNING_TMC_IDLER_TOO_HOT
+  Btns(ButtonOperations::Done,     ButtonOperations::ResetMMU),    // WARNING_TMC_PULLEY_TOO_HOT
+  Btns(ButtonOperations::Done,     ButtonOperations::ResetMMU),    // WARNING_TMC_SELECTOR_TOO_HOT
+  Btns(ButtonOperations::Done,     ButtonOperations::ResetMMU),    // WARNING_TMC_IDLER_TOO_HOT
 
   Btns(ButtonOperations::ResetMMU, ButtonOperations::NoOperation), // TMC_PULLEY_OVERHEAT_ERROR
   Btns(ButtonOperations::ResetMMU, ButtonOperations::NoOperation), // TMC_SELECTOR_OVERHEAT_ERROR
@@ -343,13 +347,14 @@ static const uint8_t errorButtons[] PROGMEM = {
   Btns(ButtonOperations::ResetMMU, ButtonOperations::DisableMMU),  // MMU_NOT_RESPONDING
   Btns(ButtonOperations::ResetMMU, ButtonOperations::DisableMMU),  // COMMUNICATION_ERROR
 
-  Btns(ButtonOperations::Unload,   ButtonOperations::Continue),    // FILAMENT_ALREADY_LOADED
+  Btns(ButtonOperations::Unload,   ButtonOperations::Done),        // FILAMENT_ALREADY_LOADED
   Btns(ButtonOperations::StopPrint, ButtonOperations::ResetMMU),   // INVALID_TOOL
   Btns(ButtonOperations::ResetMMU, ButtonOperations::NoOperation), // QUEUE_FULL
   Btns(ButtonOperations::ResetMMU, ButtonOperations::DisableMMU),  // FW_UPDATE_NEEDED
   Btns(ButtonOperations::ResetMMU, ButtonOperations::NoOperation), // FW_RUNTIME_ERROR
   Btns(ButtonOperations::Retry,    ButtonOperations::NoOperation), // UNLOAD_MANUALLY
-  Btns(ButtonOperations::Continue, ButtonOperations::NoOperation), // FILAMENT_EJECTED
+  Btns(ButtonOperations::Done,     ButtonOperations::NoOperation), // FILAMENT_EJECTED
+  Btns(ButtonOperations::Eject,    ButtonOperations::Load),        // FILAMENT_CHANGE
   Btns(ButtonOperations::ResetMMU, ButtonOperations::NoOperation), // UNKOWN_ERROR
 };
 

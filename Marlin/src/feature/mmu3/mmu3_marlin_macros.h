@@ -22,7 +22,7 @@
 #pragma once
 
 /**
- * mmu2_marlin_macros.h
+ * mmu3_marlin_macros.h
  */
 
 // This file will not be the same on Marlin1 and Marlin2.

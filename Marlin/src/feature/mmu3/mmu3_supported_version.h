@@ -22,7 +22,7 @@
 #pragma once
 
 /**
- * mmu2_supported_version.h
+ * mmu3_supported_version.h
  */
 
 #include <stdint.h>

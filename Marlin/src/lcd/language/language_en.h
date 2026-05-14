@@ -1003,6 +1003,7 @@ namespace LanguageNarrow_en {
   LSTR MSG_TITLE_FW_RUNTIME_ERROR         = _UxGT("FW RUNTIME ERROR");
   LSTR MSG_TITLE_UNLOAD_MANUALLY          = _UxGT("UNLOAD MANUALLY");
   LSTR MSG_TITLE_FILAMENT_EJECTED         = _UxGT("FILAMENT EJECTED");
+  LSTR MSG_TITLE_FILAMENT_CHANGE          = _UxGT("FILAMENT CHANGE");
   LSTR MSG_TITLE_UNKNOWN_ERROR            = _UxGT("UNKNOWN ERROR");
   LSTR MSG_DESC_FINDA_DIDNT_TRIGGER       = _UxGT("FINDA didn't trigger while loading the filament. Ensure the filament can move and FINDA works.");
   LSTR MSG_DESC_FINDA_FILAMENT_STUCK      = _UxGT("FINDA didn't switch off while unloading filament. Try unloading manually. Ensure filament can move and FINDA works.");
@@ -1026,6 +1027,7 @@ namespace LanguageNarrow_en {
   LSTR MSG_DESC_FW_RUNTIME_ERROR          = _UxGT("Internal runtime error. Try resetting the MMU or updating the firmware.");
   LSTR MSG_DESC_UNLOAD_MANUALLY           = _UxGT("Filament detected unexpectedly. Ensure no filament is loaded. Check the sensors and wiring.");
   LSTR MSG_DESC_FILAMENT_EJECTED          = _UxGT("Remove the ejected filament from the front of the MMU.");
+  LSTR MSG_DESC_FILAMENT_CHANGE           = _UxGT("M600 Filament Change. Load a new filament or eject the old one.");
   LSTR MSG_DESC_UNKNOWN_ERROR             = _UxGT("Unexpected error occurred.");
   LSTR MSG_DESC_FW_UPDATE_NEEDED          = _UxGT("MMU FW version is not supported. Update to version ") MMU_VERSION ".";
   LSTR MSG_BTN_RETRY                      = _UxGT("Retry");
@@ -1033,7 +1035,6 @@ namespace LanguageNarrow_en {
   LSTR MSG_BTN_UNLOAD                     = _UxGT("Unload");
   LSTR MSG_BTN_LOAD                       = _UxGT("Load");
   LSTR MSG_BTN_EJECT                      = _UxGT("Eject");
-  LSTR MSG_BTN_STOP                       = _UxGT("Stop");
   LSTR MSG_BTN_DISABLE_MMU                = _UxGT("Disable");
   LSTR MSG_BTN_MORE                       = _UxGT("More Info");
   LSTR MSG_DONE                           = _UxGT("Done");

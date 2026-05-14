@@ -21,7 +21,7 @@
  */
 
 /**
- * mmu2_progress_converter.cpp
+ * mmu3_progress_converter.cpp
  */
 
 #include "../../inc/MarlinConfigPre.h"
