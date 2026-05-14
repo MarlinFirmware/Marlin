@@ -38,7 +38,7 @@
  * E Special Cases
  *  - SINGLENOZZLE: All Extruders have a single nozzle so there is one heater and no XYZ offset.
  *  - Switching Extruder: One stepper is used for each pair of nozzles with a switching mechanism.
- *  - Duplication Mode: Two or more steppers move in sync when `extruder_duplication_enabled` is set.
+ *  - Duplication Mode: Two or more steppers move in sync when `motion.extruder_duplication` is set.
  *                      With MULTI_NOZZLE_DUPLICATION a `duplication_e_mask` is also used.
  *  - Průša MMU1: One stepper is used with a switching mechanism. Odd numbered E indexes are reversed.
  *  - Průša MMU2: One stepper is used with a switching mechanism.
@@ -774,7 +774,7 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
   #if HAS_DUPLICATION_MODE
 
     #if ENABLED(MULTI_NOZZLE_DUPLICATION)
-      #define DUPE(N,T,V) do{ if (TEST(duplication_e_mask, N)) E##N##_##T##_WRITE(V); }while(0);
+      #define DUPE(N,T,V) do{ if (TEST(motion.duplication_e_mask, N)) E##N##_##T##_WRITE(V); }while(0);
     #else
       #define DUPE(N,T,V) E##N##_##T##_WRITE(V);
     #endif
@@ -782,9 +782,9 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
     #define NDIR(N) DUPE(N,DIR,HIGH);
     #define RDIR(N) DUPE(N,DIR,LOW );
 
-    #define E_STEP_WRITE(E,V) do{ if (extruder_duplication_enabled) { REPEAT2(E_STEPPERS, DUPE, STEP, V); } else _E_STEP_WRITE(E,V); }while(0)
-    #define  FWD_E_DIR(E)     do{ if (extruder_duplication_enabled) { REPEAT(E_STEPPERS, NDIR); } else _FWD_E_DIR(E); }while(0)
-    #define  REV_E_DIR(E)     do{ if (extruder_duplication_enabled) { REPEAT(E_STEPPERS, RDIR); } else _REV_E_DIR(E); }while(0)
+    #define E_STEP_WRITE(E,V) do{ if (motion.extruder_duplication) { REPEAT2(E_STEPPERS, DUPE, STEP, V); } else _E_STEP_WRITE(E,V); }while(0)
+    #define  FWD_E_DIR(E)     do{ if (motion.extruder_duplication) { REPEAT(E_STEPPERS, NDIR); } else _FWD_E_DIR(E); }while(0)
+    #define  REV_E_DIR(E)     do{ if (motion.extruder_duplication) { REPEAT(E_STEPPERS, RDIR); } else _REV_E_DIR(E); }while(0)
 
   #else
 

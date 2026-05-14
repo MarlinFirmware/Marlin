@@ -2034,14 +2034,15 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
               drawMenu(ID_MPC);
             break;
         #endif
+        #if HAS_PREHEAT
+          #define _TEMP_PREHEAT_CASE(N) \
+            case TEMP_PREHEAT##N: { \
+              if (draw) drawMenuItem(row, ICON_Step, F(PREHEAT_## N ##_LABEL), nullptr, true); \
+              else drawMenu(ID_Preheat##N); \
+            } break;
 
-        #define _TEMP_PREHEAT_CASE(N) \
-          case TEMP_PREHEAT##N: { \
-            if (draw) drawMenuItem(row, ICON_Step, F(PREHEAT_## N ##_LABEL), nullptr, true); \
-            else drawMenu(ID_Preheat##N); \
-          } break;
-
-        REPEAT_1(PREHEAT_COUNT, _TEMP_PREHEAT_CASE)
+          REPEAT_1(PREHEAT_COUNT, _TEMP_PREHEAT_CASE)
+        #endif
       }
       break;
 
@@ -4601,12 +4602,8 @@ void JyersDWIN::printScreenControl() {
               card.startOrResumeFilePrinting();
               TERN_(POWER_LOSS_RECOVERY, recovery.prepare());
             #else
-              #if HAS_HEATED_BED
-                queue.inject(TS(F("M140 S"), pausebed));
-              #endif
-              #if HAS_EXTRUDERS
-                queue.inject(TS(F("M109 S"), pausetemp));
-              #endif
+              TERN_(HAS_HEATED_BED, queue.inject(TS(F("M140 S"), pausebed)));
+              TERN_(HAS_EXTRUDERS, queue.inject(TS(F("M109 S"), pausetemp)));
               TERN_(HAS_FAN, thermalManager.fan_speed[0] = pausefan);
               planner.synchronize();
               TERN_(HAS_MEDIA, queue.inject(FPSTR(M24_STR)));
@@ -4642,9 +4639,7 @@ void JyersDWIN::popupControl() {
       case Popup_Pause:
         if (selection == 0) {
           if (sdprint) {
-            #if ENABLED(POWER_LOSS_RECOVERY)
-              if (recovery.enabled) recovery.save(true);
-            #endif
+            TERN_(POWER_LOSS_RECOVERY, if (recovery.enabled) recovery.save(true));
             #if ENABLED(PARK_HEAD_ON_PAUSE)
               popupHandler(Popup_Home, true);
               #if HAS_MEDIA
