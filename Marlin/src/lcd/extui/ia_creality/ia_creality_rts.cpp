@@ -1413,6 +1413,7 @@ void RTS::handleData() {
           break;
 
         case 4:
+          // BLTouch Reset
           injectCommands(F("M999\nM280P0S160"));
           break;
 

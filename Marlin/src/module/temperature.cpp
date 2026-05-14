@@ -3121,7 +3121,7 @@ void Temperature::init() {
     OUT_WRITE(COOLER_PIN, ENABLED(COOLER_INVERTING));
   #endif
 
-  #define _INIT_FAN(N) TERF(HAS_FAN##N, INIT_FAN_PIN)(FAN##N##_PIN);
+  #define _INIT_FAN(N) TERF(HAS_FAN##N, INIT_FAN_PIN)(PART_COOLING_FAN##N##_PIN);
   REPEAT(FAN_COUNT, _INIT_FAN);
 
   TERF(USE_CONTROLLER_FAN, INIT_FAN_PIN)(CONTROLLER_FAN_PIN);
@@ -4038,7 +4038,7 @@ void Temperature::isr() {
     static SoftPWM soft_pwm_controllerfan;
   #endif
 
-  #define WRITE_FAN(n, v) WRITE(FAN##n##_PIN, (v) ^ ENABLED(FAN_INVERTING))
+  #define WRITE_FAN(n, v) WRITE(PART_COOLING_FAN##n##_PIN, (v) ^ ENABLED(FAN_INVERTING))
 
   #if ENABLED(FAN_SOFT_PWM)
     #define _FAN_LOW(N) if (TERN0(HAS_FAN##N, soft_pwm_count_fan[N] <= pwm_count_tmp)) { TERF(HAS_FAN##N, WRITE_FAN)(N, LOW); };
