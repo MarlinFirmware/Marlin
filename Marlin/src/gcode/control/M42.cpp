@@ -87,7 +87,7 @@ void GcodeSuite::M42() {
 
   #if HAS_FAN
     switch (pin) {
-      #define _CASE(N) case FAN##N##_PIN: thermalManager.fan_speed[N] = pin_status; return;
+      #define _CASE(N) case PART_COOLING_FAN##N##_PIN: thermalManager.fan_speed[N] = pin_status; return;
       REPEAT(FAN_COUNT, _CASE)
     }
   #endif
