@@ -2562,7 +2562,7 @@ bool Planner::_populate_block(
         const float junction_acceleration = normalize_junction_vector(junction_unit_vec)
           ? block->acceleration
           : limit_value_by_axis_maximum(block->acceleration, junction_unit_vec);
-        // MEMO: it very much looks like block->acceleration is actually a MAXIMUM (scalar) acceleration
+        // NOTE: Here block->acceleration is used as the scalar acceleration limit for the junction calculation.
 
         if (TERN0(HINTS_CURVE_RADIUS, hints.curve_radius)) {
           TERN_(HINTS_CURVE_RADIUS, vmax_junction_sqr = junction_acceleration * hints.curve_radius);
