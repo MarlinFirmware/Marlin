@@ -245,7 +245,7 @@ inline void report_more_positions() {
 // Report the logical position for a given machine position
 inline void report_logical_position(const xyze_pos_t &rpos) {
   const xyze_pos_t lpos = rpos.asLogical();
-  #if NUM_AXES
+  #if LOGICAL_AXES
     SERIAL_ECHOPGM_P(LOGICAL_AXIS_PAIRED_LIST(
       SP_E_LBL, lpos.e,
          X_LBL, lpos.x,  SP_Y_LBL, lpos.y,  SP_Z_LBL, lpos.z,
