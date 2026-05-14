@@ -2539,7 +2539,7 @@ bool Planner::_populate_block(
      * Elsewise, when needed JD will factor-in the E component
      */
     if (ANY(IS_CORE, MARKFORGED_XY, MARKFORGED_YX) || esteps > 0)
-      normalize_junction_vector(unit_vec);  // Normalize with XYZE components
+      (void)normalize_junction_vector(unit_vec);  // Normalize with XYZE components
     else
       unit_vec *= inverse_millimeters;      // Use pre-calculated (1 / SQRT(x^2 + y^2 + z^2))
 

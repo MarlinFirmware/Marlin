@@ -1205,7 +1205,8 @@ class Planner {
 
     #if HAS_JUNCTION_DEVIATION
 
-      FORCE_INLINE static int normalize_junction_vector(xyze_float_t &vector) {
+      // Return 'true' if the magnitude_sq is insignificant
+      FORCE_INLINE static bool normalize_junction_vector(xyze_float_t &vector) {
         float magnitude_sq = 0.0f;
         LOOP_LOGICAL_AXES(idx) if (vector[idx]) magnitude_sq += sq(vector[idx]);
         // Avoid divide by almost-zero (solves real-live motion issue). Threshold consistent with
@@ -1213,8 +1214,9 @@ class Planner {
         // limit_value_by_axis_maximum below and NOLESS(junction_cos_theta,-0.999968f) in planner.cpp
         if (magnitude_sq > 2.0e-6f) {
           vector *= RSQRT(magnitude_sq);
-          return 0;
-        } else return 1;
+          return false;
+        }
+        return true;
       }
 
       // max_value is block->acceleration
