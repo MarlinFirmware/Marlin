@@ -2558,10 +2558,10 @@ bool Planner::_populate_block(
       else {
         // Diff of unit vectors is normal (perpendicular) vector - itself normalized on next line
         xyze_float_t junction_unit_vec = unit_vec - prev_unit_vec;
-        // Do not limit_value_by_axis if normal vector is marginal (solves real-live motion issue)
+        // Do not limit_jd_acceleration_by_axis_maximum if normal vector is marginal (solves real-live motion issue)
         const float junction_acceleration = normalize_junction_vector(junction_unit_vec)
           ? block->acceleration
-          : limit_value_by_axis_maximum(block->acceleration, junction_unit_vec);
+          : limit_jd_acceleration_by_axis_maximum(block->acceleration, junction_unit_vec);
         // NOTE: Here block->acceleration is used as the scalar acceleration limit for the junction calculation.
 
         if (TERN0(HINTS_CURVE_RADIUS, hints.curve_radius)) {
