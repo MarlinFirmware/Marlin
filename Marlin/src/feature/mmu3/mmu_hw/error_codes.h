@@ -85,6 +85,7 @@ enum class ErrorCode : uint_fast16_t {
 
   MCU_UNDERVOLTAGE_VCC       = 0x800D, //!< MCU VCC rail undervoltage.
 
+  FILAMENT_CHANGE            = 0x8029, //!< E32809 internal error of the printer - try-load-unload sequence detected missing filament -> failed load into the nozzle
   LOAD_TO_EXTRUDER_FAILED    = 0x802A, //!< E32810 internal error of the printer - try-load-unload sequence detected missing filament -> failed load into the nozzle
   QUEUE_FULL                 = 0x802B, //!< E32811 internal logic error - attempt to move with a full queue
   VERSION_MISMATCH           = 0x802C, //!< E32812 internal error of the printer - incompatible version of the MMU FW
