@@ -283,9 +283,9 @@ class MenuItem_bool : public MenuEditItemBase {
  *     MenuItem_function::action(flabel, lcd_sdcard_pause)
  *     MenuItem_function::draw(sel, row, flabel, lcd_sdcard_pause)
  *
- *   EDIT_ITEM(int3, MSG_SPEED, &feedrate_percentage, SPEED_EDIT_MIN, SPEED_EDIT_MAX)
- *     MenuItem_int3::action(flabel, &feedrate_percentage, SPEED_EDIT_MIN, SPEED_EDIT_MAX)
- *     MenuItem_int3::draw(sel, row, flabel, &feedrate_percentage, SPEED_EDIT_MIN, SPEED_EDIT_MAX)
+ *   EDIT_ITEM(int3, MSG_SPEED, &motion.feedrate_percentage, SPEED_EDIT_MIN, SPEED_EDIT_MAX)
+ *     MenuItem_int3::action(flabel, &motion.feedrate_percentage, SPEED_EDIT_MIN, SPEED_EDIT_MAX)
+ *     MenuItem_int3::draw(sel, row, flabel, &motion.feedrate_percentage, SPEED_EDIT_MIN, SPEED_EDIT_MAX)
  *
  * Variants use standard suffixes. N:Number Index, S:C-string for substitution, F:F-string label, f:F-string for substitution
  * _MENU_ITEM_F(TYPE, V...)              Item with optional data

@@ -263,7 +263,7 @@ void NextionTFT::panelInfo(uint8_t req) {
     break;
 
   case 23: // Linear Advance
-    #if ENABLED(LIN_ADVANCE)
+    #if HAS_LIN_ADVANCE_K
       SEND_VALasTXT("linadvance", getLinearAdvance_mm_mm_s(getActiveTool()));
     #else
       SEND_NA("linadvance");

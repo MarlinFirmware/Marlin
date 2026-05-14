@@ -187,6 +187,7 @@
 #define BOARD_MALYAN_M180             1333  // Malyan M180 Mainboard Version 2 (no display function, direct G-code only)
 #define BOARD_PROTONEER_CNC_SHIELD_V3 1334  // Mega controller & Protoneer CNC Shield V3.00
 #define BOARD_WEEDO_62A               1335  // WEEDO 62A board (TINA2, Monoprice Cadet, etc.)
+#define BOARD_MIGHTYBOARD_REVG        1336  // Makerbot Mightyboard Revision G and H
 
 //
 // ATmega1281, ATmega2561
@@ -484,16 +485,17 @@
 #define BOARD_BLACKPILL_CUSTOM              5249  // Custom board based on STM32F401CDU6.
 #define BOARD_I3DBEEZ9_V1                   5250  // I3DBEEZ9 V1 (STM32F407ZG)
 #define BOARD_MELLOW_FLY_E3_V2              5251  // Mellow Fly E3 V2 (STM32F407VG)
-#define BOARD_BLACKBEEZMINI_V1              5252  // BlackBeezMini V1 (STM32F401CCU6)
-#define BOARD_XTLW_CLIMBER_8TH              5253  // XTLW Climber-8th (STM32F407VGT6)
-#define BOARD_FLY_RRF_E3_V1                 5254  // Fly RRF E3 V1.0 (STM32F407VG)
-#define BOARD_FLY_SUPER8                    5255  // Fly SUPER8 (STM32F407ZGT6)
-#define BOARD_FLY_D8                        5256  // FLY D8 (STM32F407VG)
-#define BOARD_FLY_CDY_V3                    5257  // FLY CDY V3 (STM32F407VGT6)
-#define BOARD_ZNP_ROBIN_NANO                5258  // Elegoo Neptune 2 v1.2 board
-#define BOARD_ZNP_ROBIN_NANO_V1_3           5259  // Elegoo Neptune 2 v1.3 board
-#define BOARD_MKS_NEPTUNE_X                 5260  // Elegoo Neptune X
-#define BOARD_MKS_NEPTUNE_3                 5261  // Elegoo Neptune 3
+#define BOARD_MELLOW_FLY_E3_PRO_V3          5252  // Mellow Fly E3 Pro V3 (STM32F407VG)
+#define BOARD_BLACKBEEZMINI_V1              5253  // BlackBeezMini V1 (STM32F401CCU6)
+#define BOARD_XTLW_CLIMBER_8TH              5254  // XTLW Climber-8th (STM32F407VGT6)
+#define BOARD_FLY_RRF_E3_V1                 5255  // Fly RRF E3 V1.0 (STM32F407VG)
+#define BOARD_FLY_SUPER8                    5256  // Fly SUPER8 (STM32F407ZGT6)
+#define BOARD_FLY_D8                        5257  // FLY D8 (STM32F407VG)
+#define BOARD_FLY_CDY_V3                    5258  // FLY CDY V3 (STM32F407VGT6)
+#define BOARD_ZNP_ROBIN_NANO                5259  // Elegoo Neptune 2 v1.2 board
+#define BOARD_ZNP_ROBIN_NANO_V1_3           5260  // Elegoo Neptune 2 v1.3 board
+#define BOARD_MKS_NEPTUNE_X                 5261  // Elegoo Neptune X
+#define BOARD_MKS_NEPTUNE_3                 5262  // Elegoo Neptune 3
 
 //
 // Other ARM Cortex-M4

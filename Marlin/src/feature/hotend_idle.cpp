@@ -60,8 +60,8 @@ void HotendIdleProtection::check_hotends(const millis_t &ms) {
 
 void HotendIdleProtection::check_e_motion(const millis_t &ms) {
   static float old_e_position = 0;
-  if (old_e_position != current_position.e) {
-    old_e_position = current_position.e;            // Track filament motion
+  if (old_e_position != motion.position.e) {
+    old_e_position = motion.position.e;             // Track filament motion
     if (next_protect_ms)                            // If some heater is on then...
       next_protect_ms = ms + 1000UL * cfg.timeout;  // ...delay the timeout till later
   }
