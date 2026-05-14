@@ -148,7 +148,7 @@ static FSTR_P const assets[] = {
   #endif
 
   // Language Select screen
-  #if HAS_LANG_SELECT_SCREEN
+  #if MKS_LANG_SELECT_SCREEN
     F("bmp_language.bin"),
     F("bmp_simplified_cn.bin"),
     F("bmp_simplified_cn_sel.bin"),
@@ -164,14 +164,14 @@ static FSTR_P const assets[] = {
     F("bmp_french_sel.bin"),
     F("bmp_italy.bin"),
     F("bmp_italy_sel.bin"),
-  #endif // HAS_LANG_SELECT_SCREEN
+  #endif // MKS_LANG_SELECT_SCREEN
 
   // G-code preview
-  #if HAS_GCODE_DEFAULT_VIEW_IN_FLASH
+  #if MKS_GCODE_DEFAULT_VIEW_IN_FLASH
     F("bmp_preview.bin"),
   #endif
 
-  #if HAS_LOGO_IN_FLASH
+  #if MKS_LOGO_IN_FLASH
     F("bmp_logo.bin"),
   #endif
 
@@ -223,7 +223,7 @@ static FSTR_P const assets[] = {
   F("bmp_custom7.bin")
 };
 
-#if HAS_SPI_FLASH_FONT
+#if MKS_SPI_FLASH_FONT
   static FSTR_P const fonts[] = { F("FontUNIGBK.bin") };
 #endif
 
@@ -338,7 +338,7 @@ void spiFlashErase_PIC() {
   }
 }
 
-#if HAS_SPI_FLASH_FONT
+#if MKS_SPI_FLASH_FONT
   void spiFlashErase_FONT() {
     volatile uint32_t Font_sectorcnt = 0;
     W25QXX.init(SPI_QUARTER_SPEED);
@@ -556,7 +556,7 @@ uint32_t picInfoWrite(uint8_t *P_name, uint32_t P_size) {
       disp_assets_update_progress(F("Erasing pics..."));
       hal.watchdog_refresh();
       spiFlashErase_PIC();
-      #if HAS_SPI_FLASH_FONT
+      #if MKS_SPI_FLASH_FONT
         disp_assets_update_progress(F("Erasing fonts..."));
         hal.watchdog_refresh();
         spiFlashErase_FONT();
@@ -586,7 +586,7 @@ uint32_t picInfoWrite(uint8_t *P_name, uint32_t P_size) {
           continue;
         }
 
-        #if HAS_SPI_FLASH_FONT
+        #if MKS_SPI_FLASH_FONT
           a = arrayFindStr(fonts, COUNT(fonts), card.longFilename);
           if (a >= 0 && a < (int8_t)COUNT(fonts))
             loadAsset(dir, d, fonts[a], ASSET_TYPE_FONT);
@@ -604,7 +604,7 @@ uint32_t picInfoWrite(uint8_t *P_name, uint32_t P_size) {
     #endif
   }
 
-  #if HAS_SPI_FLASH_FONT
+  #if MKS_SPI_FLASH_FONT
     void spi_flash_read_test() { W25QXX.SPI_FLASH_BufferRead(public_buf, UNIGBK_FLASH_ADDR, BMP_WRITE_BUF_LEN); }
   #endif
 
@@ -647,7 +647,7 @@ void lv_pic_test(uint8_t *P_Rbuff, uint32_t addr, uint32_t size) {
   #endif
 }
 
-#if HAS_SPI_FLASH_FONT
+#if MKS_SPI_FLASH_FONT
   void get_spi_flash_data(const char *rec_buf, int addr, int size) {
     W25QXX.init(SPI_QUARTER_SPEED);
     W25QXX.SPI_FLASH_BufferRead((uint8_t *)rec_buf, UNIGBK_FLASH_ADDR + addr, size);
@@ -672,7 +672,7 @@ void default_view_Read(uint8_t *default_view_Rbuff, uint32_t default_view_Readsi
     default_view_addroffset = 0;
 }
 
-#if HAS_BAK_VIEW_IN_FLASH
+#if MKS_BAK_VIEW_IN_FLASH
   uint32_t flash_view_addroffset = 0;
   void flash_view_Read(uint8_t *flash_view_Rbuff, uint32_t flash_view_Readsize) {
     W25QXX.init(SPI_QUARTER_SPEED);

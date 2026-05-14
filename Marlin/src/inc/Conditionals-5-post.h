@@ -311,10 +311,10 @@
 #endif
 
 /**
- * SCARA cannot use SLOWDOWN and requires QUICKHOME
+ * SCARA cannot use SLOWDOWN
  * Printable radius assumes joints can fully extend
  *
- * TPARA cannot use SLOWDOWN nor QUICKHOME
+ * TPARA cannot use SLOWDOWN nor QUICK_HOME
  * Printable radius assumes joints can't fully extend
  * AXEL_TPARA is assigned a default Home Position unless overridden
  */
@@ -332,7 +332,6 @@
       #define MANUAL_Z_HOME_POS (TPARA_ARM_Z_HOME_POS + TPARA_TCP_OFFSET_Z - TPARA_OFFSET_Z)
     #endif
   #else
-    #define QUICK_HOME
     #define PRINTABLE_RADIUS (SCARA_LINKAGE_1 + SCARA_LINKAGE_2)
   #endif
 #endif
@@ -2710,7 +2709,7 @@
   #define COOLER_MAX_TARGET ((COOLER_MAXTEMP) - (COOLER_OVERSHOOT))
 #endif
 
-#if HAS_TEMP_HOTEND || HAS_HEATED_BED || HAS_TEMP_CHAMBER || HAS_TEMP_PROBE || HAS_TEMP_COOLER || HAS_TEMP_BOARD || HAS_TEMP_SOC
+#if HAS_TEMP_HOTEND || HAS_TEMP_BED || HAS_TEMP_CHAMBER || HAS_TEMP_PROBE || HAS_TEMP_COOLER || HAS_TEMP_BOARD || HAS_TEMP_SOC
   #define HAS_TEMP_SENSOR 1
 #endif
 
@@ -3207,6 +3206,7 @@
 #endif
 
 #if !HAS_PREHEAT
+  #define PREHEAT_COUNT 0
   #undef PREHEAT_SHORTCUT_MENU_ITEM
   #undef DGUS_PREHEAT_UI
 #endif
@@ -3415,7 +3415,7 @@
 /**
  * Default mesh area is an area with an inset margin on the print area.
  */
-#if ANY(MESH_BED_LEVELING, AUTO_BED_LEVELING_UBL)
+#if HAS_MESH
   #if IS_KINEMATIC
     // Probing points may be verified at compile time within the radius
     // using static_assert(HYPOT2(X2-X1,Y2-Y1)<=sq(PRINTABLE_RADIUS),"bad probe point!")

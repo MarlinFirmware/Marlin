@@ -56,6 +56,10 @@
   #include "../../../lcd/sovol_rts/sovol_rts.h"
 #endif
 
+#if ENABLED(DWIN_LCD_PROUI)
+  #include "../../../lcd/dwin/proui/meshviewer.h"
+#endif
+
 #define DEBUG_OUT ENABLED(DEBUG_LEVELING_FEATURE)
 #include "../../../core/debug_out.h"
 
@@ -257,6 +261,8 @@ G29_TYPE GcodeSuite::G29() {
   // Send 'N' to force homing before G29 (internal only)
   if (parser.seen_test('N'))
     process_subcommands_now(TERN(CAN_SET_LEVELING_AFTER_G28, F("G28L0"), FPSTR(G28_STR)));
+  else if (ENABLED(DWIN_LCD_PROUI))
+    process_subcommands_now(F("G28Z"));
 
   // Don't allow auto-leveling without homing first
   if (motion.homing_needed_error()) G29_RETURN(false, false);
@@ -395,14 +401,16 @@ G29_TYPE GcodeSuite::G29() {
 
     #endif
 
-    #if ABL_USES_GRID
-
+    #if HAS_VARIABLE_XY_PROBE_FEEDRATE
       constexpr feedRate_t min_probe_feedrate_mm_s = XY_PROBE_FEEDRATE_MIN;
-      xy_probe_feedrate_mm_s = MMM_TO_MMS(parser.linearval('S', XY_PROBE_FEEDRATE));
-      if (xy_probe_feedrate_mm_s < min_probe_feedrate_mm_s) {
-        xy_probe_feedrate_mm_s = min_probe_feedrate_mm_s;
+      motion.xy_probe_feedrate_mm_s = MMM_TO_MMS(parser.linearval('S', XY_PROBE_FEEDRATE));
+      if (motion.xy_probe_feedrate_mm_s < min_probe_feedrate_mm_s) {
+        motion.xy_probe_feedrate_mm_s = min_probe_feedrate_mm_s;
         SERIAL_ECHOLNPGM(GCODE_ERR_MSG("Feedrate (S) too low. (Using ", min_probe_feedrate_mm_s, ")"));
       }
+    #endif
+
+    #if ABL_USES_GRID
 
       const float x_min = probe.min_x(), x_max = probe.max_x(),
                   y_min = probe.min_y(), y_max = probe.max_y();
@@ -679,6 +687,8 @@ G29_TYPE GcodeSuite::G29() {
       // Outer loop is Y with PROBE_Y_FIRST disabled
       for (PR_OUTER_VAR = 0; PR_OUTER_VAR < PR_OUTER_SIZE && !isnan(abl.measured_z); PR_OUTER_VAR++) {
 
+        if (TERN0(DWIN_LCD_PROUI, hmiFlag.cancel_lev)) break;
+
         int8_t inStart, inStop, inInc;
 
         if (zig) {                      // Zig away from origin
@@ -804,6 +814,8 @@ G29_TYPE GcodeSuite::G29() {
 
           abl.reenable = false; // Don't re-enable after modifying the mesh
           marlin.idle_no_sleep();
+
+          if (TERN0(DWIN_LCD_PROUI, hmiFlag.cancel_lev)) break;
 
         } // inner
       } // outer
