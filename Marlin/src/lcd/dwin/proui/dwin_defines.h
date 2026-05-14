@@ -82,10 +82,6 @@
   #define defCaseLightBrightness 255
 #endif
 
-#ifndef Z_AFTER_HOMING
-  #define Z_AFTER_HOMING 10
-#endif
-
 #define DEF_PIDCYCLES 5
 
 /**
