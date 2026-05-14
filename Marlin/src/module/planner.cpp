@@ -2633,7 +2633,7 @@ bool Planner::_populate_block(
                 float junction_theta = t * pgm_read_float(&jd_lut_k[idx]) + pgm_read_float(&jd_lut_b[idx]);
                 if (neg > 0) junction_theta = RADIANS(180) - junction_theta; // acos(-t)
 
-              #else
+              #else // !JD_USE_MATH_ACOS && !JD_USE_LOOKUP_TABLE
 
                 // Fast acos(-t) approximation (max. error +-0.033rad = 1.89°)
                 // based on MinMax polynomial for asin(t) by W. Randolph Franklin; see
@@ -2642,20 +2642,24 @@ bool Planner::_populate_block(
                 // so math is simplified under the assumption that junction_cos_theta < 0.
                 // * Converted asin to acos with acos(-t) = pi - acos(t) = pi / 2 + asin(x)
 
-                const float junction_theta =       (1.5379526198f
-                            + junction_cos_theta * (-1.451838349f
-                            + junction_cos_theta * (-29.66153956f
+                const float jct1 = 1.0f + junction_cos_theta;
+                const float junction_theta =       (   1.5379526198f
+                            + junction_cos_theta * (  -1.451838349f
+                            + junction_cos_theta * ( -29.66153956f
                             + junction_cos_theta * (-131.1123477f
                             + junction_cos_theta * (-262.8130562f
                             + junction_cos_theta * (-242.7199627f
-                            + junction_cos_theta * -84.31466202f))))))
-                            / (1.0f + 1.4545e-4f / (1.0f + junction_cos_theta));
+                            + junction_cos_theta *   -84.31466202f))))))
+                         // / (1.0f + (1.4545e-4f / jct1));
+                         // / ((jct1 / jct1) + (1.4545e-4f / jct1)));
+                         // / (jct1 + 1.4545e-4f) / jct1));
+                            * (jct1 / (jct1 + 1.4545e-4f)));
                 // Last line is kennovo's correction factor for asymptotic behavior when
                 // junction_cos_theta --> -1.0; potentially important because limit_sqr
                 // DIVIDES by junction_theta below. Note: correction reintroduces
                 // divide-by-almost-zero hazard, but that's addressed by NOLESS above.
 
-              #endif
+              #endif // !JD_USE_MATH_ACOS && !JD_USE_LOOKUP_TABLE
 
               const float limit_sqr = (block->millimeters * junction_acceleration) / junction_theta;
               NOMORE(vmax_junction_sqr, limit_sqr);
