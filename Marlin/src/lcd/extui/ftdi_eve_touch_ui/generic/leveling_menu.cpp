@@ -146,9 +146,9 @@ bool LevelingMenu::onTouchEnd(uint8_t tag) {
         break;
     #endif
     #if ENABLED(BLTOUCH)
-      case 8: injectCommands(F("M280 P0 S60")); break;
-      case 9: SpinnerDialogBox::enqueueAndWait(F("M280 P0 S90\nG4 P100\nM280 P0 S120")); break;
-      case 10: injectCommands(F("M401\nM140 S0")); break;
+      case  8: injectCommands(F("M280P0S160")); break;
+      case  9: SpinnerDialogBox::enqueueAndWait(F("M280P0S90\nG4P100\nM280P0S120")); break;
+      case 10: injectCommands(F("M401\nM140S0")); break;
       case 11: injectCommands(F("M402")); break;
     #endif
     default: return false;
