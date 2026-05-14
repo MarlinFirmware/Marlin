@@ -191,7 +191,12 @@ void MarlinUI::goto_screen(screenFunc_t screen, const uint16_t encoder/*=0*/, co
       if (on_status_screen())
         doubleclick_expire_ms = millis() + DOUBLECLICK_MAX_INTERVAL;
     }
-    else if (screen == status_screen && currentScreen == menu_main && PENDING(millis(), doubleclick_expire_ms)) {
+    else if (
+      screen == status_screen
+      && currentScreen == menu_main
+      && encoderPosition == 0
+      && PENDING(millis(), doubleclick_expire_ms)
+    ) {
       if (BABYSTEP_ALLOWED())
         screen = TERN(BABYSTEP_ZPROBE_OFFSET, lcd_babystep_zoffset, lcd_babystep_z);
       else {
@@ -317,7 +322,7 @@ void scroll_screen(const uint8_t limit, const bool is_menu) {
       const float diff = planner.mm_per_step[Z_AXIS] * babystep_increment,
                   new_probe_offset = probe.offset.z + diff,
                   new_offs = TERN(BABYSTEP_HOTEND_Z_OFFSET
-                    , do_probe ? new_probe_offset : hotend_offset[motion.extruder].z - diff
+                    , do_probe ? new_probe_offset : motion.active_hotend_offset().z - diff
                     , new_probe_offset
                   );
       if (WITHIN(new_offs, PROBE_OFFSET_ZMIN, PROBE_OFFSET_ZMAX)) {
@@ -327,7 +332,7 @@ void scroll_screen(const uint8_t limit, const bool is_menu) {
         if (do_probe)
           probe.offset.z = new_offs;
         else
-          TERN(BABYSTEP_HOTEND_Z_OFFSET, hotend_offset[motion.extruder].z = new_offs, NOOP);
+          TERN(BABYSTEP_HOTEND_Z_OFFSET, motion.active_hotend_offset().z = new_offs, NOOP);
 
         ui.refresh(LCDVIEW_CALL_REDRAW_NEXT);
       }
@@ -339,7 +344,7 @@ void scroll_screen(const uint8_t limit, const bool is_menu) {
       }
       else {
         #if ENABLED(BABYSTEP_HOTEND_Z_OFFSET)
-          MenuEditItemBase::draw_edit_screen(GET_TEXT_F(MSG_HOTEND_OFFSET_Z), ftostr54sign(hotend_offset[motion.extruder].z));
+          MenuEditItemBase::draw_edit_screen(GET_TEXT_F(MSG_HOTEND_OFFSET_Z), ftostr54sign(motion.active_hotend_offset().z));
         #endif
       }
     }

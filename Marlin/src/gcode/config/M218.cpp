@@ -47,13 +47,13 @@ void GcodeSuite::M218() {
   if (target_extruder < 0) return;
 
   #if HAS_X_AXIS
-    if (parser.seenval('X')) hotend_offset[target_extruder].x = parser.value_linear_units();
+    if (parser.seenval('X')) motion.hotend_offset[target_extruder].x = parser.value_linear_units();
   #endif
   #if HAS_Y_AXIS
-    if (parser.seenval('Y')) hotend_offset[target_extruder].y = parser.value_linear_units();
+    if (parser.seenval('Y')) motion.hotend_offset[target_extruder].y = parser.value_linear_units();
   #endif
   #if HAS_Z_AXIS
-    if (parser.seenval('Z')) hotend_offset[target_extruder].z = parser.value_linear_units();
+    if (parser.seenval('Z')) motion.hotend_offset[target_extruder].z = parser.value_linear_units();
   #endif
 
   #if ENABLED(DELTA)
@@ -70,9 +70,9 @@ void GcodeSuite::M218_report(const bool forReplay/*=true*/) {
     report_echo_start(forReplay);
     SERIAL_ECHOLNPGM_P(
       PSTR("  M218 T"), e,
-      SP_X_STR, LINEAR_UNIT(hotend_offset[e].x),
-      SP_Y_STR, LINEAR_UNIT(hotend_offset[e].y),
-      SP_Z_STR, p_float_t(LINEAR_UNIT(hotend_offset[e].z), 3)
+      SP_X_STR, LINEAR_UNIT(motion.hotend_offset[e].x),
+      SP_Y_STR, LINEAR_UNIT(motion.hotend_offset[e].y),
+      SP_Z_STR, p_float_t(LINEAR_UNIT(motion.hotend_offset[e].z), 3)
     );
   }
 }

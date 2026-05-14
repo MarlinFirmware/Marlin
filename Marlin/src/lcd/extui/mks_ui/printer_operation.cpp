@@ -38,6 +38,7 @@
 #if ENABLED(POWER_LOSS_RECOVERY)
   #include "../../../feature/powerloss.h"
 #endif
+#include "../../../module/printcounter.h"
 
 #define FILAMENT_IS_OUT(N...) (READ(FIL_RUNOUT##N##_PIN) == FIL_RUNOUT##N##_STATE)
 #ifndef FILAMENT_RUNOUT_THRESHOLD
@@ -48,7 +49,6 @@ extern uint32_t To_pre_view;
 extern bool flash_preview_begin, default_preview_flg, gcode_preview_over;
 
 void printer_state_polling() {
-  char str_1[16];
   if (uiCfg.print_state == PAUSING) {
     #if HAS_MEDIA
       if (!planner.has_blocks_queued() && card.getIndex() > MIN_FILE_PRINTED)
@@ -58,23 +58,21 @@ void printer_state_polling() {
         uiCfg.waitEndMoves = 0;
         planner.synchronize();
 
-        gcode.process_subcommands_now(F("M25"));
+        card.pauseSDPrint();
+        print_job_timer.pause();
+
+        TERN_(POWER_LOSS_RECOVERY, if (recovery.enabled) recovery.save(true));
 
         // save the position
-        uiCfg.current_x_position_bak = motion.position.x;
-        uiCfg.current_y_position_bak = motion.position.y;
-        uiCfg.current_z_position_bak = motion.position.z;
+        uiCfg.current_position_bak = motion.position;
 
-        if (gCfgItems.pausePosZ != (float)-1) {
-          sprintf_P(public_buf_l, PSTR("G91\nG1 Z%s\nG90"), dtostrf(gCfgItems.pausePosZ, 1, 1, str_1));
-          gcode.process_subcommands_now(public_buf_l);
+        if (gCfgItems.pausePos.z != -1.0f) {
+          gcode.process_subcommands_now(TS(F("G91\nG1Z"), p_float_t(gCfgItems.pausePos.z, 1), F("\nG90")));
         }
-        if (gCfgItems.pausePosX != (float)-1 && gCfgItems.pausePosY != (float)-1) {
-          sprintf_P(public_buf_l, PSTR("G1 X%s Y%s"), dtostrf(gCfgItems.pausePosX, 1, 1, str_1), dtostrf(gCfgItems.pausePosY, 1, 1, str_1));
-          gcode.process_subcommands_now(public_buf_l);
+        if (gCfgItems.pausePos.x != -1.0f && gCfgItems.pausePos.y != -1.0f) {
+          gcode.process_subcommands_now(TS(F("G1X"), p_float_t(gCfgItems.pausePos.x, 1), C('Y'), p_float_t(gCfgItems.pausePos.y, 1)));
         }
         uiCfg.print_state = PAUSED;
-        uiCfg.current_e_position_bak = motion.position.e;
 
         gCfgItems.pause_reprint = true;
         update_spi_flash();
@@ -89,16 +87,13 @@ void printer_state_polling() {
 
   if (uiCfg.print_state == RESUMING) {
     if (card.isPaused()) {
-      if (gCfgItems.pausePosX != (float)-1 && gCfgItems.pausePosY != (float)-1) {
-        sprintf_P(public_buf_m, PSTR("G1 X%s Y%s"), dtostrf(uiCfg.current_x_position_bak, 1, 1, str_1), dtostrf(uiCfg.current_y_position_bak, 1, 1, str_1));
-        gcode.process_subcommands_now(public_buf_m);
-      }
-      if (gCfgItems.pausePosZ != (float)-1) {
-        ZERO(public_buf_m);
-        sprintf_P(public_buf_m, PSTR("G1 Z%s"), dtostrf(uiCfg.current_z_position_bak, 1, 1, str_1));
-        gcode.process_subcommands_now(public_buf_m);
-      }
-      gcode.process_subcommands_now(FPSTR(M24_STR));
+      if (gCfgItems.pausePos.x != -1.0f && gCfgItems.pausePos.y != -1.0f)
+        gcode.process_subcommands_now(TS(F("G1X"), p_float_t(uiCfg.current_position_bak.x, 1), C('Y'), p_float_t(uiCfg.current_position_bak.y, 1)));
+      if (gCfgItems.pausePos.z != -1.0f)
+        gcode.process_subcommands_now(TS(F("G1Z"), p_float_t(uiCfg.current_position_bak.z, 1)));
+      card.startOrResumeFilePrinting();
+      marlin.startOrResumeJob();
+      TERN_(POWER_LOSS_RECOVERY, recovery.prepare());
       uiCfg.print_state = WORKING;
       start_print_time();
 
@@ -113,12 +108,8 @@ void printer_state_polling() {
         HOTEND_LOOP() {
           const int16_t et = recovery.info.target_temperature[e];
           if (et) {
-            #if HAS_MULTI_HOTEND
-              sprintf_P(public_buf_m, PSTR("T%i"), e);
-              gcode.process_subcommands_now(public_buf_m);
-            #endif
-            sprintf_P(public_buf_m, PSTR("M109 S%i"), et);
-            gcode.process_subcommands_now(public_buf_m);
+            TERN_(HAS_MULTI_HOTEND, gcode.process_subcommands_now(TS(C('T'), e)));
+            gcode.process_subcommands_now(TS(F("M109S"), et));
           }
         }
       #endif
@@ -127,17 +118,9 @@ void printer_state_polling() {
 
       #if 0
         // Move back to the saved XY
-        char str_1[16], str_2[16];
-        sprintf_P(public_buf_m, PSTR("G1 X%s Y%s F2000"),
-          dtostrf(recovery.info.current_position.x, 1, 3, str_1),
-          dtostrf(recovery.info.current_position.y, 1, 3, str_2)
-        );
-        gcode.process_subcommands_now(public_buf_m);
-
-        if (gCfgItems.pause_reprint && gCfgItems.pausePosZ != -1.0f) {
-          sprintf_P(public_buf_l, PSTR("G91\nG1 Z-%s\nG90"), dtostrf(gCfgItems.pausePosZ, 1, 1, str_2));
-          gcode.process_subcommands_now(public_buf_l);
-        }
+        gcode.process_subcommands_now(TS(F("G1F2000X"), p_float_t(recovery.info.current_position.x, 3), C('Y'), p_float_t(recovery.info.current_position.y, 3)));
+        if (gCfgItems.pause_reprint && gCfgItems.pausePos.z != -1.0f)
+          gcode.process_subcommands_now(TS(F("G91\nG1Z-"), p_float_t(gCfgItems.pausePos.z, 1), F("\nG90")));
       #endif
       uiCfg.print_state = WORKING;
       start_print_time();
@@ -210,7 +193,7 @@ void filament_check() {
     else
       default_preview_flg = true;
 
-    lv_draw_printing();
+    lv_draw_dialog(DIALOG_TYPE_FILAMENT_NO_PRESS);
   }
 }
 
