@@ -86,6 +86,8 @@ namespace MMU3 {
         return FindErrorIndex(ERR_MECHANICAL_LOAD_TO_EXTRUDER_FAILED);
       case ErrorCode::FILAMENT_EJECTED:
         return FindErrorIndex(ERR_SYSTEM_FILAMENT_EJECTED);
+      case ErrorCode::FILAMENT_CHANGE:
+        return FindErrorIndex(ERR_SYSTEM_FILAMENT_CHANGE);
 
       case ErrorCode::STALLED_PULLEY:
       case ErrorCode::MOVE_PULLEY_FAILED:
@@ -251,8 +253,18 @@ namespace MMU3 {
       case ERR_MECHANICAL_LOAD_TO_EXTRUDER_FAILED:
       case ERR_SYSTEM_FILAMENT_EJECTED:
         switch (buttonSelectedOperation) {
-          case ButtonOperations::Continue: // User solved the serious mechanical problem by hand - there is no other way around
+          case ButtonOperations::Done: // User solved the serious mechanical problem by hand - there is no other way around
             return Buttons::Middle;
+          default:
+            break;
+        }
+        break;
+      case ERR_SYSTEM_FILAMENT_CHANGE:
+        switch (buttonSelectedOperation) {
+          case ButtonOperations::Load:
+            return Buttons::Load;
+          case ButtonOperations::Eject:
+            return Buttons::Eject;
           default:
             break;
         }
@@ -261,7 +273,7 @@ namespace MMU3 {
       case ERR_TEMPERATURE_WARNING_TMC_SELECTOR_TOO_HOT:
       case ERR_TEMPERATURE_WARNING_TMC_IDLER_TOO_HOT:
         switch (buttonSelectedOperation) {
-          case ButtonOperations::Continue: // "Continue"
+          case ButtonOperations::Done: // "Done"
             return Buttons::Left;
           case ButtonOperations::ResetMMU: // "Reset MMU"
             return Buttons::ResetMMU;
@@ -321,7 +333,7 @@ namespace MMU3 {
         switch (buttonSelectedOperation) {
           case ButtonOperations::Unload: // "Unload"
             return Buttons::Left;
-          case ButtonOperations::Continue: // "Proceed/Continue"
+          case ButtonOperations::Done: // "Done"
             return Buttons::Right;
           default:
             break;
