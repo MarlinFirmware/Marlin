@@ -2638,9 +2638,9 @@ bool Planner::_populate_block(
                 // Fast acos(-t) approximation (max. error +-0.033rad = 1.89°)
                 // based on MinMax polynomial for asin(t) by W. Randolph Franklin; see
                 // https://wrfranklin.org/Research/Short_Notes/arcsin/onlyelem.html
-                // * Current code is conditional to junction_cos_theta < -0.7071067812f
-                // so math is simplified under the assumption that junction_cos_theta < 0.
-                // * Converted asin to acos with acos(-t) = pi - acos(t) = pi / 2 + asin(x)
+                // - Current code is conditional to junction_cos_theta < -0.7071067812f
+                //   so math is simplified under the assumption that junction_cos_theta < 0.
+                // - Converted asin to acos with acos(-t) = π - acos(t) = π / 2 + asin(x)
 
                 const float jct1 = 1.0f + junction_cos_theta;
                 const float junction_theta =       (   1.5379526198f

@@ -1231,7 +1231,7 @@ class Planner {
       }
 
       // max_value is block->acceleration here used as our nominal or maximum
-      // unit_vec is the direction of the normal (i.e. perpendicular) acceleration _only_
+      // unit_vec is the direction of the normal (i.e., perpendicular) acceleration _only_
       FORCE_INLINE static float limit_jd_acceleration_by_axis_maximum(const float max_value, xyze_float_t &unit_vec) {
         float limit_value = max_value;
         LOOP_LOGICAL_AXES(axis) {
