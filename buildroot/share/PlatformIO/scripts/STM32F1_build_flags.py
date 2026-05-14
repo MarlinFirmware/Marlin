@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 #
 # STM32F1_build_flags.py
 # Add build_flags for the base STM32F1_maple environment (stm32f1-maple.ini)

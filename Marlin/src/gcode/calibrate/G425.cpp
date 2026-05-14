@@ -177,8 +177,8 @@ inline void park_above_object(measurements_t &m, const float uncertainty) {
 
   inline void normalize_hotend_offsets() {
     for (uint8_t e = 1; e < HOTENDS; ++e)
-      hotend_offset[e] -= hotend_offset[0];
-    hotend_offset[0].reset();
+      motion.hotend_offset[e] -= motion.hotend_offset[0];
+    motion.hotend_offset[0].reset();
   }
 
 #endif
@@ -568,7 +568,7 @@ inline void probe_sides(measurements_t &m, const float uncertainty) {
     //
     inline void report_hotend_offsets() {
       for (uint8_t e = 1; e < HOTENDS; ++e)
-        SERIAL_ECHOLNPGM_P(PSTR("T"), e, PSTR(" Hotend Offset X"), hotend_offset[e].x, SP_Y_STR, hotend_offset[e].y, SP_Z_STR, hotend_offset[e].z);
+        SERIAL_ECHOLNPGM_P(PSTR("T"), e, PSTR(" Hotend Offset X"), motion.hotend_offset[e].x, SP_Y_STR, motion.hotend_offset[e].y, SP_Z_STR, motion.hotend_offset[e].z);
     }
   #endif
 
@@ -706,9 +706,10 @@ inline void calibrate_toolhead(measurements_t &m, const float uncertainty, const
 
   // Adjust the hotend offset
   #if HAS_HOTEND_OFFSET
-    if (ENABLED(HAS_X_CENTER) && AXIS_CAN_CALIBRATE(X)) hotend_offset[extruder].x += m.pos_error.x;
-    if (ENABLED(HAS_Y_CENTER) && AXIS_CAN_CALIBRATE(Y)) hotend_offset[extruder].y += m.pos_error.y;
-                             if (AXIS_CAN_CALIBRATE(Z)) hotend_offset[extruder].z += m.pos_error.z;
+    xyz_pos_t &hotoff = motion.active_hotend_offset();
+    if (ENABLED(HAS_X_CENTER) && AXIS_CAN_CALIBRATE(X)) hotoff.x += m.pos_error.x;
+    if (ENABLED(HAS_Y_CENTER) && AXIS_CAN_CALIBRATE(Y)) hotoff.y += m.pos_error.y;
+                             if (AXIS_CAN_CALIBRATE(Z)) hotoff.z += m.pos_error.z;
     normalize_hotend_offsets();
   #endif
 
@@ -761,7 +762,7 @@ inline void calibrate_all_toolheads(measurements_t &m, const float uncertainty) 
 inline void calibrate_all() {
   measurements_t m;
 
-  TERN_(HAS_HOTEND_OFFSET, reset_hotend_offsets());
+  TERN_(HAS_HOTEND_OFFSET, motion.reset_hotend_offsets());
 
   TEMPORARY_BACKLASH_CORRECTION(backlash.all_on);
   TEMPORARY_BACKLASH_SMOOTHING(0.0f);
