@@ -43,6 +43,10 @@
   #include "../../../lcd/extui/ui_api.h"
 #endif
 
+#if ENABLED(DWIN_LCD_PROUI)
+  #include "../../../lcd/dwin/proui/meshviewer.h"
+#endif
+
 #if ENABLED(UBL_HILBERT_CURVE)
   #include "../hilbert_curve.h"
 #endif
@@ -315,305 +319,31 @@ void unified_bed_leveling::G29() {
   // Potentially disable Fixed-Time Motion for probing
   TERN_(FT_MOTION, FTM_DISABLE_IN_SCOPE());
 
-  // Check for commands that require the printer to be homed
-  if (may_move) {
-    planner.synchronize();
-    #if ALL(DWIN_LCD_PROUI, ZHOME_BEFORE_LEVELING)
-      save_ubl_active_state_and_disable();
-      gcode.process_subcommands_now(F("G28Z"));
-      restore_ubl_active_state(false); // ...without telling ExtUI "done"
-    #else
-      // Send 'N' to force homing before G29 (internal only)
-      if (motion.axes_should_home() || parser.seen_test('N')) gcode.home_all_axes();
-    #endif
-    probe.use_probing_tool();
+  // Handle homing and initial setup
+  if (may_move) G29_handle_homing_and_setup();
 
-    #ifdef EVENT_GCODE_BEFORE_G29
-      if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Before G29 G-code: ", EVENT_GCODE_BEFORE_G29);
-      gcode.process_subcommands_now(F(EVENT_GCODE_BEFORE_G29));
-    #endif
+  // Handle mesh invalidation (I parameter)
+  if (parser.seen('I')) G29_handle_invalidate();
 
-    // Position bed horizontally and Z probe vertically.
-    #if HAS_SAFE_BED_LEVELING
-      xyze_pos_t safe_position = motion.position;
-      #ifdef SAFE_BED_LEVELING_START_X
-        safe_position.x = SAFE_BED_LEVELING_START_X;
-      #endif
-      #ifdef SAFE_BED_LEVELING_START_Y
-        safe_position.y = SAFE_BED_LEVELING_START_Y;
-      #endif
-      #ifdef SAFE_BED_LEVELING_START_Z
-        safe_position.z = SAFE_BED_LEVELING_START_Z;
-      #endif
-      #ifdef SAFE_BED_LEVELING_START_I
-        safe_position.i = SAFE_BED_LEVELING_START_I;
-      #endif
-      #ifdef SAFE_BED_LEVELING_START_J
-        safe_position.j = SAFE_BED_LEVELING_START_J;
-      #endif
-      #ifdef SAFE_BED_LEVELING_START_K
-        safe_position.k = SAFE_BED_LEVELING_START_K;
-      #endif
-      #ifdef SAFE_BED_LEVELING_START_U
-        safe_position.u = SAFE_BED_LEVELING_START_U;
-      #endif
-      #ifdef SAFE_BED_LEVELING_START_V
-        safe_position.v = SAFE_BED_LEVELING_START_V;
-      #endif
-      #ifdef SAFE_BED_LEVELING_START_W
-        safe_position.w = SAFE_BED_LEVELING_START_W;
-      #endif
+  // Handle test patterns (Q parameter)
+  if (parser.seen('Q') && !G29_handle_test_patterns()) return;
 
-      motion.blocking_move(safe_position);
-    #endif // HAS_SAFE_BED_LEVELING
-  }
-
-  // Invalidate one or more nearby mesh points, possibly all.
-  if (parser.seen('I')) {
-    grid_count_t count = parser.has_value() ? parser.value_ushort() : 1;
-    bool invalidate_all = count >= GRID_MAX_POINTS;
-    if (!invalidate_all) {
-      while (count--) {
-        if ((count & 0x0F) == 0x0F) marlin.idle();
-        const mesh_index_pair closest = find_closest_mesh_point_of_type(REAL, param.XY_pos);
-        // No more REAL mesh points to invalidate? Assume the user meant
-        // to invalidate the ENTIRE mesh, which can't be done with
-        // find_closest_mesh_point (which only returns REAL points).
-        if (closest.pos.x < 0) { invalidate_all = true; break; }
-        z_values[closest.pos.x][closest.pos.y] = NAN;
-        TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(closest.pos, 0.0f));
-      }
-    }
-    if (invalidate_all) {
-      invalidate();
-      SERIAL_ECHOPGM("Entire Mesh");
-    }
-    else
-      SERIAL_ECHOPGM("Locations");
-    SERIAL_ECHOLNPGM(" invalidated.\n");
-  }
-
-  if (parser.seen('Q')) {
-    const int16_t test_pattern = parser.has_value() ? parser.value_int() : -99;
-    if (!WITHIN(test_pattern, TERN0(UBL_DEVEL_DEBUGGING, -1), 2)) {
-      SERIAL_ECHOLN(F("?Invalid "), F("(Q) test pattern. (" TERN(UBL_DEVEL_DEBUGGING, "-1", "0") " to 2)\n"));
-      return;
-    }
-    SERIAL_ECHOLNPGM("Applying test pattern.\n");
-    switch (test_pattern) {
-
-      default:
-      case -1: TERN_(UBL_DEVEL_DEBUGGING, g29_eeprom_dump()); break;
-
-      case 0:
-        GRID_LOOP(x, y) {                                     // Create a bowl shape similar to a poorly-calibrated Delta
-          const float p1 = 0.5f * (GRID_MAX_POINTS_X) - x,
-                      p2 = 0.5f * (GRID_MAX_POINTS_Y) - y;
-          z_values[x][y] += 2.0f * HYPOT(p1, p2);
-          TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(x, y, z_values[x][y]));
-        }
-        break;
-
-      case 1:
-        for (uint8_t x = 0; x < GRID_MAX_POINTS_X; ++x) {                     // Create a diagonal line several Mesh cells thick that is raised
-          const uint8_t x2 = x + (x < (GRID_MAX_POINTS_Y) - 1 ? 1 : -1);
-          z_values[x][x] += 9.999f;
-          z_values[x][x2] += 9.999f; // We want the altered line several mesh points thick
-          #if ENABLED(EXTENSIBLE_UI)
-            ExtUI::onMeshUpdate(x, x, z_values[x][x]);
-            ExtUI::onMeshUpdate(x, x2, z_values[x][x2]);
-          #endif
-        }
-        break;
-
-      case 2:
-        // Allow the user to specify the height because 10mm is a little extreme in some cases.
-        for (uint8_t x = (GRID_MAX_POINTS_X) / 3; x < 2 * (GRID_MAX_POINTS_X) / 3; x++)     // Create a rectangular raised area in
-          for (uint8_t y = (GRID_MAX_POINTS_Y) / 3; y < 2 * (GRID_MAX_POINTS_Y) / 3; y++) { // the center of the bed
-            z_values[x][y] += parser.seen_test('C') ? param.C_constant : 9.99f;
-            TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(x, y, z_values[x][y]));
-          }
-        break;
-    }
-  }
-
+  // Handle tilt mesh (J parameter)
   #if HAS_BED_PROBE
+    if (parser.seen_test('J')) G29_handle_tilt_mesh();
+  #endif
 
-    if (parser.seen_test('J')) {
-      save_ubl_active_state_and_disable();
-      tilt_mesh_based_on_probed_grid(param.J_grid_size == 0); // Zero size does 3-Point
-      restore_ubl_active_state();
-      #if ENABLED(UBL_G29_J_RECENTER)
-        motion.blocking_move_xy(0.5f * ((MESH_MIN_X) + (MESH_MAX_X)), 0.5f * ((MESH_MIN_Y) + (MESH_MAX_Y)));
-      #endif
-      motion.report_position();
-      SET_PROBE_DEPLOYED(true);
-    }
+  // Handle phase operations (P parameter)
+  if (parser.seen_test('P') && !G29_handle_phase_ops()) return;
 
-  #endif // HAS_BED_PROBE
+  // Handle post-processing and cleanup
+  G29_handle_post_processing();
+}
 
-  if (parser.seen_test('P')) {
-    if (WITHIN(param.P_phase, 0, 1) && storage_slot == -1) {
-      storage_slot = 0;
-      SERIAL_ECHOLNPGM("Default storage slot 0 selected.");
-    }
-
-    switch (param.P_phase) {
-      case 0:
-        //
-        // Zero Mesh Data
-        //
-        reset();
-        SERIAL_ECHOLNPGM("Mesh zeroed.");
-        break;
-
-      #if HAS_BED_PROBE
-
-        case 1: {
-          //
-          // Invalidate Entire Mesh and Automatically Probe Mesh in areas that can be reached by the probe
-          //
-          if (!parser.seen_test('C')) {
-            invalidate();
-            SERIAL_ECHOLNPGM("Mesh invalidated. Probing mesh.");
-          }
-          if (param.V_verbosity > 1)
-            SERIAL_ECHOLN(F("Probing around ("), param.XY_pos.x, C(','), param.XY_pos.y, F(").\n"));
-          probe_entire_mesh(param.XY_pos, parser.seen_test('T'), parser.seen_test('E'), parser.seen_test('U'));
-
-          motion.report_position();
-          SET_PROBE_DEPLOYED(true);
-        } break;
-
-      #endif // HAS_BED_PROBE
-
-      case 2: {
-        #if HAS_MARLINUI_MENU
-          //
-          // Manually Probe Mesh in areas that can't be reached by the probe
-          //
-          SERIAL_ECHOLNPGM("Manually probing unreachable points.");
-          motion.do_z_clearance(Z_CLEARANCE_BETWEEN_PROBES);
-
-          if (parser.seen_test('C') && !param.XY_seen) {
-
-            /**
-             * Use a good default location for the path.
-             * The flipped > and < operators in these comparisons is intentional.
-             * It should cause the probed points to follow a nice path on Cartesian printers.
-             * It may make sense to have Delta printers default to the center of the bed.
-             * Until that is decided, this can be forced with the X and Y parameters.
-             */
-            param.XY_pos.set(
-              #if IS_KINEMATIC
-                X_HOME_POS, Y_HOME_POS
-              #else
-                probe.offset_xy.x > 0 ? X_BED_SIZE : 0,
-                probe.offset_xy.y < 0 ? Y_BED_SIZE : 0
-              #endif
-            );
-          }
-
-          if (parser.seen('B')) {
-            param.B_shim_thickness = parser.has_value() ? parser.value_float() : measure_business_card_thickness();
-            if (ABS(param.B_shim_thickness) > 1.5f) {
-              SERIAL_ECHOLNPGM("?Error in Business Card measurement.");
-              return;
-            }
-            SET_PROBE_DEPLOYED(true);
-          }
-
-          if (!motion.can_reach(param.XY_pos)) {
-            SERIAL_ECHOLNPGM("XY outside printable radius.");
-            return;
-          }
-
-          const float height = parser.floatval('H', Z_CLEARANCE_BETWEEN_PROBES);
-          manually_probe_remaining_mesh(param.XY_pos, height, param.B_shim_thickness, parser.seen_test('T'));
-
-          SERIAL_ECHOLNPGM("G29 P2 finished.");
-
-          motion.report_position();
-
-        #else
-
-          SERIAL_ECHOLNPGM("?P2 is only available when an LCD is present.");
-          return;
-
-        #endif
-      } break;
-
-      case 3: {
-        /**
-         * Populate invalid mesh areas. Proceed with caution.
-         * Two choices are available:
-         *   - Specify a constant with the 'C' parameter.
-         *   - Allow 'G29 P3' to choose a 'reasonable' constant.
-         */
-
-        if (param.C_seen) {
-          if (param.R_repetition >= GRID_MAX_POINTS) {
-            set_all_mesh_points_to_value(param.C_constant);
-          }
-          else {
-            while (param.R_repetition--) {  // this only populates reachable mesh points near
-              const mesh_index_pair closest = find_closest_mesh_point_of_type(INVALID, param.XY_pos);
-              const xy_int8_t &cpos = closest.pos;
-              if (cpos.x < 0) {
-                // No more REAL INVALID mesh points to populate, so we ASSUME
-                // user meant to populate ALL INVALID mesh points to value
-                GRID_LOOP(x, y) if (isnan(z_values[x][y])) z_values[x][y] = param.C_constant;
-                break; // No more invalid Mesh Points to populate
-              }
-              else {
-                z_values[cpos.x][cpos.y] = param.C_constant;
-                TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(cpos, param.C_constant));
-              }
-            }
-          }
-        }
-        else {
-          const float cvf = parser.value_float();
-          switch ((int)TRUNC(cvf * 10.0f) - 30) {   // 3.1 -> 1
-            #if ENABLED(UBL_G29_P31)
-              case 1: {
-
-                // P3.1  use least squares fit to fill missing mesh values
-                // P3.10 zero weighting for distance, all grid points equal, best fit tilted plane
-                // P3.11 10X weighting for nearest grid points versus farthest grid points
-                // P3.12 100X distance weighting
-                // P3.13 1000X distance weighting, approaches simple average of nearest points
-
-                const float weight_power  = (cvf - 3.10f) * 100.0f,  // 3.12345 -> 2.345
-                            weight_factor = weight_power ? POW(10.0f, weight_power) : 0;
-                smart_fill_wlsf(weight_factor);
-              }
-              break;
-            #endif
-            case 0:   // P3 or P3.0
-            default:  // and anything P3.x that's not P3.1
-              smart_fill_mesh();  // Do a 'Smart' fill using nearby known values
-              break;
-          }
-        }
-        break;
-      }
-
-      case 4: // Fine Tune (i.e., Edit) the Mesh
-        #if HAS_MARLINUI_MENU
-          fine_tune_mesh(param.XY_pos, parser.seen_test('T'));
-        #else
-          SERIAL_ECHOLNPGM("?P4 is only available when an LCD is present.");
-          return;
-        #endif
-        break;
-
-      case 5: adjust_mesh_to_mean(param.C_seen, param.C_constant); break;
-
-      case 6: shift_mesh_height(param.C_constant); break;
-    }
-  }
-
+/**
+ * Handle post-processing and cleanup
+ */
+void unified_bed_leveling::G29_handle_post_processing() {
   #if ENABLED(UBL_DEVEL_DEBUGGING)
 
     //
@@ -661,7 +391,7 @@ void unified_bed_leveling::G29() {
   // Store a Mesh in the EEPROM
   //
 
-  if (parser.seen('S')) {     // Store (or Save) Current Mesh Data
+  else if (parser.seen('S')) {     // Store (or Save) Current Mesh Data
     param.KLS_storage_slot = parser.has_value() ? (int8_t)parser.value_int() : storage_slot;
 
     if (param.KLS_storage_slot == -1)               // Special case: 'Export' the mesh to the
@@ -706,7 +436,337 @@ void unified_bed_leveling::G29() {
   #endif
 
   probe.use_probing_tool(false);
-  return;
+}
+
+/**
+ * Handle phase operations (P parameter)
+ * @return true if successful, false if error occurred
+ */
+bool unified_bed_leveling::G29_handle_phase_ops() {
+  if (WITHIN(param.P_phase, 0, 1) && storage_slot == -1) {
+    storage_slot = 0;
+    SERIAL_ECHOLNPGM("Default storage slot 0 selected.");
+  }
+
+  switch (param.P_phase) {
+    case 0:
+      //
+      // Zero Mesh Data
+      //
+      reset();
+      SERIAL_ECHOLNPGM("Mesh zeroed.");
+      break;
+
+    #if HAS_BED_PROBE
+
+      case 1: {
+        //
+        // Invalidate Entire Mesh and Automatically Probe Mesh in areas that can be reached by the probe
+        //
+        if (!parser.seen_test('C')) {
+          invalidate();
+          SERIAL_ECHOLNPGM("Mesh invalidated. Probing mesh.");
+        }
+        if (param.V_verbosity > 1)
+          SERIAL_ECHOLN(F("Probing around ("), param.XY_pos.x, C(','), param.XY_pos.y, F(").\n"));
+        probe_entire_mesh(param.XY_pos, parser.seen_test('T'), parser.seen_test('E'), parser.seen_test('U'));
+
+        motion.report_position();
+        SET_PROBE_DEPLOYED(true);
+      } break;
+
+    #endif // HAS_BED_PROBE
+
+    case 2: {
+      #if HAS_MARLINUI_MENU
+        //
+        // Manually Probe Mesh in areas that can't be reached by the probe
+        //
+        SERIAL_ECHOLNPGM("Manually probing unreachable points.");
+        motion.do_z_clearance(Z_CLEARANCE_BETWEEN_PROBES);
+
+        if (parser.seen_test('C') && !param.XY_seen) {
+
+          /**
+           * Use a good default location for the path.
+           * The flipped > and < operators in these comparisons is intentional.
+           * It should cause the probed points to follow a nice path on Cartesian printers.
+           * It may make sense to have Delta printers default to the center of the bed.
+           * Until that is decided, this can be forced with the X and Y parameters.
+           */
+          param.XY_pos.set(
+            #if IS_KINEMATIC
+              X_HOME_POS, Y_HOME_POS
+            #else
+              probe.offset_xy.x > 0 ? X_BED_SIZE : 0,
+              probe.offset_xy.y < 0 ? Y_BED_SIZE : 0
+            #endif
+          );
+        }
+
+        if (parser.seen('B')) {
+          param.B_shim_thickness = parser.has_value() ? parser.value_float() : measure_business_card_thickness();
+          if (ABS(param.B_shim_thickness) > 1.5f) {
+            SERIAL_ECHOLNPGM("?Error in Business Card measurement.");
+            return false;
+          }
+          SET_PROBE_DEPLOYED(true);
+        }
+
+        if (!motion.can_reach(param.XY_pos)) {
+          SERIAL_ECHOLNPGM("XY outside printable radius.");
+          return false;
+        }
+
+        const float height = parser.floatval('H', Z_CLEARANCE_BETWEEN_PROBES);
+        manually_probe_remaining_mesh(param.XY_pos, height, param.B_shim_thickness, parser.seen_test('T'));
+
+        SERIAL_ECHOLNPGM("G29 P2 finished.");
+
+        motion.report_position();
+
+      #else
+
+        SERIAL_ECHOLNPGM("?P2 is only available when an LCD is present.");
+        return false;
+
+      #endif
+    } break;
+
+    case 3: {
+      /**
+       * Populate invalid mesh areas. Proceed with caution.
+       * Two choices are available:
+       *   - Specify a constant with the 'C' parameter.
+       *   - Allow 'G29 P3' to choose a 'reasonable' constant.
+       */
+
+      if (param.C_seen) {
+        if (param.R_repetition >= GRID_MAX_POINTS) {
+          set_all_mesh_points_to_value(param.C_constant);
+        }
+        else {
+          while (param.R_repetition--) {  // this only populates reachable mesh points near
+            const mesh_index_pair closest = find_closest_mesh_point_of_type(INVALID, param.XY_pos);
+            const xy_int8_t &cpos = closest.pos;
+            if (cpos.x < 0) {
+              // No more REAL INVALID mesh points to populate, so we ASSUME
+              // user meant to populate ALL INVALID mesh points to value
+              GRID_LOOP(x, y) if (isnan(z_values[x][y])) z_values[x][y] = param.C_constant;
+              break; // No more invalid Mesh Points to populate
+            }
+            else {
+              z_values[cpos.x][cpos.y] = param.C_constant;
+              TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(cpos, param.C_constant));
+            }
+          }
+        }
+      }
+      else {
+        const float cvf = parser.value_float();
+        switch ((int)TRUNC(cvf * 10.0f) - 30) {   // 3.1 -> 1
+          #if ENABLED(UBL_G29_P31)
+            case 1: {
+
+              // P3.1  use least squares fit to fill missing mesh values
+              // P3.10 zero weighting for distance, all grid points equal, best fit tilted plane
+              // P3.11 10X weighting for nearest grid points versus farthest grid points
+              // P3.12 100X distance weighting
+              // P3.13 1000X distance weighting, approaches simple average of nearest points
+
+              const float weight_power  = (cvf - 3.10f) * 100.0f,  // 3.12345 -> 2.345
+                          weight_factor = weight_power ? POW(10.0f, weight_power) : 0;
+              smart_fill_wlsf(weight_factor);
+            }
+            break;
+          #endif
+          case 0:   // P3 or P3.0
+          default:  // and anything P3.x that's not P3.1
+            smart_fill_mesh();  // Do a 'Smart' fill using nearby known values
+            break;
+        }
+      }
+      break;
+    }
+
+    case 4: // Fine Tune (i.e., Edit) the Mesh
+      #if HAS_MARLINUI_MENU
+        fine_tune_mesh(param.XY_pos, parser.seen_test('T'));
+      #else
+        SERIAL_ECHOLNPGM("?P4 is only available when an LCD is present.");
+        return false;
+      #endif
+      break;
+
+    case 5: adjust_mesh_to_mean(param.C_seen, param.C_constant); break;
+
+    case 6: shift_mesh_height(param.C_constant); break;
+
+    default:
+      SERIAL_ECHOLNPGM("?Invalid P value.\n");
+      return false;
+  }
+
+  return true;
+}
+
+/**
+ * Handle homing and initial setup for G29 command
+ * @param may_move Whether the command requires printer movement
+ * @return true if successful, false if error occurred
+ */
+void unified_bed_leveling::G29_handle_homing_and_setup() {
+  planner.synchronize();
+  #if ALL(DWIN_LCD_PROUI, ZHOME_BEFORE_LEVELING)
+    save_ubl_active_state_and_disable();
+    gcode.process_subcommands_now(F("G28Z"));
+    restore_ubl_active_state(false); // ...without telling ExtUI "done"
+  #else
+    // Send 'N' to force homing before G29 (internal only)
+    if (motion.axes_should_home() || parser.seen_test('N')) gcode.home_all_axes();
+  #endif
+  probe.use_probing_tool();
+
+  #ifdef EVENT_GCODE_BEFORE_G29
+    if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Before G29 G-code: ", EVENT_GCODE_BEFORE_G29);
+    gcode.process_subcommands_now(F(EVENT_GCODE_BEFORE_G29));
+  #endif
+
+  // Position bed horizontally and Z probe vertically.
+  #if HAS_SAFE_BED_LEVELING
+    xyze_pos_t safe_position = motion.position;
+    #ifdef SAFE_BED_LEVELING_START_X
+      safe_position.x = SAFE_BED_LEVELING_START_X;
+    #endif
+    #ifdef SAFE_BED_LEVELING_START_Y
+      safe_position.y = SAFE_BED_LEVELING_START_Y;
+    #endif
+    #ifdef SAFE_BED_LEVELING_START_Z
+      safe_position.z = SAFE_BED_LEVELING_START_Z;
+    #endif
+    #ifdef SAFE_BED_LEVELING_START_I
+      safe_position.i = SAFE_BED_LEVELING_START_I;
+    #endif
+    #ifdef SAFE_BED_LEVELING_START_J
+      safe_position.j = SAFE_BED_LEVELING_START_J;
+    #endif
+    #ifdef SAFE_BED_LEVELING_START_K
+      safe_position.k = SAFE_BED_LEVELING_START_K;
+    #endif
+    #ifdef SAFE_BED_LEVELING_START_U
+      safe_position.u = SAFE_BED_LEVELING_START_U;
+    #endif
+    #ifdef SAFE_BED_LEVELING_START_V
+      safe_position.v = SAFE_BED_LEVELING_START_V;
+    #endif
+    #ifdef SAFE_BED_LEVELING_START_W
+      safe_position.w = SAFE_BED_LEVELING_START_W;
+    #endif
+    motion.blocking_move(safe_position);
+  #endif // HAS_SAFE_BED_LEVELING
+}
+
+/**
+ * Handle mesh invalidation (I parameter)
+ */
+void unified_bed_leveling::G29_handle_invalidate() {
+  // Invalidate one or more nearby mesh points, possibly all.
+  grid_count_t count = parser.has_value() ? parser.value_ushort() : 1;
+    bool invalidate_all = count >= GRID_MAX_POINTS;
+    if (!invalidate_all) {
+      while (count--) {
+        if ((count & 0x0F) == 0x0F) marlin.idle();
+        const mesh_index_pair closest = find_closest_mesh_point_of_type(REAL, param.XY_pos);
+        // No more REAL mesh points to invalidate? Assume the user meant
+        // to invalidate the ENTIRE mesh, which can't be done with
+        // find_closest_mesh_point (which only returns REAL points).
+        if (closest.pos.x < 0) { invalidate_all = true; break; }
+        z_values[closest.pos.x][closest.pos.y] = NAN;
+        TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(closest.pos, 0.0f));
+      }
+    }
+    if (invalidate_all) {
+      invalidate();
+      SERIAL_ECHOPGM("Entire Mesh");
+    }
+    else
+      SERIAL_ECHOPGM("Locations");
+    SERIAL_ECHOLNPGM(" invalidated.\n");
+}
+
+#if HAS_BED_PROBE
+  /**
+   * Handle tilt mesh (J parameter)
+   */
+  void unified_bed_leveling::G29_handle_tilt_mesh() {
+    save_ubl_active_state_and_disable();
+    tilt_mesh_based_on_probed_grid(param.J_grid_size == 0); // Zero size does 3-Point
+    restore_ubl_active_state();
+    #if ENABLED(UBL_G29_J_RECENTER)
+      motion.blocking_move_xy(0.5f * (mesh_min.x + mesh_max.x), 0.5f * (mesh_min.y + mesh_max.y));
+    #endif
+    motion.report_position();
+    SET_PROBE_DEPLOYED(true);
+  }
+#endif // HAS_BED_PROBE
+
+/**
+ * Handle test patterns (Q parameter)
+ * @return true if successful, false if error occurred
+ */
+bool unified_bed_leveling::G29_handle_test_patterns() {
+  const int16_t test_pattern = parser.has_value() ? parser.value_int() : -99;
+  if (!WITHIN(test_pattern, TERN0(UBL_DEVEL_DEBUGGING, -1), 2)) {
+    SERIAL_ECHOLN(F("?Invalid "), F("(Q) test pattern. (" TERN(UBL_DEVEL_DEBUGGING, "-1", "0") " to 2)\n"));
+    return false;
+  }
+  SERIAL_ECHOLNPGM("Applying test pattern.\n");
+  switch (test_pattern) {
+
+    default:
+    case -1: TERN_(UBL_DEVEL_DEBUGGING, g29_eeprom_dump()); break;
+
+    case 0:
+      // Create a bowl shape similar to a poorly-calibrated Delta
+      GRID_LOOP(x, y) {
+        const float p1 = 0.5f * (GRID_MAX_POINTS_X) - x,
+                    p2 = 0.5f * (GRID_MAX_POINTS_Y) - y;
+        z_values[x][y] += 2.0f * HYPOT(p1, p2);
+        TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(x, y, z_values[x][y]));
+      }
+      break;
+
+    case 1:
+      // Create a diagonal line several Mesh cells thick that is raised
+      for (uint8_t x = 0; x < GRID_MAX_POINTS_X; ++x) {
+        const uint8_t x2 = x + (x < (GRID_MAX_POINTS_Y) - 1 ? 1 : -1);
+        z_values[x][x] += 9.999f;
+        z_values[x][x2] += 9.999f; // We want the altered line several mesh points thick
+        #if ENABLED(EXTENSIBLE_UI)
+          ExtUI::onMeshUpdate(x, x, z_values[x][x]);
+          ExtUI::onMeshUpdate(x, x2, z_values[x][x2]);
+        #endif
+      }
+      break;
+
+    case 2:
+      // Allow the user to specify the height because 10mm is a little extreme in some cases.
+      for (uint8_t x = (GRID_MAX_POINTS_X) / 3; x < 2 * (GRID_MAX_POINTS_X) / 3; x++)     // Create a rectangular raised area in
+        for (uint8_t y = (GRID_MAX_POINTS_Y) / 3; y < 2 * (GRID_MAX_POINTS_Y) / 3; y++) { // the center of the bed
+          z_values[x][y] += parser.seen_test('C') ? param.C_constant : 9.99f;
+          TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(x, y, z_values[x][y]));
+        }
+      break;
+  }
+  return true;
+}
+
+void unified_bed_leveling::shift_mesh_height(const float zoffs) {
+  GRID_LOOP(x, y)
+    if (!isnan(z_values[x][y])) {
+      z_values[x][y] += zoffs;
+      TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(x, y, z_values[x][y]));
+    }
 }
 
 /**
@@ -747,17 +807,6 @@ void unified_bed_leveling::adjust_mesh_to_mean(const bool cflag, const float off
       }
 }
 
-/**
- * G29 P6 C<offset> : Shift Mesh Height by a uniform constant.
- */
-void unified_bed_leveling::shift_mesh_height(const float zoffs) {
-  GRID_LOOP(x, y)
-    if (!isnan(z_values[x][y])) {
-      z_values[x][y] += zoffs;
-      TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(x, y, z_values[x][y]));
-    }
-}
-
 #if HAS_BED_PROBE
   /**
    * G29 P1 T<maptype> V<verbosity> : Probe Entire Mesh
@@ -782,6 +831,10 @@ void unified_bed_leveling::shift_mesh_height(const float zoffs) {
       SERIAL_ECHOLNPGM("Probing mesh point ", point_num, "/", GRID_MAX_POINTS, ".");
       TERN_(HAS_STATUS_MESSAGE, ui.status_printf(0, F(S_FMT " %i/%i"), GET_TEXT(MSG_PROBING_POINT), point_num, int(GRID_MAX_POINTS)));
       TERN_(HAS_BACKLIGHT_TIMEOUT, ui.refresh_backlight_timeout());
+
+      #if ENABLED(DWIN_LCD_PROUI)
+        if (!hmiFlag.cancel_lev) dwinRedrawScreen(); else break;
+      #endif
 
       #if HAS_MARLINUI_MENU
         if (ui.button_pressed()) {
@@ -816,6 +869,9 @@ void unified_bed_leveling::shift_mesh_height(const float zoffs) {
 
     } while (best.pos.x >= 0 && --count);
 
+    if (TERN0(DWIN_LCD_PROUI, hmiFlag.cancel_lev))
+      goto EXIT_PROBE_MESH;
+
     GRID_LOOP(x, y) if (z_values[x][y] == HUGE_VALF) z_values[x][y] = NAN; // Restore NAN for HUGE_VALF marks
 
     TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(best.pos, ExtUI::G29_FINISH));
@@ -827,10 +883,16 @@ void unified_bed_leveling::shift_mesh_height(const float zoffs) {
 
     probe.move_z_after_probing();
 
-    motion.blocking_move_xy(
-      constrain(nearby.x - probe.offset_xy.x, MESH_MIN_X, MESH_MAX_X),
-      constrain(nearby.y - probe.offset_xy.y, MESH_MIN_Y, MESH_MAX_Y)
-    );
+    #if ENABLED(DWIN_LCD_PROUI)
+      bedlevel.smart_fill_mesh();
+    #else
+      motion.blocking_move_xy(
+        constrain(nearby.x - probe.offset_xy.x, mesh_min.x, mesh_max.x),
+        constrain(nearby.y - probe.offset_xy.y, mesh_min.y, mesh_max.y)
+      );
+    #endif
+
+    EXIT_PROBE_MESH:
 
     restore_ubl_active_state();
   }
@@ -895,8 +957,8 @@ void set_message_with_feedback(FSTR_P const fstr) {
 
     motion.blocking_move(
       xyz_pos_t({
-        0.5f * ((MESH_MIN_X) + (MESH_MAX_X)),
-        0.5f * ((MESH_MIN_Y) + (MESH_MAX_Y)),
+        0.5f * (mesh_min.x + mesh_max.x),
+        0.5f * (mesh_min.y + mesh_max.y),
         MANUAL_PROBE_START_Z
         #ifdef SAFE_BED_LEVELING_START_I
           , SAFE_BED_LEVELING_START_I
@@ -1191,9 +1253,9 @@ bool unified_bed_leveling::G29_parse_parameters() {
   }
 
   param.XY_seen.x = parser.seenval('X');
-  float sx = param.XY_seen.x ? parser.value_float() : motion.position.x;
+  float sx = param.XY_seen.x ? parser.value_float() : DIFF_TERN(HAS_BED_PROBE, motion.position.x, probe.offset.x);
   param.XY_seen.y = parser.seenval('Y');
-  float sy = param.XY_seen.y ? parser.value_float() : motion.position.y;
+  float sy = param.XY_seen.y ? parser.value_float() : DIFF_TERN(HAS_BED_PROBE, motion.position.y, probe.offset.y);
 
   if (param.XY_seen.x != param.XY_seen.y) {
     SERIAL_ECHOLNPGM("Both X & Y locations must be specified.\n");
@@ -1202,8 +1264,8 @@ bool unified_bed_leveling::G29_parse_parameters() {
 
   // If X or Y are not valid, use center of the bed values
   // (for UBL_HILBERT_CURVE default to lower-left corner instead)
-  if (!COORDINATE_OKAY(sx, X_MIN_BED, X_MAX_BED)) sx = TERN(UBL_HILBERT_CURVE, 0, X_CENTER);
-  if (!COORDINATE_OKAY(sy, Y_MIN_BED, Y_MAX_BED)) sy = TERN(UBL_HILBERT_CURVE, 0, Y_CENTER);
+  if (!COORDINATE_OKAY(sx, X_MIN_BED, X_MAX_BED)) sx = TERN(UBL_HILBERT_CURVE, 0, DIFF_TERN(HAS_BED_PROBE, X_CENTER, probe.offset.x));
+  if (!COORDINATE_OKAY(sy, Y_MIN_BED, Y_MAX_BED)) sy = TERN(UBL_HILBERT_CURVE, 0, DIFF_TERN(HAS_BED_PROBE, Y_CENTER, probe.offset.y));
 
   if (err_flag) return UBL_ERR;
 
@@ -1535,10 +1597,10 @@ void unified_bed_leveling::smart_fill_mesh() {
       #ifndef G29J_MESH_TILT_MARGIN
         #define G29J_MESH_TILT_MARGIN 0
       #endif
-      const float x_min = _MAX((X_MIN_POS) + (G29J_MESH_TILT_MARGIN), MESH_MIN_X, probe.min_x()),
-                  x_max = _MIN((X_MAX_POS) - (G29J_MESH_TILT_MARGIN), MESH_MAX_X, probe.max_x()),
-                  y_min = _MAX((Y_MIN_POS) + (G29J_MESH_TILT_MARGIN), MESH_MIN_Y, probe.min_y()),
-                  y_max = _MIN((Y_MAX_POS) - (G29J_MESH_TILT_MARGIN), MESH_MAX_Y, probe.max_y()),
+      const float x_min = _MAX((X_MIN_POS) + (G29J_MESH_TILT_MARGIN), mesh_min.x, probe.min_x()),
+                  x_max = _MIN((X_MAX_POS) - (G29J_MESH_TILT_MARGIN), mesh_max.x, probe.max_x()),
+                  y_min = _MAX((Y_MIN_POS) + (G29J_MESH_TILT_MARGIN), mesh_min.y, probe.min_y()),
+                  y_max = _MIN((Y_MAX_POS) - (G29J_MESH_TILT_MARGIN), mesh_max.y, probe.max_y()),
                   dx = (x_max - x_min) / (param.J_grid_size - 1),
                   dy = (y_max - y_min) / (param.J_grid_size - 1);
 
@@ -1760,14 +1822,12 @@ void unified_bed_leveling::smart_fill_mesh() {
       SERIAL_ECHOLNPGM("Probe Offset M851 Z", p_float_t(probe.offset.z, 7));
     #endif
 
-    SERIAL_ECHOLNPGM("MESH_MIN_X  " STRINGIFY(MESH_MIN_X) "=", MESH_MIN_X); serial_delay(50);
-    SERIAL_ECHOLNPGM("MESH_MIN_Y  " STRINGIFY(MESH_MIN_Y) "=", MESH_MIN_Y); serial_delay(50);
-    SERIAL_ECHOLNPGM("MESH_MAX_X  " STRINGIFY(MESH_MAX_X) "=", MESH_MAX_X); serial_delay(50);
-    SERIAL_ECHOLNPGM("MESH_MAX_Y  " STRINGIFY(MESH_MAX_Y) "=", MESH_MAX_Y); serial_delay(50);
-    SERIAL_ECHOLNPGM("GRID_MAX_POINTS_X  ", GRID_MAX_POINTS_X);             serial_delay(50);
-    SERIAL_ECHOLNPGM("GRID_MAX_POINTS_Y  ", GRID_MAX_POINTS_Y);             serial_delay(50);
+    SERIAL_ECHOLNPGM("mesh_min ", mesh_min.x, ", ", mesh_min.y); serial_delay(50);
+    SERIAL_ECHOLNPGM("mesh_max ", mesh_max.x, ", ", mesh_max.y); serial_delay(50);
+    SERIAL_ECHOLNPGM("GRID_MAX_POINTS_X  ", GRID_MAX_POINTS_X);  serial_delay(50);
+    SERIAL_ECHOLNPGM("GRID_MAX_POINTS_Y  ", GRID_MAX_POINTS_Y);  serial_delay(50);
     SERIAL_ECHOLNPGM("MESH_X_DIST  ", MESH_X_DIST);
-    SERIAL_ECHOLNPGM("MESH_Y_DIST  ", MESH_Y_DIST);                         serial_delay(50);
+    SERIAL_ECHOLNPGM("MESH_Y_DIST  ", MESH_Y_DIST);              serial_delay(50);
 
     SERIAL_ECHOPGM("X-Axis Mesh Points at: ");
     for (uint8_t i = 0; i < GRID_MAX_POINTS_X; ++i) {

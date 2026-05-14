@@ -235,8 +235,8 @@ bool load_filament(const float slow_load_length/*=0*/, const float fast_load_len
 
   #if ENABLED(DUAL_X_CARRIAGE)
     const int8_t saved_ext        = motion.extruder;
-    const bool saved_ext_dup_mode = extruder_duplication_enabled;
-    set_duplication_enabled(false, DXC_ext);
+    const bool saved_ext_dup_mode = motion.extruder_duplication;
+    motion.set_extruder_duplication(false, DXC_ext);
   #endif
 
   TERN_(BELTPRINTER, motion.blocking_move_xy(0.00, 50.00));
@@ -261,7 +261,7 @@ bool load_filament(const float slow_load_length/*=0*/, const float fast_load_len
   }
 
   #if ENABLED(DUAL_X_CARRIAGE)      // Tie the two extruders movement back together.
-    set_duplication_enabled(saved_ext_dup_mode, saved_ext);
+    motion.set_extruder_duplication(saved_ext_dup_mode, saved_ext);
   #endif
 
   #if ENABLED(ADVANCED_PAUSE_CONTINUOUS_PURGE)
@@ -485,15 +485,15 @@ bool pause_print(const float retract, const xyz_pos_t &park_point, const bool sh
 
   #if ENABLED(DUAL_X_CARRIAGE)
     const int8_t saved_ext        = motion.extruder;
-    const bool saved_ext_dup_mode = extruder_duplication_enabled;
-    set_duplication_enabled(false, DXC_ext);
+    const bool saved_ext_dup_mode = motion.extruder_duplication;
+    motion.set_extruder_duplication(false, DXC_ext);
   #endif
 
   // Unload the filament, if specified
   if (unload_length)
     unload_filament(unload_length, show_lcd, PAUSE_MODE_CHANGE_FILAMENT);
 
-  TERN_(DUAL_X_CARRIAGE, set_duplication_enabled(saved_ext_dup_mode, saved_ext));
+  TERN_(DUAL_X_CARRIAGE, motion.set_extruder_duplication(saved_ext_dup_mode, saved_ext));
 
   // Disable the Extruder for manual change
   disable_active_extruder();
@@ -539,14 +539,13 @@ void wait_for_confirmation(const bool is_reload/*=false*/, const int8_t max_beep
   first_impatient_beep(max_beep_count);
 
   // Start the heater idle timers
-  const millis_t nozzle_timeout = SEC_TO_MS(PAUSE_PARK_NOZZLE_TIMEOUT);
-
-  HOTEND_LOOP() thermalManager.heater_idle[e].start(nozzle_timeout);
+  constexpr millis_t nozzle_timeout_ms = SEC_TO_MS(PAUSE_PARK_NOZZLE_TIMEOUT);
+  HOTEND_LOOP() thermalManager.heater_idle[e].start(nozzle_timeout_ms);
 
   #if ENABLED(DUAL_X_CARRIAGE)
     const int8_t saved_ext        = motion.extruder;
-    const bool saved_ext_dup_mode = extruder_duplication_enabled;
-    set_duplication_enabled(false, DXC_ext);
+    const bool saved_ext_dup_mode = motion.extruder_duplication;
+    motion.set_extruder_duplication(false, DXC_ext);
   #endif
 
   // Wait for filament insert by user and press button
@@ -595,9 +594,8 @@ void wait_for_confirmation(const bool is_reload/*=false*/, const int8_t max_beep
       show_continue_prompt(is_reload);
 
       // Start the heater idle timers
-      const millis_t nozzle_timeout = SEC_TO_MS(PAUSE_PARK_NOZZLE_TIMEOUT);
-
-      HOTEND_LOOP() thermalManager.heater_idle[e].start(nozzle_timeout);
+      constexpr millis_t nozzle_timeout_ms = SEC_TO_MS(PAUSE_PARK_NOZZLE_TIMEOUT);
+      HOTEND_LOOP() thermalManager.heater_idle[e].start(nozzle_timeout_ms);
 
       TERN_(HOST_PROMPT_SUPPORT, hostui.continue_prompt(GET_TEXT_F(MSG_REHEATDONE)));
       #if ENABLED(EXTENSIBLE_UI)
@@ -613,7 +611,7 @@ void wait_for_confirmation(const bool is_reload/*=false*/, const int8_t max_beep
     }
     marlin.idle_no_sleep();
   }
-  TERN_(DUAL_X_CARRIAGE, set_duplication_enabled(saved_ext_dup_mode, saved_ext));
+  TERN_(DUAL_X_CARRIAGE, motion.set_extruder_duplication(saved_ext_dup_mode, saved_ext));
 }
 
 /**
@@ -660,9 +658,9 @@ void resume_print(
 
   /*
   SERIAL_ECHOLNPGM(
-    "start of resume_print()\ndual_x_carriage_mode:", dual_x_carriage_mode,
-    "\nextruder_duplication_enabled:", extruder_duplication_enabled,
-    "\nactive_extruder:", motion.extruder,
+    "start of resume_print()\ndual_x_carriage_mode:", motion.idex_mode,
+    "\nmotion.extruder_duplication:", motion.extruder_duplication,
+    "\nmotion.extruder:", motion.extruder,
     "\n"
   );
   //*/
@@ -731,7 +729,8 @@ void resume_print(
 
   // Now all extrusion positions are resumed and ready to be confirmed
   // Set extruder to saved position
-  planner.set_e_position_mm((motion.destination.e = motion.position.e = resume_position.e));
+  motion.destination.e = motion.position.e = resume_position.e;
+  motion.sync_plan_position_e();
 
   ui.pause_show_message(PAUSE_MESSAGE_STATUS);
   #if ENABLED(SOVOL_SV06_RTS)
@@ -763,7 +762,7 @@ void resume_print(
     }
   #endif
 
-  #if ENABLED(ADVANCED_PAUSE_FANS_PAUSE) && HAS_FAN
+  #if ALL(ADVANCED_PAUSE_FANS_PAUSE, HAS_FAN)
     thermalManager.set_fans_paused(false);
   #endif
 

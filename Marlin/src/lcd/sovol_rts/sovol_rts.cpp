@@ -177,7 +177,7 @@ void RTS::sdCardInit() {
     for (uint8_t j = 0; j < MAX_NUM_FILES; j++)
       for (uint8_t i = 0; i < FILENAME_LEN; i++)
         sendData(0, cardRec.addr[j] + i);
-    ZERO(&cardRec);
+    OBJZERO(cardRec);
   }
 }
 
@@ -221,7 +221,7 @@ void RTS::sdCardUpdate() {
         sendData(0, PRINT_FILE_TEXT_VP + j);
         sendData(0, SELECT_FILE_TEXT_VP + j);
       }
-      ZERO(&cardRec);
+      OBJZERO(cardRec);
     }
     lcd_sd_status = sd_status;
   }
@@ -422,7 +422,7 @@ void RTS::sendData() {
     for (uint16_t i = 0; i < snddat.len + 3; i++)
       LCD_SERIAL.write(databuf[i]);
 
-    ZERO(&snddat);
+    OBJZERO(snddat);
     ZERO(databuf);
     snddat.head[0] = FHONE;
     snddat.head[1] = FHTWO;
@@ -543,7 +543,7 @@ void RTS::handleData() {
   int16_t checkKey = -1;
   // For waiting
   if (waitway > 0) {
-    memset(&recdat, 0, sizeof(recdat));
+    OBJZERO(recdat);
     recdat.head[0] = FHONE;
     recdat.head[1] = FHTWO;
     return;
@@ -556,7 +556,7 @@ void RTS::handleData() {
   }
 
   if (checkKey < 0) {
-    ZERO(&recdat);
+    OBJZERO(recdat);
     recdat.head[0] = FHONE;
     recdat.head[1] = FHTWO;
     return;
@@ -1512,7 +1512,7 @@ void RTS::handleData() {
 
     default: break;
   }
-  ZERO(&recdat);
+  OBJZERO(recdat);
   recdat.head[0] = FHONE;
   recdat.head[1] = FHTWO;
 }
