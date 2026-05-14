@@ -180,8 +180,6 @@
   #error "MIN_STEPS_PER_SEGMENT must be at least 1."
 #elif defined(PREVENT_DANGEROUS_EXTRUDE)
   #error "PREVENT_DANGEROUS_EXTRUDE is now PREVENT_COLD_EXTRUSION."
-#elif defined(SCARA)
-  #error "SCARA is now MORGAN_SCARA."
 #elif defined(ENABLE_AUTO_BED_LEVELING)
   #error "ENABLE_AUTO_BED_LEVELING is deprecated. Specify AUTO_BED_LEVELING_LINEAR, AUTO_BED_LEVELING_BILINEAR, or AUTO_BED_LEVELING_3POINT."
 #elif defined(AUTO_BED_LEVELING_FEATURE)
@@ -761,6 +759,10 @@
   #error "DEFAULT_Kc is now (uppercase) DEFAULT_KC."
 #elif defined(DEFAULT_Kf)
   #error "DEFAULT_Kf is now (uppercase) DEFAULT_KF."
+#elif defined(MORGAN_SCARA)
+  #error "MORGAN_SCARA is now just SCARA."
+#elif defined(MP_SCARA)
+  #error "MP_SCARA is now just SCARA."
 #endif
 
 // SDSS renamed to SD_SS_PIN
