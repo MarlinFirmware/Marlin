@@ -57,8 +57,10 @@
 // fr         French
 // fr_na      French without accents (DWIN T5UID1 touchscreen)
 // gl         Galician
+// hg         Hinglish (Hindi in Latin script)
 // hr         Croatian
 // hu         Hungarian
+// id         Indonesian (Bahasa)
 // it         Italian
 // jp_kana    Japanese
 // ko_KR      Korean (South Korea)

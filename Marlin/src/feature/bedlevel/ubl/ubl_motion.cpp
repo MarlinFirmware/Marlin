@@ -414,8 +414,8 @@
       // for mesh inset area.
 
       xy_int8_t icell = {
-        int8_t((raw.x - (MESH_MIN_X)) * RECIPROCAL(MESH_X_DIST)),
-        int8_t((raw.y - (MESH_MIN_Y)) * RECIPROCAL(MESH_Y_DIST))
+        int8_t((raw.x - mesh_min.x) * RECIPROCAL(MESH_X_DIST)),
+        int8_t((raw.y - mesh_min.y) * RECIPROCAL(MESH_Y_DIST))
       };
       LIMIT(icell.x, 0, GRID_MAX_CELLS_X);
       LIMIT(icell.y, 0, GRID_MAX_CELLS_Y);

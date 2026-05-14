@@ -111,8 +111,8 @@ void GcodeSuite::M104_M109(const bool isM109) {
     thermalManager.setTargetHotend(temp, target_extruder);
 
     #if ENABLED(DUAL_X_CARRIAGE)
-      if (idex_is_duplicating() && target_extruder == 0)
-        thermalManager.setTargetHotend(temp ? temp + duplicate_extruder_temp_offset : 0, 1);
+      if (motion.idex_is_duplicating() && target_extruder == 0)
+        thermalManager.setTargetHotend(temp ? temp + motion.duplicate_extruder_temp_offset : 0, 1);
     #endif
 
     #if ENABLED(PRINTJOB_TIMER_AUTOSTART)

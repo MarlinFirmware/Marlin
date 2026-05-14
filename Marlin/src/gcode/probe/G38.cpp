@@ -60,7 +60,7 @@ FORCE_INLINE bool G38_run_probe() {
     xyz_float_t retract_mm;
     LOOP_NUM_AXES(i) {
       const float dist = motion.destination[i] - motion.position[i];
-      retract_mm[i] = ABS(dist) < G38_MINIMUM_MOVE ? 0 : home_bump_mm((AxisEnum)i) * (dist > 0 ? -1 : 1);
+      retract_mm[i] = ABS(dist) < G38_MINIMUM_MOVE ? 0 : motion.home_bump_mm((AxisEnum)i) * (dist > 0 ? -1 : 1);
     }
   #endif
 
