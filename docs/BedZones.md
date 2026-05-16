@@ -270,40 +270,22 @@ B:62/60
 
 This gives the most safety-relevant reading at a glance without using any extra display space. The target shown is the target of whichever zone is hottest.
 
-A dedicated **Bed Areas** info screen (accessible from the main menu) shows all zone temperatures individually — see §5.2.
-
 This behaviour is the same for both 128×64 (U8g2) and HD44780 displays.
 
 ### 5.2 Bed Areas Detail Screen
 
-A dedicated read-only info screen lists all zone temperatures sequentially, one zone per line:
-
-```
-Bed Areas  [P0]
-A0: 62/60
-A1: 61/60
-A2: 60/60
-A3: 62/60
-```
-
-- Zones are listed in order 0, 1, 2, … with no special layout.
-- Inactive areas (not in active mask) are shown as `A<n>: --`.
-- Header line shows `[P<n>]` if the active mask matches a numbered preset.
-- Target temperature shown alongside actual (`actual/target`).
-- Scrolling is supported if the zone list overflows the screen.
+**Not needed.** All zone temperatures are already accessible via **Control > Bed Temperature** (`menu_temperature.cpp`), which shows one editable item per zone. A separate read-only screen adds no value.
 
 ### 5.3 Menu Items
 
 - **Control > Bed Temperature** — ✅ Implemented. Shows `Bed 0` … `Bed N-1` (one edit item per zone). Each item sets that zone's target independently of the active mask.
 - **Tune > Bed** — ✅ Same per-zone items as above, accessible during a print.
 - **Advanced Settings > Temperature > PID** — ✅ Implemented. Per-zone P/I/D edit items and per-zone PID autotune items when `PID_EDIT_MENU` / `PID_AUTOTUNE_MENU` and `HAS_BED_ZONES` are enabled.
-- **Control > Bed Areas** (new, §5.2 detail screen) — ⬜ Todo:
-  - Select Active Mask (lists numbered presets P0…Pn from `BED_ZONE_MASKS`)
-  - Area Status (read-only detail screen — §5.2)
+- **Control > Bed Areas** (mask preset selector) — ⬜ Optional: LCD shortcut to select a numbered mask preset (P0…Pn from `BED_ZONE_MASKS`). M142 G-code already provides this; an LCD item is a convenience only.
 
 ### 5.4 HD44780 (16×2 / 20×4) Consideration
 
-Same rule as §5.1: the `B:` field on the status line shows the hottest active zone temperature with no extra characters. The full per-zone detail screen from §5.2 is accessible via the menu.
+Same rule as §5.1: the `B:` field on the status line shows the hottest active zone temperature with no extra characters.
 
 ---
 
@@ -315,7 +297,7 @@ Same rule as §5.1: the `B:` field on the status line shows the hottest active z
 | **2 — Temperature Core** | `temperature.cpp/h` | ✅ Done | Multi-zone PWM output, per-zone temp read, back-compat accessors |
 | **3 — G-Code** | `M140_M190.cpp`, new `M142.cpp`, `M105`, `features.ini` | ✅ Done (M303/M304 ✅ Done) | G-code control, zone reporting, per-zone PID autotune + set, clean mega2560 build |
 | **4 — Subsystem Audit** | `probe.cpp`, `settings.cpp`, `controllerfan.cpp`, `G76`, thermal safety | ✅ Done | No regressions in existing features; zone mask EEPROM; per-zone runaway + watchdog; preheat ✅; probe/G76 ✅ (all-zones by default — correct since no zone geometry is stored) |
-| **5 — LCD** | `marlinui_HD44780.cpp`, `marlinui.cpp`, menu screens | 🟡 Partial | Status screen (§5.1/§5.4) and §5.2 detail screen still todo; Temperature/Tune/PID menus ✅ done |
+| **5 — LCD** | `menu_temperature.cpp`, `menu_tune.cpp`, `menu_advanced.cpp` | ✅ Done | Temperature/Tune/PID menus ✅; §5.2 detail screen dropped (temperature menu already shows all zones); mask preset LCD shortcut optional |
 
 ---
 
