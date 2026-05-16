@@ -179,7 +179,7 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
   void MarlinUI::apply_preheat(const uint8_t m, const uint8_t pmask, const uint8_t e/*=motion.extruder*/) {
     const preheat_t &pre = material_preset[m];
     TERN_(HAS_HOTEND,         if (TEST(pmask, PT_HOTEND))  thermalManager.setTargetHotend(pre.hotend_temp, e));
-    TERN_(HAS_HEATED_BED,     if (TEST(pmask, PT_BED))     thermalManager.setTargetBed(pre.bed_temp));
+    TERN_(HAS_HEATED_BED,     if (TEST(pmask, PT_BED))     thermalManager.setTargetBed(pre.bed_temp TERN_(HAS_BED_ZONES, , thermalManager.bed_zone_mask)));
     TERN_(HAS_HEATED_CHAMBER, if (TEST(pmask, PT_CHAMBER)) thermalManager.setTargetChamber(pre.chamber_temp));
     TERN_(HAS_FAN,            if (TEST(pmask, PT_FAN))     thermalManager.set_fan_speed(e, pre.fan_speed));
     #if HAS_FAN

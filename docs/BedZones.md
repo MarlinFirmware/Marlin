@@ -119,7 +119,7 @@ Existing parameters are preserved. New optional parameters:
 | `K<mask>` | Unsigned integer bitmask selecting zones. Overrides current mask for this command only. Not a permanent change — subsequent commands still use the active mask. |
 | `A<index>` | Zero-based area (zone) index (0–15). Selects exactly one zone (`mask = 1 << index`). Mutually exclusive with `K`. |
 
-If neither `K` nor `I` is given, the **current active mask** is used (all zones by default).
+If neither `K` nor `A` is given, the **current active mask** is used (all zones by default).
 
 **Examples**
 
@@ -171,13 +171,13 @@ Without `A`, autotune applies to area 0 (current behaviour for `E-1`).
 
 ### 3.5 M304 — Set Bed PID
 
-Add `J<index>` parameter to select the zone (`J` is used because `P`/`I`/`D` are the PID gain letters and `X`/`Y`/`Z`/`E`/`U`/`V`/`W` are axis letters):
+Add `A<index>` parameter to select the zone (`A` = Area, consistent with all other bed-zone G-codes; `P`/`I`/`D` are the PID gain letters and `X`/`Y`/`Z`/`E`/`U`/`V`/`W` are axis letters):
 
 ```
-M304 J2 P1.2 I0.08 D18.6
+M304 A2 P1.2 I0.08 D18.6
 ```
 
-`M304` with no parameters reports PID values for all zones (when `BED_ZONES` is enabled), one line per zone: `M304 J<n> P... I... D...`.
+`M304` with no parameters reports PID values for all zones (when `BED_ZONES` is enabled), one line per zone: `M304 A<n> P... I... D...`.
 
 ---
 
@@ -219,14 +219,12 @@ M304 J2 P1.2 I0.08 D18.6
 
 ### 4.4 `probe.cpp`
 
-- [ ] `PROBING_BED_TEMP` / `WAIT_FOR_BED_HEATER`: needs to heat all zones or a configurable probe-zone mask.
-- [ ] `LEVELING_BED_TEMP`: same.
-- [ ] `PREHEAT_BEFORE_PROBING`: extend preheat to use zone mask.
+- [x] `PROBING_BED_TEMP` / `WAIT_FOR_BED_HEATER` / `LEVELING_BED_TEMP` / `PREHEAT_BEFORE_PROBING`: since zone geometry is not stored (open §7.3) there is no way to know which zone is under the probe — all zones must be at temperature. `setTargetBed(bedPreheat)` passes no mask and defaults to `0xFFFF` (all zones) ✅. `wholeDegBed()` and `degTargetBed()` are already zone-aware (return hottest active zone) ✅. `wait_for_bed_heating()` calls zone-aware `isHeatingBed()` + `wait_for_bed()` ✅. No code changes required.
 
 ### 4.5 `marlinui.cpp` / Preheat Presets (M145)
 
-- [ ] `material_preset[].bed_temp` is scalar — sets all zones to same temp (acceptable initially).
-- [ ] `LCD apply preheat` path calls `setTargetBed()` — update to pass mask.
+- [x] `material_preset[].bed_temp` is scalar — sets all zones to same temp (acceptable initially).
+- [x] `LCD apply preheat` path calls `setTargetBed()` — passes `bed_zone_mask` so only active zones are heated.
 
 ### 4.10 LCD Menus (`menu_temperature.cpp`, `menu_tune.cpp`, `menu_advanced.cpp`)
 
@@ -244,7 +242,7 @@ M304 J2 P1.2 I0.08 D18.6
 
 ### 4.7 `G76_M871.cpp` (Temperature Probe Calibration)
 
-- [ ] All `setTargetBed()` / `wholeDegBed()` calls must be zone-aware. Use zone 0 or a configurable calibration zone.
+- [x] `setTargetBed()` calls pass no mask → the zone-aware overload defaults to `mask=0xFFFF`, which heats all zones. Since zone geometry is not stored (open §7.3), there is no way to know which zone is under `PTC_PROBE_POS`; heating the whole bed is the only correct behaviour. `wholeDegBed()` returns zone-0 back-compat — adequate for calibration monitoring. No code changes required.
 
 ### 4.8 `M360.cpp` (Host Config Report)
 
@@ -316,7 +314,7 @@ Same rule as §5.1: the `B:` field on the status line shows the hottest active z
 | **1 — Config & Skeleton** | `Configuration_adv.h`, `SanityCheck.h`, `Conditionals` | ✅ Done | Feature compiles, zone count/pins validated |
 | **2 — Temperature Core** | `temperature.cpp/h` | ✅ Done | Multi-zone PWM output, per-zone temp read, back-compat accessors |
 | **3 — G-Code** | `M140_M190.cpp`, new `M142.cpp`, `M105`, `features.ini` | ✅ Done (M303/M304 ✅ Done) | G-code control, zone reporting, per-zone PID autotune + set, clean mega2560 build |
-| **4 — Subsystem Audit** | `probe.cpp`, `settings.cpp`, `controllerfan.cpp`, `G76`, thermal safety | 🟡 Partial | No regressions in existing features; zone mask EEPROM; per-zone runaway + watchdog |
+| **4 — Subsystem Audit** | `probe.cpp`, `settings.cpp`, `controllerfan.cpp`, `G76`, thermal safety | ✅ Done | No regressions in existing features; zone mask EEPROM; per-zone runaway + watchdog; preheat ✅; probe/G76 ✅ (all-zones by default — correct since no zone geometry is stored) |
 | **5 — LCD** | `marlinui_HD44780.cpp`, `marlinui.cpp`, menu screens | 🟡 Partial | Status screen (§5.1/§5.4) and §5.2 detail screen still todo; Temperature/Tune/PID menus ✅ done |
 
 ---
@@ -326,7 +324,7 @@ Same rule as §5.1: the `B:` field on the status line shows the hottest active z
 1. **M-code for mask selection** — resolved: **M142**. M141 is already chamber temperature; M142 is free and adjacent to M140/M141, making its role self-evident.
 2. **Per-zone PID vs shared PID** — resolved for Phase 3: per-zone PID coefficients stored at runtime in `temp_bed[z].pid` and persisted to EEPROM (`bedZonePIDs[BED_ZONES_COUNT]`). `M303 E-1 A<area>` autotunes a specific area; `M304 A<area> P I D` sets PID for a specific area (`A` = Area, consistent across all bed-zone G-codes). EEPROM version bumped to V91.
 3. **Zone layout metadata** — Should `BED_ZONES` store row/column geometry for the LCD grid, or just a flat list of zones? (open)
-4. **Mixed-mode probing** — Which zone(s) must be at temp before a probe deploy is allowed? Configurable probe-zone mask? (open — Phase 4)
+4. **Mixed-mode probing** — ✅ Resolved. Since zone geometry is not stored (§7.3), all zones must be at temperature before probing. `probe.cpp` already heats all zones via the `setTargetBed` default mask and uses zone-aware `wholeDegBed()` / `wait_for_bed_heating()`. No code changes required.
 5. **Thermal runaway per zone** — ✅ Resolved. Each zone has its own `tr_state_machine_bed[z]` instance (separate from the shared `tr_state_machine[RUNAWAY_IND_BED]`). Per-zone heating watchdog uses `watch_bed_zone[z]`. MAXTEMP and MINTEMP are checked per-zone in the manage loop. All safety paths are independent — a locked-on zone with a disconnected sensor triggers runaway for that zone alone.
 6. **`BED_ZONES_COUNT = 1` behaviour** — resolved: always uses the array path (simplifies code; `HAS_BED_ZONES` is only true for count > 1, so the scalar path is used for count = 1). This means `BED_ZONES` with count = 1 compiles through the array path but behaves identically to the non-zone build at runtime.
 7. **Mask preset selection via G-code** — resolved: `M142 P<preset_index>` (0-based integer index into `BED_ZONE_MASKS`). No string names — presets are referenced by number only. Integer index is consistent with other Marlin preset selectors.
@@ -337,9 +335,8 @@ Same rule as §5.1: the `B:` field on the status line shows the hottest active z
 
 ## 8. Non-Goals (Initial Implementation)
 
-- Per-zone PID coefficients in EEPROM (future).
+- ~~Per-zone PID coefficients in EEPROM~~ — ✅ Done (`bedZonePIDs[BED_ZONES_COUNT]` in `settings.cpp`; saved by M500, restored by M501, reset by M502).
 - Zone mask persistence across preset reorders (EEPROM stores the raw bitmask value, not the preset index).
 - Graphical UI for non-64px displays other than HD44780 basics.
 - Automatic zone sequencing or scheduling.
 - Zone-aware mesh bed leveling compensation.
-- Dynamic pin assignment at runtime.
