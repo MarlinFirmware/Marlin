@@ -2617,10 +2617,12 @@ void hmiPrepare() {
         scrollMenu(DWIN_SCROLL_UP);
         drawMenuIcon(MROWS, ICON_Axis + select_prepare.now - 1);
         // Draw "More" icon for sub-menus
-        if (index_prepare < 7) drawMoreIcon(MROWS - index_prepare + 1);
-
-        #if PREHEAT_COUNT > 1
-          if (index_prepare == PREPARE_CASE_ABS) itemPrepare_ABS(MROWS);
+        if (index_prepare < 8) drawMoreIcon(MROWS - index_prepare + 1);
+        #if HAS_PREHEAT
+          if (index_prepare == PREPARE_CASE_PLA) itemPrepare_PLA(MROWS);
+          #if PREHEAT_COUNT > 1
+            if (index_prepare == PREPARE_CASE_ABS) itemPrepare_ABS(MROWS);
+          #endif
         #endif
         #if HAS_HOTEND || HAS_HEATED_BED
           if (index_prepare == PREPARE_CASE_COOL) itemPrepareCool(MROWS);
@@ -2641,8 +2643,8 @@ void hmiPrepare() {
           drawBackFirst();
         else
           drawMenuLine(0, ICON_Axis + select_prepare.now - 1);
-        if (index_prepare < 7) drawMoreIcon(MROWS - index_prepare + 1);
-        if (index_prepare == 6) itemPrepareMove(0);
+        if (index_prepare < 8) drawMoreIcon(MROWS - index_prepare + 1);
+        if (index_prepare == 7) itemPrepareMove(0);
         else if (index_prepare == 7) itemPrepareDisable(0);
         else if (index_prepare == 8) itemPrepareHome(0);
       }
@@ -3525,13 +3527,13 @@ void hmiAdvSet() {
           break;
       #endif
 
-      #if HAS_HOTEND
+      #if ENABLED(PIDTEMP)
         case ADVSET_CASE_HEPID:
           thermalManager.PID_autotune(ui.material_preset[0].hotend_temp, H_E0, 10, true);
           break;
       #endif
 
-      #if HAS_HEATED_BED
+      #if ENABLED(PIDTEMPBED)
         case ADVSET_CASE_BEDPID:
           thermalManager.PID_autotune(ui.material_preset[0].bed_temp, H_BED, 10, true);
           break;

@@ -24,9 +24,9 @@ REPO=$(git remote get-url upstream 2>/dev/null | sed -E 's/.*\/(.*)\.git/\1/')
 [[ -z $REPO ]] && { echo "`basename $0`: No 'upstream' remote found. (Did you run mfinit?)" 1>&2 ; exit 1; }
 
 ORG=$(git remote get-url upstream 2>/dev/null | sed -E 's/.*[\/:](.*)\/.*$/\1/')
-[[ $ORG == MarlinFirmware ]] || { echo "`basename $0`: Not a Marlin repository." 1>&2 ; exit 1; }
-
 FORK=$(git remote get-url origin 2>/dev/null | sed -E 's/.*[\/:](.*)\/.*$/\1/')
+
+[[ $ORG == MarlinFirmware || $FORK == MarlinFirmware ]] || { echo "`basename $0`: Not a Marlin repository." 1>&2 ; exit 1; }
 
 # Defaults if no arguments given
 BRANCH=$CURR
@@ -55,10 +55,10 @@ while [[ $# -gt 0 ]]; do
 done
 
 case "$REPO" in
-  Marlin              ) TARG=bugfix-2.1.x ; ((INDEX == 1)) && TARG=bugfix-1.1.x ; [[ $BRANCH =~ ^[12]$ ]] && USAGE=1 ;;
-  Configurations      ) TARG=import-2.1.x ;;
-  MarlinDocumentation ) TARG=master ;;
-  AutoBuildMarlin     ) TARG=master ;;
+          Marlin ) TARG=bugfix-2.1.x ; ((INDEX == 1)) && TARG=bugfix-1.1.x ; [[ $BRANCH =~ ^[12]$ ]] && USAGE=1 ;;
+  Configurations ) TARG=import-2.1.x ;;
+    MarlinBuilds ) TARG=main ;;
+               * ) TARG=master ;;
 esac
 
 [[ $USAGE == 1 ]] && { echo "usage: `basename $0` [1|2] [branch]" 1>&2 ; exit 1 ; }

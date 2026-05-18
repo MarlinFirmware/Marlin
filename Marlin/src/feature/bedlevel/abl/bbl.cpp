@@ -37,12 +37,12 @@
 
 LevelingBilinear bedlevel;
 
-xy_pos_t LevelingBilinear::grid_spacing,
-         LevelingBilinear::grid_start;
 xy_float_t LevelingBilinear::grid_factor;
+xy_pos_t   LevelingBilinear::grid_spacing,
+           LevelingBilinear::grid_start,
+           LevelingBilinear::cached_rel;
+xy_int8_t  LevelingBilinear::cached_g;
 bed_mesh_t LevelingBilinear::z_values;
-xy_pos_t LevelingBilinear::cached_rel;
-xy_int8_t LevelingBilinear::cached_g;
 
 /**
  * Extrapolate a single point from its neighbors
@@ -106,9 +106,17 @@ void LevelingBilinear::reset() {
   }
 }
 
+/**
+ * Set grid spacing and start position
+ */
 void LevelingBilinear::set_grid(const xy_pos_t& _grid_spacing, const xy_pos_t& _grid_start) {
-  grid_spacing = _grid_spacing;
-  grid_start = _grid_start;
+  #if HAS_PROUI_MESH_EDIT
+    grid_spacing.set(MESH_X_DIST, MESH_Y_DIST);
+    grid_start = mesh_min;
+  #else
+    grid_spacing = _grid_spacing;
+    grid_start = _grid_start;
+  #endif
   grid_factor = grid_spacing.reciprocal();
 }
 

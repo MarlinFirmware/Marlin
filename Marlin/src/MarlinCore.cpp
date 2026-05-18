@@ -721,7 +721,7 @@ void Marlin::manage_inactivity(const bool no_stepper_sleep/*=false*/) {
       motion.position.e += EXTRUDER_RUNOUT_EXTRUDE;
       motion.goto_current_position(MMM_TO_MMS(EXTRUDER_RUNOUT_SPEED));
       motion.position.e = olde;
-      planner.set_e_position_mm(olde);
+      motion.sync_plan_position_e();
       planner.synchronize();
 
       if (e_off) stepper.DISABLE_EXTRUDER(e_stepper);
@@ -732,9 +732,9 @@ void Marlin::manage_inactivity(const bool no_stepper_sleep/*=false*/) {
 
   #if ENABLED(DUAL_X_CARRIAGE)
     // handle delayed move timeout
-    if (delayed_move_time && ELAPSED(ms, delayed_move_time) && isRunning()) {
+    if (motion.delayed_move_time && ELAPSED(ms, motion.delayed_move_time) && isRunning()) {
       // travel moves have been received so enact them
-      delayed_move_time = UINT32_MAX; // force moves to be done
+      motion.delayed_move_time = UINT32_MAX; // force moves to be done
       motion.destination = motion.position;
       motion.prepare_line_to_destination();
       planner.synchronize();
@@ -1165,6 +1165,7 @@ inline void tmc_standby_setup() {
  *  - Apply Password Lock - Hold for Authentication
  *  - Open Touch Screen Calibration screen, if not calibrated
  *  - Set Marlin to RUNNING State
+ *  - Stop print timer
  */
 void setup() {
   #ifdef FASTIO_INIT
@@ -1381,6 +1382,12 @@ void setup() {
       SETUP_RUN(card.mount());        // Mount media with settings before first_load
     #endif
   #endif
+
+  //#if ENABLED(PRINTJOB_TIMER_AUTOSTART)
+  //  // Stop timer and set welcome message
+  //  if (TERN1(POWER_LOSS_RECOVERY, !recovery.check()))
+  //    thermalManager.auto_job_check_timer(false, true);
+  //#endif
 
   // Prepare some LCDs to display early
   #if HAS_EARLY_LCD_SETTINGS

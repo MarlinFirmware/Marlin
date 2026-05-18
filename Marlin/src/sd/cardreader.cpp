@@ -393,7 +393,7 @@ void CardReader::ls(const uint8_t lsflags/*=0*/) {
       char *segment = &path[i]; // The segment after most slashes
 
       // If a segment is empty (extra-slash) then exit
-      if (!*segment) break;
+      if (!segment[0]) break;
 
       // Go to the next segment
       while (path[++i]) { }
@@ -439,7 +439,7 @@ void CardReader::ls(const uint8_t lsflags/*=0*/) {
     // Zero out slashes to make segments
     for (i = 0; i < pathLen; i++) if (bufShort[i] == '/') bufShort[i] = '\0';
 
-    SdFile diveDir = root; // start from the root for segment 1
+    MediaFile diveDir = root; // start from the root for segment 1
     for (i = 0; i < pathLen;) {
 
       if (bufShort[i] == '\0') i++; // move past a single nul
@@ -447,7 +447,7 @@ void CardReader::ls(const uint8_t lsflags/*=0*/) {
       char *segment = &bufShort[i]; // The segment after most slashes
 
       // If a segment is empty (extra-slash) then exit
-      if (!*segment) break;
+      if (!segment[0]) break;
 
       //SERIAL_ECHOLNPGM("Looking for segment: ", segment);
 
@@ -838,11 +838,11 @@ void CardReader::openFileRead(const char * const path, const uint8_t subcall_typ
 
   abortFilePrintNow();
 
-  MediaFile *diveDir;
-  const char * const fname = diveToFile(true, diveDir, path);
+  MediaFile *diveDirPtr;
+  const char * const fname = diveToFile(true, diveDirPtr, path);
   if (!fname) return openFailed(path);
 
-  if (myfile.open(diveDir, fname, O_READ)) {
+  if (myfile.open(diveDirPtr, fname, O_READ)) {
     filesize = myfile.fileSize();
     sdpos = 0;
 
@@ -877,12 +877,12 @@ void CardReader::openFileWrite(const char * const path) {
 
   abortFilePrintNow();
 
-  MediaFile *diveDir;
-  const char * const fname = diveToFile(false, diveDir, path);
+  MediaFile *diveDirPtr;
+  const char * const fname = diveToFile(false, diveDirPtr, path);
   if (!fname) return openFailed(path);
 
   #if DISABLED(SDCARD_READONLY)
-    if (myfile.open(diveDir, fname, O_CREAT | O_APPEND | O_WRITE | O_TRUNC)) {
+    if (myfile.open(diveDirPtr, fname, O_CREAT | O_APPEND | O_WRITE | O_TRUNC)) {
       flag.saving = true;
       selectFileByName(fname);
       TERN_(EMERGENCY_PARSER, emergency_parser.disable());
@@ -905,18 +905,18 @@ bool CardReader::fileExists(const char * const path) {
   DEBUG_ECHOLNPGM("fileExists: ", path);
 
   // Dive to the file's directory and get the base name
-  MediaFile *diveDir = nullptr;
-  const char * const fname = diveToFile(false, diveDir, path);
+  MediaFile *diveDirPtr = nullptr;
+  const char * const fname = diveToFile(false, diveDirPtr, path);
   if (!fname) return false;
 
   // Get the longname of the checked file
-  //diveDir->rewind();
-  //selectByName(*diveDir, fname);
-  //diveDir->close();
+  //diveDirPtr->rewind();
+  //selectByName(*diveDirPtr, fname);
+  //diveDirPtr->close();
 
   // Try to open the file and return the result
   MediaFile tmpFile;
-  const bool success = tmpFile.open(diveDir, fname, O_READ);
+  const bool success = tmpFile.open(diveDirPtr, fname, O_READ);
   if (success) tmpFile.close();
   return success;
 }

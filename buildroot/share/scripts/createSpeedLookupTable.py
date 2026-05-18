@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """
 Generate the stepper delay lookup table for Marlin firmware
 """

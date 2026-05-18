@@ -37,13 +37,11 @@
   #include "../../module/temperature.h"
 #endif
 
-#include <cstddef>
-
 struct ProgStr {
   PGM_P ptr;
   constexpr ProgStr(PGM_P p) : ptr(p) {}
   ProgStr(FSTR_P f) : ptr(FTOP(f)) {}
-  ProgStr(std::nullptr_t) : ptr(nullptr) {}
+  ProgStr(nullptr_t) : ptr(nullptr) {}
 
   constexpr operator PGM_P() const { return ptr; }
   constexpr explicit operator bool() const { return ptr != nullptr; }
@@ -92,13 +90,13 @@ void GcodeSuite::M360() {
   //
   // Axis letters, in PROGMEM
   //
-  #define _DEFINE_A_STR(Q) PGMSTR(Q##_STR, STR_##Q);
+  #define _DEFINE_A_STR(Q) static PGMSTR(Q##_STR, STR_##Q);
   MAIN_AXIS_MAP(_DEFINE_A_STR);
 
   //
   // Homing Directions
   //
-  PGMSTR(H_DIR_STR, "HomeDir");
+  static PGMSTR(H_DIR_STR, "HomeDir");
   #if X_HOME_DIR
     config_line(H_DIR_STR, X_HOME_DIR, X_STR);
   #endif
@@ -128,7 +126,7 @@ void GcodeSuite::M360() {
   #endif
 
   #if ANY(CLASSIC_JERK, HAS_LINEAR_E_JERK)
-    PGMSTR(JERK_STR, "Jerk");
+    static PGMSTR(JERK_STR, "Jerk");
   #endif
 
   //
@@ -136,6 +134,10 @@ void GcodeSuite::M360() {
   //
   #if ENABLED(CLASSIC_JERK)
     #define _REPORT_JERK(Q) config_line(Q##_STR, planner.max_jerk.Q, JERK_STR);
+    #define XY_MAP(FUNC) do { \
+      TERN_(HAS_X_AXIS, FUNC(X)) \
+      TERN_(HAS_Y_AXIS, FUNC(Y)) \
+    }while(0)
     if (TERN0(HAS_Y_AXIS, planner.max_jerk.x == planner.max_jerk.y))
       config_line(F("XY"), planner.max_jerk.x, JERK_STR);
     else {
@@ -150,9 +152,9 @@ void GcodeSuite::M360() {
   //
   config_line(F("SupportG10G11"), ENABLED(FWRETRACT));
   #if ENABLED(FWRETRACT)
-    PGMSTR(RET_STR, "Retraction");
-    PGMSTR(UNRET_STR, "RetractionUndo");
-    PGMSTR(SPEED_STR, "Speed");
+    static PGMSTR(RET_STR, "Retraction");
+    static PGMSTR(UNRET_STR, "RetractionUndo");
+    static PGMSTR(SPEED_STR, "Speed");
     // M10 Retract with swap (long) moves
     config_line(F("Length"),     fwretract.settings.retract_length, RET_STR);
     config_line(F("LongLength"), fwretract.settings.swap_retract_length, RET_STR);
@@ -175,22 +177,22 @@ void GcodeSuite::M360() {
   motion.apply_limits(cmax);
   const xyz_pos_t wmin = cmin.asLogical(), wmax = cmax.asLogical();
 
-  PGMSTR(MIN_STR, "Min");
+  static PGMSTR(MIN_STR, "Min");
   #define _REPORT_MIN(Q) config_line(MIN_STR, wmin.Q, Q##_STR);
   MAIN_AXIS_MAP(_REPORT_MIN);
 
-  PGMSTR(MAX_STR, "Max");
+  static PGMSTR(MAX_STR, "Max");
   #define _REPORT_MAX(Q) config_line(MAX_STR, wmax.Q, Q##_STR);
   MAIN_AXIS_MAP(_REPORT_MAX);
 
-  PGMSTR(SIZE_STR, "Size");
+  static PGMSTR(SIZE_STR, "Size");
   #define _REPORT_SIZE(Q) config_line(SIZE_STR, wmax.Q - wmin.Q, Q##_STR);
   MAIN_AXIS_MAP(_REPORT_SIZE);
 
   //
   // Axis Steps per mm
   //
-  PGMSTR(S_MM_STR, "Steps/mm");
+  static PGMSTR(S_MM_STR, "Steps/mm");
   #define _REPORT_S_MM(Q) config_line(S_MM_STR, planner.settings.axis_steps_per_mm[_AXIS(Q)], Q##_STR);
   MAIN_AXIS_MAP(_REPORT_S_MM);
 
@@ -199,11 +201,11 @@ void GcodeSuite::M360() {
   //
   #define _ACCEL(Q,B) _MIN(planner.settings.max_acceleration_mm_per_s2[Q##_AXIS], planner.settings.B)
 
-  PGMSTR(P_ACC_STR, "PrintAccel");
+  static PGMSTR(P_ACC_STR, "PrintAccel");
   #define _REPORT_P_ACC(Q) config_line(P_ACC_STR, _ACCEL(Q, acceleration), Q##_STR);
   MAIN_AXIS_MAP(_REPORT_P_ACC);
 
-  PGMSTR(T_ACC_STR, "TravelAccel");
+  static PGMSTR(T_ACC_STR, "TravelAccel");
   #define _REPORT_T_ACC(Q) config_line(T_ACC_STR, _ACCEL(Q, travel_acceleration), Q##_STR);
   MAIN_AXIS_MAP(_REPORT_T_ACC);
 

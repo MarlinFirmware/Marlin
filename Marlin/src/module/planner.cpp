@@ -1215,7 +1215,7 @@ void Planner::recalculate(const float safe_exit_speed_sqr) {
     #if ENABLED(FAN_SOFT_PWM)
       #define _FAN_SET(F) thermalManager.soft_pwm_amount_fan[F] = CALC_FAN_SPEED(fan_speed[F]);
     #else
-      #define _FAN_SET(F) hal.set_pwm_duty(pin_t(FAN##F##_PIN), CALC_FAN_SPEED(fan_speed[F]));
+      #define _FAN_SET(F) hal.set_pwm_duty(pin_t(PART_COOLING_FAN##F##_PIN), CALC_FAN_SPEED(fan_speed[F]));
     #endif
     #define FAN_SET(F) do{ kickstart_fan(fan_speed, ms, F); _FAN_SET(F); }while(0)
 
@@ -1678,6 +1678,16 @@ float Planner::get_axis_position_mm(const AxisEnum axis) {
     }
     else
       axis_steps = DIFF_TERN(BACKLASH_COMPENSATION, stepper.position(axis), backlash.get_applied_steps(axis));
+
+  #elif ENABLED(SCARA)
+
+    axis_steps = stepper.position(axis);
+    TERN_(BACKLASH_COMPENSATION, axis_steps -= backlash.get_applied_steps(axis));
+    if (axis == Y_AXIS) { // Convert from motor position to psi (elbow angle)
+      float theta_steps = stepper.position(X_AXIS);
+      TERN_(BACKLASH_COMPENSATION, theta_steps -= backlash.get_applied_steps(X_AXIS));
+      axis_steps -= theta_steps * SCARA_CROSSTALK_FACTOR;
+    }
 
   #else
 
@@ -2173,7 +2183,7 @@ bool Planner::_populate_block(
         #define E_STEPPER_INDEX(E) TERN(HAS_SWITCHING_EXTRUDER, (E) / 2, E)
 
         // Enable all (i.e., both) E steppers for IDEX-style duplication, but only active E steppers for multi-nozzle (i.e., single wide X carriage) duplication
-        #define _IS_DUPE(N) TERN0(HAS_DUPLICATION_MODE, (extruder_duplication_enabled && TERN1(MULTI_NOZZLE_DUPLICATION, TEST(duplication_e_mask, N))))
+        #define _IS_DUPE(N) TERN0(HAS_DUPLICATION_MODE, (motion.extruder_duplication && TERN1(MULTI_NOZZLE_DUPLICATION, TEST(motion.duplication_e_mask, N))))
 
         #define ENABLE_ONE_E(N) do{ \
           if (N == E_STEPPER_INDEX(extruder) || _IS_DUPE(N)) { /* N is 'extruder', or N is duplicating */ \

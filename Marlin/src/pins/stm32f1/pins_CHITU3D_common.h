@@ -146,12 +146,12 @@
 
 #if HAS_TFT_LVGL_UI
   // LVGL
-  #define HAS_SPI_FLASH_FONT                   1
-  #define HAS_GCODE_PREVIEW                    1
-  #define HAS_GCODE_DEFAULT_VIEW_IN_FLASH      0
-  #define HAS_LANG_SELECT_SCREEN               1
-  #define HAS_BAK_VIEW_IN_FLASH                0
-  #define HAS_LOGO_IN_FLASH                    0
+  #define MKS_SPI_FLASH_FONT                   1
+  #define MKS_GCODE_PREVIEW                    1
+  #define MKS_GCODE_DEFAULT_VIEW_IN_FLASH      0
+  #define MKS_LANG_SELECT_SCREEN               1
+  #define MKS_BAK_VIEW_IN_FLASH                0
+  #define MKS_LOGO_IN_FLASH                    0
 #elif ENABLED(TFT_COLOR_UI)
   // Color UI
   #define TFT_BUFFER_WORDS                 14400

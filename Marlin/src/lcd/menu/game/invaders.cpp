@@ -241,8 +241,8 @@ inline void kill_cannon(uint8_t &game_state, const uint8_t st) {
 void InvadersGame::game_screen() {
   ui.refresh(LCDVIEW_CALL_NO_REDRAW); // Call as often as possible
 
-  // Run game logic once per full screen
-  if (ui.first_page) {
+  // Run game logic once per full screen (freeze during quit confirm dialog)
+  if (ui.first_page && !idat.quit_confirm) {
 
     // Update Cannon Position
     int16_t ep = constrain(int16_t(ui.encoderPosition), 0, (GAME_WIDTH - (CANNON_W)) / (CANNON_VEL));
@@ -362,18 +362,47 @@ void InvadersGame::game_screen() {
 
   }
 
-  // Click-and-hold to abort
-  if (ui.button_pressed()) --idat.quit_count; else idat.quit_count = 10;
+  // Click-and-hold to show quit confirmation dialog.
+  const bool quit_held = ui.button_pressed()
+                      || TERN0(HAS_ENCODER_ACTION, BUTTON_PRESSED(ENC));
 
-  // Click to fire or exit
-  if (ui.use_click()) {
-    if (!game_state)
-      idat.quit_count = 0;
-    else if (game_state == 1 && !idat.laser.v)
-      fire_cannon();
+  if (idat.quit_confirm) {
+    // Encoder left = select Y, encoder right = select N; click confirms only if a selection was made
+    const int16_t ep = int16_t(ui.encoderPosition);
+    if (ep < 0) { idat.quit_sel = 0; ui.encoderPosition = 0; }  // left  = Y
+    if (ep > 0) { idat.quit_sel = 1; ui.encoderPosition = 0; }  // right = N
+    if (ui.use_click() && idat.quit_sel >= 0) {
+      if (idat.quit_sel == 0)
+        exit_game();
+      else {
+        idat.quit_confirm = false;
+        idat.quit_count = 10;
+        ui.encoderPosition = idat.cannon_x / (CANNON_VEL); // restore cannon position
+      }
+    }
   }
+  else {
+    if (quit_held) {
+      if (idat.quit_count) --idat.quit_count;
+    }
+    else if (idat.quit_count < 10)
+      ++idat.quit_count;
 
-  if (!idat.quit_count) exit_game();
+    // Click to fire or resume after game over
+    if (ui.use_click()) {
+      if (!game_state)
+        idat.quit_count = 0;
+      else if (game_state == 1 && !idat.laser.v)
+        fire_cannon();
+    }
+
+    if (!idat.quit_count) {
+      idat.quit_confirm = true;
+      idat.quit_sel = -1;  // no selection until user moves encoder
+      ui.encoderPosition = 0;
+      idat.quit_count = 10;
+    }
+  }
 
   frame_start();
 
@@ -452,6 +481,21 @@ void InvadersGame::game_screen() {
     draw_int(sx, GAME_FONT_ASCENT - 1, score);
   }
 
+  // Draw quit confirm dialog overlay
+  if (idat.quit_confirm) {
+    constexpr int8_t qgohigh = GAME_FONT_ASCENT - 3;
+    constexpr int8_t qgowide = (GAME_FONT_WIDTH) * 13;
+    constexpr int8_t qlx = (GAME_WIDTH - qgowide) / 2;
+    constexpr int8_t qly = (GAME_HEIGHT + qgohigh) / 2;
+    if (PAGE_CONTAINS(qly - qgohigh - 2, qly + 2)) {
+      set_color(color::BLACK);
+      draw_box(qlx - 2, qly - qgohigh - 2, qgowide + 4, qgohigh + 4);
+      set_color(color::WHITE);
+      draw_frame(qlx - 2, qly - qgohigh - 2, qgowide + 4, qgohigh + 4);
+      draw_string(qlx, qly, idat.quit_sel < 0 ? F("QUIT?  Y / N") : (idat.quit_sel == 0 ? F("QUIT? [Y]/ N") : F("QUIT?  Y /[N]")));
+    }
+  }
+
   frame_end();
 }
 
@@ -459,6 +503,8 @@ void InvadersGame::enter_game() {
   init_game(20, game_screen); // countdown to reset invaders
   idat.cannons_left = 3;
   idat.quit_count = 10;
+  idat.quit_confirm = false;
+  idat.quit_sel = -1;
   idat.laser.v = 0;
   reset_invaders();
   reset_player();
