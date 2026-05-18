@@ -1818,7 +1818,7 @@ float Motion::get_move_distance(const xyze_pos_t &diff OPTARG(HAS_ROTATIONAL_AXE
   xyz_pos_t Motion::raised_parked_position;                                 // Used in mode 1
   millis_t  Motion::delayed_move_time       = 0;                            // Used in mode 1
   celsius_t Motion::duplicate_extruder_temp_offset = 0;                     // Used in mode 2 & 3
-  bool Motion::active_extruder_parked       = false;                        // Used in mode 1, 2 & 3
+  bool Motion::active_extruder_parked       = false,                        // Used in mode 1, 2 & 3
        Motion::idex_mirrored_mode           = false;                        // Used in mode 3
 
   void Motion::set_extruder_duplication(const bool dupe, const int8_t tool_index/*=-1*/) {

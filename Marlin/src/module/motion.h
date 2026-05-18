@@ -229,8 +229,8 @@ public:
     static millis_t delayed_move_time;                // Used in mode 1
     static celsius_t duplicate_extruder_temp_offset;  // Used in mode 2 & 3
 
-    static bool active_extruder_parked;               // Used in mode 1, 2 & 3
-    static bool idex_mirrored_mode;                   // Used in mode 3
+    static bool active_extruder_parked,               // Used in mode 1, 2 & 3
+                idex_mirrored_mode;                   // Used in mode 3
     static void idex_set_mirrored_mode(const bool mirr);
 
     static float x_home_pos(const uint8_t tool) {
