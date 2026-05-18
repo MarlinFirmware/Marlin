@@ -97,14 +97,18 @@ void GcodeSuite::M420() {
   // (Don't disable for just M420 or M420 V)
   if (seen_S && !to_enable) set_bed_leveling_enabled(false);
 
+  const bool seenV = parser.seen_test('V');
+
   #if ENABLED(AUTO_BED_LEVELING_UBL)
 
     // L to load a mesh from the EEPROM
-    if (parser.seen('L')) {
+    const bool seenL = parser.seen('L');
+    if (seenL) {
 
-      set_bed_leveling_enabled(false);
+      #if HAS_MESH_STORAGE
 
-      #if ENABLED(EEPROM_SETTINGS)
+        set_bed_leveling_enabled(false);
+
         const int8_t storage_slot = parser.has_value() ? parser.value_int() : bedlevel.storage_slot;
         const int16_t a = settings.calc_num_meshes();
 
@@ -130,16 +134,15 @@ void GcodeSuite::M420() {
     }
 
     // L or V display the map info
-    if (parser.seen("LV")) {
+    if (seenL || seenV) {
       bedlevel.display_map(parser.byteval('T'));
-      SERIAL_ECHOPGM("Mesh is ");
-      if (!bedlevel.mesh_is_valid()) SERIAL_ECHOPGM("in");
-      SERIAL_ECHOLNPGM("valid\nStorage slot: ", bedlevel.storage_slot);
+      SERIAL_ECHO_TERNARY(bedlevel.mesh_is_valid(), "Mesh is ", "", "in", "valid\n");
+      #if HAS_MESH_STORAGE
+        SERIAL_ECHOLNPGM("Storage slot: ", bedlevel.storage_slot);
+      #endif
     }
 
   #endif // AUTO_BED_LEVELING_UBL
-
-  const bool seenV = parser.seen_test('V');
 
   #if HAS_MESH
 

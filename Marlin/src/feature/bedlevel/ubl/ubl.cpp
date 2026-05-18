@@ -61,7 +61,9 @@ void unified_bed_leveling::report_state() {
   serial_delay(50);
 }
 
-int8_t unified_bed_leveling::storage_slot;
+#if HAS_MESH_STORAGE
+  int8_t unified_bed_leveling::storage_slot;
+#endif
 
 bed_mesh_t unified_bed_leveling::z_values;
 
@@ -90,7 +92,7 @@ unified_bed_leveling::unified_bed_leveling() { reset(); }
 void unified_bed_leveling::reset() {
   const bool was_enabled = planner.leveling_active;
   set_bed_leveling_enabled(false);
-  storage_slot = -1;
+  TERN_(HAS_MESH_STORAGE, storage_slot = -1);
   ZERO(z_values);
   #if ENABLED(EXTENSIBLE_UI)
     GRID_LOOP(x, y) ExtUI::onMeshUpdate(x, y, 0);
@@ -244,14 +246,16 @@ void unified_bed_leveling::display_map(const uint8_t map_type) {
 }
 
 bool unified_bed_leveling::sanity_check() {
-  uint8_t error_flag = 0;
+  bool error_flag = false;
 
-  if (settings.calc_num_meshes() < 1) {
-    SERIAL_ECHOLNPGM("?Mesh too big for EEPROM.");
-    error_flag++;
-  }
+  #if HAS_MESH_STORAGE
+    if (settings.calc_num_meshes() < 1) {
+      SERIAL_ECHOLNPGM("?Mesh too big for EEPROM.");
+      error_flag = true;
+    }
+  #endif
 
-  return !!error_flag;
+  return error_flag;
 }
 
 #if ENABLED(UBL_MESH_WIZARD)
@@ -285,11 +289,10 @@ bool unified_bed_leveling::sanity_check() {
                               PROBE_GCODE "\n"    // Build mesh with available hardware
                               "G29P3\nG29P3"));   // Ensure mesh is complete by running smart fill twice
 
-    if (parser.seenval('S')) {
-      char umw_gcode[32];
-      sprintf_P(umw_gcode, PSTR("G29S%i"), parser.value_int());
-      queue.inject(umw_gcode);
-    }
+    #if HAS_MESH_STORAGE
+      if (parser.seenval('S'))
+        queue.inject(TS(F("G29S"), parser.value_int()));
+    #endif
 
     process_subcommands_now(F("G29A\nG29F10\n"    // Set UBL Active & Fade 10
                               "M140S0\nM104S0\n"  // Turn off heaters
