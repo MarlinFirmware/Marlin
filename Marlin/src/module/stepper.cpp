@@ -3586,6 +3586,9 @@ int32_t Stepper::triggered_position(const AxisEnum axis) {
   #define SAYS_C 1
 #endif
 
+/**
+ * Report a given Position in Steps for all axes except E
+ */
 void Stepper::report_a_position(const xyz_long_t &pos) {
   #if NUM_AXES
     SERIAL_ECHOLNPGM_P(NUM_AXIS_PAIRED_LIST(
@@ -3598,6 +3601,10 @@ void Stepper::report_a_position(const xyz_long_t &pos) {
   #endif
 }
 
+/**
+ * Report the current Position in Steps for all axes except E.
+ * Use an atomic fetch operation to get the position.
+ */
 void Stepper::report_positions() {
   AVR_ATOMIC_SECTION_START();
   const xyz_long_t pos = count_position;
