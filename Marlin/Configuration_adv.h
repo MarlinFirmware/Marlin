@@ -219,7 +219,7 @@
 //
 // Requires HAS_HEATED_BED.
 //
-#define BED_ZONES
+//#define BED_ZONES
 #if ENABLED(BED_ZONES)
 
   // Number of zones (1–16). Must be an explicit integer — used in preprocessor
