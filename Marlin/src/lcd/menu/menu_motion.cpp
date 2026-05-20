@@ -150,7 +150,11 @@ void _menu_move_distance(const AxisEnum axis, const screenFunc_t func, const int
 
   BACK_ITEM(MSG_MOVE_AXIS);
 
-  #define __LINEAR_LIMIT(D) ((D) < motion.max_axis_length(axis) / 2 + 1)
+  #if NUM_AXES
+    #define __LINEAR_LIMIT(D) ((D) < motion.max_axis_length(axis) / 2 + 1)
+  #else
+    #define __LINEAR_LIMIT(D) true
+  #endif
   #if HAS_EXTRUDERS
     #ifndef EXTRUDE_MAXLENGTH
       #define EXTRUDE_MAXLENGTH 50
