@@ -107,7 +107,7 @@ static xyze_pos_t resume_position;
 
 #if HAS_SOUND
   static void impatient_beep(const int8_t max_beep_count, const bool restart=false) {
-
+    if (max_beep_count == 0) return;
     if (TERN0(HAS_MARLINUI_MENU, pause_mode == PAUSE_MODE_PAUSE_PRINT)) return;
 
     static millis_t next_buzz = 0;
