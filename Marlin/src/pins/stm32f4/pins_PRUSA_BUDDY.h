@@ -155,7 +155,9 @@
 //
 // Misc. Functions
 //
-#define PS_ON_PIN                           PA4
+#if ENABLED(PSU_CONTROL)
+  #define PS_ON_PIN                         PA4
+#endif
 #define POWER_LOSS_PIN                      PA4   // Power-loss / nAC_FAULT
 
 //

@@ -139,7 +139,7 @@
 #define HEATER_0_PIN                        PB1   // Hotend heater
 #define HEATER_BED_PIN                      PB0   // Bed heater
 
-#define FAN_PIN                             PE11  // Print cooling fan
+#define FAN0_PIN                            PE11  // Print cooling fan
 #define FAN1_PIN                            PE9   // Heatbreak fan
 
 //
