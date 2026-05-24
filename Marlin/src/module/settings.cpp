@@ -36,7 +36,7 @@
  */
 
 // Change EEPROM version if the structure changes
-#define EEPROM_VERSION "V90"
+#define EEPROM_VERSION "V91"
 #define EEPROM_OFFSET 100
 
 // Check the integrity of data offsets.
@@ -119,9 +119,6 @@
 
 #if HAS_FILAMENT_SENSOR
   #include "../feature/runout.h"
-  #ifndef FIL_RUNOUT_ENABLED_DEFAULT
-    #define FIL_RUNOUT_ENABLED_DEFAULT true
-  #endif
 #endif
 
 #if ENABLED(ADVANCE_K_EXTRA)
@@ -257,9 +254,13 @@ typedef struct SettingsDataStruct {
   //
   // FILAMENT_RUNOUT_SENSOR
   //
-  bool runout_sensor_enabled;                           // M412 S
-  float runout_distance_mm;                             // M412 D
-  float motion_distance_mm;                             // M412 L
+  #if HAS_FILAMENT_SENSOR
+    bool     runout_enabled[NUM_RUNOUT_SENSORS];        // M591 En S
+    float    runout_distance_mm[NUM_RUNOUT_SENSORS];    // M591 En L
+    uint8_t  runout_mode[NUM_RUNOUT_SENSORS];           // M591 En P
+  #else
+    uint8_t  runout_placeholder[3];                     // Keeps layout stable when sensor disabled
+  #endif
 
   //
   // ENABLE_LEVELING_FADE_HEIGHT
@@ -977,29 +978,28 @@ void MarlinSettings::postprocess() {
     //
     // Filament Runout Sensor
     //
+    #if HAS_FILAMENT_SENSOR
     {
-      #if HAS_FILAMENT_SENSOR
-        const bool &runout_sensor_enabled = runout.enabled;
-      #else
-        constexpr int8_t runout_sensor_enabled = -1;
-      #endif
-      _FIELD_TEST(runout_sensor_enabled);
-      EEPROM_WRITE(runout_sensor_enabled);
-
-      #if HAS_FILAMENT_RUNOUT_DISTANCE
-        const float &runout_distance_mm = runout.runout_distance();
-      #else
-        constexpr float runout_distance_mm = 0;
-      #endif
+      bool    runout_enabled[NUM_RUNOUT_SENSORS];
+      float   runout_distance_mm[NUM_RUNOUT_SENSORS];
+      uint8_t runout_mode[NUM_RUNOUT_SENSORS];
+      for (uint8_t e = 0; e < NUM_RUNOUT_SENSORS; ++e) {
+        runout_enabled[e]     = runout.enabled[e];
+        runout_distance_mm[e] = runout.runout_distance(e);
+        runout_mode[e]        = (uint8_t)runout.mode[e];
+      }
+      _FIELD_TEST(runout_enabled);
+      EEPROM_WRITE(runout_enabled);
       EEPROM_WRITE(runout_distance_mm);
-
-      #if ENABLED(FILAMENT_SWITCH_AND_MOTION)
-        const float &motion_distance_mm = runout.motion_distance();
-      #else
-        constexpr float motion_distance_mm = 0;
-      #endif
-      EEPROM_WRITE(motion_distance_mm);
+      EEPROM_WRITE(runout_mode);
     }
+    #else
+    {
+      uint8_t runout_placeholder[3] = { 0 };
+      _FIELD_TEST(runout_placeholder);
+      EEPROM_WRITE(runout_placeholder);
+    }
+    #endif
 
     //
     // Global Leveling
@@ -2048,28 +2048,33 @@ void MarlinSettings::postprocess() {
       //
       // Filament Runout Sensor
       //
+      #if HAS_FILAMENT_SENSOR
       {
-        int8_t runout_sensor_enabled;
-        _FIELD_TEST(runout_sensor_enabled);
-        EEPROM_READ(runout_sensor_enabled);
-        #if HAS_FILAMENT_SENSOR
-          if (!validating) runout.enabled = runout_sensor_enabled < 0 ? FIL_RUNOUT_ENABLED_DEFAULT : runout_sensor_enabled;
-        #endif
+        bool    runout_enabled[NUM_RUNOUT_SENSORS];
+        float   runout_distance_mm[NUM_RUNOUT_SENSORS];
+        uint8_t runout_mode[NUM_RUNOUT_SENSORS];
 
-        TERN_(HAS_FILAMENT_SENSOR, if (runout.enabled) runout.reset());
-
-        float runout_distance_mm;
+        _FIELD_TEST(runout_enabled);
+        EEPROM_READ(runout_enabled);
         EEPROM_READ(runout_distance_mm);
-        #if HAS_FILAMENT_RUNOUT_DISTANCE
-          if (!validating) runout.set_runout_distance(runout_distance_mm);
-        #endif
+        EEPROM_READ(runout_mode);
 
-        float motion_distance_mm;
-        EEPROM_READ(motion_distance_mm);
-        #if ENABLED(FILAMENT_SWITCH_AND_MOTION)
-          if (!validating) runout.set_motion_distance(motion_distance_mm);
-        #endif
+        if (!validating) {
+          for (uint8_t e = 0; e < NUM_RUNOUT_SENSORS; ++e) {
+            runout.enabled[e] = runout_enabled[e];
+            runout.set_runout_distance(runout_distance_mm[e], e);
+            runout.mode[e] = (RunoutMode)runout_mode[e];
+          }
+          runout.reset();
+        }
       }
+      #else
+      {
+        uint8_t runout_placeholder[3];
+        _FIELD_TEST(runout_placeholder);
+        EEPROM_READ(runout_placeholder);
+      }
+      #endif
 
       //
       // Global Leveling
@@ -3387,10 +3392,18 @@ void MarlinSettings::reset() {
   //
 
   #if HAS_FILAMENT_SENSOR
-    runout.enabled = FIL_RUNOUT_ENABLED_DEFAULT;
+    {
+      constexpr bool    fred[] = FIL_RUNOUT_ENABLED;
+      constexpr uint8_t frm[]  = FIL_RUNOUT_MODE;
+      static_assert(COUNT(fred) == NUM_RUNOUT_SENSORS, "FIL_RUNOUT_ENABLED must have NUM_RUNOUT_SENSORS entries.");
+      static_assert(COUNT(frm)  == NUM_RUNOUT_SENSORS, "FIL_RUNOUT_MODE must have NUM_RUNOUT_SENSORS entries.");
+      COPY(runout.enabled, fred);
+      for (uint8_t e = 0; e < NUM_RUNOUT_SENSORS; ++e) {
+        runout.mode[e] = (RunoutMode)frm[e];
+        runout.set_runout_distance(FILAMENT_RUNOUT_DISTANCE_MM, e);
+      }
+    }
     runout.reset();
-    TERN_(HAS_FILAMENT_RUNOUT_DISTANCE, runout.set_runout_distance(FILAMENT_RUNOUT_DISTANCE_MM));
-    TERN_(FILAMENT_SWITCH_AND_MOTION,   runout.set_motion_distance(FILAMENT_MOTION_DISTANCE_MM));
   #endif
 
   //
@@ -4161,7 +4174,7 @@ void MarlinSettings::reset() {
     //
     // Filament Runout Sensor
     //
-    TERN_(HAS_FILAMENT_SENSOR, gcode.M412_report(forReplay));
+    TERN_(HAS_FILAMENT_SENSOR, gcode.M591_report(forReplay));
 
     #if HAS_ETHERNET
       CONFIG_ECHO_HEADING("Ethernet");

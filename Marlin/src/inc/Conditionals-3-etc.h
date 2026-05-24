@@ -127,13 +127,52 @@
 #endif
 
 /**
- * Fill in undefined Filament Sensor options
+ * Fill in undefined Filament Sensor options.
+ * Provide backward-compatibility shims for the old FIL_RUNOUT_STATE /
+ * FIL_RUNOUT_ENABLED_DEFAULT / FILAMENT_MOTION_SENSOR config syntax,
+ * converting them to the new FIL_RUNOUT_MODE / FIL_RUNOUT_ENABLED array form.
  */
 #if ENABLED(FILAMENT_RUNOUT_SENSOR)
+  // Backward-compat: derive FIL_RUNOUT_MODE from legacy defines if not yet defined as array
+  #ifndef FIL_RUNOUT_MODE
+    #if ENABLED(FILAMENT_MOTION_SENSOR)
+      #define FIL_RUNOUT_MODE ARRAY_N_1(NUM_RUNOUT_SENSORS, 7)   // motion sensor
+    #elif defined(FIL_RUNOUT_STATE) && FIL_RUNOUT_STATE
+      #define FIL_RUNOUT_MODE ARRAY_N_1(NUM_RUNOUT_SENSORS, 2)   // NC switch (HIGH = runout)
+    #else
+      #define FIL_RUNOUT_MODE ARRAY_N_1(NUM_RUNOUT_SENSORS, 1)   // NO switch (LOW = runout, default)
+    #endif
+  #endif
+
+  // Backward-compat: derive FIL_RUNOUT_ENABLED from legacy FIL_RUNOUT_ENABLED_DEFAULT
+  #ifndef FIL_RUNOUT_ENABLED
+    #if defined(FIL_RUNOUT_ENABLED_DEFAULT) && !FIL_RUNOUT_ENABLED_DEFAULT
+      #define FIL_RUNOUT_ENABLED ARRAY_N_1(NUM_RUNOUT_SENSORS, false)
+    #else
+      #define FIL_RUNOUT_ENABLED ARRAY_N_1(NUM_RUNOUT_SENSORS, true)
+    #endif
+  #endif
+
+  // FILAMENT_RUNOUT_DISTANCE_MM is always present after this point
+  #ifndef FILAMENT_RUNOUT_DISTANCE_MM
+    #define FILAMENT_RUNOUT_DISTANCE_MM 5
+  #endif
+
+  // Per-sensor STATE defaults (needed by out_state() RM_NONE fallback in runout.h).
+  // Use an internal alias so SanityCheck's deprecated-FIL_RUNOUT_STATE check doesn't fire.
+  #ifdef FIL_RUNOUT_STATE
+    #define _FIL_RUNOUT_STATE_DEFAULT FIL_RUNOUT_STATE
+  #else
+    #define _FIL_RUNOUT_STATE_DEFAULT LOW
+  #endif
   #if NUM_RUNOUT_SENSORS >= 1
     #ifndef FIL_RUNOUT1_STATE
-      #define FIL_RUNOUT1_STATE FIL_RUNOUT_STATE
+      #define FIL_RUNOUT1_STATE _FIL_RUNOUT_STATE_DEFAULT
     #endif
+  // Provide bare FIL_RUNOUT_STATE for FILAMENT_IS_OUT() macro (no-arg form)
+  #ifndef FIL_RUNOUT_STATE
+    #define FIL_RUNOUT_STATE FIL_RUNOUT1_STATE
+  #endif
     #ifndef FIL_RUNOUT1_PULLUP
       #define FIL_RUNOUT1_PULLUP FIL_RUNOUT_PULLUP
     #endif
@@ -143,7 +182,7 @@
   #endif
   #if NUM_RUNOUT_SENSORS >= 2
     #ifndef FIL_RUNOUT2_STATE
-      #define FIL_RUNOUT2_STATE FIL_RUNOUT_STATE
+      #define FIL_RUNOUT2_STATE _FIL_RUNOUT_STATE_DEFAULT
     #endif
     #ifndef FIL_RUNOUT2_PULLUP
       #define FIL_RUNOUT2_PULLUP FIL_RUNOUT_PULLUP
@@ -154,7 +193,7 @@
   #endif
   #if NUM_RUNOUT_SENSORS >= 3
     #ifndef FIL_RUNOUT3_STATE
-      #define FIL_RUNOUT3_STATE FIL_RUNOUT_STATE
+      #define FIL_RUNOUT3_STATE _FIL_RUNOUT_STATE_DEFAULT
     #endif
     #ifndef FIL_RUNOUT3_PULLUP
       #define FIL_RUNOUT3_PULLUP FIL_RUNOUT_PULLUP
@@ -165,7 +204,7 @@
   #endif
   #if NUM_RUNOUT_SENSORS >= 4
     #ifndef FIL_RUNOUT4_STATE
-      #define FIL_RUNOUT4_STATE FIL_RUNOUT_STATE
+      #define FIL_RUNOUT4_STATE _FIL_RUNOUT_STATE_DEFAULT
     #endif
     #ifndef FIL_RUNOUT4_PULLUP
       #define FIL_RUNOUT4_PULLUP FIL_RUNOUT_PULLUP
@@ -176,7 +215,7 @@
   #endif
   #if NUM_RUNOUT_SENSORS >= 5
     #ifndef FIL_RUNOUT5_STATE
-      #define FIL_RUNOUT5_STATE FIL_RUNOUT_STATE
+      #define FIL_RUNOUT5_STATE _FIL_RUNOUT_STATE_DEFAULT
     #endif
     #ifndef FIL_RUNOUT5_PULLUP
       #define FIL_RUNOUT5_PULLUP FIL_RUNOUT_PULLUP
@@ -187,7 +226,7 @@
   #endif
   #if NUM_RUNOUT_SENSORS >= 6
     #ifndef FIL_RUNOUT6_STATE
-      #define FIL_RUNOUT6_STATE FIL_RUNOUT_STATE
+      #define FIL_RUNOUT6_STATE _FIL_RUNOUT_STATE_DEFAULT
     #endif
     #ifndef FIL_RUNOUT6_PULLUP
       #define FIL_RUNOUT6_PULLUP FIL_RUNOUT_PULLUP
@@ -198,7 +237,7 @@
   #endif
   #if NUM_RUNOUT_SENSORS >= 7
     #ifndef FIL_RUNOUT7_STATE
-      #define FIL_RUNOUT7_STATE FIL_RUNOUT_STATE
+      #define FIL_RUNOUT7_STATE _FIL_RUNOUT_STATE_DEFAULT
     #endif
     #ifndef FIL_RUNOUT7_PULLUP
       #define FIL_RUNOUT7_PULLUP FIL_RUNOUT_PULLUP
@@ -209,7 +248,7 @@
   #endif
   #if NUM_RUNOUT_SENSORS >= 8
     #ifndef FIL_RUNOUT8_STATE
-      #define FIL_RUNOUT8_STATE FIL_RUNOUT_STATE
+      #define FIL_RUNOUT8_STATE _FIL_RUNOUT_STATE_DEFAULT
     #endif
     #ifndef FIL_RUNOUT8_PULLUP
       #define FIL_RUNOUT8_PULLUP FIL_RUNOUT_PULLUP

@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2026 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -20,6 +20,22 @@
  *
  */
 
+/**
+ * M412 is retained as a backward-compatibility alias for M591.
+ * New code should use M591 directly.
+ *
+ * M412 S<bool>   => M591 S<bool>  (enable/disable for motion.extruder)
+ * M412 D<mm>     => M591 D<mm>    (runout distance for motion.extruder)
+ * M412 R         => M591 R        (reset sensor)
+ * M412 H<bool>   => M591 H<bool>  (host handling)
+ * M412 (no args) => M591 (report active extruder state)
+ *
+ * NOTE: M412 L<mm> (motion distance for FILAMENT_SWITCH_AND_MOTION) is
+ * still handled here because M591 uses L as an alias for D, not motion
+ * distance. That parameter remains M412-only until a separate M591 param
+ * is decided upon.
+ */
+
 #include "../../../inc/MarlinConfig.h"
 
 #if HAS_FILAMENT_SENSOR
@@ -28,13 +44,15 @@
 #include "../../../feature/runout.h"
 
 /**
- * M412: Enable / Disable filament runout detection
+ * M412: Enable / Disable filament runout detection (backward-compat shim for M591)
  *
  * Parameters
  *  R         : Reset the runout sensor
- *  S<bool>   : Reset and enable/disable the runout sensor
+ *  S<bool>   : Enable/disable runout detection for motion.extruder
  *  H<bool>   : Enable/disable host handling of filament runout
+ *              (Requires HOST_ACTION_COMMANDS)
  *  D<linear> : Extra distance to continue after runout is triggered
+ *              (Requires HAS_FILAMENT_RUNOUT_DISTANCE)
  *
  * With FILAMENT_SWITCH_AND_MOTION:
  *  L<linear> : Missing motion length to consider a jam
@@ -42,51 +60,37 @@
 void GcodeSuite::M412() {
   if (parser.seen("RS"
     TERN_(HAS_FILAMENT_RUNOUT_DISTANCE, "D")
-    TERN_(HOST_ACTION_COMMANDS, "H")
+    TERN_(FILAMENT_SWITCH_AND_MOTION,   "L")
+    TERN_(HOST_ACTION_COMMANDS,         "H")
   )) {
     #if ENABLED(HOST_ACTION_COMMANDS)
       if (parser.seen('H')) runout.host_handling = parser.value_bool();
     #endif
+
     const bool seenR = parser.seen_test('R'), seenS = parser.seen('S');
     if (seenR || seenS) runout.reset();
-    if (seenS) runout.enabled = parser.value_bool();
+    if (seenS) runout.enabled[motion.extruder] = parser.value_bool();
+
     #if HAS_FILAMENT_RUNOUT_DISTANCE
-      if (parser.seenval('D')) runout.set_runout_distance(parser.value_linear_units());
+      if (parser.seenval('D'))
+        runout.set_runout_distance(parser.value_linear_units(), motion.extruder);
     #endif
     #if ENABLED(FILAMENT_SWITCH_AND_MOTION)
       if (parser.seenval('L')) runout.set_motion_distance(parser.value_linear_units());
     #endif
   }
-  else {
-    SERIAL_ECHO_START();
-    SERIAL_ECHOPGM("Filament runout ", ON_OFF(runout.enabled));
-    #if HAS_FILAMENT_RUNOUT_DISTANCE
-      SERIAL_ECHOPGM(" ; Distance ", runout.runout_distance(), "mm");
-    #endif
-    #if ENABLED(FILAMENT_SWITCH_AND_MOTION)
-      SERIAL_ECHOPGM(" ; Motion distance ", runout.motion_distance(), "mm");
-    #endif
-    #if ENABLED(HOST_ACTION_COMMANDS)
-      SERIAL_ECHOPGM(" ; Host handling ", ON_OFF(runout.host_handling));
-    #endif
-    SERIAL_EOL();
-  }
+  else
+    M591_report(false);
 }
 
+/**
+ * M412_report: Emit M591 lines (one per sensor) for M503 replay.
+ * Delegates entirely to M591_report so the saved config is always
+ * in M591 form and can be replayed whether or not M412 remains.
+ */
 void GcodeSuite::M412_report(const bool forReplay/*=true*/) {
   TERN_(MARLIN_SMALL_BUILD, return);
-
-  report_heading_etc(forReplay, F(STR_FILAMENT_RUNOUT_SENSOR));
-  SERIAL_ECHOLNPGM(
-    "  M412 S", runout.enabled
-    #if HAS_FILAMENT_RUNOUT_DISTANCE
-      , " D", LINEAR_UNIT(runout.runout_distance())
-    #endif
-    #if ENABLED(FILAMENT_SWITCH_AND_MOTION)
-      , " L", LINEAR_UNIT(runout.motion_distance())
-    #endif
-    , " ; Sensor ", ON_OFF(runout.enabled)
-  );
+  M591_report(forReplay);
 }
 
 #endif // HAS_FILAMENT_SENSOR
