@@ -67,7 +67,16 @@ void GcodeSuite::M591() {
 
     const bool seenR = parser.seen_test('R'), seenS = parser.seen('S');
     if (seenR || seenS) runout.reset();
-    if (seenS) runout.set_enabled(tool, parser.value_bool());
+    if (seenS) {
+      #if ENABLED(MULTI_FILAMENT_SENSOR)
+        if (parser.seen('E'))
+          runout.set_enabled(tool, parser.value_bool()); // per-sensor: M591 E<n> S<bool>
+        else
+          runout.monitoring = parser.value_bool();       // master: M591 S<bool>
+      #else
+        runout.monitoring = parser.value_bool();         // single-sensor: S targets master
+      #endif
+    }
 
     #if HAS_FILAMENT_RUNOUT_DISTANCE
       if (parser.seenval('D') || parser.seenval('L'))
@@ -99,6 +108,7 @@ void GcodeSuite::M591() {
       #endif
     );
     SERIAL_ECHOPGM(": ", ON_OFF(runout.enabled[tool]));
+    if (!runout.monitoring) SERIAL_ECHOPGM(" (monitoring OFF)");
     #if HAS_FILAMENT_RUNOUT_DISTANCE
       SERIAL_ECHOPGM(" ; D", runout.runout_distance(tool), "mm");
     #endif
@@ -114,6 +124,9 @@ void GcodeSuite::M591_report(const bool forReplay/*=true*/) {
   TERN_(MARLIN_SMALL_BUILD, return);
 
   report_heading_etc(forReplay, F(STR_FILAMENT_RUNOUT_SENSOR));
+  // Master monitoring flag
+  SERIAL_ECHOLNPGM("  M591 S", runout.monitoring ? 1 : 0);
+  // Per-sensor settings
   for (uint8_t e = 0; e < NUM_RUNOUT_SENSORS; ++e) {
     SERIAL_ECHOPGM("  M591");
     #if ENABLED(MULTI_FILAMENT_SENSOR)

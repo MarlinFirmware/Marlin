@@ -2302,8 +2302,8 @@ void setMoveZ() { hmiValue.axis = Z_AXIS; setPFloatOnClick(Z_MIN_POS, Z_MAX_POS,
 #if HAS_FILAMENT_SENSOR
   void setRunoutEnable() {
     runout.reset();
-    runout.set_enabled(!runout.any_enabled());
-    showCheckboxLine(runout.any_enabled());
+    runout.monitoring = !runout.monitoring;
+    showCheckboxLine(runout.monitoring);
   }
   #if HAS_FILAMENT_RUNOUT_DISTANCE
     void applyRunoutDistance() { runout.set_runout_distance(menuData.value / MINUNITMULT); }
@@ -3605,7 +3605,7 @@ void drawTuneMenu() {
       MENU_ITEM(ICON_FilMan, MSG_FILAMENTCHANGE, onDrawMenuItem, changeFilament);
     #endif
     #if HAS_FILAMENT_SENSOR
-      EDIT_ITEM(ICON_Runout, MSG_RUNOUT_SENSOR, onDrawChkbMenu, setRunoutEnable, &runout.enabled[0]);
+      EDIT_ITEM(ICON_Runout, MSG_RUNOUT_SENSOR, onDrawChkbMenu, setRunoutEnable, &runout.monitoring);
     #endif
     #if ENABLED(PROUI_ITEM_PLR)
       EDIT_ITEM(ICON_Pwrlossr, MSG_OUTAGE_RECOVERY, onDrawChkbMenu, setPwrLossr, &recovery.enabled);
@@ -3814,7 +3814,7 @@ void drawFilSetMenu() {
   if (SET_MENU(filSetMenu, MSG_FILAMENT_SET, items)) {
     BACK_ITEM(drawAdvancedSettingsMenu);
     #if HAS_FILAMENT_SENSOR
-      EDIT_ITEM(ICON_Runout, MSG_RUNOUT_SENSOR, onDrawChkbMenu, setRunoutEnable, &runout.enabled[0]);
+      EDIT_ITEM(ICON_Runout, MSG_RUNOUT_SENSOR, onDrawChkbMenu, setRunoutEnable, &runout.monitoring);
     #endif
     #if HAS_FILAMENT_RUNOUT_DISTANCE
       EDIT_ITEM(ICON_Runout, MSG_RUNOUT_DISTANCE_MM, onDrawPFloatMenu, setRunoutDistance, &runout.runout_distance());

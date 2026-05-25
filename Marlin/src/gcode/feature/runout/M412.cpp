@@ -69,7 +69,7 @@ void GcodeSuite::M412() {
 
     const bool seenR = parser.seen_test('R'), seenS = parser.seen('S');
     if (seenR || seenS) runout.reset();
-    if (seenS) runout.set_enabled(TERN0(MULTI_FILAMENT_SENSOR, motion.extruder), parser.value_bool());
+    if (seenS) runout.monitoring = parser.value_bool();
 
     #if HAS_FILAMENT_RUNOUT_DISTANCE
       if (parser.seenval('D'))
