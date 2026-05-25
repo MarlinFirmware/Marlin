@@ -535,62 +535,6 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
     #error "You can't enable FIL_RUNOUT8_PULLUP and FIL_RUNOUT8_PULLDOWN at the same time."
   #elif DISABLED(ADVANCED_PAUSE_FEATURE) && defined(FILAMENT_RUNOUT_SCRIPT)
     static_assert(nullptr == strstr(FILAMENT_RUNOUT_SCRIPT, "M600"), "FILAMENT_RUNOUT_SCRIPT cannot make use of M600 unless ADVANCED_PAUSE_FEATURE is enabled");
-
-  // Backward-compatibility errors: old defines superseded by array config
-  #elif defined(FIL_RUNOUT_ENABLED_DEFAULT)
-    #error "FIL_RUNOUT_ENABLED_DEFAULT is replaced by FIL_RUNOUT_ENABLED { true/false, ... }."
-  #elif defined(FILAMENT_MOTION_SENSOR)
-    #error "FILAMENT_MOTION_SENSOR is replaced by FIL_RUNOUT_MODE { 7, ... } (mode 7 = motion sensor)."
-  #elif defined(FIL_RUNOUT_STATE)
-    // FIL_RUNOUT_STATE is accepted for backward compatibility and is used to
-    // initialize FIL_RUNOUT_MODE via the Conditionals layer. To set per-sensor
-    // modes explicitly, use FIL_RUNOUT_MODE { 1, ... } in Configuration.h.
-    #ifndef FIL_RUNOUT_MODE
-      // Will be converted in Conditionals-3-etc.h
-    #endif
-  #elif defined(FIL_RUNOUT2_STATE)
-    #if FIL_RUNOUT2_STATE
-      #error "FIL_RUNOUT2_STATE HIGH is replaced by FIL_RUNOUT_MODE { n, 2, ... }."
-    #else
-      #error "FIL_RUNOUT2_STATE LOW is replaced by FIL_RUNOUT_MODE { n, 1, ... }."
-    #endif
-  #elif defined(FIL_RUNOUT3_STATE)
-    #if FIL_RUNOUT3_STATE
-      #error "FIL_RUNOUT3_STATE HIGH is replaced by FIL_RUNOUT_MODE { n, n, 2, ... }."
-    #else
-      #error "FIL_RUNOUT3_STATE LOW is replaced by FIL_RUNOUT_MODE { n, n, 1, ... }."
-    #endif
-  #elif defined(FIL_RUNOUT4_STATE)
-    #if FIL_RUNOUT4_STATE
-      #error "FIL_RUNOUT4_STATE HIGH is replaced by FIL_RUNOUT_MODE { n, n, n, 2, ... }."
-    #else
-      #error "FIL_RUNOUT4_STATE LOW is replaced by FIL_RUNOUT_MODE { n, n, n, 1, ... }."
-    #endif
-  #elif defined(FIL_RUNOUT5_STATE)
-    #if FIL_RUNOUT5_STATE
-      #error "FIL_RUNOUT5_STATE HIGH is replaced by FIL_RUNOUT_MODE { n, n, n, n, 2, ... }."
-    #else
-      #error "FIL_RUNOUT5_STATE LOW is replaced by FIL_RUNOUT_MODE { n, n, n, n, 1, ... }."
-    #endif
-  #elif defined(FIL_RUNOUT6_STATE)
-    #if FIL_RUNOUT6_STATE
-      #error "FIL_RUNOUT6_STATE HIGH is replaced by FIL_RUNOUT_MODE { n, n, n, n, n, 2, ... }."
-    #else
-      #error "FIL_RUNOUT6_STATE LOW is replaced by FIL_RUNOUT_MODE { n, n, n, n, n, 1, ... }."
-    #endif
-  #elif defined(FIL_RUNOUT7_STATE)
-    #if FIL_RUNOUT7_STATE
-      #error "FIL_RUNOUT7_STATE HIGH is replaced by FIL_RUNOUT_MODE { n, n, n, n, n, n, 2, ... }."
-    #else
-      #error "FIL_RUNOUT7_STATE LOW is replaced by FIL_RUNOUT_MODE { n, n, n, n, n, n, 1, ... }."
-    #endif
-  #elif defined(FIL_RUNOUT8_STATE)
-    #if FIL_RUNOUT8_STATE
-      #error "FIL_RUNOUT8_STATE HIGH is replaced by FIL_RUNOUT_MODE { n, n, n, n, n, n, n, 2 }."
-    #else
-      #error "FIL_RUNOUT8_STATE LOW is replaced by FIL_RUNOUT_MODE { n, n, n, n, n, n, n, 1 }."
-    #endif
-
   #elif DGUS_LCD_UI_MKS
     #error "MKS UI is not currently compatible with FILAMENT_RUNOUT_SENSOR. Define DGUS_MKS_RUNOUT_SENSOR instead."
   #endif

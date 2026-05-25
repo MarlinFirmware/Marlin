@@ -765,6 +765,50 @@
   #error "MP_SCARA is now just SCARA."
 #elif defined(HAS_PIN_27_BOARD)
   #error "HAS_PIN_27_BOARD is now USE_PIN_27_BOARD."
+#elif defined(FILAMENT_MOTION_SENSOR)
+  #error "FILAMENT_MOTION_SENSOR is replaced by FIL_RUNOUT_MODE { 7, ... } (mode 7 = motion sensor)."
+#elif defined(FIL_RUNOUT2_STATE)
+  #if FIL_RUNOUT2_STATE
+    #error "FIL_RUNOUT2_STATE HIGH is replaced by FIL_RUNOUT_MODE { n, 2, ... }."
+  #else
+    #error "FIL_RUNOUT2_STATE LOW is replaced by FIL_RUNOUT_MODE { n, 1, ... }."
+  #endif
+#elif defined(FIL_RUNOUT3_STATE)
+  #if FIL_RUNOUT3_STATE
+    #error "FIL_RUNOUT3_STATE HIGH is replaced by FIL_RUNOUT_MODE { n, n, 2, ... }."
+  #else
+    #error "FIL_RUNOUT3_STATE LOW is replaced by FIL_RUNOUT_MODE { n, n, 1, ... }."
+  #endif
+#elif defined(FIL_RUNOUT4_STATE)
+  #if FIL_RUNOUT4_STATE
+    #error "FIL_RUNOUT4_STATE HIGH is replaced by FIL_RUNOUT_MODE { n, n, n, 2, ... }."
+  #else
+    #error "FIL_RUNOUT4_STATE LOW is replaced by FIL_RUNOUT_MODE { n, n, n, 1, ... }."
+  #endif
+#elif defined(FIL_RUNOUT5_STATE)
+  #if FIL_RUNOUT5_STATE
+    #error "FIL_RUNOUT5_STATE HIGH is replaced by FIL_RUNOUT_MODE { n, n, n, n, 2, ... }."
+  #else
+    #error "FIL_RUNOUT5_STATE LOW is replaced by FIL_RUNOUT_MODE { n, n, n, n, 1, ... }."
+  #endif
+#elif defined(FIL_RUNOUT6_STATE)
+  #if FIL_RUNOUT6_STATE
+    #error "FIL_RUNOUT6_STATE HIGH is replaced by FIL_RUNOUT_MODE { n, n, n, n, n, 2, ... }."
+  #else
+    #error "FIL_RUNOUT6_STATE LOW is replaced by FIL_RUNOUT_MODE { n, n, n, n, n, 1, ... }."
+  #endif
+#elif defined(FIL_RUNOUT7_STATE)
+  #if FIL_RUNOUT7_STATE
+    #error "FIL_RUNOUT7_STATE HIGH is replaced by FIL_RUNOUT_MODE { n, n, n, n, n, n, 2, ... }."
+  #else
+    #error "FIL_RUNOUT7_STATE LOW is replaced by FIL_RUNOUT_MODE { n, n, n, n, n, n, 1, ... }."
+  #endif
+#elif defined(FIL_RUNOUT8_STATE)
+  #if FIL_RUNOUT8_STATE
+    #error "FIL_RUNOUT8_STATE HIGH is replaced by FIL_RUNOUT_MODE { n, n, n, n, n, n, n, 2 }."
+  #else
+    #error "FIL_RUNOUT8_STATE LOW is replaced by FIL_RUNOUT_MODE { n, n, n, n, n, n, n, 1 }."
+  #endif
 #endif
 
 // SDSS renamed to SD_SS_PIN

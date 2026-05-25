@@ -989,9 +989,9 @@
   #if NUM_RUNOUT_SENSORS > 1
     #define MULTI_FILAMENT_SENSOR 1
   #endif
-  // HAS_FILAMENT_RUNOUT_DISTANCE is always 1; FILAMENT_RUNOUT_DISTANCE_MM is
-  // guaranteed to be defined by Conditionals-3-etc.h for all sensor configs.
-  #define HAS_FILAMENT_RUNOUT_DISTANCE 1
+  #if FILAMENT_RUNOUT_DISTANCE_MM
+    #define HAS_FILAMENT_RUNOUT_DISTANCE 1
+  #endif
   #if ENABLED(MIXING_EXTRUDER)
     #define WATCH_ALL_RUNOUT_SENSORS
   #endif
