@@ -106,6 +106,13 @@ class FilamentMonitorBase {
     static bool filament_ran_out;
     static RunoutMode mode[NUM_RUNOUT_SENSORS];
 
+    // Set one sensor's enabled state
+    static void set_enabled(const uint8_t e, const bool v) { enabled[e] = v; }
+    // Set all sensors' enabled state at once
+    static void set_enabled(const bool v) { for (uint8_t i = 0; i < NUM_RUNOUT_SENSORS; ++i) enabled[i] = v; }
+    // True if any sensor is enabled
+    static bool any_enabled() { for (uint8_t i = 0; i < NUM_RUNOUT_SENSORS; ++i) if (enabled[i]) return true; return false; }
+
     #if ENABLED(HOST_ACTION_COMMANDS)
       static bool host_handling;
     #else
@@ -119,17 +126,18 @@ class FilamentMonitorBase {
      * - RM_OUT_ON_LOW  : filament absent when pin reads LOW
      * - RM_NONE        : fall back to the compile-time FIL_RUNOUT#_STATE constant
      *   (backward compatible with configurations that don't use M591)
-     * - RM_MOTION_SENSOR / other: treated like RM_OUT_ON_LOW (motion sensor
-     *   logic lives in FilamentSensorEncoder, not here)
+     * - RM_MOTION_SENSOR: returns LOW (motion sensor logic lives in FilamentSensorEncoder)
+     * - other: falls back to compile-time FIL_RUNOUT#_STATE constant
      */
     static uint8_t out_state(const uint8_t e) {
       switch (mode[e]) {
-        case RM_OUT_ON_HIGH: return HIGH;
-        case RM_OUT_ON_LOW:  return LOW;
+        case RM_OUT_ON_HIGH:   return HIGH;
+        case RM_OUT_ON_LOW:    return LOW;
+        case RM_MOTION_SENSOR: return LOW;  // Motion sensor: active-low; FilamentSensorEncoder handles encoding
         case RM_NONE:
         default: break;
       }
-      // RM_NONE: look up the compile-time per-sensor state constant.
+      // RM_NONE: fall back to the compile-time per-sensor FIL_RUNOUT#_STATE constant.
       static constexpr uint8_t _states[8] = {
         FIL_RUNOUT1_STATE,
         #if NUM_RUNOUT_SENSORS >= 2
@@ -219,7 +227,8 @@ class TFilamentMonitor : public FilamentMonitorBase {
     // add up the length of filament moved while the filament is out.
     // Called from ISR context!
     static void block_completed(const block_t * const b) {
-      if (enabled[b->extruder]) {
+      const uint8_t s = TERN0(MULTI_FILAMENT_SENSOR, b->extruder);
+      if (enabled[s]) {
         response.block_completed(b);
         sensor.block_completed(b);
       }
@@ -227,7 +236,8 @@ class TFilamentMonitor : public FilamentMonitorBase {
 
     // Give the response a chance to update its counter.
     static void run() {
-      if (!enabled[motion.extruder] || filament_ran_out || !should_monitor_runout()) return;
+      const uint8_t s = TERN0(MULTI_FILAMENT_SENSOR, motion.extruder);
+      if (!enabled[s] || filament_ran_out || !should_monitor_runout()) return;
       TERN_(HAS_FILAMENT_RUNOUT_DISTANCE, cli()); // Prevent RunoutResponseDelayed::block_completed from accumulating here
       response.run();
       sensor.run();
