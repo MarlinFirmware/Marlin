@@ -155,7 +155,7 @@
 
   // FILAMENT_RUNOUT_DISTANCE_MM is always present after this point
   #ifndef FILAMENT_RUNOUT_DISTANCE_MM
-    #define FILAMENT_RUNOUT_DISTANCE_MM 5
+    #define FILAMENT_RUNOUT_DISTANCE_MM 0
   #endif
 
   // Per-sensor STATE defaults (needed by out_state() RM_NONE fallback in runout.h).
