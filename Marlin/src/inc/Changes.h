@@ -763,6 +763,8 @@
   #error "MORGAN_SCARA is now just SCARA."
 #elif defined(MP_SCARA)
   #error "MP_SCARA is now just SCARA."
+#elif defined(HAS_PIN_27_BOARD)
+  #error "HAS_PIN_27_BOARD is now USE_PIN_27_BOARD."
 #endif
 
 // SDSS renamed to SD_SS_PIN

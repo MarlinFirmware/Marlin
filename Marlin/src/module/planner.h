@@ -1209,20 +1209,43 @@ class Planner {
 
     #if HAS_JUNCTION_DEVIATION
 
-      FORCE_INLINE static void normalize_junction_vector(xyze_float_t &vector) {
-        float magnitude_sq = 0;
-        LOOP_LOGICAL_AXES(idx) if (vector[idx]) magnitude_sq += sq(vector[idx]);
-        vector *= RSQRT(magnitude_sq);
+
+      // TODO: *might* need to increase a bit, e.g., 6.4e-5f
+      #ifndef JD_VECTOR_NORMALIZE_M2_THRESHOLD
+        #define JD_VECTOR_NORMALIZE_M2_THRESHOLD 2.0e-6f
+      #endif
+      // TODO: *might* need to increase a bit, e.g., 8e-3f
+      #ifndef LIMIT_DIVISOR_THRESHOLD
+        #define LIMIT_DIVISOR_THRESHOLD 1.5e-3f
+      #endif
+
+      // TODO: Might change to NOLESS(junction_cos_theta,-0.999968f) in planner.cpp also
+
+      // Return 'true' if the magnitude_sq is insignificant
+      FORCE_INLINE static bool normalize_junction_vector(xyze_float_t &vector) {
+        float magnitude_sq = 0.0f;
+        LOOP_LOGICAL_AXES(axis) if (vector[axis]) magnitude_sq += sq(vector[axis]);
+        // Avoid divide by near-zero (to prevent stuttering).
+        // Threshold consistent with junction_cos_theta.
+        if (magnitude_sq > JD_VECTOR_NORMALIZE_M2_THRESHOLD) {
+          vector *= RSQRT(magnitude_sq);
+          return false;
+        }
+        return true;
       }
 
-      // max_value is block->acceleration
-      FORCE_INLINE static float limit_value_by_axis_maximum(const float max_value, xyze_float_t &unit_vec) {
+      // max_value is block->acceleration here used as our nominal or maximum
+      // unit_vec is the direction of the normal (i.e., perpendicular) acceleration _only_
+      FORCE_INLINE static float limit_jd_acceleration_by_axis_maximum(const float max_value, xyze_float_t &unit_vec) {
         float limit_value = max_value;
-        LOOP_LOGICAL_AXES(idx) {
-          if (unit_vec[idx]) {
-            const uint32_t abs_vec = ABS(unit_vec[idx]);
-            if (limit_value * abs_vec > settings.max_acceleration_mm_per_s2[idx])
-              limit_value = settings.max_acceleration_mm_per_s2[idx] / abs_vec;
+        LOOP_LOGICAL_AXES(axis) {
+          const float abs_vec = ABS(unit_vec[axis]);
+          // Skip small components, avoiding divide by almost-zero
+          if (abs_vec > LIMIT_DIVISOR_THRESHOLD) {  // sqrt of normalize_junction_vector() threshold (for good measure)
+            // i.e., NOMORE(limit_valuw, settings.max_acceleration_mm_per_s2[axis] / abs_vec)
+            //       But we do it this way to avoid division unless limiting.
+            if (limit_value * abs_vec > settings.max_acceleration_mm_per_s2[axis])
+              limit_value = settings.max_acceleration_mm_per_s2[axis] / abs_vec;
           }
         }
         return limit_value;
