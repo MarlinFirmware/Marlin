@@ -102,16 +102,19 @@ enum RunoutMode : uint8_t {
 
 class FilamentMonitorBase {
   public:
-    static bool enabled[NUM_RUNOUT_SENSORS];
+    static bool enabled[NUM_RUNOUT_SENSORS];  // per-sensor enable; preserved across master toggle
+    static bool monitoring;                   // master on/off; gates all sensor checks
     static bool filament_ran_out;
     static RunoutMode mode[NUM_RUNOUT_SENSORS];
 
-    // Set one sensor's enabled state
+    // Set one sensor's enabled state (does not affect master 'monitoring' flag)
     static void set_enabled(const uint8_t e, const bool v) { enabled[e] = v; }
-    // Set all sensors' enabled state at once
+    // Set all sensors' enabled state at once (does not affect master 'monitoring' flag)
     static void set_enabled(const bool v) { for (uint8_t i = 0; i < NUM_RUNOUT_SENSORS; ++i) enabled[i] = v; }
-    // True if any sensor is enabled
+    // True if any sensor is individually enabled
     static bool any_enabled() { for (uint8_t i = 0; i < NUM_RUNOUT_SENSORS; ++i) if (enabled[i]) return true; return false; }
+    // True if sensor 's' is active (master on AND individually enabled)
+    static bool is_active(const uint8_t s) { return monitoring && enabled[s]; }
 
     #if ENABLED(HOST_ACTION_COMMANDS)
       static bool host_handling;
@@ -228,7 +231,7 @@ class TFilamentMonitor : public FilamentMonitorBase {
     // Called from ISR context!
     static void block_completed(const block_t * const b) {
       const uint8_t s = TERN0(MULTI_FILAMENT_SENSOR, b->extruder);
-      if (enabled[s]) {
+      if (is_active(s)) {
         response.block_completed(b);
         sensor.block_completed(b);
       }
@@ -237,7 +240,7 @@ class TFilamentMonitor : public FilamentMonitorBase {
     // Give the response a chance to update its counter.
     static void run() {
       const uint8_t s = TERN0(MULTI_FILAMENT_SENSOR, motion.extruder);
-      if (!enabled[s] || filament_ran_out || !should_monitor_runout()) return;
+      if (!is_active(s) || filament_ran_out || !should_monitor_runout()) return;
       TERN_(HAS_FILAMENT_RUNOUT_DISTANCE, cli()); // Prevent RunoutResponseDelayed::block_completed from accumulating here
       response.run();
       sensor.run();

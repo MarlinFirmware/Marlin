@@ -256,6 +256,7 @@ typedef struct SettingsDataStruct {
   //
   #if HAS_FILAMENT_SENSOR
     bool     runout_enabled[NUM_RUNOUT_SENSORS];        // M591 En S
+    bool     runout_monitoring;                         // master runout on/off
     float    runout_distance_mm[NUM_RUNOUT_SENSORS];    // M591 En L
     uint8_t  runout_mode[NUM_RUNOUT_SENSORS];           // M591 En P
     #if ENABLED(FILAMENT_SWITCH_AND_MOTION)
@@ -994,6 +995,7 @@ void MarlinSettings::postprocess() {
     #if HAS_FILAMENT_SENSOR
     {
       bool    runout_enabled[NUM_RUNOUT_SENSORS];
+      bool    runout_monitoring;
       float   runout_distance_mm[NUM_RUNOUT_SENSORS];
       uint8_t runout_mode[NUM_RUNOUT_SENSORS];
       for (uint8_t e = 0; e < NUM_RUNOUT_SENSORS; ++e) {
@@ -1001,8 +1003,10 @@ void MarlinSettings::postprocess() {
         runout_distance_mm[e] = runout.runout_distance(e);
         runout_mode[e]        = (uint8_t)runout.mode[e];
       }
+      runout_monitoring = runout.monitoring;
       _FIELD_TEST(runout_enabled);
       EEPROM_WRITE(runout_enabled);
+      EEPROM_WRITE(runout_monitoring);
       EEPROM_WRITE(runout_distance_mm);
       EEPROM_WRITE(runout_mode);
       #if ENABLED(FILAMENT_SWITCH_AND_MOTION)
@@ -2079,11 +2083,13 @@ void MarlinSettings::postprocess() {
       #if HAS_FILAMENT_SENSOR
       {
         bool    runout_enabled[NUM_RUNOUT_SENSORS];
+        bool    runout_monitoring;
         float   runout_distance_mm[NUM_RUNOUT_SENSORS];
         uint8_t runout_mode[NUM_RUNOUT_SENSORS];
 
         _FIELD_TEST(runout_enabled);
         EEPROM_READ(runout_enabled);
+        EEPROM_READ(runout_monitoring);
         EEPROM_READ(runout_distance_mm);
         EEPROM_READ(runout_mode);
 
@@ -2099,6 +2105,7 @@ void MarlinSettings::postprocess() {
             runout.set_runout_distance(runout_distance_mm[e], e);
             runout.mode[e] = (RunoutMode)runout_mode[e];
           }
+          runout.monitoring = runout_monitoring;
           runout.reset();
         }
       }
@@ -3447,6 +3454,7 @@ void MarlinSettings::reset() {
       static_assert(COUNT(runout_enabled_defaults) == NUM_RUNOUT_SENSORS, "FIL_RUNOUT_ENABLED must have NUM_RUNOUT_SENSORS entries.");
       static_assert(COUNT(runout_mode_defaults)  == NUM_RUNOUT_SENSORS, "FIL_RUNOUT_MODE must have NUM_RUNOUT_SENSORS entries.");
       COPY(runout.enabled, runout_enabled_defaults);
+      runout.monitoring = true;
       for (uint8_t e = 0; e < NUM_RUNOUT_SENSORS; ++e) {
         runout.mode[e] = (RunoutMode)runout_mode_defaults[e];
         runout.set_runout_distance(FILAMENT_RUNOUT_DISTANCE_MM, e);

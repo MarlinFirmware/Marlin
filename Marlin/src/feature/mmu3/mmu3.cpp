@@ -279,8 +279,8 @@ namespace MMU3 {
         && xy_are_trusted()
         && e_active()
         #if ENABLED(MMU3_SPOOL_JOIN_CONSUMES_ALL_FILAMENT)
-          && runout.any_enabled() // to prevent M600 to be triggered during M600 AUTO
-          && !FILAMENT_PRESENT() // so the filament is totally consumed
+          && runout.monitoring    // to prevent M600 triggering during M600 AUTO
+          && !FILAMENT_PRESENT()  // so the filament is totally consumed
         #endif
     ) {
       SERIAL_ECHOLN_P("FINDA filament runout!");
@@ -291,7 +291,7 @@ namespace MMU3 {
           // disable the filament runout sensor (this is going to be re-enabled after the filament is loaded)
           runout.reset();
           runout.filament_ran_out = false; // trying to disable the purge more / continue message
-          runout.set_enabled(false);
+          runout.monitoring = false;
         #endif
         queue.enqueue_now(F("M600A")); // Save print and run M600 A (automatic) command
       }
