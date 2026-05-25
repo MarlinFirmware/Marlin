@@ -986,18 +986,24 @@ void MarlinSettings::postprocess() {
     {
       bool    runout_enabled[NUM_RUNOUT_SENSORS];
       bool    runout_monitoring;
-      float   runout_distance_mm[NUM_RUNOUT_SENSORS];
+      #if HAS_FILAMENT_RUNOUT_DISTANCE
+        float   runout_distance_mm[NUM_RUNOUT_SENSORS];
+      #endif
       uint8_t runout_mode[NUM_RUNOUT_SENSORS];
       for (uint8_t e = 0; e < NUM_RUNOUT_SENSORS; ++e) {
-        runout_enabled[e]     = runout.enabled[e];
-        runout_distance_mm[e] = runout.runout_distance(e);
-        runout_mode[e]        = (uint8_t)runout.mode[e];
+        runout_enabled[e] = runout.enabled[e];
+        #if HAS_FILAMENT_RUNOUT_DISTANCE
+          runout_distance_mm[e] = runout.runout_distance(e);
+        #endif
+        runout_mode[e]  = (uint8_t)runout.mode[e];
       }
       runout_monitoring = runout.monitoring;
       _FIELD_TEST(runout_enabled);
       EEPROM_WRITE(runout_enabled);
       EEPROM_WRITE(runout_monitoring);
-      EEPROM_WRITE(runout_distance_mm);
+      #if HAS_FILAMENT_RUNOUT_DISTANCE
+        EEPROM_WRITE(runout_distance_mm);
+      #endif
       EEPROM_WRITE(runout_mode);
       #if ENABLED(FILAMENT_SWITCH_AND_MOTION)
         EEPROM_WRITE(runout.motion_distance());
@@ -2080,7 +2086,9 @@ void MarlinSettings::postprocess() {
         if (!validating) {
           for (uint8_t e = 0; e < NUM_RUNOUT_SENSORS; ++e) {
             runout.set_enabled(e, runout_enabled[e]);
-            runout.set_runout_distance(runout_distance_mm[e], e);
+            #if HAS_FILAMENT_RUNOUT_DISTANCE
+              runout.set_runout_distance(runout_distance_mm[e], e);
+            #endif
             runout.mode[e] = (RunoutMode)runout_mode[e];
           }
           runout.monitoring = runout_monitoring;
@@ -3420,7 +3428,9 @@ void MarlinSettings::reset() {
       runout.monitoring = true;
       for (uint8_t e = 0; e < NUM_RUNOUT_SENSORS; ++e) {
         runout.mode[e] = (RunoutMode)runout_mode_defaults[e];
-        runout.set_runout_distance(FILAMENT_RUNOUT_DISTANCE_MM, e);
+        #if HAS_FILAMENT_RUNOUT_DISTANCE
+          runout.set_runout_distance(FILAMENT_RUNOUT_DISTANCE_MM, e);
+        #endif
       }
     }
     runout.reset();
