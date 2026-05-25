@@ -51,6 +51,11 @@ void GcodeSuite::M591() {
 
   const uint8_t tool = TERN0(MULTI_FILAMENT_SENSOR, parser.ushortval('E', motion.extruder));
 
+  if (tool >= NUM_RUNOUT_SENSORS) {
+    SERIAL_ECHO_MSG("?E index out of range (0-", NUM_RUNOUT_SENSORS - 1, ")");
+    return;
+  }
+
   if (parser.seen("RSLDP"
     TERN_(HOST_ACTION_COMMANDS, "H")
     TERN_(MULTI_FILAMENT_SENSOR, "E")
@@ -62,7 +67,7 @@ void GcodeSuite::M591() {
 
     const bool seenR = parser.seen_test('R'), seenS = parser.seen('S');
     if (seenR || seenS) runout.reset();
-    if (seenS) runout.enabled[tool] = parser.value_bool();
+    if (seenS) runout.set_enabled(tool, parser.value_bool());
 
     #if HAS_FILAMENT_RUNOUT_DISTANCE
       if (parser.seenval('D') || parser.seenval('L'))
@@ -73,10 +78,15 @@ void GcodeSuite::M591() {
       const RunoutMode tmp_mode = (RunoutMode)parser.value_int();
       switch (tmp_mode) {
         case RM_NONE ... RM_OUT_ON_HIGH:
-        case RM_MOTION_SENSOR:
           runout.mode[tool] = tmp_mode;
           runout.setup();
           break;
+        #if HAS_FILAMENT_MOTION
+          case RM_MOTION_SENSOR:
+            runout.mode[tool] = tmp_mode;
+            runout.setup();
+            break;
+        #endif
         default: break;
       }
     }
