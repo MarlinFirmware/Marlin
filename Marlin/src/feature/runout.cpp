@@ -32,9 +32,10 @@
 
 FilamentMonitor runout;
 
-// enabled[] is initialized by settings.load() / settings defaults.
-// Default: all sensors enabled, mode RM_NONE (use compile-time FIL_RUNOUT#_STATE).
+// enabled[] and monitoring are initialized by settings.load() / settings defaults.
+// Default: master monitoring on, all sensors individually enabled, mode RM_NONE.
 bool FilamentMonitorBase::enabled[NUM_RUNOUT_SENSORS],   // initialized by settings
+     FilamentMonitorBase::monitoring,                    // initialized by settings
      FilamentMonitorBase::filament_ran_out;              // = false
 
 RunoutMode FilamentMonitorBase::mode[NUM_RUNOUT_SENSORS]; // initialized by settings

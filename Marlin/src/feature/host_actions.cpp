@@ -193,7 +193,7 @@ void HostUI::action(FSTR_P const fstr, const bool eol) {
             #endif
             #if HAS_FILAMENT_SENSOR
               if (runout.filament_ran_out) {                      // Disable a triggered sensor
-                runout.set_enabled(false);
+                runout.monitoring = false;
                 runout.reset();
               }
             #endif
