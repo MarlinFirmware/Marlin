@@ -137,7 +137,8 @@ def prepare_clone(clone_num, clone_dir_base, clone_prefix, marlin_src, dry_run):
 
 def tmux_available():
     """Check if tmux is installed."""
-    return subprocess.run(["command", "-v", "tmux"], capture_output=True).returncode == 0
+    import shutil
+    return shutil.which("tmux") is not None
 
 
 def launch_tmux(session_name, batches, clone_dir_base, clone_prefix, script_path, extra_args):

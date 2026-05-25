@@ -1,32 +1,44 @@
 #!/usr/bin/env python3
 """
-fix_host_action_configs.py — Three-phase HOST action config fixer.
+build_and_log.py — Simple parallel build runner with shared error logging.
+
+This is the baseline script for a simple parallel build: it builds each
+config example and logs any failures to a shared log file so problems can
+be triaged after all parallel builds have completed.
 
 Usage:
-    python3 fix_host_action_configs.py [--loop-limit=N] [--resume=DIR] [--limit=N]
+    python3 build_and_log.py [--loop-limit=N] [--resume=DIR] [--limit=N]
+                              [--nofail] [--many] [--archive] [-a]
 
-Phases per config:
-    start        -> build as-is; on failure disable HOST_PROMPT_SUPPORT, retry
-    no_prompt    -> HOST_PROMPT_SUPPORT disabled; on failure disable HOST_ACTION_COMMANDS, skip
-    skip_action  -> both HOST_* disabled; move to next config
+The log file is written to .pio/build_errors.log inside MARLIN_REPO,
+so all parallel clones write to the same shared location when their
+MARLIN_REPO env var points at the same place (or can be merged later).
 """
 
-import subprocess, sys, os, re, argparse, signal
+import subprocess
+import sys
+import os
+import re
+import argparse
+import signal
+import datetime
 
-# Ensure we can import config from the sibling location
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 PLATFORMIO_SCRIPTS = os.path.join(SCRIPT_DIR, '..', 'share', 'PlatformIO', 'scripts')
 sys.path.insert(0, PLATFORMIO_SCRIPTS)
 import config  # type: ignore[import-untyped]
 
 # ---------------------------------------------------------------------------
-# Environment — derive all repo paths from CWD (not a hardcoded env var)
-# This allows the parallel orchestrator to cd into a clone first.
+# Environment — derive repo path from CWD (not a hardcoded env var)
 # ---------------------------------------------------------------------------
 MARLIN_REPO  = os.getcwd()
 MARLIN_CONFIGS = os.environ.get('MARLIN_CONFIGS', '')
 BUILDALL     = os.path.join(MARLIN_REPO, 'buildroot', 'bin', 'build_all_examples')
 STAT_FILE    = os.path.join(MARLIN_REPO, '.pio', '.buildall')
+LOG_FILE     = os.path.join(MARLIN_REPO, '.pio', 'build_errors.log')
+
+# How many lines to capture from the tail of failed build output
+TAIL_LINES = 40
 
 
 def run_build(build_opts=None, resume=None):
@@ -44,7 +56,7 @@ def run_build(build_opts=None, resume=None):
         cwd=MARLIN_REPO,
     )
     output = proc.stdout + proc.stderr
-    # Strip ANSI escape codes so regex matching is simpler
+    # Strip ANSI escape codes so log file is clean
     output_clean = re.sub(r'\x1b\[[0-9;]*m', '', output)
     return proc.returncode, output_clean
 
@@ -70,15 +82,24 @@ def get_failing_config(output):
     return failing
 
 
-def disable_config_option(config_dir, option):
-    """
-    Disable a config option in all existing config files under config_dir.
-    Wraps config.enable(path, option, False).
-    """
-    files = config.resolve(config_dir)
-    for fpath in files:
-        if os.path.exists(fpath):
-            config.enable(fpath, option, False)
+def ensure_log_dir():
+    """Make sure the .pio directory and log file parent exist."""
+    os.makedirs(os.path.dirname(LOG_FILE), exist_ok=True)
+
+
+def log_error(failing, output_tail, extra=""):
+    """Append failure info to the shared error log file."""
+    ensure_log_dir()
+    timestamp = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    with open(LOG_FILE, 'a', encoding='utf-8') as f:
+        f.write(f"\n{'='*72}\n")
+        f.write(f"[{timestamp}] FAILURE: {failing}\n")
+        if extra:
+            f.write(f"  Note: {extra}\n")
+        f.write(f"{'='*72}\n")
+        f.write(output_tail)
+        f.write("\n")
+    print(f"  -> Logged to {LOG_FILE}")
 
 
 def stash_changes():
@@ -101,7 +122,7 @@ def restore_stash(stashed):
 
 def main():
     parser = argparse.ArgumentParser(
-        description='Fix HOST_* config options across all example configs.'
+        description='Build all config examples and log failures to a shared log file.'
     )
     parser.add_argument(
         '--loop-limit', type=int, default=0,
@@ -111,7 +132,6 @@ def main():
         '--resume', type=str, default=None,
         help='Start at this config directory name',
     )
-    # Passthrough args for build_all_examples
     parser.add_argument(
         '--limit', type=int, default=None,
         help='Pass --limit to build_all_examples',
@@ -127,6 +147,10 @@ def main():
     parser.add_argument(
         '--archive', action='store_true',
         help='Pass -a to build_all_examples',
+    )
+    parser.add_argument(
+        '--tail', type=int, default=TAIL_LINES,
+        help=f'Lines of output to log on failure (default: {TAIL_LINES})',
     )
     args, unknown = parser.parse_known_args()
 
@@ -146,6 +170,17 @@ def main():
     if os.path.exists(STAT_FILE):
         os.remove(STAT_FILE)
 
+    # Ensure fresh log — back up previous if it exists
+    if os.path.exists(LOG_FILE):
+        backup = LOG_FILE + '.prev'
+        if os.path.exists(backup):
+            os.remove(backup)
+        os.rename(LOG_FILE, backup)
+
+    ensure_log_dir()
+    with open(LOG_FILE, 'w', encoding='utf-8') as f:
+        f.write(f"Build error log started at {datetime.datetime.now().isoformat()}\n")
+
     # Restore stock configs
     subprocess.run(
         [os.path.join(MARLIN_REPO, 'buildroot', 'bin', 'restore_configs')],
@@ -156,16 +191,15 @@ def main():
 
     def cleanup(signum=None, frame=None):
         restore_stash(stashed)
-        sys.exit(0 if signum is None else 128 + (signum or 0))
+        if signum is not None:
+            sys.exit(128 + signum)
 
     signal.signal(signal.SIGINT, cleanup)
     signal.signal(signal.SIGTERM, cleanup)
 
     try:
         loop_count = 0
-        next_phase = 'start'       # start | no_prompt | skip_action
-        last_failing = ''
-
+        skip_next = False
         build_args = []
         if args.resume:
             build_args.append(f'--resume={args.resume}')
@@ -177,71 +211,44 @@ def main():
                 sys.exit(0)
 
             # --- Build ---------------------------------------------------
-            # Resume only applies on the first iteration of each phase
-            build_cmd_args = list(build_args) + build_opts  # BUG FIX: include build_opts
+            build_cmd_args = list(build_args) + build_opts
+            # After a logged failure, --skip tells build_all_examples to skip
+            # the config recorded in the stat file and continue to the next.
+            # Guard: if the stat file has vanished (e.g. external deletion),
+            # --skip would cause build_all_examples to exit 0 with "Nothing to
+            # skip" — a false success.  Fall back to a fresh run instead.
+            if skip_next:
+                skip_next = False
+                if os.path.exists(STAT_FILE):
+                    build_cmd_args = [a for a in build_cmd_args if not a.startswith('--resume=')]
+                    build_cmd_args.append('--skip')
+                else:
+                    print("WARNING: stat file missing before --skip — starting fresh run.")
 
-            if next_phase == 'start':
-                pass  # first build — no special flags
-            elif next_phase == 'no_prompt':
-                # Remove --resume: --continue takes over from the stat file
-                build_cmd_args = [a for a in build_cmd_args if not a.startswith('--resume=')]
-                build_cmd_args.append('--continue')
-            elif next_phase == 'skip_action':
-                build_cmd_args = [a for a in build_cmd_args if not a.startswith('--resume=')]
-                build_cmd_args.append('--skip')
-
-            print(f"=== Iteration {iteration}: phase={next_phase} {' '.join(build_cmd_args)} ===")
+            print(f"=== Iteration {iteration} {' '.join(build_cmd_args)} ===")
 
             rc, output = run_build(build_cmd_args)
             print(output)
 
-            # --- Success: build completed this config ---
+            # --- Success: all remaining configs built fine ---
             if rc == 0:
-                if next_phase == 'start':
-                    print("ALL DONE — built successfully")
-                else:
-                    print(f"ALL DONE — built after fixes (phase: {next_phase})")
+                print("Build succeeded for all configs.")
                 sys.exit(0)
 
             loop_count += 1
 
-            # --- Analyse the failure ------------------------------------
+            # --- Failure: log and skip over the bad config ---
             failing = get_failing_config(output)
-
             if not failing:
-                print("ERROR: Could not determine failing config — stopping.")
-                sys.exit(1)
+                failing = f"unknown-config-{iteration}"
 
-            # If a different config is now failing (e.g. the retry of the previous
-            # config succeeded but a later one failed), reset to the start phase.
-            if last_failing and failing != last_failing:
-                print(f"Failing config changed: {last_failing} -> {failing} — resetting.")
-                next_phase = 'start'
+            output_tail = "\n".join(output.splitlines()[-args.tail:])
+            log_error(failing, output_tail)
 
-            last_failing = failing
-            config_dir = os.path.join(MARLIN_CONFIGS, 'config', 'examples', failing)
+            # Leave stat file intact so --skip can target this config next call.
+            skip_next = True
 
-            if next_phase == 'start':
-                print(f"Build failed: {failing}")
-                print(f"Disabling HOST_PROMPT_SUPPORT in {failing} and retrying...")
-                disable_config_option(config_dir, 'HOST_PROMPT_SUPPORT')
-                next_phase = 'no_prompt'
-
-            elif next_phase == 'no_prompt':
-                print(f"Retry (no HOST_PROMPT_SUPPORT) failed: {failing}")
-                print(f"Disabling HOST_ACTION_COMMANDS in {failing} and skipping...")
-                disable_config_option(config_dir, 'HOST_ACTION_COMMANDS')
-                next_phase = 'skip_action'
-
-            elif next_phase == 'skip_action':
-                print(f"Still failing after disabling both HOST_* options: {failing}")
-                print("Skipping to next config.")
-                next_phase = 'start'
-
-            # After disable, clear stat file so next build starts fresh
-            if os.path.exists(STAT_FILE):
-                os.remove(STAT_FILE)
-
+            print(f"Logged error for {failing}. Moving to next config.")
             print("")
 
         print("Hit max iterations (500)")

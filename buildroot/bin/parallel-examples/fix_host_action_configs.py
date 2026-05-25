@@ -1,25 +1,26 @@
 #!/usr/bin/env python3
 """
-fix_host_menu_configs.py — Fix HOST_* menu-item config options.
+fix_host_action_configs.py — Three-phase HOST action config fixer.
 
 Usage:
-    python3 fix_host_menu_configs.py [--loop-limit=N] [--resume=DIR] [--limit=N]
+    python3 fix_host_action_configs.py [--loop-limit=N] [--resume=DIR] [--limit=N]
 
 Phases per config:
-    start        -> build as-is; on failure enable HOST_* menu items, retry
-    continue     -> HOST_* enabled; on failure check prog size or skip
-    skip         -> skip to next config
+    start        -> build as-is; on failure disable HOST_PROMPT_SUPPORT, retry
+    no_prompt    -> HOST_PROMPT_SUPPORT disabled; on failure disable HOST_ACTION_COMMANDS, skip
+    skip_action  -> both HOST_* disabled; move to next config
 """
 
 import subprocess, sys, os, re, argparse, signal
 
+# Ensure we can import config from the sibling location
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 PLATFORMIO_SCRIPTS = os.path.join(SCRIPT_DIR, '..', 'share', 'PlatformIO', 'scripts')
 sys.path.insert(0, PLATFORMIO_SCRIPTS)
 import config  # type: ignore[import-untyped]
 
 # ---------------------------------------------------------------------------
-# Environment — derive repo path from CWD (not a hardcoded env var)
+# Environment — derive all repo paths from CWD (not a hardcoded env var)
 # This allows the parallel orchestrator to cd into a clone first.
 # ---------------------------------------------------------------------------
 MARLIN_REPO  = os.getcwd()
@@ -43,6 +44,7 @@ def run_build(build_opts=None, resume=None):
         cwd=MARLIN_REPO,
     )
     output = proc.stdout + proc.stderr
+    # Strip ANSI escape codes so regex matching is simpler
     output_clean = re.sub(r'\x1b\[[0-9;]*m', '', output)
     return proc.returncode, output_clean
 
@@ -61,14 +63,6 @@ def get_failing_config(output):
             pass
 
     if not failing:
-        m = re.search(
-            r'Set\s+HOST_START_MENU_ITEM\s+HOST_SHUTDOWN_MENU_ITEM\s+in:\s+(\S+)',
-            output,
-        )
-        if m:
-            failing = os.path.basename(m.group(1))
-
-    if not failing:
         m = re.search(r'Failed to build\s+(\S+)', output)
         if m:
             failing = m.group(1)
@@ -76,22 +70,15 @@ def get_failing_config(output):
     return failing
 
 
-def enable_config_options(config_dir, *options):
-    """Enable config options in all existing config files under config_dir."""
+def disable_config_option(config_dir, option):
+    """
+    Disable a config option in all existing config files under config_dir.
+    Wraps config.enable(path, option, False).
+    """
     files = config.resolve(config_dir)
     for fpath in files:
         if os.path.exists(fpath):
-            for opt in options:
-                config.enable(fpath, opt, True)
-
-
-def disable_config_options(config_dir, *options):
-    """Disable config options in all existing config files under config_dir."""
-    files = config.resolve(config_dir)
-    for fpath in files:
-        if os.path.exists(fpath):
-            for opt in options:
-                config.enable(fpath, opt, False)
+            config.enable(fpath, option, False)
 
 
 def stash_changes():
@@ -114,7 +101,7 @@ def restore_stash(stashed):
 
 def main():
     parser = argparse.ArgumentParser(
-        description='Fix HOST_* menu-item options across all example configs.'
+        description='Fix HOST_* config options across all example configs.'
     )
     parser.add_argument(
         '--loop-limit', type=int, default=0,
@@ -124,12 +111,26 @@ def main():
         '--resume', type=str, default=None,
         help='Start at this config directory name',
     )
-    parser.add_argument('--limit', type=int, default=None)
-    parser.add_argument('--nofail', action='store_true')
-    parser.add_argument('--many', action='store_true')
-    parser.add_argument('--archive', action='store_true')
+    # Passthrough args for build_all_examples
+    parser.add_argument(
+        '--limit', type=int, default=None,
+        help='Pass --limit to build_all_examples',
+    )
+    parser.add_argument(
+        '--nofail', action='store_true',
+        help='Pass --nofail to build_all_examples (continue on fail)',
+    )
+    parser.add_argument(
+        '--many', action='store_true',
+        help='Pass --many to build_all_examples (all envs per config)',
+    )
+    parser.add_argument(
+        '--archive', action='store_true',
+        help='Pass -a to build_all_examples',
+    )
     args, unknown = parser.parse_known_args()
 
+    # Collect passthrough flags
     build_opts = []
     if args.limit:
         build_opts.append(f'--limit={args.limit}')
@@ -145,6 +146,7 @@ def main():
     if os.path.exists(STAT_FILE):
         os.remove(STAT_FILE)
 
+    # Restore stock configs
     subprocess.run(
         [os.path.join(MARLIN_REPO, 'buildroot', 'bin', 'restore_configs')],
         cwd=MARLIN_REPO, check=True, capture_output=True,
@@ -154,35 +156,38 @@ def main():
 
     def cleanup(signum=None, frame=None):
         restore_stash(stashed)
-        sys.exit(0 if signum is None else 128 + (signum or 0))
+        if signum is not None:
+            sys.exit(128 + signum)
 
     signal.signal(signal.SIGINT, cleanup)
     signal.signal(signal.SIGTERM, cleanup)
 
     try:
         loop_count = 0
-        next_phase = 'start'        # start | continue | skip
+        next_phase = 'start'       # start | no_prompt | skip_action
         last_failing = ''
-        patch_count = 0
-        has_prog_size = False
 
         build_args = []
         if args.resume:
             build_args.append(f'--resume={args.resume}')
 
         for iteration in range(1, 501):
+            # Check loop limit
             if args.loop_limit > 0 and loop_count >= args.loop_limit:
                 print(f"Loop limit ({args.loop_limit}) reached.")
                 sys.exit(0)
 
-            # Include build_opts in every invocation
-            build_cmd_args = list(build_args) + build_opts
+            # --- Build ---------------------------------------------------
+            # Resume only applies on the first iteration of each phase
+            build_cmd_args = list(build_args) + build_opts  # BUG FIX: include build_opts
 
-            if next_phase == 'continue':
+            if next_phase == 'start':
+                pass  # first build — no special flags
+            elif next_phase == 'no_prompt':
                 # Remove --resume: --continue takes over from the stat file
                 build_cmd_args = [a for a in build_cmd_args if not a.startswith('--resume=')]
                 build_cmd_args.append('--continue')
-            elif next_phase == 'skip':
+            elif next_phase == 'skip_action':
                 build_cmd_args = [a for a in build_cmd_args if not a.startswith('--resume=')]
                 build_cmd_args.append('--skip')
 
@@ -191,38 +196,53 @@ def main():
             rc, output = run_build(build_cmd_args)
             print(output)
 
+            # --- Success: build completed this config ---
             if rc == 0:
-                print(f"ALL DONE — built successfully after {patch_count} patch(es)")
+                if next_phase == 'start':
+                    print("ALL DONE — built successfully")
+                else:
+                    print(f"ALL DONE — built after fixes (phase: {next_phase})")
                 sys.exit(0)
 
             loop_count += 1
+
+            # --- Analyse the failure ------------------------------------
             failing = get_failing_config(output)
-            has_prog_size = "Error: The program size" in output
 
-            if failing:
-                print(f"HOST_* menu-item error in: {failing}")
-                config_dir = os.path.join(MARLIN_CONFIGS, 'config', 'examples', failing)
-                print(f"Patching {config_dir} ...")
-                enable_config_options(config_dir, 'HOST_START_MENU_ITEM', 'HOST_SHUTDOWN_MENU_ITEM')
-                last_failing = failing
-                patch_count += 1
-                next_phase = 'continue'
+            if not failing:
+                print("ERROR: Could not determine failing config — stopping.")
+                sys.exit(1)
 
-            elif has_prog_size:
-                print(f"Program size overflow — reverting HOST_* patches and skipping {last_failing}.")
-                config_dir = os.path.join(MARLIN_CONFIGS, 'config', 'examples', last_failing)
-                disable_config_options(config_dir, 'HOST_START_MENU_ITEM', 'HOST_SHUTDOWN_MENU_ITEM')
-                next_phase = 'skip'
+            # If a different config is now failing (e.g. the retry of the previous
+            # config succeeded but a later one failed), reset to the start phase.
+            if last_failing and failing != last_failing:
+                print(f"Failing config changed: {last_failing} -> {failing} — resetting.")
+                next_phase = 'start'
 
-            else:
-                print("Non-HOST_* error detected — skipping this config.")
-                print("=== Last 30 lines of output ===")
-                for line in output.splitlines()[-30:]:
-                    print(line)
-                next_phase = 'skip'
+            last_failing = failing
+            config_dir = os.path.join(MARLIN_CONFIGS, 'config', 'examples', failing)
 
+            if next_phase == 'start':
+                print(f"Build failed: {failing}")
+                print(f"Disabling HOST_PROMPT_SUPPORT in {failing} and retrying...")
+                disable_config_option(config_dir, 'HOST_PROMPT_SUPPORT')
+                next_phase = 'no_prompt'
+
+            elif next_phase == 'no_prompt':
+                print(f"Retry (no HOST_PROMPT_SUPPORT) failed: {failing}")
+                print(f"Disabling HOST_ACTION_COMMANDS in {failing} and skipping...")
+                disable_config_option(config_dir, 'HOST_ACTION_COMMANDS')
+                next_phase = 'skip_action'
+
+            elif next_phase == 'skip_action':
+                print(f"Still failing after disabling both HOST_* options: {failing}")
+                print("Skipping to next config.")
+                next_phase = 'start'
+
+            # After disable, clear stat file so next build starts fresh
             if os.path.exists(STAT_FILE):
                 os.remove(STAT_FILE)
+
             print("")
 
         print("Hit max iterations (500)")
