@@ -129,7 +129,7 @@ float ResonanceGenerator::calc_next_pos() {
 
     while (!ftMotion.stepping.is_full()) {
       // Calculate current frequency with exponential sweep
-      current_freq_fp += current_freq_fp >> 16;
+      current_freq_fp += current_freq_fp >> FP_BITS;
       if (current_freq_fp > max_freq_fp) {
         done = true;
         return;
@@ -157,7 +157,7 @@ float ResonanceGenerator::calc_next_pos() {
     const uint8_t axis_bit = 1 << rt_params.axis;
 
     // Calculate current frequency with exponential sweep
-    current_freq_fp += current_freq_fp >> 16;
+    current_freq_fp += current_freq_fp >> FP_BITS;
     if (current_freq_fp > max_freq_fp) {
       done = true;
       return nullptr;
