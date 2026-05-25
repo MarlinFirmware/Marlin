@@ -151,11 +151,11 @@ module point_markers(show_home=true) {
           translate([0,0,down?-10:10]) {
 
             $fn=8;
-            rotate([90,0])
+            rotate([90,0,$vpr.z])
               text(str(z), 6, label_font_lg, halign="center", valign="center");
 
             if (v)
-              translate([0,0,down?-6:6]) rotate([90,0])
+              translate([0,0,down?-6:6]) rotate([90,0,$vpr.z])
                 text(str(down || !v ? "" : "+", v), 3, label_font_sm, halign="center", valign="center");
           }
         }
