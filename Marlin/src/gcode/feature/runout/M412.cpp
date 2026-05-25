@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2026 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -60,8 +60,8 @@
 void GcodeSuite::M412() {
   if (parser.seen("RS"
     TERN_(HAS_FILAMENT_RUNOUT_DISTANCE, "D")
-    TERN_(FILAMENT_SWITCH_AND_MOTION,   "L")
     TERN_(HOST_ACTION_COMMANDS,         "H")
+    TERN_(FILAMENT_SWITCH_AND_MOTION,   "L")
   )) {
     #if ENABLED(HOST_ACTION_COMMANDS)
       if (parser.seen('H')) runout.host_handling = parser.value_bool();
