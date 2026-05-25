@@ -2302,7 +2302,7 @@ void setMoveZ() { hmiValue.axis = Z_AXIS; setPFloatOnClick(Z_MIN_POS, Z_MAX_POS,
 #if HAS_FILAMENT_SENSOR
   void setRunoutEnable() {
     runout.reset();
-    runout.monitoring = !runout.monitoring;
+    FLIP(runout.monitoring);
     showCheckboxLine(runout.monitoring);
   }
   #if HAS_FILAMENT_RUNOUT_DISTANCE
