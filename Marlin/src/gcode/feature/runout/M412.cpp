@@ -69,7 +69,7 @@ void GcodeSuite::M412() {
 
     const bool seenR = parser.seen_test('R'), seenS = parser.seen('S');
     if (seenR || seenS) runout.reset();
-    if (seenS) runout.enabled[motion.extruder] = parser.value_bool();
+    if (seenS) runout.set_enabled(TERN0(MULTI_FILAMENT_SENSOR, motion.extruder), parser.value_bool());
 
     #if HAS_FILAMENT_RUNOUT_DISTANCE
       if (parser.seenval('D'))
@@ -91,6 +91,10 @@ void GcodeSuite::M412() {
 void GcodeSuite::M412_report(const bool forReplay/*=true*/) {
   TERN_(MARLIN_SMALL_BUILD, return);
   M591_report(forReplay);
+  #if ENABLED(FILAMENT_SWITCH_AND_MOTION)
+    report_heading_etc(forReplay, F("Filament Motion Distance"));
+    SERIAL_ECHOLNPGM("  M412 L", LINEAR_UNIT(runout.motion_distance()));
+  #endif
 }
 
 #endif // HAS_FILAMENT_SENSOR

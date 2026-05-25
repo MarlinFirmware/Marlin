@@ -662,7 +662,8 @@ void menu_configuration() {
   #endif
 
   #if HAS_FILAMENT_SENSOR
-    EDIT_ITEM(bool, MSG_RUNOUT_SENSOR, &runout.enabled, runout.reset);
+    // Use enabled[0] for display; callback syncs all sensors to match after the flip
+    EDIT_ITEM(bool, MSG_RUNOUT_SENSOR, &runout.enabled[0], []{ runout.set_enabled(runout.enabled[0]); runout.reset(); });
   #endif
 
   #if HAS_FANCHECK

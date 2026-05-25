@@ -609,8 +609,8 @@ namespace ExtUI {
   }
 
   #if HAS_FILAMENT_SENSOR
-    bool getFilamentRunoutEnabled()                 { return runout.enabled; }
-    void setFilamentRunoutEnabled(const bool value) { runout.enabled = value; }
+    bool getFilamentRunoutEnabled()                 { return runout.any_enabled(); }
+    void setFilamentRunoutEnabled(const bool value) { runout.set_enabled(value); }
     bool getFilamentRunoutState()                   { return runout.filament_ran_out; }
     void setFilamentRunoutState(const bool value)   { runout.filament_ran_out = value; }
 

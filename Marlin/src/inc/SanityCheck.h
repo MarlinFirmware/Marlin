@@ -803,6 +803,8 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
   #elif HAS_FILAMENT_RUNOUT_DISTANCE
     #error "MIXING_EXTRUDER is incompatible with FILAMENT_RUNOUT_DISTANCE_MM."
   #endif
+#elif defined(FILAMENT_RUNOUT_DISTANCE_MM) && FILAMENT_RUNOUT_DISTANCE_MM < 0
+  #error "FILAMENT_RUNOUT_DISTANCE_MM must be >= 0."
 #endif
 
 /**

@@ -765,8 +765,6 @@
   #error "MP_SCARA is now just SCARA."
 #elif defined(HAS_PIN_27_BOARD)
   #error "HAS_PIN_27_BOARD is now USE_PIN_27_BOARD."
-#elif defined(FILAMENT_MOTION_SENSOR)
-  #error "FILAMENT_MOTION_SENSOR is replaced by FIL_RUNOUT_MODE { 7, ... } (mode 7 = motion sensor)."
 #elif defined(FIL_RUNOUT2_STATE)
   #if FIL_RUNOUT2_STATE
     #error "FIL_RUNOUT2_STATE HIGH is replaced by FIL_RUNOUT_MODE { n, 2, ... }."

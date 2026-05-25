@@ -258,6 +258,9 @@ typedef struct SettingsDataStruct {
     bool     runout_enabled[NUM_RUNOUT_SENSORS];        // M591 En S
     float    runout_distance_mm[NUM_RUNOUT_SENSORS];    // M591 En L
     uint8_t  runout_mode[NUM_RUNOUT_SENSORS];           // M591 En P
+    #if ENABLED(FILAMENT_SWITCH_AND_MOTION)
+      float  runout_motion_distance_mm;                 // M412 L
+    #endif
   #else
     uint8_t  runout_placeholder[3];                     // Keeps layout stable when sensor disabled
   #endif
@@ -992,6 +995,9 @@ void MarlinSettings::postprocess() {
       EEPROM_WRITE(runout_enabled);
       EEPROM_WRITE(runout_distance_mm);
       EEPROM_WRITE(runout_mode);
+      #if ENABLED(FILAMENT_SWITCH_AND_MOTION)
+        EEPROM_WRITE(runout.motion_distance());
+      #endif
     }
     #else
     {
@@ -2059,9 +2065,15 @@ void MarlinSettings::postprocess() {
         EEPROM_READ(runout_distance_mm);
         EEPROM_READ(runout_mode);
 
+        #if ENABLED(FILAMENT_SWITCH_AND_MOTION)
+          float tmp_motion_distance_mm = 0;
+          EEPROM_READ(tmp_motion_distance_mm);
+          if (!validating) runout.set_motion_distance(tmp_motion_distance_mm);
+        #endif
+
         if (!validating) {
           for (uint8_t e = 0; e < NUM_RUNOUT_SENSORS; ++e) {
-            runout.enabled[e] = runout_enabled[e];
+            runout.set_enabled(e, runout_enabled[e]);
             runout.set_runout_distance(runout_distance_mm[e], e);
             runout.mode[e] = (RunoutMode)runout_mode[e];
           }
@@ -3393,13 +3405,13 @@ void MarlinSettings::reset() {
 
   #if HAS_FILAMENT_SENSOR
     {
-      constexpr bool    fred[] = FIL_RUNOUT_ENABLED;
-      constexpr uint8_t frm[]  = FIL_RUNOUT_MODE;
-      static_assert(COUNT(fred) == NUM_RUNOUT_SENSORS, "FIL_RUNOUT_ENABLED must have NUM_RUNOUT_SENSORS entries.");
-      static_assert(COUNT(frm)  == NUM_RUNOUT_SENSORS, "FIL_RUNOUT_MODE must have NUM_RUNOUT_SENSORS entries.");
-      COPY(runout.enabled, fred);
+      constexpr bool    runout_enabled_defaults[] = FIL_RUNOUT_ENABLED;
+      constexpr uint8_t runout_mode_defaults[]    = FIL_RUNOUT_MODE;
+      static_assert(COUNT(runout_enabled_defaults) == NUM_RUNOUT_SENSORS, "FIL_RUNOUT_ENABLED must have NUM_RUNOUT_SENSORS entries.");
+      static_assert(COUNT(runout_mode_defaults)  == NUM_RUNOUT_SENSORS, "FIL_RUNOUT_MODE must have NUM_RUNOUT_SENSORS entries.");
+      COPY(runout.enabled, runout_enabled_defaults);
       for (uint8_t e = 0; e < NUM_RUNOUT_SENSORS; ++e) {
-        runout.mode[e] = (RunoutMode)frm[e];
+        runout.mode[e] = (RunoutMode)runout_mode_defaults[e];
         runout.set_runout_distance(FILAMENT_RUNOUT_DISTANCE_MM, e);
       }
     }
