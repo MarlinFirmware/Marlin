@@ -159,7 +159,7 @@
 
 #if ENABLED(CR10_STOCKDISPLAY)                    // LCD used for C2
 
-  #ifndef HAS_PIN_27_BOARD
+  #if DISABLED(USE_PIN_27_BOARD)
     #define BEEPER_PIN               EXP1_01_PIN
   #endif
 
