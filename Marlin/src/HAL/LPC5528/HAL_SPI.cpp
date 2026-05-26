@@ -99,6 +99,8 @@
    * Hardware SPI
    */
 
+  static SPISettings spiConfig;
+
   #ifdef SD_SPI_SPEED
     #define INIT_SPI_SPEED SD_SPI_SPEED
   #else
@@ -108,7 +110,6 @@
   void spiBegin() { spiInit(INIT_SPI_SPEED); } // Set up SCK, MOSI & MISO pins for SSP0
 
   void spiInit(uint8_t spiRate) {
-    class SPISettings spiConfig;
     uint32_t baudrate;
 
     switch (spiRate) {
@@ -135,14 +136,23 @@
     for (uint16_t i = 0; i < nbyte; i++) doio(buf[i]);
   }
 
-  void spiSend(uint32_t chan, byte b) {}
+  void spiSend(uint32_t chan, byte b) {
+    UNUSED(chan);
+    doio(b);
+  }
 
-  void spiSend(uint32_t chan, const uint8_t *buf, size_t nbyte) {}
+  void spiSend(uint32_t chan, const uint8_t *buf, size_t nbyte) {
+    UNUSED(chan);
+    for (uint16_t i = 0; i < nbyte; i++) doio(buf[i]);
+  }
 
   // Read single byte from SPI
   uint8_t spiRec() { return doio(0xFF); }
 
-  uint8_t spiRec(uint32_t chan) { return 0; }
+  uint8_t spiRec(uint32_t chan) {
+    UNUSED(chan);
+    return doio(0xFF);
+  }
 
   // Read from SPI into buffer
   void spiRead(uint8_t *buf, uint16_t nbyte) {
@@ -160,7 +170,9 @@
 
   // Begin SPI transaction, set clock, bit order, data mode
   void spiBeginTransaction(uint32_t spiClock, uint8_t bitOrder, uint8_t dataMode) {
-    // TODO: Implement this method
+    const auto order = bitOrder == LSBFIRST ? kSPI_LsbFirst : kSPI_MsbFirst;
+    spiConfig = SPISettings(spiClock, order, static_cast<spi_dataMode_t>(dataMode), kSPI_Data8Bits, false);
+    SPI_4.beginTransaction(spiConfig);
   }
 
 #endif // !SOFTWARE_SPI
