@@ -68,7 +68,7 @@ public:
     auto sd2card = diskIODriver();
     // single block
     if (blkLen == 1) {
-      TERN_(USE_WATCHDOG, watchdog_refresh());
+      TERN_(USE_WATCHDOG, hal.watchdog_refresh());
       sd2card->writeBlock(blkAddr, pBuf);
       return true;
     }
@@ -76,7 +76,7 @@ public:
     // multi block optimization
     sd2card->writeStart(blkAddr, blkLen);
     while (blkLen--) {
-      TERN_(USE_WATCHDOG, watchdog_refresh());
+      TERN_(USE_WATCHDOG, hal.watchdog_refresh());
       sd2card->writeData(pBuf);
       pBuf += BLOCK_SIZE;
     }
@@ -88,7 +88,7 @@ public:
     auto sd2card = diskIODriver();
     // single block
     if (blkLen == 1) {
-      TERN_(USE_WATCHDOG, watchdog_refresh());
+      TERN_(USE_WATCHDOG, hal.watchdog_refresh());
       sd2card->readBlock(blkAddr, pBuf);
       return true;
     }
@@ -96,7 +96,7 @@ public:
     // multi block optimization
     sd2card->readStart(blkAddr);
     while (blkLen--) {
-      TERN_(USE_WATCHDOG, watchdog_refresh());
+      TERN_(USE_WATCHDOG, hal.watchdog_refresh());
       sd2card->readData(pBuf);
       pBuf += BLOCK_SIZE;
     }

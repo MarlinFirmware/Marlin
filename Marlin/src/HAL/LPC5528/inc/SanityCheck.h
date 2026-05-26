@@ -21,6 +21,4 @@
  */
 #pragma once
 
-#if ENABLED(USE_WATCHDOG)
-  #error "USE_WATCHDOG is not implemented on LPC5528."
-#endif
+

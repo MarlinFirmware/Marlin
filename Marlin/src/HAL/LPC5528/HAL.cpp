@@ -87,12 +87,26 @@ uint8_t MarlinHAL::get_reset_source() {
 
 #if ENABLED(USE_WATCHDOG)
 
-  // TODO: Add watchdog support.
+  #include <fsl_wwdt.h>
+  #include <fsl_clock.h>
 
-  //#include <lpc55xx_wdt.h>
-  //#define WDT_TIMEOUT_US TERN(WATCHDOG_DURATION_8S, 8000000, 4000000) // 4 or 8 second timeout
+  // WWDT clock source is FRO1M (1 MHz).
+  // Timeout period = timeoutValue * 4 / WWDT_clock_Hz
+  // For 4s timeout at 1 MHz: 4 * 1,000,000 / 4 = 1,000,000 counts
+  // For 8s timeout at 1 MHz: 8 * 1,000,000 / 4 = 2,000,000 counts
+  #define WDT_TIMEOUT_COUNT TERN(WATCHDOG_DURATION_8S, 2000000UL, 1000000UL)
 
   void MarlinHAL::watchdog_init() {
+    CLOCK_EnableClock(kCLOCK_Wwdt);
+    wwdt_config_t config;
+    WWDT_GetDefaultConfig(&config);
+    config.enableWatchdogReset   = true;      // Reset on timeout
+    config.enableWatchdogProtect = false;     // Allow timeout updates
+    config.windowValue           = 0xFFFFFFUL; // Windowing disabled
+    config.timeoutValue          = WDT_TIMEOUT_COUNT;
+    config.warningValue          = 0;
+    config.clockFreq_Hz          = CLOCK_GetWdtClkFreq();
+    WWDT_Init(WWDT, &config);
   }
 
   void MarlinHAL::watchdog_refresh() {
@@ -100,6 +114,14 @@ uint8_t MarlinHAL::get_reset_source() {
     #if DISABLED(PINS_DEBUGGING) && PIN_EXISTS(LED)
       TOGGLE(LED_PIN);  // heartbeat indicator
     #endif
+  }
+
+  bool MarlinHAL::watchdog_timed_out() {
+    return !!(WWDT_GetStatusFlags(WWDT) & kWWDT_TimeoutFlag);
+  }
+
+  void MarlinHAL::watchdog_clear_timeout_flag() {
+    WWDT_ClearStatusFlags(WWDT, kWWDT_TimeoutFlag);
   }
 
 #endif // USE_WATCHDOG
