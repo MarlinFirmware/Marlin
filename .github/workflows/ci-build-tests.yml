@@ -155,6 +155,8 @@ jobs:
         # HC32
         - HC32F460C_aquila_101
         - HC32F460C_kobra_max
+        - HC32F460E_kobra_go
+        - HC32F460E_kobra_neo
 
         # GD32F3
         - GD32F303RE_creality_mfl
