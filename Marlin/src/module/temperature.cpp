@@ -4820,6 +4820,7 @@ void Temperature::isr() {
    * Print a single heater state in the form:
    *     Extruder: " T0:nnn.nn /nnn.nn"
    *          Bed: " B:nnn.nn /nnn.nn"
+   *     Bed zone: " BZ0:nnn.nn /nnn.nn"  (BED_ZONES)
    *      Chamber: " C:nnn.nn /nnn.nn"
    *       Cooler: " L:nnn.nn /nnn.nn"
    *        Probe: " P:nnn.nn"
@@ -4886,6 +4887,7 @@ void Temperature::isr() {
    *      Chamber: " C@:nnn"
    *       Cooler: " L@:nnn"
    *      Hotends: " @0:nnn @1:nnn ..."
+   *    Bed zones: " BZ0@:nnn BZ1@:nnn ..."  (BED_ZONES)
    */
   void Temperature::print_heater_states(const int8_t target_extruder
     OPTARG(HAS_TEMP_REDUNDANT, const bool include_r/*=false*/)
@@ -4895,10 +4897,11 @@ void Temperature::isr() {
     #endif
     #if HAS_HEATED_BED
       #if HAS_BED_ZONES
-        // Report each zone as B0:actual /target
+        // Report each zone as " BZ0:actual /target"
         for (uint8_t z = 0; z < BED_ZONES_COUNT; z++) {
-          SString<20> s(' ', 'B');
-          s += char('0' + z);
+          const char zc = z < 10 ? '0' + z : 'A' + z - 10; // hex for zones 10-15
+          SString<50> s(' ', 'B');
+          s += 'Z'; s += zc;
           s += ':'; s += p_float_t(temp_bed[z].celsius, HEATER_STATE_FLOAT_PRECISION);
           s += F(" /"); s += p_float_t((celsius_float_t)temp_bed[z].target, HEATER_STATE_FLOAT_PRECISION);
           s.echo();
@@ -4931,8 +4934,10 @@ void Temperature::isr() {
     SString<100> s(F(" @:"), getHeaterPower((heater_id_t)target_extruder));
     #if HAS_HEATED_BED
       #if HAS_BED_ZONES
-        for (uint8_t z = 0; z < BED_ZONES_COUNT; z++)
-          s.append(F(" B"), z, F("@:"), temp_bed[z].soft_pwm_amount);
+        for (uint8_t z = 0; z < BED_ZONES_COUNT; z++) {
+          const char zc = z < 10 ? '0' + z : 'A' + z - 10;
+          s.append(F(" BZ"), zc, F("@:"), temp_bed[z].soft_pwm_amount);
+        }
       #else
         s.append(F(" B@:"), getHeaterPower(H_BED));
         TERN_(PELTIER_BED, s.append(F(" P@:"), temp_bed.peltier_dir_heating ? 'H' : 'C'));

@@ -146,7 +146,7 @@ void menu_tune() {
     #if HAS_BED_ZONES
       for (uint8_t z = 0; z < BED_ZONES_COUNT; z++) {
         editable.celsius = thermalManager.temp_bed[z].target;
-        EDIT_ITEM_FAST_N(int3, z, MSG_BED_N, &editable.celsius, 0, BED_MAX_TARGET,
+        EDIT_ITEM_FAST_N(int3, z, MSG_BED_ZONE_N, &editable.celsius, 0, BED_MAX_TARGET,
           []{ thermalManager.setTargetBed(editable.celsius, 1U << MenuItemBase::itemIndex); });
       }
     #else

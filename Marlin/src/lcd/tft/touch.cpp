@@ -257,7 +257,12 @@ void Touch::touch(touch_control_t * const control) {
 
         #if HAS_HEATED_BED
           case H_BED:
-            MenuItem_int3::action(GET_TEXT_F(MSG_BED), &thermalManager.temp_bed.target, 0, BED_MAX_TARGET, thermalManager.start_watching_bed);
+            #if HAS_BED_ZONES
+              MenuItemBase::itemIndex = 0;
+              MenuItem_int3::action(GET_TEXT_F(MSG_BED_ZONE_N), &thermalManager.temp_bed[0].target, 0, BED_MAX_TARGET, thermalManager.start_watching_bed);
+            #else
+              MenuItem_int3::action(GET_TEXT_F(MSG_BED), &thermalManager.temp_bed.target, 0, BED_MAX_TARGET, thermalManager.start_watching_bed);
+            #endif
             break;
         #endif
 

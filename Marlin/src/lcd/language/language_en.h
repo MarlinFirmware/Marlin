@@ -128,7 +128,7 @@ namespace LanguageNarrow_en {
   LSTR MSG_NOZZLE                         = _UxGT("Nozzle");
   LSTR MSG_NOZZLE_N                       = _UxGT("Nozzle ~");
   LSTR MSG_BED                            = _UxGT("Bed");
-  LSTR MSG_BED_N                          = _UxGT("Bed Zone ~");
+  LSTR MSG_BED_ZONE_N                     = _UxGT("Bed Zone ~");
   LSTR MSG_FAN_SPEED                      = _UxGT("Fan Speed");
   LSTR MSG_FAN_SPEED_N                    = _UxGT("Fan Speed ~");
   LSTR MSG_FLOW                           = _UxGT("Flow");
