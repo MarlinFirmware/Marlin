@@ -48,27 +48,30 @@ uint8_t USBHost::getUsbTaskState() {
   if (udisk.LUNIsGood(0))
     usb.setUsbTaskState(USB_STATE_RUNNING);
 
-  return u sb_task_state;
+  return usb_task_state;
 }
 
 bool BulkStorage::LUNIsGood(uint8_t t) {
+  UNUSED(t);
   return (udisk.LUNIsGood(0));
 }
 
 void USBHost::setUsbTaskState(uint8_t state) {
   usb_task_state = state;
   if (usb_task_state == USB_STATE_RUNNING) {
-    capacity = capacity*block_size;
     block_size = udisk.GetSectorSize(0);
     block_count = udisk.GetCapacity(0);
+    capacity = block_count * block_size;
   }
 }
 
 uint32_t BulkStorage::GetCapacity(uint8_t lun) {
+  UNUSED(lun);
   return usb->block_count;
 }
 
 uint16_t BulkStorage::GetSectorSize(uint8_t lun) {
+  UNUSED(lun);
   return 512;
 }
 

@@ -36,8 +36,9 @@ private:
   uint32_t         TauUsec = (TauMsec * 1000);
   uint32_t         MaxCompare = 65535-1;        // PWM 范围0-（65535 -1）
 
-  int servo_pin;
-  int degrees;
+  int servo_pin = 0;
+  int degrees = 0;
+  bool pwm_attached = false;
 
 public:
   int8_t  attach(const int inPin);

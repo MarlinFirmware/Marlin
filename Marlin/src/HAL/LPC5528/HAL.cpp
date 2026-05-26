@@ -128,7 +128,7 @@ uint8_t MarlinHAL::get_reset_source() {
 
 void MarlinHAL::reboot() { NVIC_SystemReset(); }
 
-void flashFirmware(const int16_t) {}
+void flashFirmware(const int16_t) { MarlinHAL::reboot(); }
 
 // Maple Compatibility
 volatile uint32_t systick_uptime_millis = 0;

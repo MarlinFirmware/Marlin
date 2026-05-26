@@ -95,10 +95,10 @@ extern volatile uint32_t systick_uptime_millis;
 // Defines
 // ------------------------
 
-//#ifndef PLATFORM_M997_SUPPORT
-//  #define PLATFORM_M997_SUPPORT
-//#endif
-//void flashFirmware(const int16_t);
+#ifndef PLATFORM_M997_SUPPORT
+  #define PLATFORM_M997_SUPPORT
+#endif
+void flashFirmware(const int16_t);
 
 #define HAL_CAN_SET_PWM_FREQ   // This HAL supports PWM Frequency adjustment
 

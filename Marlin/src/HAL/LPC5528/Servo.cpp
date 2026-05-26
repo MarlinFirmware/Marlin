@@ -36,24 +36,31 @@ long map(long x, long in_min, long in_max, long out_min, long out_max) {
 
 void libServo::bspPwmOut(int pin, uint32_t duty) {
   pwm_write(pin,duty);
-  // TODO: ...
 }
 
 void libServo::bspPwmDeinit(int pin) {
-  pwm_detach_pin(pin);
-  // TODO: ...
+  if (pwm_attached) {
+    pwm_detach_pin(pin);
+    pwm_attached = false;
+  }
 }
 
 // Initialize the PWM pin
 int8_t libServo::attach(const int inPin) {
-  //if (chCount >= MAX_SERVOS) return -1;
-  if (inPin > 0 ) servo_pin = inPin;
-  bool result = true;
+  const int old_pin = servo_pin;
+  if (inPin > 0) servo_pin = inPin;
+  if (servo_pin <= 0) return -1;
+
+  if (pwm_attached && inPin > 0 && old_pin != servo_pin)
+    bspPwmDeinit(old_pin);
+
   pwm_init(50);
   analogWriteResolution(65535);
-  result = pwm_attach_pin(servo_pin, 65535);
-  //auto result = TODO: Need to init the pair of PWM pins here, return true if successful, and return false if failed.
-  return result;
+
+  if (!pwm_attached)
+    pwm_attached = pwm_attach_pin(servo_pin, 65535);
+
+  return pwm_attached ? 1 : -1;
 }
 
 // Disable the corresponding pin PWM output
