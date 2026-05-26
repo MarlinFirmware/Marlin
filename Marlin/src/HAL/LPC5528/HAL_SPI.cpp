@@ -169,4 +169,7 @@
 // even if more instances of SPIClass exist
 // static bool spiInitialised[BOARD_NR_SPI] = { false };
 
+SPIClass SPI(1);
+
+
 #endif // TARGET_LPC5528

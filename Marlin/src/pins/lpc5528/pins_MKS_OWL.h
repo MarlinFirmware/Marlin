@@ -44,22 +44,37 @@
 #define X_ENABLE_PIN                       P1_20
 #define X_STEP_PIN                         P1_24
 #define X_DIR_PIN                          P1_13
+#ifndef X_CS_PIN
+  #define X_CS_PIN                         P1_04
+#endif
 
 #define Y_ENABLE_PIN                       P1_20
 #define Y_STEP_PIN                         P1_11
 #define Y_DIR_PIN                          P1_31
+#ifndef Y_CS_PIN
+  #define Y_CS_PIN                         P0_19
+#endif
 
 #define Z_ENABLE_PIN                       P0_06
 #define Z_STEP_PIN                         P0_05
 #define Z_DIR_PIN                          P1_16
+#ifndef Z_CS_PIN
+  #define Z_CS_PIN                         P0_04
+#endif
 
 #define E0_ENABLE_PIN                      P0_02
 #define E0_STEP_PIN                        P1_29
 #define E0_DIR_PIN                         P0_25
+#ifndef E0_CS_PIN
+  #define E0_CS_PIN                        P1_25
+#endif
 
 #define E1_ENABLE_PIN                      P0_02
 #define E1_STEP_PIN                        P0_21
 #define E1_DIR_PIN                         P0_20
+#ifndef E1_CS_PIN
+  #define E1_CS_PIN                        P1_28
+#endif
 
 //
 // Temperature Sensors
@@ -125,9 +140,33 @@
 #endif
 
 //
-// LCD / Controller
+// Default pins for TMC software SPI
 //
-#define TFT_BUFFER_SIZE 14400
+#ifndef TMC_SPI_MOSI
+  #define TMC_SPI_MOSI                     P0_07
+#endif
+#ifndef TMC_SPI_MISO
+  #define TMC_SPI_MISO                     P0_03
+#endif
+#ifndef TMC_SPI_SCK
+  #define TMC_SPI_SCK                      P1_15
+#endif
+
+#if HAS_TMC_UART
+  /**
+   * TMC2208/TMC2209 stepper drivers
+   *
+   * Hardware serial communication ports.
+   * If undefined software serial is used according to the pins below
+   */
+  #define X_SERIAL_TX_PIN                  P1_04
+  #define Y_SERIAL_TX_PIN                  P0_19
+  #define Z_SERIAL_TX_PIN                  P0_04
+  #define E0_SERIAL_TX_PIN                 P1_25
+  #define E1_SERIAL_TX_PIN                 P1_28
+  // Reduce baud rate to improve software serial reliability
+  #define TMC_BAUD_RATE                    19200
+#endif // HAS_TMC_UART
 
 /**
  *                 ------                                          ------
@@ -156,6 +195,11 @@
 #define EXP2_06_PIN                        P0_26
 #define EXP2_07_PIN                        P1_05
 #define EXP2_08_PIN                        -1
+
+//
+// LCD / Controller
+//
+#define TFT_BUFFER_SIZE 14400
 
 #if ANY(TFT_COLOR_UI, TFT_LVGL_UI, TFT_CLASSIC_UI)
   #define TFT_CS_PIN                 EXP1_07_PIN  // LCD_D6
@@ -242,19 +286,3 @@
   //#define BTN_EN1                        P1_10
   //#define BTN_EN2                        P1_22
 #endif
-
-#if HAS_TMC_UART
-  /**
-   * TMC2208/TMC2209 stepper drivers
-   *
-   * Hardware serial communication ports.
-   * If undefined software serial is used according to the pins below
-   */
-  #define X_SERIAL_TX_PIN                  P1_04
-  #define Y_SERIAL_TX_PIN                  P0_19
-  #define Z_SERIAL_TX_PIN                  P0_04
-  #define E0_SERIAL_TX_PIN                 P1_25
-  #define E1_SERIAL_TX_PIN                 P1_28
-  // Reduce baud rate to improve software serial reliability
-  #define TMC_BAUD_RATE                    19200
-#endif // HAS_TMC_UART
