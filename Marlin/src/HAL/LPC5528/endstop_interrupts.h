@@ -118,7 +118,7 @@ void setup_endstop_interrupts() {
   #endif
   #if USE_Z3_MAX
     #if !LPC5528_PIN_INTERRUPT_M(Z3_MAX_PIN)
-      #error "Z3_MIN_PIN is not INTERRUPT-capable. Disable ENDSTOP_INTERRUPTS_FEATURE to continue."
+      #error "Z3_MAX_PIN is not INTERRUPT-capable. Disable ENDSTOP_INTERRUPTS_FEATURE to continue."
     #endif
     _ATTACH(Z3_MAX_PIN);
   #endif
@@ -130,7 +130,7 @@ void setup_endstop_interrupts() {
   #endif
   #if USE_Z4_MAX
     #if !LPC5528_PIN_INTERRUPT_M(Z4_MAX_PIN)
-      #error "Z4_MIN_PIN is not INTERRUPT-capable. Disable ENDSTOP_INTERRUPTS_FEATURE to continue."
+      #error "Z4_MAX_PIN is not INTERRUPT-capable. Disable ENDSTOP_INTERRUPTS_FEATURE to continue."
     #endif
     _ATTACH(Z4_MAX_PIN);
   #endif

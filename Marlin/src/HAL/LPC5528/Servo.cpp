@@ -51,7 +51,7 @@ int8_t libServo::attach(const int inPin) {
   bool result = true;
   pwm_init(50);
   analogWriteResolution(65535);
-  result = pwm_attach_pin(SERVO0_PIN, 65535);
+  result = pwm_attach_pin(servo_pin, 65535);
   //auto result = TODO: Need to init the pair of PWM pins here, return true if successful, and return false if failed.
   return result;
 }
@@ -74,7 +74,7 @@ void libServo::move(const int value) {
   static_assert(COUNT(servo_delay) == NUM_SERVOS, "SERVO_DELAY must be an array NUM_SERVOS long.");
   if (attach(0) >= 0) {
     write(value);
-    safe_delay(servo_delay[servo_pin]);
+    safe_delay(servo_delay[servoIndex]);
     TERN_(DEACTIVATE_SERVOS_AFTER_MOVE, detach());
   }
 }
