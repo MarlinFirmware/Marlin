@@ -25,6 +25,13 @@
 #include "../shared/Delay.h"
 #include "fastio.h"
 
+extern "C" {
+  void u8g_Delay(uint16_t val) { delay(val); }
+  void U8g_delay(int msec) { u8g_Delay(uint16_t(msec)); }
+  void u8g_MicroDelay() { DELAY_US(1); }
+  void u8g_10MicroDelay() { DELAY_US(10); }
+}
+
 int freeMemory() {
   volatile char top;
   return &top - reinterpret_cast<char*>(_sbrk(0));

@@ -60,9 +60,13 @@
 #if IS_U8GLIB_ST7920
 
 #include <U8glib-HAL.h>
-#include <SoftwareSPI.h>
 #include "../../shared/Delay.h"
 #include "../../shared/HAL_SPI.h"
+
+#include <Arduino.h>
+#include <algorithm>
+#include <LPC55S28.h>
+#include <gpio.h>
 
 #ifndef LCD_SPI_SPEED
   #define LCD_SPI_SPEED SPI_EIGHTH_SPEED  // About 1 MHz
@@ -70,6 +74,76 @@
 
 static pin_t SCK_pin_ST7920_HAL, MOSI_pin_ST7920_HAL_HAL;
 static uint8_t SPI_speed = 0;
+
+static uint8_t swSpiTransfer_mode_0(uint8_t b, const uint8_t spi_speed, const pin_t sck_pin, const pin_t miso_pin, const pin_t mosi_pin ) {
+
+  for (uint8_t i = 0; i < 8; ++i) {
+    if (spi_speed == 0) {
+      LPC5528::gpio_set(mosi_pin, !!(b & 0x80));
+      LPC5528::gpio_set(sck_pin, HIGH);
+      b <<= 1;
+      if (miso_pin >= 0 && LPC5528::gpio_get(miso_pin)) b |= 1;
+      LPC5528::gpio_set(sck_pin, LOW);
+    }
+    else {
+      const uint8_t state = (b & 0x80) ? HIGH : LOW;
+      for (uint8_t j = 0; j < spi_speed; ++j)
+        LPC5528::gpio_set(mosi_pin, state);
+
+      for (uint8_t j = 0; j < spi_speed + (miso_pin >= 0 ? 0 : 1); ++j)
+        LPC5528::gpio_set(sck_pin, HIGH);
+
+      b <<= 1;
+      if (miso_pin >= 0 && LPC5528::gpio_get(miso_pin)) b |= 1;
+
+      for (uint8_t j = 0; j < spi_speed; ++j)
+        LPC5528::gpio_set(sck_pin, LOW);
+    }
+  }
+
+  return b;
+}
+
+static uint8_t swSpiTransfer_mode_3(uint8_t b, const uint8_t spi_speed, const pin_t sck_pin, const pin_t miso_pin, const pin_t mosi_pin ) {
+
+  for (uint8_t i = 0; i < 8; ++i) {
+    const uint8_t state = (b & 0x80) ? HIGH : LOW;
+    if (spi_speed == 0) {
+      LPC5528::gpio_set(sck_pin, LOW);
+      LPC5528::gpio_set(mosi_pin, state);
+      LPC5528::gpio_set(mosi_pin, state);  // need some setup time
+      LPC5528::gpio_set(sck_pin, HIGH);
+    }
+    else {
+      for (uint8_t j = 0; j < spi_speed + (miso_pin >= 0 ? 0 : 1); ++j)
+        LPC5528::gpio_set(sck_pin, LOW);
+
+      for (uint8_t j = 0; j < spi_speed; ++j)
+        LPC5528::gpio_set(mosi_pin, state);
+
+      for (uint8_t j = 0; j < spi_speed; ++j)
+        LPC5528::gpio_set(sck_pin, HIGH);
+    }
+    b <<= 1;
+    if (miso_pin >= 0 && LPC5528::gpio_get(miso_pin)) b |= 1;
+  }
+
+  return b;
+}
+
+static inline uint8_t swSpiTransfer(uint8_t b, const uint8_t spi_speed, const pin_t sck_pin, const pin_t miso_pin, const pin_t mosi_pin) {
+  #if U8G_SPI_USE_MODE_3
+    return swSpiTransfer_mode_3(b, spi_speed, sck_pin, miso_pin, mosi_pin);
+  #else
+    return swSpiTransfer_mode_0(b, spi_speed, sck_pin, miso_pin, mosi_pin);
+  #endif
+}
+
+static uint8_t swSpiInit(const uint8_t spi_speed, const pin_t sck_pin, const pin_t mosi_pin) {
+  UNUSED(sck_pin);
+  UNUSED(mosi_pin);
+  return spi_speed;
+}
 
 static void u8g_com_LPC5528_st7920_write_byte_sw_spi(uint8_t rs, uint8_t val) {
   static uint8_t rs_last_state = 255;
