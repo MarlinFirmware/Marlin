@@ -29,7 +29,7 @@
 #include "../../module/probe.h"
 #include "../../module/planner.h"
 
-#if ENABLED(MESH_BED_LEVELING)
+#if ANY(MESH_BED_LEVELING, GLOBAL_MESH_Z_OFFSET)
   #include "../../feature/bedlevel/bedlevel.h"
 #endif
 
@@ -105,7 +105,9 @@ void GcodeSuite::M290() {
     }
     #endif
 
-    #if ENABLED(MESH_BED_LEVELING)
+    #if ENABLED(GLOBAL_MESH_Z_OFFSET)
+      SERIAL_ECHO_MSG(STR_MESH_Z_OFFSET, mesh_z_offset);
+    #elif ENABLED(MESH_BED_LEVELING)
       SERIAL_ECHO_MSG("MBL Adjust Z", bedlevel.z_offset);
     #endif
 
