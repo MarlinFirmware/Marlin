@@ -48,6 +48,9 @@ enum {
     LEVELING_SCREEN_CACHE,
     #if HAS_BED_PROBE
       ZOFFSET_SCREEN_CACHE,
+      #if ENABLED(GLOBAL_MESH_Z_OFFSET)
+        MESH_ZOFFSET_SCREEN_CACHE,
+      #endif
     #endif
     #if HAS_MESH
       BED_MESH_VIEW_SCREEN_CACHE,
@@ -167,6 +170,9 @@ enum {
   #endif
   #if HAS_BED_PROBE
     #include "z_offset_screen.h"
+    #if ENABLED(GLOBAL_MESH_Z_OFFSET)
+      #include "mesh_z_offset_screen.h"
+    #endif
   #endif
   #if HAS_MESH
     #include "bed_mesh_base.h"

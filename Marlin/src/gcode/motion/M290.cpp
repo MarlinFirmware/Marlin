@@ -107,8 +107,6 @@ void GcodeSuite::M290() {
 
     #if ENABLED(GLOBAL_MESH_Z_OFFSET)
       SERIAL_ECHO_MSG(STR_MESH_Z_OFFSET, mesh_z_offset);
-    #elif ENABLED(MESH_BED_LEVELING)
-      SERIAL_ECHO_MSG("MBL Adjust Z", bedlevel.z_offset);
     #endif
 
     #if ENABLED(BABYSTEP_DISPLAY_TOTAL)
