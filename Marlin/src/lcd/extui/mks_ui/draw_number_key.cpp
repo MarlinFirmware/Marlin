@@ -44,6 +44,9 @@
 #if HAS_BED_PROBE
   #include "../../../module/probe.h"
 #endif
+#if ENABLED(GLOBAL_MESH_Z_OFFSET)
+  #include "../../../feature/bedlevel/bedlevel.h"
+#endif
 
 extern lv_group_t *g;
 static lv_obj_t *scr;
@@ -180,6 +183,9 @@ static void disp_key_value() {
       #endif
       case z_offset: dtostrf(probe.offset.z, 1, 3, public_buf_m); break;
     #endif
+    #if ENABLED(GLOBAL_MESH_Z_OFFSET)
+      case meshZOffset: dtostrf(mesh_z_offset, 1, 2, public_buf_m); break;
+    #endif
 
     // TODO: Use built-in filament change instead of the MKS UI implementation
     case load_length:   itoa(gCfgItems.filamentchange_load_length,   public_buf_m, 10); break;
@@ -302,6 +308,12 @@ static void set_value_confirm() {
       case z_offset: {
         const float z = atof(key_value);
         if (WITHIN(z, PROBE_OFFSET_ZMIN, PROBE_OFFSET_ZMAX)) probe.offset.z = z;
+      } break;
+    #endif
+    #if ENABLED(GLOBAL_MESH_Z_OFFSET)
+      case meshZOffset: {
+        const float z = atof(key_value);
+        if (WITHIN(z, PROBE_OFFSET_ZMIN, PROBE_OFFSET_ZMAX)) mesh_z_offset = z;
       } break;
     #endif
 
