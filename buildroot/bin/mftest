@@ -205,14 +205,18 @@ if ((AUTO_BUILD)); then
       IND=0 ; for ENV in "${ENVS[@]}"; do let IND++ ; echo " $IND) $ENV" ; done
 
       if [[ $ECOUNT > 1 ]]; then
-        for (( ; ; ))
-        do
-          read -p "Select a target for '$MB' (1-$ECOUNT) : " CHOICE
-          [[ -z "$CHOICE" ]] && { echo '(canceled)' ; exit 1 ; }
-          [[ $CHOICE =~ $ISNUM ]] && ((CHOICE >= 1 && CHOICE <= ECOUNT)) && break
-          errout ">>> Invalid environment choice '$CHOICE'."
-        done
-        echo
+        if [[ ! -t 0 ]]; then
+          CHOICE=1   # Non-interactive: pick first env
+        else
+          for (( ; ; ))
+          do
+            read -p "Select a target for '$MB' (1-$ECOUNT) : " CHOICE
+            [[ -z "$CHOICE" ]] && { echo '(canceled)' ; exit 1 ; }
+            [[ $CHOICE =~ $ISNUM ]] && ((CHOICE >= 1 && CHOICE <= ECOUNT)) && break
+            errout ">>> Invalid environment choice '$CHOICE'."
+          done
+          echo
+        fi
       fi
     else
       echo "Detected \"$BDESC\" | $MB ($BNUM)."
@@ -274,6 +278,10 @@ if [[ $TESTENV == '-' ]]; then
   done
 
   echo
+  if [[ ! -t 0 ]]; then
+    errout "Non-interactive: use -t<env> to specify a test environment."
+    exit 1
+  fi
   for (( ; ; ))
   do
     read -p "Select an environment to test (1-$IND) : " NAMEIND
@@ -304,6 +312,10 @@ if [[ $CHOICE == 0 ]]; then
   done
   CHOICE=1
   if (( TESTCOUNT > 1 )); then
+    if [[ ! -t 0 ]]; then
+      errout "Non-interactive: use -n<num> to select a test."
+      exit 1
+    fi
     echo
     for (( ; ; ))
     do
@@ -340,11 +352,15 @@ if [[ ! $INFO ]] ; then
 
   # Build the test too?
   if [[ -z "$BUILD_YES" ]]; then
-    echo
-    read -p "Build $TESTENV test #$CHOICE (y/N) ? " BUILD_YES
+    if [[ ! -t 0 ]]; then
+      BUILD_YES='Y'   # Non-interactive shell: auto-build
+    else
+      echo
+      read -p "Build $TESTENV test #$CHOICE (y/N) ? " BUILD_YES
+    fi
   fi
 
-  [[ $BUILD_YES == 'Y' || $BUILD_YES == 'Yes' ]] && {
+  [[ $BUILD_YES == 'Y' || $BUILD_YES == 'Yes' || $BUILD_YES == 'y' || $BUILD_YES == 'yes' ]] && {
 
     # Remember the last-built environment for mftest -r
     echo "$TESTENV" >"$STATE_FILE"
