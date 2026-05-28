@@ -137,7 +137,7 @@ int8_t digital_pin_to_analog_pin(pin_t pin) {
 }
 
 bool isAnalogPin(const pin_t pin) {
-  return digital_pin_to_analog_pin(pin) != -1;
+  return digital_pin_to_analog_pin(pin) >= 0;
 }
 
 #define digitalRead_mod(A) extDigitalRead(A)  // must use Arduino pin numbers when doing reads

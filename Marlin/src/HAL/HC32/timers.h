@@ -27,7 +27,7 @@
 //
 typedef Timer0 *timer_channel_t;
 typedef uint16_t hal_timer_t;
-#define HAL_TIMER_TYPE_MAX 0xFFFFU
+#define HAL_TIMER_TYPE_MAX hal_timer_t(UINT16_MAX)
 
 //
 // Timer instances
@@ -65,13 +65,13 @@ extern Timer0 step_timer;
 #define STEP_TIMER_PRIORITY    DDL_IRQ_PRIORITY_00  // Top priority, nothing else uses it
 #define STEPPER_TIMER_PRESCALE 16UL                 // 12.5MHz
 
-#define STEPPER_TIMER_RATE (HAL_TIMER_RATE / STEPPER_TIMER_PRESCALE)  // 50MHz / 16 = 3.125MHz
-#define STEPPER_TIMER_TICKS_PER_US (STEPPER_TIMER_RATE / 1000000UL)   // Integer 3
+#define STEPPER_TIMER_RATE          (HAL_TIMER_RATE / STEPPER_TIMER_PRESCALE) // 50MHz / 16 = 3.125MHz
+#define STEPPER_TIMER_TICKS_PER_US  ((STEPPER_TIMER_RATE) / 1000000UL)        // Integer 3
 
 // Pulse timer (== stepper timer)
-#define MF_TIMER_PULSE            MF_TIMER_STEP
-#define PULSE_TIMER_PRESCALE      STEPPER_TIMER_PRESCALE
-#define PULSE_TIMER_TICKS_PER_US  STEPPER_TIMER_TICKS_PER_US
+#define MF_TIMER_PULSE        MF_TIMER_STEP
+#define PULSE_TIMER_RATE      STEPPER_TIMER_RATE                        // (Hz) Frequency of Pulse Timer
+#define PULSE_TIMER_PRESCALE  STEPPER_TIMER_PRESCALE
 
 //
 // HAL functions
@@ -110,11 +110,11 @@ inline void HAL_timer_isr_epilogue(const timer_channel_t) {}
 //
 // HAL function aliases
 //
-#define ENABLE_STEPPER_DRIVER_INTERRUPT() HAL_timer_enable_interrupt(MF_TIMER_STEP)
-#define DISABLE_STEPPER_DRIVER_INTERRUPT() HAL_timer_disable_interrupt(MF_TIMER_STEP)
-#define STEPPER_ISR_ENABLED() HAL_timer_interrupt_enabled(MF_TIMER_STEP)
+#define ENABLE_STEPPER_DRIVER_INTERRUPT()   HAL_timer_enable_interrupt(MF_TIMER_STEP)
+#define DISABLE_STEPPER_DRIVER_INTERRUPT()  HAL_timer_disable_interrupt(MF_TIMER_STEP)
+#define STEPPER_ISR_ENABLED()               HAL_timer_interrupt_enabled(MF_TIMER_STEP)
 
-#define ENABLE_TEMPERATURE_INTERRUPT() HAL_timer_enable_interrupt(MF_TIMER_TEMP)
+#define ENABLE_TEMPERATURE_INTERRUPT()  HAL_timer_enable_interrupt(MF_TIMER_TEMP)
 #define DISABLE_TEMPERATURE_INTERRUPT() HAL_timer_disable_interrupt(MF_TIMER_TEMP);
 
 //

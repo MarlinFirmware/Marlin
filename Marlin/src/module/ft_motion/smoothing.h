@@ -24,24 +24,40 @@
 #include "../../inc/MarlinConfig.h"
 
 typedef struct FTSmoothedAxes {
-  float CARTES_AXIS_NAMES;
+  union {
+    struct { float CARTES_AXIS_NAMES;    };
+    struct { float CARTES_AXIS_NAMES_LC; };
+    float data[CARTES_COUNT];
+  };
+        float&  operator[](const int n)       { return data[n]; }
+  const float&  operator[](const int n) const { return data[n]; }
 } ft_smoothed_float_t;
 
 // Smoothing data for each axis
-// The smoothing algorithm used is an approximation of moving window averaging with gaussian weights, based
-// on chained exponential smoothers.
+// For the smoothing algorithm use an approximation of moving window averaging
+// with Gaussian weights, based on chained exponential smoothers.
 typedef struct AxisSmoothing {
   float smoothing_pass[FTM_SMOOTHING_ORDER] = { 0.0f }; // Last value of each of the exponential smoothing passes
-  float alpha = 0.0f;                                   // Pre-calculated alpha for smoothing.
-  uint32_t delay_samples = 0;                           // Pre-calculated delay in samples for smoothing.
-  void set_smoothing_time(const float s_time);          // Set smoothing time, recalculate alpha and delay.
+  float alpha = 0.0f;                                   // Pre-calculated alpha for smoothing
+  uint32_t delay_samples = 0;                           // Pre-calculated delay in samples for smoothing
+  void set_time(const float s_time);                    // Set smoothing time, recalculate alpha and delay
 } axis_smoothing_t;
 
 typedef struct Smoothing {
   axis_smoothing_t CARTES_AXIS_NAMES;
   int32_t largest_delay_samples;
-  // Smoothing causes a phase delay equal to smoothing_time. This delay is componensated for during axis synchronisation, which
-  // is done by delaying all axes to match the laggiest one (i.e largest_delay_samples).
+  // Smoothing causes a phase delay equal to smoothing_time. This delay is compensated-for during axis synchronization,
+  // which is done by delaying all axes to match the laggiest one (i.e., largest_delay_samples).
   void refresh_largest_delay_samples() { largest_delay_samples = _MAX(CARTES_LIST(X.delay_samples, Y.delay_samples, Z.delay_samples, E.delay_samples)); }
-  // Note: the delay equals smoothing_time iff the input signal frequency is lower than 1/smoothing_time, luckily for us, this holds in this case
+  // Note: The delay equals smoothing_time only if the input signal frequency is under 1/smoothing_time; which, luckily, holds in this case.
+  void reset() {
+    #define _CLEAR(A) ZERO(A.smoothing_pass);
+    LOGICAL_AXIS_MAP(_CLEAR);
+    #undef _CLEAR
+  }
+  void fill(const xyze_float_t pos) {
+    #define _FILL_SMO(A) for (uint32_t i = 0; i < FTM_SMOOTHING_ORDER; i++) A.smoothing_pass[i] = pos.A;
+    LOGICAL_AXIS_MAP(_FILL_SMO);
+    #undef _FILL_SMO
+  }
 } smoothing_t;

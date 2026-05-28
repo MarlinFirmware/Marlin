@@ -61,7 +61,7 @@
 #if ENABLED(EXTENSIBLE_UI)
   #include "../../lcd/extui/ui_api.h"
 #elif ENABLED(DWIN_CREALITY_LCD)
-  #include "../../lcd/e3v2/creality/dwin.h"
+  #include "../../lcd/dwin/creality/dwin.h"
 #elif ENABLED(SOVOL_SV06_RTS)
   #include "../../lcd/sovol_rts/sovol_rts.h"
 #endif
@@ -78,19 +78,19 @@
   static void quick_home_xy() {
 
     // Pretend the current position is 0,0
-    current_position.set(0.0, 0.0);
-    sync_plan_position();
+    motion.position.set(0.0, 0.0);
+    motion.sync_plan_position();
 
-    const int x_axis_home_dir = TOOL_X_HOME_DIR(active_extruder);
+    const int x_axis_home_dir = motion.tool_x_home_dir();
 
     // Use a higher diagonal feedrate so axes move at homing speed
-    const float minfr = _MIN(homing_feedrate(X_AXIS), homing_feedrate(Y_AXIS)),
+    const float minfr = _MIN(motion.homing_feedrate(X_AXIS), motion.homing_feedrate(Y_AXIS)),
                 fr_mm_s = HYPOT(minfr, minfr);
 
     // Set homing current to X and Y axis if defined
-    TERN_(X_HAS_HOME_CURRENT, set_homing_current(X_AXIS));
+    TERN_(X_HAS_HOME_CURRENT, motion.set_homing_current(X_AXIS));
     #if Y_HAS_HOME_CURRENT && NONE(CORE_IS_XY, MARKFORGED_XY, MARKFORGED_YX)
-      set_homing_current(Y_AXIS);
+      motion.set_homing_current(Y_AXIS);
     #endif
 
     #if ENABLED(SENSORLESS_HOMING)
@@ -105,15 +105,34 @@
       };
     #endif
 
-    do_blocking_move_to_xy(1.5 * max_length(X_AXIS) * x_axis_home_dir, 1.5 * max_length(Y_AXIS) * Y_HOME_DIR, fr_mm_s);
+    // SCARA should move in angular coordinates
+    #if IS_SCARA
+      // This code is similar to Motion::do_homing_move, but for two axes at once
+
+      #if HAS_DIST_MM_ARG
+        const xyze_float_t cart_dist_mm{0};
+      #endif
+
+      abce_pos_t target = planner.get_axis_positions_mm();
+
+      target[X_AXIS] += 360 * x_axis_home_dir; // Move 360 degrees towards the endstop
+      target[Y_AXIS] += 360 * Y_HOME_DIR;      // Move 360 degrees towards the endstop
+      planner.buffer_segment(target OPTARG(HAS_DIST_MM_ARG, cart_dist_mm), fr_mm_s, motion.extruder);
+      planner.synchronize();
+
+    #else
+
+      motion.blocking_move_xy(1.5 * motion.max_axis_length(X_AXIS) * x_axis_home_dir, 1.5 * motion.max_axis_length(Y_AXIS) * Y_HOME_DIR, fr_mm_s);
+
+    #endif
 
     endstops.validate_homing_move();
 
-    current_position.set(0.0, 0.0);
+    motion.position.set(0.0, 0.0);
 
-    TERN_(X_HAS_HOME_CURRENT, restore_homing_current(X_AXIS));
+    TERN_(X_HAS_HOME_CURRENT, motion.restore_homing_current(X_AXIS));
     #if Y_HAS_HOME_CURRENT && NONE(CORE_IS_XY, MARKFORGED_XY, MARKFORGED_YX)
-      restore_homing_current(Y_AXIS);
+      motion.restore_homing_current(Y_AXIS);
     #endif
 
     #if ENABLED(SENSORLESS_HOMING) && DISABLED(ENDSTOPS_ALWAYS_ON_DEFAULT)
@@ -129,37 +148,36 @@
 #if ENABLED(Z_SAFE_HOMING)
 
   inline void home_z_safely() {
+    DEBUG_SECTION(log_G28, "home_z_safely", DEBUGGING(LEVELING));
+
+    // Disallow Z homing if X or Y homing is needed
+    if (motion.homing_needed_error(_BV(X_AXIS) | _BV(Y_AXIS))) return;
 
     // Potentially disable Fixed-Time Motion for homing
     TERN_(FT_MOTION, FTM_DISABLE_IN_SCOPE());
 
-    DEBUG_SECTION(log_G28, "home_z_safely", DEBUGGING(LEVELING));
-
-    // Disallow Z homing if X or Y homing is needed
-    if (homing_needed_error(_BV(X_AXIS) | _BV(Y_AXIS))) return;
-
-    sync_plan_position();
+    motion.sync_plan_position();
 
     /**
      * Move the Z probe (or just the nozzle) to the safe homing point
      * (Z is already at the right height)
      */
     constexpr xy_float_t safe_homing_xy = { Z_SAFE_HOMING_X_POINT, Z_SAFE_HOMING_Y_POINT };
-    destination.set(safe_homing_xy, current_position.z);
+    motion.destination.set(safe_homing_xy, motion.position.z);
 
-    TERN_(HOMING_Z_WITH_PROBE, destination -= probe.offset_xy);
+    TERN_(HOMING_Z_WITH_PROBE, motion.destination -= probe.offset_xy);
 
-    if (position_is_reachable(destination)) {
+    if (motion.can_reach(motion.destination)) {
 
-      if (DEBUGGING(LEVELING)) DEBUG_POS("home_z_safely", destination);
+      if (DEBUGGING(LEVELING)) DEBUG_POS("home_z_safely", motion.destination);
 
       // Free the active extruder for movement
-      TERN_(DUAL_X_CARRIAGE, idex_set_parked(false));
+      TERN_(DUAL_X_CARRIAGE, motion.idex_set_parked(false));
 
       TERN_(SENSORLESS_HOMING, safe_delay(500)); // Short delay needed to settle
 
-      do_blocking_move_to_xy(destination);
-      homeaxis(Z_AXIS);
+      motion.blocking_move_xy(motion.destination);
+      motion.homeaxis(Z_AXIS);
     }
     else {
       LCD_MESSAGE(MSG_ZPROBE_OUT);
@@ -228,10 +246,10 @@ void GcodeSuite::G28() {
 
   #if ENABLED(MARLIN_DEV_MODE)
     if (parser.seen_test('S')) {
-      LOOP_NUM_AXES(a) set_axis_is_at_home((AxisEnum)a);
-      sync_plan_position();
+      LOOP_NUM_AXES(a) motion.set_axis_is_at_home((AxisEnum)a);
+      motion.sync_plan_position();
       SERIAL_ECHOLNPGM("Simulated Homing");
-      report_current_position();
+      motion.report_position();
       return;
     }
   #endif
@@ -244,14 +262,14 @@ void GcodeSuite::G28() {
   #endif
 
   // Home (O)nly if position is unknown
-  if (!axes_should_home() && parser.seen_test('O')) {
+  if (!motion.axes_should_home() && parser.seen_test('O')) {
     if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("> homing not needed, skip");
     return;
   }
 
   #if ENABLED(FULL_REPORT_TO_HOST_FEATURE)
-    const M_StateEnum old_grblstate = M_State_grbl;
-    set_and_report_grblstate(M_HOMING);
+    const M_StateEnum old_grblstate = motion.M_State_grbl;
+    motion.set_and_report_grblstate(M_HOMING);
   #endif
 
   TERN_(DWIN_CREALITY_LCD, dwinHomingStart());
@@ -265,11 +283,11 @@ void GcodeSuite::G28() {
   #if NUM_AXES
 
     #if ENABLED(DUAL_X_CARRIAGE)
-      bool IDEX_saved_duplication_state = extruder_duplication_enabled;
-      DualXMode IDEX_saved_mode = dual_x_carriage_mode;
+      bool IDEX_saved_duplication_state = motion.extruder_duplication;
+      DualXMode IDEX_saved_mode = motion.idex_mode;
     #endif
 
-    SET_SOFT_ENDSTOP_LOOSE(false);  // Reset a leftover 'loose' motion state
+    motion.set_soft_endstop_loose(false);  // Reset a leftover 'loose' motion state
 
     // Disable the leveling matrix before homing
     #if CAN_SET_LEVELING_AFTER_G28
@@ -295,7 +313,7 @@ void GcodeSuite::G28() {
     // Always home with tool 0 active
     #if HAS_MULTI_HOTEND
       #if DISABLED(DELTA) || ENABLED(DELTA_HOME_TO_SAFE_ZONE)
-        const uint8_t old_tool_index = active_extruder;
+        const uint8_t old_tool_index = motion.extruder;
       #endif
       // PARKING_EXTRUDER homing requires different handling of movement / solenoid activation, depending on the side of homing
       #if ENABLED(PARKING_EXTRUDER)
@@ -305,9 +323,9 @@ void GcodeSuite::G28() {
       tool_change(0, true);
     #endif
 
-    TERN_(HAS_DUPLICATION_MODE, set_duplication_enabled(false));
+    TERN_(HAS_DUPLICATION_MODE, motion.set_extruder_duplication(false));
 
-    remember_feedrate_scaling_off();
+    motion.remember_feedrate_scaling_off();
 
     endstops.enable(true); // Enable endstops for next homing move
 
@@ -331,7 +349,7 @@ void GcodeSuite::G28() {
 
     #else // !DELTA && !AXEL_TPARA
 
-      #define _UNSAFE(A) TERN0(Z_SAFE_HOMING, homeZZ && axis_should_home(_AXIS(A)))
+      #define _UNSAFE(A) TERN0(Z_SAFE_HOMING, homeZZ && motion.axis_should_home(_AXIS(A)))
 
       const bool homeZZ = TERN0(HAS_Z_AXIS, parser.seen_test('Z')),
                  NUM_AXIS_LIST_(             // Other axes should be homed before Z safe-homing
@@ -368,7 +386,7 @@ void GcodeSuite::G28() {
 
         // Z may home first, e.g., when homing away from the bed.
         // This is also permitted when homing with a Z endstop.
-        if (TERN0(HOME_Z_FIRST, doZ)) homeaxis(Z_AXIS);
+        if (TERN0(HOME_Z_FIRST, doZ)) motion.homeaxis(Z_AXIS);
 
         // 'R' to specify a specific raise. 'R0' indicates no raise, e.g., for recovery.resume
         // When 'R0' is used, there should already be adequate clearance, e.g., from homing Z to max.
@@ -378,7 +396,7 @@ void GcodeSuite::G28() {
         float z_homing_height = seenR ? parser.value_linear_units() : Z_CLEARANCE_FOR_HOMING;
 
         // Check for any lateral motion that might require clearance
-        const bool may_skate = seenR NUM_AXIS_GANG(|| doX, || doY, || TERN0(Z_SAFE_HOMING, doZ), || doI, || doJ, || doK, || doU, || doV, || doW);
+        const bool may_skate = seenR || NUM_AXIS_ANY(doX, doY, TERN0(Z_SAFE_HOMING, doZ), doI, doJ, doK, doU, doV, doW);
 
         if (seenR && z_homing_height == 0) {
           if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("R0 = No Z raise");
@@ -387,15 +405,15 @@ void GcodeSuite::G28() {
           bool with_probe = ENABLED(HOMING_Z_WITH_PROBE);
           // Raise above the current Z (which should be synced in the planner)
           // The "height" for Z is a coordinate. But if Z is not trusted/homed make it relative.
-          if (seenR || !(z_min_trusted || axis_should_home(Z_AXIS))) {
-            z_homing_height += current_position.z;
+          if (seenR || !(motion.z_min_trusted || motion.axis_should_home(Z_AXIS))) {
+            z_homing_height += motion.position.z;
             with_probe = false;
           }
 
           if (may_skate) {
             // Apply Z clearance before doing any lateral motion
             if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Raise Z before homing:");
-            do_z_clearance(z_homing_height, with_probe);
+            motion.do_z_clearance(z_homing_height, with_probe);
           }
         }
 
@@ -410,50 +428,38 @@ void GcodeSuite::G28() {
       #if HAS_Y_AXIS
         // Home Y (before X)
         if (ENABLED(HOME_Y_BEFORE_X) && (doY || TERN0(CODEPENDENT_XY_HOMING, doX)))
-          homeaxis(Y_AXIS);
+          motion.homeaxis(Y_AXIS);
       #endif
 
       // Home X
       #if HAS_X_AXIS
         if (doX || (doY && ENABLED(CODEPENDENT_XY_HOMING) && DISABLED(HOME_Y_BEFORE_X))) {
-
           #if ENABLED(DUAL_X_CARRIAGE)
-
-            // Always home the 2nd (right) extruder first
-            active_extruder = 1;
-            homeaxis(X_AXIS);
-
-            // Remember this extruder's position for later tool change
-            inactive_extruder_x = current_position.x;
-
-            // Home the 1st (left) extruder
-            active_extruder = 0;
-            homeaxis(X_AXIS);
-
-            // Consider the active extruder to be in its "parked" position
-            idex_set_parked();
-
+            motion.idex_home_x();
           #else
 
-            homeaxis(X_AXIS);
+            #if ENABLED(SCARA) && DISABLED(HOME_Y_BEFORE_X)
+              DISABLE_AXIS_Y(); // Allow elbow to be dragged around freely during shoulder homing
+            #endif
 
+            motion.homeaxis(X_AXIS);
           #endif
         }
       #endif // HAS_X_AXIS
 
       #if ALL(FOAMCUTTER_XYUV, HAS_I_AXIS)
         // Home I (after X)
-        if (doI) homeaxis(I_AXIS);
+        if (doI) motion.homeaxis(I_AXIS);
       #endif
 
       #if HAS_Y_AXIS
         // Home Y (after X)
-        if (DISABLED(HOME_Y_BEFORE_X) && doY) homeaxis(Y_AXIS);
+        if (DISABLED(HOME_Y_BEFORE_X) && doY) motion.homeaxis(Y_AXIS);
       #endif
 
       #if ALL(FOAMCUTTER_XYUV, HAS_J_AXIS)
         // Home J (after Y)
-        if (doJ) homeaxis(J_AXIS);
+        if (doJ) motion.homeaxis(J_AXIS);
       #endif
 
       TERN_(IMPROVE_HOMING_RELIABILITY, end_slow_homing(saved_motion_state));
@@ -461,7 +467,7 @@ void GcodeSuite::G28() {
       #if ENABLED(FOAMCUTTER_XYUV)
 
         // Skip homing of unused Z axis for foamcutters
-        if (doZ) set_axis_is_at_home(Z_AXIS);
+        if (doZ) motion.set_axis_is_at_home(Z_AXIS);
 
       #elif HAS_Z_AXIS
 
@@ -479,9 +485,9 @@ void GcodeSuite::G28() {
               if (!parser.seen_test('H'))
                 home_z_safely();
               else
-                homeaxis(Z_AXIS);
+                motion.homeaxis(Z_AXIS);
             #else
-              homeaxis(Z_AXIS);
+              motion.homeaxis(Z_AXIS);
             #endif
 
             #if ANY(Z_HOME_TO_MIN, ALLOW_Z_AFTER_HOMING)
@@ -491,19 +497,19 @@ void GcodeSuite::G28() {
         #endif
 
         SECONDARY_AXIS_CODE(
-          if (doI) homeaxis(I_AXIS),
-          if (doJ) homeaxis(J_AXIS),
-          if (doK) homeaxis(K_AXIS),
-          if (doU) homeaxis(U_AXIS),
-          if (doV) homeaxis(V_AXIS),
-          if (doW) homeaxis(W_AXIS)
+          if (doI) motion.homeaxis(I_AXIS),
+          if (doJ) motion.homeaxis(J_AXIS),
+          if (doK) motion.homeaxis(K_AXIS),
+          if (doU) motion.homeaxis(U_AXIS),
+          if (doV) motion.homeaxis(V_AXIS),
+          if (doW) motion.homeaxis(W_AXIS)
         );
 
       #endif // HAS_Z_AXIS
 
-      sync_plan_position();
+      motion.sync_plan_position();
 
-    #endif
+    #endif // !DELTA && !AXEL_TPARA
 
     /**
      * Preserve DXC mode across a G28 for IDEX printers in DXC_DUPLICATION_MODE.
@@ -512,31 +518,13 @@ void GcodeSuite::G28() {
      * IDEX specific commands in it.
      */
     #if ENABLED(DUAL_X_CARRIAGE)
-
-      if (idex_is_duplicating()) {
-
+      if (motion.idex_is_duplicating()) {
         TERN_(IMPROVE_HOMING_RELIABILITY, saved_motion_state = begin_slow_homing());
-
-        // Always home the 2nd (right) extruder first
-        active_extruder = 1;
-        homeaxis(X_AXIS);
-
-        // Remember this extruder's position for later tool change
-        inactive_extruder_x = current_position.x;
-
-        // Home the 1st (left) extruder
-        active_extruder = 0;
-        homeaxis(X_AXIS);
-
-        // Consider the active extruder to be parked
-        idex_set_parked();
-
-        dual_x_carriage_mode = IDEX_saved_mode;
-        set_duplication_enabled(IDEX_saved_duplication_state);
-
+        motion.idex_home_x();
+        motion.idex_mode = IDEX_saved_mode;
+        motion.set_extruder_duplication(IDEX_saved_duplication_state);
         TERN_(IMPROVE_HOMING_RELIABILITY, end_slow_homing(saved_motion_state));
       }
-
     #endif // DUAL_X_CARRIAGE
 
     endstops.not_homing();
@@ -545,13 +533,13 @@ void GcodeSuite::G28() {
     TERN_(SPI_ENDSTOPS, endstops.clear_endstop_state());
 
     // Move to a height where we can use the full xy-area
-    TERN_(DELTA_HOME_TO_SAFE_ZONE, do_blocking_move_to_z(delta_clip_start_height));
+    TERN_(DELTA_HOME_TO_SAFE_ZONE, motion.blocking_move_z(delta_clip_start_height));
 
     #if HAS_Z_AXIS
       // Move to the configured Z only if Z was homed to MIN, because machines that
       // home to MAX historically expect 'G28 Z' to be safe to use at the end of a
       // print, and do_move_after_z_homing is not very nuanced.
-      if (finalRaiseZ) do_move_after_z_homing();
+      if (finalRaiseZ) motion.do_move_after_z_homing();
     #endif
 
     TERN_(CAN_SET_LEVELING_AFTER_G28, if (leveling_restore_state) set_bed_leveling_enabled());
@@ -562,11 +550,11 @@ void GcodeSuite::G28() {
     #endif
 
     #ifdef XY_AFTER_HOMING
-      if (!axes_should_home(_BV(X_AXIS) | _BV(Y_AXIS)))
-        do_blocking_move_to(xy_pos_t(XY_AFTER_HOMING));
+      if (!motion.axes_should_home(_BV(X_AXIS) | _BV(Y_AXIS)))
+        motion.blocking_move(xy_pos_t(XY_AFTER_HOMING));
     #endif
 
-    restore_feedrate_and_scaling();
+    motion.restore_feedrate_and_scaling();
 
     if (ENABLED(NANODLP_Z_SYNC) && (ENABLED(NANODLP_ALL_AXIS) || TERN0(HAS_Z_AXIS, doZ)))
       SERIAL_ECHOLNPGM(STR_Z_MOVE_COMP);
@@ -579,9 +567,9 @@ void GcodeSuite::G28() {
   TERN_(DWIN_CREALITY_LCD, dwinHomingDone());
   TERN_(EXTENSIBLE_UI, ExtUI::onHomingDone());
 
-  report_current_position();
+  motion.report_position();
 
-  TERN_(FULL_REPORT_TO_HOST_FEATURE, set_and_report_grblstate(old_grblstate));
+  TERN_(FULL_REPORT_TO_HOST_FEATURE, motion.set_and_report_grblstate(old_grblstate));
 
   #ifdef EVENT_GCODE_AFTER_HOMING
     gcode.process_subcommands_now(F(EVENT_GCODE_AFTER_HOMING));

@@ -54,7 +54,7 @@ void GcodeSuite::M401() {
 
   probe.deploy(parser.boolval('R'));
   TERN_(PROBE_TARE, probe.tare());
-  report_current_position();
+  motion.report_position();
 }
 
 void GcodeSuite::M401_report(const bool forReplay/*=true*/) {
@@ -75,9 +75,9 @@ void GcodeSuite::M401_report(const bool forReplay/*=true*/) {
 void GcodeSuite::M402() {
   probe.stow(parser.boolval('R'));
   #ifdef Z_AFTER_PROBING
-    do_z_clearance(Z_AFTER_PROBING);
+    motion.do_z_clearance(Z_AFTER_PROBING);
   #endif
-  report_current_position();
+  motion.report_position();
 }
 
 #endif // HAS_BED_PROBE

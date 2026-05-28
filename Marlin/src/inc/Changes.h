@@ -180,8 +180,6 @@
   #error "MIN_STEPS_PER_SEGMENT must be at least 1."
 #elif defined(PREVENT_DANGEROUS_EXTRUDE)
   #error "PREVENT_DANGEROUS_EXTRUDE is now PREVENT_COLD_EXTRUSION."
-#elif defined(SCARA)
-  #error "SCARA is now MORGAN_SCARA."
 #elif defined(ENABLE_AUTO_BED_LEVELING)
   #error "ENABLE_AUTO_BED_LEVELING is deprecated. Specify AUTO_BED_LEVELING_LINEAR, AUTO_BED_LEVELING_BILINEAR, or AUTO_BED_LEVELING_3POINT."
 #elif defined(AUTO_BED_LEVELING_FEATURE)
@@ -749,6 +747,24 @@
   #error "FTM_LINEAR_ADV_DEFAULT_ENA is obsolete and should be removed."
 #elif defined(FTM_LINEAR_ADV_DEFAULT_K)
   #error "FTM_LINEAR_ADV_DEFAULT_K is now set with ADVANCE_K and should be removed."
+#elif defined(DEFAULT_Kp_LIST) || defined(DEFAULT_Ki_LIST) || defined(DEFAULT_Kd_LIST)
+  #error "DEFAULT_Kp_LIST, DEFAULT_Ki_LIST, DEFAULT_Kd_LIST are now (uppercase) DEFAULT_KP_LIST, DEFAULT_KI_LIST, DEFAULT_KD_LIST."
+#elif defined(DEFAULT_Kp) || defined(DEFAULT_Ki) || defined(DEFAULT_Kd)
+  #error "DEFAULT_Kp, DEFAULT_Ki, DEFAULT_Kd are now (uppercase) DEFAULT_KP, DEFAULT_KI, DEFAULT_KD."
+#elif defined(DEFAULT_bedKp) || defined(DEFAULT_bedKi) || defined(DEFAULT_bedKd)
+  #error "DEFAULT_bedKp, DEFAULT_bedKi, DEFAULT_bedKd are now DEFAULT_BED_KP, DEFAULT_BED_KI, DEFAULT_BED_KD."
+#elif defined(DEFAULT_chamberKp) || defined(DEFAULT_chamberKi) || defined(DEFAULT_chamberKd)
+  #error "DEFAULT_chamberKp, DEFAULT_chamberKi, DEFAULT_chamberKd are now DEFAULT_CHAMBER_KP, DEFAULT_CHAMBER_KI, DEFAULT_CHAMBER_KD."
+#elif defined(DEFAULT_Kc)
+  #error "DEFAULT_Kc is now (uppercase) DEFAULT_KC."
+#elif defined(DEFAULT_Kf)
+  #error "DEFAULT_Kf is now (uppercase) DEFAULT_KF."
+#elif defined(MORGAN_SCARA)
+  #error "MORGAN_SCARA is now just SCARA."
+#elif defined(MP_SCARA)
+  #error "MP_SCARA is now just SCARA."
+#elif defined(HAS_PIN_27_BOARD)
+  #error "HAS_PIN_27_BOARD is now USE_PIN_27_BOARD."
 #endif
 
 // SDSS renamed to SD_SS_PIN

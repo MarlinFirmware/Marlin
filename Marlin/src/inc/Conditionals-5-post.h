@@ -311,10 +311,10 @@
 #endif
 
 /**
- * SCARA cannot use SLOWDOWN and requires QUICKHOME
+ * SCARA cannot use SLOWDOWN
  * Printable radius assumes joints can fully extend
  *
- * TPARA cannot use SLOWDOWN nor QUICKHOME
+ * TPARA cannot use SLOWDOWN nor QUICK_HOME
  * Printable radius assumes joints can't fully extend
  * AXEL_TPARA is assigned a default Home Position unless overridden
  */
@@ -332,7 +332,6 @@
       #define MANUAL_Z_HOME_POS (TPARA_ARM_Z_HOME_POS + TPARA_TCP_OFFSET_Z - TPARA_OFFSET_Z)
     #endif
   #else
-    #define QUICK_HOME
     #define PRINTABLE_RADIUS (SCARA_LINKAGE_1 + SCARA_LINKAGE_2)
   #endif
 #endif
@@ -605,11 +604,9 @@
     #endif
   #endif
 
-  #if HAS_SD_DETECT && NONE(HAS_GRAPHICAL_TFT, LCD_USE_DMA_FSMC, HAS_FSMC_GRAPHICAL_TFT, HAS_SPI_GRAPHICAL_TFT, IS_DWIN_MARLINUI, EXTENSIBLE_UI, HAS_DWIN_E3V2, HAS_U8GLIB_I2C_OLED)
-    #define REINIT_NOISY_LCD 1  // Have the LCD re-init on SD insertion
-  #endif
-
-#endif // HAS_MEDIA
+#else // !HAS_MEDIA
+  #undef REINIT_NOISY_LCD
+#endif
 
 /**
  * Power Supply
@@ -2712,7 +2709,7 @@
   #define COOLER_MAX_TARGET ((COOLER_MAXTEMP) - (COOLER_OVERSHOOT))
 #endif
 
-#if HAS_TEMP_HOTEND || HAS_HEATED_BED || HAS_TEMP_CHAMBER || HAS_TEMP_PROBE || HAS_TEMP_COOLER || HAS_TEMP_BOARD || HAS_TEMP_SOC
+#if HAS_TEMP_HOTEND || HAS_TEMP_BED || HAS_TEMP_CHAMBER || HAS_TEMP_PROBE || HAS_TEMP_COOLER || HAS_TEMP_BOARD || HAS_TEMP_SOC
   #define HAS_TEMP_SENSOR 1
 #endif
 
@@ -3049,9 +3046,10 @@
 #endif
 
 // User Interface
-#if ENABLED(FREEZE_FEATURE) && !PIN_EXISTS(FREEZE) && PIN_EXISTS(KILL)
+#if ENABLED(FREEZE_FEATURE) && DISABLED(NO_FREEZE_PIN) && !PIN_EXISTS(FREEZE) && PIN_EXISTS(KILL)
   #define FREEZE_PIN KILL_PIN
-#elif PIN_EXISTS(KILL) && TERN1(FREEZE_FEATURE, KILL_PIN != FREEZE_PIN)
+  #define FREEZE_STOLE_KILL_PIN_WARNING 1
+#elif PIN_EXISTS(KILL) && TERN1(HAS_FREEZE_PIN, KILL_PIN != FREEZE_PIN)
   #define HAS_KILL 1
 #endif
 #if PIN_EXISTS(HOME)
@@ -3208,6 +3206,7 @@
 #endif
 
 #if !HAS_PREHEAT
+  #define PREHEAT_COUNT 0
   #undef PREHEAT_SHORTCUT_MENU_ITEM
   #undef DGUS_PREHEAT_UI
 #endif
@@ -3251,7 +3250,7 @@
     #define ENDSTOPPULLUP_ZMIN_PROBE
   #endif
   #ifndef XY_PROBE_FEEDRATE
-    #define XY_PROBE_FEEDRATE ((homing_feedrate_mm_m.x + homing_feedrate_mm_m.y) / 2)
+    #define XY_PROBE_FEEDRATE ((motion.homing_feedrate_mm_m.x + motion.homing_feedrate_mm_m.y) / 2)
   #endif
   #ifndef NOZZLE_TO_PROBE_OFFSET
     #define NOZZLE_TO_PROBE_OFFSET { 0, 0, 0 }
@@ -3416,7 +3415,7 @@
 /**
  * Default mesh area is an area with an inset margin on the print area.
  */
-#if ANY(MESH_BED_LEVELING, AUTO_BED_LEVELING_UBL)
+#if HAS_MESH
   #if IS_KINEMATIC
     // Probing points may be verified at compile time within the radius
     // using static_assert(HYPOT2(X2-X1,Y2-Y1)<=sq(PRINTABLE_RADIUS),"bad probe point!")
@@ -3612,6 +3611,14 @@
   #endif
 #endif
 
+#if ALL(SDCARD_SORT_ALPHA, SDSORT_CACHE_NAMES) && DISABLED(SDSORT_DYNAMIC_RAM)
+  #if SDSORT_CACHE_VFATS > VFAT_ENTRIES_LIMIT
+    #undef SDSORT_CACHE_VFATS
+    #define SDSORT_CACHE_VFATS VFAT_ENTRIES_LIMIT
+    #define SDSORT_CACHE_VFATS_WARNING 1
+  #endif
+#endif
+
 // Fallback SPI Speed for SD
 #if HAS_MEDIA && !defined(SD_SPI_SPEED)
   #define SD_SPI_SPEED SPI_FULL_SPEED
@@ -3687,26 +3694,14 @@
 
 // Fixed-Time Motion
 #if ENABLED(FT_MOTION)
-  #define FTM_TS (1.0f / FTM_FS)                                    // (s) Time step for trajectory generation. (Reciprocal of FTM_FS)
-  #define FTM_STEPS_PER_UNIT_TIME (FTM_STEPPER_FS / FTM_FS)         // Interpolated stepper commands per unit time
-  #define FTM_MIN_TICKS ((STEPPER_TIMER_RATE) / (FTM_STEPPER_FS))   // Minimum stepper ticks between steps
-  #define FTM_RATIO (FTM_FS / FTM_MIN_SHAPE_FREQ)     // Factor for use in FTM_ZMAX. DON'T CHANGE.
-  #define FTM_SMOOTH_MAX_I uint32_t(TERN0(FTM_SMOOTHING, CEIL(FTM_FS * FTM_MAX_SMOOTHING_TIME))) // Max delays for smoothing
-  #define FTM_ZMAX (FTM_RATIO * 2 + FTM_SMOOTH_MAX_I) // Maximum delays for shaping functions (even numbers only!)
-                                                      // Calculate as:
-                                                      //   ZV       : FTM_RATIO / 2
-                                                      //   ZVD, MZV : FTM_RATIO
-                                                      //   2HEI     : FTM_RATIO * 3 / 2
-                                                      //   3HEI     : FTM_RATIO * 2
-  #define FTM_SMOOTHING_ORDER 5                       // 3 to 5 is closest to gaussian
+  #define FTM_TS (1.0f / FTM_FS)  // (s) Time step for trajectory generation. (Reciprocal of FTM_FS)
+  #define FTM_SMOOTHING_ORDER   5 // 3 to 5 is closest to Gaussian
   #ifndef FTM_BUFFER_SIZE
     #define FTM_BUFFER_SIZE 128
   #endif
-  #define FTM_BUFFER_MASK (FTM_BUFFER_SIZE - 1u)
-  #if ANY(BIQU_MICROPROBE_V1, BIQU_MICROPROBE_V2)
-    #ifndef PROBE_WAKEUP_TIME_MS
-      #define PROBE_WAKEUP_TIME_MS 30
-      #define PROBE_WAKEUP_TIME_WARNING 1
-    #endif
+
+  #if ANY(BIQU_MICROPROBE_V1, BIQU_MICROPROBE_V2) && !defined(PROBE_WAKEUP_TIME_MS)
+    #define PROBE_WAKEUP_TIME_MS 30
+    #define PROBE_WAKEUP_TIME_WARNING 1
   #endif
 #endif

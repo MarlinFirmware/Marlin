@@ -25,7 +25,6 @@
 #if ENABLED(BABYSTEPPING)
 
 #include "babystep.h"
-#include "../MarlinCore.h"
 #include "../module/motion.h"   // for axis_should_home(), BABYSTEP_ALLOWED
 #include "../module/planner.h"  // for axis_steps_per_mm[]
 #include "../module/stepper.h"
@@ -60,7 +59,7 @@ void Babystep::add_mm(const AxisEnum axis, const float mm) {
 
 #if ENABLED(BD_SENSOR)
   void Babystep::set_mm(const AxisEnum axis, const float mm) {
-    //if (DISABLED(BABYSTEP_WITHOUT_HOMING) && axis_should_home(axis)) return;
+    //if (DISABLED(BABYSTEP_WITHOUT_HOMING) && motion.axis_should_home(axis)) return;
     const int16_t distance = mm * planner.settings.axis_steps_per_mm[axis];
     accum = distance; // Count up babysteps for the UI
     steps[BS_AXIS_IND(axis)] = distance;
@@ -71,7 +70,7 @@ void Babystep::add_mm(const AxisEnum axis, const float mm) {
 #endif
 
 bool Babystep::can_babystep(const AxisEnum axis) {
-  return (ENABLED(BABYSTEP_WITHOUT_HOMING) || !axis_should_home(axis));
+  return (ENABLED(BABYSTEP_WITHOUT_HOMING) || !motion.axis_should_home(axis));
 }
 
 void Babystep::add_steps(const AxisEnum axis, const int16_t distance) {

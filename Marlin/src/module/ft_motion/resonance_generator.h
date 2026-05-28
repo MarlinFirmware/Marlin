@@ -25,14 +25,18 @@
 
 #include <math.h>
 
+#ifndef M_TAU
+  #define M_TAU (2.0f * M_PI)
+#endif
+
 typedef struct FTMResonanceTestParams {
-  AxisEnum axis       = NO_AXIS_ENUM; // Axis to test
-  float min_freq      = 5.0f;         // Minimum frequency [Hz]
-  float max_freq      = 100.0f;       // Maximum frequency [Hz]
-  float octave_duration = 40.0f;      // Octave duration for logarithmic progression
-  float accel_per_hz  = 60.0f;        // Acceleration per Hz [mm/sec/Hz] or [g/Hz]
-  int16_t amplitude_correction = 5;   // Amplitude correction factor
-  xyze_pos_t start_pos;               // Initial stepper position
+  AxisEnum axis         = NO_AXIS_ENUM; // Axis to test
+  float min_freq        =   5.0f;       // Minimum frequency [Hz]
+  float max_freq        = 100.0f;       // Maximum frequency [Hz]
+  float octave_duration =  40.0f;       // Octave duration for logarithmic progression
+  float accel_per_hz    =  60.0f;       // Acceleration per Hz [mm/sec/Hz] or [g/Hz]
+  int16_t amplitude_correction = 5;     // Amplitude correction factor
+  xyze_pos_t start_pos;                 // Initial stepper position
 } ftm_resonance_test_params_t;
 
 class ResonanceGenerator {
@@ -42,8 +46,6 @@ class ResonanceGenerator {
 
     ResonanceGenerator();
 
-    void planRunout(const float duration);
-
     void reset();
 
     void start(const xyze_pos_t &spos, const float t) {
@@ -51,23 +53,33 @@ class ResonanceGenerator {
       rt_time = t;
       active = true;
       done = false;
+      // Precompute frequency multiplier
+      current_freq = rt_params.min_freq;
+      const float inv_octave_duration = 1.0f / rt_params.octave_duration;
+      freq_mul = exp2f(FTM_TS * inv_octave_duration);
     }
 
+    // Return frequency based on timeline
     float getFrequencyFromTimeline() {
-      return (rt_params.min_freq * powf(2.0f, timeline / rt_params.octave_duration)); // Return frequency based on timeline
+      // Logarithmic approach with duration per octave
+      return rt_params.min_freq * exp2f(timeline / rt_params.octave_duration);
     }
 
     void fill_stepper_plan_buffer();                // Fill stepper plan buffer with trajectory points
 
+    void setActive(const bool state) { active = state; }
     bool isActive() const { return active; }
-    bool isDone() const { return done; }
-    void setActive(bool state) { active = state; }
-    void setDone(bool state) { done = state; }
 
-    void abort();               // Abort resonance test
+    void setDone(const bool state) { done = state; }
+    bool isDone() const { return done; }
+
+    void abort();             // Abort resonance test
 
   private:
-    static float rt_time;    // Test timer
-    static bool active;         // Resonance test active
-    static bool done;           // Resonance test done
+    float fast_sin(float x);  // Fast sine approximation
+    static float rt_time;     // Test timer
+    float freq_mul;           // Frequency multiplier for sine sweeping
+    float current_freq;       // Current frequency being generated in sinusoidal motion
+    static bool active;       // Resonance test active
+    static bool done;         // Resonance test done
 };

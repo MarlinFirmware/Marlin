@@ -21,6 +21,8 @@
  */
 
 /**
+ * unit_tests.cpp - Unit for running tests in the Marlin/tests/ folder.
+ *
  * Provide the main() function used for all compiled unit test binaries.
  * It collects all the tests defined in the code and runs them through Unity.
  */

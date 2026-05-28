@@ -418,14 +418,22 @@ typedef struct { float p, i, d, c, f; } raw_pidcf_t;
 typedef struct TempInfo {
   private:
     raw_adc_t acc;
-    raw_adc_t raw;
+    volatile raw_adc_t raw;
   public:
     celsius_float_t celsius;
     inline void reset() { acc = 0; }
     inline void sample(const raw_adc_t s) { acc += s; }
     inline void update() { raw = acc; }
     void setraw(const raw_adc_t r) { raw = r; }
-    raw_adc_t getraw() const { return raw; }
+    raw_adc_t getraw() const {
+      #ifndef CPU_32_BIT
+        raw_adc_t r1, r2;
+        do { r1 = raw; r2 = raw; } while (r1 != r2);
+        return r1;
+      #else
+        return raw;
+      #endif
+    }
 } temp_info_t;
 
 #if HAS_TEMP_REDUNDANT
@@ -686,7 +694,7 @@ class Temperature {
     #endif
 
     #if ALL(FAN_SOFT_PWM, USE_CONTROLLER_FAN)
-      static uint8_t soft_pwm_controller_speed;
+      static uint8_t soft_pwm_controllerfan_speed;
     #endif
 
     #if ALL(HAS_MARLINUI_MENU, PREVENT_COLD_EXTRUSION) && E_MANUAL > 0
@@ -1024,14 +1032,12 @@ class Temperature {
       return TERN0(HAS_HOTEND, static_cast<celsius_t>(temp_hotend[HOTEND_INDEX].celsius + 0.5f));
     }
 
-    #if ENABLED(SHOW_TEMP_ADC_VALUES)
-      static raw_adc_t rawHotendTemp(const uint8_t E_NAME) {
-        return TERN0(HAS_HOTEND, temp_hotend[HOTEND_INDEX].getraw());
-      }
-    #endif
-
     static celsius_t degTargetHotend(const uint8_t E_NAME) {
       return TERN0(HAS_HOTEND, temp_hotend[HOTEND_INDEX].target);
+    }
+
+    static raw_adc_t rawHotendTemp(const uint8_t E_NAME) {
+      return TERN0(HAS_HOTEND, temp_hotend[HOTEND_INDEX].getraw());
     }
 
     #if HAS_HOTEND
@@ -1100,10 +1106,7 @@ class Temperature {
     #endif
 
     #if HAS_HEATED_BED
-
-      #if ENABLED(SHOW_TEMP_ADC_VALUES)
-        static raw_adc_t rawBedTemp()  { return temp_bed.getraw(); }
-      #endif
+      static raw_adc_t rawBedTemp()    { return temp_bed.getraw(); }
       static celsius_float_t degBed()  { return temp_bed.celsius; }
       static celsius_t wholeDegBed()   { return static_cast<celsius_t>(degBed() + 0.5f); }
       static celsius_t degTargetBed()  { return temp_bed.target; }
@@ -1139,9 +1142,7 @@ class Temperature {
     #endif // HAS_HEATED_BED
 
     #if HAS_TEMP_PROBE
-      #if ENABLED(SHOW_TEMP_ADC_VALUES)
-        static raw_adc_t rawProbeTemp()  { return temp_probe.getraw(); }
-      #endif
+      static raw_adc_t rawProbeTemp()    { return temp_probe.getraw(); }
       static celsius_float_t degProbe()  { return temp_probe.celsius; }
       static celsius_t wholeDegProbe()   { return static_cast<celsius_t>(degProbe() + 0.5f); }
       static bool isProbeBelowTemp(const celsius_t target_temp) { return wholeDegProbe() < target_temp; }
@@ -1150,9 +1151,7 @@ class Temperature {
     #endif
 
     #if HAS_TEMP_CHAMBER
-      #if ENABLED(SHOW_TEMP_ADC_VALUES)
-        static raw_adc_t rawChamberTemp()    { return temp_chamber.getraw(); }
-      #endif
+      static raw_adc_t rawChamberTemp()      { return temp_chamber.getraw(); }
       static celsius_float_t degChamber()    { return temp_chamber.celsius; }
       static celsius_t wholeDegChamber()     { return static_cast<celsius_t>(degChamber() + 0.5f); }
       #if HAS_HEATED_CHAMBER
@@ -1174,9 +1173,7 @@ class Temperature {
     #endif
 
     #if HAS_TEMP_COOLER
-      #if ENABLED(SHOW_TEMP_ADC_VALUES)
-        static raw_adc_t rawCoolerTemp()   { return temp_cooler.getraw(); }
-      #endif
+      static raw_adc_t rawCoolerTemp()     { return temp_cooler.getraw(); }
       static celsius_float_t degCooler()   { return temp_cooler.celsius; }
       static celsius_t wholeDegCooler()    { return static_cast<celsius_t>(temp_cooler.celsius + 0.5f); }
       #if HAS_COOLER
@@ -1189,25 +1186,19 @@ class Temperature {
     #endif
 
     #if HAS_TEMP_BOARD
-      #if ENABLED(SHOW_TEMP_ADC_VALUES)
-        static raw_adc_t rawBoardTemp()  { return temp_board.getraw(); }
-      #endif
+      static raw_adc_t rawBoardTemp()    { return temp_board.getraw(); }
       static celsius_float_t degBoard()  { return temp_board.celsius; }
       static celsius_t wholeDegBoard()   { return static_cast<celsius_t>(temp_board.celsius + 0.5f); }
     #endif
 
     #if HAS_TEMP_SOC
-      #if ENABLED(SHOW_TEMP_ADC_VALUES)
-        static raw_adc_t rawSocTemp()    { return temp_soc.getraw(); }
-      #endif
+      static raw_adc_t rawSocTemp()      { return temp_soc.getraw(); }
       static celsius_float_t degSoc()    { return temp_soc.celsius; }
       static celsius_t wholeDegSoc()     { return static_cast<celsius_t>(temp_soc.celsius + 0.5f); }
     #endif
 
     #if HAS_TEMP_REDUNDANT
-      #if ENABLED(SHOW_TEMP_ADC_VALUES)
-        static raw_adc_t rawRedundantTemp()       { return temp_redundant.getraw(); }
-      #endif
+      static raw_adc_t rawRedundantTemp()         { return temp_redundant.getraw(); }
       static celsius_float_t degRedundant()       { return temp_redundant.celsius; }
       static celsius_float_t degRedundantTarget() { return (*temp_redundant.target).celsius; }
       static celsius_t wholeDegRedundant()        { return static_cast<celsius_t>(temp_redundant.celsius + 0.5f); }

@@ -86,8 +86,14 @@ public:
 
   static void update(State &state, const uint8_t c);
 
+  static bool isEnabled() { return enabled; }
+
 private:
   static bool enabled;
 };
 
 extern EmergencyParser emergency_parser;
+
+#if ENABLED(SOFT_FEED_HOLD)
+  extern bool realtime_ramping_pause_flag;
+#endif

@@ -41,12 +41,12 @@ as soon as the filament is fed down to the extruder. We follow with:
 
 - MMU <= 'C0\n'
 
-MMU will feed a few more millimeters of filament for the extruder gears to grab.
+MMU will feed a few more millimeters of filament for the extruder gears to grab.\
 When done, the MMU sends
 
 - MMU => 'ok\n'
 
-We don't wait for a response here but immediately continue with the next G-code which should
+We don't wait for a response here but immediately continue with the next G-code which should\
 be one or more extruder moves to feed the filament into the hotend.
 
 # FINDA status
