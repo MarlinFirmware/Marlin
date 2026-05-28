@@ -48,7 +48,6 @@ uint16_t Touch::controls_count;
 millis_t Touch::time_to_hold,
          Touch::repeat_delay,
          Touch::nada_start_ms;
-         Touch::touch_time;
 
 MTimeout24 Touch::touch_timer;
 
@@ -195,7 +194,7 @@ void Touch::touch(touch_control_t * const control) {
     case MENU_CLICK:
       TERN_(SINGLE_TOUCH_NAVIGATION, ui.encoderPosition = control->data);
       // Effectively ignore the touch until it is released
-      time_to_hold = next_touch_ms + 2000;
+      time_to_hold = touch_timer.end_ms + 2000;
       // fall thru
 
     // Tap to Continue. e.g., Anywhere on the whole screen.

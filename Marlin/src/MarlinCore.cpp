@@ -734,7 +734,7 @@ void Marlin::manage_inactivity(const bool no_stepper_sleep/*=false*/) {
 
   #if ENABLED(DUAL_X_CARRIAGE)
     // Add a delayed move when the proper time arrives, or always add it
-    if (motion.delayed_move_interval > 1 && IsRunning() && ELAPSED(ms, motion.delayed_move_start_ms, motion.delayed_move_interval)) {
+    if (motion.delayed_move_interval > 1 && isRunning() && ELAPSED(ms, motion.delayed_move_start_ms, motion.delayed_move_interval)) {
       motion.delayed_move_interval = 1;      // Force moves to be done in dual_x_carriage_unpark
       motion.destination = motion.position;
       motion.prepare_line_to_destination();  // Also calls dual_x_carriage_unpark
