@@ -38,9 +38,6 @@
 
 #include "tft.h"
 
-#define DEBUG_OUT 1
-#include "../../core/debug_out.h"
-
 Touch touch;
 
 bool Touch::enabled = true;
@@ -321,16 +318,10 @@ void Touch::touch(touch_control_t * const control) {
         break;
     #endif
 
-    case MOVE_AXIS:
-      ui.goto_screen(screenFunc_t(ui.move_axis_screen));
-      break;
-
     // TODO: TOUCH could receive data to pass to the callback
     case BUTTON: (screenFunc_t(control->data))(); break;
     case CALLBACK:
-      DEBUG_ECHOLNPGM("Previous event value: ", touch_event.index);
       touch_event.index = control->index;
-      DEBUG_ECHOLNPGM("Create touch event: ", touch_event.index);
       (touch_handler_t(control->data))(&touch_event);
       break;
 

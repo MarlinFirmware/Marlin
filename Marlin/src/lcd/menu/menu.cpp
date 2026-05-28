@@ -145,10 +145,8 @@ void MenuEditItemBase::goto_edit_screen(
   , void * const ev       // Edit value pointer
   , const int32_t minv    // Encoder minimum
   , const int32_t maxv    // Encoder maximum
-  #if ENABLED(TFT_COLOR_UI)
-    OPTARG(TOUCH_SCREEN, const float step)  // Smallest step
-    , intptr_t to_string  // Value-to-string conversion function
-  #endif
+  OPTARG(TFT_COLOR_UI, intptr_t to_string)  // Value-to-string conversion function
+  OPTARG(TFT_COLOR_TOUCH, const float step) // Smallest step
   , const uint32_t ep     // Initial encoder value
   , const screenFunc_t cs // MenuItem_type::draw_edit_screen => MenuEditItemBase::edit()
   , const screenFunc_t cb // Callback after edit
@@ -162,10 +160,8 @@ void MenuEditItemBase::goto_edit_screen(
   editValue = ev;
   minEditValue = minv;
   maxEditValue = maxv;
-  #if ENABLED(TFT_COLOR_UI)
-    TERN_(TOUCH_SCREEN, valueStep = step);
-    valueToString = to_string;
-  #endif
+  TERN_(TFT_COLOR_UI, valueToString = to_string);
+  TERN_(TFT_COLOR_TOUCH, valueStep = step);
   ui.encoderPosition = ep;
   ui.currentScreen = cs;
   callbackFunc = cb;

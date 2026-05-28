@@ -397,17 +397,17 @@ inline const char* ftostrX1rj(const float f, const int index=1) {
  * @param intVal Scaled integer value with float digits
  * @param decimal divisor to acquire the float, must be power of 10
  */
-const char* ftostr7xrj(int32_t intVal, int32_t decimal) {
+const char* ftostr7xrj(int32_t intVal, uint32_t decimal) {
   if (intVal < 0) intVal *= -1; // Just print the absolute value
 
-  uint32_t div = 1;  // Current digit value: 1, 10, 100, 1000...
+  int32_t div = 1;   // Current digit value: 1, 10, 100, 1000...
   int8_t intEnd = 7; // Index of the digit out
 
   // Loop while there are digits or a decimal point to print
   // Collect digits from right to left
-  while (intEnd >= 0 && (intVal >= div || decimal >= div)) {
-    if (decimal == div && WITHIN(intEnd, 1, 6)) conv[intEnd--] = '.'; // Decimal at the given power of 10
-    conv[intEnd] = DIGIT((intVal / div) % 10);                        // The digit
+  while (intEnd >= 0 && (intVal >= div || (int32_t)decimal >= div)) {
+    if ((int32_t)decimal == div && WITHIN(intEnd, 1, 6)) conv[intEnd--] = '.'; // Decimal at the given power of 10
+    conv[intEnd] = DIGIT((intVal / div) % 10);                                 // The digit
     div *= 10;
     intEnd--;
   }
@@ -482,45 +482,6 @@ const char* ftostr52sp(const float f) {
     conv[7] = ' ';
   }
   return &conv[1];
-}
-
-const char* ftostr52custom(const_float_t f) {
-  long i = INTFLOAT(f, 3);
-  if (i < 0) i = -i;
-
-  uint8_t dig, intEnd = 7;
-
-  if ((dig = i % 10)) {              // third digit after decimal point?
-    conv[4] = '.';
-    conv[5] = DIGIMOD(i, 100);
-    conv[6] = DIGIMOD(i, 10);
-    conv[7] = DIGIT(dig);
-    intEnd = 3;
-  }
-  else if ((dig = (i / 10) % 10)) {  // second digit after decimal point?
-    conv[5] = '.';
-    conv[6] = DIGIMOD(i, 100);
-    conv[7] = DIGIT(dig);
-    intEnd = 4;
-  }
-  else if ((dig = (i / 100) % 10)) { // first digit after decimal point?
-    conv[6] = '.';
-    conv[7] = DIGIT(dig);
-    intEnd = 5;
-  }
-
-  conv[intEnd--] = DIGIMOD(i, 1000);
-  conv[intEnd--] = RJDIGIT(i, 10000);
-  conv[intEnd]   = RJDIGIT(i, 100000);
-
-  for (; intEnd < 8; intEnd++) {
-    if (conv[intEnd] != ' ' && ((i % 10) == 0 || conv[intEnd] != '0')) { //todo this should be moved under a flag or sep func
-      if (f < 0) conv[--intEnd] = '-';
-      return &conv[intEnd];
-    }
-  }
-
-  return &conv[0];
 }
 
 // Convert float to space-padded string with 1.23, 12.34, 123.45 format

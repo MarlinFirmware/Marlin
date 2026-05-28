@@ -122,8 +122,6 @@ const char* ftostr51sign(const float x);
 // Convert signed float to space-padded string with -_23.4_ format
 const char* ftostr52sp(const float x);
 
-const char* ftostr52custom(const_float_t f);
-
 // Convert signed float to string with +123.45 format
 const char* ftostr52sign(const float x);
 
@@ -140,7 +138,7 @@ const char* ftostr51rj(const float x);
 const char* ftostr61rj(const float x);
 
 // Convert usigned float to string with ____5.67, ___45.67, __345.67, _2345.67, 12345.67 format
-const char* ftostr7xrj(int32_t intVal, int32_t decimal);
+const char* ftostr7xrj(int32_t intVal, uint32_t decimal);
 
 // Convert unsigned float to string with 1.23 format
 const char* ftostr32rj(const float f);
