@@ -22,6 +22,8 @@
 
 /**
  * G29.cpp - Auto Bed Leveling
+ *
+ * Wandering Probe Points (WPP) Feature Concept & Implementation Copyright (C) 2026 Famtory <famtory@gmail.com>
  */
 
 #include "../../../inc/MarlinConfig.h"
@@ -424,6 +426,31 @@ G29_TYPE GcodeSuite::G29() {
         abl.probe_position_lf.set(parser.linearval('L', x_min), parser.linearval('F', y_min));
         abl.probe_position_rb.set(parser.linearval('R', x_max), parser.linearval('B', y_max));
       }
+
+      #if ENABLED(WANDERING_PROBE_POINTS)
+        static uint8_t wandering_state = 0;
+        const float step = WANDERING_PROBE_STEP;
+        if (step > 0.0f) {
+          float dx = 0.0f, dy = 0.0f;
+          switch (wandering_state % 9) {
+            case 0: break;
+            case 1: dx = step; break;
+            case 2: dx = step; dy = step; break;
+            case 3: dy = step; break;
+            case 4: dx = -step; dy = step; break;
+            case 5: dx = -step; break;
+            case 6: dx = -step; dy = -step; break;
+            case 7: dy = -step; break;
+            case 8: dx = step; dy = -step; break;
+          }
+          abl.probe_position_lf.set(abl.probe_position_lf.x + dx, abl.probe_position_lf.y + dy);
+          abl.probe_position_rb.set(abl.probe_position_rb.x + dx, abl.probe_position_rb.y + dy);
+          wandering_state++;
+          if (DEBUGGING(LEVELING)) {
+            DEBUG_ECHOLNPGM("Wandering Probe Step: ", step, " State: ", wandering_state, " dx: ", dx, " dy: ", dy);
+          }
+        }
+      #endif
 
       if (!probe.good_bounds(abl.probe_position_lf, abl.probe_position_rb)) {
         if (DEBUGGING(LEVELING)) {
