@@ -72,8 +72,12 @@ float ResonanceGenerator::fast_sin(float x) {
 }
 
 void ResonanceGenerator::fill_stepper_plan_buffer() {
-  xyze_float_t traj_coords = ftMotion.last_target_traj;
-  traj_coords[rt_params.axis] = rt_params.start_pos[rt_params.axis];
+  #if HAS_FTM_DIR_CHANGE_HOLD
+    xyze_float_t traj_coords = ftMotion.last_target_traj;
+    traj_coords[rt_params.axis] = rt_params.start_pos[rt_params.axis];
+  #else
+    xyze_float_t traj_coords = rt_params.start_pos;
+  #endif
 
   const float amplitude_precalc = (rt_params.amplitude_correction * rt_params.accel_per_hz * 0.25f) / sq(M_PI);
 
