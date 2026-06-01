@@ -317,6 +317,9 @@ class FTMotion {
 
     #if HAS_FTM_DIR_CHANGE_HOLD
       static xyze_float_t ftm_hold_frames(xyze_float_t hold_coords);
+      #if ENABLED(RESONANCE_TEST)
+        xyze_float_t get_last_target_traj() { return last_target_traj; } ;
+      #endif
     #endif
 
   private:

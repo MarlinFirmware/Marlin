@@ -124,7 +124,7 @@ float ResonanceGenerator::calc_next_pos() {
 
   void ResonanceGenerator::fill_stepper_plan_buffer() {
     #if HAS_FTM_DIR_CHANGE_HOLD
-      xyze_float_t traj_coords = ftMotion.last_target_traj;
+      xyze_float_t traj_coords = ftMotion.get_last_target_traj();
       traj_coords[rt_params.axis] = rt_params.start_pos[rt_params.axis];
     #else
       xyze_float_t traj_coords = rt_params.start_pos;
