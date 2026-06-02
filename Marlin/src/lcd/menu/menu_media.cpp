@@ -31,6 +31,10 @@
 #include "menu_item.h"
 #include "../../sd/cardreader.h"
 
+#if ENABLED(START_PRINT_FROM_Z)
+  #include "../../feature/skip_to_z.h"
+#endif
+
 void lcd_sd_updir() {
   ui.encoderPosition = card.cdup() ? ENCODER_STEPS_PER_MENU_ITEM : 0;
   encoderTopLine = 0;
@@ -144,6 +148,10 @@ void menu_file_selector() {
   }
   else if (card.isMounted())
     ACTION_ITEM_F(F(LCD_STR_FOLDER " .."), lcd_sd_updir);
+
+  #if ENABLED(START_PRINT_FROM_Z)
+    EDIT_ITEM(float52, MSG_START_PRINT_FROM_Z, &SkipToZ::target_z, 0.0f, START_PRINT_FROM_Z_MAX);
+  #endif
 
   if (ui.should_draw()) {
     for (int16_t i = 0; i < fileCnt; i++) {

@@ -55,6 +55,10 @@
   #include "../feature/powerloss.h"
 #endif
 
+#if ENABLED(START_PRINT_FROM_Z)
+  #include "../feature/skip_to_z.h"
+#endif
+
 #if ENABLED(ADVANCED_PAUSE_FEATURE)
   #include "../feature/pause.h"
 #endif
@@ -702,6 +706,23 @@ void CardReader::release() {
  * Enqueues M23 and M24 commands to initiate a media print.
  */
 void CardReader::openAndPrintFile(const char *name) {
+  #if ENABLED(START_PRINT_FROM_Z)
+    if (SkipToZ::target_z > 0.0f) {
+      // Inject "M23 <file>\nM1005 Z<value>" instead of the normal M23+M24.
+      // Filename buffer + "M23 " (4) + "\nM1005 Z" (8) + float (max 12) + NUL
+      char cmd[4 + strlen(name) + 8 + 12 + 1];
+      char zbuf[16];
+      dtostrf(SkipToZ::target_z, 1, 2, zbuf);
+      sprintf_P(cmd, M23_STR, name);
+      for (char *c = &cmd[4]; *c; c++) *c = tolower(*c);
+      strcat_P(cmd, PSTR("\nM1005 Z"));
+      strcat(cmd, zbuf);
+      SkipToZ::target_z = 0.0f;       // One-shot: clear after consuming.
+      queue.inject(cmd);
+      return;
+    }
+  #endif
+
   char cmd[4 + strlen(name) + 1 + 3 + 1]; // Room for "M23 ", filename, "\n", "M24", and null
   sprintf_P(cmd, M23_STR, name);
   for (char *c = &cmd[4]; *c; c++) *c = tolower(*c);

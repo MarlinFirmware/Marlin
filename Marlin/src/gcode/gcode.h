@@ -1363,6 +1363,10 @@ private:
     static void M1004();
   #endif
 
+  #if ENABLED(START_PRINT_FROM_Z)
+    static void M1005();
+  #endif
+
   #if ENABLED(HAS_MCP3426_ADC)
     static void M3426();
   #endif

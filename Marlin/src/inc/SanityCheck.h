@@ -4057,6 +4057,14 @@ static_assert(_PLUS_TEST(3), "DEFAULT_MAX_ACCELERATION values must be positive."
   #endif
 #endif
 
+#if ENABLED(START_PRINT_FROM_Z)
+  #if DISABLED(POWER_LOSS_RECOVERY)
+    #error "START_PRINT_FROM_Z requires POWER_LOSS_RECOVERY (it reuses the recovery resume path)."
+  #elif !HAS_MEDIA
+    #error "START_PRINT_FROM_Z requires SDSUPPORT."
+  #endif
+#endif
+
 #if ENABLED(Z_STEPPER_AUTO_ALIGN)
   #if NUM_Z_STEPPERS <= 1
     #error "Z_STEPPER_AUTO_ALIGN requires more than one Z stepper."

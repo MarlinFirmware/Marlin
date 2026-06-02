@@ -1905,6 +1905,26 @@
     #if ENABLED(POWER_LOSS_RECOVER_ZHOME)
       //#define POWER_LOSS_ZHOME_POS { 0, 0 } // Safe XY position to home Z while avoiding objects on the bed
     #endif
+
+    /**
+     * Manual "Start Print From Z" — resume an SD print at a chosen Z height.
+     *
+     * Adds an LCD menu item "Print from Z..." that lets the user set a target Z
+     * before selecting a file. When the file is started, Marlin pre-scans the
+     * G-code, simulating the machine state (X/Y/Z/E, units, abs/rel modes,
+     * G92, target temperatures, fan speeds, active tool) without performing
+     * any motion, until a move brings Z >= target. The simulated state is
+     * then injected into the Power-Loss Recovery info struct and the standard
+     * PLR resume() path is invoked (heat, home XY, lift Z, restore E, M24 S<pos>).
+     *
+     * Useful as a manual replacement for power-loss recovery when no recovery
+     * file was saved (e.g. crash, manual abort, swapped SD card).
+     */
+    //#define START_PRINT_FROM_Z
+    #if ENABLED(START_PRINT_FROM_Z)
+      #define START_PRINT_FROM_Z_MAX 1000.0f // (mm) Max selectable Z height
+      //#define START_PRINT_FROM_Z_DEBUG     // Verbose serial output during scan
+    #endif
   #endif
 
   /**
