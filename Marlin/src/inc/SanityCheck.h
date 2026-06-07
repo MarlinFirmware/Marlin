@@ -264,6 +264,14 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
   #if HAS_Y_AXIS
     static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS) are too narrow to contain Y_BED_SIZE.");
   #endif
+  #if HAS_X_AXIS && HAS_Y_AXIS && !IS_KINEMATIC
+    // Enforce a right-handed, monotonic XY bed definition (rotation + translation only)
+    constexpr float _bed_dx = X_MAX_POS - X_MIN_POS;
+    constexpr float _bed_dy = Y_MAX_POS - Y_MIN_POS;
+    static_assert(_bed_dx > 0, "X_MIN_POS must be less than X_MAX_POS (no mirrored X bed).");
+    static_assert(_bed_dy > 0, "Y_MIN_POS must be less than Y_MAX_POS (front is Y_MIN, back is Y_MAX).");
+    static_assert((_bed_dx * _bed_dy) > 0, "Bed corner winding is inverted (left-handed / mirrored bed definition).");
+  #endif
 #endif
 
 /**
@@ -3139,7 +3147,7 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
     #error "LCD_BACKLIGHT_TIMEOUT_MINS requires an LCD with encoder or keypad."
   #elif HAS_DISPLAY_SLEEP
     #error "LCD_BACKLIGHT_TIMEOUT_MINS and DISPLAY_SLEEP_MINUTES are not currently supported at the same time."
-  #elif ENABLED(NEOPIXEL_BKGD_INDEX_FIRST)
+  #elif defined(NEOPIXEL_BKGD_INDEX_FIRST)
     #if PIN_EXISTS(LCD_BACKLIGHT)
       #error "LCD_BACKLIGHT_PIN and NEOPIXEL_BKGD_INDEX_FIRST are not supported at the same time."
     #elif ENABLED(NEOPIXEL_BKGD_ALWAYS_ON)
