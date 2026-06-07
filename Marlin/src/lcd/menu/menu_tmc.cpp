@@ -170,6 +170,40 @@ void menu_tmc_current() {
 
 #endif // HAS_STEALTHCHOP
 
+#if ENABLED(STALLGUARD_TUNING_MENU)
+  #include "../../feature/stallguard/stallguard_tuning.h"
+
+    void menu_tmc_stallguard_tuning() {
+    START_MENU();
+    BACK_ITEM(MSG_TMC_DRIVERS);
+
+    if (!stallguard_tuner.is_Done()) {
+      ACTION_ITEM_N(X_AXIS, MSG_STALLGUARD_TUNING_N, [] {stallguard_tuner.tune_axis(X_AXIS);});
+      ACTION_ITEM_N(Y_AXIS, MSG_STALLGUARD_TUNING_N, [] {stallguard_tuner.tune_axis(Y_AXIS);});
+    }
+    else if (stallguard_tuner.is_Success()) {
+        PSTRING_ITEM(MSG_PROPOSED_SENSITIVITY, i8tostr3rj(stallguard_tuner.get_treshold()), SS_FULL);
+    }
+    else {
+      PSTRING_ITEM(MSG_STALLGUARD_TUNING, GET_TEXT(MSG_STALLGUARD_TUNING_FAILED), SS_FULL);
+    }
+    END_MENU();
+  }
+
+  void menu_tmc_confirm_sgt() {
+    START_MENU();
+
+    CONFIRM_ITEM(MSG_STALLGUARD_TUNING,
+      MSG_PROGRESS_OK, MSG_BUTTON_CANCEL,
+      menu_tmc_stallguard_tuning,
+      ui.go_back,
+      GET_TEXT_F(MSG_MOVE_WARNING),(const char *)nullptr
+    );
+    END_MENU();
+  }
+
+#endif // STALLGUARD_TUNING_MENU
+
 void menu_tmc() {
   START_MENU();
   BACK_ITEM(MSG_ADVANCED_SETTINGS);
@@ -178,6 +212,7 @@ void menu_tmc() {
   TERN_(SENSORLESS_HOMING,       SUBMENU(MSG_TMC_HOMING_THRS, menu_tmc_homing_thrs));
   TERN_(EDITABLE_HOMING_CURRENT, SUBMENU(MSG_TMC_HOMING_CURRENT, menu_tmc_homing_current));
   TERN_(HAS_STEALTHCHOP,         SUBMENU(MSG_TMC_STEALTHCHOP, menu_tmc_step_mode));
+  TERN_(STALLGUARD_TUNING_MENU,  SUBMENU(MSG_STALLGUARD_TUNING, menu_tmc_confirm_sgt));
   END_MENU();
 }
 
