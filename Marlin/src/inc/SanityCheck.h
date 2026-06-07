@@ -264,6 +264,14 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
   #if HAS_Y_AXIS
     static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS) are too narrow to contain Y_BED_SIZE.");
   #endif
+  #if HAS_X_AXIS && HAS_Y_AXIS && !IS_KINEMATIC
+    // Enforce a right-handed, monotonic XY bed definition (rotation + translation only)
+    constexpr float _bed_dx = X_MAX_POS - X_MIN_POS;
+    constexpr float _bed_dy = Y_MAX_POS - Y_MIN_POS;
+    static_assert(_bed_dx > 0, "X_MIN_POS must be less than X_MAX_POS (no mirrored X bed).");
+    static_assert(_bed_dy > 0, "Y_MIN_POS must be less than Y_MAX_POS (front is Y_MIN, back is Y_MAX).");
+    static_assert((_bed_dx * _bed_dy) > 0, "Bed corner winding is inverted (left-handed / mirrored bed definition).");
+  #endif
 #endif
 
 /**
@@ -1735,52 +1743,54 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
 /**
  * Homing checks
  */
-#ifndef HOMING_BUMP_MM
-  #error "Required setting HOMING_BUMP_MM is missing!"
-#elif !defined(HOMING_BUMP_DIVISOR)
-  #error "Required setting HOMING_BUMP_DIVISOR is missing!"
-#else
-  constexpr float hbm[] = HOMING_BUMP_MM, hbd[] = HOMING_BUMP_DIVISOR;
-  static_assert(COUNT(hbm) == NUM_AXES, "HOMING_BUMP_MM must have " _NUM_AXES_STR "elements (and no others).");
-  NUM_AXIS_CODE(
-    static_assert(hbm[X_AXIS] >= 0, "HOMING_BUMP_MM.X must be greater than or equal to 0."),
-    static_assert(hbm[Y_AXIS] >= 0, "HOMING_BUMP_MM.Y must be greater than or equal to 0."),
-    static_assert(hbm[Z_AXIS] >= 0, "HOMING_BUMP_MM.Z must be greater than or equal to 0."),
-    static_assert(hbm[I_AXIS] >= 0, "HOMING_BUMP_MM.I must be greater than or equal to 0."),
-    static_assert(hbm[J_AXIS] >= 0, "HOMING_BUMP_MM.J must be greater than or equal to 0."),
-    static_assert(hbm[K_AXIS] >= 0, "HOMING_BUMP_MM.K must be greater than or equal to 0."),
-    static_assert(hbm[U_AXIS] >= 0, "HOMING_BUMP_MM.U must be greater than or equal to 0."),
-    static_assert(hbm[V_AXIS] >= 0, "HOMING_BUMP_MM.V must be greater than or equal to 0."),
-    static_assert(hbm[W_AXIS] >= 0, "HOMING_BUMP_MM.W must be greater than or equal to 0.")
-  );
-  static_assert(COUNT(hbd) == NUM_AXES, "HOMING_BUMP_DIVISOR must have " _NUM_AXES_STR "elements (and no others).");
-  NUM_AXIS_CODE(
-    static_assert(hbd[X_AXIS] >= 1, "HOMING_BUMP_DIVISOR.X must be greater than or equal to 1."),
-    static_assert(hbd[Y_AXIS] >= 1, "HOMING_BUMP_DIVISOR.Y must be greater than or equal to 1."),
-    static_assert(hbd[Z_AXIS] >= 1, "HOMING_BUMP_DIVISOR.Z must be greater than or equal to 1."),
-    static_assert(hbd[I_AXIS] >= 1, "HOMING_BUMP_DIVISOR.I must be greater than or equal to 1."),
-    static_assert(hbd[J_AXIS] >= 1, "HOMING_BUMP_DIVISOR.J must be greater than or equal to 1."),
-    static_assert(hbd[K_AXIS] >= 1, "HOMING_BUMP_DIVISOR.K must be greater than or equal to 1."),
-    static_assert(hbd[U_AXIS] >= 1, "HOMING_BUMP_DIVISOR.U must be greater than or equal to 1."),
-    static_assert(hbd[V_AXIS] >= 1, "HOMING_BUMP_DIVISOR.V must be greater than or equal to 1."),
-    static_assert(hbd[W_AXIS] >= 1, "HOMING_BUMP_DIVISOR.W must be greater than or equal to 1.")
-  );
-#endif
+#if NUM_AXES
+  #ifndef HOMING_BUMP_MM
+    #error "Required setting HOMING_BUMP_MM is missing!"
+  #elif !defined(HOMING_BUMP_DIVISOR)
+    #error "Required setting HOMING_BUMP_DIVISOR is missing!"
+  #else
+    constexpr float hbm[] = HOMING_BUMP_MM, hbd[] = HOMING_BUMP_DIVISOR;
+    static_assert(COUNT(hbm) == NUM_AXES, "HOMING_BUMP_MM must have " _NUM_AXES_STR "elements (and no others).");
+    NUM_AXIS_CODE(
+      static_assert(hbm[X_AXIS] >= 0, "HOMING_BUMP_MM.X must be greater than or equal to 0."),
+      static_assert(hbm[Y_AXIS] >= 0, "HOMING_BUMP_MM.Y must be greater than or equal to 0."),
+      static_assert(hbm[Z_AXIS] >= 0, "HOMING_BUMP_MM.Z must be greater than or equal to 0."),
+      static_assert(hbm[I_AXIS] >= 0, "HOMING_BUMP_MM.I must be greater than or equal to 0."),
+      static_assert(hbm[J_AXIS] >= 0, "HOMING_BUMP_MM.J must be greater than or equal to 0."),
+      static_assert(hbm[K_AXIS] >= 0, "HOMING_BUMP_MM.K must be greater than or equal to 0."),
+      static_assert(hbm[U_AXIS] >= 0, "HOMING_BUMP_MM.U must be greater than or equal to 0."),
+      static_assert(hbm[V_AXIS] >= 0, "HOMING_BUMP_MM.V must be greater than or equal to 0."),
+      static_assert(hbm[W_AXIS] >= 0, "HOMING_BUMP_MM.W must be greater than or equal to 0.")
+    );
+    static_assert(COUNT(hbd) == NUM_AXES, "HOMING_BUMP_DIVISOR must have " _NUM_AXES_STR "elements (and no others).");
+    NUM_AXIS_CODE(
+      static_assert(hbd[X_AXIS] >= 1, "HOMING_BUMP_DIVISOR.X must be greater than or equal to 1."),
+      static_assert(hbd[Y_AXIS] >= 1, "HOMING_BUMP_DIVISOR.Y must be greater than or equal to 1."),
+      static_assert(hbd[Z_AXIS] >= 1, "HOMING_BUMP_DIVISOR.Z must be greater than or equal to 1."),
+      static_assert(hbd[I_AXIS] >= 1, "HOMING_BUMP_DIVISOR.I must be greater than or equal to 1."),
+      static_assert(hbd[J_AXIS] >= 1, "HOMING_BUMP_DIVISOR.J must be greater than or equal to 1."),
+      static_assert(hbd[K_AXIS] >= 1, "HOMING_BUMP_DIVISOR.K must be greater than or equal to 1."),
+      static_assert(hbd[U_AXIS] >= 1, "HOMING_BUMP_DIVISOR.U must be greater than or equal to 1."),
+      static_assert(hbd[V_AXIS] >= 1, "HOMING_BUMP_DIVISOR.V must be greater than or equal to 1."),
+      static_assert(hbd[W_AXIS] >= 1, "HOMING_BUMP_DIVISOR.W must be greater than or equal to 1.")
+    );
+  #endif
 
-#ifdef HOMING_BACKOFF_POST_MM
-  constexpr float hbp[] = HOMING_BACKOFF_POST_MM;
-  static_assert(COUNT(hbp) == NUM_AXES, "HOMING_BACKOFF_POST_MM must have " _NUM_AXES_STR "elements (and no others).");
-  NUM_AXIS_CODE(
-    static_assert(hbp[X_AXIS] >= 0, "HOMING_BACKOFF_POST_MM.X must be greater than or equal to 0."),
-    static_assert(hbp[Y_AXIS] >= 0, "HOMING_BACKOFF_POST_MM.Y must be greater than or equal to 0."),
-    static_assert(hbp[Z_AXIS] >= 0, "HOMING_BACKOFF_POST_MM.Z must be greater than or equal to 0."),
-    static_assert(hbp[I_AXIS] >= 0, "HOMING_BACKOFF_POST_MM.I must be greater than or equal to 0."),
-    static_assert(hbp[J_AXIS] >= 0, "HOMING_BACKOFF_POST_MM.J must be greater than or equal to 0."),
-    static_assert(hbp[K_AXIS] >= 0, "HOMING_BACKOFF_POST_MM.K must be greater than or equal to 0."),
-    static_assert(hbp[U_AXIS] >= 0, "HOMING_BACKOFF_POST_MM.U must be greater than or equal to 0."),
-    static_assert(hbp[V_AXIS] >= 0, "HOMING_BACKOFF_POST_MM.V must be greater than or equal to 0."),
-    static_assert(hbp[W_AXIS] >= 0, "HOMING_BACKOFF_POST_MM.W must be greater than or equal to 0.")
-  );
+  #ifdef HOMING_BACKOFF_POST_MM
+    constexpr float hbp[] = HOMING_BACKOFF_POST_MM;
+    static_assert(COUNT(hbp) == NUM_AXES, "HOMING_BACKOFF_POST_MM must have " _NUM_AXES_STR "elements (and no others).");
+    NUM_AXIS_CODE(
+      static_assert(hbp[X_AXIS] >= 0, "HOMING_BACKOFF_POST_MM.X must be greater than or equal to 0."),
+      static_assert(hbp[Y_AXIS] >= 0, "HOMING_BACKOFF_POST_MM.Y must be greater than or equal to 0."),
+      static_assert(hbp[Z_AXIS] >= 0, "HOMING_BACKOFF_POST_MM.Z must be greater than or equal to 0."),
+      static_assert(hbp[I_AXIS] >= 0, "HOMING_BACKOFF_POST_MM.I must be greater than or equal to 0."),
+      static_assert(hbp[J_AXIS] >= 0, "HOMING_BACKOFF_POST_MM.J must be greater than or equal to 0."),
+      static_assert(hbp[K_AXIS] >= 0, "HOMING_BACKOFF_POST_MM.K must be greater than or equal to 0."),
+      static_assert(hbp[U_AXIS] >= 0, "HOMING_BACKOFF_POST_MM.U must be greater than or equal to 0."),
+      static_assert(hbp[V_AXIS] >= 0, "HOMING_BACKOFF_POST_MM.V must be greater than or equal to 0."),
+      static_assert(hbp[W_AXIS] >= 0, "HOMING_BACKOFF_POST_MM.W must be greater than or equal to 0.")
+    );
+  #endif
 #endif
 
 #define COUNT_SENSORLESS COUNT_ENABLED(Z_SENSORLESS, Z2_SENSORLESS, Z3_SENSORLESS, Z4_SENSORLESS)
@@ -1962,33 +1972,223 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
 #undef GOOD_AXIS_PINS
 
 /**
- * Make sure auto fan pins don't conflict with the first fan pin
+ * Make sure each extruder's auto fan pin doesn't conflict with its own part cooling fan pin
  */
 #if HAS_AUTO_FAN
-  #if PINS_EXIST(E0_AUTO_FAN, FAN0) && E0_AUTO_FAN_PIN == FAN0_PIN
-    #error "You cannot set E0_AUTO_FAN_PIN equal to FAN0_PIN."
-  #elif PINS_EXIST(E1_AUTO_FAN, FAN0) && E1_AUTO_FAN_PIN == FAN0_PIN
-    #error "You cannot set E1_AUTO_FAN_PIN equal to FAN0_PIN."
-  #elif PINS_EXIST(E2_AUTO_FAN, FAN0) && E2_AUTO_FAN_PIN == FAN0_PIN
-    #error "You cannot set E2_AUTO_FAN_PIN equal to FAN0_PIN."
-  #elif PINS_EXIST(E3_AUTO_FAN, FAN0) &&  E3_AUTO_FAN_PIN == FAN0_PIN
-    #error "You cannot set E3_AUTO_FAN_PIN equal to FAN0_PIN."
-  #elif PINS_EXIST(E4_AUTO_FAN, FAN0) &&  E4_AUTO_FAN_PIN == FAN0_PIN
-    #error "You cannot set E4_AUTO_FAN_PIN equal to FAN0_PIN."
-  #elif PINS_EXIST(E5_AUTO_FAN, FAN0) &&  E5_AUTO_FAN_PIN == FAN0_PIN
-    #error "You cannot set E5_AUTO_FAN_PIN equal to FAN0_PIN."
-  #elif PINS_EXIST(E6_AUTO_FAN, FAN0) &&  E6_AUTO_FAN_PIN == FAN0_PIN
-    #error "You cannot set E6_AUTO_FAN_PIN equal to FAN0_PIN."
-  #elif PINS_EXIST(E7_AUTO_FAN, FAN0) &&  E7_AUTO_FAN_PIN == FAN0_PIN
-    #error "You cannot set E7_AUTO_FAN_PIN equal to FAN0_PIN."
+  #if PINS_EXIST(E0_AUTO_FAN, PART_COOLING_FAN0) && E0_AUTO_FAN_PIN == PART_COOLING_FAN0_PIN
+    #error "E0_AUTO_FAN_PIN conflicts with PART_COOLING_FAN0_PIN."
+  #elif PINS_EXIST(E1_AUTO_FAN, PART_COOLING_FAN1) && E1_AUTO_FAN_PIN == PART_COOLING_FAN1_PIN
+    #error "E1_AUTO_FAN_PIN conflicts with PART_COOLING_FAN1_PIN."
+  #elif PINS_EXIST(E2_AUTO_FAN, PART_COOLING_FAN2) && E2_AUTO_FAN_PIN == PART_COOLING_FAN2_PIN
+    #error "E2_AUTO_FAN_PIN conflicts with PART_COOLING_FAN2_PIN."
+  #elif PINS_EXIST(E3_AUTO_FAN, PART_COOLING_FAN3) && E3_AUTO_FAN_PIN == PART_COOLING_FAN3_PIN
+    #error "E3_AUTO_FAN_PIN conflicts with PART_COOLING_FAN3_PIN."
+  #elif PINS_EXIST(E4_AUTO_FAN, PART_COOLING_FAN4) && E4_AUTO_FAN_PIN == PART_COOLING_FAN4_PIN
+    #error "E4_AUTO_FAN_PIN conflicts with PART_COOLING_FAN4_PIN."
+  #elif PINS_EXIST(E5_AUTO_FAN, PART_COOLING_FAN5) && E5_AUTO_FAN_PIN == PART_COOLING_FAN5_PIN
+    #error "E5_AUTO_FAN_PIN conflicts with PART_COOLING_FAN5_PIN."
+  #elif PINS_EXIST(E6_AUTO_FAN, PART_COOLING_FAN6) && E6_AUTO_FAN_PIN == PART_COOLING_FAN6_PIN
+    #error "E6_AUTO_FAN_PIN conflicts with PART_COOLING_FAN6_PIN."
+  #elif PINS_EXIST(E7_AUTO_FAN, PART_COOLING_FAN7) && E7_AUTO_FAN_PIN == PART_COOLING_FAN7_PIN
+    #error "E7_AUTO_FAN_PIN conflicts with PART_COOLING_FAN7_PIN."
   #endif
 #endif
 
-#if HAS_FAN0
-  #if CONTROLLER_FAN_PIN == FAN0_PIN
-    #error "You cannot set CONTROLLER_FAN_PIN equal to FAN0_PIN."
-  #elif ENABLED(FAN_SOFT_PWM_REQUIRED) && DISABLED(FAN_SOFT_PWM)
-    #error "FAN_SOFT_PWM is required for your board. Enable it to continue."
+#if HAS_FAN && ENABLED(FAN_SOFT_PWM_REQUIRED) && DISABLED(FAN_SOFT_PWM)
+  #error "FAN_SOFT_PWM is required for your board. Enable it to continue."
+#endif
+#if PIN_EXISTS(CONTROLLER_FAN)
+  #if PIN_EXISTS(PART_COOLING_FAN0) && CONTROLLER_FAN_PIN == PART_COOLING_FAN0_PIN
+    #error "CONTROLLER_FAN_PIN conflicts with PART_COOLING_FAN0_PIN."
+  #elif HOTENDS >= 2 && PIN_EXISTS(PART_COOLING_FAN1) && CONTROLLER_FAN_PIN == PART_COOLING_FAN1_PIN
+    #error "CONTROLLER_FAN_PIN conflicts with PART_COOLING_FAN1_PIN."
+  #elif HOTENDS >= 3 && PIN_EXISTS(PART_COOLING_FAN2) && CONTROLLER_FAN_PIN == PART_COOLING_FAN2_PIN
+    #error "CONTROLLER_FAN_PIN conflicts with PART_COOLING_FAN2_PIN."
+  #elif HOTENDS >= 4 && PIN_EXISTS(PART_COOLING_FAN3) && CONTROLLER_FAN_PIN == PART_COOLING_FAN3_PIN
+    #error "CONTROLLER_FAN_PIN conflicts with PART_COOLING_FAN3_PIN."
+  #elif HOTENDS >= 5 && PIN_EXISTS(PART_COOLING_FAN4) && CONTROLLER_FAN_PIN == PART_COOLING_FAN4_PIN
+    #error "CONTROLLER_FAN_PIN conflicts with PART_COOLING_FAN4_PIN."
+  #elif HOTENDS >= 6 && PIN_EXISTS(PART_COOLING_FAN5) && CONTROLLER_FAN_PIN == PART_COOLING_FAN5_PIN
+    #error "CONTROLLER_FAN_PIN conflicts with PART_COOLING_FAN5_PIN."
+  #elif HOTENDS >= 7 && PIN_EXISTS(PART_COOLING_FAN6) && CONTROLLER_FAN_PIN == PART_COOLING_FAN6_PIN
+    #error "CONTROLLER_FAN_PIN conflicts with PART_COOLING_FAN6_PIN."
+  #elif HOTENDS >= 8 && PIN_EXISTS(PART_COOLING_FAN7) && CONTROLLER_FAN_PIN == PART_COOLING_FAN7_PIN
+    #error "CONTROLLER_FAN_PIN conflicts with PART_COOLING_FAN7_PIN."
+  #elif HOTENDS >= 9 && PIN_EXISTS(PART_COOLING_FAN8) && CONTROLLER_FAN_PIN == PART_COOLING_FAN8_PIN
+    #error "CONTROLLER_FAN_PIN conflicts with PART_COOLING_FAN8_PIN."
+  #elif HOTENDS >= 10 && PIN_EXISTS(PART_COOLING_FAN9) && CONTROLLER_FAN_PIN == PART_COOLING_FAN9_PIN
+    #error "CONTROLLER_FAN_PIN conflicts with PART_COOLING_FAN9_PIN."
+  #elif HOTENDS >= 11 && PIN_EXISTS(PART_COOLING_FAN10) && CONTROLLER_FAN_PIN == PART_COOLING_FAN10_PIN
+    #error "CONTROLLER_FAN_PIN conflicts with PART_COOLING_FAN10_PIN."
+  #elif HOTENDS >= 12 && PIN_EXISTS(PART_COOLING_FAN11) && CONTROLLER_FAN_PIN == PART_COOLING_FAN11_PIN
+    #error "CONTROLLER_FAN_PIN conflicts with PART_COOLING_FAN11_PIN."
+  #endif
+#endif
+
+// Each PART_COOLING_FAN pin must be unique (disabled pins at -1 are excluded)
+#if PIN_EXISTS(PART_COOLING_FAN1)
+  #if PIN_EXISTS(PART_COOLING_FAN0) && PART_COOLING_FAN1_PIN == PART_COOLING_FAN0_PIN
+    #error "PART_COOLING_FAN1_PIN conflicts with PART_COOLING_FAN0_PIN."
+  #endif
+#endif
+#if PIN_EXISTS(PART_COOLING_FAN2)
+  #if PIN_EXISTS(PART_COOLING_FAN0) && PART_COOLING_FAN2_PIN == PART_COOLING_FAN0_PIN
+    #error "PART_COOLING_FAN2_PIN conflicts with PART_COOLING_FAN0_PIN."
+  #elif PIN_EXISTS(PART_COOLING_FAN1) && PART_COOLING_FAN2_PIN == PART_COOLING_FAN1_PIN
+    #error "PART_COOLING_FAN2_PIN conflicts with PART_COOLING_FAN1_PIN."
+  #endif
+#endif
+#if PIN_EXISTS(PART_COOLING_FAN3)
+  #if PIN_EXISTS(PART_COOLING_FAN0) && PART_COOLING_FAN3_PIN == PART_COOLING_FAN0_PIN
+    #error "PART_COOLING_FAN3_PIN conflicts with PART_COOLING_FAN0_PIN."
+  #elif PIN_EXISTS(PART_COOLING_FAN1) && PART_COOLING_FAN3_PIN == PART_COOLING_FAN1_PIN
+    #error "PART_COOLING_FAN3_PIN conflicts with PART_COOLING_FAN1_PIN."
+  #elif PIN_EXISTS(PART_COOLING_FAN2) && PART_COOLING_FAN3_PIN == PART_COOLING_FAN2_PIN
+    #error "PART_COOLING_FAN3_PIN conflicts with PART_COOLING_FAN2_PIN."
+  #endif
+#endif
+#if PIN_EXISTS(PART_COOLING_FAN4)
+  #if PIN_EXISTS(PART_COOLING_FAN0) && PART_COOLING_FAN4_PIN == PART_COOLING_FAN0_PIN
+    #error "PART_COOLING_FAN4_PIN conflicts with PART_COOLING_FAN0_PIN."
+  #elif PIN_EXISTS(PART_COOLING_FAN1) && PART_COOLING_FAN4_PIN == PART_COOLING_FAN1_PIN
+    #error "PART_COOLING_FAN4_PIN conflicts with PART_COOLING_FAN1_PIN."
+  #elif PIN_EXISTS(PART_COOLING_FAN2) && PART_COOLING_FAN4_PIN == PART_COOLING_FAN2_PIN
+    #error "PART_COOLING_FAN4_PIN conflicts with PART_COOLING_FAN2_PIN."
+  #elif PIN_EXISTS(PART_COOLING_FAN3) && PART_COOLING_FAN4_PIN == PART_COOLING_FAN3_PIN
+    #error "PART_COOLING_FAN4_PIN conflicts with PART_COOLING_FAN3_PIN."
+  #endif
+#endif
+#if PIN_EXISTS(PART_COOLING_FAN5)
+  #if PIN_EXISTS(PART_COOLING_FAN0) && PART_COOLING_FAN5_PIN == PART_COOLING_FAN0_PIN
+    #error "PART_COOLING_FAN5_PIN conflicts with PART_COOLING_FAN0_PIN."
+  #elif PIN_EXISTS(PART_COOLING_FAN1) && PART_COOLING_FAN5_PIN == PART_COOLING_FAN1_PIN
+    #error "PART_COOLING_FAN5_PIN conflicts with PART_COOLING_FAN1_PIN."
+  #elif PIN_EXISTS(PART_COOLING_FAN2) && PART_COOLING_FAN5_PIN == PART_COOLING_FAN2_PIN
+    #error "PART_COOLING_FAN5_PIN conflicts with PART_COOLING_FAN2_PIN."
+  #elif PIN_EXISTS(PART_COOLING_FAN3) && PART_COOLING_FAN5_PIN == PART_COOLING_FAN3_PIN
+    #error "PART_COOLING_FAN5_PIN conflicts with PART_COOLING_FAN3_PIN."
+  #elif PIN_EXISTS(PART_COOLING_FAN4) && PART_COOLING_FAN5_PIN == PART_COOLING_FAN4_PIN
+    #error "PART_COOLING_FAN5_PIN conflicts with PART_COOLING_FAN4_PIN."
+  #endif
+#endif
+#if PIN_EXISTS(PART_COOLING_FAN6)
+  #if PIN_EXISTS(PART_COOLING_FAN0) && PART_COOLING_FAN6_PIN == PART_COOLING_FAN0_PIN
+    #error "PART_COOLING_FAN6_PIN conflicts with PART_COOLING_FAN0_PIN."
+  #elif PIN_EXISTS(PART_COOLING_FAN1) && PART_COOLING_FAN6_PIN == PART_COOLING_FAN1_PIN
+    #error "PART_COOLING_FAN6_PIN conflicts with PART_COOLING_FAN1_PIN."
+  #elif PIN_EXISTS(PART_COOLING_FAN2) && PART_COOLING_FAN6_PIN == PART_COOLING_FAN2_PIN
+    #error "PART_COOLING_FAN6_PIN conflicts with PART_COOLING_FAN2_PIN."
+  #elif PIN_EXISTS(PART_COOLING_FAN3) && PART_COOLING_FAN6_PIN == PART_COOLING_FAN3_PIN
+    #error "PART_COOLING_FAN6_PIN conflicts with PART_COOLING_FAN3_PIN."
+  #elif PIN_EXISTS(PART_COOLING_FAN4) && PART_COOLING_FAN6_PIN == PART_COOLING_FAN4_PIN
+    #error "PART_COOLING_FAN6_PIN conflicts with PART_COOLING_FAN4_PIN."
+  #elif PIN_EXISTS(PART_COOLING_FAN5) && PART_COOLING_FAN6_PIN == PART_COOLING_FAN5_PIN
+    #error "PART_COOLING_FAN6_PIN conflicts with PART_COOLING_FAN5_PIN."
+  #endif
+#endif
+#if PIN_EXISTS(PART_COOLING_FAN7)
+  #if PIN_EXISTS(PART_COOLING_FAN0) && PART_COOLING_FAN7_PIN == PART_COOLING_FAN0_PIN
+    #error "PART_COOLING_FAN7_PIN conflicts with PART_COOLING_FAN0_PIN."
+  #elif PIN_EXISTS(PART_COOLING_FAN1) && PART_COOLING_FAN7_PIN == PART_COOLING_FAN1_PIN
+    #error "PART_COOLING_FAN7_PIN conflicts with PART_COOLING_FAN1_PIN."
+  #elif PIN_EXISTS(PART_COOLING_FAN2) && PART_COOLING_FAN7_PIN == PART_COOLING_FAN2_PIN
+    #error "PART_COOLING_FAN7_PIN conflicts with PART_COOLING_FAN2_PIN."
+  #elif PIN_EXISTS(PART_COOLING_FAN3) && PART_COOLING_FAN7_PIN == PART_COOLING_FAN3_PIN
+    #error "PART_COOLING_FAN7_PIN conflicts with PART_COOLING_FAN3_PIN."
+  #elif PIN_EXISTS(PART_COOLING_FAN4) && PART_COOLING_FAN7_PIN == PART_COOLING_FAN4_PIN
+    #error "PART_COOLING_FAN7_PIN conflicts with PART_COOLING_FAN4_PIN."
+  #elif PIN_EXISTS(PART_COOLING_FAN5) && PART_COOLING_FAN7_PIN == PART_COOLING_FAN5_PIN
+    #error "PART_COOLING_FAN7_PIN conflicts with PART_COOLING_FAN5_PIN."
+  #elif PIN_EXISTS(PART_COOLING_FAN6) && PART_COOLING_FAN7_PIN == PART_COOLING_FAN6_PIN
+    #error "PART_COOLING_FAN7_PIN conflicts with PART_COOLING_FAN6_PIN."
+  #endif
+#endif
+#if PIN_EXISTS(PART_COOLING_FAN8)
+  #if PIN_EXISTS(PART_COOLING_FAN0) && PART_COOLING_FAN8_PIN == PART_COOLING_FAN0_PIN
+    #error "PART_COOLING_FAN8_PIN conflicts with PART_COOLING_FAN0_PIN."
+  #elif PIN_EXISTS(PART_COOLING_FAN1) && PART_COOLING_FAN8_PIN == PART_COOLING_FAN1_PIN
+    #error "PART_COOLING_FAN8_PIN conflicts with PART_COOLING_FAN1_PIN."
+  #elif PIN_EXISTS(PART_COOLING_FAN2) && PART_COOLING_FAN8_PIN == PART_COOLING_FAN2_PIN
+    #error "PART_COOLING_FAN8_PIN conflicts with PART_COOLING_FAN2_PIN."
+  #elif PIN_EXISTS(PART_COOLING_FAN3) && PART_COOLING_FAN8_PIN == PART_COOLING_FAN3_PIN
+    #error "PART_COOLING_FAN8_PIN conflicts with PART_COOLING_FAN3_PIN."
+  #elif PIN_EXISTS(PART_COOLING_FAN4) && PART_COOLING_FAN8_PIN == PART_COOLING_FAN4_PIN
+    #error "PART_COOLING_FAN8_PIN conflicts with PART_COOLING_FAN4_PIN."
+  #elif PIN_EXISTS(PART_COOLING_FAN5) && PART_COOLING_FAN8_PIN == PART_COOLING_FAN5_PIN
+    #error "PART_COOLING_FAN8_PIN conflicts with PART_COOLING_FAN5_PIN."
+  #elif PIN_EXISTS(PART_COOLING_FAN6) && PART_COOLING_FAN8_PIN == PART_COOLING_FAN6_PIN
+    #error "PART_COOLING_FAN8_PIN conflicts with PART_COOLING_FAN6_PIN."
+  #elif PIN_EXISTS(PART_COOLING_FAN7) && PART_COOLING_FAN8_PIN == PART_COOLING_FAN7_PIN
+    #error "PART_COOLING_FAN8_PIN conflicts with PART_COOLING_FAN7_PIN."
+  #endif
+#endif
+#if PIN_EXISTS(PART_COOLING_FAN9)
+  #if PIN_EXISTS(PART_COOLING_FAN0) && PART_COOLING_FAN9_PIN == PART_COOLING_FAN0_PIN
+    #error "PART_COOLING_FAN9_PIN conflicts with PART_COOLING_FAN0_PIN."
+  #elif PIN_EXISTS(PART_COOLING_FAN1) && PART_COOLING_FAN9_PIN == PART_COOLING_FAN1_PIN
+    #error "PART_COOLING_FAN9_PIN conflicts with PART_COOLING_FAN1_PIN."
+  #elif PIN_EXISTS(PART_COOLING_FAN2) && PART_COOLING_FAN9_PIN == PART_COOLING_FAN2_PIN
+    #error "PART_COOLING_FAN9_PIN conflicts with PART_COOLING_FAN2_PIN."
+  #elif PIN_EXISTS(PART_COOLING_FAN3) && PART_COOLING_FAN9_PIN == PART_COOLING_FAN3_PIN
+    #error "PART_COOLING_FAN9_PIN conflicts with PART_COOLING_FAN3_PIN."
+  #elif PIN_EXISTS(PART_COOLING_FAN4) && PART_COOLING_FAN9_PIN == PART_COOLING_FAN4_PIN
+    #error "PART_COOLING_FAN9_PIN conflicts with PART_COOLING_FAN4_PIN."
+  #elif PIN_EXISTS(PART_COOLING_FAN5) && PART_COOLING_FAN9_PIN == PART_COOLING_FAN5_PIN
+    #error "PART_COOLING_FAN9_PIN conflicts with PART_COOLING_FAN5_PIN."
+  #elif PIN_EXISTS(PART_COOLING_FAN6) && PART_COOLING_FAN9_PIN == PART_COOLING_FAN6_PIN
+    #error "PART_COOLING_FAN9_PIN conflicts with PART_COOLING_FAN6_PIN."
+  #elif PIN_EXISTS(PART_COOLING_FAN7) && PART_COOLING_FAN9_PIN == PART_COOLING_FAN7_PIN
+    #error "PART_COOLING_FAN9_PIN conflicts with PART_COOLING_FAN7_PIN."
+  #elif PIN_EXISTS(PART_COOLING_FAN8) && PART_COOLING_FAN9_PIN == PART_COOLING_FAN8_PIN
+    #error "PART_COOLING_FAN9_PIN conflicts with PART_COOLING_FAN8_PIN."
+  #endif
+#endif
+#if PIN_EXISTS(PART_COOLING_FAN10)
+  #if PIN_EXISTS(PART_COOLING_FAN0) && PART_COOLING_FAN10_PIN == PART_COOLING_FAN0_PIN
+    #error "PART_COOLING_FAN10_PIN conflicts with PART_COOLING_FAN0_PIN."
+  #elif PIN_EXISTS(PART_COOLING_FAN1) && PART_COOLING_FAN10_PIN == PART_COOLING_FAN1_PIN
+    #error "PART_COOLING_FAN10_PIN conflicts with PART_COOLING_FAN1_PIN."
+  #elif PIN_EXISTS(PART_COOLING_FAN2) && PART_COOLING_FAN10_PIN == PART_COOLING_FAN2_PIN
+    #error "PART_COOLING_FAN10_PIN conflicts with PART_COOLING_FAN2_PIN."
+  #elif PIN_EXISTS(PART_COOLING_FAN3) && PART_COOLING_FAN10_PIN == PART_COOLING_FAN3_PIN
+    #error "PART_COOLING_FAN10_PIN conflicts with PART_COOLING_FAN3_PIN."
+  #elif PIN_EXISTS(PART_COOLING_FAN4) && PART_COOLING_FAN10_PIN == PART_COOLING_FAN4_PIN
+    #error "PART_COOLING_FAN10_PIN conflicts with PART_COOLING_FAN4_PIN."
+  #elif PIN_EXISTS(PART_COOLING_FAN5) && PART_COOLING_FAN10_PIN == PART_COOLING_FAN5_PIN
+    #error "PART_COOLING_FAN10_PIN conflicts with PART_COOLING_FAN5_PIN."
+  #elif PIN_EXISTS(PART_COOLING_FAN6) && PART_COOLING_FAN10_PIN == PART_COOLING_FAN6_PIN
+    #error "PART_COOLING_FAN10_PIN conflicts with PART_COOLING_FAN6_PIN."
+  #elif PIN_EXISTS(PART_COOLING_FAN7) && PART_COOLING_FAN10_PIN == PART_COOLING_FAN7_PIN
+    #error "PART_COOLING_FAN10_PIN conflicts with PART_COOLING_FAN7_PIN."
+  #elif PIN_EXISTS(PART_COOLING_FAN8) && PART_COOLING_FAN10_PIN == PART_COOLING_FAN8_PIN
+    #error "PART_COOLING_FAN10_PIN conflicts with PART_COOLING_FAN8_PIN."
+  #elif PIN_EXISTS(PART_COOLING_FAN9) && PART_COOLING_FAN10_PIN == PART_COOLING_FAN9_PIN
+    #error "PART_COOLING_FAN10_PIN conflicts with PART_COOLING_FAN9_PIN."
+  #endif
+#endif
+#if PIN_EXISTS(PART_COOLING_FAN11)
+  #if PIN_EXISTS(PART_COOLING_FAN0) && PART_COOLING_FAN11_PIN == PART_COOLING_FAN0_PIN
+    #error "PART_COOLING_FAN11_PIN conflicts with PART_COOLING_FAN0_PIN."
+  #elif PIN_EXISTS(PART_COOLING_FAN1) && PART_COOLING_FAN11_PIN == PART_COOLING_FAN1_PIN
+    #error "PART_COOLING_FAN11_PIN conflicts with PART_COOLING_FAN1_PIN."
+  #elif PIN_EXISTS(PART_COOLING_FAN2) && PART_COOLING_FAN11_PIN == PART_COOLING_FAN2_PIN
+    #error "PART_COOLING_FAN11_PIN conflicts with PART_COOLING_FAN2_PIN."
+  #elif PIN_EXISTS(PART_COOLING_FAN3) && PART_COOLING_FAN11_PIN == PART_COOLING_FAN3_PIN
+    #error "PART_COOLING_FAN11_PIN conflicts with PART_COOLING_FAN3_PIN."
+  #elif PIN_EXISTS(PART_COOLING_FAN4) && PART_COOLING_FAN11_PIN == PART_COOLING_FAN4_PIN
+    #error "PART_COOLING_FAN11_PIN conflicts with PART_COOLING_FAN4_PIN."
+  #elif PIN_EXISTS(PART_COOLING_FAN5) && PART_COOLING_FAN11_PIN == PART_COOLING_FAN5_PIN
+    #error "PART_COOLING_FAN11_PIN conflicts with PART_COOLING_FAN5_PIN."
+  #elif PIN_EXISTS(PART_COOLING_FAN6) && PART_COOLING_FAN11_PIN == PART_COOLING_FAN6_PIN
+    #error "PART_COOLING_FAN11_PIN conflicts with PART_COOLING_FAN6_PIN."
+  #elif PIN_EXISTS(PART_COOLING_FAN7) && PART_COOLING_FAN11_PIN == PART_COOLING_FAN7_PIN
+    #error "PART_COOLING_FAN11_PIN conflicts with PART_COOLING_FAN7_PIN."
+  #elif PIN_EXISTS(PART_COOLING_FAN8) && PART_COOLING_FAN11_PIN == PART_COOLING_FAN8_PIN
+    #error "PART_COOLING_FAN11_PIN conflicts with PART_COOLING_FAN8_PIN."
+  #elif PIN_EXISTS(PART_COOLING_FAN9) && PART_COOLING_FAN11_PIN == PART_COOLING_FAN9_PIN
+    #error "PART_COOLING_FAN11_PIN conflicts with PART_COOLING_FAN9_PIN."
+  #elif PIN_EXISTS(PART_COOLING_FAN10) && PART_COOLING_FAN11_PIN == PART_COOLING_FAN10_PIN
+    #error "PART_COOLING_FAN11_PIN conflicts with PART_COOLING_FAN10_PIN."
   #endif
 #endif
 
@@ -2045,8 +2245,30 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
 #if NEED_CASE_LIGHT_PIN
   #if !PIN_EXISTS(CASE_LIGHT)
     #error "CASE_LIGHT_ENABLE requires CASE_LIGHT_PIN, CASE_LIGHT_USE_NEOPIXEL, or CASE_LIGHT_USE_RGB_LED."
-  #elif CASE_LIGHT_PIN == FAN0_PIN
-    #error "CASE_LIGHT_PIN conflicts with FAN0_PIN. Resolve before continuing."
+  #elif PIN_EXISTS(PART_COOLING_FAN0) && CASE_LIGHT_PIN == PART_COOLING_FAN0_PIN
+    #error "CASE_LIGHT_PIN conflicts with PART_COOLING_FAN0_PIN."
+  #elif HOTENDS >= 2 && PIN_EXISTS(PART_COOLING_FAN1) && CASE_LIGHT_PIN == PART_COOLING_FAN1_PIN
+    #error "CASE_LIGHT_PIN conflicts with PART_COOLING_FAN1_PIN."
+  #elif HOTENDS >= 3 && PIN_EXISTS(PART_COOLING_FAN2) && CASE_LIGHT_PIN == PART_COOLING_FAN2_PIN
+    #error "CASE_LIGHT_PIN conflicts with PART_COOLING_FAN2_PIN."
+  #elif HOTENDS >= 4 && PIN_EXISTS(PART_COOLING_FAN3) && CASE_LIGHT_PIN == PART_COOLING_FAN3_PIN
+    #error "CASE_LIGHT_PIN conflicts with PART_COOLING_FAN3_PIN."
+  #elif HOTENDS >= 5 && PIN_EXISTS(PART_COOLING_FAN4) && CASE_LIGHT_PIN == PART_COOLING_FAN4_PIN
+    #error "CASE_LIGHT_PIN conflicts with PART_COOLING_FAN4_PIN."
+  #elif HOTENDS >= 6 && PIN_EXISTS(PART_COOLING_FAN5) && CASE_LIGHT_PIN == PART_COOLING_FAN5_PIN
+    #error "CASE_LIGHT_PIN conflicts with PART_COOLING_FAN5_PIN."
+  #elif HOTENDS >= 7 && PIN_EXISTS(PART_COOLING_FAN6) && CASE_LIGHT_PIN == PART_COOLING_FAN6_PIN
+    #error "CASE_LIGHT_PIN conflicts with PART_COOLING_FAN6_PIN."
+  #elif HOTENDS >= 8 && PIN_EXISTS(PART_COOLING_FAN7) && CASE_LIGHT_PIN == PART_COOLING_FAN7_PIN
+    #error "CASE_LIGHT_PIN conflicts with PART_COOLING_FAN7_PIN."
+  #elif HOTENDS >= 9 && PIN_EXISTS(PART_COOLING_FAN8) && CASE_LIGHT_PIN == PART_COOLING_FAN8_PIN
+    #error "CASE_LIGHT_PIN conflicts with PART_COOLING_FAN8_PIN."
+  #elif HOTENDS >= 10 && PIN_EXISTS(PART_COOLING_FAN9) && CASE_LIGHT_PIN == PART_COOLING_FAN9_PIN
+    #error "CASE_LIGHT_PIN conflicts with PART_COOLING_FAN9_PIN."
+  #elif HOTENDS >= 11 && PIN_EXISTS(PART_COOLING_FAN10) && CASE_LIGHT_PIN == PART_COOLING_FAN10_PIN
+    #error "CASE_LIGHT_PIN conflicts with PART_COOLING_FAN10_PIN."
+  #elif HOTENDS >= 12 && PIN_EXISTS(PART_COOLING_FAN11) && CASE_LIGHT_PIN == PART_COOLING_FAN11_PIN
+    #error "CASE_LIGHT_PIN conflicts with PART_COOLING_FAN11_PIN."
   #endif
 #endif
 
@@ -2925,7 +3147,7 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
     #error "LCD_BACKLIGHT_TIMEOUT_MINS requires an LCD with encoder or keypad."
   #elif HAS_DISPLAY_SLEEP
     #error "LCD_BACKLIGHT_TIMEOUT_MINS and DISPLAY_SLEEP_MINUTES are not currently supported at the same time."
-  #elif ENABLED(NEOPIXEL_BKGD_INDEX_FIRST)
+  #elif defined(NEOPIXEL_BKGD_INDEX_FIRST)
     #if PIN_EXISTS(LCD_BACKLIGHT)
       #error "LCD_BACKLIGHT_PIN and NEOPIXEL_BKGD_INDEX_FIRST are not supported at the same time."
     #elif ENABLED(NEOPIXEL_BKGD_ALWAYS_ON)

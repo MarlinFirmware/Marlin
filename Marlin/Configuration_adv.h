@@ -581,6 +581,25 @@
 // @section fans
 
 /**
+ * Part Cooling Fan Pins
+ * Override the default part cooling fan pins for each fan index.
+ * Allows remapping which physical fan pin is used for part cooling.
+ * By default: FAN0 → FAN0_PIN, FAN1 → FAN1_PIN, etc.
+ */
+//#define PART_COOLING_FAN0_PIN   FAN0_PIN
+//#define PART_COOLING_FAN1_PIN   FAN1_PIN
+//#define PART_COOLING_FAN2_PIN   FAN2_PIN
+//#define PART_COOLING_FAN3_PIN   FAN3_PIN
+//#define PART_COOLING_FAN4_PIN   FAN4_PIN
+//#define PART_COOLING_FAN5_PIN   FAN5_PIN
+//#define PART_COOLING_FAN6_PIN   FAN6_PIN
+//#define PART_COOLING_FAN7_PIN   FAN7_PIN
+//#define PART_COOLING_FAN8_PIN   FAN8_PIN
+//#define PART_COOLING_FAN9_PIN   FAN9_PIN
+//#define PART_COOLING_FAN10_PIN  FAN10_PIN
+//#define PART_COOLING_FAN11_PIN  FAN11_PIN
+
+/**
  * Controller Fan
  * To cool down the stepper drivers and MOSFETs.
  *
