@@ -28,8 +28,8 @@
 bool StallGuardTuning::tuning_success;
 uint16_t StallGuardTuning::sampling_hist[511];
 uint16_t StallGuardTuning::sampling_total;
-long StallGuardTuning::sg2_sgr_sum;
-int StallGuardTuning::sgr_min;
+uint32_t StallGuardTuning::sg2_sgr_sum;
+uint16_t StallGuardTuning::sgr_min;
 uint8_t StallGuardTuning::driver_count;
 uint8_t StallGuardTuning::stallguard_type;
 uint32_t StallGuardTuning::t_start;
@@ -57,28 +57,24 @@ void StallGuardTuning::tune_axis(const AxisEnum axis) {
     #endif
 
     // Get number of drivers for the tuned axis 
-    // 0: error, no TMC, a mix of TMC and other drivers or 2 TMC drivers with different stallguard version 
-    // 1: Tuned axis compatible with only one driver
-    // 2: Tuned axis compatible (2 TMC drivers or a coreXY machine)
+    // 0: error, already tested in SanityCheck.h
+    // 1: Tuned axis with 1 driver
+    // 2: Tuned axis with 2 drivers or a coreXY machine
     driver_count = get_nb_drivers_for_axis(axis);
 
-    if(driver_count == 0) {
-        SERIAL_ECHOLN((axis?"Y:":"X:")," mixed stallguard version, tuning aborted");
-        return;
-    }
-    
     axis_tuned = axis;   
 
     #if CORE_IS_XY
-        // For a coreXY, get only current of stepperX, stallguard_type already defined
+        // For a coreXY, get only current of stepperX for tuning, stallguard_type already defined
         saved_current_0 = stepperX.rms_current();
+        saved_current_1 = stepperY.rms_current();
+        
         current = saved_current_0 / 2; 
         if (current < 400) current = 400; // Don't start below 400mA
         stepperX.rms_current(current);
-        restore_stealth_0 = tmc_enable_stallguard(stepperX);
-
-        saved_current_1 = stepperY.rms_current();
         stepperY.rms_current(current);
+        
+        restore_stealth_0 = tmc_enable_stallguard(stepperX);
         restore_stealth_1 = tmc_enable_stallguard(stepperY);
     
     #else
@@ -126,15 +122,14 @@ void StallGuardTuning::tune_axis(const AxisEnum axis) {
     else 
         tune_sg4(velocity);
 
+    // Restore StealthChop if needed and saved current
     #if CORE_IS_XY
-        // Restore StealthChop if needed and saved current
         tmc_disable_stallguard(stepperX, restore_stealth_0);
         stepperX.rms_current(saved_current_0);
         tmc_disable_stallguard(stepperY, restore_stealth_1);
         stepperY.rms_current(saved_current_1);
     #else
         if (axis == X_AXIS) {
-        // Restore StealthChop if needed and saved current
         tmc_disable_stallguard(stepperX, restore_stealth_0);
         stepperX.rms_current(saved_current_0);
         #if X2_SENSORLESS
@@ -163,51 +158,54 @@ void StallGuardTuning::sampling() {
     if ((millis() - t_start) < 2) return;
     t_start += 2;
 
-    uint16_t sg_result = 0;
-    uint16_t sg_result_1 = 0;
-
-    // SG_RESULt range is 0-1023 for Stallguard2 and 0-510 for Stallguard4
-    #if CORE_IS_XY
-        sg_result = tmc_sg_result(stepperX);
-        sg_result_1 = tmc_sg_result(stepperY);
-    #else
-    if (axis_tuned == X_AXIS) {
-        sg_result = tmc_sg_result(stepperX);
-        #if X2_SENSORLESS
-            sg_result_1 = tmc_sg_result(stepperX2);
-        #endif
-    } else {
-        sg_result = tmc_sg_result(stepperY);
-        #if Y2_SENSORLESS
-            sg_result_1 = tmc_sg_result(stepperY2);
-        #endif
-    }
+    uint16_t sg_result_0 = 0;
+    #if X2_SENSORLESS || Y2_SENSORLESS || CORE_IS_XY
+        uint16_t sg_result_1 = 0;
     #endif
 
-    if (stallguard_type == SG_STALLGUARD2) {
-        #if CORE_IS_XY
-            sg2_sgr_sum += sg_result;
-            if (sg_result < sgr_min) sgr_min = sg_result;
-            sg2_sgr_sum += sg_result_1;
-            if (sg_result_1 < sgr_min) sgr_min = sg_result_1;
-        #else
-        sg2_sgr_sum += sg_result;
-        if (sg_result < sgr_min) sgr_min = sg_result;
-        if (driver_count > 1) {
+    // SG_RESULT range is 0-1023 for Stallguard2 and 0-510 for Stallguard4
+    #if CORE_IS_XY
+        sg_result_0 = tmc_sg_result(stepperX);
+        sg_result_1 = tmc_sg_result(stepperY);
+        if (stallguard_type == SG_STALLGUARD2) {
+            sg2_sgr_sum += sg_result_0;
+            if (sg_result_0 < sgr_min) sgr_min = sg_result_0;
             sg2_sgr_sum += sg_result_1;
             if (sg_result_1 < sgr_min) sgr_min = sg_result_1;
         }
-        #endif
-    } else {
-        #if CORE_IS_XY
-            sampling_hist[sg_result]++; // Increment histogram value for this SG_RESULT
-            sampling_hist[sg_result_1]++;
-        #else
-            sampling_hist[sg_result]++; // Increment histogram value for this SG_RESULT
-            if (driver_count > 1) sampling_hist[sg_result_1]++;
-        #endif
-    }
-    
+        else {
+            sampling_hist[sg_result_0]++; // Increment histogram value for this SG_RESULT
+            sampling_hist[sg_result_1]++; 
+        }
+    #else
+        if (axis_tuned == X_AXIS) {
+            sg_result_0 = tmc_sg_result(stepperX);
+            #if X2_SENSORLESS
+                sg_result_1 = tmc_sg_result(stepperX2);
+            #endif
+        } else {
+            sg_result_0 = tmc_sg_result(stepperY);
+            #if Y2_SENSORLESS
+                sg_result_1 = tmc_sg_result(stepperY2);
+            #endif
+        }
+
+        if (stallguard_type == SG_STALLGUARD2) {
+            sg2_sgr_sum += sg_result_0;
+            if (sg_result_0 < sgr_min) sgr_min = sg_result_0;
+            #if (X2_SENSORLESS || Y2_SENSORLESS)
+                if (driver_count == 2) {
+                    sg2_sgr_sum += sg_result_1;
+                    if (sg_result_1 < sgr_min) sgr_min = sg_result_1;
+                }
+            #endif
+        } else {
+            sampling_hist[sg_result_0]++; // Increment histogram value for this SG_RESULT
+            #if X2_SENSORLESS || Y2_SENSORLESS
+                if (driver_count == 2) sampling_hist[sg_result_1]++;
+            #endif
+        }
+    #endif
     sampling_total += driver_count; // Count total samples (one sample per driver)
 }
 
@@ -222,7 +220,7 @@ void StallGuardTuning::tune_sg2(const float velocity) {
     sg_thrs = 0; // Indifferent value for SGT, free move
     sgr_min = 9999;
     
-    // Main test loop : adapt SGT threshold until we see the SG result within a prespecified range between 80 - 120 (safety margin)
+    // Main test loop : adapt SGT threshold until we see SG_RESULT within the prespecified range between 80 - 120 (safety margin)
     // Values are from Stallguard2 TMC datasheet (SG_RESULT before stall 0-100)
     // The first move is a free move with a SGT value of 0
     while(!tuning_success) {
@@ -318,36 +316,33 @@ void StallGuardTuning::tune_sg4(const float velocity) {
 }
 
 void StallGuardTuning::set_homing_treshold(uint16_t threshold) {
-    if (axis_tuned == X_AXIS) {
+    #if CORE_IS_XY
         stepperX.homing_threshold(threshold);
-        #if X2_SENSORLESS
-            stepperX2.homing_threshold(threshold);
-        #endif
-        #if CORE_IS_XY
-            stepperY.homing_threshold(threshold);
-        #endif
-    } else {
         stepperY.homing_threshold(threshold);
-        #if Y2_SENSORLESS
-            stepperY2.homing_threshold(threshold);
-        #endif
-        #if CORE_IS_XY
+    #else
+        if (axis_tuned == X_AXIS) {
             stepperX.homing_threshold(threshold);
-        #endif
-    }
+            #if X2_SENSORLESS
+                stepperX2.homing_threshold(threshold);
+            #endif
+        } else {
+            stepperY.homing_threshold(threshold);
+            #if Y2_SENSORLESS
+                stepperY2.homing_threshold(threshold);
+            #endif
+        }
+    #endif
 }
 
-// Number of drivers per axis
-// Returns 0 means no TMC driver, mixed drivers (TMC ans others) or different stallguard version if 2 TMC drivers
+// Number of drivers per axis and get stallguard version
+// Returns the number of drivers for the tuned axis or always 2 for CoreXY
+// Returns 0 : abort tuning, 2 drivers with different stallguard version for the same tuned axis or for a coreXY printer (todo perhaps in SanityCheck.h)
 uint8_t StallGuardTuning::get_nb_drivers_for_axis(AxisEnum axis) {
     uint8_t count = 0;
 
     #if CORE_IS_XY
         stallguard_type = tmc_stallguard_version(stepperX);
-        if (stallguard_type == tmc_stallguard_version(stepperY))
-            count = 2;
-        else
-            count = 0;
+        count = 2;
     #else
         if (axis == X_AXIS) {
             #if X_SENSORLESS
@@ -358,8 +353,6 @@ uint8_t StallGuardTuning::get_nb_drivers_for_axis(AxisEnum axis) {
             #if X2_SENSORLESS
                 if (stallguard_type == tmc_stallguard_version(stepperX2))
                     count = 2;
-                else
-                    count = 0;
             #endif
         }
 
@@ -371,8 +364,6 @@ uint8_t StallGuardTuning::get_nb_drivers_for_axis(AxisEnum axis) {
             #if Y2_SENSORLESS
                 if (stallguard_type == tmc_stallguard_version(stepperY2))
                     count = 2;
-                else
-                    count = 0;
             #endif
         }
     #endif

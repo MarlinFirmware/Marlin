@@ -75,14 +75,14 @@ private:
     static int16_t sg_thrs;                      // Homing threshold for SG2 (SGT value -64 to 63) or SG4 (SGTHRS value 0-255)
     static AxisEnum axis_tuned;                  // Axis to be tuned
 
-    static uint8_t driver_count;                // Tuned axis number of drivers
+    static uint8_t driver_count;                // Tuned axis number of drivers or number of drivers for a CoreXY printer
     static uint8_t stallguard_type;             // Type of StallGuard
     
     static uint32_t t_start;                    // Start time
     static uint16_t sampling_hist[511];         // Histogram for SG_RESULT sampling during tuning, max SG_RESULT value is 510 for SG4
     static uint16_t sampling_total;             // Total samples collected for percentile calculation
-    static long sg2_sgr_sum;                    // Sum of SG_RESULT values for SG2 tuning
-    static int sgr_min;                         // Minimum SG_RESULT observed during tuning, used for SG2
+    static uint32_t sg2_sgr_sum;                // Sum of SG_RESULT values for SG2 tuning
+    static uint16_t sgr_min;                    // Minimum SG_RESULT observed during tuning, used for SG2
 };
 
 extern StallGuardTuning stallguard_tuner;

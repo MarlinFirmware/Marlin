@@ -1205,13 +1205,6 @@
       return (st.DRV_STATUS() & 0x3FF);
     }
 
-    uint8_t tmc_stallguard_version(TMC2208Stepper) {
-      return SG_NONE;
-    }
-    uint16_t tmc_sg_result(TMC2208Stepper) {
-      return 0;
-    }
-
     uint8_t tmc_stallguard_version(TMC2209Stepper) {
       return SG_STALLGUARD4;
     }

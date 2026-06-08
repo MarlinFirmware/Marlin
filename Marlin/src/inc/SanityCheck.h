@@ -3718,16 +3718,32 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
   #endif
 
   #if ENABLED(STALLGUARD_TUNING)
-    #if (CORE_IS_XY && !(X_SENSORLESS && Y_SENSORLESS))
-      #error "For a coreXY, STALGGUARD_TUNING requires both X and Y TMC stepper drivers"
+    #if CORE_IS_XY
+      #if !(X_SENSORLESS && Y_SENSORLESS)
+        #error "CoreXY: STALLGUARD_TUNING requires both X and Y TMC stepper drivers"
+      #endif
+      #if (AXIS_HAS_STALLGUARD2(X) != AXIS_HAS_STALLGUARD2(Y))
+        #error "CoreXY: STALLGUARD_TUNING requires same stallguard version on both X and Y TMC stepper drivers"
+      #endif
     #endif
     #if !(X_SENSORLESS || Y_SENSORLESS)
-      #error "STALLGUARD_TUNING requires X or Y axis with a TMC stepper driver with StallGuard"
+      #error "STALLGUARD_TUNING requires X or Y axis with a StallGuard capable TMC stepper driver"
     #endif
-    #if (HAS_X2_STEPPER && !(X_SENSORLESS && X2_SENSORLESS))
-      #error "Stepper drivers on X axis are incompatible with STALLGUARD_TUNING"
-    #elif (HAS_Y2_STEPPER && !(Y_SENSORLESS && Y2_SENSORLESS))
-      #error "Stepper drivers on Y axis are incompatible with STALLGUARD_TUNING"
+    #if X_SENSORLESS && HAS_X2_STEPPER
+      #if !(X2_SENSORLESS)
+        #error "STALLGUARD_TUNING requires both StallGuard on both X axis TMC stepper drivers"
+      #endif
+      #if (AXIS_HAS_STALLGUARD2(X) != AXIS_HAS_STALLGUARD2(X2))
+        #error "STALLGUARD_TUNING require same stallguard version on both X axis TMC stepper drivers"
+      #endif
+    #endif
+    #if Y_SENSORLESS && HAS_Y2_STEPPER
+      #if !(Y2_SENSORLESS)
+        #error "STALLGUARD_TUNING requires both StallGuard on both Y axis TMC stepper drivers"
+      #endif
+      #if (AXIS_HAS_STALLGUARD2(Y) != AXIS_HAS_STALLGUARD2(Y2))
+        #error "STALLGUARD_TUNING require same stallguard version on both Y axis TMC stepper drivers"
+      #endif
     #endif
   #endif // STALLGUARD_TUNING
 
