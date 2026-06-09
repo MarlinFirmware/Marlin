@@ -36,7 +36,7 @@ void say_stallguard_tuning() {
 /**
  * M921: Launch StallGuard2 or StallGuard4 autotuning for X or Y axis depending on the TMC driver type.
  * For cartesian and coreXY machines
- * Axis with 2 TMC and same Stallguard version are supported.
+ * Axis with 2 TMC stepper drivers and same Stallguard version are supported.
  *
  * Parameters:
  *   X      - Autotune X axis stepper(s)
