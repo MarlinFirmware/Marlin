@@ -38,9 +38,9 @@
 #define CHOPPER_09STEP_24V   { 3, -1, 5 }
 
 enum StallguardType : uint8_t {
-    SG_NONE = 0,
-    SG_STALLGUARD2 = 1,
-    SG_STALLGUARD4 = 2
+    SG_STALLGUARD2 = 0,
+    SG_STALLGUARD4 = 1,
+    SG_NONE = 0
 };
 
 #if ENABLED(MONITOR_DRIVER_STATUS) && !defined(MONITOR_DRIVER_STATUS_INTERVAL_MS)
@@ -435,6 +435,7 @@ void test_tmc_connection(LOGICAL_AXIS_DECL_LC(const bool, true));
   void tmc_disable_stallguard(TMC2209Stepper &st, const bool restore_stealth);
 
   bool tmc_enable_stallguard(TMC2240Stepper &st);
+  bool tmc_enable_stallguard(TMC2240Stepper &st, const StallguardType sg_type);
   void tmc_disable_stallguard(TMC2240Stepper &st, const bool restore_stealth);
 
   bool tmc_enable_stallguard(TMC2660Stepper);

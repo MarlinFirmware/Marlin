@@ -1172,14 +1172,20 @@
     st.TCOOLTHRS(0);
   }
 
-  bool tmc_enable_stallguard(TMC2240Stepper &st) {
+  bool tmc_enable_stallguard(TMC2240Stepper &st) { // Default Stallguard mode 
     const bool stealthchop_was_enabled = st.en_pwm_mode();
-
-    // TODO: Use StallGuard4 when stealthChop is enabled
-    //       and leave stealthChop state unchanged.
 
     st.TCOOLTHRS(0xFFFFF);
     st.en_pwm_mode(false);
+    st.diag0_stall(true);
+
+    return stealthchop_was_enabled;
+  }
+  bool tmc_enable_stallguard(TMC2240Stepper &st, const StallguardType sg_type) { // Choose SG2 or SG4
+    const bool stealthchop_was_enabled = st.en_pwm_mode();
+
+    st.TCOOLTHRS(0xFFFFF);
+    st.en_pwm_mode(sg_type); // false SG2, true SG4
     st.diag0_stall(true);
 
     return stealthchop_was_enabled;

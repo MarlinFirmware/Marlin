@@ -73,9 +73,23 @@ void StallGuardTuning::tune_axis(const AxisEnum axis) {
         if (current < 400) current = 400; // Don't start below 400mA
         stepperX.rms_current(current);
         stepperY.rms_current(current);
-        
-        restore_stealth_0 = tmc_enable_stallguard(stepperX);
-        restore_stealth_1 = tmc_enable_stallguard(stepperY);
+
+        // Test if one stepper driver has both SG2 and SG4
+        // Remember that stallguard_type is already set to stepperX version 
+
+        #if AXIS_IS_SG2_SG4(X) && !AXIS_IS_SG2_SG4(Y)
+            stallguard_type = tmc_stallguard_version(stepperY);
+            restore_stealth_0 = tmc_enable_stallguard(stepperX, stallguard_type);
+            restore_stealth_1 = tmc_enable_stallguard(stepperY);
+
+        #elif !AXIS_IS_SG2_SG4(X) && AXIS_IS_SG2_SG4(Y)
+            restore_stealth_0 = tmc_enable_stallguard(stepperX);
+            restore_stealth_1 = tmc_enable_stallguard(stepperY, stallguard_type);
+
+        #else        
+            restore_stealth_0 = tmc_enable_stallguard(stepperX);
+            restore_stealth_1 = tmc_enable_stallguard(stepperY);
+        #endif
     
     #else
         if (axis == X_AXIS) {
@@ -90,13 +104,30 @@ void StallGuardTuning::tune_axis(const AxisEnum axis) {
             if (current < 400) current = 400; // Don't start below 400mA
             stepperX.rms_current(current);
             
-            // Enbable stallguard mode on the driver(s), saving stealthChop state if any to restore later 
-            restore_stealth_0 = tmc_enable_stallguard(stepperX);
+            // Enbable stallguard mode on the driver(s), saving stealthChop state if any to restore later
+            // Test if one stepper driver has both SG2 and SG4 in case of 2 stepper drivers
+            // Remember that stallguard_type is already set to stepperX version 
                 
             #if X2_SENSORLESS
+                // Save actual stepper current and set the tuning value
                 saved_current_1 = stepperX2.rms_current();
                 stepperX2.rms_current(current);
-                restore_stealth_1 = tmc_enable_stallguard(stepperX2);
+
+                #if AXIS_IS_SG2_SG4(X) && !AXIS_IS_SG2_SG4(X2)
+                    stallguard_type = tmc_stallguard_version(stepperX2);
+                    restore_stealth_0 = tmc_enable_stallguard(stepperX, stallguard_type);
+                    restore_stealth_1 = tmc_enable_stallguard(stepperX2);
+
+                #elif !AXIS_IS_SG2_SG4(X) && AXIS_IS_SG2_SG4(X2)
+                    restore_stealth_0 = tmc_enable_stallguard(stepperX);
+                    restore_stealth_1 = tmc_enable_stallguard(stepperX2, stallguard_type);
+
+                #else        
+                    restore_stealth_0 = tmc_enable_stallguard(stepperX);
+                    restore_stealth_1 = tmc_enable_stallguard(stepperX2);
+                #endif
+            #else
+                restore_stealth_0 = tmc_enable_stallguard(stepperX);
             #endif
             } else {
             
@@ -105,12 +136,26 @@ void StallGuardTuning::tune_axis(const AxisEnum axis) {
                 if (current < 400) current = 400;
                 stepperY.rms_current(current);
             
-                restore_stealth_0 = tmc_enable_stallguard(stepperY);
-                
                 #if Y2_SENSORLESS
-                    saved_current_1 = stepperY2.rms_current();
-                    stepperY2.rms_current(current);
+                // Save actual stepper current and set the tuning value
+                saved_current_1 = stepperY2.rms_current();
+                stepperY2.rms_current(current);
+
+                #if AXIS_IS_SG2_SG4(Y) && !AXIS_IS_SG2_SG4(Y2)
+                    stallguard_type = tmc_stallguard_version(stepperY2);
+                    restore_stealth_0 = tmc_enable_stallguard(stepperY, stallguard_type);
                     restore_stealth_1 = tmc_enable_stallguard(stepperY2);
+
+                #elif !AXIS_IS_SG2_SG4(Y) && AXIS_IS_SG2_SG4(Y2)
+                    restore_stealth_0 = tmc_enable_stallguard(stepperY);
+                    restore_stealth_1 = tmc_enable_stallguard(stepperY2, stallguard_type);
+
+                #else        
+                    restore_stealth_0 = tmc_enable_stallguard(stepperY);
+                    restore_stealth_1 = tmc_enable_stallguard(stepperY2);
+                #endif
+                #else
+                    restore_stealth_0 = tmc_enable_stallguard(stepperY);
                 #endif
             }
     #endif

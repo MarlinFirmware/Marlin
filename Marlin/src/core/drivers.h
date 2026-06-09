@@ -160,6 +160,8 @@
                                    || AXIS_DRIVER_TYPE(A,TMC2240) || AXIS_DRIVER_TYPE(A,TMC2660) \
                                    || AXIS_DRIVER_TYPE(A,TMC5130) || AXIS_DRIVER_TYPE(A,TMC5160) )
 
+#define AXIS_IS_SG2_SG4(A)            AXIS_DRIVER_TYPE(A,TMC2240)                                   
+
 #define AXIS_HAS_STALLGUARD4(A)  (    AXIS_DRIVER_TYPE(A,TMC2240) || AXIS_DRIVER_TYPE(A,TMC22209))
 
 #define AXIS_HAS_STEALTHCHOP(A)  (    AXIS_DRIVER_TYPE(A,TMC2130) || AXIS_DRIVER_TYPE(A,TMC2160) \
