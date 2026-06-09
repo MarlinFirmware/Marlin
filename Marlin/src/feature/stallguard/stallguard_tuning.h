@@ -64,10 +64,10 @@ private:
     void tune_sg4(const float velocity);
 
     // Get number of TMC drivers for the specified axis
-    uint8_t get_nb_drivers_for_axis(AxisEnum axis);
+    uint8_t get_nb_drivers_for_axis(const AxisEnum axis);
 
     // Set Homing threshold
-    void set_homing_treshold(uint16_t threshold);
+    void set_homing_treshold(const uint16_t threshold);
 
     bool sg_tune_active;                         // Flag to indicate if tuning is in progress, used to trigger SG_RESULT sampling in marlin.idle()
     static bool tuning_success;                  // Flag to indicate successful tuning

@@ -190,18 +190,6 @@ void menu_tmc_current() {
     END_MENU();
   }
 
-  void menu_tmc_confirm_sgt() {
-    START_MENU();
-
-    CONFIRM_ITEM(MSG_STALLGUARD_TUNING,
-      MSG_PROGRESS_OK, MSG_BUTTON_CANCEL,
-      menu_tmc_stallguard_tuning,
-      ui.go_back,
-      GET_TEXT_F(MSG_MOVE_WARNING),(const char *)nullptr
-    );
-    END_MENU();
-  }
-
 #endif // STALLGUARD_TUNING_MENU
 
 void menu_tmc() {
@@ -212,7 +200,9 @@ void menu_tmc() {
   TERN_(SENSORLESS_HOMING,       SUBMENU(MSG_TMC_HOMING_THRS, menu_tmc_homing_thrs));
   TERN_(EDITABLE_HOMING_CURRENT, SUBMENU(MSG_TMC_HOMING_CURRENT, menu_tmc_homing_current));
   TERN_(HAS_STEALTHCHOP,         SUBMENU(MSG_TMC_STEALTHCHOP, menu_tmc_step_mode));
-  TERN_(STALLGUARD_TUNING_MENU,  SUBMENU(MSG_STALLGUARD_TUNING, menu_tmc_confirm_sgt));
+  TERN_(STALLGUARD_TUNING_MENU,  CONFIRM_ITEM(MSG_STALLGUARD_TUNING, MSG_PROGRESS_OK, MSG_BUTTON_CANCEL,\
+                                              menu_tmc_stallguard_tuning, ui.go_back,\
+                                              GET_TEXT_F(MSG_MOVE_WARNING),(const char *)nullptr));
   END_MENU();
 }
 
