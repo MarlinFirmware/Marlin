@@ -4406,6 +4406,13 @@ static_assert(_PLUS_TEST(3), "DEFAULT_MAX_ACCELERATION values must be positive."
 #endif
 
 /**
+ * Sanity Check for Host Start/Shutdown menu items
+ */
+#if ANY(HOST_START_MENU_ITEM, HOST_SHUTDOWN_MENU_ITEM) && !HAS_MARLINUI_MENU
+  #error "HOST_START_MENU_ITEM and HOST_SHUTDOWN_MENU_ITEM require MarlinUI."
+#endif
+
+/**
  * Sanity Check for MEATPACK and BINARY_FILE_TRANSFER Features
  */
 #if ALL(HAS_MEATPACK, BINARY_FILE_TRANSFER)
