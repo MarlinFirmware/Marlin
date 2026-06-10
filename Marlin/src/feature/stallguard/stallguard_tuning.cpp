@@ -68,14 +68,14 @@ void StallGuardTuning::tune_axis(const AxisEnum axis) {
         // For a coreXY, get only current of stepperX for tuning, stallguard_type is already defined
         saved_current_0 = stepperX.rms_current();
         saved_current_1 = stepperY.rms_current();
-        
-        current = saved_current_0 / 2; 
-        if (current < 400) current = 400; // Don't start below 400mA
+
+        current = max(400, saved_current_0 / 2); // Don't start below 400mA
         stepperX.rms_current(current);
         stepperY.rms_current(current);
 
         // Test if one stepper driver has both SG2 and SG4
-        // Remember that stallguard_type is already set to stepperX version 
+        // Remember that stallguard_type is already set to stepperX version
+        // Set the SG2-SG4 capable driver to the stallguard version of the other stepper driver 
 
         #if AXIS_IS_SG2_SG4(X) && !AXIS_IS_SG2_SG4(Y)
             stallguard_type = tmc_stallguard_version(stepperY);
@@ -100,8 +100,7 @@ void StallGuardTuning::tune_axis(const AxisEnum axis) {
             // Tune at 50% of the configured current to optimize back EMF
             // stallguard_type is already defined
             saved_current_0 = stepperX.rms_current();
-            current = saved_current_0 / 2; 
-            if (current < 400) current = 400; // Don't start below 400mA
+            current = max(400, saved_current_0 / 2); // Don't start below 400mA
             stepperX.rms_current(current);
             
             // Enbable stallguard mode on the driver(s), saving stealthChop state if any to restore later
@@ -132,8 +131,7 @@ void StallGuardTuning::tune_axis(const AxisEnum axis) {
             } else {
             
                 saved_current_0 = stepperY.rms_current();
-                current = saved_current_0 / 2; 
-                if (current < 400) current = 400;
+                current = max(400, saved_current_0 / 2); // Don't start below 400mA
                 stepperY.rms_current(current);
             
                 #if Y2_SENSORLESS
@@ -141,19 +139,19 @@ void StallGuardTuning::tune_axis(const AxisEnum axis) {
                 saved_current_1 = stepperY2.rms_current();
                 stepperY2.rms_current(current);
 
-                #if AXIS_IS_SG2_SG4(Y) && !AXIS_IS_SG2_SG4(Y2)
-                    stallguard_type = tmc_stallguard_version(stepperY2);
-                    restore_stealth_0 = tmc_enable_stallguard(stepperY, stallguard_type);
-                    restore_stealth_1 = tmc_enable_stallguard(stepperY2);
+                    #if AXIS_IS_SG2_SG4(Y) && !AXIS_IS_SG2_SG4(Y2)
+                        stallguard_type = tmc_stallguard_version(stepperY2);
+                        restore_stealth_0 = tmc_enable_stallguard(stepperY, stallguard_type);
+                        restore_stealth_1 = tmc_enable_stallguard(stepperY2);
 
-                #elif !AXIS_IS_SG2_SG4(Y) && AXIS_IS_SG2_SG4(Y2)
-                    restore_stealth_0 = tmc_enable_stallguard(stepperY);
-                    restore_stealth_1 = tmc_enable_stallguard(stepperY2, stallguard_type);
+                    #elif !AXIS_IS_SG2_SG4(Y) && AXIS_IS_SG2_SG4(Y2)
+                        restore_stealth_0 = tmc_enable_stallguard(stepperY);
+                        restore_stealth_1 = tmc_enable_stallguard(stepperY2, stallguard_type);
 
-                #else        
-                    restore_stealth_0 = tmc_enable_stallguard(stepperY);
-                    restore_stealth_1 = tmc_enable_stallguard(stepperY2);
-                #endif
+                    #else        
+                        restore_stealth_0 = tmc_enable_stallguard(stepperY);
+                        restore_stealth_1 = tmc_enable_stallguard(stepperY2);
+                    #endif
                 #else
                     restore_stealth_0 = tmc_enable_stallguard(stepperY);
                 #endif
@@ -168,7 +166,7 @@ void StallGuardTuning::tune_axis(const AxisEnum axis) {
     else 
         tune_sg4(velocity);
 
-    // Restore StealthChop if needed and saved current
+    // Restore both StealthChop and current initial values
     #if CORE_IS_XY
         tmc_disable_stallguard(stepperX, restore_stealth_0);
         stepperX.rms_current(saved_current_0);
@@ -209,20 +207,21 @@ void StallGuardTuning::sampling() {
         uint16_t sg_result_1 = 0;
     #endif
 
-    // SG_RESULT range is 0-1023 for Stallguard2 and 0-510 for Stallguard4
+    // SG_RESULT range is 0-1023 for StallGuard2 and 0-510 for StallGuard4
+    // SG_RESULT is axis related
     #if CORE_IS_XY
         sg_result_0 = tmc_sg_result(stepperX);
         sg_result_1 = tmc_sg_result(stepperY);
-        if (stallguard_type == SG_STALLGUARD2) {
+        #if AXIS_HAS_STALLGUARD2(X) // StallGuard version is global for a coreXY and not related to axis
             sg2_sgr_sum += sg_result_0;
             if (sg_result_0 < sgr_min) sgr_min = sg_result_0;
             sg2_sgr_sum += sg_result_1;
             if (sg_result_1 < sgr_min) sgr_min = sg_result_1;
-        }
-        else {
+       #else
             sampling_hist[sg_result_0]++; // Increment histogram value for this SG_RESULT
-            sampling_hist[sg_result_1]++; 
-        }
+            sampling_hist[sg_result_1]++:
+        #endif 
+        
     #else
         if (axis_tuned == X_AXIS) {
             sg_result_0 = tmc_sg_result(stepperX);
@@ -236,7 +235,7 @@ void StallGuardTuning::sampling() {
             #endif
         }
 
-        // Processing SG_RESULT depends on Stallguard version
+        // Processing SG_RESULT depends on Stallguard version but not on axis
         if (stallguard_type == SG_STALLGUARD2) {
             sg2_sgr_sum += sg_result_0;
             if (sg_result_0 < sgr_min) sgr_min = sg_result_0;
@@ -258,8 +257,8 @@ void StallGuardTuning::sampling() {
 
 // Set the parameters and generate the movement for the test
 // For Stallguard2, SGTHRS (sensitivity) is progressively increased until SG_RESULT is in the predefined range 80-120
-void StallGuardTuning::tune_sg2(const float velocity) {
-    // TMC2130/2208/2660 or TMC2240 in SG2 mode: SGTHRS range is -64 to 63
+// SGTHRS range is -64 to 63
+void StallGuardTuning::tune_sg2(const float velocity) { 
 
     xyze_pos_t target_pos = motion.position;
     int8_t direction = 1;
@@ -311,12 +310,12 @@ void StallGuardTuning::tune_sg2(const float velocity) {
     }
 }
 
+// StallGuard4 SGTHRS range is 0 to 255
+// SG_RESULT range 0-510
+// One forward and one backward move, collect SG results in a histogram
+// Set SGTHRS value, at the 5% percentile of the lowest (SG_RESULT / 2)
+// Values are from StallGuard4 TMC datasheet.
 void StallGuardTuning::tune_sg4(const float velocity) {
-    // TMC2209 or TMC2240 in SG4 mode: SGTHRS range is 0 to 255
-    // SG_RESULT range 0-510
-    // One forward and one backward move, collect SG results in a histogram
-    // Set SGTHRS value, at the 5% percentile of the lowest SGRESULT / 2
-    // Values are from Stallguard4 TMC datasheet.
 
     // Motion planning for tuning moves
     xyze_pos_t target_pos = motion.position;

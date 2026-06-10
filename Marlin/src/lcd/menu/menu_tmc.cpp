@@ -178,8 +178,15 @@ void menu_tmc_current() {
     BACK_ITEM(MSG_TMC_DRIVERS);
 
     if (!stallguard_tuner.is_Done()) {
-      ACTION_ITEM_N(X_AXIS, MSG_STALLGUARD_TUNING_N, [] {stallguard_tuner.tune_axis(X_AXIS);});
-      ACTION_ITEM_N(Y_AXIS, MSG_STALLGUARD_TUNING_N, [] {stallguard_tuner.tune_axis(Y_AXIS);});
+      #if CORE_IS_XY || (X_SENSORLESS && Y_SENSORLESS)
+        ACTION_ITEM_N(X_AXIS, MSG_STALLGUARD_TUNING_N, [] {stallguard_tuner.tune_axis(X_AXIS);});
+        ACTION_ITEM_N(Y_AXIS, MSG_STALLGUARD_TUNING_N, [] {stallguard_tuner.tune_axis(Y_AXIS);});
+      #endif
+      #if (X_SENSORLESS && !Y_SENSORLESS)
+        ACTION_ITEM_N(X_AXIS, MSG_STALLGUARD_TUNING_N, [] {stallguard_tuner.tune_axis(X_AXIS);});
+      #elif (!X_SENSORLESS && Y_SENSORLESS)
+        ACTION_ITEM_N(Y_AXIS, MSG_STALLGUARD_TUNING_N, [] {stallguard_tuner.tune_axis(Y_AXIS);});
+      #endif
     }
     else if (stallguard_tuner.is_Success()) {
         PSTRING_ITEM(MSG_PROPOSED_SENSITIVITY, i8tostr3rj(stallguard_tuner.get_treshold()), SS_FULL);

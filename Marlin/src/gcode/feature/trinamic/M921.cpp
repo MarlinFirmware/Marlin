@@ -30,13 +30,20 @@
 void say_stallguard_tuning() {
   SERIAL_ECHO_START();
   SERIAL_ECHOLNPGM("M921 StallGuard Tuning");
-  SERIAL_ECHOLNPGM("Usage: M921 [X|Y]");
+  #if CORE_IS_XY || (X_SENSORLESS && Y_SENSORLESS)
+    SERIAL_ECHOLNPGM("Usage: M921 [X|Y]");
+  #elif (X_SENSORLESS && !Y_SENSORLESS)
+    SERIAL_ECHOLNPGM("Usage: M921 X");
+  #else
+    SERIAL_ECHOLNPGM("Usage: M921 Y");
+  #endif
 }
 
 /**
  * M921: Launch StallGuard2 or StallGuard4 autotuning for X or Y axis depending on the TMC driver type.
  * For cartesian and coreXY machines
  * Axis with 2 TMC stepper drivers and same Stallguard version are supported.
+ * For cartesian machine, tuning is supported only on axis with a SG2 or SG4 TMC capable stepper driver
  *
  * Parameters:
  *   X      - Autotune X axis stepper(s)
@@ -48,17 +55,45 @@ void GcodeSuite::M921() {
 
   bool seen_x = parser.seen('X'), seen_y = parser.seen('Y');
 
-  if (seen_x || seen_y) {
-    const AxisEnum axis = seen_x ? X_AXIS : Y_AXIS;
-    stallguard_tuner.tune_axis(axis);
-    if (stallguard_tuner.is_Success())
-        SERIAL_ECHOLN((axis?"Y":"X")," Tuning successful: sensitivity = ", stallguard_tuner.get_treshold());
-    else
-        SERIAL_ECHOLN((axis?"Y":"X")," Tuning failed.");
-  }
-  else {
-    say_stallguard_tuning();
-  }
+  #if CORE_IS_XY || (X_SENSORLESS && Y_SENSORLESS)
+    if (seen_x || seen_y) {
+      const AxisEnum axis = seen_x ? X_AXIS : Y_AXIS;
+      stallguard_tuner.tune_axis(axis);
+      if (stallguard_tuner.is_Success())
+          SERIAL_ECHOLN((axis?"Y":"X")," Tuning successful: sensitivity = ", stallguard_tuner.get_treshold());
+      else
+          SERIAL_ECHOLN((axis?"Y":"X")," Tuning failed.");
+    }
+    else {
+      say_stallguard_tuning();
+    }
+  #endif
+
+  #if (X_SENSORLESS && !Y_SENSORLESS)
+    if (seen_x) {
+      const AxisEnum axis = X_AXIS;
+      stallguard_tuner.tune_axis(axis);
+      if (stallguard_tuner.is_Success())
+          SERIAL_ECHOLN("X Tuning successful: sensitivity = ", stallguard_tuner.get_treshold());
+      else
+          SERIAL_ECHOLN("X Tuning failed.");
+    }
+    else {
+      say_stallguard_tuning();
+    }
+  #elif (!X_SENSORLESS && Y_SENSORLESS)
+    if (seen_y) {
+      const AxisEnum axis = Y_AXIS;
+      stallguard_tuner.tune_axis(axis);
+      if (stallguard_tuner.is_Success())
+          SERIAL_ECHOLN("Y Tuning successful: sensitivity = ", stallguard_tuner.get_treshold());
+      else
+          SERIAL_ECHOLN("Y Tuning failed.");
+    }
+    else {
+      say_stallguard_tuning();
+    }
+  #endif
 }
 
 #endif
