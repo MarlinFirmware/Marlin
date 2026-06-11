@@ -62,6 +62,25 @@ inline void sdcard_start_selected_file() {
   ui.reset_status();
 }
 
+#if ENABLED(START_PRINT_FROM_Z)
+
+  // Submenu shown after selecting a file:
+  //   Cancel
+  //   Skip to Z: <value>     (0 = normal print)
+  //   Print
+  void menu_sd_file_action() {
+    START_MENU();
+    BACK_ITEM(MSG_BUTTON_CANCEL);
+    EDIT_ITEM_FAST(float52, MSG_START_PRINT_FROM_Z, &SkipToZ::target_z,
+                   0.0f, _MIN((float)START_PRINT_FROM_Z_MAX, (float)Z_MAX_POS));
+    ACTION_ITEM(MSG_BUTTON_PRINT, []{
+      sdcard_start_selected_file();
+    });
+    END_MENU();
+  }
+
+#endif
+
 class MenuItem_sdfile : public MenuItem_sdbase {
   public:
     static inline void draw(const bool sel, const uint8_t row, FSTR_P const fstr, CardReader &theCard) {
@@ -74,7 +93,9 @@ class MenuItem_sdfile : public MenuItem_sdbase {
         sd_top_line = encoderTopLine;
         sd_items = screen_items;
       #endif
-      #if ENABLED(SD_MENU_CONFIRM_START)
+      #if ENABLED(START_PRINT_FROM_Z)
+        MenuItem_submenu::action(fstr, menu_sd_file_action);
+      #elif ENABLED(SD_MENU_CONFIRM_START)
         MenuItem_submenu::action(fstr, []{
           char * const filename = card.longest_filename();
           MenuItem_confirm::select_screen(
@@ -148,10 +169,6 @@ void menu_file_selector() {
   }
   else if (card.isMounted())
     ACTION_ITEM_F(F(LCD_STR_FOLDER " .."), lcd_sd_updir);
-
-  #if ENABLED(START_PRINT_FROM_Z)
-    EDIT_ITEM(float52, MSG_START_PRINT_FROM_Z, &SkipToZ::target_z, 0.0f, START_PRINT_FROM_Z_MAX);
-  #endif
 
   if (ui.should_draw()) {
     for (int16_t i = 0; i < fileCnt; i++) {

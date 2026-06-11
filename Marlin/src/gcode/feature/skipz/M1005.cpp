@@ -14,7 +14,6 @@
 
 #include "../../gcode.h"
 #include "../../../feature/skip_to_z.h"
-#include "../../../feature/powerloss.h"
 #include "../../../sd/cardreader.h"
 #include "../../../core/serial.h"
 
@@ -58,7 +57,6 @@ void GcodeSuite::M1005() {
   switch (st) {
     case SkipToZ::OK:
       SERIAL_ECHOLNPGM("M1005: target reached, resuming");
-      recovery.resume();
       break;
     case SkipToZ::ERR_NOT_FOUND:
       SERIAL_ECHO_MSG("M1005: target Z not found in file");

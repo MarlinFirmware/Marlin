@@ -13,13 +13,14 @@
 #if ENABLED(START_PRINT_FROM_Z)
 
 #include "skip_to_z.h"
-#include "powerloss.h"
 
 #include "../sd/cardreader.h"
 #include "../gcode/gcode.h"
+#include "../gcode/queue.h"
 #include "../module/motion.h"
 #include "../module/temperature.h"
 #include "../module/planner.h"
+#include "../module/printcounter.h"
 #include "../MarlinCore.h"
 #include "../lcd/marlinui.h"
 
@@ -103,22 +104,28 @@ namespace {
   }
 
   // Apply a motion command (G0/G1/G2/G3). Updates state from line params.
-  // Returns true if Z changed.
-  bool apply_motion(ScanState &s, const char *line) {
+  // `z_changed` is set true if Z moved. `extruded` is set true if this move
+  // increases the extruder counter (a real extrusion, not a retract or pure
+  // travel). G2/G3 default to extruding when E is present.
+  void apply_motion(ScanState &s, const char *line, bool &z_changed, bool &extruded) {
+    z_changed = false;
+    extruded  = false;
     float v;
     if (get_param(line, 'F', v)) s.feedrate_mm_m = to_mm(s, v);
 
     if (get_param(line, 'X', v)) s.x = s.rel_xyz ? s.x + to_mm(s, v) : to_mm(s, v);
     if (get_param(line, 'Y', v)) s.y = s.rel_xyz ? s.y + to_mm(s, v) : to_mm(s, v);
-    if (get_param(line, 'E', v)) s.e = s.rel_e   ? s.e + to_mm(s, v) : to_mm(s, v);
+    if (get_param(line, 'E', v)) {
+      const float new_e = s.rel_e ? s.e + to_mm(s, v) : to_mm(s, v);
+      if (new_e > s.e) extruded = true;
+      s.e = new_e;
+    }
 
-    bool z_changed = false;
     if (get_param(line, 'Z', v)) {
       const float new_z = s.rel_xyz ? s.z + to_mm(s, v) : to_mm(s, v);
       z_changed = (new_z != s.z);
       s.z = new_z;
     }
-    return z_changed;
   }
 
   // G92 X.. Y.. Z.. E.. — set the simulated logical position.
@@ -193,73 +200,121 @@ namespace {
     const uint32_t now = millis();
     if (now - last_ms >= 100) {
       last_ms = now;
-      idle_no_sleep();
+      marlin.idle_no_sleep();
     }
   }
 
-  // Dump simulated state into PrintJobRecovery::info and mark it valid.
-  void commit_to_recovery(const ScanState &s, const uint32_t sdpos) {
-    job_recovery_info_t &info = recovery.info;
-    memset(&info, 0, sizeof(info));
+  // Periodic progress report to LCD status line and serial host.
+  // Throttled to ~1 s to avoid flooding the host on slow links.
+  inline void report_progress(uint32_t &last_ms, const float skip_to, const float current_z) {
+    const uint32_t now = millis();
+    if (now - last_ms < 1000) return;
+    last_ms = now;
+    const uint8_t pct = card.percentDone();
+    char msg[22];
+    char zcur[8], ztgt[8];
+    dtostrf(current_z, 1, 1, zcur);
+    dtostrf(skip_to,   1, 1, ztgt);
+    // LCD status (e.g. "Scan Z 1.2/12.0 56%")
+    snprintf_P(msg, sizeof(msg), PSTR("Scan Z %s/%s %u%%"), zcur, ztgt, pct);
+    ui.set_status(msg);
+    // Serial line for host log
+    SERIAL_ECHOLNPGM("SkipToZ: ", pct, "% z=", current_z, "/", skip_to, " sdpos=", card.getIndex());
+  }
 
-    info.current_position.x = s.x;
-    info.current_position.y = s.y;
-    info.current_position.z = s.z;
-    TERN_(HAS_EXTRUDERS, info.current_position.e = s.e);
+  // Build a g-code prep sequence and enqueue it, then start the SD print
+  // from byte offset `sdpos`. Self-contained — no PowerLossRecovery needed.
+  void do_resume(const ScanState &s, const uint32_t sdpos) {
+    char cmd[40];
+    char fbuf[16];
 
-    info.feedrate = s.feedrate_mm_m > 0 ? (uint16_t)s.feedrate_mm_m : 1500;
-    info.zraise = POWER_LOSS_ZRAISE;
-    info.flag.raised = false;
+    ui.set_status(GET_TEXT_F(MSG_PRINTING));
 
-    #if HAS_HOME_OFFSET
-      info.home_offset = home_offset;
-    #endif
-    #if HAS_POSITION_SHIFT
-      info.position_shift = position_shift;
-    #endif
-    #if HAS_MULTI_EXTRUDER
-      info.active_extruder = s.active_tool;
-    #endif
-
-    #if DISABLED(NO_VOLUMETRICS)
-      EXTRUDER_LOOP() info.filament_size[e] = planner.filament_size[e];
-      info.flag.volumetric_enabled = parser.volumetric_enabled;
-    #endif
-
-    #if HAS_HOTEND
-      HOTEND_LOOP() info.target_temperature[e] = s.hotend_target[e];
-    #endif
+    // Start heating bed first (non-blocking).
     #if HAS_HEATED_BED
-      info.target_temperature_bed = s.bed_target;
-    #endif
-    #if HAS_FAN
-      FANS_LOOP(i) info.fan_speed[i] = s.fan_speed[i];
-    #endif
-
-    #if HAS_LEVELING
-      info.fade = TERN0(ENABLE_LEVELING_FADE_HEIGHT, planner.z_fade_height);
-      info.flag.leveling = planner.leveling_active;
+      if (s.bed_target > 0) {
+        sprintf_P(cmd, PSTR("M140 S%d"), (int)s.bed_target);
+        queue.enqueue_one_now(cmd);
+      }
     #endif
 
-    // Filename and SD position.
-    card.getAbsFilenameInCWD(info.sd_filename);
-    info.sdpos = sdpos;
+    // Start heating hotends (non-blocking).
+    #if HAS_HOTEND
+      HOTEND_LOOP() {
+        if (s.hotend_target[e] > 0) {
+          sprintf_P(cmd, PSTR("M104 T%d S%d"), e, (int)s.hotend_target[e]);
+          queue.enqueue_one_now(cmd);
+        }
+      }
+    #endif
 
-    info.print_job_elapsed = 0;
+    // Wait for bed.
+    #if HAS_HEATED_BED
+      if (s.bed_target > 0) {
+        sprintf_P(cmd, PSTR("M190 S%d"), (int)s.bed_target);
+        queue.enqueue_one_now(cmd);
+      }
+    #endif
 
-    // Relative axis mode flags (bitmask using REL_X/REL_Y/REL_Z/REL_E shifts).
-    relative_t rel = 0;
-    if (s.rel_xyz) rel |= _BV(REL_X) | _BV(REL_Y) | _BV(REL_Z);
+    // Switch to active tool (also waits for/applies its temp).
+    #if HAS_MULTI_EXTRUDER
+      if (s.active_tool != motion.extruder) {
+        sprintf_P(cmd, PSTR("T%d S0"), s.active_tool);
+        queue.enqueue_one_now(cmd);
+      }
+    #endif
+
+    // Wait for active hotend.
+    #if HAS_HOTEND
+      if (s.hotend_target[s.active_tool] > 0) {
+        sprintf_P(cmd, PSTR("M109 T%d S%d"), s.active_tool, (int)s.hotend_target[s.active_tool]);
+        queue.enqueue_one_now(cmd);
+      }
+    #endif
+
+    // Units / absolute mode for the lift move.
+    queue.enqueue_one_now(s.inches ? "G20" : "G21");
+    queue.enqueue_one_now("G90");
     #if HAS_EXTRUDERS
-      if (s.rel_e) rel |= _BV(REL_E);
+      queue.enqueue_one_now("M82");
     #endif
-    info.axis_relative = rel;
 
-    info.flag.dryrun = false;
-    info.flag.allow_cold_extrusion = TERN0(PREVENT_COLD_EXTRUSION, thermalManager.allow_cold_extrude);
+    // Home XY.
+    queue.enqueue_one_now("G28 X Y");
 
-    // Mark valid so recovery.valid()/resume() will accept it.
-    info.valid_head = info.valid_foot = 0xC0;
+    // Restore extruder counter to scanned value.
+    #if HAS_EXTRUDERS
+      dtostrf(s.e, 1, 5, fbuf);
+      sprintf_P(cmd, PSTR("G92 E%s"), fbuf);
+      queue.enqueue_one_now(cmd);
+    #endif
+
+    // Move to scanned Z (absolute).
+    dtostrf(s.z, 1, 3, fbuf);
+    sprintf_P(cmd, PSTR("G1 Z%s F300"), fbuf);
+    queue.enqueue_one_now(cmd);
+
+    // Restore relative modes (if any) so the resumed file picks up correctly.
+    if (s.rel_xyz) queue.enqueue_one_now("G91");
+    #if HAS_EXTRUDERS
+      if (s.rel_e) queue.enqueue_one_now("M83");
+    #endif
+
+    // Set fans.
+    #if HAS_FAN
+      FANS_LOOP(i) {
+        if (s.fan_speed[i] > 0) {
+          sprintf_P(cmd, PSTR("M106 P%d S%d"), i, (int)s.fan_speed[i]);
+          queue.enqueue_one_now(cmd);
+        }
+      }
+    #endif
+
+    // Resume SD print from the byte offset where the scan stopped.
+    card.setIndex(sdpos);
+    card.startOrResumeFilePrinting();
+    print_job_timer.start();
+    ui.reset_status();
   }
 
 } // namespace (anonymous)
@@ -277,21 +332,32 @@ Status prepare(const float skip_to) {
   st.rel_xyz = false;
   st.rel_e   = false;
   st.inches  = false;
-  st.active_tool = active_extruder;
+  st.active_tool = motion.extruder;
 
   char buf[LINE_BUF_SIZE];
   uint32_t last_idle_ms = millis();
+  uint32_t last_progress_ms = 0;   // force first report immediately
   uint32_t lines_seen = 0;
+
+  // Track the most recent line that established the current Z. When we later
+  // see an extrusion move at Z >= target, we resume FROM that line so the
+  // printer travels to (X,Y,Z) before extruding. This rejects parking moves
+  // such as `G1 Z15 F500` that have no extrusion at that height.
+  ScanState  z_setup_state{};      // state BEFORE the Z-establishing line ran
+  uint32_t   z_setup_sdpos = 0;    // byte offset of that line's first byte
+  bool       have_z_setup  = false;
 
   ui.set_status(GET_TEXT_F(MSG_SKIP_TO_Z_SCAN));
 
   while (true) {
     scan_idle(last_idle_ms);
+    report_progress(last_progress_ms, skip_to, st.z);
     if (card.eof()) {
       DEBUG_ECHOLNPGM("SkipToZ: EOF without hitting target Z");
       return ERR_NOT_FOUND;
     }
 
+    const uint32_t line_start_sdpos = card.getIndex();
     const int16_t len = read_line(buf);
     if (len < 0) return ERR_NOT_FOUND;
     lines_seen++;
@@ -303,12 +369,17 @@ Status prepare(const float skip_to) {
     const char prefix = parse_cmd(buf, num, args);
     if (prefix == 0) continue;
 
+    // Snapshot state BEFORE applying this line so we can rewind if this
+    // turns out to be the Z-establishing line we'll resume from.
+    const ScanState pre = st;
+
     bool z_changed = false;
+    bool extruded  = false;
 
     if (prefix == 'G') {
       switch (num) {
         case 0: case 1: case 2: case 3:
-          z_changed = apply_motion(st, args);
+          apply_motion(st, args, z_changed, extruded);
           break;
         case 20: st.inches = true;  break;
         case 21: st.inches = false; break;
@@ -335,10 +406,28 @@ Status prepare(const float skip_to) {
       if (num >= 0 && num < EXTRUDERS) st.active_tool = (uint8_t)num;
     }
 
-    if (z_changed && st.z >= skip_to) {
-      const uint32_t sdpos_next = card.getIndex(); // byte offset of NEXT line
-      DEBUG_ECHOLNPGM("SkipToZ: hit target at line ", lines_seen, " sdpos=", sdpos_next, " z=", st.z);
-      commit_to_recovery(st, sdpos_next);
+    // Remember every line that changes Z as the latest "Z-establishing" line.
+    if (z_changed) {
+      z_setup_state = pre;
+      z_setup_sdpos = line_start_sdpos;
+      have_z_setup  = true;
+      DEBUG_ECHOLNPGM("SkipToZ: Z move @ line ", lines_seen, " z=", st.z, " sdpos=", line_start_sdpos);
+    }
+
+    // Trigger only when we actually extrude at Z >= target.
+    if (extruded && st.z >= skip_to) {
+      // Prefer resuming from the Z-establishing line (so we travel to X,Y,Z
+      // properly before extruding). If none was recorded — e.g. file uses Z
+      // only at startup — fall back to start of the extrusion line itself.
+      const uint32_t sdpos = have_z_setup ? z_setup_sdpos : line_start_sdpos;
+      const ScanState &resume_state = have_z_setup ? z_setup_state : pre;
+      DEBUG_ECHOLNPGM("SkipToZ: extrusion @ line ", lines_seen, " z=", st.z,
+                      " resume sdpos=", sdpos);
+      // We want the printer at the layer Z (current Z), but with E counter
+      // restored to the value it had just before the Z-setup line.
+      ScanState rs = resume_state;
+      rs.z = st.z;
+      do_resume(rs, sdpos);
       return OK;
     }
   }

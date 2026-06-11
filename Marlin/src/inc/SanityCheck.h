@@ -4058,9 +4058,7 @@ static_assert(_PLUS_TEST(3), "DEFAULT_MAX_ACCELERATION values must be positive."
 #endif
 
 #if ENABLED(START_PRINT_FROM_Z)
-  #if DISABLED(POWER_LOSS_RECOVERY)
-    #error "START_PRINT_FROM_Z requires POWER_LOSS_RECOVERY (it reuses the recovery resume path)."
-  #elif !HAS_MEDIA
+  #if !HAS_MEDIA
     #error "START_PRINT_FROM_Z requires SDSUPPORT."
   #endif
 #endif
