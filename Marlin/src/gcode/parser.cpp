@@ -392,11 +392,15 @@ void GCodeParser::parse(char *p) {
 
       // Consider the maximum layer height of 0.80mm (1.00mm nozzle)
       if (z < 0.80f) {
-        first_layer_detected = true;
-        aflza_delta = z - calibrated_first_layer_height + AFLZA_SAFETY_MARGIN;
+        aflza_delta = z - calibrated_first_layer_height;
 
-        if (aflza_delta == 0.0f)
+        // Don't apply if delta is lower or equal to the margin
+        if (ABS(aflza_delta) <= AFLZA_SAFETY_MARGIN) 
           aflza_applied = true;
+        else {
+          aflza_delta += AFLZA_SAFETY_MARGIN;
+          first_layer_detected = true;
+        }     
       }
     }
   }
