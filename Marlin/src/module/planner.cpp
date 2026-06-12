@@ -1985,12 +1985,13 @@ bool Planner::_populate_block(
   #if HAS_Z_AXIS
     float dz = steps_dist.z * mm_per_step[Z_AXIS];
     #if ENABLED(AUTO_FIRST_LAYER_Z_ADJUST)
-    if(parser.aflza_active && parser.first_layer_detected) {
-      // For the first layer only, use the adjusted Z position to calculate the distance
-      dz += parser.aflza_delta;
-      parser.first_layer_detected = false; // Only apply the adjustment for the first layer
-      parser.aflza_active = false; // Disable AFLZA after applying the adjustment
-    }
+      if(parser.first_layer_detected && !parser.aflza_applied) {
+        // For the first layer only, use the adjusted Z position to calculate the distance
+        // Keep aflza_active true otherwise the configuration is lost until you restart the printer
+        dz += parser.aflza_delta;
+        parser.first_layer_detected = false; // Only apply the adjustment for the first layer
+        parser.aflza_applied = true;
+      }
     #endif
   #endif
   #if CORE_IS_XY

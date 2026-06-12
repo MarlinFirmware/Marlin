@@ -91,7 +91,8 @@ public:
 
   #if ENABLED(AUTO_FIRST_LAYER_Z_ADJUST)
     static bool first_layer_detected;
-    static bool aflza_active; // Whether to apply the first layer Z offset correction
+    static bool aflza_active; // If true AFLZA active for all the print until the ornter is shutdwon and EEPROM datas loaded 
+    static bool aflza_applied; // If the correction had been applied
     static float aflza_delta; // The Z offset to apply to the first layer, calculated as the difference between the detected first layer Z and the calibrated first layer height
     static float calibrated_first_layer_height; // The first layer height as determined by calibration, used to calculate the Z offset
   #endif

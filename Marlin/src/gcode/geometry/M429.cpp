@@ -27,8 +27,19 @@
 #include "../gcode.h"
 #include "../parser.h"
 
+void say_aflza() {
+    const bool active = parser.aflza_active;
+    SERIAL_ECHOLN(F("Auto First Layer Z Adjust "), active ? F("A") : F("Dea"), F("ctivated"));
+    SERIAL_ECHOLN(F("Configured Layer Height "), parser.calibrated_first_layer_height, F(" mm"));
+}
+
+void GcodeSuite::M429_report(const bool forReplay) {
+    SERIAL_ECHOLN(F("Auto First Layer Z Adjust "), parser.aflza_active ? F("A") : F("Dea"), F("ctivated"));
+    SERIAL_ECHOLN(F("Configured Layer Height "), parser.calibrated_first_layer_height, F(" mm"));
+}   
+
 /**
- * M429: Configure and run the resonance test.
+ * M429: Autoadjust first layer nozzle height.
  *
  * Parameters:
  *   S<bool>       Activate/Deactivate the Auto First Layer Z Adjust feature.
@@ -42,20 +53,25 @@
  */
 
 void GcodeSuite::M429() {
-    if (parser.seen('S')) {
-        const bool val = parser.value_bool();
-        parser.aflza_active = val;
-        SERIAL_ECHOLN(F("Auto First Layer Z Adjust "), val ? F("A") : F("Dea"), F("ctivated"));
+    const bool set_aflza = parser.seen('S') || parser.seen("H");
+    if (set_aflza) {
+        if (parser.seen('S')) {
+            const bool val = parser.value_bool();
+            parser.aflza_active = val;
+            SERIAL_ECHOLN(F("Auto First Layer Z Adjust "), val ? F("A") : F("De"), F("activated"));
+        }
+        if (parser.seenval('H')) {
+            const float val = parser.value_float();
+            if WITHIN(val, 0.0f, 1.0f) {
+                parser.calibrated_first_layer_height = val;
+                SERIAL_ECHOLN(F("Calibrated First Layer Height set to "), parser.calibrated_first_layer_height, F(" mm"));
+            }
+            else {
+                SERIAL_ECHOLN(F("?Invalid Calibrated First Layer Height [H]. (0.0 .. 1.0 mm)"));
+            }
+        }
     }
-    if (parser.seenval('H')) {
-        const float val = parser.value_float();
-        if WITHIN(val, 0.0f, 1.0f) {
-            parser.calibrated_first_layer_height = val;
-            SERIAL_ECHOLN(F("Calibrated First Layer Height set to "), parser.calibrated_first_layer_height, F(" mm"));
-        }
-        else {
-            SERIAL_ECHOLN(F("?Invalid Calibrated First Layer Height [H]. (0.0 .. 1.0 mm)"));
-        }
-   }
+    else
+        say_aflza();
 }
 #endif

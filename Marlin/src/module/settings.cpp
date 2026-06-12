@@ -4020,7 +4020,12 @@ void MarlinSettings::reset() {
 
       #endif
 
-    #endif // HAS_LEVELING
+    #endif // 
+    
+    //
+    // Auto First Layer Z Adjust
+    //
+    TERN_(AUTO_FIRST_LAYER_Z_ADJUST, gcode.M429_report(forReplay));
 
     //
     // X Axis Twist Compensation
