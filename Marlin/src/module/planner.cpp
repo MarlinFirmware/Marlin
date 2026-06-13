@@ -1991,6 +1991,8 @@ bool Planner::_populate_block(
         dz += parser.aflza_delta;
         parser.first_layer_detected = false; // Only apply the adjustment for the first layer
         parser.aflza_applied = true;
+        if (parser.slicer_type) // Reset z_hop to true if Orca for future prints
+          parser.z_hop = true;
       }
     #endif
   #endif

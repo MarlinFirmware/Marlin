@@ -682,6 +682,28 @@ void menu_backlash();
 
 #endif // EDITABLE_STEPS_PER_UNIT
 
+#if ENABLED(AUTO_FIRST_LAYER_Z_ADJUST)
+  FSTR_P get_slicer_name(const bool slicer) {
+    if (slicer)
+      return GET_TEXT_F(MSG_AFLZA_ORCA);
+    
+    return GET_TEXT_F(MSG_AFLZA_PRUSA);
+  }
+  void menu_aflza_slicer() {
+    START_MENU();
+    BACK_ITEM(MSG_ADVANCED_SETTINGS);
+
+    if (parser.slicer_type)
+      ACTION_ITEM(MSG_AFLZA_PRUSA,  []{ parser.slicer_type = parser.ORCA; parser.z_hop = true; });
+    
+      if (!parser.slicer_type)
+      ACTION_ITEM(MSG_AFLZA_ORCA,  []{ parser.slicer_type = parser.PRUSA; parser.z_hop = false; });
+
+    END_MENU();
+   }
+
+#endif
+
 void menu_advanced_settings() {
   #if ANY(POLARGRAPH, SHAPING_MENU, HAS_BED_PROBE, EDITABLE_STEPS_PER_UNIT)
     const bool is_busy = marlin.printer_busy();
@@ -716,9 +738,11 @@ void menu_advanced_settings() {
     #if ENABLED(AUTO_FIRST_LAYER_Z_ADJUST)
       // M429 - Set adaptive first layer Z offset
       EDIT_ITEM(bool, MSG_AUTO_FIRST_LAYER_Z_ADJUST, &parser.aflza_active);
-      if(parser.aflza_active) {
-        EDIT_ITEM(float31, MSG_AUTO_FIRST_LAYER_Z_ADJUST, &parser.calibrated_first_layer_height, 0.1f, 1.0f);
-      }
+      
+      EDIT_ITEM(float31, MSG_AUTO_FIRST_LAYER_Z_ADJUST, &parser.calibrated_first_layer_height, 0.1f, 1.0f);
+
+      SUBMENU_S(get_slicer_name(parser.z_hop), MSG_AFLZA_SLICER, menu_aflza_slicer);
+
     #endif
 
     // M203 / M205 - Feedrate items

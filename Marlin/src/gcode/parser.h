@@ -95,6 +95,12 @@ public:
     static bool aflza_applied; // If the correction had been applied
     static float aflza_delta; // The Z offset to apply to the first layer, calculated as the difference between the detected first layer Z and the calibrated first layer height
     static float calibrated_first_layer_height; // The first layer height as determined by calibration, used to calculate the Z offset
+    static uint8_t slicer_type; // Slicer family Orca or Prusa
+    static bool z_hop;
+    enum SlicerType : uint8_t {
+      PRUSA = 0,
+      ORCA = 1
+    };
   #endif
 
   #if ENABLED(GCODE_MOTION_MODES)

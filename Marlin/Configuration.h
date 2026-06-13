@@ -1999,6 +1999,7 @@
 
 #if ENABLED(AUTO_FIRST_LAYER_Z_ADJUST)
   #define CALIBRATED_FIRST_LAYER_Z_HEIGHT 0.3f
+  #define DEFAULT_SLICER 1 // OrcaSlicer 1, PrusaSlicer 0
 #endif
 
 /**

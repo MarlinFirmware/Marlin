@@ -53,6 +53,8 @@ uint16_t GCodeParser::codenum;
   bool GCodeParser::aflza_applied = false;
   float GCodeParser::aflza_delta = 0.0f;
   float GCodeParser::calibrated_first_layer_height;
+  uint8_t GCodeParser::slicer_type = 1;
+  bool GCodeParser::z_hop = true;
 #endif
 
 #if USE_GCODE_SUBCODES
@@ -387,7 +389,11 @@ void GCodeParser::parse(char *p) {
 
     // Z alone, test for G0 or G1
     if (letter == 'G' && (codenum == 0 || codenum == 1)) {
-
+      // Consider the second GCode with Z alone if Orca
+      if (z_hop) {
+        z_hop = false;
+        return;
+      }
       const float z = value_linear_units();
 
       // Consider the maximum layer height of 0.80mm (1.00mm nozzle)

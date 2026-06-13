@@ -31,11 +31,13 @@ void say_aflza() {
     const bool active = parser.aflza_active;
     SERIAL_ECHOLN(F("Auto First Layer Z Adjust "), active ? F("A") : F("Dea"), F("ctivated"));
     SERIAL_ECHOLN(F("Configured Layer Height "), parser.calibrated_first_layer_height, F(" mm"));
+    SERIAL_ECHOLN(parser.z_hop ? F(" Orca") : F(" Prusa"), F("Slicer"));
 }
 
 void GcodeSuite::M429_report(const bool forReplay) {
     SERIAL_ECHOLN(F("Auto First Layer Z Adjust "), parser.aflza_active ? F("A") : F("Dea"), F("ctivated"));
     SERIAL_ECHOLN(F("Configured Layer Height "), parser.calibrated_first_layer_height, F(" mm"));
+    SERIAL_ECHOLN(parser.z_hop ? F(" Orca") : F(" Prusa"), F("Slicer"));
 }   
 
 /**
@@ -44,6 +46,7 @@ void GcodeSuite::M429_report(const bool forReplay) {
  * Parameters:
  *   S<bool>       Activate/Deactivate the Auto First Layer Z Adjust feature.
  *   H<float>      Set the calibrated first layer height to <val> mm (0.0 .. 1.0)
+ *   O(bool>)      Set the slicer type : true OrcaSlicer and clones, false PrusaSlicer and clones
  *
  * Examples:
  *   M429 S1       : Activate the Auto First Layer Z Adjust feature
@@ -53,14 +56,14 @@ void GcodeSuite::M429_report(const bool forReplay) {
  */
 
 void GcodeSuite::M429() {
-    const bool set_aflza = parser.seen('S') || parser.seen("H");
+    const bool set_aflza = parser.seen('S') || parser.seen("H") || parser.seen('O');
     if (set_aflza) {
         if (parser.seen('S')) {
             const bool val = parser.value_bool();
             parser.aflza_active = val;
             SERIAL_ECHOLN(F("Auto First Layer Z Adjust "), val ? F("A") : F("De"), F("activated"));
         }
-        if (parser.seenval('H')) {
+        if (parser.seen('H')) {
             const float val = parser.value_float();
             if WITHIN(val, 0.0f, 1.0f) {
                 parser.calibrated_first_layer_height = val;
@@ -69,6 +72,11 @@ void GcodeSuite::M429() {
             else {
                 SERIAL_ECHOLN(F("?Invalid Calibrated First Layer Height [H]. (0.0 .. 1.0 mm)"));
             }
+        }
+        if (parser.seen('O')) {
+            const bool val = parser.value_bool();
+            parser.slicer_type = val;
+            parser.z_hop = val;
         }
     }
     else
