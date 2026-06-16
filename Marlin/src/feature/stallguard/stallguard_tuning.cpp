@@ -219,7 +219,7 @@ void StallGuardTuning::sampling() {
             if (sg_result_1 < sgr_min) sgr_min = sg_result_1;
        #else
             sampling_hist[sg_result_0]++; // Increment histogram value for this SG_RESULT
-            sampling_hist[sg_result_1]++:
+            sampling_hist[sg_result_1]++;
         #endif 
         
     #else
