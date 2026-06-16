@@ -313,6 +313,7 @@ void menu_move() {
 #endif
 
 #if ENABLED(RESONANCE_TEST)
+
   #include "../../feature/resonance/resonance_generator.h"
 
   void menu_resonance_freq() {
