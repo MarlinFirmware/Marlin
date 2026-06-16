@@ -48,11 +48,8 @@ void StallGuardTuning::tune_axis(const AxisEnum axis) {
     
     uint16_t saved_current_0;
     uint16_t current;
-
-    bool restore_stealth_0;
     
     #if X2_SENSORLESS || Y2_SENSORLESS || CORE_IS_XY
-        bool restore_stealth_1;
         uint16_t saved_current_1;
     #endif
 
@@ -79,16 +76,16 @@ void StallGuardTuning::tune_axis(const AxisEnum axis) {
 
         #if AXIS_IS_SG2_SG4(X) && !AXIS_IS_SG2_SG4(Y)
             stallguard_type = tmc_stallguard_version(stepperY);
-            restore_stealth_0 = tmc_enable_stallguard(stepperX, stallguard_type);
-            restore_stealth_1 = tmc_enable_stallguard(stepperY);
+            tmc_enable_stallguard(stepperX, stallguard_type);
+            tmc_enable_stallguard(stepperY);
 
         #elif !AXIS_IS_SG2_SG4(X) && AXIS_IS_SG2_SG4(Y)
-            restore_stealth_0 = tmc_enable_stallguard(stepperX);
-            restore_stealth_1 = tmc_enable_stallguard(stepperY, stallguard_type);
+            tmc_enable_stallguard(stepperX);
+            tmc_enable_stallguard(stepperY, stallguard_type);
 
         #else        
-            restore_stealth_0 = tmc_enable_stallguard(stepperX);
-            restore_stealth_1 = tmc_enable_stallguard(stepperY);
+            tmc_enable_stallguard(stepperX);
+            tmc_enable_stallguard(stepperY);
         #endif
     
     #else
@@ -114,19 +111,19 @@ void StallGuardTuning::tune_axis(const AxisEnum axis) {
 
                 #if AXIS_IS_SG2_SG4(X) && !AXIS_IS_SG2_SG4(X2)
                     stallguard_type = tmc_stallguard_version(stepperX2);
-                    restore_stealth_0 = tmc_enable_stallguard(stepperX, stallguard_type);
-                    restore_stealth_1 = tmc_enable_stallguard(stepperX2);
+                    tmc_enable_stallguard(stepperX, stallguard_type);
+                    tmc_enable_stallguard(stepperX2);
 
                 #elif !AXIS_IS_SG2_SG4(X) && AXIS_IS_SG2_SG4(X2)
-                    restore_stealth_0 = tmc_enable_stallguard(stepperX);
-                    restore_stealth_1 = tmc_enable_stallguard(stepperX2, stallguard_type);
+                    tmc_enable_stallguard(stepperX);
+                    tmc_enable_stallguard(stepperX2, stallguard_type);
 
                 #else        
-                    restore_stealth_0 = tmc_enable_stallguard(stepperX);
-                    restore_stealth_1 = tmc_enable_stallguard(stepperX2);
+                    tmc_enable_stallguard(stepperX);
+                    tmc_enable_stallguard(stepperX2);
                 #endif
             #else
-                restore_stealth_0 = tmc_enable_stallguard(stepperX);
+                tmc_enable_stallguard(stepperX);
             #endif
             } else {
             
@@ -141,19 +138,19 @@ void StallGuardTuning::tune_axis(const AxisEnum axis) {
 
                     #if AXIS_IS_SG2_SG4(Y) && !AXIS_IS_SG2_SG4(Y2)
                         stallguard_type = tmc_stallguard_version(stepperY2);
-                        restore_stealth_0 = tmc_enable_stallguard(stepperY, stallguard_type);
-                        restore_stealth_1 = tmc_enable_stallguard(stepperY2);
+                        tmc_enable_stallguard(stepperY, stallguard_type);
+                        tmc_enable_stallguard(stepperY2);
 
                     #elif !AXIS_IS_SG2_SG4(Y) && AXIS_IS_SG2_SG4(Y2)
-                        restore_stealth_0 = tmc_enable_stallguard(stepperY);
-                        restore_stealth_1 = tmc_enable_stallguard(stepperY2, stallguard_type);
+                        tmc_enable_stallguard(stepperY);
+                        tmc_enable_stallguard(stepperY2, stallguard_type);
 
                     #else        
-                        restore_stealth_0 = tmc_enable_stallguard(stepperY);
-                        restore_stealth_1 = tmc_enable_stallguard(stepperY2);
+                        tmc_enable_stallguard(stepperY);
+                        tmc_enable_stallguard(stepperY2);
                     #endif
                 #else
-                    restore_stealth_0 = tmc_enable_stallguard(stepperY);
+                    tmc_enable_stallguard(stepperY);
                 #endif
             }
     #endif
@@ -168,24 +165,21 @@ void StallGuardTuning::tune_axis(const AxisEnum axis) {
 
     // Restore both StealthChop and current initial values
     #if CORE_IS_XY
-        tmc_disable_stallguard(stepperX, restore_stealth_0);
+        reset_trinamic_drivers();
         stepperX.rms_current(saved_current_0);
-        tmc_disable_stallguard(stepperY, restore_stealth_1);
         stepperY.rms_current(saved_current_1);
     #else
         if (axis == X_AXIS) {
-        tmc_disable_stallguard(stepperX, restore_stealth_0);
-        stepperX.rms_current(saved_current_0);
+            reset_trinamic_drivers();
+            stepperX.rms_current(saved_current_0);
         #if X2_SENSORLESS
-            tmc_disable_stallguard(stepperX2, restore_stealth_1);
             stepperX2.rms_current(saved_current_1);
         #endif
         }
         else {
-            tmc_disable_stallguard(stepperY, restore_stealth_0);
+            reset_trinamic_drivers();
             stepperY.rms_current(saved_current_0);
             #if Y2_SENSORLESS
-                tmc_disable_stallguard(stepperY2, restore_stealth_1);
                 stepperY2.rms_current(saved_current_1);
             #endif
         }

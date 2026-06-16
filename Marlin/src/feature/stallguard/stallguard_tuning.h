@@ -33,6 +33,7 @@
 #include "../../module/stepper.h"
 #include "../../module/planner.h"
 #include "../../module/motion.h"
+#include "../../module/stepper/trinamic.h"
 
 #define TEST_TRAVEL_MM 50.0f
 
