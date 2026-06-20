@@ -310,6 +310,10 @@ void GcodeSuite::G28() {
     // Potentially disable Fixed-Time Motion for homing
     TERN_(FT_MOTION, FTM_DISABLE_IN_SCOPE());
 
+    #if ENABLED(CNC_COORDINATE_SYSTEMS)
+      const bool old_coordinate_system = active_coordinate_system;
+    #endif
+
     // Always home with tool 0 active
     #if HAS_MULTI_HOTEND
       #if DISABLED(DELTA) || ENABLED(DELTA_HOME_TO_SAFE_ZONE)
@@ -560,6 +564,12 @@ void GcodeSuite::G28() {
       SERIAL_ECHOLNPGM(STR_Z_MOVE_COMP);
 
   #endif // NUM_AXES
+
+  // Reload workspace offsets
+  #if ENABLED(CNC_COORDINATE_SYSTEMS)
+    bool workspace_update = select_coordinate_system(-1);  
+    workspace_update = select_coordinate_system(old_coordinate_system);  
+  #endif
 
   ui.refresh();
 
