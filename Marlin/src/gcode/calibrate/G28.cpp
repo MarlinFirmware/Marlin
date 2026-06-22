@@ -311,7 +311,8 @@ void GcodeSuite::G28() {
     TERN_(FT_MOTION, FTM_DISABLE_IN_SCOPE());
 
     #if ENABLED(CNC_COORDINATE_SYSTEMS)
-      const bool old_coordinate_system = active_coordinate_system;
+      const int8_t old_coordinate_system = active_coordinate_system;
+      (void)select_coordinate_system(-1);
     #endif
 
     // Always home with tool 0 active
@@ -560,16 +561,13 @@ void GcodeSuite::G28() {
 
     motion.restore_feedrate_and_scaling();
 
+    // Reload workspace offsets
+    TERN_(CNC_COORDINATE_SYSTEMS, (void)select_coordinate_system(old_coordinate_system));
+
     if (ENABLED(NANODLP_Z_SYNC) && (ENABLED(NANODLP_ALL_AXIS) || TERN0(HAS_Z_AXIS, doZ)))
       SERIAL_ECHOLNPGM(STR_Z_MOVE_COMP);
 
   #endif // NUM_AXES
-
-  // Reload workspace offsets
-  #if ENABLED(CNC_COORDINATE_SYSTEMS)
-    bool workspace_update = select_coordinate_system(-1);  
-    workspace_update = select_coordinate_system(old_coordinate_system);  
-  #endif
 
   ui.refresh();
 
