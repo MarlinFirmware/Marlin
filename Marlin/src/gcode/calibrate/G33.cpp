@@ -62,11 +62,20 @@ enum CalEnum : char {                        // The 7 main calibration points - 
 float lcd_probe_pt(const xy_pos_t &xy);
 
 void ac_home() {
+  #if ENABLED(CNC_COORDINATE_SYSTEMS)
+    //temporarily switch to native machine coordinate system for homing
+    old_coordinate_system = active_coordinate_system;
+    select_coordinate_system(-1);
+  #endif
   endstops.enable(true);
   TERN_(IMPROVE_HOMING_RELIABILITY, planner.enable_stall_prevention(true));
   home_delta();
   TERN_(IMPROVE_HOMING_RELIABILITY, planner.enable_stall_prevention(false));
   endstops.not_homing();
+  #if ENABLED(CNC_COORDINATE_SYSTEMS)
+    //Restore old cooridnate system after homing
+    select_coordinate_system(old_coordinate_system);
+  #endif
 }
 
 void ac_setup(const bool reset_bed) {
