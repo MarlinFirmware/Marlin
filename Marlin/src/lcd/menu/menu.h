@@ -193,10 +193,10 @@ class MenuEditItemBase : public MenuItemBase {
     // This method is for the current menu item
     static void draw_edit_screen(const char * const value) { draw_edit_screen(editLabel, value); }
 
-    // Returns the address of the variable currently being edited, or nullptr.
-    // Useful for context-sensitive edit-screen behavior (e.g. a custom action
-    // when a particular field is on screen).
-    static const void *current_edit_value_address() { return editValuePtr; }
+    // Returns whether a variable is being edited
+    // Useful for context-sensitive edit-screen behavior
+    // (e.g., a custom action when a particular field is on screen)
+    static bool currently_editing(const void * const valPtr) { return editValuePtr == valPtr; }
 };
 
 #if HAS_MEDIA
