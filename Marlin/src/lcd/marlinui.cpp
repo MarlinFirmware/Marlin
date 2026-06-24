@@ -537,8 +537,8 @@ void MarlinUI::init() {
 
   #if IS_RRW_KEYPAD && HAS_ENCODER_ACTION
 
-    #if ENABLED(START_PRINT_FROM_Z)
-      #include "../feature/skip_to_z.h"
+    #if ENABLED(CONTINUE_PRINT_FROM_Z)
+      #include "../feature/continue_from_z.h"
     #endif
 
     volatile uint8_t MarlinUI::keypad_buttons;
@@ -579,10 +579,10 @@ void MarlinUI::init() {
               else if (RRK(EN_KEYPAD_DOWN))   encoderPosition += epps;
               else if (RRK(EN_KEYPAD_LEFT))   { MenuItem_back::action(); quick_feedback(); }
               else if (RRK(EN_KEYPAD_RIGHT)) {
-                #if ENABLED(START_PRINT_FROM_Z)
+                #if ENABLED(CONTINUE_PRINT_FROM_Z)
                   // While editing the "Start from Z" value, RIGHT loads the current Z
                   // (when homed) instead of snapping to zero.
-                  if (MenuEditItemBase::current_edit_value() == &SkipToZ::target_z && axis_was_homed(Z_AXIS))
+                  if (MenuEditItemBase::current_edit_value_address() == &ContinueFromZ::target_z && axis_was_homed(Z_AXIS))
                     encoderPosition = int32_t(current_position.z * 100.0f + 0.5f); // float52 scale = 100
                   else
                 #endif

@@ -4057,9 +4057,11 @@ static_assert(_PLUS_TEST(3), "DEFAULT_MAX_ACCELERATION values must be positive."
   #endif
 #endif
 
-#if ENABLED(START_PRINT_FROM_Z)
+#if ENABLED(CONTINUE_PRINT_FROM_Z)
   #if !HAS_MEDIA
-    #error "START_PRINT_FROM_Z requires SDSUPPORT."
+    #error "CONTINUE_PRINT_FROM_Z requires SDSUPPORT."
+  #elif !HAS_MARLINUI_MENU
+    #error "CONTINUE_PRINT_FROM_Z requires an LCD controller with MarlinUI."
   #endif
 #endif
 

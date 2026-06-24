@@ -159,7 +159,7 @@ class MenuEditItemBase : public MenuItemBase {
     // of a menu item is within its declaration, so all these values decompose
     // into behavior and unused items get optimized out.
     static FSTR_P editLabel;
-    static void *editValue;
+    static void *editValuePtr;
     static int32_t minEditValue, maxEditValue;  // Encoder value range
     static screenFunc_t callbackFunc;
     static bool liveEdit;
@@ -196,7 +196,7 @@ class MenuEditItemBase : public MenuItemBase {
     // Returns the address of the variable currently being edited, or nullptr.
     // Useful for context-sensitive edit-screen behavior (e.g. a custom action
     // when a particular field is on screen).
-    static const void *current_edit_value() { return editValue; }
+    static const void *current_edit_value_address() { return editValuePtr; }
 };
 
 #if HAS_MEDIA

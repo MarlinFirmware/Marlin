@@ -1908,10 +1908,10 @@
   #endif
 
   /**
-   * Manual "Start Print From Z" — start an SD print at a chosen Z height.
+   * Manual "Start Print From Z" — Continue an SD print at a chosen Z height.
    *
-   * Adds an LCD submenu "Print from Z..." that lets the user set a target Z
-   * before printing a file. When the print is started, Marlin pre-scans the
+   * Adds an LCD submenu "Print from Z..." to set a target Z before printing.
+   * When the print is started, Marlin pre-scans the
    * G-code, simulating the machine state (X/Y/Z/E, units, abs/rel modes,
    * G92, target temperatures, fan speeds, active tool) without performing
    * any motion, until a move brings Z >= target. Marlin then heats up,
@@ -1923,10 +1923,10 @@
    * Useful as a manual replacement for power-loss recovery when no recovery
    * file was saved (e.g. crash, manual abort, swapped SD card).
    */
-  //#define START_PRINT_FROM_Z
-  #if ENABLED(START_PRINT_FROM_Z)
-    #define START_PRINT_FROM_Z_MAX 1000.0f // (mm) Max selectable Z height
-    //#define START_PRINT_FROM_Z_DEBUG     // Verbose serial output during scan
+  //#define CONTINUE_PRINT_FROM_Z
+  #if ENABLED(CONTINUE_PRINT_FROM_Z)
+    #define START_PRINT_FROM_Z_MAX Z_MAX_POS  // (mm) Max selectable Z start
+    //#define START_PRINT_FROM_Z_DEBUG        // Verbose serial output during scan
   #endif
 
   /**

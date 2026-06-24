@@ -1,19 +1,31 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2026 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ *
+ * Based on Sprinter and grbl.
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *
  */
 
 #include "../../../inc/MarlinConfig.h"
 
-#if ENABLED(START_PRINT_FROM_Z)
+#if ENABLED(CONTINUE_PRINT_FROM_Z)
 
 #include "../../gcode.h"
-#include "../../../feature/skip_to_z.h"
+#include "../../../feature/continue_from_z.h"
 #include "../../../sd/cardreader.h"
 #include "../../../core/serial.h"
 
@@ -53,23 +65,23 @@ void GcodeSuite::M1005() {
 
   SERIAL_ECHOLNPGM("M1005: scanning for Z>=", skip_to);
 
-  const SkipToZ::Status st = SkipToZ::prepare(skip_to);
+  const ContinueFromZ::Status st = ContinueFromZ::prepare(skip_to);
   switch (st) {
-    case SkipToZ::OK:
-      SERIAL_ECHOLNPGM("M1005: target reached, resuming");
+    case ContinueFromZ::OK:
+      SERIAL_ECHO_MSG("M1005: target reached, resuming");
       break;
-    case SkipToZ::ERR_NOT_FOUND:
+    case ContinueFromZ::ERR_NOT_FOUND:
       SERIAL_ECHO_MSG("M1005: target Z not found in file");
       card.closefile();
       break;
-    case SkipToZ::ERR_NO_FILE:
+    case ContinueFromZ::ERR_NO_FILE:
       SERIAL_ECHO_MSG("M1005: no file to scan");
       break;
-    case SkipToZ::ERR_READ:
+    case ContinueFromZ::ERR_READ:
       SERIAL_ECHO_MSG("M1005: SD read error during scan");
       card.closefile();
       break;
   }
 }
 
-#endif // START_PRINT_FROM_Z
+#endif // CONTINUE_PRINT_FROM_Z
