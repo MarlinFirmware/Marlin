@@ -141,15 +141,26 @@ inline void servo_probe_test() {
     bool deploy_state = false, stow_state;
 
     #if ENABLED(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN)
+
       #define PROBE_TEST_PIN Z_MIN_PIN
       #define _PROBE_PREF "Z_MIN"
+      constexpr bool probe_inverting = Z_MIN_ENDSTOP_INVERTING;
+
+      SERIAL_ECHOLNPGM(". Probe Z_MIN_PIN: ", PROBE_TEST_PIN);
+      SERIAL_ECHOPGM(". Z_MIN_ENDSTOP_INVERTING: ");
+
     #else
+
       #define PROBE_TEST_PIN Z_MIN_PROBE_PIN
       #define _PROBE_PREF "Z_MIN_PROBE"
+      constexpr bool probe_inverting = Z_MIN_PROBE_ENDSTOP_INVERTING;
+
+      SERIAL_ECHOLNPGM(". Probe Z_MIN_PROBE_PIN: ", PROBE_TEST_PIN);
+      SERIAL_ECHOPGM(   ". Z_MIN_PROBE_ENDSTOP_INVERTING: ");
+
     #endif
 
-    SERIAL_ECHOLNPGM(". Probe " _PROBE_PREF "_PIN: ", PROBE_TEST_PIN);
-    serial_ternary(F(". " _PROBE_PREF "_ENDSTOP_HIT_STATE: "), PROBE_HIT_STATE, F("HIGH"), F("LOW"));
+    serialprint_truefalse(probe_inverting);
     SERIAL_EOL();
 
     SET_INPUT_PULLUP(PROBE_TEST_PIN);
@@ -198,7 +209,7 @@ inline void servo_probe_test() {
         stow_state = READ(PROBE_TEST_PIN);
       }
 
-      if (probe_inverting != deploy_state) SERIAL_ECHOLNPGM("WARNING: " _PROBE_PREF "_ENDSTOP_HIT_STATE is probably wrong.");
+      if (probe_inverting != deploy_state) SERIAL_ECHOLNPGM("WARNING: " _PROBE_PREF "_ENDSTOP_INVERTING is probably wrong.");
 
       if (deploy_state != stow_state) {
         SERIAL_ECHOLNPGM("= Mechanical Switch detected");
