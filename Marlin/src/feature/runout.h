@@ -267,6 +267,11 @@ class FilamentSensorBase {
                       change    = old_state ^ new_state;
         old_state = new_state;
 
+        #if ENABLED(MOTION_STEPS_COUNTER)
+          if (change && (extruding || calibration))
+            encoder_steps++;
+        #endif
+
         #if ENABLED(FILAMENT_RUNOUT_SENSOR_DEBUG)
           if (change) {
             SERIAL_ECHOPGM("Motion detected:");
@@ -280,6 +285,12 @@ class FilamentSensorBase {
       }
 
     public:
+      #if ENABLED(MOTION_STEPS_COUNTER)
+        static bool     extruding;
+        static bool     calibration;
+        static uint16_t encoder_steps;
+      #endif
+
       // Called from ISR context to indicate a block was completed
       static void block_completed(const block_t * const b) {
         // If the sensor wheel has moved since the last call to

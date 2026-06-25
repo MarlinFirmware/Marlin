@@ -941,6 +941,10 @@ namespace LanguageNarrow_en {
   LSTR MSG_RESONANCE_FREQ                 = _UxGT("Resonance Freq.");
   LSTR MSG_TIMELINE_FREQ                  = _UxGT("Timeline (s)");
   LSTR MSG_TOUCH_CALIBRATION              = _UxGT("Touch Calibration");
+  LSTR MSG_ENCODER_INFO                   = _UxGT("Filament motion");
+  LSTR MSG_ENCODER_STEPS                  = _UxGT("Steps/reset");
+  LSTR MSG_ENCODER_CALIBRATION            = _UxGT("Calibration mode");
+
   LSTR MSG_MARLIN                         = _UxGT("Marlin");
   LSTR MSG_PID_P                          = _UxGT("PID-P");
   LSTR MSG_PID_P_E                        = _UxGT("PID-P *");

@@ -130,6 +130,10 @@ Stepper stepper; // Singleton
   #include "../HAL/ESP32/i2s.h"
 #endif
 
+#if ENABLED(MOTION_STEPS_COUNTER)
+  #include "../feature/runout.h"
+#endif
+
 // public:
 
 #if ANY(HAS_EXTRA_ENDSTOPS, Z_STEPPER_AUTO_ALIGN)
@@ -3095,6 +3099,8 @@ void Stepper::isr() {
             }
           #endif
         #endif
+
+      TERN_(MOTION_STEPS_COUNTER, FilamentSensorEncoder::extruding = XYZ_HAS_STEPS(current_block));
       }
     } // !current_block
 
