@@ -35,6 +35,10 @@
   #include "../sd/cardreader.h"
 #endif
 
+#if HAS_MARLINUI_HD44780
+  #include "HD44780/marlinui_HD44780.h"
+#endif
+
 #if ENABLED(TOUCH_SCREEN_CALIBRATION)
   #include "tft_io/touch_calibration.h"
 #endif
