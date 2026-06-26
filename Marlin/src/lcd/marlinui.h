@@ -47,6 +47,10 @@
   #include "../feature/pause.h"
 #endif
 
+#if HAS_MARLINUI_HD44780
+  #include "HD44780/marlinui_HD44780.h"
+#endif
+
 #if ENABLED(DWIN_CREALITY_LCD)
   #include "e3v2/creality/dwin.h"
 #elif ENABLED(DWIN_LCD_PROUI)
