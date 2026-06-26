@@ -74,5 +74,5 @@ protected:
  */
 enum class TrajectoryType : uint8_t {
   TRAPEZOIDAL, POLY5, POLY6
-  OPTARG(FTM_RESONANCE_TEST, RESONANCE)
+  OPTARG(RESONANCE_TEST, RESONANCE)
 };

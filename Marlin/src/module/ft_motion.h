@@ -30,8 +30,8 @@
   #include "ft_motion/trajectory_poly5.h"
   #include "ft_motion/trajectory_poly6.h"
 #endif
-#if ENABLED(FTM_RESONANCE_TEST)
-  #include "ft_motion/resonance_generator.h"
+#if ENABLED(RESONANCE_TEST)
+  #include "../feature/resonance/resonance_generator.h"
 #endif
 
 #if HAS_FTM_SHAPING
@@ -238,10 +238,6 @@ typedef struct FTConfig {
  */
 class FTMotion {
 
-  #if ENABLED(FTM_RESONANCE_TEST)
-    friend void ResonanceGenerator::fill_stepper_plan_buffer();
-  #endif
-
   public:
 
     // Public variables
@@ -268,10 +264,6 @@ class FTMotion {
     // Public methods
     static void init();
     static void loop();                                   // Controller main, to be invoked from non-isr task.
-    #if ENABLED(FTM_RESONANCE_TEST)
-      static void start_resonance_test();                 // Start a resonance test with given parameters
-      static ResonanceGenerator rtg;                      // Resonance trajectory generator instance
-    #endif
 
     #if ENABLED(FTM_SMOOTHING)
       // Refresh alpha and delay samples used by smoothing functions.
@@ -322,6 +314,13 @@ class FTMotion {
       #undef _TOSTEPS_q16
       stepping.enqueue(next_steps_q48_16);
     }
+
+    #if HAS_FTM_DIR_CHANGE_HOLD
+      static xyze_float_t ftm_hold_frames(xyze_float_t hold_coords);
+      #if ENABLED(RESONANCE_TEST)
+        xyze_float_t get_last_target_traj() { return last_target_traj; } ;
+      #endif
+    #endif
 
   private:
     // Block data variables.
