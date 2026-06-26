@@ -3414,8 +3414,8 @@ void MarlinSettings::reset() {
   #if ENABLED(AUTO_FIRST_LAYER_Z_ADJUST)
     parser.calibrated_first_layer_height = CALIBRATED_FIRST_LAYER_Z_HEIGHT;
     parser.aflza_active = false;
-    parser.slicer_type = DEFAULT_SLICER;
-    parser.z_hop = true;
+    parser.slicer_type = SlicerType::DEFAULT_SLICER;
+    parser.z_hop = SlicerType::ORCA == SlicerType::DEFAULT_SLICER;
   #endif
 
   //

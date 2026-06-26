@@ -1997,7 +1997,7 @@
 //#define AUTO_FIRST_LAYER_Z_ADJUST
 #if ENABLED(AUTO_FIRST_LAYER_Z_ADJUST)
   #define CALIBRATED_FIRST_LAYER_Z_HEIGHT 0.3f    // (mm) Pre-calibrated assumed first layer height
-  //#define DEFAULT_SLICER SlicerType::UNKNOWN    // :[ SlicerType::UNKNOWN, SlicerType::ORCA, SlicerType::PRUSA ]
+  //#define DEFAULT_SLICER UNKNOWN                // :[ 'UNKNOWN', 'ORCA', 'PRUSA' ]
 #endif
 
 /**

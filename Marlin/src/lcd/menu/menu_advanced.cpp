@@ -695,15 +695,14 @@ void menu_backlash();
     }
   }
 
+  // TODO: Select from list with active item pre-selected on entry
   void menu_aflza_slicer() {
     START_MENU();
     BACK_ITEM(MSG_ADVANCED_SETTINGS);
-
     if (parser.slicer_type == SlicerType::ORCA)
       ACTION_ITEM(MSG_AFLZA_PRUSA, []{ parser.slicer_type = SlicerType::ORCA; parser.z_hop = true; });
     else
       ACTION_ITEM(MSG_AFLZA_ORCA, []{ parser.slicer_type = SlicerType::PRUSA; parser.z_hop = false; });
-
     END_MENU();
   }
 
@@ -744,7 +743,7 @@ void menu_advanced_settings() {
       // M429 - Set adaptive first layer Z offset
       EDIT_ITEM(bool, MSG_AUTO_FIRST_LAYER_Z_ADJUST, &parser.aflza_active);
       EDIT_ITEM(float32, MSG_AUTO_FIRST_LAYER_Z_ADJUST, &parser.calibrated_first_layer_height, 0.1f, 1.0f);
-      SUBMENU_S(get_slicer_name(parser.z_hop), MSG_AFLZA_SLICER, menu_aflza_slicer);
+      SUBMENU_S(get_slicer_name(parser.slicer_type), MSG_AFLZA_SLICER, menu_aflza_slicer);
     #endif
 
     // M203 / M205 - Feedrate items
