@@ -1433,10 +1433,17 @@
   //#define CALIBRATION_SCRIPT_PRE  "M117 Starting Auto-Calibration\nT0\nG28\nG12\nM117 Calibrating..."
   //#define CALIBRATION_SCRIPT_POST "M500\nM117 Calibration data saved"
 
-  // Uncertainty of hotend offset. This defines, how far away from the 
-  // calibration object the measurment starts. Can be overridden by parameter U.
-  #define CALIBRATION_MEASUREMENT_UNKNOWN   5.0 // (mm) Default for fast measurement with G425
-  #define CALIBRATION_MEASUREMENT_UNCERTAIN 1.0 // mm Default for slow measurement (default for G425 T... or G425 B)
+  // Uncertainty of hotend z offset. This defines, how far away in z from the 
+  // calibration object the measurment starts. Can be overridden by parameter L.
+  #define CALIBRATION_MEASUREMENT_TOOL_LENGTH 5.0 // (mm)
+
+  // Uncertainty of hotend xy offset for G425. This defines, how far away in in xy from the 
+  // calibration object the measurment starts for hotend offset calibration. Can be overridden by parameter U.
+  #define CALIBRATION_MEASUREMENT_UNKNOWN   5.0 // (mm)
+
+  // Uncertainty of hotend xy offset for G425 T... and of backlash. This defines, how far away from the 
+  // calibration object the measurment starts for backlash- and xy hotend offset calibration. Can be overridden by parameter U.
+  #define CALIBRATION_MEASUREMENT_UNCERTAIN 1.0 // (mm)
 
   #define CALIBRATION_FEEDRATE_SLOW             60    // (mm/min)
   #define CALIBRATION_FEEDRATE_FAST           1200    // (mm/min)

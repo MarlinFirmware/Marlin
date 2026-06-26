@@ -61,8 +61,12 @@
  *   UNKNOWN   - No real notion on where the calibration object is on the bed
  *   UNCERTAIN - Measurement may be uncertain due to backlash
  *   CERTAIN   - Measurement obtained with backlash compensation
+ *   TOOL_LENGTH  - How far away from the object to begin probing for hotend Z offset calibration with G425 T...
  */
 
+ #ifndef CALIBRATION_MEASUREMENT_TOOL_LENGTH
+  #define CALIBRATION_MEASUREMENT_TOOL_LENGTH   5.0 // mm
+#endif
 #ifndef CALIBRATION_MEASUREMENT_UNKNOWN
   #define CALIBRATION_MEASUREMENT_UNKNOWN   5.0 // mm
 #endif
@@ -192,12 +196,18 @@ inline void park_above_object(measurements_t &m, const float uncertainty) {
  *   stop_state   in - Move until probe pin becomes this value
  *   fast         in - Fast vs. precise measurement
  */
-float measuring_movement(const AxisEnum axis, const int dir, const bool stop_state, const bool fast, const bool uncertainty) {
+float measuring_movement(const AxisEnum axis, const int dir, const bool stop_state, const bool fast, const bool uncertainty, const bool uncertainty_tool_length) {
   const feedRate_t mms = fast ? MMM_TO_MMS(CALIBRATION_FEEDRATE_FAST) : MMM_TO_MMS(CALIBRATION_FEEDRATE_SLOW);
   const float limit    = fast ? (uncertainty + 50) : (uncertainty + 5);
+  const float limit_z = fast ? (uncertainty_tool_length + 50) : (uncertainty_tool_length + 5);
 
   motion.destination = motion.position;
-  motion.destination[axis] += dir * limit;
+  if (axis == Z_AXIS) {
+    motion.destination[axis] += dir * limit_z;
+  }
+  else {
+    motion.destination[axis] += dir * limit;
+  }
   endstops.enable_calibration_probe(true, stop_state);
   motion.blocking_move((xyz_pos_t)motion.destination, mms);
   endstops.enable_calibration_probe(false);
@@ -216,19 +226,20 @@ float measuring_movement(const AxisEnum axis, const int dir, const bool stop_sta
  *   stop_state         in     - Move until probe pin becomes this value
  *   backlash_ptr       in/out - When not nullptr, measure and record axis backlash
  *   uncertainty        in     - If uncertainty is CALIBRATION_MEASUREMENT_UNKNOWN, do a fast probe.
+ *   uncertainty_tool_length  in  - How far away from the object to begin probing for hotend Z offset calibration with G425 T...
  */
-inline float measure(const AxisEnum axis, const int dir, const bool stop_state, float * const backlash_ptr, const float uncertainty) {
+inline float measure(const AxisEnum axis, const int dir, const bool stop_state, float * const backlash_ptr, const float uncertainty, const float uncertainty_tool_length) {
   const bool fast = uncertainty == CALIBRATION_MEASUREMENT_UNKNOWN;
 
   // Save the current position of the specified axis
   const float start_pos = motion.position[axis];
 
   // Take a measurement. Only the specified axis will be affected.
-  const float measured_pos = measuring_movement(axis, dir, stop_state, fast, uncertainty);
+  const float measured_pos = measuring_movement(axis, dir, stop_state, fast, uncertainty, uncertainty_tool_length);
 
   // Measure backlash
   if (backlash_ptr && !fast) {
-    const float release_pos = measuring_movement(axis, -dir, !stop_state, fast, uncertainty);
+    const float release_pos = measuring_movement(axis, -dir, !stop_state, fast, uncertainty, uncertainty_tool_length);
     *backlash_ptr = ABS(release_pos - measured_pos);
   }
 
@@ -244,11 +255,12 @@ inline float measure(const AxisEnum axis, const int dir, const bool stop_state, 
  *
  *   m                  in/out - Measurement record, m.obj_center and m.obj_side will be updated.
  *   uncertainty        in     - How far away from the calibration object to begin probing
+ *   uncertainty_tool_length  in  - How far away from the object to begin probing for hotend Z offset calibration with G425 T...
  *   side               in     - Side of probe where probe will occur
  *   probe_top_at_edge  in     - When probing sides, probe top of calibration object nearest edge
  *                               to find out height of edge
  */
-inline void probe_side(measurements_t &m, const float uncertainty, const side_t side, const bool probe_top_at_edge=false) {
+inline void probe_side(measurements_t &m, const float uncertainty, const float uncertainty_tool_length, const side_t side, const bool probe_top_at_edge=false) {
   const xyz_float_t dimensions = CALIBRATION_OBJECT_DIMENSIONS;
   AxisEnum axis;
   float dir = 1;
@@ -267,7 +279,7 @@ inline void probe_side(measurements_t &m, const float uncertainty, const side_t 
     #endif
     #if AXIS_CAN_CALIBRATE(Z)
       case TOP: {
-        const float measurement = measure(Z_AXIS, -1, true, &m.backlash[TOP], uncertainty);
+        const float measurement = measure(Z_AXIS, -1, true, &m.backlash[TOP], uncertainty, uncertainty_tool_length);
         m.obj_center.z = measurement - dimensions.z / 2;
         m.obj_side[TOP] = measurement;
         return;
@@ -299,7 +311,7 @@ inline void probe_side(measurements_t &m, const float uncertainty, const side_t 
       // Probe top nearest the side we are probing
       motion.position[axis] = m.obj_center[axis] + (-dir) * (dimensions[axis] / 2 - m.nozzle_outer_dimension[axis]);
       calibration_move();
-      m.obj_side[TOP] = measure(Z_AXIS, -1, true, &m.backlash[TOP], uncertainty);
+      m.obj_side[TOP] = measure(Z_AXIS, -1, true, &m.backlash[TOP], uncertainty, uncertainty_tool_length);
       m.obj_center.z = m.obj_side[TOP] - dimensions.z / 2;
     #endif
   }
@@ -312,7 +324,7 @@ inline void probe_side(measurements_t &m, const float uncertainty, const side_t 
     // Plunge below the side of the calibration object and measure
     motion.position.z = m.obj_side[TOP] - (CALIBRATION_NOZZLE_TIP_HEIGHT) * 0.7f;
     calibration_move();
-    const float measurement = measure(axis, dir, true, &m.backlash[side], uncertainty);
+    const float measurement = measure(axis, dir, true, &m.backlash[side], uncertainty, uncertainty_tool_length);
     m.obj_center[axis] = measurement + dir * (dimensions[axis] / 2 + m.nozzle_outer_dimension[axis] / 2);
     m.obj_side[side] = measurement;
   }
@@ -324,14 +336,14 @@ inline void probe_side(measurements_t &m, const float uncertainty, const side_t 
  *   m                  in/out - Measurement record: center, backlash and error values be updated.
  *   uncertainty        in     - How far away from the calibration object to begin probing
  */
-inline void probe_sides(measurements_t &m, const float uncertainty) {
+inline void probe_sides(measurements_t &m, const float uncertainty, const float uncertainty_tool_length) {
   #if ENABLED(CALIBRATION_MEASURE_AT_TOP_EDGES)
     constexpr bool probe_top_at_edge = true;
   #else
     // Probing at the exact center only works if the center is flat. Probing on a washer
     // or bolt will require probing the top near the side edges, away from the center.
     constexpr bool probe_top_at_edge = false;
-    probe_side(m, uncertainty, TOP);
+    probe_side(m, uncertainty, uncertainty_tool_length, TOP);
   #endif
 
   /**
@@ -340,28 +352,28 @@ inline void probe_sides(measurements_t &m, const float uncertainty) {
    * values where the nozzle was catching on the edges of the cube, and this was intended to help
    * ensure the probe object remained centered.
    */
-  TERN_(CALIBRATION_MEASURE_FRONT, probe_side(m, uncertainty, FRONT,    probe_top_at_edge));
-  TERN_(CALIBRATION_MEASURE_BACK,  probe_side(m, uncertainty, BACK,     probe_top_at_edge));
+  TERN_(CALIBRATION_MEASURE_FRONT, probe_side(m, uncertainty, uncertainty_tool_length, FRONT,    probe_top_at_edge));
+  TERN_(CALIBRATION_MEASURE_BACK,  probe_side(m, uncertainty, uncertainty_tool_length, BACK,     probe_top_at_edge));
 
   #if HAS_Y_CENTER
     m.obj_center.y = (m.obj_side[FRONT] + m.obj_side[BACK]) / 2;
     m.nozzle_outer_dimension.y = m.obj_side[BACK] - m.obj_side[FRONT] - dimensions.y;
   #endif
 
-  TERN_(CALIBRATION_MEASURE_LEFT,  probe_side(m, uncertainty, LEFT,     probe_top_at_edge));
-  TERN_(CALIBRATION_MEASURE_RIGHT, probe_side(m, uncertainty, RIGHT,    probe_top_at_edge));
-  TERN_(CALIBRATION_MEASURE_IMIN,  probe_side(m, uncertainty, IMINIMUM, probe_top_at_edge));
-  TERN_(CALIBRATION_MEASURE_IMAX,  probe_side(m, uncertainty, IMAXIMUM, probe_top_at_edge));
-  TERN_(CALIBRATION_MEASURE_JMIN,  probe_side(m, uncertainty, JMINIMUM, probe_top_at_edge));
-  TERN_(CALIBRATION_MEASURE_JMAX,  probe_side(m, uncertainty, JMAXIMUM, probe_top_at_edge));
-  TERN_(CALIBRATION_MEASURE_KMIN,  probe_side(m, uncertainty, KMINIMUM, probe_top_at_edge));
-  TERN_(CALIBRATION_MEASURE_KMAX,  probe_side(m, uncertainty, KMAXIMUM, probe_top_at_edge));
-  TERN_(CALIBRATION_MEASURE_UMIN,  probe_side(m, uncertainty, UMINIMUM, probe_top_at_edge));
-  TERN_(CALIBRATION_MEASURE_UMAX,  probe_side(m, uncertainty, UMAXIMUM, probe_top_at_edge));
-  TERN_(CALIBRATION_MEASURE_VMIN,  probe_side(m, uncertainty, VMINIMUM, probe_top_at_edge));
-  TERN_(CALIBRATION_MEASURE_VMAX,  probe_side(m, uncertainty, VMAXIMUM, probe_top_at_edge));
-  TERN_(CALIBRATION_MEASURE_WMIN,  probe_side(m, uncertainty, WMINIMUM, probe_top_at_edge));
-  TERN_(CALIBRATION_MEASURE_WMAX,  probe_side(m, uncertainty, WMAXIMUM, probe_top_at_edge));
+  TERN_(CALIBRATION_MEASURE_LEFT,  probe_side(m, uncertainty, uncertainty_tool_length, LEFT,     probe_top_at_edge));
+  TERN_(CALIBRATION_MEASURE_RIGHT, probe_side(m, uncertainty, uncertainty_tool_length, RIGHT,    probe_top_at_edge));
+  TERN_(CALIBRATION_MEASURE_IMIN,  probe_side(m, uncertainty, uncertainty_tool_length, IMINIMUM, probe_top_at_edge));
+  TERN_(CALIBRATION_MEASURE_IMAX,  probe_side(m, uncertainty, uncertainty_tool_length, IMAXIMUM, probe_top_at_edge));
+  TERN_(CALIBRATION_MEASURE_JMIN,  probe_side(m, uncertainty, uncertainty_tool_length, JMINIMUM, probe_top_at_edge));
+  TERN_(CALIBRATION_MEASURE_JMAX,  probe_side(m, uncertainty, uncertainty_tool_length, JMAXIMUM, probe_top_at_edge));
+  TERN_(CALIBRATION_MEASURE_KMIN,  probe_side(m, uncertainty, uncertainty_tool_length, KMINIMUM, probe_top_at_edge));
+  TERN_(CALIBRATION_MEASURE_KMAX,  probe_side(m, uncertainty, uncertainty_tool_length, KMAXIMUM, probe_top_at_edge));
+  TERN_(CALIBRATION_MEASURE_UMIN,  probe_side(m, uncertainty, uncertainty_tool_length, UMINIMUM, probe_top_at_edge));
+  TERN_(CALIBRATION_MEASURE_UMAX,  probe_side(m, uncertainty, uncertainty_tool_length, UMAXIMUM, probe_top_at_edge));
+  TERN_(CALIBRATION_MEASURE_VMIN,  probe_side(m, uncertainty, uncertainty_tool_length, VMINIMUM, probe_top_at_edge));
+  TERN_(CALIBRATION_MEASURE_VMAX,  probe_side(m, uncertainty, uncertainty_tool_length, VMAXIMUM, probe_top_at_edge));
+  TERN_(CALIBRATION_MEASURE_WMIN,  probe_side(m, uncertainty, uncertainty_tool_length, WMINIMUM, probe_top_at_edge));
+  TERN_(CALIBRATION_MEASURE_WMAX,  probe_side(m, uncertainty, uncertainty_tool_length, WMAXIMUM, probe_top_at_edge));
 
   // Compute the measured center of the calibration object.
   TERN_(HAS_X_CENTER, m.obj_center.x = (m.obj_side[LEFT]     + m.obj_side[RIGHT])    / 2);
@@ -579,6 +591,8 @@ inline void probe_sides(measurements_t &m, const float uncertainty) {
  *
  *   m              in/out - Measurement record, updated with new readings
  *   uncertainty    in     - How far away from the object to begin probing
+ *   uncertainty_tool_length  in  - How far away from the object to begin probing for hotend Z offset calibration with G425 T...
+
  */
 inline void calibrate_backlash(measurements_t &m, const float uncertainty) {
   // Backlash compensation should be off while measuring backlash
@@ -588,7 +602,7 @@ inline void calibrate_backlash(measurements_t &m, const float uncertainty) {
     TEMPORARY_BACKLASH_CORRECTION(backlash.all_off);
     TEMPORARY_BACKLASH_SMOOTHING(0.0f);
 
-    probe_sides(m, uncertainty);
+    probe_sides(m, uncertainty, uncertainty);
 
     #if ENABLED(BACKLASH_GCODE)
 
@@ -691,18 +705,19 @@ inline void update_measurements(measurements_t &m, const AxisEnum axis) {
  *
  *   m              in/out - Measurement record, updated with new readings
  *   uncertainty    in     - How far away from the object to begin probing
+ *   uncertainty_tool_length  in  - How far away from the object to begin probing for hotend Z offset calibration with G425 T...
  *   extruder       in     - What extruder to probe
  *
  * Prerequisites:
  *    - Call calibrate_backlash() beforehand for best accuracy
  */
-inline void calibrate_toolhead(measurements_t &m, const float uncertainty, const uint8_t extruder) {
+inline void calibrate_toolhead(measurements_t &m, const float uncertainty, const float uncertainty_tool_length, const uint8_t extruder) {
   TEMPORARY_BACKLASH_CORRECTION(backlash.all_on);
   TEMPORARY_BACKLASH_SMOOTHING(0.0f);
 
   TERN(HAS_MULTI_HOTEND, set_nozzle(m, extruder), UNUSED(extruder));
 
-  probe_sides(m, uncertainty);
+  probe_sides(m, uncertainty, uncertainty_tool_length);
 
   // Adjust the hotend offset
   #if HAS_HOTEND_OFFSET
@@ -736,12 +751,13 @@ inline void calibrate_toolhead(measurements_t &m, const float uncertainty, const
  *
  *   m              in/out - Measurement record, updated with new readings
  *   uncertainty    in     - How far away from the object to begin probing
+ *   uncertainty_tool_length  in  - How far away from the object to begin probing for hotend Z offset calibration with G425 T...
  */
-inline void calibrate_all_toolheads(measurements_t &m, const float uncertainty) {
+inline void calibrate_all_toolheads(measurements_t &m, const float uncertainty, const float uncertainty_tool_length) {
   TEMPORARY_BACKLASH_CORRECTION(backlash.all_on);
   TEMPORARY_BACKLASH_SMOOTHING(0.0f);
 
-  HOTEND_LOOP() calibrate_toolhead(m, uncertainty, e);
+  HOTEND_LOOP() calibrate_toolhead(m, uncertainty, uncertainty_tool_length, e);
 
   TERN_(HAS_HOTEND_OFFSET, normalize_hotend_offsets());
 
@@ -768,7 +784,7 @@ inline void calibrate_all() {
   TEMPORARY_BACKLASH_SMOOTHING(0.0f);
 
   // Do a fast and rough calibration of the toolheads
-  calibrate_all_toolheads(m, CALIBRATION_MEASUREMENT_UNKNOWN);
+  calibrate_all_toolheads(m, CALIBRATION_MEASUREMENT_UNKNOWN, CALIBRATION_MEASUREMENT_TOOL_LENGTH);
 
   TERN_(BACKLASH_GCODE, calibrate_backlash(m, CALIBRATION_MEASUREMENT_UNCERTAIN));
 
@@ -778,7 +794,7 @@ inline void calibrate_all() {
   #endif
 
   // Do a slow and precise calibration of the toolheads
-  calibrate_all_toolheads(m, CALIBRATION_MEASUREMENT_UNCERTAIN);
+  calibrate_all_toolheads(m, CALIBRATION_MEASUREMENT_UNCERTAIN, CALIBRATION_MEASUREMENT_TOOL_LENGTH);
 
   motion.position.x = X_CENTER;
   calibration_move();         // Park nozzle away from calibration object
@@ -790,7 +806,8 @@ inline void calibrate_all() {
  *   B           - Perform calibration of backlash only.
  *   T<extruder> - Perform calibration of toolhead only.
  *   V           - Probe object and print position, error, backlash and hotend offset.
- *   U           - Uncertainty, how far to start probe away from the object (mm)
+ *   U           - Uncertainty, how far inxy to start probe away from the object (mm)
+ *   L           - Tool length uncertainty, how far in z to start probe away from the object (mm)
  *
  *   no args     - Perform entire calibration sequence (backlash + position on all toolheads)
  */
@@ -807,11 +824,12 @@ void GcodeSuite::G425() {
 
   measurements_t m;
   const float uncertainty = parser.floatval('U', CALIBRATION_MEASUREMENT_UNCERTAIN);
+  const float uncertainty_tool_length = parser.floatval('L', CALIBRATION_MEASUREMENT_TOOL_LENGTH);
 
   if (parser.seen_test('B'))
     calibrate_backlash(m, uncertainty);
   else if (parser.seen_test('T'))
-    calibrate_toolhead(m, uncertainty, parser.intval('T', motion.extruder));
+    calibrate_toolhead(m, uncertainty, uncertainty_tool_length, parser.intval('T', motion.extruder));
   #if ENABLED(CALIBRATION_REPORTING)
     else if (parser.seen('V')) {
       probe_sides(m, uncertainty);
