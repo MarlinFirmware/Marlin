@@ -4027,8 +4027,8 @@ void MarlinSettings::reset() {
 
       #endif
 
-    #endif // 
-    
+    #endif // HAS_LEVELING
+
     //
     // Auto First Layer Z Adjust
     //

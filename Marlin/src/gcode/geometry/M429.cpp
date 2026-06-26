@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2026 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -38,48 +38,49 @@ void GcodeSuite::M429_report(const bool forReplay) {
     SERIAL_ECHOLN(F("Auto First Layer Z Adjust "), parser.aflza_active ? F("A") : F("Dea"), F("ctivated"));
     SERIAL_ECHOLN(F("Configured Layer Height "), parser.calibrated_first_layer_height, F(" mm"));
     SERIAL_ECHOLN(parser.z_hop ? F(" Orca") : F(" Prusa"), F("Slicer"));
-}   
+}
 
 /**
- * M429: Autoadjust first layer nozzle height.
+ * M429: Auto-adjust first layer nozzle height.
  *
  * Parameters:
- *   S<bool>       Activate/Deactivate the Auto First Layer Z Adjust feature.
+ *   S<bool>       Activate/Deactivate the Auto-Adjust First Layer Z feature.
  *   H<float>      Set the calibrated first layer height to <val> mm (0.0 .. 1.0)
- *   O(bool>)      Set the slicer type : true OrcaSlicer and clones, false PrusaSlicer and clones
+ *   O<bool>       Set the slicer type : true OrcaSlicer and clones, false PrusaSlicer and clones
  *
  * Examples:
  *   M429 S1       : Activate the Auto First Layer Z Adjust feature
  *   M429 S0       : Deactivate the Auto First Layer Z Adjust feature
  *   M429 H0.3     : Set the calibrated first layer height to <val> mm (0.0 .. 1.0)
- *
  */
-
 void GcodeSuite::M429() {
-    const bool set_aflza = parser.seen('S') || parser.seen("H") || parser.seen('O');
-    if (set_aflza) {
-        if (parser.seen('S')) {
-            const bool val = parser.value_bool();
-            parser.aflza_active = val;
-            SERIAL_ECHOLN(F("Auto First Layer Z Adjust "), val ? F("A") : F("De"), F("activated"));
-        }
-        if (parser.seen('H')) {
-            const float val = parser.value_float();
-            if WITHIN(val, 0.0f, 1.0f) {
-                parser.calibrated_first_layer_height = val;
-                SERIAL_ECHOLN(F("Calibrated First Layer Height set to "), parser.calibrated_first_layer_height, F(" mm"));
-            }
-            else {
-                SERIAL_ECHOLN(F("?Invalid Calibrated First Layer Height [H]. (0.0 .. 1.0 mm)"));
-            }
-        }
-        if (parser.seen('O')) {
-            const bool val = parser.value_bool();
-            parser.slicer_type = val;
-            parser.z_hop = val;
-        }
+  if (!parser.seen("SHO")) { say_aflza(); return; }
+
+  // S<bool> Activate/Deactivate
+  if (parser.seen('S')) {
+    const bool on = parser.value_bool();
+    parser.aflza_active = on;
+    SERIAL_ECHOLNPGM("Auto First Layer Z Adjust ", on ? F("A") : F("Dea"), "ctivated");
+  }
+
+  // H<float> Set Calibrated Height
+  if (parser.seen('H')) {
+    const float height = parser.value_float();
+    if (WITHIN(height, 0.0f, 1.0f)) {
+      parser.calibrated_first_layer_height = height;
+      SERIAL_ECHOLNPGM("Calibrated First Layer Height set to ", height, " mm");
     }
-    else
-        say_aflza();
+    else {
+      SERIAL_ECHOLNPGM("?Invalid Calibrated First Layer Height [H]. (0.0 .. 1.0 mm)");
+    }
+  }
+
+  // O<float> Set Calibrated Height
+  if (parser.seenval('O')) {
+    const slicer_id_t slicer_id = parser.value_ushort(); // 0 Prusa, 1 Orca, ...
+    parser.slicer_type = slicer_id;
+    parser.z_hop = (slicer_id == SlicerType::ORCA);
+  }
 }
-#endif
+
+#endif // AUTO_FIRST_LAYER_Z_ADJUST

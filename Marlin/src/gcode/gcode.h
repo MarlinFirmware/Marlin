@@ -1110,7 +1110,7 @@ private:
 
   #if ENABLED(AUTO_FIRST_LAYER_Z_ADJUST)
     static void M429();
-    static void M429_report(const bool forReplay=true); 
+    static void M429_report(const bool forReplay=true);
   #endif
 
   #if HAS_POWER_MONITOR
