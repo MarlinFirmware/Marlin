@@ -27,6 +27,10 @@
   #include "../libs/buzzer.h"
 #endif
 
+#if HAS_MARLINUI_HD44780
+  #include "HD44780/ultralcd_HD44780.h"
+#endif
+
 #if HAS_LCD_MENU || ENABLED(ULTIPANEL_FEEDMULTIPLY)
   #define HAS_ENCODER_ACTION 1
 #endif
