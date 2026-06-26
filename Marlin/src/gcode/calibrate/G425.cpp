@@ -192,9 +192,9 @@ inline void park_above_object(measurements_t &m, const float uncertainty) {
  *   stop_state   in - Move until probe pin becomes this value
  *   fast         in - Fast vs. precise measurement
  */
-float measuring_movement(const AxisEnum axis, const int dir, const bool stop_state, const bool fast) {
+float measuring_movement(const AxisEnum axis, const int dir, const bool stop_state, const bool fast, const bool uncertainty) {
   const feedRate_t mms = fast ? MMM_TO_MMS(CALIBRATION_FEEDRATE_FAST) : MMM_TO_MMS(CALIBRATION_FEEDRATE_SLOW);
-  const float limit    = fast ? 50 : 5;
+  const float limit    = fast ? (uncertainty + 50) : (uncertainty + 5);
 
   motion.destination = motion.position;
   motion.destination[axis] += dir * limit;
@@ -224,11 +224,11 @@ inline float measure(const AxisEnum axis, const int dir, const bool stop_state, 
   const float start_pos = motion.position[axis];
 
   // Take a measurement. Only the specified axis will be affected.
-  const float measured_pos = measuring_movement(axis, dir, stop_state, fast);
+  const float measured_pos = measuring_movement(axis, dir, stop_state, fast, uncertainty);
 
   // Measure backlash
   if (backlash_ptr && !fast) {
-    const float release_pos = measuring_movement(axis, -dir, !stop_state, fast);
+    const float release_pos = measuring_movement(axis, -dir, !stop_state, fast, uncertainty);
     *backlash_ptr = ABS(release_pos - measured_pos);
   }
 

@@ -1424,13 +1424,19 @@
  * and hotend offsets.
  *
  * Note: HOTEND_OFFSET and CALIBRATION_OBJECT_CENTER must be set to within
- *       ±5mm of true values for G425 to succeed.
+ * ±(CALIBRATION_MEASUREMENT_UNCERTAIN) of true values for G425 T... 
+ * and within ±(CALIBRATION_MEASUREMENT_UNKNOWN) for full calibration (G425).
  */
 //#define CALIBRATION_GCODE
 #if ENABLED(CALIBRATION_GCODE)
 
   //#define CALIBRATION_SCRIPT_PRE  "M117 Starting Auto-Calibration\nT0\nG28\nG12\nM117 Calibrating..."
   //#define CALIBRATION_SCRIPT_POST "M500\nM117 Calibration data saved"
+
+  // Uncertainty of hotend offset. This defines, how far away from the 
+  // calibration object the measurment starts. Can be overridden by parameter U.
+  #define CALIBRATION_MEASUREMENT_UNKNOWN   5.0 // (mm) Default for fast measurement with G425
+  #define CALIBRATION_MEASUREMENT_UNCERTAIN 1.0 // mm Default for slow measurement (default for G425 T... or G425 B)
 
   #define CALIBRATION_FEEDRATE_SLOW             60    // (mm/min)
   #define CALIBRATION_FEEDRATE_FAST           1200    // (mm/min)
