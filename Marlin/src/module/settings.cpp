@@ -247,6 +247,10 @@ typedef struct SettingsDataStruct {
     xyz_pos_t hotend_offset[HOTENDS - 1];               // M218 XYZ
   #endif
 
+  #if ENABLED(CALIBRATION_GCODE)
+    xyz_pos_t calibration_center;               // M425 OPQ
+  #endif
+
   //
   // Spindle Acceleration
   //
@@ -964,6 +968,16 @@ void MarlinSettings::postprocess() {
       #endif
     }
 
+    //
+    // Calibration Center
+    //
+    {
+      #if ENABLED(CALIBRATION_GCODE)
+        _FIELD_TEST(calibration_center);
+        EEPROM_WRITE(motion.calibration_center);
+      #endif
+    }
+  
     //
     // Spindle Acceleration
     //
@@ -2034,6 +2048,16 @@ void MarlinSettings::postprocess() {
             EEPROM_READ(motion.hotend_offset[e]);
         #endif
       }
+
+    //
+    // Calibration Center
+    //
+    {
+      #if ENABLED(CALIBRATION_GCODE)
+        _FIELD_TEST(calibration_center);
+        EEPROM_WRITE(motion.calibration_center);
+      #endif
+    }
 
       //
       // Spindle Acceleration
@@ -3375,6 +3399,12 @@ void MarlinSettings::reset() {
   //
   TERN_(HAS_HOTEND_OFFSET, motion.reset_hotend_offsets());
 
+  
+  //
+  // Calibration Center
+  //
+  TERN(CALIBRATION_GCODE, calibration_center = CALIBRATION_OBJECT_CENTER)
+  
   //
   // Spindle Acceleration
   //

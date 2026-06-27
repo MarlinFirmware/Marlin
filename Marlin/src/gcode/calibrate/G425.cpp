@@ -109,7 +109,7 @@ enum side_t : uint8_t {
     UMINIMUM, UMAXIMUM, VMINIMUM, VMAXIMUM, WMINIMUM, WMAXIMUM)
 };
 
-static constexpr xyz_pos_t true_center CALIBRATION_OBJECT_CENTER;
+static constexpr xyz_pos_t true_center = motion.calibration_center;
 static constexpr xyz_float_t dimensions CALIBRATION_OBJECT_DIMENSIONS;
 static constexpr xy_float_t nod = { CALIBRATION_NOZZLE_OUTER_DIAMETER, CALIBRATION_NOZZLE_OUTER_DIAMETER };
 
