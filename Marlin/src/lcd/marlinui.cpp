@@ -36,6 +36,10 @@
   #include "../feature/password/password.h"
 #endif
 
+#if ENABLED(LCD_I2C_TYPE_MCP23017)
+  #include "../lcd/HD44780/marlinui_HD44780.h" // Needed for LCD_HAS_STATUS_INDICATORS
+#endif
+
 // All displays share the MarlinUI class
 #include "marlinui.h"
 MarlinUI ui;

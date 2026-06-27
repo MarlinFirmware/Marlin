@@ -249,7 +249,7 @@ public:
   }
 
   #if ENABLED(LCD_HAS_STATUS_INDICATORS)
-    static void update_indicators();
+    static void update_indicators(const bool forceUpdate=false);
   #endif
 
   #if ALL(HAS_MARLINUI_MENU, TOUCH_SCREEN_CALIBRATION)
