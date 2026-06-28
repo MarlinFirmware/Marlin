@@ -370,6 +370,13 @@
   #if ANY(FTM_DIR_CHANGE_HOLD_X, FTM_DIR_CHANGE_HOLD_Y, FTM_DIR_CHANGE_HOLD_Z, FTM_DIR_CHANGE_HOLD_E)
     #define HAS_FTM_DIR_CHANGE_HOLD 1
   #endif
+  #if ANY(FTM_POLYS, FTM_CONSTANT_JOLT)
+    #define HAS_FTM_TRAJECTORY_SELECTION 1
+  #endif
+  // Default trajectory type when not explicitly set
+  #if !defined(FTM_TRAJECTORY_TYPE)
+    #define FTM_TRAJECTORY_TYPE TRAPEZOIDAL
+  #endif
 #endif
 
 // Standard Motion
