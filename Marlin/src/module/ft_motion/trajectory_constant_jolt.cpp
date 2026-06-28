@@ -180,18 +180,6 @@ void ConstantJoltTrajectoryGenerator::reuse(
   snap.t_consumed = getTotalDuration() + prev_t;
 }
 
-#ifdef CJ_DEBUG
-void ConstantJoltTrajectoryGenerator::dumpPhases(const char* prefix) const {
-  printf("%s  v_entry=%.4f v_exit=%.4f a_entry=%.4f a_exit=%.4f j_max=%.1f a_max=%.1f dist=%.6f dur=%.6f\n",
-         prefix, v_entry, state.v_exit, a_entry, state.a_exit, state.j_max, state.a_max, state.dist_total, state.total_duration);
-  for (int i = 0; i < 7; i++) {
-    if (state.phase_dt[i] < 1e-12f) continue;
-    printf("%s  phase[%d]: dt=%.6f jolt=%+.1f  t0=%.6f v0=%.4f a0=%.4f pos0=%.6f\n",
-           prefix, i, state.phase_dt[i], phaseJolt(i),
-           state.phase_start_time[i], state.phase_start_v[i], state.phase_start_a[i], state.phase_start_pos[i]);
-  }
-}
-#endif
 
 // ─── plan_accel_decel ─────────────────────────────────────────────────────────
 //
@@ -268,10 +256,6 @@ bool ConstantJoltTrajectoryGenerator::plan_accel_decel(
   float dist_decel = constant_jolt::planRamp(state.v_exit, v_peak, state.j_max, state.a_max, true, t5, t6, t7);
   float dist_ramps = dist_accel + dist_decel;
 
-  #ifdef CJ_DEBUG
-    if (v_peak < v_entry - 0.1f || v_peak < state.v_exit - 0.1f)
-      printf("      WARNING: v_peak=%.4f < v_entry=%.4f or v_exit=%.4f!\n", v_peak, v_entry, state.v_exit);
-  #endif
 
   if (v_peak > 0.0f && state.dist_total > dist_ramps)
     t4 = (state.dist_total - dist_ramps) / v_peak;
@@ -313,10 +297,6 @@ bool ConstantJoltTrajectoryGenerator::plan_decel(
   const float j_absorb = (a_entry > 0.0f) ? -state.j_max : state.j_max;  // opposes a_entry
   const float t0_max = ABS(a_entry) / state.j_max;
 
-  #ifdef CJ_DEBUG
-    printf("    PARTIAL_ABSORPTION: a_entry=%.4f j_absorb=%.1f t0_max=%.6f\n",
-           a_entry, j_absorb, t0_max);
-  #endif
 
   // Bisect t0 so d_absorption + d_decel = dist_total.
   // Save results when t0_lo is updated so we can reuse them after the loop.

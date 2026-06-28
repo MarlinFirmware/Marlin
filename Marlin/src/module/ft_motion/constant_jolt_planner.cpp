@@ -28,9 +28,6 @@
 #include "constant_jolt_math.h"
 
 bool ConstantJoltBlockPlanner::planNext(ConstantJoltTrajectoryGenerator& traj, float j_max) {
-  #ifdef CJP_DIAG
-    last_diag[0] = '\0';
-  #endif
   float mm[BLOCK_BUFFER_SIZE];
   float nominal[BLOCK_BUFFER_SIZE];
   float accel[BLOCK_BUFFER_SIZE];
@@ -61,9 +58,6 @@ bool ConstantJoltBlockPlanner::planNext(ConstantJoltTrajectoryGenerator& traj, f
   float v_left_entry = traj.getExitSpeed();
   float a_left_entry = traj.getExitAccel();
 
-  #if defined(CJ_DEBUG) || defined(CJP_DIAG)
-    debug_block_index++;
-  #endif
 
   // Find max left-compatible extent: nominal spread ≤ 1%, accel ratio ≤ 1.1.
   // Nominals may differ slightly on curves (speed_factor caps per-axis rates).
@@ -116,13 +110,6 @@ bool ConstantJoltBlockPlanner::planNext(ConstantJoltTrajectoryGenerator& traj, f
   if (prev_traj.left_end == block_count) {
     traj.reuse(prev_traj, mm[0], v_left_entry, a_left_entry);
     shiftSafeTails(block_count);
-    #ifdef CJP_DIAG
-      snprintf(last_diag, sizeof(last_diag), "reuse_fast(%d)", prev_traj.left_end + 1);
-    #endif
-    #ifdef CJ_DEBUG
-      printf("  block %d: REUSE(fast) v=%.1f→%.1f a=%.1f→%.1f\n",
-             debug_block_index, v_left_entry, traj.getExitSpeed(), a_left_entry, traj.getExitAccel());
-    #endif
     return true;
   }
 
@@ -141,13 +128,6 @@ bool ConstantJoltBlockPlanner::planNext(ConstantJoltTrajectoryGenerator& traj, f
     }
   }
 
-  #ifdef CJ_DEBUG
-    printf("  planNext: v_entry=%.4f a_entry=%.4f block_count=%d max_left=%d\n",
-           v_left_entry, a_left_entry, block_count, max_left_compatible);
-    printf("  blocks: ");
-    for (uint8_t i = 0; i < block_count; i++) printf(" [%d]{mm=%.2f nom=%.0f amax=%.0f vj=%.0f}", i, mm[i], nominal[i], accel[i], vmax_junction[i]);
-    printf("\n");
-  #endif
 
   // ─── Lazy backward pass ───
   //
@@ -170,19 +150,8 @@ bool ConstantJoltBlockPlanner::planNext(ConstantJoltTrajectoryGenerator& traj, f
     if (i == prev_traj.left_end) {
       if (safe_exit <= prev_traj.v_exit_junction * CJP_REUSE_MARGIN + CJP_TOL) {
         traj.reuse(prev_traj, mm[0], v_left_entry, a_left_entry);
-        #ifdef CJP_DIAG
-          snprintf(last_diag, sizeof(last_diag), "reuse(%d)", prev_traj.left_end + 1);
-        #endif
-        #ifdef CJ_DEBUG
-          printf("  block %d: REUSE v=%.1f→%.1f a=%.1f→%.1f\n",
-                 debug_block_index, v_left_entry, traj.getExitSpeed(), a_left_entry, traj.getExitAccel());
-        #endif
         return true;
       }
-      #ifdef CJ_DEBUG
-        else printf("  block %d: reuse rejected (safe_exit=%.1f > prev=%.1f)\n",
-                    debug_block_index, safe_exit, prev_traj.v_exit_junction);
-      #endif
     }
 
     if (multi_block_tail && safe_exit < vmax_junction[i] - CJP_TOL) {
@@ -192,10 +161,6 @@ bool ConstantJoltBlockPlanner::planNext(ConstantJoltTrajectoryGenerator& traj, f
 
     float v_target = maxReachableSpeed(v_left_entry, cum_dist[i], safe_exit,
                                         cum_accel_min[i - 1], j_max, a_left_entry);
-    #ifdef CJ_DEBUG
-      printf("    try c=%d: safe_tail=%.4f safe_exit=%.4f v_target=%.4f dist=%.4f\n",
-             i, prev_safe_tails[i], safe_exit, v_target, cum_dist[i]);
-    #endif
 
     // Step 1: Standard 7-phase S-curve.
     bool ok = traj.plan_accel_decel(v_left_entry, v_target, cum_accel_min[i - 1], j_max,
@@ -203,9 +168,6 @@ bool ConstantJoltBlockPlanner::planNext(ConstantJoltTrajectoryGenerator& traj, f
     if (ok) {
       ok = verifyJunctions(traj, i, mm, vmax_junction);
       if (!ok) continue;
-      #ifdef CJP_DIAG
-        snprintf(last_diag, sizeof(last_diag), "accel_decel(%d)", i);
-      #endif
       break;
     }
 
@@ -215,9 +177,6 @@ bool ConstantJoltBlockPlanner::planNext(ConstantJoltTrajectoryGenerator& traj, f
                                          cum_dist[i], a_left_entry);
       if (ok) ok = verifyJunctions(traj, i, mm, vmax_junction);
       if (ok) {
-        #ifdef CJP_DIAG
-          snprintf(last_diag, sizeof(last_diag), "decel(%d)", i);
-        #endif
         break;
       }
     }
@@ -227,9 +186,6 @@ bool ConstantJoltBlockPlanner::planNext(ConstantJoltTrajectoryGenerator& traj, f
                                           cum_dist[i], a_left_entry);
     if (ok) ok = verifyJunctions(traj, i, mm, vmax_junction);
     if (ok) {
-      #ifdef CJP_DIAG
-        snprintf(last_diag, sizeof(last_diag), "decel_carry(%d)", i);
-      #endif
       break;
     }
 
@@ -242,13 +198,6 @@ bool ConstantJoltBlockPlanner::planNext(ConstantJoltTrajectoryGenerator& traj, f
     // (junctions never worsen — safe_tail >= prev exit speed).
     if (prev_traj.left_end > 0) {
       traj.reuse(prev_traj, mm[0], v_left_entry, a_left_entry);
-      #ifdef CJP_DIAG
-        snprintf(last_diag, sizeof(last_diag), "fallback_reuse(%d)", prev_traj.left_end + 1);
-      #endif
-      #ifdef CJ_DEBUG
-        printf("  block %d: FORCED_REUSE v=%.1f→%.1f a=%.1f→%.1f\n",
-               debug_block_index, v_left_entry, traj.getExitSpeed(), a_left_entry, traj.getExitAccel());
-      #endif
       return true;
     }
 
@@ -260,25 +209,8 @@ bool ConstantJoltBlockPlanner::planNext(ConstantJoltTrajectoryGenerator& traj, f
                                               cum_dist[1], a_left_entry);
     if (stop_ok) {
       best_left_end = 1;
-      #ifdef CJP_DIAG
-        snprintf(last_diag, sizeof(last_diag), "decel_to_zero");
-      #endif
     }
   }
-
-  if (best_left_end == 0) {
-    printf("  *** NO TRAJECTORY *** v=%.4f a=%.4f mm=%.4f\n",
-           v_left_entry, a_left_entry, mm[0]);
-    #ifdef CJP_DIAG
-      snprintf(last_diag, sizeof(last_diag), "NO_TRAJECTORY");
-    #endif
-  }
-  #ifdef CJ_DEBUG
-    else
-      printf("  block %d: MERGE(%d) v=%.1f→%.1f a=%.1f→%.1f\n",
-             debug_block_index, best_left_end, v_left_entry, traj.getExitSpeed(),
-             a_left_entry, traj.getExitAccel());
-  #endif
 
   prev_traj.v_exit_junction = safe_exit;
   prev_safe_tails[best_left_end] = _MAX(prev_safe_tails[best_left_end], safe_exit);
@@ -287,27 +219,6 @@ bool ConstantJoltBlockPlanner::planNext(ConstantJoltTrajectoryGenerator& traj, f
   // truncateToDistance updates v_exit and a_exit on the trajectory.
   // For normal single-block plans, dist_total == mm[0] so this is a no-op.
   // For multi-block superblocks or can't-brake decel, it cuts to block 0.
-  #ifdef CJ_DEBUG
-  {
-    float pre_trunc_dur = traj.getTotalDuration();
-    float pre_trunc_dist = traj.getDistanceAtTime(pre_trunc_dur);
-    float pre_trunc_v_exit = traj.getVelocityAtTime(pre_trunc_dur);
-    printf("  pre-truncate: dist=%.4f v_exit=%.4f duration=%.6f, truncating to %.4f\n",
-           pre_trunc_dist, pre_trunc_v_exit, pre_trunc_dur, mm[0]);
-    // Show what the merged trajectory predicts at block 0+1 boundary
-    if (best_left_end > 1) {
-      float d2 = mm[0] + mm[1];
-      if (d2 <= pre_trunc_dist) {
-        float v_at_d2 = traj.getVelocityAtDistance(d2);
-        float t_at_d2 = traj.getTimeAtDistance(d2);
-        float a_at_d2 = traj.getAccelerationAtTime(t_at_d2);
-        float j_at_d2 = traj.getJoltAtTime(t_at_d2);
-        printf("  merged predicts at block[0+1] (d=%.4f): v=%.4f a=%.4f j=%.1f\n",
-               d2, v_at_d2, a_at_d2, j_at_d2);
-      }
-    }
-  }
-  #endif
 
 
   // Save pre-truncation trajectory for potential reuse in next planNext call.
@@ -316,10 +227,6 @@ bool ConstantJoltBlockPlanner::planNext(ConstantJoltTrajectoryGenerator& traj, f
   traj.truncateToDistance(mm[0]);
   prev_traj.t_consumed = traj.getTotalDuration();  // view_t0=0, so this is t_abs
 
-  #ifdef CJ_DEBUG
-    printf("  post-truncate: v_exit=%.4f a_exit=%.4f j_exit=%.1f\n",
-           traj.getExitSpeed(), traj.getExitAccel(), traj.getJoltAtTime(traj.getTotalDuration()));
-  #endif
 
   return true;
 }
@@ -371,10 +278,6 @@ bool ConstantJoltBlockPlanner::verifyJunctions(
     // Peak exceeds limit — need exact velocity at this distance
     const float v_at_junction = traj.getVelocityAtDistance(dist_cum);
     if (v_at_junction > limit) {
-      #ifdef CJ_DEBUG
-        printf("    junction[%d] REJECT: v=%.4f > limit=%.4f\n",
-               k + 1, v_at_junction, vmax_junction[k + 1]);
-      #endif
       return false;
     }
   }

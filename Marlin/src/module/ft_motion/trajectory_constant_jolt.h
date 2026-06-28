@@ -148,9 +148,6 @@ public:
   // Delegate accessors to the planner
   ConstantJoltBlockPlanner& planner() { return planner_; }
 
-  #ifdef CJ_DEBUG
-  void dumpPhases(const char* prefix = "") const;
-  #endif
 
   friend class ConstantJoltBlockPlanner;  // verifyJunctions accesses phase internals
 

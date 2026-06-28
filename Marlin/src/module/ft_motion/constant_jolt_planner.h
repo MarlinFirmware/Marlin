@@ -132,9 +132,6 @@ class ConstantJoltBlockPlanner {
     prev_traj.left_end = 0;
     prev_traj.v_exit_junction = 0;
     for (int i = 0; i < BLOCK_BUFFER_SIZE; i++) prev_safe_tails[i] = 0;
-    #if defined(CJ_DEBUG) || defined(CJP_DIAG)
-      debug_block_index = -1;
-    #endif
   }
 
   /**
@@ -148,9 +145,6 @@ class ConstantJoltBlockPlanner {
    */
   bool planNext(ConstantJoltTrajectoryGenerator& traj, float j_max);
 
-  #ifdef CJP_DIAG
-    char last_diag[64] = "";
-  #endif
 
  private:
   /**
@@ -190,7 +184,4 @@ class ConstantJoltBlockPlanner {
 
   float prev_safe_tails[BLOCK_BUFFER_SIZE] = {};
 
-  #if defined(CJ_DEBUG) || defined(CJP_DIAG)
-    int debug_block_index = 0;
-  #endif
 };
