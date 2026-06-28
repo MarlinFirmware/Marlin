@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2025 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2026 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -82,31 +82,33 @@ bool ConstantJoltBlockPlanner::planNext(ConstantJoltTrajectoryGenerator& traj, f
     }
   }
 
-  // ─── Backward pass with integrated reuse check ───
-  //
-  // Compute max feasible entry speed for [i..N) assuming per-block (unmerged) planning.
-  // NOT valid for merged trajectories — merging has more distance and can safely exceed these.
-  //
-  // ─── Why trajectory reuse is essential (not just an optimization) ───
-  //
-  // When a merged trajectory is truncated at block 0, the exit state (v, a) is carried
-  // to the next cycle. Ideally, replanning from that state would reconstruct the same
-  // trajectory. In practice, plan_full's Newton solver converges to a slightly different
-  // v_peak due to float rounding along a different convergence path (different initial
-  // guess, different bracket tightening sequence). This epsilon difference in v_peak
-  // produces a different trajectory shape. After truncation, the next block's entry state
-  // diverges further. Over several cycles, the accumulated divergence can cause merged
-  // candidates to fail (overshoot by > CJP_TOL), forcing a v=0 fallback with
-  // harsh deceleration that prevents the last block from stopping.
-  //
-  // Reuse sidesteps this entirely: restore the saved pre-truncation trajectory and
-  // advance within it. No Newton, no convergence differences, exact continuation.
-  //
-  // When a previous trajectory is available for reuse, we check at the reuse junction
-  // whether the backward pass value has improved. If not, we reuse the previous
-  // trajectory — skipping the backward pass, tryLeftEnd, and Newton entirely.
-  // Fast path: all current blocks fit within the previous merge — reuse directly.
-  // The junction is the terminal condition (v=0), which can't improve.
+  /**
+   * ─── Backward pass with integrated reuse check ───
+   *
+   * Compute max feasible entry speed for [i..N) assuming per-block (unmerged) planning.
+   * NOT valid for merged trajectories — merging has more distance and can safely exceed these.
+   *
+   * ─── Why trajectory reuse is essential (not just an optimization) ───
+   *
+   * When a merged trajectory is truncated at block 0, the exit state (v, a) is carried
+   * to the next cycle. Ideally, replanning from that state would reconstruct the same
+   * trajectory. In practice, plan_full's Newton solver converges to a slightly different
+   * v_peak due to float rounding along a different convergence path (different initial
+   * guess, different bracket tightening sequence). This epsilon difference in v_peak
+   * produces a different trajectory shape. After truncation, the next block's entry state
+   * diverges further. Over several cycles, the accumulated divergence can cause merged
+   * candidates to fail (overshoot by > CJP_TOL), forcing a v=0 fallback with
+   * harsh deceleration that prevents the last block from stopping.
+   *
+   * Reuse sidesteps this entirely: restore the saved pre-truncation trajectory and
+   * advance within it. No Newton, no convergence differences, exact continuation.
+   *
+   * When a previous trajectory is available for reuse, we check at the reuse junction
+   * whether the backward pass value has improved. If not, we reuse the previous
+   * trajectory — skipping the backward pass, tryLeftEnd, and Newton entirely.
+   * Fast path: all current blocks fit within the previous merge — reuse directly.
+   * The junction is the terminal condition (v=0), which can't improve.
+   */
   if (prev_traj.left_end == block_count) {
     traj.reuse(prev_traj, mm[0], v_left_entry, a_left_entry);
     shiftSafeTails(block_count);
@@ -128,12 +130,13 @@ bool ConstantJoltBlockPlanner::planNext(ConstantJoltTrajectoryGenerator& traj, f
     }
   }
 
-
-  // ─── Lazy backward pass ───
-  //
-  // Chained backward pass computed on demand as candidates are tried.
-  // Positions behind the winning candidate are never computed — no trajectory
-  // depends on them, so the _MAX clamp on stale shifted values is sufficient.
+  /**
+   * ─── Lazy backward pass ───
+   *
+   * Chained backward pass computed on demand as candidates are tried.
+   * Positions behind the winning candidate are never computed — no trajectory
+   * depends on them, so the _MAX clamp on stale shifted values is sufficient.
+   */
   shiftSafeTails(block_count);
 
   float safe_exit = 0;  // terminal; then running backward pass accumulator
@@ -176,18 +179,14 @@ bool ConstantJoltBlockPlanner::planNext(ConstantJoltTrajectoryGenerator& traj, f
       ok = traj.plan_decel(v_left_entry, v_target, cum_accel_min[i - 1], j_max,
                                          cum_dist[i], a_left_entry);
       if (ok) ok = verifyJunctions(traj, i, mm, vmax_junction);
-      if (ok) {
-        break;
-      }
+      if (ok) break;
     }
 
     // Step 3: [-j, +j] decel targeting safe exit speed.
     ok = traj.plan_decel_with_carry(v_left_entry, safe_exit, cum_accel_min[i - 1], j_max,
                                           cum_dist[i], a_left_entry);
     if (ok) ok = verifyJunctions(traj, i, mm, vmax_junction);
-    if (ok) {
-      break;
-    }
+    if (ok) break;
 
   }
   uint8_t best_left_end = i;  // 0 if no candidate succeeded
@@ -220,38 +219,38 @@ bool ConstantJoltBlockPlanner::planNext(ConstantJoltTrajectoryGenerator& traj, f
   // For normal single-block plans, dist_total == mm[0] so this is a no-op.
   // For multi-block superblocks or can't-brake decel, it cuts to block 0.
 
-
   // Save pre-truncation trajectory for potential reuse in next planNext call.
   traj.savePreTruncation(prev_traj, best_left_end, mm[0]);
 
   traj.truncateToDistance(mm[0]);
   prev_traj.t_consumed = traj.getTotalDuration();  // view_t0=0, so this is t_abs
 
-
   return true;
 }
 
-
-// ─── verifyJunctions ─────────────────────────────────────────────────────────
-// Check that the planned trajectory respects all interior junction speed limits
-// and the exit junction. Returns true if all junctions are within tolerance.
-
+/**
+ * ─── verifyJunctions ─────────────────────────────────────────────────────────
+ * Check that the planned trajectory respects all interior junction speed limits
+ * and the exit junction. Returns true if all junctions are within tolerance.
+ */
 bool ConstantJoltBlockPlanner::verifyJunctions(
-    const ConstantJoltTrajectoryGenerator& traj,
-    uint8_t merge_count, const float mm[],
-    const float vmax_junction[])
-{
+  const ConstantJoltTrajectoryGenerator& traj,
+  uint8_t merge_count, const float mm[],
+  const float vmax_junction[]
+) {
   float dist_cum = 0;
   for (uint8_t k = 0; k < merge_count; k++) {
     dist_cum += mm[k];
     const float limit = vmax_junction[k + 1] + CJP_TOL;
 
-    // Fast check: find which phase this junction falls in and compute the
-    // min/max velocity in that phase without solving for exact time.
-    // v(t) = v0 + a0*t + 0.5*j*t^2 is quadratic in jolt phases.
-    //   +j phases: parabola opens up   → max at endpoints, min at vertex
-    //   -j phases: parabola opens down → min at endpoints, max at vertex
-    //    0 phases: linear              → min/max at endpoints
+    /**
+     * Fast check: find which phase this junction falls in and compute the
+     * min/max velocity in that phase without solving for exact time.
+     * v(t) = v0 + a0*t + 0.5*j*t^2 is quadratic in jolt phases.
+     *   +j phases: parabola opens up   → max at endpoints, min at vertex
+     *   -j phases: parabola opens down → min at endpoints, max at vertex
+     *    0 phases: linear              → min/max at endpoints
+     */
     const int ph = traj.findPhaseByDist(dist_cum);
     const float v0 = traj.state.phase_start_v[ph];
     const float v1 = (ph < 6) ? traj.state.phase_start_v[ph + 1] : traj.state.v_exit;
@@ -277,21 +276,21 @@ bool ConstantJoltBlockPlanner::verifyJunctions(
 
     // Peak exceeds limit — need exact velocity at this distance
     const float v_at_junction = traj.getVelocityAtDistance(dist_cum);
-    if (v_at_junction > limit) {
-      return false;
-    }
+    if (v_at_junction > limit) return false;
   }
   return true;
 }
 
-// ─── multiBlockSafeSpeed ─────────────────────────────────────────────────────
-// Max exit speed at boundary i considering continuous decel across mergeable
-// tail blocks (no a=0 at interior boundaries). Returns 0 if no improvement.
-
+/**
+ * ─── multiBlockSafeSpeed ─────────────────────────────────────────────────────
+ * Max exit speed at boundary i considering continuous decel across mergeable
+ * tail blocks (no a=0 at interior boundaries). Returns 0 if no improvement.
+ */
 float ConstantJoltBlockPlanner::multiBlockSafeSpeed(
-    uint8_t i, uint8_t block_count,
-    const float* mm, const float* nominal, const float* vmax_junction,
-    const float* accel, float j_max) {
+  uint8_t i, uint8_t block_count,
+  const float* mm, const float* nominal, const float* vmax_junction,
+  const float* accel, float j_max
+) {
   uint8_t merge_ext = 1;
   float nom_lo = nominal[i], nom_hi = nominal[i];
   float a_lo = accel[i], a_hi = accel[i];
@@ -336,22 +335,23 @@ float ConstantJoltBlockPlanner::multiBlockSafeSpeed(
   return safe_v;
 }
 
-// ─── maxReachableSpeed ──────────────────────────────────────────────────────
-// Find max V such that an S-curve ramp from v_from to V fits within dist_total.
-//
-// Forward direction: distance from velocity is simple (closed-form):
-//   Triangular (j·dv ≤ a²):  d = (v_from + V) · √(dv / j)
-//   Trapezoidal (j·dv > a²): d = (v_from + V) · (a/j + dv/a) / 2
-//
-// Inverse (velocity from distance) is harder — no closed-form inversion:
-//   Triangular: d = (v+V)·√((V-v)/j) → cubic in √(V-v), solved via Cardano
-//   Trapezoidal: d = (v+V)·(a/j + (V-v)/a)/2 → quadratic in V, one √
-//
-// Note: d(v_from, V) is non-monotone in v_from for fixed V (peak at v_from = V/3
-// in the triangular regime). Starting faster covers more ground during the jerk
-// ramp (a builds from 0 at higher base speed). This is real physics, not a bug.
-// The cross-cycle _MAX clamp on prev_safe_tails prevents regression from this.
-
+/**
+ * ─── maxReachableSpeed ──────────────────────────────────────────────────────
+ * Find max V such that an S-curve ramp from v_from to V fits within dist_total.
+ *
+ * Forward direction: distance from velocity is simple (closed-form):
+ *   Triangular (j·dv ≤ a²):  d = (v_from + V) · √(dv / j)
+ *   Trapezoidal (j·dv > a²): d = (v_from + V) · (a/j + dv/a) / 2
+ *
+ * Inverse (velocity from distance) is harder — no closed-form inversion:
+ *   Triangular: d = (v+V)·√((V-v)/j) → cubic in √(V-v), solved via Cardano
+ *   Trapezoidal: d = (v+V)·(a/j + (V-v)/a)/2 → quadratic in V, one √
+ *
+ * Note: d(v_from, V) is non-monotone in v_from for fixed V (peak at v_from = V/3
+ * in the triangular regime). Starting faster covers more ground during the jerk
+ * ramp (a builds from 0 at higher base speed). This is real physics, not a bug.
+ * The cross-cycle _MAX clamp on prev_safe_tails prevents regression from this.
+ */
 float ConstantJoltBlockPlanner::maxReachableSpeed(float v_from, float dist_total,
                                                    float v_max, float a_max, float j_max,
                                                    float a_entry) {
@@ -369,12 +369,14 @@ float ConstantJoltBlockPlanner::maxReachableSpeed(float v_from, float dist_total
 
   float v_lo;
   if (a_entry == 0.0f) {
-    // Closed-form solutions for a_entry=0:
-    // Trapezoidal regime (j*dv > amax²): quadratic in dv, one sqrtf.
-    // Triangular regime (j*dv ≤ amax²): depressed cubic via Cardano, one cbrtf.
-    // Trapezoidal regime: quadratic in dv, one sqrtf. Exact (up to float precision).
-    // Triangular regime would need Cardano (cbrtf, no MCU hardware) — falls through
-    // to bisection instead.
+    /**
+     * Closed-form solutions for a_entry=0:
+     * Trapezoidal regime (j*dv > amax²): quadratic in dv, one sqrtf.
+     * Triangular regime (j*dv ≤ amax²): depressed cubic via Cardano, one cbrtf.
+     * Trapezoidal regime: quadratic in dv, one sqrtf. Exact (up to float precision).
+     * Triangular regime would need Cardano (cbrtf, no MCU hardware) — falls through
+     * to bisection instead.
+     */
     const float am2j = a_max * a_max / j_max;
     const float B = 2.0f * v_from + am2j;
     const float C = 2.0f * v_from * am2j - 2.0f * dist_total * a_max;
@@ -405,7 +407,8 @@ float ConstantJoltBlockPlanner::maxReachableSpeed(float v_from, float dist_total
       float V = v_from + j_max * tau_lo * tau_lo;
       return _MIN(V, v_max);
     }
-  } else {
+  }
+  else {
     // Bisect on a_peak² directly (a_entry ≠ 0). No sqrt at all in setup/recovery.
     // a_peak² = j·(V − v_from) + ½·a_entry², so V = v_from + (a_peak² − ½a²) / j.
     // accelRampTimings defers sqrt to the triangular branch only.

@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2025 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2026 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -180,28 +180,28 @@ void ConstantJoltTrajectoryGenerator::reuse(
   snap.t_consumed = getTotalDuration() + prev_t;
 }
 
-
-// ─── plan_accel_decel ─────────────────────────────────────────────────────────
-//
-// Shape: [ +j    hold  -j    crse  -j    hold  +j    ]
-//         ╰─ accel ramp ─╯        ╰─ decel ramp ─╯
-//
-// Accel ramp: accelerates from (v_entry, a_entry) up to v_peak with a=0.
-// Cruise:     holds v_peak (a=0). Duration fills leftover distance.
-// Decel ramp: decelerates from v_peak down to v_exit with a=0.
-// Any phase can have zero duration (7 phases degenerate to fewer).
-//
-// Solver: finds v_peak (single variable) via bracketed Newton.
-//
-// Limitation: the template assumes "accelerate then decelerate", so the accel
-// ramp always starts with +j (build acceleration upward). When a_entry > 0,
-// the +j ramp must ride out the existing acceleration -- building a up to a_peak
-// then back to 0 -- and velocity RISES during this (v_peak >= v_entry + a_entry^2/2j).
-// If this minimum ramp doesn't fit in the available distance, plan_accel_decel
-// fails and plan_decel takes over (it applies opposing jerk first to tame
-// a_entry before decelerating -- a different phase structure that this template
-// can't express).
-
+/**
+ * ─── plan_accel_decel ─────────────────────────────────────────────────────────
+ *
+ * Shape: [ +j    hold  -j    crse  -j    hold  +j    ]
+ *         ╰─ accel ramp ─╯        ╰─ decel ramp ─╯
+ *
+ * Accel ramp: accelerates from (v_entry, a_entry) up to v_peak with a=0.
+ * Cruise:     holds v_peak (a=0). Duration fills leftover distance.
+ * Decel ramp: decelerates from v_peak down to v_exit with a=0.
+ * Any phase can have zero duration (7 phases degenerate to fewer).
+ *
+ * Solver: finds v_peak (single variable) via bracketed Newton.
+ *
+ * Limitation: the template assumes "accelerate then decelerate", so the accel
+ * ramp always starts with +j (build acceleration upward). When a_entry > 0,
+ * the +j ramp must ride out the existing acceleration -- building a up to a_peak
+ * then back to 0 -- and velocity RISES during this (v_peak >= v_entry + a_entry^2/2j).
+ * If this minimum ramp doesn't fit in the available distance, plan_accel_decel
+ * fails and plan_decel takes over (it applies opposing jerk first to tame
+ * a_entry before decelerating -- a different phase structure that this template
+ * can't express).
+ */
 bool ConstantJoltTrajectoryGenerator::plan_accel_decel(
     float v_entry_in, float v_exit_in, float a_max_in, float j_max_in,
     float dist_total, float v_nominal, float a_entry_in) {
@@ -268,27 +268,28 @@ bool ConstantJoltTrajectoryGenerator::plan_accel_decel(
   return finalizeAndTruncate(dist_total_in);
 }
 
-// ─── plan_decel ──────────────────────────────────────────────────────────────
-//
-// Shape (a>0): [             -j          -j    hold  +j    ]
-//                           ╰ absorb ╯  ╰─ decel ramp ─╯
-//
-// Shape (a<0): [ +j                      -j    hold  +j    ]
-//               ╰ absorb ╯              ╰─ decel ramp ─╯
-//
-// When plan_accel_decel fails (a_entry too large for the +j accel ramp to fit),
-// this strategy applies OPPOSING jerk to tame a_entry before decelerating.
-// The absorption phase reduces |a| toward 0. The decel ramp then handles the
-// remaining state (v_mid, a_mid) via planDecelRampWithA (which supports a != 0).
-//
-// Solver: bisects on absorption time t0 to fill the available distance.
-// More absorption = velocity changes more = decel ramp distance changes.
-// The bisection finds the t0 where absorption + decel exactly fits.
-//
-// Note: absorption and decel start are BOTH the same jerk sign (-j for a_entry > 0)
-// in consecutive phases (2 and 4, with phase 3 = 0). They're mathematically one
-// continuous -j application, split only for code organization.
-
+/**
+ * ─── plan_decel ──────────────────────────────────────────────────────────────
+ *
+ * Shape (a>0): [             -j          -j    hold  +j    ]
+ *                           ╰ absorb ╯  ╰─ decel ramp ─╯
+ *
+ * Shape (a<0): [ +j                      -j    hold  +j    ]
+ *               ╰ absorb ╯              ╰─ decel ramp ─╯
+ *
+ * When plan_accel_decel fails (a_entry too large for the +j accel ramp to fit),
+ * this strategy applies OPPOSING jerk to tame a_entry before decelerating.
+ * The absorption phase reduces |a| toward 0. The decel ramp then handles the
+ * remaining state (v_mid, a_mid) via planDecelRampWithA (which supports a != 0).
+ *
+ * Solver: bisects on absorption time t0 to fill the available distance.
+ * More absorption = velocity changes more = decel ramp distance changes.
+ * The bisection finds the t0 where absorption + decel exactly fits.
+ *
+ * Note: absorption and decel start are BOTH the same jerk sign (-j for a_entry > 0)
+ * in consecutive phases (2 and 4, with phase 3 = 0). They're mathematically one
+ * continuous -j application, split only for code organization.
+ */
 bool ConstantJoltTrajectoryGenerator::plan_decel(
     float v_entry_in, float v_exit_in, float a_max_in, float j_max_in,
     float dist_total, float a_entry_in) {
@@ -360,25 +361,26 @@ bool ConstantJoltTrajectoryGenerator::plan_decel(
   return finalizeAndTruncate(dist_total_in);
 }
 
-// ─── plan_decel_with_carry ────────────────────────────────────────────────────
-//
-// Shape: [                         -j          +j    ]
-//                               ╰ brake ╯ ╰ recover ╯
-//
-// Last resort when plan_accel_decel and plan_decel both fail.
-// Pure braking: -j builds negative acceleration, then +j partially recovers
-// toward a=0. Exits with (v <= safe_exit, a <= 0) -- the "carry" exit that
-// hands off mid-deceleration to the next block. The next cycle enters with
-// a < 0 and handles it via plan_accel_decel or plan_decel.
-//
-// Unlike the other strategies, this does NOT target a specific v_exit with a=0.
-// Instead, it finds the MINIMUM braking that keeps v_exit <= safe_exit -- the
-// gentlest decel that's still feasible for downstream blocks.
-//
-// Solver: bisects on t4 (-j duration). For each t4, an inner Newton solve
-// finds t6 (+j duration) to fill the remaining distance, capped so a <= 0.
-// More t4 = harder braking = lower v_exit.
-
+/**
+ * ─── plan_decel_with_carry ────────────────────────────────────────────────────
+ *
+ * Shape: [                         -j          +j    ]
+ *                               ╰ brake ╯ ╰ recover ╯
+ *
+ * Last resort when plan_accel_decel and plan_decel both fail.
+ * Pure braking: -j builds negative acceleration, then +j partially recovers
+ * toward a=0. Exits with (v <= safe_exit, a <= 0) -- the "carry" exit that
+ * hands off mid-deceleration to the next block. The next cycle enters with
+ * a < 0 and handles it via plan_accel_decel or plan_decel.
+ *
+ * Unlike the other strategies, this does NOT target a specific v_exit with a=0.
+ * Instead, it finds the MINIMUM braking that keeps v_exit <= safe_exit -- the
+ * gentlest decel that's still feasible for downstream blocks.
+ *
+ * Solver: bisects on t4 (-j duration). For each t4, an inner Newton solve
+ * finds t6 (+j duration) to fill the remaining distance, capped so a <= 0.
+ * More t4 = harder braking = lower v_exit.
+ */
 bool ConstantJoltTrajectoryGenerator::plan_decel_with_carry(
     float v_entry_in, float v_max_safe_exit,
     float a_max_in, float j_max_in,

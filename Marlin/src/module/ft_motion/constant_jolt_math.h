@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2025 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2026 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -35,14 +35,17 @@ namespace constant_jolt {
 // Solve phaseDist(v, a, j, t) = d for t ∈ [t_lo, t_hi].
 // Bracketed Newton with quadratic initial guess. Returns t (upper bracket).
 // Used by getVelocityAtDistance and plan_decel_with_carry inner solve.
-static inline float solvePhaseTime(float v, float a, float j,
-                                       float d, float t_lo, float t_hi) {
+static inline float solvePhaseTime(
+  float v, float a, float j, float d,
+  float t_lo, float t_hi
+) {
   // Quadratic initial guess: v*t + 0.5*a*t² = d (ignores cubic jerk term).
   float t;
   if (ABS(a) > 1e-6f) {
     const float disc = v * v + 2.0f * a * d;
     t = (disc > 0.0f) ? (-v + SQRT(disc)) / a : d / _MAX(v, 1e-6f);
-  } else {
+  }
+  else {
     t = (v > 1e-6f) ? d / v : 0.5f * (t_lo + t_hi);
   }
   t = _MAX(t_lo, _MIN(t, t_hi));
@@ -54,7 +57,8 @@ static inline float solvePhaseTime(float v, float a, float j,
     if (fp > 1e-6f) {
       t -= f / fp;
       if (t < t_lo || t > t_hi) t = 0.5f * (t_lo + t_hi);
-    } else {
+    }
+    else {
       t = 0.5f * (t_lo + t_hi);
     }
   }
@@ -63,10 +67,12 @@ static inline float solvePhaseTime(float v, float a, float j,
 
 // Distance of a 3-phase ramp: [j1 for t1, hold for t2, j3 for t3].
 // Horner-form polynomial per phase, no sequential state updates.
-static FORCE_INLINE float rampDist3Phase(float v, float a,
-                                         float j1, float t1,
-                                         float t2,
-                                         float j3, float t3) {
+static FORCE_INLINE float rampDist3Phase(
+  float v, float a,
+  float j1, float t1,
+  float t2,
+  float j3, float t3
+) {
   const float a1 = a + j1 * t1;
   const float v1 = v + (a + j1 * 0.5f * t1) * t1;
   const float v2 = v1 + a1 * t2;
@@ -85,9 +91,11 @@ static FORCE_INLINE float absorbedVelocity(float v, float a, float j) {
 // Three regimes: triangular (a_peak² ≤ a_max²), a_start above a_max, trapezoidal.
 // Takes a_peak_sq to defer sqrt — only computed in the triangular branch.
 // Returns a_peak when computed (triangular), 0 otherwise.
-static FORCE_INLINE float accelRampTimings(float a_peak_sq, float a_start,
-                                            float a_max, float j_max, float dv,
-                                            float &dt1, float &dt2, float &dt3) {
+static FORCE_INLINE float accelRampTimings(
+  float a_peak_sq, float a_start,
+  float a_max, float j_max, float dv,
+  float &dt1, float &dt2, float &dt3
+) {
   if (a_peak_sq <= a_max * a_max) {
     const float a_peak = SQRT(a_peak_sq);
     dt1 = (a_peak - a_start) / j_max;
@@ -99,7 +107,8 @@ static FORCE_INLINE float accelRampTimings(float a_peak_sq, float a_start,
     dt1 = 0.0f;
     dt3 = a_start / j_max;
     dt2 = _MAX(0.0f, (dv - a_start * a_start / (2.0f * j_max)) / a_start);
-  } else {
+  }
+  else {
     dt1 = (a_max - a_start) / j_max;
     dt3 = a_max / j_max;
     dt2 = _MAX(0.0f, (dv - (2.0f * a_max * a_max - a_start * a_start) / (2.0f * j_max)) / a_max);
@@ -112,28 +121,33 @@ static FORCE_INLINE float accelRampTimings(float a_peak_sq, float a_start,
 // a_start: initial acceleration (default 0). Only used for accel ramps (decel=false).
 //   For accel: phases are [+j from a_start to a_peak, hold at a_peak, -j from a_peak to 0]
 //   For decel: a_start is ignored (decel always starts from a=0 at v_peak)
-static inline float planRamp(float v_start, float v_peak, float j_max, float a_max,
-                                bool decel, float &dt_jolt1, float &dt_hold, float &dt_jolt2,
-                                float a_start = 0.0f) {
+static inline float planRamp(
+  float v_start, float v_peak, float j_max, float a_max,
+  bool decel, float &dt_jolt1, float &dt_hold, float &dt_jolt2,
+  float a_start = 0.0f
+) {
   float dv = v_peak - v_start;
   float a_peak_sq = j_max * dv + 0.5f * a_start * a_start;
   if (a_peak_sq < 0) {
     if (a_start < 0.0f) {
       a_peak_sq = 0;
-    } else {
+    }
+    else {
       dt_jolt1 = dt_hold = dt_jolt2 = 0;
       return 0;
     }
   }
   if (!decel) {
     accelRampTimings(a_peak_sq, a_start, a_max, j_max, dv, dt_jolt1, dt_hold, dt_jolt2);
-  } else {
+  }
+  else {
     if (a_peak_sq <= a_max * a_max) {
       const float a_peak = SQRT(a_peak_sq);
       dt_jolt1 = (a_peak - a_start) / j_max;
       dt_hold = 0;
       dt_jolt2 = a_peak / j_max;
-    } else {
+    }
+    else {
       dt_jolt1 = (a_max - a_start) / j_max;
       dt_jolt2 = a_max / j_max;
       float dv_no_hold = (2.0f * a_max * a_max - a_start * a_start) / (2.0f * j_max);
@@ -151,7 +165,8 @@ static inline float planRamp(float v_start, float v_peak, float j_max, float a_m
       return (v_start + v_peak) * dt_jolt2;  // dt_jolt2 = a_peak/j = sqrt(dv/j)
     else
       return (v_start + v_peak) * 0.5f * (a_max / j_max + dv / a_max);
-  } else {
+  }
+  else {
     return rampDist3Phase(v_start, a_start, j_max, dt_jolt1, dt_hold, -j_max, dt_jolt2);
   }
 }
@@ -161,9 +176,10 @@ static inline float planRamp(float v_start, float v_peak, float j_max, float a_m
 // Returns distance consumed, or -1 if infeasible (|a_start| exceeds the
 // triangular peak — the -j phase would push acceleration further from zero).
 static inline float planDecelRampWithA(
-    float v_start, float v_end, float j_max, float a_max,
-    float &dt_jolt1, float &dt_hold, float &dt_jolt2,
-    float a_start = 0.0f) {
+  float v_start, float v_end, float j_max, float a_max,
+  float &dt_jolt1, float &dt_hold, float &dt_jolt2,
+  float a_start = 0.0f
+) {
   const float dv = v_start - v_end;
   a_max = _MAX(a_max, ABS(a_start));
   float a_peak_sq = (a_start * a_start + 2.0f * j_max * dv) / 2.0f;
@@ -179,7 +195,8 @@ static inline float planDecelRampWithA(
     dt_jolt1 = (a_start + a_peak) / j_max;
     dt_hold = 0.0f;
     dt_jolt2 = a_peak / j_max;
-  } else {
+  }
+  else {
     a_peak = a_max;
     dt_jolt1 = (a_start + a_max) / j_max;
     dt_jolt2 = a_max / j_max;
@@ -193,8 +210,10 @@ static inline float planDecelRampWithA(
 
 // Accel ramp distance given a_peak² (avoids all sqrt in trapezoidal regime).
 // Used by maxReachableSpeed bisection on a_peak² directly.
-static inline float rampDistFromApeakSq(float v_start, float a_start,
-                                         float a_peak_sq, float j_max, float a_max) {
+static inline float rampDistFromApeakSq(
+  float v_start, float a_start,
+  float a_peak_sq, float j_max, float a_max
+) {
   const float dv = (a_peak_sq - 0.5f * a_start * a_start) / j_max;
   float dt1, dt2, dt3;
   accelRampTimings(a_peak_sq, a_start, a_max, j_max, dv, dt1, dt2, dt3);
@@ -213,8 +232,10 @@ static FORCE_INLINE float rampDist(float v_start, float v_peak, float j_max, flo
 
 // Closed-form ramp distance with initial acceleration.
 // Delegates to planRamp (accel direction); discards phase durations.
-static FORCE_INLINE float rampDistWithA(float v_start, float v_peak, float j_max, float a_max,
-                                      float a_start) {
+static FORCE_INLINE float rampDistWithA(
+  float v_start, float v_peak, float j_max, float a_max,
+  float a_start
+) {
   if (a_start == 0.0f) return rampDist(v_start, v_peak, j_max, a_max);
   float t1, t2, t3;
   return planRamp(v_start, v_peak, j_max, a_max, false, t1, t2, t3, a_start);
@@ -232,7 +253,8 @@ static inline float totalRampDistCF(float v_entry, float v_exit, float v_peak,
 static inline float totalRampDistAndDeriv(
     float v_entry, float v_exit, float v_peak,
     float j_max, float a_max, float a_entry,
-    float &deriv) {
+    float &deriv
+) {
   float accel_dist, accel_deriv;
 
   // === Accel ramp ===
@@ -241,15 +263,18 @@ static inline float totalRampDistAndDeriv(
     if (a_entry == 0.0f) {
       if (dv <= 0.0f) {
         accel_dist = accel_deriv = 0.0f;
-      } else if (j_max * dv <= a_max * a_max) {
+      }
+      else if (j_max * dv <= a_max * a_max) {
         const float s = SQRT(dv / j_max);
         accel_dist = (v_entry + v_peak) * s;
         accel_deriv = (3.0f * v_peak - v_entry) * 0.5f / (j_max * s);
-      } else {
+      }
+      else {
         accel_dist = (v_entry + v_peak) * 0.5f * (a_max / j_max + dv / a_max);
         accel_deriv = 0.5f * (a_max / j_max + 2.0f * v_peak / a_max);
       }
-    } else {
+    }
+    else {
       float a_peak_sq = j_max * dv + 0.5f * a_entry * a_entry;
       bool feasible = true;
       if (a_peak_sq < 0.0f) {
@@ -258,7 +283,8 @@ static inline float totalRampDistAndDeriv(
       }
       if (!feasible) {
         accel_dist = accel_deriv = 0.0f;
-      } else {
+      }
+      else {
         float dt1, dt2, dt3;
         const float a_peak = accelRampTimings(a_peak_sq, a_entry, a_max, j_max, dv, dt1, dt2, dt3);
         accel_dist = rampDist3Phase(v_entry, a_entry, j_max, dt1, dt2, -j_max, dt3);
@@ -276,9 +302,11 @@ static inline float totalRampDistAndDeriv(
                         + 0.5f * (da * dt3 * dt3 + a_peak * 2.0f * dt3 * ddt)
                         - (j_max / 2.0f) * dt3 * dt3 * ddt;
           }
-        } else if (a_entry > a_max) {
+        }
+        else if (a_entry > a_max) {
           accel_deriv = (dt2 <= 0.0f) ? 0.0f : (v_entry + a_entry * dt2) / a_entry + dt3;
-        } else {
+        }
+        else {
           if (dt2 <= 0.0f) { accel_deriv = 0.0f; }
           else {
             const float v1 = v_entry + a_entry * dt1 + 0.5f * j_max * dt1 * dt1;
@@ -295,11 +323,13 @@ static inline float totalRampDistAndDeriv(
     const float dv = v_peak - v_exit;
     if (dv <= 0.0f) {
       decel_dist = decel_deriv = 0.0f;
-    } else if (j_max * dv <= a_max * a_max) {
+    }
+    else if (j_max * dv <= a_max * a_max) {
       const float s = SQRT(dv / j_max);
       decel_dist = (v_exit + v_peak) * s;
       decel_deriv = (3.0f * v_peak - v_exit) * 0.5f / (j_max * s);
-    } else {
+    }
+    else {
       decel_dist = (v_exit + v_peak) * 0.5f * (a_max / j_max + dv / a_max);
       decel_deriv = 0.5f * (a_max / j_max + 2.0f * v_peak / a_max);
     }
@@ -314,12 +344,10 @@ static inline float vpeakGuess(float v_entry, float v_exit,
                                     float dist_total, float j_max, float a_max) {
   const float am2j = a_max * a_max / j_max;
   const float B = am2j;
-  const float C = 0.5f * (v_entry * (am2j - v_entry) + v_exit * (am2j - v_exit))
-                  - a_max * dist_total;
+  const float C = 0.5f * (v_entry * (am2j - v_entry) + v_exit * (am2j - v_exit)) - a_max * dist_total;
   const float disc = B * B - 4.0f * C;
   if (disc < 0.0f) return 0.5f * (v_entry + v_exit);
   return (-B + SQRT(disc)) * 0.5f;
 }
-
 
 } // namespace constant_jolt

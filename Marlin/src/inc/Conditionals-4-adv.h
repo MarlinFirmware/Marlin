@@ -374,7 +374,7 @@
     #define HAS_FTM_TRAJECTORY_SELECTION 1
   #endif
   // Default trajectory type when not explicitly set
-  #if !defined(FTM_TRAJECTORY_TYPE)
+  #ifndef FTM_TRAJECTORY_TYPE
     #define FTM_TRAJECTORY_TYPE TRAPEZOIDAL
   #endif
 #endif

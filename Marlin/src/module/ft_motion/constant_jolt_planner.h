@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2025 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2026 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -23,13 +23,13 @@
 
 #include "../planner.h"
 
-#define CJP_MERGE_AMAX_RATIO  1.1f    // Max accel ratio between blocks to allow merging into a superblock
-#define CJP_MERGE_NOM_RATIO   1.01f   // Max nominal speed ratio between blocks to allow merging
-#define CJP_TOL               0.01f   // (mm or mm/s) Float-precision tolerance for velocity/distance "close enough" checks
-#define CJP_CONVERGE_TOL      0.001f  // (mm/s) Newton/bisection early-exit threshold — stop when bracket < this
-#define CJP_REUSE_MARGIN      1.001f  // Multiplicative margin for trajectory reuse: skip replan if junction improved < 0.1%
-#define CJP_INFEASIBLE_REL    1.01f   // Relative tolerance for infeasible decel ramp detection (1% margin)
-#define CJP_INFEASIBLE_ABS    1.0f    // (mm/s²) Absolute tolerance for infeasible decel ramp detection
+constexpr float CJP_MERGE_AMAX_RATIO = 1.1f;    // Max accel ratio between blocks to allow merging into a superblock
+constexpr float CJP_MERGE_NOM_RATIO  = 1.01f;   // Max nominal speed ratio between blocks to allow merging
+constexpr float CJP_TOL              = 0.01f;   // (mm or mm/s) Float-precision tolerance for velocity/distance "close enough" checks
+constexpr float CJP_CONVERGE_TOL     = 0.001f;  // (mm/s) Newton/bisection early-exit threshold — stop when bracket < this
+constexpr float CJP_REUSE_MARGIN     = 1.001f;  // Multiplicative margin for trajectory reuse: skip replan if junction improved < 0.1%
+constexpr float CJP_INFEASIBLE_REL   = 1.01f;   // Relative tolerance for infeasible decel ramp detection (1% margin)
+constexpr float CJP_INFEASIBLE_ABS   = 1.0f;    // (mm/s²) Absolute tolerance for infeasible decel ramp detection
 
 /**
  * Constant-jolt block planner (1-block emission with non-zero a_entry)
