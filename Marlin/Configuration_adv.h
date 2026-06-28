@@ -1240,23 +1240,25 @@
     #define FTM_POLY6_ACCELERATION_OVERSHOOT 1.875f // Max acceleration overshoot factor for POLY6 (1.25 to 1.875)
   #endif
 
-  //#define FTM_CONSTANT_JOLT                     // Enable constant-jolt (7-phase S-curve) trajectory
-                                                // Jolt is the rate of change of acceleration, not related
-                                                // to Marlin's "classic jerk"
-                                                // Acceleration will ramp up gradually, so max acceleration is limited
-                                                // by max speed and distance travelled
+  /**
+   * FTM Constant-Jolt Trajectory (7-phase S-curve).
+   * Jolt is the rate of change of acceleration, not related to Marlin's "classic jerk."
+   * Ramps acceleration gradually so max acceleration is limited by max speed and distance traveled.
+   */
+  //#define FTM_CONSTANT_JOLT
   #if ENABLED(FTM_CONSTANT_JOLT)
-    #define FTM_DEFAULT_JOLT 250.0f              // (m/s³) Default jolt for constant-jolt trajectory
-                                                // Higher prints faster at the cost of increased resonance and extruder stress
+    #define FTM_DEFAULT_JOLT 250.0f         // (mm/s³) Default jolt for constant-jolt trajectory.
+                                            // Higher values print faster at the cost of increased resonance and extruder stress
   #endif
 
-  #define FTM_TRAJECTORY_TYPE TRAPEZOIDAL         // Block acceleration profile (TRAPEZOIDAL, POLY5, POLY6, CONSTANT_JOLT)
-                                                // TRAPEZOIDAL: Continuous Velocity. Max acceleration is respected.
-                                                // POLY5:       Like POLY6 with 1.5x but uses less CPU. Requires FTM_POLYS.
-                                                // POLY6:       Continuous Acceleration (aka S_CURVE). Requires FTM_POLYS.
-                                                // CONSTANT_JOLT: 7-phase S-curve. Requires FTM_CONSTANT_JOLT.
-                                                // POLY trajectories not only reduce resonances without rounding corners, but also
-                                                // reduce extruder strain due to linear advance.
+  // Block acceleration profile
+  // :[ 'TRAPEZOIDAL', 'POLY5', 'POLY6', 'CONSTANT_JOLT' ]
+  #define FTM_TRAJECTORY_TYPE TRAPEZOIDAL   //   TRAPEZOIDAL: Continuous Velocity. Max acceleration is respected.
+                                            //         POLY5: Like POLY6 with 1.5x but uses less CPU. Requires FTM_POLYS.
+                                            //         POLY6: Continuous Acceleration (aka S_CURVE). Requires FTM_POLYS.
+                                            // CONSTANT_JOLT: 7-phase S-curve. Requires FTM_CONSTANT_JOLT.
+                                            // POLY trajectories not only reduce resonances without rounding corners, but
+                                            // also reduce extruder strain due to linear advance.
 
   /**
    * Advanced configuration
