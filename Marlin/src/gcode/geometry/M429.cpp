@@ -75,11 +75,12 @@ void GcodeSuite::M429() {
     }
   }
 
-  // O<float> Set Calibrated Height
+  // O<bool> Set Slicer Type
   if (parser.seenval('O')) {
     const slicer_id_t slicer_id = parser.value_ushort(); // 0 Prusa, 1 Orca, ...
     parser.slicer_type = slicer_id;
     parser.z_hop = (slicer_id == SlicerType::ORCA);
+    SERIAL_ECHOLN(parser.z_hop ? F(" Orca") : F(" Prusa"), F("Slicer"));
   }
 }
 
