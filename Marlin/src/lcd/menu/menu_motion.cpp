@@ -428,7 +428,7 @@ void menu_move() {
     END_MENU();
   }
 
-  #if ENABLED(FTM_POLYS)
+  #if HAS_FTM_TRAJECTORY_SELECTION
 
     void menu_ftm_trajectory_generator() {
       const TrajectoryType traj_type = ftMotion.getTrajectoryType();
@@ -438,17 +438,24 @@ void menu_move() {
       if (traj_type != TrajectoryType::TRAPEZOIDAL) ACTION_ITEM(MSG_FTM_TRAPEZOIDAL, []{
         queue.inject(TS(F("M494"), 'T', int(TrajectoryType::TRAPEZOIDAL))); ui.go_back();
       });
-      if (traj_type != TrajectoryType::POLY5) ACTION_ITEM(MSG_FTM_POLY5, []{
-        queue.inject(TS(F("M494"), 'T', int(TrajectoryType::POLY5))); ui.go_back();
-      });
-      if (traj_type != TrajectoryType::POLY6) ACTION_ITEM(MSG_FTM_POLY6, []{
-        queue.inject(TS(F("M494"), 'T', int(TrajectoryType::POLY6))); ui.go_back();
-      });
+      #if ENABLED(FTM_POLYS)
+        if (traj_type != TrajectoryType::POLY5) ACTION_ITEM(MSG_FTM_POLY5, []{
+          queue.inject(TS(F("M494"), 'T', int(TrajectoryType::POLY5))); ui.go_back();
+        });
+        if (traj_type != TrajectoryType::POLY6) ACTION_ITEM(MSG_FTM_POLY6, []{
+          queue.inject(TS(F("M494"), 'T', int(TrajectoryType::POLY6))); ui.go_back();
+        });
+      #endif
+      #if ENABLED(FTM_CONSTANT_JOLT)
+        if (traj_type != TrajectoryType::CONSTANT_JOLT) ACTION_ITEM(MSG_FTM_CONSTANT_JOLT, []{
+          queue.inject(TS(F("M494"), 'T', int(TrajectoryType::CONSTANT_JOLT))); ui.go_back();
+        });
+      #endif
 
       END_MENU();
     }
 
-  #endif // FTM_POLYS
+  #endif // HAS_FTM_TRAJECTORY_SELECTION
 
   #if HAS_DYNAMIC_FREQ
 
@@ -548,14 +555,24 @@ void menu_move() {
     // Show only when FT Motion is active (or optionally always show)
     if (TERN(FT_MOTION_NO_MENU_TOGGLE, true, c.active)) {
 
-      #if ENABLED(FTM_POLYS)
+      #if HAS_FTM_TRAJECTORY_SELECTION
         SUBMENU_S(ftMotion.getTrajectoryName(), MSG_FTM_TRAJECTORY, menu_ftm_trajectory_generator);
-        if (ftMotion.getTrajectoryType() == TrajectoryType::POLY6) {
-          editable.decimal = c.poly6_acceleration_overshoot;
-          EDIT_ITEM(float42_52, MSG_FTM_POLY6_OVERSHOOT, &editable.decimal, 1.25f, 1.875f, []{
-            queue.inject(TS(F("M494"), 'O', editable.decimal));
-          });
-        }
+        #if ENABLED(FTM_POLYS)
+          if (ftMotion.getTrajectoryType() == TrajectoryType::POLY6) {
+            editable.decimal = c.poly6_acceleration_overshoot;
+            EDIT_ITEM(float42_52, MSG_FTM_POLY6_OVERSHOOT, &editable.decimal, 1.25f, 1.875f, []{
+              queue.inject(TS(F("M494"), 'O', editable.decimal));
+            });
+          }
+        #endif
+        #if ENABLED(FTM_CONSTANT_JOLT)
+          if (ftMotion.getTrajectoryType() == TrajectoryType::CONSTANT_JOLT) {
+            editable.decimal = c.jolt / 1000.0f;
+            EDIT_ITEM(float4, MSG_FTM_JOLT, &editable.decimal, 1.0f, 10000.0f, []{
+              queue.inject(TS(F("M494"), 'J', editable.decimal));
+            });
+          }
+        #endif
       #endif
 
       CARTES_MAP(_FTM_AXIS_SUBMENU);
@@ -576,7 +593,7 @@ void menu_move() {
       // Copy Flash strings to RAM for C-string substitution
       // For U8G paged rendering check and skip extra string copy
 
-      #if ENABLED(FTM_POLYS)
+      #if HAS_FTM_TRAJECTORY_SELECTION
         #if CACHE_FOR_SPEED
           bool got_t = false;
         #endif
@@ -592,7 +609,7 @@ void menu_move() {
 
     #else // !__AVR__
 
-      #if ENABLED(FTM_POLYS)
+      #if HAS_FTM_TRAJECTORY_SELECTION
         auto _traj_name = []{ return ftMotion.getTrajectoryName(); };
       #endif
 
@@ -601,14 +618,24 @@ void menu_move() {
     START_MENU();
     BACK_ITEM(MSG_TUNE);
 
-    #if ENABLED(FTM_POLYS)
+    #if HAS_FTM_TRAJECTORY_SELECTION
       SUBMENU_S(_traj_name(), MSG_FTM_TRAJECTORY, menu_ftm_trajectory_generator);
-      if (ftMotion.getTrajectoryType() == TrajectoryType::POLY6) {
-        editable.decimal = ftMotion.cfg.poly6_acceleration_overshoot;
-        EDIT_ITEM(float42_52, MSG_FTM_POLY6_OVERSHOOT, &editable.decimal, 1.25f, 1.875f, []{
-          queue.inject(TS(F("M494"), 'O', editable.decimal));
-        });
-      }
+      #if ENABLED(FTM_POLYS)
+        if (ftMotion.getTrajectoryType() == TrajectoryType::POLY6) {
+          editable.decimal = ftMotion.cfg.poly6_acceleration_overshoot;
+          EDIT_ITEM(float42_52, MSG_FTM_POLY6_OVERSHOOT, &editable.decimal, 1.25f, 1.875f, []{
+            queue.inject(TS(F("M494"), 'O', editable.decimal));
+          });
+        }
+      #endif
+      #if ENABLED(FTM_CONSTANT_JOLT)
+        if (ftMotion.getTrajectoryType() == TrajectoryType::CONSTANT_JOLT) {
+          editable.decimal = ftMotion.cfg.jolt / 1000.0f;
+          EDIT_ITEM(float4, MSG_FTM_JOLT, &editable.decimal, 1.0f, 10000.0f, []{
+            queue.inject(TS(F("M494"), 'J', editable.decimal));
+          });
+        }
+      #endif
     #endif
 
     SHAPED_MAP(_FTM_AXIS_SUBMENU);

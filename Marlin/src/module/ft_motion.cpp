@@ -83,9 +83,14 @@ bool FTMotion::fastForwardUntilMotion = false;      // Fast forward time if ther
 // Trajectory generators
 TrapezoidalTrajectoryGenerator FTMotion::trapezoidalGenerator;
 #if ENABLED(FTM_POLYS)
-  TrajectoryType FTMotion::trajectoryType = TrajectoryType::FTM_TRAJECTORY_TYPE;
   Poly5TrajectoryGenerator FTMotion::poly5Generator;
   Poly6TrajectoryGenerator FTMotion::poly6Generator;
+#endif
+#if ENABLED(FTM_CONSTANT_JOLT)
+  ConstantJoltTrajectoryGenerator FTMotion::cjGenerator;
+#endif
+#if HAS_FTM_TRAJECTORY_SELECTION
+  TrajectoryType FTMotion::trajectoryType = TrajectoryType::FTM_TRAJECTORY_TYPE;
   TrajectoryGenerator* FTMotion::currentGenerator = &FTMotion::trapezoidalGenerator;
 #endif
 
@@ -302,11 +307,11 @@ void FTMotion::plan_runout_block() {
 void FTMotion::init() {
   update_shaping_params();
   TERN_(FTM_SMOOTHING, update_smoothing_params());
-  TERN_(FTM_POLYS, setTrajectoryType(cfg.trajectory_type));
+  TERN_(HAS_FTM_TRAJECTORY_SELECTION, setTrajectoryType(cfg.trajectory_type));
   reset(); // Precautionary.
 }
 
-#if ENABLED(FTM_POLYS)
+#if HAS_FTM_TRAJECTORY_SELECTION
 
   // Set trajectory generator type
   void FTMotion::setTrajectoryType(const TrajectoryType type) {
@@ -314,19 +319,32 @@ void FTMotion::init() {
     switch (type) {
       default:
       case TrajectoryType::TRAPEZOIDAL: currentGenerator = &trapezoidalGenerator; break;
-      case TrajectoryType::POLY5:       currentGenerator = &poly5Generator;       break;
-      case TrajectoryType::POLY6:       currentGenerator = &poly6Generator;       break;
+      #if ENABLED(FTM_POLYS)
+        case TrajectoryType::POLY5:     currentGenerator = &poly5Generator;       break;
+        case TrajectoryType::POLY6:     currentGenerator = &poly6Generator;       break;
+      #endif
+      #if ENABLED(FTM_CONSTANT_JOLT)
+        case TrajectoryType::CONSTANT_JOLT:
+          cjGenerator.setJoltPtr(&cfg.jolt);
+          currentGenerator = &cjGenerator;
+          break;
+      #endif
     }
   }
 
   // Update trajectory generator type from G-code or UI
   bool FTMotion::updateTrajectoryType(const TrajectoryType type) {
-    if (type == trajectoryType) return false;
+    if (type == trajectoryType) return true;  // Already selected — valid, no-op
     switch (type) {
       default: return false;
       case TrajectoryType::TRAPEZOIDAL:
-      case TrajectoryType::POLY5:
-      case TrajectoryType::POLY6:
+      #if ENABLED(FTM_POLYS)
+        case TrajectoryType::POLY5:
+        case TrajectoryType::POLY6:
+      #endif
+      #if ENABLED(FTM_CONSTANT_JOLT)
+        case TrajectoryType::CONSTANT_JOLT:
+      #endif
         break;
     }
     prep_for_shaper_change();
@@ -334,14 +352,19 @@ void FTMotion::init() {
     return true;
   }
 
-#endif // FTM_POLYS
+#endif // HAS_FTM_TRAJECTORY_SELECTION
 
 FSTR_P FTMotion::getTrajectoryName() {
   switch (getTrajectoryType()) {
     default:
     case TrajectoryType::TRAPEZOIDAL: return GET_TEXT_F(MSG_FTM_TRAPEZOIDAL);
-    case TrajectoryType::POLY5:       return GET_TEXT_F(MSG_FTM_POLY5);
-    case TrajectoryType::POLY6:       return GET_TEXT_F(MSG_FTM_POLY6);
+    #if ENABLED(FTM_POLYS)
+      case TrajectoryType::POLY5:     return GET_TEXT_F(MSG_FTM_POLY5);
+      case TrajectoryType::POLY6:     return GET_TEXT_F(MSG_FTM_POLY6);
+    #endif
+    #if ENABLED(FTM_CONSTANT_JOLT)
+      case TrajectoryType::CONSTANT_JOLT: return GET_TEXT_F(MSG_FTM_CONSTANT_JOLT);
+    #endif
   }
 }
 
@@ -404,9 +427,8 @@ bool FTMotion::plan_next_block() {
     const ext_distance_t &moveDist = current_block->ext_distance_mm;
     ratio = moveDist / totalLength;
 
-    // Plan the trajectory using the trajectory generator
-    currentGenerator->plan(current_block->entry_speed, current_block->exit_speed, current_block->acceleration, current_block->nominal_speed, totalLength);
-
+    currentGenerator->plan(current_block->entry_speed, current_block->exit_speed,
+                           current_block->acceleration, current_block->nominal_speed, totalLength);
     endPos_prevBlock += moveDist;
 
     TERN_(FTM_HAS_LIN_ADVANCE, use_advance_lead = current_block->use_advance_lead);
