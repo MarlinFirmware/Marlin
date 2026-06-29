@@ -21,7 +21,7 @@ This delta is then applied directly to the movement of the first layer, ensuring
    - If the absolute difference is within the safety margin (absolute value of Delta is less than or equal to 0.05 mm), no correction is applied.
    - If the difference exceeds 0.05 mm, the correction is applied after incorporating the safety margin:
      `Applied Delta = Delta + 0.05 mm`
-     *(For example, if Z_Gcode = 0.2 mm and Z_Calibrated = 0.3 mm, the raw Delta is -0.1 mm. With the safety margin applied, the final adjustment is -0.05 mm, moving the nozzle 0.05 mm closer to the bed instead of the full 0.1 mm.)*
+     _(For example, if Z_Gcode = 0.2 mm and Z_Calibrated = 0.3 mm, the raw Delta is -0.1 mm. With the safety margin applied, the final adjustment is -0.05 mm, moving the nozzle 0.05 mm closer to the bed instead of the full 0.1 mm.)_
 
 2. **Slicer Integration**:
    Different slicers output the initial Z-height G-code commands differently. To handle this, Marlin tracks the slicer family:
@@ -35,38 +35,41 @@ This delta is then applied directly to the movement of the first layer, ensuring
 Use `M429` to view the current status, toggle the feature, change the calibrated height, or specify the slicer format.
 
 ### Syntax
+
 ```gcode
 M429 [S<bool>] [H<float>] [O<int>]
 ```
 
 ### Parameters
-* **`S<bool>`**: Enable (`S1`) or disable (`S0`) the Adaptive First Layer Z Offset adjustment.
-* **`H<float>`**: Set the calibrated first layer height (in mm). Accepts values in the range `0.0` to `1.0`.
-* **`O<int>`**: Set the slicer type to ensure proper parser compatibility:
-  * `0`: **PrusaSlicer** (and clones)
-  * `1`: **OrcaSlicer** (and clones)
+
+- **`S<bool>`**: Enable (`S1`) or disable (`S0`) the Adaptive First Layer Z Offset adjustment.
+- **`H<float>`**: Set the calibrated first layer height (in mm). Accepts values in the range `0.0` to `1.0`.
+- **`O<int>`**: Set the slicer type to ensure proper parser compatibility:
+  - `0`: **PrusaSlicer** (and clones)
+  - `1`: **OrcaSlicer** (and clones)
 
 ---
 
 ### Examples
 
-* **Show Current Settings**:
+- **Show Current Settings**:
   Run `M429` with no parameters:
-  
+
   Response:
 
-    ```
-    Auto First Layer Z Adjust Activated
-    Configured Layer Height 0.30 mm
-    PrusaSlicer
-    ```
+  ```
+  Auto First Layer Z Adjust Activated
+  Configured Layer Height 0.30 mm
+  PrusaSlicer
+  ```
 
-* **Enable and Configure for OrcaSlicer at 0.3 mm**:
+- **Enable and Configure for OrcaSlicer at 0.3 mm**:
+
   ```
   M429 S1 H0.3 O1
   ```
 
-* **Disable**:
+- **Disable**:
   ```
   M429 S0
   ```
@@ -76,6 +79,7 @@ M429 [S<bool>] [H<float>] [O<int>]
 ## 3. Configuration & EEPROM Settings
 
 ### Firmware Configuration (`Configuration.h`)
+
 To use this feature, it must be enabled in your firmware configuration. Modify the following parameters in **Configuration.h**
 
 ```cpp
@@ -87,18 +91,20 @@ To use this feature, it must be enabled in your firmware configuration. Modify t
 ```
 
 ### Saving Settings to EEPROM
+
 Once configured via `M429`, the settings can be written to the printer's EEPROM so that they persist across power cycles:
 
-* Save settings to EEPROM: `M500`
-* Restore settings from EEPROM: `M501`
+- Save settings to EEPROM: `M500`
+- Restore settings from EEPROM: `M501`
 
 ---
 
 ## 4. LCD Menu Controls
+
 If your printer runs Marlin's UI, settings are accessible under the **Advanced Settings** menu:
 
-* **Adapt. First Layer Z Offset**: Toggle the feature on/off.
-* **Calibrated Layer Height**: Edit the `calibrated_first_layer_height` float value.
-* **Slicer**: Choose between **Prusa** and **Orca**.
+- **Adapt. First Layer Z Offset**: Toggle the feature on/off.
+- **Calibrated Layer Height**: Edit the `calibrated_first_layer_height` float value.
+- **Slicer**: Choose between **Prusa** and **Orca**.
 
 ---
