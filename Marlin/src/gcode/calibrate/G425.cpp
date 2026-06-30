@@ -203,7 +203,7 @@ float measuring_movement(const AxisEnum axis, const int dir, const bool stop_sta
   #if Z_HOME_TO_MAX
     const float limit_z = fast ? ((Z_HOME_POS) - calibration_center.z  + 50) : ((Z_MAX_POS) - calibration_center.z + 5);
   #else
-    const float limit_z = fast ? (uncertainty_tool_length + 50) : (uncertainty_tool_length + 5);
+    const float limit_z = fast ? (2 * uncertainty_tool_length + 50) : (2 * uncertainty_tool_length + 5);
   #endif
   motion.destination = motion.position;
   if (axis == Z_AXIS) {
