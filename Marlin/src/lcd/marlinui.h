@@ -57,6 +57,10 @@
   #include "dwin/marlinui/marlinui_dwin.h" // for LCD_WIDTH
 #endif
 
+#if ENABLED(LCD_I2C_TYPE_MCP23017)
+  #include "HD44780/marlinui_HD44780.h" // Needed for LCD_HAS_STATUS_INDICATORS
+#endif
+
 typedef bool (*statusResetFunc_t)();
 
 #if HAS_WIRED_LCD
