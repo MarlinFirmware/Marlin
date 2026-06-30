@@ -1,38 +1,43 @@
 # Auto First Layer Z Adjust (`AUTO_FIRST_LAYER_Z_ADJUST`)
 
-The **Auto First Layer Z Adjust** feature automatically adjusts the first layer nozzle height when printing. It computes and applies a Z-offset correction dynamically, based on the difference between the actual first layer height specified in the sliced G-code and the printer's calibrated first layer height (the height for a perfect initial layer with the tuned Z offset).
+The **Auto First Layer Z Adjust** feature adjusts the first layer nozzle height automatically. It applies a dynamic Z-offset correction based on the difference between the sliced first layer height and the printer's calibrated first layer height. This calibrated height corresponds to the perfect initial layer obtained with the tuned Z offset.
 
 ---
 
 ## 1. Overview & Functionality
 
-In 3D printing, bed leveling and Z-offset calibration are typically performed at a specific height or assume a standard first-layer height (e.g., `0.3 mm`). However, when you slice a 3D model with a different first layer height (e.g., `0.2 mm`), the nozzle can end up too close or too far from the build plate. This mismatch often requires manual tuning of the Z-offset (babystepping) to prevent first-layer failure.This is even more accurate if you print with various nozzle sizes and (or) a wide range of layer heights.
+In 3D printing, bed leveling and Z-offset calibration are usually done at a specific height or assume a standard first-layer height (e.g., `0.3 mm`). When you slice a model with a different first layer height (e.g., `0.2 mm`), the nozzle may end up too close or too far from the bed. This mismatch often requires manual Z-offset tuning (baystepping).This is even more accurate if you print with various nozzle sizes and (or) a wide range of layer heights.
 
-When `AUTO_FIRST_LAYER_Z_ADJUST` is enabled, Marlin intercepts and adjusts the initial first-layer height set by the G-code. Marlin computes the difference relative to the printer's pre-calibrated layer height using the following calculation:
+When `AUTO_FIRST_LAYER_Z_ADJUST` is enabled, Marlin adjusts the initial first-layer height set by the G-code. Marlin computes the difference relative to the calibrated height using:
 
 `Delta = Z_Gcode - Z_Calibrated`
 
-This delta is then applied directly to the movement of the first layer, ensuring that the nozzle prints at the correct distance from the bed without requiring you to re-slice the model or manually adjust babysteps.
+This delta is applied to the first layer movement so the nozzle prints at the correct distance without manual babystepping or re-slicing the model.
 
 ### Key Implementation Details
 
-1. **Safety Margin**:
-   To prevent the nozzle from scraping the bed or over-squishing the first layer, a built-in safety margin of `0.05 mm` is enforced.
-   - If the absolute difference is within the safety margin (absolute value of Delta is less than or equal to 0.05 mm), no correction is applied.
-   - If the difference exceeds 0.05 mm, the correction is applied after incorporating the safety margin:
-     `Applied Delta = Delta + 0.05 mm`
-     _(For example, if Z_Gcode = 0.2 mm and Z_Calibrated = 0.3 mm, the raw Delta is -0.1 mm. With the safety margin applied, the final adjustment is -0.05 mm, moving the nozzle 0.05 mm closer to the bed instead of the full 0.1 mm.)_
+1. **Safety Margin**
 
-2. **Slicer Integration**:
-   Different slicers output the initial Z-height G-code commands differently. To handle this, Marlin tracks the slicer family:
-   - **PrusaSlicer and clones**: The first Z-only movement command determines the first layer height.
-   - **OrcaSlicer and clones**: These slicers output an initial Z-hop. When OrcaSlicer mode is selected, Marlin ignores the first Z-only command (treating it as the Z-hop) and reads the first-layer height from the second Z-only command.
+   To prevent the nozzle from scraping the bed or over-squishing the first layer, a built-in safety margin of `0.05 mm` is enforced.
+
+   - If the absolute value of Delta is less than or equal to `0.05 mm`, no correction is applied.
+   - If Delta exceeds `0.05 mm`, Marlin applies the correction with the safety margin.
+
+   `Applied Delta = Delta + 0.05 mm`.
+
+   _(Example: If `Z_Gcode = 0.2 mm` and `Z_Calibrated = 0.3 mm`, Delta is `-0.1 mm`. With the margin, the adjustment becomes `-0.05 mm`, moving the nozzle slightly closer instead of the full `0.1 mm`.)_
+
+2. **Slicer Integration**
+
+   Different slicers output the initial Z-height G-code commands differently. To handle this, the slicer type must be set to help Marlin correctly detect the first layer height:
+   - **PrusaSlicer**: The first Z-only move is the first layer height.
+   - **OrcaSlicer**: The first Z-only move is a Z-hop. The second Z-only move is the first layer height.
 
 ---
 
 ## 2. G-Code Command: `M429`
 
-Use `M429` to view the current status, toggle the feature, change the calibrated height, or specify the slicer format.
+Use `M429` to view the current status, toggle the feature, change the calibrated height, or set the slicer family.
 
 ### Syntax
 
@@ -43,7 +48,7 @@ M429 [S<bool>] [H<float>] [O<int>]
 ### Parameters
 
 - **`S<bool>`**: Enable (`S1`) or disable (`S0`) the Adaptive First Layer Z Offset adjustment.
-- **`H<float>`**: Set the calibrated first layer height (in mm). Accepts values in the range `0.0` to `1.0`.
+- **`H<float>`**: Set the calibrated first layer height (in mm).Accepts values in the range `0.0` to `1.0`.
 - **`O<int>`**: Set the slicer type to ensure proper parser compatibility:
   - `0`: **PrusaSlicer** (and clones)
   - `1`: **OrcaSlicer** (and clones)
@@ -53,26 +58,27 @@ M429 [S<bool>] [H<float>] [O<int>]
 ### Examples
 
 - **Show Current Settings**:
-  Run `M429` with no parameters:
 
-  Response:
+```gcode
+     M429
 
-  ```
-  Auto First Layer Z Adjust Activated
-  Configured Layer Height 0.30 mm
-  PrusaSlicer
-  ```
+     Response:
+     Auto First Layer Z Adjust Activated
+     Configured Layer Height 0.30 mm
+     PrusaSlicer
+```
 
 - **Enable and Configure for OrcaSlicer at 0.3 mm**:
 
-  ```
-  M429 S1 H0.3 O1
-  ```
+```gcode
+     M429 S1 H0.3 O1
+```
 
 - **Disable**:
-  ```
-  M429 S0
-  ```
+
+```gcode
+     M429 S0
+```
 
 ---
 
@@ -80,10 +86,10 @@ M429 [S<bool>] [H<float>] [O<int>]
 
 ### Firmware Configuration (`Configuration.h`)
 
-To use this feature, it must be enabled in your firmware configuration. Modify the following parameters in **Configuration.h**
+To use this feature, it must be enabled in your firmware configuration. Uncomment the following parameters in **Configuration.h**, set your calibrated first layer height and define your slicer
 
-```cpp
-#define AUTO_FIRST_LAYER_Z_ADJUST
+```c++
+//#define AUTO_FIRST_LAYER_Z_ADJUST
 #if ENABLED(AUTO_FIRST_LAYER_Z_ADJUST)
   #define CALIBRATED_FIRST_LAYER_Z_HEIGHT 0.3f    // (mm) Pre-calibrated assumed first layer height
   //#define DEFAULT_SLICER UNKNOWN                // :[ 'UNKNOWN', 'ORCA', 'PRUSA' ]
@@ -92,7 +98,7 @@ To use this feature, it must be enabled in your firmware configuration. Modify t
 
 ### Saving Settings to EEPROM
 
-Once configured via `M429`, the settings can be written to the printer's EEPROM so that they persist across power cycles:
+The settings can be written to the printer's EEPROM so that they persist across power cycles:
 
 - Save settings to EEPROM: `M500`
 - Restore settings from EEPROM: `M501`
