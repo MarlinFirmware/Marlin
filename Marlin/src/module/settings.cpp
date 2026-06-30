@@ -3403,7 +3403,7 @@ void MarlinSettings::reset() {
   //
   // Calibration Center
   //
-  TERN(CALIBRATION_GCODE, calibration_center = CALIBRATION_OBJECT_CENTER)
+  TERN_(CALIBRATION_GCODE, calibration_center = CALIBRATION_OBJECT_CENTER)
   
   //
   // Spindle Acceleration
