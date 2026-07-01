@@ -924,7 +924,7 @@ void GcodeSuite::process_parsed_command(bool no_ok/*=false*/) {
         #if ANY(FTM_SMOOTHING, FTM_POLYS)
           case 494: M494(); break;                                // M494: Fixed-Time Motion extras
         #endif
-        #if ENABLED(FTM_RESONANCE_TEST)
+        #if ENABLED(RESONANCE_TEST)
           case 495: M495(); break;                                // M495: Resonance test for Input Shaping
           case 496: M496(); break;                                // M496: Abort resonance test
         #endif

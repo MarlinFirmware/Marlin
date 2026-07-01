@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 """
-parallel_build_test.py — Run config-example loop tests in parallel across Marlin clones.
+parallel_build.py — Run config-example loop tests in parallel across Marlin clones.
 
 Replaces parallel_build_test.sh. Uses argparse and subprocess directly instead
 of shell argument parsing and eval.
 
 Usage:
-    python3 buildroot/bin/parallel_build_test.py [OPTIONS]
+    python3 buildroot/bin/parallel_build.py [OPTIONS]
 
 Options:
     --script=SCRIPT          Loop script to run (default: fix_host_action_configs.py)
@@ -38,7 +38,7 @@ import sys
 # ---------------------------------------------------------------------------
 # Defaults
 # ---------------------------------------------------------------------------
-DEFAULT_SCRIPT = "buildroot/bin/fix_host_action_configs.py"
+DEFAULT_SCRIPT = "buildroot/bin/parallel-build_and_log.py"
 DEFAULT_CLONES = 4
 DEFAULT_PREFIX = "marlin-clone"
 

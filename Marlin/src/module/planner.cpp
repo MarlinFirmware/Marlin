@@ -1760,8 +1760,12 @@ bool Planner::_buffer_steps(const xyze_long_t &target
     minimum_planner_speed_sqr
   );
 
-  // Recalculate and optimize trapezoidal speed profiles
-  recalculate(safe_exit_speed_sqr);
+  // Recalculate and optimize trapezoidal speed profiles.
+  // CJ planner ignores trapezoidal entry/exit speeds — it runs its own
+  // jolt-aware passes via planNext(). Blocks are marked recalculate=false
+  // above, so skip the expensive reverse/forward pass and trapezoid calc.
+  if (TERN1(FTM_CONSTANT_JOLT, ftMotion.cfg.trajectory_type != TrajectoryType::CONSTANT_JOLT))
+    recalculate(safe_exit_speed_sqr);
 
   // Movement successfully queued!
   return true;
@@ -2753,6 +2757,10 @@ bool Planner::_populate_block(
 
   // Max entry speed of this block equals the max exit speed of the previous block.
   block->max_entry_speed_sqr = vmax_junction_sqr;
+  #if ENABLED(FTM_CONSTANT_JOLT)
+    if (ftMotion.cfg.trajectory_type == TrajectoryType::CONSTANT_JOLT)
+      block->vmax_junction = SQRT(vmax_junction_sqr);
+  #endif
   // Set entry speed. The reverse and forward passes will optimize it later.
   block->entry_speed_sqr = minimum_planner_speed_sqr;
   // Set min entry speed. Rarely it could be higher than the previous nominal speed but that's ok.
@@ -2762,7 +2770,9 @@ bool Planner::_populate_block(
   TERN_(HAS_STANDARD_MOTION, block->initial_rate = 0);
   TERN_(FT_MOTION, block->entry_speed = 0);
 
-  block->flag.recalculate = true;
+  // CJ planner runs its own jolt-aware passes — blocks are ready immediately.
+  // recalculate() is also skipped below, so no code will re-set this flag.
+  block->flag.recalculate = TERN1(FTM_CONSTANT_JOLT, ftMotion.cfg.trajectory_type != TrajectoryType::CONSTANT_JOLT);
 
   // Update previous path unit_vector and nominal speed
   previous_speed = current_speed;

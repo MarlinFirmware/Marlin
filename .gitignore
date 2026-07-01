@@ -178,3 +178,4 @@ tags
 .aider*
 !.aiderignore
 .env
+schema.json
