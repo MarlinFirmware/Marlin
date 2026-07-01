@@ -543,7 +543,7 @@ void MarlinUI::clear_for_drawing() {
     uint8_t n = LCD_WIDTH - 1;
     n -= lcd_put_u8str(ftpl, itemIndex, itemStringC, itemStringF, n);
     for (; n; --n) lcd_put_u8str(F(" "));
-    lcd_put_lchar(LCD_PIXEL_WIDTH - (MENU_FONT_WIDTH), row_y2, post_char);
+    lcd_put_lchar(LCD_PIXEL_WIDTH - (MENU_FONT_WIDTH), row_y2 - MENU_FONT_DESCENT, post_char);
     lcd_put_u8str(F(" "));
   }
 
@@ -560,7 +560,7 @@ void MarlinUI::clear_for_drawing() {
     if (vallen) {
       lcd_put_u8str(F(":"));
       for (; n; --n) lcd_put_u8str(F(" "));
-      lcd_moveto(LCD_PIXEL_WIDTH - _MAX((MENU_FONT_WIDTH) * vallen, pixelwidth + 2), row_y2);
+      lcd_moveto(LCD_PIXEL_WIDTH - _MAX((MENU_FONT_WIDTH) * vallen, pixelwidth + 2), row_y2 - MENU_FONT_DESCENT);
       if (pgm) lcd_put_u8str_P(inStr); else lcd_put_u8str(inStr);
     }
   }
