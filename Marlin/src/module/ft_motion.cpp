@@ -37,10 +37,6 @@
   #include "ft_motion/trajectory_poly5.h"
   #include "ft_motion/trajectory_poly6.h"
 #endif
-#if ENABLED(FTM_RESONANCE_TEST)
-  #include "ft_motion/resonance_generator.h"
-  #include "../gcode/gcode.h" // for home_all_axes
-#endif
 
 #include "stepper.h" // Access stepper block queue function and abort status.
 #include "endstops.h"
@@ -84,15 +80,15 @@ bool FTMotion::fastForwardUntilMotion = false;      // Fast forward time if ther
 // Trajectory generators
 TrapezoidalTrajectoryGenerator FTMotion::trapezoidalGenerator;
 #if ENABLED(FTM_POLYS)
-  TrajectoryType FTMotion::trajectoryType = TrajectoryType::FTM_TRAJECTORY_TYPE;
   Poly5TrajectoryGenerator FTMotion::poly5Generator;
   Poly6TrajectoryGenerator FTMotion::poly6Generator;
-  TrajectoryGenerator* FTMotion::currentGenerator = &FTMotion::trapezoidalGenerator;
 #endif
-
-// Resonance Test
-#if ENABLED(FTM_RESONANCE_TEST)
-  ResonanceGenerator FTMotion::rtg; // Resonance trajectory generator instance
+#if ENABLED(FTM_CONSTANT_JOLT)
+  ConstantJoltTrajectoryGenerator FTMotion::cjGenerator;
+#endif
+#if HAS_FTM_TRAJECTORY_SELECTION
+  TrajectoryType FTMotion::trajectoryType = TrajectoryType::FTM_TRAJECTORY_TYPE;
+  TrajectoryGenerator* FTMotion::currentGenerator = &FTMotion::trapezoidalGenerator;
 #endif
 
 #if FTM_HAS_LIN_ADVANCE
@@ -168,9 +164,9 @@ void FTMotion::loop() {
    * 4. Signal ready for new block.
    */
 
-  const bool using_resonance = TERN(FTM_RESONANCE_TEST, rtg.isActive(), false);
+  const bool using_resonance = TERN0(RESONANCE_TEST, rtg.isActive());
 
-  #if ENABLED(FTM_RESONANCE_TEST)
+  #if ENABLED(RESONANCE_TEST)
     if (using_resonance) {
       // Resonance Test has priority over normal ft_motion operation.
       // Process resonance test if active. When it's done, generate the last data points for a clean ending.
@@ -308,11 +304,11 @@ void FTMotion::plan_runout_block() {
 void FTMotion::init() {
   update_shaping_params();
   TERN_(FTM_SMOOTHING, update_smoothing_params());
-  TERN_(FTM_POLYS, setTrajectoryType(cfg.trajectory_type));
+  TERN_(HAS_FTM_TRAJECTORY_SELECTION, setTrajectoryType(cfg.trajectory_type));
   reset(); // Precautionary.
 }
 
-#if ENABLED(FTM_POLYS)
+#if HAS_FTM_TRAJECTORY_SELECTION
 
   // Set trajectory generator type
   void FTMotion::setTrajectoryType(const TrajectoryType type) {
@@ -320,19 +316,32 @@ void FTMotion::init() {
     switch (type) {
       default:
       case TrajectoryType::TRAPEZOIDAL: currentGenerator = &trapezoidalGenerator; break;
-      case TrajectoryType::POLY5:       currentGenerator = &poly5Generator;       break;
-      case TrajectoryType::POLY6:       currentGenerator = &poly6Generator;       break;
+      #if ENABLED(FTM_POLYS)
+        case TrajectoryType::POLY5:     currentGenerator = &poly5Generator;       break;
+        case TrajectoryType::POLY6:     currentGenerator = &poly6Generator;       break;
+      #endif
+      #if ENABLED(FTM_CONSTANT_JOLT)
+        case TrajectoryType::CONSTANT_JOLT:
+          cjGenerator.setJoltPtr(&cfg.jolt);
+          currentGenerator = &cjGenerator;
+          break;
+      #endif
     }
   }
 
   // Update trajectory generator type from G-code or UI
   bool FTMotion::updateTrajectoryType(const TrajectoryType type) {
-    if (type == trajectoryType) return false;
+    if (type == trajectoryType) return true;  // Already selected — valid, no-op
     switch (type) {
       default: return false;
       case TrajectoryType::TRAPEZOIDAL:
-      case TrajectoryType::POLY5:
-      case TrajectoryType::POLY6:
+      #if ENABLED(FTM_POLYS)
+        case TrajectoryType::POLY5:
+        case TrajectoryType::POLY6:
+      #endif
+      #if ENABLED(FTM_CONSTANT_JOLT)
+        case TrajectoryType::CONSTANT_JOLT:
+      #endif
         break;
     }
     prep_for_shaper_change();
@@ -340,14 +349,19 @@ void FTMotion::init() {
     return true;
   }
 
-#endif // FTM_POLYS
+#endif // HAS_FTM_TRAJECTORY_SELECTION
 
 FSTR_P FTMotion::getTrajectoryName() {
   switch (getTrajectoryType()) {
     default:
     case TrajectoryType::TRAPEZOIDAL: return GET_TEXT_F(MSG_FTM_TRAPEZOIDAL);
-    case TrajectoryType::POLY5:       return GET_TEXT_F(MSG_FTM_POLY5);
-    case TrajectoryType::POLY6:       return GET_TEXT_F(MSG_FTM_POLY6);
+    #if ENABLED(FTM_POLYS)
+      case TrajectoryType::POLY5:     return GET_TEXT_F(MSG_FTM_POLY5);
+      case TrajectoryType::POLY6:     return GET_TEXT_F(MSG_FTM_POLY6);
+    #endif
+    #if ENABLED(FTM_CONSTANT_JOLT)
+      case TrajectoryType::CONSTANT_JOLT: return GET_TEXT_F(MSG_FTM_CONSTANT_JOLT);
+    #endif
   }
 }
 
@@ -405,9 +419,8 @@ bool FTMotion::plan_next_block() {
     const ext_distance_t &moveDist = current_block->ext_distance_mm;
     ratio = moveDist / totalLength;
 
-    // Plan the trajectory using the trajectory generator
-    currentGenerator->plan(current_block->entry_speed, current_block->exit_speed, current_block->acceleration, current_block->nominal_speed, totalLength);
-
+    currentGenerator->plan(current_block->entry_speed, current_block->exit_speed,
+                           current_block->acceleration, current_block->nominal_speed, totalLength);
     endPos_prevBlock += moveDist;
 
     TERN_(FTM_HAS_LIN_ADVANCE, use_advance_lead = current_block->use_advance_lead);
@@ -608,6 +621,38 @@ xyze_float_t FTMotion::calc_traj_point(const float dist) {
   return traj_coords;
 }
 
+#if HAS_FTM_DIR_CHANGE_HOLD
+
+  // When a flip is detected (and the axis is in stealthChop or is standalone),
+  // hold that axis' trajectory coordinate constant for at least 750µs.
+  xyze_float_t FTMotion::ftm_hold_frames(xyze_float_t hold_coords) {
+    #define DIR_FLIP_HOLD_S 0.000'750f
+    static constexpr uint32_t dir_flip_hold_frames = 1 + (DIR_FLIP_HOLD_S) / (FTM_TS);
+
+    auto start_hold_if_dir_flip = [&](const AxisEnum a) {
+      const bool dir = hold_coords[a] > last_target_traj[a],
+                 moved = hold_coords[a] != last_target_traj[a],
+                 flipped = moved && (dir != last_traj_dir[a]),
+                 hold = !moved || (flipped && hold_frames[a] > 0);
+      if (hold) {
+        if (hold_frames[a]) hold_frames[a]--;
+        hold_coords[a] = last_target_traj[a];
+      }
+      else {
+        last_traj_dir[a] = dir;
+        hold_frames[a] = dir_flip_hold_frames;
+      }
+    };
+
+    #define START_HOLD_IF_DIR_FLIP(A) TERN_(FTM_DIR_CHANGE_HOLD_##A, start_hold_if_dir_flip(_AXIS(A)));
+    LOGICAL_AXIS_MAP(START_HOLD_IF_DIR_FLIP);
+
+    last_target_traj = hold_coords;
+    return hold_coords;
+  }
+
+#endif // HAS_FTM_DIR_CHANGE_HOLD
+
 /**
  * Generate stepper data of the trajectory.
  * Called from FTMotion::loop()
@@ -644,34 +689,7 @@ void FTMotion::fill_stepper_plan_buffer() {
     }
     else {
 
-      #if HAS_FTM_DIR_CHANGE_HOLD
-
-        // When a flip is detected (and the axis is in stealthChop or is standalone),
-        // hold that axis' trajectory coordinate constant for at least 750µs.
-
-        #define DIR_FLIP_HOLD_S 0.000'750f
-        static constexpr uint32_t dir_flip_hold_frames = 1 + (DIR_FLIP_HOLD_S) / (FTM_TS);
-
-        auto start_hold_if_dir_flip = [&](const AxisEnum a) {
-          const bool dir = traj_coords[a] > last_target_traj[a],
-                     moved = traj_coords[a] != last_target_traj[a],
-                     flipped = moved && (dir != last_traj_dir[a]),
-                     hold = !moved || (flipped && hold_frames[a] > 0);
-          if (hold) {
-            if (hold_frames[a]) hold_frames[a]--;
-            traj_coords[a] = last_target_traj[a];
-          }
-          else {
-            last_traj_dir[a] = dir;
-            hold_frames[a] = dir_flip_hold_frames;
-          }
-        };
-
-        #define START_HOLD_IF_DIR_FLIP(A) TERN_(FTM_DIR_CHANGE_HOLD_##A, start_hold_if_dir_flip(_AXIS(A)));
-
-        LOGICAL_AXIS_MAP(START_HOLD_IF_DIR_FLIP);
-
-      #endif // HAS_FTM_DIR_CHANGE_HOLD
+      TERN_(HAS_FTM_DIR_CHANGE_HOLD, traj_coords = ftm_hold_frames(traj_coords));
 
       fastForwardUntilMotion = false;
 
@@ -681,26 +699,5 @@ void FTMotion::fill_stepper_plan_buffer() {
     last_target_traj = traj_coords;
   }
 }
-
-#if ENABLED(FTM_RESONANCE_TEST)
-
-  // Start Resonance Testing
-  void FTMotion::start_resonance_test() {
-    motion.home_if_needed();  // Ensure known axes first
-
-    ftm_resonance_test_params_t &p = rtg.rt_params;
-
-    // Safe Acceleration per Hz for Z axis
-    if (p.axis == Z_AXIS && p.accel_per_hz > 15.0f)
-      p.accel_per_hz = 15.0f;
-
-    // Always move to the center of the bed
-    motion.blocking_move_xy(X_CENTER, Y_CENTER, Z_CLEARANCE_FOR_HOMING);
-
-    // Start test at the current position with the configured time-step
-    rtg.start(motion.position, FTM_TS);
-  }
-
-#endif // FTM_RESONANCE_TEST
 
 #endif // FT_MOTION
