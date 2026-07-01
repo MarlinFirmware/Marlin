@@ -265,6 +265,10 @@ typedef struct PlannerBlock {
         steps_per_mm,                       // steps/mm
         acceleration;                       // acceleration mm/sec^2
 
+  #if ENABLED(FTM_CONSTANT_JOLT)
+    float vmax_junction;                    // Original junction speed limit (mm/sec), never modified by recalculate
+  #endif
+
   union {
     abce_ulong_t steps;                     // Step count along each axis
     abce_long_t position;                   // New position to force when this sync block is executed

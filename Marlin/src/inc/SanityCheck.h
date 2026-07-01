@@ -4739,9 +4739,6 @@ static_assert(_PLUS_TEST(3), "DEFAULT_MAX_ACCELERATION values must be positive."
     static_assert(FTM_SMOOTHING_TIME_Z <= FTM_MAX_SMOOTHING_TIME, "FTM_SMOOTHING_TIME_Z must be <= FTM_MAX_SMOOTHING_TIME.");
     static_assert(FTM_SMOOTHING_TIME_E <= FTM_MAX_SMOOTHING_TIME, "FTM_SMOOTHING_TIME_E must be <= FTM_MAX_SMOOTHING_TIME.");
   #endif
-  #if ENABLED(FTM_RESONANCE_TEST) && DISABLED(EMERGENCY_PARSER)
-    #error "EMERGENCY_PARSER is required with FTM_RESONANCE_TEST (to cancel the test)."
-  #endif
   #if !HAS_STANDARD_MOTION
     #if ENABLED(SMOOTH_LIN_ADVANCE)
       #error "SMOOTH_LIN_ADVANCE is not yet available in FT_MOTION. Disable NO_STANDARD_MOTION if you require it."
@@ -4761,6 +4758,13 @@ static_assert(_PLUS_TEST(3), "DEFAULT_MAX_ACCELERATION values must be positive."
     #error "For FT_MOTION at least one FTM_SHAPER_* type must be enabled."
   #endif
 #endif // FT_MOTION
+
+/**
+ * Resonance Test requires EMERGENCY_PARSER
+ */
+#if ENABLED(RESONANCE_TEST) && DISABLED(EMERGENCY_PARSER)
+  #error "EMERGENCY_PARSER is required with RESONANCE_TEST (to cancel the test)."
+#endif
 
 // Multi-Stepping Limit
 static_assert(WITHIN(MULTISTEPPING_LIMIT, 1, 128) && IS_POWER_OF_2(MULTISTEPPING_LIMIT), "MULTISTEPPING_LIMIT must be 1, 2, 4, 8, 16, 32, 64, or 128.");

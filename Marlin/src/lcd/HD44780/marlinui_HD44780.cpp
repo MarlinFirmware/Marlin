@@ -393,7 +393,7 @@ void MarlinUI::init_lcd() {
   #elif ENABLED(LCD_I2C_TYPE_MCP23017)
     lcd.setMCPType(LTI_TYPE_MCP23017);
     lcd.begin(LCD_WIDTH, LCD_HEIGHT);
-    update_indicators();
+    update_indicators(true);   // Force turning off the LEDs at startup
 
   #elif ENABLED(LCD_I2C_TYPE_MCP23008)
     lcd.setMCPType(LTI_TYPE_MCP23008);
@@ -1386,7 +1386,7 @@ void MarlinUI::draw_status_screen() {
 
   #if ENABLED(LCD_HAS_STATUS_INDICATORS)
 
-    void MarlinUI::update_indicators() {
+    void MarlinUI::update_indicators(const bool forceUpdate) {
       // Set the LEDS - referred to as backlights by the LiquidTWI2 library
       static uint8_t ledsprev = 0;
       uint8_t leds = 0;
@@ -1408,7 +1408,7 @@ void MarlinUI::draw_status_screen() {
 
       if (TERN0(HAS_MULTI_HOTEND, thermalManager.degTargetHotend(1) > 0)) leds |= LED_C;
 
-      if (leds != ledsprev) {
+      if (leds != ledsprev || forceUpdate) {
         lcd.setBacklight(leds);
         ledsprev = leds;
       }

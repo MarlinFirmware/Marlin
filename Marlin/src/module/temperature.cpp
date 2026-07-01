@@ -1725,7 +1725,7 @@ void Temperature::mintemp_error(const heater_id_t heater_id OPTARG(ERR_INCLUDE_T
     float get_pid_output(const uint8_t extr=0) {
       #if ENABLED(PID_OPENLOOP)
 
-        return constrain(tempinfo.target, 0, MAX_POW);
+        return constrain(tempinfo.target, 0, tempinfo.pid.high());
 
       #else // !PID_OPENLOOP
 
