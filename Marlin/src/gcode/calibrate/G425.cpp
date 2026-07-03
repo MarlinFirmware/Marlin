@@ -706,7 +706,7 @@ inline void calibrate_backlash(measurements_t &m, const float uncertainty) {
 
 inline void update_measurements(measurements_t &m, const AxisEnum axis) {
   motion.position[axis] += m.pos_error[axis];
-  m.obj_center[axis] = true_center[axis];
+  m.obj_center[axis] = motion.calibration_center[axis];
   m.pos_error[axis] = 0;
 }
 
