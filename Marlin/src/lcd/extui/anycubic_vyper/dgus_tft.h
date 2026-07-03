@@ -331,9 +331,9 @@ namespace Anycubic {
     #if HAS_HEATED_BED
       static heater_state_t hotbed_state;
     #endif
-    static char         panel_command[MAX_CMND_LEN];
+    static char         panel_command[MAX_CMND_LEN + 1];
     static uint8_t      command_len;
-    static char         selectedfile[MAX_PATH_LEN];
+    static char         selectedfile[MAX_PATH_LEN + 1];
     static file_menu_t  file_menu;
     static bool         data_received;
     static uint8_t      data_buf[DATA_BUF_SIZE];
