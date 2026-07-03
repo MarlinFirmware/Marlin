@@ -34,7 +34,9 @@
 #include "../../module/motion.h"
 #include "../../module/planner.h"
 #include "../../module/endstops.h"
-#include "../../feature/bedlevel/bedlevel.h"
+#if HAS_LEVELING
+  #include "../../feature/bedlevel/bedlevel.h"
+#endif
 
 #if HAS_MULTI_HOTEND
   #include "../../module/tool_change.h"
@@ -109,12 +111,11 @@ enum side_t : uint8_t {
     UMINIMUM, UMAXIMUM, VMINIMUM, VMAXIMUM, WMINIMUM, WMAXIMUM)
 };
 
-static constexpr xyz_pos_t true_center = motion.calibration_center;
-static constexpr xyz_float_t dimensions CALIBRATION_OBJECT_DIMENSIONS;
+static constexpr xyz_float_t dimensions = CALIBRATION_OBJECT_DIMENSIONS;
 static constexpr xy_float_t nod = { CALIBRATION_NOZZLE_OUTER_DIAMETER, CALIBRATION_NOZZLE_OUTER_DIAMETER };
 
 struct measurements_t {
-  xyz_pos_t obj_center = true_center; // Non-static must be assigned from xyz_pos_t
+  xyz_pos_t obj_center = motion.calibration_center; // Non-static must be assigned from xyz_pos_t
 
   float obj_side[NUM_SIDES], backlash[NUM_SIDES];
   xyz_float_t pos_error;
@@ -160,8 +161,10 @@ inline void calibration_move() {
  */
 inline void park_above_object(measurements_t &m, const float uncertainty_tool_length) {
   // Move to safe distance above calibration object
-  #if defined(Z_HOME_DIR) && Z_HOME_DIR > 0
-    gcode.process_subcommands_now(F("G28 Z")); // Ép trục Z chạy Home Max cơ khí thực tế tại điểm 380mm để làm sạch mốc tọa độ
+  #if defined(Z_HOME_DIR) && Z_HOME_DIR == 1
+    if (uncertainty_tool_length > CALIBRATION_MEASUREMENT_UNCERTAIN)
+      gcode.process_subcommands_now(F("G28 Z")); // Ép trục Z chạy Home Max cơ khí thực tế tại điểm 380mm để làm sạch mốc tọa độ
+    else
   #else
     motion.position.z = m.obj_center.z + dimensions.z / 2 + uncertainty_tool_length;
   #endif
@@ -201,7 +204,7 @@ float measuring_movement(const AxisEnum axis, const int dir, const bool stop_sta
   const feedRate_t mms = fast ? MMM_TO_MMS(CALIBRATION_FEEDRATE_FAST) : MMM_TO_MMS(CALIBRATION_FEEDRATE_SLOW);
   const float limit    = fast ? (uncertainty + 50) : (uncertainty + 5);
   #if Z_HOME_TO_MAX
-    const float limit_z = fast ? ((Z_HOME_POS) - calibration_center.z  + 50) : ((Z_MAX_POS) - calibration_center.z + 5);
+    const float limit_z = fast ? ((Z_HOME_POS) - motion.calibration_center.z  + 50) : ((Z_MAX_POS) - motion.calibration_center.z + 5);
   #else
     const float limit_z = fast ? (2 * uncertainty_tool_length + 50) : (2 * uncertainty_tool_length + 5);
   #endif
@@ -233,7 +236,7 @@ float measuring_movement(const AxisEnum axis, const int dir, const bool stop_sta
  *   uncertainty_tool_length  in  - How far away from the object to begin probing for hotend Z offset calibration with G425 T...
  */
 inline float measure(const AxisEnum axis, const int dir, const bool stop_state, float * const backlash_ptr, const float uncertainty, const float uncertainty_tool_length) {
-  const bool fast = uncertainty == CALIBRATION_MEASUREMENT_UNKNOWN;
+  const bool fast = (uncertainty == CALIBRATION_MEASUREMENT_UNKNOWN || uncertainty_tool_length == CALIBRATION_MEASUREMENT_TOOL_LENGTH);
 
   // Save the current position of the specified axis
   const float start_pos = motion.position[axis];
@@ -249,7 +252,12 @@ inline float measure(const AxisEnum axis, const int dir, const bool stop_state, 
 
   // Move back to the starting position
   motion.destination = motion.position;
-  motion.destination[axis] = start_pos;
+  #if Z_HOME_TO_MAX
+    if (axis == Z_AXIS)
+      motion.destination[axis] = motion.position.z + CALIBRATION_MEASUREMENT_UNCERTAIN;
+    else
+  #endif
+  motion.destination = start_pos;
   motion.blocking_move((xyz_pos_t)motion.destination, MMM_TO_MMS(CALIBRATION_FEEDRATE_TRAVEL));
   return measured_pos;
 }
@@ -265,7 +273,7 @@ inline float measure(const AxisEnum axis, const int dir, const bool stop_state, 
  *                               to find out height of edge
  */
 inline void probe_side(measurements_t &m, const float uncertainty, const float uncertainty_tool_length, const side_t side, const bool probe_top_at_edge=false) {
-  const xyz_float_t dimensions = CALIBRATION_OBJECT_DIMENSIONS;
+  const xyz_float_t dimensions = dimensions;
   AxisEnum axis;
   float dir = 1;
 
@@ -392,20 +400,20 @@ inline void probe_sides(measurements_t &m, const float uncertainty, const float 
   // at which it makes contact with the calibration object
   TERN_(HAS_X_CENTER, m.nozzle_outer_dimension.x = m.obj_side[RIGHT] - m.obj_side[LEFT] - dimensions.x);
 
-  park_above_object(m, uncertainty_tool_length);
+  park_above_object(m, CALIBRATION_MEASUREMENT_UNCERTAIN);
 
   // The difference between the known and the measured location
   // of the calibration object is the positional error
   NUM_AXIS_CODE(
-    m.pos_error.x = TERN0(HAS_X_CENTER, true_center.x - m.obj_center.x),
-    m.pos_error.y = TERN0(HAS_Y_CENTER, true_center.y - m.obj_center.y),
-    m.pos_error.z = true_center.z - m.obj_center.z,
-    m.pos_error.i = TERN0(HAS_I_CENTER, true_center.i - m.obj_center.i),
-    m.pos_error.j = TERN0(HAS_J_CENTER, true_center.j - m.obj_center.j),
-    m.pos_error.k = TERN0(HAS_K_CENTER, true_center.k - m.obj_center.k),
-    m.pos_error.u = TERN0(HAS_U_CENTER, true_center.u - m.obj_center.u),
-    m.pos_error.v = TERN0(HAS_V_CENTER, true_center.v - m.obj_center.v),
-    m.pos_error.w = TERN0(HAS_W_CENTER, true_center.w - m.obj_center.w)
+    m.pos_error.x = TERN0(HAS_X_CENTER, motion.calibrationcenter.x - m.obj_center.x),
+    m.pos_error.y = TERN0(HAS_Y_CENTER, motion.calibrationcenter.y - m.obj_center.y),
+    m.pos_error.z = motion.calibrationcenter.z - m.obj_center.z,
+    m.pos_error.i = TERN0(HAS_I_CENTER, motion.calibrationcenter.i - m.obj_center.i),
+    m.pos_error.j = TERN0(HAS_J_CENTER, motion.calibrationcenter.j - m.obj_center.j),
+    m.pos_error.k = TERN0(HAS_K_CENTER, motion.calibrationcenter.k - m.obj_center.k),
+    m.pos_error.u = TERN0(HAS_U_CENTER, motion.calibrationcenter.u - m.obj_center.u),
+    m.pos_error.v = TERN0(HAS_V_CENTER, motion.calibrationcenter.v - m.obj_center.v),
+    m.pos_error.w = TERN0(HAS_W_CENTER, motion.calibrationcenter.w - m.obj_center.w)
   );
 }
 
@@ -688,8 +696,7 @@ inline void calibrate_backlash(measurements_t &m, const float uncertainty) {
       TEMPORARY_BACKLASH_SMOOTHING(0.0f);
       const xyz_float_t move = NUM_AXIS_ARRAY(
         AXIS_CAN_CALIBRATE(X) * 3, AXIS_CAN_CALIBRATE(Y) * 3, AXIS_CAN_CALIBRATE(Z) * 3,
-        AXIS_CAN_CALIBRATE(I) * 3, AXIS_CAN_CALIBRATE(J) * 3, AXIS_CAN_CALIBRATE(K) * 3,
-        AXIS_CAN_CALIBRATE(U) * 3, AXIS_CAN_CALIBRATE(V) * 3, AXIS_CAN_CALIBRATE(W) * 3
+        0, 0, 0, 0, 0, 0
       );
       motion.position += move; calibration_move();
       motion.position -= move; calibration_move();
@@ -760,7 +767,7 @@ inline void calibrate_toolhead(measurements_t &m, const float uncertainty, const
 inline void calibrate_all_toolheads(measurements_t &m, const float uncertainty, const float uncertainty_tool_length) {
   TEMPORARY_BACKLASH_CORRECTION(backlash.all_on);
   TEMPORARY_BACKLASH_SMOOTHING(0.0f);
-
+ 
   HOTEND_LOOP() calibrate_toolhead(m, uncertainty, uncertainty_tool_length, e);
 
   TERN_(HAS_HOTEND_OFFSET, normalize_hotend_offsets());
@@ -794,17 +801,17 @@ inline void calibrate_all() {
 
   // Cycle the toolheads so the servos settle into their "natural" positions
   #if HAS_MULTI_HOTEND
-    HOTEND_LOOP() set_nozzle(m, e);
+    HOTEND_LOOP() set_nozzle(m, e, CALIBRATION_MEASUREMENT_UNCERTAIN);
   #endif
 
   // Do a slow and precise calibration of the toolheads
-  calibrate_all_toolheads(m, CALIBRATION_MEASUREMENT_UNCERTAIN, CALIBRATION_MEASUREMENT_TOOL_LENGTH);
+  calibrate_all_toolheads(m, CALIBRATION_MEASUREMENT_UNCERTAIN, CALIBRATION_MEASUREMENT_UNCERTAIN);
 
   motion.position.x = X_CENTER;
   calibration_move();         // Park nozzle away from calibration object
 }
 
-calibrate_toolhead_Z_only(measurements_t &m, const float uncertainty, const uint8_t extruder) {
+inline void calibrate_toolhead_z_only(measurements_t &m, const float uncertainty, const uint8_t extruder) {
   TEMPORARY_BACKLASH_CORRECTION(backlash.all_on);
   TEMPORARY_BACKLASH_SMOOTHING(0.0f);
 
@@ -848,14 +855,14 @@ calibrate_toolhead_Z_only(measurements_t &m, const float uncertainty, const uint
   // at which it makes contact with the calibration object
   TERN_(HAS_X_CENTER, m.nozzle_outer_dimension.x = m.obj_side[RIGHT] - m.obj_side[LEFT] - dimensions.x);
 
-  park_above_object(m, uncertainty);
+  park_above_object(m, CALIBRATION_MEASUREMENT_UNCERTAIN);
 
   // The difference between the known and the measured location
   // of the calibration object is the positional error
   NUM_AXIS_CODE(
-    m.pos_error.x = TERN0(HAS_X_CENTER, true_center.x - m.obj_center.x),
-    m.pos_error.y = TERN0(HAS_Y_CENTER, true_center.y - m.obj_center.y),
-    m.pos_error.z = true_center.z - m.obj_center.z,
+    m.pos_error.x = TERN0(HAS_X_CENTER, motion.calibration_center.x - m.obj_center.x),
+    m.pos_error.y = TERN0(HAS_Y_CENTER, motion.calibration_center.y - m.obj_center.y),
+    m.pos_error.z = motion.calibration_center.z - m.obj_center.z,
     m.pos_error.i = 0,
     m.pos_error.j = 0,
     m.pos_error.k = 0,
@@ -864,141 +871,6 @@ calibrate_toolhead_Z_only(measurements_t &m, const float uncertainty, const uint
     m.pos_error.w = 0
   );
 }
-
-
-
-/**
-// ====================================================================
-// HÀM ĐO CHIỀU DÀI DAO Z (CNC STYLE) - BẢN SỬA CHUẨN CÚ PHÁP MARLIN 2.1.X BUGFIX
-// ====================================================================
-inline void calibrate_toolhead_z_only(measurements_t &m, const float uncertainty, const uint8_t extruder) {
-  TEMPORARY_BACKLASH_CORRECTION(backlash.all_on);
-  TEMPORARY_BACKLASH_SMOOTHING(0.0f);
-
-  float saved_hotend_offset_z = 0.0f;
-  #if HAS_HOTEND_OFFSET
-    saved_hotend_offset_z = motion.hotend_offset[extruder].z; // Lưu lại offset cũ để dự phòng
-    motion.hotend_offset[extruder].z = 0.0f;                  // Xóa trắng offset dao chuẩn bị đo
-  #endif
-
-  // Đồng bộ hóa Planner đưa tất cả bộ đệm di chuyển về trạng thái thực tế của phần cứng
-  planner.synchronize();
-  motion.set_current_from_steppers_for_axis(Z_AXIS);
-  motion.sync_plan_position();
-
-  // BƯỚC 1: KHỞI TẠO TỌA ĐỘ XY CỦA CỤC CALIP TỪ CONFIGURATION
-  const xyz_float_t obj_center_array = CALIBRATION_OBJECT_CENTER;
-  m.obj_center.x = obj_center_array[X_AXIS]; // 264.0
-  m.obj_center.y = obj_center_array[Y_AXIS]; // -22.0
-  m.obj_center.z = obj_center_array[Z_AXIS]; 
-  m.pos_error.x = 0.0f; m.pos_error.y = 0.0f; m.pos_error.z = 0.0f;
-
-  // ====================================================================
-  // BƯỚC 2: RÚT TRỤC Z LÊN ĐỈNH TRẦN BẰNG CHU TRÌNH G28 Z LÕI HỆ THỐNG
-  // Sửa chính xác cú pháp API v2 của nhánh Marlin 2.1.x Bugfix
-  // ====================================================================
-  #if defined(Z_HOME_DIR) && Z_HOME_DIR > 0
-    gcode.process_subcommands_now(F("G28 Z")); // Gọi chu trình Home cứng trục Z thông qua hàng đợi lệnh lõi
-  #else
-    motion.destination = motion.position;
-    motion.destination.z = _MIN(motion.position.z + CALIBRATION_MEASUREMENT_UNKNOWN, (float)Z_MAX_POS);
-    motion.blocking_move((xyz_pos_t)motion.destination, MMM_TO_MMS(CALIBRATION_FEEDRATE_TRAVEL));
-  #endif
-  planner.synchronize();  
-
-  // BƯỚC 3: ĐỔI DAO VÀ DI CHUYỂN XY ĐẾN THÁP ĐO CỐ ĐỊNH
-  #if HAS_TOOLCHANGE
-    set_nozzle(m, extruder, uncertainty);
-    planner.synchronize();
-  #endif
-
-  // DI CHUYỂN XY: Đưa đầu dao đến vị trí cục Calip cố định
-  motion.destination = motion.position;
-  motion.destination.x = m.obj_center.x; 
-  motion.destination.y = m.obj_center.y; 
-  motion.blocking_move((xyz_pos_t)motion.destination, MMM_TO_MMS(CALIBRATION_FEEDRATE_TRAVEL));
-  planner.synchronize();
-
-  // BƯỚC 4: CHU TRÌNH DÒ XUỐNG SÂU (PROBE CÓ CẢM BIẾN CHẶN)
-  motion.destination = motion.position;
-  motion.destination.z = 0.0f; // Điểm đích sát đáy máy để ép máy chịu dò xuống sâu
-
-  motion.set_soft_endstop_loose(true);
-  endstops.enable_calibration_probe(true, true);
-  motion.blocking_move((xyz_pos_t)motion.destination, MMM_TO_MMS(CALIBRATION_FEEDRATE_FAST));
-  endstops.enable_calibration_probe(false);
-  endstops.hit_on_purpose();
-  motion.set_soft_endstop_loose(false);
-
-  // ĐỒNG BỘ TOÀN CỤC: Cập nhật lại số xung bước từ Driver vào hệ thống ngay khi chạm cảm biến
-  motion.set_current_from_steppers_for_axis(Z_AXIS);
-  motion.sync_plan_position();
-
-  // Ghi nhận cao độ LÀM VIỆC (Dành cho việc lưu thông tin Object nếu cần)
-  const float measurement = motion.position.z;
-  m.obj_side[TOP] = measurement;
-  m.obj_center.z = measurement - dimensions.z / 2;
-
-  // ------------------------------------------------------------------
-  // BƯỚC 5: TÍNH TOÁN HOTEND OFFSET Z - THUẬT TOÁN ĐỒNG BỘ MỚI (Marlin 2.1.x)
-  // ------------------------------------------------------------------
-  #if HAS_HOTEND_OFFSET
-    static float z_calip_machine_raw[TOOLS] = { };
-    planner.synchronize();
-    motion.set_current_from_steppers_for_axis(Z_AXIS);
-    motion.sync_plan_position();
-    planner.synchronize();
-    const float z_trigger_machine_absolute = planner.get_axis_position_mm(Z_AXIS); 
-
-    if (extruder < TOOLS) {
-      z_calip_machine_raw[extruder] = z_trigger_machine_absolute;
-    }
-    // 2. THUẬT TOÁN TÍNH TOÁN RA SỐ DƯƠNG (+) ĐỂ ĐỒNG BỘ VỚI TOÁN TỬ G43/G43.4 (+=)
-    if (z_calip_machine_raw[REFERENCE_TOOL] > 0.0f) {
-      float cnc_calculated_offset_z = 0.0f;
-      if (extruder == REFERENCE_TOOL) {
-        motion.hotend_offset[REFERENCE_TOOL].z = 0.0f; // Đầu Master Probe luôn bằng 0
-      }
-      else if (z_calip_machine_raw[extruder] > 0.0f) {
-        cnc_calculated_offset_z = z_calip_machine_raw[REFERENCE_TOOL] - z_calip_machine_raw[extruder];
-        motion.hotend_offset[extruder].z = cnc_calculated_offset_z;
-      }
-
-      // SAU KHI NẠP OFFSET MỚI: Bắt buộc phải đồng bộ lại toàn cục để áp dụng ma trận mới
-      planner.synchronize();
-      motion.set_current_from_steppers_for_axis(Z_AXIS);
-      motion.sync_plan_position();
-      planner.synchronize();
-    }
-    // Khôi phục lại offset cũ để an toàn nếu đo lỗi bộ đệm
-    else if (extruder != REFERENCE_TOOL && extruder != 0 && z_calip_machine_raw[REFERENCE_TOOL] == 0.0f) {
-      motion.hotend_offset[extruder].z = saved_hotend_offset_z;
-      planner.synchronize();
-      motion.sync_plan_position();
-      planner.synchronize();
-    }
-  #endif
-
-  // ====================================================================
-  // BƯỚC 6: RÚT DAO LÊN LẠI ĐỈNH CAO AN TOÀN BẰNG CHU TRÌNH G28 Z LÕI HỆ THỐNG
-  // Sửa chính xác cú pháp API v2 của nhánh Marlin 2.1.x Bugfix
-  // ====================================================================
-  #if defined(Z_HOME_DIR) && Z_HOME_DIR > 0
-    gcode.process_subcommands_now(F("G28 Z")); // Ép trục Z chạy Home Max cơ khí thực tế tại điểm 380mm để làm sạch mốc tọa độ
-  #else
-    motion.destination = motion.position;
-    motion.destination.z = _MIN(motion.position.z + 20.0f, (float)Z_MAX_POS);
-    motion.blocking_move((xyz_pos_t)motion.destination, MMM_TO_MMS(CALIBRATION_FEEDRATE_TRAVEL));
-  #endif
-  
-  planner.synchronize();
-
-  if (AXIS_CAN_CALIBRATE(Z)) {
-    update_measurements(m, Z_AXIS);
-  }
-  motion.sync_plan_position();
-}
-*/
 
 /**
  * G425: Perform calibration with calibration object.
@@ -1020,11 +892,13 @@ void GcodeSuite::G425() {
 
   if (motion.homing_needed_error()) return;
 
-  TEMPORARY_BED_LEVELING_STATE(false);
+  #if HAS_LEVELING
+    TEMPORARY_BED_LEVELING_STATE(false);
+  #endif
   motion.set_soft_endstop_loose(true);
 
   measurements_t m;
-  const float uncertainty = parser.floatval('U', CALIBRATION_MEASUREMENT_UNCERTAIN);
+  const float uncertainty = parser.floatval('U', CALIBRATION_MEASUREMENT_UNKNOWN);
   const float uncertainty_tool_length = parser.floatval('L', CALIBRATION_MEASUREMENT_TOOL_LENGTH);
 
   if (parser.seen_test('B'))
@@ -1036,10 +910,12 @@ void GcodeSuite::G425() {
     // Nếu gõ G425 T1 Z hoặc G425 T1 Z0 -> Kích hoạt chế độ đo chiều dài Z nhanh CNC style
     if (parser.seen('Z')) {
       calibrate_toolhead_z_only(m, uncertainty_tool_length, target_tool);
+      calibrate_toolhead_z_only(m, CALIBRATION_MEASUREMENT_UNCERTAIN, target_tool); 
     } 
     // Nếu chỉ gõ G425 T1 -> Chạy chế độ mặc định đo toàn diện X Y Z
     else {
-      calibrate_toolhead(m, uncertainty, uncertainty_tool_length, parser.intval('T', motion.extruder));
+      calibrate_toolhead(m, uncertainty, uncertainty_tool_length, target_tool);
+      calibrate_toolhead(m, CALIBRATION_MEASUREMENT_UNCERTAIN, CALIBRATION_MEASUREMENT_UNCERTAIN, target_tool);
     }
   }
   #if ENABLED(CALIBRATION_REPORTING)

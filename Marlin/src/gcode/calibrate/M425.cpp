@@ -47,7 +47,7 @@
 void GcodeSuite::M425() {
   bool noArgs = true;
 
-  #if ENABLED(CALIBRATION_CODE)
+  #if ENABLED(CALIBRATION_GCODE)
     if (parser.seen('O')) {
       motion.calibration_center[0] = parser.value_linear_units();
       noArgs = false;
@@ -61,7 +61,7 @@ void GcodeSuite::M425() {
       noArgs = false;
     };
   #endif
-  #if ENABLED(BACKLASH_CODE)
+  #if ENABLED(BACKLASH_GCODE)
   auto axis_can_calibrate = [](const uint8_t a) -> bool {
     #define _CAN_CASE(N) case N##_AXIS: return bool(AXIS_CAN_CALIBRATE(N));
     switch (a) {
@@ -93,8 +93,6 @@ void GcodeSuite::M425() {
     }
   #endif
 
-  #endif
-
   if (noArgs) {
     SERIAL_ECHOPGM("Backlash Correction ");
     if (!backlash.get_correction_uint8()) SERIAL_ECHOPGM("in");
@@ -121,20 +119,22 @@ void GcodeSuite::M425() {
       SERIAL_EOL();
     #endif
   }
-  #endif //BACKLASH_CODE
+  #endif //BACKLASH_GCODE
 }
 
 void GcodeSuite::M425_report(const bool forReplay/*=true*/) {
   TERN_(MARLIN_SMALL_BUILD, return);
 
   report_heading_etc(forReplay, F(STR_BACKLASH_COMPENSATION));
-  SERIAL_ECHOPGM_P(
-  #if ENABLED(BACKLASH_CODE)
-    PSTR("  M425 F"), backlash.get_correction()
+  SERIAL_ECHOPGM_P(PSTR("  M425")
+  #if ENABLED(BACKLASH_GCODE)
+    , PSTR("  F"), backlash.get_correction()
     #ifdef BACKLASH_SMOOTHING_MM
       , PSTR(" S"), LINEAR_UNIT(backlash.get_smoothing_mm())
     #endif
+  #endif
   );
+  #if ENABLED(BACKLASH_GCODE)
   #if NUM_AXES
     SERIAL_ECHOPGM_P(NUM_AXIS_PAIRED_LIST(
       SP_X_STR, LINEAR_UNIT(backlash.get_distance_mm(X_AXIS)),
@@ -148,8 +148,8 @@ void GcodeSuite::M425_report(const bool forReplay/*=true*/) {
       SP_W_STR, W_AXIS_UNIT(backlash.get_distance_mm(W_AXIS))
     ));
   #endif
-
-  #if ENABLED(CALIBRATION_CODE)
+  #endif
+  #if ENABLED(CALIBRATION_GCODE)
   SERIAL_ECHOPGM_P(
     , PSTR("O"), LINEAR_UNIT(calibration_center_x)
     , PSTR("P"), LINEAR_UNIT(calibration_center_y)
@@ -159,4 +159,4 @@ void GcodeSuite::M425_report(const bool forReplay/*=true*/) {
   SERIAL_EOL();
 }
 
-#endif // BACKLASH_GCODE
+#endif // ANY(BACKLASH_GCODE, CALIBRATION_GCODE)
