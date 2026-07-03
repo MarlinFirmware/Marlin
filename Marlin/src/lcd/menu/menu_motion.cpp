@@ -150,7 +150,11 @@ void _menu_move_distance(const AxisEnum axis, const screenFunc_t func, const int
 
   BACK_ITEM(MSG_MOVE_AXIS);
 
-  #define __LINEAR_LIMIT(D) ((D) < motion.max_axis_length(axis) / 2 + 1)
+  #if NUM_AXES
+    #define __LINEAR_LIMIT(D) ((D) < motion.max_axis_length(axis) / 2 + 1)
+  #else
+    #define __LINEAR_LIMIT(D) true
+  #endif
   #if HAS_EXTRUDERS
     #ifndef EXTRUDE_MAXLENGTH
       #define EXTRUDE_MAXLENGTH 50
@@ -308,6 +312,47 @@ void menu_move() {
   }
 #endif
 
+#if ENABLED(RESONANCE_TEST)
+
+  #include "../../feature/resonance/resonance_generator.h"
+
+  void menu_resonance_freq() {
+    START_MENU();
+    BACK_ITEM(MSG_RESONANCE_TEST);
+
+    STATIC_ITEM(MSG_RETRIEVE_FREQ);
+    EDIT_ITEM(float62, MSG_TIMELINE_FREQ, &rtg.timeline, 0.0f, 600.0f);
+    PSTRING_ITEM(MSG_RESONANCE_FREQ, ftostr53_63(rtg.getFrequencyFromTimeline()), SS_FULL);
+
+    END_MENU();
+  }
+
+  void menu_resonance_test() {
+    START_MENU();
+    BACK_ITEM(MSG_MOTION);
+
+    if (rtg.isActive() && !rtg.isDone()) {
+      STATIC_ITEM(MSG_RT_RUNNING);
+      GCODES_ITEM(MSG_RT_STOP, F("M496"));
+    }
+    else {
+      #if HAS_X_AXIS
+        GCODES_ITEM_N(X_AXIS, MSG_RT_START_N, F("M495 X S"));
+      #endif
+      #if HAS_Y_AXIS
+        GCODES_ITEM_N(Y_AXIS, MSG_RT_START_N, F("M495 Y S"));
+      #endif
+      #if HAS_Z_AXIS
+        GCODES_ITEM_N(Z_AXIS, MSG_RT_START_N, F("M495 Z S"));
+      #endif
+      SUBMENU(MSG_RETRIEVE_FREQ, menu_resonance_freq);
+    }
+
+    END_MENU();
+  }
+
+#endif // RESONANCE_TEST
+
 #if ENABLED(FT_MOTION_MENU)
 
   #include "../../module/ft_motion.h"
@@ -383,7 +428,7 @@ void menu_move() {
     END_MENU();
   }
 
-  #if ENABLED(FTM_POLYS)
+  #if HAS_FTM_TRAJECTORY_SELECTION
 
     void menu_ftm_trajectory_generator() {
       const TrajectoryType traj_type = ftMotion.getTrajectoryType();
@@ -393,56 +438,24 @@ void menu_move() {
       if (traj_type != TrajectoryType::TRAPEZOIDAL) ACTION_ITEM(MSG_FTM_TRAPEZOIDAL, []{
         queue.inject(TS(F("M494"), 'T', int(TrajectoryType::TRAPEZOIDAL))); ui.go_back();
       });
-      if (traj_type != TrajectoryType::POLY5) ACTION_ITEM(MSG_FTM_POLY5, []{
-        queue.inject(TS(F("M494"), 'T', int(TrajectoryType::POLY5))); ui.go_back();
-      });
-      if (traj_type != TrajectoryType::POLY6) ACTION_ITEM(MSG_FTM_POLY6, []{
-        queue.inject(TS(F("M494"), 'T', int(TrajectoryType::POLY6))); ui.go_back();
-      });
+      #if ENABLED(FTM_POLYS)
+        if (traj_type != TrajectoryType::POLY5) ACTION_ITEM(MSG_FTM_POLY5, []{
+          queue.inject(TS(F("M494"), 'T', int(TrajectoryType::POLY5))); ui.go_back();
+        });
+        if (traj_type != TrajectoryType::POLY6) ACTION_ITEM(MSG_FTM_POLY6, []{
+          queue.inject(TS(F("M494"), 'T', int(TrajectoryType::POLY6))); ui.go_back();
+        });
+      #endif
+      #if ENABLED(FTM_CONSTANT_JOLT)
+        if (traj_type != TrajectoryType::CONSTANT_JOLT) ACTION_ITEM(MSG_FTM_CONSTANT_JOLT, []{
+          queue.inject(TS(F("M494"), 'T', int(TrajectoryType::CONSTANT_JOLT))); ui.go_back();
+        });
+      #endif
 
       END_MENU();
     }
 
-  #endif // FTM_POLYS
-
-  #if ENABLED(FTM_RESONANCE_TEST)
-
-    void menu_ftm_resonance_freq() {
-      START_MENU();
-      BACK_ITEM(MSG_FTM_RESONANCE_TEST);
-
-      STATIC_ITEM(MSG_FTM_RETRIEVE_FREQ);
-      EDIT_ITEM(float62, MSG_FTM_TIMELINE_FREQ, &ftMotion.rtg.timeline, 0.0f, 600.0f);
-      PSTRING_ITEM(MSG_FTM_RESONANCE_FREQ, ftostr53_63(ftMotion.rtg.getFrequencyFromTimeline()), SS_FULL);
-
-      END_MENU();
-    }
-
-    void menu_ftm_resonance_test() {
-      START_MENU();
-      BACK_ITEM(MSG_FIXED_TIME_MOTION);
-
-      if (ftMotion.rtg.isActive() && !ftMotion.rtg.isDone()) {
-        STATIC_ITEM(MSG_FTM_RT_RUNNING);
-        GCODES_ITEM(MSG_FTM_RT_STOP, F("M496"));
-      }
-      else {
-        #if HAS_X_AXIS
-          GCODES_ITEM_N(X_AXIS, MSG_FTM_RT_START_N, F("M495 X S"));
-        #endif
-        #if HAS_Y_AXIS
-          GCODES_ITEM_N(Y_AXIS, MSG_FTM_RT_START_N, F("M495 Y S"));
-        #endif
-        #if HAS_Z_AXIS
-          GCODES_ITEM_N(Z_AXIS, MSG_FTM_RT_START_N, F("M495 Z S"));
-        #endif
-        SUBMENU(MSG_FTM_RETRIEVE_FREQ, menu_ftm_resonance_freq);
-      }
-
-      END_MENU();
-    }
-
-  #endif // FTM_RESONANCE_TEST
+  #endif // HAS_FTM_TRAJECTORY_SELECTION
 
   #if HAS_DYNAMIC_FREQ
 
@@ -542,14 +555,24 @@ void menu_move() {
     // Show only when FT Motion is active (or optionally always show)
     if (TERN(FT_MOTION_NO_MENU_TOGGLE, true, c.active)) {
 
-      #if ENABLED(FTM_POLYS)
+      #if HAS_FTM_TRAJECTORY_SELECTION
         SUBMENU_S(ftMotion.getTrajectoryName(), MSG_FTM_TRAJECTORY, menu_ftm_trajectory_generator);
-        if (ftMotion.getTrajectoryType() == TrajectoryType::POLY6) {
-          editable.decimal = c.poly6_acceleration_overshoot;
-          EDIT_ITEM(float42_52, MSG_FTM_POLY6_OVERSHOOT, &editable.decimal, 1.25f, 1.875f, []{
-            queue.inject(TS(F("M494"), 'O', editable.decimal));
-          });
-        }
+        #if ENABLED(FTM_POLYS)
+          if (ftMotion.getTrajectoryType() == TrajectoryType::POLY6) {
+            editable.decimal = c.poly6_acceleration_overshoot;
+            EDIT_ITEM(float42_52, MSG_FTM_POLY6_OVERSHOOT, &editable.decimal, 1.25f, 1.875f, []{
+              queue.inject(TS(F("M494"), 'O', editable.decimal));
+            });
+          }
+        #endif
+        #if ENABLED(FTM_CONSTANT_JOLT)
+          if (ftMotion.getTrajectoryType() == TrajectoryType::CONSTANT_JOLT) {
+            editable.decimal = c.jolt / 1000.0f;
+            EDIT_ITEM(float4, MSG_FTM_JOLT, &editable.decimal, 1.0f, 10000.0f, []{
+              queue.inject(TS(F("M494"), 'J', editable.decimal));
+            });
+          }
+        #endif
       #endif
 
       CARTES_MAP(_FTM_AXIS_SUBMENU);
@@ -558,10 +581,6 @@ void menu_move() {
       EDIT_ITEM(bool, MSG_FTM_AXIS_SYNC, &editable.state, []{
         queue.inject(TS(F("M493"), IAXIS_CHAR(MenuItemBase::itemIndex), 'H', int(editable.state)));
       });
-
-      #if ENABLED(FTM_RESONANCE_TEST)
-        SUBMENU(MSG_FTM_RESONANCE_TEST, menu_ftm_resonance_test);
-      #endif
     }
 
     END_MENU();
@@ -574,7 +593,7 @@ void menu_move() {
       // Copy Flash strings to RAM for C-string substitution
       // For U8G paged rendering check and skip extra string copy
 
-      #if ENABLED(FTM_POLYS)
+      #if HAS_FTM_TRAJECTORY_SELECTION
         #if CACHE_FOR_SPEED
           bool got_t = false;
         #endif
@@ -590,7 +609,7 @@ void menu_move() {
 
     #else // !__AVR__
 
-      #if ENABLED(FTM_POLYS)
+      #if HAS_FTM_TRAJECTORY_SELECTION
         auto _traj_name = []{ return ftMotion.getTrajectoryName(); };
       #endif
 
@@ -599,14 +618,24 @@ void menu_move() {
     START_MENU();
     BACK_ITEM(MSG_TUNE);
 
-    #if ENABLED(FTM_POLYS)
+    #if HAS_FTM_TRAJECTORY_SELECTION
       SUBMENU_S(_traj_name(), MSG_FTM_TRAJECTORY, menu_ftm_trajectory_generator);
-      if (ftMotion.getTrajectoryType() == TrajectoryType::POLY6) {
-        editable.decimal = ftMotion.cfg.poly6_acceleration_overshoot;
-        EDIT_ITEM(float42_52, MSG_FTM_POLY6_OVERSHOOT, &editable.decimal, 1.25f, 1.875f, []{
-          queue.inject(TS(F("M494"), 'O', editable.decimal));
-        });
-      }
+      #if ENABLED(FTM_POLYS)
+        if (ftMotion.getTrajectoryType() == TrajectoryType::POLY6) {
+          editable.decimal = ftMotion.cfg.poly6_acceleration_overshoot;
+          EDIT_ITEM(float42_52, MSG_FTM_POLY6_OVERSHOOT, &editable.decimal, 1.25f, 1.875f, []{
+            queue.inject(TS(F("M494"), 'O', editable.decimal));
+          });
+        }
+      #endif
+      #if ENABLED(FTM_CONSTANT_JOLT)
+        if (ftMotion.getTrajectoryType() == TrajectoryType::CONSTANT_JOLT) {
+          editable.decimal = ftMotion.cfg.jolt / 1000.0f;
+          EDIT_ITEM(float4, MSG_FTM_JOLT, &editable.decimal, 1.0f, 10000.0f, []{
+            queue.inject(TS(F("M494"), 'J', editable.decimal));
+          });
+        }
+      #endif
     #endif
 
     SHAPED_MAP(_FTM_AXIS_SUBMENU);
@@ -648,6 +677,13 @@ void menu_motion() {
   //
   #if ENABLED(FT_MOTION_MENU)
     SUBMENU(MSG_FIXED_TIME_MOTION, menu_ft_motion);
+  #endif
+
+  //
+  // M495 Resonance Test
+  //
+  #if ENABLED(RESONANCE_TEST)
+    SUBMENU(MSG_RESONANCE_TEST, menu_resonance_test);
   #endif
 
   //
