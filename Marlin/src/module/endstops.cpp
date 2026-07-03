@@ -376,7 +376,7 @@ void Endstops::event_handler() {
         motion.destination[AX_ENUM(A)] = motion.position[AX_ENUM(A)];  \
       } \
       if (TERN0(HAS_##A##_MAX_STATE, TEST(hit_state, ES_ENUM(A,MAX)))) { \
-        motion.position[AX_ENUM(A)] = motion.base_max_pos(AX_ENUM(A)); \
+        motion.position[AX_ENUM(A)] = motion.base_max_pos(AX_ENUM(A)) + (TERN0(HAS_TOOL_CENTERPOINT_CONTROL, motion.tool_centerpoint_control) || TERN1(HAS_TOOL_LENGTH_COMPENSATION, motion.simple_tool_length_compensation)) ? motion.hotend_offset[motion.extruder][AX_ENUM(A)] : 0.0f; \
         motion.destination[AX_ENUM(A)] = motion.position[AX_ENUM(A)]; \
       } \
     } while(0);
@@ -393,6 +393,15 @@ void Endstops::event_handler() {
         ENDSTOP_SET_POS(V),
         ENDSTOP_SET_POS(W)
       );
+      if (TERN0(HAS_Z_MAX_STATE, TEST(hit_state, ES_ENUM(Z,MAX)))){
+        if (TERN0(HAS_TOOL_CENTERPOINT_CONTROL, motion.tool_centerpoint_control) || TERN1(HAS_TOOL_LENGTH_COMPENSATION, motion.simple_tool_length_compensation)) {
+          motion.position.z = (Z_MAX_POS) + motion.hotend_offset[motion.extruder].z;
+        }
+        else {
+          motion.position.z = (Z_MAX_POS);
+        }
+        motion.destination.z = motion.position.z;
+      }
       motion.sync_plan_position();
     }
   
