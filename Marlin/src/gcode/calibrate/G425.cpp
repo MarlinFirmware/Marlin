@@ -405,15 +405,15 @@ inline void probe_sides(measurements_t &m, const float uncertainty, const float 
   // The difference between the known and the measured location
   // of the calibration object is the positional error
   NUM_AXIS_CODE(
-    m.pos_error.x = TERN0(HAS_X_CENTER, motion.calibrationcenter.x - m.obj_center.x),
-    m.pos_error.y = TERN0(HAS_Y_CENTER, motion.calibrationcenter.y - m.obj_center.y),
-    m.pos_error.z = motion.calibrationcenter.z - m.obj_center.z,
-    m.pos_error.i = TERN0(HAS_I_CENTER, motion.calibrationcenter.i - m.obj_center.i),
-    m.pos_error.j = TERN0(HAS_J_CENTER, motion.calibrationcenter.j - m.obj_center.j),
-    m.pos_error.k = TERN0(HAS_K_CENTER, motion.calibrationcenter.k - m.obj_center.k),
-    m.pos_error.u = TERN0(HAS_U_CENTER, motion.calibrationcenter.u - m.obj_center.u),
-    m.pos_error.v = TERN0(HAS_V_CENTER, motion.calibrationcenter.v - m.obj_center.v),
-    m.pos_error.w = TERN0(HAS_W_CENTER, motion.calibrationcenter.w - m.obj_center.w)
+    m.pos_error.x = TERN0(HAS_X_CENTER, motion.calibration_center.x - m.obj_center.x),
+    m.pos_error.y = TERN0(HAS_Y_CENTER, motion.calibration_center.y - m.obj_center.y),
+    m.pos_error.z = motion.calibration_center.z - m.obj_center.z,
+    m.pos_error.i = TERN0(HAS_I_CENTER, motion.calibration_center.i - m.obj_center.i),
+    m.pos_error.j = TERN0(HAS_J_CENTER, motion.calibration_center.j - m.obj_center.j),
+    m.pos_error.k = TERN0(HAS_K_CENTER, motion.calibration_center.k - m.obj_center.k),
+    m.pos_error.u = TERN0(HAS_U_CENTER, motion.calibration_center.u - m.obj_center.u),
+    m.pos_error.v = TERN0(HAS_V_CENTER, motion.calibration_center.v - m.obj_center.v),
+    m.pos_error.w = TERN0(HAS_W_CENTER, motion.calibration_center.w - m.obj_center.w)
   );
 }
 
