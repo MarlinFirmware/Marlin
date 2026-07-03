@@ -126,14 +126,15 @@ void GcodeSuite::M425_report(const bool forReplay/*=true*/) {
   TERN_(MARLIN_SMALL_BUILD, return);
 
   report_heading_etc(forReplay, F(STR_BACKLASH_COMPENSATION));
-  SERIAL_ECHOPGM_P(PSTR("  M425")
+  SERIAL_ECHOPGM_P(PSTR("  M425"));
   #if ENABLED(BACKLASH_GCODE)
-    , PSTR("  F"), backlash.get_correction()
+    SERIAL_ECHOPGM_P(PSTR("  F"), backlash.get_correction()
     #ifdef BACKLASH_SMOOTHING_MM
       , PSTR(" S"), LINEAR_UNIT(backlash.get_smoothing_mm())
     #endif
+    );
   #endif
-  );
+
   #if ENABLED(BACKLASH_GCODE)
   #if NUM_AXES
     SERIAL_ECHOPGM_P(NUM_AXIS_PAIRED_LIST(
