@@ -11,7 +11,8 @@ import re, os
 FILES = ("Marlin/Configuration.h", "Marlin/Configuration_adv.h")
 
 def resolve(base=None):
-    """Return config FILES as absolute paths.
+    """
+    Return config FILES as absolute paths.
 
     With --base <dir>: try flat layout first (Configurations repo:
     <dir>/Configuration.h), then fall back to <dir>/Marlin/Configuration.h.
