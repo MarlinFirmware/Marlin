@@ -4,8 +4,29 @@
 #
 # Start Jekyll in watch mode to work on Marlin Documentation and preview locally
 #
+# Usage: mfdoc [--host HOST] [--port PORT]
+#
 
-[[ $# == 0 ]] || { echo "Usage: `basename $0`" 1>&2 ; exit 1; }
+TEST=0
+HOST="127.0.0.1"
+PORT="4000"
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+        -t) TEST=1; shift ;;
+    --test) TEST=1; shift ;;
+    --host) shift; HOST="$1"; shift ;;
+    --port) shift; PORT="$1"; shift ;;
+    --help)
+      echo "Usage: `basename $0` [--test] [--host HOST] [--port PORT]"
+      exit 0
+      ;;
+    *)
+      echo "Usage: `basename $0` [--test] [--host HOST] [--port PORT]" 1>&2
+      exit 1
+      ;;
+  esac
+done
 
 MFINFO=$(mfinfo "$@") || exit 1
 IFS=' ' read -a INFO <<< "$MFINFO"
@@ -16,7 +37,7 @@ BRANCH=${INFO[5]}
 [[ $ORG == "MarlinFirmware" && $REPO == "MarlinDocumentation" ]] || { echo "Wrong repository." 1>&2; exit 1; }
 
 opensite() {
-  URL="http://127.0.0.1:4000/"
+  URL="http://$HOST:$PORT/"
   OPEN=$( which gnome-open xdg-open open | head -n1 )
   if [ -z "$OPEN" ]; then
     echo "Can't find a tool to open the URL:"
@@ -29,7 +50,7 @@ opensite() {
 
 echo "Previewing MarlinDocumentation..."
 
-bundle exec jekyll serve --watch --incremental | {
+bundle exec jekyll serve --host "$HOST" --port "$PORT" --watch --incremental | {
   while IFS= read -r line
   do
     [[ $line =~ "Server running" ]] && opensite
