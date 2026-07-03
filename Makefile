@@ -10,13 +10,21 @@ ifeq ($(OS),Windows_NT)
 	# Windows: use `where` – fall back through the three common names
 	PYTHON := $(shell which python 2>nul || which python3 2>nul || which py 2>nul)
 	# Windows: Use Python script to find pins files
-	PINS := $(shell $(PYTHON) $(MAKESCRIPTS_DIR)/find.py Marlin/src/pins -mindepth 2 -name 'pins_*.h')
+	ALL_PINS := $(shell $(PYTHON) $(MAKESCRIPTS_DIR)/find.py Marlin/src/pins -mindepth 2 -name 'pins_*.h')
 else
 	# POSIX: use `command -v` – prefer python3 over python
 	PYTHON := $(shell command -v python3 2>/dev/null || command -v python 2>/dev/null)
 	# Unix/Linux: Use find command
-	PINS := $(shell find Marlin/src/pins -mindepth 2 -name 'pins_*.h')
+	ALL_PINS := $(shell find Marlin/src/pins -mindepth 2 -name 'pins_*.h')
 endif
+
+PINSPATH ?=
+PINSPATH := $(patsubst Marlin/src/pins/%,%,$(PINSPATH))
+PINSPATH := $(patsubst %/,%,$(PINSPATH))
+
+# If PINSPATH already contains %, use it directly.
+# Otherwise append /% to match all files below the path.
+PINS := $(if $(PINSPATH),$(filter Marlin/src/pins/$(PINSPATH)/%,$(ALL_PINS)),$(ALL_PINS))
 
 # Check that the found interpreter is Python 3
 # Error if there's no Python 3 available
@@ -33,6 +41,7 @@ help:
 	@echo "Tasks for local development:"
 	@echo "make marlin                    : Build Marlin for the configured board"
 	@echo "make format-pins -j            : Reformat all pins files (-j for parallel execution)"
+	@echo "make format-pins -j PINSPATH=dir : Reformat only pins files under dir"
 	@echo "make validate-lines -j         : Validate line endings, fails on trailing whitespace, etc."
 	@echo "make validate-pins -j          : Validate all pins files, fails if any require reformatting"
 	@echo "make validate-boards -j        : Validate boards.h and pins.h for standards compliance"
