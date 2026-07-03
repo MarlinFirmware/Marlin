@@ -180,7 +180,7 @@ public:
    */
   #if ENABLED(EDITABLE_HOMING_FEEDRATE)
     static xyz_feedrate_t homing_feedrate_mm_m;
-  #else
+  #elif NUM_AXES
     static constexpr xyz_feedrate_t homing_feedrate_mm_m = HOMING_FEEDRATE_MM_M;
   #endif
 
@@ -272,31 +272,35 @@ public:
     #define DEFS_PROGMEM PROGMEM
   #endif
 
-  static float pgm_read_any(const float *p)   { return TERN(__IMXRT1062__, *p, pgm_read_float(p)); }
-  static int8_t pgm_read_any(const int8_t *p) { return TERN(__IMXRT1062__, *p, pgm_read_byte(p)); }
+  #if NUM_AXES
 
-  #define XYZ_DEFS(T, NAME, OPT) \
-    static T NAME(const AxisEnum axis) { \
-      static constexpr XYZval<T> NAME##_P DEFS_PROGMEM = NUM_AXIS_ARRAY(X_##OPT, Y_##OPT, Z_##OPT, I_##OPT, J_##OPT, K_##OPT, U_##OPT, V_##OPT, W_##OPT); \
-      return pgm_read_any(&NAME##_P[axis]); \
+    static float pgm_read_any(const float *p)   { return TERN(__IMXRT1062__, *p, pgm_read_float(p)); }
+    static int8_t pgm_read_any(const int8_t *p) { return TERN(__IMXRT1062__, *p, pgm_read_byte(p)); }
+
+    #define XYZ_DEFS(T, NAME, OPT) \
+      static T NAME(const AxisEnum axis) { \
+        static constexpr XYZval<T> NAME##_P DEFS_PROGMEM = NUM_AXIS_ARRAY(X_##OPT, Y_##OPT, Z_##OPT, I_##OPT, J_##OPT, K_##OPT, U_##OPT, V_##OPT, W_##OPT); \
+        return pgm_read_any(&NAME##_P[axis]); \
+      }
+    XYZ_DEFS(float,  base_min_pos,  MIN_POS);     // base_min_pos(axis)
+    XYZ_DEFS(float,  base_max_pos,  MAX_POS);     // base_max_pos(axis)
+    XYZ_DEFS(float,  base_home_pos, HOME_POS);    // base_home_pos(axis)
+    XYZ_DEFS(float,  max_axis_length, MAX_LENGTH); // max_axis_length(axis)
+    XYZ_DEFS(int8_t, home_dir,      HOME_DIR);    // home_dir(axis)
+
+    static float home_bump_mm(const AxisEnum axis) {
+      static const xyz_pos_t home_bump_mm_P DEFS_PROGMEM = HOMING_BUMP_MM;
+      return pgm_read_any(&home_bump_mm_P[axis]);
     }
-  XYZ_DEFS(float,  base_min_pos,  MIN_POS);     // base_min_pos(axis)
-  XYZ_DEFS(float,  base_max_pos,  MAX_POS);     // base_max_pos(axis)
-  XYZ_DEFS(float,  base_home_pos, HOME_POS);    // base_home_pos(axis)
-  XYZ_DEFS(float,  max_axis_length, MAX_LENGTH); // max_axis_length(axis)
-  XYZ_DEFS(int8_t, home_dir,      HOME_DIR);    // home_dir(axis)
 
-  static float home_bump_mm(const AxisEnum axis) {
-    static const xyz_pos_t home_bump_mm_P DEFS_PROGMEM = HOMING_BUMP_MM;
-    return pgm_read_any(&home_bump_mm_P[axis]);
-  }
+    #if HAS_X_AXIS
+      static int8_t tool_x_home_dir(const uint8_t tool=extruder) {
+        UNUSED(tool);
+        return TERN(DUAL_X_CARRIAGE, tool ? 1 : -1, X_HOME_DIR);
+      }
+    #endif
 
-  #if HAS_X_AXIS
-    static int8_t tool_x_home_dir(const uint8_t tool=extruder) {
-      UNUSED(tool);
-      return TERN(DUAL_X_CARRIAGE, tool ? 1 : -1, X_HOME_DIR);
-    }
-  #endif
+  #endif // NUM_AXES
 
   //
   // Workspace offsets
