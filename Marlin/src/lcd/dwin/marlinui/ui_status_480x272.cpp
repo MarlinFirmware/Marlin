@@ -261,6 +261,49 @@ FORCE_INLINE void _draw_feedrate_status(const char *value, uint16_t x, uint16_t 
   dwinDrawString(true, font14x28, COLOR_WHITE, COLOR_BG_BLACK, x + 14, y, S(dwin_string.string()));
 }
 
+//
+// Rotating time display helpers — called by MarlinUI::rotate_progress()
+//
+
+#if HAS_ROTATE_PROGRESS
+
+  // Helper: render a prefixed time string at the portrait-mode time position
+  static void _draw_time_string(const char prefix, const duration_t &time) {
+    char buffer[14];
+    time.toDigital(buffer);
+    dwin_string.set(prefix);
+    dwin_string.add(buffer);
+    #if ENABLED(DWIN_MARLINUI_PORTRAIT)
+      dwinDrawString(true, font14x28, COLOR_WHITE, COLOR_BG_BLACK, (LCD_PIXEL_WIDTH - ((dwin_string.length + 1) * 14)), 290, S(dwin_string.string()));
+    #else
+      dwinDrawString(true, font14x28, COLOR_WHITE, COLOR_BG_BLACK, 230, 170, S(dwin_string.string()));
+    #endif
+  }
+
+  #if ENABLED(SHOW_ELAPSED_TIME)
+    void MarlinUI::drawElapsed() {
+      if (print_job_timer.isRunning() || print_job_timer.isPaused())
+        _draw_time_string('E', print_job_timer.duration());
+    }
+  #endif
+  #if ENABLED(SHOW_REMAINING_TIME)
+    void MarlinUI::drawRemain() {
+      if (print_job_timer.isRunning() && get_remaining_time() != 0)
+        _draw_time_string('R', duration_t(get_remaining_time()));
+    }
+  #endif
+  #if ENABLED(SHOW_INTERACTION_TIME)
+    void MarlinUI::drawInter() {
+      if (print_job_timer.isRunning() && interaction_time)
+        _draw_time_string('C', duration_t(interaction_time));
+    }
+  #endif
+  #if ENABLED(SHOW_PROGRESS_PERCENT)
+    void MarlinUI::drawPercent() {} // percent is shown in the progress bar, not the time slot
+  #endif
+
+#endif // HAS_ROTATE_PROGRESS
+
 /**
  * Draw the MarlinUI Status Screen for Ender-3 V2
  */
@@ -335,60 +378,45 @@ void MarlinUI::draw_status_screen() {
     );
   }
 
-  // TODO!
-
   //
-  // Elapsed time
+  // Elapsed / Remaining / Interaction time display
   //
-  char buffer[14];
-  duration_t time;
+  #if HAS_TIME_DISPLAY
+  {
+    #if ENABLED(DWIN_MARLINUI_PORTRAIT)
 
-  #if ENABLED(DWIN_MARLINUI_PORTRAIT)
+      // Portrait: rotate through enabled time values on each blink edge via rotate_progress()
+      TERN_(HAS_ROTATE_PROGRESS, ui.rotate_progress());
 
-    // Portrait mode only shows one value at a time, and will rotate if many are enabled
-    dwin_string.set();
-    char prefix = ' ';
-    #if ENABLED(SHOW_REMAINING_TIME)
-      if (blink && print_job_timer.isRunning()) {
-        time = get_remaining_time();
-        prefix = 'R';
-      }
-      else
-    #endif
-        time = print_job_timer.duration();
+    #else // !DWIN_MARLINUI_PORTRAIT
 
-    time.toDigital(buffer);
-    dwin_string.add(prefix);
-    dwin_string.add(buffer);
-    dwinDrawString(true, font14x28, COLOR_WHITE, COLOR_BG_BLACK, (LCD_PIXEL_WIDTH - ((dwin_string.length + 1) * 14)), 290, S(dwin_string.string()));
+      // Landscape: rotate primary slot on the left, remaining on the right (if running)
+      TERN_(HAS_ROTATE_PROGRESS, ui.rotate_progress());
 
-  #else
-
-    // landscape mode shows both elapsed and remaining (if SHOW_REMAINING_TIME)
-    time = print_job_timer.duration();
-    time.toDigital(buffer);
-    dwin_string.set(' ');
-    dwin_string.add(buffer);
-    dwinDrawString(true, font14x28, COLOR_WHITE, COLOR_BG_BLACK, 230, 170, S(dwin_string.string()));
-
-    #if ENABLED(SHOW_REMAINING_TIME)
-      if (print_job_timer.isRunning()) {
-        time = get_remaining_time();
-        dwinDrawString(true, font14x28, COLOR_ICONBLUE, COLOR_BG_BLACK, 336, 170, S(" R "));
-        if (print_job_timer.isPaused() && blink)
-          dwin_string.set(F("     "));
-        else {
-          time.toDigital(buffer);
-          dwin_string.set(buffer);
+      #if ENABLED(SHOW_REMAINING_TIME)
+      {
+        char buffer[14];
+        if (print_job_timer.isRunning()) {
+          const duration_t remain = get_remaining_time();
+          dwinDrawString(true, font14x28, COLOR_ICONBLUE, COLOR_BG_BLACK, 336, 170, S(" R "));
+          if (print_job_timer.isPaused() && blink)
+            dwin_string.set(F("     "));
+          else {
+            remain.toDigital(buffer);
+            dwin_string.set(buffer);
+          }
+          dwinDrawString(true, font14x28, COLOR_WHITE, COLOR_BG_BLACK, 378, 170, S(dwin_string.string()));
         }
-        dwinDrawString(true, font14x28, COLOR_WHITE, COLOR_BG_BLACK, 378, 170, S(dwin_string.string()));
+        else if (!ui.did_first_redraw || old_is_printing != print_job_timer.isRunning()) {
+          dwin_string.set(F("        "));
+          dwinDrawString(true, font14x28, COLOR_ICONBLUE, COLOR_BG_BLACK, 336, 170, S(dwin_string.string()));
+        }
       }
-      else if (!ui.did_first_redraw || old_is_printing != print_job_timer.isRunning()) {
-        dwin_string.set(F("        "));
-        dwinDrawString(true, font14x28, COLOR_ICONBLUE, COLOR_BG_BLACK, 336, 170, S(dwin_string.string()));
-      }
-    #endif
-  #endif
+      #endif
+
+    #endif // !DWIN_MARLINUI_PORTRAIT
+  }
+  #endif // HAS_TIME_DISPLAY
 
   //
   // Progress Bar

@@ -57,6 +57,10 @@
   #include "dwin/marlinui/marlinui_dwin.h" // for LCD_WIDTH
 #endif
 
+#if ENABLED(LCD_I2C_TYPE_MCP23017)
+  #include "HD44780/marlinui_HD44780.h" // Needed for LCD_HAS_STATUS_INDICATORS
+#endif
+
 typedef bool (*statusResetFunc_t)();
 
 #if HAS_WIRED_LCD
@@ -95,7 +99,7 @@ typedef bool (*statusResetFunc_t)();
   #define LCD_UPDATE_INTERVAL DIV_TERN(DOUBLE_LCD_FRAMERATE, TERN(HAS_TOUCH_BUTTONS, 50, 100), 2)
 #endif
 
-#if LCD_WITH_BLINK && HAS_EXTRA_PROGRESS && !IS_DWIN_MARLINUI
+#if LCD_WITH_BLINK && HAS_EXTRA_PROGRESS
   #define HAS_ROTATE_PROGRESS 1
 #endif
 
@@ -249,7 +253,7 @@ public:
   }
 
   #if ENABLED(LCD_HAS_STATUS_INDICATORS)
-    static void update_indicators();
+    static void update_indicators(const bool forceUpdate=false);
   #endif
 
   #if ALL(HAS_MARLINUI_MENU, TOUCH_SCREEN_CALIBRATION)

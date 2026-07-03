@@ -39,6 +39,10 @@
   #include "../../feature/probe_temp_comp.h"
 #endif
 
+#if ENABLED(FT_MOTION)
+  #include "../../module/ft_motion.h"
+#endif
+
 /**
  * M48: Z probe repeatability measurement function.
  *
@@ -100,6 +104,10 @@ void GcodeSuite::M48() {
     SERIAL_ECHOLNPGM(GCODE_ERR_MSG("Legs of movement implausible (0-15)."));
     return;
   }
+
+  // Potentially disable Fixed-Time Motion for probing
+  TERN_(FT_MOTION, FTM_DISABLE_IN_SCOPE());
+
   if (n_legs == 1) n_legs = 2;
 
   // Schizoid motion as an optional stress-test
