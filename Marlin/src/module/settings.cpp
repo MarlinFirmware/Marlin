@@ -3403,8 +3403,12 @@ void MarlinSettings::reset() {
   //
   // Calibration Center
   //
-  TERN_(CALIBRATION_GCODE, motion.calibration_center = CALIBRATION_OBJECT_CENTER)
-  
+  #if ENABLED(CALIBRATION_GCODE)
+    constexpr float calib_center[] = NOZZLE_TO_PROBE_OFFSET;
+    static_assert(COUNT(calib_center) == NUM_AXES, "CALIBRATION_CENTER must contain offsets for each axis X, Y, Z....");
+    LOOP_NUM_AXES(a) motion.calibration_center[a] = calib_center[a];
+  #endif
+
   //
   // Spindle Acceleration
   //
