@@ -152,9 +152,9 @@ void GcodeSuite::M425_report(const bool forReplay/*=true*/) {
   #endif
   #if ENABLED(CALIBRATION_GCODE)
   SERIAL_ECHOPGM_P(
-    , PSTR("O"), LINEAR_UNIT(calibration_center_x)
-    , PSTR("P"), LINEAR_UNIT(calibration_center_y)
-    , PSTR("Q"), LINEAR_UNIT(calibration_center_z)
+    , PSTR("O"), LINEAR_UNIT(motion.calibration_center.x)
+    , PSTR("P"), LINEAR_UNIT(motion.calibration_center.y)
+    , PSTR("Q"), LINEAR_UNIT(motion.calibration_center.z)
   );
   #endif
   SERIAL_EOL();
