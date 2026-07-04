@@ -3404,8 +3404,8 @@ void MarlinSettings::reset() {
   // Calibration Center
   //
   #if ENABLED(CALIBRATION_GCODE)
-    constexpr float calib_center[] = NOZZLE_TO_PROBE_OFFSET;
-    static_assert(COUNT(calib_center) == NUM_AXES, "CALIBRATION_CENTER must contain offsets for each axis X, Y, Z....");
+    constexpr float calib_center[] = CALIBRATION_OBJECT_CENTER;
+    static_assert(COUNT(calib_center) == NUM_AXES, "CALIBRATION_OBJECT_CENTER must contain offsets for each axis X, Y, Z....");
     LOOP_NUM_AXES(a) motion.calibration_center[a] = calib_center[a];
   #endif
 
