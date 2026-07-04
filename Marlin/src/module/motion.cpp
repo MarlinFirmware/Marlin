@@ -161,7 +161,7 @@ xyz_pos_t Motion::cartes;
 #endif
 
 #if ENABLED(CALIBRATION_GCODE)
-  xyz_pos_t calibration_center = CALIBRATION_OBJECT_CENTER;
+  xyz_pos_t Motion::calibration_center = CALIBRATION_OBJECT_CENTER;
 #endif
 
 // The feedrate for the current move, often used as the default if
