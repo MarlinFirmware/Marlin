@@ -51,7 +51,7 @@ public:
         int16_t get_ftm_threshold() { return ftm_sg_thrs; }
     #endif
     #if HAS_STANDARD_MOTION
-        bool std_stdSuccess() { return std_tuning_success; }
+        bool sg_stdSuccess() { return std_tuning_success; }
         int16_t get_std_threshold() { return std_sg_thrs; }
     #endif
 
