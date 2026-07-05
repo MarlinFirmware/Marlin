@@ -77,8 +77,6 @@ private:
         // Tune StallGuard for a given axis with StallGuard4 driver(s) (for TMC2209 or TMC2240 in SG4 mode)
         // Returns the optimal SGTHRS value (0-255) or -1 if tuning failed
         int16_t tune_sg4();
-        bool stall_detection_procedure_active;     // Flag to indicate stall detection procedure is active
-        bool stall_detected;                       // Flag to indicate if a stall was detected during tuning
     #endif
 
     // Generate a movement for StallGuard sampling with threshold set to thrs and velocity in mm/s

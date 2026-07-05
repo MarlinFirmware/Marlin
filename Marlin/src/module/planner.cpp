@@ -1615,7 +1615,7 @@ void Planner::quick_stop() {
 
 void Planner::endstop_triggered(const AxisEnum axis) {
   // If stallguard stall detection procedure is active, set the stall detected flag to true, only for SG4
-  #if ENABLED(STALLGUARD_TUNING) && (X_HAS_SG4 || Y_HAS_SG4)
+  #if ENABLED(STALLGUARD_TUNING)
     if (stallguard_tuner.is_stall_detection_active()) stallguard_tuner.setStallDetected(true);
   #endif
   // Record stepper position and discard the current block
@@ -1784,6 +1784,7 @@ bool Planner::_buffer_steps(const xyze_long_t &target
   // above, so skip the expensive reverse/forward pass and trapezoid calc.
   const bool is_jolt = TERN0(FTM_CONSTANT_JOLT, ftMotion.cfg.active && ftMotion.cfg.trajectory_type == TrajectoryType::CONSTANT_JOLT);
   if (!is_jolt) recalculate(safe_exit_speed_sqr);
+
 
 
   // Movement successfully queued!
