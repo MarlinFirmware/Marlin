@@ -24,7 +24,9 @@
 
 #if ANY(BACKLASH_GCODE, CALIBRATION_GCODE)
 
-#include "../../feature/backlash.h"
+#if ENABLED(BACKLASH_GCODE)
+  #include "../../feature/backlash.h"
+#endif
 #include "../../module/planner.h"
 
 #include "../gcode.h"
