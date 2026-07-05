@@ -86,6 +86,9 @@ millis_t GcodeSuite::previous_move_ms = 0,
 // Relative motion mode for each logical axis
 relative_t GcodeSuite::axis_relative; // Init in constructor
 
+#if ENABLED(DELTA)
+  #define WITHIN_TOLERANCE(N,L,H)       (((N) >= ((L) - (H))) && ((N) <= ((L) + (H))))
+#endif
 #if ANY(HAS_AUTO_REPORTING, HOST_KEEPALIVE_FEATURE)
   bool GcodeSuite::autoreport_paused; // = false
 #endif
@@ -197,6 +200,26 @@ void GcodeSuite::get_destination_from_command() {
     }
     else
       motion.destination.e = motion.position.e;
+
+   #if ENABLED(DELTA)
+
+     // flag/correct condition where only extruder should move
+     //   Delta printer
+     //   G0/G1 command that specified only E movement
+     //   at least one of the other axis are invalid
+     //
+     // Formerly, the above would result in negative Z movement until the head
+     // hit the bed.
+
+     if ( seen.e & !(seen.x | seen.y | seen.z) & !motion.all_axes_trusted() ) {
+       motion.get_cartesian_from_steppers();  // Writes 'motion.cartes' (with forward kinematics)
+       if(!WITHIN_TOLERANCE(motion.destination.z, motion.cartes.z, 0.1)) {
+         motion.destination.z = motion.cartes.z;
+         }
+
+     }
+   #endif
+
   #endif
 
   #if ENABLED(POWER_LOSS_RECOVERY) && !PIN_EXISTS(POWER_LOSS)
@@ -244,7 +267,6 @@ void GcodeSuite::get_destination_from_command() {
     }
     else if (parser.codenum == 0)
       cutter.apply_power(0);
-  #endif // LASER_FEATURE
 }
 
 /**
