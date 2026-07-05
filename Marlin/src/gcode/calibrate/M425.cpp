@@ -41,6 +41,7 @@
  *   Z<length>                          ... on Z
  *   X            If a backlash measurement was done on X, copy that value
  *   Y                                           ... on Y
+ *   Z                                           ... on Z
  *   O            Set the Calibration object center X                                         ... on Z
  *   P            Set the Calibration object center Y
  *   Q            Set the Calibration object center Z
