@@ -550,10 +550,12 @@ namespace LanguageNarrow_en {
   LSTR MSG_TMC_STEPPING_MODE              = _UxGT("Stepping Mode");
   LSTR MSG_TMC_STEALTHCHOP                = _UxGT("StealthChop");
   LSTR MSG_STALLGUARD_TUNING              = _UxGT("StallGuard Tuning");
+  LSTR MSG_STALLGUARD_TUNING_RUNNING      = _UxGT("SG Tuning in progress...");
   LSTR MSG_STALLGUARD_TUNING_N            = _UxGT("@ axis StallGuard Tuning");
-  LSTR MSG_PROPOSED_SENSITIVITY           = _UxGT("Stallguard Sensitivity");
-  LSTR MSG_STALLGUARD_TUNING_FAILED       = _UxGT("Tuning failed");
-  LSTR MSG_MOVE_WARNING                   = _UxGT("Ensure at least 50mm of free movement on X/Yaxes");
+  LSTR MSG_PROPOSED_FTM_SENSITIVITY       = _UxGT("FTM Stallguard Sensitivity");
+  LSTR MSG_PROPOSED_STD_SENSITIVITY       = _UxGT("Std Stallguard Sensitivity");
+  LSTR MSG_STD_SG_TUNING_FAILED           = _UxGT("Std SG Tuning failed");
+  LSTR MSG_FTM_SG_TUNING_FAILED           = _UxGT("FTM SG Tuning failed");
   LSTR MSG_SERVICE_RESET                  = _UxGT("Reset");
   LSTR MSG_SERVICE_IN                     = _UxGT(" in:");
   LSTR MSG_BACKLASH                       = _UxGT("Backlash");

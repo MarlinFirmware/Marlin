@@ -109,6 +109,10 @@
   #include "../feature/powerloss.h"
 #endif
 
+#if ENABLED(STALLGUARD_TUNING)
+  #include "../feature/stallguard/stallguard_tuning.h"
+#endif
+
 #if HAS_CUTTER
   #include "../feature/spindle_laser.h"
 #endif
@@ -1610,6 +1614,10 @@ void Planner::quick_stop() {
 #endif
 
 void Planner::endstop_triggered(const AxisEnum axis) {
+  // If stallguard stall detection procedure is active, set the stall detected flag to true, only for SG4
+  #if ENABLED(STALLGUARD_TUNING)
+    if (stallguard_tuner.is_stall_detection_active()) stallguard_tuner.setStallDetected(true);
+  #endif
   // Record stepper position and discard the current block
   stepper.endstop_triggered(axis);
 }
@@ -1764,8 +1772,11 @@ bool Planner::_buffer_steps(const xyze_long_t &target
   // CJ planner ignores trapezoidal entry/exit speeds — it runs its own
   // jolt-aware passes via planNext(). Blocks are marked recalculate=false
   // above, so skip the expensive reverse/forward pass and trapezoid calc.
-  if (TERN1(FTM_CONSTANT_JOLT, ftMotion.cfg.trajectory_type != TrajectoryType::CONSTANT_JOLT))
-    recalculate(safe_exit_speed_sqr);
+  #if ENABLED(FTM_CONSTANT_JOLT)
+    if (!ftMotion.cfg.active || ftMotion.cfg.trajectory_type != TrajectoryType::CONSTANT_JOLT)
+  #endif
+      recalculate(safe_exit_speed_sqr);
+
 
   // Movement successfully queued!
   return true;
@@ -2758,7 +2769,7 @@ bool Planner::_populate_block(
   // Max entry speed of this block equals the max exit speed of the previous block.
   block->max_entry_speed_sqr = vmax_junction_sqr;
   #if ENABLED(FTM_CONSTANT_JOLT)
-    if (ftMotion.cfg.trajectory_type == TrajectoryType::CONSTANT_JOLT)
+    if (ftMotion.cfg.trajectory_type == TrajectoryType::CONSTANT_JOLT && ftMotion.cfg.active)
       block->vmax_junction = SQRT(vmax_junction_sqr);
   #endif
   // Set entry speed. The reverse and forward passes will optimize it later.
@@ -2772,7 +2783,10 @@ bool Planner::_populate_block(
 
   // CJ planner runs its own jolt-aware passes — blocks are ready immediately.
   // recalculate() is also skipped below, so no code will re-set this flag.
-  block->flag.recalculate = TERN1(FTM_CONSTANT_JOLT, ftMotion.cfg.trajectory_type != TrajectoryType::CONSTANT_JOLT);
+  #if ENABLED(FTM_CONSTANT_JOLT)
+    if (!ftMotion.cfg.active || ftMotion.cfg.trajectory_type != TrajectoryType::CONSTANT_JOLT)
+  #endif
+  block->flag.recalculate = true;
 
   // Update previous path unit_vector and nominal speed
   previous_speed = current_speed;

@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2026 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -33,9 +33,6 @@
 #include "../../module/stepper.h"
 #include "../../module/planner.h"
 #include "../../module/motion.h"
-#include "../../module/stepper/trinamic.h"
-
-#define TEST_TRAVEL_MM 50.0f
 
 // ============================================================================
 // StallGuard Tuning Class (existing implementation continues below)
@@ -46,44 +43,72 @@ class StallGuardTuning {
 public:
     // Stallguard tuning for a given axis (X or Y)
     void tune_axis(const AxisEnum axis);
-    
+
+    bool isDone() { return tuning_finished; }
+
+    #if ENABLED(FT_MOTION)
+        bool sg_ftmSuccess() { return ftm_tuning_success; }
+        int16_t get_ftm_threshold() { return ftm_sg_thrs; }
+    #endif
+    #if HAS_STANDARD_MOTION
+        bool std_stdSuccess() { return std_tuning_success; }
+        int16_t get_std_threshold() { return std_sg_thrs; }
+    #endif
+
+    bool is_stall_detection_active() { return stall_detection_procedure_active; }
+    void setStallDetected(bool detected) { stall_detected = detected; }
+
     // Sampling function called in marlin.idle() during tuning
     void sampling();
 
-    bool is_Done() { return !sg_tune_active; }
-    bool is_Success() { return tuning_success; }
-    int8_t get_treshold() { return sg_thrs; }
-
 private:
+    
+    #if ANY(X_HAS_SG2, Y_HAS_SG2)
+        // Tune StallGuard for a given axis with StallGuard2 driver(s) (for TMC2130/2208/2660 or TMC2240 in SG2 mode)
+        // Returns the optimal SGT value (-64 to 63) or -128 if tuning failed
+        int16_t tune_sg2();
+    #endif
 
-    // Tune StallGuard for a given axis with StallGuard2 driver(s) (for TMC2130/2208/2660 or TMC2240 in SG2 mode)
-    // Returns the optimal SGT value (-64 to 63) or -128 if tuning failed
-    void tune_sg2(const float velocity);
+    #if ANY(X_HAS_SG4, Y_HAS_SG4)
+        // Tune StallGuard for a given axis with StallGuard4 driver(s) (for TMC2209 or TMC2240 in SG4 mode)
+        // Returns the optimal SGTHRS value (0-255) or -1 if tuning failed
+        int16_t tune_sg4();
+    #endif
 
-    // Tune StallGuard for a given axis with StallGuard4 driver(s) (for TMC2209 or TMC2240 in SG4 mode)
-    // Returns the optimal SGTHRS value (0-255) or -1 if tuning failed
-    void tune_sg4(const float velocity);
+    // Generate a movement for StallGuard sampling with threshold set to thrs and velocity in mm/s
+    void sampling_motion( const uint16_t thrs);
 
-    // Get number of TMC drivers for the specified axis
-    uint8_t get_nb_drivers_for_axis(const AxisEnum axis);
+    // Median of the sampling histogram, used to determine the optimal threshold for StallGuard
+    uint16_t compute_median(const uint16_t hist_size);
 
     // Set Homing threshold
     void set_homing_treshold(const uint16_t threshold);
 
-    bool sg_tune_active;                         // Flag to indicate if tuning is in progress, used to trigger SG_RESULT sampling in marlin.idle()
-    static bool tuning_success;                  // Flag to indicate successful tuning
+    bool sg_sampling_active;                   // Flag to indicate sampling is active, used to trigger SG_RESULT sampling in marlin.idle()
+    bool stall_detection_procedure_active;     // Flag to indicate stall detection procedure is active
+    bool stall_detected;                       // Flag to indicate if a stall was detected during tuning
+    bool tuning_success;                       // Flag to indicate successful tuning (global)
+    bool tuning_finished = true;               // Flag to indicate end of tuning procedure, init to true for MarlinUI menu
 
-    static int16_t sg_thrs;                      // Homing threshold for SG2 (SGT value -64 to 63) or SG4 (SGTHRS value 0-255)
-    static AxisEnum axis_tuned;                  // Axis to be tuned
+    #if HAS_STANDARD_MOTION
+        int16_t std_sg_thrs;                   // Homing threshold for standard motion system SG2 (SGT value -64 to 63) or SG4 (SGTHRS value 0-255)
+        bool std_tuning_success;
+    #endif
 
-    static uint8_t driver_count;                // Tuned axis number of drivers or number of drivers for a CoreXY printer
-    static uint8_t stallguard_type;             // Type of StallGuard
+    #if ENABLED(FT_MOTION)
+        int16_t ftm_sg_thrs;                   // Homing threshold for Fixed Time Motion system SG2 (SGT value -64 to 63) or SG4 (SGTHRS value 0-255)
+        bool ftm_tuning_success;
+    #endif
+
+    AxisEnum axis_tuned;                      // Axis to be tuned
+    float dist_speed_mm;                      // Test travel distance and speed equals homing_feedrate / 60
     
-    static uint32_t t_start;                    // Start time
-    static uint16_t sampling_hist[511];         // Histogram for SG_RESULT sampling during tuning, max SG_RESULT value is 510 for SG4
-    static uint16_t sampling_total;             // Total samples collected for percentile calculation
-    static uint32_t sg2_sgr_sum;                // Sum of SG_RESULT values for SG2 tuning
-    static uint16_t sgr_min;                    // Minimum SG_RESULT observed during tuning, used for SG2
+    // Histogram for SG_RESULT sampling during tuning, max SG_RESULT value is 510 for SG4, 1023 for SG2};
+    #if ANY(X_HAS_SG2, Y_HAS_SG2)
+        uint16_t sampling_hist[1024];
+    #else
+        uint16_t sampling_hist[511];
+    #endif
 };
 
 extern StallGuardTuning stallguard_tuner;

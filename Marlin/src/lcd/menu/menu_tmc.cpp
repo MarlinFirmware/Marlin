@@ -172,28 +172,45 @@ void menu_tmc_current() {
 
 #if ENABLED(STALLGUARD_TUNING_MENU)
   #include "../../feature/stallguard/stallguard_tuning.h"
+  #include "../../gcode/gcode.h"
 
-    void menu_tmc_stallguard_tuning() {
+  void menu_tmc_stallguard_tuning() {
+
+    bool has_run = false;
     START_MENU();
     BACK_ITEM(MSG_TMC_DRIVERS);
 
-    if (!stallguard_tuner.is_Done()) {
-      #if CORE_IS_XY || (X_SENSORLESS && Y_SENSORLESS)
-        ACTION_ITEM_N(X_AXIS, MSG_STALLGUARD_TUNING_N, [] {stallguard_tuner.tune_axis(X_AXIS);});
-        ACTION_ITEM_N(Y_AXIS, MSG_STALLGUARD_TUNING_N, [] {stallguard_tuner.tune_axis(Y_AXIS);});
-      #endif
-      #if (X_SENSORLESS && !Y_SENSORLESS)
-        ACTION_ITEM_N(X_AXIS, MSG_STALLGUARD_TUNING_N, [] {stallguard_tuner.tune_axis(X_AXIS);});
-      #elif (!X_SENSORLESS && Y_SENSORLESS)
-        ACTION_ITEM_N(Y_AXIS, MSG_STALLGUARD_TUNING_N, [] {stallguard_tuner.tune_axis(Y_AXIS);});
-      #endif
+    if (!stallguard_tuner.isDone()) {
+      STATIC_ITEM(MSG_STALLGUARD_TUNING_RUNNING);
+      has_run = true;
     }
-    else if (stallguard_tuner.is_Success()) {
-        PSTRING_ITEM(MSG_PROPOSED_SENSITIVITY, i8tostr3rj(stallguard_tuner.get_treshold()), SS_FULL);
+    else  if (has_run) {
+      has_run = false;
+
+      #if ENABLED(FT_MOTION)
+        if(stallguard_tuner.sg_ftmSuccess())
+          PSTRING_ITEM(MSG_PROPOSED_FTM_SENSITIVITY, i8tostr3rj(stallguard_tuner.get_ftm_treshold()), SS_FULL);
+        else
+          PSTRING_ITEM(MSG_STALLGUARD_TUNING, GET_TEXT(MSG_FTM_SG_TUNING_FAILED), SS_FULL);
+      #endif
+
+      #if HAS_STANDARD_MOTION
+        if(stallguard_tuner.sg_stdSuccess())
+          PSTRING_ITEM(MSG_PROPOSED_STD_SENSITIVITY, i8tostr3rj(stallguard_tuner.get_std_treshold()), SS_FULL);
+        else
+          PSTRING_ITEM(MSG_STALLGUARD_TUNING, GET_TEXT(MSG_STD_SG_TUNING_FAILED), SS_FULL);
+      #endif
+
     }
     else {
-      PSTRING_ITEM(MSG_STALLGUARD_TUNING, GET_TEXT(MSG_STALLGUARD_TUNING_FAILED), SS_FULL);
+      #if X_SENSORLESS
+        GCODE_ITEM_N(X_AXIS, MSG_STALLGUARD_TUNING_N, F("M921 X"));
+      #endif
+      #if Y_SENSORLESS
+        GCODE_ITEM_N(Y_AXIS, MSG_STALLGUARD_TUNING_N, F("M921 Y"));
+      #endif
     }
+    
     END_MENU();
   }
 
