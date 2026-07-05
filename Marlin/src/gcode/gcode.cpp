@@ -89,6 +89,7 @@ relative_t GcodeSuite::axis_relative; // Init in constructor
 #if ENABLED(DELTA)
   #define WITHIN_TOLERANCE(N,L,H)       (((N) >= ((L) - (H))) && ((N) <= ((L) + (H))))
 #endif
+
 #if ANY(HAS_AUTO_REPORTING, HOST_KEEPALIVE_FEATURE)
   bool GcodeSuite::autoreport_paused; // = false
 #endif
@@ -267,6 +268,7 @@ void GcodeSuite::get_destination_from_command() {
     }
     else if (parser.codenum == 0)
       cutter.apply_power(0);
+  #endif // LASER_FEATURE
 }
 
 /**
