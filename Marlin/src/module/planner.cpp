@@ -1619,6 +1619,14 @@ float Planner::triggered_position_mm(const AxisEnum axis) {
   return result * mm_per_step[axis];
 }
 
+/**
+ * The Planner is busy when one of these conditions is true:
+ *   - It has blocks queued
+ *   - The cleaning buffer counter is set (running out moves)
+ *   - The closed loop controller is waiting
+ *   - The ZV Input Shaper (standard motion) still has events
+ *   - FT Motion is busy
+ */
 bool Planner::busy() {
   return (has_blocks_queued() || cleaning_buffer_counter
       || TERN0(EXTERNAL_CLOSED_LOOP_CONTROLLER, CLOSED_LOOP_WAITING())
@@ -1698,7 +1706,9 @@ float Planner::get_axis_position_mm(const AxisEnum axis) {
 /**
  * Block until the planner is finished processing
  */
-void Planner::synchronize() { while (busy()) marlin.idle(); }
+void Planner::synchronize() {
+  while (busy()) marlin.idle();
+}
 
 /**
  * @brief Add a new linear movement to the planner queue (in terms of steps).
