@@ -46,6 +46,8 @@ public:
 
     bool isDone() { return tuning_finished; }
 
+    AxisEnum tunedAxis() { return axis_tuned; }
+
     #if ENABLED(FT_MOTION)
         bool sg_ftmSuccess() { return ftm_tuning_success; }
         int16_t get_ftm_threshold() { return ftm_sg_thrs; }

@@ -186,28 +186,33 @@ void menu_tmc_current() {
     }
     else  if (has_run) {
       has_run = false;
+      AxisEnum axis = stallguard_tuner.tunedAxis();
 
       #if ENABLED(FT_MOTION)
-        if(stallguard_tuner.sg_ftmSuccess())
-          PSTRING_ITEM(MSG_PROPOSED_FTM_SENSITIVITY, i8tostr3rj(stallguard_tuner.get_ftm_treshold()), SS_FULL);
+        if(stallguard_tuner.sg_ftmSuccess()) {
+          PSTRING_ITEM_N_P(axis, MSG_PROPOSED_FTM_SENSITIVITY_N, i8tostr3rj(stallguard_tuner.get_ftm_threshold()), SS_FULL);
+          GCODES_ITEM_N(axis, MSG_SAVE_FTM_SENSITIVITY_N, F("M921 S0"));
+        }
         else
-          PSTRING_ITEM(MSG_STALLGUARD_TUNING, GET_TEXT(MSG_FTM_SG_TUNING_FAILED), SS_FULL);
+          PSTRING_ITEM_N_P(axis, MSG_STALLGUARD_TUNING_N, GET_TEXT(MSG_FTM_SG_TUNING_FAILED), SS_FULL);
       #endif
 
       #if HAS_STANDARD_MOTION
-        if(stallguard_tuner.sg_stdSuccess())
-          PSTRING_ITEM(MSG_PROPOSED_STD_SENSITIVITY, i8tostr3rj(stallguard_tuner.get_std_treshold()), SS_FULL);
+        if(stallguard_tuner.sg_stdSuccess()) {
+          PSTRING_ITEM_N_P(axis, MSG_PROPOSED_STD_SENSITIVITY_N, i8tostr3rj(stallguard_tuner.get_std_threshold()), SS_FULL);
+          GCODES_ITEM_N(axis, MSG_SAVE_STD_SENSITIVITY_N, F("M921 S1"));
+        }
         else
-          PSTRING_ITEM(MSG_STALLGUARD_TUNING, GET_TEXT(MSG_STD_SG_TUNING_FAILED), SS_FULL);
+          PSTRING_ITEM_N_P(axis, MSG_STALLGUARD_TUNING_N, GET_TEXT(MSG_STD_SG_TUNING_FAILED), SS_FULL);
       #endif
 
     }
     else {
       #if X_SENSORLESS
-        GCODE_ITEM_N(X_AXIS, MSG_STALLGUARD_TUNING_N, F("M921 X"));
+        GCODES_ITEM_N(X_AXIS, MSG_STALLGUARD_TUNING_N, F("M921 X"));
       #endif
       #if Y_SENSORLESS
-        GCODE_ITEM_N(Y_AXIS, MSG_STALLGUARD_TUNING_N, F("M921 Y"));
+        GCODES_ITEM_N(Y_AXIS, MSG_STALLGUARD_TUNING_N, F("M921 Y"));
       #endif
     }
     
