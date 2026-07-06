@@ -58,62 +58,56 @@ void say_stallguard_tuning() {
     #if Y_SENSORLESS
       if (axis == Y_AXIS) {
         uint16_t homing_current = max(400, Y_CURRENT / 2);
-        homing_current_mA.X = homing_current;
+        homing_current_mA.Y = homing_current;
         TERN_(Y2_SENSORLESS, homing_current_mA.Y2 = homing_current;)
       }
     #endif
-    }
-  #endif // EDITABLE_HOMING_CURRENT
+  }
+#else
+  static inline void sg_set_homing_current(AxisEnum axis) { (void)axis; }
+#endif // EDITABLE_HOMING_CURRENT
   
-  #if ENABLED(FT_MOTION)
-    void sg_ftm_tuning_save() {
-      AxisEnum axis = stallguard_tuner.tunedAxis();
+#if ENABLED(FT_MOTION)
+  void sg_ftm_tuning_save() {
+    AxisEnum axis = stallguard_tuner.tunedAxis();
 
-      #if X_SENSORLESS
-        if (axis == X_AXIS) {
-          #if ENABLED(EDITABLE_HOMING_CURRENT)
-            sg_set_homing_current(X_AXIS);
-          #endif
-          stepperX.homing_threshold(stallguard_tuner.get_ftm_threshold());
-        }
-      #endif
+    #if X_SENSORLESS
+      if (axis == X_AXIS) {
+        sg_set_homing_current(X_AXIS);
+        stepperX.homing_threshold(stallguard_tuner.get_ftm_threshold());
+      }
+    #endif
     
-      #if Y_SENSORLESS
-        if (axis == Y_AXIS) {
-          #if ENABLED(EDITABLE_HOMING_CURRENT)
-            sg_set_homing_current(Y_AXIS);
-          #endif
-          stepperY.homing_threshold(stallguard_tuner.get_ftm_threshold());
-        }
-      #endif
-        queue.inject(F("M500"));
-    }
-  #endif // FT_MOTION
+    #if Y_SENSORLESS
+      if (axis == Y_AXIS) {
+        sg_set_homing_current(Y_AXIS);
+        stepperY.homing_threshold(stallguard_tuner.get_ftm_threshold());
+      }
+    #endif
+      queue.inject(F("M500"));
+  }
+#endif // FT_MOTION
 
-  #if HAS_STANDARD_MOTION
-    void sg_std_tuning_save() {
-      AxisEnum axis = stallguard_tuner.tunedAxis();
+#if HAS_STANDARD_MOTION
+  void sg_std_tuning_save() {
+    AxisEnum axis = stallguard_tuner.tunedAxis();
 
-      #if X_SENSORLESS
-        if (axis == X_AXIS) {
-          #if ENABLED(EDITABLE_HOMING_CURRENT)
-            sg_set_homing_current(X_AXIS);
-          #endif
-          stepperX.homing_threshold(stallguard_tuner.get_std_threshold());
-        }
-      #endif
+    #if X_SENSORLESS
+      if (axis == X_AXIS) {
+        sg_set_homing_current(X_AXIS);
+        stepperX.homing_threshold(stallguard_tuner.get_std_threshold());
+      }
+    #endif
     
-      #if Y_SENSORLESS
-        if (axis == Y_AXIS) {
-          #if ENABLED(EDITABLE_HOMING_CURRENT)
-            sg_set_homing_current(Y_AXIS);
-          #endif
-          stepperY.homing_threshold(stallguard_tuner.get_std_threshold());
-        }
-      #endif
-        queue.inject(F("M500"));
-    }
-  #endif // HAS_STANDARD_MOTION
+    #if Y_SENSORLESS
+      if (axis == Y_AXIS) {
+        sg_set_homing_current(Y_AXIS);
+        stepperY.homing_threshold(stallguard_tuner.get_std_threshold());
+      }
+    #endif
+      queue.inject(F("M500"));
+  }
+#endif // HAS_STANDARD_MOTION
 
 /**
  * M921: Launch StallGuard2 or StallGuard4 autotuning for X or Y axis depending on the TMC driver type.

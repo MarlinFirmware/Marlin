@@ -63,12 +63,12 @@ void StallGuardTuning::tune_axis(const AxisEnum axis) {
         // Remember that stallguard_type is already set to stepperX version
         // Set the SG2-SG4 capable driver to the stallguard version of the other stepper driver 
 
-        #if AXIS_IS_SG2_SG4(X) && !AXIS_IS_SG2_SG4(Y)
+        #if X_HAS_SG2_SG4 && !Y_HAS_SG2_SG4
             stallguard_type = tmc_stallguard_version(stepperY);
             tmc_enable_stallguard(stepperX, stallguard_type);
             tmc_enable_stallguard(stepperY);
 
-        #elif !AXIS_IS_SG2_SG4(X) && AXIS_IS_SG2_SG4(Y)
+        #elif !X_HAS_SG2_SG4 && Y_HAS_SG2_SG4
             tmc_enable_stallguard(stepperX);
             tmc_enable_stallguard(stepperY, stallguard_type);
 
