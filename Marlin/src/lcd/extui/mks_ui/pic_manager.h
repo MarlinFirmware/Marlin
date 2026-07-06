@@ -33,23 +33,23 @@
 
 #define USE_HASH_TABLE
 
-#ifndef HAS_SPI_FLASH_FONT
-  #define HAS_SPI_FLASH_FONT              1 // Disabled until fix the font load code
+#ifndef MKS_SPI_FLASH_FONT
+  #define MKS_SPI_FLASH_FONT              1 // Disabled until the font load code is fixed!
 #endif
-#ifndef HAS_GCODE_PREVIEW
-  #define HAS_GCODE_PREVIEW               1
+#ifndef MKS_GCODE_PREVIEW
+  #define MKS_GCODE_PREVIEW               1
 #endif
-#ifndef HAS_LANG_SELECT_SCREEN
-  #define HAS_LANG_SELECT_SCREEN          1
+#ifndef MKS_LANG_SELECT_SCREEN
+  #define MKS_LANG_SELECT_SCREEN          1
 #endif
-#ifndef HAS_BAK_VIEW_IN_FLASH
-  #define HAS_BAK_VIEW_IN_FLASH           1
+#ifndef MKS_BAK_VIEW_IN_FLASH
+  #define MKS_BAK_VIEW_IN_FLASH           1
 #endif
-#ifndef HAS_GCODE_DEFAULT_VIEW_IN_FLASH
-  #define HAS_GCODE_DEFAULT_VIEW_IN_FLASH 1
+#ifndef MKS_GCODE_DEFAULT_VIEW_IN_FLASH
+  #define MKS_GCODE_DEFAULT_VIEW_IN_FLASH 1
 #endif
-#ifndef HAS_LOGO_IN_FLASH
-  #define HAS_LOGO_IN_FLASH 1
+#ifndef MKS_LOGO_IN_FLASH
+  #define MKS_LOGO_IN_FLASH 1
 #endif
 #ifndef SPI_FLASH_SIZE
   #define SPI_FLASH_SIZE                0x1000000 // 16MB

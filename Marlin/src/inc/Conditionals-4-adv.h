@@ -105,7 +105,14 @@
   #endif
 #endif
 
-#if !(ANY(HAS_BED_PROBE, BACKLASH_GCODE) || (ENABLED(EXTENSIBLE_UI) && ANY(MESH_BED_LEVELING, AUTO_BED_LEVELING_UBL)))
+#if HAS_BED_PROBE
+  #ifndef Z_PROBE_FEEDRATE_SLOW
+    #define Z_PROBE_FEEDRATE_SLOW (4*60)
+  #endif
+  #ifndef Z_PROBE_FEEDRATE_FAST
+    #define Z_PROBE_FEEDRATE_FAST (Z_PROBE_FEEDRATE_SLOW / 2)
+  #endif
+#elif !(ANY(HAS_BED_PROBE, BACKLASH_GCODE) || ALL(EXTENSIBLE_UI, HAS_MESH))
   #undef Z_PROBE_FEEDRATE_FAST
   #undef Z_PROBE_FEEDRATE_SLOW
 #endif
@@ -336,6 +343,75 @@
   #endif
 #endif
 
+// Fixed-Time Motion
+#if ENABLED(FT_MOTION)
+  #if HAS_X_AXIS
+    #define HAS_FTM_SHAPING 1
+    #define FTM_SHAPER_X
+  #endif
+  #if HAS_Y_AXIS
+    #define FTM_SHAPER_Y
+  #endif
+  #if !HAS_Z_AXIS
+    #undef FTM_SHAPER_Z
+  #endif
+  #if HAS_EXTRUDERS
+    #define FTM_HAS_LIN_ADVANCE 1
+  #else
+    #undef FTM_SHAPER_E
+  #endif
+  #if ENABLED(NO_STANDARD_MOTION)
+    #define FTM_HOME_AND_PROBE
+  #endif
+  #if ANY(FTM_SHAPER_EI, FTM_SHAPER_2HEI, FTM_SHAPER_3HEI)
+    #define HAS_FTM_EI_SHAPING 1
+  #endif
+
+  #if ANY(FTM_DIR_CHANGE_HOLD_X, FTM_DIR_CHANGE_HOLD_Y, FTM_DIR_CHANGE_HOLD_Z, FTM_DIR_CHANGE_HOLD_E)
+    #define HAS_FTM_DIR_CHANGE_HOLD 1
+  #endif
+  #if ANY(FTM_POLYS, FTM_CONSTANT_JOLT)
+    #define HAS_FTM_TRAJECTORY_SELECTION 1
+  #endif
+  // Default trajectory type when not explicitly set
+  #ifndef FTM_TRAJECTORY_TYPE
+    #define FTM_TRAJECTORY_TYPE TRAPEZOIDAL
+  #endif
+#endif
+
+// Standard Motion
+#if DISABLED(NO_STANDARD_MOTION)
+  #define HAS_STANDARD_MOTION 1
+#else
+  #undef LIN_ADVANCE
+  #undef SMOOTH_LIN_ADVANCE
+  #undef S_CURVE_ACCELERATION
+  #undef ADAPTIVE_STEP_SMOOTHING
+  #undef INPUT_SHAPING_X
+  #undef INPUT_SHAPING_Y
+  #undef INPUT_SHAPING_Z
+#endif
+
+// Disallowed with no shaping
+#if NONE(INPUT_SHAPING_X, INPUT_SHAPING_Y, INPUT_SHAPING_Z)
+  #undef SHAPING_MENU
+  #undef INPUT_SHAPING_E_SYNC
+#endif
+
+// Linear advance uses Jerk since E is an isolated axis
+#if ANY(FTM_HAS_LIN_ADVANCE, LIN_ADVANCE)
+  #define HAS_LIN_ADVANCE_K 1
+#endif
+// Linear Advance without smoothing
+#if ENABLED(LIN_ADVANCE) && DISABLED(SMOOTH_LIN_ADVANCE)
+  #define HAS_ROUGH_LIN_ADVANCE 1
+#endif
+
+// ZV Input Shaping for Standard Motion
+#if ANY(INPUT_SHAPING_X, INPUT_SHAPING_Y, INPUT_SHAPING_Z)
+  #define HAS_ZV_SHAPING 1
+#endif
+
 // Use Junction Deviation for motion if Jerk is disabled
 #if DISABLED(CLASSIC_JERK)
   #define HAS_JUNCTION_DEVIATION 1
@@ -345,19 +421,9 @@
 #if HAS_EXTRUDERS && (ENABLED(CLASSIC_JERK) || (IS_KINEMATIC && DISABLED(LIN_ADVANCE)))
   #define HAS_CLASSIC_E_JERK 1
 #endif
-
-// Linear advance uses Jerk since E is an isolated axis
-#if ALL(FT_MOTION, HAS_EXTRUDERS)
-  #define FTM_HAS_LIN_ADVANCE 1
-#endif
-#if ANY(FTM_HAS_LIN_ADVANCE, LIN_ADVANCE)
-  #define HAS_LIN_ADVANCE_K 1
-#endif
-#if HAS_JUNCTION_DEVIATION && ENABLED(LIN_ADVANCE)
+// E jerk is derived from JD factors
+#if HAS_JUNCTION_DEVIATION && ANY(LIN_ADVANCE, FTM_HAS_LIN_ADVANCE)
   #define HAS_LINEAR_E_JERK 1
-#endif
-#if ENABLED(LIN_ADVANCE) && DISABLED(SMOOTH_LIN_ADVANCE)
-  #define HAS_ROUGH_LIN_ADVANCE 1
 #endif
 
 // Some displays can toggle Adaptive Step Smoothing.
@@ -1529,28 +1595,6 @@
 #if ENABLED(CONFIGURATION_EMBEDDING) && !defined(FORCE_CONFIG_EMBED) && (defined(__AVR__) || !HAS_MEDIA || ANY(SDCARD_READONLY, DISABLE_M503))
   #undef CONFIGURATION_EMBEDDING
   #define CANNOT_EMBED_CONFIGURATION defined(__AVR__)
-#endif
-
-// Input shaping
-#if ANY(INPUT_SHAPING_X, INPUT_SHAPING_Y, INPUT_SHAPING_Z)
-  #define HAS_ZV_SHAPING 1
-#endif
-
-// FT Motion: Shapers
-#if ENABLED(FT_MOTION)
-  #if HAS_X_AXIS
-    #define HAS_FTM_SHAPING 1
-    #define FTM_SHAPER_X
-  #endif
-  #if HAS_Y_AXIS
-    #define FTM_SHAPER_Y
-  #endif
-  #if !HAS_Z_AXIS
-    #undef FTM_SHAPER_Z
-  #endif
-  #if !HAS_EXTRUDERS
-    #undef FTM_SHAPER_E
-  #endif
 #endif
 
 // Multi-Stepping Limit

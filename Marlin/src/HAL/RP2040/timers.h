@@ -65,7 +65,6 @@ typedef uint64_t hal_timer_t;
 #define STEPPER_TIMER_PRESCALE (10)
 
 #define PULSE_TIMER_RATE            STEPPER_TIMER_RATE                              // (Hz) Frequency of Pulse Timer
-#define PULSE_TIMER_TICKS_PER_US    STEPPER_TIMER_TICKS_PER_US
 #define PULSE_TIMER_PRESCALE        STEPPER_TIMER_PRESCALE
 
 #define ENABLE_STEPPER_DRIVER_INTERRUPT()   HAL_timer_enable_interrupt(MF_TIMER_STEP)
@@ -129,16 +128,16 @@ FORCE_INLINE static void HAL_timer_set_compare(const uint8_t timer_num, hal_time
 
   switch (timer_num) {
     case 0:
-      alarm_pool_add_alarm_in_us(HAL_timer_pool_0, compare, HAL_timer_alarm_pool_0_callback, 0, false);
+      alarm_pool_add_alarm_in_us(HAL_timer_pool_0, compare, HAL_timer_alarm_pool_0_callback, 0, true);
       break;
     case 1:
-      alarm_pool_add_alarm_in_us(HAL_timer_pool_1, compare, HAL_timer_alarm_pool_1_callback, 0, false);
+      alarm_pool_add_alarm_in_us(HAL_timer_pool_1, compare, HAL_timer_alarm_pool_1_callback, 0, true);
       break;
     case 2:
-      alarm_pool_add_alarm_in_us(HAL_timer_pool_2, compare, HAL_timer_alarm_pool_2_callback, 0, false);
+      alarm_pool_add_alarm_in_us(HAL_timer_pool_2, compare, HAL_timer_alarm_pool_2_callback, 0, true);
       break;
     case 3:
-      alarm_pool_add_alarm_in_us(HAL_timer_pool_3, compare, HAL_timer_alarm_pool_3_callback, 0, false);
+      alarm_pool_add_alarm_in_us(HAL_timer_pool_3, compare, HAL_timer_alarm_pool_3_callback, 0, true);
       break;
   }
 }

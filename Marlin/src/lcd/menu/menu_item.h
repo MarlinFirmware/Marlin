@@ -283,9 +283,9 @@ class MenuItem_bool : public MenuEditItemBase {
  *     MenuItem_function::action(flabel, lcd_sdcard_pause)
  *     MenuItem_function::draw(sel, row, flabel, lcd_sdcard_pause)
  *
- *   EDIT_ITEM(int3, MSG_SPEED, &feedrate_percentage, SPEED_EDIT_MIN, SPEED_EDIT_MAX)
- *     MenuItem_int3::action(flabel, &feedrate_percentage, SPEED_EDIT_MIN, SPEED_EDIT_MAX)
- *     MenuItem_int3::draw(sel, row, flabel, &feedrate_percentage, SPEED_EDIT_MIN, SPEED_EDIT_MAX)
+ *   EDIT_ITEM(int3, MSG_SPEED, &motion.feedrate_percentage, SPEED_EDIT_MIN, SPEED_EDIT_MAX)
+ *     MenuItem_int3::action(flabel, &motion.feedrate_percentage, SPEED_EDIT_MIN, SPEED_EDIT_MAX)
+ *     MenuItem_int3::draw(sel, row, flabel, &motion.feedrate_percentage, SPEED_EDIT_MIN, SPEED_EDIT_MAX)
  *
  * Variants use standard suffixes. N:Number Index, S:C-string for substitution, F:F-string label, f:F-string for substitution
  * _MENU_ITEM_F(TYPE, V...)              Item with optional data
@@ -462,9 +462,11 @@ class MenuItem_bool : public MenuEditItemBase {
 #elif ENABLED(GENERIC_BACK_MENU_ITEM)
   #define BACK_ITEM_F(V...)                              MENU_ITEM_F(back, GET_TEXT_F(MSG_BACK))
   #define BACK_ITEM(V...)                                  MENU_ITEM(back, MSG_BACK)
+  #define BACK_ITEM_N BACK_ITEM
 #else
   #define BACK_ITEM_F(FLABEL)                            MENU_ITEM_F(back, FLABEL)
   #define BACK_ITEM(LABEL)                                 MENU_ITEM(back, LABEL)
+  #define BACK_ITEM_N(N, LABEL)                          MENU_ITEM_N(back, N, LABEL)
 #endif
 
 #define ACTION_ITEM_N_S_F(N, S, FLABEL, ACTION)      MENU_ITEM_N_S_F(function, N, S, FLABEL, ACTION)

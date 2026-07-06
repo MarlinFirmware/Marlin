@@ -45,5 +45,5 @@ void GcodeSuite::M112() {
  * will be out of sync with the stepper position after this.
  */
 void GcodeSuite::M410() {
-  quickstop_stepper();
+  motion.quickstop_stepper();
 }

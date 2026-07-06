@@ -1,4 +1,5 @@
 SCRIPTS_DIR := buildroot/share/scripts
+MAKESCRIPTS_DIR := buildroot/share/make
 CONTAINER_RT_BIN := docker
 CONTAINER_RT_OPTS := --rm -v $(PWD):/code -v platformio-cache:/root/.platformio
 CONTAINER_IMAGE := marlin-dev
@@ -8,15 +9,22 @@ UNIT_TEST_CONFIG ?= default
 ifeq ($(OS),Windows_NT)
 	# Windows: use `where` – fall back through the three common names
 	PYTHON := $(shell which python 2>nul || which python3 2>nul || which py 2>nul)
-	# Windows: Use cmd tools to find pins files
-	PINS_RAW := $(shell cmd //c "dir /s /b Marlin\src\pins\*.h 2>nul | findstr /r ".*Marlin\\\\src\\\\pins\\\\.*\\\\pins_.*\.h"")
-	PINS := $(subst \,/,$(PINS_RAW))
+	# Windows: Use Python script to find pins files
+	ALL_PINS := $(shell $(PYTHON) $(MAKESCRIPTS_DIR)/find.py Marlin/src/pins -mindepth 2 -name 'pins_*.h')
 else
 	# POSIX: use `command -v` – prefer python3 over python
 	PYTHON := $(shell command -v python3 2>/dev/null || command -v python 2>/dev/null)
 	# Unix/Linux: Use find command
-	PINS := $(shell find Marlin/src/pins -mindepth 2 -name 'pins_*.h')
+	ALL_PINS := $(shell find Marlin/src/pins -mindepth 2 -name 'pins_*.h')
 endif
+
+PINSPATH ?=
+PINSPATH := $(patsubst Marlin/src/pins/%,%,$(PINSPATH))
+PINSPATH := $(patsubst %/,%,$(PINSPATH))
+
+# If PINSPATH already contains %, use it directly.
+# Otherwise append /% to match all files below the path.
+PINS := $(if $(PINSPATH),$(filter Marlin/src/pins/$(PINSPATH)/%,$(ALL_PINS)),$(ALL_PINS))
 
 # Check that the found interpreter is Python 3
 # Error if there's no Python 3 available
@@ -33,9 +41,11 @@ help:
 	@echo "Tasks for local development:"
 	@echo "make marlin                    : Build Marlin for the configured board"
 	@echo "make format-pins -j            : Reformat all pins files (-j for parallel execution)"
+	@echo "make format-pins -j PINSPATH=dir : Reformat only pins files under dir"
 	@echo "make validate-lines -j         : Validate line endings, fails on trailing whitespace, etc."
 	@echo "make validate-pins -j          : Validate all pins files, fails if any require reformatting"
 	@echo "make validate-boards -j        : Validate boards.h and pins.h for standards compliance"
+	@echo "make validate-urls             : Validate URLs in source files"
 	@echo "make tests-single-ci           : Run a single test from inside the CI"
 	@echo "make tests-single-local        : Run a single test locally"
 	@echo "make tests-single-local-docker : Run a single test locally, using docker"
@@ -88,7 +98,7 @@ tests-all-local:
 	@$(PYTHON) -c "import yaml" 2>/dev/null || (echo 'pyyaml module is not installed. Install it with "$(PYTHON) -m pip install pyyaml"' && exit 1)
 	export PATH="./buildroot/bin/:./buildroot/tests/:${PATH}" \
 	  && export VERBOSE_PLATFORMIO=$(VERBOSE_PLATFORMIO) \
-	  && for TEST_TARGET in $$($(PYTHON) $(SCRIPTS_DIR)/get_test_targets.py) ; do \
+	  && for TEST_TARGET in $$($(PYTHON) $(MAKESCRIPTS_DIR)/get_test_targets.py) ; do \
 	    if [ "$$TEST_TARGET" = "linux_native" ] && [ "$$(uname)" = "Darwin" ]; then \
 	      echo "Skipping tests for $$TEST_TARGET on macOS" ; \
 	      continue ; \
@@ -151,7 +161,7 @@ validate-pins: format-pins
 	@echo "Validating pins files"
 	@git diff --exit-code || (git status && echo "\nError: Pins files are not formatted correctly. Run \"make format-pins\" to fix.\n" && exit 1)
 
-.PHONY: format-lines validate-lines
+.PHONY: format-lines validate-lines validate-urls
 
 format-lines:
 	@echo "Formatting all sources"
@@ -160,7 +170,11 @@ format-lines:
 
 validate-lines:
 	@echo "Validating text formatting"
-	@npx prettier --check . --editorconfig --object-wrap preserve
+	@npx prettier --check . --editorconfig --object-wrap preserve --prose-wrap never
+
+validate-urls:
+	@echo "Checking URLs in source files"
+	@$(MAKESCRIPTS_DIR)/check-urls.sh
 
 BOARDS_FILE := Marlin/src/core/boards.h
 
@@ -168,4 +182,4 @@ BOARDS_FILE := Marlin/src/core/boards.h
 
 validate-boards:
 	@echo "Validating boards.h file"
-	@$(PYTHON) $(SCRIPTS_DIR)/validate_boards.py $(BOARDS_FILE) || (echo "\nError: boards.h file is not valid. Please check and correct it.\n" && exit 1)
+	@$(PYTHON) $(MAKESCRIPTS_DIR)/validate_boards.py $(BOARDS_FILE) || (echo "\nError: boards.h file is not valid. Please check and correct it.\n" && exit 1)
