@@ -1782,10 +1782,8 @@ bool Planner::_buffer_steps(const xyze_long_t &target
   // CJ planner ignores trapezoidal entry/exit speeds — it runs its own
   // jolt-aware passes via planNext(). Blocks are marked recalculate=false
   // above, so skip the expensive reverse/forward pass and trapezoid calc.
-  #if ENABLED(FTM_CONSTANT_JOLT)
-    if (!ftMotion.cfg.active || ftMotion.cfg.trajectory_type != TrajectoryType::CONSTANT_JOLT)
-  #endif
-      recalculate(safe_exit_speed_sqr);
+  const bool is_jolt = TERN0(FTM_CONSTANT_JOLT, ftMotion.cfg.active && ftMotion.cfg.trajectory_type == TrajectoryType::CONSTANT_JOLT);
+  if (!is_jolt) recalculate(safe_exit_speed_sqr);
 
 
   // Movement successfully queued!
@@ -2739,24 +2737,24 @@ bool Planner::_populate_block(
     #endif // HAS_ROUGH_LIN_ADVANCE
 
     xyze_float_t speed_diff = current_speed;
-    float vmax_junction;
+    float vmax_junc;
     if (!moves_queued || UNEAR_ZERO(previous_nominal_speed)) {
       // Limited by a jerk to/from full halt.
-      vmax_junction = block->nominal_speed;
+      vmax_junc = block->nominal_speed;
     }
     else {
       // Compute the maximum velocity allowed at a joint of two successive segments.
 
       // The junction velocity will be shared between successive segments. Limit the junction velocity to their minimum.
-      // Scale per-axis velocities for the same vmax_junction.
+      // Scale per-axis velocities for the same vmax_junc.
       if (block->nominal_speed < previous_nominal_speed) {
-        vmax_junction = block->nominal_speed;
-        const float previous_scale = vmax_junction / previous_nominal_speed;
+        vmax_junc = block->nominal_speed;
+        const float previous_scale = vmax_junc / previous_nominal_speed;
         LOOP_LOGICAL_AXES(i) speed_diff[i] -= previous_speed[i] * previous_scale;
       }
       else {
-        vmax_junction = previous_nominal_speed;
-        const float current_scale = vmax_junction / block->nominal_speed;
+        vmax_junc = previous_nominal_speed;
+        const float current_scale = vmax_junc / block->nominal_speed;
         LOOP_LOGICAL_AXES(i) speed_diff[i] = speed_diff[i] * current_scale - previous_speed[i];
       }
     }
@@ -2768,7 +2766,7 @@ bool Planner::_populate_block(
       const float jerk = ABS(speed_diff[i]), maxj = max_j[i];
       if (jerk * v_factor > maxj) v_factor = maxj / jerk;
     }
-    vmax_junction_sqr = sq(vmax_junction * v_factor);
+    vmax_junction_sqr = sq(vmax_junc * v_factor);
 
   #endif // CLASSIC_JERK
 
@@ -2778,10 +2776,14 @@ bool Planner::_populate_block(
 
   // Max entry speed of this block equals the max exit speed of the previous block.
   block->max_entry_speed_sqr = vmax_junction_sqr;
+
   #if ENABLED(FTM_CONSTANT_JOLT)
-    if (ftMotion.cfg.trajectory_type == TrajectoryType::CONSTANT_JOLT && ftMotion.cfg.active)
-      block->vmax_junction = SQRT(vmax_junction_sqr);
+    const bool is_jolt = ftMotion.cfg.active && ftMotion.cfg.trajectory_type == TrajectoryType::CONSTANT_JOLT;
+    if (is_jolt) block->vmax_junction = SQRT(vmax_junction_sqr);
+  #else
+    constexpr bool is_jolt = false;
   #endif
+
   // Set entry speed. The reverse and forward passes will optimize it later.
   block->entry_speed_sqr = minimum_planner_speed_sqr;
   // Set min entry speed. Rarely it could be higher than the previous nominal speed but that's ok.
@@ -2793,10 +2795,7 @@ bool Planner::_populate_block(
 
   // CJ planner runs its own jolt-aware passes — blocks are ready immediately.
   // recalculate() is also skipped below, so no code will re-set this flag.
-  #if ENABLED(FTM_CONSTANT_JOLT)
-    if (!ftMotion.cfg.active || ftMotion.cfg.trajectory_type != TrajectoryType::CONSTANT_JOLT)
-  #endif
-  block->flag.recalculate = true;
+  block->flag.recalculate = !is_jolt;
 
   // Update previous path unit_vector and nominal speed
   previous_speed = current_speed;
