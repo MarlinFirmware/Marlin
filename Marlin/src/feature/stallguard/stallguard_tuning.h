@@ -92,6 +92,11 @@ private:
 
     bool tuning_success;                       // Flag to indicate successful tuning (global)
     bool tuning_finished = true;               // Flag to indicate end of tuning procedure, init to true for MarlinUI menu
+
+    #if ANY(X_HAS_SG4, Y_HAS_SG4)
+        bool stall_detection_procedure_active;
+        bool stall_detected;
+    #endif
     
     #if HAS_STANDARD_MOTION
         int16_t std_sg_thrs;                   // Homing threshold for standard motion system SG2 (SGT value -64 to 63) or SG4 (SGTHRS value 0-255)
