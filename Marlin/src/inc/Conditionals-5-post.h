@@ -1490,6 +1490,14 @@
   #if X_IS_TRINAMIC
     #if defined(X_STALL_SENSITIVITY) && AXIS_HAS_STALLGUARD(X)
       #define X_SENSORLESS 1
+      #if AXIS_HAS_STALLGUARD2(X)
+        #define X_HAS_SG2 1
+      #else
+        #define X_HAS_SG4 1
+      #endif
+      #if AXIS_IS_SG2_SG4(X)
+        #define X_HAS_SG2_SG4 1
+      #endif
       #if ENABLED(SPI_ENDSTOPS) && AXIS_HAS_SPI(X)
         #define X_SPI_SENSORLESS 1
       #endif
@@ -1510,6 +1518,9 @@
   #if X2_IS_TRINAMIC
     #if defined(X2_STALL_SENSITIVITY) && AXIS_HAS_STALLGUARD(X2)
       #define X2_SENSORLESS 1
+      #if AXIS_IS_SG2_SG4(X2)
+        #define X2_HAS_SG2_SG4 1
+      #endif
     #endif
     #if AXIS_HAS_STEALTHCHOP(X2)
       #define X2_HAS_STEALTHCHOP 1
@@ -1528,6 +1539,14 @@
   #if Y_IS_TRINAMIC
     #if defined(Y_STALL_SENSITIVITY) && AXIS_HAS_STALLGUARD(Y)
       #define Y_SENSORLESS 1
+      #if AXIS_HAS_STALLGUARD2(Y)
+        #define Y_HAS_SG2 1
+      #else
+        #define Y_HAS_SG4 1
+      #endif
+      #if AXIS_IS_SG2_SG4(Y)
+        #define Y_HAS_SG2_SG4 1
+      #endif
       #if ENABLED(SPI_ENDSTOPS) && AXIS_HAS_SPI(Y)
         #define Y_SPI_SENSORLESS 1
       #endif
@@ -1548,6 +1567,9 @@
   #if Y2_IS_TRINAMIC
     #if defined(Y2_STALL_SENSITIVITY) && AXIS_HAS_STALLGUARD(Y2)
       #define Y2_SENSORLESS 1
+      #if AXIS_IS_SG2_SG4(Y2)
+        #define Y2_HAS_SG2_SG4 1
+      #endif
     #endif
     #if AXIS_HAS_STEALTHCHOP(Y2)
       #define Y2_HAS_STEALTHCHOP 1

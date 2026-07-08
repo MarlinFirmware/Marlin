@@ -3622,6 +3622,13 @@
    * @section tmc/stallguard
    */
   //#define SENSORLESS_HOMING // StallGuard capable drivers only
+  
+  #if ENABLED(SENSORLESS_HOMING)
+    //#define STALLGUARD_TUNING // Enable to autotune stallguard sensitivity
+    #if ALL(HAS_MARLINUI_MENU, STALLGUARD_TUNING)
+      //#define STALLGUARD_TUNING_MENU // Add menu to tune stallguard sensitivity
+    #endif
+  #endif
 
   #if ANY(SENSORLESS_HOMING, SENSORLESS_PROBING)
     // TMC2209: 0...255. TMC2130: -64...63

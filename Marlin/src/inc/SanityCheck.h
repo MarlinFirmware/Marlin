@@ -3717,6 +3717,43 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
     #error "SENSORLESS_HOMING requires a TMC stepper driver with StallGuard on X, Y, Z, I, J, K, U, V, or W axes."
   #endif
 
+  #if ENABLED(STALLGUARD_TUNING)
+    #if CORE_IS_XY
+      #if !(X_SENSORLESS && Y_SENSORLESS)
+        #error "CoreXY: STALLGUARD_TUNING requires both X and Y TMC stepper drivers"
+      #endif
+      #if (AXIS_HAS_STALLGUARD2(X) != AXIS_HAS_STALLGUARD2(Y)) \
+          && !AXIS_IS_SG2_SG4(X) \
+          && !AXIS_IS_SG2_SG4(Y)
+        #error "CoreXY: STALLGUARD_TUNING requires same stallguard version on both X and Y TMC stepper drivers"
+      #endif
+    #endif
+    #if !(X_SENSORLESS || Y_SENSORLESS)
+      #error "STALLGUARD_TUNING requires X or Y axis with a StallGuard capable TMC stepper driver"
+    #endif
+    #if X_SENSORLESS && HAS_X2_STEPPER
+      #if !(X2_SENSORLESS)
+        #error "STALLGUARD_TUNING requires both StallGuard on both X axis TMC stepper drivers"
+      #endif
+     #if (AXIS_HAS_STALLGUARD2(X) != AXIS_HAS_STALLGUARD2(X2)) \
+          && !AXIS_IS_SG2_SG4(X) \
+          && !AXIS_IS_SG2_SG4(X2)
+        #error "STALLGUARD_TUNING requires same stallguard version on both Y axis TMC drivers"
+      #endif
+    #endif
+    #if Y_SENSORLESS && HAS_Y2_STEPPER
+      #if !(Y2_SENSORLESS)
+        #error "STALLGUARD_TUNING requires both StallGuard on both Y axis TMC stepper drivers"
+      #endif
+      #if (AXIS_HAS_STALLGUARD2(Y) != AXIS_HAS_STALLGUARD2(Y2)) \
+          && !AXIS_IS_SG2_SG4(Y) \
+          && !AXIS_IS_SG2_SG4(Y2)
+        #error "STALLGUARD_TUNING requires same stallguard version on both Y axis TMC drivers"
+      #endif
+
+    #endif
+  #endif // STALLGUARD_TUNING
+
 #endif // SENSORLESS_HOMING
 
 // Sensorless probing requirements
