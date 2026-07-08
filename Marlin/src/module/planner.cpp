@@ -1615,7 +1615,7 @@ void Planner::quick_stop() {
 
 void Planner::endstop_triggered(const AxisEnum axis) {
   // If stallguard stall detection procedure is active, set the stall detected flag to true, only for SG4
-  #if ENABLED(STALLGUARD_TUNING)
+  #if ENABLED(STALLGUARD_TUNING) && (X_HAS_SG4 || Y_HAS_SG4)
     if (stallguard_tuner.is_stall_detection_active()) stallguard_tuner.setStallDetected(true);
   #endif
   // Record stepper position and discard the current block

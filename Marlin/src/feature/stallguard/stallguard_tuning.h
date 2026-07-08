@@ -57,8 +57,10 @@ public:
         int16_t get_std_threshold() { return std_sg_thrs; }
     #endif
 
-    bool is_stall_detection_active() { return stall_detection_procedure_active; }
-    void setStallDetected(bool detected) { stall_detected = detected; }
+    #if ANY(X_HAS_SG4, Y_HAS_SG4)
+        bool is_stall_detection_active() { return stall_detection_procedure_active; }
+        void setStallDetected(bool detected) { stall_detected = detected; }
+    #endif
 
     // Sampling function called in marlin.idle() during tuning
     void sampling();
@@ -75,6 +77,8 @@ private:
         // Tune StallGuard for a given axis with StallGuard4 driver(s) (for TMC2209 or TMC2240 in SG4 mode)
         // Returns the optimal SGTHRS value (0-255) or -1 if tuning failed
         int16_t tune_sg4();
+        bool stall_detection_procedure_active;     // Flag to indicate stall detection procedure is active
+        bool stall_detected;                       // Flag to indicate if a stall was detected during tuning
     #endif
 
     // Generate a movement for StallGuard sampling with threshold set to thrs and velocity in mm/s
@@ -87,11 +91,10 @@ private:
     void set_homing_treshold(const uint16_t threshold);
 
     bool sg_sampling_active;                   // Flag to indicate sampling is active, used to trigger SG_RESULT sampling in marlin.idle()
-    bool stall_detection_procedure_active;     // Flag to indicate stall detection procedure is active
-    bool stall_detected;                       // Flag to indicate if a stall was detected during tuning
+
     bool tuning_success;                       // Flag to indicate successful tuning (global)
     bool tuning_finished = true;               // Flag to indicate end of tuning procedure, init to true for MarlinUI menu
-
+    
     #if HAS_STANDARD_MOTION
         int16_t std_sg_thrs;                   // Homing threshold for standard motion system SG2 (SGT value -64 to 63) or SG4 (SGTHRS value 0-255)
         bool std_tuning_success;
