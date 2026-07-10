@@ -951,7 +951,7 @@ void Temperature::factory_reset() {
       // Report heater states every 2 seconds
       if (ELAPSED(ms, next_temp_ms)) {
         #if HAS_TEMP_SENSOR
-          print_heater_states(heater_id < 0 ? motion.extruder : (int8_t)heater_id);
+          print_heater_states(heater_id < 0 ? motion.extruder : static_cast<int8_t>(heater_id));
           SERIAL_EOL();
         #endif
         next_temp_ms = ms + 2000UL;
@@ -1229,7 +1229,7 @@ void Temperature::factory_reset() {
       if (housekeeping() == CANCELLED) return CANCELLED;
 
       if (ELAPSED(curr_time_ms, next_test_ms)) {
-        hotend.soft_pwm_amount = (int)get_pid_output_hotend(e) >> 1;
+        hotend.soft_pwm_amount = static_cast<int>(get_pid_output_hotend(e)) >> 1;
 
         if (ELAPSED(curr_time_ms, settle_end_ms) && PENDING(curr_time_ms, test_end_ms) && TERN1(HAS_FAN, !fan0_done))
           total_energy_fan0 += mpc.heater_power * hotend.soft_pwm_amount / 127 * MPC_dT + (last_temp - current_temp) * mpc.block_heat_capacity;
@@ -1630,7 +1630,7 @@ void Temperature::_temp_error(
     #if HAS_TEMP_REDUNDANT
       if (heater_id == H_REDUNDANT) {
         SERIAL_ECHOPGM(STR_REDUNDANT); // print redundant and cascade to print target, too.
-        real_heater_id = (heater_id_t)HEATER_ID(TEMP_SENSOR_REDUNDANT_TARGET);
+        real_heater_id = static_cast<heater_id_t>(HEATER_ID(TEMP_SENSOR_REDUNDANT_TARGET));
       }
     #endif
 
@@ -1879,7 +1879,7 @@ void Temperature::mintemp_error(const heater_id_t heater_id OPTARG(ERR_INCLUDE_T
                            ", ambient ", hotend.modeled_ambient_temp,
                            ", power ", power,
                            ", pid_output ", pid_output,
-                           ", pwm ", (int)pid_output >> 1);
+                           ", pwm ", static_cast<int>(pid_output) >> 1);
         }
       //*/
 
@@ -1951,12 +1951,12 @@ void Temperature::mintemp_error(const heater_id_t heater_id OPTARG(ERR_INCLUDE_T
 
       #if ENABLED(THERMAL_PROTECTION_HOTENDS)
         // Check for thermal runaway
-        tr_state_machine[e].run(temp_hotend[e].celsius, temp_hotend[e].target, (heater_id_t)e, THERMAL_PROTECTION_PERIOD, THERMAL_PROTECTION_HYSTERESIS);
+        tr_state_machine[e].run(temp_hotend[e].celsius, temp_hotend[e].target, static_cast<heater_id_t>(e), THERMAL_PROTECTION_PERIOD, THERMAL_PROTECTION_HYSTERESIS);
       #endif
 
       temp_hotend[e].soft_pwm_amount = (temp_hotend[e].celsius > temp_range[e].mintemp || is_hotend_preheating(e))
                                     && (temp_hotend[e].celsius < temp_range[e].maxtemp)
-                                     ? (int)get_pid_output_hotend(e) >> 1 : 0;
+                                     ? static_cast<int>(get_pid_output_hotend(e)) >> 1 : 0;
 
       #if WATCH_HOTENDS
         // Make sure temperature is increasing
@@ -2060,7 +2060,7 @@ void Temperature::mintemp_error(const heater_id_t heater_id OPTARG(ERR_INCLUDE_T
         //
         // PID Bed Heating
         //
-        temp_bed.soft_pwm_amount = WITHIN(temp_bed.celsius, BED_MINTEMP, BED_MAXTEMP) ? (int)get_pid_output_bed() >> 1 : 0;
+        temp_bed.soft_pwm_amount = WITHIN(temp_bed.celsius, BED_MINTEMP, BED_MAXTEMP) ? static_cast<int>(get_pid_output_bed()) >> 1 : 0;
 
       #else // !PIDTEMPBED
 
@@ -2209,7 +2209,7 @@ void Temperature::mintemp_error(const heater_id_t heater_id OPTARG(ERR_INCLUDE_T
 
     #if ENABLED(PIDTEMPCHAMBER)
       // PIDTEMPCHAMBER doesn't support a CHAMBER_VENT yet.
-      temp_chamber.soft_pwm_amount = WITHIN(temp_chamber.celsius, CHAMBER_MINTEMP, CHAMBER_MAXTEMP) ? (int)get_pid_output_chamber() >> 1 : 0;
+      temp_chamber.soft_pwm_amount = WITHIN(temp_chamber.celsius, CHAMBER_MINTEMP, CHAMBER_MAXTEMP) ? static_cast<int>(get_pid_output_chamber()) >> 1 : 0;
     #else
       if (ELAPSED(ms, next_chamber_check_ms)) {
         next_chamber_check_ms = ms + CHAMBER_CHECK_INTERVAL;
@@ -2643,7 +2643,7 @@ void Temperature::task() {
               max31865_0.temperature(MAX31865_SENSOR_OHMS_0, MAX31865_CALIBRATION_OHMS_0)
             );
           #else
-            return (int16_t)raw * 0.25f;
+            return static_cast<int16_t>(raw) * 0.25f;
           #endif
         #elif TEMP_SENSOR_0_IS_AD595
           return temp_ad595(raw);
@@ -2664,7 +2664,7 @@ void Temperature::task() {
               max31865_1.temperature(MAX31865_SENSOR_OHMS_1, MAX31865_CALIBRATION_OHMS_1)
             );
           #else
-            return (int16_t)raw * 0.25f;
+            return static_cast<int16_t>(raw) * 0.25f;
           #endif
         #elif TEMP_SENSOR_1_IS_AD595
           return temp_ad595(raw);
@@ -2685,7 +2685,7 @@ void Temperature::task() {
               max31865_2.temperature(MAX31865_SENSOR_OHMS_2, MAX31865_CALIBRATION_OHMS_2)
             );
           #else
-            return (int16_t)raw * 0.25f;
+            return static_cast<int16_t>(raw) * 0.25f;
           #endif
         #elif TEMP_SENSOR_2_IS_AD595
           return temp_ad595(raw);
@@ -2769,7 +2769,7 @@ void Temperature::task() {
           max31865_BED.temperature(MAX31865_SENSOR_OHMS_BED, MAX31865_CALIBRATION_OHMS_BED)
         );
       #else
-        return (int16_t)raw * 0.25f;
+        return static_cast<int16_t>(raw) * 0.25f;
       #endif
     #elif TEMP_SENSOR_BED_IS_THERMISTOR
       SCAN_THERMISTOR_TABLE(TEMPTABLE_BED, TEMPTABLE_BED_LEN);
@@ -2873,11 +2873,11 @@ void Temperature::task() {
     #if TEMP_SENSOR_REDUNDANT_IS_CUSTOM
       return user_thermistor_to_deg_c(CTI_REDUNDANT, raw);
     #elif TEMP_SENSOR_IS_MAX_TC(REDUNDANT) && REDUNDANT_TEMP_MATCH(SOURCE, E0)
-      return TERN(TEMP_SENSOR_REDUNDANT_IS_MAX31865, max31865_0.temperature(raw), (int16_t)raw * 0.25f);
+      return TERN(TEMP_SENSOR_REDUNDANT_IS_MAX31865, max31865_0.temperature(raw), static_cast<int16_t>(raw) * 0.25f);
     #elif TEMP_SENSOR_IS_MAX_TC(REDUNDANT) && REDUNDANT_TEMP_MATCH(SOURCE, E1)
-      return TERN(TEMP_SENSOR_REDUNDANT_IS_MAX31865, max31865_1.temperature(raw), (int16_t)raw * 0.25f);
+      return TERN(TEMP_SENSOR_REDUNDANT_IS_MAX31865, max31865_1.temperature(raw), static_cast<int16_t>(raw) * 0.25f);
     #elif TEMP_SENSOR_IS_MAX_TC(REDUNDANT) && REDUNDANT_TEMP_MATCH(SOURCE, E2)
-      return TERN(TEMP_SENSOR_REDUNDANT_IS_MAX31865, max31865_2.temperature(raw), (int16_t)raw * 0.25f);
+      return TERN(TEMP_SENSOR_REDUNDANT_IS_MAX31865, max31865_2.temperature(raw), static_cast<int16_t>(raw) * 0.25f);
     #elif TEMP_SENSOR_REDUNDANT_IS_THERMISTOR
       SCAN_THERMISTOR_TABLE(TEMPTABLE_REDUNDANT, TEMPTABLE_REDUNDANT_LEN);
     #elif TEMP_SENSOR_REDUNDANT_IS_AD595
@@ -3806,7 +3806,7 @@ void Temperature::disable_all_heaters() {
         #endif
 
         // Set thermocouple above max temperature (TMAX)
-        max_tc_temp = THERMO_SEL(TEMP_SENSOR_0_MAX_TC_TMAX, TEMP_SENSOR_1_MAX_TC_TMAX, TEMP_SENSOR_2_MAX_TC_TMAX) << (MAX_TC_DISCARD_BITS + 1);
+        max_tc_temp = static_cast<typeof(max_tc_temp)>(THERMO_SEL(TEMP_SENSOR_0_MAX_TC_TMAX, TEMP_SENSOR_1_MAX_TC_TMAX, TEMP_SENSOR_2_MAX_TC_TMAX)) << (MAX_TC_DISCARD_BITS + 1);
       }
     }
     else {
@@ -4000,7 +4000,7 @@ void Temperature::disable_all_heaters() {
       sampleCount = 0;
     }
 
-    raw = (int16_t) ads1118.readWriteData(ads1118.current_config);
+    raw = static_cast<int16_t>(ads1118.readWriteData(ads1118.current_config));
 
     if (ads1118.previous_config == ads1118.config_ADC_SS_TEMP) {
       //thck_0.setTcold(ads1118.convertInternalTemp(raw));
@@ -4025,12 +4025,12 @@ void Temperature::disable_all_heaters() {
       if (ads1118_errors[hindex] > 3) {
         SERIAL_ERROR_START();
         SERIAL_ECHOLNPGM("ADS1118 Fault: Conversion error!");
-        ads_val = (raw_adc_t)(TEMP_SENSOR_0_ADS_TMAX << 4); // force error
+        ads_val = static_cast<raw_adc_t>(TEMP_SENSOR_0_ADS_TMAX << 4); // force error
       }
     }
     else if (raw < 32767){
       ads1118_errors[hindex] = 0; // reset errors if ok
-      ads_val = (raw_adc_t) (((int16_t)raw) + 32768); // raw shift to unsigned int;
+      ads_val = static_cast<raw_adc_t>((static_cast<int16_t>(raw)) + 32768); // raw shift to unsigned int;
     } else { // if we add 32767 to raw it will overflow
       ads1118_errors[hindex] = 0; // reset errors if ok
       SERIAL_ECHOLNPGM("ADS1118 Warn: Cannot shift adc read from signed to unsigned!");
@@ -4417,7 +4417,7 @@ void Temperature::isr() {
     case SensorsReady: {
       // All sensors have been read. Stay in this state for a few
       // ISRs to save on calls to temp update/checking code below.
-      constexpr int8_t extra_loops = MIN_ADC_ISR_LOOPS - (int8_t)SensorsReady;
+      constexpr int8_t extra_loops = MIN_ADC_ISR_LOOPS - static_cast<int8_t>(SensorsReady);
       static uint8_t delay_count = 0;
       if (extra_loops > 0) {
         if (delay_count == 0) delay_count = extra_loops;  // Init this delay
@@ -4719,15 +4719,15 @@ void Temperature::isr() {
       if (include_r) print_heater_state(H_REDUNDANT, degRedundant(), degRedundantTarget() OPTARG(SHOW_TEMP_ADC_VALUES, rawRedundantTemp()));
     #endif
     #if HAS_MULTI_HOTEND
-      HOTEND_LOOP() print_heater_state((heater_id_t)e, degHotend(e), degTargetHotend(e) OPTARG(SHOW_TEMP_ADC_VALUES, rawHotendTemp(e)));
+      HOTEND_LOOP() print_heater_state(static_cast<heater_id_t>(e), degHotend(e), degTargetHotend(e) OPTARG(SHOW_TEMP_ADC_VALUES, rawHotendTemp(e)));
     #endif
-    SString<100> s(F(" @:"), getHeaterPower((heater_id_t)target_extruder));
+    SString<100> s(F(" @:"), getHeaterPower(static_cast<heater_id_t>(target_extruder)));
     TERN_(HAS_HEATED_BED,     s.append(F(" B@:"), getHeaterPower(H_BED)));
     TERN_(PELTIER_BED,        s.append(F(" P@:"), temp_bed.peltier_dir_heating ? 'H' : 'C'));
     TERN_(HAS_HEATED_CHAMBER, s.append(F(" C@:"), getHeaterPower(H_CHAMBER)));
     TERN_(HAS_COOLER,         s.append(F(" L@:"), getHeaterPower(H_COOLER)));
     #if HAS_MULTI_HOTEND
-      HOTEND_LOOP() s.append(F(" @"), e, ':', getHeaterPower((heater_id_t)e));
+      HOTEND_LOOP() s.append(F(" @"), e, ':', getHeaterPower(static_cast<heater_id_t>(e)));
     #endif
     s.echo();
   }
