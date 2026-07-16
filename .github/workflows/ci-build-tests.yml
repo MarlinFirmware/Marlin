@@ -155,6 +155,10 @@ jobs:
         # HC32
         - HC32F460C_aquila_101
 
+        # AT32
+        - WANHAO_0327001
+        - EASYTHREED_ET4000_PLUS
+
         # GD32F3
         - GD32F303RE_creality_mfl
 

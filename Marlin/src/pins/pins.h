@@ -934,6 +934,15 @@
   #include "hc32f4/pins_CREALITY_ENDER2P_V24S4.h"   // HC32F460                             env:HC32F460C_e2p24s4 env:HC32F460C_openhc32boot
 
 //
+// AT32 ARM Cortex-M4
+//
+
+#elif MB(WANHAO_0327001)
+  #include "at32f4/pins_WANHAO_0327001.h"           // AT32F403                             env:WANHAO_0327001
+#elif MB(EASYTHREED_ET4000_PLUS)
+  #include "at32f4/pins_EASYTHREED_ET4000_PLUS.h"   // AT32F403                             env:EASYTHREED_ET4000_PLUS
+
+//
 // GD32 ARM Cortex-M3
 //
 

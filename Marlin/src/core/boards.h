@@ -564,6 +564,13 @@
 #define BOARD_CREALITY_ENDER2P_V24S4  7201  // Creality Ender 2 Pro v2.4.S4_170 (HC32f460kcta)
 
 //
+// AT32 ARM Cortex-M4
+//
+
+#define BOARD_WANHAO_0327001           8000  // Wanhao 0327001 v2.0 (AT32F403ARGT7)
+#define BOARD_EASYTHREED_ET4000_PLUS   8001  // EasyThreed K7 ET4000+ (AT32F403ARCT7)
+
+//
 // GD32 ARM Cortex-M3
 //
 
