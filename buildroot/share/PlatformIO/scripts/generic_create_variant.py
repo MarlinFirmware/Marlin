@@ -28,9 +28,10 @@ if pioutil.is_pio_build():
     if len(platform_packages) == 0:
         framewords = {
             "Ststm32Platform": "framework-arduinoststm32",
-            "AtmelavrPlatform": "framework-arduino-avr"
+            "AtmelavrPlatform": "framework-arduino-avr",
+            "At32Platform": "framework-arduino-at32f4"
         }
-        platform_name = framewords[platform.__class__.__name__]
+        platform_name = framewords.get(platform.__class__.__name__, "framework-arduino-at32f4")
     else:
         spec = PackageSpec(platform_packages[0])
         if spec.uri and '@' in spec.uri:

@@ -575,6 +575,13 @@
 #define BOARD_TRIGORILLA_V306_GO      7204  // Anycubic TriGorilla Gen V3.0.6 - Kobra Go  (HC32F460KETA)
 
 //
+// AT32 ARM Cortex-M4
+//
+
+#define BOARD_WANHAO_0327001           8000  // Wanhao 0327001 v2.0 (AT32F403ARGT7)
+#define BOARD_EASYTHREED_ET4000_PLUS   8001  // EasyThreed K7 ET4000+ (AT32F403ARCT7)
+
+//
 // GD32 ARM Cortex-M3
 //
 
