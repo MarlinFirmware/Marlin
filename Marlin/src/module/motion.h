@@ -266,6 +266,10 @@ public:
     static constexpr feedRate_t z_probe_fast_mm_s = MMM_TO_MMS(Z_PROBE_FEEDRATE_FAST);
   #endif
 
+  #if ENABLED(Z_SAFE_HOMING)
+    static constexpr xy_float_t safe_homing_xy = { Z_SAFE_HOMING_X_POINT, Z_SAFE_HOMING_Y_POINT };
+  #endif
+
   #ifdef __IMXRT1062__
     #define DEFS_PROGMEM
   #else
@@ -367,6 +371,14 @@ public:
     static bool z_min_trusted; // If Z has been powered on trust that the real Z is >= motion.position.z
   #endif
   static void set_axis_is_at_home(const AxisEnum axis);
+
+  #if ENABLED(CREALITY_RTS)
+    #if ENABLED(BLTOUCH_AND_Z_LIMIT)
+      static float homeaxis_bl(const AxisEnum axis, const feedRate_t fr_mm_fast, const feedRate_t fr_mm_slow);
+    #else
+      static void homeaxis_bl(const AxisEnum axis);
+    #endif
+  #endif
 
   /**
    * axes_homed

@@ -3218,6 +3218,9 @@
 //
 //#define CR10_STOCKDISPLAY
 
+// Resistive touch screen
+//#define CREALITY_RTS
+
 //
 // Ender-2 OEM display, a variant of the MKS_MINI_12864
 //
@@ -3804,3 +3807,7 @@
 
 // Disable servo with M282 to reduce power consumption, noise, and heat when not in use
 //#define SERVO_DETACH_GCODE
+
+// Creality WiFi
+//#define CREALITY_WIFI
+//#define MENU_RESET_WIFI
