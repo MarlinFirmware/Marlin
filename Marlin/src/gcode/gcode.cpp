@@ -617,6 +617,10 @@ void GcodeSuite::process_parsed_command(bool no_ok/*=false*/) {
         case 190: M190(); break;                                  // M190: Wait for bed temperature to reach target
       #endif
 
+      #if HAS_BED_ZONES
+        case 142: M142(); break;                                  // M142: Set active bed zone mask
+      #endif
+
       #if HAS_HEATED_CHAMBER
         case 141: M141(); break;                                  // M141: Set chamber temperature
         case 191: M191(); break;                                  // M191: Wait for chamber temperature to reach target

@@ -38,19 +38,22 @@
  * M140 - Set Bed Temperature target and return immediately
  * M190 - Set Bed Temperature target and wait
  *
- *  I<index>  : Preset index (if material presets are defined)
- *  S<target> : The target temperature in current units
- *
  * Parameters
- *  I<index>  : Preset index (if material presets are defined)
  *  S<target> : The target temperature in current units. Wait for heating only.
+ *  A<index>  : (BED_ZONES) Zone index (0-based). Sets the target for that one zone only.
+ *  I<index>  : (No BED_ZONES) Preset index (if material presets are defined).
+ *  K<mask>   : (BED_ZONES) Bitmask of zones to target. Bit 0 = zone 0, bit 1 = zone 1, etc.
+ *              Overrides the persistent active zone mask for this command only.
  *
  * M190 Parameters
  *  R<target> : The target temperature in current units. Wait for heating and cooling.
  *
  * Examples
- *  M140 S60 : Set target to 60° and return right away.
- *  M190 R40 : Set target to 40°. Wait until the bed gets close to 40°.
+ *  M140 S60        : Set target to 60° for all active zones and return right away.
+ *  M190 R40        : Set target to 40°. Wait until all active zones reach 40°.
+ *  M140 S80 A2     : (BED_ZONES) Set zone 2 only to 80° and return.
+ *  M190 S60 K5     : (BED_ZONES) Set zones 0 and 2 (0b0101) to 60° and wait.
+ *  M140 S0  K15    : (BED_ZONES) Turn off all 4 zones (0b1111).
  *
  * With PRINTJOB_TIMER_AUTOSTART turning on heaters will start the print job timer
  *  (used by printingIsActive, etc.) and turning off heaters will stop the timer.
@@ -72,8 +75,8 @@ void GcodeSuite::M140_M190(const bool isM190) {
   bool got_temp = false;
   celsius_t temp = 0;
 
-  // Accept 'I' if temperature presets are defined
-  #if HAS_PREHEAT
+  // Accept 'I' for preheat preset index when BED_ZONES is not active
+  #if HAS_PREHEAT && !HAS_BED_ZONES
     got_temp = parser.seenval('I');
     if (got_temp) {
       const uint8_t index = parser.value_byte();
@@ -91,6 +94,18 @@ void GcodeSuite::M140_M190(const bool isM190) {
 
   if (!got_temp) return;
 
+  // Resolve zone mask: K<bitmask> overrides, A<index> selects one area/zone,
+  // otherwise use the persistent active mask.
+  #if HAS_BED_ZONES
+    uint16_t zmask;
+    if (parser.seenval('K'))
+      zmask = (uint16_t)parser.value_ulong() & ((1U << BED_ZONES_COUNT) - 1U);
+    else if (parser.seenval('A'))
+      zmask = 1U << (_MIN((uint8_t)parser.value_byte(), (uint8_t)(BED_ZONES_COUNT - 1)));
+    else
+      zmask = thermalManager.bed_zone_mask;
+  #endif
+
   #if ENABLED(BED_ANNEALING_GCODE)
     const bool anneal = isM190 && !no_wait_for_cooling && parser.seenval('T');
     const millis_t anneal_ms = anneal ? parser.value_millis_from_seconds() : 0UL;
@@ -99,7 +114,11 @@ void GcodeSuite::M140_M190(const bool isM190) {
   #endif
 
   if (!anneal) {
-    thermalManager.setTargetBed(temp);
+    #if HAS_BED_ZONES
+      thermalManager.setTargetBed(temp, zmask);
+    #else
+      thermalManager.setTargetBed(temp);
+    #endif
     thermalManager.isHeatingBed() ? LCD_MESSAGE(MSG_BED_HEATING) : LCD_MESSAGE(MSG_BED_COOLING);
   }
 
@@ -113,7 +132,11 @@ void GcodeSuite::M140_M190(const bool isM190) {
         const millis_t wait_ms = anneal_ms / (thermalManager.degBed() - temp);
         // Loop from current temp down to the target
         for (celsius_t cool_temp = thermalManager.degBed() - 1; cool_temp >= temp; --cool_temp) {
-          thermalManager.setTargetBed(cool_temp); // Cool by one degree
+          #if HAS_BED_ZONES
+            thermalManager.setTargetBed(cool_temp, zmask);
+          #else
+            thermalManager.setTargetBed(cool_temp);
+          #endif
           dwell(wait_ms);   // Wait while going to the next degree
         }
         return;

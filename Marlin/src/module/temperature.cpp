@@ -254,6 +254,107 @@
   static constexpr uint8_t heater_ttbllen_map[HOTENDS] = ARRAY_BY_HOTENDS(TEMPTABLE_0_LEN REPEAT_S(1, HOTENDS, NEXT_TEMPTABLE_LEN));
 #endif
 
+#if HAS_BED_ZONES && TEMP_SENSOR_BED_IS_THERMISTOR
+  // Per-zone thermistor dispatch table. Zone 0 always uses TEMPTABLE_BED.
+  // Zones 1+ use their BED_ZONE_SENSOR_TYPE_n table (defaults to TEMPTABLE_BED if unset).
+  static const temp_entry_t* zone_ttbl_map[BED_ZONES_COUNT] = {
+    TEMPTABLE_BED
+    #if BED_ZONES_COUNT > 1
+      , TEMPTABLE_BED_ZONE1
+    #endif
+    #if BED_ZONES_COUNT > 2
+      , TEMPTABLE_BED_ZONE2
+    #endif
+    #if BED_ZONES_COUNT > 3
+      , TEMPTABLE_BED_ZONE3
+    #endif
+    #if BED_ZONES_COUNT > 4
+      , TEMPTABLE_BED_ZONE4
+    #endif
+    #if BED_ZONES_COUNT > 5
+      , TEMPTABLE_BED_ZONE5
+    #endif
+    #if BED_ZONES_COUNT > 6
+      , TEMPTABLE_BED_ZONE6
+    #endif
+    #if BED_ZONES_COUNT > 7
+      , TEMPTABLE_BED_ZONE7
+    #endif
+    #if BED_ZONES_COUNT > 8
+      , TEMPTABLE_BED_ZONE8
+    #endif
+    #if BED_ZONES_COUNT > 9
+      , TEMPTABLE_BED_ZONE9
+    #endif
+    #if BED_ZONES_COUNT > 10
+      , TEMPTABLE_BED_ZONE10
+    #endif
+    #if BED_ZONES_COUNT > 11
+      , TEMPTABLE_BED_ZONE11
+    #endif
+    #if BED_ZONES_COUNT > 12
+      , TEMPTABLE_BED_ZONE12
+    #endif
+    #if BED_ZONES_COUNT > 13
+      , TEMPTABLE_BED_ZONE13
+    #endif
+    #if BED_ZONES_COUNT > 14
+      , TEMPTABLE_BED_ZONE14
+    #endif
+    #if BED_ZONES_COUNT > 15
+      , TEMPTABLE_BED_ZONE15
+    #endif
+  };
+  static constexpr uint8_t zone_ttbllen_map[BED_ZONES_COUNT] = {
+    TEMPTABLE_BED_LEN
+    #if BED_ZONES_COUNT > 1
+      , TEMPTABLE_BED_ZONE1_LEN
+    #endif
+    #if BED_ZONES_COUNT > 2
+      , TEMPTABLE_BED_ZONE2_LEN
+    #endif
+    #if BED_ZONES_COUNT > 3
+      , TEMPTABLE_BED_ZONE3_LEN
+    #endif
+    #if BED_ZONES_COUNT > 4
+      , TEMPTABLE_BED_ZONE4_LEN
+    #endif
+    #if BED_ZONES_COUNT > 5
+      , TEMPTABLE_BED_ZONE5_LEN
+    #endif
+    #if BED_ZONES_COUNT > 6
+      , TEMPTABLE_BED_ZONE6_LEN
+    #endif
+    #if BED_ZONES_COUNT > 7
+      , TEMPTABLE_BED_ZONE7_LEN
+    #endif
+    #if BED_ZONES_COUNT > 8
+      , TEMPTABLE_BED_ZONE8_LEN
+    #endif
+    #if BED_ZONES_COUNT > 9
+      , TEMPTABLE_BED_ZONE9_LEN
+    #endif
+    #if BED_ZONES_COUNT > 10
+      , TEMPTABLE_BED_ZONE10_LEN
+    #endif
+    #if BED_ZONES_COUNT > 11
+      , TEMPTABLE_BED_ZONE11_LEN
+    #endif
+    #if BED_ZONES_COUNT > 12
+      , TEMPTABLE_BED_ZONE12_LEN
+    #endif
+    #if BED_ZONES_COUNT > 13
+      , TEMPTABLE_BED_ZONE13_LEN
+    #endif
+    #if BED_ZONES_COUNT > 14
+      , TEMPTABLE_BED_ZONE14_LEN
+    #endif
+    #if BED_ZONES_COUNT > 15
+      , TEMPTABLE_BED_ZONE15_LEN
+    #endif
+  };
+#endif // HAS_BED_ZONES && TEMP_SENSOR_BED_IS_THERMISTOR
+
 Temperature thermalManager;
 
 PGMSTR(str_t_thermal_runaway, STR_T_THERMAL_RUNAWAY);
@@ -545,11 +646,20 @@ PGMSTR(str_t_heating_failed, STR_T_HEATING_FAILED);
 #endif
 
 #if HAS_HEATED_BED
-  bed_info_t Temperature::temp_bed; // = { 0 }
+  #if HAS_BED_ZONES
+    bed_info_t Temperature::temp_bed[BED_ZONES_COUNT]; // = { 0 }
+    uint16_t   Temperature::bed_zone_mask = (1U << BED_ZONES_COUNT) - 1U; // all zones active
+  #else
+    bed_info_t Temperature::temp_bed; // = { 0 }
+  #endif
   // Init min and max temp with extreme values to prevent false errors during startup
   temp_raw_range_t Temperature::temp_sensor_range_bed = { TEMP_SENSOR_BED_RAW_LO_TEMP, TEMP_SENSOR_BED_RAW_HI_TEMP };
   #if WATCH_BED
-    bed_watch_t Temperature::watch_bed; // = { 0 }
+    #if HAS_BED_ZONES
+      bed_watch_t Temperature::watch_bed_zone[BED_ZONES_COUNT];
+    #else
+      bed_watch_t Temperature::watch_bed; // = { 0 }
+    #endif
   #endif
   #if DISABLED(PIDTEMPBED)
     millis_t Temperature::next_bed_check_ms;
@@ -764,7 +874,34 @@ void Temperature::factory_reset() {
   // Heated Bed PID
   //
   #if ENABLED(PIDTEMPBED)
-    temp_bed.pid.set(DEFAULT_BED_KP, DEFAULT_BED_KI, DEFAULT_BED_KD);
+    #if HAS_BED_ZONES
+      #ifdef BED_ZONE_PID_VALUES
+      {
+        static constexpr raw_pid_t _zone_pid[BED_ZONES_COUNT] = BED_ZONE_PID_VALUES;
+        for (uint8_t z = 0; z < BED_ZONES_COUNT; z++)
+          temp_bed[z].pid.set(_zone_pid[z]);
+      }
+      #else
+        for (uint8_t z = 0; z < BED_ZONES_COUNT; z++)
+          temp_bed[z].pid.set(DEFAULT_BED_KP, DEFAULT_BED_KI, DEFAULT_BED_KD);
+      #endif
+    #else
+      temp_bed.pid.set(DEFAULT_BED_KP, DEFAULT_BED_KI, DEFAULT_BED_KD);
+    #endif
+  #endif
+
+  //
+  // BED_ZONES active mask
+  //
+  #if HAS_BED_ZONES
+    #if defined(BED_ZONE_MASK_COUNT) && BED_ZONE_MASK_COUNT > 0
+    {
+      static constexpr uint16_t _presets[] = BED_ZONE_MASKS;
+      bed_zone_mask = _presets[0] & ((1U << BED_ZONES_COUNT) - 1U);
+    }
+    #else
+      bed_zone_mask = (1U << BED_ZONES_COUNT) - 1U; // all zones
+    #endif
   #endif
 
   //
@@ -791,7 +928,7 @@ void Temperature::factory_reset() {
    * Needs sufficient heater power to make some overshoot at target
    * temperature to succeed.
    */
-  void Temperature::PID_autotune(const celsius_t target, const heater_id_t heater_id, const int8_t ncycles, const bool set_result/*=false*/) {
+  void Temperature::PID_autotune(const celsius_t target, const heater_id_t heater_id, const int8_t ncycles, const bool set_result/*=false*/, const uint8_t bed_zone/*=0*/) {
     if (ncycles < 3) return;
 
     celsius_float_t current_temp = 0.0;
@@ -816,6 +953,11 @@ void Temperature::factory_reset() {
 
     // Set a field value in the pertinent Temp Monitor
     #define SET_CBH(F,V) PER_CBH(temp_chamber.F = V, temp_bed.F = V, temp_hotend[heater_id].F = V)
+    // When BED_ZONES is enabled, temp_bed is an array; redirect to the tuned zone
+    #if HAS_BED_ZONES && ENABLED(PIDTEMPBED)
+      #undef SET_CBH
+      #define SET_CBH(F,V) PER_CBH(temp_chamber.F = V, temp_bed[bed_zone].F = V, temp_hotend[heater_id].F = V)
+    #endif
     #define ONHEATINGSTART() PER_CBH(printerEventLEDs.onChamberHeatingStart(), printerEventLEDs.onBedHeatingStart(), printerEventLEDs.onHotendHeatingStart())
     #define ONHEATING(S,C,T) PER_CBH(printerEventLEDs.onChamberHeating(S,C,T), printerEventLEDs.onBedHeating(S,C,T), printerEventLEDs.onHotendHeating(S,C,T))
 
@@ -857,7 +999,7 @@ void Temperature::factory_reset() {
     SET_CBH(soft_pwm_amount, bias);
 
     #if ENABLED(PRINTER_EVENT_LEDS)
-      const celsius_float_t start_temp = PER_CBH(degChamber(), degBed(), degHotend(heater_id));
+      const celsius_float_t start_temp = PER_CBH(degChamber(), TERN(HAS_BED_ZONES, degBedZone(bed_zone), degBed()), degHotend(heater_id));
       const LED1Color_t oldcolor = ONHEATINGSTART();
     #endif
 
@@ -877,7 +1019,7 @@ void Temperature::factory_reset() {
       if (temp_ready) {
 
         // Get the current temperature and constrain it
-        current_temp = PER_CBH(degChamber(), degBed(), degHotend(heater_id));
+        current_temp = PER_CBH(degChamber(), TERN(HAS_BED_ZONES, degBedZone(bed_zone), degBed()), degHotend(heater_id));
         NOLESS(maxT, current_temp);
         NOMORE(minT, current_temp);
 
@@ -992,19 +1134,31 @@ void Temperature::factory_reset() {
       }
 
       if (cycles > ncycles) {
-        SERIAL_ECHOPGM(STR_PID_AUTOTUNE); SERIAL_ECHOLNPGM(STR_PID_AUTOTUNE_FINISHED);
+        SERIAL_ECHOPGM(STR_PID_AUTOTUNE);
+        #if ENABLED(PIDTEMPBED) && HAS_BED_ZONES
+          if (isbed) SERIAL_ECHOLNPGM(" finished! Use M500 to save, or M304 with values below to apply manually.");
+          else
+        #endif
+          SERIAL_ECHOLNPGM(STR_PID_AUTOTUNE_FINISHED);
         TERN_(HOST_PROMPT_SUPPORT, hostui.notify(GET_TEXT_F(MSG_PID_AUTOTUNE_DONE)));
 
-        #if ANY(PIDTEMPBED, PIDTEMPCHAMBER)
-          FSTR_P const estring = PER_CBH(F("CHAMBER_"), F("BED_"), FPSTR(NUL_STR));
-          say_default_(); SERIAL_ECHOLN(estring, F("KP "), tune_pid.p);
-          say_default_(); SERIAL_ECHOLN(estring, F("KI "), tune_pid.i);
-          say_default_(); SERIAL_ECHOLN(estring, F("KD "), tune_pid.d);
-        #else
-          say_default_(); SERIAL_ECHOLNPGM("KP ", tune_pid.p);
-          say_default_(); SERIAL_ECHOLNPGM("KI ", tune_pid.i);
-          say_default_(); SERIAL_ECHOLNPGM("KD ", tune_pid.d);
+        #if ENABLED(PIDTEMPBED) && HAS_BED_ZONES
+          if (isbed)
+            SERIAL_ECHOLNPGM("  M304 A", bed_zone, " P", tune_pid.p, " I", tune_pid.i, " D", tune_pid.d);
+          else
         #endif
+        {
+          #if ANY(PIDTEMPBED, PIDTEMPCHAMBER)
+            FSTR_P const estring = PER_CBH(F("CHAMBER_"), F("BED_"), FPSTR(NUL_STR));
+            say_default_(); SERIAL_ECHOLN(estring, F("KP "), tune_pid.p);
+            say_default_(); SERIAL_ECHOLN(estring, F("KI "), tune_pid.i);
+            say_default_(); SERIAL_ECHOLN(estring, F("KD "), tune_pid.d);
+          #else
+            say_default_(); SERIAL_ECHOLNPGM("KP ", tune_pid.p);
+            say_default_(); SERIAL_ECHOLNPGM("KI ", tune_pid.i);
+            say_default_(); SERIAL_ECHOLNPGM("KD ", tune_pid.d);
+          #endif
+        }
 
         auto _set_hotend_pid = [](const uint8_t tool, const raw_pid_t &in_pid) {
           #if ENABLED(PIDTEMP)
@@ -1019,8 +1173,8 @@ void Temperature::factory_reset() {
         };
 
         #if ENABLED(PIDTEMPBED)
-          auto _set_bed_pid = [](const raw_pid_t &in_pid) {
-            temp_bed.pid.set(in_pid);
+          auto _set_bed_pid = [bed_zone](const raw_pid_t &in_pid) {
+            TERN(HAS_BED_ZONES, temp_bed[bed_zone], temp_bed).pid.set(in_pid);
           };
         #endif
 
@@ -1432,7 +1586,7 @@ void Temperature::factory_reset() {
 int16_t Temperature::getHeaterPower(const heater_id_t heater_id) {
   switch (heater_id) {
     #if HAS_HEATED_BED
-      case H_BED: return temp_bed.soft_pwm_amount;
+      case H_BED: return TERN(HAS_BED_ZONES, temp_bed[0].soft_pwm_amount, temp_bed.soft_pwm_amount);
     #endif
     #if HAS_HEATED_CHAMBER
       case H_CHAMBER: return temp_chamber.soft_pwm_amount;
@@ -1902,11 +2056,22 @@ void Temperature::mintemp_error(const heater_id_t heater_id OPTARG(ERR_INCLUDE_T
    *        to get closer to the target temperature.
    * @return The power output for the bed
    */
-  float Temperature::get_pid_output_bed() {
-    static PIDRunner<bed_info_t> bed_pid(temp_bed);
-    const float pid_output = bed_pid.get_pid_output();
-    TERN_(PID_BED_DEBUG, bed_pid.debug(temp_bed.celsius, pid_output, F("(Bed)")));
-    return pid_output;
+  float Temperature::get_pid_output_bed(TERN_(HAS_BED_ZONES, const uint8_t z/*=0*/)) {
+    #if HAS_BED_ZONES
+      typedef PIDRunner<bed_info_t> PIDRunnerBed;
+      static PIDRunnerBed bed_pid[BED_ZONES_COUNT] = {
+        #define _BEDPID(Z) temp_bed[Z],
+        REPEAT(BED_ZONES_COUNT, _BEDPID)
+      };
+      const float pid_output = bed_pid[z].get_pid_output();
+      TERN_(PID_BED_DEBUG, bed_pid[z].debug(temp_bed[z].celsius, pid_output, F("(Bed)"), z));
+      return pid_output;
+    #else
+      static PIDRunner<bed_info_t> bed_pid(temp_bed);
+      const float pid_output = bed_pid.get_pid_output();
+      TERN_(PID_BED_DEBUG, bed_pid.debug(temp_bed.celsius, pid_output, F("(Bed)")));
+      return pid_output;
+    #endif
   }
 
 #endif // PIDTEMPBED
@@ -1987,6 +2152,81 @@ void Temperature::mintemp_error(const heater_id_t heater_id OPTARG(ERR_INCLUDE_T
    */
   void Temperature::manage_heated_bed(const millis_t &ms) {
 
+    #if HAS_BED_ZONES
+    {
+      // Per-zone management: iterate every active zone
+      #if DISABLED(PIDTEMPBED) || ENABLED(HEATER_IDLE_HANDLER)
+        static constexpr pin_t _zone_heater_pins[BED_ZONES_COUNT] = BED_ZONE_HEATER_PINS;
+      #endif
+
+      #if DISABLED(PIDTEMPBED)
+        if (PENDING(ms, next_bed_check_ms)) return;
+        next_bed_check_ms = ms + BED_CHECK_INTERVAL;
+      #endif
+
+      TERN_(HEATER_IDLE_HANDLER, heater_idle[IDLE_INDEX_BED].update(ms));
+
+      for (uint8_t z = 0; z < BED_ZONES_COUNT; z++) {
+        bed_info_t &zone = temp_bed[z];
+
+        #if ENABLED(THERMAL_PROTECTION_BED)
+          if (zone.celsius > BED_MAXTEMP) {
+            SERIAL_ECHO_MSG("Bed zone ", z, " MAXTEMP");
+            MAXTEMP_ERROR(H_BED, zone.celsius);
+          }
+        #endif
+
+        #if HEATER_IDLE_HANDLER
+          if (heater_idle[IDLE_INDEX_BED].timed_out) {
+            zone.soft_pwm_amount = 0;
+            extDigitalWrite(_zone_heater_pins[z], ENABLED(HEATER_BED_INVERTING));
+            continue;
+          }
+        #endif
+
+        #if ENABLED(PIDTEMPBED)
+          zone.soft_pwm_amount = WITHIN(zone.celsius, BED_MINTEMP, BED_MAXTEMP)
+            ? (int)get_pid_output_bed(z) >> 1 : 0;
+        #else
+          if (!WITHIN(zone.celsius, BED_MINTEMP, BED_MAXTEMP)) {
+            zone.soft_pwm_amount = 0;
+            extDigitalWrite(_zone_heater_pins[z], ENABLED(HEATER_BED_INVERTING));
+            continue;
+          }
+          #if ENABLED(BED_LIMIT_SWITCHING)
+            if (zone.is_above_target(BED_HYSTERESIS))      zone.soft_pwm_amount = 0;
+            else if (zone.is_below_target(BED_HYSTERESIS)) zone.soft_pwm_amount = MAX_BED_POWER >> 1;
+          #else
+            zone.soft_pwm_amount = zone.is_below_target() ? MAX_BED_POWER >> 1 : 0;
+          #endif
+        #endif
+      }
+
+      // Per-zone thermal runaway — one state machine per zone
+      #if ENABLED(THERMAL_PROTECTION_BED)
+        for (uint8_t z = 0; z < BED_ZONES_COUNT; z++)
+          tr_state_machine_bed[z].run(temp_bed[z].celsius, temp_bed[z].target, H_BED, THERMAL_PROTECTION_BED_PERIOD, THERMAL_PROTECTION_BED_HYSTERESIS);
+      #endif
+
+      // Per-zone heating watchdog
+      #if WATCH_BED
+        for (uint8_t z = 0; z < BED_ZONES_COUNT; z++) {
+          if (watch_bed_zone[z].elapsed(ms)) {
+            if (watch_bed_zone[z].check(temp_bed[z].celsius))
+              watch_bed_zone[z].restart(temp_bed[z].celsius, temp_bed[z].target);
+            else {
+              TERN_(DWIN_CREALITY_LCD, dwinPopupTemperature(0));
+              TERN_(EXTENSIBLE_UI, ExtUI::onHeatingError(H_BED));
+              _TEMP_ERROR(H_BED, FPSTR(str_t_heating_failed), MSG_ERR_HEATING_FAILED, temp_bed[z].celsius);
+            }
+          }
+        }
+      #endif
+
+      return;
+    }
+    #endif // HAS_BED_ZONES
+
     #if ENABLED(THERMAL_PROTECTION_BED)
     {
       const auto deg = degBed();
@@ -1997,7 +2237,7 @@ void Temperature::mintemp_error(const heater_id_t heater_id OPTARG(ERR_INCLUDE_T
     }
     #endif
 
-    #if WATCH_BED
+    #if WATCH_BED && !HAS_BED_ZONES
     {
       // Make sure temperature is increasing
       if (watch_bed.elapsed(ms)) {              // Time to check the bed?
@@ -2012,7 +2252,7 @@ void Temperature::mintemp_error(const heater_id_t heater_id OPTARG(ERR_INCLUDE_T
         }
       }
     }
-    #endif // WATCH_BED
+    #endif // WATCH_BED && !HAS_BED_ZONES
 
     #if ALL(PROBING_HEATERS_OFF, BED_LIMIT_SWITCHING)
       #define PAUSE_CHANGE_REQD 1
@@ -2022,91 +2262,93 @@ void Temperature::mintemp_error(const heater_id_t heater_id OPTARG(ERR_INCLUDE_T
       static bool last_pause_state;
     #endif
 
-    do { // 'break' out of this block
+    #if !HAS_BED_ZONES
+      do { // 'break' out of this block
 
-      #if DISABLED(PIDTEMPBED)
-        if (PENDING(ms, next_bed_check_ms)
-          && TERN1(PAUSE_CHANGE_REQD, paused_for_probing == last_pause_state)
-        ) break;
-        next_bed_check_ms = ms + BED_CHECK_INTERVAL;
-        TERN_(PAUSE_CHANGE_REQD, last_pause_state = paused_for_probing);
-      #endif
+        #if DISABLED(PIDTEMPBED)
+          if (PENDING(ms, next_bed_check_ms)
+            && TERN1(PAUSE_CHANGE_REQD, paused_for_probing == last_pause_state)
+          ) break;
+          next_bed_check_ms = ms + BED_CHECK_INTERVAL;
+          TERN_(PAUSE_CHANGE_REQD, last_pause_state = paused_for_probing);
+        #endif
 
-      TERN_(HEATER_IDLE_HANDLER, heater_idle[IDLE_INDEX_BED].update(ms));
+        TERN_(HEATER_IDLE_HANDLER, heater_idle[IDLE_INDEX_BED].update(ms));
 
-      #if ENABLED(THERMAL_PROTECTION_BED)
-        tr_state_machine[RUNAWAY_IND_BED].run(temp_bed.celsius, temp_bed.target, H_BED, THERMAL_PROTECTION_BED_PERIOD, THERMAL_PROTECTION_BED_HYSTERESIS);
-      #endif
+        #if ENABLED(THERMAL_PROTECTION_BED)
+          tr_state_machine[RUNAWAY_IND_BED].run(temp_bed.celsius, temp_bed.target, H_BED, THERMAL_PROTECTION_BED_PERIOD, THERMAL_PROTECTION_BED_HYSTERESIS);
+        #endif
 
-      #if HEATER_IDLE_HANDLER
-        const bool bed_timed_out = heater_idle[IDLE_INDEX_BED].timed_out;
-        if (bed_timed_out) {
-          temp_bed.soft_pwm_amount = 0;
-          if (DISABLED(PIDTEMPBED)) WRITE_HEATER_BED(LOW);
-        }
-      #else
-        constexpr bool bed_timed_out = false;
-      #endif
+        #if HEATER_IDLE_HANDLER
+          const bool bed_timed_out = heater_idle[IDLE_INDEX_BED].timed_out;
+          if (bed_timed_out) {
+            temp_bed.soft_pwm_amount = 0;
+            if (DISABLED(PIDTEMPBED)) WRITE_HEATER_BED(LOW);
+          }
+        #else
+          constexpr bool bed_timed_out = false;
+        #endif
 
-      if (bed_timed_out) break;
+        if (bed_timed_out) break;
 
-      if (is_bed_preheating()) {
-        temp_bed.soft_pwm_amount = MAX_BED_POWER >> 1;
-        break;
-      }
-
-      #if ENABLED(PIDTEMPBED)
-
-        //
-        // PID Bed Heating
-        //
-        temp_bed.soft_pwm_amount = WITHIN(temp_bed.celsius, BED_MINTEMP, BED_MAXTEMP) ? (int)get_pid_output_bed() >> 1 : 0;
-
-      #else // !PIDTEMPBED
-
-        //
-        // Range-limited "bang-bang" bed heating
-        //
-
-        // Bed Off if the current bed temperature is outside the allowed range
-        if (!WITHIN(temp_bed.celsius, BED_MINTEMP, BED_MAXTEMP)) {
-          temp_bed.soft_pwm_amount = 0;
-          WRITE_HEATER_BED(LOW);
+        if (is_bed_preheating()) {
+          temp_bed.soft_pwm_amount = MAX_BED_POWER >> 1;
           break;
         }
 
-        #if ENABLED(PELTIER_BED)
-          /**
-           * Peltier bang-bang maintains max bed power but changes
-           * current direction to switch between heating/cooling.
-           */
-          if (temp_bed.target && temp_bed.is_above_target(BED_HYSTERESIS)) {  // Fast Cooling
-            temp_bed.soft_pwm_amount = MAX_BED_POWER;
-            temp_bed.peltier_dir_heating = false;
+        #if ENABLED(PIDTEMPBED)
+
+          //
+          // PID Bed Heating
+          //
+          temp_bed.soft_pwm_amount = WITHIN(temp_bed.celsius, BED_MINTEMP, BED_MAXTEMP) ? (int)get_pid_output_bed() >> 1 : 0;
+
+        #else // !PIDTEMPBED
+
+          //
+          // Range-limited "bang-bang" bed heating
+          //
+
+          // Bed Off if the current bed temperature is outside the allowed range
+          if (!WITHIN(temp_bed.celsius, BED_MINTEMP, BED_MAXTEMP)) {
+            temp_bed.soft_pwm_amount = 0;
+            WRITE_HEATER_BED(LOW);
+            break;
           }
-          else if (temp_bed.is_below_target(BED_HYSTERESIS)) {                // Heating
-            temp_bed.soft_pwm_amount = MAX_BED_POWER;
-            temp_bed.peltier_dir_heating = true;
-          }
-          else
-            temp_bed.soft_pwm_amount = 0;                                     // Off (ambient cooling)
 
-        #else // !PELTIER_BED
+          #if ENABLED(PELTIER_BED)
+            /**
+             * Peltier bang-bang maintains max bed power but changes
+             * current direction to switch between heating/cooling.
+             */
+            if (temp_bed.target && temp_bed.is_above_target(BED_HYSTERESIS)) {  // Fast Cooling
+              temp_bed.soft_pwm_amount = MAX_BED_POWER;
+              temp_bed.peltier_dir_heating = false;
+            }
+            else if (temp_bed.is_below_target(BED_HYSTERESIS)) {                // Heating
+              temp_bed.soft_pwm_amount = MAX_BED_POWER;
+              temp_bed.peltier_dir_heating = true;
+            }
+            else
+              temp_bed.soft_pwm_amount = 0;                                     // Off (ambient cooling)
 
-          #if ENABLED(BED_LIMIT_SWITCHING)
-            if (temp_bed.is_above_target(BED_HYSTERESIS))       // Cooling (implicit off)
-              temp_bed.soft_pwm_amount = 0;
-            else if (temp_bed.is_below_target(BED_HYSTERESIS))  // Heating
-              temp_bed.soft_pwm_amount = MAX_BED_POWER >> 1;
-          #else                                                 // Not bed limit switching
-            temp_bed.soft_pwm_amount = temp_bed.is_below_target() ? MAX_BED_POWER >> 1 : 0;
-          #endif
+          #else // !PELTIER_BED
 
-        #endif // !PELTIER_BED
+            #if ENABLED(BED_LIMIT_SWITCHING)
+              if (temp_bed.is_above_target(BED_HYSTERESIS))       // Cooling (implicit off)
+                temp_bed.soft_pwm_amount = 0;
+              else if (temp_bed.is_below_target(BED_HYSTERESIS))  // Heating
+                temp_bed.soft_pwm_amount = MAX_BED_POWER >> 1;
+            #else                                                 // Not bed limit switching
+              temp_bed.soft_pwm_amount = temp_bed.is_below_target() ? MAX_BED_POWER >> 1 : 0;
+            #endif
 
-      #endif // !PIDTEMPBED
+          #endif // !PELTIER_BED
 
-    } while (false);
+        #endif // !PIDTEMPBED
+
+      } while (false);
+    #endif // !HAS_BED_ZONES
   }
 
 #endif // HAS_HEATED_BED
@@ -2759,7 +3001,7 @@ void Temperature::task() {
 
 #if HAS_HEATED_BED
   // For bed temperature measurement.
-  celsius_float_t Temperature::analog_to_celsius_bed(const raw_adc_t raw) {
+  celsius_float_t Temperature::analog_to_celsius_bed(const raw_adc_t raw OPTARG(HAS_BED_ZONES, const uint8_t zone/*=0*/)) {
     #if TEMP_SENSOR_BED_IS_CUSTOM
       return user_thermistor_to_deg_c(CTI_BED, raw);
     #elif TEMP_SENSOR_IS_MAX_TC(BED)
@@ -2772,7 +3014,12 @@ void Temperature::task() {
         return (int16_t)raw * 0.25f;
       #endif
     #elif TEMP_SENSOR_BED_IS_THERMISTOR
-      SCAN_THERMISTOR_TABLE(TEMPTABLE_BED, TEMPTABLE_BED_LEN);
+      #if HAS_BED_ZONES
+        const temp_entry_t(*tt)[] = (temp_entry_t(*)[])(zone_ttbl_map[zone]);
+        SCAN_THERMISTOR_TABLE((*tt), zone_ttbllen_map[zone]);
+      #else
+        SCAN_THERMISTOR_TABLE(TEMPTABLE_BED, TEMPTABLE_BED_LEN);
+      #endif
     #elif TEMP_SENSOR_BED_IS_AD595
       return temp_ad595(raw);
     #elif TEMP_SENSOR_BED_IS_AD8495
@@ -2920,7 +3167,11 @@ void Temperature::updateTemperaturesFromRawValues() {
     temp_redundant.setraw(READ_MAX_TC(HEATER_ID(TEMP_SENSOR_REDUNDANT_SOURCE)));
   #endif
   #if TEMP_SENSOR_IS_MAX_TC(BED)
-    temp_bed.setraw(read_max_tc_bed());
+    #if HAS_BED_ZONES
+      temp_bed[0].setraw(read_max_tc_bed());
+    #else
+      temp_bed.setraw(read_max_tc_bed());
+    #endif
   #endif
 
   // Read ADC ADS1118
@@ -2952,7 +3203,14 @@ void Temperature::updateTemperaturesFromRawValues() {
     HOTEND_LOOP() temp_hotend[e].celsius = analog_to_celsius_hotend(rawHotendTemp(e), e);
   #endif
 
-  TERN_(HAS_HEATED_BED,     temp_bed.celsius       = analog_to_celsius_bed(rawBedTemp()));
+  #if HAS_HEATED_BED
+    #if HAS_BED_ZONES
+      for (uint8_t z = 0; z < BED_ZONES_COUNT; z++)
+        temp_bed[z].celsius = analog_to_celsius_bed(rawBedTemp(z), z);
+    #else
+      temp_bed.celsius     = analog_to_celsius_bed(rawBedTemp());
+    #endif
+  #endif
   TERN_(HAS_TEMP_CHAMBER,   temp_chamber.celsius   = analog_to_celsius_chamber(rawChamberTemp()));
   TERN_(HAS_TEMP_COOLER,    temp_cooler.celsius    = analog_to_celsius_cooler(rawCoolerTemp()));
   TERN_(HAS_TEMP_PROBE,     temp_probe.celsius     = analog_to_celsius_probe(rawProbeTemp()));
@@ -2995,9 +3253,9 @@ void Temperature::updateTemperaturesFromRawValues() {
 
   #if ENABLED(THERMAL_PROTECTION_BED)
     if (TP_CMP(BED, rawBedTemp(), temp_sensor_range_bed.raw_max))
-      MAXTEMP_ERROR(H_BED, temp_bed.celsius);
-    if (temp_bed.target > 0 && !is_bed_preheating() && TP_CMP(BED, temp_sensor_range_bed.raw_min, rawBedTemp()))
-      MINTEMP_ERROR(H_BED, temp_bed.celsius);
+      MAXTEMP_ERROR(H_BED, TERN(HAS_BED_ZONES, temp_bed[0].celsius, temp_bed.celsius));
+    if (TERN(HAS_BED_ZONES, temp_bed[0].target, temp_bed.target) > 0 && !is_bed_preheating() && TP_CMP(BED, temp_sensor_range_bed.raw_min, rawBedTemp()))
+      MINTEMP_ERROR(H_BED, TERN(HAS_BED_ZONES, temp_bed[0].celsius, temp_bed.celsius));
   #endif
 
   #if ALL(HAS_HEATED_CHAMBER, THERMAL_PROTECTION_CHAMBER)
@@ -3194,10 +3452,19 @@ void Temperature::init() {
       SET_OUTPUT(PELTIER_DIR_PIN);
       OUT_WRITE(PELTIER_DIR_PIN, !PELTIER_DIR_HEAT_STATE);
     #endif
-    #ifdef BOARD_OPENDRAIN_MOSFETS
-      OUT_WRITE_OD(HEATER_BED_PIN, ENABLED(HEATER_BED_INVERTING));
+    #if HAS_BED_ZONES
+      // Initialise each zone heater pin
+      static constexpr pin_t _zone_heater_pins[BED_ZONES_COUNT] = BED_ZONE_HEATER_PINS;
+      for (uint8_t z = 0; z < BED_ZONES_COUNT; z++) {
+        pinMode(_zone_heater_pins[z], OUTPUT);
+        extDigitalWrite(_zone_heater_pins[z], ENABLED(HEATER_BED_INVERTING));
+      }
     #else
-      OUT_WRITE(HEATER_BED_PIN, ENABLED(HEATER_BED_INVERTING));
+      #ifdef BOARD_OPENDRAIN_MOSFETS
+        OUT_WRITE_OD(HEATER_BED_PIN, ENABLED(HEATER_BED_INVERTING));
+      #else
+        OUT_WRITE(HEATER_BED_PIN, ENABLED(HEATER_BED_INVERTING));
+      #endif
     #endif
   #endif
 
@@ -3409,6 +3676,9 @@ void Temperature::init() {
   #endif
 
   Temperature::tr_state_machine_t Temperature::tr_state_machine[NR_HEATER_RUNAWAY]; // = { { TRInactive, 0 } };
+  #if HAS_BED_ZONES && ENABLED(THERMAL_PROTECTION_BED)
+    Temperature::tr_state_machine_t Temperature::tr_state_machine_bed[BED_ZONES_COUNT];
+  #endif
 
   /**
    * @brief Thermal Runaway state machine for a single heater
@@ -3584,7 +3854,11 @@ void Temperature::disable_all_heaters() {
 
   #if HAS_HEATED_BED
     setTargetBed(0);
-    temp_bed.soft_pwm_amount = 0;
+    #if HAS_BED_ZONES
+      for (uint8_t z = 0; z < BED_ZONES_COUNT; z++) temp_bed[z].soft_pwm_amount = 0;
+    #else
+      temp_bed.soft_pwm_amount = 0;
+    #endif
     WRITE_HEATER_BED(LOW);
   #endif
 
@@ -4071,7 +4345,11 @@ void Temperature::update_raw_temperatures() {
   #endif
 
   #if HAS_TEMP_ADC_BED && !TEMP_SENSOR_IS_MAX_TC(BED)
-    temp_bed.update();
+    #if HAS_BED_ZONES
+      for (uint8_t z = 0; z < BED_ZONES_COUNT; z++) temp_bed[z].update();
+    #else
+      temp_bed.update();
+    #endif
   #endif
 
   TERN_(HAS_TEMP_ADC_3,       temp_hotend[3].update());
@@ -4109,8 +4387,14 @@ void Temperature::readings_ready() {
     HOTEND_LOOP() temp_hotend[e].reset();
   #endif
 
-  TERN_(HAS_HEATED_BED,     temp_bed.reset());
   TERN_(HAS_TEMP_CHAMBER,   temp_chamber.reset());
+  #if HAS_HEATED_BED
+    #if HAS_BED_ZONES
+      for (uint8_t z = 0; z < BED_ZONES_COUNT; z++) temp_bed[z].reset();
+    #else
+      temp_bed.reset();
+    #endif
+  #endif
   TERN_(HAS_TEMP_PROBE,     temp_probe.reset());
   TERN_(HAS_TEMP_COOLER,    temp_cooler.reset());
   TERN_(HAS_TEMP_BOARD,     temp_board.reset());
@@ -4212,6 +4496,10 @@ void Temperature::isr() {
 
   #if HAS_HEATED_BED
     static SoftPWM soft_pwm_bed;
+    #if HAS_BED_ZONES && BED_ZONES_COUNT > 1
+      static SoftPWM soft_pwm_bed_zone[BED_ZONES_COUNT - 1]; // zones 1+
+      static constexpr pin_t _isr_zone_pins[BED_ZONES_COUNT] = BED_ZONE_HEATER_PINS;
+    #endif
   #endif
 
   #if HAS_HEATED_CHAMBER
@@ -4254,8 +4542,20 @@ void Temperature::isr() {
       #endif
 
       #if HAS_HEATED_BED
-        _PWM_MOD(BED, soft_pwm_bed, temp_bed);
-        TERF(PELTIER_BED, WRITE_PELTIER_DIR)(temp_bed.peltier_dir_heating);
+        #if HAS_BED_ZONES
+          _PWM_MOD(BED, soft_pwm_bed, temp_bed[0]); // Zone 0 drives the shared BED soft_pwm_bed counter
+          TERF(PELTIER_BED, WRITE_PELTIER_DIR)(temp_bed[0].peltier_dir_heating);
+          #if BED_ZONES_COUNT > 1
+            // Zones 1+ use extDigitalWrite (runtime pin)
+            for (uint8_t z = 1; z < BED_ZONES_COUNT; z++) {
+              const bool on = soft_pwm_bed_zone[z - 1].add(pwm_mask, temp_bed[z].soft_pwm_amount);
+              extDigitalWrite(_isr_zone_pins[z], on ^ ENABLED(HEATER_BED_INVERTING));
+            }
+          #endif
+        #else
+          _PWM_MOD(BED, soft_pwm_bed, temp_bed);
+          TERF(PELTIER_BED, WRITE_PELTIER_DIR)(temp_bed.peltier_dir_heating);
+        #endif
       #endif
 
       TERF(HAS_HEATED_CHAMBER, _PWM_MOD)(CHAMBER, soft_pwm_chamber, temp_chamber);
@@ -4285,6 +4585,11 @@ void Temperature::isr() {
       #endif
 
       TERF(HAS_HEATED_BED,     _PWM_LOW)(BED, soft_pwm_bed);
+      #if HAS_BED_ZONES && BED_ZONES_COUNT > 1
+        for (uint8_t z = 1; z < BED_ZONES_COUNT; z++)
+          if (soft_pwm_bed_zone[z - 1].count <= pwm_count_tmp)
+            extDigitalWrite(_isr_zone_pins[z], LOW ^ ENABLED(HEATER_BED_INVERTING));
+      #endif
       TERF(HAS_HEATED_CHAMBER, _PWM_LOW)(CHAMBER, soft_pwm_chamber);
       TERF(HAS_COOLER,         _PWM_LOW)(COOLER, soft_pwm_cooler);
 
@@ -4326,7 +4631,21 @@ void Temperature::isr() {
         REPEAT(HOTENDS, _SLOW_PWM_E);
       #endif
 
-      TERF(HAS_HEATED_BED,     _SLOW_PWM)(BED, soft_pwm_bed, temp_bed);
+      #if HAS_BED_ZONES
+        // Zone 0 via standard macro; zones 1+ via extDigitalWrite
+        soft_pwm_bed.count = temp_bed[0].soft_pwm_amount;
+        if (soft_pwm_bed.ready(soft_pwm_bed.count > 0)) WRITE_HEATER_BED(soft_pwm_bed.count > 0);
+        #if BED_ZONES_COUNT > 1
+          for (uint8_t z = 1; z < BED_ZONES_COUNT; z++) {
+            SoftPWM &spz = soft_pwm_bed_zone[z - 1];
+            spz.count = temp_bed[z].soft_pwm_amount;
+            if (spz.ready(spz.count > 0))
+              extDigitalWrite(_isr_zone_pins[z], (spz.count > 0) ^ ENABLED(HEATER_BED_INVERTING));
+          }
+        #endif
+      #else
+        TERF(HAS_HEATED_BED, _SLOW_PWM)(BED, soft_pwm_bed, temp_bed);
+      #endif
       TERF(HAS_HEATED_CHAMBER, _SLOW_PWM)(CHAMBER, soft_pwm_chamber, temp_chamber);
       TERF(HAS_COOLER,         _SLOW_PWM)(COOLER, soft_pwm_cooler, temp_cooler);
 
@@ -4338,6 +4657,13 @@ void Temperature::isr() {
     #endif
 
     TERF(HAS_HEATED_BED,     _PWM_OFF)(BED, soft_pwm_bed);
+    #if HAS_BED_ZONES && BED_ZONES_COUNT > 1
+      for (uint8_t z = 1; z < BED_ZONES_COUNT; z++) {
+        SoftPWM &spz = soft_pwm_bed_zone[z - 1];
+        if (spz.count < slow_pwm_count)
+          extDigitalWrite(_isr_zone_pins[z], LOW ^ ENABLED(HEATER_BED_INVERTING));
+      }
+    #endif
     TERF(HAS_HEATED_CHAMBER, _PWM_OFF)(CHAMBER, soft_pwm_chamber);
     TERF(HAS_COOLER,         _PWM_OFF)(COOLER, soft_pwm_cooler, temp_cooler);
 
@@ -4447,7 +4773,65 @@ void Temperature::isr() {
 
     #if HAS_TEMP_ADC_BED
       case PrepareTemp_BED: hal.adc_start(TEMP_BED_PIN); break;
-      case MeasureTemp_BED: ACCUMULATE_ADC(temp_bed); break;
+      case MeasureTemp_BED: ACCUMULATE_ADC(TERN(HAS_BED_ZONES, temp_bed[0], temp_bed)); break;
+    #endif
+
+    #if HAS_BED_ZONES && BED_ZONES_COUNT > 1
+      static constexpr pin_t _zone_sensor_pins[BED_ZONES_COUNT] = BED_ZONE_SENSOR_PINS;
+      case PrepareTemp_BED_ZONE1: hal.adc_start(_zone_sensor_pins[1]); break;
+      case MeasureTemp_BED_ZONE1: ACCUMULATE_ADC(temp_bed[1]); break;
+    #endif
+    #if HAS_BED_ZONES && BED_ZONES_COUNT > 2
+      case PrepareTemp_BED_ZONE2: hal.adc_start(_zone_sensor_pins[2]); break;
+      case MeasureTemp_BED_ZONE2: ACCUMULATE_ADC(temp_bed[2]); break;
+    #endif
+    #if HAS_BED_ZONES && BED_ZONES_COUNT > 3
+      case PrepareTemp_BED_ZONE3: hal.adc_start(_zone_sensor_pins[3]); break;
+      case MeasureTemp_BED_ZONE3: ACCUMULATE_ADC(temp_bed[3]); break;
+    #endif
+    #if HAS_BED_ZONES && BED_ZONES_COUNT > 4
+      case PrepareTemp_BED_ZONE4: hal.adc_start(_zone_sensor_pins[4]); break;
+      case MeasureTemp_BED_ZONE4: ACCUMULATE_ADC(temp_bed[4]); break;
+    #endif
+    #if HAS_BED_ZONES && BED_ZONES_COUNT > 5
+      case PrepareTemp_BED_ZONE5: hal.adc_start(_zone_sensor_pins[5]); break;
+      case MeasureTemp_BED_ZONE5: ACCUMULATE_ADC(temp_bed[5]); break;
+    #endif
+    #if HAS_BED_ZONES && BED_ZONES_COUNT > 6
+      case PrepareTemp_BED_ZONE6: hal.adc_start(_zone_sensor_pins[6]); break;
+      case MeasureTemp_BED_ZONE6: ACCUMULATE_ADC(temp_bed[6]); break;
+    #endif
+    #if HAS_BED_ZONES && BED_ZONES_COUNT > 7
+      case PrepareTemp_BED_ZONE7: hal.adc_start(_zone_sensor_pins[7]); break;
+      case MeasureTemp_BED_ZONE7: ACCUMULATE_ADC(temp_bed[7]); break;
+    #endif
+    #if HAS_BED_ZONES && BED_ZONES_COUNT > 8
+      case PrepareTemp_BED_ZONE8: hal.adc_start(_zone_sensor_pins[8]); break;
+      case MeasureTemp_BED_ZONE8: ACCUMULATE_ADC(temp_bed[8]); break;
+    #endif
+    #if HAS_BED_ZONES && BED_ZONES_COUNT > 9
+      case PrepareTemp_BED_ZONE9: hal.adc_start(_zone_sensor_pins[9]); break;
+      case MeasureTemp_BED_ZONE9: ACCUMULATE_ADC(temp_bed[9]); break;
+    #endif
+    #if HAS_BED_ZONES && BED_ZONES_COUNT > 10
+      case PrepareTemp_BED_ZONE10: hal.adc_start(_zone_sensor_pins[10]); break;
+      case MeasureTemp_BED_ZONE10: ACCUMULATE_ADC(temp_bed[10]); break;
+    #endif
+    #if HAS_BED_ZONES && BED_ZONES_COUNT > 11
+      case PrepareTemp_BED_ZONE11: hal.adc_start(_zone_sensor_pins[11]); break;
+      case MeasureTemp_BED_ZONE11: ACCUMULATE_ADC(temp_bed[11]); break;
+    #endif
+    #if HAS_BED_ZONES && BED_ZONES_COUNT > 12
+      case PrepareTemp_BED_ZONE12: hal.adc_start(_zone_sensor_pins[12]); break;
+      case MeasureTemp_BED_ZONE12: ACCUMULATE_ADC(temp_bed[12]); break;
+    #endif
+    #if HAS_BED_ZONES && BED_ZONES_COUNT > 13
+      case PrepareTemp_BED_ZONE13: hal.adc_start(_zone_sensor_pins[13]); break;
+      case MeasureTemp_BED_ZONE13: ACCUMULATE_ADC(temp_bed[13]); break;
+    #endif
+    #if HAS_BED_ZONES && BED_ZONES_COUNT > 14
+      case PrepareTemp_BED_ZONE14: hal.adc_start(_zone_sensor_pins[14]); break;
+      case MeasureTemp_BED_ZONE14: ACCUMULATE_ADC(temp_bed[14]); break;
     #endif
 
     #if HAS_TEMP_ADC_CHAMBER
@@ -4624,6 +5008,7 @@ void Temperature::isr() {
    * Print a single heater state in the form:
    *     Extruder: " T0:nnn.nn /nnn.nn"
    *          Bed: " B:nnn.nn /nnn.nn"
+   *     Bed zone: " BZ0:nnn.nn /nnn.nn"  (BED_ZONES)
    *      Chamber: " C:nnn.nn /nnn.nn"
    *       Cooler: " L:nnn.nn /nnn.nn"
    *        Probe: " P:nnn.nn"
@@ -4690,6 +5075,7 @@ void Temperature::isr() {
    *      Chamber: " C@:nnn"
    *       Cooler: " L@:nnn"
    *      Hotends: " @0:nnn @1:nnn ..."
+   *    Bed zones: " BZ0@:nnn BZ1@:nnn ..."  (BED_ZONES)
    */
   void Temperature::print_heater_states(const int8_t target_extruder
     OPTARG(HAS_TEMP_REDUNDANT, const bool include_r/*=false*/)
@@ -4698,7 +5084,19 @@ void Temperature::isr() {
       print_heater_state(H_NONE, degHotend(target_extruder), degTargetHotend(target_extruder) OPTARG(SHOW_TEMP_ADC_VALUES, rawHotendTemp(target_extruder)));
     #endif
     #if HAS_HEATED_BED
-      print_heater_state(H_BED, degBed(), degTargetBed() OPTARG(SHOW_TEMP_ADC_VALUES, rawBedTemp()));
+      #if HAS_BED_ZONES
+        // Report each zone as " BZ0:actual /target"
+        for (uint8_t z = 0; z < BED_ZONES_COUNT; z++) {
+          const char zc = z < 10 ? '0' + z : 'A' + z - 10; // hex for zones 10-15
+          SString<50> s(' ', 'B');
+          s += 'Z'; s += zc;
+          s += ':'; s += p_float_t(temp_bed[z].celsius, HEATER_STATE_FLOAT_PRECISION);
+          s += F(" /"); s += p_float_t((celsius_float_t)temp_bed[z].target, HEATER_STATE_FLOAT_PRECISION);
+          s.echo();
+        }
+      #else
+        print_heater_state(H_BED, degBed(), degTargetBed() OPTARG(SHOW_TEMP_ADC_VALUES, rawBedTemp()));
+      #endif
     #endif
     #if HAS_TEMP_CHAMBER
       print_heater_state(H_CHAMBER, degChamber(), TERN0(HAS_HEATED_CHAMBER, degTargetChamber()) OPTARG(SHOW_TEMP_ADC_VALUES, rawChamberTemp()));
@@ -4722,8 +5120,17 @@ void Temperature::isr() {
       HOTEND_LOOP() print_heater_state((heater_id_t)e, degHotend(e), degTargetHotend(e) OPTARG(SHOW_TEMP_ADC_VALUES, rawHotendTemp(e)));
     #endif
     SString<100> s(F(" @:"), getHeaterPower((heater_id_t)target_extruder));
-    TERN_(HAS_HEATED_BED,     s.append(F(" B@:"), getHeaterPower(H_BED)));
-    TERN_(PELTIER_BED,        s.append(F(" P@:"), temp_bed.peltier_dir_heating ? 'H' : 'C'));
+    #if HAS_HEATED_BED
+      #if HAS_BED_ZONES
+        for (uint8_t z = 0; z < BED_ZONES_COUNT; z++) {
+          const char zc = z < 10 ? '0' + z : 'A' + z - 10;
+          s.append(F(" BZ"), zc, F("@:"), temp_bed[z].soft_pwm_amount);
+        }
+      #else
+        s.append(F(" B@:"), getHeaterPower(H_BED));
+        TERN_(PELTIER_BED, s.append(F(" P@:"), temp_bed.peltier_dir_heating ? 'H' : 'C'));
+      #endif
+    #endif
     TERN_(HAS_HEATED_CHAMBER, s.append(F(" C@:"), getHeaterPower(H_CHAMBER)));
     TERN_(HAS_COOLER,         s.append(F(" L@:"), getHeaterPower(H_COOLER)));
     #if HAS_MULTI_HOTEND
@@ -5032,17 +5439,29 @@ void Temperature::isr() {
 
         #if TEMP_BED_RESIDENCY_TIME > 0
 
-          const celsius_float_t temp_diff = ABS(target_temp - temp);
+          #if HAS_BED_ZONES
+            // All active zones must be near target to start/maintain residency.
+            if (!residency_start_ms) {
+              if (allBedsNearTarget(target_temp, TEMP_BED_WINDOW))
+                residency_start_ms = now + (first_loop ? SEC_TO_MS(TEMP_BED_RESIDENCY_TIME) / 3 : 0);
+            }
+            else if (!allBedsNearTarget(target_temp, TEMP_BED_HYSTERESIS)) {
+              // Restart the timer if any zone drifts outside hysteresis.
+              residency_start_ms = now;
+            }
+          #else
+            const celsius_float_t temp_diff = ABS(target_temp - temp);
 
-          if (!residency_start_ms) {
-            // Start the TEMP_BED_RESIDENCY_TIME timer when we reach target temp for the first time.
-            if (temp_diff < TEMP_BED_WINDOW)
-              residency_start_ms = now + (first_loop ? SEC_TO_MS(TEMP_BED_RESIDENCY_TIME) / 3 : 0);
-          }
-          else if (temp_diff > TEMP_BED_HYSTERESIS) {
-            // Restart the timer whenever the temperature falls outside the hysteresis.
-            residency_start_ms = now;
-          }
+            if (!residency_start_ms) {
+              // Start the TEMP_BED_RESIDENCY_TIME timer when we reach target temp for the first time.
+              if (temp_diff < TEMP_BED_WINDOW)
+                residency_start_ms = now + (first_loop ? SEC_TO_MS(TEMP_BED_RESIDENCY_TIME) / 3 : 0);
+            }
+            else if (temp_diff > TEMP_BED_HYSTERESIS) {
+              // Restart the timer whenever the temperature falls outside the hysteresis.
+              residency_start_ms = now;
+            }
+          #endif
 
         #endif // TEMP_BED_RESIDENCY_TIME > 0
 

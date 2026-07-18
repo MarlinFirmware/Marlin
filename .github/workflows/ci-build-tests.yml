@@ -133,6 +133,7 @@ jobs:
 
         # STM32H7
         - BTT_SKR_SE_BX
+        - STM32H723ZE_btt
         - STM32H743VI_btt
 
         # STM32F1 (Maple)
