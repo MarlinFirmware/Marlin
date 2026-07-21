@@ -97,6 +97,34 @@ public:
       | (ENABLED(AXIS7_ROTATES)<<U_AXIS), | (ENABLED(AXIS8_ROTATES)<<V_AXIS), | (ENABLED(AXIS9_ROTATES)<<W_AXIS))
   };
 
+  #if ENABLED(RUNTIME_AXIS_DIRECTION)
+    // Runtime axis direction inversion flags
+    static AxisFlags axis_inverted;              // X, Y, Z, I, J, K, U, V, W
+    #if HAS_EXTRUDERS
+      static bool extruder_inverted[E_STEPPERS];  // E0, E1, E2, E3, E4, E5, E6, E7
+    #endif
+    // Secondary stepper relative inversions (vs primary)
+    #if ENABLED(X_DUAL_STEPPER_DRIVERS)
+      static bool x2_vs_x_inverted;
+    #endif
+    #if ENABLED(Y_DUAL_STEPPER_DRIVERS)
+      static bool y2_vs_y_inverted;
+    #endif
+    #if NUM_Z_STEPPERS >= 2
+      static bool z2_vs_z_inverted;
+    #endif
+    #if NUM_Z_STEPPERS >= 3
+      static bool z3_vs_z_inverted;
+    #endif
+    #if NUM_Z_STEPPERS >= 4
+      static bool z4_vs_z_inverted;
+    #endif
+    #if ENABLED(E_DUAL_STEPPER_DRIVERS)
+      static bool e1_vs_e0_inverted;
+    #endif
+    static void reset_axis_direction();
+  #endif
+
   #if HAS_MULTI_EXTRUDER
     static uint8_t extruder;            // Selected extruder (tool) - T<extruder>
   #else

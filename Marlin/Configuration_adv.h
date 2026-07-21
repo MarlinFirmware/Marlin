@@ -946,6 +946,20 @@
   //#define INVERT_E1_VS_E0_DIR       // E direction signals are opposites
 #endif
 
+/**
+ * Runtime Axis Direction Inversion
+ *
+ * Enable this option to allow runtime changes to axis direction inversion.
+ * The compile-time INVERT_*_DIR settings are used as defaults.
+ * Settings can be changed via M670 and saved to EEPROM with M500.
+ *
+ * This is useful for:
+ * - Testing motor wiring without recompiling
+ * - Quickly adapting to different hardware configurations
+ * - Supporting machines where direction may need to change dynamically
+ */
+//#define RUNTIME_AXIS_DIRECTION
+
 // @section extruder
 
 // Activate a solenoid on the active extruder with M380. Disable all with M381.

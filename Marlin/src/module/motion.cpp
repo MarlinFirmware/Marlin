@@ -81,6 +81,95 @@ bool Motion::relative_mode; // = false
 // Flags for rotational axes
 constexpr AxisFlags Motion::rotational;
 
+#if ENABLED(RUNTIME_AXIS_DIRECTION)
+  // Runtime axis direction inversion flags
+  AxisFlags Motion::axis_inverted;
+  #if HAS_EXTRUDERS
+    bool Motion::extruder_inverted[E_STEPPERS];
+  #endif
+  // Secondary stepper relative inversions
+  #if ENABLED(X_DUAL_STEPPER_DRIVERS)
+    bool Motion::x2_vs_x_inverted;
+  #endif
+  #if ENABLED(Y_DUAL_STEPPER_DRIVERS)
+    bool Motion::y2_vs_y_inverted;
+  #endif
+  #if NUM_Z_STEPPERS >= 2
+    bool Motion::z2_vs_z_inverted;
+  #endif
+  #if NUM_Z_STEPPERS >= 3
+    bool Motion::z3_vs_z_inverted;
+  #endif
+  #if NUM_Z_STEPPERS >= 4
+    bool Motion::z4_vs_z_inverted;
+  #endif
+  #if ENABLED(E_DUAL_STEPPER_DRIVERS)
+    bool Motion::e1_vs_e0_inverted;
+  #endif
+  
+  // Initialize axis direction with compile-time defaults
+  void Motion::reset_axis_direction() {
+    axis_inverted.reset();
+    NUM_AXIS_CODE(
+      axis_inverted.set(X_AXIS, TERN0(INVERT_X_DIR, true)),
+      axis_inverted.set(Y_AXIS, TERN0(INVERT_Y_DIR, true)),
+      axis_inverted.set(Z_AXIS, TERN0(INVERT_Z_DIR, true)),
+      axis_inverted.set(I_AXIS, TERN0(INVERT_I_DIR, true)),
+      axis_inverted.set(J_AXIS, TERN0(INVERT_J_DIR, true)),
+      axis_inverted.set(K_AXIS, TERN0(INVERT_K_DIR, true)),
+      axis_inverted.set(U_AXIS, TERN0(INVERT_U_DIR, true)),
+      axis_inverted.set(V_AXIS, TERN0(INVERT_V_DIR, true)),
+      axis_inverted.set(W_AXIS, TERN0(INVERT_W_DIR, true))
+    );
+    #if HAS_EXTRUDERS
+      // Initialize each extruder from its compile-time default
+      #if E_STEPPERS > 0
+        extruder_inverted[0] = TERN0(INVERT_E0_DIR, true);
+      #endif
+      #if E_STEPPERS > 1
+        extruder_inverted[1] = TERN0(INVERT_E1_DIR, true);
+      #endif
+      #if E_STEPPERS > 2
+        extruder_inverted[2] = TERN0(INVERT_E2_DIR, true);
+      #endif
+      #if E_STEPPERS > 3
+        extruder_inverted[3] = TERN0(INVERT_E3_DIR, true);
+      #endif
+      #if E_STEPPERS > 4
+        extruder_inverted[4] = TERN0(INVERT_E4_DIR, true);
+      #endif
+      #if E_STEPPERS > 5
+        extruder_inverted[5] = TERN0(INVERT_E5_DIR, true);
+      #endif
+      #if E_STEPPERS > 6
+        extruder_inverted[6] = TERN0(INVERT_E6_DIR, true);
+      #endif
+      #if E_STEPPERS > 7
+        extruder_inverted[7] = TERN0(INVERT_E7_DIR, true);
+      #endif
+    #endif
+    // Initialize secondary stepper relative inversions
+    #if ENABLED(X_DUAL_STEPPER_DRIVERS)
+      x2_vs_x_inverted = TERN0(INVERT_X2_VS_X_DIR, true);
+    #endif
+    #if ENABLED(Y_DUAL_STEPPER_DRIVERS)
+      y2_vs_y_inverted = TERN0(INVERT_Y2_VS_Y_DIR, true);
+    #endif
+    #if NUM_Z_STEPPERS >= 2
+      z2_vs_z_inverted = TERN0(INVERT_Z2_VS_Z_DIR, true);
+    #endif
+    #if NUM_Z_STEPPERS >= 3
+      z3_vs_z_inverted = TERN0(INVERT_Z3_VS_Z_DIR, true);
+    #endif
+    #if NUM_Z_STEPPERS >= 4
+      z4_vs_z_inverted = TERN0(INVERT_Z4_VS_Z_DIR, true);
+    #endif
+    #if ENABLED(E_DUAL_STEPPER_DRIVERS)
+      e1_vs_e0_inverted = TERN0(INVERT_E1_VS_E0_DIR, true);
+    #endif
+  }
+#endif
+
 // The active extruder (tool). Set with T<extruder> command.
 #if HAS_MULTI_EXTRUDER
   uint8_t Motion::extruder = 0; // = 0
