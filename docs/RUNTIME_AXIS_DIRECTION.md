@@ -1,26 +1,31 @@
 # Runtime Axis Direction Implementation
 
 ## Summary
+
 This implementation adds the ability to change axis direction inversion at runtime via G-code, rather than requiring recompilation. The compile-time `INVERT_*_DIR` settings serve as defaults that can be overridden during operation.
 
 ## Files Modified
 
 ### 1. Configuration_adv.h
+
 - Added `RUNTIME_AXIS_DIRECTION` configuration option
 - Located after E_DUAL_STEPPER_DRIVERS section
 - Includes comprehensive documentation about the feature
 
 ### 2. motion.h / motion.cpp
+
 - Added `AxisFlags axis_inverted` static member to Motion class
 - Added `reset_axis_direction()` function to initialize with compile-time defaults
 - Initializes from INVERT_X_DIR, INVERT_Y_DIR, etc. defines
 
 ### 3. indirection.h
+
 - Modified `INVERT_DIR` macro to check runtime flags when `RUNTIME_AXIS_DIRECTION` is enabled
 - Falls back to compile-time defines when feature is disabled
 - Added include for motion.h when feature is enabled
 
 ### 4. M670.cpp (new file)
+
 - Created G-code command handler for axis direction control
 - Supports setting individual axes: M670 X<0|1> Y<0|1> Z<0|1> etc.
 - Supports reset to defaults: M670 R
@@ -28,15 +33,18 @@ This implementation adds the ability to change axis direction inversion at runti
 - Works with all axes dynamically (X, Y, Z, I, J, K, U, V, W, E)
 
 ### 5. gcode.h
+
 - Added M670 handler declarations
 - Added M670 to command documentation
 - Located after M666 (endstop adjustments)
 
 ### 6. gcode.cpp
+
 - Added M670 case to command dispatcher
 - Case 670 routes to M670() handler
 
 ### 7. settings.cpp
+
 - Added axis_inverted to SettingsDataStruct
 - Integrated EEPROM_WRITE in save section
 - Integrated EEPROM_READ in load section
@@ -46,7 +54,9 @@ This implementation adds the ability to change axis direction inversion at runti
 ## Usage
 
 ### Enable the Feature
+
 Uncomment in Configuration_adv.h:
+
 ```cpp
 #define RUNTIME_AXIS_DIRECTION
 ```
@@ -54,10 +64,13 @@ Uncomment in Configuration_adv.h:
 ### G-code Commands
 
 **Report current settings:**
+
 ```gcode
 M670
 ```
+
 Output example:
+
 ```
 M670 X S0 Y S1 Z S0
 M670 E0 S0
@@ -65,6 +78,7 @@ M670 E1 S1
 ```
 
 **Set axis directions:**
+
 ```gcode
 M670 X S1      ; Invert X axis direction
 M670 Y S0      ; Set Y to normal direction
@@ -74,6 +88,7 @@ M670 E1 S0     ; Set extruder 1 to normal direction
 ```
 
 **Set secondary stepper relative directions:**
+
 ```gcode
 M670 X2 S1     ; X2 motor runs opposite to X
 M670 Y2 S0     ; Y2 motor runs same direction as X
@@ -84,6 +99,7 @@ M670 H S1      ; E1 motor runs opposite to E0 (dual E steppers only)
 ```
 
 **Set multiple axes at once:**
+
 ```gcode
 M670 X S1 Y S0 Z S1     ; Set X inverted, Y normal, Z inverted
 M670 X S0 Y S0 E0 S1    ; Set X and Y normal, E0 inverted
@@ -91,6 +107,7 @@ M670 X S0 Y S0 E0 S1    ; Set X and Y normal, E0 inverted
 
 **Per-extruder control:**
 Each extruder (E0, E1, E2, etc.) has its own independent direction flag. Specify the extruder number with the E parameter:
+
 ```gcode
 M670 E0 S1     ; Invert E0 only
 M670 E1 S0     ; Normal direction for E1
@@ -105,25 +122,30 @@ Secondary stepper motors have **relative** direction flags that determine if the
 - **H** - For dual E steppers (E1 relative to E0, when both motors are mechanically linked)
 
 These flags are **relative** inversions. For example:
+
 - If X is inverted and X2_vs_X is normal (S0): Both X and X2 run inverted
 - If X is inverted and X2_vs_X is inverted (S1): X runs inverted, X2 runs normal
 - If X is normal and X2_vs_X is inverted (S1): X runs normal, X2 runs inverted
 
 This allows you to:
+
 1. Change the absolute direction of an axis (affects all motors)
 2. Change the relative direction between primary and secondary motors
 
 **Reset to defaults:**
+
 ```gcode
 M670 R         ; Reset all axes to compile-time defaults
 ```
 
 **Save to EEPROM:**
+
 ```gcode
 M500           ; Save all settings including axis directions
 ```
 
 **Load from EEPROM:**
+
 ```gcode
 M501           ; Load all settings including axis directions
 ```
@@ -166,6 +188,7 @@ M501           ; Load all settings including axis directions
 ## Backward Compatibility
 
 When `RUNTIME_AXIS_DIRECTION` is not defined:
+
 - Zero impact on code size
 - Zero impact on runtime performance
 - Original compile-time behavior preserved
@@ -174,6 +197,7 @@ When `RUNTIME_AXIS_DIRECTION` is not defined:
 ## Memory Impact
 
 When enabled:
+
 - Adds 1 byte (AxisFlags) for main axes to Motion class
 - Adds E_STEPPERS bytes (1 byte per extruder) for extruder directions to Motion class
 - Adds up to 6 additional bytes for secondary stepper relative inversions (X2, Y2, Z2, Z3, Z4, E1vsE0)
@@ -181,6 +205,7 @@ When enabled:
 - Adds ~700 bytes for M670 handler code
 
 Example memory usage:
+
 - Basic (3 axes, 1 extruder, no secondary steppers): 2 bytes RAM + 2 bytes EEPROM
 - Standard (3 axes, 2 extruders, no secondary steppers): 3 bytes RAM + 3 bytes EEPROM
 - Advanced (3 axes, 2 extruders, triple Z): 5 bytes RAM + 5 bytes EEPROM (adds Z2, Z3 flags)
