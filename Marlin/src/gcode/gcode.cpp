@@ -87,7 +87,7 @@ millis_t GcodeSuite::previous_move_ms = 0,
 relative_t GcodeSuite::axis_relative; // Init in constructor
 
 #if ENABLED(DELTA)
-  #define WITHIN_TOLERANCE(N,L,H)       (((N) >= ((L) - (H))) && ((N) <= ((L) + (H))))
+  #define WITHIN_TOLERANCE(N,L,H) WITHIN(N, (L) - (H), (L) + (H))
 #endif
 
 #if ANY(HAS_AUTO_REPORTING, HOST_KEEPALIVE_FEATURE)
@@ -202,26 +202,24 @@ void GcodeSuite::get_destination_from_command() {
     else
       motion.destination.e = motion.position.e;
 
-   #if ENABLED(DELTA)
+    #if ENABLED(DELTA)
+      /**
+       * flag/correct condition where only extruder should move
+       *
+       * G0/G1 command that specified only E movement
+       * at least one other axis is invalid.
+       *
+       * Formerly, the above would result in negative Z movement until the head
+       * hit the bed.
+       */
+      if (seen.e && !(seen.x || seen.y || seen.z) && !motion.all_axes_trusted()) {
+        motion.get_cartesian_from_steppers();  // Writes 'motion.cartes' (with forward kinematics)
+        if (!WITHIN_TOLERANCE(motion.destination.z, motion.cartes.z, 0.1f))
+          motion.destination.z = motion.cartes.z;
+      }
+    #endif // DELTA
 
-     // flag/correct condition where only extruder should move
-     //   Delta printer
-     //   G0/G1 command that specified only E movement
-     //   at least one of the other axis are invalid
-     //
-     // Formerly, the above would result in negative Z movement until the head
-     // hit the bed.
-
-     if ( seen.e & !(seen.x | seen.y | seen.z) & !motion.all_axes_trusted() ) {
-       motion.get_cartesian_from_steppers();  // Writes 'motion.cartes' (with forward kinematics)
-       if(!WITHIN_TOLERANCE(motion.destination.z, motion.cartes.z, 0.1)) {
-         motion.destination.z = motion.cartes.z;
-         }
-
-     }
-   #endif
-
-  #endif
+  #endif // HAS_EXTRUDERS
 
   #if ENABLED(POWER_LOSS_RECOVERY) && !PIN_EXISTS(POWER_LOSS)
     // Only update power loss recovery on moves with E
