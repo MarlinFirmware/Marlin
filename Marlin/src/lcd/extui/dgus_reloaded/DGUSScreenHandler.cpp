@@ -71,7 +71,6 @@ millis_t DGUSScreenHandler::eeprom_save = 0;
 
 void DGUSScreenHandler::init() {
   dgus.init();
-
   if (booted)
     triggerFullUpdate(); // Reinit LCD hardware then refresh current screen
   else
