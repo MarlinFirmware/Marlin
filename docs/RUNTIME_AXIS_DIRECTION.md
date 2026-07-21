@@ -105,8 +105,7 @@ M670 X S1 Y S0 Z S1     ; Set X inverted, Y normal, Z inverted
 M670 X S0 Y S0 E0 S1    ; Set X and Y normal, E0 inverted
 ```
 
-**Per-extruder control:**
-Each extruder (E0, E1, E2, etc.) has its own independent direction flag. Specify the extruder number with the E parameter:
+**Per-extruder control:** Each extruder (E0, E1, E2, etc.) has its own independent direction flag. Specify the extruder number with the E parameter:
 
 ```gcode
 M670 E0 S1     ; Invert E0 only
@@ -114,8 +113,7 @@ M670 E1 S0     ; Normal direction for E1
 M670 E2 S1     ; Invert E2
 ```
 
-**Secondary steppers (relative inversions):**
-Secondary stepper motors have **relative** direction flags that determine if they run in the same or opposite direction as their primary axis:
+**Secondary steppers (relative inversions):** Secondary stepper motors have **relative** direction flags that determine if they run in the same or opposite direction as their primary axis:
 
 - **X2, Y2** - For dual X/Y motor configurations (e.g., IDEX or ganged motors)
 - **Z2, Z3, Z4** - For multi-Z motor configurations (triple/quad Z steppers)
