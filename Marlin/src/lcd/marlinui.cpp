@@ -604,14 +604,23 @@ void MarlinUI::init() {
 
             if (RRK(EN_KEYPAD_MIDDLE))  goto_screen(menu_move);
 
-            #if NONE(DELTA, Z_HOME_TO_MAX)
-              if (RRK(EN_KEYPAD_F2))    _reprapworld_keypad_move(Z_AXIS,  1);
-            #endif
-
-            if (homed) {
-              #if ANY(DELTA, Z_HOME_TO_MAX)
-                if (RRK(EN_KEYPAD_F2))  _reprapworld_keypad_move(Z_AXIS,  1);
+            #if ENABLED(DELTA)
+              // Delta always homes Z to MAX - no runtime control
+              if (homed && RRK(EN_KEYPAD_F2))  _reprapworld_keypad_move(Z_AXIS,  1);
+            #elif ENABLED(RUNTIME_HOMING_DIRECTION)
+              // Runtime homing direction for non-delta
+              if (motion.home_dir(Z_AXIS) < 0 && RRK(EN_KEYPAD_F2))  _reprapworld_keypad_move(Z_AXIS,  1);
+              if (homed && motion.home_dir(Z_AXIS) > 0 && RRK(EN_KEYPAD_F2))  _reprapworld_keypad_move(Z_AXIS,  1);
+            #else
+              // Compile-time homing direction
+              #if !ENABLED(Z_HOME_TO_MAX)
+                if (RRK(EN_KEYPAD_F2))    _reprapworld_keypad_move(Z_AXIS,  1);
               #endif
+              if (homed) {
+                #if ENABLED(Z_HOME_TO_MAX)
+                  if (RRK(EN_KEYPAD_F2))  _reprapworld_keypad_move(Z_AXIS,  1);
+                #endif
+            #endif
               if (RRK(EN_KEYPAD_F3))    _reprapworld_keypad_move(Z_AXIS, -1);
               if (RRK(EN_KEYPAD_LEFT))  _reprapworld_keypad_move(X_AXIS, -1);
               if (RRK(EN_KEYPAD_RIGHT)) _reprapworld_keypad_move(X_AXIS,  1);

@@ -2175,6 +2175,137 @@
   #define HAS_W_STATE 1
 #endif
 
+// When RUNTIME_HOMING_DIRECTION is enabled and both MIN and MAX pins exist,
+// ensure both directions are compiled so runtime switching works correctly
+#if ENABLED(RUNTIME_HOMING_DIRECTION)
+  #if PIN_EXISTS(X_MIN) && PIN_EXISTS(X_MAX)
+    #ifndef USE_X_MIN
+      #define USE_X_MIN 1
+    #endif
+    #ifndef USE_X_MAX
+      #define USE_X_MAX 1
+    #endif
+    #ifndef HAS_X_MIN_STATE
+      #define HAS_X_MIN_STATE 1
+    #endif
+    #ifndef HAS_X_MAX_STATE
+      #define HAS_X_MAX_STATE 1
+    #endif
+  #endif
+  #if PIN_EXISTS(Y_MIN) && PIN_EXISTS(Y_MAX)
+    #ifndef USE_Y_MIN
+      #define USE_Y_MIN 1
+    #endif
+    #ifndef USE_Y_MAX
+      #define USE_Y_MAX 1
+    #endif
+    #ifndef HAS_Y_MIN_STATE
+      #define HAS_Y_MIN_STATE 1
+    #endif
+    #ifndef HAS_Y_MAX_STATE
+      #define HAS_Y_MAX_STATE 1
+    #endif
+  #endif
+  #if PIN_EXISTS(Z_MIN) && PIN_EXISTS(Z_MAX)
+    #ifndef USE_Z_MIN
+      #define USE_Z_MIN 1
+    #endif
+    #ifndef USE_Z_MAX
+      #define USE_Z_MAX 1
+    #endif
+    #ifndef HAS_Z_MIN_STATE
+      #define HAS_Z_MIN_STATE 1
+    #endif
+    #ifndef HAS_Z_MAX_STATE
+      #define HAS_Z_MAX_STATE 1
+    #endif
+  #endif
+  #if PIN_EXISTS(I_MIN) && PIN_EXISTS(I_MAX)
+    #ifndef USE_I_MIN
+      #define USE_I_MIN 1
+    #endif
+    #ifndef USE_I_MAX
+      #define USE_I_MAX 1
+    #endif
+    #ifndef HAS_I_MIN_STATE
+      #define HAS_I_MIN_STATE 1
+    #endif
+    #ifndef HAS_I_MAX_STATE
+      #define HAS_I_MAX_STATE 1
+    #endif
+  #endif
+  #if PIN_EXISTS(J_MIN) && PIN_EXISTS(J_MAX)
+    #ifndef USE_J_MIN
+      #define USE_J_MIN 1
+    #endif
+    #ifndef USE_J_MAX
+      #define USE_J_MAX 1
+    #endif
+    #ifndef HAS_J_MIN_STATE
+      #define HAS_J_MIN_STATE 1
+    #endif
+    #ifndef HAS_J_MAX_STATE
+      #define HAS_J_MAX_STATE 1
+    #endif
+  #endif
+  #if PIN_EXISTS(K_MIN) && PIN_EXISTS(K_MAX)
+    #ifndef USE_K_MIN
+      #define USE_K_MIN 1
+    #endif
+    #ifndef USE_K_MAX
+      #define USE_K_MAX 1
+    #endif
+    #ifndef HAS_K_MIN_STATE
+      #define HAS_K_MIN_STATE 1
+    #endif
+    #ifndef HAS_K_MAX_STATE
+      #define HAS_K_MAX_STATE 1
+    #endif
+  #endif
+  #if PIN_EXISTS(U_MIN) && PIN_EXISTS(U_MAX)
+    #ifndef USE_U_MIN
+      #define USE_U_MIN 1
+    #endif
+    #ifndef USE_U_MAX
+      #define USE_U_MAX 1
+    #endif
+    #ifndef HAS_U_MIN_STATE
+      #define HAS_U_MIN_STATE 1
+    #endif
+    #ifndef HAS_U_MAX_STATE
+      #define HAS_U_MAX_STATE 1
+    #endif
+  #endif
+  #if PIN_EXISTS(V_MIN) && PIN_EXISTS(V_MAX)
+    #ifndef USE_V_MIN
+      #define USE_V_MIN 1
+    #endif
+    #ifndef USE_V_MAX
+      #define USE_V_MAX 1
+    #endif
+    #ifndef HAS_V_MIN_STATE
+      #define HAS_V_MIN_STATE 1
+    #endif
+    #ifndef HAS_V_MAX_STATE
+      #define HAS_V_MAX_STATE 1
+    #endif
+  #endif
+  #if PIN_EXISTS(W_MIN) && PIN_EXISTS(W_MAX)
+    #ifndef USE_W_MIN
+      #define USE_W_MIN 1
+    #endif
+    #ifndef USE_W_MAX
+      #define USE_W_MAX 1
+    #endif
+    #ifndef HAS_W_MIN_STATE
+      #define HAS_W_MIN_STATE 1
+    #endif
+    #ifndef HAS_W_MAX_STATE
+      #define HAS_W_MAX_STATE 1
+    #endif
+  #endif
+#endif
+
 #if ENABLED(X_DUAL_ENDSTOPS)
   #if _USE_STOP(X,2,MIN,)
     #define USE_X2_MIN 1

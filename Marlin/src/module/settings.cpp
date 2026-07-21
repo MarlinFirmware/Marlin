@@ -277,6 +277,13 @@ typedef struct SettingsDataStruct {
   #endif
 
   //
+  // Runtime Homing Direction
+  //
+  #if ENABLED(RUNTIME_HOMING_DIRECTION)
+    int8_t axis_home_dir[LOGICAL_AXES];                 // M671
+  #endif
+
+  //
   // Spindle Acceleration
   //
   #if HAS_SPINDLE_ACCELERATION
@@ -1021,6 +1028,16 @@ void MarlinSettings::postprocess() {
         #if ENABLED(E_DUAL_STEPPER_DRIVERS)
           EEPROM_WRITE(motion.e1_vs_e0_inverted);
         #endif
+      #endif
+    }
+
+    //
+    // Runtime Homing Direction
+    //
+    {
+      #if ENABLED(RUNTIME_HOMING_DIRECTION)
+        _FIELD_TEST(axis_home_dir);
+        EEPROM_WRITE(motion.axis_home_dir);
       #endif
     }
 
@@ -2123,6 +2140,16 @@ void MarlinSettings::postprocess() {
           #if ENABLED(E_DUAL_STEPPER_DRIVERS)
             EEPROM_READ(motion.e1_vs_e0_inverted);
           #endif
+        #endif
+      }
+
+      //
+      // Runtime Homing Direction
+      //
+      {
+        #if ENABLED(RUNTIME_HOMING_DIRECTION)
+          _FIELD_TEST(axis_home_dir);
+          EEPROM_READ(motion.axis_home_dir);
         #endif
       }
 
@@ -3474,6 +3501,13 @@ void MarlinSettings::reset() {
   #endif
 
   //
+  // Runtime Homing Direction
+  //
+  #if ENABLED(RUNTIME_HOMING_DIRECTION)
+    motion.reset_axis_home_dir();
+  #endif
+
+  //
   // Spindle Acceleration
   //
   #if HAS_SPINDLE_ACCELERATION
@@ -4111,6 +4145,13 @@ void MarlinSettings::reset() {
     //
     #if ENABLED(RUNTIME_AXIS_DIRECTION)
       gcode.M670_report(forReplay);
+    #endif
+
+    //
+    // Runtime Homing Direction
+    //
+    #if ENABLED(RUNTIME_HOMING_DIRECTION)
+      gcode.M671_report(forReplay);
     #endif
 
     //

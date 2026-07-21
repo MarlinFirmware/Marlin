@@ -170,6 +170,26 @@ constexpr AxisFlags Motion::rotational;
   }
 #endif
 
+#if ENABLED(RUNTIME_HOMING_DIRECTION)
+  // Runtime homing direction storage
+  int8_t Motion::axis_home_dir[LOGICAL_AXES];
+
+  // Initialize runtime homing direction from compile-time defaults
+  void Motion::reset_axis_home_dir() {
+    NUM_AXIS_CODE(
+      axis_home_dir[X_AXIS] = X_HOME_DIR,
+      axis_home_dir[Y_AXIS] = Y_HOME_DIR,
+      axis_home_dir[Z_AXIS] = Z_HOME_DIR,
+      axis_home_dir[I_AXIS] = TERN(HAS_I_AXIS, I_HOME_DIR, 0),
+      axis_home_dir[J_AXIS] = TERN(HAS_J_AXIS, J_HOME_DIR, 0),
+      axis_home_dir[K_AXIS] = TERN(HAS_K_AXIS, K_HOME_DIR, 0),
+      axis_home_dir[U_AXIS] = TERN(HAS_U_AXIS, U_HOME_DIR, 0),
+      axis_home_dir[V_AXIS] = TERN(HAS_V_AXIS, V_HOME_DIR, 0),
+      axis_home_dir[W_AXIS] = TERN(HAS_W_AXIS, W_HOME_DIR, 0)
+    );
+  }
+#endif
+
 // The active extruder (tool). Set with T<extruder> command.
 #if HAS_MULTI_EXTRUDER
   uint8_t Motion::extruder = 0; // = 0

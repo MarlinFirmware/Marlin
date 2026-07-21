@@ -1003,6 +1003,10 @@ void GcodeSuite::process_parsed_command(bool no_ok/*=false*/) {
         case 670: M670(); break;                                  // M670: Set/report runtime axis direction inversion
       #endif
 
+      #if ENABLED(RUNTIME_HOMING_DIRECTION)
+        case 671: M671(); break;                                  // M671: Set/report runtime homing direction
+      #endif
+
       #if ENABLED(DUET_SMART_EFFECTOR) && PIN_EXISTS(SMART_EFFECTOR_MOD)
         case 672: M672(); break;                                  // M672: Set/clear Duet Smart Effector sensitivity
       #endif
