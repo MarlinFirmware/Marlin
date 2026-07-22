@@ -163,7 +163,7 @@ inline void park_above_object(measurements_t &m, const float uncertainty_tool_le
   // Move to safe distance above calibration object
   #if defined(Z_HOME_DIR) && Z_HOME_DIR == 1
     if (uncertainty_tool_length > CALIBRATION_MEASUREMENT_UNCERTAIN)
-      gcode.process_subcommands_now(F("G28 Z")); // Ép trục Z chạy Home Max cơ khí thực tế tại điểm 380mm để làm sạch mốc tọa độ
+      gcode.process_subcommands_now(F("G28 Z"));
     else
   #else
     motion.position.z = m.obj_center.z + dimensions.z / 2 + uncertainty_tool_length;
@@ -195,13 +195,25 @@ inline void park_above_object(measurements_t &m, const float uncertainty_tool_le
  * Move along axis in the specified dir until the probe value becomes stop_state,
  * then return the axis value.
  *
- *   axis         in - Axis along which the measurement will take place
- *   dir          in - Direction along that axis (-1 or 1)
- *   stop_state   in - Move until probe pin becomes this value
- *   fast         in - Fast vs. precise measurement
+ *   axis                     in - Axis along which the measurement will take place
+ *   dir                      in - Direction along that axis (-1 or 1)
+ *   stop_state               in - Move until probe pin becomes this value
+ *   fast                     in - Fast vs. precise measurement
+ *   uncertainty              in - How far away from the calibration object to start probing
+ *   uncertainty_tool_length  in - How far away in Z direction from the calibration object to start probing
+ *   feedrate                 in - Feedrate for the measurement move
  */
 float measuring_movement(const AxisEnum axis, const int dir, const bool stop_state, const bool fast, const bool uncertainty, const bool uncertainty_tool_length, const feedRate_t feedrate) {
-  const feedRate_t mms = (feedrate != MMM_TO_MMS(CALIBRATION_FEEDRATE_SLOW)) ? feedrate : (fast ? MMM_TO_MMS(CALIBRATION_FEEDRATE_FAST) : MMM_TO_MMS(CALIBRATION_FEEDRATE_SLOW));
+  feedRate_t mms = feedrate;
+  if (feedrate == MMM_TO_MMS(CALIBRATION_FEEDRATE_SLOW)) {
+    if (fast) {
+      mms = MMM_TO_MMS(CALIBRATION_FEEDRATE_FAST);
+    }
+    else {
+      mms = MMM_TO_MMS(CALIBRATION_FEEDRATE_SLOW);
+    }
+  }
+
   const float limit    = fast ? (uncertainty + 50) : (uncertainty + 5);
   #if Z_HOME_TO_MAX
     const float limit_z = fast ? ((Z_HOME_POS) - motion.calibration_center.z  + 50) : ((Z_MAX_POS) - motion.calibration_center.z + 5);
@@ -228,12 +240,13 @@ float measuring_movement(const AxisEnum axis, const int dir, const bool stop_sta
  * Move along axis until the probe is triggered. Move toolhead to its starting
  * point and return the measured value.
  *
- *   axis               in     - Axis along which the measurement will take place
- *   dir                in     - Direction along that axis (-1 or 1)
- *   stop_state         in     - Move until probe pin becomes this value
- *   backlash_ptr       in/out - When not nullptr, measure and record axis backlash
- *   uncertainty        in     - If uncertainty is CALIBRATION_MEASUREMENT_UNKNOWN, do a fast probe.
- *   uncertainty_tool_length  in  - How far away from the object to begin probing for hotend Z offset calibration with G425 T...
+ *   axis                     in     - Axis along which the measurement will take place
+ *   dir                      in     - Direction along that axis (-1 or 1)
+ *   stop_state               in     - Move until probe pin becomes this value
+ *   backlash_ptr             in/out - When not nullptr, measure and record axis backlash
+ *   uncertainty              in     - If uncertainty is CALIBRATION_MEASUREMENT_UNKNOWN, do a fast probe.
+ *   uncertainty_tool_length  in     - How far away in Z direction from the calibration object to start probing
+ *   feedrate                 in     - Feedrate for the measurement move
  */
 inline float measure(const AxisEnum axis, const int dir, const bool stop_state, float * const backlash_ptr, const float uncertainty, const float uncertainty_tool_length, const feedRate_t feedrate) {
   const bool fast = (uncertainty == CALIBRATION_MEASUREMENT_UNKNOWN || uncertainty_tool_length == CALIBRATION_MEASUREMENT_TOOL_LENGTH);
@@ -265,12 +278,13 @@ inline float measure(const AxisEnum axis, const int dir, const bool stop_state, 
 /**
  * Probe one side of the calibration object
  *
- *   m                  in/out - Measurement record, m.obj_center and m.obj_side will be updated.
- *   uncertainty        in     - How far away from the calibration object to begin probing
- *   uncertainty_tool_length  in  - How far away from the object to begin probing for hotend Z offset calibration with G425 T...
- *   side               in     - Side of probe where probe will occur
- *   probe_top_at_edge  in     - When probing sides, probe top of calibration object nearest edge
- *                               to find out height of edge
+ *   m                        in/out - Measurement record, m.obj_center and m.obj_side will be updated.
+ *   uncertainty              in     - How far away from the calibration object to begin probing
+ *   uncertainty_tool_length  in     - How far away in Z direction from the calibration object to start probing
+ *   side                     in     - Side of probe where probe will occur
+ *   probe_top_at_edge        in     - When probing sides, probe top of calibration object nearest edge
+ *                                     to find out height of edge
+ *   feedrate                 in     - Feedrate for the measurement move
  */
 inline void probe_side(measurements_t &m, const float uncertainty, const float uncertainty_tool_length, const side_t side, const bool probe_top_at_edge=false, const feedRate_t feedrate=MMM_TO_MMS(CALIBRATION_FEEDRATE_SLOW)) {
   const xyz_float_t dims = dimensions;
@@ -345,8 +359,10 @@ inline void probe_side(measurements_t &m, const float uncertainty, const float u
 /**
  * Probe all sides of the calibration calibration object
  *
- *   m                  in/out - Measurement record: center, backlash and error values be updated.
- *   uncertainty        in     - How far away from the calibration object to begin probing
+ *   m                       in/out - Measurement record: center, backlash and error values be updated.
+ *   uncertainty             in     - How far away from the calibration object to begin probing
+ *   uncertainty_tool_length in     - How far away in Z direction from the calibration object to begin probing
+ *   feedrate                in     - Feedrate for the measurement
  */
 inline void probe_sides(measurements_t &m, const float uncertainty, const float uncertainty_tool_length, const feedRate_t feedrate) {
   #if ENABLED(CALIBRATION_MEASURE_AT_TOP_EDGES)
@@ -355,7 +371,7 @@ inline void probe_sides(measurements_t &m, const float uncertainty, const float 
     // Probing at the exact center only works if the center is flat. Probing on a washer
     // or bolt will require probing the top near the side edges, away from the center.
     constexpr bool probe_top_at_edge = false;
-    probe_side(m, uncertainty, uncertainty_tool_length, TOP, feedrate);
+    probe_side(m, uncertainty, uncertainty_tool_length, TOP, probe_top_at_edge, feedrate);
   #endif
 
   /**
@@ -603,8 +619,6 @@ inline void probe_sides(measurements_t &m, const float uncertainty, const float 
  *
  *   m              in/out - Measurement record, updated with new readings
  *   uncertainty    in     - How far away from the object to begin probing
- *   uncertainty_tool_length  in  - How far away from the object to begin probing for hotend Z offset calibration with G425 T...
-
  */
 inline void calibrate_backlash(measurements_t &m, const float uncertainty) {
   // Backlash compensation should be off while measuring backlash
@@ -713,10 +727,11 @@ inline void update_measurements(measurements_t &m, const AxisEnum axis) {
  * Probe around the calibration object. Adjust the position and toolhead offset
  * using the deviation from the known position of the calibration object.
  *
- *   m              in/out - Measurement record, updated with new readings
- *   uncertainty    in     - How far away from the object to begin probing
- *   uncertainty_tool_length  in  - How far away from the object to begin probing for hotend Z offset calibration with G425 T...
- *   extruder       in     - What extruder to probe
+ *   m                        in/out - Measurement record, updated with new readings
+ *   uncertainty              in     - How far away from the object to begin probing
+ *   uncertainty_tool_length  in     - How far away from the object to begin probing for hotend Z offset calibration with G425 T...
+ *   extruder                 in     - What extruder to probe
+ *   feedrate                 in     - Feedrate for the measurement move
  *
  * Prerequisites:
  *    - Call calibrate_backlash() beforehand for best accuracy
@@ -759,9 +774,10 @@ inline void calibrate_toolhead(measurements_t &m, const float uncertainty, const
  * Probe around the calibration object for all toolheads, adjusting the coordinate
  * system for the first nozzle and the nozzle offset for subsequent nozzles.
  *
- *   m              in/out - Measurement record, updated with new readings
- *   uncertainty    in     - How far away from the object to begin probing
- *   uncertainty_tool_length  in  - How far away from the object to begin probing for hotend Z offset calibration with G425 T...
+ *   m                        in/out - Measurement record, updated with new readings
+ *   uncertainty              in     - How far away from the object to begin probing
+ *   uncertainty_tool_length  in     - How far away from the object to begin probing for hotend Z offset calibration with G425 T...
+ *   feedrate                 in     - Feedrate for the measurement move
  */
 inline void calibrate_all_toolheads(measurements_t &m, const float uncertainty, const float uncertainty_tool_length, const feedRate_t feedrate) {
   TEMPORARY_BACKLASH_CORRECTION(backlash.all_on);
@@ -794,7 +810,7 @@ inline void calibrate_all() {
   TEMPORARY_BACKLASH_SMOOTHING(0.0f);
 
   // Do a fast and rough calibration of the toolheads
-  calibrate_all_toolheads(m, CALIBRATION_MEASUREMENT_UNKNOWN, CALIBRATION_MEASUREMENT_TOOL_LENGTH, CALIBRATION_FEEDRATE_FAST);
+  calibrate_all_toolheads(m, CALIBRATION_MEASUREMENT_UNKNOWN, CALIBRATION_MEASUREMENT_TOOL_LENGTH, MMM_TO_MMS(CALIBRATION_FEEDRATE_FAST));
 
   TERN_(BACKLASH_GCODE, calibrate_backlash(m, CALIBRATION_MEASUREMENT_UNCERTAIN));
 
@@ -804,7 +820,7 @@ inline void calibrate_all() {
   #endif
 
   // Do a slow and precise calibration of the toolheads
-  calibrate_all_toolheads(m, CALIBRATION_MEASUREMENT_UNCERTAIN, CALIBRATION_MEASUREMENT_UNCERTAIN, CALIBRATION_FEEDRATE_SLOW);
+  calibrate_all_toolheads(m, CALIBRATION_MEASUREMENT_UNCERTAIN, CALIBRATION_MEASUREMENT_UNCERTAIN, MMM_TO_MMS(CALIBRATION_FEEDRATE_SLOW));
 
   motion.position.x = X_CENTER;
   calibration_move();         // Park nozzle away from calibration object
@@ -822,7 +838,7 @@ inline void calibrate_toolhead_z_only(measurements_t &m, const float uncertainty
     // Probing at the exact center only works if the center is flat. Probing on a washer
     // or bolt will require probing the top near the side edges, away from the center.
     constexpr bool probe_top_at_edge = false;
-  probe_side(m, uncertainty, uncertainty, TOP, feedrate);
+    probe_side(m, uncertainty, uncertainty, TOP, false, feedrate);
   #endif
 
   park_above_object(m, CALIBRATION_MEASUREMENT_UNCERTAIN);
@@ -889,6 +905,7 @@ inline void calibrate_toolhead_z_only(measurements_t &m, const float uncertainty
  *   U           - Uncertainty, how far in xy to start probe away from the object (mm)
  *   L           - Tool length uncertainty, how far in z to start probe away from the object (mm)
  *   Z           - With parameter T: Calibrate Z hotend offset only
+ *   F           - With parameter T: Feedrate for the measurement move
  *
  *   no args     - Perform entire calibration sequence (backlash + position on all toolheads)
  */
@@ -919,22 +936,20 @@ void GcodeSuite::G425() {
   const feedRate_t measurement_feedrate = parser.seenval('F') ? MMM_TO_MMS(parser.value_linear_units()) : MMM_TO_MMS(CALIBRATION_FEEDRATE_SLOW);
   if (parser.seen_test('B'))
     calibrate_backlash(m, uncertainty);
-  // --- ĐOẠN ĐIỀU HƯỚNG MỚI ĐÃ ĐƯỢC CHUẨN HÓA ---
+
   else if (parser.seen_test('T')) {
     const uint8_t target_tool = parser.intval('T', motion.extruder);
     
-    // Nếu gõ G425 T1 Z hoặc G425 T1 Z0 -> Kích hoạt chế độ đo chiều dài Z nhanh CNC style
     if (parser.seen('Z')) {
       calibrate_toolhead_z_only(m, uncertainty_tool_length, target_tool, measurement_feedrate);
     } 
-    // Nếu chỉ gõ G425 T1 -> Chạy chế độ mặc định đo toàn diện X Y Z
     else {
       calibrate_toolhead(m, uncertainty, uncertainty_tool_length, target_tool, measurement_feedrate);
     }
   }
   #if ENABLED(CALIBRATION_REPORTING)
     else if (parser.seen('V')) {
-      probe_sides(m, uncertainty);
+      probe_sides(m, uncertainty, uncertainty_tool_length, measurement_feedrate);
       SERIAL_EOL();
       report_measured_faces(m);
       report_measured_center(m);
