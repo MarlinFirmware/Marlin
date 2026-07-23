@@ -53,9 +53,6 @@ void say_shaping() {
   // FT Enabled
   SERIAL_ECHO_TERNARY(c.active, "Fixed-Time Motion ", "en", "dis", "abled");
 
-  // Axis Sync Enabled
-  SERIAL_ECHO_TERNARY(c.axis_sync_enabled, "Axis Sync. ", "en", "dis", "abled");
-
   // FT Shaping
   const bool is_shaping = AXIS_IS_SHAPING(X) || AXIS_IS_SHAPING(Y) || AXIS_IS_SHAPING(Z) || AXIS_IS_SHAPING(E);
   bool sep = false;
@@ -66,6 +63,10 @@ void say_shaping() {
     SHAPED_CODE(_SAY_SHAPER(A), _SAY_SHAPER(B), _SAY_SHAPER(C), _SAY_SHAPER(E));
     SERIAL_CHAR(')');
   }
+  SERIAL_EOL();
+
+  // Axis Sync Enabled
+  SERIAL_ECHO_TERNARY(c.axis_sync_enabled, "Axis Sync. ", "en", "dis", "abled");
   SERIAL_EOL();
 
   const bool z_based = TERN0(HAS_DYNAMIC_FREQ_MM, c.dynFreqMode == dynFreqMode_Z_BASED),
