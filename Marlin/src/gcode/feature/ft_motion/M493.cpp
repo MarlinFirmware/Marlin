@@ -113,11 +113,7 @@ void say_shaping() {
     #if ENABLED(FTM_SHAPER_Z)
       if (ftMotion.cfg.shaper[Z_AXIS]) {
         SERIAL_CHAR(STEPPER_C_NAME);
-          SERIAL_ECHO_TERNARY(dynamic, " ", "base dynamic", "static", " shaper frequency: ");
-        SERIAL_ECHO(p_float_t(c.baseFreq.z, 2), F(" Hz"));
-        #if HAS_DYNAMIC_FREQ
-          if (dynamic) SERIAL_ECHO(F(" scaling: "), p_float_t(c.dynFreqK.z, 2), F("Hz/"), z_based ? F("mm") : F("g"));
-        # endif
+        SERIAL_ECHO(" shaper frequency: ",_float_t(c.baseFreq.z, 2), F(" Hz"));
         SERIAL_EOL();
       }
     #endif
@@ -125,11 +121,7 @@ void say_shaping() {
     #if ENABLED(FTM_SHAPER_E)
       if (ftMotion.cfg.shaper[E_AXIS]) {
         SERIAL_CHAR('E');
-        SERIAL_ECHO_TERNARY(dynamic, " ", "base dynamic", "static", " shaper frequency: ");
-        SERIAL_ECHO(p_float_t(c.baseFreq.e, 2), F(" Hz"));
-        #if HAS_DYNAMIC_FREQ
-          if (dynamic) SERIAL_ECHO(F(" scaling: "), p_float_t(c.dynFreqK.e, 2), F("Hz/"), z_based ? F("mm") : F("g"));
-        #endif
+        SERIAL_ECHO(" shaper frequency: ", p_float_t(c.baseFreq.e, 2), F(" Hz"));
         SERIAL_EOL();
       }
     #endif
@@ -207,7 +199,7 @@ void GcodeSuite::M493_report(const bool forReplay/*=true*/) {
  *       7: 3HEI  : 3-Hump Extra-Intensive
  *       8: MZV   : Mass-based Zero Vibration
  *
- *    A<Hz>     Set static/base frequency for the specified axes
+ *    A<Hz>     Set static/base frequency for the specified axes only X and Y axes
  *    I<flt>    Set damping ratio for the specified axes
  *    Q<flt>    Set vibration tolerance (vtol) for the specified axes
  *
@@ -270,7 +262,7 @@ void GcodeSuite::M493() {
 
     // Dynamic frequency mode parameter.
     if (parser.seenval('D')) {
-      if (AXIS_IS_SHAPING(X) || AXIS_IS_SHAPING(Y) || AXIS_IS_SHAPING(Z) || AXIS_IS_SHAPING(E)) {
+      if (AXIS_IS_SHAPING(X) || AXIS_IS_SHAPING(Y)) {
         switch (c.setDynFreqMode(parser.value_byte())) {
           case 0: break; // Same value, no update
           case 1: flag.report = true; break; // New value, updated
@@ -434,8 +426,8 @@ void GcodeSuite::M493() {
 
       #if HAS_DYNAMIC_FREQ
         // Parse Z frequency scaling parameter
-        if (seenF && c.setDynFreqK(Z_AXIS, baseDynFreqVal))
-          flag.report = true;
+        if (seenF)
+          SERIAL_ECHOLNPGM("?Wrong axis for (F)requency scaling.");
       #endif
 
       // Parse Z zeta parameter
@@ -482,8 +474,8 @@ void GcodeSuite::M493() {
 
       #if HAS_DYNAMIC_FREQ
         // Parse E frequency scaling parameter
-        if (seenF && c.setDynFreqK(E_AXIS, baseDynFreqVal))
-          flag.report = true;
+        if (seenF)
+          SERIAL_ECHOLNPGM("?Wrong axis for (F)requency scaling.");
       #endif
 
       // Parse E zeta parameter
