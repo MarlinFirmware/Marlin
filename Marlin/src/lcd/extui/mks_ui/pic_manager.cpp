@@ -234,73 +234,79 @@ static FSTR_P const assets[] = {
 #if ENABLED(USE_HASH_TABLE)
 
   typedef struct {
-    char name[PIC_NAME_MAX_LEN - PIC_NAME_OFFSET];    /* key */
-    uint32_t addr;
-    UT_hash_handle hh;              /* makes this structure hashable */
+    char name[PIC_NAME_MAX_LEN - PIC_NAME_OFFSET]; // key, without "bmp_"
+    uint32_t addr;                                 // 4-byte address
+    UT_hash_handle hh;                             // makes this structure hashable
   } PicHashEntry;
 
   PicHashEntry* pic_hash = nullptr;
 
   // Initialize the image address hash table
   void init_img_map() {
-    uint8_t Pic_cnt;
-    W25QXX.SPI_FLASH_BufferRead(&Pic_cnt, PIC_COUNTER_ADDR, 1);
-    if (Pic_cnt == 0xFF) Pic_cnt = 0;
+    uint8_t pic_cnt;
+    W25QXX.SPI_FLASH_BufferRead(&pic_cnt, PIC_COUNTER_ADDR, 1);
+    if (pic_cnt == 0xFF) pic_cnt = 0;
 
+    // TFT internal flash address and per-pic space
+    const bool istft35 = (DeviceCode == 0x9488 || DeviceCode == 0x5761);
+    uint32_t addr = istft35 ? PIC_DATA_ADDR_TFT35 : PIC_DATA_ADDR_TFT32;
+    const uint32_t tsiz = istft35 ? PER_PIC_MAX_SPACE_TFT35 : PER_PIC_MAX_SPACE_TFT32;
+
+    // Read through packed names list
     uint32_t tmp_cnt = 0;
-    for (uint8_t i = 0; i < Pic_cnt; i++) {
-      char name[PIC_NAME_MAX_LEN];
+    for (uint8_t i = 0; i < pic_cnt; i++) {
+      char pname[PIC_NAME_MAX_LEN];
+
+      // Get the next packed name (starting with "bmp_") into pname
       uint8_t j = 0;
       do {
-        W25QXX.SPI_FLASH_BufferRead((uint8_t*)&name[j], PIC_NAME_ADDR + tmp_cnt, 1);
+        W25QXX.SPI_FLASH_BufferRead((uint8_t*)&pname[j], PIC_NAME_ADDR + tmp_cnt, 1);
         tmp_cnt++;
-      } while (name[j++] != '\0');
+      } while (pname[j++] != '\0');
 
-      uint32_t addr;
-      if (DeviceCode == 0x9488 || DeviceCode == 0x5761)
-        addr = PIC_DATA_ADDR_TFT35 + i * PER_PIC_MAX_SPACE_TFT35;
-      else
-        addr = PIC_DATA_ADDR_TFT32 + i * PER_PIC_MAX_SPACE_TFT32;
+      // New empty hash table entry
+      PicHashEntry *entry = (PicHashEntry*)malloc(sizeof(PicHashEntry));
 
       // Add to hash table, don't save "bmp_"
-      PicHashEntry* entry = (PicHashEntry*)malloc(sizeof(*entry));
-      strncpy(entry->name, (name + PIC_NAME_OFFSET), sizeof(entry->name));
+      strncpy(entry->name, pname + PIC_NAME_OFFSET, sizeof(entry->name));
       entry->addr = addr;
-      HASH_ADD_STR(pic_hash, name, entry);
+      HASH_ADD_STR(pic_hash, pname, entry);
+
+      // Next tft internal flash addr
+      addr += tsiz;
     }
     #if ENABLED(MARLIN_DEV_MODE)
       SERIAL_ECHOLNPGM("Image Hash Table Count: ", HASH_COUNT(pic_hash), ", Size(Bytes): ", HASH_OVERHEAD(hh, pic_hash));
     #endif
   }
 
-  uint32_t lv_get_pic_addr(uint8_t *Pname) {
-    #if ENABLED(MARLIN_DEV_MODE)
-      SERIAL_ECHOLNPGM("Getting picture SPI Flash Address: ", (const char*)Pname);
-    #endif
+#endif // USE_HASH_TABLE
+
+uint32_t lv_get_pic_addr(uint8_t *Pname) {
+
+  #if ENABLED(MARLIN_DEV_MODE)
+    SERIAL_ECHOLNPGM("Getting picture SPI Flash Address: ", (const char*)Pname);
+  #endif
+
+  #if ENABLED(USE_HASH_TABLE)
 
     PicHashEntry* entry;
     HASH_FIND_STR(pic_hash, (char*)(Pname + PIC_NAME_OFFSET), entry);
     return entry ? entry->addr : 0;
-  }
 
-#else // !USE_HASH_TABLE
+  #else // !USE_HASH_TABLE
 
-  uint32_t lv_get_pic_addr(uint8_t *Pname) {
-    uint8_t Pic_cnt;
+    uint8_t pic_cnt;
     uint8_t i, j;
-    PIC_MSG PIC;
+    pic_msg_t PIC;
     uint32_t tmp_cnt = 0;
     uint32_t addr = 0;
 
-    #if ENABLED(MARLIN_DEV_MODE)
-      SERIAL_ECHOLNPGM("Getting picture SPI Flash Address: ", (const char*)Pname);
-    #endif
-
     W25QXX.init(SPI_QUARTER_SPEED);
 
-    W25QXX.SPI_FLASH_BufferRead(&Pic_cnt, PIC_COUNTER_ADDR, 1);
-    if (Pic_cnt == 0xFF) Pic_cnt = 0;
-    for (i = 0; i < Pic_cnt; i++) {
+    W25QXX.SPI_FLASH_BufferRead(&pic_cnt, PIC_COUNTER_ADDR, 1);
+    if (pic_cnt == 0xFF) pic_cnt = 0;
+    for (i = 0; i < pic_cnt; i++) {
       j = 0;
       do {
         W25QXX.SPI_FLASH_BufferRead(&PIC.name[j], PIC_NAME_ADDR + tmp_cnt, 1);
@@ -316,9 +322,9 @@ static FSTR_P const assets[] = {
       }
     }
     return addr;
-  }
 
-#endif // !USE_HASH_TABLE
+  #endif // !USE_HASH_TABLE
+}
 
 const char *assetsPath = "assets";
 const char *bakPath = "_assets";
@@ -612,14 +618,14 @@ uint32_t picInfoWrite(uint8_t *P_name, uint32_t P_size) {
 
 void picRead(uint8_t *Pname, uint8_t *P_Rbuff) {
   uint8_t i, j;
-  uint8_t Pic_cnt;
+  uint8_t pic_cnt;
   uint32_t tmp_cnt = 0;
-  PIC_MSG PIC;
+  pic_msg_t PIC;
 
-  W25QXX.SPI_FLASH_BufferRead(&Pic_cnt, PIC_COUNTER_ADDR, 1);
-  if (Pic_cnt == 0xFF) Pic_cnt = 0;
+  W25QXX.SPI_FLASH_BufferRead(&pic_cnt, PIC_COUNTER_ADDR, 1);
+  if (pic_cnt == 0xFF) pic_cnt = 0;
 
-  for (i = 0; i < Pic_cnt; i++) {
+  for (i = 0; i < pic_cnt; i++) {
     j = 0;
     do {
       W25QXX.SPI_FLASH_BufferRead(&PIC.name[j], PIC_NAME_ADDR + tmp_cnt, 1);
