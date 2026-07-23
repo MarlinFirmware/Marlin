@@ -66,8 +66,10 @@ void say_shaping() {
   SERIAL_EOL();
 
   // Axis Sync Enabled
-  SERIAL_ECHO_TERNARY(c.axis_sync_enabled, "Axis Sync. ", "en", "dis", "abled");
-  SERIAL_EOL();
+  if(c.active) {
+    SERIAL_ECHO_TERNARY(c.axis_sync_enabled, "Axis Sync. ", "en", "dis", "abled");
+    SERIAL_EOL();
+  }
 
   const bool z_based = TERN0(HAS_DYNAMIC_FREQ_MM, c.dynFreqMode == dynFreqMode_Z_BASED),
              g_based = TERN0(HAS_DYNAMIC_FREQ_G,  c.dynFreqMode == dynFreqMode_MASS_BASED),
