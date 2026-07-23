@@ -40,11 +40,18 @@
 #endif
 
 void eeprom_init() {
+  #if defined(STM32_CORE_VERSION) && (STM32_CORE_VERSION >= ((2U << 24) | (1U << 16) | (0U << 8)))
+    #define I2C_PIN_TYPE uint32_t
+  #else
+    #define I2C_PIN_TYPE uint8_t
+  #endif
+
   eWire.begin(
     #if PINS_EXIST(I2C_SCL, I2C_SDA) && DISABLED(SOFT_I2C_EEPROM)
-      uint8_t(I2C_SDA_PIN), uint8_t(I2C_SCL_PIN)
+      I2C_PIN_TYPE(I2C_SDA_PIN), I2C_PIN_TYPE(I2C_SCL_PIN)
     #endif
   );
+  #undef I2C_PIN_TYPE
 }
 
 #if ENABLED(USE_SHARED_EEPROM)
