@@ -249,7 +249,7 @@ static FSTR_P const assets[] = {
 
     uint32_t tmp_cnt = 0;
     for (uint8_t i = 0; i < Pic_cnt; i++) {
-      char name[PIC_NAME_MAX_LEN - PIC_NAME_OFFSET];
+      char name[PIC_NAME_MAX_LEN];
       uint8_t j = 0;
       do {
         W25QXX.SPI_FLASH_BufferRead((uint8_t*)&name[j], PIC_NAME_ADDR + tmp_cnt, 1);
@@ -264,7 +264,7 @@ static FSTR_P const assets[] = {
 
       // Add to hash table, don't save "bmp_"
       PicHashEntry* entry = (PicHashEntry*)malloc(sizeof(*entry));
-      strncpy(entry->name, (name + PIC_NAME_OFFSET), sizeof(name));
+      strncpy(entry->name, (name + PIC_NAME_OFFSET), sizeof(entry->name));
       entry->addr = addr;
       HASH_ADD_STR(pic_hash, name, entry);
     }
