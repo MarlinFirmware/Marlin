@@ -249,7 +249,7 @@ This can be implemented in C++ as:
     public:
       unsigned int ticker;
 
-      OversampledBresenhan(const long& inDividend, const long& inDivisor, int rate) {
+      OversampledBresenham(const long& inDividend, const long& inDivisor, int rate) {
         ticker = 0;
         divisor = inDivisor;
         dividend = inDividend;
