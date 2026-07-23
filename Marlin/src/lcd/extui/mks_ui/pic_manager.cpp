@@ -239,7 +239,7 @@ static FSTR_P const assets[] = {
     UT_hash_handle hh;              /* makes this structure hashable */
   } PicHashEntry;
 
-  PicHashEntry* pic_hash = NULL;
+  PicHashEntry* pic_hash = nullptr;
 
   // Initialize the image address hash table
   void init_img_map() {
