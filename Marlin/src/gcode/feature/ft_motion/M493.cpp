@@ -53,6 +53,9 @@ void say_shaping() {
   // FT Enabled
   SERIAL_ECHO_TERNARY(c.active, "Fixed-Time Motion ", "en", "dis", "abled");
 
+  // Axis Sync Enabled
+  SERIAL_ECHO_TERNARY(c.axis_sync_enabled, "Axis Sync. ", "en", "dis", "abled");
+
   // FT Shaping
   const bool is_shaping = AXIS_IS_SHAPING(X) || AXIS_IS_SHAPING(Y) || AXIS_IS_SHAPING(Z) || AXIS_IS_SHAPING(E);
   bool sep = false;
