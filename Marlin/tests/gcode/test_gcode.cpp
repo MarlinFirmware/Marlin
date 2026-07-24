@@ -31,6 +31,27 @@ MARLIN_TEST(gcode, process_parsed_command) {
   suite.process_parsed_command(false);
 }
 
+#if USE_GCODE_SUBCODES
+
+MARLIN_TEST(gcode, parse_g_code_subcode_limit) {
+  char max_subcode[] = "G38.255";
+  parser.parse(max_subcode);
+  TEST_ASSERT_TRUE(parser.is_command('G', 38));
+  TEST_ASSERT_EQUAL(255, parser.subcode);
+
+  char overflow_subcode[] = "G38.256";
+  parser.parse(overflow_subcode);
+  TEST_ASSERT_EQUAL('?', parser.command_letter);
+}
+
+MARLIN_TEST(gcode, reject_g_code_subcode_overflow_alias) {
+  char alias_command[] = "G38.258";
+  parser.parse(alias_command);
+  TEST_ASSERT_FALSE(parser.is_command('G', 38) && parser.subcode == 2);
+}
+
+#endif
+
 MARLIN_TEST(gcode, parse_g1_xz) {
   char current_command[] = "G0 X10 Z30";
   parser.command_letter = -128;

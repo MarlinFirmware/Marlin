@@ -216,8 +216,14 @@ void GCodeParser::parse(char *p) {
       #if USE_GCODE_SUBCODES
         if (*p == '.') {
           p++;
-          while (NUMERIC(*p))
-            subcode = subcode * 10 + *p++ - '0';
+          while (NUMERIC(*p)) {
+            const uint8_t digit = *p++ - '0';
+            if (subcode > UINT8_MAX / 10 || (subcode == UINT8_MAX / 10 && digit > UINT8_MAX % 10)) {
+              command_letter = '?';
+              return;
+            }
+            subcode = subcode * 10 + digit;
+          }
         }
       #endif
 
