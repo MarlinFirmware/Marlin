@@ -37,19 +37,53 @@ if pioutil.is_pio_build():
             #
             env["RANLIBFLAGS"] += ["-no_warning_for_no_symbols"]
 
+            import os.path, subprocess
+
+            #
+            # Find the package-manager prefix (Homebrew or MacPorts) so SDL2, glm,
+            # and freetype headers/libs are found regardless of install location.
+            #
+            prefix = ""
+            brew = shutil.which("brew")
+            if brew:
+                try: prefix = subprocess.check_output([ brew, "--prefix" ], text=True).strip()
+                except Exception: prefix = ""
+            if not prefix and os.path.exists("/opt/local"):
+                prefix = "/opt/local"   # MacPorts
+
+            if prefix:
+                env["BUILD_FLAGS"] += [ "-I" + prefix + "/include",
+                                        "-I" + prefix + "/include/freetype2",
+                                        "-I" + prefix + "/include/SDL2",
+                                        "-L" + prefix + "/lib" ]
+
             # Default paths for Xcode and a lucky GL/gl.h dropped by Mesa
             xcode_path = "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks"
             mesa_path = "/opt/local/include/GL/gl.h"
 
-            import os.path
+            # Command Line Tools SDK frameworks (no full Xcode.app required)
+            clt_fw = ""
+            try:
+                sdk = subprocess.check_output([ "xcrun", "--show-sdk-path" ], text=True).strip()
+                if sdk: clt_fw = sdk + "/System/Library/Frameworks"
+            except Exception:
+                pass
+
             if os.path.exists(xcode_path):
                 env["BUILD_FLAGS"] += ["-F" + xcode_path]
                 emsg = "\u001b[33mUsing OpenGL framework headers from Xcode.app"
+
+            elif clt_fw and os.path.exists(clt_fw + "/OpenGL.framework/Headers/gl.h"):
+
+                env["BUILD_FLAGS"] += [ "-F" + clt_fw ]
+                emsg = "\u001b[33mUsing OpenGL framework headers from the Command Line Tools SDK"
+
             elif os.path.exists(mesa_path):
                 env["BUILD_FLAGS"] += ["-D__MESA__"]
                 emsg = f"\u001b[33mUsing OpenGL header from {mesa_path}"
             else:
-                emsg = "\u001b[31mNo OpenGL headers found. Install Xcode for matching headers, or use 'sudo port install mesa' to get a GL/gl.h."
+
+                emsg = "\u001b[31mNo OpenGL headers found. Install the Command Line Tools (xcode-select --install) or Mesa."
                 fatal = 1
 
     # Print error message, if any
