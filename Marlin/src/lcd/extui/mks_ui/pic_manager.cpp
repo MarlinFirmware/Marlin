@@ -270,7 +270,7 @@ static FSTR_P const assets[] = {
       // Add to hash table, don't save "bmp_"
       strncpy(entry->name, pname + PIC_NAME_OFFSET, sizeof(entry->name));
       entry->addr = addr;
-      HASH_ADD_STR(pic_hash, pname, entry);
+      HASH_ADD_STR(pic_hash, name, entry);
 
       // Next tft internal flash addr
       addr += tsiz;
