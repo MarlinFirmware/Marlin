@@ -187,7 +187,12 @@ void GCodeParser::parse(char *p) {
       #endif
 
       // Bail if there's no command code number
-      if (!TERN(SIGNED_CODENUM, NUMERIC_SIGNED(*p), NUMERIC(*p))) {
+      bool valid_codenum = NUMERIC(*p);
+      #if ENABLED(SIGNED_CODENUM)
+        if (!valid_codenum && (*p == '-' || *p == '+'))
+          valid_codenum = NUMERIC(p[1]);
+      #endif
+      if (!valid_codenum) {
         if (E_TERN0(letter == 'T')) {
           p[0] = '*'; p[1] = '\0'; string_arg = p; // Convert 'T' alone into 'T*'
           command_letter = letter;
@@ -200,8 +205,11 @@ void GCodeParser::parse(char *p) {
       command_letter = letter;
 
       #if ENABLED(SIGNED_CODENUM)
-        int sign = 1; // Allow for a negative code like D-1 or T-1
-        if (*p == '-') { sign = -1; ++p; }
+        int sign = 1; // Allow for a signed code like D-1 or T+1
+        if (*p == '-' || *p == '+') {
+          if (*p == '-') sign = -1;
+          ++p;
+        }
       #endif
 
       // Get the code number - integer digits only

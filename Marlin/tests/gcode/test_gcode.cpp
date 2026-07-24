@@ -31,6 +31,36 @@ MARLIN_TEST(gcode, process_parsed_command) {
   suite.process_parsed_command(false);
 }
 
+#if ANY(SWITCHING_TOOLHEAD, MAGNETIC_SWITCHING_TOOLHEAD, ELECTROMAGNETIC_SWITCHING_TOOLHEAD)
+
+MARLIN_TEST(gcode, parse_explicit_positive_signed_code) {
+  char explicit_positive[] = "T+1";
+  parser.parse(explicit_positive);
+  TEST_ASSERT_EQUAL('T', parser.command_letter);
+  TEST_ASSERT_EQUAL(1, int16_t(parser.codenum));
+}
+
+MARLIN_TEST(gcode, parse_negative_signed_code) {
+  char negative[] = "T-1";
+  parser.parse(negative);
+  TEST_ASSERT_EQUAL('T', parser.command_letter);
+  TEST_ASSERT_EQUAL(-1, int16_t(parser.codenum));
+}
+
+MARLIN_TEST(gcode, reject_negative_sign_without_digits) {
+  char missing_digits[] = "M-";
+  parser.parse(missing_digits);
+  TEST_ASSERT_EQUAL('?', parser.command_letter);
+}
+
+MARLIN_TEST(gcode, reject_positive_sign_without_digits) {
+  char missing_digits[] = "M+";
+  parser.parse(missing_digits);
+  TEST_ASSERT_EQUAL('?', parser.command_letter);
+}
+
+#endif
+
 MARLIN_TEST(gcode, parse_g1_xz) {
   char current_command[] = "G0 X10 Z30";
   parser.command_letter = -128;
