@@ -679,7 +679,7 @@ private:
   // Probe feedrate can be hard-coded by configuration
   #define XY_PROBE_FEEDRATE_MM_S MMM_TO_MMS(XY_PROBE_FEEDRATE)
 #else
-  // Defer to Planner XY max feedrate, or 60 mm/s
+  // Defer to Homing XY feedrate, or 60 mm/s
   #if HAS_Y_AXIS
     #define XY_PROBE_FEEDRATE_MM_S MMM_TO_MMS((motion.homing_feedrate_mm_m.x + motion.homing_feedrate_mm_m.y) / 2)
   #elif HAS_X_AXIS
