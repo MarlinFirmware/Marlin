@@ -203,6 +203,18 @@ void DGUSDisplay::processRx() {
         |     DatagramLen  /  VPAdr  |
         |           Command          DataLen (in Words) */
         if (command == DGUS_CMD_READVAR) {
+          if (rx_datagram_len < 4) {
+            rx_datagram_state = DGUS_IDLE;
+            break;
+          }
+
+          const uint16_t dlen = uint16_t(tmp[2]) << 1,
+                         payload_len = rx_datagram_len - 4;
+          if (dlen < 2 || dlen != payload_len) {
+            rx_datagram_state = DGUS_IDLE;
+            break;
+          }
+
           const uint16_t vp = tmp[0] << 8 | tmp[1];
           DGUS_VP_Variable ramcopy;
           if (populate_VPVar(vp, &ramcopy)) {
