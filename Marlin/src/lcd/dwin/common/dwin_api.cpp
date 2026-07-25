@@ -46,7 +46,6 @@ void dwinSend(size_t &i) {
 
 // Handshake (1: Success, 0: Fail)
 bool dwinHandshake() {
-  static int recnum = 0;
   #ifndef LCD_BAUDRATE
     #define LCD_BAUDRATE 115200
   #endif
@@ -58,21 +57,22 @@ bool dwinHandshake() {
   dwinByte(i, 0x00);
   dwinSend(i);
 
-  while (LCD_SERIAL.available() > 0 && recnum < (signed)sizeof(databuf)) {
-    databuf[recnum] = LCD_SERIAL.read();
-    // ignore the invalid data
-    if (databuf[0] != FHONE) { // prevent the program from running.
-      if (recnum > 0) {
-        recnum = 0;
-        ZERO(databuf);
-      }
+  constexpr uint8_t handshake_len = 4;
+  uint8_t recnum = 0;
+  ZERO(databuf);
+  const millis_t response_timeout = millis() + 1000UL;
+  while (recnum < handshake_len && PENDING(millis(), response_timeout)) {
+    if (!LCD_SERIAL.available()) {
+      delay(1);
       continue;
     }
-    delay(10);
-    recnum++;
+
+    const uint8_t received = LCD_SERIAL.read();
+    if (!recnum && received != FHONE) continue;
+    databuf[recnum++] = received;
   }
 
-  return ( recnum >= 3
+  return ( recnum == handshake_len
         && databuf[0] == FHONE
         && databuf[1] == '\0'
         && databuf[2] == 'O'
