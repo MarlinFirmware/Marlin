@@ -515,55 +515,55 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
 
     DEBUG_POS("Start ST Tool-Change", current_position);
 
-    current_position.x = SUM_TERN(HAS_HOTEND_OFFSET, placexpos, hotend_offset[active_extruder].x);
+    motion.position.x = SUM_TERN(HAS_HOTEND_OFFSET, placexpos, motion.active_hotend_offset().x);
 
     DEBUG_ECHOLNPGM("(1) Place old tool ", active_extruder);
     DEBUG_POS("Move X SwitchPos", current_position);
 
     fast_line_to_current(X_AXIS);
 
-    current_position.y = SUM_TERN(HAS_HOTEND_OFFSET, SWITCHING_TOOLHEAD_Y_POS, hotend_offset[active_extruder].y) - (SWITCHING_TOOLHEAD_Y_CLEAR);
+    motion.position.y = SUM_TERN(HAS_HOTEND_OFFSET, SWITCHING_TOOLHEAD_Y_POS, motion.active_hotend_offset().y) - (SWITCHING_TOOLHEAD_Y_CLEAR);
 
     DEBUG_SYNCHRONIZE();
-    DEBUG_POS("Move Y SwitchPos - Y Clear", current_position);
+    DEBUG_POS("Move Y SwitchPos - Y Clear", motion.position);
 
     fast_line_to_current(Y_AXIS);  // move Y in front of the toolhead dock
 
     #if defined(SWITCHING_TOOLHEAD_Z_CLEAR)
-      current_position.z = SWITCHING_TOOLHEAD_Z_POS + (SWITCHING_TOOLHEAD_Z_CLEAR);
+      motion.position.z = SWITCHING_TOOLHEAD_Z_POS + (SWITCHING_TOOLHEAD_Z_CLEAR);
 
       DEBUG_SYNCHRONIZE();
-      DEBUG_POS("Move Z SwitchPos + Z Clear", current_position);
+      DEBUG_POS("Move Z SwitchPos + Z Clear", motion.position);
 
       fast_line_to_current(Z_AXIS);  // move Z on top of the toolhead dock
 
-      current_position.y = SUM_TERN(HAS_HOTEND_OFFSET, SWITCHING_TOOLHEAD_Y_POS, hotend_offset[active_extruder].y);
+      motion.position.y = SUM_TERN(HAS_HOTEND_OFFSET, SWITCHING_TOOLHEAD_Y_POS, motion.active_hotend_offset().y);
 
       DEBUG_SYNCHRONIZE();
-      DEBUG_POS("Move Y SwitchPos", current_position);
+      DEBUG_POS("Move Y SwitchPos", motion.position);
 
       fast_line_to_current(Y_AXIS);  // move Y to the toolhead dock
 
-      current_position.z = SUM_TERN(HAS_HOTEND_OFFSET, SWITCHING_TOOLHEAD_Z_POS, hotend_offset[active_extruder].z);
+      motion.position.z = SUM_TERN(HAS_HOTEND_OFFSET, SWITCHING_TOOLHEAD_Z_POS, motion.active_hotend_offset().z);
 
       DEBUG_SYNCHRONIZE();
-      DEBUG_POS("Move Z SwitchPos", current_position);
+      DEBUG_POS("Move Z SwitchPos", motion.position);
 
       slow_line_to_current(Z_AXIS);  // place tool in the toolhead dock
       
     #else
       #if defined(SWITCHING_TOOLHEAD_Z_POS)
-        current_position.z = SUM_TERN(HAS_HOTEND_OFFSET, SWITCHING_TOOLHEAD_Z_POS, hotend_offset[active_extruder].z);
+        motion.position.z = SUM_TERN(HAS_HOTEND_OFFSET, SWITCHING_TOOLHEAD_Z_POS, motion.active_hotend_offset().z);
 
         DEBUG_SYNCHRONIZE();
-        DEBUG_POS("Move Z SwitchPos", current_position);
+        DEBUG_POS("Move Z SwitchPos", motion.position);
 
         fast_line_to_current(Z_AXIS);  // move Z to the toolhead dock
       #endif
-      current_position.y = SUM_TERN(HAS_HOTEND_OFFSET, SWITCHING_TOOLHEAD_Y_POS, hotend_offset[active_extruder].y) - (SWITCHING_TOOLHEAD_Y_SECURITY);
+      motion.position.y = SUM_TERN(HAS_HOTEND_OFFSET, SWITCHING_TOOLHEAD_Y_POS, motion.active_hotend_offset().y) - (SWITCHING_TOOLHEAD_Y_SECURITY);
 
       DEBUG_SYNCHRONIZE();
-      DEBUG_POS("Move Y SwitchPos + Security", current_position);
+      DEBUG_POS("Move Y SwitchPos + Security", motion.position);
 
       slow_line_to_current(Y_AXIS);
     #endif
@@ -576,8 +576,8 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
     switching_toolhead_lock(false);
     safe_delay(500);
     #if !defined(SWITCHING_TOOLHEAD_Z_CLEAR)
-      current_position.y += (SWITCHING_TOOLHEAD_Y_SECURITY);
-      DEBUG_POS("Move Y SwitchPos", current_position);
+      motion.position.y += (SWITCHING_TOOLHEAD_Y_SECURITY);
+      DEBUG_POS("Move Y SwitchPos", motion.position);
       slow_line_to_current(Y_AXIS);
     #endif
 
@@ -586,7 +586,18 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
     safe_delay(200);
 
     #if defined(SWITCHING_TOOLHEAD_Z_CLEAR)
-      current_position.z += (SWITCHING_TOOLHEAD_Z_CLEAR);
+      motion.position.z += (SWITCHING_TOOLHEAD_Z_CLEAR);
+
+      DEBUG_SYNCHRONIZE();
+      DEBUG_POS("Move back Z Clear", motion.position);
+
+      slow_line_to_current(Z_AXIS); // move away from docked toolhead
+    #else
+      motion.position.y -= SWITCHING_TOOLHEAD_Y_CLEAR;
+
+      DEBUG_POS("Move back Y clear", motion.position);
+      slow_line_to_current(Y_AXIS); // move away from docked toolhead
+    #endif
 
       DEBUG_SYNCHRONIZE();
       DEBUG_POS("Move back Z Clear", current_position);
@@ -603,7 +614,7 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
 
     // 3. Move to the new toolhead
 
-    current_position.x = SUM_TERN(HAS_HOTEND_OFFSET, grabxpos, hotend_offset[active_extruder].x);
+    motion.position.x = SUM_TERN(HAS_HOTEND_OFFSET, grabxpos, motion.active_hotend_offset().x);
 
     DEBUG_SYNCHRONIZE();
     DEBUG_ECHOLNPGM("(3) Move to new toolhead position");
@@ -614,26 +625,26 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
     // 4. Grab and lock the new toolhead
 
     #if defined(SWITCHING_TOOLHEAD_Z_CLEAR)
-      current_position.z = SUM_TERN(HAS_HOTEND_OFFSET, SWITCHING_TOOLHEAD_Z_POS, hotend_offset[active_extruder].z);
+      motion.position.z = SUM_TERN(HAS_HOTEND_OFFSET, SWITCHING_TOOLHEAD_Z_POS, motion.active_hotend_offset().z);
 
       DEBUG_SYNCHRONIZE();
       DEBUG_ECHOLNPGM("(4) Grab and lock new toolhead");
-      DEBUG_POS("Move Z SwitchPos", current_position);
+      DEBUG_POS("Move Z SwitchPos", motion.position);
 
       slow_line_to_current(Z_AXIS);
     #else
-      current_position.y = SUM_TERN(HAS_HOTEND_OFFSET, SWITCHING_TOOLHEAD_Y_POS, hotend_offset[active_extruder].y) - SWITCHING_TOOLHEAD_Y_SECURITY;
+      motion.position.y = SUM_TERN(HAS_HOTEND_OFFSET, SWITCHING_TOOLHEAD_Y_POS, motion.active_hotend_offset().y) - SWITCHING_TOOLHEAD_Y_SECURITY;
 
       DEBUG_SYNCHRONIZE();
-      DEBUG_POS("Move Y SwitchPos + Security", current_position);
+      DEBUG_POS("Move Y SwitchPos + Security", motion.position);
 
       slow_line_to_current(Y_AXIS);
 
-      current_position.y = SUM_TERN(HAS_HOTEND_OFFSET, SWITCHING_TOOLHEAD_Y_POS, hotend_offset[active_extruder].y);
+      motion.position.y = SUM_TERN(HAS_HOTEND_OFFSET, SWITCHING_TOOLHEAD_Y_POS, motion.active_hotend_offset().y);
 
       DEBUG_SYNCHRONIZE();
       DEBUG_ECHOLNPGM("(4) Grab and lock new toolhead");
-      DEBUG_POS("Move Y SwitchPos", current_position);
+      DEBUG_POS("Move Y SwitchPos", motion.position);
 
       slow_line_to_current(Y_AXIS);
     #endif
@@ -648,20 +659,20 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
     safe_delay(500);
     #if defined(SWITCHING_TOOLHEAD_Z_CLEAR)
       #if HAS_HOTEND_OFFSET
-        current_position.z = SWITCHING_TOOLHEAD_Z_POS + hotend_offset[active_extruder].z - hotend_offset[new_tool].z + (SWITCHING_TOOLHEAD_Z_CLEAR);
+        motion.position.z = SWITCHING_TOOLHEAD_Z_POS + motion.active_hotend_offset().z - motion.hotend_offset[new_tool].z + (SWITCHING_TOOLHEAD_Z_CLEAR);
       #else
-        current_position.z = SWITCHING_TOOLHEAD_Z_POS + (SWITCHING_TOOLHEAD_Z_CLEAR)
+        motion.position.z = SWITCHING_TOOLHEAD_Z_POS + (SWITCHING_TOOLHEAD_Z_CLEAR)
       #endif
-      DEBUG_POS("Move back Z clear", current_position);
+      DEBUG_POS("Move back Z clear", motion.position);
       slow_line_to_current(Z_AXIS); // Move away from docked toolhead
 
-      current_position.y -= SWITCHING_TOOLHEAD_Y_CLEAR;
-      DEBUG_POS("Move back Y clear", current_position);
+      motion.position.y -= SWITCHING_TOOLHEAD_Y_CLEAR;
+      DEBUG_POS("Move back Y clear", motion.position);
       slow_line_to_current(Y_AXIS); // Move away from docked toolhead
 
     #else
-      current_position.y -= SWITCHING_TOOLHEAD_Y_CLEAR;
-      DEBUG_POS("Move back Y clear", current_position);
+      motion.position.y -= SWITCHING_TOOLHEAD_Y_CLEAR;
+      DEBUG_POS("Move back Y clear", motion.position);
       slow_line_to_current(Y_AXIS); // Move away from docked toolhead
     #endif
     planner.synchronize();        // Always sync the final move
@@ -1320,8 +1331,8 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
       // Raise to safe Z
       #if defined(SAFE_TOOLCHANGE_START_Z)
         if (can_move_away && TERN1(TOOLCHANGE_PARK, toolchange_settings.enable_park)) {
-          current_position.z = SAFE_TOOLCHANGE_START_Z;
-          TERN_(HAS_SOFTWARE_ENDSTOPS, NOMORE(current_position.z, soft_endstop.max.z));
+          motion.position.z = SAFE_TOOLCHANGE_START_Z;
+          TERN_(HAS_SOFTWARE_ENDSTOPS, NOMORE(motion.position.z, motion.soft_endstop.max.z));
           fast_line_to_current(Z_AXIS);
           planner.synchronize();
         }
@@ -1379,7 +1390,11 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
           current_position.z = _MIN(newz + toolchange_settings.z_raise, maxz);
           fast_line_to_current(Z_AXIS);
         }
-        move_nozzle_servo(new_tool);
+        #if SWITCHING_NOZZLE_TWO_SERVOS                                 // Switching Nozzle with two servos
+          lower_nozzle(new_tool);
+        #else
+          move_nozzle_servo(new_tool);
+        #endif
       #elif ANY(MECHANICAL_SWITCHING_EXTRUDER, MECHANICAL_SWITCHING_NOZZLE)
         if (!no_move) {
           current_position.z = _MIN(current_position.z + toolchange_settings.z_raise, _MIN(TERN(HAS_SOFTWARE_ENDSTOPS, soft_endstop.max.z, Z_MAX_POS), Z_MAX_POS));
@@ -1443,32 +1458,32 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
 
           #else
             // Move back to the original (or adjusted) position
-            DEBUG_POS("Move back", destination);
+            DEBUG_POS("Move back", motion.destination);
            
-            const xyze_pos_t toolchange_destination = destination;
+            const xyze_pos_t toolchange_destination = motion.destination;
 
             // Raise to safe Z
             #if defined(SAFE_TOOLCHANGE_START_Z)
               if (TERN1(TOOLCHANGE_PARK, toolchange_settings.enable_park)) {
-                do_blocking_move_to_z(SAFE_TOOLCHANGE_START_Z, planner.settings.max_feedrate_mm_s[Z_AXIS]);
+                motion.blocking_move_z(SAFE_TOOLCHANGE_START_Z, planner.settings.max_feedrate_mm_s[Z_AXIS]);
               }
             #endif
 
             #if ENABLED(TOOLCHANGE_PARK)
-              if (toolchange_settings.enable_park) do_blocking_move_to_xy_z(toolchange_destination, toolchange_destination.z, MMM_TO_MMS(TOOLCHANGE_PARK_XY_FEEDRATE));
+              if (toolchange_settings.enable_park) motion.blocking_move_xy_z(toolchange_destination, toolchange_destination.z, MMM_TO_MMS(TOOLCHANGE_PARK_XY_FEEDRATE));
             #else
-              do_blocking_move_to_xy(toolchange_destination, planner.settings.max_feedrate_mm_s[X_AXIS]);
+              motion.blocking_move_xy(toolchange_destination, planner.settings.max_feedrate_mm_s[X_AXIS]* 0.5f);
 
               // If using MECHANICAL_SWITCHING extruder/nozzle, set HOTEND_OFFSET in Z axis after running EVENT_GCODE_TOOLCHANGE below.
               #if NONE(MECHANICAL_SWITCHING_EXTRUDER, MECHANICAL_SWITCHING_NOZZLE)
-                do_blocking_move_to_z(toolchange_destination.z, planner.settings.max_feedrate_mm_s[Z_AXIS]);
+                motion.blocking_move_z(toolchange_destination.z, planner.settings.max_feedrate_mm_s[Z_AXIS]);
                 SECONDARY_AXIS_CODE(
-                  do_blocking_move_to_i(toolchange_destination.i, planner.settings.max_feedrate_mm_s[I_AXIS]),
-                  do_blocking_move_to_j(toolchange_destination.j, planner.settings.max_feedrate_mm_s[J_AXIS]),
-                  do_blocking_move_to_k(toolchange_destination.k, planner.settings.max_feedrate_mm_s[K_AXIS]),
-                  do_blocking_move_to_u(toolchange_destination.u, planner.settings.max_feedrate_mm_s[U_AXIS]),
-                  do_blocking_move_to_v(toolchange_destination.v, planner.settings.max_feedrate_mm_s[V_AXIS]),
-                  do_blocking_move_to_w(toolchange_destination.w, planner.settings.max_feedrate_mm_s[W_AXIS])
+                  motion.blocking_move_i(toolchange_destination.i, planner.settings.max_feedrate_mm_s[I_AXIS]),
+                  motion.blocking_move_j(toolchange_destination.j, planner.settings.max_feedrate_mm_s[J_AXIS]),
+                  motion.blocking_move_k(toolchange_destination.k, planner.settings.max_feedrate_mm_s[K_AXIS]),
+                  motion.blocking_move_u(toolchange_destination.u, planner.settings.max_feedrate_mm_s[U_AXIS]),
+                  motion.blocking_move_v(toolchange_destination.v, planner.settings.max_feedrate_mm_s[V_AXIS]),
+                  motion.blocking_move_w(toolchange_destination.w, planner.settings.max_feedrate_mm_s[W_AXIS])
                 );
               #endif
             #endif
