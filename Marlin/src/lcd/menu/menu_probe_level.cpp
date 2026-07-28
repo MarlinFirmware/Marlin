@@ -32,10 +32,6 @@
 
 #include "../../feature/bedlevel/bedlevel.h"
 
-#if ENABLED(BED_MESH_VIEWER)
-  extern void menu_bed_mesh_init();
-#endif
-
 #if HAS_LEVELING
   #include "../../module/planner.h" // for leveling_active, z_fade_height
 #endif
@@ -231,6 +227,10 @@
   }
 
 #endif // MESH_EDIT_MENU
+
+#if ENABLED(BED_MESH_VIEWER)
+  extern void menu_bed_mesh_init();
+#endif
 
 #if ENABLED(AUTO_BED_LEVELING_UBL)
   void _lcd_ubl_level_bed();
