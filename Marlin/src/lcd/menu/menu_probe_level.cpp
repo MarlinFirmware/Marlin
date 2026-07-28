@@ -32,6 +32,10 @@
 
 #include "../../feature/bedlevel/bedlevel.h"
 
+// --- DISCLOSURE OF CORE MOTION AND ROUTING FUNCTIONS (CRITICAL FOR MEGA1280) ---
+#include "../../../module/motion.h"
+#include "../../../module/planner.h"
+
 #if HAS_LEVELING
   #include "../../module/planner.h" // for leveling_active, z_fade_height
 #endif
@@ -47,6 +51,11 @@
 #if ALL(TOUCH_SCREEN, HAS_GRAPHICAL_TFT)
   #include "../tft/tft.h"
   #include "../tft/touch.h"
+#endif
+
+// --- ISOLATED AND PROTECTED ENCODER FUNCTION PROTOTYPE ---
+#if ENABLED(BED_MESH_VIEWER)
+  extern void menu_bed_mesh_init();
 #endif
 
 #if ENABLED(LCD_BED_LEVELING) && ANY(PROBE_MANUALLY, MESH_BED_LEVELING)
