@@ -301,10 +301,10 @@ void menu_probe_level() {
 
       // >>> REAL-TIME PLATE MAP INSERTION IN MICRON <<<
       #if ENABLED(BED_MESH_VIEWER)
-        if (is_valid) {
-       // The MENU_ITEM macro recognizes the LSTR object and applies the correct localization
-       MENU_ITEM(function, MSG_BED_MESH_VIEWER, menu_bed_mesh_init);
-       }
+        // Wrapped with TERN to ensure compiled safety even if HAS_LEVELING is temporarily masked by the environment
+        if (TERN0(HAS_LEVELING, is_valid)) {
+          MENU_ITEM(function, MSG_BED_MESH_VIEWER, menu_bed_mesh_init);
+        }
       #endif
 
       //
