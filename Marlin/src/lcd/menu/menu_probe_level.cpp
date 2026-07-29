@@ -250,9 +250,9 @@ extern bool all_axes_trusted();
 void menu_probe_level() {
   const bool can_babystep_z = TERN0(BABYSTEP_ZPROBE_OFFSET, babystep.can_babystep(Z_AXIS));
 
-  // --- SEZIONE COERENTE: USA TERN0 SULLE FUNZIONI DI MOVIMENTO ---
+  // --- CLEAN PREPROCESSOR BLOCK: HARD-CODED FALLBACKS TO PREVENT GCC COMPILATION ERRORS ---
   #if HAS_LEVELING
-    const bool is_homed = TERN0(HAS_LEVELING, all_axes_homed()),
+    const bool is_homed = all_axes_homed(),
                is_valid = leveling_is_valid();
   #else
     const bool is_homed = false,
@@ -260,12 +260,17 @@ void menu_probe_level() {
   #endif
 
   #if NONE(PROBE_MANUALLY, MESH_BED_LEVELING)
-    const bool is_trusted = TERN0(HAS_LEVELING, all_axes_trusted());
+    #if HAS_LEVELING
+      const bool is_trusted = all_axes_trusted();
+    #else
+      const bool is_trusted = false;
+    #endif
   #else
     const bool is_trusted = true;
   #endif
 
   START_MENU();
+
 
   //
   // ^ Main
