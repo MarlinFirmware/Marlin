@@ -418,6 +418,7 @@ namespace LanguageNarrow_en {
   LSTR MSG_BAD_HEATER_ID                  = _UxGT("Bad extruder.");
   LSTR MSG_TEMP_TOO_HIGH                  = _UxGT("Temperature too high.");
   LSTR MSG_TEMP_TOO_LOW                   = _UxGT("Temperature too low");
+  LSTR DGUS_MSG_TEMP_TOO_LOW              = _UxGT("Err: Temp Too Low");
 
   LSTR MSG_PID_BAD_HEATER_ID              = _UxGT("Autotune failed! Bad extruder.");
   LSTR MSG_PID_TEMP_TOO_HIGH              = _UxGT("Autotune failed! Temperature too high.");

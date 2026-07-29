@@ -395,6 +395,7 @@ namespace LanguageNarrow_it {
   LSTR MSG_BAD_HEATER_ID                  = _UxGT("Estrusore invalido.");
   LSTR MSG_TEMP_TOO_HIGH                  = _UxGT("Temp.troppo alta.");
   LSTR MSG_TEMP_TOO_LOW                   = _UxGT("Temp. troppo bassa");
+  LSTR DGUS_MSG_TEMP_TOO_LOW              = _UxGT("Err: Temp Troppo Bassa");
 
   LSTR MSG_PID_BAD_HEATER_ID              = _UxGT("Calibrazione fallita! Estrusore errato.");
   LSTR MSG_PID_TEMP_TOO_HIGH              = _UxGT("Calibrazione fallita! Temperatura troppo alta.");
