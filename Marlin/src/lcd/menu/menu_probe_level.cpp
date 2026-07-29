@@ -54,13 +54,9 @@
   extern void menu_bed_mesh_init();
 #endif
 
-// --- EXTERNAL MARLIN CORE CORE FUNCTIONS EXPOSURE (FIXES ALL_AXES SCOPE ON CI) ---
-extern bool all_axes_homed();
-extern bool all_axes_trusted();
-
 #if ENABLED(LCD_BED_LEVELING) && ANY(PROBE_MANUALLY, MESH_BED_LEVELING)
 
-  #include "../../module/planner.h"
+  #include "../../module/motion.h"
   #include "../../gcode/queue.h"
 
   //
@@ -250,23 +246,14 @@ extern bool all_axes_trusted();
 void menu_probe_level() {
   const bool can_babystep_z = TERN0(BABYSTEP_ZPROBE_OFFSET, babystep.can_babystep(Z_AXIS));
 
-  // --- CLEAN PREPROCESSOR BLOCK: HARD-CODED FALLBACKS TO PREVENT GCC COMPILATION ERRORS ---
+  // --- STRUTTURA NATIVA RIPRISTINATA (EVITA I CONFLITTI SULLE ALTRE SCHEDE) ---
   #if HAS_LEVELING
     const bool is_homed = all_axes_homed(),
                is_valid = leveling_is_valid();
-  #else
-    const bool is_homed = false,
-               is_valid = false;
   #endif
 
   #if NONE(PROBE_MANUALLY, MESH_BED_LEVELING)
-    #if HAS_LEVELING
-      const bool is_trusted = all_axes_trusted();
-    #else
-      const bool is_trusted = false;
-    #endif
-  #else
-    const bool is_trusted = true;
+    const bool is_trusted = all_axes_trusted();
   #endif
 
   START_MENU();
