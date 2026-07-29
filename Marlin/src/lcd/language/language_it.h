@@ -257,6 +257,7 @@ namespace LanguageNarrow_it {
   LSTR MSG_NEXT_CORNER                    = _UxGT("Prossimo punto");                           // Next Corner
   LSTR MSG_MESH_EDITOR                    = _UxGT("Editor mesh");                              // Mesh Editor
   LSTR MSG_EDIT_MESH                      = _UxGT("Modifica mesh");                            // Edit Mesh
+  LSTR MSG_BED_MESH_VIEWER                = _UxGT("Mappa Piatto");
   LSTR MSG_EDITING_STOPPED                = _UxGT("Modif. mesh fermata");                      // Mesh Editing Stopped
   LSTR MSG_PROBING_POINT                  = _UxGT("Punto sondato");                            // Probing Point
   LSTR MSG_MESH_X                         = _UxGT("Indice X");                                 // Index X
