@@ -26,6 +26,11 @@
 
 #include "DGUSRxHandler.h"
 
+// Fix for pre-existing Marlin bug on DGUS_MSG_TEMP_TOO_LOW reference
+#ifndef DGUS_MSG_TEMP_TOO_LOW
+  #define DGUS_MSG_TEMP_TOO_LOW _UxGT("Err: Temp Too Low")
+#endif
+
 #include "DGUSScreenHandler.h"
 #include "config/DGUS_ScreenID.h"
 
