@@ -20,6 +20,7 @@
  *
  */
 
+
 //
 // Probe and Level (Calibrate?) Menu
 //
@@ -31,6 +32,10 @@
 #include "menu_item.h"
 
 #include "../../feature/bedlevel/bedlevel.h"
+
+// --- GLOBAL MOTION INCLUDES: SOLVES VISIBILITY FOR ALL LEVELING FLAVORS (UBL/BILINEAR/MANUAL) ---
+#include "../../module/motion.h"
+#include "../../module/planner.h"
 
 #if HAS_LEVELING
   #include "../../module/planner.h" // for leveling_active, z_fade_height
@@ -54,10 +59,8 @@
   extern void menu_bed_mesh_init();
 #endif
 
-// --- CRITICAL MARLIN CONDITION BLOCK - DO NOT CLOSE OR INTERRUPT ---
 #if ENABLED(LCD_BED_LEVELING) && ANY(PROBE_MANUALLY, MESH_BED_LEVELING)
 
-  #include "../../module/motion.h"
   #include "../../gcode/queue.h"
 
   //
