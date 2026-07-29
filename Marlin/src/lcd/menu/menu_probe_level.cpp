@@ -32,6 +32,8 @@
 
 #include "../../feature/bedlevel/bedlevel.h"
 
+#include "../../module/motion.h"
+
 #if HAS_LEVELING
   #include "../../module/planner.h" // for leveling_active, z_fade_height
 #endif
@@ -60,7 +62,6 @@ extern bool all_axes_trusted();
 
 #if ENABLED(LCD_BED_LEVELING) && ANY(PROBE_MANUALLY, MESH_BED_LEVELING)
 
-  #include "../../module/motion.h"
   #include "../../module/planner.h"
   #include "../../gcode/queue.h"
 
