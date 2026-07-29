@@ -233,9 +233,13 @@
 
 #endif // MESH_EDIT_MENU
 
-#if ENABLED(BED_MESH_VIEWER)
-  extern void menu_bed_mesh_init();
-#endif
+  // >>> INSERIMENTO MAPPA PIATTO REAL-TIME IN MICRON <<<
+  #if ENABLED(BED_MESH_VIEWER)
+    if (is_valid) {
+    // La macro MENU_ITEM riconosce l'oggetto LSTR e applica la localizzazione corretta
+    MENU_ITEM(function, MSG_BED_MESH_VIEWER, menu_bed_mesh_init);
+   }
+  #endif
 
 #if ENABLED(AUTO_BED_LEVELING_UBL)
   void _lcd_ubl_level_bed();
