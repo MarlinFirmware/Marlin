@@ -246,17 +246,24 @@
 void menu_probe_level() {
   const bool can_babystep_z = TERN0(BABYSTEP_ZPROBE_OFFSET, babystep.can_babystep(Z_AXIS));
 
-  // --- STRUTTURA NATIVA RIPRISTINATA (EVITA I CONFLITTI SULLE ALTRE SCHEDE) ---
+  // --- INITIALIZATION WITH COMPILATION FALLBACKS ---
+  bool is_homed = false, is_valid = false, is_trusted = true;
+
   #if HAS_LEVELING
-    const bool is_homed = all_axes_homed(),
-               is_valid = leveling_is_valid();
+    is_homed = all_axes_homed();
+    is_valid = leveling_is_valid();
   #endif
 
   #if NONE(PROBE_MANUALLY, MESH_BED_LEVELING)
-    const bool is_trusted = all_axes_trusted();
+    #if HAS_LEVELING
+      is_trusted = all_axes_trusted();
+    #else
+      is_trusted = false;
+    #endif
   #endif
 
   START_MENU();
+
 
 
   //
