@@ -32,7 +32,7 @@
 
 #include "../../feature/bedlevel/bedlevel.h"
 
-// --- DISCLOSURE OF CORE MOTION AND ROUTING FUNCTIONS (CRITICAL FOR MEGA1280) ---
+// --- MARLIN OFFICIAL DIRECT SOURCE PATHS (FIXES BOTH PC AND GITHUB CORES) ---
 #include "../../module/motion.h"
 #include "../../module/planner.h"
 
@@ -53,7 +53,7 @@
   #include "../tft/touch.h"
 #endif
 
-// --- ISOLATED AND PROTECTED ENCODER FUNCTION PROTOTYPE ---
+// --- ISOLATED AND PROTECTED MESH MAP PROTOTYPE ---
 #if ENABLED(BED_MESH_VIEWER)
   extern void menu_bed_mesh_init();
 #endif
