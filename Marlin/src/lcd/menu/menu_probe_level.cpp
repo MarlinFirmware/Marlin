@@ -49,10 +49,6 @@
   #include "../tft/touch.h"
 #endif
 
-// --- GLOBAL MOTION INCLUDES: VISIBLE TO ALL CONFIGURATIONS (FIXES INLINE SCOPE) ---
-#include "../../module/motion.h"
-#include "../../module/planner.h"
-
 // --- PROTECTED PROTOTYPE FOR GRAPHICAL REAL-TIME MAP ---
 #if ENABLED(BED_MESH_VIEWER)
   extern void menu_bed_mesh_init();
@@ -65,6 +61,7 @@ extern bool all_axes_trusted();
 #if ENABLED(LCD_BED_LEVELING) && ANY(PROBE_MANUALLY, MESH_BED_LEVELING)
 
   #include "../../module/motion.h"
+  #include "../../module/planner.h"
   #include "../../gcode/queue.h"
 
   //
