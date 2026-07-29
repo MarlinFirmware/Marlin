@@ -252,14 +252,19 @@ extern bool all_axes_trusted();
 void menu_probe_level() {
   const bool can_babystep_z = TERN0(BABYSTEP_ZPROBE_OFFSET, babystep.can_babystep(Z_AXIS));
 
-  // --- SEZIONE NATIVA DI MARLIN: ISOLA LE CHIAMATE SE IL LIVELLAMENTO È SPENTO ---
+  // --- DEFINIZIONE VARIABILI CON FALLBACK SICURO IN ASSENZA DI LIVELLAMENTO ---
   #if HAS_LEVELING
     const bool is_homed = all_axes_homed(),
                is_valid = leveling_is_valid();
+  #else
+    const bool is_homed = false,
+               is_valid = false;
   #endif
 
   #if NONE(PROBE_MANUALLY, MESH_BED_LEVELING)
     const bool is_trusted = all_axes_trusted();
+  #else
+    const bool is_trusted = true;
   #endif
 
   START_MENU();
