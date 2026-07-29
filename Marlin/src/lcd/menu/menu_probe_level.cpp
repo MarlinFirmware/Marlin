@@ -250,10 +250,20 @@
 void menu_probe_level() {
   const bool can_babystep_z = TERN0(BABYSTEP_ZPROBE_OFFSET, babystep.can_babystep(Z_AXIS));
 
-  // --- PROTECTED VARIABLE DECLARATIONS TO FIX CROSS-PLATFORM SCOPE FAILURE ---
-  const bool is_homed   = TERN0(HAS_LEVELING, all_axes_homed()),
-             is_valid   = TERN0(HAS_LEVELING, leveling_is_valid()),
-             is_trusted = TERN(NONE(PROBE_MANUALLY, MESH_BED_LEVELING), all_axes_trusted(), true);
+  // --- STANDARD PREPROCESSOR BLOCKS TO PROTECT VARIABLE SCOPE ---
+  #if HAS_LEVELING
+    const bool is_homed = all_axes_homed(),
+               is_valid = leveling_is_valid();
+  #else
+    const bool is_homed = false,
+               is_valid = false;
+  #endif
+
+  #if NONE(PROBE_MANUALLY, MESH_BED_LEVELING)
+    const bool is_trusted = all_axes_trusted();
+  #else
+    const bool is_trusted = true;
+  #endif
 
   START_MENU();
 
