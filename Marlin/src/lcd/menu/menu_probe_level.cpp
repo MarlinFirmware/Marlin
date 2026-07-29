@@ -58,6 +58,10 @@
   extern void menu_bed_mesh_init();
 #endif
 
+// --- EXTERNAL MARLIN CORE CORE FUNCTIONS EXPOSURE (FIXES ALL_AXES SCOPE ON CI) ---
+extern bool all_axes_homed();
+extern bool all_axes_trusted();
+
 #if ENABLED(LCD_BED_LEVELING) && ANY(PROBE_MANUALLY, MESH_BED_LEVELING)
 
   #include "../../module/motion.h"
