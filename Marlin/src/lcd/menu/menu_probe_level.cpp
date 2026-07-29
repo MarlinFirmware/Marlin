@@ -33,11 +33,9 @@
 
 #include "../../feature/bedlevel/bedlevel.h"
 
-// --- GLOBAL MOTION INCLUDES: SOLVES VISIBILITY FOR ALL LEVELING FLAVORS (UBL/BILINEAR/MANUAL) ---
-#include "../../module/motion.h"
-#include "../../module/planner.h"
-
+// --- MARLIN STANDARD LOGICAL CONDITION FOR MOTION CORE INCLUSIONS ---
 #if HAS_LEVELING
+  #include "../../module/motion.h"
   #include "../../module/planner.h" // for leveling_active, z_fade_height
 #endif
 
