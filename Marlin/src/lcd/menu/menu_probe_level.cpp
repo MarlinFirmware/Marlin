@@ -33,8 +33,8 @@
 #include "../../feature/bedlevel/bedlevel.h"
 
 // --- DISCLOSURE OF CORE MOTION AND ROUTING FUNCTIONS (CRITICAL FOR MEGA1280) ---
-#include "../../../module/motion.h"
-#include "../../../module/planner.h"
+#include "../../module/motion.h"
+#include "../../module/planner.h"
 
 #if HAS_LEVELING
   #include "../../module/planner.h" // for leveling_active, z_fade_height
