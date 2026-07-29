@@ -30,10 +30,6 @@
 
 #include "menu_item.h"
 
-// --- GLOBAL MOTION INCLUDES: FIXES SIMULATOR SCOPE ---
-#include "../../module/motion.h"
-#include "../../module/planner.h"
-
 #include "../../feature/bedlevel/bedlevel.h"
 
 #if HAS_LEVELING
@@ -52,6 +48,10 @@
   #include "../tft/tft.h"
   #include "../tft/touch.h"
 #endif
+
+// --- GLOBAL MOTION INCLUDES: VISIBLE TO ALL CONFIGURATIONS (FIXES INLINE SCOPE) ---
+#include "../../module/motion.h"
+#include "../../module/planner.h"
 
 // --- PROTECTED PROTOTYPE FOR GRAPHICAL REAL-TIME MAP ---
 #if ENABLED(BED_MESH_VIEWER)
@@ -254,19 +254,13 @@ extern bool all_axes_trusted();
 void menu_probe_level() {
   const bool can_babystep_z = TERN0(BABYSTEP_ZPROBE_OFFSET, babystep.can_babystep(Z_AXIS));
 
-  // --- STANDARD PREPROCESSOR BLOCKS TO PROTECT VARIABLE SCOPE ---
   #if HAS_LEVELING
-    const bool is_homed = all_axes_homed(),
+    const bool is_homed = motion.all_axes_homed(),
                is_valid = leveling_is_valid();
-  #else
-    const bool is_homed = false,
-               is_valid = false;
   #endif
 
   #if NONE(PROBE_MANUALLY, MESH_BED_LEVELING)
-    const bool is_trusted = all_axes_trusted();
-  #else
-    const bool is_trusted = true;
+    const bool is_trusted = motion.all_axes_trusted();
   #endif
 
   START_MENU();
