@@ -166,20 +166,17 @@ void menu_bed_mesh_draw() {
       const int16_t step_micron = 25;
     #endif
 
-    char step_buf[6];
-    itoa(step_micron, step_buf, 10);
+    // Buffer to store the formatted scale string
+    char step_buf[20]; 
+    
+    // Fixed: Uses the strict hex escape \xB5 for the 'µ' symbol to prevent UTF-8 dual-byte encoding artifacts
+    sprintf_P(step_buf, PSTR("1 Px = %d \xB5m"), step_micron);
 
-    u8g.setFont(u8g_font_5x7);
-    u8g.drawStr(6, 60, "1 Px =");
-    u8g.drawStr(44, 60, step_buf);
-
-    // Pixel-by-pixel micro-drawing of the micro symbol 'µm' due to lack of character map support on basic LCD fonts
-    int label_offset_x = 44 + (strlen(step_buf) * 6);
-    u8g.drawVLine(label_offset_x, 56, 4);      // Left leg
-    u8g.drawVLine(label_offset_x + 2, 56, 4);  // Right leg
-    u8g.drawHLine(label_offset_x, 59, 3);      // Bottom join
-    u8g.drawPixel(label_offset_x - 1, 59);     // Entry tick
-    u8g.drawStr(label_offset_x + 4, 60, "m");  // Appends final 'm'
+    // Switch to the official U8glib 6x12 font which includes full Latin-1 character map support
+    u8g.setFont(u8g_font_6x12);
+    
+    // Draw the unified scale string at a calibrated Y-axis baseline to prevent bottom bezel clipping
+    u8g.drawStr(6, 62, step_buf);
 
     // 4. INTERNATIONAL VERTICAL EXIT COMBINED ICON STRUCTURE (BOTTOM RIGHT)
     const int exit_x = 112; 
