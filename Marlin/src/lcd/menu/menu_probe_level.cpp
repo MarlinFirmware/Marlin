@@ -32,8 +32,6 @@
 
 #include "../../feature/bedlevel/bedlevel.h"
 
-#include "../../module/motion.h"
-
 #if HAS_LEVELING
   #include "../../module/planner.h" // for leveling_active, z_fade_height
 #endif
@@ -252,9 +250,9 @@ extern bool all_axes_trusted();
 void menu_probe_level() {
   const bool can_babystep_z = TERN0(BABYSTEP_ZPROBE_OFFSET, babystep.can_babystep(Z_AXIS));
 
-  // --- DEFINIZIONE VARIABILI CON FALLBACK SICURO IN ASSENZA DI LIVELLAMENTO ---
+  // --- SEZIONE COERENTE: USA TERN0 SULLE FUNZIONI DI MOVIMENTO ---
   #if HAS_LEVELING
-    const bool is_homed = all_axes_homed(),
+    const bool is_homed = TERN0(HAS_LEVELING, all_axes_homed()),
                is_valid = leveling_is_valid();
   #else
     const bool is_homed = false,
@@ -262,7 +260,7 @@ void menu_probe_level() {
   #endif
 
   #if NONE(PROBE_MANUALLY, MESH_BED_LEVELING)
-    const bool is_trusted = all_axes_trusted();
+    const bool is_trusted = TERN0(HAS_LEVELING, all_axes_trusted());
   #else
     const bool is_trusted = true;
   #endif
