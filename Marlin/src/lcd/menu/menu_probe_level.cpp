@@ -32,10 +32,6 @@
 
 #include "../../feature/bedlevel/bedlevel.h"
 
-// --- MARLIN OFFICIAL DIRECT SOURCE PATHS (FIXES BOTH PC AND GITHUB CORES) ---
-#include "../../module/motion.h"
-#include "../../module/planner.h"
-
 #if HAS_LEVELING
   #include "../../module/planner.h" // for leveling_active, z_fade_height
 #endif
@@ -53,11 +49,12 @@
   #include "../tft/touch.h"
 #endif
 
-// --- ISOLATED AND PROTECTED MESH MAP PROTOTYPE ---
+// --- PROTECTED PROTOTYPE FOR GRAPHICAL REAL-TIME MAP ---
 #if ENABLED(BED_MESH_VIEWER)
   extern void menu_bed_mesh_init();
 #endif
 
+// --- CRITICAL MARLIN CONDITION BLOCK - DO NOT CLOSE OR INTERRUPT ---
 #if ENABLED(LCD_BED_LEVELING) && ANY(PROBE_MANUALLY, MESH_BED_LEVELING)
 
   #include "../../module/motion.h"
