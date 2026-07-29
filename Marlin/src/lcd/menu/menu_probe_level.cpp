@@ -228,6 +228,10 @@
 
 #endif // MESH_EDIT_MENU
 
+#if ENABLED(BED_MESH_VIEWER)
+  extern void menu_bed_mesh_init();
+#endif
+
 #if ENABLED(AUTO_BED_LEVELING_UBL)
   void _lcd_ubl_level_bed();
 #endif
@@ -293,6 +297,16 @@ void menu_probe_level() {
       //
       #if ENABLED(MESH_EDIT_MENU)
         if (is_valid) SUBMENU(MSG_EDIT_MESH, menu_edit_mesh);
+      #endif
+
+      // 
+      // >>> REAL-TIME PLATE MAP INSERTION IN MICRON <<<
+      // 
+      #if ENABLED(BED_MESH_VIEWER)
+        if (is_valid) {
+        // The MENU_ITEM macro recognizes the LSTR object and applies the correct localization
+        MENU_ITEM(function, MSG_BED_MESH_VIEWER, menu_bed_mesh_init);
+        }
       #endif
 
       //
