@@ -30,6 +30,10 @@
 
 #include "menu_item.h"
 
+// --- GLOBAL MOTION INCLUDES: FIXES SIMULATOR SCOPE ---
+#include "../../module/motion.h"
+#include "../../module/planner.h"
+
 #include "../../feature/bedlevel/bedlevel.h"
 
 #if HAS_LEVELING
@@ -304,9 +308,8 @@ void menu_probe_level() {
       // >>> REAL-TIME PLATE MAP INSERTION IN MICRON <<<
       //
       #if ENABLED(BED_MESH_VIEWER)
-        // Using TERN0 protects the build if HAS_LEVELING is turned off on other GitHub targets
+        // Wrapped with TERN0 to ensure compile-time safety across all automated targets
         if (TERN0(HAS_LEVELING, is_valid)) {
-          // The MENU_ITEM macro recognizes the LSTR object and applies the correct localization
           MENU_ITEM(function, MSG_BED_MESH_VIEWER, menu_bed_mesh_init);
         }
       #endif
