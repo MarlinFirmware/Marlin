@@ -300,11 +300,14 @@ void menu_probe_level() {
         if (is_valid) SUBMENU(MSG_EDIT_MESH, menu_edit_mesh);
       #endif
 
+      //
       // >>> REAL-TIME PLATE MAP INSERTION IN MICRON <<<
+      //
       #if ENABLED(BED_MESH_VIEWER)
-        if (is_valid) {
-        // The MENU_ITEM macro recognizes the LSTR object and applies the correct localization
-        MENU_ITEM(function, MSG_BED_MESH_VIEWER, menu_bed_mesh_init);
+        // Using TERN0 protects the build if HAS_LEVELING is turned off on other GitHub targets
+        if (TERN0(HAS_LEVELING, is_valid)) {
+          // The MENU_ITEM macro recognizes the LSTR object and applies the correct localization
+          MENU_ITEM(function, MSG_BED_MESH_VIEWER, menu_bed_mesh_init);
         }
       #endif
 
