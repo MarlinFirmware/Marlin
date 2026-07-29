@@ -20,7 +20,6 @@
  *
  */
 
-
 //
 // Probe and Level (Calibrate?) Menu
 //
@@ -33,9 +32,7 @@
 
 #include "../../feature/bedlevel/bedlevel.h"
 
-// --- MARLIN STANDARD LOGICAL CONDITION FOR MOTION CORE INCLUSIONS ---
 #if HAS_LEVELING
-  #include "../../module/motion.h"
   #include "../../module/planner.h" // for leveling_active, z_fade_height
 #endif
 
@@ -59,6 +56,7 @@
 
 #if ENABLED(LCD_BED_LEVELING) && ANY(PROBE_MANUALLY, MESH_BED_LEVELING)
 
+  #include "../../module/motion.h"
   #include "../../gcode/queue.h"
 
   //
@@ -131,7 +129,7 @@
     // Encoder knob or keypad buttons adjust the Z position
     //
     if (ui.encoderPosition) {
-      const float z = current_position.z + float(int32_t(ui.encoderPosition)) * (MESH_EDIT_Z_STEP);
+      const float z = motion.position.z + float(int32_t(ui.encoderPosition)) * (MESH_EDIT_Z_STEP);
       line_to_z(constrain(z, -(LCD_PROBE_Z_RANGE) * 0.5f, (LCD_PROBE_Z_RANGE) * 0.5f));
       ui.refresh(LCDVIEW_CALL_REDRAW_NEXT);
       ui.encoderPosition = 0;
@@ -141,7 +139,7 @@
     // Draw on first display, then only on Z change
     //
     if (ui.should_draw()) {
-      const float v = current_position.z;
+      const float v = motion.position.z;
       MenuEditItemBase::draw_edit_screen(GET_TEXT_F(MSG_MOVE_Z), ftostr43sign(v + (v < 0 ? -0.0001f : 0.0001f), '+'));
     }
   }
@@ -197,7 +195,7 @@
   //
   void _lcd_level_bed_homing() {
     _lcd_draw_homing();
-    if (all_axes_homed()) ui.goto_screen(_lcd_level_bed_homing_done);
+    if (motion.all_axes_homed()) ui.goto_screen(_lcd_level_bed_homing_done);
   }
 
   #if ENABLED(PROBE_MANUALLY)
@@ -209,7 +207,7 @@
   //
   void _lcd_level_bed_continue() {
     ui.defer_status_screen();
-    set_all_unhomed();
+    motion.set_all_unhomed();
     ui.goto_screen(_lcd_level_bed_homing);
     queue.inject_P(G28_STR);
   }
@@ -219,8 +217,8 @@
 #if ENABLED(MESH_EDIT_MENU)
 
   inline void refresh_planner() {
-    set_current_from_steppers_for_axis(ALL_AXES_ENUM);
-    sync_plan_position();
+    motion.set_current_from_steppers_for_axis(ALL_AXES_ENUM);
+    motion.sync_plan_position();
   }
 
   void menu_edit_mesh() {
@@ -253,12 +251,12 @@ void menu_probe_level() {
   const bool can_babystep_z = TERN0(BABYSTEP_ZPROBE_OFFSET, babystep.can_babystep(Z_AXIS));
 
   #if HAS_LEVELING
-    const bool is_homed = all_axes_homed(),
+    const bool is_homed = motion.all_axes_homed(),
                is_valid = leveling_is_valid();
   #endif
 
   #if NONE(PROBE_MANUALLY, MESH_BED_LEVELING)
-    const bool is_trusted = all_axes_trusted();
+    const bool is_trusted = motion.all_axes_trusted();
   #endif
 
   START_MENU();
@@ -304,14 +302,6 @@ void menu_probe_level() {
       //
       #if ENABLED(MESH_EDIT_MENU)
         if (is_valid) SUBMENU(MSG_EDIT_MESH, menu_edit_mesh);
-      #endif
-
-      // >>> REAL-TIME PLATE MAP INSERTION IN MICRON <<<
-      #if ENABLED(BED_MESH_VIEWER)
-        // Wrapped with TERN to ensure compiled safety even if HAS_LEVELING is temporarily masked by the environment
-        if (TERN0(HAS_LEVELING, is_valid)) {
-          MENU_ITEM(function, MSG_BED_MESH_VIEWER, menu_bed_mesh_init);
-        }
       #endif
 
       //

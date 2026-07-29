@@ -33,11 +33,6 @@
 #include "../../module/planner.h"
 #include "../../module/stepper.h"
 
-// Backup definition for pre-existing Marlin filament menu bug
-#ifndef MSG_MOTION_DISTANCE_MM
-  #define MSG_MOTION_DISTANCE_MM _UxGT("Distance mm")
-#endif
-
 #if HAS_VOLUMETRIC_EXTRUSION
   #include "../../gcode/parser.h"
 #endif
