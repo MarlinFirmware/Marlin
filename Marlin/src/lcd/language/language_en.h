@@ -1179,3 +1179,6 @@ namespace LanguageTall_en {
 namespace Language_en {
   using namespace LanguageTall_en;
 }
+
+// Global definition to fix pre-existing compilation bug on filament menu
+#define MSG_MOTION_DISTANCE_MM "Distance mm"
