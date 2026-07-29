@@ -46,6 +46,10 @@
   #define MEDIA_TYPE_IT "Media"
 #endif
 
+#ifndef MSG_MOTION_DISTANCE_MM
+  #define MSG_MOTION_DISTANCE_MM "Distanza mm"
+#endif
+
 namespace LanguageNarrow_it {
   using namespace Language_en; // Inherit undefined strings from English
 

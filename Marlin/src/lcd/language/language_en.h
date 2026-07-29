@@ -70,6 +70,10 @@
   #define CUSTOM_MENU_MAIN_TITLE ""
 #endif
 
+#ifndef MSG_MOTION_DISTANCE_MM
+  #define MSG_MOTION_DISTANCE_MM "Distance mm"
+#endif
+
 namespace LanguageNarrow_en {
   constexpr uint8_t CHARSIZE              = 2;
   LSTR LANGUAGE                           = _UxGT("English");
