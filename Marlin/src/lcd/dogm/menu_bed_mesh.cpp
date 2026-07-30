@@ -172,11 +172,11 @@ void menu_bed_mesh_draw() {
     // Fixed: Uses the strict hex escape \xB5 for the 'µ' symbol to prevent UTF-8 dual-byte encoding artifacts
     sprintf_P(step_buf, PSTR("1 Px = %d \xB5m"), step_micron);
 
-    // Switch to the official U8glib 6x12 font which includes full Latin-1 character map support
-    u8g.setFont(u8g_font_6x12);
+    // Switch to the official U8glib 7x14 font which includes full Latin-1 character map support
+    u8g.setFont(u8g_font_7x14);
     
     // Draw the unified scale string at a calibrated Y-axis baseline to prevent bottom bezel clipping
-    u8g.drawStr(6, 62, step_buf);
+    u8g.drawStr(6, 60, step_buf);
 
     // 4. INTERNATIONAL VERTICAL EXIT COMBINED ICON STRUCTURE (BOTTOM RIGHT)
     const int exit_x = 112; 
