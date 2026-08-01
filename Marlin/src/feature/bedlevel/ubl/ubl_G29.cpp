@@ -302,15 +302,14 @@
 
 G29_parameters_t unified_bed_leveling::param;
 
+#ifdef EVENT_GCODE_AFTER_G29
+  bool probe_deployed = false;
+  #define SET_PROBE_DEPLOYED(N) probe_deployed = N
+#else
+  #define SET_PROBE_DEPLOYED(N)
+#endif
+  
 void unified_bed_leveling::G29() {
-
-  #ifdef EVENT_GCODE_AFTER_G29
-    bool probe_deployed = false;
-    #define SET_PROBE_DEPLOYED(N) probe_deployed = N
-  #else
-    #define SET_PROBE_DEPLOYED(N)
-  #endif
-
   if (G29_parse_parameters()) return; // Abort on parameter error
 
   const uint8_t p_val = parser.byteval('P');
