@@ -50,7 +50,7 @@ void say_shaper_type(const AxisEnum a, bool &sep, const char axis_name) {
 void say_shaping() {
   const ft_config_t &c = ftMotion.cfg;
 
-  // FT Enabled
+  // FT Enabled (No EOL here. Printed after shaping type)
   SERIAL_ECHO_TERNARY(c.active, "Fixed-Time Motion ", "en", "dis", "abled");
 
   // FT Shaping
@@ -64,6 +64,9 @@ void say_shaping() {
     SERIAL_CHAR(')');
   }
   SERIAL_EOL();
+
+  // Axis Sync Enabled
+  if (c.active) SERIAL_ECHO_TERNARY(c.axis_sync_enabled, "Axis Sync. ", "en", "dis", "abled\n");
 
   const bool z_based = TERN0(HAS_DYNAMIC_FREQ_MM, c.dynFreqMode == dynFreqMode_Z_BASED),
              g_based = TERN0(HAS_DYNAMIC_FREQ_G,  c.dynFreqMode == dynFreqMode_MASS_BASED),
