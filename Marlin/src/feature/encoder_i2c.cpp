@@ -668,10 +668,9 @@ void I2CPositionEncodersMgr::report_position(const int8_t idx, const bool units,
       const int32_t raw_count = encoders[idx].get_raw_count();
       SERIAL_CHAR(axis_codes[encoders[idx].get_axis()], ' ');
 
-      for (uint8_t j = 31; j > 0; j--)
-        SERIAL_ECHO((bool)(0x00000001 & (raw_count >> j)));
+      for (uint8_t j = 32; j--;)
+        SERIAL_ECHO(TEST32(raw_count, j));
 
-      SERIAL_ECHO((bool)(0x00000001 & raw_count));
       SERIAL_CHAR(' ');
       SERIAL_ECHOLN(raw_count);
     }
