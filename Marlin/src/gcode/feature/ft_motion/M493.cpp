@@ -114,19 +114,13 @@ void say_shaping() {
     #endif
 
     #if ENABLED(FTM_SHAPER_Z)
-      if (ftMotion.cfg.shaper[Z_AXIS]) {
-        SERIAL_CHAR(STEPPER_C_NAME);
-        SERIAL_ECHO(" shaper frequency: ",_float_t(c.baseFreq.z, 2), F(" Hz"));
-        SERIAL_EOL();
-      }
+      if (ftMotion.cfg.shaper[Z_AXIS])
+        SERIAL_ECHOLN(C(STEPPER_C_NAME), F(" shaper frequency: "), p_float_t(c.baseFreq.z, 2), F(" Hz"));
     #endif
 
     #if ENABLED(FTM_SHAPER_E)
-      if (ftMotion.cfg.shaper[E_AXIS]) {
-        SERIAL_CHAR('E');
-        SERIAL_ECHO(" shaper frequency: ", p_float_t(c.baseFreq.e, 2), F(" Hz"));
-        SERIAL_EOL();
-      }
+      if (ftMotion.cfg.shaper[E_AXIS])
+        SERIAL_ECHOLN(C('E'), F(" shaper frequency: "), p_float_t(c.baseFreq.e, 2), F(" Hz"));
     #endif
   }
 }
