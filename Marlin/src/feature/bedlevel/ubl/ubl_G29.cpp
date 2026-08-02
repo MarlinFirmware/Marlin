@@ -303,12 +303,12 @@
 G29_parameters_t unified_bed_leveling::param;
 
 #ifdef EVENT_GCODE_AFTER_G29
-  bool probe_deployed = false;
-  #define SET_PROBE_DEPLOYED(N) probe_deployed = N
+  bool ubl_probe_deployed = false;
+  #define SET_UBL_PROBE_DEPLOYED(N) ubl_probe_deployed = N
 #else
-  #define SET_PROBE_DEPLOYED(N)
+  #define SET_UBL_PROBE_DEPLOYED(N)
 #endif
-  
+
 void unified_bed_leveling::G29() {
   if (G29_parse_parameters()) return; // Abort on parameter error
 
@@ -428,7 +428,7 @@ void unified_bed_leveling::G29_handle_post_processing() {
 
   #ifdef EVENT_GCODE_AFTER_G29
     if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("After G29 G-code: ", EVENT_GCODE_AFTER_G29);
-    if (probe_deployed) {
+    if (ubl_probe_deployed) {
       planner.synchronize();
       gcode.process_subcommands_now(F(EVENT_GCODE_AFTER_G29));
     }
@@ -471,7 +471,7 @@ bool unified_bed_leveling::G29_handle_phase_ops() {
         probe_entire_mesh(param.XY_pos, parser.seen_test('T'), parser.seen_test('E'), parser.seen_test('U'));
 
         motion.report_position();
-        SET_PROBE_DEPLOYED(true);
+        SET_UBL_PROBE_DEPLOYED(true);
       } break;
 
     #endif // HAS_BED_PROBE
@@ -509,7 +509,7 @@ bool unified_bed_leveling::G29_handle_phase_ops() {
             SERIAL_ECHOLNPGM("?Error in Business Card measurement.");
             return false;
           }
-          SET_PROBE_DEPLOYED(true);
+          SET_UBL_PROBE_DEPLOYED(true);
         }
 
         if (!motion.can_reach(param.XY_pos)) {
@@ -694,6 +694,7 @@ void unified_bed_leveling::G29_handle_invalidate() {
 }
 
 #if HAS_BED_PROBE
+
   /**
    * Handle tilt mesh (J parameter)
    */
@@ -705,8 +706,9 @@ void unified_bed_leveling::G29_handle_invalidate() {
       motion.blocking_move_xy(0.5f * (mesh_min.x + mesh_max.x), 0.5f * (mesh_min.y + mesh_max.y));
     #endif
     motion.report_position();
-    SET_PROBE_DEPLOYED(true);
+    SET_UBL_PROBE_DEPLOYED(true);
   }
+
 #endif // HAS_BED_PROBE
 
 /**
