@@ -587,6 +587,7 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
     planner.synchronize();
     safe_delay(200);
 
+
     #if defined(SWITCHING_TOOLHEAD_Z_CLEAR)
       motion.position.z += (SWITCHING_TOOLHEAD_Z_CLEAR);
 
@@ -598,17 +599,6 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
       motion.position.y -= SWITCHING_TOOLHEAD_Y_CLEAR;
 
       DEBUG_POS("Move back Y clear", motion.position);
-      slow_line_to_current(Y_AXIS); // move away from docked toolhead
-    #endif
-
-      DEBUG_SYNCHRONIZE();
-      DEBUG_POS("Move back Z Clear", current_position);
-
-      slow_line_to_current(Z_AXIS); // move away from docked toolhead
-    #else
-      current_position.y -= SWITCHING_TOOLHEAD_Y_CLEAR;
-
-      DEBUG_POS("Move back Y clear", current_position);
       slow_line_to_current(Y_AXIS); // move away from docked toolhead
     #endif
 
