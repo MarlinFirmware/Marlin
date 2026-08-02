@@ -199,7 +199,7 @@ grid_count_t gridpoint;
 float corner_avg;
 float corner_pos;
 
-bool probe_deployed = false;
+bool dwin_probe_deployed = false;
 
 JyersDWIN jyersDWIN;
 
@@ -1268,8 +1268,8 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
             drawMenuItem(row, ICON_Back, GET_TEXT_F(MSG_BACK));
           else {
             #if HAS_BED_PROBE
-              probe_deployed = false;
-              probe.set_deployed(probe_deployed);
+              dwin_probe_deployed = false;
+              probe.set_deployed(dwin_probe_deployed);
             #endif
             drawMenu(ID_Prepare, PREPARE_MOVE);
           }
@@ -1329,12 +1329,12 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
           case MOVE_P:
             if (draw) {
               drawMenuItem(row, ICON_StockConfiguration, F("Probe"));
-              drawCheckbox(row, probe_deployed);
+              drawCheckbox(row, dwin_probe_deployed);
             }
             else {
-              FLIP(probe_deployed);
-              probe.set_deployed(probe_deployed);
-              drawCheckbox(row, probe_deployed);
+              FLIP(dwin_probe_deployed);
+              probe.set_deployed(dwin_probe_deployed);
+              drawCheckbox(row, dwin_probe_deployed);
             }
             break;
         #endif
