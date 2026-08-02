@@ -45,6 +45,7 @@ applet/
 *.ii
 *.swp
 tags
+sqlite*.db
 
 #
 # C++
