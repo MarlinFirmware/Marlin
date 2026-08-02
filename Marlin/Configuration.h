@@ -316,7 +316,6 @@
  */
 //#define ELECTROMAGNETIC_SWITCHING_TOOLHEAD
 
-
 // Safe toolchange start Z position.
 //#define SAFE_TOOLCHANGE_START_Z           200
 
