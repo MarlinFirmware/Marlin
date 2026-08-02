@@ -310,6 +310,8 @@ G29_parameters_t unified_bed_leveling::param;
 #endif
 
 void unified_bed_leveling::G29() {
+  SET_UBL_PROBE_DEPLOYED(false);
+
   if (G29_parse_parameters()) return; // Abort on parameter error
 
   const uint8_t p_val = parser.byteval('P');
