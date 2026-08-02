@@ -65,7 +65,7 @@ namespace LanguageNarrow_it {
   LSTR MSG_AUTO_HOME_Z                    = _UxGT("Azzera Z");                                 // Home Z
   LSTR MSG_LEVEL_BED_HOMING               = _UxGT("Home assi XYZ");                            // Homing XYZ
   LSTR MSG_LEVEL_BED_WAITING              = _UxGT("Premi per iniziare");                       // Click to Begin
-  LSTR MSG_LEVEL_BED_NEXT_POINT           = _UxGT("Punto successivo");                         // Next Point
+  LSTR MSG_LEVEL_BED_NEXT_POINT           = _UxGT("Rileva punto");                             // Next Point
   LSTR MSG_LEVEL_BED_DONE                 = _UxGT("Livel. terminato!");                        // Leveling Done!
   LSTR MSG_SET_HOME_OFFSETS               = _UxGT("Imp. offset home");                         // Set Home Offsets
   LSTR MSG_HOME_OFFSETS_APPLIED           = _UxGT("Offset applicato");                         // Offsets Applied
