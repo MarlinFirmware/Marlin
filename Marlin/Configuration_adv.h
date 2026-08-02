@@ -1416,16 +1416,21 @@
 /**
  * Automatic backlash, position, and hotend offset calibration
  *
- * Enable G425 to run automatic calibration using an electrically-
- * conductive cube, bolt, or washer mounted on the bed.
+ * Enable G425 to run automatic calibration using a calibration object that is mounted to the frame or bed.
  *
- * G425 uses the probe to touch the top and sides of the calibration object
- * on the bed and measures and/or correct positional offsets, axis backlash
- * and hotend offsets.
+ * G425 moves the toolhead to touch the top and sides of the calibration object
+ * on the bed and measures and/or correct positional offsets and axis backlash. 
+ * It requires a calibration object and an electrical circuit that ensures that the voltage between ground and the 
+ * PROBE_PIN or CALIBRATION_PIN changes, when the nozzle touches the trigger point. Examples:
+ * - A grounded nozzle and a conductive calibration object like a cube, a bolt or washer that is connected to the CALIBRATION_PIN (requires CALIBRATION_PIN with a pull up resistor)
+ * - A nozzle with a load cell that serves as a touch probe (see NOZZLE_AS_PROBE).
+ * - A tool setter that is electrically connected to the PROBE_PIN or CALIBRATION_PIN is used as the calibration object.
+ * - A toolhead-mounted probe and a calibration object. This only works for backlash calibration using G425 B.
  *
- * Note: HOTEND_OFFSET and CALIBRATION_OBJECT_CENTER must be set to within
- * ±(CALIBRATION_MEASUREMENT_UNCERTAIN) of true values for G425 T... 
- * and within ±(CALIBRATION_MEASUREMENT_UNKNOWN) for full calibration (G425).
+ * Note: The deviation of HOTEND_OFFSET and CALIBRATION_OBJECT_CENTER xy values from true values 
+ *      must be smaller than half the length of the calibration object along the x or y axis, respectively.
+ *      If Z_HOME_DIR is -1, HOTEND_OFFSET and CALIBRATION_OBJECT_CENTER z values must be set to within 
+ *      ±(CALIBRATION_MEASUREMENT_TOOL_LENGTH) of true values for G425 or G425 T... to succeed.
  */
 //#define CALIBRATION_GCODE
 #if ENABLED(CALIBRATION_GCODE)
