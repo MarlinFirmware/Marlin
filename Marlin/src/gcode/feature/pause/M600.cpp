@@ -28,15 +28,24 @@
 #include "../../../feature/pause.h"
 #include "../../../module/motion.h"
 #include "../../../module/printcounter.h"
+
 #include "../../../lcd/marlinui.h"
+#if ENABLED(SOVOL_SV06_RTS)
+  #include "../../../lcd/sovol_rts/sovol_rts.h"
+#endif
 
 #if HAS_MULTI_EXTRUDER
   #include "../../../module/tool_change.h"
 #endif
 
-#if HAS_PRUSA_MMU2
+#if HAS_PRUSA_MMU3
+  #include "../../../feature/mmu3/mmu3.h"
+  #if ENABLED(MMU_MENUS)
+    #include "../../../lcd/menu/menu_mmu2.h"
+  #endif
+#elif HAS_PRUSA_MMU2
   #include "../../../feature/mmu/mmu2.h"
-  #if ENABLED(MMU2_MENUS)
+  #if ENABLED(MMU_MENUS)
     #include "../../../lcd/menu/menu_mmu2.h"
   #endif
 #endif
@@ -68,6 +77,9 @@
  *  T[toolhead] - Select extruder for filament change
  *  R[temp]     - Resume temperature (in current units)
  *
+ * With MMU_MENUS:
+ *  A           - Automatic
+ *
  *  Default values are used for omitted arguments.
  */
 void GcodeSuite::M600() {
@@ -82,7 +94,7 @@ void GcodeSuite::M600() {
     MIXER_STEPPER_LOOP(i) mixer.set_collector(i, i == uint8_t(eindex) ? 1.0 : 0.0);
     mixer.normalize();
 
-    const int8_t target_extruder = active_extruder;
+    const int8_t target_extruder = motion.extruder;
   #else
     const int8_t target_extruder = get_target_extruder_from_command();
     if (target_extruder < 0) return;
@@ -93,27 +105,29 @@ void GcodeSuite::M600() {
     if (!parser.seen_test('T')) {  // If no tool index is specified, M600 was (probably) sent in response to filament runout.
                                    // In this case, for duplicating modes set DXC_ext to the extruder that ran out.
       #if MULTI_FILAMENT_SENSOR
-        if (idex_is_duplicating())
+        if (motion.idex_is_duplicating())
           DXC_ext = (READ(FIL_RUNOUT2_PIN) == FIL_RUNOUT2_STATE) ? 1 : 0;
       #else
-        DXC_ext = active_extruder;
+        DXC_ext = motion.extruder;
       #endif
     }
   #endif
 
-  const bool standardM600 = TERN1(MMU2_MENUS, !mmu2.enabled());
+  const bool standardM600 = TERN1(MMU_MENUS, TERN1(HAS_PRUSA_MMU2, !mmu2.enabled()) && TERN1(HAS_PRUSA_MMU3, !mmu3.mmu_hw_enabled));
 
   // Show initial "wait for start" message
   if (standardM600)
     ui.pause_show_message(PAUSE_MESSAGE_CHANGING, PAUSE_MODE_PAUSE_PRINT, target_extruder);
 
+  TERN_(SOVOL_SV06_RTS, rts.gotoPage(ID_ChangeWait_L, ID_ChangeWait_D)); //given the context it seems this likely should have been pages 6 & 61
+
   // If needed, home before parking for filament change
-  TERN_(HOME_BEFORE_FILAMENT_CHANGE, home_if_needed(true));
+  TERN_(HOME_BEFORE_FILAMENT_CHANGE, motion.home_if_needed(true));
 
   #if HAS_MULTI_EXTRUDER
     // Change toolhead if specified
-    const uint8_t active_extruder_before_filament_change = active_extruder;
-    if (active_extruder != target_extruder && TERN1(DUAL_X_CARRIAGE, !idex_is_duplicating()))
+    const uint8_t active_extruder_before_filament_change = motion.extruder;
+    if (motion.extruder != target_extruder && TERN1(DUAL_X_CARRIAGE, !motion.idex_is_duplicating()))
       tool_change(target_extruder);
   #endif
 
@@ -136,12 +150,12 @@ void GcodeSuite::M600() {
   );
 
   #if HAS_HOTEND_OFFSET && NONE(DUAL_X_CARRIAGE, DELTA)
-    park_point += hotend_offset[active_extruder];
+    park_point += motion.active_hotend_offset();
   #endif
 
   // Unload filament
   // For MMU2, when enabled, reset retract value so it doesn't mess with MMU filament handling
-  const float unload_length = standardM600 ? -ABS(parser.axisunitsval('U', E_AXIS, fc_settings[active_extruder].unload_length)) : 0.5f;
+  const float unload_length = standardM600 ? -ABS(parser.axisunitsval('U', E_AXIS, fc_settings[motion.extruder].unload_length)) : 0.5f;
 
   const int beep_count = parser.intval('B', -1
     #ifdef FILAMENT_CHANGE_ALERT_BEEPS
@@ -154,24 +168,27 @@ void GcodeSuite::M600() {
       wait_for_confirmation(true, beep_count DXC_PASS);
       resume_print(
         FILAMENT_CHANGE_SLOW_LOAD_LENGTH,
-        ABS(parser.axisunitsval('L', E_AXIS, fc_settings[active_extruder].load_length)),
+        ABS(parser.axisunitsval('L', E_AXIS, fc_settings[motion.extruder].load_length)),
         ADVANCED_PAUSE_PURGE_LENGTH,
         beep_count,
-        parser.celsiusval('R')
+        parser.celsiusval('R'),
+        true,
+        false
         DXC_PASS
       );
     }
     else {
-      #if ENABLED(MMU2_MENUS)
-        mmu2_M600();
-        resume_print(0, 0, 0, beep_count, 0 DXC_PASS);
+      #if ENABLED(MMU_MENUS)
+        const bool automatic = parser.seen_test('A');
+        mmu2_M600(automatic);
+        resume_print(0, 0, 0, beep_count, 0, !automatic, false DXC_PASS);
       #endif
     }
   }
 
   #if HAS_MULTI_EXTRUDER
     // Restore toolhead if it was changed
-    if (active_extruder_before_filament_change != active_extruder)
+    if (active_extruder_before_filament_change != motion.extruder)
       tool_change(active_extruder_before_filament_change);
   #endif
 

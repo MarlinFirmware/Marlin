@@ -39,7 +39,7 @@ namespace ExtUI {
   void onIdle()           { anycubicTFT.onCommandScan(); }
   void onPrinterKilled(FSTR_P const error, FSTR_P const component) { anycubicTFT.onKillTFT(); }
 
-  void onMediaInserted()  { anycubicTFT.onSDCardStateChange(true); }
+  void onMediaMounted()   { anycubicTFT.onSDCardStateChange(true); }
   void onMediaError()     { anycubicTFT.onSDCardError(); }
   void onMediaRemoved()   { anycubicTFT.onSDCardStateChange(false); }
 
@@ -58,20 +58,18 @@ namespace ExtUI {
   void onUserConfirmRequired(const char * const msg) { anycubicTFT.onUserConfirmRequired(msg); }
 
   // For fancy LCDs include an icon ID, message, and translated button title
-  void onUserConfirmRequired(const int icon, const char * const cstr, FSTR_P const fBtn) {
+  void onUserConfirmRequired(const int, const char * const cstr, FSTR_P const) {
     onUserConfirmRequired(cstr);
-    UNUSED(icon); UNUSED(fBtn);
   }
-  void onUserConfirmRequired(const int icon, FSTR_P const fstr, FSTR_P const fBtn) {
+  void onUserConfirmRequired(const int, FSTR_P const fstr, FSTR_P const) {
     onUserConfirmRequired(fstr);
-    UNUSED(icon); UNUSED(fBtn);
   }
 
   #if ENABLED(ADVANCED_PAUSE_FEATURE)
     void onPauseMode(
       const PauseMessage message,
       const PauseMode mode/*=PAUSE_MODE_SAME*/,
-      const uint8_t extruder/*=active_extruder*/
+      const uint8_t extruder/*=motion.extruder*/
     ) {
       stdOnPauseMode(message, mode, extruder);
     }
@@ -129,7 +127,7 @@ namespace ExtUI {
   #endif
 
   #if HAS_MESH
-    void onMeshUpdate(const int8_t xpos, const int8_t ypos, const_float_t zval) {
+    void onMeshUpdate(const int8_t xpos, const int8_t ypos, const float zval) {
       // Called when any mesh points are updated
     }
 

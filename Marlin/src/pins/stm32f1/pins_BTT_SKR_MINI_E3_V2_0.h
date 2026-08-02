@@ -31,7 +31,7 @@
 #if NO_EEPROM_SELECTED
   #define I2C_EEPROM
   #define SOFT_I2C_EEPROM
-  #define MARLIN_EEPROM_SIZE              0x1000  // 4K
+  #define MARLIN_EEPROM_SIZE             0x1000U  // 4K
   #define I2C_SDA_PIN                       PB7
   #define I2C_SCL_PIN                       PB6
   #undef NO_EEPROM_SELECTED
@@ -69,8 +69,11 @@
 // Release PA13/PA14 (led, usb control) from SWD pins
 #define DISABLE_DEBUG
 
-#ifndef BOARD_NEOPIXEL_PIN
-  #define BOARD_NEOPIXEL_PIN                PA8   // LED driving pin
+#define BOARD_NEOPIXEL_PIN                  PA8   // LED driving pin
+#ifndef BOARD_HAS_DCDC5V
+  #define BOARD_NEOPIXEL_MAX                  7   // Max number of NEOPIXELS supported on this board
+#else
+  #define BOARD_NEOPIXEL_MAX                 29   // With 5V DC-DC converter
 #endif
 
 #ifndef PS_ON_PIN
@@ -95,17 +98,21 @@
 
   // Default TMC slave addresses
   #ifndef X_SLAVE_ADDRESS
-    #define X_SLAVE_ADDRESS  0
+    #define X_SLAVE_ADDRESS                    0
   #endif
   #ifndef Y_SLAVE_ADDRESS
-    #define Y_SLAVE_ADDRESS  2
+    #define Y_SLAVE_ADDRESS                    2
   #endif
   #ifndef Z_SLAVE_ADDRESS
-    #define Z_SLAVE_ADDRESS  1
+    #define Z_SLAVE_ADDRESS                    1
   #endif
   #ifndef E0_SLAVE_ADDRESS
-    #define E0_SLAVE_ADDRESS 3
+    #define E0_SLAVE_ADDRESS                   3
   #endif
+  static_assert(X_SLAVE_ADDRESS == 0, "X_SLAVE_ADDRESS must be 0 for BOARD_SKR_MINI_E3_V2_0.");
+  static_assert(Y_SLAVE_ADDRESS == 2, "Y_SLAVE_ADDRESS must be 2 for BOARD_SKR_MINI_E3_V2_0.");
+  static_assert(Z_SLAVE_ADDRESS == 1, "Z_SLAVE_ADDRESS must be 1 for BOARD_SKR_MINI_E3_V2_0.");
+  static_assert(E0_SLAVE_ADDRESS == 3, "E0_SLAVE_ADDRESS must be 3 for BOARD_SKR_MINI_E3_V2_0.");
 #endif
 
 // Pins for documentation and sanity checks only.

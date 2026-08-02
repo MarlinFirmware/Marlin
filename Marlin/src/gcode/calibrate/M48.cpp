@@ -39,6 +39,10 @@
   #include "../../feature/probe_temp_comp.h"
 #endif
 
+#if ENABLED(FT_MOTION)
+  #include "../../module/ft_motion.h"
+#endif
+
 /**
  * M48: Z probe repeatability measurement function.
  *
@@ -58,7 +62,7 @@
 
 void GcodeSuite::M48() {
 
-  if (homing_needed_error()) return;
+  if (motion.homing_needed_error()) return;
 
   const int8_t verbose_level = parser.byteval('V', 1);
   if (!WITHIN(verbose_level, 0, 4)) {
@@ -76,8 +80,8 @@ void GcodeSuite::M48() {
 
   // Test at the current position by default, overridden by X and Y
   const xy_pos_t test_position = {
-    parser.linearval('X', current_position.x + probe.offset_xy.x),  // If no X use the probe's current X position
-    parser.linearval('Y', current_position.y + probe.offset_xy.y)   // If no Y, ditto
+    parser.linearval('X', motion.position.x + probe.offset_xy.x),  // If no X use the probe's current X position
+    parser.linearval('Y', motion.position.y + probe.offset_xy.y)   // If no Y, ditto
   };
 
   if (!probe.can_reach(test_position)) {
@@ -93,6 +97,10 @@ void GcodeSuite::M48() {
     SERIAL_ECHOLNPGM(GCODE_ERR_MSG("Legs of movement implausible (0-15)."));
     return;
   }
+
+  // Potentially disable Fixed-Time Motion for probing
+  TERN_(FT_MOTION, FTM_DISABLE_IN_SCOPE());
+
   if (n_legs == 1) n_legs = 2;
 
   // Schizoid motion as an optional stress-test
@@ -115,7 +123,7 @@ void GcodeSuite::M48() {
   TERN_(HAS_PTC, ptc.set_enabled(parser.boolval('C', true)));
 
   // Work with reasonable feedrates
-  remember_feedrate_scaling_off();
+  motion.remember_feedrate_scaling_off();
 
   // Working variables
   float mean = 0.0,     // The average of all points so far, used to calculate deviation
@@ -124,7 +132,7 @@ void GcodeSuite::M48() {
         max = -99999.9, // Largest value sampled so far
         sample_set[n_samples];  // Storage for sampled values
 
-  auto dev_report = [](const bool verbose, const_float_t mean, const_float_t sigma, const_float_t min, const_float_t max, const bool final=false) {
+  auto dev_report = [](const bool verbose, const float mean, const float sigma, const float min, const float max, const bool final=false) {
     if (verbose) {
       SERIAL_ECHOPGM("Mean: ", p_float_t(mean, 6));
       if (!final) SERIAL_ECHOPGM(" Sigma: ", p_float_t(sigma, 6));
@@ -216,7 +224,7 @@ void GcodeSuite::M48() {
           if (verbose_level > 3)
             SERIAL_ECHOLN(F("Going to: X"), next_pos.x, FPSTR(SP_Y_STR), next_pos.y);
 
-          do_blocking_move_to_xy(next_pos);
+          motion.blocking_move_xy(next_pos);
         } // n_legs loop
       } // n_legs
 
@@ -261,11 +269,23 @@ void GcodeSuite::M48() {
 
     #if HAS_STATUS_MESSAGE
       // Display M48 results in the status bar
-      ui.set_status_and_level(MString<30>(GET_TEXT_F(MSG_M48_DEVIATION), F(": "), w_float_t(sigma, 2, 6)));
+      if (MAX_MESSAGE_SIZE <= 20) {
+        // 12345678901234567890
+        // Deviation: 0.123456
+        ui.set_status_and_level(TS(GET_TEXT_F(MSG_M48_DEVIATION), F(": "), w_float_t(sigma, 2, 6)));
+      } else if (MAX_MESSAGE_SIZE <= 30) {
+        // 123456789012345678901234567890
+        // Dev:0.12345, Max delta:0.12345
+        ui.set_status_and_level(TS(GET_TEXT_F(MSG_M48_DEV), ':', w_float_t(sigma, 2, 5), F(", "), GET_TEXT(MSG_M48_MAX_DELTA), ':', w_float_t(_MAX(mean - min, max - mean), 2, 5)));
+      } else {
+        // 1234567890123456789012345678901234567890
+        // Deviation: 1.23456, Max delta: 1.23456
+        ui.set_status_and_level(TS(GET_TEXT_F(MSG_M48_DEVIATION), F(": "), w_float_t(sigma, 2, 6), F(", "), GET_TEXT(MSG_M48_MAX_DELTA), F(": "), w_float_t(_MAX(mean - min, max - mean), 2, 6)));
+      }
     #endif
   }
 
-  restore_feedrate_and_scaling();
+  motion.restore_feedrate_and_scaling();
 
   // Re-enable bed level correction if it had been on
   TERN_(HAS_LEVELING, set_bed_leveling_enabled(was_enabled));
@@ -273,7 +293,7 @@ void GcodeSuite::M48() {
   // Re-enable probe temperature correction
   TERN_(HAS_PTC, ptc.set_enabled(true));
 
-  report_current_position();
+  motion.report_position();
 }
 
 #endif // Z_MIN_PROBE_REPEATABILITY_TEST

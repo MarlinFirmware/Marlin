@@ -23,18 +23,13 @@
 
 #define CPU_32_BIT
 
-#include "../../core/macros.h"
-#include "../shared/Marduino.h"
+#include "../../inc/MarlinConfigPre.h"
+
 #include "../shared/math_32bit.h"
 #include "../shared/HAL_SPI.h"
 #include "temp_soc.h"
 #include "fastio.h"
 #include "Servo.h"
-#include "MarlinSerial.h"
-
-#include "../../inc/MarlinConfigPre.h"
-
-#include <stdint.h>
 
 //
 // Default graphical display delays
@@ -43,85 +38,17 @@
 #define CPU_ST7920_DELAY_2  40
 #define CPU_ST7920_DELAY_3 340
 
-// ------------------------
-// Serial ports
-// ------------------------
-#ifdef USBCON
-  #include <USBSerial.h>
-  #include "../../core/serial_hook.h"
-  typedef ForwardSerial1Class< decltype(SerialUSB) > DefaultSerial1;
-  extern DefaultSerial1 MSerialUSB;
-#endif
+//
+// Serial Ports
+//
 
-#define _MSERIAL(X) MSerial##X
-#define MSERIAL(X) _MSERIAL(X)
-
-#if WITHIN(SERIAL_PORT, 1, 9)
-  #define MYSERIAL1 MSERIAL(SERIAL_PORT)
-#elif !defined(USBCON)
-  #error "SERIAL_PORT must be from 1 to 9."
-#elif SERIAL_PORT == -1
-  #define MYSERIAL1 MSerialUSB
-#else
-  #error "SERIAL_PORT must be from 1 to 9, or -1 for Native USB."
-#endif
-
-#ifdef SERIAL_PORT_2
-  #if WITHIN(SERIAL_PORT_2, 1, 9)
-    #define MYSERIAL2 MSERIAL(SERIAL_PORT_2)
-  #elif !defined(USBCON)
-    #error "SERIAL_PORT_2 must be from 1 to 9."
-  #elif SERIAL_PORT_2 == -1
-    #define MYSERIAL2 MSerialUSB
-  #else
-    #error "SERIAL_PORT_2 must be from 1 to 9, or -1 for Native USB."
-  #endif
-#endif
-
-#ifdef SERIAL_PORT_3
-  #if WITHIN(SERIAL_PORT_3, 1, 9)
-    #define MYSERIAL3 MSERIAL(SERIAL_PORT_3)
-  #elif !defined(USBCON)
-    #error "SERIAL_PORT_3 must be from 1 to 9."
-  #elif SERIAL_PORT_3 == -1
-    #define MYSERIAL3 MSerialUSB
-  #else
-    #error "SERIAL_PORT_3 must be from 1 to 9, or -1 for Native USB."
-  #endif
-#endif
-
-#ifdef MMU2_SERIAL_PORT
-  #if WITHIN(MMU2_SERIAL_PORT, 1, 9)
-    #define MMU2_SERIAL MSERIAL(MMU2_SERIAL_PORT)
-  #elif !defined(USBCON)
-    #error "MMU2_SERIAL_PORT must be from 1 to 9."
-  #elif MMU2_SERIAL_PORT == -1
-    #define MMU2_SERIAL MSerialUSB
-  #else
-    #error "MMU2_SERIAL_PORT must be from 1 to 9, or -1 for Native USB."
-  #endif
-#endif
-
-#ifdef LCD_SERIAL_PORT
-  #if WITHIN(LCD_SERIAL_PORT, 1, 9)
-    #define LCD_SERIAL MSERIAL(LCD_SERIAL_PORT)
-  #elif !defined(USBCON)
-    #error "LCD_SERIAL_PORT must be from 1 to 9."
-  #elif LCD_SERIAL_PORT == -1
-    #define LCD_SERIAL MSerialUSB
-  #else
-    #error "LCD_SERIAL_PORT must be from 1 to 9, or -1 for Native USB."
-  #endif
-  #if HAS_DGUS_LCD
-    #define LCD_SERIAL_TX_BUFFER_FREE() LCD_SERIAL.availableForWrite()
-  #endif
-#endif
+#include "MarlinSerial.h"
 
 /**
  * TODO: review this to return 1 for pins that are not analog input
  */
 #ifndef analogInputToDigitalPin
-  #define analogInputToDigitalPin(p) (p)
+  #define analogInputToDigitalPin(p) pin_t(p)
 #endif
 
 //
@@ -135,8 +62,6 @@
 // ------------------------
 // Types
 // ------------------------
-
-typedef double isr_float_t;   // FPU ops are used for single-precision, so use double for ISRs.
 
 typedef int32_t pin_t;        // Parity with platform/ststm32
 
@@ -230,7 +155,7 @@ public:
 
   static void delay_ms(const int ms) { delay(ms); }
 
-  // Tasks, called from idle()
+  // Tasks, called from marlin.idle()
   static void idletask();
 
   // Reset

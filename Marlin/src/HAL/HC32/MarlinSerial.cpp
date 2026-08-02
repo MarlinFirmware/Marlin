@@ -30,30 +30,55 @@
  * it would not make sense to parse G-Code from TMC responses
  */
 constexpr bool serial_handles_emergency(int port) {
-  return false
+  return (false
     #ifdef SERIAL_PORT
-         || (SERIAL_PORT) == port
+      || (SERIAL_PORT) == port
     #endif
     #ifdef SERIAL_PORT_2
-         || (SERIAL_PORT_2) == port
+      || (SERIAL_PORT_2) == port
     #endif
     #ifdef LCD_SERIAL_PORT
-         || (LCD_SERIAL_PORT) == port
+      || (LCD_SERIAL_PORT) == port
     #endif
-      ;
+  );
 }
 
 //
 // Define serial ports
 //
-#define DEFINE_HWSERIAL_MARLIN(name, n)      \
+
+// serial port where RX and TX use IRQs
+#define DEFINE_IRQ_SERIAL_MARLIN(name, n)    \
   MSerialT name(serial_handles_emergency(n), \
                 &USART##n##_config,          \
                 BOARD_USART##n##_TX_PIN,     \
                 BOARD_USART##n##_RX_PIN);
 
-DEFINE_HWSERIAL_MARLIN(MSerial1, 1);
-DEFINE_HWSERIAL_MARLIN(MSerial2, 2);
+// serial port where RX uses DMA and TX uses IRQs
+// all serial ports use DMA1
+// since there are 4 USARTs and 4 DMA channels, we can use the USART number as the DMA channel
+#define DEFINE_DMA_SERIAL_MARLIN(name, n)    \
+  MSerialT name(serial_handles_emergency(n), \
+                &USART##n##_config,          \
+                BOARD_USART##n##_TX_PIN,     \
+                BOARD_USART##n##_RX_PIN,     \
+                M4_DMA1,                     \
+                ((en_dma_channel_t)(n - 1))); // map USART1 to DMA channel 0, USART2 to DMA channel 1, etc.
+
+#define DEFINE_SERIAL_MARLIN(name, n) TERN(SERIAL_DMA, DEFINE_DMA_SERIAL_MARLIN(name, n), DEFINE_IRQ_SERIAL_MARLIN(name, n))
+
+#if PINS_EXIST(BOARD_USART1_RX, BOARD_USART1_TX)
+  DEFINE_SERIAL_MARLIN(MSerial1, 1);
+#endif
+#if PINS_EXIST(BOARD_USART2_RX, BOARD_USART2_TX)
+  DEFINE_SERIAL_MARLIN(MSerial2, 2);
+#endif
+#if PINS_EXIST(BOARD_USART3_RX, BOARD_USART3_TX)
+  DEFINE_SERIAL_MARLIN(MSerial3, 3);
+#endif
+#if PINS_EXIST(BOARD_USART4_RX, BOARD_USART4_TX)
+  DEFINE_SERIAL_MARLIN(MSerial4, 4);
+#endif
 
 //
 // Serial port assertions

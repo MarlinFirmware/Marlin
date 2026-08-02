@@ -89,7 +89,7 @@ void AnycubicTFT::onSetup() {
   delay_ms(10);
 
   // Init the state of the key pins running on the TFT
-  #if ENABLED(FILAMENT_RUNOUT_SENSOR)
+  #if HAS_FILAMENT_SENSOR
     SET_INPUT_PULLUP(FIL_RUNOUT1_PIN);
   #endif
 
@@ -138,8 +138,8 @@ void AnycubicTFT::onKillTFT() {
   SENDLINE_DBG_PGM("J11", "TFT Serial Debug: Kill command... J11");
 }
 
-void AnycubicTFT::onSDCardStateChange(bool isInserted) {
-  DEBUG_ECHOLNPGM("TFT Serial Debug: onSDCardStateChange event triggered...", isInserted);
+void AnycubicTFT::onSDCardStateChange(bool isMounted) {
+  DEBUG_ECHOLNPGM("TFT Serial Debug: onSDCardStateChange event triggered...", isMounted);
   doSDCardStateCheck();
 }
 
@@ -363,7 +363,7 @@ void AnycubicTFT::renderCurrentFileList() {
 
     SENDLINE_PGM("FN "); // Filelist start
 
-    if (!isMediaInserted() && !specialMenu) {
+    if (!isMediaMounted() && !specialMenu) {
       SENDLINE_DBG_PGM("J02", "TFT Serial Debug: No SD Card mounted to render Current File List... J02");
 
       SENDLINE_PGM("<SPECI~1.GCO");
@@ -579,7 +579,7 @@ void AnycubicTFT::getCommandFromTFT() {
           #if HAS_MEDIA
             if (isPrintingFromMedia()) {
               SEND_PGM("A6V ");
-              if (isMediaInserted())
+              if (isMediaMounted())
                 SENDLINE(ui8tostr3rj(getProgress_percent()));
               else
                 SENDLINE_DBG_PGM("J02", "TFT Serial Debug: No SD Card mounted to return printing status... J02");
@@ -627,12 +627,12 @@ void AnycubicTFT::getCommandFromTFT() {
           break;
 
         case 12: // A12 kill
-          kill(F(STR_ERR_KILLED));
+          marlin.kill(F(STR_ERR_KILLED));
           break;
 
         case 13: // A13 SELECTION FILE
           #if HAS_MEDIA
-            if (isMediaInserted()) {
+            if (isMediaMounted()) {
               starpos = (strchr(tftStrchrPtr + 4, '*'));
               if (tftStrchrPtr[4] == '/') {
                 strcpy(selectedDirectory, tftStrchrPtr + 5);
@@ -710,7 +710,7 @@ void AnycubicTFT::getCommandFromTFT() {
 
         case 19: // A19 stop stepper drivers - sent on stop extrude command and on turn motors off command
           if (!isPrinting()) {
-            quickstop_stepper();
+            motion.quickstop_stepper();
             stepper.disable_all_steppers();
           }
 
@@ -719,9 +719,9 @@ void AnycubicTFT::getCommandFromTFT() {
 
         case 20: // A20 read printing speed
           if (codeSeen('S'))
-            feedrate_percentage = constrain(codeValue(), 40, 999);
+            motion.feedrate_percentage = constrain(codeValue(), 40, 999);
           else
-            SEND_PGM_VAL("A20V ", feedrate_percentage);
+            SEND_PGM_VAL("A20V ", motion.feedrate_percentage);
           break;
 
         case 21: // A21 all home
@@ -831,7 +831,7 @@ void AnycubicTFT::getCommandFromTFT() {
 
         case 26: // A26 refresh SD
           #if HAS_MEDIA
-            if (isMediaInserted()) {
+            if (isMediaMounted()) {
               if (strlen(selectedDirectory) > 0) {
                 FileList currentFileList;
                 if ((selectedDirectory[0] == '.') && (selectedDirectory[1] == '.')) {
@@ -883,18 +883,18 @@ void AnycubicTFT::getCommandFromTFT() {
 }
 
 void AnycubicTFT::doSDCardStateCheck() {
-  #if ALL(HAS_MEDIA, HAS_SD_DETECT)
-    bool isInserted = isMediaInserted();
-    if (isInserted)
-      SENDLINE_DBG_PGM("J00", "TFT Serial Debug: SD card state changed... isInserted");
+  #if HAS_MEDIA
+    const bool isMounted = isMediaMounted();
+    if (isMounted)
+      SENDLINE_DBG_PGM("J00", "TFT Serial Debug: SD card state changed... isMounted");
     else
-      SENDLINE_DBG_PGM("J01", "TFT Serial Debug: SD card state changed... !isInserted");
+      SENDLINE_DBG_PGM("J01", "TFT Serial Debug: SD card state changed... !isMounted");
 
   #endif
 }
 
 void AnycubicTFT::doFilamentRunoutCheck() {
-  #if ENABLED(FILAMENT_RUNOUT_SENSOR)
+  #if HAS_FILAMENT_SENSOR
     // NOTE: getFilamentRunoutState() only returns the runout state if the job is printing
     // we want to actually check the status of the pin here, regardless of printstate
     if (READ(FIL_RUNOUT1_PIN) == FIL_RUNOUT1_STATE) {
@@ -909,7 +909,7 @@ void AnycubicTFT::doFilamentRunoutCheck() {
         SENDLINE_DBG_PGM("J15", "TFT Serial Debug: Non blocking filament runout... J15");
       }
     }
-  #endif // FILAMENT_RUNOUT_SENSOR
+  #endif // HAS_FILAMENT_SENSOR
 }
 
 void AnycubicTFT::startPrint() {
@@ -939,7 +939,7 @@ void AnycubicTFT::pausePrint() {
 
 void AnycubicTFT::resumePrint() {
   #if HAS_MEDIA
-    #if ENABLED(FILAMENT_RUNOUT_SENSOR)
+    #if HAS_FILAMENT_SENSOR
       if (READ(FIL_RUNOUT1_PIN) == FIL_RUNOUT1_STATE) {
         DEBUG_ECHOLNPGM("TFT Serial Debug: Resume Print with filament sensor still tripped... ");
 

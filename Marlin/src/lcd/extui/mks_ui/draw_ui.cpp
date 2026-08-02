@@ -34,7 +34,7 @@
 
 #include <SPI.h>
 
-#include "../../../MarlinCore.h" // for marlin_state
+#include "../../../MarlinCore.h" // for marlin.is()
 #include "../../../sd/cardreader.h"
 #include "../../../module/motion.h"
 #include "../../../module/planner.h"
@@ -71,6 +71,7 @@ uint32_t size = 809;
 uint16_t row;
 bool temps_update_flag;
 uint8_t printing_rate_update_flag;
+bool gcode_output_update_flag;
 
 extern bool once_flag;
 extern uint8_t sel_id;
@@ -92,43 +93,30 @@ lv_point_t line_points[4][2] = {
   {{PARA_UI_POS_X, PARA_UI_POS_Y*3 + PARA_UI_SIZE_Y}, {TFT_WIDTH, PARA_UI_POS_Y*3 + PARA_UI_SIZE_Y}},
   {{PARA_UI_POS_X, PARA_UI_POS_Y*4 + PARA_UI_SIZE_Y}, {TFT_WIDTH, PARA_UI_POS_Y*4 + PARA_UI_SIZE_Y}}
 };
+enum CfgLang : uint8_t {
+  LANG_en      = LANG_ENGLISH,
+  LANG_zh_CN   = LANG_SIMPLE_CHINESE,
+  LANG_zh_TW   = LANG_COMPLEX_CHINESE,
+  LANG_jp_kana = LANG_JAPAN,
+  LANG_de      = LANG_GERMAN,
+  LANG_fr      = LANG_FRENCH,
+  LANG_ru      = LANG_RUSSIAN,
+  LANG_ko_KR   = LANG_KOREAN,
+  LANG_tr      = LANG_TURKISH,
+  LANG_es      = LANG_SPANISH,
+  LANG_el      = LANG_GREEK,
+  LANG_it      = LANG_ITALY,
+  LANG_pt      = LANG_PORTUGUESE
+};
 void gCfgItems_init() {
   gCfgItems.multiple_language = MULTI_LANGUAGE_ENABLE;
-  #if 1 // LCD_LANGUAGE == en
-    gCfgItems.language = LANG_ENGLISH;
-  #elif LCD_LANGUAGE == zh_CN
-    gCfgItems.language = LANG_SIMPLE_CHINESE;
-  #elif LCD_LANGUAGE == zh_TW
-    gCfgItems.language = LANG_COMPLEX_CHINESE;
-  #elif LCD_LANGUAGE == jp_kana
-    gCfgItems.language = LANG_JAPAN;
-  #elif LCD_LANGUAGE == de
-    gCfgItems.language = LANG_GERMAN;
-  #elif LCD_LANGUAGE == fr
-    gCfgItems.language = LANG_FRENCH;
-  #elif LCD_LANGUAGE == ru
-    gCfgItems.language = LANG_RUSSIAN;
-  #elif LCD_LANGUAGE == ko_KR
-    gCfgItems.language = LANG_KOREAN;
-  #elif LCD_LANGUAGE == tr
-    gCfgItems.language = LANG_TURKISH;
-  #elif LCD_LANGUAGE == es
-    gCfgItems.language = LANG_SPANISH;
-  #elif LCD_LANGUAGE == el
-    gCfgItems.language = LANG_GREEK;
-  #elif LCD_LANGUAGE == it
-    gCfgItems.language = LANG_ITALY;
-  #elif LCD_LANGUAGE == pt
-    gCfgItems.language = LANG_PORTUGUESE;
-  #endif
+  gCfgItems.language = CAT(LANG_, LCD_LANGUAGE);
   gCfgItems.leveling_mode     = 0;
   gCfgItems.from_flash_pic    = false;
   gCfgItems.curFilesize       = 0;
   gCfgItems.finish_power_off  = false;
   gCfgItems.pause_reprint     = false;
-  gCfgItems.pausePosX         = -1;
-  gCfgItems.pausePosY         = -1;
-  gCfgItems.pausePosZ         = 5;
+  gCfgItems.pausePos.set(-1, -1, 5);
   gCfgItems.trammingPos[0].x  = X_MIN_POS + 30;
   gCfgItems.trammingPos[0].y  = Y_MIN_POS + 30;
   gCfgItems.trammingPos[1].x  = X_MAX_POS - 30;
@@ -204,8 +192,8 @@ void ui_cfg_init() {
   uiCfg.filament_unloading_time_cnt  = 0;
 
   #if ENABLED(MKS_WIFI_MODULE)
-    memset(&wifiPara, 0, sizeof(wifiPara));
-    memset(&ipPara, 0, sizeof(ipPara));
+    OBJZERO(wifiPara);
+    OBJZERO(ipPara);
     strcpy_P(wifiPara.ap_name, PSTR(WIFI_AP_NAME));
     strcpy_P(wifiPara.keyCode, PSTR(WIFI_KEY_CODE));
     // client
@@ -310,8 +298,8 @@ void tft_style_init() {
   tft_style_label_rel.body.grad_color = LV_COLOR_BACKGROUND;
   tft_style_label_rel.text.color      = LV_COLOR_TEXT;
   tft_style_label_rel.text.sel_color  = LV_COLOR_TEXT;
-  tft_style_label_pre.text.font       = TERN(HAS_SPI_FLASH_FONT, &gb2312_puhui32, LV_FONT_DEFAULT);
-  tft_style_label_rel.text.font       = TERN(HAS_SPI_FLASH_FONT, &gb2312_puhui32, LV_FONT_DEFAULT);
+  tft_style_label_pre.text.font       = TERN(MKS_SPI_FLASH_FONT, &gb2312_puhui32, LV_FONT_DEFAULT);
+  tft_style_label_rel.text.font       = TERN(MKS_SPI_FLASH_FONT, &gb2312_puhui32, LV_FONT_DEFAULT);
   tft_style_label_pre.line.width        = 0;
   tft_style_label_rel.line.width        = 0;
   tft_style_label_pre.text.letter_space = 0;
@@ -329,8 +317,8 @@ void tft_style_init() {
   style_para_value_rel.body.grad_color = LV_COLOR_BACKGROUND;
   style_para_value_rel.text.color      = LV_COLOR_BLACK;
   style_para_value_rel.text.sel_color  = LV_COLOR_BLACK;
-  style_para_value_pre.text.font       = TERN(HAS_SPI_FLASH_FONT, &gb2312_puhui32, LV_FONT_DEFAULT);
-  style_para_value_rel.text.font       = TERN(HAS_SPI_FLASH_FONT, &gb2312_puhui32, LV_FONT_DEFAULT);
+  style_para_value_pre.text.font       = TERN(MKS_SPI_FLASH_FONT, &gb2312_puhui32, LV_FONT_DEFAULT);
+  style_para_value_rel.text.font       = TERN(MKS_SPI_FLASH_FONT, &gb2312_puhui32, LV_FONT_DEFAULT);
   style_para_value_pre.line.width        = 0;
   style_para_value_rel.line.width        = 0;
   style_para_value_pre.text.letter_space = 0;
@@ -348,8 +336,8 @@ void tft_style_init() {
   style_num_key_rel.body.grad_color = LV_COLOR_KEY_BACKGROUND;
   style_num_key_rel.text.color      = LV_COLOR_TEXT;
   style_num_key_rel.text.sel_color  = LV_COLOR_TEXT;
-  style_num_key_pre.text.font       = TERN(HAS_SPI_FLASH_FONT, &gb2312_puhui32, LV_FONT_DEFAULT);
-  style_num_key_rel.text.font       = TERN(HAS_SPI_FLASH_FONT, &gb2312_puhui32, LV_FONT_DEFAULT);
+  style_num_key_pre.text.font       = TERN(MKS_SPI_FLASH_FONT, &gb2312_puhui32, LV_FONT_DEFAULT);
+  style_num_key_rel.text.font       = TERN(MKS_SPI_FLASH_FONT, &gb2312_puhui32, LV_FONT_DEFAULT);
 
   style_num_key_pre.line.width        = 0;
   style_num_key_rel.line.width        = 0;
@@ -363,7 +351,7 @@ void tft_style_init() {
   style_num_text.body.grad_color   = LV_COLOR_WHITE;
   style_num_text.text.color        = LV_COLOR_BLACK;
   style_num_text.text.sel_color    = LV_COLOR_BLACK;
-  style_num_text.text.font         = TERN(HAS_SPI_FLASH_FONT, &gb2312_puhui32, LV_FONT_DEFAULT);
+  style_num_text.text.font         = TERN(MKS_SPI_FLASH_FONT, &gb2312_puhui32, LV_FONT_DEFAULT);
   style_num_text.line.width        = 0;
   style_num_text.text.letter_space = 0;
   style_num_text.text.line_space   = -5;
@@ -373,7 +361,7 @@ void tft_style_init() {
   style_sel_text.body.grad_color   = LV_COLOR_BACKGROUND;
   style_sel_text.text.color        = LV_COLOR_YELLOW;
   style_sel_text.text.sel_color    = LV_COLOR_YELLOW;
-  style_sel_text.text.font         = TERN(HAS_SPI_FLASH_FONT, &gb2312_puhui32, LV_FONT_DEFAULT);
+  style_sel_text.text.font         = TERN(MKS_SPI_FLASH_FONT, &gb2312_puhui32, LV_FONT_DEFAULT);
   style_sel_text.line.width        = 0;
   style_sel_text.text.letter_space = 0;
   style_sel_text.text.line_space   = -5;
@@ -390,7 +378,7 @@ void tft_style_init() {
   style_para_value.body.shadow.width = 0;
   style_para_value.body.radius       = 3;
   style_para_value.text.color        = LV_COLOR_BLACK;
-  style_para_value.text.font         = &TERN(HAS_SPI_FLASH_FONT, gb2312_puhui32, lv_font_roboto_22);
+  style_para_value.text.font         = &TERN(MKS_SPI_FLASH_FONT, gb2312_puhui32, lv_font_roboto_22);
 
   lv_style_copy(&style_para_back, &lv_style_plain);
   style_para_back.body.border.color = LV_COLOR_BACKGROUND;
@@ -400,7 +388,7 @@ void tft_style_init() {
   style_para_back.body.shadow.width = 0;
   style_para_back.body.radius       = 3;
   style_para_back.text.color        = LV_COLOR_WHITE;
-  style_para_back.text.font         = &TERN(HAS_SPI_FLASH_FONT, gb2312_puhui32, lv_font_roboto_22);
+  style_para_back.text.font         = &TERN(MKS_SPI_FLASH_FONT, gb2312_puhui32, lv_font_roboto_22);
 
   lv_style_copy(&style_btn_rel, &lv_style_plain);
   style_btn_rel.body.border.color = lv_color_hex3(0x269);
@@ -411,7 +399,7 @@ void tft_style_init() {
   style_btn_rel.body.shadow.type  = LV_SHADOW_BOTTOM;
   style_btn_rel.body.radius       = LV_RADIUS_CIRCLE;
   style_btn_rel.text.color        = lv_color_hex3(0xDEF);
-  style_btn_rel.text.font         = &TERN(HAS_SPI_FLASH_FONT, gb2312_puhui32, lv_font_roboto_22);
+  style_btn_rel.text.font         = &TERN(MKS_SPI_FLASH_FONT, gb2312_puhui32, lv_font_roboto_22);
 
   lv_style_copy(&style_btn_pr, &style_btn_rel);
   style_btn_pr.body.border.color = lv_color_hex3(0x46B);
@@ -419,7 +407,7 @@ void tft_style_init() {
   style_btn_pr.body.grad_color   = lv_color_hex3(0x24A);
   style_btn_pr.body.shadow.width = 2;
   style_btn_pr.text.color        = lv_color_hex3(0xBCD);
-  style_btn_pr.text.font         = &TERN(HAS_SPI_FLASH_FONT, gb2312_puhui32, lv_font_roboto_22);
+  style_btn_pr.text.font         = &TERN(MKS_SPI_FLASH_FONT, gb2312_puhui32, lv_font_roboto_22);
 
   lv_style_copy(&lv_bar_style_indic, &lv_style_pretty_color);
   lv_bar_style_indic.text.color        = lv_color_hex3(0xADF);
@@ -558,7 +546,7 @@ char *creat_title_text() {
   return public_buf_m;
 }
 
-#if HAS_GCODE_PREVIEW
+#if MKS_GCODE_PREVIEW
 
   uintptr_t gPicturePreviewStart = 0;
 
@@ -589,7 +577,7 @@ char *creat_title_text() {
         update_spi_flash();
       }
       card.closefile();
-    #endif
+    #endif // HAS_MEDIA
   }
 
   void gcode_preview(char *path, int xpos_pixel, int ypos_pixel) {
@@ -632,7 +620,7 @@ char *creat_title_text() {
         if (*p_index == 0x0000) *p_index = LV_COLOR_BACKGROUND.full;
       }
       SPI_TFT.tftio.writeSequence((uint16_t*)bmp_public_buf, 200);
-      #if HAS_BAK_VIEW_IN_FLASH
+      #if MKS_BAK_VIEW_IN_FLASH
         W25QXX.init(SPI_QUARTER_SPEED);
         if (row < 20) W25QXX.SPI_FLASH_SectorErase(BAK_VIEW_ADDR_TFT35 + row * 4096);
         W25QXX.SPI_FLASH_BufferWrite(bmp_public_buf, BAK_VIEW_ADDR_TFT35 + row * 400, 400);
@@ -659,13 +647,9 @@ char *creat_title_text() {
 
         card.openFileRead(cur_name);
         if (card.isFileOpen()) {
-          feedrate_percentage = 100;
-          planner.flow_percentage[0] = 100;
-          planner.e_factor[0]        = planner.flow_percentage[0] * 0.01;
-          #if HAS_MULTI_EXTRUDER
-            planner.flow_percentage[1] = 100;
-            planner.e_factor[1]        = planner.flow_percentage[1] * 0.01;
-          #endif
+          motion.feedrate_percentage = 100;
+          TERN_(HAS_EXTRUDERS, planner.set_flow(0, 100));
+          E_TERN_(planner.set_flow(1, 100));
           card.startOrResumeFilePrinting();
           TERN_(POWER_LOSS_RECOVERY, recovery.prepare());
           once_flag = false;
@@ -676,45 +660,46 @@ char *creat_title_text() {
   }
 
   void draw_default_preview(int xpos_pixel, int ypos_pixel, uint8_t sel) {
-    int index;
+    static constexpr uint16_t draw_col_count = 40; // Number of rows displayed each time, determines the size of bmp_public_buf
+    static constexpr int draw_count = 200 / draw_col_count; // Total number of times to be displayed
+    static constexpr uint32_t pixel_count = (DEFAULT_VIEW_MAX_SIZE) / draw_count; // Number of pixels read per time (uint8_t)
     int y_off = 0;
-    W25QXX.init(SPI_QUARTER_SPEED);
-    for (index = 0; index < 10; index++) { // 200*200
-      #if HAS_BAK_VIEW_IN_FLASH
+    for (int index = 0; index < draw_count; index++) { // 200*200
+      #if MKS_BAK_VIEW_IN_FLASH
         if (sel == 1) {
-          flash_view_Read(bmp_public_buf, 8000); // 20k
+          flash_view_Read(bmp_public_buf, pixel_count); // 16k
         }
         else {
-          default_view_Read(bmp_public_buf, DEFAULT_VIEW_MAX_SIZE / 10); // 8k
+          default_view_Read(bmp_public_buf, pixel_count); // 16k
         }
       #else
-        default_view_Read(bmp_public_buf, DEFAULT_VIEW_MAX_SIZE / 10); // 8k
+        default_view_Read(bmp_public_buf, pixel_count); // 8k
       #endif
 
-      SPI_TFT.setWindow(xpos_pixel, y_off * 20 + ypos_pixel, 200, 20); // 200*200
-      SPI_TFT.tftio.writeSequence((uint16_t*)(bmp_public_buf), DEFAULT_VIEW_MAX_SIZE / 20);
+      SPI_TFT.setWindow(xpos_pixel, y_off * draw_col_count + ypos_pixel, 200, draw_col_count); // 200 * draw_col_count
+      SPI_TFT.tftio.writeSequence((uint16_t*)(bmp_public_buf), uint16_t(pixel_count / 2));
 
       y_off++;
     }
-    W25QXX.init(SPI_QUARTER_SPEED);
   }
 
   void disp_pre_gcode(int xpos_pixel, int ypos_pixel) {
     if (gcode_preview_over) gcode_preview(list_file.file_name[sel_id], xpos_pixel, ypos_pixel);
-    #if HAS_BAK_VIEW_IN_FLASH
+    #if MKS_BAK_VIEW_IN_FLASH
       if (flash_preview_begin) {
         flash_preview_begin = false;
         draw_default_preview(xpos_pixel, ypos_pixel, 1);
       }
     #endif
-    #if HAS_GCODE_DEFAULT_VIEW_IN_FLASH
+    #if MKS_GCODE_DEFAULT_VIEW_IN_FLASH
       if (default_preview_flg) {
         draw_default_preview(xpos_pixel, ypos_pixel, 0);
         default_preview_flg = false;
       }
     #endif
   }
-#endif // HAS_GCODE_PREVIEW
+
+#endif // MKS_GCODE_PREVIEW
 
 void print_time_run() {
   static uint8_t lastSec = 0;
@@ -770,7 +755,7 @@ void GUI_RefreshPage() {
         disp_print_time();
         disp_fan_Zpos();
       }
-      if (printing_rate_update_flag || marlin_state == MF_SD_COMPLETE) {
+      if (printing_rate_update_flag || marlin.is(MF_SD_COMPLETE)) {
         printing_rate_update_flag = false;
         if (!gcode_preview_over) setProBarRate();
       }
@@ -879,6 +864,13 @@ void GUI_RefreshPage() {
       }
       break;
 
+    case GCODE_UI:
+      if (gcode_output_update_flag) {
+        gcode_output_update_flag = false;
+        disp_gcode_output();
+      }
+      break;
+
     default: break;
   }
 
@@ -981,7 +973,7 @@ void clear_cur_ui() {
     #if ENABLED(TOUCH_SCREEN_CALIBRATION)
       case TOUCH_CALIBRATION_UI:      lv_clear_touch_calibration_screen(); break;
     #endif
-    #if ENABLED(MULTI_VOLUME)
+    #if HAS_MULTI_VOLUME
       case MEDIA_SELECT_UI:           lv_clear_media_select(); break;
     #endif
     default: break;
@@ -1150,9 +1142,9 @@ lv_obj_t* lv_screen_create(DISP_STATE newScreenType, const char *title) {
   // title
   lv_obj_t *titleLabel = nullptr;
   if (!title)
-    titleLabel = lv_label_create(scr, TITLE_XPOS, TITLE_YPOS, creat_title_text());
+    titleLabel = lv_label_create(scr, TITLE_POS_X, TITLE_POS_Y, creat_title_text());
   else if (title[0] != '\0')
-    titleLabel = lv_label_create(scr, TITLE_XPOS, TITLE_YPOS, title);
+    titleLabel = lv_label_create(scr, TITLE_POS_X, TITLE_POS_Y, title);
   if (titleLabel)
     lv_obj_set_style(titleLabel, &tft_style_label_rel);
 
@@ -1347,19 +1339,6 @@ void lv_screen_menu_item_onoff_update(lv_obj_t *btn, const bool curValue) {
   lv_label_set_text((lv_obj_t*)btn->child_ll.head, curValue ? machine_menu.enable : machine_menu.disable);
 }
 
-#if HAS_MEDIA
-
-  void sd_detection() {
-    static bool last_sd_status;
-    const bool sd_status = IS_SD_INSERTED();
-    if (sd_status != last_sd_status) {
-      last_sd_status = sd_status;
-      if (sd_status) card.mount(); else card.release();
-    }
-  }
-
-#endif
-
 void lv_ex_line(lv_obj_t *line, lv_point_t *points) {
   // Copy the previous line and apply the new style
   lv_line_set_points(line, points, 2);     // Set the points
@@ -1383,7 +1362,7 @@ void LV_TASK_HANDLER() {
     if (mks_test_flag == 0x1E) mks_hardware_test();
   #endif
 
-  TERN_(HAS_GCODE_PREVIEW, disp_pre_gcode(2, 36));
+  TERN_(MKS_GCODE_PREVIEW, disp_pre_gcode(2, 36));
 
   GUI_RefreshPage();
 

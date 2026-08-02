@@ -21,41 +21,32 @@
  */
 #pragma once
 
-#ifndef __MARLIN_FIRMWARE__
-#define __MARLIN_FIRMWARE__
-#endif
+/**
+ * MarlinConfigPre.h
+ *
+ * Prefix header to acquire Configurations. Includes the following:
+ *
+ * Conditionals-1-axes.h
+ *   MarlinConfigPre-1-axes.h
+ *     Config.h
+ *     macros.h
+ *     boards.h
+ *     Configuration.h (if not Config.h)
+ *     HAL/platforms.h
+ *     Version.h
+ * Conditionals-2-LCD.h
+ * Conditionals-3-etc.h
+ * Conditionals-4-adv.h
+ *   MarlinConfigPre-4-adv.h
+ *     Conditionals-3-etc.h (as above)
+ *     drivers.h
+ *     Configuration_adv.h (if not Config.h)
+ */
 
-//
-// Prefix header to acquire configurations
-//
-#include <stdint.h>
-
-#ifndef __MARLIN_DEPS__
-  #include "../HAL/platforms.h"
-#endif
-
-#include "../core/macros.h"
-#include "../core/boards.h"
-#include "../../Configuration.h"
-
-#ifdef CUSTOM_VERSION_FILE
-  #if __has_include(STRINGIFY(../../CUSTOM_VERSION_FILE))
-    #include STRINGIFY(../../CUSTOM_VERSION_FILE)
-  #endif
-#endif
-
-#include "Version.h"
-
-#include "Conditionals_LCD.h"
-
-#ifndef __MARLIN_DEPS__
-  #include HAL_PATH(.., inc/Conditionals_LCD.h)
-#endif
-
-#include "../core/drivers.h"
-#include "../../Configuration_adv.h"
-
-#include "Conditionals_adv.h"
+#include "Conditionals-1-axes.h"
+#include "Conditionals-2-LCD.h"
+#include "Conditionals-3-etc.h"
+#include "Conditionals-4-adv.h"
 
 #ifndef __MARLIN_DEPS__
   #include HAL_PATH(.., inc/Conditionals_adv.h)

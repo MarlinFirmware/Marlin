@@ -29,31 +29,35 @@
 
 #include <stdint.h>
 #include <string.h>
+#include "SPIFlashStorage.h"
 
-#ifndef HAS_SPI_FLASH_FONT
-  #define HAS_SPI_FLASH_FONT              1 // Disabled until fix the font load code
+#define USE_HASH_TABLE
+
+#ifndef MKS_SPI_FLASH_FONT
+  #define MKS_SPI_FLASH_FONT              1 // Disabled until the font load code is fixed!
 #endif
-#ifndef HAS_GCODE_PREVIEW
-  #define HAS_GCODE_PREVIEW               1
+#ifndef MKS_GCODE_PREVIEW
+  #define MKS_GCODE_PREVIEW               1
 #endif
-#ifndef HAS_LANG_SELECT_SCREEN
-  #define HAS_LANG_SELECT_SCREEN          1
+#ifndef MKS_LANG_SELECT_SCREEN
+  #define MKS_LANG_SELECT_SCREEN          1
 #endif
-#ifndef HAS_BAK_VIEW_IN_FLASH
-  #define HAS_BAK_VIEW_IN_FLASH           1
+#ifndef MKS_BAK_VIEW_IN_FLASH
+  #define MKS_BAK_VIEW_IN_FLASH           1
 #endif
-#ifndef HAS_GCODE_DEFAULT_VIEW_IN_FLASH
-  #define HAS_GCODE_DEFAULT_VIEW_IN_FLASH 1
+#ifndef MKS_GCODE_DEFAULT_VIEW_IN_FLASH
+  #define MKS_GCODE_DEFAULT_VIEW_IN_FLASH 1
 #endif
-#ifndef HAS_LOGO_IN_FLASH
-  #define HAS_LOGO_IN_FLASH 1
+#ifndef MKS_LOGO_IN_FLASH
+  #define MKS_LOGO_IN_FLASH 1
 #endif
 #ifndef SPI_FLASH_SIZE
   #define SPI_FLASH_SIZE                0x1000000 // 16MB
 #endif
 
 #define PIC_MAX_CN           100    // Maximum number of pictures
-#define PIC_NAME_MAX_LEN      50    // Picture name maximum length
+#define PIC_NAME_MAX_LEN      30    // Picture name maximum length
+#define PIC_NAME_OFFSET        4    // Picture name after "bmp_"
 
 #define LOGO_MAX_SIZE_TFT35             (300 * 1024)
 #define LOGO_MAX_SIZE_TFT32             (150 * 1024)
@@ -61,7 +65,11 @@
 #define DEFAULT_VIEW_MAX_SIZE           (200 * 200 * 2)
 #define FLASH_VIEW_MAX_SIZE             (200 * 200 * 2)
 
-#define PER_PIC_MAX_SPACE_TFT35         (9 * 1024)
+#if HAS_SPI_FLASH_COMPRESSION
+  #define PER_PIC_MAX_SPACE_TFT35       ( 9 * 1024)
+#else
+  #define PER_PIC_MAX_SPACE_TFT35       (32 * 1024)
+#endif
 #define PER_PIC_MAX_SPACE_TFT32         (16 * 1024)
 #define PER_FONT_MAX_SPACE              (16 * 1024)
 
@@ -140,12 +148,10 @@ union union32 {
 };
 
 // pic information
-struct pic_msg {
+typedef struct {
   uint8_t name[PIC_NAME_MAX_LEN];
   union union32 size;
-};
-
-typedef struct pic_msg PIC_MSG;
+} pic_msg_t;
 
 #define BMP_WRITE_BUF_LEN 512
 
@@ -154,6 +160,9 @@ typedef struct pic_msg PIC_MSG;
 #define PIC_SIZE_xM   6
 #define FONT_SIZE_xM  2
 
+#if ENABLED(USE_HASH_TABLE)
+  void init_img_map();
+#endif
 void picRead(uint8_t *Pname, uint8_t *P_Rbuff);
 void picLogoRead(uint8_t *LogoName, uint8_t *Logo_Rbuff, uint32_t LogoReadsize);
 void lv_pic_test(uint8_t *P_Rbuff, uint32_t addr, uint32_t size);

@@ -13,9 +13,9 @@ if pioutil.is_pio_build():
     target_drive = "REARM"
 
     import platform
-
     current_OS = platform.system()
-    Import("env")
+
+    env = pioutil.env
 
     def print_error(e):
         print('\nUnable to find destination disk (%s)\n' \
@@ -37,12 +37,12 @@ if pioutil.is_pio_build():
                 #
                 # platformio.ini will accept this for a Windows upload port designation: 'upload_port = L:'
                 #   Windows - doesn't care about the disk's name, only cares about the drive letter
-                import subprocess,string
+                import subprocess, string
                 from ctypes import windll
                 from pathlib import PureWindowsPath
 
-                # getting list of drives
-                # https://stackoverflow.com/questions/827371/is-there-a-way-to-list-all-the-available-drive-letters-in-python
+                # Getting a list of drives
+                # https://stackoverflow.com/questions/827371/is-there-a-way-to-list-all-the-available-windows-drives
                 drives = []
                 bitmask = windll.kernel32.GetLogicalDrives()
                 for letter in string.ascii_uppercase:
@@ -54,18 +54,25 @@ if pioutil.is_pio_build():
                     final_drive_name = drive + ':'
                     # print ('disc check: {}'.format(final_drive_name))
                     try:
-                        volume_info = str(subprocess.check_output('cmd /C dir ' + final_drive_name, stderr=subprocess.STDOUT))
+                        volume_info = str(subprocess.check_output('cmd /C vol ' + final_drive_name, stderr=subprocess.STDOUT))
                     except Exception as e:
                         print ('error:{}'.format(e))
                         continue
                     else:
-                        if target_drive in volume_info and not target_file_found:  # set upload if not found target file yet
-                            target_drive_found = True
+                        if target_drive in volume_info:  # set upload
                             upload_disk = PureWindowsPath(final_drive_name)
-                        if target_filename in volume_info:
-                            if not target_file_found:
+                            target_drive_found = True
+                            break
+                        try:
+                            dir_info = str(subprocess.check_output('cmd /C dir ' + final_drive_name, stderr=subprocess.STDOUT))
+                        except Exception as e:
+                            print ('error:{}'.format(e))
+                            continue
+                        else:
+                            if target_filename in dir_info:
                                 upload_disk = PureWindowsPath(final_drive_name)
-                            target_file_found = True
+                                target_file_found = True
+                                break
 
             elif current_OS == 'Linux':
                 #

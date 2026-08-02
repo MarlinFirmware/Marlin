@@ -87,10 +87,6 @@ void HostUI::action(FSTR_P const fstr, const bool eol) {
   PGMSTR(CONTINUE_STR, "Continue");
   PGMSTR(DISMISS_STR, "Dismiss");
 
-  #if HAS_RESUME_CONTINUE
-    extern bool wait_for_user;
-  #endif
-
   void HostUI::notify(const char * const cstr) {
     PORT_REDIRECT(SerialMask::All);
     action(F("notification "), false);
@@ -205,7 +201,7 @@ void HostUI::action(FSTR_P const fstr, const bool eol) {
         }
         break;
       case PROMPT_USER_CONTINUE:
-        TERN_(HAS_RESUME_CONTINUE, wait_for_user = false);
+        TERN_(HAS_RESUME_CONTINUE, marlin.user_resume());
         break;
       case PROMPT_PAUSE_RESUME:
         #if ALL(ADVANCED_PAUSE_FEATURE, HAS_MEDIA)

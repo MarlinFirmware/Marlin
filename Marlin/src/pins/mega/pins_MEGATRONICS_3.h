@@ -23,7 +23,7 @@
 
 /**
  * MegaTronics v3.0 / v3.1 / v3.2 pin assignments
- * Schematic Origin: https://github.com/brupje/Megatronics_3/blob/master/Design%20Files/megatronics.sch
+ * Schematic: https://github.com/brupje/Megatronics_3/blob/master/Design%20Files/megatronics.sch
  * ATmega2560
  */
 
@@ -98,22 +98,22 @@
 //
 // Temperature Sensors
 //
-#if TEMP_SENSOR_0 == -1
+#if TEMP_SENSOR_0_IS_AD595
   #define TEMP_0_PIN                          11  // Analog Input
 #else
   #define TEMP_0_PIN                          15  // Analog Input
 #endif
-#if TEMP_SENSOR_1 == -1
+#if TEMP_SENSOR_1_IS_AD595
   #define TEMP_1_PIN                          10  // Analog Input
 #else
   #define TEMP_1_PIN                          13  // Analog Input
 #endif
-#if TEMP_SENSOR_2 == -1
+#if TEMP_SENSOR_2_IS_AD595
   #define TEMP_2_PIN                           9  // Analog Input
 #else
   #define TEMP_2_PIN                          12  // Analog Input
 #endif
-#if TEMP_SENSOR_BED == -1
+#if TEMP_SENSOR_BED_IS_AD595
   #define TEMP_BED_PIN                         8  // Analog Input
 #else
   #define TEMP_BED_PIN                        14  // Analog Input
@@ -135,7 +135,7 @@
 //
 // Misc. Functions
 //
-#define SDSS                                  53
+#define SD_SS_PIN                             53
 #define LED_PIN                               13
 #define PS_ON_PIN                             12
 

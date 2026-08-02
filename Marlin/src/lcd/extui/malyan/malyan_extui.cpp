@@ -141,7 +141,7 @@ namespace ExtUI {
   // Not needed for Malyan LCD
   void onStatusChanged(const char * const) {}
 
-  void onMediaInserted() {}
+  void onMediaMounted() {}
   void onMediaError() {}
   void onMediaRemoved() {}
 
@@ -162,7 +162,7 @@ namespace ExtUI {
     void onPauseMode(
       const PauseMessage message,
       const PauseMode mode/*=PAUSE_MODE_SAME*/,
-      const uint8_t extruder/*=active_extruder*/
+      const uint8_t extruder/*=motion.extruder*/
     ) {}
   #endif
 
@@ -187,7 +187,7 @@ namespace ExtUI {
   #endif
 
   #if HAS_MESH
-    void onMeshUpdate(const int8_t, const int8_t, const_float_t) {}
+    void onMeshUpdate(const int8_t, const int8_t, const float) {}
     void onMeshUpdate(const int8_t, const int8_t, const ExtUI::probe_state_t) {}
   #endif
 

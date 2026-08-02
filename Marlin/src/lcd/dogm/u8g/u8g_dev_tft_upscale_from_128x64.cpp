@@ -136,6 +136,9 @@ static void setWindow(u8g_t *u8g, u8g_dev_t *dev, uint16_t xMin, uint16_t yMin, 
 
 #if HAS_TOUCH_BUTTONS
 
+  #pragma GCC diagnostic push
+  #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+
   static const uint8_t buttonD[] = {
     B01111111,B11111111,B11111111,B11111110,
     B10000000,B00000000,B00000000,B00000001,
@@ -306,6 +309,8 @@ static void setWindow(u8g_t *u8g, u8g_dev_t *dev, uint16_t xMin, uint16_t yMin, 
       #endif
     }
   }
+
+  #pragma GCC diagnostic pop
 
 #endif // HAS_TOUCH_BUTTONS
 
@@ -542,6 +547,7 @@ U8G_PB_DEV(u8g_dev_tft_320x240_upscale_from_128x64, WIDTH, HEIGHT, PAGE_HEIGHT, 
     tftio.set_window(TFT_PIXEL_OFFSET_X, TFT_PIXEL_OFFSET_Y, X_HI, Y_HI);
     do {
       set_font(FONT_MENU);
+      lcd_put_u8str(0, 7, GET_TEXT_F(MSG_TOUCH_CALIBRATION));
       lcd_put_u8str(0, LCD_PIXEL_HEIGHT / 2, str);
     } while (u8g.nextPage());
     drawing_screen = false;

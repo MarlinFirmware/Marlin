@@ -102,7 +102,7 @@
 #define TEMP_1_TR_ENABLE_PIN                PF4
 
 // MAX6675 Cold-Junction-Compensated K-Thermocouple to Digital Converter (0°C to +1024°C)
-// https://datasheets.maximintegrated.com/en/ds/MAX6675.pdf
+// https://datasheets.maximintegrated.com/en/ds/max6675.pdf
 
 #define TEMP_0_CS_PIN                       PC4   // max6675 datasheet: /CS pin, found with multimeter, not tested and likely wrong
 #define TEMP_0_SCK_PIN                      PB3   // max6675 datasheet: SCK pin, found with multimeter, not tested
@@ -169,7 +169,6 @@
   #define SD_MISO_PIN                       PC8
   #define SD_MOSI_PIN                       PD2
   #define SD_SS_PIN                         PC11
-  #define SDSS                              PC11
 #endif
 
 //
@@ -209,9 +208,9 @@
   #define TFT_RESET_PIN                     PD6
   #define TFT_BACKLIGHT_PIN                 PD3
 
+  // TODO: See if FSMC DMA can work
   #define FSMC_CS_PIN                       PD7
   #define FSMC_RS_PIN                       PD11
-
   #define TFT_CS_PIN                 FSMC_CS_PIN
   #define TFT_RS_PIN                 FSMC_RS_PIN
 

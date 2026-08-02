@@ -27,7 +27,10 @@
 #include "../gcode.h"
 #include "../../feature/bedlevel/bedlevel.h"
 #include "../../module/planner.h"
-#include "../../module/probe.h"
+
+#if ENABLED(MARLIN_DEV_MODE)
+  #include "../../module/probe.h"
+#endif
 
 #if ENABLED(EEPROM_SETTINGS)
   #include "../../module/settings.h"
@@ -42,18 +45,19 @@
 /**
  * M420: Enable/Disable Bed Leveling and/or set the Z fade height.
  *
- *   S[bool]   Turns leveling on or off
- *   Z[height] Sets the Z fade height (0 or none to disable)
- *   V[bool]   Verbose - Print the leveling grid
+ *   S<bool>   Turns leveling on or off
+ *   Z<height> Sets the Z fade height (0 or none to disable)
+ *   V<bool>   Verbose - Print the leveling grid
  *
  * With AUTO_BED_LEVELING_UBL only:
  *
- *   L[index]  Load UBL mesh from index (0 is default)
- *   T[map]    0:Human-readable 1:CSV 2:"LCD" 4:Compact
+ *   L<index>  Load UBL mesh from index (0 is default)
+ *   T<map>    0:Human-readable 1:CSV 2:"LCD" 4:Compact
+ *   C<offset> Adjust Mesh To Mean (and subtract the given offset)
  *
  * With mesh-based leveling only:
  *
- *   C         Center mesh on the mean of the lowest and highest
+ *   C<offset> Center Mesh on the Midrange (and subtract the given offset)
  *
  * With MARLIN_DEV_MODE:
  *   S2        Create a simple random mesh and enable
@@ -87,7 +91,7 @@ void GcodeSuite::M420() {
     }
   #endif
 
-  xyz_pos_t oldpos = current_position;
+  xyz_pos_t oldpos = motion.position;
 
   // If disabling leveling do it right away
   // (Don't disable for just M420 or M420 V)
@@ -141,7 +145,7 @@ void GcodeSuite::M420() {
 
     if (leveling_is_valid()) {
 
-      // Subtract the given value or the mean from all mesh values
+      // Re-center the mesh Z values around the midrange (or mean), plus any given offset
       if (parser.seen('C')) {
         const float cval = parser.value_float();
         #if ENABLED(AUTO_BED_LEVELING_UBL)
@@ -156,7 +160,7 @@ void GcodeSuite::M420() {
             // Get the sum and average of all mesh values
             float mesh_sum = 0;
             GRID_LOOP(x, y) mesh_sum += bedlevel.z_values[x][y];
-            const float zmean = mesh_sum / float(GRID_MAX_POINTS);
+            const float zmean = mesh_sum / float(GRID_MAX_POINTS) + cval;
 
           #else // midrange
 
@@ -225,9 +229,7 @@ void GcodeSuite::M420() {
   if (to_enable && !planner.leveling_active)
     SERIAL_ERROR_MSG(STR_ERR_M420_FAILED);
 
-  SERIAL_ECHO_START();
-  SERIAL_ECHOPGM("Bed Leveling ");
-  serialprintln_onoff(planner.leveling_active);
+  SERIAL_ECHO_MSG("Bed Leveling ", ON_OFF(planner.leveling_active));
 
   #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
     SERIAL_ECHO_START();
@@ -239,8 +241,8 @@ void GcodeSuite::M420() {
   #endif
 
   // Report change in position
-  if (oldpos != current_position)
-    report_current_position();
+  if (oldpos != motion.position)
+    motion.report_position();
 }
 
 void GcodeSuite::M420_report(const bool forReplay/*=true*/) {
@@ -249,14 +251,13 @@ void GcodeSuite::M420_report(const bool forReplay/*=true*/) {
   report_heading_etc(forReplay, F(
     TERN(MESH_BED_LEVELING, "Mesh Bed Leveling", TERN(AUTO_BED_LEVELING_UBL, "Unified Bed Leveling", "Auto Bed Leveling"))
   ));
-  SERIAL_ECHO(
+  SERIAL_ECHOLN(
     F("  M420 S"), planner.leveling_active
     #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
       , FPSTR(SP_Z_STR), LINEAR_UNIT(planner.z_fade_height)
     #endif
-    , F(" ; Leveling ")
+    , F(" ; Leveling "), ON_OFF(planner.leveling_active)
   );
-  serialprintln_onoff(planner.leveling_active);
 }
 
 #endif // HAS_LEVELING

@@ -119,7 +119,7 @@ const struct VPMapping VPMap[] PROGMEM = {
   { DGUS_SCREEN_FLOWRATES,           VPList_SD_FlowRates         },
   { DGUS_SCREEN_SDPRINTMANIPULATION, VPList_SD_PrintManipulation },
   { DGUS_SCREEN_SDFILELIST,          VPList_SDFileList           },
-  { 0 , nullptr } // List is terminated with an nullptr as table entry.
+  { 0, nullptr } // List is terminated with an nullptr as table entry.
 };
 
 const char MarlinVersion[] PROGMEM = SHORT_BUILD_VERSION;
@@ -150,7 +150,7 @@ const struct DGUS_VP_Variable ListOfVP[] PROGMEM = {
     VPHELPER(VP_HOME_ALL, nullptr, screen.handleManualMove, nullptr),
   #endif
 
-  VPHELPER(VP_MOTOR_LOCK_UNLOK, nullptr, screen.handleMotorLockUnlock, nullptr),
+  VPHELPER(VP_MOTOR_LOCK_UNLOCK, nullptr, screen.handleMotorLockUnlock, nullptr),
   #if ENABLED(POWER_LOSS_RECOVERY)
     VPHELPER(VP_POWER_LOSS_RECOVERY, nullptr, screen.handlePowerLossRecovery, nullptr),
   #endif
@@ -165,7 +165,7 @@ const struct DGUS_VP_Variable ListOfVP[] PROGMEM = {
     VPHELPER(VP_T_E0_Is, &thermalManager.temp_hotend[0].celsius, nullptr, screen.sendFloatAsLongValueToDisplay<0>),
     VPHELPER(VP_T_E0_Set, &thermalManager.temp_hotend[0].target, screen.handleTemperatureChanged, &screen.sendWordValueToDisplay),
     VPHELPER(VP_Flowrate_E0, nullptr, screen.handleFlowRateChanged, screen.sendWordValueToDisplay),
-    VPHELPER(VP_EPos, &destination.e, nullptr, screen.sendFloatAsLongValueToDisplay<2>),
+    VPHELPER(VP_EPos, &motion.destination.e, nullptr, screen.sendFloatAsLongValueToDisplay<2>),
     VPHELPER(VP_MOVE_E0, nullptr, screen.handleManualExtrude, nullptr),
     VPHELPER(VP_E0_CONTROL, &thermalManager.temp_hotend[0].target, screen.handleHeaterControl, nullptr),
     VPHELPER(VP_E0_STATUS, &thermalManager.temp_hotend[0].target, nullptr, screen.sendHeaterStatusToDisplay),
@@ -207,20 +207,27 @@ const struct DGUS_VP_Variable ListOfVP[] PROGMEM = {
 
   // Fan Data
   #if HAS_FAN
+    #if HOTENDS <= 2
+      #define FAN_CONTROL HOTENDS
+    #elif FAN_COUNT <= 2
+      #define FAN_CONTROL FAN_COUNT
+    #else
+      #define FAN_CONTROL 2
+    #endif
     #define FAN_VPHELPER(N) \
       VPHELPER(VP_Fan##N##_Percentage, &thermalManager.fan_speed[N], screen.percentageToUint8, screen.sendPercentageToDisplay), \
       VPHELPER(VP_FAN##N##_CONTROL, &thermalManager.fan_speed[N], screen.handleFanControl, nullptr), \
       VPHELPER(VP_FAN##N##_STATUS, &thermalManager.fan_speed[N], nullptr, screen.sendFanStatusToDisplay),
-    REPEAT(FAN_COUNT, FAN_VPHELPER)
+    REPEAT(FAN_CONTROL, FAN_VPHELPER)
   #endif
 
   // Feedrate
-  VPHELPER(VP_Feedrate_Percentage, &feedrate_percentage, screen.setValueDirectly<int16_t>, screen.sendWordValueToDisplay),
+  VPHELPER(VP_Feedrate_Percentage, &motion.feedrate_percentage, screen.setValueDirectly<int16_t>, screen.sendWordValueToDisplay),
 
   // Position Data
-  VPHELPER(VP_XPos, &current_position.x, nullptr, screen.sendFloatAsLongValueToDisplay<2>),
-  VPHELPER(VP_YPos, &current_position.y, nullptr, screen.sendFloatAsLongValueToDisplay<2>),
-  VPHELPER(VP_ZPos, &current_position.z, nullptr, screen.sendFloatAsLongValueToDisplay<2>),
+  VPHELPER(VP_XPos, &motion.position.x, nullptr, screen.sendFloatAsLongValueToDisplay<2>),
+  VPHELPER(VP_YPos, &motion.position.y, nullptr, screen.sendFloatAsLongValueToDisplay<2>),
+  VPHELPER(VP_ZPos, &motion.position.z, nullptr, screen.sendFloatAsLongValueToDisplay<2>),
 
   // Print Progress
   VPHELPER(VP_PrintProgress_Percentage, nullptr, nullptr, screen.sendPrintProgressToDisplay),

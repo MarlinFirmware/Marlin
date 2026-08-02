@@ -70,17 +70,10 @@
 typedef ForwardSerial1Class<decltype(SerialUSB)> USBSerialType;
 extern USBSerialType USBSerial;
 
-#define _MSERIAL(X) MSerial##X
-#define MSERIAL(X) _MSERIAL(X)
-
-#if SERIAL_PORT == -1
-  #define MYSERIAL1 USBSerial
-#elif WITHIN(SERIAL_PORT, 0, 3)
-  #define MYSERIAL1 MSERIAL(SERIAL_PORT)
-  DECLARE_SERIAL(SERIAL_PORT);
-#else
-  #error "SERIAL_PORT must be from 0 to 3, or -1 for Native USB."
-#endif
+#define SERIAL_INDEX_MIN 0
+#define SERIAL_INDEX_MAX 3
+#define USB_SERIAL_PORT(...) USBSerial
+#include "../shared/serial_ports.h"
 
 // ------------------------
 // Types
@@ -103,7 +96,7 @@ typedef int8_t pin_t;
 // ------------------------
 
 #ifndef analogInputToDigitalPin
-  #define analogInputToDigitalPin(p) ((p < 12U) ? (p) + 54U : -1)
+  #define analogInputToDigitalPin(p) pin_t((p < 12U) ? (p) + 54U : -1)
 #endif
 
 #define HAL_ADC_VREF_MV   3300
@@ -154,7 +147,7 @@ public:
 
   static void delay_ms(const int ms) { delay(ms); }
 
-  // Tasks, called from idle()
+  // Tasks, called from marlin.idle()
   static void idletask() {}
 
   // Reset

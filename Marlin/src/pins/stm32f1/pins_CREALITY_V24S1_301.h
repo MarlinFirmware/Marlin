@@ -44,10 +44,12 @@
   #define DEFAULT_MACHINE_NAME "Ender-3 S1"
 #endif
 
+#define BOARD_LCD_SERIAL_PORT 2
+
 //
 // Servos
 //
-#if !defined(SERVO0_PIN) && !defined(HAS_PIN_27_BOARD)
+#if !defined(SERVO0_PIN) && DISABLED(USE_PIN_27_BOARD)
   #define SERVO0_PIN                        PC13  // BLTouch OUT
 #endif
 

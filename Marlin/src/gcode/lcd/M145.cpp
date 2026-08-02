@@ -37,10 +37,11 @@
  *   S<material>
  *   H<hotend temp>
  *   B<bed temp>
+ *   C<chamber temp>
  *   F<fan speed>
  */
 void GcodeSuite::M145() {
-  const uint8_t material = (uint8_t)parser.intval('S');
+  const uint8_t material = (uint8_t)parser.byteval('S');
   if (material >= PREHEAT_COUNT)
     SERIAL_ERROR_MSG(STR_ERR_MATERIAL_INDEX);
   else {
@@ -52,6 +53,10 @@ void GcodeSuite::M145() {
     #if HAS_HEATED_BED
       if (parser.seenval('B'))
         mat.bed_temp = constrain(parser.value_int(), BED_MINTEMP, BED_MAX_TARGET);
+    #endif
+    #if HAS_HEATED_CHAMBER
+      if (parser.seenval('C'))
+        mat.chamber_temp = constrain(parser.value_int(), CHAMBER_MINTEMP, CHAMBER_MAX_TARGET);
     #endif
     #if HAS_FAN
       if (parser.seenval('F'))

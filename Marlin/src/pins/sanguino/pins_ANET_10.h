@@ -23,8 +23,7 @@
 
 /**
  * Anet V1.0 board pin assignments
- * Schematic: https://green-candy.osdn.jp/external/MarlinFW/board_schematics/Anet%20V1.0/ANET3D_Board_Schematic.pdf
- * Origin: https://github.com/ralf-e/ANET-3D-Board-V1.0/blob/master/ANET3D_Board_Schematic.pdf
+ * Schematic: https://github.com/ralf-e/ANET-3D-Board-V1.0/blob/master/ANET3D_Board_Schematic.pdf
  */
 
 /**
@@ -35,7 +34,7 @@
  */
 
 /**
- * The standard Arduino IDE extension (board manager) for this board
+ * The standard Arduino IDE extension (Boards Manager) for this board
  * is located at https://github.com/SkyNet3D/anet-board.
  *
  * Installation instructions are on that page.
@@ -52,20 +51,14 @@
  */
 
 /**
- * Another usable Arduino IDE extension (board manager) can be found at
+ * Requires this Arduino IDE extension for Boards Manager:
  * https://github.com/Lauszus/Sanguino
  *
- * This extension has been tested on Arduino 1.6.12 & 1.8.0
- *
- * Here's the JSON path:
+ * Follow the installation instructions at https://learn.sparkfun.com/tutorials/installing-board-definitions-in-the-arduino-ide
+ * Just use this JSON URL instead of Sparkfun's:
  * https://raw.githubusercontent.com/Lauszus/Sanguino/master/package_lauszus_sanguino_index.json
  *
- * When installing select 1.0.2
- *
- * Installation instructions can be found at https://learn.sparkfun.com/pages/CustomBoardsArduino
- * Just use the above JSON URL instead of Sparkfun's JSON.
- *
- * Once installed select the Sanguino board and then select the CPU.
+ * Once installed select the SANGUINO board and then select the CPU.
  */
 
 /**
@@ -83,7 +76,6 @@
  *   Anet Schematics                    - https://github.com/ralf-e/ANET-3D-Board-V1.0
  *   Wiring RRDFG Smart Controller      - https://www.thingiverse.com/thing:2103748
  *   SkyNet3D Anet software development - https://github.com/SkyNet3D/Marlin/
- *   Anet Users / Skynet SW on Facebook - https://www.facebook.com/skynet3ddevelopment/
  *
  *   Many thanks to Hans Raaf (@oderwat) for developing the Anet-specific software and supporting the Anet community.
  */
@@ -155,7 +147,7 @@
 //
 // Misc. Functions
 //
-#define SDSS                                  31
+#define SD_SS_PIN                             31
 #define LED_PIN                               -1
 
 /**
@@ -191,7 +183,7 @@
 
 #if HAS_WIRED_LCD
 
-  #define LCD_SDSS                   EXP1_06_PIN
+  #define LCD_SDSS_PIN               EXP1_06_PIN
 
   #if HAS_ADC_BUTTONS
 
@@ -207,7 +199,7 @@
   #elif IS_RRD_FG_SC
 
     // Pin definitions for the Anet A6 Full Graphics display and the RepRapDiscount Full Graphics
-    // display using an adapter board. See https://go.aisler.net/benlye/anet-lcd-adapter/pcb
+    // display using an adapter board. See https://aisler.net/benlye/anet-lcd-adapter/pcb
     // See below for alternative pin definitions for use with https://www.thingiverse.com/thing:2103748
 
     #if ENABLED(CTC_A10S_A13)
@@ -306,8 +298,8 @@
  * ====================================================================
  *
  *   Anet V1.0 controller           | ZONESTAR_LCD      | ANET_FULL_   | RepRapDiscount Full     | Thingiverse RepRap wiring
- *   physical   logical   alt       |                   | GRAPHICS_LCD | Graphics Display Wiring | https://www.thingiverse
- *     pin        pin     functions |                   |              |                         | .com/thing:2103748
+ *   physical   logical   alt       |                   | GRAPHICS_LCD | Graphics Display Wiring | https://www.thingiverse.com/thing:2103748
+ *     pin        pin     functions |                   |              |                         |
  *--------------------------------------------------------------------------------------------------------------------
  *   ANET-J3.1    8 ***             | N/A               | J3_TX ***    |                         |
  *   ANET-J3.2    9 ***             | N/A               | J3_RX ***    |                         |

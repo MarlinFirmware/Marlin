@@ -95,8 +95,8 @@ void _lcd_mesh_fine_tune(FSTR_P const fmsg) {
 // Init mesh editing and go to the fine tuning screen (bedlevel.fine_tune_mesh)
 // To capture encoder events UBL will also call ui.capture and ui.release.
 //
-void MarlinUI::ubl_mesh_edit_start(const_float_t initial) {
-  TERN_(HAS_GRAPHICAL_TFT, clear_lcd());
+void MarlinUI::ubl_mesh_edit_start(const float initial) {
+  TERN_(HAS_GRAPHICAL_TFT, clear_for_drawing());
   mesh_edit_accumulator = initial;
   goto_screen([]{ _lcd_mesh_fine_tune(GET_TEXT_F(MSG_MESH_EDIT_Z)); });
 }
@@ -144,7 +144,7 @@ void _lcd_ubl_custom_mesh() {
  * UBL Adjust Mesh Height Command
  */
 void _lcd_ubl_adjust_height_cmd() {
-  char ubl_lcd_gcode[13];
+  char ubl_lcd_gcode[14];
   const int ind = ubl_height_amount > 0 ? 6 : 7;
   strcpy_P(ubl_lcd_gcode, PSTR("G29P6C-"));
   sprintf_P(&ubl_lcd_gcode[ind], PSTR(".%i"), ABS(ubl_height_amount));
@@ -398,13 +398,13 @@ void ubl_map_move_to_xy() {
   const xy_pos_t xy = { bedlevel.get_mesh_x(x_plot), bedlevel.get_mesh_y(y_plot) };
 
   // Some printers have unreachable areas in the mesh. Skip the move if unreachable.
-  if (!position_is_reachable(xy)) return;
+  if (!motion.can_reach(xy)) return;
 
   #if ENABLED(DELTA)
-    if (current_position.z > delta_clip_start_height) { // Make sure the delta has fully free motion
-      destination = current_position;
-      destination.z = delta_clip_start_height;
-      prepare_internal_fast_move_to_destination(homing_feedrate(Z_AXIS)); // Set current_position from destination
+    if (motion.position.z > delta_clip_start_height) { // Make sure the delta has fully free motion
+      motion.destination = motion.position;
+      motion.destination.z = delta_clip_start_height;
+      motion.prepare_internal_fast_move_to_destination(motion.homing_feedrate(Z_AXIS)); // Set motion.position from destination
     }
   #endif
 
@@ -446,7 +446,7 @@ void ubl_map_screen() {
     do {
       // Now, keep the encoder position within range
       if (int32_t(ui.encoderPosition) < 0) ui.encoderPosition = GRID_MAX_POINTS + TERN(TOUCH_SCREEN, ui.encoderPosition, -1);
-      if (int32_t(ui.encoderPosition) > GRID_MAX_POINTS - 1) ui.encoderPosition = TERN(TOUCH_SCREEN, ui.encoderPosition - GRID_MAX_POINTS, 0);
+      if (int32_t(ui.encoderPosition) > GRID_MAX_POINTS - 1) ui.encoderPosition = TERN0(TOUCH_SCREEN, ui.encoderPosition - GRID_MAX_POINTS);
 
       // Draw the grid point based on the encoder
       x = ui.encoderPosition % (GRID_MAX_POINTS_X);
@@ -455,7 +455,7 @@ void ubl_map_screen() {
       // Validate if needed
       #if IS_KINEMATIC
         const xy_pos_t xy = { bedlevel.get_mesh_x(x), bedlevel.get_mesh_y(y) };
-        if (position_is_reachable(xy)) break; // Found a valid point
+        if (motion.can_reach(xy)) break; // Found a valid point
         ui.encoderPosition += step_dir;       // Test the next point
       #endif
     } while (ENABLED(IS_KINEMATIC));
@@ -494,7 +494,7 @@ void ubl_map_screen() {
 void _ubl_map_screen_homing() {
   ui.defer_status_screen();
   _lcd_draw_homing();
-  if (all_axes_homed()) {
+  if (motion.all_axes_homed()) {
     bedlevel.lcd_map_control = true;     // Return to the map screen after editing Z
     ui.goto_screen(ubl_map_screen, grid_index(x_plot, y_plot)); // Pre-set the encoder value
     ui.manual_move.menu_scale = 0;  // Immediate move
@@ -507,9 +507,9 @@ void _ubl_map_screen_homing() {
  * UBL Homing before LCD map
  */
 void _ubl_goto_map_screen() {
-  if (planner.movesplanned()) return;     // The ACTION_ITEM will do nothing
-  if (!all_axes_trusted()) {
-    set_all_unhomed();
+  if (planner.has_blocks_queued()) return; // The ACTION_ITEM will do nothing
+  if (!motion.all_axes_trusted()) {
+    motion.set_all_unhomed();
     queue.inject_P(G28_STR);
   }
   ui.goto_screen(_ubl_map_screen_homing); // Go to the "Homing" screen
@@ -632,10 +632,11 @@ void _menu_ubl_tools() {
  * UBL System submenu
  *
  * << Motion
- *  - Manually Build Mesh >>
- *  - Activate UBL >>
- *  - Deactivate UBL >>
+ *  - Activate / Deactivate UBL
+ *  - Edit Fade Height
  *  - Step-By-Step UBL >>
+ *  - Mesh Wizard >>
+ *  - Mesh Edit >>
  *  - Mesh Storage >>
  *  - Output Map >>
  *  - UBL Tools >>
@@ -644,21 +645,24 @@ void _menu_ubl_tools() {
 void _lcd_ubl_level_bed() {
   START_MENU();
   BACK_ITEM(MSG_MOTION);
-  if (planner.leveling_active)
-    GCODES_ITEM(MSG_UBL_DEACTIVATE_MESH, F("G29D"));
-  else
-    GCODES_ITEM(MSG_UBL_ACTIVATE_MESH, F("G29A"));
+
+  bool show_state = planner.leveling_active;
+  EDIT_ITEM(bool, MSG_BED_LEVELING, &show_state, _lcd_toggle_bed_leveling);
+
   #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
     editable.decimal = planner.z_fade_height;
     EDIT_ITEM_FAST(float3, MSG_Z_FADE_HEIGHT, &editable.decimal, 0, 100, []{ set_z_fade_height(editable.decimal); });
   #endif
+
   #if ENABLED(G26_MESH_VALIDATION)
     SUBMENU(MSG_UBL_STEP_BY_STEP_MENU, _lcd_ubl_step_by_step);
   #endif
+
   #if ENABLED(UBL_MESH_WIZARD)
     SUBMENU(MSG_UBL_MESH_WIZARD, _menu_ubl_mesh_wizard);
   #endif
-  ACTION_ITEM(MSG_UBL_MESH_EDIT, _ubl_goto_map_screen);
+
+  ACTION_ITEM(MSG_MESH_EDITOR, _ubl_goto_map_screen);
   SUBMENU(MSG_UBL_STORAGE_MESH_MENU, _lcd_ubl_storage_mesh);
   SUBMENU(MSG_UBL_OUTPUT_MAP, _lcd_ubl_output_map);
   SUBMENU(MSG_UBL_TOOLS, _menu_ubl_tools);

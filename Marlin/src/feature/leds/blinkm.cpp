@@ -32,7 +32,7 @@
 #include "leds.h"
 #include <Wire.h>
 
-void blinkm_set_led_color(const LEDColor &color) {
+void blinkm_set_led_color(const LED1Color_t &color) {
   Wire.begin();
   Wire.beginTransmission(I2C_ADDRESS(0x09));
   Wire.write('o');                    //to disable ongoing script, only needs to be used once

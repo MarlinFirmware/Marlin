@@ -70,7 +70,10 @@ millis_t DGUSScreenHandler::eeprom_save = 0;
 
 void DGUSScreenHandler::init() {
   dgus.init();
-  moveToScreen(DGUS_ScreenID::BOOT, true);
+  if (booted)
+    triggerFullUpdate(); // Reinit LCD hardware then refresh current screen
+  else
+    moveToScreen(DGUS_ScreenID::BOOT, true);
 }
 
 void DGUSScreenHandler::ready() {
@@ -208,7 +211,7 @@ void DGUSScreenHandler::userConfirmation() {
     if (confirm_return_screen >= DGUS_ScreenID::FILE1 && confirm_return_screen <= DGUS_ScreenID::FILE4)
       dgus_sdcard_handler.onPageLoad(DGUS_SCREEN_TO_PAGE(confirm_return_screen));
 
-    #ifdef DEBUG_DGUSLCD
+    #if ENABLED(DEBUG_DGUSLCD)
       DEBUG_ECHOLNPGM("trig confirmed, ret:", (uint16_t)confirm_return_screen);
     #endif
 

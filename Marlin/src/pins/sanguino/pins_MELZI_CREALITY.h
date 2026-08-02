@@ -23,15 +23,14 @@
 
 /**
  * Melzi (Creality) pin assignments
- * Schematic: https://green-candy.osdn.jp/external/MarlinFW/board_schematics/Melzi%20(Creality)/CR-10%20Schematic.pdf
- * Origin: https://github.com/Creality3DPrinting/CR10-Melzi-1.1.2/blob/master/Circuit%20diagram/Motherboard/CR-10%20Schematic.pdf
+ * Schematic: https://github.com/Creality3DPrinting/CR10-Melzi-1.1.2/blob/master/Circuit%20diagram/Motherboard/CR-10%20Schematic.pdf
  * ATmega1284P
  *
  * The Creality board needs a bootloader installed before Marlin can be uploaded.
  * If you don't have a chip programmer you can use a spare Arduino plus a few
  * electronic components to write the bootloader.
  *
- * See https://www.instructables.com/id/Burn-Arduino-Bootloader-with-Arduino-MEGA/
+ * See https://www.instructables.com/Burn-Arduino-Bootloader-with-Arduino-MEGA/
  *
  * Schematic: https://bit.ly/2XOnsWb
  */
@@ -71,7 +70,7 @@
     #define DOGLCD_A0                EXP1_06_PIN
   #endif
 
-  #define LCD_SDSS                            31  // Controller's SD card
+  #define LCD_SDSS_PIN                        31  // Controller's SD card
 
   #define BTN_ENC                    EXP1_02_PIN
   #define BTN_EN1                    EXP1_03_PIN
@@ -102,7 +101,7 @@
 #endif
 #if PIN_EXISTS(BEEPER) && (SERVO0_PIN == BEEPER_PIN || FIL_RUNOUT_PIN == BEEPER_PIN)
   #undef BEEPER_PIN
-  #define BEEPER_PIN -1
+  #define BEEPER_PIN                          -1
 #endif
 
 /**

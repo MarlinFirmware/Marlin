@@ -213,7 +213,7 @@
 #define SD_MOSI_PIN                           23
 #define SD_MISO_PIN                           19
 #define SD_SCK_PIN                            18
-#define SDSS                                   5
+#define SD_SS_PIN                              5
 #define USES_SHARED_SPI                           // SPI is shared by SD card with TMC SPI drivers
 
 //
@@ -221,6 +221,10 @@
 //
 
 #if HAS_WIRED_LCD
+
+  #define BTN_ENC                             12
+  #define BTN_EN1                              2
+  #define BTN_EN2                              4
 
   //#define LCD_PINS_RS                       13
   //#define LCD_PINS_EN                       17
@@ -238,12 +242,11 @@
     //#define LCD_PINS_D6                     -1
     //#define LCD_PINS_D7                     -1
 
-  #endif
+  #else
 
-  #define BTN_EN1                              2
-  #define BTN_EN2                              4
-  #define BTN_ENC                             12
-  #define BEEPER_PIN                         139
+    #define BEEPER_PIN                       139
+
+  #endif
 
 #endif // HAS_WIRED_LCD
 

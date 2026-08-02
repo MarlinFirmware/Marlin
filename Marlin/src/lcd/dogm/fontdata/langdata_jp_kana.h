@@ -7,6 +7,18 @@
 
 #include "langdata.h"
 
+const u8g_fntpgm_uint8_t fontpage_96_217_217[47] U8G_FONT_SECTION("fontpage_96_217_217") = {
+  0x00,0x0C,0x0F,0x00,0xFE,0x00,0x00,0x00,0x00,0x00,0xD9,0xD9,0x00,0x0B,0xFF,0x00,
+  0x00,0x0A,0x0C,0x18,0x0C,0x00,0xFF,0x04,0x00,0x02,0x00,0x83,0xC0,0x7E,0x00,0x0A,
+  0x00,0x16,0x00,0x12,0x00,0x0E,0x00,0x02,0x00,0x02,0x00,0x04,0x00,0x08,0x00};
+const u8g_fntpgm_uint8_t fontpage_97_139_139[33] U8G_FONT_SECTION("fontpage_97_139_139") = {
+  0x00,0x0C,0x0F,0x00,0xFE,0x00,0x00,0x00,0x00,0x00,0x8B,0x8B,0x00,0x09,0xFF,0x00,
+  0x00,0x08,0x0A,0x0A,0x0C,0x01,0xFF,0x4E,0x34,0x08,0x10,0x3E,0x61,0x81,0x19,0x26,
+  0x1C};
+const u8g_fntpgm_uint8_t fontpage_97_146_146[45] U8G_FONT_SECTION("fontpage_97_146_146") = {
+  0x00,0x0C,0x0F,0x00,0xFE,0x00,0x00,0x00,0x00,0x00,0x92,0x92,0x00,0x0A,0xFF,0x00,
+  0x00,0x09,0x0B,0x16,0x0C,0x01,0xFF,0x08,0x00,0x08,0x00,0x9E,0x00,0x70,0x00,0x21,
+  0x80,0x72,0x00,0x8C,0x00,0x14,0x00,0x24,0x00,0x20,0x00,0x1F,0x00};
 const u8g_fntpgm_uint8_t fontpage_97_161_164[65] U8G_FONT_SECTION("fontpage_97_161_164") = {
   0x00,0x0C,0x0F,0x00,0xFE,0x00,0x00,0x00,0x00,0x00,0xA1,0xA4,0x00,0x07,0x00,0x00,
   0x00,0x04,0x05,0x05,0x06,0x00,0x00,0xF0,0x10,0x60,0x40,0x80,0x05,0x07,0x07,0x06,
@@ -97,16 +109,19 @@ const u8g_fntpgm_uint8_t fontpage_97_252_252[25] U8G_FONT_SECTION("fontpage_97_2
   0x00,0x05,0x02,0x02,0x06,0x00,0x03,0x80,0x78};
 
 static const uxg_fontinfo_t g_fontinfo_jp_kana[] PROGMEM = {
-  FONTDATA_ITEM(97, 161, 164, fontpage_97_161_164), // 'ァ' -- 'イ'
-  FONTDATA_ITEM(97, 166, 166, fontpage_97_166_166), // 'ウ' -- 'ウ'
-  FONTDATA_ITEM(97, 168, 168, fontpage_97_168_168), // 'エ' -- 'エ'
-  FONTDATA_ITEM(97, 170, 187, fontpage_97_170_187), // 'オ' -- 'セ'
-  FONTDATA_ITEM(97, 189, 193, fontpage_97_189_193), // 'ソ' -- 'チ'
-  FONTDATA_ITEM(97, 195, 211, fontpage_97_195_211), // 'ッ' -- 'ビ'
-  FONTDATA_ITEM(97, 213, 217, fontpage_97_213_217), // 'フ' -- 'ベ'
-  FONTDATA_ITEM(97, 219, 220, fontpage_97_219_220), // 'ホ' -- 'ボ'
-  FONTDATA_ITEM(97, 222, 223, fontpage_97_222_223), // 'マ' -- 'ミ'
-  FONTDATA_ITEM(97, 225, 237, fontpage_97_225_237), // 'メ' -- 'ロ'
-  FONTDATA_ITEM(97, 242, 243, fontpage_97_242_243), // 'ヲ' -- 'ン'
-  FONTDATA_ITEM(97, 252, 252, fontpage_97_252_252), // 'ー' -- 'ー'
+  FONTDATA_ITEM(96, 217, 217, fontpage_96_217_217), // ' す ' - ' す '
+  FONTDATA_ITEM(97, 139, 139, fontpage_97_139_139), // ' る ' - ' る '
+  FONTDATA_ITEM(97, 146, 146, fontpage_97_146_146), // ' を ' - ' を '
+  FONTDATA_ITEM(97, 161, 164, fontpage_97_161_164), // ' ァ ' - ' イ '
+  FONTDATA_ITEM(97, 166, 166, fontpage_97_166_166), // ' ウ ' - ' ウ '
+  FONTDATA_ITEM(97, 168, 168, fontpage_97_168_168), // ' エ ' - ' エ '
+  FONTDATA_ITEM(97, 170, 187, fontpage_97_170_187), // ' オ ' - ' セ '
+  FONTDATA_ITEM(97, 189, 193, fontpage_97_189_193), // ' ソ ' - ' チ '
+  FONTDATA_ITEM(97, 195, 211, fontpage_97_195_211), // ' ッ ' - ' ビ '
+  FONTDATA_ITEM(97, 213, 217, fontpage_97_213_217), // ' フ ' - ' ベ '
+  FONTDATA_ITEM(97, 219, 220, fontpage_97_219_220), // ' ホ ' - ' ボ '
+  FONTDATA_ITEM(97, 222, 223, fontpage_97_222_223), // ' マ ' - ' ミ '
+  FONTDATA_ITEM(97, 225, 237, fontpage_97_225_237), // ' メ ' - ' ロ '
+  FONTDATA_ITEM(97, 242, 243, fontpage_97_242_243), // ' ヲ ' - ' ン '
+  FONTDATA_ITEM(97, 252, 252, fontpage_97_252_252), // ' ー ' - ' ー '
 };

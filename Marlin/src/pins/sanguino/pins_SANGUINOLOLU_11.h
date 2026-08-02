@@ -23,41 +23,22 @@
 
 /**
  * Sanguinololu board pin assignments
- * Schematic (0.1): https://green-candy.osdn.jp/external/MarlinFW/board_schematics/Sanguinololu%20v0.1/schematic.png
- * Origin (0.1): https://github.com/mosfet/Sanguinololu/blob/master/rev0.1/sanguinololu.sch
- * Schematic (0.6): https://green-candy.osdn.jp/external/MarlinFW/board_schematics/Sanguinololu%20v0.6/schematic.jpg
- * Origin (0.6): https://github.com/mosfet/Sanguinololu/blob/master/rev0.6/images/schematic.jpg
- * Schematic (0.7): https://green-candy.osdn.jp/external/MarlinFW/board_schematics/Sanguinololu%20v0.7/schematic.jpg
- * Origin (0.7): https://github.com/mosfet/Sanguinololu/blob/master/rev0.7/images/schematic.jpg
- * Schematic (1.0): https://green-candy.osdn.jp/external/MarlinFW/board_schematics/Sanguinololu%20v1.0/Sanguinololu-schematic.jpg
- * Origin (1.0): https://reprap.org/wiki/File:Sanguinololu-schematic.jpg
- * Schematic (1.1): https://green-candy.osdn.jp/external/MarlinFW/board_schematics/Sanguinololu%20v1.1/schematic.png
- * Origin (1.1): https://github.com/mosfet/Sanguinololu/blob/master/rev1.1/sanguinololu.sch
+ * Schematic (0.1): https://github.com/mosfet/Sanguinololu/blob/master/rev0.1/sanguinololu.sch
+ * Schematic (0.6): https://github.com/mosfet/Sanguinololu/blob/master/rev0.6/images/schematic.jpg
+ * Schematic (0.7): https://github.com/mosfet/Sanguinololu/blob/master/rev0.7/images/schematic.jpg
+ * Schematic (1.0): https://reprap.org/wiki/File:Sanguinololu-schematic.jpg
+ * Schematic (1.1): https://github.com/mosfet/Sanguinololu/blob/master/rev1.1/sanguinololu.sch
  */
 
 /**
- * Rev B    26 DEC 2016
- *
- * 1) added pointer to a current Arduino IDE extension
- * 2) added support for M3, M4 & M5 spindle control commands
- * 3) added case light pin definition
- */
-
-/**
- * A useable Arduino IDE extension (board manager) can be found at
+ * Requires this Arduino IDE extension for Boards Manager:
  * https://github.com/Lauszus/Sanguino
  *
- * This extension has been tested on Arduino 1.6.12 & 1.8.0
- *
- * Here's the JSON path:
+ * Follow the installation instructions at https://learn.sparkfun.com/tutorials/installing-board-definitions-in-the-arduino-ide
+ * Just use this JSON URL instead of Sparkfun's:
  * https://raw.githubusercontent.com/Lauszus/Sanguino/master/package_lauszus_sanguino_index.json
  *
- * When installing select 1.0.2
- *
- * Installation instructions can be found at https://learn.sparkfun.com/pages/CustomBoardsArduino
- * Just use the above JSON URL instead of Sparkfun's JSON.
- *
- * Once installed select the Sanguino board and then select the CPU.
+ * Once installed select the SANGUINO board and then select the CPU.
  */
 
 #define ALLOW_MEGA644P
@@ -113,7 +94,7 @@
   #endif
   #define E0_ENABLE_PIN                        4
 #else
-  #if !HAS_CUTTER && !ALL(HAS_WIRED_LCD, IS_NEWPANEL)  // Use IO Header
+  #if !HAS_CUTTER && !ALL(HAS_WIRED_LCD, IS_NEWPANEL) // Use IO Header
     #define CASE_LIGHT_PIN                     4  // Hardware PWM  - see if IO Header is available
   #endif
 #endif
@@ -128,8 +109,8 @@
  * If you encounter issues with these pins, upgrade your
  * Sanguino libraries! See #368.
  */
-//#define SDSS                                24
-#define SDSS                             AUX1_09
+//#define SD_SS_PIN                           24
+#define SD_SS_PIN                        AUX1_09
 
 #if IS_MELZI
   #define LED_PIN                        AUX1_01
@@ -262,18 +243,19 @@
 
     #if IS_MELZI
       #define BTN_ENC                    AUX1_05
-      #ifndef LCD_SDSS
-        #define LCD_SDSS                 AUX1_07  // Panelolu2 SD card reader rather than the Melzi
+      #ifndef LCD_SDSS_PIN
+        #define LCD_SDSS_PIN             AUX1_07  // Panelolu2 SD card reader rather than the Melzi
       #endif
     #else
       #define BTN_ENC                    AUX1_07
     #endif
+    #undef LCD_PINS_EN                            // not used, causes false pin conflict report
 
   #else // !LCD_FOR_MELZI && !ZONESTAR_LCD && !LCD_I2C_PANELOLU2
 
     #define BTN_ENC                      AUX1_02
-    #ifndef LCD_SDSS
-      #define LCD_SDSS                   AUX1_03  // Smart Controller SD card reader rather than the Melzi
+    #ifndef LCD_SDSS_PIN
+      #define LCD_SDSS_PIN               AUX1_03  // Smart Controller SD card reader rather than the Melzi
     #endif
 
   #endif
@@ -304,7 +286,7 @@
      *  The following assumes:
      *   - The X stepper driver socket is empty
      *   - The extruder driver socket has a driver board plugged into it
-     *   - The X stepper wires are attached the the extruder connector
+     *   - The X stepper wires are attached the extruder connector
      */
 
     /**

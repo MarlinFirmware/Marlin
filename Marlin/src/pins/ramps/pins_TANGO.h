@@ -23,8 +23,7 @@
 
 /**
  * BIQU Tango pin assignments
- * Schematic: https://green-candy.osdn.jp/external/MarlinFW/board_schematics/RAMPS/BIQU%20Tango/schematic.png
- * Origin: https://github.com/bigtreetech/Tango-3D-Printer-Motherboard/blob/master/Schematic/Tango%20V1.0.SchDoc
+ * Schematic: https://github.com/bigtreetech/Tango-3D-Printer-Motherboard/blob/master/Schematic/Tango%20V1.0.SchDoc
  * ATmega2560
  */
 
@@ -38,7 +37,7 @@
 #endif
 
 #ifndef TEMP_0_PIN
-  #if TEMP_SENSOR_0 == -1
+  #if TEMP_SENSOR_0_IS_AD595
     #define TEMP_0_PIN                        10  // Analog Input (connector *K1* on Tango thermocouple ADD ON is used)
   #else
     #define TEMP_0_PIN                        15  // Analog Input (default connector for thermistor *T0* on rumba board is used)
@@ -46,7 +45,7 @@
 #endif
 
 #ifndef TEMP_1_PIN
-  #if TEMP_SENSOR_1 == -1
+  #if TEMP_SENSOR_1_IS_AD595
     #define TEMP_1_PIN                         9  // Analog Input (connector *K2* on Tango thermocouple ADD ON is used)
   #else
     #define TEMP_1_PIN                        14  // Analog Input (default connector for thermistor *T1* on rumba board is used)

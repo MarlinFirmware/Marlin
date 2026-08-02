@@ -23,8 +23,7 @@
 
 /**
  * Mega controller pin assignments
- * Schematic: https://green-candy.osdn.jp/external/MarlinFW/board_schematics/Mega%20Controller/Mega_controller.pdf
- * Origin: https://reprap.org/mediawiki/images/b/ba/Mega_controller.pdf
+ * Schematic: https://reprap.org/mediawiki/images/b/ba/Mega_controller.pdf
  * ATmega2560
  */
 
@@ -87,13 +86,13 @@
 //
 // Temperature Sensors
 //
-#if TEMP_SENSOR_0 == -1
+#if TEMP_SENSOR_0_IS_AD595
   #define TEMP_0_PIN                           4  // Analog Input
 #else
   #define TEMP_0_PIN                           0  // Analog Input
 #endif
 
-#if TEMP_SENSOR_1 == -1
+#if TEMP_SENSOR_1_IS_AD595
   #define TEMP_1_PIN                           5  // Analog Input
 #else
   #define TEMP_1_PIN                           2  // Analog Input
@@ -101,7 +100,7 @@
 
 #define TEMP_2_PIN                             3  // Analog Input
 
-#if TEMP_SENSOR_BED == -1
+#if TEMP_SENSOR_BED_IS_AD595
   #define TEMP_BED_PIN                         6  // Analog Input
 #else
   #define TEMP_BED_PIN                         1  // Analog Input
@@ -129,7 +128,7 @@
 //
 // Misc. Functions
 //
-#define SDSS                             MINI_06
+#define SD_SS_PIN                        MINI_06
 #define LED_PIN                               13
 
 #ifndef CASE_LIGHT_PIN

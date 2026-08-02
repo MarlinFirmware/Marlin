@@ -45,9 +45,9 @@ namespace ExtUI {
     chiron.printerKilled(error, component);
   }
 
-  void onMediaInserted() { chiron.mediaEvent(AC_media_inserted); }
-  void onMediaError()    { chiron.mediaEvent(AC_media_error);    }
-  void onMediaRemoved()  { chiron.mediaEvent(AC_media_removed);  }
+  void onMediaMounted() { chiron.mediaEvent(AC_media_inserted); }
+  void onMediaError()   { chiron.mediaEvent(AC_media_error);    }
+  void onMediaRemoved() { chiron.mediaEvent(AC_media_removed);  }
 
   void onHeatingError(const heater_id_t header_id) {}
   void onMinTempError(const heater_id_t header_id) {}
@@ -70,20 +70,18 @@ namespace ExtUI {
   void onUserConfirmRequired(const char * const msg) { chiron.confirmationRequest(msg); }
 
   // For fancy LCDs include an icon ID, message, and translated button title
-  void onUserConfirmRequired(const int icon, const char * const cstr, FSTR_P const fBtn) {
+  void onUserConfirmRequired(const int, const char * const cstr, FSTR_P const) {
     onUserConfirmRequired(cstr);
-    UNUSED(icon); UNUSED(fBtn);
   }
-  void onUserConfirmRequired(const int icon, FSTR_P const fstr, FSTR_P const fBtn) {
+  void onUserConfirmRequired(const int, FSTR_P const fstr, FSTR_P const) {
     onUserConfirmRequired(fstr);
-    UNUSED(icon); UNUSED(fBtn);
   }
 
   #if ENABLED(ADVANCED_PAUSE_FEATURE)
     void onPauseMode(
       const PauseMessage message,
       const PauseMode mode/*=PAUSE_MODE_SAME*/,
-      const uint8_t extruder/*=active_extruder*/
+      const uint8_t extruder/*=motion.extruder*/
     ) {
       stdOnPauseMode(message, mode, extruder);
     }
@@ -139,7 +137,7 @@ namespace ExtUI {
   #endif
 
   #if HAS_MESH
-    void onMeshUpdate(const int8_t xpos, const int8_t ypos, const_float_t zval) {
+    void onMeshUpdate(const int8_t xpos, const int8_t ypos, const float zval) {
       // Called when any mesh points are updated
       //SERIAL_ECHOLNPGM("onMeshUpdate() x:", xpos, " y:", ypos, " z:", zval);
     }

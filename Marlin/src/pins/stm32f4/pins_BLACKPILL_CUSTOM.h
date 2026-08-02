@@ -46,7 +46,7 @@
 //
 // Servos
 //
-#if !defined(SERVO0_PIN) && !defined(HAS_PIN_27_BOARD)
+#if !defined(SERVO0_PIN) && DISABLED(USE_PIN_27_BOARD)
   #define SERVO0_PIN                        PC13  // BLTouch OUT
 #endif
 
@@ -110,15 +110,14 @@
 // SD Card
 //
 #define ONBOARD_SPI_DEVICE                     1
-// #define ONBOARD_SD_CS_PIN                   PA4   // SDSS
-
 #define SD_DETECT_PIN                       -1
 #define SDCARD_CONNECTION                ONBOARD
 //#define ONBOARD_SDIO
 #define NO_SD_HOST_DRIVE                          // This board's SD is only seen by the printer
 
 #if SD_CONNECTION_IS(ONBOARD)
-  #define SDSS                              PA4
+  #define ONBOARD_SD_CS_PIN                 PA4
+  #define SD_SS_PIN            ONBOARD_SD_CS_PIN
   #define SD_SCK_PIN                        PA5
   #define SD_MISO_PIN                       PA6
   #define SD_MOSI_PIN                       PA7
