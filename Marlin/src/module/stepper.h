@@ -308,7 +308,11 @@ constexpr uint8_t index_of_axis(const AxisEnum axis E_OPTARG(const uint8_t einde
 
   typedef struct {
     float A, B, C;
-    void reset() { A = B = 0.0f; C = 1.0f; }
+    void reset() { 
+        A = #ifdef NONLINEAR_FACTOR_A ? NONLINEAR_FACTOR_A : 0.0f;
+        B = #ifdef NONLINEAR_FACTOR_B ? NONLINEAR_FACTOR_B : 0.0f;
+        C = #ifdef NONLINEAR_FACTOR_C ? NONLINEAR_FACTOR_C : 1.0f;
+        }
   } nonlinear_coeff_t;
 
   typedef struct {
