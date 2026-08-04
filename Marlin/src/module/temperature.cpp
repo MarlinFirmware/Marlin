@@ -2223,9 +2223,9 @@ void Temperature::mintemp_error(const heater_id_t heater_id OPTARG(ERR_INCLUDE_T
           }
           else {
             #if ENABLED(CHAMBER_LIMIT_SWITCHING)
-              if (temp_chamber.is_above_target(TEMP_CHAMBER_HYSTERESIS))
+              if (temp_chamber.is_above_target(CHAMBER_HYSTERESIS))
                 temp_chamber.soft_pwm_amount = 0;
-              else if (temp_chamber.is_below_target(TEMP_CHAMBER_HYSTERESIS))
+              else if (temp_chamber.is_below_target(CHAMBER_HYSTERESIS))
                 temp_chamber.soft_pwm_amount = (MAX_CHAMBER_POWER) >> 1;
             #else
               temp_chamber.soft_pwm_amount = temp_chamber.is_below_target() ? (MAX_CHAMBER_POWER) >> 1 : 0;
