@@ -65,9 +65,6 @@ void ResonanceGenerator::start() {
   if (rt_params.axis == Z_AXIS)
     NOMORE(rt_params.accel_per_hz, 15.0f);
 
-  // Calculate time constant for sine sweep
-  const float rt_time = rt_params.octave_duration * (logf(RATIO) / logf(2.0f));
-
   #if HAS_STANDARD_MOTION
     if (TERN1(FT_MOTION, !ftMotion.cfg.active)) {
       block.reset();
