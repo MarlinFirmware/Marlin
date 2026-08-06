@@ -60,6 +60,17 @@
   #define MYSERIAL2 webSocketSerial
 #endif
 
+#if (SERIAL_PORT_2 == 2)
+  #define MYSERIAL2 flushableSerial2
+#endif
+
+#ifdef LCD_SERIAL_PORT
+  #if LCD_SERIAL_PORT==2
+    #define LCD_SERIAL flushableSerial2
+    #define SERIAL_GET_TX_BUFFER_FREE() LCD_SERIAL.availableForWrite()
+  #endif
+#endif
+
 #define CRITICAL_SECTION_START() portENTER_CRITICAL(&hal.spinlock)
 #define CRITICAL_SECTION_END()   portEXIT_CRITICAL(&hal.spinlock)
 
