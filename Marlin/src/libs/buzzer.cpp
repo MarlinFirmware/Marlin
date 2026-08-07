@@ -54,6 +54,14 @@ void Buzzer::tone(const uint16_t duration, const uint16_t frequency/*=0*/) {
   buffer.enqueue(tone);
 }
 
+#ifdef HAL_STM32
+  #define CRITICAL_TONE_START() NOOP
+  #define CRITICAL_TONE_END()   NOOP
+#endif
+  #define CRITICAL_TONE_START   CRITICAL_SECTION_START
+  #define CRITICAL_TONE_END     CRITICAL_SECTION_END
+#endif
+
 void Buzzer::tick() {
   if (state.endtime) {
     if (ELAPSED(millis(), state.endtime)) reset();
@@ -65,19 +73,27 @@ void Buzzer::tick() {
   state.tone = buffer.dequeue();
   state.endtime = millis() + state.tone.duration;
 
-  if (state.tone.frequency > 0) {
-    #if ENABLED(EXTENSIBLE_UI) && DISABLED(EXTUI_LOCAL_BEEPER)
-      CRITICAL_SECTION_START();
-      ExtUI::onPlayTone(state.tone.frequency, state.tone.duration);
-      CRITICAL_SECTION_END();
-    #elif ENABLED(SPEAKER)
-      //CRITICAL_SECTION_START();
-      ::tone(BEEPER_PIN, state.tone.frequency, state.tone.duration);
-      //CRITICAL_SECTION_END();
-    #else
-      on();
-    #endif
-  }
+  // Return now for a Rest
+  if (state.tone.frequency == 0) return;
+
+  #if ENABLED(EXTENSIBLE_UI) && DISABLED(EXTUI_LOCAL_BEEPER)
+
+    CRITICAL_TONE_START();
+    ExtUI::onPlayTone(state.tone.frequency, state.tone.duration);
+    CRITICAL_TONE_END();
+
+  #elif ENABLED(SPEAKER)
+
+    CRITICAL_TONE_START();
+    ::tone(BEEPER_PIN, state.tone.frequency, state.tone.duration);
+    CRITICAL_TONE_END();
+
+  #else
+
+    on();
+
+  #endif
+
 }
 
 #endif // HAS_BEEPER
