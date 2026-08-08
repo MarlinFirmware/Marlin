@@ -2520,7 +2520,7 @@
   //#define NONLINEAR_FACTOR_A 0.0000         // Quadratic coefficient (default 0.0)
   //#define NONLINEAR_FACTOR_B 0.0000         // Linear coefficient (default 0.0)
   //#define NONLINEAR_FACTOR_C 1.00           // Constant coefficient (default 1.0)
-  #endif
+#endif
 
 // @section leveling
 
