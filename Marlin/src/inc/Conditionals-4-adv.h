@@ -1559,6 +1559,20 @@
   #define NEED_LSF 1
 #endif
 
+// Saving meshes to EEPROM?
+#if ALL(EEPROM_ENABLED, HAS_MESH)
+  #ifndef MAX_SAVED_MESHES
+    #define MAX_SAVED_MESHES 100
+  #endif
+  #if MAX_SAVED_MESHES > 0
+    #define HAS_MESH_STORAGE 1
+  #endif
+#endif
+#if !HAS_MESH_STORAGE
+  #undef OPTIMIZED_MESH_STORAGE
+  #undef UBL_SAVE_ACTIVE_ON_M500
+#endif
+
 #if ALL(HAS_TFT_LVGL_UI, CUSTOM_MENU_MAIN)
   #define _HAS_1(N) (defined(MAIN_MENU_ITEM_##N##_DESC) && defined(MAIN_MENU_ITEM_##N##_GCODE))
   #define HAS_USER_ITEM(V...) DO(HAS,||,V)

@@ -246,8 +246,8 @@
  *                    current state of the Unified Bed Leveling system in the EEPROM.
  *
  *   S #   Store      Store the current Mesh at the specified location in EEPROM. Activate this location
- *                    for subsequent Load and Store operations. Valid storage slot numbers begin at 0 and
- *                    extend to a limit related to the available EEPROM storage.
+ *                    for subsequent Load and Store operations. Valid storage slot numbers range from 0
+ *                    to the highest index permitted, based on available EEPROM storage.
  *
  *   S -1  Store      Print the current Mesh as G-code that can be used to restore the mesh anytime.
  *
@@ -368,24 +368,34 @@ void unified_bed_leveling::G29_handle_post_processing() {
   //
 
   if (parser.seen('L')) {     // Load Current Mesh Data
-    param.KLS_storage_slot = parser.has_value() ? (int8_t)parser.value_int() : storage_slot;
 
-    int16_t a = settings.calc_num_meshes();
+    #if !HAS_MESH_STORAGE
 
-    if (!a) {
       SERIAL_ECHOLNPGM("?EEPROM storage not available.");
       return;
-    }
 
-    if (!WITHIN(param.KLS_storage_slot, 0, a - 1)) {
-      SERIAL_ECHOLN(F("?Invalid "), F("storage slot.\n?Use 0 to "), a - 1);
-      return;
-    }
+    #else // HAS_MESH_STORAGE
 
-    settings.load_mesh(param.KLS_storage_slot);
-    storage_slot = param.KLS_storage_slot;
+      param.KLS_storage_slot = parser.has_value() ? (int8_t)parser.value_int() : storage_slot;
 
-    SERIAL_ECHOLNPGM(STR_DONE);
+      const int16_t a = settings.calc_num_meshes();
+
+      if (!a) {
+        SERIAL_ECHOLNPGM("?EEPROM storage not available.");
+        return;
+      }
+
+      if (!WITHIN(param.KLS_storage_slot, 0, a - 1)) {
+        SERIAL_ECHOLN(F("?Invalid "), F("storage slot. (0.."), a - 1, C(')'));
+        return;
+      }
+
+      settings.load_mesh(param.KLS_storage_slot);
+      storage_slot = param.KLS_storage_slot;
+
+      SERIAL_ECHOLNPGM(STR_DONE);
+
+    #endif // HAS_MESH_STORAGE
   }
 
   //
@@ -393,27 +403,37 @@ void unified_bed_leveling::G29_handle_post_processing() {
   //
 
   else if (parser.seen('S')) {     // Store (or Save) Current Mesh Data
-    param.KLS_storage_slot = parser.has_value() ? (int8_t)parser.value_int() : storage_slot;
 
-    if (param.KLS_storage_slot == -1)               // Special case: 'Export' the mesh to the
-      return report_current_mesh();                 // host so it can be saved in a file.
+    #if !HAS_MESH_STORAGE
 
-    int16_t a = settings.calc_num_meshes();
-
-    if (!a) {
       SERIAL_ECHOLNPGM("?EEPROM storage not available.");
       goto LEAVE;
-    }
 
-    if (!WITHIN(param.KLS_storage_slot, 0, a - 1)) {
-      SERIAL_ECHOLN(F("?Invalid "), F("storage slot.\n?Use 0 to "), a - 1);
-      goto LEAVE;
-    }
+    #else // HAS_MESH_STORAGE
 
-    settings.store_mesh(param.KLS_storage_slot);
-    storage_slot = param.KLS_storage_slot;
+      param.KLS_storage_slot = parser.has_value() ? (int8_t)parser.value_int() : storage_slot;
 
-    SERIAL_ECHOLNPGM(STR_DONE);
+      if (param.KLS_storage_slot == -1)               // Special case: 'Export' the mesh to the
+        return report_current_mesh();                 // host so it can be saved in a file.
+
+      const int16_t a = settings.calc_num_meshes();
+
+      if (!a) {
+        SERIAL_ECHOLNPGM("?EEPROM storage not available.");
+        goto LEAVE;
+      }
+
+      if (!WITHIN(param.KLS_storage_slot, 0, a - 1)) {
+        SERIAL_ECHOLN(F("?Invalid "), F("storage slot. (0.."), a - 1, C(')'));
+        goto LEAVE;
+      }
+
+      settings.store_mesh(param.KLS_storage_slot);
+      storage_slot = param.KLS_storage_slot;
+
+      SERIAL_ECHOLNPGM(STR_DONE);
+
+    #endif // HAS_MESH_STORAGE
   }
 
   if (parser.seen_test('T'))
@@ -444,10 +464,13 @@ void unified_bed_leveling::G29_handle_post_processing() {
  * @return true if successful, false if error occurred
  */
 bool unified_bed_leveling::G29_handle_phase_ops() {
-  if (WITHIN(param.P_phase, 0, 1) && storage_slot == -1) {
-    storage_slot = 0;
-    SERIAL_ECHOLNPGM("Default storage slot 0 selected.");
-  }
+
+  #if HAS_MESH_STORAGE
+    if (WITHIN(param.P_phase, 0, 1) && storage_slot == -1) {
+      storage_slot = 0;
+      SERIAL_ECHOLNPGM("Default storage slot 0 selected.");
+    }
+  #endif
 
   switch (param.P_phase) {
     case 0:
@@ -1809,11 +1832,13 @@ void unified_bed_leveling::smart_fill_mesh() {
   void unified_bed_leveling::g29_what_command() {
     report_state();
 
-    if (storage_slot == -1)
-      SERIAL_ECHOLNPGM("No Mesh Loaded.");
-    else
-      SERIAL_ECHOLNPGM("Mesh ", storage_slot, " Loaded.");
-    serial_delay(50);
+    #if HAS_MESH_STORAGE
+      if (storage_slot == -1)
+        SERIAL_ECHOLNPGM("No Mesh Loaded.");
+      else
+        SERIAL_ECHOLNPGM("Mesh ", storage_slot, " Loaded.");
+      serial_delay(50);
+    #endif
 
     #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
       SERIAL_ECHOLN(F("Fade Height M420 Z"), p_float_t(planner.z_fade_height, 4));
@@ -1863,11 +1888,12 @@ void unified_bed_leveling::smart_fill_mesh() {
     SERIAL_ECHOLNPGM("z_value[][] size: ", sizeof(z_values));
     serial_delay(25);
 
-    SERIAL_ECHOLNPGM("EEPROM free for UBL: ", _hex_word(settings.meshes_end_index() - settings.meshes_start_index()));
-    serial_delay(50);
-
-    SERIAL_ECHOLNPGM("EEPROM can hold ", settings.calc_num_meshes(), " meshes.\n");
-    serial_delay(25);
+    #if HAS_MESH_STORAGE
+      SERIAL_ECHOLNPGM("EEPROM free for UBL: ", _hex_word(settings.meshes_end_index() - settings.meshes_start_index()));
+      serial_delay(50);
+      SERIAL_ECHOLNPGM("EEPROM can hold ", settings.calc_num_meshes(), " meshes.\n");
+      serial_delay(25);
+    #endif
 
     if (!sanity_check()) {
       echo_name();
@@ -1875,60 +1901,64 @@ void unified_bed_leveling::smart_fill_mesh() {
     }
   }
 
-  /**
-   * When we are fully debugged, the EEPROM dump command will get deleted also. But
-   * right now, it is good to have the extra information. Soon... we prune this.
-   */
-  void unified_bed_leveling::g29_eeprom_dump() {
-    uint8_t cccc;
+  #if HAS_MESH_STORAGE
 
-    SERIAL_ECHO_MSG("EEPROM Dump:");
-    persistentStore.access_start();
-    for (uint16_t i = 0; i < persistentStore.capacity(); i += 16) {
-      if (!(i & 0x3)) marlin.idle();
-      print_hex_word(i);
-      SERIAL_ECHOPGM(": ");
-      for (uint16_t j = 0; j < 16; j++) {
-        int pos = i + j;
-        persistentStore.read_data(pos, &cccc, sizeof(uint8_t));
-        print_hex_byte(cccc);
-        SERIAL_CHAR(' ');
+    /**
+    * When we are fully debugged, the EEPROM dump command will get deleted also. But
+    * right now, it is good to have the extra information. Soon... we prune this.
+    */
+    void unified_bed_leveling::g29_eeprom_dump() {
+      uint8_t cccc;
+
+      SERIAL_ECHO_MSG("EEPROM Dump:");
+      persistentStore.access_start();
+      for (uint16_t i = 0; i < persistentStore.capacity(); i += 16) {
+        if (!(i & 0x3)) marlin.idle();
+        print_hex_word(i);
+        SERIAL_ECHOPGM(": ");
+        for (uint16_t j = 0; j < 16; j++) {
+          int pos = i + j;
+          persistentStore.read_data(pos, &cccc, sizeof(uint8_t));
+          print_hex_byte(cccc);
+          SERIAL_CHAR(' ');
+        }
+        SERIAL_EOL();
       }
       SERIAL_EOL();
-    }
-    SERIAL_EOL();
-    persistentStore.access_finish();
-  }
-
-  /**
-   * When we are fully debugged, this may go away. But there are some valid
-   * use cases for the users. So we can wait and see what to do with it.
-   */
-  void unified_bed_leveling::g29_compare_current_mesh_to_stored_mesh() {
-    const int16_t a = settings.calc_num_meshes();
-
-    if (!a) {
-      SERIAL_ECHOLNPGM("?EEPROM storage not available.");
-      return;
+      persistentStore.access_finish();
     }
 
-    if (!parser.has_value() || !WITHIN(parser.value_int(), 0, a - 1)) {
-      SERIAL_ECHOLN(F("?Invalid "), F("storage slot.\n?Use 0 to "), a - 1);
-      return;
+    /**
+    * When we are fully debugged, this may go away. But there are some valid
+    * use cases for the users. So we can wait and see what to do with it.
+    */
+    void unified_bed_leveling::g29_compare_current_mesh_to_stored_mesh() {
+      const int16_t a = settings.calc_num_meshes();
+
+      if (!a) {
+        SERIAL_ECHOLNPGM("?EEPROM storage not available.");
+        return;
+      }
+
+      if (!parser.has_value() || !WITHIN(parser.value_int(), 0, a - 1)) {
+        SERIAL_ECHOLN(F("?Invalid "), F("storage slot. (0.."), a - 1, C(')'));
+        return;
+      }
+
+      param.KLS_storage_slot = (int8_t)parser.value_int();
+
+      float tmp_z_values[GRID_MAX_POINTS_X][GRID_MAX_POINTS_Y];
+      settings.load_mesh(param.KLS_storage_slot, &tmp_z_values);
+
+      SERIAL_ECHOLNPGM("Subtracting mesh in slot ", param.KLS_storage_slot, " from current mesh.");
+
+      GRID_LOOP(x, y) {
+        z_values[x][y] -= tmp_z_values[x][y];
+        TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(x, y, z_values[x][y]));
+      }
     }
 
-    param.KLS_storage_slot = (int8_t)parser.value_int();
-
-    float tmp_z_values[GRID_MAX_POINTS_X][GRID_MAX_POINTS_Y];
-    settings.load_mesh(param.KLS_storage_slot, &tmp_z_values);
-
-    SERIAL_ECHOLNPGM("Subtracting mesh in slot ", param.KLS_storage_slot, " from current mesh.");
-
-    GRID_LOOP(x, y) {
-      z_values[x][y] -= tmp_z_values[x][y];
-      TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(x, y, z_values[x][y]));
-    }
-  }
+  #endif // HAS_MESH_STORAGE
 
 #endif // UBL_DEVEL_DEBUGGING
 
