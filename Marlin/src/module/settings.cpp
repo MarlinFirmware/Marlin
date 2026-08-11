@@ -3190,7 +3190,7 @@ void MarlinSettings::postprocess() {
     #define MESH_STORE_SIZE sizeof(TERN(OPTIMIZED_MESH_STORAGE, mesh_store_t, bedlevel.z_values))
 
     uint16_t MarlinSettings::calc_num_meshes() {
-      return MIN(MAX_SAVED_MESHES, (meshes_end - meshes_start_index()) / MESH_STORE_SIZE);
+      return _MIN(uint16_t(MAX_SAVED_MESHES), (meshes_end - meshes_start_index()) / MESH_STORE_SIZE);
     }
 
     int MarlinSettings::mesh_slot_offset(const int8_t slot) {
