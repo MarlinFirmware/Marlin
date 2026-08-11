@@ -81,7 +81,7 @@
   #include "../../feature/backlash.h"
 #endif
 
-#if HAS_BED_PROBE
+#if ANY(HAS_BED_PROBE, MESH_BED_LEVELING, AUTO_BED_LEVELING_UBL)
   #include "../../module/probe.h"
 #endif
 

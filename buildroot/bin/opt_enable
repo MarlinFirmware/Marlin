@@ -5,10 +5,12 @@ import sys, os, config
 def main():
     args = sys.argv[1:]
 
+    files = config.pop_and_resolve_base_arg(args)
+
     for name in args:
         changed = False
 
-        for file in config.FILES:
+        for file in files:
             if os.path.exists(file):
                 if config.enable(file, name):
                     changed = True

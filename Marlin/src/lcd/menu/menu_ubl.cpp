@@ -39,8 +39,11 @@
   #include "../../module/temperature.h"
 #endif
 
-static int16_t ubl_storage_slot = 0,
-               custom_hotend_temp = 150,
+#if HAS_MESH_STORAGE
+  static int16_t ubl_storage_slot = 0;
+#endif
+
+static int16_t custom_hotend_temp = 150,
                side_points = 3,
                ubl_fillin_amount = 5,
                ubl_height_amount = 1;
@@ -338,39 +341,43 @@ void _lcd_ubl_build_mesh() {
   END_MENU();
 }
 
-/**
- * UBL Load / Save Mesh Commands
- */
-inline void _lcd_ubl_load_save_cmd(const char loadsave, FSTR_P const fmsg) {
-  char ubl_lcd_gcode[40];
-  sprintf_P(ubl_lcd_gcode, PSTR("G29%c%i\nM117 "), loadsave, ubl_storage_slot);
-  sprintf_P(&ubl_lcd_gcode[strlen(ubl_lcd_gcode)], FTOP(fmsg), ubl_storage_slot);
-  gcode.process_subcommands_now(ubl_lcd_gcode);
-}
-void _lcd_ubl_load_mesh_cmd() { _lcd_ubl_load_save_cmd('L', GET_TEXT_F(MSG_MESH_LOADED)); }
-void _lcd_ubl_save_mesh_cmd() { _lcd_ubl_load_save_cmd('S', GET_TEXT_F(MSG_MESH_SAVED)); }
+#if HAS_MESH_STORAGE
 
-/**
- * UBL Mesh Storage submenu
- *
- * << Unified Bed Leveling
- *    Memory Slot: ---
- *    Load Bed Mesh
- *    Save Bed Mesh
- */
-void _lcd_ubl_storage_mesh() {
-  int16_t a = settings.calc_num_meshes();
-  START_MENU();
-  BACK_ITEM(MSG_UBL_LEVELING);
-  if (!WITHIN(ubl_storage_slot, 0, a - 1))
-    STATIC_ITEM(MSG_UBL_NO_STORAGE);
-  else {
-    EDIT_ITEM(int3, MSG_UBL_STORAGE_SLOT, &ubl_storage_slot, 0, a - 1);
-    ACTION_ITEM(MSG_UBL_LOAD_MESH, _lcd_ubl_load_mesh_cmd);
-    ACTION_ITEM(MSG_UBL_SAVE_MESH, _lcd_ubl_save_mesh_cmd);
+ /**
+  * UBL Load / Save Mesh Commands
+  */
+  inline void _lcd_ubl_load_save_cmd(const char loadsave, FSTR_P const fmsg) {
+    char ubl_lcd_gcode[40];
+    sprintf_P(ubl_lcd_gcode, PSTR("G29%c%i\nM117 "), loadsave, ubl_storage_slot);
+    sprintf_P(&ubl_lcd_gcode[strlen(ubl_lcd_gcode)], FTOP(fmsg), ubl_storage_slot);
+    gcode.process_subcommands_now(ubl_lcd_gcode);
   }
-  END_MENU();
-}
+  void _lcd_ubl_load_mesh_cmd() { _lcd_ubl_load_save_cmd('L', GET_TEXT_F(MSG_MESH_LOADED)); }
+  void _lcd_ubl_save_mesh_cmd() { _lcd_ubl_load_save_cmd('S', GET_TEXT_F(MSG_MESH_SAVED)); }
+
+ /**
+  * UBL Mesh Storage submenu
+  *
+  * << Unified Bed Leveling
+  *    Memory Slot: ---
+  *    Load Bed Mesh
+  *    Save Bed Mesh
+  */
+  void _lcd_ubl_storage_mesh() {
+    int16_t a = settings.calc_num_meshes();
+    START_MENU();
+    BACK_ITEM(MSG_UBL_LEVELING);
+    if (!WITHIN(ubl_storage_slot, 0, a - 1))
+      STATIC_ITEM(MSG_UBL_NO_STORAGE);
+    else {
+      EDIT_ITEM(int3, MSG_UBL_STORAGE_SLOT, &ubl_storage_slot, 0, a - 1);
+      ACTION_ITEM(MSG_UBL_LOAD_MESH, _lcd_ubl_load_mesh_cmd);
+      ACTION_ITEM(MSG_UBL_SAVE_MESH, _lcd_ubl_save_mesh_cmd);
+    }
+    END_MENU();
+  }
+
+#endif // HAS_MESH_STORAGE
 
 /**
  * UBL LCD "radar" map point editing
@@ -577,7 +584,9 @@ void _menu_ubl_tools() {
     GCODES_ITEM(MSG_UBL_4_FINE_TUNE_ALL, F("G29P4RT"));
     SUBMENU(MSG_UBL_5_VALIDATE_MESH_MENU, _lcd_ubl_validate_mesh);
     GCODES_ITEM(MSG_UBL_6_FINE_TUNE_ALL, F("G29P4RT"));
-    ACTION_ITEM(MSG_UBL_7_SAVE_MESH, _lcd_ubl_save_mesh_cmd);
+    #if HAS_MESH_STORAGE
+      ACTION_ITEM(MSG_UBL_7_SAVE_MESH, _lcd_ubl_save_mesh_cmd);
+    #endif
     END_MENU();
   }
 
@@ -589,20 +598,27 @@ void _menu_ubl_tools() {
    * UBL Mesh Wizard - One-click mesh creation with or without a probe
    */
   void _lcd_ubl_mesh_wizard() {
-    char ubl_lcd_gcode[30];
-    #if HAS_HEATED_BED && HAS_HOTEND
-      sprintf_P(ubl_lcd_gcode, PSTR("M1004B%iH%iS%i"), custom_bed_temp, custom_hotend_temp, ubl_storage_slot);
-    #elif HAS_HOTEND
-      sprintf_P(ubl_lcd_gcode, PSTR("M1004H%iS%i"), custom_hotend_temp, ubl_storage_slot);
-    #else
-      sprintf_P(ubl_lcd_gcode, PSTR("M1004S%i"), ubl_storage_slot);
-    #endif
+    MString<30> ubl_lcd_gcode;
+    ubl_lcd_gcode.setf_P(
+      PSTR(
+        "M1004"
+        TERN(HAS_HOTEND, "H%i", "")
+        TERN(HAS_HEATED_BED, "B%i", "")
+        TERN(HAS_MESH_STORAGE, "S%i", "")
+      )
+      OPTARG(HAS_HOTEND, custom_hotend_temp)
+      OPTARG(HAS_HEATED_BED, custom_bed_temp)
+      OPTARG(HAS_MESH_STORAGE, ubl_storage_slot)
+    );
     queue.inject(ubl_lcd_gcode);
     ui.return_to_status();
   }
 
   void _menu_ubl_mesh_wizard() {
-    const int16_t total_slots = settings.calc_num_meshes();
+    #if HAS_MESH_STORAGE
+      const int16_t total_slots = settings.calc_num_meshes();
+    #endif
+
     START_MENU();
     BACK_ITEM(MSG_UBL_LEVELING);
 
@@ -614,7 +630,9 @@ void _menu_ubl_tools() {
       EDIT_ITEM(int3, MSG_UBL_BED_TEMP_CUSTOM, &custom_bed_temp, BED_MINTEMP + 20, BED_MAX_TARGET);
     #endif
 
-    EDIT_ITEM(int3, MSG_UBL_STORAGE_SLOT, &ubl_storage_slot, 0, total_slots);
+    #if HAS_MESH_STORAGE
+      EDIT_ITEM(int3, MSG_UBL_STORAGE_SLOT, &ubl_storage_slot, 0, total_slots);
+    #endif
 
     ACTION_ITEM(MSG_UBL_MESH_WIZARD, _lcd_ubl_mesh_wizard);
 
@@ -663,7 +681,9 @@ void _lcd_ubl_level_bed() {
   #endif
 
   ACTION_ITEM(MSG_MESH_EDITOR, _ubl_goto_map_screen);
-  SUBMENU(MSG_UBL_STORAGE_MESH_MENU, _lcd_ubl_storage_mesh);
+  #if HAS_MESH_STORAGE
+    SUBMENU(MSG_UBL_STORAGE_MESH_MENU, _lcd_ubl_storage_mesh);
+  #endif
   SUBMENU(MSG_UBL_OUTPUT_MAP, _lcd_ubl_output_map);
   SUBMENU(MSG_UBL_TOOLS, _menu_ubl_tools);
   GCODES_ITEM(MSG_UBL_INFO_UBL, F("G29W"));
