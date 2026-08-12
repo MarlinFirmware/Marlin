@@ -120,7 +120,7 @@ def disable_all_options():
             match = regex.match(line)
             if match:
                 name = match[3].upper()
-                if name in ('CONFIGURATION_H_VERSION', 'CONFIGURATION_ADV_H_VERSION', 'CONFIG_EXAMPLES_DIR'): continue
+                if name in ('CONFIGURATION_H_VERSION', 'CONFIGURATION_ADV_H_VERSION', 'CONFIGURATION_VERSION_HASH', 'CONFIG_EXAMPLES_DIR'): continue
                 if name.startswith('_'): continue
                 found = True
                 # Comment out the define
