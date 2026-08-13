@@ -545,6 +545,10 @@ void GcodeSuite::process_parsed_command(bool no_ok/*=false*/) {
           case 34: M34(); break;                                  // M34: Set SD card sorting options
         #endif
 
+        #if ENABLED(SD_FILE_CHECKSUM)
+          case 35: M35(); break;                                  // M35 <filename> Report SD file cksum
+        #endif
+
         case 928: M928(); break;                                  // M928: Start SD write
       #endif // HAS_MEDIA
 
