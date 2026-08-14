@@ -61,16 +61,16 @@ static void m49_print_endstop(const AxisEnum axis) {
  * applied, so all targets must be validated by M49 before calling this helper.
  */
 static bool m49_move_axis(
-  const AxisEnum axis, const_float_t target, const_feedRate_t fr_mm_s,
+  const AxisEnum axis, const float target, const feedRate_t fr_mm_s,
   const EndstopEnum expected, const bool must_trigger,
   float &trigger_position, FSTR_P &failure
 ) {
   endstops.hit_on_purpose();
-  current_position[axis] = target;
-  line_to_current_position(fr_mm_s);
+  motion.position[axis] = target;
+  motion.goto_current_position(fr_mm_s);
   planner.synchronize();
 
-  if (!IsRunning()) {
+  if (!marlin.isRunning()) {
     failure = F("firmware stopped during movement");
     return false;
   }
@@ -80,24 +80,24 @@ static bool m49_move_axis(
   if (must_trigger) {
     if (!(hits & expected_mask)) {
       failure = F("expected physical endstop did not trigger");
-      set_current_from_steppers_for_axis(axis);
-      sync_plan_position();
+      motion.set_current_from_steppers_for_axis(axis);
+      motion.sync_plan_position();
       return false;
     }
     if (hits != expected_mask) {
       failure = F("unexpected additional endstop trigger");
-      set_current_from_steppers_for_axis(axis);
-      sync_plan_position();
+      motion.set_current_from_steppers_for_axis(axis);
+      motion.sync_plan_position();
       return false;
     }
     trigger_position = planner.triggered_position_mm(axis);
-    set_current_from_steppers_for_axis(axis);
-    sync_plan_position();
+    motion.set_current_from_steppers_for_axis(axis);
+    motion.sync_plan_position();
   }
   else if (hits) {
     failure = F("unexpected endstop trigger during exercise move");
-    set_current_from_steppers_for_axis(axis);
-    sync_plan_position();
+    motion.set_current_from_steppers_for_axis(axis);
+    motion.sync_plan_position();
     return false;
   }
 
@@ -122,7 +122,7 @@ void GcodeSuite::M49() {
     return;
   #endif
 
-  if (printJobOngoing() || printingIsPaused()) {
+  if (marlin.printJobOngoing() || marlin.printingIsPaused()) {
     SERIAL_ECHOLNPGM("Error: M49 is not allowed during a print job");
     return;
   }
@@ -162,7 +162,7 @@ void GcodeSuite::M49() {
     return;
   }
 
-  if (!axis_was_homed(axis) || !axis_is_trusted(axis)) {
+  if (!motion.axis_was_homed(axis) || !motion.axis_is_trusted(axis)) {
     SERIAL_ECHOPGM("Error: Home axis ", C(AXIS_CHAR(axis)));
     SERIAL_ECHOLNPGM(" before M49");
     return;
@@ -211,14 +211,14 @@ void GcodeSuite::M49() {
     return;
   }
 
-  const int8_t hdir = home_dir(axis);
-  const float reference = base_home_pos(axis),
+  const int8_t hdir = motion.home_dir(axis);
+  const float reference = motion.base_home_pos(axis),
               margin_position = reference - hdir * margin,
               far_position = margin_position - hdir * distance,
               approach_target = reference + hdir * float(AXIS_ENDSTOP_REPEATABILITY_MAX_OVERRUN);
 
-  if (!WITHIN(margin_position, base_min_pos(axis), base_max_pos(axis))
-      || !WITHIN(far_position, base_min_pos(axis), base_max_pos(axis))) {
+  if (!WITHIN(margin_position, motion.base_min_pos(axis), motion.base_max_pos(axis))
+      || !WITHIN(far_position, motion.base_min_pos(axis), motion.base_max_pos(axis))) {
     SERIAL_ECHOLNPGM("Error: M49 margin and exercise distance exceed axis travel limits");
     return;
   }
@@ -232,12 +232,12 @@ void GcodeSuite::M49() {
     SERIAL_ECHOLNPGM("M49 Axis-Endstop Repeatability Test");
     SERIAL_ECHOPGM("Axis: ", C(AXIS_CHAR(axis)), "\nPhysical endstop: ");
     m49_print_endstop(axis);
-    SERIAL_ECHOLNPAIR_F("Distance: ", distance, 3);
+    SERIAL_ECHOLNPGM("Distance: ", p_float_t(distance, 3));
     SERIAL_ECHOLNPGM("Exercise cycles/sample: ", cycles);
-    SERIAL_ECHOLNPAIR_F("Forward speed (mm/min): ", MMS_TO_MMM(forward_fr), 1);
-    SERIAL_ECHOLNPAIR_F("Backward speed (mm/min): ", MMS_TO_MMM(backward_fr), 1);
-    SERIAL_ECHOLNPAIR_F("Endstop margin: ", margin, 3);
-    SERIAL_ECHOLNPAIR_F("Measurement speed (mm/min): ", MMS_TO_MMM(approach_fr), 1);
+    SERIAL_ECHOLNPGM("Forward speed (mm/min): ", p_float_t(MMS_TO_MMM(forward_fr), 1));
+    SERIAL_ECHOLNPGM("Backward speed (mm/min): ", p_float_t(MMS_TO_MMM(backward_fr), 1));
+    SERIAL_ECHOLNPGM("Endstop margin: ", p_float_t(margin, 3));
+    SERIAL_ECHOLNPGM("Measurement speed (mm/min): ", p_float_t(MMS_TO_MMM(approach_fr), 1));
     SERIAL_ECHOLNPGM("Samples: ", samples);
     SERIAL_ECHOLNPGM("Backlash compensation: OFF");
   }
@@ -257,7 +257,7 @@ void GcodeSuite::M49() {
     endstops.enable_z_probe(false);
   #endif
 
-  remember_feedrate_scaling_off();
+  motion.remember_feedrate_scaling_off();
 
   bool test_ok = true;
   FSTR_P failure = nullptr;
@@ -285,9 +285,9 @@ void GcodeSuite::M49() {
 
     if (test_ok) {
       // The physical switch, not a Z probe, defines the diagnostic origin.
-      set_axis_is_at_home(axis);
-      current_position[axis] = reference;
-      sync_plan_position();
+      motion.set_axis_is_at_home(axis);
+      motion.position[axis] = reference;
+      motion.sync_plan_position();
       endstops.hit_on_purpose();
       if (verbose > 1) SERIAL_ECHOLNPGM("Initial physical reference acquired");
     }
@@ -326,8 +326,8 @@ void GcodeSuite::M49() {
         if (verbose) {
           SERIAL_ECHO(completed_samples);
           SERIAL_ECHOPGM(" of ", samples);
-          SERIAL_ECHOPAIR_F(": trigger position: ", measured, 6);
-          if (verbose > 2) SERIAL_ECHOPAIR_F(" absolute: ", trigger_position, 6);
+          SERIAL_ECHOPGM(": trigger position: ", p_float_t(measured, 6));
+          if (verbose > 2) SERIAL_ECHOPGM(" absolute: ", p_float_t(trigger_position, 6));
           SERIAL_EOL();
         }
         endstops.hit_on_purpose();
@@ -339,7 +339,7 @@ void GcodeSuite::M49() {
       test_ok = m49_move_axis(axis, margin_position, away_fr, physical_endstop, false, trigger_position, failure);
   }
 
-  restore_feedrate_and_scaling();
+  motion.restore_feedrate_and_scaling();
   TERN_(HAS_BED_PROBE, endstops.enable_z_probe(probe_was_enabled));
   TERN_(BACKLASH_COMPENSATION, backlash.set_correction_uint8(saved_backlash_correction));
   TERN_(HAS_LEVELING, set_bed_leveling_enabled(leveling_was_active));
@@ -347,23 +347,23 @@ void GcodeSuite::M49() {
   if (test_ok) {
     const float sigma = SQRT(sum_squared_delta / completed_samples);
     SERIAL_ECHOLNPGM("Finished!");
-    SERIAL_ECHOPAIR_F("Mean: ", mean, 6);
-    SERIAL_ECHOPAIR_F(" Min: ", minimum, 6);
-    SERIAL_ECHOPAIR_F(" Max: ", maximum, 6);
-    SERIAL_ECHOLNPAIR_F(" Range: ", maximum - minimum, 6);
-    SERIAL_ECHOLNPAIR_F("Standard Deviation: ", sigma, 6);
+    SERIAL_ECHOPGM("Mean: ", p_float_t(mean, 6));
+    SERIAL_ECHOPGM(" Min: ", p_float_t(minimum, 6));
+    SERIAL_ECHOPGM(" Max: ", p_float_t(maximum, 6));
+    SERIAL_ECHOLNPGM(" Range: ", p_float_t(maximum - minimum, 6));
+    SERIAL_ECHOLNPGM("Standard Deviation: ", p_float_t(sigma, 6));
   }
   else {
     SERIAL_ECHOLNPGM("M49 aborted");
     SERIAL_ECHOPGM("Reason: ");
-    SERIAL_ECHOLNF(failure);
+    SERIAL_ECHOLN(failure);
     SERIAL_ECHOLNPGM("Completed samples: ", completed_samples, " / ", samples);
-    SERIAL_ECHOLNPAIR_F("Last known axis position: ", current_position[axis], 6);
+    SERIAL_ECHOLNPGM("Last known axis position: ", p_float_t(motion.position[axis], 6));
   }
 
   endstops.hit_on_purpose();
-  destination = current_position;
-  report_current_position();
+  motion.destination = motion.position;
+  motion.report_position();
 }
 
 #endif // AXIS_ENDSTOP_REPEATABILITY_TEST
