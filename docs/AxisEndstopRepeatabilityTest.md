@@ -1097,7 +1097,6 @@ The implementation uses:
 planner.synchronize();
 ```
 
-
 ---
 
 ## 25. Feature guards - DONE
