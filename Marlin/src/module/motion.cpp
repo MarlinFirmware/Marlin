@@ -172,7 +172,7 @@ int16_t Motion::feedrate_percentage = 100;
 
 #if ENABLED(EDITABLE_HOMING_FEEDRATE)
   xyz_feedrate_t Motion::homing_feedrate_mm_m = HOMING_FEEDRATE_MM_M;
-#else
+#elif NUM_AXES
   constexpr xyz_feedrate_t Motion::homing_feedrate_mm_m;
 #endif
 
@@ -218,7 +218,7 @@ int16_t Motion::feedrate_percentage = 100;
   feedRate_t Motion::xy_probe_feedrate_mm_s = MMM_TO_MMS(XY_PROBE_FEEDRATE);
 #endif
 
-#if ENABLED(DWIN_LCD_PROUI)
+#if ENABLED(PROUI_ITEM_ZFR)
   uint16_t Motion::z_probe_slow_mm_s = MMM_TO_MMS(Z_PROBE_FEEDRATE_SLOW);
 #elif Z_PROBE_FEEDRATE_SLOW
   constexpr feedRate_t Motion::z_probe_slow_mm_s;
@@ -245,14 +245,12 @@ inline void report_more_positions() {
 // Report the logical position for a given machine position
 inline void report_logical_position(const xyze_pos_t &rpos) {
   const xyze_pos_t lpos = rpos.asLogical();
-  #if NUM_AXES
-    SERIAL_ECHOPGM_P(LOGICAL_AXIS_PAIRED_LIST(
-      SP_E_LBL, lpos.e,
-         X_LBL, lpos.x,  SP_Y_LBL, lpos.y,  SP_Z_LBL, lpos.z,
-      SP_I_LBL, lpos.i,  SP_J_LBL, lpos.j,  SP_K_LBL, lpos.k,
-      SP_U_LBL, lpos.u,  SP_V_LBL, lpos.v,  SP_W_LBL, lpos.w
-    ));
-  #endif
+  SERIAL_ECHOPGM_P(LOGICAL_AXIS_PAIRED_LIST(
+    SP_E_LBL, lpos.e,
+        X_LBL, lpos.x,  SP_Y_LBL, lpos.y,  SP_Z_LBL, lpos.z,
+    SP_I_LBL, lpos.i,  SP_J_LBL, lpos.j,  SP_K_LBL, lpos.k,
+    SP_U_LBL, lpos.u,  SP_V_LBL, lpos.v,  SP_W_LBL, lpos.w
+  ));
 }
 
 // Report the real current position according to the steppers.
@@ -2876,7 +2874,7 @@ void Motion::set_axis_is_at_home(const AxisEnum axis) {
     scara_set_axis_is_at_home(axis);
   #elif ENABLED(DELTA)
     position[axis] = (axis == Z_AXIS) ? DIFF_TERN(HAS_BED_PROBE, delta_height, probe.offset.z) : base_home_pos(axis);
-  #else
+  #elif NUM_AXES
     position[axis] = SUM_TERN(HAS_HOME_OFFSET, base_home_pos(axis), home_offset[axis]);
   #endif
 
