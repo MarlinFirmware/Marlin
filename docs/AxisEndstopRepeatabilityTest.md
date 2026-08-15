@@ -1,14 +1,10 @@
 # Axis / Endstop Repeatability Diagnostic for Marlin
 
-> **Implementation status:** **DONE** for the MVP described in this document.
-> `M49` is implemented and enabled in this firmware tree. Items explicitly
-> marked **TODO** are not implemented or have not yet been validated on hardware.
+> **Implementation status:** **DONE** for the MVP described in this document. `M49` is implemented and enabled in this firmware tree. Items explicitly marked **TODO** are not implemented or have not yet been validated on hardware.
 
 ## 1. Purpose
 
-This document describes the implemented Marlin `M49` diagnostic G-code command
-for measuring the **repeatability of an X, Y, or Z axis using its physical
-microswitch endstop as an independent reference**.
+This document describes the implemented Marlin `M49` diagnostic G-code command for measuring the **repeatability of an X, Y, or Z axis using its physical microswitch endstop as an independent reference**.
 
 The main motivation is to distinguish between:
 
@@ -116,10 +112,7 @@ V 2     Verbose output
 
 ## 4. Parameter definitions - DONE
 
-`A` is required. Numeric parameters are optional and default to
-`D4 R10 F240 B120 M2 S30 P10 V1`. Implemented limits include `R0..1000`,
-`P1..50`, and `V0..3`; distances must be positive and feedrates must not
-exceed the configured maximum for the selected axis.
+`A` is required. Numeric parameters are optional and default to `D4 R10 F240 B120 M2 S30 P10 V1`. Implemented limits include `R0..1000`, `P1..50`, and `V0..3`; distances must be positive and feedrates must not exceed the configured maximum for the selected axis.
 
 ### `A` - Axis
 
@@ -389,8 +382,7 @@ The useful value is not merely "the axis is now at zero."
 
 If the implementation simply resets the logical coordinate to zero whenever the switch triggers, all samples would trivially become zero.
 
-The diagnostic captures the position the firmware **believed it had reached at
-the trigger event**, before applying any homing coordinate reset.
+The diagnostic captures the position the firmware **believed it had reached at the trigger event**, before applying any homing coordinate reset.
 
 Conceptually:
 
@@ -429,8 +421,7 @@ The diagnostic:
 4. capture the planner / stepper position associated with that event,
 5. avoid resetting coordinates until after the diagnostic value is stored.
 
-The implementation uses Marlin's internal endstop and planner APIs rather than
-polling with `M119`.
+The implementation uses Marlin's internal endstop and planner APIs rather than polling with `M119`.
 
 Polling would be too slow and would make the measurement dependent on host latency.
 
@@ -448,8 +439,7 @@ Z physical microswitch + separate BLTouch
 
 or a temporary diagnostic configuration where a Z microswitch is connected to a free usable endstop input.
 
-The command rejects `AZ` when no physical Z endstop exists. It never substitutes
-a BLTouch, inductive probe, capacitive probe, or other bed probe.
+The command rejects `AZ` when no physical Z endstop exists. It never substitutes a BLTouch, inductive probe, capacitive probe, or other bed probe.
 
 This implementation is specifically intended to separate:
 
@@ -611,8 +601,7 @@ This diagnostic therefore **measures the effect without compensating for it**.
 
 Marlin can optionally apply software backlash compensation.
 
-M49 saves and temporarily disables backlash correction during the diagnostic,
-then restores its previous state.
+M49 saves and temporarily disables backlash correction during the diagnostic, then restores its previous state.
 
 Otherwise the test would measure:
 
@@ -635,8 +624,7 @@ run test
 restore original state
 ```
 
-**TODO:** An optional future `C` parameter could select whether compensation is
-disabled or left unchanged:
+**TODO:** An optional future `C` parameter could select whether compensation is disabled or left unchanged:
 
 ```text
 C0  compensation disabled during test
@@ -779,11 +767,9 @@ unsupported axis
 no physical endstop
 ```
 
-Marlin's normal kill, emergency-stop, and thermal-fault paths remain active
-during synchronized moves.
+Marlin's normal kill, emergency-stop, and thermal-fault paths remain active during synchronized moves.
 
-**TODO:** M49 has no dedicated driver-fault detection beyond Marlin's existing
-global fault handling.
+**TODO:** M49 has no dedicated driver-fault detection beyond Marlin's existing global fault handling.
 
 On abort, print enough state for diagnosis.
 
@@ -800,8 +786,7 @@ Exercise sample: 4 / 10
 
 ## 17. Interaction with homing - DONE
 
-M49 performs a bounded initial reference acquisition using low-level
-planner/endstop machinery and avoids normal probe-based Z homing.
+M49 performs a bounded initial reference acquisition using low-level planner/endstop machinery and avoids normal probe-based Z homing.
 
 For Z:
 
@@ -809,9 +794,7 @@ For Z:
 physical Z microswitch only
 ```
 
-The command does not call a generic `G28 Z`. Its internal helper explicitly
-selects the physical endstop in the configured homing direction. The selected
-axis must already be homed and trusted; otherwise M49 aborts before moving.
+The command does not call a generic `G28 Z`. Its internal helper explicitly selects the physical endstop in the configured homing direction. The selected axis must already be homed and trusted; otherwise M49 aborts before moving.
 
 ---
 
@@ -1063,9 +1046,7 @@ It:
 9. compute statistics,
 10. print results.
 
-Settings are held in bounded local variables. Statistics are accumulated
-online with Welford's algorithm, so no dynamic allocation or sample array is
-needed.
+Settings are held in bounded local variables. Statistics are accumulated online with Welford's algorithm, so no dynamic allocation or sample array is needed.
 
 ---
 
@@ -1086,8 +1067,7 @@ Do not derive the value from a post-homing `current_position`, because it may al
 
 ## 24. Planner synchronization - DONE
 
-M49 synchronizes planner / stepper execution before checking switch release,
-capturing a sample, or continuing after a move.
+M49 synchronizes planner / stepper execution before checking switch release, capturing a sample, or continuing after a move.
 
 Otherwise the reported logical position may not correspond to completed physical motion.
 
@@ -1115,8 +1095,7 @@ The dispatcher and source file use this guard:
 #endif
 ```
 
-The implementation resolves the available endstop using Marlin's configured
-endstop macros, including:
+The implementation resolves the available endstop using Marlin's configured endstop macros, including:
 
 ```text
 USE_X_MIN / USE_X_MAX
@@ -1124,8 +1103,7 @@ USE_Y_MIN / USE_Y_MAX
 USE_Z_MIN / USE_Z_MAX
 ```
 
-The command determines which physical endstop corresponds to the selected
-homing direction.
+The command determines which physical endstop corresponds to the selected homing direction.
 
 For example:
 
@@ -1136,8 +1114,7 @@ X_HOME_DIR > 0 -> X_MAX
 
 and similarly for Y / Z.
 
-For Z, it explicitly requires a **real physical endstop input**, not a
-virtual/probe substitution.
+For Z, it explicitly requires a **real physical endstop input**, not a virtual/probe substitution.
 
 ---
 
@@ -1163,8 +1140,7 @@ This protects against:
 
 ## 27. Reproducible output - DONE
 
-At verbosity `V1` or higher, the output includes all test parameters needed for
-meaningful comparisons.
+At verbosity `V1` or higher, the output includes all test parameters needed for meaningful comparisons.
 
 Example header:
 
@@ -1258,8 +1234,7 @@ Possible behavior:
 
 A physical microswitch gives a fixed mechanical reference that can reveal accumulated position error even when the movement feels normal by hand.
 
-M49 currently rejects axes configured with multiple endstops. Independent
-left/right Z-endstop testing remains **TODO**.
+M49 currently rejects axes configured with multiple endstops. Independent left/right Z-endstop testing remains **TODO**.
 
 ---
 
@@ -1356,65 +1331,35 @@ That is the central purpose of M49.
 
 ## 34. Implementation status (2026-08-11)
 
-The first firmware implementation is present in this repository and enabled
-for the configured `STM32F103RE_creality` target.
+The first firmware implementation is present in this repository and enabled for the configured `STM32F103RE_creality` target.
 
 ### DONE
 
-- `M49` is registered in the G-code dispatcher and built conditionally with
-  `AXIS_ENDSTOP_REPEATABILITY_TEST`. PlatformIO includes the implementation
-  through `ini/features.ini`.
-- The compact selectors `AX`, `AY`, and `AZ` are supported, together with all
-  MVP parameters. Defaults are `D4 R10 F240 B120 M2 S30 P10 V1`.
-  Accepted ranges are `R0..1000`, `P1..50`, and `V0..3`.
-- X, Y, and Z use the physical endstop in their configured homing direction.
-  For this printer, Z uses the separate `Z_MIN` input (`PA7`); BLTouch is on
-  `PB1`. Probe endstop monitoring is explicitly disabled during the test.
-- The selected axis must already be homed and trusted. If not, M49 aborts
-  immediately. M49 then acquires one initial physical-switch reference,
-  establishes the home coordinate, and runs the requested samples without
-  normal multi-stage homing between samples.
-- Each sample moves to the margin, performs the exercise cycles with separate
-  positive/negative feedrates, approaches the switch at `S`, and captures
-  `planner.triggered_position_mm()` before any coordinate reset.
-- Mean, minimum, maximum, range, and population standard deviation are
-  reported. `R0` provides the endstop-only baseline.
-- Bed leveling and backlash correction are temporarily disabled. Feedrate
-  scaling, leveling, backlash correction, probe monitoring, and global endstop
-  state are restored afterward.
-- The command is rejected during active or paused print jobs. It validates the
-  selected switch, homed state, speeds, margin, exercise travel, switch release,
-  expected trigger, unexpected endstop hits, and stopped firmware state.
-- A missing trigger can travel at most
-  `AXIS_ENDSTOP_REPEATABILITY_MAX_OVERRUN` beyond the configured home position;
-  this is currently configured as `0.5 mm`. After a successful test the axis is
-  left released at the requested margin.
-- The complete `STM32F103RE_creality` PlatformIO build succeeds: 9,072 bytes
-  RAM and 192,752 bytes flash in the verified build.
+- `M49` is registered in the G-code dispatcher and built conditionally with `AXIS_ENDSTOP_REPEATABILITY_TEST`. PlatformIO includes the implementation through `ini/features.ini`.
+- The compact selectors `AX`, `AY`, and `AZ` are supported, together with all MVP parameters. Defaults are `D4 R10 F240 B120 M2 S30 P10 V1`. Accepted ranges are `R0..1000`, `P1..50`, and `V0..3`.
+- X, Y, and Z use the physical endstop in their configured homing direction. For this printer, Z uses the separate `Z_MIN` input (`PA7`); BLTouch is on `PB1`. Probe endstop monitoring is explicitly disabled during the test.
+- The selected axis must already be homed and trusted. If not, M49 aborts immediately. M49 then acquires one initial physical-switch reference, establishes the home coordinate, and runs the requested samples without normal multi-stage homing between samples.
+- Each sample moves to the margin, performs the exercise cycles with separate positive/negative feedrates, approaches the switch at `S`, and captures `planner.triggered_position_mm()` before any coordinate reset.
+- Mean, minimum, maximum, range, and population standard deviation are reported. `R0` provides the endstop-only baseline.
+- Bed leveling and backlash correction are temporarily disabled. Feedrate scaling, leveling, backlash correction, probe monitoring, and global endstop state are restored afterward.
+- The command is rejected during active or paused print jobs. It validates the selected switch, homed state, speeds, margin, exercise travel, switch release, expected trigger, unexpected endstop hits, and stopped firmware state.
+- A missing trigger can travel at most `AXIS_ENDSTOP_REPEATABILITY_MAX_OVERRUN` beyond the configured home position; this is currently configured as `0.5 mm`. After a successful test the axis is left released at the requested margin.
+- The complete `STM32F103RE_creality` PlatformIO build succeeds: 9,072 bytes RAM and 192,752 bytes flash in the verified build.
 
 ### TODO and deliberate limitations
 
-- **Deliberate limitation:** M49 does not perform a blind full-axis initial
-  homing move. Requiring an already trusted axis bounds the physical-switch
-  search around the configured home coordinate.
-- **Deliberate limitation:** Delta/SCARA kinematics, sensorless homing, and
-  dual/multiple endstops on the selected axis are explicitly rejected.
+- **Deliberate limitation:** M49 does not perform a blind full-axis initial homing move. Requiring an already trusted axis bounds the physical-switch search around the configured home coordinate.
+- **Deliberate limitation:** Delta/SCARA kinematics, sensorless homing, and dual/multiple endstops on the selected axis are explicitly rejected.
 - **TODO:** Add separate left/right dual-Z analysis if required.
-- **TODO:** Add the optional `C` compensation-control parameter. Raw mode is
-  currently always used.
+- **TODO:** Add the optional `C` compensation-control parameter. Raw mode is currently always used.
 - **TODO:** Add median, drift slope, R-squared, and mean absolute deviation.
-- **TODO:** Add a dedicated LCD menu, translated UI text, and automatic
-  driver-fault detection if required. Standard Marlin kill, thermal-safety,
-  and emergency handling remain active during synchronized moves.
-- **TODO:** Add an automated motion-test fixture if a safe hardware test rig
-  becomes available.
-- **TODO:** Validate behavior on the physical printer. Compilation is already
-  verified. Begin with a low-stress baseline after homing, for example:
+- **TODO:** Add a dedicated LCD menu, translated UI text, and automatic driver-fault detection if required. Standard Marlin kill, thermal-safety, and emergency handling remain active during synchronized moves.
+- **TODO:** Add an automated motion-test fixture if a safe hardware test rig becomes available.
+- **TODO:** Validate behavior on the physical printer. Compilation is already verified. Begin with a low-stress baseline after homing, for example:
 
   ```gcode
   G28 Z
   M49 AZ D1 R0 F60 B60 M2 S30 P5 V2
   ```
 
-  Confirm switch release, direction, and clearance before increasing distance,
-  speed, repetitions, or sample count.
+  Confirm switch release, direction, and clearance before increasing distance, speed, repetitions, or sample count.
