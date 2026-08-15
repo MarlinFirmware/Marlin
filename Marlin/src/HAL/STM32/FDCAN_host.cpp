@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2025 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2026 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -77,7 +77,7 @@ FDCAN_HandleTypeDef hCAN1                          = { 0 }; // The global FDCAN 
 FDCAN_TxHeaderTypeDef TxHeader                     = { 0 }; // Header to send a FDCAN message
 volatile uint32_t CAN_io_state                         = 0; // Virtual IO state variable
 volatile bool CAN_toolhead_error                       = 0; // Register if an error was reported by the toolhead
-volatile bool CAN_toolhead_requested_setup         = false; // Signals the toolhead requested setup information
+volatile bool CAN_toolhead_setup_request           = false; // Signals the toolhead requested setup information
 volatile bool CAN_toolhead_reset_request           = false; // Signals the toolhead needs to be reset (done at startup)
 volatile bool CAN_time_sync_request                = false; // Signals the toolhead requested a time sync
 volatile uint32_t time_sync_request_time               = 0; // Record the time the time sync request was received
@@ -87,7 +87,7 @@ volatile uint32_t CAN_host_error_code                  = 0; // Store the CAN hos
 
 volatile bool first_E0_error                        = true; // First CAN bus error, show warning only once
 volatile bool string_message_complete              = false; // Signals a complete string message was received
-volatile uint32_t CAN_next_temp_report_time        = 12000; // Track when the next toolhead temperature report should arrive, delay at startup
+volatile uint32_t CAN_next_temp_report_time        = CAN_NEXT_TEMP_REPORT_TIME; // Track when the next toolhead temperature report should arrive, considers startup
 uint32_t CAN_next_error_message_time                   = 0; // Track when to display the next repeat of an error message
 volatile bool CAN_host_FIFO_toggle_bit             = false; // FIFO toggle flag for receiver FIFO filtering
 SString <CAN_HOST_MAX_STRING_MSG_LENGTH> string_message;    // CAN string message buffer for incoming messages
@@ -129,7 +129,20 @@ void CAN_host_send_timestamp() { // Request receive timestamp + request response
   }
   else
     CAN_host_error_code |= CAN_ERROR_HOST_TX_MSG_DROPPED;
+}
 
+// Encode the Gcode parameter to 'A' = 1, 'B' = 2. Accepts direct parameters numbers 1..26, or 'A'-'Z' or 'a'-'z'
+static inline uint32_t encode_param_letter(const uint32_t v) {
+  if ((v >= 'A') && (v <= 'Z')) // Map 'A' to 1, 'B' to 2
+    return (v - 'A' + 1);
+
+  if ((v >= 'a') && (v <= 'z')) // Map 'a' to 1, 'b' to 2
+    return (v - 'a' + 1);
+
+  if (v > 26)
+    return 0; // Invalid parameters, indicate 0, no parameter
+  
+  return v;  // Direct parameter
 }
 
 // Send specified Gcode with max 2 parameters and 2 values via CAN bus
@@ -150,12 +163,12 @@ HAL_StatusTypeDef CAN_host_send_gcode_2params(uint32_t Gcode_type, uint32_t Gcod
     case 'M': {
       Gcode_type = CAN_ID_GCODE_TYPE_M;
 
-      if (millis() < 12000) 
-	    DEBUG_ECHOPGM(";", millis(), "ms, Gcode to toolhead: \"M", Gcode_no );
+      if (millis() < CAN_NEXT_TEMP_REPORT_TIME) // Provide timestamps only during the startup process
+        DEBUG_ECHOPGM(";", millis(), "ms, Gcode to toolhead: \"M", Gcode_no );
       else
-	    DEBUG_ECHOPGM(";Gcode to toolhead: \"M", Gcode_no );
+        DEBUG_ECHOPGM(";Gcode to toolhead: \"M", Gcode_no );
       
-	  if (parameter1) {
+    if (parameter1) {
         DEBUG_CHAR(' ', parameter1);
         if (value1 == int(value1))
           DEBUG_ECHO(int(value1)); // Integer value
@@ -178,11 +191,8 @@ HAL_StatusTypeDef CAN_host_send_gcode_2params(uint32_t Gcode_type, uint32_t Gcod
       return HAL_ERROR; // Unknown Gcode type
   }
 
-  if (parameter1 > 31)
-    parameter1 -= 64; // Format 'A' = 1, 'B' = 2, etc.
-
-  if (parameter2 > 31)
-    parameter2 -= 64; // Format 'A' = 1, 'B' = 2, etc.
+  parameter1 = encode_param_letter(parameter1);
+  parameter2 = encode_param_letter(parameter2);
 
   TxHeader.IdType = FDCAN_EXTENDED_ID;
 
@@ -195,7 +205,8 @@ HAL_StatusTypeDef CAN_host_send_gcode_2params(uint32_t Gcode_type, uint32_t Gcod
   *fp   = value2;
 
   const uint32_t deadline = millis() + CAN_HOST_MAX_WAIT_TIME;
-  while ((HAL_FDCAN_GetTxFifoFreeLevel(&hCAN1) == 0) && PENDING(millis(), deadline)) { /* BLOCKING! Wait for empty TX buffer */ }
+  while ((HAL_FDCAN_GetTxFifoFreeLevel(&hCAN1) == 0) && PENDING(millis(), deadline)) {
+    safe_delay(1); /* BLOCKING! Wait for empty TX buffer */ }
 
   HAL_StatusTypeDef status = HAL_OK;
 
@@ -204,25 +215,31 @@ HAL_StatusTypeDef CAN_host_send_gcode_2params(uint32_t Gcode_type, uint32_t Gcod
   else
     CAN_host_error_code |= CAN_ERROR_HOST_TX_MSG_DROPPED;
 
+  safe_delay(1); // Provide some additional time to the toolhead to process the message
+
   return status;
 }
 
 // Send setup to toolhead
-void CAN_host_send_setup(const bool changeStatus/*=false*/) {
+void CAN_host_send_setup(void) {
 
   // NOTE: Sending many command too fast will cause a Marlin command buffer overrun at the toolhead, add delays if needed
-  CAN_toolhead_requested_setup = false;
+  CAN_toolhead_setup_request = false;
 
   SERIAL_ECHOLNPGM(">>> ", millis(), "ms FDCAN: Setup toolhead...");
+
+  int setup_command_counter = 0;
+  CAN_host_send_gcode_2params('M', CAN_GCODE_TOOLHEAD_SETUP, 0, 0, 0, 0); // Signal toolhead setup
 
   #if ENABLED(MPCTEMP)
     // M306 MPC settings (managed by host)
     MPC_t &mpc = thermalManager.temp_hotend[0].mpc;
 
-    CAN_host_send_gcode_2params('M', 306, 'A', mpc.ambient_xfer_coeff_fan0, 'C', mpc.block_heat_capacity);          // M306 R<sensor_responsiveness> A<Ambient heat transfer coefficient>
+    CAN_host_send_gcode_2params('M', 306, 'A', mpc.ambient_xfer_coeff_fan0, 'C', mpc.block_heat_capacity);          // M306 A<Ambient heat transfer coefficient> C<Heatblock Capacity (joules/kelvin)>
     CAN_host_send_gcode_2params('M', 306, 'F', mpc.fanCoefficient(),        'H', mpc.filament_heat_capacity_permm); // M306 F<sensor_responsiveness> H<filament_heat_capacity_permm>
-    CAN_host_send_gcode_2params('M', 306, 'P', mpc.heater_power,            'R', mpc.sensor_responsiveness);        // M306 P<heater_power> C<Heatblock Capacity (joules/kelvin)>
+    CAN_host_send_gcode_2params('M', 306, 'P', mpc.heater_power,            'R', mpc.sensor_responsiveness);        // M306 P<heater_power> R<sensor_responsiveness>
 
+    setup_command_counter += 3;
   #endif
 
   //CAN_host_send_gcode_2params('M', 150, 0, 0, 0, 0); // M150, SWITCH NEOPIXEL OFF
@@ -296,11 +313,11 @@ void CAN_host_send_setup(const bool changeStatus/*=false*/) {
 
   #if ALL(USE_CONTROLLER_FAN, CONTROLLER_FAN_EDITABLE)
     CAN_host_send_gcode_2params('M', 710, 'E', controllerFan.settings.extruder_auto_fan_speed, 'P', controllerFan.settings.probing_auto_fan_speed);
+    setup_command_counter++;
   #endif
 
   // Signal to the toolhead that the configuration is complete, use it as the last Gcode to send
-  if (changeStatus)
-    CAN_host_send_gcode_2params('M', CAN_GCODE_CONFIGURATION_COMPLETE, 0, 0, 0, 0);
+  CAN_host_send_gcode_2params('M', CAN_GCODE_TOOLHEAD_SETUP, 'S', setup_command_counter, 0, 0);
 }
 
 // Tasks that can/should not be done in the ISR
@@ -309,24 +326,24 @@ void CAN_host_idle() { // Tasks that can/should not be done in the ISR
   if (CAN_toolhead_reset_request) {
     int reset_counter = 0;
     HAL_StatusTypeDef status = HAL_OK;
-	do {
-	  status = CAN_host_send_gcode_2params('M', 997, 0, 0, 0, 0); // M997, reset toolhead at host startup
-      delay(100);
-	  reset_counter ++;
-	  if ((reset_counter % 128) == 0)
+    do {
+      status = CAN_host_send_gcode_2params('M', 997, 0, 0, 0, 0); // M997, reset toolhead at host startup
+        safe_delay(100);
+      reset_counter ++;
+      if ((reset_counter % 128) == 0)
         SERIAL_ECHOLNPGM(">>> FDCAN: Error failed to reset toolhead");  
     }
-	while (status != HAL_OK);
+    while (status != HAL_OK);
 
     CAN_toolhead_reset_request = false;
-    CAN_next_temp_report_time = 12000;
-	CAN_toolhead_requested_setup = false;
+    CAN_next_temp_report_time = CAN_NEXT_TEMP_REPORT_TIME;
+    CAN_toolhead_setup_request = false;
   }
   else
-  if (CAN_toolhead_requested_setup) { // The toolhead requested the setup configuration
+  if (CAN_toolhead_setup_request) { // The toolhead requested the setup configuration
     SERIAL_ECHOLNPGM(">>> FDCAN toolhead requested setup");
-	CAN_toolhead_requested_setup = false;
-	CAN_host_send_setup(true);
+    CAN_toolhead_setup_request = false;
+    CAN_host_send_setup();
   }
 
   if (CAN_time_sync_request) { // Send time sync timestamps
@@ -337,15 +354,15 @@ void CAN_host_idle() { // Tasks that can/should not be done in the ISR
   if (string_message_complete) { // Received string message is complete, display the string
 
     // Copy message while interrupts disabled
-	SString<CAN_HOST_MAX_STRING_MSG_LENGTH> message_copy;
+    SString<CAN_HOST_MAX_STRING_MSG_LENGTH> message_copy;
 
-	CRITICAL_SECTION_START();
+    CRITICAL_SECTION_START();
       message_copy = string_message; // Copy the message
       string_message.clear();        // Clear the message buffer
       string_message_complete = false;
     CRITICAL_SECTION_END();
-	
-	BUZZ(1, SOUND_OK);
+  
+    BUZZ(1, SOUND_OK);
     SERIAL_ECHOPGM(">>> MSG from toolhead ");
 
     message_copy.echo(); // Show received string message, ends on '\n'
@@ -387,7 +404,7 @@ void CAN_host_idle() { // Tasks that can/should not be done in the ISR
     first_E0_error = false; // Warn only once
 
     #if DISABLED(CAN_DEBUG) // Only kill if not debugging
-      kill(F("CAN error: No E0 tempeature updates"));
+      kill(F("CAN error: No E0 temperature updates"));
     #endif
   }
   
@@ -427,8 +444,8 @@ HAL_StatusTypeDef CAN_host_send_gcode() { // Forward a Marlin Gcode via CAN (use
       break;
 
     case 501 ... 502: // M501=Restore settings, M502=Factory defaults
-      // CAN_toolhead_requested_setup = true; // Also update settings for the toolhead
-	  // Toolhead will request setup when ready
+      // CAN_toolhead_setup_request = true; // Also update settings for the toolhead
+      // Toolhead will request setup when ready
       // fallthru
 
     default: return HAL_OK; // Nothing to do
@@ -471,7 +488,7 @@ HAL_StatusTypeDef CAN_host_send_gcode() { // Forward a Marlin Gcode via CAN (use
         case 140: case 190:           // Ignore bed temp commands
         case 150:                     // Set NeoPixel values
         case 154:                     // No auto position reporting
-        case 155:                     // No tempeature reporting
+        case 155:                     // No temperature reporting
         case 226:                     // Wait for pin state
         case 240:                     // No camera support
         case 250:                     // No LCD contrast support
@@ -520,33 +537,34 @@ HAL_StatusTypeDef CAN_host_send_gcode() { // Forward a Marlin Gcode via CAN (use
 
   DEBUG_ECHO(F(">>> CAN: Gcode to toolhead: "), C(parser.command_letter), Gcode_no);
 
-  if (strlen(parser.command_ptr) > 4) // "M107\0", Only scan for parameters if the string is long enough
-  for (index = 0; index < sizeof(letters); index++) { // Scan parameters, sizeof(letters) includes terminating '\0'
-    if (parser.seen(letters[index])) {
-      parameters[parameter_counter] = (letters[index] - 64) & CAN_ID_PARAMETER_LETTER_MASK; // Store parameter letter, A=1, B=2...
+  if (strlen(parser.command_ptr) > 4) { // "M107\0", Only scan for parameters if the string is long enough
+    for (index = 0; index < (sizeof(letters) - 1); index++) { // Scan parameters, sizeof(letters) includes terminating '\0'
+      if (parser.seen(letters[index])) {
+        parameters[parameter_counter] = (letters[index] - 64) & CAN_ID_PARAMETER_LETTER_MASK; // Store parameter letter, A=1, B=2...
 
-      DEBUG_CHAR(' ', letters[index]);
+        DEBUG_CHAR(' ', letters[index]);
 
-      if (parser.has_value()) { // Check if there is a value
-        values[parameter_counter++] = parser.value_float();
+        if (parser.has_value()) { // Check if there is a value
+          values[parameter_counter++] = parser.value_float();
 
-        if (values[parameter_counter - 1] == int(values[parameter_counter - 1]))
-          DEBUG_ECHO(i16tostr3left(values[parameter_counter - 1])); // Integer value
-        else
-          DEBUG_ECHO(p_float_t(values[parameter_counter - 1], 4));  // Float with 4 digits
-      }
-      else // No value for parameter
-        values[parameter_counter++] = NAN; // Not A Number, indicates no parameter value is present
-    }
+          if (values[parameter_counter - 1] == int(values[parameter_counter - 1]))
+            DEBUG_ECHO(i16tostr3left(values[parameter_counter - 1])); // Integer value
+          else
+            DEBUG_ECHO(p_float_t(values[parameter_counter - 1], 4));  // Float with 4 digits
+        } // if
+        else // No value for parameter
+          values[parameter_counter++] = NAN; // Not A Number, indicates no parameter value is present
+      } // if
 
-    if (parameter_counter == 8) { // Max is 7 parameters
-      CAN_host_error_code |= CAN_ERROR_HOST_INVALID_GCODE;
-      parameter_counter--;
-      SERIAL_ECHOLNPGM("\nError: TOO MANY PARAMETERS (> 7): ", parser.command_ptr);
-      BUZZ(1, SOUND_ERROR);
-      break;
-    }
-  }
+      if (parameter_counter == 8) { // Max is 7 parameters
+        CAN_host_error_code |= CAN_ERROR_HOST_INVALID_GCODE;
+        parameter_counter--;
+        SERIAL_ECHOLNPGM("\nError: TOO MANY PARAMETERS (> 7): ", parser.command_ptr);
+        BUZZ(1, SOUND_ERROR);
+        break;
+      } // if
+    } // for
+  } // if
 
   DEBUG_EOL();
 
@@ -554,7 +572,7 @@ HAL_StatusTypeDef CAN_host_send_gcode() { // Forward a Marlin Gcode via CAN (use
   index = 0;
   float * fp = (float *)CAN_tx_buffer; // Points to TX buffer
 
-  TxHeader.IdType = FDCAN_EXTENDED_ID; // Start Gcode with Extended ID, then send Standard ID messages messages if there are more than 2 parameters
+  TxHeader.IdType = FDCAN_EXTENDED_ID; // Start Gcode with Extended ID, then send Standard ID messages if there are more than 2 parameters
 
   uint32_t deadline = millis() + CAN_HOST_MAX_WAIT_TIME; // Record message send start time
   do {
@@ -573,18 +591,18 @@ HAL_StatusTypeDef CAN_host_send_gcode() { // Forward a Marlin Gcode via CAN (use
     *fp-- = values[index++]; // Copy 2nd parameter value to data, move pointer to beginning of data array for next round
 
     while ((HAL_FDCAN_GetTxFifoFreeLevel(&hCAN1) == 0) && PENDING(millis(), deadline)) {
-	  /* BLOCKING! Wait for empty TX Buffer */
-	}
+      /* BLOCKING! Wait for empty TX Buffer */
+    }
 
-    if (HAL_FDCAN_GetTxFifoFreeLevel(&hCAN1))
+    if (HAL_FDCAN_GetTxFifoFreeLevel(&hCAN1) > 0) {
       status = HAL_FDCAN_AddMessageToTxFifoQ(&hCAN1, &TxHeader, CAN_tx_buffer); // Queue CAN message
+      if (status != HAL_OK)
+        return status;
+    }
     else
       CAN_host_error_code |= CAN_ERROR_HOST_TX_MSG_DROPPED;
 
-    if (status != HAL_OK) return status;
-
     TxHeader.IdType = FDCAN_STANDARD_ID; // All following messages have standard ID for parameter values, 11 bits identifier
-
   } while (index < parameter_counter);
 
   return status;
@@ -592,13 +610,14 @@ HAL_StatusTypeDef CAN_host_send_gcode() { // Forward a Marlin Gcode via CAN (use
 } // CAN_host_send_gcode
 
 void CAN_host_send_position() { // Send the X, Y, Z and E position to the TOOLHEAD
-  CAN_host_send_gcode_2params('G', 92, 'X', motion.position.x, 'Y', motion.position.y); // M92 X<pos> Y<pos>
-  CAN_host_send_gcode_2params('G', 92, 'Z', motion.position.z, 'E', motion.position.e); // M92 E<pos> Z<pos>
+  xyze_pos_t mpos = motion.position;
+  CAN_host_send_gcode_2params('G', 92, 'X', mpos.x, 'Y', mpos.y); // M92 X<pos> Y<pos>
+  CAN_host_send_gcode_2params('G', 92, 'Z', mpos.z, 'E', mpos.e); // M92 E<pos> Z<pos>
 }
 
 // Enable a GPIO clock based on the GPIOx address for STM32H7
 void gpio_clock_enable(GPIO_TypeDef *regs) {
-  uint32_t pos = ((uint32_t)regs - D3_AHB1PERIPH_BASE) >> 10;
+  uint32_t pos = ((uint32_t)regs - GPIOA_BASE) >> 10;
   RCC->AHB4ENR |= (1 << pos);
   RCC->AHB4ENR;
 }
@@ -614,22 +633,24 @@ void HAL_FDCAN_MspInit(FDCAN_HandleTypeDef* canHandle) { // Called by HAL_FDCAN_
   uint32_t _CAN_RD_function = pinmap_find_function(digitalPinToPinName(CAN_RD_PIN), PinMap_CAN_RD);
   uint32_t _CAN_TD_function = pinmap_find_function(digitalPinToPinName(CAN_TD_PIN), PinMap_CAN_TD);
 
-  // Enable the GPIOx device related to the CAN_RD_pin
+  // Setup CAN_RD_PIN
+  // Enable the GPIOx device clock for the CAN_RD_pin
   gpio_clock_enable(get_GPIO_Port(STM_PORT(_CAN_RD_pin)));
 
+  // The same for RD and TD 
   GPIO_InitTypeDef GPIO_InitStruct = { 0 };
   GPIO_InitStruct.Mode      = GPIO_MODE_AF_PP;
   GPIO_InitStruct.Speed     = GPIO_SPEED_FREQ_HIGH;
-  GPIO_InitStruct.Pull      = STM_PIN_PUPD(_CAN_RD_function);
+  GPIO_InitStruct.Pull      = GPIO_NOPULL;
 
-  // SETUP CAN_RD_PIN
   GPIO_InitStruct.Pin       = STM_GPIO_PIN(STM_PIN(_CAN_RD_pin));
   GPIO_InitStruct.Alternate = STM_PIN_AFNUM(_CAN_RD_function);
   HAL_GPIO_Init(get_GPIO_Port(STM_PORT(_CAN_RD_pin)), &GPIO_InitStruct);
 
-  // SETUP CAN_TD_PIN (Separated for flexibility, might not be needed)
-  // Enable the GPIOx device related to the CAN_TD_pin
+  // Setup CAN_TD_PIN
+  // Enable the GPIOx device clock for the CAN_TD_pin
   gpio_clock_enable(get_GPIO_Port(STM_PORT(_CAN_TD_pin)));
+
   GPIO_InitStruct.Pin       = STM_GPIO_PIN(STM_PIN(_CAN_TD_pin));
   GPIO_InitStruct.Alternate = STM_PIN_AFNUM(_CAN_TD_function);
   HAL_GPIO_Init(get_GPIO_Port(STM_PORT(_CAN_TD_pin)), &GPIO_InitStruct);
@@ -639,18 +660,30 @@ void HAL_FDCAN_MspInit(FDCAN_HandleTypeDef* canHandle) { // Called by HAL_FDCAN_
   HAL_NVIC_EnableIRQ(  (canHandle->Instance == FDCAN1) ? FDCAN1_IT0_IRQn : FDCAN2_IT0_IRQn);       // Enable FDCAN interrupt handler line 0 (default)
 }
 
-// Calculate the CAN sample timing, seg1 and seg2, sjw = 1 (no baudrate switching)
+// Calculate the CAN data sample timing, seg1 and seg2, sjw = 1 (no baudrate switching)
 // seg1 range: 2-256, seg2 range: 1-128, SJW = 1, so minimum is 4 clocks per bit
-int FDCAN_calculate_segments(uint32_t *seg1, uint32_t *seg2) {
-  uint32_t CAN_clock =  HAL_RCCEx_GetPeriphCLKFreq(RCC_PERIPHCLK_FDCAN);
+int FDCAN_calculate_segments(uint32_t *seg1, uint32_t *seg2, uint32_t *prescaler) {
+  uint32_t CAN_clock = HAL_RCCEx_GetPeriphCLKFreq(RCC_PERIPHCLK_FDCAN);
+  *prescaler = 1;
 
-  float clocks_per_bit = CAN_clock / CAN_BAUDRATE; // Clocks per bit must be a whole number
+  do {
+    float clocks_per_bit = (float)CAN_clock / (*prescaler * CAN_BAUDRATE); // Clocks per bit must be a whole number
 
-  if ((clocks_per_bit != int(clocks_per_bit)) || (clocks_per_bit < 4)) // Minimal 4 clocks per bit (1+2+1)
-    return -1; // Baudrate is not possible
+    if (clocks_per_bit < 4) // Minimal 4 clocks per bit (1+2+1)
+      return -1; // Baudrate is not possible
 
-  *seg2 = (clocks_per_bit / 8) + 0.5;  // Preferred sample point at 87.5% (7/8)
-  *seg1 = uint32_t(clocks_per_bit) - *seg2 - 1; // SJW = 1;
+    if (clocks_per_bit != (uint32_t)clocks_per_bit) {
+      (*prescaler)++;
+      continue;
+    }
+
+    *seg2 = (clocks_per_bit / 8) + 0.5;  // Preferred data sample point at 87.5% (7/8)
+    *seg1 = (uint32_t)clocks_per_bit - *seg2 - 1; // SJW = 1;
+
+  } while ((*seg1 < 2 || *seg1 > 256 || *seg2 < 1 || *seg2 > 128) && (*prescaler)++ < 512);
+
+  if (*seg1 < 2 || *seg1 > 256 || *seg2 < 1 || *seg2 > 128)
+    return -1;
 
   return HAL_OK;
 }
@@ -663,21 +696,20 @@ HAL_StatusTypeDef CAN_host_start() {
 
   HAL_StatusTypeDef status = HAL_OK;
 
-  // The FDCAN clock source must to be set early because the sample timing depends on it
+  // The FDCAN clock source must to be set early because the data sample timing depends on it
   __HAL_RCC_FDCAN_CONFIG(RCC_FDCANCLKSOURCE_HSE);  // 25MHz, select external crystal clock oscillator
   //__HAL_RCC_FDCAN_CONFIG(RCC_FDCANCLKSOURCE_PLL);  // 55MHz, select PLL
   //__HAL_RCC_FDCAN_CONFIG(RCC_FDCANCLKSOURCE_PLL2); // 80MHz, select PLL2
 
   // Initialize TxHeader with constant values
   TxHeader.FDFormat              = FDCAN_CLASSIC_CAN;   // FDCAN_CLASSIC_CAN / FDCAN_FD_CAN
-  TxHeader.TxEventFifoControl    = FDCAN_NO_TX_EVENTS;  // FDCAN_NO_TX_EVENTS / FDCAN_STORE_TX_EVENTS
+  TxHeader.TxEventFifoControl    = FDCAN_NO_TX_EVENTS;  // FDCAN_NO_TX_EVENTS / FDCAN_STORE_TX_EVENTS (Do not store TX events)
   TxHeader.MessageMarker         = 0;                   // 0-0xFF for tracking messages in FIFO buffer
   TxHeader.ErrorStateIndicator   = FDCAN_ESI_ACTIVE;    // FDCAN_ESI_PASSIVE / FDCAN_ESI_ACTIVE (ACTIVE will notify transmission errors)
   TxHeader.TxFrameType           = FDCAN_DATA_FRAME;    // FDCAN_DATA_FRAME / FDCAN_REMOTE_FRAME
   TxHeader.IdType                = FDCAN_STANDARD_ID;   // FDCAN_STANDARD_ID / FDCAN_EXTENDED_ID
   TxHeader.BitRateSwitch         = FDCAN_BRS_OFF;       // FDCAN_BRS_OFF / FDCAN_BRS_ON
-  TxHeader.TxEventFifoControl    = FDCAN_NO_TX_EVENTS;  // FDCAN_NO_TX_EVENTS / FDCAN_STORE_TX_EVENTS (Do not store TX events)
-
+  
   hCAN1.Instance                 = FDCAN1;              // The FDCAN device to use
   hCAN1.Init.FrameFormat         = FDCAN_FRAME_CLASSIC; // FDCAN_FRAME_CLASSIC / FDCAN_FRAME_FD_BRS / FDCAN_FRAME_FD_NO_BRS (Bit Rate Switching)
   hCAN1.Init.Mode                = FDCAN_MODE_NORMAL;   // FDCAN_MODE_NORMAL / FDCAN_MODE_EXTERNAL_LOOPBACK / FDCAN_MODE_INTERNAL_LOOPBACK / FDCAN_MODE_BUS_MONITORING / FDCAN_MODE_RESTRICTED_OPERATION
@@ -696,16 +728,16 @@ HAL_StatusTypeDef CAN_host_start() {
   // PLL2 80MHz: ( 2  1  69  10) ( 4  1  34  5) ( 8  1  16 3) --> 500K baud
   // PLL2 80MHz: ( 4  1  69  10) ( 8  1  34  5) (16  1  16 3) --> 250K baud
 
-  uint32_t seg1, seg2;
-  if (FDCAN_calculate_segments(&seg1, &seg2) != HAL_OK) {
+  uint32_t seg1, seg2, prescaler;
+  if (FDCAN_calculate_segments(&seg1, &seg2, &prescaler) != HAL_OK) {
     SERIAL_ECHOLNPGM("Impossible FDCAN baudrate, check FDCAN clock and baudrate");
     return HAL_ERROR;
   }
 
-  hCAN1.Init.NominalPrescaler     =    1; // Arbitration/data clock prescaler/divider (1-512)
-  hCAN1.Init.NominalSyncJumpWidth =    1; // Arbitration/data Sync Jump Width (1-128 SJW), should be 1
-  hCAN1.Init.NominalTimeSeg1      = seg1; // Arbitration/data period 1 (2-256) // 21
-  hCAN1.Init.NominalTimeSeg2      = seg2; // Arbitration/data period 2 (2-128)   //  3
+  hCAN1.Init.NominalPrescaler     = prescaler; // Arbitration/data clock prescaler/divider (1-512)
+  hCAN1.Init.NominalSyncJumpWidth =         1; // Arbitration/data Sync Jump Width (1-128 SJW), should be 1
+  hCAN1.Init.NominalTimeSeg1      =      seg1; // Arbitration/data period 1 (2-256) // 21
+  hCAN1.Init.NominalTimeSeg2      =      seg2; // Arbitration/data period 2 (2-128) //  3
 
   /* No bitrate switching, not used:
   hCAN1.Init.DataPrescaler        =  1; // Arbitration/data clock prescaler/divider (1-32)
@@ -732,37 +764,41 @@ HAL_StatusTypeDef CAN_host_start() {
   hCAN1.Init.TxFifoQueueMode      =  FDCAN_TX_FIFO_OPERATION; // Queue mode: FDCAN_TX_FIFO_OPERATION / FDCAN_TX_QUEUE_OPERATION
 
   status = HAL_FDCAN_Init(&hCAN1); // Calls HAL_FDCAN_MspInit
-  if (status != HAL_OK) return status;
+  if (status != HAL_OK)
+    return status;
 
   // FDCAN Filter configuration, toggle reception between FIFO0 and FIFO1 (not really needed for this FDCAN implementation)
   FDCAN_FilterTypeDef  sFilterConfig; // Configure RX message filter
 
   sFilterConfig.IdType       = FDCAN_EXTENDED_ID; // Filter extended ID messages to FIFO1 if higest ID bit is set
-  sFilterConfig.FilterIndex  = 0;                 // Exteneded filter ID 0
+  sFilterConfig.FilterIndex  = 0;                 // Extended filter ID 0
   sFilterConfig.FilterType   = FDCAN_FILTER_MASK; // FDCAN_FILTER_MASK / FDCAN_FILTER_RANGE
   sFilterConfig.FilterConfig = FDCAN_FILTER_TO_RXFIFO1; // Filter to FIFO1
   sFilterConfig.FilterID1    = 0x10000000;        // Range: 0 - 0x1FFF FFFF, 0=don'tcare
   sFilterConfig.FilterID2    = 0x10000000;        // Range: 0 - 0x1FFF FFFF, 0=don'tcare
   status = HAL_FDCAN_ConfigFilter(&hCAN1, &sFilterConfig);
-  if (status != HAL_OK) return status;
+  if (status != HAL_OK)
+    return status;
 
   //sFilterConfig.IdType       = FDCAN_EXTENDED_ID; // Filter all remaining extended ID messages to FIFO0
-  sFilterConfig.FilterIndex  = 1;                 // Exteneded filter ID 1
+  sFilterConfig.FilterIndex  = 1;                 // Extended filter ID 1
   //sFilterConfig.FilterType   = FDCAN_FILTER_MASK; // FDCAN_FILTER_MASK / FDCAN_FILTER_RANGE
   sFilterConfig.FilterConfig = FDCAN_FILTER_TO_RXFIFO0; // Remaining messages go to FIFO0
   sFilterConfig.FilterID1    = 0;                 // Range: 0 - 0x1FFF FFFF, 0=don'tcare
   sFilterConfig.FilterID2    = 0;                 // Range: 0 - 0x1FFF FFFF, 0=don'tcare
-  HAL_FDCAN_ConfigFilter(&hCAN1, &sFilterConfig);
-  if (status != HAL_OK) return status;
+  status = HAL_FDCAN_ConfigFilter(&hCAN1, &sFilterConfig);
+  if (status != HAL_OK)
+    return status;
 
-  sFilterConfig.IdType       = FDCAN_STANDARD_ID; // Filter to FIFO1 if higest standard ID bit is set
+  sFilterConfig.IdType       = FDCAN_STANDARD_ID; // Filter to FIFO0 if higest standard ID bit is set
   sFilterConfig.FilterIndex  = 0;                 // Standard filter ID 0
   sFilterConfig.FilterType   = FDCAN_FILTER_MASK; // FDCAN_FILTER_MASK / FDCAN_FILTER_RANGE
   sFilterConfig.FilterConfig = FDCAN_FILTER_TO_RXFIFO0;
   sFilterConfig.FilterID1    = 0b10000000000;     // Range: 0 - 0x7FF, 0=don't care
   sFilterConfig.FilterID2    = 0b10000000000;     // Range: 0 - 0x7FF, 0=don't care
   status = HAL_FDCAN_ConfigFilter(&hCAN1, &sFilterConfig);
-  if (status != HAL_OK) return status;
+  if (status != HAL_OK)
+    return status;
 
   //sFilterConfig.IdType       = FDCAN_STANDARD_ID; // Filter all remaining standard ID messages to FIFO0
   sFilterConfig.FilterIndex  = 1;                 // Standard filter ID 1
@@ -771,28 +807,36 @@ HAL_StatusTypeDef CAN_host_start() {
   sFilterConfig.FilterID1    = 0;                 // Range: 0 - 0x7FF, 0=don't care
   sFilterConfig.FilterID2    = 0;                 // Range: 0 - 0x7FF, 0=don't care
   status = HAL_FDCAN_ConfigFilter(&hCAN1, &sFilterConfig);
-  if (status != HAL_OK) return status;
+  if (status != HAL_OK)
+    return status;
 
-  // status = HAL_FDCAN_ConfigGlobalFilter(&hfdcan, FDCAN_REJECT, FDCAN_REJECT, FDCAN_REJECT_REMOTE, FDCAN_REJECT_REMOTE);
-  //if (status != HAL_OK) return status;
+  //status = HAL_FDCAN_ConfigGlobalFilter(&hfdcan, FDCAN_REJECT, FDCAN_REJECT, FDCAN_REJECT_REMOTE, FDCAN_REJECT_REMOTE);
+  //if (status != HAL_OK)
+  //  return status;
 
   status = HAL_FDCAN_ActivateNotification(&hCAN1, FDCAN_IT_RX_FIFO0_NEW_MESSAGE, 0); // Calls HAL_FDCAN_RxFifo0MsgPendingCallback
-  if (status != HAL_OK) return status;
+  if (status != HAL_OK)
+    return status;
 
   status = HAL_FDCAN_ActivateNotification(&hCAN1, FDCAN_IT_RX_FIFO1_NEW_MESSAGE, 0); // Calls HAL_FDCAN_RxFifo1MsgPendingCallback
-  if (status != HAL_OK) return status;
+  if (status != HAL_OK)
+    return status;
 
-  HAL_FDCAN_ActivateNotification(&hCAN1, FDCAN_IT_RX_FIFO0_MESSAGE_LOST, 0); // Calls HAL_FDCAN_ErrorCallback
-  if (status != HAL_OK) return status;
+  status = HAL_FDCAN_ActivateNotification(&hCAN1, FDCAN_IT_RX_FIFO0_MESSAGE_LOST, 0); // Calls HAL_FDCAN_ErrorCallback
+  if (status != HAL_OK)
+    return status;
 
   status = HAL_FDCAN_ActivateNotification(&hCAN1, FDCAN_IT_RX_FIFO1_MESSAGE_LOST, 0); // Calls HAL_FDCAN_ErrorCallback
-  if (status != HAL_OK) return status;
+  if (status != HAL_OK)
+    return status;
 
   status = HAL_FDCAN_ActivateNotification(&hCAN1, FDCAN_IT_ERROR_WARNING, 0); // Calls HAL_FDCAN_ErrorCallback
-  if (status != HAL_OK) return status;
+  if (status != HAL_OK)
+    return status;
 
   status = HAL_FDCAN_Start(&hCAN1); // Start the FDCAN device
-  if (status != HAL_OK) return status;
+  if (status != HAL_OK)
+    return status;
 
   DEBUG_ECHOLNPGM("Voltage Scaling: VOS", (PWR->CSR1 & PWR_CSR1_ACTVOS_Msk) >> PWR_CSR1_ACTVOS_Pos);
   DEBUG_ECHOLNPGM("FDCAN Peripheral Clock : ", HAL_RCCEx_GetPeriphCLKFreq(RCC_PERIPHCLK_FDCAN) / 1000000, "MHz");
@@ -814,11 +858,8 @@ HAL_StatusTypeDef CAN_host_start() {
   #endif
  
   CAN_toolhead_reset_request = true; // Reset the toolhead at startup
-  CAN_toolhead_requested_setup = false;
+  CAN_toolhead_setup_request = false;
   
-  // Allow some time for the toolhead to restart
-  // delay(1600); // 1000 NOT OK, 1200 OK, 1500 OK
-
   return status;
 } // CAN_host_start()
 
@@ -839,20 +880,20 @@ void FDCAN_host_read_message(FDCAN_HandleTypeDef *hfdcan, uint32_t RxFifo) { // 
     if (RxHeader.Identifier & CAN_ID_STRING_MESSAGE_BIT_MASK) { // Toolhead sent a string message
       char *CAN_RX_p = (char *)CAN_RX_buffer_FIFO; // Point to message character buffer
       uint32_t dataLength = RxHeader.DataLength >> FDCAN_HOST_DATALENGTH_OFFSET;
-	  uint32_t stringLength = string_message.length();
-	  for (uint32_t i = 0; i < dataLength; i++, stringLength++) {
+    uint32_t stringLength = string_message.length();
+    for (uint32_t i = 0; i < dataLength; i++, stringLength++) {
         if (stringLength < (CAN_HOST_MAX_STRING_MSG_LENGTH - 1)) {
-		  string_message.append(CAN_RX_p[i]); // Copy message to global buffer
-		  if (CAN_RX_p[i] == '\n') {
-			  string_message_complete = true;
-		    break;
-		  }
-		}
-		else {
-		  string_message.append('\n'); // String buffer is full, terminate string and send
-		  string_message_complete = true;
-		  break;
-		}
+      string_message.append(CAN_RX_p[i]); // Copy message to global buffer
+      if (CAN_RX_p[i] == '\n') {
+        string_message_complete = true;
+        break;
+      }
+    }
+    else {
+      string_message.append('\n'); // String buffer is full, terminate string and send
+      string_message_complete = true;
+      break;
+    }
       } // for
     } // if
     else if (RxHeader.DataLength == FDCAN_DLC_BYTES_4) { // Only 1 record, so it's a temperature update (DLC = Data Length Code == 4 bytes)
@@ -867,7 +908,7 @@ void FDCAN_host_read_message(FDCAN_HandleTypeDef *hfdcan, uint32_t RxFifo) { // 
       CAN_time_sync_request = true;
     }
 
-    CAN_toolhead_requested_setup = (RxHeader.Identifier & CAN_ID_REQUEST_SETUP_BIT_MASK) > 0; // Toolhead requests setup configuration
+    CAN_toolhead_setup_request = (RxHeader.Identifier & CAN_ID_REQUEST_SETUP_BIT_MASK) > 0; // Toolhead requests setup configuration
 
     CAN_toolhead_error = (RxHeader.Identifier & CAN_ID_ERROR_BIT_MASK) > 0; // Toolhead signals an error
   }

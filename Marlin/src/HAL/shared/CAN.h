@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2025 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2026 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -24,11 +24,12 @@
 #include "../../inc/MarlinConfigPre.h"
 
 #define CAN_GCODE_TIMESYNC                               7777 // A unique unused Gcode number to trigger a time sync
-#define CAN_GCODE_CONFIGURATION_COMPLETE                 7778 // Signal the configuration is complete
+#define CAN_GCODE_TOOLHEAD_SETUP                         7778 // Signal toolhead setup, no parameters=start setup, 'Sx'=completed, should have receivec x gcodes
 #define CAN_HOST_MAX_STRING_MSG_LENGTH                    128 // Max string message length to receive from the toolhead
 #define CAN_HOST_MAX_WAIT_TIME                             25 // Time in ms to wait for CAN FIFO buffers
 #define CAN_HOST_E0_TEMP_UPDATE_WATCHDOG_TIME            3000 // An E0 temp update must be received within this time
-#define CAN_HOST_ERROR_REPEAT_TIME                      10000 // Time between report repeats of an error message
+#define CAN_HOST_ERROR_REPEAT_TIME                      10000 // Time[ms] between report repeats of an error message
+#define CAN_NEXT_TEMP_REPORT_TIME                       12000 // Allowed time[ms] between temperature reports, considers startup process
 
 #define STDID_FIFO_TOGGLE_BIT                   0b10000000000
 #define EXTID_FIFO_TOGGLE_BIT                      0x10000000
@@ -93,7 +94,7 @@
 #define CAN_ERROR_MSG_INVALID_BAUDRATE               "Incorrect CAN baudrate"
 
 void CAN_host_idle();                                // CAN idle task
-void CAN_host_send_setup(const bool change_status=false); // Send configuration to toolhead
+void CAN_host_send_setup();                          // Send setup configuration to toolhead
 uint32_t CAN_host_get_iostate();                     // Read the CAN virtual IO state
 HAL_StatusTypeDef CAN_host_start();                  // Start the CAN device
 HAL_StatusTypeDef CAN_host_stop();                   // Stop the CAN device
