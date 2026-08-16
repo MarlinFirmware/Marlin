@@ -2080,23 +2080,23 @@ void Temperature::mintemp_error(const heater_id_t heater_id OPTARG(ERR_INCLUDE_T
            * Peltier bang-bang maintains max bed power but changes
            * current direction to switch between heating/cooling.
            */
-          if (temp_bed.target && temp_bed.is_above_target(BED_HYSTERESIS)) {  // Fast Cooling
+          if (temp_bed.target && temp_bed.is_above_target(BED_LIMIT_HYSTERESIS)) { // Fast Cooling
             temp_bed.soft_pwm_amount = MAX_BED_POWER;
             temp_bed.peltier_dir_heating = false;
           }
-          else if (temp_bed.is_below_target(BED_HYSTERESIS)) {                // Heating
+          else if (temp_bed.is_below_target(BED_LIMIT_HYSTERESIS)) {  // Heating
             temp_bed.soft_pwm_amount = MAX_BED_POWER;
             temp_bed.peltier_dir_heating = true;
           }
           else
-            temp_bed.soft_pwm_amount = 0;                                     // Off (ambient cooling)
+            temp_bed.soft_pwm_amount = 0;                             // Off (ambient cooling)
 
         #else // !PELTIER_BED
 
           #if ENABLED(BED_LIMIT_SWITCHING)
-            if (temp_bed.is_above_target(BED_HYSTERESIS))       // Cooling (implicit off)
+            if (temp_bed.is_above_target(BED_LIMIT_HYSTERESIS))       // Cooling (implicit off)
               temp_bed.soft_pwm_amount = 0;
-            else if (temp_bed.is_below_target(BED_HYSTERESIS))  // Heating
+            else if (temp_bed.is_below_target(BED_LIMIT_HYSTERESIS))  // Heating
               temp_bed.soft_pwm_amount = MAX_BED_POWER >> 1;
           #else                                                 // Not bed limit switching
             temp_bed.soft_pwm_amount = temp_bed.is_below_target() ? MAX_BED_POWER >> 1 : 0;
@@ -2223,9 +2223,9 @@ void Temperature::mintemp_error(const heater_id_t heater_id OPTARG(ERR_INCLUDE_T
           }
           else {
             #if ENABLED(CHAMBER_LIMIT_SWITCHING)
-              if (temp_chamber.is_above_target(CHAMBER_HYSTERESIS))
+              if (temp_chamber.is_above_target(CHAMBER_LIMIT_HYSTERESIS))
                 temp_chamber.soft_pwm_amount = 0;
-              else if (temp_chamber.is_below_target(CHAMBER_HYSTERESIS))
+              else if (temp_chamber.is_below_target(CHAMBER_LIMIT_HYSTERESIS))
                 temp_chamber.soft_pwm_amount = (MAX_CHAMBER_POWER) >> 1;
             #else
               temp_chamber.soft_pwm_amount = temp_chamber.is_below_target() ? (MAX_CHAMBER_POWER) >> 1 : 0;
