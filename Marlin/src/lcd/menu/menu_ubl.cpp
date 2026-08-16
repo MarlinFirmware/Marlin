@@ -113,13 +113,11 @@ float MarlinUI::ubl_mesh_value() { return rounded_mesh_value(); }
  * UBL Build Custom Mesh Command
  */
 void _lcd_ubl_build_custom_mesh() {
-  char ubl_lcd_gcode[64];
   #if HAS_HEATED_BED
-    sprintf_P(ubl_lcd_gcode, PSTR("G28\nM190 S%i\nM109 S%i\nG29 P1"), custom_bed_temp, custom_hotend_temp);
+    queue.inject(TS(F("G28\nM190 S"), custom_bed_temp, F("\nM109 S"), custom_hotend_temp, F("\nG29 P1")));
   #else
-    sprintf_P(ubl_lcd_gcode, PSTR("G28\nM109 S%i\nG29 P1"), custom_hotend_temp);
+    queue.inject(TS(F("G28\nM109 S"), custom_hotend_temp, F("\nG29 P1")));
   #endif
-  queue.inject(ubl_lcd_gcode);
 }
 
 /**
@@ -147,11 +145,7 @@ void _lcd_ubl_custom_mesh() {
  * UBL Adjust Mesh Height Command
  */
 void _lcd_ubl_adjust_height_cmd() {
-  char ubl_lcd_gcode[14];
-  const int ind = ubl_height_amount > 0 ? 6 : 7;
-  strcpy_P(ubl_lcd_gcode, PSTR("G29P6C-"));
-  sprintf_P(&ubl_lcd_gcode[ind], PSTR(".%i"), ABS(ubl_height_amount));
-  queue.inject(ubl_lcd_gcode);
+  queue.inject(TS(F("G29P6C"), ubl_height_amount > 0 ? F("") : F("-"), C('.'), ABS(ubl_height_amount)));
 }
 
 /**
@@ -195,12 +189,10 @@ void _lcd_ubl_edit_mesh() {
    * UBL Validate Custom Mesh Command
    */
   void _lcd_ubl_validate_custom_mesh() {
-    char ubl_lcd_gcode[20];
-    sprintf_P(ubl_lcd_gcode, PSTR("G28\nG26CPH%" PRIi16 TERN_(HAS_HEATED_BED, "B%" PRIi16))
+    queue.inject(MString<20>{}.setf_P(PSTR("G28\nG26CPH%" PRIi16 TERN_(HAS_HEATED_BED, "B%" PRIi16))
       , custom_hotend_temp
       OPTARG(HAS_HEATED_BED, custom_bed_temp)
-    );
-    queue.inject(ubl_lcd_gcode);
+    ));
   }
 
   /**
@@ -243,9 +235,7 @@ void _lcd_ubl_grid_level() {
   BACK_ITEM(MSG_UBL_TOOLS);
   EDIT_ITEM(int3, MSG_UBL_SIDE_POINTS, &side_points, 2, 6);
   ACTION_ITEM(MSG_UBL_MESH_LEVEL, []{
-    char ubl_lcd_gcode[12];
-    sprintf_P(ubl_lcd_gcode, PSTR("G29J%i"), side_points);
-    queue.inject(ubl_lcd_gcode);
+    queue.inject(TS(F("G29J"), side_points));
   });
   END_MENU();
 }
@@ -271,9 +261,7 @@ void _lcd_ubl_mesh_leveling() {
  * UBL Fill-in Amount Mesh Command
  */
 void _lcd_ubl_fillin_amount_cmd() {
-  char ubl_lcd_gcode[18];
-  sprintf_P(ubl_lcd_gcode, PSTR("G29P3RC.%i"), ubl_fillin_amount);
-  gcode.process_subcommands_now(ubl_lcd_gcode);
+  gcode.process_subcommands_now(TS(F("G29P3RC."), ubl_fillin_amount));
 }
 
 /**
@@ -347,10 +335,7 @@ void _lcd_ubl_build_mesh() {
   * UBL Load / Save Mesh Commands
   */
   inline void _lcd_ubl_load_save_cmd(const char loadsave, FSTR_P const fmsg) {
-    char ubl_lcd_gcode[40];
-    sprintf_P(ubl_lcd_gcode, PSTR("G29%c%i\nM117 "), loadsave, ubl_storage_slot);
-    sprintf_P(&ubl_lcd_gcode[strlen(ubl_lcd_gcode)], FTOP(fmsg), ubl_storage_slot);
-    gcode.process_subcommands_now(ubl_lcd_gcode);
+    gcode.process_subcommands_now(MString<40>{}.setf_P(PSTR("G29%c%i\nM117 "), loadsave, ubl_storage_slot).appendf_P(FTOP(fmsg), ubl_storage_slot));
   }
   void _lcd_ubl_load_mesh_cmd() { _lcd_ubl_load_save_cmd('L', GET_TEXT_F(MSG_MESH_LOADED)); }
   void _lcd_ubl_save_mesh_cmd() { _lcd_ubl_load_save_cmd('S', GET_TEXT_F(MSG_MESH_SAVED)); }

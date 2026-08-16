@@ -723,7 +723,6 @@ G29_TYPE GcodeSuite::G29() {
 
           #if ENABLED(BD_SENSOR_PROBE_NO_STOP)
             if (PR_INNER_VAR == inStart) {
-              char tmp_1[32];
 
               // move to the start point of new line
               abl.measured_z = faux ? 0.001f * random(-100, 101) : probe.probe_at_point(abl.probePos, raise_after, abl.verbose_level);
@@ -745,12 +744,13 @@ G29_TYPE GcodeSuite::G29() {
               //  REMEMBER(fr, motion.feedrate_mm_s, XY_PROBE_FEEDRATE_MM_S);
               //  motion.prepare_line_to_destination();
               //  }
-              sprintf_P(tmp_1, PSTR("G1X%d.%d Y%d.%d F%d"),
-                int(abl.probePos.x), int(abl.probePos.x * 10) % 10,
-                int(abl.probePos.y), int(abl.probePos.y * 10) % 10,
-                XY_PROBE_FEEDRATE
+              gcode.process_subcommands_now(
+                MString<31>{}.setf_P(PSTR("G1X%s Y%s F%d"),
+                  p_float_t(abl.probePos.x, 1),
+                  p_float_t(abl.probePos.y, 1),
+                  XY_PROBE_FEEDRATE
+                )
               );
-              gcode.process_subcommands_now(tmp_1);
 
               if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("destX: ", abl.probePos.x, " Y:", abl.probePos.y);
 
