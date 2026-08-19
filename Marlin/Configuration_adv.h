@@ -4867,6 +4867,14 @@
 //
 //#define I2C_SCANNER
 
+/**
+ * M7422 - Dump the Creality v4.2.x bootloader info region to serial.
+ * The stock bootloader on some STM32F103-based Creality boards (v4.2.2 and
+ * similar) reserves the last 2K of flash for the last-flashed filename
+ * tagged with a 0xAA55 magic header.
+ */
+//#define CREALITY_BOOTLOADER_INFO_DUMP
+
 // Enable Tests that will run at startup and produce a report
 //#define MARLIN_TEST_BUILD
 

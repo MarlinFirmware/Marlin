@@ -232,6 +232,10 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
   #endif
 #endif
 
+#if ENABLED(CREALITY_BOOTLOADER_INFO_DUMP) && DISABLED(HAL_STM32) && !defined(__STM32F1__)
+  #error "CREALITY_BOOTLOADER_INFO_DUMP requires an STM32F1-based Creality v4.2.x board."
+#endif
+
 /**
  * Multiple Stepper Drivers Per Axis
  */
