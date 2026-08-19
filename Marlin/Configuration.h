@@ -160,6 +160,12 @@
  *          TMC5130, TMC5130_STANDALONE, TMC5160, TMC5160_STANDALONE
  * :['A4988', 'A5984', 'DRV8825', 'LV8729', 'TB6560', 'TB6600', 'TMC2100', 'TMC2130', 'TMC2130_STANDALONE', 'TMC2160', 'TMC2160_STANDALONE', 'TMC2208', 'TMC2208_STANDALONE', 'TMC2209', 'TMC2209_STANDALONE', 'TMC2240', 'TMC2660', 'TMC2660_STANDALONE', 'TMC5130', 'TMC5130_STANDALONE', 'TMC5160', 'TMC5160_STANDALONE']
  */
+// Board label reads "C" (hand-marked on the SD card module) = HR4988, an A4988
+// clone, so A4988 below is correct. Verified 2026-08-19; suppress Marlin's
+// "check your 4.2.2 driver type" warning. The MCU warning is left in place
+// until M115 over USB confirms SERIAL_PORT 1 (i.e. STM32, not GD32).
+#define NO_CREALITY_422_DRIVER_WARNING
+
 #define X_DRIVER_TYPE  A4988
 #define Y_DRIVER_TYPE  A4988
 #define Z_DRIVER_TYPE  A4988
