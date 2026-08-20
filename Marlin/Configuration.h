@@ -1982,7 +1982,10 @@
 // @section geometry
 
 // The size of the printable area
-#define X_BED_SIZE 235
+// 225 not 235: the print head cable fouls the right upright at full X travel.
+// X_MAX_POS is defined as X_BED_SIZE below, so this pulls the travel limit back
+// 10mm. Reducing X_MAX_POS alone fails the X_MAX_LENGTH >= X_BED_SIZE assert.
+#define X_BED_SIZE 225
 #define Y_BED_SIZE 235
 
 // Travel limits (linear=mm, rotational=°) after homing, corresponding to endstop positions.
