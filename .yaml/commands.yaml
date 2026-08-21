@@ -1,0 +1,102 @@
+controls:
+- name: Machine
+  layout: vertical
+  children:
+  - command: G28
+    name: Auto Home
+  - command: G27
+    name: Park Nozzle
+  - command: M84
+    name: Disable Steppers
+  - command: M500
+    name: Save to EEPROM
+- name: Probe
+  layout: horizontal
+  children:
+  - command: M401
+    name: Deploy
+  - command: M402
+    name: Stow
+  - command: M280 P0 S160
+    name: Reset
+- name: Calibration
+  layout: vertical
+  children:
+  - commands:
+    - M503
+    - M106 S255
+    - M303 E0 S%(nozzle_temp)s C%(cycles)s U1
+    - M107
+    name: Autotune PID
+    input:
+    - default: 220
+      name: Nozzle Temperature (°C)
+      parameter: nozzle_temp
+    - default: 8
+      name: Cycles
+      parameter: cycles
+  - commands:
+    - G28
+    - M48 P%(points)s V%(verbose)s
+    name: Probe Repeatability
+    input:
+    - default: 10
+      name: Sample Points
+      parameter: points
+    - default: 2
+      name: Verbose Level (0-4)
+      parameter: verbose
+  - commands:
+    - G28
+    - G29
+    - M500
+    name: Bed Mesh (G29)
+    confirm: Home, probe the whole bed and save the mesh?
+  - commands:
+    - M851 Z%(zoffset)s
+    - M500
+    name: Set Probe Z Offset
+    input:
+    - default: -2.0
+      name: Z Offset (mm, negative)
+      parameter: zoffset
+  - command: M290 Z%(step)s
+    name: Babystep Z
+    input:
+    - default: -0.01
+      name: Z Adjust (mm)
+      parameter: step
+- name: Filament
+  layout: vertical
+  children:
+  - command: M412 S1
+    name: Runout Sensor ON
+  - command: M412 S0
+    name: Runout Sensor OFF
+  - command: M412
+    name: Runout Sensor Status
+  - commands:
+    - M412 D%(runout)s L%(jam)s
+    - M500
+    name: Set Runout Distances
+    input:
+    - default: 7
+      name: Runout Distance D (mm, switch)
+      parameter: runout
+    - default: 7
+      name: Jam Distance L (mm, motion)
+      parameter: jam
+  - command: M600 R%(temp)s
+    name: Filament Change
+    confirm: Pause the print and start a filament change?
+    input:
+    - default: 235
+      name: New Filament Temp (°C)
+      parameter: temp
+- name: Info
+  layout: horizontal
+  children:
+  - command: M503
+    name: Report Settings
+  - command: M119
+    name: Endstop Status
