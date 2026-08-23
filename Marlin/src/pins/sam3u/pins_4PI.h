@@ -73,46 +73,46 @@
 //
 // Limit Switches
 //
-#define X_MIN_PIN                             PB16
-#define Y_MIN_PIN                             PA17
-#define Z_MIN_PIN                             PC12
+#define X_MIN_PIN                           PB16
+#define Y_MIN_PIN                           PA17
+#define Z_MIN_PIN                           PC12
 
-#define X_MAX_PIN                             PC15  // Also ADC12B4
-#define Y_MAX_PIN                             PC17  // Also ADC12B6
-#define Z_MAX_PIN                             PC18  // Also ADC12B7
+#define X_MAX_PIN                           PC15  // Also ADC12B4
+#define Y_MAX_PIN                           PC17  // Also ADC12B6
+#define Z_MAX_PIN                           PC18  // Also ADC12B7
 
 //
 // Steppers
 //
-#define X_STEP_PIN                            PC28
-#define X_DIR_PIN                              PB8
-#define X_ENABLE_PIN                          PC31
-#define X_MS1_PIN                             PC30
-#define X_MS2_PIN                             PC29
+#define X_STEP_PIN                          PC28
+#define X_DIR_PIN                           PB8
+#define X_ENABLE_PIN                        PC31
+#define X_MS1_PIN                           PC30
+#define X_MS2_PIN                           PC29
 
-#define Y_STEP_PIN                            PC23
-#define Y_DIR_PIN                             PA31
-#define Y_ENABLE_PIN                          PA22
-#define Y_MS1_PIN                             PC11
-#define Y_MS2_PIN                             PC10
+#define Y_STEP_PIN                          PC23
+#define Y_DIR_PIN                           PA31
+#define Y_ENABLE_PIN                        PA22
+#define Y_MS1_PIN                           PC11
+#define Y_MS2_PIN                           PC10
 
-#define Z_STEP_PIN                            PA27
-#define Z_DIR_PIN                             PC27
-#define Z_ENABLE_PIN                           PB7
-#define Z_MS1_PIN                              PB6
-#define Z_MS2_PIN                              PB5
+#define Z_STEP_PIN                          PA27
+#define Z_DIR_PIN                           PC27
+#define Z_ENABLE_PIN                        PB7
+#define Z_MS1_PIN                           PB6
+#define Z_MS2_PIN                           PB5
 
-#define E0_STEP_PIN                           PC26
-#define E0_DIR_PIN                             PB2
-#define E0_ENABLE_PIN                         PB13
-#define E0_MS1_PIN                            PB12
-#define E0_MS2_PIN                            PB11
+#define E0_STEP_PIN                         PC26
+#define E0_DIR_PIN                          PB2
+#define E0_ENABLE_PIN                       PB13
+#define E0_MS1_PIN                          PB12
+#define E0_MS2_PIN                          PB11
 
-#define E1_STEP_PIN                            PB1
-#define E1_DIR_PIN                            PC25
-#define E1_ENABLE_PIN                         PC13
-#define E1_MS1_PIN                             PB0
-#define E1_MS2_PIN                            PC24
+#define E1_STEP_PIN                         PB1
+#define E1_DIR_PIN                          PC25
+#define E1_ENABLE_PIN                       PC13
+#define E1_MS1_PIN                          PB0
+#define E1_MS2_PIN                          PC24
 
 //
 // Temperature Sensors
@@ -120,22 +120,22 @@
 // The original firmware wires hotend 1 to the "TEMP1" input, hotend 2 to
 // "TEMP2" and the bed to "TEMP0"; that assignment is kept here.
 //
-#define TEMP_0_PIN                             PB4  // TEMP1 / ADC12B3
-#define TEMP_1_PIN                            PA30  // TEMP2 / ADC12B1
-#define TEMP_BED_PIN                          PC16  // TEMP0 / ADC12B5
+#define TEMP_0_PIN                          PB4   // TEMP1 / ADC12B3
+#define TEMP_1_PIN                          PA30  // TEMP2 / ADC12B1
+#define TEMP_BED_PIN                        PC16  // TEMP0 / ADC12B5
 
 // Spare thermistor input, free for a chamber or probe sensor
-#define TEMP_2_PIN                             PB3  // TEMP3 / ADC12B2
+#define TEMP_2_PIN                          PB3   // TEMP3 / ADC12B2
 
 //
 // Heaters / Fans
 //
-#define HEATER_0_PIN                          PA21  // HOTEND1
-#define HEATER_1_PIN                          PA23  // HOTEND2
-#define HEATER_BED_PIN                        PA20  // BEDFET
+#define HEATER_0_PIN                        PA21  // HOTEND1
+#define HEATER_1_PIN                        PA23  // HOTEND2
+#define HEATER_BED_PIN                      PA20  // BEDFET
 
-#define FAN0_PIN                              PA25  // FET1
-#define FAN1_PIN                              PA24  // FET2
+#define FAN0_PIN                            PA25  // FET1
+#define FAN1_PIN                            PA24  // FET2
 
 //
 // Motor current - AD5206 6-channel digital potentiometer on the SPI bus
@@ -143,7 +143,7 @@
 // AD5206 channel order on this board is Z, Y, E0, X, AUX, E1, so the
 // X/Y/Z/E ordering Marlin expects maps to channels 3, 1, 0, 2.
 //
-#define DIGIPOTSS_PIN                         PA16  // SPI NPCS0
+#define DIGIPOTSS_PIN                       PA16  // SPI NPCS0
 #define DIGIPOT_CHANNELS           { 3, 1, 0, 2, 5 }  // X Y Z E0 E1
 
 // The AD5206 wiper setting maps to roughly (count * 7.43) mA, so the original
@@ -156,8 +156,8 @@
 //
 // Misc. board I/O
 //
-#define SD_DETECT_PIN                          PA1
-#define POWER_MONITOR_VOLTAGE_PIN             PA18  // VMOTDET - motor supply present
+#define SD_DETECT_PIN                       PA1
+#define POWER_MONITOR_VOLTAGE_PIN           PA18  // VMOTDET - motor supply present
 
 //
 // Indicator LEDs - three RGB LEDs, nine pins
@@ -186,15 +186,15 @@
  */
 
 // By schematic net name, for M42 and for matching the board documentation
-#define LED1_PIN                              PC22  // RGB 1 blue
-#define LED2_PIN                              PA29  // RGB 1 green
-#define LED3_PIN                              PA28  // RGB 1 red
-#define LED4_PIN                               PA2  // RGB 2 blue
-#define LED5_PIN                               PC1  // RGB 2 green
-#define LED6_PIN                               PA0  // RGB 2 red
-#define LED7_PIN                              PA26  // RGB 3 blue
-#define LED8_PIN                              PC20  // RGB 3 green
-#define LED9_PIN                               PC0  // RGB 3 red
+#define LED1_PIN                            PC22  // RGB 1 blue
+#define LED2_PIN                            PA29  // RGB 1 green
+#define LED3_PIN                            PA28  // RGB 1 red
+#define LED4_PIN                            PA2   // RGB 2 blue
+#define LED5_PIN                            PC1   // RGB 2 green
+#define LED6_PIN                            PA0   // RGB 2 red
+#define LED7_PIN                            PA26  // RGB 3 blue
+#define LED8_PIN                            PC20  // RGB 3 green
+#define LED9_PIN                            PC0   // RGB 3 red
 
 /**
  * Marlin's status LED. LED1 is the *blue* channel of the first RGB package, so
@@ -202,7 +202,7 @@
  * LED3_PIN (red) for a different colour.
  */
 #ifndef LED_PIN
-  #define LED_PIN                         LED1_PIN
+  #define LED_PIN                       LED1_PIN
 #endif
 
 /**
@@ -215,9 +215,9 @@
  * to WRITE() whenever PWM_PIN() is false. See HAL/SAM3U/AGENTS.md.
  */
 #if ENABLED(RGB_LED) && !defined(RGB_LED_R_PIN)
-  #define RGB_LED_R_PIN                   LED6_PIN
-  #define RGB_LED_G_PIN                   LED5_PIN
-  #define RGB_LED_B_PIN                   LED4_PIN
+  #define RGB_LED_R_PIN                 LED6_PIN
+  #define RGB_LED_G_PIN                 LED5_PIN
+  #define RGB_LED_B_PIN                 LED4_PIN
 #endif
 
 //
@@ -240,23 +240,23 @@
 //
 // The pull-up on D+ is internal to the SAM3U (BOARD_USB_PULLUP_INTERNAL in the
 // original firmware), so there is no pull-up control pin either.
-#define USB_VBUS_DETECT_PIN                   PC19  // USBDET - VBUS present, via R37/R38 divider
+#define USB_VBUS_DETECT_PIN                 PC19  // USBDET - VBUS present, via R37/R38 divider
 
 // Hardware UART pins, numbered as Marlin's SERIAL_PORT values
 //
 // Only SERIAL_PORT 0 is usable on this board: it is the only one whose pins
 // reach a header. Every USART shares pins with a board function, and
 // HAL/SAM3U/inc/SanityCheck.h rejects or warns on them accordingly.
-#define UART0_RX_PIN                          PA11  // UART   URXD - J_PERIPH pin 13
-#define UART0_TX_PIN                          PA12  // UART   UTXD - J_PERIPH pin 14
-#define UART1_RX_PIN                          PA19  // USART0 RXD0 - also J_PERIPH CS3 (SPI NPCS3)
-#define UART1_TX_PIN                          PA18  // USART0 TXD0 - also POWER_MONITOR_VOLTAGE_PIN
-#define UART2_RX_PIN                          PA21  // USART1 RXD1 - also HEATER_0_PIN
-#define UART2_TX_PIN                          PA20  // USART1 TXD1 - also HEATER_BED_PIN
-#define UART3_RX_PIN                          PA23  // USART2 RXD2 - also HEATER_1_PIN
-#define UART3_TX_PIN                          PA22  // USART2 TXD2 - also Y_ENABLE_PIN
-#define UART4_RX_PIN                          PC13  // USART3 RXD3 - also E1_ENABLE_PIN
-#define UART4_TX_PIN                          PC12  // USART3 TXD3 - also Z_MIN_PIN
+#define UART0_RX_PIN                        PA11  // UART   URXD - J_PERIPH pin 13
+#define UART0_TX_PIN                        PA12  // UART   UTXD - J_PERIPH pin 14
+#define UART1_RX_PIN                        PA19  // USART0 RXD0 - also J_PERIPH CS3 (SPI NPCS3)
+#define UART1_TX_PIN                        PA18  // USART0 TXD0 - also POWER_MONITOR_VOLTAGE_PIN
+#define UART2_RX_PIN                        PA21  // USART1 RXD1 - also HEATER_0_PIN
+#define UART2_TX_PIN                        PA20  // USART1 TXD1 - also HEATER_BED_PIN
+#define UART3_RX_PIN                        PA23  // USART2 RXD2 - also HEATER_1_PIN
+#define UART3_TX_PIN                        PA22  // USART2 TXD2 - also Y_ENABLE_PIN
+#define UART4_RX_PIN                        PC13  // USART3 RXD3 - also E1_ENABLE_PIN
+#define UART4_TX_PIN                        PC12  // USART3 TXD3 - also Z_MIN_PIN
 
 /**
  * ============================ Expansion headers ============================
@@ -349,13 +349,13 @@
 //
 
 // TWI0 on J_PERIPH pins 11/12 - for an I2C EEPROM, accelerometer, etc.
-#define I2C_SDA_PIN                            PA9  // TWD0
-#define I2C_SCL_PIN                           PA10  // TWCK0
+#define I2C_SDA_PIN                         PA9   // TWD0
+#define I2C_SCL_PIN                         PA10  // TWCK0
 
 // Spare hardware SPI chip selects on J_PERIPH (see the label warning above)
-#define EXP_CS1_PIN                            PC4  // "CS1" - SPI NPCS2
-#define EXP_CS2_PIN                            PC3  // "CS2" - SPI NPCS1
-#define EXP_CS3_PIN                           PA19  // "CS3" - SPI NPCS3
+#define EXP_CS1_PIN                         PC4   // "CS1" - SPI NPCS2
+#define EXP_CS2_PIN                         PC3   // "CS2" - SPI NPCS1
+#define EXP_CS3_PIN                         PA19  // "CS3" - SPI NPCS3
 
 //
 // Onboard SD card - HSMCI, not SPI
@@ -391,10 +391,10 @@
 #endif
 
 #if ENABLED(ONBOARD_SDIO)
-  #define ONBOARD_SD_MCCK_PIN                    PA3  // Documentation only -
-  #define ONBOARD_SD_MCCDA_PIN                   PA4  // these pins belong to
-  #define ONBOARD_SD_MCDA0_PIN                   PA5  // the HSMCI controller and
-  #define ONBOARD_SD_MCDA1_PIN                   PA6  // cannot be reassigned
-  #define ONBOARD_SD_MCDA2_PIN                   PA7
-  #define ONBOARD_SD_MCDA3_PIN                   PA8
+  #define ONBOARD_SD_MCCK_PIN               PA3   // Documentation only -
+  #define ONBOARD_SD_MCCDA_PIN              PA4   // these pins belong to
+  #define ONBOARD_SD_MCDA0_PIN              PA5   // the HSMCI controller and
+  #define ONBOARD_SD_MCDA1_PIN              PA6   // cannot be reassigned
+  #define ONBOARD_SD_MCDA2_PIN              PA7
+  #define ONBOARD_SD_MCDA3_PIN              PA8
 #endif
