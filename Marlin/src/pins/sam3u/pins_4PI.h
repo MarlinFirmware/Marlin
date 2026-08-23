@@ -157,8 +157,68 @@
 // Misc. board I/O
 //
 #define SD_DETECT_PIN                          PA1
-#define LED_PIN                               PC22  // LED1
 #define POWER_MONITOR_VOLTAGE_PIN             PA18  // VMOTDET - motor supply present
+
+//
+// Indicator LEDs - three RGB LEDs, nine pins
+//
+/**
+ * What the schematic calls LED1..LED9 is not nine separate LEDs: it is three
+ * common-cathode RGB packages, each with its three anodes driven by a MCU pin
+ * through a series resistor and all cathodes tied to ground. So they are plain
+ * active-high outputs, and each group of three is one physical LED that can be
+ * mixed to any colour.
+ *
+ * Package pinout (from the BOM part):
+ *   Pin 1 anode blue    Pin 6 cathode blue
+ *   Pin 2 anode green   Pin 5 cathode green
+ *   Pin 3 anode red     Pin 4 cathode red
+ *
+ * Which gives, per package - note the schematic's net numbering runs blue,
+ * green, red within each group, not red-first:
+ *
+ *   RGB LED 1 (U$33)   blue LED1 PC22   green LED2 PA29   red LED3 PA28
+ *   RGB LED 2 (U$35)   blue LED4 PA2    green LED5 PC1    red LED6 PA0
+ *   RGB LED 3 (U$34)   blue LED7 PA26   green LED8 PC20   red LED9 PC0
+ *
+ * Two further LEDs on the board are hardwired power indicators - one on VUSB
+ * and one on the V+ motor supply - and cannot be driven by firmware.
+ */
+
+// By schematic net name, for M42 and for matching the board documentation
+#define LED1_PIN                              PC22  // RGB 1 blue
+#define LED2_PIN                              PA29  // RGB 1 green
+#define LED3_PIN                              PA28  // RGB 1 red
+#define LED4_PIN                               PA2  // RGB 2 blue
+#define LED5_PIN                               PC1  // RGB 2 green
+#define LED6_PIN                               PA0  // RGB 2 red
+#define LED7_PIN                              PA26  // RGB 3 blue
+#define LED8_PIN                              PC20  // RGB 3 green
+#define LED9_PIN                               PC0  // RGB 3 red
+
+/**
+ * Marlin's status LED. LED1 is the *blue* channel of the first RGB package, so
+ * the stock status LED lights blue; point LED_PIN at LED2_PIN (green) or
+ * LED3_PIN (red) for a different colour.
+ */
+#ifndef LED_PIN
+  #define LED_PIN                         LED1_PIN
+#endif
+
+/**
+ * Marlin's RGB_LED / RGBW_LED feature drives one colour-mixed LED. Enable
+ * RGB_LED in Configuration.h and the first package is used; for the second or
+ * third, define RGB_LED_R/G/B_PIN yourself from the table above.
+ *
+ * Note the feature wants PWM for smooth mixing and this HAL has none, so
+ * colours are limited to the eight on/off combinations - leds.cpp falls back
+ * to WRITE() whenever PWM_PIN() is false. See HAL/SAM3U/AGENTS.md.
+ */
+#if ENABLED(RGB_LED) && !defined(RGB_LED_R_PIN)
+  #define RGB_LED_R_PIN                   LED6_PIN
+  #define RGB_LED_G_PIN                   LED5_PIN
+  #define RGB_LED_B_PIN                   LED4_PIN
+#endif
 
 //
 // Host communication
