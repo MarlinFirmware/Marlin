@@ -24,26 +24,58 @@
 /**
  * Hardware serial for Atmel SAM3U (AT91SAM3U4E)
  *
- * The 4pi brings out exactly one asynchronous port: the chip's dedicated UART
- * on PA11 (URXD, peripheral A) and PA12 (UTXD, peripheral A), wired to pins 13
- * and 14 of the board's 14-pin expansion header. The four USARTs are not
- * broken out, so this HAL implements the single UART rather than the DUE's
- * five-port template.
+ * The SAM3U has five asynchronous ports, numbered here the way Marlin's
+ * SERIAL_PORT settings expect:
  *
- * The UART is fixed at 8 data bits and no parity in hardware; only the baud
- * rate and stop bits are programmable.
+ *   0  UART    URXD  PA11  UTXD  PA12   (peripheral A)
+ *   1  USART0  RXD0  PA19  TXD0  PA18   (peripheral A)
+ *   2  USART1  RXD1  PA21  TXD1  PA20   (peripheral A)
+ *   3  USART2  RXD2  PA23  TXD2  PA22   (peripheral A)
+ *   4  USART3  RXD3  PC13  TXD3  PC12   (peripheral B)
+ *
+ * Any of them may be assigned to SERIAL_PORT, SERIAL_PORT_2 or SERIAL_PORT_3,
+ * in any combination, alongside -1 for native USB (see MarlinSerialUSB.h).
+ * Marlin's USING_HW_SERIALn conditionals decide which get compiled in.
+ *
+ * IMPORTANT, on the 4pi specifically: only port 0's pins are broken out. Every
+ * USART lands on pins the board already uses - two of them on heater outputs -
+ * so pins_4PI.h and inc/SanityCheck.h reject those. The generic support here
+ * is for the SAM3U family; the board file is what constrains it.
+ *
+ * The UART and the USARTs share register offsets and bit positions for
+ * everything this driver touches (CR, IER/IDR/IMR, SR/CSR, RHR, THR, BRGR), so
+ * all five are driven through a single Uart* view. Only the mode register
+ * differs, and that is handled per port type in begin().
  */
 
 #include "../../inc/MarlinConfigPre.h"
 #include "../../core/types.h"
 #include "../../core/serial_hook.h"
+#include "include/pinmapping.h"
 
-// This HAL has exactly one port, instantiated as customizedSerial1, so every
-// valid index maps onto it rather than onto a MSerial<N> family.
-#define _MSERIAL(X) customizedSerial1
+#include "MarlinSerialUSB.h"
+
+// Marlin's default _MSERIAL(X) names instances MSerial<port>, which is what
+// this file declares. USB instances are slot-named; see MarlinSerialUSB.h.
+#define USB_SERIAL_PORT(N) customizedSerial##N
 #define SERIAL_INDEX_MIN 0
-#define SERIAL_INDEX_MAX 0
+#define SERIAL_INDEX_MAX 4
 #include "../shared/serial_ports.h"
+
+/**
+ * Which ports are in use.
+ *
+ * Marlin's own USING_HW_SERIALn flags would be the natural thing to test, but
+ * they are set in Conditionals-5-post.h *after* the HAL header is pulled into
+ * the cascade, so they are not visible here. Derive the same thing from the
+ * port assignments directly, which are available this early.
+ */
+#define SAM3U_SERIAL_IN_USE(N) (   (defined(SERIAL_PORT)       && (N) == SERIAL_PORT) \
+                                || (defined(SERIAL_PORT_2)     && (N) == SERIAL_PORT_2) \
+                                || (defined(SERIAL_PORT_3)     && (N) == SERIAL_PORT_3) \
+                                || (defined(MMU_SERIAL_PORT)   && (N) == MMU_SERIAL_PORT) \
+                                || (defined(LCD_SERIAL_PORT)   && (N) == LCD_SERIAL_PORT) \
+                                || (defined(RS485_SERIAL_PORT) && (N) == RS485_SERIAL_PORT) )
 
 // Ring buffer sizes. Both must be powers of two so the index wrap is a mask.
 #ifndef RX_BUFFER_SIZE
@@ -60,9 +92,39 @@
   #error "TX_BUFFER_SIZE must be 0 (unbuffered), or a power of 2 between 2 and 256."
 #endif
 
+// ------------------------
+// Port descriptions
+// ------------------------
+
+struct SerialPortDesc {
+  uint32_t  base;       // Peripheral base, viewed as Uart*
+  IRQn_Type irq;
+  uint8_t   periph_id;
+  int8_t    rx_pin, tx_pin;
+  bool      periph_b;   // false: PIO peripheral A, true: peripheral B
+  bool      is_usart;   // USARTs need their own mode register layout
+};
+
+// constexpr so a port's description folds away entirely for a constant index
+constexpr SerialPortDesc serial_port_desc(const uint8_t port) {
+  return port == 0 ? SerialPortDesc{ 0x400E0600, UART_IRQn,   ID_UART,   PA11, PA12, false, false }
+       : port == 1 ? SerialPortDesc{ 0x40090000, USART0_IRQn, ID_USART0, PA19, PA18, false, true  }
+       : port == 2 ? SerialPortDesc{ 0x40094000, USART1_IRQn, ID_USART1, PA21, PA20, false, true  }
+       : port == 3 ? SerialPortDesc{ 0x40098000, USART2_IRQn, ID_USART2, PA23, PA22, false, true  }
+       :             SerialPortDesc{ 0x4009C000, USART3_IRQn, ID_USART3, PC13, PC12, true,  true  };
+}
+
+// ------------------------
+// Driver
+// ------------------------
+
 template<typename Cfg>
 class MarlinSerial {
 protected:
+  static constexpr SerialPortDesc DESC = serial_port_desc(Cfg::PORT);
+
+  static Uart* regs() { return (Uart *)DESC.base; }
+
   typedef uvalue_t(Cfg::RX_SIZE - 1) ring_buffer_pos_t;
 
   struct ring_buffer_r {
@@ -108,7 +170,7 @@ public:
   static size_t write(const uint8_t c);
   static void flushTX();
 
-  // Called from the UART interrupt vector
+  // Called from this port's interrupt vector
   static void UART_ISR();
 
   static bool emergency_parser_enabled() { return Cfg::EMERGENCYPARSER; }
@@ -122,7 +184,7 @@ public:
 // Serial port configuration
 template <uint8_t serial>
 struct MarlinSerialCfg {
-  static constexpr int PORT               = serial;
+  static constexpr uint8_t PORT           = serial;
   static constexpr unsigned int RX_SIZE   = RX_BUFFER_SIZE;
   static constexpr unsigned int TX_SIZE   = TX_BUFFER_SIZE;
   static constexpr bool XONOFF            = ENABLED(SERIAL_XON_XOFF);
@@ -133,11 +195,24 @@ struct MarlinSerialCfg {
   static constexpr bool MAX_RX_QUEUED     = ENABLED(SERIAL_STATS_MAX_RX_QUEUED);
 };
 
-#if defined(SERIAL_PORT) && SERIAL_PORT >= 0
-  typedef Serial1Class< MarlinSerial< MarlinSerialCfg<SERIAL_PORT> > > MSerialT1;
-  extern MSerialT1 customizedSerial1;
+// One instance per port actually in use, named the way _MSERIAL() expects
+#if SAM3U_SERIAL_IN_USE(0)
+  typedef Serial1Class< MarlinSerial< MarlinSerialCfg<0> > > MSerialT0;
+  extern MSerialT0 MSerial0;
 #endif
-
-#if defined(SERIAL_PORT_2) && SERIAL_PORT_2 >= 0
-  #error "The SAM3U/4pi HAL only exposes one hardware serial port (SERIAL_PORT 0)."
+#if SAM3U_SERIAL_IN_USE(1)
+  typedef Serial1Class< MarlinSerial< MarlinSerialCfg<1> > > MSerialT1x;
+  extern MSerialT1x MSerial1;
+#endif
+#if SAM3U_SERIAL_IN_USE(2)
+  typedef Serial1Class< MarlinSerial< MarlinSerialCfg<2> > > MSerialT2x;
+  extern MSerialT2x MSerial2;
+#endif
+#if SAM3U_SERIAL_IN_USE(3)
+  typedef Serial1Class< MarlinSerial< MarlinSerialCfg<3> > > MSerialT3x;
+  extern MSerialT3x MSerial3;
+#endif
+#if SAM3U_SERIAL_IN_USE(4)
+  typedef Serial1Class< MarlinSerial< MarlinSerialCfg<4> > > MSerialT4x;
+  extern MSerialT4x MSerial4;
 #endif

@@ -35,16 +35,13 @@
  *  - Motor current set by an AD5206 digital pot on the SPI bus (PA14/15/16)
  *  - Thermistors on the 12-bit ADC12B
  *  - The SD card is on HSMCI (PA3..PA8), not SPI - see the note below
- *  - Host serial is USB CDC on the real board; this HAL currently speaks over
- *    the UART on PA11/PA12, brought out to pins 13/14 of the expansion header
+ *  - Host serial is native USB CDC (SERIAL_PORT -1), which is how the board is
+ *    normally used. The chip's UART on PA11/PA12 is also available as
+ *    SERIAL_PORT 0, on pins 13/14 of the expansion header
  */
 
 #define BOARD_INFO_NAME "4pi"
 #define DEFAULT_MACHINE_NAME BOARD_INFO_NAME
-
-#ifndef __SAM3U4E__
-  #error "Oops! Select a 4pi (SAM3U4E) environment to build for this board."
-#endif
 
 #define MAX_EXTRUDERS 2
 
@@ -162,6 +159,44 @@
 #define SD_DETECT_PIN                          PA1
 #define LED_PIN                               PC22  // LED1
 #define POWER_MONITOR_VOLTAGE_PIN             PA18  // VMOTDET - motor supply present
+
+//
+// Host communication
+//
+// Pins for documentation and sanity checks only.
+// Changing these will not change the pin they are on.
+//
+
+// Native USB (SERIAL_PORT -1)
+//
+// The 4pi has no USB-serial chip - the host link is the SAM3U's own UDPHS
+// device controller. Its data lines are dedicated analog pins, not PIO, so
+// they have no pin number and cannot be reassigned:
+//
+//   DHSDP  D+  -> USB connector pin 3, through a 39R series resistor (R35)
+//   DHSDM  D-  -> USB connector pin 2, through a 39R series resistor (R34)
+//   VBG        -> bandgap reference resistor (R36); required by the transceiver
+//   VDDUTMI    -> UTMI transceiver supply
+//
+// The pull-up on D+ is internal to the SAM3U (BOARD_USB_PULLUP_INTERNAL in the
+// original firmware), so there is no pull-up control pin either.
+#define USB_VBUS_DETECT_PIN                   PC19  // USBDET - VBUS present, via R37/R38 divider
+
+// Hardware UART pins, numbered as Marlin's SERIAL_PORT values
+//
+// Only SERIAL_PORT 0 is usable on this board: it is the only one whose pins
+// reach a header. Every USART shares pins with a board function, and
+// HAL/SAM3U/inc/SanityCheck.h rejects or warns on them accordingly.
+#define UART0_RX_PIN                          PA11  // UART   URXD - J_PERIPH pin 13
+#define UART0_TX_PIN                          PA12  // UART   UTXD - J_PERIPH pin 14
+#define UART1_RX_PIN                          PA19  // USART0 RXD0 - also J_PERIPH CS3 (SPI NPCS3)
+#define UART1_TX_PIN                          PA18  // USART0 TXD0 - also POWER_MONITOR_VOLTAGE_PIN
+#define UART2_RX_PIN                          PA21  // USART1 RXD1 - also HEATER_0_PIN
+#define UART2_TX_PIN                          PA20  // USART1 TXD1 - also HEATER_BED_PIN
+#define UART3_RX_PIN                          PA23  // USART2 RXD2 - also HEATER_1_PIN
+#define UART3_TX_PIN                          PA22  // USART2 TXD2 - also Y_ENABLE_PIN
+#define UART4_RX_PIN                          PC13  // USART3 RXD3 - also E1_ENABLE_PIN
+#define UART4_TX_PIN                          PC12  // USART3 TXD3 - also Z_MIN_PIN
 
 /**
  * ============================ Expansion headers ============================

@@ -57,6 +57,8 @@ adc.{h,cpp}       ADC12B driver
 timers.{h,cpp}    TC0's three channels
 fastio.h          Direct PIO access; constant-folds for constant pins
 MarlinSerial.*    The one hardware UART
+MarlinSerialUSB.* Marlin serial over native USB
+usb/               CDC-ACM device on UDPHS
 HAL_SPI.cpp       Bit-banged SPI master
 eeprom/           Flash-backed PersistentStore
 inc/              Family Conditionals + SanityCheck
@@ -129,13 +131,62 @@ pio run -e 4pi
 Upload is SAM-BA. To reach the bootloader, short the RESET pads on top of the
 board and power-cycle.
 
-## Not implemented yet
+## USB
 
-- **USB CDC (UDPHS).** The real 4pi talks to the host over native USB; this HAL
-  currently uses the UART on PA11/PA12 (expansion header pins 13/14). Porting
-  the UDPHS CDC stack from `referance material/4pi-firmware/at91lib/usb` is the
-  natural next step. Note UDPHS is a different peripheral from the Due's UOTGHS,
-  so `HAL/DUE/usb/` is not directly reusable.
+`usb/usb_cdc.cpp` is a self-contained CDC-ACM device on the SAM3U's UDPHS
+controller — this is `SERIAL_PORT -1`, and how the 4pi is normally used. It was
+written against the datasheet using the 4pi reference firmware's `at91lib` UDPHS
+stack for the hardware sequences, but it is not a port of that framework.
+
+Two decisions to be aware of before changing it:
+
+- **It forces full speed.** UDPHS is high-speed capable, but 12Mbit/s already
+  dwarfs what Marlin needs, and full speed means one descriptor set and 64-byte
+  banks instead of two sets and 512-byte banks. To go high speed: drop the
+  `UDPHS_TST` write in `usb_cdc_init()`, set `EP_BULK_SIZE` to 512, and add
+  device_qualifier and other_speed_configuration descriptors.
+- **It uses the FIFO, not DMA.** At 64 bytes a packet the copy is trivial.
+
+`bulk_in_start()` masks the UDPHS interrupt because the transmit path is
+reachable from both the ISR and the idle task; the ISR calls
+`bulk_in_start_locked()` directly. Don't collapse the two.
+
+## Serial ports
+
+Five hardware ports plus USB, usable in any of Marlin's three slots
+(`SERIAL_PORT`, `SERIAL_PORT_2`, `SERIAL_PORT_3`) in any combination:
+
+| N | Peripheral | RX | TX | PIO function |
+|---|---|---|---|---|
+| -1 | USB CDC | — | — | — |
+| 0 | UART | PA11 | PA12 | A |
+| 1 | USART0 | PA19 | PA18 | A |
+| 2 | USART1 | PA21 | PA20 | A |
+| 3 | USART2 | PA23 | PA22 | A |
+| 4 | USART3 | PC13 | PC12 | B |
+
+All five are driven through a single `Uart*` view: the UART and the USARTs
+share register offsets and bit positions for everything the driver touches
+(CR, IER/IDR/IMR, SR/CSR, RHR, THR, BRGR). The one real difference is the mode
+register — a USART needs word length, parity and stop bits programmed in
+`US_MR`'s own field layout, where the UART's are fixed in hardware. `begin()`
+branches on `DESC.is_usart` for exactly that.
+
+**Do not test `USING_HW_SERIALn` in HAL headers.** Marlin sets those in
+`Conditionals-5-post.h`, which runs *after* `HAL.h` enters the cascade, so they
+read as undefined here and every port silently compiles out. `MarlinSerial.h`
+defines `SAM3U_SERIAL_IN_USE(N)` from the port assignments directly for this
+reason; use that.
+
+Which ports are *usable* is a board question, not a HAL one. On the 4pi only
+port 0 and USB are wired to anything free — every USART shares pins with a
+board function, two of them with heater outputs — so `inc/SanityCheck.h`
+rejects ports 2–4 and warns on port 1. Other SAM3U boards would relax that.
+
+The Due's `HAL/DUE/usb/` is **not** reusable here — that is UOTGHS, a different
+peripheral.
+
+## Not implemented yet
 - **Onboard SD.** The socket is on HSMCI (PA3..PA8, 4-bit), not SPI, so Marlin's
   stock `Sd2Card` cannot drive it. Needs an HSMCI driver.
 - **Hardware SPI.** `HAL_SPI.cpp` bit-bangs; the only device on the bus is the

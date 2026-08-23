@@ -28,6 +28,10 @@
 
 #include "../../inc/MarlinConfig.h"
 
+#if SAM3U_SERIAL_IN_USE(-1)
+  #include "usb/usb_cdc.h"
+#endif
+
 // ------------------------
 // Public functions
 // ------------------------
@@ -35,6 +39,20 @@
 void MarlinHAL::init() {
   #if HAS_MEDIA && PIN_EXISTS(SD_SS)
     OUT_WRITE(SD_SS_PIN, HIGH);   // Deselect the SD card before any other SPI user starts up
+  #endif
+  #if SAM3U_SERIAL_IN_USE(-1)
+    usb_cdc_init();               // Enumerate as a CDC serial device
+  #endif
+}
+
+/**
+ * Push any buffered USB output onto the bus. Marlin writes a byte at a time,
+ * so short packets are held back until here rather than sending a USB packet
+ * per character.
+ */
+void MarlinHAL::idletask() {
+  #if SAM3U_SERIAL_IN_USE(-1)
+    usb_cdc_task();
   #endif
 }
 
