@@ -406,7 +406,7 @@ G29_TYPE GcodeSuite::G29() {
       feedRate_t xy_probe_feedrate_mm_m = parser.linearval('S', XY_PROBE_FEEDRATE);
       if (xy_probe_feedrate_mm_m < min_probe_feedrate_mm_m) {
         xy_probe_feedrate_mm_m = min_probe_feedrate_mm_m;
-        SERIAL_ECHOLNPGM(GCODE_ERR_MSG("Feedrate (S) too low. (Using ", min_probe_feedrate_mm_m, " units/min)"));
+        SERIAL_ECHOLNPGM(GCODE_ERR_MSG("Feedrate (S) too low. (Using ", LINEAR_UNIT(min_probe_feedrate_mm_m), " units/min)"));
       }
       motion.xy_probe_feedrate_mm_s = MMM_TO_MMS(xy_probe_feedrate_mm_m);
     #endif
