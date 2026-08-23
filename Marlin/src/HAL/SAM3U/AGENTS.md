@@ -59,6 +59,7 @@ fastio.h          Direct PIO access; constant-folds for constant pins
 MarlinSerial.*    The one hardware UART
 MarlinSerialUSB.* Marlin serial over native USB
 usb/               CDC-ACM device on UDPHS
+sdio.cpp          Onboard SD over HSMCI
 HAL_SPI.cpp       Bit-banged SPI master
 eeprom/           Flash-backed PersistentStore
 inc/              Family Conditionals + SanityCheck
@@ -186,9 +187,39 @@ rejects ports 2–4 and warns on port 1. Other SAM3U boards would relax that.
 The Due's `HAL/DUE/usb/` is **not** reusable here — that is UOTGHS, a different
 peripheral.
 
+## SD card
+
+`sdio.cpp` drives the onboard socket over HSMCI in 4-bit mode (MCCK PA3, MCCDA
+PA4, MCDA0..3 PA5..PA8). Marlin's stock `Sd2Card` speaks SPI and cannot reach
+it, so this implements the `SDIO_*` interface in `Marlin/src/sd/Sd2Card_sdio.h`
+that `DiskIODriver_SDIO` calls. The board file selects it with Marlin's
+standard `ONBOARD_SDIO` flag — which means "onboard card on a native SD host
+controller rather than SPI", not the SDIO standard for WiFi/GPS cards. STM32,
+GD32 and HC32 each implement the same `SDIO_*` interface over their own
+controller; HSMCI is the SAM3U's.
+
+Points worth knowing before changing it:
+
+- **Programmed I/O, not DMA**, made safe by `RDPROOF`/`WRPROOF` in `HSMCI_MR`:
+  those stall the card clock when the FIFO would over- or underrun, so the
+  transfer waits for the CPU instead of losing data. Without them PIO would be
+  marginal at 24MHz.
+- **Error flags in `HSMCI_SR` are cleared by reading it**, so `hsmci_cmd()`
+  accumulates status across polls instead of testing the final read. Don't
+  "simplify" that to a single read - an error that latched early would vanish.
+- **`HSMCI_RSPR[0]` is a read pointer**, not just the first word: a 136-bit
+  response comes from reading index 0 four times.
+- Two responses need error flags masked off: R3 (the OCR in ACMD41) carries no
+  CRC so `RCRCE` is always reported, and a v1.x card ignores CMD8 entirely,
+  which shows up as `RTOE`.
+- Standard-capacity cards are byte-addressed and SDHC/SDXC block-addressed;
+  `card_is_hc` comes from CCS in the OCR and decides which.
+
+To use an external SPI reader instead, turn off `ONBOARD_SDIO` in the pins file
+and set `SD_SS_PIN` - `inc/SanityCheck.h` insists on one or the other, and
+rejects `SD_SS_PIN == DIGIPOTSS_PIN`.
+
 ## Not implemented yet
-- **Onboard SD.** The socket is on HSMCI (PA3..PA8, 4-bit), not SPI, so Marlin's
-  stock `Sd2Card` cannot drive it. Needs an HSMCI driver.
 - **Hardware SPI.** `HAL_SPI.cpp` bit-bangs; the only device on the bus is the
   AD5206 digipot, where it costs nothing.
 

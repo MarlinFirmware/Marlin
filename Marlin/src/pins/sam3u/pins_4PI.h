@@ -297,20 +297,44 @@
 #define EXP_CS2_PIN                            PC3  // "CS2" - SPI NPCS1
 #define EXP_CS3_PIN                           PA19  // "CS3" - SPI NPCS3
 
+//
+// Onboard SD card - HSMCI, not SPI
+//
 /**
- * SD card
+ * The microSD socket is wired to the High Speed Multimedia Card Interface in
+ * 4-bit mode. Marlin's stock Sd2Card driver speaks SPI and cannot reach it, so
+ * ONBOARD_SDIO routes the SD layer through the native host driver in
+ * HAL/SAM3U/sdio.cpp instead.
  *
- * The socket is wired to the HSMCI controller in 4-bit mode:
+ * ONBOARD_SDIO is Marlin's generic "onboard card on a native SD host
+ * controller rather than SPI" flag - not a reference to the SDIO standard for
+ * WiFi/GPS cards. Every HAL implements it with whatever controller it has;
+ * HSMCI is the SAM3U's.
  *
- *   MCCK = PA3   MCCDA = PA4   MCDA0..3 = PA5..PA8
+ *   MCCK   PA3   Card clock
+ *   MCCDA  PA4   Command / response
+ *   MCDA0  PA5   Data 0
+ *   MCDA1  PA6   Data 1
+ *   MCDA2  PA7   Data 2
+ *   MCDA3  PA8   Data 3
  *
- * Marlin's stock Sd2Card driver speaks SPI, so onboard media needs an HSMCI
- * driver that this HAL does not implement yet. Leave HAS_MEDIA off, or point
- * SD_SCK/MISO/MOSI/SS at an external SPI card reader on the expansion header.
+ * All six are on PIOA peripheral A and are driven by the controller, so they
+ * are documented here rather than defined as assignable pins.
+ *
+ * To use an external SPI card reader on the expansion header instead, comment
+ * out ONBOARD_SDIO and set SD_SS_PIN to one of EXP_CS1/2/3_PIN. Do not point
+ * SD_SS_PIN at PA16 - that is the AD5206 digipot's select, and SanityCheck.h
+ * rejects it.
  */
-#define ONBOARD_SD_MCCK_PIN                    PA3
-#define ONBOARD_SD_MCCDA_PIN                   PA4
-#define ONBOARD_SD_MCDA0_PIN                   PA5
-#define ONBOARD_SD_MCDA1_PIN                   PA6
-#define ONBOARD_SD_MCDA2_PIN                   PA7
-#define ONBOARD_SD_MCDA3_PIN                   PA8
+#ifndef ONBOARD_SDIO
+  #define ONBOARD_SDIO                                // SD socket is on HSMCI
+#endif
+
+#if ENABLED(ONBOARD_SDIO)
+  #define ONBOARD_SD_MCCK_PIN                    PA3  // Documentation only -
+  #define ONBOARD_SD_MCCDA_PIN                   PA4  // these pins belong to
+  #define ONBOARD_SD_MCDA0_PIN                   PA5  // the HSMCI controller and
+  #define ONBOARD_SD_MCDA1_PIN                   PA6  // cannot be reassigned
+  #define ONBOARD_SD_MCDA2_PIN                   PA7
+  #define ONBOARD_SD_MCDA3_PIN                   PA8
+#endif

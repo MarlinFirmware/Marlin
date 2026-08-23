@@ -139,17 +139,26 @@
 #endif
 
 /**
- * On the 4pi the SPI bus is shared with the AD5206 motor-current digipot, whose
- * chip select is the same pin spi_pins.h defaults SD_SS_PIN to. Driving it as
- * an SD chip select would corrupt the stepper current settings on every card
- * access, so make the collision a build error rather than a mystery.
+ * Media.
  *
- * The onboard socket is on HSMCI and cannot be reached by Marlin's SPI driver
- * at all - this is only about an external SPI card reader on the expansion
- * header, which should use one of the spare selects there.
+ * The onboard socket is wired to HSMCI, which the board file selects with
+ * Marlin's standard ONBOARD_SDIO flag. An external SPI card
+ * reader on the expansion header is the alternative, and then the chip select
+ * matters: the SPI bus is shared with the AD5206 motor-current digipot, so
+ * using its select for the card would rewrite the stepper currents on every
+ * access.
  */
-#if HAS_MEDIA && defined(DIGIPOTSS_PIN) && defined(SD_SS_PIN) && SD_SS_PIN == DIGIPOTSS_PIN
-  #error "SD_SS_PIN collides with DIGIPOTSS_PIN (the AD5206 digipot). Set SD_SS_PIN to one of the expansion header selects: EXP_CS1_PIN, EXP_CS2_PIN or EXP_CS3_PIN."
+#if HAS_MEDIA && DISABLED(ONBOARD_SDIO)
+  #if !PIN_EXISTS(SD_SS)
+    #error "Media is enabled but no SD interface is selected. Either keep ONBOARD_SDIO (the onboard socket, on HSMCI) or set SD_SS_PIN for an external SPI reader."
+  #elif defined(DIGIPOTSS_PIN) && SD_SS_PIN == DIGIPOTSS_PIN
+    #error "SD_SS_PIN collides with DIGIPOTSS_PIN (the AD5206 digipot). Set SD_SS_PIN to one of the expansion header selects: EXP_CS1_PIN, EXP_CS2_PIN or EXP_CS3_PIN."
+  #endif
+#endif
+
+// The HSMCI driver is written for the 4pi's socket wiring (PA3..PA8, 4-bit)
+#if ENABLED(ONBOARD_SDIO) && !MB(4PI)
+  #error "ONBOARD_SDIO on SAM3U assumes the 4pi's HSMCI wiring. Add HSMCI pin configuration for this board first."
 #endif
 
 // The ADC10 (10-bit) converter is not wired up by this HAL - only ADC12B.
