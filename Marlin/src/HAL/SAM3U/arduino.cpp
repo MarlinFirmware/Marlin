@@ -224,6 +224,20 @@ void detachInterrupt(const pin_t pin) {
 // Misc
 // ------------------------
 
+long random(long howbig) {
+  if (howbig <= 0) return 0;
+  return long(::random() % howbig);   // newlib's zero-argument generator
+}
+
+long random(long howsmall, long howbig) {
+  if (howsmall >= howbig) return howsmall;
+  return random(howbig - howsmall) + howsmall;
+}
+
+void randomSeed(unsigned long seed) {
+  if (seed) srandom(unsigned(seed));
+}
+
 long map(long x, long in_min, long in_max, long out_min, long out_max) {
   const long divisor = in_max - in_min;
   if (!divisor) return out_min;

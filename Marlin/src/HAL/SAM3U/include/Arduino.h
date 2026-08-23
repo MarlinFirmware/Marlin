@@ -88,6 +88,16 @@ typedef bool boolean;
 
 long map(long x, long in_min, long in_max, long out_min, long out_max);
 
+/**
+ * Arduino's random() takes bounds, while newlib's stdlib.h already declares a
+ * zero-argument long random(void). These are overloads of it, not replacements
+ * - without them a call like random(0, 24) fails to compile as "too many
+ * arguments" rather than as a missing symbol.
+ */
+long random(long howbig);
+long random(long howsmall, long howbig);
+void randomSeed(unsigned long seed);
+
 // ------------------------
 // Interrupts
 // ------------------------
@@ -128,7 +138,10 @@ bool digitalRead(const pin_t pin);
 
 uint16_t analogRead(const pin_t pin);
 void analogWrite(const pin_t pin, const int value);
-void analogReadResolution(const uint8_t bits);
+
+// NOTE: no analogReadResolution(). This HAL fixes the ADC at 12 bits
+// (HAL_ADC_RESOLUTION), and declaring a setter nothing implements would only
+// turn a caller's mistake into a link error at the far end of a build.
 
 // ------------------------
 // Misc
