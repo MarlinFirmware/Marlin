@@ -253,6 +253,7 @@ public:
     #if DISABLED(DO_TOOLCHANGE_FOR_PROBING)
       nozPos += xy_pos_t(motion.active_hotend_offset());
     #endif
+    return nozPos;
   }
 
   static bool deploy(const bool no_return=false) { return set_deployed(true, no_return); }
