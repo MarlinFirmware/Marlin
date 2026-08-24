@@ -716,7 +716,7 @@ def generate_html(symbols, special_symbols, output_path, flash_size, ram_size, a
     ram_items = []
 
     for item in symbols:
-        color, mem_type = categorize_section(item['section'])
+        _, color, mem_type = categorize_section(item['section'])
         if mem_type == 'flash':
             total_flash += item['size']
             module_stats[item['module']]['flash'] += item['size']

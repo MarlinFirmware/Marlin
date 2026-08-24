@@ -83,7 +83,7 @@ template <class L, class R> struct IF<true, L, R> { typedef L type; };
 #define LOGICAL_AXIS_NONE(V...) !LOGICAL_AXIS_ANY(V)
 
 #define NUM_AXIS_PAIRED_LIST(V...)           LIST_N(DOUBLE(NUM_AXES), V)
-#define LOGICAL_AXIS_PAIRED_LIST(EA,EB,V...) NUM_AXIS_PAIRED_LIST(V) LIST_ITEM_E(EA) LIST_ITEM_E(EB)
+#define LOGICAL_AXIS_PAIRED_LIST(EA,EB,V...) NUM_AXIS_PAIRED_LIST(V) LIST_PAIR_E(EA, EB)
 
 #if NUM_AXES
   #define NUM_AXES_SEP ,
@@ -107,6 +107,7 @@ template <class L, class R> struct IF<true, L, R> { typedef L type; };
 #define MAIN_AXIS_NAMES_        MAIN_AXIS_NAMES NUM_AXES_SEP
 #define MAIN_AXIS_NAMES_LC_     MAIN_AXIS_NAMES_LC NUM_AXES_SEP
 
+// Currently we always have at least one Logical Axis (X or E)
 #if LOGICAL_AXES
   #define LOGICAL_AXES_SEP ,
 #else
@@ -177,10 +178,12 @@ template <class L, class R> struct IF<true, L, R> { typedef L type; };
     #define CODE_ITEM_E(N) N
   #endif
   #define GANG_ITEM_E(N) N
+  #define LIST_PAIR_E(A,B) LIST_ITEM_E(A), B
 #else
   #define LIST_ITEM_E(N)
   #define CODE_ITEM_E(N)
   #define GANG_ITEM_E(N)
+  #define LIST_PAIR_E(A,B)
 #endif
 
 // Emitters for code that only cares about XYZE and not IJKUVW

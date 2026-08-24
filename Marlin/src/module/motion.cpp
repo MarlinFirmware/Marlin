@@ -172,7 +172,7 @@ int16_t Motion::feedrate_percentage = 100;
 
 #if ENABLED(EDITABLE_HOMING_FEEDRATE)
   xyz_feedrate_t Motion::homing_feedrate_mm_m = HOMING_FEEDRATE_MM_M;
-#else
+#elif NUM_AXES
   constexpr xyz_feedrate_t Motion::homing_feedrate_mm_m;
 #endif
 
@@ -218,7 +218,7 @@ int16_t Motion::feedrate_percentage = 100;
   feedRate_t Motion::xy_probe_feedrate_mm_s = MMM_TO_MMS(XY_PROBE_FEEDRATE);
 #endif
 
-#if ENABLED(DWIN_LCD_PROUI)
+#if ENABLED(PROUI_ITEM_ZFR)
   uint16_t Motion::z_probe_slow_mm_s = MMM_TO_MMS(Z_PROBE_FEEDRATE_SLOW);
 #elif Z_PROBE_FEEDRATE_SLOW
   constexpr feedRate_t Motion::z_probe_slow_mm_s;
@@ -245,14 +245,12 @@ inline void report_more_positions() {
 // Report the logical position for a given machine position
 inline void report_logical_position(const xyze_pos_t &rpos) {
   const xyze_pos_t lpos = rpos.asLogical();
-  #if NUM_AXES
-    SERIAL_ECHOPGM_P(LOGICAL_AXIS_PAIRED_LIST(
-      SP_E_LBL, lpos.e,
-         X_LBL, lpos.x,  SP_Y_LBL, lpos.y,  SP_Z_LBL, lpos.z,
-      SP_I_LBL, lpos.i,  SP_J_LBL, lpos.j,  SP_K_LBL, lpos.k,
-      SP_U_LBL, lpos.u,  SP_V_LBL, lpos.v,  SP_W_LBL, lpos.w
-    ));
-  #endif
+  SERIAL_ECHOPGM_P(LOGICAL_AXIS_PAIRED_LIST(
+    SP_E_LBL, lpos.e,
+        X_LBL, lpos.x,  SP_Y_LBL, lpos.y,  SP_Z_LBL, lpos.z,
+    SP_I_LBL, lpos.i,  SP_J_LBL, lpos.j,  SP_K_LBL, lpos.k,
+    SP_U_LBL, lpos.u,  SP_V_LBL, lpos.v,  SP_W_LBL, lpos.w
+  ));
 }
 
 // Report the real current position according to the steppers.
@@ -1106,19 +1104,6 @@ void Motion::blocking_move(const xy_pos_t &raw, const feedRate_t fr_mm_s/*=0.0f*
    * Move Z to Z_POST_CLEARANCE,
    * The axis is allowed to move down.
    */
-  void Motion::do_move_after_z_homing() {
-    DEBUG_SECTION(mzah, "do_move_after_z_homing", DEBUGGING(LEVELING));
-    #ifdef Z_POST_CLEARANCE
-      do_z_clearance(
-        Z_POST_CLEARANCE,
-        ALL(HOMING_Z_WITH_PROBE, HAS_STOWABLE_PROBE) && TERN0(HAS_BED_PROBE, endstops.z_probe_enabled),
-        true
-      );
-    #elif ENABLED(USE_PROBE_FOR_Z_HOMING)
-      probe.move_z_after_probing();
-    #endif
-  }
-
   #ifndef Z_POST_CLEARANCE  // May be set by proui/dwin.h :-P
     #ifdef Z_AFTER_HOMING
       #define Z_POST_CLEARANCE Z_AFTER_HOMING
@@ -1126,6 +1111,15 @@ void Motion::blocking_move(const xy_pos_t &raw, const feedRate_t fr_mm_s/*=0.0f*
       #define Z_POST_CLEARANCE Z_CLEARANCE_FOR_HOMING
     #endif
   #endif
+
+  void Motion::do_move_after_z_homing() {
+    DEBUG_SECTION(mzah, "do_move_after_z_homing", DEBUGGING(LEVELING));
+    do_z_clearance(
+      Z_POST_CLEARANCE,
+      ALL(HOMING_Z_WITH_PROBE, HAS_STOWABLE_PROBE) && TERN0(HAS_BED_PROBE, endstops.z_probe_enabled),
+      true
+    );
+  }
 
   void Motion::do_z_post_clearance() { do_z_clearance(Z_POST_CLEARANCE); }
 
@@ -1734,7 +1728,7 @@ float Motion::get_move_distance(const xyze_pos_t &diff OPTARG(HAS_ROTATIONAL_AXE
       // Add hints to help optimize the move
       PlannerHints hints(cartesian_mm * inv_segments);
       TERN_(HAS_ROTATIONAL_AXES, hints.cartesian_move = cartes_move);
-      TERN_(FEEDRATE_SCALING, hints.inv_duration = scaled_fr_mm_s / hints.millimeters);
+      TERN_(FEEDRATE_SCALING, hints.inv_duration = fr_mm_s / hints.millimeters);
 
       //SERIAL_ECHOPGM("mm=", cartesian_mm);
       //SERIAL_ECHOLNPGM(" segments=", segments);
@@ -2301,27 +2295,19 @@ void Motion::prepare_line_to_destination() {
       #endif
     } // is_home_dir
 
-    #if ANY(MORGAN_SCARA, MP_SCARA)
-      // Tell the planner the axis is at 0
-      position[axis] = 0;
-      sync_plan_position();
-      position[axis] = distance;
-      goto_current_position(home_fr_mm_s);
-    #else
-      // Get the ABC or XYZ positions in mm
-      abce_pos_t target = planner.get_axis_positions_mm();
+    // Get the ABC or XYZ positions in mm
+    abce_pos_t target = planner.get_axis_positions_mm();
 
-      target[axis] = 0;                         // Set the single homing axis to 0
-      planner.set_machine_position_mm(target);  // Update the machine position
+    target[axis] = 0;                         // Set the single homing axis to 0
+    planner.set_machine_position_mm(target);  // Update the machine position
 
-      #if HAS_DIST_MM_ARG
-        const xyze_float_t cart_dist_mm{0};
-      #endif
-
-      // Set delta/cartesian axes directly
-      target[axis] = distance;                  // The move will be towards the endstop
-      planner.buffer_segment(target OPTARG(HAS_DIST_MM_ARG, cart_dist_mm), home_fr_mm_s, extruder);
+    #if HAS_DIST_MM_ARG
+      const xyze_float_t cart_dist_mm{0};
     #endif
+
+    // Set delta/cartesian axes directly
+    target[axis] = distance;                  // The move will be towards the endstop
+    planner.buffer_segment(target OPTARG(HAS_DIST_MM_ARG, cart_dist_mm), home_fr_mm_s, extruder);
 
     planner.synchronize();
 
@@ -2501,14 +2487,9 @@ void Motion::prepare_line_to_destination() {
 
   void Motion::homeaxis(const AxisEnum axis) {
 
-    #if ANY(MORGAN_SCARA, MP_SCARA)
-      // Only Z homing (with probe) is permitted
-      if (axis != Z_AXIS) { BUZZ(100, 880); return; }
-    #else
-      #define _CAN_HOME(A) (axis == _AXIS(A) && (ANY(A##_SPI_SENSORLESS, HAS_##A##_STATE) || TERN0(HOMING_Z_WITH_PROBE, _AXIS(A) == Z_AXIS)))
-      #define _ANDCANT(N) && !_CAN_HOME(N)
-      if (true MAIN_AXIS_MAP(_ANDCANT)) return;
-    #endif
+    #define _CAN_HOME(A) (axis == _AXIS(A) && (ANY(A##_SPI_SENSORLESS, HAS_##A##_STATE) || TERN0(HOMING_Z_WITH_PROBE, _AXIS(A) == Z_AXIS)))
+    #define _ANDCANT(N) && !_CAN_HOME(N)
+    if (true MAIN_AXIS_MAP(_ANDCANT)) return;
 
     if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM(">>> homeaxis(", C(AXIS_CHAR(axis)), ")");
 
@@ -2885,11 +2866,11 @@ void Motion::set_axis_is_at_home(const AxisEnum axis) {
     }
   #endif
 
-  #if ANY(MORGAN_SCARA, AXEL_TPARA)
+  #if IS_SCARA
     scara_set_axis_is_at_home(axis);
   #elif ENABLED(DELTA)
     position[axis] = (axis == Z_AXIS) ? DIFF_TERN(HAS_BED_PROBE, delta_height, probe.offset.z) : base_home_pos(axis);
-  #else
+  #elif NUM_AXES
     position[axis] = SUM_TERN(HAS_HOME_OFFSET, base_home_pos(axis), home_offset[axis]);
   #endif
 

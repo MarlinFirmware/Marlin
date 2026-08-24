@@ -402,12 +402,13 @@ G29_TYPE GcodeSuite::G29() {
     #endif
 
     #if HAS_VARIABLE_XY_PROBE_FEEDRATE
-      constexpr feedRate_t min_probe_feedrate_mm_s = XY_PROBE_FEEDRATE_MIN;
-      motion.xy_probe_feedrate_mm_s = MMM_TO_MMS(parser.linearval('S', XY_PROBE_FEEDRATE));
-      if (motion.xy_probe_feedrate_mm_s < min_probe_feedrate_mm_s) {
-        motion.xy_probe_feedrate_mm_s = min_probe_feedrate_mm_s;
-        SERIAL_ECHOLNPGM(GCODE_ERR_MSG("Feedrate (S) too low. (Using ", min_probe_feedrate_mm_s, ")"));
+      static constexpr feedRate_t min_fr_mm_m = XY_PROBE_MIN_FEEDRATE_MM_M;
+      feedRate_t fr_mm_m = parser.linearval('S', XY_PROBE_FEEDRATE);
+      if (fr_mm_m < min_fr_mm_m) {
+        fr_mm_m = min_fr_mm_m;
+        SERIAL_ECHOLNPGM(GCODE_ERR_MSG("Feedrate (S) too low. (Using ", LINEAR_UNIT(min_fr_mm_m), " units/min)"));
       }
+      motion.xy_probe_feedrate_mm_s = MMM_TO_MMS(fr_mm_m);
     #endif
 
     #if ABL_USES_GRID
@@ -725,7 +726,6 @@ G29_TYPE GcodeSuite::G29() {
 
           #if ENABLED(BD_SENSOR_PROBE_NO_STOP)
             if (PR_INNER_VAR == inStart) {
-              char tmp_1[32];
 
               // move to the start point of new line
               abl.measured_z = faux ? 0.001f * random(-100, 101) : probe.probe_at_point(abl.probePos, raise_after, abl.verbose_level);
@@ -738,29 +738,26 @@ G29_TYPE GcodeSuite::G29() {
               abl.probePos = abl.probe_position_lf + abl.gridSpacing * abl.meshCount.asFloat();
 
               // Coordinate that puts the probe at the grid point
-              abl.probePos -= probe.offset_xy;
+              const xy_pos_t nozPos = abl.probePos - probe.offset_xy;
+              if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("BD X", nozPos.x, " Y", nozPos.y);
 
               // Put a G1 move into the buffer
               // TODO: Instead of G1, we can just add the move directly to the planner...
               //  {
-              //  motion.destination = motion.position; motion.destination = abl.probePos;
+              //  motion.destination = motion.position; motion.destination = nozPos;
               //  REMEMBER(fr, motion.feedrate_mm_s, XY_PROBE_FEEDRATE_MM_S);
               //  motion.prepare_line_to_destination();
               //  }
-              sprintf_P(tmp_1, PSTR("G1X%d.%d Y%d.%d F%d"),
-                int(abl.probePos.x), int(abl.probePos.x * 10) % 10,
-                int(abl.probePos.y), int(abl.probePos.y * 10) % 10,
-                XY_PROBE_FEEDRATE
+              gcode.process_subcommands_now(
+                MString<31>{}.setf_P(PSTR("G1X%s Y%s F%d"),
+                  p_float_t(nozPos.x, 1),
+                  p_float_t(nozPos.y, 1),
+                  XY_PROBE_FEEDRATE
+                )
               );
-              gcode.process_subcommands_now(tmp_1);
-
-              if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("destX: ", abl.probePos.x, " Y:", abl.probePos.y);
 
               // Reset the inner counter back to the start
               PR_INNER_VAR = inStart;
-
-              // Get the coordinate of the start of the row/column
-              abl.probePos = abl.probe_position_lf + abl.gridSpacing * abl.meshCount.asFloat();
             }
 
             // Wait around until the real axis position reaches the comparison point
