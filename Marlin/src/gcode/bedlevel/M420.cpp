@@ -67,6 +67,7 @@ void GcodeSuite::M420() {
 
   #if ENABLED(MARLIN_DEV_MODE)
     if (parser.intval('S') == 2) {
+      // Farthest XY coordinates that the probe can reach
       const float x_min = probe.min_x(), x_max = probe.max_x(),
                   y_min = probe.min_y(), y_max = probe.max_y();
       #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
@@ -74,7 +75,8 @@ void GcodeSuite::M420() {
         start.set(x_min, y_min);
         spacing.set((x_max - x_min) / (GRID_MAX_CELLS_X),
                     (y_max - y_min) / (GRID_MAX_CELLS_Y));
-        bedlevel.set_grid(spacing, Probe::convert_to_nozzle_xy(start));
+        // Shift the grid bounds by the probe offset because...?
+        bedlevel.set_grid(spacing, Probe::tool_xy_for_probe_xy(start));
       #endif
       GRID_LOOP(x, y) {
         bedlevel.z_values[x][y] = 0.001 * random(-200, 200);

@@ -521,7 +521,7 @@ G29_TYPE GcodeSuite::G29() {
 
     #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
       // Convert the probe-space grid origin to the motion/nozzle coordinate
-      const xy_pos_t grid_start = Probe::convert_to_nozzle_xy(abl.probe_position_lf);
+      const xy_pos_t grid_start = Probe::tool_xy_for_probe_xy(abl.probe_position_lf);
       if (!abl.dryrun && (abl.gridSpacing != bedlevel.grid_spacing || grid_start != bedlevel.grid_start)) {
         reset_bed_level();      // Reset grid to 0.0 or "not probed". (Also disables ABL)
         abl.reenable = false;   // Can't re-enable (on error) until the new grid is written
@@ -885,7 +885,7 @@ G29_TYPE GcodeSuite::G29() {
       if (abl.dryrun)
         bedlevel.print_leveling_grid(&abl.z_values);
       else {
-        bedlevel.set_grid(abl.gridSpacing, Probe::convert_to_nozzle_xy(abl.probe_position_lf));
+        bedlevel.set_grid(abl.gridSpacing, Probe::tool_xy_for_probe_xy(abl.probe_position_lf));
         COPY(bedlevel.z_values, abl.z_values);
         TERN_(IS_KINEMATIC, bedlevel.extrapolate_unprobed_bed_level());
         bedlevel.refresh_bed_level();
