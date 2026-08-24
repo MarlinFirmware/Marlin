@@ -402,7 +402,7 @@ G29_TYPE GcodeSuite::G29() {
     #endif
 
     #if HAS_VARIABLE_XY_PROBE_FEEDRATE
-      constexpr feedRate_t min_probe_feedrate_mm_m = XY_PROBE_FEEDRATE_MIN;
+      static constexpr feedRate_t min_probe_feedrate_mm_m = XY_PROBE_MIN_FEEDRATE_MM_M;
       feedRate_t xy_probe_feedrate_mm_m = parser.linearval('S', XY_PROBE_FEEDRATE);
       if (xy_probe_feedrate_mm_m < min_probe_feedrate_mm_m) {
         xy_probe_feedrate_mm_m = min_probe_feedrate_mm_m;
