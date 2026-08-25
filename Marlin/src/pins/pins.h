@@ -941,6 +941,8 @@
   #include "at32f4/pins_WANHAO_0327001.h"           // AT32F403                             env:WANHAO_0327001
 #elif MB(EASYTHREED_ET4000_PLUS)
   #include "at32f4/pins_EASYTHREED_ET4000_PLUS.h"   // AT32F403                             env:EASYTHREED_ET4000_PLUS
+#elif MB(EASYTHREED_K7_REVB_AT32F407)
+  #include "at32f4/pins_EASYTHREED_K7_REVB_AT32F407.h" // AT32F407                          env:EASYTHREED_K7_REVB_AT32F407
 
 //
 // GD32 ARM Cortex-M3

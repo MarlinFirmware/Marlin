@@ -2,22 +2,24 @@
   "build": {
     "core": "arduino",
     "cpu": "cortex-m4",
-    "extra_flags": "-DAT32F403ARGT7 -DAT32F403Axx -DUSE_STDPERIPH_DRIVER",
+    "extra_flags": "-DAT32F403ARGT7 -DUSE_STDPERIPH_DRIVER",
     "f_cpu": "240000000L",
     "mcu": "at32f403argt7",
     "variant": "marlin_at32f403",
-    "ldscript": "AT32F403AxR_FLASH.ld",
+    "ldscript": "AT32F403AxG_FLASH.ld",
     "board": "AT32F403ARGxx"
   },
-  "frameworks": ["arduino"],
-  "name": "AT32F403ARGT7 (Wanhao 0327001 v2.0)",
+  "frameworks": [
+    "arduino"
+  ],
+  "name": "AT32F403ARGT7 (224k RAM, 1024k Flash)",
   "upload": {
     "maximum_ram_size": 229376,
-    "maximum_size": 262144,
+    "maximum_size": 1048576,
     "protocol": "stlink",
     "require_upload_port": true,
     "speed": 115200
   },
-  "url": "https://www.wanhao3dprinter.com/",
+  "url": "https://www.arterychip.com/en/products/AT32F403A.jsp",
   "vendor": "ArteryTek"
 }

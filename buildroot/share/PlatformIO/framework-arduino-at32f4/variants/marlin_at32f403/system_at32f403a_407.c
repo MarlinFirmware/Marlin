@@ -38,7 +38,9 @@
 /** @addtogroup AT32F403A_407_system_private_defines
   * @{
   */
-#define VECT_TAB_OFFSET                  0x0 /*!< vector table base offset field. this value must be a multiple of 0x200. */
+#ifndef VECT_TAB_OFFSET
+  #define VECT_TAB_OFFSET                0x0 /*!< vector table base offset field. this value must be a multiple of 0x200. */
+#endif
 /**
   * @}
   */

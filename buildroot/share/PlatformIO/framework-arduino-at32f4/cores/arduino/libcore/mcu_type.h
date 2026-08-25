@@ -29,7 +29,9 @@
 
 #define __AT32__
 #define __AT32F4__
-#define F_CPU                       system_core_clock
+#ifndef F_CPU
+  #define F_CPU                     system_core_clock
+#endif
 // #define F_CPU  80000000L
 #define CYCLES_PER_MICROSECOND      (F_CPU / 1000000U)
 

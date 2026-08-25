@@ -26,7 +26,11 @@
 
 #ifdef ARDUINO_ARCH_AT32
 
-// AT32F403 has FPU - enable single-precision math optimizations
+#if ENABLED(I2C_EEPROM)
+  #define USE_SHARED_EEPROM 1
+#endif
+
+// AT32F403 / AT32F407 have an FPU
 #define CPU_HAS_FPU
 
 #endif // ARDUINO_ARCH_AT32

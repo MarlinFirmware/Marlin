@@ -27,10 +27,22 @@
 
 #include <SPI.h>
 
-// The AT32 Arduino core leaves the global SPI instance commented out, expecting
-// the application to instantiate it. Marlin's hardware-SPI path (spiInit / spiRec /
-// spiSend) references the global `SPI`, so define it here against SPI1.
-SPIClass SPI(SPI_CLASS_1_SPI);
+// The AT32 Arduino core leaves the global SPI instances commented out,
+// expecting the application to instantiate one. Bind Marlin's global `SPI`
+// object to the peripheral selected by the board.
+#ifndef SPI_DEVICE
+  #define SPI_DEVICE 1
+#endif
+
+#if SPI_DEVICE == 1
+  SPIClass SPI(SPI_CLASS_1_SPI);
+#elif SPI_DEVICE == 2
+  SPIClass SPI(SPI_CLASS_2_SPI);
+#elif SPI_DEVICE == 3
+  SPIClass SPI(SPI_CLASS_3_SPI);
+#else
+  #error "Unsupported AT32 SPI_DEVICE. Expected 1, 2, or 3."
+#endif
 
 void spiBegin() {
   #if PIN_EXISTS(SD_SS)
@@ -58,8 +70,8 @@ void spiInit(uint8_t spiRate) {
     case 6: clock =   125000; break;  // ~125-156 kHz
     default: clock =  8000000; break;
   }
-  SPI.setClock(clock);
   SPI.begin();
+  SPI.setClock(clock);
 }
 
 /** SPI receive a byte */
@@ -74,8 +86,7 @@ void spiSend(uint8_t data) {
 
 /** SPI read data into buffer */
 void spiRead(uint8_t *buf, uint16_t nbyte) {
-  if (nbyte == 0) return;
-  SPI.write(buf, nbyte);
+  while (nbyte--) *buf++ = SPI.transfer(0xFF);
 }
 
 /** SPI send token and data block */

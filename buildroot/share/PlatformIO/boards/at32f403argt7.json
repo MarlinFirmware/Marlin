@@ -5,26 +5,20 @@
     "extra_flags": "-DAT32F403ARGT7 -DUSE_STDPERIPH_DRIVER",
     "f_cpu": "240000000L",
     "mcu": "at32f403argt7",
-    "variant": "AT32F403ACGU7",
-    "board": "AT32F403ACGxx",
-    "ldscript": "AT32F403AxG_FLASH.ld"
+    "variant": "marlin_at32f403",
+    "ldscript": "AT32F403AxG_FLASH.ld",
+    "board": "AT32F403ARGxx"
   },
   "frameworks": [
     "arduino"
   ],
-  "name": "AT32F403ARGT7 (96k RAM, 1024k Flash)",
+  "name": "AT32F403ARGT7 (224k RAM, 1024k Flash)",
   "upload": {
-    "maximum_ram_size": 98304,
+    "maximum_ram_size": 229376,
     "maximum_size": 1048576,
-    "protocol": "dfu",
-    "protocols": [
-      "dfu",
-      "jlink",
-      "serial"
-    ],
+    "protocol": "stlink",
     "require_upload_port": true,
-    "use_1200bps_touch": false,
-    "wait_for_upload_port": false
+    "speed": 115200
   },
   "url": "https://www.arterychip.com/en/products/AT32F403A.jsp",
   "vendor": "ArteryTek"

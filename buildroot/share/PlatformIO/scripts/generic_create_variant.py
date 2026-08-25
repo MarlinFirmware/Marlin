@@ -28,10 +28,9 @@ if pioutil.is_pio_build():
     if len(platform_packages) == 0:
         framewords = {
             "Ststm32Platform": "framework-arduinoststm32",
-            "AtmelavrPlatform": "framework-arduino-avr",
-            "At32Platform": "framework-arduino-at32f4"
+            "AtmelavrPlatform": "framework-arduino-avr"
         }
-        platform_name = framewords.get(platform.__class__.__name__, "framework-arduino-at32f4")
+        platform_name = framewords[platform.__class__.__name__]
     else:
         spec = PackageSpec(platform_packages[0])
         if spec.uri and '@' in spec.uri:
@@ -56,17 +55,5 @@ if pioutil.is_pio_build():
         here = Path.cwd()
         variants_dir = here / 'buildroot' / 'share' / 'PlatformIO' / 'variants'
         source_dir = variants_dir / variant
-        assert source_dir.is_dir(), f"Variant source directory not found: {source_dir}"
-        
-        # Copy variant to framework variants directory
-        import shutil
-        framework_variants_dir = FRAMEWORK_DIR / 'variants' / variant
-        if not framework_variants_dir.exists():
-            framework_variants_dir.mkdir(parents=True, exist_ok=True)
-            # Copy all files from source to framework variant directory
-            for item in source_dir.iterdir():
-                if item.is_dir():
-                    shutil.copytree(item, framework_variants_dir / item.name, dirs_exist_ok=True)
-                else:
-                    shutil.copy2(item, framework_variants_dir / item.name)
-        board.update("build.variants_dir", str(FRAMEWORK_DIR / 'variants'))
+        assert source_dir.is_dir()
+        board.update("build.variants_dir", str(variants_dir))

@@ -115,6 +115,7 @@ void     yield(void);
 #  include "WCharacter.h"
 #  include "WString.h"
 #  include "WMath.h"
+#  include "Stream.h"
 #  include <libcore/Tone.h>
 #  include <libcore/HardwareSerial.h>
 #  include <libcore/usb_vcp_wrapper.h>

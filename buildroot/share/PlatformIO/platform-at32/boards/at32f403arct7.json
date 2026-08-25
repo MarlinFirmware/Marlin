@@ -2,22 +2,30 @@
   "build": {
     "core": "arduino",
     "cpu": "cortex-m4",
-    "extra_flags": "-DAT32F403ARCT7 -DAT32F403Axx -DUSE_STDPERIPH_DRIVER",
+    "extra_flags": "-DAT32F403ARCT7 -DUSE_STDPERIPH_DRIVER",
     "f_cpu": "240000000L",
     "mcu": "at32f403arct7",
     "variant": "marlin_at32f403",
-    "ldscript": "AT32F403AxG_FLASH.ld",
-    "board": "AT32F403ARCxx"
+    "board": "AT32F403ARCxx",
+    "ldscript": "AT32F403AxR_FLASH.ld"
   },
-  "frameworks": ["arduino"],
-  "name": "AT32F403ARCT7 (EasyThreed K7 ET4000+)",
+  "frameworks": [
+    "arduino"
+  ],
+  "name": "AT32F403ARCT7 (224k RAM, 256k Flash)",
   "upload": {
     "maximum_ram_size": 229376,
-    "maximum_size": 1048576,
-    "protocol": "stlink",
+    "maximum_size": 262144,
+    "protocol": "dfu",
+    "protocols": [
+      "dfu",
+      "jlink",
+      "serial"
+    ],
     "require_upload_port": true,
-    "speed": 115200
+    "use_1200bps_touch": false,
+    "wait_for_upload_port": false
   },
-  "url": "https://www.easythreed.com/",
+  "url": "https://www.arterychip.com/en/products/AT32F403A.jsp",
   "vendor": "ArteryTek"
 }
