@@ -198,7 +198,7 @@ def compute_build_signature(env):
 
     # Get the CONFIG_EXPORT value and do an extended dump if > 100
     # For example, CONFIG_EXPORT 102 will make a 'config.ini' with a [config:] group for each schema @section
-    config_dump = 101 if is_embed else tryint('CONFIG_EXPORT')
+    config_dump = 1 if is_embed else tryint('CONFIG_EXPORT')
     extended_dump = config_dump > 100
     config_dump %= 100
 
@@ -284,7 +284,7 @@ def compute_build_signature(env):
         for line in sec_lines[1:]: sec_list += '\n' + ext_fmt.format('', line)
 
         config_ini = build_path / 'config.ini'
-        with config_ini.open('w', encoding='utf-8') as outfile:
+        with config_ini.open('w', encoding='utf-8', newline='') as outfile:
             filegrp = { 'Configuration.h':'config:basic', 'Configuration_adv.h':'config:advanced' }
             vers = build_defines["CONFIGURATION_H_VERSION"]
             dt_string = datetime.now().strftime("%Y-%m-%d at %H:%M:%S")

@@ -6,9 +6,44 @@ Make sure both copies always match:
  - buildroot/share/PlatformIO/scripts/config.py
 
 '''
-import re
+import re, os
 
 FILES = ('Marlin/Configuration.h', 'Marlin/Configuration_adv.h')
+
+def resolve(base=None):
+    """Return config FILES as absolute paths.
+
+    With --base <dir>: try flat layout first (Configurations repo:
+    <dir>/Configuration.h), then fall back to <dir>/Marlin/Configuration.h.
+
+    Without --base: resolve the default FILES relative to $MARLIN_REPO.
+    """
+    if base:
+        flat = tuple(os.path.join(base, f) for f in ('Configuration.h', 'Configuration_adv.h'))
+        deep = tuple(os.path.join(base, 'Marlin', f) for f in FILES)
+        available = tuple(f for f in flat if os.path.exists(f))
+        if not available:
+            available = tuple(f for f in deep if os.path.exists(f))
+        if available:
+            return available
+        return flat
+    else:
+        marlin = os.environ.get('MARLIN_REPO', '')
+        if marlin:
+            return tuple(os.path.join(marlin, f) for f in FILES)
+        return FILES
+
+
+def pop_and_resolve_base_arg(args):
+    base = None
+    if '--base' in args:
+        idx = args.index('--base')
+        if idx + 1 < len(args):
+            base = args.pop(idx + 1)
+            args.pop(idx)
+
+    return resolve(base)
+
 
 def set(file_path, define_name, value):
     '''
@@ -32,11 +67,12 @@ def set(file_path, define_name, value):
 
     # Write the modified content back to the file only if changes were made
     if modified:
-        with open(file_path, 'w', encoding='utf-8') as f:
+        with open(file_path, 'w', encoding='utf-8', newline='') as f:
             f.writelines(content)
             return True
 
     return False
+
 
 def add(file_path, define_name, value=""):
     '''
@@ -59,8 +95,9 @@ def add(file_path, define_name, value=""):
         # If no blank line is found, append to the end
         content.append(f"#define {define_name}{value}\n")
 
-    with open(file_path, 'w', encoding='utf-8') as f:
+    with open(file_path, 'w', encoding='utf-8', newline='') as f:
         f.writelines(content)
+
 
 def enable(file_path, define_name, enable=True):
     '''
@@ -96,7 +133,7 @@ def enable(file_path, define_name, enable=True):
 
     # Write the modified content back to the file only if changes were made
     if modified:
-        with open(file_path, 'w', encoding='utf-8') as f:
+        with open(file_path, 'w', encoding='utf-8', newline='') as f:
             f.writelines(content)
 
     return found

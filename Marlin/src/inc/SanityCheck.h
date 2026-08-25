@@ -40,34 +40,12 @@
   #error "Marlin requires C++11 support (gcc >= 4.7, Arduino IDE >= 1.6.8). Please upgrade your toolchain."
 #endif
 
+// Emit the GCC version
+//static_assert(false, "GCC version: " STRINGIFY(__GNUC__) "." STRINGIFY(__GNUC_MINOR__) "." STRINGIFY(__GNUC_PATCHLEVEL__));
+
 // Strings for sanity check messages
 #define _NUM_AXES_STR NUM_AXIS_GANG("X ", "Y ", "Z ", "I ", "J ", "K ", "U ", "V ", "W ")
 #define _LOGICAL_AXES_STR LOGICAL_AXIS_GANG("E ", "X ", "Y ", "Z ", "I ", "J ", "K ", "U ", "V ", "W ")
-
-// Make sure macros aren't borked
-#define TEST1
-#define TEST2 1
-#define TEST3 0
-#define TEST4 true
-#if ENABLED(TEST0) || !ENABLED(TEST2) || ENABLED(TEST3) || !ENABLED(TEST1, TEST2, TEST4)
-  #error "ENABLED is borked!"
-#endif
-#if ALL(TEST0, TEST1)
-  #error "ALL is borked!"
-#endif
-#if DISABLED(TEST1) || !DISABLED(TEST3) || DISABLED(TEST4) || DISABLED(TEST0, TEST1, TEST2, TEST4) || !DISABLED(TEST0, TEST3)
-  #error "DISABLED is borked!"
-#endif
-#if !ANY(TEST1, TEST2, TEST3, TEST4) || ANY(TEST0, TEST3)
-  #error "ANY is borked!"
-#endif
-#if NONE(TEST0, TEST1, TEST2, TEST4) || !NONE(TEST0, TEST3)
-  #error "NONE is borked!"
-#endif
-#undef TEST1
-#undef TEST2
-#undef TEST3
-#undef TEST4
 
 /**
  * This is to alert you about non-matching versions of config files.
@@ -286,6 +264,14 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
   #if HAS_Y_AXIS
     static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS) are too narrow to contain Y_BED_SIZE.");
   #endif
+  #if HAS_X_AXIS && HAS_Y_AXIS && !IS_KINEMATIC
+    // Enforce a right-handed, monotonic XY bed definition (rotation + translation only)
+    constexpr float _bed_dx = X_MAX_POS - X_MIN_POS;
+    constexpr float _bed_dy = Y_MAX_POS - Y_MIN_POS;
+    static_assert(_bed_dx > 0, "X_MIN_POS must be less than X_MAX_POS (no mirrored X bed).");
+    static_assert(_bed_dy > 0, "Y_MIN_POS must be less than Y_MAX_POS (front is Y_MIN, back is Y_MAX).");
+    static_assert((_bed_dx * _bed_dy) > 0, "Bed corner winding is inverted (left-handed / mirrored bed definition).");
+  #endif
 #endif
 
 /**
@@ -396,8 +382,8 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
 /**
  * Custom Boot and Status screens
  */
-#if ENABLED(SHOW_CUSTOM_BOOTSCREEN) && NONE(HAS_MARLINUI_HD44780, HAS_MARLINUI_U8GLIB, TOUCH_UI_FTDI_EVE, IS_DWIN_MARLINUI)
-  #error "SHOW_CUSTOM_BOOTSCREEN requires Character LCD, Graphical LCD, or TOUCH_UI_FTDI_EVE."
+#if ENABLED(SHOW_CUSTOM_BOOTSCREEN) && NONE(TFT_COLOR_UI, HAS_MARLINUI_HD44780, HAS_MARLINUI_U8GLIB, TOUCH_UI_FTDI_EVE, IS_DWIN_MARLINUI)
+  #error "SHOW_CUSTOM_BOOTSCREEN requires Character LCD, Graphical LCD, TOUCH_UI_FTDI_EVE, or TFT_COLOR_UI."
 #elif ENABLED(SHOW_CUSTOM_BOOTSCREEN) && DISABLED(SHOW_BOOTSCREEN)
   #error "SHOW_CUSTOM_BOOTSCREEN requires SHOW_BOOTSCREEN."
 #elif ENABLED(CUSTOM_STATUS_SCREEN_IMAGE) && !HAS_MARLINUI_U8GLIB
@@ -451,14 +437,8 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
     #error "SDSORT_DYNAMIC_RAM requires SDSORT_CACHE_NAMES."
   #endif
 
-  #if ENABLED(SDSORT_CACHE_NAMES) && DISABLED(SDSORT_DYNAMIC_RAM)
-    #if SDSORT_CACHE_VFATS < 2
-      #error "SDSORT_CACHE_VFATS must be 2 or greater!"
-    #elif SDSORT_CACHE_VFATS > VFAT_ENTRIES_LIMIT
-      #undef SDSORT_CACHE_VFATS
-      #define SDSORT_CACHE_VFATS VFAT_ENTRIES_LIMIT
-      #define SDSORT_CACHE_VFATS_WARNING 1
-    #endif
+  #if ENABLED(SDSORT_CACHE_NAMES) && DISABLED(SDSORT_DYNAMIC_RAM) && SDSORT_CACHE_VFATS < 2
+    #error "SDSORT_CACHE_VFATS must be 2 or greater!"
   #endif
 #endif
 
@@ -597,7 +577,7 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
 
 #if ENABLED(NOZZLE_PARK_FEATURE)
   constexpr float npp[] = NOZZLE_PARK_POINT;
-  static_assert(COUNT(npp) == _MIN(NUM_AXES, XYZ), "NOZZLE_PARK_POINT requires coordinates for enabled axes, but only up to X,Y,Z.");
+  static_assert(COUNT(npp) == _MIN(NUM_AXES, 3), "NOZZLE_PARK_POINT requires coordinates for enabled axes, but only up to X,Y,Z.");
   constexpr xyz_pos_t npp_xyz = NOZZLE_PARK_POINT;
   static_assert(WITHIN(npp_xyz.x, X_MIN_POS, X_MAX_POS), "NOZZLE_PARK_POINT.X is out of bounds (X_MIN_POS, X_MAX_POS).");
   static_assert(TERN1(HAS_Y_AXIS, WITHIN(npp_xyz.y, Y_MIN_POS, Y_MAX_POS)), "NOZZLE_PARK_POINT.Y is out of bounds (Y_MIN_POS, Y_MAX_POS).");
@@ -607,8 +587,12 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
 /**
  * Instant Freeze
  */
-#if ENABLED(FREEZE_FEATURE) && !(PIN_EXISTS(FREEZE) && defined(FREEZE_STATE))
-  #error "FREEZE_FEATURE requires both FREEZE_PIN and FREEZE_STATE."
+#if ENABLED(SOFT_FEED_HOLD) && !defined(FREEZE_JERK)
+  #error "SOFT_FEED_HOLD requires FREEZE_JERK."
+#elif ENABLED(FREEZE_FEATURE) && DISABLED(NO_FREEZE_PIN) && !(defined(FREEZE_PIN) && defined(FREEZE_STATE))
+  #error "FREEZE_FEATURE requires FREEZE_PIN and FREEZE_STATE."
+#elif ENABLED(NO_FREEZE_PIN) && !(defined(REALTIME_REPORTING_COMMANDS))
+  #error "NO_FREEZE_PIN requires REALTIME_REPORTING_COMMANDS."
 #endif
 
 /**
@@ -845,26 +829,15 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
 #endif
 
 /**
- * Linear Advance 1.5 - Check K value range
+ * Linear Advance requirements
  */
 #if ENABLED(LIN_ADVANCE)
-  #if ENABLED(DISTINCT_E_FACTORS)
-    constexpr float lak[] = ADVANCE_K;
-    static_assert(COUNT(lak) <= DISTINCT_E, "The ADVANCE_K array has too many elements (i.e., more than " STRINGIFY(DISTINCT_E) ").");
-    #define _LIN_ASSERT(N) static_assert(N >= COUNT(lak) || WITHIN(lak[N], 0, 10), "ADVANCE_K values must be from 0 to 10 (Changed in LIN_ADVANCE v1.5, Marlin 1.1.9).");
-    REPEAT(DISTINCT_E, _LIN_ASSERT)
-    #undef _LIN_ASSERT
-  #else
-    static_assert(WITHIN(ADVANCE_K, 0, 10), "ADVANCE_K must be from 0 to 10 (Changed in LIN_ADVANCE v1.5, Marlin 1.1.9).");
-  #endif
-
+  // Incompatible with Direct Stepping
   #if ENABLED(DIRECT_STEPPING)
     #error "DIRECT_STEPPING is incompatible with LIN_ADVANCE. (Extrusion is controlled externally by the Step Daemon.)"
   #endif
 
-  /**
-   * Smooth Linear Advance
-   */
+  // Smooth Linear Advance
   #if ENABLED(SMOOTH_LIN_ADVANCE)
     #ifndef CPU_32_BIT
       #error "SMOOTH_LIN_ADVANCE requires a 32-bit CPU."
@@ -872,8 +845,32 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
       #error "INPUT_SHAPING_E_SYNC requires INPUT_SHAPING_X or INPUT_SHAPING_Y."
     #endif
   #endif
-
 #endif // LIN_ADVANCE
+
+/**
+ * S_CURVE_ACCELERATION
+ */
+#if ENABLED(S_CURVE_ACCELERATION) && defined(S_CURVE_FACTOR)
+  #ifdef __AVR__
+    #error "S_CURVE_FACTOR is not yet implemented for AVR. Disable it to continue."
+  #endif
+  static_assert(WITHIN(S_CURVE_FACTOR, 0, 1), "S_CURVE_FACTOR must be between 0.0 and 1.0.");
+#endif
+
+/**
+ * Linear Advance and FT Motion - Check K value range
+ */
+#if HAS_LIN_ADVANCE_K
+  #if ENABLED(DISTINCT_E_FACTORS)
+    constexpr float lak[] = ADVANCE_K;
+    static_assert(COUNT(lak) <= DISTINCT_E, "The ADVANCE_K array has too many elements (i.e., more than " STRINGIFY(DISTINCT_E) ").");
+    #define _LIN_ASSERT(N) static_assert(N >= COUNT(lak) || WITHIN(lak[N], 0, 10), "ADVANCE_K values must be from 0 to 10.");
+    REPEAT(DISTINCT_E, _LIN_ASSERT)
+    #undef _LIN_ASSERT
+  #else
+    static_assert(WITHIN(ADVANCE_K, 0, 10), "ADVANCE_K must be from 0 to 10.");
+  #endif
+#endif
 
 /**
  * Nonlinear Extrusion requirements
@@ -881,8 +878,8 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
 #if ENABLED(NONLINEAR_EXTRUSION)
   #if HAS_MULTI_EXTRUDER
     #error "NONLINEAR_EXTRUSION doesn't currently support multi-extruder setups."
-  #elif DISABLED(CPU_32_BIT)
-    #error "NONLINEAR_EXTRUSION requires a 32-bit CPU."
+  #elif NONE(CPU_32_BIT, NO_STANDARD_MOTION)
+    #error "NONLINEAR_EXTRUSION requires a 32-bit CPU or NO_STANDARD_MOTION."
   #endif
 #endif
 
@@ -915,6 +912,19 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
     #elif !defined(PARKING_EXTRUDER_SOLENOIDS_DELAY) || !WITHIN(PARKING_EXTRUDER_SOLENOIDS_DELAY, 0, 2000)
       #error "PARKING_EXTRUDER_SOLENOIDS_DELAY must be between 0 and 2000 (ms)."
     #endif
+  #endif
+#endif
+
+/**
+ * Differential Extruder requirements
+ */
+#if ENABLED(DIFFERENTIAL_EXTRUDER)
+  #if EXTRUDERS != 1
+    #error "DIFFERENTIAL EXTRUDER currently requires a single extruder (EXTRUDERS = 1)."
+  #elif !IS_FULL_CARTESIAN
+    #error "DIFFERENTIAL EXTRUDER requires standard Cartesian kinematics."
+  #elif !defined(CPU_32_BIT)
+    #error "DIFFERENTIAL EXTRUDER requires a 32-bit CPU."
   #endif
 #endif
 
@@ -1106,7 +1116,7 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
   #error "Leveling in Marlin requires three or more axes, with Z as the vertical axis."
 #elif ENABLED(CNC_WORKSPACE_PLANES) && !HAS_Z_AXIS
   #error "CNC_WORKSPACE_PLANES currently requires a Z axis"
-#elif ENABLED(DIRECT_STEPPING) && NUM_AXES > XYZ
+#elif ENABLED(DIRECT_STEPPING) && NUM_AXES > 3
   #error "DIRECT_STEPPING does not currently support more than 3 axes (i.e., XYZ)."
 #elif ENABLED(FOAMCUTTER_XYUV) && !(HAS_I_AXIS && HAS_J_AXIS)
   #error "FOAMCUTTER_XYUV requires I and J steppers to be enabled."
@@ -1211,8 +1221,8 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
 /**
  * Allow only one kinematic type to be defined
  */
-#if MANY(DELTA, MORGAN_SCARA, MP_SCARA, AXEL_TPARA, COREXY, COREXZ, COREYZ, COREYX, COREZX, COREZY, MARKFORGED_XY, MARKFORGED_YX, ARTICULATED_ROBOT_ARM, FOAMCUTTER_XYUV, POLAR)
-  #error "Please enable only one of DELTA, MORGAN_SCARA, MP_SCARA, AXEL_TPARA, COREXY, COREXZ, COREYZ, COREYX, COREZX, COREZY, MARKFORGED_XY, MARKFORGED_YX, ARTICULATED_ROBOT_ARM, FOAMCUTTER_XYUV, or POLAR."
+#if MANY(DELTA, SCARA, AXEL_TPARA, COREXY, COREXZ, COREYZ, COREYX, COREZX, COREZY, MARKFORGED_XY, MARKFORGED_YX, ARTICULATED_ROBOT_ARM, FOAMCUTTER_XYUV, POLAR)
+  #error "Please enable only one of DELTA, SCARA, AXEL_TPARA, COREXY, COREXZ, COREYZ, COREYX, COREZX, COREZY, MARKFORGED_XY, MARKFORGED_YX, ARTICULATED_ROBOT_ARM, FOAMCUTTER_XYUV, or POLAR."
 #endif
 
 /**
@@ -1234,6 +1244,13 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
       #error "DELTA requires GRID_MAX_POINTS_X and GRID_MAX_POINTS_Y to be 3 or higher."
     #endif
   #endif
+#endif
+
+/**
+ * Axel TPARA requirements
+ */
+#if ENABLED(AXEL_TPARA) && !ALL(HOME_Z_FIRST, HOME_Y_BEFORE_X)
+  #error "AXEL_TPARA requires both HOME_Z_FIRST and HOME_Y_BEFORE_X to be enabled."
 #endif
 
 /**
@@ -1261,53 +1278,22 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
   + (DISABLED(BLTOUCH) && HAS_Z_SERVO_PROBE) \
   + COUNT_ENABLED(PROBE_MANUALLY, BLTOUCH, BD_SENSOR, FIX_MOUNTED_PROBE, NOZZLE_AS_PROBE, TOUCH_MI_PROBE, SOLENOID_PROBE, Z_PROBE_ALLEN_KEY, Z_PROBE_SLED, RACK_AND_PINION_PROBE, SENSORLESS_PROBING, MAGLEV4, MAG_MOUNTED_PROBE, BIQU_MICROPROBE_V1, BIQU_MICROPROBE_V2)
   #error "Please enable only one probe option. See the following errors:"
-  #if ENABLED(BLTOUCH)
-    #error "(BLTOUCH is enabled.)"
-  #elif HAS_Z_SERVO_PROBE
-    #error "(Z_SERVO_PROBE is enabled.)"
-  #endif
-  #if ENABLED(PROBE_MANUALLY)
-    #error "(PROBE_MANUALLY is enabled.)"
-  #endif
-  #if ENABLED(BD_SENSOR)
-    #error "(BD_SENSOR is enabled.)"
-  #endif
-  #if ENABLED(FIX_MOUNTED_PROBE)
-    #error "(FIX_MOUNTED_PROBE is enabled.)"
-  #endif
-  #if ENABLED(NOZZLE_AS_PROBE)
-    #error "(NOZZLE_AS_PROBE is enabled.)"
-  #endif
-  #if ENABLED(TOUCH_MI_PROBE)
-    #error "(TOUCH_MI_PROBE is enabled.)"
-  #endif
-  #if ENABLED(SOLENOID_PROBE)
-    #error "(SOLENOID_PROBE is enabled.)"
-  #endif
-  #if ENABLED(Z_PROBE_ALLEN_KEY)
-    #error "(Z_PROBE_ALLEN_KEY is enabled.)"
-  #endif
-  #if ENABLED(Z_PROBE_SLED)
-    #error "(Z_PROBE_SLED is enabled.)"
-  #endif
-  #if ENABLED(RACK_AND_PINION_PROBE)
-    #error "(RACK_AND_PINION_PROBE is enabled.)"
-  #endif
-  #if ENABLED(SENSORLESS_PROBING)
-    #error "(SENSORLESS_PROBING is enabled.)"
-  #endif
-  #if ENABLED(MAGLEV4)
-    #error "(MAGLEV4 is enabled.)"
-  #endif
-  #if ENABLED(MAG_MOUNTED_PROBE)
-    #error "(MAG_MOUNTED_PROBE is enabled.)"
-  #endif
-  #if ENABLED(BIQU_MICROPROBE_V1)
-    #error "(BIQU_MICROPROBE_V1 is enabled.)"
-  #endif
-  #if ENABLED(BIQU_MICROPROBE_V2)
-    #error "(BIQU_MICROPROBE_V2 is enabled.)"
-  #endif
+  static_assert(DISABLED(BLTOUCH), "(BLTOUCH is enabled.)");
+  static_assert(ENABLED(BLTOUCH) || DISABLED(HAS_Z_SERVO_PROBE), "(Z_SERVO_PROBE is enabled.)");
+  static_assert(DISABLED(PROBE_MANUALLY), "(PROBE_MANUALLY is enabled.)");
+  static_assert(DISABLED(BD_SENSOR), "(BD_SENSOR is enabled.)");
+  static_assert(DISABLED(FIX_MOUNTED_PROBE), "(FIX_MOUNTED_PROBE is enabled.)");
+  static_assert(DISABLED(NOZZLE_AS_PROBE), "(NOZZLE_AS_PROBE is enabled.)");
+  static_assert(DISABLED(TOUCH_MI_PROBE), "(TOUCH_MI_PROBE is enabled.)");
+  static_assert(DISABLED(SOLENOID_PROBE), "(SOLENOID_PROBE is enabled.)");
+  static_assert(DISABLED(Z_PROBE_ALLEN_KEY), "(Z_PROBE_ALLEN_KEY is enabled.)");
+  static_assert(DISABLED(Z_PROBE_SLED), "(Z_PROBE_SLED is enabled.)");
+  static_assert(DISABLED(RACK_AND_PINION_PROBE), "(RACK_AND_PINION_PROBE is enabled.)");
+  static_assert(DISABLED(SENSORLESS_PROBING), "(SENSORLESS_PROBING is enabled.)");
+  static_assert(DISABLED(MAGLEV4), "(MAGLEV4 is enabled.)");
+  static_assert(DISABLED(MAG_MOUNTED_PROBE), "(MAG_MOUNTED_PROBE is enabled.)");
+  static_assert(DISABLED(BIQU_MICROPROBE_V1), "(BIQU_MICROPROBE_V1 is enabled.)");
+  static_assert(DISABLED(BIQU_MICROPROBE_V2), "(BIQU_MICROPROBE_V2 is enabled.)");
 #endif
 
 #if HAS_BED_PROBE
@@ -1484,7 +1470,6 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
     #elif !PIN_EXISTS(PROBE_ENABLE)
       #error "BIQU MicroProbe requires a PROBE_ENABLE_PIN."
     #endif
-
     #if ENABLED(BIQU_MICROPROBE_V1)
       #if ENABLED(INVERTED_PROBE_STATE)
         #if Z_MIN_PROBE_ENDSTOP_HIT_STATE != LOW
@@ -1500,6 +1485,13 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
           #endif
         #elif Z_MIN_ENDSTOP_HIT_STATE != HIGH
           #error "BIQU_MICROPROBE_V1 requires Z_MIN_ENDSTOP_HIT_STATE HIGH."
+        #endif
+      #endif
+      #if NONE(ONBOARD_ENDSTOPPULLUPS, ENDSTOPPULLUPS, ENDSTOPPULLUP_ZMIN, ENDSTOPPULLUP_ZMIN_PROBE)
+        #if USE_Z_MIN_PROBE
+          #error "BIQU_MICROPROBE_V1 on Z_MIN_PROBE_PIN requires ENDSTOPPULLUP_ZMIN_PROBE, or ENDSTOPPULLUPS."
+        #else
+          #error "BIQU_MICROPROBE_V1 on Z_MIN_PIN requires ENDSTOPPULLUP_ZMIN, or ENDSTOPPULLUPS."
         #endif
       #endif
     #elif ENABLED(BIQU_MICROPROBE_V2)
@@ -1518,6 +1510,13 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
         #elif Z_MIN_ENDSTOP_HIT_STATE != LOW
           #error "BIQU_MICROPROBE_V2 requires Z_MIN_ENDSTOP_HIT_STATE LOW."
         #endif
+      #endif
+    #endif
+    #if NONE(ONBOARD_ENDSTOPPULLUPS, ENDSTOPPULLUPS, ENDSTOPPULLUP_ZMIN, ENDSTOPPULLUP_ZMIN_PROBE)
+      #if USE_Z_MIN_PROBE
+        #error "BIQU_MICROPROBE_V2 on Z_MIN_PROBE_PIN requires ENDSTOPPULLUP_ZMIN_PROBE, or ENDSTOPPULLUPS."
+      #else
+        #error "BIQU_MICROPROBE_V2 on Z_MIN_PIN requires ENDSTOPPULLUP_ZMIN, or ENDSTOPPULLUPS."
       #endif
     #endif
   #endif // BIQU_MICROPROBE_V1 || BIQU_MICROPROBE_V2
@@ -1602,7 +1601,7 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
     static_assert(Z_AFTER_PROBING >= 0, "Probes require Z_AFTER_PROBING >= 0.");
   #endif
 
-  #if MULTIPLE_PROBING > 0 || EXTRA_PROBING > 0
+  #if DISABLED(DWIN_LCD_PROUI) && (MULTIPLE_PROBING > 0 || EXTRA_PROBING > 0)
     #if MULTIPLE_PROBING == 0
       #error "EXTRA_PROBING requires MULTIPLE_PROBING."
     #elif MULTIPLE_PROBING < 2
@@ -1744,52 +1743,54 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
 /**
  * Homing checks
  */
-#ifndef HOMING_BUMP_MM
-  #error "Required setting HOMING_BUMP_MM is missing!"
-#elif !defined(HOMING_BUMP_DIVISOR)
-  #error "Required setting HOMING_BUMP_DIVISOR is missing!"
-#else
-  constexpr float hbm[] = HOMING_BUMP_MM, hbd[] = HOMING_BUMP_DIVISOR;
-  static_assert(COUNT(hbm) == NUM_AXES, "HOMING_BUMP_MM must have " _NUM_AXES_STR "elements (and no others).");
-  NUM_AXIS_CODE(
-    static_assert(hbm[X_AXIS] >= 0, "HOMING_BUMP_MM.X must be greater than or equal to 0."),
-    static_assert(hbm[Y_AXIS] >= 0, "HOMING_BUMP_MM.Y must be greater than or equal to 0."),
-    static_assert(hbm[Z_AXIS] >= 0, "HOMING_BUMP_MM.Z must be greater than or equal to 0."),
-    static_assert(hbm[I_AXIS] >= 0, "HOMING_BUMP_MM.I must be greater than or equal to 0."),
-    static_assert(hbm[J_AXIS] >= 0, "HOMING_BUMP_MM.J must be greater than or equal to 0."),
-    static_assert(hbm[K_AXIS] >= 0, "HOMING_BUMP_MM.K must be greater than or equal to 0."),
-    static_assert(hbm[U_AXIS] >= 0, "HOMING_BUMP_MM.U must be greater than or equal to 0."),
-    static_assert(hbm[V_AXIS] >= 0, "HOMING_BUMP_MM.V must be greater than or equal to 0."),
-    static_assert(hbm[W_AXIS] >= 0, "HOMING_BUMP_MM.W must be greater than or equal to 0.")
-  );
-  static_assert(COUNT(hbd) == NUM_AXES, "HOMING_BUMP_DIVISOR must have " _NUM_AXES_STR "elements (and no others).");
-  NUM_AXIS_CODE(
-    static_assert(hbd[X_AXIS] >= 1, "HOMING_BUMP_DIVISOR.X must be greater than or equal to 1."),
-    static_assert(hbd[Y_AXIS] >= 1, "HOMING_BUMP_DIVISOR.Y must be greater than or equal to 1."),
-    static_assert(hbd[Z_AXIS] >= 1, "HOMING_BUMP_DIVISOR.Z must be greater than or equal to 1."),
-    static_assert(hbd[I_AXIS] >= 1, "HOMING_BUMP_DIVISOR.I must be greater than or equal to 1."),
-    static_assert(hbd[J_AXIS] >= 1, "HOMING_BUMP_DIVISOR.J must be greater than or equal to 1."),
-    static_assert(hbd[K_AXIS] >= 1, "HOMING_BUMP_DIVISOR.K must be greater than or equal to 1."),
-    static_assert(hbd[U_AXIS] >= 1, "HOMING_BUMP_DIVISOR.U must be greater than or equal to 1."),
-    static_assert(hbd[V_AXIS] >= 1, "HOMING_BUMP_DIVISOR.V must be greater than or equal to 1."),
-    static_assert(hbd[W_AXIS] >= 1, "HOMING_BUMP_DIVISOR.W must be greater than or equal to 1.")
-  );
-#endif
+#if NUM_AXES
+  #ifndef HOMING_BUMP_MM
+    #error "Required setting HOMING_BUMP_MM is missing!"
+  #elif !defined(HOMING_BUMP_DIVISOR)
+    #error "Required setting HOMING_BUMP_DIVISOR is missing!"
+  #else
+    constexpr float hbm[] = HOMING_BUMP_MM, hbd[] = HOMING_BUMP_DIVISOR;
+    static_assert(COUNT(hbm) == NUM_AXES, "HOMING_BUMP_MM must have " _NUM_AXES_STR "elements (and no others).");
+    NUM_AXIS_CODE(
+      static_assert(hbm[X_AXIS] >= 0, "HOMING_BUMP_MM.X must be greater than or equal to 0."),
+      static_assert(hbm[Y_AXIS] >= 0, "HOMING_BUMP_MM.Y must be greater than or equal to 0."),
+      static_assert(hbm[Z_AXIS] >= 0, "HOMING_BUMP_MM.Z must be greater than or equal to 0."),
+      static_assert(hbm[I_AXIS] >= 0, "HOMING_BUMP_MM.I must be greater than or equal to 0."),
+      static_assert(hbm[J_AXIS] >= 0, "HOMING_BUMP_MM.J must be greater than or equal to 0."),
+      static_assert(hbm[K_AXIS] >= 0, "HOMING_BUMP_MM.K must be greater than or equal to 0."),
+      static_assert(hbm[U_AXIS] >= 0, "HOMING_BUMP_MM.U must be greater than or equal to 0."),
+      static_assert(hbm[V_AXIS] >= 0, "HOMING_BUMP_MM.V must be greater than or equal to 0."),
+      static_assert(hbm[W_AXIS] >= 0, "HOMING_BUMP_MM.W must be greater than or equal to 0.")
+    );
+    static_assert(COUNT(hbd) == NUM_AXES, "HOMING_BUMP_DIVISOR must have " _NUM_AXES_STR "elements (and no others).");
+    NUM_AXIS_CODE(
+      static_assert(hbd[X_AXIS] >= 1, "HOMING_BUMP_DIVISOR.X must be greater than or equal to 1."),
+      static_assert(hbd[Y_AXIS] >= 1, "HOMING_BUMP_DIVISOR.Y must be greater than or equal to 1."),
+      static_assert(hbd[Z_AXIS] >= 1, "HOMING_BUMP_DIVISOR.Z must be greater than or equal to 1."),
+      static_assert(hbd[I_AXIS] >= 1, "HOMING_BUMP_DIVISOR.I must be greater than or equal to 1."),
+      static_assert(hbd[J_AXIS] >= 1, "HOMING_BUMP_DIVISOR.J must be greater than or equal to 1."),
+      static_assert(hbd[K_AXIS] >= 1, "HOMING_BUMP_DIVISOR.K must be greater than or equal to 1."),
+      static_assert(hbd[U_AXIS] >= 1, "HOMING_BUMP_DIVISOR.U must be greater than or equal to 1."),
+      static_assert(hbd[V_AXIS] >= 1, "HOMING_BUMP_DIVISOR.V must be greater than or equal to 1."),
+      static_assert(hbd[W_AXIS] >= 1, "HOMING_BUMP_DIVISOR.W must be greater than or equal to 1.")
+    );
+  #endif
 
-#ifdef HOMING_BACKOFF_POST_MM
-  constexpr float hbp[] = HOMING_BACKOFF_POST_MM;
-  static_assert(COUNT(hbp) == NUM_AXES, "HOMING_BACKOFF_POST_MM must have " _NUM_AXES_STR "elements (and no others).");
-  NUM_AXIS_CODE(
-    static_assert(hbp[X_AXIS] >= 0, "HOMING_BACKOFF_POST_MM.X must be greater than or equal to 0."),
-    static_assert(hbp[Y_AXIS] >= 0, "HOMING_BACKOFF_POST_MM.Y must be greater than or equal to 0."),
-    static_assert(hbp[Z_AXIS] >= 0, "HOMING_BACKOFF_POST_MM.Z must be greater than or equal to 0."),
-    static_assert(hbp[I_AXIS] >= 0, "HOMING_BACKOFF_POST_MM.I must be greater than or equal to 0."),
-    static_assert(hbp[J_AXIS] >= 0, "HOMING_BACKOFF_POST_MM.J must be greater than or equal to 0."),
-    static_assert(hbp[K_AXIS] >= 0, "HOMING_BACKOFF_POST_MM.K must be greater than or equal to 0."),
-    static_assert(hbp[U_AXIS] >= 0, "HOMING_BACKOFF_POST_MM.U must be greater than or equal to 0."),
-    static_assert(hbp[V_AXIS] >= 0, "HOMING_BACKOFF_POST_MM.V must be greater than or equal to 0."),
-    static_assert(hbp[W_AXIS] >= 0, "HOMING_BACKOFF_POST_MM.W must be greater than or equal to 0.")
-  );
+  #ifdef HOMING_BACKOFF_POST_MM
+    constexpr float hbp[] = HOMING_BACKOFF_POST_MM;
+    static_assert(COUNT(hbp) == NUM_AXES, "HOMING_BACKOFF_POST_MM must have " _NUM_AXES_STR "elements (and no others).");
+    NUM_AXIS_CODE(
+      static_assert(hbp[X_AXIS] >= 0, "HOMING_BACKOFF_POST_MM.X must be greater than or equal to 0."),
+      static_assert(hbp[Y_AXIS] >= 0, "HOMING_BACKOFF_POST_MM.Y must be greater than or equal to 0."),
+      static_assert(hbp[Z_AXIS] >= 0, "HOMING_BACKOFF_POST_MM.Z must be greater than or equal to 0."),
+      static_assert(hbp[I_AXIS] >= 0, "HOMING_BACKOFF_POST_MM.I must be greater than or equal to 0."),
+      static_assert(hbp[J_AXIS] >= 0, "HOMING_BACKOFF_POST_MM.J must be greater than or equal to 0."),
+      static_assert(hbp[K_AXIS] >= 0, "HOMING_BACKOFF_POST_MM.K must be greater than or equal to 0."),
+      static_assert(hbp[U_AXIS] >= 0, "HOMING_BACKOFF_POST_MM.U must be greater than or equal to 0."),
+      static_assert(hbp[V_AXIS] >= 0, "HOMING_BACKOFF_POST_MM.V must be greater than or equal to 0."),
+      static_assert(hbp[W_AXIS] >= 0, "HOMING_BACKOFF_POST_MM.W must be greater than or equal to 0.")
+    );
+  #endif
 #endif
 
 #define COUNT_SENSORLESS COUNT_ENABLED(Z_SENSORLESS, Z2_SENSORLESS, Z3_SENSORLESS, Z4_SENSORLESS)
@@ -1952,7 +1953,7 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
 #if ENABLED(DUAL_X_CARRIAGE)
   #if EXTRUDERS < 2
     #error "DUAL_X_CARRIAGE requires 2 (or more) extruders."
-  #elif ANY(CORE_IS_XY, CORE_IS_XZ, MARKFORGED_XY, MARKFORGED_YX)
+  #elif HAS_REAL_X
     #error "DUAL_X_CARRIAGE cannot be used with COREXY, COREYX, COREXZ, COREZX, MARKFORGED_YX, or MARKFORGED_XY."
   #elif !GOOD_AXIS_PINS(X2)
     #error "DUAL_X_CARRIAGE requires X2 stepper pins to be defined."
@@ -1971,34 +1972,192 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
 #undef GOOD_AXIS_PINS
 
 /**
- * Make sure auto fan pins don't conflict with the first fan pin
+ * Make sure each extruder's auto fan pin doesn't conflict with its own part cooling fan pin
  */
 #if HAS_AUTO_FAN
-  #if PINS_EXIST(E0_AUTO_FAN, FAN0) && E0_AUTO_FAN_PIN == FAN0_PIN
-    #error "You cannot set E0_AUTO_FAN_PIN equal to FAN0_PIN."
-  #elif PINS_EXIST(E1_AUTO_FAN, FAN0) && E1_AUTO_FAN_PIN == FAN0_PIN
-    #error "You cannot set E1_AUTO_FAN_PIN equal to FAN0_PIN."
-  #elif PINS_EXIST(E2_AUTO_FAN, FAN0) && E2_AUTO_FAN_PIN == FAN0_PIN
-    #error "You cannot set E2_AUTO_FAN_PIN equal to FAN0_PIN."
-  #elif PINS_EXIST(E3_AUTO_FAN, FAN0) &&  E3_AUTO_FAN_PIN == FAN0_PIN
-    #error "You cannot set E3_AUTO_FAN_PIN equal to FAN0_PIN."
-  #elif PINS_EXIST(E4_AUTO_FAN, FAN0) &&  E4_AUTO_FAN_PIN == FAN0_PIN
-    #error "You cannot set E4_AUTO_FAN_PIN equal to FAN0_PIN."
-  #elif PINS_EXIST(E5_AUTO_FAN, FAN0) &&  E5_AUTO_FAN_PIN == FAN0_PIN
-    #error "You cannot set E5_AUTO_FAN_PIN equal to FAN0_PIN."
-  #elif PINS_EXIST(E6_AUTO_FAN, FAN0) &&  E6_AUTO_FAN_PIN == FAN0_PIN
-    #error "You cannot set E6_AUTO_FAN_PIN equal to FAN0_PIN."
-  #elif PINS_EXIST(E7_AUTO_FAN, FAN0) &&  E7_AUTO_FAN_PIN == FAN0_PIN
-    #error "You cannot set E7_AUTO_FAN_PIN equal to FAN0_PIN."
+  #if PINS_EXIST(E0_AUTO_FAN, PART_COOLING_FAN0) && E0_AUTO_FAN_PIN == PART_COOLING_FAN0_PIN
+    #error "E0_AUTO_FAN_PIN conflicts with PART_COOLING_FAN0_PIN."
+  #elif PINS_EXIST(E1_AUTO_FAN, PART_COOLING_FAN1) && E1_AUTO_FAN_PIN == PART_COOLING_FAN1_PIN
+    #error "E1_AUTO_FAN_PIN conflicts with PART_COOLING_FAN1_PIN."
+  #elif PINS_EXIST(E2_AUTO_FAN, PART_COOLING_FAN2) && E2_AUTO_FAN_PIN == PART_COOLING_FAN2_PIN
+    #error "E2_AUTO_FAN_PIN conflicts with PART_COOLING_FAN2_PIN."
+  #elif PINS_EXIST(E3_AUTO_FAN, PART_COOLING_FAN3) && E3_AUTO_FAN_PIN == PART_COOLING_FAN3_PIN
+    #error "E3_AUTO_FAN_PIN conflicts with PART_COOLING_FAN3_PIN."
+  #elif PINS_EXIST(E4_AUTO_FAN, PART_COOLING_FAN4) && E4_AUTO_FAN_PIN == PART_COOLING_FAN4_PIN
+    #error "E4_AUTO_FAN_PIN conflicts with PART_COOLING_FAN4_PIN."
+  #elif PINS_EXIST(E5_AUTO_FAN, PART_COOLING_FAN5) && E5_AUTO_FAN_PIN == PART_COOLING_FAN5_PIN
+    #error "E5_AUTO_FAN_PIN conflicts with PART_COOLING_FAN5_PIN."
+  #elif PINS_EXIST(E6_AUTO_FAN, PART_COOLING_FAN6) && E6_AUTO_FAN_PIN == PART_COOLING_FAN6_PIN
+    #error "E6_AUTO_FAN_PIN conflicts with PART_COOLING_FAN6_PIN."
+  #elif PINS_EXIST(E7_AUTO_FAN, PART_COOLING_FAN7) && E7_AUTO_FAN_PIN == PART_COOLING_FAN7_PIN
+    #error "E7_AUTO_FAN_PIN conflicts with PART_COOLING_FAN7_PIN."
   #endif
 #endif
 
-#if HAS_FAN0
-  #if CONTROLLER_FAN_PIN == FAN0_PIN
-    #error "You cannot set CONTROLLER_FAN_PIN equal to FAN0_PIN."
-  #elif ENABLED(FAN_SOFT_PWM_REQUIRED) && DISABLED(FAN_SOFT_PWM)
-    #error "FAN_SOFT_PWM is required for your board. Enable it to continue."
+#if HAS_FAN && ENABLED(FAN_SOFT_PWM_REQUIRED) && DISABLED(FAN_SOFT_PWM)
+  #error "FAN_SOFT_PWM is required for your board. Enable it to continue."
+#endif
+#if PIN_EXISTS(CONTROLLER_FAN)
+  #if PIN_EXISTS(PART_COOLING_FAN0) && CONTROLLER_FAN_PIN == PART_COOLING_FAN0_PIN
+    #error "CONTROLLER_FAN_PIN conflicts with PART_COOLING_FAN0_PIN."
+  #elif HOTENDS >= 2 && PIN_EXISTS(PART_COOLING_FAN1) && CONTROLLER_FAN_PIN == PART_COOLING_FAN1_PIN
+    #error "CONTROLLER_FAN_PIN conflicts with PART_COOLING_FAN1_PIN."
+  #elif HOTENDS >= 3 && PIN_EXISTS(PART_COOLING_FAN2) && CONTROLLER_FAN_PIN == PART_COOLING_FAN2_PIN
+    #error "CONTROLLER_FAN_PIN conflicts with PART_COOLING_FAN2_PIN."
+  #elif HOTENDS >= 4 && PIN_EXISTS(PART_COOLING_FAN3) && CONTROLLER_FAN_PIN == PART_COOLING_FAN3_PIN
+    #error "CONTROLLER_FAN_PIN conflicts with PART_COOLING_FAN3_PIN."
+  #elif HOTENDS >= 5 && PIN_EXISTS(PART_COOLING_FAN4) && CONTROLLER_FAN_PIN == PART_COOLING_FAN4_PIN
+    #error "CONTROLLER_FAN_PIN conflicts with PART_COOLING_FAN4_PIN."
+  #elif HOTENDS >= 6 && PIN_EXISTS(PART_COOLING_FAN5) && CONTROLLER_FAN_PIN == PART_COOLING_FAN5_PIN
+    #error "CONTROLLER_FAN_PIN conflicts with PART_COOLING_FAN5_PIN."
+  #elif HOTENDS >= 7 && PIN_EXISTS(PART_COOLING_FAN6) && CONTROLLER_FAN_PIN == PART_COOLING_FAN6_PIN
+    #error "CONTROLLER_FAN_PIN conflicts with PART_COOLING_FAN6_PIN."
+  #elif HOTENDS >= 8 && PIN_EXISTS(PART_COOLING_FAN7) && CONTROLLER_FAN_PIN == PART_COOLING_FAN7_PIN
+    #error "CONTROLLER_FAN_PIN conflicts with PART_COOLING_FAN7_PIN."
+  #elif HOTENDS >= 9 && PIN_EXISTS(PART_COOLING_FAN8) && CONTROLLER_FAN_PIN == PART_COOLING_FAN8_PIN
+    #error "CONTROLLER_FAN_PIN conflicts with PART_COOLING_FAN8_PIN."
+  #elif HOTENDS >= 10 && PIN_EXISTS(PART_COOLING_FAN9) && CONTROLLER_FAN_PIN == PART_COOLING_FAN9_PIN
+    #error "CONTROLLER_FAN_PIN conflicts with PART_COOLING_FAN9_PIN."
+  #elif HOTENDS >= 11 && PIN_EXISTS(PART_COOLING_FAN10) && CONTROLLER_FAN_PIN == PART_COOLING_FAN10_PIN
+    #error "CONTROLLER_FAN_PIN conflicts with PART_COOLING_FAN10_PIN."
+  #elif HOTENDS >= 12 && PIN_EXISTS(PART_COOLING_FAN11) && CONTROLLER_FAN_PIN == PART_COOLING_FAN11_PIN
+    #error "CONTROLLER_FAN_PIN conflicts with PART_COOLING_FAN11_PIN."
   #endif
+#endif
+
+// Each PART_COOLING_FAN pin must be unique (disabled pins at -1 are excluded)
+#if PINS_EXIST(PART_COOLING_FAN0, PART_COOLING_FAN1) && (PART_COOLING_FAN0_PIN == PART_COOLING_FAN1_PIN)
+  static_assert(false, "PART_COOLING_FAN1_PIN (" STRINGIFY(PART_COOLING_FAN1_PIN) ") conflicts with PART_COOLING_FAN0_PIN (" STRINGIFY(PART_COOLING_FAN0_PIN) ")");
+#elif PINS_EXIST(PART_COOLING_FAN0, PART_COOLING_FAN2) && (PART_COOLING_FAN0_PIN == PART_COOLING_FAN2_PIN)
+  static_assert(false, "PART_COOLING_FAN2_PIN (" STRINGIFY(PART_COOLING_FAN2_PIN) ") conflicts with PART_COOLING_FAN0_PIN (" STRINGIFY(PART_COOLING_FAN0_PIN) ")");
+#elif PINS_EXIST(PART_COOLING_FAN0, PART_COOLING_FAN3) && (PART_COOLING_FAN0_PIN == PART_COOLING_FAN3_PIN)
+  static_assert(false, "PART_COOLING_FAN3_PIN (" STRINGIFY(PART_COOLING_FAN3_PIN) ") conflicts with PART_COOLING_FAN0_PIN (" STRINGIFY(PART_COOLING_FAN0_PIN) ")");
+#elif PINS_EXIST(PART_COOLING_FAN0, PART_COOLING_FAN4) && (PART_COOLING_FAN0_PIN == PART_COOLING_FAN4_PIN)
+  static_assert(false, "PART_COOLING_FAN4_PIN (" STRINGIFY(PART_COOLING_FAN4_PIN) ") conflicts with PART_COOLING_FAN0_PIN (" STRINGIFY(PART_COOLING_FAN0_PIN) ")");
+#elif PINS_EXIST(PART_COOLING_FAN0, PART_COOLING_FAN5) && (PART_COOLING_FAN0_PIN == PART_COOLING_FAN5_PIN)
+  static_assert(false, "PART_COOLING_FAN5_PIN (" STRINGIFY(PART_COOLING_FAN5_PIN) ") conflicts with PART_COOLING_FAN0_PIN (" STRINGIFY(PART_COOLING_FAN0_PIN) ")");
+#elif PINS_EXIST(PART_COOLING_FAN0, PART_COOLING_FAN6) && (PART_COOLING_FAN0_PIN == PART_COOLING_FAN6_PIN)
+  static_assert(false, "PART_COOLING_FAN6_PIN (" STRINGIFY(PART_COOLING_FAN6_PIN) ") conflicts with PART_COOLING_FAN0_PIN (" STRINGIFY(PART_COOLING_FAN0_PIN) ")");
+#elif PINS_EXIST(PART_COOLING_FAN0, PART_COOLING_FAN7) && (PART_COOLING_FAN0_PIN == PART_COOLING_FAN7_PIN)
+  static_assert(false, "PART_COOLING_FAN7_PIN (" STRINGIFY(PART_COOLING_FAN7_PIN) ") conflicts with PART_COOLING_FAN0_PIN (" STRINGIFY(PART_COOLING_FAN0_PIN) ")");
+#elif PINS_EXIST(PART_COOLING_FAN0, PART_COOLING_FAN8) && (PART_COOLING_FAN0_PIN == PART_COOLING_FAN8_PIN)
+  static_assert(false, "PART_COOLING_FAN8_PIN (" STRINGIFY(PART_COOLING_FAN8_PIN) ") conflicts with PART_COOLING_FAN0_PIN (" STRINGIFY(PART_COOLING_FAN0_PIN) ")");
+#elif PINS_EXIST(PART_COOLING_FAN0, PART_COOLING_FAN9) && (PART_COOLING_FAN0_PIN == PART_COOLING_FAN9_PIN)
+  static_assert(false, "PART_COOLING_FAN9_PIN (" STRINGIFY(PART_COOLING_FAN9_PIN) ") conflicts with PART_COOLING_FAN0_PIN (" STRINGIFY(PART_COOLING_FAN0_PIN) ")");
+#elif PINS_EXIST(PART_COOLING_FAN0, PART_COOLING_FAN10) && (PART_COOLING_FAN0_PIN == PART_COOLING_FAN10_PIN)
+  static_assert(false, "PART_COOLING_FAN10_PIN (" STRINGIFY(PART_COOLING_FAN10_PIN) ") conflicts with PART_COOLING_FAN0_PIN (" STRINGIFY(PART_COOLING_FAN0_PIN) ")");
+#elif PINS_EXIST(PART_COOLING_FAN0, PART_COOLING_FAN11) && (PART_COOLING_FAN0_PIN == PART_COOLING_FAN11_PIN)
+  static_assert(false, "PART_COOLING_FAN11_PIN (" STRINGIFY(PART_COOLING_FAN11_PIN) ") conflicts with PART_COOLING_FAN0_PIN (" STRINGIFY(PART_COOLING_FAN0_PIN) ")");
+#elif PINS_EXIST(PART_COOLING_FAN1, PART_COOLING_FAN2) && (PART_COOLING_FAN1_PIN == PART_COOLING_FAN2_PIN)
+  static_assert(false, "PART_COOLING_FAN2_PIN (" STRINGIFY(PART_COOLING_FAN2_PIN) ") conflicts with PART_COOLING_FAN1_PIN (" STRINGIFY(PART_COOLING_FAN1_PIN) ")");
+#elif PINS_EXIST(PART_COOLING_FAN1, PART_COOLING_FAN3) && (PART_COOLING_FAN1_PIN == PART_COOLING_FAN3_PIN)
+  static_assert(false, "PART_COOLING_FAN3_PIN (" STRINGIFY(PART_COOLING_FAN3_PIN) ") conflicts with PART_COOLING_FAN1_PIN (" STRINGIFY(PART_COOLING_FAN1_PIN) ")");
+#elif PINS_EXIST(PART_COOLING_FAN1, PART_COOLING_FAN4) && (PART_COOLING_FAN1_PIN == PART_COOLING_FAN4_PIN)
+  static_assert(false, "PART_COOLING_FAN4_PIN (" STRINGIFY(PART_COOLING_FAN4_PIN) ") conflicts with PART_COOLING_FAN1_PIN (" STRINGIFY(PART_COOLING_FAN1_PIN) ")");
+#elif PINS_EXIST(PART_COOLING_FAN1, PART_COOLING_FAN5) && (PART_COOLING_FAN1_PIN == PART_COOLING_FAN5_PIN)
+  static_assert(false, "PART_COOLING_FAN5_PIN (" STRINGIFY(PART_COOLING_FAN5_PIN) ") conflicts with PART_COOLING_FAN1_PIN (" STRINGIFY(PART_COOLING_FAN1_PIN) ")");
+#elif PINS_EXIST(PART_COOLING_FAN1, PART_COOLING_FAN6) && (PART_COOLING_FAN1_PIN == PART_COOLING_FAN6_PIN)
+  static_assert(false, "PART_COOLING_FAN6_PIN (" STRINGIFY(PART_COOLING_FAN6_PIN) ") conflicts with PART_COOLING_FAN1_PIN (" STRINGIFY(PART_COOLING_FAN1_PIN) ")");
+#elif PINS_EXIST(PART_COOLING_FAN1, PART_COOLING_FAN7) && (PART_COOLING_FAN1_PIN == PART_COOLING_FAN7_PIN)
+  static_assert(false, "PART_COOLING_FAN7_PIN (" STRINGIFY(PART_COOLING_FAN7_PIN) ") conflicts with PART_COOLING_FAN1_PIN (" STRINGIFY(PART_COOLING_FAN1_PIN) ")");
+#elif PINS_EXIST(PART_COOLING_FAN1, PART_COOLING_FAN8) && (PART_COOLING_FAN1_PIN == PART_COOLING_FAN8_PIN)
+  static_assert(false, "PART_COOLING_FAN8_PIN (" STRINGIFY(PART_COOLING_FAN8_PIN) ") conflicts with PART_COOLING_FAN1_PIN (" STRINGIFY(PART_COOLING_FAN1_PIN) ")");
+#elif PINS_EXIST(PART_COOLING_FAN1, PART_COOLING_FAN9) && (PART_COOLING_FAN1_PIN == PART_COOLING_FAN9_PIN)
+  static_assert(false, "PART_COOLING_FAN9_PIN (" STRINGIFY(PART_COOLING_FAN9_PIN) ") conflicts with PART_COOLING_FAN1_PIN (" STRINGIFY(PART_COOLING_FAN1_PIN) ")");
+#elif PINS_EXIST(PART_COOLING_FAN1, PART_COOLING_FAN10) && (PART_COOLING_FAN1_PIN == PART_COOLING_FAN10_PIN)
+  static_assert(false, "PART_COOLING_FAN10_PIN (" STRINGIFY(PART_COOLING_FAN10_PIN) ") conflicts with PART_COOLING_FAN1_PIN (" STRINGIFY(PART_COOLING_FAN1_PIN) ")");
+#elif PINS_EXIST(PART_COOLING_FAN1, PART_COOLING_FAN11) && (PART_COOLING_FAN1_PIN == PART_COOLING_FAN11_PIN)
+  static_assert(false, "PART_COOLING_FAN11_PIN (" STRINGIFY(PART_COOLING_FAN11_PIN) ") conflicts with PART_COOLING_FAN1_PIN (" STRINGIFY(PART_COOLING_FAN1_PIN) ")");
+#elif PINS_EXIST(PART_COOLING_FAN2, PART_COOLING_FAN3) && (PART_COOLING_FAN2_PIN == PART_COOLING_FAN3_PIN)
+  static_assert(false, "PART_COOLING_FAN3_PIN (" STRINGIFY(PART_COOLING_FAN3_PIN) ") conflicts with PART_COOLING_FAN2_PIN (" STRINGIFY(PART_COOLING_FAN2_PIN) ")");
+#elif PINS_EXIST(PART_COOLING_FAN2, PART_COOLING_FAN4) && (PART_COOLING_FAN2_PIN == PART_COOLING_FAN4_PIN)
+  static_assert(false, "PART_COOLING_FAN4_PIN (" STRINGIFY(PART_COOLING_FAN4_PIN) ") conflicts with PART_COOLING_FAN2_PIN (" STRINGIFY(PART_COOLING_FAN2_PIN) ")");
+#elif PINS_EXIST(PART_COOLING_FAN2, PART_COOLING_FAN5) && (PART_COOLING_FAN2_PIN == PART_COOLING_FAN5_PIN)
+  static_assert(false, "PART_COOLING_FAN5_PIN (" STRINGIFY(PART_COOLING_FAN5_PIN) ") conflicts with PART_COOLING_FAN2_PIN (" STRINGIFY(PART_COOLING_FAN2_PIN) ")");
+#elif PINS_EXIST(PART_COOLING_FAN2, PART_COOLING_FAN6) && (PART_COOLING_FAN2_PIN == PART_COOLING_FAN6_PIN)
+  static_assert(false, "PART_COOLING_FAN6_PIN (" STRINGIFY(PART_COOLING_FAN6_PIN) ") conflicts with PART_COOLING_FAN2_PIN (" STRINGIFY(PART_COOLING_FAN2_PIN) ")");
+#elif PINS_EXIST(PART_COOLING_FAN2, PART_COOLING_FAN7) && (PART_COOLING_FAN2_PIN == PART_COOLING_FAN7_PIN)
+  static_assert(false, "PART_COOLING_FAN7_PIN (" STRINGIFY(PART_COOLING_FAN7_PIN) ") conflicts with PART_COOLING_FAN2_PIN (" STRINGIFY(PART_COOLING_FAN2_PIN) ")");
+#elif PINS_EXIST(PART_COOLING_FAN2, PART_COOLING_FAN8) && (PART_COOLING_FAN2_PIN == PART_COOLING_FAN8_PIN)
+  static_assert(false, "PART_COOLING_FAN8_PIN (" STRINGIFY(PART_COOLING_FAN8_PIN) ") conflicts with PART_COOLING_FAN2_PIN (" STRINGIFY(PART_COOLING_FAN2_PIN) ")");
+#elif PINS_EXIST(PART_COOLING_FAN2, PART_COOLING_FAN9) && (PART_COOLING_FAN2_PIN == PART_COOLING_FAN9_PIN)
+  static_assert(false, "PART_COOLING_FAN9_PIN (" STRINGIFY(PART_COOLING_FAN9_PIN) ") conflicts with PART_COOLING_FAN2_PIN (" STRINGIFY(PART_COOLING_FAN2_PIN) ")");
+#elif PINS_EXIST(PART_COOLING_FAN2, PART_COOLING_FAN10) && (PART_COOLING_FAN2_PIN == PART_COOLING_FAN10_PIN)
+  static_assert(false, "PART_COOLING_FAN10_PIN (" STRINGIFY(PART_COOLING_FAN10_PIN) ") conflicts with PART_COOLING_FAN2_PIN (" STRINGIFY(PART_COOLING_FAN2_PIN) ")");
+#elif PINS_EXIST(PART_COOLING_FAN2, PART_COOLING_FAN11) && (PART_COOLING_FAN2_PIN == PART_COOLING_FAN11_PIN)
+  static_assert(false, "PART_COOLING_FAN11_PIN (" STRINGIFY(PART_COOLING_FAN11_PIN) ") conflicts with PART_COOLING_FAN2_PIN (" STRINGIFY(PART_COOLING_FAN2_PIN) ")");
+#elif PINS_EXIST(PART_COOLING_FAN3, PART_COOLING_FAN4) && (PART_COOLING_FAN3_PIN == PART_COOLING_FAN4_PIN)
+  static_assert(false, "PART_COOLING_FAN4_PIN (" STRINGIFY(PART_COOLING_FAN4_PIN) ") conflicts with PART_COOLING_FAN3_PIN (" STRINGIFY(PART_COOLING_FAN3_PIN) ")");
+#elif PINS_EXIST(PART_COOLING_FAN3, PART_COOLING_FAN5) && (PART_COOLING_FAN3_PIN == PART_COOLING_FAN5_PIN)
+  static_assert(false, "PART_COOLING_FAN5_PIN (" STRINGIFY(PART_COOLING_FAN5_PIN) ") conflicts with PART_COOLING_FAN3_PIN (" STRINGIFY(PART_COOLING_FAN3_PIN) ")");
+#elif PINS_EXIST(PART_COOLING_FAN3, PART_COOLING_FAN6) && (PART_COOLING_FAN3_PIN == PART_COOLING_FAN6_PIN)
+  static_assert(false, "PART_COOLING_FAN6_PIN (" STRINGIFY(PART_COOLING_FAN6_PIN) ") conflicts with PART_COOLING_FAN3_PIN (" STRINGIFY(PART_COOLING_FAN3_PIN) ")");
+#elif PINS_EXIST(PART_COOLING_FAN3, PART_COOLING_FAN7) && (PART_COOLING_FAN3_PIN == PART_COOLING_FAN7_PIN)
+  static_assert(false, "PART_COOLING_FAN7_PIN (" STRINGIFY(PART_COOLING_FAN7_PIN) ") conflicts with PART_COOLING_FAN3_PIN (" STRINGIFY(PART_COOLING_FAN3_PIN) ")");
+#elif PINS_EXIST(PART_COOLING_FAN3, PART_COOLING_FAN8) && (PART_COOLING_FAN3_PIN == PART_COOLING_FAN8_PIN)
+  static_assert(false, "PART_COOLING_FAN8_PIN (" STRINGIFY(PART_COOLING_FAN8_PIN) ") conflicts with PART_COOLING_FAN3_PIN (" STRINGIFY(PART_COOLING_FAN3_PIN) ")");
+#elif PINS_EXIST(PART_COOLING_FAN3, PART_COOLING_FAN9) && (PART_COOLING_FAN3_PIN == PART_COOLING_FAN9_PIN)
+  static_assert(false, "PART_COOLING_FAN9_PIN (" STRINGIFY(PART_COOLING_FAN9_PIN) ") conflicts with PART_COOLING_FAN3_PIN (" STRINGIFY(PART_COOLING_FAN3_PIN) ")");
+#elif PINS_EXIST(PART_COOLING_FAN3, PART_COOLING_FAN10) && (PART_COOLING_FAN3_PIN == PART_COOLING_FAN10_PIN)
+  static_assert(false, "PART_COOLING_FAN10_PIN (" STRINGIFY(PART_COOLING_FAN10_PIN) ") conflicts with PART_COOLING_FAN3_PIN (" STRINGIFY(PART_COOLING_FAN3_PIN) ")");
+#elif PINS_EXIST(PART_COOLING_FAN3, PART_COOLING_FAN11) && (PART_COOLING_FAN3_PIN == PART_COOLING_FAN11_PIN)
+  static_assert(false, "PART_COOLING_FAN11_PIN (" STRINGIFY(PART_COOLING_FAN11_PIN) ") conflicts with PART_COOLING_FAN3_PIN (" STRINGIFY(PART_COOLING_FAN3_PIN) ")");
+#elif PINS_EXIST(PART_COOLING_FAN4, PART_COOLING_FAN5) && (PART_COOLING_FAN4_PIN == PART_COOLING_FAN5_PIN)
+  static_assert(false, "PART_COOLING_FAN5_PIN (" STRINGIFY(PART_COOLING_FAN5_PIN) ") conflicts with PART_COOLING_FAN4_PIN (" STRINGIFY(PART_COOLING_FAN4_PIN) ")");
+#elif PINS_EXIST(PART_COOLING_FAN4, PART_COOLING_FAN6) && (PART_COOLING_FAN4_PIN == PART_COOLING_FAN6_PIN)
+  static_assert(false, "PART_COOLING_FAN6_PIN (" STRINGIFY(PART_COOLING_FAN6_PIN) ") conflicts with PART_COOLING_FAN4_PIN (" STRINGIFY(PART_COOLING_FAN4_PIN) ")");
+#elif PINS_EXIST(PART_COOLING_FAN4, PART_COOLING_FAN7) && (PART_COOLING_FAN4_PIN == PART_COOLING_FAN7_PIN)
+  static_assert(false, "PART_COOLING_FAN7_PIN (" STRINGIFY(PART_COOLING_FAN7_PIN) ") conflicts with PART_COOLING_FAN4_PIN (" STRINGIFY(PART_COOLING_FAN4_PIN) ")");
+#elif PINS_EXIST(PART_COOLING_FAN4, PART_COOLING_FAN8) && (PART_COOLING_FAN4_PIN == PART_COOLING_FAN8_PIN)
+  static_assert(false, "PART_COOLING_FAN8_PIN (" STRINGIFY(PART_COOLING_FAN8_PIN) ") conflicts with PART_COOLING_FAN4_PIN (" STRINGIFY(PART_COOLING_FAN4_PIN) ")");
+#elif PINS_EXIST(PART_COOLING_FAN4, PART_COOLING_FAN9) && (PART_COOLING_FAN4_PIN == PART_COOLING_FAN9_PIN)
+  static_assert(false, "PART_COOLING_FAN9_PIN (" STRINGIFY(PART_COOLING_FAN9_PIN) ") conflicts with PART_COOLING_FAN4_PIN (" STRINGIFY(PART_COOLING_FAN4_PIN) ")");
+#elif PINS_EXIST(PART_COOLING_FAN4, PART_COOLING_FAN10) && (PART_COOLING_FAN4_PIN == PART_COOLING_FAN10_PIN)
+  static_assert(false, "PART_COOLING_FAN10_PIN (" STRINGIFY(PART_COOLING_FAN10_PIN) ") conflicts with PART_COOLING_FAN4_PIN (" STRINGIFY(PART_COOLING_FAN4_PIN) ")");
+#elif PINS_EXIST(PART_COOLING_FAN4, PART_COOLING_FAN11) && (PART_COOLING_FAN4_PIN == PART_COOLING_FAN11_PIN)
+  static_assert(false, "PART_COOLING_FAN11_PIN (" STRINGIFY(PART_COOLING_FAN11_PIN) ") conflicts with PART_COOLING_FAN4_PIN (" STRINGIFY(PART_COOLING_FAN4_PIN) ")");
+#elif PINS_EXIST(PART_COOLING_FAN5, PART_COOLING_FAN6) && (PART_COOLING_FAN5_PIN == PART_COOLING_FAN6_PIN)
+  static_assert(false, "PART_COOLING_FAN6_PIN (" STRINGIFY(PART_COOLING_FAN6_PIN) ") conflicts with PART_COOLING_FAN5_PIN (" STRINGIFY(PART_COOLING_FAN5_PIN) ")");
+#elif PINS_EXIST(PART_COOLING_FAN5, PART_COOLING_FAN7) && (PART_COOLING_FAN5_PIN == PART_COOLING_FAN7_PIN)
+  static_assert(false, "PART_COOLING_FAN7_PIN (" STRINGIFY(PART_COOLING_FAN7_PIN) ") conflicts with PART_COOLING_FAN5_PIN (" STRINGIFY(PART_COOLING_FAN5_PIN) ")");
+#elif PINS_EXIST(PART_COOLING_FAN5, PART_COOLING_FAN8) && (PART_COOLING_FAN5_PIN == PART_COOLING_FAN8_PIN)
+  static_assert(false, "PART_COOLING_FAN8_PIN (" STRINGIFY(PART_COOLING_FAN8_PIN) ") conflicts with PART_COOLING_FAN5_PIN (" STRINGIFY(PART_COOLING_FAN5_PIN) ")");
+#elif PINS_EXIST(PART_COOLING_FAN5, PART_COOLING_FAN9) && (PART_COOLING_FAN5_PIN == PART_COOLING_FAN9_PIN)
+  static_assert(false, "PART_COOLING_FAN9_PIN (" STRINGIFY(PART_COOLING_FAN9_PIN) ") conflicts with PART_COOLING_FAN5_PIN (" STRINGIFY(PART_COOLING_FAN5_PIN) ")");
+#elif PINS_EXIST(PART_COOLING_FAN5, PART_COOLING_FAN10) && (PART_COOLING_FAN5_PIN == PART_COOLING_FAN10_PIN)
+  static_assert(false, "PART_COOLING_FAN10_PIN (" STRINGIFY(PART_COOLING_FAN10_PIN) ") conflicts with PART_COOLING_FAN5_PIN (" STRINGIFY(PART_COOLING_FAN5_PIN) ")");
+#elif PINS_EXIST(PART_COOLING_FAN5, PART_COOLING_FAN11) && (PART_COOLING_FAN5_PIN == PART_COOLING_FAN11_PIN)
+  static_assert(false, "PART_COOLING_FAN11_PIN (" STRINGIFY(PART_COOLING_FAN11_PIN) ") conflicts with PART_COOLING_FAN5_PIN (" STRINGIFY(PART_COOLING_FAN5_PIN) ")");
+#elif PINS_EXIST(PART_COOLING_FAN6, PART_COOLING_FAN7) && (PART_COOLING_FAN6_PIN == PART_COOLING_FAN7_PIN)
+  static_assert(false, "PART_COOLING_FAN7_PIN (" STRINGIFY(PART_COOLING_FAN7_PIN) ") conflicts with PART_COOLING_FAN6_PIN (" STRINGIFY(PART_COOLING_FAN6_PIN) ")");
+#elif PINS_EXIST(PART_COOLING_FAN6, PART_COOLING_FAN8) && (PART_COOLING_FAN6_PIN == PART_COOLING_FAN8_PIN)
+  static_assert(false, "PART_COOLING_FAN8_PIN (" STRINGIFY(PART_COOLING_FAN8_PIN) ") conflicts with PART_COOLING_FAN6_PIN (" STRINGIFY(PART_COOLING_FAN6_PIN) ")");
+#elif PINS_EXIST(PART_COOLING_FAN6, PART_COOLING_FAN9) && (PART_COOLING_FAN6_PIN == PART_COOLING_FAN9_PIN)
+  static_assert(false, "PART_COOLING_FAN9_PIN (" STRINGIFY(PART_COOLING_FAN9_PIN) ") conflicts with PART_COOLING_FAN6_PIN (" STRINGIFY(PART_COOLING_FAN6_PIN) ")");
+#elif PINS_EXIST(PART_COOLING_FAN6, PART_COOLING_FAN10) && (PART_COOLING_FAN6_PIN == PART_COOLING_FAN10_PIN)
+  static_assert(false, "PART_COOLING_FAN10_PIN (" STRINGIFY(PART_COOLING_FAN10_PIN) ") conflicts with PART_COOLING_FAN6_PIN (" STRINGIFY(PART_COOLING_FAN6_PIN) ")");
+#elif PINS_EXIST(PART_COOLING_FAN6, PART_COOLING_FAN11) && (PART_COOLING_FAN6_PIN == PART_COOLING_FAN11_PIN)
+  static_assert(false, "PART_COOLING_FAN11_PIN (" STRINGIFY(PART_COOLING_FAN11_PIN) ") conflicts with PART_COOLING_FAN6_PIN (" STRINGIFY(PART_COOLING_FAN6_PIN) ")");
+#elif PINS_EXIST(PART_COOLING_FAN7, PART_COOLING_FAN8) && (PART_COOLING_FAN7_PIN == PART_COOLING_FAN8_PIN)
+  static_assert(false, "PART_COOLING_FAN8_PIN (" STRINGIFY(PART_COOLING_FAN8_PIN) ") conflicts with PART_COOLING_FAN7_PIN (" STRINGIFY(PART_COOLING_FAN7_PIN) ")");
+#elif PINS_EXIST(PART_COOLING_FAN7, PART_COOLING_FAN9) && (PART_COOLING_FAN7_PIN == PART_COOLING_FAN9_PIN)
+  static_assert(false, "PART_COOLING_FAN9_PIN (" STRINGIFY(PART_COOLING_FAN9_PIN) ") conflicts with PART_COOLING_FAN7_PIN (" STRINGIFY(PART_COOLING_FAN7_PIN) ")");
+#elif PINS_EXIST(PART_COOLING_FAN7, PART_COOLING_FAN10) && (PART_COOLING_FAN7_PIN == PART_COOLING_FAN10_PIN)
+  static_assert(false, "PART_COOLING_FAN10_PIN (" STRINGIFY(PART_COOLING_FAN10_PIN) ") conflicts with PART_COOLING_FAN7_PIN (" STRINGIFY(PART_COOLING_FAN7_PIN) ")");
+#elif PINS_EXIST(PART_COOLING_FAN7, PART_COOLING_FAN11) && (PART_COOLING_FAN7_PIN == PART_COOLING_FAN11_PIN)
+  static_assert(false, "PART_COOLING_FAN11_PIN (" STRINGIFY(PART_COOLING_FAN11_PIN) ") conflicts with PART_COOLING_FAN7_PIN (" STRINGIFY(PART_COOLING_FAN7_PIN) ")");
+#elif PINS_EXIST(PART_COOLING_FAN8, PART_COOLING_FAN9) && (PART_COOLING_FAN8_PIN == PART_COOLING_FAN9_PIN)
+  static_assert(false, "PART_COOLING_FAN9_PIN (" STRINGIFY(PART_COOLING_FAN9_PIN) ") conflicts with PART_COOLING_FAN8_PIN (" STRINGIFY(PART_COOLING_FAN8_PIN) ")");
+#elif PINS_EXIST(PART_COOLING_FAN8, PART_COOLING_FAN10) && (PART_COOLING_FAN8_PIN == PART_COOLING_FAN10_PIN)
+  static_assert(false, "PART_COOLING_FAN10_PIN (" STRINGIFY(PART_COOLING_FAN10_PIN) ") conflicts with PART_COOLING_FAN8_PIN (" STRINGIFY(PART_COOLING_FAN8_PIN) ")");
+#elif PINS_EXIST(PART_COOLING_FAN8, PART_COOLING_FAN11) && (PART_COOLING_FAN8_PIN == PART_COOLING_FAN11_PIN)
+  static_assert(false, "PART_COOLING_FAN11_PIN (" STRINGIFY(PART_COOLING_FAN11_PIN) ") conflicts with PART_COOLING_FAN8_PIN (" STRINGIFY(PART_COOLING_FAN8_PIN) ")");
+#elif PINS_EXIST(PART_COOLING_FAN9, PART_COOLING_FAN10) && (PART_COOLING_FAN9_PIN == PART_COOLING_FAN10_PIN)
+  static_assert(false, "PART_COOLING_FAN10_PIN (" STRINGIFY(PART_COOLING_FAN10_PIN) ") conflicts with PART_COOLING_FAN9_PIN (" STRINGIFY(PART_COOLING_FAN9_PIN) ")");
+#elif PINS_EXIST(PART_COOLING_FAN9, PART_COOLING_FAN11) && (PART_COOLING_FAN9_PIN == PART_COOLING_FAN11_PIN)
+  static_assert(false, "PART_COOLING_FAN11_PIN (" STRINGIFY(PART_COOLING_FAN11_PIN) ") conflicts with PART_COOLING_FAN9_PIN (" STRINGIFY(PART_COOLING_FAN9_PIN) ")");
+#elif PINS_EXIST(PART_COOLING_FAN10, PART_COOLING_FAN11) && (PART_COOLING_FAN10_PIN == PART_COOLING_FAN11_PIN)
+  static_assert(false, "PART_COOLING_FAN11_PIN (" STRINGIFY(PART_COOLING_FAN11_PIN) ") conflicts with PART_COOLING_FAN10_PIN (" STRINGIFY(PART_COOLING_FAN10_PIN) ")");
 #endif
 
 #if ENABLED(USE_CONTROLLER_FAN)
@@ -2054,8 +2213,30 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
 #if NEED_CASE_LIGHT_PIN
   #if !PIN_EXISTS(CASE_LIGHT)
     #error "CASE_LIGHT_ENABLE requires CASE_LIGHT_PIN, CASE_LIGHT_USE_NEOPIXEL, or CASE_LIGHT_USE_RGB_LED."
-  #elif CASE_LIGHT_PIN == FAN0_PIN
-    #error "CASE_LIGHT_PIN conflicts with FAN0_PIN. Resolve before continuing."
+  #elif PIN_EXISTS(PART_COOLING_FAN0) && CASE_LIGHT_PIN == PART_COOLING_FAN0_PIN
+    #error "CASE_LIGHT_PIN conflicts with PART_COOLING_FAN0_PIN."
+  #elif HOTENDS >= 2 && PIN_EXISTS(PART_COOLING_FAN1) && CASE_LIGHT_PIN == PART_COOLING_FAN1_PIN
+    #error "CASE_LIGHT_PIN conflicts with PART_COOLING_FAN1_PIN."
+  #elif HOTENDS >= 3 && PIN_EXISTS(PART_COOLING_FAN2) && CASE_LIGHT_PIN == PART_COOLING_FAN2_PIN
+    #error "CASE_LIGHT_PIN conflicts with PART_COOLING_FAN2_PIN."
+  #elif HOTENDS >= 4 && PIN_EXISTS(PART_COOLING_FAN3) && CASE_LIGHT_PIN == PART_COOLING_FAN3_PIN
+    #error "CASE_LIGHT_PIN conflicts with PART_COOLING_FAN3_PIN."
+  #elif HOTENDS >= 5 && PIN_EXISTS(PART_COOLING_FAN4) && CASE_LIGHT_PIN == PART_COOLING_FAN4_PIN
+    #error "CASE_LIGHT_PIN conflicts with PART_COOLING_FAN4_PIN."
+  #elif HOTENDS >= 6 && PIN_EXISTS(PART_COOLING_FAN5) && CASE_LIGHT_PIN == PART_COOLING_FAN5_PIN
+    #error "CASE_LIGHT_PIN conflicts with PART_COOLING_FAN5_PIN."
+  #elif HOTENDS >= 7 && PIN_EXISTS(PART_COOLING_FAN6) && CASE_LIGHT_PIN == PART_COOLING_FAN6_PIN
+    #error "CASE_LIGHT_PIN conflicts with PART_COOLING_FAN6_PIN."
+  #elif HOTENDS >= 8 && PIN_EXISTS(PART_COOLING_FAN7) && CASE_LIGHT_PIN == PART_COOLING_FAN7_PIN
+    #error "CASE_LIGHT_PIN conflicts with PART_COOLING_FAN7_PIN."
+  #elif HOTENDS >= 9 && PIN_EXISTS(PART_COOLING_FAN8) && CASE_LIGHT_PIN == PART_COOLING_FAN8_PIN
+    #error "CASE_LIGHT_PIN conflicts with PART_COOLING_FAN8_PIN."
+  #elif HOTENDS >= 10 && PIN_EXISTS(PART_COOLING_FAN9) && CASE_LIGHT_PIN == PART_COOLING_FAN9_PIN
+    #error "CASE_LIGHT_PIN conflicts with PART_COOLING_FAN9_PIN."
+  #elif HOTENDS >= 11 && PIN_EXISTS(PART_COOLING_FAN10) && CASE_LIGHT_PIN == PART_COOLING_FAN10_PIN
+    #error "CASE_LIGHT_PIN conflicts with PART_COOLING_FAN10_PIN."
+  #elif HOTENDS >= 12 && PIN_EXISTS(PART_COOLING_FAN11) && CASE_LIGHT_PIN == PART_COOLING_FAN11_PIN
+    #error "CASE_LIGHT_PIN conflicts with PART_COOLING_FAN11_PIN."
   #endif
 #endif
 
@@ -2724,6 +2905,22 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
   #elif ENABLED(NEO2_COLOR_PRESETS) && DISABLED(NEOPIXEL2_SEPARATE)
     #error "NEO2_COLOR_PRESETS requires NEOPIXEL2_SEPARATE to be enabled."
   #endif
+  #ifdef BOARD_NEOPIXEL_MAX
+    #if (NEOPIXEL_PIXELS > BOARD_NEOPIXEL_MAX && NEOPIXEL_PIN == BOARD_NEOPIXEL_PIN) || (NEOPIXEL_PIXELS > BOARD_NEOPIXEL_MAX && DISABLED(NEOPIXEL2_SEPARATE) && NEOPIXEL2_PIN == BOARD_NEOPIXEL_PIN)
+      #if ENABLED(BOARD_HAS_DCDC5V)
+        #error "NEOPIXEL_PIXELS exceeds the recommended maximum for your MOTHERBOARD."
+      #elif MB(BTT_SKR_MINI_E3_V2_0, BTT_SKR_MINI_E3_V3_0)
+        static_assert(false, "\nNEOPIXEL_PIXELS exceeds the recommended maximum for your MOTHERBOARD.\nConsider adding a 5V DC-DC converter and #define BOARD_HAS_DCDC5V to your Configuration.h.");
+      #endif
+    #endif
+    #if ENABLED(NEOPIXEL2_SEPARATE) && NEOPIXEL2_PIXELS > BOARD_NEOPIXEL_MAX && NEOPIXEL2_PIN == BOARD_NEOPIXEL_PIN
+      #if ENABLED(BOARD_HAS_DCDC5V)
+        #error "NEOPIXEL2_PIXELS exceeds the recommended maximum for your MOTHERBOARD."
+      #elif MB(BTT_SKR_MINI_E3_V2_0, BTT_SKR_MINI_E3_V3_0)
+        static_assert(false, "\nNEOPIXEL2_PIXELS exceeds the recommended maximum for your MOTHERBOARD.\nConsider adding a 5V DC-DC converter and #define BOARD_HAS_DCDC5V to your Configuration.h.");
+      #endif
+    #endif
+  #endif
 #endif
 
 #if DISABLED(NO_COMPILE_TIME_PWM)
@@ -2802,79 +2999,6 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
     #error "SD_IGNORE_AT_STARTUP is incompatible with SDCARD_EEPROM_EMULATION."
   #endif
 #endif
-
-/**
- * Make sure only one display is enabled
- */
-#if 1 < 0 \
-  + ENABLED(REPRAP_DISCOUNT_SMART_CONTROLLER) \
-  + ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER) \
-  + (ENABLED(U8GLIB_SSD1306) && DISABLED(IS_U8GLIB_SSD1306)) \
-  + (ENABLED(MINIPANEL) && NONE(MKS_MINI_12864, ENDER2_STOCKDISPLAY)) \
-  + (ENABLED(MKS_MINI_12864) && NONE(MKS_LCD12864A, MKS_LCD12864B)) \
-  + (ENABLED(FYSETC_MINI_12864_2_1) && NONE(MKS_MINI_12864_V3, BTT_MINI_12864, BEEZ_MINI_12864)) \
-  + COUNT_ENABLED(MKS_MINI_12864_V3, BTT_MINI_12864, BEEZ_MINI_12864) \
-  + (ENABLED(EXTENSIBLE_UI) && DISABLED(IS_EXTUI)) \
-  + (DISABLED(IS_LEGACY_TFT) && ENABLED(TFT_GENERIC)) \
-  + (ENABLED(IS_LEGACY_TFT) && COUNT_ENABLED(TFT_320x240, TFT_320x240_SPI, TFT_480x320, TFT_480x320_SPI)) \
-  + COUNT_ENABLED(ANYCUBIC_LCD_I3MEGA, ANYCUBIC_LCD_CHIRON, ANYCUBIC_TFT35, ANYCUBIC_LCD_VYPER) \
-  + DGUS_UI_IS(ORIGIN) + DGUS_UI_IS(FYSETC) + DGUS_UI_IS(HIPRECY) + DGUS_UI_IS(MKS) + DGUS_UI_IS(RELOADED) + DGUS_UI_IS(IA_CREALITY) \
-  + COUNT_ENABLED(ENDER2_STOCKDISPLAY, CR10_STOCKDISPLAY) \
-  + COUNT_ENABLED(DWIN_CREALITY_LCD, DWIN_LCD_PROUI, DWIN_CREALITY_LCD_JYERSUI, DWIN_MARLINUI_PORTRAIT, DWIN_MARLINUI_LANDSCAPE, SOVOL_SV06_RTS) \
-  + COUNT_ENABLED(FYSETC_MINI_12864_X_X, FYSETC_MINI_12864_1_2, FYSETC_MINI_12864_2_0, FYSETC_GENERIC_12864_1_1) \
-  + COUNT_ENABLED(LCD_SAINSMART_I2C_1602, LCD_SAINSMART_I2C_2004) \
-  + COUNT_ENABLED(MKS_12864OLED, MKS_12864OLED_SSD1306) \
-  + COUNT_ENABLED(MKS_TS35_V2_0, MKS_ROBIN_TFT24, MKS_ROBIN_TFT28, MKS_ROBIN_TFT32, MKS_ROBIN_TFT35, MKS_ROBIN_TFT43, \
-                  MKS_ROBIN_TFT_V1_1R, ANET_ET4_TFT28, ANET_ET5_TFT35, BIQU_BX_TFT70, BTT_TFT35_SPI_V1_0) \
-  + COUNT_ENABLED(TFTGLCD_PANEL_SPI, TFTGLCD_PANEL_I2C) \
-  + COUNT_ENABLED(VIKI2, miniVIKI) \
-  + ENABLED(WYH_L12864) \
-  + COUNT_ENABLED(ZONESTAR_12864LCD, ZONESTAR_12864OLED, ZONESTAR_12864OLED_SSD1306) \
-  + COUNT_ENABLED(ANET_FULL_GRAPHICS_LCD, CTC_A10S_A13) \
-  + ENABLED(AZSMZ_12864) \
-  + ENABLED(BQ_LCD_SMART_CONTROLLER) \
-  + ENABLED(CARTESIO_UI) \
-  + ENABLED(ELB_FULL_GRAPHIC_CONTROLLER) \
-  + ENABLED(FF_INTERFACEBOARD) \
-  + ENABLED(FYSETC_242_OLED_12864) \
-  + ENABLED(G3D_PANEL) \
-  + ENABLED(LCD_FOR_MELZI) \
-  + ENABLED(LCD_I2C_PANELOLU2) \
-  + ENABLED(LCD_I2C_VIKI) \
-  + ENABLED(LCM1602) \
-  + ENABLED(LONGER_LK_TFT28) \
-  + ENABLED(MAKEBOARD_MINI_2_LINE_DISPLAY_1602) \
-  + ENABLED(MAKRPANEL) \
-  + ENABLED(MALYAN_LCD) \
-  + ENABLED(NEXTION_TFT) \
-  + ENABLED(MKS_LCD12864A) \
-  + ENABLED(MKS_LCD12864B) \
-  + ENABLED(OLED_PANEL_TINYBOY2) \
-  + ENABLED(OVERLORD_OLED) \
-  + ENABLED(PANEL_ONE) \
-  + ENABLED(RA_CONTROL_PANEL) \
-  + ENABLED(RADDS_DISPLAY) \
-  + ENABLED(REPRAPWORLD_GRAPHICAL_LCD) \
-  + ENABLED(RIGIDBOT_PANEL) \
-  + ENABLED(SAV_3DGLCD) \
-  + ENABLED(SAV_3DLCD) \
-  + ENABLED(SILVER_GATE_GLCD_CONTROLLER) \
-  + ENABLED(TFT_TRONXY_X5SA) \
-  + ENABLED(TOUCH_UI_FTDI_EVE) \
-  + ENABLED(U8GLIB_SH1106_EINSTART) \
-  + ENABLED(ULTI_CONTROLLER) \
-  + ENABLED(ULTIMAKERCONTROLLER) \
-  + ENABLED(ULTIPANEL) \
-  + ENABLED(ULTRA_LCD) \
-  + ENABLED(YHCB2004) \
-  + ENABLED(ZONESTAR_LCD) \
-  + ENABLED(K3D_FULL_GRAPHIC_SMART_CONTROLLER) \
-  + ENABLED(K3D_242_OLED_CONTROLLER)
-  #error "Please select only one LCD controller option."
-#endif
-
-#undef IS_U8GLIB_SSD1306
-#undef IS_EXTUI
 
 /**
  * Make sure LCD language settings are distinct
@@ -2967,6 +3091,8 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
 #if ENABLED(DWIN_CREALITY_LCD)
   #if !HAS_MEDIA
     #error "DWIN_CREALITY_LCD requires SDSUPPORT to be enabled."
+  #elif HAS_PID_HEATING && !HAS_PREHEAT
+    #error "DWIN_CREALITY_LCD and HAS_PID_HEATING requires temperature presets."
   #elif ANY(PID_EDIT_MENU, PID_AUTOTUNE_MENU)
     #error "DWIN_CREALITY_LCD does not support PID_EDIT_MENU or PID_AUTOTUNE_MENU."
   #elif ANY(MPC_EDIT_MENU, MPC_AUTOTUNE_MENU)
@@ -2989,7 +3115,7 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
     #error "LCD_BACKLIGHT_TIMEOUT_MINS requires an LCD with encoder or keypad."
   #elif HAS_DISPLAY_SLEEP
     #error "LCD_BACKLIGHT_TIMEOUT_MINS and DISPLAY_SLEEP_MINUTES are not currently supported at the same time."
-  #elif ENABLED(NEOPIXEL_BKGD_INDEX_FIRST)
+  #elif defined(NEOPIXEL_BKGD_INDEX_FIRST)
     #if PIN_EXISTS(LCD_BACKLIGHT)
       #error "LCD_BACKLIGHT_PIN and NEOPIXEL_BKGD_INDEX_FIRST are not supported at the same time."
     #elif ENABLED(NEOPIXEL_BKGD_ALWAYS_ON)
@@ -4248,6 +4374,13 @@ static_assert(_PLUS_TEST(3), "DEFAULT_MAX_ACCELERATION values must be positive."
 #endif
 
 /**
+ * Sanity Check for Host Start/Shutdown menu items
+ */
+#if ANY(HOST_START_MENU_ITEM, HOST_SHUTDOWN_MENU_ITEM) && !HAS_MARLINUI_MENU
+  #error "HOST_START_MENU_ITEM and HOST_SHUTDOWN_MENU_ITEM require MarlinUI."
+#endif
+
+/**
  * Sanity Check for MEATPACK and BINARY_FILE_TRANSFER Features
  */
 #if ALL(HAS_MEATPACK, BINARY_FILE_TRANSFER)
@@ -4558,13 +4691,12 @@ static_assert(_PLUS_TEST(3), "DEFAULT_MAX_ACCELERATION values must be positive."
  * Fixed-Time Motion limitations
  */
 #if ENABLED(FT_MOTION)
+  static_assert(FTM_BUFFER_SIZE >= 4 && (FTM_BUFFER_SIZE & (FTM_BUFFER_SIZE - 1u)) == 0, "FTM_BUFFER_SIZE must be a power of two (128, 256, 512, ...).");
   #if ENABLED(MIXING_EXTRUDER)
     #error "FT_MOTION does not currently support MIXING_EXTRUDER."
-  #elif DISABLED(FTM_UNIFIED_BWS)
-    #error "FT_MOTION requires FTM_UNIFIED_BWS to be enabled because FBS is not yet implemented."
   #endif
   #if !HAS_X_AXIS
-    static_assert(FTM_DEFAULT_SHAPER_X != ftMotionShaper_NONE, "Without any linear axes FTM_DEFAULT_SHAPER_X must be ftMotionShaper_NONE.");
+    static_assert(FTM_DEFAULT_SHAPER_X == ftMotionShaper_NONE, "Without any linear axes FTM_DEFAULT_SHAPER_X must be ftMotionShaper_NONE.");
   #endif
   #if HAS_DYNAMIC_FREQ_MM
     static_assert(FTM_DEFAULT_DYNFREQ_MODE != dynFreqMode_Z_BASED, "dynFreqMode_Z_BASED requires a Z axis.");
@@ -4578,6 +4710,33 @@ static_assert(_PLUS_TEST(3), "DEFAULT_MAX_ACCELERATION values must be positive."
     static_assert(FTM_SMOOTHING_TIME_Z <= FTM_MAX_SMOOTHING_TIME, "FTM_SMOOTHING_TIME_Z must be <= FTM_MAX_SMOOTHING_TIME.");
     static_assert(FTM_SMOOTHING_TIME_E <= FTM_MAX_SMOOTHING_TIME, "FTM_SMOOTHING_TIME_E must be <= FTM_MAX_SMOOTHING_TIME.");
   #endif
+  #if !HAS_STANDARD_MOTION
+    #if ENABLED(SMOOTH_LIN_ADVANCE)
+      #error "SMOOTH_LIN_ADVANCE is not yet available in FT_MOTION. Disable NO_STANDARD_MOTION if you require it."
+    #elif ENABLED(MIXING_EXTRUDER)
+      #error "MIXING_EXTRUDER is not yet available in FT_MOTION. Disable NO_STANDARD_MOTION if you require it."
+    #elif ENABLED(SOFT_FEED_HOLD)
+      #error "SOFT_FEED_HOLD is not yet available in FT_MOTION. Disable NO_STANDARD_MOTION if you require it."
+    #elif ENABLED(DIRECT_STEPPING)
+      #error "DIRECT_STEPPING is not yet available in FT_MOTION. Disable NO_STANDARD_MOTION if you require it."
+    #elif ENABLED(DIFFERENTIAL_EXTRUDER)
+      #error "DIFFERENTIAL_EXTRUDER is not yet available in FT_MOTION. Disable NO_STANDARD_MOTION if you require it."
+    #elif ENABLED(LASER_FEATURE)
+      #error "LASER_FEATURE is not yet available in FT_MOTION. Disable NO_STANDARD_MOTION if you require it."
+    #elif ENABLED(Z_LATE_ENABLE)
+      #error "Z_LATE_ENABLE is not yet available in FT_MOTION. Disable NO_STANDARD_MOTION if you require it."
+    #endif
+  #endif
+  #if HAS_FTM_SHAPING && NONE(FTM_SHAPER_ZV, FTM_SHAPER_ZVD, FTM_SHAPER_ZVDD, FTM_SHAPER_ZVDDD, FTM_SHAPER_EI, FTM_SHAPER_2HEI, FTM_SHAPER_3HEI, FTM_SHAPER_MZV)
+    #error "For FT_MOTION at least one FTM_SHAPER_* type must be enabled."
+  #endif
+#endif // FT_MOTION
+
+/**
+ * Resonance Test requires EMERGENCY_PARSER
+ */
+#if ENABLED(RESONANCE_TEST) && DISABLED(EMERGENCY_PARSER)
+  #error "EMERGENCY_PARSER is required with RESONANCE_TEST (to cancel the test)."
 #endif
 
 // Multi-Stepping Limit
@@ -4602,6 +4761,17 @@ static_assert(WITHIN(MULTISTEPPING_LIMIT, 1, 128) && IS_POWER_OF_2(MULTISTEPPING
 
 #if ENABLED(CONFIGURABLE_MACHINE_NAME) && DISABLED(GCODE_QUOTED_STRINGS)
   #error "CONFIGURABLE_MACHINE_NAME requires GCODE_QUOTED_STRINGS."
+#endif
+
+/**
+ * Shared Microstepping Pins Sanity Check
+ */
+#if HAS_SHARED_MICROSTEPPING_PINS
+  static constexpr uint8_t _microstep_modes[] = MICROSTEP_MODES, mm0 = _microstep_modes[0];
+  static_assert(
+    _microstep_modes[1] == mm0 && _microstep_modes[2] == mm0 && _microstep_modes[3] == mm0 && _microstep_modes[4] == mm0 && _microstep_modes[5] == mm0,
+    "When using shared microstepping pins (MS1_PIN and MS2_PIN), all MICROSTEP_MODES values must be identical."
+  );
 #endif
 
 // Misc. Cleanup

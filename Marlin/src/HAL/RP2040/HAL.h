@@ -40,11 +40,38 @@
   #include "msc_sd.h"
 #endif
 
+// ADC index 4 is the MCU temperature
+#define HAL_ADC_MCU_TEMP_DUMMY_PIN 127
+#define TEMP_SOC_PIN HAL_ADC_MCU_TEMP_DUMMY_PIN   // ADC4 is internal temp sensor
+#include "temp_soc.h"
+
 //
 // Serial Ports
 //
 
 #include "MarlinSerial.h"
+
+#if !WITHIN(SERIAL_PORT, -1, 1)
+  #error "SERIAL_PORT must be from -1 to 1."
+#endif
+
+#ifdef SERIAL_PORT_2
+  #if !WITHIN(SERIAL_PORT_2, -1, 1)
+    #error "SERIAL_PORT_2 must be from -1 to 1."
+  #endif
+#endif
+
+#ifdef SERIAL_PORT_3
+  #if !WITHIN(SERIAL_PORT_3, -1, 1)
+    #error "SERIAL_PORT_3 must be from -1 to 1."
+  #endif
+#endif
+
+#ifdef LCD_SERIAL_PORT
+  #if !WITHIN(LCD_SERIAL_PORT, -1, 1)
+    #error "LCD_SERIAL_PORT must be from -1 to 1."
+  #endif
+#endif
 
 // ------------------------
 // Defines
@@ -85,8 +112,6 @@ typedef libServo hal_servo_t;
 #else
   #define HAL_ADC_RESOLUTION 12
 #endif
-// ADC index 4 is the MCU temperature
-#define HAL_ADC_MCU_TEMP_DUMMY_PIN 127
 
 //
 // Pin Mapping for M42, M43, M226
@@ -128,7 +153,7 @@ public:
 
   // Watchdog
   static void watchdog_init()    IF_DISABLED(USE_WATCHDOG, {});
-  static void watchdog_refresh() IF_DISABLED(USE_WATCHDOG, {});
+  static void watchdog_refresh(const uint8_t=0) IF_DISABLED(USE_WATCHDOG, {});
 
   static void init();          // Called early in setup()
   static void init_board() {}  // Called less early in setup()
@@ -141,7 +166,7 @@ public:
 
   static void delay_ms(const int ms) { delay(ms); }
 
-  // Tasks, called from idle()
+  // Tasks, called from marlin.idle()
   static void idletask() { TERN_(HAS_SD_HOST_DRIVE, tuh_task()); }
 
   // Reset
@@ -163,9 +188,6 @@ public:
 
   // Begin ADC sampling on the given pin. Called from Temperature::isr!
   static void adc_start(const pin_t pin);
-
-  // This ADC runs a periodic task
-  static void adc_exclusive_handler();
 
   // Is the ADC ready for reading?
   static volatile bool adc_has_result;

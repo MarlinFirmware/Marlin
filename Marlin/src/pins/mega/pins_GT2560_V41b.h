@@ -222,7 +222,7 @@
 //#define H2_11_PIN                        RESET
 #define H2_12_PIN                             18  // BEEP
 
-#define LCM_RS                                20  // Pin named and connected to 10k pull-up resistor but unused
+#define LCM_RS                                20  // Named, unused pin connected to 10k pull-up
 
 #if ENABLED(YHCB2004)
   #define YHCB2004_SS_PIN              H2_04_PIN
@@ -243,5 +243,5 @@
   #define BEEPER_PIN                   H2_12_PIN
 #elif HAS_WIRED_LCD
   #error "GT2560 V4.1b requires an adapter for common LCDs."
-  /*  Cannot use because V4.1b board has not LCD_PINS_RS wired to display connector */
+  // Can't use because V4.1b board has no LCD_PINS_RS wired to display connector
 #endif

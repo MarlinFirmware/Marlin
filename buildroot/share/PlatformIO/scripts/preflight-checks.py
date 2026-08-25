@@ -79,7 +79,7 @@ if pioutil.is_pio_build():
                     modified_text = text.replace("BOTH(", "ALL(").replace("EITHER(", "ANY(")
                     if text != modified_text:
                         conf_modified = True
-                        with open(conf_path, 'w', encoding="utf8") as file:
+                        with open(conf_path, 'w', encoding="utf8", newline='') as file:
                             file.write(modified_text)
 
         if conf_modified:
@@ -97,15 +97,21 @@ if pioutil.is_pio_build():
             for f in config_files:
                 if (p / f).is_file():
                     desc = "Redundant" if has_cfgs else "Your"
-                    err = f"ERROR: {desc} config files were found in {p}."
+                    err = f"Error: {desc} config files were found in {p}."
                     err += " Put the configs you want to use into the 'Marlin' subfolder."
                     raise SystemExit(err)
 
         if not has_cfgs:
             raise SystemExit("Error: No configuration files found! Put your config files into the 'Marlin' subfolder.")
 
-        build_env = env['PIOENV']
+        # Check for common errors in MOTHERBOARD setting
         motherboard = env['MARLIN_FEATURES']['MOTHERBOARD']
+        if motherboard.startswith("MOTHERBOARD "):
+            raise SystemExit('Error: MOTHERBOARD setting mangled by an extra instance of "MOTHERBOARD."')
+        if not motherboard.startswith("BOARD_"):
+            raise SystemExit("Error: MOTHERBOARD setting missing BOARD_ prefix.")
+
+        build_env = env['PIOENV']
         board_envs = get_envs_for_board(motherboard)
         config = env.GetProjectConfig()
         result = check_envs("env:"+build_env, board_envs, config)
@@ -149,16 +155,20 @@ if pioutil.is_pio_build():
         # Check for old files indicating an entangled Marlin (mixing old and new code)
         #
         mixedin = []
-        p = project_dir / "Marlin/src/lcd/dogm"
+        p = mpath / "src/lcd/dogm"
         for f in [ "ultralcd_DOGM.cpp", "ultralcd_DOGM.h", "u8g_dev_ssd1306_sh1106_128x64_I2C.cpp", "u8g_dev_ssd1309_12864.cpp", "u8g_dev_st7565_64128n_HAL.cpp", "u8g_dev_st7920_128x64_HAL.cpp", "u8g_dev_tft_upscale_from_128x64.cpp", "u8g_dev_uc1701_mini12864_HAL.cpp", "ultralcd_st7920_u8glib_rrd_AVR.cpp" ]:
             if (p / f).is_file():
                 mixedin += [ f ]
-        p = project_dir / "Marlin/src/feature/bedlevel/abl"
+        p = mpath / "src/feature/bedlevel/abl"
         for f in [ "abl.cpp", "abl.h" ]:
             if (p / f).is_file():
                 mixedin += [ f ]
+        f = mpath / "src/gcode/feature/pause"
+        for f in [ "G60.cpp", "G61.cpp" ]:
+            if (p / f).is_file():
+                mixedin += [ f ]
         if mixedin:
-            err = "ERROR: Old files fell into your Marlin folder. Remove %s and try again" % ", ".join(mixedin)
+            err = "Error: Old files fell into your Marlin folder. Remove %s and try again" % ", ".join(mixedin)
             raise SystemExit(err)
 
         #
@@ -169,7 +179,7 @@ if pioutil.is_pio_build():
                 if 'FILAMENT_RUNOUT_SCRIPT' in env['MARLIN_FEATURES']:
                     frs = env['MARLIN_FEATURES']['FILAMENT_RUNOUT_SCRIPT']
                     if "M600" in frs and "%c" not in frs:
-                        err = "ERROR: FILAMENT_RUNOUT_SCRIPT needs a %c parameter (e.g., \"M600 T%c\") when NUM_RUNOUT_SENSORS is > 1"
+                        err = "Error: FILAMENT_RUNOUT_SCRIPT needs a %c parameter (e.g., \"M600 T%c\") when NUM_RUNOUT_SENSORS is > 1"
                         raise SystemExit(err)
 
 

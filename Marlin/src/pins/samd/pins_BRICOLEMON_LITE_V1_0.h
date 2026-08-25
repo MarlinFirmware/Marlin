@@ -23,7 +23,7 @@
 
 /**
  * Bricolemon Lite Board. Based on atsamd51 (AGCM4), bootloader and credits by ADAFRUIT.
- * https://lemoncrest.com https://bricogeek.com
+ * https://lemoncrest.com https://tienda.bricogeek.com
  *
  * This board its a 3.3V LOGIC Board, following the ADAFRUIT example, all of the board is open source.
  * Schematic: Refer to the Bricolemon
@@ -212,7 +212,7 @@
 
 /**
  * This section starts with the pins_RAMPS_144.h as example, after if you need any new
- * display, you could use normal duponts and connect it with with the scheme showed before.
+ * display, you could use normal duponts and connect it with the scheme showed before.
  * Tested:
  *   - Ender-3 Old display (Character LCD)
  *   - Ender-3 New Serial DWING Display

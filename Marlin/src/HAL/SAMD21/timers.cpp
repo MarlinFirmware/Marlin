@@ -165,7 +165,7 @@ void HAL_timer_start(const uint8_t timer_num, const uint32_t frequency) {
     tc->COUNT32.INTENCLR.reg = TC_INTENCLR_OVF; // disable overflow interrupt
 
     // TCn clock setup
-    GCLK->CLKCTRL.reg = (uint16_t) (GCLK_CLKCTRL_CLKEN | GCLK_CLKCTRL_GEN_GCLK0  | GCLK_CLKCTRL_ID(GCM_TC4_TC5)) ;
+    GCLK->CLKCTRL.reg = uint16_t(GCLK_CLKCTRL_CLKEN | GCLK_CLKCTRL_GEN_GCLK0  | GCLK_CLKCTRL_ID(GCM_TC4_TC5));
     SYNC (GCLK->STATUS.bit.SYNCBUSY);
 
     tcReset(tc); // reset TC
