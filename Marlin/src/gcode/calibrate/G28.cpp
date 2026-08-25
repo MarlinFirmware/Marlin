@@ -105,7 +105,26 @@
       };
     #endif
 
-    motion.blocking_move_xy(1.5 * motion.max_axis_length(X_AXIS) * x_axis_home_dir, 1.5 * motion.max_axis_length(Y_AXIS) * Y_HOME_DIR, fr_mm_s);
+    // SCARA should move in angular coordinates
+    #if IS_SCARA
+      // This code is similar to Motion::do_homing_move, but for two axes at once
+
+      #if HAS_DIST_MM_ARG
+        const xyze_float_t cart_dist_mm{0};
+      #endif
+
+      abce_pos_t target = planner.get_axis_positions_mm();
+
+      target[X_AXIS] += 360 * x_axis_home_dir; // Move 360 degrees towards the endstop
+      target[Y_AXIS] += 360 * Y_HOME_DIR;      // Move 360 degrees towards the endstop
+      planner.buffer_segment(target OPTARG(HAS_DIST_MM_ARG, cart_dist_mm), fr_mm_s, motion.extruder);
+      planner.synchronize();
+
+    #else
+
+      motion.blocking_move_xy(1.5 * motion.max_axis_length(X_AXIS) * x_axis_home_dir, 1.5 * motion.max_axis_length(Y_AXIS) * Y_HOME_DIR, fr_mm_s);
+
+    #endif
 
     endstops.validate_homing_move();
 
@@ -291,6 +310,11 @@ void GcodeSuite::G28() {
     // Potentially disable Fixed-Time Motion for homing
     TERN_(FT_MOTION, FTM_DISABLE_IN_SCOPE());
 
+    #if ENABLED(CNC_COORDINATE_SYSTEMS)
+      const int8_t old_coordinate_system = active_coordinate_system;
+      (void)select_coordinate_system(-1);
+    #endif
+
     // Always home with tool 0 active
     #if HAS_MULTI_HOTEND
       #if DISABLED(DELTA) || ENABLED(DELTA_HOME_TO_SAFE_ZONE)
@@ -418,6 +442,11 @@ void GcodeSuite::G28() {
           #if ENABLED(DUAL_X_CARRIAGE)
             motion.idex_home_x();
           #else
+
+            #if ENABLED(SCARA) && DISABLED(HOME_Y_BEFORE_X)
+              DISABLE_AXIS_Y(); // Allow elbow to be dragged around freely during shoulder homing
+            #endif
+
             motion.homeaxis(X_AXIS);
           #endif
         }
@@ -531,6 +560,9 @@ void GcodeSuite::G28() {
     #endif
 
     motion.restore_feedrate_and_scaling();
+
+    // Reload workspace offsets
+    TERN_(CNC_COORDINATE_SYSTEMS, (void)select_coordinate_system(old_coordinate_system));
 
     if (ENABLED(NANODLP_Z_SYNC) && (ENABLED(NANODLP_ALL_AXIS) || TERN0(HAS_Z_AXIS, doZ)))
       SERIAL_ECHOLNPGM(STR_Z_MOVE_COMP);

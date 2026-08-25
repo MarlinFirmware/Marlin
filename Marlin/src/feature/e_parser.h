@@ -43,7 +43,7 @@ public:
     #if HAS_MEDIA
       EP_M5, EP_M52, EP_M524,
     #endif
-    #if ENABLED(FTM_RESONANCE_TEST)
+    #if ENABLED(RESONANCE_TEST)
       EP_M49, EP_M496,
     #endif
     #if ENABLED(EP_BABYSTEPPING)
@@ -67,7 +67,7 @@ public:
   static bool killed_by_M112;
   static bool quickstop_by_M410;
 
-  #if ENABLED(FTM_RESONANCE_TEST)
+  #if ENABLED(RESONANCE_TEST)
     static bool rt_stop_by_M496;
   #endif
 

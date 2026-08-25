@@ -53,10 +53,11 @@
  *
  *   L<index>  Load UBL mesh from index (0 is default)
  *   T<map>    0:Human-readable 1:CSV 2:"LCD" 4:Compact
+ *   C<offset> Adjust Mesh To Mean (and subtract the given offset)
  *
  * With mesh-based leveling only:
  *
- *   C         Center mesh on the mean of the lowest and highest
+ *   C<offset> Center Mesh on the Midrange (and subtract the given offset)
  *
  * With MARLIN_DEV_MODE:
  *   S2        Create a simple random mesh and enable
@@ -82,11 +83,7 @@ void GcodeSuite::M420() {
       }
       TERN_(AUTO_BED_LEVELING_BILINEAR, bedlevel.refresh_bed_level());
       SERIAL_ECHOPGM("Simulated " STRINGIFY(GRID_MAX_POINTS_X) "x" STRINGIFY(GRID_MAX_POINTS_Y) " mesh ");
-      SERIAL_ECHOPGM(" (", x_min);
-      SERIAL_CHAR(','); SERIAL_ECHO(y_min);
-      SERIAL_ECHOPGM(")-(", x_max);
-      SERIAL_CHAR(','); SERIAL_ECHO(y_max);
-      SERIAL_ECHOLNPGM(")");
+      SERIAL_ECHOLN(F(" ("), x_min, C(','), y_min, F(")-("), x_max, C(','), y_max, C(')'));
     }
   #endif
 
@@ -96,14 +93,18 @@ void GcodeSuite::M420() {
   // (Don't disable for just M420 or M420 V)
   if (seen_S && !to_enable) set_bed_leveling_enabled(false);
 
+  const bool seenV = parser.seen_test('V');
+
   #if ENABLED(AUTO_BED_LEVELING_UBL)
 
     // L to load a mesh from the EEPROM
-    if (parser.seen('L')) {
+    const bool seenL = parser.seen('L');
+    if (seenL) {
 
-      set_bed_leveling_enabled(false);
+      #if HAS_MESH_STORAGE
 
-      #if ENABLED(EEPROM_SETTINGS)
+        set_bed_leveling_enabled(false);
+
         const int8_t storage_slot = parser.has_value() ? parser.value_int() : bedlevel.storage_slot;
         const int16_t a = settings.calc_num_meshes();
 
@@ -129,22 +130,21 @@ void GcodeSuite::M420() {
     }
 
     // L or V display the map info
-    if (parser.seen("LV")) {
+    if (seenL || seenV) {
       bedlevel.display_map(parser.byteval('T'));
-      SERIAL_ECHOPGM("Mesh is ");
-      if (!bedlevel.mesh_is_valid()) SERIAL_ECHOPGM("in");
-      SERIAL_ECHOLNPGM("valid\nStorage slot: ", bedlevel.storage_slot);
+      SERIAL_ECHO_TERNARY(bedlevel.mesh_is_valid(), "Mesh is ", "", "in", "valid\n");
+      #if HAS_MESH_STORAGE
+        SERIAL_ECHOLNPGM("Storage slot: ", bedlevel.storage_slot);
+      #endif
     }
 
   #endif // AUTO_BED_LEVELING_UBL
-
-  const bool seenV = parser.seen_test('V');
 
   #if HAS_MESH
 
     if (leveling_is_valid()) {
 
-      // Subtract the given value or the mean from all mesh values
+      // Re-center the mesh Z values around the midrange (or mean), plus any given offset
       if (parser.seen('C')) {
         const float cval = parser.value_float();
         #if ENABLED(AUTO_BED_LEVELING_UBL)
@@ -159,7 +159,7 @@ void GcodeSuite::M420() {
             // Get the sum and average of all mesh values
             float mesh_sum = 0;
             GRID_LOOP(x, y) mesh_sum += bedlevel.z_values[x][y];
-            const float zmean = mesh_sum / float(GRID_MAX_POINTS);
+            const float zmean = mesh_sum / float(GRID_MAX_POINTS) + cval;
 
           #else // midrange
 
