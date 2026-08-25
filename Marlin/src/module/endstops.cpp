@@ -323,29 +323,20 @@ void Endstops::event_handler() {
       if (TERN0(HAS_##A##_MIN_STATE, TEST(hit_state, ES_ENUM(A,MIN))) || TERN0(HAS_##A##_MAX_STATE, TEST(hit_state, ES_ENUM(A,MAX)))) \
         _ENDSTOP_HIT_ECHO(A,C)
 
-    #define ENDSTOP_HIT_TEST_X() _ENDSTOP_HIT_TEST(X,'X')
-    #define ENDSTOP_HIT_TEST_Y() _ENDSTOP_HIT_TEST(Y,'Y')
-    #define ENDSTOP_HIT_TEST_Z() _ENDSTOP_HIT_TEST(Z,'Z')
-    #define ENDSTOP_HIT_TEST_I() _ENDSTOP_HIT_TEST(I,'I')
-    #define ENDSTOP_HIT_TEST_J() _ENDSTOP_HIT_TEST(J,'J')
-    #define ENDSTOP_HIT_TEST_K() _ENDSTOP_HIT_TEST(K,'K')
-    #define ENDSTOP_HIT_TEST_U() _ENDSTOP_HIT_TEST(U,'U')
-    #define ENDSTOP_HIT_TEST_V() _ENDSTOP_HIT_TEST(V,'V')
-    #define ENDSTOP_HIT_TEST_W() _ENDSTOP_HIT_TEST(W,'W')
+    #define ENDSTOP_ARGS_X  X,'X'
+    #define ENDSTOP_ARGS_Y  Y,'Y'
+    #define ENDSTOP_ARGS_Z  Z,'Z'
+    #define ENDSTOP_ARGS_I  I,'I'
+    #define ENDSTOP_ARGS_J  J,'J'
+    #define ENDSTOP_ARGS_K  K,'K'
+    #define ENDSTOP_ARGS_U  U,'U'
+    #define ENDSTOP_ARGS_V  V,'V'
+    #define ENDSTOP_ARGS_W  W,'W'
+    #define _ES_HIT_TEST(A) _ENDSTOP_HIT_TEST(ENDSTOP_ARGS_##A);
 
     SERIAL_ECHO_START();
     SERIAL_ECHOPGM(STR_ENDSTOPS_HIT);
-    NUM_AXIS_CODE(
-       ENDSTOP_HIT_TEST_X(),
-       ENDSTOP_HIT_TEST_Y(),
-       ENDSTOP_HIT_TEST_Z(),
-      _ENDSTOP_HIT_TEST(I,'I'),
-      _ENDSTOP_HIT_TEST(J,'J'),
-      _ENDSTOP_HIT_TEST(K,'K'),
-      _ENDSTOP_HIT_TEST(U,'U'),
-      _ENDSTOP_HIT_TEST(V,'V'),
-      _ENDSTOP_HIT_TEST(W,'W')
-    );
+    MAIN_AXIS_MAP(_ES_HIT_TEST);
 
     #if USE_Z_MIN_PROBE
       #define P_AXIS Z_AXIS
@@ -361,38 +352,19 @@ void Endstops::event_handler() {
       );
     #endif
 
-    #define _AX_ENUM(A) A##_AXIS
-    #define AX_ENUM(A) _AX_ENUM(A)
-
-    #define _AX_MAX_EHS(A) A##_MAX_ENDSTOP_HIT_STATE
-    #define AX_MAX_EHS(A) _AX_MAX_EHS(A)
-
-    #define _AX_MIN_EHS(A) A##_MIN_ENDSTOP_HIT_STATE
-    #define AX_MIN_EHS(A) _AX_MIN_EHS(A)
-
-    #define ENDSTOP_SET_POS(A) do { \
+    #define _ENDSTOP_SET_POS(A) do { \
       if (TERN0(HAS_##A##_MIN_STATE, TEST(hit_state, ES_ENUM(A,MIN)))) { \
-        motion.position[AX_ENUM(A)] = motion.base_min_pos(AX_ENUM(A)); \
-        motion.destination[AX_ENUM(A)] = motion.position[AX_ENUM(A)];  \
+        motion.position[_AXIS(A)] = motion.base_min_pos(_AXIS(A)); \
+        motion.destination[_AXIS(A)] = motion.position[_AXIS(A)];  \
       } \
       if (TERN0(HAS_##A##_MAX_STATE, TEST(hit_state, ES_ENUM(A,MAX)))) { \
-        motion.position[AX_ENUM(A)] = motion.base_max_pos(AX_ENUM(A)) + (TERN0(HAS_TOOL_CENTERPOINT_CONTROL, motion.tool_centerpoint_control) || TERN1(HAS_TOOL_LENGTH_COMPENSATION, motion.simple_tool_length_compensation)) ? motion.hotend_offset[motion.extruder][AX_ENUM(A)] : 0.0f; \
-        motion.destination[AX_ENUM(A)] = motion.position[AX_ENUM(A)]; \
+        motion.position[_AXIS(A)] = motion.base_max_pos(_AXIS(A)) + (TERN0(HAS_TOOL_CENTERPOINT_CONTROL, motion.tool_centerpoint_control) || TERN1(HAS_TOOL_LENGTH_COMPENSATION, motion.simple_tool_length_compensation)) ? motion.hotend_offset[motion.extruder][_AXIS(A)] : 0.0f; \
+        motion.destination[_AXIS(A)] = motion.position[_AXIS(A)]; \
       } \
     } while(0);
 
     if (abort_enabled()) {
-      NUM_AXIS_CODE(
-        ENDSTOP_SET_POS(X),
-        ENDSTOP_SET_POS(Y),
-        ENDSTOP_SET_POS(Z),
-        ENDSTOP_SET_POS(I),
-        ENDSTOP_SET_POS(J),
-        ENDSTOP_SET_POS(K),
-        ENDSTOP_SET_POS(U),
-        ENDSTOP_SET_POS(V),
-        ENDSTOP_SET_POS(W)
-      );
+      LOGICAL_AXIS_MAP(_ENDSTOP_SET_POS);
       if (TERN0(HAS_Z_MAX_STATE, TEST(hit_state, ES_ENUM(Z,MAX)))){
         if (TERN0(HAS_TOOL_CENTERPOINT_CONTROL, motion.tool_centerpoint_control) || TERN1(HAS_TOOL_LENGTH_COMPENSATION, motion.simple_tool_length_compensation)) {
           motion.position.z = (Z_MAX_POS) + motion.hotend_offset[motion.extruder].z;
@@ -404,7 +376,7 @@ void Endstops::event_handler() {
       }
       motion.sync_plan_position();
     }
-  
+
     #if ENABLED(SD_ABORT_ON_ENDSTOP_HIT)
       if (planner.abort_on_endstop_hit) {
         card.abortFilePrintNow();
