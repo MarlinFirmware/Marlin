@@ -1243,8 +1243,8 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
     const uint8_t old_tool = motion.extruder;
     const bool can_move_away = !no_move && !idex_full_control;
 
-    #if ENABLED(AUTO_BED_LEVELING_UBL)
-      // Workaround for UBL mesh boundary, possibly?
+    #if ENABLED(AUTO_BED_LEVELING_UBL) || (HAS_LEVELING && HAS_HOTEND_OFFSET)
+      // Workaround for UBL mesh boundary, possibly, and for differences in XY hotend offsets.
       TEMPORARY_BED_LEVELING_STATE(false);
     #endif
 
