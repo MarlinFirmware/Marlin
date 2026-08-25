@@ -44,8 +44,29 @@ uint8_t ControllerFan::speed;
 
 void ControllerFan::setup() {
   SET_OUTPUT(CONTROLLER_FAN_PIN);
-  #ifdef CONTROLLER_FAN2_PIN
+  #if PIN_EXISTS(CONTROLLER_FAN2)
     SET_OUTPUT(CONTROLLER_FAN2_PIN);
+  #endif
+  #if PIN_EXISTS(CONTROLLER_FAN3)
+    SET_OUTPUT(CONTROLLER_FAN3_PIN);
+  #endif
+  #if PIN_EXISTS(CONTROLLER_FAN4)
+    SET_OUTPUT(CONTROLLER_FAN4_PIN);
+  #endif
+  #if PIN_EXISTS(CONTROLLER_FAN5)
+    SET_OUTPUT(CONTROLLER_FAN5_PIN);
+  #endif
+  #if PIN_EXISTS(CONTROLLER_FAN6)
+    SET_OUTPUT(CONTROLLER_FAN6_PIN);
+  #endif
+  #if PIN_EXISTS(CONTROLLER_FAN7)
+    SET_OUTPUT(CONTROLLER_FAN7_PIN);
+  #endif
+  #if PIN_EXISTS(CONTROLLER_FAN8)
+    SET_OUTPUT(CONTROLLER_FAN8_PIN);
+  #endif
+  #if PIN_EXISTS(CONTROLLER_FAN9)
+    SET_OUTPUT(CONTROLLER_FAN9_PIN);
   #endif
   init();
 }
@@ -107,19 +128,38 @@ void ControllerFan::update() {
         fan_kick_end = 0;
     #endif
 
-    #if ENABLED(FAN_SOFT_PWM)
-      soft_pwm_speed = speed;
-    #else
-      if (PWM_PIN(CONTROLLER_FAN_PIN))
-        hal.set_pwm_duty(pin_t(CONTROLLER_FAN_PIN), speed);
-      else
-        WRITE(CONTROLLER_FAN_PIN, speed > 0);
+    #define SET_CONTROLLER_FAN(N) do { \
+      if (PWM_PIN(CONTROLLER_FAN##N##_PIN)) hal.set_pwm_duty(pin_t(CONTROLLER_FAN##N##_PIN), speed); \
+      else WRITE(CONTROLLER_FAN##N##_PIN, speed > 0);\
+    } while (0)
 
-      #ifdef CONTROLLER_FAN2_PIN
-        if (PWM_PIN(CONTROLLER_FAN2_PIN))
-          hal.set_pwm_duty(pin_t(CONTROLLER_FAN2_PIN), speed);
-        else
-          WRITE(CONTROLLER_FAN2_PIN, speed > 0);
+    #if ENABLED(FAN_SOFT_PWM)
+      soft_pwm_speed = speed >> 1;   // Controller Fan Soft PWM uses 0-127 as 0-100% so cut the 0-255 range in half.
+    #else
+      SET_CONTROLLER_FAN();
+      #if PIN_EXISTS(CONTROLLER_FAN2)
+        SET_CONTROLLER_FAN(2);
+      #endif
+      #if PIN_EXISTS(CONTROLLER_FAN3)
+        SET_CONTROLLER_FAN(3);
+      #endif
+      #if PIN_EXISTS(CONTROLLER_FAN4)
+        SET_CONTROLLER_FAN(4);
+      #endif
+      #if PIN_EXISTS(CONTROLLER_FAN5)
+        SET_CONTROLLER_FAN(5);
+      #endif
+      #if PIN_EXISTS(CONTROLLER_FAN6)
+        SET_CONTROLLER_FAN(6);
+      #endif
+      #if PIN_EXISTS(CONTROLLER_FAN7)
+        SET_CONTROLLER_FAN(7);
+      #endif
+      #if PIN_EXISTS(CONTROLLER_FAN8)
+        SET_CONTROLLER_FAN(8);
+      #endif
+      #if PIN_EXISTS(CONTROLLER_FAN9)
+        SET_CONTROLLER_FAN(9);
       #endif
     #endif
   }

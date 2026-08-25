@@ -31,6 +31,10 @@
 // Warnings! Located here so they will appear just once in the build output.
 //
 
+#if __cplusplus < 201703L
+  #warning "This build does not have access to >= c++17 features."
+#endif
+
 // static_warning works like a static_assert but only emits a (messy) warning.
 #ifdef __GNUC__
   namespace mfwarn {
@@ -112,6 +116,10 @@
 #endif
 #if ANY_THERMISTOR_IS(998) || ANY_THERMISTOR_IS(999)
   #warning "Warning! Don't use dummy thermistors (998/999) for final build!"
+#endif
+
+#if ANY_THERMISTOR_IS(-18)
+  #warning "ADS1118 support (-18) is in development"
 #endif
 
 #if NONE(HAS_RESUME_CONTINUE, HOST_PROMPT_SUPPORT, UNIT_TEST, NO_USER_FEEDBACK_WARNING)
@@ -724,6 +732,10 @@
   #warning "BIQU MicroProbe V2 detect signal requires a strong pull-up. Some processors have weak internal pull-up capabilities, so we recommended connecting MicroProbe SIGNAL / GND to Z-MIN / Z-STOP instead of the dedicated PROBE port. (Define NO_MICROPROBE_WARNING to suppress this warning.)"
 #endif
 
+#if PROBE_WAKEUP_TIME_WARNING
+  #warning "PROBE_WAKEUP_TIME_MS has been set to the default 30ms."
+#endif
+
 //
 // Warn users of potential endstop/DIAG pin conflicts to prevent homing issues when not using sensorless homing
 //
@@ -791,7 +803,7 @@
 
 #if ANY(FYSETC_MINI_12864_1_2, FYSETC_MINI_12864_2_0) && DISABLED(RGB_LED)
   #warning "Your FYSETC Mini Panel works best with RGB_LED."
-#elif ANY(FYSETC_MINI_12864_2_0, FYSETC_MINI_12864_2_1) && DISABLED(LED_USER_PRESET_STARTUP)
+#elif ENABLED(FYSETC_MINI_12864_2_0) && DISABLED(LED_USER_PRESET_STARTUP)
   #warning "Your FYSETC/MKS/BTT/BEEZ Mini Panel works best with LED_USER_PRESET_STARTUP."
 #endif
 
@@ -920,10 +932,39 @@
 #endif
 
 /**
+ * Delay for probes that need time to boot up when enabled
+ */
+#if defined(DELAY_BEFORE_PROBING) && DELAY_BEFORE_PROBING < 25
+  #warning "The actual DELAY_BEFORE_PROBING will be the minimum 25 ms. Leave DELAY_BEFORE_PROBING disabled to use the minimum."
+#endif
+
+/**
  * Fixed-Time Motion
  */
-#if ALL(FT_MOTION, I2S_STEPPER_STREAM)
-  #warning "FT_MOTION has not been tested with I2S_STEPPER_STREAM."
+#if ENABLED(FT_MOTION)
+  #if ENABLED(I2S_STEPPER_STREAM)
+    #warning "FT_MOTION has not been tested with I2S_STEPPER_STREAM."
+  #endif
+  #if ENABLED(LIN_ADVANCE)
+    #warning "Be aware that FT_MOTION K factor is now set with M900 K (same as LIN_ADVANCE)."
+    #if DISABLED(FTM_SMOOTHING)
+      #warning "For higher print quality enable FTM_SMOOTHING with FTM_SMOOTHING_TIME_E to tame Linear Advance accelerations."
+    #endif
+  #endif
+  #if DISABLED(FTM_SHAPER_E)
+    #warning "For higher print quality enable FTM_SHAPER_E (even if shaper is NONE) to allow axis synchronization."
+  #endif
+#endif
+#if ENABLED(FTM_HOME_AND_PROBE)
+  #if ANY(BIQU_MICROPROBE_V1, BIQU_MICROPROBE_V2)
+    #warning "Let us know if you experience any issues with BIQU Microprobe and FT_MOTION."
+    #if PROBE_WAKEUP_TIME_MS <= 25
+      #warning "A PROBE_WAKEUP_TIME_MS over 25 ms is recommended with FT_MOTION and BIQU_MICROPROBE_V1 or BIQU_MICROPROBE_V2."
+    #endif
+  #endif
+  #if PROBE_WAKEUP_TIME_MS < 30
+    #warning "A PROBE_WAKEUP_TIME_MS over 30 ms is recommended with FT_MOTION."
+  #endif
 #endif
 
 /**
@@ -950,8 +991,25 @@
 /**
  * Smooth Linear Advance with Mixing Extruder, S-Curve Acceleration
  */
-#if ENABLED(SMOOTH_LIN_ADVANCE)
-  #if ENABLED(MIXING_EXTRUDER)
-    #warning "SMOOTH_LIN_ADVANCE with MIXING_EXTRUDER is untested. Use with caution."
-  #endif
+#if ALL(SMOOTH_LIN_ADVANCE, MIXING_EXTRUDER)
+  #warning "SMOOTH_LIN_ADVANCE with MIXING_EXTRUDER is untested. Use with caution."
+#endif
+
+/**
+ * Some LCDs need re-init to deal with flaky SPI bus sharing
+ */
+#if HAS_SD_DETECT && NONE(HAS_GRAPHICAL_TFT, LCD_USE_DMA_FSMC, HAS_FSMC_GRAPHICAL_TFT, HAS_SPI_GRAPHICAL_TFT, IS_DWIN_MARLINUI, EXTENSIBLE_UI, HAS_DWIN_E3V2, HAS_U8GLIB_I2C_OLED)
+  #define RECOMMEND_REINIT_NOISY_LCD 1
+#endif
+#if RECOMMEND_REINIT_NOISY_LCD && DISABLED(REINIT_NOISY_LCD)
+  #warning "It is recommended to enable REINIT_NOISY_LCD with your LCD controller model."
+#elif !RECOMMEND_REINIT_NOISY_LCD && ENABLED(REINIT_NOISY_LCD)
+  #warning "REINIT_NOISY_LCD is probably not required with your LCD controller model."
+#endif
+
+/**
+ * FREEZE_FEATURE may override the KILL_PIN
+ */
+#if FREEZE_STOLE_KILL_PIN_WARNING
+  #warning "FREEZE_FEATURE uses KILL_PIN replacing the KILL button. Define a separate FREEZE_PIN if you don't want this behavior."
 #endif

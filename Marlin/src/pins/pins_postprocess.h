@@ -479,6 +479,72 @@
 #ifndef FAN2_PIN
   #define FAN2_PIN -1
 #endif
+#ifndef FAN3_PIN
+  #define FAN3_PIN -1
+#endif
+#ifndef FAN4_PIN
+  #define FAN4_PIN -1
+#endif
+#ifndef FAN5_PIN
+  #define FAN5_PIN -1
+#endif
+#ifndef FAN6_PIN
+  #define FAN6_PIN -1
+#endif
+#ifndef FAN7_PIN
+  #define FAN7_PIN -1
+#endif
+#ifndef FAN8_PIN
+  #define FAN8_PIN -1
+#endif
+#ifndef FAN9_PIN
+  #define FAN9_PIN -1
+#endif
+#ifndef FAN10_PIN
+  #define FAN10_PIN -1
+#endif
+#ifndef FAN11_PIN
+  #define FAN11_PIN -1
+#endif
+
+// Part cooling fan pin defaults - allows remapping fans to different pins
+#ifndef PART_COOLING_FAN0_PIN
+  #define PART_COOLING_FAN0_PIN FAN0_PIN
+#endif
+#ifndef PART_COOLING_FAN1_PIN
+  #define PART_COOLING_FAN1_PIN FAN1_PIN
+#endif
+#ifndef PART_COOLING_FAN2_PIN
+  #define PART_COOLING_FAN2_PIN FAN2_PIN
+#endif
+#ifndef PART_COOLING_FAN3_PIN
+  #define PART_COOLING_FAN3_PIN FAN3_PIN
+#endif
+#ifndef PART_COOLING_FAN4_PIN
+  #define PART_COOLING_FAN4_PIN FAN4_PIN
+#endif
+#ifndef PART_COOLING_FAN5_PIN
+  #define PART_COOLING_FAN5_PIN FAN5_PIN
+#endif
+#ifndef PART_COOLING_FAN6_PIN
+  #define PART_COOLING_FAN6_PIN FAN6_PIN
+#endif
+#ifndef PART_COOLING_FAN7_PIN
+  #define PART_COOLING_FAN7_PIN FAN7_PIN
+#endif
+#ifndef PART_COOLING_FAN8_PIN
+  #define PART_COOLING_FAN8_PIN FAN8_PIN
+#endif
+#ifndef PART_COOLING_FAN9_PIN
+  #define PART_COOLING_FAN9_PIN FAN9_PIN
+#endif
+#ifndef PART_COOLING_FAN10_PIN
+  #define PART_COOLING_FAN10_PIN FAN10_PIN
+#endif
+#ifndef PART_COOLING_FAN11_PIN
+  #define PART_COOLING_FAN11_PIN FAN11_PIN
+#endif
+
 #ifndef CONTROLLER_FAN_PIN
   #define CONTROLLER_FAN_PIN  -1
 #endif
@@ -629,7 +695,7 @@
 //
 
 #if HAS_X_AXIS
-  #ifdef X_STOP_PIN
+  #if PIN_EXISTS(X_STOP)
     #if X_HOME_TO_MIN
       #define X_MIN_PIN X_STOP_PIN
     #elif X_HOME_TO_MAX
@@ -657,7 +723,7 @@
 #endif
 
 #if HAS_Y_AXIS
-  #ifdef Y_STOP_PIN
+  #if PIN_EXISTS(Y_STOP)
     #if Y_HOME_TO_MIN
       #define Y_MIN_PIN Y_STOP_PIN
     #elif Y_HOME_TO_MAX
@@ -685,7 +751,7 @@
 #endif
 
 #if HAS_Z_AXIS
-  #ifdef Z_STOP_PIN
+  #if PIN_EXISTS(Z_STOP)
     #if Z_HOME_TO_MIN
       #define Z_MIN_PIN Z_STOP_PIN
     #elif Z_HOME_TO_MAX
@@ -716,7 +782,7 @@
 #endif
 
 #if HAS_I_AXIS
-  #ifdef I_STOP_PIN
+  #if PIN_EXISTS(I_STOP)
     #if I_HOME_TO_MIN
       #define I_MIN_PIN I_STOP_PIN
     #elif I_HOME_TO_MAX
@@ -730,7 +796,7 @@
 #endif
 
 #if HAS_J_AXIS
-  #ifdef J_STOP_PIN
+  #if PIN_EXISTS(J_STOP)
     #if J_HOME_TO_MIN
       #define J_MIN_PIN J_STOP_PIN
     #elif J_HOME_TO_MAX
@@ -744,7 +810,7 @@
 #endif
 
 #if HAS_K_AXIS
-  #ifdef K_STOP_PIN
+  #if PIN_EXISTS(K_STOP)
     #if K_HOME_TO_MIN
       #define K_MIN_PIN K_STOP_PIN
     #elif K_HOME_TO_MAX
@@ -758,7 +824,7 @@
 #endif
 
 #if HAS_U_AXIS
-  #ifdef U_STOP_PIN
+  #if PIN_EXISTS(U_STOP)
     #if U_HOME_TO_MIN
       #define U_MIN_PIN U_STOP_PIN
     #elif U_HOME_TO_MAX
@@ -772,7 +838,7 @@
 #endif
 
 #if HAS_V_AXIS
-  #ifdef V_STOP_PIN
+  #if PIN_EXISTS(V_STOP)
     #if V_HOME_TO_MIN
       #define V_MIN_PIN V_STOP_PIN
     #elif V_HOME_TO_MAX
@@ -786,7 +852,7 @@
 #endif
 
 #if HAS_W_AXIS
-  #ifdef W_STOP_PIN
+  #if PIN_EXISTS(W_STOP)
     #if W_HOME_TO_MIN
       #define W_MIN_PIN W_STOP_PIN
     #elif W_HOME_TO_MAX
@@ -1871,9 +1937,9 @@
 
 // Get a NeoPixel pin from the LCD or board, if provided
 #ifndef NEOPIXEL_PIN
-  #ifdef LCD_NEOPIXEL_PIN
+  #if PIN_EXISTS(LCD_NEOPIXEL)
     #define NEOPIXEL_PIN LCD_NEOPIXEL_PIN
-  #elif defined(BOARD_NEOPIXEL_PIN)
+  #elif PIN_EXISTS(BOARD_NEOPIXEL)
     #define NEOPIXEL_PIN BOARD_NEOPIXEL_PIN
   #endif
 #endif

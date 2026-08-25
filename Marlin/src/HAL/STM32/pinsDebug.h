@@ -136,10 +136,8 @@ const XrefInfo pin_xref[] PROGMEM = {
 #define printPinNumber(Q)
 #define printPinAnalog(P) do{ sprintf_P(buffer, PSTR(" (A%2d)  "), digitalPinToAnalogIndex(P)); SERIAL_ECHO(buffer); }while(0)
 #define digitalPinToAnalogIndex(P) -1  // will report analog pin number in the print port routine
-
-// x is a variable used to search pin_array
-#define getPinIsDigitalByIndex(x) ((bool) pin_array[x].is_digital)
-#define getPinByIndex(x) ((pin_t) pin_array[x].pin)
+#define getPinIsDigitalByIndex(x) bool(pin_array[x].is_digital)
+#define getPinByIndex(x) pin_t(pin_array[x].pin)
 #define printPinNameByIndex(x) do{ sprintf_P(buffer, PSTR("%-" STRINGIFY(MAX_NAME_LENGTH) "s"), pin_array[x].name); SERIAL_ECHO(buffer); }while(0)
 #define MULTI_NAME_PAD 33 // space needed to be pretty if not first name assigned to a pin
 
@@ -150,7 +148,7 @@ const XrefInfo pin_xref[] PROGMEM = {
 
 #ifndef M43_NEVER_TOUCH
   #define _M43_NEVER_TOUCH(x) WITHIN(x, 9, 12) // SERIAL/USB pins: PA9(TX) PA10(RX) PA11(USB_DM) PA12(USB_DP)
-  #ifdef KILL_PIN
+  #if PIN_EXISTS(KILL)
     #define M43_NEVER_TOUCH(x) m43_never_touch(x)
 
     bool m43_never_touch(const pin_t index) {
@@ -229,8 +227,7 @@ void printPinPort(const pin_t pin) {
     calc_p -= NUM_ANALOG_FIRST;
     if (calc_p > 7) calc_p += 8;
   }
-  SERIAL_ECHOPGM(" M42 P", calc_p);
-  SERIAL_CHAR(' ');
+  SERIAL_ECHO(F(" M42 P"), calc_p, C(' '));
   if (calc_p < 100) {
     SERIAL_CHAR(' ');
     if (calc_p <  10)

@@ -28,12 +28,15 @@
 #include "../../../feature/mixing.h"
 
 /**
- * M163: Set a single mix factor for a mixing extruder
- *       This is called "weight" by some systems.
- *       Must be followed by M164 to normalize and commit them.
+ * M163: Set Mix Factor
  *
- *   S[index]   The channel index to set
- *   P[float]   The mix value
+ * Set a single mix factor for a mixing extruder
+ * This is called "weight" by some systems.
+ * Must be followed by M164 to normalize and commit them.
+ *
+ * Parameters:
+ *   S<index>  The channel index to set
+ *   P<float>  The mix value
  */
 void GcodeSuite::M163() {
   const int mix_index = parser.intval('S');
@@ -42,10 +45,13 @@ void GcodeSuite::M163() {
 }
 
 /**
- * M164: Normalize and commit the mix.
+ * M164: Save Mix
  *
- *   S[index]   The virtual tool to store
- *              If 'S' is omitted update the active virtual tool.
+ * Normalize and commit the mix.
+ *
+ * Parameters:
+ *   S<index>  The virtual tool to store
+ *             If 'S' is omitted update the active virtual tool.
  */
 void GcodeSuite::M164() {
   #if MIXING_VIRTUAL_TOOLS > 1
@@ -64,16 +70,19 @@ void GcodeSuite::M164() {
 #if ENABLED(DIRECT_MIXING_IN_G1)
 
   /**
-   * M165: Set multiple mix factors for a mixing extruder.
-   *       Omitted factors will be set to 0.
-   *       The mix is normalized and stored in the current virtual tool.
+   * M165: Set Mix
    *
-   *   A[factor] Mix factor for extruder stepper 1
-   *   B[factor] Mix factor for extruder stepper 2
-   *   C[factor] Mix factor for extruder stepper 3
-   *   D[factor] Mix factor for extruder stepper 4
-   *   H[factor] Mix factor for extruder stepper 5
-   *   I[factor] Mix factor for extruder stepper 6
+   *  Set multiple mix factors for a mixing extruder.
+   *  Omitted factors will be set to 0.
+   *  The mix is normalized and stored in the current virtual tool.
+   *
+   * Parameters:
+   *   A<factor>  Mix factor for extruder stepper 1
+   *   B<factor>  Mix factor for extruder stepper 2
+   *   C<factor>  Mix factor for extruder stepper 3
+   *   D<factor>  Mix factor for extruder stepper 4
+   *   H<factor>  Mix factor for extruder stepper 5
+   *   I<factor>  Mix factor for extruder stepper 6
    */
   void GcodeSuite::M165() {
     // Get mixing parameters from the G-Code

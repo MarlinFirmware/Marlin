@@ -105,13 +105,21 @@
   #endif
 #endif
 
-#if !(ANY(HAS_BED_PROBE, BACKLASH_GCODE) || (ENABLED(EXTENSIBLE_UI) && ANY(MESH_BED_LEVELING, AUTO_BED_LEVELING_UBL)))
+#if HAS_BED_PROBE
+  #ifndef Z_PROBE_FEEDRATE_SLOW
+    #define Z_PROBE_FEEDRATE_SLOW (4*60)
+  #endif
+  #ifndef Z_PROBE_FEEDRATE_FAST
+    #define Z_PROBE_FEEDRATE_FAST (Z_PROBE_FEEDRATE_SLOW / 2)
+  #endif
+#elif !(ANY(HAS_BED_PROBE, BACKLASH_GCODE) || ALL(EXTENSIBLE_UI, HAS_MESH))
   #undef Z_PROBE_FEEDRATE_FAST
   #undef Z_PROBE_FEEDRATE_SLOW
 #endif
 #if !HAS_BED_PROBE
   #undef BABYSTEP_ZPROBE_OFFSET
   #undef PROBING_USE_CURRENT_HOME
+  #undef FTM_HOME_AND_PROBE
 #endif
 #if !HAS_STOWABLE_PROBE
   #undef PROBE_DEPLOY_STOW_MENU
@@ -237,9 +245,15 @@
   #undef LIN_ADVANCE
   #undef SMOOTH_LIN_ADVANCE
   #undef MANUAL_E_MOVES_RELATIVE
+  #undef MPCTEMP
+  #undef MPC_AUTOTUNE
   #undef PID_EXTRUSION_SCALING
   #undef SHOW_TEMP_ADC_VALUES
   #undef STEALTHCHOP_E
+#endif
+
+#if DISABLED(NO_VOLUMETRICS)
+  #define HAS_VOLUMETRIC_EXTRUSION 1
 #endif
 
 #if !TEMP_SENSOR_CHAMBER
@@ -329,6 +343,75 @@
   #endif
 #endif
 
+// Fixed-Time Motion
+#if ENABLED(FT_MOTION)
+  #if HAS_X_AXIS
+    #define HAS_FTM_SHAPING 1
+    #define FTM_SHAPER_X
+  #endif
+  #if HAS_Y_AXIS
+    #define FTM_SHAPER_Y
+  #endif
+  #if !HAS_Z_AXIS
+    #undef FTM_SHAPER_Z
+  #endif
+  #if HAS_EXTRUDERS
+    #define FTM_HAS_LIN_ADVANCE 1
+  #else
+    #undef FTM_SHAPER_E
+  #endif
+  #if ENABLED(NO_STANDARD_MOTION)
+    #define FTM_HOME_AND_PROBE
+  #endif
+  #if ANY(FTM_SHAPER_EI, FTM_SHAPER_2HEI, FTM_SHAPER_3HEI)
+    #define HAS_FTM_EI_SHAPING 1
+  #endif
+
+  #if ANY(FTM_DIR_CHANGE_HOLD_X, FTM_DIR_CHANGE_HOLD_Y, FTM_DIR_CHANGE_HOLD_Z, FTM_DIR_CHANGE_HOLD_E)
+    #define HAS_FTM_DIR_CHANGE_HOLD 1
+  #endif
+  #if ANY(FTM_POLYS, FTM_CONSTANT_JOLT)
+    #define HAS_FTM_TRAJECTORY_SELECTION 1
+  #endif
+  // Default trajectory type when not explicitly set
+  #ifndef FTM_TRAJECTORY_TYPE
+    #define FTM_TRAJECTORY_TYPE TRAPEZOIDAL
+  #endif
+#endif
+
+// Standard Motion
+#if DISABLED(NO_STANDARD_MOTION)
+  #define HAS_STANDARD_MOTION 1
+#else
+  #undef LIN_ADVANCE
+  #undef SMOOTH_LIN_ADVANCE
+  #undef S_CURVE_ACCELERATION
+  #undef ADAPTIVE_STEP_SMOOTHING
+  #undef INPUT_SHAPING_X
+  #undef INPUT_SHAPING_Y
+  #undef INPUT_SHAPING_Z
+#endif
+
+// Disallowed with no shaping
+#if NONE(INPUT_SHAPING_X, INPUT_SHAPING_Y, INPUT_SHAPING_Z)
+  #undef SHAPING_MENU
+  #undef INPUT_SHAPING_E_SYNC
+#endif
+
+// Linear advance uses Jerk since E is an isolated axis
+#if ANY(FTM_HAS_LIN_ADVANCE, LIN_ADVANCE)
+  #define HAS_LIN_ADVANCE_K 1
+#endif
+// Linear Advance without smoothing
+#if ENABLED(LIN_ADVANCE) && DISABLED(SMOOTH_LIN_ADVANCE)
+  #define HAS_ROUGH_LIN_ADVANCE 1
+#endif
+
+// ZV Input Shaping for Standard Motion
+#if ANY(INPUT_SHAPING_X, INPUT_SHAPING_Y, INPUT_SHAPING_Z)
+  #define HAS_ZV_SHAPING 1
+#endif
+
 // Use Junction Deviation for motion if Jerk is disabled
 #if DISABLED(CLASSIC_JERK)
   #define HAS_JUNCTION_DEVIATION 1
@@ -338,14 +421,9 @@
 #if HAS_EXTRUDERS && (ENABLED(CLASSIC_JERK) || (IS_KINEMATIC && DISABLED(LIN_ADVANCE)))
   #define HAS_CLASSIC_E_JERK 1
 #endif
-
-// Linear advance uses Jerk since E is an isolated axis
-#if ALL(HAS_JUNCTION_DEVIATION, LIN_ADVANCE)
+// E jerk is derived from JD factors
+#if HAS_JUNCTION_DEVIATION && ANY(LIN_ADVANCE, FTM_HAS_LIN_ADVANCE)
   #define HAS_LINEAR_E_JERK 1
-#endif
-
-#if ENABLED(LIN_ADVANCE) && DISABLED(SMOOTH_LIN_ADVANCE)
-  #define HAS_ROUGH_LIN_ADVANCE 1
 #endif
 
 // Some displays can toggle Adaptive Step Smoothing.
@@ -419,6 +497,11 @@
   #define TEMP_SENSOR_0_IS_AD8495 1
 #elif TEMP_SENSOR_0 == -1
   #define TEMP_SENSOR_0_IS_AD595 1
+#elif TEMP_SENSOR_0 == -18
+  #define HAS_ADS1118 1
+  #define TEMP_SENSOR_0_IS_ADS1118 1
+  #define TEMP_SENSOR_0_ADS_TMIN    0
+  #define TEMP_SENSOR_0_ADS_TMAX 1024
 #elif TEMP_SENSOR_0 > 0
   #define TEMP_SENSOR_0_IS_THERMISTOR 1
   #if TEMP_SENSOR_0 == 1000
@@ -462,6 +545,11 @@
   #define TEMP_SENSOR_1_IS_AD8495 1
 #elif TEMP_SENSOR_1 == -1
   #define TEMP_SENSOR_1_IS_AD595 1
+#elif TEMP_SENSOR_1 == -18
+  #define HAS_ADS1118 1
+  #define TEMP_SENSOR_1_IS_ADS1118 1
+  #define TEMP_SENSOR_1_ADS_TMIN    0
+  #define TEMP_SENSOR_1_ADS_TMAX 1024
 #elif TEMP_SENSOR_1 > 0
   #define TEMP_SENSOR_1_IS_THERMISTOR 1
   #if TEMP_SENSOR_1 == 1000
@@ -1020,11 +1108,14 @@
   #define HAS_RESUME_CONTINUE 1
 #endif
 
+// Color LEDs (with optional White channel)
+
 #if ANY(BLINKM, RGB_LED, RGBW_LED, PCA9632, PCA9533, NEOPIXEL_LED)
   #define HAS_COLOR_LEDS 1
 #else
   #undef LED_POWEROFF_TIMEOUT
 #endif
+
 #if ALL(HAS_RESUME_CONTINUE, PRINTER_EVENT_LEDS, HAS_MEDIA)
   #define HAS_LEDS_OFF_FLAG 1
 #endif
@@ -1121,7 +1212,7 @@
   #undef SERIAL_XON_XOFF
 #endif
 
-#if ENABLED(HOST_PROMPT_SUPPORT) && DISABLED(EMERGENCY_PARSER)
+#if ENABLED(HOST_PROMPT_SUPPORT)
   #define HAS_GCODE_M876 1
 #endif
 
@@ -1468,6 +1559,20 @@
   #define NEED_LSF 1
 #endif
 
+// Saving meshes to EEPROM?
+#if ALL(EEPROM_SETTINGS, HAS_MESH)
+  #ifndef MAX_SAVED_MESHES
+    #define MAX_SAVED_MESHES 100
+  #endif
+  #if MAX_SAVED_MESHES > 0
+    #define HAS_MESH_STORAGE 1
+  #endif
+#endif
+#if !HAS_MESH_STORAGE
+  #undef OPTIMIZED_MESH_STORAGE
+  #undef UBL_SAVE_ACTIVE_ON_M500
+#endif
+
 #if ALL(HAS_TFT_LVGL_UI, CUSTOM_MENU_MAIN)
   #define _HAS_1(N) (defined(MAIN_MENU_ITEM_##N##_DESC) && defined(MAIN_MENU_ITEM_##N##_GCODE))
   #define HAS_USER_ITEM(V...) DO(HAS,||,V)
@@ -1483,7 +1588,7 @@
   #if MB(MKS_MONSTER8_V1, BTT_SKR_MINI_E3_V1_0, BTT_SKR_MINI_E3_V1_2, BTT_SKR_MINI_E3_V2_0, BTT_SKR_MINI_E3_V3_0, BTT_SKR_MINI_E3_V3_0_1, BTT_SKR_E3_TURBO, BTT_OCTOPUS_V1_1, BTT_SKR_V3_0, BTT_SKR_V3_0_EZ, AQUILA_V101)
 
     #define LCD_SERIAL_PORT 1
-  #elif MB(CREALITY_V24S1_301, CREALITY_V24S1_301F4, CREALITY_F401RE, CREALITY_V423, CREALITY_CR4NTXXC10, CREALITY_CR4NS, MKS_ROBIN, PANOWIN_CUTLASS, KODAMA_BARDO)
+  #elif MB(CREALITY_V24S1_301, CREALITY_V24S1_301F4, CREALITY_F401RE, CREALITY_V422_GD32_MFL, CREALITY_V423, CREALITY_V427_GD32_MFL, CREALITY_CR4NTXXC10, CREALITY_CR4NS, MKS_ROBIN, PANOWIN_CUTLASS, KODAMA_BARDO)
     #define LCD_SERIAL_PORT 2
   #else
     #define LCD_SERIAL_PORT 3
@@ -1504,25 +1609,6 @@
 #if ENABLED(CONFIGURATION_EMBEDDING) && !defined(FORCE_CONFIG_EMBED) && (defined(__AVR__) || !HAS_MEDIA || ANY(SDCARD_READONLY, DISABLE_M503))
   #undef CONFIGURATION_EMBEDDING
   #define CANNOT_EMBED_CONFIGURATION defined(__AVR__)
-#endif
-
-// Input shaping
-#if ANY(INPUT_SHAPING_X, INPUT_SHAPING_Y, INPUT_SHAPING_Z)
-  #define HAS_ZV_SHAPING 1
-#endif
-
-// FT Motion unified window and batch size
-#if ENABLED(FT_MOTION)
-  #if HAS_X_AXIS
-    #define HAS_FTM_SHAPING 1
-  #endif
-  #if ENABLED(FTM_UNIFIED_BWS)
-    #define FTM_WINDOW_SIZE FTM_BW_SIZE
-    #define FTM_BATCH_SIZE  FTM_BW_SIZE
-  #endif
-  #if ANY(BIQU_MICROPROBE_V1, BIQU_MICROPROBE_V2)
-    #define FT_MOTION_DISABLE_FOR_PROBING 1
-  #endif
 #endif
 
 // Multi-Stepping Limit
@@ -1590,4 +1676,9 @@
   #endif
   #undef AUTO_REPORT_SD_STATUS
   #define AUTO_REPORT_SD_STATUS
+#endif
+
+// SPI Flash Backup
+#if ALL(SPI_FLASH, HAS_MEDIA, MARLIN_DEV_MODE)
+  #define SPI_FLASH_BACKUP 1
 #endif

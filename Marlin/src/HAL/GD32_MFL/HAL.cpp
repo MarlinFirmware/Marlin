@@ -53,12 +53,15 @@ uint16_t MarlinHAL::adc_result;
 
 // Initializes the Marlin HAL
 void MarlinHAL::init() {
+  // Ensure F_CPU is a constant expression.
+  // If the compiler breaks here, it means that delay code that should compute at compile time will not work.
+  // So better safe than sorry here.
   constexpr unsigned int cpuFreq = F_CPU;
   UNUSED(cpuFreq);
 
-#if PIN_EXISTS(LED)
-  OUT_WRITE(LED_PIN, LOW);
-#endif
+  #if PIN_EXISTS(LED)
+    OUT_WRITE(LED_PIN, LOW);
+  #endif
 
   SetTimerInterruptPriorities();
 

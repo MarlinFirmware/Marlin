@@ -159,7 +159,7 @@
 
 #if ENABLED(CR10_STOCKDISPLAY)                    // LCD used for C2
 
-  #ifndef HAS_PIN_27_BOARD
+  #if DISABLED(USE_PIN_27_BOARD)
     #define BEEPER_PIN               EXP1_01_PIN
   #endif
 
@@ -221,10 +221,6 @@
 // Host
 #define BOARD_USART2_TX_PIN                 PA9
 #define BOARD_USART2_RX_PIN                 PA15
-
-// Unused / Debug
-#define BOARD_USART3_TX_PIN                 PE5
-#define BOARD_USART3_RX_PIN                 PE4
 
 // Onboard LED (HIGH = off, LOW = on)
 #ifndef LED_BUILTIN

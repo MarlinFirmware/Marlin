@@ -627,7 +627,7 @@ void AnycubicTFT::getCommandFromTFT() {
           break;
 
         case 12: // A12 kill
-          kill(F(STR_ERR_KILLED));
+          marlin.kill(F(STR_ERR_KILLED));
           break;
 
         case 13: // A13 SELECTION FILE
@@ -710,7 +710,7 @@ void AnycubicTFT::getCommandFromTFT() {
 
         case 19: // A19 stop stepper drivers - sent on stop extrude command and on turn motors off command
           if (!isPrinting()) {
-            quickstop_stepper();
+            motion.quickstop_stepper();
             stepper.disable_all_steppers();
           }
 
@@ -719,9 +719,9 @@ void AnycubicTFT::getCommandFromTFT() {
 
         case 20: // A20 read printing speed
           if (codeSeen('S'))
-            feedrate_percentage = constrain(codeValue(), 40, 999);
+            motion.feedrate_percentage = constrain(codeValue(), 40, 999);
           else
-            SEND_PGM_VAL("A20V ", feedrate_percentage);
+            SEND_PGM_VAL("A20V ", motion.feedrate_percentage);
           break;
 
         case 21: // A21 all home
