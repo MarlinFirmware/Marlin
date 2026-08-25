@@ -1560,7 +1560,7 @@
 #endif
 
 // Saving meshes to EEPROM?
-#if ALL(EEPROM_ENABLED, HAS_MESH)
+#if ALL(EEPROM_SETTINGS, HAS_MESH)
   #ifndef MAX_SAVED_MESHES
     #define MAX_SAVED_MESHES 100
   #endif
