@@ -244,6 +244,18 @@ public:
     static constexpr xy_pos_t offset_xy = xy_pos_t({ 0, 0 });   // See #16767
   #endif
 
+  // Input: A coordinate destination for the probe.
+  // Return: The tool position that will put the probe there.
+  // Also adjusted for the tool offset unless PROBING_TOOL is used.
+  // With PROBING_TOOL the probe offsets are presumed relative to that tool, not T0.
+  static xy_pos_t tool_xy_for_probe_xy(const xy_pos_t &probe_xy) {
+    xy_pos_t nozPos = DIFF_TERN(HAS_PROBE_XY_OFFSET, probe_xy, offset_xy);
+    #if DISABLED(DO_TOOLCHANGE_FOR_PROBING)
+      nozPos += xy_pos_t(motion.active_hotend_offset());
+    #endif
+    return nozPos;
+  }
+
   static bool deploy(const bool no_return=false) { return set_deployed(true, no_return); }
   static bool stow(const bool no_return=false)   { return set_deployed(false, no_return); }
 
