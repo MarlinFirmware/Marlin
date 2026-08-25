@@ -26,7 +26,6 @@
 
 #include "../../../feature/filwidth.h"
 #include "../../../module/planner.h"
-#include "../../../MarlinCore.h"
 #include "../../gcode.h"
 
 /**

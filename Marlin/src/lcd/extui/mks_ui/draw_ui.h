@@ -113,21 +113,21 @@
 
   #define titleHeight        36   // TFT_screen.title_high
   #define INTERVAL_H          2   // TFT_screen.gap_h // 2
-  #define INTERVAL_V          2   // TFT_screen.gap_v // 2
-  #define BTN_X_PIXEL       117   // TFT_screen.btn_x_pixel
-  #define BTN_Y_PIXEL       140   // TFT_screen.btn_y_pixel
+  #define INTERVAL_W          2   // TFT_screen.gap_v // 2
+  #define BTN_SIZE_X        117   // TFT_screen.btn_x_pixel
+  #define BTN_SIZE_Y        140   // TFT_screen.btn_y_pixel
 
   #define SIMPLE_FIRST_PAGE_GRAP   30
 
   #define BUTTON_TEXT_Y_OFFSET    -20
 
-  #define TITLE_XPOS          3    // TFT_screen.title_xpos
-  #define TITLE_YPOS          5    // TFT_screen.title_ypos
+  #define TITLE_POS_X         3    // TFT_screen.title_xpos
+  #define TITLE_POS_Y         5    // TFT_screen.title_ypos
 
   #define FILE_BTN_CNT        6
 
-  #define OTHER_BTN_XPIEL   117
-  #define OTHER_BTN_YPIEL    92
+  #define OTHER_BTN_SIZE_X  117
+  #define OTHER_BTN_SIZE_Y   92
 
   #define FILE_PRE_PIC_X_OFFSET 8
   #define FILE_PRE_PIC_Y_OFFSET 0
@@ -205,7 +205,7 @@ typedef struct {
             filamentchange_unload_length,
             filamentchange_unload_speed;
   celsius_t filament_limit_temp;
-  float     pausePosX, pausePosY, pausePosZ;
+  xyz_pos_t pausePos;
   uint32_t  curFilesize;
 } CFG_ITMES;
 
@@ -255,10 +255,7 @@ typedef struct UI_Config_Struct {
            filament_unloading_time_cnt;
   float move_dist;
   celsius_t hotendTargetTempBak;
-  float current_x_position_bak,
-        current_y_position_bak,
-        current_z_position_bak,
-        current_e_position_bak;
+  xyze_pos_t current_position_bak;
 } UI_CFG;
 
 typedef enum {
@@ -461,7 +458,7 @@ void update_gcode_command(int addr, uint8_t *s);
 void get_gcode_command(int addr, uint8_t *d);
 void lv_serial_capt_hook(void *, uint8_t);
 void lv_eom_hook(void *);
-#if HAS_GCODE_PREVIEW
+#if MKS_GCODE_PREVIEW
   void disp_pre_gcode(int xpos_pixel, int ypos_pixel);
 #endif
 void GUI_RefreshPage();

@@ -32,6 +32,8 @@
 
 #include "../MarlinCore.h"
 
+#include "temperature.h"
+
 #if ENABLED(JD_HANDLE_SMALL_SEGMENTS)
   // Enable this option for perfect accuracy but maximum
   // computation. Should be fine on ARM processors.
@@ -45,7 +47,7 @@
 
 #if ENABLED(SMOOTH_LIN_ADVANCE)
   #define SMOOTH_LIN_ADV_EXP_ORDER 5  // Closest to Gaussian smoothing between 3 and 7
-  #define SMOOTH_LIN_ADV_INTERVAL (STEPPER_TIMER_RATE / SMOOTH_LIN_ADV_HZ) // Hz
+  #define SMOOTH_LIN_ADV_INTERVAL (STEPPER_TIMER_RATE / (SMOOTH_LIN_ADV_HZ)) // Hz
 #endif
 
 #include "motion.h"
@@ -165,14 +167,6 @@ typedef struct {
 
 } block_flags_t;
 
-#if ENABLED(AUTOTEMP)
-  typedef struct {
-    celsius_t min, max;
-    float factor;
-    bool enabled;
-  } autotemp_t;
-#endif
-
 #if ENABLED(LASER_FEATURE)
 
   typedef struct {
@@ -196,6 +190,52 @@ typedef struct {
 
 #endif
 
+typedef struct DistanceMM : abce_float_t {
+  #if ANY(HAS_REAL_X, HAS_REAL_Y, HAS_REAL_Z)
+    struct {
+      #if HAS_REAL_X
+        float x;
+      #endif
+      #if HAS_REAL_Y
+        float y;
+      #endif
+      #if HAS_REAL_Z
+        float z;
+      #endif
+    } real;
+  #endif
+  const float& operator[](const int n) const {
+    switch (n) {
+      #if HAS_REAL_X
+        case X_REAL: return real.x;
+      #endif
+      #if HAS_REAL_Y
+        case Y_REAL: return real.y;
+      #endif
+      #if HAS_REAL_Z
+        case Z_REAL: return real.z;
+      #endif
+      default: break;
+    }
+    return pos[n];
+  }
+  float& operator[](const int n) {
+    switch (n) {
+      #if HAS_REAL_X
+        case X_REAL: return real.x;
+      #endif
+      #if HAS_REAL_Y
+        case Y_REAL: return real.y;
+      #endif
+      #if HAS_REAL_Z
+        case Z_REAL: return real.z;
+      #endif
+      default: break;
+    }
+    return pos[n];
+  }
+} ext_distance_t;
+
 /**
  * struct block_t
  *
@@ -209,12 +249,12 @@ typedef struct PlannerBlock {
 
   volatile block_flags_t flag;              // Block flags
 
-  bool is_sync_pos() { return flag.sync_position; }
-  bool is_sync_fan() { return TERN0(LASER_SYNCHRONOUS_M106_M107, flag.sync_fans); }
-  bool is_sync_pwr() { return TERN0(LASER_POWER_SYNC, flag.sync_laser_pwr); }
-  bool is_sync() { return is_sync_pos() || is_sync_fan() || is_sync_pwr(); }
-  bool is_page() { return TERN0(DIRECT_STEPPING, flag.page); }
-  bool is_move() { return !(is_sync() || is_page()); }
+  bool is_sync_pos() const { return flag.sync_position; }
+  bool is_sync_fan() const { return TERN0(LASER_SYNCHRONOUS_M106_M107, flag.sync_fans); }
+  bool is_sync_pwr() const { return TERN0(LASER_POWER_SYNC, flag.sync_laser_pwr); }
+  bool is_sync() const { return is_sync_pos() || is_sync_fan() || is_sync_pwr(); }
+  bool is_page() const { return TERN0(DIRECT_STEPPING, flag.page); }
+  bool is_move() const { return !(is_sync() || is_page()); }
 
   // Fields used by the motion planner to manage acceleration
   float nominal_speed,                      // The nominal speed for this block in (mm/sec)
@@ -224,6 +264,10 @@ typedef struct PlannerBlock {
         millimeters,                        // The total travel of this block in mm
         steps_per_mm,                       // steps/mm
         acceleration;                       // acceleration mm/sec^2
+
+  #if ENABLED(FTM_CONSTANT_JOLT)
+    float vmax_junction;                    // Original junction speed limit (mm/sec), never modified by recalculate
+  #endif
 
   union {
     abce_ulong_t steps;                     // Step count along each axis
@@ -260,17 +304,23 @@ typedef struct PlannerBlock {
   #if ENABLED(S_CURVE_ACCELERATION)
     uint32_t acceleration_time_inverse,     // Inverse of acceleration and deceleration periods, expressed as integer. Scale depends on CPU being used
              deceleration_time_inverse;
-  #else
+  #endif
+  #if ENABLED(HAS_STANDARD_MOTION) && (DISABLED(S_CURVE_ACCELERATION) || ENABLED(FREEZE_FEATURE))
     uint32_t acceleration_rate;             // Acceleration rate in (2^24 steps)/timer_ticks*s
   #endif
 
   AxisBits direction_bits;                  // Direction bits set for this block, where 1 is negative motion
 
-  // Advance extrusion
+  #if ENABLED(FT_MOTION)
+    ext_distance_t ext_distance_mm;         // The distance traveled in mm along each axis
+  #endif
+
+  #if ANY(SMOOTH_LIN_ADVANCE, FTM_HAS_LIN_ADVANCE)
+    bool use_advance_lead;                  // Linear / Pressure Advance extrusion
+  #endif
+
   #if ENABLED(LIN_ADVANCE)
-    #if ENABLED(SMOOTH_LIN_ADVANCE)
-      bool use_advance_lead;
-    #else
+    #if HAS_ROUGH_LIN_ADVANCE
       uint32_t la_advance_rate;             // The rate at which steps are added whilst accelerating
       uint8_t  la_scaling;                  // Scale ISR frequency down and step frequency up by 2 ^ la_scaling
       uint16_t max_adv_steps,               // Max advance steps to get cruising speed pressure
@@ -278,10 +328,17 @@ typedef struct PlannerBlock {
     #endif
   #endif
 
-  uint32_t nominal_rate,                    // The nominal step rate for this block in step_events/sec
-           initial_rate,                    // The jerk-adjusted step rate at start of block
-           final_rate,                      // The minimal rate at exit
-           acceleration_steps_per_s2;       // acceleration steps/sec^2
+  #if ENABLED(FT_MOTION)
+    float entry_speed,                      // Block entry speed in steps units
+          exit_speed;                       // Block exit speed in steps units
+  #endif
+
+  #if HAS_STANDARD_MOTION
+    uint32_t nominal_rate,                  // The nominal step rate for this block in step_events/sec
+             initial_rate,                  // The jerk-adjusted step rate at start of block
+             final_rate,                    // The minimal rate at exit
+             acceleration_steps_per_s2;     // acceleration steps/sec^2
+  #endif
 
   #if ENABLED(DIRECT_STEPPING)
     page_idx_t page_idx;                    // Page index used for direct stepping
@@ -316,15 +373,15 @@ typedef struct PlannerBlock {
 
 } block_t;
 
-#if ANY(LIN_ADVANCE, FEEDRATE_SCALING, GRADIENT_MIX, LCD_SHOW_E_TOTAL, POWER_LOSS_RECOVERY)
+#if ANY(HAS_LIN_ADVANCE_K, FEEDRATE_SCALING, GRADIENT_MIX, LCD_SHOW_E_TOTAL, POWER_LOSS_RECOVERY)
   #define HAS_POSITION_FLOAT 1
 #endif
 
-constexpr uint8_t block_dec_mod(const uint8_t v1, const uint8_t v2) {
+constexpr uint8_t block_sub_mod(const uint8_t v1, const uint8_t v2) {
   return v1 >= v2 ? v1 - v2 : v1 - v2 + BLOCK_BUFFER_SIZE;
 }
 
-constexpr uint8_t block_inc_mod(const uint8_t v1, const uint8_t v2) {
+constexpr uint8_t block_add_mod(const uint8_t v1, const uint8_t v2) {
   return v1 + v2 < BLOCK_BUFFER_SIZE ? v1 + v2 : v1 + v2 - BLOCK_BUFFER_SIZE;
 }
 
@@ -435,7 +492,7 @@ struct PlannerHints {
                                       // False if no movement of the tool center point relative to the work piece occurs
                                       // (i.e. the tool rotates around the tool centerpoint)
   #endif
-  PlannerHints(const_float_t mm=0.0f) : millimeters(mm) {}
+  PlannerHints(const float mm=0.0f) : millimeters(mm) {}
 };
 
 class Planner {
@@ -475,7 +532,7 @@ class Planner {
       static float e_factor[EXTRUDERS];             // The flow percentage and volumetric multiplier combine to scale E movement
     #endif
 
-    #if DISABLED(NO_VOLUMETRICS)
+    #if HAS_VOLUMETRIC_EXTRUSION
       static float volumetric_area_nominal;           // (mm^3) Nominal cross-sectional area
       static float filament_size[EXTRUDERS],          // (mm) Diameter of filament, typically around 1.75 or 2.85, 0 disables the volumetric calculations for the extruder
                    volumetric_multiplier[EXTRUDERS];  // (1/mm^2) Reciprocal of cross-sectional area of filament. Pre-calculated to reduce computation in the planner
@@ -525,23 +582,24 @@ class Planner {
       static constexpr bool leveling_active = false;
     #endif
 
-    #if ENABLED(LIN_ADVANCE)
+    #if HAS_LIN_ADVANCE_K
       static float extruder_advance_K[DISTINCT_E];
-      static void set_advance_k(const_float_t k, const uint8_t e=active_extruder) {
+      static void set_advance_k(const float k, const uint8_t e=motion.extruder) {
         UNUSED(e);
         extruder_advance_K[E_INDEX_N(e)] = k;
         TERN_(SMOOTH_LIN_ADVANCE, extruder_advance_K_q27[E_INDEX_N(e)] = k * _BV32(27));
       }
-      static float get_advance_k(const uint8_t e=active_extruder) {
+      static float get_advance_k(const uint8_t e=motion.extruder) {
         UNUSED(e);
         return extruder_advance_K[E_INDEX_N(e)];
       }
-      #if ENABLED(SMOOTH_LIN_ADVANCE)
-        static uint32_t get_advance_k_q27(const uint8_t e=active_extruder) {
-          UNUSED(e);
-          return extruder_advance_K_q27[E_INDEX_N(e)];
-        }
-      #endif
+    #endif
+
+    #if ENABLED(SMOOTH_LIN_ADVANCE)
+      static uint32_t get_advance_k_q27(const uint8_t e=motion.extruder) {
+        UNUSED(e);
+        return extruder_advance_K_q27[E_INDEX_N(e)];
+      }
     #endif
 
     /**
@@ -655,12 +713,12 @@ class Planner {
     #if ENABLED(CLASSIC_JERK)
       static void set_max_jerk(const AxisEnum axis, float inMaxJerkMMS);
     #else
-      static void set_max_jerk(const AxisEnum, const_float_t) {}
+      static void set_max_jerk(const AxisEnum, const float) {}
     #endif
 
     #if HAS_EXTRUDERS
       FORCE_INLINE static void refresh_e_factor(const uint8_t e) {
-        e_factor[e] = flow_percentage[e] * 0.01f IF_DISABLED(NO_VOLUMETRICS, * volumetric_multiplier[e]);
+        e_factor[e] = MUL_TERN(HAS_VOLUMETRIC_EXTRUSION, flow_percentage[e] * 0.01f, volumetric_multiplier[e]);
       }
 
       static void set_flow(const uint8_t e, const int16_t flow) {
@@ -672,6 +730,10 @@ class Planner {
 
     // Manage fans, paste pressure, etc.
     static void check_axes_activity();
+
+    #if ENABLED(AUTOTEMP)
+      static float get_high_e_speed();
+    #endif
 
     // Apply fan speeds
     #if HAS_FAN
@@ -698,7 +760,7 @@ class Planner {
       void enable_stall_prevention(const bool onoff);
     #endif
 
-    #if DISABLED(NO_VOLUMETRICS)
+    #if HAS_VOLUMETRIC_EXTRUSION
 
       // Update multipliers based on new diameter measurements
       static void calculate_volumetric_multipliers();
@@ -707,9 +769,13 @@ class Planner {
         // Update pre calculated extruder feedrate limits based on volumetric values
         static void calculate_volumetric_extruder_limit(const uint8_t e);
         static void calculate_volumetric_extruder_limits();
+        FORCE_INLINE static void set_volumetric_extruder_limit(const uint8_t e, const float v) {
+          volumetric_extruder_limit[e] = v;
+          calculate_volumetric_extruder_limit(e);
+        }
       #endif
 
-      FORCE_INLINE static void set_filament_size(const uint8_t e, const_float_t v) {
+      FORCE_INLINE static void set_filament_size(const uint8_t e, const float v) {
         filament_size[e] = v;
         if (v > 0) volumetric_area_nominal = CIRCLE_AREA(v * 0.5); //TODO: should it be per extruder
         // make sure all extruders have some sane value for the filament size
@@ -717,13 +783,6 @@ class Planner {
           if (!filament_size[i]) filament_size[i] = DEFAULT_NOMINAL_FILAMENT_DIA;
       }
 
-    #endif
-
-    #if ENABLED(VOLUMETRIC_EXTRUDER_LIMIT)
-      FORCE_INLINE static void set_volumetric_extruder_limit(const uint8_t e, const_float_t v) {
-        volumetric_extruder_limit[e] = v;
-        calculate_volumetric_extruder_limit(e);
-      }
     #endif
 
     #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
@@ -735,7 +794,7 @@ class Planner {
        *  Returns 1.0 if planner.z_fade_height is 0.0.
        *  Returns 0.0 if Z is past the specified 'Fade Height'.
        */
-      static float fade_scaling_factor_for_z(const_float_t rz) {
+      static float fade_scaling_factor_for_z(const float rz) {
         static float z_fade_factor = 1;
         if (!z_fade_height || rz <= 0) return 1;
         if (rz >= z_fade_height) return 0;
@@ -748,27 +807,27 @@ class Planner {
 
       FORCE_INLINE static void force_fade_recalc() { last_fade_z = -999.999f; }
 
-      FORCE_INLINE static void set_z_fade_height(const_float_t zfh) {
+      FORCE_INLINE static void set_z_fade_height(const float zfh) {
         z_fade_height = zfh > 0 ? zfh : 0;
         inverse_z_fade_height = RECIPROCAL(z_fade_height);
         force_fade_recalc();
       }
 
-      FORCE_INLINE static bool leveling_active_at_z(const_float_t rz) {
+      FORCE_INLINE static bool leveling_active_at_z(const float rz) {
         return !z_fade_height || rz < z_fade_height;
       }
 
     #else
 
-      FORCE_INLINE static float fade_scaling_factor_for_z(const_float_t) { return 1; }
+      FORCE_INLINE static float fade_scaling_factor_for_z(const float) { return 1; }
 
-      FORCE_INLINE static bool leveling_active_at_z(const_float_t) { return true; }
+      FORCE_INLINE static bool leveling_active_at_z(const float) { return true; }
 
     #endif
 
     #if ENABLED(SKEW_CORRECTION)
 
-      FORCE_INLINE static void skew(float &cx, float &cy, const_float_t cz) {
+      FORCE_INLINE static void skew(float &cx, float &cy, const float cz) {
         if (COORDINATE_OKAY(cx, X_MIN_POS + 1, X_MAX_POS) && COORDINATE_OKAY(cy, Y_MIN_POS + 1, Y_MAX_POS)) {
           const float sx = cx - cy * skew_factor.xy - cz * (skew_factor.xz - (skew_factor.xy * skew_factor.yz)),
                       sy = cy - cz * skew_factor.yz;
@@ -779,7 +838,7 @@ class Planner {
       }
       FORCE_INLINE static void skew(xyz_pos_t &raw) { skew(raw.x, raw.y, raw.z); }
 
-      FORCE_INLINE static void unskew(float &cx, float &cy, const_float_t cz) {
+      FORCE_INLINE static void unskew(float &cx, float &cy, const float cz) {
         if (COORDINATE_OKAY(cx, X_MIN_POS, X_MAX_POS) && COORDINATE_OKAY(cy, Y_MIN_POS, Y_MAX_POS)) {
           const float sx = cx + cy * skew_factor.xy + cz * skew_factor.xz,
                       sy = cy + cz * skew_factor.yz;
@@ -845,10 +904,10 @@ class Planner {
     #endif // HAS_POSITION_MODIFIERS
 
     // Number of moves currently in the planner including the busy block, if any
-    FORCE_INLINE static uint8_t movesplanned() { return block_dec_mod(block_buffer_head, block_buffer_tail); }
+    FORCE_INLINE static uint8_t movesplanned() { return block_sub_mod(block_buffer_head, block_buffer_tail); }
 
     // Number of nonbusy moves currently in the planner
-    FORCE_INLINE static uint8_t nonbusy_movesplanned() { return block_dec_mod(block_buffer_head, block_buffer_nonbusy); }
+    FORCE_INLINE static uint8_t nonbusy_movesplanned() { return block_sub_mod(block_buffer_head, block_buffer_nonbusy); }
 
     // Remove all blocks from the buffer
     FORCE_INLINE static void clear_block_buffer() {
@@ -874,7 +933,7 @@ class Planner {
     FORCE_INLINE static block_t* get_next_free_block(uint8_t &next_buffer_head, const uint8_t count=1) {
 
       // Wait until there are enough slots free
-      while (moves_free() < count) { idle(); }
+      while (moves_free() < count) { marlin.idle(); }
 
       // Return the first available block
       next_buffer_head = next_block_index(block_buffer_head);
@@ -948,15 +1007,15 @@ class Planner {
      * @param abce          Target position in mm and/or degrees
      * @param cart_dist_mm  The pre-calculated move lengths for all axes, in mm
      * @param fr_mm_s       (Target) speed of the move
-     * @param extruder      Optional target extruder (otherwise active_extruder)
+     * @param extruder      Optional target extruder (otherwise motion.extruder)
      * @param hints         Optional parameters to aid planner calculations
      *
      * @return  false if no segment was queued due to cleaning, cold extrusion, full queue, etc...
      */
     static bool buffer_segment(const abce_pos_t &abce
       OPTARG(HAS_DIST_MM_ARG, const xyze_float_t &cart_dist_mm)
-      , const_feedRate_t fr_mm_s
-      , const uint8_t extruder=active_extruder
+      , const feedRate_t fr_mm_s
+      , const uint8_t extruder=motion.extruder
       , const PlannerHints &hints=PlannerHints()
     );
 
@@ -969,13 +1028,13 @@ class Planner {
      *
      * @param cart      Target position in mm or degrees
      * @param fr_mm_s   (Target) speed of the move (mm/s)
-     * @param extruder  Optional target extruder (otherwise active_extruder)
+     * @param extruder  Optional target extruder (otherwise motion.extruder)
      * @param hints     Optional parameters to aid planner calculations
      *
      * @return  false if no segment was queued due to cleaning, cold extrusion, full queue, etc...
      */
-    static bool buffer_line(const xyze_pos_t &cart, const_feedRate_t fr_mm_s
-      , const uint8_t extruder=active_extruder
+    static bool buffer_line(const xyze_pos_t &cart, const feedRate_t fr_mm_s
+      , const uint8_t extruder=motion.extruder
       , const PlannerHints &hints=PlannerHints()
     );
 
@@ -999,7 +1058,7 @@ class Planner {
     static void set_position_mm(const xyze_pos_t &xyze);
 
     #if HAS_EXTRUDERS
-      static void set_e_position_mm(const_float_t e);
+      static void set_e_position_mm(const float e);
     #endif
 
     /**
@@ -1098,13 +1157,6 @@ class Planner {
       static void clear_block_buffer_runtime();
     #endif
 
-    #if ENABLED(AUTOTEMP)
-      static autotemp_t autotemp;
-      static void autotemp_update();
-      static void autotemp_M104_M109();
-      static void autotemp_task();
-    #endif
-
     #if HAS_LINEAR_E_JERK
       FORCE_INLINE static void recalculate_max_e_jerk() {
         const float prop = junction_deviation_mm * SQRT(0.5) / (1.0f - SQRT(0.5));
@@ -1115,26 +1167,18 @@ class Planner {
 
   private:
 
-    #if ENABLED(AUTOTEMP)
-      #if ENABLED(AUTOTEMP_PROPORTIONAL)
-        static void _autotemp_update_from_hotend();
-      #else
-        static void _autotemp_update_from_hotend() {}
-      #endif
-    #endif
-
     /**
      * Get the index of the next / previous block in the ring buffer
      */
-    static constexpr uint8_t next_block_index(const uint8_t block_index) { return block_inc_mod(block_index, 1); }
-    static constexpr uint8_t prev_block_index(const uint8_t block_index) { return block_dec_mod(block_index, 1); }
+    static constexpr uint8_t next_block_index(const uint8_t block_index) { return block_add_mod(block_index, 1); }
+    static constexpr uint8_t prev_block_index(const uint8_t block_index) { return block_sub_mod(block_index, 1); }
 
     /**
      * Calculate the maximum allowable speed squared at this point, in order
      * to reach 'target_velocity_sqr' using 'acceleration' within a given
      * 'distance'.
      */
-    static float max_allowable_speed_sqr(const_float_t accel, const_float_t target_velocity_sqr, const_float_t distance) {
+    static float max_allowable_speed_sqr(const float accel, const float target_velocity_sqr, const float distance) {
       return target_velocity_sqr - 2 * accel * distance;
     }
 
@@ -1142,41 +1186,66 @@ class Planner {
       /**
        * Calculate the speed reached given initial speed, acceleration and distance
        */
-      static float final_speed(const_float_t initial_velocity, const_float_t accel, const_float_t distance) {
+      static float final_speed(const float initial_velocity, const float accel, const float distance) {
         return SQRT(sq(initial_velocity) + 2 * accel * distance);
       }
     #endif
 
-    static void calculate_trapezoid_for_block(block_t * const block, const_float_t entry_speed, const_float_t exit_speed);
+    static void calculate_trapezoid_for_block(block_t * const block, const float entry_speed, const float exit_speed);
 
-    static bool reverse_pass_kernel(block_t * const current, const block_t * const next, const_float_t safe_exit_speed_sqr);
+    static bool reverse_pass_kernel(block_t * const current, const block_t * const next, const float safe_exit_speed_sqr);
     static void forward_pass_kernel(const block_t * const previous, block_t * const current);
 
-    static void reverse_pass(const_float_t safe_exit_speed_sqr);
+    static void reverse_pass(const float safe_exit_speed_sqr);
 
-    static void recalculate_trapezoids(const_float_t safe_exit_speed_sqr);
+    static void recalculate_trapezoids(const float safe_exit_speed_sqr);
 
-    static void recalculate(const_float_t safe_exit_speed_sqr);
+    static void recalculate(const float safe_exit_speed_sqr);
 
     #if IS_KINEMATIC
       // Allow do_homing_move to access internal functions, such as buffer_segment.
-      friend void do_homing_move(const AxisEnum, const float, const feedRate_t, const bool);
+      friend void Motion::do_homing_move(const AxisEnum, const float, const feedRate_t, const bool);
     #endif
 
     #if HAS_JUNCTION_DEVIATION
 
-      FORCE_INLINE static void normalize_junction_vector(xyze_float_t &vector) {
-        float magnitude_sq = 0;
-        LOOP_LOGICAL_AXES(idx) if (vector[idx]) magnitude_sq += sq(vector[idx]);
-        vector *= RSQRT(magnitude_sq);
+
+      // TODO: *might* need to increase a bit, e.g., 6.4e-5f
+      #ifndef JD_VECTOR_NORMALIZE_M2_THRESHOLD
+        #define JD_VECTOR_NORMALIZE_M2_THRESHOLD 2.0e-6f
+      #endif
+      // TODO: *might* need to increase a bit, e.g., 8e-3f
+      #ifndef LIMIT_DIVISOR_THRESHOLD
+        #define LIMIT_DIVISOR_THRESHOLD 1.5e-3f
+      #endif
+
+      // TODO: Might change to NOLESS(junction_cos_theta,-0.999968f) in planner.cpp also
+
+      // Return 'true' if the magnitude_sq is insignificant
+      FORCE_INLINE static bool normalize_junction_vector(xyze_float_t &vector) {
+        float magnitude_sq = 0.0f;
+        LOOP_LOGICAL_AXES(axis) if (vector[axis]) magnitude_sq += sq(vector[axis]);
+        // Avoid divide by near-zero (to prevent stuttering).
+        // Threshold consistent with junction_cos_theta.
+        if (magnitude_sq > JD_VECTOR_NORMALIZE_M2_THRESHOLD) {
+          vector *= RSQRT(magnitude_sq);
+          return false;
+        }
+        return true;
       }
 
-      FORCE_INLINE static float limit_value_by_axis_maximum(const_float_t max_value, xyze_float_t &unit_vec) {
+      // max_value is block->acceleration here used as our nominal or maximum
+      // unit_vec is the direction of the normal (i.e., perpendicular) acceleration _only_
+      FORCE_INLINE static float limit_jd_acceleration_by_axis_maximum(const float max_value, xyze_float_t &unit_vec) {
         float limit_value = max_value;
-        LOOP_LOGICAL_AXES(idx) {
-          if (unit_vec[idx]) {
-            if (limit_value * ABS(unit_vec[idx]) > settings.max_acceleration_mm_per_s2[idx])
-              limit_value = ABS(settings.max_acceleration_mm_per_s2[idx] / unit_vec[idx]);
+        LOOP_LOGICAL_AXES(axis) {
+          const float abs_vec = ABS(unit_vec[axis]);
+          // Skip small components, avoiding divide by almost-zero
+          if (abs_vec > LIMIT_DIVISOR_THRESHOLD) {  // sqrt of normalize_junction_vector() threshold (for good measure)
+            // i.e., NOMORE(limit_valuw, settings.max_acceleration_mm_per_s2[axis] / abs_vec)
+            //       But we do it this way to avoid division unless limiting.
+            if (limit_value * abs_vec > settings.max_acceleration_mm_per_s2[axis])
+              limit_value = settings.max_acceleration_mm_per_s2[axis] / abs_vec;
           }
         }
         return limit_value;
@@ -1193,10 +1262,18 @@ class Planner {
   #define PLANNER_XY_FEEDRATE_MM_S 60.0f
 #endif
 
-#define ANY_AXIS_MOVES(BLOCK)  \
-  (false NUM_AXIS_GANG(        \
-  || BLOCK->steps.a, || BLOCK->steps.b, || BLOCK->steps.c, \
-  || BLOCK->steps.i, || BLOCK->steps.j, || BLOCK->steps.k, \
-  || BLOCK->steps.u, || BLOCK->steps.v, || BLOCK->steps.w))
+#define XYZ_HAS_STEPS(B) NUM_AXIS_ANY( \
+  B->steps.a, B->steps.b, B->steps.c,  \
+  B->steps.i, B->steps.j, B->steps.k,  \
+  B->steps.u, B->steps.v, B->steps.w)
+
+#if MIN_STEPS_PER_SEGMENT <= 1
+  #define XYZ_HAS_ENOUGH_STEPS XYZ_HAS_STEPS
+#else
+  #define XYZ_HAS_ENOUGH_STEPS(B) NUM_AXIS_ANY( \
+    B->steps.a >= MIN_STEPS_PER_SEGMENT, B->steps.b >= MIN_STEPS_PER_SEGMENT, B->steps.c >= MIN_STEPS_PER_SEGMENT, \
+    B->steps.i >= MIN_STEPS_PER_SEGMENT, B->steps.j >= MIN_STEPS_PER_SEGMENT, B->steps.k >= MIN_STEPS_PER_SEGMENT, \
+    B->steps.u >= MIN_STEPS_PER_SEGMENT, B->steps.v >= MIN_STEPS_PER_SEGMENT, B->steps.w >= MIN_STEPS_PER_SEGMENT)
+#endif
 
 extern Planner planner;

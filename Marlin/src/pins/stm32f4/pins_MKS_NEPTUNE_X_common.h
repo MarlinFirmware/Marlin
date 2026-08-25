@@ -133,7 +133,7 @@
 #define HEATER_1_PIN                        PB0   // HEATER2
 #define HEATER_BED_PIN                      PA0   // HOT BED
 
-#define FAN_PIN                             PC14  // FAN
+#define FAN0_PIN                            PC14  // FAN
 #define FAN1_PIN                            PB1   // FAN1
 
 //
@@ -226,7 +226,7 @@
 #if ENABLED(SPI_FLASH)
   #define HAS_SPI_FLASH                        1
   #define SPI_DEVICE                           2
-  #define SPI_FLASH_SIZE               0x1000000
+  #define SPI_FLASH_SIZE               0x1000000  // 16MB
   #define SPI_FLASH_CS_PIN                  PB12
   #define SPI_FLASH_MOSI_PIN                PC3
   #define SPI_FLASH_MISO_PIN                PC2

@@ -111,7 +111,7 @@ void menu_tune() {
   //
   // Speed:
   //
-  EDIT_ITEM(int3, MSG_SPEED, &feedrate_percentage, SPEED_EDIT_MIN, SPEED_EDIT_MAX);
+  EDIT_ITEM(int3, MSG_SPEED, &motion.feedrate_percentage, SPEED_EDIT_MIN, SPEED_EDIT_MAX);
 
   //
   // Manual bed leveling, Bed Z:
@@ -125,10 +125,13 @@ void menu_tune() {
   // Nozzle [1-4]:
   //
   #if HOTENDS == 1
-    EDIT_ITEM_FAST(int3, MSG_NOZZLE, &thermalManager.temp_hotend[0].target, 0, thermalManager.hotend_max_target(0), []{ thermalManager.start_watching_hotend(0); });
+    editable.celsius = thermalManager.degTargetHotend(0);
+    EDIT_ITEM_FAST(int3, MSG_NOZZLE, &editable.celsius, 0, thermalManager.hotend_max_target(0), []{ thermalManager.setTargetHotend(editable.celsius, 0); });
   #elif HAS_MULTI_HOTEND && DISABLED(STM_HAS_MULTI_EXTRUDER)
-    HOTEND_LOOP()
-      EDIT_ITEM_FAST_N(int3, e, MSG_NOZZLE_N, &thermalManager.temp_hotend[e].target, 0, thermalManager.hotend_max_target(e), []{ thermalManager.start_watching_hotend(MenuItemBase::itemIndex); });
+    HOTEND_LOOP() {
+      editable.celsius = thermalManager.degTargetHotend(e);
+      EDIT_ITEM_FAST_N(int3, e, MSG_NOZZLE_N, &editable.celsius, 0, thermalManager.hotend_max_target(e), []{ thermalManager.setTargetHotend(editable.celsius, MenuItemBase::itemIndex); });
+    }
   #endif
 
   #if ENABLED(SINGLENOZZLE_STANDBY_TEMP)
@@ -203,7 +206,7 @@ void menu_tune() {
   // Flow:
   //
   #if HAS_EXTRUDERS
-    EDIT_ITEM(int3, MSG_FLOW, &planner.flow_percentage[active_extruder], FLOW_EDIT_MIN, FLOW_EDIT_MAX, []{ planner.refresh_e_factor(active_extruder); });
+    EDIT_ITEM(int3, MSG_FLOW, &planner.flow_percentage[motion.extruder], FLOW_EDIT_MIN, FLOW_EDIT_MAX, []{ planner.refresh_e_factor(motion.extruder); });
     // Flow En:
     #if HAS_MULTI_EXTRUDER && DISABLED(STM_HAS_MULTI_EXTRUDER)
       EXTRUDER_LOOP()
@@ -214,7 +217,7 @@ void menu_tune() {
   //
   // Advance K:
   //
-  #if ENABLED(LIN_ADVANCE) && DISABLED(SLIM_LCD_MENUS)
+  #if HAS_LIN_ADVANCE_K && DISABLED(SLIM_LCD_MENUS)
     #if DISABLED(DISTINCT_E_FACTORS)
       editable.decimal = planner.get_advance_k();
       EDIT_ITEM(float42_52, MSG_ADVANCE_K, &editable.decimal, 0.0f, 10.0f, []{ planner.set_advance_k(editable.decimal); });
@@ -235,13 +238,13 @@ void menu_tune() {
         }
       #endif
     #endif
-  #endif
+  #endif // HAS_LIN_ADVANCE_K && !SLIM_LCD_MENUS
 
   //
   // Nonlinear Extrusion state
   //
   #if ENABLED(NONLINEAR_EXTRUSION)
-    EDIT_ITEM(bool, MSG_NLE_ON, &stepper.ne.settings.enabled);
+    EDIT_ITEM(bool, MSG_NLE_ON, &stepper.nle.settings.enabled);
   #endif
 
   //

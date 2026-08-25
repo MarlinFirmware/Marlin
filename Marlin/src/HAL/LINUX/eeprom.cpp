@@ -45,7 +45,7 @@ bool PersistentStore::access_start() {
   fseek(eeprom_file, 0L, SEEK_END);
   std::size_t file_size = ftell(eeprom_file);
 
-  if (file_size < MARLIN_EEPROM_SIZE) {
+  if (file_size < long(MARLIN_EEPROM_SIZE)) {
     memset(buffer + file_size, eeprom_erase_value, MARLIN_EEPROM_SIZE - file_size);
   }
   else {

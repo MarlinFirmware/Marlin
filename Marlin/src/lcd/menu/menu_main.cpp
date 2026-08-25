@@ -120,13 +120,24 @@ void menu_configuration();
   void menu_tool_change();
 #endif
 
-#if ENABLED(CUSTOM_MENU_MAIN)
+#if ANY(CUSTOM_MENU_MAIN, CUSTOM_MENU_CONFIG)
 
-  void _lcd_custom_menu_main_gcode(FSTR_P const fstr) {
-    queue.inject(fstr);
+  FORCE_INLINE void _lcd_custom_menu_gcode_done() {
     TERN_(CUSTOM_MENU_MAIN_SCRIPT_AUDIBLE_FEEDBACK, ui.completion_feedback());
     TERN_(CUSTOM_MENU_MAIN_SCRIPT_RETURN, ui.return_to_status());
   }
+  template<> void _lcd_custom_menu_gcode<true>(FSTR_P const fstr) {
+    gcode.process_subcommands_now(fstr);
+    _lcd_custom_menu_gcode_done();
+  }
+  template<> void _lcd_custom_menu_gcode<false>(FSTR_P const fstr) {
+    queue.inject(fstr);
+    _lcd_custom_menu_gcode_done();
+  }
+
+#endif
+
+#if ENABLED(CUSTOM_MENU_MAIN)
 
   void custom_menus_main() {
     START_MENU();
@@ -139,7 +150,7 @@ void menu_configuration();
     #else
       #define _DONE_SCRIPT ""
     #endif
-    #define GCODE_LAMBDA_MAIN(N) []{ _lcd_custom_menu_main_gcode(F(MAIN_MENU_ITEM_##N##_GCODE _DONE_SCRIPT)); }
+    #define GCODE_LAMBDA_MAIN(N) []{ _lcd_custom_menu_gcode<ENABLED(MAIN_MENU_ITEM_##N##_IMMEDIATE)>(F(MAIN_MENU_ITEM_##N##_GCODE _DONE_SCRIPT)); }
     #define _CUSTOM_ITEM_MAIN(N) ACTION_ITEM_F(F(MAIN_MENU_ITEM_##N##_DESC), GCODE_LAMBDA_MAIN(N));
     #define _CUSTOM_ITEM_MAIN_CONFIRM(N)          \
       SUBMENU_F(F(MAIN_MENU_ITEM_##N##_DESC), []{ \
@@ -239,7 +250,7 @@ void menu_configuration();
 #endif // CUSTOM_MENU_MAIN
 
 void menu_main() {
-  const bool busy = printingIsActive();
+  const bool busy = marlin.printingIsActive();
   #if HAS_MEDIA
     const bool card_is_mounted = card.isMounted(),
                card_open = card_is_mounted && card.isFileOpen();
@@ -342,6 +353,7 @@ void menu_main() {
           SUBMENU(MSG_MEDIA_MENU_SD, MEDIA_MENU_GATEWAY);
         else if (TERN0(SHOW_UNMOUNTED_DRIVES, card.isSDCardInserted()))
           SUBMENU(MSG_MEDIA_MENU_SD, MEDIA_MENU_GATEWAY_SD);
+
         if (card.isFlashDriveMounted())
           SUBMENU(MSG_MEDIA_MENU_USB, MEDIA_MENU_GATEWAY);
         else if (TERN0(SHOW_UNMOUNTED_DRIVES, card.isFlashDriveInserted()))
@@ -397,7 +409,7 @@ void menu_main() {
       SUBMENU(MSG_CANCEL_OBJECT, []{ editable.int8 = -1; ui.goto_screen(menu_cancelobject); });
     #endif
 
-    #if MACHINE_CAN_PAUSE && ENABLED(MANUAL_SWITCHING_TOOLHEAD)
+    #if ALL(MACHINE_CAN_PAUSE, MANUAL_SWITCHING_TOOLHEAD)
       SUBMENU(MSG_TOOL_CHANGE, menu_tool_change);
     #endif
   }
@@ -408,7 +420,7 @@ void menu_main() {
       INJECT_MENU_ITEMS(media_menu_items());
     #endif
 
-    if (TERN0(MACHINE_CAN_PAUSE, printingIsPaused()))
+    if (TERN0(MACHINE_CAN_PAUSE, marlin.printingIsPaused()))
       ACTION_ITEM(MSG_RESUME_PRINT, ui.resume_print);
 
     #if ENABLED(HOST_START_MENU_ITEM) && defined(ACTION_ON_START)

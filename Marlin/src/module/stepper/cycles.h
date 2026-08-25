@@ -38,7 +38,7 @@
    * ...as measured on an LPC1768 with a scope and converted to cycles.
    * Not applicable to other 32-bit processors, but as long as others
    * take longer, pulses will be longer. For example the SKR Pro
-   * (stm32f407zgt6) requires ~60 cyles.
+   * (stm32f407zgt6) requires ~60 cycles.
    */
   constexpr uint32_t timer_read_add_and_store_cycles = 34UL;
 
@@ -115,7 +115,7 @@ constexpr uint32_t min_isr_loop_cycles = isr_mixing_stepper_cycles + LOGICAL_AXE
 // Calculate the minimum MPU cycles needed per pulse to enforce
 constexpr uint32_t min_stepper_pulse_cycles = _min_pulse_high_ns * CYCLES_PER_MICROSECOND / 1000;
 
-// The loop takes the base time plus the time for all the bresenham logic for 1 << R pulses plus the time
+// The loop takes the base time plus the time for all the Bresenham logic for 1 << R pulses plus the time
 // between pulses for ((1 << R) - 1) pulses. But the user could be enforcing a minimum time so the loop time is:
 constexpr uint32_t isr_loop_cycles(const int R) { return ((isr_loop_base_cycles + min_isr_loop_cycles + min_stepper_pulse_cycles) * ((1UL << R) - 1) + _MAX(min_isr_loop_cycles, min_stepper_pulse_cycles)); }
 
@@ -140,7 +140,7 @@ constexpr uint32_t isr_shaping_loop_cycles(const int R) {
     // HELP ME: What is what?
     // Directions are set up for MIXING_STEPPERS - like before.
     // Finding the right stepper may last up to MIXING_STEPPERS loops in get_next_stepper().
-    //   These loops are a bit faster than advancing a bresenham counter.
+    //   These loops are a bit faster than advancing a Bresenham counter.
     // Always only one E stepper is stepped.
     * TERN1(MIXING_EXTRUDER, (MIXING_STEPPERS))
   );

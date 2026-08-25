@@ -60,14 +60,23 @@
   #define MYSERIAL2 webSocketSerial
 #endif
 
+#if SERIAL_PORT_2 == 2
+  #define MYSERIAL2 flushableSerial2
+#endif
+
+#if LCD_SERIAL_PORT == 2
+  #define LCD_SERIAL flushableSerial2
+  #define SERIAL_GET_TX_BUFFER_FREE() LCD_SERIAL.availableForWrite()
+#endif
+
 #define CRITICAL_SECTION_START() portENTER_CRITICAL(&hal.spinlock)
 #define CRITICAL_SECTION_END()   portEXIT_CRITICAL(&hal.spinlock)
 
 #define HAL_CAN_SET_PWM_FREQ   // This HAL supports PWM Frequency adjustment
-#define PWM_FREQUENCY  1000u   // Default PWM frequency when set_pwm_duty() is called without set_pwm_frequency()
-#define PWM_RESOLUTION   10u   // Default PWM bit resolution
-#define CHANNEL_MAX_NUM  15u   // max PWM channel # to allocate (7 to only use low speed, 15 to use low & high)
-#define MAX_PWM_IOPIN    33u   // hardware pwm pins < 34
+#define PWM_FREQUENCY  1000U   // Default PWM frequency when set_pwm_duty() is called without set_pwm_frequency()
+#define PWM_RESOLUTION   10U   // Default PWM bit resolution
+#define CHANNEL_MAX_NUM  15U   // max PWM channel # to allocate (7 to only use low speed, 15 to use low & high)
+#define MAX_PWM_IOPIN    33U   // hardware pwm pins < 34
 #ifndef MAX_EXPANDER_BITS
   #define MAX_EXPANDER_BITS 32 // I2S expander bit width (max 32)
 #endif
@@ -76,7 +85,6 @@
 // Types
 // ------------------------
 
-typedef double isr_float_t;   // FPU ops are used for single-precision, so use double for ISRs.
 typedef int16_t pin_t;
 
 typedef struct pwm_pin {
@@ -194,7 +202,7 @@ public:
 
   static void delay_ms(const int ms) { delay(ms); }
 
-  // Tasks, called from idle()
+  // Tasks, called from marlin.idle()
   static void idletask();
 
   // Reset

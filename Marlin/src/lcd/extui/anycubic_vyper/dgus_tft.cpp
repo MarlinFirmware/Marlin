@@ -76,8 +76,8 @@ namespace Anycubic {
   #if HAS_HEATED_BED
     heater_state_t DgusTFT::hotbed_state;
   #endif
-  char DgusTFT::selectedfile[MAX_PATH_LEN];
-  char DgusTFT::panel_command[MAX_CMND_LEN];
+  char DgusTFT::selectedfile[MAX_PATH_LEN + 1];
+  char DgusTFT::panel_command[MAX_CMND_LEN + 1];
   uint8_t DgusTFT::command_len;
   file_menu_t DgusTFT::file_menu;
 
@@ -138,7 +138,7 @@ namespace Anycubic {
     // Signal Board has reset
     tftSendLn(AC_msg_main_board_has_reset);
 
-    // Enable levelling and Disable end stops during print
+    // Enable leveling and Disable end stops during print
     // as Z home places nozzle above the bed so we need to allow it past the end stops
     injectCommands(AC_cmnd_enable_leveling);
 
@@ -450,7 +450,6 @@ namespace Anycubic {
 
         // 1 Signal filament out
         tftSendLn(isPrintingFromMedia() ? AC_msg_filament_out_alert : AC_msg_filament_out_block);
-        //printer_state = AC_printer_filament_out;
 
         DEBUG_ECHOLNPGM("getFilamentRunoutState: ", getFilamentRunoutState());
       #endif
@@ -496,7 +495,7 @@ namespace Anycubic {
       #endif
       case AC_printer_printing:
       case AC_printer_paused:
-        // Heater timout, send acknowledgement
+        // Heater timeout, send acknowledgement
         if (strcmp_P(msg, MARLIN_msg_heater_timeout) == 0) {
           pause_state = AC_paused_heater_timed_out;
           tftSendLn(AC_msg_paused); // enable continue button
@@ -565,7 +564,6 @@ namespace Anycubic {
             if (probe_cnt == GRID_MAX_POINTS) {
               probe_cnt = 0;
               injectCommands(F("M500"));    // G27 park nozzle
-              //changePageOfTFT(PAGE_PreLEVEL);
               fakeChangePageOfTFT(PAGE_PreLEVEL); // Prevent UI refreshing too quickly when probing is done
               printer_state = AC_printer_idle;
               msg_matched   = true;
@@ -869,46 +867,6 @@ namespace Anycubic {
     return false;
   }
 
-  #if 0
-    {
-      //SERIAL_ECHOLNPGM("readTFTCommand: ", millis());
-      //return -1;
-
-      bool command_ready = false;
-      uint8_t data       = 0;
-
-      while (TFTSer.available() > 0 && command_len < MAX_CMND_LEN) {
-        data = TFTSer.read();
-        if (0 == command_len) {
-          // if
-        }
-
-        panel_command[command_len] =
-          if (panel_command[command_len] == '\n') {
-          command_ready = true;
-          break;
-        }
-        command_len++;
-      }
-
-      if (command_ready) {
-        panel_command[command_len] = 0x00;
-        #if ACDEBUG(AC_ALL)
-          DEBUG_ECHOLNPGM("< panel_command ", panel_command);
-        #endif
-        #if ACDEBUG(AC_SOME)
-          // Ignore status request commands
-          uint8_t req = atoi(&panel_command[1]);
-          if (req > 7 && req != 20) {
-            DEBUG_ECHOLNPGM("> ", panel_command);
-            DEBUG_PRINT_PRINTER_STATE(printer_state);
-          }
-        #endif
-      }
-      return command_ready;
-    }
-  #endif
-
   int8_t DgusTFT::findCmdPos(const char * buff, const char q) {
     for (int8_t pos = 0; pos < MAX_CMND_LEN; ++pos)
       if (buff[pos] == q) return pos;
@@ -950,24 +908,6 @@ namespace Anycubic {
             DEBUG_ECHOLNPGM("Bed temp abnormal! : ", temp);
           #endif
           faultBedDuration = 0;
-        }
-      }
-    #endif
-
-    #if 0
-      // Update panel with hotend heater status
-      if (hotend_state != AC_heater_temp_reached) {
-        if (WITHIN(getActualTemp_celsius(E0) - getTargetTemp_celsius(E0), -1, 1)) {
-          tftSendLn(AC_msg_nozzle_heating_done);
-          hotend_state = AC_heater_temp_reached;
-        }
-      }
-
-      // Update panel with bed heater status
-      if (hotbed_state != AC_heater_temp_reached) {
-        if (WITHIN(getActualTemp_celsius(BED) - getTargetTemp_celsius(BED), -0.5, 0.5)) {
-          tftSendLn(AC_msg_bed_heating_done);
-          hotbed_state = AC_heater_temp_reached;
         }
       }
     #endif
@@ -1014,7 +954,6 @@ namespace Anycubic {
       if (0x83 == data_buf[0]) {
         control_index = uint16_t(data_buf[1] << 8) | uint16_t(data_buf[2]);
         if ((control_index & 0xF000) == KEY_ADDRESS) { // is KEY
-          //key_index = control_index;
           key_value = (uint16_t(data_buf[4]) << 8) | uint16_t(data_buf[5]);
         }
 
@@ -1047,7 +986,6 @@ namespace Anycubic {
         else if (control_index == TXT_PRINT_SPEED_TARGET || control_index == TXT_ADJUST_SPEED) { // print speed
           control_value = (uint16_t(data_buf[4]) << 8) | uint16_t(data_buf[5]);
           const uint16_t feedrate = constrain(uint16_t(control_value), 40, 999);
-          //feedrate_percentage=constrain(control_value,40,999);
           sendTxtToTFT(MString<6>(feedrate), TXT_PRINT_SPEED);
           sendValueToTFT(feedrate, TXT_PRINT_SPEED_NOW);
           sendValueToTFT(feedrate, TXT_PRINT_SPEED_TARGET);
@@ -1494,20 +1432,11 @@ namespace Anycubic {
 
         case 2: { // -
           float z_off = getZOffset_mm();
-          //SERIAL_ECHOLNPGM("z_off: ", z_off);
-          //setSoftEndstopState(false);
           if (z_off <= -5) return;
           z_off -= 0.05f;
           setZOffset_mm(z_off);
 
           sendTxtToTFT(ftostr52sprj(getZOffset_mm()) + 2, TXT_LEVEL_OFFSET);
-
-          //if (isAxisPositionKnown(Z)) {  // Move Z axis
-          //  SERIAL_ECHOLNPGM("Z now:", getAxisPosition_mm(Z));
-          //  const float currZpos = getAxisPosition_mm(Z);
-          //  setAxisPosition_mm(currZpos-0.05, Z);
-          //  SERIAL_ECHOLNPGM("Z now:", getAxisPosition_mm(Z));
-          //}
 
           #if ENABLED(BABYSTEPPING)
             int16_t steps = mmToWholeSteps(-0.05, Z);
@@ -1525,30 +1454,16 @@ namespace Anycubic {
 
           z_change = true;
 
-          //setSoftEndstopState(true);
         } break;
 
         case 3: { // +
           float z_off = getZOffset_mm();
-          //SERIAL_ECHOLNPGM("z_off: ", z_off);
-          //setSoftEndstopState(false);
 
           if (z_off >= 5) return;
           z_off += 0.05f;
           setZOffset_mm(z_off);
 
           sendTxtToTFT(ftostr52sprj(getZOffset_mm()) + 2, TXT_LEVEL_OFFSET);
-
-          //int16_t steps = mmToWholeSteps(constrain(Zshift,-0.05,0.05), Z);
-
-          /*
-          if (isAxisPositionKnown(Z)) {  // Move Z axis
-            SERIAL_ECHOLNPGM("Z now:", getAxisPosition_mm(Z));
-            const float currZpos = getAxisPosition_mm(Z);
-            setAxisPosition_mm(currZpos-0.05, Z);
-            SERIAL_ECHOLNPGM("Z now:", getAxisPosition_mm(Z));
-          }
-          */
 
           #if ENABLED(BABYSTEPPING)
             int16_t steps = mmToWholeSteps(0.05, Z);
@@ -1558,13 +1473,11 @@ namespace Anycubic {
           GRID_LOOP(x, y) {
             const xy_uint8_t pos { x, y };
             const float currval = getMeshPoint(pos);
-            //SERIAL_ECHOLNPGM("x: ", x, " y: ", y, " z: ", currval);
             setMeshPoint(pos, constrain(currval + 0.05f, AC_LOWEST_MESHPOINT_VAL, 5));
           }
 
           z_change = true;
 
-          //setSoftEndstopState(true);
         } break;
 
       #endif // MESH_EDIT_MENU
@@ -1664,7 +1577,6 @@ namespace Anycubic {
 
   void DgusTFT::page8() {
     debugPage(8);
-    //static uint16_t movespeed = 50;
     static float move_dis = 1.0f;
 
     if (key_value == 2 || key_value == 4
@@ -1673,8 +1585,6 @@ namespace Anycubic {
     ) {
       if (getAxisPosition_mm(Z) < 0) setAxisPosition_mm(0, Z, 8);
     }
-
-    //if (!planner.has_blocks_queued()) return;
 
     switch (key_value) {
       case 0:
@@ -1748,18 +1658,6 @@ namespace Anycubic {
         move_dis = 10.0f;
         sendValueToTFT(3, ADDRESS_MOVE_DISTANCE);
         break;
-
-      //case 14:
-      //  movespeed = 3000; //SERIAL_ECHOLN(movespeed);
-      //  break;
-      //
-      //case 15:
-      //  movespeed = 2000; //SERIAL_ECHOLN(movespeed);
-      //  break;
-      //
-      //case 16:
-      //  movespeed = 1000; //SERIAL_ECHOLN(movespeed);
-      //  break;
     }
   }
 
@@ -1967,14 +1865,14 @@ namespace Anycubic {
 
         setSoftEndstopState(false);
 
-        z_off = getZOffset_mm() - 0.01f;
+        z_off = getZOffset_mm() - BABYSTEP_SIZE_Z;
         setZOffset_mm(z_off);
 
         sendTxtToTFT(ftostr52sprj(getZOffset_mm()) + 2, TXT_LEVEL_OFFSET);
 
         if (isAxisPositionKnown(Z)) {
           const float currZpos = getAxisPosition_mm(Z);
-          setAxisPosition_mm(currZpos - 0.01f, Z);
+          setAxisPosition_mm(currZpos - BABYSTEP_SIZE_Z, Z);
         }
 
         setSoftEndstopState(true);
@@ -1985,14 +1883,14 @@ namespace Anycubic {
 
         setSoftEndstopState(false);
 
-        z_off = getZOffset_mm() + 0.01f;
+        z_off = getZOffset_mm() + BABYSTEP_SIZE_Z;
         setZOffset_mm(z_off);
 
         sendTxtToTFT(ftostr52sprj(getZOffset_mm()) + 2, TXT_LEVEL_OFFSET);
 
         if (isAxisPositionKnown(Z)) {          // Move Z axis
           const float currZpos = getAxisPosition_mm(Z);
-          setAxisPosition_mm(currZpos + 0.01f, Z);
+          setAxisPosition_mm(currZpos + BABYSTEP_SIZE_Z, Z);
         }
 
         setSoftEndstopState(true);
@@ -2361,25 +2259,6 @@ namespace Anycubic {
         case 1:         // auto leveling start
           injectCommands(F("G28\nG29"));
           printer_state = AC_printer_probing;
-
-          // this will cause leveling->preheating->leveling
-          #if 0
-            #if ENABLED(PREHEAT_BEFORE_LEVELING)
-              if (getTargetTemp_celsius(E0) < LEVELING_NOZZLE_TEMP
-                 || getTargetTemp_celsius(BED) < LEVELING_BED_TEMP
-              ) {
-                setTargetTemp_celsius(LEVELING_NOZZLE_TEMP, E0);
-                setTargetTemp_celsius(LEVELING_BED_TEMP, BED);
-                changePageOfTFT(PAGE_CHS_PROBE_PREHEATING);
-              }
-              else
-                changePageOfTFT(PAGE_LEVELING);
-
-            #else
-              changePageOfTFT(PAGE_LEVELING);
-            #endif
-          #endif
-
           changePageOfTFT(PAGE_LEVELING);
           break;
 
@@ -2423,11 +2302,9 @@ namespace Anycubic {
       case 0: break;
       case 1: changePageOfTFT(PAGE_PreLEVEL); break;
 
-      case 2: {
+      case 2:
         injectCommands(F("M1024 S3"));   // -1
-        //char value[20]
-        //sprintf_P(value, PSTR("G1 Z%iF%i")); enqueue_and_echo_command_now(value); }
-      } break;
+        break;
 
       case 3: injectCommands(F("M1024 S4")); break; // 1
       case 4: injectCommands(F("M1024 S1")); break; // -0.1
@@ -2655,38 +2532,6 @@ namespace Anycubic {
     }
   }
 
-  #if 0
-    void DgusTFT::page178_to_181_190_to_193() {  // temperature abnormal
-      debugPage();
-      #if ACDEBUG(AC_ALL)
-      if ((page_index_saved != page_index_now) || (key_value_saved != key_value)) {
-        DEBUG_ECHOLNPGM("page178_to_181_190_to_193  page_index_last_2: ", page_index_last_2,  "  page_index_last: ", page_index_last, "  page_index_now: ", page_index_now, "  key: ", key_value);
-        page_index_saved = page_index_now;
-        key_value_saved = key_value;
-      }
-      #endif
-      switch (key_value) {
-        case 1:     // return
-          SERIAL_ECHOLNPGM("page_index_now: ", page_index_now);
-          SERIAL_ECHOLNPGM("page_index_last: ", page_index_last);
-          SERIAL_ECHOLNPGM("page_index_last_2: ", page_index_last_2);
-
-          if (isPrinting() || isPrintingPaused() || isPrintingFromMedia()) {
-            printer_state = AC_printer_stopping;
-            stopPrint();
-            changePageOfTFT(PAGE_MAIN);
-          }
-          else
-            changePageOfTFT(page_index_last);
-
-          onSurviveInKilled();
-          break;
-
-        default: break;
-      }
-    }
-  #endif
-
   void DgusTFT::page199_to_200() {
     debugPage();
     switch (key_value) {
@@ -2773,11 +2618,6 @@ namespace Anycubic {
 
   void DgusTFT::page202() {  // probe precheck ok
     debugPage(202);
-
-    //static millis_t flash_time = 0;
-    //static millis_t probe_check_counter = 0;
-    //static uint8_t probe_state_last = 0;
-
     delay(3000);
 
     injectCommands(F("G28\nG29"));
@@ -2787,8 +2627,6 @@ namespace Anycubic {
 
   void DgusTFT::page203() {    // probe precheck failed
     debugPage(203);
-    //static millis_t probe_check_counter = 0;
-    //static uint8_t probe_state_last = 0;
 
     #if HAS_HOTEND || HAS_HEATED_BED
       static millis_t flash_time = 0;

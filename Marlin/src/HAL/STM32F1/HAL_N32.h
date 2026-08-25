@@ -800,7 +800,7 @@ void ADC_StartCalibration(ADC_Module* NS_ADCx);
 void ADC_EnableDMA(ADC_Module* NS_ADCx, uint32_t Cmd);
 
 /**================================================================
- *        Configure ADC interrupt enable enable
+ *        Configure ADC interrupt enable
  ================================================================*/
 void ADC_ConfigInt(ADC_Module* NS_ADCx, uint16_t ADC_IT, uint32_t Cmd);
 

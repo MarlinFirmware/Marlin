@@ -33,6 +33,9 @@
 
 #define BW(N) ((N + 7) / 8)
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+
 #if ENABLED(CUSTOM_STATUS_SCREEN_IMAGE) && DISABLED(STATUS_COMBINE_HEATERS)
 
   #undef STATUS_HEATERS_X
@@ -776,3 +779,5 @@
 #if ANIM_HOTEND || ANIM_BED || ANIM_CHAMBER || ANIM_CUTTER
   #define ANIM_HBCC 1
 #endif
+
+#pragma GCC diagnostic pop

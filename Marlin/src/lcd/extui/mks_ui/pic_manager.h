@@ -33,23 +33,23 @@
 
 #define USE_HASH_TABLE
 
-#ifndef HAS_SPI_FLASH_FONT
-  #define HAS_SPI_FLASH_FONT              1 // Disabled until fix the font load code
+#ifndef MKS_SPI_FLASH_FONT
+  #define MKS_SPI_FLASH_FONT              1 // Disabled until the font load code is fixed!
 #endif
-#ifndef HAS_GCODE_PREVIEW
-  #define HAS_GCODE_PREVIEW               1
+#ifndef MKS_GCODE_PREVIEW
+  #define MKS_GCODE_PREVIEW               1
 #endif
-#ifndef HAS_LANG_SELECT_SCREEN
-  #define HAS_LANG_SELECT_SCREEN          1
+#ifndef MKS_LANG_SELECT_SCREEN
+  #define MKS_LANG_SELECT_SCREEN          1
 #endif
-#ifndef HAS_BAK_VIEW_IN_FLASH
-  #define HAS_BAK_VIEW_IN_FLASH           1
+#ifndef MKS_BAK_VIEW_IN_FLASH
+  #define MKS_BAK_VIEW_IN_FLASH           1
 #endif
-#ifndef HAS_GCODE_DEFAULT_VIEW_IN_FLASH
-  #define HAS_GCODE_DEFAULT_VIEW_IN_FLASH 1
+#ifndef MKS_GCODE_DEFAULT_VIEW_IN_FLASH
+  #define MKS_GCODE_DEFAULT_VIEW_IN_FLASH 1
 #endif
-#ifndef HAS_LOGO_IN_FLASH
-  #define HAS_LOGO_IN_FLASH 1
+#ifndef MKS_LOGO_IN_FLASH
+  #define MKS_LOGO_IN_FLASH 1
 #endif
 #ifndef SPI_FLASH_SIZE
   #define SPI_FLASH_SIZE                0x1000000 // 16MB
@@ -57,7 +57,7 @@
 
 #define PIC_MAX_CN           100    // Maximum number of pictures
 #define PIC_NAME_MAX_LEN      30    // Picture name maximum length
-#define PIC_NAME_OFFSET        4    // Same picture filename section
+#define PIC_NAME_OFFSET        4    // Picture name after "bmp_"
 
 #define LOGO_MAX_SIZE_TFT35             (300 * 1024)
 #define LOGO_MAX_SIZE_TFT32             (150 * 1024)
@@ -148,12 +148,10 @@ union union32 {
 };
 
 // pic information
-struct pic_msg {
+typedef struct {
   uint8_t name[PIC_NAME_MAX_LEN];
   union union32 size;
-};
-
-typedef struct pic_msg PIC_MSG;
+} pic_msg_t;
 
 #define BMP_WRITE_BUF_LEN 512
 
