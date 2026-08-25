@@ -23,7 +23,7 @@
 
 /**
  * Bricolemon Board. Based on ATSAMD51 (AGCM4), bootloader and credits by ADAFRUIT.
- * https://lemoncrest.com https://bricogeek.com
+ * https://lemoncrest.com https://tienda.bricogeek.com
  */
 
 #if NOT_TARGET(ARDUINO_GRAND_CENTRAL_M4)

@@ -204,9 +204,9 @@
 // Heated Bed Bang-Bang options
 //
 #if DISABLED(PIDTEMPBED)
-  #define BED_CHECK_INTERVAL 5000   // (ms) Interval between checks in bang-bang control
+  #define BED_CHECK_INTERVAL  5000  // (ms) Interval between checks in bang-bang control
   #if ANY(BED_LIMIT_SWITCHING, PELTIER_BED)
-    #define BED_HYSTERESIS 2        // (°C) Only set the relevant heater state when ABS(T-target) > BED_HYSTERESIS
+    #define BED_LIMIT_HYSTERESIS 2  // (°C) Only set the relevant heater state when ABS(T-target) > BED_LIMIT_HYSTERESIS
   #endif
 #endif
 
@@ -220,9 +220,9 @@
   //#define FAN1_PIN                   -1   // Remove the fan signal on pin P2_04 (example: SKR 1.4 Turbo HE1 plug)
 
   #if DISABLED(PIDTEMPCHAMBER)
-    #define CHAMBER_CHECK_INTERVAL 5000   // (ms) Interval between checks in bang-bang control
+    #define CHAMBER_CHECK_INTERVAL  5000  // (ms) Interval between checks in bang-bang control
     #if ENABLED(CHAMBER_LIMIT_SWITCHING)
-      #define CHAMBER_HYSTERESIS 2        // (°C) Only set the relevant heater state when ABS(T-target) > CHAMBER_HYSTERESIS
+      #define CHAMBER_LIMIT_HYSTERESIS 2  // (°C) Only set the relevant heater state when ABS(T-target) > CHAMBER_LIMIT_HYSTERESIS
     #endif
   #endif
 
@@ -579,6 +579,25 @@
 #define TEMP_SENSOR_AD8495_GAIN   1.0
 
 // @section fans
+
+/**
+ * Part Cooling Fan Pins
+ * Override the default part cooling fan pins for each fan index.
+ * Allows remapping which physical fan pin is used for part cooling.
+ * By default: FAN0 -> FAN0_PIN, FAN1 -> FAN1_PIN, etc.
+ */
+//#define PART_COOLING_FAN0_PIN   FAN0_PIN
+//#define PART_COOLING_FAN1_PIN   FAN1_PIN
+//#define PART_COOLING_FAN2_PIN   FAN2_PIN
+//#define PART_COOLING_FAN3_PIN   FAN3_PIN
+//#define PART_COOLING_FAN4_PIN   FAN4_PIN
+//#define PART_COOLING_FAN5_PIN   FAN5_PIN
+//#define PART_COOLING_FAN6_PIN   FAN6_PIN
+//#define PART_COOLING_FAN7_PIN   FAN7_PIN
+//#define PART_COOLING_FAN8_PIN   FAN8_PIN
+//#define PART_COOLING_FAN9_PIN   FAN9_PIN
+//#define PART_COOLING_FAN10_PIN  FAN10_PIN
+//#define PART_COOLING_FAN11_PIN  FAN11_PIN
 
 /**
  * Controller Fan
@@ -1160,12 +1179,26 @@
 #if ENABLED(FT_MOTION)
   //#define FTM_IS_DEFAULT_MOTION               // Use FT Motion as the factory default?
   //#define FT_MOTION_MENU                      // Provide a MarlinUI menu to set M493 and M494 parameters
-  //#define FTM_HOME_AND_PROBE                  // Use FT Motion for homing / probing. Disable if FT Motion breaks these functions.
+
+  //#define NO_STANDARD_MOTION                  // Disable the standard motion system entirely to save Flash and RAM
+  #if DISABLED(NO_STANDARD_MOTION)
+    //#define FTM_HOME_AND_PROBE                // Use FT Motion for homing / probing. Disable if FT Motion breaks these functions.
+  #endif
 
   //#define FTM_DYNAMIC_FREQ                    // Enable for linear adjustment of XY shaping frequency according to Z or E
   #if ENABLED(FTM_DYNAMIC_FREQ)
     #define FTM_DEFAULT_DYNFREQ_MODE dynFreqMode_DISABLED // Default mode of dynamic frequency calculation. (DISABLED, Z_BASED, MASS_BASED)
   #endif
+
+  // Disable unused shapers if you need more free space
+  #define FTM_SHAPER_ZV
+  #define FTM_SHAPER_ZVD
+  #define FTM_SHAPER_ZVDD
+  #define FTM_SHAPER_ZVDDD
+  #define FTM_SHAPER_EI
+  #define FTM_SHAPER_2HEI
+  #define FTM_SHAPER_3HEI
+  #define FTM_SHAPER_MZV
 
   #define FTM_DEFAULT_SHAPER_X      ftMotionShaper_NONE // Default shaper mode on X axis (NONE, ZV, ZVD, ZVDD, ZVDDD, EI, 2HEI, 3HEI, MZV)
   #define FTM_SHAPING_DEFAULT_FREQ_X   37.0f    // (Hz) Default peak frequency used by input shapers
@@ -1190,8 +1223,6 @@
   #define FTM_SHAPING_ZETA_E            0.03f   // Zeta used by input shapers for E axis
   #define FTM_SHAPING_V_TOL_E           0.05f   // Vibration tolerance used by EI input shapers for E axis
 
-  //#define FTM_RESONANCE_TEST                  // Sine sweep motion for resonance study
-
   //#define FTM_SMOOTHING                       // Smoothing can reduce artifacts and make steppers quieter
                                                 // on sharp corners, but too much will round corners.
   #if ENABLED(FTM_SMOOTHING)
@@ -1206,15 +1237,28 @@
 
   #define FTM_POLYS                             // Disable POLY5/6 to save ~3k of Flash. Preserves TRAPEZOIDAL.
   #if ENABLED(FTM_POLYS)
-    #define FTM_TRAJECTORY_TYPE TRAPEZOIDAL     // Block acceleration profile (TRAPEZOIDAL, POLY5, POLY6)
-                                                // TRAPEZOIDAL: Continuous Velocity. Max acceleration is respected.
-                                                // POLY5:       Like POLY6 with 1.5x but uses less CPU.
-                                                // POLY6:       Continuous Acceleration (aka S_CURVE).
-                                                // POLY trajectories not only reduce resonances without rounding corners, but also
-                                                // reduce extruder strain due to linear advance.
-
     #define FTM_POLY6_ACCELERATION_OVERSHOOT 1.875f // Max acceleration overshoot factor for POLY6 (1.25 to 1.875)
   #endif
+
+  /**
+   * FTM Constant-Jolt Trajectory (7-phase S-curve).
+   * Jolt is the rate of change of acceleration, not related to Marlin's "classic jerk."
+   * Ramps acceleration gradually so max acceleration is limited by max speed and distance traveled.
+   */
+  //#define FTM_CONSTANT_JOLT
+  #if ENABLED(FTM_CONSTANT_JOLT)
+    #define FTM_DEFAULT_JOLT 250.0f         // (m/s³) Default jolt for constant-jolt trajectory.
+                                            // Higher values print faster at the cost of increased resonance and extruder stress
+  #endif
+
+  // Block acceleration profile
+  // :[ 'TRAPEZOIDAL', 'POLY5', 'POLY6', 'CONSTANT_JOLT' ]
+  #define FTM_TRAJECTORY_TYPE TRAPEZOIDAL   //   TRAPEZOIDAL: Continuous Velocity. Max acceleration is respected.
+                                            //         POLY5: Like POLY6 with 1.5x but uses less CPU. Requires FTM_POLYS.
+                                            //         POLY6: Continuous Acceleration (aka S_CURVE). Requires FTM_POLYS.
+                                            // CONSTANT_JOLT: 7-phase S-curve. Requires FTM_CONSTANT_JOLT.
+                                            // POLY trajectories not only reduce resonances without rounding corners, but
+                                            // also reduce extruder strain due to linear advance.
 
   /**
    * Advanced configuration
@@ -1223,6 +1267,25 @@
                                             // The total buffered time in seconds is (FTM_BUFFER_SIZE/FTM_FS)
   #define FTM_FS                     1000   // (Hz) Frequency for trajectory generation.
   #define FTM_MIN_SHAPE_FREQ           20   // (Hz) Minimum shaping frequency, lower consumes more RAM
+
+  /**
+   * TMC2208 / TMC2208_STANDALONE drivers require a brief pause after a DIR change
+   * to prevent a standstill shutdown when using StealthChop (the standalone default).
+   * These options cause FT Motion to delay for > 750µs after a DIR change on a given axis.
+   * Disable only if you are certain that this can never happen with your TMC2208s.
+   */
+  #if AXIS_DRIVER_TYPE_X(TMC2208) || AXIS_DRIVER_TYPE_X(TMC2208_STANDALONE)
+    #define FTM_DIR_CHANGE_HOLD_X
+  #endif
+  #if AXIS_DRIVER_TYPE_Y(TMC2208) || AXIS_DRIVER_TYPE_Y(TMC2208_STANDALONE)
+    #define FTM_DIR_CHANGE_HOLD_Y
+  #endif
+  #if AXIS_DRIVER_TYPE_Z(TMC2208) || AXIS_DRIVER_TYPE_Z(TMC2208_STANDALONE)
+    #define FTM_DIR_CHANGE_HOLD_Z
+  #endif
+  #if HAS_E_DRIVER(TMC2208) || HAS_E_DRIVER(TMC2208_STANDALONE)
+    #define FTM_DIR_CHANGE_HOLD_E
+  #endif
 
 #endif // FT_MOTION
 
@@ -1260,6 +1323,10 @@
   //#define SHAPING_MIN_FREQ  20.0      // (Hz) By default the minimum of the shaping frequencies. Override to affect SRAM usage.
   //#define SHAPING_MAX_STEPRATE 10000  // By default the maximum total step rate of the shaped axes. Override to affect SRAM usage.
   //#define SHAPING_MENU                // Add a menu to the LCD to set shaping parameters.
+#endif
+
+#if ANY(INPUT_SHAPING_X, INPUT_SHAPING_Y, INPUT_SHAPING_Z, FTM_SHAPER_ZV, FTM_SHAPER_ZVD, FTM_SHAPER_ZVDD, FTM_SHAPER_ZVDDD, FTM_SHAPER_EI, FTM_SHAPER_2HEI, FTM_SHAPER_3HEI, FTM_SHAPER_MZV)
+  //#define RESONANCE_TEST              // Sine sweep motion for resonance study
 #endif
 
 // @section motion
@@ -1512,6 +1579,9 @@
 
 // @section lcd
 
+// Turn off the display blinking that warns about possible accuracy reduction
+//#define DISABLE_REDUCED_ACCURACY_WARNING
+
 #if HAS_MANUAL_MOVE_MENU
   #define MANUAL_FEEDRATE { 50*60, 50*60, 4*60, 2*60 } // (mm/min) Feedrates for manual moves along X, Y, Z, E from panel
   #define FINE_MANUAL_MOVE 0.025    // (mm) Smallest manual move (< 0.1mm) applying to Z on most machines
@@ -1581,7 +1651,7 @@
       #define XATC_Z_OFFSETS { 0, 0, 0 }    // Z offsets for X axis sample points
     #endif
 
-  #endif
+  #endif // HAS_BED_PROBE
 
   // Include a page of printer information in the LCD Main Menu
   //#define LCD_INFO_MENU
@@ -1765,6 +1835,12 @@
    */
   //#define SD_SPI_SPEED SPI_HALF_SPEED
 
+  /**
+   * Reinit the LCD after SD Card insert/remove or when entering the menu.
+   * Required for some LCDs that use shared SPI with an external SD Card reader.
+   */
+  #define REINIT_NOISY_LCD
+
   // The standard SD detect circuit reads LOW when media is inserted and HIGH when empty.
   // Enable this option and set to HIGH if your SD cards are incorrectly detected.
   //#define SD_DETECT_STATE HIGH
@@ -1798,6 +1874,14 @@
   #if ENABLED(PRINTER_EVENT_LEDS)
     #define PE_LEDS_COMPLETED_TIME  (30*60) // (seconds) Time to keep the LED "done" color before restoring normal illumination
   #endif
+
+  /**
+   * Priming for the Remaining Time estimate
+   * Long processes at the start of a G-code file can skew the Remaining Time estimate.
+   * Enable these options to start this estimation at a later point in the G-code file.
+   */
+  //#define REMAINING_TIME_PRIME      // Provide G-code 'M75 R' to prime the Remaining Time estimate
+  //#define REMAINING_TIME_AUTOPRIME  // Prime the Remaining Time estimate later (e.g., at the end of 'M109')
 
   /**
    * Continue after Power-Loss (Creality3D)
@@ -1865,17 +1949,21 @@
 
   // SD Card Sorting options
   #if ENABLED(SDCARD_SORT_ALPHA)
-    #define SDSORT_REVERSE     false  // Default to sorting file names in reverse order.
-    #define SDSORT_LIMIT       40     // Maximum number of sorted items (10-256). Costs 27 bytes each.
-    #define SDSORT_FOLDERS     -1     // -1=above  0=none  1=below
-    #define SDSORT_GCODE       false  // Enable G-code M34 to set sorting behaviors: M34 S<-1|0|1> F<-1|0|1>
-    #define SDSORT_USES_RAM    false  // Pre-allocate a static array for faster pre-sorting.
-    #define SDSORT_USES_STACK  false  // Prefer the stack for pre-sorting to give back some SRAM. (Negated by next 2 options.)
-    #define SDSORT_CACHE_NAMES false  // Keep sorted items in RAM longer for speedy performance. Most expensive option.
-    #define SDSORT_DYNAMIC_RAM false  // Use dynamic allocation (within SD menus). Least expensive option. Set SDSORT_LIMIT before use!
-    #define SDSORT_CACHE_VFATS 2      // Maximum number of 13-byte VFAT entries to use for sorting.
-                                      // Note: Only affects SCROLL_LONG_FILENAMES with SDSORT_CACHE_NAMES but not SDSORT_DYNAMIC_RAM.
-    #define SDSORT_QUICK       true   // Use Quick Sort as a sorting algorithm. Otherwise use Bubble Sort.
+    #define SDSORT_QUICK           true   // Use Quick Sort as a sorting algorithm. Otherwise use Bubble Sort.
+    #define SDSORT_REVERSE         false  // Default to sorting file names in reverse order.
+    #define SDSORT_LIMIT           40     // Maximum number of sorted items (10-256). Costs 27 bytes each.
+    #define SDSORT_FOLDERS        -1      // -1=above  0=none  1=below
+    #define SDSORT_GCODE           false  // Enable G-code M34 to set sorting behaviors: M34 S<-1|0|1> F<-1|0|1>
+    #define SDSORT_USES_STACK      false  // Prefer the stack for pre-sorting to give back some SRAM. (Negated by next 2 options.)
+    #define SDSORT_USES_RAM        false  // Pre-allocate a static array for faster pre-sorting.
+    #if ENABLED(SDSORT_USES_RAM)
+      #define SDSORT_CACHE_NAMES   false  // Keep sorted items in RAM longer for speedy performance. Most expensive option.
+      #if ENABLED(SDSORT_CACHE_NAMES)
+        #define SDSORT_DYNAMIC_RAM false  // Use dynamic allocation (within SD menus). Least expensive option. Set SDSORT_LIMIT before use!
+        #define SDSORT_CACHE_VFATS 2      // Maximum number of 13-byte VFAT entries to use for sorting.
+                                          // Note: Only affects SCROLL_LONG_FILENAMES with SDSORT_CACHE_NAMES but not SDSORT_DYNAMIC_RAM.
+      #endif
+    #endif
   #endif
 
   // Allow international symbols in long filenames. To display correctly, the
@@ -2340,7 +2428,7 @@
   //#define WATCHDOG_RESET_MANUAL
 #endif
 
-// @section lcd
+// @section baby-stepping
 
 /**
  * Babystepping enables movement of the axes by tiny increments without changing
@@ -2593,12 +2681,14 @@
   #endif
 #endif // PTC_PROBE || PTC_BED || PTC_HOTEND
 
-// @section extras
+// @section gcode
 
 //
 // G60/G61 Position Save and Return
 //
 //#define SAVED_POSITIONS 1         // Each saved position slot costs 12 bytes
+
+// @section motion
 
 //
 // G2/G3 Arc Support
@@ -2611,7 +2701,6 @@
   //#define ARC_SEGMENTS_PER_SEC 50   // Use the feedrate to choose the segment length
   #define N_ARC_CORRECTION       25   // Number of interpolated segments between corrections
   //#define ARC_P_CIRCLES             // Enable the 'P' parameter to specify complete circles
-  //#define SF_ARC_FIX                // Enable only if using SkeinForge with "Arc Point" fillet procedure
 #endif
 
 // G5 Bézier Curve Support with XYZE destination and IJPQ offsets
@@ -2630,6 +2719,8 @@
  * Preparing your G-code: https://github.com/colinrgodsey/step-daemon
  */
 //#define DIRECT_STEPPING
+
+// @section calibrate
 
 /**
  * G38 Probe Target
@@ -2752,6 +2843,11 @@
   // Enable this option to collect and display the number
   // of dropped bytes after a file transfer to SD.
   //#define SERIAL_STATS_DROPPED_RX
+
+  // Enable this option to collect and display framing errors.
+  // Framing errors occur when invalid start/stop bits or other
+  // serial protocol violations are detected.
+  //#define SERIAL_STATS_RX_FRAMING_ERRORS
 #endif
 
 // Monitor RX buffer usage
@@ -2779,8 +2875,8 @@
  *
  * Adds support for commands:
  *  S000 : Report State and Position while moving.
- *  P000 : Instant Pause / Hold while moving.
- *  R000 : Resume from Pause / Hold.
+ *  P000 : Instant Pause / Hold while moving. Enable SOFT_FEED_HOLD for soft deceleration.
+ *  R000 : Resume from Pause / Hold. Enable SOFT_FEED_HOLD for soft acceleration.
  *
  * - During Hold all Emergency Parser commands are available, as usual.
  * - Enable NANODLP_Z_SYNC and NANODLP_ALL_AXIS for move command end-state reports.
@@ -2837,7 +2933,7 @@
  */
 //#define EXTRA_FAN_SPEED
 
-// @section gcode
+// @section firmware retraction
 
 /**
  * Firmware-based and LCD-controlled retract
@@ -3557,7 +3653,13 @@
     //#define SPI_ENDSTOPS              // TMC2130, TMC2240, and TMC5160
     //#define IMPROVE_HOMING_RELIABILITY
     //#define SENSORLESS_STALLGUARD_DELAY   0 // (ms) Delay to allow drivers to settle
-  #endif
+
+    #if HAS_MARLINUI_MENU
+      // Convenient homing menu items next to Sensorless Homing edit items
+      //#define SENSORLESS_HOMING_TEST_MENU_ITEMS
+    #endif
+
+  #endif // SENSORLESS_HOMING || SENSORLESS_PROBING
 
   // @section tmc/config
 
@@ -3654,7 +3756,7 @@
   //#define PHOTO_RETRACT_MM   6.5                          // (mm) E retract/recover for the photo move (M240 R S)
 
   // Canon RC-1 or homebrew digital camera trigger
-  // Data from: https://www.doc-diy.net/photo/rc-1_hacked/
+  // Data from: https://web.archive.org/web/20250327153953/www.doc-diy.net/photo/rc-1_hacked/
   //#define PHOTOGRAPH_PIN 23
 
   // Canon Hack Development Kit
@@ -4225,7 +4327,7 @@
     #define BUTTON1_WHEN_PRINTING false     // Button allowed to trigger during printing?
     #define BUTTON1_GCODE         "G28"
     #define BUTTON1_DESC          "Homing"  // Optional string to set the LCD status
-    //#define BUTTON1_IMMEDIATE             // Skip the queue and run the G-code immediately. Rarely needed.
+    //#define BUTTON1_IMMEDIATE             // Skip the queue and execute immediately. Rarely needed.
   #endif
 
   //#define BUTTON2_PIN -1
@@ -4263,12 +4365,12 @@
  * Host Prompt Support enables Marlin to use the host for user prompts so
  * filament runout and other processes can be managed from the host side.
  */
-//#define HOST_ACTION_COMMANDS
+#define HOST_ACTION_COMMANDS
 #if ENABLED(HOST_ACTION_COMMANDS)
   //#define HOST_PAUSE_M76                // Tell the host to pause in response to M76
-  //#define HOST_PROMPT_SUPPORT           // Initiate host prompts to get user feedback
+  #define HOST_PROMPT_SUPPORT             // Initiate host prompts to get user feedback
   #if ENABLED(HOST_PROMPT_SUPPORT)
-    //#define HOST_STATUS_NOTIFICATIONS   // Send some status messages to the host as notifications
+    #define HOST_STATUS_NOTIFICATIONS     // Send some status messages to the host as notifications
   #endif
   //#define HOST_START_MENU_ITEM          // Add a menu item that tells the host to start
   //#define HOST_SHUTDOWN_MENU_ITEM       // Add a menu item that tells the host to shut down
@@ -4291,7 +4393,7 @@
  * Developed by Chris Barr at Aus3D.
  *
  * Wiki: https://wiki.aus3d.com.au/Magnetic_Encoder
- * Github: https://github.com/Aus3D/MagneticEncoder
+ * GitHub: https://github.com/Aus3D/MagneticEncoder
  *
  * Supplier: https://aus3d.com.au/products/magnetic-encoder-module
  * Alternative Supplier: https://reliabuild3d.com/
@@ -4410,15 +4512,38 @@
 #endif
 
 /**
- * Instant freeze / unfreeze functionality
- * Potentially useful for rapid stop that allows being resumed. Halts stepper movement.
- * Note this does NOT pause spindles, lasers, fans, heaters or any other auxiliary device.
- * @section interface
+ * Freeze / Unfreeze
+ *
+ * Pause / Hold that keeps power available and does not stop the spindle can be initiated by
+ * the FREEZE_PIN. Halts instantly (default) or performs a soft feed hold that decelerates and
+ * halts movement at FREEZE_JERK (requires SOFT_FEED_HOLD).
+ * Motion can be resumed by using the FREEZE_PIN.
+ *
+ * NOTE: Controls Laser PWM but does NOT pause Spindle, Fans, Heaters or other devices.
+ * @section freeze
  */
 //#define FREEZE_FEATURE
 #if ENABLED(FREEZE_FEATURE)
-  //#define FREEZE_PIN 41   // Override the default (KILL) pin here
-  #define FREEZE_STATE LOW  // State of pin indicating freeze
+  //#define FREEZE_PIN   -1   // Override the default (KILL) pin here
+  #define FREEZE_STATE  LOW   // State of pin indicating freeze
+#endif
+
+#if ANY(FREEZE_FEATURE, REALTIME_REPORTING_COMMANDS)
+  /**
+   * Command P000 (REALTIME_REPORTING_COMMANDS and EMERGENCY_PARSER) or
+   * FREEZE_PIN (FREEZE_FEATURE) initiates a soft feed hold that keeps
+   * power available and does not stop the spindle.
+   *
+   * The soft feed hold decelerates and halts movement at FREEZE_JERK.
+   * Motion can be resumed with command R000 (requires REALTIME_REPORTING_COMMANDS) or
+   * by using the FREEZE_PIN (requires FREEZE_FEATURE).
+   *
+   * NOTE: Affects Laser PWM but DOES NOT pause Spindle, Fans, Heaters or other devices.
+   */
+  //#define SOFT_FEED_HOLD
+  #if ENABLED(SOFT_FEED_HOLD)
+    #define FREEZE_JERK     2   // (mm/s) Completely halt when motion has decelerated below this value
+  #endif
 #endif
 
 /**

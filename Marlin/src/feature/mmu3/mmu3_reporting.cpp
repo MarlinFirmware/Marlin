@@ -353,17 +353,18 @@ namespace MMU3 {
       // Render the choices
       //if (two_choices) {
       //  lcd_show_choices_prompt_P(
-      //   LCD_LEFT_BUTTON_CHOICE,
-      //   PrusaErrorButtonTitle(button_op_middle),
-      //   GET_TEXT(MSG_BTN_MORE),
-      //   18, nullptr
+      //    LCD_LEFT_BUTTON_CHOICE,
+      //    PrusaErrorButtonTitle(button_op_middle),
+      //    GET_TEXT(MSG_BTN_MORE),
+      //    18, nullptr
       //  );
       //}
       //else {
-      //  lcd_show_choices_prompt_P(LCD_MIDDLE_BUTTON_CHOICE,
-      //   PrusaErrorButtonTitle(button_op_middle),
-      //   PrusaErrorButtonTitle(button_op_right),
-      //   9, GET_TEXT(MSG_BTN_MORE)
+      //  lcd_show_choices_prompt_P(
+      //    LCD_MIDDLE_BUTTON_CHOICE,
+      //    PrusaErrorButtonTitle(button_op_middle),
+      //    PrusaErrorButtonTitle(button_op_right),
+      //    9, GET_TEXT(MSG_BTN_MORE)
       //  );
       //}
 
@@ -526,7 +527,7 @@ namespace MMU3 {
     #if HAS_WIRED_LCD
       // Set the cursor position each time in case some other
       // part of the firmware changes the cursor position
-      lcd_insert_char_into_status(col, sensorState ? LCD_STR_SOLID_BLOCK[0] : '-');
+      lcd_replace_status_char(col, sensorState ? LCD_STR_SOLID_BLOCK[0] : '-');
       if (ui.lcdDrawUpdate == LCDViewAction::LCDVIEW_NONE)
         ui.draw_status_message(false);
     #endif
@@ -535,7 +536,7 @@ namespace MMU3 {
   void TryLoadUnloadReporter::Progress(bool sensorState) {
     // Always round up, you can only have 'whole' pixels. (floor is also an option)
     dpixel1 = ceil((stepper_get_machine_position_E_mm() - planner_get_current_position_E()) * pixel_per_mm);
-    if (dpixel1 - dpixel0) {
+    if (dpixel1 != dpixel0) {
       dpixel0 = dpixel1;
       if (lcd_cursor_col > (LCD_WIDTH - 1)) lcd_cursor_col = LCD_WIDTH - 1;
       Render(lcd_cursor_col++, sensorState);

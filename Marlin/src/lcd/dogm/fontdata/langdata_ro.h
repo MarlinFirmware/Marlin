@@ -12,5 +12,5 @@ const u8g_fntpgm_uint8_t fontpage_2_131_131[31] U8G_FONT_SECTION("fontpage_2_131
   0x00,0x05,0x08,0x08,0x06,0x00,0x00,0x88,0x70,0x00,0x70,0x08,0x78,0x88,0x78};
 
 static const uxg_fontinfo_t g_fontinfo_ro[] PROGMEM = {
-  FONTDATA_ITEM(2, 131, 131, fontpage_2_131_131), // 'ă' -- 'ă'
+  FONTDATA_ITEM(2, 131, 131, fontpage_2_131_131), // ' ă ' - ' ă '
 };

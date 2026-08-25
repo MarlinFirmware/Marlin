@@ -94,7 +94,7 @@ void DGUSScreenHandlerMKS::sendFanToDisplay(DGUS_VP_Variable &var) {
 }
 
 void DGUSScreenHandlerMKS::sendBabyStepToDisplay(DGUS_VP_Variable &var) {
-  float value = current_position.z;
+  float value = motion.position.z;
   value *= 100; //cpow(10, 2);
   dgus.writeVariable(VP_SD_Print_Baby, (uint16_t)value);
 }
@@ -449,7 +449,7 @@ void DGUSScreenHandlerMKS::levelControl(DGUS_VP_Variable &var, void *val_ptr) {
       break;
 
     case 1:
-      soft_endstop._enabled = true;
+      motion.soft_endstop._enabled = true;
       gotoScreen(MKSLCD_SCREEM_TOOL);
       break;
 
@@ -480,7 +480,7 @@ void DGUSScreenHandlerMKS::meshLevel(DGUS_VP_Variable &var, void *val_ptr) {
         integer = offset; // get int
         Deci = (offset * 10) % 10;
         Deci2 = (offset * 100) % 10;
-        soft_endstop._enabled = false;
+        motion.soft_endstop._enabled = false;
         queue.enqueue_now(F("G91"));
         snprintf_P(cmd_buf, 30, PSTR("G1 Z%d.%d%d"), integer, Deci, Deci2);
         queue.enqueue_one_now(cmd_buf);
@@ -492,7 +492,7 @@ void DGUSScreenHandlerMKS::meshLevel(DGUS_VP_Variable &var, void *val_ptr) {
         integer = offset;       // get int
         Deci = (offset * 10) % 10;
         Deci2 = (offset * 100) % 10;
-        soft_endstop._enabled = false;
+        motion.soft_endstop._enabled = false;
         queue.enqueue_now(F("G91"));
         snprintf_P(cmd_buf, 30, PSTR("G1 Z-%d.%d%d"), integer, Deci, Deci2);
         queue.enqueue_one_now(cmd_buf);
@@ -549,7 +549,7 @@ void DGUSScreenHandlerMKS::meshLevel(DGUS_VP_Variable &var, void *val_ptr) {
         }
         else if (mesh_point_count == 0) {
           mesh_point_count = GRID_MAX_POINTS;
-          soft_endstop._enabled = true;
+          motion.soft_endstop._enabled = true;
           settings.save();
           gotoScreen(MKSLCD_SCREEM_TOOL);
         }
@@ -769,8 +769,8 @@ void DGUSScreenHandler::handleManualMove(DGUS_VP_Variable &var, void *val_ptr) {
   }
 
   // Movement
-  const bool old_relative_mode = relative_mode;
-  if (!relative_mode) queue.enqueue_now(F("G91"));
+  const bool old_relative_mode = motion.relative_mode;
+  if (!old_relative_mode) queue.enqueue_now(F("G91"));
 
   // TODO: Use MString / TS() ...
 
@@ -941,7 +941,7 @@ void DGUSScreenHandlerMKS::handleAccChange(DGUS_VP_Variable &var, void *val_ptr)
 #endif // BABYSTEPPING
 
 void DGUSScreenHandlerMKS::getManualFilament(DGUS_VP_Variable &var, void *val_ptr) {
-  distanceFilament = (float)BE16_P(val_ptr);
+  distanceFilament = BE16_P(val_ptr);
   skipVP = var.VP; // Don't overwrite value the next update time as the display might autoincrement in parallel
 }
 
@@ -998,16 +998,13 @@ void DGUSScreenHandlerMKS::filamentLoadUnload(DGUS_VP_Variable &var, void *val_p
   #endif
 
   if (swap_tool) {
-    char buf[30]; // TODO: Use MString / TS()
-    snprintf_P(buf, 30,
-      #if ANY(HAS_MULTI_HOTEND, SINGLENOZZLE)
-        PSTR("M1002T%cE%dF%d"), char('0' + swap_tool - 1)
-      #else
-        PSTR("M1002E%dF%d")
-      #endif
-      , (int)distanceFilament * filamentDir, filamentSpeed_mm_s * 60
-    );
-    queue.inject(buf);
+    const int e_mm = (int)distanceFilament * filamentDir;
+    const uint16_t mm_min = filamentSpeed_mm_s * 60;
+    #if ANY(HAS_MULTI_HOTEND, SINGLENOZZLE)
+      queue.inject(TS(F("M1002T"), char('0' + swap_tool - 1), F("E"), e_mm, F("F"), mm_min));
+    #else
+      queue.inject(TS(F("M1002E"), e_mm, F("F"), mm_min));
+    #endif
   }
 }
 
@@ -1018,9 +1015,7 @@ void DGUSScreenHandlerMKS::filamentLoadUnload(DGUS_VP_Variable &var, void *val_p
 void GcodeSuite::M1002() {
   #if ANY(HAS_MULTI_HOTEND, SINGLENOZZLE)
   {
-    char buf[3]; // TODO: Use MString / TS()
-    sprintf_P(buf, PSTR("T%c"), char('0' + parser.intval('T')));
-    process_subcommands_now(buf);
+    process_subcommands_now(TS(F("T"), char('0' + parser.intval('T'))));
   }
   #endif
 
@@ -1028,9 +1023,7 @@ void GcodeSuite::M1002() {
   set_e_relative(); // M83
 
   {
-    char buf[20]; // TODO: Use MString / TS()
-    snprintf_P(buf, 20, PSTR("G1E%dF%d"), parser.intval('E'), parser.intval('F'));
-    process_subcommands_now(buf);
+    process_subcommands_now(TS(F("G1E"), parser.intval('E'), F("F"), parser.intval('F')));
   }
 
   axis_relative = old_axis_relative;
@@ -1088,7 +1081,7 @@ void DGUSScreenHandlerMKS::filamentUnload(DGUS_VP_Variable &var, void *val_ptr) 
 
     if (filament_data.action == 0) { // Go back to utility screen
       TERN_(HAS_EXTRUDERS, thermalManager.setTargetHotend(e_temp, 0));
-      TERN_(HAS_MULTI_EXTRUDER, thermalManager.setTargetHotend(e_temp, 1));
+      E_TERN_(thermalManager.setTargetHotend(e_temp, 1));
       gotoScreen(DGUS_SCREEN_UTILITY);
       return;
     }

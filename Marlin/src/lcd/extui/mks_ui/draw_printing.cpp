@@ -244,7 +244,7 @@ void disp_fan_speed() {
 }
 
 void disp_print_time() {
-  #if ENABLED(SET_REMAINING_TIME)
+  #if ENABLED(SHOW_REMAINING_TIME)
     const uint32_t r = ui.get_remaining_time();
     sprintf_P(public_buf_l, PSTR("%02d:%02d R"), r / 3600, (r % 3600) / 60);
   #else
@@ -254,7 +254,7 @@ void disp_print_time() {
 }
 
 void disp_fan_Zpos() {
-  dtostrf(current_position.z, 1, 3, public_buf_l);
+  dtostrf(motion.position.z, 1, 3, public_buf_l);
   lv_label_set_text(labelZpos, public_buf_l);
 }
 

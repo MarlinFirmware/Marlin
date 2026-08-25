@@ -22,6 +22,13 @@
 #pragma once
 #include <core_util.h>
 
+/**
+ * Require pins to be defined as macros with numerical values
+ */
+#ifndef PA0
+  #error "Your ARM platform pins are not defined as macros, only as enums! Provide pins_arduino.h and/or 'buildroot/share/PlatformIO/variants/*/variant.h' to define the pins."
+#endif
+
 #if !defined(ARDUINO_CORE_VERSION_INT) || !defined(GET_VERSION_INT)
   // version macros were introduced in arduino core version 1.1.0
   // below that version, we polyfill them
@@ -43,8 +50,11 @@
   #error "FAST_PWM_FAN is not yet implemented for this platform."
 #endif
 
-#if !defined(HAVE_SW_SERIAL) && HAS_TMC_SW_SERIAL
-  #error "Missing SoftwareSerial implementation."
+// SoftwareSerial introduced in arduino core version 1.3.1
+#if ARDUINO_CORE_VERSION_INT < GET_VERSION_INT(1, 3, 1)
+  #if !defined(HAVE_SW_SERIAL) && HAS_TMC_SW_SERIAL
+    #error "Missing SoftwareSerial implementation."
+  #endif
 #endif
 
 #if ENABLED(SDCARD_EEPROM_EMULATION) && !HAS_MEDIA

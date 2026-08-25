@@ -40,7 +40,7 @@
  */
 
 typedef uint16_t hal_timer_t;
-#define HAL_TIMER_TYPE_MAX 0xFFFFU
+#define HAL_TIMER_TYPE_MAX hal_timer_t(UINT16_MAX)
 
 #define HAL_TIMER_RATE uint32_t(F_CPU)  // frequency of timers peripherals
 
@@ -103,7 +103,6 @@ typedef uint16_t hal_timer_t;
 #define STEPPER_TIMER_TICKS_PER_US  ((STEPPER_TIMER_RATE) / 1000000UL)              // (MHz) Stepper Timer ticks per µs
 
 #define PULSE_TIMER_RATE            STEPPER_TIMER_RATE                              // (Hz) Frequency of Pulse Timer
-#define PULSE_TIMER_TICKS_PER_US    STEPPER_TIMER_TICKS_PER_US
 #define PULSE_TIMER_PRESCALE        STEPPER_TIMER_PRESCALE
 
 timer_dev* HAL_get_timer_dev(int number);

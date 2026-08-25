@@ -106,13 +106,13 @@ void GcodeSuite::M104_M109(const bool isM109) {
   if (got_temp) {
     #if ENABLED(SINGLENOZZLE_STANDBY_TEMP)
       thermalManager.singlenozzle_temp[target_extruder] = temp;
-      if (target_extruder != active_extruder) return;
+      if (target_extruder != motion.extruder) return;
     #endif
     thermalManager.setTargetHotend(temp, target_extruder);
 
     #if ENABLED(DUAL_X_CARRIAGE)
-      if (idex_is_duplicating() && target_extruder == 0)
-        thermalManager.setTargetHotend(temp ? temp + duplicate_extruder_temp_offset : 0, 1);
+      if (motion.idex_is_duplicating() && target_extruder == 0)
+        thermalManager.setTargetHotend(temp ? temp + motion.duplicate_extruder_temp_offset : 0, 1);
     #endif
 
     #if ENABLED(PRINTJOB_TIMER_AUTOSTART)
@@ -130,8 +130,16 @@ void GcodeSuite::M104_M109(const bool isM109) {
 
   TERN_(AUTOTEMP, thermalManager.autotemp_M104_M109());
 
-  if (isM109 && got_temp)
+  if (isM109 && got_temp) {
     (void)thermalManager.wait_for_hotend(target_extruder, no_wait_for_cooling);
+    #if ENABLED(REMAINING_TIME_AUTOPRIME)
+      if (card.isStillPrinting()) {
+        print_job_timer.primeRemainingTimeEstimate(card.getIndex(), card.getFileSize());
+        //SERIAL_ECHOLN(F("M109 - Prime Remaining Time Estimate: "), print_job_timer.duration(), C(' '), card.getIndex(), C(' '), card.getFileSize() - card.getIndex());
+      }
+    #endif
+  }
+
 }
 
 #if ENABLED(AUTOTEMP)

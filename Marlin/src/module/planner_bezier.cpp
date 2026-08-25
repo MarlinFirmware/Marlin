@@ -67,7 +67,7 @@ static inline float dist1(const float x1, const float y1, const float x2, const 
 
 /**
  * The algorithm for computing the step is loosely based on the one in Kig
- * (See https://sources.debian.net/src/kig/4:15.08.3-1/misc/kigpainter.cpp/#L759)
+ * (See https://sources.debian.org/src/kig/4:15.08.3-1/misc/kigpainter.cpp/#L759)
  * However, we do not use the stack.
  *
  * The algorithm goes as it follows: the parameters t runs from 0.0 to
@@ -195,7 +195,7 @@ void cubic_b_spline(
       interp(position.v, target.v, t),  // FIXME. Wrong, since t is not linear in the distance.
       interp(position.w, target.w, t)   // FIXME. Wrong, since t is not linear in the distance.
     );
-    apply_motion_limits(new_bez);
+    motion.apply_limits(new_bez);
     bez_target = new_bez;
 
     #if HAS_LEVELING && !PLANNER_LEVELING
@@ -205,7 +205,7 @@ void cubic_b_spline(
       const xyze_pos_t &pos = bez_target;
     #endif
 
-    if (!planner.buffer_line(pos, scaled_fr_mm_s, active_extruder, hints))
+    if (!planner.buffer_line(pos, scaled_fr_mm_s, motion.extruder, hints))
       break;
   }
 }

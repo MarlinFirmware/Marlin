@@ -33,7 +33,7 @@
 // Static data members
 bool EmergencyParser::killed_by_M112, // = false
      EmergencyParser::quickstop_by_M410,
-     #if ENABLED(FTM_RESONANCE_TEST)
+     #if ENABLED(RESONANCE_TEST)
        EmergencyParser::rt_stop_by_M496, // = false
      #endif
      #if HAS_MEDIA
@@ -54,10 +54,11 @@ EmergencyParser emergency_parser;
 #endif
 
 #if ENABLED(REALTIME_REPORTING_COMMANDS)
-  // From motion.h, which cannot be included here
-  void report_current_position_moving();
-  void quickpause_stepper();
-  void quickresume_stepper();
+  #include "../module/motion.h"
+#endif
+
+#if ENABLED(SOFT_FEED_HOLD)
+  bool realtime_ramping_pause_flag = false;
 #endif
 
 void EmergencyParser::update(EmergencyParser::State &state, const uint8_t c) {
@@ -150,7 +151,7 @@ void EmergencyParser::update(EmergencyParser::State &state, const uint8_t c) {
     case EP_M4:
       switch (c) {
         case '1' :state = EP_M41;    break;
-        #if ENABLED(FT_MOTION_RESONANCE_TEST)
+        #if ENABLED(RESONANCE_TEST)
           case '9': state = EP_M49;  break;
         #endif
         default: state  = EP_IGNORE;
@@ -159,7 +160,7 @@ void EmergencyParser::update(EmergencyParser::State &state, const uint8_t c) {
 
     case EP_M41: state = (c == '0') ? EP_M410 : EP_IGNORE; break;
 
-    #if ENABLED(FTM_RESONANCE_TEST)
+    #if ENABLED(RESONANCE_TEST)
       case EP_M49: state = (c == '6') ? EP_M496 : EP_IGNORE; break;
     #endif
 
@@ -208,7 +209,7 @@ void EmergencyParser::update(EmergencyParser::State &state, const uint8_t c) {
           case EP_M108: marlin.end_waiting(); break;
           case EP_M112: killed_by_M112 = true; break;
           case EP_M410: quickstop_by_M410 = true; break;
-          #if ENABLED(FTM_RESONANCE_TEST)
+          #if ENABLED(RESONANCE_TEST)
             case EP_M496: rt_stop_by_M496 = true; break;
           #endif
           #if ENABLED(EP_BABYSTEPPING)
@@ -222,9 +223,9 @@ void EmergencyParser::update(EmergencyParser::State &state, const uint8_t c) {
             case EP_M876SN: hostui.handle_response(M876_reason); break;
           #endif
           #if ENABLED(REALTIME_REPORTING_COMMANDS)
-            case EP_GRBL_STATUS: report_current_position_moving(); break;
-            case EP_GRBL_PAUSE: quickpause_stepper(); break;
-            case EP_GRBL_RESUME: quickresume_stepper(); break;
+            case EP_GRBL_STATUS: motion.report_position_moving(); break;
+            case EP_GRBL_PAUSE:  TERN(SOFT_FEED_HOLD, realtime_ramping_pause_flag = true,  motion.quickpause_stepper()); break;
+            case EP_GRBL_RESUME: TERN(SOFT_FEED_HOLD, realtime_ramping_pause_flag = false, motion.quickresume_stepper()); break;
           #endif
           #if ENABLED(SOFT_RESET_VIA_SERIAL)
             case EP_KILL: hal.reboot(); break;
