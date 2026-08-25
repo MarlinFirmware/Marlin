@@ -323,20 +323,20 @@ void Endstops::event_handler() {
       if (TERN0(HAS_##A##_MIN_STATE, TEST(hit_state, ES_ENUM(A,MIN))) || TERN0(HAS_##A##_MAX_STATE, TEST(hit_state, ES_ENUM(A,MAX)))) \
         _ENDSTOP_HIT_ECHO(A,C)
 
-    #define ENDSTOP_ARGS_X  X,'X'
-    #define ENDSTOP_ARGS_Y  Y,'Y'
-    #define ENDSTOP_ARGS_Z  Z,'Z'
-    #define ENDSTOP_ARGS_I  I,'I'
-    #define ENDSTOP_ARGS_J  J,'J'
-    #define ENDSTOP_ARGS_K  K,'K'
-    #define ENDSTOP_ARGS_U  U,'U'
-    #define ENDSTOP_ARGS_V  V,'V'
-    #define ENDSTOP_ARGS_W  W,'W'
-    #define _ES_HIT_TEST(A) _ENDSTOP_HIT_TEST(ENDSTOP_ARGS_##A);
-
     SERIAL_ECHO_START();
     SERIAL_ECHOPGM(STR_ENDSTOPS_HIT);
-    MAIN_AXIS_MAP(_ES_HIT_TEST);
+
+    NUM_AXIS_CODE(
+      _ENDSTOP_HIT_TEST(X,'X'),
+      _ENDSTOP_HIT_TEST(Y,'Y'),
+      _ENDSTOP_HIT_TEST(Z,'Z'),
+      _ENDSTOP_HIT_TEST(AXIS4_NAME,'I'),
+      _ENDSTOP_HIT_TEST(AXIS5_NAME,'J'),
+      _ENDSTOP_HIT_TEST(AXIS6_NAME,'K'),
+      _ENDSTOP_HIT_TEST(AXIS7_NAME,'U'),
+      _ENDSTOP_HIT_TEST(AXIS8_NAME,'V'),
+      _ENDSTOP_HIT_TEST(AXIS9_NAME,'W')
+    );
 
     #if USE_Z_MIN_PROBE
       #define P_AXIS Z_AXIS
