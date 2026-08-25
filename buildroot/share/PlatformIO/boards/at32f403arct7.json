@@ -5,17 +5,17 @@
     "extra_flags": "-DAT32F403ARCT7 -DUSE_STDPERIPH_DRIVER",
     "f_cpu": "240000000L",
     "mcu": "at32f403arct7",
-    "variant": "AT32F403ACGU7",
-    "board": "AT32F403ACGxx",
-    "ldscript": "AT32F403AxG_FLASH.ld"
+    "variant": "marlin_at32f403",
+    "board": "AT32F403ARCxx",
+    "ldscript": "AT32F403AxR_FLASH.ld"
   },
   "frameworks": [
     "arduino"
   ],
-  "name": "AT32F403ARCT7 (96k RAM, 1024k Flash)",
+  "name": "AT32F403ARCT7 (224k RAM, 256k Flash)",
   "upload": {
-    "maximum_ram_size": 98304,
-    "maximum_size": 1048576,
+    "maximum_ram_size": 229376,
+    "maximum_size": 262144,
     "protocol": "dfu",
     "protocols": [
       "dfu",
