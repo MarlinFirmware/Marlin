@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2022 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2026 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -62,7 +62,7 @@ void menu_tool_change_hotend() {
   // Display Hotend 1 .. Hotend n, or hotend names.
   for (uint8_t e = 0, e < MAN_ST_NUM_TOOLS; ++e) {
     if (e >= HOTENDS) break;
-    if (e == active_extruder) continue;
+    if (e == motion.extruder) continue;
 
     editable.uint8 = e;
     if (printingIsActive()) {
@@ -106,7 +106,7 @@ void menu_tool_change_unpowered() {
 
   // Display Tool 1 .. Tool n, or tool names.
   for (uint8_t e = HOTENDS; e < MAN_ST_NUM_TOOLS; ++e) {
-    if (e == active_extruder) continue;
+    if (e == motion.extruder) continue;
 
     editable.uint8 = e;
     if (printingIsActive()) {
@@ -131,17 +131,17 @@ void menu_tool_change() {
   START_MENU();
 
   // display the current tool
-  STATIC_ITEM_P(tool_name(active_extruder), SS_DEFAULT|SS_INVERT);
+  STATIC_ITEM_P(tool_name(motion.extruder), SS_DEFAULT|SS_INVERT);
 
   BACK_ITEM(MSG_MAIN);
 
   #if HOTENDS > 0
-    if (HAS_MULTI_HOTEND || active_extruder != (MAN_ST_NUM_TOOLS - 1))
+    if (HAS_MULTI_HOTEND || motion.extruder != (MAN_ST_NUM_TOOLS - 1))
       SUBMENU(MSG_HOTEND, menu_tool_change_hotend);
   #endif
 
   #if UNPOWERED_TOOLS > 0
-    if (UNPOWERED_TOOLS > 1 || active_extruder != (MAN_ST_NUM_TOOLS - 1))
+    if (UNPOWERED_TOOLS > 1 || motion.extruder != (MAN_ST_NUM_TOOLS - 1))
       SUBMENU(MSG_TOOL_CHANGE_UNPOWERED, menu_tool_change_unpowered);
   #endif
 

@@ -157,17 +157,17 @@
   #define NUM_TOOLS MAN_ST_NUM_TOOLS
   #define HAS_TOOL_0 1
   #define HAS_TOOL_1 1
-  #if MAN_ST_NUM_TOOLS > 2
+  #if NUM_TOOLS > 2
     #define HAS_TOOL_2 1
-    #if MAN_ST_NUM_TOOLS > 3
+    #if NUM_TOOLS > 3
       #define HAS_TOOL_3 1
-      #if MAN_ST_NUM_TOOLS > 4
+      #if NUM_TOOLS > 4
         #define HAS_TOOL_4 1
-        #if MAN_ST_NUM_TOOLS > 5
+        #if NUM_TOOLS > 5
           #define HAS_TOOL_5 1
-          #if MAN_ST_NUM_TOOLS > 6
+          #if NUM_TOOLS > 6
             #define HAS_TOOL_6 1
-            #if MAN_ST_NUM_TOOLS > 7
+            #if NUM_TOOLS > 7
               #define HAS_TOOL_7 1
             #endif
           #endif

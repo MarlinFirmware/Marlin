@@ -1045,11 +1045,9 @@ class Temperature {
       return TERN0(HAS_HOTEND, temp_hotend[HOTEND_INDEX].target);
     }
 
-    #if ANY(SHOW_TEMP_ADC_VALUES, DEBUG_TEMPERATURE)
-      static raw_adc_t rawHotendTemp(const uint8_t E_NAME) {
-        return TERN0(HAS_HOTEND, temp_hotend[HOTEND_INDEX].getraw());
-      }
-    #endif
+    static raw_adc_t rawHotendTemp(const uint8_t E_NAME) {
+      return TERN0(HAS_HOTEND, temp_hotend[HOTEND_INDEX].getraw());
+    }
 
     #if HAS_HOTEND
 

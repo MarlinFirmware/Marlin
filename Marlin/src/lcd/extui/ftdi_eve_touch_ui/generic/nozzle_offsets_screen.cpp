@@ -28,7 +28,7 @@
 using namespace FTDI;
 using namespace ExtUI;
 
-void NozzleOffsetScreen::onEntry() {
+void ToolOffsetScreen::onEntry() {
   // Since we don't allow the user to edit the offsets for E0,
   // make sure they are all zero.
   normalizeToolOffset(X);
@@ -36,7 +36,7 @@ void NozzleOffsetScreen::onEntry() {
   normalizeToolOffset(Z);
 }
 
-void NozzleOffsetScreen::onRedraw(draw_mode_t what) {
+void ToolOffsetScreen::onRedraw(draw_mode_t what) {
   widgets_t w(what);
   w.precision(2).units(GET_TEXT_F(MSG_UNITS_MM));
 
@@ -50,7 +50,7 @@ void NozzleOffsetScreen::onRedraw(draw_mode_t what) {
   w.increments();
 }
 
-bool NozzleOffsetScreen::onTouchHeld(uint8_t tag) {
+bool ToolOffsetScreen::onTouchHeld(uint8_t tag) {
   const float increment = getIncrement();
   switch (tag) {
     case  2: UI_DECREMENT(ToolOffset_mm, X, E1); break;

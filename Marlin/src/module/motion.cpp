@@ -1956,7 +1956,7 @@ void Motion::prepare_line_to_destination() {
       if (ignore_e) SERIAL_ECHO_MSG(STR_ERR_COLD_EXTRUDE_STOP);
 
       #if ENABLED(PREVENT_LENGTHY_EXTRUDE)
-        if (active_extruder < EXTRUDERS) {
+        if (extruder < EXTRUDERS) {
           const float e_delta = ABS(destination.e - position.e) * planner.e_factor[extruder];
           if (e_delta > (EXTRUDE_MAXLENGTH)) {
             #if ENABLED(MIXING_EXTRUDER)
@@ -1968,11 +1968,11 @@ void Motion::prepare_line_to_destination() {
                   SERIAL_ECHO_MSG(STR_ERR_LONG_EXTRUDE_STOP);
                   break;
                 }
-              #else
-                ignore_e = true;
-                SERIAL_ECHO_MSG(STR_ERR_LONG_EXTRUDE_STOP);
-              #endif
-            }
+              }
+            #else
+              ignore_e = true;
+              SERIAL_ECHO_MSG(STR_ERR_LONG_EXTRUDE_STOP);
+            #endif
           }
         }
       #endif // PREVENT_LENGTHY_EXTRUDE

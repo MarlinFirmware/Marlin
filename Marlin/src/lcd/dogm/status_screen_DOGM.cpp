@@ -699,7 +699,7 @@ void MarlinUI::draw_status_screen() {
     // Extruders
     #if DO_DRAW_HOTENDS
       for (uint8_t e = 0; e < MAX_HOTEND_DRAW; ++e) {
-        if (TERN0(MANUAL_SWITCHING_TOOLHEAD, e != active_extruder)) continue;
+        if (TERN0(MANUAL_SWITCHING_TOOLHEAD, e != motion.extruder)) continue;
         _draw_hotend_status((heater_id_t)e, blink);
       }
     #endif

@@ -294,7 +294,6 @@ namespace LanguageNarrow_en {
   LSTR MSG_IDEX_MODE_DUPLICATE            = _UxGT("Duplication");
   LSTR MSG_IDEX_MODE_MIRRORED_COPY        = _UxGT("Mirrored Copy");
   LSTR MSG_IDEX_MODE_FULL_CTRL            = _UxGT("Full Control");
-  LSTR MSG_IDEX_DUPE_GAP                  = _UxGT("Duplicate X-Gap");
   LSTR MSG_TOOL_OFFSET_Z                  = _UxGT("2nd Nozzle Z");
   LSTR MSG_TOOL_OFFSET_N                  = _UxGT("2nd Nozzle @");
   LSTR MSG_TOOL_N_OFFSET_X                = _UxGT("Tool = X");
@@ -489,9 +488,9 @@ namespace LanguageNarrow_en {
   LSTR MSG_CASE_LIGHT_BRIGHTNESS          = _UxGT("Light Brightness");
   LSTR MSG_DAC_PERCENT_N                  = _UxGT("@ Driver %");
   LSTR MSG_ERROR_TMC                      = _UxGT("TMC CONNECTION ERROR");
+  LSTR MSG_TOOL_CHANGE_HEADER             = _UxGT("TOOL CHANGE");
   LSTR MSG_FILAMENT_CHANGE_HEADER         = _UxGT("FILAMENT CHANGE");
   LSTR MSG_FILAMENT_CHANGE_HEADER_PAUSE   = _UxGT("PRINT PAUSED");
-  LSTR MSG_TOOL_CHANGE_HEADER             = _UxGT("TOOL CHANGE");
   LSTR MSG_FILAMENT_CHANGE_HEADER_LOAD    = _UxGT("LOAD FILAMENT");
   LSTR MSG_FILAMENT_CHANGE_HEADER_UNLOAD  = _UxGT("UNLOAD FILAMENT");
   LSTR MSG_FILAMENT_CHANGE_OPTION_HEADER  = _UxGT("RESUME OPTIONS:");
@@ -1133,14 +1132,16 @@ namespace LanguageTall_en {
     LSTR MSG_FILAMENT_CHANGE_PURGE        = _UxGT(MSG_2_LINE("Wait for", "filament purge"));
     LSTR MSG_FILAMENT_CHANGE_CONT_PURGE   = _UxGT(MSG_2_LINE("Click to finish", "filament purge"));
     LSTR MSG_PAUSE_TOOL_CHANGE            = _UxGT(MSG_2_LINE("Change tool and", "click to resume..."));
-    LSTR MSG_PAUSE_TOOL_CHANGE_0          = _UxGT(MSG_3_LINE("Install Tool", TOOL_NAME_0, "Click to resume..."));
-    LSTR MSG_PAUSE_TOOL_CHANGE_1          = _UxGT(MSG_3_LINE("Install Tool", TOOL_NAME_1, "Click to resume..."));
-    LSTR MSG_PAUSE_TOOL_CHANGE_2          = _UxGT(MSG_3_LINE("Install Tool", TOOL_NAME_2, "Click to resume..."));
-    LSTR MSG_PAUSE_TOOL_CHANGE_3          = _UxGT(MSG_3_LINE("Install Tool", TOOL_NAME_3, "Click to resume..."));
-    LSTR MSG_PAUSE_TOOL_CHANGE_4          = _UxGT(MSG_3_LINE("Install Tool", TOOL_NAME_4, "Click to resume..."));
-    LSTR MSG_PAUSE_TOOL_CHANGE_5          = _UxGT(MSG_3_LINE("Install Tool", TOOL_NAME_5, "Click to resume..."));
-    LSTR MSG_PAUSE_TOOL_CHANGE_6          = _UxGT(MSG_3_LINE("Install Tool", TOOL_NAME_6, "Click to resume..."));
-    LSTR MSG_PAUSE_TOOL_CHANGE_7          = _UxGT(MSG_3_LINE("Install Tool", TOOL_NAME_7, "Click to resume..."));
+    #if ENABLED(MANUAL_SWITCHING_TOOLHEAD)
+      LSTR MSG_PAUSE_TOOL_CHANGE_0          = _UxGT(MSG_3_LINE("Install Tool", TOOL_NAME_0, "Click to resume..."));
+      LSTR MSG_PAUSE_TOOL_CHANGE_1          = _UxGT(MSG_3_LINE("Install Tool", TOOL_NAME_1, "Click to resume..."));
+      LSTR MSG_PAUSE_TOOL_CHANGE_2          = _UxGT(MSG_3_LINE("Install Tool", TOOL_NAME_2, "Click to resume..."));
+      LSTR MSG_PAUSE_TOOL_CHANGE_3          = _UxGT(MSG_3_LINE("Install Tool", TOOL_NAME_3, "Click to resume..."));
+      LSTR MSG_PAUSE_TOOL_CHANGE_4          = _UxGT(MSG_3_LINE("Install Tool", TOOL_NAME_4, "Click to resume..."));
+      LSTR MSG_PAUSE_TOOL_CHANGE_5          = _UxGT(MSG_3_LINE("Install Tool", TOOL_NAME_5, "Click to resume..."));
+      LSTR MSG_PAUSE_TOOL_CHANGE_6          = _UxGT(MSG_3_LINE("Install Tool", TOOL_NAME_6, "Click to resume..."));
+      LSTR MSG_PAUSE_TOOL_CHANGE_7          = _UxGT(MSG_3_LINE("Install Tool", TOOL_NAME_7, "Click to resume..."));
+    #endif
   #endif
 }
 

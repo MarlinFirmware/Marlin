@@ -56,12 +56,6 @@
   #endif
 #endif
 
-#if HAS_MULTI_EXTRUDER
-  #include "../../module/tool_change.h"
-  #include "../../module/motion.h"
-  #include "../../gcode/queue.h"
-#endif
-
 #if ENABLED(SOUND_MENU_ITEM)
   #include "../../libs/buzzer.h"
 #endif
@@ -176,6 +170,8 @@ void menu_advanced_settings();
 
 #if HAS_MULTI_EXTRUDER
 
+  #include "../../module/tool_change.h"
+
   void menu_config_tool_change() {
     START_MENU();
     BACK_ITEM(MSG_CONFIGURATION);
@@ -199,6 +195,9 @@ void menu_advanced_settings();
   }
 
   #if ENABLED(TOOLCHANGE_MIGRATION_FEATURE)
+
+    #include "../../module/motion.h" // for motion.extruder
+    #include "../../gcode/queue.h"
 
     void menu_toolchange_migration() {
       FSTR_P const msg_migrate = GET_TEXT_F(MSG_TOOL_MIGRATION_SWAP);

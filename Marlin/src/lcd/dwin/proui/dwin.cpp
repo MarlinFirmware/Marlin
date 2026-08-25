@@ -2316,7 +2316,10 @@ void setMoveZ() { hmiValue.axis = Z_AXIS; setPFloatOnClick(Z_MIN_POS, Z_MAX_POS,
 #endif
 
 #if ENABLED(PREVENT_COLD_EXTRUSION)
-  void applyExtMinT() { thermalManager.extrude_min_temp = hmiData.extMinT; thermalManager.allow_cold_extrude = (hmiData.extMinT == 0); }
+  void applyExtMinT() {
+    thermalManager.extrude_min_temp = hmiData.extMinT;
+    thermalManager.allow_cold_extrude = (hmiData.extMinT == 0);
+  }
   void setExtMinT() { setPIntOnClick(MIN_ETEMP, MAX_ETEMP, applyExtMinT); }
 #endif
 

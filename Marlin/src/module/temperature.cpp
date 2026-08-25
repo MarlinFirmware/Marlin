@@ -24,11 +24,6 @@
  * temperature.cpp - temperature control
  */
 
-#include "temperature.h"
-
-#define DEBUG_OUT ENABLED(DEBUG_TEMPERATURE)
-#include "../core/debug_out.h"
-
 // Useful when debugging thermocouples
 //#define IGNORE_THERMOCOUPLE_ERRORS
 
@@ -37,6 +32,7 @@
 #include "../lcd/marlinui.h"
 #include "../gcode/gcode.h"
 
+#include "temperature.h"
 #include "endstops.h"
 #include "planner.h"
 #include "printcounter.h"
@@ -75,6 +71,9 @@
 #if LASER_SAFETY_TIMEOUT_MS > 0
   #include "../feature/spindle_laser.h"
 #endif
+
+#define DEBUG_OUT ENABLED(DEBUG_TEMPERATURE)
+#include "../core/debug_out.h"
 
 #ifndef TEMP_SENSOR_0
   #define TEMP_SENSOR_0 0
@@ -1954,7 +1953,7 @@ void Temperature::mintemp_error(const heater_id_t heater_id OPTARG(ERR_INCLUDE_T
    */
   void Temperature::manage_hotends(const millis_t &ms) {
     HOTEND_LOOP() {
-      if (TERN0(MANUAL_SWITCHING_TOOLHEAD, active_extruder != e)) continue;
+      if (TERN0(MANUAL_SWITCHING_TOOLHEAD, motion.extruder != e)) continue;
 
       #if ENABLED(THERMAL_PROTECTION_HOTENDS)
         if (TERN1(MANUAL_SWITCHING_TOOLHEAD, ms_since_tool_change(ms) > 100)) {
@@ -2997,7 +2996,7 @@ void Temperature::updateTemperaturesFromRawValues() {
     #endif
 
     HOTEND_LOOP() {
-      if (TERN0(STM_HAS_MULTI_HOTEND, active_extruder != e)) continue; // Only act on the active tool in manual switching mode
+      if (TERN0(STM_HAS_MULTI_HOTEND, motion.extruder != e)) continue; // Only act on the active tool in manual switching mode
       const raw_adc_t r = rawHotendTemp(e);
       const bool neg = temp_dir[e] < 0, pos = temp_dir[e] > 0;
       if (TERN1(MANUAL_SWITCHING_TOOLHEAD, ms_since_tc > 100) && ((neg && r < temp_range[e].raw_max) || (pos && r > temp_range[e].raw_max)))

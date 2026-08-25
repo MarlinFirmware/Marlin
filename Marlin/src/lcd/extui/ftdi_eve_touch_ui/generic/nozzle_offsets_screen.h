@@ -23,9 +23,9 @@
 #pragma once
 
 #define FTDI_NOZZLE_OFFSETS_SCREEN
-#define FTDI_NOZZLE_OFFSETS_SCREEN_CLASS NozzleOffsetScreen
+#define FTDI_NOZZLE_OFFSETS_SCREEN_CLASS ToolOffsetScreen
 
-class NozzleOffsetScreen : public BaseNumericAdjustmentScreen, public CachedScreen<NOZZLE_OFFSET_SCREEN_CACHE> {
+class ToolOffsetScreen : public BaseNumericAdjustmentScreen, public CachedScreen<NOZZLE_OFFSET_SCREEN_CACHE> {
   public:
     static void onEntry();
     static void onRedraw(draw_mode_t);

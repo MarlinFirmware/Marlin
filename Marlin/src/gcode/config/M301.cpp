@@ -25,7 +25,6 @@
 #if ENABLED(PIDTEMP)
 
 #include "../gcode.h"
-#include "../../module/motion.h"       // for active_extruder (HOTEND_LOOP)
 #include "../../module/temperature.h"
 
 /**

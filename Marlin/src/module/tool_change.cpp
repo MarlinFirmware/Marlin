@@ -405,12 +405,12 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
   millis_t last_tool_change = 0;
 
   void mst_init() {
-    TERN_(MAN_ST_EEPROM_STORAGE, active_extruder = toolchange_settings.selected_tool); // set active_extruder on first load
+    TERN_(MAN_ST_EEPROM_STORAGE, motion.extruder = toolchange_settings.selected_tool); // set motion.extruder on first load
   }
 
   inline void mst_set_new_tool(const uint8_t new_tool) {
     thermalManager.temp_hotend[new_tool].reset();
-    active_extruder = new_tool;
+    motion.extruder = new_tool;
     toolchange_settings.selected_tool = new_tool;
 
     // allow temperature readings to stabilize; 1khz, OVERSAMPLENR*4 samples
@@ -421,28 +421,19 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
       )
     );
 
-    #if ENABLED(MAN_ST_EEPROM_AUTOSAVE)
-      settings.save();
-    #endif
+    TERN_(MAN_ST_EEPROM_AUTOSAVE, settings.save());
   }
 
   PauseMessage mst_pause_message(const uint8_t new_tool) {
     switch (new_tool) {
-      case 0: return PAUSE_MESSAGE_TOOL_CHANGE_0;
-      case 1: return PAUSE_MESSAGE_TOOL_CHANGE_1;
-      OPTCODE(HAS_TOOL_2, case 2: return PAUSE_MESSAGE_TOOL_CHANGE_2);
-      OPTCODE(HAS_TOOL_3, case 3: return PAUSE_MESSAGE_TOOL_CHANGE_3);
-      OPTCODE(HAS_TOOL_4, case 4: return PAUSE_MESSAGE_TOOL_CHANGE_4);
-      OPTCODE(HAS_TOOL_5, case 5: return PAUSE_MESSAGE_TOOL_CHANGE_5);
-      OPTCODE(HAS_TOOL_6, case 6: return PAUSE_MESSAGE_TOOL_CHANGE_6);
-      OPTCODE(HAS_TOOL_7, case 7: return PAUSE_MESSAGE_TOOL_CHANGE_7);
-      default: break;
+      #define _TOOL_CASE(N) OPTCODE(HAS_TOOL_##N, case N: return PAUSE_MESSAGE_TOOL_CHANGE_##N)
+      CODE_N(NUM_TOOLS, _TOOL_CASE)
+      default: return PAUSE_MESSAGE_TOOL_CHANGE;
     }
-    return PAUSE_MESSAGE_TOOL_CHANGE;
   }
 
   inline void mst_tool_change(const uint8_t new_tool) {
-    DEBUG_ECHOPGM("tool change, active ", active_extruder, " new ", new_tool);
+    DEBUG_ECHOPGM("tool change, active ", motion.extruder, " new ", new_tool);
 
     disable_e_steppers();
     thermalManager.heating_enabled = false;
