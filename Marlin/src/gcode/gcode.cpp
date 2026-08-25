@@ -848,7 +848,7 @@ void GcodeSuite::process_parsed_command(bool no_ok/*=false*/) {
         case 360: M360(); break;                                  // M360: Firmware settings
       #endif
 
-      #if ENABLED(MORGAN_SCARA)
+      #if ENABLED(SCARA)
         case 360: if (M360()) return; break;                      // M360: SCARA Theta pos1
         case 361: if (M361()) return; break;                      // M361: SCARA Theta pos2
         case 362: if (M362()) return; break;                      // M362: SCARA Psi pos1
@@ -924,7 +924,7 @@ void GcodeSuite::process_parsed_command(bool no_ok/*=false*/) {
         #if ANY(FTM_SMOOTHING, FTM_POLYS)
           case 494: M494(); break;                                // M494: Fixed-Time Motion extras
         #endif
-        #if ENABLED(FTM_RESONANCE_TEST)
+        #if ENABLED(RESONANCE_TEST)
           case 495: M495(); break;                                // M495: Resonance test for Input Shaping
           case 496: M496(); break;                                // M496: Abort resonance test
         #endif
@@ -1181,7 +1181,7 @@ void GcodeSuite::process_parsed_command(bool no_ok/*=false*/) {
       #if ENABLED(WIFI_CUSTOM_COMMAND)
         if (wifi_custom_command(parser.command_ptr)) break;
       #endif
-      parser.unknown_command_warning();
+      parser.unknown_command_warning();                           // Other unknown, including > 65535
   }
 
   if (!no_ok) queue.ok_to_send();

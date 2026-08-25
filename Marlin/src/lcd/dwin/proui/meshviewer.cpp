@@ -140,7 +140,10 @@ void MeshViewer::draw(const bool withsave/*=false*/, const bool redraw/*=true*/)
 
 void drawMeshViewer() { meshViewer.draw(true, meshredraw); }
 
-void onClick_MeshViewer() { if (hmiFlag.select_flag) saveMesh(); hmiReturnScreen(); }
+void onClick_MeshViewer() {
+  TERN_(HAS_MESH_STORAGE, if (hmiFlag.select_flag) saveMesh());
+  hmiReturnScreen();
+}
 
 void gotoMeshViewer(const bool redraw) {
   meshredraw = redraw;

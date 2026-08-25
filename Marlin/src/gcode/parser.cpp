@@ -272,7 +272,14 @@ void GCodeParser::parse(char *p) {
       // Get the code number - integer digits only
       codenum = 0;
 
-      do { codenum = codenum * 10 + *p++ - '0'; } while (NUMERIC(*p));
+      do {
+        const uint8_t digit = *p++ - '0';
+        if (codenum > UINT16_MAX / 10 || (codenum == UINT16_MAX / 10 && digit > UINT16_MAX % 10)) {
+          command_letter = '?';
+          return;
+        }
+        codenum = codenum * 10 + digit;
+      } while (NUMERIC(*p));
 
       // Apply the sign, if any
       TERN_(SIGNED_CODENUM, codenum *= sign);

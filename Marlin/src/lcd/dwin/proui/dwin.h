@@ -236,7 +236,7 @@ uint32_t getHash(char * str);
   void writeEEPROM();
   void readEEPROM();
   void resetEEPROM();
-  #if HAS_MESH
+  #if HAS_MESH_STORAGE
     void saveMesh();
   #endif
 #endif
@@ -253,7 +253,9 @@ void autoHome();
   #define _DOPREHEAT(N) void DoPreheat##N();
   REPEAT_1(PREHEAT_COUNT, _DOPREHEAT)
 #endif
-void doCoolDown();
+#if HAS_HOTEND || HAS_HEATED_BED
+  void doCoolDown();
+#endif
 #if ENABLED(BAUD_RATE_GCODE)
   void hmiSetBaudRate();
   void setBaud115K();
@@ -276,8 +278,10 @@ void doCoolDown();
 #endif
 #if ENABLED(AUTO_BED_LEVELING_UBL)
   void ublMeshTilt();
-  void ublMeshSave();
-  void ublMeshLoad();
+  #if HAS_MESH_STORAGE
+    void ublMeshSave();
+    void ublMeshLoad();
+  #endif
 #endif
 
 // Other

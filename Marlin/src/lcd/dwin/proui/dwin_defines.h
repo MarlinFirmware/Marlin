@@ -33,13 +33,16 @@
 #include <stddef.h>
 #include "../../../core/types.h"
 
-//#define TJC_DISPLAY           // Enable for TJC display
-//#define DACAI_DISPLAY         // Enable for DACAI display
-//#define TITLE_CENTERED        // Center Menu Title Text
+//#define TJC_DISPLAY         // Enable for TJC display
+//#define DACAI_DISPLAY       // Enable for DACAI display
+//#define TITLE_CENTERED      // Center Menu Title Text
 
 #if defined(__STM32F1__) || defined(STM32F1)
   #define DASH_REDRAW 1
 #endif
+
+#define HAS_FEEDRATE_EDIT 1   // Feedrate percentage
+#define HAS_FLOW_EDIT 1       // Flow percentage
 
 #if DISABLED(PROBE_MANUALLY) && ANY(AUTO_BED_LEVELING_BILINEAR, AUTO_BED_LEVELING_LINEAR, AUTO_BED_LEVELING_3POINT, AUTO_BED_LEVELING_UBL)
   #define HAS_ONESTEP_LEVELING 1
@@ -119,13 +122,4 @@
 #if HAS_PROUI_MESH_EDIT
   #define Z_OFFSET_MIN  -3.0  // (mm)
   #define Z_OFFSET_MAX   3.0  // (mm)
-  #ifndef MESH_INSET
-    #define MESH_INSET 10
-  #endif
-  #define MIN_MESH_INSET 0
-  #define MAX_MESH_INSET X_BED_SIZE
-#endif
-
-#ifndef MULTIPLE_PROBING
-  #define MULTIPLE_PROBING 0
 #endif

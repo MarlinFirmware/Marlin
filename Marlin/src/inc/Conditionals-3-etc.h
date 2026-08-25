@@ -400,6 +400,14 @@
   #ifndef Z_PROBE_ERROR_TOLERANCE
     #define Z_PROBE_ERROR_TOLERANCE Z_CLEARANCE_MULTI_PROBE
   #endif
+  #if ENABLED(DWIN_LCD_PROUI) && DISABLED(BD_SENSOR)
+    #ifndef MULTIPLE_PROBING
+      #define MULTIPLE_PROBING 2
+    #endif
+    #ifdef EXTRA_PROBING
+      #undef EXTRA_PROBING // Not used with MULTIPLE_PROBING
+    #endif
+  #endif
   #if MULTIPLE_PROBING > 1
     #if EXTRA_PROBING > 0
       #define TOTAL_PROBING (MULTIPLE_PROBING + EXTRA_PROBING)
@@ -463,8 +471,8 @@
 #if ANY(AUTO_BED_LEVELING_LINEAR, AUTO_BED_LEVELING_BILINEAR)
   #define ABL_USES_GRID 1
   #define HAS_VARIABLE_XY_PROBE_FEEDRATE 1
-  #ifndef XY_PROBE_FEEDRATE_MIN
-    #define XY_PROBE_FEEDRATE_MIN 60 // Minimum mm/min value for 'G29 S<feedrate>'
+  #ifndef XY_PROBE_MIN_FEEDRATE_MM_M
+    #define XY_PROBE_MIN_FEEDRATE_MM_M 60 // (mm/min) Minimum permitted speed for 'G29 S<feedrate>'
   #endif
 #endif
 #if ANY(AUTO_BED_LEVELING_LINEAR, AUTO_BED_LEVELING_BILINEAR, AUTO_BED_LEVELING_3POINT)
@@ -502,6 +510,12 @@
 
 #if !HAS_MESH
   #undef MESH_INSET
+#endif
+#if ALL(DWIN_LCD_PROUI, HAS_MESH)
+  #define HAS_PROUI_MESH_EDIT 1
+  #ifndef MESH_INSET
+    #define MESH_INSET 10
+  #endif
 #endif
 
 #if NONE(PROBE_SELECTED, AUTO_BED_LEVELING_UBL)
@@ -617,7 +631,7 @@
   #define NORMAL_AXIS Z_AXIS
 #endif
 
-#if ANY(MORGAN_SCARA, MP_SCARA, AXEL_TPARA)
+#if ANY(SCARA, AXEL_TPARA)
   #define IS_SCARA 1
   #define IS_KINEMATIC 1
 #elif ANY(DELTA, POLARGRAPH, POLAR)

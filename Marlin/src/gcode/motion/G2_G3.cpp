@@ -427,14 +427,7 @@ void GcodeSuite::G2_G3(const bool clockwise) {
 
   TERN_(FULL_REPORT_TO_HOST_FEATURE, motion.set_and_report_grblstate(M_RUNNING));
 
-  #if ENABLED(SF_ARC_FIX)
-    const bool relative_mode_backup = motion.relative_mode;
-    motion.relative_mode = true;
-  #endif
-
   get_destination_from_command();   // Get X Y [Z[I[J[K...]]]] [E] F (and set cutter power)
-
-  TERN_(SF_ARC_FIX, motion.relative_mode = relative_mode_backup);
 
   ab_float_t arc_offset = { 0, 0 };
   if (parser.seenval('R')) {

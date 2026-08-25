@@ -1215,7 +1215,7 @@ void Planner::recalculate(const float safe_exit_speed_sqr) {
     #if ENABLED(FAN_SOFT_PWM)
       #define _FAN_SET(F) thermalManager.soft_pwm_amount_fan[F] = CALC_FAN_SPEED(fan_speed[F]);
     #else
-      #define _FAN_SET(F) hal.set_pwm_duty(pin_t(FAN##F##_PIN), CALC_FAN_SPEED(fan_speed[F]));
+      #define _FAN_SET(F) hal.set_pwm_duty(pin_t(PART_COOLING_FAN##F##_PIN), CALC_FAN_SPEED(fan_speed[F]));
     #endif
     #define FAN_SET(F) do{ kickstart_fan(fan_speed, ms, F); _FAN_SET(F); }while(0)
 
@@ -1619,6 +1619,14 @@ float Planner::triggered_position_mm(const AxisEnum axis) {
   return result * mm_per_step[axis];
 }
 
+/**
+ * The Planner is busy when one of these conditions is true:
+ *   - It has blocks queued
+ *   - The cleaning buffer counter is set (running out moves)
+ *   - The closed loop controller is waiting
+ *   - The ZV Input Shaper (standard motion) still has events
+ *   - FT Motion is busy
+ */
 bool Planner::busy() {
   return (has_blocks_queued() || cleaning_buffer_counter
       || TERN0(EXTERNAL_CLOSED_LOOP_CONTROLLER, CLOSED_LOOP_WAITING())
@@ -1675,6 +1683,16 @@ float Planner::get_axis_position_mm(const AxisEnum axis) {
     else
       axis_steps = DIFF_TERN(BACKLASH_COMPENSATION, stepper.position(axis), backlash.get_applied_steps(axis));
 
+  #elif ENABLED(SCARA)
+
+    axis_steps = stepper.position(axis);
+    TERN_(BACKLASH_COMPENSATION, axis_steps -= backlash.get_applied_steps(axis));
+    if (axis == Y_AXIS) { // Convert from motor position to psi (elbow angle)
+      float theta_steps = stepper.position(X_AXIS);
+      TERN_(BACKLASH_COMPENSATION, theta_steps -= backlash.get_applied_steps(X_AXIS));
+      axis_steps -= theta_steps * SCARA_CROSSTALK_FACTOR;
+    }
+
   #else
 
     axis_steps = stepper.position(axis);
@@ -1688,7 +1706,9 @@ float Planner::get_axis_position_mm(const AxisEnum axis) {
 /**
  * Block until the planner is finished processing
  */
-void Planner::synchronize() { while (busy()) marlin.idle(); }
+void Planner::synchronize() {
+  while (busy()) marlin.idle();
+}
 
 /**
  * @brief Add a new linear movement to the planner queue (in terms of steps).
@@ -1750,8 +1770,12 @@ bool Planner::_buffer_steps(const xyze_long_t &target
     minimum_planner_speed_sqr
   );
 
-  // Recalculate and optimize trapezoidal speed profiles
-  recalculate(safe_exit_speed_sqr);
+  // Recalculate and optimize trapezoidal speed profiles.
+  // CJ planner ignores trapezoidal entry/exit speeds — it runs its own
+  // jolt-aware passes via planNext(). Blocks are marked recalculate=false
+  // above, so skip the expensive reverse/forward pass and trapezoid calc.
+  const bool is_jolt = TERN0(FTM_CONSTANT_JOLT, ftMotion.cfg.active && ftMotion.cfg.trajectory_type == TrajectoryType::CONSTANT_JOLT);
+  if (!is_jolt) recalculate(safe_exit_speed_sqr);
 
   // Movement successfully queued!
   return true;
@@ -2529,7 +2553,7 @@ bool Planner::_populate_block(
      * Elsewise, when needed JD will factor-in the E component
      */
     if (ANY(IS_CORE, MARKFORGED_XY, MARKFORGED_YX) || esteps > 0)
-      normalize_junction_vector(unit_vec);  // Normalize with XYZE components
+      (void)normalize_junction_vector(unit_vec);  // Normalize with XYZE components
     else
       unit_vec *= inverse_millimeters;      // Use pre-calculated (1 / SQRT(x^2 + y^2 + z^2))
 
@@ -2546,13 +2570,13 @@ bool Planner::_populate_block(
         vmax_junction_sqr = minimum_planner_speed_sqr;
       }
       else {
-        // Convert delta vector to unit vector
+        // Diff of unit vectors is normal (perpendicular) vector - itself normalized on next line
         xyze_float_t junction_unit_vec = unit_vec - prev_unit_vec;
-        normalize_junction_vector(junction_unit_vec);
-
-        // TODO: Don't limit acceleration on axes with very small distance relative to others
-        // See https://github.com/MarlinFirmware/Marlin/issues/27918#issuecomment-3145339116
-        const float junction_acceleration = limit_value_by_axis_maximum(block->acceleration, junction_unit_vec);
+        // Do not limit_jd_acceleration_by_axis_maximum if normal vector is marginal (solves real-live motion issue)
+        const float junction_acceleration = normalize_junction_vector(junction_unit_vec)
+          ? block->acceleration
+          : limit_jd_acceleration_by_axis_maximum(block->acceleration, junction_unit_vec);
+        // NOTE: Here block->acceleration is used as the scalar acceleration limit for the junction calculation.
 
         if (TERN0(HINTS_CURVE_RADIUS, hints.curve_radius)) {
           TERN_(HINTS_CURVE_RADIUS, vmax_junction_sqr = junction_acceleration * hints.curve_radius);
@@ -2623,28 +2647,33 @@ bool Planner::_populate_block(
                 float junction_theta = t * pgm_read_float(&jd_lut_k[idx]) + pgm_read_float(&jd_lut_b[idx]);
                 if (neg > 0) junction_theta = RADIANS(180) - junction_theta; // acos(-t)
 
-              #else
+              #else // !JD_USE_MATH_ACOS && !JD_USE_LOOKUP_TABLE
 
                 // Fast acos(-t) approximation (max. error +-0.033rad = 1.89°)
-                // Based on MinMax polynomial published by W. Randolph Franklin, see
+                // based on MinMax polynomial for asin(t) by W. Randolph Franklin; see
                 // https://wrfranklin.org/Research/Short_Notes/arcsin/onlyelem.html
-                //  acos( t) = pi / 2 - asin(x)
-                //  acos(-t) = pi - acos(t) ... pi / 2 + asin(x)
+                // - Current code is conditional to junction_cos_theta < -0.7071067812f
+                //   so math is simplified under the assumption that junction_cos_theta < 0.
+                // - Converted asin to acos with acos(-t) = π - acos(t) = π / 2 + asin(x)
 
-                const float neg = junction_cos_theta < 0 ? -1 : 1,
-                            t = neg * junction_cos_theta,
-                            asinx =       0.032843707f
-                                  + t * (-1.451838349f
-                                  + t * ( 29.66153956f
-                                  + t * (-131.1123477f
-                                  + t * ( 262.8130562f
-                                  + t * (-242.7199627f
-                                  + t * ( 84.31466202f ) ))))),
-                            junction_theta = RADIANS(90) + neg * asinx; // acos(-t)
+                const float jct1 = 1.0f + junction_cos_theta;
+                const float junction_theta =       (   1.5379526198f
+                            + junction_cos_theta * (  -1.451838349f
+                            + junction_cos_theta * ( -29.66153956f
+                            + junction_cos_theta * (-131.1123477f
+                            + junction_cos_theta * (-262.8130562f
+                            + junction_cos_theta * (-242.7199627f
+                            + junction_cos_theta *   -84.31466202f))))))
+                         // / (1.0f + (1.4545e-4f / jct1));
+                         // / ((jct1 / jct1) + (1.4545e-4f / jct1)));
+                         // / (jct1 + 1.4545e-4f) / jct1));
+                            * (jct1 / (jct1 + 1.4545e-4f)));
+                // Last line is kennovo's correction factor for asymptotic behavior when
+                // junction_cos_theta --> -1.0; potentially important because limit_sqr
+                // DIVIDES by junction_theta below. Note: correction reintroduces
+                // divide-by-almost-zero hazard, but that's addressed by NOLESS above.
 
-                // NOTE: junction_theta bottoms out at 0.033 which avoids divide by 0.
-
-              #endif
+              #endif // !JD_USE_MATH_ACOS && !JD_USE_LOOKUP_TABLE
 
               const float limit_sqr = (block->millimeters * junction_acceleration) / junction_theta;
               NOMORE(vmax_junction_sqr, limit_sqr);
@@ -2699,24 +2728,24 @@ bool Planner::_populate_block(
     #endif // HAS_ROUGH_LIN_ADVANCE
 
     xyze_float_t speed_diff = current_speed;
-    float vmax_junction;
+    float vmax_junc;
     if (!moves_queued || UNEAR_ZERO(previous_nominal_speed)) {
       // Limited by a jerk to/from full halt.
-      vmax_junction = block->nominal_speed;
+      vmax_junc = block->nominal_speed;
     }
     else {
       // Compute the maximum velocity allowed at a joint of two successive segments.
 
       // The junction velocity will be shared between successive segments. Limit the junction velocity to their minimum.
-      // Scale per-axis velocities for the same vmax_junction.
+      // Scale per-axis velocities for the same vmax_junc.
       if (block->nominal_speed < previous_nominal_speed) {
-        vmax_junction = block->nominal_speed;
-        const float previous_scale = vmax_junction / previous_nominal_speed;
+        vmax_junc = block->nominal_speed;
+        const float previous_scale = vmax_junc / previous_nominal_speed;
         LOOP_LOGICAL_AXES(i) speed_diff[i] -= previous_speed[i] * previous_scale;
       }
       else {
-        vmax_junction = previous_nominal_speed;
-        const float current_scale = vmax_junction / block->nominal_speed;
+        vmax_junc = previous_nominal_speed;
+        const float current_scale = vmax_junc / block->nominal_speed;
         LOOP_LOGICAL_AXES(i) speed_diff[i] = speed_diff[i] * current_scale - previous_speed[i];
       }
     }
@@ -2728,7 +2757,7 @@ bool Planner::_populate_block(
       const float jerk = ABS(speed_diff[i]), maxj = max_j[i];
       if (jerk * v_factor > maxj) v_factor = maxj / jerk;
     }
-    vmax_junction_sqr = sq(vmax_junction * v_factor);
+    vmax_junction_sqr = sq(vmax_junc * v_factor);
 
   #endif // CLASSIC_JERK
 
@@ -2738,6 +2767,14 @@ bool Planner::_populate_block(
 
   // Max entry speed of this block equals the max exit speed of the previous block.
   block->max_entry_speed_sqr = vmax_junction_sqr;
+
+  #if ENABLED(FTM_CONSTANT_JOLT)
+    const bool is_jolt = ftMotion.cfg.active && ftMotion.cfg.trajectory_type == TrajectoryType::CONSTANT_JOLT;
+    if (is_jolt) block->vmax_junction = SQRT(vmax_junction_sqr);
+  #else
+    constexpr bool is_jolt = false;
+  #endif
+
   // Set entry speed. The reverse and forward passes will optimize it later.
   block->entry_speed_sqr = minimum_planner_speed_sqr;
   // Set min entry speed. Rarely it could be higher than the previous nominal speed but that's ok.
@@ -2747,7 +2784,9 @@ bool Planner::_populate_block(
   TERN_(HAS_STANDARD_MOTION, block->initial_rate = 0);
   TERN_(FT_MOTION, block->entry_speed = 0);
 
-  block->flag.recalculate = true;
+  // CJ planner runs its own jolt-aware passes — blocks are ready immediately.
+  // recalculate() is also skipped below, so no code will re-set this flag.
+  block->flag.recalculate = !is_jolt;
 
   // Update previous path unit_vector and nominal speed
   previous_speed = current_speed;

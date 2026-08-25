@@ -199,7 +199,7 @@ grid_count_t gridpoint;
 float corner_avg;
 float corner_pos;
 
-bool probe_deployed = false;
+bool dwin_probe_deployed = false;
 
 JyersDWIN jyersDWIN;
 
@@ -1268,8 +1268,8 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
             drawMenuItem(row, ICON_Back, GET_TEXT_F(MSG_BACK));
           else {
             #if HAS_BED_PROBE
-              probe_deployed = false;
-              probe.set_deployed(probe_deployed);
+              dwin_probe_deployed = false;
+              probe.set_deployed(dwin_probe_deployed);
             #endif
             drawMenu(ID_Prepare, PREPARE_MOVE);
           }
@@ -1329,12 +1329,12 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
           case MOVE_P:
             if (draw) {
               drawMenuItem(row, ICON_StockConfiguration, F("Probe"));
-              drawCheckbox(row, probe_deployed);
+              drawCheckbox(row, dwin_probe_deployed);
             }
             else {
-              FLIP(probe_deployed);
-              probe.set_deployed(probe_deployed);
-              drawCheckbox(row, probe_deployed);
+              FLIP(dwin_probe_deployed);
+              probe.set_deployed(dwin_probe_deployed);
+              drawCheckbox(row, dwin_probe_deployed);
             }
             break;
         #endif
@@ -2034,14 +2034,15 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
               drawMenu(ID_MPC);
             break;
         #endif
+        #if HAS_PREHEAT
+          #define _TEMP_PREHEAT_CASE(N) \
+            case TEMP_PREHEAT##N: { \
+              if (draw) drawMenuItem(row, ICON_Step, F(PREHEAT_## N ##_LABEL), nullptr, true); \
+              else drawMenu(ID_Preheat##N); \
+            } break;
 
-        #define _TEMP_PREHEAT_CASE(N) \
-          case TEMP_PREHEAT##N: { \
-            if (draw) drawMenuItem(row, ICON_Step, F(PREHEAT_## N ##_LABEL), nullptr, true); \
-            else drawMenu(ID_Preheat##N); \
-          } break;
-
-        REPEAT_1(PREHEAT_COUNT, _TEMP_PREHEAT_CASE)
+          REPEAT_1(PREHEAT_COUNT, _TEMP_PREHEAT_CASE)
+        #endif
       }
       break;
 
@@ -3215,7 +3216,9 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
               if (draw)
                 drawMenuItem(row, ICON_Tilt, GET_TEXT_F(MSG_UBL_TILT_MESH));
               else {
-                if (bedlevel.storage_slot < 0) { popupHandler(Popup_MeshSlot); break; }
+                #if ALL(AUTO_BED_LEVELING_UBL, HAS_MESH_STORAGE)
+                  if (bedlevel.storage_slot < 0) { popupHandler(Popup_MeshSlot); break; }
+                #endif
                 popupHandler(Popup_Home);
                 gcode.home_all_axes(true);
                 popupHandler(Popup_Level);
@@ -3281,7 +3284,7 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
                   break;
                 }
               #endif
-              #if ENABLED(AUTO_BED_LEVELING_UBL)
+              #if ALL(AUTO_BED_LEVELING_UBL, HAS_MESH_STORAGE)
                 if (bedlevel.storage_slot < 0) {
                   popupHandler(Popup_MeshSlot);
                   break;
@@ -3316,7 +3319,7 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
             if (draw)
               drawMenuItem(row, ICON_Mesh, GET_TEXT_F(MSG_MESH_VIEW), nullptr, true);
             else {
-              #if ENABLED(AUTO_BED_LEVELING_UBL)
+              #if ALL(AUTO_BED_LEVELING_UBL, HAS_MESH_STORAGE)
                 if (bedlevel.storage_slot < 0) {
                   popupHandler(Popup_MeshSlot);
                   break;
@@ -3331,7 +3334,7 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
             else
               drawMenu(ID_LevelSettings);
             break;
-          #if ENABLED(AUTO_BED_LEVELING_UBL)
+          #if ALL(AUTO_BED_LEVELING_UBL, HAS_MESH_STORAGE)
             case LEVELING_SLOT:
               if (draw) {
                 drawMenuItem(row, ICON_PrintSize, GET_TEXT_F(MSG_UBL_STORAGE_SLOT));
@@ -4307,7 +4310,7 @@ void JyersDWIN::popupHandler(const PopupID popupid, const bool option/*=false*/)
     case Popup_Resume:        drawPopup(F("Resume Print?"), F("Looks Like the last"), F("print was interrupted."), Proc_Popup); break;
     case Popup_ConfFilChange: drawPopup(F("Confirm Filament Change"), F(""), F(""), Proc_Popup); break;
     case Popup_PurgeMore:     drawPopup(F("Purge more filament?"), F("(Cancel to finish process)"), F(""), Proc_Popup); break;
-    #if ENABLED(AUTO_BED_LEVELING_UBL)
+    #if ALL(AUTO_BED_LEVELING_UBL, HAS_MESH_STORAGE)
       case Popup_SaveLevel:   drawPopup(GET_TEXT_F(MSG_LEVEL_BED_DONE), F("Save to EEPROM?"), F(""), Proc_Popup); break;
       case Popup_MeshSlot:    drawPopup(F("Mesh slot not selected"), F("(Confirm to select slot 0)"), F(""), Proc_Popup); break;
     #endif
@@ -4737,7 +4740,7 @@ void JyersDWIN::popupControl() {
           break;
       #endif // ADVANCED_PAUSE_FEATURE
 
-      #if HAS_MESH
+      #if HAS_MESH_STORAGE
         case Popup_SaveLevel:
           if (selection == 0) {
             #if ENABLED(AUTO_BED_LEVELING_UBL)
@@ -4752,7 +4755,7 @@ void JyersDWIN::popupControl() {
           break;
       #endif
 
-      #if ENABLED(AUTO_BED_LEVELING_UBL)
+      #if ALL(AUTO_BED_LEVELING_UBL, HAS_MESH_STORAGE)
         case Popup_MeshSlot:
           if (selection == 0) bedlevel.storage_slot = 0;
           redrawMenu(true, true);
