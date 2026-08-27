@@ -233,6 +233,9 @@ void HAL_HardwareSerial::init(PinName _rx, PinName _tx) {
   _serial.pin_tx  = _tx;
   _serial.tx_buff = _tx_buffer;
   _serial.tx_head = _serial.tx_tail = 0;
+
+  _serial.pin_rts = NC;
+  _serial.pin_cts = NC;
 }
 
 // Actual interrupt handlers //////////////////////////////////////////////////////////////
