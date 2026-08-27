@@ -169,7 +169,7 @@ void menu_bed_mesh_draw() {
     // Buffer to store the formatted scale string
     char step_buf[20]; 
     
-    // Fixed: Uses the strict hex escape \xB5 for the 'µ' symbol to prevent UTF-8 dual-byte encoding artifacts
+    // Uses the strict hex escape \xB5 for the 'µ' symbol to prevent UTF-8 dual-byte encoding artifacts
     sprintf_P(step_buf, PSTR("1 Px = %d \xB5m"), step_micron);
 
     // Switch to the official U8glib 7x14 font which includes full Latin-1 character map support
@@ -353,7 +353,7 @@ void menu_bed_mesh_draw() {
 
         int pixels_to_draw = (int)(abs(val) / (step_micron > 0 ? step_micron : 25));
         
-        // FIXED: Clamped using the dynamic variable to prevent out-of-bounds memory read
+        // Clamped using the dynamic variable to prevent out-of-bounds memory read
         if (pixels_to_draw > max_allowed_pixels) pixels_to_draw = max_allowed_pixels; 
 
         if (pixels_to_draw == 0) {
@@ -364,16 +364,16 @@ void menu_bed_mesh_draw() {
             // HIGH: Barycentric cluster grows outward using bright pixels
             u8g.drawPixel(center_x, center_y); 
             for (int i = 0; i < pixels_to_draw; i++) {
-              // FIXED: Uses active pointer tracking instead of hardcoded 7x7 maps
+              // Uses active pointer tracking instead of hardcoded 7x7 maps
               u8g.drawPixel(center_x + current_pos_x[i], center_y + current_pos_y[i]);
             }
           } 
           else {
-            // LOW: FIXED - Draws frame using dynamic pre-calculated sizing parameters
+            // LOW: Draws frame using dynamic pre-calculated sizing parameters
             u8g.drawFrame(center_x - frame_offset, center_y - frame_offset, frame_size, frame_size);
             
             for (int i = 0; i < pixels_to_draw; i++) {
-              // FIXED: Uses active pointer tracking instead of hardcoded 7x7 maps
+              // Uses active pointer tracking instead of hardcoded 7x7 maps
               u8g.drawPixel(center_x + current_neg_x[i], center_y + current_neg_y[i]);
             }
           }
@@ -390,7 +390,7 @@ void menu_bed_mesh_draw() {
   const int btn_x = is_ultra_dense ? 121 : 109;
   const int btn_w = is_ultra_dense ? 10 : 21; 
   
-  // FIXED: Dynamic vertical spacing to achieve absolute equidistance in both configurations
+  // Dynamic vertical spacing to achieve absolute equidistance in both configurations
   const int inf_y = is_ultra_dense ? 19 : 21; 
   const int esc_y = is_ultra_dense ? 37 : 41; 
   const int esc_h = is_ultra_dense ? 27 : 13; // Handwired 27px tall box to fit 7px uppercase letters perfectly
@@ -422,7 +422,7 @@ void menu_bed_mesh_draw() {
     u8g.drawBox(btn_x, esc_y, btn_w, esc_h); 
     u8g.setColorIndex(0);
     if (is_ultra_dense) {
-      // FIXED: Perfectly balanced 1px margins with 7px tall characters over 27px box bounds
+      // Perfectly balanced 1px margins with 7px tall characters over 27px box bounds
       u8g.drawStr(btn_x + 2, esc_y + 9,  "E"); // Top letter (baseline at +8)
       u8g.drawStr(btn_x + 2, esc_y + 17, "S"); // Middle letter (baseline at +16)
       u8g.drawStr(btn_x + 2, esc_y + 25, "C"); // Bottom letter (baseline at +24)
