@@ -213,9 +213,7 @@ void menu_advanced_settings();
       EXTRUDER_LOOP() {
         if (e != motion.extruder) {
           ACTION_ITEM_N_F(e, msg_migrate, []{
-            char cmd[12];
-            sprintf_P(cmd, PSTR("M217 T%i"), int(MenuItemBase::itemIndex));
-            queue.inject(cmd);
+            queue.inject(TS(F("M217 T"), int(MenuItemBase::itemIndex)));
           });
         }
       }
