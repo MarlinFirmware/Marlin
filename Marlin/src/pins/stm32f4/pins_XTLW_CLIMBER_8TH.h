@@ -247,6 +247,7 @@
     #define LCD_PINS_D4              EXP1_06_PIN
 
     #if ENABLED(FYSETC_MINI_12864)
+    // NOTE: Kept inline — XTLW_CLIMBER_8TH swaps DOGLCD_CS/A0 vs. standard EXP1 layout.
       #define DOGLCD_CS              EXP1_08_PIN
       #define DOGLCD_A0              EXP1_07_PIN
       //#define LCD_BACKLIGHT_PIN           -1

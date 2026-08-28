@@ -340,6 +340,8 @@
   #else
 
     #if ANY(MKS_12864OLED, MKS_12864OLED_SSD1306)
+
+      // NOTE: Kept inline — TT_OSCAR uses raw pin numbers (not EXP tokens) for MKS OLED wiring.
       #define LCD_PINS_DC                     25  // Set as output on init
       #define LCD_PINS_RS                     27  // Pull low for 1s to init
       // DOGM SPI LCD Support

@@ -212,6 +212,7 @@
   #define LCD_PINS_D4                EXP1_05_PIN
 
   #if ENABLED(FYSETC_MINI_12864)
+  // NOTE: Kept inline — CHEETAH_V20 swaps BTN_EN1/EN2 vs. standard wiring.
     #define DOGLCD_CS                EXP1_03_PIN
     #define DOGLCD_A0                EXP1_04_PIN
     //#define LCD_BACKLIGHT_PIN             -1

@@ -384,6 +384,7 @@
     #define SD_DETECT_PIN            EXP2_07_PIN
 
   #elif ENABLED(FYSETC_MINI_12864)
+  // NOTE: Kept inline — SKR V1.4 uses character LCD pins for FYSETC.
 
     #define BTN_ENC                  EXP1_02_PIN  // (58) open-drain
     #define BTN_EN1                  EXP2_03_PIN  // (31) J3-2 & AUX-4

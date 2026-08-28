@@ -798,6 +798,7 @@
         #define BTN_EN2              EXP2_05_PIN
 
       #elif ENABLED(FYSETC_MINI_12864)
+      // NOTE: Kept inline — RAMPS uses multi-variant AUX2/AUX4/EXP wiring.
 
         // From https://wiki.fysetc.com/docs/Mini12864Panel
 

@@ -217,6 +217,7 @@
 
   #if ANY(MKS_12864OLED, MKS_12864OLED_SSD1306)
 
+    // NOTE: Kept inline — RUMBA uses raw ATmega pin numbers (not EXP tokens) for MKS OLED wiring.
     #define LCD_PINS_DC                       38  // Set as output on init
     #define LCD_PINS_RS                       41  // Pull low for 1s to init
     // DOGM SPI LCD Support

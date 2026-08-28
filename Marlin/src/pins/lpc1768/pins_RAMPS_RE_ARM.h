@@ -310,6 +310,7 @@
 #elif HAS_WIRED_LCD
 
   #if ENABLED(FYSETC_MINI_12864)
+    // NOTE: Kept inline — RE_ARM uses non-standard BEEPER/BTN_ENC pins for FYSETC.
     #define BEEPER_PIN                     P1_01  // (79) J12-12
     #define BTN_ENC                        P1_04  // (77) J12-10
   #else
@@ -352,6 +353,7 @@
   #else
 
     #if ENABLED(FYSETC_MINI_12864)
+      // NOTE: Kept inline — RE_ARM uses raw LPC port pins (not EXP tokens) for DOGLCD.
       #define DOGLCD_SCK                   P0_15  // (52) (SCK)  J3-9 & AUX-3
       #define DOGLCD_MOSI                  P0_18  // (51) (MOSI) J3-10 & AUX-3
 

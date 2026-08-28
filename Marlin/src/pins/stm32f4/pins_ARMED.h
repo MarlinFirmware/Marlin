@@ -148,6 +148,7 @@
 #define BEEPER_PIN                          PC9
 
 #if ENABLED(FYSETC_MINI_12864)
+// NOTE: Kept inline — ARMED uses raw STM32 port pins (not EXP tokens).
   //
   // See https://wiki.fysetc.com/docs/Mini12864Panel
   //

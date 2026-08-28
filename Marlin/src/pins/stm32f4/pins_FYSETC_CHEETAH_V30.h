@@ -245,6 +245,7 @@
     #define LCD_PINS_D4              EXP1_06_PIN
 
     #if ENABLED(FYSETC_MINI_12864)
+    // NOTE: Kept inline — CHEETAH_V30 uses non-standard EXP1_07/08 slots for DOGLCD.
       #define DOGLCD_CS              EXP1_08_PIN
       #define DOGLCD_A0              EXP1_07_PIN
       //#define LCD_BACKLIGHT_PIN           -1

@@ -200,6 +200,7 @@
 //
 
 #if ENABLED(FYSETC_MINI_12864)
+// NOTE: Kept inline — COHESION3D_REMIX uses Ethernet connector pins (not EXP tokens) for DOGLCD/BTN.
 
   #define FORCE_SOFT_SPI                          // REQUIRED. Results in LCD Software SPI mode 3
 

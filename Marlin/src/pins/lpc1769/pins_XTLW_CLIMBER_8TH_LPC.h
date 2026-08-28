@@ -212,6 +212,7 @@
     #define LCD_PINS_D4              EXP1_05_PIN
 
     #if ENABLED(FYSETC_MINI_12864)
+    // NOTE: Kept inline — XTLW_CLIMBER_8TH_LPC has board-specific FYSETC wiring.
 
       #define DOGLCD_CS              EXP1_03_PIN
       #define DOGLCD_A0              EXP1_04_PIN
@@ -254,6 +255,6 @@
 
     #endif // !FYSETC_MINI_12864
 
-  #endif // !MKS_12864OLED_SSD1306
+  #endif // !MKS_12864OLED / MKS_12864OLED_SSD1306
 
 #endif // HAS_WIRED_LCD

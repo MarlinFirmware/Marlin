@@ -263,33 +263,8 @@
 
     #if ENABLED(FYSETC_MINI_12864)
 
-      #define LCD_BACKLIGHT_PIN             -1
-      #define LCD_RESET_PIN          EXP1_05_PIN
-      #define DOGLCD_A0              EXP1_04_PIN
-      #define DOGLCD_CS              EXP1_03_PIN
-      #define DOGLCD_SCK             EXP2_02_PIN
-      #define DOGLCD_MOSI            EXP2_06_PIN
-
-      #define FORCE_SOFT_SPI                      // SPI MODE3
-
-      #define LED_PIN                EXP1_06_PIN  // red pwm
-      //#define LED_PIN              EXP1_07_PIN  // green
-      //#define LED_PIN              EXP1_08_PIN  // blue
-
-      //#if ANY(FYSETC_MINI_12864_1_2, FYSETC_MINI_12864_2_0)
-      //  #ifndef RGB_LED_R_PIN
-      //    #define RGB_LED_R_PIN    EXP1_06_PIN
-      //  #endif
-      //  #ifndef RGB_LED_G_PIN
-      //    #define RGB_LED_G_PIN    EXP1_07_PIN
-      //  #endif
-      //  #ifndef RGB_LED_B_PIN
-      //    #define RGB_LED_B_PIN    EXP1_08_PIN
-      //  #endif
-      //#elif ENABLED(FYSETC_MINI_12864_2_1)
-      //  #define NEOPIXEL_PIN       EXP1_06_PIN
-      //#endif
-
+      // Migrated to pins/lcd
+      #define FORCE_SOFT_SPI
     #else // !FYSETC_MINI_12864
 
       #define LCD_PINS_D4            EXP1_05_PIN

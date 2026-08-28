@@ -134,6 +134,8 @@
 
 #if HAS_WIRED_LCD
   #if ANY(MKS_12864OLED, MKS_12864OLED_SSD1306)
+
+    // NOTE: Kept inline — ARTILLERY_RUBY swaps DC/RS vs. standard MKS OLED wiring.
     #define LCD_PINS_DC              EXP1_07_PIN  // Set as output on init
     #define LCD_PINS_RS              EXP1_06_PIN  // Pull low for 1s to init
     // DOGM SPI LCD Support
@@ -142,30 +144,10 @@
     #define DOGLCD_SCK               EXP1_05_PIN
     #define DOGLCD_A0                LCD_PINS_DC
   #elif ENABLED(FYSETC_MINI_12864)
-    #define DOGLCD_CS                EXP1_03_PIN
-    #define DOGLCD_A0                EXP1_04_PIN
 
-    //#define FORCE_SOFT_SPI                      // Use this if default of hardware SPI causes display problems
-                                                  //   results in LCD soft SPI mode 3, SD soft SPI mode 0
-
-    #define LCD_RESET_PIN            EXP1_05_PIN  // Must be high or open for LCD to operate normally.
-
-    #if ANY(FYSETC_MINI_12864_1_2, FYSETC_MINI_12864_2_0)
-      #ifndef RGB_LED_R_PIN
-        #define RGB_LED_R_PIN        EXP1_06_PIN
-      #endif
-      #ifndef RGB_LED_G_PIN
-        #define RGB_LED_G_PIN        EXP1_07_PIN
-      #endif
-      #ifndef RGB_LED_B_PIN
-        #define RGB_LED_B_PIN        EXP1_08_PIN
-      #endif
-    #elif ENABLED(FYSETC_MINI_12864_2_1)
-      #define NEOPIXEL_PIN           EXP1_06_PIN
-    #endif
-
-    #define LCD_CONTRAST_INIT                255
-  #else
+    // Migrated to pins/lcd
+    #define FORCE_SOFT_SPI
+  #else // !FYSETC_MINI_12864
     #define LCD_PINS_RS              EXP1_04_PIN
     #define LCD_PINS_EN              EXP1_03_PIN
     #define LCD_PINS_D4              EXP1_05_PIN
