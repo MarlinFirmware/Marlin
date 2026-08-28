@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fdmmaterial xmlns="http://www.ultimaker.com/material" version="1.3">
+  <metadata>
+    <name>
+      <brand>Sprite Pro</brand>
+      <material>PETG</material>
+      <color>Generic</color>
+    </name>
+    <GUID>830f8892-3ee2-5699-a485-c482e3863dfc</GUID>
+    <version>1</version>
+    <color_code>#FF9800</color_code>
+    <description>PETG tuned for the Ender 3 Pro with a Sprite Extruder Pro (direct drive).</description>
+    <adhesion_info>Skirt. PETG bonds hard to PEI - raise the first layer rather than lowering the nozzle.</adhesion_info>
+  </metadata>
+  <properties>
+    <density>1.27</density>
+    <diameter>1.75</diameter>
+  </properties>
+  <settings>
+    <setting key="print temperature">240</setting>
+    <setting key="heated bed temperature">80</setting>
+    <setting key="standby temperature">190</setting>
+    <setting key="print cooling">50</setting>
+    <setting key="retraction amount">1.2</setting>
+    <setting key="retraction speed">35</setting>
+  </settings>
+</fdmmaterial>

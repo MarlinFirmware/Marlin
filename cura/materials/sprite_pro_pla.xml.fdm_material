@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fdmmaterial xmlns="http://www.ultimaker.com/material" version="1.3">
+  <metadata>
+    <name>
+      <brand>Sprite Pro</brand>
+      <material>PLA</material>
+      <color>Generic</color>
+    </name>
+    <GUID>d3cd0846-ae7c-5550-8fb1-a7836d6d966f</GUID>
+    <version>1</version>
+    <color_code>#4CAF50</color_code>
+    <description>PLA tuned for the Ender 3 Pro with a Sprite Extruder Pro (direct drive).</description>
+    <adhesion_info>Skirt. Clean PEI is enough.</adhesion_info>
+  </metadata>
+  <properties>
+    <density>1.24</density>
+    <diameter>1.75</diameter>
+  </properties>
+  <settings>
+    <setting key="print temperature">200</setting>
+    <setting key="heated bed temperature">60</setting>
+    <setting key="standby temperature">175</setting>
+    <setting key="print cooling">100</setting>
+    <setting key="retraction amount">1.0</setting>
+    <setting key="retraction speed">40</setting>
+  </settings>
+</fdmmaterial>

@@ -1,0 +1,23 @@
+{
+    "version": 2,
+    "name": "Extruder 1",
+    "inherits": "fdmextruder",
+    "metadata": {
+        "machine": "ender3pro_sprite",
+        "position": "0"
+    },
+    "overrides": {
+        "extruder_nr": { "default_value": 0 },
+        "machine_nozzle_size": { "default_value": 0.4 },
+        "material_diameter": { "default_value": 1.75 },
+        "machine_nozzle_offset_x": { "default_value": 0.0 },
+        "machine_nozzle_offset_y": { "default_value": 0.0 },
+
+        "machine_extruder_start_code": {
+            "default_value": "M117 {material_type} priming\nG92 E0\nG1 X5.1 Y20 Z0.3 F5000 ; prime line 1 start\nG1 X5.1 Y200 Z0.3 F1500 E15\nG1 X5.4 Y200 Z0.3 F5000\nG1 X5.4 Y20 Z0.3 F1500 E30 ; prime line 2, back down\nG92 E0\nG1 Z2.0 F3000\nG1 X10 Y20 Z0.3 F5000 ; step off the prime\nM117 {material_type} printing\n"
+        },
+        "machine_extruder_end_code": {
+            "default_value": "G1 E-3 F1800 ; short retract, direct drive\n"
+        }
+    }
+}

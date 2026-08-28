@@ -1,0 +1,49 @@
+{
+    "version": 2,
+    "name": "Ender 3 Pro Sprite",
+    "inherits": "creality_ender3pro",
+    "metadata": {
+        "visible": true,
+        "author": "fboundy",
+        "manufacturer": "Creality3D",
+        "file_formats": "text/x-gcode",
+        "quality_definition": "creality_ender3pro",
+        "machine_extruder_trains": {
+            "0": "ender3pro_sprite_extruder_0"
+        }
+    },
+    "overrides": {
+        "machine_name": { "default_value": "Ender 3 Pro Sprite" },
+
+        "machine_width": { "default_value": 225 },
+        "machine_depth": { "default_value": 235 },
+        "machine_height": { "default_value": 250 },
+        "machine_center_is_zero": { "default_value": false },
+        "machine_shape": { "default_value": "rectangular" },
+        "machine_heated_bed": { "default_value": true },
+        "machine_gcode_flavor": { "default_value": "RepRap (Marlin/Sprinter)" },
+        "machine_extruder_count": { "default_value": 1 },
+
+        "machine_max_feedrate_x": { "default_value": 500 },
+        "machine_max_feedrate_y": { "default_value": 500 },
+        "machine_max_feedrate_z": { "default_value": 5 },
+        "machine_max_feedrate_e": { "default_value": 50 },
+
+        "machine_max_acceleration_x": { "default_value": 500 },
+        "machine_max_acceleration_y": { "default_value": 500 },
+        "machine_max_acceleration_z": { "default_value": 100 },
+        "machine_max_acceleration_e": { "default_value": 2500 },
+        "machine_acceleration": { "default_value": 500 },
+
+        "machine_max_jerk_xy": { "default_value": 5.0 },
+        "machine_max_jerk_z": { "default_value": 0.3 },
+        "machine_max_jerk_e": { "default_value": 5.0 },
+
+        "machine_start_gcode": {
+            "default_value": "G90 ; absolute positioning\nM82 ; absolute extrusion\nG92 E0\nM117 {material_type} heating bed\nM140 S{material_bed_temperature_layer_0} ; start bed, don't wait\nM104 S{material_standby_temperature} ; idle nozzle - no ooze while probing\nM190 S{material_bed_temperature_layer_0} ; wait for bed\nM109 S{material_standby_temperature} ; wait for idle nozzle\nM117 {material_type} homing\nG28\nM420 S1 Z10 ; load stored mesh, fade out over 10mm\nM117 {material_type} heating nozzle\nM109 S{material_print_temperature_layer_0} ; full temp, last moment\nG92 E0\nG1 Z2.0 F3000\n"
+        },
+        "machine_end_gcode": {
+            "default_value": "M104 S0\nM140 S0\nM107\nG91\nG1 Z10 F3000 ; lift away from the part\nG90\nG27 ; park (NOZZLE_PARK_FEATURE)\nM84\nM117 {material_type} complete\n"
+        }
+    }
+}
