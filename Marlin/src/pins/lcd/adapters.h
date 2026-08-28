@@ -84,7 +84,7 @@
   #define LCD2_07_PIN MINI_02 // SD_DETECT
   #define LCD2_08_PIN MINI_18 // KILL
 
-#elif ENABLED(ADAPTER_RAMPS_AUX2)
+#elif ENABLED(ADAPTER_RAMPS_MKS)
 
   /**
    * RAMPS MINIPANEL wiring via the AUX-2 connector.
@@ -117,10 +117,10 @@
   #define LCD2_07_PIN                       49  // SD_DETECT  (AUX3_02)
   #define LCD2_08_PIN                       64  // KILL       (AUX2_05)
 
-#elif ENABLED(ADAPTER_RAMPS_DUO_AUX2)
+#elif ENABLED(ADAPTER_RAMPS_DUO_MKS)
 
   /**
-   * RAMPS-Duo MINIPANEL wiring — same as ADAPTER_RAMPS_AUX2 except for
+   * RAMPS-Duo MINIPANEL wiring — same as ADAPTER_RAMPS_MKS except for
    * four Due-specific overrides (different analog pin layout on the SAM CPU).
    */
 
@@ -147,7 +147,7 @@
   #define LCD1_07_PIN EXP1_07_PIN  // CS / ST9720 CS
   #define LCD1_08_PIN EXP1_08_PIN  //      ST9720 DAT
 
-#elif ENABLED(ADAPTER_MK_MINI_SWAP_CS_A0)
+#elif ENABLED(ADAPTER_MKS_MINI_SWAP_CS_A0)
 
   /** MKS MINI12864 adapter for boards with swapped CS/A0.
    *

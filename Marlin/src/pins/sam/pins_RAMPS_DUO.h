@@ -91,7 +91,7 @@
       #define BTN_ENC                         66
 
     #elif ENABLED(MINIPANEL)
-      #define ADAPTER_RAMPS_DUO_AUX2    // MINIPANEL wired to AUX-2 with Due-specific pin overrides; see lcd/adapters.h
+      #define ADAPTER_RAMPS_DUO_MKS    // MINIPANEL wired to AUX-2 with Due-specific pin overrides; see lcd/adapters.h
 
     #else
 

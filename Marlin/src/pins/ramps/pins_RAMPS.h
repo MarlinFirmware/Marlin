@@ -649,7 +649,7 @@
 
     #if ENABLED(ZONESTAR_LCD)
 
-      #define ADAPTER_RAMPS_ZONESTAR  // ZONESTAR_LCD wired to AUX-2; see lcd/adapters.h
+      #define ADAPTER_RAMPS_MKS         // ZONESTAR_LCD wired to AUX-2; see lcd/adapters.h
 
     #elif ENABLED(AZSMZ_12864)
 
@@ -813,7 +813,7 @@
       #endif
 
     #elif ENABLED(MINIPANEL)
-      #define ADAPTER_RAMPS_AUX2        // MINIPANEL wired to AUX-2; see lcd/adapters.h
+      #define ADAPTER_RAMPS_MKS         // MINIPANEL wired to AUX-2; see lcd/adapters.h
 
     #elif ENABLED(ZONESTAR_LCD)
 

@@ -230,7 +230,8 @@
   #define BTN_ENC                    EXP1_09_PIN
 
   #if ENABLED(MKS_MINI_12864)
-    #define ADAPTER_MK_MINI_SWAP_CS_A0  // CS/A0 and EN1/EN2 swapped vs. standard
+
+    #define ADAPTER_MKS_MINI_SWAP_CS_A0 // CS/A0 and EN1/EN2 swapped vs. standard
 
   #else
 

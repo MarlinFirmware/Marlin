@@ -477,7 +477,7 @@
       //#define LCD_SCREEN_ROTATE            180  // 0, 90, 180, 270
 
     #elif ENABLED(MINIPANEL)
-      #define ADAPTER_RAMPS_AUX2        // MINIPANEL wired to AUX-2; see lcd/adapters.h
+      #define ADAPTER_RAMPS_MKS         // MINIPANEL wired to AUX-2; see lcd/adapters.h
       #define SD_SS_PIN              EXP2_04_PIN
       #define SD_DETECT_PIN          EXP2_07_PIN
 
