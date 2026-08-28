@@ -252,6 +252,11 @@
   /**
    * ANET_FULL_GRAPHICS_LCD pinouts
    *
+   * NOTE: Kept inline (not migrated to lcd/ANET_FULL_GRAPHICS_LCD.h) because this board
+   * uses a non-standard EXP1 mapping: LCD_PINS_D4 is on EXP1_02 instead of the usual
+   * EXP1_04, freeing EXP1_04 for SERVO0 (BLTouch/3D-Touch). The ST7920 timing delays
+   * are also board-specific.
+   *
    *          ------                      ------
    *     GND | 1  2 | 5V               - | 1  2 | -
    *  LCD_RS | 3  4 | BTN_EN2          - | 3  4 | 5V
@@ -271,40 +276,15 @@
 
   #define LCD_PINS_RS                EXP1_08_PIN
   #define LCD_PINS_EN                EXP1_06_PIN
-  #define LCD_PINS_D4                EXP1_02_PIN
+  #define LCD_PINS_D4                EXP1_02_PIN  // Non-standard; EXP1_04 used for SERVO0
 
   #define BOARD_ST7920_DELAY_1               125
   #define BOARD_ST7920_DELAY_2                63
   #define BOARD_ST7920_DELAY_3               125
 
 #elif ENABLED(CTC_A10S_A13)
-  /**
-   * CTC_A10S_A13 LCD connector is reversed compared to board pinouts
-   *
-   *           ------
-   *      GND | 1  2 | 5V
-   *   BEEPER | 3  4 | EN2
-   *      EN1   5  6 | LCD_D4
-   *   LCD_RS | 7  8 | LCD_EN
-   *   SERVO0 | 9 10 | ENC
-   *           ------
-   *            LCD
-   */
-  #define SERVO0_PIN                 EXP1_02_PIN  // The LCD has a SERVO pin?
 
-  #define BEEPER_PIN                 EXP1_08_PIN
-
-  #define BTN_ENC                    EXP1_01_PIN
-  #define BTN_EN1                    EXP1_06_PIN
-  #define BTN_EN2                    EXP1_07_PIN
-
-  #define LCD_PINS_RS                EXP1_04_PIN
-  #define LCD_PINS_EN                EXP1_03_PIN
-  #define LCD_PINS_D4                EXP1_05_PIN
-
-  #define BOARD_ST7920_DELAY_1               250
-  #define BOARD_ST7920_DELAY_2               250
-  #define BOARD_ST7920_DELAY_3               250
+  // LCD pins defined in Marlin/src/pins/lcd/ANET_FULL_GRAPHICS_LCD.h
 
 #elif HAS_WIRED_LCD
 
