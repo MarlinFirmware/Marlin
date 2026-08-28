@@ -234,8 +234,11 @@ void HAL_HardwareSerial::init(PinName _rx, PinName _tx) {
   _serial.tx_buff = _tx_buffer;
   _serial.tx_head = _serial.tx_tail = 0;
 
-  _serial.pin_rts = NC;
-  _serial.pin_cts = NC;
+  // RTS/CTS were added to serial_t in STM32 core 2.3.0 and must be initialized
+  #if defined(STM32_CORE_VERSION) && STM32_CORE_VERSION >= 0x02030000
+    _serial.pin_rts = NC;
+    _serial.pin_cts = NC;
+  #endif
 }
 
 // Actual interrupt handlers //////////////////////////////////////////////////////////////
