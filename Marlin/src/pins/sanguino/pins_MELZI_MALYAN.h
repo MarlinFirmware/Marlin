@@ -29,6 +29,9 @@
 #define BOARD_INFO_NAME "Melzi (Malyan)"
 
 #if ENABLED(CR10_STOCKDISPLAY)
+  // NOTE: Kept inline (not migrated to lcd/CR10_STOCKDISPLAY.h) because this board
+  // uses direct ATmega pin numbers rather than EXP connector tokens. There is no
+  // standard EXP1 mapping on the Malyan Melzi, so LCD1_xx tokens are unavailable.
   #define BTN_ENC                             28
   #define BTN_EN1                             30
   #define BTN_EN2                             29
