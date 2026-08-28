@@ -146,28 +146,13 @@
   #elif ENABLED(FYSETC_MINI_12864)
 
     // Migrated to pins/lcd
-    #define FORCE_SOFT_SPI
-  #else // !FYSETC_MINI_12864
-    #define LCD_PINS_RS              EXP1_04_PIN
-    #define LCD_PINS_EN              EXP1_03_PIN
-    #define LCD_PINS_D4              EXP1_05_PIN
-    #define LCD_PINS_D5              EXP1_06_PIN
-    #define LCD_PINS_D6              EXP1_07_PIN
+    #define FORCE_SOFT_SPI                      // Board-specific: use software SPI
   #endif
 
-  #define LCD_PINS_D7                EXP1_08_PIN
-
-  //
-  // Beeper, SD Card, Encoder
-  //
-  #define BEEPER_PIN                 EXP1_01_PIN
-
+  // Standard EXP1/EXP2 LCD pins provided by lcd/WIRED.h
+  // Board-specific SD wiring stays inline:
   #if HAS_MEDIA
     #define SD_SS_PIN                EXP2_04_PIN
     #define SD_DETECT_PIN            EXP2_07_PIN
   #endif
-
-  #define BTN_EN1                    EXP2_03_PIN
-  #define BTN_EN2                    EXP2_05_PIN
-  #define BTN_ENC                    EXP1_02_PIN
 #endif

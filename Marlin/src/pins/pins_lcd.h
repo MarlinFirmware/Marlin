@@ -71,8 +71,8 @@
     #include "lcd/RRD_SC.h"
   #elif IS_TFTGLCD_PANEL
     #include "lcd/TFTGLCD.h"
-  //#elif HAS_WIRED_LCD
-  //  #include "lcd/WIRED.h"
+  #elif HAS_WIRED_LCD
+    #include "lcd/WIRED.h"
   #else
 
     // More displays to come
