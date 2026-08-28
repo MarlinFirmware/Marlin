@@ -94,14 +94,18 @@
 // LCD / Controller (Integrated MINIPANEL)
 //
 #if ENABLED(MINIPANEL)
-  #define DOGLCD_A0                           40
-  #define DOGLCD_CS                           41
-  #define LCD_BACKLIGHT_PIN                   65  // Backlight LED on A11/D65
-  #define LCD_RESET_PIN                       27
+  // Define EXP1/EXP2 to match the integrated MINIPANEL wiring on this board.
+  // The default passthrough in lcd/adapters.h maps LCD1/LCD2 -> EXP1/EXP2.
+  #define EXP1_01_PIN                         37  // BEEPER       (overridden above)
+  #define EXP1_02_PIN                          5  // BTN_ENC
+  #define EXP1_06_PIN                         41  // DOGLCD_CS
+  #define EXP1_07_PIN                         40  // DOGLCD_A0
+  #define EXP1_08_PIN                         65  // BACKLIGHT     (A11/D65)
 
-  #define BTN_EN1                              2
-  #define BTN_EN2                              3
-  #define BTN_ENC                              5
+  #define EXP2_03_PIN                          2  // BTN_EN1
+  #define EXP2_05_PIN                          3  // BTN_EN2
+
+  #define LCD_RESET_PIN                       27  // Board-specific reset pin
 
   // This display has adjustable contrast
   #define LCD_CONTRAST_MIN                     0
