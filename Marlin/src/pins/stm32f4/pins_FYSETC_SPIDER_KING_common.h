@@ -294,24 +294,8 @@
 
   #if HAS_WIRED_LCD
 
-    #define BEEPER_PIN               EXP1_01_PIN
-
-    #define BTN_ENC                  EXP1_02_PIN
-    #define BTN_EN1                  EXP2_03_PIN
-    #define BTN_EN2                  EXP2_05_PIN
-
-    #define LCD_PINS_RS              EXP1_04_PIN
-    #define LCD_PINS_EN              EXP1_03_PIN
-    #define LCD_PINS_D4              EXP1_05_PIN
-
-    #define LCD_SDSS_PIN             EXP2_04_PIN
-
-    #if IS_ULTIPANEL
-      #define LCD_PINS_D5            EXP1_06_PIN
-      #define LCD_PINS_D6            EXP1_07_PIN
-      #define LCD_PINS_D7            EXP1_08_PIN
-    #endif
-
+    // Standard EXP1/EXP2 LCD pins provided by lcd/WIRED.h
+    // (BEEPER, BTN_EN1/2, BTN_ENC, LCD_PINS_RS/EN/D4/D5/D6/D7, LCD_SDSS_PIN)
   #endif // HAS_WIRED_LCD
 
   // Alter timing for graphical display

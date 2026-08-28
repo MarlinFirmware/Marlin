@@ -173,13 +173,8 @@
 
 #if HAS_WIRED_LCD
 
-  #define BTN_ENC                    EXP1_02_PIN
-  #define BTN_EN1                    EXP2_03_PIN
-  #define BTN_EN2                    EXP2_05_PIN
-
-  #define LCD_PINS_EN                EXP1_03_PIN
-  #define LCD_PINS_RS                EXP1_04_PIN
-  #define LCD_PINS_D4                EXP1_05_PIN
+  // Standard EXP1/EXP2 LCD pins provided by lcd/WIRED.h
+  // (BTN_ENC, BTN_EN1/2, LCD_PINS_EN/RS/D4)
 
   #if ENABLED(MKS_MINI_12864)
 
@@ -187,9 +182,7 @@
   #endif // MKS_MINI_12864
 
   #if IS_ULTIPANEL
-    #define LCD_PINS_D5              EXP1_06_PIN
-    #define LCD_PINS_D6              EXP1_07_PIN
-    #define LCD_PINS_D7              EXP1_08_PIN
+    // LCD_PINS_D5/D6/D7 now provided by lcd/WIRED.h
 
     #if ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
       #define BTN_ENC_EN             LCD_PINS_D7  // Detect the presence of the encoder
