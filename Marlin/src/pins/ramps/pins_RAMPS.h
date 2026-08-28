@@ -667,15 +667,8 @@
 
     #else
 
-      #if ANY(MKS_12864OLED, MKS_12864OLED_SSD1306)
-        #define LCD_PINS_DC          EXP1_06_PIN  // Set as output on init
-        #define LCD_PINS_RS          EXP1_07_PIN  // Pull low for 1s to init
-        // DOGM SPI LCD Support
-        #define DOGLCD_A0            LCD_PINS_DC
-        #define DOGLCD_CS            EXP1_04_PIN
-        #define DOGLCD_MOSI          EXP1_03_PIN
-        #define DOGLCD_SCK           EXP1_05_PIN
-      #else
+      // MKS_12864OLED / MKS_12864OLED_SSD1306: migrated to pins/lcd/MKS_12864OLED.h
+      #if !ANY(MKS_12864OLED, MKS_12864OLED_SSD1306)
         #define LCD_PINS_RS          EXP1_04_PIN
         #define LCD_PINS_EN          EXP1_03_PIN
         #define LCD_PINS_D4          EXP1_05_PIN

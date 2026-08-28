@@ -47,6 +47,8 @@
     #include "lcd/FYSETC_MINI_12864.h"
   #elif ENABLED(FYSETC_242_OLED_12864)
     #include "lcd/FYSETC_242_OLED_12864.h"
+  #elif ANY(MKS_12864OLED, MKS_12864OLED_SSD1306)
+    #include "lcd/MKS_12864OLED.h"
   #elif ENABLED(WYH_L12864)
     #include "lcd/WYH_L12864.h"
   #elif ENABLED(ULTI_CONTROLLER)
