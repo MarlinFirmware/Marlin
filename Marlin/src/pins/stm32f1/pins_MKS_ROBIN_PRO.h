@@ -362,6 +362,7 @@
 #elif IS_TFTGLCD_PANEL
 
   #if ENABLED(TFTGLCD_PANEL_SPI)
+    // NOTE: MKS_ROBIN_PRO uses raw STM32 pin PG5 for TFTGLCD_CS (no EXP2 token mapping)
     #define TFTGLCD_CS                      PG5
   #endif
 

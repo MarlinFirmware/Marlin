@@ -153,6 +153,7 @@
     #define SD_DETECT_PIN                  P0_27  // EXP2 Pin 7 (SD_CD, SD_DET)
 
     #if ENABLED(TFTGLCD_PANEL_SPI)
+      // NOTE: SMOOTHIEBOARD uses raw LPC pin P3_26 for TFTGLCD_CS (no EXP2 token mapping)
       #define TFTGLCD_CS                   P3_26  // EXP2 Pin 3
     #endif
 

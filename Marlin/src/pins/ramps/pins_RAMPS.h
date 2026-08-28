@@ -644,7 +644,7 @@
     #define LCD_PINS_D7                  AUX2_05
 
   #elif ENABLED(TFTGLCD_PANEL_SPI)
-
+    // NOTE: RAMPS uses EXP2_05 for TFTGLCD_CS (non-standard vs. EXP2_03 default)
     #define TFTGLCD_CS               EXP2_05_PIN
 
   #else

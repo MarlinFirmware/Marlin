@@ -89,5 +89,6 @@
 //
 #define LED_PIN                             PC13
 #define SD_SS_PIN                           PA3
+// NOTE: MORPHEUS defines TFTGLCD_CS unconditionally as raw pin PA4 (non-standard; no EXP2 token mapping)
 #define TFTGLCD_CS                          PA4
 #define SD_DETECT_PIN                       PC14

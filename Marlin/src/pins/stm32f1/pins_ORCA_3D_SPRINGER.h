@@ -246,13 +246,8 @@
 #if HAS_WIRED_LCD
 
   #if IS_TFTGLCD_PANEL
-
+    // Migrated to pins/lcd
     #define BEEPER_PIN                      -1
-
-    #if ENABLED(TFTGLCD_PANEL_SPI)
-      #define TFTGLCD_CS             EXP2_03_PIN
-    #endif
-
     #define SD_DETECT_PIN            EXP2_07_PIN
 
   #else

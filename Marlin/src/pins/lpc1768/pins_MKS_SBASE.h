@@ -233,10 +233,7 @@
 //
 
 #if IS_TFTGLCD_PANEL
-
-  #if ENABLED(TFTGLCD_PANEL_SPI)
-    #define TFTGLCD_CS               EXP2_03_PIN
-  #endif
+  // Migrated to pins/lcd
   #if SD_CONNECTION_IS(LCD)
     #define SD_DETECT_PIN            EXP2_04_PIN
   #endif

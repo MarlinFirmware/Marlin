@@ -63,6 +63,8 @@
     #include "lcd/RRD_FG_SC.h"
   #elif IS_RRD_SC
     #include "lcd/RRD_SC.h"
+  #elif IS_TFTGLCD_PANEL
+    #include "lcd/TFTGLCD.h"
   //#elif HAS_WIRED_LCD
   //  #include "lcd/WIRED.h"
   #else

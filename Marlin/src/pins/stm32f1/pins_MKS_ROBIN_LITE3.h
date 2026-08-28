@@ -126,6 +126,7 @@
   #elif IS_TFTGLCD_PANEL
 
     #if ENABLED(TFTGLCD_PANEL_SPI)
+      // NOTE: MKS_ROBIN_LITE3 uses raw STM32 pin PB11 for TFTGLCD_CS (no EXP2 token mapping)
       #define TFTGLCD_CS                    PB11
     #endif
 

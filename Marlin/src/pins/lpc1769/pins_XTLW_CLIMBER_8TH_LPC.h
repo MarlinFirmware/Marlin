@@ -190,11 +190,7 @@
   // Migrated to pins/lcd
 
 #elif IS_TFTGLCD_PANEL
-
-  #if ENABLED(TFTGLCD_PANEL_SPI)
-    #define TFTGLCD_CS               EXP2_03_PIN
-  #endif
-
+  // Migrated to pins/lcd
   #define SD_DETECT_PIN              EXP2_07_PIN
 
 #elif HAS_WIRED_LCD

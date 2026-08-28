@@ -305,13 +305,7 @@
     #define BTN_EN2                  EXP2_05_PIN
 
   #elif IS_TFTGLCD_PANEL
-
-    #undef BEEPER_PIN
-    #undef BTN_ENC
-
-    #if ENABLED(TFTGLCD_PANEL_SPI)
-      #define TFTGLCD_CS             EXP2_03_PIN
-    #endif
+    // Migrated to pins/lcd
 
   #else
 

@@ -180,14 +180,7 @@
   #define BTN_ENC                    EXP1_02_PIN
 
   #if IS_TFTGLCD_PANEL
-
-    #undef BEEPER_PIN
-    #undef BTN_ENC
-
-    #if ENABLED(TFTGLCD_PANEL_SPI)
-      #define TFTGLCD_CS             EXP2_03_PIN
-    #endif
-
+    // Migrated to pins/lcd
     #define SD_DETECT_PIN            EXP2_07_PIN
 
   #else
