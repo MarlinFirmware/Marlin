@@ -780,23 +780,7 @@
 
     #elif ENABLED(ELB_FULL_GRAPHIC_CONTROLLER)
 
-      #define DOGLCD_CS              EXP1_08_PIN
-      #define DOGLCD_A0              EXP1_07_PIN
-
-      #ifndef BEEPER_PIN
-        #define BEEPER_PIN           EXP1_05_PIN
-      #endif
-      #define LCD_BACKLIGHT_PIN      EXP2_05_PIN
-
-      #define BTN_EN1                EXP1_02_PIN
-      #define BTN_EN2                EXP1_01_PIN
-      #define BTN_ENC                EXP2_03_PIN
-
-      #define LCD_SDSS_PIN             SD_SS_PIN
-      #ifndef SD_DETECT_PIN
-        #define SD_DETECT_PIN        EXP2_07_PIN
-      #endif
-      #define KILL_PIN               EXP2_08_PIN
+      // Pins defined in Marlin/src/pins/lcd/ELB_FULL_GRAPHIC_CONTROLLER.h
 
     #elif ANY(MKS_MINI_12864, FYSETC_MINI_12864)
 

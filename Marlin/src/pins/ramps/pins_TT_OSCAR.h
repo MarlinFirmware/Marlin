@@ -440,6 +440,8 @@
 
     #elif ENABLED(ELB_FULL_GRAPHIC_CONTROLLER)
 
+      // NOTE: Kept inline — TT_OSCAR uses raw Arduino pin numbers for most signals
+      // (CS=29, A0=27, BEEPER=23, BACKLIGHT=33, EN1=35, EN2=37, ENC=31); not EXP-token based.
       #define DOGLCD_CS                       29
       #define DOGLCD_A0                       27
 
