@@ -219,6 +219,8 @@
 
   #if ENABLED(CR10_STOCKDISPLAY)
 
+    // NOTE: Kept inline — CHEETAH_V30 routes BTN_EN1/EN2 to EXP2_08/06
+    // (non-standard vs. lcd/CR10_STOCKDISPLAY.h's EXP1_03/05).
     #define LCD_PINS_RS              EXP1_07_PIN
 
     #define BTN_EN1                  EXP2_08_PIN

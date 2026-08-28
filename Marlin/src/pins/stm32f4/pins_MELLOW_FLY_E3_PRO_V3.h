@@ -436,13 +436,7 @@
 
   #if ENABLED(CR10_STOCKDISPLAY)
 
-    #define LCD_PINS_RS              EXP1_07_PIN
-
-    #define BTN_EN1                  EXP1_03_PIN
-    #define BTN_EN2                  EXP1_05_PIN
-
-    #define LCD_PINS_EN              EXP1_08_PIN
-    #define LCD_PINS_D4              EXP1_06_PIN
+    // Pins provided by lcd/CR10_STOCKDISPLAY.h
 
   #elif ENABLED(MKS_MINI_12864)
 
