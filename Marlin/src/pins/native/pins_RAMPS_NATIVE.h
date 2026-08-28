@@ -623,23 +623,15 @@
 
       // Pins defined in Marlin/src/pins/lcd/ELB_FULL_GRAPHIC_CONTROLLER.h
     #elif ENABLED(MKS_MINI_12864)
-    // NOTE: Kept inline — RAMPS_NATIVE uses raw pin numbers (not EXP tokens) for MKS MINI 12864.
 
-      #define DOGLCD_A0              EXP1_07_PIN
-      #define DOGLCD_CS              EXP1_06_PIN
-
-      #define BEEPER_PIN             EXP1_01_PIN
-      // not connected to a pin
       #define LCD_BACKLIGHT_PIN               65  // backlight LED on A11/D65
 
-      #define BTN_EN1                EXP2_03_PIN
-      #define BTN_EN2                EXP2_05_PIN
-      #define BTN_ENC                EXP1_02_PIN
-
-      #define SD_DETECT_PIN          EXP2_07_PIN
-      #define KILL_PIN                        64
-
-      //#define LCD_SCREEN_ROTATE            180  // 0, 90, 180, 270
+      #ifndef SD_DETECT_PIN
+        #define SD_DETECT_PIN        EXP2_07_PIN
+      #endif
+      #ifndef KILL_PIN
+        #define KILL_PIN                      64
+      #endif
 
     #elif ENABLED(FYSETC_MINI_12864)
 

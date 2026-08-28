@@ -147,6 +147,37 @@
   #define LCD1_07_PIN EXP1_07_PIN  // CS / ST9720 CS
   #define LCD1_08_PIN EXP1_08_PIN  //      ST9720 DAT
 
+#elif ENABLED(ADAPTER_MK_MINI_SWAP_CS_A0)
+
+  /** MKS MINI12864 adapter for boards with swapped CS/A0.
+   *
+   *  Standard MKS lcd file maps:
+   *    LCD1_06=CS(06) LCD1_07=A0(07) → this board has 05/04
+   *    LCD2_03=EN1    LCD2_05=EN2    → this board has 06/08
+   *
+   * Boards: XTLW_CLIMBER_8TH
+   */
+
+  #define LCD1_06_PIN              EXP1_05_PIN  // DOGLCD_CS
+  #define LCD1_07_PIN              EXP1_04_PIN  // DOGLCD_A0
+
+  #define LCD2_03_PIN              EXP2_06_PIN  // BTN_EN1
+  #define LCD2_05_PIN              EXP2_08_PIN  // BTN_EN2
+
+#elif ENABLED(ADAPTER_CHEETAH_V30_MINI_12864)
+
+  /** MKS MINI12864 adapter for FYSETC_CHEETAH_V30.
+   *
+   *  CS/A0 swapped (LCD1_06=05, LCD1_07=04).
+   *  EN1/EN2 swapped positions vs. standard (LCD2_03=08, LCD2_05=06).
+   */
+
+  #define LCD1_06_PIN              EXP1_05_PIN  // DOGLCD_CS
+  #define LCD1_07_PIN              EXP1_04_PIN  // DOGLCD_A0
+
+  #define LCD2_03_PIN              EXP2_08_PIN  // BTN_EN1
+  #define LCD2_05_PIN              EXP2_06_PIN  // BTN_EN2
+
 #elif ANY(ADAPTER_CREALITY_DUAL, ADAPTER_BTT_DUAL)
 
   /** Common LCD single-to-dual adapter

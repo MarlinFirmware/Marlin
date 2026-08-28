@@ -65,13 +65,21 @@
 #define BTN_EN1           LCD2_03_PIN
 #define BTN_EN2           LCD2_05_PIN
 
-#define DOGLCD_CS         LCD1_06_PIN
-#define DOGLCD_A0         LCD1_07_PIN
+#ifndef DOGLCD_CS
+  #define DOGLCD_CS       LCD1_06_PIN
+#endif
+#ifndef DOGLCD_A0
+  #define DOGLCD_A0       LCD1_07_PIN
+#endif
 
 // When using the single-plug adapter
 // these will be re-routed from 1-1 and 1-8
-#define DOGLCD_SCK        LCD2_02_PIN  // usually SD_SCK_PIN
-#define DOGLCD_MOSI       LCD2_06_PIN  // usually SD_MOSI_PIN
+#ifndef DOGLCD_SCK
+  #define DOGLCD_SCK      LCD2_02_PIN  // usually SD_SCK_PIN
+#endif
+#ifndef DOGLCD_MOSI
+  #define DOGLCD_MOSI     LCD2_06_PIN  // usually SD_MOSI_PIN
+#endif
 
 //#if DOGLCD_SCK != SD_SCK_PIN
 //  #define FORCE_SOFT_SPI

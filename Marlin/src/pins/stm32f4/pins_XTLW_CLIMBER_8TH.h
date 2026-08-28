@@ -230,12 +230,7 @@
   #define BTN_ENC                    EXP1_09_PIN
 
   #if ENABLED(MKS_MINI_12864)
-  // NOTE: Kept inline — XTLW_CLIMBER_8TH swaps DOGLCD and BTN pin slots vs. standard.
-
-    #define DOGLCD_A0                EXP1_04_PIN
-    #define DOGLCD_CS                EXP1_05_PIN
-    #define BTN_EN1                  EXP2_06_PIN
-    #define BTN_EN2                  EXP2_08_PIN
+    #define ADAPTER_MK_MINI_SWAP_CS_A0  // CS/A0 and EN1/EN2 swapped vs. standard
 
   #else
 
