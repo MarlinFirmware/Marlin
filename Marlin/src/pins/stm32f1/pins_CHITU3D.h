@@ -176,6 +176,7 @@
     #define LCD_SCREEN_ROTATE              180  // 0, 90, 180, 270
 
   #elif ENABLED(ELB_FULL_GRAPHIC_CONTROLLER)
+    // NOTE: Kept inline — CHITU3D uses raw STM32 port pins (not EXP tokens).
     #define BTN_EN1                         PC3   // 35
     #define BTN_EN2                         PC5   // 37
     #define BTN_ENC                         PB15  // 31

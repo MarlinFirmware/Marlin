@@ -459,6 +459,7 @@
 
     #elif ENABLED(ELB_FULL_GRAPHIC_CONTROLLER)
 
+      // NOTE: Kept inline — RP2040 uses raw pin numbers (not EXP tokens) for ELB.
       #define DOGLCD_CS                       29
       #define DOGLCD_A0                       27
 
