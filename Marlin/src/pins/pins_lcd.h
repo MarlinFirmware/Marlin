@@ -59,6 +59,8 @@
     #include "lcd/ELB_FULL_GRAPHIC_CONTROLLER.h"
   #elif ENABLED(ZONESTAR_LCD)
     #include "lcd/ZONESTAR_LCD.h"
+  #elif ANY(VIKI2, miniVIKI)
+    #include "lcd/VIKI2.h"
   #elif ENABLED(YHCB2004)
     // SPI Character LCD used by Geeetech
   #elif IS_RRD_FG_SC
