@@ -133,17 +133,20 @@
   /**
    * The Smoothieboard supports the REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER with either
    * a custom cable with breakouts to the pins indicated below or the RRD GLCD Adapter board.
+   *
+   * EXP1/EXP2 connector pin mapping for standard LPC1769 layout (used by pins_lcd.h):
    */
+  #define EXP1_01_PIN                      P1_31
+  #define EXP1_02_PIN                      P1_30
+  #define EXP1_03_PIN                      P0_18
+  #define EXP1_04_PIN                      P0_16
+  #define EXP1_05_PIN                      P0_15
+
+  #define EXP2_03_PIN                      P3_26
+  #define EXP2_05_PIN                      P3_25
+
   #if IS_RRD_FG_SC
-    //  EXP1 Pins
-    #define BEEPER_PIN                     P1_31  // EXP1 Pin 1
-    #define BTN_ENC                        P1_30  // EXP1 Pin 2
-    #define LCD_PINS_EN                    P0_18  // EXP1 Pin 3 (MOSI)
-    #define LCD_PINS_RS                    P0_16  // EXP1 Pin 4 (CS)
-    #define LCD_PINS_D4                    P0_15  // EXP1 Pin 5 (SCK)
-    //  EXP2 Pins
-    #define BTN_EN2                        P3_26  // EXP2 Pin 3
-    #define BTN_EN1                        P3_25  // EXP2 Pin 5
+    // LCD pins defined in Marlin/src/pins/lcd/RRD_FG_SC.h
 
   #elif IS_TFTGLCD_PANEL
 
