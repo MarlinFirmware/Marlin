@@ -187,24 +187,20 @@
     #define LCD_BACKLIGHT_PIN               PC1   // 33
 
   #elif ENABLED(MINIPANEL)
+    // Define EXP1/EXP2 to match the MINIPANEL wiring on this board (STM32 port pins).
+    // The default passthrough in lcd/adapters.h maps LCD1/LCD2 -> EXP1/EXP2.
+    #define EXP1_01_PIN                     PC10  // BEEPER
+    #define EXP1_02_PIN                     PD11  // BTN_ENC
+    #define EXP1_06_PIN                     PE2   // DOGLCD_CS
+    #define EXP1_07_PIN                     PC12  // DOGLCD_A0
+    #define EXP1_08_PIN                     PE1   // BACKLIGHT
 
-    #define BEEPER_PIN                      PC10  // 42
-    // Pins for DOGM SPI LCD Support
-    #define DOGLCD_A0                       PC12  // 44
-    #define DOGLCD_CS                       PE2   // 66
-    #define LCD_BACKLIGHT_PIN               PE1   // 65   // backlight LED on A11/D65
-    #define SD_SS_PIN                       PD5   // 53
+    #define EXP2_03_PIN                     PC8   // BTN_EN1
+    #define EXP2_05_PIN                     PD15  // BTN_EN2
+    #define EXP2_07_PIN                     PD1   // SD_DETECT
+    #define EXP2_08_PIN                     PE0   // KILL
 
-    #define KILL_PIN                        PE0   // 64
-
-    // The encoder and click button
-    #define BTN_EN1                         PC8   // 40
-    #define BTN_EN2                         PD15  // 63
-    #define BTN_ENC                         PD11  // 59
-    // not connected to a pin
-    #define SD_DETECT_PIN                   PD1   // 49
-
-    //#define LCD_SCREEN_ROTATE            180  // 0, 90, 180, 270
+    #define SD_SS_PIN                       PD5   // Board-specific SD CS
 
   #elif IS_NEWPANEL
 

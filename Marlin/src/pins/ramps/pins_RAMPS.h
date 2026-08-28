@@ -851,23 +851,7 @@
       #endif
 
     #elif ENABLED(MINIPANEL)
-
-      #ifndef BEEPER_PIN
-        #define BEEPER_PIN               AUX2_08
-      #endif
-      #define LCD_BACKLIGHT_PIN          AUX2_10
-
-      #define DOGLCD_A0                  AUX2_07
-      #define DOGLCD_CS                  AUX2_09
-
-      #define BTN_EN1                    AUX2_06
-      #define BTN_EN2                    AUX2_04
-      #define BTN_ENC                    AUX2_03
-
-      #ifndef SD_DETECT_PIN
-        #define SD_DETECT_PIN            AUX3_02
-      #endif
-      #define KILL_PIN                   AUX2_05
+      #define ADAPTER_RAMPS_AUX2        // MINIPANEL wired to AUX-2; see lcd/adapters.h
 
     #elif ENABLED(ZONESTAR_LCD)
 

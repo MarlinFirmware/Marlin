@@ -84,6 +84,57 @@
   #define LCD2_07_PIN MINI_02 // SD_DETECT
   #define LCD2_08_PIN MINI_18 // KILL
 
+#elif ENABLED(ADAPTER_RAMPS_AUX2)
+
+  /**
+   * RAMPS MINIPANEL wiring via the AUX-2 connector.
+   * Boards: RAMPS 1.x, RAMPS_NATIVE, TT_OSCAR, RP2040 (RAMPS-compatible)
+   *
+   * The MINIPANEL on RAMPS is wired to AUX-2, not EXP1/EXP2.
+   * AUX-2 pins: 03=59, 04=63, 05=64, 06=40, 07=44, 08=42, 09=66, 10=65
+   * AUX-3 pin:  02=49 (SD_DETECT)
+   *
+   *          AUX-2                    AUX-3
+   *  ---------------------    ---------------------
+   *  03 BTN_ENC    = 59       02 SD_DETECT  = 49
+   *  04 BTN_EN2    = 63
+   *  05 KILL       = 64
+   *  06 BTN_EN1    = 40
+   *  07 DOGLCD_A0  = 44
+   *  08 BEEPER     = 42
+   *  09 DOGLCD_CS  = 66
+   *  10 BACKLIGHT  = 65
+   */
+
+  #define LCD1_01_PIN                       42  // BEEPER     (AUX2_08)
+  #define LCD1_02_PIN                       59  // BTN_ENC    (AUX2_03)
+  #define LCD1_06_PIN                       66  // DOGLCD_CS  (AUX2_09)
+  #define LCD1_07_PIN                       44  // DOGLCD_A0  (AUX2_07)
+  #define LCD1_08_PIN                       65  // BACKLIGHT  (AUX2_10)
+
+  #define LCD2_03_PIN                       40  // BTN_EN1    (AUX2_06)
+  #define LCD2_05_PIN                       63  // BTN_EN2    (AUX2_04)
+  #define LCD2_07_PIN                       49  // SD_DETECT  (AUX3_02)
+  #define LCD2_08_PIN                       64  // KILL       (AUX2_05)
+
+#elif ENABLED(ADAPTER_RAMPS_DUO_AUX2)
+
+  /**
+   * RAMPS-Duo MINIPANEL wiring — same as ADAPTER_RAMPS_AUX2 except for
+   * four Due-specific overrides (different analog pin layout on the SAM CPU).
+   */
+
+  #define LCD1_01_PIN                       42  // BEEPER     (AUX2_08)
+  #define LCD1_02_PIN                       59  // BTN_ENC    (AUX2_03)
+  #define LCD1_06_PIN                       69  // DOGLCD_CS  (A15/D69)
+  #define LCD1_07_PIN                       44  // DOGLCD_A0  (AUX2_07)
+  #define LCD1_08_PIN                       68  // BACKLIGHT  (A14/D68)
+
+  #define LCD2_03_PIN                       40  // BTN_EN1    (AUX2_06)
+  #define LCD2_05_PIN                       66  // BTN_EN2    (A12/D66)
+  #define LCD2_07_PIN                       49  // SD_DETECT  (AUX3_02)
+  #define LCD2_08_PIN                       67  // KILL       (A13/D67)
+
 #elif ENABLED(ADAPTER_CREALITY_PIN27)
 
   // A "Pin 27" Adapter frees EXP1_01_PIN for other uses. This assumes a single EXP plug.

@@ -490,26 +490,7 @@
       #define KILL_PIN                        64
 
     #elif ENABLED(MINIPANEL)
-
-      #define BEEPER_PIN                      42
-      // not connected to a pin
-      #define LCD_BACKLIGHT_PIN               65  // backlight LED on A11/D65
-
-      #define DOGLCD_A0                       44
-      #define DOGLCD_CS                       66
-
-      // GLCD features
-      // Uncomment screen orientation
-      //#define LCD_SCREEN_ROT_90
-      //#define LCD_SCREEN_ROT_180
-      //#define LCD_SCREEN_ROT_270
-
-      #define BTN_EN1                         40
-      #define BTN_EN2                         63
-      #define BTN_ENC                         59
-
-      #define SD_DETECT_PIN                   49
-      #define KILL_PIN                        64
+      #define ADAPTER_RAMPS_AUX2        // MINIPANEL wired to AUX-2; see lcd/adapters.h
 
     #elif ENABLED(ZONESTAR_LCD)
 

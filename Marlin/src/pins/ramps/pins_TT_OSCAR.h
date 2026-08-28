@@ -474,24 +474,9 @@
       //#define LCD_SCREEN_ROTATE            180  // 0, 90, 180, 270
 
     #elif ENABLED(MINIPANEL)
-
-      #define BEEPER_PIN                      42
-      // not connected to a pin
-      #define LCD_BACKLIGHT_PIN               65  // backlight LED on A11/D65
-
-      #define DOGLCD_A0                       44
-      #define DOGLCD_CS                       66
-
-      #define BTN_EN1                         40
-      #define BTN_EN2                         63
-      #define BTN_ENC                         59
-
+      #define ADAPTER_RAMPS_AUX2        // MINIPANEL wired to AUX-2; see lcd/adapters.h
       #define SD_SS_PIN              EXP2_04_PIN
       #define SD_DETECT_PIN          EXP2_07_PIN
-      //#define KILL_PIN                      64
-
-      //#define LCD_CONTRAST_INIT            190
-      //#define LCD_SCREEN_ROTATE            180  // 0, 90, 180, 270
 
     #else
 
