@@ -263,9 +263,9 @@
     #define LCD_PINS_D7              EXP1_08_PIN
 
     #if ENABLED(MKS_MINI_12864)
-      #define DOGLCD_CS              EXP1_06_PIN
-      #define DOGLCD_A0              EXP1_07_PIN
-    #endif
+
+      // Migrated to pins/lcd
+    #endif // MKS_MINI_12864
 
   #endif
 

@@ -788,14 +788,7 @@
 
       #if ENABLED(MKS_MINI_12864)
 
-        #define DOGLCD_A0            EXP1_07_PIN
-        #define DOGLCD_CS            EXP1_06_PIN
-
-        // not connected to a pin
-        #define LCD_BACKLIGHT_PIN             -1  // 65 (MKS mini12864 can't adjust backlight by software!)
-
-        #define BTN_EN1              EXP2_03_PIN
-        #define BTN_EN2              EXP2_05_PIN
+        // Migrated to pins/lcd
 
       #elif ENABLED(FYSETC_MINI_12864)
       // NOTE: Kept inline — RAMPS uses multi-variant AUX2/AUX4/EXP wiring.

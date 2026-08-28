@@ -178,6 +178,7 @@
 #define USES_SHARED_SPI                           // SPI is shared by SD card with TMC SPI drivers
 
 #if ENABLED(MKS_MINI_12864)
+// NOTE: Kept inline — MKS_TINYBEE sets LCD_RESET_PIN=-1 for MKS MINI 12864.
 
   // MKS MINI12864 / LCD12864B. For MKS LCD12864A remove the RPK2 resistor!
 

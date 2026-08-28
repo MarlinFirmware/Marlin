@@ -370,12 +370,11 @@
     #define SD_DETECT_PIN            EXP2_07_PIN  // (49) (NOT 5V tolerant)
 
     #if ENABLED(MKS_MINI_12864)
-      #define DOGLCD_CS              EXP1_06_PIN
-      #define DOGLCD_A0              EXP1_07_PIN
-      #define DOGLCD_SCK             EXP2_02_PIN
-      #define DOGLCD_MOSI            EXP2_06_PIN
+
+      // Migrated to pins/lcd
       #define FORCE_SOFT_SPI
-    #endif
+
+    #endif // MKS_MINI_12864
 
     #if IS_ULTIPANEL
       #define LCD_PINS_D5            EXP1_06_PIN

@@ -183,8 +183,7 @@
 
 #elif ENABLED(MKS_MINI_12864)
 
-  // Migrated to pins/lcd
-
+  // NOTE: Kept inline — TH3D_EZBOARD uses ADAPTER_TH3D_DUAL with custom contrast for MKS MINI 12864.
   #define ADAPTER_TH3D_DUAL
   #define LCD_CONTRAST_INIT                  160
   #define LCD_CONTRAST_MIN                   120

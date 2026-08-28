@@ -113,6 +113,7 @@
   #define LCD_PINS_D4                EXP2_02_PIN
 
   #if ENABLED(MKS_MINI_12864)
+  // NOTE: Kept inline — SKR_V1_1 uses raw LPC pin P2_06 for DOGLCD_CS.
     #define DOGLCD_CS                      P2_06
     #define DOGLCD_A0                EXP1_04_PIN
   #endif

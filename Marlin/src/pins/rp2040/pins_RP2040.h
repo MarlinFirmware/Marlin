@@ -470,6 +470,7 @@
       #define KILL_PIN                        41
 
     #elif ENABLED(MKS_MINI_12864)
+    // NOTE: Kept inline — RP2040 uses raw pin numbers (not EXP tokens) for MKS MINI 12864.
 
       #define DOGLCD_A0                       27
       #define DOGLCD_CS                       25

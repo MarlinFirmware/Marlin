@@ -181,6 +181,7 @@
   #define LCD_PINS_D7                       PB15
 
   #if ENABLED(MKS_MINI_12864)
+  // NOTE: Kept inline — ARMED uses raw STM32 port pins (not EXP tokens) for DOGLCD.
     #define DOGLCD_CS                       PB13
     #define DOGLCD_A0                       PB14
   #endif

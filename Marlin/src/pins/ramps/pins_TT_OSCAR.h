@@ -459,6 +459,7 @@
       //#define KILL_PIN                      41
 
     #elif ENABLED(MKS_MINI_12864)
+    // NOTE: Kept inline — TT_OSCAR uses raw pin numbers (not EXP tokens) for MKS MINI 12864.
 
       #define DOGLCD_A0                       27
       #define DOGLCD_CS                       25

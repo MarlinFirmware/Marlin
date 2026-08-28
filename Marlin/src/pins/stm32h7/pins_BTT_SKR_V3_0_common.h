@@ -384,6 +384,7 @@
   #define KILL_PIN                          -1
 
 #elif ENABLED(MKS_MINI_12864)
+// NOTE: Kept inline — SKR_V3_0 sets DOGLCD_MOSI=-1 for MKS MINI 12864.
 
   // Migrated to pins/lcd
   #define BEEPER_PIN                 EXP1_01_PIN

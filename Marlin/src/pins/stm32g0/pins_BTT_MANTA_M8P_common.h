@@ -259,12 +259,8 @@
 
   #if ENABLED(MKS_MINI_12864)
 
-    #define DOGLCD_A0                EXP1_07_PIN
-    #define DOGLCD_CS                EXP1_06_PIN
-    #define BTN_EN1                  EXP2_03_PIN
-    #define BTN_EN2                  EXP2_05_PIN
-
-  #else
+    // Migrated to pins/lcd
+  #else // !MKS_MINI_12864
 
     #define LCD_PINS_RS              EXP1_04_PIN
 

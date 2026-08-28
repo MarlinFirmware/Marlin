@@ -385,7 +385,6 @@
 #elif ENABLED(MKS_MINI_12864)
 
   // Migrated to pins/lcd
-  #define BEEPER_PIN                 EXP1_01_PIN
 
 #elif IS_TFTGLCD_PANEL
 

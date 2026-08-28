@@ -625,6 +625,7 @@
 
       // Pins defined in Marlin/src/pins/lcd/ELB_FULL_GRAPHIC_CONTROLLER.h
     #elif ENABLED(MKS_MINI_12864)
+    // NOTE: Kept inline — RAMPS_NATIVE uses raw pin numbers (not EXP tokens) for MKS MINI 12864.
 
       #define DOGLCD_A0              EXP1_07_PIN
       #define DOGLCD_CS              EXP1_06_PIN

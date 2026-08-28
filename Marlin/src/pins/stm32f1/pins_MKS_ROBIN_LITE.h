@@ -113,6 +113,7 @@
   #define LCD_PINS_EN                EXP3_08_PIN
 
   #if ENABLED(MKS_MINI_12864)
+  // NOTE: Kept inline — MKS_ROBIN_LITE uses EXP3 tokens and raw DOGLCD_SCK/MOSI.
 
     #define LCD_BACKLIGHT_PIN               -1
     #define LCD_RESET_PIN                   -1

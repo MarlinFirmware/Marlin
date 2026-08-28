@@ -228,6 +228,7 @@
     #define LCD_PINS_D4              EXP1_06_PIN
 
   #elif ENABLED(MKS_MINI_12864)
+  // NOTE: Kept inline — CHEETAH_V30 swaps DOGLCD_CS/A0 and BTN_EN1/EN2 vs. standard.
 
     #define DOGLCD_A0                EXP1_04_PIN
     #define DOGLCD_CS                EXP1_05_PIN
