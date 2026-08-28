@@ -649,15 +649,7 @@
 
     #if ENABLED(ZONESTAR_LCD)
 
-      CONTROLLER_WARNING("RAMPS", "ZONESTAR_LCD", " Plugs into AUX2 but GND and 5V must be swapped.")
-      // NOTE: Kept inline — RAMPS routes ZONESTAR_LCD through AUX2 pins, not EXP1.
-
-      #define LCD_PINS_RS                AUX2_05
-      #define LCD_PINS_EN                AUX2_07
-      #define LCD_PINS_D4                AUX2_04
-      #define LCD_PINS_D5                AUX2_06
-      #define LCD_PINS_D6                AUX2_08
-      #define LCD_PINS_D7                AUX2_10
+      #define ADAPTER_RAMPS_MKS         // ZONESTAR_LCD wired to AUX-2; see lcd/adapters.h
 
     #elif ENABLED(AZSMZ_12864)
 
@@ -825,7 +817,7 @@
       #endif
 
     #elif ENABLED(MINIPANEL)
-      #define ADAPTER_RAMPS_AUX2        // MINIPANEL wired to AUX-2; see lcd/adapters.h
+      #define ADAPTER_RAMPS_MKS         // MINIPANEL wired to AUX-2; see lcd/adapters.h
 
     #elif ENABLED(ZONESTAR_LCD)
 
