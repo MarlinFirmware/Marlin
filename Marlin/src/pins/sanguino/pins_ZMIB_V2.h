@@ -189,12 +189,9 @@
   //
   // LCD 128x64
   //
-  #define FORCE_SOFT_SPI
+  // Output pins (RS/EN/D4) provided by lcd/ZONESTAR_12864LCD.h
+  #define FORCE_SOFT_SPI                      // Board-specific: use software SPI
   //#define LCD_SDSS_PIN             EXP1_03_PIN
-  #define LCD_PINS_RS                EXP1_03_PIN  // ST7920 CS  (LCD-4)
-  #define LCD_PINS_EN                EXP1_06_PIN  // ST7920 DAT (LCD-5)
-  #define LCD_PINS_D4                EXP1_04_PIN  // ST7920 CLK (LCD-6)
-
   #define BOARD_ST7920_DELAY_1       DELAY_2_NOP
   #define BOARD_ST7920_DELAY_2       DELAY_2_NOP
   #define BOARD_ST7920_DELAY_3       DELAY_2_NOP
