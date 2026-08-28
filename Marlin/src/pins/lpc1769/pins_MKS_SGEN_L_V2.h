@@ -295,19 +295,8 @@
 
   #define LCD_SDSS_PIN               EXP2_04_PIN
 
-  #if ENABLED(MKS_12864OLED_SSD1306)
-
-    #define LCD_PINS_DC              EXP1_06_PIN
-    #define DOGLCD_CS                EXP1_04_PIN
-    #define DOGLCD_A0                LCD_PINS_DC
-    #define DOGLCD_SCK               EXP1_05_PIN
-    #define DOGLCD_MOSI              EXP1_03_PIN
-
-    #define LCD_PINS_RS              EXP1_07_PIN
-    #define LCD_PINS_D7              EXP1_08_PIN
-    #define KILL_PIN                       -1     // NC
-
-  #elif HAS_SPI_TFT                               // Config for Classic UI (emulated DOGM) and Color UI
+  // MKS_12864OLED / MKS_12864OLED_SSD1306: migrated to pins/lcd/MKS_12864OLED.h
+  #if HAS_SPI_TFT                                 // Config for Classic UI (emulated DOGM) and Color UI
 
     #define TFT_CS_PIN               EXP1_07_PIN
     #define TFT_DC_PIN               EXP1_08_PIN
