@@ -347,6 +347,8 @@
 
     #if ENABLED(ZONESTAR_LCD)
 
+      // NOTE: Kept inline — RP2040 wires ZONESTAR_LCD via raw AUX-2 pin numbers
+      // (RS=64, EN=44, D4=63, D5=40, D6=42, D7=65), not EXP tokens.
       #define LCD_PINS_RS                     64
       #define LCD_PINS_EN                     44
       #define LCD_PINS_D4                     63
@@ -499,6 +501,7 @@
 
     #elif ENABLED(ZONESTAR_LCD)
 
+      // NOTE: Kept inline — ADC_KEYPAD_PIN is board-specific (repurposed servo pin).
       #define ADC_KEYPAD_PIN                  12
 
     #elif ENABLED(AZSMZ_12864)
