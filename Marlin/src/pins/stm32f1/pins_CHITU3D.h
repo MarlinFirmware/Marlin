@@ -99,6 +99,7 @@
 //
 #if ENABLED(REPRAPWORLD_GRAPHICAL_LCD)
 
+  // NOTE: Kept inline — CHITU3D uses raw STM32 port pins (not EXP tokens).
   #define BTN_ENC                           PD15
   #define BTN_EN1                           PE0
   #define BTN_EN2                           PD11

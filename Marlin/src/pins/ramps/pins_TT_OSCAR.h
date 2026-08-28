@@ -396,6 +396,8 @@
 
     #elif ENABLED(REPRAPWORLD_GRAPHICAL_LCD)
 
+      // NOTE: Kept inline — REPRAPWORLD input pins are raw Arduino numbers
+      // (AUX-2: EN1=64, EN2=59, ENC=63; SD=42). Not EXP/LCD-tokenable.
       #define BTN_EN1                         64
       #define BTN_EN2                         59
       #define BTN_ENC                         63

@@ -194,6 +194,7 @@
 #elif ENABLED(REPRAPWORLD_GRAPHICAL_LCD)
 
   // TODO: Define an adapter
+  // NOTE: Kept inline — MINITRONICS20 uses raw pin numbers (not EXP tokens).
 
   #define BTN_ENC                             23
   #define BTN_EN1                             27

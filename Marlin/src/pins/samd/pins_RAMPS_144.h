@@ -437,6 +437,8 @@
 #elif ENABLED(REPRAPWORLD_GRAPHICAL_LCD)
 
   // TODO: Define an adapter
+  // NOTE: Kept inline — REPRAPWORLD input pins are on the AUX-2 connector;
+  // the display output pins are provided by lcd/REPRAPWORLD_GRAPHICAL_LCD.h.
 
   #define BTN_ENC                        AUX2_04
   #define BTN_EN1                        AUX2_05

@@ -329,6 +329,7 @@
   //
   #if ENABLED(REPRAPWORLD_GRAPHICAL_LCD)
 
+    // NOTE: Kept inline — RP2040 uses raw pin numbers (not EXP tokens) for REPRAPWORLD.
     #define LCD_PINS_RS                       49  // CS chip select /SS chip slave select
     #define LCD_PINS_EN                       51  // SID (MOSI)
     #define LCD_PINS_D4                       52  // SCK (CLK) clock
@@ -414,6 +415,7 @@
 
     #elif ENABLED(REPRAPWORLD_GRAPHICAL_LCD)
 
+      // NOTE: Kept inline — RP2040 uses raw pin numbers (not EXP tokens).
       #define BTN_EN1                         64
       #define BTN_EN2                         59
       #define BTN_ENC                         63

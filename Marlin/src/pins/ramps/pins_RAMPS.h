@@ -713,6 +713,8 @@
 
     #elif ENABLED(REPRAPWORLD_GRAPHICAL_LCD)
 
+      // NOTE: Kept inline — REPRAPWORLD input pins are on the AUX-2 connector
+      // (separate from EXP-2, which carries the display output). Not EXP/LCD-tokenable.
       #define BTN_EN1                    AUX2_05
       #define BTN_EN2                    AUX2_03
       #define BTN_ENC                    AUX2_04
