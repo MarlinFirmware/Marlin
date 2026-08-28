@@ -300,6 +300,7 @@
 #elif IS_TFTGLCD_PANEL
 
   #if ENABLED(TFTGLCD_PANEL_SPI)
+    // NOTE: RAMPS_RE_ARM uses raw LPC pin P3_26 for TFTGLCD_CS (no EXP2 token mapping)
     #define TFTGLCD_CS                     P3_26  // (31) J3-2 & AUX-4
   #endif
 

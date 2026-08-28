@@ -305,6 +305,7 @@
          *  EXP1-1 ------------ EXP1-7   SD_DET
          */
 
+        // NOTE: BTT_SKR_MINI_E3_V3_0 uses EXP1_03 for TFTGLCD_CS (non-standard vs. EXP2_03 default; custom cable required)
         #define TFTGLCD_CS           EXP1_03_PIN
 
       #endif

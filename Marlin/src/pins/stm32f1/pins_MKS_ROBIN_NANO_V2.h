@@ -371,14 +371,7 @@
   #define LCD_PINS_RS                EXP1_04_PIN
 
   #if IS_TFTGLCD_PANEL
-
-    #if ENABLED(TFTGLCD_PANEL_SPI)
-      #define PIN_SPI_SCK            EXP2_02_PIN
-      #define PIN_TFT_MISO           EXP2_01_PIN
-      #define PIN_TFT_MOSI           EXP2_06_PIN
-      #define TFTGLCD_CS             EXP2_03_PIN
-    #endif
-
+    // Migrated to pins/lcd
     #ifndef BEEPER_PIN
       #define BEEPER_PIN                    -1
     #endif

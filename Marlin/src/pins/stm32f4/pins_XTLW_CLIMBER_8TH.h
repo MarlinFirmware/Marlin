@@ -220,6 +220,7 @@
 #if IS_TFTGLCD_PANEL
 
   #if ENABLED(TFTGLCD_PANEL_SPI)
+    // NOTE: XTLW_CLIMBER_8TH uses EXP2_08 for TFTGLCD_CS (non-standard vs. EXP2_03 default)
     #define TFTGLCD_CS               EXP2_08_PIN
   #endif
 

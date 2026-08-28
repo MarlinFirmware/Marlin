@@ -361,9 +361,7 @@
 
 #if IS_TFTGLCD_PANEL
 
-  #if ENABLED(TFTGLCD_PANEL_SPI)
-    #define TFTGLCD_CS               EXP2_03_PIN
-  #endif
+  // Migrated to pins/lcd
 
 #elif HAS_DWIN_E3V2 || IS_DWIN_MARLINUI
   /**
