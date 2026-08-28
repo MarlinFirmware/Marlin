@@ -334,6 +334,7 @@
 //
 
 #if ENABLED(ZONESTAR_12864LCD)
+  // NOTE: Kept inline — ZRIB_V53 uses raw Mega pin numbers (not EXP tokens).
   #define LCD_SDSS_PIN                        16
   #define LCD_PINS_RS                         16  // ST7920 CS          (LCD-4)
   #define LCD_PINS_EN                         23  // ST7920 DAT LCD-R/W (LCD-5)

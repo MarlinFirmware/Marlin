@@ -192,14 +192,10 @@
   //   2 +5V
   //   1 GND
 
-  #define LCD_PINS_RS                EXP1_03_PIN
-  #define LCD_PINS_EN                EXP1_06_PIN
-  #define LCD_PINS_D4                EXP1_04_PIN
-  //#define KILL_PIN                 EXP1_01_PIN
-  #define BEEPER_PIN                 EXP1_02_PIN
+  // Output pins (RS/EN/D4), BEEPER, BTN_ENC provided by lcd/ZONESTAR_12864LCD.h
+  // BTN_EN1/EN2 kept inline — ZM3E2 swaps them vs. the ZM3E4 boards.
   #define BTN_EN1                    EXP1_08_PIN
   #define BTN_EN2                    EXP1_05_PIN
-  #define BTN_ENC                    EXP1_07_PIN
   #define BOARD_ST7920_DELAY_1               125
   #define BOARD_ST7920_DELAY_2               200
   #define BOARD_ST7920_DELAY_3               125

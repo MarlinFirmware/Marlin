@@ -59,6 +59,8 @@
     #include "lcd/ELB_FULL_GRAPHIC_CONTROLLER.h"
   #elif ENABLED(ZONESTAR_LCD)
     #include "lcd/ZONESTAR_LCD.h"
+  #elif ENABLED(ZONESTAR_12864LCD)
+    #include "lcd/ZONESTAR_12864LCD.h"
   #elif ANY(VIKI2, miniVIKI)
     #include "lcd/VIKI2.h"
   #elif ENABLED(YHCB2004)
