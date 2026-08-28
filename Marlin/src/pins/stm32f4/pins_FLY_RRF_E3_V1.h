@@ -181,13 +181,8 @@
 
     CONTROLLER_WARNING("FLY_RRF_E3_V1", "ZONESTAR_LCD")
 
-    #define LCD_PINS_RS              EXP1_06_PIN
-    #define LCD_PINS_EN              EXP1_02_PIN
-    #define LCD_PINS_D4              EXP1_07_PIN
-    #define LCD_PINS_D5              EXP1_05_PIN
-    #define LCD_PINS_D6              EXP1_03_PIN
-    #define LCD_PINS_D7              EXP1_01_PIN
     #define ADC_KEYPAD_PIN                  PB0   // Repurpose servo pin for ADC - CONNECTING TO 5V WILL DAMAGE THE BOARD!
+    // LCD pins defined in Marlin/src/pins/lcd/ZONESTAR_LCD.h
 
   #elif ANY(MKS_MINI_12864, ENDER2_STOCKDISPLAY)
 

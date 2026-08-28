@@ -273,13 +273,8 @@
 
     CONTROLLER_WARNING("BTT_MANTA_E3_EZ_V1_0", "ZONESTAR_LCD")
 
-    #define LCD_PINS_RS              EXP1_06_PIN
-    #define LCD_PINS_EN              EXP1_02_PIN
-    #define LCD_PINS_D4              EXP1_07_PIN
-    #define LCD_PINS_D5              EXP1_05_PIN
-    #define LCD_PINS_D6              EXP1_03_PIN
-    #define LCD_PINS_D7              EXP1_01_PIN
     #define ADC_KEYPAD_PIN                  PA7   // Repurpose default SERVO0_PIN for ADC - CONNECTING TO 5V WILL DAMAGE THE BOARD!
+    // LCD pins defined in Marlin/src/pins/lcd/ZONESTAR_LCD.h
 
   #else
 
