@@ -133,8 +133,11 @@ A stepper for E0 extruder
 
 #if ENABLED(ZONESTAR_LCD)
 
+  // NOTE: Kept inline — ADSK has board-specific 3.3V/5V scaling macros (AREF_VOLTS,
+  // ADC_BUTTONS_VALUE_SCALE, ADC_BUTTONS_R_*) and custom ADC resistor ladder values.
+  // Not migratable to lcd/ZONESTAR_LCD.h.
+
   /**
-   * The 2004 LCD should be powered with 5V.
    * The next LCD pins RS,D4,D5,D6,D7 have internal pull-ups to 5V and as result the 5V will be on these pins.
    * Luckily these internal pull-ups have really high resistance and adding 33K pull-down resistors will create
    * simple voltage divider that will bring the voltage down just slightly below 3.3V.

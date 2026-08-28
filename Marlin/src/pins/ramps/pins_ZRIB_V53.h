@@ -383,6 +383,8 @@
 //================================================================================
 
 #if ENABLED(ZONESTAR_LCD)
+  // NOTE: Kept inline — ZRIB_V53 uses non-standard EXP1 slot mapping
+  // (RS=EXP1_04, EN=EXP1_03 vs standard EXP1_06/02). Not compatible with ZONESTAR_LCD.h.
   #define LCD_PINS_RS                EXP1_04_PIN
   #define LCD_PINS_EN                EXP1_03_PIN
   #define LCD_PINS_D4                EXP1_05_PIN

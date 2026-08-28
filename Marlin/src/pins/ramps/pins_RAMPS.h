@@ -652,6 +652,7 @@
     #if ENABLED(ZONESTAR_LCD)
 
       CONTROLLER_WARNING("RAMPS", "ZONESTAR_LCD", " Plugs into AUX2 but GND and 5V must be swapped.")
+      // NOTE: Kept inline — RAMPS routes ZONESTAR_LCD through AUX2 pins, not EXP1.
 
       #define LCD_PINS_RS                AUX2_05
       #define LCD_PINS_EN                AUX2_07

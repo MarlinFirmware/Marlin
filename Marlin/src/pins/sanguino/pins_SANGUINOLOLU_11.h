@@ -209,6 +209,7 @@
 
   #elif ENABLED(ZONESTAR_LCD)                     // For the Tronxy Melzi boards
 
+    // NOTE: Kept inline — SANGUINOLOLU uses AUX1 pin tokens with unique slot mapping.
     #define LCD_PINS_RS                  AUX1_03
     #define LCD_PINS_EN                  AUX1_05
     #define LCD_PINS_D4                  AUX1_06

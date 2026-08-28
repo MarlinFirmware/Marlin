@@ -202,7 +202,6 @@
 
   // Migrated to pins/lcd
 
-  #define LCD_PINS_D6                EXP1_03_PIN
   #define DOGLCD_SCL_PIN             EXP1_07_PIN  // I2C1
   #define DOGLCD_SDA_PIN             EXP1_08_PIN  // I2C1
 
@@ -222,13 +221,8 @@
 
     CONTROLLER_WARNING("BTT_SKR_E3_DIP", "ZONESTAR_LCD")
 
-    #define LCD_PINS_RS              EXP1_06_PIN
-    #define LCD_PINS_EN              EXP1_02_PIN
-    #define LCD_PINS_D4              EXP1_07_PIN
-    #define LCD_PINS_D5              EXP1_05_PIN
-    #define LCD_PINS_D6              EXP1_03_PIN
-    #define LCD_PINS_D7              EXP1_01_PIN
     #define ADC_KEYPAD_PIN                  PA1   // Repurpose servo pin for ADC - CONNECTING TO 5V WILL DAMAGE THE BOARD!
+    // LCD pins defined in Marlin/src/pins/lcd/ZONESTAR_LCD.h
 
   #else
     #error "The selected LCD / Controller is not currently supported for BIGTREE_SKR_E3_DIP."
