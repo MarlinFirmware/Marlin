@@ -46,7 +46,22 @@
  *
  * Pins that must be minimally defined for this display:
  *    LCD_PINS_EN LCD_PINS_RS LCD_PINS_D4
+ *
+ * Default mapping below matches classic RAMPS EXP2 wiring:
+ *   RS=EXP2_07, EN=EXP2_06, D4=EXP2_02
+ *
+ * Boards with custom wiring should pre-define these in their board pins file.
  */
-#if !(defined(LCD_PINS_EN) && LCD_PINS_EN >= 0 && defined(LCD_PINS_RS) && LCD_PINS_RS >= 0 && defined(LCD_PINS_D5) && LCD_PINS_D5 >= 0)
+#ifndef LCD_PINS_RS
+  #define LCD_PINS_RS EXP2_07_PIN  // CS chip select /SS chip slave select
+#endif
+#ifndef LCD_PINS_EN
+  #define LCD_PINS_EN EXP2_06_PIN  // SID (MOSI)
+#endif
+#ifndef LCD_PINS_D4
+  #define LCD_PINS_D4 EXP2_02_PIN  // SCK (CLK) clock
+#endif
+
+#if !(_EXISTS(LCD_PINS_EN) && _EXISTS(LCD_PINS_RS) && _EXISTS(LCD_PINS_D4))
   #error "REPRAPWORLD_GRAPHICAL_LCD connection is not defined for your MOTHERBOARD."
 #endif

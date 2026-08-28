@@ -442,9 +442,7 @@
   #define BTN_EN1                        AUX2_05
   #define BTN_EN2                        AUX2_03
 
-  #define LCD_PINS_RS                EXP2_07_PIN  // CS
-  #define LCD_PINS_EN                EXP2_06_PIN  // MOSI
-  #define LCD_PINS_D4                EXP2_02_PIN  // SCK
+  // LCD output pins migrated to pins/lcd/REPRAPWORLD_GRAPHICAL_LCD.h
 
   #ifndef SD_DETECT_PIN
     #define SD_DETECT_PIN                AUX2_08
