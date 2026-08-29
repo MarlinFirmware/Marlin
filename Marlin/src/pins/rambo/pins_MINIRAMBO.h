@@ -158,6 +158,8 @@
 // LCD / Controller
 //
 
+// NOTE: Kept inline — MINIRAMBO wires its LCD to AUX headers with board-specific
+// pins (no standard EXP layout), so it must stay board-owned.
 #if HAS_WIRED_LCD || TOUCH_UI_ULTIPANEL
 
   #if !MB(MINIRAMBO_10A)

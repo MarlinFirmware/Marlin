@@ -157,6 +157,8 @@
 //
 // LCD Pins
 //
+// NOTE: Kept inline — FYSETC AIO II wires the DOGLCD, encoder, and reset to raw
+// STM32 pins that don't match the standard EXP slot order.
 #if HAS_WIRED_LCD
 
   #define BEEPER_PIN                        PC9

@@ -174,6 +174,8 @@
 // LCD / Controller
 //
 
+// NOTE: Kept inline — NUCLEO_F767ZI wires its RRD Full Graphic panel to raw
+// STM32 pins on the CN10 header, not the lcd/ file EXP slot layout.
 #if IS_RRD_FG_SC
   #define BEEPER_PIN                        PC7   // LCD_BEEPER
   #define BTN_ENC                           PE11  // BTN_ENC

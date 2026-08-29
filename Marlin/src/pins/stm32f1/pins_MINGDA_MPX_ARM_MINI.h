@@ -130,6 +130,8 @@
 //
 // LCD / Controller
 //
+// NOTE: Kept inline — Mingda MPX uses an FSMC TFT/serial display; this lone beeper
+// is a general board pin (PE4), not part of any wired-LCD wiring.
 #define BEEPER_PIN                          PE4
 
 //

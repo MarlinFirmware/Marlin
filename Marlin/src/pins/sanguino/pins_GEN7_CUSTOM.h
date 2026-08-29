@@ -98,6 +98,8 @@
 //
 // LCD / Controller
 //
+// NOTE: Kept inline — GEN7 wires its 4-bit LCD and direct buttons to raw pins
+// (no EXP connector), so the lcd/ file defaults cannot supply them.
 #define BEEPER_PIN                            -1
 
 // 4bit LCD Support

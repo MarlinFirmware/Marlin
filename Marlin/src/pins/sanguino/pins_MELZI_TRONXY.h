@@ -32,6 +32,8 @@
 
 #define LCD_SDSS_PIN                          -1
 
+// NOTE: Kept inline — MELZI/CR-10 wires its display and encoder to raw pins in
+// a non-standard order, not the lcd/ file EXP layout.
 #if ANY(CR10_STOCKDISPLAY, LCD_FOR_MELZI)
   #define BTN_ENC                             26
   #define BTN_EN1                             10

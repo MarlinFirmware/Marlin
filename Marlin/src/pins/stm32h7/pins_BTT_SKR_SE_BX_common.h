@@ -247,6 +247,8 @@
 
 #endif
 
+// NOTE: Kept inline — SKR SE BX wires the encoder buttons to raw STM32 pins,
+// not the standard EXP slot order the lcd/ file default uses.
 #if IS_NEWPANEL
   #define BTN_EN1                           PH6
   #define BTN_EN2                           PH7

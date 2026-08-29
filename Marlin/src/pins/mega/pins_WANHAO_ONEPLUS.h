@@ -93,6 +93,8 @@
 //
 // LCD / Controller (Integrated MINIPANEL)
 //
+// NOTE: Kept inline — Wanhao OnePlus' integrated MINIPANEL uses a custom subset
+// of EXP1/EXP2 slots (01/02/06/07/08, 03/05) that the lcd/ file defaults don't cover.
 #if ENABLED(MINIPANEL)
   // Define EXP1/EXP2 to match the integrated MINIPANEL wiring on this board.
   // The default passthrough in lcd/adapters.h maps LCD1/LCD2 -> EXP1/EXP2.

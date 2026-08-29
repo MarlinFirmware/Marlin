@@ -96,6 +96,8 @@
 //
 // Misc
 //
+// NOTE: Kept inline — TRIGORILLA uses a TFT/serial display; this lone beeper is
+// a general board pin (PB15), not part of any wired-LCD wiring.
 #define BEEPER_PIN                          PB15
 #define LED_PIN                             -1
 #define POWER_LOSS_PIN                      PA6

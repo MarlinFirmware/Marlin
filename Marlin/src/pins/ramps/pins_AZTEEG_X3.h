@@ -53,6 +53,8 @@
 #undef STAT_LED_RED_PIN
 #undef STAT_LED_BLUE_PIN
 
+// NOTE: Kept inline — AZTEEG X3 overrides the Viki2/miniVIKI DOGLCD and encoder
+// pins, which sit on non-EXP raw pins the lcd/ file default wouldn't provide.
 #if ANY(VIKI2, miniVIKI)
 
   #undef DOGLCD_A0

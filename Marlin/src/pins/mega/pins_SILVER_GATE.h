@@ -74,6 +74,8 @@
 #define HEATER_BED_PIN                         8
 #define TEMP_BED_PIN                           6
 
+// NOTE: Kept inline — Silver Gate's ST7920 panel is wired to raw pins in a
+// non-standard order, not the lcd/ file EXP defaults.
 #if HAS_WIRED_LCD
   #if IS_U8GLIB_ST7920                            // SPI GLCD 12864 ST7920
     #define LCD_PINS_RS                       30
