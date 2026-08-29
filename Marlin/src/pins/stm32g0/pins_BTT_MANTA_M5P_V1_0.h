@@ -244,21 +244,13 @@
 
 #elif HAS_WIRED_LCD
 
-  #define BEEPER_PIN                 EXP1_01_PIN
-  #define BTN_ENC                    EXP1_02_PIN
+  // Migrated to pins/lcd — the standard EXP1_01..08 / EXP2_03/05 slot-order
+  // wiring is supplied by lcd/WIRED.h / RRD_SC.h via the de-facto EXP ports.
 
   #if ENABLED(MKS_MINI_12864)
 
     // Migrated to pins/lcd
   #else // !MKS_MINI_12864
-
-    #define LCD_PINS_RS              EXP1_04_PIN
-
-    #define BTN_EN1                  EXP2_03_PIN
-    #define BTN_EN2                  EXP2_05_PIN
-
-    #define LCD_PINS_EN              EXP1_03_PIN
-    #define LCD_PINS_D4              EXP1_05_PIN
 
     #if ENABLED(FYSETC_MINI_12864)
 
@@ -266,15 +258,8 @@
       #define FORCE_SOFT_SPI
     #endif // FYSETC_MINI_12864
 
-    #if IS_ULTIPANEL
-      #define LCD_PINS_D5            EXP1_06_PIN
-      #define LCD_PINS_D6            EXP1_07_PIN
-      #define LCD_PINS_D7            EXP1_08_PIN
-
-      #if ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
-        #define BTN_ENC_EN           LCD_PINS_D7  // Detect the presence of the encoder
-      #endif
-
+    #if ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
+      #define BTN_ENC_EN           LCD_PINS_D7  // Detect the presence of the encoder
     #endif
 
   #endif
