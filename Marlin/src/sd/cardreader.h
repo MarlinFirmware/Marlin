@@ -441,6 +441,8 @@ public:
   static constexpr bool isFileOpen()            { return false; }
 };
 
+#define LONG_FILENAME_LENGTH 0
+
 #endif // !HAS_MEDIA
 
 extern CardReader card;

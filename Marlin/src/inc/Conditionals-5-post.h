@@ -2984,7 +2984,7 @@
   #define HAS_FAN 1
 #endif
 
-// SINGLENOZZLE fan standby needs a fan (HAS_FAN is only known after pins)
+// SINGLENOZZLE fan standby needs a fan
 #if !ALL(HAS_FAN, SINGLENOZZLE)
   #undef SINGLENOZZLE_STANDBY_FAN
 #endif
@@ -3596,23 +3596,6 @@
   #define VFAT_ENTRIES_LIMIT 2
 #endif
 #define MAX_VFAT_ENTRIES 20 // by VFAT specs to fit LFN of length 255
-
-/**
- * Defines for 8.3 and long (vfat) filenames
- */
-#define FILENAME_LENGTH 13 // Number of UTF-16 characters per entry
-
-// UTF-8 may use up to 3 bytes to represent single UTF-16 code point.
-// We discard 3-byte characters allowing only 2-bytes
-// or 1-byte if UTF_FILENAME_SUPPORT disabled.
-#define LONG_FILENAME_CHARSIZE TERN(UTF_FILENAME_SUPPORT, 2, 1)
-
-// Total bytes needed to store a single long filename
-#if HAS_MEDIA
-  #define LONG_FILENAME_LENGTH (FILENAME_LENGTH * LONG_FILENAME_CHARSIZE * VFAT_ENTRIES_LIMIT + 1)
-#else
-  #define LONG_FILENAME_LENGTH 0
-#endif
 
 // Nozzle park for Delta
 #if ALL(NOZZLE_PARK_FEATURE, DELTA)
