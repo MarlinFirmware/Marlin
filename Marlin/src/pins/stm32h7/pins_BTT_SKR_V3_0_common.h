@@ -44,7 +44,7 @@
 #define BOARD_LCD_SERIAL_PORT 1
 
 // Onboard I2C EEPROM
-#if NO_EEPROM_SELECTED || ENABLED(I2C_EEPROM)
+#if SHALL_USE_EEPROM(I2C_EEPROM)
   #define I2C_EEPROM
   #define SOFT_I2C_EEPROM                         // Force the use of Software I2C
   #define I2C_SCL_PIN                       PA14

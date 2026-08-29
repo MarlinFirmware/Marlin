@@ -32,7 +32,7 @@
 //
 // EEPROM
 //
-#if NO_EEPROM_SELECTED || ENABLED(I2C_EEPROM)
+#if SHALL_USE_EEPROM(I2C_EEPROM)
   #define I2C_EEPROM
   #define MARLIN_EEPROM_SIZE            0x1F400U  // 128000 bytes
 #endif
