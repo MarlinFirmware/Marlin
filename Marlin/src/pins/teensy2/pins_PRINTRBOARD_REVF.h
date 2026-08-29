@@ -206,6 +206,8 @@
 //
 //#define USE_INTERNAL_SD
 
+// NOTE: Kept inline — Printrboard RevF wires its LCD to raw Teensy2 pins (and an
+// integrated MINIPANEL with custom EXP slots), not a standard EXP connector.
 #if HAS_WIRED_LCD
   #define LCD_PINS_RS                          9  // E1       JP11-11
   #define LCD_PINS_EN                          8  // E0       JP11-10

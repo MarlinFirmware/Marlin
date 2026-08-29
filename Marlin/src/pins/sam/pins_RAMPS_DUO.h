@@ -67,6 +67,8 @@
 // LCD / Controller
 //
 
+// NOTE: Kept inline — RAMPS Duo overrides encoder and data pins for its panel
+// (PANEL_ONE/RRW keypad/MINIPANEL) with raw Due pins the lcd/ file default lacks.
 #if HAS_WIRED_LCD
 
   #if ALL(IS_NEWPANEL, PANEL_ONE)
