@@ -607,7 +607,7 @@ namespace LanguageNarrow_en {
   LSTR MSG_MESH_MAX_Y                     = _UxGT("Mesh Y Maximum");
   LSTR MSG_MESH_AMAX                      = _UxGT("Maximize Area");
   LSTR MSG_MESH_CENTER                    = _UxGT("Center Area");
-  LSTR MSG_MESH_CANCEL                    = _UxGT("Mesh cancelled");
+  LSTR MSG_MESH_CANCEL                    = _UxGT("Mesh canceled");
   LSTR MSG_M48_OUT_OF_BOUNDS              = _UxGT("Probe out of bounds");
   LSTR MSG_IDEX_DUPE_GAP                  = _UxGT("Duplicate X-Gap");
   LSTR MSG_UBL_TILT_MESH                  = _UxGT("Tilt Mesh");

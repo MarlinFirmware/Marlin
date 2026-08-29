@@ -38,7 +38,7 @@
   #include "game/game.h"
 #endif
 
-#define VALUE_ITEM(MSG, VALUE, STYL) do{ char msg[22]; strcpy_P(msg, PSTR(": ")); strcpy(msg + 2, VALUE); STATIC_ITEM(MSG, STYL, msg); }while(0)
+#define VALUE_ITEM(MSG, VALUE, STYL) do{ MString<22> msg; msg.set(F(": "), VALUE); STATIC_ITEM(MSG, STYL, msg); }while(0)
 
 #if ENABLED(PRINTCOUNTER)
 
@@ -66,11 +66,7 @@
 
     #if HAS_EXTRUDERS
       STATIC_ITEM(MSG_INFO_PRINT_FILAMENT, SS_FULL);                                        // Extruded total:
-      sprintf_P(buffer, PSTR("%ld.%im")
-        , long(stats.filamentUsed / 1000)
-        , int16_t(stats.filamentUsed / 100) % 10
-      );
-      STATIC_ITEM_F(nullptr, SS_FULL, buffer);                                              // > 125m
+      STATIC_ITEM_F(nullptr, SS_FULL, MString<20>(long(stats.filamentUsed / 1000), '.', int16_t(stats.filamentUsed / 100) % 10, 'm')); // > 125m
     #endif
 
     #if SERVICE_INTERVAL_1 > 0 || SERVICE_INTERVAL_2 > 0 || SERVICE_INTERVAL_3 > 0

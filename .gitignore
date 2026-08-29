@@ -179,3 +179,4 @@ tags
 !.aiderignore
 .env
 schema.json
+sqlite*.db

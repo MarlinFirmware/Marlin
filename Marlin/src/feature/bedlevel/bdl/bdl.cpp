@@ -146,10 +146,8 @@ void BDS_Leveling::process() {
         static float old_z_sensor = 0;
         if (old_z_sensor != z_sensor) {
           old_z_sensor = z_sensor;
-          char tmp_1[32];
-          sprintf_P(tmp_1, PSTR("BD:%d.%02dmm"), int(z_sensor), int(z_sensor * 100) % 100);
           //SERIAL_ECHOLNPGM("Bed Dis:", z_sensor, "mm");
-          ui.set_status(tmp_1, true);
+          ui.set_status(TS(F("BD:"), p_float_t(z_sensor, 2), F("mm")), true);
         }
       #endif
     }
@@ -234,11 +232,10 @@ void BDS_Leveling::process() {
           safe_delay(500);
         }
         else {
-          char tmp_1[32];
           // TODO: Use motion.prepare_internal_move_to_destination to guarantee machine space
-          sprintf_P(tmp_1, PSTR("G1Z%d.%d"), int(zpos), int(zpos * 10) % 10);
+          MString<16> tmp_1(F("G1Z"), p_float_t(zpos, 1));
           gcode.process_subcommands_now(tmp_1);
-          SERIAL_ECHO(tmp_1); SERIAL_ECHOLNPGM(", Z:", motion.position.z);
+          SERIAL_ECHOLN(&tmp_1, F(", Z:"), motion.position.z);
           uint16_t failcount = 300;
           for (float tmp_k = 0; abs(zpos - tmp_k) > 0.006f && failcount--;) {
             tmp_k = planner.get_axis_position_mm(Z_AXIS) - pos_zero_offset;

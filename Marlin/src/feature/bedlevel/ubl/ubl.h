@@ -44,7 +44,9 @@ struct mesh_index_pair;
 
 typedef struct {
   bool      C_seen;
-  int8_t    KLS_storage_slot;
+  #if HAS_MESH_STORAGE
+    int8_t  KLS_storage_slot;
+  #endif
   grid_count_t R_repetition;
   uint8_t   V_verbosity,
             P_phase,
@@ -92,8 +94,10 @@ private:
 
   #if ENABLED(UBL_DEVEL_DEBUGGING)
     static void g29_what_command();
-    static void g29_eeprom_dump();
-    static void g29_compare_current_mesh_to_stored_mesh();
+    #if HAS_MESH_STORAGE
+      static void g29_eeprom_dump();
+      static void g29_compare_current_mesh_to_stored_mesh();
+    #endif
   #endif
 
 public:
@@ -116,7 +120,9 @@ public:
   static void G29() __O0;                           // O0 for no optimization
   static void smart_fill_wlsf(const float ) __O2; // O2 gives smaller code than Os on A2560
 
-  static int8_t storage_slot;
+  #if HAS_MESH_STORAGE
+    static int8_t storage_slot;
+  #endif
 
   static bed_mesh_t z_values;
   #if ENABLED(OPTIMIZED_MESH_STORAGE)
