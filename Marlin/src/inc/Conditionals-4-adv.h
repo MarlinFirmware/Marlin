@@ -497,6 +497,11 @@
   #define TEMP_SENSOR_0_IS_AD8495 1
 #elif TEMP_SENSOR_0 == -1
   #define TEMP_SENSOR_0_IS_AD595 1
+#elif TEMP_SENSOR_0 == -18
+  #define HAS_ADS1118 1
+  #define TEMP_SENSOR_0_IS_ADS1118 1
+  #define TEMP_SENSOR_0_ADS_TMIN    0
+  #define TEMP_SENSOR_0_ADS_TMAX 1024
 #elif TEMP_SENSOR_0 > 0
   #define TEMP_SENSOR_0_IS_THERMISTOR 1
   #if TEMP_SENSOR_0 == 1000
@@ -540,6 +545,11 @@
   #define TEMP_SENSOR_1_IS_AD8495 1
 #elif TEMP_SENSOR_1 == -1
   #define TEMP_SENSOR_1_IS_AD595 1
+#elif TEMP_SENSOR_1 == -18
+  #define HAS_ADS1118 1
+  #define TEMP_SENSOR_1_IS_ADS1118 1
+  #define TEMP_SENSOR_1_ADS_TMIN    0
+  #define TEMP_SENSOR_1_ADS_TMAX 1024
 #elif TEMP_SENSOR_1 > 0
   #define TEMP_SENSOR_1_IS_THERMISTOR 1
   #if TEMP_SENSOR_1 == 1000
@@ -1547,6 +1557,20 @@
 // Flag whether least_squares_fit.cpp is used
 #if ANY(AUTO_BED_LEVELING_UBL, AUTO_BED_LEVELING_LINEAR, HAS_Z_STEPPER_ALIGN_STEPPER_XY)
   #define NEED_LSF 1
+#endif
+
+// Saving meshes to EEPROM?
+#if ALL(EEPROM_SETTINGS, HAS_MESH)
+  #ifndef MAX_SAVED_MESHES
+    #define MAX_SAVED_MESHES 100
+  #endif
+  #if MAX_SAVED_MESHES > 0
+    #define HAS_MESH_STORAGE 1
+  #endif
+#endif
+#if !HAS_MESH_STORAGE
+  #undef OPTIMIZED_MESH_STORAGE
+  #undef UBL_SAVE_ACTIVE_ON_M500
 #endif
 
 #if ALL(HAS_TFT_LVGL_UI, CUSTOM_MENU_MAIN)

@@ -1181,7 +1181,7 @@ void GcodeSuite::process_parsed_command(bool no_ok/*=false*/) {
       #if ENABLED(WIFI_CUSTOM_COMMAND)
         if (wifi_custom_command(parser.command_ptr)) break;
       #endif
-      parser.unknown_command_warning();
+      parser.unknown_command_warning();                           // Other unknown, including > 65535
   }
 
   if (!no_ok) queue.ok_to_send();
