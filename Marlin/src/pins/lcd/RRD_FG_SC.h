@@ -50,32 +50,55 @@
  *            LCD1                      LCD2
  */
 
-#define BEEPER_PIN        LCD1_01_PIN
+// All defaults are wrapped in #ifndef so boards with non-standard wiring
+// (e.g., swapped EN1/EN2 positions) can pre-define overrides that win.
 
-#define BTN_ENC           LCD1_02_PIN
-#define BTN_EN1           LCD2_05_PIN  // EN1/2 should be swapped for default encoder direction CW+
-#define BTN_EN2           LCD2_03_PIN
-
-#define LCD_PINS_EN       LCD1_03_PIN
-#define LCD_PINS_RS       LCD1_04_PIN
-#define LCD_PINS_D4       LCD1_05_PIN
-
-#if IS_ULTIPANEL
-  #define LCD_PINS_D5     LCD1_06_PIN
-  #define LCD_PINS_D6     LCD1_07_PIN
-  #define LCD_PINS_D7     LCD1_08_PIN
+#ifndef BEEPER_PIN
+  #define BEEPER_PIN        LCD1_01_PIN
 #endif
 
-#if ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
-  #define BTN_ENC_EN      LCD1_08_PIN  // Detect the presence of the encoder
+#ifndef BTN_ENC
+  #define BTN_ENC           LCD1_02_PIN
+#endif
+#ifndef BTN_EN1
+  #define BTN_EN1           LCD2_05_PIN  // EN1/2 should be swapped for default encoder direction CW+
+#endif
+#ifndef BTN_EN2
+  #define BTN_EN2           LCD2_03_PIN
+#endif
+
+#ifndef LCD_PINS_EN
+  #define LCD_PINS_EN       LCD1_03_PIN
+#endif
+#ifndef LCD_PINS_RS
+  #define LCD_PINS_RS       LCD1_04_PIN
+#endif
+#ifndef LCD_PINS_D4
+  #define LCD_PINS_D4       LCD1_05_PIN
+#endif
+
+#if IS_ULTIPANEL
+  #ifndef LCD_PINS_D5
+    #define LCD_PINS_D5     LCD1_06_PIN
+  #endif
+  #ifndef LCD_PINS_D6
+    #define LCD_PINS_D6     LCD1_07_PIN
+  #endif
+  #ifndef LCD_PINS_D7
+    #define LCD_PINS_D7     LCD1_08_PIN
+  #endif
+#endif
+
+#if ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER) && !defined(BTN_ENC_EN)
+  #define BTN_ENC_EN        LCD1_08_PIN  // Detect the presence of the encoder
 #endif
 
 #ifndef LCD_SDSS_PIN
-  #define LCD_SDSS_PIN    LCD2_04_PIN
+  #define LCD_SDSS_PIN      LCD2_04_PIN
 #endif
 #ifndef SD_SS_PIN
-  #define SD_SS_PIN       LCD_SDSS_PIN
+  #define SD_SS_PIN         LCD_SDSS_PIN
 #endif
 #ifndef SD_DETECT_PIN
-  #define SD_DETECT_PIN   LCD2_07_PIN
+  #define SD_DETECT_PIN     LCD2_07_PIN
 #endif
