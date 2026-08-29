@@ -128,6 +128,8 @@
 //
 // LCD / Controller
 //
+// NOTE: Kept inline — Megatronics 2 wires the LCD to raw pins and reads the
+// buttons through a keypad/shift-register, not the standard EXP layout.
 #define BEEPER_PIN                            64
 
 #if HAS_WIRED_LCD

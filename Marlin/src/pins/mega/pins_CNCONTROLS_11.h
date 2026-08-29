@@ -139,6 +139,8 @@
 // LCD / Controller
 //
 
+// NOTE: Kept inline — CNControls V1.1 wires the panel and shift-register
+// buttons to raw pins that don't follow the standard EXP slot order.
 #if HAS_WIRED_LCD
   #define BEEPER_PIN                           6
 

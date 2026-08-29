@@ -100,6 +100,8 @@
 // LCD / Controller
 //
 
+// NOTE: Kept inline — Creality RAMPS keeps a board beeper override (pin 37) so
+// Play Tone works with ExtUI; it isn't a wired-LCD beeper on EXP1_01.
 #ifndef BEEPER_PIN
   #define BEEPER_PIN                          37  // Always define beeper pin so Play Tone works with ExtUI
 #endif

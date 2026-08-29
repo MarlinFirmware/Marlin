@@ -185,6 +185,8 @@
 #define EXP1_07_PIN                           29
 #define EXP1_08_PIN                            2
 
+// NOTE: Kept inline — ZMIB V2 drives its ZONESTAR panels over software SPI on the
+// raw AVR MOSI/SCK data lines, which the lcd/ file defaults don't provide.
 #if ENABLED(ZONESTAR_12864LCD)
   //
   // LCD 128x64

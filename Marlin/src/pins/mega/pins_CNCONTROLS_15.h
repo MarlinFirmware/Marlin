@@ -122,6 +122,8 @@
 //#define PWM_1_PIN                           12
 //#define PWM_2_PIN                           13
 //#define SPARE_IO                            17
+// NOTE: Kept inline — CNControls V1.5 uses a TFT/serial display; this lone beeper
+// is a general board pin, not part of any wired-LCD wiring.
 #define BEEPER_PIN                            13
 #define STAT_LED_BLUE_PIN                     -1
 #define STAT_LED_RED_PIN                      10  // 31

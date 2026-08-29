@@ -165,6 +165,8 @@
 // LCD / Controller
 //
 
+// NOTE: Kept inline — GT2560 V3 wires the LCD and encoder to raw ATmega pins
+// (plus the custom YHCB2004 panel), not the standard EXP slot order.
 #define BEEPER_PIN                            18
 
 #if ENABLED(YHCB2004)

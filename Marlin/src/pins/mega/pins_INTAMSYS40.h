@@ -119,6 +119,8 @@
 // LCD / Controller
 //
 
+// NOTE: Kept inline — INTAMSYS40 wires the LCD and encoder to raw ATmega pins
+// in a non-standard layout (no EXP connector).
 #define BEEPER_PIN                            18
 
 #if HAS_WIRED_LCD

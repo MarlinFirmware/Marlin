@@ -141,6 +141,8 @@
 //
 // LCD / Controller
 //
+// NOTE: Kept inline — AZTEEG X3 Pro overrides the Viki2/miniVIKI beeper, DOGLCD,
+// and encoder pins to raw non-EXP pins that differ from the standard RAMPS layout.
 #undef BEEPER_PIN
 #define BEEPER_PIN                            33
 
