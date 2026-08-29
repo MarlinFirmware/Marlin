@@ -148,12 +148,18 @@
     // Geeetech's LCD2004A Control Panel is very much like
     // RepRapDiscount Smart Controller, but adds an FFC40 connector
     //
-    #define LCD_PINS_RS                     PE6   // CS chip select /SS chip slave select
-    #define LCD_PINS_EN                     PE14  // SID (MOSI)
-    #define LCD_PINS_D4                     PD8   // SCK (CLK) clock
-    #define LCD_PINS_D5                     PD9
-    #define LCD_PINS_D6                     PD10
-    #define LCD_PINS_D7                     PE15
+    // Define de-facto EXP1 ports matching this board's LCD wiring.
+    // The default passthrough in lcd/adapters.h maps LCD1 -> EXP1, so the
+    // LCD data lines come from Marlin/src/pins/lcd/RRD_SC.h. Buttons stay
+    // inline (RRD_SC isn't IS_NEWPANEL); beeper/SD are board-owned below.
+    #define EXP1_01_PIN                     -1    // BEEPER (conditional below)
+    #define EXP1_02_PIN                     -1    // BTN_ENC (inline below)
+    #define EXP1_03_PIN                     PE14  // LCD_EN
+    #define EXP1_04_PIN                     PE6   // LCD_RS
+    #define EXP1_05_PIN                     PD8   // LCD_D4
+    #define EXP1_06_PIN                     PD9   // LCD_D5
+    #define EXP1_07_PIN                     PD10  // LCD_D6
+    #define EXP1_08_PIN                     PE15  // LCD_D7
 
   #else
     //
