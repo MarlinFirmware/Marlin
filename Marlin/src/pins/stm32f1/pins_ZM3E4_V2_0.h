@@ -283,6 +283,8 @@
   #define BTN_EN2                    EXP1_08_PIN
   #define BTN_ENC                    EXP1_07_PIN
 #elif ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
+  // NOTE: Kept inline — custom Zonestar wiring (CS=EXP2_03, DAT=EXP2_06, CLK=EXP2_04)
+  // differs from the standard RRD FG connector mapping.
   #define LCD_PINS_RS                EXP2_03_PIN  // 7 CS make sure for zonestar zm3e4!
   #define LCD_PINS_EN                EXP2_06_PIN  // 6 DATA make sure for zonestar zm3e4!
   #define LCD_PINS_D4                EXP2_04_PIN  // 8 SCK make sure for zonestar zm3e4!

@@ -402,6 +402,7 @@
 
     #if ENABLED(REPRAP_DISCOUNT_SMART_CONTROLLER)
 
+      // NOTE: Kept inline — RP2040 board has no EXP header; raw pins with unique wiring.
       #define BEEPER_PIN                      37
 
       #define BTN_ENC                         35

@@ -345,15 +345,13 @@
   #define BEEPER_PIN                          37
   #define KILL_PIN                            35
 #elif ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
-  // Use EXP1 & EXP2 connector
-  #define LCD_PINS_RS                         16  // ST7920 CS
-  #define LCD_PINS_EN                         17  // ST7920 DAT
-  #define LCD_PINS_D4                         23  // ST7920 CLK LCD-R/W
-  #define BTN_EN1                             31
-  #define BTN_EN2                             33
-  #define BTN_ENC                             35
-  #define BEEPER_PIN                          37
-  #define KILL_PIN                            41
+  // LCD/BEEPER/BTN pins defined in Marlin/src/pins/lcd/RRD_FG_SC.h via the
+  // de-facto EXP1/EXP2 mapping above. This board's connector wires EN1/EN2 in
+  // the opposite order from the RRD FG standard, so SWAP_LCD_EN_PINS is defined
+  // to reverse the encoder direction (handled in pins_lcd.h). NOTE: Example
+  // configs using this board may need REVERSE_ENCODER_DIRECTION updated.
+  #define SWAP_LCD_EN_PINS
+  #define KILL_PIN                   EXP2_08_PIN  // 41
 #endif
 
 //================================================================================

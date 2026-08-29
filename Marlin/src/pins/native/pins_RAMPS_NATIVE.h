@@ -565,12 +565,7 @@
 
     #if ENABLED(REPRAP_DISCOUNT_SMART_CONTROLLER)
 
-      #define BEEPER_PIN             EXP1_01_PIN
-
-      #define BTN_ENC                EXP1_02_PIN
-      #define BTN_EN1                EXP2_03_PIN
-      #define BTN_EN2                EXP2_05_PIN
-
+      // BEEPER/BTN/LCD pins defined in Marlin/src/pins/lcd/RRD_SC.h
       #define SD_DETECT_PIN          EXP2_07_PIN
       #define KILL_PIN               EXP2_08_PIN
 
@@ -580,6 +575,7 @@
 
     #elif ENABLED(REPRAPWORLD_GRAPHICAL_LCD)
 
+      // NOTE: Kept inline — RAMPS_NATIVE uses raw pin numbers (not EXP tokens) for this display.
       #define BTN_EN1                         64
       #define BTN_EN2                         59
       #define BTN_ENC                         63

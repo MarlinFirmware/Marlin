@@ -37,19 +37,41 @@
  *           ------                    ------
  *            LCD1                      LCD2
  */
+
+// All defaults are wrapped in #ifndef so boards with non-standard wiring
+// can pre-define overrides that win.
+
 #ifndef BEEPER_PIN
   #define BEEPER_PIN      LCD1_01_PIN
 #endif
 
-#define LCD_PINS_EN       LCD1_03_PIN
-#define LCD_PINS_RS       LCD1_04_PIN
-#define LCD_PINS_D4       LCD1_05_PIN
-#define LCD_PINS_D5       LCD1_06_PIN
-#define LCD_PINS_D6       LCD1_07_PIN
-#define LCD_PINS_D7       LCD1_08_PIN
+#ifndef LCD_PINS_EN
+  #define LCD_PINS_EN     LCD1_03_PIN
+#endif
+#ifndef LCD_PINS_RS
+  #define LCD_PINS_RS     LCD1_04_PIN
+#endif
+#ifndef LCD_PINS_D4
+  #define LCD_PINS_D4     LCD1_05_PIN
+#endif
+#ifndef LCD_PINS_D5
+  #define LCD_PINS_D5     LCD1_06_PIN
+#endif
+#ifndef LCD_PINS_D6
+  #define LCD_PINS_D6     LCD1_07_PIN
+#endif
+#ifndef LCD_PINS_D7
+  #define LCD_PINS_D7     LCD1_08_PIN
+#endif
 
 #if IS_NEWPANEL
-  #define BTN_ENC         LCD1_02_PIN
-  #define BTN_EN1         LCD2_03_PIN
-  #define BTN_EN2         LCD2_05_PIN
+  #ifndef BTN_ENC
+    #define BTN_ENC       LCD1_02_PIN
+  #endif
+  #ifndef BTN_EN1
+    #define BTN_EN1       LCD2_03_PIN
+  #endif
+  #ifndef BTN_EN2
+    #define BTN_EN2       LCD2_05_PIN
+  #endif
 #endif

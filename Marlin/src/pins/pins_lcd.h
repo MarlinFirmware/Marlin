@@ -87,6 +87,23 @@
 #endif
 
 /**
+ * Boards whose LCD connector wires EN1/EN2 in the opposite order from the
+ * standard RRD controllers (e.g., ZRIB_V53) define SWAP_LCD_EN_PINS. The
+ * board drops its own BTN_EN1/EN2 definitions and lets the lcd/ file supply
+ * the standard (swapped) order; here the encoder direction is reversed to
+ * compensate. When this flag is used, example configs for the board may
+ * need their REVERSE_ENCODER_DIRECTION setting updated.
+ */
+#if ENABLED(SWAP_LCD_EN_PINS)
+  #warning "SWAP_LCD_EN_PINS: Example configs using this board may need REVERSE_ENCODER_DIRECTION updated."
+  #if ENABLED(REVERSE_ENCODER_DIRECTION)
+    #undef REVERSE_ENCODER_DIRECTION
+  #else
+    #define REVERSE_ENCODER_DIRECTION
+  #endif
+#endif
+
+/**
  * Certain displays use LCD_PINS_RS as LCD_RESET_PIN
  */
 #if !defined(LCD_RESET_PIN) && ANY(MKS_12864OLED, MKS_12864OLED_SSD1306, FYSETC_242_OLED_12864, ZONESTAR_12864OLED, K3D_242_OLED_CONTROLLER)
