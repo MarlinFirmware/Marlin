@@ -113,6 +113,10 @@
 //
 
 #if !defined(BEEPER_PIN) && HAS_WIRED_LCD && DISABLED(LCD_USE_I2C_BUZZER)
+  // NOTE: Kept inline — the I2C-buzzer suppression (LCD_USE_I2C_BUZZER) and the
+  // HAS_WIRED_LCD guard can't be reproduced by the lcd/ file's #ifndef default.
+  // When a wired LCD is present and no I2C buzzer is used, the beeper is on the
+  // standard EXP1-1 (P1_30) slot, matching the lcd/ file value.
   #define BEEPER_PIN                       P1_30  // (EXP1-1) Not 5V-tolerant
 #endif
 

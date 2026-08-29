@@ -137,6 +137,9 @@
 
 #define SD_SS_PIN                           PA2
 #define SD_DETECT_PIN                       PB0
+// NOTE: Kept inline — RUMBA32's beeper is PE8, NOT on the standard EXP1_01
+// slot (which is -1 here). The lcd/ file default (BEEPER = EXP1_01 = -1)
+// would disable the beeper, so it stays board-owned.
 #define BEEPER_PIN                          PE8
 
 /**
