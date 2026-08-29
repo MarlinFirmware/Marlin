@@ -114,7 +114,7 @@
   // (standard EXP1 slot order). The default passthrough in lcd/adapters.h maps
   // LCD1 -> EXP1, so data pins come from Marlin/src/pins/lcd/WIRED.h.
   #define EXP1_01_PIN                         33  // BEEPER
-  #define EXP1_02_PIN                         -1   // not connected
+  #define EXP1_02_PIN                         -1  // not connected
   #define EXP1_03_PIN                         17  // LCD_EN
   #define EXP1_04_PIN                         16  // LCD_RS
   #define EXP1_05_PIN                         23  // LCD_D4
