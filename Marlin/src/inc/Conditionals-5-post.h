@@ -2263,6 +2263,12 @@
   #endif
 #endif
 
+// With SPI sensorless Z homing the Z_MIN pin is free for the probe.
+// Z_SPI_SENSORLESS is only known here, so apply it now.
+#if NEED_Z_MIN_PROBE_PIN && Z_SPI_SENSORLESS
+  #undef NEED_Z_MIN_PROBE_PIN
+#endif
+
 #if NEED_Z_MIN_PROBE_PIN && PIN_EXISTS(Z_MIN_PROBE)
   #define USE_Z_MIN_PROBE 1
 #endif
