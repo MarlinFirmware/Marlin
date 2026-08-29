@@ -122,10 +122,12 @@
   #undef _EXTENDABLE_EMU_MMU3
 #endif
 
-// Note: E_DUAL_STEPPER_DRIVERS replicates the E0 signals onto a second driver,
-// so the firmware still sees a single E stepper and E_STEPPERS is unaffected.
+#if ENABLED(E_DUAL_STEPPER_DRIVERS) // E0/E1 steppers act in tandem as E0
 
-#if HAS_SWITCHING_EXTRUDER          // One stepper for every two EXTRUDERS
+  #define E_STEPPERS      2
+  #define E_MANUAL        1
+
+#elif HAS_SWITCHING_EXTRUDER        // One stepper for every two EXTRUDERS
 
   #if EXTRUDERS > 4
     #define E_STEPPERS    3
@@ -447,6 +449,40 @@
   #undef MANUAL_W_HOME_POS
   #undef MIN_SOFTWARE_ENDSTOP_W
   #undef MAX_SOFTWARE_ENDSTOP_W
+#endif
+
+// Clean up E-stepper-based settings...
+#if E_STEPPERS <= 7
+  #undef INVERT_E7_DIR
+  #undef E7_DRIVER_TYPE
+  #if E_STEPPERS <= 6
+    #undef INVERT_E6_DIR
+    #undef E6_DRIVER_TYPE
+    #if E_STEPPERS <= 5
+      #undef INVERT_E5_DIR
+      #undef E5_DRIVER_TYPE
+      #if E_STEPPERS <= 4
+        #undef INVERT_E4_DIR
+        #undef E4_DRIVER_TYPE
+        #if E_STEPPERS <= 3
+          #undef INVERT_E3_DIR
+          #undef E3_DRIVER_TYPE
+          #if E_STEPPERS <= 2
+            #undef INVERT_E2_DIR
+            #undef E2_DRIVER_TYPE
+            #if E_STEPPERS <= 1
+              #undef INVERT_E1_DIR
+              #undef E1_DRIVER_TYPE
+              #if E_STEPPERS == 0
+                #undef INVERT_E0_DIR
+                #undef E0_DRIVER_TYPE
+              #endif
+            #endif
+          #endif
+        #endif
+      #endif
+    #endif
+  #endif
 #endif
 
 #define _OR_HAS_DA(A) ENABLED(DISABLE_##A) ||

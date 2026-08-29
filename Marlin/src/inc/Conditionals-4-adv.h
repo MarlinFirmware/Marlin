@@ -1181,42 +1181,6 @@
   #endif
 #endif
 
-// Clean up E-stepper-based settings...
-#if E_STEPPERS <= 7
-  #undef INVERT_E7_DIR
-  #undef E7_DRIVER_TYPE
-  #if E_STEPPERS <= 6
-    #undef INVERT_E6_DIR
-    #undef E6_DRIVER_TYPE
-    #if E_STEPPERS <= 5
-      #undef INVERT_E5_DIR
-      #undef E5_DRIVER_TYPE
-      #if E_STEPPERS <= 4
-        #undef INVERT_E4_DIR
-        #undef E4_DRIVER_TYPE
-        #if E_STEPPERS <= 3
-          #undef INVERT_E3_DIR
-          #undef E3_DRIVER_TYPE
-          #if E_STEPPERS <= 2
-            #undef INVERT_E2_DIR
-            #undef E2_DRIVER_TYPE
-            #if E_STEPPERS <= 1
-              #if DISABLED(E_DUAL_STEPPER_DRIVERS) // E1 is the tandem driver
-                #undef INVERT_E1_DIR
-                #undef E1_DRIVER_TYPE
-              #endif
-              #if E_STEPPERS == 0
-                #undef INVERT_E0_DIR
-                #undef E0_DRIVER_TYPE
-              #endif
-            #endif
-          #endif
-        #endif
-      #endif
-    #endif
-  #endif
-#endif
-
 // Z Stepper Auto-align
 #if ENABLED(Z_STEPPER_AUTO_ALIGN)
   #ifdef Z_STEPPER_ALIGN_STEPPER_XY
