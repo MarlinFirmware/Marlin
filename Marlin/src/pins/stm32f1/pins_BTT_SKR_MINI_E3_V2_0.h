@@ -34,7 +34,6 @@
   #define MARLIN_EEPROM_SIZE             0x1000U  // 4K
   #define I2C_SDA_PIN                       PB7
   #define I2C_SCL_PIN                       PB6
-  #undef NO_EEPROM_SELECTED
 #endif
 
 #define FAN0_PIN                            PC6

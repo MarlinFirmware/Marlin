@@ -56,7 +56,6 @@
     #define MARLIN_EEPROM_SIZE            0x800U  // 2K
   #endif
 
-  #undef NO_EEPROM_SELECTED
 #endif
 
 //

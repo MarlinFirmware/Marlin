@@ -1584,10 +1584,12 @@
   #endif
 #endif
 
-// Flag if an EEPROM type is pre-selected
-#if ENABLED(EEPROM_SETTINGS) && NONE(I2C_EEPROM, SPI_EEPROM, QSPI_EEPROM, FLASH_EEPROM_EMULATION, SRAM_EEPROM_EMULATION, SDCARD_EEPROM_EMULATION)
-  #define NO_EEPROM_SELECTED 1
-#endif
+/**
+ * True while no EEPROM type has been selected. Re-evaluated at every use, so a
+ * pins file sees a choice made by one included before it and none of them has
+ * to #undef this after making a choice of its own.
+ */
+#define NO_EEPROM_SELECTED (ENABLED(EEPROM_SETTINGS) && NONE(I2C_EEPROM, SPI_EEPROM, QSPI_EEPROM, FLASH_EEPROM_EMULATION, SRAM_EEPROM_EMULATION, SDCARD_EEPROM_EMULATION))
 
 // Flags for Case Light having a color property or a single pin
 #if ENABLED(CASE_LIGHT_ENABLE)

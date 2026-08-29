@@ -43,7 +43,6 @@
 #if NOT_TARGET(STM32H7)
   // I2C EEPROM for STM32F4. Does not work on Spider King with STM32H7 MCU.
   #if NO_EEPROM_SELECTED
-    #undef NO_EEPROM_SELECTED
     //#define FLASH_EEPROM_EMULATION
     //#define SRAM_EEPROM_EMULATION
     #define I2C_EEPROM
@@ -57,8 +56,7 @@
   #endif
 #else
   // Emulated EEPROM for STM32H7
-  #if ANY(NO_EEPROM_SELECTED, FLASH_EEPROM_EMULATION)
-    #undef NO_EEPROM_SELECTED
+  #if NO_EEPROM_SELECTED || ENABLED(FLASH_EEPROM_EMULATION)
     #ifndef FLASH_EEPROM_EMULATION
       #define FLASH_EEPROM_EMULATION
     #endif

@@ -28,7 +28,6 @@
 #if NO_EEPROM_SELECTED
   #define I2C_EEPROM
   #define MARLIN_EEPROM_SIZE             0x1000U  // 4K
-  #undef NO_EEPROM_SELECTED
 #endif
 
 #define Z_STEP_PIN                          PC14

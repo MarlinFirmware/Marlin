@@ -35,7 +35,6 @@
 //
 #if NO_EEPROM_SELECTED
   #define IIC_BL24CXX_EEPROM                      // EEPROM on I2C-0
-  #undef NO_EEPROM_SELECTED
 #elif DISABLED(IIC_BL24CXX_EEPROM)
   #define SDCARD_EEPROM_EMULATION                 // SD EEPROM until all EEPROM is BL24CXX
 #endif

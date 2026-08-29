@@ -27,8 +27,7 @@
 #define USES_DIAG_JUMPERS
 
 // Onboard I2C EEPROM
-#if ANY(NO_EEPROM_SELECTED, I2C_EEPROM)
-  #undef NO_EEPROM_SELECTED
+#if NO_EEPROM_SELECTED || ENABLED(I2C_EEPROM)
   #define I2C_EEPROM
   #define MARLIN_EEPROM_SIZE             0x1000U  // 4K (AT24C32)
   #define SOFT_I2C_EEPROM                         // Force the use of Software I2C

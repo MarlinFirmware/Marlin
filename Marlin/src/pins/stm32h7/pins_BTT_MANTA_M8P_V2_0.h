@@ -32,7 +32,6 @@
 // EEPROM
 //
 #if NO_EEPROM_SELECTED
-  #undef NO_EEPROM_SELECTED
   #ifndef FLASH_EEPROM_EMULATION
     #define FLASH_EEPROM_EMULATION                // Use Flash-based EEPROM emulation
   #endif
