@@ -109,6 +109,8 @@
   #define BTN_RIGHT                           32
 
   // 'R' button
+  // NOTE: Kept inline — RIGIDBOT_PANEL uses a custom R button (31) and disables
+  // the encoder (BTN_EN1/EN2 undef), which can't be expressed via EXP tokens.
   #undef BTN_ENC
   #define BTN_ENC                             31
 
