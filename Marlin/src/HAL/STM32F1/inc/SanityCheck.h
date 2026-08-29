@@ -56,3 +56,9 @@
 #if ENABLED(EMERGENCY_PARSER) && !defined(USE_USB_COMPOSITE) && ((SERIAL_PORT == -1 && !defined(SERIAL_PORT_2)) || (SERIAL_PORT_2 == -1 && !defined(SERIAL_PORT)))
   #error "EMERGENCY_PARSER is only supported by HardwareSerial or USBComposite in HAL/STM32F1."
 #endif
+
+// The composite USB serial is provided by the mass storage driver, and both
+// are bound before the pins file can set NO_SD_HOST_DRIVE.
+#if defined(USE_USB_COMPOSITE) && defined(SERIAL_USB) && ENABLED(NO_SD_HOST_DRIVE)
+  #error "NO_SD_HOST_DRIVE is incompatible with USE_USB_COMPOSITE plus SERIAL_USB in HAL/STM32F1."
+#endif

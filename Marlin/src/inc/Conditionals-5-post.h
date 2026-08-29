@@ -556,6 +556,12 @@
   #endif
 #endif
 
+// A board's pins file may opt out of USB mass storage host access.
+// The HAL sets HAS_SD_HOST_DRIVE before pins are known, so apply it here.
+#if ENABLED(NO_SD_HOST_DRIVE)
+  #undef HAS_SD_HOST_DRIVE
+#endif
+
 /**
  * Override the SD_DETECT_STATE set in Configuration_adv.h
  * and enable sharing of onboard SD host drives (all platforms but AGCM4)
