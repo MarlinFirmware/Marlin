@@ -70,9 +70,6 @@
 #if DISABLED(SINGLENOZZLE)
   #undef SINGLENOZZLE_STANDBY_TEMP
 #endif
-#if !ALL(HAS_FAN, SINGLENOZZLE)
-  #undef SINGLENOZZLE_STANDBY_FAN
-#endif
 
 // No inactive extruders with SWITCHING_NOZZLE or Průša MMU1 or just 1 E stepper exists
 #if HAS_SWITCHING_NOZZLE || HAS_PRUSA_MMU1 || E_STEPPERS < 2

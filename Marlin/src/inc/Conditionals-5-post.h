@@ -2972,6 +2972,11 @@
   #define HAS_FAN 1
 #endif
 
+// SINGLENOZZLE fan standby needs a fan (HAS_FAN is only known after pins)
+#if !ALL(HAS_FAN, SINGLENOZZLE)
+  #undef SINGLENOZZLE_STANDBY_FAN
+#endif
+
 #if PIN_EXISTS(FANMUX0)
   #define HAS_FANMUX 1  // Part Cooling fan multipliexer
 #else
