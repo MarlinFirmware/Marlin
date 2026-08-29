@@ -785,7 +785,7 @@
       case TMC_ENABLED: print_true_or_false(st.isEnabled()); break;
       case TMC_CURRENT: SERIAL_ECHO(st.getMilliamps()); break;
       case TMC_RMS_CURRENT: SERIAL_ECHO(st.rms_current()); break;
-      case TMC_MAX_CURRENT: SERIAL_ECHO(p_float_t(st.rms_current() * 1.41, 0)); break;
+      case TMC_MAX_CURRENT: SERIAL_ECHO(int(st.rms_current() * 1.41)); break;
       case TMC_IRUN: SERIAL_ECHO(st.irun()); SERIAL_ECHOPGM("/31"); break;
       case TMC_IHOLD: SERIAL_ECHO(st.ihold()); SERIAL_ECHOPGM("/31"); break;
       case TMC_CS_ACTUAL: print_cs_actual(st); break;
@@ -821,7 +821,7 @@
         case TMC_ENABLED: print_true_or_false(st.isEnabled()); break;
         case TMC_CURRENT: SERIAL_ECHO(st.getMilliamps()); break;
         case TMC_RMS_CURRENT: SERIAL_ECHO(st.rms_current()); break;
-        case TMC_MAX_CURRENT: SERIAL_ECHO(p_float_t(st.rms_current() * 1.41, 0)); break;
+        case TMC_MAX_CURRENT: SERIAL_ECHO(int(st.rms_current() * 1.41)); break;
         case TMC_IRUN: SERIAL_ECHO(st.cs()); SERIAL_ECHOPGM("/31"); break;
         case TMC_VSENSE: SERIAL_ECHO(st.vsense() ? F("1=.165") : F("0=.310")); break;
         case TMC_MICROSTEPS: SERIAL_ECHO(st.microsteps()); break;

@@ -739,6 +739,9 @@ void MarlinUI::clear_for_drawing() {
 
   #if ANY(BABYSTEP_GFX_OVERLAY, MESH_EDIT_GFX_OVERLAY)
 
+    #pragma GCC diagnostic push
+    #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+
     //
     // Draw knob rotation => Z motion key for:
     //  - menu.cpp:lcd_babystep_zoffset
@@ -833,6 +836,8 @@ void MarlinUI::clear_for_drawing() {
       B00011110,B00000000,
       B00001100,B00000000
     };
+
+    #pragma GCC diagnostic pop
 
     void MarlinUI::zoffset_overlay(const int8_t dir) {
       const unsigned char *rot_up = TERN(OVERLAY_GFX_REVERSE, ccw_bmp,  cw_bmp),
