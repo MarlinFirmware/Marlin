@@ -150,5 +150,11 @@
 #define EXP1_06_PIN                           51  // LCD_D5
 #define EXP1_07_PIN                           52  // LCD_D6
 #define EXP1_08_PIN                           53  // LCD_D7
+#define EXP2_01_PIN                           -1   // not connected
+#define EXP2_02_PIN                           -1   // not connected
 #define EXP2_03_PIN                           54  // BTN_EN1
+#define EXP2_04_PIN                           -1   // not connected
 #define EXP2_05_PIN                           55  // BTN_EN2
+#define EXP2_06_PIN                           -1   // not connected
+#define EXP2_07_PIN                           -1   // not connected
+#define EXP2_08_PIN                           -1   // not connected
