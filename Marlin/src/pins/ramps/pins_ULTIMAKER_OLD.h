@@ -180,12 +180,18 @@
 
   #if IS_NEWPANEL
 
-    #define LCD_PINS_RS                       20
-    #define LCD_PINS_EN                       17
-    #define LCD_PINS_D4                       16
-    #define LCD_PINS_D5                       21
-    #define LCD_PINS_D6                        5
-    #define LCD_PINS_D7                        6
+    // Define de-facto EXP1 ports matching this board's direct-attach LCD wiring.
+    // The default passthrough in lcd/adapters.h maps LCD1 -> EXP1, so the LCD
+    // data lines come from Marlin/src/pins/lcd/WIRED.h / RRD_SC.h. Beeper and
+    // buttons stay inline (beeper is shared with the shift-register path).
+    #define EXP1_01_PIN                       18  // BEEPER
+    #define EXP1_02_PIN                       -1   // not connected (ENC inline)
+    #define EXP1_03_PIN                       17  // LCD_EN
+    #define EXP1_04_PIN                       20  // LCD_RS
+    #define EXP1_05_PIN                       16  // LCD_D4
+    #define EXP1_06_PIN                       21  // LCD_D5
+    #define EXP1_07_PIN                        5  // LCD_D6
+    #define EXP1_08_PIN                        6  // LCD_D7
 
     // Buttons directly attached
     #define BTN_EN1                           40
