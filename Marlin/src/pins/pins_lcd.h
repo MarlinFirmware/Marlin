@@ -37,6 +37,8 @@
     #include "lcd/CR10_STOCKDISPLAY.h"
   #elif ENABLED(ENDER2_STOCKDISPLAY)
     #include "lcd/ENDER2_STOCKDISPLAY.h"
+  #elif ENABLED(RADDS_DISPLAY)
+    #include "lcd/RADDS_DISPLAY.h"
   #elif ENABLED(MKS_MINI_12864)
     #include "lcd/MKS_MINI_12864.h"
   #elif ENABLED(MINIPANEL)
