@@ -3222,6 +3222,24 @@
   #endif
 #endif
 
+// G92 shifts the workspace
+#if DISABLED(NO_WORKSPACE_OFFSETS)
+  #define HAS_WORKSPACE_OFFSET 1
+#endif
+#if DISABLED(NO_HOME_OFFSETS)
+  #if IS_CARTESIAN
+    #define HAS_HOME_OFFSET 1     // M206 affects the Native Machine Space on G28
+  #elif IS_SCARA
+    #define HAS_SCARA_OFFSET 1    // The SCARA home offset applies only on G28
+  #endif
+#endif
+
+// Nothing can apply a Z offset, so drop its limits
+#if NONE(BABYSTEPPING, HAS_BED_PROBE, HAS_WORKSPACE_OFFSET)
+  #undef PROBE_OFFSET_ZMIN
+  #undef PROBE_OFFSET_ZMAX
+#endif
+
 /**
  * Bed Probe dependencies
  */
@@ -3508,18 +3526,6 @@
   #undef UI_VOLTAGE_LEVEL
   #undef RADDS_DISPLAY
   #undef MOTOR_CURRENT
-#endif
-
-// G92 shifts the workspace
-#if DISABLED(NO_WORKSPACE_OFFSETS)
-  #define HAS_WORKSPACE_OFFSET 1
-#endif
-#if DISABLED(NO_HOME_OFFSETS)
-  #if IS_CARTESIAN
-    #define HAS_HOME_OFFSET 1     // M206 affects the Native Machine Space on G28
-  #elif IS_SCARA
-    #define HAS_SCARA_OFFSET 1    // The SCARA home offset applies only on G28
-  #endif
 #endif
 
 #if ANY(HAS_MARLINUI_MENU, TOUCH_UI_FTDI_EVE)
