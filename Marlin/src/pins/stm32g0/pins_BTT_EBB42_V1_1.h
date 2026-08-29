@@ -149,6 +149,8 @@
 // LCD / Controller
 //
 
+// NOTE: Kept inline — EBB42 has no EXP connector; the encoder buttons are wired
+// to raw STM32 pins, so the lcd/ file EXP defaults cannot apply.
 #if HAS_WIRED_LCD
   #define BTN_EN1                           PB7
   #define BTN_EN2                           PB5

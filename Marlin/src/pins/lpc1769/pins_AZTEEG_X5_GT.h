@@ -107,6 +107,8 @@
 //
 // Display
 //
+// NOTE: Kept inline — AZTEEG X5 GT wires the Viki2/miniVIKI panel to raw LPC
+// pins that don't match the lcd/ file EXP slot defaults.
 #if ANY(VIKI2, miniVIKI)
   #define BEEPER_PIN                       P1_31
   #define DOGLCD_A0                        P2_06

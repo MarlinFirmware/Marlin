@@ -147,6 +147,8 @@
 //
 // LCD / Controller
 //
+// NOTE: Kept inline — MKS Robin Mini uses an FSMC TFT/serial display; this lone
+// beeper is a general board pin (PC5), not part of any wired-LCD wiring.
 #define BEEPER_PIN                          PC5
 
 /**

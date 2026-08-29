@@ -220,6 +220,8 @@
   #define TOUCH_MISO_PIN                    PB4
 #endif
 
+// NOTE: Kept inline — Lerdge S wires the encoder and beeper to raw STM32 pins,
+// not the standard EXP slot order.
 #if IS_NEWPANEL
   #define BEEPER_PIN                        PD13
   #define BTN_EN1                           PC15

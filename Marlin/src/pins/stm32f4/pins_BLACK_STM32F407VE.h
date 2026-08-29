@@ -119,6 +119,8 @@
 //#define SD_DETECT_PIN                     PC5
 //#define SD_DETECT_PIN                     PA8   // SDIO SD_DETECT_PIN, external SDIO card reader only
 
+// NOTE: Kept inline — BLACK STM32F407VE wires the LCD to raw STM32 pins in a
+// non-standard order, not the lcd/ file EXP layout.
 #define BEEPER_PIN                          PD10
 #define LCD_PINS_RS                         PE15
 #define LCD_PINS_EN                         PD8
