@@ -38,7 +38,7 @@
   #include "game/game.h"
 #endif
 
-#define VALUE_ITEM(MSG, VALUE, STYL) do{ MString<22> msg; msg.set(F(": "), VALUE); STATIC_ITEM(MSG, STYL, msg); }while(0)
+#define VALUE_ITEM(MSG, VALUE, STYL) do{ MString<20> msg; msg.set(F(": "), VALUE); STATIC_ITEM(MSG, STYL, msg); }while(0)
 
 #if ENABLED(PRINTCOUNTER)
 
