@@ -440,7 +440,7 @@
   #undef NOZZLE_TO_PROBE_OFFSET
 #endif
 
-#if ENABLED(BELTPRINTER) && !defined(HOME_Y_BEFORE_X)
+#if ENABLED(BELTPRINTER)
   #define HOME_Y_BEFORE_X
 #endif
 
