@@ -1535,11 +1535,6 @@
   #endif
 #endif
 
-// Flag if an EEPROM type is pre-selected
-#if ENABLED(EEPROM_SETTINGS) && NONE(I2C_EEPROM, SPI_EEPROM, QSPI_EEPROM, FLASH_EEPROM_EMULATION, SRAM_EEPROM_EMULATION, SDCARD_EEPROM_EMULATION)
-  #define NO_EEPROM_SELECTED 1
-#endif
-
 // Flags for Case Light having a color property or a single pin
 #if ENABLED(CASE_LIGHT_ENABLE)
   #if ANY(CASE_LIGHT_USE_NEOPIXEL, CASE_LIGHT_USE_RGB_LED)
@@ -1593,9 +1588,7 @@
   #else
     #define LCD_SERIAL_PORT 3
   #endif
-  #ifdef LCD_SERIAL_PORT
-    #define AUTO_ASSIGNED_LCD_SERIAL 1
-  #endif
+  #define AUTO_ASSIGNED_LCD_SERIAL 1
 #endif
 
 #if !HAS_MULTI_SERIAL
