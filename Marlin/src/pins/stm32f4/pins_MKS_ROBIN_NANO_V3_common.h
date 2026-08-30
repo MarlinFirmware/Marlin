@@ -219,7 +219,9 @@
   #define SD_SCK_PIN                        PC10
   #define SD_MISO_PIN                       PC11
   #define SD_MOSI_PIN                       PC12
-  #define SD_DETECT_PIN                     PD12
+  #if ENABLED(NO_SD_HOST_DRIVE)
+    #define SD_DETECT_PIN                   PD12  // Detect pin doesn't work with SD Host Drive
+  #endif
 #endif
 
 #define SPI_FLASH

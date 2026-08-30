@@ -1454,7 +1454,7 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
   #if ENABLED(MAGLEV4)
     #if !PIN_EXISTS(MAGLEV_TRIGGER)
       #error "MAGLEV4 requires MAGLEV_TRIGGER_PIN to be defined."
-    #elif ENABLED(HOMING_Z_WITH_PROBE) && DISABLED(Z_SAFE_HOMING)
+    #elif HOMING_Z_WITH_PROBE && DISABLED(Z_SAFE_HOMING)
       #error "MAGLEV4 requires Z_SAFE_HOMING."
     #elif MAGLEV_TRIGGER_DELAY != 15
       #error "MAGLEV_TRIGGER_DELAY should not be changed. Comment out this line to continue."
