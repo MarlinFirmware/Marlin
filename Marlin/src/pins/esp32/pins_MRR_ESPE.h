@@ -153,7 +153,7 @@
   #define BTN_EN2                             12
   #define BTN_ENC                             14
 
-#endif // HAS_MARLINUI_U8GLIB
+#endif // HAS_WIRED_LCD
 
 // Hardware serial pins
 // Add the following to Configuration.h or Configuration_adv.h to assign

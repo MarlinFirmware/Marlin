@@ -2699,7 +2699,7 @@ void Stepper::isr() {
               else
                 la_interval = LA_ADV_NEVER;
             }
-          #endif // LIN_ADVANCE
+          #endif // HAS_ROUGH_LIN_ADVANCE
 
           // Adjust Laser Power - Decelerating
           #if ENABLED(LASER_POWER_TRAP)
