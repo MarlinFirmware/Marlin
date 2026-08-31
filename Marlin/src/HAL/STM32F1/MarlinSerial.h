@@ -32,6 +32,7 @@
   typedef ForwardSerial1Class< USBSerial > DefaultSerial1;
   extern DefaultSerial1 MSerial0;
   #if HAS_SD_HOST_DRIVE
+    #include "sd/msc_sd.h"                        // for MarlinCompositeSerial
     #define UsbSerial MarlinCompositeSerial
   #else
     #define UsbSerial MSerial0
