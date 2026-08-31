@@ -764,7 +764,7 @@ class Temperature {
 
       static heater_idle_t heater_idle[NR_HEATER_IDLE];
 
-    #endif // HEATER_IDLE_TIMER
+    #endif // HEATER_IDLE_HANDLER
 
     #if HAS_ADC_BUTTONS
       static uint32_t current_ADCKey_raw;
