@@ -3684,12 +3684,15 @@ void Stepper::endstop_triggered(const AxisEnum axis) {
 
   ATOMIC_SECTION_START();   // Suspend the Stepper ISR on all platforms
 
-  float axis_pos = count_position[axis];
+  // Keep this integer-only. Called from an ISR, and on Xtensa (ESP32) any FPU
+  // access in interrupt context raises a Coprocessor exception. Step counts are
+  // int32 at both ends, so float gained nothing but lost exactness past 2^24.
+  int32_t axis_pos = count_position[axis];
   #if IS_CORE
     if (axis == CORE_AXIS_2)
-      axis_pos = CORESIGN(count_position[CORE_AXIS_1] - axis_pos) * 0.5f;
+      axis_pos = CORESIGN(count_position[CORE_AXIS_1] - axis_pos) / 2;
     else if (axis == CORE_AXIS_1)
-      axis_pos = (axis_pos + count_position[CORE_AXIS_2]) * 0.5f;
+      axis_pos = (axis_pos + count_position[CORE_AXIS_2]) / 2;
   #elif ENABLED(MARKFORGED_XY)
     if (axis == CORE_AXIS_1) axis_pos TERN(MARKFORGED_INVERSE, +=, -=) count_position[CORE_AXIS_2];
   #elif ENABLED(MARKFORGED_YX)
