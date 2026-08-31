@@ -262,7 +262,20 @@
 // LCDs and Controllers //
 //////////////////////////
 
-#if ANY(TFT_COLOR_UI, TFT_CLASSIC_UI, TFT_LVGL_UI)
+#if ENABLED(CR10_STOCKDISPLAY)
+
+  // Migrated to pins/lcd
+  // TODO: Define RP2020 single-plug EXP adapter
+  #define EXP1_01_PIN                         37  // BEEPER
+  #define EXP1_02_PIN                         35  // ENC
+  #define EXP1_03_PIN                         17  // EN1
+  #define EXP1_04_PIN                         41  // KILL
+  #define EXP1_05_PIN                         23  // EN2
+  #define EXP1_06_PIN                         25  // D4
+  #define EXP1_07_PIN                         27  // RS
+  #define EXP1_08_PIN                         29  // EN
+
+#elif ANY(TFT_COLOR_UI, TFT_CLASSIC_UI, TFT_LVGL_UI)
 
   #define TFT_A0_PIN                          43
   #define TFT_CS_PIN                          49
@@ -331,17 +344,7 @@
 
   #else
 
-    #if ENABLED(CR10_STOCKDISPLAY)
-
-      #define LCD_PINS_RS                     27
-      #define LCD_PINS_EN                     29
-      #define LCD_PINS_D4                     25
-
-      #if !IS_NEWPANEL
-        #define BEEPER_PIN                    37
-      #endif
-
-    #elif ENABLED(ZONESTAR_LCD)
+    #if ENABLED(ZONESTAR_LCD)
 
       #define LCD_PINS_RS                     64
       #define LCD_PINS_EN                     44
@@ -396,15 +399,10 @@
 
       #define BEEPER_PIN                      37
 
-      #if ENABLED(CR10_STOCKDISPLAY)
-        #define BTN_EN1                       17
-        #define BTN_EN2                       23
-      #else
-        #define BTN_EN1                       31
-        #define BTN_EN2                       33
-      #endif
-
       #define BTN_ENC                         35
+      #define BTN_EN1                         31
+      #define BTN_EN2                         33
+
       #define SD_DETECT_PIN                   49
       #define KILL_PIN                        41
 

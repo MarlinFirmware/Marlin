@@ -203,89 +203,39 @@
 #define EXP2_07_PIN                        P1_31
 #define EXP2_08_PIN                        -1
 
-#if HAS_WIRED_LCD
-  #if ENABLED(CTC_A10S_A13)
-    #error "CTC_A10S_A13 only applies to the ANET 1.0 board."
+#if ENABLED(ANET_FULL_GRAPHICS_LCD)
 
-  #elif ENABLED(ANET_FULL_GRAPHICS_LCD)
+  CONTROLLER_WARNING("BTT_SKR_V1_3", "ANET_FULL_GRAPHICS_LCD")
 
-    CONTROLLER_WARNING("BTT_SKR_V1_3", "ANET_FULL_GRAPHICS_LCD")
+  // Migrated to pins/lcd
 
-   /**
-    * 1. Cut the tab off the LCD connector so it can be plugged into the "EXP1" connector the other way.
-    * 2. Swap the LCD's +5V (Pin2) and GND (Pin1) wires. (This is the critical part!)
-    * 3. Rewire the CLK Signal (LCD Pin9) to LCD Pin7. (LCD Pin9 remains open because it is open drain.)
-    * 4. A wire is needed to connect the Reset switch at J3 (LCD Pin7) to EXP2 (Pin3) on the board.
-    *
-    * !!! If you are unsure, ask for help! Your motherboard may be damaged in some circumstances !!!
-    *
-    * The ANET_FULL_GRAPHICS_LCD connector plug:
-    *
-    *                  BEFORE                          AFTER
-    *                  ------                          ------
-    *           (CLK) | 1  2 | (BEEPER)      (BEEPER) |10  9 | --
-    *              -- | 3  4 | (BTN_ENC)    (BTN_ENC) | 8  7 | (CLK)
-    *           (SID)   5  6 | (BTN_EN1)    (BTN_EN1)   6  5 | (SID)
-    *            (CS) | 7  8 | (BTN_EN2)    (BTN_EN2) | 4  3 | (CS)
-    *             GND | 9 10 | 5V                 GND | 2  1 | 5V
-    *                  ------                          ------
-    *                   LCD                             LCD
-    */
+#elif ENABLED(CTC_A10S_A13)
 
-    #define LCD_PINS_RS              EXP1_08_PIN
+  #error "CTC_A10S_A13 only applies to the ANET 1.0 board."
 
-    #define BTN_EN1                  EXP1_05_PIN
-    #define BTN_EN2                  EXP1_07_PIN
-    #define BTN_ENC                  EXP1_03_PIN
+#elif ENABLED(CR10_STOCKDISPLAY)
 
-    #define LCD_PINS_EN              EXP1_06_PIN
-    #define LCD_PINS_D4              EXP1_04_PIN
+  // Migrated to pins/lcd
 
-  #elif ENABLED(WYH_L12864)
+#elif ENABLED(ENDER2_STOCKDISPLAY)
 
-    CONTROLLER_WARNING("BTT_SKR_V1_3", "WYH_L12864")
+  // Migrated to pins/lcd
+  #define FORCE_SOFT_SPI
 
-    /**
-     * 1. Cut the tab off the LCD connector so it can be plugged into the "EXP1" connector the other way.
-     * 2. Swap the LCD's +5V (Pin2) and GND (Pin1) wires. (This is the critical part!)
-     * 3. Swap the LCD's MOSI (Pin9) and empty (Pin10) wires because Pin9 is open drain.
-     *
-     * !!! If you are unsure, ask for help! Your motherboard may be damaged in some circumstances !!!
-     *
-     * The WYH_L12864 connector plug:
-     *
-     *                  BEFORE                      AFTER
-     *                  ______                     ______
-     *                 | 1  2 | (MOSI)     (MOSI) |10  9 | --
-     *       (BTN_ENC) | 3  4 | (SCK)   (BTN_ENC) | 8  7 | (SCK)
-     *       (BTN_EN1)   5  6 | (SID)   (BTN_EN1)   6  5 | (SID)
-     *       (BTN_EN2) | 7  8 | (CS)    (BTN_EN2) | 4  3 | (CS)
-     *              5V | 9 10 | GND           GND | 2  1 | 5V
-     *                  ------                     ------
-     *                   LCD                        LCD
-     */
-    #define BTN_ENC                  EXP1_03_PIN
-    #define BTN_EN1                  EXP1_05_PIN
-    #define BTN_EN2                  EXP1_07_PIN
+#elif ENABLED(FYSETC_MINI_12864)
 
-    #define DOGLCD_CS                EXP1_08_PIN
-    #define DOGLCD_A0                EXP1_06_PIN
-    #define DOGLCD_SCK               EXP1_04_PIN
-    #define DOGLCD_MOSI              EXP1_01_PIN
-    #define LCD_BACKLIGHT_PIN              -1
+  // Migrated to pins/lcd
+  #define FORCE_SOFT_SPI                          // Use this if default of hardware SPI causes display problems
+                                                  //   results in LCD soft SPI mode 3, SD soft SPI mode 0
+#elif ENABLED(WYH_L12864)
 
-  #elif ENABLED(CR10_STOCKDISPLAY)
+  // Migrated to pins/lcd
+  CONTROLLER_WARNING("BTT_SKR_V1_3", "WYH_L12864")
+  #define DOGLCD_MOSI                EXP1_01_PIN  // Swap MOSI (Pin9) and empty (Pin10) wires because Pin9 is open drain
 
-    #define LCD_PINS_RS              EXP1_07_PIN
+#elif HAS_WIRED_LCD
 
-    #define BTN_EN1                  EXP1_03_PIN
-    #define BTN_EN2                  EXP1_05_PIN
-    #define BTN_ENC                  EXP1_02_PIN  // (58) open-drain
-
-    #define LCD_PINS_EN              EXP1_08_PIN
-    #define LCD_PINS_D4              EXP1_06_PIN
-
-  #elif HAS_ADC_BUTTONS
+  #if HAS_ADC_BUTTONS
 
     #error "ADC BUTTONS do not work unmodified on SKR 1.3, The ADC ports cannot take more than 3.3v."
 
@@ -422,78 +372,22 @@
     #define LCD_SDSS_PIN             EXP2_04_PIN  // (16) J3-7 & AUX-4
     #define SD_DETECT_PIN            EXP2_07_PIN  // (49) (NOT 5V tolerant)
 
-    #if ENABLED(FYSETC_MINI_12864)
-      #define DOGLCD_CS              EXP1_03_PIN
-      #define DOGLCD_A0              EXP1_04_PIN
+    #if ENABLED(MKS_MINI_12864)
+      #define DOGLCD_CS              EXP1_06_PIN
+      #define DOGLCD_A0              EXP1_07_PIN
       #define DOGLCD_SCK             EXP2_02_PIN
       #define DOGLCD_MOSI            EXP2_06_PIN
+      #define FORCE_SOFT_SPI
+    #endif
 
-      #define FORCE_SOFT_SPI                      // Use this if default of hardware SPI causes display problems
-                                                  //   results in LCD soft SPI mode 3, SD soft SPI mode 0
-
-      #define LCD_RESET_PIN          EXP1_05_PIN  // Must be high or open for LCD to operate normally.
-
-      #if ANY(FYSETC_MINI_12864_1_2, FYSETC_MINI_12864_2_0)
-        #ifndef RGB_LED_R_PIN
-          #define RGB_LED_R_PIN      EXP1_06_PIN
-        #endif
-        #ifndef RGB_LED_G_PIN
-          #define RGB_LED_G_PIN      EXP1_07_PIN
-        #endif
-        #ifndef RGB_LED_B_PIN
-          #define RGB_LED_B_PIN      EXP1_08_PIN
-        #endif
-      #elif ENABLED(FYSETC_MINI_12864_2_1)
-        #define NEOPIXEL_PIN         EXP1_06_PIN
+    #if IS_ULTIPANEL
+      #define LCD_PINS_D5            EXP1_06_PIN
+      #define LCD_PINS_D6            EXP1_07_PIN
+      #define LCD_PINS_D7            EXP1_08_PIN
+      #if ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
+        #define BTN_ENC_EN           LCD_PINS_D7  // Detect the presence of the encoder
       #endif
-
-    #else // !FYSETC_MINI_12864
-
-      #if ENABLED(MKS_MINI_12864)
-
-        #define DOGLCD_CS            EXP1_06_PIN
-        #define DOGLCD_A0            EXP1_07_PIN
-        #define DOGLCD_SCK           EXP2_02_PIN
-        #define DOGLCD_MOSI          EXP2_06_PIN
-        #define FORCE_SOFT_SPI
-
-      #elif ENABLED(ENDER2_STOCKDISPLAY)
-
-        /**
-         * Creality Ender-2 display pinout
-         *                   ------
-         *      (SCK) P1_30 | 1  2 | P0_28 (BTN_ENC)
-         *  (BTN_EN1) P1_18 | 3  4 | P1_19 (RESET)
-         *  (BTN_EN2) P1_20   5  6 | P1_21 (LCD_A0)
-         *   (LCD_CS) P1_22 | 7  8 | P1_23 (MOSI)
-         *              GND | 9 10 | 5V
-         *                   ------
-         *                    EXP1
-         */
-
-        #define BTN_EN1              EXP1_03_PIN
-        #define BTN_EN2              EXP1_05_PIN
-        #define BTN_ENC              EXP1_02_PIN
-        #define DOGLCD_CS            EXP1_07_PIN
-        #define DOGLCD_A0            EXP1_06_PIN
-        #define DOGLCD_SCK           EXP1_01_PIN
-        #define DOGLCD_MOSI          EXP1_08_PIN
-        #define FORCE_SOFT_SPI
-        #define LCD_BACKLIGHT_PIN          -1
-      #endif
-
-      #if IS_ULTIPANEL
-        #define LCD_PINS_D5          EXP1_06_PIN
-        #define LCD_PINS_D6          EXP1_07_PIN
-        #define LCD_PINS_D7          EXP1_08_PIN
-
-        #if ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
-          #define BTN_ENC_EN         LCD_PINS_D7  // Detect the presence of the encoder
-        #endif
-
-      #endif
-
-    #endif // !FYSETC_MINI_12864
+    #endif
 
   #endif
 

@@ -201,24 +201,6 @@
 #define EXP1_07_PIN                         PB15
 #define EXP1_08_PIN                         PB12
 
-#if ENABLED(CR10_STOCKDISPLAY)                    // LCD used for C2
-  /**          ------
-   *   BEEPER | 1  2 | ENC
-   *      EN1 | 3  4 | KILL
-   *      EN2   5  6 | LCD_D4
-   *   LCD_RS | 7  8 | LCD_EN
-   *      GND | 9 10 | 5V
-   *           ------
-   */
-  #define BEEPER_PIN                 EXP1_01_PIN
-
-  #define BTN_ENC                    EXP1_02_PIN
-  #define BTN_EN1                    EXP1_03_PIN
-  #define BTN_EN2                    EXP1_05_PIN
-
-  #define LCD_PINS_RS                EXP1_07_PIN
-  #define LCD_PINS_EN                EXP1_08_PIN
-  #define LCD_PINS_D4                EXP1_06_PIN
-
-  #define KILL_PIN                   EXP1_04_PIN
+#if ENABLED(CR10_STOCKDISPLAY)
+  // Migrated to pins/lcd
 #endif

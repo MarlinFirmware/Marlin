@@ -237,55 +237,23 @@
 //
 // LCD / Controller
 //
-
 #if ENABLED(FYSETC_242_OLED_12864)
-  #define BTN_EN1                    EXP1_01_PIN
-  #define BTN_EN2                    EXP1_08_PIN
-  #define BTN_ENC                    EXP1_02_PIN
-  #define BEEPER_PIN                 EXP2_03_PIN
 
-  #define LCD_PINS_DC                EXP1_06_PIN
-  #define LCD_PINS_RS                EXP2_05_PIN
-  #define DOGLCD_CS                  EXP1_04_PIN
-  #define DOGLCD_MOSI                EXP1_05_PIN
-  #define DOGLCD_SCK                 EXP1_03_PIN
-  #define DOGLCD_A0                  LCD_PINS_DC
+  // Migrated to pins/lcd
 
-  #undef KILL_PIN
-  #define BOARD_NEOPIXEL_PIN         EXP1_07_PIN
+#elif ENABLED(FYSETC_MINI_12864)
+
+  // Migrated to pins/lcd
+
+#elif ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
+
+  // Migrated to pins/lcd
 
 #else
+
   #define BEEPER_PIN                 EXP1_01_PIN
 
-  #if ENABLED(FYSETC_MINI_12864)
-    //
-    // See https://wiki.fysetc.com/docs/Mini12864Panel
-    //
-    #define DOGLCD_A0                EXP1_04_PIN
-    #define DOGLCD_CS                EXP1_03_PIN
-
-    #if ENABLED(FYSETC_GENERIC_12864_1_1)
-      #define LCD_BACKLIGHT_PIN      EXP1_07_PIN
-    #endif
-
-    #define LCD_RESET_PIN            EXP1_05_PIN  // Must be high or open for LCD to operate normally.
-                                                  // Seems to work best if left open.
-
-    #if ANY(FYSETC_MINI_12864_1_2, FYSETC_MINI_12864_2_0)
-      #ifndef RGB_LED_R_PIN
-        #define RGB_LED_R_PIN        EXP1_06_PIN
-      #endif
-      #ifndef RGB_LED_G_PIN
-        #define RGB_LED_G_PIN        EXP1_07_PIN
-      #endif
-      #ifndef RGB_LED_B_PIN
-        #define RGB_LED_B_PIN        EXP1_08_PIN
-      #endif
-    #elif ENABLED(FYSETC_MINI_12864_2_1)
-      #define NEOPIXEL_PIN           EXP1_06_PIN
-    #endif
-
-  #elif HAS_MARLINUI_U8GLIB || HAS_MARLINUI_HD44780
+  #if HAS_MARLINUI_U8GLIB || HAS_MARLINUI_HD44780
 
     #define LCD_PINS_RS              EXP1_04_PIN
     #define LCD_PINS_EN              EXP1_03_PIN
@@ -299,16 +267,12 @@
       #define DOGLCD_A0              EXP1_07_PIN
     #endif
 
-    #if ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
-      #define BTN_ENC_EN             LCD_PINS_D7  // Detect the presence of the encoder
-    #endif
-
   #endif
 
   #if IS_NEWPANEL
+    #define BTN_ENC                  EXP1_02_PIN
     #define BTN_EN1                  EXP2_03_PIN
     #define BTN_EN2                  EXP2_05_PIN
-    #define BTN_ENC                  EXP1_02_PIN
   #endif
 #endif
 

@@ -229,16 +229,10 @@
 
 #if ENABLED(CR10_STOCKDISPLAY)
 
-  #define LCD_PINS_RS                EXP1_07_PIN
-  #define LCD_PINS_EN                EXP1_08_PIN
-  #define LCD_PINS_D4                EXP1_06_PIN
+  // Migrated to pins/lcd
 
-  #define BTN_ENC                    EXP1_02_PIN
-  #define BTN_EN1                    EXP1_03_PIN
-  #define BTN_EN2                    EXP1_05_PIN
-
-  #if DISABLED(USE_PIN_27_BOARD)
-    #define BEEPER_PIN               EXP1_01_PIN
+  #if ENABLED(USE_PIN_27_BOARD)
+    #define BEEPER_PIN                      -1    // Taken by the probe
   #endif
 
 #elif ENABLED(DWIN_CREALITY_LCD)
