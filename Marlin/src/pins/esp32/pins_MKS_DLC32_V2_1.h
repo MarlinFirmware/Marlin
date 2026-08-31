@@ -129,22 +129,22 @@
  * * Buffered through an AHCT125. Output only - cannot be used as an input.
  */
 #define EXP1_01_PIN                          135  // i2so.7 - shared with the BEEPER header
-#define EXP1_02_PIN                            -1
+#define EXP1_02_PIN                           -1
 #define EXP1_03_PIN                            5
 #define EXP1_04_PIN                           27
 #define EXP1_05_PIN                           26
-#define EXP1_06_PIN                            -1
+#define EXP1_06_PIN                           -1
 #define EXP1_07_PIN                           25
 #define EXP1_08_PIN                           33
 
 #define EXP2_01_PIN                           19
 #define EXP2_02_PIN                           18
-#define EXP2_03_PIN                            -1
-#define EXP2_04_PIN                            -1
-#define EXP2_05_PIN                            -1
+#define EXP2_03_PIN                           -1
+#define EXP2_04_PIN                           -1
+#define EXP2_05_PIN                           -1
 #define EXP2_06_PIN                           23
-#define EXP2_07_PIN                            -1
-#define EXP2_08_PIN                            -1  // RESET
+#define EXP2_07_PIN                           -1
+#define EXP2_08_PIN                           -1  // RESET
 
 //
 // Beeper
@@ -154,12 +154,11 @@
 /**
  * TFT display on EXP1/EXP2 over VSPI
  *
- * The board ships with an MKS TS24-R V2.1 (320x240). An MKS TS35-R V2.0
- * (480x320) plugs into the same EXP1/EXP2 headers with identical wiring, so
- * the pins below serve both. Only MKS_TS35_V2_0 exists in Marlin today - the
- * TS24-R option arrives with the display support that follows this commit.
+ * The board ships with an MKS TS24-R V2.1 (320x240, ILI9341). An MKS TS35-R
+ * V2.0 (480x320, ST7796) plugs into the same EXP1/EXP2 headers with identical
+ * wiring, so the pins below serve both.
  */
-#if ENABLED(MKS_TS35_V2_0)
+#if ANY(MKS_TS24_R_V2_1, MKS_TS35_V2_0)
 
   /**                      ------                                   ------
    *               BEEPER | 1  2 | BTN_ENC               SPI1_MISO | 1  2 | SPI1_SCK
@@ -176,23 +175,61 @@
   #define TFT_DC_PIN                  TFT_A0_PIN
   #define TFT_RESET_PIN              EXP1_04_PIN
 
-  #define LCD_BACKLIGHT_PIN          EXP1_03_PIN
-  #define TFT_BACKLIGHT_PIN    LCD_BACKLIGHT_PIN
+  // LCD_EN reaches the panel through an inverting buffer, so LOW is lit
+  #define TFT_BACKLIGHT_PIN          EXP1_03_PIN
+  #define TFT_BACKLIGHT_INVERT
+
+  /**
+   * The SD card runs on VSPI (HAL_SPI.cpp uses the global SPI object), so the
+   * panel and touch take the other peripheral. Sharing one is not enough: the
+   * GPIO matrix can route an output to several pins, but an input has a single
+   * source, so whichever SPIClass attaches MISO last owns it - and touch, which
+   * is the only reader here, stops working.
+   */
+  #define TFT_SPI_DEVICE                    HSPI
+
+  #if ENABLED(MKS_TS24_R_V2_1)
+    // The TS24 (ST7789V) latches on the opposite clock edge to Marlin's default.
+    // It runs at 16MHz but not at 20MHz, where it stops responding altogether.
+    #define TFT_SPI_MODE               SPI_MODE2
+    #define SPI_CLOCK_MAX_TFT           16000000
+  #endif
 
   #define TFT_SCK_PIN                EXP2_02_PIN
-  #define TFT_MISO_PIN               EXP2_01_PIN
   #define TFT_MOSI_PIN               EXP2_06_PIN
+  // No TFT_MISO_PIN. Neither panel drives SDO, so an ID read returns floating
+  // line noise. Leaving it undefined skips the read and uses
+  // TFT_DEFAULT_DRIVER. The touch controller does reply, on TOUCH_MISO_PIN.
 
   #define LCD_USE_DMA_SPI
   #define TFT_BUFFER_WORDS                  2400
 
   #define TOUCH_CS_PIN               EXP1_05_PIN
-  #define TOUCH_SCK_PIN               TFT_SCK_PIN
-  #define TOUCH_MISO_PIN             TFT_MISO_PIN
-  #define TOUCH_MOSI_PIN             TFT_MOSI_PIN
+  #define TOUCH_SCK_PIN              TFT_SCK_PIN
+  #define TOUCH_MISO_PIN             EXP2_01_PIN
+  #define TOUCH_MOSI_PIN            TFT_MOSI_PIN
   // TOUCH_INT is not brought out on EXP1 (pin 6 is NC)
 
   #define TOUCH_BUTTONS_HW_SPI
   #define TOUCH_BUTTONS_HW_SPI_DEVICE          1
 
-#endif // MKS_TS35_V2_0
+  // Calibrated on an MKS TS24-R V2.1
+  #if ENABLED(MKS_TS24_R_V2_1) && DISABLED(TOUCH_SCREEN_CALIBRATION)
+    #ifndef TOUCH_CALIBRATION_X
+      #define TOUCH_CALIBRATION_X         -11606
+    #endif
+    #ifndef TOUCH_CALIBRATION_Y
+      #define TOUCH_CALIBRATION_Y             8556
+    #endif
+    #ifndef TOUCH_OFFSET_X
+      #define TOUCH_OFFSET_X                 349
+    #endif
+    #ifndef TOUCH_OFFSET_Y
+      #define TOUCH_OFFSET_Y                 -18
+    #endif
+    #ifndef TOUCH_ORIENTATION
+      #define TOUCH_ORIENTATION    TOUCH_LANDSCAPE
+    #endif
+  #endif
+
+#endif // MKS_TS24_R_V2_1 || MKS_TS35_V2_0

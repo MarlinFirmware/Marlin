@@ -47,7 +47,7 @@ enum TouchControlType : uint16_t {
   RESUME_CONTINUE,
   SLIDER,
   INCREASE, DECREASE,
-  CANCEL, CONFIRM,
+  CANCEL_ITEM, CONFIRM,  // NB: not CANCEL - ESP-IDF rom/ets_sys.h has a global enum with that name
   HEATER, FAN,
   FEEDRATE, FLOWRATE,
   UBL,
