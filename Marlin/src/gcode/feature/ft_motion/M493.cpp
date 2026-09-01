@@ -139,15 +139,15 @@ void GcodeSuite::M493_report(const bool forReplay/*=true*/) {
   );
 
   // Dynamic Frequency scaling (dynFreqK) is XY-only, so only report for X and Y.
-  #define F_REPORT_X F(" F"), c.dynFreqK.X
-  #define F_REPORT_Y F(" F"), c.dynFreqK.Y
+  #define F_REPORT_X , F(" F"), c.dynFreqK.X
+  #define F_REPORT_Y , F(" F"), c.dynFreqK.Y
   #define F_REPORT_Z
   #define F_REPORT_E
   #define _REPORT_M493_AXIS(A) \
     SERIAL_ECHOLN(F("  M493 "), C(AXIS_CHAR(_AXIS(A))) \
       , F(" C"), c.shaper.A \
       , F(" A"), c.baseFreq.A \
-      OPTARG(HAS_DYNAMIC_FREQ, F_REPORT_##A) \
+      TERN_(HAS_DYNAMIC_FREQ, F_REPORT_##A) \
       , F(" I"), c.zeta.A \
       OPTARG(HAS_FTM_EI_SHAPING, F(" Q"), c.vtol.A) \
     );
