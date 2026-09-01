@@ -103,10 +103,36 @@ static_assert(DISABLED(BAUD_RATE_GCODE), "BAUD_RATE_GCODE is not yet supported o
 #define ANY_TX(N,V...) DO(IS_TX##N,||,V)
 #define ANY_RX(N,V...) DO(IS_RX##N,||,V)
 
+/**
+ * With TMC_USE_SW_SPI each axis may sit on its own software SPI bus, so check
+ * every axis bus below, not just the global TMC_SPI_* pins. Axes that are not
+ * overridden in the pins file default to the global bus, which is still covered.
+ */
+#if ENABLED(TMC_USE_SW_SPI)
+  #define TMC_SPI_MISO_PINS X_SPI_MISO, X2_SPI_MISO, Y_SPI_MISO, Y2_SPI_MISO, Z_SPI_MISO, Z2_SPI_MISO, \
+                            Z3_SPI_MISO, Z4_SPI_MISO, I_SPI_MISO, J_SPI_MISO, K_SPI_MISO, U_SPI_MISO, \
+                            V_SPI_MISO, W_SPI_MISO, E0_SPI_MISO, E1_SPI_MISO, E2_SPI_MISO, E3_SPI_MISO, \
+                            E4_SPI_MISO, E5_SPI_MISO, E6_SPI_MISO, E7_SPI_MISO
+  #define TMC_SPI_MOSI_PINS X_SPI_MOSI, X2_SPI_MOSI, Y_SPI_MOSI, Y2_SPI_MOSI, Z_SPI_MOSI, Z2_SPI_MOSI, \
+                            Z3_SPI_MOSI, Z4_SPI_MOSI, I_SPI_MOSI, J_SPI_MOSI, K_SPI_MOSI, U_SPI_MOSI, \
+                            V_SPI_MOSI, W_SPI_MOSI, E0_SPI_MOSI, E1_SPI_MOSI, E2_SPI_MOSI, E3_SPI_MOSI, \
+                            E4_SPI_MOSI, E5_SPI_MOSI, E6_SPI_MOSI, E7_SPI_MOSI
+  #define TMC_SPI_SCK_PINS X_SPI_SCK, X2_SPI_SCK, Y_SPI_SCK, Y2_SPI_SCK, Z_SPI_SCK, Z2_SPI_SCK, \
+                           Z3_SPI_SCK, Z4_SPI_SCK, I_SPI_SCK, J_SPI_SCK, K_SPI_SCK, U_SPI_SCK, \
+                           V_SPI_SCK, W_SPI_SCK, E0_SPI_SCK, E1_SPI_SCK, E2_SPI_SCK, E3_SPI_SCK, \
+                           E4_SPI_SCK, E5_SPI_SCK, E6_SPI_SCK, E7_SPI_SCK
+#else
+  #define TMC_SPI_MISO_PINS TMC_SPI_MISO
+  #define TMC_SPI_MOSI_PINS TMC_SPI_MOSI
+  #define TMC_SPI_SCK_PINS  TMC_SPI_SCK
+#endif
+
 #if USING_HW_SERIAL0
   #define IS_TX0(P) (P == P0_02)
   #define IS_RX0(P) (P == P0_03)
-  #if IS_TX0(TMC_SPI_MISO) || IS_RX0(TMC_SPI_MOSI)
+  #define _IS_TX0_1 IS_TX0
+  #define _IS_RX0_1 IS_RX0
+  #if ANY_TX(0, TMC_SPI_MISO_PINS) || ANY_RX(0, TMC_SPI_MOSI_PINS)
     #error "Serial port pins (0) conflict with Trinamic SPI pins!"
   #elif HAS_PRUSA_MMU1 && (IS_TX0(E_MUX1_PIN) || IS_RX0(E_MUX0_PIN))
     #error "Serial port pins (0) conflict with Multi-Material-Unit multiplexer pins!"
@@ -115,6 +141,8 @@ static_assert(DISABLED(BAUD_RATE_GCODE), "BAUD_RATE_GCODE is not yet supported o
   #endif
   #undef IS_TX0
   #undef IS_RX0
+  #undef _IS_TX0_1
+  #undef _IS_RX0_1
 #endif
 
 #if USING_HW_SERIAL1
@@ -122,7 +150,7 @@ static_assert(DISABLED(BAUD_RATE_GCODE), "BAUD_RATE_GCODE is not yet supported o
   #define IS_RX1(P) (P == P0_16)
   #define _IS_TX1_1 IS_TX1
   #define _IS_RX1_1 IS_RX1
-  #if IS_TX1(TMC_SPI_SCK)
+  #if ANY_TX(1, TMC_SPI_SCK_PINS)
     #error "Serial port pins (1) conflict with other pins!"
   #elif HAS_ROTARY_ENCODER
     #if IS_TX1(BTN_EN2) || IS_RX1(BTN_EN1)
@@ -198,6 +226,9 @@ static_assert(DISABLED(BAUD_RATE_GCODE), "BAUD_RATE_GCODE is not yet supported o
 
 #undef ANY_TX
 #undef ANY_RX
+#undef TMC_SPI_MISO_PINS
+#undef TMC_SPI_MOSI_PINS
+#undef TMC_SPI_SCK_PINS
 
 //
 // Flag any i2c pin conflicts
