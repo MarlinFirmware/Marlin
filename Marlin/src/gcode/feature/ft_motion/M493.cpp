@@ -138,28 +138,18 @@ void GcodeSuite::M493_report(const bool forReplay/*=true*/) {
     , " H", c.axis_sync_enabled
   );
 
-  #if HAS_DYNAMIC_FREQ
-    #define _F_REPORT(A) , F(" F"), c.dynFreqK.A
-  #else
-    #define _F_REPORT(A)
-  #endif
   // Dynamic Frequency scaling (dynFreqK) is XY-only, so only report for X and Y.
-  #define F_REPORT_X _F_REPORT(X)
-  #define F_REPORT_Y _F_REPORT(Y)
+  #define F_REPORT_X F(" F"), c.dynFreqK.X
+  #define F_REPORT_Y F(" F"), c.dynFreqK.Y
   #define F_REPORT_Z
   #define F_REPORT_E
-  #if HAS_FTM_EI_SHAPING
-    #define Q_REPORT(A) , F(" Q"), c.vtol.A
-  #else
-    #define Q_REPORT(A)
-  #endif
   #define _REPORT_M493_AXIS(A) \
     SERIAL_ECHOLN(F("  M493 "), C(AXIS_CHAR(_AXIS(A))) \
       , F(" C"), c.shaper.A \
       , F(" A"), c.baseFreq.A \
-      F_REPORT_##A \
+      OPTARG(HAS_DYNAMIC_FREQ, F_REPORT_##A) \
       , F(" I"), c.zeta.A \
-      Q_REPORT(A) \
+      OPTARG(HAS_FTM_EI_SHAPING, F(" Q"), c.vtol.A) \
     );
   // Shaper type for each axis
   SHAPED_MAP(_REPORT_M493_AXIS);
