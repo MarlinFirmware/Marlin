@@ -56,7 +56,7 @@
 #if ENABLED(I2C_EEPROM)
   #define MARLIN_EEPROM_SIZE            0x10000U  // 64K (CAT24C512)
 #elif ENABLED(EEPROM_SETTINGS)
-  #define MARLIN_EEPROM_SIZE              0x800U  // On SD, limit to 2K, require this amount of RAM
+  #define MARLIN_EEPROM_SIZE              0x800U  // 2K
 #endif
 
 //
