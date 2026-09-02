@@ -2069,6 +2069,9 @@
   // "Over-the-air" Firmware Update with M936 - Required to set EEPROM flag
   //#define OTA_FIRMWARE_UPDATE
 
+  // Add M35 to report the POSIX cksum CRC and size of an SD-card file.
+  //#define SD_FILE_CHECKSUM
+
   /**
    * Set this option to one of the following (or the board's defaults apply):
    *
