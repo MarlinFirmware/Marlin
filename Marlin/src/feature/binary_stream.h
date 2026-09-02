@@ -40,6 +40,9 @@ inline int bs_read_serial(const serial_index_t index) {
 }
 
 class SDFileTransferProtocol  {
+public:
+  static const uint16_t VERSION_MAJOR = 0, VERSION_MINOR = 1, VERSION_PATCH = 0, TIMEOUT = 10000, IDLE_PERIOD = 1000;
+
 private:
   struct Packet {
     struct [[gnu::packed]] Open {
@@ -128,22 +131,24 @@ private:
 
   enum class FileTransfer : uint8_t { QUERY, OPEN, CLOSE, WRITE, ABORT };
 
-  static size_t data_waiting, transfer_timeout, idle_timeout;
+  static size_t data_waiting;
+  static TDelay<TIMEOUT> transfer_timeout;
   static bool transfer_active, dummy_transfer, compression;
 
 public:
 
   static void idle() {
-    // If a transfer is interrupted and a file is left open, abort it after 'idle_period' ms
-    const millis_t ms = millis();
-    if (transfer_active && ELAPSED(ms, idle_timeout)) {
-      idle_timeout = ms + idle_period;
-      if (ELAPSED(ms, transfer_timeout)) transfer_abort();
+    // If a transfer is interrupted and a file is left open, abort it after TIMEOUT ms
+    static TDelay<IDLE_PERIOD> idle_timeout;
+    const uint16_t ms = millis16();
+    if (transfer_active && idle_timeout.elapsed(ms)) {
+      idle_timeout.prime(ms);
+      if (transfer_timeout.elapsed(ms)) transfer_abort();
     }
   }
 
   static void process(uint8_t packet_type, char *buffer, const uint16_t length) {
-    transfer_timeout = millis() + timeout;
+    transfer_timeout.prime();
     switch (static_cast<FileTransfer>(packet_type)) {
       case FileTransfer::QUERY:
         SERIAL_ECHO(F("PFT:version:"), version_major, C('.'), version_minor, C('.'), version_patch);
@@ -206,6 +211,8 @@ public:
   enum class StreamState : uint8_t { PACKET_RESET, PACKET_WAIT, PACKET_HEADER, PACKET_DATA, PACKET_FOOTER,
                                      PACKET_PROCESS, PACKET_RESEND, PACKET_TIMEOUT, PACKET_ERROR };
 
+  static const uint16_t PACKET_MAX_WAIT = 500, RX_TIMESLICE = 20, MAX_RETRIES = 0, VERSION_MAJOR = 0, VERSION_MINOR = 1, VERSION_PATCH = 0;
+
   struct Packet { // 10 byte protocol overhead, ascii with checksum and line number has a minimum of 7 increasing with line
 
     union Header {
@@ -236,7 +243,7 @@ public:
     Footer footer;
     uint32_t bytes_received;
     uint16_t checksum, header_checksum;
-    millis_t timeout;
+    TDelay<PACKET_MAX_WAIT> max_wait;
     char* buffer;
 
     void reset() {
@@ -245,7 +252,7 @@ public:
       bytes_received = 0;
       checksum = 0;
       header_checksum = 0;
-      timeout = millis() + packet_max_wait;
+      max_wait.prime();
       buffer = nullptr;
     }
   } packet{};
@@ -258,28 +265,28 @@ public:
 
   // fletchers 16 checksum
   uint32_t checksum(uint32_t cs, uint8_t value) {
-    uint16_t cs_low = (((cs & 0xFF) + value) % 255);
-    return ((((cs >> 8) + cs_low) % 255) << 8)  | cs_low;
+    const uint16_t cs_low = (((cs & 0xFF) + value) % 255);
+    return ((((cs >> 8) + cs_low) % 255) << 8) | cs_low;
   }
 
   // read the next byte from the data stream keeping track of
   // whether the stream times out from data starvation
   // takes the data variable by reference in order to return status
   bool stream_read(uint8_t& data) {
-    if (stream_state != StreamState::PACKET_WAIT && ELAPSED(millis(), packet.timeout)) {
+    if (stream_state != StreamState::PACKET_WAIT && packet.max_wait.pending()) {
       stream_state = StreamState::PACKET_TIMEOUT;
       return false;
     }
     if (!bs_serial_data_available(card.transfer_port_index)) return false;
     data = bs_read_serial(card.transfer_port_index);
-    packet.timeout = millis() + packet_max_wait;
+    packet.max_wait.prime();
     return true;
   }
 
   template<const size_t buffer_size>
   void receive(char (&buffer)[buffer_size]) {
     uint8_t data = 0;
-    millis_t transfer_window = millis() + rx_timeslice;
+    const TDelay<rx_timeslice> transfer_window;
 
     #if HAS_MEDIA
       PORT_REDIRECT(SERIAL_PORTMASK(card.transfer_port_index));
@@ -288,7 +295,7 @@ public:
     #pragma GCC diagnostic push
     #pragma GCC diagnostic ignored "-Warray-bounds"
 
-    while (PENDING(millis(), transfer_window)) {
+    while (transfer_window.pending()) {
       switch (stream_state) {
          /**
           * Data stream packet handling

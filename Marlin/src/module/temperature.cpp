@@ -551,9 +551,6 @@ PGMSTR(str_t_heating_failed, STR_T_HEATING_FAILED);
   #if WATCH_BED
     bed_watch_t Temperature::watch_bed; // = { 0 }
   #endif
-  #if DISABLED(PIDTEMPBED)
-    millis_t Temperature::next_bed_check_ms;
-  #endif
 #endif
 
 #if HAS_TEMP_CHAMBER
@@ -564,9 +561,6 @@ PGMSTR(str_t_heating_failed, STR_T_HEATING_FAILED);
     temp_raw_range_t Temperature::temp_sensor_range_chamber = { TEMP_SENSOR_CHAMBER_RAW_LO_TEMP, TEMP_SENSOR_CHAMBER_RAW_HI_TEMP };
     #if WATCH_CHAMBER
       chamber_watch_t Temperature::watch_chamber; // = { 0 }
-    #endif
-    #if DISABLED(PIDTEMPCHAMBER)
-      millis_t Temperature::next_chamber_check_ms;
     #endif
   #endif
 #endif
@@ -581,7 +575,6 @@ PGMSTR(str_t_heating_failed, STR_T_HEATING_FAILED);
     #if WATCH_COOLER
       cooler_watch_t Temperature::watch_cooler; // = { 0 }
     #endif
-    millis_t Temperature::next_cooler_check_ms, Temperature::cooler_fan_flush_ms;
   #endif
 #endif
 
@@ -2025,10 +2018,11 @@ void Temperature::mintemp_error(const heater_id_t heater_id OPTARG(ERR_INCLUDE_T
     do { // 'break' out of this block
 
       #if DISABLED(PIDTEMPBED)
-        if (PENDING(ms, next_bed_check_ms)
+        static MTimeout24 bed_check_timer;
+        if (bed_check_timer.pending()
           && TERN1(PAUSE_CHANGE_REQD, paused_for_probing == last_pause_state)
         ) break;
-        next_bed_check_ms = ms + BED_CHECK_INTERVAL;
+        bed_check_timer.start(BED_CHECK_INTERVAL, ms);
         TERN_(PAUSE_CHANGE_REQD, last_pause_state = paused_for_probing);
       #endif
 
@@ -2211,8 +2205,9 @@ void Temperature::mintemp_error(const heater_id_t heater_id OPTARG(ERR_INCLUDE_T
       // PIDTEMPCHAMBER doesn't support a CHAMBER_VENT yet.
       temp_chamber.soft_pwm_amount = WITHIN(temp_chamber.celsius, CHAMBER_MINTEMP, CHAMBER_MAXTEMP) ? static_cast<int>(get_pid_output_chamber()) >> 1 : 0;
     #else
-      if (ELAPSED(ms, next_chamber_check_ms)) {
-        next_chamber_check_ms = ms + CHAMBER_CHECK_INTERVAL;
+      static MTimeout24 chamber_check_timer;
+      if (chamber_check_timer.elapsed(ms)) {
+        chamber_check_timer.start(CHAMBER_CHECK_INTERVAL, ms);
 
         if (WITHIN(temp_chamber.celsius, CHAMBER_MINTEMP, CHAMBER_MAXTEMP)) {
           if (flag_chamber_excess_heat) {
@@ -2284,14 +2279,14 @@ void Temperature::mintemp_error(const heater_id_t heater_id OPTARG(ERR_INCLUDE_T
     if (cooler.enabled) {
       flag_cooler_state = true; // used to allow M106 fan control when cooler is disabled
       if (temp_cooler.target == 0) temp_cooler.target = COOLER_MIN_TARGET;
-      if (ELAPSED(ms, next_cooler_check_ms)) {
-        next_cooler_check_ms = ms + COOLER_CHECK_INTERVAL;
+      static MTimeout24 cooler_check_timer;
+      if (cooler_check_timer.elapsed(ms)) {
+        cooler_check_timer.start(COOLER_CHECK_INTERVAL, ms);
         if (temp_cooler.is_above_target()) { // too warm?
           temp_cooler.soft_pwm_amount = MAX_COOLER_POWER;
           #if ENABLED(COOLER_FAN)
             const int16_t fan_cooler_pwm = (COOLER_FAN_BASE) + (COOLER_FAN_FACTOR) * ABS(temp_cooler.celsius - temp_cooler.target);
             set_fan_speed(COOLER_FAN_INDEX, _MIN(fan_cooler_pwm, 255)); // Set cooler fan pwm
-            cooler_fan_flush_ms = ms + 5000;
           #endif
         }
         else {

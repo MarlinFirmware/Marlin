@@ -251,8 +251,7 @@ void GcodeSuite::get_destination_from_command() {
  * Dwell waits immediately. It does not synchronize.
  */
 void GcodeSuite::dwell(const millis_t time) {
-  const millis_t start_ms = millis();
-  while (PENDING(millis(), start_ms, time)) marlin.idle();
+  MTimeout(time).idle();
 }
 
 /**

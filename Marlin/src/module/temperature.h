@@ -794,18 +794,12 @@ class Temperature {
       #if WATCH_BED
         static bed_watch_t watch_bed;
       #endif
-      #if DISABLED(PIDTEMPBED)
-        static millis_t next_bed_check_ms;
-      #endif
       static temp_raw_range_t temp_sensor_range_bed;
     #endif
 
     #if HAS_HEATED_CHAMBER
       #if WATCH_CHAMBER
         static chamber_watch_t watch_chamber;
-      #endif
-      #if DISABLED(PIDTEMPCHAMBER)
-        static millis_t next_chamber_check_ms;
       #endif
       static temp_raw_range_t temp_sensor_range_chamber;
     #endif
@@ -814,7 +808,6 @@ class Temperature {
       #if WATCH_COOLER
         static cooler_watch_t watch_cooler;
       #endif
-      static millis_t next_cooler_check_ms, cooler_fan_flush_ms;
       static temp_raw_range_t temp_sensor_range_cooler;
     #endif
 

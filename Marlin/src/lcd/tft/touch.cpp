@@ -45,10 +45,12 @@ int16_t Touch::x, Touch::y;
 touch_control_t Touch::controls[];
 touch_control_t *Touch::current_control;
 uint16_t Touch::controls_count;
-millis_t Touch::next_touch_ms = 0,
-         Touch::time_to_hold,
+millis_t Touch::time_to_hold,
          Touch::repeat_delay,
          Touch::nada_start_ms;
+
+MTimeout24 Touch::touch_timer;
+
 TouchControlType Touch::touch_control_type = NONE;
 #if HAS_DISPLAY_SLEEP
   millis_t Touch::next_sleep_ms; // = 0
@@ -79,8 +81,8 @@ void Touch::idle() {
 
   // Return if Touch::idle is called within the same millisecond
   const millis_t now = millis();
-  if (now == next_touch_ms) return;
-  next_touch_ms = now;
+  if (touch_timer.pending(now)) return;
+  touch_timer.start(0, now);
 
   // Get the point where the screen is touched
   int16_t _x, _y;
@@ -192,7 +194,7 @@ void Touch::touch(touch_control_t * const control) {
     case MENU_CLICK:
       TERN_(SINGLE_TOUCH_NAVIGATION, ui.encoderPosition = control->data);
       // Effectively ignore the touch until it is released
-      time_to_hold = next_touch_ms + 2000;
+      time_to_hold = touch_timer.end_ms + 2000;
       // fall thru
 
     // Tap to Continue. e.g., Anywhere on the whole screen.
@@ -330,7 +332,7 @@ void Touch::hold(touch_control_t * const control, const millis_t delay/*=0*/) {
   current_control = control;
   if (delay) {
     repeat_delay = _MAX(delay, uint32_t(MIN_REPEAT_DELAY));
-    time_to_hold = next_touch_ms + repeat_delay;
+    time_to_hold = touch_timer.end_ms + repeat_delay;
   }
   ui.refresh();
 }
@@ -378,8 +380,8 @@ bool Touch::get_point(int16_t * const x, int16_t * const y) {
       #elif PIN_EXISTS(TFT_BACKLIGHT)
         WRITE(TFT_BACKLIGHT_PIN, HIGH);
       #endif
-      next_touch_ms = millis() + 100;
       safe_delay(20);
+      touch_timer.start(80);
     }
     next_sleep_ms = ui.sleep_timeout_minutes ? millis() + MIN_TO_MS(ui.sleep_timeout_minutes) : 0;
   }

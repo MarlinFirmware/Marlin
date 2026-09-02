@@ -28,7 +28,7 @@
 #include "../../../module/motion.h" // for motion.extruder and motion.position
 
 #if PIN_EXISTS(CHDK)
-  millis_t chdk_timeout; // = 0
+  TTimeout<uint16_t> chdk_timeout;
 #endif
 
 #ifdef PHOTO_RETRACT_MM
@@ -168,7 +168,7 @@ void GcodeSuite::M240() {
   #if PIN_EXISTS(CHDK)
 
     OUT_WRITE(CHDK_PIN, HIGH);
-    chdk_timeout = millis() + parser.intval('D', PHOTO_SWITCH_MS);
+    chdk_timeout.start(parser.intval('D', PHOTO_SWITCH_MS));
 
   #elif HAS_PHOTOGRAPH
 
@@ -180,8 +180,7 @@ void GcodeSuite::M240() {
 
   #ifdef PHOTO_POSITION
     #if PHOTO_DELAY_MS > 0
-      const millis_t timeout = millis() + parser.intval('P', PHOTO_DELAY_MS);
-      while (PENDING(millis(), timeout)) marlin.idle();
+      MTimeout(parser.intval('P', PHOTO_DELAY_MS)).idle();
     #endif
     motion.blocking_move(old_pos, fr_mm_s);
     #ifdef PHOTO_RETRACT_MM

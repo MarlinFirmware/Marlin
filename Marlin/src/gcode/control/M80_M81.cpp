@@ -76,6 +76,12 @@
  * M81: Turn off Power, including Power Supply, if there is one.
  *
  *      This code should ALWAYS be available for FULL SHUTDOWN!
+ *
+ * With POWER_OFF_TIMER:
+ *  D<seconds> - Set timer for power-off to occur in some number of seconds
+ *
+ * With POWER_OFF_WAIT_FOR_COOLDOWN:
+ *  S<bool>    - Enable / disable Power-Off when the machine has cooled down
  */
 void GcodeSuite::M81() {
   planner.finish_and_disable();
@@ -102,10 +108,10 @@ void GcodeSuite::M81() {
 
   #if ENABLED(POWER_OFF_TIMER)
     if (parser.seenval('D')) {
-      uint16_t delay = parser.value_ushort();
-      if (delay > 1) { // skip already observed 1s delay
+      const uint16_t seconds = parser.value_ushort();
+      if (seconds > 1) { // skip already observed 1s delay
         delayed_power_off = true;
-        powerManager.setPowerOffTimer(SEC_TO_MS(delay - 1));
+        powerManager.setPowerOffTimer(seconds - 1);
       }
     }
   #endif
