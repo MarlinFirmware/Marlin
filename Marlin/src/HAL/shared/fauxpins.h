@@ -25,6 +25,7 @@
 // Faux pins for Dependency Check
 //
 
+#if !defined(ARDUINO_ARCH_AT32)
 //
 // STM32 Pin Names
 //
@@ -197,6 +198,7 @@
 #define PJ13 0xAD
 #define PJ14 0xAE
 #define PJ15 0xAF
+#endif // !ARDUINO_ARCH_AT32
 
 //
 // LPC Pin Names

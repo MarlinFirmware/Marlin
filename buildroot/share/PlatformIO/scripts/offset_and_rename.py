@@ -56,14 +56,16 @@ if pioutil.is_pio_build():
                 val = key + "=" + (hex(value) if value >= 10 else str(value))
             else:
                 val = key + "=" + str(value)
-            found = False
-            for i, flag in enumerate(env["LINKFLAGS"]):
-                if key in flag:
-                    env["LINKFLAGS"][i] = val
-                    found = True
+
+            linkflags = list(env.get("LINKFLAGS", []))
+            for i, flag in enumerate(linkflags):
+                if key in str(flag):
+                    linkflags[i] = val
                     break
-            if not found:
-                env.Append(LINKFLAGS=[val])
+            else:
+                linkflags.append(val)
+
+            env.Replace(LINKFLAGS=linkflags)
 
         # Provide the symbols the linker script expects:
         #   ORIGIN = 0x08000000 + LD_FLASH_OFFSET
