@@ -779,7 +779,7 @@ void Temperature::factory_reset() {
 
 } // factory_reset
 
-#if HAS_PID_HEATING
+#if HAS_PID_AUTOTUNE
 
   inline void say_default_() { SERIAL_ECHOPGM("#define DEFAULT_"); }
 
@@ -1048,7 +1048,7 @@ void Temperature::factory_reset() {
       return;
   }
 
-#endif // HAS_PID_HEATING
+#endif // HAS_PID_AUTOTUNE
 
 #if ENABLED(MPC_AUTOTUNE)
 

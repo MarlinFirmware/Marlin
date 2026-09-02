@@ -2728,6 +2728,11 @@
   #define HAS_PID_HEATING 1
 #endif
 
+// PID autotune (M303 command)
+#if HAS_PID_HEATING && DISABLED(DISABLE_M303_AUTOTUNE)
+  #define HAS_PID_AUTOTUNE 1
+#endif
+
 // Thermal protection
 #if ENABLED(THERMAL_PROTECTION_HOTENDS) && WATCH_TEMP_PERIOD > 0
   #define WATCH_HOTENDS 1

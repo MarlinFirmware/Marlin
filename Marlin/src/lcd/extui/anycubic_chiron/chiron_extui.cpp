@@ -167,9 +167,11 @@ namespace ExtUI {
     void onPIDTuning(const pidresult_t rst) {
       // Called for temperature PID tuning result
     }
-    void onStartM303(const int count, const heater_id_t hid, const celsius_t temp) {
-      // Called by M303 to update the UI
-    }
+    #if HAS_PID_AUTOTUNE
+      void onStartM303(const int count, const heater_id_t hid, const celsius_t temp) {
+        // Called by M303 to update the UI
+      }
+    #endif
   #endif
 
   #if ENABLED(MPC_AUTOTUNE)

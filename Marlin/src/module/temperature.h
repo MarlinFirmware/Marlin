@@ -1248,16 +1248,18 @@ class Temperature {
 
     static bool tuning_idle(const millis_t &ms);
 
-    /**
-     * M303 PID auto-tuning for hotends or bed
-     */
     #if HAS_PID_HEATING
 
       #if HAS_PID_DEBUG
         static bool pid_debug_flag;
       #endif
 
-      static void PID_autotune(const celsius_t target, const heater_id_t heater_id, const int8_t ncycles, const bool set_result=false);
+      /**
+       * M303 PID auto-tuning for hotends or bed
+       */
+      #if HAS_PID_AUTOTUNE
+        static void PID_autotune(const celsius_t target, const heater_id_t heater_id, const int8_t ncycles, const bool set_result=false);
+      #endif // HAS_PID_AUTOTUNE
 
       // Update the temp manager when PID values change
       #if ENABLED(PIDTEMP)
