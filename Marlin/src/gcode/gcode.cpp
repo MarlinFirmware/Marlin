@@ -562,6 +562,10 @@ void GcodeSuite::process_parsed_command(bool no_ok/*=false*/) {
         case 48: M48(); break;                                    // M48: Z probe repeatability test
       #endif
 
+      #if ENABLED(AXIS_ENDSTOP_REPEATABILITY_TEST)
+        case 49: M49(); break;                                    // M49: Physical axis-endstop repeatability test
+      #endif
+
       #if ENABLED(SET_PROGRESS_MANUALLY)
         case 73: M73(); break;                                    // M73: Set progress percentage
       #endif
