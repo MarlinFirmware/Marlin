@@ -107,8 +107,10 @@ void GcodeSuite::G30() {
     // Move the nozzle to the position of the probe
     motion.blocking_move(probepos);
 
-    if (raise_after == PROBE_PT_STOW)
-      probe.move_z_after_probing();
+    #if ENABLED(Z_AFTER_PROBING)
+      if (raise_after == PROBE_PT_STOW)
+        probe.move_z_after_probing();
+    #endif
 
     motion.report_position();
   }
