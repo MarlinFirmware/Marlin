@@ -322,9 +322,9 @@ typedef struct {
         // 8 bytes total
 } __attribute__((packed)) SETUP_PKT, *PSETUP_PKT;
 
-// little endian :-)                                                                             8                                8                          8                         8                          16                      16
-#define mkSETUP_PKT8(bmReqType, bRequest, wValLo, wValHi, wInd, total) ((uint64_t)(((uint64_t)(bmReqType)))|(((uint64_t)(bRequest))<<8)|(((uint64_t)(wValLo))<<16)|(((uint64_t)(wValHi))<<24)|(((uint64_t)(wInd))<<32)|(((uint64_t)(total)<<48)))
-#define mkSETUP_PKT16(bmReqType, bRequest, wVal, wInd, total)          ((uint64_t)(((uint64_t)(bmReqType)))|(((uint64_t)(bRequest))<<8)|(((uint64_t)(wVal  ))<<16)                           |(((uint64_t)(wInd))<<32)|(((uint64_t)(total)<<48)))
+// little endian :-)                                                                        8                                 8                          8                          8                       16                       16
+#define mkSETUP_PKT8(bmReqType,bRequest,wValLo,wValHi,wInd,total) ((uint64_t)(((uint64_t)(bmReqType)))|(((uint64_t)(bRequest))<<8)|(((uint64_t)(wValLo))<<16)|(((uint64_t)(wValHi))<<24)|(((uint64_t)(wInd))<<32)|(((uint64_t)(total)<<48)))
+#define mkSETUP_PKT16(bmReqType,bRequest,wVal,wInd,total)         ((uint64_t)(((uint64_t)(bmReqType)))|(((uint64_t)(bRequest))<<8)|(((uint64_t)(wVal  ))<<16)                           |(((uint64_t)(wInd))<<32)|(((uint64_t)(total)<<48)))
 
 // Big endian -- but we aren't able to use this :-/
 //#define mkSETUP_PKT8(bmReqType, bRequest, wValLo, wValHi, wInd, total) ((uint64_t)(((uint64_t)(bmReqType))<<56)|(((uint64_t)(bRequest))<<48)|(((uint64_t)(wValLo))<<40)|(((uint64_t)(wValHi))<<32)|(((uint64_t)(wInd))<<16)|((uint64_t)(total)))

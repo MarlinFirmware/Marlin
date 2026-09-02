@@ -17,6 +17,6 @@ jobs:
     runs-on: ubuntu-22.04
 
     steps:
-    - uses: OSDKDev/unlock-issues@v1.1
-      with:
-        repo-token: "${{ secrets.GITHUB_TOKEN }}"
+      - uses: OSDKDev/unlock-issues@v1.1
+        with:
+          repo-token: "${{ secrets.GITHUB_TOKEN }}"

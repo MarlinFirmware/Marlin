@@ -168,8 +168,8 @@ public:
    * No inverting the duty cycle in this HAL.
    * No changing the maximum size of the provided value to enable finer PWM duty control in this HAL.
    */
-  static void set_pwm_duty(const pin_t pin, const uint16_t v, const uint16_t=255, const bool=false) {
-    analogWrite(pin, v);
+  static void set_pwm_duty(const pin_t pin, const uint16_t value, const uint16_t scale=255, const bool invert=false) {
+    analogWrite(pin, value);
   }
 
 };

@@ -95,7 +95,7 @@
     static uint8_t CRC7(const uint8_t *data, uint8_t n) {
       uint8_t crc = 0;
       while (n > 0) {
-        crc = pgm_read_byte(&crctab7[ (crc << 1) ^ *data++ ]);
+        crc = pgm_read_byte(&crctab7[(crc << 1) ^ *data++]);
         n--;
       }
       return (crc << 1) | 1;

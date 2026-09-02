@@ -193,28 +193,28 @@ void MarlinHAL::set_pwm_frequency(const pin_t pin, const uint16_t f_desired) {
     _SET_ICRn(timer, res);                              // Set ICRn value (TOP) = res
 }
 
-void MarlinHAL::set_pwm_duty(const pin_t pin, const uint16_t v, const uint16_t v_size/*=255*/, const bool invert/*=false*/) {
-  // If v is 0 or v_size (max), digitalWrite to LOW or HIGH.
+void MarlinHAL::set_pwm_duty(const pin_t pin, const uint16_t value, const uint16_t scale/*=255*/, const bool invert/*=false*/) {
+  // If value is 0 or scale (max), digitalWrite to LOW or HIGH.
   // Note that digitalWrite also disables PWM output for us (sets COM bit to 0)
-  if (v == 0)
+  if (value == 0)
     digitalWrite(pin, invert);
-  else if (v == v_size)
+  else if (value == scale)
     digitalWrite(pin, !invert);
   else {
     const Timer timer = get_pwm_timer(pin);
     if (timer.isPWM) {
       if (timer.n == 0) {
         _SET_COMnQ(timer, timer.q, COM_CLEAR_SET);  // Only allow a TIMER0B select...
-        _SET_OCRnQ(timer, timer.q, v);              // ...and OCR0B duty update. For output pin D4 no frequency changes are permitted.
+        _SET_OCRnQ(timer, timer.q, value);              // ...and OCR0B duty update. For output pin D4 no frequency changes are permitted.
       }
       else if (!timer.isProtected) {
         const uint16_t top = timer.n == 2 ? TERN(USE_OCR2A_AS_TOP, *timer.OCRnQ[0], 255) : *timer.ICRn;
         _SET_COMnQ(timer, SUM_TERN(HAS_TCCR2, timer.q, timer.q == 2), COM_CLEAR_SET + invert);   // COM20 is on bit 4 of TCCR2, so +1 for q==2
-        _SET_OCRnQ(timer, timer.q, uint16_t(uint32_t(v) * top / v_size)); // Scale 8/16-bit v to top value
+        _SET_OCRnQ(timer, timer.q, uint16_t(uint32_t(value) * top / scale)); // Scale 8/16-bit value to top value
       }
     }
     else
-      digitalWrite(pin, v < v_size / 2 ? LOW : HIGH);
+      digitalWrite(pin, value < scale / 2 ? LOW : HIGH);
   }
 }
 

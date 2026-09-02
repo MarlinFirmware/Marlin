@@ -1,22 +1,23 @@
 #!/usr/bin/env python3
-#
-# Utility to compress Marlin RGB565 TFT data to RLE16 format.
-# Reads the existing Marlin RGB565 cpp file and generates a new file with the additional RLE16 data.
-#
-# Usage: rle16_compress_cpp_image_data.py INPUT_FILE.cpp OUTPUT_FILE.cpp
-#
+"""
+Utility to compress Marlin RGB565 TFT data to RLE16 format.
+Reads the existing Marlin RGB565 cpp file and generates a new file with the additional RLE16 data.
+
+Usage: rle16_compress_cpp_image_data.py INPUT_FILE.cpp OUTPUT_FILE.cpp
+"""
+
 import sys, struct, re
 
 def addCompressedData(input_file, output_file):
-    ofile = open(output_file, 'wt')
+    ofile = open(output_file, "wt")
 
     c_data_section = False
-    c_skip_data = False
-    c_footer = False
-    raw_data = []
-    rle_value = []
-    rle_count = []
-    arrname = ''
+    c_skip_data    = False
+    c_footer       = False
+    raw_data       = []
+    rle_value      = []
+    rle_count      = []
+    arrname        = ""
 
     line = input_file.readline()
     while line:
@@ -29,7 +30,7 @@ def addCompressedData(input_file, output_file):
             c_footer = True
 
         if c_data_section:
-            cleaned = re.sub(r"\s|,|\n", "", line)
+            cleaned = re.sub(r'\s|,|\n', "", line)
             as_list = cleaned.split("0x")
             as_list.pop(0)
             raw_data += [int(x, 16) for x in as_list]
@@ -40,21 +41,21 @@ def addCompressedData(input_file, output_file):
                 c_skip_data = True
             else:
                 c_data_section = True
-                arrname = line.split('[')[0].split(' ')[-1]
+                arrname = line.split("[")[0].split(" ")[-1]
                 print("Found data array", arrname)
 
         line = input_file.readline()
 
     input_file.close()
 
-    #
-    # RLE16 (run length 16) encoding
-    # Convert data from from raw RGB565 to a simple run-length-encoded format for each word of data.
-    # - Each sequence begins with a count byte N.
-    #   - If the high bit is set in N the run contains N & 0x7F + 1 unique words.
-    #   - Otherwise it repeats the following word N + 1 times.
-    # - Each RGB565 word is stored in MSB / LSB order.
-    #
+    """
+    RLE16 (run length 16) encoding
+    Convert data from from raw RGB565 to a simple run-length-encoded format for each word of data.
+    - Each sequence begins with a count byte N.
+      - If the high bit is set in N the run contains N & 0x7F + 1 unique words.
+      - Otherwise it repeats the following word N + 1 times.
+    - Each RGB565 word is stored in MSB / LSB order.
+    """
     def rle_encode(data):
         warn = "This may take a while" if len(data) > 300000 else ""
         print("Compressing image data...", warn)
@@ -87,15 +88,15 @@ def addCompressedData(input_file, output_file):
         return rledata
 
     def append_byte(data, byte, cols=240):
-        if data == '': data = '  '
-        data += ('0x{0:02X}, '.format(byte)) # 6 characters
+        if data == "": data = "  "
+        data += ("0x{0:02X}, ".format(byte))  # 6 characters
         if len(data) % (cols * 6 + 2) == 0: data = data.rstrip() + "\n  "
         return data
 
     def rle_emit(ofile, arrname, rledata, rawsize):
         col = 0
         i = 0
-        outstr = ''
+        outstr = ""
         size = 0
         while i < len(rledata):
             rval = rledata[i]
@@ -119,7 +120,7 @@ def addCompressedData(input_file, output_file):
         outstr = outstr.rstrip()[:-1]
         ofile.write("\n// Saves %i bytes\nconst uint8_t %s_rle16[%d] = {\n%s\n};\n" % (rawsize - size, arrname, size, outstr))
 
-        (w, h, d) = arrname.split("_")[-1].split('x')
+        (w, h, d) = arrname.split("_")[-1].split("x")
         ofile.write("\nconst tImage MarlinLogo{0}x{1}x16 = MARLIN_LOGO_CHOSEN({0}, {1});\n".format(w, h))
         ofile.write("\n#endif // HAS_GRAPHICAL_TFT && SHOW_BOOTSCREEN\n".format(w, h))
 
@@ -135,7 +136,7 @@ if len(sys.argv) <= 2:
     exit(1)
 
 output_cpp = sys.argv[2]
-inname = sys.argv[1].replace('//', '/')
+inname = sys.argv[1].replace("//", "/")
 input_cpp = open(inname)
 print("Processing", inname, "...")
 addCompressedData(input_cpp, output_cpp)

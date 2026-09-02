@@ -8,24 +8,24 @@ name: CI - Unit Tests
 on:
   pull_request:
     branches:
-    - bugfix-2.1.x
-    # Cannot be enabled on 2.1.x until it contains the unit test framework
-    #- 2.1.x
+      - bugfix-2.1.x
+      # Cannot be enabled on 2.1.x until it contains the unit test framework
+      #- 2.1.x
     paths-ignore:
-    - config/**
-    - data/**
-    - docs/**
-    - '**/*.md'
+      - config/**
+      - data/**
+      - docs/**
+      - '**/*.md'
   push:
     branches:
-    - bugfix-2.1.x
-    # Cannot be enabled on 2.1.x until it contains the unit test framework
-    #- 2.1.x
+      - bugfix-2.1.x
+      # Cannot be enabled on 2.1.x until it contains the unit test framework
+      #- 2.1.x
     paths-ignore:
-    - config/**
-    - data/**
-    - docs/**
-    - '**/*.md'
+      - config/**
+      - data/**
+      - docs/**
+      - '**/*.md'
 
 jobs:
   # This runs all unit tests as a single job. While it should be possible to break this up into
@@ -39,40 +39,40 @@ jobs:
     runs-on: ubuntu-22.04
 
     steps:
-    - name: Check out the PR
-      uses: actions/checkout@v4
+      - name: Check out the PR
+        uses: actions/checkout@v4
 
-    - name: Cache pip
-      uses: actions/cache@v4
-      with:
-        path: ~/.cache/pip
-        key: ${{ runner.os }}-pip-unit-v1
-        restore-keys: |
-          ${{ runner.os }}-pip-unit-
+      - name: Cache pip
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-unit-v1
+          restore-keys: |
+            ${{ runner.os }}-pip-unit-
 
-    - name: Cache PlatformIO
-      uses: actions/cache@v4
-      with:
-        path: |
-          ~/.platformio
-          .pio/build
-          .pio/libdeps
-        key: ${{ runner.os }}-pio-tests-v1
-        restore-keys: |
-          ${{ runner.os }}-pio-tests-
+      - name: Cache PlatformIO
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.platformio
+            .pio/build
+            .pio/libdeps
+          key: ${{ runner.os }}-pio-tests-v1
+          restore-keys: |
+            ${{ runner.os }}-pio-tests-
 
-    - name: Select Python 3.9
-      uses: actions/setup-python@v5
-      with:
-        python-version: '3.9'
-        architecture: 'x64'
+      - name: Select Python 3.9
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.9'
+          architecture: 'x64'
 
-    - name: Install PlatformIO
-      run: |
-        pip install -U platformio
-        pio upgrade --dev
-        pio pkg update --global
+      - name: Install PlatformIO
+        run: |
+          pip install -U platformio
+          pio upgrade --dev
+          pio pkg update --global
 
-    - name: Run All Unit Tests
-      run: |
-        make unit-test-all-local
+      - name: Run All Unit Tests
+        run: |
+          make unit-test-all-local

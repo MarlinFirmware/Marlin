@@ -11,8 +11,8 @@
 #ifndef MACRO_LOGIC_H
 #define MACRO_LOGIC_H
 
-#define AJK_CAT(a, ...) AJK_PRIMITIVE_CAT(a, __VA_ARGS__)
-#define AJK_PRIMITIVE_CAT(a, ...) a ## __VA_ARGS__
+#define AJK_CAT(a,...) AJK_PRIMITIVE_CAT(a, __VA_ARGS__)
+#define AJK_PRIMITIVE_CAT(a,...) a ## __VA_ARGS__
 
 #define AJK_COMPL(b) AJK_PRIMITIVE_CAT(AJK_COMPL_, b)
 #define AJK_COMPL_0 1
@@ -48,7 +48,7 @@
 #define AJK_DEC_9 8
 #define AJK_DEC_10 9
 
-#define AJK_CHECK_N(x, n, ...) n
+#define AJK_CHECK_N(x,n,...) n
 #define AJK_CHECK(...) AJK_CHECK_N(__VA_ARGS__, 0,)
 #define AJK_PROBE(x) x, 1,
 
@@ -65,8 +65,8 @@
 #define AJK_BOOL(x) AJK_COMPL(AJK_NOT(x))
 
 #define AJK_IIF(c) AJK_PRIMITIVE_CAT(AJK_IIF_, c)
-#define AJK_IIF_0(t, ...) __VA_ARGS__
-#define AJK_IIF_1(t, ...) t
+#define AJK_IIF_0(t,...) __VA_ARGS__
+#define AJK_IIF_1(t,...) t
 
 #define AJK_IF(c) AJK_IIF(AJK_BOOL(c))
 
@@ -85,7 +85,7 @@
 #define AJK_EVAL4(...) AJK_EVAL5(AJK_EVAL5(AJK_EVAL5(__VA_ARGS__)))
 #define AJK_EVAL5(...) __VA_ARGS__
 
-#define AJK_REPEAT(AJK_count, AJK_macro, ...) \
+#define AJK_REPEAT(AJK_count,AJK_macro,...) \
     AJK_WHEN(AJK_count) \
     ( \
         AJK_OBSTRUCT(AJK_REPEAT_INDIRECT) () \
@@ -99,7 +99,7 @@
     )
 #define AJK_REPEAT_INDIRECT() AJK_REPEAT
 
-#define AJK_WHILE(AJK_pred, AJK_op, ...) \
+#define AJK_WHILE(AJK_pred,AJK_op,...) \
     IF(AJK_pred(__VA_ARGS__)) \
     ( \
         AJK_OBSTRUCT(AJK_WHILE_INDIRECT) () \
@@ -110,32 +110,32 @@
     )
 #define AJK_WHILE_INDIRECT() AJK_WHILE
 
-#define AJK_PRIMITIVE_COMPARE(x, y) AJK_IS_PAREN \
+#define AJK_PRIMITIVE_COMPARE(x,y) AJK_IS_PAREN \
 ( \
     AJK_COMPARE_ ## x ( AJK_COMPARE_ ## y) (())  \
 )
 
 #define AJK_IS_COMPARABLE(x) AJK_IS_PAREN( AJK_CAT(AJK_COMPARE_, x) (()) )
 
-#define AJK_NOT_EQUAL(x, y) \
+#define AJK_NOT_EQUAL(x,y) \
 AJK_IIF(AJK_BITAND(AJK_IS_COMPARABLE(x))(AJK_IS_COMPARABLE(y)) ) \
 ( \
    AJK_PRIMITIVE_COMPARE, \
    1 AJK_EAT \
 )(x, y)
 
-#define AJK_EQUAL(x, y) AJK_COMPL(AJK_NOT_EQUAL(x, y))
+#define AJK_EQUAL(x,y) AJK_COMPL(AJK_NOT_EQUAL(x, y))
 
 #define AJK_COMMA() ,
 
 #define AJK_COMMA_IF(n) AJK_IF(n)(AJK_COMMA, AJK_EAT)()
 
-#define AJK_COMMA_VAR(AJK_count, AJK_v) AJK_COMMA_IF(AJK_count) AJK_v ## AJK_count
+#define AJK_COMMA_VAR(AJK_count,AJK_v) AJK_COMMA_IF(AJK_count) AJK_v ## AJK_count
 
-#define AJK_MAKE_LIST(AJK_v, AJK_count) AJK_EVAL(AJK_REPEAT(AJK_count, AJK_COMMA_VAR, AJK_v))
+#define AJK_MAKE_LIST(AJK_v,AJK_count) AJK_EVAL(AJK_REPEAT(AJK_count, AJK_COMMA_VAR, AJK_v))
 
-#define AJK_FUN(AJK_count, AJK_v, AJK_args, AJK_body) AJK_v ## AJK_count (AJK_args) { AJK_body(AJK_count) }
-#define AJK_MAKE_FUNS(AJK_v, AJK_args, AJK_count, AJK_body) AJK_EVAL(AJK_REPEAT(AJK_count, AJK_FUN, AJK_v, AJK_args, AJK_body))
+#define AJK_FUN(AJK_count,AJK_v,AJK_args,AJK_body) AJK_v ## AJK_count (AJK_args) { AJK_body(AJK_count) }
+#define AJK_MAKE_FUNS(AJK_v,AJK_args,AJK_count,AJK_body) AJK_EVAL(AJK_REPEAT(AJK_count, AJK_FUN, AJK_v, AJK_args, AJK_body))
 #ifdef AJK_TEST_MACRO_LOGIC
 
 #define BODY(AJKindex) some(C, statement); containing(a, test[AJKindex]);

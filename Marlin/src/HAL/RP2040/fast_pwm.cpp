@@ -28,8 +28,8 @@
 #include "HAL.h"
 #include "pinDefinitions.h"
 
-void MarlinHAL::set_pwm_duty(const pin_t pin, const uint16_t v, const uint16_t v_size/*=255*/, const bool invert/*=false*/) {
-  analogWrite(pin, v);
+void MarlinHAL::set_pwm_duty(const pin_t pin, const uint16_t value, const uint16_t scale/*=255*/, const bool invert/*=false*/) {
+  analogWrite(pin, value);
 }
 
 void MarlinHAL::set_pwm_frequency(const pin_t pin, const uint16_t f_desired) {

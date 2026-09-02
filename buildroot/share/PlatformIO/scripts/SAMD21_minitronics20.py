@@ -2,10 +2,12 @@
 # SAMD21_minitronics20.py
 # Customizations for env:SAMD21_minitronics20
 #
+
 import pioutil
 if pioutil.is_pio_build():
     from os.path import join, isfile
     import shutil
+
     env = pioutil.env
 
     mf = env["MARLIN_FEATURES"]
@@ -14,5 +16,5 @@ if pioutil.is_pio_build():
 
     serialBuf = str(max(int(rxBuf), int(txBuf), 350))
 
-    build_flags = env.get('BUILD_FLAGS')
+    build_flags = env.get("BUILD_FLAGS")
     env.Replace(BUILD_FLAGS=build_flags)

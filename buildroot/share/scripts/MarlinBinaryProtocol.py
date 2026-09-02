@@ -2,6 +2,7 @@
 # MarlinBinaryProtocol.py
 # Supporting Firmware upload via USB/Serial, saving to the attached media.
 #
+
 import serial, math, time, threading, sys, datetime, random
 from collections import deque
 
@@ -66,7 +67,7 @@ class Protocol(object):
 
     def __init__(self, device, baud, bsize, simerr, timeout):
         print("pySerial Version:", serial.VERSION)
-        self.port = serial.Serial(device, baudrate = baud, write_timeout = 0, timeout = 1)
+        self.port = serial.Serial(device, baudrate=baud, write_timeout=0, timeout=1)
         self.device = device
         self.baud = baud
         self.block_size = int(bsize)
@@ -74,7 +75,7 @@ class Protocol(object):
         self.connected = True
         self.response_timeout = timeout
 
-        self.register(['ok', 'rs', 'ss', 'fe'], self.process_input)
+        self.register(["ok", "rs", "ss", "fe"], self.process_input)
 
         self.worker_thread = threading.Thread(target=Protocol.receive_worker, args=(self,))
         self.worker_thread.start()
@@ -86,8 +87,8 @@ class Protocol(object):
         def dispatch(data):
             for tokens, callback in self.applications:
                 for token in tokens:
-                    if token == data[:len(token)]:
-                        callback((token, data[len(token):]))
+                    if token == data[: len(token)]:
+                        callback((token, data[len(token) :]))
                         return
 
         def reconnect():
@@ -96,7 +97,7 @@ class Protocol(object):
             for x in range(10):
                 try:
                     if self.connected:
-                        self.port = serial.Serial(self.device, baudrate = self.baud, write_timeout = 0, timeout = 1)
+                        self.port = serial.Serial(self.device, baudrate=self.baud, write_timeout=0, timeout=1)
                         return
                     else:
                         print("Connection closed")
@@ -107,14 +108,14 @@ class Protocol(object):
 
         while self.connected:
             try:
-                data = self.port.readline().decode('utf8').rstrip()
+                data = self.port.readline().decode("utf8").rstrip()
                 if len(data):
                     #print(data)
                     dispatch(data)
             except OSError:
                 reconnect()
             except UnicodeDecodeError:
-                # dodgy client output or datastream corruption
+                # Dodgy client output or datastream corruption
                 self.port.reset_input_buffer()
 
     def shutdown(self):
@@ -129,7 +130,7 @@ class Protocol(object):
     def register(self, tokens, callback):
         self.applications.append((tokens, callback))
 
-    def send(self, protocol, packet_type, data = bytearray()):
+    def send(self, protocol, packet_type, data=bytearray()):
         self.packet_transit = self.build_packet(protocol, packet_type, data)
         self.packet_status = 0
         self.transmit_attempt = 0
@@ -155,11 +156,16 @@ class Protocol(object):
 
         while len(self.responses):
             token, data = self.responses.popleft()
-            switch = {'ok' : self.response_ok, 'rs': self.response_resend, 'ss' : self.response_stream_sync, 'fe' : self.response_fatal_error}
+            switch = {
+                "ok": self.response_ok,
+                "rs": self.response_resend,
+                "ss": self.response_stream_sync,
+                "fe": self.response_fatal_error
+            }
             switch[token](data)
 
-    def send_ascii(self, data, send_and_forget = False):
-        self.packet_transit = bytearray(data, "utf8") + b'\n'
+    def send_ascii(self, data, send_and_forget=False):
+        self.packet_transit = bytearray(data, "utf8") + b"\n"
         self.packet_status = 0
         self.transmit_attempt = 0
 
@@ -198,19 +204,19 @@ class Protocol(object):
         packet = bytearray(packet)
         if (self.simulate_errors > 0 and random.random() > (1.0 - self.simulate_errors)):
             if random.random() > 0.9:
-                #random data drop
+                # Random data drop
                 start = random.randint(0, len(packet))
                 end = start + random.randint(1, 10)
                 packet = packet[:start] + packet[end:]
                 #print("Dropping {0} bytes".format(end - start))
             else:
-                #random corruption
+                # Random corruption
                 packet = self.corrupt_array(packet)
                 #print("Single byte corruption")
         self.port.write(packet)
         self.transmit_attempt += 1
 
-    def build_packet(self, protocol, packet_type, data = bytearray()):
+    def build_packet(self, protocol, packet_type, data=bytearray()):
         PACKET_TOKEN = 0xB5AD
 
         if len(data) > self.max_block_size:
@@ -218,16 +224,16 @@ class Protocol(object):
 
         packet_buffer = bytearray()
 
-        packet_buffer += self.pack_int8(self.sync)                           # 8bit sync id
-        packet_buffer += self.pack_int4_2(protocol, packet_type)             # 4 bit protocol id, 4 bit packet type
-        packet_buffer += self.pack_int16(len(data))                          # 16bit packet length
-        packet_buffer += self.pack_int16(self.build_checksum(packet_buffer)) # 16bit header checksum
+        packet_buffer += self.pack_int8(self.sync)                            # 8bit sync id
+        packet_buffer += self.pack_int4_2(protocol, packet_type)              # 4 bit protocol id, 4 bit packet type
+        packet_buffer += self.pack_int16(len(data))                           # 16bit packet length
+        packet_buffer += self.pack_int16(self.build_checksum(packet_buffer))  # 16bit header checksum
 
         if len(data):
             packet_buffer += data
             packet_buffer += self.pack_int16(self.build_checksum(packet_buffer))
 
-        packet_buffer =  self.pack_int16(PACKET_TOKEN) + packet_buffer       # 16bit start token, not included in checksum
+        packet_buffer = (self.pack_int16(PACKET_TOKEN) + packet_buffer)       # 16bit start token, not included in checksum
         return packet_buffer
 
     # checksum 16 fletchers
@@ -242,17 +248,17 @@ class Protocol(object):
         return cs
 
     def pack_int32(self, value):
-        return value.to_bytes(4, byteorder='little')
+        return value.to_bytes(4, byteorder="little")
 
     def pack_int16(self, value):
-        return value.to_bytes(2, byteorder='little')
+        return value.to_bytes(2, byteorder="little")
 
     def pack_int8(self, value):
-        return value.to_bytes(1, byteorder='little')
+        return value.to_bytes(1, byteorder="little")
 
     def pack_int4_2(self, vh, vl):
         value = ((vh & 0xF) << 4) | (vl & 0xF)
-        return value.to_bytes(1, byteorder='little')
+        return value.to_bytes(1, byteorder="little")
 
     def connect(self):
         print("Connecting: Switching Marlin to Binary Protocol...")
@@ -282,10 +288,14 @@ class Protocol(object):
             raise SynchronizationError()
 
     def response_stream_sync(self, data):
-        sync, max_block_size, protocol_version = data.split(',')
+        sync, max_block_size, protocol_version = data.split(",")
         self.sync = int(sync)
         self.max_block_size = int(max_block_size)
-        self.block_size = self.max_block_size if self.max_block_size < self.block_size else self.block_size
+        self.block_size = (
+            self.max_block_size
+            if self.max_block_size < self.block_size
+            else self.block_size
+        )
         self.protocol_version = protocol_version
         self.packet_status = 1
         self.syncronized = True
@@ -306,8 +316,19 @@ class FileTransferProtocol(object):
         ABORT = 4
 
     responses = deque()
-    def __init__(self, protocol, timeout = None):
-        protocol.register(['PFT:success', 'PFT:version:', 'PFT:fail', 'PFT:busy', 'PFT:ioerror', 'PTF:invalid'], self.process_input)
+
+    def __init__(self, protocol, timeout=None):
+        protocol.register(
+            [
+                "PFT:success",
+                "PFT:version:",
+                "PFT:fail",
+                "PFT:busy",
+                "PFT:ioerror",
+                "PTF:invalid"
+            ],
+            self.process_input
+        )
         self.protocol = protocol
         self.response_timeout = timeout or protocol.response_timeout
 
@@ -315,7 +336,7 @@ class FileTransferProtocol(object):
         #print(data)
         self.responses.append(data)
 
-    def await_response(self, timeout = None):
+    def await_response(self, timeout=None):
         timeout = TimeOut(timeout or self.response_timeout)
         while not len(self.responses):
             time.sleep(0.0001)
@@ -328,39 +349,43 @@ class FileTransferProtocol(object):
         self.protocol.send(FileTransferProtocol.protocol_id, FileTransferProtocol.Packet.QUERY)
 
         token, data = self.await_response()
-        if token != 'PFT:version:':
+        if token != "PFT:version:":
             return False
 
-        self.version, _, compression = data.split(':')
-        if compression != 'none':
-            algorithm, window, lookahead = compression.split(',')
-            self.compression = {'algorithm': algorithm, 'window': int(window), 'lookahead': int(lookahead)}
+        self.version, _, compression = data.split(":")
+        if compression != "none":
+            algorithm, window, lookahead = compression.split(",")
+            self.compression = {
+                "algorithm": algorithm,
+                "window"   : int(window),
+                "lookahead": int(lookahead)
+            }
         else:
-            self.compression = {'algorithm': 'none'}
+            self.compression = {"algorithm": "none"}
 
-        print("File Transfer version: {0}, compression: {1}".format(self.version, self.compression['algorithm']))
+        print("File Transfer version: {0}, compression: {1}".format(self.version, self.compression["algorithm"]))
 
     def open(self, filename, compression, dummy):
-        payload =  b'\1' if dummy else b'\0'          # dummy transfer
-        payload += b'\1' if compression else b'\0'    # payload compression
-        payload += bytearray(filename, 'utf8') + b'\0'# target filename + null terminator
+        payload =  b"\1" if dummy else b"\0"              # dummy transfer
+        payload += b"\1" if compression else b"\0"        # Payload compression
+        payload += (bytearray(filename, "utf8") + b"\0")  # Target filename + null terminator
 
         timeout = TimeOut(5000)
         token = None
         self.protocol.send(FileTransferProtocol.protocol_id, FileTransferProtocol.Packet.OPEN, payload)
-        while token != 'PFT:success' and not timeout.timedout():
+        while token != "PFT:success" and not timeout.timedout():
             try:
                 token, data = self.await_response(1000)
-                if token == 'PFT:success':
-                    print(filename,"opened")
+                if token == "PFT:success":
+                    print(filename, "opened")
                     return
-                elif token == 'PFT:busy':
+                elif token == "PFT:busy":
                     print("Broken transfer detected, purging")
                     self.abort()
                     time.sleep(0.1)
                     self.protocol.send(FileTransferProtocol.protocol_id, FileTransferProtocol.Packet.OPEN, payload)
                     timeout.reset()
-                elif token == 'PFT:fail':
+                elif token == "PFT:fail":
                     raise Exception("Can not open file on client")
             except ReadTimeout:
                 pass
@@ -372,28 +397,28 @@ class FileTransferProtocol(object):
     def close(self):
         self.protocol.send(FileTransferProtocol.protocol_id, FileTransferProtocol.Packet.CLOSE)
         token, data = self.await_response(1000)
-        if token == 'PFT:success':
+        if token == "PFT:success":
             print("File closed")
             return True
-        elif token == 'PFT:ioerror':
+        elif token == "PFT:ioerror":
             print("Client storage device IO error")
             return False
-        elif token == 'PFT:invalid':
+        elif token == "PFT:invalid":
             print("No open file")
             return False
 
     def abort(self):
         self.protocol.send(FileTransferProtocol.protocol_id, FileTransferProtocol.Packet.ABORT)
         token, data = self.await_response()
-        if token == 'PFT:success':
+        if token == "PFT:success":
             print("Transfer Aborted")
 
     def copy(self, filename, dest_filename, compression, dummy):
         self.connect()
 
-        has_heatshrink = heatshrink_exists and self.compression['algorithm'] == 'heatshrink'
+        has_heatshrink = (heatshrink_exists and self.compression["algorithm"] == "heatshrink")
         if compression and not has_heatshrink:
-            hs = '2' if sys.version_info[0] > 2 else ''
+            hs = "2" if sys.version_info[0] > 2 else ""
             print("Compression not supported by client. Use 'pip install heatshrink%s' to fix." % hs)
             compression = False
 
@@ -404,7 +429,7 @@ class FileTransferProtocol(object):
 
         block_size = self.protocol.block_size
         if compression:
-            data = heatshrink.encode(data, window_sz2=self.compression['window'], lookahead_sz2=self.compression['lookahead'])
+            data = heatshrink.encode(data, window_sz2=self.compression["window"], lookahead_sz2=self.compression["lookahead"])
 
         cratio = filesize / len(data)
 
@@ -416,19 +441,19 @@ class FileTransferProtocol(object):
             start = block_size * i
             end = start + block_size
             self.write(data[start:end])
-            kibs = (( (i+1) * block_size) / 1024) / (millis() + 1 - start_time) * 1000
+            kibs = (((i + 1) * block_size) / 1024) / (millis() + 1 - start_time) * 1000
             if (i / blocks) >= dump_pctg:
-                print("\r{0:2.0f}% {1:4.2f}KiB/s {2} Errors: {3}".format((i / blocks) * 100, kibs, "[{0:4.2f}KiB/s]".format(kibs * cratio) if compression else "", self.protocol.errors), end='')
+                print("\r{0:2.0f}% {1:4.2f}KiB/s {2} Errors: {3}".format((i / blocks) * 100, kibs, "[{0:4.2f}KiB/s]".format(kibs * cratio) if compression else "", self.protocol.errors), end="")
                 dump_pctg += 0.1
             if self.protocol.errors > 0:
                 # Dump last status (errors may not be visible)
-                print("\r{0:2.0f}% {1:4.2f}KiB/s {2} Errors: {3} - Aborting...".format((i / blocks) * 100, kibs, "[{0:4.2f}KiB/s]".format(kibs * cratio) if compression else "", self.protocol.errors), end='')
-                print("")   # New line to break the transfer speed line
+                print("\r{0:2.0f}% {1:4.2f}KiB/s {2} Errors: {3} - Aborting...".format((i / blocks) * 100, kibs, "[{0:4.2f}KiB/s]".format(kibs * cratio) if compression else "", self.protocol.errors), end="")
+                print("")  # New line to break the transfer speed line
                 self.close()
                 print("Transfer aborted due to protocol errors")
                 #raise Exception("Transfer aborted due to protocol errors")
                 return False
-        print("\r{0:2.0f}% {1:4.2f}KiB/s {2} Errors: {3}".format(100, kibs, "[{0:4.2f}KiB/s]".format(kibs * cratio) if compression else "", self.protocol.errors)) # no one likes transfers finishing at 99.8%
+        print("\r{0:2.0f}% {1:4.2f}KiB/s {2} Errors: {3}".format(100, kibs, "[{0:4.2f}KiB/s]".format(kibs * cratio) if compression else "", self.protocol.errors))  # No one likes transfers finishing at 99.8%
 
         if not self.close():
             print("Transfer failed")
@@ -436,10 +461,9 @@ class FileTransferProtocol(object):
         print("Transfer complete")
         return True
 
-
 class EchoProtocol(object):
     def __init__(self, protocol):
-        protocol.register(['echo:'], self.process_input)
+        protocol.register(["echo:"], self.process_input)
         self.protocol = protocol
 
     def process_input(self, data):

@@ -2,9 +2,9 @@
 # marlin.py
 # Helper module with some commonly-used functions
 #
+
 import shutil
 from pathlib import Path
-
 from SCons.Script import DefaultEnvironment
 env = DefaultEnvironment()
 
@@ -16,11 +16,11 @@ def copytree(src, dst, symlinks=False, ignore=None):
             shutil.copy2(item, dst / item.name)
 
 def replace_define(field, value):
-    envdefs = env['CPPDEFINES'].copy()
+    envdefs = env["CPPDEFINES"].copy()
     for define in envdefs:
         if define[0] == field:
-            env['CPPDEFINES'].remove(define)
-    env['CPPDEFINES'].append((field, value))
+            env["CPPDEFINES"].remove(define)
+    env["CPPDEFINES"].append((field, value))
 
 # Relocate the firmware to a new address, such as "0x08005000"
 def relocate_firmware(address):
@@ -61,7 +61,7 @@ def encrypt_mks(source, target, env, new_name):
             if 320 <= position < 31040:
                 byte = chr(ord(byte) ^ key[position & 31])
                 if sys.version_info[0] > 2:
-                    byte = bytes(byte, 'latin1')
+                    byte = bytes(byte, "latin1")
             enfile.write(byte)
             position += 1
     finally:

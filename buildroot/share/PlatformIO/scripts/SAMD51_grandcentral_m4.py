@@ -2,10 +2,12 @@
 # SAMD51_grandcentral_m4.py
 # Customizations for env:SAMD51_grandcentral_m4
 #
+
 import pioutil
 if pioutil.is_pio_build():
     from os.path import join, isfile
     import shutil
+
     env = pioutil.env
 
     mf = env["MARLIN_FEATURES"]
@@ -14,6 +16,6 @@ if pioutil.is_pio_build():
 
     serialBuf = str(max(int(rxBuf), int(txBuf), 350))
 
-    build_flags = env.get('BUILD_FLAGS')
+    build_flags = env.get("BUILD_FLAGS")
     build_flags.append("-DSERIAL_BUFFER_SIZE=" + serialBuf)
     env.Replace(BUILD_FLAGS=build_flags)

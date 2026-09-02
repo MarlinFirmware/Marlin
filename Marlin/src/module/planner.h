@@ -1010,7 +1010,7 @@ class Planner {
      * @param extruder      Optional target extruder (otherwise motion.extruder)
      * @param hints         Optional parameters to aid planner calculations
      *
-     * @return  false if no segment was queued due to cleaning, cold extrusion, full queue, etc...
+     * @return  false if no segment was queued due to cleaning, cold extrusion, full queue, etc.
      */
     static bool buffer_segment(const abce_pos_t &abce
       OPTARG(HAS_DIST_MM_ARG, const xyze_float_t &cart_dist_mm)
@@ -1024,14 +1024,14 @@ class Planner {
      *
      * @brief Add a new linear movement to the buffer.
      * @details The target is cartesian. It's translated to
-     *          delta/scara if needed.
+     *          DELTA/SCARA if needed.
      *
      * @param cart      Target position in mm or degrees
      * @param fr_mm_s   (Target) speed of the move (mm/s)
      * @param extruder  Optional target extruder (otherwise motion.extruder)
      * @param hints     Optional parameters to aid planner calculations
      *
-     * @return  false if no segment was queued due to cleaning, cold extrusion, full queue, etc...
+     * @return  false if no segment was queued due to cleaning, cold extrusion, full queue, etc.
      */
     static bool buffer_line(const xyze_pos_t &cart, const feedRate_t fr_mm_s
       , const uint8_t extruder=motion.extruder

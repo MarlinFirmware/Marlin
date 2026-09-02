@@ -475,7 +475,7 @@ void USB::Task() { // USB state machine
     case USB_ATTACHED_SUBSTATE_SETTLE: // Settle time for just attached device
       if ((int32_t)((uint32_t)millis() - delay) >= 0L)
         usb_task_state = USB_ATTACHED_SUBSTATE_RESET_DEVICE;
-      else break; // Don't fall through
+      else break; // Don't fallthrough
     case USB_ATTACHED_SUBSTATE_RESET_DEVICE:
       regWr(rHCTL, bmBUSRST); // Issue bus reset
       usb_task_state = USB_ATTACHED_SUBSTATE_WAIT_RESET_COMPLETE;
@@ -501,7 +501,7 @@ void USB::Task() { // USB state machine
       break;
     case USB_ATTACHED_SUBSTATE_WAIT_RESET:
       if ((int32_t)((uint32_t)millis() - delay) >= 0L) usb_task_state = USB_STATE_CONFIGURING;
-      else break; // Don't fall through
+      else break; // Don't fallthrough
     case USB_STATE_CONFIGURING:
 
       //Serial.print("\r\nConf.LS: ");

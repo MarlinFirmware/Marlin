@@ -500,9 +500,9 @@ class Stepper {
     #endif
 
     #if ENABLED(S_CURVE_ACCELERATION)
-      static int32_t bezier_A,     // A coefficient in Bézier speed curve
-                     bezier_B,     // B coefficient in Bézier speed curve
-                     bezier_C;     // C coefficient in Bézier speed curve
+      static int32_t  bezier_A,    // A coefficient in Bézier speed curve
+                      bezier_B,    // B coefficient in Bézier speed curve
+                      bezier_C;    // C coefficient in Bézier speed curve
       static uint32_t bezier_F,    // F/free coefficient in Bézier speed curve
                       bezier_AV;   // AV coefficient in Bézier speed curve
       #ifdef __AVR__
@@ -552,7 +552,7 @@ class Stepper {
 
     static hal_timer_t ticks_nominal;
     #if DISABLED(S_CURVE_ACCELERATION)
-      static uint32_t acc_step_rate; // needed for deceleration start point
+      static uint32_t acc_step_rate; // Needed for deceleration start point
     #endif
 
     // Exact steps at which an endstop was triggered
@@ -734,7 +734,7 @@ class Stepper {
     #endif
 
     #if ENABLED(BABYSTEPPING)
-      static void do_babystep(const AxisEnum axis, const bool direction); // perform a short step with a single stepper motor, outside of any convention
+      static void do_babystep(const AxisEnum axis, const bool direction); // Perform a short step with a single stepper motor, outside of any convention
     #endif
 
     #if HAS_MOTOR_CURRENT_PWM

@@ -78,7 +78,7 @@
   MAX3421E_HOST usb(USB_CS_PIN, USB_INTR_PIN);
   UHS_Bulk_Storage bulk(&usb);
 
-  #define UHS_START  (usb.Init() == 0)
+  #define UHS_START (usb.Init() == 0)
   #define UHS_STATE(state) UHS_USB_HOST_STATE_##state
 
 #elif ENABLED(USE_OTG_USB_HOST)
@@ -181,7 +181,7 @@ void DiskIODriver_USBFlash::idle() {
 
   static millis_t next_state_ms = 0;
 
-  #define GOTO_STATE_AFTER_DELAY(STATE, DELAY) do{ state = STATE; next_state_ms  = millis() + DELAY; }while(0)
+  #define GOTO_STATE_AFTER_DELAY(STATE,DELAY) do{ state = STATE; next_state_ms  = millis() + DELAY; }while(0)
 
   if (PENDING(millis(), next_state_ms)) return;
 

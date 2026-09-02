@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
-'''
+"""
 languageExport.py [--single] [--translate]
 
 Export LCD language strings to CSV files for easier translation.
 Use languageImport.py to import CSV into the language files.
 
 Use --single to export all languages to a single CSV file.
-'''
+"""
 
 import re, argparse
 from pathlib import Path
@@ -14,36 +14,36 @@ from sys import argv, exit
 from languageUtil import *
 
 LANGHOME = "Marlin/src/lcd/language"
-OUTDIR = Path('out-csv')
+OUTDIR = Path("out-csv")
 
 def language_export(args={}):
     # A dictionary to contain strings for each language.
-    # Init with 'en' so English will always be first.
-    language_strings = { 'en': {} }
+    # Init with "en" so English will always be first.
+    language_strings = { "en": {} }
 
     # A dictionary to contain all distinct LCD string names
     names = {}
 
     # Get all "language_*.h" files
-    langfiles = sorted(list(Path(LANGHOME).glob('language_*.h')))
+    langfiles = sorted(list(Path(LANGHOME).glob("language_*.h")))
 
     # Read each language file
     for langfile in langfiles:
         # Get the language code from the filename
-        langcode = langfile.name.replace('language_', '').replace('.h', '')
+        langcode = langfile.name.replace("language_", "").replace(".h", "")
 
-        # Skip 'test' and any others that we don't want
-        if langcode in ['test']: continue
+        # Skip "test" and any others that we don't want
+        if langcode in ["test"]: continue
 
         # Allow space-delimited list or multiple arguments
         if args.language:
-            language_args = args.language[0].split(' ') if ' ' in args.language[0] else args.language
+            language_args = args.language[0].split(" ") if " " in args.language[0] else args.language
 
         # Always load canonical US English and specified (or all other) languages
-        if langcode != 'en' and language_args and langcode not in language_args: continue
+        if langcode != "en" and language_args and langcode not in language_args: continue
 
         # Open the file
-        f = open(langfile, 'r', encoding='utf-8')
+        f = open(langfile, "r", encoding="utf-8")
         if not f: continue
 
         # Flags to indicate a wide or tall section
@@ -51,12 +51,12 @@ def language_export(args={}):
         # A counter for the number of strings in the file
         stringcount = 0
         # A dictionary to hold all the strings
-        strings = { 'narrow': {}, 'wide': {}, 'tall': {} }
+        strings = { "narrow": {}, "wide": {}, "tall": {} }
         # Read each line in the file
         for line in f:
             # Clean up the line for easier parsing
             line = line.split("//")[0].strip()
-            if line.endswith(';'): line = line[:-1].strip()
+            if line.endswith(";"): line = line[:-1].strip()
 
             # Check for wide or tall sections, assume no complicated nesting
             if line.startswith("#endif") or line.startswith("#else"):
@@ -68,7 +68,7 @@ def language_export(args={}):
             match = re.match(r'LSTR\s+([A-Z0-9_]+)\s*=\s*(.+)\s*', line)
             if match:
                 # Name and quote-sanitized value
-                name, value = match.group(1), match.group(2).replace('\\"', '$$$')
+                name, value = match.group(1), match.group(2).replace('\\"', "$$$")
 
                 # Remove all _UxGT wrappers from the value in a non-greedy way
                 value = re.sub(r'_UxGT\((".*?")\)', r'\1', value)
@@ -78,16 +78,16 @@ def language_export(args={}):
                 multimatch = re.match(r'.*MSG_(\d)_LINE\s*\(\s*(.+?)\s*\).*', value)
                 if multimatch:
                     multiline = int(multimatch.group(1))
-                    value = '|' + re.sub(r'"\s*,\s*"', '|', multimatch.group(2))
+                    value = "|" + re.sub(r'"\s*,\s*"', "|", multimatch.group(2))
 
                 # Wrap inline defines in parentheses
                 value = re.sub(r' *([A-Z0-9]+_[A-Z0-9_]+) *', r'(\1)', value)
                 # Remove quotes around strings
-                value = re.sub(r'"(.*?)"', r'\1', value).replace('$$$', '""')
+                value = re.sub(r'"(.*?)"', r'\1', value).replace("$$$", '""')
                 # Store all unique names as dictionary keys
                 names[name] = 1
                 # Store the string as narrow, wide, tall
-                section = 'tall' if tallflag else 'wide' if wideflag else 'narrow'
+                section = "tall" if tallflag else "wide" if wideflag else "narrow"
                 strings[section][name] = value
 
                 # Increment the string counter
@@ -104,7 +104,7 @@ def language_export(args={}):
     langcodes = list(language_strings.keys())
 
     if args.verbose:
-        print("Languages:", ' '.join(langcodes))
+        print("Languages:", " ".join(langcodes))
 
     # Print the array
     #print(language_strings)
@@ -118,7 +118,7 @@ def language_export(args={}):
     if args.translate:
 
         MIN_TRANSLATE_LEN = 2
-        NEVER_TRANSLATE_LANGS = ( 'el_CY', 'fr_na' )
+        NEVER_TRANSLATE_LANGS = ( "el_CY", "fr_na" )
         NEVER_TRANSLATE_NAMES = (
           "MSG_MARLIN", "MSG_CUSTOM_MENU_MAIN_TITLE",
           "MSG_PID_P", "MSG_PID_P_E",
@@ -152,9 +152,9 @@ def language_export(args={}):
         llm_model = args.model if args.model else DEFAULT_MODEL
 
         def get_system_prompt(args, sect):
-            if sect == 'narrow':
+            if sect == "narrow":
                 length_limit = "no more than 18 characters long! Use common abbreviations whenever necessary"
-            elif sect == 'tall':
+            elif sect == "tall":
                 length_limit = "no more than 3 strings of 20 characters. Use common abbreviations if necessary"
             else: # wide
                 length_limit = "around the same length as the given example(s)"
@@ -171,23 +171,23 @@ Assume that variable substitutions such as (MACHINE_NAME) are short strings for 
 {no_thinking}For each translation requested, respond only with the translated string, no introduction, explanation, or assessment.
 This clean output will be perfect for our use case."""
 
-            return [{ 'role': 'system', 'content': system_prompt_text }]
+            return [{ "role": "system", "content": system_prompt_text }]
 
         # Send a prompt to Ollama and return the reply text
         def prompt_with_ollama(SYSTEM_PROMPT, prompt:str):
-            msg = [{ 'role': 'user', 'content': prompt }]
+            msg = [{ "role": "user", "content": prompt }]
             response = ollama.chat(model=llm_model, messages=SYSTEM_PROMPT + msg, stream=False)
-            reply = response['message']['content'].strip('\n')
-            reply = re.sub(r'<think>[\s\S]+</think>\n*', '', reply)
-            reply = re.sub(r'(^"|"$)', '', reply)
+            reply = response["message"]["content"].strip("\n")
+            reply = re.sub(r'<think>[\s\S]+</think>\n*', "", reply)
+            reply = re.sub(r'(^"|"$)', "", reply)
             return reply
 
         # For each named string fill in any missing translations
-        for sect in ('narrow','wide','tall'):
+        for sect in ("narrow","wide","tall"):
             system_prompt = get_system_prompt(args, sect)
             for name in names.keys():
                 if name in NEVER_TRANSLATE_NAMES: continue
-                en_string = language_strings['en'][sect][name] if name in language_strings['en'][sect] else ""
+                en_string = language_strings["en"][sect][name] if name in language_strings["en"][sect] else ""
                 glyphs = len(en_string)
 
                 done = {} # All existing translations for the given name
@@ -208,11 +208,11 @@ This clean output will be perfect for our use case."""
                     prompt += [ "Here are the existing translations:" ]
                     for dlang in done.keys():
                         prompt += [ f"- {dlang} {language_name(dlang)}: \"{done[dlang]}\"" ]
-                    prompt = '\n'.join(prompt)
+                    prompt = "\n".join(prompt)
                     #print(f"Prompt: {prompt}")
                     reply = prompt_with_ollama(system_prompt, prompt)
-                    newstring = reply.replace('–','-').replace('‑','-').replace('／','/').replace('’',"'").replace('…','...').replace('\u202F',' ').replace('\uFEFF', '').replace('！', '! ').replace('。', '. ').replace('ç','ç').replace('ş','ş').replace('６','6').replace('＠', '@').replace('～', '~')
-                    newstring = re.sub(r'([!.]) $', '\1', newstring)
+                    newstring = reply.replace("–","-").replace("‑","-").replace("／","/").replace("’","'").replace("…","...").replace("\u202F"," ").replace("\uFEFF", "").replace("！", "! ").replace("。", ". ").replace("ç","ç").replace("ş","ş").replace("６","6").replace("＠", "@").replace("～", "~")
+                    newstring = re.sub(r'([!.]) $', "\1", newstring)
                     if newstring != en_string:
                         print(f"{name} ({lang}) = \"{newstring}\"")
                         done[lang] = newstring
@@ -223,28 +223,28 @@ This clean output will be perfect for our use case."""
 
     # Write a single language entry to the CSV file with narrow, wide, and tall strings
     def write_csv_lang(f, strings, name):
-        f.write(',')
-        if name in strings['narrow']: f.write('"%s"' % strings['narrow'][name])
-        f.write(',')
-        if name in strings['wide']: f.write('"%s"' % strings['wide'][name])
-        f.write(',')
-        if name in strings['tall']: f.write('"%s"' % strings['tall'][name])
+        f.write(",")
+        if name in strings["narrow"]: f.write('"%s"' % strings["narrow"][name])
+        f.write(",")
+        if name in strings["wide"]: f.write('"%s"' % strings["wide"][name])
+        f.write(",")
+        if name in strings["tall"]: f.write('"%s"' % strings["tall"][name])
 
     if args.single:
         #
         # Export one large sheet containing all specified languages
         #
-        with open("languages.csv", 'w', encoding='utf-8') as f:
-            header = ['name']
+        with open("languages.csv", "w", encoding="utf-8") as f:
+            header = ["name"]
             for lang in langcodes:
-                lname = lang + ' ' + language_name(lang)
-                header += [lname, lname + ' (wide)', lname + ' (tall)']
+                lname = lang + " " + language_name(lang)
+                header += [lname, lname + " (wide)", lname + " (tall)"]
             f.write('"' + '","'.join(header) + '"\n')
 
             for name in names.keys():
                 f.write('"' + name + '"')
                 for lang in langcodes: write_csv_lang(f, language_strings[lang], name)
-                f.write('\n')
+                f.write("\n")
     else:
         #
         # Export a separate sheet for each language
@@ -252,15 +252,15 @@ This clean output will be perfect for our use case."""
         OUTDIR.mkdir(exist_ok=True)
 
         for lang in langcodes:
-            with open(OUTDIR / f"language_{lang}.csv", 'w', encoding='utf-8') as f:
-                lname = lang + ' ' + language_name(lang)
-                header = ['name', lname, lname + ' (wide)', lname + ' (tall)']
+            with open(OUTDIR / f"language_{lang}.csv", "w", encoding="utf-8") as f:
+                lname = lang + " " + language_name(lang)
+                header = ["name", lname, lname + " (wide)", lname + " (tall)"]
                 f.write('"' + '","'.join(header) + '"\n')
 
                 for name in names.keys():
                     f.write('"' + name + '"')
                     write_csv_lang(f, language_strings[lang], name)
-                    f.write('\n')
+                    f.write("\n")
 
 if __name__ == "__main__":
     # Check for the path to the language files

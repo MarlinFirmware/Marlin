@@ -69,6 +69,7 @@
     extern migration_settings_t migration;
     bool extruder_migration();
   #endif
+
 #endif
 
 #if DO_SWITCH_EXTRUDER

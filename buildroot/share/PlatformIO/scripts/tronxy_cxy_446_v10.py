@@ -2,9 +2,9 @@
 # tronxy_cxy_446_v10.py
 # Build customizations for env:TRONXY_CXY_446_V10
 #
+
 import pioutil
 if pioutil.is_pio_build():
-
     import marlin, os
 
     env = pioutil.env
@@ -15,7 +15,7 @@ if pioutil.is_pio_build():
 
     # Build "fmw_tronxy.hex" and place in "update" folder
     def output_target_hex():
-        hex_path  = f"update/fmw_tronxy.hex"
+        hex_path = f"update/fmw_tronxy.hex"
         hex_long = f"$PROJECT_BUILD_DIR/$PIOENV/{hex_path}"
         env.AddPostAction(
             "$BUILD_DIR/${PROGNAME}.elf",
@@ -27,7 +27,7 @@ if pioutil.is_pio_build():
 
     # Build "fmw_tronxy.bin" and place in "update" folder
     def output_target_bin():
-        bin_path  = f"update/fmw_tronxy.bin"
+        bin_path = f"update/fmw_tronxy.bin"
         bin_long = f"$PROJECT_BUILD_DIR/$PIOENV/{bin_path}"
         env.AddPostAction(
             "$BUILD_DIR/${PROGNAME}.elf",

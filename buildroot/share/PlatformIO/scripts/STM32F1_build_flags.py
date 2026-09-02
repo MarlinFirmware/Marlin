@@ -3,6 +3,7 @@
 # STM32F1_build_flags.py
 # Add build_flags for the base STM32F1_maple environment (stm32f1-maple.ini)
 #
+
 from __future__ import print_function
 import sys
 
@@ -15,18 +16,14 @@ if __name__ == "__main__":
         "-Os",
         "-mcpu=cortex-m3",
         "-mthumb",
-
         "-fsigned-char",
         "-fno-move-loop-invariants",
         "-fno-strict-aliasing",
-
         "--specs=nano.specs",
         "--specs=nosys.specs",
-
-        "-MMD", "-MP",
-
+        "-MMD",
+        "-MP",
         "-IMarlin/src/HAL/STM32F1",
-
         "-DTARGET_STM32F1",
         "-DARDUINO_ARCH_STM32",
         "-DPLATFORM_M997_SUPPORT"
@@ -42,9 +39,7 @@ else:
     if pioutil.is_pio_build():
         pioutil.env.Append(
             ARFLAGS=["rcs"],
-
             ASFLAGS=["-x", "assembler-with-cpp"],
-
             CXXFLAGS=[
                 "-fabi-version=0",
                 "-fno-use-cxa-atexit",
@@ -57,6 +52,6 @@ else:
                 "-mthumb",
                 "--specs=nano.specs",
                 "--specs=nosys.specs",
-                "-u_printf_float",
-            ],
+                "-u_printf_float"
+            ]
         )

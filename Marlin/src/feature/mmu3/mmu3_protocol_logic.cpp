@@ -208,7 +208,7 @@ namespace MMU3 {
             break;
         }
         // [[fallthrough]];      // otherwise
-        // fall through
+        // Fallthrough
         default:
           RecordUARTActivity(); // something has happened on the UART, update the timeout record
           return ProtocolError;
@@ -517,7 +517,7 @@ namespace MMU3 {
                   return Interrupted;
                 }
               // [[fallthrough]];
-              // fall through
+              // Fallthrough
               case ResponseMsgParamCodes::Processing:
                 // @@TODO we may actually use this branch to report progress of manual operation on the MMU
                 // The MMU sends e.g. X0 P27 after its restart when the user presses an MMU button to move the Selector

@@ -7,39 +7,35 @@ import pioutil
 if pioutil.is_pio_build():
     # Get the environment thus far for the build
     env = pioutil.env
-
     #print(env.Dump())
 
     #
     # Give the binary a distinctive name
     #
-
-    env['PROGNAME'] = "MarlinSimulator"
+    env["PROGNAME"] = "MarlinSimulator"
 
     #
     # Check for a valid GCC and available OpenGL on macOS
     #
-    emsg = ''
+    emsg = ""
     fatal = 0
     import sys
-    if sys.platform == 'darwin':
-
+    if sys.platform == "darwin":
         import shutil
-        gcc = shutil.which('gcc')
-        if gcc == '' or gcc == '/usr/bin/gcc':
-            if gcc == '':
+        gcc = shutil.which("gcc")
+        if not gcc or gcc == "/usr/bin/gcc":
+            if not gcc:
                 emsg = "\u001b[31mNo GCC found in your configured shell PATH."
-            elif gcc == '/usr/bin/gcc':
+            elif gcc == "/usr/bin/gcc":
                 emsg = "\u001b[31mCan't build Marlin Native on macOS using the included version of GCC (clang)."
             emsg += "\n\u001b[31mSee 'native.ini' for instructions to install GCC with MacPorts or Homebrew."
             fatal = 1
-
         else:
 
             #
             # Silence half of the ranlib warnings. (No equivalent for 'ARFLAGS')
             #
-            env['RANLIBFLAGS'] += [ "-no_warning_for_no_symbols" ]
+            env["RANLIBFLAGS"] += ["-no_warning_for_no_symbols"]
 
             import os.path, subprocess
 
@@ -47,47 +43,44 @@ if pioutil.is_pio_build():
             # Find the package-manager prefix (Homebrew or MacPorts) so SDL2, glm,
             # and freetype headers/libs are found regardless of install location.
             #
-            prefix = ''
-            brew = shutil.which('brew')
+            prefix = ""
+            brew = shutil.which("brew")
             if brew:
-                try: prefix = subprocess.check_output([ brew, '--prefix' ], text=True).strip()
-                except Exception: prefix = ''
-            if not prefix and os.path.exists('/opt/local'):
-                prefix = '/opt/local'   # MacPorts
+                try: prefix = subprocess.check_output([ brew, "--prefix" ], text=True).strip()
+                except Exception: prefix = ""
+            if not prefix and os.path.exists("/opt/local"):
+                prefix = "/opt/local"   # MacPorts
 
             if prefix:
-                env['BUILD_FLAGS'] += [ '-I' + prefix + '/include',
-                                        '-I' + prefix + '/include/freetype2',
-                                        '-I' + prefix + '/include/SDL2',
-                                        '-L' + prefix + '/lib' ]
+                env["BUILD_FLAGS"] += [ "-I" + prefix + "/include",
+                                        "-I" + prefix + "/include/freetype2",
+                                        "-I" + prefix + "/include/SDL2",
+                                        "-L" + prefix + "/lib" ]
 
             # Default paths for Xcode and a lucky GL/gl.h dropped by Mesa
             xcode_path = "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks"
             mesa_path = "/opt/local/include/GL/gl.h"
 
             # Command Line Tools SDK frameworks (no full Xcode.app required)
-            clt_fw = ''
+            clt_fw = ""
             try:
-                sdk = subprocess.check_output([ 'xcrun', '--show-sdk-path' ], text=True).strip()
+                sdk = subprocess.check_output([ "xcrun", "--show-sdk-path" ], text=True).strip()
                 if sdk: clt_fw = sdk + "/System/Library/Frameworks"
             except Exception:
                 pass
 
             if os.path.exists(xcode_path):
-
-                env['BUILD_FLAGS'] += [ "-F" + xcode_path ]
+                env["BUILD_FLAGS"] += ["-F" + xcode_path]
                 emsg = "\u001b[33mUsing OpenGL framework headers from Xcode.app"
 
             elif clt_fw and os.path.exists(clt_fw + "/OpenGL.framework/Headers/gl.h"):
 
-                env['BUILD_FLAGS'] += [ "-F" + clt_fw ]
+                env["BUILD_FLAGS"] += [ "-F" + clt_fw ]
                 emsg = "\u001b[33mUsing OpenGL framework headers from the Command Line Tools SDK"
 
             elif os.path.exists(mesa_path):
-
-                env['BUILD_FLAGS'] += [ '-D__MESA__' ]
+                env["BUILD_FLAGS"] += ["-D__MESA__"]
                 emsg = f"\u001b[33mUsing OpenGL header from {mesa_path}"
-
             else:
 
                 emsg = "\u001b[31mNo OpenGL headers found. Install the Command Line Tools (xcode-select --install) or Mesa."

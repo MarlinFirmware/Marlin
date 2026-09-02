@@ -93,8 +93,13 @@ public:
   // Flags for rotational axes
   static constexpr AxisFlags rotational{0 LOGICAL_AXIS_GANG(
       | 0, | 0, | 0, | 0,
-      | (ENABLED(AXIS4_ROTATES)<<I_AXIS), | (ENABLED(AXIS5_ROTATES)<<J_AXIS), | (ENABLED(AXIS6_ROTATES)<<K_AXIS),
-      | (ENABLED(AXIS7_ROTATES)<<U_AXIS), | (ENABLED(AXIS8_ROTATES)<<V_AXIS), | (ENABLED(AXIS9_ROTATES)<<W_AXIS))
+      | (ENABLED(AXIS4_ROTATES)<<I_AXIS),
+      | (ENABLED(AXIS5_ROTATES)<<J_AXIS),
+      | (ENABLED(AXIS6_ROTATES)<<K_AXIS),
+      | (ENABLED(AXIS7_ROTATES)<<U_AXIS),
+      | (ENABLED(AXIS8_ROTATES)<<V_AXIS),
+      | (ENABLED(AXIS9_ROTATES)<<W_AXIS)
+    )
   };
 
   #if HAS_MULTI_EXTRUDER
@@ -221,11 +226,11 @@ public:
     static float inactive_extruder_x,                 // Used in mode 0 & 1
                  duplicate_extruder_x_offset;         // Used in mode 2 & 3
 
-    static bool active_extruder_parked;               // Used in mode 1, 2 & 3
     static millis_t delayed_move_time;                // Used in mode 1
     static celsius_t duplicate_extruder_temp_offset;  // Used in mode 2 & 3
 
-    static bool idex_mirrored_mode;                   // Used in mode 3
+    static bool active_extruder_parked,               // Used in mode 1, 2 & 3
+                idex_mirrored_mode;                   // Used in mode 3
     static void idex_set_mirrored_mode(const bool mirr);
 
     static float x_home_pos(const uint8_t tool) {

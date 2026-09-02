@@ -114,7 +114,7 @@ class ComputeBoundingBox:
         print()
 
     def from_svg_view_box(self, viewbox):
-        m = re.search('([0-9-.]+) ([0-9-.]+) ([0-9-.]+) ([0-9-.]+)', viewbox)
+        m = re.search("([0-9-.]+) ([0-9-.]+) ([0-9-.]+) ([0-9-.]+)", viewbox)
         if m:
             self.x_min = float(m[1])
             self.y_min = float(m[2])
@@ -138,7 +138,7 @@ class WriteDataStructure:
     def command(self, type, x, y):
         if type == "M":
             self.push(0xFFFF)
-        x, y = self.bounds.scale(x,y)
+        x, y = self.bounds.scale(x, y)
         self.push(x * 0xFFFE)
         self.push(y * 0xFFFE)
 
@@ -149,7 +149,7 @@ class WriteDataStructure:
         self.hex_words = []
 
     def write_to_file(self, id):
-        base_filename = os.path.splitext(self.input_filename)[0] + '.h'
+        base_filename = os.path.splitext(self.input_filename)[0] + ".h"
 
         with open(base_filename, "w") as outfile:
             outfile.write(header)
@@ -185,8 +185,10 @@ class SVGParser(HTMLParser):
             self.initial_y = y
 
     def process_svg_path_data_cmd(self, id, cmd, a, b):
-        """Converts the various types of moves into L or M commands
-        and dispatches to process_svg_path_L_or_M for further processing."""
+        """
+        Converts the various types of moves into L or M commands
+        and dispatches to process_svg_path_L_or_M for further processing.
+        """
         if cmd == "Z" or cmd == "z":
             self.process_svg_path_L_or_M("L", self.initial_x, self.initial_y)
         elif cmd == "H":
@@ -210,35 +212,38 @@ class SVGParser(HTMLParser):
             quit()
 
     def eat_token(self, regex):
-        """Looks for a token at the start of self.d.
-             If found, the token is removed."""
-        self.m = re.match(regex,self.d)
+        """
+        Looks for a token at the start of self.d.
+        If found, the token is removed.
+        """
+        self.m = re.match(regex, self.d)
         if self.m:
-            self.d = self.d[self.m.end():]
+            self.d = self.d[self.m.end() :]
         return self.m
 
     def process_svg_path_data(self, id, d):
-        """Breaks up the "d" attribute into individual commands
-             and calls "process_svg_path_data_cmd" for each"""
-
+        """
+        Breaks up the "d" attribute into individual commands
+        and calls "process_svg_path_data_cmd" for each
+        """
         self.d = d
         while (self.d):
             if self.eat_token(r'\s+'):
-                pass # Just eat the spaces
+                pass  # Just eat the spaces
 
-            elif self.eat_token('([LMHVZlmhvz])'):
+            elif self.eat_token("([LMHVZlmhvz])"):
                 cmd = self.m[1]
                 # The following commands take no arguments
                 if cmd == "Z" or cmd == "z":
                     self.process_svg_path_data_cmd(id, cmd, 0, 0)
 
-            elif self.eat_token('([CScsQqTtAa])'):
+            elif self.eat_token("([CScsQqTtAa])"):
                 print("Unsupported path data command:", self.m[1], "in path", id, "\n", file=sys.stderr)
                 quit()
 
-            elif self.eat_token('([ ,]*[-0-9e.]+)+'):
+            elif self.eat_token("([ ,]*[-0-9e.]+)+"):
                 # Process list of coordinates following command
-                coords = re.split('[ ,]+', self.m[0])
+                coords = re.split("[ ,]+", self.m[0])
                 # The following commands take two arguments
                 if cmd == "L" or cmd == "l":
                     while coords:
@@ -267,9 +272,9 @@ class SVGParser(HTMLParser):
                 return value
 
     def layer_matches(self):
-        """ Are we in the correct layer?"""
+        """Are we in the correct layer?"""
         if not self.args.layer:
-                return True
+            return True
         for l in self.groups:
             if l and l.find(self.args.layer) != -1:
                 return True
@@ -277,20 +282,20 @@ class SVGParser(HTMLParser):
 
     def handle_starttag(self, tag, attrs):
         self.tags.append(tag)
-        if tag == 'svg':
-            self.viewbox = self.find_attr(attrs, 'viewbox')
-        if tag == 'g':
-            label = self.find_attr(attrs, 'inkscape:label')
+        if tag == "svg":
+            self.viewbox = self.find_attr(attrs, "viewbox")
+        if tag == "g":
+            label = self.find_attr(attrs, "inkscape:label")
             self.groups.append(label)
             if label and self.layer_matches():
                 print("Reading layer:", label, file=sys.stderr)
-        if tag == 'path' and self.layer_matches():
-            id = self.find_attr(attrs, 'id')
-            transform = self.find_attr(attrs, 'transform')
+        if tag == "path" and self.layer_matches():
+            id = self.find_attr(attrs, "id")
+            transform = self.find_attr(attrs, "transform")
             if transform:
                 print("Found transform in path", id, "! Cannot process file!", file=sys.stderr)
                 quit()
-            d = self.find_attr(attrs, 'd')
+            d = self.find_attr(attrs, "d")
             if d:
                 self.process_svg_path_data(id, d)
                 if self.op:
@@ -298,7 +303,7 @@ class SVGParser(HTMLParser):
                 self.restart()
 
     def handle_endtag(self, tag):
-        if tag == 'g':
+        if tag == "g":
             self.groups.pop()
         if tag != self.tags.pop():
             print("Error popping tag off list")
@@ -306,7 +311,7 @@ class SVGParser(HTMLParser):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=USAGE, formatter_class=argparse.RawTextHelpFormatter)
     parser.add_argument("filename")
-    parser.add_argument('--layer', help='Only include layers which have this string in their names')
+    parser.add_argument("--layer", help="Only include layers which have this string in their names")
     args = parser.parse_args()
 
     f = open(args.filename, "r", encoding="utf-8")

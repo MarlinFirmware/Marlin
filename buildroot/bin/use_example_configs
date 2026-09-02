@@ -25,9 +25,9 @@ def debug_print(s):
 
 def get_current_branch():
     try:
-        result = subprocess.run(['git', 'branch'], capture_output=True, text=True, check=True)
+        result = subprocess.run(["git", "branch"], capture_output=True, text=True, check=True)
         for line in result.stdout.splitlines():
-            if line.startswith('*'):
+            if line.startswith("*"):
                 return line[2:]
     except subprocess.CalledProcessError:
         return None
@@ -90,20 +90,20 @@ def validate_config_path(cref, config_path):
 def fetch_config_files(cref, config_path, dest_dir):
     validate_config_path(cref, config_path)
 
-    config_path_url = config_path.replace(' ', '%20')
+    config_path_url = config_path.replace(" ", "%20")
     base_url = f"https://raw.githubusercontent.com/MarlinFirmware/Configurations/{cref}/config/{config_path_url}"
 
     for file in CONFIG_FILES:
         url = f"{base_url}/{file}"
         dest_file = dest_dir / file
-        if os.getenv('DEBUG', '0') == '1':
+        if os.getenv("DEBUG", "0") == "1":
             debug_print(f"Fetching {file} from {url} to {dest_file}")
 
         try:
             urllib.request.urlretrieve(url, dest_file)
         except urllib.error.HTTPError as e:
             if e.code == 404:
-                if os.getenv('DEBUG', '0') == '1':
+                if os.getenv("DEBUG", "0") == "1":
                     print(f"File {file} not found (404), skipping.")
             else:
                 raise
@@ -116,7 +116,7 @@ def fetch_configs(cref, config_path):
         print(f"Directory 'Marlin' not found at the current location.")
         sys.exit(1)
 
-    if os.environ.get('GITHUB_ACTIONS'):        # Running on GitHub ?
+    if os.environ.get("GITHUB_ACTIONS"):        # Running on GitHub ?
         copy_config_files(cref, config_path, marlin_dir)
     else:
         fetch_config_files(cref, config_path, marlin_dir)
@@ -150,13 +150,13 @@ def main():
 
     if len(sys.argv) > 1:
         arg = sys.argv[1]
-        if ':' in arg:
-            part1, part2 = arg.split(':', 1)
+        if ":" in arg:
+            part1, part2 = arg.split(":", 1)
             config_path = part2
             cref = part1
         else:
             config_path = arg
-        config_path = 'examples/'+config_path
+        config_path = "examples/" + config_path
     else:
         config_path = "default"
 

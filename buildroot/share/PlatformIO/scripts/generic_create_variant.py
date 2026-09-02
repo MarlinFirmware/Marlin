@@ -5,8 +5,8 @@
 # the appropriate framework variants folder, so that its contents
 # will be picked up by PlatformIO just like any other variant.
 #
-import pioutil, re
 
+import pioutil, re
 marlin_variant_pattern = re.compile("marlin_.*")
 if pioutil.is_pio_build():
     import shutil, marlin
@@ -20,21 +20,21 @@ if pioutil.is_pio_build():
     platform = env.PioPlatform()
 
     from platformio.package.meta import PackageSpec
-    platform_packages = env.GetProjectOption('platform_packages')
+    platform_packages = env.GetProjectOption("platform_packages")
 
     # Remove all tool items from platform_packages
     platform_packages = [x for x in platform_packages if not x.startswith("platformio/tool-")]
 
     if len(platform_packages) == 0:
         framewords = {
-            "Ststm32Platform": "framework-arduinoststm32",
+            "Ststm32Platform" : "framework-arduinoststm32",
             "AtmelavrPlatform": "framework-arduino-avr"
         }
         platform_name = framewords[platform.__class__.__name__]
     else:
         spec = PackageSpec(platform_packages[0])
-        if spec.uri and '@' in spec.uri:
-            platform_name = re.sub(r'@.+', '', spec.uri)
+        if spec.uri and "@" in spec.uri:
+            platform_name = re.sub(r'@.+', "", spec.uri)
         else:
             platform_name = spec.name
 
@@ -53,7 +53,7 @@ if pioutil.is_pio_build():
     # Make sure the local variant sub-folder exists
     if marlin_variant_pattern.match(str(variant).lower()):
         here = Path.cwd()
-        variants_dir = here / 'buildroot' / 'share' / 'PlatformIO' / 'variants'
+        variants_dir = here / "buildroot" / "share" / "PlatformIO" / "variants"
         source_dir = variants_dir / variant
         assert source_dir.is_dir()
         board.update("build.variants_dir", str(variants_dir))

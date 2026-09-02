@@ -20,7 +20,9 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #
 
-# Generate Marlin TFT Images from bitmaps/PNG/JPG
+"""
+Generate Marlin TFT Images from bitmaps/PNG/JPG
+"""
 
 import sys, struct
 from PIL import Image
@@ -28,16 +30,16 @@ from PIL import Image
 def image2bin(image, output_file, transparency):
     w, h = image.size[0], image.size[1]
     print(f"Converting image with dimensions {w}x{h}...")
-    if output_file.endswith(('.c', '.cpp')):
+    if output_file.endswith((".c", ".cpp")):
         is_cpp = True
         row_sp, item_sp = ("  ", "") if w >= 480 else (" ", " ")
         row_end, data_end = "\n", "};\n"
-        f = open(output_file, 'wt')
+        f = open(output_file, "wt")
         f.write("const uint16_t image[%d] = {\n" % (h * w))
     else:
         is_cpp = False
         row_sp, row_end, data_end = b"", b"", b""
-        f = open(output_file, 'wb')
+        f = open(output_file, "wb")
     tcolor, got_tcolor = 0, False
     pixs = image.load()
     for y in range(h):
@@ -50,8 +52,8 @@ def image2bin(image, output_file, transparency):
             if transparency:
                 if not got_tcolor:
                     got_tcolor = True
-                    tcolor = rgb            # First pixel color is transparent
-                if rgb == tcolor: rgb = 1   # "color 1" is transparent
+                    tcolor = rgb           # First pixel color is transparent
+                if rgb == tcolor: rgb = 1  # "color 1" is transparent
             if is_cpp:
                 strHex = item_sp + "0x{0:04X},".format(rgb)
                 f.write(strHex)

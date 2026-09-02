@@ -23,4 +23,4 @@
 
 #include <U8glib-HAL.h>
 
-#define FONTDATA_ITEM(page, begin, end, data) { page, begin, end, COUNT(data), data }
+#define FONTDATA_ITEM(page,begin,end,data) { page, begin, end, COUNT(data), data }

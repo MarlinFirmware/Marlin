@@ -794,7 +794,7 @@ auto CardDMA::get_command_sent_result() -> SDIO_Error_Type {
   return SDIO_Error_Type::OK;
 }
 
-auto CardDMA::check_sdio_status(Command_Index index, bool check_index, bool ignore_crc) -> SDIO_Error_Type {
+auto CardDMA::check_sdio_status(Command_Index index, bool check_index/*=false*/, bool ignore_crc/*=false*/) -> SDIO_Error_Type {
   // Wait until one of the relevant flags is set
   if (!sdio_.wait_cmd_flags()) {
     return SDIO_Error_Type::RESPONSE_TIMEOUT;

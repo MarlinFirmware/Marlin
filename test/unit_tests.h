@@ -56,8 +56,8 @@ public:
 /**
  * Internal macros used by MARLIN_TEST
  */
-#define _MARLIN_TEST_CLASS_NAME(SUITE, NAME) MarlinTestClass_##SUITE##_##NAME
-#define _MARLIN_TEST_INSTANCE_NAME(SUITE, NAME) MarlinTestClass_##SUITE##_##NAME##_instance
+#define _MARLIN_TEST_CLASS_NAME(SUITE,NAME) MarlinTestClass_##SUITE##_##NAME
+#define _MARLIN_TEST_INSTANCE_NAME(SUITE,NAME) MarlinTestClass_##SUITE##_##NAME##_instance
 
 /**
  * Macro to define a test. This will create a class with the test body and
@@ -68,7 +68,7 @@ public:
  *  // Test body
  * }
  */
-#define MARLIN_TEST(SUITE, NAME) \
+#define MARLIN_TEST(SUITE,NAME) \
     class _MARLIN_TEST_CLASS_NAME(SUITE, NAME) : public MarlinTest { \
     public: \
         _MARLIN_TEST_CLASS_NAME(SUITE, NAME)() : MarlinTest(#SUITE "___" #NAME, (const void(*)())&TestBody, __FILE__, __LINE__) {} \

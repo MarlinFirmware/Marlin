@@ -58,20 +58,21 @@ import os, struct
 from PIL import Image
 
 def getJpegResolution(jpegFile):
-    """Returns a 2-tuple containing the jpegFile's (width, height).
+    """
+    Returns a 2-tuple containing the jpegFile's (width, height).
     """
     img = Image.open(jpegFile)
     return img.size
 
-class DWIN_ICO_File():
+class DWIN_ICO_File:
     def __init__(self):
-        self.entries = []    # list of header entries
+        self.entries = []  # List of header entries
 
     def splitFile(self, filename, outDir):
-        if not filename[-4:].lower() == '.ico':
-            raise RuntimeError('Input file must end in .ico')
+        if not filename[-4:].lower() == ".ico":
+            raise RuntimeError("Input file must end in .ico")
 
-        with open(filename, 'rb') as infile:
+        with open(filename, "rb") as infile:
             self._parseHeader(infile)
             self._splitEntryData(infile, outDir)
 
@@ -83,41 +84,43 @@ class DWIN_ICO_File():
             rawBytes = infile.read(16)
             entry = Entry()
             entry.parseRawData(rawBytes)
-            # check that it is valid: is offset nonzero?
+            # Check that it is valid: is offset nonzero?
             # Special case: treat missing numbers as valid
             if (entry.offset > 0) or count not in icon_nums:
                 self.entries.append(entry)
             count += 1
 
     def _splitEntryData(self, infile, outDir):
-        print('Splitting Entry Data...')
+        print("Splitting Entry Data...")
         if 0 == len(self.entries):
-            raise RuntimeError('.ico file is not loaded yet')
+            raise RuntimeError(".ico file is not loaded yet")
 
-        # check for output dir:
+        # Check for output dir:
         if not os.path.exists(outDir):
             os.mkdir(outDir)
 
-        # keep a count
+        # Keep a count
         count = 0
         for entry in self.entries:
             # Skip any empty entries. (Special handling of 39.)
             if entry.length == 0:
                 count += 1
                 continue
-            outfilename = os.path.join(outDir, '%03d-ICON_%s.jpg' % (count, _iconNames.get(count, "UNKNOWN")))
-            with open(outfilename, 'wb') as outfile:
+            outfilename = os.path.join(outDir, "%03d-ICON_%s.jpg" % (count, _iconNames.get(count, "UNKNOWN")))
+            with open(outfilename, "wb") as outfile:
                 infile.seek(entry.offset)
                 blob = infile.read(entry.length)
                 outfile.write(blob)
                 # Seek file position, read length bytes, and write to new output file.
-                print('(%3d: width=%3d height=%3d offset=%6d len=%4d) ... %s' %
-                      (count, entry.width, entry.height, entry.offset, entry.length, os.path.basename(outfilename)))
+                print("(%3d: width=%3d height=%3d offset=%6d len=%4d) ... %s" %
+                    (count, entry.width, entry.height, entry.offset, entry.length, os.path.basename(outfilename))
+                )
 
             count += 1
 
     def createFile(self, iconDir, filename):
-        """Create a new .ico file from the contents of iconDir.
+        """
+        Create a new .ico file from the contents of iconDir.
 
         The contents of iconDir are processed to get image
         resolution, and a new entry is created for each.
@@ -125,22 +128,22 @@ class DWIN_ICO_File():
         Each filename must have a leading number followed by a
         dash, which is the icon index. E.g., "071-ICON_StepX.jpg".
         """
-        self.entries = [Entry() for i in range(0,256)]
+        self.entries = [Entry() for i in range(0, 256)]
         # 1. Scan icon directory and record all valid files
-        print('Scanning icon directory', iconDir)
+        print("Scanning icon directory", iconDir)
         count = 0
         for dirEntry in os.scandir(iconDir):
             if not dirEntry.is_file():
-                print('...Ignoring', dirEntry.path)
+                print("...Ignoring", dirEntry.path)
                 continue
-            # process each file:
+            # Process each file:
             try:
                 index = int(dirEntry.name[0:3])
                 if not (0 <= index <= 255):
-                    print('...Ignoring invalid index on', dirEntry.path)
+                    print("...Ignoring invalid index on", dirEntry.path)
                     continue
                 # dirEntry.path is iconDir/name
-                w,h = getJpegResolution(dirEntry.path)
+                w, h = getJpegResolution(dirEntry.path)
                 length = dirEntry.stat().st_size
                 e = self.entries[index]
                 e.width = w
@@ -149,42 +152,44 @@ class DWIN_ICO_File():
                 e.filename = dirEntry.path
                 count += 1
             except Exception as e:
-                print('Whoops: ', e)
+                print("Whoops: ", e)
                 pass
-        print('...Scanned %d icon files' % (count))
+        print("...Scanned %d icon files" % (count))
 
         # 2. Scan over valid header entries and update offsets
         self._updateHeaderOffsets()
 
         # 3. Write out header to .ico file, the append each icon file
         self._combineAndWriteIcoFile(filename)
-        print('Scanning done. %d icons included.' % (count))
+        print("Scanning done. %d icons included." % (count))
 
     def _updateHeaderOffsets(self):
-        """Iterate over all header entries and update their offsets.
+        """
+        Iterate over all header entries and update their offsets.
         """
         offset = 256 * 16
-        for i in range(0,256):
+        for i in range(0, 256):
             e = self.entries[i]
             if e.length == 0:
                 continue
             e.offset = offset
             offset += e.length
-            # print('%03d: (%d x %d) len=%d off=%d' %
-            #      (i, e.width, e.height, e.length, e.offset))
+            #print('%03d: (%d x %d) len=%d off=%d' %
+            #    (i, e.width, e.height, e.length, e.offset))
 
     def _combineAndWriteIcoFile(self, filename):
-        """Write out final .ico file.
+        """
+        Write out final .ico file.
         All header entries are updated, so write out
         the final header contents, and concat each icon
         file to the .ico.
         """
-        with open(filename, 'wb') as outfile:
+        with open(filename, "wb") as outfile:
             # 1. Write header directory
             for e in self.entries:
-                outfile.write( e.serialize() )
+                outfile.write(e.serialize())
             if outfile.tell() != 4096:
-                raise RuntimeError('Header directory write failed. Not 4096 bytes')
+                raise RuntimeError("Header directory write failed. Not 4096 bytes")
             # 2. For each entry, concat the icon file data
             for e in self.entries:
                 if 0 == e.length: continue
@@ -192,18 +197,21 @@ class DWIN_ICO_File():
                 outfile.write(guts)
 
     def _getFileContents(self, filename, length):
-        """Read contents of filename, and return bytes"""
-        with open(filename, 'rb') as infile:
+        """
+        Read contents of filename, and return bytes
+        """
+        with open(filename, "rb") as infile:
             contents = infile.read(length)
             if len(contents) != length:
-                raise RuntimeError('Failed to read contents of', filename)
+                raise RuntimeError("Failed to read contents of", filename)
             return contents
 
-class Entry():
-    """Entry objects record resolution and size information
+class Entry:
+    """
+    Entry objects record resolution and size information
     about each icon stored in an ICO file.
     """
-    __slots__ = ('width', 'height', 'offset', 'length', 'filename')
+    __slots__ = ("width", "height", "offset", "length", "filename")
 
     def __init__(self, w=0, h=0, length=0, offset=0, filename=None):
         self.width = w
@@ -214,133 +222,137 @@ class Entry():
 
     def parseRawData(self, rawEntryBytes):
         if len(rawEntryBytes) != 16:
-            raise RuntimeError('Entry: data must be 16 bytes long')
+            raise RuntimeError("Entry: data must be 16 bytes long")
 
         # Split data into bigendian fields
-        (w, h, off, len3, len21, b1,b2,b3,b4,b5) = \
-                struct.unpack('>HHLBHBBBBB', rawEntryBytes)
+        (w, h, off, len3, len21, b1, b2, b3, b4, b5) = struct.unpack(">HHLBHBBBBB", rawEntryBytes)
         self.width = w
         self.height = h
         self.offset = off
         self.length = len3 * 65536 + len21
 
     def serialize(self):
-        """Convert this Entry's information into a 16-byte
+        """
+        Convert this Entry's information into a 16-byte
         .ico directory entry record. Return bytes object.
         """
         len21 = self.length % 65536
         len3  = self.length // 65536
-        rawdata = struct.pack('>HHLBHBBBBB', self.width, self.height,
-                              self.offset, len3, len21,
+        rawdata = struct.pack(">HHLBHBBBBB",
+                              self.width,
+                              self.height,
+                              self.offset,
+                              len3,
+                              len21,
                               0, 0, 0, 0, 0)
         return rawdata
 
 _iconNames = {
-      0 : "LOGO_Creality",
-      1 : "Print_0",
-      2 : "Print_1",
-      3 : "Prepare_0",
-      4 : "Prepare_1",
-      5 : "Control_0",
-      6 : "Control_1",
-      7 : "Leveling_0",
-      8 : "Leveling_1",
-      9 : "HotendTemp",
-     10 : "BedTemp",
-     11 : "Speed",
-     12 : "Zoffset",
-     13 : "Back",
-     14 : "File",
-     15 : "PrintTime",
-     16 : "RemainTime",
-     17 : "Setup_0",
-     18 : "Setup_1",
-     19 : "Pause_0",
-     20 : "Pause_1",
-     21 : "Continue_0",
-     22 : "Continue_1",
-     23 : "Stop_0",
-     24 : "Stop_1",
-     25 : "Bar",
-     26 : "More",
-     27 : "Axis",
-     28 : "CloseMotor",
-     29 : "Homing",
-     30 : "SetHome",
-     31 : "PLAPreheat",
-     32 : "ABSPreheat",
-     33 : "Cool",
-     34 : "Language",
-     35 : "MoveX",
-     36 : "MoveY",
-     37 : "MoveZ",
-     38 : "Extruder",
-     # Skip 39
-     40 : "Temperature",
-     41 : "Motion",
-     42 : "WriteEEPROM",
-     43 : "ReadEEPROM",
-     44 : "ResetEEPROM",
-     45 : "Info",
-     46 : "SetEndTemp",
-     47 : "SetBedTemp",
-     48 : "FanSpeed",
-     49 : "SetPLAPreheat",
-     50 : "SetABSPreheat",
-     51 : "MaxSpeed",
-     52 : "MaxAccelerated",
-     53 : "MaxJerk",
-     54 : "Step",
-     55 : "PrintSize",
-     56 : "Version",
-     57 : "Contact",
-     58 : "StockConfiguraton",
-     59 : "MaxSpeedX",
-     60 : "MaxSpeedY",
-     61 : "MaxSpeedZ",
-     62 : "MaxSpeedE",
-     63 : "MaxAccX",
-     64 : "MaxAccY",
-     65 : "MaxAccZ",
-     66 : "MaxAccE",
-     67 : "MaxSpeedJerkX",
-     68 : "MaxSpeedJerkY",
-     69 : "MaxSpeedJerkZ",
-     70 : "MaxSpeedJerkE",
-     71 : "StepX",
-     72 : "StepY",
-     73 : "StepZ",
-     74 : "StepE",
-     75 : "Setspeed",
-     76 : "SetZOffset",
-     77 : "Rectangle",
-     78 : "BLTouch",
-     79 : "TempTooLow",
-     80 : "AutoLeveling",
-     81 : "TempTooHigh",
-     82 : "NoTips_C",
-     83 : "NoTips_E",
-     84 : "Continue_C",
-     85 : "Continue_E",
-     86 : "Cancel_C",
-     87 : "Cancel_E",
-     88 : "Confirm_C",
-     89 : "Confirm_E",
-     90 : "Info_0",
-     91 : "Info_1",
-     92 : "DegreesC",
-     93 : "Printer_0",
-    200 : "Checkbox_F",
-    201 : "Checkbox_T",
-    202 : "Fade",
-    203 : "Mesh",
-    204 : "Tilt",
-    205 : "Brightness",
-    206 : "Probe",
-    249 : "AxisD",
-    250 : "AxisBR",
-    251 : "AxisTR",
-    252 : "AxisBL",
-    253 : "AxisTL",
-    254 : "AxisC"
+     0: "LOGO_Creality",
+     1: "Print_0",
+     2: "Print_1",
+     3: "Prepare_0",
+     4: "Prepare_1",
+     5: "Control_0",
+     6: "Control_1",
+     7: "Leveling_0",
+     8: "Leveling_1",
+     9: "HotendTemp",
+    10: "BedTemp",
+    11: "Speed",
+    12: "Zoffset",
+    13: "Back",
+    14: "File",
+    15: "PrintTime",
+    16: "RemainTime",
+    17: "Setup_0",
+    18: "Setup_1",
+    19: "Pause_0",
+    20: "Pause_1",
+    21: "Continue_0",
+    22: "Continue_1",
+    23: "Stop_0",
+    24: "Stop_1",
+    25: "Bar",
+    26: "More",
+    27: "Axis",
+    28: "CloseMotor",
+    29: "Homing",
+    30: "SetHome",
+    31: "PLAPreheat",
+    32: "ABSPreheat",
+    33: "Cool",
+    34: "Language",
+    35: "MoveX",
+    36: "MoveY",
+    37: "MoveZ",
+    38: "Extruder",
+    # Skip 39
+    40: "Temperature",
+    41: "Motion",
+    42: "WriteEEPROM",
+    43: "ReadEEPROM",
+    44: "ResetEEPROM",
+    45: "Info",
+    46: "SetEndTemp",
+    47: "SetBedTemp",
+    48: "FanSpeed",
+    49: "SetPLAPreheat",
+    50: "SetABSPreheat",
+    51: "MaxSpeed",
+    52: "MaxAccelerated",
+    53: "MaxJerk",
+    54: "Step",
+    55: "PrintSize",
+    56: "Version",
+    57: "Contact",
+    58: "StockConfiguraton",
+    59: "MaxSpeedX",
+    60: "MaxSpeedY",
+    61: "MaxSpeedZ",
+    62: "MaxSpeedE",
+    63: "MaxAccX",
+    64: "MaxAccY",
+    65: "MaxAccZ",
+    66: "MaxAccE",
+    67: "MaxSpeedJerkX",
+    68: "MaxSpeedJerkY",
+    69: "MaxSpeedJerkZ",
+    70: "MaxSpeedJerkE",
+    71: "StepX",
+    72: "StepY",
+    73: "StepZ",
+    74: "StepE",
+    75: "Setspeed",
+    76: "SetZOffset",
+    77: "Rectangle",
+    78: "BLTouch",
+    79: "TempTooLow",
+    80: "AutoLeveling",
+    81: "TempTooHigh",
+    82: "NoTips_C",
+    83: "NoTips_E",
+    84: "Continue_C",
+    85: "Continue_E",
+    86: "Cancel_C",
+    87: "Cancel_E",
+    88: "Confirm_C",
+    89: "Confirm_E",
+    90: "Info_0",
+    91: "Info_1",
+    92: "DegreesC",
+    93: "Printer_0",
+   200: "Checkbox_F",
+   201: "Checkbox_T",
+   202: "Fade",
+   203: "Mesh",
+   204: "Tilt",
+   205: "Brightness",
+   206: "Probe",
+   249: "AxisD",
+   250: "AxisBR",
+   251: "AxisTR",
+   252: "AxisBL",
+   253: "AxisTL",
+   254: "AxisC"
 }

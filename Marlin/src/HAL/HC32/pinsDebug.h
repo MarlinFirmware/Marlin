@@ -53,7 +53,7 @@
 #define NUMBER_PINS_TOTAL BOARD_NR_GPIO_PINS
 #define isValidPin(P) IS_GPIO_PIN(P)
 
-// Note: pin_array is defined in `Marlin/src/pins/pinsDebug.h`, and since this file is included
+// NOTE: pin_array is defined in "Marlin/src/pins/pinsDebug.h", and since this file is included
 // after it, it is available in this file as well.
 #define getPinByIndex(x) pin_t(pin_array[x].pin)
 #define digitalRead_mod(P) extDigitalRead(P)

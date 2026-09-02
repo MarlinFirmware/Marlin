@@ -3,12 +3,13 @@
 # configuration.py
 # Apply options from config.ini to the existing Configuration headers
 #
+
 import re, os, shutil, subprocess, configparser, datetime
 from pathlib import Path
 
 verbose = 0
-def blab(msg, level=1):
-    if verbose >= level: print(f"[config] {msg}")
+def blab(str, level=1):
+    if verbose >= level: print(f"[config] {str}")
 
 def config_path(cpath):
     return Path("Marlin", cpath)
@@ -30,15 +31,12 @@ def apply_opt(name, val):
     8: Whitespace after value
     9: End comment
     """
-    regex = re.compile(
-        rf"^(\s*)(//\s*)?(#define\s+)({name}\b)(\s?)(\s*)(.*?)(\s*)(//.*)?$",
-        re.IGNORECASE
-    )
+    regex = re.compile(rf"^(\s*)(//\s*)?(#define\s+)({name}\b)(\s?)(\s*)(.*?)(\s*)(//.*)?$", re.IGNORECASE)
 
     # Find and enable and/or update all matches
     for file in ("Configuration.h", "Configuration_adv.h"):
         fullpath = config_path(file)
-        lines = fullpath.read_text(encoding='utf-8').split('\n')
+        lines = fullpath.read_text(encoding="utf-8").split("\n")
         found = False
         for i in range(len(lines)):
             line = lines[i]
@@ -53,17 +51,17 @@ def apply_opt(name, val):
                     newline = re.sub(r'^(\s*)(#define)(\s{1,3})?(\s*)', r'\1//\2 \4', line)
                 else:
                     # For options with values, enable and set the value
-                    addsp = '' if match[5] else ' '
-                    newline = match[1] + match[3] + match[4] + match[5] + addsp + val + match[6]
+                    addsp = "" if match[5] else " "
+                    newline = (match[1] + match[3] + match[4] + match[5] + addsp + val + match[6])
                     if match[9]:
-                        sp = match[8] if match[8] else ' '
+                        sp = match[8] if match[8] else " "
                         newline += sp + match[9]
                 lines[i] = newline
                 blab(f"Set {name} to {val}")
 
         # If the option was found, write the modified lines
         if found:
-            fullpath.write_text('\n'.join(lines), encoding='utf-8')
+            fullpath.write_text("\n".join(lines), encoding="utf-8")
             break
 
     # If the option didn't appear in either config file, add it
@@ -84,7 +82,7 @@ def apply_opt(name, val):
 
         # Prepend the new option after the first set of #define lines
         fullpath = config_path("Configuration.h")
-        with fullpath.open(encoding='utf-8') as f:
+        with fullpath.open(encoding="utf-8") as f:
             lines = f.readlines()
             linenum = 0
             gotdef = False
@@ -97,7 +95,7 @@ def apply_opt(name, val):
                 linenum += 1
             currtime = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             lines.insert(linenum, f"{prefix}#define {added:30} // Added by config.ini {currtime}\n")
-            fullpath.write_text(''.join(lines), encoding='utf-8')
+            fullpath.write_text("".join(lines), encoding="utf-8")
 
 # Disable all (most) defined options in the configuration files.
 # Everything in the named sections. Section hint for exceptions may be added.
@@ -113,15 +111,19 @@ def disable_all_options():
             blab(f"File not found: {fullpath}", 0)
             continue
 
-        lines = fullpath.read_text(encoding='utf-8').split('\n')
+        lines = fullpath.read_text(encoding="utf-8").split("\n")
         found = False
         for i in range(len(lines)):
             line = lines[i]
             match = regex.match(line)
             if match:
                 name = match[3].upper()
-                if name in ('CONFIGURATION_H_VERSION', 'CONFIGURATION_ADV_H_VERSION', 'CONFIG_EXAMPLES_DIR'): continue
-                if name.startswith('_'): continue
+                if name in (
+                    "CONFIGURATION_H_VERSION",
+                    "CONFIGURATION_ADV_H_VERSION",
+                    "CONFIG_EXAMPLES_DIR"
+                ): continue
+                if name.startswith("_"): continue
                 found = True
                 # Comment out the define
                 # TODO: Comment more lines in a multi-line define with \ continuation
@@ -132,7 +134,7 @@ def disable_all_options():
 
         # If the option was found, write the modified lines
         if found:
-            fullpath.write_text('\n'.join(lines), encoding='utf-8')
+            fullpath.write_text("\n".join(lines), encoding="utf-8")
             blab(f"Updated {file}")
 
 # Fetch configuration files from GitHub given the path.
@@ -140,10 +142,10 @@ def disable_all_options():
 def fetch_example(url):
     blab(f"Fetching example configuration from: {url}")
     if url.endswith("/"): url = url[:-1]
-    if not url.startswith('http'):
+    if not url.startswith("http"):
         brch = "bugfix-2.1.x"
-        if '@' in url: url, brch = map(str.strip, url.split('@'))
-        if url == 'examples/default': url = 'default'
+        if "@" in url: url, brch = map(str.strip, url.split("@"))
+        if url == "examples/default": url = "default"
         url = f"https://raw.githubusercontent.com/MarlinFirmware/Configurations/{brch}/config/{url}"
     url = url.replace("%", "%25").replace(" ", "%20")
 
@@ -164,13 +166,18 @@ def fetch_example(url):
 
     # Try to fetch the remote files
     gotfile = False
-    for fn in ("Configuration.h", "Configuration_adv.h", "_Bootscreen.h", "_Statusscreen.h"):
+    for fn in (
+        "Configuration.h",
+        "Configuration_adv.h",
+        "_Bootscreen.h",
+        "_Statusscreen.h"
+    ):
         if subprocess.call(fetch + [ "wgot", f"{url}/{fn}" ], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL) == 0:
-            shutil.move('wgot', config_path(fn))
+            shutil.move("wgot", config_path(fn))
             gotfile = True
             blab(f"Fetched {fn}", 2)
 
-    if Path('wgot').exists(): shutil.rmtree('wgot')
+    if Path("wgot").exists(): shutil.rmtree("wgot")
 
     if gotfile:
         blab("Example configuration fetched successfully")
@@ -185,43 +192,43 @@ def section_items(cp, sectkey):
 # Apply all items from a config section. Ignore ini_ items outside of config:base and config:root.
 def apply_ini_by_name(cp, sect):
     iniok = True
-    if sect in ('config:base', 'config:root'):
+    if sect in ("config:base", "config:root"):
         iniok = False
-        items = section_items(cp, 'config:base') + section_items(cp, 'config:root')
+        items = section_items(cp, "config:base") + section_items(cp, "config:root")
     else:
         items = section_items(cp, sect)
 
     for item in items:
-        if iniok or not item[0].startswith('ini_'):
+        if iniok or not item[0].startswith("ini_"):
             apply_opt(item[0], item[1])
 
 # Apply all config sections from a parsed file
 def apply_all_sections(cp):
     for sect in cp.sections():
-        if sect.startswith('config:'):
+        if sect.startswith("config:"):
             apply_ini_by_name(cp, sect)
 
 # Apply certain config sections from a parsed file
-def apply_sections(cp, ckey='all'):
+def apply_sections(cp, ckey="all"):
     blab(f"Apply section key: {ckey}")
-    if ckey == 'all':
+    if ckey == "all":
         apply_all_sections(cp)
     else:
         # Apply the base/root config.ini settings after external files are done
-        if ckey in ('base', 'root'):
-            apply_ini_by_name(cp, 'config:base')
+        if ckey in ("base", "root"):
+            apply_ini_by_name(cp, "config:base")
 
         # Apply historically 'Configuration.h' settings everywhere
-        if ckey == 'basic':
-            apply_ini_by_name(cp, 'config:basic')
+        if ckey == "basic":
+            apply_ini_by_name(cp, "config:basic")
 
         # Apply historically Configuration_adv.h settings everywhere
         # (Some of which rely on defines in 'Conditionals-2-LCD.h')
-        elif ckey in ('adv', 'advanced'):
-            apply_ini_by_name(cp, 'config:advanced')
+        elif ckey in ("adv", "advanced"):
+            apply_ini_by_name(cp, "config:advanced")
 
         # Apply a specific config:<name> section directly
-        elif ckey.startswith('config:'):
+        elif ckey.startswith("config:"):
             apply_ini_by_name(cp, ckey)
 
 # Apply settings from a top level config.ini
@@ -229,67 +236,64 @@ def apply_config_ini(cp):
     blab("=" * 20 + " Gather 'config.ini' entries...")
 
     # Pre-scan for ini_use_config to get config_keys
-    base_items = section_items(cp, 'config:base') + section_items(cp, 'config:root')
-    config_keys = ['base']
+    base_items = section_items(cp, "config:base") + section_items(cp, "config:root")
+    config_keys = ["base"]
     for ikey, ival in base_items:
-        if ikey == 'ini_use_config':
-            config_keys = map(str.strip, ival.split(','))
+        if ikey == "ini_use_config":
+            config_keys = map(str.strip, ival.split(","))
 
     # For each ini_use_config item perform an action
     for ckey in config_keys:
         # For a key ending in .ini load and parse another .ini file
-        if ckey.endswith('.ini'):
-            sect = 'base'
-            if '@' in ckey: sect, ckey = map(str.strip, ckey.split('@'))
+        if ckey.endswith(".ini"):
+            sect = "base"
+            if "@" in ckey: sect, ckey = map(str.strip, ckey.split("@"))
             cp2 = configparser.ConfigParser()
-            cp2.read(config_path(ckey), encoding='utf-8')
+            cp2.read(config_path(ckey), encoding="utf-8")
             apply_sections(cp2, sect)
-            ckey = 'base'
+            ckey = "base"
 
         # (Allow 'example/' as a shortcut for 'examples/')
-        elif ckey.startswith('example/'):
-            ckey = 'examples' + ckey[7:]
+        elif ckey.startswith("example/"):
+            ckey = "examples" + ckey[7:]
 
         # For 'examples/<path>' fetch an example set from GitHub.
         # For https?:// do a direct fetch of the URL.
-        if ckey.startswith('examples/') or ckey.startswith('http'):
+        if ckey.startswith("examples/") or ckey.startswith("http"):
             fetch_example(ckey)
-            ckey = 'base'
+            ckey = "base"
 
         #
         # [flatten] Write out Configuration.h and Configuration_adv.h files with
         #           just the enabled options and all other content removed.
         #
-        #if ckey == '[flatten]':
+        # if ckey == '[flatten]':
         #   write_flat_configs()
-
-        if ckey == '[disable]':
+        if ckey == "[disable]":
             disable_all_options()
-
-        elif ckey == 'all':
+        elif ckey == "all":
             apply_sections(cp)
-
         else:
             # Apply keyed sections after external files are done
-            apply_sections(cp, 'config:' + ckey)
+            apply_sections(cp, "config:" + ckey)
 
 if __name__ == "__main__":
     #
     # From command line use the given file name
     #
-    import sys
+    import sys, os.path
     args = sys.argv[1:]
     if len(args) > 0:
-        if args[0].endswith('.ini'):
+        if args[0].endswith(".ini"):
             ini_file = args[0]
         else:
             print("Usage: %s <.ini file>" % os.path.basename(sys.argv[0]))
     else:
-        ini_file = config_path('config.ini')
+        ini_file = config_path("config.ini")
 
     if ini_file:
         user_ini = configparser.ConfigParser()
-        user_ini.read(ini_file, encoding='utf-8')
+        user_ini.read(ini_file, encoding="utf-8")
         apply_config_ini(user_ini)
 
 else:
@@ -300,7 +304,7 @@ else:
         import pioutil
         if pioutil.is_pio_build():
             try:
-                verbose = int(pioutil.env.GetProjectOption('custom_verbose'))
+                verbose = int(pioutil.env.GetProjectOption("custom_verbose"))
             except:
                 pass
 

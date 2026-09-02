@@ -36,33 +36,33 @@ def normalize_value(v):
     """
     # Convert to string for comparison, handle JSON booleans
     if isinstance(v, bool):
-        v_str = 'true' if v else 'false'
+        v_str = "true" if v else "false"
     else:
         v_str = str(v).strip().lower()
 
     # Check for enable values
-    if v_str in ('on', 'true', ''):
-        return ('enable', '')
+    if v_str in ("on", "true", ""):
+        return ("enable", "")
 
     # Check for disable values
-    elif v_str in ('off', 'false'):
-        return ('disable', '')
+    elif v_str in ("off", "false"):
+        return ("disable", "")
 
     # Everything else is a value to set
     else:
-        return ('set', v if not isinstance(v, bool) else v_str)
+        return ("set", v if not isinstance(v, bool) else v_str)
 
 def report_version(conf):
-    if 'VERSION' in conf:
+    if "VERSION" in conf:
         blab("Configuration version information:")
-        for k, v in sorted(conf['VERSION'].items()):
-            print(k + ': ' + v)
+        for k, v in sorted(conf["VERSION"].items()):
+            print(k + ": " + v)
 
-def write_opt_file(conf, outpath='Marlin/apply_config.sh'):
+def write_opt_file(conf, outpath="Marlin/apply_config.sh"):
     blab(f"Writing configuration script to {outpath}")
-    with open(outpath, 'w', encoding='utf-8') as outfile:
+    with open(outpath, "w", encoding="utf-8") as outfile:
         for key, val in conf.items():
-            if key in ('__INITIAL_HASH', '__directives__', 'VERSION'): continue
+            if key in ("__INITIAL_HASH", "__directives__", "VERSION"): continue
 
             # Other keys are assumed to be configs
             if not isinstance(val, dict):
@@ -73,39 +73,39 @@ def write_opt_file(conf, outpath='Marlin/apply_config.sh'):
             for k, v in sorted(val.items()):
                 action, norm_val = normalize_value(v)
 
-                if action == 'enable':
-                    lines += [f'opt_enable {k}']
+                if action == "enable":
+                    lines += [f"opt_enable {k}"]
                     blab(f"  opt_enable {k}", 2)
-                elif action == 'disable':
-                    lines += [f'opt_disable {k}']
+                elif action == "disable":
+                    lines += [f"opt_disable {k}"]
                     blab(f"  opt_disable {k}", 2)
-                else:  # action == 'set'
-                    norm_val = str(norm_val).replace('"', '\\"').replace("'", "\\'").replace(' ', '\\ ')
-                    lines += [f'opt_set {k} {norm_val}']
+                else:  # action == "set"
+                    norm_val = str(norm_val).replace('"', '\\"').replace("'", "\\'").replace(" ", "\\ ")
+                    lines += [f"opt_set {k} {norm_val}"]
                     blab(f"  opt_set {k} {norm_val}", 2)
 
-            outfile.write('\n'.join(lines))
+            outfile.write("\n".join(lines))
 
-        print('Config script written to: ' + outpath)
+        print("Config script written to: " + outpath)
 
 def back_up_config(name):
     # Back up the existing file before modifying it
-    conf_path = 'Marlin/' + name
+    conf_path = "Marlin/" + name
     if not os.path.exists(conf_path):
         blab(f"Config file not found: {conf_path}", 0)
         return
 
-    with open(conf_path, 'r', encoding='utf-8') as f:
+    with open(conf_path, "r", encoding="utf-8") as f:
         # Write a filename.bak#.ext retaining the original extension
-        parts = conf_path.split('.')
-        nr = ''
+        parts = conf_path.split(".")
+        nr = ""
         while True:
-            bak_path = '.'.join(parts[:-1]) + f'.bak{nr}.' + parts[-1]
+            bak_path = ".".join(parts[:-1]) + f".bak{nr}." + parts[-1]
             if os.path.exists(bak_path):
-                nr = 1 if nr == '' else nr + 1
+                nr = 1 if nr == "" else nr + 1
                 continue
 
-            with open(bak_path, 'w', encoding='utf-8', newline='') as b:
+            with open(bak_path, "w", encoding="utf-8", newline="") as b:
                 b.writelines(f.readlines())
                 blab(f"Backed up {conf_path} to {bak_path}", 2)
                 break
@@ -124,13 +124,13 @@ def process_directives(directives):
             configuration.disable_all_options()
 
         # Handle example fetching (examples/path or example/path)
-        elif directive.startswith('examples/') or directive.startswith('example/'):
-            if directive.startswith('example/'):
-                directive = 'examples' + directive[7:]
+        elif directive.startswith("examples/") or directive.startswith("example/"):
+            if directive.startswith("example/"):
+                directive = "examples" + directive[7:]
             configuration.fetch_example(directive)
 
         # Handle direct URLs
-        elif directive.startswith('http://') or directive.startswith('https://'):
+        elif directive.startswith("http://") or directive.startswith("https://"):
             configuration.fetch_example(directive)
 
         else:
@@ -138,14 +138,14 @@ def process_directives(directives):
 
 def apply_config(conf):
     # Process directives first if they exist
-    if '__directives__' in conf:
+    if "__directives__" in conf:
         blab("=" * 20 + " Processing directives...")
-        process_directives(conf['__directives__'])
+        process_directives(conf["__directives__"])
 
     # Apply configuration options
     blab("=" * 20 + " Applying configuration options...")
     for key in conf:
-        if key in ('__INITIAL_HASH', '__directives__', 'VERSION'): continue
+        if key in ("__INITIAL_HASH", "__directives__", "VERSION"): continue
 
         # Skip non-dict values
         if not isinstance(conf[key], dict):
@@ -155,25 +155,25 @@ def apply_config(conf):
 
         for k, v in conf[key].items():
             action, norm_val = normalize_value(v)
-            conf_file = 'Marlin/' + key
+            conf_file = "Marlin/" + key
 
-            if action == 'enable':
+            if action == "enable":
                 blab(f"Enabling {k}", 2)
                 config.enable(conf_file, k, True)
-            elif action == 'disable':
+            elif action == "disable":
                 blab(f"Disabling {k}", 2)
                 config.enable(conf_file, k, False)
-            else:  # action == 'set'
+            else:  # action == "set"
                 blab(f"Setting {k} = {norm_val}", 2)
                 config.set(conf_file, k, norm_val)
 
 def main():
     global verbose
 
-    parser = argparse.ArgumentParser(description='Process Marlin firmware configuration.')
-    parser.add_argument('--opt', action='store_true', help='Output as an option setting script.')
-    parser.add_argument('--verbose', '-v', type=int, default=0, help='Verbose logging level (0-2, default: 0)')
-    parser.add_argument('config_file', nargs='?', default='marlin_config.json', help='Path to the configuration file.')
+    parser = argparse.ArgumentParser(description="Process Marlin firmware configuration.")
+    parser.add_argument("--opt", action="store_true", help="Output as an option setting script.")
+    parser.add_argument("--verbose", "-v", type=int, default=0, help="Verbose logging level (0-2, default: 0)")
+    parser.add_argument("config_file", nargs="?", default="marlin_config.json", help="Path to the configuration file.")
 
     args = parser.parse_args()
 
@@ -181,9 +181,9 @@ def main():
     verbose = args.verbose
 
     try:
-        infile = open(args.config_file, 'r', encoding='utf-8')
+        infile = open(args.config_file, "r", encoding="utf-8")
     except:
-        print(f'No {args.config_file} found.')
+        print(f"No {args.config_file} found.")
         sys.exit(1)
 
     conf = json.load(infile)
@@ -194,5 +194,5 @@ def main():
     else:
         apply_config(conf)
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

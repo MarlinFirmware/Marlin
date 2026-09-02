@@ -20,16 +20,14 @@
 
 import os.path, argparse, DWIN_ICO
 
-version = '2.0.7'
+version = "2.0.7"
 
 #----------------
-if __name__ == '__main__':
+if __name__ == "__main__":
     try:
-        parser = argparse.ArgumentParser(description='Split .ico into JPEG files')
-        parser.add_argument('filename', type=str, nargs=1,
-                            help='name of input .ico file to split')
-        parser.add_argument('outputDir', type=str, nargs=1,
-                            help='name of output directory to create')
+        parser = argparse.ArgumentParser(description="Split .ico into JPEG files")
+        parser.add_argument("filename", type=str, nargs=1, help="name of input .ico file to split")
+        parser.add_argument("outputDir", type=str, nargs=1, help="name of output directory to create")
         args = parser.parse_args()
 
         filename = args.filename[0]
@@ -41,9 +39,9 @@ if __name__ == '__main__':
         if os.path.exists(outputDir):
             raise RuntimeError("Output directory '%s' already exists." % (outputDir))
 
-        print('Splitting %s into dir %s' % (filename, outputDir))
+        print("Splitting %s into dir %s" % (filename, outputDir))
         ico = DWIN_ICO.DWIN_ICO_File()
         ico.splitFile(filename, outputDir)
 
     except Exception as e:
-        print('Error: ', e)
+        print("Error: ", e)
