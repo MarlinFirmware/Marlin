@@ -40,7 +40,9 @@ extern DefaultSerial1 USBSerial;
 #include "../shared/serial_ports.h"
 
 #if defined(LCD_SERIAL_PORT) && ANY(HAS_DGUS_LCD, EXTENSIBLE_UI)
-  #define LCD_SERIAL_TX_BUFFER_FREE() LCD_SERIAL.available()
+  // LCD_SERIAL is ForwardSerial<MarlinSerial> on LPC1768. ForwardSerial doesn't expose
+  // availableForWrite(), so call through the wrapped instance (`out`) to get real TX free space.
+  #define LCD_SERIAL_TX_BUFFER_FREE() LCD_SERIAL.out.availableForWrite()
 #endif
 
 class MarlinSerial : public HardwareSerial<RX_BUFFER_SIZE, TX_BUFFER_SIZE> {
@@ -49,7 +51,6 @@ public:
 
   void end() {}
 
-  uint8_t availableForWrite(void) { /* flushTX(); */ return TX_BUFFER_SIZE; }
 
   #if ENABLED(EMERGENCY_PARSER)
     bool recv_callback(const char c) override;
