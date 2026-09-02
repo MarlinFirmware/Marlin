@@ -1172,14 +1172,20 @@
     st.TCOOLTHRS(0);
   }
 
-  bool tmc_enable_stallguard(TMC2240Stepper &st) {
+  bool tmc_enable_stallguard(TMC2240Stepper &st) { // Default Stallguard mode 
     const bool stealthchop_was_enabled = st.en_pwm_mode();
-
-    // TODO: Use StallGuard4 when stealthChop is enabled
-    //       and leave stealthChop state unchanged.
 
     st.TCOOLTHRS(0xFFFFF);
     st.en_pwm_mode(false);
+    st.diag0_stall(true);
+
+    return stealthchop_was_enabled;
+  }
+  bool tmc_enable_stallguard(TMC2240Stepper &st, const StallguardType sg_type) { // Choose SG2 or SG4
+    const bool stealthchop_was_enabled = st.en_pwm_mode();
+
+    st.TCOOLTHRS(0xFFFFF);
+    st.en_pwm_mode(sg_type); // false SG2, true SG4
     st.diag0_stall(true);
 
     return stealthchop_was_enabled;
@@ -1195,6 +1201,40 @@
     return false;
   }
   void tmc_disable_stallguard(TMC2660Stepper, const bool) { }
+
+  #if ENABLED(STALLGUARD_TUNING)
+
+    uint8_t tmc_stallguard_version(TMC2130Stepper) {
+      return SG_STALLGUARD2;
+    }
+    uint16_t tmc_sg_result(TMC2130Stepper &st) {
+      return (st.DRV_STATUS() & 0x3FF);
+    }
+
+    uint8_t tmc_stallguard_version(TMC2209Stepper) {
+      return SG_STALLGUARD4;
+    }
+    uint16_t tmc_sg_result(TMC2209Stepper &st) {
+      return st.SG_RESULT();
+    }
+
+    uint8_t tmc_stallguard_version(TMC2240Stepper &st) {
+      return (st.en_pwm_mode() ? SG_STALLGUARD4 : SG_STALLGUARD2);
+    }
+    uint16_t tmc_sg_result(TMC2240Stepper &st) {
+      if (st.en_pwm_mode())
+        return st.SG4_RESULT();
+      return (st.DRV_STATUS() & 0x3FF);
+    }
+
+    uint8_t tmc_stallguard_version(TMC2660Stepper){
+      return SG_STALLGUARD2;
+    }
+    uint16_t tmc_sg_result(TMC2660Stepper &st){
+      return (st.DRV_STATUS() & 0x3FF);
+    }
+
+  #endif
 
 #endif // USE_SENSORLESS
 

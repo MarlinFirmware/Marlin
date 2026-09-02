@@ -1077,6 +1077,10 @@ void GcodeSuite::process_parsed_command(bool no_ok/*=false*/) {
         #endif
       #endif
 
+      #if ENABLED(STALLGUARD_TUNING)
+        case 921: M921(); break;                                  // M921: Tuning StallGuard sensitivity
+      #endif
+
       #if HAS_MICROSTEPS
         case 350: M350(); break;                                  // M350: Set microstepping mode. Warning: Steps per unit remains unchanged. S code sets stepping mode for all drivers.
         case 351: M351(); break;                                  // M351: Toggle MS1 MS2 pins directly, S# determines MS1 or MS2, X# sets the pin high/low.
