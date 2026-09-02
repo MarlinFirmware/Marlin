@@ -127,13 +127,50 @@
 #endif
 
 /**
- * Fill in undefined Filament Sensor options
+ * Fill in undefined Filament Sensor options.
+ * Provide backward-compatibility shims for the old FIL_RUNOUT_STATE /
+ * FIL_RUNOUT_ENABLED_DEFAULT / FILAMENT_MOTION_SENSOR config syntax,
+ * converting them to the new FIL_RUNOUT_MODE / FIL_RUNOUT_ENABLED array form.
  */
 #if ENABLED(FILAMENT_RUNOUT_SENSOR)
+  // Backward-compat: derive FIL_RUNOUT_MODE from legacy defines if not yet defined as array
+  #ifndef FIL_RUNOUT_MODE
+    #if ENABLED(FILAMENT_MOTION_SENSOR)
+      #define FIL_RUNOUT_MODE ARRAY_N_1(NUM_RUNOUT_SENSORS, 7)   // motion sensor
+    #elif defined(FIL_RUNOUT_STATE) && FIL_RUNOUT_STATE
+      #define FIL_RUNOUT_MODE ARRAY_N_1(NUM_RUNOUT_SENSORS, 2)   // NC switch (HIGH = runout)
+    #else
+      #define FIL_RUNOUT_MODE ARRAY_N_1(NUM_RUNOUT_SENSORS, 1)   // NO switch (LOW = runout, default)
+    #endif
+  #endif
+
+  // Backward-compat: derive FIL_RUNOUT_ENABLED from legacy FIL_RUNOUT_ENABLED_DEFAULT
+  #ifndef FIL_RUNOUT_ENABLED
+    #if defined(FIL_RUNOUT_ENABLED_DEFAULT) && !FIL_RUNOUT_ENABLED_DEFAULT
+      #define FIL_RUNOUT_ENABLED ARRAY_N_1(NUM_RUNOUT_SENSORS, false)
+    #else
+      #define FIL_RUNOUT_ENABLED ARRAY_N_1(NUM_RUNOUT_SENSORS, true)
+    #endif
+  #endif
+
+  // FILAMENT_RUNOUT_DISTANCE_MM is always present after this point
+  #ifndef FILAMENT_RUNOUT_DISTANCE_MM
+    #define FILAMENT_RUNOUT_DISTANCE_MM 0
+  #endif
+
+  // Per-sensor STATE defaults (needed by out_state() RM_NONE fallback in runout.h).
+  // Use an internal alias so SanityCheck's deprecated-FIL_RUNOUT_STATE check doesn't fire.
+  #ifndef FIL_RUNOUT_STATE
+    #define FIL_RUNOUT_STATE LOW
+  #endif
   #if NUM_RUNOUT_SENSORS >= 1
     #ifndef FIL_RUNOUT1_STATE
       #define FIL_RUNOUT1_STATE FIL_RUNOUT_STATE
     #endif
+  // Provide bare FIL_RUNOUT_STATE for FILAMENT_IS_OUT() macro (no-arg form)
+  #ifndef FIL_RUNOUT_STATE
+    #define FIL_RUNOUT_STATE FIL_RUNOUT1_STATE
+  #endif
     #ifndef FIL_RUNOUT1_PULLUP
       #define FIL_RUNOUT1_PULLUP FIL_RUNOUT_PULLUP
     #endif

@@ -241,6 +241,7 @@
  * M407 - Display measured filament diameter in millimeters. (Requires FILAMENT_WIDTH_SENSOR)
  * M410 - Quickstop. Abort all planned moves.
  * M412 - Enable/Disable Filament Runout Detection. (Requires FILAMENT_RUNOUT_SENSOR)
+ * M591 - Configure Filament Runout Detection per extruder. (Requires FILAMENT_RUNOUT_SENSOR)
  * M413 - Enable/Disable Power-Loss Recovery. (Requires POWER_LOSS_RECOVERY)
  * M414 - Set language by index. (Requires LCD_LANGUAGE_2...)
  * M420 - Enable/Disable Leveling (with current values) S1=enable S0=disable (Requires MESH_BED_LEVELING or ABL)
@@ -1085,6 +1086,8 @@ private:
   #if HAS_FILAMENT_SENSOR
     static void M412();
     static void M412_report(const bool forReplay=true);
+    static void M591();
+    static void M591_report(const bool forReplay=true);
   #endif
 
   #if HAS_MULTI_LANGUAGE

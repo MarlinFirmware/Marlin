@@ -542,7 +542,7 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
   #elif ALL(FIL_RUNOUT8_PULLUP, FIL_RUNOUT8_PULLDOWN)
     #error "You can't enable FIL_RUNOUT8_PULLUP and FIL_RUNOUT8_PULLDOWN at the same time."
   #elif FILAMENT_RUNOUT_DISTANCE_MM < 0
-    #error "FILAMENT_RUNOUT_DISTANCE_MM must be greater than or equal to zero."
+    #error "FILAMENT_RUNOUT_DISTANCE_MM must be >= 0."
   #elif DISABLED(ADVANCED_PAUSE_FEATURE) && defined(FILAMENT_RUNOUT_SCRIPT)
     static_assert(nullptr == strstr(FILAMENT_RUNOUT_SCRIPT, "M600"), "FILAMENT_RUNOUT_SCRIPT cannot make use of M600 unless ADVANCED_PAUSE_FEATURE is enabled");
   #elif DGUS_LCD_UI_MKS

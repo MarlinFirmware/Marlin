@@ -880,7 +880,8 @@ void GcodeSuite::process_parsed_command(bool no_ok/*=false*/) {
       #endif
 
       #if HAS_FILAMENT_SENSOR
-        case 412: M412(); break;                                  // M412: Enable/Disable filament runout detection
+        case 412: M412(); break;                                  // M412: Backward-compat alias for M591
+        case 591: M591(); break;                                  // M591: Configure filament runout detection
       #endif
 
       #if HAS_MULTI_LANGUAGE
