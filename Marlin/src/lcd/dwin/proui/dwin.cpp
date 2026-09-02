@@ -38,6 +38,7 @@
 
 #include "../../utf8.h"
 #include "../../marlinui.h"
+#include "../../tramming.h"
 #include "../../extui/ui_api.h"
 #include "../../../module/temperature.h"
 #include "../../../module/printcounter.h"
@@ -197,10 +198,6 @@ typedef struct {
   bool inc(uint8_t v) { if (now < (v - 1)) now++; else now = (v - 1); return changed(); }
 } select_t;
 select_t select_page{0}, select_print{0};
-
-#if ENABLED(LCD_BED_TRAMMING)
-  constexpr float bed_tramming_inset_lfrb[] = BED_TRAMMING_INSET_LFRB;
-#endif
 
 bool hash_changed = true; // Flag to know if message status was changed
 bool blink = false;
@@ -2540,46 +2537,28 @@ void gotoConfirmToPrint() {
 
 #if ENABLED(LCD_BED_TRAMMING)
 
-  void tramXY(const uint8_t point, float &x, float &y) {
-    switch (point) {
-      case 0:
-        LCD_MESSAGE(MSG_TRAM_FL);
-        x = bed_tramming_inset_lfrb[0];
-        y = bed_tramming_inset_lfrb[1];
-        break;
-      case 1:
-        LCD_MESSAGE(MSG_TRAM_FR);
-        x = X_BED_SIZE - bed_tramming_inset_lfrb[2];
-        y = bed_tramming_inset_lfrb[1];
-        break;
-      case 2:
-        LCD_MESSAGE(MSG_TRAM_BR);
-        x = X_BED_SIZE - bed_tramming_inset_lfrb[2];
-        y = Y_BED_SIZE - bed_tramming_inset_lfrb[3];
-        break;
-      case 3:
-        LCD_MESSAGE(MSG_TRAM_BL);
-        x = bed_tramming_inset_lfrb[0];
-        y = Y_BED_SIZE - bed_tramming_inset_lfrb[3];
-        break;
+  void tramXY(const uint8_t index, float &x, float &y) {
+    switch (tram_place_by_index(index)) {
+      case LF: LCD_MESSAGE(MSG_TRAM_FL); break;
+      case RF: LCD_MESSAGE(MSG_TRAM_FR); break;
+      case RB: LCD_MESSAGE(MSG_TRAM_BR); break;
+      case LB: LCD_MESSAGE(MSG_TRAM_BL); break;
       #if ENABLED(BED_TRAMMING_INCLUDE_CENTER)
-        case 4:
-          LCD_MESSAGE(MSG_TRAM_C);
-          x = X_CENTER;
-          y = Y_CENTER;
-          break;
+        case CC: LCD_MESSAGE(MSG_TRAM_C); break;
       #endif
     }
+    const xyz_pos_t xy = tram_point_by_index(index);
+    x = xy.x; y = xy.y;
   }
 
   #if HAS_BED_PROBE
 
-    float tram(const uint8_t point) {
+    float tram(const uint8_t index) {
       static bool inLev = false;
       if (inLev) return NAN;
 
       float xpos = 0, ypos = 0, zval = 0;
-      tramXY(point, xpos, ypos);
+      tramXY(index, xpos, ypos);
 
       if (hmiData.fullManualTramming) {
         queue.inject(MString<100>(
@@ -2604,9 +2583,9 @@ void gotoConfirmToPrint() {
 
   #else
 
-    void tram(const uint8_t point) {
+    void tram(const uint8_t index) {
       float xpos = 0, ypos = 0;
-      tramXY(point, xpos, ypos);
+      tramXY(index, xpos, ypos);
       queue.inject(MString<100>(
         F("M420S0\nG28O\nG90\nG0F300Z5\nG0F5000X"), p_float_t(xpos, 1), 'Y', p_float_t(ypos, 1), F("\nG0F300Z0")
       ));

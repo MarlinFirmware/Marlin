@@ -31,6 +31,7 @@
 #include "config/DGUS_Screen.h"
 
 #include "../ui_api.h"
+#include "../../tramming.h"
 #include "../../../core/language.h"
 #include "../../../module/temperature.h"
 #include "../../../module/printcounter.h"
@@ -394,23 +395,13 @@ void DGUSReturnKeyCodeHandler::Command_SettingsMenu(DGUS_VP &vp, void *data) {
   }
 }
 
-static void _gotoTrammingPoint(unsigned char point) {
-  constexpr float lfrb[4] = BED_TRAMMING_INSET_LFRB;
-  float x, y;
-
-  switch (point) {
-    default: return;
-    case 1: x = X_CENTER; y = Y_CENTER; break;
-    case 2: x = X_MIN_BED + lfrb[0]; y = Y_MIN_BED + lfrb[1]; break;
-    case 3: x = X_MAX_BED - lfrb[2]; y = Y_MIN_BED + lfrb[1]; break;
-    case 4: x = X_MAX_BED - lfrb[2]; y = Y_MAX_BED - lfrb[3]; break;
-    case 5: x = X_MIN_BED + lfrb[0]; y = Y_MAX_BED - lfrb[3]; break;
-  }
+static void _gotoTrammingPoint(const NamedPlace place) {
+  const xy_pos_t xy = tram_point_by_place(place);
 
   if (BED_TRAMMING_Z_HOP)
     ExtUI::setAxisPosition_mm(ExtUI::getAxisPosition_mm(ExtUI::Z) + (BED_TRAMMING_Z_HOP), ExtUI::Z);
-  ExtUI::setAxisPosition_mm(x, ExtUI::X);
-  ExtUI::setAxisPosition_mm(y, ExtUI::Y);
+  ExtUI::setAxisPosition_mm(xy.x, ExtUI::X);
+  ExtUI::setAxisPosition_mm(xy.y, ExtUI::Y);
   ExtUI::setAxisPosition_mm((Z_MIN_POS) + (BED_TRAMMING_HEIGHT), ExtUI::Z);
 }
 
@@ -422,7 +413,7 @@ void DGUSReturnKeyCodeHandler::Command_Leveling(DGUS_VP &vp, void *data) {
     case DGUS_Data::LevelingCommand::Show_AuxLeveling:
       if (ExtUI::isPositionKnown())
         screen.triggerScreenChange(DGUS_ScreenID::LEVELINGMODE);
-      _gotoTrammingPoint(1);
+      _gotoTrammingPoint(CC);
       break;
 
     case DGUS_Data::LevelingCommand::Show_Settings_Leveling:
@@ -430,25 +421,11 @@ void DGUSReturnKeyCodeHandler::Command_Leveling(DGUS_VP &vp, void *data) {
       screen.homeThenChangeScreen(DGUS_ScreenID::LEVELING);
       break;
 
-    case DGUS_Data::LevelingCommand::Goto_Center:
-      _gotoTrammingPoint(1);
-      break;
-
-    case DGUS_Data::LevelingCommand::Goto_LF:
-      _gotoTrammingPoint(2);
-      break;
-
-    case DGUS_Data::LevelingCommand::Goto_RF:
-      _gotoTrammingPoint(3);
-      break;
-
-    case DGUS_Data::LevelingCommand::Goto_RB:
-      _gotoTrammingPoint(4);
-      break;
-
-    case DGUS_Data::LevelingCommand::Goto_LB:
-      _gotoTrammingPoint(5);
-      break;
+    case DGUS_Data::LevelingCommand::Goto_CC: _gotoTrammingPoint(CC); break;
+    case DGUS_Data::LevelingCommand::Goto_LF: _gotoTrammingPoint(LF); break;
+    case DGUS_Data::LevelingCommand::Goto_RF: _gotoTrammingPoint(RF); break;
+    case DGUS_Data::LevelingCommand::Goto_RB: _gotoTrammingPoint(RB); break;
+    case DGUS_Data::LevelingCommand::Goto_LB: _gotoTrammingPoint(LB); break;
 
     default:
       #if ALL(DEBUG_DGUSLCD, DGUS_UNKNOWN_COMMAND_DEBUG)
