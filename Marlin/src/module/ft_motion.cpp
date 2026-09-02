@@ -449,6 +449,10 @@ bool FTMotion::plan_next_block() {
     // triggered endstop, which marks the block for discard on the next ISR.
     endstops.update();
 
+    #if ENABLED(Z_LATE_ENABLE)
+      if (moving_axis_flags.rz) stepper.enable_axis(Z_AXIS);
+    #endif
+
     return true;
   } // infinite loop
 }
