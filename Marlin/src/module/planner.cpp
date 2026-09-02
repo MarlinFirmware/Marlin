@@ -1997,8 +1997,21 @@ bool Planner::_populate_block(
     const float dy = steps_dist.y * mm_per_step[Y_AXIS];  // Axis Y or Tower B Steps
   #endif
   #if HAS_Z_AXIS
-    const float dz = steps_dist.z * mm_per_step[Z_AXIS];  // Axis Z or Tower C Steps
+    float dz = steps_dist.z * mm_per_step[Z_AXIS];
   #endif
+
+  #if ENABLED(AUTO_FIRST_LAYER_Z_ADJUST)
+    if (parser.first_layer_detected && !parser.aflza_applied) {
+      // For the first layer only, use the adjusted Z position to calculate the distance
+      // Keep aflza_active true otherwise the configuration is lost until you restart the printer
+      dz += parser.aflza_delta;
+      parser.first_layer_detected = false; // Only apply the adjustment for the first layer
+      parser.aflza_applied = true;
+      if (parser.slicer_type == SlicerType::ORCA) // Reset z_hop to true if Orca for future prints
+        parser.z_hop = true;
+    }
+  #endif
+
   #if CORE_IS_XY
     XYZ_CODE(
       dist_mm.a = dx + dy,

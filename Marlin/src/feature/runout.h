@@ -173,7 +173,6 @@ class TFilamentMonitor : public FilamentMonitorBase {
 
       filament_ran_out = true;
       event_filament_runout(extruder);
-      planner.synchronize();
     }
 
     // Reset after a filament runout or upon resuming a job

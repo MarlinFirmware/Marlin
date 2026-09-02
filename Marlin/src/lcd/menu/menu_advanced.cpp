@@ -680,6 +680,32 @@ void menu_backlash();
 
 #endif // EDITABLE_STEPS_PER_UNIT
 
+#if ENABLED(AUTO_FIRST_LAYER_Z_ADJUST)
+
+  FSTR_P get_slicer_name(const slicer_id_t slicer) {
+    switch (slicer) {
+      default:
+        return GET_TEXT_F(MSG_AFLZA_UNKNOWN);
+      case SlicerType::ORCA:
+        return GET_TEXT_F(MSG_AFLZA_ORCA);
+      case SlicerType::PRUSA:
+        return GET_TEXT_F(MSG_AFLZA_PRUSA);
+    }
+  }
+
+  // TODO: Select from list with active item pre-selected on entry
+  void menu_aflza_slicer() {
+    START_MENU();
+    BACK_ITEM(MSG_ADVANCED_SETTINGS);
+    if (parser.slicer_type == SlicerType::ORCA)
+      ACTION_ITEM(MSG_AFLZA_PRUSA, []{ parser.slicer_type = SlicerType::ORCA; parser.z_hop = true; });
+    else
+      ACTION_ITEM(MSG_AFLZA_ORCA, []{ parser.slicer_type = SlicerType::PRUSA; parser.z_hop = false; });
+    END_MENU();
+  }
+
+#endif // AUTO_FIRST_LAYER_Z_ADJUST
+
 void menu_advanced_settings() {
   #if ANY(POLARGRAPH, SHAPING_MENU, HAS_BED_PROBE, EDITABLE_STEPS_PER_UNIT)
     const bool is_busy = marlin.printer_busy();
@@ -709,6 +735,13 @@ void menu_advanced_settings() {
     #if HAS_HOME_OFFSET
       // M428 - Set Home Offsets
       ACTION_ITEM(MSG_SET_HOME_OFFSETS, []{ queue.inject(F("M428")); ui.return_to_status(); });
+    #endif
+
+    #if ENABLED(AUTO_FIRST_LAYER_Z_ADJUST)
+      // M429 - Set adaptive first layer Z offset
+      EDIT_ITEM(bool, MSG_AUTO_FIRST_LAYER_Z_ADJUST, &parser.aflza_active);
+      EDIT_ITEM(float32, MSG_AUTO_FIRST_LAYER_Z_ADJUST, &parser.calibrated_first_layer_height, 0.1f, 1.0f);
+      SUBMENU_S(get_slicer_name(parser.slicer_type), MSG_AFLZA_SLICER, menu_aflza_slicer);
     #endif
 
     // M203 / M205 - Feedrate items
