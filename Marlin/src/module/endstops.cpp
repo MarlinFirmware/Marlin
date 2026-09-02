@@ -27,6 +27,10 @@
 #include "endstops.h"
 #include "stepper.h"
 
+#if ENABLED(RUNTIME_HOMING_DIRECTION)
+  #include "../pins/runtime_endstop_pins.h"
+#endif
+
 #if ANY(HAS_STATUS_MESSAGE, VALIDATE_HOMING_ENDSTOPS)
   #include "../lcd/marlinui.h"
 #endif
@@ -465,6 +469,40 @@ void Endstops::update() {
   /**
    * Check and update endstops
    */
+  
+  // Runtime endstop pin swapping - update home endstop states
+  #if ENABLED(RUNTIME_HOMING_DIRECTION)
+    #if defined(HAS_X_RUNTIME_ENDSTOP_SWAP) && HAS_X_STATE
+      SET_BIT_TO(live_state, X_ENDSTOP, (READ_X_HOME_ENDSTOP() == X_HOME_ENDSTOP_HIT_STATE()));
+    #endif
+    #if defined(HAS_Y_RUNTIME_ENDSTOP_SWAP) && HAS_Y_STATE
+      SET_BIT_TO(live_state, Y_ENDSTOP, (READ_Y_HOME_ENDSTOP() == Y_HOME_ENDSTOP_HIT_STATE()));
+    #endif
+    #if defined(HAS_Z_RUNTIME_ENDSTOP_SWAP) && HAS_Z_STATE && NONE(Z_SPI_SENSORLESS, Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN)
+      SET_BIT_TO(live_state, Z_ENDSTOP, (READ_Z_HOME_ENDSTOP() == Z_HOME_ENDSTOP_HIT_STATE()));
+    #endif
+    // Secondary axes
+    #if defined(HAS_I_RUNTIME_ENDSTOP_SWAP) && HAS_I_STATE
+      SET_BIT_TO(live_state, I_ENDSTOP, (READ_I_HOME_ENDSTOP() == I_HOME_ENDSTOP_HIT_STATE()));
+    #endif
+    #if defined(HAS_J_RUNTIME_ENDSTOP_SWAP) && HAS_J_STATE
+      SET_BIT_TO(live_state, J_ENDSTOP, (READ_J_HOME_ENDSTOP() == J_HOME_ENDSTOP_HIT_STATE()));
+    #endif
+    #if defined(HAS_K_RUNTIME_ENDSTOP_SWAP) && HAS_K_STATE
+      SET_BIT_TO(live_state, K_ENDSTOP, (READ_K_HOME_ENDSTOP() == K_HOME_ENDSTOP_HIT_STATE()));
+    #endif
+    #if defined(HAS_U_RUNTIME_ENDSTOP_SWAP) && HAS_U_STATE
+      SET_BIT_TO(live_state, U_ENDSTOP, (READ_U_HOME_ENDSTOP() == U_HOME_ENDSTOP_HIT_STATE()));
+    #endif
+    #if defined(HAS_V_RUNTIME_ENDSTOP_SWAP) && HAS_V_STATE
+      SET_BIT_TO(live_state, V_ENDSTOP, (READ_V_HOME_ENDSTOP() == V_HOME_ENDSTOP_HIT_STATE()));
+    #endif
+    #if defined(HAS_W_RUNTIME_ENDSTOP_SWAP) && HAS_W_STATE
+      SET_BIT_TO(live_state, W_ENDSTOP, (READ_W_HOME_ENDSTOP() == W_HOME_ENDSTOP_HIT_STATE()));
+    #endif
+  #endif
+
+  // Standard compile-time endstop checking for all axes
   #if USE_X_MIN
     UPDATE_LIVE_STATE(X, MIN);
     #if ENABLED(X_DUAL_ENDSTOPS)
@@ -553,6 +591,7 @@ void Endstops::update() {
     COPY_LIVE_STATE(Z_MAX, Z4_MAX);
   #endif
 
+  // Secondary axes (I, J, K, U, V, W)
   #define _LIVE_UPDATE(A) TERF(USE_##A##_MIN, UPDATE_LIVE_STATE)(A, MIN); TERF(USE_##A##_MAX, UPDATE_LIVE_STATE)(A, MAX);
   SECONDARY_AXIS_MAP(_LIVE_UPDATE);
 
