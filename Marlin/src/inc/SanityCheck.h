@@ -3081,6 +3081,20 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
   static_assert(strcmp(STRINGIFY(LCD_LANGUAGE_2), "zh_CN") == 0, "LCD_LANGUAGE_2 must be set to zh_CN for ANYCUBIC_LCD_VYPER.");
 #endif
 
+#if ENABLED(ANYCUBIC_LCD_KOBRA)
+  #ifndef BEEPER_PIN
+    #error "ANYCUBIC_LCD_KOBRA requires BEEPER_PIN"
+  #elif !HAS_MEDIA
+    #error "ANYCUBIC_LCD_KOBRA requires SDSUPPORT"
+  #elif TEMP_SENSOR_BED == 0
+    #error "ANYCUBIC_LCD_KOBRA requires heatbed (TEMP_SENSOR_BED)"
+  #elif NONE(AUTO_BED_LEVELING_BILINEAR, AUTO_BED_LEVELING_UBL, MESH_BED_LEVELING)
+    #error "ANYCUBIC_LCD_KOBRA requires one of: AUTO_BED_LEVELING_BILINEAR, AUTO_BED_LEVELING_UBL or MESH_BED_LEVELING"
+  #elif DISABLED(BABYSTEPPING)
+    #error "ANYCUBIC_LCD_KOBRA requires BABYSTEPPING"
+  #endif
+#endif
+
 #if ENABLED(NO_LCD_SDCARD) && SD_CONNECTION_IS(LCD)
   #error "SDCARD_CONNECTION cannot be set to LCD for the enabled display. No available SD card reader."
 #endif
@@ -3137,7 +3151,7 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
 
 // Startup Tune requirements
 #ifdef STARTUP_TUNE
-  #if ANY(ANYCUBIC_LCD_CHIRON, ANYCUBIC_LCD_VYPER)
+  #if ANY(ANYCUBIC_LCD_CHIRON, ANYCUBIC_LCD_KOBRA, ANYCUBIC_LCD_VYPER)
     #error "STARTUP_TUNE should be disabled with ANYCUBIC_LCD_CHIRON or ANYCUBIC_LCD_VYPER."
   #elif !(ALL(HAS_BEEPER, SPEAKER) || USE_MARLINUI_BUZZER)
     #error "STARTUP_TUNE requires a BEEPER_PIN with SPEAKER or USE_MARLINUI_BUZZER."
@@ -3190,7 +3204,7 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
 #else
   #if HAS_DGUS_LCD
     #error "The DGUS LCD requires LCD_SERIAL_PORT to be defined."
-  #elif ANY(ANYCUBIC_LCD_I3MEGA, ANYCUBIC_LCD_CHIRON, ANYCUBIC_LCD_VYPER)
+  #elif ANY(ANYCUBIC_LCD_I3MEGA, ANYCUBIC_LCD_CHIRON, ANYCUBIC_LCD_KOBRA, ANYCUBIC_LCD_VYPER)
     #error "ANYCUBIC_LCD_* requires LCD_SERIAL_PORT to be defined."
   #elif ENABLED(MALYAN_LCD)
     #error "MALYAN_LCD requires LCD_SERIAL_PORT to be defined."
