@@ -4899,3 +4899,6 @@
 
 // Shrink the build for smaller boards by sacrificing some serial feedback
 //#define MARLIN_SMALL_BUILD
+
+// Hash of the paired configuration versions. Update with the script config_version_hash.py if the version changes.
+#define CONFIGURATION_VERSION_HASH 0xDFF0CDB5u // Must match both CONFIGURATION_H_VERSION and CONFIGURATION_ADV_H_VERSION.
