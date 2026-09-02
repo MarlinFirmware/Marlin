@@ -2903,6 +2903,13 @@
 //#define SERIAL_DMA
 
 /**
+ * Disable serial debug reporting (to save ~1968 bytes of flash)
+ */
+#if ENABLED(AUTO_BED_LEVELING_UBL)
+  //#define DISABLE_UBL_SERIAL_CHITCHAT
+#endif
+
+/**
  * Set the number of proportional font spaces required to fill up a typical character space.
  * This can help to better align the output of commands like 'G29 O' Mesh Output.
  *
