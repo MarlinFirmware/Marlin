@@ -1731,7 +1731,7 @@ void unified_bed_leveling::smart_fill_mesh() {
     }
 
     if (DEBUGGING(LEVELING)) {
-      rotation.debug(F("rotation matrix:\n"));
+      rotation.debug(F("rotation matrix:\n"), 7);
       DEBUG_ECHOLN(F("LSF Results A="), p_float_t(lsf_results.A, 7), F("  B="), p_float_t(lsf_results.B, 7), F("  D="), p_float_t(lsf_results.D, 7));
       DEBUG_DELAY(55);
       DEBUG_ECHOLN(F("bed plane normal = ["), p_float_t(normal.x, 7), C(','), p_float_t(normal.y, 7), C(','), p_float_t(normal.z, 7), C(']'));

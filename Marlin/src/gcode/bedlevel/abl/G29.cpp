@@ -971,7 +971,7 @@ G29_TYPE GcodeSuite::G29() {
       // For LINEAR and 3POINT leveling correct the current position
 
       if (abl.verbose_level > 0)
-        planner.bed_level_matrix.debug(F("\n\nBed Level Correction Matrix:"));
+        planner.bed_level_matrix.debug(F("\n\nBed Level Correction Matrix:"), 4);
 
       if (!abl.dryrun) {
         //
