@@ -627,7 +627,6 @@
    *    (calling advance_status_scroll, status_and_len for a scrolling status message)
    */
   #define HAS_DISPLAY 1
-  #define HAS_UI_UPDATE 1
   #define HAS_STATUS_MESSAGE 1
 #endif
 

@@ -428,6 +428,8 @@ namespace LanguageNarrow_en {
   LSTR MSG_CANCEL_OBJECT                  = _UxGT("Cancel Obj");
   LSTR MSG_CANCEL_OBJECT_N                = _UxGT("Cancel Obj {");
   LSTR MSG_OUTAGE_RECOVERY                = _UxGT("Power Outage");
+  LSTR MSG_OUTAGE_RECOVERY2               = _UxGT("It looks like the last");
+  LSTR MSG_OUTAGE_RECOVERY3               = _UxGT("print was interrupted");
   LSTR MSG_PRINT_PAUSED                   = _UxGT("Print Paused");
   LSTR MSG_PRINTING                       = _UxGT("Printing...");
   LSTR MSG_CONTROL_RETRACT_RECOVER_SWAPF  = _UxGT("S UnRet V");
@@ -765,7 +767,6 @@ namespace LanguageNarrow_en {
   LSTR MSG_SD_CARD                        = _UxGT("SD Card");
   LSTR MSG_USB_DISK                       = _UxGT("USB Disk");
   LSTR MSG_HOST_SHUTDOWN                  = _UxGT("Host Shutdown");
-  LSTR DGUS_MSG_TEMP_TOO_HIGH             = _UxGT("Temperature too high.");
   LSTR MSG_SHORT_DAY                      = _UxGT("d");
   LSTR MSG_SHORT_HOUR                     = _UxGT("h");
   LSTR MSG_SHORT_MINUTE                   = _UxGT("m");
@@ -815,6 +816,7 @@ namespace LanguageNarrow_en {
   LSTR MSG_TEMP_NOZZLE                    = _UxGT("Nozzle Temperature");
   LSTR MSG_TEMP_BED                       = _UxGT("Bed Temperature");
   LSTR MSG_TEMP_CHAMBER                   = _UxGT("Chamber Temperature");
+  LSTR MSG_BAD_HEATER_ID                  = _UxGT("Bad extruder");
   LSTR MSG_MPC_HEATING_PAST_200           = _UxGT("Heating to >200C");
   LSTR MSG_MPC_COOLING_TO_AMBIENT         = _UxGT("Cooling to ambient");
   LSTR MSG_MPC_POWER                      = _UxGT("Heater Power");
@@ -958,6 +960,7 @@ namespace LanguageNarrow_en {
   LSTR DGUS_MSG_NOT_WHILE_PRINTING        = _UxGT("Not allowed during print");
   LSTR DGUS_MSG_NOT_WHILE_IDLE            = _UxGT("Not allowed while idle");
   LSTR DGUS_MSG_NO_FILE_SELECTED          = _UxGT("No file selected");
+  LSTR DGUS_MSG_TEMP_TOO_HIGH             = _UxGT("Temperature too high");
   LSTR DGUS_MSG_TEMP_TOO_LOW              = _UxGT("Temperature too low");
   LSTR DGUS_MSG_EXECUTING_COMMAND         = _UxGT("Executing command...");
   LSTR DGUS_MSG_BED_PID_DISABLED          = _UxGT("Bed PID disabled");

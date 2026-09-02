@@ -942,10 +942,6 @@ void JyersDWIN::drawPopup(FSTR_P const line1, FSTR_P const line2, FSTR_P const l
   }
 }
 
-void MarlinUI::kill_screen(FSTR_P const error, FSTR_P const) {
-  jyersDWIN.drawPopup(F("Printer Kill Reason:"), error, F("Restart Required"), Proc_Wait, ICON_BLTouch);
-}
-
 void JyersDWIN::popupSelect() {
   const uint16_t c1 = selection ? COLOR_BG_WINDOW : getColor(eeprom_settings.highlight_box, COLOR_WHITE),
                  c2 = selection ? getColor(eeprom_settings.highlight_box, COLOR_WHITE) : COLOR_BG_WINDOW;
@@ -1308,9 +1304,8 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
               drawFloat(motion.position.e, row);
             }
             else {
-              if (thermalManager.targetTooColdToExtrude(0)) {
+              if (thermalManager.targetTooColdToExtrude(0))
                 popupHandler(Popup_ETemp);
-              }
               else {
                 if (thermalManager.temp_hotend[0].is_below_target(2)) {
                   popupHandler(Popup_Heating);
@@ -1739,9 +1734,8 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
             if (draw)
               drawMenuItem(row, ICON_ReadEEPROM, GET_TEXT_F(MSG_FILAMENTUNLOAD));
             else {
-              if (thermalManager.targetTooColdToExtrude(0)) {
+              if (thermalManager.targetTooColdToExtrude(0))
                 popupHandler(Popup_ETemp);
-              }
               else {
                 if (thermalManager.temp_hotend[0].is_below_target(2)) {
                   popupHandler(Popup_Heating);
@@ -3009,7 +3003,7 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
 
             case PROBE_XOFFSET:
               if (draw) {
-                drawMenuItem(row, ICON_StepX, F("Probe X Offset"));
+                drawMenuItem(row, ICON_StepX, GET_TEXT_F(MSG_ZPROBE_XOFFSET));
                 drawFloat(probe.offset.x, row, false, 10);
               }
               else
@@ -3017,7 +3011,7 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
               break;
             case PROBE_YOFFSET:
               if (draw) {
-                drawMenuItem(row, ICON_StepY, F("Probe Y Offset"));
+                drawMenuItem(row, ICON_StepY, GET_TEXT_F(MSG_ZPROBE_YOFFSET));
                 drawFloat(probe.offset.y, row, false, 10);
               }
               else
@@ -4140,7 +4134,7 @@ FSTR_P JyersDWIN::getMenuTitle(const uint8_t menu) {
       case ID_ZOffset:      return liveadjust ? GET_TEXT_F(MSG_BABYSTEP_PROBE_Z) : GET_TEXT_F(MSG_ZPROBE_ZOFFSET);
     #endif
     #if HAS_PREHEAT
-      case ID_Preheat:      return F("Preheat");
+      case ID_Preheat:      return GET_TEXT_F(MSG_PREHEAT);
     #endif
     #if ENABLED(FILAMENT_LOAD_UNLOAD_GCODES)
       case ID_ChangeFilament: return GET_TEXT_F(MSG_FILAMENTCHANGE);
@@ -4200,10 +4194,10 @@ FSTR_P JyersDWIN::getMenuTitle(const uint8_t menu) {
       case ID_LevelView:    return GET_TEXT_F(MSG_MESH_VIEW);
       case ID_LevelSettings: return F("Leveling Settings");
       case ID_MeshViewer:   return GET_TEXT_F(MSG_MESH_VIEW);
-      case ID_LevelManual:  return F("Manual Tuning");
+      case ID_LevelManual:  return GET_TEXT_F(MSG_MANUAL_LEVELING);
     #endif
     #if ENABLED(AUTO_BED_LEVELING_UBL) && !HAS_BED_PROBE
-      case ID_UBLMesh:      return F("UBL Bed Leveling");
+      case ID_UBLMesh:      return GET_TEXT_F(MSG_UBL_LEVELING);
     #endif
     #if ENABLED(PROBE_MANUALLY)
       case ID_ManualMesh:   return GET_TEXT_F(MSG_MANUAL_LEVELING);
@@ -4303,11 +4297,11 @@ uint8_t JyersDWIN::getMenuSize(const uint8_t menu) {
 
 void JyersDWIN::popupHandler(const PopupID popupid, const bool option/*=false*/) {
   popup = last_popup = popupid;
-  FSTR_P const PWID = F("Please wait until done.");
+  FSTR_P const PWID = GET_TEXT_F(MSG_PLEASE_WAIT);
   switch (popupid) {
     case Popup_Pause:         drawPopup(GET_TEXT_F(MSG_PAUSE_PRINT), F(""), F(""), Proc_Popup); break;
     case Popup_Stop:          drawPopup(GET_TEXT_F(MSG_STOP_PRINT), F(""), F(""), Proc_Popup); break;
-    case Popup_Resume:        drawPopup(F("Resume Print?"), F("Looks Like the last"), F("print was interrupted."), Proc_Popup); break;
+    case Popup_Resume:        drawPopup(F("Resume Print?"), GET_TEXT_F(MSG_OUTAGE_RECOVERY2), GET_TEXT_F(MSG_OUTAGE_RECOVERY3), Proc_Popup); break;
     case Popup_ConfFilChange: drawPopup(F("Confirm Filament Change"), F(""), F(""), Proc_Popup); break;
     case Popup_PurgeMore:     drawPopup(F("Purge more filament?"), F("(Cancel to finish process)"), F(""), Proc_Popup); break;
     #if ALL(AUTO_BED_LEVELING_UBL, HAS_MESH_STORAGE)
@@ -4315,14 +4309,14 @@ void JyersDWIN::popupHandler(const PopupID popupid, const bool option/*=false*/)
       case Popup_MeshSlot:    drawPopup(F("Mesh slot not selected"), F("(Confirm to select slot 0)"), F(""), Proc_Popup); break;
     #endif
     case Popup_ETemp:         drawPopup(GET_TEXT_F(MSG_HOTEND_TOO_COLD), F("Open Preheat Menu?"), F(""), Proc_Popup); break;
-    case Popup_ManualProbing: drawPopup(F("Manual Probing"), F("(Confirm to probe)"), F("(cancel to exit)"), Proc_Popup); break;
+    case Popup_ManualProbing: drawPopup(F("Manual Probing"), F("(Confirm to probe)"), F("(Cancel to exit)"), Proc_Popup); break;
     case Popup_Level:         drawPopup(GET_TEXT_F(MSG_BED_LEVELING), PWID, F(""), Proc_Wait, ICON_AutoLeveling); break;
     case Popup_Home:          drawPopup(option ? F("Parking") : GET_TEXT_F(MSG_HOMING), PWID, F(""), Proc_Wait, ICON_BLTouch); break;
     case Popup_MoveWait:      drawPopup(GET_TEXT_F(MSG_UBL_MOVING_TO_NEXT), PWID, F(""), Proc_Wait, ICON_BLTouch); break;
-    case Popup_Heating:       drawPopup(GET_TEXT_F(MSG_HEATING), PWID, F(""), Proc_Wait, ICON_BLTouch); break;
-    case Popup_FilLoad:       drawPopup(option ? F("Unloading Filament") : F("Loading Filament"), PWID, F(""), Proc_Wait, ICON_BLTouch); break;
-    case Popup_FilChange:     drawPopup(F("Filament Change"), F("Please wait for prompt."), F(""), Proc_Wait, ICON_BLTouch); break;
-    case Popup_TempWarn:      drawPopup(option ? F("Nozzle temp too low!") : F("Nozzle temp too high!"), F(""), F(""), Proc_Wait, option ? ICON_TempTooLow : ICON_TempTooHigh); break;
+    case Popup_Heating:       drawPopup(GET_TEXT_F(MSG_HEATING), PWID, F(""), Proc_Wait, ICON_TempTooLow); break;
+    case Popup_FilLoad:       drawPopup(option ? GET_TEXT_F(MSG_UNLOADING_FILAMENT) : GET_TEXT_F(MSG_LOADING_FILAMENT), PWID, F(""), Proc_Wait, ICON_BLTouch); break;
+    case Popup_FilChange:     drawPopup(F("Filament Change"), GET_TEXT_F(MSG_PLEASE_WAIT), F(""), Proc_Wait, ICON_BLTouch); break;
+    case Popup_TempWarn:      drawPopup(option ? GET_TEXT_F(DGUS_MSG_TEMP_TOO_HIGH) : GET_TEXT_F(DGUS_MSG_TEMP_TOO_LOW), F(""), F(""), Proc_Wait, option ? ICON_TempTooHigh : ICON_TempTooLow); break;
     #if HAS_FILAMENT_SENSOR
       case Popup_Runout:      drawPopup(F("Filament Runout"), F(""), F(""), Proc_Wait, ICON_BLTouch); break;
     #endif
@@ -4701,7 +4695,7 @@ void JyersDWIN::popupControl() {
         case Popup_ManualProbing:
           if (selection == 0) {
             const float dif = probe.probe_at_point(motion.position.x, motion.position.y, PROBE_PT_STOW, 0, false) - corner_avg;
-            updateStatus(TS(F("Corner is "), p_float_t(abs(dif), 3), "mm ", dif > 0 ? F("high") : F("low")));
+            updateStatus(TS(F("Corner is "), p_float_t(abs(dif), 3), "mm ", dif > 0 ? GET_TEXT_F(MSG_HIGH) : GET_TEXT_F(MSG_LOW)));
           }
           else {
             redrawMenu(true, true, false);
@@ -4916,12 +4910,6 @@ void JyersDWIN::update() {
   }
 }
 
-void MarlinUI::update() { jyersDWIN.update(); }
-
-#if HAS_LCD_BRIGHTNESS
-  void MarlinUI::_set_brightness() { dwinLCDBrightness(backlight ? brightness : 0); }
-#endif
-
 void JyersDWIN::stateUpdate() {
   if ((print_job_timer.isRunning() || print_job_timer.isPaused()) != printing) {
     if (!printing) startPrint(card.isFileOpen() || TERN0(POWER_LOSS_RECOVERY, recovery.valid()));
@@ -5127,6 +5115,20 @@ void JyersDWIN::resetSettings() {
   TERN_(SOUND_MENU_ITEM, ui.sound_on = ENABLED(SOUND_ON_DEFAULT));
   redrawScreen();
 }
+
+//
+// MarlinUI Functions
+//
+
+void MarlinUI::kill_screen(FSTR_P const error, FSTR_P const) {
+  jyersDWIN.drawPopup(GET_TEXT_F(MSG_PRINTER_KILLED), error, F("Restart Required"), Proc_Wait, ICON_BLTouch);
+}
+
+void MarlinUI::update() { jyersDWIN.update(); }
+
+#if HAS_LCD_BRIGHTNESS
+  void MarlinUI::_set_brightness() { dwinLCDBrightness(backlight ? brightness : 0); }
+#endif
 
 void MarlinUI::init_lcd() {
   delay(800);
