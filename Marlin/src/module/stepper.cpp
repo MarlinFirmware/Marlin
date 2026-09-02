@@ -2811,7 +2811,7 @@ void Stepper::isr() {
 
           // Set "fan speeds" for a laser module
           #if ENABLED(LASER_SYNCHRONOUS_M106_M107)
-            if (current_block->is_sync_fan()) planner.sync_fan_speeds(current_block->fan_speed);
+            if (current_block->is_sync_fan()) Fan::sync_speeds(current_block->fan_speed);
           #endif
 
           // Set position

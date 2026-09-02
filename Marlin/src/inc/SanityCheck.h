@@ -993,9 +993,9 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
 #if HAS_FANMUX && !HAS_FAN0
   #error "FAN0_PIN must be defined to use Fan Multiplexing."
 #elif PIN_EXISTS(FANMUX1) && !PIN_EXISTS(FANMUX0)
-  #error "FANMUX0_PIN must be set before FANMUX1_PIN can be set."
+  #error "FANMUX0_PIN must be defined before FANMUX1_PIN can be defined."
 #elif PIN_EXISTS(FANMUX2) && !PINS_EXIST(FANMUX0, FANMUX1)
-  #error "FANMUX0_PIN and FANMUX1_PIN must be set before FANMUX2_PIN can be set."
+  #error "FANMUX0_PIN and FANMUX1_PIN must be defined before FANMUX2_PIN can be defined."
 #endif
 
 // PID Fan Scaling requires a fan
