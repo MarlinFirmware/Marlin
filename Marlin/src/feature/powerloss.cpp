@@ -42,6 +42,10 @@ bool PrintJobRecovery::enabled; // Initialized by settings.load
   celsius_t PrintJobRecovery::bed_temp_threshold; // Initialized by settings.load
 #endif
 
+#if PIN_EXISTS(POWER_LOSS)
+  bool PrintJobRecovery::power_lost;
+#endif
+
 MediaFile PrintJobRecovery::file;
 job_recovery_info_t PrintJobRecovery::info;
 const char PrintJobRecovery::filename[5] = "/PLR";
@@ -325,6 +329,7 @@ void PrintJobRecovery::save(const bool force/*=false*/, const float zraise/*=POW
       lock = true;
     #endif
 
+    power_lost = true;
     #if POWER_LOSS_ZRAISE
       // Get the limited Z-raise to do now or on resume
       const float zraise = _MAX(0, _MIN(motion.position.z + POWER_LOSS_ZRAISE, Z_MAX_POS - 1) - motion.position.z);

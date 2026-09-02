@@ -983,6 +983,18 @@ void Marlin::minkill(const bool steppers_off/*=false*/) {
 
   #else
 
+   #if defined(PLR_REBOOT_TIMEOUT)
+    if (PrintJobRecovery::power_lost) {
+      for (uint16_t i = 0; i < PLR_REBOOT_TIMEOUT * 1000; i++) {
+        DELAY_US(1000);
+        if (i % 1000 == 0)
+          hal.watchdog_refresh();
+      }
+      if (READ(POWER_LOSS_PIN) != POWER_LOSS_STATE)
+        hal.reboot();
+    }
+    #endif
+
     for (;;) hal.watchdog_refresh();  // Wait for RESET button or power-cycle
 
   #endif
