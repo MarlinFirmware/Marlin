@@ -4721,8 +4721,6 @@ static_assert(_PLUS_TEST(3), "DEFAULT_MAX_ACCELERATION values must be positive."
       #error "DIRECT_STEPPING is not yet available in FT_MOTION. Disable NO_STANDARD_MOTION if you require it."
     #elif ENABLED(DIFFERENTIAL_EXTRUDER)
       #error "DIFFERENTIAL_EXTRUDER is not yet available in FT_MOTION. Disable NO_STANDARD_MOTION if you require it."
-    #elif ENABLED(LASER_FEATURE)
-      #error "LASER_FEATURE is not yet available in FT_MOTION. Disable NO_STANDARD_MOTION if you require it."
     #elif ENABLED(Z_LATE_ENABLE)
       #error "Z_LATE_ENABLE is not yet available in FT_MOTION. Disable NO_STANDARD_MOTION if you require it."
     #endif
