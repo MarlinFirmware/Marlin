@@ -54,8 +54,8 @@ float segments_per_second = DEFAULT_SEGMENTS_PER_SECOND;
    */
   void forward_kinematics(const float theta, const float psi) {
     const float a = RADIANS(theta), b = RADIANS(theta + psi),
-                a_sin = sin(a) * L1, a_cos = cos(a) * L1,
-                b_sin = sin(b) * L2, b_cos = cos(b) * L2;
+                a_sin = sinf(a) * L1, a_cos = cosf(a) * L1,
+                b_sin = sinf(b) * L2, b_cos = cosf(b) * L2;
 
     motion.cartes.x = a_cos + b_cos + scara_offset.x;
     motion.cartes.y = a_sin + b_sin + scara_offset.y;
@@ -215,10 +215,10 @@ float segments_per_second = DEFAULT_SEGMENTS_PER_SECOND;
   // Convert ABC inputs in degrees to XYZ outputs in mm
   void forward_kinematics(const float a, const float b, const float c) {
     const float w = c - b,
-                r = L1 * cos(RADIANS(b)) + L2 * sin(RADIANS(w - (90 - b))),
-                x = r  * cos(RADIANS(a)),
-                y = r  * sin(RADIANS(a)),
-                rho2 = L1_2 + L2_2 - 2.0f * L1 * L2 * cos(RADIANS(w));
+                r = L1 * cosf(RADIANS(b)) + L2 * sinf(RADIANS(w - (90 - b))),
+                x = r  * cosf(RADIANS(a)),
+                y = r  * sinf(RADIANS(a)),
+                rho2 = L1_2 + L2_2 - 2.0f * L1 * L2 * cosf(RADIANS(w));
 
     const xyz_pos_t calculated_fk = xyz_pos_t({ x, y, SQRT(rho2 - sq(x) - sq(y)) }) ;
     motion.cartes = calculated_fk + robot_shoulder_offset + tool_offset - robot_workspace_offset;
@@ -323,8 +323,8 @@ float segments_per_second = DEFAULT_SEGMENTS_PER_SECOND;
                 GAMMA = ATAN2(SG, CG),      // Method 2
 
                 // Angle of Shoulder Joint, elevation angle measured from horizontal plane XY (r+)
-                //PHI = asin(tpos.z/RHO) + asin(L2 * sin(GAMMA) / RHO), // Method 1
-                PHI = ATAN2(tpos.z, RXY) + ATAN2(K2, K1),               // Method 2
+                //PHI = asinf(tpos.z/RHO) + asinf(L2 * sin(GAMMA) / RHO), // Method 1
+                PHI = ATAN2(tpos.z, RXY) + ATAN2(K2, K1),                 // Method 2
 
                 // Elbow motor angle measured from horizontal, same reference frame as shoulder angle (r+)
                 PSI = PHI + GAMMA;

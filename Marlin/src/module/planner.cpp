@@ -2607,9 +2607,9 @@ bool Planner::_populate_block(
                  *  constexpr float c = 1.00751495f; // Correction factor to center error around 0
                  *  for (int i = 0; i < jd_lut_count - 1; ++i) {
                  *    const float x0 = (sq(i) - 1) / sq(i),
-                 *                y0 = acos(x0) * (i == 0 ? 1 : c),
+                 *                y0 = acosf(x0) * (i == 0 ? 1 : c),
                  *                x1 = i < jd_lut_count - 1 ?  0.5 * x0 + 0.5 : 0.999999f,
-                 *                y1 = acos(x1) * (i < jd_lut_count - 1 ? c : 1);
+                 *                y1 = acosf(x1) * (i < jd_lut_count - 1 ? c : 1);
                  *    jd_lut_k[i] = (y0 - y1) / (x0 - x1);
                  *    jd_lut_b[i] = (y1 * x0 - y0 * x1) / (x0 - x1);
                  *  }
@@ -2617,7 +2617,7 @@ bool Planner::_populate_block(
                  *  // Compute correction factor (Set c to 1.0f first!)
                  *  float min = INFINITY, max = -min;
                  *  for (float t = 0; t <= 1; t += 0.0003f) {
-                 *    const float e = acos(t) / approx(t);
+                 *    const float e = acosf(t) / approx(t);
                  *    if (isfinite(e)) {
                  *      if (e < min) min = e;
                  *      if (e > max) max = e;

@@ -92,7 +92,7 @@ void _man_probe_pt(const xy_pos_t &xy) {
     float dcr = PRINTABLE_RADIUS - PROBING_MARGIN;
     TERN_(HAS_PROBE_XY_OFFSET, dcr -= HYPOT(probe.offset_xy.x, probe.offset_xy.y));
     TERN_(HAS_DELTA_SENSORLESS_PROBING, dcr *= sensorless_radius_factor);
-    xy_pos_t tower_vec = { cos(RADIANS(a)), sin(RADIANS(a)) };
+    xy_pos_t tower_vec = { cosf(RADIANS(a)), sinf(RADIANS(a)) };
     _man_probe_pt(tower_vec * dcr);
   }
   void _goto_tower_x() { _goto_tower_a(210); }

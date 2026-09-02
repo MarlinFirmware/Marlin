@@ -64,8 +64,12 @@
  * G35  - Read bed corners to help adjust bed screws: T<screw_thread> (Requires ASSISTED_TRAMMING)
  * G38  - Probe in any direction using the Z_MIN_PROBE (Requires G38_PROBE_TARGET)
  * G42  - Coordinated move to a mesh point (Requires MESH_BED_LEVELING, AUTO_BED_LEVELING_BLINEAR, or AUTO_BED_LEVELING_UBL)
+ * G50  - Cancel Workspace Scaling (Requires SCALE_WORKSPACE)
+ * G51  - Set Workspace Scaling (Requires SCALE_WORKSPACE)
  * G60  - Save current position. (Requires SAVED_POSITIONS)
  * G61  - Apply/Restore saved coordinates. (Requires SAVED_POSITIONS)
+ * G68  - Set Workspace Rotation (Requires ROTATE_WORKSPACE)
+ * G69  - Cancel Workspace Rotation (Requires ROTATE_WORKSPACE)
  * G76  - Calibrate first layer temperature offsets. (Requires PTC_PROBE and PTC_BED)
  * G80  - Cancel current motion mode (Requires GCODE_MOTION_MODES)
  * G90  - Use Absolute Coordinates
@@ -438,6 +442,50 @@ public:
     static bool select_coordinate_system(const int8_t _new);
   #endif
 
+  #if ANY(ROTATE_WORKSPACE, SCALE_WORKSPACE)
+    static void inverse_workspace_transforms(xyz_pos_t &point);
+    static void apply_workspace_transforms(xyz_pos_t &point);
+
+    #if ENABLED(SCALE_WORKSPACE)
+      #if HAS_Z_AXIS && Z_MIN_POS != 0
+        #define SCALE_Z_FROM_NONZERO 1
+      #endif
+      typedef struct ScalingCenter {
+        float x = 0.0f;
+        #if HAS_Y_AXIS
+          float y = 0.0f;
+        #endif
+        #if SCALE_Z_FROM_NONZERO
+          float z = 0.0f;
+        #elif HAS_Z_AXIS
+          static constexpr float z = 0.0f;
+        #endif
+        void reset() { x = TERN_(HAS_Y_AXIS, y =) TERN_(SCALE_Z_FROM_NONZERO, z =) 0.0f; }
+      } scaling_center_t;
+      typedef struct ScalingFactor {
+        float x = 1.0f;
+        #if HAS_Y_AXIS
+          float y = 1.0f;
+        #endif
+        #if HAS_Z_AXIS
+          float z = 1.0f;
+        #endif
+        void reset() { x = TERN_(HAS_Y_AXIS, y =) TERN_(HAS_Z_AXIS, z =) 1.0f; }
+      } scaling_factor_t;
+
+      static scaling_center_t scaling_center;
+      static scaling_factor_t scaling_factor;
+      static bool scaling_flag;
+    #endif
+
+    #if ENABLED(ROTATE_WORKSPACE)
+      static float rotation_angle;
+      static xy_pos_t rotation_center;
+      static bool rotation_flag;
+      static void set_rotation_angle(const float angle);
+    #endif
+  #endif
+
   static millis_t previous_move_ms, max_inactive_time;
   FORCE_INLINE static bool stepper_max_timed_out(const millis_t ms=millis()) {
     return max_inactive_time && ELAPSED(ms, previous_move_ms, max_inactive_time);
@@ -604,11 +652,6 @@ private:
     static void G34();
   #endif
 
-  #if ENABLED(Z_STEPPER_AUTO_ALIGN)
-    static void M422();
-    static void M422_report(const bool forReplay=true);
-  #endif
-
   #if ENABLED(ASSISTED_TRAMMING)
     static void G35();
   #endif
@@ -621,6 +664,11 @@ private:
     static void G42();
   #endif
 
+  #if ENABLED(SCALE_WORKSPACE)
+    static void G50();
+    static void G51();
+  #endif
+
   #if ENABLED(CNC_COORDINATE_SYSTEMS)
     static void G53();
     static void G54();
@@ -631,13 +679,20 @@ private:
     static void G59();
   #endif
 
-  #if ALL(PTC_PROBE, PTC_BED)
-    static void G76();
-  #endif
-
   #if SAVED_POSITIONS
     static void G60();
     static void G61(int8_t slot=-1);
+  #endif
+
+  #if ENABLED(ROTATE_WORKSPACE)
+    static void G68();
+    static void G69();
+    static float rotation_cos;
+    static float rotation_sin;
+  #endif
+
+  #if ALL(PTC_PROBE, PTC_BED)
+    static void G76();
   #endif
 
   #if ENABLED(GCODE_MOTION_MODES)
@@ -790,14 +845,9 @@ private:
   #endif
 
   static void M108();
-  static void M112();
-  static void M410();
-  #if ENABLED(HOST_PROMPT_SUPPORT)
-    static void M876();
-  #endif
-
   static void M110();
   static void M111();
+  static void M112();
 
   #if ENABLED(HOST_KEEPALIVE_FEATURE)
     static void M113();
@@ -1082,9 +1132,16 @@ private:
     static void M407();
   #endif
 
+  static void M410();
+
   #if HAS_FILAMENT_SENSOR
     static void M412();
     static void M412_report(const bool forReplay=true);
+  #endif
+
+  #if ENABLED(POWER_LOSS_RECOVERY)
+    static void M413();
+    static void M413_report(const bool forReplay=true);
   #endif
 
   #if HAS_MULTI_LANGUAGE
@@ -1096,6 +1153,16 @@ private:
     static void M420();
     static void M420_report(const bool forReplay=true);
     static void M421();
+  #endif
+
+  #if ENABLED(Z_STEPPER_AUTO_ALIGN)
+    static void M422();
+    static void M422_report(const bool forReplay=true);
+  #endif
+
+  #if ENABLED(X_AXIS_TWIST_COMPENSATION)
+    static void M423();
+    static void M423_report(const bool forReplay=true);
   #endif
 
   #if ENABLED(BACKLASH_GCODE)
@@ -1231,6 +1298,11 @@ private:
     static void MMU3_report(const bool forReplay=true);
   #endif
 
+  #if ENABLED(CONTROLLER_FAN_EDITABLE)
+    static void M710();
+    static void M710_report(const bool forReplay=true);
+  #endif
+
   #if ENABLED(GCODE_REPEAT_MARKERS)
     static void M808();
   #endif
@@ -1266,6 +1338,10 @@ private:
 
   #if HAS_PTC
     static void M871();
+  #endif
+
+  #if HAS_GCODE_M876
+    static void M876();
   #endif
 
   #if HAS_LIN_ADVANCE_K
@@ -1338,14 +1414,7 @@ private:
   static void M999();
 
   #if ENABLED(POWER_LOSS_RECOVERY)
-    static void M413();
-    static void M413_report(const bool forReplay=true);
     static void M1000();
-  #endif
-
-  #if ENABLED(X_AXIS_TWIST_COMPENSATION)
-    static void M423();
-    static void M423_report(const bool forReplay=true);
   #endif
 
   #if HAS_MEDIA
@@ -1370,11 +1439,6 @@ private:
 
   #if ENABLED(MAX7219_GCODE)
     static void M7219();
-  #endif
-
-  #if ENABLED(CONTROLLER_FAN_EDITABLE)
-    static void M710();
-    static void M710_report(const bool forReplay=true);
   #endif
 
   static void T(const int8_t tool_index) IF_DISABLED(HAS_TOOLCHANGE, { UNUSED(tool_index); });

@@ -33,6 +33,10 @@
  */
 bool GcodeSuite::select_coordinate_system(const int8_t _new) {
   if (active_coordinate_system == _new) return false;
+  if (TERN0(ROTATE_WORKSPACE, gcode.rotation_angle)) {
+    SERIAL_ECHOLNPGM("Cannot change workspace while rotation is active!");
+    return false;
+  }
   active_coordinate_system = _new;
   xyz_float_t new_offset{0};
   if (WITHIN(_new, 0, MAX_COORDINATE_SYSTEMS - 1))

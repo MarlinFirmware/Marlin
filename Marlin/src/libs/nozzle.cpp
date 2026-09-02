@@ -143,8 +143,8 @@ Nozzle nozzle;
       for (uint8_t s = 0; s < strokes; ++s)
         for (uint8_t i = 0; i < NOZZLE_CLEAN_CIRCLE_FN; ++i)
           motion.blocking_move_xy(
-            middle.x + sin((RADIANS(360) / NOZZLE_CLEAN_CIRCLE_FN) * i) * radius,
-            middle.y + cos((RADIANS(360) / NOZZLE_CLEAN_CIRCLE_FN) * i) * radius
+            middle.x + sinf((RADIANS(360) / NOZZLE_CLEAN_CIRCLE_FN) * i) * radius,
+            middle.y + cosf((RADIANS(360) / NOZZLE_CLEAN_CIRCLE_FN) * i) * radius
           );
 
       // Let's be safe

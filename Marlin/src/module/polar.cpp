@@ -59,8 +59,8 @@ void forward_kinematics(const float r, const float theta) {
   float radius = r;
   if (polar_center_offset > 0.0) radius = SQRT( ABS( sq(r) - sq(-polar_center_offset) ) );
   motion.cartes.set(
-    cos(RADIANS(absTheta)) * radius,
-    sin(RADIANS(absTheta)) * radius
+    cosf(RADIANS(absTheta)) * radius,
+    sinf(RADIANS(absTheta)) * radius
   );
 }
 

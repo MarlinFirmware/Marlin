@@ -218,7 +218,7 @@ static bool probe_calibration_points(float z_pt[NPP + 1], const int8_t probe_poi
       I_LOOP_CAL_PT(rad, start, steps) {
         const float a = RADIANS(210 + (360 / NPP) *  (rad - 1)),
                     r = dcr * 0.1;
-        const xy_pos_t vec = { cos(a), sin(a) };
+        const xy_pos_t vec = { cosf(a), sinf(a) };
         z_pt[CEN] += calibration_probe(vec * r, stow_after_each, probe_at_offset);
         if (isnan(z_pt[CEN])) return false;
      }
@@ -243,12 +243,12 @@ static bool probe_calibration_points(float z_pt[NPP + 1], const int8_t probe_poi
           const float a = RADIANS(210 + (360 / NPP) *  (rad - 1)),
                       r = dcr * (1 - 0.1 * (zig_zag ? offset - circle : circle)),
                       interpol = FMOD(rad, 1);
-          const xy_pos_t vec = { cos(a), sin(a) };
+          const xy_pos_t vec = { cosf(a), sinf(a) };
           const float z_temp = calibration_probe(vec * r, stow_after_each, probe_at_offset);
           if (isnan(z_temp)) return false;
           // split probe point to neighbouring calibration points
-          z_pt[uint8_t(LROUND(rad - interpol + NPP - 1)) % NPP + 1] += z_temp * sq(cos(RADIANS(interpol * 90)));
-          z_pt[uint8_t(LROUND(rad - interpol))           % NPP + 1] += z_temp * sq(sin(RADIANS(interpol * 90)));
+          z_pt[uint8_t(LROUND(rad - interpol + NPP - 1)) % NPP + 1] += z_temp * sq(cosf(RADIANS(interpol * 90)));
+          z_pt[uint8_t(LROUND(rad - interpol))           % NPP + 1] += z_temp * sq(sinf(RADIANS(interpol * 90)));
         }
         FLIP(zig_zag);
       }
@@ -275,7 +275,7 @@ static void reverse_kinematics_probe_points(float z_pt[NPP + 1], abc_float_t mm_
   LOOP_CAL_ALL(rad) {
     const float a = RADIANS(210 + (360 / NPP) *  (rad - 1)),
                 r = (rad == CEN ? 0.0f : dcr);
-    pos.set(cos(a) * r, sin(a) * r, z_pt[rad]);
+    pos.set(cosf(a) * r, sinf(a) * r, z_pt[rad]);
     inverse_kinematics(pos);
     mm_at_pt_axis[rad] = motion.delta;
   }

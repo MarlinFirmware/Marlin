@@ -66,27 +66,27 @@ namespace FTDI {
     // Paint upper-right quadrant
     cmd.cmd(BEGIN(EDGE_STRIP_A));
     cmd.cmd(VERTEX2F(cx, cy));
-    cmd.cmd(VERTEX2F(cx + ro*sin(a1) + 16,cy - ro*cos(a1) + 8));
+    cmd.cmd(VERTEX2F(cx + ro * sinf(a1) + 16, cy - ro * cosf(a1) + 8));
 
     // Paint lower-right quadrant
     if (a > M_PI/2) {
       cmd.cmd(BEGIN(EDGE_STRIP_R));
       cmd.cmd(VERTEX2F(cx, cy));
-      cmd.cmd(VERTEX2F(cx + ro*cos(a2),cy + ro*sin(a2) + 16));
+      cmd.cmd(VERTEX2F(cx + ro * cosf(a2), cy + ro * sinf(a2) + 16));
     }
 
     // Paint lower-left quadrant
     if (a > M_PI) {
       cmd.cmd(BEGIN(EDGE_STRIP_B));
       cmd.cmd(VERTEX2F(cx, cy));
-      cmd.cmd(VERTEX2F(cx - ro*sin(a3) - 8,cy + ro*cos(a3)));
+      cmd.cmd(VERTEX2F(cx - ro * sinf(a3) - 8, cy + ro * cosf(a3)));
     }
 
     // Paint upper-left quadrant
     if (a > 1.5*M_PI) {
       cmd.cmd(BEGIN(EDGE_STRIP_L));
       cmd.cmd(VERTEX2F(cx, cy));
-      cmd.cmd(VERTEX2F(cx - ro*cos(a4),cy - ro*sin(a4)));
+      cmd.cmd(VERTEX2F(cx - ro * cosf(a4), cy - ro * sinf(a4)));
     }
     cmd.cmd(RESTORE_CONTEXT());
 

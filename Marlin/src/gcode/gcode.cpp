@@ -104,6 +104,27 @@ relative_t GcodeSuite::axis_relative; // Init in constructor
   xyz_pos_t GcodeSuite::coordinate_system[MAX_COORDINATE_SYSTEMS];
 #endif
 
+#if ENABLED(SCALE_WORKSPACE)
+  GcodeSuite::scaling_center_t GcodeSuite::scaling_center;
+  GcodeSuite::scaling_factor_t GcodeSuite::scaling_factor;
+  bool GcodeSuite::scaling_flag = false; // true if scaling is active
+#endif
+
+#if ENABLED(ROTATE_WORKSPACE)
+  float GcodeSuite::rotation_cos = 1.0f;
+  float GcodeSuite::rotation_sin = 0.0f;
+  float GcodeSuite::rotation_angle; // = 0.0f
+  xy_pos_t GcodeSuite::rotation_center; // = { 0.0f, 0.0f }
+  bool GcodeSuite::rotation_flag = false; // true if rotation is active
+
+  void GcodeSuite::set_rotation_angle(const float angle) {
+    rotation_angle = angle;
+    const float angle_rad = RADIANS(rotation_angle);
+    rotation_cos = cosf(angle_rad);
+    rotation_sin = sinf(angle_rad);
+  }
+#endif
+
 #if ENABLED(GCODE_MACROS)
   char GcodeSuite::macros[GCODE_MACROS_SLOTS][GCODE_MACROS_SLOT_SIZE + 1] = {{ 0 }};
 #endif
@@ -160,6 +181,54 @@ int8_t GcodeSuite::get_target_e_stepper_from_command(const int8_t dval/*=-1*/) {
   return -1;
 }
 
+#if ANY(ROTATE_WORKSPACE, SCALE_WORKSPACE)
+
+  // Apply inverse transformations
+  void GcodeSuite::inverse_workspace_transforms(xyz_pos_t &point) {
+    #if ENABLED(ROTATE_WORKSPACE)
+      // Inverse Rotation
+      if (rotation_flag) {
+        const float dx = point.x - rotation_center.x, dy = point.y - rotation_center.y;
+        point.x = rotation_center.x + dx * rotation_cos - dy * (-rotation_sin);
+        point.y = rotation_center.y + dx * (-rotation_sin) + dy * rotation_cos;
+      }
+    #endif
+
+    #if ENABLED(SCALE_WORKSPACE)
+      // Inverse Scaling
+      if (scaling_flag) {
+        point.x = scaling_center.x + (point.x - scaling_center.x) / scaling_factor.x;
+        TERN_(HAS_Y_AXIS, point.y = scaling_center.y + (point.y - scaling_center.y) / scaling_factor.y);
+        #if HAS_Z_AXIS
+          point.z = TERN(SCALE_Z_FROM_NONZERO, scaling_center.z + (point.z - scaling_center.z), point.z) / scaling_factor.z;
+        #endif
+      }
+    #endif
+  }
+
+  // Apply forward transformations
+  void GcodeSuite::apply_workspace_transforms(xyz_pos_t &point) {
+    #if ENABLED(SCALE_WORKSPACE)
+      // Apply Scaling transformation
+      if (scaling_flag) {
+        point.x = scaling_center.x + (point.x - scaling_center.x) * scaling_factor.x;
+        TERN_(HAS_Y_AXIS, point.y = scaling_center.y + (point.y - scaling_center.y) * scaling_factor.y);
+        TERN_(HAS_Z_AXIS, point.z = scaling_center.z + (point.z - scaling_center.z) * scaling_factor.z);
+      }
+    #endif
+
+    #if ENABLED(ROTATE_WORKSPACE)
+      // Apply Rotation transformation
+      if (rotation_flag) {
+        const float dx = point.x - rotation_center.x, dy = point.y - rotation_center.y;
+        point.x = rotation_center.x + dx * rotation_cos - dy * rotation_sin;
+        point.y = rotation_center.y + dx * rotation_sin + dy * rotation_cos;
+      }
+    #endif
+  }
+
+#endif // ROTATE_WORKSPACE || SCALE_WORKSPACE
+
 /**
  * Set XYZ...E destination and feedrate from the current G-Code command
  *
@@ -169,6 +238,7 @@ int8_t GcodeSuite::get_target_e_stepper_from_command(const int8_t dval/*=-1*/) {
  */
 void GcodeSuite::get_destination_from_command() {
   xyze_bool_t seen{false};
+  xyze_pos_t raw_destination;
 
   #if ENABLED(CANCEL_OBJECTS)
     const bool &skip_move = cancelable.state.skipping;
@@ -176,18 +246,31 @@ void GcodeSuite::get_destination_from_command() {
     constexpr bool skip_move = false;
   #endif
 
+  raw_destination = motion.position; // Get the current position
+
+  #if ANY(ROTATE_WORKSPACE, SCALE_WORKSPACE)
+    // Apply inverse transformations
+    if (TERN0(SCALE_WORKSPACE, scaling_flag) || TERN0(ROTATE_WORKSPACE, rotation_flag))
+      inverse_workspace_transforms(raw_destination);
+  #endif
+
   // Get new XYZ position, whether absolute or relative
   LOOP_NUM_AXES(i) {
     if ( (seen[i] = parser.seenval(AXIS_CHAR(i))) ) {
-      const float v = parser.value_axis_units((AxisEnum)i);
-      if (skip_move)
-        motion.destination[i] = motion.position[i];
-      else
-        motion.destination[i] = axis_is_relative((AxisEnum)i) ? motion.position[i] + v : motion.logical_to_native(v, (AxisEnum)i);
+      if (!skip_move) {
+        const float v = parser.value_axis_units((AxisEnum)i);
+        raw_destination[i] = axis_is_relative((AxisEnum)i) ? raw_destination[i] + v : motion.logical_to_native(v, (AxisEnum)i);
+      }
     }
-    else
-      motion.destination[i] = motion.position[i];
   }
+
+  motion.destination = raw_destination; // Get the final machine destination
+
+  #if ANY(SCALE_WORKSPACE, ROTATE_WORKSPACE)
+    // Apply forward transformations
+    if (TERN0(SCALE_WORKSPACE, scaling_flag) || TERN0(ROTATE_WORKSPACE, rotation_flag))
+      apply_workspace_transforms(motion.destination);
+  #endif
 
   #if HAS_EXTRUDERS
     // Get new E position, whether absolute or relative
@@ -217,8 +300,8 @@ void GcodeSuite::get_destination_from_command() {
       print_job_timer.incFilamentUsed(motion.destination.e - motion.position.e);
   #endif
 
-  // Get ABCDHI mixing factors
   #if ALL(MIXING_EXTRUDER, DIRECT_MIXING_IN_G1)
+    // Get ABCDHI mixing factors
     M165();
   #endif
 
@@ -440,6 +523,11 @@ void GcodeSuite::process_parsed_command(bool no_ok/*=false*/) {
         case 42: G42(); break;                                    // G42: Coordinated move to a mesh point
       #endif
 
+      #if ENABLED(SCALE_WORKSPACE)
+        case 50: G50(); break;                                    // G50: Cancel Workspace Scaling
+        case 51: G51(); break;                                    // G51: Set Workspace Scaling
+      #endif
+
       #if ENABLED(CNC_COORDINATE_SYSTEMS)
         case 53: G53(); break;                                    // G53: (prefix) Apply native workspace
         case 54: G54(); break;                                    // G54: Switch to Workspace 1
@@ -453,6 +541,11 @@ void GcodeSuite::process_parsed_command(bool no_ok/*=false*/) {
       #if SAVED_POSITIONS
         case 60: G60(); break;                                    // G60:  save current position
         case 61: G61(); break;                                    // G61:  Apply/restore saved coordinates.
+      #endif
+
+      #if ENABLED(ROTATE_WORKSPACE)
+        case 68: G68(); break;                                    // G68: Set Workspace Rotation
+        case 69: G69(); break;                                    // G69: Cancel Workspace Rotation
       #endif
 
       #if ALL(PTC_PROBE, PTC_BED)

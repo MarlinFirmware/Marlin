@@ -800,16 +800,18 @@ void Motion::get_cartesian_from_steppers() {
     forward_kinematics(planner.get_axis_position_mm(X_AXIS), planner.get_axis_position_degrees(B_AXIS));
     cartes.z = planner.get_axis_position_mm(Z_AXIS);
   #else
-    NUM_AXIS_CODE(
-      cartes.x = planner.get_axis_position_mm(X_AXIS),
-      cartes.y = planner.get_axis_position_mm(Y_AXIS),
-      cartes.z = planner.get_axis_position_mm(Z_AXIS),
-      cartes.i = planner.get_axis_position_mm(I_AXIS),
-      cartes.j = planner.get_axis_position_mm(J_AXIS),
-      cartes.k = planner.get_axis_position_mm(K_AXIS),
-      cartes.u = planner.get_axis_position_mm(U_AXIS),
-      cartes.v = planner.get_axis_position_mm(V_AXIS),
-      cartes.w = planner.get_axis_position_mm(W_AXIS)
+    cartes.set(
+      NUM_AXIS_LIST(
+        planner.get_axis_position_mm(X_AXIS),
+        planner.get_axis_position_mm(Y_AXIS),
+        planner.get_axis_position_mm(Z_AXIS),
+        planner.get_axis_position_mm(I_AXIS),
+        planner.get_axis_position_mm(J_AXIS),
+        planner.get_axis_position_mm(K_AXIS),
+        planner.get_axis_position_mm(U_AXIS),
+        planner.get_axis_position_mm(V_AXIS),
+        planner.get_axis_position_mm(W_AXIS)
+      )
     );
   #endif
 }
