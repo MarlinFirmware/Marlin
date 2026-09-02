@@ -113,7 +113,7 @@
 #define FAN1_PIN                             149
 
 //
-// MicroSD card
+// MicroSD card on VSPI (bus 3)
 //
 #define SD_MOSI_PIN                           23
 #define SD_MISO_PIN                           19
