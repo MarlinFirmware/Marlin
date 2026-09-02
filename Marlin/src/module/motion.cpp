@@ -1082,10 +1082,8 @@ void Motion::blocking_move(const xy_pos_t &raw, const feedRate_t fr_mm_s/*=0.0f*
    *  - If lowering is not allowed then skip a downward move
    *  - Execute the move at the probing (or homing) feedrate
    */
-  void Motion::do_z_clearance(const float zclear, const bool with_probe/*=true*/, const bool lower_allowed/*=false*/) {
-    UNUSED(with_probe);
+  void Motion::do_z_clearance(const float zclear, const bool lower_allowed/*=false*/) {
     float zdest = zclear;
-    TERN_(HAS_BED_PROBE, if (with_probe && probe.offset.z < 0) zdest -= probe.offset.z);
     NOMORE(zdest, Z_MAX_POS);
     if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("do_z_clearance(", zclear, " [", position.z, " to ", zdest, "], ", lower_allowed, ")");
     if ((!lower_allowed && zdest < position.z) || zdest == position.z) return;
@@ -1093,7 +1091,7 @@ void Motion::blocking_move(const xy_pos_t &raw, const feedRate_t fr_mm_s/*=0.0f*
   }
   void Motion::do_z_clearance_by(const float zclear) {
     if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("do_z_clearance_by(", zclear, ")");
-    do_z_clearance(position.z + zclear, false);
+    do_z_clearance(position.z + zclear);
   }
 
   #if ENABLED(DWIN_LCD_PROUI) && (HAS_MESH || ALL(INDIVIDUAL_AXIS_HOMING_SUBMENU, MESH_BED_LEVELING))
@@ -1114,11 +1112,7 @@ void Motion::blocking_move(const xy_pos_t &raw, const feedRate_t fr_mm_s/*=0.0f*
 
   void Motion::do_move_after_z_homing() {
     DEBUG_SECTION(mzah, "do_move_after_z_homing", DEBUGGING(LEVELING));
-    do_z_clearance(
-      Z_POST_CLEARANCE,
-      ALL(HOMING_Z_WITH_PROBE, HAS_STOWABLE_PROBE) && TERN0(HAS_BED_PROBE, endstops.z_probe_enabled),
-      true
-    );
+    do_z_clearance(Z_POST_CLEARANCE, true);
   }
 
   void Motion::do_z_post_clearance() { do_z_clearance(Z_POST_CLEARANCE); }
