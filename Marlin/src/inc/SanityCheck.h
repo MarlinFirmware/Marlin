@@ -4025,6 +4025,14 @@ static_assert(_PLUS_TEST(3), "DEFAULT_MAX_ACCELERATION values must be positive."
   #endif
 #endif
 
+#if ENABLED(CONTINUE_PRINT_FROM_Z)
+  #if !HAS_MEDIA
+    #error "CONTINUE_PRINT_FROM_Z requires SDSUPPORT."
+  #elif !HAS_MARLINUI_MENU
+    #error "CONTINUE_PRINT_FROM_Z requires an LCD controller with MarlinUI."
+  #endif
+#endif
+
 #if ENABLED(Z_STEPPER_AUTO_ALIGN)
   #if NUM_Z_STEPPERS <= 1
     #error "Z_STEPPER_AUTO_ALIGN requires more than one Z stepper."

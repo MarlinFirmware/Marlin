@@ -537,6 +537,10 @@ void MarlinUI::init() {
 
   #if IS_RRW_KEYPAD && HAS_ENCODER_ACTION
 
+    #if ENABLED(CONTINUE_PRINT_FROM_Z)
+      #include "../feature/continue_from_z.h"
+    #endif
+
     volatile uint8_t MarlinUI::keypad_buttons;
 
     #if HAS_MARLINUI_MENU && !HAS_ADC_BUTTONS
@@ -574,7 +578,13 @@ void MarlinUI::init() {
                    if (RRK(EN_KEYPAD_UP))     encoderPosition -= epps;
               else if (RRK(EN_KEYPAD_DOWN))   encoderPosition += epps;
               else if (RRK(EN_KEYPAD_LEFT))   { MenuItem_back::action(); quick_feedback(); }
-              else if (RRK(EN_KEYPAD_RIGHT))  encoderPosition = 0;
+              else if (RRK(EN_KEYPAD_RIGHT)) {
+                // While editing the "Continue from Z" value, RIGHT Key loads the current Z
+                // (when homed) instead of snapping to zero.
+                encoderPosition = TERN0(CONTINUE_PRINT_FROM_Z, MenuEditItemBase::currently_editing(&ContinueFromZ::target_z) && axis_was_homed(Z_AXIS))
+                  ? int32_t(current_position.z * 100.0f + 0.5f)  // x 100 for MarlinUI float52 use
+                  : 0;
+              }
             #else
                    if (RRK(EN_KEYPAD_UP)   || RRK(EN_KEYPAD_LEFT))  encoderPosition -= epps;
               else if (RRK(EN_KEYPAD_DOWN) || RRK(EN_KEYPAD_RIGHT)) encoderPosition += epps;

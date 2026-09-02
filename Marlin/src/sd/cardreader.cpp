@@ -55,6 +55,10 @@
   #include "../feature/powerloss.h"
 #endif
 
+#if ENABLED(CONTINUE_PRINT_FROM_Z)
+  #include "../feature/continue_from_z.h"
+#endif
+
 #if ENABLED(ADVANCED_PAUSE_FEATURE)
   #include "../feature/pause.h"
 #endif
@@ -702,11 +706,24 @@ void CardReader::release() {
  * Enqueues M23 and M24 commands to initiate a media print.
  */
 void CardReader::openAndPrintFile(const char *name) {
-  char cmd[4 + strlen(name) + 1 + 3 + 1]; // Room for "M23 ", filename, "\n", "M24", and null
-  sprintf_P(cmd, M23_STR, name);
-  for (char *c = &cmd[4]; *c; c++) *c = tolower(*c);
-  strcat_P(cmd, PSTR("\nM24"));
-  queue.inject(cmd);
+  // Create lowercase name
+  char lname[strlen(name) + 1];
+  for (char *d = lname; *name; d++, name++) *d = tolower(*name);
+
+  MString<MAX_CMD_SIZE> cmd;
+  cmd.setf_P(M23_STR, lname);
+
+  if (TERN0(CONTINUE_PRINT_FROM_Z, ContinueFromZ::target_z > 0.0f)) {
+    #if ENABLED(CONTINUE_PRINT_FROM_Z)
+      // Inject "M1005 Z<value>" instead of "M24"
+      cmd.append(F("\nM1005 Z"), w_float_t(ContinueFromZ::target_z, 1, 2));
+      ContinueFromZ::target_z = 0.0f;       // One-shot: clear after consuming.
+    #endif
+  }
+  else
+    cmd.append(F("\nM24"));
+
+  queue.inject(&cmd);
 }
 
 /**

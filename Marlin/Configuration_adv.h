@@ -1923,6 +1923,28 @@
   #endif
 
   /**
+   * Manual "Start Print From Z" — Continue an SD print at a chosen Z height.
+   *
+   * Adds an LCD submenu "Print from Z..." to set a target Z before printing.
+   * When the print is started, Marlin pre-scans the
+   * G-code, simulating the machine state (X/Y/Z/E, units, abs/rel modes,
+   * G92, target temperatures, fan speeds, active tool) without performing
+   * any motion, until a move brings Z >= target. Marlin then heats up,
+   * homes XY, lifts Z to the target, restores the E counter, and resumes
+   * the SD print from that byte offset.
+   *
+   * Self-contained — does NOT require POWER_LOSS_RECOVERY.
+   *
+   * Useful as a manual replacement for power-loss recovery when no recovery
+   * file was saved (e.g. crash, manual abort, swapped SD card).
+   */
+  //#define CONTINUE_PRINT_FROM_Z
+  #if ENABLED(CONTINUE_PRINT_FROM_Z)
+    #define START_PRINT_FROM_Z_MAX Z_MAX_POS  // (mm) Max selectable Z start
+    //#define START_PRINT_FROM_Z_DEBUG        // Verbose serial output during scan
+  #endif
+
+  /**
    * Sort SD file listings in alphabetical order.
    *
    * With this option enabled, items on SD cards will be sorted
