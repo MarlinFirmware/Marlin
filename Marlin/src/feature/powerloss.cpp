@@ -88,6 +88,9 @@ PrintJobRecovery recovery;
 #ifndef POWER_LOSS_PURGE_LEN
   #define POWER_LOSS_PURGE_LEN 0
 #endif
+#ifndef POWER_LOSS_XYHOME_HEIGHT
+  #define POWER_LOSS_XYHOME_HEIGHT 0
+#endif
 
 // Allow power-loss recovery to be aborted
 #define PLR_CAN_ABORT
@@ -454,9 +457,9 @@ void PrintJobRecovery::resume() {
 
     // If Z homing goes to max then just move back to the "raised" position
     PROCESS_SUBCOMMANDS_NOW(TS(
-      F( "G28R0\n"    // Home all axes (no raise)
-         "G1F1200Z")  // Move Z down to (raised) height
-      , p_float_t(z_now, 3)
+      F(  "G28R"),     p_float_t(_MAX(POWER_LOSS_XYHOME_HEIGHT - z_now, 0), 3),     // Home all axes with optional raise
+      F("\nG1F3000X"), p_float_t(resume_pos.x, 3), 'Y', p_float_t(resume_pos.y, 3), // Return XY to original place to prevent collision while descending
+      F("\nG1F1200Z"), p_float_t(z_now, 3)                                          // Move Z down to (raised) height
     ));
 
   #elif DISABLED(BELTPRINTER)
@@ -478,8 +481,12 @@ void PrintJobRecovery::resume() {
       PROCESS_SUBCOMMANDS_NOW(TS(F("G1F600Z"), p_float_t(z_now, 3)));
     }
 
-    // Home XY with no Z raise
-    PROCESS_SUBCOMMANDS_NOW(F("G28R0XY")); // No raise during G28
+    
+    PROCESS_SUBCOMMANDS_NOW(TS(
+      F(  "G28XYR"),   p_float_t(_MAX(POWER_LOSS_XYHOME_HEIGHT - z_now, 0), 3),     // Home XY with optional Z raise
+      F("\nG1F3000X"), p_float_t(resume_pos.x, 3), 'Y', p_float_t(resume_pos.y, 3), // Return XY to original place to prevent collision while descending
+      F("\nG1F1200Z"), p_float_t(z_now, 3)                                          // Move Z down to (raised) height
+    ));
 
   #endif
 
