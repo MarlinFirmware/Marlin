@@ -68,7 +68,7 @@
     #error "Your Configuration_adv.h file is for a newer version of Marlin. Upgrade Marlin or downgrade your Configuration_adv.h."
   #endif
   #undef HEXIFY
-#endif // HAS_IGNORED_CONFIGS
+#endif // USE_STD_CONFIGS
 
 /**
  * Warnings for old configurations

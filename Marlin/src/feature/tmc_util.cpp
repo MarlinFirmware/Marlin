@@ -243,7 +243,7 @@
       return data;
     }
 
-  #endif // TMC2208 || TMC2209
+  #endif // HAS_TMC220x
 
   #if HAS_DRIVER(TMC2660)
 
