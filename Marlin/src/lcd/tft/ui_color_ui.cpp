@@ -205,52 +205,52 @@ void draw_heater_status(uint16_t x, uint16_t y, const int8_t heater) {
 
 #if HAS_FAN
 
-void draw_fan_status(uint16_t x, uint16_t y, const bool blink) {
-  TERN_(TOUCH_SCREEN, touch.add_control(FAN, x, y, TEMP_FAN_CONTROL_W, TEMP_FAN_CONTROL_H));
-  tft.canvas(x, y, TEMP_FAN_CONTROL_W, TEMP_FAN_CONTROL_H);
-  tft.set_background(COLOR_BACKGROUND);
+  void draw_fan_status(uint16_t x, uint16_t y, const bool blink) {
+    TERN_(TOUCH_SCREEN, touch.add_control(FAN, x, y, TEMP_FAN_CONTROL_W, TEMP_FAN_CONTROL_H));
+    tft.canvas(x, y, TEMP_FAN_CONTROL_W, TEMP_FAN_CONTROL_H);
+    tft.set_background(COLOR_BACKGROUND);
 
-  uint8_t fanSpeed = thermalManager.fan_speed[0];
-  MarlinImage image;
+    uint8_t fanSpeed = thermalManager.fan_speed[0];
+    MarlinImage image;
 
-  if (fanSpeed >= 127)
-    image = blink ? imgFanFast1 : imgFanFast0;
-  else if (fanSpeed > 0)
-    image = blink ? imgFanSlow1 : imgFanSlow0;
-  else
-    image = imgFanIdle;
+    if (fanSpeed >= 127)
+      image = blink ? imgFanFast1 : imgFanFast0;
+    else if (fanSpeed > 0)
+      image = blink ? imgFanSlow1 : imgFanSlow0;
+    else
+      image = imgFanIdle;
 
-  tft.add_image(FAN_ICON_X, FAN_ICON_Y, image, COLOR_FAN);
+    tft.add_image(FAN_ICON_X, FAN_ICON_Y, image, COLOR_FAN);
 
-  tft_string.set(ui8tostr4pctrj(thermalManager.fan_speed[0]));
-  tft_string.trim();
-  tft.add_text(FAN_TEXT_X, FAN_TEXT_Y, COLOR_FAN, tft_string);
-}
+    tft_string.set(ui8tostr4pctrj(thermalManager.fan_speed[0]));
+    tft_string.trim();
+    tft.add_text(FAN_TEXT_X, FAN_TEXT_Y, COLOR_FAN, tft_string);
+  }
 
 #endif // HAS_FAN
 
 #if HAS_CUTTER
 
-void draw_cutter_status(uint16_t x, uint16_t y) {
-  tft.canvas(x, y, TEMP_FAN_CONTROL_W, TEMP_FAN_CONTROL_H);
-  tft.set_background(COLOR_BACKGROUND);
+  void draw_cutter_status(uint16_t x, uint16_t y) {
+    tft.canvas(x, y, TEMP_FAN_CONTROL_W, TEMP_FAN_CONTROL_H);
+    tft.set_background(COLOR_BACKGROUND);
 
-  tft.add_image(CUTTER_ICON_X, CUTTER_ICON_Y, cutter.enabled() ? imgCutterOn : imgCutter, COLOR_CUTTER);
+    tft.add_image(CUTTER_ICON_X, CUTTER_ICON_Y, cutter.enabled() ? imgCutterOn : imgCutter, COLOR_CUTTER);
 
-  if (cutter.isReadyForUI) {
-    #if CUTTER_UNIT_IS(RPM)
-      tft_string.set(ftostr61rj(float(cutter.unitPower) / 1000));
-      tft_string.add('K');
-    #else
-      tft_string.set(cutter_power2str(cutter.unitPower));
-    #endif
+    if (cutter.isReadyForUI) {
+      #if CUTTER_UNIT_IS(RPM)
+        tft_string.set(ftostr61rj(float(cutter.unitPower) / 1000));
+        tft_string.add('K');
+      #else
+        tft_string.set(cutter_power2str(cutter.unitPower));
+      #endif
+    }
+    else
+      tft_string.set("---");
+
+    tft_string.trim();
+    tft.add_text(tft_string.center(TEMP_FAN_CONTROL_W), CUTTER_VALUE_Y, COLOR_CUTTER, tft_string);
   }
-  else
-    tft_string.set("---");
-
-  tft_string.trim();
-  tft.add_text(tft_string.center(TEMP_FAN_CONTROL_W), CUTTER_VALUE_Y, COLOR_CUTTER, tft_string);
-}
 
 #endif // HAS_CUTTER
 

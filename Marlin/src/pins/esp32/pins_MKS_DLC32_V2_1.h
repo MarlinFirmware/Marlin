@@ -219,7 +219,7 @@
       #define TOUCH_CALIBRATION_X         -11606
     #endif
     #ifndef TOUCH_CALIBRATION_Y
-      #define TOUCH_CALIBRATION_Y             8556
+      #define TOUCH_CALIBRATION_Y           8556
     #endif
     #ifndef TOUCH_OFFSET_X
       #define TOUCH_OFFSET_X                 349
