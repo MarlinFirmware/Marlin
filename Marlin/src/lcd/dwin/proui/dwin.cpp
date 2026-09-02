@@ -236,12 +236,14 @@ Menu *filamentMenu = nullptr;
   Menu *preheatHotendMenu = nullptr;
 #endif
 Menu *temperatureMenu = nullptr;
-Menu *maxSpeedMenu = nullptr;
 Menu *maxAccelMenu = nullptr;
+#if ENABLED(EDITABLE_STEPS_PER_UNIT)
+  Menu *stepsMenu = nullptr;
+#endif
+Menu *maxSpeedMenu = nullptr;
 #if ENABLED(CLASSIC_JERK)
   Menu *maxJerkMenu = nullptr;
 #endif
-Menu *stepsMenu = nullptr;
 #if ANY(MPC_EDIT_MENU, MPC_AUTOTUNE_MENU)
   Menu *hotendMPCMenu = nullptr;
 #endif
@@ -2734,20 +2736,6 @@ void gotoConfirmToPrint() {
   #endif
 #endif
 
-void applyMaxSpeed() { planner.set_max_feedrate(hmiValue.axis, menuData.value / MINUNITMULT); }
-#if HAS_X_AXIS
-  void setMaxSpeedX() { hmiValue.axis = X_AXIS; setFloatOnClick(min_feedrate_edit_values.x, max_feedrate_edit_values.x, UNITFDIGITS, planner.settings.max_feedrate_mm_s[X_AXIS], applyMaxSpeed); }
-#endif
-#if HAS_Y_AXIS
-  void setMaxSpeedY() { hmiValue.axis = Y_AXIS; setFloatOnClick(min_feedrate_edit_values.y, max_feedrate_edit_values.y, UNITFDIGITS, planner.settings.max_feedrate_mm_s[Y_AXIS], applyMaxSpeed); }
-#endif
-#if HAS_Z_AXIS
-  void setMaxSpeedZ() { hmiValue.axis = Z_AXIS; setFloatOnClick(min_feedrate_edit_values.z, max_feedrate_edit_values.z, UNITFDIGITS, planner.settings.max_feedrate_mm_s[Z_AXIS], applyMaxSpeed); }
-#endif
-#if HAS_HOTEND
-  void setMaxSpeedE() { hmiValue.axis = E_AXIS; setFloatOnClick(min_feedrate_edit_values.e, max_feedrate_edit_values.e, UNITFDIGITS, planner.settings.max_feedrate_mm_s[E_AXIS], applyMaxSpeed); }
-#endif
-
 void applyMaxAccel() { planner.set_max_acceleration(hmiValue.axis, menuData.value); }
 #if HAS_X_AXIS
   void setMaxAccelX() { hmiValue.axis = X_AXIS; setIntOnClick(min_acceleration_edit_values.x, max_acceleration_edit_values.x, planner.settings.max_acceleration_mm_per_s2[X_AXIS], applyMaxAccel); }
@@ -2760,6 +2748,37 @@ void applyMaxAccel() { planner.set_max_acceleration(hmiValue.axis, menuData.valu
 #endif
 #if HAS_HOTEND
   void setMaxAccelE() { hmiValue.axis = E_AXIS; setIntOnClick(min_acceleration_edit_values.e, max_acceleration_edit_values.e, planner.settings.max_acceleration_mm_per_s2[E_AXIS], applyMaxAccel); }
+#endif
+
+#if ENABLED(EDITABLE_STEPS_PER_UNIT)
+
+  #if HAS_X_AXIS
+    void setStepsX() { hmiValue.axis = X_AXIS; setPFloatOnClick( min_steps_edit_values.x, max_steps_edit_values.x, UNITFDIGITS); }
+  #endif
+  #if HAS_Y_AXIS
+    void setStepsY() { hmiValue.axis = Y_AXIS; setPFloatOnClick( min_steps_edit_values.y, max_steps_edit_values.y, UNITFDIGITS); }
+  #endif
+  #if HAS_Z_AXIS
+    void setStepsZ() { hmiValue.axis = Z_AXIS; setPFloatOnClick( min_steps_edit_values.z, max_steps_edit_values.z, UNITFDIGITS); }
+  #endif
+  #if HAS_HOTEND
+    void setStepsE() { hmiValue.axis = E_AXIS; setPFloatOnClick( min_steps_edit_values.e, max_steps_edit_values.e, UNITFDIGITS); }
+  #endif
+
+#endif
+
+void applyMaxSpeed() { planner.set_max_feedrate(hmiValue.axis, menuData.value / MINUNITMULT); }
+#if HAS_X_AXIS
+  void setMaxSpeedX() { hmiValue.axis = X_AXIS; setFloatOnClick(min_feedrate_edit_values.x, max_feedrate_edit_values.x, UNITFDIGITS, planner.settings.max_feedrate_mm_s[X_AXIS], applyMaxSpeed); }
+#endif
+#if HAS_Y_AXIS
+  void setMaxSpeedY() { hmiValue.axis = Y_AXIS; setFloatOnClick(min_feedrate_edit_values.y, max_feedrate_edit_values.y, UNITFDIGITS, planner.settings.max_feedrate_mm_s[Y_AXIS], applyMaxSpeed); }
+#endif
+#if HAS_Z_AXIS
+  void setMaxSpeedZ() { hmiValue.axis = Z_AXIS; setFloatOnClick(min_feedrate_edit_values.z, max_feedrate_edit_values.z, UNITFDIGITS, planner.settings.max_feedrate_mm_s[Z_AXIS], applyMaxSpeed); }
+#endif
+#if HAS_HOTEND
+  void setMaxSpeedE() { hmiValue.axis = E_AXIS; setFloatOnClick(min_feedrate_edit_values.e, max_feedrate_edit_values.e, UNITFDIGITS, planner.settings.max_feedrate_mm_s[E_AXIS], applyMaxSpeed); }
 #endif
 
 #if ENABLED(CLASSIC_JERK)
@@ -2790,18 +2809,6 @@ void applyMaxAccel() { planner.set_max_acceleration(hmiValue.axis, menuData.valu
     void applySmoothLA() { stepper.set_advance_tau(menuData.value / POW(10, 2)); }
     void setSmoothLA() { setPFloatOnClick(0, 0.5, 2, applySmoothLA); }
   #endif
-#endif
-#if HAS_X_AXIS
-  void setStepsX() { hmiValue.axis = X_AXIS; setPFloatOnClick( min_steps_edit_values.x, max_steps_edit_values.x, UNITFDIGITS); }
-#endif
-#if HAS_Y_AXIS
-  void setStepsY() { hmiValue.axis = Y_AXIS; setPFloatOnClick( min_steps_edit_values.y, max_steps_edit_values.y, UNITFDIGITS); }
-#endif
-#if HAS_Z_AXIS
-  void setStepsZ() { hmiValue.axis = Z_AXIS; setPFloatOnClick( min_steps_edit_values.z, max_steps_edit_values.z, UNITFDIGITS); }
-#endif
-#if HAS_HOTEND
-  void setStepsE() { hmiValue.axis = E_AXIS; setPFloatOnClick( min_steps_edit_values.e, max_steps_edit_values.e, UNITFDIGITS); }
 #endif
 
 #if ENABLED(EDITABLE_HOMING_FEEDRATE)
@@ -3024,52 +3031,6 @@ void onDrawSteps(MenuItem* menuitem, int8_t line) {
   #endif
 #endif // HAS_PREHEAT
 
-void onDrawSpeed(MenuItem* menuitem, int8_t line) {
-  if (hmiIsChinese())
-    menuitem->setFrame(1, 173, 133, 228, 147);
-  onDrawSubMenu(menuitem, line);
-}
-
-#if HAS_X_AXIS
-  void onDrawMaxSpeedX(MenuItem* menuitem, int8_t line) {
-    if (hmiIsChinese()) {
-      menuitem->setFrame(1, 173, 133, 228, 147);
-      dwinFrameAreaCopy(1, 229, 133, 236, 147, LBLX + 58, MBASE(line));   // X
-    }
-    onDrawPFloatMenu(menuitem, line);
-  }
-#endif
-
-#if HAS_Y_AXIS
-  void onDrawMaxSpeedY(MenuItem* menuitem, int8_t line) {
-    if (hmiIsChinese()) {
-      menuitem->setFrame(1, 173, 133, 228, 147);
-      dwinFrameAreaCopy(1, 1, 150, 7, 160, LBLX + 58, MBASE(line));       // Y
-    }
-    onDrawPFloatMenu(menuitem, line);
-  }
-#endif
-
-#if HAS_Z_AXIS
-  void onDrawMaxSpeedZ(MenuItem* menuitem, int8_t line) {
-    if (hmiIsChinese()) {
-      menuitem->setFrame(1, 173, 133, 228, 147);
-      dwinFrameAreaCopy(1, 9, 150, 16, 160, LBLX + 58, MBASE(line) + 3);  // Z
-    }
-    onDrawPFloatMenu(menuitem, line);
-  }
-#endif
-
-#if HAS_HOTEND
-  void onDrawMaxSpeedE(MenuItem* menuitem, int8_t line) {
-    if (hmiIsChinese()) {
-      menuitem->setFrame(1, 173, 133, 228, 147);
-      dwinFrameAreaCopy(1, 18, 150, 25, 160, LBLX + 58, MBASE(line));     // E
-    }
-    onDrawPFloatMenu(menuitem, line);
-  }
-#endif
-
 void onDrawAcc(MenuItem* menuitem, int8_t line) {
   if (hmiIsChinese()) {
     menuitem->setFrame(1, 173, 133, 200, 147);
@@ -3077,6 +3038,23 @@ void onDrawAcc(MenuItem* menuitem, int8_t line) {
   }
   onDrawSubMenu(menuitem, line);
 }
+
+void onDrawSpeed(MenuItem* menuitem, int8_t line) {
+  if (hmiIsChinese())
+    menuitem->setFrame(1, 173, 133, 228, 147);
+  onDrawSubMenu(menuitem, line);
+}
+
+#if ENABLED(CLASSIC_JERK)
+  void onDrawJerk(MenuItem* menuitem, int8_t line) {
+    if (hmiIsChinese()) {
+      menuitem->setFrame(1, 173, 133, 200, 147);
+      dwinFrameAreaCopy(1, 1, 180, 28, 192, LBLX + 27, MBASE(line) + 1);  // ...
+      dwinFrameAreaCopy(1, 202, 133, 228, 147, LBLX + 54, MBASE(line));   // ...Jerk
+    }
+    onDrawSubMenu(menuitem, line);
+  }
+#endif
 
 #if HAS_X_AXIS
   void onDrawMaxAccelX(MenuItem* menuitem, int8_t line) {
@@ -3087,6 +3065,26 @@ void onDrawAcc(MenuItem* menuitem, int8_t line) {
     }
     onDrawPInt32Menu(menuitem, line);
   }
+
+  void onDrawMaxSpeedX(MenuItem* menuitem, int8_t line) {
+    if (hmiIsChinese()) {
+      menuitem->setFrame(1, 173, 133, 228, 147);
+      dwinFrameAreaCopy(1, 229, 133, 236, 147, LBLX + 58, MBASE(line));   // X
+    }
+    onDrawPFloatMenu(menuitem, line);
+  }
+
+  #if ENABLED(CLASSIC_JERK)
+    void onDrawMaxJerkX(MenuItem* menuitem, int8_t line) {
+      if (hmiIsChinese()) {
+        menuitem->setFrame(1, 173, 133, 200, 147);
+        dwinFrameAreaCopy(1,   1, 180,  28, 192, LBLX + 27, MBASE(line));
+        dwinFrameAreaCopy(1, 202, 133, 228, 147, LBLX + 53, MBASE(line));
+        dwinFrameAreaCopy(1, 229, 133, 236, 147, LBLX + 83, MBASE(line));
+      }
+      onDrawPFloatMenu(menuitem, line);
+    }
+  #endif
 #endif
 
 #if HAS_Y_AXIS
@@ -3098,6 +3096,26 @@ void onDrawAcc(MenuItem* menuitem, int8_t line) {
     }
     onDrawPInt32Menu(menuitem, line);
   }
+
+  void onDrawMaxSpeedY(MenuItem* menuitem, int8_t line) {
+    if (hmiIsChinese()) {
+      menuitem->setFrame(1, 173, 133, 228, 147);
+      dwinFrameAreaCopy(1, 1, 150, 7, 160, LBLX + 58, MBASE(line));       // Y
+    }
+    onDrawPFloatMenu(menuitem, line);
+  }
+
+  #if ENABLED(CLASSIC_JERK)
+    void onDrawMaxJerkY(MenuItem* menuitem, int8_t line) {
+      if (hmiIsChinese()) {
+        menuitem->setFrame(1, 173, 133, 200, 147);
+        dwinFrameAreaCopy(1,   1, 180,  28, 192, LBLX + 27, MBASE(line));
+        dwinFrameAreaCopy(1, 202, 133, 228, 147, LBLX + 53, MBASE(line));
+        dwinFrameAreaCopy(1,   1, 150,   7, 160, LBLX + 83, MBASE(line));
+      }
+      onDrawPFloatMenu(menuitem, line);
+    }
+  #endif
 #endif
 
 #if HAS_Z_AXIS
@@ -3109,6 +3127,26 @@ void onDrawAcc(MenuItem* menuitem, int8_t line) {
     }
     onDrawPInt32Menu(menuitem, line);
   }
+
+  void onDrawMaxSpeedZ(MenuItem* menuitem, int8_t line) {
+    if (hmiIsChinese()) {
+      menuitem->setFrame(1, 173, 133, 228, 147);
+      dwinFrameAreaCopy(1, 9, 150, 16, 160, LBLX + 58, MBASE(line) + 3);  // Z
+    }
+    onDrawPFloatMenu(menuitem, line);
+  }
+
+  #if ENABLED(CLASSIC_JERK)
+    void onDrawMaxJerkZ(MenuItem* menuitem, int8_t line) {
+      if (hmiIsChinese()) {
+        menuitem->setFrame(1, 173, 133, 200, 147);
+        dwinFrameAreaCopy(1,   1, 180,  28, 192, LBLX + 27, MBASE(line));
+        dwinFrameAreaCopy(1, 202, 133, 228, 147, LBLX + 53, MBASE(line));
+        dwinFrameAreaCopy(1,   9, 150,  16, 160, LBLX + 83, MBASE(line));
+      }
+      onDrawPFloatMenu(menuitem, line);
+    }
+  #endif
 #endif
 
 #if HAS_HOTEND
@@ -3120,57 +3158,16 @@ void onDrawAcc(MenuItem* menuitem, int8_t line) {
     }
     onDrawPInt32Menu(menuitem, line);
   }
-#endif
 
-#if ENABLED(CLASSIC_JERK)
-
-  void onDrawJerk(MenuItem* menuitem, int8_t line) {
+  void onDrawMaxSpeedE(MenuItem* menuitem, int8_t line) {
     if (hmiIsChinese()) {
-      menuitem->setFrame(1, 173, 133, 200, 147);
-      dwinFrameAreaCopy(1, 1, 180, 28, 192, LBLX + 27, MBASE(line) + 1);  // ...
-      dwinFrameAreaCopy(1, 202, 133, 228, 147, LBLX + 54, MBASE(line));   // ...Jerk
+      menuitem->setFrame(1, 173, 133, 228, 147);
+      dwinFrameAreaCopy(1, 18, 150, 25, 160, LBLX + 58, MBASE(line));     // E
     }
-    onDrawSubMenu(menuitem, line);
+    onDrawPFloatMenu(menuitem, line);
   }
 
-  #if HAS_X_AXIS
-    void onDrawMaxJerkX(MenuItem* menuitem, int8_t line) {
-      if (hmiIsChinese()) {
-        menuitem->setFrame(1, 173, 133, 200, 147);
-        dwinFrameAreaCopy(1,   1, 180,  28, 192, LBLX + 27, MBASE(line));
-        dwinFrameAreaCopy(1, 202, 133, 228, 147, LBLX + 53, MBASE(line));
-        dwinFrameAreaCopy(1, 229, 133, 236, 147, LBLX + 83, MBASE(line));
-      }
-      onDrawPFloatMenu(menuitem, line);
-    }
-  #endif
-
-  #if HAS_Y_AXIS
-    void onDrawMaxJerkY(MenuItem* menuitem, int8_t line) {
-      if (hmiIsChinese()) {
-        menuitem->setFrame(1, 173, 133, 200, 147);
-        dwinFrameAreaCopy(1,   1, 180,  28, 192, LBLX + 27, MBASE(line));
-        dwinFrameAreaCopy(1, 202, 133, 228, 147, LBLX + 53, MBASE(line));
-        dwinFrameAreaCopy(1,   1, 150,   7, 160, LBLX + 83, MBASE(line));
-      }
-      onDrawPFloatMenu(menuitem, line);
-    }
-  #endif
-
-  #if HAS_Z_AXIS
-    void onDrawMaxJerkZ(MenuItem* menuitem, int8_t line) {
-      if (hmiIsChinese()) {
-        menuitem->setFrame(1, 173, 133, 200, 147);
-        dwinFrameAreaCopy(1,   1, 180,  28, 192, LBLX + 27, MBASE(line));
-        dwinFrameAreaCopy(1, 202, 133, 228, 147, LBLX + 53, MBASE(line));
-        dwinFrameAreaCopy(1,   9, 150,  16, 160, LBLX + 83, MBASE(line));
-      }
-      onDrawPFloatMenu(menuitem, line);
-    }
-  #endif
-
-  #if HAS_HOTEND
-
+  #if ENABLED(CLASSIC_JERK)
     void onDrawMaxJerkE(MenuItem* menuitem, int8_t line) {
       if (hmiIsChinese()) {
         menuitem->setFrame(1, 173, 133, 200, 147);
@@ -3180,51 +3177,7 @@ void onDrawAcc(MenuItem* menuitem, int8_t line) {
       }
       onDrawPFloatMenu(menuitem, line);
     }
-
   #endif
-
-#endif // CLASSIC_JERK
-
-#if HAS_X_AXIS
-  void onDrawStepsX(MenuItem* menuitem, int8_t line) {
-    if (hmiIsChinese()) {
-      menuitem->setFrame(1, 153, 148, 194, 161);
-      dwinFrameAreaCopy(1, 229, 133, 236, 147, LBLX + 44, MBASE(line));      // X
-    }
-    onDrawPFloatMenu(menuitem, line);
-  }
-#endif
-
-#if HAS_Y_AXIS
-  void onDrawStepsY(MenuItem* menuitem, int8_t line) {
-    if (hmiIsChinese()) {
-      menuitem->setFrame(1, 153, 148, 194, 161);
-      dwinFrameAreaCopy(1,   1, 150,   7, 160, LBLX + 44, MBASE(line));      // Y
-    }
-    onDrawPFloatMenu(menuitem, line);
-  }
-#endif
-
-#if HAS_Z_AXIS
-  void onDrawStepsZ(MenuItem* menuitem, int8_t line) {
-    if (hmiIsChinese()) {
-      menuitem->setFrame(1, 153, 148, 194, 161);
-      dwinFrameAreaCopy(1,   9, 150,  16, 160, LBLX + 44, MBASE(line));      // Z
-    }
-    onDrawPFloatMenu(menuitem, line);
-  }
-#endif
-
-#if HAS_HOTEND
-
-  void onDrawStepsE(MenuItem* menuitem, int8_t line) {
-    if (hmiIsChinese()) {
-      menuitem->setFrame(1, 153, 148, 194, 161);
-      dwinFrameAreaCopy(1,  18, 150,  25, 160, LBLX + 44, MBASE(line));    // E
-    }
-    onDrawPFloatMenu(menuitem, line);
-  }
-
 #endif
 
 // Menu Creation and Drawing functions ======================================================
@@ -3624,7 +3577,7 @@ void drawTuneMenu() {
     #if PROUI_ITEM_ADVK
       static float editable_k;
       editable_k = planner.get_advance_k();
-      EDIT_ITEM(ICON_MaxAccelerated, MSG_ADVANCE_K, onDrawLA_K, setLA_K, &editable_k);
+      EDIT_ITEM(ICON_MaxAccel, MSG_ADVANCE_K, onDrawLA_K, setLA_K, &editable_k);
       #if ENABLED(SMOOTH_LIN_ADVANCE)
         static float editable_u;
         editable_u = stepper.get_advance_tau();
@@ -3759,18 +3712,15 @@ void drawMotionMenu() {
     #if HAS_FLOW_EDIT
       EDIT_ITEM(ICON_Flow, MSG_FLOW, onDrawPIntMenu, setFlow, &planner.flow_percentage[0]);
     #endif
-    MENU_ITEM(ICON_MaxSpeed, MSG_SPEED, onDrawSpeed, drawMaxSpeedMenu);
-    MENU_ITEM(ICON_MaxAccelerated, MSG_ACCELERATION, onDrawAcc, drawMaxAccelMenu);
+    MENU_ITEM(ICON_MaxAccel, MSG_ACCELERATION, onDrawAcc, drawMaxAccelMenu);
     #if ENABLED(EDITABLE_STEPS_PER_UNIT)
       MENU_ITEM(ICON_Step, MSG_STEPS_PER_MM, onDrawSteps, drawStepsMenu);
     #endif
+    MENU_ITEM(ICON_MaxSpeed, MSG_SPEED, onDrawSpeed, drawMaxSpeedMenu);
     #if ENABLED(CLASSIC_JERK)
       MENU_ITEM(ICON_MaxJerk, MSG_JERK, onDrawJerk, drawMaxJerkMenu);
     #elif HAS_JUNCTION_DEVIATION
       EDIT_ITEM(ICON_JDmm, MSG_JUNCTION_DEVIATION, onDrawPFloat3Menu, setJDmm, &planner.junction_deviation_mm);
-    #endif
-    #if ENABLED(EDITABLE_STEPS_PER_UNIT)
-      MENU_ITEM(ICON_Step, MSG_STEPS_PER_MM, onDrawSteps, drawStepsMenu);
     #endif
     #if ENABLED(EDITABLE_HOMING_FEEDRATE)
       MENU_ITEM(ICON_Homing, MSG_HOMING_FEEDRATE, onDrawSubMenu, drawHomingFRMenu);
@@ -3778,7 +3728,7 @@ void drawMotionMenu() {
     #if HAS_LIN_ADVANCE_K
       static float editable_k;
       editable_k = planner.get_advance_k();
-      EDIT_ITEM(ICON_MaxAccelerated, MSG_ADVANCE_K, onDrawLA_K, setLA_K, &editable_k);
+      EDIT_ITEM(ICON_MaxAccel, MSG_ADVANCE_K, onDrawLA_K, setLA_K, &editable_k);
       #if ENABLED(SMOOTH_LIN_ADVANCE)
         static float editable_u;
         editable_u = stepper.get_advance_tau();
@@ -4028,6 +3978,46 @@ void drawMaxAccelMenu() {
 
 #if ENABLED(EDITABLE_STEPS_PER_UNIT)
 
+  #if HAS_X_AXIS
+    void onDrawStepsX(MenuItem* menuitem, int8_t line) {
+      if (hmiIsChinese()) {
+        menuitem->setFrame(1, 153, 148, 194, 161);
+        dwinFrameAreaCopy(1, 229, 133, 236, 147, LBLX + 44, MBASE(line));      // X
+      }
+      onDrawPFloatMenu(menuitem, line);
+    }
+  #endif
+
+  #if HAS_Y_AXIS
+    void onDrawStepsY(MenuItem* menuitem, int8_t line) {
+      if (hmiIsChinese()) {
+        menuitem->setFrame(1, 153, 148, 194, 161);
+        dwinFrameAreaCopy(1,   1, 150,   7, 160, LBLX + 44, MBASE(line));      // Y
+      }
+      onDrawPFloatMenu(menuitem, line);
+    }
+  #endif
+
+  #if HAS_Z_AXIS
+    void onDrawStepsZ(MenuItem* menuitem, int8_t line) {
+      if (hmiIsChinese()) {
+        menuitem->setFrame(1, 153, 148, 194, 161);
+        dwinFrameAreaCopy(1,   9, 150,  16, 160, LBLX + 44, MBASE(line));      // Z
+      }
+      onDrawPFloatMenu(menuitem, line);
+    }
+  #endif
+
+  #if HAS_HOTEND
+    void onDrawStepsE(MenuItem* menuitem, int8_t line) {
+      if (hmiIsChinese()) {
+        menuitem->setFrame(1, 153, 148, 194, 161);
+        dwinFrameAreaCopy(1,  18, 150,  25, 160, LBLX + 44, MBASE(line));    // E
+      }
+      onDrawPFloatMenu(menuitem, line);
+    }
+  #endif
+
   void drawStepsMenu() {
     constexpr uint8_t items = 1 + COUNT_ENABLED(HAS_X_AXIS, HAS_Y_AXIS, HAS_Z_AXIS, HAS_HOTEND);
     checkkey = ID_Menu;
@@ -4049,7 +4039,7 @@ void drawMaxAccelMenu() {
     updateMenu(stepsMenu);
   }
 
-#endif
+#endif // EDITABLE_STEPS_PER_UNIT
 
 #if ENABLED(EDITABLE_HOMING_FEEDRATE)
 
