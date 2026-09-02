@@ -442,9 +442,7 @@ class Stepper {
 
     static AxisBits last_direction_bits;  // The last set of directions applied to all axes
 
-    #if HAS_STANDARD_MOTION
-      static AxisBits axis_did_move;      // Last Movement in the given direction is not null, as computed when the last movement was fetched from planner
-    #endif
+    static AxisBits axis_did_move;      // Last Movement in the given direction is not null, as computed when the last movement was fetched from planner
 
     static bool abort_current_block;      // Signals to the stepper that current block should be aborted
 
@@ -661,28 +659,28 @@ class Stepper {
     // Report the positions of the steppers, in steps
     static void report_a_position(const xyz_long_t &pos);
     static void report_positions();
-
-    // Discard current block and free any resources
-    FORCE_INLINE static void discard_current_block() {
-      #if ENABLED(DIRECT_STEPPING)
-        if (current_block->is_page()) page_manager.free_page(current_block->page_idx);
-      #endif
-      current_block = nullptr;
-      TERN_(HAS_STANDARD_MOTION, axis_did_move.reset());
-      planner.release_current_block();
-      TERN_(HAS_ROUGH_LIN_ADVANCE, la_interval = nextAdvanceISR = LA_ADV_NEVER);
-    }
-
+    
+    #if HAS_STANDARD_MOTION
+      // Discard current block and free any resources
+      FORCE_INLINE static void discard_current_block() {
+        #if ENABLED(DIRECT_STEPPING)
+          if (current_block->is_page()) page_manager.free_page(current_block->page_idx);
+        #endif
+        current_block = nullptr;
+        axis_did_move.reset();
+        planner.release_current_block();
+        TERN_(HAS_ROUGH_LIN_ADVANCE, la_interval = nextAdvanceISR = LA_ADV_NEVER);
+      }
+    #endif
+    
     // Quickly stop all steppers
     FORCE_INLINE static void quick_stop() { abort_current_block = true; }
 
     // The direction of a single motor and/or real axis. A true result indicates forward or positive motion.
     FORCE_INLINE static bool axis_direction(const AxisEnum real) { return last_direction_bits[real]; }
 
-    #if HAS_STANDARD_MOTION
-      // The last segment moved on the specified motor and/or real axis.
-      FORCE_INLINE static bool axis_is_moving(const AxisEnum real) { return axis_did_move[real]; }
-    #endif
+    // The last segment moved on the specified motor and/or real axis.
+    FORCE_INLINE static bool axis_is_moving(const AxisEnum real) { return axis_did_move[real]; }
 
     // Handle a triggered endstop
     static void endstop_triggered(const AxisEnum axis);
