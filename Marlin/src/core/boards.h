@@ -496,6 +496,8 @@
 #define BOARD_ZNP_ROBIN_NANO_V1_3           5260  // Elegoo Neptune 2 v1.3 board
 #define BOARD_MKS_NEPTUNE_X                 5261  // Elegoo Neptune X
 #define BOARD_MKS_NEPTUNE_3                 5262  // Elegoo Neptune 3
+#define BOARD_PRUSA_BUDDY                   5263  // Prusa Buddy Board Mini (STM32F407VGT6)
+#define BOARD_PRUSA_XBUDDY                  5264  // Prusa xBuddy Board (STM32F427ZIT6)
 
 //
 // Other ARM Cortex-M4

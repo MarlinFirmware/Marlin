@@ -832,6 +832,10 @@
   #include "stm32f4/pins_MKS_NEPTUNE_X.h"           // STM32F4                              env:mks_neptune_x
 #elif MB(MKS_NEPTUNE_3)
   #include "stm32f4/pins_MKS_NEPTUNE_3.h"           // STM32F4                              env:mks_neptune_3
+#elif MB(PRUSA_BUDDY)
+  #include "stm32f4/pins_PRUSA_BUDDY.h"             // STM32F4                              env:STM32F407VG_prusa_buddy env:STM32F407VG_prusa_buddy_USB
+#elif MB(PRUSA_XBUDDY)
+  #include "stm32f4/pins_PRUSA_XBUDDY.h"            // STM32F4                              env:STM32F427ZI_prusa_xbuddy env:STM32F427ZI_prusa_xbuddy_USB
 
 //
 // Other ARM Cortex-M4
