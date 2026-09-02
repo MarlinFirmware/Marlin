@@ -160,6 +160,10 @@ xyz_pos_t Motion::cartes;
   constexpr xyz_pos_t Motion::hotend_offset[1];
 #endif
 
+#if ENABLED(CALIBRATION_GCODE)
+  xyz_pos_t Motion::calibration_center = CALIBRATION_OBJECT_CENTER;
+#endif
+
 // The feedrate for the current move, often used as the default if
 // no other feedrate is specified. Overridden for special moves.
 // Set by the last G0 through G5 command's "F" parameter.
