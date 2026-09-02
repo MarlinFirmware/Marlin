@@ -4692,9 +4692,6 @@ static_assert(_PLUS_TEST(3), "DEFAULT_MAX_ACCELERATION values must be positive."
  */
 #if ENABLED(FT_MOTION)
   static_assert(FTM_BUFFER_SIZE >= 4 && (FTM_BUFFER_SIZE & (FTM_BUFFER_SIZE - 1u)) == 0, "FTM_BUFFER_SIZE must be a power of two (128, 256, 512, ...).");
-  #if ENABLED(MIXING_EXTRUDER)
-    #error "FT_MOTION does not currently support MIXING_EXTRUDER."
-  #endif
   #if !HAS_X_AXIS
     static_assert(FTM_DEFAULT_SHAPER_X == ftMotionShaper_NONE, "Without any linear axes FTM_DEFAULT_SHAPER_X must be ftMotionShaper_NONE.");
   #endif
@@ -4713,8 +4710,6 @@ static_assert(_PLUS_TEST(3), "DEFAULT_MAX_ACCELERATION values must be positive."
   #if !HAS_STANDARD_MOTION
     #if ENABLED(SMOOTH_LIN_ADVANCE)
       #error "SMOOTH_LIN_ADVANCE is not yet available in FT_MOTION. Disable NO_STANDARD_MOTION if you require it."
-    #elif ENABLED(MIXING_EXTRUDER)
-      #error "MIXING_EXTRUDER is not yet available in FT_MOTION. Disable NO_STANDARD_MOTION if you require it."
     #elif ENABLED(SOFT_FEED_HOLD)
       #error "SOFT_FEED_HOLD is not yet available in FT_MOTION. Disable NO_STANDARD_MOTION if you require it."
     #elif ENABLED(DIRECT_STEPPING)
