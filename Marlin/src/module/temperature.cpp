@@ -5092,6 +5092,48 @@ void Temperature::isr() {
 
   #endif // HAS_HEATED_BED
 
+  #ifdef LEVELING_HEAT_SOAK_TIME
+    void Temperature::wait_for_heat_soak(const uint16_t seconds) {
+      if (!seconds) return;
+
+      SERIAL_ECHOLNPGM("Heat soak for ", seconds, "s");
+
+      #if DISABLED(BUSY_WHILE_HEATING) && ENABLED(HOST_KEEPALIVE_FEATURE)
+        KEEPALIVE_STATE(NOT_BUSY);
+      #endif
+
+      const millis_t soak_ms = SEC_TO_MS(seconds);
+      const millis_t soak_start = millis();
+      millis_t now = soak_start, next_temp_ms = soak_start;
+
+      marlin.heatup_start();
+      while (marlin.is_heating() && PENDING(now, soak_start, soak_ms)) {
+        now = millis();
+        if (ELAPSED(now, next_temp_ms)) {
+          next_temp_ms = now + 1000UL;
+
+          print_heater_states(motion.extruder);
+          const millis_t elapsed = now - soak_start;
+          const millis_t remaining = elapsed >= soak_ms ? 0 : soak_ms - elapsed;
+          SString<24> s(F(" W:"));
+          s += long((remaining + 999UL) / 1000UL);
+          s.echo();
+          SERIAL_EOL();
+
+          TERN_(HAS_STATUS_MESSAGE, ui.status_printf(0, F(S_FMT " %lus"), GET_TEXT(MSG_HEAT_SOAK), long((remaining + 999UL) / 1000UL)));
+        }
+
+        marlin.idle();
+        gcode.reset_stepper_timeout(); // Keep steppers powered
+      }
+
+      if (marlin.is_heating()) {
+        marlin.heatup_done();
+        ui.reset_status();
+      }
+    }
+  #endif
+
   #if HAS_TEMP_PROBE
 
     #ifndef MIN_DELTA_SLOPE_DEG_PROBE
