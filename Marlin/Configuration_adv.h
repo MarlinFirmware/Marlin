@@ -4899,3 +4899,15 @@
 
 // Shrink the build for smaller boards by sacrificing some serial feedback
 //#define MARLIN_SMALL_BUILD
+
+// ===========================================================================
+// ==================== Wandering Probe Points (WPP) =========================
+// ===========================================================================
+// Dynamically shifts the Auto Bed Leveling (ABL) probing matrix by a small
+// predefined offset for each successive probing cycle. This distributes nozzle
+// impacts across a larger surface area to prevent physical wear, divots, and
+// PEI degradation on the bed surface, while also avoiding accumulated ooze.
+#define WANDERING_PROBE_POINTS
+#if ENABLED(WANDERING_PROBE_POINTS)
+  #define WANDERING_PROBE_STEP 1.5 // (mm) The shift distance per cycle. (e.g., 1.5 produces a 3x3 wandering grid of 9 positions)
+#endif
