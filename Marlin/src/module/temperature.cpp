@@ -812,7 +812,13 @@ void Temperature::factory_reset() {
     // CHAMBER TEST ; CHAMBER VALUE ; T_BH(...)
     #define T_CBH(T,C,BH) TERN(PIDTEMPCHAMBER, ((T) ? (C) : (BH)), (BH))
     // CHAMBER VALUE ; BED VALUE ; HOTEND VALUE
-    #define PER_CBH(C,B,H) T_CBH(ischamber, C, T_BH(isbed, B, H))
+    #if ENABLED(PIDTEMP)
+      #define PER_CBH(C,B,H) T_CBH(ischamber, C, T_BH(isbed, B, H))
+    #elif ENABLED(PIDTEMPBED)
+      #define PER_CBH(C,B,H) T_CBH(ischamber, C, B)
+    #else
+      #define PER_CBH(C,B,H) (C)
+    #endif
 
     // Set a field value in the pertinent Temp Monitor
     #define SET_CBH(F,V) PER_CBH(temp_chamber.F = V, temp_bed.F = V, temp_hotend[heater_id].F = V)
@@ -821,12 +827,14 @@ void Temperature::factory_reset() {
 
     #define WATCH_PID DISABLED(NO_WATCH_PID_TUNING) && (ALL(WATCH_CHAMBER, PIDTEMPCHAMBER) || ALL(WATCH_BED, PIDTEMPBED) || ALL(WATCH_HOTENDS, PIDTEMP))
     #if WATCH_PID
-      // BED TEST ; BED VALUE ; HOTEND VALUE
-      #define W_BH(T,B,H) TERN(THERMAL_PROTECTION_BED, T_BH(T,B,H), (H))
+      // HOTEND TEST ; HOTEND VALUE
+      #define W_H(T,H) TERN(THERMAL_PROTECTION_HOTENDS, ((T) ? (H) : 0), 0)
+      // BED TEST ; BED VALUE ; W_H(...)
+      #define W_BH(T,B,WH) TERN(THERMAL_PROTECTION_BED, T_BH(T,B,WH), (WH))
       // CHAMBER TEST ; CHAMBER VALUE ; W_BH(...)
       #define W_CBH(T,C,BH) TERN(THERMAL_PROTECTION_CHAMBER, T_CBH(T,C,BH), (BH))
       // CHAMBER VALUE ; BED VALUE ; HOTEND VALUE
-      #define PER_WATCH_CBH(C,B,H) W_CBH(ischamber, C, W_BH(isbed, B, H))
+      #define PER_WATCH_CBH(C,B,H) W_CBH(ischamber, C, W_BH(isbed, B, W_H(!isbed && !ischamber, H)))
 
       const uint16_t watch_temp_period = PER_WATCH_CBH(WATCH_CHAMBER_TEMP_PERIOD, WATCH_BED_TEMP_PERIOD, WATCH_TEMP_PERIOD);
       const uint8_t watch_temp_increase = PER_WATCH_CBH(WATCH_CHAMBER_TEMP_INCREASE, WATCH_BED_TEMP_INCREASE, WATCH_TEMP_INCREASE);
@@ -1017,6 +1025,9 @@ void Temperature::factory_reset() {
           #endif
           UNUSED(tool); UNUSED(in_pid);
         };
+        #if DISABLED(PIDTEMP)
+          UNUSED(_set_hotend_pid);
+        #endif
 
         #if ENABLED(PIDTEMPBED)
           auto _set_bed_pid = [](const raw_pid_t &in_pid) {
