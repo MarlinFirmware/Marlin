@@ -23,6 +23,7 @@
 
 #include "../../inc/MarlinConfig.h"
 #include "../shared/Delay.h"
+#include <fsl_power.h>
 #include "fastio.h"
 
 extern "C" {
@@ -78,15 +79,33 @@ void MarlinHAL::adc_start(const pin_t adc_pin) {
 // HAL idle task
 void MarlinHAL::idletask() { }
 
+/**
+ * The ROM boot code records the cause of the last reset in the always-on
+ * domain register PMC->AOREG1 (UM11126 13.4.6). It survives the reset itself
+ * and is only cleared by a power-on or brown-out reset.
+ */
 void MarlinHAL::clear_reset_source() {
+  PMC->AOREG1 = PMC_AOREG1_POR_MASK | PMC_AOREG1_PADRESET_MASK | PMC_AOREG1_BODRESET_MASK
+              | PMC_AOREG1_SYSTEMRESET_MASK | PMC_AOREG1_WDTRESET_MASK | PMC_AOREG1_SWRRESET_MASK;
   TERN_(USE_WATCHDOG, watchdog_clear_timeout_flag());
 }
 
 uint8_t MarlinHAL::get_reset_source() {
+  const uint32_t r = PMC->AOREG1;
+  uint8_t flags = 0;
+  if (r & PMC_AOREG1_POR_MASK)        flags |= RST_POWER_ON;
+  if (r & PMC_AOREG1_PADRESET_MASK)   flags |= RST_EXTERNAL;
+  if (r & PMC_AOREG1_BODRESET_MASK)   flags |= RST_BROWN_OUT;
+  if (r & PMC_AOREG1_WDTRESET_MASK)   flags |= RST_WATCHDOG;
+  // A CPU-requested system reset and an explicit software reset both come from
+  // the firmware itself (NVIC_SystemReset, i.e. MarlinHAL::reboot).
+  if (r & (PMC_AOREG1_SYSTEMRESET_MASK | PMC_AOREG1_SWRRESET_MASK)) flags |= RST_SOFTWARE;
+
   #if ENABLED(USE_WATCHDOG)
-    if (watchdog_timed_out()) return RST_WATCHDOG;
+    if (watchdog_timed_out()) flags |= RST_WATCHDOG;
   #endif
-  return RST_POWER_ON;
+
+  return flags ?: RST_POWER_ON;
 }
 
 #if ENABLED(USE_WATCHDOG)
