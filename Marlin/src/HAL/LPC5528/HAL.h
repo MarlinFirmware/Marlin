@@ -88,7 +88,7 @@ extern volatile uint32_t systick_uptime_millis;
   #define HAL_ADC_RESOLUTION   12   // 15 bit maximum, raw temperature is stored as int16_t
 #endif
 
-#define HAL_ADC_VREF            3.3 // ADC voltage reference
+#define HAL_ADC_VREF_MV      3300   // ADC voltage reference (VDDA), in millivolts
 #define HAL_ADC_FILTERED
 
 // ------------------------
