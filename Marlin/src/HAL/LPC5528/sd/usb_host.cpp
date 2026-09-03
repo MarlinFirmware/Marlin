@@ -20,17 +20,17 @@
  *
  */
 
-#include "../platforms.h"
+#include "../../platforms.h"
 
 #ifdef TARGET_LPC5528
 
-#include "../../inc/MarlinConfig.h"
+#include "../../../inc/MarlinConfig.h"
 
 #if ALL(USE_OTG_USB_HOST, USBHOST)
 
 #include "usb_host.h"
 #include "usb_msc.h"
-#include "../shared/Marduino.h"
+#include "../../shared/Marduino.h"
 #include "masstorage1.h"
 USBHost usb;
 BulkStorage bulk(&usb);

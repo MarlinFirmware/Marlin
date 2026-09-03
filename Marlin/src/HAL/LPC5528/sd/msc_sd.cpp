@@ -27,15 +27,15 @@
 
 #ifdef TARGET_LPC5528
 
-#include "../../inc/MarlinConfigPre.h"
+#include "../../../inc/MarlinConfigPre.h"
 
 #if HAS_SD_HOST_DRIVE
 
-#include "../shared/Marduino.h"
+#include "../../shared/Marduino.h"
 #include "msc_sd.h"
 // #include "usbd_core.h"
 
-#include "../../sd/cardreader.h"
+#include "../../../sd/cardreader.h"
 
 #include <USBDISK.h>
 #include <USBMscHandler.h>
