@@ -106,19 +106,18 @@
 
   void spiBegin() { spiInit(INIT_SPI_SPEED); } // Set up SCK, MOSI & MISO pins for SSP0
 
-  void spiInit(uint8_t spiRate) {
-    uint32_t baudrate;
+  /**
+   * Marlin's rates are successive halvings of the maximum: SPI_FULL_SPEED is
+   * the max and SPI_SPEED_6 is 1/64 of it. SD cards must be clocked at or
+   * below 400kHz until they are initialized, which is what the slowest rate
+   * is for, so the base rate has to divide down past that.
+   */
+  #ifndef SD_SPI_SPEED_HZ
+    #define SD_SPI_SPEED_HZ 20000000  // 20MHz >> 6 == 312kHz
+  #endif
 
-    switch (spiRate) {
-      case SPI_FULL_SPEED:      baudrate = 12000000; break;
-      case SPI_HALF_SPEED:      baudrate = 12000000; break;
-      case SPI_QUARTER_SPEED:   baudrate = 12000000; break;
-      case SPI_EIGHTH_SPEED:    baudrate = 12000000; break;
-      case SPI_SIXTEENTH_SPEED: baudrate = 12000000; break;
-      case SPI_SPEED_5:         baudrate = 12000000; break;
-      case SPI_SPEED_6:         baudrate = 12000000; break;
-      default:                  baudrate = 12000000; break;
-    }
+  void spiInit(uint8_t spiRate) {
+    const uint32_t baudrate = SD_SPI_SPEED_HZ >> _MIN(spiRate, SPI_SPEED_6);
     spiConfig = SPISettings(baudrate, kSPI_MsbFirst, SPI_MODE0, kSPI_Data8Bits, false);
     SPI_4.beginTransaction(spiConfig);
   }
