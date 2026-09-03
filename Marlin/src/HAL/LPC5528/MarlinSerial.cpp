@@ -32,11 +32,13 @@
 #if USING_HW_SERIAL1
   MarlinSerial _MSerial1(USART1);
   MSerialT MSerial1(true, _MSerial1);
+  extern "C" void FLEXCOMM1_IRQHandler() { _MSerial1.IRQHandler(); }
 #endif
 
 #if USING_HW_SERIAL2
   MarlinSerial _MSerial2(USART2);
   MSerialT MSerial2(true, _MSerial2);
+  extern "C" void FLEXCOMM2_IRQHandler() { _MSerial2.IRQHandler(); }
 #endif
 
 #if USING_HW_SERIAL3
