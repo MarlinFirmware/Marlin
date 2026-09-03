@@ -43,13 +43,18 @@
 
 #elif defined(TARGET_LPC5528)
 
-  // TODO
-  #define START_SRAM_ADDR   0x10000000
-  #define END_SRAM_ADDR     0x10008000
+  // For LPC5528 (UM11126 Table 4 "Memory map overview")
+  //  SRAM  (0x20000000 - 0x20030000) SRAM0..2 on the CM33 data bus, 192kb
+  //                                  contiguous - the region the linker script
+  //                                  places .data/.bss, the heap and the stack in.
+  //                                  SRAM X (0x04000000, code bus) and SRAM 4
+  //                                  (PowerQuad/USB) are not used for those.
+  //  FLASH (0x00000000 - 0x00080000) 512kb, on the CM33 code bus
+  //
+  #define START_SRAM_ADDR   0x20000000
+  #define END_SRAM_ADDR     0x20030000
   #define START_FLASH_ADDR  0x00000000
   #define END_FLASH_ADDR    0x00080000
-
-  #warning "Validated unwmemaccess values needed for TARGET_LPC5528."
 
 #elif defined(__STM32F1__) || defined(STM32F1xx) || defined(STM32F0xx) || defined(STM32G0xx)
 

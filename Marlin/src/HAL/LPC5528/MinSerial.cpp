@@ -19,28 +19,39 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-#include "../platforms.h"
-
-#include "../../inc/MarlinConfigPre.h"
-
 #ifdef TARGET_LPC5528
+
+#include "../../inc/MarlinConfig.h"
 
 #if ENABLED(POSTMORTEM_DEBUGGING)
 
-  #include "../shared/HAL_MinSerial.h"
-  #include "watchdog.h"
+#include "../shared/MinSerial.h"
 
-  /* Instruction Synchronization Barrier */
-  #define isb() __asm__ __volatile__ ("isb" : : : "memory")
+/**
+ * Emit directly from the USART FIFO, bypassing the interrupt-driven driver -
+ * by the time this runs the fault handler owns the CPU and nothing else may be
+ * trusted to run.
+ *
+ * Only a hardware serial port can be used. With SERIAL_PORT -1 (USB CDC) the
+ * device stack cannot be driven from a fault handler, so the dump is captured
+ * but has nowhere to go.
+ */
+#if SERIAL_PORT >= 1 && SERIAL_PORT <= 7
+  #define MINSERIAL_USART CAT(USART, SERIAL_PORT)
+#endif
 
-  /* Data Synchronization Barrier */
-  #define dsb() __asm__ __volatile__ ("dsb" : : : "memory")
+static void TX(char c) {
+  #ifdef MINSERIAL_USART
+    while (!(MINSERIAL_USART->FIFOSTAT & USART_FIFOSTAT_TXNOTFULL_MASK)) { /* wait for FIFO space */ }
+    MINSERIAL_USART->FIFOWR = (uint32_t)c & USART_FIFOWR_TXDATA_MASK;
+  #else
+    UNUSED(c);
+  #endif
+}
 
-  void install_min_serial() {
-    HAL_min_serial_init = &TXBegin;
-    HAL_min_serial_out = &TX;
-  }
+void install_min_serial() { HAL_min_serial_out = &TX; }
 
+#if DISABLED(DYNAMIC_VECTORTABLE)
   extern "C" {
     __attribute__((naked)) void JumpHandler_ASM() {
       __asm__ __volatile__ (
@@ -53,5 +64,7 @@
     void __attribute__((naked, alias("JumpHandler_ASM"))) MemManage_Handler();
     void __attribute__((naked, alias("JumpHandler_ASM"))) NMI_Handler();
   }
-#endif  // POSTMORTEM_DEBUGGING
-#endif  // TARGET_LPC5528
+#endif
+
+#endif // POSTMORTEM_DEBUGGING
+#endif // TARGET_LPC5528

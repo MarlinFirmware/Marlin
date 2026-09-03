@@ -51,12 +51,8 @@ pin_t MarlinHAL::adc_pin = 0;
 TERN_(POSTMORTEM_DEBUGGING, extern void install_min_serial());
 
 void MarlinHAL::init() {
-  constexpr int cpuFreq = F_CPU;
-  UNUSED(cpuFreq);
-  //SetTimerInterruptPriorities();
-  //i2s_init(12);
   HAL_timer_init();
-  //timer_start(STEP_TIMER_NUM,2000000);
+  TERN_(POSTMORTEM_DEBUGGING, install_min_serial());  // Set up the serial output for the crash dump
 }
 
 // ------------------------
