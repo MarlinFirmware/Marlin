@@ -21,32 +21,54 @@
  */
 #pragma once
 
-#include <Servo.h>
+/**
+ * Servo support for LPC5528.
+ *
+ * Driven from the Arduino core's pwm API, which routes the pin to either an
+ * SCTimer output or a CTIMER match output. The frame rate is set per-pin, so
+ * attaching a servo retunes the timer that pin belongs to:
+ *
+ *  - On MKS OWL, SERVO0_PIN (P0_10) reaches CTIMER2_MAT0, which it shares with
+ *    HEATER_0_PIN (P1_07) and FAN1_PIN (P1_06). While a servo is attached those
+ *    two run at the 50 Hz servo frame rate. DEACTIVATE_SERVOS_AFTER_MOVE keeps
+ *    that window down to the length of a deploy or stow.
+ *  - HEATER_BED_PIN (P1_09) is on the SCTimer and is unaffected.
+ */
 
 #include "../../core/millis_t.h"
+#include "../../core/types.h"
+
+// Pulse widths in microseconds, and the servo frame period
+#define SERVO_MIN_PULSE_WIDTH   544
+#define SERVO_MAX_PULSE_WIDTH  2400
+#define SERVO_PERIOD_US       20000   // 50 Hz
 
 class libServo {
+public:
+  libServo();
+
+  int8_t attach(const int inPin = 0);                 // Attach to a pin (0 = reattach the last pin)
+  int8_t attach(const int inPin, const int inMin, const int inMax);
+  void detach();
+
+  void write(int inDegrees);                          // Set the angle in degrees
+  void writeMicroseconds(int usec);                   // Set the pulse width directly
+  void move(const int value);                         // Attach, move, optionally detach
+
+  int read() { return degrees; }
+  int readMicroseconds() { return pulse_us; }
+  bool attached() { return is_attached; }
 
 private:
-  uint32_t         minAngle = 0;                // 最小角度
-  uint32_t         maxAngle = 180;              // 最大角度
-  uint32_t         minPluseWidth = 544;         // 输出最小脉宽值
-  uint32_t         MaxPluseWidth = 2400;        // 输出最大脉宽值
-  uint32_t         TauMsec = 20;
-  uint32_t         TauUsec = (TauMsec * 1000);
-  uint32_t         MaxCompare = 65535-1;        // PWM 范围0-（65535 -1）
+  uint8_t servoIndex;                                 // Index into servo[] / SERVO_DELAY
+  int  servo_pin = 0;
+  int  degrees = 0;
+  int  pulse_us = 0;
+  int  min_us = SERVO_MIN_PULSE_WIDTH;
+  int  max_us = SERVO_MAX_PULSE_WIDTH;
+  bool is_attached = false;
 
-  int servo_pin = 0;
-  int degrees = 0;
-  bool pwm_attached = false;
-
-public:
-  int8_t  attach(const int inPin);
-  void    detach(void);
-  void    write(int inDegrees);
-  void    move(const int value);
-  int     read(void);
-
-  void    bspPwmOut(int pin, uint32_t duty);
-  void    bspPwmDeinit(int pin);
+  static uint8_t servoCount;
 };
+
+typedef libServo hal_servo_t;

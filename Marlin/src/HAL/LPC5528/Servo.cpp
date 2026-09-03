@@ -19,7 +19,6 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-
 #ifdef TARGET_LPC5528
 
 #include "../../inc/MarlinConfig.h"
@@ -27,53 +26,57 @@
 #if HAS_SERVOS
 
 #include "Servo.h"
+#include "../../MarlinCore.h"
 
-#define MAX_SERVOS   10
+#include <pwm.h>
 
-long map(long x, long in_min, long in_max, long out_min, long out_max) {
-  return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
-}
+uint8_t libServo::servoCount = 0;
 
-void libServo::bspPwmOut(int pin, uint32_t duty) {
-  pwm_write(pin,duty);
-}
+libServo::libServo() : servoIndex(servoCount < NUM_SERVOS ? servoCount++ : 255) {}
 
-void libServo::bspPwmDeinit(int pin) {
-  if (pwm_attached) {
-    pwm_detach_pin(pin);
-    pwm_attached = false;
-  }
-}
-
-// Initialize the PWM pin
 int8_t libServo::attach(const int inPin) {
-  const int old_pin = servo_pin;
+  if (servoIndex >= NUM_SERVOS) return -1;
+
   if (inPin > 0) servo_pin = inPin;
   if (servo_pin <= 0) return -1;
 
-  if (pwm_attached && inPin > 0 && old_pin != servo_pin)
-    bspPwmDeinit(old_pin);
+  if (!pwm_pin_has_hardware(uint8_t(servo_pin))) return -1;
 
-  pwm_init(50);
-  analogWriteResolution(65535);
+  // Attach at 0% so the pin idles low until write() sets a real pulse width,
+  // then set the 20ms servo frame on whichever timer this pin belongs to.
+  if (!is_attached) {
+    if (!pwm_attach_pin(uint8_t(servo_pin), 0)) return -1;
+    is_attached = true;
+  }
+  pwm_set_frequency(uint8_t(servo_pin), 1000000UL / SERVO_PERIOD_US);
 
-  if (!pwm_attached)
-    pwm_attached = pwm_attach_pin(servo_pin, 65535);
+  if (pulse_us) writeMicroseconds(pulse_us);  // Restore the last position on reattach
 
-  return pwm_attached ? 1 : -1;
+  return servoIndex;
 }
 
-// Disable the corresponding pin PWM output
-void libServo::detach() { bspPwmDeinit(servo_pin); }
+int8_t libServo::attach(const int inPin, const int inMin, const int inMax) {
+  min_us = inMin;
+  max_us = inMax;
+  return attach(inPin);
+}
 
-// Calculate the comparison value and output PWM
+void libServo::detach() {
+  if (!is_attached) return;
+  pwm_detach_pin(uint8_t(servo_pin));
+  is_attached = false;
+}
+
+void libServo::writeMicroseconds(int usec) {
+  pulse_us = constrain(usec, min_us, max_us);
+  if (is_attached) pwm_write_scaled(uint8_t(servo_pin), pulse_us, SERVO_PERIOD_US);
+}
+
 void libServo::write(int inDegrees) {
-  degrees = constrain(inDegrees, minAngle, maxAngle);
-  int us = map(degrees, minAngle, maxAngle, MIN_PULSE_WIDTH, MAX_PULSE_WIDTH);
-  int duty = map(us, 0, TauUsec, 0, MaxCompare);
-
-  // PWM output
-  bspPwmOut(servo_pin, duty);
+  degrees = constrain(inDegrees, 0, 180);
+  // Scale 0..180 degrees onto the configured pulse width range. Done inline
+  // because the Arduino core here provides no map().
+  writeMicroseconds(min_us + int((int32_t(degrees) * (max_us - min_us)) / 180));
 }
 
 void libServo::move(const int value) {
@@ -85,8 +88,6 @@ void libServo::move(const int value) {
     TERN_(DEACTIVATE_SERVOS_AFTER_MOVE, detach());
   }
 }
-
-int libServo::read() { return degrees; }
 
 #endif // HAS_SERVOS
 #endif // TARGET_LPC5528
