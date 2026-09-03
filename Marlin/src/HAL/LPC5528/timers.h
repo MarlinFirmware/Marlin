@@ -56,7 +56,14 @@
 typedef uint32_t hal_timer_t;
 #define HAL_TIMER_TYPE_MAX 0xFFFFFFFF
 
-#define HAL_TIMER_RATE          160000000 //((F_CPU) / 1) // GetStepperTimerClkFreq()   // 150MHz
+/**
+ * The framework's timer_init() attaches CTIMER0/1/2 to PLL0
+ * (kPLL0_to_CTIMER0/1/2) and there is no CTIMER clock divider, so
+ * CLOCK_GetCTimerClkFreq() returns CLOCK_GetPll0OutFreq(). The boot clock is
+ * BOARD_BootClockPLL150M, which runs PLL0 - and therefore the core and the
+ * CTimers - at 150 MHz, the part's maximum (data sheet 3.1 Table 2).
+ */
+#define HAL_TIMER_RATE          F_CPU
 
 #ifndef MF_TIMER_STEP
   #define MF_TIMER_STEP         0  // Timer Index for Stepper
@@ -76,7 +83,7 @@ typedef uint32_t hal_timer_t;
 
 extern uint32_t GetStepperTimerClkFreq(void);
 #define STEPPER_TIMER_RATE     HAL_TIMER_RATE
-#define STEPPER_TIMER_PRESCALE (GetStepperTimerClkFreq() / (STEPPER_TIMER_RATE))
+#define STEPPER_TIMER_PRESCALE 1  // The CTimer runs directly at STEPPER_TIMER_RATE
 #define STEPPER_TIMER_TICKS_PER_US ((STEPPER_TIMER_RATE) / 1000000) // stepper timer ticks per µs
 
 #define PULSE_TIMER_RATE       STEPPER_TIMER_RATE   // frequency of pulse timer
