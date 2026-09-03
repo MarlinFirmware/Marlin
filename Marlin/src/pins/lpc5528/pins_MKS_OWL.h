@@ -201,44 +201,7 @@
 //
 #define TFT_BUFFER_SIZE 14400
 
-#if ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
-  #define BEEPER_PIN                 EXP1_01_PIN
-  #define BTN_ENC                    EXP1_02_PIN
-  #define BTN_EN1                    EXP2_03_PIN
-  #define BTN_EN2                    EXP2_05_PIN
-  #define LCD_PINS_EN                EXP1_03_PIN
-  #define LCD_PINS_RS                EXP1_04_PIN
-  #define LCD_PINS_D4                EXP1_05_PIN
-  #define LCD_PINS_D5                EXP1_06_PIN
-  #define LCD_PINS_D6                EXP1_07_PIN
-  #define LCD_PINS_D7                EXP1_08_PIN
-  #define LCD_SDSS_PIN               EXP2_04_PIN
-  #define SD_DETECT_PIN              EXP2_07_PIN
-
-  #elif ENABLED(MKS_MINI_12864_V3)
-
-  #define LCD_PINS_ENABLE            EXP1_03_PIN
-  #define LCD_PINS_RS                EXP1_04_PIN
-  #define BTN_EN1                    EXP2_03_PIN
-  #define BTN_EN2                    EXP2_05_PIN
-  #define LCD_BACKLIGHT_PIN                -1
-  #define DOGLCD_A0                  EXP1_07_PIN
-  #define DOGLCD_CS                  EXP1_06_PIN
-  #define NEOPIXEL_PIN               EXP1_05_PIN
-
-#elif ENABLED(MKS_MINI_12864)
-
-  #define LCD_PINS_D4                EXP1_05_PIN
-  #if ENABLED(ULTIPANEL)
-    #define LCD_PINS_D5              EXP1_06_PIN
-    #define LCD_PINS_D6              EXP1_07_PIN
-    #define LCD_PINS_D7              EXP1_08_PIN
-  #endif
-  #define BOARD_ST7920_DELAY_1    DELAY_NS(200)
-  #define BOARD_ST7920_DELAY_2    DELAY_NS(400)
-  #define BOARD_ST7920_DELAY_3    DELAY_NS(600)
-
-#elif ANY(TFT_COLOR_UI, TFT_LVGL_UI, TFT_CLASSIC_UI)
+#if ANY(TFT_COLOR_UI, TFT_LVGL_UI, TFT_CLASSIC_UI)
   #define TFT_CS_PIN                 EXP1_07_PIN  // LCD_D6
   #define TFT_A0_PIN                 EXP1_08_PIN  // LCD_D7
   #define TFT_DC_PIN                 EXP1_08_PIN  // LCD_D7
@@ -280,7 +243,74 @@
     #define TOUCH_ORIENTATION    TOUCH_LANDSCAPE
   #endif
 
-#endif
+#elif HAS_WIRED_LCD
+
+  /**
+   * EXP1/EXP2 use the standard Marlin 2x5 layout (verified against the
+   * MKS OWL V1.0_002 schematic), so the usual display pinouts apply.
+   * The individual variants below are untested on hardware.
+   */
+  #define BEEPER_PIN                 EXP1_01_PIN
+  #define BTN_ENC                    EXP1_02_PIN
+
+  #if ENABLED(CR10_STOCKDISPLAY)                  // Plugs into EXP1 only
+
+    #define BTN_EN1                  EXP1_03_PIN
+    #define BTN_EN2                  EXP1_05_PIN
+
+    #define LCD_PINS_RS              EXP1_07_PIN
+    #define LCD_PINS_EN              EXP1_08_PIN
+    #define LCD_PINS_D4              EXP1_06_PIN
+
+  #else
+
+    #define BTN_EN1                  EXP2_03_PIN
+    #define BTN_EN2                  EXP2_05_PIN
+
+    #define LCD_PINS_RS              EXP1_04_PIN
+    #define LCD_PINS_EN              EXP1_03_PIN
+    #define LCD_PINS_D4              EXP1_05_PIN
+
+    #define LCD_SDSS_PIN             EXP2_04_PIN  // SD slot on the display
+    #define SD_DETECT_PIN            EXP2_07_PIN
+
+    #if ANY(MKS_MINI_12864, ENDER2_STOCKDISPLAY)  // MKS MINI12864 V1/V2, as wired on other MKS boards
+
+      #define DOGLCD_CS              EXP1_06_PIN
+      #define DOGLCD_A0              EXP1_07_PIN
+      #define DOGLCD_SCK             EXP2_02_PIN
+      #define DOGLCD_MOSI            EXP2_06_PIN
+      #define LCD_RESET_PIN                 -1
+      #define LCD_BACKLIGHT_PIN             -1
+
+    #elif ENABLED(FYSETC_MINI_12864_2_1)          // Also MKS MINI12864 V3, BTT/BEEZ MINI 12864
+
+      #define DOGLCD_CS              EXP1_03_PIN
+      #define DOGLCD_A0              EXP1_04_PIN
+      #define LCD_RESET_PIN          EXP1_05_PIN  // Must be high or open for the LCD to run
+      #define NEOPIXEL_PIN           EXP1_06_PIN
+      #define LCD_BACKLIGHT_PIN             -1
+
+    #endif
+
+    #if IS_ULTIPANEL
+      #define LCD_PINS_D5            EXP1_06_PIN
+      #define LCD_PINS_D6            EXP1_07_PIN
+      #define LCD_PINS_D7            EXP1_08_PIN
+      #if ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
+        #define BTN_ENC_EN           LCD_PINS_D7  // Detect the presence of the encoder
+      #endif
+    #endif
+
+  #endif
+
+  #ifndef BOARD_ST7920_DELAY_1
+    #define BOARD_ST7920_DELAY_1  DELAY_NS(200)
+    #define BOARD_ST7920_DELAY_2  DELAY_NS(400)
+    #define BOARD_ST7920_DELAY_3  DELAY_NS(600)
+  #endif
+
+#endif // HAS_WIRED_LCD
 
 //
 // SPI Flash
@@ -292,11 +322,4 @@
   #define SPI_FLASH_MOSI_PIN               P0_29
   #define SPI_FLASH_MISO_PIN               P0_30
   #define SPI_FLASH_SCK_PIN                P0_28
-#endif
-
-#if ANY(TFT_COLOR_UI, TFT_LVGL_UI, TFT_CLASSIC_UI, HAS_WIRED_LCD)
-  #define BEEPER_PIN                       P1_12
-  //#define BTN_ENC                        P1_14
-  //#define BTN_EN1                        P1_10
-  //#define BTN_EN2                        P1_22
 #endif
