@@ -38,9 +38,6 @@
  * SPI sharing pins. The SCK, MOSI & MISO pins can NOT be set/cleared with
  * WRITE nor digitalWrite when the hardware SPI module within the LPC55xx is
  * active. If any of these pins are shared then the software SPI must be used.
- *
- * A more sophisticated hardware SPI is included for future reference.
- * See: spi_impl-071c7a78f2.cpp and spi_pins-071c7a78f2.h
  */
 
 #include "../../inc/MarlinConfig.h"
