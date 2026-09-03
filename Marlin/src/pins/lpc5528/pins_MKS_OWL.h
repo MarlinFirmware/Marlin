@@ -19,11 +19,10 @@
 // EEPROM
 //
 #if NO_EEPROM_SELECTED
-   #define I2C_EEPROM      // EEPROM on I2C-0
+  #define I2C_EEPROM                              // AT24C32 on I2C
 #endif
 
-#if ANY(NO_EEPROM_SELECTED, I2C_EEPROM)
-  #define I2C_EEPROM
+#if ENABLED(I2C_EEPROM)
   #define USE_SHARED_EEPROM
   #define MARLIN_EEPROM_SIZE 0x1000 // 4KB
   #define I2C_SCL_PIN                      P1_27
