@@ -1134,6 +1134,10 @@ void GcodeSuite::process_parsed_command(bool no_ok/*=false*/) {
 
       case 999: M999(); break;                                    // M999: Restart after being Stopped
 
+      #if ENABLED(CREALITY_BOOTLOADER_INFO_DUMP)
+        case 7422: M7422(); break;                                // M7422: Dump the Creality v4.2.x bootloader info page
+      #endif
+
       #if ENABLED(POWER_LOSS_RECOVERY)
         case 413: M413(); break;                                  // M413: Enable/disable/query Power-Loss Recovery
         case 1000: M1000(); break;                                // M1000: [INTERNAL] Resume from power-loss
