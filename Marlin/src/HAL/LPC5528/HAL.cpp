@@ -96,19 +96,36 @@ uint8_t MarlinHAL::get_reset_source() {
 
   #include <fsl_wwdt.h>
   #include <fsl_clock.h>
+  #include <fsl_power.h>
 
-  // WWDT clock source is FRO1M (1 MHz).
-  // Timeout period = timeoutValue * 4 / WWDT_clock_Hz
-  // For 4s timeout at 1 MHz: 4 * 1,000,000 / 4 = 1,000,000 counts
-  // For 8s timeout at 1 MHz: 8 * 1,000,000 / 4 = 2,000,000 counts
+  /**
+   * WDCLK is FRO 1 MHz divided by SYSCON->WDTCLKDIV, feeding a 24-bit
+   * down-counter behind a fixed divide-by-4 prescaler (UM11126 30.2, 30.5):
+   *
+   *   timeout = timeoutValue * 4 / WDCLK
+   *
+   * With WDTCLKDIV set to divide-by-1 that gives 1,000,000 counts for 4s and
+   * 2,000,000 for 8s. Both are within the 24-bit range and above the 0xFF
+   * minimum reload value.
+   *
+   * Note WDCLK accuracy is only +/-40% over voltage, temperature and process
+   * (UM11126 30.2), so a nominal 4s timeout is somewhere in 2.9s..6.7s.
+   */
   #define WDT_TIMEOUT_COUNT TERN(WATCHDOG_DURATION_8S, 2000000UL, 1000000UL)
 
   void MarlinHAL::watchdog_init() {
-    CLOCK_EnableClock(kCLOCK_Wwdt);
+    // WDTCLKDIV resets with HALT set (reset value 0x4000000), so the divider
+    // is stopped and the counter never decrements. Reset the divider and set
+    // divide-by-1, which also clears HALT. (UM11126 4.5.53 Table 105, 30.3)
+    POWER_DisablePD(kPDRUNCFG_PD_FRO1M);          // WDCLK source must be running
+    CLOCK_SetClkDiv(kCLOCK_DivWdtClk, 1U, true);  // reset divider, divide-by-1, clears HALT
+
+    CLOCK_EnableClock(kCLOCK_Wwdt);               // AHB clock for the register interface
     wwdt_config_t config;
     WWDT_GetDefaultConfig(&config);
-    config.enableWatchdogReset   = true;      // Reset on timeout
-    config.enableWatchdogProtect = false;     // Allow timeout updates
+    config.enableWwdt            = true;       // Start the watchdog
+    config.enableWatchdogReset   = true;       // Reset on timeout
+    config.enableWatchdogProtect = false;      // Allow timeout updates
     config.windowValue           = 0xFFFFFFUL; // Windowing disabled
     config.timeoutValue          = WDT_TIMEOUT_COUNT;
     config.warningValue          = 0;
