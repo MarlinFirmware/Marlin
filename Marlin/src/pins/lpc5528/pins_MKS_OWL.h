@@ -287,7 +287,7 @@
 //
 #define HAS_SPI_FLASH                         1
 #if HAS_SPI_FLASH
-  #define SPI_FLASH_SIZE               0x1000000  // 16MB
+  #define SPI_FLASH_SIZE                0x800000  // 8MB (W25Q64JV)
   #define SPI_FLASH_CS_PIN                 P1_19
   #define SPI_FLASH_MOSI_PIN               P0_29
   #define SPI_FLASH_MISO_PIN               P0_30
