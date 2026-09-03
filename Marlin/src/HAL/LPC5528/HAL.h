@@ -195,7 +195,7 @@ public:
   static uint16_t adc_value() { return adc_result; }
 
   // Called by Temperature::init for each sensor at startup
-  static void adc_enable(const pin_t pin) {}
+  static void adc_enable(const pin_t pin);
 
   #define GET_PIN_MAP_PIN(index) index
   #define GET_PIN_MAP_INDEX(pin) pin

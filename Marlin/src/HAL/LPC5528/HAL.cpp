@@ -63,15 +63,16 @@ void MarlinHAL::init() {
 // ADC
 // ------------------------
 
-static void set_adc_init(uint8_t adc_pin) {
-  pinMode(adc_pin, INPUT);
-  adc_init(adc_pin);
-}
+// The framework's adc_init(pin) does the one-time LPADC setup (clock, power,
+// calibration) on its first call, then configures the command and trigger for
+// the given pin. Temperature::init calls adc_enable() for every ADC sensor it
+// knows about, so hook there rather than hand-listing a few pins.
+void MarlinHAL::adc_init() {}
 
-void MarlinHAL::adc_init() {
-  TERN_(HAS_TEMP_ADC_0, set_adc_init(TEMP_0_PIN));
-  TERN_(HAS_TEMP_ADC_1, set_adc_init(TEMP_1_PIN));
-  TERN_(HAS_HEATED_BED, set_adc_init(TEMP_BED_PIN));
+void MarlinHAL::adc_enable(const pin_t pin) {
+  if (pin < 0) return;
+  pinMode(pin, INPUT);
+  ::adc_init(uint8_t(pin));
 }
 
 void MarlinHAL::adc_start(const pin_t adc_pin) {
