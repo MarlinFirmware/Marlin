@@ -77,7 +77,7 @@
 
 #include "../../../inc/MarlinConfigPre.h"
 
-#if HAS_MARLINUI_U8GLIB && defined(LCD_I2C_ADDRESS)
+#if HAS_MARLINUI_U8GLIB
 
 #include <U8glib-HAL.h>
 

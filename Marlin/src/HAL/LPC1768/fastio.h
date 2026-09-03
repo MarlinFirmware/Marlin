@@ -35,7 +35,7 @@
 
 #include "../shared/Marduino.h"
 
-#define PWM_PIN(P)            true // All pins are PWM capable
+#define PWM_PIN(P)            true // all pins are PWM capable
 
 #define LPC_PIN(pin)          LPC176x::gpio_pin(pin)
 #define LPC_GPIO(port)        LPC176x::gpio_port(port)
@@ -65,25 +65,25 @@
 /// Write to a pin
 #define _WRITE(IO,V)          WRITE_PIN(IO,V)
 
-/// Toggle a pin
+/// toggle a pin
 #define _TOGGLE(IO)           LPC176x::gpio_toggle(IO)
 
-/// Set pin as input
+/// set pin as input
 #define _SET_INPUT(IO)        SET_DIR_INPUT(IO)
 
-/// Set pin as output
+/// set pin as output
 #define _SET_OUTPUT(IO)       SET_DIR_OUTPUT(IO)
 
-/// Set pin as input with pullup mode
+/// set pin as input with pullup mode
 #define _PULLUP(IO,V)         pinMode(IO, (V) ? INPUT_PULLUP : INPUT)
 
-/// Set pin as input with pulldown mode
+/// set pin as input with pulldown mode
 #define _PULLDOWN(IO,V)       pinMode(IO, (V) ? INPUT_PULLDOWN : INPUT)
 
-/// Check if pin is an input
+/// check if pin is an input
 #define _IS_INPUT(IO)         (!LPC176x::gpio_get_dir(IO))
 
-/// Check if pin is an output
+/// check if pin is an output
 #define _IS_OUTPUT(IO)        (LPC176x::gpio_get_dir(IO))
 
 /// Read a pin wrapper
@@ -92,23 +92,23 @@
 /// Write to a pin wrapper
 #define WRITE(IO,V)           _WRITE(IO,V)
 
-/// Toggle a pin wrapper
+/// toggle a pin wrapper
 #define TOGGLE(IO)            _TOGGLE(IO)
 
-/// Set pin as input wrapper
+/// set pin as input wrapper
 #define SET_INPUT(IO)         _SET_INPUT(IO)
-/// Set pin as input with pullup wrapper
+/// set pin as input with pullup wrapper
 #define SET_INPUT_PULLUP(IO)  do{ _SET_INPUT(IO); _PULLUP(IO, HIGH); }while(0)
-/// Set pin as input with pulldown wrapper
+/// set pin as input with pulldown wrapper
 #define SET_INPUT_PULLDOWN(IO) do{ _SET_INPUT(IO); _PULLDOWN(IO, HIGH); }while(0)
-/// Set pin as output wrapper  -  reads the pin and sets the output to that value
+/// set pin as output wrapper  -  reads the pin and sets the output to that value
 #define SET_OUTPUT(IO)        do{ _WRITE(IO, _READ(IO)); _SET_OUTPUT(IO); }while(0)
-/// Set pin as PWM
+// set pin as PWM
 #define SET_PWM               SET_OUTPUT
 
-/// Check if pin is an input wrapper
+/// check if pin is an input wrapper
 #define IS_INPUT(IO)          _IS_INPUT(IO)
-/// Check if pin is an output wrapper
+/// check if pin is an output wrapper
 #define IS_OUTPUT(IO)         _IS_OUTPUT(IO)
 
 // Shorthand

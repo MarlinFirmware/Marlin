@@ -23,7 +23,7 @@
 
 /**
  * HAL_LPC1768/HAL.h
- * Hardware Abstraction Layer for NXP LPC1768 / LPC1769
+ * Hardware Abstraction Layer for NXP LPC1768
  */
 
 #define CPU_32_BIT
