@@ -29,7 +29,7 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-#if 1//HAS_SD_HOST_DRIVE
+#if HAS_SD_HOST_DRIVE
 
 #include "../shared/Marduino.h"
 #include "msc_sd.h"
