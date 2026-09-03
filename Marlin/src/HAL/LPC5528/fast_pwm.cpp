@@ -24,18 +24,25 @@
 #include "../../inc/MarlinConfig.h"
 #include <pwm.h>
 
-#ifndef pin_t
-typedef int16_t pin_t;
-#endif
+/**
+ * TODO: Hardware PWM is not implemented yet, so these fall back to plain
+ * on/off. See tasks.md P2-1 for the timer allocation this needs:
+ *  - FAN0_PIN (P0_01) has no timer output at all and can only ever be
+ *    software PWM.
+ *  - HEATER_0_PIN (P1_07) and FAN1_PIN (P1_06) have no SCTimer output;
+ *    they can only be driven from CTIMER2_MAT2 / CTIMER2_MAT1.
+ *  - SERVO0_PIN (P0_10) and HEATER_BED_PIN (P1_09) share SCT0_OUT2, so the
+ *    servo has to move to CTIMER2_MAT0.
+ */
 
-void set_pwm_duty(const pin_t pin, const uint16_t v, const uint16_t v_size/*=255*/, const bool invert/*=false*/) {
+void MarlinHAL::set_pwm_duty(const pin_t pin, const uint16_t v, const uint16_t v_size/*=255*/, const bool invert/*=false*/) {
+  const uint16_t duty = invert ? v_size - v : v;
+  pinMode(pin, OUTPUT);
+  digitalWrite(pin, duty > (v_size >> 1) ? HIGH : LOW);
 }
 
-#if NEEDS_HARDWARE_PWM // Specific meta-flag for features that mandate PWM
-
-  void set_pwm_frequency(const pin_t pin, int f_desired) {
-  }
-
-#endif
+void MarlinHAL::set_pwm_frequency(const pin_t pin, const uint16_t f_desired) {
+  UNUSED(pin); UNUSED(f_desired);
+}
 
 #endif // TARGET_LPC5528
