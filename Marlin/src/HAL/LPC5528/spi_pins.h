@@ -22,15 +22,20 @@
 #pragma once
 
 
+/**
+ * Fallbacks only. Boards with an SD card define these in their pins file; the
+ * pin numbers previously commented here were LPC176x leftovers and did not
+ * refer to anything on an LPC5528 board.
+ */
 #ifndef SD_SCK_PIN
-  #define SD_SCK_PIN        -1 // P0_15
+  #define SD_SCK_PIN        -1
 #endif
 #ifndef SD_MISO_PIN
-  #define SD_MISO_PIN       -1 // P0_17
+  #define SD_MISO_PIN       -1
 #endif
 #ifndef SD_MOSI_PIN
-  #define SD_MOSI_PIN       -1 // P0_18
+  #define SD_MOSI_PIN       -1
 #endif
 #ifndef SD_SS_PIN
-  #define SD_SS_PIN         -1 // P1_23
+  #define SD_SS_PIN         -1
 #endif

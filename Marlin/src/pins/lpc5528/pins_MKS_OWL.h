@@ -131,12 +131,13 @@
 #endif
 
 //
-// SD Card(U disk)
+// Removable media
+//
+// There is no SD socket on this board. Media is the high-speed USB host port
+// (J25, "U-DISK"), so enable USB_FLASH_DRIVE_SUPPORT with USE_OTG_USB_HOST.
+// A display with its own SD slot on EXP2 works with SDCARD_CONNECTION LCD.
 //
 #define HAS_OTG_USB_HOST_SUPPORT                // USB Flash Drive support
-#ifndef SDCARD_CONNECTION
-  #define SDCARD_CONNECTION ONBOARD
-#endif
 
 //
 // Default pins for TMC software SPI
