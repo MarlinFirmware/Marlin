@@ -62,7 +62,14 @@
 
 void GcodeSuite::M48() {
 
-  if (motion.homing_needed_error()) return;
+  #if ALL(DWIN_LCD_PROUI, ADVANCED_PAUSE_FEATURE)
+    dwinPopupPause(GET_TEXT_F(MSG_M48_TEST));
+  #endif
+
+  if (motion.homing_needed_error()) {
+    TERN_(DWIN_LCD_PROUI, hmiReturnScreen());
+    return;
+  }
 
   const int8_t verbose_level = parser.byteval('V', 1);
   if (!WITHIN(verbose_level, 0, 4)) {
@@ -294,6 +301,8 @@ void GcodeSuite::M48() {
   TERN_(HAS_PTC, ptc.set_enabled(true));
 
   motion.report_position();
+
+  TERN_(DWIN_LCD_PROUI, hmiReturnScreen());
 }
 
 #endif // Z_MIN_PROBE_REPEATABILITY_TEST

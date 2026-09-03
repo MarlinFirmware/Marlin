@@ -91,8 +91,7 @@ void GcodeSuite::G29() {
 
   TERN_(FULL_REPORT_TO_HOST_FEATURE, motion.set_and_report_grblstate(M_PROBE));
 
-  int8_t ix, iy;
-  ix = iy = 0;
+  int8_t ix = 0, iy = 0;
 
   switch (state) {
     case MeshReport:
@@ -174,6 +173,11 @@ void GcodeSuite::G29() {
         // Save Z for the previous mesh position
         bedlevel.set_zigzag_z(mbl_probe_index - 1, motion.position.z);
         TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(ix, iy, motion.position.z));
+        #if ENABLED(DWIN_LCD_PROUI)
+          dwinPointUpdate(_MIN(mbl_probe_index, GRID_MAX_POINTS), int(GRID_MAX_POINTS), motion.position.z);
+        #elif ENABLED(EXTENSIBLE_UI)
+          ExtUI::onMeshUpdate(ix, iy, motion.position.z)
+        #endif
         motion.set_soft_endstop_loose(false);
       }
       // If there's another point to sample, move there with optional lift.

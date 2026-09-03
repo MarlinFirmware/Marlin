@@ -692,8 +692,6 @@ namespace LanguageNarrow_tr {
   LSTR MSG_LOCKSCREEN                     = _UxGT("Kilit Ekranı");                             // Lock Screen
   LSTR MSG_LOCKSCREEN_LOCKED              = _UxGT("Yazıcı Kilitlendi,");                       // Printer is Locked,
   LSTR MSG_LOCKSCREEN_UNLOCK              = _UxGT("Açmak için kaydırın.");                     // Scroll to unlock.
-  LSTR MSG_PLEASE_WAIT_REBOOT             = _UxGT("Y.Başlatma bekleyin.");                     // Please wait for reboot.
-  LSTR MSG_PLEASE_PREHEAT                 = _UxGT("Ön Isıtma Lütfen");                         // Please Preheat
   LSTR MSG_FILAMENT_CHANGE_PURGE_CONTINUE = _UxGT("Temizle veya Devam?");                      // Purge or Continue?
   LSTR MSG_EXTRUDER_MIN_TEMP              = _UxGT("Ekstruder Min Isı");                        // Extruder Min Temp.
   LSTR MSG_FANCHECK                       = _UxGT("Fan Takosu Kontrolü");                      // Fan Tacho Check
@@ -862,8 +860,9 @@ namespace LanguageWide_tr {
     LSTR MSG_END_LOOPS                    = _UxGT("Tekrr Döngüler Bitir");                     // End Repeat Loops
     LSTR MSG_CONTINUE_PRINT_JOB           = _UxGT("Yazdırmaya Devam Et");                      // Continue Print Job
     LSTR MSG_TURN_OFF                     = _UxGT("Yazıcıyı kapat");                           // Turn off the printer
-    LSTR MSG_PLEASE_PREHEAT               = _UxGT("Lütfen önce hotend'i ısıtın.");             // Please preheat the hot end.
-    LSTR MSG_MEDIA_NOT_INSERTED           = _UxGT("Ortam yerleştirilmedi.");                   // No media inserted.
+    LSTR MSG_PLEASE_WAIT_REBOOT           = _UxGT("Y.Başlatma bekleyin.");                     // Please wait for reboot
+    LSTR MSG_PLEASE_PREHEAT               = _UxGT("Lütfen önce hotend'i ısıtın.");             // Please preheat the hot end
+    LSTR MSG_MEDIA_NOT_INSERTED           = _UxGT("Ortam yerleştirilmedi.");                   // No media inserted
     LSTR MSG_INFO_PRINT_COUNT_RESET       = _UxGT("Baskı Sayısını Sıfırla");                   // Reset Print Count
   #endif
 }

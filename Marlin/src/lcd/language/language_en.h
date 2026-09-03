@@ -576,7 +576,6 @@ namespace LanguageNarrow_en {
   LSTR MSG_HOME_OFFSET_X                  = _UxGT("Home Offset X");
   LSTR MSG_HOME_OFFSET_Y                  = _UxGT("Home Offset Y");
   LSTR MSG_HOME_OFFSET_Z                  = _UxGT("Home Offset Z");
-  LSTR MSG_TRAMMING_WIZARD                = _UxGT("Tramming Wizard");
   LSTR MSG_SELECT_ORIGIN                  = _UxGT("Select Origin");
   LSTR MSG_LAST_VALUE_SP                  = _UxGT("Last value ");
   LSTR MSG_CUTTER_FREQUENCY               = _UxGT("Frequency");
@@ -719,13 +718,32 @@ namespace LanguageNarrow_en {
   LSTR MSG_COLORS_GREEN                   = _UxGT("Green");
   LSTR MSG_COLORS_BLUE                    = _UxGT("Blue");
   LSTR MSG_COLORS_WHITE                   = _UxGT("White");
+  LSTR MSG_SCREEN_BACKGROUND              = _UxGT("Screen Background");
+  LSTR MSG_CURSOR                         = _UxGT("Cursor");
+  LSTR MSG_TITLE_BACKGROUND               = _UxGT("Title Background");
+  LSTR MSG_TITLE_TEXT                     = _UxGT("Title Text");
+  LSTR MSG_TEXT                           = _UxGT("Text");
+  LSTR MSG_SELECTED                       = _UxGT("Selected");
+  LSTR MSG_SPLIT_LINE                     = _UxGT("Split Line");
+  LSTR MSG_HIGHLIGHT                      = _UxGT("Highlight");
+  LSTR MSG_STATUS_BACKGROUND              = _UxGT("Status Background");
+  LSTR MSG_STATUS_TEXT                    = _UxGT("Status Text");
+  LSTR MSG_POPUP_BACKGROUND               = _UxGT("Popup Background");
+  LSTR MSG_POPUP_TEXT                     = _UxGT("Popup Text");
+  LSTR MSG_ALERT_BACKGROUND               = _UxGT("Alert Background");
+  LSTR MSG_ALERT_TEXT                     = _UxGT("Alert Text");
+  LSTR MSG_PERCENT_TEXT                   = _UxGT("Percent Text");
+  LSTR MSG_BAR_FILL                       = _UxGT("Bar Fill");
+  LSTR MSG_INDICATOR_VALUE                = _UxGT("Indicator value");
+  LSTR MSG_COORDINATE_VALUE               = _UxGT("Coordinate value");
+  LSTR MSG_LOWER                          = _UxGT("Lower");
+  LSTR MSG_RAISE                          = _UxGT("Raise");
+  LSTR MSG_EXIT_TO_MAIN_MENU              = _UxGT("Exit to Main Menu");
   LSTR MSG_UI_LANGUAGE                    = _UxGT("UI Language");
   LSTR MSG_SOUND_ENABLE                   = _UxGT("Enable sound");
   LSTR MSG_LOCKSCREEN                     = _UxGT("Lock Screen");
   LSTR MSG_LOCKSCREEN_LOCKED              = _UxGT("Printer is Locked,");
   LSTR MSG_LOCKSCREEN_UNLOCK              = _UxGT("Scroll to unlock.");
-  LSTR MSG_PLEASE_WAIT_REBOOT             = _UxGT("Please wait for reboot.");
-  LSTR MSG_PLEASE_PREHEAT                 = _UxGT("Please Preheat");
   LSTR MSG_FILAMENT_CHANGE_PURGE_CONTINUE = _UxGT("Purge or Continue?");
   LSTR MSG_EXTRUDER_MIN_TEMP              = _UxGT("Extruder Min Temp.");
   LSTR MSG_FANCHECK                       = _UxGT("Fan Tacho Check");
@@ -809,7 +827,10 @@ namespace LanguageNarrow_en {
   LSTR MSG_CUTTER                         = _UxGT("Cutter");
   LSTR MSG_FLOW_PERCENTAGE                = _UxGT("Set Flowrate Percentage");
   LSTR MSG_TIMEOUT                        = _UxGT("Timeout");
-  LSTR MSG_PID_FOR_NOZZLE                 = _UxGT("for Nozzle is running.");
+  LSTR MSG_HOTEND_TEMP_GRAPH              = _UxGT("Hotend Temp Graph");
+  LSTR MSG_BED_TEMP_GRAPH                 = _UxGT("Bed Temp Graph");
+  LSTR MSG_CHAMBER_TEMP_GRAPH             = _UxGT("Chamber Temp Graph");
+  LSTR MSG_PID_FOR_NOZZLE                 = _UxGT("for NOZZLE is running.");
   LSTR MSG_PID_FOR_BED                    = _UxGT("for BED is running.");
   LSTR MSG_PID_FOR_CHAMBER                = _UxGT("for CHAMBER is running.");
   LSTR MSG_TEMP_NOZZLE                    = _UxGT("Nozzle Temperature");
@@ -852,8 +873,6 @@ namespace LanguageNarrow_en {
   LSTR MSG_ADVANCE_TAU                    = _UxGT("Advance Tau");
   LSTR MSG_ADVANCE_TAU_E                  = _UxGT("Advance Tau *");
   LSTR MSG_NLE_ON                         = _UxGT("NLE enabled");
-  LSTR MSG_HOTEND_TEMP_GRAPH              = _UxGT("Hotend Temp Graph");
-  LSTR MSG_BED_TEMP_GRAPH                 = _UxGT("Bed Temp Graph");
   LSTR MSG_EEPROM_INITIALIZED             = _UxGT("EEPROM Initialized");
   LSTR MSG_ERR_EEPROM_CORRUPT             = _UxGT("Err: EEPROM Corrupt");
   LSTR MSG_HAS_PREVIEW                    = _UxGT("Has preview");
@@ -1075,6 +1094,23 @@ namespace LanguageNarrow_en {
 namespace LanguageWide_en {
   using namespace LanguageNarrow_en;
   #if LCD_WIDTH > 20 || HAS_DWIN_E3V2
+    // ProUI
+    LSTR MSG_DISABLE_MANUAL_TRAMMING      = _UxGT("Disable manual tramming");
+    LSTR MSG_TRAMMING_WIZARD              = _UxGT("Tramming Wizard");
+    LSTR MSG_TRAMMING_WIZARD_START        = _UxGT("Tramming Wizard Start");
+    LSTR MSG_CORNERS_LEVELED              = _UxGT("Corners leveled");
+    LSTR MSG_CORNERS_NOT_LEVELED          = _UxGT("Corners not leveled");
+    LSTR MSG_KNOB_ADJUSTMENT_REQUIRED     = _UxGT("Knob adjustment required");
+    LSTR MSG_PROBE_FOR_Z_VALUE            = _UxGT("Probe for Z Value");
+    LSTR MSG_ZERO_CURRENT_POINT           = _UxGT("Zero Current Point");
+    LSTR MSG_CALCULATING_AVERAGE          = _UxGT("Calculating average");
+    LSTR MSG_AND_RELATIVE_HEIGHTS         = _UxGT("and relative heights");
+    LSTR MSG_TOLERANCE_ACHIEVED           = _UxGT("Tolerance achieved!");
+    LSTR MSG_POSITION_UNKNOWN             = _UxGT("WARNING: Current position unknown. Home axes.");
+    LSTR MSG_POSITION_UNKNOWN_Z           = _UxGT("WARNING: Z position unknown, move Z to home");
+    LSTR MSG_OUTAGE_RECOVERY2             = _UxGT("It looks like the last");
+    LSTR MSG_OUTAGE_RECOVERY3             = _UxGT("file was interrupted.");
+
     LSTR MSG_PREHEAT_1_END                = _UxGT("Preheat ") PREHEAT_1_LABEL _UxGT(" Hotend");
     LSTR MSG_PREHEAT_1_END_E              = _UxGT("Preheat ") PREHEAT_1_LABEL _UxGT(" Hotend ~");
     LSTR MSG_PREHEAT_1_SETTINGS           = _UxGT("Preheat ") PREHEAT_1_LABEL _UxGT(" Settings");
@@ -1084,6 +1120,7 @@ namespace LanguageWide_en {
     LSTR MSG_MEDIA_MENU                   = _UxGT("Select from ") MEDIA_TYPE_EN;
     LSTR MSG_NO_MEDIA                     = _UxGT("No ") MEDIA_TYPE_EN _UxGT(" Found");
     LSTR MSG_INFO_PRINT_COUNT             = _UxGT("Print Count");
+    LSTR MSG_INFO_PRINT_COUNT_RESET       = _UxGT("Reset Print Count");
     LSTR MSG_INFO_PRINT_TIME              = _UxGT("Print Time");
     LSTR MSG_INFO_PRINT_LONGEST           = _UxGT("Longest Job Time");
     LSTR MSG_INFO_PRINT_FILAMENT          = _UxGT("Extruded Total");
@@ -1093,11 +1130,13 @@ namespace LanguageWide_en {
     LSTR MSG_HOST_START_PRINT             = _UxGT("Start Host Print");
     LSTR MSG_END_LOOPS                    = _UxGT("End Repeat Loops");
     LSTR MSG_CONTINUE_PRINT_JOB           = _UxGT("Continue Print Job");
-    LSTR MSG_TURN_OFF                     = _UxGT("Turn off the printer");
-    LSTR MSG_PLEASE_PREHEAT               = _UxGT("Please preheat the hot end.");
-    LSTR MSG_MEDIA_NOT_INSERTED           = _UxGT("No media inserted.");
-    LSTR MSG_INFO_PRINT_COUNT_RESET       = _UxGT("Reset Print Count");
-    LSTR MSG_ZERO_MESH                    = _UxGT("Zero Current Point");
+    LSTR MSG_TURN_OFF                     = _UxGT("Turn off printer");
+    LSTR MSG_PLEASE_WAIT_REBOOT           = _UxGT("Please wait for reboot.");
+    LSTR MSG_PLEASE_PREHEAT               = _UxGT("Please preheat hot end.");
+    LSTR MSG_MPC_TARGET                   = _UxGT("MPC target:     Celsius");
+    LSTR MSG_PID_TARGET                   = _UxGT("PID target:     Celsius");
+    LSTR MSG_TARGET                       = _UxGT("Target:     Celsius");
+    LSTR MSG_MEDIA_NOT_INSERTED           = MEDIA_TYPE_EN _UxGT(" not inserted.");
     LSTR MSG_HOMING_FEEDRATE_N            = _UxGT("@ Homing Feedrate");
     LSTR MSG_PREHEAT_1_CHAMBER            = _UxGT("Preheat ") PREHEAT_1_LABEL _UxGT(" Chamber");
     LSTR MSG_PREHEAT_M_CHAMBER            = _UxGT("Preheat $ Chamber");

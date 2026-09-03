@@ -699,8 +699,6 @@ namespace LanguageNarrow_it {
   LSTR MSG_LOCKSCREEN                     = _UxGT("Blocca schermo");                           // Lock Screen
   LSTR MSG_LOCKSCREEN_LOCKED              = _UxGT("Stamp. bloccata,");                         // Printer is Locked,
   LSTR MSG_LOCKSCREEN_UNLOCK              = _UxGT("Scroll x sbloccare.");                      // Scroll to unlock.
-  LSTR MSG_PLEASE_WAIT_REBOOT             = _UxGT("Attendere fino al riavvio.");               // Please wait for reboot.
-  LSTR MSG_PLEASE_PREHEAT                 = _UxGT("Prerisc. ugello.");                         // Please Preheat
   LSTR MSG_FILAMENT_CHANGE_PURGE_CONTINUE = _UxGT("Spurga o continua?");                       // Purge or Continue?
   LSTR MSG_EXTRUDER_MIN_TEMP              = _UxGT("Temp.min estrusore");                       // Extruder Min Temp.
   LSTR MSG_FANCHECK                       = _UxGT("Verif.tacho vent.");                        // Fan Tacho Check
@@ -822,6 +820,7 @@ namespace LanguageNarrow_it {
   LSTR MSG_NLE_ON                         = _UxGT("NLE abilitato");                            // NLE enabled
   LSTR MSG_HOTEND_TEMP_GRAPH              = _UxGT("Grafico temp.ugello");                      // Hotend Temp Graph
   LSTR MSG_BED_TEMP_GRAPH                 = _UxGT("Grafico temp.piatto");                      // Bed Temp Graph
+  LSTR MSG_CHAMBER_TEMP_GRAPH             = _UxGT("Grafico temp.camera");                      // Chamber Temp Graph
   LSTR MSG_EEPROM_INITIALIZED             = _UxGT("EEPROM inizializzata");                     // EEPROM Initialized
   LSTR MSG_ERR_EEPROM_CORRUPT             = _UxGT("Err: EEPROM corrotta");                     // Err: EEPROM Corrupt
   LSTR MSG_HAS_PREVIEW                    = _UxGT("Ha anteprima");                             // Has preview

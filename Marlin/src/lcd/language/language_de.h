@@ -690,8 +690,6 @@ namespace LanguageNarrow_de {
   LSTR MSG_LOCKSCREEN                     = _UxGT("Bildschirm sperren");                       // Lock Screen
   LSTR MSG_LOCKSCREEN_LOCKED              = _UxGT("Drucker ist gesperrt,");                    // Printer is Locked,
   LSTR MSG_LOCKSCREEN_UNLOCK              = _UxGT("Scrollen zum Entsper.");                    // Scroll to unlock.
-  LSTR MSG_PLEASE_WAIT_REBOOT             = _UxGT("Auf Neustart warten");                      // Please wait for reboot.
-  LSTR MSG_PLEASE_PREHEAT                 = _UxGT("Bitte vorheizen");                          // Please Preheat
   LSTR MSG_FILAMENT_CHANGE_PURGE_CONTINUE = _UxGT("Löschen o. fortfah.?");                     // Purge or Continue?
   LSTR MSG_EXTRUDER_MIN_TEMP              = _UxGT("Extruder Min Temp.");                       // Extruder Min Temp.
   LSTR MSG_FANCHECK                       = _UxGT("Lüftergeschw. prüfen");                     // Fan Tacho Check
