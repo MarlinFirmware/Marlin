@@ -73,7 +73,7 @@
 /// Set pin as input with pullup wrapper
 #define SET_INPUT_PULLUP(IO)    _SET_MODE(IO, INPUT_PULLUP)     //!< Input with Pull-up activation
 /// Set pin as input with pulldown wrapper
-#define SET_INPUT_PULLDOWN(IO)  _SET_MODE(IO, INPUT_PULLUP)     //!< Input with Pull-down activation
+#define SET_INPUT_PULLDOWN(IO)  _SET_MODE(IO, INPUT_PULLDOWN)   //!< Input with Pull-down activation
 /// Set pin as output wrapper  -  reads the pin and sets the output to that value
 #define SET_OUTPUT(IO)           OUT_WRITE(IO, LOW)
 /// Set pin as PWM
