@@ -101,7 +101,7 @@ extern uint32_t GetStepperTimerClkFreq(void);
   #define HAL_STEP_TIMER_ISR() _HAL_TIMER_ISR(MF_TIMER_STEP)
 #endif
 #ifndef HAL_TEMP_TIMER_ISR
-  #define HAL_TEMP_TIMER_ISR() _HAL_TIMER_ISR(TEMP_TIMER_NUM)
+  #define HAL_TEMP_TIMER_ISR() _HAL_TIMER_ISR(MF_TIMER_TEMP)
 #endif
 
 // Timer references by index
