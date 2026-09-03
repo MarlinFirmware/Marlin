@@ -280,8 +280,8 @@
       #define DOGLCD_A0              EXP1_07_PIN
       #define DOGLCD_SCK             EXP2_02_PIN
       #define DOGLCD_MOSI            EXP2_06_PIN
-      #define LCD_RESET_PIN                 -1
-      #define LCD_BACKLIGHT_PIN             -1
+      #define LCD_RESET_PIN                -1
+      #define LCD_BACKLIGHT_PIN            -1
 
     #elif ENABLED(FYSETC_MINI_12864_2_1)          // Also MKS MINI12864 V3, BTT/BEEZ MINI 12864
 
@@ -289,7 +289,7 @@
       #define DOGLCD_A0              EXP1_04_PIN
       #define LCD_RESET_PIN          EXP1_05_PIN  // Must be high or open for the LCD to run
       #define NEOPIXEL_PIN           EXP1_06_PIN
-      #define LCD_BACKLIGHT_PIN             -1
+      #define LCD_BACKLIGHT_PIN            -1
 
     #endif
 
