@@ -139,7 +139,7 @@ public:
   static void reboot();        // Restart the firmware from 0x0
 
   // Interrupts
-  //static bool isr_state() { return !__get_PRIMASK(); }
+  static bool isr_state() { return !__get_PRIMASK(); }
   static void isr_on()  { __enable_irq(); }
   static void isr_off() { __disable_irq(); }
 
