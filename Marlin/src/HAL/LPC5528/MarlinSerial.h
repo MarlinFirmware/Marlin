@@ -40,7 +40,9 @@
 #endif
 
 #define SERIAL_INDEX_MIN 1
-#define SERIAL_INDEX_MAX 8
+// Flexcomm 8 is dedicated to high-speed SPI and has no USART function
+// (data sheet 2 "Serial interfaces"); USART8 is not defined in LPC55S28.h.
+#define SERIAL_INDEX_MAX 7
 #define USB_SERIAL_PORT(...) USBSerial
 #include "../shared/serial_ports.h"
 
@@ -72,4 +74,3 @@ extern MSerialT MSerial4;
 extern MSerialT MSerial5;
 extern MSerialT MSerial6;
 extern MSerialT MSerial7;
-extern MSerialT MSerial8;

@@ -69,12 +69,6 @@
   extern "C" void FLEXCOMM7_IRQHandler() { _MSerial7.IRQHandler(); }
 #endif
 
-#if USING_HW_SERIAL8
-  MarlinSerial _MSerial8(USART8);
-  MSerialT MSerial8(true, _MSerial8);
-  extern "C" void FLEXCOMM8_IRQHandler() { _MSerial8.IRQHandler(); }
-#endif
-
 void MarlinSerial::begin(uint32_t baud) {
   HardwareSerial::begin(baud);
 }
@@ -84,9 +78,6 @@ void MarlinSerial::begin(uint32_t baud) {
   bool MarlinSerial::recv_callback(const char c) {
     // Need to figure out which serial port we are and react in consequence (Marlin does not have CONTAINER_OF macro)
     if (false) {}
-    #if USING_HW_SERIAL0
-      else if (this == &_MSerial0) emergency_parser.update(MSerial0.emergency_state, c);
-    #endif
     #if USING_HW_SERIAL1
       else if (this == &_MSerial1) emergency_parser.update(MSerial1.emergency_state, c);
     #endif
@@ -101,6 +92,12 @@ void MarlinSerial::begin(uint32_t baud) {
     #endif
     #if USING_HW_SERIAL5
       else if (this == &_MSerial5) emergency_parser.update(MSerial5.emergency_state, c);
+    #endif
+    #if USING_HW_SERIAL6
+      else if (this == &_MSerial6) emergency_parser.update(MSerial6.emergency_state, c);
+    #endif
+    #if USING_HW_SERIAL7
+      else if (this == &_MSerial7) emergency_parser.update(MSerial7.emergency_state, c);
     #endif
     return true;
   }
