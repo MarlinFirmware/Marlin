@@ -1,0 +1,41 @@
+{
+  "build": {
+    "core": "sam3u",
+    "cpu": "cortex-m3",
+    "extra_flags": "-D__SAM3U4E__ -Dsam3u4e",
+    "f_cpu": "96000000L",
+    "hwids": [
+      [
+        "0x03EB",
+        "0x6119"
+      ]
+    ],
+    "mcu": "at91sam3u4e"
+  },
+  "debug": {
+    "jlink_device": "ATSAM3U4E",
+    "openocd_chipname": "at91sam3u4e",
+    "openocd_target": "at91sam3XXX",
+    "svd_path": "ATSAM3U4E.svd"
+  },
+  "frameworks": [],
+  "name": "4pi (AT91SAM3U4E)",
+  "upload": {
+    "disable_flushing": true,
+    "maximum_ram_size": 49152,
+    "maximum_size": 258048,
+    "native_usb": true,
+    "protocol": "sam-ba",
+    "protocols": [
+      "sam-ba",
+      "jlink",
+      "blackmagic",
+      "atmel-ice"
+    ],
+    "require_upload_port": true,
+    "use_1200bps_touch": false,
+    "wait_for_upload_port": false
+  },
+  "url": "https://reprap.org/wiki/4pi",
+  "vendor": "Kliment"
+}
