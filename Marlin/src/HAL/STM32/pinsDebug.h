@@ -21,6 +21,10 @@
  */
 #pragma once
 
+#ifndef PINS_DEBUGGING
+  #error "PINS_DEBUGGING not defined but tried to include debug header!"
+#endif
+
 /**
  * Pins Debugging for STM32
  *
@@ -46,6 +50,9 @@
 #ifndef NUM_DIGITAL_PINS
    // Only in ST's Arduino core (STM32duino, STM32Core)
    #error "Expected NUM_DIGITAL_PINS not found"
+#endif
+#ifndef NUM_ANALOG_INPUTS
+  #error "Expected NUM_ANALOG_INPUTS not found"
 #endif
 
 /**
@@ -124,10 +131,28 @@ const XrefInfo pin_xref[] PROGMEM = {
 #define PORT_NUM(P) (((P)  >> 4) & 0x0007)
 #define PORT_ALPHA(P) ('A' + ((P) >> 4))
 
-#if NUM_ANALOG_FIRST >= NUM_DIGITAL_PINS
-  #define HAS_HIGH_ANALOG_PINS 1
+/**
+ * Translation of routines & variables used by pinsDebug.h
+ */
+#ifndef __STRINGIFY
+  #define __STRINGIFY(x) #x
 #endif
-#ifndef NUM_ANALOG_LAST
+#define TOSTRING(x) __STRINGIFY(x)
+#define _STM32_PLATDEFPATH(x) TOSTRING(platdefs/x.h)
+#ifdef _STM32_PLATDEFS
+  #if __has_include(_STM32_PLATDEFPATH(_STM32_PLATDEFS))
+    #include _STM32_PLATDEFPATH(_STM32_PLATDEFS)
+  #endif
+#endif
+
+#ifndef NUM_ANALOG_FIRST
+  #warning "Preprocessor macro NUM_ANALOG_FIRST is not defined but PINS_DEBUGGING is enabled; ignoring analog pin debug functions."
+#endif
+
+#ifdef NUM_ANALOG_FIRST
+  #if NUM_ANALOG_FIRST >= NUM_DIGITAL_PINS
+    #define HAS_HIGH_ANALOG_PINS 1
+  #endif
   #define NUM_ANALOG_LAST ((NUM_ANALOG_FIRST) + (NUM_ANALOG_INPUTS) - 1)
 #endif
 #define NUMBER_PINS_TOTAL ((NUM_DIGITAL_PINS) + TERN0(HAS_HIGH_ANALOG_PINS, NUM_ANALOG_INPUTS))
@@ -184,8 +209,10 @@ bool getValidPinMode(const pin_t pin) {
 }
 
 int8_t digital_pin_to_analog_pin(const pin_t pin) {
-  if (WITHIN(pin, NUM_ANALOG_FIRST, NUM_ANALOG_LAST))
-    return pin - NUM_ANALOG_FIRST;
+  #ifdef NUM_ANALOG_FIRST
+    if (WITHIN(pin, NUM_ANALOG_FIRST, NUM_ANALOG_LAST))
+      return pin - NUM_ANALOG_FIRST;
+  #endif
 
   const int8_t ind = digitalPinToAnalogIndex(pin);
   return (ind < NUM_ANALOG_INPUTS) ? ind : -1;
@@ -223,10 +250,12 @@ void printPinPort(const pin_t pin) {
 
   // Print number to be used with M42
   int calc_p = pin;
-  if (pin > NUM_DIGITAL_PINS) {
-    calc_p -= NUM_ANALOG_FIRST;
-    if (calc_p > 7) calc_p += 8;
-  }
+  #ifdef NUM_ANALOG_FIRST
+    if (pin > NUM_DIGITAL_PINS) {
+      calc_p -= NUM_ANALOG_FIRST;
+      if (calc_p > 7) calc_p += 8;
+    }
+  #endif
   SERIAL_ECHO(F(" M42 P"), calc_p, C(' '));
   if (calc_p < 100) {
     SERIAL_CHAR(' ');

@@ -26,7 +26,7 @@
 
 #include "MarlinSPI.h"
 
-static void spi_init(spi_t *obj, uint32_t speed, spi_mode_e mode, uint8_t msb, uint32_t dataSize) {
+static void spi_init(spi_t *obj, uint32_t speed, SPIMode mode, uint8_t msb, uint32_t dataSize) {
   spi_init(obj, speed, mode, msb);
   // spi_init set 8bit always
   // TODO: copy the code from spi_init and handle data size, to avoid double init always!!

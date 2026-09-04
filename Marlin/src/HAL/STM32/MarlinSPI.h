@@ -61,7 +61,7 @@ public:
     _spi.pin_ssel = digitalPinToPinName(_ssPin);
     _dataSize = DATA_SIZE_8BIT;
     _bitOrder = MSBFIRST;
-    _dataMode = SPI_MODE_0;
+    _dataMode = SPI_MODE0;
     _spi.handle.State = HAL_SPI_STATE_RESET;
     setClockDivider(SPI_SPEED_CLOCK_DIV2_MHZ);
   }
@@ -104,7 +104,7 @@ private:
   DMA_HandleTypeDef _dmaTx;
   DMA_HandleTypeDef _dmaRx;
   BitOrder _bitOrder;
-  spi_mode_e _dataMode;
+  SPIMode _dataMode;
   uint8_t _clockDivider;
   uint32_t _speed;
   uint32_t _dataSize;
