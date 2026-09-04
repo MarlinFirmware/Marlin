@@ -1993,6 +1993,17 @@
   //#define AUTO_REPORT_SD_STATUS         // Auto-report media status with 'M27 S<seconds>'
 
   /**
+   * SDIO Storage is more efficient than SPI
+   */
+  //#define ONBOARD_SDIO
+  #if ENABLED(ONBOARD_SDIO)
+    //#define SDIO_IS_ONBOARD      // Use friendly label for SDIO on UI menu
+    #if ENABLED(SDIO_IS_ONBOARD)
+      //#define SPI_SD_IS_EXTERNAL // Use friendly label to specify that the SPI SD card is external if SDIO is onboard
+    #endif
+  #endif
+
+  /**
    * Support for USB thumb drives using an Arduino USB Host Shield or
    * equivalent MAX3421E breakout board. The USB thumb drive will appear
    * to Marlin as an SD card.
@@ -2085,7 +2096,7 @@
 
   /**
    * Multiple volume support - EXPERIMENTAL.
-   * Adds 'M21 Pm' / 'M21 S' / 'M21 U' to mount SD Card / USB Drive.
+   * Adds 'M21 Pm' / 'M21 S' / 'M21 U' / 'M21 O' to mount SD Card / USB Drive / SDIO Card.
    */
   //#define MULTI_VOLUME
   #if ENABLED(MULTI_VOLUME)

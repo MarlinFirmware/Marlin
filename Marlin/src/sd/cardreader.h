@@ -49,15 +49,14 @@ extern const char M23_STR[], M24_STR[];
 
 #include "SdFile.h"
 #include "disk_io_driver.h"
-
 #if HAS_USB_FLASH_DRIVE
   #include "usb_flashdrive/Sd2Card_FlashDrive.h"
 #endif
-
+#if NEED_SD2CARD_SPI
+  #include "Sd2Card.h"
+#endif
 #if NEED_SD2CARD_SDIO
   #include "Sd2Card_sdio.h"
-#elif NEED_SD2CARD_SPI
-  #include "Sd2Card.h"
 #endif
 
 #if ANY(DO_LIST_BIN_FILES, CUSTOM_FIRMWARE_UPLOAD)
@@ -126,35 +125,39 @@ public:
 
   static DiskIODriver* diskIODriver() { return driver; }
 
-  #if HAS_SDCARD
-    typedef TERN(NEED_SD2CARD_SDIO, DiskIODriver_SDIO, DiskIODriver_SPI_SD) sdcard_driver_t;
+  #if NEED_SD2CARD_SPI
+    typedef DiskIODriver_SPI_SD sdcard_driver_t;
     static sdcard_driver_t media_driver_sdcard;
   #endif
-
+  #if NEED_SD2CARD_SDIO
+    typedef DiskIODriver_SDIO sdiocard_driver_t;
+    static sdiocard_driver_t media_driver_sdiocard;
+  #endif
   #if HAS_USB_FLASH_DRIVE
     static DiskIODriver_USBFlash media_driver_usbFlash;
   #endif
 
   static void selectMediaSDCard() {
-    #if HAS_SDCARD
-      changeMedia(&media_driver_sdcard);
-    #endif
+    TERN_(NEED_SD2CARD_SPI, changeMedia(&media_driver_sdcard));
   }
-
+  static void selectMediaSDIOCard() {
+    TERN_(NEED_SD2CARD_SDIO, changeMedia(&media_driver_sdcard));
+  }
   static void selectMediaFlashDrive() {
-    #if HAS_USB_FLASH_DRIVE
-      changeMedia(&media_driver_usbFlash);
-    #endif
+    TERN_(HAS_USB_FLASH_DRIVE, changeMedia(&media_driver_usbFlash));
   }
 
   static bool isSDCardSelected() {
-    return TERN0(HAS_SDCARD, TERN1(HAS_MULTI_VOLUME, driver == &media_driver_sdcard));
+    return TERN0(NEED_SD2CARD_SPI, TERN1(HAS_MULTI_VOLUME, driver == &media_driver_sdcard));
+  }
+  static bool isSDIOCardSelected() {
+    return TERN0(NEED_SD2CARD_SDIO, TERN1(HAS_MULTI_VOLUME, driver == &media_driver_sdcard));
   }
   static bool isFlashDriveSelected() {
     return TERN0(HAS_USB_FLASH_DRIVE, TERN1(HAS_MULTI_VOLUME, driver == &media_driver_usbFlash));
   }
   static bool isMediaSelected() {
-    return isSDCardSelected() || isFlashDriveSelected();
+    return isSDCardSelected() || isSDIOCardSelected() || isFlashDriveSelected();
   }
 
   /**
@@ -190,6 +193,9 @@ public:
 
   static bool isSDCardMounted() {
     return isMounted() && isSDCardSelected();
+  }
+  static bool isSDIOCardMounted() {
+    return isMounted() && isSDIOCardSelected();
   }
   static bool isFlashDriveMounted() {
     return isMounted() && isFlashDriveSelected();
