@@ -189,6 +189,10 @@ uint32_t Planner::max_acceleration_steps_per_s2[DISTINCT_AXES]; // (steps/s^2) D
         Planner::volumetric_extruder_feedrate_limit[EXTRUDERS]; // pre calculated extruder feedrate limit based on volumetric_extruder_limit; pre-calculated to reduce computation in the planner
 #endif
 
+#if HAS_MAX_PRINT_FEEDRATE
+  feedRate_t Planner::max_print_feedrate_mm_s;   // (mm/s) M203 P - Maximum feedrate when printing
+#endif
+
 #ifdef MAX7219_DEBUG_SLOWDOWN
   uint8_t Planner::slowdown_count = 0;
 #endif
@@ -2316,7 +2320,17 @@ bool Planner::_populate_block(
         }
       }
     #endif
+
+    #if HAS_MAX_PRINT_FEEDRATE
+      if (max_print_feedrate_mm_s > 0 && current_speed.e) {
+        const feedRate_t ps2 = HYPOT2(current_speed.x, current_speed.y);
+        if (ps2 > sq(max_print_feedrate_mm_s))
+          NOMORE(speed_factor, max_print_feedrate_mm_s / SQRT(ps2)); // Multiply by ISQRT?
+      }
+    #endif
+
   }
+
   #endif // HAS_EXTRUDERS
 
   #ifdef XY_FREQUENCY_LIMIT

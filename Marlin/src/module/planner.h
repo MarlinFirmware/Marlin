@@ -544,6 +544,10 @@ class Planner {
                    volumetric_extruder_feedrate_limit[EXTRUDERS]; // (mm/s) Feedrate limit calculated from volume limit
     #endif
 
+    #if HAS_MAX_PRINT_FEEDRATE
+      static feedRate_t max_print_feedrate_mm_s;      // (mm/s) M203 P - Maximum feedrate when printing
+    #endif
+
     static planner_settings_t settings;
 
     #if ENABLED(LASER_FEATURE)

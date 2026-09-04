@@ -714,6 +714,11 @@ void menu_advanced_settings() {
     // M203 / M205 - Feedrate items
     SUBMENU(MSG_MAX_SPEED, menu_advanced_velocity);
 
+    #if HAS_MAX_PRINT_FEEDRATE
+      const float max_rate = 1.4142135f * _MAX(planner.settings.max_feedrate_mm_s[X_AXIS], planner.settings.max_feedrate_mm_s[Y_AXIS]);
+      EDIT_ITEM_FAST(float5, MSG_MAX_PRINT_SPEED, &planner.max_print_feedrate_mm_s, 0, max_rate);
+    #endif
+
     // M201 - Acceleration items
     SUBMENU(MSG_ACCELERATION, menu_advanced_acceleration);
 
