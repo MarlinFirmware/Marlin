@@ -270,6 +270,12 @@ void PrintJobRecovery::save(const bool force/*=false*/, const float zraise/*=POW
     info.flag.dryrun = !!(marlin_debug_flags & MARLIN_DEBUG_DRYRUN);
     info.flag.allow_cold_extrusion = TERN0(PREVENT_COLD_EXTRUSION, thermalManager.allow_cold_extrude);
 
+    #if ENABLED(POWER_LOSS_SAVE_BILINEAR_MESH)
+      info.grid_spacing = bedlevel.grid_spacing;
+      info.grid_start   = bedlevel.grid_start;
+      memcpy(info.z_values, bedlevel.z_values, sizeof(bed_mesh_t));
+    #endif
+
     write();
   }
 }
@@ -493,6 +499,13 @@ void PrintJobRecovery::resume() {
   motion.set_all_homed();
 
   #if HAS_LEVELING
+    #if ENABLED(POWER_LOSS_SAVE_BILINEAR_MESH)
+      bedlevel.set_grid(info.grid_spacing, info.grid_start);
+      memcpy(bedlevel.z_values, info.z_values,  sizeof(bed_mesh_t));
+
+      TERN_(EXTENSIBLE_UI, GRID_LOOP(x, y) ExtUI::onMeshUpdate(x, y, bedlevel.z_values[x][y]));
+    #endif
+
     // Restore Z fade and possibly re-enable bed leveling compensation.
     // Leveling may already be enabled due to the ENABLE_LEVELING_AFTER_G28 option.
     // TODO: Add a G28 parameter to leave leveling disabled.

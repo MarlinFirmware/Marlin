@@ -1920,6 +1920,10 @@
     #if ENABLED(POWER_LOSS_RECOVER_ZHOME)
       //#define POWER_LOSS_ZHOME_POS { 0, 0 } // Safe XY position to home Z while avoiding objects on the bed
     #endif
+
+    #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
+      //#define POWER_LOSS_SAVE_BILINEAR_MESH // Save bilinear mesh in resume data
+    #endif
   #endif
 
   /**
