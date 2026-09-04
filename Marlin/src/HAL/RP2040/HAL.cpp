@@ -187,6 +187,8 @@ void MarlinHAL::init() {
   #endif
 }
 
+void MarlinHAL::idletask() { TERN_(HAS_SD_HOST_DRIVE, tuh_task()); }
+
 uint8_t MarlinHAL::get_reset_source() {
   return watchdog_enable_caused_reboot() ? RST_WATCHDOG : 0;
 }

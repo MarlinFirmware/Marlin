@@ -29,6 +29,10 @@
 #include "../../inc/MarlinConfig.h"
 #include "HAL.h"
 
+#if HAS_SD_HOST_DRIVE
+  #include "sd/msc_sd.h"
+#endif
+
 #include "adc.h"
 uint16_t adc_results[ADC_COUNT];
 

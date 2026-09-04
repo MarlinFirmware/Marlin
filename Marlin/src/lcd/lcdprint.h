@@ -33,6 +33,7 @@
 #include "utf8.h"
 
 #include "../inc/MarlinConfig.h"
+#include "../sd/cardreader.h"
 
 #if IS_DWIN_MARLINUI
 
