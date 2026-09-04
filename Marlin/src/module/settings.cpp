@@ -627,6 +627,13 @@ typedef struct SettingsDataStruct {
   #endif
 
   //
+  // Encoder Reverse
+  //
+  #if ENABLED(REVERSE_ENCODER_MENU_ITEM)
+    bool reverse_encoder;
+  #endif
+
+  //
   // Fan tachometer check
   //
   #if HAS_FANCHECK
@@ -1748,6 +1755,13 @@ void MarlinSettings::postprocess() {
     //
     #if ENABLED(SOUND_MENU_ITEM)
       EEPROM_WRITE(ui.sound_on);
+    #endif
+
+    //
+    // Encoder Reverse
+    //
+    #if ENABLED(REVERSE_ENCODER_MENU_ITEM)
+      EEPROM_WRITE(ui.reverse_encoder);
     #endif
 
     //
@@ -2883,6 +2897,14 @@ void MarlinSettings::postprocess() {
       #endif
 
       //
+      // Encoder Reverse
+      //
+      #if ENABLED(REVERSE_ENCODER_MENU_ITEM)
+        _FIELD_TEST(reverse_encoder);
+        EEPROM_READ(ui.reverse_encoder);
+      #endif
+
+      //
       // Fan tachometer check
       //
       #if HAS_FANCHECK
@@ -3474,9 +3496,12 @@ void MarlinSettings::reset() {
   //
   // Buzzer enable/disable
   //
-  #if ENABLED(SOUND_MENU_ITEM)
-    ui.sound_on = ENABLED(SOUND_ON_DEFAULT);
-  #endif
+  TERN_(SOUND_MENU_ITEM, ui.sound_on = ENABLED(SOUND_ON_DEFAULT));
+
+  //
+  // Encoder Reverse
+  //
+  TERN_(REVERSE_ENCODER_MENU_ITEM, ui.reverse_encoder = false);
 
   //
   // Magnetic Parking Extruder

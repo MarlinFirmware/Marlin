@@ -3596,6 +3596,10 @@
   //#define USE_STRING_TITLES         // Use string titles for Creality UI instead of images
 #endif
 
+#if ENABLED(DWIN_LCD_PROUI)
+  #define REVERSE_ENCODER_MENU_ITEM   // Enable menu item to toggle direction
+#endif
+
 //
 // Touch Screen Settings
 //
