@@ -148,6 +148,19 @@ void disable_steppers();
 
 void draw_heater_status(uint16_t x, uint16_t y, const int8_t heater);
 void draw_fan_status(uint16_t x, uint16_t y, const bool blink);
+#if HAS_CUTTER
+  #ifndef COLOR_CUTTER
+    #define COLOR_CUTTER COLOR_WHITE
+  #endif
+  #if !defined(CUTTER_ICON_X) && !defined(CUTTER_ICON_Y)
+    #define CUTTER_ICON_X FAN_ICON_X
+    #define CUTTER_ICON_Y FAN_ICON_Y
+  #endif
+  #ifndef CUTTER_VALUE_Y
+    #define CUTTER_VALUE_Y FAN_TEXT_Y
+  #endif
+  void draw_cutter_status(uint16_t x, uint16_t y);
+#endif
 
 void text_line(const uint16_t y, uint16_t color=COLOR_BACKGROUND);
 void menu_line(const uint8_t row, uint16_t color=COLOR_BACKGROUND);
@@ -207,6 +220,7 @@ void drawCurStepValue();
     OPTITEM(HAS_TEMP_CHAMBER, ITEM_CHAMBER)
     OPTITEM(HAS_TEMP_COOLER, ITEM_COOLER)
     OPTITEM(HAS_FAN, ITEM_FAN)
+    OPTITEM(HAS_CUTTER, ITEM_CUTTER)
     ITEMS_COUNT
   };
 #endif
