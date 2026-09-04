@@ -264,8 +264,8 @@ namespace LanguageNarrow_tr {
   LSTR MSG_IDEX_MODE_DUPLICATE            = _UxGT("Kopyala");                                  // Duplication
   LSTR MSG_IDEX_MODE_MIRRORED_COPY        = _UxGT("Yansıtılmış kopya");                        // Mirrored Copy
   LSTR MSG_IDEX_MODE_FULL_CTRL            = _UxGT("Tam Kontrol");                              // Full Control
-  LSTR MSG_HOTEND_OFFSET_Z                = _UxGT("2. nozul Z");                               // 2nd Nozzle Z
-  LSTR MSG_HOTEND_OFFSET_N                = _UxGT("2. nozul @");                               // 2nd Nozzle @
+  LSTR MSG_TOOL_OFFSET_Z                  = _UxGT("2. nozul Z");                               // 2nd Nozzle Z
+  LSTR MSG_TOOL_OFFSET_N                  = _UxGT("2. nozul @");                               // 2nd Nozzle @
   LSTR MSG_UBL_DOING_G29                  = _UxGT("G29 Çalışıyor");                            // Doing G29
   LSTR MSG_UBL_TOOLS                      = _UxGT("UBL Araçları");                             // UBL Tools
   LSTR MSG_LCD_TILTING_MESH               = _UxGT("Eğim Noktası");                             // Tilting Point

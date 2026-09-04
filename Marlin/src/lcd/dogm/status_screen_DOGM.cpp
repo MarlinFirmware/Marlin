@@ -698,7 +698,10 @@ void MarlinUI::draw_status_screen() {
   if (PAGE_UNDER(6 + 1 + 12 + 1 + 6 + 1)) {
     // Extruders
     #if DO_DRAW_HOTENDS
-      for (uint8_t e = 0; e < MAX_HOTEND_DRAW; ++e) _draw_hotend_status((heater_id_t)e, blink);
+      for (uint8_t e = 0; e < MAX_HOTEND_DRAW; ++e) {
+        if (TERN0(MANUAL_SWITCHING_TOOLHEAD, e != motion.extruder)) continue;
+        _draw_hotend_status((heater_id_t)e, blink);
+      }
     #endif
 
     // Laser / Spindle

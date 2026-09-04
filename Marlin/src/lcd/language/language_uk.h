@@ -263,8 +263,8 @@ namespace LanguageNarrow_uk {
   LSTR MSG_IDEX_MODE_DUPLICATE            = _UxGT("Дуплікація");                               // Duplication
   LSTR MSG_IDEX_MODE_MIRRORED_COPY        = _UxGT("Дзеркальна копія");                         // Mirrored Copy
   LSTR MSG_IDEX_MODE_FULL_CTRL            = _UxGT("Повний контроль");                          // Full Control
-  LSTR MSG_HOTEND_OFFSET_Z                = _UxGT("Друге сопло Z");                            // 2nd Nozzle Z
-  LSTR MSG_HOTEND_OFFSET_N                = _UxGT("Друге сопло @");                            // 2nd Nozzle @
+  LSTR MSG_TOOL_OFFSET_Z                  = _UxGT("Друге сопло Z");                            // 2nd Nozzle Z
+  LSTR MSG_TOOL_OFFSET_N                  = _UxGT("Друге сопло @");                            // 2nd Nozzle @
   LSTR MSG_UBL_DOING_G29                  = _UxGT("Виконується G29");                          // Doing G29
   LSTR MSG_UBL_TOOLS                      = _UxGT("Інструменти UBL");                          // UBL Tools
   LSTR MSG_LCD_TILTING_MESH               = _UxGT("Точка нахилу");                             // Tilting Point

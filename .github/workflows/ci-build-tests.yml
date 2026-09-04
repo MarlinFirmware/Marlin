@@ -41,7 +41,7 @@ jobs:
       CONFIG_BRANCH: ${{ github.base_ref || github.ref_name }}
 
     strategy:
-      fail-fast: true
+      fail-fast: false
       matrix:
         test-platform:
 

@@ -21,6 +21,7 @@
  */
 
 #include "../inc/MarlinConfigPre.h"
+#include "../MarlinCore.h"
 
 #if HAS_TOOLCHANGE
 
@@ -29,9 +30,6 @@
 #include "motion.h"
 #include "planner.h"
 #include "temperature.h"
-
-#include "../MarlinCore.h"
-#include "../gcode/gcode.h"
 
 //#define DEBUG_TOOL_CHANGE
 //#define DEBUG_TOOLCHANGE_FILAMENT_SWAP
@@ -48,15 +46,33 @@
   Flags<EXTRUDERS> toolchange_extruder_ready;
 #endif
 
-#if ENABLED(TOOL_SENSOR)
+#if ANY(MAGNETIC_PARKING_EXTRUDER, TOOL_SENSOR, TOOLCHANGE_FILAMENT_SWAP) || defined(EVENT_GCODE_TOOLCHANGE_T0) \
+ || defined(EVENT_GCODE_TOOLCHANGE_T1) || defined(EVENT_GCODE_AFTER_TOOLCHANGE) \
+ || (ENABLED(PARKING_EXTRUDER) && PARKING_EXTRUDER_SOLENOIDS_DELAY > 0)
+  #include "../gcode/gcode.h"
+  #if ENABLED(TOOLCHANGE_FILAMENT_SWAP) && TOOLCHANGE_FS_WIPE_RETRACT <= 0
+    #undef TOOLCHANGE_FS_WIPE_RETRACT
+    #define TOOLCHANGE_FS_WIPE_RETRACT 0
+  #endif
+#endif
+
+#if ANY(HAS_MARLINUI_MENU, TOOL_SENSOR)
   #include "../lcd/marlinui.h"
 #endif
 
-#if ENABLED(DUAL_X_CARRIAGE)
+#if ENABLED(MAN_ST_EEPROM_STORAGE)
+  #include "settings.h"
+#endif
+
+#if ANY(DUAL_X_CARRIAGE, MANUAL_SWITCHING_TOOLHEAD)
   #include "stepper.h"
 #endif
 
-#if ANY(SWITCHING_EXTRUDER, SWITCHING_NOZZLE, SWITCHING_TOOLHEAD)
+#if ENABLED(MANUAL_SWITCHING_TOOLHEAD)
+  #include "../lcd/menu/menu.h"
+#endif
+
+#if ANY(SWITCHING_EXTRUDER, SWITCHING_NOZZLE, SERVO_SWITCHING_TOOLHEAD)
   #include "servo.h"
 #endif
 
@@ -84,10 +100,6 @@
   #include "../feature/mmu/mmu.h"
 #endif
 
-#if HAS_MARLINUI_MENU
-  #include "../lcd/marlinui.h"
-#endif
-
 #if ENABLED(ADVANCED_PAUSE_FEATURE)
   #include "../feature/pause.h"
 #endif
@@ -95,6 +107,9 @@
 #if HAS_BED_PROBE
   #include "probe.h"
 #endif
+
+#define DEBUG_OUT ENABLED(DEBUG_TOOL_CHANGE)
+#include "../core/debug_out.h"
 
 #if ENABLED(TOOLCHANGE_FILAMENT_SWAP)
   #if TOOLCHANGE_FS_WIPE_RETRACT <= 0
@@ -171,7 +186,7 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
 
     const float oldx = motion.position.x,
                 grabpos = mpe_settings.parking_xpos[new_tool] + (new_tool ? mpe_settings.grab_distance : -mpe_settings.grab_distance),
-                offsetcompensation = TERN0(HAS_HOTEND_OFFSET, motion.active_hotend_offset().x * mpe_settings.compensation_factor);
+                offsetcompensation = TERN0(HAS_TOOL_OFFSETS, motion.active_tool_offset().x * mpe_settings.compensation_factor);
 
     if (motion.homing_needed_error(_BV(X_AXIS))) return;
 
@@ -294,8 +309,8 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
 
       constexpr float parkingposx[] = PARKING_EXTRUDER_PARKING_X;
 
-      #if HAS_HOTEND_OFFSET
-        const float x_offset = motion.active_hotend_offset().x;
+      #if HAS_TOOL_OFFSETS
+        const float x_offset = motion.active_tool_offset().x;
       #else
         constexpr float x_offset = 0;
       #endif
@@ -364,7 +379,7 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
 
       // STEP 6
 
-      motion.position.x = DIFF_TERN(HAS_HOTEND_OFFSET, midpos, motion.hotend_offset[new_tool].x);
+      motion.position.x = DIFF_TERN(HAS_TOOL_OFFSETS, midpos, motion.tool_offset[new_tool].x);
 
       DEBUG_SYNCHRONIZE();
       DEBUG_POS("(6) Move midway between hotends", motion.position);
@@ -385,11 +400,67 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
     do_solenoid_activation = true; // Activate solenoid for subsequent tool_change()
   }
 
-#endif // PARKING_EXTRUDER
+#elif ENABLED(MANUAL_SWITCHING_TOOLHEAD)
 
-#if ENABLED(TOOL_SENSOR)
+  millis_t last_tool_change = 0;
 
-  bool tool_sensor_disabled; // = false
+  void mst_init() {
+    TERN_(MAN_ST_EEPROM_STORAGE, motion.extruder = toolchange_settings.selected_tool); // set motion.extruder on first load
+  }
+
+  inline void mst_set_new_tool(const uint8_t new_tool) {
+    thermalManager.temp_hotend[new_tool].reset();
+    motion.extruder = new_tool;
+    toolchange_settings.selected_tool = new_tool;
+
+    // allow temperature readings to stabilize; 1khz, OVERSAMPLENR*4 samples
+    safe_delay(
+      _MAX(
+        100UL,
+        ((TEMP_TIMER_FREQUENCY / CYCLES_PER_MICROSECOND) * (OVERSAMPLENR) * 4) / 1000
+      )
+    );
+
+    TERN_(MAN_ST_EEPROM_AUTOSAVE, settings.save());
+  }
+
+  PauseMessage mst_pause_message(const uint8_t new_tool) {
+    switch (new_tool) {
+      #define _TOOL_CASE(N) OPTCODE(HAS_TOOL_##N, case N: return PAUSE_MESSAGE_TOOL_CHANGE_##N)
+      CODE_N(NUM_TOOLS, _TOOL_CASE)
+      default: return PAUSE_MESSAGE_TOOL_CHANGE;
+    }
+  }
+
+  inline void mst_tool_change(const uint8_t new_tool) {
+    DEBUG_ECHOPGM("tool change, active ", motion.extruder, " new ", new_tool);
+
+    disable_e_steppers();
+    thermalManager.heating_enabled = false;
+    thermalManager.disable_all_heaters(); // ?
+
+    PauseMessage pm = mst_pause_message(new_tool);
+    ui.pause_show_message(pm, PAUSE_MODE_TOOL_CHANGE);
+    if (pause_print(0.0, motion.position, true, 0)) {
+      wait_for_confirmation(false, 2, pm);
+      mst_set_new_tool(new_tool);
+      ui.set_status_P(PSTR("Tool Changed"));
+    }
+    else {
+      // we couldn't pause..?
+      SERIAL_ERROR_MSG("Tool change failed: unable to pause printer.");
+      stop();
+    }
+
+    thermalManager.heating_enabled = true;
+    enable_e_steppers();
+  }
+
+#elif ENABLED(SERVO_SWITCHING_TOOLHEAD)
+
+  #if ENABLED(TOOL_SENSOR)
+    bool tool_sensor_disabled; // = false
+  #endif
 
   // Return a bitmask of tool sensor states
   inline uint8_t poll_tool_sensor_pins() {
@@ -443,12 +514,12 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
 
 #endif // TOOL_SENSOR
 
-#if ENABLED(SWITCHING_TOOLHEAD)
+#if ENABLED(SERVO_SWITCHING_TOOLHEAD)
 
-  inline void switching_toolhead_lock(const bool locked) {
+  inline void servo_switching_toolhead_lock(const bool locked) {
     #ifdef SWITCHING_TOOLHEAD_SERVO_ANGLES
       const uint16_t swt_angles[2] = SWITCHING_TOOLHEAD_SERVO_ANGLES;
-      servo[SWITCHING_TOOLHEAD_SERVO_NR].move(swt_angles[locked ? 0 : 1]);
+      servo[SST_SERVO_NR].move(swt_angles[locked ? 0 : 1]);
     #elif PIN_EXISTS(SWT_SOLENOID)
       OUT_WRITE(SWT_SOLENOID_PIN, locked);
       gcode.dwell(10);
@@ -457,8 +528,8 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
     #endif
   }
 
-  void swt_init() {
-    switching_toolhead_lock(true);
+  void sst_init() {
+    servo_switching_toolhead_lock(true);
 
     #if ENABLED(TOOL_SENSOR)
       // Init tool sensors
@@ -489,15 +560,15 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
 
       if (check_tool_sensor_stats(0)) {
         LCD_MESSAGE_F("TC error");
-        switching_toolhead_lock(false);
+        servo_switching_toolhead_lock(false);
         while (check_tool_sensor_stats(0)) { /* nada */ }
-        switching_toolhead_lock(true);
+        servo_switching_toolhead_lock(true);
       }
       LCD_MESSAGE_F("TC Success");
     #endif // TOOL_SENSOR
   }
 
-  inline void switching_toolhead_tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
+  inline void servo_switching_toolhead_tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
     if (no_move) return;
 
     constexpr float toolheadposx[] = SWITCHING_TOOLHEAD_X_POS;
@@ -536,7 +607,7 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
 
     planner.synchronize();
     DEBUG_ECHOLNPGM("(2) Unlock and Place Toolhead");
-    switching_toolhead_lock(false);
+    servo_switching_toolhead_lock(false);
     safe_delay(500);
 
     motion.position.y = SWITCHING_TOOLHEAD_Y_POS;
@@ -586,7 +657,7 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
 
     (void)check_tool_sensor_stats(new_tool, true, true);
 
-    switching_toolhead_lock(true);
+    servo_switching_toolhead_lock(true);
     safe_delay(500);
 
     motion.position.y -= SWITCHING_TOOLHEAD_Y_CLEAR;
@@ -605,7 +676,7 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
     if (no_move) return;
 
     constexpr float toolheadposx[] = SWITCHING_TOOLHEAD_X_POS,
-                    toolheadclearx[] = SWITCHING_TOOLHEAD_X_SECURITY;
+                    toolheadclearx[] = MAG_ST_X_SECURITY;
 
     const float placexpos = toolheadposx[motion.extruder],
                 placexclear = toolheadclearx[motion.extruder],
@@ -656,7 +727,7 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
     DEBUG_SYNCHRONIZE();
     DEBUG_ECHOLNPGM("(2) Release and Place Toolhead");
 
-    motion.position.y = SWITCHING_TOOLHEAD_Y_POS + SWITCHING_TOOLHEAD_Y_RELEASE;
+    motion.position.y = SWITCHING_TOOLHEAD_Y_POS + MAG_ST_Y_RELEASE;
     DEBUG_POS("Move Y SwitchPos + Release", motion.position);
     motion.goto_current_position(planner.settings.max_feedrate_mm_s[Y_AXIS] * 0.1f);
 
@@ -681,7 +752,7 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
     DEBUG_SYNCHRONIZE();
     DEBUG_ECHOLNPGM("(4) Grab new toolhead, move to security position");
 
-    motion.position.y = SWITCHING_TOOLHEAD_Y_POS + SWITCHING_TOOLHEAD_Y_RELEASE;
+    motion.position.y = SWITCHING_TOOLHEAD_Y_POS + MAG_ST_Y_RELEASE;
     DEBUG_POS("Move Y SwitchPos + Release", motion.position);
     motion.goto_current_position(planner.settings.max_feedrate_mm_s[Y_AXIS]);
 
@@ -692,14 +763,14 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
 
     _line_to_current(Y_AXIS, 0.2f);
 
-    #if ENABLED(PRIME_BEFORE_REMOVE) && (SWITCHING_TOOLHEAD_PRIME_MM || SWITCHING_TOOLHEAD_RETRACT_MM)
-      #if SWITCHING_TOOLHEAD_PRIME_MM
-        motion.position.e += SWITCHING_TOOLHEAD_PRIME_MM;
-        planner.buffer_line(motion.position, MMM_TO_MMS(SWITCHING_TOOLHEAD_PRIME_FEEDRATE), new_tool);
+    #if ENABLED(MAG_ST_PRIME_BEFORE_REMOVE) && (MAG_ST_PRIME_MM || MAG_ST_RETRACT_MM)
+      #if MAG_ST_PRIME_MM
+        motion.position.e += MAG_ST_PRIME_MM;
+        planner.buffer_line(motion.position, MMM_TO_MMS(MAG_ST_PRIME_FEEDRATE), new_tool);
       #endif
-      #if SWITCHING_TOOLHEAD_RETRACT_MM
-        motion.position.e -= SWITCHING_TOOLHEAD_RETRACT_MM;
-        planner.buffer_line(motion.position, MMM_TO_MMS(SWITCHING_TOOLHEAD_RETRACT_FEEDRATE), new_tool);
+      #if MAG_ST_RETRACT_MM
+        motion.position.e -= MAG_ST_RETRACT_MM;
+        planner.buffer_line(motion.position, MMM_TO_MMS(MAG_ST_RETRACT_FEEDRATE), new_tool);
       #endif
     #else
       planner.synchronize();
@@ -732,7 +803,7 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
     constexpr float toolheadposx[] = SWITCHING_TOOLHEAD_X_POS;
     const float placexpos = toolheadposx[motion.extruder],
                 grabxpos = toolheadposx[new_tool];
-    const xyz_pos_t &hoffs = motion.active_hotend_offset();
+    const xyz_pos_t &hoffs = motion.active_tool_offset();
 
     /**
      * 1. Raise Z-Axis to give enough clearance
@@ -750,7 +821,7 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
 
     // 1. Raise Z-Axis to give enough clearance
 
-    motion.position.z += SWITCHING_TOOLHEAD_Z_HOP;
+    motion.position.z += EM_ST_Z_HOP;
     DEBUG_POS("(1) Raise Z-Axis ", motion.position);
     fast_line_to_current(Z_AXIS);
 
@@ -815,7 +886,7 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
     // 9. Apply Z hotend offset to current position
 
     DEBUG_POS("(9) Applying Z-offset", motion.position);
-    motion.position.z += hoffs.z - motion.hotend_offset[new_tool].z;
+    motion.position.z += hoffs.z - motion.tool_offset[new_tool].z;
 
     DEBUG_POS("EMST Tool-Change done.", motion.position);
   }
@@ -1105,9 +1176,11 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
  * previous tool out of the way and the new tool into place.
  */
 void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
+  DEBUG_ECHOLNPGM("tool change, new_tool: ", new_tool);
 
-  if (TERN0(MAGNETIC_SWITCHING_TOOLHEAD, new_tool == motion.extruder))
-    return;
+  #if ANY(MANUAL_SWITCHING_TOOLHEAD, MAGNETIC_SWITCHING_TOOLHEAD)
+    if (new_tool == motion.extruder) return;
+  #endif
 
   #if ENABLED(MIXING_EXTRUDER)
 
@@ -1154,7 +1227,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
          return invalid_extruder_error(new_tool);
     #endif
 
-    if (new_tool >= EXTRUDERS)
+    if (new_tool >= TERN(MANUAL_SWITCHING_TOOLHEAD, MAN_ST_NUM_TOOLS, EXTRUDERS))
       return invalid_extruder_error(new_tool);
 
     if (!no_move && motion.homing_needed()) {
@@ -1220,7 +1293,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
       REMEMBER(fr, motion.feedrate_mm_s, XY_PROBE_FEEDRATE_MM_S);
 
       #if HAS_SOFTWARE_ENDSTOPS
-        #if HAS_HOTEND_OFFSET
+        #if HAS_TOOL_OFFSETS
           #define _EXT_ARGS , old_tool, new_tool
         #else
           #define _EXT_ARGS
@@ -1232,6 +1305,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
         #endif
       #endif
 
+      // Toolchange Z-Raise
       #if NONE(TOOLCHANGE_ZRAISE_BEFORE_RETRACT, HAS_SWITCHING_NOZZLE)
         if (can_move_away && TERN1(TOOLCHANGE_PARK, toolchange_settings.enable_park)) {
           // Do a small lift to avoid the workpiece in the move back (below)
@@ -1261,21 +1335,25 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
         }
       #endif
 
-      #if HAS_HOTEND_OFFSET
-        xyz_pos_t diff = motion.hotend_offset[new_tool] - motion.hotend_offset[old_tool];
+      // Tool offsets
+      #if HAS_TOOL_OFFSETS
+        xyz_pos_t diff = motion.tool_offset[new_tool] - motion.tool_offset[old_tool];
         TERN_(DUAL_X_CARRIAGE, diff.x = 0);
       #else
         constexpr xyz_pos_t diff{0};
       #endif
 
+      // Implementation-specific calls
       #if ENABLED(DUAL_X_CARRIAGE)
         dualx_tool_change(new_tool, no_move);
       #elif ENABLED(PARKING_EXTRUDER)                                   // Dual Parking extruder
         parking_extruder_tool_change(new_tool, no_move);
       #elif ENABLED(MAGNETIC_PARKING_EXTRUDER)                          // Magnetic Parking extruder
         magnetic_parking_extruder_tool_change(new_tool);
-      #elif ENABLED(SWITCHING_TOOLHEAD)                                 // Switching Toolhead
-        switching_toolhead_tool_change(new_tool, no_move);
+      #elif ENABLED(MANUAL_SWITCHING_TOOLHEAD)                          // Manual Switching Toolhead
+        mst_tool_change(new_tool);
+      #elif ENABLED(SERVO_SWITCHING_TOOLHEAD)                           // Servo Switching Toolhead
+        servo_switching_toolhead_tool_change(new_tool, no_move);
       #elif ENABLED(MAGNETIC_SWITCHING_TOOLHEAD)                        // Magnetic Switching Toolhead
         magnetic_switching_toolhead_tool_change(new_tool, no_move);
       #elif ENABLED(ELECTROMAGNETIC_SWITCHING_TOOLHEAD)                 // Magnetic Switching ToolChanger
@@ -1358,14 +1436,14 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
             if (TERN1(TOOLCHANGE_PARK, toolchange_settings.enable_park))
               motion.blocking_move_z(motion.destination.z, planner.settings.max_feedrate_mm_s[Z_AXIS]);
 
-          #else
+          #else // !TOOLCHANGE_NO_RETURN
             // Move back to the original (or adjusted) position
             DEBUG_POS("Move back", motion.destination);
 
             #if ENABLED(TOOLCHANGE_PARK)
               if (toolchange_settings.enable_park) motion.blocking_move_xy_z(motion.destination, motion.destination.z, MMM_TO_MMS(TOOLCHANGE_PARK_XY_FEEDRATE));
             #else
-              motion.blocking_move_xy(motion.destination, planner.settings.max_feedrate_mm_s[X_AXIS]* 0.5f);
+              motion.blocking_move_xy(motion.destination, planner.settings.max_feedrate_mm_s[X_AXIS] * 0.5f);
 
               // If using MECHANICAL_SWITCHING extruder/nozzle, set HOTEND_OFFSET in Z axis after running EVENT_GCODE_TOOLCHANGE below.
               #if NONE(MECHANICAL_SWITCHING_EXTRUDER, MECHANICAL_SWITCHING_NOZZLE)
@@ -1379,9 +1457,10 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
                   motion.blocking_move_w(motion.destination.w, planner.settings.max_feedrate_mm_s[W_AXIS])
                 );
               #endif
-            #endif
 
-          #endif
+            #endif // !TOOLCHANGE_PARK
+
+          #endif // !TOOLCHANGE_NO_RETURN
         }
 
         else DEBUG_ECHOLNPGM("Move back skipped");
@@ -1441,7 +1520,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
         xyz_pos_t old_workspace_offset;
         if (new_tool > 0) {
           old_workspace_offset = motion.workspace_offset;
-          const xyz_pos_t &he = motion.hotend_offset[new_tool];
+          const xyz_pos_t &he = motion.tool_offset[new_tool];
           TERN_(TC_GCODE_USE_GLOBAL_X, motion.workspace_offset.x -= he.x);
           TERN_(TC_GCODE_USE_GLOBAL_Y, motion.workspace_offset.y -= he.y);
           TERN_(TC_GCODE_USE_GLOBAL_Z, motion.workspace_offset.z -= he.z);
@@ -1483,8 +1562,8 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
       // If using MECHANICAL_SWITCHING extruder/nozzle, set HOTEND_OFFSET in Z axis after running EVENT_GCODE_TOOLCHANGE
       // so that nozzle does not lower below print surface if new hotend Z offset is higher than old hotend Z offset.
       #if ANY(MECHANICAL_SWITCHING_EXTRUDER, MECHANICAL_SWITCHING_NOZZLE)
-        #if HAS_HOTEND_OFFSET
-          xyz_pos_t diff = motion.hotend_offset[new_tool] - motion.hotend_offset[old_tool];
+        #if HAS_TOOL_OFFSETS
+          xyz_pos_t diff = motion.tool_offset[new_tool] - motion.tool_offset[old_tool];
           TERN_(DUAL_X_CARRIAGE, diff.x = 0);
         #else
           constexpr xyz_pos_t diff{0};
@@ -1509,6 +1588,11 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
       #endif
 
     } // !no_move
+
+    #if ENABLED(MANUAL_SWITCHING_TOOLHEAD)
+      last_tool_change = millis();
+      if (did_pause_print) resume_print();
+    #endif
 
     SERIAL_ECHOLNPGM(STR_ACTIVE_EXTRUDER, motion.extruder);
 

@@ -79,7 +79,7 @@ bool AdvancedSettingsMenu::onTouchEnd(uint8_t tag) {
     #endif
     case 5: GOTO_SCREEN(EndstopStatesScreen);              break;
     #if HAS_MULTI_HOTEND
-      case 6: GOTO_SCREEN(NozzleOffsetScreen);             break;
+      case 6: GOTO_SCREEN(ToolOffsetScreen);             break;
     #endif
     case 7: GOTO_SCREEN(StepsScreen);                      break;
     case 8: GOTO_SCREEN(MaxVelocityScreen);                break;

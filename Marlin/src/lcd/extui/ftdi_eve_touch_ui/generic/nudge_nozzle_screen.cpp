@@ -78,7 +78,7 @@ void NudgeNozzleScreen::onRedraw(draw_mode_t what) {
       #endif
 
       #if HAS_MULTI_HOTEND
-        format_position(str, getNozzleOffset_mm(X, E1), getNozzleOffset_mm(Y, E1), getNozzleOffset_mm(Z, E1));
+        format_position(str, getToolOffset_mm(X, E1), getToolOffset_mm(Y, E1), getToolOffset_mm(Z, E1));
         w.text_field(0, GET_TEXT_F(MSG_OFFSETS_MENU), str);
       #endif
     }

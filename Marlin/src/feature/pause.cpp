@@ -189,7 +189,9 @@ static bool ensure_safe_temperature(const bool wait=true, const PauseMode mode=P
  * Returns 'true' if load was completed, 'false' for abort
  */
 bool load_filament(const float slow_load_length/*=0*/, const float fast_load_length/*=0*/, const float purge_length/*=0*/, const int8_t max_beep_count/*=0*/,
-  const bool show_lcd/*=false*/, const bool pause_for_user/*=false*/, const PauseMode mode/*=PAUSE_MODE_PAUSE_PRINT*/ DXC_ARGS
+                   const bool show_lcd/*=false*/, const bool pause_for_user/*=false*/,
+                   const PauseMode mode/*=PAUSE_MODE_PAUSE_PRINT*/
+                   DXC_ARGS
 ) {
   DEBUG_SECTION(lf, "load_filament", true);
   DEBUG_ECHOLNPGM("... slowlen:", slow_load_length, " fastlen:", fast_load_length, " purgelen:", purge_length, " maxbeep:", max_beep_count, " showlcd:", show_lcd, " pauseforuser:", pause_for_user, " pausemode:", mode DXC_SAY);
@@ -514,33 +516,36 @@ bool pause_print(const float retract, const xyz_pos_t &park_point, const bool sh
  * Used by M125 and M600
  */
 
-void show_continue_prompt(const bool is_reload) {
+void show_continue_prompt(const bool is_reload, const PauseMessage message/*=PAUSE_MESSAGE_WAITING*/) {
   DEBUG_SECTION(scp, "pause_print", true);
   DEBUG_ECHOLNPGM("... is_reload:", is_reload);
 
-  ui.pause_show_message(is_reload ? PAUSE_MESSAGE_INSERT : PAUSE_MESSAGE_WAITING);
+  ui.pause_show_message(is_reload ? PAUSE_MESSAGE_INSERT : message);
+
   #if ENABLED(SOVOL_SV06_RTS)
     rts.updateTempE0();
     rts.gotoPage(ID_Insert_L, ID_Insert_D);
     rts.sendData(Beep, SoundAddr);
   #endif
+
   SERIAL_ECHO_START();
   SERIAL_ECHO(is_reload ? F(_PMSG(STR_FILAMENT_CHANGE_INSERT) "\n") : F(_PMSG(STR_FILAMENT_CHANGE_WAIT) "\n"));
 }
 
-void wait_for_confirmation(const bool is_reload/*=false*/, const int8_t max_beep_count/*=0*/ DXC_ARGS) {
+void wait_for_confirmation(const bool is_reload/*=false*/, const int8_t max_beep_count/*=0*/, const PauseMessage message/*=PAUSE_MESSAGE_WAITING*/ DXC_ARGS) {
   DEBUG_SECTION(wfc, "wait_for_confirmation", true);
   DEBUG_ECHOLNPGM("... is_reload:", is_reload, " maxbeep:", max_beep_count DXC_SAY);
 
   bool nozzle_timed_out = false;
 
-  show_continue_prompt(is_reload);
+  show_continue_prompt(is_reload, message);
 
   first_impatient_beep(max_beep_count);
 
   // Start the heater idle timers
-  constexpr millis_t nozzle_timeout_ms = SEC_TO_MS(PAUSE_PARK_NOZZLE_TIMEOUT);
-  HOTEND_LOOP() thermalManager.heater_idle[e].start(nozzle_timeout_ms);
+  const millis_t nozzle_timeout = SEC_TO_MS(PAUSE_PARK_NOZZLE_TIMEOUT);
+
+  HOTEND_LOOP() thermalManager.heater_idle[e].start(nozzle_timeout);
 
   #if ENABLED(DUAL_X_CARRIAGE)
     const int8_t saved_ext        = motion.extruder;
@@ -588,10 +593,11 @@ void wait_for_confirmation(const bool is_reload/*=false*/, const int8_t max_beep
       HOTEND_LOOP() thermalManager.reset_hotend_idle_timer(e);
 
       // Wait for the heaters to reach the target temperatures
-      ensure_safe_temperature(false);
+      if (thermalManager.heating_enabled)
+        ensure_safe_temperature(false);
 
       // Show the prompt to continue
-      show_continue_prompt(is_reload);
+      show_continue_prompt(is_reload, message);
 
       // Start the heater idle timers
       constexpr millis_t nozzle_timeout_ms = SEC_TO_MS(PAUSE_PARK_NOZZLE_TIMEOUT);
@@ -635,9 +641,9 @@ void wait_for_confirmation(const bool is_reload/*=false*/, const int8_t max_beep
  * - Resume the current SD print job, if any
  */
 void resume_print(
-  const float   slow_load_length/*=0*/,
-  const float   fast_load_length/*=0*/,
-  const float   purge_length/*=ADVANCED_PAUSE_PURGE_LENGTH*/,
+  const float     slow_load_length/*=0*/,
+  const float     fast_load_length/*=0*/,
+  const float     purge_length/*=ADVANCED_PAUSE_PURGE_LENGTH*/,
   const int8_t    max_beep_count/*=0*/,
   const celsius_t targetTemp/*=0*/,
   const bool      show_lcd/*=true*/,
@@ -674,34 +680,40 @@ void resume_print(
     thermalManager.reset_hotend_idle_timer(e);
   }
 
-  if (targetTemp > thermalManager.degTargetHotend(motion.extruder))
-    thermalManager.setTargetHotend(targetTemp, motion.extruder);
-
-  // Load the new filament
-  load_filament(slow_load_length, fast_load_length, purge_length, max_beep_count, show_lcd, nozzle_timed_out, PAUSE_MODE_SAME DXC_PASS);
-
-  if (targetTemp > 0) {
-    thermalManager.setTargetHotend(targetTemp, motion.extruder);
-    thermalManager.wait_for_hotend(motion.extruder, false);
-  }
-
   ui.pause_show_message(PAUSE_MESSAGE_RESUME);
 
-  // Check Temperature before moving hotend
-  ensure_safe_temperature(DISABLED(BELTPRINTER));
+  if (TERN1(MANUAL_SWITCHING_TOOLHEAD, motion.extruder < HOTENDS)) {
 
-  // Retract to prevent oozing
-  motion.unscaled_e_move(-(PAUSE_PARK_RETRACT_LENGTH), feedRate_t(PAUSE_PARK_RETRACT_FEEDRATE));
+    if (targetTemp > thermalManager.degTargetHotend(motion.extruder))
+      thermalManager.setTargetHotend(targetTemp, motion.extruder);
 
-  if (!motion.axes_should_home()) {
-    // Move XY back to saved position
-    motion.destination.set(resume_position.x, resume_position.y, motion.position.z, motion.position.e);
-    motion.prepare_internal_move_to_destination(NOZZLE_PARK_XY_FEEDRATE);
+    // Load the new filament
+    if (slow_load_length != 0 && fast_load_length != 0 && purge_length != 0)
+      load_filament(slow_load_length, fast_load_length, purge_length, max_beep_count, show_lcd, nozzle_timed_out, PAUSE_MODE_SAME DXC_PASS);
 
-    // Move Z back to saved position
-    motion.destination.z = resume_position.z;
-    motion.prepare_internal_move_to_destination(NOZZLE_PARK_Z_FEEDRATE);
+    if (targetTemp > 0) {
+      thermalManager.setTargetHotend(targetTemp, motion.extruder);
+      thermalManager.wait_for_hotend(motion.extruder, false);
+
+      // Check Temperature before moving hotend
+      ensure_safe_temperature(DISABLED(BELTPRINTER));
+
+      // Retract to prevent oozing
+      motion.unscaled_e_move(-(PAUSE_PARK_RETRACT_LENGTH), feedRate_t(PAUSE_PARK_RETRACT_FEEDRATE));
+    }
   }
+
+  #if DISABLED(MANUAL_SWITCHING_TOOLHEAD)
+    if (!motion.axes_should_home()) {
+      // Move XY back to saved position
+      motion.destination.set(resume_position.x, resume_position.y, motion.position.z, motion.position.e);
+      motion.prepare_internal_move_to_destination(NOZZLE_PARK_XY_FEEDRATE);
+
+      // Move Z back to saved position
+      motion.destination.z = resume_position.z;
+      motion.prepare_internal_move_to_destination(NOZZLE_PARK_Z_FEEDRATE);
+    }
+  #endif
 
   #if ENABLED(AUTO_BED_LEVELING_UBL)
     const bool leveling_was_enabled = planner.leveling_active; // save leveling state
@@ -720,17 +732,29 @@ void resume_print(
       motion.unscaled_e_move(-fwretract.settings.retract_length, fwretract.settings.retract_feedrate_mm_s);
   #endif
 
-  // If resume_position is negative
-  if (resume_position.e < 0) motion.unscaled_e_move(resume_position.e, feedRate_t(PAUSE_PARK_RETRACT_FEEDRATE));
-  #ifdef ADVANCED_PAUSE_RESUME_PRIME
-    if (ADVANCED_PAUSE_RESUME_PRIME != 0)
-      motion.unscaled_e_move(ADVANCED_PAUSE_RESUME_PRIME, feedRate_t(ADVANCED_PAUSE_PURGE_FEEDRATE));
-  #endif
+  // Unretract
+  if (targetTemp > 0) {
+    ensure_safe_temperature(DISABLED(BELTPRINTER));
+    motion.unscaled_e_move(PAUSE_PARK_RETRACT_LENGTH, feedRate_t(PAUSE_PARK_RETRACT_FEEDRATE));
+
+    // Intelligent resuming
+    #if ENABLED(FWRETRACT)
+      // If retracted before goto pause
+      if (fwretract.retracted[motion.extruder])
+        motion.unscaled_e_move(-fwretract.settings.retract_length, fwretract.settings.retract_feedrate_mm_s);
+    #endif
+
+    // If resume_position is negative
+    if (resume_position.e < 0) motion.unscaled_e_move(resume_position.e, feedRate_t(PAUSE_PARK_RETRACT_FEEDRATE));
+    #ifdef ADVANCED_PAUSE_RESUME_PRIME
+      if (ADVANCED_PAUSE_RESUME_PRIME != 0)
+        motion.unscaled_e_move(ADVANCED_PAUSE_RESUME_PRIME, feedRate_t(ADVANCED_PAUSE_PURGE_FEEDRATE));
+    #endif
+  }
 
   // Now all extrusion positions are resumed and ready to be confirmed
   // Set extruder to saved position
-  motion.destination.e = motion.position.e = resume_position.e;
-  motion.sync_plan_position_e();
+  planner.set_e_position_mm((motion.destination.e = motion.position.e = resume_position.e));
 
   ui.pause_show_message(PAUSE_MESSAGE_STATUS);
   #if ENABLED(SOVOL_SV06_RTS)

@@ -266,8 +266,8 @@ namespace LanguageNarrow_hu {
   LSTR MSG_IDEX_MODE_DUPLICATE            = _UxGT("Duplikálás");                               // Duplication
   LSTR MSG_IDEX_MODE_MIRRORED_COPY        = _UxGT("Tükrözött másolás");                        // Mirrored Copy
   LSTR MSG_IDEX_MODE_FULL_CTRL            = _UxGT("Teljes felügyelet");                        // Full Control
-  LSTR MSG_HOTEND_OFFSET_Z                = _UxGT("2. fej Z");                                 // 2nd Nozzle Z
-  LSTR MSG_HOTEND_OFFSET_N                = _UxGT("2. fej @");                                 // 2nd Nozzle @
+  LSTR MSG_TOOL_OFFSET_Z                  = _UxGT("2. fej Z");                                 // 2nd Nozzle Z
+  LSTR MSG_TOOL_OFFSET_N                  = _UxGT("2. fej @");                                 // 2nd Nozzle @
   LSTR MSG_UBL_DOING_G29                  = _UxGT("Szintezz! G29");                            // Doing G29
   LSTR MSG_UBL_TOOLS                      = _UxGT("UBL eszköz");                               // UBL Tools
   LSTR MSG_LCD_TILTING_MESH               = _UxGT("Döntési pont");                             // Tilting Point

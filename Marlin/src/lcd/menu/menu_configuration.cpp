@@ -172,7 +172,7 @@ void menu_advanced_settings();
 
   #include "../../module/tool_change.h"
 
-  void menu_tool_change() {
+  void menu_config_tool_change() {
     START_MENU();
     BACK_ITEM(MSG_CONFIGURATION);
     #if ENABLED(TOOLCHANGE_FILAMENT_SWAP)
@@ -219,13 +219,8 @@ void menu_advanced_settings();
       }
       END_MENU();
     }
-  #endif
 
-#endif // HAS_MULTI_EXTRUDER
-
-#if HAS_HOTEND_OFFSET
-  #include "../../module/motion.h"
-  #include "../../gcode/queue.h"
+  #endif // TOOLCHANGE_MIGRATION_FEATURE
 
   void menu_tool_offsets() {
 
@@ -238,19 +233,26 @@ void menu_advanced_settings();
 
     START_MENU();
     BACK_ITEM(MSG_CONFIGURATION);
-    #if ENABLED(DUAL_X_CARRIAGE)
-      EDIT_ITEM_FAST_N(float42_52, X_AXIS, MSG_HOTEND_OFFSET_N, &motion.hotend_offset[1].x, float(X2_HOME_POS - 25), float(X2_HOME_POS + 25), _recalc_offsets);
-    #else
-      EDIT_ITEM_FAST_N(float42_52, X_AXIS, MSG_HOTEND_OFFSET_N, &motion.hotend_offset[1].x, -99.0f, 99.0f, _recalc_offsets);
+
+    #if HAS_TOOL_OFFSETS
+      for (uint8_t o = 1; o < TERN(MANUAL_SWITCHING_TOOLHEAD, NUM_TOOLS, 1); ++o) {
+        #if ENABLED(DUAL_X_CARRIAGE)
+          EDIT_ITEM_FAST_N(float42_52, X_AXIS, MSG_TOOL_OFFSET_N, &motion.tool_offset[o].x, float(X2_HOME_POS - 25), float(X2_HOME_POS + 25), _recalc_offsets);
+        #else
+          EDIT_ITEM_FAST_N(float42_52, X_AXIS, MSG_TOOL_OFFSET_N, &motion.tool_offset[o].x, -99.0f, 99.0f, _recalc_offsets);
+        #endif
+        // TODO: MSG_TOOL_N_OFFSET_A ?
+        EDIT_ITEM_FAST_N(float42_52, Y_AXIS, MSG_TOOL_OFFSET_N, &motion.tool_offset[1].y, -99.0f, 99.0f, _recalc_offsets);
+        EDIT_ITEM_FAST_N(float42_52, Z_AXIS, MSG_TOOL_OFFSET_N, &motion.tool_offset[1].z, -10.0f, 10.0f, _recalc_offsets);
+      }
     #endif
-    EDIT_ITEM_FAST_N(float42_52, Y_AXIS, MSG_HOTEND_OFFSET_N, &motion.hotend_offset[1].y, -99.0f, 99.0f, _recalc_offsets);
-    EDIT_ITEM_FAST_N(float42_52, Z_AXIS, MSG_HOTEND_OFFSET_N, &motion.hotend_offset[1].z, -10.0f, 10.0f, _recalc_offsets);
+
     #if ENABLED(EEPROM_SETTINGS)
       ACTION_ITEM(MSG_STORE_EEPROM, ui.store_settings);
     #endif
     END_MENU();
   }
-#endif
+#endif // HAS_MULTI_EXTRUDER
 
 #if ENABLED(HOTEND_IDLE_TIMEOUT)
 
@@ -602,7 +604,7 @@ void menu_configuration() {
       SUBMENU(MSG_DELTA_CALIBRATE, menu_delta_calibrate);
     #endif
 
-    #if HAS_HOTEND_OFFSET
+    #if HAS_TOOL_OFFSETS
       SUBMENU(MSG_OFFSETS_MENU, menu_tool_offsets);
     #endif
 
@@ -627,7 +629,7 @@ void menu_configuration() {
   // Set single nozzle filament retract and prime length
   //
   #if HAS_MULTI_EXTRUDER
-    SUBMENU(MSG_TOOL_CHANGE, menu_tool_change);
+    SUBMENU(MSG_TOOL_CHANGE, menu_config_tool_change);
     #if ENABLED(TOOLCHANGE_MIGRATION_FEATURE)
       SUBMENU(MSG_TOOL_MIGRATION, menu_toolchange_migration);
     #endif

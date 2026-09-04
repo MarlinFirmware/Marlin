@@ -241,10 +241,10 @@ typedef struct SettingsDataStruct {
   #endif
 
   //
-  // Hotend Offset
+  // Tool Offset
   //
-  #if HAS_HOTEND_OFFSET
-    xyz_pos_t hotend_offset[HOTENDS - 1];               // M218 XYZ
+  #if HAS_TOOL_OFFSETS
+    xyz_pos_t tool_offset[NUM_TOOLS - 1];       // M218 XYZ
   #endif
 
   //
@@ -960,13 +960,13 @@ void MarlinSettings::postprocess() {
     #endif // NUM_AXES
 
     //
-    // Hotend Offsets
+    // Tool Offsets, if any
     //
     {
-      #if HAS_HOTEND_OFFSET
-        // Skip hotend 0 which must be 0
-        for (uint8_t e = 1; e < HOTENDS; ++e)
-          EEPROM_WRITE(motion.hotend_offset[e]);
+      #if HAS_TOOL_OFFSETS
+        // Skip tool 0 which must be {0, 0, 0}
+        for (uint8_t e = 1; e < NUM_TOOLS; ++e)
+          EEPROM_WRITE(motion.tool_offset[e]);
       #endif
     }
 
@@ -2038,10 +2038,10 @@ void MarlinSettings::postprocess() {
       // Hotend Offsets
       //
       {
-        #if HAS_HOTEND_OFFSET
+        #if HAS_TOOL_OFFSETS
           // Skip hotend 0 which must be 0
-          for (uint8_t e = 1; e < HOTENDS; ++e)
-            EEPROM_READ(motion.hotend_offset[e]);
+          for (uint8_t e = 1; e < NUM_TOOLS; ++e)
+            EEPROM_READ(motion.tool_offset[e]);
         #endif
       }
 
@@ -3388,9 +3388,9 @@ void MarlinSettings::reset() {
   #endif
 
   //
-  // Hotend Offsets
+  // Tool Offsets, if any
   //
-  TERN_(HAS_HOTEND_OFFSET, motion.reset_hotend_offsets());
+  TERN_(HAS_TOOL_OFFSETS, motion.reset_tool_offsets());
 
   //
   // Spindle Acceleration
@@ -3949,7 +3949,7 @@ void MarlinSettings::reset() {
     //
     // M218 Hotend offsets
     //
-    TERN_(HAS_HOTEND_OFFSET, gcode.M218_report(forReplay));
+    TERN_(HAS_TOOL_OFFSETS, gcode.M218_report(forReplay));
 
     //
     // Bed Leveling

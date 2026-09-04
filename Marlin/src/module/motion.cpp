@@ -141,23 +141,26 @@ xyz_pos_t Motion::cartes;
   DualXMode Motion::idex_mode = DEFAULT_DUAL_X_CARRIAGE_MODE;
 #endif
 
-// Extruder offsets
-#if HAS_HOTEND_OFFSET
-  xyz_pos_t Motion::hotend_offset[HOTENDS]; // Initialized by settings.load
-  void Motion::reset_hotend_offsets() {
+// Tool offsets
+#if HAS_TOOL_OFFSETS
+  xyz_pos_t Motion::tool_offset[HOTENDS]; // Initialized by settings.load
+  void Motion::reset_tool_offsets() {
     constexpr float tmp[3][HOTENDS] = { HOTEND_OFFSET_X, HOTEND_OFFSET_Y, HOTEND_OFFSET_Z };
     static_assert(
       !tmp[X_AXIS][0] && !tmp[Y_AXIS][0] && !tmp[Z_AXIS][0],
-      "Offsets for the first hotend must be 0.0."
+      "Offsets for the first tool must be 0.0."
     );
-    // Transpose from [3][HOTENDS] to [HOTENDS][3]
-    HOTEND_LOOP() LOOP_ABC(a) hotend_offset[e][a] = tmp[a][e];
-    TERN_(DUAL_X_CARRIAGE, hotend_offset[1].x = _MAX(X2_HOME_POS, X2_MAX_POS));
+
+    // Transpose from [XYZ][TOOL] to [TOOL][XYZ]
+    TERN(MANUAL_SWITCHING_TOOLHEAD, TOOLHEAD_LOOP(), HOTEND_LOOP())
+      LOOP_ABC(a) tool_offset[e][a] = tmp[a][e];
+
+    TERN_(DUAL_X_CARRIAGE, tool_offset[1].x = _MAX(X2_HOME_POS, X2_MAX_POS));
   }
 #elif HOTENDS
-  constexpr xyz_pos_t Motion::hotend_offset[HOTENDS];
+  constexpr xyz_pos_t Motion::tool_offset[HOTENDS];
 #else
-  constexpr xyz_pos_t Motion::hotend_offset[1];
+  constexpr xyz_pos_t Motion::tool_offset[1];
 #endif
 
 // The feedrate for the current move, often used as the default if
@@ -853,6 +856,7 @@ void Motion::goto_current_position(const feedRate_t fr_mm_s/*=feedrate_mm_s*/) {
 
 #if HAS_EXTRUDERS
   void Motion::unscaled_e_move(const float length, const feedRate_t fr_mm_s) {
+    if (extruder >= EXTRUDERS) return; // No move on non-extruder tools
     TERN_(HAS_FILAMENT_SENSOR, runout.reset());
     position.e += length / planner.e_factor[extruder];
     goto_current_position(fr_mm_s);
@@ -898,6 +902,7 @@ void Motion::_goto_destination_internal(const feedRate_t fr_mm_s/*=0.0f*/
   TERN_(HAS_EXTRUDERS, REMEMBER(fac, planner.e_factor[extruder], 1.0f));
 
   if (fr_mm_s) feedrate_mm_s = fr_mm_s;
+
   if (TERN0(IS_KINEMATIC, is_fast))
     TERN(IS_KINEMATIC, prepare_fast_move_to_destination(), NOOP);
   else
@@ -1236,15 +1241,15 @@ void Motion::restore_feedrate_and_scaling() {
    * at the same positions relative to the machine.
    */
   void Motion::update_software_endstops(const AxisEnum axis
-    OPTARG(HAS_HOTEND_OFFSET, const uint8_t old_tool_index/*=0*/, const uint8_t new_tool_index/*=0*/)
+    OPTARG(HAS_TOOL_OFFSETS, const uint8_t old_tool_index/*=0*/, const uint8_t new_tool_index/*=0*/)
   ) {
 
     #if ENABLED(DUAL_X_CARRIAGE)
 
       if (axis == X_AXIS) {
 
-        // In Dual X mode hotend_offset[X] is T1's home position
-        const float dual_max_x = _MAX(hotend_offset[1].x, X2_MAX_POS);
+        // In Dual X mode tool_offset[X] is T1's home position
+        const float dual_max_x = _MAX(tool_offset[1].x, X2_MAX_POS);
 
         if (new_tool_index != 0) {
           // T1 can move from X2_MIN_POS to X2_MAX_POS or X2 home position (whichever is larger)
@@ -1282,19 +1287,19 @@ void Motion::restore_feedrate_and_scaling() {
         default: break;
       }
 
-    #elif HAS_HOTEND_OFFSET
+    #elif HAS_TOOL_OFFSETS
 
       // Software endstops are relative to the tool 0 workspace, so
       // the movement limits must be shifted by the tool offset to
       // retain the same physical limit when other tools are selected.
 
       if (new_tool_index == old_tool_index || axis == Z_AXIS) { // The Z axis is "special" and shouldn't be modified
-        const float offs = (axis == Z_AXIS) ? 0 : active_hotend_offset()[axis];
+        const float offs = (axis == Z_AXIS) ? 0 : active_tool_offset()[axis];
         soft_endstop.min[axis] = base_min_pos(axis) + offs;
         soft_endstop.max[axis] = base_max_pos(axis) + offs;
       }
       else {
-        const float diff = hotend_offset[new_tool_index][axis] - hotend_offset[old_tool_index][axis];
+        const float diff = tool_offset[new_tool_index][axis] - tool_offset[old_tool_index][axis];
         soft_endstop.min[axis] += diff;
         soft_endstop.max[axis] += diff;
       }
@@ -1326,9 +1331,9 @@ void Motion::restore_feedrate_and_scaling() {
 
       if (TERN0(DELTA, !all_axes_homed())) return;
 
-      #if ALL(HAS_HOTEND_OFFSET, DELTA)
-        // The effector center position will be the target minus the hotend offset.
-        const xy_pos_t offs = active_hotend_offset();
+      #if ALL(HAS_TOOL_OFFSETS, DELTA)
+        // The effector center position will be the target minus the tool offset.
+        const xy_pos_t offs = active_tool_offset();
       #elif ENABLED(POLARGRAPH)
         // POLARGRAPH uses draw_area_* below...
       #elif ENABLED(POLAR)
@@ -1951,24 +1956,26 @@ void Motion::prepare_line_to_destination() {
       if (ignore_e) SERIAL_ECHO_MSG(STR_ERR_COLD_EXTRUDE_STOP);
 
       #if ENABLED(PREVENT_LENGTHY_EXTRUDE)
-        const float e_delta = ABS(destination.e - position.e) * planner.e_factor[extruder];
-        if (e_delta > (EXTRUDE_MAXLENGTH)) {
-          #if ENABLED(MIXING_EXTRUDER)
-            float collector[MIXING_STEPPERS];
-            mixer.refresh_collector(1.0, mixer.get_current_vtool(), collector);
-            MIXER_STEPPER_LOOP(e) {
-              if (e_delta * collector[e] > (EXTRUDE_MAXLENGTH)) {
-                ignore_e = true;
-                SERIAL_ECHO_MSG(STR_ERR_LONG_EXTRUDE_STOP);
-                break;
+        if (extruder < EXTRUDERS) {
+          const float e_delta = ABS(destination.e - position.e) * planner.e_factor[extruder];
+          if (e_delta > (EXTRUDE_MAXLENGTH)) {
+            #if ENABLED(MIXING_EXTRUDER)
+              float collector[MIXING_STEPPERS];
+              mixer.refresh_collector(1.0, mixer.get_current_vtool(), collector);
+              MIXER_STEPPER_LOOP(e) {
+                if (e_delta * collector[e] > (EXTRUDE_MAXLENGTH)) {
+                  ignore_e = true;
+                  SERIAL_ECHO_MSG(STR_ERR_LONG_EXTRUDE_STOP);
+                  break;
+                }
               }
-            }
-          #else
-            ignore_e = true;
-            SERIAL_ECHO_MSG(STR_ERR_LONG_EXTRUDE_STOP);
-          #endif
+            #else
+              ignore_e = true;
+              SERIAL_ECHO_MSG(STR_ERR_LONG_EXTRUDE_STOP);
+            #endif
+          }
         }
-      #endif
+      #endif // PREVENT_LENGTHY_EXTRUDE
 
       if (ignore_e) {
         position.e = destination.e; // Behave as if the E move really took place

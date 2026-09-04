@@ -262,8 +262,8 @@ namespace LanguageNarrow_de {
   LSTR MSG_IDEX_MODE_DUPLICATE            = _UxGT("Duplizieren");                              // Duplication
   LSTR MSG_IDEX_MODE_MIRRORED_COPY        = _UxGT("Spiegelkopie");                             // Mirrored Copy
   LSTR MSG_IDEX_MODE_FULL_CTRL            = _UxGT("vollstä. Kontrolle");                       // Full Control
-  LSTR MSG_HOTEND_OFFSET_Z                = _UxGT("2. Düse Z");                                // 2nd Nozzle Z
-  LSTR MSG_HOTEND_OFFSET_N                = _UxGT("2. Düse @");                                // 2nd Nozzle @
+  LSTR MSG_TOOL_OFFSET_Z                  = _UxGT("2. Düse Z");                                // 2nd Nozzle Z
+  LSTR MSG_TOOL_OFFSET_N                  = _UxGT("2. Düse @");                                // 2nd Nozzle @
   LSTR MSG_UBL_DOING_G29                  = _UxGT("G29 ausführen");                            // Doing G29
   LSTR MSG_UBL_TOOLS                      = _UxGT("UBL-Werkzeuge");                            // UBL Tools
   LSTR MSG_LCD_TILTING_MESH               = _UxGT("Berührungspunkt");                          // Tilting Point

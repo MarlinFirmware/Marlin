@@ -121,19 +121,19 @@ public:
     static abc_pos_t scara_home_offset; // A and B angular offsets, Z mm offset
   #endif
 
-  #if HAS_HOTEND_OFFSET
-    static xyz_pos_t hotend_offset[HOTENDS];
-    static void reset_hotend_offsets();
+  #if HAS_TOOL_OFFSETS
+    static xyz_pos_t tool_offset[HOTENDS];
+    static void reset_tool_offsets();
   #elif HOTENDS
-    static constexpr xyz_pos_t hotend_offset[HOTENDS] = { { TERN_(HAS_X_AXIS, 0) } };
+    static constexpr xyz_pos_t tool_offset[HOTENDS] = { { TERN_(HAS_X_AXIS, 0) } };
   #else
-    static constexpr xyz_pos_t hotend_offset[1] = { { TERN_(HAS_X_AXIS, 0) } };
+    static constexpr xyz_pos_t tool_offset[1] = { { TERN_(HAS_X_AXIS, 0) } };
   #endif
 
-  #if HAS_HOTEND_OFFSET
-    static xyz_pos_t& active_hotend_offset() { return hotend_offset[extruder]; }
+  #if HAS_TOOL_OFFSETS
+    static xyz_pos_t& active_tool_offset() { return tool_offset[extruder]; }
   #else
-    static const xyz_pos_t& active_hotend_offset() { return hotend_offset[extruder]; }
+    static const xyz_pos_t& active_tool_offset() { return tool_offset[extruder]; }
   #endif
 
   #if ENABLED(LCD_SHOW_E_TOTAL)
@@ -237,7 +237,7 @@ public:
        * This allows soft recalibration of the second extruder home position
        * (with M218 T1 Xn) without firmware reflash.
        */
-      return hotend_offset[1].x > 0 ? hotend_offset[1].x : X2_HOME_POS;
+      return tool_offset[1].x > 0 ? tool_offset[1].x : X2_HOME_POS;
     }
     static void idex_set_parked(const bool park=true);
     static bool unpark_before_move();
@@ -479,7 +479,7 @@ public:
   #if HAS_SOFTWARE_ENDSTOPS
     static void apply_limits(xyz_pos_t &target);
     static void update_software_endstops(const AxisEnum axis
-      OPTARG(HAS_HOTEND_OFFSET, const uint8_t old_tool_index=0, const uint8_t new_tool_index=0)
+      OPTARG(HAS_TOOL_OFFSETS, const uint8_t old_tool_index=0, const uint8_t new_tool_index=0)
     );
     static void set_soft_endstop_loose(const bool loose) { soft_endstop._loose = loose; }
   #else

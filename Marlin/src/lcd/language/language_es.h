@@ -270,8 +270,8 @@ namespace LanguageNarrow_es {
   LSTR MSG_IDEX_MODE_DUPLICATE            = _UxGT("Duplicar");                                 // Duplication
   LSTR MSG_IDEX_MODE_MIRRORED_COPY        = _UxGT("Copia Reflejada");                          // Mirrored Copy
   LSTR MSG_IDEX_MODE_FULL_CTRL            = _UxGT("Control Total");                            // Full Control
-  LSTR MSG_HOTEND_OFFSET_Z                = _UxGT("2ª Fusor Z");                               // 2nd Nozzle Z
-  LSTR MSG_HOTEND_OFFSET_N                = _UxGT("2ª Fusor @");                               // 2nd Nozzle @
+  LSTR MSG_TOOL_OFFSET_Z                  = _UxGT("2ª Fusor Z");                               // 2nd Nozzle Z
+  LSTR MSG_TOOL_OFFSET_N                  = _UxGT("2ª Fusor @");                               // 2nd Nozzle @
   LSTR MSG_UBL_DOING_G29                  = _UxGT("Hacer G29");                                // Doing G29
   LSTR MSG_UBL_TOOLS                      = _UxGT("Herramientas UBL");                         // UBL Tools
   LSTR MSG_LCD_TILTING_MESH               = _UxGT("Punto de inclinación");                     // Tilting Point
