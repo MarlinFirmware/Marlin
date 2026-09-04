@@ -21,7 +21,7 @@
  */
 
 /**
- * mmu2_crc.cpp
+ * mmu3_crc.cpp
  */
 
 #include "../../inc/MarlinConfigPre.h"

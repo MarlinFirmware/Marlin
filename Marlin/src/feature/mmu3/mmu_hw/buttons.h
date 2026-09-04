@@ -38,7 +38,7 @@ namespace MMU3 {
 enum class ButtonOperations : uint8_t {
   NoOperation = 0,
   Retry       = 1,
-  Continue    = 2,
+  Done        = 2,
   ResetMMU    = 3,
   Unload      = 4,
   Load        = 5,
@@ -46,7 +46,8 @@ enum class ButtonOperations : uint8_t {
   Tune        = 7,
   StopPrint   = 8,
   DisableMMU  = 9,
-  MoreInfo    = 10,
+  Skip        = 10,
+  MoreInfo    = 11
 };
 
 // Button codes + extended actions performed on the printer's side

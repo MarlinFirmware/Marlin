@@ -21,7 +21,7 @@
  */
 
 /**
- * mmu2_error_converter.cpp
+ * mmu3_error_converter.cpp
  */
 
 #include "../../inc/MarlinConfigPre.h"
@@ -37,7 +37,7 @@ namespace MMU3 {
 
   static ButtonOperations buttonSelectedOperation = ButtonOperations::NoOperation;
 
-  // we don't have a constexpr find_if in C++17/STL yet
+  // No constexpr find_if in C++17/STL so use our own
   template <class InputIt, class UnaryPredicate>
   constexpr InputIt find_if_cx(InputIt first, InputIt last, UnaryPredicate p) {
     for (; first != last; ++first) {
@@ -46,25 +46,19 @@ namespace MMU3 {
     return last;
   }
 
-  // Making a constexpr FindError should instruct the compiler to optimize the
-  // PrusaErrorCodeIndex in such a way that no searching will ever be done at
-  // runtime. A call to FindError then compiles to a single instruction even on
-  // the AVR.
-  // static constexpr uint8_t FindErrorIndex(uint16_t pec) {
-  static uint8_t FindErrorIndex(uint16_t pec) {
-    constexpr uint16_t errorCodesSize = sizeof(errorCodes) / sizeof(errorCodes[0]);
+  // Find the error index statically to save on runtime overhead
+  static uint8_t FindErrorIndex(const uint16_t pec) {
+    constexpr uint16_t errorCodesSize = COUNT(errorCodes);
     constexpr const auto *errorCodesEnd = errorCodes + errorCodesSize;
-    const auto *i = find_if_cx(errorCodes, errorCodesEnd, [pec](uint16_t ed) {
-      return ed == pec;
-    });
+    const auto *i = find_if_cx(errorCodes, errorCodesEnd, [pec](const uint16_t ed) { return ed == pec; });
     return (i != errorCodesEnd) ? (i - errorCodes) : (errorCodesSize - 1);
   }
 
-  // check that the searching algorithm works
-  // static_assert( FindErrorIndex(ERR_MECHANICAL_FINDA_DIDNT_TRIGGER) == 0);
-  // static_assert( FindErrorIndex(ERR_MECHANICAL_FINDA_FILAMENT_STUCK) == 1);
-  // static_assert( FindErrorIndex(ERR_MECHANICAL_FSENSOR_DIDNT_TRIGGER) == 2);
-  // static_assert( FindErrorIndex(ERR_MECHANICAL_FSENSOR_FILAMENT_STUCK) == 3);
+  // Check that the search algorithm works
+  //static_assert( FindErrorIndex(ERR_MECHANICAL_FINDA_DIDNT_TRIGGER) == 0);
+  //static_assert( FindErrorIndex(ERR_MECHANICAL_FINDA_FILAMENT_STUCK) == 1);
+  //static_assert( FindErrorIndex(ERR_MECHANICAL_FSENSOR_DIDNT_TRIGGER) == 2);
+  //static_assert( FindErrorIndex(ERR_MECHANICAL_FSENSOR_FILAMENT_STUCK) == 3);
 
   constexpr ErrorCode operator&(ErrorCode a, ErrorCode b) {
     return (ErrorCode)((uint16_t)a & (uint16_t)b);
@@ -126,7 +120,7 @@ namespace MMU3 {
       case ErrorCode::FINDA_VS_EEPROM_DISREPANCY:
         return FindErrorIndex(ERR_SYSTEM_UNLOAD_MANUALLY);
       case ErrorCode::MCU_UNDERVOLTAGE_VCC:
-        return FindErrorIndex(ERR_ELECTRICAL_MMU_MCU_ERROR);
+        return FindErrorIndex(ERR_ELECTRICAL_MMU_MCU_UNDERVOLTAGE_VCC);
       default: break;
     }
 
@@ -192,7 +186,7 @@ namespace MMU3 {
         return FindErrorIndex(ERR_TEMPERATURE_TMC_IDLER_OVERHEAT_ERROR);
     }
 
-    // if nothing got caught, return a generic runtime error
+    // If nothing got caught, return a generic runtime error
     return FindErrorIndex(ERR_OTHER_UNKNOWN_ERROR);
   }
 
@@ -237,7 +231,7 @@ namespace MMU3 {
       case ERR_MECHANICAL_PULLEY_CANNOT_MOVE:
       case ERR_SYSTEM_UNLOAD_MANUALLY:
         switch (buttonSelectedOperation) {
-          // may be allow move selector right and left in the future
+          // Maybe allow move selector right and left in the future
           case ButtonOperations::Retry: // "Repeat action"
             return Buttons::Middle;
           default:
@@ -247,10 +241,10 @@ namespace MMU3 {
       case ERR_MECHANICAL_SELECTOR_CANNOT_HOME:
       case ERR_MECHANICAL_IDLER_CANNOT_HOME:
         switch (buttonSelectedOperation) {
-          // may be allow move selector right and left in the future
-          case ButtonOperations::Tune: // Tune Stallguard threshold
-            return Buttons::TuneMMU;
-          case ButtonOperations::Retry: // "Repeat action"
+          // Maybe allow move selector right and left in the future
+          //case ButtonOperations::Tune:      // Tune Stallguard threshold
+          //  return Buttons::TuneMMU;        // Goes unused, possibility for future use
+          case ButtonOperations::Retry:       // "Repeat action"
             return Buttons::Middle;
           default:
             break;
@@ -259,7 +253,7 @@ namespace MMU3 {
       case ERR_MECHANICAL_LOAD_TO_EXTRUDER_FAILED:
       case ERR_SYSTEM_FILAMENT_EJECTED:
         switch (buttonSelectedOperation) {
-          case ButtonOperations::Continue: // User solved the serious mechanical problem by hand - there is no other way around
+          case ButtonOperations::Done: // User solved the serious mechanical problem by hand - there is no other way around
             return Buttons::Middle;
           default:
             break;
@@ -279,7 +273,7 @@ namespace MMU3 {
       case ERR_TEMPERATURE_WARNING_TMC_SELECTOR_TOO_HOT:
       case ERR_TEMPERATURE_WARNING_TMC_IDLER_TOO_HOT:
         switch (buttonSelectedOperation) {
-          case ButtonOperations::Continue: // "Continue"
+          case ButtonOperations::Done: // "Done"
             return Buttons::Left;
           case ButtonOperations::ResetMMU: // "Reset MMU"
             return Buttons::ResetMMU;
@@ -314,7 +308,8 @@ namespace MMU3 {
 
       case ERR_SYSTEM_QUEUE_FULL:
       case ERR_SYSTEM_FW_RUNTIME_ERROR:
-      case ERR_ELECTRICAL_MMU_MCU_ERROR:
+      case ERR_ELECTRICAL_MMU_MCU_POWER_ERROR:
+      case ERR_ELECTRICAL_MMU_MCU_UNDERVOLTAGE_VCC:
         switch (buttonSelectedOperation) {
           case ButtonOperations::ResetMMU: // "Reset MMU"
             return Buttons::ResetMMU;
@@ -338,7 +333,7 @@ namespace MMU3 {
         switch (buttonSelectedOperation) {
           case ButtonOperations::Unload: // "Unload"
             return Buttons::Left;
-          case ButtonOperations::Continue: // "Proceed/Continue"
+          case ButtonOperations::Done: // "Done"
             return Buttons::Right;
           default:
             break;
