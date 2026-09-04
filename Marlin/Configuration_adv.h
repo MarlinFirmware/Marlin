@@ -1915,6 +1915,8 @@
       //#define POWER_LOSS_RETRACT_LEN   10 // (mm) Length of filament to retract on fail
     #endif
 
+    //#define POWER_LOSS_TIMEOUT         10 // (ms) Power loss duration to raise event, three idle() calls otherwise
+
     // Enable if Z homing is needed for proper recovery. 99.9% of the time this should be disabled!
     //#define POWER_LOSS_RECOVER_ZHOME
     #if ENABLED(POWER_LOSS_RECOVER_ZHOME)
