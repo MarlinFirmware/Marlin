@@ -33,6 +33,10 @@ void scroll_screen(const uint8_t limit, const bool is_menu);
 
 typedef void (*selectFunc_t)();
 
+#if ALL(TFT_COLOR_UI, TOUCH_SCREEN)
+  #define TFT_COLOR_TOUCH 1
+#endif
+
 #define SS_LEFT    0x00
 #define SS_CENTER  0x01
 #define SS_FULL    0x02
@@ -161,20 +165,28 @@ class MenuEditItemBase : public MenuItemBase {
     static FSTR_P editLabel;
     static void *editValue;
     static int32_t minEditValue, maxEditValue;  // Encoder value range
+    #if ENABLED(TFT_COLOR_UI)
+      static intptr_t valueToString;
+    #endif
+    #if TFT_COLOR_TOUCH
+      static float valueStep;
+    #endif
     static screenFunc_t callbackFunc;
     static bool liveEdit;
   protected:
     typedef const char* (*strfunc_t)(const int32_t);
     typedef void (*loadfunc_t)(void *, const int32_t);
     static void goto_edit_screen(
-      FSTR_P const el,        // Edit label
-      void * const ev,        // Edit value pointer
-      const int32_t minv,     // Encoder minimum
-      const int32_t maxv,     // Encoder maximum
-      const uint32_t ep,      // Initial encoder value
-      const screenFunc_t cs,  // MenuItem_type::draw_edit_screen => MenuEditItemBase::edit()
-      const screenFunc_t cb,  // Callback after edit
-      const bool le           // Flag to call cb() during editing
+        FSTR_P const el       // Edit label
+      , void * const ev       // Edit value pointer
+      , const int32_t minv    // Encoder minimum
+      , const int32_t maxv    // Encoder maximum
+      OPTARG(TFT_COLOR_UI, intptr_t to_string)  // Value-to-string conversion function
+      OPTARG(TFT_COLOR_TOUCH, const float step) // Smallest step
+      , const uint32_t ep     // Initial encoder value
+      , const screenFunc_t cs // MenuItem_type::draw_edit_screen => MenuEditItemBase::edit()
+      , const screenFunc_t cb // Callback after edit
+      , const bool le         // Flag to call cb() during editing
     );
     static void edit_screen(strfunc_t, loadfunc_t); // Edit value handler
   public:
@@ -192,6 +204,10 @@ class MenuEditItemBase : public MenuItemBase {
 
     // This method is for the current menu item
     static void draw_edit_screen(const char * const value) { draw_edit_screen(editLabel, value); }
+
+    #if TFT_COLOR_TOUCH
+      static void put_new_value(float val);
+    #endif
 };
 
 #if HAS_MEDIA

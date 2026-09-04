@@ -25,9 +25,7 @@
 #include "../inc/MarlinConfigPre.h"
 #include "../core/utility.h"
 
-#if !ARDUINO_ARCH_ESP32
-  #pragma GCC diagnostic ignored "-Wimplicit-fallthrough"
-#endif
+#pragma GCC diagnostic ignored "-Wimplicit-fallthrough"
 
 constexpr char DIGIT(const uint8_t n) { return '0' + n; }
 
@@ -137,6 +135,11 @@ const char* i16tostr3rj(const int16_t x) {
   conv[6] = RJDIGIT(xx, 10);
   conv[7] = DIGIMOD(xx, 1);
   return &conv[5];
+}
+
+// Convert unsigned 16bit int to string 1, 12, 123 format, capped at 999
+const char* utostr3(const uint16_t x) {
+  return i16tostr3left(_MIN(x, 999U));
 }
 
 // Convert unsigned 16bit int to lj string with 123 format
@@ -386,6 +389,32 @@ inline const char* ftostrX1rj(const float f, const int index=1) {
   return &conv[index];
 }
 
+/**
+ * Convert float to string representing its absolute value with up to 8 characters including decimal dot, right aligned, example: ____5678, ____5.67, ___45.67, __345.67, _2345.67, 12345.67
+ *
+ * IMPORTANT: Supports only floats that can be displayed by above mentioned format
+ * IMPORTANT: Float is represented by scientific notation using two parameters, from which float can be acquired by intVal / decimal
+ * @param intVal Scaled integer value with float digits
+ * @param decimal divisor to acquire the float, must be power of 10
+ */
+const char* ftostr7xrj(int32_t intVal, uint32_t decimal) {
+  if (intVal < 0) intVal *= -1; // Just print the absolute value
+
+  int32_t div = 1;   // Current digit value: 1, 10, 100, 1000...
+  int8_t intEnd = 7; // Index of the digit out
+
+  // Loop while there are digits or a decimal point to print
+  // Collect digits from right to left
+  while (intEnd >= 0 && (intVal >= div || (int32_t)decimal >= div)) {
+    if ((int32_t)decimal == div && WITHIN(intEnd, 1, 6)) conv[intEnd--] = '.'; // Decimal at the given power of 10
+    conv[intEnd] = DIGIT((intVal / div) % 10);                                 // The digit
+    div *= 10;
+    intEnd--;
+  }
+
+  return &conv[intEnd + 1];
+}
+
 // Convert unsigned float to string with _2.3 / 12.3 format
 const char* ftostr31rj(const float f) { return ftostrX1rj(f, 7 - 3); }
 
@@ -455,11 +484,6 @@ const char* ftostr52sp(const float f) {
   return &conv[1];
 }
 
-// Convert unsigned 16bit int to string 1, 12, 123 format, capped at 999
-const char* utostr3(const uint16_t x) {
-  return i16tostr3left(_MIN(x, 999U));
-}
-
 // Convert float to space-padded string with 1.23, 12.34, 123.45 format
 const char* ftostr52sprj(const float f) {
   long i = INTFLOAT(f, 2);
@@ -484,4 +508,44 @@ const char* ftostr52sprj(const float f) {
   conv[7] = DIGIMOD(i, 1);
 
   return &conv[1];
+}
+
+const char* shortenNum(const char * convptr, const bool removeWhole0/*=true*/, const bool removeUnit/*=true*/) {
+  // TODO: Implementation behaves as if removeWhole0 and removeUnit were true
+
+  bool numberFound = false;
+  int8_t decimalIdx = -1;
+  int i;
+
+  // i = strlen ; decimalIdx = indexOf('.')
+  for (i = 0; convptr[i] != '\0'; i++)
+    if (convptr[i] == '.') decimalIdx = i;
+
+  // Scanning backwards from the end...
+  uint8_t returnStart = 8, intStart = returnStart - 1;
+  for (--i; i >= 0; --i) {
+    const char c = convptr[i];
+    // Skip all space, percent
+    if (c == ' ' || c == '%') continue;
+    const bool decimal_to_left = WITHIN(decimalIdx, 0, i);
+    // Skip '0' and '.' to the right of the decimal point
+    if (((c == '0' || c == '.') && !numberFound && decimal_to_left))
+      continue;
+    // Now preserve other '0' (and '.') characters to the left
+    numberFound = true;
+    // Keep the character
+    conv[intStart] = c;
+    // A non-0 or any character right of the decimal point?
+    if (c != '0' || decimal_to_left) {
+      // Move returnStart to the latest added character
+      returnStart = intStart;
+      //if (c == '-') conv[returnStart] = '-';  // TODO: Move '-' to the (old) returnStart index
+    }
+    // Update the index for the next character
+    --intStart;
+  }
+
+  returnStart -= (returnStart == 8); // Only 0's were found? Return "0" (conv[8] is always '\0')
+
+  return &conv[returnStart];
 }
