@@ -179,7 +179,7 @@ extern "C" {
    * request key written here. If no (or an unexpected) bootloader is installed
    * this reduces to a plain reboot.
    */
-  void flashFirmware(const int16_t) {
+  WEAK void flashFirmware(const int16_t) {
     static constexpr uint64_t KATAPULT_SIGNATURE = 0x21746F6F426E6143ULL, // "CanBoot!"
                               KATAPULT_REQUEST   = 0x5984E3FA6CA1589BULL;
     const uint32_t * const bl_vectors = (uint32_t*)FLASH_BASE;
