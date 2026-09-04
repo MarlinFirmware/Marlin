@@ -105,7 +105,7 @@
 #define EXP2_07_PIN                            2  // ?
 
 //
-// SD Card
+// MicroSD Card on VSPI (3)
 //
 #if HAS_MEDIA
   #define SD_MOSI_PIN                EXP2_06_PIN
