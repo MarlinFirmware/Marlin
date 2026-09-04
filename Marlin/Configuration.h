@@ -2568,9 +2568,9 @@
 #define PREHEAT_2_FAN_SPEED     0 // Value from 0 to 255
 
 /**
- * @section nozzle park
+ * @section park nozzle
  *
- * Nozzle Park
+ * Park Nozzle
  *
  * Park the nozzle at the given XYZ position on idle or G27.
  *
@@ -2589,6 +2589,7 @@
   #define NOZZLE_PARK_Z_RAISE_MIN   2   // (mm) Always raise Z by at least this distance
   #define NOZZLE_PARK_XY_FEEDRATE 100   // (mm/s) X and Y axes feedrate (also used for delta Z axis)
   #define NOZZLE_PARK_Z_FEEDRATE    5   // (mm/s) Z axis feedrate (not used for delta printers)
+  //#define G27_BYPASS_TRUST            // Allows `G27 P3` to raise Z even if axis is not trusted
 #endif
 
 /**

@@ -3574,7 +3574,7 @@
 #endif
 #define MAX_VFAT_ENTRIES 20 // by VFAT specs to fit LFN of length 255
 
-// Nozzle park for Delta
+// Park nozzle for Delta
 #if ALL(NOZZLE_PARK_FEATURE, DELTA)
   #undef NOZZLE_PARK_Z_FEEDRATE
   #define NOZZLE_PARK_Z_FEEDRATE NOZZLE_PARK_XY_FEEDRATE
