@@ -45,6 +45,12 @@
   #define HAS_SAVED_POSITIONS
 #endif
 
+// WiFi libraries are only needed where Marlin itself drives the radio. On other
+// platforms WIFISUPPORT just powers up an add-on module running its own firmware.
+#if defined(ARDUINO_ARCH_ESP32) && ANY(WIFISUPPORT, ESP3D_WIFISUPPORT)
+  #define HAS_ESP32_WIFI
+#endif
+
 #if ENABLED(DUET_SMART_EFFECTOR) && PIN_EXISTS(SMART_EFFECTOR_MOD)
   #define HAS_SMART_EFF_MOD
 #endif

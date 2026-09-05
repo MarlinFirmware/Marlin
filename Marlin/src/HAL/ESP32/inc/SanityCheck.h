@@ -40,10 +40,6 @@
   #error "TMC220x Software Serial is not supported on ESP32."
 #endif
 
-#if ALL(WIFISUPPORT, ESP3D_WIFISUPPORT)
-  #error "Only enable one WiFi option, either WIFISUPPORT or ESP3D_WIFISUPPORT."
-#endif
-
 #if ENABLED(POSTMORTEM_DEBUGGING)
   #error "POSTMORTEM_DEBUGGING is not yet supported on ESP32."
 #endif
