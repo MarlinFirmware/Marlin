@@ -83,7 +83,7 @@ typedef struct FTConfig {
 
     #if HAS_DYNAMIC_FREQ
       dynFreqMode_t dynFreqMode = FTM_DEFAULT_DYNFREQ_MODE; // Dynamic frequency mode configuration.
-      ft_shaped_float_t dynFreqK = { 0.0f };                // Scaling / gain for dynamic frequency. [Hz/mm] or [Hz/g]
+      ft_shaped_xy_float_t dynFreqK = { 0.0f };             // Scaling / gain for dynamic frequency. [Hz/mm] or [Hz/g]
     #else
       static constexpr dynFreqMode_t dynFreqMode = dynFreqMode_DISABLED;
     #endif
@@ -173,14 +173,14 @@ typedef struct FTConfig {
     #if HAS_DYNAMIC_FREQ
 
       uint8_t setDynFreqMode(const uint8_t m) {
-        if (dynFreqMode_t(m) == dynFreqMode) return 0;
-        switch (dynFreqMode_t(m)) {
+        if ((dynFreqMode_t)m == dynFreqMode) return 0;
+        switch ((dynFreqMode_t)m) {
           default: return 2;
           TERN_(HAS_DYNAMIC_FREQ_MM, case dynFreqMode_Z_BASED:)
           TERN_(HAS_DYNAMIC_FREQ_G, case dynFreqMode_MASS_BASED:)
           case dynFreqMode_DISABLED:
             prep_for_shaper_change();
-            dynFreqMode = dynFreqMode_t(m);
+            dynFreqMode = (dynFreqMode_t)m;
             break;
         }
         update_shaping_params();
@@ -193,6 +193,7 @@ typedef struct FTConfig {
       }
 
       bool setDynFreqK(const AxisEnum a, const float k) {
+        //assert(a == X_AXIS || X == Y_AXIS, "Dynamic Frequency only applies to XY axes.");
         if (!modeUsesDynFreq()) return false;
         if (k == dynFreqK[a]) return false;
         prep_for_shaper_change();
