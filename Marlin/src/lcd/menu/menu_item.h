@@ -577,7 +577,7 @@ class MenuItem_bool : public MenuEditItemBase {
     (HIGHLIGHTED(), _lcdLineNr, FLABEL, ##V);                \
 }while(0)
 
-// Indexed items set a global index value and optional data
+// Item with optional data
 #define _CONFIRM_ITEM_F(FLABEL, V...) do { \
   if (MY_LINE()) {                         \
     _skipStatic = false;                   \
@@ -586,34 +586,11 @@ class MenuItem_bool : public MenuEditItemBase {
   NEXT_ITEM();                             \
 }while(0)
 
-// Indexed items set a global index value
-#define _CONFIRM_ITEM_N_S_F(N, S, V...) do{ \
-  if (MY_LINE()) {                          \
-    _skipStatic = false;                    \
-    MenuItemBase::init(N, S);               \
-    _CONFIRM_ITEM_INNER_F(TYPE, ##V);       \
-  }                                         \
-  NEXT_ITEM();                              \
-}while(0)
-
-// Indexed items set a global index value
-#define _CONFIRM_ITEM_N_F(N, V...)              _CONFIRM_ITEM_N_S_F(N, nullptr, V)
-
 #define CONFIRM_ITEM_F(FLABEL,A,B,V...)         _CONFIRM_ITEM_F(FLABEL, GET_TEXT_F(A), GET_TEXT_F(B), ##V)
 #define CONFIRM_ITEM(LABEL, V...)                CONFIRM_ITEM_F(GET_TEXT_F(LABEL), ##V)
 
 #define YESNO_ITEM_F(FLABEL, V...)               CONFIRM_ITEM_F(FLABEL, MSG_YES, MSG_NO, ##V)
 #define YESNO_ITEM(LABEL, V...)                    YESNO_ITEM_F(GET_TEXT_F(LABEL), ##V)
-
-#define CONFIRM_ITEM_N_S_F(N,S,FLABEL,A,B,V...) _CONFIRM_ITEM_N_S_F(N, S, FLABEL, GET_TEXT_F(A), GET_TEXT_F(B), ##V)
-#define CONFIRM_ITEM_N_S(N,S,LABEL,V...)         CONFIRM_ITEM_N_S_F(N, S, GET_TEXT_F(LABEL), ##V)
-#define CONFIRM_ITEM_N_F(N,FLABEL,A,B,V...)       _CONFIRM_ITEM_N_F(N, FLABEL, GET_TEXT_F(A), GET_TEXT_F(B), ##V)
-#define CONFIRM_ITEM_N(N,LABEL, V...)              CONFIRM_ITEM_N_F(N, GET_TEXT_F(LABEL), ##V)
-
-#define YESNO_ITEM_N_S_F(N,S,FLABEL, V...)      _CONFIRM_ITEM_N_S_F(N, S, FLABEL, MSG_YES, MSG_NO, ##V)
-#define YESNO_ITEM_N_S(N,S,LABEL, V...)            YESNO_ITEM_N_S_F(N, S, GET_TEXT_F(LABEL), ##V)
-#define YESNO_ITEM_N_F(N,FLABEL, V...)             CONFIRM_ITEM_N_F(N, FLABEL, MSG_YES, MSG_NO, ##V)
-#define YESNO_ITEM_N(N,LABEL, V...)                  YESNO_ITEM_N_F(N, GET_TEXT_F(LABEL), ##V)
 
 #if ENABLED(LCD_BED_TRAMMING)
   void _lcd_bed_tramming();
