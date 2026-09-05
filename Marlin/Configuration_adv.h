@@ -4601,28 +4601,43 @@
 
 /**
  * Native ESP32 board with WiFi or add-on ESP32 WiFi-101 module
+ *
+ * Enable one or the other. The two are separate implementations sharing no code,
+ * and each has its own extras below.
+ *
+ * WIFISUPPORT covers both an add-on WiFi module wired to the controller and
+ * Marlin's own WiFi on an ESP32 build. ESP3D_WIFISUPPORT is ESP32 only.
  */
 //#define WIFISUPPORT         // Marlin embedded WiFi management. Not needed for simple WiFi serial port.
 //#define ESP3D_WIFISUPPORT   // ESP3D Library WiFi management (https://github.com/luc-github/ESP3DLib)
 
-/**
- * Extras for an ESP32-based motherboard with WIFISUPPORT
- * These options don't apply to add-on WiFi modules based on ESP32 WiFi101.
- */
-#if ANY(WIFISUPPORT, ESP3D_WIFISUPPORT)
+#if ENABLED(WIFISUPPORT)
+  /**
+   * Marlin's own webserver and OTA, implemented in HAL/ESP32/wifi/ and built
+   * only for an ESP32 build of Marlin. With an add-on WiFi module the module
+   * runs its own firmware, so neither option has any effect there.
+   */
   //#define WEBSUPPORT          // Start a webserver (which may include auto-discovery) using SPIFFS
   //#define OTASUPPORT          // Support over-the-air firmware updates
-  //#define WIFI_CUSTOM_COMMAND // Accept feature config commands (e.g., WiFi ESP3D) from the host
 
   /**
-   * To set a default WiFi SSID / Password, create a file called Configuration_Secure.h with
-   * the following defines, customized for your network. This specific file is excluded via
-   * .gitignore to prevent it from accidentally leaking to the public.
+   * The network is set at compile time. To set a default WiFi SSID / Password, create a file
+   * called Configuration_Secure.h with the following defines, customized for your network.
+   * This specific file is excluded via .gitignore to prevent it from accidentally leaking
+   * to the public.
    *
    *   #define WIFI_SSID "WiFi SSID"
    *   #define WIFI_PWD  "WiFi Password"
    */
   //#include "Configuration_Secure.h" // External file with WiFi SSID / Password
+
+#elif ENABLED(ESP3D_WIFISUPPORT)
+  /**
+   * ESP3D brings its own webserver and OTA, so WEBSUPPORT and OTASUPPORT don't apply here.
+   * The network is configured at runtime with '[ESP100]' / '[ESP101]' and stored on the ESP,
+   * so WIFI_SSID / WIFI_PWD don't apply either.
+   */
+  //#define WIFI_CUSTOM_COMMAND // Accept ESP3D '[ESP...]' commands from the host
 #endif
 
 // @section multi-material
