@@ -261,7 +261,7 @@
   #define IS_TFTGLCD_PANEL 1
   #define IS_ULTIPANEL 1                    // Note that IS_ULTIPANEL leads to HAS_WIRED_LCD
 
-  #if HAS_MEDIA && DISABLED(LCD_PROGRESS_BAR)
+  #if HAS_MEDIA && !defined(LCD_PROGRESS_BAR)
     #define LCD_PROGRESS_BAR
   #endif
   #if ENABLED(TFTGLCD_PANEL_I2C)
@@ -892,10 +892,6 @@
  */
 #if defined(NEOPIXEL_BKGD_INDEX_FIRST) && !defined(NEOPIXEL_BKGD_INDEX_LAST)
   #define NEOPIXEL_BKGD_INDEX_LAST NEOPIXEL_BKGD_INDEX_FIRST
-#endif
-
-#if LED_POWEROFF_TIMEOUT > 0
-  #define HAS_LED_POWEROFF_TIMEOUT 1
 #endif
 
 #define LCD_ENABLED_COUNT 0 \

@@ -79,6 +79,36 @@
   #warning "Rename 'Config-export.h' to 'Config.h' to override Configuration.h and Configuration_adv.h."
 #endif
 
+/**
+ * The two ESP32 WiFi implementations each ignore the other's options.
+ * These do nothing where they are, but they don't stop anything working.
+ */
+#if ENABLED(ESP3D_WIFISUPPORT)
+  #if ENABLED(WEBSUPPORT)
+    #warning "WEBSUPPORT does nothing with ESP3D_WIFISUPPORT, which starts its own webserver. Remove it."
+  #endif
+  #if ENABLED(OTASUPPORT)
+    #warning "OTASUPPORT does nothing with ESP3D_WIFISUPPORT, which provides its own OTA. Remove it."
+  #endif
+  #if defined(WIFI_SSID) || defined(WIFI_PWD)
+    #warning "WIFI_SSID and WIFI_PWD do nothing with ESP3D_WIFISUPPORT. Set the network with '[ESP100]' and '[ESP101]'."
+  #endif
+#elif ENABLED(WIFISUPPORT)
+  #if ENABLED(WIFI_CUSTOM_COMMAND)
+    #warning "WIFI_CUSTOM_COMMAND does nothing with WIFISUPPORT. It applies to ESP3D_WIFISUPPORT."
+  #endif
+  #if DISABLED(ARDUINO_ARCH_ESP32)
+    // WIFISUPPORT on another board only powers up an add-on module (esp_wifi_init).
+    // Marlin's own webserver, OTA and credentials are all native-ESP32 only.
+    #if ANY(WEBSUPPORT, OTASUPPORT)
+      #warning "WEBSUPPORT and OTASUPPORT need a native ESP32 motherboard. They do nothing with an add-on WiFi module."
+    #endif
+    #if defined(WIFI_SSID) || defined(WIFI_PWD)
+      #warning "WIFI_SSID and WIFI_PWD need a native ESP32 motherboard. An add-on WiFi module configures itself."
+    #endif
+  #endif
+#endif
+
 #if DISABLED(DEBUG_FLAGS_GCODE)
   #warning "DEBUG_FLAGS_GCODE is recommended if you have space. Some hosts rely on it."
 #endif

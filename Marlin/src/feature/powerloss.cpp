@@ -306,7 +306,7 @@ void PrintJobRecovery::save(const bool force/*=false*/, const float zraise/*=POW
 
   #endif
 
-#endif // POWER_LOSS_PIN
+#endif // PIN_EXISTS(POWER_LOSS)
 
 #if PIN_EXISTS(POWER_LOSS) || ENABLED(DEBUG_POWER_LOSS_RECOVERY)
 
