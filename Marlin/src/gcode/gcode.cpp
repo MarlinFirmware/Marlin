@@ -179,11 +179,12 @@ void GcodeSuite::get_destination_from_command() {
   // Get new XYZ position, whether absolute or relative
   LOOP_NUM_AXES(i) {
     if ( (seen[i] = parser.seenval(AXIS_CHAR(i))) ) {
-      const float v = parser.value_axis_units((AxisEnum)i);
       if (skip_move)
         motion.destination[i] = motion.position[i];
-      else
+      else {
+        const float v = parser.value_axis_units((AxisEnum)i);
         motion.destination[i] = axis_is_relative((AxisEnum)i) ? motion.position[i] + v : motion.logical_to_native(v, (AxisEnum)i);
+      }
     }
     else
       motion.destination[i] = motion.position[i];
@@ -1181,7 +1182,7 @@ void GcodeSuite::process_parsed_command(bool no_ok/*=false*/) {
       #if ENABLED(WIFI_CUSTOM_COMMAND)
         if (wifi_custom_command(parser.command_ptr)) break;
       #endif
-      parser.unknown_command_warning();
+      parser.unknown_command_warning();                           // Other unknown, including > 65535
   }
 
   if (!no_ok) queue.ok_to_send();
