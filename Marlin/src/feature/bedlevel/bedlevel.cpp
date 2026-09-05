@@ -39,6 +39,10 @@
   #include "../../lcd/marlinui.h"
 #endif
 
+#if ENABLED(GLOBAL_MESH_Z_OFFSET)
+  float mesh_z_offset;  // Initialized by settings.load()
+#endif
+
 #define DEBUG_OUT ENABLED(DEBUG_LEVELING_FEATURE)
 #include "../../core/debug_out.h"
 

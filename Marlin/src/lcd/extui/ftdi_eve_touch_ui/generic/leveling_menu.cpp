@@ -45,6 +45,9 @@ using namespace Theme;
   #define TEST_MESH_POS      BTN_POS(2,4), BTN_SIZE(1,1)
   #define SHOW_MESH_POS      BTN_POS(1,5), BTN_SIZE(1,1)
   #define EDIT_MESH_POS      BTN_POS(2,4), BTN_SIZE(1,1)
+  #if ENABLED(GLOBAL_MESH_Z_OFFSET)
+    #define MESH_ZOFFSET_POS BTN_POS(2,5), BTN_SIZE(1,1)
+  #endif
   #define BLTOUCH_TITLE_POS  BTN_POS(1,5), BTN_SIZE(2,1)
   #define BLTOUCH_RESET_POS  BTN_POS(1,6), BTN_SIZE(1,1)
   #define BLTOUCH_TEST_POS   BTN_POS(2,6), BTN_SIZE(1,1)
@@ -62,6 +65,9 @@ using namespace Theme;
   #define TEST_MESH_POS      BTN_POS(2,4), BTN_SIZE(1,1)
   #define SHOW_MESH_POS      BTN_POS(1,5), BTN_SIZE(1,1)
   #define EDIT_MESH_POS      BTN_POS(2,5), BTN_SIZE(1,1)
+  #if ENABLED(GLOBAL_MESH_Z_OFFSET)
+    #define MESH_ZOFFSET_POS BTN_POS(3,4), BTN_SIZE(1,1)
+  #endif
   #define BLTOUCH_TITLE_POS  BTN_POS(3,3), BTN_SIZE(1,1)
   #define BLTOUCH_RESET_POS  BTN_POS(3,4), BTN_SIZE(1,1)
   #define BLTOUCH_TEST_POS   BTN_POS(3,5), BTN_SIZE(1,1)
@@ -97,6 +103,9 @@ void LevelingMenu::onRedraw(draw_mode_t what) {
        .enabled(ENABLED(HAS_BED_PROBE))
        .tag(3).button(PROBE_BED_POS, GET_TEXT_F(MSG_PROBE_BED))
        .tag(4).button(ZOFFSET_POS, GET_TEXT_F(MSG_ZOFFSET))
+    #if ENABLED(GLOBAL_MESH_Z_OFFSET)
+       .tag(12).button(MESH_ZOFFSET_POS, GET_TEXT_F(MSG_MESH_Z_OFFSET))
+    #endif
     #if DISABLED (AUTO_BED_LEVELING_BILINEAR)
        .enabled(ENABLED(HAS_MESH))
        .tag(5).button(SHOW_MESH_POS, GET_TEXT_F(MSG_MESH_VIEW))
@@ -135,6 +144,9 @@ bool LevelingMenu::onTouchEnd(uint8_t tag) {
         break;
     #endif
     case 4:  GOTO_SCREEN(ZOffsetScreen); break;
+    #if ENABLED(GLOBAL_MESH_Z_OFFSET)
+      case 12: GOTO_SCREEN(MeshZOffsetScreen); break;
+    #endif
     #if ENABLED(AUTO_BED_LEVELING_UBL)
       case 5: BedMeshViewScreen::show(); break;
       case 6: BedMeshEditScreen::show(); break;
