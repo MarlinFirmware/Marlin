@@ -178,3 +178,5 @@ tags
 .aider*
 !.aiderignore
 .env
+schema.json
+sqlite*.db

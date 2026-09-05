@@ -764,7 +764,7 @@ class Temperature {
 
       static heater_idle_t heater_idle[NR_HEATER_IDLE];
 
-    #endif // HEATER_IDLE_TIMER
+    #endif // HEATER_IDLE_HANDLER
 
     #if HAS_ADC_BUTTONS
       static uint32_t current_ADCKey_raw;
@@ -1402,6 +1402,12 @@ class Temperature {
     #endif
     #if TEMP_SENSOR_IS_MAX_TC(BED)
       static raw_adc_t read_max_tc_bed();
+    #endif
+
+    // ADS Thermocouples
+    #if HAS_ADS1118
+      #define READ_ADS(N) read_ads1118(N)
+      static raw_adc_t read_ads1118(const uint8_t hindex=0);
     #endif
 
     #if HAS_AUTO_FAN
