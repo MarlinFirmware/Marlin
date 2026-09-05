@@ -909,6 +909,8 @@
   #include "esp32/pins_GODI_CONTROLLER_V1_0.h"      // ESP32                                env:godi_esp32
 #elif MB(MM_JOKER)
   #include "esp32/pins_MM_JOKER.h"                  // ESP32                                env:esp32
+#elif MB(MKS_DLC32_V2_1)
+  #include "esp32/pins_MKS_DLC32_V2_1.h"            // ESP32                                env:mks_dlc32_v2_1
 
 //
 // Adafruit Grand Central M4 (SAMD51 ARM Cortex-M4)
