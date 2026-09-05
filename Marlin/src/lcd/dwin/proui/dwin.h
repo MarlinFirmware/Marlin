@@ -236,7 +236,7 @@ uint32_t getHash(char * str);
   void writeEEPROM();
   void readEEPROM();
   void resetEEPROM();
-  #if HAS_MESH
+  #if HAS_MESH_STORAGE
     void saveMesh();
   #endif
 #endif
@@ -278,8 +278,10 @@ void autoHome();
 #endif
 #if ENABLED(AUTO_BED_LEVELING_UBL)
   void ublMeshTilt();
-  void ublMeshSave();
-  void ublMeshLoad();
+  #if HAS_MESH_STORAGE
+    void ublMeshSave();
+    void ublMeshLoad();
+  #endif
 #endif
 
 // Other
