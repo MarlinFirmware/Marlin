@@ -22,7 +22,19 @@
 
 #ifdef ARDUINO_ARCH_ESP32
 
+#include "../../inc/MarlinConfig.h"
 #include "FlushableHardwareSerial.h"
+
+#if MB(MKS_TINYBEE)
+  // Emitted once per TinyBee build so the log shows which path was compiled in.
+  #ifndef MARLIN_ESP32_RX_QUEUE_LEN
+    #pragma message "TinyBee: UART0 RX buffer NOT resized (RX_BUFFER_SIZE <= 256 or MARLIN_ESP32_KEEP_STOCK_RX_BUFFER)"
+  #elif MARLIN_ESP32_CORE_MAJOR == 1
+    #pragma message "TinyBee: UART0 RX queue sized from RX_BUFFER_SIZE (arduino-esp32 1.0.x path, uartBegin)"
+  #else
+    #pragma message "TinyBee: UART0 RX buffer sized from RX_BUFFER_SIZE (arduino-esp32 2.0.x path, setRxBufferSize)"
+  #endif
+#endif
 
 Serial1Class<FlushableHardwareSerial> flushableSerial(false, 0);
 Serial1Class<FlushableHardwareSerial> flushableSerial2(false, 2);
