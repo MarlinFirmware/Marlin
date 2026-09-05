@@ -24,10 +24,10 @@ jobs:
 
     steps:
       - name: Check out the PR
-        uses: actions/checkout@v5
+        uses: actions/checkout@v7
 
       - name: Cache node_modules
-        uses: actions/cache@v5
+        uses: actions/cache@v6
         with:
           path: node_modules
           key: ${{ runner.os }}-npm-lines-v1
