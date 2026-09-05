@@ -2282,6 +2282,11 @@
 
   #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
 
+    #if DISABLED(USE_PROBE_FOR_Z_HOMING) && ALL(FIX_MOUNTED_PROBE, Z_SAFE_HOMING)
+      // If your Z Home (M206) is well-calibrated enable this to establish Probe Z0 before every G29
+      //#define PROBE_Z0_BEFORE_G29
+    #endif
+
     // Beyond the probed grid, continue the implied tilt?
     // Default is to maintain the height of the nearest edge.
     //#define EXTRAPOLATE_BEYOND_GRID
