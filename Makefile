@@ -46,6 +46,7 @@ help:
 	@echo "make validate-pins -j          : Validate all pins files, fails if any require reformatting"
 	@echo "make validate-boards -j        : Validate boards.h and pins.h for standards compliance"
 	@echo "make validate-urls             : Validate URLs in source files"
+	@echo "make validate-conditionals     : Validate #if/#endif structure and #define bodies"
 	@echo "make tests-single-ci           : Run a single test from inside the CI"
 	@echo "make tests-single-local        : Run a single test locally"
 	@echo "make tests-single-local-docker : Run a single test locally, using docker"
@@ -183,3 +184,9 @@ BOARDS_FILE := Marlin/src/core/boards.h
 validate-boards:
 	@echo "Validating boards.h file"
 	@$(PYTHON) $(MAKESCRIPTS_DIR)/validate_boards.py $(BOARDS_FILE) || (echo "\nError: boards.h file is not valid. Please check and correct it.\n" && exit 1)
+
+.PHONY: validate-conditionals
+
+validate-conditionals:
+	@echo "Validating preprocessor conditionals"
+	@$(PYTHON) $(MAKESCRIPTS_DIR)/validate_conditionals.py Marlin buildroot || (echo "\nError: malformed preprocessor conditionals. Please check and correct them.\n" && exit 1)

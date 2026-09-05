@@ -1,0 +1,55 @@
+#
+# ci-validate-conditionals.yml
+# Validate preprocessor conditionals across the tree
+#
+
+name: CI - Validate Conditionals
+
+on:
+  pull_request:
+    branches:
+      - bugfix-2.1.x
+    paths:
+      - "Marlin/**"
+      - "buildroot/**"
+      - "Makefile"
+  push:
+    branches:
+      - bugfix-2.1.x
+    paths:
+      - "Marlin/**"
+      - "buildroot/**"
+      - "Makefile"
+
+jobs:
+  validate_conditionals:
+    name: Validate Conditionals
+    if: github.repository == 'MarlinFirmware/Marlin'
+
+    runs-on: ubuntu-22.04
+
+    steps:
+      - name: Check out the PR
+        uses: actions/checkout@v4
+
+      - name: Cache pip
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-validation-v1
+          restore-keys: |
+            ${{ runner.os }}-pip-validation-
+
+      - name: Select Python 3.9
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.9"
+          architecture: "x64"
+
+      - name: Self-test the checker
+        run: |
+          buildroot/share/make/validate_conditionals.py --selftest
+
+      - name: Validate preprocessor conditionals
+        run: |
+          make validate-conditionals
