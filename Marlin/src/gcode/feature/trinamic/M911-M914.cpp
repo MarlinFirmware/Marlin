@@ -361,7 +361,7 @@
             TERN_(E6_HAS_STEALTHCHOP, if (eindex < 0 || eindex == 6) TMC_SET_PWMTHRS_E(6));
             TERN_(E7_HAS_STEALTHCHOP, if (eindex < 0 || eindex == 7) TMC_SET_PWMTHRS_E(7));
           } break;
-        #endif // E_STEPPERS
+        #endif // E*_HAS_STEALTHCHOP
       }
     }
 

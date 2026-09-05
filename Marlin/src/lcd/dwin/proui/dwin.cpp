@@ -2049,7 +2049,7 @@ void MarlinUI::kill_screen(FSTR_P const lcd_error, FSTR_P const) {
     DONE_BUZZ(true);
   }
 
-  #if HAS_MESH
+  #if HAS_MESH_STORAGE
     void saveMesh() { TERN(AUTO_BED_LEVELING_UBL, ublMeshSave(), writeEEPROM()); }
   #endif
 
@@ -2492,18 +2492,22 @@ void gotoConfirmToPrint() {
 
 #if ENABLED(AUTO_BED_LEVELING_UBL)
 
-  void applyUBLSlot() { bedlevel.storage_slot = menuData.value; }
-  void setUBLSlot() { setIntOnClick(0, settings.calc_num_meshes() - 1, bedlevel.storage_slot, applyUBLSlot); }
-  void onDrawUBLSlot(MenuItem* menuitem, int8_t line) {
-    NOLESS(bedlevel.storage_slot, 0);
-    onDrawIntMenu(menuitem, line, bedlevel.storage_slot);
-  }
+  #if HAS_MESH_STORAGE
+    void applyUBLSlot() { bedlevel.storage_slot = menuData.value; }
+    void setUBLSlot() { setIntOnClick(0, settings.calc_num_meshes() - 1, bedlevel.storage_slot, applyUBLSlot); }
+    void onDrawUBLSlot(MenuItem* menuitem, int8_t line) {
+      NOLESS(bedlevel.storage_slot, 0);
+      onDrawIntMenu(menuitem, line, bedlevel.storage_slot);
+    }
+  #endif
 
   void applyUBLTiltGrid() { bedLevelTools.tilt_grid = menuData.value; }
   void setUBLTiltGrid() { setIntOnClick(1, 3, bedLevelTools.tilt_grid, applyUBLTiltGrid); }
 
   void ublMeshTilt() {
-    NOLESS(bedlevel.storage_slot, 0);
+    #if HAS_MESH_STORAGE
+      NOLESS(bedlevel.storage_slot, 0);
+    #endif
     if (bedLevelTools.tilt_grid > 1)
       gcode.process_subcommands_now(TS(F("G29J"), bedLevelTools.tilt_grid));
     else
@@ -2516,17 +2520,19 @@ void gotoConfirmToPrint() {
     LCD_MESSAGE(MSG_UBL_MESH_FILLED);
   }
 
-  void ublMeshSave() {
-    NOLESS(bedlevel.storage_slot, 0);
-    settings.store_mesh(bedlevel.storage_slot);
-    ui.status_printf(0, GET_TEXT_F(MSG_MESH_SAVED), bedlevel.storage_slot);
-    DONE_BUZZ(true);
-  }
+  #if HAS_MESH_STORAGE
+    void ublMeshSave() {
+      NOLESS(bedlevel.storage_slot, 0);
+      settings.store_mesh(bedlevel.storage_slot);
+      ui.status_printf(0, GET_TEXT_F(MSG_MESH_SAVED), bedlevel.storage_slot);
+      DONE_BUZZ(true);
+    }
 
-  void ublMeshLoad() {
-    NOLESS(bedlevel.storage_slot, 0);
-    settings.load_mesh(bedlevel.storage_slot);
-  }
+    void ublMeshLoad() {
+      NOLESS(bedlevel.storage_slot, 0);
+      settings.load_mesh(bedlevel.storage_slot);
+    }
+  #endif
 
 #endif // AUTO_BED_LEVELING_UBL
 
@@ -4555,9 +4561,11 @@ void drawLevelMenu() {
       #endif
     #endif
     #if ENABLED(AUTO_BED_LEVELING_UBL)
-      EDIT_ITEM(ICON_UBLSlot, MSG_UBL_STORAGE_SLOT, onDrawUBLSlot, setUBLSlot, &bedlevel.storage_slot);
-      MENU_ITEM(ICON_UBLMeshSave, MSG_UBL_SAVE_MESH, onDrawMenuItem, ublMeshSave);
-      MENU_ITEM(ICON_UBLMeshLoad, MSG_UBL_LOAD_MESH, onDrawMenuItem, ublMeshLoad);
+      #if HAS_MESH_STORAGE
+        EDIT_ITEM(ICON_UBLSlot, MSG_UBL_STORAGE_SLOT, onDrawUBLSlot, setUBLSlot, &bedlevel.storage_slot);
+        MENU_ITEM(ICON_UBLMeshSave, MSG_UBL_SAVE_MESH, onDrawMenuItem, ublMeshSave);
+        MENU_ITEM(ICON_UBLMeshLoad, MSG_UBL_LOAD_MESH, onDrawMenuItem, ublMeshLoad);
+      #endif
       MENU_ITEM(ICON_UBLTiltGrid, MSG_UBL_TILT_MESH, onDrawMenuItem, ublMeshTilt);
       MENU_ITEM(ICON_UBLSmartFill, MSG_UBL_SMART_FILLIN, onDrawMenuItem, ublSmartFillMesh);
     #endif
