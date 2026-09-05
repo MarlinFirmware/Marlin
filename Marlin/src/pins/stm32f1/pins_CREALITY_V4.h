@@ -53,7 +53,6 @@
 #if NO_EEPROM_SELECTED
   #define IIC_BL24CXX_EEPROM                      // EEPROM on I2C-0
   //#define SDCARD_EEPROM_EMULATION
-  #undef NO_EEPROM_SELECTED
 #endif
 
 #if ENABLED(IIC_BL24CXX_EEPROM)
@@ -72,7 +71,7 @@
 // Servos
 //
 #ifndef SERVO0_PIN
-  #ifndef HAS_PIN_27_BOARD
+  #if DISABLED(USE_PIN_27_BOARD)
     #define SERVO0_PIN                      PB0   // BLTouch OUT
   #else
     #define SERVO0_PIN                      PC6
@@ -257,7 +256,7 @@
   #define BTN_EN1                    EXP3_03_PIN
   #define BTN_EN2                    EXP3_05_PIN
 
-  #ifndef HAS_PIN_27_BOARD
+  #if DISABLED(USE_PIN_27_BOARD)
     #define BEEPER_PIN               EXP3_01_PIN
   #endif
 

@@ -30,6 +30,7 @@ out-csv/
 out-language/
 *.gen
 *.sublime-workspace
+.cache/
 
 # npm
 node_modules/
@@ -177,3 +178,5 @@ tags
 .aider*
 !.aiderignore
 .env
+schema.json
+sqlite*.db

@@ -189,7 +189,7 @@ void LevelingBilinear::print_leveling_grid(const bed_mesh_t* _z_values/*=nullptr
       // The requested point requires extrapolating two points beyond the mesh.
       // These values are only requested for the edges of the mesh, which are always an actual mesh point,
       // and do not require interpolation. When interpolation is not needed, this "Mesh + 2" point is
-      // cancelled out in virt_cmr and does not impact the result. Return 0.0 rather than
+      // canceled out in virt_cmr and does not impact the result. Return 0.0 rather than
       // making this function more complex by extrapolating two points.
       return 0.0;
     }

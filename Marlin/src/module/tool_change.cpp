@@ -761,7 +761,7 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
     DEBUG_POS("Moving ParkPos", motion.position);
 
     motion.position.set(hoffs.x + placexpos,
-                         hoffs.y + SWITCHING_TOOLHEAD_Y_POS + SWITCHING_TOOLHEAD_Y_CLEAR);
+                        hoffs.y + SWITCHING_TOOLHEAD_Y_POS + SWITCHING_TOOLHEAD_Y_CLEAR);
     fast_line_to_current(X_AXIS);
 
     // 3. Move gently to park position of active extruder

@@ -562,6 +562,7 @@
  * ================================================================
  *  Analog Thermocouple Boards
  * ================================================================
+ *   -18 : ADS1118 with Thermocouple, e.g., Mightyboard rev G/H
  *    -4 : AD8495 with Thermocouple
  *    -1 : AD595  with Thermocouple
  *
@@ -830,7 +831,7 @@
 
   // FIND YOUR OWN: "M303 E-1 C8 S90" to run autotune on the bed at 90 degreesC for 8 cycles.
 #else
-  //#define BED_LIMIT_SWITCHING   // Keep the bed temperature within BED_HYSTERESIS of the target
+  //#define BED_LIMIT_SWITCHING   // Keep the bed temperature within BED_LIMIT_HYSTERESIS of the target
 #endif
 
 /**
@@ -1485,6 +1486,13 @@
  *    - Normally-open (NO) also connect to 5V.
  */
 //#define Z_MIN_PROBE_PIN -1
+
+/**
+ * Use Pin 27 adapter (on the EXP port) for probe (and BEEPER).
+ * Also enable USE_PROBE_FOR_Z_HOMING for older BLTouch/3DTouch
+ * connected to Z_MIN_PIN.
+ */
+//#define USE_PIN_27_BOARD
 
 /**
  * Probe Type
@@ -2259,6 +2267,8 @@
     #define G26_RETRACT_MULTIPLIER   1.0  // G26 Q (retraction) used by default between mesh test elements.
   #endif
 
+  #define MAX_SAVED_MESHES    100         // Maximum number of meshes to store to EEPROM. Use 0 to disable saving.
+
 #endif
 
 #if ANY(AUTO_BED_LEVELING_LINEAR, AUTO_BED_LEVELING_BILINEAR)
@@ -2547,7 +2557,7 @@
 //
 #define PREHEAT_1_LABEL       "PLA"
 #define PREHEAT_1_TEMP_HOTEND 180
-#define PREHEAT_1_TEMP_BED     60
+#define PREHEAT_1_TEMP_BED     70
 #define PREHEAT_1_TEMP_CHAMBER 35
 #define PREHEAT_1_FAN_SPEED     0 // Value from 0 to 255
 

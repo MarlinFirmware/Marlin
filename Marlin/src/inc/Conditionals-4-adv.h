@@ -370,6 +370,13 @@
   #if ANY(FTM_DIR_CHANGE_HOLD_X, FTM_DIR_CHANGE_HOLD_Y, FTM_DIR_CHANGE_HOLD_Z, FTM_DIR_CHANGE_HOLD_E)
     #define HAS_FTM_DIR_CHANGE_HOLD 1
   #endif
+  #if ANY(FTM_POLYS, FTM_CONSTANT_JOLT)
+    #define HAS_FTM_TRAJECTORY_SELECTION 1
+  #endif
+  // Default trajectory type when not explicitly set
+  #ifndef FTM_TRAJECTORY_TYPE
+    #define FTM_TRAJECTORY_TYPE TRAPEZOIDAL
+  #endif
 #endif
 
 // Standard Motion
@@ -490,6 +497,11 @@
   #define TEMP_SENSOR_0_IS_AD8495 1
 #elif TEMP_SENSOR_0 == -1
   #define TEMP_SENSOR_0_IS_AD595 1
+#elif TEMP_SENSOR_0 == -18
+  #define HAS_ADS1118 1
+  #define TEMP_SENSOR_0_IS_ADS1118 1
+  #define TEMP_SENSOR_0_ADS_TMIN    0
+  #define TEMP_SENSOR_0_ADS_TMAX 1024
 #elif TEMP_SENSOR_0 > 0
   #define TEMP_SENSOR_0_IS_THERMISTOR 1
   #if TEMP_SENSOR_0 == 1000
@@ -533,6 +545,11 @@
   #define TEMP_SENSOR_1_IS_AD8495 1
 #elif TEMP_SENSOR_1 == -1
   #define TEMP_SENSOR_1_IS_AD595 1
+#elif TEMP_SENSOR_1 == -18
+  #define HAS_ADS1118 1
+  #define TEMP_SENSOR_1_IS_ADS1118 1
+  #define TEMP_SENSOR_1_ADS_TMIN    0
+  #define TEMP_SENSOR_1_ADS_TMAX 1024
 #elif TEMP_SENSOR_1 > 0
   #define TEMP_SENSOR_1_IS_THERMISTOR 1
   #if TEMP_SENSOR_1 == 1000
@@ -1099,6 +1116,10 @@
   #undef LED_POWEROFF_TIMEOUT
 #endif
 
+#if LED_POWEROFF_TIMEOUT > 0
+  #define HAS_LED_POWEROFF_TIMEOUT 1
+#endif
+
 #if ALL(HAS_RESUME_CONTINUE, PRINTER_EVENT_LEDS, HAS_MEDIA)
   #define HAS_LEDS_OFF_FLAG 1
 #endif
@@ -1518,11 +1539,6 @@
   #endif
 #endif
 
-// Flag if an EEPROM type is pre-selected
-#if ENABLED(EEPROM_SETTINGS) && NONE(I2C_EEPROM, SPI_EEPROM, QSPI_EEPROM, FLASH_EEPROM_EMULATION, SRAM_EEPROM_EMULATION, SDCARD_EEPROM_EMULATION)
-  #define NO_EEPROM_SELECTED 1
-#endif
-
 // Flags for Case Light having a color property or a single pin
 #if ENABLED(CASE_LIGHT_ENABLE)
   #if ANY(CASE_LIGHT_USE_NEOPIXEL, CASE_LIGHT_USE_RGB_LED)
@@ -1540,6 +1556,20 @@
 // Flag whether least_squares_fit.cpp is used
 #if ANY(AUTO_BED_LEVELING_UBL, AUTO_BED_LEVELING_LINEAR, HAS_Z_STEPPER_ALIGN_STEPPER_XY)
   #define NEED_LSF 1
+#endif
+
+// Saving meshes to EEPROM?
+#if ALL(EEPROM_SETTINGS, HAS_MESH)
+  #ifndef MAX_SAVED_MESHES
+    #define MAX_SAVED_MESHES 100
+  #endif
+  #if MAX_SAVED_MESHES > 0
+    #define HAS_MESH_STORAGE 1
+  #endif
+#endif
+#if !HAS_MESH_STORAGE
+  #undef OPTIMIZED_MESH_STORAGE
+  #undef UBL_SAVE_ACTIVE_ON_M500
 #endif
 
 #if ALL(HAS_TFT_LVGL_UI, CUSTOM_MENU_MAIN)
@@ -1562,9 +1592,7 @@
   #else
     #define LCD_SERIAL_PORT 3
   #endif
-  #ifdef LCD_SERIAL_PORT
-    #define AUTO_ASSIGNED_LCD_SERIAL 1
-  #endif
+  #define AUTO_ASSIGNED_LCD_SERIAL 1
 #endif
 
 #if !HAS_MULTI_SERIAL
