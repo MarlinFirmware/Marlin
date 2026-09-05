@@ -45,13 +45,12 @@
 //It is connected to EEPROM PB6 PB7
 
 #define I2C_EEPROM
-#undef NO_EEPROM_SELECTED
 #define MARLIN_EEPROM_SIZE               0x1000U  // 4K
 #define USE_SHARED_EEPROM                      1  // Use Platform-independent Arduino functions for I2C EEPROM
 #define E2END                             0xFFFF  // EEPROM end address AT24C256 (32kB)
 */
 
-#if ANY(NO_EEPROM_SELECTED, FLASH_EEPROM_EMULATION)
+#if SHALL_USE_EEPROM(FLASH_EEPROM_EMULATION)
   #define FLASH_EEPROM_EMULATION
   #define EEPROM_PAGE_SIZE                0x800U  // 2K
   #define EEPROM_START_ADDRESS (0x8000000UL + (STM32_FLASH_SIZE) * 1024UL - (EEPROM_PAGE_SIZE) * 2UL)

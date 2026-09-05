@@ -33,7 +33,9 @@
   #define FLASH_EEPROM_EMULATION
   //#define I2C_EEPROM
 #endif
-#define MARLIN_EEPROM_SIZE               0x1000U  // 4K
+#if ENABLED(EEPROM_SETTINGS)
+  #define MARLIN_EEPROM_SIZE             0x1000U  // 4K
+#endif
 
 #define HAL_TIMER_RATE                     F_CPU
 
