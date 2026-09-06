@@ -401,6 +401,11 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
   #error "LIGHTWEIGHT_UI requires a U8GLIB_ST7920-based display."
 #endif
 
+// A board's pins file may assert no USB mass storage host access.
+#if ENABLED(BOARD_NO_HOST_DRIVE) && DISABLED(NO_SD_HOST_DRIVE)
+  #error "The selected board requires NO_SD_HOST_DRIVE. Enable it in Configuration_adv.h to continue."
+#endif
+
 /**
  * SD Card Settings
  */

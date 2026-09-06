@@ -53,12 +53,6 @@
 // Emergency Parser needs at least one serial with HardwareSerial or USBComposite.
 // The USBSerial maple don't allow any hook to implement EMERGENCY_PARSER.
 // And copy all USBSerial code to marlin space to support EMERGENCY_PARSER, when we have another options, don't worth it.
-#if ENABLED(EMERGENCY_PARSER) && !defined(USE_USB_COMPOSITE) && ((SERIAL_PORT == -1 && !defined(SERIAL_PORT_2)) || (SERIAL_PORT_2 == -1 && !defined(SERIAL_PORT)))
+#if ENABLED(EMERGENCY_PARSER) && DISABLED(USE_USB_COMPOSITE) && ((SERIAL_PORT == -1 && !defined(SERIAL_PORT_2)) || (SERIAL_PORT_2 == -1 && !defined(SERIAL_PORT)))
   #error "EMERGENCY_PARSER is only supported by HardwareSerial or USBComposite in HAL/STM32F1."
-#endif
-
-// The composite USB serial is provided by the mass storage driver, and both
-// are bound before the pins file can set NO_SD_HOST_DRIVE.
-#if defined(USE_USB_COMPOSITE) && defined(SERIAL_USB) && ENABLED(NO_SD_HOST_DRIVE)
-  #error "NO_SD_HOST_DRIVE is incompatible with USE_USB_COMPOSITE plus SERIAL_USB in HAL/STM32F1."
 #endif
