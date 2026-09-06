@@ -2288,6 +2288,11 @@
 
   #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
 
+    #if DISABLED(USE_PROBE_FOR_Z_HOMING) && ALL(FIX_MOUNTED_PROBE, Z_SAFE_HOMING)
+      // If your Z Home (M206) is well-calibrated enable this to establish Probe Z0 before every G29
+      //#define PROBE_Z0_BEFORE_G29
+    #endif
+
     // Beyond the probed grid, continue the implied tilt?
     // Default is to maintain the height of the nearest edge.
     //#define EXTRAPOLATE_BEYOND_GRID
@@ -2563,7 +2568,7 @@
 //
 #define PREHEAT_1_LABEL       "PLA"
 #define PREHEAT_1_TEMP_HOTEND 180
-#define PREHEAT_1_TEMP_BED     60
+#define PREHEAT_1_TEMP_BED     70
 #define PREHEAT_1_TEMP_CHAMBER 35
 #define PREHEAT_1_FAN_SPEED     0 // Value from 0 to 255
 
