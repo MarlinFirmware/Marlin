@@ -834,6 +834,8 @@
   #include "stm32f4/pins_MKS_E3D_V2.h"              // STM32F4                              env:mks_e3d_v2
 #elif MB(PRUSA_BUDDY)
   #include "stm32f4/pins_PRUSA_BUDDY.h"             // STM32F4                              env:PRUSA_BUDDY env:PRUSA_BUDDY_no_bootloader
+#elif MB(LDO_LEVIATHAN_V1_2)
+  #include "stm32f4/pins_LDO_LEVIATHAN.h"           // STM32F4                              env:LDO_LEVIATHAN env:LDO_LEVIATHAN_no_bootloader env:LDO_LEVIATHAN_katapult
 
 //
 // Other ARM Cortex-M4
