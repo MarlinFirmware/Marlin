@@ -2277,17 +2277,12 @@
   #define GRID_MAX_POINTS_X 3
   #define GRID_MAX_POINTS_Y GRID_MAX_POINTS_X
 
-  #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
-    //#define VARIABLE_GRID_POINTS  // Variable grid points at the cost of SRAM and more per-segment computation
-  #endif
-  #if ANY(AUTO_BED_LEVELING_LINEAR, VARIABLE_GRID_POINTS)
-    #define GRID_MIN_SPACING 25     // Prevent the probed area / probed points producing tiny cells
-  #endif
-
   // Probe along the Y axis, advancing X after each column
   //#define PROBE_Y_FIRST
 
   #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
+
+    //#define VARIABLE_GRID_POINTS  // Specify how many Probed Points with 'G29 X# Y#'. Limited by GRID_MAX_POINTS_*.
 
     #if DISABLED(USE_PROBE_FOR_Z_HOMING) && ALL(FIX_MOUNTED_PROBE, Z_SAFE_HOMING)
       // If your Z Home (M206) is well-calibrated enable this to establish Probe Z0 before every G29
@@ -2308,6 +2303,10 @@
       #define BILINEAR_SUBDIVISIONS 3
     #endif
 
+  #endif
+
+  #if ANY(AUTO_BED_LEVELING_LINEAR, VARIABLE_GRID_POINTS)
+    //#define GRID_MIN_SPACING  25  // (mm) Prevent tiny cells when probing a small area
   #endif
 
 #elif ENABLED(AUTO_BED_LEVELING_UBL)

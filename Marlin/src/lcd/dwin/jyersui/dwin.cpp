@@ -345,26 +345,26 @@ private:
     void drawBedMesh(const int16_t selected=-1, const uint8_t gridline_width=1, const uint16_t padding_x=8, const uint16_t padding_y_top=40 + 53 - 7) {
       drawing_mesh = true;
       const uint16_t total_width_px = DWIN_WIDTH - padding_x - padding_x,
-                     cell_width_px  = total_width_px / GRID_VAL(GRID_USED_POINTS_X, GRID_PREF_POINTS_X);
-      const uint16_t cell_height_px = total_width_px / GRID_PREF_POINTS_Y;
+                     cell_width_px  = total_width_px / GRID_VAL(GRID_USED_POINTS_X, GRID_PREF_POINTS_X),
+                     cell_height_px = total_width_px / GRID_PREF_POINTS_Y;
       const float v_max = abs(getMaxValue()), v_min = abs(getMinValue()), rmax = _MAX(v_min, v_max);
 
       // Clear background from previous selection and select new square
       dwinDrawRectangle(1, COLOR_BG_BLACK, _MAX(0, padding_x - gridline_width), _MAX(0, padding_y_top - gridline_width), padding_x + total_width_px, padding_y_top + total_width_px);
       if (selected >= 0) {
-        const auto selected_y = selected / GRID_PREF_POINTS_X;
-        const auto selected_x = selected - GRID_PREF_POINTS_X * selected_y;
-        const auto start_y_px = padding_y_top + selected_y * cell_height_px;
-        const auto start_x_px = padding_x + selected_x * cell_width_px;
+        const auto selected_y = selected / GRID_PREF_POINTS_X,
+                   selected_x = selected - GRID_PREF_POINTS_X * selected_y,
+                   start_y_px = padding_y_top + selected_y * cell_height_px,
+                   start_x_px = padding_x + selected_x * cell_width_px;
         dwinDrawRectangle(1, COLOR_WHITE, _MAX(0, start_x_px - gridline_width), _MAX(0, start_y_px - gridline_width), start_x_px + cell_width_px, start_y_px + cell_height_px);
       }
 
       // Draw value square grid
       GRID_LOOP_COND(x, y) {
-        const auto start_x_px = padding_x + x * cell_width_px;
-        const auto end_x_px   = start_x_px + cell_width_px - 1 - gridline_width;
-        const auto start_y_px = padding_y_top + (GRID_PREF_POINTS_Y - y - 1) * cell_height_px;
-        const auto end_y_px   = start_y_px + cell_height_px - 1 - gridline_width;
+        const auto start_x_px = padding_x + x * cell_width_px,
+                   end_x_px   = start_x_px + cell_width_px - 1 - gridline_width,
+                   start_y_px = padding_y_top + (GRID_PREF_POINTS_Y - y - 1) * cell_height_px,
+                   end_y_px   = start_y_px + cell_height_px - 1 - gridline_width;
         dwinDrawRectangle(1,                                          // RGB565 colors: https://barth-dev.de/online/rgb565-color-picker/
           isnan(bedlevel.z_values[x][y]) ? COLOR_GREY : (             // gray if undefined
             (bedlevel.z_values[x][y] < 0 ?

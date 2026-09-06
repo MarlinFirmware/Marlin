@@ -687,7 +687,7 @@ extern Motion motion;
   #define MESH_X_DIST ((mesh_max.x - mesh_min.x) / (GRID_MAX_CELLS_X))
   #define MESH_Y_DIST ((mesh_max.y - mesh_min.y) / (GRID_MAX_CELLS_Y))
   extern xy_pos_t mesh_min, mesh_max;
-#elif HAS_MESH
+#elif HAS_MESH && DISABLED(VARIABLE_GRID_POINTS)
   #define MESH_X_DIST (float((MESH_MAX_X) - (MESH_MIN_X)) / (GRID_MAX_CELLS_X))
   #define MESH_Y_DIST (float((MESH_MAX_Y) - (MESH_MIN_Y)) / (GRID_MAX_CELLS_Y))
   constexpr xy_pos_t mesh_min{ MESH_MIN_X, MESH_MIN_Y },

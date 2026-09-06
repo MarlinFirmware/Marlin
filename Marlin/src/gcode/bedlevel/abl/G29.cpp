@@ -158,12 +158,10 @@ public:
   #endif
 };
 
-#if ABL_USES_GRID
-  #if DISABLED(VARIABLE_GRID_POINTS)
-    constexpr xy_uint8_t G29_State::grid_points;
-    #if ANY(AUTO_BED_LEVELING_3POINT, AUTO_BED_LEVELING_BILINEAR)
-      constexpr grid_count_t G29_State::abl_points;
-    #endif
+#if ABL_USES_GRID && DISABLED(VARIABLE_GRID_POINTS)
+  constexpr xy_uint8_t G29_State::grid_points;
+  #if ANY(AUTO_BED_LEVELING_3POINT, AUTO_BED_LEVELING_BILINEAR)
+    constexpr grid_count_t G29_State::abl_points;
   #endif
 #endif
 
@@ -391,12 +389,12 @@ G29_TYPE GcodeSuite::G29() {
         abl.topography_map = abl.verbose_level > 2 || parser.boolval('T');
       #endif
 
-      // U specifies GRID_MIN_SPACING
+      // U specifies minimum grid cell size, overriding GRID_MIN_SPACING
       // X and Y specify points in each direction, overriding the default
       // These values may be saved with the completed mesh
       if (parser.seenval('U')) {
         const float u = parser.value_linear_units();
-        abl.gridSpacing.set(u, u); // override GRID_MIN_SPACING
+        abl.gridSpacing.set(u, u);
       }
 
       abl.grid_points.set(

@@ -510,8 +510,8 @@ void MarlinUI::draw_status_message(const bool blink) {
 
     void MarlinUI::ubl_plot(const uint8_t x_plot, const uint8_t y_plot) {
       // Scale the box pixels appropriately
-      dwin_coord_t  x_map_pixels = (MAP_MAX_PIXELS_X - 4) / GRID_PREF_POINTS_X * GRID_PREF_POINTS_X,
-                    y_map_pixels = (MAP_MAX_PIXELS_Y - 4) / GRID_PREF_POINTS_Y * GRID_PREF_POINTS_Y,
+      dwin_coord_t  x_map_pixels = ((MAP_MAX_PIXELS_X - 4) / GRID_PREF_POINTS_X) * GRID_PREF_POINTS_X,
+                    y_map_pixels = ((MAP_MAX_PIXELS_Y - 4) / GRID_PREF_POINTS_Y) * GRID_PREF_POINTS_Y,
 
                     pixels_per_x_mesh_pnt = x_map_pixels / GRID_PREF_POINTS_X,
                     pixels_per_y_mesh_pnt = y_map_pixels / GRID_PREF_POINTS_Y,
