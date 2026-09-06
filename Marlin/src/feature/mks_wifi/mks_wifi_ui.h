@@ -74,11 +74,8 @@
   #define MKSW_COMMAND_SEND       uiCfg.command_send
   #define MKSW_CONFIG_WIFI        uiCfg.configWifi
   #define MKSW_TOTAL_SEND         uiCfg.totalSend
-  #define MKSW_WIFI_NAME          uiCfg.wifi_name
-  #define MKSW_WIFI_KEY           uiCfg.wifi_key
   #define MKSW_CLOUD_HOSTURL      uiCfg.cloud_hostUrl
   #define MKSW_CLOUD_PORT         uiCfg.cloud_port
-  #define MKSW_MODE_SEL           gCfgItems.wifi_mode_sel
   #define MKSW_WIFI_TYPE          gCfgItems.wifi_type
   #define MKSW_CLOUD_ENABLE       gCfgItems.cloud_enable
   #define MKSW_FILESYS_TYPE       gCfgItems.fileSysType
@@ -132,10 +129,6 @@
   #define FILE_SYS_USB 0
   #define FILE_SYS_SD  1
 
-  #define ESP_WIFI   0x02
-  #define AP_MODEL   0x01
-  #define STA_MODEL  0x02
-
   #define MKSW_MAX_DIR_LEVEL 10
   #define MKSW_MAX_PATH (FILENAME_LENGTH * MKSW_MAX_DIR_LEVEL + 1)
   #define MKSW_MAX_NAME (TERN(LONG_FILENAME_WRITE_SUPPORT, LONG_FILENAME_LENGTH, FILENAME_LENGTH * 2) + 1)
@@ -144,10 +137,9 @@
     uint8_t  print_state;
     bool     command_send, configWifi;
     uint32_t totalSend;
-    uint8_t  wifi_name[32], wifi_key[64];
     uint8_t  cloud_hostUrl[96];
     uint16_t cloud_port;
-    uint8_t  wifi_mode_sel, wifi_type, fileSysType;
+    uint8_t  wifi_type, fileSysType;
     bool     cloud_enable;
     uint32_t curFilesize;
     char     file_name[MKSW_MAX_PATH];   // File the host asked to print
@@ -159,11 +151,8 @@
   #define MKSW_COMMAND_SEND       mksWifi.command_send
   #define MKSW_CONFIG_WIFI        mksWifi.configWifi
   #define MKSW_TOTAL_SEND         mksWifi.totalSend
-  #define MKSW_WIFI_NAME          mksWifi.wifi_name
-  #define MKSW_WIFI_KEY           mksWifi.wifi_key
   #define MKSW_CLOUD_HOSTURL      mksWifi.cloud_hostUrl
   #define MKSW_CLOUD_PORT         mksWifi.cloud_port
-  #define MKSW_MODE_SEL           mksWifi.wifi_mode_sel
   #define MKSW_WIFI_TYPE          mksWifi.wifi_type
   #define MKSW_CLOUD_ENABLE       mksWifi.cloud_enable
   #define MKSW_FILESYS_TYPE       mksWifi.fileSysType
@@ -178,3 +167,8 @@
   #define MKSW_FILE_BUF           mksWifiFileBuf
 
 #endif // !HAS_MKS_WIFI_UI
+
+// Backed by Marlin's own settings in every build
+#define MKSW_WIFI_NAME  mks_wifi.ssid
+#define MKSW_WIFI_KEY   mks_wifi.key
+#define MKSW_MODE_SEL   mks_wifi.mode

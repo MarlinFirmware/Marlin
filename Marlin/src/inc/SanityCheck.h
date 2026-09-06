@@ -3068,6 +3068,19 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
     #error "MKS_WIFI_MODULE requires SDSUPPORT."
   #elif !defined(WIFI_SERIAL_PORT)
     #error "MKS_WIFI_MODULE requires WIFI_SERIAL_PORT. Your board doesn't support it."
+  #elif ENABLED(MKS_WIFI_AP_MODE) && !defined(MKS_WIFI_SSID)
+    #error "MKS_WIFI_AP_MODE requires MKS_WIFI_SSID to name the access point."
+  #elif defined(MKS_WIFI_PASSWORD) && !defined(MKS_WIFI_SSID)
+    #error "MKS_WIFI_PASSWORD requires MKS_WIFI_SSID."
+  #endif
+  #ifdef MKS_WIFI_SSID
+    static_assert(sizeof(MKS_WIFI_SSID) <= 32, "MKS_WIFI_SSID must be 31 characters or fewer.");
+  #endif
+  #ifdef MKS_WIFI_PASSWORD
+    static_assert(sizeof(MKS_WIFI_PASSWORD) <= 64, "MKS_WIFI_PASSWORD must be 63 characters or fewer.");
+  #endif
+  #ifdef MKS_WIFI_CLOUD_HOST
+    static_assert(sizeof(MKS_WIFI_CLOUD_HOST) <= 96, "MKS_WIFI_CLOUD_HOST must be 95 characters or fewer.");
   #endif
 #endif
 

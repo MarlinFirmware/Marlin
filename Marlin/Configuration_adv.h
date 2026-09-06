@@ -4652,6 +4652,31 @@
  * for file transfers.
  */
 //#define MKS_WIFI_MODULE
+#if ENABLED(MKS_WIFI_MODULE)
+  /**
+   * Default network settings for the module.
+   *
+   * These are only the defaults. The SSID, password and mode are stored with
+   * the rest of Marlin's settings, so M587 or the TFT_LVGL_UI screens can
+   * change them at runtime and M500 makes the change stick. M502 restores the
+   * values below.
+   *
+   *   M587                       ; Report the current network
+   *   M587 S"MyNetwork" P"pass"  ; Join a network (needs GCODE_QUOTED_STRINGS)
+   *   M587 A1                    ; Host an access point instead
+   */
+  //#define MKS_WIFI_SSID      "MyNetwork"    // Network to join, or to host with MKS_WIFI_AP_MODE
+  //#define MKS_WIFI_PASSWORD  "MyPassword"   // Up to 63 characters. Leave undefined for an open network
+  //#define MKS_WIFI_AP_MODE                  // Host MKS_WIFI_SSID as an access point instead of joining it
+
+  /**
+   * To keep the password out of this file, put the two defines above into a
+   * file called Configuration_Secure.h instead and include it here. That file
+   * is excluded via .gitignore so it won't leak when sharing a configuration.
+   * Include it only once, even if WIFISUPPORT above also uses it.
+   */
+  //#include "Configuration_Secure.h" // External file with MKS_WIFI_SSID / MKS_WIFI_PASSWORD
+#endif
 
 // @section multi-material
 
