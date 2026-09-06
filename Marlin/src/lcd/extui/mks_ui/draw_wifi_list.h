@@ -31,21 +31,7 @@ void disp_wifi_list();
 void cutWifiName(char *name, int len, char *outStr);
 void wifi_scan_handle();
 
-#define NUMBER_OF_PAGE 5
-
-#define WIFI_TOTAL_NUMBER 20
-#define WIFI_NAME_BUFFER_SIZE 33
-
-typedef struct {
-  int8_t getNameNum;
-  int8_t nameIndex;
-  int8_t currentWifipage;
-  int8_t getPage;
-  int8_t RSSI[WIFI_TOTAL_NUMBER];
-  uint8_t wifiName[WIFI_TOTAL_NUMBER][WIFI_NAME_BUFFER_SIZE];
-  uint8_t wifiConnectedName[WIFI_NAME_BUFFER_SIZE];
-} WIFI_LIST;
-extern WIFI_LIST wifi_list;
+// WIFI_LIST / wifi_list now belong to feature/mks_wifi/wifi_module.h
 
 typedef struct list_menu_disp {
   const char *title;

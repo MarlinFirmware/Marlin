@@ -61,7 +61,7 @@ XPT2046 touch;
 #endif
 
 #if ENABLED(MKS_WIFI_MODULE)
-  #include "wifi_module.h"
+  #include "../../../feature/mks_wifi/wifi_module.h"
 #endif
 
 #include <SPI.h>

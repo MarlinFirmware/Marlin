@@ -20,16 +20,18 @@
  *
  */
 
-#include "../../../inc/MarlinConfigPre.h"
+#include "../../inc/MarlinConfigPre.h"
 
-#if ALL(HAS_TFT_LVGL_UI, MKS_WIFI_MODULE)
+#if ENABLED(MKS_WIFI_MODULE)
 
-#include "draw_ui.h"
+#include "../../inc/MarlinConfig.h"
+
+#include "wifiSerial.h"
 #include "wifi_module.h"
 #include "wifi_upload.h"
 
-#include "../../../MarlinCore.h"
-#include "../../../sd/cardreader.h"
+#include "../../MarlinCore.h"
+#include "../../sd/cardreader.h"
 
 #define WIFI_SET()        WRITE(WIFI_RESET_PIN, HIGH);
 #define WIFI_RESET()      WRITE(WIFI_RESET_PIN, LOW);
@@ -687,4 +689,4 @@ int32_t wifi_upload(int type) {
   return esp_upload.uploadResult == success ? 0 : -1;
 }
 
-#endif // HAS_TFT_LVGL_UI && MKS_WIFI_MODULE
+#endif // MKS_WIFI_MODULE

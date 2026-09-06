@@ -2033,3 +2033,9 @@
   #undef AUTO_REPORT_SD_STATUS
   #define AUTO_REPORT_SD_STATUS
 #endif
+
+// The MKS WiFi module works with or without a UI. With the LVGL UI it also
+// gets its own screens (status, AP list, settings, tips, cloud binding).
+#if ALL(MKS_WIFI_MODULE, HAS_TFT_LVGL_UI)
+  #define HAS_MKS_WIFI_UI 1
+#endif

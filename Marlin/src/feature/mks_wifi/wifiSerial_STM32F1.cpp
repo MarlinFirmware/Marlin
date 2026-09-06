@@ -21,13 +21,12 @@
  */
 #ifdef __STM32F1__
 
-#include "../../../inc/MarlinConfigPre.h"
+#include "../../inc/MarlinConfigPre.h"
 
-#if ALL(HAS_TFT_LVGL_UI, MKS_WIFI_MODULE)
+#if ENABLED(MKS_WIFI_MODULE)
 
-#include "tft_lvgl_configuration.h"
+#include "../../inc/MarlinConfig.h"
 
-#include "draw_ui.h"
 #include "wifiSerial.h"
 
 #include <libmaple/libmaple.h>
@@ -36,7 +35,7 @@
 #include <libmaple/usart.h>
 #include <libmaple/ring_buffer.h>
 
-#include "../../../MarlinCore.h"
+#include "../../MarlinCore.h"
 
 DEFINE_WFSERIAL(WifiSerial1, 1);
 
@@ -138,5 +137,5 @@ int WifiSerial::wifi_rb_is_full() {
   return rb_is_full(this->usart_device->rb);
 }
 
-#endif // HAS_TFT_LVGL_UI && MKS_WIFI_MODULE
+#endif // MKS_WIFI_MODULE
 #endif // __STM32F1__

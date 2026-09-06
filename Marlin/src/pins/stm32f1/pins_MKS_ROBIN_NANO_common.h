@@ -159,7 +159,11 @@
   //#define POWER_LOSS_PIN                  PA2   // PW_DET
   //#define PS_ON_PIN                       PB2   // PW_OFF
 
-#if HAS_TFT_LVGL_UI
+//
+// MKS WiFi Module
+//
+#if ENABLED(MKS_WIFI_MODULE)
+  #define WIFI_SERIAL_PORT                     1  // USART1
   #define WIFI_IO0_PIN                      PC13
   #define WIFI_IO1_PIN                      PC7
   #define WIFI_RESET_PIN                    PA5
