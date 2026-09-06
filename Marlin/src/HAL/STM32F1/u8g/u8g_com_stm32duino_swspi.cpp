@@ -167,4 +167,4 @@ uint8_t u8g_com_HAL_STM32F1_sw_spi_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_val, 
 }
 
 #endif // HAS_MARLINUI_U8GLIB && FORCE_SOFT_SPI
-#endif // STM32F1
+#endif // __STM32F1__

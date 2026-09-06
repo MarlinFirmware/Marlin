@@ -137,4 +137,4 @@ e-mail   :  support@circuitsathome.com
 #define UHS_NI __attribute__((noinline))
 #endif
 
-#endif /* SETTINGS_H */
+#endif /* UHS_SETTINGS_H */

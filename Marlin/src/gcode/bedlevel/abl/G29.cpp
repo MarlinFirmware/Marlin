@@ -525,6 +525,10 @@ G29_TYPE GcodeSuite::G29() {
         reset_bed_level();      // Reset grid to 0.0 or "not probed". (Also disables ABL)
         abl.reenable = false;   // Can't re-enable (on error) until the new grid is written
       }
+      // If Z home / M206 Z provides a known-accurate Z0 at the Z safe homing point, use it to calibrate the Probe Z Offset.
+      #if ENABLED(PROBE_Z0_BEFORE_G29)
+        abl.Z_offset -=  probe.probe_at_point(Z_SAFE_HOMING_X_POINT, Z_SAFE_HOMING_Y_POINT, PROBE_PT_NONE, abl.verbose_level, false);
+      #endif
       // Pre-populate local Z values from the stored mesh
       TERN_(IS_KINEMATIC, COPY(abl.z_values, bedlevel.z_values));
     #endif

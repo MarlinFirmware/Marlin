@@ -3042,7 +3042,7 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
               break;
         }
         break;
-    #endif  // HAS_PROBE_MENU
+    #endif  // HAS_BED_PROBE
 
     #if HAS_TRINAMIC_CONFIG
       case ID_TMCMenu:
