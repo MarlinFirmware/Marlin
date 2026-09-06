@@ -128,7 +128,6 @@ void gCfgItems_init() {
   gCfgItems.trammingPos[4].x  = X_BED_SIZE / 2;
   gCfgItems.trammingPos[4].y  = Y_BED_SIZE / 2;
   gCfgItems.cloud_enable      = false;
-  gCfgItems.wifi_mode_sel = STA_MODEL;
   gCfgItems.fileSysType   = FILE_SYS_SD;
   gCfgItems.wifi_type     = ESP_WIFI;
   gCfgItems.filamentchange_load_length   = 200;
@@ -191,32 +190,7 @@ void ui_cfg_init() {
   uiCfg.filament_unloading_time_flg  = false;
   uiCfg.filament_unloading_time_cnt  = 0;
 
-  #if ENABLED(MKS_WIFI_MODULE)
-    OBJZERO(wifiPara);
-    OBJZERO(ipPara);
-    strcpy_P(wifiPara.ap_name, PSTR(WIFI_AP_NAME));
-    strcpy_P(wifiPara.keyCode, PSTR(WIFI_KEY_CODE));
-    // client
-    strcpy_P(ipPara.ip_addr, PSTR(IP_ADDR));
-    strcpy_P(ipPara.mask, PSTR(IP_MASK));
-    strcpy_P(ipPara.gate, PSTR(IP_GATE));
-    strcpy_P(ipPara.dns, PSTR(IP_DNS));
-
-    ipPara.dhcp_flag = IP_DHCP_FLAG;
-
-    // AP
-    strcpy_P(ipPara.dhcpd_ip, PSTR(AP_IP_ADDR));
-    strcpy_P(ipPara.dhcpd_mask, PSTR(AP_IP_MASK));
-    strcpy_P(ipPara.dhcpd_gate, PSTR(AP_IP_GATE));
-    strcpy_P(ipPara.dhcpd_dns, PSTR(AP_IP_DNS));
-    strcpy_P(ipPara.start_ip_addr, PSTR(IP_START_IP));
-    strcpy_P(ipPara.end_ip_addr, PSTR(IP_END_IP));
-
-    ipPara.dhcpd_flag = AP_IP_DHCP_FLAG;
-
-    strcpy_P((char*)uiCfg.cloud_hostUrl, PSTR("baizhongyun.cn"));
-    uiCfg.cloud_port = 10086;
-  #endif
+  TERN_(MKS_WIFI_MODULE, mks_wifi_init_settings());
 
   uiCfg.filament_loading_time = (uint32_t)((gCfgItems.filamentchange_load_length * 60.0f / gCfgItems.filamentchange_load_speed) + 0.5f);
   uiCfg.filament_unloading_time = (uint32_t)((gCfgItems.filamentchange_unload_length * 60.0f / gCfgItems.filamentchange_unload_speed) + 0.5f);

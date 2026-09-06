@@ -37,14 +37,49 @@
 
 #define WIFI_DECODE_TYPE      1
 
+#define ESP_WIFI              0x02
+#define AP_MODEL              0x01
+#define STA_MODEL             0x02
+
+/**
+ * Network settings, saved with the rest of Marlin's settings (M500).
+ * Defaults come from MKS_WIFI_SSID / MKS_WIFI_PASSWORD / MKS_WIFI_AP_MODE.
+ */
+typedef struct {
+  uint8_t ssid[32];
+  uint8_t key[64];
+  uint8_t mode;         // AP_MODEL or STA_MODEL
+} mks_wifi_settings_t;
+extern mks_wifi_settings_t mks_wifi;
+
+void mks_wifi_reset_settings();   // Apply the configured defaults
+void mks_wifi_apply_settings();   // Push the current settings to the module
+
 #ifndef TICK_CYCLE
   #define TICK_CYCLE          1
 #endif
 
 #define IP_DHCP_FLAG          1
 
-#define WIFI_AP_NAME          "TP-LINK_MKS"
-#define WIFI_KEY_CODE         "makerbase"
+// Credentials applied at boot. MKS_WIFI_SSID / MKS_WIFI_PASSWORD override the
+// legacy MKS demo values; see Configuration_adv.h.
+#ifdef MKS_WIFI_SSID
+  #define WIFI_AP_NAME        MKS_WIFI_SSID
+#else
+  #define WIFI_AP_NAME        "TP-LINK_MKS"
+#endif
+#ifdef MKS_WIFI_PASSWORD
+  #define WIFI_KEY_CODE       MKS_WIFI_PASSWORD
+#else
+  #define WIFI_KEY_CODE       "makerbase"
+#endif
+
+#ifndef MKS_WIFI_CLOUD_HOST
+  #define MKS_WIFI_CLOUD_HOST "baizhongyun.cn"
+#endif
+#ifndef MKS_WIFI_CLOUD_PORT
+  #define MKS_WIFI_CLOUD_PORT 10086
+#endif
 
 #define IP_ADDR               "192.168.3.100"
 #define IP_MASK               "255.255.255.0"
@@ -205,6 +240,8 @@ millis_t getWifiTickDiff(const millis_t lastTick, const millis_t curTick);
 
 void mks_esp_wifi_init();
 extern int cfg_cloud_flag;
+
+void mks_wifi_init_settings();   // Seed the runtime protocol structs
 int send_to_wifi(uint8_t * const buf, const int len);
 void wifi_looping();
 int raw_send_to_wifi(uint8_t * const buf, const int len);
