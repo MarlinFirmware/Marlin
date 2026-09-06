@@ -24,7 +24,7 @@
 
 #include "../../../inc/MarlinConfigPre.h"
 
-#if HAS_SD_HOST_DRIVE
+#if HAL_SD_HOST_DRIVE
 
 #include "msc_sd.h"
 #include "../SPI.h"
@@ -102,5 +102,5 @@ void MSC_SD_init() {
   #endif
 }
 
-#endif // HAS_SD_HOST_DRIVE
+#endif // HAL_SD_HOST_DRIVE
 #endif // __STM32F1__

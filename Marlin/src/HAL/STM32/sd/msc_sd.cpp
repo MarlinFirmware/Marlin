@@ -26,7 +26,7 @@
 
 #include "../../../inc/MarlinConfigPre.h"
 
-#if HAS_SD_HOST_DRIVE
+#if HAL_SD_HOST_DRIVE
 
 #include "../../../sd/cardreader.h"
 
@@ -157,5 +157,5 @@ void MSC_SD_init() {
   USBDevice.begin();
 }
 
-#endif // HAS_SD_HOST_DRIVE
+#endif // HAL_SD_HOST_DRIVE
 #endif // HAL_STM32

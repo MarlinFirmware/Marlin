@@ -22,7 +22,7 @@
 #pragma once
 
 #if DISABLED(NO_SD_HOST_DRIVE)
-  #define HAS_SD_HOST_DRIVE 1
+  #define HAL_SD_HOST_DRIVE 1
 #endif
 
 #ifndef RX_BUFFER_SIZE

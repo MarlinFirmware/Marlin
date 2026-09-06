@@ -556,10 +556,9 @@
   #endif
 #endif
 
-// A board's pins file may opt out of USB mass storage host access.
-// The HAL sets HAS_SD_HOST_DRIVE before pins are known, so apply it here.
-#if ENABLED(NO_SD_HOST_DRIVE)
-  #undef HAS_SD_HOST_DRIVE
+// Clean up HAL flag to suppress some CDC MSC compilation
+#if ANY(BOARD_NO_HOST_DRIVE, NO_SD_HOST_DRIVE)
+  #undef HAL_SD_HOST_DRIVE
 #endif
 
 /**
@@ -568,7 +567,7 @@
  */
 #if HAS_MEDIA
 
-  #if HAS_SD_HOST_DRIVE && SD_CONNECTION_IS(ONBOARD) && DISABLED(KEEP_SD_DETECT)
+  #if HAL_SD_HOST_DRIVE && SD_CONNECTION_IS(ONBOARD) && DISABLED(KEEP_SD_DETECT)
     //
     // The external SD card is not used. Hardware SPI is used to access the card.
     // When sharing the SD card with a PC we want the menu options to
