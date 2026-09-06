@@ -556,11 +556,6 @@
   #endif
 #endif
 
-// Clean up HAL flag to suppress some CDC MSC compilation
-#if ANY(BOARD_NO_HOST_DRIVE, NO_SD_HOST_DRIVE)
-  #undef HAL_SD_HOST_DRIVE
-#endif
-
 /**
  * Override the SD_DETECT_STATE set in Configuration_adv.h
  * and enable sharing of onboard SD host drives (all platforms but AGCM4)
@@ -568,10 +563,13 @@
 #if HAS_MEDIA
 
   // Pins files can specify that no SD host drive is available
-  #if ENABLED(BOARD_NO_HOST_DRIVE) && DISABLED(NO_SD_HOST_DRIVE)
-    #define NO_SD_HOST_DRIVE
+  #if ENABLED(BOARD_NO_HOST_DRIVE)
+    // Clean up HAL flag to suppress some CDC MSC compilation
     #undef HAL_SD_HOST_DRIVE
-    #define DISABLED_HOST_DRIVE_WARNING 1
+    #if DISABLED(NO_SD_HOST_DRIVE)
+      #define NO_SD_HOST_DRIVE
+      #define DISABLED_HOST_DRIVE_WARNING 1
+    #endif
   #endif
 
   #if HAL_SD_HOST_DRIVE && SD_CONNECTION_IS(ONBOARD) && DISABLED(KEEP_SD_DETECT)

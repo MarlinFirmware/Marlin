@@ -21,7 +21,7 @@
  */
 #pragma once
 
-#if DISABLED(NO_SD_HOST_DRIVE)
+#if HAS_MEDIA && DISABLED(NO_SD_HOST_DRIVE)
   #define HAL_SD_HOST_DRIVE 1
 #endif
 
