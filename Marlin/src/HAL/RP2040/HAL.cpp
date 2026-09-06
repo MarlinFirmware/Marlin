@@ -281,8 +281,8 @@ uint16_t MarlinHAL::adc_value() {
   return adc_values[channel];
 }
 
-// Reset the system to initiate a firmware flash
-void flashFirmware(const int16_t) { hal.reboot(); }
+// Reboot into the UF2 bootloader to initiate a firmware flash
+void flashFirmware(const int16_t) { reset_usb_boot(0, 0); }
 
 extern "C" {
   void * _sbrk(int incr);
