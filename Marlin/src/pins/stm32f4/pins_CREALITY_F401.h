@@ -130,7 +130,7 @@
 #define ONBOARD_SPI_DEVICE                     1
 #define ONBOARD_SD_CS_PIN                   PC12  // SDSS
 #define ONBOARD_SDIO
-#define NO_SD_HOST_DRIVE                          // This board's SD is only seen by the printer
+#define BOARD_NO_HOST_DRIVE                       // SD is only seen by the printer
 
 // SPI 2
 #if ENABLED(RET6_12864_LCD)

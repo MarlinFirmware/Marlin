@@ -1043,3 +1043,10 @@
 #if FREEZE_STOLE_KILL_PIN_WARNING
   #warning "FREEZE_FEATURE uses KILL_PIN replacing the KILL button. Define a separate FREEZE_PIN if you don't want this behavior."
 #endif
+
+/**
+ * Board automatically set NO_SD_HOST_DRIVE
+ */
+#if DISABLED_HOST_DRIVE_WARNING
+  #warning "The selected board has automatically enabled NO_SD_HOST_DRIVE."
+#endif

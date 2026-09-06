@@ -152,7 +152,7 @@ void MarlinHAL::init() {
   delay(1000);                              // Give OS time to notice
   USB_Connect(true);
 
-  TERN_(HAS_SD_HOST_DRIVE, MSC_SD_Init(0)); // Enable USB SD card access
+  TERN_(HAL_SD_HOST_DRIVE, MSC_SD_Init(0)); // Enable USB SD card access
 
   const millis_t usb_timeout = millis() + 2000;
   while (!USB_Configuration && PENDING(millis(), usb_timeout)) {
