@@ -37,7 +37,6 @@
 #define MARK_BTN_X 0
 #define MARK_BTN_Y 68
 
-WIFI_LIST wifi_list;
 list_menu_def list_menu;
 
 extern lv_group_t *g;

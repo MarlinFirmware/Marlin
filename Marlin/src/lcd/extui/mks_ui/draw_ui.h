@@ -83,9 +83,9 @@
 #include "../../../inc/MarlinConfigPre.h"
 
 #if ENABLED(MKS_WIFI_MODULE)
-  #include "wifiSerial.h"
-  #include "wifi_module.h"
-  #include "wifi_upload.h"
+  #include "../../../feature/mks_wifi/wifiSerial.h"
+  #include "../../../feature/mks_wifi/wifi_module.h"
+  #include "../../../feature/mks_wifi/wifi_upload.h"
   #include "draw_wifi_settings.h"
   #include "draw_wifi.h"
   #include "draw_wifi_list.h"

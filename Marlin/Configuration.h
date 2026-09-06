@@ -3567,10 +3567,6 @@
   #define COMPACT_MARLIN_BOOT_LOGO  // Use compressed data to save Flash space
 #endif
 
-#if ENABLED(TFT_LVGL_UI)
-  //#define MKS_WIFI_MODULE // MKS WiFi module
-#endif
-
 /**
  * TFT Rotation. Set to one of the following values:
  *

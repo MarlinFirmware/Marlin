@@ -4640,6 +4640,19 @@
   //#define WIFI_CUSTOM_COMMAND // Accept ESP3D '[ESP...]' commands from the host
 #endif
 
+/**
+ * MKS WiFi module: an ESP8266/ESP32 co-processor on its own UART, fitted to
+ * MKS Robin / Neptune / Monster boards. Unrelated to WIFISUPPORT above - the
+ * module runs its own firmware and the two share no code.
+ *
+ * Works with any UI, or with none at all. With TFT_LVGL_UI it also gets its
+ * own screens for status, AP list, settings and cloud binding.
+ *
+ * Requires a board that defines WIFI_RESET_PIN and WIFI_IO1_PIN, and SDSUPPORT
+ * for file transfers.
+ */
+//#define MKS_WIFI_MODULE
+
 // @section multi-material
 
 /**
