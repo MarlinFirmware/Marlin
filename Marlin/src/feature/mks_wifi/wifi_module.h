@@ -21,11 +21,12 @@
  */
 #pragma once
 
+#include "../../inc/MarlinConfigPre.h"
+#include "../../core/millis_t.h"
+
 #ifdef __cplusplus
   extern "C" {
 #endif
-
-#include "../../../inc/MarlinConfigPre.h"
 
 #include <math.h>
 #include <stdio.h>
@@ -35,6 +36,10 @@
 #define UART_FIFO_BUFFER_SIZE 1024
 
 #define WIFI_DECODE_TYPE      1
+
+#ifndef TICK_CYCLE
+  #define TICK_CYCLE          1
+#endif
 
 #define IP_DHCP_FLAG          1
 
@@ -79,6 +84,22 @@ typedef struct {
 } WIFI_TRANS_ERROR;
 
 extern volatile WIFI_TRANS_ERROR wifiTransError;
+
+#define NUMBER_OF_PAGE         5
+#define WIFI_TOTAL_NUMBER     20
+#define WIFI_NAME_BUFFER_SIZE 33
+
+// Access points reported by the ESP module's last scan
+typedef struct {
+  int8_t getNameNum;
+  int8_t nameIndex;
+  int8_t currentWifipage;
+  int8_t getPage;
+  int8_t RSSI[WIFI_TOTAL_NUMBER];
+  uint8_t wifiName[WIFI_TOTAL_NUMBER][WIFI_NAME_BUFFER_SIZE];
+  uint8_t wifiConnectedName[WIFI_NAME_BUFFER_SIZE];
+} WIFI_LIST;
+extern WIFI_LIST wifi_list;
 
 typedef struct {
   char ap_name[32];   // wifi-name
