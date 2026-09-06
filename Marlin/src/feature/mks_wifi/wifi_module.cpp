@@ -1265,8 +1265,9 @@ static void wifi_gcode_exec(uint8_t * const cmd_line) {
       case 994:
         if (MKSW_PRINT_STATE == WORKING || MKSW_PRINT_STATE == PAUSED) {
           ZERO(tempBuf);
-          if (strlen((char *)MKSW_SEL_FILE) > (100 - 1)) return;
-          sprintf_P(tempBuf, PSTR("M994 %s;%d\n"), MKSW_SEL_FILE, (int)MKSW_CUR_FILESIZE);
+          // The name is only part of it: "M994 " + name + ';' + size + '\n'
+          // must all fit. Skip the report rather than send a truncated path.
+          if (snprintf_P(tempBuf, sizeof(tempBuf), PSTR("M994 %s;%d\n"), MKSW_SEL_FILE, (int)MKSW_CUR_FILESIZE) >= (int)sizeof(tempBuf)) return;
           wifi_ret_ack();
           print_to_wifi(tempBuf);
         }
