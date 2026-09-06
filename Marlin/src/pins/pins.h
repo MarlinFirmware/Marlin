@@ -888,6 +888,8 @@
   #include "stm32h7/pins_BTT_SCYLLA_V1_0.h"              // STM32H7                         env:STM32H723VG_btt
 #elif MB(FYSETC_SPIDER_V3_H723)
   #include "stm32h7/pins_FYSETC_SPIDER_V3_H723.h"        // STM32H7                         env:STM32H723VG_fysetc
+#elif MB(LDO_LEVIATHAN_V1_3)
+  #include "stm32h7/pins_LDO_LEVIATHAN_V1_3.h"           // STM32H7                         env:LDO_LEVIATHAN_V13 env:LDO_LEVIATHAN_V13_no_bootloader env:LDO_LEVIATHAN_V13_katapult
 
 //
 // Espressif ESP32

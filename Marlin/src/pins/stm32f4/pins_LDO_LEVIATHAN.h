@@ -31,7 +31,13 @@
  * matching *_PULLUP_RESISTOR_OHMS 2200.
  */
 
-#include "env_validate.h"
+// The Leviathan V1.3 uses an STM32H743ZIT6 with an identical pinout.
+// Ensure the correct env_validate.h file is included based on the build environment used.
+#if NOT_TARGET(STM32H7)
+  #include "env_validate.h"
+#else
+  #include "../stm32h7/env_validate.h"
+#endif
 
 #if HAS_MULTI_HOTEND
   #error "The LDO Leviathan has only one heater output, so only 1 hotend is supported."
