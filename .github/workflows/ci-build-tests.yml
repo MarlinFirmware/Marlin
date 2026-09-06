@@ -168,10 +168,10 @@ jobs:
     steps:
 
     - name: Check out the PR
-      uses: actions/checkout@v4
+      uses: actions/checkout@v7
 
     - name: Cache pip
-      uses: actions/cache@v4
+      uses: actions/cache@v6
       with:
         path: ~/.cache/pip
         key: ${{ runner.os }}-pip-build-v1
@@ -179,7 +179,7 @@ jobs:
           ${{ runner.os }}-pip-build-
 
     - name: Cache PlatformIO
-      uses: actions/cache@v4
+      uses: actions/cache@v6
       with:
         path: |
           ~/.platformio
@@ -190,7 +190,7 @@ jobs:
           ${{ runner.os }}-pio-build-
 
     - name: Select Python 3.9
-      uses: actions/setup-python@v5
+      uses: actions/setup-python@v7
       with:
         python-version: '3.9'
         architecture: 'x64'

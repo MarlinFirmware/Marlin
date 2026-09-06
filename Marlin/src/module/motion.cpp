@@ -2742,7 +2742,7 @@ void Motion::prepare_line_to_destination() {
           #endif
         }
 
-      #endif // NUM_Z_STEPPERS >= 3
+      #endif // Z_MULTI_ENDSTOPS
 
       // Reset flags for X, Y, Z motor locking
       switch (axis) {

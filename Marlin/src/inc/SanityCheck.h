@@ -68,7 +68,7 @@
     #error "Your Configuration_adv.h file is for a newer version of Marlin. Upgrade Marlin or downgrade your Configuration_adv.h."
   #endif
   #undef HEXIFY
-#endif // HAS_IGNORED_CONFIGS
+#endif // USE_STD_CONFIGS
 
 /**
  * Warnings for old configurations
@@ -1454,7 +1454,7 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
   #if ENABLED(MAGLEV4)
     #if !PIN_EXISTS(MAGLEV_TRIGGER)
       #error "MAGLEV4 requires MAGLEV_TRIGGER_PIN to be defined."
-    #elif ENABLED(HOMING_Z_WITH_PROBE) && DISABLED(Z_SAFE_HOMING)
+    #elif HOMING_Z_WITH_PROBE && DISABLED(Z_SAFE_HOMING)
       #error "MAGLEV4 requires Z_SAFE_HOMING."
     #elif MAGLEV_TRIGGER_DELAY != 15
       #error "MAGLEV_TRIGGER_DELAY should not be changed. Comment out this line to continue."
@@ -3336,7 +3336,7 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
 /**
  * TMC2209 slave address values
  */
-#define INVALID_TMC_ADDRESS(ST) static_assert(0 <= ST##_SLAVE_ADDRESS && ST##_SLAVE_ADDRESS <= 3, "TMC2209 slave address must be 0, 1, 2 or 3")
+#define INVALID_TMC_ADDRESS(ST) static_assert(0 <= ST##_SLAVE_ADDRESS && ST##_SLAVE_ADDRESS <= 3, "TMC2209 slave address for " STRINGIFY(ST) " must be 0, 1, 2 or 3")
 #if AXIS_DRIVER_TYPE_X(TMC2209)
   INVALID_TMC_ADDRESS(X);
 #elif AXIS_DRIVER_TYPE_X2(TMC2209)
@@ -4350,16 +4350,23 @@ static_assert(_PLUS_TEST(3), "DEFAULT_MAX_ACCELERATION values must be positive."
   #error "Enable only one of WIFISUPPORT or ESP3D_WIFISUPPORT."
 #elif ENABLED(ESP3D_WIFISUPPORT) && DISABLED(ARDUINO_ARCH_ESP32)
   #error "ESP3D_WIFISUPPORT requires an ESP32 motherboard."
-#elif ALL(ARDUINO_ARCH_ESP32, WIFISUPPORT)
-  #if !(defined(WIFI_SSID) && defined(WIFI_PWD))
-    #error "ESP32 motherboard with WIFISUPPORT requires WIFI_SSID and WIFI_PWD."
+#endif
+
+// Only the native ESP32 WiFi needs credentials at compile time. An add-on module
+// on another board is brought up by esp_wifi_init() and configures itself.
+#if ALL(ARDUINO_ARCH_ESP32, WIFISUPPORT) && !(defined(WIFI_SSID) && defined(WIFI_PWD))
+  #error "ESP32 motherboard with WIFISUPPORT requires WIFI_SSID and WIFI_PWD."
+#endif
+
+// With no WiFi at all these can do nothing whatsoever.
+#if NONE(WIFISUPPORT, ESP3D_WIFISUPPORT)
+  #if ANY(WEBSUPPORT, OTASUPPORT)
+    #error "WEBSUPPORT and OTASUPPORT require WIFISUPPORT."
+  #elif ENABLED(WIFI_CUSTOM_COMMAND)
+    #error "WIFI_CUSTOM_COMMAND requires ESP3D_WIFISUPPORT."
+  #elif defined(WIFI_SSID) || defined(WIFI_PWD)
+    #error "WIFI_SSID and WIFI_PWD require WIFISUPPORT."
   #endif
-#elif ENABLED(WIFI_CUSTOM_COMMAND) && NONE(ESP3D_WIFISUPPORT, WIFISUPPORT)
-  #error "WIFI_CUSTOM_COMMAND requires an ESP32 motherboard and WIFISUPPORT."
-#elif ENABLED(OTASUPPORT) && NONE(ESP3D_WIFISUPPORT, WIFISUPPORT)
-  #error "OTASUPPORT requires an ESP32 motherboard and WIFISUPPORT."
-#elif (defined(WIFI_SSID) || defined(WIFI_PWD)) && NONE(ESP3D_WIFISUPPORT, WIFISUPPORT)
-  #error "WIFI_SSID and WIFI_PWD only apply to ESP32 motherboard with WIFISUPPORT."
 #endif
 
 /**
