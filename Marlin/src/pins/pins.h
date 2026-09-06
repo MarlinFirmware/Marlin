@@ -882,6 +882,8 @@
   #include "stm32h7/pins_FYSETC_SPIDER_KING_V1_H723.h"   // STM32H7                         env:STM32H723ZG_fysetc
 #elif MB(FYSETC_SPIDER_KING_V1_1_H723)
   #include "stm32h7/pins_FYSETC_SPIDER_KING_V1_1_H723.h" // STM32H7                         env:STM32H723ZG_fysetc
+#elif MB(LDO_LEVIATHAN_V1_3)
+  #include "stm32h7/pins_LDO_LEVIATHAN_V1_3.h"           // STM32H7                         env:LDO_LEVIATHAN_V13 env:LDO_LEVIATHAN_V13_no_bootloader env:LDO_LEVIATHAN_V13_katapult
 
 //
 // Espressif ESP32
