@@ -527,6 +527,7 @@
 #define BOARD_FYSETC_SPIDER_KING_V1_H723    6016  // FYSETC Spider King v1 (STM32H723ZG)
 #define BOARD_FYSETC_SPIDER_KING_V1_1_H723  6017  // FYSETC Spider King v1.1 (STM32H723ZG)
 #define BOARD_BTT_SCYLLA_V1_0               6018  // BigTreeTech Scylla V1.0 (STM32H723VG)
+#define BOARD_LDO_LEVIATHAN_V1_3            6019  // LDO Leviathan v1.3 (STM32H743ZI)
 
 //
 // Espressif ESP32 WiFi
