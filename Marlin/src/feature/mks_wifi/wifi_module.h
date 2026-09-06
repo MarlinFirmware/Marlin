@@ -43,7 +43,7 @@
 
 /**
  * Network settings, saved with the rest of Marlin's settings (M500).
- * Defaults come from MKS_WIFI_SSID / MKS_WIFI_PASSWORD / MKS_WIFI_AP_MODE.
+ * Defaults come from WIFI_SSID / WIFI_PWD / MKS_WIFI_AP_MODE.
  */
 typedef struct {
   uint8_t ssid[32];
@@ -61,15 +61,15 @@ void mks_wifi_apply_settings();   // Push the current settings to the module
 
 #define IP_DHCP_FLAG          1
 
-// Credentials applied at boot. MKS_WIFI_SSID / MKS_WIFI_PASSWORD override the
-// legacy MKS demo values; see Configuration_adv.h.
-#ifdef MKS_WIFI_SSID
-  #define WIFI_AP_NAME        MKS_WIFI_SSID
+// Default credentials, shared with WIFISUPPORT. Fall back to the legacy MKS
+// demo values so an unconfigured build behaves as it always did.
+#ifdef WIFI_SSID
+  #define WIFI_AP_NAME        WIFI_SSID
 #else
   #define WIFI_AP_NAME        "TP-LINK_MKS"
 #endif
-#ifdef MKS_WIFI_PASSWORD
-  #define WIFI_KEY_CODE       MKS_WIFI_PASSWORD
+#ifdef WIFI_PWD
+  #define WIFI_KEY_CODE       WIFI_PWD
 #else
   #define WIFI_KEY_CODE       "makerbase"
 #endif

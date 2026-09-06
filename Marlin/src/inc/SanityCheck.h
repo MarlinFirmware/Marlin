@@ -3060,7 +3060,11 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
  * the ESP control pins, and media to transfer files to.
  */
 #if ENABLED(MKS_WIFI_MODULE)
-  #if !defined(__STM32F1__) && !defined(HAL_STM32)
+  #if DISABLED(WIFISUPPORT)
+    #error "MKS_WIFI_MODULE requires WIFISUPPORT."
+  #elif ANY(WEBSUPPORT, OTASUPPORT)
+    #error "WEBSUPPORT and OTASUPPORT don't apply to MKS_WIFI_MODULE, which runs its own firmware."
+  #elif !defined(__STM32F1__) && !defined(HAL_STM32)
     #error "MKS_WIFI_MODULE is only supported on STM32F1 and STM32 HAL boards."
   #elif !PIN_EXISTS(WIFI_RESET) || !PIN_EXISTS(WIFI_IO1)
     #error "MKS_WIFI_MODULE requires WIFI_RESET_PIN and WIFI_IO1_PIN. Your board doesn't support it."
@@ -3068,16 +3072,16 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
     #error "MKS_WIFI_MODULE requires SDSUPPORT."
   #elif !defined(WIFI_SERIAL_PORT)
     #error "MKS_WIFI_MODULE requires WIFI_SERIAL_PORT. Your board doesn't support it."
-  #elif ENABLED(MKS_WIFI_AP_MODE) && !defined(MKS_WIFI_SSID)
-    #error "MKS_WIFI_AP_MODE requires MKS_WIFI_SSID to name the access point."
-  #elif defined(MKS_WIFI_PASSWORD) && !defined(MKS_WIFI_SSID)
-    #error "MKS_WIFI_PASSWORD requires MKS_WIFI_SSID."
+  #elif ENABLED(MKS_WIFI_AP_MODE) && !defined(WIFI_SSID)
+    #error "MKS_WIFI_AP_MODE requires WIFI_SSID to name the access point."
+  #elif defined(WIFI_PWD) && !defined(WIFI_SSID)
+    #error "WIFI_PWD requires WIFI_SSID."
   #endif
-  #ifdef MKS_WIFI_SSID
-    static_assert(sizeof(MKS_WIFI_SSID) <= 32, "MKS_WIFI_SSID must be 31 characters or fewer.");
+  #ifdef WIFI_SSID
+    static_assert(sizeof(WIFI_SSID) <= 32, "WIFI_SSID must be 31 characters or fewer for MKS_WIFI_MODULE.");
   #endif
-  #ifdef MKS_WIFI_PASSWORD
-    static_assert(sizeof(MKS_WIFI_PASSWORD) <= 64, "MKS_WIFI_PASSWORD must be 63 characters or fewer.");
+  #ifdef WIFI_PWD
+    static_assert(sizeof(WIFI_PWD) <= 64, "WIFI_PWD must be 63 characters or fewer for MKS_WIFI_MODULE.");
   #endif
   #ifdef MKS_WIFI_CLOUD_HOST
     static_assert(sizeof(MKS_WIFI_CLOUD_HOST) <= 96, "MKS_WIFI_CLOUD_HOST must be 95 characters or fewer.");
