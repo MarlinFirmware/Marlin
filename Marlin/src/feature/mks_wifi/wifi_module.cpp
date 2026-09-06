@@ -361,10 +361,10 @@ static bool sanitizeName(const char * const unsanitizedName, char * const saniti
     #if ENABLED(MKS_WIFI_MODULE)
       if (interrupt) {
         WIFISERIAL.end();
-        for (uint16_t i = 0; i < 65535; i++) { /*nada*/ }
+        for (uint16_t i = 0; i < 65535; i++) hal.watchdog_refresh();
         WIFISERIAL.begin(WIFI_BAUDRATE);
         millis_t serial_connect_timeout = millis() + 1000UL;
-        while (PENDING(millis(), serial_connect_timeout)) { /*nada*/ }
+        while (PENDING(millis(), serial_connect_timeout)) hal.watchdog_refresh();
       }
       else {
         WIFISERIAL.end();
@@ -625,10 +625,10 @@ static bool sanitizeName(const char * const unsanitizedName, char * const saniti
     #if ENABLED(MKS_WIFI_MODULE)
       if (interrupt) {
         WIFISERIAL.end();
-        for (uint16_t i = 0; i < 65535; i++) { /*nada*/ }
+        for (uint16_t i = 0; i < 65535; i++) hal.watchdog_refresh();
         WIFISERIAL.begin(WIFI_BAUDRATE);
         uint32_t serial_connect_timeout = millis() + 1000UL;
-        while (PENDING(millis(), serial_connect_timeout)) { /*nada*/ }
+        while (PENDING(millis(), serial_connect_timeout)) hal.watchdog_refresh();
       }
       else {
         WIFISERIAL.end();
@@ -2131,7 +2131,12 @@ void mks_wifi_firmware_update() {
 
     wifi_delay(2000);
     hal.watchdog_refresh();
-    if (usartFifoAvailable((SZ_USART_FIFO *)&WifiRxFifo) < 20) return;
+    if (usartFifoAvailable((SZ_USART_FIFO *)&WifiRxFifo) < 20) {
+      SERIAL_ECHOLNPGM("WiFi module not responding. " ESP_FIRMWARE_FILE " ignored.");
+      return;
+    }
+
+    SERIAL_ECHOLNPGM("Updating WiFi module from " ESP_FIRMWARE_FILE "...");
 
     MKSW_UI_CLEAR();
 
@@ -2148,7 +2153,11 @@ void mks_wifi_firmware_update() {
         file.rename(curDir, (char *)ESP_FIRMWARE_FILE_RENAME);
         file.close();
       }
+      SERIAL_ECHOLNPGM("WiFi module updated. Renamed to " ESP_FIRMWARE_FILE_RENAME);
     }
+    else
+      SERIAL_ECHOLNPGM("WiFi module update failed.");
+
     MKSW_UI_CLEAR();
   }
 }
