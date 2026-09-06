@@ -367,7 +367,6 @@ float ConstantJoltBlockPlanner::maxReachableSpeed(float v_from, float dist_total
 
   if (constant_jolt::rampDistWithA(v_from, hi, j_max, a_max, a_entry) <= dist_total) return hi;
 
-  float v_lo;
   if (a_entry == 0.0f) {
     /**
      * Closed-form solutions for a_entry=0:

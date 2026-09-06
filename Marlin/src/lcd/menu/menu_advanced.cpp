@@ -213,7 +213,6 @@ void menu_backlash();
   #include "../../gcode/queue.h"
 
   void _lcd_autotune(const heater_id_t hid) {
-    char cmd[30];
     int16_t tune_temp;
     switch (hid) {
       #if ENABLED(PIDTEMPBED)
@@ -229,8 +228,7 @@ void menu_backlash();
           return;
         #endif
     }
-    sprintf_P(cmd, PSTR("M303 U1 E%i S%i"), hid, tune_temp);
-    queue.inject(cmd);
+    queue.inject(TS(F("M303 U1 E"), int(hid), F(" S"), tune_temp));
     ui.return_to_status();
   }
 

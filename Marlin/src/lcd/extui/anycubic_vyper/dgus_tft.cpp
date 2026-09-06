@@ -138,7 +138,7 @@ namespace Anycubic {
     // Signal Board has reset
     tftSendLn(AC_msg_main_board_has_reset);
 
-    // Enable levelling and Disable end stops during print
+    // Enable leveling and Disable end stops during print
     // as Z home places nozzle above the bed so we need to allow it past the end stops
     injectCommands(AC_cmnd_enable_leveling);
 

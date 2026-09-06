@@ -25,6 +25,13 @@
  * Test STM32F1-specific configuration values for errors at compile-time.
  */
 
+/**
+ * Require pins to be defined as macros with numerical values
+ */
+#ifndef PA0
+  #error "Your ARM platform pins are not defined as macros, only as enums! Provide pins_arduino.h and/or 'buildroot/share/PlatformIO/variants/*/variant.h' to define the pins."
+#endif
+
 #if ENABLED(SDCARD_EEPROM_EMULATION) && !HAS_MEDIA
   #undef SDCARD_EEPROM_EMULATION // Avoid additional error noise
   #if USE_FALLBACK_EEPROM

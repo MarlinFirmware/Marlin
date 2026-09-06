@@ -33,10 +33,8 @@
 #if NO_EEPROM_SELECTED
   #if MB(RUMBA32_V1_0)
     #define FLASH_EEPROM_EMULATION
-    #define MARLIN_EEPROM_SIZE           0x1000U  // 4K
   #elif MB(RUMBA32_V1_1)
     #define I2C_EEPROM
-    #define MARLIN_EEPROM_SIZE           0x2000U  // 8K (24LC64T-I/OT)
   #endif
 #endif
 
@@ -44,6 +42,9 @@
   // Decrease delays and flash wear by spreading writes across the
   // 128 kB sector allocated for EEPROM emulation.
   #define FLASH_EEPROM_LEVELING
+  #define MARLIN_EEPROM_SIZE             0x1000U  // 4K
+#elif ENABLED(I2C_EEPROM)
+  #define MARLIN_EEPROM_SIZE             0x2000U  // 8K (24LC64T-I/OT)
 #endif
 
 #include "pins_RUMBA32_common.h"

@@ -58,6 +58,9 @@
   #define EXPLOSION_COLOR MarlinGame::color::RED
 #endif
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+
 // 11x8
 const unsigned char invader[3][2][16] PROGMEM = {
   { { B00000110,B00000000,
@@ -163,6 +166,8 @@ constexpr uint8_t inv_type[] = {
     #error "INVASION_SIZE must be 3, 4, or 5."
   #endif
 };
+
+#pragma GCC diagnostic pop
 
 invaders_data_t &idat = marlin_game_data.invaders;
 

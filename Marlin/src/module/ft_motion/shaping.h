@@ -55,6 +55,10 @@ enum dynFreqMode_t : uint8_t {
   #define SHAPED_ARRAY(A,B,C,D) { SHAPED_LIST(A, B, C, D) }
   #define SHAPED_CODE(A,B,C,D)    XY_CODE(A, B) OPTCODE(FTM_SHAPER_Z, C) OPTCODE(FTM_SHAPER_E, D)
   #define SHAPED_MAP(F)           MAP(F, SHAPED_AXIS_NAMES)
+  #define NUM_XY_SHAPED           COUNT_ENABLED(HAS_X_AXIS, HAS_Y_AXIS)
+  #define SHAPED_XY_NAMES         XY_LIST(X, Y)
+  #define SHAPED_XY_LIST(A,B)     XY_LIST(A, B)
+  #define SHAPED_XY_MAP(F)        MAP(F, SHAPED_XY_NAMES)
 #else
   #define NUM_AXES_SHAPED 0
   #define SHAPED_AXIS_NAMES
@@ -63,6 +67,10 @@ enum dynFreqMode_t : uint8_t {
   #define SHAPED_ARRAY(...) {}
   #define SHAPED_CODE(...)
   #define SHAPED_MAP(...)
+  #define NUM_XY_SHAPED 0
+  #define SHAPED_XY_NAMES
+  #define SHAPED_XY_LIST(...)
+  #define SHAPED_XY_MAP(...)
 #endif
 
 template<typename T>
@@ -87,9 +95,29 @@ private:
   }
 };
 
+template<typename T>
+struct FTShapedAxesXY {
+  union {
+    struct { T SHAPED_XY_NAMES; };
+    struct { T SHAPED_XY_LIST(x, y); };
+    T val[NUM_XY_SHAPED];
+  };
+  T& operator[](const int axis) {
+    return val[axis_to_index(axis)];
+  }
+  void reset() { ZERO(val); }
+
+private:
+  static constexpr int axis_to_index(const int axis) {
+    if (TERN0(HAS_X_AXIS, axis == X_AXIS)) return 0;
+    if (TERN0(HAS_Y_AXIS, axis == Y_AXIS)) return 1;
+    return -1; // Invalid axis
+  }
+};
+
 typedef FTShapedAxes<float>            ft_shaped_float_t;
 typedef FTShapedAxes<ftMotionShaper_t> ft_shaped_shaper_t;
-typedef FTShapedAxes<dynFreqMode_t>    ft_shaped_dfm_t;
+typedef FTShapedAxesXY<float>          ft_shaped_xy_float_t;
 
 #define FTM_MAX_DAMPENING 0.25
 constexpr float ftm_max_dampening = float(FTM_MAX_DAMPENING),
