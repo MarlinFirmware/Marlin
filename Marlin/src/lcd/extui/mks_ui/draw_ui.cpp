@@ -129,7 +129,7 @@ void gCfgItems_init() {
   gCfgItems.trammingPos[4].y  = Y_BED_SIZE / 2;
   gCfgItems.cloud_enable      = false;
   gCfgItems.fileSysType   = FILE_SYS_SD;
-  gCfgItems.wifi_type     = ESP_WIFI;
+  TERN_(MKS_WIFI_MODULE, gCfgItems.wifi_type = ESP_WIFI);
   gCfgItems.filamentchange_load_length   = 200;
   gCfgItems.filamentchange_load_speed    = 1000;
   gCfgItems.filamentchange_unload_length = 200;
