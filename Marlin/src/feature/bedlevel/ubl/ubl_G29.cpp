@@ -1451,41 +1451,29 @@ bool unified_bed_leveling::smart_fill_one(const uint8_t x, const uint8_t y, cons
 }
 
 typedef struct { uint8_t sx, ex, sy, ey; bool yfirst; } smart_fill_info;
-#if ENABLED(VARIABLE_GRID_POINTS)
-  void unified_bed_leveling::smart_fill_mesh() {
-      // Ensure GRID_USED_POINTS_X and GRID_USED_POINTS_Y are greater than the values being subtracted
-      if (GRID_USED_POINTS_X < 2 || GRID_USED_POINTS_Y < 2) {
-          // Handle error condition: maybe return, set an error flag, etc.
-          return;
-      }
 
-      static smart_fill_info
-          info0 = { 0, (GRID_USED_POINTS_X), 0, (uint8_t)(GRID_USED_POINTS_Y - 2), false }, // Bottom
-          info1 = { 0, (GRID_USED_POINTS_X), (uint8_t)(GRID_USED_POINTS_Y - 1), 0, false }, // Top
-          info2 = { 0, (uint8_t)(GRID_USED_POINTS_X - 2), 0, (GRID_USED_POINTS_Y), true },   // Left
-          info3 = { (uint8_t)(GRID_USED_POINTS_X - 1), 0, 0, (GRID_USED_POINTS_Y), true };   // Right
-      static const smart_fill_info * const info[] = { &info0, &info1, &info2, &info3 };
+void unified_bed_leveling::smart_fill_mesh() {
 
-      for (uint8_t i = 0; i < COUNT(info); ++i) {
-          const smart_fill_info *f = info[i];
-          const uint8_t sx = f->sx, sy = f->sy,
-                        ex = f->ex, ey = f->ey;
-          if (f->yfirst) {
-              const int8_t dir = ex > sx ? 1 : -1;
-              for (uint8_t y = sy; y != ey; ++y)
-                  for (uint8_t x = sx; x != ex; x += dir)
-                      if (smart_fill_one(x, y, dir, 0)) break;
-          }
-          else {
-              const int8_t dir = ey > sy ? 1 : -1;
-              for (uint8_t x = sx; x != ex; ++x)
-                  for (uint8_t y = sy; y != ey; y += dir)
-                      if (smart_fill_one(x, y, 0, dir)) break;
-          }
-      }
-  }
-#else
-  void unified_bed_leveling::smart_fill_mesh() {
+  #if ENABLED(VARIABLE_GRID_POINTS)
+
+    // Ensure GRID_USED_POINTS_X and GRID_USED_POINTS_Y are greater than the values being subtracted
+    if (GRID_USED_POINTS_X < 2 || GRID_USED_POINTS_Y < 2) {
+      // Handle error condition: maybe return, set an error flag, etc.
+      return;
+    }
+
+    static smart_fill_info
+      info0 = { 0, (GRID_USED_POINTS_X), 0, (uint8_t)(GRID_USED_POINTS_Y - 2), false }, // Bottom
+      info1 = { 0, (GRID_USED_POINTS_X), (uint8_t)(GRID_USED_POINTS_Y - 1), 0, false }, // Top
+      info2 = { 0, (uint8_t)(GRID_USED_POINTS_X - 2), 0, (GRID_USED_POINTS_Y), true },   // Left
+      info3 = { (uint8_t)(GRID_USED_POINTS_X - 1), 0, 0, (GRID_USED_POINTS_Y), true };   // Right
+    static const smart_fill_info * const info[] = { &info0, &info1, &info2, &info3 };
+
+    #define SF_PTR(V) V
+    #define SF_BYTE(V) V
+
+  #else // !VARIABLE_GRID_POINTS
+
     static const smart_fill_info
       info0 PROGMEM = { 0, GRID_MAX_POINTS_X,       0, (GRID_MAX_POINTS_Y) - 2, false },  // Bottom of the mesh looking up
       info1 PROGMEM = { 0, GRID_MAX_POINTS_X,     (GRID_MAX_POINTS_Y) - 1, 0,   false },  // Top of the mesh looking down
@@ -1493,25 +1481,29 @@ typedef struct { uint8_t sx, ex, sy, ey; bool yfirst; } smart_fill_info;
       info3 PROGMEM = { (GRID_MAX_POINTS_X) - 1, 0, 0, GRID_MAX_POINTS_Y,       true  };  // Right side of the mesh looking left
     static const smart_fill_info * const info[] PROGMEM = { &info0, &info1, &info2, &info3 };
 
-    for (uint8_t i = 0; i < COUNT(info); ++i) {
-      const smart_fill_info *f = (smart_fill_info*)pgm_read_ptr(&info[i]);
-      const int8_t sx = pgm_read_byte(&f->sx), sy = pgm_read_byte(&f->sy),
-                  ex = pgm_read_byte(&f->ex), ey = pgm_read_byte(&f->ey);
-      if (pgm_read_byte(&f->yfirst)) {
-        const int8_t dir = ex > sx ? 1 : -1;
-        for (uint8_t y = sy; y != ey; ++y)
-          for (uint8_t x = sx; x != ex; x += dir)
-            if (smart_fill_one(x, y, dir, 0)) break;
-      }
-      else {
-        const int8_t dir = ey > sy ? 1 : -1;
-        for (uint8_t x = sx; x != ex; ++x)
-          for (uint8_t y = sy; y != ey; y += dir)
-            if (smart_fill_one(x, y, 0, dir)) break;
-      }
+    #define SF_PTR(V) (smart_fill_info*)pgm_read_ptr(&V)
+    #define SF_BYTE(V) pgm_read_byte(&V)
+
+  #endif // !VARIABLE_GRID_POINTS
+
+  for (uint8_t i = 0; i < COUNT(info); ++i) {
+    const smart_fill_info *f = SF_PTR(info[i]);
+    const int8_t sx = SF_BYTE(f->sx), sy = SF_BYTE(f->sy),
+                 ex = SF_BYTE(f->ex), ey = SF_BYTE(f->ey);
+    if (SF_BYTE(f->yfirst)) {
+      const int8_t dir = ex > sx ? 1 : -1;
+      for (uint8_t y = sy; y != ey; ++y)
+        for (uint8_t x = sx; x != ex; x += dir)
+          if (smart_fill_one(x, y, dir, 0)) break;
+    }
+    else {
+      const int8_t dir = ey > sy ? 1 : -1;
+      for (uint8_t x = sx; x != ex; ++x)
+        for (uint8_t y = sy; y != ey; y += dir)
+          if (smart_fill_one(x, y, 0, dir)) break;
     }
   }
-#endif
+}
 
 #if HAS_BED_PROBE
 
