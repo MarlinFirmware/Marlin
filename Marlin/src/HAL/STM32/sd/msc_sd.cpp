@@ -24,7 +24,7 @@
 
 #ifdef HAL_STM32
 
-#include "../../../inc/MarlinConfigPre.h"
+#include "../../../inc/MarlinConfig.h"
 
 #if HAL_SD_HOST_DRIVE
 

@@ -23,7 +23,7 @@
 
 #ifdef __PLAT_RP2040__
 
-#include "../../inc/MarlinConfigPre.h"
+#include "../../inc/MarlinConfig.h"
 
 #if HAL_SD_HOST_DRIVE
 

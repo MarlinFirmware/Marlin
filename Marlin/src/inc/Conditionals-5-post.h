@@ -567,6 +567,13 @@
  */
 #if HAS_MEDIA
 
+  // Pins files can specify that no SD host drive is available
+  #if ENABLED(BOARD_NO_HOST_DRIVE) && DISABLED(NO_SD_HOST_DRIVE)
+    #define NO_SD_HOST_DRIVE
+    #undef HAL_SD_HOST_DRIVE
+    #define DISABLED_HOST_DRIVE_WARNING 1
+  #endif
+
   #if HAL_SD_HOST_DRIVE && SD_CONNECTION_IS(ONBOARD) && DISABLED(KEEP_SD_DETECT)
     //
     // The external SD card is not used. Hardware SPI is used to access the card.

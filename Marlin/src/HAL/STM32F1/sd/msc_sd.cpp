@@ -22,7 +22,7 @@
  */
 #ifdef __STM32F1__
 
-#include "../../../inc/MarlinConfigPre.h"
+#include "../../../inc/MarlinConfig.h"
 
 #if HAL_SD_HOST_DRIVE
 
@@ -35,8 +35,6 @@
 
 USBMassStorage MarlinMSC;
 Serial1Class<USBCompositeSerial> MarlinCompositeSerial(true);
-
-#include "../../../inc/MarlinConfig.h"
 
 #if SD_CONNECTION_IS(ONBOARD)
 
