@@ -42,6 +42,10 @@
 #endif
 #define BOARD_WEBSITE_URL "github.com/MotorDynamicsLab/Leviathan"
 
+// If you have the LDO Leviathan Extension Board, enable LEVIATHAN_EXTENSION_BOARD
+// https://github.com/MotorDynamicsLab/LeviathanExt
+//#define LEVIATHAN_EXTENSION_BOARD
+
 // Avoid conflict with TIMER_TONE (TIM6 in the variant)
 #define STEP_TIMER 8
 
@@ -384,3 +388,85 @@
 #endif
 
 // CAN bus (PB5 RX / PB6 TX, J33) is present on the board but not used by Marlin.
+
+/**
+ * LDO Leviathan Extension Board, a plug-in board for the EXP3 header (J34).
+ * Schematic: https://github.com/MotorDynamicsLab/LeviathanExt/blob/master/Schematic/Leviathan_Ext_V1.1.pdf
+ * Pins are derived from LDO's KiCad project (MotorDynamicsLab/LeviathanExt, KiCad/) netlist.
+ *
+ * Adds two TMC5160 HV steppers, two fans, two thermistors, and a buzzer.
+ * The HV steppers are assigned to X2/Y2 to suit the all-wheel-drive CoreXY
+ * layout LDO ships the board for. Set X2_DRIVER_TYPE and Y2_DRIVER_TYPE to
+ * TMC5160 to use them.
+ */
+#if ENABLED(LEVIATHAN_EXTENSION_BOARD)
+
+  //
+  // Trinamic Stallguard pins
+  //
+  #define X2_DIAG_PIN                       PG3   // HV-STEPPER-2
+  #define Y2_DIAG_PIN                       PE7   // HV-STEPPER-3
+
+  // Without these, *_DUAL_ENDSTOPS silently falls back to sharing the X/Y
+  // endstop input, which would read the wrong driver when homing sensorless.
+  #if ENABLED(X_DUAL_ENDSTOPS) && defined(X2_STALL_SENSITIVITY)
+    #define X2_STOP_PIN              X2_DIAG_PIN
+  #endif
+  #if ENABLED(Y_DUAL_ENDSTOPS) && defined(Y2_STALL_SENSITIVITY)
+    #define Y2_STOP_PIN              Y2_DIAG_PIN
+  #endif
+
+  //
+  // Steppers
+  //
+  #define X2_STEP_PIN                       PD15  // HV-STEPPER-2 (TMC5160, 0.075Ω sense)
+  #define X2_DIR_PIN                        PD14
+  #define X2_ENABLE_PIN                     PG2
+  #ifndef X2_CS_PIN
+    #define X2_CS_PIN                       PB12
+  #endif
+
+  #define Y2_STEP_PIN                       PG4   // HV-STEPPER-3 (TMC5160, 0.075Ω sense)
+  #define Y2_DIR_PIN                        PE8
+  #define Y2_ENABLE_PIN                     PB0
+  #ifndef Y2_CS_PIN
+    #define Y2_CS_PIN                       PG5
+  #endif
+
+  // These drivers are wired to SPI2, not the SPI4 the onboard drivers use, so
+  // they need their own software SPI bus.
+  #define X2_SPI_MOSI                       PB15
+  #define X2_SPI_MISO                       PB14
+  #define X2_SPI_SCK                        PB13
+  #define Y2_SPI_MOSI                X2_SPI_MOSI
+  #define Y2_SPI_MISO                X2_SPI_MISO
+  #define Y2_SPI_SCK                  X2_SPI_SCK
+
+  //
+  // Temperature Sensors
+  //
+  // Also 2.2kΩ pullups, so the note above applies to these as well.
+  #define TEMP_3_PIN                        PC4   // TH4 - free for chamber, etc.
+  #define TEMP_4_PIN                        PC5   // TH5 - free for chamber, etc.
+
+  //
+  // Fans
+  //
+  // PF3 and PF5 have no timer on either MCU, so these fans only switch on and
+  // off unless FAN_SOFT_PWM is enabled.
+  #define FAN4_PIN                          PF5   // FAN4, voltage via J6 jumper
+  #define FAN5_PIN                          PF3   // FAN5, voltage via J7 jumper
+
+  // Fan tachometer inputs: FAN4 = PF4, FAN5 = PF2
+  //#define E1_FAN_TACHO_PIN                PF4
+
+  //
+  // Buzzer
+  //
+  // Passive transducer, so SPEAKER is required to produce tones. A wired LCD's
+  // beeper takes precedence, since EXP1 is assigned further above.
+  #ifndef BEEPER_PIN
+    #define BEEPER_PIN                      PB1
+  #endif
+
+#endif // LEVIATHAN_EXTENSION_BOARD
