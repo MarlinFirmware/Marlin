@@ -81,6 +81,7 @@ int cfg_cloud_flag = 0;
 
 char wifi_firm_ver[20] = { 0 };
 WIFI_LIST wifi_list;
+mks_wifi_settings_t mks_wifi;
 WIFI_GCODE_BUFFER espGcodeFifo;
 extern uint8_t pause_resum;
 
@@ -1997,7 +1998,66 @@ void wifi_looping() {
   } while (wifi_link_state == WIFI_TRANS_FILE);
 }
 
+/**
+ * Configured defaults for the network settings. Called by settings.reset(),
+ * so a stored SSID from EEPROM is not overwritten at boot.
+ */
+void mks_wifi_reset_settings() {
+  OBJZERO(mks_wifi);
+  strcpy_P((char *)mks_wifi.ssid, PSTR(WIFI_AP_NAME));
+  strcpy_P((char *)mks_wifi.key, PSTR(WIFI_KEY_CODE));
+  mks_wifi.mode = TERN(MKS_WIFI_AP_MODE, AP_MODEL, STA_MODEL);
+}
+
+/**
+ * Ask the module to adopt the current settings. net_msg_handle() compares them
+ * against what the module reports and re-sends until they match.
+ */
+void mks_wifi_apply_settings() {
+  if (!mks_wifi.ssid[0]) return;    // Nothing configured; leave the module alone
+  MKSW_WIFI_TYPE = ESP_WIFI;
+  MKSW_CONFIG_WIFI = true;
+}
+
+/**
+ * Seed the runtime protocol structs. Called from ui_cfg_init() with the LVGL
+ * UI and from mks_esp_wifi_init() without it, so a UI-less build starts from
+ * the same defaults instead of all-zeroes. Does not touch mks_wifi, which
+ * belongs to Marlin's settings.
+ */
+void mks_wifi_init_settings() {
+  OBJZERO(wifiPara);
+  OBJZERO(ipPara);
+  strcpy_P(wifiPara.ap_name, PSTR(WIFI_AP_NAME));
+  strcpy_P(wifiPara.keyCode, PSTR(WIFI_KEY_CODE));
+
+  // client
+  strcpy_P(ipPara.ip_addr, PSTR(IP_ADDR));
+  strcpy_P(ipPara.mask, PSTR(IP_MASK));
+  strcpy_P(ipPara.gate, PSTR(IP_GATE));
+  strcpy_P(ipPara.dns, PSTR(IP_DNS));
+  ipPara.dhcp_flag = IP_DHCP_FLAG;
+
+  // AP
+  strcpy_P(ipPara.dhcpd_ip, PSTR(AP_IP_ADDR));
+  strcpy_P(ipPara.dhcpd_mask, PSTR(AP_IP_MASK));
+  strcpy_P(ipPara.dhcpd_gate, PSTR(AP_IP_GATE));
+  strcpy_P(ipPara.dhcpd_dns, PSTR(AP_IP_DNS));
+  strcpy_P(ipPara.start_ip_addr, PSTR(IP_START_IP));
+  strcpy_P(ipPara.end_ip_addr, PSTR(IP_END_IP));
+  ipPara.dhcpd_flag = AP_IP_DHCP_FLAG;
+
+  strcpy_P((char *)MKSW_CLOUD_HOSTURL, PSTR(MKS_WIFI_CLOUD_HOST));
+  MKSW_CLOUD_PORT = MKS_WIFI_CLOUD_PORT;
+}
+
 void mks_esp_wifi_init() {
+  #if !HAS_MKS_WIFI_UI
+    mks_wifi_init_settings();   // With the LVGL UI this is done by ui_cfg_init()
+  #endif
+
+  mks_wifi_apply_settings();
+
   wifi_link_state = WIFI_NOT_CONFIG;
 
   SET_OUTPUT(WIFI_RESET_PIN);

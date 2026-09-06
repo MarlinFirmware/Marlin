@@ -93,10 +93,6 @@
   #include "draw_cloud_bind.h"
 #endif
 
-#define ESP_WIFI          0x02
-#define AP_MODEL          0x01
-#define STA_MODEL         0x02
-
 #define FILE_SYS_USB      0
 #define FILE_SYS_SD       1
 
@@ -194,7 +190,7 @@ typedef struct {
   bool      from_flash_pic;
   bool      finish_power_off;
   bool      pause_reprint;
-  uint8_t   wifi_mode_sel;
+  uint8_t   wifi_mode_sel;    // Unused. Superseded by mks_wifi.mode; kept so the SPI flash layout is unchanged
   uint8_t   fileSysType;
   uint8_t   wifi_type;
   bool      cloud_enable,
@@ -226,8 +222,6 @@ typedef struct UI_Config_Struct {
           filament_unloading_completed:1,
           filament_loading_time_flg:1,
           filament_unloading_time_flg:1;
-  uint8_t wifi_name[32];
-  uint8_t wifi_key[64];
   uint8_t cloud_hostUrl[96];
   // Extruder Steps distances (mm)
   uint8_t extruStep;
