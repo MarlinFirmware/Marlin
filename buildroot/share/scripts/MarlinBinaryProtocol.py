@@ -33,7 +33,7 @@ class ReadTimeout(Exception):
     pass
 class FatalError(Exception):
     pass
-class SycronisationError(Exception):
+class SynchronizationError(Exception):
     pass
 class PayloadOverflow(Exception):
     pass
@@ -56,7 +56,7 @@ class Protocol(object):
     simulate_errors = 0
     sync = 0
     connected = False
-    syncronised = False
+    syncronized = False
     worker_thread = None
 
     response_timeout = 1000
@@ -261,7 +261,7 @@ class Protocol(object):
 
     def disconnect(self):
         self.send(0, 2)
-        self.syncronised = False
+        self.syncronized = False
 
     def response_ok(self, data):
         try:
@@ -269,17 +269,17 @@ class Protocol(object):
         except ValueError:
             return
         if packet_id != self.sync:
-            raise SycronisationError()
+            raise SynchronizationError()
         self.sync = (self.sync + 1) % 256
         self.packet_status = 1
 
     def response_resend(self, data):
         packet_id = int(data)
         self.errors += 1
-        if not self.syncronised:
-            print("Retrying syncronisation")
+        if not self.syncronized:
+            print("Retrying synchronization")
         elif packet_id != self.sync:
-            raise SycronisationError()
+            raise SynchronizationError()
 
     def response_stream_sync(self, data):
         sync, max_block_size, protocol_version = data.split(',')
@@ -288,7 +288,7 @@ class Protocol(object):
         self.block_size = self.max_block_size if self.max_block_size < self.block_size else self.block_size
         self.protocol_version = protocol_version
         self.packet_status = 1
-        self.syncronised = True
+        self.syncronized = True
         print("Connection synced [{0}], binary protocol version {1}, {2} byte payload buffer".format(self.sync, self.protocol_version, self.max_block_size))
 
     def response_fatal_error(self, data):

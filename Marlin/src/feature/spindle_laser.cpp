@@ -112,7 +112,7 @@ void SpindleLaser::init() {
       const millis_t duration = (float(SPEED_POWER_MAX) * (60000.f / 2550.f) / float(acceleration_spindle_deg_per_s2)) * abs_diff;
       millis_t next_ocr_change = millis() + duration;
       while (current_ocr != ocr) {
-        while (PENDING(millis(), next_ocr_change)) idle();
+        while (PENDING(millis(), next_ocr_change)) marlin.idle();
         current_ocr += diff > 0 ? 1 : -1;
         hal.set_pwm_duty(pin_t(SPINDLE_LASER_PWM_PIN), current_ocr ^ SPINDLE_LASER_PWM_OFF);
         next_ocr_change += duration;

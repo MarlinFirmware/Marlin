@@ -67,7 +67,7 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
       break;
     case ID_O_FILAMENT:
       #if HAS_MULTI_EXTRUDER
-        uiCfg.extruderIndexBak = active_extruder;
+        uiCfg.extruderIndexBak = motion.extruder;
       #endif
       if (uiCfg.print_state == WORKING) {
         #if HAS_MEDIA
@@ -76,8 +76,8 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
           uiCfg.print_state = PAUSING;
         #endif
       }
-      uiCfg.moveSpeed_bak = (uint16_t)feedrate_mm_s;
-      uiCfg.hotendTargetTempBak = thermalManager.degTargetHotend(active_extruder);
+      uiCfg.moveSpeed_bak = (uint16_t)motion.feedrate_mm_s;
+      uiCfg.hotendTargetTempBak = thermalManager.degTargetHotend(motion.extruder);
       lv_clear_operation();
       lv_draw_filament_change();
       break;

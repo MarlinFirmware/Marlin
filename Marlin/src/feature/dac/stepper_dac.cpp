@@ -68,7 +68,7 @@ void StepperDAC::set_current_value(const uint8_t channel, uint16_t val) {
 }
 
 void StepperDAC::set_current_percent(const uint8_t channel, float val) {
-  set_current_value(channel, _MIN(val, 100.0f) * (DAC_STEPPER_MAX) / 100.0f);
+  set_current_value(channel, _MIN(val, 100.0f) * (DAC_STEPPER_MAX) * 0.01f);
 }
 
 static float dac_perc(int8_t n) { return mcp4728.getDrvPct(dac_order[n]); }
@@ -87,7 +87,7 @@ void StepperDAC::print_values() {
   LOOP_LOGICAL_AXES(a) {
     SERIAL_CHAR(' ', IAXIS_CHAR(a), ':');
     SERIAL_ECHO(dac_perc(a));
-    SERIAL_ECHOPGM_P(PSTR(" ("), dac_amps(AxisEnum(a)), PSTR(")"));
+    SERIAL_ECHOPGM_P(PSTR(" ("), dac_amps((AxisEnum)a), PSTR(")"));
   }
   #if HAS_EXTRUDERS
     SERIAL_ECHOLNPGM_P(SP_E_LBL, dac_perc(E_AXIS), PSTR(" ("), dac_amps(E_AXIS), PSTR(")"));

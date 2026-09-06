@@ -144,7 +144,7 @@ uint8_t u8g_dev_ssd1309_128x64_fn(u8g_t *u8g, u8g_dev_t *dev, uint8_t msg, void 
   return u8g_dev_pb8v1_base_fn(u8g, dev, msg, arg);
 }
 
-uint8_t u8g_dev_ssd1309_buf[WIDTH*2] U8G_NOCOMMON ;
+uint8_t u8g_dev_ssd1309_buf[WIDTH*2] U8G_NOCOMMON;
 u8g_pb_t u8g_dev_ssd1309_pb = { {8, HEIGHT, 0, 0, 0},  WIDTH, u8g_dev_ssd1309_buf};
 u8g_dev_t u8g_dev_ssd1309_sw_spi = { u8g_dev_ssd1309_128x64_fn, &u8g_dev_ssd1309_pb, U8G_COM_HAL_SW_SPI_FN };
 

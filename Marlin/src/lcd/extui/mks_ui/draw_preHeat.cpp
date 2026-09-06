@@ -235,7 +235,7 @@ void disp_ext_heart() {
 
 void disp_temp_type() {
   if (uiCfg.curTempType == 0) {
-    if (TERN0(HAS_MULTI_EXTRUDER, uiCfg.extruderIndex == 1)) {
+    if (E_TERN0(uiCfg.extruderIndex == 1)) {
       lv_imgbtn_set_src_both(buttonType, "F:/bmp_extru2.bin");
       if (gCfgItems.multiple_language) {
         lv_label_set_text(labelType, preheat_menu.ext2);

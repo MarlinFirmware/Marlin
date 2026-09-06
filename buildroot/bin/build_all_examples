@@ -50,7 +50,6 @@ build_all_examples [-a|--archive]         - Copy the binary to the export locati
 }
 
 # Assume the most recent configs
-BRANCH=import-2.1.x
 unset FIRST_CONF
 EXIT_USAGE=
 LIMIT=1000
@@ -99,6 +98,11 @@ shift $((OPTIND - 1))
 
 # Check for mixed continue, skip, resume arguments. Only one should be used.
 ((CONTINUE + CONTSKIP + ISRES + PURGE > 1)) && { echo "Don't mix -c, -p, -s, and -r options" ; echo ; EXIT_USAGE=2 ; }
+[[ -n $BRANCH && -n $CBASE ]] && { echo "Don't mix --branch ($BRANCH) and --base ($CBASE) options" ; echo ; EXIT_USAGE=2 ; }
+
+# Assume import-2.1.x if no --base or --branch is given.
+# If no --base is supplied, one will be created.
+[[ -z $BRANCH && -z $CBASE ]] && BRANCH=import-2.1.x
 
 # Exit with helpful usage information
 ((EXIT_USAGE)) && { usage ; let EXIT_USAGE-- ; exit $EXIT_USAGE ; }
@@ -133,13 +137,13 @@ if ((SKIP_CONF)); then
 elif [[ -n $FIRST_CONF ]]; then
   echo "Resuming from $FIRST_CONF"
 else
-  git diff --quiet || { echo "The working copy is modified. Commit or stash changes before proceeding."; exit ; }
+  git diff --quiet || { echo "The working copy is modified. Commit or stash changes before proceeding."; exit 1 ; }
 fi
 
 # Check for the given base path
 if [[ -n $CBASE ]]; then
   CBASE="${CBASE/#\~/$HOME}"
-  [[ -d "$CBASE" ]] || { echo "Given base -B $CBASE not found." ; exit ; }
+  [[ -d "$CBASE" ]] || { echo "Given base -B $CBASE not found." ; exit 1 ; }
 else
   # Make a Configurations temporary folder if needed
   CBASE=./.pio/build-$BRANCH
@@ -147,7 +151,7 @@ else
   # Download the specified Configurations branch if needed
   if [[ ! -e "$CBASE/README.md" ]]; then
     echo "Fetching Configurations from GitHub to $CBASE"
-    git clone --depth=1 --single-branch --branch "$BRANCH" $GITREPO "$CBASE" || { echo "Failed to clone the configuration repository"; exit ; }
+    git clone --depth=1 --single-branch --branch "$BRANCH" $GITREPO "$CBASE" || { echo "Failed to clone the configuration repository"; exit 1 ; }
   fi
 fi
 
@@ -158,10 +162,9 @@ shopt -s nullglob
 export PAUSE=1
 
 # Get a list of all folders that contain a file matching "Configuration*.h"
-find -ds "$CBASE"/config/examples -type d -name 'Configuration.h' -o -name 'Configuration_adv.h' -print0 | while IFS= read -r -d $'\0' CONF; do
-
-  # Remove the file name and slash from the end of the path
-  CONF=${CONF%/*}
+# Use process substitution so the while loop runs in the current shell
+# (not a pipeline subshell) so that exit 1 actually propagates.
+while IFS= read -r -d '' CONF; do
 
   # Get a config's directory name
   DIR=${CONF#$CBASE/config/examples/}
@@ -173,9 +176,6 @@ find -ds "$CBASE"/config/examples -type d -name 'Configuration.h' -o -name 'Conf
 
   # If skipping, don't build the found one
   [[ $SKIP_CONF ]] && { unset SKIP_CONF ; continue ; }
-
-  # Either Configuration.h or Configuration_adv.h must exist
-  [[ -f "$CONF"/Configuration.h || -f "$CONF"/Configuration_adv.h ]] || { echo "[NONE] $DIR" ; continue ; }
 
   # Command arguments for 'build_example'
   CARGS=("-b" "$CBASE" "-c" "$DIR")
@@ -203,7 +203,7 @@ find -ds "$CBASE"/config/examples -type d -name 'Configuration.h' -o -name 'Conf
     echo "${BRANCH}*${DIR}" >"$STAT_FILE"
     ((DEBUG)) && echo "build_example ${CARGS[@]}"
     # Invoke build_example
-    build_example "${CARGS[@]}" || { echo "Failed to build $DIR" ; exit ; }
+    build_example "${CARGS[@]}" || { echo "Failed to build $DIR" ; exit 1 ; }
   fi
 
   echo
@@ -212,7 +212,13 @@ find -ds "$CBASE"/config/examples -type d -name 'Configuration.h' -o -name 'Conf
 
   export PAUSE=0
 
-done
+done < <(
+  find "$CBASE/config/examples" \
+    -type f \( -name Configuration.h -o -name Configuration_adv.h \) \
+    -exec dirname {} \; |
+  LC_ALL=C sort -zu |
+  tr '\n' '\0'
+)
 
 echo "Exiting"
 

@@ -22,7 +22,7 @@
 
 #include "../../../inc/MarlinConfig.h"
 
-#if ENABLED(LIN_ADVANCE)
+#if HAS_LIN_ADVANCE_K
 
 #include "../../gcode.h"
 #include "../../../module/planner.h"
@@ -41,6 +41,9 @@
  * With ADVANCE_K_EXTRA:
  *  S<0/1>      Activate slot 0 or 1.
  *  L<factor>   Set secondary advance K factor (Slot 1).
+ *
+ * With SMOOTH_LIN_ADVANCE:
+ *  U<tau>      Set a tau value for LA smoothing
  */
 void GcodeSuite::M900() {
 
@@ -55,7 +58,7 @@ void GcodeSuite::M900() {
     constexpr uint8_t tool_index = 0;
     UNUSED(tool_index);
   #else
-    const uint8_t tool_index = parser.intval('T', active_extruder);
+    const uint8_t tool_index = parser.intval('T', motion.extruder);
     if (tool_index >= EXTRUDERS) {
       echo_value_oor('T', false);
       return;
@@ -191,4 +194,4 @@ void GcodeSuite::M900_report(const bool forReplay/*=true*/) {
   }
 }
 
-#endif // LIN_ADVANCE
+#endif // HAS_LIN_ADVANCE_K

@@ -30,7 +30,7 @@
 void GcodeSuite::M592_report(const bool forReplay/*=true*/) {
   TERN_(MARLIN_SMALL_BUILD, return);
   report_heading_etc(forReplay, F(STR_NONLINEAR_EXTRUSION));
-  const nonlinear_settings_t &sns = stepper.ne.settings;
+  const nonlinear_settings_t &sns = stepper.nle.settings;
   SERIAL_ECHOLNPGM("  M592 S", sns.enabled, " A", sns.coeff.A, " B", sns.coeff.B, " C", sns.coeff.C);
 }
 
@@ -48,8 +48,8 @@ void GcodeSuite::M592_report(const bool forReplay/*=true*/) {
 void GcodeSuite::M592() {
   if (!parser.seen_any()) return M592_report();
 
-  nonlinear_t &ne = stepper.ne;
-  nonlinear_settings_t &sns = ne.settings;
+  nonlinear_t &nle = stepper.nle;
+  nonlinear_settings_t &sns = nle.settings;
 
   if (parser.seen('S')) sns.enabled = parser.value_bool();
   if (parser.seenval('A')) sns.coeff.A = parser.value_float();
@@ -57,9 +57,9 @@ void GcodeSuite::M592() {
   if (parser.seenval('C')) sns.coeff.C = parser.value_float();
 
   #if ENABLED(SMOOTH_LIN_ADVANCE)
-    ne.q30.A = _BV32(30) * (sns.coeff.A * planner.mm_per_step[E_AXIS_N(0)] * planner.mm_per_step[E_AXIS_N(0)]);
-    ne.q30.B = _BV32(30) * (sns.coeff.B * planner.mm_per_step[E_AXIS_N(0)]);
-    ne.q30.C = _BV32(30) * sns.coeff.C;
+    nle.q30.A = _BV32(30) * (sns.coeff.A * planner.mm_per_step[E_AXIS_N(0)] * planner.mm_per_step[E_AXIS_N(0)]);
+    nle.q30.B = _BV32(30) * (sns.coeff.B * planner.mm_per_step[E_AXIS_N(0)]);
+    nle.q30.C = _BV32(30) * sns.coeff.C;
   #endif
 }
 

@@ -35,7 +35,6 @@
 
 #if HAS_WIRED_LCD
   #include "marlinui.h"
-  #include "../MarlinCore.h"
 #endif
 
 #include "utf8.h"

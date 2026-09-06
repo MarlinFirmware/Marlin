@@ -134,7 +134,7 @@ glyph_t *TFT_String::glyph(uint16_t character) {
     }
     else {
       #if 0
-        // Slow search method that that does not care if glyphs are ordered by unicode
+        // Slow search method that doesn't care if glyphs are Unicode-ordered
         for (uint16_t i = 0; i < extra_count; i++) {
           if (character == ((uniglyph_t *)glyphs_extra[i])->unicode)
             return &(((uniglyph_t *)glyphs_extra[i])->glyph);

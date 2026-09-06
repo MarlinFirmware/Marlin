@@ -39,7 +39,7 @@
 #include <WString.h>
 
 ExtUI::FileList FileNavigator::filelist;                // ExtUI file API
-char      FileNavigator::currentDirPath[MAX_PATH_LEN];  // Current folder path
+char      FileNavigator::currentDirPath[MAX_PATH_LEN + 1];  // Current folder path
 uint16_t  FileNavigator::lastindex;
 uint8_t   FileNavigator::folderdepth;
 uint16_t  FileNavigator::currentindex;                  // override the panel request
@@ -60,12 +60,12 @@ void FileNavigator::reset() {
 
 void FileNavigator::refresh() { filelist.refresh(); }
 
-bool FileNavigator::getIndexisDir(uint16_t index){
+bool FileNavigator::getIndexisDir(uint16_t index) {
   filelist.seek(index);
   return filelist.isDir();
 }
 
-const char *FileNavigator::getIndexName(uint16_t index){
+const char *FileNavigator::getIndexName(uint16_t index) {
   filelist.seek(index);
   return filelist.shortFilename();
 }

@@ -185,6 +185,6 @@ UDC_DESC_STORAGE udc_config_t udc_config = {
 /**INDENT-ON**/
 //@}
 
-#endif // ARDUINO_ARCH_SAM
-
 #endif // HAS_MEDIA
+
+#endif // ARDUINO_ARCH_SAM

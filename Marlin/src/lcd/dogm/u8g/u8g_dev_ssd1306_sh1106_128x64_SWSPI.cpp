@@ -87,7 +87,7 @@
 static const uint8_t u8g_dev_ssd13xx_HAL_sleep_on[] PROGMEM = {
   U8G_ESC_ADR(0),   // Instruction mode
   U8G_ESC_CS(1),    // Enable chip
-  SH1106_ON(0)      // Display off
+  SH1106_ON(0),     // Display off
   U8G_ESC_CS(0),    // Disable chip
   U8G_ESC_END       // End of sequence
 };

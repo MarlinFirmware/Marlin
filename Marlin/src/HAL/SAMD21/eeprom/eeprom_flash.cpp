@@ -83,7 +83,7 @@ bool PersistentStore::access_start() {
   NVMCTRL->CTRLA.reg = NVMCTRL_CTRLA_CMDEX_KEY | NVMCTRL_CTRLA_CMD_PBC;
   while (NVMCTRL->INTFLAG.bit.READY == 0) { }
 
-  PAGE_SIZE =  pow(2,3 + NVMCTRL->PARAM.bit.PSZ);
+  PAGE_SIZE =  POW(2, 3 + NVMCTRL->PARAM.bit.PSZ);
   ROW_SIZE= PAGE_SIZE * 4;
   /*NVMCTRL->SEECFG.reg = NVMCTRL_SEECFG_WMODE_BUFFERED;  // Buffered mode and segment reallocation active
   if (NVMCTRL->SEESTAT.bit.RLOCK)

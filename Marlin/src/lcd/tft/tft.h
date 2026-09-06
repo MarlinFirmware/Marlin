@@ -70,7 +70,7 @@ class TFT {
 
     static bool is_busy() { return io.isBusy(); }
     static void abort() { io.abort(); }
-    static void write_multiple(uint16_t data, uint16_t count) { io.WriteMultipleDMA(data, count); }
+    static void write_multiple(uint16_t data, uint16_t count) { io.writeMultipleDMA(data, count); }
     static void write_sequence(uint16_t *data, uint16_t count) { io.writeSequenceDMA(data, count); }
     static void set_window(uint16_t xMin, uint16_t yMin, uint16_t xMax, uint16_t yMax) { io.set_window(xMin, yMin, xMax, yMax); }
 

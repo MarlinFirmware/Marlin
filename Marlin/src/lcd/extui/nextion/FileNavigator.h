@@ -44,7 +44,7 @@ class FileNavigator {
     static char* getCurrentDirPath();
   private:
     static FileList filelist;
-    static char     currentDirPath[MAX_PATH_LEN];
+    static char     currentDirPath[MAX_PATH_LEN + 1];
     static uint16_t lastindex;
     static uint8_t  folderdepth;
     static uint16_t currentindex;

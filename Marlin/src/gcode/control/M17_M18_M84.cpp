@@ -78,7 +78,7 @@ void do_enable(const stepper_flags_t to_enable) {
   // Enable all flagged axes
   LOOP_NUM_AXES(a) {
     if (TEST(shall_enable, a)) {
-      stepper.enable_axis(AxisEnum(a));         // Mark and enable the requested axis
+      stepper.enable_axis((AxisEnum)a);         // Mark and enable the requested axis
       DEBUG_ECHOLNPGM("Enabled ", AXIS_CHAR(a), " (", a, ") with overlap ", hex_word(enable_overlap[a]), " ... Enabled: ", hex_word(stepper.axis_enabled.bits));
       also_enabled |= enable_overlap[a];
     }
@@ -153,7 +153,7 @@ void try_to_disable(const stepper_flags_t to_disable) {
   LOOP_NUM_AXES(a)
     if (TEST(to_disable.bits, a)) {
       DEBUG_ECHOPGM("Try to disable ", AXIS_CHAR(a), " (", a, ") with overlap ", hex_word(enable_overlap[a]), " ... ");
-      if (stepper.disable_axis(AxisEnum(a))) {            // Mark the requested axis and request to disable
+      if (stepper.disable_axis((AxisEnum)a)) {            // Mark the requested axis and request to disable
         DEBUG_ECHOPGM("OK");
         still_enabled &= ~(_BV(a) | enable_overlap[a]);   // If actually disabled, clear one or more tracked bits
       }

@@ -214,8 +214,9 @@
 #define EXP2_10_PIN                         PA6
 
 //
-// LCDs and Controllers
+// LCD / Controller
 //
+
 #if IS_TFTGLCD_PANEL
 
   #if ENABLED(TFTGLCD_PANEL_SPI)
@@ -262,7 +263,7 @@
       #elif ENABLED(FYSETC_MINI_12864_2_1)
         #define NEOPIXEL_PIN         EXP1_05_PIN
       #endif
-    #endif // !FYSETC_MINI_12864
+    #endif // FYSETC_MINI_12864
 
     #if IS_ULTIPANEL
       #define LCD_PINS_D5            EXP1_05_PIN

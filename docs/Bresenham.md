@@ -1,4 +1,4 @@
-On the Bresenham algorithm as implemented by Marlin:
+On the Bresenham algorithm as implemented by Marlin:\
 (Taken from (https://www.cs.helsinki.fi/group/goa/mallinnus/lines/bresenh.html)
 
 The basic Bresenham algorithm:
@@ -249,7 +249,7 @@ This can be implemented in C++ as:
     public:
       unsigned int ticker;
 
-      OversampledBresenhan(const long& inDividend, const long& inDivisor, int rate) {
+      OversampledBresenham(const long& inDividend, const long& inDivisor, int rate) {
         ticker = 0;
         divisor = inDivisor;
         dividend = inDividend;

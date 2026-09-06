@@ -4,7 +4,7 @@
 
 The original author of the following font files is [A. Hardtung](https://github.com/AnHardt).
 
-Any copyright is dedicated to the Public Domain.
+Any copyright is dedicated to the Public Domain.\
 https://creativecommons.org/publicdomain/zero/1.0/
 
 - HD44780_C.fon ([fe2bd23](https://github.com/MarlinFirmware/Marlin/commit/fe2bd237d556439499dfdee852c1550c7a16430a))

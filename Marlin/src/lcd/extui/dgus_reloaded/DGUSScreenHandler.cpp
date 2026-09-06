@@ -71,8 +71,10 @@ millis_t DGUSScreenHandler::eeprom_save = 0;
 
 void DGUSScreenHandler::init() {
   dgus.init();
-
-  moveToScreen(DGUS_ScreenID::BOOT, true);
+  if (booted)
+    triggerFullUpdate(); // Reinit LCD hardware then refresh current screen
+  else
+    moveToScreen(DGUS_ScreenID::BOOT, true);
 }
 
 void DGUSScreenHandler::ready() {
@@ -117,7 +119,7 @@ void DGUSScreenHandler::loop() {
   }
 
   if (current_screenID == DGUS_ScreenID::WAIT
-      && ((wait_continue && !wait_for_user) || (!wait_continue && isPrinterIdle()))
+      && ((wait_continue && !marlin.wait_for_user) || (!wait_continue && isPrinterIdle()))
   ) {
     moveToScreen(wait_return_screenID, true);
     return;
@@ -453,7 +455,7 @@ void DGUSScreenHandler::moveToScreen(const DGUS_ScreenID screenID, bool abort_wa
 
     if (!abort_wait) return;
 
-    if (wait_continue && wait_for_user)
+    if (wait_continue && marlin.wait_for_user)
       ExtUI::setUserConfirmed();
   }
 

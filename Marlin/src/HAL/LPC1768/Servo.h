@@ -49,6 +49,8 @@
 
 #include <Servo.h>
 
+#include "../../MarlinCore.h"
+
 class libServo: public Servo {
   public:
   void move(const int value) {

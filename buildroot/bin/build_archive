@@ -1,0 +1,30 @@
+#!/usr/bin/env bash
+
+ARCDIR="$1" ; CONFIG="$2" ; FILE="$3" ; shift 3
+NAME=${FILE##*/} ; SHRT=${NAME%.*} ; DIR=${FILE%/*}
+ZIPX=
+if [[ $CONFIG == *Simulator* ]]; then
+  case $(uname | tr '[:upper:]' '[:lower:]') in
+    darwin) SUB="macOS" ; ZIPX="-X" ;;
+    *linux) SUB="Linux" ;;
+      win*) SUB="Windows" ;;
+     msys*) SUB="Windows" ;;
+   cygwin*) SUB="Windows" ;;
+    mingw*) SUB="Windows" ;;
+         *) SUB='Unix' ;;
+  esac
+  ARCH=$(uname -m | tr '[:lower:]' '[:upper:]')
+  ARCDIR="$ARCDIR/$SUB-$ARCH"
+fi
+
+mkdir -p "$ARCDIR"
+rm -f "$ARCDIR"/*.zip "$ARCDIR"/*.sha256.txt
+
+pushd "$DIR" >/dev/null
+
+SHASUM=$(sha256sum "$NAME" | cut -d" " -f1)
+echo "$CONFIG\n$SHASUM" > "$ARCDIR/$NAME.sha256.txt"
+
+zip $ZIPX "$ARCDIR/$SHRT.zip" "$NAME" && rm "$NAME"
+
+popd >/dev/null

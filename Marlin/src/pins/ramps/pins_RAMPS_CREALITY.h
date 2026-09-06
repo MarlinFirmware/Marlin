@@ -99,6 +99,7 @@
 //
 // LCD / Controller
 //
+
 #ifndef BEEPER_PIN
   #define BEEPER_PIN                          37  // Always define beeper pin so Play Tone works with ExtUI
 #endif

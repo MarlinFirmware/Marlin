@@ -28,11 +28,18 @@
 #include "../../../feature/tmc_util.h"
 #include "../../../module/stepper/indirection.h" // for restore_stepper_drivers
 
+#if AXIS_COLLISION('I')
+  #warning "M122 parameter 'I' collision with axis name."
+#endif
+#if AXIS_COLLISION('V')
+  #warning "M122 parameter 'V' collision with axis name."
+#endif
+
 /**
  * M122: Debug TMC drivers
  *
- *   I          - Flag to re-initialize stepper drivers with current settings.
- *   X, Y, Z, E - Flags to only report the specified axes.
+ *   I             - Flag to re-initialize stepper drivers with current settings.
+ *   X, Y, Z ... E - Flags to only report the specified axes.
  *
  * With TMC_DEBUG:
  *   V     - Report raw register data. Refer to the datasheet to decipher the report.
@@ -45,20 +52,24 @@ void GcodeSuite::M122() {
 
   bool print_all = true;
   LOOP_LOGICAL_AXES(i) if (parser.seen_test(AXIS_CHAR(i))) { print_axis[i] = true; print_all = false; }
-
   if (print_all) LOOP_LOGICAL_AXES(i) print_axis[i] = true;
 
   if (parser.boolval('I')) restore_stepper_drivers();
 
   #if ENABLED(TMC_DEBUG)
     #if ENABLED(MONITOR_DRIVER_STATUS)
-      const bool sflag = parser.seen('S'), sval = sflag && parser.value_bool();
-      if (sflag && !sval) // "S0"
+      if (parser.seenval('S') && !parser.value_bool()) { // "S0"
         tmc_set_report_interval(0);
-      else if (parser.seenval('P')) // "P<ms>"
+        return;
+      }
+      else if (parser.seenval('P')) { // "P<ms>"
         tmc_set_report_interval(_MAX(uint16_t(250), parser.value_ushort()));
-      else if (sval) // "S" or "S1"
+        return;
+      }
+      else if (parser.boolval('S')) { // "S" or "S1"
         tmc_set_report_interval(MONITOR_DRIVER_STATUS_INTERVAL_MS);
+        return;
+      }
     #endif
 
     if (parser.seen_test('V'))

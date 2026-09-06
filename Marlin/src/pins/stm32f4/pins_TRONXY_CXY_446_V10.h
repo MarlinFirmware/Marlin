@@ -45,14 +45,13 @@
 #if NO_EEPROM_SELECTED
   #define I2C_EEPROM
   //#define FLASH_EEPROM_EMULATION
-  #undef NO_EEPROM_SELECTED
 #endif
 
 #if ENABLED(FLASH_EEPROM_EMULATION)
   #define EEPROM_PAGE_SIZE                0x800U  // 2K
   #define EEPROM_START_ADDRESS (0x8000000UL + (STM32_FLASH_SIZE) * 1024UL - (EEPROM_PAGE_SIZE) * 2UL)
   #define MARLIN_EEPROM_SIZE     EEPROM_PAGE_SIZE
-#else
+#elif ENABLED(EEPROM_SETTINGS)
   #define MARLIN_EEPROM_SIZE              0x800U  // 2K (FT24C16A)
 #endif
 
@@ -103,8 +102,10 @@
 //
 // Filament Sensors
 //
-#if ENABLED(FILAMENT_RUNOUT_SENSOR)
+#ifndef FIL_RUNOUT_PIN
   #define FIL_RUNOUT_PIN                    PE6
+#endif
+#ifndef FIL_RUNOUT2_PIN
   #define FIL_RUNOUT2_PIN                   PF12
 #endif
 
@@ -188,12 +189,12 @@
   #define TOUCH_MOSI_PIN                    PB15
 
   #if ENABLED(TFT_LVGL_UI)
-    #define HAS_SPI_FLASH_FONT                    1
-    #define HAS_GCODE_PREVIEW                     1
-    #define HAS_GCODE_DEFAULT_VIEW_IN_FLASH       0
-    #define HAS_LANG_SELECT_SCREEN                1
-    #define HAS_BAK_VIEW_IN_FLASH                 0
-    #define HAS_LOGO_IN_FLASH                     0
+    #define MKS_SPI_FLASH_FONT                 1
+    #define MKS_GCODE_PREVIEW                  1
+    #define MKS_GCODE_DEFAULT_VIEW_IN_FLASH    0
+    #define MKS_LANG_SELECT_SCREEN             1
+    #define MKS_BAK_VIEW_IN_FLASH              0
+    #define MKS_LOGO_IN_FLASH                  0
   #elif ANY(TFT_CLASSIC_UI, TFT_COLOR_UI)
     //#define TFT_DRIVER                 ILI9488
     #define TFT_BUFFER_WORDS               14400

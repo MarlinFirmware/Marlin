@@ -60,7 +60,7 @@ public:
   // Convert configured power range to a percentage
   static constexpr cutter_cpower_t power_floor = TERN(CUTTER_POWER_RELATIVE, SPEED_POWER_MIN, 0);
   static constexpr uint8_t cpwr_to_pct(const cutter_cpower_t cpwr) {
-    return cpwr ? round(100.0f * (cpwr - power_floor) / (SPEED_POWER_MAX - power_floor)) : 0;
+    return cpwr ? LROUND(100.0f * (cpwr - power_floor) / (SPEED_POWER_MAX - power_floor)) : 0;
   }
 
   // Convert config defines from RPM to %, angle or PWM when in Spindle mode
@@ -164,7 +164,7 @@ public:
    */
   static cutter_power_t power_to_range(const cutter_power_t pwr, const uint8_t pwrUnit=_CUTTER_POWER(CUTTER_POWER_UNIT)) {
     static constexpr float
-      min_pct = TERN(CUTTER_POWER_RELATIVE, 0, TERN(SPINDLE_FEATURE, round(100.0f * (SPEED_POWER_MIN) / (SPEED_POWER_MAX)), SPEED_POWER_MIN)),
+      min_pct = TERN(CUTTER_POWER_RELATIVE, 0, TERN(SPINDLE_FEATURE, roundf(100.0f * (SPEED_POWER_MIN) / (SPEED_POWER_MAX)), SPEED_POWER_MIN)),
       max_pct = TERN(SPINDLE_FEATURE, 100, SPEED_POWER_MAX);
     if (pwr <= 0) return 0;
     cutter_power_t upwr;

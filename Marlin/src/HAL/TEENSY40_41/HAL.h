@@ -160,7 +160,7 @@ public:
 
   static void delay_ms(const int ms) { delay(ms); }
 
-  // Tasks, called from idle()
+  // Tasks, called from marlin.idle()
   static void idletask() {}
 
   // Reset

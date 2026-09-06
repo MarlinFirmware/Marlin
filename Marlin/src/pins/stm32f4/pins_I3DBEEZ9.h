@@ -517,11 +517,9 @@
       #define LCD_PINS_D5            EXP1_06_PIN
       #define LCD_PINS_D6            EXP1_07_PIN
       #define LCD_PINS_D7            EXP1_08_PIN
-
       #if ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
         #define BTN_ENC_EN           LCD_PINS_D7  // Detect the presence of the encoder
       #endif
-
     #endif
 
   #endif

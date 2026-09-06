@@ -479,6 +479,72 @@
 #ifndef FAN2_PIN
   #define FAN2_PIN -1
 #endif
+#ifndef FAN3_PIN
+  #define FAN3_PIN -1
+#endif
+#ifndef FAN4_PIN
+  #define FAN4_PIN -1
+#endif
+#ifndef FAN5_PIN
+  #define FAN5_PIN -1
+#endif
+#ifndef FAN6_PIN
+  #define FAN6_PIN -1
+#endif
+#ifndef FAN7_PIN
+  #define FAN7_PIN -1
+#endif
+#ifndef FAN8_PIN
+  #define FAN8_PIN -1
+#endif
+#ifndef FAN9_PIN
+  #define FAN9_PIN -1
+#endif
+#ifndef FAN10_PIN
+  #define FAN10_PIN -1
+#endif
+#ifndef FAN11_PIN
+  #define FAN11_PIN -1
+#endif
+
+// Part cooling fan pin defaults - allows remapping fans to different pins
+#ifndef PART_COOLING_FAN0_PIN
+  #define PART_COOLING_FAN0_PIN FAN0_PIN
+#endif
+#ifndef PART_COOLING_FAN1_PIN
+  #define PART_COOLING_FAN1_PIN FAN1_PIN
+#endif
+#ifndef PART_COOLING_FAN2_PIN
+  #define PART_COOLING_FAN2_PIN FAN2_PIN
+#endif
+#ifndef PART_COOLING_FAN3_PIN
+  #define PART_COOLING_FAN3_PIN FAN3_PIN
+#endif
+#ifndef PART_COOLING_FAN4_PIN
+  #define PART_COOLING_FAN4_PIN FAN4_PIN
+#endif
+#ifndef PART_COOLING_FAN5_PIN
+  #define PART_COOLING_FAN5_PIN FAN5_PIN
+#endif
+#ifndef PART_COOLING_FAN6_PIN
+  #define PART_COOLING_FAN6_PIN FAN6_PIN
+#endif
+#ifndef PART_COOLING_FAN7_PIN
+  #define PART_COOLING_FAN7_PIN FAN7_PIN
+#endif
+#ifndef PART_COOLING_FAN8_PIN
+  #define PART_COOLING_FAN8_PIN FAN8_PIN
+#endif
+#ifndef PART_COOLING_FAN9_PIN
+  #define PART_COOLING_FAN9_PIN FAN9_PIN
+#endif
+#ifndef PART_COOLING_FAN10_PIN
+  #define PART_COOLING_FAN10_PIN FAN10_PIN
+#endif
+#ifndef PART_COOLING_FAN11_PIN
+  #define PART_COOLING_FAN11_PIN FAN11_PIN
+#endif
+
 #ifndef CONTROLLER_FAN_PIN
   #define CONTROLLER_FAN_PIN  -1
 #endif

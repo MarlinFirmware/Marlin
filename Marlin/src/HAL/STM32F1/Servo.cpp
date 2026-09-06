@@ -29,8 +29,6 @@ uint8_t ServoCount = 0;
 
 #include "Servo.h"
 
-//#include "Servo.h"
-
 #include <boards.h>
 #include <io.h>
 #include <pwm.h>

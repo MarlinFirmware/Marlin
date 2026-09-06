@@ -93,7 +93,7 @@ void GcodeSuite::M81() {
   safe_delay(1000); // Wait 1 second before switching off
 
   #if ENABLED(CONFIGURABLE_MACHINE_NAME)
-    ui.set_status(&MString<30>(&machine_name, ' ', F(STR_OFF), '.'));
+    ui.set_status(&MString<30>(&marlin.machine_name, ' ', F(STR_OFF), '.'));
   #else
     LCD_MESSAGE_F(MACHINE_NAME " " STR_OFF ".");
   #endif
@@ -125,6 +125,6 @@ void GcodeSuite::M81() {
   #if ENABLED(PSU_CONTROL)
     powerManager.power_off_soon();
   #elif HAS_SUICIDE
-    suicide();
+    marlin.suicide();
   #endif
 }

@@ -612,7 +612,7 @@ void ChironTFT::panelAction(uint8_t req) {
       break;
 
     case 12:   // A12 Kill printer
-      kill();  // from marlincore.h
+      marlin.kill();  // from MarlinCore.h
       break;
 
     case 13:   // A13 Select file
@@ -807,7 +807,7 @@ void ChironTFT::panelProcess(uint8_t req) {
         }
       }
       else
-        tftSendLn(AC_msg_start_probing); // Just enter levelling menu
+        tftSendLn(AC_msg_start_probing); // Just enter leveling menu
       break;
 
     case 31:   // A31 Adjust all Probe Points

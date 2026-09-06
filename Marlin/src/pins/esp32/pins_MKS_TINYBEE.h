@@ -163,8 +163,10 @@
 #define EXP2_07_PIN                           34
 #define EXP2_08_PIN                           -1  // RESET
 
+#define EXP_REVERSE_KEYED
+
 //
-// MicroSD card
+// MicroSD card on VSPI (bus 3)
 //
 //#define SD_MOSI_PIN                EXP2_06_PIN  // uses esp32 default 23
 //#define SD_MISO_PIN                EXP2_01_PIN  // uses esp32 default 19

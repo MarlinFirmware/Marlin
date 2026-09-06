@@ -41,7 +41,7 @@ template <typename T>
 constexpr char MINUSOR(T &n, const char alt) { return (n >= 0) ? alt : (n = -n) ? '-' : '-'; }
 
 constexpr long INTFLOAT(const float V, const int N) {
-  return long((V * 10.0f * pow(10.0f, N) + (V < 0.0f ? -5.0f : 5.0f)) / 10.0f);
+  return long((V * 10.0f * pow(10.0f, N) + (V < 0.0f ? -5.0f : 5.0f)) * 0.1f);
 }
 constexpr long UINTFLOAT(const float V, const int N) {
   return INTFLOAT(V < 0.0f ? -V : V, N);

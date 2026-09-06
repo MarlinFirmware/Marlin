@@ -43,7 +43,7 @@ millis_t HotendIdleProtection::next_protect_ms = 0;
 hotend_idle_settings_t HotendIdleProtection::cfg; // Initialized by settings.load
 
 void HotendIdleProtection::check_hotends(const millis_t &ms) {
-  const bool busy = (TERN0(HAS_RESUME_CONTINUE, wait_for_user) || planner.has_blocks_queued());
+  const bool busy = (TERN0(HAS_RESUME_CONTINUE, marlin.wait_for_user) || planner.has_blocks_queued());
   bool do_prot = false;
   if (!busy && cfg.timeout != 0) {
     HOTEND_LOOP() {
@@ -60,8 +60,8 @@ void HotendIdleProtection::check_hotends(const millis_t &ms) {
 
 void HotendIdleProtection::check_e_motion(const millis_t &ms) {
   static float old_e_position = 0;
-  if (old_e_position != current_position.e) {
-    old_e_position = current_position.e;            // Track filament motion
+  if (old_e_position != motion.position.e) {
+    old_e_position = motion.position.e;             // Track filament motion
     if (next_protect_ms)                            // If some heater is on then...
       next_protect_ms = ms + 1000UL * cfg.timeout;  // ...delay the timeout till later
   }

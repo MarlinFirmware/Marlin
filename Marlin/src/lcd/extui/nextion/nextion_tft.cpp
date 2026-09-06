@@ -43,8 +43,8 @@
 #define DEBUG_OUT NEXDEBUGLEVEL
 #include "../../../core/debug_out.h"
 
-char NextionTFT::selectedfile[MAX_PATH_LEN];
-char NextionTFT::nextion_command[MAX_CMND_LEN];
+char NextionTFT::selectedfile[MAX_PATH_LEN + 1];
+char NextionTFT::nextion_command[MAX_CMND_LEN + 1];
 uint8_t NextionTFT::command_len;
 
 uint32_t layer = 0;
@@ -67,7 +67,7 @@ void NextionTFT::startup() {
   SEND_TXT("tmppage.compiled", __DATE__ " / " __TIME__);
   SEND_VALasTXT("tmppage.extruder", EXTRUDERS);
   #if ENABLED(CONFIGURABLE_MACHINE_NAME)
-    SEND_VALasTXT("tmppage.printer", &machine_name);
+    SEND_VALasTXT("tmppage.printer", &marlin.machine_name);
   #else
     SEND_TXT("tmppage.printer", MACHINE_NAME);
   #endif
@@ -124,9 +124,9 @@ void NextionTFT::tftSend(FSTR_P const fstr/*=nullptr*/) { // A helper to print P
 
 bool NextionTFT::readTFTCommand() {
   bool command_ready = false;
-  while ((LCD_SERIAL.available() > 0) && (command_len < MAX_CMND_LEN)) {
+  while (LCD_SERIAL.available() > 0 && command_len < MAX_CMND_LEN) {
     nextion_command[command_len] = LCD_SERIAL.read();
-    if (nextion_command[command_len] == 10) {
+    if (nextion_command[command_len] == '\n') {
       command_ready = true;
       break;
     }
@@ -230,7 +230,7 @@ void NextionTFT::panelInfo(uint8_t req) {
       SEND_TXT("tmppage.compiled", __DATE__ " / " __TIME__);
       SEND_VALasTXT("tmppage.extruder", EXTRUDERS);
       #if ENABLED(CONFIGURABLE_MACHINE_NAME)
-        SEND_VALasTXT("tmppage.printer", &machine_name);
+        SEND_VALasTXT("tmppage.printer", &marlin.machine_name);
       #else
         SEND_TXT("tmppage.printer", MACHINE_NAME);
       #endif
@@ -263,7 +263,7 @@ void NextionTFT::panelInfo(uint8_t req) {
     break;
 
   case 23: // Linear Advance
-    #if ENABLED(LIN_ADVANCE)
+    #if HAS_LIN_ADVANCE_K
       SEND_VALasTXT("linadvance", getLinearAdvance_mm_mm_s(getActiveTool()));
     #else
       SEND_NA("linadvance");

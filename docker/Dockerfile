@@ -1,4 +1,20 @@
-FROM python:3.9.0-buster
+FROM python:3.11-bookworm
+
+# Install build dependencies for simulator UI
+RUN apt-get update && apt-get install -y \
+    libsdl2-dev \
+    libsdl2-net-dev \
+    libgl1-mesa-dev \
+    libegl1-mesa-dev \
+    libglu1-mesa-dev \
+    libx11-dev \
+    libxext-dev \
+    libxrandr-dev \
+    libxinerama-dev \
+    libxcursor-dev \
+    libxi-dev \
+    libglm-dev \
+    && rm -rf /var/lib/apt/lists/*
 
 # Disable warnings about not having a TTY
 ARG DEBIAN_FRONTEND=noninteractive

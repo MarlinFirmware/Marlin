@@ -29,9 +29,15 @@
 #endif
 
 Stopwatch::State Stopwatch::state;
-millis_t Stopwatch::accumulator;
-millis_t Stopwatch::startTimestamp;
-millis_t Stopwatch::stopTimestamp;
+uint32_t Stopwatch::accumulator;
+uint32_t Stopwatch::startTimestamp;
+uint32_t Stopwatch::stopTimestamp;
+
+#if ANY(REMAINING_TIME_PRIME, REMAINING_TIME_AUTOPRIME)
+  uint32_t Stopwatch::lap_start_time;   // Reckon from this start time
+  float    Stopwatch::lap_start_sdpos,  // Reckon from this start file position
+           Stopwatch::lap_total_data;   // Total size from start_sdpos to end of file
+#endif
 
 bool Stopwatch::stop() {
   debug(F("stop"));
@@ -73,7 +79,7 @@ bool Stopwatch::start() {
   else return false;
 }
 
-void Stopwatch::resume(const millis_t with_time) {
+void Stopwatch::resume(const uint32_t with_time) {
   debug(F("resume"));
 
   reset();
@@ -89,7 +95,7 @@ void Stopwatch::reset() {
   accumulator = 0;
 }
 
-millis_t Stopwatch::duration() {
+uint32_t Stopwatch::duration() {
   return accumulator + MS_TO_SEC((isRunning() ? millis() : stopTimestamp) - startTimestamp);
 }
 

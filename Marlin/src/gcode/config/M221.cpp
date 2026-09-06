@@ -44,4 +44,4 @@ void GcodeSuite::M221() {
   }
 }
 
-#endif // EXTRUDERS
+#endif // HAS_EXTRUDERS

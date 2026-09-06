@@ -34,7 +34,7 @@
 
 #include <SPI.h>
 
-#include "../../../MarlinCore.h" // for marlin_state
+#include "../../../MarlinCore.h" // for marlin.is()
 #include "../../../sd/cardreader.h"
 #include "../../../module/motion.h"
 #include "../../../module/planner.h"
@@ -116,9 +116,7 @@ void gCfgItems_init() {
   gCfgItems.curFilesize       = 0;
   gCfgItems.finish_power_off  = false;
   gCfgItems.pause_reprint     = false;
-  gCfgItems.pausePosX         = -1;
-  gCfgItems.pausePosY         = -1;
-  gCfgItems.pausePosZ         = 5;
+  gCfgItems.pausePos.set(-1, -1, 5);
   gCfgItems.trammingPos[0].x  = X_MIN_POS + 30;
   gCfgItems.trammingPos[0].y  = Y_MIN_POS + 30;
   gCfgItems.trammingPos[1].x  = X_MAX_POS - 30;
@@ -194,8 +192,8 @@ void ui_cfg_init() {
   uiCfg.filament_unloading_time_cnt  = 0;
 
   #if ENABLED(MKS_WIFI_MODULE)
-    memset(&wifiPara, 0, sizeof(wifiPara));
-    memset(&ipPara, 0, sizeof(ipPara));
+    OBJZERO(wifiPara);
+    OBJZERO(ipPara);
     strcpy_P(wifiPara.ap_name, PSTR(WIFI_AP_NAME));
     strcpy_P(wifiPara.keyCode, PSTR(WIFI_KEY_CODE));
     // client
@@ -300,8 +298,8 @@ void tft_style_init() {
   tft_style_label_rel.body.grad_color = LV_COLOR_BACKGROUND;
   tft_style_label_rel.text.color      = LV_COLOR_TEXT;
   tft_style_label_rel.text.sel_color  = LV_COLOR_TEXT;
-  tft_style_label_pre.text.font       = TERN(HAS_SPI_FLASH_FONT, &gb2312_puhui32, LV_FONT_DEFAULT);
-  tft_style_label_rel.text.font       = TERN(HAS_SPI_FLASH_FONT, &gb2312_puhui32, LV_FONT_DEFAULT);
+  tft_style_label_pre.text.font       = TERN(MKS_SPI_FLASH_FONT, &gb2312_puhui32, LV_FONT_DEFAULT);
+  tft_style_label_rel.text.font       = TERN(MKS_SPI_FLASH_FONT, &gb2312_puhui32, LV_FONT_DEFAULT);
   tft_style_label_pre.line.width        = 0;
   tft_style_label_rel.line.width        = 0;
   tft_style_label_pre.text.letter_space = 0;
@@ -319,8 +317,8 @@ void tft_style_init() {
   style_para_value_rel.body.grad_color = LV_COLOR_BACKGROUND;
   style_para_value_rel.text.color      = LV_COLOR_BLACK;
   style_para_value_rel.text.sel_color  = LV_COLOR_BLACK;
-  style_para_value_pre.text.font       = TERN(HAS_SPI_FLASH_FONT, &gb2312_puhui32, LV_FONT_DEFAULT);
-  style_para_value_rel.text.font       = TERN(HAS_SPI_FLASH_FONT, &gb2312_puhui32, LV_FONT_DEFAULT);
+  style_para_value_pre.text.font       = TERN(MKS_SPI_FLASH_FONT, &gb2312_puhui32, LV_FONT_DEFAULT);
+  style_para_value_rel.text.font       = TERN(MKS_SPI_FLASH_FONT, &gb2312_puhui32, LV_FONT_DEFAULT);
   style_para_value_pre.line.width        = 0;
   style_para_value_rel.line.width        = 0;
   style_para_value_pre.text.letter_space = 0;
@@ -338,8 +336,8 @@ void tft_style_init() {
   style_num_key_rel.body.grad_color = LV_COLOR_KEY_BACKGROUND;
   style_num_key_rel.text.color      = LV_COLOR_TEXT;
   style_num_key_rel.text.sel_color  = LV_COLOR_TEXT;
-  style_num_key_pre.text.font       = TERN(HAS_SPI_FLASH_FONT, &gb2312_puhui32, LV_FONT_DEFAULT);
-  style_num_key_rel.text.font       = TERN(HAS_SPI_FLASH_FONT, &gb2312_puhui32, LV_FONT_DEFAULT);
+  style_num_key_pre.text.font       = TERN(MKS_SPI_FLASH_FONT, &gb2312_puhui32, LV_FONT_DEFAULT);
+  style_num_key_rel.text.font       = TERN(MKS_SPI_FLASH_FONT, &gb2312_puhui32, LV_FONT_DEFAULT);
 
   style_num_key_pre.line.width        = 0;
   style_num_key_rel.line.width        = 0;
@@ -353,7 +351,7 @@ void tft_style_init() {
   style_num_text.body.grad_color   = LV_COLOR_WHITE;
   style_num_text.text.color        = LV_COLOR_BLACK;
   style_num_text.text.sel_color    = LV_COLOR_BLACK;
-  style_num_text.text.font         = TERN(HAS_SPI_FLASH_FONT, &gb2312_puhui32, LV_FONT_DEFAULT);
+  style_num_text.text.font         = TERN(MKS_SPI_FLASH_FONT, &gb2312_puhui32, LV_FONT_DEFAULT);
   style_num_text.line.width        = 0;
   style_num_text.text.letter_space = 0;
   style_num_text.text.line_space   = -5;
@@ -363,7 +361,7 @@ void tft_style_init() {
   style_sel_text.body.grad_color   = LV_COLOR_BACKGROUND;
   style_sel_text.text.color        = LV_COLOR_YELLOW;
   style_sel_text.text.sel_color    = LV_COLOR_YELLOW;
-  style_sel_text.text.font         = TERN(HAS_SPI_FLASH_FONT, &gb2312_puhui32, LV_FONT_DEFAULT);
+  style_sel_text.text.font         = TERN(MKS_SPI_FLASH_FONT, &gb2312_puhui32, LV_FONT_DEFAULT);
   style_sel_text.line.width        = 0;
   style_sel_text.text.letter_space = 0;
   style_sel_text.text.line_space   = -5;
@@ -380,7 +378,7 @@ void tft_style_init() {
   style_para_value.body.shadow.width = 0;
   style_para_value.body.radius       = 3;
   style_para_value.text.color        = LV_COLOR_BLACK;
-  style_para_value.text.font         = &TERN(HAS_SPI_FLASH_FONT, gb2312_puhui32, lv_font_roboto_22);
+  style_para_value.text.font         = &TERN(MKS_SPI_FLASH_FONT, gb2312_puhui32, lv_font_roboto_22);
 
   lv_style_copy(&style_para_back, &lv_style_plain);
   style_para_back.body.border.color = LV_COLOR_BACKGROUND;
@@ -390,7 +388,7 @@ void tft_style_init() {
   style_para_back.body.shadow.width = 0;
   style_para_back.body.radius       = 3;
   style_para_back.text.color        = LV_COLOR_WHITE;
-  style_para_back.text.font         = &TERN(HAS_SPI_FLASH_FONT, gb2312_puhui32, lv_font_roboto_22);
+  style_para_back.text.font         = &TERN(MKS_SPI_FLASH_FONT, gb2312_puhui32, lv_font_roboto_22);
 
   lv_style_copy(&style_btn_rel, &lv_style_plain);
   style_btn_rel.body.border.color = lv_color_hex3(0x269);
@@ -401,7 +399,7 @@ void tft_style_init() {
   style_btn_rel.body.shadow.type  = LV_SHADOW_BOTTOM;
   style_btn_rel.body.radius       = LV_RADIUS_CIRCLE;
   style_btn_rel.text.color        = lv_color_hex3(0xDEF);
-  style_btn_rel.text.font         = &TERN(HAS_SPI_FLASH_FONT, gb2312_puhui32, lv_font_roboto_22);
+  style_btn_rel.text.font         = &TERN(MKS_SPI_FLASH_FONT, gb2312_puhui32, lv_font_roboto_22);
 
   lv_style_copy(&style_btn_pr, &style_btn_rel);
   style_btn_pr.body.border.color = lv_color_hex3(0x46B);
@@ -409,7 +407,7 @@ void tft_style_init() {
   style_btn_pr.body.grad_color   = lv_color_hex3(0x24A);
   style_btn_pr.body.shadow.width = 2;
   style_btn_pr.text.color        = lv_color_hex3(0xBCD);
-  style_btn_pr.text.font         = &TERN(HAS_SPI_FLASH_FONT, gb2312_puhui32, lv_font_roboto_22);
+  style_btn_pr.text.font         = &TERN(MKS_SPI_FLASH_FONT, gb2312_puhui32, lv_font_roboto_22);
 
   lv_style_copy(&lv_bar_style_indic, &lv_style_pretty_color);
   lv_bar_style_indic.text.color        = lv_color_hex3(0xADF);
@@ -548,7 +546,7 @@ char *creat_title_text() {
   return public_buf_m;
 }
 
-#if HAS_GCODE_PREVIEW
+#if MKS_GCODE_PREVIEW
 
   uintptr_t gPicturePreviewStart = 0;
 
@@ -622,7 +620,7 @@ char *creat_title_text() {
         if (*p_index == 0x0000) *p_index = LV_COLOR_BACKGROUND.full;
       }
       SPI_TFT.tftio.writeSequence((uint16_t*)bmp_public_buf, 200);
-      #if HAS_BAK_VIEW_IN_FLASH
+      #if MKS_BAK_VIEW_IN_FLASH
         W25QXX.init(SPI_QUARTER_SPEED);
         if (row < 20) W25QXX.SPI_FLASH_SectorErase(BAK_VIEW_ADDR_TFT35 + row * 4096);
         W25QXX.SPI_FLASH_BufferWrite(bmp_public_buf, BAK_VIEW_ADDR_TFT35 + row * 400, 400);
@@ -649,9 +647,9 @@ char *creat_title_text() {
 
         card.openFileRead(cur_name);
         if (card.isFileOpen()) {
-          feedrate_percentage = 100;
+          motion.feedrate_percentage = 100;
           TERN_(HAS_EXTRUDERS, planner.set_flow(0, 100));
-          TERN_(HAS_MULTI_EXTRUDER, planner.set_flow(1, 100));
+          E_TERN_(planner.set_flow(1, 100));
           card.startOrResumeFilePrinting();
           TERN_(POWER_LOSS_RECOVERY, recovery.prepare());
           once_flag = false;
@@ -667,7 +665,7 @@ char *creat_title_text() {
     static constexpr uint32_t pixel_count = (DEFAULT_VIEW_MAX_SIZE) / draw_count; // Number of pixels read per time (uint8_t)
     int y_off = 0;
     for (int index = 0; index < draw_count; index++) { // 200*200
-      #if HAS_BAK_VIEW_IN_FLASH
+      #if MKS_BAK_VIEW_IN_FLASH
         if (sel == 1) {
           flash_view_Read(bmp_public_buf, pixel_count); // 16k
         }
@@ -687,13 +685,13 @@ char *creat_title_text() {
 
   void disp_pre_gcode(int xpos_pixel, int ypos_pixel) {
     if (gcode_preview_over) gcode_preview(list_file.file_name[sel_id], xpos_pixel, ypos_pixel);
-    #if HAS_BAK_VIEW_IN_FLASH
+    #if MKS_BAK_VIEW_IN_FLASH
       if (flash_preview_begin) {
         flash_preview_begin = false;
         draw_default_preview(xpos_pixel, ypos_pixel, 1);
       }
     #endif
-    #if HAS_GCODE_DEFAULT_VIEW_IN_FLASH
+    #if MKS_GCODE_DEFAULT_VIEW_IN_FLASH
       if (default_preview_flg) {
         draw_default_preview(xpos_pixel, ypos_pixel, 0);
         default_preview_flg = false;
@@ -701,7 +699,7 @@ char *creat_title_text() {
     #endif
   }
 
-#endif // HAS_GCODE_PREVIEW
+#endif // MKS_GCODE_PREVIEW
 
 void print_time_run() {
   static uint8_t lastSec = 0;
@@ -757,7 +755,7 @@ void GUI_RefreshPage() {
         disp_print_time();
         disp_fan_Zpos();
       }
-      if (printing_rate_update_flag || marlin_state == MarlinState::MF_SD_COMPLETE) {
+      if (printing_rate_update_flag || marlin.is(MF_SD_COMPLETE)) {
         printing_rate_update_flag = false;
         if (!gcode_preview_over) setProBarRate();
       }
@@ -1364,7 +1362,7 @@ void LV_TASK_HANDLER() {
     if (mks_test_flag == 0x1E) mks_hardware_test();
   #endif
 
-  TERN_(HAS_GCODE_PREVIEW, disp_pre_gcode(2, 36));
+  TERN_(MKS_GCODE_PREVIEW, disp_pre_gcode(2, 36));
 
   GUI_RefreshPage();
 

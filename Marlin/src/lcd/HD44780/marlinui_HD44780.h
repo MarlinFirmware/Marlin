@@ -89,6 +89,15 @@
   #include <LiquidCrystal_SR.h>
   #define LCD_CLASS LiquidCrystal_SR
 
+#elif ENABLED(MIGHTYBOARD_LCD)
+
+  // 3-wire shift-register LCD for Mightyboard
+  // Optimized in-tree implementation
+  // Pin mapping: SR_STROBE_PIN, SR_DATA_PIN, SR_CLK_PIN
+
+  #include "mighty/mighty_lcd_serial.h"
+  #define LCD_CLASS MightyboardLCDSerial
+
 #elif ENABLED(SR_LCD_3W_NL)
 
   // NewLiquidCrystal didn't work, so this uses

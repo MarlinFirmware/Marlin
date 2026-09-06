@@ -23,7 +23,7 @@
 
 /**
  * Geeetech GT2560 Rev B Pins
- * Schematic: https://www.geeetech.com/wiki/images/7/72/GT2560_REVB.pdf
+ * Schematic: https://wiki.geeetech.com/images/7/72/GT2560_REVB.pdf
  * ATmega2560
  */
 

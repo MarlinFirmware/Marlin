@@ -39,7 +39,6 @@
 
 #include "SdBaseFile.h"
 
-#include "../MarlinCore.h"
 SdBaseFile *SdBaseFile::cwd_ = 0;   // Pointer to Current Working Directory
 
 // callback function for date/time

@@ -35,6 +35,9 @@
  *  S<bool>   : Reset and enable/disable the runout sensor
  *  H<bool>   : Enable/disable host handling of filament runout
  *  D<linear> : Extra distance to continue after runout is triggered
+ *
+ * With FILAMENT_SWITCH_AND_MOTION:
+ *  L<linear> : Missing motion length to consider a jam
  */
 void GcodeSuite::M412() {
   if (parser.seen("RS"
@@ -51,7 +54,7 @@ void GcodeSuite::M412() {
       if (parser.seenval('D')) runout.set_runout_distance(parser.value_linear_units());
     #endif
     #if ENABLED(FILAMENT_SWITCH_AND_MOTION)
-      if (parser.seenval('M')) runout.set_motion_distance(parser.value_linear_units());
+      if (parser.seenval('L')) runout.set_motion_distance(parser.value_linear_units());
     #endif
   }
   else {
@@ -80,7 +83,7 @@ void GcodeSuite::M412_report(const bool forReplay/*=true*/) {
       , " D", LINEAR_UNIT(runout.runout_distance())
     #endif
     #if ENABLED(FILAMENT_SWITCH_AND_MOTION)
-      , " M", LINEAR_UNIT(runout.motion_distance())
+      , " L", LINEAR_UNIT(runout.motion_distance())
     #endif
     , " ; Sensor ", ON_OFF(runout.enabled)
   );

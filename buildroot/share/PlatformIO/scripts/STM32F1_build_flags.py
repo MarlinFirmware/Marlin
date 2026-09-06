@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 #
 # STM32F1_build_flags.py
 # Add build_flags for the base STM32F1_maple environment (stm32f1-maple.ini)
@@ -19,7 +19,6 @@ if __name__ == "__main__":
         "-fsigned-char",
         "-fno-move-loop-invariants",
         "-fno-strict-aliasing",
-        "-fsingle-precision-constant",
 
         "--specs=nano.specs",
         "--specs=nosys.specs",

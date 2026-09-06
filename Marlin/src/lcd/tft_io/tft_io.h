@@ -74,7 +74,7 @@ public:
   // Non-blocking DMA-based IO used by TFT_COLOR_UI only
   // These functions start data transfer using DMA and do NOT wait for data transfer completion
   inline static void writeSequenceDMA(uint16_t *data, uint16_t count) { io.writeSequence_DMA(data, count); }
-  inline static void WriteMultipleDMA(uint16_t color, uint16_t count) { io.writeMultiple_DMA(color, count); }
+  inline static void writeMultipleDMA(uint16_t color, uint16_t count) { io.writeMultiple_DMA(color, count); }
 
   // Non-blocking DMA-based IO with IRQ callback used by TFT_LVGL_UI only
   // This function starts data transfer using DMA and does NOT wait for data transfer completion

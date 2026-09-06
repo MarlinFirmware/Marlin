@@ -160,7 +160,7 @@ public:
   static bool watchdog_timed_out() IF_DISABLED(USE_WATCHDOG, { return false; });
   static void watchdog_clear_timeout_flag() IF_DISABLED(USE_WATCHDOG, {});
 
-  // Tasks, called from idle()
+  // Tasks, called from marlin.idle()
   static void idletask();
 
   // Reset

@@ -422,7 +422,7 @@ EspUploadResult doCommand(uint8_t op, const uint8_t *data, size_t dataLen, uint3
   return stat;
 }
 
-// Send a synchronising packet to the serial port in an attempt to induce
+// Send a synchronizing packet to the serial port in an attempt to induce
 // the ESP8266 to auto-baud lock on the baud rate.
 EspUploadResult sync(uint16_t timeout) {
   uint8_t buf[36];

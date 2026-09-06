@@ -71,11 +71,9 @@ void BLTouch::init(const bool set_voltage/*=false*/) {
 
   #else
 
-    #ifdef DEBUG_OUT
-      if (DEBUGGING(LEVELING))
-        DEBUG_ECHOLN( F("BLTouch Mode: "), bltouch.od_5v_mode ? F("5V") : F("OD"),
-                      F(" (Default " TERN(BLTOUCH_SET_5V_MODE, "5V", "OD") ")"));
-    #endif
+    if (DEBUGGING(LEVELING))
+      DEBUG_ECHOLN( F("BLTouch Mode: "), bltouch.od_5v_mode ? F("5V") : F("OD"),
+                    F(" (Default " TERN(BLTOUCH_SET_5V_MODE, "5V", "OD") ")"));
 
     const bool should_set = od_5v_mode != ENABLED(BLTOUCH_SET_5V_MODE);
 

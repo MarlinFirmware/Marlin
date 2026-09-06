@@ -122,7 +122,7 @@ typedef struct { raw_adc_t value; celsius_t celsius; } temp_entry_t;
 #if ANY_THERMISTOR_IS(12)     // beta25 = 4700 K, R25 = 100kΩ, Pullup = 4.7kΩ, "Personal calibration for Makibox hot bed"
   #include "thermistor_12.h"
 #endif
-#if ANY_THERMISTOR_IS(13)     // beta25 = 4100 K, R25 = 100kΩ, Pullup = 4.7kΩ, "Hisens"
+#if ANY_THERMISTOR_IS(13)     // beta25 = 4100 K, R25 = 100kΩ, Pullup = 4.7kΩ, "Hisense"
   #include "thermistor_13.h"
 #endif
 #if ANY_THERMISTOR_IS(14)     // beta25 = 4092 K, R25 = 100kΩ, Pullup = 4.7kΩ, "EPCOS" for hot bed

@@ -35,8 +35,6 @@
 
 #include "SdVolume.h"
 
-#include "../MarlinCore.h"
-
 #if !USE_MULTIPLE_CARDS
   // raw block cache
   uint32_t SdVolume::cacheBlockNumber_;  // current block number

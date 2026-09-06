@@ -163,7 +163,7 @@ const PinInfo pin_array[] PROGMEM = {
   #endif
 
   #include "pinsDebug_list.h"
-  #line 168
+  #line 167
 
 };
 
@@ -172,8 +172,6 @@ const PinInfo pin_array[] PROGMEM = {
 #ifndef M43_NEVER_TOUCH
   #define M43_NEVER_TOUCH(Q) false
 #endif
-
-bool pin_is_protected(const pin_t pin);
 
 static void printPinIOState(const bool isout) {
   SERIAL_ECHO(isout ? F("Output ") : F("Input  "));
@@ -221,7 +219,7 @@ inline void printPinStateExt(const pin_t pin, const bool ignore, const bool exte
       }
       printPinNameByIndex(x);
       if (extended) {
-        if (pin_is_protected(pin) && !ignore)
+        if (marlin.pin_is_protected(pin) && !ignore)
           SERIAL_ECHOPGM("protected ");
         else {
           if (alt_pin_echo(pin)) {

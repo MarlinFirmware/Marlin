@@ -32,7 +32,7 @@
 // Ignore temp readings during development.
 //#define BOGUS_TEMPERATURE_GRACE_PERIOD    2000
 
-#if ANY(NO_EEPROM_SELECTED, FLASH_EEPROM_EMULATION)
+#if SHALL_USE_EEPROM(FLASH_EEPROM_EMULATION)
   #define FLASH_EEPROM_EMULATION
   #define FLASH_EEPROM_LEVELING
 
@@ -239,7 +239,7 @@
       #elif ENABLED(FYSETC_MINI_12864_2_1)
         #define NEOPIXEL_PIN         EXP1_06_PIN
       #endif
-    #endif // !FYSETC_MINI_12864
+    #endif // FYSETC_MINI_12864
 
     #if IS_ULTIPANEL
       #define LCD_PINS_D5            EXP1_06_PIN

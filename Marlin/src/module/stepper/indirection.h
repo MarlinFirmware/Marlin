@@ -38,7 +38,7 @@
  * E Special Cases
  *  - SINGLENOZZLE: All Extruders have a single nozzle so there is one heater and no XYZ offset.
  *  - Switching Extruder: One stepper is used for each pair of nozzles with a switching mechanism.
- *  - Duplication Mode: Two or more steppers move in sync when `extruder_duplication_enabled` is set.
+ *  - Duplication Mode: Two or more steppers move in sync when `motion.extruder_duplication` is set.
  *                      With MULTI_NOZZLE_DUPLICATION a `duplication_e_mask` is also used.
  *  - Průša MMU1: One stepper is used with a switching mechanism. Odd numbered E indexes are reversed.
  *  - Průša MMU2: One stepper is used with a switching mechanism.
@@ -62,7 +62,7 @@
  *   ENABLE_AXIS_Q()  DISABLE_AXIS_Q()
  *
  * E-Axis Stepper Control (0..n)
- *  For these macros the E index indicates a logical extruder (e.g., active_extruder).
+ *  For these macros the E index indicates a logical extruder (e.g., motion.extruder).
  *
  *    E_STEP_WRITE(E,V)  FWD_E_DIR(E)  REV_E_DIR(E)
  *
@@ -577,6 +577,7 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
  * Extruder indirection for the single E axis
  */
 #if HAS_SWITCHING_EXTRUDER // One stepper driver per two extruders, reversed on odd index
+
   #if EXTRUDERS > 7
     #define E_STEP_WRITE(E,V) do{ if (E < 2) { E0_STEP_WRITE(V); } else if (E < 4) { E1_STEP_WRITE(V); } else if (E < 6) { E2_STEP_WRITE(V); } else { E3_STEP_WRITE(V); } }while(0)
     #define    FWD_E_DIR(E)   do{ switch (E) { \
@@ -758,21 +759,22 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
 
   #elif E_STEPPERS > 2
 
-    #define _E_STEP_WRITE(E,V) do{ switch (E) { case 0: E0_STEP_WRITE(V); break; case 1: E1_STEP_WRITE(V); break; case 2: E2_STEP_WRITE(V); } }while(0)
-    #define    _FWD_E_DIR(E)   do{ switch (E) { case 0: E0_DIR_WRITE(HIGH); break; case 1: E1_DIR_WRITE(HIGH); break; case 2: E2_DIR_WRITE(HIGH); } }while(0)
-    #define    _REV_E_DIR(E)   do{ switch (E) { case 0: E0_DIR_WRITE(LOW ); break; case 1: E1_DIR_WRITE(LOW ); break; case 2: E2_DIR_WRITE(LOW ); } }while(0)
+    #define _E_STEP_WRITE(E,V) do{ switch (E) { case 0: E0_STEP_WRITE(V); break; case 1: E1_STEP_WRITE(V); break; case 2: E2_STEP_WRITE(V); break; } }while(0)
+    #define    _FWD_E_DIR(E)   do{ switch (E) { case 0: E0_DIR_WRITE(HIGH); break; case 1: E1_DIR_WRITE(HIGH); break; case 2: E2_DIR_WRITE(HIGH); break; } }while(0)
+    #define    _REV_E_DIR(E)   do{ switch (E) { case 0: E0_DIR_WRITE(LOW ); break; case 1: E1_DIR_WRITE(LOW ); break; case 2: E2_DIR_WRITE(LOW ); break; } }while(0)
 
   #else
 
     #define _E_STEP_WRITE(E,V) do{ if (E == 0) { E0_STEP_WRITE(V); } else { E1_STEP_WRITE(V); } }while(0)
     #define    _FWD_E_DIR(E)   do{ if (E == 0) { E0_DIR_WRITE(HIGH); } else { E1_DIR_WRITE(HIGH); } }while(0)
     #define    _REV_E_DIR(E)   do{ if (E == 0) { E0_DIR_WRITE(LOW ); } else { E1_DIR_WRITE(LOW ); } }while(0)
+
   #endif
 
   #if HAS_DUPLICATION_MODE
 
     #if ENABLED(MULTI_NOZZLE_DUPLICATION)
-      #define DUPE(N,T,V) do{ if (TEST(duplication_e_mask, N)) E##N##_##T##_WRITE(V); }while(0);
+      #define DUPE(N,T,V) do{ if (TEST(motion.duplication_e_mask, N)) E##N##_##T##_WRITE(V); }while(0);
     #else
       #define DUPE(N,T,V) E##N##_##T##_WRITE(V);
     #endif
@@ -780,9 +782,9 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
     #define NDIR(N) DUPE(N,DIR,HIGH);
     #define RDIR(N) DUPE(N,DIR,LOW );
 
-    #define E_STEP_WRITE(E,V) do{ if (extruder_duplication_enabled) { REPEAT2(E_STEPPERS, DUPE, STEP, V); } else _E_STEP_WRITE(E,V); }while(0)
-    #define  FWD_E_DIR(E)     do{ if (extruder_duplication_enabled) { REPEAT(E_STEPPERS, NDIR); } else _FWD_E_DIR(E); }while(0)
-    #define  REV_E_DIR(E)     do{ if (extruder_duplication_enabled) { REPEAT(E_STEPPERS, RDIR); } else _REV_E_DIR(E); }while(0)
+    #define E_STEP_WRITE(E,V) do{ if (motion.extruder_duplication) { REPEAT2(E_STEPPERS, DUPE, STEP, V); } else _E_STEP_WRITE(E,V); }while(0)
+    #define  FWD_E_DIR(E)     do{ if (motion.extruder_duplication) { REPEAT(E_STEPPERS, NDIR); } else _FWD_E_DIR(E); }while(0)
+    #define  REV_E_DIR(E)     do{ if (motion.extruder_duplication) { REPEAT(E_STEPPERS, RDIR); } else _REV_E_DIR(E); }while(0)
 
   #else
 
@@ -996,7 +998,7 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
 
 #if HAS_X_AXIS
   #define  ENABLE_AXIS_X() if (SHOULD_ENABLE(x))  {  ENABLE_STEPPER_X();  ENABLE_STEPPER_X2(); AFTER_CHANGE(x, true); }
-  #define DISABLE_AXIS_X() if (SHOULD_DISABLE(x)) { DISABLE_STEPPER_X(); DISABLE_STEPPER_X2(); AFTER_CHANGE(x, false); set_axis_untrusted(X_AXIS); }
+  #define DISABLE_AXIS_X() if (SHOULD_DISABLE(x)) { DISABLE_STEPPER_X(); DISABLE_STEPPER_X2(); AFTER_CHANGE(x, false); motion.set_axis_untrusted(X_AXIS); }
 #else
   #define  ENABLE_AXIS_X() NOOP
   #define DISABLE_AXIS_X() NOOP
@@ -1004,7 +1006,7 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
 
 #if HAS_Y_AXIS
   #define  ENABLE_AXIS_Y() if (SHOULD_ENABLE(y))  {  ENABLE_STEPPER_Y();  ENABLE_STEPPER_Y2(); AFTER_CHANGE(y, true); }
-  #define DISABLE_AXIS_Y() if (SHOULD_DISABLE(y)) { DISABLE_STEPPER_Y(); DISABLE_STEPPER_Y2(); AFTER_CHANGE(y, false); set_axis_untrusted(Y_AXIS); }
+  #define DISABLE_AXIS_Y() if (SHOULD_DISABLE(y)) { DISABLE_STEPPER_Y(); DISABLE_STEPPER_Y2(); AFTER_CHANGE(y, false); motion.set_axis_untrusted(Y_AXIS); }
 #else
   #define  ENABLE_AXIS_Y() NOOP
   #define DISABLE_AXIS_Y() NOOP
@@ -1012,35 +1014,35 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
 
 #if HAS_Z_AXIS
   #define  ENABLE_AXIS_Z() if (SHOULD_ENABLE(z))  {  ENABLE_STEPPER_Z();  ENABLE_STEPPER_Z2();  ENABLE_STEPPER_Z3();  ENABLE_STEPPER_Z4(); AFTER_CHANGE(z, true); }
-  #define DISABLE_AXIS_Z() if (SHOULD_DISABLE(z)) { DISABLE_STEPPER_Z(); DISABLE_STEPPER_Z2(); DISABLE_STEPPER_Z3(); DISABLE_STEPPER_Z4(); AFTER_CHANGE(z, false); set_axis_untrusted(Z_AXIS); Z_RESET(); TERN_(BD_SENSOR, bdl.config_state = BDS_IDLE); }
+  #define DISABLE_AXIS_Z() if (SHOULD_DISABLE(z)) { DISABLE_STEPPER_Z(); DISABLE_STEPPER_Z2(); DISABLE_STEPPER_Z3(); DISABLE_STEPPER_Z4(); AFTER_CHANGE(z, false); motion.set_axis_untrusted(Z_AXIS); Z_RESET(); TERN_(BD_SENSOR, bdl.config_state = BDS_IDLE); }
 #else
   #define  ENABLE_AXIS_Z() NOOP
   #define DISABLE_AXIS_Z() NOOP
 #endif
 
 #ifdef Z_IDLE_HEIGHT
-  #define Z_RESET() do{ current_position.z = Z_IDLE_HEIGHT; sync_plan_position(); }while(0)
+  #define Z_RESET() do{ motion.position.z = Z_IDLE_HEIGHT; motion.sync_plan_position(); }while(0)
 #else
   #define Z_RESET()
 #endif
 
 #if HAS_I_AXIS
   #define  ENABLE_AXIS_I() if (SHOULD_ENABLE(i))  {  ENABLE_STEPPER_I(); AFTER_CHANGE(i, true); }
-  #define DISABLE_AXIS_I() if (SHOULD_DISABLE(i)) { DISABLE_STEPPER_I(); AFTER_CHANGE(i, false); set_axis_untrusted(I_AXIS); }
+  #define DISABLE_AXIS_I() if (SHOULD_DISABLE(i)) { DISABLE_STEPPER_I(); AFTER_CHANGE(i, false); motion.set_axis_untrusted(I_AXIS); }
 #else
   #define  ENABLE_AXIS_I() NOOP
   #define DISABLE_AXIS_I() NOOP
 #endif
 #if HAS_J_AXIS
   #define  ENABLE_AXIS_J() if (SHOULD_ENABLE(j))  {  ENABLE_STEPPER_J(); AFTER_CHANGE(j, true); }
-  #define DISABLE_AXIS_J() if (SHOULD_DISABLE(j)) { DISABLE_STEPPER_J(); AFTER_CHANGE(j, false); set_axis_untrusted(J_AXIS); }
+  #define DISABLE_AXIS_J() if (SHOULD_DISABLE(j)) { DISABLE_STEPPER_J(); AFTER_CHANGE(j, false); motion.set_axis_untrusted(J_AXIS); }
 #else
   #define  ENABLE_AXIS_J() NOOP
   #define DISABLE_AXIS_J() NOOP
 #endif
 #if HAS_K_AXIS
   #define  ENABLE_AXIS_K() if (SHOULD_ENABLE(k))  {  ENABLE_STEPPER_K(); AFTER_CHANGE(k, true); }
-  #define DISABLE_AXIS_K() if (SHOULD_DISABLE(k)) { DISABLE_STEPPER_K(); AFTER_CHANGE(k, false); set_axis_untrusted(K_AXIS); }
+  #define DISABLE_AXIS_K() if (SHOULD_DISABLE(k)) { DISABLE_STEPPER_K(); AFTER_CHANGE(k, false); motion.set_axis_untrusted(K_AXIS); }
 #else
   #define  ENABLE_AXIS_K() NOOP
   #define DISABLE_AXIS_K() NOOP
@@ -1048,21 +1050,21 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
 
 #if HAS_U_AXIS
   #define  ENABLE_AXIS_U() if (SHOULD_ENABLE(u))  {  ENABLE_STEPPER_U(); AFTER_CHANGE(u, true); }
-  #define DISABLE_AXIS_U() if (SHOULD_DISABLE(u)) { DISABLE_STEPPER_U(); AFTER_CHANGE(u, false); set_axis_untrusted(U_AXIS); }
+  #define DISABLE_AXIS_U() if (SHOULD_DISABLE(u)) { DISABLE_STEPPER_U(); AFTER_CHANGE(u, false); motion.set_axis_untrusted(U_AXIS); }
 #else
   #define  ENABLE_AXIS_U() NOOP
   #define DISABLE_AXIS_U() NOOP
 #endif
 #if HAS_V_AXIS
   #define  ENABLE_AXIS_V() if (SHOULD_ENABLE(v))  {  ENABLE_STEPPER_V(); AFTER_CHANGE(v, true); }
-  #define DISABLE_AXIS_V() if (SHOULD_DISABLE(v)) { DISABLE_STEPPER_V(); AFTER_CHANGE(v, false); set_axis_untrusted(V_AXIS); }
+  #define DISABLE_AXIS_V() if (SHOULD_DISABLE(v)) { DISABLE_STEPPER_V(); AFTER_CHANGE(v, false); motion.set_axis_untrusted(V_AXIS); }
 #else
   #define  ENABLE_AXIS_V() NOOP
   #define DISABLE_AXIS_V() NOOP
 #endif
 #if HAS_W_AXIS
   #define  ENABLE_AXIS_W() if (SHOULD_ENABLE(w))  {  ENABLE_STEPPER_W(); AFTER_CHANGE(w, true); }
-  #define DISABLE_AXIS_W() if (SHOULD_DISABLE(w)) { DISABLE_STEPPER_W(); AFTER_CHANGE(w, false); set_axis_untrusted(W_AXIS); }
+  #define DISABLE_AXIS_W() if (SHOULD_DISABLE(w)) { DISABLE_STEPPER_W(); AFTER_CHANGE(w, false); motion.set_axis_untrusted(W_AXIS); }
 #else
   #define  ENABLE_AXIS_W() NOOP
   #define DISABLE_AXIS_W() NOOP

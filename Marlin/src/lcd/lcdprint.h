@@ -36,7 +36,7 @@
 
 #if IS_DWIN_MARLINUI
 
-  #include "e3v2/marlinui/marlinui_dwin.h"
+  #include "dwin/marlinui/marlinui_dwin.h"
 
   // The DWIN lcd_moveto function uses row / column, not pixels
   #define LCD_COL_X(col)    (col)

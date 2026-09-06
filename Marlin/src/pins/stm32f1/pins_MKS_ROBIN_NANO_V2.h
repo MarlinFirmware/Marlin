@@ -54,7 +54,7 @@
 //#define FLASH_EEPROM_EMULATION
 //#define SDCARD_EEPROM_EMULATION
 
-#if ANY(NO_EEPROM_SELECTED, I2C_EEPROM)
+#if SHALL_USE_EEPROM(I2C_EEPROM)
   #define I2C_EEPROM                              // EEPROM on I2C-0
   #define MARLIN_EEPROM_SIZE             0x1000U  // 4K
 #endif
@@ -288,6 +288,8 @@
 #define EXP2_06_PIN                         PA7
 #define EXP2_07_PIN                         PE12
 #define EXP2_08_PIN                         -1    // RESET
+
+#define EXP_REVERSE_KEYED
 
 //
 // LCD / Controller

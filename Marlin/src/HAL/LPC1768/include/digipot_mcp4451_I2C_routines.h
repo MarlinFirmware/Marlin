@@ -23,7 +23,7 @@
 
 /**
  * digipot_mcp4451_I2C_routines.h
- * Adapted from https://www-users.cs.york.ac.uk/~pcc/MCP/HAPR-Course-web/CMSIS/examples/html/master_8c_source.html
+ * Adapted from https://www-users.york.ac.uk/~pcc1/MCP/HAPR-Course-web/CMSIS/examples/html/master_8c_source.html
  */
 
 #ifdef __cplusplus

@@ -23,7 +23,7 @@
 
 /**
  * Bricolemon Board. Based on ATSAMD51 (AGCM4), bootloader and credits by ADAFRUIT.
- * https://lemoncrest.com https://bricogeek.com
+ * https://lemoncrest.com https://tienda.bricogeek.com
  */
 
 #if NOT_TARGET(ARDUINO_GRAND_CENTRAL_M4)
@@ -51,14 +51,12 @@
   #define I2C_EEPROM                              // EEPROM on I2C-0
   //#define FLASH_EEPROM_EMULATION
   //#define SDCARD_EEPROM_EMULATION
-  #if ENABLED(I2C_EEPROM)
-    #define MARLIN_EEPROM_SIZE          0x10000U  // 64K (CAT24C512)
-  #if ENABLED(SDCARD_EEPROM_EMULATION)
-    #define MARLIN_EEPROM_SIZE            0x800U  // 2K
-  #else
-    #define MARLIN_EEPROM_SIZE            0x800U  // 2K
-  #endif
-  #undef NO_EEPROM_SELECTED
+#endif
+
+#if ENABLED(I2C_EEPROM)
+  #define MARLIN_EEPROM_SIZE            0x10000U  // 64K (CAT24C512)
+#elif ENABLED(EEPROM_SETTINGS)
+  #define MARLIN_EEPROM_SIZE              0x800U  // 2K
 #endif
 
 //
@@ -236,7 +234,7 @@
 
 /**
  * This sections starts with the pins_RAMPS_144.h as example, after if you need any new
- * display, you could use normal duponts and connect it with with the scheme showed before.
+ * display, you could use normal duponts and connect it with the scheme showed before.
  * Tested:
  *   - Ender-3 Old display (Character LCD)
  *   - Ender-3 New Serial DWING Display

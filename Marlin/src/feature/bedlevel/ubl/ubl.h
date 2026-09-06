@@ -38,17 +38,15 @@ enum MeshPointType : char { INVALID, REAL, SET_IN_BITMAP, CLOSEST };
 
 struct mesh_index_pair;
 
-#if DISABLED(VARIABLE_GRID_POINTS)
-  #define MESH_X_DIST (float((MESH_MAX_X) - (MESH_MIN_X)) / (GRID_MAX_CELLS_X))
-  #define MESH_Y_DIST (float((MESH_MAX_Y) - (MESH_MIN_Y)) / (GRID_MAX_CELLS_Y))
-#endif
 #if ENABLED(OPTIMIZED_MESH_STORAGE)
   typedef int16_t mesh_store_t[GRID_MAX_POINTS_X][GRID_MAX_POINTS_Y];
 #endif
 
 typedef struct {
   bool      C_seen;
-  int8_t    KLS_storage_slot;
+  #if HAS_MESH_STORAGE
+    int8_t  KLS_storage_slot;
+  #endif
   grid_count_t R_repetition;
   uint8_t   V_verbosity,
             P_phase,
@@ -84,10 +82,22 @@ private:
     return smart_fill_one(pos.x, pos.y, dir.x, dir.y);
   }
 
+  // G29 sub-function handlers
+  static void G29_handle_homing_and_setup();
+  static void G29_handle_invalidate();
+  static bool G29_handle_test_patterns();
+  #if HAS_BED_PROBE
+    static void G29_handle_tilt_mesh();
+  #endif
+  static bool G29_handle_phase_ops();
+  static void G29_handle_post_processing();
+
   #if ENABLED(UBL_DEVEL_DEBUGGING)
     static void g29_what_command();
-    static void g29_eeprom_dump();
-    static void g29_compare_current_mesh_to_stored_mesh();
+    #if HAS_MESH_STORAGE
+      static void g29_eeprom_dump();
+      static void g29_compare_current_mesh_to_stored_mesh();
+    #endif
   #endif
 
 public:
@@ -110,7 +120,9 @@ public:
   static void G29() __O0;                         // O0 for no optimization
   static void smart_fill_wlsf(const float) __O2;  // O2 gives smaller code than Os on A2560
 
-  static int8_t storage_slot;
+  #if HAS_MESH_STORAGE
+    static int8_t storage_slot;
+  #endif
 
   static bed_mesh_t z_values;
   #if ENABLED(VARIABLE_GRID_POINTS)
@@ -125,7 +137,7 @@ public:
     static void set_mesh_from_store(const mesh_store_t &stored_values, bed_mesh_t &out_values);
   #endif
 
-  #if DISABLED(VARIABLE_GRID_POINTS)
+  #if NONE(HAS_PROUI_MESH_EDIT, VARIABLE_GRID_POINTS)
     static const float _mesh_index_to_xpos[GRID_MAX_POINTS_X],
                        _mesh_index_to_ypos[GRID_MAX_POINTS_Y];
   #endif
@@ -144,11 +156,11 @@ public:
   FORCE_INLINE static void set_z(const int8_t px, const int8_t py, const float z) { z_values[px][py] = z; }
 
   static int8_t cell_index_x_raw(const float x) {
-    return FLOOR((x - (MESH_MIN_X)) * GRID_VAL(mesh_dist_recip.x, RECIPROCAL(MESH_X_DIST)));
+    return FLOOR((x - mesh_min.x) * GRID_VAL(mesh_dist_recip.x, RECIPROCAL(MESH_X_DIST)));
   }
 
   static int8_t cell_index_y_raw(const float y) {
-    return FLOOR((y - (MESH_MIN_Y)) * GRID_VAL(mesh_dist_recip.y, RECIPROCAL(MESH_Y_DIST)));
+    return FLOOR((y - mesh_min.y) * GRID_VAL(mesh_dist_recip.y, RECIPROCAL(MESH_Y_DIST)));
   }
 
   static bool cell_index_x_valid(const float x) {
@@ -173,12 +185,12 @@ public:
   static xy_uint8_t cell_indexes(const xy_pos_t &xy) { return cell_indexes(xy.x, xy.y); }
 
   static int8_t closest_x_index(const float x OPTARG(VARIABLE_GRID_POINTS, const xy_uint8_t &_nr_grid_points)) {
-    const int8_t px = (x - (MESH_MIN_X) + GRID_VAL(mesh_dist.x, MESH_X_DIST) * 0.5f) * GRID_VAL(mesh_dist_recip.x, RECIPROCAL(MESH_X_DIST));
-    return WITHIN(px, 0, GRID_VAL(GRID_USED_CELLS_X, GRID_MAX_POINTS_X)) ? px : -1;
+    const int8_t px = (x - mesh_min.x + GRID_VAL(mesh_dist.x, MESH_X_DIST) * 0.5f) * GRID_VAL(mesh_dist_recip.x, RECIPROCAL(MESH_X_DIST));
+    return WITHIN(px, 0, GRID_VAL(GRID_USED_CELLS_X, (GRID_MAX_POINTS_X) - 1)) ? px : -1;
   }
   static int8_t closest_y_index(const float y OPTARG(VARIABLE_GRID_POINTS, const xy_uint8_t &_nr_grid_points)) {
-    const int8_t py = (y - (MESH_MIN_Y) + GRID_VAL(mesh_dist.y, MESH_Y_DIST) * 0.5f) * GRID_VAL(mesh_dist_recip.y, RECIPROCAL(MESH_Y_DIST));
-    return WITHIN(py, 0, GRID_VAL(GRID_USED_CELLS_Y, GRID_MAX_POINTS_Y)) ? py : -1;
+    const int8_t py = (y - mesh_min.y + GRID_VAL(mesh_dist.y, MESH_Y_DIST) * 0.5f) * GRID_VAL(mesh_dist_recip.y, RECIPROCAL(MESH_Y_DIST));
+    return WITHIN(py, 0, GRID_VAL(GRID_USED_CELLS_Y, (GRID_MAX_POINTS_Y) - 1)) ? py : -1;
   }
   static xy_int8_t closest_indexes(const xy_pos_t &xy) {
     return { closest_x_index(xy.x OPTARG(VARIABLE_GRID_POINTS, nr_grid_points)), closest_y_index(xy.y OPTARG(VARIABLE_GRID_POINTS, nr_grid_points)) };
@@ -270,7 +282,7 @@ public:
      * UBL_Z_RAISE_WHEN_OFF_MESH is specified, that value is returned.
      */
     #ifdef UBL_Z_RAISE_WHEN_OFF_MESH
-      if (!WITHIN(rx0, MESH_MIN_X, MESH_MAX_X) || !WITHIN(ry0, MESH_MIN_Y, MESH_MAX_Y))
+      if (!WITHIN(rx0, mesh_min.x, mesh_max.x) || !WITHIN(ry0, mesh_min.y, mesh_max.y))
         return UBL_Z_RAISE_WHEN_OFF_MESH;
     #endif
 
@@ -300,14 +312,21 @@ public:
   static constexpr float get_z_offset() { return 0.0f; }
 
   #if DISABLED(VARIABLE_GRID_POINTS)
-    static float get_mesh_x(const uint8_t i) {
-      return i < (GRID_MAX_POINTS_X) ? pgm_read_float(&_mesh_index_to_xpos[i]) : MESH_MIN_X + i * (MESH_X_DIST);
-    }
-    static float get_mesh_y(const uint8_t i) {
-      return i < (GRID_MAX_POINTS_Y) ? pgm_read_float(&_mesh_index_to_ypos[i]) : MESH_MIN_Y + i * (MESH_Y_DIST);
-    }
-  #endif
-  #if ENABLED(VARIABLE_GRID_POINTS)
+    static float _get_mesh_x(const uint8_t i) { return mesh_min.x + i * (MESH_X_DIST); }
+    static float _get_mesh_y(const uint8_t i) { return mesh_min.y + i * (MESH_Y_DIST); }
+
+    #if HAS_PROUI_MESH_EDIT
+      static float get_mesh_x(const uint8_t i) { return _get_mesh_x(i); }
+      static float get_mesh_y(const uint8_t i) { return _get_mesh_y(i); }
+    #else
+      static float get_mesh_x(const uint8_t i) {
+        return i < (GRID_MAX_POINTS_X) ? pgm_read_float(&_mesh_index_to_xpos[i]) : _get_mesh_x(i);
+      }
+      static float get_mesh_y(const uint8_t i) {
+        return i < (GRID_MAX_POINTS_Y) ? pgm_read_float(&_mesh_index_to_ypos[i]) : _get_mesh_y(i);
+      }
+    #endif
+  #else
     static float get_mesh_x(const uint8_t i);
     static float get_mesh_y(const uint8_t i);
   #endif

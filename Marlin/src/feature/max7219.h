@@ -74,14 +74,13 @@
 
 #ifdef MAX7219_DEBUG_PROFILE
   // This class sums up the amount of time for which its instances exist.
-  // By default there is one instantiated for the duration of the idle()
-  // function. But an instance can be created in any code block to measure
-  // the time spent from the point of instantiation until the CPU leaves
-  // block. Be careful about having multiple instances of CodeProfiler as
-  // it does not guard against double counting. In general mixing ISR and
-  // non-ISR use will require critical sections but note that mode setting
-  // is atomic so the total or average times can safely be read if you set
-  // mode to FREEZE first.
+  // By default there is one instantiated for the duration of marlin.idle()
+  // but an instance can be created in any code block to measure time spent
+  // from instantiation until the CPU leaves the block.
+  // Be careful about having multiple instances of CodeProfiler as it does
+  // not guard against double counting. In general mixing ISR and non-ISR
+  // use will require critical sections but note that mode setting is atomic
+  // so the total or average times can safely be read if you set mode to FREEZE first.
   class CodeProfiler {
   public:
     enum Mode : uint8_t { ACCUMULATE_AVERAGE, ACCUMULATE_TOTAL, FREEZE };

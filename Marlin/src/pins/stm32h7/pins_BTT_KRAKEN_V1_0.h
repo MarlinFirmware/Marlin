@@ -31,11 +31,8 @@
 //
 // EEPROM
 //
-#if ANY(NO_EEPROM_SELECTED, FLASH_EEPROM_EMULATION)
-  #undef NO_EEPROM_SELECTED
-  #ifndef FLASH_EEPROM_EMULATION
-    #define FLASH_EEPROM_EMULATION
-  #endif
+#if SHALL_USE_EEPROM(FLASH_EEPROM_EMULATION)
+  #define FLASH_EEPROM_EMULATION
   #define EEPROM_PAGE_SIZE                0x800U  // 2K
   #define EEPROM_START_ADDRESS (0x8000000UL + (STM32_FLASH_SIZE) * 1024UL - (EEPROM_PAGE_SIZE) * 2UL)
   #define MARLIN_EEPROM_SIZE    EEPROM_PAGE_SIZE  // 2K
@@ -479,17 +476,15 @@
       #elif ENABLED(FYSETC_MINI_12864_2_1)
         #define NEOPIXEL_PIN         EXP1_06_PIN
       #endif
-    #endif // !FYSETC_MINI_12864
+    #endif // FYSETC_MINI_12864
 
     #if IS_ULTIPANEL
       #define LCD_PINS_D5            EXP1_06_PIN
       #define LCD_PINS_D6            EXP1_07_PIN
       #define LCD_PINS_D7            EXP1_08_PIN
-
       #if ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
         #define BTN_ENC_EN           LCD_PINS_D7  // Detect the presence of the encoder
       #endif
-
     #endif
 
   #endif

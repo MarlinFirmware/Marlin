@@ -44,8 +44,7 @@
 #define BOARD_LCD_SERIAL_PORT 1
 
 // Onboard I2C EEPROM
-#if ANY(NO_EEPROM_SELECTED, I2C_EEPROM)
-  #undef NO_EEPROM_SELECTED
+#if SHALL_USE_EEPROM(I2C_EEPROM)
   #define I2C_EEPROM
   #define SOFT_I2C_EEPROM                         // Force the use of Software I2C
   #define I2C_SCL_PIN                       PA14
@@ -569,7 +568,7 @@
       #elif ENABLED(FYSETC_MINI_12864_2_1)
         #define NEOPIXEL_PIN         EXP1_06_PIN
       #endif
-    #endif // !FYSETC_MINI_12864
+    #endif // FYSETC_MINI_12864
 
     #if IS_ULTIPANEL
       #define LCD_PINS_D5            EXP1_06_PIN

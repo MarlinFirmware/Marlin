@@ -100,7 +100,7 @@ void RTS::onStartup() {
   delay_ms(400); // Delay to allow screen to configure
 
   #if ENABLED(CONFIGURABLE_MACHINE_NAME)
-    const MString<32> ready(machine_name, " Ready");
+    const MString<32> ready(marlin.machine_name, " Ready");
     onStatusChanged(ready);
   #else
     onStatusChanged(F(MACHINE_NAME " Ready"));
@@ -513,7 +513,7 @@ void RTS::sendData() {
       delay_us(1);
     }
 
-    memset(&snddat, 0, sizeof(snddat));
+    OBJZERO(snddat);
     ZERO(databuf);
     snddat.head[0] = FHONE;
     snddat.head[1] = FHTWO;
@@ -626,7 +626,7 @@ void RTS::sendData(const unsigned long n, uint32_t addr, uint8_t cmd/*=VarAddr_W
 void RTS::handleData() {
   int16_t Checkkey = -1;
   if (waitway > 0) { // for waiting
-    memset(&recdat, 0, sizeof(recdat));
+    OBJZERO(recdat);
     recdat.head[0] = FHONE;
     recdat.head[1] = FHTWO;
     return;
@@ -684,7 +684,7 @@ void RTS::handleData() {
   }
 
   if (Checkkey < 0) {
-    memset(&recdat, 0, sizeof(recdat));
+    OBJZERO(recdat);
     recdat.head[0] = FHONE;
     recdat.head[1] = FHTWO;
     return;
@@ -1079,7 +1079,7 @@ void RTS::handleData() {
         tpShowStatus = false;
         ZERO(changeMaterialBuf);
         changeMaterialBuf[1] = changeMaterialBuf[0] = 10;
-        sendData(10 * changeMaterialBuf[0], FilamentUnit1); // It's changeMaterialBuf for show, instead of current_position.e in them.
+        sendData(10 * changeMaterialBuf[0], FilamentUnit1); // It's changeMaterialBuf for show, instead of motion.position.e in them.
         sendData(10 * changeMaterialBuf[1], FilamentUnit2);
         sendData(getActualTemp_celsius(H0), NozzleTemp);
         sendData(getTargetTemp_celsius(H0), NozzlePreheat);
@@ -1167,35 +1167,35 @@ void RTS::handleData() {
 
         #if ENABLED(LCD_BED_TRAMMING)
           case 6:   // Bed Tramming,  Centre 1
-            if (BED_TRAMMING_Z_HOP) setAxisPosition_mm(current_position.z + (BED_TRAMMING_Z_HOP), axis_t(Z));
+            if (BED_TRAMMING_Z_HOP) setAxisPosition_mm(motion.position.z + (BED_TRAMMING_Z_HOP), axis_t(Z));
             setAxisPosition_mm(X_CENTER, axis_t(X));
             setAxisPosition_mm(Y_CENTER, axis_t(Y));
             waitway = 6;
             break;
 
           case 7:   // Bed Tramming, Front Left 2
-            if (BED_TRAMMING_Z_HOP) setAxisPosition_mm(current_position.z + (BED_TRAMMING_Z_HOP), axis_t(Z));
+            if (BED_TRAMMING_Z_HOP) setAxisPosition_mm(motion.position.z + (BED_TRAMMING_Z_HOP), axis_t(Z));
             setAxisPosition_mm(X_MIN_BED + lfrb[0], axis_t(X));
             setAxisPosition_mm(Y_MIN_BED + lfrb[1], axis_t(Y));
             waitway = 6;
             break;
 
           case 8:   // Bed Tramming, Front Right 3
-            if (BED_TRAMMING_Z_HOP) setAxisPosition_mm(current_position.z + (BED_TRAMMING_Z_HOP), axis_t(Z));
+            if (BED_TRAMMING_Z_HOP) setAxisPosition_mm(motion.position.z + (BED_TRAMMING_Z_HOP), axis_t(Z));
             setAxisPosition_mm(X_MAX_BED - lfrb[2], axis_t(X));
             setAxisPosition_mm(Y_MIN_BED + lfrb[1], axis_t(Y));
             waitway = 6;
             break;
 
           case 9:   // Bed Tramming, Back Right 4
-            if (BED_TRAMMING_Z_HOP) setAxisPosition_mm(current_position.z + (BED_TRAMMING_Z_HOP), axis_t(Z));
+            if (BED_TRAMMING_Z_HOP) setAxisPosition_mm(motion.position.z + (BED_TRAMMING_Z_HOP), axis_t(Z));
             setAxisPosition_mm(X_MAX_BED - lfrb[2], axis_t(X));
             setAxisPosition_mm(Y_MAX_BED - lfrb[3], axis_t(Y));
             waitway = 6;
             break;
 
           case 10:   // Bed Tramming, Back Left 5
-            if (BED_TRAMMING_Z_HOP) setAxisPosition_mm(current_position.z + (BED_TRAMMING_Z_HOP), axis_t(Z));
+            if (BED_TRAMMING_Z_HOP) setAxisPosition_mm(motion.position.z + (BED_TRAMMING_Z_HOP), axis_t(Z));
             setAxisPosition_mm(X_MIN_BED + lfrb[0], axis_t(X));
             setAxisPosition_mm(Y_MAX_BED - lfrb[3], axis_t(Y));
             waitway = 6;
@@ -1376,7 +1376,7 @@ void RTS::handleData() {
           case 0xF0: // not to cancel heating
             break;
         }
-        sendData(10 * changeMaterialBuf[0], FilamentUnit1); // It's changeMaterialBuf for show, instead of current_position.e in them.
+        sendData(10 * changeMaterialBuf[0], FilamentUnit1); // It's changeMaterialBuf for show, instead of motion.position.e in them.
         sendData(10 * changeMaterialBuf[1], FilamentUnit2);
       }
       else if (recdat.addr == FilamentUnit1) {
@@ -1413,6 +1413,7 @@ void RTS::handleData() {
           break;
 
         case 4:
+          // BLTouch Reset
           injectCommands(F("M999\nM280P0S160"));
           break;
 
@@ -1639,7 +1640,7 @@ void RTS::handleData() {
     default: break;
   }
 
-  memset(&recdat, 0, sizeof(recdat));
+  OBJZERO(recdat);
   recdat.head[0] = FHONE;
   recdat.head[1] = FHTWO;
 }

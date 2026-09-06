@@ -39,10 +39,6 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-#if HAS_SD_HOST_DRIVE
-  #include "sd/msc_sd.h"
-#endif
-
 // ------------------------
 // Defines
 // ------------------------
@@ -187,7 +183,7 @@ public:
 
   static void delay_ms(const int ms) { delay(ms); }
 
-  // Tasks, called from idle()
+  // Tasks, called from marlin.idle()
   static void idletask();
 
   // Reset

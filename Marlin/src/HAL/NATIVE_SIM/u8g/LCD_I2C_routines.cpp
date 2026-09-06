@@ -21,7 +21,7 @@
  */
 
 // adapted from  I2C/master/master.c example
-//   https://www-users.cs.york.ac.uk/~pcc/MCP/HAPR-Course-web/CMSIS/examples/html/master_8c_source.html
+//   https://www-users.york.ac.uk/~pcc1/MCP/HAPR-Course-web/CMSIS/examples/html/master_8c_source.html
 
 #ifdef __PLAT_NATIVE_SIM__
 

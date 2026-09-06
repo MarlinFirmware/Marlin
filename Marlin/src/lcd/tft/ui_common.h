@@ -30,14 +30,37 @@
 #include "tft.h"
 #include "tft_image.h"
 
+#if ENABLED(SHOW_CUSTOM_BOOTSCREEN)
+
+  #include "../../../_Bootscreen.h"
+
+  #ifndef CUSTOM_BOOTSCREEN
+    #define CUSTOM_BOOTSCREEN         CustomBootscreen
+  #endif
+  #ifndef CUSTOM_BOOTSCREEN_WIDTH
+    #define CUSTOM_BOOTSCREEN_WIDTH   TFT_WIDTH
+  #endif
+  #ifndef CUSTOM_BOOTSCREEN_HEIGHT
+    #define CUSTOM_BOOTSCREEN_HEIGHT  TFT_HEIGHT
+  #endif
+
+  #ifndef CUSTOM_BOOTSCREEN_X
+    #define CUSTOM_BOOTSCREEN_X       ((TFT_WIDTH - (CUSTOM_BOOTSCREEN_WIDTH)) / 2)
+  #endif
+  #ifndef CUSTOM_BOOTSCREEN_Y
+    #define CUSTOM_BOOTSCREEN_Y       ((TFT_HEIGHT - (CUSTOM_BOOTSCREEN_HEIGHT)) / 2)
+  #endif
+
+  const tImage CustomBootscreen = CUSTOM_BOOTSCREEN_CHOSEN(CUSTOM_BOOTSCREEN_WIDTH, CUSTOM_BOOTSCREEN_HEIGHT);
+
+#endif // SHOW_CUSTOM_BOOTSCREEN
+
 #if ENABLED(TOUCH_SCREEN)
   #include "touch.h"
   extern bool draw_menu_navigation;
 #else
   // add_control() function is used to display encoder-controlled elements
-  enum TouchControlType : uint16_t {
-    NONE = 0x0000,
-  };
+  enum TouchControlType : uint16_t { NONE = 0x0000 };
 #endif
 
 #define UI_INCL_(W, H) STRINGIFY_(ui_##W##x##H.h)
@@ -125,6 +148,19 @@ void disable_steppers();
 
 void draw_heater_status(uint16_t x, uint16_t y, const int8_t heater);
 void draw_fan_status(uint16_t x, uint16_t y, const bool blink);
+#if HAS_CUTTER
+  #ifndef COLOR_CUTTER
+    #define COLOR_CUTTER COLOR_WHITE
+  #endif
+  #if !defined(CUTTER_ICON_X) && !defined(CUTTER_ICON_Y)
+    #define CUTTER_ICON_X FAN_ICON_X
+    #define CUTTER_ICON_Y FAN_ICON_Y
+  #endif
+  #ifndef CUTTER_VALUE_Y
+    #define CUTTER_VALUE_Y FAN_TEXT_Y
+  #endif
+  void draw_cutter_status(uint16_t x, uint16_t y);
+#endif
 
 void text_line(const uint16_t y, uint16_t color=COLOR_BACKGROUND);
 void menu_line(const uint8_t row, uint16_t color=COLOR_BACKGROUND);
@@ -184,6 +220,7 @@ void drawCurStepValue();
     OPTITEM(HAS_TEMP_CHAMBER, ITEM_CHAMBER)
     OPTITEM(HAS_TEMP_COOLER, ITEM_COOLER)
     OPTITEM(HAS_FAN, ITEM_FAN)
+    OPTITEM(HAS_CUTTER, ITEM_CUTTER)
     ITEMS_COUNT
   };
 #endif

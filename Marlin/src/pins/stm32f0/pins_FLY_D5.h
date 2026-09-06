@@ -35,12 +35,17 @@
 //
 // EEPROM Emulation
 //
-#if NO_EEPROM_SELECTED
+#if SHALL_USE_EEPROM(FLASH_EEPROM_EMULATION)
   #define FLASH_EEPROM_EMULATION
   #ifndef MARLIN_EEPROM_SIZE
-    #define MARLIN_EEPROM_SIZE 0x800U             // 2K
+    #define MARLIN_EEPROM_SIZE            0x800U  // 2K
   #endif
 #endif
+
+//
+// Servos
+//
+#define SERVO0_PIN                          PA8
 
 //
 // Timers
@@ -54,6 +59,11 @@
 #define X_STOP_PIN                          PB4
 #define Y_STOP_PIN                          PB3
 #define Z_STOP_PIN                          PD2
+
+#ifndef Z_MIN_PROBE_PIN
+  #define Z_MIN_PROBE_PIN                   PB5
+#endif
+
 //
 // Steppers
 //

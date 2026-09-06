@@ -48,11 +48,11 @@
 class LcdUpdateDisabler {
   public:
     LcdUpdateDisabler() : m_updateEnabled(ui.lcdDrawUpdate) {
-      TERN_(HAS_WIRED_LCD, ui.lcdDrawUpdate = LCDViewAction::LCDVIEW_NONE);
+      TERN_(HAS_WIRED_LCD, ui.refresh(LCDViewAction::LCDVIEW_NONE));
     }
     ~LcdUpdateDisabler() {
       #if HAS_WIRED_LCD
-        ui.lcdDrawUpdate = m_updateEnabled;
+        ui.refresh(m_updateEnabled);
         ui.clear_lcd();
         ui.update();
       #endif
@@ -62,11 +62,11 @@ class LcdUpdateDisabler {
     LCDViewAction m_updateEnabled;
 };
 
-bool pgm_is_whitespace(const char *c_addr);
-bool pgm_is_interpunction(const char *c_addr);
+bool is_whitespace_P(const char *c_addr);
+bool is_punctuation_P(const char *c_addr);
 FSTR_P const lcd_display_message_fullscreen(FSTR_P const pmsg);
 void lcd_show_choices_prompt_P(uint8_t selected, const char *first_choice, const char *second_choice, uint8_t second_col, const char *third_choice=nullptr);
 void lcd_show_fullscreen_message_and_wait(FSTR_P const fmsg);
 uint8_t lcdui_print_extruder(void);
 void lcd_space(uint8_t n);
-void lcd_insert_char_into_status(uint8_t position, const char message);
+void lcd_replace_status_char(uint8_t position, const char message);

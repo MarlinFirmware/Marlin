@@ -141,8 +141,8 @@ do {                                                                            
   unsigned _hd_bkt;                                                              \
   HASH_TO_BKT(_hd_hh_item->hashv, (head)->hh.tbl->num_buckets, _hd_bkt);         \
   (head)->hh.tbl->buckets[_hd_bkt].count++;                                      \
-  _hd_hh_item->hh_next = NULL;                                                   \
-  _hd_hh_item->hh_prev = NULL;                                                   \
+  _hd_hh_item->hh_next = nullptr;                                                   \
+  _hd_hh_item->hh_prev = nullptr;                                                   \
 } while (0)
 
 #define HASH_VALUE(keyptr,keylen,hashv)                                          \
@@ -152,7 +152,7 @@ do {                                                                            
 
 #define HASH_FIND_BYHASHVALUE(hh,head,keyptr,keylen,hashval,out)                 \
 do {                                                                             \
-  (out) = NULL;                                                                  \
+  (out) = nullptr;                                                                  \
   if (head) {                                                                    \
     unsigned _hf_bkt;                                                            \
     HASH_TO_BKT(hashval, (head)->hh.tbl->num_buckets, _hf_bkt);                  \
@@ -164,7 +164,7 @@ do {                                                                            
 
 #define HASH_FIND(hh,head,keyptr,keylen,out)                                     \
 do {                                                                             \
-  (out) = NULL;                                                                  \
+  (out) = nullptr;                                                                  \
   if (head) {                                                                    \
     unsigned _hf_hashv;                                                          \
     HASH_VALUE(keyptr, keylen, _hf_hashv);                                       \
@@ -243,7 +243,7 @@ do {                                                                            
 
 #define HASH_REPLACE_BYHASHVALUE_INORDER(hh,head,fieldname,keylen_in,hashval,add,replaced,cmpfcn) \
 do {                                                                             \
-  (replaced) = NULL;                                                             \
+  (replaced) = nullptr;                                                             \
   HASH_FIND_BYHASHVALUE(hh, head, &((add)->fieldname), keylen_in, hashval, replaced); \
   if (replaced) {                                                                \
     HASH_DELETE(hh, head, replaced);                                             \
@@ -253,7 +253,7 @@ do {                                                                            
 
 #define HASH_REPLACE_BYHASHVALUE(hh,head,fieldname,keylen_in,hashval,add,replaced) \
 do {                                                                             \
-  (replaced) = NULL;                                                             \
+  (replaced) = nullptr;                                                             \
   HASH_FIND_BYHASHVALUE(hh, head, &((add)->fieldname), keylen_in, hashval, replaced); \
   if (replaced) {                                                                \
     HASH_DELETE(hh, head, replaced);                                             \
@@ -277,7 +277,7 @@ do {                                                                            
 
 #define HASH_APPEND_LIST(hh, head, add)                                          \
 do {                                                                             \
-  (add)->hh.next = NULL;                                                         \
+  (add)->hh.next = nullptr;                                                         \
   (add)->hh.prev = ELMT_FROM_HH((head)->hh.tbl, (head)->hh.tbl->tail);           \
   (head)->hh.tbl->tail->next = (add);                                            \
   (head)->hh.tbl->tail = &((add)->hh);                                           \
@@ -320,14 +320,14 @@ do {                                                                            
     if (oomed) {                                                                 \
       HASH_ROLLBACK_BKT(hh, head, &(add)->hh);                                   \
       HASH_DELETE_HH(hh, head, &(add)->hh);                                      \
-      (add)->hh.tbl = NULL;                                                      \
+      (add)->hh.tbl = nullptr;                                                      \
       uthash_nonfatal_oom(add);                                                  \
     } else {                                                                     \
       HASH_BLOOM_ADD((head)->hh.tbl, hashval);                                   \
       HASH_EMIT_KEY(hh, head, keyptr, keylen_in);                                \
     }                                                                            \
   } else {                                                                       \
-    (add)->hh.tbl = NULL;                                                        \
+    (add)->hh.tbl = nullptr;                                                        \
     uthash_nonfatal_oom(add);                                                    \
   }                                                                              \
 } while (0)
@@ -354,8 +354,8 @@ do {                                                                            
   (add)->hh.key = (char*) (keyptr);                                              \
   (add)->hh.keylen = (unsigned) (keylen_in);                                     \
   if (!(head)) {                                                                 \
-    (add)->hh.next = NULL;                                                       \
-    (add)->hh.prev = NULL;                                                       \
+    (add)->hh.next = nullptr;                                                       \
+    (add)->hh.prev = nullptr;                                                       \
     HASH_MAKE_TABLE(hh, add, _ha_oomed);                                         \
     IF_HASH_NONFATAL_OOM( if (!_ha_oomed) { )                                    \
       (head) = (add);                                                            \
@@ -400,8 +400,8 @@ do {                                                                            
   (add)->hh.key = (const void*) (keyptr);                                        \
   (add)->hh.keylen = (unsigned) (keylen_in);                                     \
   if (!(head)) {                                                                 \
-    (add)->hh.next = NULL;                                                       \
-    (add)->hh.prev = NULL;                                                       \
+    (add)->hh.next = nullptr;                                                       \
+    (add)->hh.prev = nullptr;                                                       \
     HASH_MAKE_TABLE(hh, add, _ha_oomed);                                         \
     IF_HASH_NONFATAL_OOM( if (!_ha_oomed) { )                                    \
       (head) = (add);                                                            \
@@ -450,23 +450,23 @@ do {                                                                            
 #define HASH_DELETE_HH(hh,head,delptrhh)                                         \
 do {                                                                             \
   const struct UT_hash_handle *_hd_hh_del = (delptrhh);                          \
-  if ((_hd_hh_del->prev == NULL) && (_hd_hh_del->next == NULL)) {                \
+  if ((_hd_hh_del->prev == nullptr) && (_hd_hh_del->next == nullptr)) {                \
     HASH_BLOOM_FREE((head)->hh.tbl);                                             \
     uthash_free((head)->hh.tbl->buckets,                                         \
                 (head)->hh.tbl->num_buckets * sizeof(struct UT_hash_bucket));    \
     uthash_free((head)->hh.tbl, sizeof(UT_hash_table));                          \
-    (head) = NULL;                                                               \
+    (head) = nullptr;                                                               \
   } else {                                                                       \
     unsigned _hd_bkt;                                                            \
     if (_hd_hh_del == (head)->hh.tbl->tail) {                                    \
       (head)->hh.tbl->tail = HH_FROM_ELMT((head)->hh.tbl, _hd_hh_del->prev);     \
     }                                                                            \
-    if (_hd_hh_del->prev != NULL) {                                              \
+    if (_hd_hh_del->prev != nullptr) {                                              \
       HH_FROM_ELMT((head)->hh.tbl, _hd_hh_del->prev)->next = _hd_hh_del->next;   \
     } else {                                                                     \
       DECLTYPE_ASSIGN(head, _hd_hh_del->next);                                   \
     }                                                                            \
-    if (_hd_hh_del->next != NULL) {                                              \
+    if (_hd_hh_del->next != nullptr) {                                              \
       HH_FROM_ELMT((head)->hh.tbl, _hd_hh_del->next)->prev = _hd_hh_del->prev;   \
     }                                                                            \
     HASH_TO_BKT(_hd_hh_del->hashv, (head)->hh.tbl->num_buckets, _hd_bkt);        \
@@ -523,7 +523,7 @@ do {                                                                            
     for (_bkt_i = 0; _bkt_i < (head)->hh.tbl->num_buckets; ++_bkt_i) {           \
       unsigned _bkt_count = 0;                                                   \
       _thh = (head)->hh.tbl->buckets[_bkt_i].hh_head;                            \
-      _prev = NULL;                                                              \
+      _prev = nullptr;                                                              \
       while (_thh) {                                                             \
         if (_prev != (char*)(_thh->hh_prev)) {                                   \
           HASH_OOPS("%s: invalid hh_prev %p, actual %p\n",                       \
@@ -544,7 +544,7 @@ do {                                                                            
           (where), (head)->hh.tbl->num_items, _count);                           \
     }                                                                            \
     _count = 0;                                                                  \
-    _prev = NULL;                                                                \
+    _prev = nullptr;                                                                \
     _thh =  &(head)->hh;                                                         \
     while (_thh) {                                                               \
       _count++;                                                                  \
@@ -553,7 +553,7 @@ do {                                                                            
             (where), (void*)_thh->prev, (void*)_prev);                           \
       }                                                                          \
       _prev = (char*)ELMT_FROM_HH((head)->hh.tbl, _thh);                         \
-      _thh = (_thh->next ? HH_FROM_ELMT((head)->hh.tbl, _thh->next) : NULL);     \
+      _thh = (_thh->next ? HH_FROM_ELMT((head)->hh.tbl, _thh->next) : nullptr);     \
     }                                                                            \
     if (_count != (head)->hh.tbl->num_items) {                                   \
       HASH_OOPS("%s: invalid app item count %u, actual %u\n",                    \
@@ -592,7 +592,7 @@ do {                                                                            
 
 
 /* SAX/FNV/OAT/JEN hash functions are macro variants of those listed at
- * http://eternallyconfuzzled.com/tuts/algorithms/jsw_tut_hashing.aspx
+ * https://eternallyconfuzzled.com/tuts/algorithms/jsw_tut_hashing.aspx
  * (archive link: https://archive.is/Ivcan )
  */
 #define HASH_SAX(key,keylen,hashv)                                               \
@@ -744,21 +744,21 @@ do {                                                                            
 /* iterate over items in a known bucket to find desired item */
 #define HASH_FIND_IN_BKT(tbl,hh,head,keyptr,keylen_in,hashval,out)               \
 do {                                                                             \
-  if ((head).hh_head != NULL) {                                                  \
+  if ((head).hh_head != nullptr) {                                                  \
     DECLTYPE_ASSIGN(out, ELMT_FROM_HH(tbl, (head).hh_head));                     \
   } else {                                                                       \
-    (out) = NULL;                                                                \
+    (out) = nullptr;                                                                \
   }                                                                              \
-  while ((out) != NULL) {                                                        \
+  while ((out) != nullptr) {                                                        \
     if ((out)->hh.hashv == (hashval) && (out)->hh.keylen == (keylen_in)) {       \
       if (HASH_KEYCMP((out)->hh.key, keyptr, keylen_in) == 0) {                  \
         break;                                                                   \
       }                                                                          \
     }                                                                            \
-    if ((out)->hh.hh_next != NULL) {                                             \
+    if ((out)->hh.hh_next != nullptr) {                                             \
       DECLTYPE_ASSIGN(out, ELMT_FROM_HH(tbl, (out)->hh.hh_next));                \
     } else {                                                                     \
-      (out) = NULL;                                                              \
+      (out) = nullptr;                                                              \
     }                                                                            \
   }                                                                              \
 } while (0)
@@ -769,8 +769,8 @@ do {                                                                            
   UT_hash_bucket *_ha_head = &(head);                                            \
   _ha_head->count++;                                                             \
   (addhh)->hh_next = _ha_head->hh_head;                                          \
-  (addhh)->hh_prev = NULL;                                                       \
-  if (_ha_head->hh_head != NULL) {                                               \
+  (addhh)->hh_prev = nullptr;                                                       \
+  if (_ha_head->hh_head != nullptr) {                                               \
     _ha_head->hh_head->hh_prev = (addhh);                                        \
   }                                                                              \
   _ha_head->hh_head = (addhh);                                                   \
@@ -849,7 +849,7 @@ do {                                                                            
     (tbl)->nonideal_items = 0;                                                   \
     for (_he_bkt_i = 0; _he_bkt_i < (tbl)->num_buckets; _he_bkt_i++) {           \
       _he_thh = (tbl)->buckets[ _he_bkt_i ].hh_head;                             \
-      while (_he_thh != NULL) {                                                  \
+      while (_he_thh != nullptr) {                                                  \
         _he_hh_nxt = _he_thh->hh_next;                                           \
         HASH_TO_BKT(_he_thh->hashv, (tbl)->num_buckets * 2U, _he_bkt);           \
         _he_newbkt = &(_he_new_buckets[_he_bkt]);                                \
@@ -859,9 +859,9 @@ do {                                                                            
             _he_newbkt->expand_mult++;                                           \
           }                                                                      \
         }                                                                        \
-        _he_thh->hh_prev = NULL;                                                 \
+        _he_thh->hh_prev = nullptr;                                                 \
         _he_thh->hh_next = _he_newbkt->hh_head;                                  \
-        if (_he_newbkt->hh_head != NULL) {                                       \
+        if (_he_newbkt->hh_head != nullptr) {                                       \
           _he_newbkt->hh_head->hh_prev = _he_thh;                                \
         }                                                                        \
         _he_newbkt->hh_head = _he_thh;                                           \
@@ -892,39 +892,39 @@ do {                                                                            
   unsigned _hs_i;                                                                \
   unsigned _hs_looping,_hs_nmerges,_hs_insize,_hs_psize,_hs_qsize;               \
   struct UT_hash_handle *_hs_p, *_hs_q, *_hs_e, *_hs_list, *_hs_tail;            \
-  if (head != NULL) {                                                            \
+  if (head != nullptr) {                                                         \
     _hs_insize = 1;                                                              \
     _hs_looping = 1;                                                             \
     _hs_list = &((head)->hh);                                                    \
     while (_hs_looping != 0U) {                                                  \
       _hs_p = _hs_list;                                                          \
-      _hs_list = NULL;                                                           \
-      _hs_tail = NULL;                                                           \
+      _hs_list = nullptr;                                                        \
+      _hs_tail = nullptr;                                                        \
       _hs_nmerges = 0;                                                           \
-      while (_hs_p != NULL) {                                                    \
+      while (_hs_p != nullptr) {                                                 \
         _hs_nmerges++;                                                           \
         _hs_q = _hs_p;                                                           \
         _hs_psize = 0;                                                           \
         for (_hs_i = 0; _hs_i < _hs_insize; ++_hs_i) {                           \
           _hs_psize++;                                                           \
-          _hs_q = ((_hs_q->next != NULL) ?                                       \
-            HH_FROM_ELMT((head)->hh.tbl, _hs_q->next) : NULL);                   \
-          if (_hs_q == NULL) {                                                   \
+          _hs_q = ((_hs_q->next != nullptr) ?                                    \
+            HH_FROM_ELMT((head)->hh.tbl, _hs_q->next) : nullptr);                \
+          if (_hs_q == nullptr) {                                                \
             break;                                                               \
           }                                                                      \
         }                                                                        \
         _hs_qsize = _hs_insize;                                                  \
-        while ((_hs_psize != 0U) || ((_hs_qsize != 0U) && (_hs_q != NULL))) {    \
+        while ((_hs_psize != 0U) || ((_hs_qsize != 0U) && (_hs_q != nullptr))) { \
           if (_hs_psize == 0U) {                                                 \
             _hs_e = _hs_q;                                                       \
-            _hs_q = ((_hs_q->next != NULL) ?                                     \
-              HH_FROM_ELMT((head)->hh.tbl, _hs_q->next) : NULL);                 \
+            _hs_q = ((_hs_q->next != nullptr) ?                                  \
+              HH_FROM_ELMT((head)->hh.tbl, _hs_q->next) : nullptr);              \
             _hs_qsize--;                                                         \
-          } else if ((_hs_qsize == 0U) || (_hs_q == NULL)) {                     \
+          } else if ((_hs_qsize == 0U) || (_hs_q == nullptr)) {                  \
             _hs_e = _hs_p;                                                       \
-            if (_hs_p != NULL) {                                                 \
-              _hs_p = ((_hs_p->next != NULL) ?                                   \
-                HH_FROM_ELMT((head)->hh.tbl, _hs_p->next) : NULL);               \
+            if (_hs_p != nullptr) {                                              \
+              _hs_p = ((_hs_p->next != nullptr) ?                                \
+                HH_FROM_ELMT((head)->hh.tbl, _hs_p->next) : nullptr);            \
             }                                                                    \
             _hs_psize--;                                                         \
           } else if ((cmpfcn(                                                    \
@@ -932,33 +932,33 @@ do {                                                                            
                 DECLTYPE(head)(ELMT_FROM_HH((head)->hh.tbl, _hs_q))              \
                 )) <= 0) {                                                       \
             _hs_e = _hs_p;                                                       \
-            if (_hs_p != NULL) {                                                 \
-              _hs_p = ((_hs_p->next != NULL) ?                                   \
-                HH_FROM_ELMT((head)->hh.tbl, _hs_p->next) : NULL);               \
+            if (_hs_p != nullptr) {                                              \
+              _hs_p = ((_hs_p->next != nullptr) ?                                \
+                HH_FROM_ELMT((head)->hh.tbl, _hs_p->next) : nullptr);            \
             }                                                                    \
             _hs_psize--;                                                         \
           } else {                                                               \
             _hs_e = _hs_q;                                                       \
-            _hs_q = ((_hs_q->next != NULL) ?                                     \
-              HH_FROM_ELMT((head)->hh.tbl, _hs_q->next) : NULL);                 \
+            _hs_q = ((_hs_q->next != nullptr) ?                                  \
+              HH_FROM_ELMT((head)->hh.tbl, _hs_q->next) : nullptr);              \
             _hs_qsize--;                                                         \
           }                                                                      \
-          if ( _hs_tail != NULL ) {                                              \
-            _hs_tail->next = ((_hs_e != NULL) ?                                  \
-              ELMT_FROM_HH((head)->hh.tbl, _hs_e) : NULL);                       \
+          if ( _hs_tail != nullptr ) {                                           \
+            _hs_tail->next = ((_hs_e != nullptr) ?                               \
+              ELMT_FROM_HH((head)->hh.tbl, _hs_e) : nullptr);                    \
           } else {                                                               \
             _hs_list = _hs_e;                                                    \
           }                                                                      \
-          if (_hs_e != NULL) {                                                   \
-            _hs_e->prev = ((_hs_tail != NULL) ?                                  \
-              ELMT_FROM_HH((head)->hh.tbl, _hs_tail) : NULL);                    \
+          if (_hs_e != nullptr) {                                                \
+            _hs_e->prev = ((_hs_tail != nullptr) ?                               \
+              ELMT_FROM_HH((head)->hh.tbl, _hs_tail) : nullptr);                 \
           }                                                                      \
           _hs_tail = _hs_e;                                                      \
         }                                                                        \
         _hs_p = _hs_q;                                                           \
       }                                                                          \
-      if (_hs_tail != NULL) {                                                    \
-        _hs_tail->next = NULL;                                                   \
+      if (_hs_tail != nullptr) {                                                 \
+        _hs_tail->next = nullptr;                                                \
       }                                                                          \
       if (_hs_nmerges <= 1U) {                                                   \
         _hs_looping = 0;                                                         \
@@ -975,17 +975,17 @@ do {                                                                            
  * The end result is that the selected items have dual presence
  * in both hashes. There is no copy of the items made; rather
  * they are added into the new hash through a secondary hash
- * hash handle that must be present in the structure. */
+ * handle that must be present in the structure. */
 #define HASH_SELECT(hh_dst, dst, hh_src, src, cond)                              \
 do {                                                                             \
   unsigned _src_bkt, _dst_bkt;                                                   \
-  void *_last_elt = NULL, *_elt;                                                 \
-  UT_hash_handle *_src_hh, *_dst_hh, *_last_elt_hh=NULL;                         \
+  void *_last_elt = nullptr, *_elt;                                              \
+  UT_hash_handle *_src_hh, *_dst_hh, *_last_elt_hh=nullptr;                      \
   ptrdiff_t _dst_hho = ((char*)(&(dst)->hh_dst) - (char*)(dst));                 \
-  if ((src) != NULL) {                                                           \
+  if ((src) != nullptr) {                                                        \
     for (_src_bkt=0; _src_bkt < (src)->hh_src.tbl->num_buckets; _src_bkt++) {    \
       for (_src_hh = (src)->hh_src.tbl->buckets[_src_bkt].hh_head;               \
-        _src_hh != NULL;                                                         \
+        _src_hh != nullptr;                                                      \
         _src_hh = _src_hh->hh_next) {                                            \
         _elt = ELMT_FROM_HH((src)->hh_src.tbl, _src_hh);                         \
         if (cond(_elt)) {                                                        \
@@ -995,17 +995,17 @@ do {                                                                            
           _dst_hh->keylen = _src_hh->keylen;                                     \
           _dst_hh->hashv = _src_hh->hashv;                                       \
           _dst_hh->prev = _last_elt;                                             \
-          _dst_hh->next = NULL;                                                  \
-          if (_last_elt_hh != NULL) {                                            \
+          _dst_hh->next = nullptr;                                               \
+          if (_last_elt_hh != nullptr) {                                         \
             _last_elt_hh->next = _elt;                                           \
           }                                                                      \
-          if ((dst) == NULL) {                                                   \
+          if ((dst) == nullptr) {                                                \
             DECLTYPE_ASSIGN(dst, _elt);                                          \
             HASH_MAKE_TABLE(hh_dst, dst, _hs_oomed);                             \
             IF_HASH_NONFATAL_OOM(                                                \
               if (_hs_oomed) {                                                   \
                 uthash_nonfatal_oom(_elt);                                       \
-                (dst) = NULL;                                                    \
+                (dst) = nullptr;                                                 \
                 continue;                                                        \
               }                                                                  \
             )                                                                    \
@@ -1019,7 +1019,7 @@ do {                                                                            
             if (_hs_oomed) {                                                     \
               HASH_ROLLBACK_BKT(hh_dst, dst, _dst_hh);                           \
               HASH_DELETE_HH(hh_dst, dst, _dst_hh);                              \
-              _dst_hh->tbl = NULL;                                               \
+              _dst_hh->tbl = nullptr;                                            \
               uthash_nonfatal_oom(_elt);                                         \
               continue;                                                          \
             }                                                                    \
@@ -1036,17 +1036,17 @@ do {                                                                            
 
 #define HASH_CLEAR(hh,head)                                                      \
 do {                                                                             \
-  if ((head) != NULL) {                                                          \
+  if ((head) != nullptr) {                                                       \
     HASH_BLOOM_FREE((head)->hh.tbl);                                             \
     uthash_free((head)->hh.tbl->buckets,                                         \
                 (head)->hh.tbl->num_buckets*sizeof(struct UT_hash_bucket));      \
     uthash_free((head)->hh.tbl, sizeof(UT_hash_table));                          \
-    (head) = NULL;                                                               \
+    (head) = nullptr;                                                            \
   }                                                                              \
 } while (0)
 
 #define HASH_OVERHEAD(hh,head)                                                   \
- (((head) != NULL) ? (                                                           \
+ (((head) != nullptr) ? (                                                        \
  (size_t)(((head)->hh.tbl->num_items   * sizeof(UT_hash_handle))   +             \
           ((head)->hh.tbl->num_buckets * sizeof(UT_hash_bucket))   +             \
            sizeof(UT_hash_table)                                   +             \
@@ -1054,17 +1054,17 @@ do {                                                                            
 
 #ifdef NO_DECLTYPE
 #define HASH_ITER(hh,head,el,tmp)                                                \
-for(((el)=(head)), ((*(char**)(&(tmp)))=(char*)((head!=NULL)?(head)->hh.next:NULL)); \
-  (el) != NULL; ((el)=(tmp)), ((*(char**)(&(tmp)))=(char*)((tmp!=NULL)?(tmp)->hh.next:NULL)))
+for(((el)=(head)), ((*(char**)(&(tmp)))=(char*)((head!=nullptr)?(head)->hh.next:nullptr)); \
+  (el) != nullptr; ((el)=(tmp)), ((*(char**)(&(tmp)))=(char*)((tmp!=nullptr)?(tmp)->hh.next:nullptr)))
 #else
 #define HASH_ITER(hh,head,el,tmp)                                                \
-for(((el)=(head)), ((tmp)=DECLTYPE(el)((head!=NULL)?(head)->hh.next:NULL));      \
-  (el) != NULL; ((el)=(tmp)), ((tmp)=DECLTYPE(el)((tmp!=NULL)?(tmp)->hh.next:NULL)))
+for(((el)=(head)), ((tmp)=DECLTYPE(el)((head!=nullptr)?(head)->hh.next:nullptr));      \
+  (el) != nullptr; ((el)=(tmp)), ((tmp)=DECLTYPE(el)((tmp!=nullptr)?(tmp)->hh.next:nullptr)))
 #endif
 
 /* obtain a count of items in the hash */
 #define HASH_COUNT(head) HASH_CNT(hh,head)
-#define HASH_CNT(hh,head) ((head != NULL)?((head)->hh.tbl->num_items):0U)
+#define HASH_CNT(hh,head) ((head != nullptr)?((head)->hh.tbl->num_items):0U)
 
 typedef struct UT_hash_bucket {
    struct UT_hash_handle *hh_head;

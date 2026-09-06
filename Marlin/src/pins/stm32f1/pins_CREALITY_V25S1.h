@@ -42,7 +42,7 @@
 //
 // EEPROM
 //
-#if NO_EEPROM_SELECTED
+#if SHALL_USE_EEPROM(IIC_BL24CXX_EEPROM)
   #define IIC_BL24CXX_EEPROM                      // EEPROM on I2C-0
   //#define SDCARD_EEPROM_EMULATION
   //#define FLASH_EEPROM_EMULATION
@@ -78,7 +78,7 @@
 //
 // Filament Runout Sensor
 //
-#if ENABLED(FILAMENT_RUNOUT_SENSOR)
+#ifndef FIL_RUNOUT_PIN
   #define FIL_RUNOUT_PIN                    PA15  // "Pulled-high"
 #endif
 
@@ -127,7 +127,7 @@
 #define ON_BOARD_SPI_DEVICE                    1
 #define ONBOARD_SD_CS_PIN                   PC12  // SDSS
 #define ONBOARD_SDIO
-#define NO_SD_HOST_DRIVE                          // This board's SD is only seen by the printer
+#define BOARD_NO_HOST_DRIVE                       // SD is only seen by the printer
 
 //
 // Misc. Functions

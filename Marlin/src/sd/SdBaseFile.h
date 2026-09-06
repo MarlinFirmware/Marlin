@@ -46,6 +46,19 @@ struct filepos_t {
   filepos_t() : position(0), cluster(0) {}
 };
 
+// Avoid conflict with RP2040 / newlib fcntl.h
+#ifdef __PLAT_RP2040__
+  #undef O_RDONLY
+  #undef O_WRONLY
+  #undef O_RDWR
+  #undef O_ACCMODE
+  #undef O_APPEND
+  #undef O_SYNC
+  #undef O_TRUNC
+  #undef O_CREAT
+  #undef O_EXCL
+#endif
+
 // use the gnu style oflag in open()
 uint8_t const O_READ = 0x01,                    // open() oflag for reading
               O_RDONLY = O_READ,                // open() oflag - same as O_IN

@@ -38,7 +38,7 @@
 //
 // EEPROM
 //
-#if ANY(NO_EEPROM_SELECTED, FLASH_EEPROM_EMULATION)
+#if SHALL_USE_EEPROM(FLASH_EEPROM_EMULATION)
   #define FLASH_EEPROM_EMULATION
   #define EEPROM_PAGE_SIZE                0x800U  // 2K
   #define EEPROM_START_ADDRESS (0x8000000UL + (STM32_FLASH_SIZE) * 1024UL - (EEPROM_PAGE_SIZE) * 2UL)
@@ -256,7 +256,7 @@
 #define ONBOARD_SPI_DEVICE                     2  // Maple
 #define ONBOARD_SD_CS_PIN            EXP2_04_PIN
 #define SD_DETECT_PIN                EXP2_07_PIN
-#define NO_SD_HOST_DRIVE
+#define BOARD_NO_HOST_DRIVE                       // SD is only seen by the printer
 
 // TODO: This is the only way to set SPI for SD on STM32 (for now)
 #define ENABLE_SPI2

@@ -31,28 +31,48 @@
 
 // NOTE: The Bigtreetech SKR Pico has an onboard W25Q16 flash module
 
-// Use EEPROM.h for compatibility, for now.
-#include <EEPROM.h>
+// RP2040 Flash-based EEPROM emulation using internal flash memory
+#include <hardware/flash.h>
+#include <hardware/sync.h>
 
-static bool eeprom_data_written = false;
+// Flash sector size is already defined in hardware/flash.h as FLASH_SECTOR_SIZE
+// Place EEPROM emulation at the end of flash, before the filesystem
+// This assumes 2MB flash, adjust if using different flash size
+#define FLASH_TARGET_OFFSET (PICO_FLASH_SIZE_BYTES - FLASH_SECTOR_SIZE)
 
 #ifndef MARLIN_EEPROM_SIZE
   #define MARLIN_EEPROM_SIZE size_t(E2END + 1)
 #endif
+
+static uint8_t eeprom_buffer[MARLIN_EEPROM_SIZE];
+static bool eeprom_data_written = false;
+static bool eeprom_initialized = false;
 size_t PersistentStore::capacity() { return MARLIN_EEPROM_SIZE; }
 
 bool PersistentStore::access_start() {
-  EEPROM.begin(); // Avoid EEPROM.h warning (do nothing)
-  eeprom_buffer_fill();
+  if (!eeprom_initialized) {
+    // Read from flash into buffer
+    const uint8_t *flash_data = (const uint8_t *)(XIP_BASE + FLASH_TARGET_OFFSET);
+    memcpy(eeprom_buffer, flash_data, MARLIN_EEPROM_SIZE);
+    eeprom_initialized = true;
+  }
   return true;
 }
 
 bool PersistentStore::access_finish() {
   if (eeprom_data_written) {
     TERN_(HAS_PAUSE_SERVO_OUTPUT, PAUSE_SERVO_OUTPUT());
-    hal.isr_off();
-    eeprom_buffer_flush();
-    hal.isr_on();
+
+    // Disable interrupts during flash write
+    const uint32_t intstate = save_and_disable_interrupts();
+
+    // Erase and program the sector
+    flash_range_erase(FLASH_TARGET_OFFSET, FLASH_SECTOR_SIZE);
+    flash_range_program(FLASH_TARGET_OFFSET, eeprom_buffer, MARLIN_EEPROM_SIZE);
+
+    // Restore interrupts
+    restore_interrupts(intstate);
+
     TERN_(HAS_PAUSE_SERVO_OUTPUT, RESUME_SERVO_OUTPUT());
     eeprom_data_written = false;
   }
@@ -62,8 +82,8 @@ bool PersistentStore::access_finish() {
 bool PersistentStore::write_data(int &pos, const uint8_t *value, size_t size, uint16_t *crc) {
   while (size--) {
     uint8_t v = *value;
-    if (v != eeprom_buffered_read_byte(pos)) {
-      eeprom_buffered_write_byte(pos, v);
+    if (pos < (int)MARLIN_EEPROM_SIZE && v != eeprom_buffer[pos]) {
+      eeprom_buffer[pos] = v;
       eeprom_data_written = true;
     }
     crc16(crc, &v, 1);
@@ -75,7 +95,7 @@ bool PersistentStore::write_data(int &pos, const uint8_t *value, size_t size, ui
 
 bool PersistentStore::read_data(int &pos, uint8_t *value, size_t size, uint16_t *crc, const bool writing/*=true*/) {
   do {
-    const uint8_t c = eeprom_buffered_read_byte(pos);
+    const uint8_t c = (pos < (int)MARLIN_EEPROM_SIZE) ? eeprom_buffer[pos] : 0xFF;
     if (writing) *value = c;
     crc16(crc, &c, 1);
     pos++;

@@ -212,7 +212,7 @@ void ProbeTempComp::compensate_measurement(const TempSensorID tsi, const celsius
     }
 
   // convert offset to mm and apply it
-  meas_z -= offset / 1000.0f;
+  meas_z -= offset * 0.001f;
 }
 
 bool ProbeTempComp::linear_regression(const TempSensorID tsi, float &k, float &d) {

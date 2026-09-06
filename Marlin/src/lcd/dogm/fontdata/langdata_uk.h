@@ -75,12 +75,12 @@ const u8g_fntpgm_uint8_t fontpage_8_214_215[41] U8G_FONT_SECTION("fontpage_8_214
   0x06,0x01,0x00,0xA0,0x00,0xC0,0x40,0x40,0xE0};
 
 static const uxg_fontinfo_t g_fontinfo_uk[] PROGMEM = {
-  FONTDATA_ITEM(8, 134, 134, fontpage_8_134_134), // 'І' -- 'І'
-  FONTDATA_ITEM(8, 144, 169, fontpage_8_144_169), // 'А' -- 'Щ'
-  FONTDATA_ITEM(8, 172, 172, fontpage_8_172_172), // 'Ь' -- 'Ь'
-  FONTDATA_ITEM(8, 175, 201, fontpage_8_175_201), // 'Я' -- 'щ'
-  FONTDATA_ITEM(8, 204, 204, fontpage_8_204_204), // 'ь' -- 'ь'
-  FONTDATA_ITEM(8, 206, 207, fontpage_8_206_207), // 'ю' -- 'я'
-  FONTDATA_ITEM(8, 212, 212, fontpage_8_212_212), // 'є' -- 'є'
-  FONTDATA_ITEM(8, 214, 215, fontpage_8_214_215), // 'і' -- 'ї'
+  FONTDATA_ITEM(8, 134, 134, fontpage_8_134_134), // ' І ' - ' І '
+  FONTDATA_ITEM(8, 144, 169, fontpage_8_144_169), // ' А ' - ' Щ '
+  FONTDATA_ITEM(8, 172, 172, fontpage_8_172_172), // ' Ь ' - ' Ь '
+  FONTDATA_ITEM(8, 175, 201, fontpage_8_175_201), // ' Я ' - ' щ '
+  FONTDATA_ITEM(8, 204, 204, fontpage_8_204_204), // ' ь ' - ' ь '
+  FONTDATA_ITEM(8, 206, 207, fontpage_8_206_207), // ' ю ' - ' я '
+  FONTDATA_ITEM(8, 212, 212, fontpage_8_212_212), // ' є ' - ' є '
+  FONTDATA_ITEM(8, 214, 215, fontpage_8_214_215), // ' і ' - ' ї '
 };

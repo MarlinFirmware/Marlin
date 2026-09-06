@@ -171,7 +171,7 @@ void core_hook_sysclock_init() {
       panic("HRC is not 16 MHz");
     }
 
-    #if defined(BOARD_XTAL_FREQUENCY)
+    #ifdef BOARD_XTAL_FREQUENCY
       #warning "No valid XTAL frequency defined, falling back to HRC."
     #endif
 
@@ -204,7 +204,7 @@ void core_hook_sysclock_init() {
   power_mode_update_post(F_SYSTEM_CLOCK);
 
   // Verify clocks match expected values (at runtime)
-  #if ENABLED(MARLIN_DEV_MODE) || ENABLED(ALWAYS_VALIDATE_CLOCKS)
+  #if ANY(MARLIN_DEV_MODE, ALWAYS_VALIDATE_CLOCKS)
     validate_system_clocks();
   #endif
 

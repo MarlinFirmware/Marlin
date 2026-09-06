@@ -24,7 +24,7 @@
 
 /**
  * Description: Tone function for ESP32
- * Derived from https://forum.arduino.cc/index.php?topic=136500.msg2903012#msg2903012
+ * Derived from https://forum.arduino.cc/t/arduino-due-and-tone/133302/13
  */
 
 #ifdef ARDUINO_ARCH_ESP32

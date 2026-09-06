@@ -54,7 +54,18 @@ void GcodeSuite::M401() {
 
   probe.deploy(parser.boolval('R'));
   TERN_(PROBE_TARE, probe.tare());
-  report_current_position();
+  motion.report_position();
+}
+
+void GcodeSuite::M401_report(const bool forReplay/*=true*/) {
+  TERN_(MARLIN_SMALL_BUILD, return);
+
+  #if HAS_BLTOUCH_HS_MODE
+    if (!forReplay) {
+      report_heading_etc(forReplay, F("BLTouch HS mode"));
+      SERIAL_ECHOLNPGM("  M401 S", bltouch.high_speed_mode, " ; ", ON_OFF(bltouch.high_speed_mode));
+    }
+  #endif
 }
 
 /**
@@ -64,9 +75,9 @@ void GcodeSuite::M401() {
 void GcodeSuite::M402() {
   probe.stow(parser.boolval('R'));
   #ifdef Z_AFTER_PROBING
-    do_z_clearance(Z_AFTER_PROBING);
+    motion.do_z_clearance(Z_AFTER_PROBING);
   #endif
-  report_current_position();
+  motion.report_position();
 }
 
 #endif // HAS_BED_PROBE

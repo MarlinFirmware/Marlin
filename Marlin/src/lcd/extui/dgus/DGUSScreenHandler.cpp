@@ -542,7 +542,7 @@ void DGUSScreenHandler::handleSettings(DGUS_VP_Variable &var, void *val_ptr) {
 
 #if HAS_BED_PROBE
   void DGUSScreenHandler::handleProbeOffsetZChanged(DGUS_VP_Variable &var, void *val_ptr) {
-    const float offset = float(int16_t(BE16_P(val_ptr))) / 100.0f;
+    const float offset = float(int16_t(BE16_P(val_ptr))) * 0.01f;
     ExtUI::setZOffset_mm(offset);
     skipVP = var.VP; // don't overwrite value the next update time as the display might autoincrement in parallel
     return;

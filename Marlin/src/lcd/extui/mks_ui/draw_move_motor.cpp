@@ -89,9 +89,9 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
 
 void refresh_pos(lv_task_t *) {
   switch (cur_label) {
-    case 'X': cur_pos = current_position.x; break;
-    case 'Y': cur_pos = current_position.y; break;
-    case 'Z': cur_pos = current_position.z; break;
+    case 'X': cur_pos = motion.position.x; break;
+    case 'Y': cur_pos = motion.position.y; break;
+    case 'Z': cur_pos = motion.position.z; break;
     default: return;
   }
   disp_cur_pos();

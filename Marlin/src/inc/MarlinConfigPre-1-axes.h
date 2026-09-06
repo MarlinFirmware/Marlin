@@ -41,7 +41,11 @@
 #include "../core/boards.h"
 
 #if USE_STD_CONFIGS
-  #include "../../Configuration.h"
+  #if __has_include("../../Configuration.h")
+    #include "../../Configuration.h"
+  #else
+    #define MOTHERBOARD BOARD_ERROR
+  #endif
 #endif
 
 #ifdef CUSTOM_VERSION_FILE

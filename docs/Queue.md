@@ -39,10 +39,10 @@ Here's a basic flowchart of Marlin command processing:
                                      +--------------------------------------+
 ```
 
-Marlin is a single-threaded application with a main `loop()` that manages the command queue and an `idle()` routine that manages the hardware. The command queue is handled in two stages:
+Marlin is a single-threaded application with a main `loop()` that manages the command queue and a `marlin.idle()` routine to manage the hardware. The command queue is handled in two stages:
 
-1. The `idle()` routine reads all inputs and attempts to enqueue any completed command lines.
-2. The main `loop()` gets the command at the front the G-code queue (if any) and runs it. Each G-code command blocks the main loop, preventing the queue from advancing until it returns. To keep essential tasks and the UI running, any commands that run a long process need to call `idle()` frequently.
+1. The `marlin.idle()` routine reads all inputs and attempts to enqueue any completed command lines.
+2. The main `loop()` gets the command at the front the G-code queue (if any) and runs it. Each G-code command blocks the main loop, preventing the queue from advancing until it returns. To keep essential tasks and the UI running, any commands that run a long process must call `marlin.idle()` frequently.
 
 ## Synchronization
 

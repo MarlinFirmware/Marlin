@@ -34,7 +34,7 @@
  */
 void GcodeSuite::M211() {
   if (parser.seen('S'))
-    soft_endstop._enabled = parser.value_bool();
+    motion.soft_endstop._enabled = parser.value_bool();
   else
     M211_report();
 }
@@ -43,11 +43,11 @@ void GcodeSuite::M211_report(const bool forReplay/*=true*/) {
   TERN_(MARLIN_SMALL_BUILD, return);
 
   report_heading_etc(forReplay, F(STR_SOFT_ENDSTOPS));
-  SERIAL_ECHOLNPGM("  M211 S", AS_DIGIT(soft_endstop._enabled), " ; ", ON_OFF(soft_endstop._enabled));
+  SERIAL_ECHOLNPGM("  M211 S", AS_DIGIT(motion.soft_endstop._enabled), " ; ", ON_OFF(motion.soft_endstop._enabled));
 
   report_echo_start(forReplay);
-  const xyz_pos_t l_soft_min = soft_endstop.min.asLogical(),
-                  l_soft_max = soft_endstop.max.asLogical();
+  const xyz_pos_t l_soft_min = motion.soft_endstop.min.asLogical(),
+                  l_soft_max = motion.soft_endstop.max.asLogical();
   print_xyz(l_soft_min, F(STR_SOFT_MIN), F(" "));
   print_xyz(l_soft_max, F(STR_SOFT_MAX));
 }

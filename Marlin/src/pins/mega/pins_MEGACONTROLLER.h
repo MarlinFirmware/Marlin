@@ -86,13 +86,13 @@
 //
 // Temperature Sensors
 //
-#if TEMP_SENSOR_0 == -1
+#if TEMP_SENSOR_0_IS_AD595
   #define TEMP_0_PIN                           4  // Analog Input
 #else
   #define TEMP_0_PIN                           0  // Analog Input
 #endif
 
-#if TEMP_SENSOR_1 == -1
+#if TEMP_SENSOR_1_IS_AD595
   #define TEMP_1_PIN                           5  // Analog Input
 #else
   #define TEMP_1_PIN                           2  // Analog Input
@@ -100,7 +100,7 @@
 
 #define TEMP_2_PIN                             3  // Analog Input
 
-#if TEMP_SENSOR_BED == -1
+#if TEMP_SENSOR_BED_IS_AD595
   #define TEMP_BED_PIN                         6  // Analog Input
 #else
   #define TEMP_BED_PIN                         1  // Analog Input
