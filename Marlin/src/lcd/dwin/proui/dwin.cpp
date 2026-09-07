@@ -2516,7 +2516,7 @@ void gotoConfirmToPrint() {
   }
 
   void ublSmartFillMesh() {
-    for (uint8_t x = 0; x < GRID_MAX_POINTS_Y; ++x) bedlevel.smart_fill_mesh();
+    bedlevel.smart_fill_mesh();
     LCD_MESSAGE(MSG_UBL_MESH_FILLED);
   }
 
