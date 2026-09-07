@@ -30,6 +30,11 @@ on:
     - Marlin/tests/**
     - '**/*.md'
 
+# Cancel PR runs superseded by a new push, so stacked runs don't queue up behind each other.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
   test_builds:
     name: Build Test

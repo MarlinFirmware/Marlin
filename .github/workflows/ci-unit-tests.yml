@@ -27,6 +27,11 @@ on:
     - docs/**
     - '**/*.md'
 
+# Cancel PR runs superseded by a new push, so stacked runs don't queue up behind each other.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
   # This runs all unit tests as a single job. While it should be possible to break this up into
   # multiple jobs, they currently run quickly and finish long before the compilation tests.
