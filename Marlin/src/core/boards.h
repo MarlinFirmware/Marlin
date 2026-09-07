@@ -283,6 +283,12 @@
 #define BOARD_XTLW_CLIMBER_8TH_LPC    2512  // XTLW Climber 8
 
 //
+// LPC5528 ARM Cortex-M33
+//
+
+#define BOARD_MKS_OWL                 2600  // MKS OWL
+
+//
 // SAM3X8E ARM Cortex-M3
 //
 

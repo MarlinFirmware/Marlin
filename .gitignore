@@ -77,6 +77,7 @@ applet/
 *.ko
 *.obj
 *.elf
+*.map
 
 # Precompiled Headers
 *.gch
@@ -180,3 +181,6 @@ tags
 .env
 schema.json
 sqlite*.db
+
+# Local development reference material (datasheets, board schematics) - not for commit
+/resources/

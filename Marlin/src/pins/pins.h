@@ -473,6 +473,13 @@
   #include "lpc1769/pins_XTLW_CLIMBER_8TH_LPC.h"    // LPC1769                              env:LPC1769
 
 //
+// LPC5528 ARM Cortex-M33
+//
+
+#elif MB(MKS_OWL)
+  #include "lpc5528/pins_MKS_OWL.h"                 // LPC5528                              env:MKS_OWL
+
+//
 // SAM3X8E ARM Cortex-M3
 //
 
