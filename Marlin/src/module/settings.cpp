@@ -277,7 +277,7 @@ typedef struct SettingsDataStruct {
   // MESH_BED_LEVELING
   //
   float mbl_z_offset;                                   // bedlevel.z_offset
-  uint8_t mesh_num_x, mesh_num_y;                       // GRID_MAX_POINTS_X, GRID_MAX_POINTS_Y
+  xy_uint8_t mesh_num;                                  // GRID_MAX_POINTS_X, GRID_MAX_POINTS_Y
   uint16_t mesh_check;                                  // Hash to check against X/Y
   float mbl_z_values[TERN(MESH_BED_LEVELING, GRID_MAX_POINTS_X, 3)]   // bedlevel.z_values
                     [TERN(MESH_BED_LEVELING, GRID_MAX_POINTS_Y, 3)];
@@ -1042,21 +1042,19 @@ void MarlinSettings::postprocess() {
         dummyf = 0;
       #endif
 
-      const uint8_t mesh_num_x = TERN(MESH_BED_LEVELING, GRID_MAX_POINTS_X, 3),
-                    mesh_num_y = TERN(MESH_BED_LEVELING, GRID_MAX_POINTS_Y, 3);
-
       EEPROM_WRITE(TERN(MESH_BED_LEVELING, bedlevel.z_offset, dummyf));
-      EEPROM_WRITE(mesh_num_x);
-      EEPROM_WRITE(mesh_num_y);
+
+      const xy_uint8_t mesh_num = { TERN(MESH_BED_LEVELING, GRID_MAX_POINTS_X, 3), TERN(MESH_BED_LEVELING, GRID_MAX_POINTS_Y, 3) };
+      EEPROM_WRITE(mesh_num);
 
       // Check value for the X/Y values
-      const uint16_t mesh_check = TWO_BYTE_HASH(mesh_num_x, mesh_num_y);
+      const uint16_t mesh_check = TWO_BYTE_HASH(mesh_num.x, mesh_num.y);
       EEPROM_WRITE(mesh_check);
 
       #if ENABLED(MESH_BED_LEVELING)
         EEPROM_WRITE(bedlevel.z_values);
       #else
-        for (uint8_t q = mesh_num_x * mesh_num_y; q--;) EEPROM_WRITE(dummyf);
+        for (uint8_t q = mesh_num.x * mesh_num.y; q--;) EEPROM_WRITE(dummyf);
       #endif
     }
 
@@ -2106,37 +2104,36 @@ void MarlinSettings::postprocess() {
       // Mesh (Manual) Bed Leveling
       //
       {
-        uint8_t mesh_num_x, mesh_num_y;
+        xy_uint8_t mesh_num;
         uint16_t mesh_check;
         EEPROM_READ(dummyf);
-        EEPROM_READ_ALWAYS(mesh_num_x);
-        EEPROM_READ_ALWAYS(mesh_num_y);
+        EEPROM_READ_ALWAYS(mesh_num);
 
         // Check value must correspond to the X/Y values
         EEPROM_READ_ALWAYS(mesh_check);
-        if (mesh_check != TWO_BYTE_HASH(mesh_num_x, mesh_num_y)) {
+        if (mesh_check != TWO_BYTE_HASH(mesh_num.x, mesh_num.y)) {
           eeprom_error = ERR_EEPROM_CORRUPT;
           break;
         }
 
         #if ENABLED(MESH_BED_LEVELING)
           if (!validating) bedlevel.z_offset = dummyf;
-          if (mesh_num_x == (GRID_MAX_POINTS_X) && mesh_num_y == (GRID_MAX_POINTS_Y)) {
+          if (mesh_num.x == (GRID_MAX_POINTS_X) && mesh_num.y == (GRID_MAX_POINTS_Y)) {
             // EEPROM data fits the current mesh
             EEPROM_READ(bedlevel.z_values);
           }
-          else if (mesh_num_x > (GRID_MAX_POINTS_X) || mesh_num_y > (GRID_MAX_POINTS_Y)) {
+          else if (mesh_num.x > (GRID_MAX_POINTS_X) || mesh_num.y > (GRID_MAX_POINTS_Y)) {
             eeprom_error = ERR_EEPROM_CORRUPT;
             break;
           }
           else {
             // EEPROM data is stale
             if (!validating) bedlevel.reset();
-            for (uint16_t q = mesh_num_x * mesh_num_y; q--;) EEPROM_READ(dummyf);
+            for (uint16_t q = mesh_num.x * mesh_num.y; q--;) EEPROM_READ(dummyf);
           }
         #else
           // MBL is disabled - skip the stored data
-          for (uint16_t q = mesh_num_x * mesh_num_y; q--;) EEPROM_READ(dummyf);
+          for (uint16_t q = mesh_num.x * mesh_num.y; q--;) EEPROM_READ(dummyf);
         #endif
       }
 

@@ -101,7 +101,7 @@ void LevelingBilinear::extrapolate_one_point(const uint8_t x, const uint8_t y, c
 void LevelingBilinear::reset() {
   grid_start.reset();
   grid_spacing.reset();
-  TERN_(VARIABLE_GRID_POINTS, nr_grid_points.set(GRID_MAX_POINTS_X, GRID_MAX_POINTS_Y));
+  TERN_(VARIABLE_GRID_POINTS, nr_grid_points = grid_max_points);
   GRID_LOOP(x, y) {
     z_values[x][y] = NAN;
     TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(x, y, 0));

@@ -141,7 +141,7 @@ public:
     #if ENABLED(VARIABLE_GRID_POINTS)
       xy_uint8_t grid_points;
     #else
-      static constexpr xy_uint8_t grid_points = { GRID_MAX_POINTS_X, GRID_MAX_POINTS_Y };
+      static constexpr xy_uint8_t grid_points = grid_max_points;
     #endif
 
     #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
@@ -377,7 +377,7 @@ G29_TYPE GcodeSuite::G29() {
     abl.dryrun = parser.boolval('D') || TERN0(PROBE_MANUALLY, no_action);
 
     #if ABL_USES_GRID
-      TERN_(VARIABLE_GRID_POINTS, abl.grid_points.set(GRID_MAX_POINTS_X, GRID_MAX_POINTS_Y));
+      TERN_(VARIABLE_GRID_POINTS, abl.grid_points = grid_max_points);
       abl.gridSpacing.set(GRID_MIN_SPACING, GRID_MIN_SPACING);
     #endif
 

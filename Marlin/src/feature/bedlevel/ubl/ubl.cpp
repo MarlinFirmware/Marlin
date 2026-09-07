@@ -118,7 +118,7 @@ void unified_bed_leveling::reset() {
   TERN_(HAS_MESH_STORAGE, storage_slot = -1);
   ZERO(z_values);
   #if ENABLED(VARIABLE_GRID_POINTS)
-    set_nr_grid_points(xy_uint8_t({ GRID_MAX_POINTS_X, GRID_MAX_POINTS_Y }));
+    set_nr_grid_points(grid_max_points);
   #endif
   #if ENABLED(EXTENSIBLE_UI)
     GRID_LOOP(x, y) ExtUI::onMeshUpdate(x, y, 0);

@@ -57,6 +57,10 @@ class TemporaryBedLevelingState {
 };
 #define TEMPORARY_BED_LEVELING_STATE(enable) const TemporaryBedLevelingState tbls(enable)
 
+#ifdef GRID_MAX_POINTS_X
+  constexpr xy_uint8_t grid_max_points = { GRID_MAX_POINTS_X, GRID_MAX_POINTS_Y };
+#endif
+
 #if HAS_MESH
 
   typedef float bed_mesh_t[GRID_MAX_POINTS_X][GRID_MAX_POINTS_Y];
