@@ -699,8 +699,6 @@ namespace LanguageNarrow_sk {
   LSTR MSG_LOCKSCREEN                     = _UxGT("Uzamknúť obrazovku");                       // Lock Screen
   LSTR MSG_LOCKSCREEN_LOCKED              = _UxGT("Tlačiareň je uzamknutá,");                  // Printer is Locked,
   LSTR MSG_LOCKSCREEN_UNLOCK              = _UxGT("potiahnite pre odomknutie.");               // Scroll to unlock.
-  LSTR MSG_PLEASE_WAIT_REBOOT             = _UxGT("Prosím čakajte do reštartu.");              // Please wait for reboot.
-  LSTR MSG_PLEASE_PREHEAT                 = _UxGT("Prosím zahrejte");                          // Please Preheat
   LSTR MSG_FILAMENT_CHANGE_PURGE_CONTINUE = _UxGT("Vytlač. alebo pokrač.?");                   // Purge or Continue?
   LSTR MSG_EXTRUDER_MIN_TEMP              = _UxGT("Min. tepl. extrud.");                       // Extruder Min Temp.
   LSTR MSG_FANCHECK                       = _UxGT("Kontrola rýchl.");                          // Fan Tacho Check
@@ -787,8 +785,9 @@ namespace LanguageWide_sk {
     LSTR MSG_END_LOOPS                    = _UxGT("Ukončiť opak. sluč.");                      // End Repeat Loops
     LSTR MSG_CONTINUE_PRINT_JOB           = _UxGT("Pokračovať v úlohe");                       // Continue Print Job
     LSTR MSG_TURN_OFF                     = _UxGT("Vypnite tlačiareň");                        // Turn off the printer
-    LSTR MSG_PLEASE_PREHEAT               = _UxGT("Prosím zahrejte hotend.");                  // Please preheat the hot end.
-    LSTR MSG_MEDIA_NOT_INSERTED           = _UxGT("Nie je vložená karta.");                    // No media inserted.
+    LSTR MSG_PLEASE_PREHEAT               = _UxGT("Prosím zahrejte hotend.");                  // Please preheat the hot end
+    LSTR MSG_PLEASE_WAIT_REBOOT           = _UxGT("Prosím čakajte do reštartu.");              // Please wait for reboot
+    LSTR MSG_MEDIA_NOT_INSERTED           = _UxGT("Nie je vložená karta.");                    // No media inserted
     LSTR MSG_INFO_PRINT_COUNT_RESET       = _UxGT("Vynulovať počítadlo");                      // Reset Print Count
   #endif
 }

@@ -50,7 +50,7 @@
 #if ENABLED(DWIN_CREALITY_LCD)
   #include "dwin/creality/dwin.h"
 #elif ENABLED(DWIN_LCD_PROUI)
-  #include "dwin/proui/dwin.h"
+  #include "dwin/proui/dwin_popup.h"
 #endif
 
 #if ALL(HAS_STATUS_MESSAGE, IS_DWIN_MARLINUI)

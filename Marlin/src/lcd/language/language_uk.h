@@ -623,8 +623,6 @@ namespace LanguageNarrow_uk {
   LSTR MSG_UI_LANGUAGE                    = _UxGT("Мова");                                     // UI Language
   LSTR MSG_SOUND_ENABLE                   = _UxGT("Дозволити звук");                           // Enable sound
   LSTR MSG_LOCKSCREEN                     = _UxGT("Блокувати екран");                          // Lock Screen
-  LSTR MSG_PLEASE_WAIT_REBOOT             = _UxGT("Перезавантаж...");                          // Please wait for reboot.
-  LSTR MSG_PLEASE_PREHEAT                 = _UxGT("Нагрійте хотенд");                          // Please Preheat
   LSTR MSG_BAD_PAGE                       = _UxGT("Погана сторінка");                          // Bad page index
   LSTR MSG_BAD_PAGE_SPEED                 = _UxGT("Погана швидк. стор.");                      // Bad page speed
   LSTR MSG_EDIT_PASSWORD                  = _UxGT("Редагувати пароль");                        // Edit Password
@@ -739,11 +737,12 @@ namespace LanguageWide_uk {
     LSTR MSG_HOTEND_IDLE_TIMEOUT          = _UxGT("Час простою хотенду");                      // Hotend Idle Timeout
     LSTR MSG_COLORS_SELECT                = _UxGT("Обрати кольори");                           // Select Colors
     LSTR MSG_COLORS_APPLIED               = _UxGT("Кольори застосовані");                      // Colors applied
-    LSTR MSG_PLEASE_WAIT_REBOOT           = _UxGT("Перезавантаження...");                      // Please wait for reboot.
+    LSTR MSG_PLEASE_WAIT_REBOOT           = _UxGT("Перезавантаження...");                      // Please wait for reboot
+    LSTR MSG_PLEASE_PREHEAT               = _UxGT("Нагрійте хотенд");                          // Please Preheat
     LSTR MSG_BAD_PAGE_SPEED               = _UxGT("Погана швидкість стор.");                   // Bad page speed
     LSTR MSG_PROBE_WIZARD_PROBING         = _UxGT("Зондув. контрольної точки Z");              // Probing Z Reference
     LSTR MSG_PROBE_WIZARD_MOVING          = _UxGT("Рух до точки зондування");                  // Moving to Probing Pos
-    LSTR MSG_MEDIA_NOT_INSERTED           = _UxGT("Носій не вставлений");                      // No media inserted.
+    LSTR MSG_MEDIA_NOT_INSERTED           = _UxGT("Носій не вставлений");                      // No media inserted
   #endif
 }
 

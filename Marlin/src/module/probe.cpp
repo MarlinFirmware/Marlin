@@ -399,7 +399,7 @@ FORCE_INLINE void probe_specific_action(const bool deploy) {
 
     TERN_(HOST_PROMPT_SUPPORT, hostui.continue_prompt(ds_fstr));
     #if ENABLED(DWIN_LCD_PROUI)
-      ExtUI::onUserConfirmRequired(ICON_BLTouch, ds_fstr, FPSTR(CONTINUE_STR));
+      ExtUI::onUserContinue(ds_fstr);
     #elif ENABLED(EXTENSIBLE_UI)
       ExtUI::onUserConfirmRequired(ds_fstr);
     #endif
