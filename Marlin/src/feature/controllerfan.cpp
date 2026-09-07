@@ -71,10 +71,6 @@ void ControllerFan::setup() {
   init();
 }
 
-void ControllerFan::set_fan_speed(const uint8_t s) {
-  speed = s < (CONTROLLERFAN_SPEED_MIN) ? 0 : s; // Fan OFF below minimum
-}
-
 void ControllerFan::update() {
   const millis_t ms = millis();
 
@@ -108,35 +104,42 @@ void ControllerFan::update() {
    *  - If AutoMode is on and hot components have been powered for CONTROLLERFAN_IDLE_TIME seconds.
    *  - If System is on idle and idle fan speed settings is activated.
    */
-  set_fan_speed(
-    settings.auto_mode && lastComponentOn && PENDING(ms, lastComponentOn, SEC_TO_MS(settings.duration))
-    ? settings.active_speed : settings.idle_speed
-  );
+  uint8_t s = settings.auto_mode && lastComponentOn && PENDING(ms, lastComponentOn, SEC_TO_MS(settings.duration))
+    ? settings.active_speed
+    : settings.idle_speed;
 
-  speed = CALC_FAN_SPEED(speed);
+  // Convert 1-255 to the MIN-MAX PWM range
+  s = CALC_FAN_SPEED(s);
 
+  // When the fan first starts up it can run at high power for a short period
   #if FAN_KICKSTART_TIME
-    static millis_t fan_kick_end = 0;
-    if (speed > FAN_OFF_PWM) {
-      if (!fan_kick_end) {
-        fan_kick_end = ms + FAN_KICKSTART_TIME; // May be longer based on slow update interval for controller fn check. Sets minimum
-        speed = FAN_KICKSTART_POWER;
+
+    static millis_t kick_end_ms = 0;
+
+    if (s > FAN_OFF_PWM) {                      // Is the fan turned on?
+      if (!kick_end_ms) {                       // No kickstart yet?
+        kick_end_ms = ms + FAN_KICKSTART_TIME;  // Set a future time at which to stop
+        s = FAN_KICKSTART_POWER;                // Override the power
       }
-      else if (PENDING(ms, fan_kick_end))
-        speed = FAN_KICKSTART_POWER;
+      else if (PENDING(ms, kick_end_ms))        // Still waiting for end of kickstart time?
+        s = FAN_KICKSTART_POWER;                // Override the power
     }
     else
-      fan_kick_end = 0;
-  #endif
+      kick_end_ms = 0;                          // Reset kick_end_ms for kickstart on next enable
 
-  #define SET_CONTROLLER_FAN(N) do { \
-    if (PWM_PIN(CONTROLLER_FAN##N##_PIN)) hal.set_pwm_duty(pin_t(CONTROLLER_FAN##N##_PIN), speed); \
-    else WRITE(CONTROLLER_FAN##N##_PIN, speed > 0);\
-  } while (0)
+  #endif // FAN_KICKSTART_TIME
 
   #if ENABLED(FAN_SOFT_PWM)
+
     soft_pwm_speed = speed >> 1;   // Controller Fan Soft PWM uses 0-127 as 0-100% so cut the 0-255 range in half.
+
   #else
+
+    #define SET_CONTROLLER_FAN(N) do { \
+      if (PWM_PIN(CONTROLLER_FAN##N##_PIN)) hal.set_pwm_duty(pin_t(CONTROLLER_FAN##N##_PIN), speed); \
+      else WRITE(CONTROLLER_FAN##N##_PIN, speed > 0);\
+    } while (0)
+
     SET_CONTROLLER_FAN();
     #if PIN_EXISTS(CONTROLLER_FAN2)
       SET_CONTROLLER_FAN(2);
@@ -162,7 +165,8 @@ void ControllerFan::update() {
     #if PIN_EXISTS(CONTROLLER_FAN9)
       SET_CONTROLLER_FAN(9);
     #endif
-  #endif
+
+  #endif // !FAN_SOFT_PWM
 }
 
 #endif // USE_CONTROLLER_FAN
