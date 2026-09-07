@@ -21,8 +21,8 @@
  */
 #pragma once
 
-#if HAS_SPI_TFT || HAS_FSMC_TFT
-  #error "Sorry! TFT displays are not available for HAL/ESP32."
+#if HAS_FSMC_TFT
+  #error "Sorry! FSMC TFT displays are not available for HAL/ESP32."
 #endif
 
 #if ENABLED(EMERGENCY_PARSER)
