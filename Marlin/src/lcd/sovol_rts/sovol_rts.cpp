@@ -150,7 +150,7 @@ void RTS::sdCardInit() {
       if (j >= filenamelen) { addrnum++; continue; }
 
       if (j >= FILENAME_LEN) {
-        strncpy(&pFilename[FILENAME_LEN - 3], "..", 2);
+        strncpy(&pFilename[FILENAME_LEN - 3], "..", 3);
         pFilename[FILENAME_LEN - 1] = '\0';
         j = FILENAME_LEN - 1;
       }
