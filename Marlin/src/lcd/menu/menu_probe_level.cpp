@@ -307,7 +307,7 @@ void menu_probe_level() {
         EDIT_ITEM(LCD_Z_OFFSET_TYPE, MSG_MESH_Z_OFFSET, &bedlevel.z_offset, PROBE_OFFSET_ZMIN, PROBE_OFFSET_ZMAX);
       #endif
 
-    #endif
+    #endif // HAS_LEVELING
 
   } // no G29 in progress
 

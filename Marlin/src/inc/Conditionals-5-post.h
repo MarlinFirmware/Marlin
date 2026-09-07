@@ -2933,23 +2933,9 @@
   #endif
 #endif
 
-// Nothing can apply a Z offset, so drop its limits
-#if NONE(BABYSTEPPING, HAS_BED_PROBE, HAS_WORKSPACE_OFFSET)
-  #undef PROBE_OFFSET_ZMIN
-  #undef PROBE_OFFSET_ZMAX
-#endif
-
 /**
  * Bed Probe dependencies
  */
-#if ANY(MESH_BED_LEVELING, HAS_BED_PROBE)
-  #ifndef PROBE_OFFSET_ZMIN
-    #define PROBE_OFFSET_ZMIN -20
-  #endif
-  #ifndef PROBE_OFFSET_ZMAX
-    #define PROBE_OFFSET_ZMAX  20
-  #endif
-#endif
 #if HAS_BED_PROBE
   #ifndef PROBE_OFFSET_XMIN
     #define PROBE_OFFSET_XMIN -(X_BED_SIZE)
@@ -2972,6 +2958,20 @@
   #ifndef NOZZLE_TO_PROBE_OFFSET
     #define NOZZLE_TO_PROBE_OFFSET { 0, 0, 0 }
   #endif
+#endif
+
+#if HAS_BED_PROBE || ALL(HAS_MARLINUI_MENU, MESH_BED_LEVELING) \
+  || (ANY(DWIN_CREALITY_LCD, DWIN_CREALITY_LCD_JYERSUI, DWIN_LCD_PROUI) && ANY(BABYSTEPPING, HAS_WORKSPACE_OFFSET))
+  #ifndef PROBE_OFFSET_ZMIN
+    #define PROBE_OFFSET_ZMIN -20
+  #endif
+  #ifndef PROBE_OFFSET_ZMAX
+    #define PROBE_OFFSET_ZMAX  20
+  #endif
+#else
+  // Nothing can apply a Z offset, so drop limits
+  #undef PROBE_OFFSET_ZMIN
+  #undef PROBE_OFFSET_ZMAX
 #endif
 
 /**
