@@ -79,9 +79,9 @@
     #include "lcd/dwin/creality/dwin.h"
   #elif ENABLED(DWIN_CREALITY_LCD_JYERSUI)
     #include "lcd/dwin/jyersui/dwin.h"
-  #elif ENABLED(SOVOL_SV06_RTS)
-    #include "lcd/sovol_rts/sovol_rts.h"
   #endif
+#elif ENABLED(SOVOL_SV06_RTS)
+  #include "lcd/sovol_rts/sovol_rts.h"
 #endif
 
 #if HAS_ETHERNET
@@ -999,7 +999,7 @@ void Marlin::stop() {
   print_job_timer.stop();
 
   #if ANY(PROBING_FANS_OFF, ADVANCED_PAUSE_FANS_PAUSE)
-    thermalManager.set_fans_paused(false); // Un-pause fans for safety
+    Fan::all_resume(); // Un-pause fans for safety
   #endif
 
   if (!isStopped()) {

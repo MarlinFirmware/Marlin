@@ -1948,6 +1948,7 @@
     #endif
   #endif
 #endif
+
 #if HAS_BED_PROBE && Z_HOME_TO_MIN && (!NEED_Z_MIN_PROBE_PIN || ENABLED(USE_PROBE_FOR_Z_HOMING))
   #define HOMING_Z_WITH_PROBE 1
   // Disable Z axis sensorless homing if a probe is used to home the Z axis
@@ -2660,6 +2661,9 @@
 
 #if FAN_COUNT > 0
   #define HAS_FAN 1
+#else
+  #undef FAN_SOFT_PWM
+  #undef FAN_SOFT_PWM_REQUIRED
 #endif
 
 // SINGLENOZZLE fan standby needs a fan
