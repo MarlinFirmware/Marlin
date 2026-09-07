@@ -109,6 +109,10 @@
   #include "../feature/powerloss.h"
 #endif
 
+#if ENABLED(STALLGUARD_TUNING)
+  #include "../feature/stallguard/stallguard_tuning.h"
+#endif
+
 #if HAS_CUTTER
   #include "../feature/spindle_laser.h"
 #endif
@@ -1610,6 +1614,10 @@ void Planner::quick_stop() {
 #endif
 
 void Planner::endstop_triggered(const AxisEnum axis) {
+  // If stallguard stall detection procedure is active, set the stall detected flag to true, only for SG4
+  #if ENABLED(STALLGUARD_TUNING) && (X_HAS_SG4 || Y_HAS_SG4)
+    if (stallguard_tuner.is_stall_detection_active()) stallguard_tuner.setStallDetected(true);
+  #endif
   // Record stepper position and discard the current block
   stepper.endstop_triggered(axis);
 }
