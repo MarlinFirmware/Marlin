@@ -159,7 +159,7 @@ void GcodeSuite::M420() {
             // Get the sum and average of all mesh values, add center val if provided
             float mesh_sum = 0;
             GRID_LOOP_COND(x, y) mesh_sum += bedlevel.z_values[x][y];
-            const float zmean = mesh_sum / float(GRID_VAL(GRID_USED_POINTS, GRID_MAX_POINTS)) + cval;
+            const float zmean = mesh_sum / float(GRID_PREF_POINTS) + cval;
 
           #else // midrange
 

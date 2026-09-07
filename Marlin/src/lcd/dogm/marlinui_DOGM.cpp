@@ -662,8 +662,8 @@ void MarlinUI::clear_for_drawing() {
 
     void MarlinUI::ubl_plot(const uint8_t x_plot, const uint8_t y_plot) {
       // Scale the box pixels appropriately
-      u8g_uint_t x_map_pixels = (MAP_MAX_PIXELS_X - 4) / sq(GRID_PREF_POINTS_X),
-                 y_map_pixels = (MAP_MAX_PIXELS_Y - 4) / sq(GRID_PREF_POINTS_Y),
+      u8g_uint_t x_map_pixels = ((MAP_MAX_PIXELS_X - 4) / (GRID_PREF_POINTS_X)) * (GRID_PREF_POINTS_X),
+                 y_map_pixels = ((MAP_MAX_PIXELS_Y - 4) / (GRID_PREF_POINTS_Y)) * (GRID_PREF_POINTS_Y),
 
                  pixels_per_x_mesh_pnt = x_map_pixels / GRID_PREF_POINTS_X,
                  pixels_per_y_mesh_pnt = y_map_pixels / GRID_PREF_POINTS_Y,

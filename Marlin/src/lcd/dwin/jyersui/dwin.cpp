@@ -345,7 +345,7 @@ private:
     void drawBedMesh(const int16_t selected=-1, const uint8_t gridline_width=1, const uint16_t padding_x=8, const uint16_t padding_y_top=40 + 53 - 7) {
       drawing_mesh = true;
       const uint16_t total_width_px = DWIN_WIDTH - padding_x - padding_x,
-                     cell_width_px  = total_width_px / GRID_VAL(GRID_USED_POINTS_X, GRID_PREF_POINTS_X),
+                     cell_width_px  = total_width_px / GRID_PREF_POINTS_X,
                      cell_height_px = total_width_px / GRID_PREF_POINTS_Y;
       const float v_max = abs(getMaxValue()), v_min = abs(getMinValue()), rmax = _MAX(v_min, v_max);
 
@@ -3734,7 +3734,7 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
             break;
           case MMESH_NEXT:
             if (draw) {
-              if (gridpoint < GRID_VAL(GRID_USED_POINTS, GRID_MAX_POINTS))
+              if (gridpoint < GRID_PREF_POINTS)
                 drawMenuItem(row, ICON_More, GET_TEXT_F(MSG_LEVEL_BED_NEXT_POINT));
               else
                 drawMenuItem(row, ICON_More, GET_TEXT_F(MSG_UBL_SAVE_MESH));
