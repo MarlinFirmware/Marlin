@@ -167,19 +167,20 @@ extern "C" {
 }
 
 // Reset the system to initiate a firmware flash
-#ifdef BOOTLOADER_KATAPULT
+WEAK void flashFirmware(const int16_t) {
 
-  /**
-   * Request the Katapult bootloader (https://github.com/Arksine/katapult) to stay
-   * resident on reboot so new firmware can be flashed (e.g., with Katapult's
-   * flashtool.py) without pressing any BOOT / RESET buttons.
-   *
-   * Katapult stores the signature "CanBoot!" in the 8 bytes preceding its reset
-   * handler and on startup checks the 8 bytes at its initial stack pointer for the
-   * request key written here. If no (or an unexpected) bootloader is installed
-   * this reduces to a plain reboot.
-   */
-  WEAK void flashFirmware(const int16_t) {
+  #ifdef BOOTLOADER_KATAPULT
+
+    /**
+     * Request the Katapult bootloader (https://github.com/Arksine/katapult) to stay
+     * resident on reboot so new firmware can be flashed (e.g., with Katapult's
+     * flashtool.py) without pressing any BOOT / RESET buttons.
+     *
+     * Katapult stores the signature "CanBoot!" in the 8 bytes preceding its reset
+     * handler and on startup checks the 8 bytes at its initial stack pointer for the
+     * request key written here. If no (or an unexpected) bootloader is installed
+     * this reduces to a plain reboot.
+     */
     static constexpr uint64_t KATAPULT_SIGNATURE = 0x21746F6F426E6143ULL, // "CanBoot!"
                               KATAPULT_REQUEST   = 0x5984E3FA6CA1589BULL;
     const uint32_t * const bl_vectors = (uint32_t*)FLASH_BASE;
@@ -193,12 +194,11 @@ extern "C" {
       #endif
       NVIC_SystemReset();
     }
-    hal.reboot();
-  }
 
-#else
-  WEAK void flashFirmware(const int16_t) { hal.reboot(); }
-#endif
+  #endif // BOOTLOADER_KATAPULT
+
+  hal.reboot();
+}
 
 // Maple Compatibility
 volatile uint32_t systick_uptime_millis = 0;
