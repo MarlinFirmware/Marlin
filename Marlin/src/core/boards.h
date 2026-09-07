@@ -496,6 +496,7 @@
 #define BOARD_ZNP_ROBIN_NANO_V1_3           5260  // Elegoo Neptune 2 v1.3 board
 #define BOARD_MKS_NEPTUNE_X                 5261  // Elegoo Neptune X
 #define BOARD_MKS_NEPTUNE_3                 5262  // Elegoo Neptune 3
+#define BOARD_LDO_LEVIATHAN_V1_2            5263  // LDO Leviathan v1.2 (STM32F446ZE)
 
 //
 // Other ARM Cortex-M4
@@ -524,6 +525,7 @@
 #define BOARD_FLY_SUPER8_PRO                6015  // FLY SUPER8 PRO (STM32H723ZG)
 #define BOARD_FYSETC_SPIDER_KING_V1_H723    6016  // FYSETC Spider King v1 (STM32H723ZG)
 #define BOARD_FYSETC_SPIDER_KING_V1_1_H723  6017  // FYSETC Spider King v1.1 (STM32H723ZG)
+#define BOARD_LDO_LEVIATHAN_V1_3            6018  // LDO Leviathan v1.3 (STM32H743ZI)
 
 //
 // Espressif ESP32 WiFi
