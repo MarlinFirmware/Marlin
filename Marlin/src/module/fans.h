@@ -123,6 +123,7 @@
       uint8_t pause_speed;
       static bool paused;
       static void all_pause(const bool p=true);
+      static void all_resume();
       static void power_off() { paused = false; FANS_LOOP(i) fans[i].pause_speed = 0; }
       void pause(const bool p);
     #endif
