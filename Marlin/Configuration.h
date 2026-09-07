@@ -2269,6 +2269,8 @@
 
   #define MAX_SAVED_MESHES    100         // Maximum number of meshes to store to EEPROM. Use 0 to disable saving.
 
+  //#define VARIABLE_GRID_POINTS          // Set the number of Probed Points with 'G29 X# Y#'. Limited by GRID_MAX_POINTS_*.
+
 #endif
 
 #if ANY(AUTO_BED_LEVELING_LINEAR, AUTO_BED_LEVELING_BILINEAR)
@@ -2281,8 +2283,6 @@
   //#define PROBE_Y_FIRST
 
   #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
-
-    //#define VARIABLE_GRID_POINTS  // Specify how many Probed Points with 'G29 X# Y#'. Limited by GRID_MAX_POINTS_*.
 
     #if DISABLED(USE_PROBE_FOR_Z_HOMING) && ALL(FIX_MOUNTED_PROBE, Z_SAFE_HOMING)
       // If your Z Home (M206) is well-calibrated enable this to establish Probe Z0 before every G29
