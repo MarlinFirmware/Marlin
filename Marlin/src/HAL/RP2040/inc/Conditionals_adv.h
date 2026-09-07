@@ -22,7 +22,7 @@
 #pragma once
 
 #if HAS_MEDIA && DISABLED(NO_SD_HOST_DRIVE)
-  #define HAS_SD_HOST_DRIVE 1
+  #define HAL_SD_HOST_DRIVE 1
 #endif
 
 // Fix F_CPU not being a compile-time constant in RP2040 framework

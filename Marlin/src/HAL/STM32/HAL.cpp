@@ -42,7 +42,7 @@
   #endif
 #endif
 
-#if HAS_SD_HOST_DRIVE
+#if HAL_SD_HOST_DRIVE
   #include "sd/msc_sd.h"
   #include <usbd_cdc_if.h>
 #endif
@@ -93,7 +93,7 @@ void MarlinHAL::init() {
 
   TERN_(POSTMORTEM_DEBUGGING, install_min_serial());    // Install the min serial handler
 
-  TERN_(HAS_SD_HOST_DRIVE, MSC_SD_init());              // Enable USB SD card access
+  TERN_(HAL_SD_HOST_DRIVE, MSC_SD_init());              // Enable USB SD card access
 
   #if PIN_EXISTS(USB_CONNECT)
     OUT_WRITE(USB_CONNECT_PIN, !USB_CONNECT_INVERTING); // USB clear connection

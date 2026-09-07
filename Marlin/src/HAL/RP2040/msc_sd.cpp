@@ -23,9 +23,9 @@
 
 #ifdef __PLAT_RP2040__
 
-#include "../../inc/MarlinConfigPre.h"
+#include "../../inc/MarlinConfig.h"
 
-#if HAS_SD_HOST_DRIVE
+#if HAL_SD_HOST_DRIVE
 
 #include "../../sd/cardreader.h"
 
@@ -100,5 +100,5 @@ void MSC_SD_init() {
   // Add USB reinitialization logic if needed
 }
 
-#endif // HAS_SD_HOST_DRIVE
+#endif // HAL_SD_HOST_DRIVE
 #endif // __PLAT_RP2040__
