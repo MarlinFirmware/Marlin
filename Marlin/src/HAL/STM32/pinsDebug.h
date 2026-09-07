@@ -124,6 +124,10 @@ const XrefInfo pin_xref[] PROGMEM = {
 #define PORT_NUM(P) (((P)  >> 4) & 0x0007)
 #define PORT_ALPHA(P) ('A' + ((P) >> 4))
 
+#ifdef STM32F746xx
+  #define NUM_ANALOG_FIRST 0
+#endif
+
 #if NUM_ANALOG_FIRST >= NUM_DIGITAL_PINS
   #define HAS_HIGH_ANALOG_PINS 1
 #endif
@@ -191,6 +195,16 @@ int8_t digital_pin_to_analog_pin(const pin_t pin) {
   return (ind < NUM_ANALOG_INPUTS) ? ind : -1;
 }
 
+int8_t digital_pin_to_analog_ch(const pin_t pin) {
+  #ifndef NUM_ANALOG_FIRST
+    for (uint8_t i = 0; i < NUM_ANALOG_INPUTS; ++i)
+      if (analogInputPin[i] == pin) return i;
+    return -1;
+  #else
+    return digital_pin_to_analog_pin(pin);
+  #endif
+}
+
 bool isAnalogPin(const pin_t pin) {
   return get_pin_mode(pin) == MODE_PIN_ANALOG;
 }
@@ -206,17 +220,17 @@ void printPinPort(const pin_t pin) {
   for (index = 0; index < NUMBER_PINS_TOTAL; index++)
     if (pin == GET_PIN_MAP_PIN_M43(index)) break;
 
-  const char * ppa = pin_xref[index].Port_pin_alpha;
+  const char * const ppa = pin_xref[index].Port_pin_alpha;
   sprintf_P(buffer, PSTR("%s"), ppa);
   SERIAL_ECHO(buffer);
   if (ppa[3] == '\0') SERIAL_CHAR(' ');
 
-  // print analog pin number
-  const int8_t Port_pin = digital_pin_to_analog_pin(pin);
-  if (Port_pin >= 0) {
-    sprintf_P(buffer, PSTR(" (A%d) "), Port_pin);
+  // Print analog pin number
+  const int8_t ch = digital_pin_to_analog_ch(pin);
+  if (ch >= 0) {
+    sprintf_P(buffer, PSTR(" (A%d) "), ch);
     SERIAL_ECHO(buffer);
-    if (Port_pin < 10) SERIAL_CHAR(' ');
+    if (ch < 10) SERIAL_CHAR(' ');
   }
   else
     SERIAL_ECHO_SP(7);
@@ -272,7 +286,7 @@ void printPinPWM(const pin_t pin) {
       }
       if (over_7) pin_number -= 8;
 
-      uint8_t alt_func = (alt_all >> (4 * pin_number)) & 0x0F;
+      const uint8_t alt_func = (alt_all >> (4 * pin_number)) & 0x0F;
       SERIAL_ECHOPGM("Alt Function: ", alt_func);
       if (alt_func < 10) SERIAL_CHAR(' ');
       SERIAL_ECHOPGM(" - ");
@@ -280,18 +294,32 @@ void printPinPWM(const pin_t pin) {
         case  0 : SERIAL_ECHOPGM("system (misc. I/O)"); break;
         case  1 : SERIAL_ECHOPGM("TIM1/TIM2 (probably PWM)"); break;
         case  2 : SERIAL_ECHOPGM("TIM3..5 (probably PWM)"); break;
-        case  3 : SERIAL_ECHOPGM("TIM8..11 (probably PWM)"); break;
-        case  4 : SERIAL_ECHOPGM("I2C1..3"); break;
-        case  5 : SERIAL_ECHOPGM("SPI1/SPI2"); break;
-        case  6 : SERIAL_ECHOPGM("SPI3"); break;
-        case  7 : SERIAL_ECHOPGM("USART1..3"); break;
-        case  8 : SERIAL_ECHOPGM("USART4..6"); break;
-        case  9 : SERIAL_ECHOPGM("CAN1/CAN2, TIM12..14  (probably PWM)"); break;
-        case 10 : SERIAL_ECHOPGM("OTG"); break;
-        case 11 : SERIAL_ECHOPGM("ETH"); break;
-        case 12 : SERIAL_ECHOPGM("FSMC, SDIO, OTG"); break;
+        #ifdef STM32F746xx
+          case  3 : SERIAL_ECHOPGM("TIM8..11, LPTIM1, CEC (probably PWM)"); break;
+          case  4 : SERIAL_ECHOPGM("I2C1..4, CEC"); break;
+          case  5 : SERIAL_ECHOPGM("SPI1..6"); break;
+          case  6 : SERIAL_ECHOPGM("SPI3, SAI1"); break;
+          case  7 : SERIAL_ECHOPGM("USART1..3,5, SPI2,3"); break;
+          case  8 : SERIAL_ECHOPGM("USART4..8, SAI2, SPDIFRX"); break;
+          case  9 : SERIAL_ECHOPGM("CAN1/2, TIM12..14, QUADSPI, LCD  (probably PWM)"); break;
+          case 10 : SERIAL_ECHOPGM("SAI2, QUADSPI, OTG2_HS, OTG1_FS"); break;
+          case 11 : SERIAL_ECHOPGM("ETH, OTG1_FS"); break;
+          case 12 : SERIAL_ECHOPGM("FMC, SDMMC1/O, TG2_FS"); break;
+          case 14 : SERIAL_ECHOPGM("LCD"); break;
+        #else
+          case  3 : SERIAL_ECHOPGM("TIM8..11 (probably PWM)"); break;
+          case  4 : SERIAL_ECHOPGM("I2C1..3"); break;
+          case  5 : SERIAL_ECHOPGM("SPI1/SPI2"); break;
+          case  6 : SERIAL_ECHOPGM("SPI3"); break;
+          case  7 : SERIAL_ECHOPGM("USART1..3"); break;
+          case  8 : SERIAL_ECHOPGM("USART4..6"); break;
+          case  9 : SERIAL_ECHOPGM("CAN1/CAN2, TIM12..14  (probably PWM)"); break;
+          case 10 : SERIAL_ECHOPGM("OTG"); break;
+          case 11 : SERIAL_ECHOPGM("ETH"); break;
+          case 12 : SERIAL_ECHOPGM("FSMC, SDIO, OTG"); break;
+          case 14 : SERIAL_ECHOPGM("unused (shouldn't see this)"); break;
+        #endif
         case 13 : SERIAL_ECHOPGM("DCMI"); break;
-        case 14 : SERIAL_ECHOPGM("unused (shouldn't see this)"); break;
         case 15 : SERIAL_ECHOPGM("EVENTOUT"); break;
       }
     }

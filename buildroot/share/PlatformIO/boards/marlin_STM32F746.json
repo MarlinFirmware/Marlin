@@ -1,0 +1,61 @@
+{
+  "build": {
+    "core": "stm32",
+    "cpu": "cortex-m7",
+    "extra_flags": "-DSTM32F7xx -DSTM32F746xx",
+    "f_cpu": "192000000L",
+    "mcu": "STM32F746ZGT6",
+    "product_line": "STM32f746xx",
+    "variant": "MARLIN_STM32F746"
+  },
+  "connectivity": [
+    "can",
+    "ethernet"
+  ],
+  "debug": {
+    "jlink_device": "STM32F746ZG",
+    "openocd_target": "stm3277x",
+    "svd_path": "STM32F746.svd",
+    "tools": {
+      "stlink": {
+        "server": {
+          "arguments": [
+            "-f",
+            "scripts/interface/stlink.cfg",
+            "-c",
+            "transport select hla_swd",
+            "-f",
+            "scripts/target/stm32f7x.cfg",
+            "-c",
+            "reset_config none"
+          ],
+          "executable": "bin/openocd",
+          "package": "tool-openocd"
+        }
+      }
+    }
+  },
+  "frameworks": [
+    "arduino",
+    "stm32cube"
+  ],
+  "name": "STM32F746",
+  "upload": {
+    "disable_flushing": false,
+    "maximum_ram_size": 327680,
+    "maximum_size": 1048576,
+    "protocol": "stlink",
+    "protocols": [
+      "stlink",
+      "dfu",
+      "jlink",
+      "cmsis-dap"
+    ],
+    "offset_address": "0x8000000",
+    "require_upload_port": true,
+    "use_1200bps_touch": false,
+    "wait_for_upload_port": false
+  },
+  "url": "https://www.st.com/en/microcontrollers-microprocessors/stm32f746zg.html",
+  "vendor": "ST"
+}
