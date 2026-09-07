@@ -269,8 +269,8 @@ namespace LanguageNarrow_cz {
   LSTR MSG_IDEX_MODE_DUPLICATE            = _UxGT("Duplikace");                                // Duplication
   LSTR MSG_IDEX_MODE_MIRRORED_COPY        = _UxGT("Zrcadlení");                                // Mirrored Copy
   LSTR MSG_IDEX_MODE_FULL_CTRL            = _UxGT("Plná kontrola");                            // Full Control
-  LSTR MSG_HOTEND_OFFSET_Z                = _UxGT("2. tryska Z");                              // 2nd Nozzle Z
-  LSTR MSG_HOTEND_OFFSET_N                = _UxGT("2. tryska @");                              // 2nd Nozzle @
+  LSTR MSG_TOOL_OFFSET_Z                  = _UxGT("2. tryska Z");                              // 2nd Nozzle Z
+  LSTR MSG_TOOL_OFFSET_N                  = _UxGT("2. tryska @");                              // 2nd Nozzle @
   LSTR MSG_UBL_DOING_G29                  = _UxGT("Provádím G29");                             // Doing G29
   LSTR MSG_UBL_TOOLS                      = _UxGT("UBL nástroje");                             // UBL Tools
   LSTR MSG_LCD_TILTING_MESH               = _UxGT("Vyrovnání bodu");                           // Tilting Point

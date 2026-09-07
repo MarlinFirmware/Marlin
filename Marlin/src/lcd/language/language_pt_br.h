@@ -248,8 +248,8 @@ namespace LanguageNarrow_pt_br {
   LSTR MSG_IDEX_MODE_DUPLICATE            = _UxGT("Duplicação");                               // Duplication
   LSTR MSG_IDEX_MODE_MIRRORED_COPY        = _UxGT("Cópia espelhada");                          // Mirrored Copy
   LSTR MSG_IDEX_MODE_FULL_CTRL            = _UxGT("Controle Total");                           // Full Control
-  LSTR MSG_HOTEND_OFFSET_Z                = _UxGT("2o bico Z");                                // 2nd Nozzle Z
-  LSTR MSG_HOTEND_OFFSET_N                = _UxGT("2o bico @");                                // 2nd Nozzle @
+  LSTR MSG_TOOL_OFFSET_Z                  = _UxGT("2o bico Z");                                // 2nd Nozzle Z
+  LSTR MSG_TOOL_OFFSET_N                  = _UxGT("2o bico @");                                // 2nd Nozzle @
   LSTR MSG_UBL_DOING_G29                  = _UxGT("Executando G29");                           // Doing G29
   LSTR MSG_UBL_TOOLS                      = _UxGT("Ferramentas UBL");                          // UBL Tools
   LSTR MSG_UBL_MANUAL_MESH                = _UxGT("Fazer malha manual");                       // Manually Build Mesh

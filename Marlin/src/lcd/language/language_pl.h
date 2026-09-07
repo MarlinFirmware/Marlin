@@ -248,8 +248,8 @@ namespace LanguageNarrow_pl {
   LSTR MSG_IDEX_MODE_DUPLICATE            = _UxGT("Duplikowanie");                             // Duplication
   LSTR MSG_IDEX_MODE_MIRRORED_COPY        = _UxGT("Kopia lustrzana");                          // Mirrored Copy
   LSTR MSG_IDEX_MODE_FULL_CTRL            = _UxGT("Pełne sterowanie");                         // Full Control
-  LSTR MSG_HOTEND_OFFSET_Z                = _UxGT("2ga dysza Z");                              // 2nd Nozzle Z
-  LSTR MSG_HOTEND_OFFSET_N                = _UxGT("2ga dysza @");                              // 2nd Nozzle @
+  LSTR MSG_TOOL_OFFSET_Z                  = _UxGT("2ga dysza Z");                              // 2nd Nozzle Z
+  LSTR MSG_TOOL_OFFSET_N                  = _UxGT("2ga dysza @");                              // 2nd Nozzle @
   LSTR MSG_UBL_DOING_G29                  = _UxGT("Wykonywanie G29");                          // Doing G29
   LSTR MSG_UBL_TOOLS                      = _UxGT("Narzędzia UBL");                            // UBL Tools
   LSTR MSG_LCD_TILTING_MESH               = _UxGT("Punkt pochylenia");                         // Tilting Point

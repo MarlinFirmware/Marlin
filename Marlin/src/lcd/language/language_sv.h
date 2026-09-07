@@ -264,8 +264,8 @@ namespace LanguageNarrow_sv {
   LSTR MSG_IDEX_MODE_DUPLICATE            = _UxGT("Duplicering");                              // Duplication
   LSTR MSG_IDEX_MODE_MIRRORED_COPY        = _UxGT("Speglad kopia");                            // Mirrored Copy
   LSTR MSG_IDEX_MODE_FULL_CTRL            = _UxGT("Full kontroll");                            // Full Control
-  LSTR MSG_HOTEND_OFFSET_Z                = _UxGT("2:a munstycke Z");                          // 2nd Nozzle Z
-  LSTR MSG_HOTEND_OFFSET_N                = _UxGT("2:a munstycke @");                          // 2nd Nozzle @
+  LSTR MSG_TOOL_OFFSET_Z                  = _UxGT("2:a munstycke Z");                          // 2nd Nozzle Z
+  LSTR MSG_TOOL_OFFSET_N                  = _UxGT("2:a munstycke @");                          // 2nd Nozzle @
   LSTR MSG_UBL_DOING_G29                  = _UxGT("Utför G29");                                // Doing G29
   LSTR MSG_UBL_TOOLS                      = _UxGT("UBL verktyg");                              // UBL Tools
   LSTR MSG_LCD_TILTING_MESH               = _UxGT("Lutningspunkt");                            // Tilting Point

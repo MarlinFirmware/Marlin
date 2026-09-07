@@ -552,7 +552,7 @@ bool Probe::set_deployed(const bool deploy, const bool no_return/*=false*/) {
   #endif
 
   if (z_raise_wanted) {
-    const float zdest = DIFF_TERN(HAS_HOTEND_OFFSET, Z_CLEARANCE_DEPLOY_PROBE, motion.active_hotend_offset().z);
+    const float zdest = DIFF_TERN(HAS_TOOL_OFFSETS, Z_CLEARANCE_DEPLOY_PROBE, motion.active_tool_offset().z);
     if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Raise Z to ", zdest);
     motion.do_z_clearance(zdest);
   }
@@ -780,7 +780,7 @@ bool Probe::probe_down_to_z(const float z, const feedRate_t fr_mm_s) {
 float Probe::run_z_probe(const bool sanity_check/*=true*/, const float z_min_point/*=Z_PROBE_LOW_POINT*/, const float z_clearance/*=Z_TWEEN_SAFE_CLEARANCE*/) {
   DEBUG_SECTION(log_probe, "Probe::run_z_probe", DEBUGGING(LEVELING));
 
-  const float zoffs = SUM_TERN(HAS_HOTEND_OFFSET, -offset.z, motion.active_hotend_offset().z);
+  const float zoffs = SUM_TERN(HAS_TOOL_OFFSETS, -offset.z, motion.active_tool_offset().z);
 
   auto try_to_probe = [&](PGM_P const plbl, const float z_probe_low_point, const feedRate_t fr_mm_s, const bool scheck) -> bool {
     constexpr float error_tolerance = Z_PROBE_ERROR_TOLERANCE;
@@ -963,7 +963,7 @@ float Probe::run_z_probe(const bool sanity_check/*=true*/, const float z_min_poi
 
   #endif // DWIN_LCD_PROUI
 
-  return DIFF_TERN(HAS_HOTEND_OFFSET, measured_z, motion.active_hotend_offset().z);
+  return DIFF_TERN(HAS_TOOL_OFFSETS, measured_z, motion.active_tool_offset().z);
 }
 
 #if DO_TOOLCHANGE_FOR_PROBING
@@ -1042,7 +1042,7 @@ float Probe::probe_at_point(
   if (DEBUGGING(LEVELING)) DEBUG_ECHOPGM("Move to probe");
   if (probe_relative) { // Get the nozzle position, adjust for active hotend if not 0
     if (DEBUGGING(LEVELING)) DEBUG_ECHOPGM("-relative");
-    npos -= DIFF_TERN(HAS_HOTEND_OFFSET, offset_xy, motion.active_hotend_offset());
+    npos -= DIFF_TERN(HAS_TOOL_OFFSETS, offset_xy, motion.active_tool_offset());
   }
   if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM(" point");
 

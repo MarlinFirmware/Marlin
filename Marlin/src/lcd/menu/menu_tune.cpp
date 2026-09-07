@@ -127,7 +127,7 @@ void menu_tune() {
   #if HOTENDS == 1
     editable.celsius = thermalManager.degTargetHotend(0);
     EDIT_ITEM_FAST(int3, MSG_NOZZLE, &editable.celsius, 0, thermalManager.hotend_max_target(0), []{ thermalManager.setTargetHotend(editable.celsius, 0); });
-  #elif HAS_MULTI_HOTEND
+  #elif HAS_MULTI_HOTEND && DISABLED(STM_HAS_MULTI_EXTRUDER)
     HOTEND_LOOP() {
       editable.celsius = thermalManager.degTargetHotend(e);
       EDIT_ITEM_FAST_N(int3, e, MSG_NOZZLE_N, &editable.celsius, 0, thermalManager.hotend_max_target(e), []{ thermalManager.setTargetHotend(editable.celsius, MenuItemBase::itemIndex); });
@@ -208,7 +208,7 @@ void menu_tune() {
   #if HAS_EXTRUDERS
     EDIT_ITEM(int3, MSG_FLOW, &planner.flow_percentage[motion.extruder], FLOW_EDIT_MIN, FLOW_EDIT_MAX, []{ planner.refresh_e_factor(motion.extruder); });
     // Flow En:
-    #if HAS_MULTI_EXTRUDER
+    #if HAS_MULTI_EXTRUDER && DISABLED(STM_HAS_MULTI_EXTRUDER)
       EXTRUDER_LOOP()
         EDIT_ITEM_N(int3, e, MSG_FLOW_N, &planner.flow_percentage[e], FLOW_EDIT_MIN, FLOW_EDIT_MAX, []{ planner.refresh_e_factor(MenuItemBase::itemIndex); });
     #endif

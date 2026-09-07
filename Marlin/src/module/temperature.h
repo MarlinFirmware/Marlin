@@ -25,6 +25,8 @@
  * temperature.h - temperature controller
  */
 
+//#define DEBUG_TEMPERATURE
+
 #include "thermistor/thermistors.h"
 
 #include "../inc/MarlinConfig.h"
@@ -688,6 +690,12 @@ class Temperature {
       static uint8_t coolerfan_speed;
     #endif
 
+    #if ENABLED(MANUAL_SWITCHING_TOOLHEAD)
+      static bool heating_enabled;
+    #else
+      static constexpr bool heating_enabled = true;
+    #endif
+
     #if ENABLED(FAN_SOFT_PWM)
       static uint8_t soft_pwm_amount_fan[FAN_COUNT],
                      soft_pwm_count_fan[FAN_COUNT];
@@ -827,6 +835,7 @@ class Temperature {
     #endif
 
     #if MAX_CONSECUTIVE_LOW_TEMPERATURE_ERROR_ALLOWED > 1
+      #define MULTI_MAX_CONSECUTIVE_LOW_TEMP_ERR 1
       static uint8_t consecutive_low_temperature_error[HOTENDS];
     #endif
 

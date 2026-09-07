@@ -44,6 +44,7 @@
 #undef DEBUG_EOL
 #undef DEBUG_FLUSH
 #undef DEBUG_POS
+#undef DEBUG_PRINT
 #undef DEBUG_XYZ
 #undef DEBUG_DELAY
 #undef DEBUG_SYNCHRONIZE
@@ -72,6 +73,7 @@
   #define DEBUG_EOL               SERIAL_EOL
   #define DEBUG_FLUSH             SERIAL_FLUSH
   #define DEBUG_POS               SERIAL_POS
+  #define DEBUG_PRINT             SERIAL_PRINT
   #define DEBUG_XYZ               SERIAL_XYZ
   #define DEBUG_DELAY(ms)         serial_delay(ms)
   #define DEBUG_SYNCHRONIZE()     planner.synchronize()
@@ -96,6 +98,7 @@
   #define DEBUG_EOL()               NOOP
   #define DEBUG_FLUSH()             NOOP
   #define DEBUG_POS(...)            NOOP
+  #define DEBUG_PRINT(...)          NOOP
   #define DEBUG_XYZ(...)            NOOP
   #define DEBUG_DELAY(...)          NOOP
   #define DEBUG_SYNCHRONIZE()       NOOP

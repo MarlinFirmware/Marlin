@@ -84,8 +84,8 @@ void GcodeSuite::M125() {
     if (parser.seenval('Z')) park_point.z = parser.linearval('Z');
   #endif
 
-  #if HAS_HOTEND_OFFSET && NONE(DUAL_X_CARRIAGE, DELTA)
-    park_point += motion.active_hotend_offset();
+  #if HAS_TOOL_OFFSETS && NONE(DUAL_X_CARRIAGE, DELTA)
+    park_point += motion.active_tool_offset();
   #endif
 
   const bool sd_printing = card.isStillPrinting();
