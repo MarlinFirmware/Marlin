@@ -21,7 +21,7 @@
  */
 
 /**
- * mmu2_fsensor.cpp
+ * mmu3_fsensor.cpp
  */
 
 #include "../../inc/MarlinConfigPre.h"

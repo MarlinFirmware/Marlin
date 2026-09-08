@@ -22,7 +22,7 @@
 #pragma once
 
 /**
- * mmu2_progress_converter.h
+ * mmu3_progress_converter.h
  */
 
 #include "mmu_hw/progress_codes.h"
