@@ -30,6 +30,10 @@
 
 #include "menu_item.h"
 
+#if ENABLED(MKS_WIFI_MODULE)
+  void menu_info_mks_wifi();
+#endif
+
 #if ENABLED(CONFIGURABLE_MACHINE_NAME)
   #include "../../MarlinCore.h"
 #endif
@@ -291,6 +295,9 @@ void menu_info() {
   #else
     SUBMENU(MSG_INFO_PRINTER_MENU, menu_info_printer);           // Printer Info >
     SUBMENU(MSG_INFO_BOARD_MENU, menu_info_board);               // Board Info >
+    #if ENABLED(MKS_WIFI_MODULE)
+      SUBMENU(MSG_MKS_WIFI, menu_info_mks_wifi);                 // WiFi Module >
+    #endif
     #if HAS_TEMP_SENSOR
       SUBMENU(MSG_INFO_THERMISTOR_MENU, menu_info_thermistors);  // Thermistors >
     #endif
