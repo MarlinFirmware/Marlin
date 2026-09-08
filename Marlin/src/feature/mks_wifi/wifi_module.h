@@ -249,7 +249,7 @@ int package_to_wifi(WIFI_RET_TYPE type, uint8_t *buf, int len);
 void get_wifi_list_command_send();
 void get_wifi_commands();
 int readWifiBuf(int8_t *buf, int32_t len);
-void mks_wifi_firmware_update();
+void mks_wifi_firmware_update(const bool force=false);
 int usartFifoAvailable(SZ_USART_FIFO *fifo);
 int readUsartFifo(SZ_USART_FIFO *fifo, int8_t *buf, int32_t len);
 void esp_port_begin(uint8_t interrupt);
