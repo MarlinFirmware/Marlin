@@ -42,6 +42,10 @@
   #include "mixing.h"
 #endif
 
+#if ENABLED(POWER_LOSS_SAVE_BILINEAR_MESH)
+  #include "bedlevel/bedlevel.h"
+#endif
+
 #if !defined(POWER_LOSS_STATE) && PIN_EXISTS(POWER_LOSS)
   #define POWER_LOSS_STATE HIGH
 #endif
@@ -144,6 +148,12 @@ typedef struct {
       bool volumetric_enabled:1;  // M200 S D
     #endif
   } flag;
+
+  #if ENABLED(POWER_LOSS_SAVE_BILINEAR_MESH)
+    xy_pos_t grid_spacing;
+    xy_pos_t grid_start;
+    bed_mesh_t z_values;
+  #endif
 
   uint8_t valid_foot;
 
