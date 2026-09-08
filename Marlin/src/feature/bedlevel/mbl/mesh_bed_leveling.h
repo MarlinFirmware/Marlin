@@ -21,7 +21,9 @@
  */
 #pragma once
 
-#include "../../../inc/MarlinConfig.h"
+#ifndef _BEDLEVEL_INCLUDE
+  #error "Include 'bedlevel/bedlevel.h' instead of including this file directly."
+#endif
 
 enum MeshLevelingState : char {
   MeshReport,     // G29 S0
@@ -34,23 +36,24 @@ enum MeshLevelingState : char {
 
 #include "../../../module/motion.h"
 
-class mesh_bed_leveling {
+class mesh_bed_leveling;
+extern mesh_bed_leveling bedlevel;
+
+class mesh_bed_leveling : public LevelingMesh {
 public:
   static float z_offset,
-               z_values[GRID_MAX_POINTS_X][GRID_MAX_POINTS_Y],
-               index_to_xpos[GRID_MAX_POINTS_X],
-               index_to_ypos[GRID_MAX_POINTS_Y];
+               z_values[GRID_MAX_POINTS_X][GRID_MAX_POINTS_Y];
 
   mesh_bed_leveling();
 
-  static void reset();
-
   static void initialize();
+
+  static void reset();
 
   static void report_mesh();
 
   FORCE_INLINE static bool has_mesh() {
-    GRID_LOOP(x, y) if (z_values[x][y]) return true;
+    GRID_LOOP_COND(x, y) if (z_values[x][y]) return true;
     return false;
   }
 
@@ -59,9 +62,9 @@ public:
   static void set_z(const int8_t px, const int8_t py, const float z) { z_values[px][py] = z; }
 
   static void zigzag(const int8_t index, int8_t &px, int8_t &py) {
-    px = index % (GRID_MAX_POINTS_X);
-    py = index / (GRID_MAX_POINTS_X);
-    if (py & 1) px = (GRID_MAX_POINTS_X) - 1 - px; // Zig zag
+    px = index % GRID_PREF_POINTS_X;
+    py = index / GRID_PREF_POINTS_X;
+    if (py & 1) px = GRID_PREF_POINTS_X - 1 - px; // Zig zag
   }
 
   static void set_zigzag_z(const int8_t index, const float z) {
@@ -74,12 +77,12 @@ public:
   static float get_mesh_y(const uint8_t i) { return index_to_ypos[i]; }
 
   static uint8_t cell_index_x(const float x) {
-    const int8_t cx = (x - mesh_min.x) * RECIPROCAL(MESH_X_DIST);
-    return constrain(cx, 0, GRID_MAX_CELLS_X - 1);
+    const int8_t cx = (x - mesh_min.x) * grid_spacing_reciprocal().x;
+    return constrain(cx, 0, (nr_grid_points.x - 1) - 1);
   }
   static uint8_t cell_index_y(const float y) {
-    const int8_t cy = (y - mesh_min.y) * RECIPROCAL(MESH_Y_DIST);
-    return constrain(cy, 0, GRID_MAX_CELLS_Y - 1);
+    const int8_t cy = (y - mesh_min.y) * grid_spacing_reciprocal().y;
+    return constrain(cy, 0, (nr_grid_points.y - 1) - 1);
   }
   static xy_uint8_t cell_indexes(const float x, const float y) {
     return { cell_index_x(x), cell_index_y(y) };
@@ -87,12 +90,12 @@ public:
   static xy_uint8_t cell_indexes(const xy_pos_t &xy) { return cell_indexes(xy.x, xy.y); }
 
   static int8_t probe_index_x(const float x) {
-    const int8_t px = (x - mesh_min.x + 0.5f * (MESH_X_DIST)) * RECIPROCAL(MESH_X_DIST);
-    return WITHIN(px, 0, (GRID_MAX_POINTS_X) - 1) ? px : -1;
+    const int8_t px = (x - mesh_min.x + 0.5f * grid_spacing.x) * grid_spacing_reciprocal().x;
+    return WITHIN(px, 0, nr_grid_points.x - 1) ? px : -1;
   }
   static int8_t probe_index_y(const float y) {
-    const int8_t py = (y - mesh_min.y + 0.5f * (MESH_Y_DIST)) * RECIPROCAL(MESH_Y_DIST);
-    return WITHIN(py, 0, (GRID_MAX_POINTS_Y) - 1) ? py : -1;
+    const int8_t py = (y - mesh_min.y + 0.5f * grid_spacing.y) * grid_spacing_reciprocal().y;
+    return WITHIN(py, 0, nr_grid_points.y - 1) ? py : -1;
   }
   static xy_int8_t probe_indexes(const float x, const float y) {
     return { probe_index_x(x), probe_index_y(y) };
@@ -122,5 +125,3 @@ public:
     static void line_to_destination(const feedRate_t scaled_fr_mm_s, uint8_t x_splits=0xFF, uint8_t y_splits=0xFF);
   #endif
 };
-
-extern mesh_bed_leveling bedlevel;

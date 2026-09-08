@@ -50,7 +50,25 @@
   #include "../../lcd/dwin/proui/bedlevel_tools.h"
 #endif
 
-bool leveling_is_valid() {
+// The Leveling Mesh is shared by MBL, ABL Bilinear, and UBL
+#if ENABLED(VARIABLE_GRID_POINTS)
+  xy_uint8_t LevelingMesh::nr_grid_points;
+//#else
+//  constexpr xy_uint8_t LevelingMesh::nr_grid_points;
+#endif
+
+#if ANY(HAS_PROUI_MESH_EDIT, VARIABLE_GRID_POINTS)
+  xy_pos_t LevelingMesh::mesh_min, LevelingMesh::mesh_max;
+//#else
+//  constexpr xy_pos_t LevelingMesh::mesh_min, LevelingMesh::mesh_max;
+#endif
+
+void LevelingMesh::reset(const float v=0.0f) {
+  TERN_(VARIABLE_GRID_POINTS, set_nr_grid_points(grid_max_points));
+  GRID_LOOP_MAX(x, y) z_values[x][y] = v;
+}
+
+bool LevelingMesh::leveling_is_valid() {
   return (
     #if ALL(HAS_MESH, DWIN_LCD_PROUI)
       bedLevelTools.meshValidate()
@@ -145,9 +163,10 @@ void reset_bed_level() {
   /**
    * Print calibration results for plotting or manual frame adjustment.
    */
-  void print_2d_array(const uint8_t sx, const uint8_t sy, const uint8_t precision, const float *values) {
+  void print_2d_array(const uint8_t sx, const uint8_t sy, const uint8_t precision, const float *values OPTARG(VARIABLE_GRID_POINTS, xy_uint8_t printpos/*={0,0}*/)) {
+
     #ifndef SCAD_MESH_OUTPUT
-      for (uint8_t x = 0; x < sx; ++x) {
+      for (uint8_t x = 0; x < GRID_VAL(printpos.x, sx); ++x) {
         SERIAL_ECHO_SP(precision + (x < 10 ? 3 : 2));
         SERIAL_ECHO(x);
       }
@@ -156,14 +175,14 @@ void reset_bed_level() {
     #ifdef SCAD_MESH_OUTPUT
       SERIAL_ECHOLNPGM("measured_z = ["); // open 2D array
     #endif
-    for (uint8_t y = 0; y < sy; ++y) {
+    for (uint8_t y = 0; y < GRID_VAL(printpos.y, sy); ++y) {
       #ifdef SCAD_MESH_OUTPUT
         SERIAL_ECHOPGM(" [");             // open sub-array
       #else
         if (y < 10) SERIAL_CHAR(' ');
         SERIAL_ECHO(y);
       #endif
-      for (uint8_t x = 0; x < sx; ++x) {
+      for (uint8_t x = 0; x < GRID_VAL(printpos.x, sx); ++x) {
         SERIAL_CHAR(' ');
         const float offset = values[x * sy + y];
         if (!isnan(offset)) {
@@ -181,12 +200,12 @@ void reset_bed_level() {
           #endif
         }
         #ifdef SCAD_MESH_OUTPUT
-          if (x < sx - 1) SERIAL_CHAR(',');
+          if (x < GRID_VAL(printpos.x, sx) - 1) SERIAL_CHAR(',');
         #endif
       }
       #ifdef SCAD_MESH_OUTPUT
         SERIAL_ECHOPGM(" ]");            // close sub-array
-        if (y < sy - 1) SERIAL_CHAR(',');
+        if (y < GRID_VAL(printpos.y, sy) - 1) SERIAL_CHAR(',');
       #endif
       SERIAL_EOL();
     }

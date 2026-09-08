@@ -561,7 +561,7 @@ namespace Anycubic {
           // If probing completes ok save the mesh and park
           // Ignore the custom machine name
           if (strcmp_P(msg + strlen(MACHINE_NAME), MARLIN_msg_ready) == 0) {
-            if (probe_cnt == GRID_MAX_POINTS) {
+            if (probe_cnt == GRID_PREF_POINTS) {
               probe_cnt = 0;
               injectCommands(F("M500"));    // G27 park nozzle
               fakeChangePageOfTFT(PAGE_PreLEVEL); // Prevent UI refreshing too quickly when probing is done
@@ -1443,7 +1443,7 @@ namespace Anycubic {
             babystepAxis_steps(steps, Z);
           #endif
 
-          GRID_LOOP(x, y) {
+          GRID_LOOP_COND(x, y) {
             const xy_uint8_t pos { x, y };
             const float currval = getMeshPoint(pos);
             #if ACDEBUG(AC_MARLIN)
@@ -1470,7 +1470,7 @@ namespace Anycubic {
             babystepAxis_steps(steps, Z);
           #endif
 
-          GRID_LOOP(x, y) {
+          GRID_LOOP_COND(x, y) {
             const xy_uint8_t pos { x, y };
             const float currval = getMeshPoint(pos);
             setMeshPoint(pos, constrain(currval + 0.05f, AC_LOWEST_MESHPOINT_VAL, 5));
@@ -1901,7 +1901,7 @@ namespace Anycubic {
           DEBUG_ECHOLNPGM("z off: ", ftostr52sprj(getZOffset_mm()));
         #endif
         #if HAS_LEVELING
-          GRID_LOOP(x, y) {
+          GRID_LOOP_COND(x, y) {
             const xy_uint8_t pos { x, y };
             const float currval = getMeshPoint(pos);
             setMeshPoint(pos, constrain(currval + getZOffset_mm(), AC_LOWEST_MESHPOINT_VAL, 5));

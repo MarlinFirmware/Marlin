@@ -867,14 +867,14 @@ namespace ExtUI {
 
     bool getLevelingActive() { return planner.leveling_active; }
     void setLevelingActive(const bool state) { set_bed_leveling_enabled(state); }
-    bool getLevelingIsValid() { return leveling_is_valid(); }
+    bool getLevelingIsValid() { return bedlevel.leveling_is_valid(); }
 
     #if HAS_MESH
 
       bed_mesh_t& getMeshArray() { return bedlevel.z_values; }
       float getMeshPoint(const xy_uint8_t &pos) { return bedlevel.z_values[pos.x][pos.y]; }
       void setMeshPoint(const xy_uint8_t &pos, const float zoff) {
-        if (WITHIN(pos.x, 0, (GRID_MAX_POINTS_X) - 1) && WITHIN(pos.y, 0, (GRID_MAX_POINTS_Y) - 1)) {
+        if (WITHIN(pos.x, 0, GRID_PREF_POINTS_X - 1) && WITHIN(pos.y, 0, GRID_PREF_POINTS_Y - 1)) {
           bedlevel.z_values[pos.x][pos.y] = zoff;
           TERN_(ABL_BILINEAR_SUBDIVISION, bedlevel.refresh_bed_level());
         }
@@ -883,15 +883,14 @@ namespace ExtUI {
       void moveToMeshPoint(const xy_uint8_t &pos, const float z) {
         #if ANY(MESH_BED_LEVELING, AUTO_BED_LEVELING_UBL)
           REMEMBER(fr, motion.feedrate_mm_s);
-          const float x_target = mesh_min.x + pos.x * (MESH_X_DIST),
-                      y_target = mesh_min.y + pos.y * (MESH_Y_DIST);
-          if (x_target != motion.position.x || y_target != motion.position.y) {
+          const xy_pos_t target = bedlevel.grid_point(pos);
+          if (target.x != motion.position.x || target.y != motion.position.y) {
             // If moving across bed, raise nozzle to safe height over bed
             motion.feedrate_mm_s = motion.z_probe_fast_mm_s;
             motion.destination.set(motion.position.x, motion.position.y, Z_TWEEN_SAFE_CLEARANCE);
             motion.prepare_line_to_destination();
             if (XY_PROBE_FEEDRATE_MM_S) motion.feedrate_mm_s = XY_PROBE_FEEDRATE_MM_S;
-            motion.destination.set(x_target, y_target);
+            motion.destination.set(target.x, target.y);
             motion.prepare_line_to_destination();
           }
           motion.feedrate_mm_s = motion.z_probe_fast_mm_s;
