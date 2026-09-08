@@ -2123,7 +2123,7 @@ void mks_esp_wifi_init() {
   wifi_link_state = WIFI_NOT_CONFIG;
 }
 
-void mks_wifi_firmware_update() {
+void mks_wifi_firmware_update(const bool force/*=false*/) {
   hal.watchdog_refresh();
 
   // Just look for it. openFileRead() would select it as the file to print.
@@ -2131,7 +2131,12 @@ void mks_wifi_firmware_update() {
 
     wifi_delay(2000);
     hal.watchdog_refresh();
-    if (usartFifoAvailable((SZ_USART_FIFO *)&WifiRxFifo) < 20) {
+
+    // At startup nothing has drained the receive buffer yet, so bytes from the
+    // module accumulate and this shows it's alive. Once wifi_rcv_handle() is
+    // running the buffer is emptied continuously, so it proves nothing - skip
+    // it when the update was asked for explicitly.
+    if (!force && usartFifoAvailable((SZ_USART_FIFO *)&WifiRxFifo) < 20) {
       SERIAL_ECHOLNPGM("WiFi module not responding. " ESP_FIRMWARE_FILE " ignored.");
       return;
     }
@@ -2146,7 +2151,9 @@ void mks_wifi_firmware_update() {
     hal.watchdog_refresh();
 
     if (wifi_upload(0) >= 0) {
-      card.removeFile((char *)ESP_FIRMWARE_FILE_RENAME);
+      // Only if there's an old one, so a first run doesn't report a failed delete
+      if (card.fileExists(ESP_FIRMWARE_FILE_RENAME))
+        card.removeFile(ESP_FIRMWARE_FILE_RENAME);
       MediaFile file, *curDir;
       const char * const fname = card.diveToFile(false, curDir, ESP_FIRMWARE_FILE);
       if (file.open(curDir, fname, O_READ)) {
