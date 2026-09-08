@@ -411,6 +411,7 @@ namespace LanguageNarrow_en {
   LSTR MSG_FILAMENT_LOAD                  = _UxGT("Load mm");
   LSTR MSG_ADVANCE_K                      = _UxGT("Advance K");
   LSTR MSG_ADVANCE_K_E                    = _UxGT("Advance K *");
+  LSTR MSG_EXPORT_SETTINGS                = _UxGT("Export Settings");
   LSTR MSG_INIT_EEPROM                    = _UxGT("Initialize EEPROM");
   LSTR MSG_MEDIA_UPDATE                   = MEDIA_TYPE_EN _UxGT(" Update");
   LSTR MSG_RESET_PRINTER                  = _UxGT("Reset Printer");
