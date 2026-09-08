@@ -171,8 +171,7 @@ void LevelingBilinear::print_leveling_grid(const bed_mesh_t* _z_values/*=nullptr
   #if ENABLED(VARIABLE_GRID_POINTS)
     PRINT_2D_ARRAY(
       GRID_MAX_POINTS_X, GRID_MAX_POINTS_Y, 3, _z_values ? *_z_values[0] : z_values[0],
-      _grid_points ? _grid_points->x : nr_grid_points.x,
-      _grid_points ? _grid_points->y : nr_grid_points.y
+      _grid_points ? *_grid_points : nr_grid_points
     );
   #else
     print_2d_array(GRID_MAX_POINTS_X, GRID_MAX_POINTS_Y, 3, _z_values ? *_z_values[0] : z_values[0]);
@@ -181,14 +180,11 @@ void LevelingBilinear::print_leveling_grid(const bed_mesh_t* _z_values/*=nullptr
   #if ENABLED(ABL_BILINEAR_SUBDIVISION)
     if (!_z_values) {
       SERIAL_ECHOLNPGM("Subdivided with CATMULL ROM Leveling Grid:");
-      #if ENABLED(VARIABLE_GRID_POINTS)
-        PRINT_2D_ARRAY(
-          ABL_MAX_POINTS_VIRT_X, ABL_MAX_POINTS_VIRT_Y, 5, z_values_virt[0],
-          nr_grid_points_virt.x, nr_grid_points_virt.y
-        );
-      #else
-        print_2d_array(ABL_GRID_POINTS_VIRT_X, ABL_GRID_POINTS_VIRT_Y, 5, z_values_virt[0]);
-      #endif
+      PRINT_2D_ARRAY(
+        GRID_VAL(ABL_MAX_POINTS_VIRT_X, ABL_GRID_POINTS_VIRT_X),
+        GRID_VAL(ABL_MAX_POINTS_VIRT_Y, ABL_GRID_POINTS_VIRT_Y),
+        5, z_values_virt[0], nr_grid_points_virt
+      );
     }
   #endif
 }
