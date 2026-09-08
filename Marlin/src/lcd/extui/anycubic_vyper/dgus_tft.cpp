@@ -558,12 +558,13 @@ namespace Anycubic {
           if (strncmp_P(msg, MARLIN_msg_probing_point, strlen_P(MARLIN_msg_probing_point)) == 0)
             probe_cnt++;
 
-          // If probing completes ok save the mesh and park
+          // If probing completes OK, save the mesh and park
           // Ignore the custom machine name
           if (strcmp_P(msg + strlen(MACHINE_NAME), MARLIN_msg_ready) == 0) {
             if (probe_cnt == GRID_MAX_POINTS) {
               probe_cnt = 0;
-              injectCommands(F("M500"));    // G27 park nozzle
+              injectCommands(F("M500"));
+              InjectCommands(F("G27"));           // G27 Park Nozzle
               fakeChangePageOfTFT(PAGE_PreLEVEL); // Prevent UI refreshing too quickly when probing is done
               printer_state = AC_printer_idle;
               msg_matched   = true;

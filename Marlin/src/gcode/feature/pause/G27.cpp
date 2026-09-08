@@ -32,19 +32,28 @@
 #endif
 
 /**
- * G27: Park the nozzle according with the given style
+ * G27: Park Nozzle
+ *
+ * Absolute/relative park the nozzle according to XY or Z position (NOZZLE_PARK_POINT)
+ * and/or raise Z by NOZZLE_PARK_Z_RAISE_MIN.
+ *
+ * Just Z raise (G27 P3) without homing first: requires G27_BYPASS_TRUST.
+ * Just XY parking (G27 P4) if XY are trusted; otherwise, nozzle parking requires prior homing.
  *
  *  P<style> - Parking style:
- *             0 = (Default) Relative raise by NOZZLE_PARK_Z_RAISE_MIN (>= NOZZLE_PARK_POINT.z) before XY parking.
- *             1 = Absolute move to NOZZLE_PARK_POINT.z before XY parking. (USE WITH CAUTION!)
- *             2 = Relative raise by NOZZLE_PARK_POINT.z before XY parking.
+ *             0 = Relative raise by NOZZLE_PARK_Z_RAISE_MIN (>= NOZZLE_PARK_POINT.z), then XY parking. (Default)
+ *             1 = Absolute move to NOZZLE_PARK_POINT.z, then XY parking. (May move nozzle down, USE WITH CAUTION!)
+ *             2 = Relative raise by NOZZLE_PARK_POINT.z, then XY parking.
  *             3 = Relative raise by NOZZLE_PARK_Z_RAISE_MIN, skip XY parking.
- *             4 = No Z raise. Just XY parking.
+ *             4 = No Z raise; only XY parking.
  */
 void GcodeSuite::G27() {
-  // Don't allow nozzle parking without homing first
-  if (motion.homing_needed_error()) return;
-  const int16_t pval = parser.intval('P');
+  const uint8_t pval = parser.byteval('P');
+  switch (pval) {
+    OPTCODE(G27_BYPASS_TRUST, case 3: break)
+    case 4: if (motion.axis_is_trusted(X_AXIS) && motion.axis_is_trusted(Y_AXIS)) break;
+    default: if (motion.homing_needed_error()) return; // Don't allow nozzle parking without homing first
+  }
   if (WITHIN(pval, 0, 4)) {
     nozzle.park(pval);
     TERN_(SOVOL_SV06_RTS, RTS_MoveAxisHoming());
