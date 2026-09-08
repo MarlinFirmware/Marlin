@@ -81,6 +81,13 @@ int32_t      MenuEditItemBase::minEditValue,
 screenFunc_t MenuEditItemBase::callbackFunc;
 bool         MenuEditItemBase::liveEdit;
 
+#if ENABLED(TFT_COLOR_UI)
+  #if ENABLED(TOUCH_SCREEN)
+    float    MenuEditItemBase::valueStep;
+  #endif
+  intptr_t   MenuEditItemBase::valueToString;
+#endif
+
 ////////////////////////////////////////////
 //////// Menu Navigation & History /////////
 ////////////////////////////////////////////
@@ -134,14 +141,16 @@ void MenuEditItemBase::edit_screen(strfunc_t strfunc, loadfunc_t loadfunc) {
 
 // Going to an edit screen sets up some persistent values first
 void MenuEditItemBase::goto_edit_screen(
-  FSTR_P const el,        // Edit label
-  void * const ev,        // Edit value pointer
-  const int32_t minv,     // Encoder minimum
-  const int32_t maxv,     // Encoder maximum
-  const uint32_t ep,      // Initial encoder value
-  const screenFunc_t cs,  // MenuItem_type::draw_edit_screen => MenuEditItemBase::edit()
-  const screenFunc_t cb,  // Callback after edit
-  const bool le           // Flag to call cb() during editing
+    FSTR_P const el       // Edit label
+  , void * const ev       // Edit value pointer
+  , const int32_t minv    // Encoder minimum
+  , const int32_t maxv    // Encoder maximum
+  OPTARG(TFT_COLOR_UI, intptr_t to_string)  // Value-to-string conversion function
+  OPTARG(TFT_COLOR_TOUCH, const float step) // Smallest step
+  , const uint32_t ep     // Initial encoder value
+  , const screenFunc_t cs // MenuItem_type::draw_edit_screen => MenuEditItemBase::edit()
+  , const screenFunc_t cb // Callback after edit
+  , const bool le         // Flag to call cb() during editing
 ) {
   TERN_(HAS_TOUCH_BUTTONS, ui.on_edit_screen = true);
   ui.screen_changed = true;
@@ -151,6 +160,8 @@ void MenuEditItemBase::goto_edit_screen(
   editValue = ev;
   minEditValue = minv;
   maxEditValue = maxv;
+  TERN_(TFT_COLOR_UI, valueToString = to_string);
+  TERN_(TFT_COLOR_TOUCH, valueStep = step);
   ui.encoderPosition = ep;
   ui.currentScreen = cs;
   callbackFunc = cb;

@@ -207,7 +207,7 @@ void MarlinUI::move_axis_screen() {
 
     #if HAS_X_AXIS
       drawBtn(TFT_WIDTH / 6 - BTN_WIDTH / 2, y, "X-", x_minus, imgLeft, X_BTN_COLOR, !busy);
-      TERN_(TOUCH_SCREEN, add_control(TFT_WIDTH / 2 - images[imgHome].width / 2, y - (images[imgHome].width - BTN_HEIGHT) / 2, BUTTON, do_home, imgHome, !busy));
+      TERN_(TOUCH_SCREEN, add_control((TFT_WIDTH - images[imgHome].width) / 2, y - (images[imgHome].width - BTN_HEIGHT) / 2, BUTTON, do_home, imgHome, !busy));
       drawBtn(TFT_WIDTH * 5 / 6 - BTN_WIDTH / 2, y, "X+", x_plus, imgRight, X_BTN_COLOR, !busy);
     #endif
 
@@ -229,7 +229,7 @@ void MarlinUI::move_axis_screen() {
      *************************************************************************/
 
     TERN_(HAS_EXTRUDERS, drawBtn(TFT_WIDTH / 6 - BTN_WIDTH / 2, y, "E-", e_minus, imgDown, E_BTN_COLOR, !busy));
-    TERN_(HAS_Y_AXIS, drawBtn(TFT_WIDTH / 2 - BTN_WIDTH / 2, y, "Y-", y_minus, imgDown, Y_BTN_COLOR, !busy));
+    TERN_(HAS_Y_AXIS, drawBtn((TFT_WIDTH - BTN_WIDTH) / 2, y, "Y-", y_minus, imgDown, Y_BTN_COLOR, !busy));
     TERN_(HAS_Z_AXIS, drawBtn(TFT_WIDTH * 5 / 6 - BTN_WIDTH / 2, y, "Z-", z_minus, imgDown, Z_BTN_COLOR, !busy || ENABLED(BABYSTEP_ZPROBE_OFFSET)));
 
     y += BTN_HEIGHT + 4;
