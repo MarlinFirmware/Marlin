@@ -108,7 +108,7 @@ void GcodeSuite::G29() {
   switch (state) {
     case MeshReport:
       SERIAL_ECHOPGM("Mesh Bed Leveling ");
-      if (leveling_is_valid()) {
+      if (bedlevel.leveling_is_valid()) {
         SERIAL_ECHOLN(ON_OFF(planner.leveling_active));
         bedlevel.report_mesh();
       }
@@ -123,13 +123,7 @@ void GcodeSuite::G29() {
         if (!ok.x) SERIAL_ECHOLNPGM("?(X) Probe points out of range (3..", int(GRID_MAX_POINTS_X), ")");
         if (!ok.y) SERIAL_ECHOLNPGM("?(Y) Probe points out of range (3..", int(GRID_MAX_POINTS_Y), ")");
         if (!ok.x || !ok.y) return;
-        bedlevel.nr_grid_points = points;
-        bedlevel.mesh_dist.set(
-          float(MESH_MAX_X - MESH_MIN_X) / (bedlevel.nr_grid_points.x - 1),
-          float(MESH_MAX_Y - MESH_MIN_Y) / (bedlevel.nr_grid_points.y - 1)
-        );
-        for (uint8_t i = 0; i < bedlevel.nr_grid_points.x; ++i) bedlevel.index_to_xpos[i] = mesh_min.x + i * bedlevel.mesh_dist.x;
-        for (uint8_t i = 0; i < bedlevel.nr_grid_points.y; ++i) bedlevel.index_to_ypos[i] = mesh_min.y + i * bedlevel.mesh_dist.y;
+        bedlevel.set_nr_grid_points(points);
       #endif
       bedlevel.reset();
       mbl_probe_index = 0;

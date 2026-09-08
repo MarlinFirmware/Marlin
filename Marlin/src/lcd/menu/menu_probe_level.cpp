@@ -222,8 +222,8 @@
 
     START_MENU();
     BACK_ITEM(MSG_BED_LEVELING);
-    EDIT_ITEM(uint8, MSG_MESH_X, &xind, 0, GRID_USED_POINTS_X - 1);
-    EDIT_ITEM(uint8, MSG_MESH_Y, &yind, 0, GRID_USED_POINTS_Y - 1);
+    EDIT_ITEM(uint8, MSG_MESH_X, &xind, 0, nr_grid_points.x - 1);
+    EDIT_ITEM(uint8, MSG_MESH_Y, &yind, 0, nr_grid_points.y - 1);
     #if LCD_HEIGHT > 4
       STATIC_ITEM(MSG_MESH_XY_INDEX, SS_FULL, &msg);
     #endif
@@ -251,7 +251,7 @@ void menu_probe_level() {
 
   #if HAS_LEVELING
     const bool is_homed = motion.all_axes_homed(),
-               is_valid = leveling_is_valid();
+               is_valid = bedlevel.leveling_is_valid();
   #endif
 
   #if NONE(PROBE_MANUALLY, MESH_BED_LEVELING)

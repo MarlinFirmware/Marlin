@@ -21,21 +21,12 @@
  */
 #pragma once
 
-#include "../../../inc/MarlinConfigPre.h"
+#ifndef _BEDLEVEL_INCLUDE
+  #error "Include 'bedlevel/bedlevel.h' instead of including this file directly."
+#endif
 
-class LevelingBilinear {
-public:
-  static bed_mesh_t z_values;
-  static xy_pos_t grid_spacing, grid_start;
-
-  #if ENABLED(VARIABLE_GRID_POINTS)
-    static xy_uint8_t nr_grid_points;
-  #else
-    static constexpr xy_uint8_t nr_grid_points { GRID_MAX_POINTS_X, GRID_MAX_POINTS_Y };
-  #endif
-
+class LevelingBilinear : public LevelingMesh {
 private:
-  static xy_float_t grid_factor;
   static xy_pos_t cached_rel;
   static xy_int8_t cached_g;
 
@@ -66,14 +57,12 @@ private:
 
 public:
   static void reset();
-  static void set_grid(const xy_pos_t &_grid_spacing, const xy_pos_t &_grid_start OPTARG(VARIABLE_GRID_POINTS, const xy_uint8_t &_nr_grid_points=grid_max_points));
+  static void set_grid(const xy_pos_t &_grid_spacing, const xy_pos_t &_mesh_min OPTARG(VARIABLE_GRID_POINTS, const xy_uint8_t &_nr_grid_points=grid_max_points));
   static void extrapolate_unprobed_bed_level();
   static void print_leveling_grid(const bed_mesh_t *_z_values=nullptr OPTARG(VARIABLE_GRID_POINTS, const xy_uint8_t *_grid_points=nullptr));
   static void refresh_bed_level();
-  static bool has_mesh() { return !!grid_spacing.x; }
-  static bool mesh_is_valid() { return has_mesh(); }
-  static float get_mesh_x(const uint8_t i) { return grid_start.x + i * grid_spacing.x; } // Caller beware. Don't go out of bounds.
-  static float get_mesh_y(const uint8_t j) { return grid_start.y + j * grid_spacing.y; }
+  static float get_mesh_x(const uint8_t i) { return _grid_x(i); } // Caller beware. Don't go out of bounds.
+  static float get_mesh_y(const uint8_t j) { return _grid_x(j); }
   static float get_z_correction(const xy_pos_t &raw);
   static constexpr float get_z_offset() { return 0.0f; }
 

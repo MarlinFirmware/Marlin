@@ -37,13 +37,8 @@
 
 LevelingBilinear bedlevel;
 
-GRID_CONSTEXPR xy_uint8_t LevelingBilinear::nr_grid_points;
-xy_float_t LevelingBilinear::grid_factor;
-xy_pos_t   LevelingBilinear::grid_spacing,
-           LevelingBilinear::grid_start,
-           LevelingBilinear::cached_rel;
+xy_pos_t   LevelingBilinear::cached_rel;
 xy_int8_t  LevelingBilinear::cached_g;
-bed_mesh_t LevelingBilinear::z_values;
 
 /**
  * Extrapolate a single point from its neighbors
@@ -99,28 +94,18 @@ void LevelingBilinear::extrapolate_one_point(const uint8_t x, const uint8_t y, c
 #endif
 
 void LevelingBilinear::reset() {
-  grid_start.reset();
-  grid_spacing.reset();
-  TERN_(VARIABLE_GRID_POINTS, nr_grid_points = grid_max_points);
-  GRID_LOOP(x, y) {
-    z_values[x][y] = NAN;
-    TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(x, y, 0));
-  }
+  LevelingMesh::reset(NAN);
 }
 
 /**
  * Set grid spacing and start position
  */
-void LevelingBilinear::set_grid(const xy_pos_t& _grid_spacing, const xy_pos_t& _grid_start OPTARG(VARIABLE_GRID_POINTS, const xy_uint8_t &_nr_grid_points)) {
-  #if HAS_PROUI_MESH_EDIT
-    grid_spacing.set(MESH_X_DIST, MESH_Y_DIST);
-    grid_start = mesh_min;
-  #else
+void LevelingBilinear::set_grid(const xy_pos_t& _grid_spacing, const xy_pos_t& _mesh_min OPTARG(VARIABLE_GRID_POINTS, const xy_uint8_t &_nr_grid_points)) {
+  #if !HAS_PROUI_MESH_EDIT
     grid_spacing = _grid_spacing;
-    grid_start = _grid_start;
+    mesh_min = _mesh_min;
   #endif
-  grid_factor = grid_spacing.reciprocal();
-  TERN_(VARIABLE_GRID_POINTS, nr_grid_points = _nr_grid_points);
+  set_nr_grid_points(_nr_grid_points);
 }
 
 /**
@@ -168,14 +153,11 @@ void LevelingBilinear::extrapolate_unprobed_bed_level() {
 void LevelingBilinear::print_leveling_grid(const bed_mesh_t* _z_values/*=nullptr*/ OPTARG(VARIABLE_GRID_POINTS, const xy_uint8_t *_grid_points/*=nullptr*/)) {
   // Print the passed mesh grid(s) or the current mesh
   SERIAL_ECHOLNPGM("Bilinear Leveling Grid:");
-  #if ENABLED(VARIABLE_GRID_POINTS)
-    PRINT_2D_ARRAY(
-      GRID_MAX_POINTS_X, GRID_MAX_POINTS_Y, 3, _z_values ? *_z_values[0] : z_values[0],
-      _grid_points ? *_grid_points : nr_grid_points
-    );
-  #else
-    print_2d_array(GRID_MAX_POINTS_X, GRID_MAX_POINTS_Y, 3, _z_values ? *_z_values[0] : z_values[0]);
-  #endif
+  PRINT_2D_ARRAY(
+    nr_grid_points.x, nr_grid_points.y, 3,
+    _z_values ? *_z_values[0] : z_values[0],
+    _grid_points ? *_grid_points : nr_grid_points
+  );
 
   #if ENABLED(ABL_BILINEAR_SUBDIVISION)
     if (!_z_values) {
@@ -291,7 +273,7 @@ void LevelingBilinear::print_leveling_grid(const bed_mesh_t* _z_values/*=nullptr
 void LevelingBilinear::refresh_bed_level() {
   #if ENABLED(VARIABLE_GRID_POINTS)
     // Fill the unused grid area with NaN
-    GRID_LOOP(x, y) if (x >= nr_grid_points.x || y >= nr_grid_points.y) z_values[x][y] = NAN;
+    GRID_LOOP_MAX(x, y) if (x >= nr_grid_points.x || y >= nr_grid_points.y) z_values[x][y] = NAN;
   #endif
   TERN_(ABL_BILINEAR_SUBDIVISION, subdivide_mesh());
   cached_rel.x = cached_rel.y = -999.999;
@@ -306,7 +288,7 @@ void LevelingBilinear::refresh_bed_level() {
   #define ABL_BG_GRID(X,Y)  z_values_virt[X][Y]
 #else
   #define ABL_BG_SPACING(A) grid_spacing.A
-  #define ABL_BG_FACTOR(A)  grid_factor.A
+  #define ABL_BG_FACTOR(A)  grid_spacing.reciprocal().A
   #define ABL_BG_POINTS_X   GRID_VAL(nr_grid_points.x, GRID_MAX_POINTS_X)
   #define ABL_BG_POINTS_Y   GRID_VAL(nr_grid_points.y, GRID_MAX_POINTS_Y)
   #define ABL_BG_GRID(X,Y)  z_values[X][Y]
@@ -323,7 +305,7 @@ float LevelingBilinear::get_z_correction(const xy_pos_t &raw) {
   static xy_int8_t thisg, nextg;
 
   // XY relative to the probed area
-  xy_pos_t rel = raw - grid_start.asFloat();
+  xy_pos_t rel = raw - mesh_min;
 
   #if ENABLED(EXTRAPOLATE_BEYOND_GRID)
     #define FAR_EDGE_OR_BOX 2   // Keep using the last grid box
@@ -398,7 +380,7 @@ float LevelingBilinear::get_z_correction(const xy_pos_t &raw) {
 
 #if IS_CARTESIAN && DISABLED(SEGMENT_LEVELED_MOVES)
 
-  #define CELL_INDEX(A,V) ((V - grid_start.A) * ABL_BG_FACTOR(A))
+  #define CELL_INDEX(A,V) ((V - mesh_min.A) * ABL_BG_FACTOR(A))
 
   /**
    * Prepare a bilinear-leveled linear move on Cartesian,
@@ -432,7 +414,7 @@ float LevelingBilinear::get_z_correction(const xy_pos_t &raw) {
       // Split on the X grid line
       CBI(x_splits, gc.x);
       end = motion.destination;
-      motion.destination.x = grid_start.x + ABL_BG_SPACING(x) * gc.x;
+      motion.destination.x = mesh_min.x + ABL_BG_SPACING(x) * gc.x;
       normalized_dist = (motion.destination.x - motion.position.x) / (end.x - motion.position.x);
       motion.destination.y = LINE_SEGMENT_END(y);
     }
@@ -441,7 +423,7 @@ float LevelingBilinear::get_z_correction(const xy_pos_t &raw) {
       // Split on the Y grid line
       CBI(y_splits, gc.y);
       end = motion.destination;
-      motion.destination.y = grid_start.y + ABL_BG_SPACING(y) * gc.y;
+      motion.destination.y = mesh_min.y + ABL_BG_SPACING(y) * gc.y;
       normalized_dist = (motion.destination.y - motion.position.y) / (end.y - motion.position.y);
       motion.destination.x = LINE_SEGMENT_END(x);
     }

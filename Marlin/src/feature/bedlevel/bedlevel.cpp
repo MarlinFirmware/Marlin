@@ -50,7 +50,25 @@
   #include "../../lcd/dwin/proui/bedlevel_tools.h"
 #endif
 
-bool leveling_is_valid() {
+// The Leveling Mesh is shared by MBL, ABL Bilinear, and UBL
+#if ENABLED(VARIABLE_GRID_POINTS)
+  xy_uint8_t LevelingMesh::nr_grid_points;
+//#else
+//  constexpr xy_uint8_t LevelingMesh::nr_grid_points;
+#endif
+
+#if ANY(HAS_PROUI_MESH_EDIT, VARIABLE_GRID_POINTS)
+  xy_pos_t LevelingMesh::mesh_min, LevelingMesh::mesh_max;
+//#else
+//  constexpr xy_pos_t LevelingMesh::mesh_min, LevelingMesh::mesh_max;
+#endif
+
+void LevelingMesh::reset(const float v=0.0f) {
+  TERN_(VARIABLE_GRID_POINTS, set_nr_grid_points(grid_max_points));
+  GRID_LOOP_MAX(x, y) z_values[x][y] = v;
+}
+
+bool LevelingMesh::leveling_is_valid() {
   return (
     #if ALL(HAS_MESH, DWIN_LCD_PROUI)
       bedLevelTools.meshValidate()

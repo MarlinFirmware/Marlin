@@ -202,11 +202,6 @@ select_t select_page{0}, select_print{0};
   constexpr float bed_tramming_inset_lfrb[] = BED_TRAMMING_INSET_LFRB;
 #endif
 
-#if HAS_PROUI_MESH_EDIT
-  xy_pos_t mesh_min{ MESH_MIN_X, MESH_MIN_Y },
-           mesh_max{ MESH_MAX_X, MESH_MAX_Y };
-#endif
-
 bool hash_changed = true; // Flag to know if message status was changed
 bool blink = false;
 uint8_t checkkey = 255, last_checkkey = ID_MainMenu;
@@ -2405,7 +2400,7 @@ void setMoveZ() { hmiValue.axis = Z_AXIS; setPFloatOnClick(Z_MIN_POS, Z_MAX_POS,
 #if HAS_MESH
 
   void _dwinMeshViewer() {
-    if (!leveling_is_valid())
+    if (!bedlevel.leveling_is_valid())
       dwinPopupContinue(ICON_Leveling_1, GET_TEXT_F(MSG_MESH_VIEWER), GET_TEXT_F(MSG_NO_VALID_MESH));
     else {
       hmiSaveProcessID(ID_WaitResponse);
@@ -2592,8 +2587,8 @@ void gotoConfirmToPrint() {
         ));
       }
       else {
-        LIMIT(xpos, mesh_min.x, mesh_max.x);
-        LIMIT(ypos, mesh_min.y, mesh_max.y);
+        LIMIT(xpos, bedlevel.mesh_min.x, bedlevel.mesh_max.x);
+        LIMIT(ypos, bedlevel.mesh_min.y, bedlevel.mesh_max.y);
         probe.stow();
         gcode.process_subcommands_now(F("M420S0\nG28O"));
         inLev = true;
@@ -2626,7 +2621,7 @@ void gotoConfirmToPrint() {
         LCD_MESSAGE_F("Disable manual tramming");
         return;
       }
-      bed_mesh_t zval = {0};
+      float zval[2][2] = {0};
       zval[0][0] = tram(0);
       checkkey = ID_NothingToDo;
       meshViewer.drawMesh(zval, 2, 2);
@@ -4452,6 +4447,7 @@ void drawMaxAccelMenu() {
   }
 
   #if HAS_PROUI_MESH_EDIT
+
     bool autoMovToMesh = false;
     void setAutoMovToMesh() { toggleCheckboxLine(autoMovToMesh); }
 
@@ -4471,19 +4467,19 @@ void drawMaxAccelMenu() {
     void setXMeshInset() { setPFloatOnClick(0, X_BED_SIZE, UNITFDIGITS, applyMeshInset); }
     void setYMeshInset() { setPFloatOnClick(0, Y_BED_SIZE, UNITFDIGITS, applyMeshInset); }
     void maxMeshArea() {
-      mesh_min.set(0, 0);
-      mesh_max.set(X_BED_SIZE, Y_BED_SIZE);
+      bedlevel.mesh_min.set(0, 0);
+      bedlevel.mesh_max.set(X_BED_SIZE, Y_BED_SIZE);
       resetMeshInset();
       redrawMenu();
     }
 
     void centerMeshArea() {
-      const float half_width  = 0.5 * (mesh_max.x - mesh_min.x);
-      const float half_height = 0.5 * (mesh_max.y - mesh_min.y);
-      const float half_extent = min(min(half_width, half_height), min((float)X_CENTER, (float)Y_CENTER));
+      const float half_width  = 0.5f * (bedlevel.mesh_max.x - bedlevel.mesh_min.x),
+                  half_height = 0.5f * (bedlevel.mesh_max.y - bedlevel.mesh_min.y),
+                  half_extent = min(min(half_width, half_height), min((float)X_CENTER, (float)Y_CENTER));
 
-      mesh_min.set(X_CENTER - half_extent, Y_CENTER - half_extent);
-      mesh_max.set(X_CENTER + half_extent, Y_CENTER + half_extent);
+      bedlevel.mesh_min.set(X_CENTER - half_extent, Y_CENTER - half_extent);
+      bedlevel.mesh_max.set(X_CENTER + half_extent, Y_CENTER + half_extent);
       resetMeshInset();
       redrawMenu();
     }
@@ -4492,10 +4488,10 @@ void drawMaxAccelMenu() {
       checkkey = ID_Menu;
       if (SET_MENU(meshInsetMenu, MSG_MESH_INSET, 7)) {
         BACK_ITEM(drawMeshSetMenu);
-        EDIT_ITEM(ICON_Box,         MSG_MESH_MIN_X, onDrawPFloatMenu, setXMeshInset, &mesh_min.x);
-        EDIT_ITEM(ICON_ProbeMargin, MSG_MESH_MAX_X, onDrawPFloatMenu, setXMeshInset, &mesh_max.x);
-        EDIT_ITEM(ICON_Box,         MSG_MESH_MIN_Y, onDrawPFloatMenu, setYMeshInset, &mesh_min.y);
-        EDIT_ITEM(ICON_ProbeMargin, MSG_MESH_MAX_Y, onDrawPFloatMenu, setYMeshInset, &mesh_max.y);
+        EDIT_ITEM(ICON_Box,         MSG_MESH_MIN_X, onDrawPFloatMenu, setXMeshInset, &bedlevel.mesh_min.x);
+        EDIT_ITEM(ICON_ProbeMargin, MSG_MESH_MAX_X, onDrawPFloatMenu, setXMeshInset, &bedlevel.mesh_max.x);
+        EDIT_ITEM(ICON_Box,         MSG_MESH_MIN_Y, onDrawPFloatMenu, setYMeshInset, &bedlevel.mesh_min.y);
+        EDIT_ITEM(ICON_ProbeMargin, MSG_MESH_MAX_Y, onDrawPFloatMenu, setYMeshInset, &bedlevel.mesh_max.y);
         MENU_ITEM(ICON_AxisC,       MSG_MESH_AMAX,   onDrawMenuItem, maxMeshArea);
         MENU_ITEM(ICON_SetHome,     MSG_MESH_CENTER, onDrawMenuItem, centerMeshArea);
       }
@@ -4505,7 +4501,7 @@ void drawMaxAccelMenu() {
 
     void drawEditMeshMenu() {
       constexpr uint8_t items = (6 + ENABLED(HAS_BED_PROBE));
-      if (!leveling_is_valid()) {
+      if (!bedlevel.leveling_is_valid()) {
         LCD_MESSAGE(MSG_UBL_MESH_INVALID);
         dwinPopupConfirm(ICON_Leveling_1, GET_TEXT_F(MSG_NO_VALID_MESH), GET_TEXT_F(MSG_UBL_LOAD_MESH));
         return;
@@ -4526,7 +4522,8 @@ void drawMaxAccelMenu() {
       }
       updateMenu(editMeshMenu);
     }
-  #endif
+
+  #endif // HAS_PROUI_MESH_EDIT
 
 #endif // HAS_MESH
 

@@ -68,24 +68,12 @@ bed_mesh_t unified_bed_leveling::z_values;
 
 #if ENABLED(VARIABLE_GRID_POINTS)
 
-  xy_uint8_t unified_bed_leveling::nr_grid_points;
-  xy_float_t unified_bed_leveling::mesh_dist,       // Initialized by settings.load
-             unified_bed_leveling::mesh_dist_recip;
-
-  void unified_bed_leveling::refresh_mesh_dist() {
-    mesh_dist.set(
-      float((MESH_MAX_X) - (MESH_MIN_X)) / GRID_USED_CELLS_X,
-      float((MESH_MAX_Y) - (MESH_MIN_Y)) / GRID_USED_CELLS_Y
-    );
-    mesh_dist_recip = mesh_dist.reciprocal();
-  }
-
   float unified_bed_leveling::get_mesh_x(const uint8_t i) {
-    return (PROBING_MARGIN_LEFT) + i * mesh_dist.x;
+    return (PROBING_MARGIN_LEFT) + i * grid_spacing.x;
   }
 
   float unified_bed_leveling::get_mesh_y(const uint8_t i) {
-    return (PROBING_MARGIN_FRONT) + i * mesh_dist.y;
+    return (PROBING_MARGIN_FRONT) + i * grid_spacing.y;
   }
 
 #elif !HAS_PROUI_MESH_EDIT // && !VARIABLE_GRID_POINTS
@@ -116,13 +104,7 @@ void unified_bed_leveling::reset() {
   const bool was_enabled = planner.leveling_active;
   set_bed_leveling_enabled(false);
   TERN_(HAS_MESH_STORAGE, storage_slot = -1);
-  ZERO(z_values);
-  #if ENABLED(VARIABLE_GRID_POINTS)
-    set_nr_grid_points(grid_max_points);
-  #endif
-  #if ENABLED(EXTENSIBLE_UI)
-    GRID_LOOP(x, y) ExtUI::onMeshUpdate(x, y, 0);
-  #endif
+  LevelingMesh::reset();
   if (was_enabled) motion.report_position();
 }
 
