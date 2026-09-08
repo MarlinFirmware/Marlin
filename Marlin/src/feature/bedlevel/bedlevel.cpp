@@ -50,7 +50,38 @@
   #include "../../lcd/dwin/proui/bedlevel_tools.h"
 #endif
 
-bool leveling_is_valid() {
+#if HAS_MESH
+  // The Leveling Mesh is shared by MBL, ABL Bilinear, and UBL
+  bed_mesh_t LevelingMesh::z_values;
+
+  #if ENABLED(VARIABLE_GRID_POINTS)
+    xy_uint8_t LevelingMesh::nr_grid_points;
+    xy_float_t LevelingMesh::grid_spacing;
+    #if ENABLED(CACHED_DIST_RECIPROCAL)
+      xy_float_t LevelingMesh::grid_spacing_recip;
+    #endif
+  #else
+    constexpr xy_uint8_t LevelingMesh::nr_grid_points;
+    constexpr xy_float_t LevelingMesh::grid_spacing;
+  #endif
+
+  #if ANY(HAS_PROUI_MESH_EDIT, VARIABLE_GRID_POINTS)
+    xy_pos_t LevelingMesh::mesh_min, LevelingMesh::mesh_max;
+  #else
+    constexpr xy_pos_t LevelingMesh::mesh_min, LevelingMesh::mesh_max;
+  #endif
+#endif
+
+#if ENABLED(CACHED_DIST_RECIPROCAL) && DISABLED(VARIABLE_GRID_POINTS)
+  constexpr xy_float_t LevelingMesh::grid_spacing_recip;
+#endif
+
+void LevelingMesh::reset(const float v) {
+  TERN_(VARIABLE_GRID_POINTS, set_nr_grid_points(grid_max_points));
+  GRID_LOOP_MAX(x, y) z_values[x][y] = v;
+}
+
+bool LevelingMesh::leveling_is_valid() {
   return (
     #if ALL(HAS_MESH, DWIN_LCD_PROUI)
       bedLevelTools.meshValidate()
@@ -69,7 +100,7 @@ bool leveling_is_valid() {
 void set_bed_leveling_enabled(const bool enable/*=true*/) {
   DEBUG_SECTION(log_sble, "set_bed_leveling_enabled", DEBUGGING(LEVELING));
 
-  const bool can_change = TERN1(AUTO_BED_LEVELING_BILINEAR, !enable || leveling_is_valid());
+  const bool can_change = TERN1(AUTO_BED_LEVELING_BILINEAR, !enable || bedlevel.leveling_is_valid());
 
   if (can_change && enable != planner.leveling_active) {
 

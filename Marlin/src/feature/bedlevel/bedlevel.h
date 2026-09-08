@@ -33,7 +33,6 @@
   constexpr bool g29_in_progress = false;
 #endif
 
-bool leveling_is_valid();
 void set_bed_leveling_enabled(const bool enable=true);
 void reset_bed_level();
 
@@ -45,26 +44,96 @@ void reset_bed_level();
   void _manual_goto_xy(const xy_pos_t &pos);
 #endif
 
-/**
- * A class to save and change the bed leveling state,
- * then restore it when it goes out of scope.
- */
-class TemporaryBedLevelingState {
-  bool saved;
-  public:
-    TemporaryBedLevelingState(const bool enable);
-    ~TemporaryBedLevelingState() { set_bed_leveling_enabled(saved); }
-};
-#define TEMPORARY_BED_LEVELING_STATE(enable) const TemporaryBedLevelingState tbls(enable)
-
 #ifdef GRID_MAX_POINTS_X
   constexpr xy_uint8_t grid_max_points = { GRID_MAX_POINTS_X, GRID_MAX_POINTS_Y };
 #endif
 
 #if HAS_MESH
 
+  #define CACHED_DIST_RECIPROCAL
+
   typedef float bed_mesh_t[GRID_MAX_POINTS_X][GRID_MAX_POINTS_Y];
 
+  // The Leveling Mesh is shared by MBL, ABL Bilinear, and UBL
+  class LevelingMesh {
+    public:
+      static bed_mesh_t z_values;
+
+      #if ANY(HAS_PROUI_MESH_EDIT, VARIABLE_GRID_POINTS)
+        static xy_pos_t mesh_min, mesh_max;
+      #else
+        static constexpr xy_pos_t mesh_min{ MESH_MIN_X, MESH_MIN_Y },
+                                  mesh_max{ MESH_MAX_X, MESH_MAX_Y };
+      #endif
+
+      #if ENABLED(VARIABLE_GRID_POINTS)
+        static xy_uint8_t nr_grid_points;
+        static xy_float_t grid_spacing;
+      #else
+        static constexpr xy_uint8_t nr_grid_points { GRID_MAX_POINTS_X, GRID_MAX_POINTS_Y };
+        static constexpr xy_float_t grid_spacing = (mesh_max - mesh_min) / nr_grid_points;
+      #endif
+      #if ENABLED(CACHED_DIST_RECIPROCAL)
+        #if ENABLED(VARIABLE_GRID_POINTS)
+          static xy_float_t grid_spacing_recip;
+        #else
+          static constexpr xy_float_t grid_spacing_recip = grid_spacing.reciprocal();
+        #endif
+      #endif
+
+      static void refresh_mesh_lookup() {
+        #if ENABLED(VARIABLE_GRID_POINTS)
+          grid_spacing = (mesh_max - mesh_min) / nr_grid_points;
+          grid_spacing_recip = grid_spacing_reciprocal();
+        #endif
+      }
+      #if ENABLED(VARIABLE_GRID_POINTS)
+        static void set_nr_grid_points(const xy_uint8_t &gp) {
+          nr_grid_points = gp;
+          refresh_mesh_lookup();
+        }
+      #endif
+
+      static xy_float_t grid_spacing_reciprocal() {
+        return TERN(CACHED_DIST_RECIPROCAL, grid_spacing_recip, grid_spacing.reciprocal());
+      }
+
+      static void init() {
+        #if ENABLED(VARIABLE_GRID_POINTS)
+          mesh_min.set(MESH_MIN_X, MESH_MIN_Y);
+          mesh_max.set(MESH_MAX_X, MESH_MAX_Y);
+          set_nr_grid_points(grid_max_points);
+        #endif
+      }
+      static void reset(const float v=0.0f);
+
+      static bool has_mesh() { return !!grid_spacing.x; }
+      static bool mesh_is_valid() { return has_mesh(); }
+
+      static float _grid_x(const uint8_t i) { return mesh_min.x + i * grid_spacing.x; }
+      static float _grid_y(const uint8_t i) { return mesh_min.y + i * grid_spacing.y; }
+      static float grid_x(const uint8_t ix) { return _grid_x(ix); }
+      static float grid_y(const uint8_t iy) { return _grid_y(iy); }
+      static xy_pos_t grid_point(const xy_uint8_t &index) {
+        return { grid_x(index.x), grid_y(index.y) };
+      }
+
+      static int8_t _cell_index_x(const float x) { return FLOOR((x - mesh_min.x) * grid_spacing_reciprocal().x); }
+      static int8_t _cell_index_y(const float y) { return FLOOR((y - mesh_min.y) * grid_spacing_reciprocal().y); }
+      static bool cell_index_x_valid(const float x) { return WITHIN(_cell_index_x(x), 0, nr_grid_points.x - 1); }
+      static bool cell_index_y_valid(const float y) { return WITHIN(_cell_index_y(y), 0, nr_grid_points.y - 1); }
+      static uint8_t cell_index_x(const float x) { return constrain(_cell_index_x(x), 0, nr_grid_points.x - 1); }
+      static uint8_t cell_index_y(const float y) { return constrain(_cell_index_y(y), 0, nr_grid_points.y - 1); }
+      static xy_uint8_t cell_indexes(const float x, const float y) { return { cell_index_x(x), cell_index_y(y) }; }
+      static xy_uint8_t cell_indexes(const xy_pos_t &xy) { return cell_indexes(xy.x, xy.y); }
+
+      static bool leveling_is_valid();
+  };
+
+  //
+  // Include to get 'extern bedlevel' as a sub-class of LevelingMesh
+  //
+  #define _BEDLEVEL_INCLUDE
   #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
     #include "abl/bbl.h"
   #elif ENABLED(AUTO_BED_LEVELING_UBL)
@@ -72,6 +141,7 @@ class TemporaryBedLevelingState {
   #elif ENABLED(MESH_BED_LEVELING)
     #include "mbl/mesh_bed_leveling.h"
   #endif
+  #undef _BEDLEVEL_INCLUDE
 
   #if ANY(AUTO_BED_LEVELING_BILINEAR, MESH_BED_LEVELING)
 
@@ -106,4 +176,16 @@ class TemporaryBedLevelingState {
     operator const xy_int8_t&() const { return pos; }
   };
 
-#endif
+#endif // HAS_MESH
+
+/**
+ * A class to save and change the bed leveling state,
+ * then restore it when it goes out of scope.
+ */
+class TemporaryBedLevelingState {
+  bool saved;
+  public:
+    TemporaryBedLevelingState(const bool enable);
+    ~TemporaryBedLevelingState() { set_bed_leveling_enabled(saved); }
+};
+#define TEMPORARY_BED_LEVELING_STATE(enable) const TemporaryBedLevelingState tbls(enable)

@@ -142,7 +142,7 @@ void GcodeSuite::M420() {
 
   #if HAS_MESH
 
-    if (leveling_is_valid()) {
+    if (bedlevel.leveling_is_valid()) {
 
       // Re-center the mesh Z values around the midrange (or mean), plus any given offset
       if (parser.seen('C')) {
@@ -202,10 +202,10 @@ void GcodeSuite::M420() {
     #if ABL_PLANAR
       planner.bed_level_matrix.debug(F("Bed Level Correction Matrix:"));
     #else
-      if (leveling_is_valid()) {
+      if (bedlevel.leveling_is_valid()) {
         #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
           #if ENABLED(VARIABLE_GRID_POINTS)
-            bedlevel.set_grid(bedlevel.grid_spacing, bedlevel.grid_start, bedlevel.nr_grid_points);
+            //bedlevel.set_grid(bedlevel.grid_spacing, bedlevel.mesh_min, bedlevel.nr_grid_points);
             bedlevel.print_leveling_grid(nullptr, &bedlevel.nr_grid_points);
           #else
             bedlevel.print_leveling_grid();

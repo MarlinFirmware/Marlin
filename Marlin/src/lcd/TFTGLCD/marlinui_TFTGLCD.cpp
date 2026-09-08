@@ -1126,9 +1126,9 @@ void MarlinUI::draw_status_screen() {
 
       // Show all values
       lcd_moveto(_LCD_W_POS, 1); lcd_put_u8str(F("X:"));
-      lcd.print(ftostr52(motion.logical_x(pgm_read_float(&bedlevel._mesh_index_to_xpos[x_plot]))));
+      lcd.print(ftostr52(motion.logical_x(bedlevel.get_mesh_x(x_plot))));
       lcd_moveto(_LCD_W_POS, 2); lcd_put_u8str(F("Y:"));
-      lcd.print(ftostr52(motion.logical_y(pgm_read_float(&bedlevel._mesh_index_to_ypos[y_plot]))));
+      lcd.print(ftostr52(motion.logical_y(bedlevel.get_mesh_y(y_plot))));
 
       // Show the location value
       lcd_moveto(_LCD_W_POS, 3); lcd_put_u8str(F("Z:"));

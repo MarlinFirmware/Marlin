@@ -1541,17 +1541,17 @@ void unified_bed_leveling::smart_fill_mesh() {
 
   #if ENABLED(VARIABLE_GRID_POINTS)
 
-    // Ensure GRID_USED_POINTS_X and GRID_USED_POINTS_Y are greater than the values being subtracted
-    if (GRID_USED_POINTS_X < 2 || GRID_USED_POINTS_Y < 2) {
+    // Ensure nr_grid_points.x and nr_grid_points.y are greater than the values being subtracted
+    if (nr_grid_points.x < 2 || nr_grid_points.y < 2) {
       // Handle error condition: maybe return, set an error flag, etc.
       return;
     }
 
     static smart_fill_info
-      info0 = { 0, (GRID_USED_POINTS_X), 0, (uint8_t)(GRID_USED_POINTS_Y - 2), false }, // Bottom
-      info1 = { 0, (GRID_USED_POINTS_X), (uint8_t)(GRID_USED_POINTS_Y - 1), 0, false }, // Top
-      info2 = { 0, (uint8_t)(GRID_USED_POINTS_X - 2), 0, (GRID_USED_POINTS_Y), true },   // Left
-      info3 = { (uint8_t)(GRID_USED_POINTS_X - 1), 0, 0, (GRID_USED_POINTS_Y), true };   // Right
+      info0 = { 0, (nr_grid_points.x), 0, (uint8_t)(nr_grid_points.y - 2), false },  // Bottom
+      info1 = { 0, (nr_grid_points.x), (uint8_t)(nr_grid_points.y - 1), 0, false },  // Top
+      info2 = { 0, (uint8_t)(nr_grid_points.x - 2), 0, (nr_grid_points.y), true },   // Left
+      info3 = { (uint8_t)(nr_grid_points.x - 1), 0, 0, (nr_grid_points.y), true };   // Right
     static const smart_fill_info * const info[] = { &info0, &info1, &info2, &info3 };
 
     #define SF_PTR(V) V
@@ -1809,7 +1809,7 @@ void unified_bed_leveling::smart_fill_mesh() {
 
     SERIAL_ECHOPGM("Extrapolating mesh...");
 
-    const float weight_scaled = weight_factor * _MAX(GRID_VAL(mesh_dist.x, MESH_X_DIST), GRID_VAL(mesh_dist.y, MESH_Y_DIST));
+    const float weight_scaled = weight_factor * _MAX(grid_spacing.x, grid_spacing.y);
 
     GRID_LOOP_COND(jx, jy) if (!isnan(z_values[jx][jy])) SBI(bitmap[jx], jy);
 
@@ -1876,12 +1876,8 @@ void unified_bed_leveling::smart_fill_mesh() {
     UBL_SERIAL_ECHOLNPGM(25, "mesh_min ", mesh_min.x, ", ", mesh_min.y);
     UBL_SERIAL_ECHOLNPGM(25, "mesh_max ", mesh_max.x, ", ", mesh_max.y);
     UBL_SERIAL_ECHOLNPGM(25, "GRID_MAX_POINTS_[XY]  ", GRID_MAX_POINTS_X, ", ", GRID_MAX_POINTS_Y);
-    UBL_SERIAL_ECHOLNPGM(25, "GRID_USED_POINTS_[XY] ", GRID_USED_POINTS_X, ", ", GRID_USED_POINTS_Y);
-    #if ENABLED(VARIABLE_GRID_POINTS)
-      UBL_SERIAL_ECHOLNPGM(25, "MESH_[XY]_DIST ", mesh_dist.x, ", ", mesh_dist.y);
-    #else
-      UBL_SERIAL_ECHOLNPGM(25, "MESH_[XY]_DIST  ", MESH_X_DIST, ", ", MESH_Y_DIST);
-    #endif
+    UBL_SERIAL_ECHOLNPGM(25, "nr_grid_points.[xy] ", nr_grid_points.x, ", ", nr_grid_points.y);
+    UBL_SERIAL_ECHOLNPGM(25, "grid_spacing.[xy] ", grid_spacing.x, ", ", grid_spacing.y);
 
     SERIAL_ECHO('X', F("-Axis Mesh Points at: "));
     for (uint8_t i = 0; i < GRID_PREF_POINTS_X; ++i)
@@ -1960,7 +1956,7 @@ void unified_bed_leveling::smart_fill_mesh() {
 
       param.KLS_storage_slot = (int8_t)parser.value_int();
 
-      float tmp_z_values[GRID_USED_POINTS_X][GRID_USED_POINTS_Y];
+      float tmp_z_values[nr_grid_points.x][nr_grid_points.y];
       settings.load_mesh(param.KLS_storage_slot, &tmp_z_values);
 
       SERIAL_ECHOLNPGM("Subtracting mesh in slot ", param.KLS_storage_slot, " from current mesh.");

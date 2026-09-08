@@ -307,7 +307,7 @@ typedef struct SettingsDataStruct {
       #endif
       bed_mesh_t z_values;                              // G29
     #else
-      float z_values[3][3];
+      float z_values[3][3];                             // Placeholder
     #endif
   #endif
 
@@ -1108,7 +1108,7 @@ void MarlinSettings::postprocess() {
 
       #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
         EEPROM_WRITE(bedlevel.grid_spacing);
-        EEPROM_WRITE(bedlevel.grid_start);
+        EEPROM_WRITE(bedlevel.mesh_min);
       #else
         const xy_pos_t bilinear_grid_spacing{0}, bilinear_start{0};
         EEPROM_WRITE(bilinear_grid_spacing);
@@ -3994,7 +3994,7 @@ void MarlinSettings::reset() {
 
       #if ENABLED(MESH_BED_LEVELING)
 
-        if (leveling_is_valid()) {
+        if (bedlevel.leveling_is_valid()) {
           for (uint8_t py = 0; py < GRID_MAX_POINTS_Y; ++py) {
             for (uint8_t px = 0; px < GRID_MAX_POINTS_X; ++px) {
               CONFIG_ECHO_START();
@@ -4021,7 +4021,7 @@ void MarlinSettings::reset() {
 
       #elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
 
-        if (leveling_is_valid()) {
+        if (bedlevel.leveling_is_valid()) {
           for (uint8_t py = 0; py < GRID_MAX_POINTS_Y; ++py) {
             for (uint8_t px = 0; px < GRID_MAX_POINTS_X; ++px) {
               CONFIG_ECHO_START();

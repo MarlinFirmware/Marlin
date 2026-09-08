@@ -184,7 +184,7 @@ float BedLevelTools::getMinValue() {
 
 // Return 'true' if mesh is good and within LCD limits
 bool BedLevelTools::meshValidate() {
-  if (mesh_max.x <= mesh_min.x || mesh_max.y <= mesh_min.y)
+  if (bedlevel.mesh_max.x <= bedlevel.mesh_min.x || bedlevel.mesh_max.y <= bedlevel.mesh_min.y)
     return false;
   GRID_LOOP_COND(x, y) {
     const float z = bedlevel.z_values[x][y];

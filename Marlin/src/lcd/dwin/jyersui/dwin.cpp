@@ -3279,7 +3279,7 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
               drawMenuItem(row, ICON_Mesh, F("Manual Tuning"), nullptr, true);
             else {
               #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
-                if (!leveling_is_valid()) {
+                if (!bedlevel.leveling_is_valid()) {
                   confirmHandler(Popup_InvalidMesh);
                   break;
                 }
