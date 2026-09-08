@@ -1,0 +1,50 @@
+{
+  "build": {
+    "cpu": "cortex-m4",
+    "extra_flags": "-DSTM32F4 -DSTM32F427xx",
+    "f_cpu": "168000000L",
+    "mcu": "stm32f427zit6",
+    "product_line": "STM32F427xx",
+    "variant": "MARLIN_STM32F427ZIT6"
+  },
+  "connectivity": [
+    "can"
+  ],
+  "debug": {
+    "default_tools": [
+      "stlink"
+    ],
+    "jlink_device": "STM32F427ZI",
+    "onboard_tools": [
+      "stlink"
+    ],
+    "openocd_board": "stm32f427",
+    "openocd_target": "stm32f4x",
+    "svd_path": "STM32F427x.svd"
+  },
+  "frameworks": [
+    "arduino",
+    "cmsis",
+    "mbed",
+    "stm32cube",
+    "libopencm3",
+    "zephyr"
+  ],
+  "name": "STM32F427ZI (192k RAM, 64k CCM RAM, 2048k Flash)",
+  "upload": {
+    "disable_flushing": false,
+    "maximum_ram_size": 196608,
+    "maximum_size": 2097152,
+    "protocol": "stlink",
+    "protocols": [
+      "stlink",
+      "dfu",
+      "jlink"
+    ],
+    "require_upload_port": true,
+    "use_1200bps_touch": false,
+    "wait_for_upload_port": false
+  },
+  "url": "https://www.st.com/en/microcontrollers-microprocessors/stm32f427-437.html",
+  "vendor": "ST"
+}

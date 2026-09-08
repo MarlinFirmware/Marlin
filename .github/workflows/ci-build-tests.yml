@@ -125,6 +125,8 @@ jobs:
         - rumba32
         - STM32F401RC_creality
         - STM32F407VE_black
+        - STM32F407VG_prusa_buddy
+        - STM32F427ZI_prusa_xbuddy
         - I3DBEEZ9_V1
 
         # STM32F7
