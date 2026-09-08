@@ -49,6 +49,13 @@
   #include "../../../module/ft_motion.h"
 #endif
 
+#ifndef Z_AFTER_PROBING
+  #define Z_AFTER_PROBING Z_CLEARANCE_BETWEEN_MANUAL_PROBES
+#endif
+#ifndef MANUAL_PROBE_START_Z
+  #define MANUAL_PROBE_START_Z 0.4f
+#endif
+
 // Save 130 bytes with non-duplication of PSTR
 inline void echo_not_entered(const char c) { SERIAL_CHAR(c); SERIAL_ECHOLNPGM(" not entered."); }
 
@@ -56,7 +63,7 @@ inline void echo_not_entered(const char c) { SERIAL_CHAR(c); SERIAL_ECHOLNPGM(" 
  * G29: Mesh-based Z probe, probes a grid and produces a
  *      mesh to compensate for variable bed height
  *
- * Parameters With MESH_BED_LEVELING:
+ * Parameters with MESH_BED_LEVELING:
  *
  *  S0              Report the current mesh values
  *  S1              Start probing mesh points
@@ -64,6 +71,10 @@ inline void echo_not_entered(const char c) { SERIAL_CHAR(c); SERIAL_ECHOLNPGM(" 
  *  S3 In Jn Zn.nn  Manually modify a single point
  *  S4 Zn.nn        Set z offset. Positive away from bed, negative closer to bed.
  *  S5              Reset and disable mesh
+ *
+ * Parameters with VARIABLE_GRID_POINTS:
+ *  X<count>        Set the number of grid points in X
+ *  Y<count>        Set the number of grid points in Y
  */
 void GcodeSuite::G29() {
 
@@ -106,6 +117,20 @@ void GcodeSuite::G29() {
       break;
 
     case MeshStart:
+      #if ENABLED(VARIABLE_GRID_POINTS)
+        const xy_uint8_t points = { parser.byteval('X', GRID_MAX_POINTS_X), parser.byteval('Y', GRID_MAX_POINTS_Y) };
+        const xy_bool_t ok = { WITHIN(points.x, 3, GRID_MAX_POINTS_X), WITHIN(points.y, 3, GRID_MAX_POINTS_Y) };
+        if (!ok.x) SERIAL_ECHOLNPGM("?(X) Probe points out of range (3..", int(GRID_MAX_POINTS_X), ")");
+        if (!ok.y) SERIAL_ECHOLNPGM("?(Y) Probe points out of range (3..", int(GRID_MAX_POINTS_Y), ")");
+        if (!ok.x || !ok.y) return;
+        bedlevel.nr_grid_points = points;
+        bedlevel.mesh_dist.set(
+          float(MESH_MAX_X - MESH_MIN_X) / (bedlevel.nr_grid_points.x - 1),
+          float(MESH_MAX_Y - MESH_MIN_Y) / (bedlevel.nr_grid_points.y - 1)
+        );
+        for (uint8_t i = 0; i < bedlevel.nr_grid_points.x; ++i) bedlevel.index_to_xpos[i] = mesh_min.x + i * bedlevel.mesh_dist.x;
+        for (uint8_t i = 0; i < bedlevel.nr_grid_points.y; ++i) bedlevel.index_to_ypos[i] = mesh_min.y + i * bedlevel.mesh_dist.y;
+      #endif
       bedlevel.reset();
       mbl_probe_index = 0;
       if (!ui.wait_for_move) {
@@ -162,13 +187,7 @@ void GcodeSuite::G29() {
       // For each G29 S2...
       if (mbl_probe_index == 0) {
         // Move close to the bed before the first point
-        motion.blocking_move_z(
-          #ifdef MANUAL_PROBE_START_Z
-            MANUAL_PROBE_START_Z
-          #else
-            0.4f
-          #endif
-        );
+        motion.blocking_move_z(MANUAL_PROBE_START_Z);
       }
       else {
         // Save Z for the previous mesh position
@@ -177,7 +196,7 @@ void GcodeSuite::G29() {
         motion.set_soft_endstop_loose(false);
       }
       // If there's another point to sample, move there with optional lift.
-      if (mbl_probe_index < GRID_MAX_POINTS) {
+      if (mbl_probe_index < GRID_PREF_POINTS) {
         // Disable software endstops to allow manual adjustment
         // If G29 is left hanging without completion they won't be re-enabled!
         motion.set_soft_endstop_loose(true);
@@ -186,13 +205,7 @@ void GcodeSuite::G29() {
       }
       else {
         // Move to the after probing position
-        motion.position.z = (
-          #ifdef Z_AFTER_PROBING
-            Z_AFTER_PROBING
-          #else
-            Z_CLEARANCE_BETWEEN_MANUAL_PROBES
-          #endif
-        );
+        motion.position.z = Z_AFTER_PROBING;
         motion.goto_current_position();
         planner.synchronize();
 
@@ -259,8 +272,8 @@ void GcodeSuite::G29() {
   } // switch(state)
 
   if (state == MeshNext) {
-    SERIAL_ECHOLNPGM("MBL G29 point ", _MIN(mbl_probe_index, GRID_MAX_POINTS), " of ", GRID_MAX_POINTS);
-    if (mbl_probe_index > 0) TERN_(HAS_STATUS_MESSAGE, ui.status_printf(0, F(S_FMT " %i/%i"), GET_TEXT(MSG_PROBING_POINT), _MIN(mbl_probe_index, GRID_MAX_POINTS), int(GRID_MAX_POINTS)));
+    SERIAL_ECHOLNPGM("MBL G29 point ", _MIN(mbl_probe_index, GRID_PREF_POINTS), " of ", GRID_PREF_POINTS);
+    if (mbl_probe_index > 0) TERN_(HAS_STATUS_MESSAGE, ui.status_printf(0, F(S_FMT " %i/%i"), GET_TEXT(MSG_PROBING_POINT), _MIN(mbl_probe_index, GRID_PREF_POINTS), int(GRID_PREF_POINTS)));
   }
 
   motion.report_position();

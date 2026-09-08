@@ -202,6 +202,11 @@ select_t select_page{0}, select_print{0};
   constexpr float bed_tramming_inset_lfrb[] = BED_TRAMMING_INSET_LFRB;
 #endif
 
+#if HAS_PROUI_MESH_EDIT
+  xy_pos_t mesh_min{ MESH_MIN_X, MESH_MIN_Y },
+           mesh_max{ MESH_MAX_X, MESH_MAX_Y };
+#endif
+
 bool hash_changed = true; // Flag to know if message status was changed
 bool blink = false;
 uint8_t checkkey = 255, last_checkkey = ID_MainMenu;

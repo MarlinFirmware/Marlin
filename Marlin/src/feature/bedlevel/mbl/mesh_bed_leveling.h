@@ -41,6 +41,11 @@ public:
                index_to_xpos[GRID_MAX_POINTS_X],
                index_to_ypos[GRID_MAX_POINTS_Y];
 
+  #if ENABLED(VARIABLE_GRID_POINTS)
+    static xy_uint8_t nr_grid_points;
+    static xy_float_t mesh_dist;
+  #endif
+
   mesh_bed_leveling();
 
   static void reset();
@@ -59,9 +64,9 @@ public:
   static void set_z(const int8_t px, const int8_t py, const float z) { z_values[px][py] = z; }
 
   static void zigzag(const int8_t index, int8_t &px, int8_t &py) {
-    px = index % (GRID_MAX_POINTS_X);
-    py = index / (GRID_MAX_POINTS_X);
-    if (py & 1) px = (GRID_MAX_POINTS_X) - 1 - px; // Zig zag
+    px = index % GRID_PREF_POINTS_X;
+    py = index / GRID_PREF_POINTS_X;
+    if (py & 1) px = GRID_PREF_POINTS_X - 1 - px; // Zig zag
   }
 
   static void set_zigzag_z(const int8_t index, const float z) {
@@ -75,11 +80,11 @@ public:
 
   static uint8_t cell_index_x(const float x) {
     const int8_t cx = (x - mesh_min.x) * RECIPROCAL(MESH_X_DIST);
-    return constrain(cx, 0, GRID_MAX_CELLS_X - 1);
+    return constrain(cx, 0, GRID_PREF_CELLS_X - 1);
   }
   static uint8_t cell_index_y(const float y) {
     const int8_t cy = (y - mesh_min.y) * RECIPROCAL(MESH_Y_DIST);
-    return constrain(cy, 0, GRID_MAX_CELLS_Y - 1);
+    return constrain(cy, 0, GRID_PREF_CELLS_Y - 1);
   }
   static xy_uint8_t cell_indexes(const float x, const float y) {
     return { cell_index_x(x), cell_index_y(y) };
@@ -88,11 +93,11 @@ public:
 
   static int8_t probe_index_x(const float x) {
     const int8_t px = (x - mesh_min.x + 0.5f * (MESH_X_DIST)) * RECIPROCAL(MESH_X_DIST);
-    return WITHIN(px, 0, (GRID_MAX_POINTS_X) - 1) ? px : -1;
+    return WITHIN(px, 0, GRID_PREF_POINTS_X - 1) ? px : -1;
   }
   static int8_t probe_index_y(const float y) {
     const int8_t py = (y - mesh_min.y + 0.5f * (MESH_Y_DIST)) * RECIPROCAL(MESH_Y_DIST);
-    return WITHIN(py, 0, (GRID_MAX_POINTS_Y) - 1) ? py : -1;
+    return WITHIN(py, 0, GRID_PREF_POINTS_Y - 1) ? py : -1;
   }
   static xy_int8_t probe_indexes(const float x, const float y) {
     return { probe_index_x(x), probe_index_y(y) };

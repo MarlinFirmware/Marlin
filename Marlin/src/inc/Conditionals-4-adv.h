@@ -1913,12 +1913,15 @@
   #elif ALL(AUTO_BED_LEVELING_BILINEAR, VARIABLE_GRID_POINTS)
     #define GRID_USED_POINTS_X bedlevel.nr_grid_points.x
     #define GRID_USED_POINTS_Y bedlevel.nr_grid_points.y
+  #elif ALL(MESH_BED_LEVELING, VARIABLE_GRID_POINTS)
+    #define GRID_USED_POINTS_X mesh_bed_leveling::nr_grid_points.x
+    #define GRID_USED_POINTS_Y mesh_bed_leveling::nr_grid_points.y
   #else
     #define GRID_USED_POINTS_X GRID_MAX_POINTS_X
     #define GRID_USED_POINTS_Y GRID_MAX_POINTS_Y
   #endif
 
-  #if ENABLED(AUTO_BED_LEVELING_UBL)
+  #if ANY(AUTO_BED_LEVELING_UBL, MESH_BED_LEVELING)
     #define GRID_USED_CELLS_X  (GRID_USED_POINTS_X - 1)
     #define GRID_USED_CELLS_Y  (GRID_USED_POINTS_Y - 1)
   #endif

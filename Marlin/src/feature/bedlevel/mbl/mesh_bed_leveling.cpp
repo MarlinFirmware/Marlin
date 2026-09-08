@@ -39,9 +39,24 @@
         mesh_bed_leveling::index_to_xpos[GRID_MAX_POINTS_X],
         mesh_bed_leveling::index_to_ypos[GRID_MAX_POINTS_Y];
 
+  #if ENABLED(VARIABLE_GRID_POINTS)
+    xy_uint8_t mesh_bed_leveling::nr_grid_points;
+    xy_float_t mesh_bed_leveling::mesh_dist;
+    xy_pos_t mesh_min, mesh_max;
+  #endif
+
   mesh_bed_leveling::mesh_bed_leveling() { initialize(); }
 
   void mesh_bed_leveling::initialize() {
+    #if ENABLED(VARIABLE_GRID_POINTS)
+      nr_grid_points.set(GRID_MAX_POINTS_X, GRID_MAX_POINTS_Y);
+      mesh_dist.set(
+        float(MESH_MAX_X - MESH_MIN_X) / (nr_grid_points.x - 1),
+        float(MESH_MAX_Y - MESH_MIN_Y) / (nr_grid_points.y - 1)
+      );
+      mesh_min.set(MESH_MIN_X, MESH_MIN_Y);
+      mesh_max.set(MESH_MAX_X, MESH_MAX_Y);
+    #endif
     for (uint8_t i = 0; i < GRID_MAX_POINTS_X; ++i)
       index_to_xpos[i] = mesh_min.x + i * (MESH_X_DIST);
     for (uint8_t i = 0; i < GRID_MAX_POINTS_Y; ++i)
@@ -50,15 +65,15 @@
   }
 
   void mesh_bed_leveling::report_mesh() {
-    SERIAL_ECHOLN(F(STRINGIFY(GRID_MAX_POINTS_X) "x" STRINGIFY(GRID_MAX_POINTS_Y) " mesh. Z offset: "), p_float_t(z_offset, 5), F("\nMeasured points:"));
-    print_2d_array(GRID_MAX_POINTS_X, GRID_MAX_POINTS_Y, 5, z_values[0]);
+    SERIAL_ECHOLN(GRID_PREF_POINTS_X, 'x', GRID_PREF_POINTS_Y, F(" mesh. Z offset: "), p_float_t(z_offset, 5), F("\nMeasured points:"));
+    print_2d_array(GRID_PREF_POINTS_X, GRID_PREF_POINTS_Y, 5, z_values[0]);
   }
 
   void mesh_bed_leveling::reset() {
     z_offset = 0;
     ZERO(z_values);
     #if ENABLED(EXTENSIBLE_UI)
-      GRID_LOOP(x, y) ExtUI::onMeshUpdate(x, y, 0);
+      GRID_LOOP_COND(x, y) ExtUI::onMeshUpdate(x, y, 0);
     #endif
   }
 
