@@ -352,26 +352,33 @@ void Endstops::event_handler() {
       );
     #endif
 
-    #define _ENDSTOP_SET_POS(A) do { \
-      if (TERN0(HAS_##A##_MIN_STATE, TEST(hit_state, ES_ENUM(A,MIN)))) { \
-        motion.position[_AXIS(A)] = motion.base_min_pos(_AXIS(A)); \
-        motion.destination[_AXIS(A)] = motion.position[_AXIS(A)];  \
-      } \
-      if (TERN0(HAS_##A##_MAX_STATE, TEST(hit_state, ES_ENUM(A,MAX)))) { \
-        motion.position[_AXIS(A)] = motion.base_max_pos(_AXIS(A)) + (TERN0(HAS_TOOL_CENTERPOINT_CONTROL, motion.tool_centerpoint_control) || TERN1(HAS_TOOL_LENGTH_COMPENSATION, motion.simple_tool_length_compensation)) ? motion.hotend_offset[motion.extruder][_AXIS(A)] : 0.0f; \
-        motion.destination[_AXIS(A)] = motion.position[_AXIS(A)]; \
-      } \
-    } while(0);
-
+    #if HAS_BED_PROBE && ENABLED(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN)
+      #define _ENDSTOP_SET_POS(A) do { \
+        if ((!z_probe_enabled) && TERN1(G38_PROBE_TARGET, !G38_move.type) && TERN0(HAS_##A##_MIN_STATE, TEST(hit_state, ES_ENUM(A,MIN)))) { \
+          motion.position[_AXIS(A)] = motion.base_min_pos(_AXIS(A)) + TERN0(HAS_HOME_OFFSET, motion.home_offset[_AXIS(A)]) + TERN0(HAS_HOTEND_OFFSET, motion.hotend_offset[motion.extruder][_AXIS(A)]); \
+          motion.destination[_AXIS(A)] = motion.position[_AXIS(A)];  \
+        } \
+        if (TERN0(HAS_##A##_MAX_STATE, TEST(hit_state, ES_ENUM(A,MAX)))) { \
+          motion.position[_AXIS(A)] = motion.base_max_pos(_AXIS(A)) + TERN0(HAS_HOME_OFFSET, motion.home_offset[_AXIS(A)]) + TERN0(HAS_HOTEND_OFFSET, motion.hotend_offset[motion.extruder][_AXIS(A)]); \
+          motion.destination[_AXIS(A)] = motion.position[_AXIS(A)]; \
+        } \
+      } while(0);
+    #else
+      #define _ENDSTOP_SET_POS(A) do { \
+        if (TERN0(HAS_##A##_MIN_STATE, TEST(hit_state, ES_ENUM(A,MIN)))) { \
+          motion.position[_AXIS(A)] = motion.base_min_pos(_AXIS(A)) + TERN0(HAS_HOME_OFFSET, motion.home_offset[_AXIS(A)]) + TERN0(HAS_HOTEND_OFFSET, motion.hotend_offset[motion.extruder][_AXIS(A)]); \
+          motion.destination[_AXIS(A)] = motion.position[_AXIS(A)];  \
+        } \
+        if (TERN0(HAS_##A##_MAX_STATE, TEST(hit_state, ES_ENUM(A,MAX)))) { \
+          motion.position[_AXIS(A)] = motion.base_max_pos(_AXIS(A)) + TERN0(HAS_HOME_OFFSET, motion.home_offset[_AXIS(A)]) + TERN0(HAS_HOTEND_OFFSET, motion.hotend_offset[motion.extruder][_AXIS(A)]); \
+          motion.destination[_AXIS(A)] = motion.position[_AXIS(A)]; \
+        } \
+      } while(0);
+    #endif
     if (abort_enabled()) {
-      LOGICAL_AXIS_MAP(_ENDSTOP_SET_POS);
+      MAIN_AXIS_MAP(_ENDSTOP_SET_POS);
       if (TERN0(HAS_Z_MAX_STATE, TEST(hit_state, ES_ENUM(Z,MAX)))){
-        if (TERN0(HAS_TOOL_CENTERPOINT_CONTROL, motion.tool_centerpoint_control) || TERN1(HAS_TOOL_LENGTH_COMPENSATION, motion.simple_tool_length_compensation)) {
-          motion.position.z = (Z_MAX_POS) + motion.hotend_offset[motion.extruder].z;
-        }
-        else {
-          motion.position.z = (Z_MAX_POS);
-        }
+        motion.position.z = (Z_MAX_POS) + TERN0(HAS_HOME_OFFSET, motion.home_offset.z) + TERN0(HAS_HOTEND_OFFSET, motion.hotend_offset[motion.extruder].z);
         motion.destination.z = motion.position.z;
       }
       motion.sync_plan_position();
