@@ -562,6 +562,9 @@
 
 #define BOARD_AQUILA_V101             7200  // Voxelab Aquila V1.0.0/1/2/3 (e.g., Aquila X2, C2). ... GD32 Variant Below!
 #define BOARD_CREALITY_ENDER2P_V24S4  7201  // Creality Ender 2 Pro v2.4.S4_170 (HC32f460kcta)
+#define BOARD_TRIGORILLA_F1_V1        7202  // Anycubic TriGorilla F1 V1 - Kobra Max (HC32F460PETB)
+#define BOARD_TRIGORILLA_V306         7203  // Anycubic TriGorilla Gen V3.0.6 - Kobra Neo (HC32F460KETA)
+#define BOARD_TRIGORILLA_V306_GO      7204  // Anycubic TriGorilla Gen V3.0.6 - Kobra Go  (HC32F460KETA)
 
 //
 // GD32 ARM Cortex-M3
