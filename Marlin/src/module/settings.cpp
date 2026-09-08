@@ -490,6 +490,13 @@ typedef struct SettingsDataStruct {
   float planner_volumetric_extruder_limit[EXTRUDERS];   // M200 T L  planner.volumetric_extruder_limit[]
 
   //
+  // Max Print Feedrate
+  //
+  #if HAS_MAX_PRINT_FEEDRATE
+    feedRate_t max_print_feedrate_mm_s;                 // M203 P  planner.max_print_feedrate_mm_s
+  #endif
+
+  //
   // HAS_TRINAMIC_CONFIG
   //
   per_stepper_uint16_t tmc_stepper_current;             // M906 X Y Z...
@@ -1406,6 +1413,13 @@ void MarlinSettings::postprocess() {
     #if ENABLED(EDITABLE_HOMING_CURRENT)
       _FIELD_TEST(homing_current_mA);
       EEPROM_WRITE(homing_current_mA);
+    #endif
+
+    //
+    // Max Print Feedrate
+    //
+    #if HAS_MAX_PRINT_FEEDRATE
+      EEPROM_WRITE(planner.max_print_feedrate_mm_s);
     #endif
 
     //
@@ -2505,6 +2519,13 @@ void MarlinSettings::postprocess() {
       #if ENABLED(EDITABLE_HOMING_CURRENT)
         _FIELD_TEST(homing_current_mA);
         EEPROM_READ(homing_current_mA);
+      #endif
+
+      //
+      // Max Print Feedrate
+      //
+      #if HAS_MAX_PRINT_FEEDRATE
+        EEPROM_READ(planner.max_print_feedrate_mm_s);
       #endif
 
       //
@@ -3640,6 +3661,14 @@ void MarlinSettings::reset() {
     homing_current_mA = base_homing_current_mA;
   #endif
 
+  //
+  // Max Print Feedrate
+  //
+  #if HAS_MAX_PRINT_FEEDRATE
+    planner.max_print_feedrate_mm_s = MAX_PRINT_FEEDRATE_MM_S;
+  #endif
+
+  //
   //
   // Volumetric & Filament Size
   //
