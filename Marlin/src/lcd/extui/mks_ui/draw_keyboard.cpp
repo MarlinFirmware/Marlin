@@ -120,21 +120,21 @@ static void lv_kb_event_cb(lv_obj_t *kb, lv_event_t event) {
       switch (keyboard_value) {
         #if ENABLED(MKS_WIFI_MODULE)
           case wifiName:
-            memcpy(uiCfg.wifi_name, ret_ta_txt, sizeof(uiCfg.wifi_name));
+            memcpy(mks_wifi.ssid, ret_ta_txt, sizeof(mks_wifi.ssid));
             goto_previous_ui();
             break;
           case wifiPassWord:
-            memcpy(uiCfg.wifi_key, ret_ta_txt, sizeof(uiCfg.wifi_name));
+            memcpy(mks_wifi.key, ret_ta_txt, sizeof(mks_wifi.ssid));
             goto_previous_ui();
             break;
           case wifiConfig:
-            ZERO(uiCfg.wifi_name);
-            memcpy((void *)uiCfg.wifi_name, wifi_list.wifiName[wifi_list.nameIndex], 32);
+            ZERO(mks_wifi.ssid);
+            memcpy((void *)mks_wifi.ssid, wifi_list.wifiName[wifi_list.nameIndex], 32);
 
-            ZERO(uiCfg.wifi_key);
-            memcpy((void *)uiCfg.wifi_key, ret_ta_txt, sizeof(uiCfg.wifi_key));
+            ZERO(mks_wifi.key);
+            memcpy((void *)mks_wifi.key, ret_ta_txt, sizeof(mks_wifi.key));
 
-            gCfgItems.wifi_mode_sel = STA_MODEL;
+            mks_wifi.mode = STA_MODEL;
 
             package_to_wifi(WIFI_PARA_SET, nullptr, 0);
 

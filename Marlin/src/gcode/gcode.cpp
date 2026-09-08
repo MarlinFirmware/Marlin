@@ -973,6 +973,10 @@ void GcodeSuite::process_parsed_command(bool no_ok/*=false*/) {
         case 575: M575(); break;                                  // M575: Set serial baudrate
       #endif
 
+      #if ENABLED(MKS_WIFI_MODULE)
+        case 587: M587(); break;                                  // M587: Set/report MKS WiFi network
+      #endif
+
       #if ENABLED(NONLINEAR_EXTRUSION)
         case 592: M592(); break;                                  // M592: Nonlinear Extrusion control
       #endif

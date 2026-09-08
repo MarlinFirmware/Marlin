@@ -36,7 +36,7 @@
  */
 
 // Change EEPROM version if the structure changes
-#define EEPROM_VERSION "V90"
+#define EEPROM_VERSION "V91"
 #define EEPROM_OFFSET 100
 
 // Check the integrity of data offsets.
@@ -50,6 +50,10 @@
 #include "planner.h"
 #include "stepper.h"
 #include "temperature.h"
+
+#if ENABLED(MKS_WIFI_MODULE)
+  #include "../feature/mks_wifi/wifi_module.h"
+#endif
 
 #include "../lcd/marlinui.h"
 #include "../libs/vector_3.h"   // for matrix_3x3
@@ -713,6 +717,13 @@ typedef struct SettingsDataStruct {
   //
   #if ENABLED(GCODE_MACROS_IN_EEPROM)
     char gcode_macros[GCODE_MACROS_SLOTS][GCODE_MACROS_SLOT_SIZE + 1];
+  #endif
+
+  //
+  // MKS_WIFI_MODULE
+  //
+  #if ENABLED(MKS_WIFI_MODULE)
+    mks_wifi_settings_t mks_wifi_settings;              // M587 S P
   #endif
 
 } SettingsData;
@@ -1844,6 +1855,14 @@ void MarlinSettings::postprocess() {
     #if ENABLED(GCODE_MACROS_IN_EEPROM)
       _FIELD_TEST(gcode_macros);
       EEPROM_WRITE(gcode.macros);
+    #endif
+
+    //
+    // MKS WiFi module
+    //
+    #if ENABLED(MKS_WIFI_MODULE)
+      _FIELD_TEST(mks_wifi_settings);
+      EEPROM_WRITE(mks_wifi);
     #endif
 
     //
@@ -3021,6 +3040,14 @@ void MarlinSettings::postprocess() {
       #endif
 
       //
+      // MKS WiFi module
+      //
+      #if ENABLED(MKS_WIFI_MODULE)
+        _FIELD_TEST(mks_wifi_settings);
+        EEPROM_READ(mks_wifi);
+      #endif
+
+      //
       // Validate Final Size and CRC
       //
       const uint16_t eeprom_total = eeprom_index - (EEPROM_OFFSET);
@@ -3852,6 +3879,11 @@ void MarlinSettings::reset() {
   TERN_(GCODE_MACROS_IN_EEPROM, gcode.reset_macros());
 
   //
+  // MKS WiFi module
+  //
+  TERN_(MKS_WIFI_MODULE, mks_wifi_reset_settings());
+
+  //
   // Hotend Idle Timeout
   //
   TERN_(HOTEND_IDLE_TIMEOUT, hotend_idle.cfg.set_defaults());
@@ -4190,6 +4222,8 @@ void MarlinSettings::reset() {
       gcode.M553_report(forReplay);
       gcode.M554_report(forReplay);
     #endif
+
+    TERN_(MKS_WIFI_MODULE, gcode.M587_report(forReplay));
 
     TERN_(HAS_MULTI_LANGUAGE, gcode.M414_report(forReplay));
 
