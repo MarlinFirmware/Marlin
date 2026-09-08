@@ -2125,10 +2125,9 @@ void mks_esp_wifi_init() {
 
 void mks_wifi_firmware_update() {
   hal.watchdog_refresh();
-  card.openFileRead((char *)ESP_FIRMWARE_FILE);
 
-  if (card.isFileOpen()) {
-    card.closefile();
+  // Just look for it. openFileRead() would select it as the file to print.
+  if (card.fileExists(ESP_FIRMWARE_FILE)) {
 
     wifi_delay(2000);
     hal.watchdog_refresh();
@@ -2156,8 +2155,18 @@ void mks_wifi_firmware_update() {
       }
       SERIAL_ECHOLNPGM("WiFi module updated. Renamed to " ESP_FIRMWARE_FILE_RENAME);
     }
-    else
-      SERIAL_ECHOLNPGM("WiFi module update failed.");
+    else {
+      FSTR_P why;
+      switch (esp_upload.uploadResult) {
+        case connected:  why = F("no response from the ESP bootloader"); break;
+        case timeout:    why = F("timed out"); break;
+        case badReply:   why = F("bad reply"); break;
+        case fileRead:   why = F("SD read error"); break;
+        case emptyFile:  why = F("file is empty"); break;
+        default:         why = F("protocol error"); break;
+      }
+      SERIAL_ECHOLNPGM("WiFi module update failed: ", why);
+    }
 
     MKSW_UI_CLEAR();
   }
