@@ -49,7 +49,28 @@
 //
 // MKS WIFI MODULE
 //
+// Two jumper blocks left of the U-Disk port share these signals with the USB
+// host, marked 'WiFi (L)' and 'OTA (R)' on the silkscreen. Jumper them left for
+// the WiFi module, right for a USB flash drive - they can't both be connected:
+//
+//        1x3  - CS select
+//   WIFI_CS      PD11      E4_UART_CS
+//      1           2            3
+//
+//        2x3  - data select
+//   WIFI_IO1   OTG_HS_DP      OTG_DP
+//      5           3            1
+//   WIFI_IO0   OTG_HS_DM      OTG_DM
+//      6           4            2
+//
+// With the blocks set right the module still powers up and talks on its own
+// UART, but WIFI_IO0 never reaches it, so it can't be put into its bootloader
+// and 'MksWifi.bin' updates fail to connect.
+//
 #if ENABLED(MKS_WIFI_MODULE)
+  #if ENABLED(USB_FLASH_DRIVE_SUPPORT)
+    #error "MKS_WIFI_MODULE and USB_FLASH_DRIVE_SUPPORT share jumpered pins on MKS Monster8 V2. Enable only one."
+  #endif
   #define WIFI_SERIAL_PORT                     1  // USART1
   #define WIFI_IO0_PIN                      PB14  // MKS ESP WIFI IO0 PIN
   #define WIFI_IO1_PIN                      PB15  // MKS ESP WIFI IO1 PIN

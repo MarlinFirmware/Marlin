@@ -270,7 +270,7 @@
  * M554 - Set / Report IP gateway. (Requires enabled Ethernet port)
  * M569 - Enable stealthChop on an axis. (Requires *_DRIVER_TYPE TMC(2130|2160|2208|2209|2240|5130|5160))
  * M575 - Change the serial baud rate. (Requires BAUD_RATE_GCODE)
- * M587 - Set / Report MKS WiFi module network settings. (Requires MKS_WIFI_MODULE)
+ * M587 - Set / Report MKS WiFi network. 'U' to update the module firmware. (Requires MKS_WIFI_MODULE)
  * M592 - Set / Report Nonlinear Extrusion parameters. (Requires NONLINEAR_EXTRUSION)
  * M593 - Set / Report input shaping parameters. (Requires INPUT_SHAPING_[XY])
  * M600 - Pause for filament change: 'M600 X<pos> Y<pos> Z<raise> E<first_retract> L<later_retract>'. (Requires ADVANCED_PAUSE_FEATURE)
