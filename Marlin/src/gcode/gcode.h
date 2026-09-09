@@ -109,6 +109,8 @@
  *        The '#' is necessary when calling from within sd files, as it stops buffer prereading
  * M33  - Get the longname version of a path. (Requires LONG_FILENAME_HOST_SUPPORT)
  * M34  - Set SD Card sorting options. (Requires SDCARD_SORT_ALPHA)
+ * M35  - Report the POSIX cksum CRC and size of an SD file. The pathname uses
+ *        the same syntax and lookup rules as M23. (Requires SD_FILE_CHECKSUM)
  *
  * M42  - Change pin status via G-code: M42 P<pin> S<value>. LED pin assumed if P is omitted. (Requires DIRECT_PIN_CONTROL)
  * M43  - Display pin status, watch pins for changes, watch endstops & toggle LED, Z servo probe test, toggle pins (Requires PINS_DEBUGGING)
@@ -716,6 +718,9 @@ private:
     #endif
     #if ALL(SDCARD_SORT_ALPHA, SDSORT_GCODE)
       static void M34();
+    #endif
+    #if ENABLED(SD_FILE_CHECKSUM)
+      static void M35();
     #endif
   #endif
 
