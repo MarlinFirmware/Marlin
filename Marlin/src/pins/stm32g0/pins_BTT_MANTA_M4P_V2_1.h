@@ -108,15 +108,16 @@
 
 //
 // Default pins for TMC software SPI
+// SPI1 level-shifted to the driver sockets and shared with the onboard SD card
 //
 #ifndef TMC_SPI_MOSI
-  #define TMC_SPI_MOSI                      PB15
+  #define TMC_SPI_MOSI                      PA7
 #endif
 #ifndef TMC_SPI_MISO
-  #define TMC_SPI_MISO                      PB14
+  #define TMC_SPI_MISO                      PA6
 #endif
 #ifndef TMC_SPI_SCK
-  #define TMC_SPI_SCK                       PB13
+  #define TMC_SPI_SCK                       PA5
 #endif
 
 #if HAS_TMC_UART
