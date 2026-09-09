@@ -24,7 +24,7 @@
 
 #include "../../../inc/MarlinConfig.h"
 
-#if ALL(HAS_MARLINUI_U8GLIB, FORCE_SOFT_SPI)
+#if ALL(HAS_MARLINUI_U8GLIB, LCD_USE_SOFT_SPI)
 
 #include <U8glib-HAL.h>
 #include "../../shared/HAL_SPI.h"
@@ -125,5 +125,5 @@ uint8_t u8g_com_HAL_MFL_sw_spi_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_val, void
   return 1;
 }
 
-#endif // HAS_MARLINUI_U8GLIB && FORCE_SOFT_SPI
+#endif // HAS_MARLINUI_U8GLIB && LCD_USE_SOFT_SPI
 #endif // ARDUINO_ARCH_MFL

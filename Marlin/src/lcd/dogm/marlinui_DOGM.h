@@ -246,8 +246,12 @@
 
 #endif
 
-#if defined(DOGM_FORCE_SOFT_SPI) && !defined(FORCE_SOFT_SPI)
+// Some displays require soft SPI. Conditionals-5-post.h covers the other cases.
+#if defined(DOGM_FORCE_SOFT_SPI) && !defined(FORCE_SOFT_SPI) && !defined(LCD_FORCE_SOFT_SPI)
   #define FORCE_SOFT_SPI
+  #ifndef LCD_USE_SOFT_SPI
+    #define LCD_USE_SOFT_SPI 1
+  #endif
 #endif
 #undef DOGM_FORCE_SOFT_SPI
 
@@ -255,7 +259,7 @@
 #ifndef U8G_PARAM
   #if IS_I2C_LCD
     #define U8G_PARAM U8G_I2C_OPT_NONE                              // I2C LCD
-  #elif ENABLED(FORCE_SOFT_SPI)
+  #elif ENABLED(LCD_USE_SOFT_SPI)
     #define U8G_PARAM DOGLCD_SCK, DOGLCD_MOSI, DOGLCD_CS, DOGLCD_A0 // SW-SPI
   #else
     #define U8G_PARAM DOGLCD_CS, DOGLCD_A0                          // HW-SPI
