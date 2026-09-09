@@ -124,6 +124,9 @@ uint8_t MarlinHAL::get_reset_source() {
     #ifdef RCC_FLAG_IWDG2RST
       RESET != __HAL_RCC_GET_FLAG(RCC_FLAG_IWDG2RST) ? RST_WATCHDOG :
     #endif
+    #ifdef RCC_FLAG_WWDGRST
+      RESET != __HAL_RCC_GET_FLAG(RCC_FLAG_WWDGRST)  ? RST_WATCHDOG :
+    #endif
     #ifdef RCC_FLAG_SFTRST
       RESET != __HAL_RCC_GET_FLAG(RCC_FLAG_SFTRST)   ? RST_SOFTWARE :
     #endif
@@ -132,6 +135,9 @@ uint8_t MarlinHAL::get_reset_source() {
     #endif
     #ifdef RCC_FLAG_PORRST
       RESET != __HAL_RCC_GET_FLAG(RCC_FLAG_PORRST)   ? RST_POWER_ON :
+    #endif
+    #ifdef RCC_FLAG_PWRRST // STM32G0/G4/L4/... combine BOR and POR/PDR in one flag
+      RESET != __HAL_RCC_GET_FLAG(RCC_FLAG_PWRRST)   ? RST_POWER_ON :
     #endif
     0
   );
