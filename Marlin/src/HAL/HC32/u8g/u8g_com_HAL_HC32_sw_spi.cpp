@@ -24,7 +24,7 @@
 
 #include "../../../inc/MarlinConfig.h"
 
-#if ALL(HAS_MARLINUI_U8GLIB, FORCE_SOFT_SPI)
+#if HAS_MARLINUI_U8GLIB && defined(DOGLCD_SCK) && defined(DOGLCD_MOSI) && defined(DOGLCD_A0) && defined(DOGLCD_CS)
 
 #warning "Software SPI for U8Glib is experimental on HC32F460. Please share your experiences at https://github.com/shadow578/Marlin-H32/issues/35"
 
@@ -159,5 +159,5 @@ uint8_t u8g_com_HAL_HC32_sw_spi_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_val, voi
   return 1;
 }
 
-#endif // HAS_MARLINUI_U8GLIB && FORCE_SOFT_SPI
+#endif // HAS_MARLINUI_U8GLIB && DOGLCD_SCK && DOGLCD_MOSI && DOGLCD_A0 && DOGLCD_CS
 #endif // ARDUINO_ARCH_HC32
