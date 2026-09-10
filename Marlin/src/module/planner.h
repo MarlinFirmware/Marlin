@@ -53,6 +53,10 @@
 #include "motion.h"
 #include "../gcode/queue.h"
 
+#if HAS_FAN
+  #include "temperature.h"
+#endif
+
 #if ENABLED(DELTA)
   #include "delta.h"
 #elif ENABLED(POLARGRAPH)
@@ -349,7 +353,7 @@ typedef struct PlannerBlock {
   #endif
 
   #if HAS_FAN
-    uint8_t fan_speed[FAN_COUNT];
+    uint8_t fan_speed[FAN_COUNT];           // Speeds of all fans
   #endif
 
   #if ENABLED(BARICUDA)
@@ -733,16 +737,6 @@ class Planner {
 
     #if ENABLED(AUTOTEMP)
       static float get_high_e_speed();
-    #endif
-
-    // Apply fan speeds
-    #if HAS_FAN
-      static void sync_fan_speeds(uint8_t (&fan_speed)[FAN_COUNT]);
-      #if FAN_KICKSTART_TIME
-        static void kickstart_fan(uint8_t (&fan_speed)[FAN_COUNT], const millis_t &ms, const uint8_t f);
-      #else
-        FORCE_INLINE static void kickstart_fan(uint8_t (&)[FAN_COUNT], const millis_t &, const uint8_t) {}
-      #endif
     #endif
 
     #if ENABLED(FILAMENT_WIDTH_SENSOR)
