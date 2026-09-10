@@ -1799,7 +1799,7 @@
   //#define BD_PRESSURE_PROBE             // Set the trigger threshold and re-tare before probing
   #if ENABLED(BD_PRESSURE_PROBE)
     #define BD_PRESSURE_THRESHOLD      4  // Probe trigger threshold
-    #define BD_PRESSURE_PROBE_SETTLE_MS 250 // (ms) Strain gauge settling time after a tare
+    #define BD_PRESSURE_PROBE_SETTLE_MS 250 // (ms) Quiet time before taring, so the baseline average is clean
   #endif
 
   //#define BD_PRESSURE_PA                // Automatic Pressure Advance calibration (M900 C). Needs LIN_ADVANCE.
