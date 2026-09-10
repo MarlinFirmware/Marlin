@@ -32,3 +32,28 @@
 #if ALL(STM32F4xx, FLASH_EEPROM_EMULATION) && PRINTCOUNTER_SAVE_INTERVAL > 0
   #define PRINTCOUNTER_SYNC
 #endif
+
+/**
+ * A DOGM display on its own hardware SPI bus
+ *
+ * The u8g hardware-SPI driver uses the shared 'SPI' object, which the SD card
+ * repoints to its own pins, so a display on other pins has to bit-bang instead.
+ * Where a board declares its display header's SPI pins and the configured
+ * DOGLCD pins match them, the display can be given a dedicated SPI instance
+ * and keep hardware SPI.
+ *
+ * There is no portable way to ask whether a pin is SPI-capable - the pin map is
+ * a runtime table - so this relies on the board saying so. Boards opt in by
+ * defining LCD_SPI_SCK_PIN / LCD_SPI_MOSI_PIN / LCD_SPI_MISO_PIN. e.g., MKS Robin Nano V3
+ */
+#if defined(DOGLCD_SCK) && defined(DOGLCD_MOSI)
+  #if defined(LCD_SPI_SCK_PIN) && defined(LCD_SPI_MOSI_PIN) && defined(LCD_SPI_MISO_PIN) \
+      && DOGLCD_SCK == LCD_SPI_SCK_PIN && DOGLCD_MOSI == LCD_SPI_MOSI_PIN
+    #define HAS_DOGLCD_HW_SPI 1
+    #define DOGLCD_MISO LCD_SPI_MISO_PIN
+  #elif defined(PIN_SPI_SCK) && defined(PIN_SPI_MOSI) && defined(PIN_SPI_MISO) \
+      && DOGLCD_SCK == PIN_SPI_SCK && DOGLCD_MOSI == PIN_SPI_MOSI
+    #define HAS_DOGLCD_HW_SPI 1
+    #define DOGLCD_MISO PIN_SPI_MISO
+  #endif
+#endif // DOGLCD_SCK && DOGLCD_MOSI
