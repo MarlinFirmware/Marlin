@@ -105,6 +105,7 @@ public:
 
 private:
   static bool online;
+  static uint8_t mode;    // Last BDPMode written, to avoid needless ADC re-inits
 
   // Transport
   static bool write_reg(const uint8_t reg, const uint8_t * const data, const uint8_t len);

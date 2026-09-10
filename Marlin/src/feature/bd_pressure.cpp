@@ -29,15 +29,17 @@
 #include "../HAL/shared/Delay.h"
 #include "../MarlinCore.h"
 
+#include "../module/planner.h"
+
 #if ENABLED(BD_PRESSURE_PA)
   #include "../gcode/gcode.h"
   #include "../module/motion.h"
-  #include "../module/planner.h"
   #include "../module/temperature.h"
 #endif
 
 BDPressure bdp;
-bool BDPressure::online; // = false
+bool BDPressure::online;  // = false
+uint8_t BDPressure::mode; // = 0 (neither, so the first probe_prep always writes)
 
 //#define DEBUG_OUT_BD_PRESSURE
 #define DEBUG_OUT ENABLED(DEBUG_OUT_BD_PRESSURE)
@@ -224,6 +226,7 @@ bool BDPressure::init() {
   #if ENABLED(BD_PRESSURE_PROBE)
     write_reg(BDP_REG_MODE, BDP_MODE_PROBE);
     write_reg(BDP_REG_THRESHOLD, BD_PRESSURE_THRESHOLD);
+    mode = BDP_MODE_PROBE;
   #endif
 
   return true;
@@ -245,12 +248,27 @@ void BDPressure::report() {
 
   void BDPressure::probe_prep() {
     if (!online) return;
-    // Not redundant: a PA calibration leaves the module in PA mode, where
-    // Pressure_advance() runs instead of process_triggered() and the endstop
-    // output stops being driven at all.
-    write_reg(BDP_REG_MODE, BDP_MODE_PROBE);
-    write_reg(BDP_REG_THRESHOLD, BD_PRESSURE_THRESHOLD);
+
+    // Only write the mode when it actually changes. Writing status_clk makes
+    // the module re-initialize its ADS1220, which then needs time to settle -
+    // pointless before every probe point. A PA calibration is what leaves it in
+    // PA mode, where Pressure_advance() runs instead of process_triggered() and
+    // the endstop output stops being driven at all.
+    if (mode != BDP_MODE_PROBE) {
+      write_reg(BDP_REG_MODE, BDP_MODE_PROBE);
+      write_reg(BDP_REG_THRESHOLD, BD_PRESSURE_THRESHOLD);
+      mode = BDP_MODE_PROBE;
+      safe_delay(BD_PRESSURE_PROBE_SETTLE_MS);
+    }
+
+    // Tare with the machine at rest, as Klipper's PA_RESET does with its M400.
+    // Taring mid-move captures the moving load as the baseline.
+    planner.synchronize();
     write_reg(BDP_REG_TARE, BDP_TARE_NOW);
+
+    // Let the strain gauge settle before probing. Users report this matters
+    // for repeatability; the reference macro leans on repeated resets instead.
+    safe_delay(BD_PRESSURE_PROBE_SETTLE_MS);
   }
 
 #endif // BD_PRESSURE_PROBE
@@ -354,6 +372,7 @@ void BDPressure::calibrate(const float step, const uint8_t passes) {
 
   write_reg(BDP_REG_MODE, BDP_MODE_PA);
   write_reg(BDP_REG_RAW_OUT, 0);
+  mode = BDP_MODE_PA;
 
   // Prime the nozzle in place, at a controlled speed.
   extrude_to(motion.position.x, motion.position.y, e_purge, fr_low);
