@@ -71,6 +71,9 @@ uint8_t BDPressure::mode; // = 0 (neither, so the first probe_prep always writes
 // Bit periods to wait for the slave to release a stretched clock.
 #define BDP_STRETCH_TIMEOUT 2000
 
+// (ms) Time for the module's main loop to act on a tare request
+#define BDP_TARE_LATENCY_MS 20
+
 #define BDP_I2C_READ  1
 #define BDP_I2C_WRITE 0
 
@@ -261,14 +264,21 @@ void BDPressure::report() {
       safe_delay(BD_PRESSURE_PROBE_SETTLE_MS);
     }
 
-    // Tare with the machine at rest, as Klipper's PA_RESET does with its M400.
-    // Taring mid-move captures the moving load as the baseline.
+    // The tare is not an instantaneous reading. find_normal_endstop() sets the
+    // baseline to the mean of the last 30 samples already in the module's
+    // buffer (main.c:340-345), and the main loop calls it with force=1, so the
+    // usual "too noisy to tare" check is bypassed (main.c:338). Whatever is in
+    // that window becomes the baseline, disturbance included.
+    //
+    // So the settling time belongs BEFORE the write, not after: stop the
+    // machine, wait for the buffer to refill with quiet samples, then tare.
     planner.synchronize();
+    safe_delay(BD_PRESSURE_PROBE_SETTLE_MS);
     write_reg(BDP_REG_TARE, BDP_TARE_NOW);
 
-    // Let the strain gauge settle before probing. Users report this matters
-    // for repeatability; the reference macro leans on repeated resets instead.
-    safe_delay(BD_PRESSURE_PROBE_SETTLE_MS);
+    // The write only raises a flag; the module's main loop consumes it and
+    // clears it to 2 (main.c:514-518). Give it a moment to actually run.
+    safe_delay(BDP_TARE_LATENCY_MS);
   }
 
 #endif // BD_PRESSURE_PROBE
