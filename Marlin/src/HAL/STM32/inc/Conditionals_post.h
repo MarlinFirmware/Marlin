@@ -44,13 +44,13 @@
  *
  * There is no portable way to ask whether a pin is SPI-capable - the pin map is
  * a runtime table - so this relies on the board saying so. Boards opt in by
- * defining LCD_SPI_SCK_PIN / LCD_SPI_MOSI_PIN / LCD_SPI_MISO_PIN. e.g., MKS Robin Nano V3
+ * defining LCD_HW_SPI_SCK_PIN / LCD_HW_SPI_MOSI_PIN / LCD_HW_SPI_MISO_PIN. e.g., MKS Robin Nano V3
  */
 #if defined(DOGLCD_SCK) && defined(DOGLCD_MOSI)
-  #if defined(LCD_SPI_SCK_PIN) && defined(LCD_SPI_MOSI_PIN) && defined(LCD_SPI_MISO_PIN) \
-      && DOGLCD_SCK == LCD_SPI_SCK_PIN && DOGLCD_MOSI == LCD_SPI_MOSI_PIN
+  #if defined(LCD_HW_SPI_SCK_PIN) && defined(LCD_HW_SPI_MOSI_PIN) && defined(LCD_HW_SPI_MISO_PIN) \
+      && DOGLCD_SCK == LCD_HW_SPI_SCK_PIN && DOGLCD_MOSI == LCD_HW_SPI_MOSI_PIN
     #define HAS_DOGLCD_HW_SPI 1
-    #define DOGLCD_MISO LCD_SPI_MISO_PIN
+    #define DOGLCD_MISO LCD_HW_SPI_MISO_PIN
   #elif defined(PIN_SPI_SCK) && defined(PIN_SPI_MOSI) && defined(PIN_SPI_MISO) \
       && DOGLCD_SCK == PIN_SPI_SCK && DOGLCD_MOSI == PIN_SPI_MOSI
     #define HAS_DOGLCD_HW_SPI 1

@@ -51,7 +51,7 @@
 
 // MISO is unused by the display, but the STM32 core refuses to bring up an SPI
 // peripheral whose MISO pin has no peripheral mapping (spi_com.c), so it has to
-// be a real pin on the same peripheral. Boards supply it as LCD_SPI_MISO_PIN.
+// be a real pin on the same peripheral. Boards supply it as LCD_HW_SPI_MISO_PIN.
 static SPIClass lcdSPI(DOGLCD_MOSI, DOGLCD_MISO, DOGLCD_SCK);
 static SPISettings spiConfig;
 
