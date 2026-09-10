@@ -263,6 +263,14 @@
 #define EXP2_08_PIN                         -1    // RESET
 
 //
+// The EXP2 header is wired to SPI1, whether or not the SD card is on it.
+// Declaring the pins lets a display on this header use hardware SPI.
+//
+#define LCD_SPI_SCK_PIN              EXP2_02_PIN  // PA5
+#define LCD_SPI_MISO_PIN             EXP2_01_PIN  // PA6
+#define LCD_SPI_MOSI_PIN             EXP2_06_PIN  // PA7
+
+//
 // SPI SD Card
 //
 #if SD_CONNECTION_IS(LCD)
