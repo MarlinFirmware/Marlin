@@ -140,6 +140,9 @@ void menu_backlash();
 
     #if ENABLED(NONLINEAR_EXTRUSION)
       EDIT_ITEM(bool, MSG_NLE_ON, &stepper.nle.settings.enabled);
+      EDIT_ITEM_FAST(float54, MSG_NLE_A, &stepper.nle.settings.coeff.A, 0.0f, 1.0f); //Quadratic coefficient
+      EDIT_ITEM_FAST(float54, MSG_NLE_B, &stepper.nle.settings.coeff.B, 0.0f, 1.0f); //Linear coefficient
+      EDIT_ITEM_FAST(float32, MSG_NLE_C, &stepper.nle.settings.coeff.C, 0.0f, 1.0f); //Constant coefficient
     #endif
 
     #if HAS_VOLUMETRIC_EXTRUSION

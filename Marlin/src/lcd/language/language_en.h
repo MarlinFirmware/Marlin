@@ -852,6 +852,9 @@ namespace LanguageNarrow_en {
   LSTR MSG_ADVANCE_TAU                    = _UxGT("Advance Tau");
   LSTR MSG_ADVANCE_TAU_E                  = _UxGT("Advance Tau *");
   LSTR MSG_NLE_ON                         = _UxGT("NLE enabled");
+  LSTR MSG_NLE_A                          = _UxGT("-Quadratic");
+  LSTR MSG_NLE_B                          = _UxGT("-Linear");
+  LSTR MSG_NLE_C                          = _UxGT("-Constant");
   LSTR MSG_HOTEND_TEMP_GRAPH              = _UxGT("Hotend Temp Graph");
   LSTR MSG_BED_TEMP_GRAPH                 = _UxGT("Bed Temp Graph");
   LSTR MSG_EEPROM_INITIALIZED             = _UxGT("EEPROM Initialized");

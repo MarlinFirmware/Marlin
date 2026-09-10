@@ -819,6 +819,9 @@ namespace LanguageNarrow_it {
   LSTR MSG_LINEAR_ADVANCE                 = _UxGT("Avanzam.lineare");                          // Linear Advance
   LSTR MSG_ADVANCE_TAU                    = _UxGT("Tau advance");                              // Advance Tau
   LSTR MSG_ADVANCE_TAU_E                  = _UxGT("Tau advance *");                            // Advance Tau *
+  LSTR MSG_NLE_A                          = _UxGT("-Quadratico");                              // Quadratic
+  LSTR MSG_NLE_B                          = _UxGT("-Lineare");                                 // Linear
+  LSTR MSG_NLE_C                          = _UxGT("-Costante");                                // Constant
   LSTR MSG_NLE_ON                         = _UxGT("NLE abilitato");                            // NLE enabled
   LSTR MSG_HOTEND_TEMP_GRAPH              = _UxGT("Grafico temp.ugello");                      // Hotend Temp Graph
   LSTR MSG_BED_TEMP_GRAPH                 = _UxGT("Grafico temp.piatto");                      // Bed Temp Graph
