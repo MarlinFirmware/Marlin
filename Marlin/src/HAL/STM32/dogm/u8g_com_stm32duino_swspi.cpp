@@ -34,8 +34,8 @@
 static inline uint8_t swSpiTransfer_mode_0(uint8_t b) {
   for (uint8_t i = 0; i < 8; ++i) {
     const uint8_t state = (b & 0x80) ? HIGH : LOW;
-    WRITE(DOGLCD_SCK, HIGH);
     WRITE(DOGLCD_MOSI, state);
+    WRITE(DOGLCD_SCK, HIGH);      // Slave samples MOSI on the rising edge
     b <<= 1;
     WRITE(DOGLCD_SCK, LOW);
   }
