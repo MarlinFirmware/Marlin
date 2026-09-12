@@ -100,7 +100,6 @@ bool update_sd = false;  // Flag to update the file list
 bool lcd_sd_status;   // SD-card status. true = SD available
 
 int16_t FilenamesCount = 0;
-char cmdbuf[20] = { 0 };
 float filament_load_0 = 10.0f;
 float XoffsetValue;
 
@@ -1137,8 +1136,6 @@ void RTS::handleData() {
           sprintf_P(cmd, M23_STR, cardRec.filename[cardRec.recordcount]);
           for (c = &cmd[4]; *c; c++) *c = tolower(*c);
 
-          ZERO(cmdbuf);
-          strncpy(cmdbuf, cmd, 20);
           FilenamesCount = cardRec.recordcount;
 
           #if ENABLED(CHECKFILAMENT)
