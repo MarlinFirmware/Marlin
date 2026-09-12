@@ -47,6 +47,16 @@ char *GCodeParser::command_ptr,
 char GCodeParser::command_letter;
 uint16_t GCodeParser::codenum;
 
+#if ENABLED(AUTO_FIRST_LAYER_Z_ADJUST)
+  bool GCodeParser::first_layer_detected = false;
+  bool GCodeParser::aflza_active = false;
+  bool GCodeParser::aflza_applied = false;
+  float GCodeParser::aflza_delta = 0.0f;
+  float GCodeParser::calibrated_first_layer_height;
+  slicer_id_t GCodeParser::slicer_type = SLICER_UNKNOWN;
+  bool GCodeParser::z_hop = true;
+#endif
+
 #if USE_GCODE_SUBCODES
   uint8_t GCodeParser::subcode;
 #endif
@@ -375,6 +385,38 @@ void GCodeParser::parse(char *p) {
       while (*p == ' ') p++;                    // Skip over all spaces
     }
   }
+
+  #if ENABLED(AUTO_FIRST_LAYER_Z_ADJUST)
+
+    #define AFLZA_SAFETY_MARGIN 0.05f // Safety margin to ensure the first layer is not too squished
+
+    if (aflza_active && !first_layer_detected && !aflza_applied) {
+      // Filter to search the first occurrence of Z alone
+      if (seen("XYE")) return;
+
+      // Z alone, test for G0 or G1
+      if (letter == 'G' && (codenum == 0 || codenum == 1)) {
+        // Consider the second G-code with Z alone (with Orca Slicer)
+        if (z_hop) { z_hop = false; return; }
+
+        const float z = value_linear_units();
+
+        // Consider the maximum layer height of 0.80mm (1.00mm nozzle)
+        if (z < 0.80f) {
+          aflza_delta = z - calibrated_first_layer_height;
+
+          // Don't apply if delta is lower or equal to the margin
+          if (ABS(aflza_delta) <= AFLZA_SAFETY_MARGIN)
+            aflza_applied = true;
+          else {
+            aflza_delta += AFLZA_SAFETY_MARGIN;
+            first_layer_detected = true;
+          }
+        }
+      }
+    }
+
+  #endif // AUTO_FIRST_LAYER_Z_ADJUST
 }
 
 #if ENABLED(CNC_COORDINATE_SYSTEMS)

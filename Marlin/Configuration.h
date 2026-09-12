@@ -1988,6 +1988,20 @@
 //#define W_MAX_POS 50
 
 /**
+ * Automatic first-layer Z-offset adjustment
+ *
+ * When enabled, Marlin will automatically apply a one-time live Z-offset correction.
+ * Z-offset correction is the difference between calibrated layer height and the first layer height specified in slicer.
+ * For example, if the first layer height is 0.2mm but the calibrated layer height is 0.3mm, calculated offset is -0.1mm,
+ * which means the nozzle needs to be 0.1mm closer to the bed.
+ */
+//#define AUTO_FIRST_LAYER_Z_ADJUST
+#if ENABLED(AUTO_FIRST_LAYER_Z_ADJUST)
+  #define CALIBRATED_FIRST_LAYER_Z_HEIGHT 0.3f    // (mm) Pre-calibrated assumed first layer height
+  //#define DEFAULT_SLICER UNKNOWN                // :[ 'UNKNOWN', 'ORCA', 'PRUSA' ]
+#endif
+
+/**
  * Software Endstops
  *
  * - Prevent moves outside the set machine bounds.

@@ -241,6 +241,15 @@ typedef struct SettingsDataStruct {
   #endif
 
   //
+  // First Layer Height Compensation
+  //
+  #if ENABLED(AUTO_FIRST_LAYER_Z_ADJUST)
+    float calibrated_first_layer_height;                // M420 H parser.calibrated_first_layer_height
+    bool aflza_active;                                  // M420 S parser.aflza_active
+    uint8_t slicer_type;                                // M429 O parser.slicer_type
+  #endif
+
+  //
   // Hotend Offset
   //
   #if HAS_HOTEND_OFFSET
@@ -960,6 +969,20 @@ void MarlinSettings::postprocess() {
     #endif // NUM_AXES
 
     //
+    // First Layer Height Compensation
+    //
+
+    #if ENABLED(AUTO_FIRST_LAYER_Z_ADJUST)
+    {
+      _FIELD_TEST(calibrated_first_layer_height);
+      EEPROM_WRITE(parser.calibrated_first_layer_height);
+      _FIELD_TEST(aflza_active);
+      EEPROM_WRITE(parser.aflza_active);
+      _FIELD_TEST(slicer_type);
+      EEPROM_WRITE(parser.slicer_type);
+    }
+    #endif
+
     // Hotend Offsets
     //
     {
@@ -2033,6 +2056,21 @@ void MarlinSettings::postprocess() {
         #endif
       }
       #endif // NUM_AXES
+
+      //
+      // First Layer Height Compensation
+      //
+
+      #if ENABLED(AUTO_FIRST_LAYER_Z_ADJUST)
+      {
+        _FIELD_TEST(aflza_active);
+        EEPROM_READ(parser.aflza_active);
+        _FIELD_TEST(calibrated_first_layer_height);
+        EEPROM_READ(parser.calibrated_first_layer_height);
+        _FIELD_TEST(slicer_type);
+        EEPROM_READ(parser.slicer_type);
+      }
+      #endif
 
       //
       // Hotend Offsets
@@ -3388,6 +3426,16 @@ void MarlinSettings::reset() {
   #endif
 
   //
+  // First Layer Height
+  //
+  #if ENABLED(AUTO_FIRST_LAYER_Z_ADJUST)
+    parser.calibrated_first_layer_height = CALIBRATED_FIRST_LAYER_Z_HEIGHT;
+    parser.aflza_active = false;
+    parser.slicer_type = SlicerType::DEFAULT_SLICER;
+    parser.z_hop = SlicerType::ORCA == SlicerType::DEFAULT_SLICER;
+  #endif
+
+  //
   // Hotend Offsets
   //
   TERN_(HAS_HOTEND_OFFSET, motion.reset_hotend_offsets());
@@ -3999,6 +4047,11 @@ void MarlinSettings::reset() {
       #endif
 
     #endif // HAS_LEVELING
+
+    //
+    // Auto First Layer Z Adjust
+    //
+    TERN_(AUTO_FIRST_LAYER_Z_ADJUST, gcode.M429_report(forReplay));
 
     //
     // X Axis Twist Compensation
