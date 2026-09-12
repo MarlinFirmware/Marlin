@@ -1239,7 +1239,7 @@ void GcodeSuite::process_subcommands_now(FSTR_P fgcode) {
     if (!delim) break;                                // Last command?
     pgcode = delim + 1;                               // Get the next command
   }
-  parser.parse(saved_cmd);                            // Restore the parser state
+  if (saved_cmd) parser.parse(saved_cmd);             // Restore the parser state (if any)
 }
 
 #pragma GCC diagnostic pop
@@ -1255,7 +1255,7 @@ void GcodeSuite::process_subcommands_now(char * gcode) {
     *delim = '\n';                                    // Put back the newline
     gcode = delim + 1;                                // Get the next command
   }
-  parser.parse(saved_cmd);                            // Restore the parser state
+  if (saved_cmd) parser.parse(saved_cmd);             // Restore the parser state (if any)
 }
 
 #if ENABLED(HOST_KEEPALIVE_FEATURE)
