@@ -132,6 +132,10 @@
   #include "feature/bedlevel/bdl/bdl.h"
 #endif
 
+#if ENABLED(BD_PRESSURE)
+  #include "feature/bd_pressure.h"
+#endif
+
 #if ENABLED(POLL_JOG)
   #include "feature/joystick.h"
 #endif
@@ -1716,6 +1720,10 @@ void setup() {
 
   #if ENABLED(BD_SENSOR)
     SETUP_RUN(bdl.init(I2C_BD_SDA_PIN, I2C_BD_SCL_PIN, I2C_BD_DELAY));
+  #endif
+
+  #if ENABLED(BD_PRESSURE)
+    SETUP_RUN(bdp.init());
   #endif
 
   #if HAS_RS485_SERIAL
