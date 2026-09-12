@@ -158,11 +158,12 @@ static bool SetSysClock_PLL_HSE(bool bypass)
     RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
 
     if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_2) == HAL_OK) {
-      PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_ADC | RCC_PERIPHCLK_USB;
       PeriphClkInit.AdcClockSelection = RCC_ADCPCLK2_DIV6;
       PeriphClkInit.UsbClockSelection = RCC_USBCLKSOURCE_PLL_DIV1_5; // 72/1.5 = 48MHz
       #ifndef USBCON
         PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_ADC;
+      #else
+        PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_ADC | RCC_PERIPHCLK_USB;
       #endif
       if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInit) == HAL_OK) {
         ret = true;
@@ -189,11 +190,12 @@ bool SetSysClock_PLL_HSI(void)
   RCC_OscInitStruct.HSICalibrationValue = RCC_HSICALIBRATION_DEFAULT;
   RCC_OscInitStruct.PLL.PLLState        = RCC_PLL_ON;
   RCC_OscInitStruct.PLL.PLLSource       = RCC_PLLSOURCE_HSI_DIV2; // 4 MHz
-  RCC_OscInitStruct.PLL.PLLMUL          = RCC_PLL_MUL12; // 48 MHz
   #ifndef USBCON
     // When the HSI is used as a PLL clock input, the maximum
     // system clock frequency that can be achieved is 64 MHz.
     RCC_OscInitStruct.PLL.PLLMUL        = RCC_PLL_MUL16; // 64 MHz, stay close to 72 for delay()
+  #else
+    RCC_OscInitStruct.PLL.PLLMUL        = RCC_PLL_MUL12; // 48 MHz
   #endif
   if (HAL_RCC_OscConfig(&RCC_OscInitStruct) == HAL_OK) {
     // Initializes the CPU, AHB and APB busses clocks
@@ -206,12 +208,13 @@ bool SetSysClock_PLL_HSI(void)
 
     // FLASH_LATENCY_1 may cause boot loops
     if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_2) == HAL_OK) {
-      PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_ADC | RCC_PERIPHCLK_USB;
-      PeriphClkInit.AdcClockSelection = RCC_ADCPCLK2_DIV4;
       PeriphClkInit.UsbClockSelection = RCC_USBCLKSOURCE_PLL;  // requires 48 MHz
       #ifndef USBCON
         PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_ADC;// No USB, RTC nor I2S
         PeriphClkInit.AdcClockSelection = RCC_ADCPCLK2_DIV6;   // 2 4 6 8
+      #else
+        PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_ADC | RCC_PERIPHCLK_USB;
+        PeriphClkInit.AdcClockSelection = RCC_ADCPCLK2_DIV4;   // Use DIV4 for USB-enabled configuration
       #endif
       if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInit) == HAL_OK) {
         ret = true;

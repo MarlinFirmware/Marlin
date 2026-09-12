@@ -345,7 +345,8 @@ private:
   //
   // Working directory and parents
   //
-  static MediaFile root, workDir, workDirParents[MAX_DIR_DEPTH];
+  static MediaFile root, workDir;
+  static MediaFile workDirParents[MAX_DIR_DEPTH];
   static uint8_t workDirDepth;
   static int16_t nrItems; // Cache the total count
 

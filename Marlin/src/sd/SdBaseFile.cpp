@@ -643,9 +643,9 @@ bool SdBaseFile::open(SdBaseFile * const dirFile, const uint8_t dname[11]
             emptyIndex = 0,
             reqEntriesNum = useLFN ? getLFNEntriesNum((char*)dlname) + 1 : 1,
             lfnNameLength = useLFN ? strlen((char*)dlname) : 0,
-            lfnName[LONG_FILENAME_LENGTH],
             lfnSequenceNumber = 0,
             lfnChecksum = 0;
+    uint8_t lfnName[LONG_FILENAME_LENGTH];
   #endif
 
   // Rewind this dir
