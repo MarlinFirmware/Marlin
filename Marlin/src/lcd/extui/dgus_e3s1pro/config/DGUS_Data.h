@@ -136,7 +136,7 @@ namespace DGUS_Data {
   enum class LevelingCommand : uint16_t {
     Show_Settings_Leveling = 1,
     Show_AuxLeveling = 4,
-    Goto_Center = 5,
+    Goto_CC = 5,
     Goto_LF = 6,
     Goto_RF = 7,
     Goto_RB = 8,

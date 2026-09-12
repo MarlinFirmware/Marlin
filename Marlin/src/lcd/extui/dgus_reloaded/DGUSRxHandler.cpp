@@ -30,6 +30,7 @@
 #include "config/DGUS_ScreenID.h"
 
 #include "../ui_api.h"
+#include "../../tramming.h"
 #include "../../../core/language.h"
 #include "../../../module/temperature.h"
 #include "../../../module/printcounter.h"
@@ -37,6 +38,9 @@
 #include "../../../gcode/queue.h"
 #if ENABLED(ADVANCED_PAUSE_FEATURE)
   #include "../../../feature/pause.h"
+#endif
+#if ENABLED(BED_TRAMMING_USE_PROBE)
+  #include "../../../module/probe.h"
 #endif
 #if ENABLED(POWER_LOSS_RECOVERY)
   #include "../../../feature/powerloss.h"
@@ -77,6 +81,7 @@ void DGUSRxHandler::screenChange(DGUS_VP &vp, void *data_ptr) {
 }
 
 #if HAS_MEDIA
+
   void DGUSRxHandler::scroll(DGUS_VP &vp, void *data_ptr) {
     UNUSED(vp);
 
@@ -84,25 +89,22 @@ void DGUSRxHandler::screenChange(DGUS_VP &vp, void *data_ptr) {
 
     switch (scroll) {
       case DGUS_Data::Scroll::GO_BACK:
-        if (screen.filelist.isAtRootDir()) {
+        if (screen.filelist.isAtRootDir())
           return;
-        }
 
         screen.filelist_offset = 0;
         screen.filelist_selected = -1;
         screen.filelist.upDir();
         break;
       case DGUS_Data::Scroll::UP:
-        if (screen.filelist_offset < 1) {
+        if (screen.filelist_offset < 1)
           return;
-        }
 
         --screen.filelist_offset;
         break;
       case DGUS_Data::Scroll::DOWN:
-        if (screen.filelist_offset + 1 + DGUS_FILE_COUNT > screen.filelist.count()) {
+        if (screen.filelist_offset + 1 + DGUS_FILE_COUNT > screen.filelist.count())
           return;
-        }
 
         ++screen.filelist_offset;
         break;
@@ -116,18 +118,16 @@ void DGUSRxHandler::screenChange(DGUS_VP &vp, void *data_ptr) {
 
     const uint8_t index = ((uint8_t*)data_ptr)[1];
 
-    if (!screen.filelist.seek(screen.filelist_offset + index)) {
+    if (!screen.filelist.seek(screen.filelist_offset + index))
       return;
-    }
 
     if (screen.filelist.isDir()) {
       screen.filelist_offset = 0;
       screen.filelist_selected = -1;
       screen.filelist.changeDir(screen.filelist.filename());
     }
-    else {
+    else
       screen.filelist_selected = screen.filelist_offset + index;
-    }
 
     screen.triggerFullUpdate();
   }
@@ -141,10 +141,8 @@ void DGUSRxHandler::screenChange(DGUS_VP &vp, void *data_ptr) {
       return;
     }
 
-    if (!screen.filelist.seek(screen.filelist_selected)
-        || screen.filelist.isDir()) {
+    if (!screen.filelist.seek(screen.filelist_selected) || screen.filelist.isDir())
       return;
-    }
 
     if (!screen.isPrinterIdle()) {
       screen.setStatusMessage(GET_TEXT_F(DGUS_MSG_BUSY));
@@ -154,6 +152,7 @@ void DGUSRxHandler::screenChange(DGUS_VP &vp, void *data_ptr) {
     ExtUI::printFile(screen.filelist.shortFilename());
     screen.triggerScreenChange(DGUS_ScreenID::PRINT_STATUS);
   }
+
 #endif // HAS_MEDIA
 
 void DGUSRxHandler::printAbort(DGUS_VP &vp, void *data_ptr) {
@@ -161,9 +160,8 @@ void DGUSRxHandler::printAbort(DGUS_VP &vp, void *data_ptr) {
 
   const DGUS_Data::Popup result = (DGUS_Data::Popup)((uint8_t*)data_ptr)[1];
 
-  if (result != DGUS_Data::Popup::CONFIRMED) {
+  if (result != DGUS_Data::Popup::CONFIRMED)
     return;
-  }
 
   if (!ExtUI::isPrinting() && !ExtUI::isPrintingPaused()) {
     screen.triggerFullUpdate();
@@ -178,9 +176,8 @@ void DGUSRxHandler::printPause(DGUS_VP &vp, void *data_ptr) {
 
   const DGUS_Data::Popup result = (DGUS_Data::Popup)((uint8_t*)data_ptr)[1];
 
-  if (result != DGUS_Data::Popup::CONFIRMED) {
+  if (result != DGUS_Data::Popup::CONFIRMED)
     return;
-  }
 
   if (!ExtUI::isPrinting()) {
     screen.triggerFullUpdate();
@@ -195,9 +192,8 @@ void DGUSRxHandler::printResume(DGUS_VP &vp, void *data_ptr) {
 
   const DGUS_Data::Popup result = (DGUS_Data::Popup)((uint8_t*)data_ptr)[1];
 
-  if (result != DGUS_Data::Popup::CONFIRMED) {
+  if (result != DGUS_Data::Popup::CONFIRMED)
     return;
-  }
 
   if (!ExtUI::isPrintingPaused()) {
     screen.triggerFullUpdate();
@@ -443,38 +439,13 @@ void DGUSRxHandler::moveToPoint(DGUS_VP &vp, void *data_ptr) {
     return;
   }
 
-  const uint8_t point = ((uint8_t*)data_ptr)[1];
-  constexpr float lfrb[4] = BED_TRAMMING_INSET_LFRB;
-  float x, y;
-
-  switch (point) {
-    default: return;
-    case 1:
-      x = DGUS_LEVEL_CENTER_X;
-      y = DGUS_LEVEL_CENTER_Y;
-      break;
-    case 2:
-      x = X_MIN_BED + lfrb[0];
-      y = Y_MIN_BED + lfrb[1];
-      break;
-    case 3:
-      x = X_MAX_BED - lfrb[2];
-      y = Y_MIN_BED + lfrb[1];
-      break;
-    case 4:
-      x = X_MAX_BED - lfrb[2];
-      y = Y_MAX_BED - lfrb[3];
-      break;
-    case 5:
-      x = X_MIN_BED + lfrb[0];
-      y = Y_MAX_BED - lfrb[3];
-      break;
-  }
+  const uint8_t point = ((uint8_t*)data_ptr)[1] - 1;
+  const xy_pos_t xy = tram_point_by_index(point);
 
   if (BED_TRAMMING_Z_HOP)
     ExtUI::setAxisPosition_mm(ExtUI::getAxisPosition_mm(ExtUI::Z) + (BED_TRAMMING_Z_HOP), ExtUI::Z);
-  ExtUI::setAxisPosition_mm(x, ExtUI::X);
-  ExtUI::setAxisPosition_mm(y, ExtUI::Y);
+  ExtUI::setAxisPosition_mm(xy.x, ExtUI::X);
+  ExtUI::setAxisPosition_mm(xy.y, ExtUI::Y);
   ExtUI::setAxisPosition_mm((Z_MIN_POS) + (BED_TRAMMING_HEIGHT), ExtUI::Z);
 }
 
@@ -499,12 +470,8 @@ void DGUSRxHandler::probe(DGUS_VP &vp, void *data_ptr) {
 
   screen.triggerScreenChange(DGUS_ScreenID::LEVELING_PROBING);
 
-  #if ENABLED(AUTO_BED_LEVELING_UBL)
-    queue.enqueue_now(F("G29P1\nG29P3\nG29P5C"));
-  #else
-    queue.enqueue_now(F("G29"));
-  #endif
-  queue.enqueue_now(F("M500"));
+  queue.enqueue_now(F(TERN(AUTO_BED_LEVELING_UBL, "G29P1\nG29P3\nG29P5C", "G29")));
+  queue.enqueue_now(F("M500"));   // Save results even if G29 fails
 }
 
 void DGUSRxHandler::disableABL(DGUS_VP &vp, void *data_ptr) {
