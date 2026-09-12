@@ -30,7 +30,7 @@
  * Rev B    16 JUN 2017
  *
  * 1) no longer uses Sanguino files to define some of the pins
- * 2) added pointers to useable Arduino IDE extensions
+ * 2) added pointers to usable Arduino IDE extensions
  */
 
 /**
