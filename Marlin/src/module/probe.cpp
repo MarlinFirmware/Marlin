@@ -504,11 +504,18 @@ FORCE_INLINE void probe_specific_action(const bool deploy) {
       }
     #endif
 
+    #ifdef LEVELING_HEAT_SOAK_TIME
+      DEBUG_ECHOPGM(" and soak for ", LEVELING_HEAT_SOAK_TIME, "s");
+    #endif
+
     DEBUG_EOL();
 
     if (!early) {
       TERN_(WAIT_FOR_NOZZLE_HEAT, if (hotend_temp > thermalManager.wholeDegHotend(0) + (TEMP_WINDOW)) thermalManager.wait_for_hotend(0));
       TERN_(WAIT_FOR_BED_HEAT,    if (bed_temp    > thermalManager.wholeDegBed() + (TEMP_BED_WINDOW)) thermalManager.wait_for_bed_heating());
+      #ifdef LEVELING_HEAT_SOAK_TIME
+        thermalManager.wait_for_heat_soak(LEVELING_HEAT_SOAK_TIME);
+      #endif
     }
   }
 
