@@ -2952,11 +2952,11 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
           case ADVANCED_FILSENSORENABLED:
             if (draw) {
               drawMenuItem(row, ICON_Extruder, GET_TEXT_F(MSG_RUNOUT_SENSOR));
-              drawCheckbox(row, runout.enabled);
+              drawCheckbox(row, runout.monitoring);
             }
             else {
-              FLIP(runout.enabled);
-              drawCheckbox(row, runout.enabled);
+              FLIP(runout.monitoring)
+              drawCheckbox(row, runout.monitoring);
             }
             break;
 
@@ -3951,11 +3951,11 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
           case TUNE_FILSENSORENABLED:
             if (draw) {
               drawMenuItem(row, ICON_Extruder, GET_TEXT_F(MSG_RUNOUT_SENSOR));
-              drawCheckbox(row, runout.enabled);
+              drawCheckbox(row, runout.monitoring);
             }
             else {
-              FLIP(runout.enabled);
-              drawCheckbox(row, runout.enabled);
+              FLIP(runout.monitoring);
+              drawCheckbox(row, runout.monitoring);
             }
             break;
         #endif
