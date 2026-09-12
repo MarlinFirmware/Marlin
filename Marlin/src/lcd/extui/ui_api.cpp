@@ -935,9 +935,11 @@ namespace ExtUI {
       thermalManager.setPID(uint8_t(tool), p, i, d);
     }
 
-    void startPIDTune(const celsius_t temp, extruder_t tool) {
-      thermalManager.PID_autotune(temp, heater_id_t(tool), 8, true);
-    }
+    #if HAS_PID_AUTOTUNE
+      void startPIDTune(const celsius_t temp, extruder_t tool) {
+        thermalManager.PID_autotune(temp, heater_id_t(tool), 8, true);
+      }
+    #endif
   #endif
 
   #if ENABLED(PIDTEMPBED)
@@ -949,9 +951,11 @@ namespace ExtUI {
       thermalManager.temp_bed.pid.set(p, i, d);
     }
 
-    void startBedPIDTune(const celsius_t temp) {
-      thermalManager.PID_autotune(temp, H_BED, 4, true);
-    }
+    #if HAS_PID_AUTOTUNE
+      void startBedPIDTune(const celsius_t temp) {
+        thermalManager.PID_autotune(temp, H_BED, 4, true);
+      }
+    #endif
   #endif
 
   void injectCommands_P(PGM_P const gcode) { queue.inject_P(gcode); }

@@ -1014,7 +1014,7 @@ private:
     static void M302();
   #endif
 
-  #if HAS_PID_HEATING
+  #if HAS_PID_AUTOTUNE
     static void M303();
   #endif
 

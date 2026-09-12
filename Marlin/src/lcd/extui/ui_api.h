@@ -567,7 +567,9 @@ namespace ExtUI {
   #endif
   #if HAS_PID_HEATING
     void onPIDTuning(const pidresult_t rst);
-    void onStartM303(const int count, const heater_id_t hid, const celsius_t temp);
+    #if HAS_PID_AUTOTUNE
+      void onStartM303(const int count, const heater_id_t hid, const celsius_t temp);
+    #endif
   #endif
   #if ENABLED(MPC_AUTOTUNE)
     void onMPCTuning(const mpcresult_t rst);

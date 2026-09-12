@@ -1719,21 +1719,23 @@ void dwinHomingDone() {
 
 #if HAS_PID_HEATING
 
-  void dwinStartM303(const int count, const heater_id_t hid, const celsius_t temp) {
-    hmiData.pidCycles = count;
-    switch (hid) {
-      #if ENABLED(PIDTEMP)
-        case 0 ... HOTENDS - 1: hmiData.hotendPIDT = temp; break;
-      #endif
-      #if ENABLED(PIDTEMPBED)
-        case H_BED: hmiData.bedPIDT = temp; break;
-      #endif
-      #if ENABLED(PIDTEMPCHAMBER)
-        case H_CHAMBER: hmiData.chamberPIDT = temp; break;
-      #endif
-      default: break;
+  #if HAS_PID_AUTOTUNE
+    void dwinStartM303(const int count, const heater_id_t hid, const celsius_t temp) {
+      hmiData.pidCycles = count;
+      switch (hid) {
+        #if ENABLED(PIDTEMP)
+          case 0 ... HOTENDS - 1: hmiData.hotendPIDT = temp; break;
+        #endif
+        #if ENABLED(PIDTEMPBED)
+          case H_BED: hmiData.bedPIDT = temp; break;
+        #endif
+        #if ENABLED(PIDTEMPCHAMBER)
+          case H_CHAMBER: hmiData.chamberPIDT = temp; break;
+        #endif
+        default: break;
+      }
     }
-  }
+  #endif
 
   void dwinPIDTuning(tempcontrol_t result) {
     hmiValue.tempControl = result;
