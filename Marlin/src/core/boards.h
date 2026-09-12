@@ -323,6 +323,12 @@
 #define BOARD_ADSK                    3101  // Arduino DUE Shield Kit (ADSK)
 
 //
+// SAM3U4E ARM Cortex-M3
+//
+
+#define BOARD_4PI                     3200  // 4pi (AT91SAM3U4E)
+
+//
 // STM32 ARM Cortex-M0/+
 //
 

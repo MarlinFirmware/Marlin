@@ -519,6 +519,13 @@
   #include "sam/pins_ADSK.h"                        // SAM3X8C                              env:DUE
 
 //
+// SAM3U4E ARM Cortex-M3
+//
+
+#elif MB(4PI)
+  #include "sam3u/pins_4PI.h"                       // SAM3U4E                              env:4pi
+
+//
 // STM32 ARM Cortex-M0+
 //
 
