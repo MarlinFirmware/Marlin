@@ -3817,7 +3817,12 @@ void Stepper::report_positions() {
     // Start step pulses on all axes including the active Extruder.
     // Edge stepping will simply toggle the STEP pin.
     #define _FTM_STEP_START(A) A##_APPLY_STEP(step_bits.A, false);
-    LOGICAL_AXIS_MAP(_FTM_STEP_START);
+    #if ENABLED(MIXING_EXTRUDER)
+      E_STEP_WRITE(mixer.get_next_stepper(), step_bits.E);
+      MAIN_AXIS_MAP(_FTM_STEP_START);
+    #else
+      LOGICAL_AXIS_MAP(_FTM_STEP_START);
+    #endif
 
     // Apply steps via I2S
     TERN_(I2S_STEPPER_STREAM, i2s_push_sample());
@@ -3853,7 +3858,12 @@ void Stepper::report_positions() {
 
     // Stop pulses. Axes with DEDGE will do nothing, assuming STEP_STATE_* is HIGH
     #define _FTM_STEP_STOP(AXIS) AXIS##_APPLY_STEP(!STEP_STATE_##AXIS, false);
-    LOGICAL_AXIS_MAP(_FTM_STEP_STOP);
+    #if ENABLED(MIXING_EXTRUDER)
+      E_STEP_WRITE(mixer.get_stepper(), !STEP_STATE_E);
+      MAIN_AXIS_MAP(_FTM_STEP_STOP);
+    #else
+      LOGICAL_AXIS_MAP(_FTM_STEP_STOP);
+    #endif
 
   } // Stepper::ftMotion_stepper
 
