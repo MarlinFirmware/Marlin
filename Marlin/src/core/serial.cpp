@@ -99,12 +99,12 @@ void SERIAL_WARN_START()  { SERIAL_ECHO(F("Warning:")); }
 
 void SERIAL_ECHO_SP(uint8_t count) { count *= (PROPORTIONAL_FONT_RATIO); while (count--) SERIAL_CHAR(' '); }
 
-void serial_offset(const float v, const uint8_t sp/*=0*/) {
+void serial_offset(const float v, const uint8_t sp/*=0*/, const uint8_t prec/*=SERIAL_FLOAT_PRECISION*/) {
   if (v == 0 && sp == 1)
     SERIAL_CHAR(' ');
   else if (v > 0 || (v == 0 && sp == 2))
     SERIAL_CHAR('+');
-  SERIAL_ECHO(v);
+  SERIAL_ECHO(p_float_t(v,prec));
 }
 
 void serial_ternary(FSTR_P const pre, const bool onoff, FSTR_P const on, FSTR_P const off, FSTR_P const post/*=nullptr*/) {
