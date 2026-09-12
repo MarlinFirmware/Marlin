@@ -95,7 +95,7 @@ void GcodeSuite::M920() {
 void GcodeSuite::M920_report(const bool forReplay/*=true*/) {
   TERN_(MARLIN_SMALL_BUILD, return);
 
-  #if X_SENSORLESS || Y_SENSORLESS || Z_SENSORLESS
+  #if X_HAS_HOME_CURRENT || Y_HAS_HOME_CURRENT || Z_HAS_HOME_CURRENT
 
     report_heading(forReplay, F(STR_HOMING_CURRENT));
 
@@ -105,45 +105,45 @@ void GcodeSuite::M920_report(const bool forReplay/*=true*/) {
       if (index >= 0) SERIAL_ECHOPGM(" " I_PARAM_STR, index);
     };
 
-    #if X2_SENSORLESS || Y2_SENSORLESS || Z2_SENSORLESS || Z3_SENSORLESS || Z4_SENSORLESS
+    #if X2_HAS_HOME_CURRENT || Y2_HAS_HOME_CURRENT || Z2_HAS_HOME_CURRENT || Z3_HAS_HOME_CURRENT || Z4_HAS_HOME_CURRENT
       say_M920(forReplay, 0);
     #else
       say_M920(forReplay);
     #endif
-    TERN_(X_SENSORLESS, SERIAL_ECHOPGM_P(SP_X_STR, homing_current_mA.X));
-    TERN_(Y_SENSORLESS, SERIAL_ECHOPGM_P(SP_Y_STR, homing_current_mA.Y));
-    TERN_(Z_SENSORLESS, SERIAL_ECHOPGM_P(SP_Z_STR, homing_current_mA.Z));
-    #if X2_SENSORLESS || Y2_SENSORLESS || Z2_SENSORLESS || Z3_SENSORLESS || Z4_SENSORLESS
-      SERIAL_EOL();
-      say_M920(forReplay);
-    #endif
-    TERN_(I_SENSORLESS, SERIAL_ECHOPGM_P(SP_I_STR, homing_current_mA.I));
-    TERN_(J_SENSORLESS, SERIAL_ECHOPGM_P(SP_J_STR, homing_current_mA.J));
-    TERN_(K_SENSORLESS, SERIAL_ECHOPGM_P(SP_K_STR, homing_current_mA.K));
-    TERN_(U_SENSORLESS, SERIAL_ECHOPGM_P(SP_U_STR, homing_current_mA.U));
-    TERN_(V_SENSORLESS, SERIAL_ECHOPGM_P(SP_V_STR, homing_current_mA.V));
-    TERN_(W_SENSORLESS, SERIAL_ECHOPGM_P(SP_W_STR, homing_current_mA.W));
+    TERN_(X_HAS_HOME_CURRENT, SERIAL_ECHOPGM_P(SP_X_STR, homing_current_mA.X));
+    TERN_(Y_HAS_HOME_CURRENT, SERIAL_ECHOPGM_P(SP_Y_STR, homing_current_mA.Y));
+    TERN_(Z_HAS_HOME_CURRENT, SERIAL_ECHOPGM_P(SP_Z_STR, homing_current_mA.Z));
     SERIAL_EOL();
-
-    #if X2_SENSORLESS || Y2_SENSORLESS || Z2_SENSORLESS
-      say_M920(forReplay, 1);
-      TERN_(X2_SENSORLESS, SERIAL_ECHOPGM_P(SP_X_STR, homing_current_mA.X2));
-      TERN_(Y2_SENSORLESS, SERIAL_ECHOPGM_P(SP_Y_STR, homing_current_mA.Y2));
-      TERN_(Z2_SENSORLESS, SERIAL_ECHOPGM_P(SP_Z_STR, homing_current_mA.Z2));
+      
+    #if ANY(I_HAS_HOME_CURRENT, J_HAS_HOME_CURRENT, K_HAS_HOME_CURRENT, U_HAS_HOME_CURRENT, V_HAS_HOME_CURRENT, W_HAS_HOME_CURRENT)
+      TERN_(I_HAS_HOME_CURRENT, SERIAL_ECHOPGM_P(SP_I_STR, homing_current_mA.I));
+      TERN_(J_HAS_HOME_CURRENT, SERIAL_ECHOPGM_P(SP_J_STR, homing_current_mA.J));
+      TERN_(K_HAS_HOME_CURRENT, SERIAL_ECHOPGM_P(SP_K_STR, homing_current_mA.K));
+      TERN_(U_HAS_HOME_CURRENT, SERIAL_ECHOPGM_P(SP_U_STR, homing_current_mA.U));
+      TERN_(V_HAS_HOME_CURRENT, SERIAL_ECHOPGM_P(SP_V_STR, homing_current_mA.V));
+      TERN_(W_HAS_HOME_CURRENT, SERIAL_ECHOPGM_P(SP_W_STR, homing_current_mA.W));
       SERIAL_EOL();
     #endif
 
-    #if Z3_SENSORLESS
+    #if X2_HAS_HOME_CURRENT || Y2_HAS_HOME_CURRENT || Z2_HAS_HOME_CURRENT
+      say_M920(forReplay, 1);
+      TERN_(X2_HAS_HOME_CURRENT, SERIAL_ECHOPGM_P(SP_X_STR, homing_current_mA.X2));
+      TERN_(Y2_HAS_HOME_CURRENT, SERIAL_ECHOPGM_P(SP_Y_STR, homing_current_mA.Y2));
+      TERN_(Z2_HAS_HOME_CURRENT, SERIAL_ECHOPGM_P(SP_Z_STR, homing_current_mA.Z2));
+      SERIAL_EOL();
+    #endif
+
+    #if Z3_HAS_HOME_CURRENT
       say_M920(forReplay, 2);
       SERIAL_ECHOLNPGM(" Z", homing_current_mA.Z3);
     #endif
 
-    #if Z4_SENSORLESS
+    #if Z4_HAS_HOME_CURRENT
       say_M920(forReplay, 3);
       SERIAL_ECHOLNPGM(" Z", homing_current_mA.Z4);
     #endif
 
-  #endif // X_SENSORLESS || Y_SENSORLESS || Z_SENSORLESS
+  #endif // X_HAS_HOME_CURRENT || Y_HAS_HOME_CURRENT || Z_HAS_HOME_CURRENT
 }
 
 #endif // EDITABLE_HOMING_CURRENT
