@@ -217,12 +217,12 @@ public:
 
   static void use_probing_tool(const bool=true) IF_DISABLED(DO_TOOLCHANGE_FOR_PROBING, {});
 
-  static void move_z_after_probing() {
-    DEBUG_SECTION(mzah, "move_z_after_probing", DEBUGGING(LEVELING));
-    #ifdef Z_AFTER_PROBING
-      motion.do_z_clearance(Z_AFTER_PROBING, true, true); // Move down still permitted
-    #endif
-  }
+  #if ENABLED(Z_AFTER_PROBING)
+    static void move_z_after_probing() {
+      DEBUG_SECTION(mzah, "move_z_after_probing", DEBUGGING(LEVELING));
+      motion.do_z_clearance(Z_POST_CLEARANCE, true, true); // Move down still permitted
+    }
+  #endif
 
   static bool can_reach(const xy_pos_t &pos, const bool probe_relative=true) { return can_reach(pos.x, pos.y, probe_relative); }
 

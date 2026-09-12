@@ -160,6 +160,7 @@ jobs:
 
         # GD32F1
         - GD32F103RC_aquila_mfl
+        - GD32F103RC_voxelab_maple
 
         # LPC176x - Lengthy tests
         - LPC1768
