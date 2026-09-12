@@ -69,6 +69,7 @@ enum processID : uint8_t {
   ID_PIDProcess,
   ID_PlotProcess,
   ID_MPCProcess,
+  ID_Macros,
   ID_NothingToDo
 };
 
@@ -208,6 +209,17 @@ typedef struct {
 } hmi_value_t;
 
 extern hmi_value_t hmiValue;
+
+#if ENABLED(GCODE_MACROS)
+  typedef struct {
+    uint8_t slot_edit  = 0;
+    uint8_t cursor_pos = 0;
+    uint8_t char_index = 0;
+    char edit_buffer[GCODE_MACROS_SLOT_SIZE + 1] = { 0 };
+  } hmi_macro_t;
+
+  extern hmi_macro_t hmiMacro;
+#endif
 
 typedef struct {
   uint8_t language;
@@ -411,6 +423,9 @@ void drawMaxAccelMenu();
 #endif
 #if HAS_TRINAMIC_CONFIG
   void drawTrinamicConfigMenu();
+#endif
+#if ENABLED(GCODE_MACROS)
+  void hmiMacroEditor();
 #endif
 
 // Custom colors editing
