@@ -132,7 +132,9 @@ xyz_pos_t Probe::offset; // Initialized by settings.load
     motion.blocking_move_x(X_MAX_POS + SLED_DOCKING_OFFSET - ((stow) ? 1 : 0));
 
     #if HAS_SOLENOID_1 && DISABLED(EXT_SOLENOID)
+      if (stow) endstops.enable_z_probe(false);
       WRITE(SOL1_PIN, !stow); // switch solenoid
+      if (!stow) safe_delay(500);
     #endif
   }
 
@@ -417,7 +419,9 @@ FORCE_INLINE void probe_specific_action(const bool deploy) {
   #if ENABLED(SOLENOID_PROBE)
 
     #if HAS_SOLENOID_1
+      if (!deploy) endstops.enable_z_probe(false);
       WRITE(SOL1_PIN, deploy);
+      if (deploy) safe_delay(500);
     #endif
 
   #elif ENABLED(MAGLEV4)
@@ -637,6 +641,12 @@ bool Probe::probe_down_to_z(const float z, const feedRate_t fr_mm_s) {
   #if HAS_Z_SERVO_PROBE && (ENABLED(Z_SERVO_INTERMEDIATE_STOW) || defined(Z_SERVO_MEASURE_ANGLE))
     probe_specific_action(true);  // Always re-deploy in this case
   #endif
+  #if ENABLED(SOLENOID_PROBE)
+    if (deploy()) {
+      endstops.not_homing();
+      return true;
+    }
+  #endif
 
   // Disable stealthChop if used. Enable diag1 pin on driver.
   #if ENABLED(SENSORLESS_PROBING)
@@ -710,7 +720,7 @@ bool Probe::probe_down_to_z(const float z, const feedRate_t fr_mm_s) {
       return true; // Stow in LOW SPEED MODE on every trigger
   #endif
 
-  #if ALL(HAS_Z_SERVO_PROBE, Z_SERVO_INTERMEDIATE_STOW)
+  #if ENABLED(SOLENOID_PROBE) || ALL(HAS_Z_SERVO_PROBE, Z_SERVO_INTERMEDIATE_STOW)
     probe_specific_action(false);  //  Always stow
   #endif
 
@@ -793,8 +803,8 @@ float Probe::run_z_probe(const bool sanity_check/*=true*/, const float z_min_poi
     if (TERN0(PROBE_TARE, tare())) return true;
 
     // Do a first probe at the fast speed
-    const bool probe_fail = probe_down_to_z(z_probe_low_point, fr_mm_s),              // No probe trigger?
-               early_fail = (scheck && motion.position.z > zoffs + error_tolerance);  // Probe triggered too high?
+    const bool probe_fail = probe_down_to_z(z_probe_low_point, fr_mm_s),                               // No probe trigger?
+               early_fail = (scheck && (!probe_fail) && motion.position.z > zoffs + error_tolerance);  // Probe triggered too high?
     #if ENABLED(DEBUG_LEVELING_FEATURE)
       if (DEBUGGING(LEVELING) && (probe_fail || early_fail)) {
         DEBUG_ECHOPGM(" Probe fail! - ");
