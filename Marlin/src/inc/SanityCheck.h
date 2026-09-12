@@ -402,6 +402,17 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
 #endif
 
 /**
+ * Simple DirectMedia Layer (SDL) Display
+ */
+#if ENABLED(HAS_SDL_DISPLAY) && DISABLED(HAS_LVGL)
+  #error "SDL Display requires a UI with LVGL support."
+#endif
+
+#if defined(LVGL_H_BUFFER_LINES) && LVGL_H_BUFFER_LINES < 10
+  #error "LVGL_H_BUFFER_LINES must be set to a value of 10 or larger."
+#endif
+
+/**
  * SD Card Settings
  */
 #if HAS_MEDIA
