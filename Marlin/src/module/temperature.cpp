@@ -1022,7 +1022,7 @@ void Temperature::factory_reset() {
       Fan::sync_speeds();
     #endif
 
-    motion.do_z_clearance(MPC_TUNING_END_Z, false);
+    motion.do_z_clearance(MPC_TUNING_END_Z);
 
     #ifdef EVENT_GCODE_AFTER_MPC_TUNE
       gcode.process_subcommands_now(F(EVENT_GCODE_AFTER_MPC_TUNE));
