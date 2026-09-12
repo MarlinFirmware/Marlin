@@ -259,8 +259,19 @@ void DGUSDisplay::processRx() {
          *           Command          DataLen (in Words)
          */
         if (command == DGUS_READVAR) {
+          if (rx_datagram_len < 4) {
+            rx_datagram_state = DGUS_IDLE;
+            break;
+          }
+
+          const uint16_t dlen = uint16_t(tmp[2]) << 1,  // Convert to Bytes. (Display works with words)
+                         payload_len = rx_datagram_len - 4;
+          if (dlen != payload_len) {
+            rx_datagram_state = DGUS_IDLE;
+            break;
+          }
+
           const uint16_t addr = Endianness::fromBE_P<uint16_t>(tmp);
-          const uint8_t dlen = tmp[2] << 1;  // Convert to Bytes. (Display works with words)
           if (addr == DGUS_VERSION && dlen == 2) {
             gui_version = tmp[3];
             os_version = tmp[4];
@@ -297,7 +308,7 @@ void DGUSDisplay::processRx() {
             unsigned char buffer[vp.size];
             memset(buffer, 0, vp.size);
 
-            for (uint8_t i = 0; i < dlen; i++) {
+            for (uint16_t i = 0; i < dlen; i++) {
               if (i >= vp.size) break;
 
               if (i + 1 < dlen && tmp[i + 3] == 0xFF && tmp[i + 4] == 0xFF)
