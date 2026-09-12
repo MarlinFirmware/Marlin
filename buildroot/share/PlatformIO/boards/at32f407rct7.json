@@ -1,0 +1,31 @@
+{
+  "build": {
+    "core": "arduino",
+    "cpu": "cortex-m4",
+    "extra_flags": "-DAT32F407RCT7 -DUSE_STDPERIPH_DRIVER",
+    "f_cpu": "240000000L",
+    "mcu": "at32f407rct7",
+    "variant": "marlin_at32f403",
+    "board": "AT32F407RCxx",
+    "ldscript": "AT32F407xC_FLASH.ld"
+  },
+  "frameworks": [
+    "arduino"
+  ],
+  "name": "AT32F407RCT7 (96k RAM profile, 256k Flash)",
+  "upload": {
+    "maximum_ram_size": 98304,
+    "maximum_size": 262144,
+    "protocol": "dfu",
+    "protocols": [
+      "dfu",
+      "jlink",
+      "serial"
+    ],
+    "require_upload_port": true,
+    "use_1200bps_touch": false,
+    "wait_for_upload_port": false
+  },
+  "url": "https://www.arterytek.com/en/product/AT32F407.jsp",
+  "vendor": "ArteryTek"
+}

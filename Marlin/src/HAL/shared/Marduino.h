@@ -35,6 +35,10 @@
 
 #include <Arduino.h>  // NOTE: If included earlier then this line is a NOOP
 
+#ifdef ARDUINO_ARCH_AT32
+  #undef ABS
+#endif
+
 #undef DISABLED
 #define DISABLED(V...) DO(DIS,&&,V)
 

@@ -1,0 +1,45 @@
+##==============================================##
+name=ArteryTek AT32F4 Boards
+version=1.0.0
+##==============================================##
+####AT32 compile variables
+## compiler variables
+compiler.path={runtime.tools.xpack-arm-none-eabi-gcc.path}\bin\
+##All the command
+compiler.asm.cmd=arm-none-eabi-gcc
+compiler.c.cmd=arm-none-eabi-gcc
+compiler.cpp.cmd=arm-none-eabi-g++
+compiler.ar.cmd=arm-none-eabi-ar
+compiler.elf.cmd=arm-none-eabi-g++
+compiler.hex.cmd=arm-none-eabi-objcopy
+compiler.bin.cmd=arm-none-eabi-objcopy
+compiler.size.cmd=arm-none-eabi-size
+##Set the compiler flags
+compiler.ar.flags=rcs
+compiler.asm.flags=-mthumb -Wall -g -Os
+compiler.c.flags=-mthumb -Wall -std=gnu11 -ffunction-sections -g -Os -fno-exceptions
+compiler.cpp.flags=-mthumb -Wall -std=gnu++11 -ffunction-sections -g -Os -fno-exceptions -fno-rtti
+#compiler.elf.flags=-mthumb -g -Wl,--gc-sections -Wall --specs=nano.specs -lstdc++ -u _printf_float -u _scanf_float -lc -lg -lm
+compiler.elf.flags=-mthumb -g -Wl,--gc-sections -Wall --specs=nano.specs -lstdc++ -lc -lg -lm -u _printf_float -u _scanf_float -u _vfprintf_float -u _sprintf_float -u _sscanf_float
+compiler.hex.flags=-Oihex
+compiler.bin.flags=-Obinary
+build.common_flags=-mthumb
+##===============================================##
+## In there,set the include path,for FrameLib use
+compiler.FrameLib.c.flags="-I{build.system.path}\Drivers\CMSIS\Include" "-I{build.system.path}\Drivers\Firmware\inc" "-I{build.system.path}\libcore" "-I{build.system.path}\libcore\config"
+##===============================================##
+recipe.S.o.pattern="{compiler.path}{compiler.asm.cmd}" {compiler.asm.flags} -mcpu={build.mcu} -c "{source_file}" -o "{object_file}"
+recipe.c.o.pattern="{compiler.path}{compiler.c.cmd}" {compiler.c.flags} -mcpu={build.mcu} -DARDUINO_{build.board} {build.extra_flags} {compiler.FrameLib.c.flags} {includes} -c "{source_file}" -o "{object_file}"
+recipe.cpp.o.pattern="{compiler.path}{compiler.cpp.cmd}" {compiler.cpp.flags} -mcpu={build.mcu} -DARDUINO_{build.board} {build.extra_flags} {compiler.FrameLib.c.flags} {includes} -c "{source_file}" -o "{object_file}"
+recipe.ar.pattern="{compiler.path}{compiler.ar.cmd}" {compiler.ar.flags} "{archive_file_path}" "{object_file}"
+recipe.c.combine.pattern="{compiler.path}{compiler.elf.cmd}" {compiler.elf.flags} -mcpu={build.mcu} "-L{build.variant.path}" "-T{build.variant.path}\{build.ldscript}" -Wl,--start-group {object_files} "{archive_file_path}"  "{build.system.path}\FrameLib.a" -Wl,--end-group -o "{build.path}/{build.project_name}.elf"
+recipe.objcopy.hex.pattern="{compiler.path}{compiler.hex.cmd}" {compiler.hex.flags} "{build.path}/{build.project_name}.elf" "{build.path}/{build.project_name}.hex"
+recipe.size.pattern="{compiler.path}{compiler.size.cmd}" -A "{build.path}/{build.project_name}.elf"
+recipe.size.regex=\.text\s+([0-9]+).*
+# Uploader tools
+tools.Artery_ISP_Console.cmd=WeAct Studio Download Tool.bat
+tools.Artery_ISP_Console.cmd.windows=WeAct Studio Download Tool.bat
+tools.Artery_ISP_Console.path={runtime.tools.Artery_ISP_Console.path}
+tools.Artery_ISP_Console.upload.params.verbose=-d
+tools.Artery_ISP_Console.upload.params.quiet=
+tools.Artery_ISP_Console.upload.pattern="{path}\{cmd}" "{build.path}/{build.project_name}.hex"

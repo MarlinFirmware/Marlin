@@ -16,11 +16,19 @@ def copytree(src, dst, symlinks=False, ignore=None):
             shutil.copy2(item, dst / item.name)
 
 def replace_define(field, value):
-    envdefs = env['CPPDEFINES'].copy()
-    for define in envdefs:
-        if define[0] == field:
-            env['CPPDEFINES'].remove(define)
-    env['CPPDEFINES'].append((field, value))
+    def matches(define):
+        return define == field or (
+            isinstance(define, (tuple, list))
+            and define
+            and define[0] == field
+        )
+
+    envdefs = [
+        define for define in env.get("CPPDEFINES", [])
+        if not matches(define)
+    ]
+    env.Replace(CPPDEFINES=envdefs)
+    env.Append(CPPDEFINES=[(field, value)])
 
 # Relocate the firmware to a new address, such as "0x08005000"
 def relocate_firmware(address):
