@@ -50,6 +50,7 @@ private:
   #endif
 
 public:
+  static void fill(const float val=NAN);
   static void reset();
   static void set_grid(const xy_pos_t& _grid_spacing, const xy_pos_t& _grid_start);
   static void extrapolate_unprobed_bed_level();
