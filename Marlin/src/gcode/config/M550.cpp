@@ -28,31 +28,27 @@
 #include "../../lcd/marlinui.h"
 
 /**
- * M550: Set machine name
+ * M550: Set or Report Machine Name
  *
- * Parameters:
- *  P "<name>" Set the name using the 'P' parameter (RepRapFirmware)
- *  "<name>" Set the name using the "string" parameter
+ *   <name> - Set the name using the "string" parameter
+ *
+ * With GCODE_QUOTED_STRINGS:
+ *   "<name>" - Set the name using the "string" parameter in quotes
+ *              NOTE: Works with or without quotes
+ *
+ * Without parameters, this reports the current machine name
  */
 void GcodeSuite::M550() {
-  bool did_set = true;
-
-  if (parser.seenval('P'))
-    marlin.machine_name = parser.value_string();
-  else if (TERN(GCODE_QUOTED_STRINGS, false, parser.seen('P')))
-    marlin.machine_name = parser.string_arg[0] == 'P' ? &parser.string_arg[1] : parser.string_arg;
-  else if (parser.has_string())
-    marlin.machine_name = parser.string_arg;
-  else
-    did_set = false;
-
-  if (did_set) {
-    marlin.machine_name.trim();
-    ui.reset_status(false);
-  }
-  else
+  if (parser.has_string()) {
+      marlin.machine_name = parser.string_arg;
+      marlin.machine_name.trim();
+    }
+  else {
     SERIAL_ECHOLNPGM("RepRap name: ", &marlin.machine_name);
+    return;
+  }
 
+  ui.reset_status(false);
 }
 
 #endif // CONFIGURABLE_MACHINE_NAME

@@ -282,7 +282,7 @@ Marlin marlin;
 
 // Marlin static data
 #if ENABLED(CONFIGURABLE_MACHINE_NAME)
-  MString<64> Marlin::machine_name;
+  TString Marlin::machine_name;
 #endif
 
 // Global state of the firmware
