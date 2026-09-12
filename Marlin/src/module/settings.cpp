@@ -248,6 +248,42 @@ typedef struct SettingsDataStruct {
   #endif
 
   //
+  // Runtime Axis Direction
+  //
+  #if ENABLED(RUNTIME_AXIS_DIRECTION)
+    AxisFlags axis_inverted;                            // M670
+    #if HAS_EXTRUDERS
+      bool extruder_inverted[E_STEPPERS];               // M670 E<n>
+    #endif
+    // Secondary stepper relative inversions
+    #if ENABLED(X_DUAL_STEPPER_DRIVERS)
+      bool x2_vs_x_inverted;                            // M670 X2
+    #endif
+    #if ENABLED(Y_DUAL_STEPPER_DRIVERS)
+      bool y2_vs_y_inverted;                            // M670 Y2
+    #endif
+    #if NUM_Z_STEPPERS >= 2
+      bool z2_vs_z_inverted;                            // M670 Z2
+    #endif
+    #if NUM_Z_STEPPERS >= 3
+      bool z3_vs_z_inverted;                            // M670 Z3
+    #endif
+    #if NUM_Z_STEPPERS >= 4
+      bool z4_vs_z_inverted;                            // M670 Z4
+    #endif
+    #if ENABLED(E_DUAL_STEPPER_DRIVERS)
+      bool e1_vs_e0_inverted;                           // M670 H
+    #endif
+  #endif
+
+  //
+  // Runtime Homing Direction
+  //
+  #if ENABLED(RUNTIME_HOMING_DIRECTION)
+    int8_t axis_home_dir[LOGICAL_AXES];                 // M671
+  #endif
+
+  //
   // Spindle Acceleration
   //
   #if HAS_SPINDLE_ACCELERATION
@@ -967,6 +1003,47 @@ void MarlinSettings::postprocess() {
         // Skip hotend 0 which must be 0
         for (uint8_t e = 1; e < HOTENDS; ++e)
           EEPROM_WRITE(motion.hotend_offset[e]);
+      #endif
+    }
+
+    //
+    // Runtime Axis Direction
+    //
+    {
+      #if ENABLED(RUNTIME_AXIS_DIRECTION)
+        _FIELD_TEST(axis_inverted);
+        EEPROM_WRITE(motion.axis_inverted);
+        #if HAS_EXTRUDERS
+          EEPROM_WRITE(motion.extruder_inverted);
+        #endif
+        #if ENABLED(X_DUAL_STEPPER_DRIVERS)
+          EEPROM_WRITE(motion.x2_vs_x_inverted);
+        #endif
+        #if ENABLED(Y_DUAL_STEPPER_DRIVERS)
+          EEPROM_WRITE(motion.y2_vs_y_inverted);
+        #endif
+        #if NUM_Z_STEPPERS >= 2
+          EEPROM_WRITE(motion.z2_vs_z_inverted);
+        #endif
+        #if NUM_Z_STEPPERS >= 3
+          EEPROM_WRITE(motion.z3_vs_z_inverted);
+        #endif
+        #if NUM_Z_STEPPERS >= 4
+          EEPROM_WRITE(motion.z4_vs_z_inverted);
+        #endif
+        #if ENABLED(E_DUAL_STEPPER_DRIVERS)
+          EEPROM_WRITE(motion.e1_vs_e0_inverted);
+        #endif
+      #endif
+    }
+
+    //
+    // Runtime Homing Direction
+    //
+    {
+      #if ENABLED(RUNTIME_HOMING_DIRECTION)
+        _FIELD_TEST(axis_home_dir);
+        EEPROM_WRITE(motion.axis_home_dir);
       #endif
     }
 
@@ -2042,6 +2119,47 @@ void MarlinSettings::postprocess() {
           // Skip hotend 0 which must be 0
           for (uint8_t e = 1; e < HOTENDS; ++e)
             EEPROM_READ(motion.hotend_offset[e]);
+        #endif
+      }
+
+      //
+      // Runtime Axis Direction
+      //
+      {
+        #if ENABLED(RUNTIME_AXIS_DIRECTION)
+          _FIELD_TEST(axis_inverted);
+          EEPROM_READ(motion.axis_inverted);
+          #if HAS_EXTRUDERS
+            EEPROM_READ(motion.extruder_inverted);
+          #endif
+          #if ENABLED(X_DUAL_STEPPER_DRIVERS)
+            EEPROM_READ(motion.x2_vs_x_inverted);
+          #endif
+          #if ENABLED(Y_DUAL_STEPPER_DRIVERS)
+            EEPROM_READ(motion.y2_vs_y_inverted);
+          #endif
+          #if NUM_Z_STEPPERS >= 2
+            EEPROM_READ(motion.z2_vs_z_inverted);
+          #endif
+          #if NUM_Z_STEPPERS >= 3
+            EEPROM_READ(motion.z3_vs_z_inverted);
+          #endif
+          #if NUM_Z_STEPPERS >= 4
+            EEPROM_READ(motion.z4_vs_z_inverted);
+          #endif
+          #if ENABLED(E_DUAL_STEPPER_DRIVERS)
+            EEPROM_READ(motion.e1_vs_e0_inverted);
+          #endif
+        #endif
+      }
+
+      //
+      // Runtime Homing Direction
+      //
+      {
+        #if ENABLED(RUNTIME_HOMING_DIRECTION)
+          _FIELD_TEST(axis_home_dir);
+          EEPROM_READ(motion.axis_home_dir);
         #endif
       }
 
@@ -3393,6 +3511,20 @@ void MarlinSettings::reset() {
   TERN_(HAS_HOTEND_OFFSET, motion.reset_hotend_offsets());
 
   //
+  // Runtime Axis Direction
+  //
+  #if ENABLED(RUNTIME_AXIS_DIRECTION)
+    motion.reset_axis_direction();
+  #endif
+
+  //
+  // Runtime Homing Direction
+  //
+  #if ENABLED(RUNTIME_HOMING_DIRECTION)
+    motion.reset_axis_home_dir();
+  #endif
+
+  //
   // Spindle Acceleration
   //
   #if HAS_SPINDLE_ACCELERATION
@@ -4025,6 +4157,20 @@ void MarlinSettings::reset() {
     //
     #if ANY(DELTA, HAS_EXTRA_ENDSTOPS)
       gcode.M666_report(forReplay);
+    #endif
+
+    //
+    // Runtime Axis Direction
+    //
+    #if ENABLED(RUNTIME_AXIS_DIRECTION)
+      gcode.M670_report(forReplay);
+    #endif
+
+    //
+    // Runtime Homing Direction
+    //
+    #if ENABLED(RUNTIME_HOMING_DIRECTION)
+      gcode.M671_report(forReplay);
     #endif
 
     //

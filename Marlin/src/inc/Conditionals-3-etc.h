@@ -312,6 +312,8 @@
 #endif // FILAMENT_SWITCH_AND_MOTION
 
 // Homing to Min or Max
+// Note: These are compile-time flags used for pin configuration and sanity checks.
+// With RUNTIME_HOMING_DIRECTION, actual runtime homing uses motion.home_dir(axis).
 #if HAS_X_AXIS
   #if X_HOME_DIR > 0
     #define X_HOME_TO_MAX 1

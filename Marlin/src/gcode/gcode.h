@@ -279,6 +279,8 @@
  *        Set SCARA configurations: 'M665 S<segments-per-second> P<theta-psi-offset> T<theta-offset> Z<z-offset>' (Requires SCARA)
  *        Set Polargraph draw area and belt length: 'M665 S<segments-per-second> L<draw-area-left> R<draw-area-right> T<draw-area-top> B<draw-area-bottom> H<max-belt-length>'
  * M666 - Set / Report offsets for delta (Requires DELTA) or dual endstops. (Requires [XYZ]_DUAL_ENDSTOPS)
+ * M670 - Set/Report runtime axis direction inversion. (Requires RUNTIME_AXIS_DIRECTION)
+ * M671 - Set/Report runtime homing direction. (Requires RUNTIME_HOMING_DIRECTION)
  * M672 - Set/Reset Duet Smart Effector's sensitivity. (Requires DUET_SMART_EFFECTOR and SMART_EFFECTOR_MOD_PIN)
  * M701 - Load filament (Requires FILAMENT_LOAD_UNLOAD_GCODES)
  * M702 - Unload filament (Requires FILAMENT_LOAD_UNLOAD_GCODES)
@@ -1210,6 +1212,16 @@ private:
   #if ANY(DELTA, HAS_EXTRA_ENDSTOPS)
     static void M666();
     static void M666_report(const bool forReplay=true);
+  #endif
+
+  #if ENABLED(RUNTIME_AXIS_DIRECTION)
+    static void M670();
+    static void M670_report(const bool forReplay=true);
+  #endif
+
+  #if ENABLED(RUNTIME_HOMING_DIRECTION)
+    static void M671();
+    static void M671_report(const bool forReplay=true);
   #endif
 
   #if ENABLED(DUET_SMART_EFFECTOR) && PIN_EXISTS(SMART_EFFECTOR_MOD)
