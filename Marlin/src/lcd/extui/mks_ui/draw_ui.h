@@ -72,6 +72,9 @@
 #include "draw_z_offset_wizard.h"
 #include "draw_tramming_pos_settings.h"
 #include "draw_auto_level_offset_settings.h"
+#if ENABLED(GLOBAL_MESH_Z_OFFSET)
+  #include "draw_mesh_z_offset_settings.h"
+#endif
 #include "draw_filament_change.h"
 #include "draw_filament_settings.h"
 #include "draw_homing_sensitivity_settings.h"
@@ -400,6 +403,9 @@ typedef enum {
 
   #if HAS_BED_PROBE
     x_offset, y_offset, z_offset,
+  #endif
+  #if ENABLED(GLOBAL_MESH_Z_OFFSET)
+    meshZOffset,
   #endif
 
   load_length,

@@ -301,7 +301,6 @@ public:
   }
   static float get_z_correction(const xy_pos_t &pos) { return get_z_correction(pos.x, pos.y); }
 
-  static constexpr float get_z_offset() { return 0.0f; }
 
   static float _get_mesh_x(const uint8_t i) { return mesh_min.x + i * (MESH_X_DIST); }
   static float _get_mesh_y(const uint8_t i) { return mesh_min.y + i * (MESH_Y_DIST); }
