@@ -67,6 +67,24 @@
     void begin(unsigned long baud, uint8_t config);
     inline void begin(unsigned long baud) { begin(baud, SERIAL_8N1); }
 
+    // In single-wire half-duplex mode the core only switches back to
+    // receive in read() and peek(). Do it here too, so a caller that
+    // polls available() before reading (e.g., TMCStepper) sees the reply.
+    int available() override {
+      enableHalfDuplexRx();
+      return HardwareSerial::available();
+    }
+
+    // In single-wire half-duplex mode a device such as a TMC2209 replies a
+    // few bit-times after the request, so switch back to receive as soon as
+    // the transmit completes instead of waiting for the next read().
+    using HardwareSerial::write;
+    size_t write(const uint8_t *buffer, size_t size) override {
+      const size_t n = HardwareSerial::write(buffer, size);
+      if (isHalfDuplex()) enableHalfDuplexRx();
+      return n;
+    }
+
     void _rx_complete_irq(serial_t *obj);
     FORCE_INLINE static uint8_t buffer_overruns() { return 0; } // Not implemented. Void to avoid platform-dependent code.
 
