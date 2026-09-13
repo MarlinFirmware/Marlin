@@ -832,6 +832,8 @@
   #include "stm32f4/pins_MKS_NEPTUNE_X.h"           // STM32F4                              env:mks_neptune_x
 #elif MB(MKS_NEPTUNE_3)
   #include "stm32f4/pins_MKS_NEPTUNE_3.h"           // STM32F4                              env:mks_neptune_3
+#elif MB(PRUSA_BUDDY)
+  #include "stm32f4/pins_PRUSA_BUDDY.h"             // STM32F4                              env:PRUSA_BUDDY env:PRUSA_BUDDY_no_bootloader
 
 //
 // Other ARM Cortex-M4
