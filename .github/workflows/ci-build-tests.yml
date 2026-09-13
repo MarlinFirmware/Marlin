@@ -126,6 +126,7 @@ jobs:
         - STM32F401RC_creality
         - STM32F407VE_black
         - I3DBEEZ9_V1
+        - PRUSA_BUDDY
 
         # STM32F7
         - NUCLEO_F767ZI
