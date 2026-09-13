@@ -718,8 +718,6 @@
   #include "stm32f4/pins_RUMBA32_BTT.h"             // STM32F4                              env:rumba32
 #elif MB(BLACK_STM32F407VE)
   #include "stm32f4/pins_BLACK_STM32F407VE.h"       // STM32F4                              env:STM32F407VE_black
-#elif MB(BLACK_STM32F407ZE)
-  #error "BLACK_STM32F407ZE is not yet supported."
 #elif MB(BTT_SKR_MINI_E3_V3_0_1)
   #include "stm32f4/pins_BTT_SKR_MINI_E3_V3_0_1.h"  // STM32F4                              env:STM32F401RC_btt env:STM32F401RC_btt_xfer
 #elif MB(BTT_SKR_PRO_V1_1)
@@ -1016,6 +1014,7 @@
   #define BOARD_VAKE403D                99928
   #define BOARD_TRONXY_V10              99929
   #define BOARD_FYSETC_SPIDER_KING407   99930
+  #define BOARD_BLACK_STM32F407ZE       99931
 
   #if MB(MKS_13)
     #error "BOARD_MKS_13 is now BOARD_MKS_GEN_13. Please update your configuration."
@@ -1079,6 +1078,8 @@
     #error "BOARD_VAKE403D is no longer supported in Marlin."
   #elif MB(FYSETC_SPIDER_KING407)
     #error "BOARD_FYSETC_SPIDER_KING407 is now BOARD_FYSETC_SPIDER_KING_V1_F407 or BOARD_FYSETC_SPIDER_KING_V1_1_F407. Please update your configuration."
+  #elif MB(BLACK_STM32F407ZE)
+    #error "BOARD_BLACK_STM32F407ZE is no longer supported in Marlin."
   #elif MB(ERROR)
     #warning "Most likely missing / misplaced Configuration files."
   #elif defined(MOTHERBOARD)
@@ -1119,6 +1120,7 @@
   #undef BOARD_VAKE403D
   #undef BOARD_TRONXY_V10
   #undef BOARD_FYSETC_SPIDER_KING407
+  #undef BOARD_BLACK_STM32F407ZE
 
 #endif
 
