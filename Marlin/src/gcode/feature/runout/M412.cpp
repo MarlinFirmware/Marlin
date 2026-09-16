@@ -43,6 +43,7 @@ void GcodeSuite::M412() {
   if (parser.seen("RS"
     TERN_(HAS_FILAMENT_RUNOUT_DISTANCE, "D")
     TERN_(HOST_ACTION_COMMANDS, "H")
+    TERN_(FILAMENT_SWITCH_AND_MOTION, "L")
   )) {
     #if ENABLED(HOST_ACTION_COMMANDS)
       if (parser.seen('H')) runout.host_handling = parser.value_bool();
