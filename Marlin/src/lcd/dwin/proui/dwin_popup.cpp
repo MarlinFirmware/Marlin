@@ -32,7 +32,6 @@
 
 #if ENABLED(DWIN_LCD_PROUI)
 
-#include "dwin.h"
 #include "dwinui.h"
 #include "dwin_popup.h"
 

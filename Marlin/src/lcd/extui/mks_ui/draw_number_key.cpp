@@ -156,9 +156,9 @@ static void disp_key_value() {
     case E0current: TERN_(E0_IS_TRINAMIC, dtostrf(stepperE0.getMilliamps(), 1, 1, public_buf_m)); break;
     case E1current: TERN_(E1_IS_TRINAMIC, dtostrf(stepperE1.getMilliamps(), 1, 1, public_buf_m)); break;
 
-    case pause_pos_x: dtostrf(gCfgItems.pausePosX, 1, 1, public_buf_m); break;
-    case pause_pos_y: dtostrf(gCfgItems.pausePosY, 1, 1, public_buf_m); break;
-    case pause_pos_z: dtostrf(gCfgItems.pausePosZ, 1, 1, public_buf_m); break;
+    case pause_pos_x: dtostrf(gCfgItems.pausePos.x, 1, 1, public_buf_m); break;
+    case pause_pos_y: dtostrf(gCfgItems.pausePos.y, 1, 1, public_buf_m); break;
+    case pause_pos_z: dtostrf(gCfgItems.pausePos.z, 1, 1, public_buf_m); break;
 
     case level_pos_x1: itoa(gCfgItems.trammingPos[0].x, public_buf_m, 10); break;
     case level_pos_y1: itoa(gCfgItems.trammingPos[0].y, public_buf_m, 10); break;
@@ -271,9 +271,9 @@ static void set_value_confirm() {
     case E0current: TERN_(E0_IS_TRINAMIC, stepperE0.rms_current(atoi(key_value))); break;
     case E1current: TERN_(E1_IS_TRINAMIC, stepperE1.rms_current(atoi(key_value))); break;
 
-    case pause_pos_x: gCfgItems.pausePosX = atof(key_value); update_spi_flash(); break;
-    case pause_pos_y: gCfgItems.pausePosY = atof(key_value); update_spi_flash(); break;
-    case pause_pos_z: gCfgItems.pausePosZ = atof(key_value); update_spi_flash(); break;
+    case pause_pos_x: gCfgItems.pausePos.x = atof(key_value); update_spi_flash(); break;
+    case pause_pos_y: gCfgItems.pausePos.y = atof(key_value); update_spi_flash(); break;
+    case pause_pos_z: gCfgItems.pausePos.z = atof(key_value); update_spi_flash(); break;
 
     case level_pos_x1: gCfgItems.trammingPos[0].x = atoi(key_value); update_spi_flash(); break;
     case level_pos_y1: gCfgItems.trammingPos[0].y = atoi(key_value); update_spi_flash(); break;

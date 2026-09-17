@@ -29,6 +29,13 @@
 #endif
 
 /**
+ * Require pins to be defined as macros with numerical values
+ */
+#ifndef P1_01
+  #error "Your ARM platform pins are not defined as macros, only as enums! Provide pins_arduino.h to define the pins."
+#endif
+
+/**
  * Detect an old pins file by checking for old ADC pins values.
  */
 #define _OLD_TEMP_PIN(P) PIN_EXISTS(P) && _CAT(P,_PIN) <= 7 && !WITHIN(_CAT(P,_PIN), TERN(LPC1768_IS_SKRV1_3, 0, 2), 3)  // Include P0_00 and P0_01 for SKR V1.3 board

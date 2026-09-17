@@ -58,7 +58,7 @@ void GcodeSuite::T(const int8_t tool_index) {
   #if HAS_MULTI_EXTRUDER
     // For 'T' with no parameter report the current tool.
     if (parser.string_arg && *parser.string_arg == '*') {
-      SERIAL_ECHOLNPGM(STR_ACTIVE_EXTRUDER, active_extruder);
+      SERIAL_ECHOLNPGM(STR_ACTIVE_EXTRUDER, motion.extruder);
       return;
     }
   #endif
@@ -84,7 +84,7 @@ void GcodeSuite::T(const int8_t tool_index) {
   tool_change(tool_index
     #if HAS_MULTI_EXTRUDER
       , parser.boolval('S')
-        || TERN(PARKING_EXTRUDER, false, tool_index == active_extruder) // For PARKING_EXTRUDER motion is decided in tool_change()
+        || TERN(PARKING_EXTRUDER, false, tool_index == motion.extruder) // For PARKING_EXTRUDER motion is decided in tool_change()
     #endif
   );
 }

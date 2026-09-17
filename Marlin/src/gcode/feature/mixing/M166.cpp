@@ -92,8 +92,8 @@ void GcodeSuite::M166() {
 
     SERIAL_ECHOPGM(" ; Current Z");
     #if ENABLED(DELTA)
-      get_cartesian_from_steppers();
-      SERIAL_ECHO(cartes.z);
+      motion.get_cartesian_from_steppers();
+      SERIAL_ECHO(motion.cartes.z);
     #else
       SERIAL_ECHO(planner.get_axis_position_mm(Z_AXIS));
     #endif

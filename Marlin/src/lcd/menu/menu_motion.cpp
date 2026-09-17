@@ -55,13 +55,13 @@ void lcd_move_axis(const AxisEnum axis) {
   if (ui.encoderPosition && !ui.manual_move.processing) {
     // Get motion limit from software endstops, if any
     float min, max;
-    soft_endstop.get_manual_axis_limits(axis, min, max);
+    motion.soft_endstop.get_manual_axis_limits(axis, min, max);
 
     // Delta limits XY based on the current offset from center
     // This assumes the center is 0,0
     #if ENABLED(DELTA)
       if (axis != Z_AXIS) {
-        max = SQRT(FLOAT_SQ(PRINTABLE_RADIUS) - sq(current_position[Y_AXIS - axis])); // (Y_AXIS - axis) == the other axis
+        max = SQRT(FLOAT_SQ(PRINTABLE_RADIUS) - sq(motion.position[Y_AXIS - axis])); // (Y_AXIS - axis) == the other axis
         min = -max;
       }
     #endif
@@ -87,12 +87,12 @@ void lcd_move_axis(const AxisEnum axis) {
 
 #if E_MANUAL
 
-  static void lcd_move_e(TERN_(MULTI_E_MANUAL, const int8_t eindex=active_extruder)) {
+  static void lcd_move_e(TERN_(MULTI_E_MANUAL, const int8_t eindex=motion.extruder)) {
     if (ui.use_click()) return ui.goto_previous_screen_no_defer();
     if (ui.encoderPosition) {
       if (!ui.manual_move.processing) {
         const float diff = float(int32_t(ui.encoderPosition)) * ui.manual_move.menu_scale;
-        TERN(IS_KINEMATIC, ui.manual_move.offset, current_position.e) += diff;
+        TERN(IS_KINEMATIC, ui.manual_move.offset, motion.position.e) += diff;
         ui.manual_move.soon(E_AXIS OPTARG(MULTI_E_MANUAL, eindex));
         ui.refresh(LCDVIEW_REDRAW_NOW);
       }
@@ -102,7 +102,7 @@ void lcd_move_axis(const AxisEnum axis) {
       TERN_(MULTI_E_MANUAL, MenuItemBase::init(eindex));
       MenuEditItemBase::draw_edit_screen(
         GET_TEXT_F(TERN(MULTI_E_MANUAL, MSG_MOVE_EN, MSG_MOVE_E)),
-        ftostr41sign(current_position.e
+        ftostr41sign(motion.position.e
           PLUS_TERN0(IS_KINEMATIC, ui.manual_move.offset)
           MINUS_TERN0(MANUAL_E_MOVES_RELATIVE, ui.manual_move.e_origin)
         )
@@ -136,21 +136,25 @@ void _goto_manual_move(const float scale) {
   thermalManager.set_menu_cold_override(true);
 }
 
-void _menu_move_distance(const AxisEnum axis, const screenFunc_t func, const int8_t eindex=active_extruder) {
+void _menu_move_distance(const AxisEnum axis, const screenFunc_t func, const int8_t eindex=motion.extruder) {
   ui.manual_move.screen_ptr = func;
   START_MENU();
   if (LCD_HEIGHT >= 4) {
     if (axis < NUM_AXES)
       STATIC_ITEM_N(axis, MSG_MOVE_N, SS_DEFAULT|SS_INVERT);
     else {
-      TERN_(MANUAL_E_MOVES_RELATIVE, ui.manual_move.e_origin = current_position.e);
+      TERN_(MANUAL_E_MOVES_RELATIVE, ui.manual_move.e_origin = motion.position.e);
       STATIC_ITEM_N(eindex, MSG_MOVE_EN, SS_DEFAULT|SS_INVERT);
     }
   }
 
   BACK_ITEM(MSG_MOVE_AXIS);
 
-  #define __LINEAR_LIMIT(D) ((D) < max_length(axis) / 2 + 1)
+  #if NUM_AXES
+    #define __LINEAR_LIMIT(D) ((D) < motion.max_axis_length(axis) / 2 + 1)
+  #else
+    #define __LINEAR_LIMIT(D) true
+  #endif
   #if HAS_EXTRUDERS
     #ifndef EXTRUDE_MAXLENGTH
       #define EXTRUDE_MAXLENGTH 50
@@ -159,9 +163,9 @@ void _menu_move_distance(const AxisEnum axis, const screenFunc_t func, const int
   #else
     #define _LINEAR_LIMIT __LINEAR_LIMIT
   #endif
-  #define __MOVE_SUB(L,T,D) if (rotational[axis] || _LINEAR_LIMIT(D)) SUBMENU_S(F(T), L, []{ _goto_manual_move(D); })
+  #define __MOVE_SUB(L,T,D) if (motion.rotational[axis] || _LINEAR_LIMIT(D)) SUBMENU_S(F(T), L, []{ _goto_manual_move(D); })
 
-  if (rotational[axis]) {
+  if (motion.rotational[axis]) {
     #ifdef MANUAL_MOVE_DISTANCE_DEG
       #define _MOVE_DEG(D) __MOVE_SUB(MSG_MOVE_N_DEG, STRINGIFY(D), D);
       MAP(_MOVE_DEG, MANUAL_MOVE_DISTANCE_DEG)
@@ -169,7 +173,7 @@ void _menu_move_distance(const AxisEnum axis, const screenFunc_t func, const int
   }
   else if (parser.using_inch_units()) {
     #ifdef MANUAL_MOVE_DISTANCE_IN
-      #define _MOVE_IN(I) __MOVE_SUB(MSG_MOVE_N_MM, STRINGIFY(I), IN_TO_MM(I));
+      #define _MOVE_IN(I) __MOVE_SUB(MSG_MOVE_N_IN, STRINGIFY(I), IN_TO_MM(I));
       MAP(_MOVE_IN, MANUAL_MOVE_DISTANCE_IN)
     #endif
   }
@@ -193,7 +197,7 @@ void _menu_move_distance(const AxisEnum axis, const screenFunc_t func, const int
   }
 
   inline void _menu_move_distance_e_maybe() {
-    if (thermalManager.tooColdToExtrude(active_extruder)) {
+    if (thermalManager.tooColdToExtrude(motion.extruder)) {
       ui.goto_screen([]{
         MenuItem_confirm::select_screen(
           GET_TEXT_F(MSG_BUTTON_PROCEED), GET_TEXT_F(MSG_BACK),
@@ -213,12 +217,12 @@ void menu_move() {
   BACK_ITEM(MSG_MOTION);
 
   #if ALL(HAS_SOFTWARE_ENDSTOPS, SOFT_ENDSTOPS_MENU_ITEM)
-    EDIT_ITEM(bool, MSG_LCD_SOFT_ENDSTOPS, &soft_endstop._enabled);
+    EDIT_ITEM(bool, MSG_LCD_SOFT_ENDSTOPS, &motion.soft_endstop._enabled);
   #endif
 
   // Move submenu for each axis
-  if (NONE(IS_KINEMATIC, NO_MOTION_BEFORE_HOMING) || all_axes_homed()) {
-    if (TERN1(DELTA, current_position.z <= delta_clip_start_height)) {
+  if (NONE(IS_KINEMATIC, NO_MOTION_BEFORE_HOMING) || motion.all_axes_homed()) {
+    if (TERN1(DELTA, motion.position.z <= delta_clip_start_height)) {
       #if HAS_X_AXIS
         SUBMENU_N(X_AXIS, MSG_MOVE_N, []{ _menu_move_distance(X_AXIS, []{ lcd_move_axis(X_AXIS); }); });
       #endif
@@ -242,7 +246,7 @@ void menu_move() {
   #if ANY(HAS_SWITCHING_EXTRUDER, HAS_SWITCHING_NOZZLE, MAGNETIC_SWITCHING_TOOLHEAD)
 
     #if EXTRUDERS >= 4
-      switch (active_extruder) {
+      switch (motion.extruder) {
         case 0: GCODES_ITEM_N(1, MSG_SELECT_E, F("T1")); break;
         case 1: GCODES_ITEM_N(0, MSG_SELECT_E, F("T0")); break;
         case 2: GCODES_ITEM_N(3, MSG_SELECT_E, F("T3")); break;
@@ -253,15 +257,15 @@ void menu_move() {
         #endif
       }
     #elif EXTRUDERS == 3
-      if (active_extruder < 2)
-        GCODES_ITEM_N(1 - active_extruder, MSG_SELECT_E, active_extruder ? F("T0") : F("T1"));
+      if (motion.extruder < 2)
+        GCODES_ITEM_N(1 - motion.extruder, MSG_SELECT_E, motion.extruder ? F("T0") : F("T1"));
     #else
-      GCODES_ITEM_N(1 - active_extruder, MSG_SELECT_E, active_extruder ? F("T0") : F("T1"));
+      GCODES_ITEM_N(1 - motion.extruder, MSG_SELECT_E, motion.extruder ? F("T0") : F("T1"));
     #endif
 
   #elif ENABLED(DUAL_X_CARRIAGE)
 
-    GCODES_ITEM_N(1 - active_extruder, MSG_SELECT_E, active_extruder ? F("T0") : F("T1"));
+    GCODES_ITEM_N(1 - motion.extruder, MSG_SELECT_E, motion.extruder ? F("T0") : F("T1"));
 
   #endif
 
@@ -307,6 +311,47 @@ void menu_move() {
     END_MENU();
   }
 #endif
+
+#if ENABLED(RESONANCE_TEST)
+
+  #include "../../feature/resonance/resonance_generator.h"
+
+  void menu_resonance_freq() {
+    START_MENU();
+    BACK_ITEM(MSG_RESONANCE_TEST);
+
+    STATIC_ITEM(MSG_RETRIEVE_FREQ);
+    EDIT_ITEM(float62, MSG_TIMELINE_FREQ, &rtg.timeline, 0.0f, 600.0f);
+    PSTRING_ITEM(MSG_RESONANCE_FREQ, ftostr53_63(rtg.getFrequencyFromTimeline()), SS_FULL);
+
+    END_MENU();
+  }
+
+  void menu_resonance_test() {
+    START_MENU();
+    BACK_ITEM(MSG_MOTION);
+
+    if (rtg.isActive() && !rtg.isDone()) {
+      STATIC_ITEM(MSG_RT_RUNNING);
+      GCODES_ITEM(MSG_RT_STOP, F("M496"));
+    }
+    else {
+      #if HAS_X_AXIS
+        GCODES_ITEM_N(X_AXIS, MSG_RT_START_N, F("M495 X S"));
+      #endif
+      #if HAS_Y_AXIS
+        GCODES_ITEM_N(Y_AXIS, MSG_RT_START_N, F("M495 Y S"));
+      #endif
+      #if HAS_Z_AXIS
+        GCODES_ITEM_N(Z_AXIS, MSG_RT_START_N, F("M495 Z S"));
+      #endif
+      SUBMENU(MSG_RETRIEVE_FREQ, menu_resonance_freq);
+    }
+
+    END_MENU();
+  }
+
+#endif // RESONANCE_TEST
 
 #if ENABLED(FT_MOTION_MENU)
 
@@ -383,7 +428,7 @@ void menu_move() {
     END_MENU();
   }
 
-  #if ENABLED(FTM_POLYS)
+  #if HAS_FTM_TRAJECTORY_SELECTION
 
     void menu_ftm_trajectory_generator() {
       const TrajectoryType traj_type = ftMotion.getTrajectoryType();
@@ -393,56 +438,24 @@ void menu_move() {
       if (traj_type != TrajectoryType::TRAPEZOIDAL) ACTION_ITEM(MSG_FTM_TRAPEZOIDAL, []{
         queue.inject(TS(F("M494"), 'T', int(TrajectoryType::TRAPEZOIDAL))); ui.go_back();
       });
-      if (traj_type != TrajectoryType::POLY5) ACTION_ITEM(MSG_FTM_POLY5, []{
-        queue.inject(TS(F("M494"), 'T', int(TrajectoryType::POLY5))); ui.go_back();
-      });
-      if (traj_type != TrajectoryType::POLY6) ACTION_ITEM(MSG_FTM_POLY6, []{
-        queue.inject(TS(F("M494"), 'T', int(TrajectoryType::POLY6))); ui.go_back();
-      });
+      #if ENABLED(FTM_POLYS)
+        if (traj_type != TrajectoryType::POLY5) ACTION_ITEM(MSG_FTM_POLY5, []{
+          queue.inject(TS(F("M494"), 'T', int(TrajectoryType::POLY5))); ui.go_back();
+        });
+        if (traj_type != TrajectoryType::POLY6) ACTION_ITEM(MSG_FTM_POLY6, []{
+          queue.inject(TS(F("M494"), 'T', int(TrajectoryType::POLY6))); ui.go_back();
+        });
+      #endif
+      #if ENABLED(FTM_CONSTANT_JOLT)
+        if (traj_type != TrajectoryType::CONSTANT_JOLT) ACTION_ITEM(MSG_FTM_CONSTANT_JOLT, []{
+          queue.inject(TS(F("M494"), 'T', int(TrajectoryType::CONSTANT_JOLT))); ui.go_back();
+        });
+      #endif
 
       END_MENU();
     }
 
-  #endif // FTM_POLYS
-
-  #if ENABLED(FTM_RESONANCE_TEST)
-
-    void menu_ftm_resonance_freq() {
-      START_MENU();
-      BACK_ITEM(MSG_FTM_RESONANCE_TEST);
-
-      STATIC_ITEM(MSG_FTM_RETRIEVE_FREQ);
-      EDIT_ITEM(float62, MSG_FTM_TIMELINE_FREQ, &ftMotion.rtg.timeline, 0.0f, 600.0f);
-      PSTRING_ITEM(MSG_FTM_RESONANCE_FREQ, ftostr53_63(ftMotion.rtg.getFrequencyFromTimeline()), SS_FULL);
-
-      END_MENU();
-    }
-
-    void menu_ftm_resonance_test() {
-      START_MENU();
-      BACK_ITEM(MSG_FIXED_TIME_MOTION);
-
-      if (ftMotion.rtg.isActive() && !ftMotion.rtg.isDone()) {
-        STATIC_ITEM(MSG_FTM_RT_RUNNING);
-        GCODES_ITEM(MSG_FTM_RT_STOP, F("M496"));
-      }
-      else {
-        #if HAS_X_AXIS
-          GCODES_ITEM_N(X_AXIS, MSG_FTM_RT_START_N, F("M495 X S"));
-        #endif
-        #if HAS_Y_AXIS
-          GCODES_ITEM_N(Y_AXIS, MSG_FTM_RT_START_N, F("M495 Y S"));
-        #endif
-        #if HAS_Z_AXIS
-          GCODES_ITEM_N(Z_AXIS, MSG_FTM_RT_START_N, F("M495 Z S"));
-        #endif
-        SUBMENU(MSG_FTM_RETRIEVE_FREQ, menu_ftm_resonance_freq);
-      }
-
-      END_MENU();
-    }
-
-  #endif // FTM_RESONANCE_TEST
+  #endif // HAS_FTM_TRAJECTORY_SELECTION
 
   #if HAS_DYNAMIC_FREQ
 
@@ -542,26 +555,32 @@ void menu_move() {
     // Show only when FT Motion is active (or optionally always show)
     if (TERN(FT_MOTION_NO_MENU_TOGGLE, true, c.active)) {
 
-      #if ENABLED(FTM_POLYS)
+      #if HAS_FTM_TRAJECTORY_SELECTION
         SUBMENU_S(ftMotion.getTrajectoryName(), MSG_FTM_TRAJECTORY, menu_ftm_trajectory_generator);
-        if (ftMotion.getTrajectoryType() == TrajectoryType::POLY6) {
-          editable.decimal = c.poly6_acceleration_overshoot;
-          EDIT_ITEM(float42_52, MSG_FTM_POLY6_OVERSHOOT, &editable.decimal, 1.25f, 1.875f, []{
-            queue.inject(TS(F("M494"), 'O', editable.decimal));
-          });
-        }
+        #if ENABLED(FTM_POLYS)
+          if (ftMotion.getTrajectoryType() == TrajectoryType::POLY6) {
+            editable.decimal = c.poly6_acceleration_overshoot;
+            EDIT_ITEM(float42_52, MSG_FTM_POLY6_OVERSHOOT, &editable.decimal, 1.25f, 1.875f, []{
+              queue.inject(TS(F("M494"), 'O', editable.decimal));
+            });
+          }
+        #endif
+        #if ENABLED(FTM_CONSTANT_JOLT)
+          if (ftMotion.getTrajectoryType() == TrajectoryType::CONSTANT_JOLT) {
+            editable.decimal = c.jolt / 1000.0f;
+            EDIT_ITEM(float4, MSG_FTM_JOLT, &editable.decimal, 1.0f, 10000.0f, []{
+              queue.inject(TS(F("M494"), 'J', editable.decimal));
+            });
+          }
+        #endif
       #endif
 
       CARTES_MAP(_FTM_AXIS_SUBMENU);
 
       editable.state = c.axis_sync_enabled;
       EDIT_ITEM(bool, MSG_FTM_AXIS_SYNC, &editable.state, []{
-        queue.inject(TS(F("M493"), IAXIS_CHAR(MenuItemBase::itemIndex), 'T', int(editable.state)));
+        queue.inject(TS(F("M493"), IAXIS_CHAR(MenuItemBase::itemIndex), 'H', int(editable.state)));
       });
-
-      #if ENABLED(FTM_RESONANCE_TEST)
-        SUBMENU(MSG_FTM_RESONANCE_TEST, menu_ftm_resonance_test);
-      #endif
     }
 
     END_MENU();
@@ -574,7 +593,7 @@ void menu_move() {
       // Copy Flash strings to RAM for C-string substitution
       // For U8G paged rendering check and skip extra string copy
 
-      #if ENABLED(FTM_POLYS)
+      #if HAS_FTM_TRAJECTORY_SELECTION
         #if CACHE_FOR_SPEED
           bool got_t = false;
         #endif
@@ -590,7 +609,7 @@ void menu_move() {
 
     #else // !__AVR__
 
-      #if ENABLED(FTM_POLYS)
+      #if HAS_FTM_TRAJECTORY_SELECTION
         auto _traj_name = []{ return ftMotion.getTrajectoryName(); };
       #endif
 
@@ -599,14 +618,24 @@ void menu_move() {
     START_MENU();
     BACK_ITEM(MSG_TUNE);
 
-    #if ENABLED(FTM_POLYS)
+    #if HAS_FTM_TRAJECTORY_SELECTION
       SUBMENU_S(_traj_name(), MSG_FTM_TRAJECTORY, menu_ftm_trajectory_generator);
-      if (ftMotion.getTrajectoryType() == TrajectoryType::POLY6) {
-        editable.decimal = ftMotion.cfg.poly6_acceleration_overshoot;
-        EDIT_ITEM(float42_52, MSG_FTM_POLY6_OVERSHOOT, &editable.decimal, 1.25f, 1.875f, []{
-          queue.inject(TS(F("M494"), 'O', editable.decimal));
-        });
-      }
+      #if ENABLED(FTM_POLYS)
+        if (ftMotion.getTrajectoryType() == TrajectoryType::POLY6) {
+          editable.decimal = ftMotion.cfg.poly6_acceleration_overshoot;
+          EDIT_ITEM(float42_52, MSG_FTM_POLY6_OVERSHOOT, &editable.decimal, 1.25f, 1.875f, []{
+            queue.inject(TS(F("M494"), 'O', editable.decimal));
+          });
+        }
+      #endif
+      #if ENABLED(FTM_CONSTANT_JOLT)
+        if (ftMotion.getTrajectoryType() == TrajectoryType::CONSTANT_JOLT) {
+          editable.decimal = ftMotion.cfg.jolt / 1000.0f;
+          EDIT_ITEM(float4, MSG_FTM_JOLT, &editable.decimal, 1.0f, 10000.0f, []{
+            queue.inject(TS(F("M494"), 'J', editable.decimal));
+          });
+        }
+      #endif
     #endif
 
     SHAPED_MAP(_FTM_AXIS_SUBMENU);
@@ -628,7 +657,7 @@ void menu_motion() {
   //
   // Move Axis
   //
-  if (TERN1(DELTA, all_axes_homed()))
+  if (TERN1(DELTA, motion.all_axes_homed()))
     SUBMENU(MSG_MOVE_AXIS, menu_move);
 
   //
@@ -648,6 +677,13 @@ void menu_motion() {
   //
   #if ENABLED(FT_MOTION_MENU)
     SUBMENU(MSG_FIXED_TIME_MOTION, menu_ft_motion);
+  #endif
+
+  //
+  // M495 Resonance Test
+  //
+  #if ENABLED(RESONANCE_TEST)
+    SUBMENU(MSG_RESONANCE_TEST, menu_resonance_test);
   #endif
 
   //

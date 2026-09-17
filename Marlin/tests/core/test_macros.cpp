@@ -20,6 +20,8 @@
  *
  */
 
+#include <vector>
+#include <array>
 #include "../test/unit_tests.h"
 #include "src/core/macros.h"
 

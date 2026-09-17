@@ -1,6 +1,6 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 #
-# use_example_configs [repo:]configpath
+# use_example_configs [branch:]configpath
 #
 # Examples:
 #   use_example_configs
@@ -52,6 +52,14 @@ def copy_config_files(branch, config_path, dest_dir):
     sparse_checkout(branch, config_path)
 
     src_dir = Path("ConfigurationsRepo") / "config" / config_path
+
+    # Validate that configuration files were actually found
+    found_any = any((src_dir / fname).exists() for fname in CONFIG_FILES)
+    if not found_any:
+        print(f"ERROR: No configuration files found for path '{config_path}' (branch: {branch}).")
+        print(f"  Verify the path and branch names are correct.")
+        sys.exit(1)
+
     for fname in CONFIG_FILES:
         src_file = src_dir / fname
         if src_file.exists():
@@ -61,7 +69,27 @@ def copy_config_files(branch, config_path, dest_dir):
         else:
             debug_print(f"{fname} not found in {src_dir}")
 
+def validate_config_path(cref, config_path):
+    """Validate that the config path exists before attempting to fetch files."""
+    config_path_url = config_path.replace(' ', '%20')
+    base_url = f"https://raw.githubusercontent.com/MarlinFirmware/Configurations/{cref}/config/{config_path_url}"
+    probe_url = f"{base_url}/Configuration.h"
+    try:
+        with urllib.request.urlopen(urllib.request.Request(probe_url, method='HEAD')):
+            pass
+    except urllib.error.HTTPError as e:
+        if e.code == 404:
+            print(f"ERROR: Configurations path not found.")
+            print(f"  Path:   {config_path}")
+            print(f"  Branch: {cref}")
+            print(f"  URL:    https://github.com/MarlinFirmware/Configurations/tree/{cref}/config/{config_path}")
+            print(f"  Verify the path and branch names are correct and try again.")
+            sys.exit(1)
+        raise
+
 def fetch_config_files(cref, config_path, dest_dir):
+    validate_config_path(cref, config_path)
+
     config_path_url = config_path.replace(' ', '%20')
     base_url = f"https://raw.githubusercontent.com/MarlinFirmware/Configurations/{cref}/config/{config_path_url}"
 
@@ -103,10 +131,16 @@ def main():
         cref = mbranch
     elif mbranch.startswith("lts-"):
         cref = mbranch.replace("lts-", "latest-")
+    elif mbranch.endswith("bugfix-2.1.x"):
+        cref = "bugfix-2.1.x"
     elif mbranch.endswith("-2.1.x") or mbranch == "2.1.x":
         cref = "latest-2.1.x"
+    elif mbranch.endswith("bugfix-2.0.x"):
+        cref = "bugfix-2.0.x"
     elif mbranch.endswith("-2.0.x") or mbranch == "2.0.x":
         cref = "latest-2.0.x"
+    elif mbranch.endswith("bugfix-1.1.x"):
+        cref = "bugfix-1.1.x"
     elif mbranch.endswith("-1.1.x") or mbranch == "1.1.x":
         cref = "latest-1.1.x"
     elif mbranch == "1.0.x":

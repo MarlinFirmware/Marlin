@@ -85,7 +85,7 @@ typedef struct {
     xyz_pos_t workspace_offset;
   #endif
   #if HAS_MULTI_EXTRUDER
-    uint8_t active_extruder;
+    uint8_t extruder;
   #endif
 
   #if HAS_VOLUMETRIC_EXTRUSION

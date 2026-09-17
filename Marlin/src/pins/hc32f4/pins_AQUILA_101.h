@@ -61,7 +61,6 @@
 #if NO_EEPROM_SELECTED
   #define IIC_BL24CXX_EEPROM
   //#define SDCARD_EEPROM_EMULATION
-  #undef NO_EEPROM_SELECTED
 #endif
 
 #if ENABLED(IIC_BL24CXX_EEPROM)
@@ -136,7 +135,7 @@
 #define SD_DETECT_PIN                       PA10
 #define SDCARD_CONNECTION ONBOARD
 #define ONBOARD_SDIO
-#define NO_SD_HOST_DRIVE // This board's SD card is only seen by the printer
+#define BOARD_NO_HOST_DRIVE                       // SD is only seen by the printer
 
 /**
  *        ------
@@ -159,7 +158,7 @@
 
 #if ENABLED(CR10_STOCKDISPLAY)                    // LCD used for C2
 
-  #ifndef HAS_PIN_27_BOARD
+  #if DISABLED(USE_PIN_27_BOARD)
     #define BEEPER_PIN               EXP1_01_PIN
   #endif
 

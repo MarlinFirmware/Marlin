@@ -39,20 +39,21 @@
   inline void report_linear_axis_pos(const xyze_pos_t &pos) { report_all_axis_pos(pos, 3); }
 
   void report_linear_axis_pos(const xyz_pos_t &pos, const uint8_t precision=3) {
-    LOOP_NUM_AXES(a) SERIAL_ECHO(FPSTR(pgm_read_ptr(&SP_AXIS_LBL[a])), p_float_t(pos[a], precision));
+    LOOP_NUM_AXES(a)
+      SERIAL_ECHO(FPSTR(pgm_read_ptr(&SP_AXIS_LBL[a])), p_float_t(pos[a], precision));
     SERIAL_EOL();
   }
 
   void report_current_position_detail() {
     // Position as sent by G-code
     SERIAL_ECHOPGM("\nLogical:");
-    report_linear_axis_pos(current_position.asLogical());
+    report_linear_axis_pos(motion.position.asLogical());
 
     // Cartesian position in native machine space
     SERIAL_ECHOPGM("Raw:    ");
-    report_linear_axis_pos(current_position);
+    report_linear_axis_pos(motion.position);
 
-    xyze_pos_t leveled = current_position;
+    xyze_pos_t leveled = motion.position;
 
     #if HAS_LEVELING
       // Current position with leveling applied
@@ -71,7 +72,7 @@
       // Kinematics applied to the leveled position
       SERIAL_ECHOPGM(TERN(POLAR, "Polar", TERN(IS_SCARA, "SCARA", "Delta")) "K: " );
       inverse_kinematics(leveled);  // writes delta[]
-      report_linear_axis_pos(delta);
+      report_linear_axis_pos(motion.delta);
     #endif
 
     planner.synchronize();
@@ -92,10 +93,10 @@
     #endif
 
     SERIAL_ECHOPGM("FromStp:");
-    get_cartesian_from_steppers();  // Writes 'cartes' (with forward kinematics)
+    motion.get_cartesian_from_steppers();  // Writes 'motion.cartes' (with forward kinematics)
     xyze_pos_t from_steppers = LOGICAL_AXIS_ARRAY(
       planner.get_axis_position_mm(E_AXIS),
-      cartes.x, cartes.y, cartes.z,
+      motion.cartes.x, motion.cartes.y, motion.cartes.z,
       planner.get_axis_position_mm(I_AXIS),
       planner.get_axis_position_mm(J_AXIS),
       planner.get_axis_position_mm(K_AXIS),
@@ -109,7 +110,7 @@
     SERIAL_ECHOPGM("Diff:   ");
     report_all_axis_pos(diff);
 
-    TERN_(FULL_REPORT_TO_HOST_FEATURE, report_current_grblstate_moving());
+    TERN_(FULL_REPORT_TO_HOST_FEATURE, motion.report_current_grblstate_moving());
   }
 
 #endif // M114_DETAIL
@@ -133,7 +134,7 @@ void GcodeSuite::M114() {
   #if ENABLED(M114_DETAIL)
     if (parser.seen_test('D')) {
       IF_DISABLED(M114_LEGACY, planner.synchronize());
-      report_current_position();
+      motion.report_position();
       report_current_position_detail();
       return;
     }
@@ -145,10 +146,10 @@ void GcodeSuite::M114() {
     #endif
   #endif
 
-  TERN_(M114_REALTIME, if (parser.seen_test('R')) return report_real_position());
+  TERN_(M114_REALTIME, if (parser.seen_test('R')) return motion.report_position_real());
 
   TERN_(M114_LEGACY, planner.synchronize());
-  report_current_position_projected();
+  motion.report_position_projected();
 
-  TERN_(FULL_REPORT_TO_HOST_FEATURE, report_current_grblstate_moving());
+  TERN_(FULL_REPORT_TO_HOST_FEATURE, motion.report_current_grblstate_moving());
 }

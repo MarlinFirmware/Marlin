@@ -20,7 +20,3 @@
  *
  */
 #pragma once
-
-#if ALL(HAS_MARLINUI_U8GLIB, FORCE_SOFT_SPI)
-  #define U8G_SW_SPI_HC32 1
-#endif

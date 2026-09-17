@@ -92,14 +92,14 @@ void FWRetract::reset() {
  */
 void FWRetract::retract(const bool retracting E_OPTARG(bool swapping/*=false*/)) {
   // Prevent two retracts or recovers in a row
-  if (retracted[active_extruder] == retracting) return;
+  if (retracted[motion.extruder] == retracting) return;
 
   // Prevent two swap-retract or recovers in a row
   #if HAS_MULTI_EXTRUDER
     // Allow G10 S1 only after G11
-    if (swapping && retracted_swap[active_extruder] == retracting) return;
+    if (swapping && retracted_swap[motion.extruder] == retracting) return;
     // G11 priority to recover the long retract if activated
-    if (!retracting) swapping = retracted_swap[active_extruder];
+    if (!retracting) swapping = retracted_swap[motion.extruder];
   #else
     constexpr bool swapping = false;
   #endif
@@ -108,7 +108,7 @@ void FWRetract::retract(const bool retracting E_OPTARG(bool swapping/*=false*/))
     SERIAL_ECHOLNPGM(
       "retracting ", AS_DIGIT(retracting),
       " swapping ", swapping,
-      " active extruder ", active_extruder
+      " active extruder ", motion.extruder
     );
     EXTRUDER_LOOP() {
       SERIAL_ECHOLNPGM("retracted[", e, "] ", AS_DIGIT(retracted[e]));
@@ -116,8 +116,8 @@ void FWRetract::retract(const bool retracting E_OPTARG(bool swapping/*=false*/))
         SERIAL_ECHOLNPGM("retracted_swap[", e, "] ", AS_DIGIT(retracted_swap[e]));
       #endif
     }
-    SERIAL_ECHOLNPGM("current_position.z ", current_position.z);
-    SERIAL_ECHOLNPGM("current_position.e ", current_position.e);
+    SERIAL_ECHOLNPGM("motion.position.z ", motion.position.z);
+    SERIAL_ECHOLNPGM("motion.position.e ", motion.position.e);
     SERIAL_ECHOLNPGM("current_hop ", current_hop);
   //*/
 
@@ -125,7 +125,7 @@ void FWRetract::retract(const bool retracting E_OPTARG(bool swapping/*=false*/))
                 * (swapping ? settings.swap_retract_length : settings.retract_length);
 
   // The current position will be the destination for E and Z moves
-  destination = current_position;
+  motion.destination = motion.position;
 
   #if ENABLED(RETRACT_SYNC_MIXING)
     const uint8_t old_mixing_tool = mixer.get_current_vtool();
@@ -135,8 +135,8 @@ void FWRetract::retract(const bool retracting E_OPTARG(bool swapping/*=false*/))
   const feedRate_t fr_max_z = planner.settings.max_feedrate_mm_s[Z_AXIS];
   if (retracting) {
     // Retract by moving from a faux E position back to the current E position
-    current_retract[active_extruder] = base_retract;
-    prepare_internal_move_to_destination(                 // set current from destination
+    current_retract[motion.extruder] = base_retract;
+    motion.prepare_internal_move_to_destination(            // Set current from destination
       MUL_TERN(RETRACT_SYNC_MIXING, settings.retract_feedrate_mm_s, MIXING_STEPPERS)
     );
 
@@ -144,7 +144,7 @@ void FWRetract::retract(const bool retracting E_OPTARG(bool swapping/*=false*/))
     if (!current_hop && settings.retract_zraise > 0.01f) {  // Apply hop only once
       current_hop += settings.retract_zraise;               // Add to the hop total (again, only once)
       // Raise up, set_current_to_destination. Maximum Z feedrate
-      prepare_internal_move_to_destination(fr_max_z);
+      motion.prepare_internal_move_to_destination(fr_max_z);
     }
   }
   else {
@@ -152,43 +152,42 @@ void FWRetract::retract(const bool retracting E_OPTARG(bool swapping/*=false*/))
     if (current_hop) {
       current_hop = 0;
       // Lower Z, set_current_to_destination. Maximum Z feedrate
-      prepare_internal_move_to_destination(fr_max_z);
+      motion.prepare_internal_move_to_destination(fr_max_z);
     }
 
+    // Adjust the current E position by the extra amount to recover
+    // Sync the planner position so the extra amount is recovered
     const float extra_recover = swapping ? settings.swap_retract_recover_extra : settings.retract_recover_extra;
-    if (extra_recover) {
-      current_position.e -= extra_recover;          // Adjust the current E position by the extra amount to recover
-      sync_plan_position_e();                             // Sync the planner position so the extra amount is recovered
-    }
+    if (extra_recover) motion.set_and_sync_e(motion.position.e - extra_recover);
 
-    current_retract[active_extruder] = 0;
+    current_retract[motion.extruder] = 0;
 
     // Recover E, set_current_to_destination
     const feedRate_t fr_mm_s = swapping ? settings.swap_retract_recover_feedrate_mm_s : settings.retract_recover_feedrate_mm_s;
-    prepare_internal_move_to_destination(MUL_TERN(RETRACT_SYNC_MIXING, fr_mm_s, MIXING_STEPPERS));
+    motion.prepare_internal_move_to_destination(MUL_TERN(RETRACT_SYNC_MIXING, fr_mm_s, MIXING_STEPPERS));
   }
 
   TERN_(RETRACT_SYNC_MIXING, mixer.T(old_mixing_tool));   // Restore original mixing tool
 
-  retracted.set(active_extruder, retracting);             // Active extruder now retracted / recovered
+  retracted.set(motion.extruder, retracting);             // Active extruder now retracted / recovered
 
   // If swap retract/recover update the retracted_swap flag too
   #if HAS_MULTI_EXTRUDER
-    if (swapping) retracted_swap.set(active_extruder, retracting);
+    if (swapping) retracted_swap.set(motion.extruder, retracting);
   #endif
 
   /* // debugging
     SERIAL_ECHOLNPGM("retracting ", AS_DIGIT(retracting));
     SERIAL_ECHOLNPGM("swapping ", AS_DIGIT(swapping));
-    SERIAL_ECHOLNPGM("active_extruder ", active_extruder);
+    SERIAL_ECHOLNPGM("motion.extruder ", motion.extruder);
     EXTRUDER_LOOP() {
       SERIAL_ECHOLNPGM("retracted[", e, "] ", AS_DIGIT(retracted[e]));
       #if HAS_MULTI_EXTRUDER
         SERIAL_ECHOLNPGM("retracted_swap[", e, "] ", AS_DIGIT(retracted_swap[e]));
       #endif
     }
-    SERIAL_ECHOLNPGM("current_position.z ", current_position.z);
-    SERIAL_ECHOLNPGM("current_position.e ", current_position.e);
+    SERIAL_ECHOLNPGM("motion.position.z ", motion.position.z);
+    SERIAL_ECHOLNPGM("motion.position.e ", motion.position.e);
     SERIAL_ECHOLNPGM("current_hop ", current_hop);
   //*/
 }

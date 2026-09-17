@@ -31,7 +31,7 @@ if pioutil.is_pio_build():
                     f"@echo ====== Configuring for marlin_{name} ======",
                     "restore_configs",
                     f"cp -f {path} ./Marlin/config.ini",
-                    "python ./buildroot/share/PlatformIO/scripts/configuration.py",
+                    "python3 ./buildroot/share/PlatformIO/scripts/configuration.py",
                     f"platformio test -e {env['PIOENV']} -f {name}",
                     "restore_configs",
                 ],

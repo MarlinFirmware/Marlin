@@ -25,9 +25,10 @@
  * temperature.h - temperature controller
  */
 
-#include "thermistor/thermistors.h"
-
 #include "../inc/MarlinConfig.h"
+
+#include "thermistor/thermistors.h"
+#include "fans.h"
 
 #if ENABLED(AUTO_POWER_CONTROL)
   #include "../feature/power.h"
@@ -418,14 +419,22 @@ typedef struct { float p, i, d, c, f; } raw_pidcf_t;
 typedef struct TempInfo {
   private:
     raw_adc_t acc;
-    raw_adc_t raw;
+    volatile raw_adc_t raw;
   public:
     celsius_float_t celsius;
     inline void reset() { acc = 0; }
     inline void sample(const raw_adc_t s) { acc += s; }
     inline void update() { raw = acc; }
     void setraw(const raw_adc_t r) { raw = r; }
-    raw_adc_t getraw() const { return raw; }
+    raw_adc_t getraw() const {
+      #ifndef CPU_32_BIT
+        raw_adc_t r1, r2;
+        do { r1 = raw; r2 = raw; } while (r1 != r2);
+        return r1;
+      #else
+        return raw;
+      #endif
+    }
 } temp_info_t;
 
 #if HAS_TEMP_REDUNDANT
@@ -680,15 +689,6 @@ class Temperature {
       static uint8_t coolerfan_speed;
     #endif
 
-    #if ENABLED(FAN_SOFT_PWM)
-      static uint8_t soft_pwm_amount_fan[FAN_COUNT],
-                     soft_pwm_count_fan[FAN_COUNT];
-    #endif
-
-    #if ALL(FAN_SOFT_PWM, USE_CONTROLLER_FAN)
-      static uint8_t soft_pwm_controllerfan_speed;
-    #endif
-
     #if ALL(HAS_MARLINUI_MENU, PREVENT_COLD_EXTRUSION) && E_MANUAL > 0
       static bool allow_cold_extrude_override;
       static void set_menu_cold_override(const bool allow) { allow_cold_extrude_override = allow; }
@@ -756,7 +756,7 @@ class Temperature {
 
       static heater_idle_t heater_idle[NR_HEATER_IDLE];
 
-    #endif // HEATER_IDLE_TIMER
+    #endif // HEATER_IDLE_HANDLER
 
     #if HAS_ADC_BUTTONS
       static uint32_t current_ADCKey_raw;
@@ -916,48 +916,13 @@ class Temperature {
     #endif
 
     #if HAS_FAN
-
-      static uint8_t fan_speed[FAN_COUNT];
-      #define FANS_LOOP(I) for (uint8_t I = 0; I < FAN_COUNT; ++I)
-
       static void set_fan_speed(const uint8_t fan, const uint16_t speed);
-
       #if ENABLED(REPORT_FAN_CHANGE)
         static void report_fan_speed(const uint8_t fan);
       #endif
-
-      #if ANY(PROBING_FANS_OFF, ADVANCED_PAUSE_FANS_PAUSE)
-        static bool fans_paused;
-        static uint8_t saved_fan_speed[FAN_COUNT];
-      #endif
-
-      #if ENABLED(ADAPTIVE_FAN_SLOWING)
-        static uint8_t fan_speed_scaler[FAN_COUNT];
-      #endif
-
-      static uint8_t scaledFanSpeed(const uint8_t fan, const uint8_t fs) {
-        UNUSED(fan); // Potentially unused!
-        return (fs * uint16_t(TERN(ADAPTIVE_FAN_SLOWING, fan_speed_scaler[fan], 128))) >> 7;
-      }
-
-      static uint8_t scaledFanSpeed(const uint8_t fan) {
-        return scaledFanSpeed(fan, fan_speed[fan]);
-      }
-
-      static constexpr inline uint8_t pwmToPercent(const uint8_t speed) { return ui8_to_percent(speed); }
-      static uint8_t fanSpeedPercent(const uint8_t fan)          { return ui8_to_percent(fan_speed[fan]); }
-      static uint8_t scaledFanSpeedPercent(const uint8_t fan)    { return ui8_to_percent(scaledFanSpeed(fan)); }
-
       #if ENABLED(EXTRA_FAN_SPEED)
-        typedef struct { uint8_t saved, speed; } extra_fan_t;
-        static extra_fan_t extra_fan_speed[FAN_COUNT];
         static void set_temp_fan_speed(const uint8_t fan, const uint16_t command_or_speed);
       #endif
-
-      #if ANY(PROBING_FANS_OFF, ADVANCED_PAUSE_FANS_PAUSE)
-        void set_fans_paused(const bool p);
-      #endif
-
     #endif // HAS_FAN
 
     static void zero_fan_speeds() {
@@ -1024,14 +989,12 @@ class Temperature {
       return TERN0(HAS_HOTEND, static_cast<celsius_t>(temp_hotend[HOTEND_INDEX].celsius + 0.5f));
     }
 
-    #if ENABLED(SHOW_TEMP_ADC_VALUES)
-      static raw_adc_t rawHotendTemp(const uint8_t E_NAME) {
-        return TERN0(HAS_HOTEND, temp_hotend[HOTEND_INDEX].getraw());
-      }
-    #endif
-
     static celsius_t degTargetHotend(const uint8_t E_NAME) {
       return TERN0(HAS_HOTEND, temp_hotend[HOTEND_INDEX].target);
+    }
+
+    static raw_adc_t rawHotendTemp(const uint8_t E_NAME) {
+      return TERN0(HAS_HOTEND, temp_hotend[HOTEND_INDEX].getraw());
     }
 
     #if HAS_HOTEND
@@ -1100,10 +1063,7 @@ class Temperature {
     #endif
 
     #if HAS_HEATED_BED
-
-      #if ENABLED(SHOW_TEMP_ADC_VALUES)
-        static raw_adc_t rawBedTemp()  { return temp_bed.getraw(); }
-      #endif
+      static raw_adc_t rawBedTemp()    { return temp_bed.getraw(); }
       static celsius_float_t degBed()  { return temp_bed.celsius; }
       static celsius_t wholeDegBed()   { return static_cast<celsius_t>(degBed() + 0.5f); }
       static celsius_t degTargetBed()  { return temp_bed.target; }
@@ -1139,9 +1099,7 @@ class Temperature {
     #endif // HAS_HEATED_BED
 
     #if HAS_TEMP_PROBE
-      #if ENABLED(SHOW_TEMP_ADC_VALUES)
-        static raw_adc_t rawProbeTemp()  { return temp_probe.getraw(); }
-      #endif
+      static raw_adc_t rawProbeTemp()    { return temp_probe.getraw(); }
       static celsius_float_t degProbe()  { return temp_probe.celsius; }
       static celsius_t wholeDegProbe()   { return static_cast<celsius_t>(degProbe() + 0.5f); }
       static bool isProbeBelowTemp(const celsius_t target_temp) { return wholeDegProbe() < target_temp; }
@@ -1150,9 +1108,7 @@ class Temperature {
     #endif
 
     #if HAS_TEMP_CHAMBER
-      #if ENABLED(SHOW_TEMP_ADC_VALUES)
-        static raw_adc_t rawChamberTemp()    { return temp_chamber.getraw(); }
-      #endif
+      static raw_adc_t rawChamberTemp()      { return temp_chamber.getraw(); }
       static celsius_float_t degChamber()    { return temp_chamber.celsius; }
       static celsius_t wholeDegChamber()     { return static_cast<celsius_t>(degChamber() + 0.5f); }
       #if HAS_HEATED_CHAMBER
@@ -1174,9 +1130,7 @@ class Temperature {
     #endif
 
     #if HAS_TEMP_COOLER
-      #if ENABLED(SHOW_TEMP_ADC_VALUES)
-        static raw_adc_t rawCoolerTemp()   { return temp_cooler.getraw(); }
-      #endif
+      static raw_adc_t rawCoolerTemp()     { return temp_cooler.getraw(); }
       static celsius_float_t degCooler()   { return temp_cooler.celsius; }
       static celsius_t wholeDegCooler()    { return static_cast<celsius_t>(temp_cooler.celsius + 0.5f); }
       #if HAS_COOLER
@@ -1189,25 +1143,19 @@ class Temperature {
     #endif
 
     #if HAS_TEMP_BOARD
-      #if ENABLED(SHOW_TEMP_ADC_VALUES)
-        static raw_adc_t rawBoardTemp()  { return temp_board.getraw(); }
-      #endif
+      static raw_adc_t rawBoardTemp()    { return temp_board.getraw(); }
       static celsius_float_t degBoard()  { return temp_board.celsius; }
       static celsius_t wholeDegBoard()   { return static_cast<celsius_t>(temp_board.celsius + 0.5f); }
     #endif
 
     #if HAS_TEMP_SOC
-      #if ENABLED(SHOW_TEMP_ADC_VALUES)
-        static raw_adc_t rawSocTemp()    { return temp_soc.getraw(); }
-      #endif
+      static raw_adc_t rawSocTemp()      { return temp_soc.getraw(); }
       static celsius_float_t degSoc()    { return temp_soc.celsius; }
       static celsius_t wholeDegSoc()     { return static_cast<celsius_t>(temp_soc.celsius + 0.5f); }
     #endif
 
     #if HAS_TEMP_REDUNDANT
-      #if ENABLED(SHOW_TEMP_ADC_VALUES)
-        static raw_adc_t rawRedundantTemp()       { return temp_redundant.getraw(); }
-      #endif
+      static raw_adc_t rawRedundantTemp()         { return temp_redundant.getraw(); }
       static celsius_float_t degRedundant()       { return temp_redundant.celsius; }
       static celsius_float_t degRedundantTarget() { return (*temp_redundant.target).celsius; }
       static celsius_t wholeDegRedundant()        { return static_cast<celsius_t>(temp_redundant.celsius + 0.5f); }
@@ -1411,6 +1359,12 @@ class Temperature {
     #endif
     #if TEMP_SENSOR_IS_MAX_TC(BED)
       static raw_adc_t read_max_tc_bed();
+    #endif
+
+    // ADS Thermocouples
+    #if HAS_ADS1118
+      #define READ_ADS(N) read_ads1118(N)
+      static raw_adc_t read_ads1118(const uint8_t hindex=0);
     #endif
 
     #if HAS_AUTO_FAN

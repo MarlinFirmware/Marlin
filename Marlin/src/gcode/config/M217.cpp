@@ -31,7 +31,7 @@
 #endif
 
 #if ENABLED(TOOLCHANGE_MIGRATION_FEATURE)
-  #include "../../module/motion.h" // for active_extruder
+  #include "../../module/motion.h" // for motion.extruder
 #endif
 
 /**
@@ -133,7 +133,7 @@ void GcodeSuite::M217() {
       const int16_t lval = parser.value_int();
       if (WITHIN(lval, 0, EXTRUDERS - 1)) {
         migration.last = lval;
-        migration.automode = (active_extruder < migration.last);
+        migration.automode = (motion.extruder < migration.last);
       }
     }
 
@@ -143,7 +143,7 @@ void GcodeSuite::M217() {
     if (parser.seen('T')) {     // Migrate now
       if (parser.has_value()) {
         const int16_t tval = parser.value_int();
-        if (WITHIN(tval, 0, EXTRUDERS - 1) && tval != active_extruder) {
+        if (WITHIN(tval, 0, EXTRUDERS - 1) && tval != motion.extruder) {
           migration.target = tval + 1;
           extruder_migration();
           migration.target = 0; // disable

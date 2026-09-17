@@ -34,7 +34,13 @@ def language_export(args={}):
 
         # Skip 'test' and any others that we don't want
         if langcode in ['test']: continue
-        if langcode != 'en' and args.languages and langcode not in args.languages: continue
+
+        # Allow space-delimited list or multiple arguments
+        if args.language:
+            language_args = args.language[0].split(' ') if ' ' in args.language[0] else args.language
+
+        # Always load canonical US English and specified (or all other) languages
+        if langcode != 'en' and language_args and langcode not in language_args: continue
 
         # Open the file
         f = open(langfile, 'r', encoding='utf-8')
@@ -80,8 +86,9 @@ def language_export(args={}):
                 value = re.sub(r'"(.*?)"', r'\1', value).replace('$$$', '""')
                 # Store all unique names as dictionary keys
                 names[name] = 1
-                # Store the string as narrow or wide
-                strings['tall' if tallflag else 'wide' if wideflag else 'narrow'][name] = value
+                # Store the string as narrow, wide, tall
+                section = 'tall' if tallflag else 'wide' if wideflag else 'narrow'
+                strings[section][name] = value
 
                 # Increment the string counter
                 stringcount += 1
@@ -96,7 +103,8 @@ def language_export(args={}):
     # Get the codes of all imported languages
     langcodes = list(language_strings.keys())
 
-    print("Languages:", ' '.join(langcodes))
+    if args.verbose:
+        print("Languages:", ' '.join(langcodes))
 
     # Print the array
     #print(language_strings)
@@ -263,13 +271,13 @@ if __name__ == "__main__":
 
     # Parse and validate all arguments
     parser = argparse.ArgumentParser(description="Export LCD language strings to CSV with optional translation")
-    parser.add_argument('-l', '--languages', action="append", default=None, help="Languages to translate (otherwise all)")
-    parser.add_argument('-s', '--single', action="store_true", help="Output a single spreadsheet (languages.csv)")
-    parser.add_argument('-v', '--verbose', action="store_true", help="Extra output for debugging")
-    parser.add_argument('-n', '--limit', default=0, help="Limit the number of exported items")
-    parser.add_argument('-t', '--translate', action="store_true", help="Use an LLM to translate strings")
-    parser.add_argument('-d', '--dothink', action="store_true", help="Use thinking if the model supports it")
-    parser.add_argument('-m', '--model', default=None, help="Override the default LLM model for translation")
+    parser.add_argument('-l', '--language', action="append", default=None, help="specify language(s) to translate from canonical English")
+    parser.add_argument('-s', '--single', action="store_true", help="output a single spreadsheet (languages.csv)")
+    parser.add_argument('-v', '--verbose', action="store_true", help="extra output for debugging")
+    parser.add_argument('-n', '--limit', default=0, help="limit the number of exported items")
+    parser.add_argument('-t', '--translate', action="store_true", help="use an LLM to translate strings")
+    parser.add_argument('-d', '--dothink', action="store_true", help="use thinking if the model supports it")
+    parser.add_argument('-m', '--model', default=None, help="override the default LLM model for translation")
     args = parser.parse_args()
 
     if not args.translate:

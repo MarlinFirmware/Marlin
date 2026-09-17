@@ -205,7 +205,7 @@ typedef struct {
             filamentchange_unload_length,
             filamentchange_unload_speed;
   celsius_t filament_limit_temp;
-  float     pausePosX, pausePosY, pausePosZ;
+  xyz_pos_t pausePos;
   uint32_t  curFilesize;
 } CFG_ITMES;
 
@@ -255,10 +255,7 @@ typedef struct UI_Config_Struct {
            filament_unloading_time_cnt;
   float move_dist;
   celsius_t hotendTargetTempBak;
-  float current_x_position_bak,
-        current_y_position_bak,
-        current_z_position_bak,
-        current_e_position_bak;
+  xyze_pos_t current_position_bak;
 } UI_CFG;
 
 typedef enum {
@@ -461,7 +458,7 @@ void update_gcode_command(int addr, uint8_t *s);
 void get_gcode_command(int addr, uint8_t *d);
 void lv_serial_capt_hook(void *, uint8_t);
 void lv_eom_hook(void *);
-#if HAS_GCODE_PREVIEW
+#if MKS_GCODE_PREVIEW
   void disp_pre_gcode(int xpos_pixel, int ypos_pixel);
 #endif
 void GUI_RefreshPage();

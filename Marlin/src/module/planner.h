@@ -53,6 +53,10 @@
 #include "motion.h"
 #include "../gcode/queue.h"
 
+#if HAS_FAN
+  #include "temperature.h"
+#endif
+
 #if ENABLED(DELTA)
   #include "delta.h"
 #elif ENABLED(POLARGRAPH)
@@ -190,6 +194,52 @@ typedef struct {
 
 #endif
 
+typedef struct DistanceMM : abce_float_t {
+  #if ANY(HAS_REAL_X, HAS_REAL_Y, HAS_REAL_Z)
+    struct {
+      #if HAS_REAL_X
+        float x;
+      #endif
+      #if HAS_REAL_Y
+        float y;
+      #endif
+      #if HAS_REAL_Z
+        float z;
+      #endif
+    } real;
+  #endif
+  const float& operator[](const int n) const {
+    switch (n) {
+      #if HAS_REAL_X
+        case X_REAL: return real.x;
+      #endif
+      #if HAS_REAL_Y
+        case Y_REAL: return real.y;
+      #endif
+      #if HAS_REAL_Z
+        case Z_REAL: return real.z;
+      #endif
+      default: break;
+    }
+    return pos[n];
+  }
+  float& operator[](const int n) {
+    switch (n) {
+      #if HAS_REAL_X
+        case X_REAL: return real.x;
+      #endif
+      #if HAS_REAL_Y
+        case Y_REAL: return real.y;
+      #endif
+      #if HAS_REAL_Z
+        case Z_REAL: return real.z;
+      #endif
+      default: break;
+    }
+    return pos[n];
+  }
+} ext_distance_t;
+
 /**
  * struct block_t
  *
@@ -218,6 +268,10 @@ typedef struct PlannerBlock {
         millimeters,                        // The total travel of this block in mm
         steps_per_mm,                       // steps/mm
         acceleration;                       // acceleration mm/sec^2
+
+  #if ENABLED(FTM_CONSTANT_JOLT)
+    float vmax_junction;                    // Original junction speed limit (mm/sec), never modified by recalculate
+  #endif
 
   union {
     abce_ulong_t steps;                     // Step count along each axis
@@ -262,7 +316,7 @@ typedef struct PlannerBlock {
   AxisBits direction_bits;                  // Direction bits set for this block, where 1 is negative motion
 
   #if ENABLED(FT_MOTION)
-    xyze_pos_t dist_mm;                     // The distance traveled in mm along each axis
+    ext_distance_t ext_distance_mm;         // The distance traveled in mm along each axis
   #endif
 
   #if ANY(SMOOTH_LIN_ADVANCE, FTM_HAS_LIN_ADVANCE)
@@ -299,7 +353,7 @@ typedef struct PlannerBlock {
   #endif
 
   #if HAS_FAN
-    uint8_t fan_speed[FAN_COUNT];
+    uint8_t fan_speed[FAN_COUNT];           // Speeds of all fans
   #endif
 
   #if ENABLED(BARICUDA)
@@ -534,19 +588,19 @@ class Planner {
 
     #if HAS_LIN_ADVANCE_K
       static float extruder_advance_K[DISTINCT_E];
-      static void set_advance_k(const float k, const uint8_t e=active_extruder) {
+      static void set_advance_k(const float k, const uint8_t e=motion.extruder) {
         UNUSED(e);
         extruder_advance_K[E_INDEX_N(e)] = k;
         TERN_(SMOOTH_LIN_ADVANCE, extruder_advance_K_q27[E_INDEX_N(e)] = k * _BV32(27));
       }
-      static float get_advance_k(const uint8_t e=active_extruder) {
+      static float get_advance_k(const uint8_t e=motion.extruder) {
         UNUSED(e);
         return extruder_advance_K[E_INDEX_N(e)];
       }
     #endif
 
     #if ENABLED(SMOOTH_LIN_ADVANCE)
-      static uint32_t get_advance_k_q27(const uint8_t e=active_extruder) {
+      static uint32_t get_advance_k_q27(const uint8_t e=motion.extruder) {
         UNUSED(e);
         return extruder_advance_K_q27[E_INDEX_N(e)];
       }
@@ -683,16 +737,6 @@ class Planner {
 
     #if ENABLED(AUTOTEMP)
       static float get_high_e_speed();
-    #endif
-
-    // Apply fan speeds
-    #if HAS_FAN
-      static void sync_fan_speeds(uint8_t (&fan_speed)[FAN_COUNT]);
-      #if FAN_KICKSTART_TIME
-        static void kickstart_fan(uint8_t (&fan_speed)[FAN_COUNT], const millis_t &ms, const uint8_t f);
-      #else
-        FORCE_INLINE static void kickstart_fan(uint8_t (&)[FAN_COUNT], const millis_t &, const uint8_t) {}
-      #endif
     #endif
 
     #if ENABLED(FILAMENT_WIDTH_SENSOR)
@@ -957,7 +1001,7 @@ class Planner {
      * @param abce          Target position in mm and/or degrees
      * @param cart_dist_mm  The pre-calculated move lengths for all axes, in mm
      * @param fr_mm_s       (Target) speed of the move
-     * @param extruder      Optional target extruder (otherwise active_extruder)
+     * @param extruder      Optional target extruder (otherwise motion.extruder)
      * @param hints         Optional parameters to aid planner calculations
      *
      * @return  false if no segment was queued due to cleaning, cold extrusion, full queue, etc...
@@ -965,7 +1009,7 @@ class Planner {
     static bool buffer_segment(const abce_pos_t &abce
       OPTARG(HAS_DIST_MM_ARG, const xyze_float_t &cart_dist_mm)
       , const feedRate_t fr_mm_s
-      , const uint8_t extruder=active_extruder
+      , const uint8_t extruder=motion.extruder
       , const PlannerHints &hints=PlannerHints()
     );
 
@@ -978,13 +1022,13 @@ class Planner {
      *
      * @param cart      Target position in mm or degrees
      * @param fr_mm_s   (Target) speed of the move (mm/s)
-     * @param extruder  Optional target extruder (otherwise active_extruder)
+     * @param extruder  Optional target extruder (otherwise motion.extruder)
      * @param hints     Optional parameters to aid planner calculations
      *
      * @return  false if no segment was queued due to cleaning, cold extrusion, full queue, etc...
      */
     static bool buffer_line(const xyze_pos_t &cart, const feedRate_t fr_mm_s
-      , const uint8_t extruder=active_extruder
+      , const uint8_t extruder=motion.extruder
       , const PlannerHints &hints=PlannerHints()
     );
 
@@ -1154,25 +1198,48 @@ class Planner {
 
     #if IS_KINEMATIC
       // Allow do_homing_move to access internal functions, such as buffer_segment.
-      friend void do_homing_move(const AxisEnum, const float, const feedRate_t, const bool);
+      friend void Motion::do_homing_move(const AxisEnum, const float, const feedRate_t, const bool);
     #endif
 
     #if HAS_JUNCTION_DEVIATION
 
-      FORCE_INLINE static void normalize_junction_vector(xyze_float_t &vector) {
-        float magnitude_sq = 0;
-        LOOP_LOGICAL_AXES(idx) if (vector[idx]) magnitude_sq += sq(vector[idx]);
-        vector *= RSQRT(magnitude_sq);
+
+      // TODO: *might* need to increase a bit, e.g., 6.4e-5f
+      #ifndef JD_VECTOR_NORMALIZE_M2_THRESHOLD
+        #define JD_VECTOR_NORMALIZE_M2_THRESHOLD 2.0e-6f
+      #endif
+      // TODO: *might* need to increase a bit, e.g., 8e-3f
+      #ifndef LIMIT_DIVISOR_THRESHOLD
+        #define LIMIT_DIVISOR_THRESHOLD 1.5e-3f
+      #endif
+
+      // TODO: Might change to NOLESS(junction_cos_theta,-0.999968f) in planner.cpp also
+
+      // Return 'true' if the magnitude_sq is insignificant
+      FORCE_INLINE static bool normalize_junction_vector(xyze_float_t &vector) {
+        float magnitude_sq = 0.0f;
+        LOOP_LOGICAL_AXES(axis) if (vector[axis]) magnitude_sq += sq(vector[axis]);
+        // Avoid divide by near-zero (to prevent stuttering).
+        // Threshold consistent with junction_cos_theta.
+        if (magnitude_sq > JD_VECTOR_NORMALIZE_M2_THRESHOLD) {
+          vector *= RSQRT(magnitude_sq);
+          return false;
+        }
+        return true;
       }
 
-      // max_value is block->acceleration
-      FORCE_INLINE static float limit_value_by_axis_maximum(const float max_value, xyze_float_t &unit_vec) {
+      // max_value is block->acceleration here used as our nominal or maximum
+      // unit_vec is the direction of the normal (i.e., perpendicular) acceleration _only_
+      FORCE_INLINE static float limit_jd_acceleration_by_axis_maximum(const float max_value, xyze_float_t &unit_vec) {
         float limit_value = max_value;
-        LOOP_LOGICAL_AXES(idx) {
-          if (unit_vec[idx]) {
-            const uint32_t abs_vec = ABS(unit_vec[idx]);
-            if (limit_value * abs_vec > settings.max_acceleration_mm_per_s2[idx])
-              limit_value = settings.max_acceleration_mm_per_s2[idx] / abs_vec;
+        LOOP_LOGICAL_AXES(axis) {
+          const float abs_vec = ABS(unit_vec[axis]);
+          // Skip small components, avoiding divide by almost-zero
+          if (abs_vec > LIMIT_DIVISOR_THRESHOLD) {  // sqrt of normalize_junction_vector() threshold (for good measure)
+            // i.e., NOMORE(limit_valuw, settings.max_acceleration_mm_per_s2[axis] / abs_vec)
+            //       But we do it this way to avoid division unless limiting.
+            if (limit_value * abs_vec > settings.max_acceleration_mm_per_s2[axis])
+              limit_value = settings.max_acceleration_mm_per_s2[axis] / abs_vec;
           }
         }
         return limit_value;

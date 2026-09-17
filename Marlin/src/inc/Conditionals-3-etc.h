@@ -385,12 +385,6 @@
   #else
     #define HAS_REAL_BED_PROBE 1
   #endif
-  #if HAS_REAL_BED_PROBE && NONE(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN, Z_SPI_SENSORLESS)
-    #define NEED_Z_MIN_PROBE_PIN 1
-  #endif
-  #if Z_HOME_TO_MIN && (!NEED_Z_MIN_PROBE_PIN || ENABLED(USE_PROBE_FOR_Z_HOMING))
-    #define HOMING_Z_WITH_PROBE 1
-  #endif
   #if DISABLED(NOZZLE_AS_PROBE)
     #define HAS_PROBE_XY_OFFSET 1
   #endif
@@ -399,6 +393,14 @@
   #endif
   #ifndef Z_PROBE_ERROR_TOLERANCE
     #define Z_PROBE_ERROR_TOLERANCE Z_CLEARANCE_MULTI_PROBE
+  #endif
+  #if ENABLED(DWIN_LCD_PROUI) && DISABLED(BD_SENSOR)
+    #ifndef MULTIPLE_PROBING
+      #define MULTIPLE_PROBING 2
+    #endif
+    #ifdef EXTRA_PROBING
+      #undef EXTRA_PROBING // Not used with MULTIPLE_PROBING
+    #endif
   #endif
   #if MULTIPLE_PROBING > 1
     #if EXTRA_PROBING > 0
@@ -412,8 +414,8 @@
   #undef Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN
   #undef Z_MIN_PROBE_ENDSTOP_HIT_STATE
   #undef USE_PROBE_FOR_Z_HOMING
+  #undef PROBE_Z0_BEFORE_G29
   #undef Z_MIN_PROBE_REPEATABILITY_TEST
-  #undef HOMING_Z_WITH_PROBE
   #undef Z_CLEARANCE_MULTI_PROBE
   #undef Z_PROBE_ERROR_TOLERANCE
   #undef Z_AFTER_PROBING
@@ -462,8 +464,9 @@
 #endif
 #if ANY(AUTO_BED_LEVELING_LINEAR, AUTO_BED_LEVELING_BILINEAR)
   #define ABL_USES_GRID 1
-  #ifndef XY_PROBE_FEEDRATE_MIN
-    #define XY_PROBE_FEEDRATE_MIN 60 // Minimum mm/min value for 'G29 S<feedrate>'
+  #define HAS_VARIABLE_XY_PROBE_FEEDRATE 1
+  #ifndef XY_PROBE_MIN_FEEDRATE_MM_M
+    #define XY_PROBE_MIN_FEEDRATE_MM_M 60 // (mm/min) Minimum permitted speed for 'G29 S<feedrate>'
   #endif
 #endif
 #if ANY(AUTO_BED_LEVELING_LINEAR, AUTO_BED_LEVELING_BILINEAR, AUTO_BED_LEVELING_3POINT)
@@ -501,6 +504,12 @@
 
 #if !HAS_MESH
   #undef MESH_INSET
+#endif
+#if ALL(DWIN_LCD_PROUI, HAS_MESH)
+  #define HAS_PROUI_MESH_EDIT 1
+  #ifndef MESH_INSET
+    #define MESH_INSET 10
+  #endif
 #endif
 
 #if NONE(PROBE_SELECTED, AUTO_BED_LEVELING_UBL)
@@ -584,6 +593,15 @@
 #if ANY(COREYZ, COREZY)
   #define CORE_IS_YZ 1
 #endif
+#if ANY(CORE_IS_XY, CORE_IS_XZ, MARKFORGED_XY)
+  #define HAS_REAL_X 1
+#endif
+#if ANY(CORE_IS_XY, CORE_IS_YZ, MARKFORGED_YX)
+  #define HAS_REAL_Y 1
+#endif
+#if CORE_IS_XZ || CORE_IS_YZ
+  #define HAS_REAL_Z 1
+#endif
 #if CORE_IS_XY || CORE_IS_XZ || CORE_IS_YZ
   #define IS_CORE 1
   #if CORE_IS_XY
@@ -607,7 +625,7 @@
   #define NORMAL_AXIS Z_AXIS
 #endif
 
-#if ANY(MORGAN_SCARA, MP_SCARA, AXEL_TPARA)
+#if ANY(SCARA, AXEL_TPARA)
   #define IS_SCARA 1
   #define IS_KINEMATIC 1
 #elif ANY(DELTA, POLARGRAPH, POLAR)

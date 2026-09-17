@@ -89,6 +89,11 @@
     #endif
   );
 
+#elif ENABLED(MIGHTYBOARD_LCD)
+
+  // 3-wire shift-register LCD for Mightyboard
+  LCD_CLASS lcd;
+
 #elif ENABLED(SR_LCD_3W_NL)
 
   // NewLiquidCrystal was not working
@@ -388,7 +393,7 @@ void MarlinUI::init_lcd() {
   #elif ENABLED(LCD_I2C_TYPE_MCP23017)
     lcd.setMCPType(LTI_TYPE_MCP23017);
     lcd.begin(LCD_WIDTH, LCD_HEIGHT);
-    update_indicators();
+    update_indicators(true);   // Force turning off the LEDs at startup
 
   #elif ENABLED(LCD_I2C_TYPE_MCP23008)
     lcd.setMCPType(LTI_TYPE_MCP23008);
@@ -584,9 +589,9 @@ FORCE_INLINE void _draw_axis_value(const AxisEnum axis, const char *value, const
   lcd_put_lchar('X' + uint8_t(axis));
   if (blink)
     lcd_put_u8str(value);
-  else if (axis_should_home(axis))
+  else if (motion.axis_should_home(axis))
     while (const char c = *value++) lcd_put_lchar(c <= '.' ? c : '?');
-  else if (NONE(HOME_AFTER_DEACTIVATE, DISABLE_REDUCED_ACCURACY_WARNING) && !axis_is_trusted(axis))
+  else if (NONE(HOME_AFTER_DEACTIVATE, DISABLE_REDUCED_ACCURACY_WARNING) && !motion.axis_is_trusted(axis))
     lcd_put_u8str(TERN0(HAS_Z_AXIS, axis == Z_AXIS) ? F("       ") : F("    "));
   else
     lcd_put_u8str(value);
@@ -1077,14 +1082,14 @@ void MarlinUI::draw_status_screen() {
             if (show_e_total) {
               #if ENABLED(LCD_SHOW_E_TOTAL)
                 char tmp[20];
-                const uint8_t escale = e_move_accumulator >= 100000.0f ? 10 : 1; // After 100m switch to cm
-                sprintf_P(tmp, PSTR("E %ld%cm       "), uint32_t(_MAX(e_move_accumulator, 0.0f)) / escale, escale == 10 ? 'c' : 'm'); // 1234567mm
+                const uint8_t escale = motion.e_move_accumulator >= 100000.0f ? 10 : 1; // After 100m switch to cm
+                sprintf_P(tmp, PSTR("E %" PRIu32 "%cm       "), uint32_t(_MAX(motion.e_move_accumulator, 0.0f)) / escale, escale == 10 ? 'c' : 'm'); // 1234567mm
                 lcd_put_u8str(tmp);
               #endif
             }
             else {
               #if HAS_X_AXIS
-                const xy_pos_t lpos = current_position.asLogical();
+                const xy_pos_t lpos = motion.position.asLogical();
                 _draw_axis_value(X_AXIS, ftostr4sign(lpos.x), blink);
               #endif
               #if HAS_Y_AXIS
@@ -1101,7 +1106,7 @@ void MarlinUI::draw_status_screen() {
 
       #if HAS_Z_AXIS
         lcd_moveto(LCD_WIDTH - 8, 1);
-        _draw_axis_value(Z_AXIS, ftostr52sp(LOGICAL_Z_POSITION(current_position.z)), blink);
+        _draw_axis_value(Z_AXIS, ftostr52sp(motion.logical_z(motion.position.z)), blink);
         #if HAS_LEVELING && !HAS_HEATED_BED
           lcd_put_lchar(planner.leveling_active || blink ? '_' : ' ');
         #endif
@@ -1114,7 +1119,7 @@ void MarlinUI::draw_status_screen() {
     #if LCD_HEIGHT > 3
 
       lcd_put_lchar(0, 2, LCD_STR_FEEDRATE[0]);
-      lcd_put_u8str(i16tostr3rj(feedrate_percentage));
+      lcd_put_u8str(i16tostr3rj(motion.feedrate_percentage));
       lcd_put_u8str(F("%"));
 
       #if LCD_WIDTH >= 20
@@ -1128,15 +1133,15 @@ void MarlinUI::draw_status_screen() {
           #if HAS_FAN0
             if (true
               #if ALL(HAS_EXTRUDERS, ADAPTIVE_FAN_SLOWING)
-                && (blink || thermalManager.fan_speed_scaler[0] < 128)
+                && (blink || fans[0].speed_scaler < 128)
               #endif
             ) {
-              uint16_t spd = thermalManager.fan_speed[0];
+              uint16_t spd = fans[0].speed;
               if (blink) c = 'F';
               #if ENABLED(ADAPTIVE_FAN_SLOWING)
-                else { c = '*'; spd = thermalManager.scaledFanSpeed(0, spd); }
+                else { c = '*'; spd = fans[0].scaled_speed(spd); }
               #endif
-              pct = thermalManager.pwmToPercent(spd);
+              pct = Fan::pwmToPercent(spd);
             }
             else
           #endif
@@ -1168,7 +1173,7 @@ void MarlinUI::draw_status_screen() {
     //
     #if HAS_Z_AXIS
       lcd_moveto(LCD_WIDTH - 9, 0);
-      _draw_axis_value(Z_AXIS, ftostr52sp(LOGICAL_Z_POSITION(current_position.z)), blink);
+      _draw_axis_value(Z_AXIS, ftostr52sp(motion.logical_z(motion.position.z)), blink);
     #endif
 
     #if HAS_LEVELING && (HAS_MULTI_HOTEND || !HAS_HEATED_BED)
@@ -1188,7 +1193,7 @@ void MarlinUI::draw_status_screen() {
     #endif
 
     lcd_put_lchar(LCD_WIDTH - 9, 1, LCD_STR_FEEDRATE[0]);
-    lcd_put_u8str(i16tostr3rj(feedrate_percentage));
+    lcd_put_u8str(i16tostr3rj(motion.feedrate_percentage));
     lcd_put_u8str(F("%"));
 
     // ========== Line 3 ==========
@@ -1223,20 +1228,20 @@ void MarlinUI::draw_status_screen() {
     // X Coordinate
     //
     lcd_moveto(0, 0);
-    _draw_axis_value(X_AXIS, ftostr52sp(LOGICAL_X_POSITION(current_position.x)), blink);
+    _draw_axis_value(X_AXIS, ftostr52sp(motion.logical_x(motion.position.x)), blink);
 
     //
     // Y Coordinate
     //
     lcd_moveto(LCD_WIDTH - 9, 0);
-    _draw_axis_value(Y_AXIS, ftostr52sp(LOGICAL_Y_POSITION(current_position.y)), blink);
+    _draw_axis_value(Y_AXIS, ftostr52sp(motion.logical_y(motion.position.y)), blink);
 
     // ========== Line 2 ==========
     lcd_moveto(0, 1);
-    _draw_axis_value(Z_AXIS, ftostr52sp(LOGICAL_Z_POSITION(current_position.z)), blink);
+    _draw_axis_value(Z_AXIS, ftostr52sp(motion.logical_z(motion.position.z)), blink);
 
     lcd_moveto(LCD_WIDTH - 9, 1);
-    _draw_axis_value(I_AXIS, ftostr52sp(LOGICAL_I_POSITION(current_position.i)), blink);
+    _draw_axis_value(I_AXIS, ftostr52sp(motion.logical_i(motion.position.i)), blink);
 
     // ========== Line 3 ==========
     lcd_moveto(0, 2);
@@ -1381,7 +1386,7 @@ void MarlinUI::draw_status_screen() {
 
   #if ENABLED(LCD_HAS_STATUS_INDICATORS)
 
-    void MarlinUI::update_indicators() {
+    void MarlinUI::update_indicators(const bool forceUpdate) {
       // Set the LEDS - referred to as backlights by the LiquidTWI2 library
       static uint8_t ledsprev = 0;
       uint8_t leds = 0;
@@ -1390,20 +1395,20 @@ void MarlinUI::draw_status_screen() {
       if (TERN0(HAS_HOTEND, thermalManager.degTargetHotend(0) > 0)) leds |= LED_B;
 
       #if HAS_FAN
-        if ( TERN0(HAS_FAN0, thermalManager.fan_speed[0])
-          || TERN0(HAS_FAN1, thermalManager.fan_speed[1])
-          || TERN0(HAS_FAN2, thermalManager.fan_speed[2])
-          || TERN0(HAS_FAN3, thermalManager.fan_speed[3])
-          || TERN0(HAS_FAN4, thermalManager.fan_speed[4])
-          || TERN0(HAS_FAN5, thermalManager.fan_speed[5])
-          || TERN0(HAS_FAN6, thermalManager.fan_speed[6])
-          || TERN0(HAS_FAN7, thermalManager.fan_speed[7])
+        if ( TERN0(HAS_FAN0, fans[0].speed)
+          || TERN0(HAS_FAN1, fans[1].speed)
+          || TERN0(HAS_FAN2, fans[2].speed)
+          || TERN0(HAS_FAN3, fans[3].speed)
+          || TERN0(HAS_FAN4, fans[4].speed)
+          || TERN0(HAS_FAN5, fans[5].speed)
+          || TERN0(HAS_FAN6, fans[6].speed)
+          || TERN0(HAS_FAN7, fans[7].speed)
         ) leds |= LED_C;
       #endif // HAS_FAN
 
       if (TERN0(HAS_MULTI_HOTEND, thermalManager.degTargetHotend(1) > 0)) leds |= LED_C;
 
-      if (leds != ledsprev) {
+      if (leds != ledsprev || forceUpdate) {
         lcd.setBacklight(leds);
         ledsprev = leds;
       }
@@ -1521,9 +1526,9 @@ void MarlinUI::draw_status_screen() {
          * Show X and Y positions
          */
         _XLABEL(_PLOT_X, 0);
-        lcd_put_u8str(ftostr52(LOGICAL_X_POSITION(bedlevel.get_mesh_x(x_plot))));
+        lcd_put_u8str(ftostr52(motion.logical_x(bedlevel.get_mesh_x(x_plot))));
         _YLABEL(_LCD_W_POS, 0);
-        lcd_put_u8str(ftostr52(LOGICAL_Y_POSITION(bedlevel.get_mesh_y(y_plot))));
+        lcd_put_u8str(ftostr52(motion.logical_y(bedlevel.get_mesh_y(y_plot))));
 
         lcd_moveto(_PLOT_X, 0);
 
@@ -1726,9 +1731,9 @@ void MarlinUI::draw_status_screen() {
          * Show all values at right of screen
          */
         _XLABEL(_LCD_W_POS, 1);
-        lcd_put_u8str(ftostr52(LOGICAL_X_POSITION(bedlevel.get_mesh_x(x_plot))));
+        lcd_put_u8str(ftostr52(motion.logical_x(bedlevel.get_mesh_x(x_plot))));
         _YLABEL(_LCD_W_POS, 2);
-        lcd_put_u8str(ftostr52(LOGICAL_Y_POSITION(bedlevel.get_mesh_y(y_plot))));
+        lcd_put_u8str(ftostr52(motion.logical_y(bedlevel.get_mesh_y(y_plot))));
 
         /**
          * Show the location value

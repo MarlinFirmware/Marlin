@@ -540,8 +540,58 @@ constexpr pin_t sensitive_dio[] PROGMEM = {
   #if PIN_EXISTS(FAN7)
     FAN7_PIN,
   #endif
+  #if PIN_EXISTS(FAN8)
+    FAN8_PIN,
+  #endif
+  #if PIN_EXISTS(FAN9)
+    FAN9_PIN,
+  #endif
+  #if PIN_EXISTS(FAN10)
+    FAN10_PIN,
+  #endif
+  #if PIN_EXISTS(FAN11)
+    FAN11_PIN,
+  #endif
   #if PIN_EXISTS(CONTROLLER_FAN)
     CONTROLLER_FAN_PIN,
+  #endif
+
+  // Part cooling fan pin indirection (may differ from hardware FAN pins)
+  #if PIN_EXISTS(PART_COOLING_FAN0)
+    PART_COOLING_FAN0_PIN,
+  #endif
+  #if PIN_EXISTS(PART_COOLING_FAN1)
+    PART_COOLING_FAN1_PIN,
+  #endif
+  #if PIN_EXISTS(PART_COOLING_FAN2)
+    PART_COOLING_FAN2_PIN,
+  #endif
+  #if PIN_EXISTS(PART_COOLING_FAN3)
+    PART_COOLING_FAN3_PIN,
+  #endif
+  #if PIN_EXISTS(PART_COOLING_FAN4)
+    PART_COOLING_FAN4_PIN,
+  #endif
+  #if PIN_EXISTS(PART_COOLING_FAN5)
+    PART_COOLING_FAN5_PIN,
+  #endif
+  #if PIN_EXISTS(PART_COOLING_FAN6)
+    PART_COOLING_FAN6_PIN,
+  #endif
+  #if PIN_EXISTS(PART_COOLING_FAN7)
+    PART_COOLING_FAN7_PIN,
+  #endif
+  #if PIN_EXISTS(PART_COOLING_FAN8)
+    PART_COOLING_FAN8_PIN,
+  #endif
+  #if PIN_EXISTS(PART_COOLING_FAN9)
+    PART_COOLING_FAN9_PIN,
+  #endif
+  #if PIN_EXISTS(PART_COOLING_FAN10)
+    PART_COOLING_FAN10_PIN,
+  #endif
+  #if PIN_EXISTS(PART_COOLING_FAN11)
+    PART_COOLING_FAN11_PIN,
   #endif
 
   #if TEMP_SENSOR_BED && PINS_EXIST(TEMP_BED, HEATER_BED)

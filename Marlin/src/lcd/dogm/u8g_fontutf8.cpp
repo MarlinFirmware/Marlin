@@ -300,7 +300,7 @@ int uxg_GetUtf8StrPixelWidth(u8g_t *pu8g, const char *utf8_msg) {
 
   if (!uxg_Utf8FontIsInited()) return -1;
 
-  memset(&data, 0, sizeof(data));
+  OBJZERO(data);
   data.pu8g = pu8g;
   data.adv = 0;
   fontgroup_drawstring(group, fnt_default, utf8_msg, read_byte_ram, (void*)&data, fontgroup_cb_draw_u8gstrlen);
@@ -326,7 +326,7 @@ int uxg_GetUtf8StrPixelWidthP(u8g_t *pu8g, PGM_P utf8_msg) {
 
   if (!uxg_Utf8FontIsInited()) return -1;
 
-  memset(&data, 0, sizeof(data));
+  OBJZERO(data);
   data.pu8g = pu8g;
   data.adv = 0;
   fontgroup_drawstring(group, fnt_default, utf8_msg, read_byte_rom, (void*)&data, fontgroup_cb_draw_u8gstrlen);

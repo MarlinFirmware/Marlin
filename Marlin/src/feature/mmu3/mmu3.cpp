@@ -362,12 +362,12 @@ namespace MMU3 {
      * in the slope's sign or check the last machine position.
      *              y(x)
      *              ▲
-     *              │     ^◄────────── tryload_length + current_position
+     *              │     ^◄────────── tryload_length + motion.position
      *   machine    │    / \
-     *   position   │   /   \◄────────── stepper_position_mm + current_position
+     *   position   │   /   \◄────────── stepper_position_mm + motion.position
      *    (mm)      │  /     \
      *              │ /       \
-     *              │/         \◄───────current_position
+     *              │/         \◄───────motion.position
      *              └──────────────► x
      *              0           19
      *                 pixel #
