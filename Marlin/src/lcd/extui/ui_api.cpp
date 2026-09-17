@@ -396,7 +396,7 @@ namespace ExtUI {
   //
   bool canMove(const axis_t axis) {
     switch (axis) {
-      #if ANY(IS_KINEMATIC, NO_MOTION_BEFORE_HOMING)
+      #if ANY(HAS_NONLINEAR_KINEMATICS, NO_MOTION_BEFORE_HOMING)
         OPTCODE(HAS_X_AXIS, case X: return !motion.axis_should_home(X_AXIS))
         OPTCODE(HAS_Y_AXIS, case Y: return !motion.axis_should_home(Y_AXIS))
         OPTCODE(HAS_Z_AXIS, case Z: return !motion.axis_should_home(Z_AXIS))

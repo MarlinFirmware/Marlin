@@ -136,7 +136,7 @@ void moveAxis(const AxisEnum axis, const int8_t direction) {
 
     // Get the new position
     const bool limited = ui.manual_move.apply_diff(axis, diff, min, max);
-    #if IS_KINEMATIC
+    #if HAS_NONLINEAR_KINEMATICS
       UNUSED(limited);
     #else
       FSTR_P const msg = limited ? GET_TEXT_F(MSG_LCD_SOFT_ENDSTOPS) : FPSTR(NUL_STR);

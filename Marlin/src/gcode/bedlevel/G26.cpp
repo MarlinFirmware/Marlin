@@ -817,7 +817,7 @@ void GcodeSuite::G26() {
           xyz_float_t p = { circle.x + _COS(ind    ), circle.y + _SIN(ind    ), g26.layer_height },
                       q = { circle.x + _COS(ind + 1), circle.y + _SIN(ind + 1), g26.layer_height };
 
-          #if IS_KINEMATIC
+          #if HAS_NONLINEAR_KINEMATICS
             // Check to make sure this segment is entirely on the bed, skip if not.
             if (!motion.can_reach(p) || !motion.can_reach(q)) continue;
           #elif HAS_ENDSTOPS

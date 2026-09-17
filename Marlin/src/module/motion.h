@@ -114,7 +114,7 @@ public:
     return f * 0.01f * feedrate_percentage;
   }
 
-  #if IS_KINEMATIC
+  #if HAS_NONLINEAR_KINEMATICS
     static abce_pos_t delta;            // Scratch space for a kinematic result
   #endif
   #if HAS_SCARA_OFFSET
@@ -491,7 +491,7 @@ public:
   //
   // Reachability Tests
   //
-  #if IS_KINEMATIC
+  #if HAS_NONLINEAR_KINEMATICS
 
     // Return true if the given point is within the printable area
     static bool can_reach(const float rx, const float ry, const float inset=0);
@@ -536,7 +536,7 @@ public:
     _goto_destination_internal(fr_mm_s);
   }
 
-  #if IS_KINEMATIC
+  #if HAS_NONLINEAR_KINEMATICS
     static void prepare_fast_move_to_destination(const feedRate_t scaled_fr_mm_s=mms_scaled());
 
     static void prepare_internal_fast_move_to_destination(const feedRate_t fr_mm_s=0.0f) {
@@ -655,7 +655,7 @@ private:
   #if SECONDARY_AXES
     static void secondary_axis_moves(SECONDARY_AXIS_ARGS_LC(const float), const feedRate_t fr_mm_s);
   #endif
-  #if IS_KINEMATIC
+  #if HAS_NONLINEAR_KINEMATICS
     static bool goto_destination_kinematic();
   #else
     static bool goto_destination_cartesian();
@@ -663,7 +663,7 @@ private:
       static void goto_destination_segmented(const feedRate_t fr_mm_s, const float segment_size=LEVELED_SEGMENT_LENGTH);
     #endif
   #endif
-  static void _goto_destination_internal(const feedRate_t fr_mm_s=0.0f OPTARG(IS_KINEMATIC, const bool is_fast=false));
+  static void _goto_destination_internal(const feedRate_t fr_mm_s=0.0f OPTARG(HAS_NONLINEAR_KINEMATICS, const bool is_fast=false));
 
 }; // class Motion
 

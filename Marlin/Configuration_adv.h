@@ -2565,7 +2565,7 @@
  * probe points will follow. This prevents any change from causing
  * the probe to be unable to reach any points.
  */
-#if PROBE_SELECTED && !IS_KINEMATIC
+#if PROBE_SELECTED && !HAS_NONLINEAR_KINEMATICS
   //#define PROBING_MARGIN_LEFT PROBING_MARGIN
   //#define PROBING_MARGIN_RIGHT PROBING_MARGIN
   //#define PROBING_MARGIN_FRONT PROBING_MARGIN
