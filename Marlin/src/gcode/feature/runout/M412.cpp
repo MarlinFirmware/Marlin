@@ -49,14 +49,18 @@ void GcodeSuite::M412() {
       if (parser.seen('H')) runout.host_handling = parser.value_bool();
     #endif
     const bool seenR = parser.seen_test('R'), seenS = parser.seen('S');
-    if (seenR || seenS || TERN0(FILAMENT_SWITCH_AND_MOTION, parser.seen_test('L'))) runout.reset();
     if (seenS) runout.enabled = parser.value_bool();
     #if HAS_FILAMENT_RUNOUT_DISTANCE
       if (parser.seenval('D')) runout.set_runout_distance(parser.value_linear_units());
     #endif
     #if ENABLED(FILAMENT_SWITCH_AND_MOTION)
-      if (parser.seenval('L')) runout.set_motion_distance(parser.value_linear_units());
+      const bool seenL = parser.seenval('L');
+      if (seenL) runout.set_motion_distance(parser.value_linear_units());
+    #else
+      constexpr bool seenL = false;
     #endif
+    // Reset after the new distances are set, so the countdowns start from them
+    if (seenR || seenS || seenL) runout.reset();
   }
   else {
     SERIAL_ECHO_START();
