@@ -30,6 +30,10 @@
 #include "config/DGUS_ScreenID.h"
 
 #include "../ui_api.h"
+
+#if HAS_FILAMENT_SENSOR
+  #include "../../../feature/runout.h"
+#endif
 #include "../../../core/language.h"
 #include "../../../module/temperature.h"
 #include "../../../module/printcounter.h"
@@ -932,6 +936,64 @@ void DGUSRxHandler::waitContinue(DGUS_VP &vp, void *data_ptr) {
   ExtUI::setUserConfirmed();
 
   screen.triggerFullUpdate();
+}
+
+#if HAS_FILAMENT_SENSOR
+
+  void DGUSRxHandler::filamentSensorToggle(DGUS_VP &vp, void *data_ptr) {
+    UNUSED(vp);
+
+    const DGUS_Data::FilamentSensor sensor = (DGUS_Data::FilamentSensor)((uint8_t*)data_ptr)[1];
+
+    switch (sensor) {
+      default: return;
+      case DGUS_Data::FilamentSensor::RUNOUT:
+        ExtUI::setFilamentRunoutEnabled(!ExtUI::getFilamentRunoutEnabled());
+        break;
+      #if ENABLED(FILAMENT_SWITCH_AND_MOTION)
+        case DGUS_Data::FilamentSensor::JAM:
+          if (runout.motion_distance() > 0) {
+            screen.jam_length = runout.motion_distance();
+            runout.set_motion_distance(0);
+          }
+          else
+            runout.set_motion_distance(screen.jam_length);
+          break;
+      #endif
+    }
+
+    runout.reset();
+    screen.triggerFullUpdate();
+  }
+
+  #if ENABLED(FILAMENT_SWITCH_AND_MOTION)
+    void DGUSRxHandler::filamentSensorJam(DGUS_VP &vp, void *data_ptr) {
+      UNUSED(vp);
+
+      const uint16_t length = BE16_P(data_ptr);
+
+      if (length) screen.jam_length = length;
+      runout.set_motion_distance(length);
+      runout.reset();
+
+      screen.triggerFullUpdate();
+    }
+  #endif
+
+  void DGUSRxHandler::filamentSensorSave(DGUS_VP &vp, void *data_ptr) {
+    UNUSED(vp);
+    UNUSED(data_ptr);
+
+    screen.triggerEEPROMSave();
+  }
+
+#endif // HAS_FILAMENT_SENSOR
+
+void DGUSRxHandler::language(DGUS_VP &vp, void *data_ptr) {
+  UNUSED(vp);
+
+  screen.language = ((uint8_t*)data_ptr)[1];
+  screen.triggerEEPROMSave();
 }
 
 void DGUSRxHandler::fanSpeed(DGUS_VP &vp, void *data_ptr) {

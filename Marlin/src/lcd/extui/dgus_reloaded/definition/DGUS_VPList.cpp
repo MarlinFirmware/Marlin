@@ -148,6 +148,11 @@ const struct DGUS_VP vp_list[] PROGMEM = {
   VP_HELPER_RX(DGUS_Addr::WAIT_Abort, &DGUSRxHandler::waitAbort),
   VP_HELPER_RX_NODATA(DGUS_Addr::WAIT_Continue, &DGUSRxHandler::waitContinue),
 
+  #if HAS_FILAMENT_SENSOR
+    VP_HELPER_RX(DGUS_Addr::FILAMENT_SENSOR_Toggle, &DGUSRxHandler::filamentSensorToggle),
+    VP_HELPER_RX_NODATA(DGUS_Addr::FILAMENT_SENSOR_Save, &DGUSRxHandler::filamentSensorSave),
+  #endif
+
   // WRITE-ONLY VARIABLES
 
   #if HAS_MEDIA
@@ -318,6 +323,10 @@ const struct DGUS_VP vp_list[] PROGMEM = {
 
   VP_HELPER_TX(DGUS_Addr::WAIT_Icons, &DGUSTxHandler::waitIcons),
 
+  #if HAS_FILAMENT_SENSOR
+    VP_HELPER_TX(DGUS_Addr::FILAMENT_SENSOR_Icons, &DGUSTxHandler::filamentSensorIcons),
+  #endif
+
   // READ-WRITE VARIABLES
 
   VP_HELPER(DGUS_Addr::FAN0_Speed,
@@ -354,6 +363,22 @@ const struct DGUS_VP vp_list[] PROGMEM = {
             nullptr,
             &DGUSRxHandler::brightness,
             &DGUSTxHandler::brightness),
+
+  #if ENABLED(FILAMENT_SWITCH_AND_MOTION)
+    VP_HELPER(DGUS_Addr::FILAMENT_SENSOR_Jam,
+              2,
+              VPFLAG_AUTOUPLOAD,
+              nullptr,
+              &DGUSRxHandler::filamentSensorJam,
+              &DGUSTxHandler::filamentSensorJam),
+  #endif
+
+  VP_HELPER(DGUS_Addr::LANGUAGE,
+            2,
+            VPFLAG_AUTOUPLOAD,
+            nullptr,
+            &DGUSRxHandler::language,
+            &DGUSTxHandler::language),
 
   // SPECIAL CASES
 
