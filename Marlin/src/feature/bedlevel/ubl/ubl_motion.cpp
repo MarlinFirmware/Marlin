@@ -334,7 +334,7 @@
 
   #if IS_SCARA
     #define SEGMENT_MIN_LENGTH 0.25 // SCARA minimum segment size is 0.25mm
-  #elif IS_KINEMATIC
+  #elif HAS_NONLINEAR_KINEMATICS
     #define SEGMENT_MIN_LENGTH 0.10 // (mm) Still subject to DEFAULT_SEGMENTS_PER_SECOND
   #else // CARTESIAN
     #ifdef LEVELED_SEGMENT_LENGTH
@@ -360,7 +360,7 @@
     const float cart_xy_mm_2 = HYPOT2(total.x, total.y),
                 cart_xy_mm = SQRT(cart_xy_mm_2);                               // Total XY distance
 
-    #if IS_KINEMATIC
+    #if HAS_NONLINEAR_KINEMATICS
       const float seconds = cart_xy_mm / scaled_fr_mm_s;                       // Duration of XY move at requested rate
       uint16_t segments = LROUND(segments_per_second * seconds),               // Preferred number of segments for distance @ feedrate
                seglimit = LROUND(cart_xy_mm * RECIPROCAL(SEGMENT_MIN_LENGTH)); // Number of segments at minimum segment length

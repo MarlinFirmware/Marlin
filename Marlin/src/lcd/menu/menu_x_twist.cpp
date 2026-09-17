@@ -134,7 +134,7 @@ void xatc_wizard_goto_next_point() {
     const float x = xatc.start + manual_probe_index * xatc.spacing;
 
     // Avoid probing outside the round or hexagonal area
-    if (!TERN0(IS_KINEMATIC, !probe.can_reach(x, XATC_Y_POSITION))) {
+    if (!TERN0(HAS_NONLINEAR_KINEMATICS, !probe.can_reach(x, XATC_Y_POSITION))) {
       ui.wait_for_move = true;
       ui.goto_screen(xatc_wizard_moving);
 

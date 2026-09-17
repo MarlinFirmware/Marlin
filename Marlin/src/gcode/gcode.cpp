@@ -992,7 +992,7 @@ void GcodeSuite::process_parsed_command(bool no_ok/*=false*/) {
         case 605: M605(); break;                                  // M605: Set Dual X Carriage movement mode
       #endif
 
-      #if IS_KINEMATIC
+      #if HAS_NONLINEAR_KINEMATICS
         case 665: M665(); break;                                  // M665: Set Kinematics parameters
       #endif
 

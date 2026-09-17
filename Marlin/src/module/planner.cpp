@@ -241,7 +241,7 @@ float Planner::previous_nominal_speed;
   xyze_pos_t Planner::position_float; // Needed for accurate maths. Steps cannot be used!
 #endif
 
-#if IS_KINEMATIC
+#if HAS_NONLINEAR_KINEMATICS
   xyze_pos_t Planner::position_cart;
 #endif
 
@@ -258,7 +258,7 @@ Planner::Planner() { init(); }
 void Planner::init() {
   position.reset();
   TERN_(HAS_POSITION_FLOAT, position_float.reset());
-  TERN_(IS_KINEMATIC, position_cart.reset());
+  TERN_(HAS_NONLINEAR_KINEMATICS, position_cart.reset());
 
   previous_speed.reset();
   previous_nominal_speed = 0;
@@ -2363,7 +2363,7 @@ bool Planner::_populate_block(
         const float advK = get_advance_k(extruder);
         if (advK) {
           float e_D_ratio = (target_float.e - position_float.e) /
-            TERN(IS_KINEMATIC, block->millimeters,
+            TERN(HAS_NONLINEAR_KINEMATICS, block->millimeters,
               SQRT(sq(target_float.x - position_float.x)
                  + sq(target_float.y - position_float.y)
                  + sq(target_float.z - position_float.z))
@@ -2876,7 +2876,7 @@ bool Planner::buffer_segment(const abce_pos_t &abce
 
   /* <-- add a slash to enable
     SERIAL_ECHOPGM("  buffer_segment FR:", fr_mm_s);
-    #if IS_KINEMATIC
+    #if HAS_NONLINEAR_KINEMATICS
       SERIAL_ECHOPGM(" A:", abce.a, " (", position.a, "->", target.a, ") B:", abce.b);
     #else
       SERIAL_ECHOPGM_P(SP_X_LBL, abce.a);
@@ -2961,7 +2961,7 @@ bool Planner::buffer_line(const xyze_pos_t &cart, const feedRate_t fr_mm_s
   xyze_pos_t machine = cart;
   TERN_(HAS_POSITION_MODIFIERS, apply_modifiers(machine));
 
-  #if IS_KINEMATIC
+  #if HAS_NONLINEAR_KINEMATICS
 
     #if HAS_JUNCTION_DEVIATION
       const xyze_pos_t cart_dist_mm = LOGICAL_AXIS_ARRAY(
@@ -3049,7 +3049,7 @@ bool Planner::buffer_line(const xyze_pos_t &cart, const feedRate_t fr_mm_s
     }
     return false;
 
-  #else // !IS_KINEMATIC
+  #else // !HAS_NONLINEAR_KINEMATICS
 
     return buffer_segment(machine, fr_mm_s, extruder, hints);
 
@@ -3166,7 +3166,7 @@ void Planner::set_machine_position_mm(const abce_pos_t &abce) {
 void Planner::set_position_mm(const xyze_pos_t &xyze) {
   xyze_pos_t machine = xyze;
   TERN_(HAS_POSITION_MODIFIERS, apply_modifiers(machine, true));
-  #if IS_KINEMATIC
+  #if HAS_NONLINEAR_KINEMATICS
     position_cart = xyze;
     inverse_kinematics(machine);
     TERN_(HAS_EXTRUDERS, motion.delta.e = machine.e);
@@ -3189,7 +3189,7 @@ void Planner::set_position_mm(const xyze_pos_t &xyze) {
     const float e_new = DIFF_TERN(FWRETRACT, e, fwretract.current_retract[motion.extruder]);
     position.e = LROUND(settings.axis_steps_per_mm[axis_index] * e_new);
     TERN_(HAS_POSITION_FLOAT, position_float.e = e_new);
-    TERN_(IS_KINEMATIC, TERN_(HAS_EXTRUDERS, position_cart.e = e));
+    TERN_(HAS_NONLINEAR_KINEMATICS, TERN_(HAS_EXTRUDERS, position_cart.e = e));
 
     if (has_blocks_queued())
       buffer_sync_block(BLOCK_BIT_SYNC_POSITION);
