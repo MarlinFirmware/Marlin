@@ -573,10 +573,14 @@ void GCodeQueue::get_serial_commands() {
     #if HAS_SD_DETECT
       // Abort print if SD card was removed mid-print
       if (!card.isInserted()) {
-        SERIAL_ERROR_MSG(STR_SD_ERR_CARD_REMOVED);
+        SERIAL_ERROR_MSG(STR_SD_ERR_CARD_REMOVED, F(STR_PRINT_ABORTED));
         card.abortFilePrintNow();
         return;
       }
+    #endif
+
+    #ifndef SD_MAX_READ_ERRORS
+      #define SD_MAX_READ_ERRORS 5
     #endif
 
     int sd_count = 0;
@@ -587,7 +591,7 @@ void GCodeQueue::get_serial_commands() {
       if (n < 0 && !card_eof) {
         SERIAL_ERROR_MSG(STR_SD_ERR_READ);
         if (++sd_read_errors >= SD_MAX_READ_ERRORS) {
-          SERIAL_ERROR_MSG(STR_SD_ERR_TOO_MANY_READ_ERRORS);
+          SERIAL_ERROR_MSG(STR_SD_ERR_TOO_MANY_READ_ERRORS, F(STR_PRINT_ABORTED));
           card.abortFilePrintNow();
           break;
         }
