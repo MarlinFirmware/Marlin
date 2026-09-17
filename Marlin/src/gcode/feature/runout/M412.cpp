@@ -37,7 +37,7 @@
  *  D<linear> : Extra distance to continue after runout is triggered
  *
  * With FILAMENT_SWITCH_AND_MOTION:
- *  L<linear> : Missing motion length to consider a jam
+ *  L<linear> : Missing motion length to consider a jam. L0 disables jam detection.
  */
 void GcodeSuite::M412() {
   if (parser.seen("RS"
@@ -49,7 +49,7 @@ void GcodeSuite::M412() {
       if (parser.seen('H')) runout.host_handling = parser.value_bool();
     #endif
     const bool seenR = parser.seen_test('R'), seenS = parser.seen('S');
-    if (seenR || seenS) runout.reset();
+    if (seenR || seenS || TERN0(FILAMENT_SWITCH_AND_MOTION, parser.seen_test('L'))) runout.reset();
     if (seenS) runout.enabled = parser.value_bool();
     #if HAS_FILAMENT_RUNOUT_DISTANCE
       if (parser.seenval('D')) runout.set_runout_distance(parser.value_linear_units());

@@ -2077,7 +2077,7 @@ void MarlinSettings::postprocess() {
         float motion_distance_mm;
         EEPROM_READ(motion_distance_mm);
         #if ENABLED(FILAMENT_SWITCH_AND_MOTION)
-          if (!validating) runout.set_motion_distance(motion_distance_mm > 0 ? motion_distance_mm : FILAMENT_MOTION_DISTANCE_MM);
+          if (!validating) runout.set_motion_distance(motion_distance_mm);
         #endif
       }
 
