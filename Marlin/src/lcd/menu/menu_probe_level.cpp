@@ -59,7 +59,7 @@
   //
 
   // LCD probed points are from defaults
-  GRID_CONSTEXPR grid_count_t total_probe_points = TERN(AUTO_BED_LEVELING_3POINT, 3, GRID_PREF_POINTS);
+  grid_count_t total_probe_points() { return TERN(AUTO_BED_LEVELING_3POINT, 3, bedlevel.used_points()); }
 
   //
   // Bed leveling is done. Wait for G29 to complete.
@@ -102,7 +102,7 @@
       //
 
       // If done...
-      if (++manual_probe_index >= total_probe_points) {
+      if (++manual_probe_index >= total_probe_points()) {
         //
         // The last G29 records the point and enables bed leveling
         //
@@ -145,7 +145,7 @@
   void _lcd_level_bed_moving() {
     if (ui.should_draw()) {
       MString<10> msg;
-      msg.setf(F(" %i / %u"), int(manual_probe_index + 1), total_probe_points);
+      msg.setf(F(" %i / %u"), int(manual_probe_index + 1), total_probe_points());
       MenuItem_static::draw(LCD_HEIGHT / 2, GET_TEXT_F(MSG_LEVEL_BED_NEXT_POINT), SS_CENTER, msg);
     }
     ui.refresh(LCDVIEW_CALL_NO_REDRAW);

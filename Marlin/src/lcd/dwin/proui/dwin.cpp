@@ -4455,8 +4455,8 @@ void drawMaxAccelMenu() {
     void liveEditMesh() { ((MenuItemPtr*)editZValueItem)->value = &bedlevel.z_values[hmiValue.select ? bedLevelTools.mesh_x : menuData.value][hmiValue.select ? menuData.value : bedLevelTools.mesh_y]; editZValueItem->redraw(); }
     void applyEditMeshX() { bedLevelTools.mesh_x = menuData.value; if (autoMovToMesh) { bedLevelTools.moveToXY(); } }
     void applyEditMeshY() { bedLevelTools.mesh_y = menuData.value; if (autoMovToMesh) { bedLevelTools.moveToXY(); } }
-    void setEditMeshX() { hmiValue.select = 0; setIntOnClick(0, GRID_PREF_POINTS_X - 1, bedLevelTools.mesh_x, applyEditMeshX, liveEditMesh); }
-    void setEditMeshY() { hmiValue.select = 1; setIntOnClick(0, GRID_PREF_POINTS_Y - 1, bedLevelTools.mesh_y, applyEditMeshY, liveEditMesh); }
+    void setEditMeshX() { hmiValue.select = 0; setIntOnClick(0, bedlevel.nr_grid_points.x - 1, bedLevelTools.mesh_x, applyEditMeshX, liveEditMesh); }
+    void setEditMeshY() { hmiValue.select = 1; setIntOnClick(0, bedlevel.nr_grid_points.y - 1, bedLevelTools.mesh_y, applyEditMeshY, liveEditMesh); }
     void setEditZValue() { setPFloatOnClick(Z_OFFSET_MIN, Z_OFFSET_MAX, 3); }
     void zeroPoint() { bedLevelTools.manualValueUpdate(bedLevelTools.mesh_x, bedLevelTools.mesh_y, true); editZValueItem->redraw(); LCD_MESSAGE(MSG_ZERO_MESH); }
     void resetMesh() { bedLevelTools.meshReset(); LCD_MESSAGE(MSG_MESH_RESET); }

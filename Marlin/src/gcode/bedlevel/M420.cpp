@@ -73,16 +73,16 @@ void GcodeSuite::M420() {
       #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
         xy_pos_t start, spacing;
         start.set(x_min, y_min);
-        spacing.set((x_max - x_min) / (GRID_MAX_CELLS_X),
-                    (y_max - y_min) / (GRID_MAX_CELLS_Y));
+        spacing.set((x_max - x_min) / bedlevel.max_cells.x,
+                    (y_max - y_min) / bedlevel.max_cells.y);
         bedlevel.set_grid(spacing, start OPTARG(VARIABLE_GRID_POINTS, bedlevel.nr_grid_points));
       #endif
-      GRID_LOOP_COND(x, y) {
+      GRID_LOOP_USED(x, y) {
         bedlevel.z_values[x][y] = 0.001 * random(-200, 200);
         TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(x, y, bedlevel.z_values[x][y]));
       }
       TERN_(AUTO_BED_LEVELING_BILINEAR, bedlevel.refresh_bed_level());
-      SERIAL_ECHOPGM("Simulated " STRINGIFY(GRID_PREF_POINTS_X) "x" STRINGIFY(GRID_PREF_POINTS_Y) " mesh ");
+      SERIAL_ECHOPGM("Simulated ", bedlevel.nr_grid_points.x, "x", bedlevel.nr_grid_points.y, " mesh ");
       SERIAL_ECHOLN(F(" ("), x_min, C(','), y_min, F(")-("), x_max, C(','), y_max, C(')'));
     }
   #endif
@@ -158,14 +158,14 @@ void GcodeSuite::M420() {
 
             // Get the sum and average of all mesh values, add center val if provided
             float mesh_sum = 0;
-            GRID_LOOP_COND(x, y) mesh_sum += bedlevel.z_values[x][y];
-            const float zmean = mesh_sum / float(GRID_PREF_POINTS) + cval;
+            GRID_LOOP_USED(x, y) mesh_sum += bedlevel.z_values[x][y];
+            const float zmean = mesh_sum / float(bedlevel.used_points()) + cval;
 
           #else // midrange
 
             // Find the low and high mesh values.
             float lo_val = 100, hi_val = -100;
-            GRID_LOOP_COND(x, y) {
+            GRID_LOOP_USED(x, y) {
               const float z = bedlevel.z_values[x][y];
               NOMORE(lo_val, z);
               NOLESS(hi_val, z);
@@ -179,7 +179,7 @@ void GcodeSuite::M420() {
           if (!NEAR_ZERO(zmean)) {
             set_bed_leveling_enabled(false);
             // Subtract the mean from all values
-            GRID_LOOP_COND(x, y) {
+            GRID_LOOP_USED(x, y) {
               bedlevel.z_values[x][y] -= zmean;
               TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(x, y, bedlevel.z_values[x][y]));
             }

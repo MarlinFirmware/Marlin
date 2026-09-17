@@ -190,7 +190,7 @@ void GcodeSuite::G29() {
         motion.set_soft_endstop_loose(false);
       }
       // If there's another point to sample, move there with optional lift.
-      if (mbl_probe_index < GRID_PREF_POINTS) {
+      if (mbl_probe_index < bedlevel.used_points()) {
         // Disable software endstops to allow manual adjustment
         // If G29 is left hanging without completion they won't be re-enabled!
         motion.set_soft_endstop_loose(true);
@@ -266,8 +266,8 @@ void GcodeSuite::G29() {
   } // switch(state)
 
   if (state == MeshNext) {
-    SERIAL_ECHOLNPGM("MBL G29 point ", _MIN(mbl_probe_index, GRID_PREF_POINTS), " of ", GRID_PREF_POINTS);
-    if (mbl_probe_index > 0) TERN_(HAS_STATUS_MESSAGE, ui.status_printf(0, F(S_FMT " %i/%i"), GET_TEXT(MSG_PROBING_POINT), _MIN(mbl_probe_index, GRID_PREF_POINTS), int(GRID_PREF_POINTS)));
+    SERIAL_ECHOLNPGM("MBL G29 point ", _MIN(mbl_probe_index, bedlevel.used_points()), " of ", bedlevel.used_points());
+    if (mbl_probe_index > 0) TERN_(HAS_STATUS_MESSAGE, ui.status_printf(0, F(S_FMT " %i/%i"), GET_TEXT(MSG_PROBING_POINT), _MIN(mbl_probe_index, bedlevel.used_points()), int(bedlevel.used_points())));
   }
 
   motion.report_position();

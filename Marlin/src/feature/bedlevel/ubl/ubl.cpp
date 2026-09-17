@@ -47,7 +47,7 @@ void unified_bed_leveling::echo_name() { SERIAL_ECHOPGM("Unified Bed Leveling");
 void unified_bed_leveling::report_current_mesh() {
   if (!leveling_is_valid()) return;
   SERIAL_ECHO_MSG("  G29 I999");
-  GRID_LOOP_COND(x, y)
+  GRID_LOOP_USED(x, y)
     if (!isnan(z_values[x][y])) {
       SERIAL_ECHO_START();
       UBL_SERIAL_ECHOLN(50, F("  M421 I"), x, F(" J"), y, FPSTR(SP_Z_STR), p_float_t(z_values[x][y], 4));
@@ -82,7 +82,7 @@ void unified_bed_leveling::invalidate() {
 }
 
 void unified_bed_leveling::set_all_mesh_points_to_value(const float value) {
-  GRID_LOOP_COND(x, y) {
+  GRID_LOOP_USED(x, y) {
     z_values[x][y] = value;
     TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(x, y, value));
   }
@@ -101,14 +101,14 @@ void unified_bed_leveling::set_all_mesh_points_to_value(const float value) {
         return Z_STEPS_NAN; // If Z is out of range, return our custom 'NaN'
       return int16_t(z_scaled);
     };
-    GRID_LOOP_COND(x, y) stored_values[x][y] = z_to_store(in_values[x][y]);
+    GRID_LOOP_USED(x, y) stored_values[x][y] = z_to_store(in_values[x][y]);
   }
 
   void unified_bed_leveling::set_mesh_from_store(const mesh_store_t &stored_values, bed_mesh_t &out_values) {
     auto store_to_z = [](const int16_t z_scaled) {
       return z_scaled == Z_STEPS_NAN ? NAN : z_scaled / mesh_store_scaling;
     };
-    GRID_LOOP_COND(x, y) out_values[x][y] = store_to_z(stored_values[x][y]);
+    GRID_LOOP_USED(x, y) out_values[x][y] = store_to_z(stored_values[x][y]);
   }
 
 #endif // OPTIMIZED_MESH_STORAGE
@@ -125,7 +125,7 @@ static void serial_echo_xy(const uint8_t sp, const int16_t x, const int16_t y) {
 
 static void serial_echo_column_labels(const uint8_t sp) {
   SERIAL_ECHO_SP(7);
-  for (uint8_t i = 0; i < GRID_PREF_POINTS_X; ++i) {
+  for (uint8_t i = 0; i < bedlevel.nr_grid_points.x; ++i) {
     if (i < 10) SERIAL_CHAR(' ');
     SERIAL_ECHO(i);
     SERIAL_ECHO_SP(sp);
@@ -143,8 +143,8 @@ static void serial_echo_column_labels(const uint8_t sp) {
 void unified_bed_leveling::display_map(const uint8_t map_type) {
   const bool was = gcode.set_autoreport_paused(true);
 
-  GRID_CONSTEXPR uint8_t eachsp = 1 + 6 + 1;           // [-3.567]
-  uint8_t twixt = eachsp * GRID_PREF_POINTS_X - 9 * 2; // Leading 4sp, Coordinates 9sp each
+  constexpr uint8_t eachsp = 1 + 6 + 1;           // [-3.567]
+  uint8_t twixt = eachsp * nr_grid_points.x - 9 * 2; // Leading 4sp, Coordinates 9sp each
 
   const bool human = !(map_type & 0x3), csv = map_type == 1, lcd = map_type == 2, comp = map_type & 0x4;
 
@@ -165,7 +165,7 @@ void unified_bed_leveling::display_map(const uint8_t map_type) {
   const xy_int8_t curr = closest_indexes(xy_pos_t(motion.position) + probe.offset_xy);
 
   if (!lcd) SERIAL_EOL();
-  for (int8_t j = GRID_PREF_POINTS_Y - 1; j >= 0; j--) {
+  for (int8_t j = nr_grid_points.y - 1; j >= 0; j--) {
 
     // Row Label (J index)
     if (human) {
@@ -175,7 +175,7 @@ void unified_bed_leveling::display_map(const uint8_t map_type) {
     }
 
     // Row Values (I indexes)
-    for (uint8_t i = 0; i < GRID_PREF_POINTS_X; ++i) {
+    for (uint8_t i = 0; i < nr_grid_points.x; ++i) {
 
       // Opening Brace or Space
       const bool is_current = i == curr.x && j == curr.y;
@@ -193,7 +193,7 @@ void unified_bed_leveling::display_map(const uint8_t map_type) {
         if (human && f >= 0) SERIAL_CHAR(f > 0 ? '+' : ' ');  // Display sign also for positive numbers (' ' for 0)
         SERIAL_ECHO(p_float_t(f, 3));                         // Positive: 5 digits, Negative: 6 digits
       }
-      if (csv && i < GRID_PREF_POINTS_X - 1) SERIAL_CHAR('\t');
+      if (csv && i < nr_grid_points.x - 1) SERIAL_CHAR('\t');
 
       // Closing Brace or Space
       if (human) SERIAL_CHAR(is_current ? ']' : ' ');

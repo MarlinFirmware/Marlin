@@ -45,15 +45,15 @@
   }
 
   void mesh_bed_leveling::report_mesh() {
-    SERIAL_ECHOLN(GRID_PREF_POINTS_X, 'x', GRID_PREF_POINTS_Y, F(" mesh. Z offset: "), p_float_t(z_offset, 5), F("\nMeasured points:"));
-    print_2d_array(GRID_PREF_POINTS_X, GRID_PREF_POINTS_Y, 5, z_values[0]);
+    SERIAL_ECHOLN(nr_grid_points.x, 'x', nr_grid_points.y, F(" mesh. Z offset: "), p_float_t(z_offset, 5), F("\nMeasured points:"));
+    print_2d_array(nr_grid_points.x, nr_grid_points.y, 5, z_values[0]);
   }
 
   void mesh_bed_leveling::reset() {
     z_offset = 0;
     ZERO(z_values);
     #if ENABLED(EXTENSIBLE_UI)
-      GRID_LOOP_COND(x, y) ExtUI::onMeshUpdate(x, y, 0);
+      GRID_LOOP_USED(x, y) ExtUI::onMeshUpdate(x, y, 0);
     #endif
   }
 
@@ -66,10 +66,10 @@
     void mesh_bed_leveling::line_to_destination(const feedRate_t scaled_fr_mm_s, uint8_t x_splits, uint8_t y_splits) {
       // Get current and destination cells for this line
       xy_uint8_t scel = cell_indexes(motion.position), ecel = cell_indexes(motion.destination);
-      NOMORE(scel.x, GRID_MAX_CELLS_X - 1);
-      NOMORE(scel.y, GRID_MAX_CELLS_Y - 1);
-      NOMORE(ecel.x, GRID_MAX_CELLS_X - 1);
-      NOMORE(ecel.y, GRID_MAX_CELLS_Y - 1);
+      NOMORE(scel.x, max_cells.x - 1);
+      NOMORE(scel.y, max_cells.y - 1);
+      NOMORE(ecel.x, max_cells.x - 1);
+      NOMORE(ecel.y, max_cells.y - 1);
 
       // Start and end in the same cell? No split needed.
       if (scel == ecel) {

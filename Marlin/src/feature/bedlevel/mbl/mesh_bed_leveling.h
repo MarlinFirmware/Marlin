@@ -53,7 +53,7 @@ public:
   static void report_mesh();
 
   FORCE_INLINE static bool has_mesh() {
-    GRID_LOOP_COND(x, y) if (z_values[x][y]) return true;
+    GRID_LOOP_USED(x, y) if (z_values[x][y]) return true;
     return false;
   }
 
@@ -62,9 +62,9 @@ public:
   static void set_z(const int8_t px, const int8_t py, const float z) { z_values[px][py] = z; }
 
   static void zigzag(const int8_t index, int8_t &px, int8_t &py) {
-    px = index % GRID_PREF_POINTS_X;
-    py = index / GRID_PREF_POINTS_X;
-    if (py & 1) px = GRID_PREF_POINTS_X - 1 - px; // Zig zag
+    px = index % nr_grid_points.x;
+    py = index / nr_grid_points.x;
+    if (py & 1) px = nr_grid_points.x - 1 - px; // Zig zag
   }
 
   static void set_zigzag_z(const int8_t index, const float z) {

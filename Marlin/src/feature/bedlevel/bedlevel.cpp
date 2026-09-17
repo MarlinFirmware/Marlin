@@ -54,6 +54,13 @@
   // The Leveling Mesh is shared by MBL, ABL Bilinear, and UBL
   bed_mesh_t LevelingMesh::z_values;
 
+  #if ANY(HAS_PROUI_MESH_EDIT, VARIABLE_GRID_POINTS)
+    xy_pos_t LevelingMesh::mesh_min, LevelingMesh::mesh_max;
+  #else
+    constexpr xy_pos_t LevelingMesh::mesh_min, LevelingMesh::mesh_max;
+  #endif
+
+  constexpr xy_uint8_t LevelingMesh::max_points, LevelingMesh::max_cells;
   #if ENABLED(VARIABLE_GRID_POINTS)
     xy_uint8_t LevelingMesh::nr_grid_points;
     xy_float_t LevelingMesh::grid_spacing;
@@ -65,12 +72,7 @@
     constexpr xy_float_t LevelingMesh::grid_spacing;
   #endif
 
-  #if ANY(HAS_PROUI_MESH_EDIT, VARIABLE_GRID_POINTS)
-    xy_pos_t LevelingMesh::mesh_min, LevelingMesh::mesh_max;
-  #else
-    constexpr xy_pos_t LevelingMesh::mesh_min, LevelingMesh::mesh_max;
-  #endif
-#endif
+#endif // HAS_MESH
 
 #if ENABLED(CACHED_DIST_RECIPROCAL) && DISABLED(VARIABLE_GRID_POINTS)
   constexpr xy_float_t LevelingMesh::grid_spacing_recip;

@@ -114,19 +114,19 @@ void LevelingBilinear::set_grid(const xy_pos_t& _grid_spacing, const xy_pos_t& _
  */
 void LevelingBilinear::extrapolate_unprobed_bed_level() {
   #ifdef HALF_IN_X
-    constexpr uint8_t ctrx2 = 0, xend = GRID_VAL(nr_grid_points.x, GRID_MAX_POINTS_X) - 1;
+    constexpr uint8_t ctrx2 = 0, xend = nr_grid_points.x - 1;
   #else
     GRID_CONSTEXPR uint8_t
-      ctrx1 = GRID_VAL(nr_grid_points.x - 1, GRID_MAX_CELLS_X) / 2, // left-of-center
-      ctrx2 = GRID_VAL(nr_grid_points.x, GRID_MAX_POINTS_X) / 2,    // right-of-center
+      ctrx1 = GRID_VAL(nr_grid_points.x - 1, max_cells.x) / 2, // left-of-center
+      ctrx2 = nr_grid_points.x / 2,    // right-of-center
       xend = ctrx1;
   #endif
 
   #ifdef HALF_IN_Y
-    constexpr uint8_t ctry2 = 0, yend = GRID_VAL(nr_grid_points.y, GRID_MAX_POINTS_Y) - 1;
+    constexpr uint8_t ctry2 = 0, yend = nr_grid_points.y - 1;
   #else
-    GRID_CONSTEXPR uint8_t ctry1 = GRID_VAL(nr_grid_points.y - 1, GRID_MAX_CELLS_Y) / 2,  // top-of-center
-                           ctry2 = GRID_VAL(nr_grid_points.y, GRID_MAX_POINTS_Y) / 2,     // bottom-of-center
+    GRID_CONSTEXPR uint8_t ctry1 = GRID_VAL(nr_grid_points.y - 1, max_cells.y) / 2,  // top-of-center
+                           ctry2 = nr_grid_points.y / 2,     // bottom-of-center
                            yend = ctry1;
   #endif
 
@@ -187,7 +187,7 @@ void LevelingBilinear::print_leveling_grid(const bed_mesh_t* _z_values/*=nullptr
   #define LINEAR_EXTRAPOLATION(E, I) ((E) * 2 - (I))
   float LevelingBilinear::virt_coord(const uint8_t x, const uint8_t y) {
     uint8_t ep = 0, ip = 1;
-    if (x > GRID_VAL(nr_grid_points.x, GRID_MAX_POINTS_X) + 1 || y > GRID_VAL(nr_grid_points.y, GRID_MAX_POINTS_Y) + 1) {
+    if (x > nr_grid_points.x + 1 || y > nr_grid_points.y + 1) {
       // The requested point requires extrapolating two points beyond the mesh.
       // These values are only requested for the edges of the mesh, which are always an actual mesh point,
       // and do not require interpolation. When interpolation is not needed, this "Mesh + 2" point is
@@ -197,8 +197,8 @@ void LevelingBilinear::print_leveling_grid(const bed_mesh_t* _z_values/*=nullptr
     }
     if (!x || x == GRID_VAL(nr_grid_points.x + 2, ABL_TEMP_POINTS_X) - 1) {
       if (x) {
-        ep = GRID_VAL(nr_grid_points.x, GRID_MAX_POINTS_X) - 1;
-        ip = GRID_VAL(nr_grid_points.x - 1, GRID_MAX_CELLS_X) - 1;
+        ep = nr_grid_points.x - 1;
+        ip = GRID_VAL(nr_grid_points.x - 1, max_cells.x) - 1;
       }
       if (WITHIN(y, 1, GRID_VAL(nr_grid_points.y + 2, ABL_TEMP_POINTS_Y) - 2))
         return LINEAR_EXTRAPOLATION(
@@ -213,8 +213,8 @@ void LevelingBilinear::print_leveling_grid(const bed_mesh_t* _z_values/*=nullptr
     }
     if (!y || y == GRID_VAL(nr_grid_points.y + 2, ABL_TEMP_POINTS_Y) - 1) {
       if (y) {
-        ep = GRID_VAL(nr_grid_points.y, GRID_MAX_POINTS_Y) - 1;
-        ip = GRID_VAL(nr_grid_points.y - 1, GRID_MAX_CELLS_Y) - 1;
+        ep = nr_grid_points.y - 1;
+        ip = GRID_VAL(nr_grid_points.y - 1, max_cells.y) - 1;
       }
       if (WITHIN(x, 1, GRID_VAL(nr_grid_points.x + 2, ABL_TEMP_POINTS_X) - 2))
         return LINEAR_EXTRAPOLATION(
@@ -256,11 +256,11 @@ void LevelingBilinear::print_leveling_grid(const bed_mesh_t* _z_values/*=nullptr
     #if ENABLED(VARIABLE_GRID_POINTS)
       nr_grid_points_virt.set((nr_grid_points.x - 1) * (uint16_t)(BILINEAR_SUBDIVISIONS) + (uint16_t)1, (nr_grid_points.y - 1) * (uint16_t)(BILINEAR_SUBDIVISIONS) + (uint16_t)1);
     #endif
-    for (uint8_t y = 0; y < GRID_VAL(nr_grid_points.y, GRID_MAX_POINTS_Y); ++y)
-      for (uint8_t x = 0; x < GRID_VAL(nr_grid_points.x, GRID_MAX_POINTS_X); ++x)
+    for (uint8_t y = 0; y < nr_grid_points.y; ++y)
+      for (uint8_t x = 0; x < nr_grid_points.x; ++x)
         for (uint8_t ty = 0; ty < BILINEAR_SUBDIVISIONS; ++ty)
           for (uint8_t tx = 0; tx < BILINEAR_SUBDIVISIONS; ++tx) {
-            if ((ty && y == GRID_VAL(nr_grid_points.y, GRID_MAX_POINTS_Y) - 1) || (tx && x == GRID_VAL(nr_grid_points.y, GRID_MAX_POINTS_X) - 1))
+            if ((ty && y == nr_grid_points.y - 1) || (tx && x == nr_grid_points.x - 1))
               continue;
             z_values_virt[x * (BILINEAR_SUBDIVISIONS) + tx][y * (BILINEAR_SUBDIVISIONS) + ty] =
               virt_2cmr(x + 1, y + 1, (float)tx / (BILINEAR_SUBDIVISIONS), (float)ty / (BILINEAR_SUBDIVISIONS));
@@ -289,8 +289,8 @@ void LevelingBilinear::refresh_bed_level() {
 #else
   #define ABL_BG_SPACING(A) grid_spacing.A
   #define ABL_BG_FACTOR(A)  grid_spacing.reciprocal().A
-  #define ABL_BG_POINTS_X   GRID_VAL(nr_grid_points.x, GRID_MAX_POINTS_X)
-  #define ABL_BG_POINTS_Y   GRID_VAL(nr_grid_points.y, GRID_MAX_POINTS_Y)
+  #define ABL_BG_POINTS_X   nr_grid_points.x
+  #define ABL_BG_POINTS_Y   nr_grid_points.y
   #define ABL_BG_GRID(X,Y)  z_values[X][Y]
 #endif
 

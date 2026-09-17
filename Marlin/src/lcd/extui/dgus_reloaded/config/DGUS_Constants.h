@@ -25,7 +25,7 @@
 
 #include "DGUS_Addr.h"
 
-#if DGUS_LEVEL_GRID_SIZE != GRID_PREF_POINTS
+#if DGUS_LEVEL_GRID_SIZE != bedlevel.used_points()
   #error "DGUS_LEVEL_GRID_SIZE is incompatible with current mesh."
 #endif
 

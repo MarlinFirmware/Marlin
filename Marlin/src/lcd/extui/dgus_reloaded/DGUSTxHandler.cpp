@@ -297,18 +297,18 @@ void DGUSTxHandler::ablDisableIcon(DGUS_VP &vp) {
 
 void DGUSTxHandler::ablGrid(DGUS_VP &vp) {
   // Batch send
-  int16_t data[DGUS_LEVEL_GRID_SIZE];
+  int16_t data[GRID_MAX_POINTS];
   xy_uint8_t point;
   int16_t fixed;
 
-  for (int16_t i = 0; i < DGUS_LEVEL_GRID_SIZE; i++) {
-    point.x = i % GRID_PREF_POINTS_X;
-    point.y = i / GRID_PREF_POINTS_X;
+  for (int16_t i = 0; i < GRID_MAX_POINTS; i++) {
+    point.x = i % (GRID_MAX_POINTS_X);
+    point.y = i / (GRID_MAX_POINTS_X);
     fixed = dgus.toFixedPoint<float, int16_t, 3>(ExtUI::getMeshPoint(point));
     data[i] = Swap16(fixed);
   }
 
-  dgus.write((uint16_t)vp.addr, data, sizeof(*data) * DGUS_LEVEL_GRID_SIZE);
+  dgus.write((uint16_t)vp.addr, data, sizeof(*data) * GRID_MAX_POINTS);
 }
 
 void DGUSTxHandler::filamentIcons(DGUS_VP &vp) {

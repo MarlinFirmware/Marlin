@@ -66,12 +66,15 @@ void reset_bed_level();
                                   mesh_max{ MESH_MAX_X, MESH_MAX_Y };
       #endif
 
+      static constexpr xy_uint8_t max_points = { GRID_MAX_POINTS_X, GRID_MAX_POINTS_Y; },
+                                  max_cells = { GRID_MAX_POINTS_X - 1, GRID_MAX_POINTS_Y - 1 };
+
       #if ENABLED(VARIABLE_GRID_POINTS)
         static xy_uint8_t nr_grid_points;
         static xy_float_t grid_spacing;
       #else
-        static constexpr xy_uint8_t nr_grid_points { GRID_MAX_POINTS_X, GRID_MAX_POINTS_Y };
-        static constexpr xy_float_t grid_spacing = (mesh_max - mesh_min) / nr_grid_points;
+        static constexpr xy_uint8_t nr_grid_points = max_points;
+        static constexpr xy_float_t grid_spacing = (mesh_max - mesh_min) / (nr_grid_points - 1);
       #endif
       #if ENABLED(CACHED_DIST_RECIPROCAL)
         #if ENABLED(VARIABLE_GRID_POINTS)
@@ -83,7 +86,7 @@ void reset_bed_level();
 
       static void refresh_mesh_lookup() {
         #if ENABLED(VARIABLE_GRID_POINTS)
-          grid_spacing = (mesh_max - mesh_min) / nr_grid_points;
+          grid_spacing = (mesh_max - mesh_min) / (nr_grid_points - 1);
           grid_spacing_recip = grid_spacing_reciprocal();
         #endif
       }
@@ -93,6 +96,12 @@ void reset_bed_level();
           refresh_mesh_lookup();
         }
       #endif
+
+      static uint8_t used_points_x() { return nr_grid_points.x; }
+      static uint8_t used_points_y() { return nr_grid_points.y; }
+      static uint16_t used_points()  { return (uint16_t)used_points_x() * (uint16_t)used_points_y(); }
+      static uint8_t used_cells_x()  { return used_points_x() - 1; }
+      static uint8_t used_cells_y()  { return used_points_y() - 1; }
 
       static xy_float_t grid_spacing_reciprocal() {
         return TERN(CACHED_DIST_RECIPROCAL, grid_spacing_recip, grid_spacing.reciprocal());

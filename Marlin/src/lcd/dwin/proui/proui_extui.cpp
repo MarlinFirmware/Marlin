@@ -172,8 +172,8 @@ namespace ExtUI {
 
   #if HAS_MESH
     void onMeshUpdate(const int8_t xpos, const int8_t ypos, const float zval) {
-      const int16_t pts = GRID_PREF_POINTS,
-                    idx = ypos * GRID_PREF_POINTS_X + xpos;
+      const int16_t pts = bedlevel.used_points(),
+                    idx = ypos * bedlevel.nr_grid_points.x + xpos;
       dwinMeshUpdate(_MIN(idx, pts), pts, zval);
       dwinRedrawScreen();
       meshViewer.drawMeshPoint(xpos, ypos, zval);

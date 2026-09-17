@@ -662,11 +662,11 @@ void MarlinUI::clear_for_drawing() {
 
     void MarlinUI::ubl_plot(const uint8_t x_plot, const uint8_t y_plot) {
       // Scale the box pixels appropriately
-      u8g_uint_t x_map_pixels = ((MAP_MAX_PIXELS_X - 4) / (GRID_PREF_POINTS_X)) * (GRID_PREF_POINTS_X),
-                 y_map_pixels = ((MAP_MAX_PIXELS_Y - 4) / (GRID_PREF_POINTS_Y)) * (GRID_PREF_POINTS_Y),
+      u8g_uint_t x_map_pixels = ((MAP_MAX_PIXELS_X - 4) / bedlevel.nr_grid_points.x) * bedlevel.nr_grid_points.x,
+                 y_map_pixels = ((MAP_MAX_PIXELS_Y - 4) / bedlevel.nr_grid_points.y) * bedlevel.nr_grid_points.y,
 
-                 pixels_per_x_mesh_pnt = x_map_pixels / GRID_PREF_POINTS_X,
-                 pixels_per_y_mesh_pnt = y_map_pixels / GRID_PREF_POINTS_Y,
+                 pixels_per_x_mesh_pnt = x_map_pixels / bedlevel.nr_grid_points.x,
+                 pixels_per_y_mesh_pnt = y_map_pixels / bedlevel.nr_grid_points.y,
 
                  x_offset = MAP_UPPER_LEFT_CORNER_X + 1 + (MAP_MAX_PIXELS_X - x_map_pixels - 2) / 2,
                  y_offset = MAP_UPPER_LEFT_CORNER_Y + 1 + (MAP_MAX_PIXELS_Y - y_map_pixels - 2) / 2;
@@ -687,14 +687,14 @@ void MarlinUI::clear_for_drawing() {
       u8g.setColorIndex(1);
       const u8g_uint_t sx = x_offset + pixels_per_x_mesh_pnt / 2;
             u8g_uint_t  y = y_offset + pixels_per_y_mesh_pnt / 2;
-      for (uint8_t j = 0; j < GRID_PREF_POINTS_Y; j++, y += pixels_per_y_mesh_pnt)
+      for (uint8_t j = 0; j < bedlevel.nr_grid_points.y; j++, y += pixels_per_y_mesh_pnt)
         if (PAGE_CONTAINS(y, y))
-          for (uint8_t i = 0, x = sx; i < GRID_PREF_POINTS_X; i++, x += pixels_per_x_mesh_pnt)
+          for (uint8_t i = 0, x = sx; i < bedlevel.nr_grid_points.x; i++, x += pixels_per_x_mesh_pnt)
             u8g.drawBox(x, y, 1, 1);
 
       // Fill in the Specified Mesh Point
 
-      const uint8_t y_plot_inv = GRID_PREF_POINTS_Y - 1 - y_plot; // The origin is typically in the lower right corner.  We need to
+      const uint8_t y_plot_inv = bedlevel.nr_grid_points.y - 1 - y_plot; // The origin is typically in the lower right corner.  We need to
                                                                   // invert the Y to get it to plot in the right location.
 
       const u8g_uint_t by = y_offset + y_plot_inv * pixels_per_y_mesh_pnt;

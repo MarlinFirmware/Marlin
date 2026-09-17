@@ -566,7 +566,7 @@ bool unified_bed_leveling::G29_handle_phase_ops() {
        */
 
       if (param.C_seen) {
-        if (param.R_repetition >= GRID_PREF_POINTS) {
+        if (param.R_repetition >= bedlevel.used_points()) {
           set_all_mesh_points_to_value(param.C_constant);
         }
         else {
@@ -576,7 +576,7 @@ bool unified_bed_leveling::G29_handle_phase_ops() {
             if (cpos.x < 0) {
               // No more REAL INVALID mesh points to populate, so we ASSUME
               // user meant to populate ALL INVALID mesh points to value
-              GRID_LOOP_COND(x, y) if (isnan(z_values[x][y])) z_values[x][y] = param.C_constant;
+              GRID_LOOP_USED(x, y) if (isnan(z_values[x][y])) z_values[x][y] = param.C_constant;
               break; // No more invalid Mesh Points to populate
             }
             else {
@@ -754,9 +754,9 @@ bool unified_bed_leveling::G29_handle_test_patterns() {
 
     case 0:
       // Create a bowl shape similar to a poorly-calibrated Delta
-      GRID_LOOP_COND(x, y) {
-        const float p1 = 0.5f * GRID_PREF_POINTS_X - x,
-                    p2 = 0.5f * GRID_PREF_POINTS_Y - y;
+      GRID_LOOP_USED(x, y) {
+        const float p1 = 0.5f * nr_grid_points.x - x,
+                    p2 = 0.5f * nr_grid_points.y - y;
         z_values[x][y] += 2.0f * HYPOT(p1, p2);
         TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(x, y, z_values[x][y]));
       }
@@ -764,8 +764,8 @@ bool unified_bed_leveling::G29_handle_test_patterns() {
 
     case 1:
       // Create a diagonal line several Mesh cells thick that is raised
-      for (uint8_t x = 0; x < GRID_PREF_POINTS_X; ++x) {
-        const uint8_t x2 = x + (x < GRID_PREF_POINTS_Y - 1 ? 1 : -1);
+      for (uint8_t x = 0; x < nr_grid_points.x; ++x) {
+        const uint8_t x2 = x + (x < nr_grid_points.y - 1 ? 1 : -1);
         z_values[x][x] += 9.999f;
         z_values[x][x2] += 9.999f; // We want the altered line several mesh points thick
         #if ENABLED(EXTENSIBLE_UI)
@@ -777,8 +777,8 @@ bool unified_bed_leveling::G29_handle_test_patterns() {
 
     case 2:
       // Allow the user to specify the height because 10mm is a little extreme in some cases.
-      for (uint8_t x = GRID_PREF_POINTS_X / 3; x < 2 * GRID_PREF_POINTS_X / 3; x++)     // Create a rectangular raised area in
-        for (uint8_t y = GRID_PREF_POINTS_Y / 3; y < 2 * GRID_PREF_POINTS_Y / 3; y++) { // the center of the bed
+      for (uint8_t x = nr_grid_points.x / 3; x < 2 * nr_grid_points.x / 3; x++)     // Create a rectangular raised area in
+        for (uint8_t y = nr_grid_points.y / 3; y < 2 * nr_grid_points.y / 3; y++) { // the center of the bed
           z_values[x][y] += parser.seen_test('C') ? param.C_constant : 9.99f;
           TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(x, y, z_values[x][y]));
         }
@@ -788,7 +788,7 @@ bool unified_bed_leveling::G29_handle_test_patterns() {
 }
 
 void unified_bed_leveling::shift_mesh_height(const float zoffs) {
-  GRID_LOOP_COND(x, y)
+  GRID_LOOP_USED(x, y)
     if (!isnan(z_values[x][y])) {
       z_values[x][y] += zoffs;
       TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(x, y, z_values[x][y]));
@@ -803,7 +803,7 @@ void unified_bed_leveling::shift_mesh_height(const float zoffs) {
 void unified_bed_leveling::adjust_mesh_to_mean(const bool cflag, const float offset) {
   float sum = 0;
   uint8_t n = 0;
-  GRID_LOOP_COND(x, y)
+  GRID_LOOP_USED(x, y)
     if (!isnan(z_values[x][y])) { sum += z_values[x][y]; n++; }
 
   const float mean = sum / n;
@@ -812,7 +812,7 @@ void unified_bed_leveling::adjust_mesh_to_mean(const bool cflag, const float off
   // Sum the squares of difference from mean
   //
   float sum_of_diff_squared = 0;
-  GRID_LOOP_COND(x, y)
+  GRID_LOOP_USED(x, y)
     if (!isnan(z_values[x][y]))
       sum_of_diff_squared += sq(z_values[x][y] - mean);
 
@@ -823,7 +823,7 @@ void unified_bed_leveling::adjust_mesh_to_mean(const bool cflag, const float off
   SERIAL_ECHOLNPGM("Standard Deviation: ", p_float_t(sigma, 6));
 
   if (cflag) {
-    GRID_LOOP_COND(x, y) {
+    GRID_LOOP_USED(x, y) {
       if (!isnan(z_values[x][y])) {
         z_values[x][y] -= mean + offset;
         TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(x, y, z_values[x][y]));
@@ -845,16 +845,16 @@ void unified_bed_leveling::adjust_mesh_to_mean(const bool cflag, const float off
     TERN_(EXTENSIBLE_UI, ExtUI::onLevelingStart());
 
     save_ubl_active_state_and_disable();  // No bed level correction so only raw data is obtained
-    grid_count_t count = GRID_PREF_POINTS;
+    grid_count_t count = bedlevel.used_points();
 
     mesh_index_pair best;
     TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(best.pos, ExtUI::G29_START));
     do {
       if (do_ubl_mesh_map) display_map(param.T_map_type);
 
-      const grid_count_t point_num = GRID_PREF_POINTS - count + 1;
-      SERIAL_ECHOLN(F("Probing mesh point "), point_num, C('/'), GRID_PREF_POINTS, C('.'));
-      TERN_(HAS_STATUS_MESSAGE, ui.status_printf(0, F(S_FMT " %i/%i"), GET_TEXT(MSG_PROBING_POINT), point_num, int(GRID_PREF_POINTS)));
+      const grid_count_t point_num = bedlevel.used_points() - count + 1;
+      SERIAL_ECHOLN(F("Probing mesh point "), point_num, C('/'), bedlevel.used_points(), C('.'));
+      TERN_(HAS_STATUS_MESSAGE, ui.status_printf(0, F(S_FMT " %i/%i"), GET_TEXT(MSG_PROBING_POINT), point_num, int(bedlevel.used_points())));
       TERN_(HAS_BACKLIGHT_TIMEOUT, ui.refresh_backlight_timeout());
 
       #if ENABLED(DWIN_LCD_PROUI)
@@ -897,7 +897,7 @@ void unified_bed_leveling::adjust_mesh_to_mean(const bool cflag, const float off
     if (TERN0(DWIN_LCD_PROUI, hmiFlag.cancel_lev))
       goto EXIT_PROBE_MESH;
 
-    GRID_LOOP_COND(x, y) if (z_values[x][y] == HUGE_VALF) z_values[x][y] = NAN; // Restore NAN for HUGE_VALF marks
+    GRID_LOOP_USED(x, y) if (z_values[x][y] == HUGE_VALF) z_values[x][y] = NAN; // Restore NAN for HUGE_VALF marks
 
     TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(best.pos, ExtUI::G29_FINISH));
 
@@ -1232,8 +1232,8 @@ bool unified_bed_leveling::G29_parse_parameters() {
   param.R_repetition = 0;
 
   if (parser.seen('R')) {
-    param.R_repetition = parser.has_value() ? parser.value_ushort() : GRID_PREF_POINTS;
-    NOMORE(param.R_repetition, GRID_PREF_POINTS);
+    param.R_repetition = parser.has_value() ? parser.value_ushort() : bedlevel.used_points();
+    NOMORE(param.R_repetition, bedlevel.used_points());
     if (param.R_repetition < 1) {
       SERIAL_ECHOLNPGM("?(R)epetition count invalid (1+).\n");
       return UBL_ERR;
@@ -1379,7 +1379,7 @@ mesh_index_pair unified_bed_leveling::find_furthest_invalid_mesh_point() {
 
   mesh_index_pair farthest { -1, -1, -99999.99 };
 
-  GRID_LOOP_COND(i, j) {
+  GRID_LOOP_USED(i, j) {
     if (!isnan(z_values[i][j])) continue;  // Skip valid mesh points
 
     // Skip unreachable points
@@ -1390,7 +1390,7 @@ mesh_index_pair unified_bed_leveling::find_furthest_invalid_mesh_point() {
 
     xy_int8_t nearby { -1, -1 };
     float d1, d2 = 99999.9f;
-    GRID_LOOP_COND(k, l) {
+    GRID_LOOP_USED(k, l) {
       if (isnan(z_values[k][l])) continue;
 
       found_a_real = true;
@@ -1415,10 +1415,10 @@ mesh_index_pair unified_bed_leveling::find_furthest_invalid_mesh_point() {
       farthest.pos = nearby; // Found an invalid location farther from the defined mesh point
       farthest.distance = d2;
     }
-  } // GRID_LOOP_COND
+  } // GRID_LOOP_USED
 
   if (!found_a_real && found_a_NAN) {        // if the mesh is totally unpopulated, start the probing
-    farthest.pos.set(GRID_PREF_POINTS_X / 2, GRID_PREF_POINTS_Y / 2);
+    farthest.pos.set(nr_grid_points.x / 2, nr_grid_points.y / 2);
     farthest.distance = 1;
   }
   return farthest;
@@ -1478,7 +1478,7 @@ mesh_index_pair unified_bed_leveling::find_closest_mesh_point_of_type(const Mesh
 
     float best_so_far = 99999.99f;
 
-    GRID_LOOP_COND(i, j) {
+    GRID_LOOP_USED(i, j) {
       if (  type == CLOSEST || type == (isnan(z_values[i][j]) ? INVALID : REAL)
         || (type == SET_IN_BITMAP && !done_flags->marked(i, j))
       ) {
@@ -1505,7 +1505,7 @@ mesh_index_pair unified_bed_leveling::find_closest_mesh_point_of_type(const Mesh
           closest.distance = best_so_far;
         }
       }
-    } // GRID_LOOP_COND
+    } // GRID_LOOP_USED
 
     return closest;
 
@@ -1736,7 +1736,7 @@ void unified_bed_leveling::smart_fill_mesh() {
 
     matrix_3x3 rotation = matrix_3x3::create_look_at(vector_3(lsf_results.A, lsf_results.B, 1));
 
-    GRID_LOOP_COND(i, j) {
+    GRID_LOOP_USED(i, j) {
       float mx = get_mesh_x(i), my = get_mesh_y(j), mz = z_values[i][j];
 
       if (DEBUGGING(LEVELING)) {
@@ -1804,27 +1804,27 @@ void unified_bed_leveling::smart_fill_mesh() {
     // the point being extrapolated.  Then extrapolate the mesh point from WLSF.
 
     static_assert((GRID_MAX_POINTS_Y) <= 16, "GRID_MAX_POINTS_Y too big");
-    uint16_t bitmap[GRID_PREF_POINTS_X] = { 0 };
+    uint16_t bitmap[nr_grid_points.x] = { 0 };
     struct linear_fit_data lsf_results;
 
     SERIAL_ECHOPGM("Extrapolating mesh...");
 
     const float weight_scaled = weight_factor * _MAX(grid_spacing.x, grid_spacing.y);
 
-    GRID_LOOP_COND(jx, jy) if (!isnan(z_values[jx][jy])) SBI(bitmap[jx], jy);
+    GRID_LOOP_USED(jx, jy) if (!isnan(z_values[jx][jy])) SBI(bitmap[jx], jy);
 
     xy_pos_t ppos;
-    for (uint8_t ix = 0; ix < GRID_PREF_POINTS_X; ++ix) {
+    for (uint8_t ix = 0; ix < nr_grid_points.x; ++ix) {
       ppos.x = get_mesh_x(ix);
-      for (uint8_t iy = 0; iy < GRID_PREF_POINTS_Y; ++iy) {
+      for (uint8_t iy = 0; iy < nr_grid_points.y; ++iy) {
         ppos.y = get_mesh_y(iy);
         if (isnan(z_values[ix][iy])) {
           // undefined mesh point at (ppos.x,ppos.y), compute weighted LSF from original valid mesh points.
           incremental_LSF_reset(&lsf_results);
           xy_pos_t rpos;
-          for (uint8_t jx = 0; jx < GRID_PREF_POINTS_X; ++jx) {
+          for (uint8_t jx = 0; jx < nr_grid_points.x; ++jx) {
             rpos.x = get_mesh_x(jx);
-            for (uint8_t jy = 0; jy < GRID_PREF_POINTS_Y; ++jy) {
+            for (uint8_t jy = 0; jy < nr_grid_points.y; ++jy) {
               if (TEST(bitmap[jx], jy)) {
                 rpos.y = get_mesh_y(jy);
                 const float rz = z_values[jx][jy],
@@ -1880,12 +1880,12 @@ void unified_bed_leveling::smart_fill_mesh() {
     UBL_SERIAL_ECHOLNPGM(25, "grid_spacing.[xy] ", grid_spacing.x, ", ", grid_spacing.y);
 
     SERIAL_ECHO('X', F("-Axis Mesh Points at: "));
-    for (uint8_t i = 0; i < GRID_PREF_POINTS_X; ++i)
+    for (uint8_t i = 0; i < nr_grid_points.x; ++i)
       UBL_SERIAL_ECHO(25, p_float_t(motion.logical_x(get_mesh_x(i)), 3), F("  "));
     SERIAL_EOL();
 
     SERIAL_ECHO('Y', F("-Axis Mesh Points at: "));
-    for (uint8_t i = 0; i < GRID_PREF_POINTS_Y; ++i)
+    for (uint8_t i = 0; i < nr_grid_points.y; ++i)
       UBL_SERIAL_ECHO(25, p_float_t(motion.logical_y(get_mesh_y(i)), 3), F("  "));
     SERIAL_EOL();
 
@@ -1961,7 +1961,7 @@ void unified_bed_leveling::smart_fill_mesh() {
 
       SERIAL_ECHOLNPGM("Subtracting mesh in slot ", param.KLS_storage_slot, " from current mesh.");
 
-      GRID_LOOP_COND(x, y) {
+      GRID_LOOP_USED(x, y) {
         z_values[x][y] -= tmp_z_values[x][y];
         TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(x, y, z_values[x][y]));
       }
