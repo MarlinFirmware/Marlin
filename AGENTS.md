@@ -70,6 +70,7 @@ The firmware communicates with the host via serial at 250,000 baud (configurable
 | AVR | ATmega2560, ATmega1280, AT90USB | 8-bit AVR | Legacy support |
 | ESP32 | ESP32-S3, ESP32-S2 | Xtensa/RISC-V | WiFi/BLE capability |
 | SAMD | SAMD21, SAMD51 | ARM Cortex-M0+/M4 | Adafruit Feather M4 |
+| SAM3U | SAM3U4E | ARM Cortex-M3 | 4pi; bare-metal, no Arduino core |
 | RP2040 | RP2040, RP2350 | ARM Cortex-M33 | Raspberry Pi Pico |
 | LPC | LPC1768, LPC1769 | ARM Cortex-M3 | RAMBo, Melzi boards |
 | GD32 | GD32F1, GD32F3 | ARM Cortex-M3 | GigaDevice clones |
@@ -337,6 +338,7 @@ WORKDIR /code
 | RP2040   | Arduino RP2040 core, PIOasm   |
 | Teensy   | Teensyduino core, Bounce2     |
 | SAMD     | Arduino SAMD core             |
+| SAM3U    | CMSIS headers, newlib (nano)  |
 
 ## 10. Code Structure
 
@@ -462,6 +464,7 @@ Marlin/src/
 │   │   ├── stm32f0/             # STM32F0 boards
 │   │   ├── sam/                 # SAM boards
 │   │   ├── samd/                # SAMD boards
+│   │   ├── sam3u/               # SAM3U boards (4pi)
 │   │   ├── rp2040/              # RP2040 boards
 │   │   ├── lpc1768/             # LPC1768 boards
 │   │   ├── lpc1769/             # LPC1769 boards
@@ -489,6 +492,7 @@ Marlin/src/
 │   │   ├── DUE/                 # Arduino Due HAL
 │   │   ├── SAMD21/              # SAMD21 HAL
 │   │   ├── SAMD51/              # SAMD51 HAL
+│   │   ├── SAM3U/               # SAM3U HAL (bare-metal CMSIS)
 │   │   ├── RP2040/              # RP2040 HAL
 │   │   ├── LPC1768/             # LPC1768 HAL
 │   │   ├── GD32_MFL/            # GD32 HAL
@@ -517,7 +521,7 @@ Marlin/src/
 │   ├── avr.ini, due.ini, esp32.ini
 │   ├── stm32-common.ini, stm32f1.ini, stm32f4.ini
 │   ├── stm32f7.ini, stm32h7.ini, stm32g0.ini
-│   ├── samd21.ini, samd51.ini
+│   ├── samd21.ini, samd51.ini, sam3u.ini
 │   ├── raspberrypi.ini, teensy.ini
 │   ├── at32.ini, gd32.ini, hc32.ini
 │   ├── lpc176x.ini, native.ini
