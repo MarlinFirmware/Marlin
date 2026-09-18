@@ -706,6 +706,7 @@ namespace LanguageNarrow_en {
   LSTR MSG_ERR_COOLING_FAILED             = _UxGT("Cooling Failed");
   LSTR MSG_PLEASE_WAIT                    = _UxGT("Please wait...");
   LSTR MSG_PREHEATING                     = _UxGT("Preheating...");
+  LSTR MSG_HEAT_SOAK                      = _UxGT("Heat Soak");
   LSTR MSG_PROBE_HEATING                  = _UxGT("Probe Heating...");
   LSTR MSG_PROBE_COOLING                  = _UxGT("Probe Cooling...");
   LSTR MSG_LASER_COOLING                  = _UxGT("Laser Cooling...");
