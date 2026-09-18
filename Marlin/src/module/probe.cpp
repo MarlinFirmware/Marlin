@@ -824,7 +824,7 @@ float Probe::run_z_probe(const bool sanity_check/*=true*/, const float z_min_poi
       if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("1st Probe Z:", z1);
 
       // Raise to give the probe clearance
-      motion.do_z_clearance(z1 + (Z_CLEARANCE_MULTI_PROBE), false);
+      motion.do_z_clearance(z1 + (Z_CLEARANCE_MULTI_PROBE));
 
     #elif Z_PROBE_FEEDRATE_FAST != Z_PROBE_FEEDRATE_SLOW
 
@@ -885,7 +885,7 @@ float Probe::run_z_probe(const bool sanity_check/*=true*/, const float z_min_poi
             #if EXTRA_PROBING > 0
               < TOTAL_PROBING - 1
             #endif
-          ) motion.do_z_clearance(z + (Z_CLEARANCE_MULTI_PROBE), false);
+          ) motion.do_z_clearance(z + (Z_CLEARANCE_MULTI_PROBE));
         #endif
       }
 
@@ -939,7 +939,7 @@ float Probe::run_z_probe(const bool sanity_check/*=true*/, const float z_min_poi
     if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("1st Probe Z:", z1);
 
     // Raise to give the probe clearance
-    motion.do_z_clearance(z1 + (Z_CLEARANCE_MULTI_PROBE), false);
+    motion.do_z_clearance(z1 + (Z_CLEARANCE_MULTI_PROBE));
 
     float probes_z_sum = 0;
     for (uint8_t p = 0; p < hmiData.multiple_probing - 1; p++) {
@@ -955,7 +955,7 @@ float Probe::run_z_probe(const bool sanity_check/*=true*/, const float z_min_poi
       const float z = DIFF_TERN(HAS_DELTA_SENSORLESS_PROBING, motion.position.z, largest_sensorless_adj);
       probes_z_sum += z;
       // Small Z raise after probe
-      motion.do_z_clearance(z + (Z_CLEARANCE_MULTI_PROBE), false);
+      motion.do_z_clearance(z + (Z_CLEARANCE_MULTI_PROBE));
     }
 
     // Return a weighted average of the fast and slow probes

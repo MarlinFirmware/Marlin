@@ -603,12 +603,12 @@ public:
   static void do_homing_move(const AxisEnum axis, const float distance, const feedRate_t fr_mm_s=0.0, const bool final_approach=true);
 
   #if HAS_Z_AXIS
-    static void do_z_clearance(const float zclear, const bool with_probe=true, const bool lower_allowed=false);
+    static void do_z_clearance(const float zclear, const bool lower_allowed=false);
     static void do_z_clearance_by(const float zclear);
     static void do_z_post_clearance();
     static void do_move_after_z_homing();
   #else
-    static void do_z_clearance(float, bool=true, bool=false) {}
+    static void do_z_clearance(float, bool=false) {}
     static void do_z_clearance_by(float) {}
   #endif
 
