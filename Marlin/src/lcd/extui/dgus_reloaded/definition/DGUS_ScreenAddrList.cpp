@@ -29,6 +29,8 @@
 #include "../../ui_api.h"
 
 constexpr DGUS_Addr LIST_HOME[] PROGMEM = {
+  DGUS_Addr::INFOS_Machine,
+  DGUS_Addr::LANGUAGE,
   DGUS_Addr::TEMP_Current_H0,
   DGUS_Addr::TEMP_Target_H0,
   DGUS_Addr::TEMP_Current_Bed,
@@ -204,6 +206,16 @@ constexpr DGUS_Addr LIST_WAIT[] PROGMEM = {
   DGUS_Addr::END
 };
 
+#if HAS_FILAMENT_SENSOR
+  constexpr DGUS_Addr LIST_FILAMENT_SENSOR[] PROGMEM = {
+    DGUS_Addr::FILAMENT_SENSOR_Icons,
+    #if ENABLED(FILAMENT_SWITCH_AND_MOTION)
+      DGUS_Addr::FILAMENT_SENSOR_Jam,
+    #endif
+    DGUS_Addr::END
+  };
+#endif
+
 #define MAP_HELPER(SCREEN, LIST) { .screenID = SCREEN, .addr_list = LIST }
 
 const struct DGUS_ScreenAddrList screen_addr_list_map[] PROGMEM = {
@@ -231,6 +243,9 @@ const struct DGUS_ScreenAddrList screen_addr_list_map[] PROGMEM = {
   MAP_HELPER(DGUS_ScreenID::BRIGHTNESS,         LIST_BRIGHTNESS),
   MAP_HELPER(DGUS_ScreenID::INFOS,              LIST_INFOS),
   MAP_HELPER(DGUS_ScreenID::WAIT,               LIST_WAIT),
+  #if HAS_FILAMENT_SENSOR
+    MAP_HELPER(DGUS_ScreenID::FILAMENT_SENSOR,  LIST_FILAMENT_SENSOR),
+  #endif
 
   MAP_HELPER((DGUS_ScreenID)0, nullptr)
 };
