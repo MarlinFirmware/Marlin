@@ -415,6 +415,8 @@ namespace LanguageNarrow_en {
   LSTR MSG_MEDIA_UPDATE                   = MEDIA_TYPE_EN _UxGT(" Update");
   LSTR MSG_RESET_PRINTER                  = _UxGT("Reset Printer");
   LSTR MSG_START_PRINT                    = _UxGT("Start Print");
+  LSTR MSG_START_PRINT_FROM_Z             = _UxGT("Start from Z");
+  LSTR MSG_SKIP_TO_Z_SCAN                 = _UxGT("Scanning to Z...");
   LSTR MSG_BUTTON_NEXT                    = _UxGT("Next");
   LSTR MSG_BUTTON_INIT                    = _UxGT("Init");
   LSTR MSG_BUTTON_STOP                    = _UxGT("Stop");

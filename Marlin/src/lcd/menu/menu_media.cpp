@@ -31,6 +31,10 @@
 #include "menu_item.h"
 #include "../../sd/cardreader.h"
 
+#if ENABLED(CONTINUE_PRINT_FROM_Z)
+  #include "../../feature/continue_from_z.h"
+#endif
+
 void lcd_sd_updir() {
   ui.encoderPosition = card.cdup() ? ENCODER_STEPS_PER_MENU_ITEM : 0;
   encoderTopLine = 0;
@@ -58,6 +62,23 @@ inline void sdcard_start_selected_file() {
   ui.reset_status();
 }
 
+#if ENABLED(CONTINUE_PRINT_FROM_Z)
+  /**
+   * Submenu shown after selecting a file:
+   *   < Back
+   *   Skip to Z: <value>     (0 = normal print)
+   *   Start Print
+   */
+  void menu_start_file_from_z() {
+    START_MENU();
+    BACK_ITEM(MSG_BUTTON_CANCEL);
+    EDIT_ITEM_FAST(float52, MSG_START_PRINT_FROM_Z, &ContinueFromZ::target_z,
+                   0.0f, _MIN((float)START_PRINT_FROM_Z_MAX, (float)Z_MAX_POS));
+    ACTION_ITEM(MSG_BUTTON_PRINT, sdcard_start_selected_file);
+    END_MENU();
+  }
+#endif
+
 class MenuItem_sdfile : public MenuItem_sdbase {
   public:
     static inline void draw(const bool sel, const uint8_t row, FSTR_P const fstr, CardReader &theCard) {
@@ -70,7 +91,9 @@ class MenuItem_sdfile : public MenuItem_sdbase {
         sd_top_line = encoderTopLine;
         sd_items = screen_items;
       #endif
-      #if ENABLED(SD_MENU_CONFIRM_START)
+      #if ENABLED(CONTINUE_PRINT_FROM_Z)
+        MenuItem_submenu::action(fstr, menu_start_file_from_z);
+      #elif ENABLED(SD_MENU_CONFIRM_START)
         MenuItem_submenu::action(fstr, []{
           char * const filename = card.longest_filename();
           MenuItem_confirm::select_screen(
