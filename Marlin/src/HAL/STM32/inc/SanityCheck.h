@@ -61,6 +61,10 @@
   #error "TEMP_SENSOR_SOC requires 'TEMP_SOC_PIN ATEMP' on STM32."
 #endif
 
+#if ENABLED(USE_OTG_USB_HOST) && !defined(USBHOST)
+  #error "USE_OTG_USB_HOST requires a '..._usb_flash_drive' PlatformIO environment."
+#endif
+
 /**
  * Check for common serial pin conflicts
  */
