@@ -546,6 +546,10 @@ void GcodeSuite::process_parsed_command(bool no_ok/*=false*/) {
           case 34: M34(); break;                                  // M34: Set SD card sorting options
         #endif
 
+        #if ENABLED(PANELDUE)
+          case 36: M36(); break;                                  // M36: Return file information (JSON)
+        #endif
+
         case 928: M928(); break;                                  // M928: Start SD write
       #endif // HAS_MEDIA
 
@@ -878,6 +882,10 @@ void GcodeSuite::process_parsed_command(bool no_ok/*=false*/) {
         case 405: M405(); break;                                  // M405: Turn on filament sensor for control
         case 406: M406(); break;                                  // M406: Turn off filament sensor for control
         case 407: M407(); break;                                  // M407: Display measured filament diameter
+      #endif
+
+      #if ENABLED(PANELDUE)
+        case 408: M408(); break;                                  // M408: Report machine state in JSON format
       #endif
 
       #if HAS_FILAMENT_SENSOR
