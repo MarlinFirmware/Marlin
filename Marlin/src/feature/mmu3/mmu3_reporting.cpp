@@ -21,7 +21,7 @@
  */
 
 /**
- * mmu2_reporting.cpp
+ * mmu3_reporting.cpp
  */
 
 #include "../../inc/MarlinConfig.h"

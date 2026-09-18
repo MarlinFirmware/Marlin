@@ -950,7 +950,6 @@ namespace LanguageNarrow_it {
   LSTR MSG_BTN_UNLOAD                     = _UxGT("Scarica");                                  // Unload
   LSTR MSG_BTN_LOAD                       = _UxGT("Carica");                                   // Load
   LSTR MSG_BTN_EJECT                      = _UxGT("Espelli");                                  // Eject
-  LSTR MSG_BTN_STOP                       = _UxGT("Stop");                                     // Stop
   LSTR MSG_BTN_DISABLE_MMU                = _UxGT("Disabilita");                               // Disable
   LSTR MSG_BTN_MORE                       = _UxGT("Più info");                                 // More Info
   LSTR MSG_DONE                           = _UxGT("Eseguito");                                 // Done

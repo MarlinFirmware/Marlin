@@ -22,7 +22,7 @@
 #pragma once
 
 /**
- * mmu2.h
+ * mmu3.h
  */
 
 #include "mmu3_state.h"
