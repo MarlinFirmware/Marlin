@@ -264,7 +264,7 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
   #if HAS_Y_AXIS
     static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS) are too narrow to contain Y_BED_SIZE.");
   #endif
-  #if HAS_X_AXIS && HAS_Y_AXIS && !IS_KINEMATIC
+  #if HAS_X_AXIS && HAS_Y_AXIS && !HAS_NONLINEAR_KINEMATICS
     // Enforce a right-handed, monotonic XY bed definition (rotation + translation only)
     constexpr float _bed_dx = X_MAX_POS - X_MIN_POS;
     constexpr float _bed_dy = Y_MAX_POS - Y_MIN_POS;
@@ -278,7 +278,7 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
  * Granular software endstops (Marlin >= 1.1.7)
  */
 #if ENABLED(MIN_SOFTWARE_ENDSTOPS) && NONE(MIN_SOFTWARE_ENDSTOP_Z, POLARGRAPH)
-  #if IS_KINEMATIC
+  #if HAS_NONLINEAR_KINEMATICS
     #error "MIN_SOFTWARE_ENDSTOPS on DELTA/SCARA also requires MIN_SOFTWARE_ENDSTOP_Z."
   #elif NONE(MIN_SOFTWARE_ENDSTOP_X, MIN_SOFTWARE_ENDSTOP_Y)
     #error "MIN_SOFTWARE_ENDSTOPS requires at least one of the MIN_SOFTWARE_ENDSTOP_[XYZ] options."
@@ -286,7 +286,7 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
 #endif
 
 #if ENABLED(MAX_SOFTWARE_ENDSTOPS) && NONE(MAX_SOFTWARE_ENDSTOP_Z, POLARGRAPH)
-  #if IS_KINEMATIC
+  #if HAS_NONLINEAR_KINEMATICS
     #error "MAX_SOFTWARE_ENDSTOPS on DELTA/SCARA also requires MAX_SOFTWARE_ENDSTOP_Z."
   #elif NONE(MAX_SOFTWARE_ENDSTOP_X, MAX_SOFTWARE_ENDSTOP_Y)
     #error "MAX_SOFTWARE_ENDSTOPS requires at least one of the MAX_SOFTWARE_ENDSTOP_[XYZ] options."
@@ -1256,7 +1256,7 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
 /**
  * Junction deviation is incompatible with kinematic systems.
  */
-#if HAS_JUNCTION_DEVIATION && IS_KINEMATIC
+#if HAS_JUNCTION_DEVIATION && HAS_NONLINEAR_KINEMATICS
   #error "CLASSIC_JERK is required for the kinematics of DELTA, SCARA, POLAR, etc."
 #endif
 
@@ -1537,7 +1537,7 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
   /**
    * Check for improper PROBING_MARGIN
    */
-  #if NONE(NOZZLE_AS_PROBE, IS_KINEMATIC)
+  #if NONE(NOZZLE_AS_PROBE, HAS_NONLINEAR_KINEMATICS)
     #ifdef PROBING_MARGIN
       static_assert(PROBING_MARGIN     >= 0, "PROBING_MARGIN must be >= 0.");
     #endif
@@ -1546,7 +1546,7 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
     static_assert(PROBING_MARGIN_LEFT  >= 0, "PROBING_MARGIN_LEFT must be >= 0.");
     static_assert(PROBING_MARGIN_RIGHT >= 0, "PROBING_MARGIN_RIGHT must be >= 0.");
   #endif
-  #define _MARGIN(A) TERN(IS_KINEMATIC, PRINTABLE_RADIUS, ((A##_BED_SIZE) / 2))
+  #define _MARGIN(A) TERN(HAS_NONLINEAR_KINEMATICS, PRINTABLE_RADIUS, ((A##_BED_SIZE) / 2))
   #ifdef PROBING_MARGIN
     static_assert(PROBING_MARGIN     < _MARGIN(X), "PROBING_MARGIN is too large.");
   #endif
@@ -1818,7 +1818,7 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
 #if ENABLED(CODEPENDENT_XY_HOMING)
   #if ENABLED(QUICK_HOME)
     #error "QUICK_HOME is incompatible with CODEPENDENT_XY_HOMING."
-  #elif IS_KINEMATIC
+  #elif HAS_NONLINEAR_KINEMATICS
     #error "CODEPENDENT_XY_HOMING requires a Cartesian setup."
   #endif
 #endif

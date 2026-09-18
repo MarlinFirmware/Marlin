@@ -104,7 +104,7 @@ public:
 
     static bool set_deployed(const bool deploy, const bool no_return=false);
 
-    #if IS_KINEMATIC
+    #if HAS_NONLINEAR_KINEMATICS
 
       #if HAS_PROBE_XY_OFFSET
         // Return true if the both nozzle and the probe can reach the given point.
@@ -126,7 +126,7 @@ public:
         }
       #endif
 
-    #else // !IS_KINEMATIC
+    #else // !HAS_NONLINEAR_KINEMATICS
 
       static bool obstacle_check(const float rx, const float ry) {
         #if ENABLED(AVOID_OBSTACLES)
@@ -178,7 +178,7 @@ public:
         }
       }
 
-    #endif // !IS_KINEMATIC
+    #endif // !HAS_NONLINEAR_KINEMATICS
 
     static float probe_at_point(
       const float        rx,
@@ -228,7 +228,7 @@ public:
 
   static bool good_bounds(const xy_pos_t &lf, const xy_pos_t &rb) {
     return (
-      #if IS_KINEMATIC
+      #if HAS_NONLINEAR_KINEMATICS
         can_reach(lf.x, 0) && can_reach(rb.x, 0) && can_reach(0, lf.y) && can_reach(0, rb.y)
       #else
         can_reach(lf) && can_reach(rb)
@@ -248,7 +248,7 @@ public:
   static bool stow(const bool no_return=false)   { return set_deployed(false, no_return); }
 
   #if HAS_BED_PROBE || HAS_LEVELING
-    #if IS_KINEMATIC
+    #if HAS_NONLINEAR_KINEMATICS
       static constexpr float probe_radius(const xy_pos_t &probe_offset_xy=offset_xy) {
         return float(PRINTABLE_RADIUS) - _MAX(PROBING_MARGIN, HYPOT(probe_offset_xy.x, probe_offset_xy.y));
       }
@@ -264,25 +264,25 @@ public:
      * far enough past the right edge).
      */
     static constexpr float _min_x(const xy_pos_t &probe_offset_xy=offset_xy) {
-      return TERN(IS_KINEMATIC,
+      return TERN(HAS_NONLINEAR_KINEMATICS,
         (X_CENTER) - probe_radius(probe_offset_xy),
         _MAX((X_MIN_BED) + (PROBING_MARGIN_LEFT), (X_MIN_POS) + probe_offset_xy.x)
       );
     }
     static constexpr float _max_x(const xy_pos_t &probe_offset_xy=offset_xy) {
-      return TERN(IS_KINEMATIC,
+      return TERN(HAS_NONLINEAR_KINEMATICS,
         (X_CENTER) + probe_radius(probe_offset_xy),
         _MIN((X_MAX_BED) - (PROBING_MARGIN_RIGHT), (X_MAX_POS) + probe_offset_xy.x)
       );
     }
     static constexpr float _min_y(const xy_pos_t &probe_offset_xy=offset_xy) {
-      return TERN(IS_KINEMATIC,
+      return TERN(HAS_NONLINEAR_KINEMATICS,
         (Y_CENTER) - probe_radius(probe_offset_xy),
         _MAX((Y_MIN_BED) + (PROBING_MARGIN_FRONT), (Y_MIN_POS) + probe_offset_xy.y)
       );
     }
     static constexpr float _max_y(const xy_pos_t &probe_offset_xy=offset_xy) {
-      return TERN(IS_KINEMATIC,
+      return TERN(HAS_NONLINEAR_KINEMATICS,
         (Y_CENTER) + probe_radius(probe_offset_xy),
         _MIN((Y_MAX_BED) - (PROBING_MARGIN_BACK), (Y_MAX_POS) + probe_offset_xy.y)
       );
@@ -306,7 +306,7 @@ public:
 
     public:
       static constexpr bool can_reach(float x, float y) {
-        #if IS_KINEMATIC
+        #if HAS_NONLINEAR_KINEMATICS
           return HYPOT2(x, y) <= sq(probe_radius(default_probe_xy_offset));
         #else
           return COORDINATE_OKAY(x, _min_x(default_probe_xy_offset) - fslop, _max_x(default_probe_xy_offset) + fslop)
@@ -329,7 +329,7 @@ public:
           points[1] = xy_float_t(PROBE_PT_2);
           points[2] = xy_float_t(PROBE_PT_3);
         #else
-          #if IS_KINEMATIC
+          #if HAS_NONLINEAR_KINEMATICS
             constexpr float SIN0 = 0.0, SIN120 = 0.866025, SIN240 = -0.866025,
                             COS0 = 1.0, COS120 = -0.5    , COS240 = -0.5;
             points[0] = xy_float_t({ (X_CENTER) + probe_radius() * COS0,   (Y_CENTER) + probe_radius() * SIN0 });

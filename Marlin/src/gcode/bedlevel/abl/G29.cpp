@@ -530,7 +530,7 @@ G29_TYPE GcodeSuite::G29() {
         abl.Z_offset -=  probe.probe_at_point(Z_SAFE_HOMING_X_POINT, Z_SAFE_HOMING_Y_POINT, PROBE_PT_NONE, abl.verbose_level, false);
       #endif
       // Pre-populate local Z values from the stored mesh
-      TERN_(IS_KINEMATIC, COPY(abl.z_values, bedlevel.z_values));
+      TERN_(HAS_NONLINEAR_KINEMATICS, COPY(abl.z_values, bedlevel.z_values));
     #endif
 
   } // !g29_in_progress
@@ -721,7 +721,7 @@ G29_TYPE GcodeSuite::G29() {
           TERN_(AUTO_BED_LEVELING_LINEAR, abl.indexIntoAB[abl.meshCount.x][abl.meshCount.y] = ++abl.abl_probe_index); // 0...
 
           // Avoid probing outside the round or hexagonal area
-          if (TERN0(IS_KINEMATIC, !probe.can_reach(abl.probePos))) continue;
+          if (TERN0(HAS_NONLINEAR_KINEMATICS, !probe.can_reach(abl.probePos))) continue;
 
           if (abl.verbose_level) SERIAL_ECHOLNPGM("Probing mesh point ", pt_index, "/", abl.abl_points, ".");
           TERN_(HAS_STATUS_MESSAGE, ui.status_printf(0, F(S_FMT " %i/%i"), GET_TEXT(MSG_PROBING_POINT), int(pt_index), int(abl.abl_points)));
@@ -886,7 +886,7 @@ G29_TYPE GcodeSuite::G29() {
       else {
         bedlevel.set_grid(abl.gridSpacing, abl.probe_position_lf);
         COPY(bedlevel.z_values, abl.z_values);
-        TERN_(IS_KINEMATIC, bedlevel.extrapolate_unprobed_bed_level());
+        TERN_(HAS_NONLINEAR_KINEMATICS, bedlevel.extrapolate_unprobed_bed_level());
         bedlevel.refresh_bed_level();
 
         bedlevel.print_leveling_grid();

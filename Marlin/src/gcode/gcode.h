@@ -1202,7 +1202,7 @@ private:
     static void M605();
   #endif
 
-  #if IS_KINEMATIC
+  #if HAS_NONLINEAR_KINEMATICS
     static void M665();
     static void M665_report(const bool forReplay=true);
   #endif

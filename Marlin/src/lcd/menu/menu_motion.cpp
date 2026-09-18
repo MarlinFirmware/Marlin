@@ -92,7 +92,7 @@ void lcd_move_axis(const AxisEnum axis) {
     if (ui.encoderPosition) {
       if (!ui.manual_move.processing) {
         const float diff = float(int32_t(ui.encoderPosition)) * ui.manual_move.menu_scale;
-        TERN(IS_KINEMATIC, ui.manual_move.offset, motion.position.e) += diff;
+        TERN(HAS_NONLINEAR_KINEMATICS, ui.manual_move.offset, motion.position.e) += diff;
         ui.manual_move.soon(E_AXIS OPTARG(MULTI_E_MANUAL, eindex));
         ui.refresh(LCDVIEW_REDRAW_NOW);
       }
@@ -103,7 +103,7 @@ void lcd_move_axis(const AxisEnum axis) {
       MenuEditItemBase::draw_edit_screen(
         GET_TEXT_F(TERN(MULTI_E_MANUAL, MSG_MOVE_EN, MSG_MOVE_E)),
         ftostr41sign(motion.position.e
-          PLUS_TERN0(IS_KINEMATIC, ui.manual_move.offset)
+          PLUS_TERN0(HAS_NONLINEAR_KINEMATICS, ui.manual_move.offset)
           MINUS_TERN0(MANUAL_E_MOVES_RELATIVE, ui.manual_move.e_origin)
         )
       );
@@ -221,7 +221,7 @@ void menu_move() {
   #endif
 
   // Move submenu for each axis
-  if (NONE(IS_KINEMATIC, NO_MOTION_BEFORE_HOMING) || motion.all_axes_homed()) {
+  if (NONE(HAS_NONLINEAR_KINEMATICS, NO_MOTION_BEFORE_HOMING) || motion.all_axes_homed()) {
     if (TERN1(DELTA, motion.position.z <= delta_clip_start_height)) {
       #if HAS_X_AXIS
         SUBMENU_N(X_AXIS, MSG_MOVE_N, []{ _menu_move_distance(X_AXIS, []{ lcd_move_axis(X_AXIS); }); });
