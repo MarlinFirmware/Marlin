@@ -298,6 +298,25 @@ void scroll_screen(const uint8_t limit, const bool is_menu) {
     encoderTopLine = encoderLine;
 }
 
+/**
+ * Called when a screen pass ends and the true item count is known.
+ *
+ * A menu can have fewer items than when it was last shown - the leveling menu
+ * drops "Auto Home" once the machine is homed - while it returns scrolled just
+ * as it was left, leaving the view hanging past the last item and a blank row
+ * at the bottom. Pull the view back onto the list and draw the screen again.
+ */
+void scroll_screen_end() {
+  if (screen_items <= 0) return;
+  const int8_t top_max = _MAX(0, screen_items - (LCD_HEIGHT));
+  if (encoderTopLine <= top_max) return;
+  encoderTopLine = top_max;
+  // Abandon the frame in progress. A paged display would otherwise keep the
+  // passes already drawn at the old offset and finish at the new one.
+  TERN_(HAS_MARLINUI_U8GLIB, ui.drawing_screen = false);
+  ui.refresh(LCDVIEW_CALL_REDRAW_NEXT);
+}
+
 #if HAS_LINE_TO_Z
 
   void line_to_z(const float z) {

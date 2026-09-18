@@ -483,8 +483,6 @@ FORCE_INLINE void probe_specific_action(const bool deploy) {
       #define WAIT_FOR_BED_HEAT
     #endif
 
-    if (!early) LCD_MESSAGE(MSG_PREHEATING);
-
     DEBUG_ECHOPGM("Preheating ");
 
     #if ENABLED(WAIT_FOR_NOZZLE_HEAT)
@@ -507,8 +505,17 @@ FORCE_INLINE void probe_specific_action(const bool deploy) {
     DEBUG_EOL();
 
     if (!early) {
-      TERN_(WAIT_FOR_NOZZLE_HEAT, if (hotend_temp > thermalManager.wholeDegHotend(0) + (TEMP_WINDOW)) thermalManager.wait_for_hotend(0));
-      TERN_(WAIT_FOR_BED_HEAT,    if (bed_temp    > thermalManager.wholeDegBed() + (TEMP_BED_WINDOW)) thermalManager.wait_for_bed_heating());
+      const bool waitHotend = TERN0(WAIT_FOR_NOZZLE_HEAT, hotend_temp > thermalManager.wholeDegHotend(0) + (TEMP_WINDOW)),
+                 waitBed    = TERN0(WAIT_FOR_BED_HEAT,    bed_temp    > thermalManager.wholeDegBed()    + (TEMP_BED_WINDOW));
+
+      // Only announce a preheat when there is something to wait for. Each wait
+      // clears the status line when it ends, so a notice with nothing to wait
+      // for would be left on the display until something else replaced it.
+      if (waitHotend || waitBed) {
+        LCD_MESSAGE(MSG_PREHEATING);
+        TERN_(WAIT_FOR_NOZZLE_HEAT, if (waitHotend) thermalManager.wait_for_hotend(0));
+        TERN_(WAIT_FOR_BED_HEAT,    if (waitBed)    thermalManager.wait_for_bed_heating());
+      }
     }
   }
 
