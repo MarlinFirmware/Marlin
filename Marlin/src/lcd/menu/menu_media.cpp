@@ -114,6 +114,15 @@ void menu_file_selector_sd() {
   ui.goto_screen(menu_file_selector);
 }
 
+void menu_file_selector_sdio() {
+  if (!card.isSDIOCardSelected()) {
+    card.release();
+    card.selectMediaSDIOCard();
+  }
+  if (!card.isSDIOCardMounted()) card.mount();
+  ui.goto_screen(menu_file_selector);
+}
+
 void menu_file_selector_usb() {
   if (!card.isFlashDriveSelected()) {
     card.release();
