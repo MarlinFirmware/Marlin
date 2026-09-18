@@ -39,6 +39,23 @@ public:
 
   float getDistanceAtTime(const float t) const override;
 
+
+  #if ENABLED(LASER_FEATURE)
+    /**
+     * Get velocity at time t for Poly6.
+     * Velocity is derivative of position: s5'(u) + c6 * K'(u)
+     * where u = t/Tphase and K'(u) = 3*u²(1-u)³ - 3*u³(1-u)²
+     */
+  float getVelocityAtTime(const float t) const override;
+
+    /**
+     * Get nominal speed for power ratio calculation
+     */
+    float getNominalSpeed() const override {
+      return nominal_speed;
+    }
+  #endif
+  
   void reset() override;
 
 private:
