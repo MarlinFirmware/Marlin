@@ -116,8 +116,7 @@ __weak void putch(unsigned char c __attribute__((unused))) {
 }
 
 __weak void cgets(char *s, int bufsize) {
-    char *p;
-    int c;
+    char *p = s;
     int i;
 
     for (i = 0; i < bufsize; i++) {
@@ -125,10 +124,8 @@ __weak void cgets(char *s, int bufsize) {
     }
 //    memset(s, 0, bufsize);
 
-    p = s;
-
-    for (p = s; p < s + bufsize-1;) {
-        c = getch();
+    for (p = s; p < s + bufsize - 1;) {
+        int c = getch();
         switch (c) {
         case '\r' :
         case '\n' :
