@@ -1230,6 +1230,7 @@ void MarlinUI::init() {
             u8g.setColorIndex(1);                 // And reset the color
             run_current_screen();                 // Draw and process the current screen
             first_page = false;
+            TERN_(HAS_MARLINUI_MENU, scroll_screen_end()); // Screen drawn: is the view past the last item?
 
             // The screen handler can clear drawing_screen for an action that changes the screen.
             // If still drawing and there's another page, update max-time and return now.
@@ -1244,6 +1245,7 @@ void MarlinUI::init() {
         #else // !HAS_MARLINUI_U8GLIB
 
           run_current_screen();
+          TERN_(HAS_MARLINUI_MENU, scroll_screen_end()); // Screen drawn: is the view past the last item?
 
           // Apply all DWIN drawing after processing
           TERN_(IS_DWIN_MARLINUI, dwinUpdateLCD());
