@@ -46,8 +46,8 @@ enum StealthIndex : uint8_t {
 //
 
 #if ENABLED(TMC_USE_SW_SPI)
-  #define __TMC_SPI_RSENSE_DEFINE(IC, ST, L, LI, AI) TMCMarlin<IC##Stepper, L, LI, AI> stepper##ST(ST##_CS_PIN, float(ST##_RSENSE), TMC_SPI_MOSI, TMC_SPI_MISO, TMC_SPI_SCK, ST##_CHAIN_POS)
-  #define __TMC_SPI_DEFINE_TMC2240(IC, ST, L, LI, AI) TMCMarlin<IC##Stepper, L, LI, AI> stepper##ST(ST##_CS_PIN, TMC_SPI_MOSI, TMC_SPI_MISO, TMC_SPI_SCK, ST##_CHAIN_POS)
+  #define __TMC_SPI_RSENSE_DEFINE(IC, ST, L, LI, AI) TMCMarlin<IC##Stepper, L, LI, AI> stepper##ST(ST##_CS_PIN, float(ST##_RSENSE), ST##_SPI_MOSI, ST##_SPI_MISO, ST##_SPI_SCK, ST##_CHAIN_POS)
+  #define __TMC_SPI_DEFINE_TMC2240(IC, ST, L, LI, AI) TMCMarlin<IC##Stepper, L, LI, AI> stepper##ST(ST##_CS_PIN, ST##_SPI_MOSI, ST##_SPI_MISO, ST##_SPI_SCK, ST##_CHAIN_POS)
 #else
   #define __TMC_SPI_RSENSE_DEFINE(IC, ST, L, LI, AI) TMCMarlin<IC##Stepper, L, LI, AI> stepper##ST(ST##_CS_PIN, float(ST##_RSENSE), ST##_CHAIN_POS)
   #define __TMC_SPI_DEFINE_TMC2240(IC, ST, L, LI, AI) TMCMarlin<IC##Stepper, L, LI, AI> stepper##ST(ST##_CS_PIN, ST##_CHAIN_POS)
