@@ -425,8 +425,8 @@ class FilamentSensorBase {
         runout_flags_t runout_flags{0};
 
         #if ENABLED(FILAMENT_SWITCH_AND_MOTION)
-          // Runout based on filament motion
-          if (!ignore_motion) {
+          // Runout based on filament motion (a motion distance of 0 turns this off)
+          if (!ignore_motion && motion_distance_mm > 0) {
             for (uint8_t i = 0; i < NUM_MOTION_SENSORS; ++i) {
               if (mm_countdown.motion[i] < 0) {
                 runout_flags.set(i);
@@ -494,7 +494,7 @@ class FilamentSensorBase {
 
         #if ENABLED(FILAMENT_SWITCH_AND_MOTION)
           // Apply E distance to motion countdown, reset if flagged
-          if (!ignore_motion && e < NUM_MOTION_SENSORS) {
+          if (!ignore_motion && motion_distance_mm > 0 && e < NUM_MOTION_SENSORS) {
             mm_countdown.motion[e] -= mm;
             if (mm_countdown.motion_reset[e]) filament_motion_present(e); // Reset pending. Try to reset.
           }
