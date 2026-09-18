@@ -1776,6 +1776,47 @@
 #endif
 
 /**
+ * bd_pressure - Strain gauge module on I2C (https://github.com/markniu/bd_pressure)
+ *
+ * A BF350-1EB strain gauge between the hotend and the toolhead, which does two
+ * unrelated jobs. As a nozzle probe it drives a plain endstop output and needs
+ * NO firmware support at all - just wire it to Z-MIN and set
+ * Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN. As a Pressure Advance sensor it reports
+ * curve metrics that the host uses to sweep for the best K value.
+ *
+ * BD_PRESSURE therefore means "the I2C bus is wired up", and the two options
+ * below are what Marlin does over it. Enable neither and there is nothing to do.
+ *
+ * NOTE: This is NOT the BD_SENSOR bed distance sensor. Different device,
+ *       different protocol, though the two can share a bus.
+ */
+//#define BD_PRESSURE
+#if ENABLED(BD_PRESSURE)
+  #define BD_PRESSURE_I2C_SDA_PIN     -1  // Any free GPIO. Software I2C, so no pull-ups needed.
+  #define BD_PRESSURE_I2C_SCL_PIN     -1
+  #define BD_PRESSURE_I2C_DELAY       50  // (us) Half bit period. 50 = ~10kHz, the known-good rate.
+
+  //#define BD_PRESSURE_PROBE             // Set the trigger threshold and re-tare before probing
+  #if ENABLED(BD_PRESSURE_PROBE)
+    #define BD_PRESSURE_THRESHOLD      4  // Probe trigger threshold
+    #define BD_PRESSURE_PROBE_SETTLE_MS 250 // (ms) Quiet time before taring, so the baseline average is clean
+  #endif
+
+  //#define BD_PRESSURE_PA                // Automatic Pressure Advance calibration (M900 C). Needs LIN_ADVANCE.
+  #if ENABLED(BD_PRESSURE_PA)
+    #define BD_PRESSURE_PA_STEP    0.002  // PA increment per pass
+    #define BD_PRESSURE_PA_PASSES     50  // Maximum passes
+    #define BD_PRESSURE_PA_NOZZLE    0.4  // (mm) Nozzle size. Extrusion scales with its square.
+    #define BD_PRESSURE_PA_FLOW      1.0  // Flow ratio, to match the slicer
+    #define BD_PRESSURE_PA_VOLUMETRIC 25  // (mm^3/s) Maximum volumetric speed, sets the line speeds
+    #define BD_PRESSURE_PA_TEMP      210  // (°C) Nozzle temperature for the calibration
+    #define BD_PRESSURE_PA_Y_STEP    3.5  // (mm) Spacing between passes
+    #define BD_PRESSURE_PA_MARGIN      5  // (mm) Inset of the first line from X/Y minimum
+    #define BD_PRESSURE_PA_TRAVEL_SPEED 100 // (mm/s) Travel between passes
+  #endif
+#endif
+
+/**
  * Probe Enable / Disable
  * The probe only provides a triggered signal when enabled.
  */
