@@ -68,11 +68,24 @@ void GcodeSuite::M206_report(const bool forReplay/*=true*/) {
 }
 
 /**
- * M428: Set home_offset based on the distance between the
- *       current position and the nearest "reference point."
- *       If an axis is past center its endstop position
- *       is the reference-point. Otherwise it uses 0. This allows
- *       the Z offset to be set near the bed when using a max endstop.
+ * M428: Set home_offset so that the current position becomes a known
+ *       "reference point." Park the tool where the reference point
+ *       should be, then send M428.
+ *
+ *       Where the tool is parked selects between two distinct operations:
+ *
+ *       - Parked near 0 this means "the tool is at 0" (e.g., park the
+ *         nozzle on the bed to make that spot Z0). This is the usual
+ *         case, and the only possible one for an axis homing to min,
+ *         whose endstop is at (or near) 0 already.
+ *
+ *       - Parked near the endstop of an axis homing to max this instead
+ *         means "the tool is at [XYZ]_MAX_POS". 0 is a whole axis length
+ *         away, so setting 0 can't be the intent. What gets calibrated
+ *         is where MAX_POS sits, not where 0 sits.
+ *
+ *       home_offset is applied by G28, not to the current position, so a
+ *       new offset takes effect on the next homing.
  *
  *       M428 can't be used more than 2cm away from 0 or an endstop.
  *
@@ -83,9 +96,21 @@ void GcodeSuite::M428() {
 
   xyz_float_t diff;
   LOOP_NUM_AXES(i) {
-    diff[i] = motion.base_home_pos((AxisEnum)i) - motion.position[i];
+    // How far the coordinate system has to shift to put the reference point
+    // under the tool. G28 sets the position to (base_home_pos + home_offset),
+    // so the offset in effect is baked into the current position and has to be
+    // carried over. Without it each M428 would measure from the result of the
+    // previous one and undo it.
+    diff[i] = motion.home_offset[i] - motion.position[i];       // "The tool is at 0"
+
+    // Out of range on an axis homing to max means the tool is parked near the
+    // endstop, a whole axis length away from 0. That's a request for the other
+    // reference point: not "the tool is at 0" but "the tool is at MAX_POS",
+    // setting where MAX_POS sits instead of where 0 sits. Measure from there.
     if (!WITHIN(diff[i], -20, 20) && motion.home_dir((AxisEnum)i) > 0)
-      diff[i] = -motion.position[i];
+      diff[i] += motion.base_home_pos((AxisEnum)i);             // "The tool is at MAX_POS"
+
+    // Still out of range? The tool isn't parked near either reference point.
     if (!WITHIN(diff[i], -20, 20)) {
       SERIAL_ERROR_MSG(STR_ERR_M428_TOO_FAR);
       LCD_ALERTMESSAGE(MSG_ERR_M428_TOO_FAR);
