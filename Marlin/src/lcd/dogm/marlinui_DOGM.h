@@ -105,7 +105,9 @@
   #define SMART_RAMPS MB(RAMPS_SMART_EFB, RAMPS_SMART_EEB, RAMPS_SMART_EFF, RAMPS_SMART_EEF, RAMPS_SMART_SF)
   #define U8G_CLASS U8GLIB_64128N_2X_HAL                        // 4 stripes (HW-SPI)
 
-  #if (SMART_RAMPS && defined(__SAM3X8E__)) || (defined(DOGLCD_SCK) && (DOGLCD_SCK >= 0 && DOGLCD_SCK != SD_SCK_PIN)) || (defined(DOGLCD_MOSI) && (DOGLCD_MOSI >= 0 && DOGLCD_MOSI != SD_MOSI_PIN))
+  // Bit-bang a display that is on pins other than the SD card's, unless it has
+  // an SPI peripheral of its own (HAS_DOGLCD_HW_SPI).
+  #if !HAS_DOGLCD_HW_SPI && ((SMART_RAMPS && defined(__SAM3X8E__)) || (defined(DOGLCD_SCK) && (DOGLCD_SCK >= 0 && DOGLCD_SCK != SD_SCK_PIN)) || (defined(DOGLCD_MOSI) && (DOGLCD_MOSI >= 0 && DOGLCD_MOSI != SD_MOSI_PIN)))
     #define DOGM_FORCE_SOFT_SPI                                 // SW-SPI
   #endif
 
