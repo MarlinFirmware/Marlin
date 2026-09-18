@@ -3508,6 +3508,11 @@
 //#define BTT_TFT35_SPI_V1_0
 
 //
+// 240x320, 2.8", SPI Stock Display with Rotary Encoder from Prusa MINI
+//
+//#define PRUSA_MINI_LCD
+
+//
 // Generic TFT with detailed options
 //
 //#define TFT_GENERIC
