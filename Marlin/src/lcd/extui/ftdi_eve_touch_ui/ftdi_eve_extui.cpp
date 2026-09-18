@@ -208,9 +208,11 @@ namespace ExtUI {
       }
       GOTO_SCREEN(StatusScreen);
     }
-    void onStartM303(const int count, const heater_id_t hid, const celsius_t temp) {
-      // Called by M303 to update the UI
-    }
+    #if HAS_PID_AUTOTUNE
+      void onStartM303(const int count, const heater_id_t hid, const celsius_t temp) {
+        // Called by M303 to update the UI
+      }
+    #endif
   #endif // HAS_PID_HEATING
 
   #if ENABLED(MPC_AUTOTUNE)
