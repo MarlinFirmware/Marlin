@@ -814,6 +814,13 @@ namespace ExtUI {
     #endif
   }
 
+  #if ENABLED(GLOBAL_MESH_Z_OFFSET)
+    float getMeshZOffset_mm() { return mesh_z_offset; }
+    void setMeshZOffset_mm(const float value) {
+      mesh_z_offset = constrain(value, PROBE_OFFSET_ZMIN, PROBE_OFFSET_ZMAX);
+    }
+  #endif
+
   #if HAS_HOTEND_OFFSET
 
     float getNozzleOffset_mm(const axis_t axis, const extruder_t extruder) {
