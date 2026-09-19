@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2026 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -19,26 +19,23 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-#pragma once
 
-#ifdef SERIAL_PORT_2
-  #error "SERIAL_PORT_2 must be disabled with TFT_LVGL_UI* and MKS_WIFI_MODULE."
-#endif
+/**
+ * feature/mks_wifi/mks_wifi_ui.cpp
+ *
+ * State and buffers the MKS WiFi module borrows from the LVGL UI when it is
+ * present, and has to own itself when it isn't.
+ */
 
-#define WIFI_BAUDRATE          115200
-#define WIFI_UPLOAD_BAUDRATE  1958400
-#define USART_SAFE_INSERT
+#include "../../inc/MarlinConfigPre.h"
 
-#define WIFI_RX_BUF_SIZE  (1024)
-#define WIFI_TX_BUF_SIZE  (64)
+#if ENABLED(MKS_WIFI_MODULE) && !HAS_TFT_LVGL_UI
 
-#include "tft_lvgl_configuration.h"
+#include "mks_wifi_ui.h"
 
-#ifdef __STM32F1__
-  #include "wifiSerial_STM32F1.h"
-#else
-  #include "wifiSerial_STM32.h"
-#endif
+mks_wifi_state_t mksWifi;
 
-extern WifiSerial WifiSerial1;
-#define WIFISERIAL WifiSerial1
+uint8_t mksWifiDmaBuf[TRANS_RCV_FIFO_BLOCK_NUM * UDISKBUFLEN];
+uint8_t mksWifiFileBuf[513];
+
+#endif // MKS_WIFI_MODULE && !HAS_TFT_LVGL_UI

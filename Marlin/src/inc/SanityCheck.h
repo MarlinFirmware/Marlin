@@ -3061,6 +3061,39 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
   #endif
 #endif
 
+/**
+ * MKS WiFi module. Works with any UI, or none, but it needs its own UART,
+ * the ESP control pins, and media to transfer files to.
+ */
+#if ENABLED(MKS_WIFI_MODULE)
+  #if DISABLED(WIFISUPPORT)
+    #error "MKS_WIFI_MODULE requires WIFISUPPORT."
+  #elif ANY(WEBSUPPORT, OTASUPPORT)
+    #error "WEBSUPPORT and OTASUPPORT don't apply to MKS_WIFI_MODULE, which runs its own firmware."
+  #elif !defined(__STM32F1__) && !defined(HAL_STM32)
+    #error "MKS_WIFI_MODULE is only supported on STM32F1 and STM32 HAL boards."
+  #elif !PIN_EXISTS(WIFI_RESET) || !PIN_EXISTS(WIFI_IO1)
+    #error "MKS_WIFI_MODULE requires WIFI_RESET_PIN and WIFI_IO1_PIN. Your board doesn't support it."
+  #elif !HAS_MEDIA
+    #error "MKS_WIFI_MODULE requires SDSUPPORT."
+  #elif !defined(WIFI_SERIAL_PORT)
+    #error "MKS_WIFI_MODULE requires WIFI_SERIAL_PORT. Your board doesn't support it."
+  #elif ENABLED(MKS_WIFI_AP_MODE) && !defined(WIFI_SSID)
+    #error "MKS_WIFI_AP_MODE requires WIFI_SSID to name the access point."
+  #elif defined(WIFI_PWD) && !defined(WIFI_SSID)
+    #error "WIFI_PWD requires WIFI_SSID."
+  #endif
+  #ifdef WIFI_SSID
+    static_assert(sizeof(WIFI_SSID) <= 32, "WIFI_SSID must be 31 characters or fewer for MKS_WIFI_MODULE.");
+  #endif
+  #ifdef WIFI_PWD
+    static_assert(sizeof(WIFI_PWD) <= 64, "WIFI_PWD must be 63 characters or fewer for MKS_WIFI_MODULE.");
+  #endif
+  #ifdef MKS_WIFI_CLOUD_HOST
+    static_assert(sizeof(MKS_WIFI_CLOUD_HOST) <= 96, "MKS_WIFI_CLOUD_HOST must be 95 characters or fewer.");
+  #endif
+#endif
+
 #if defined(GRAPHICAL_TFT_UPSCALE) && !WITHIN(GRAPHICAL_TFT_UPSCALE, 2, 8)
   #error "GRAPHICAL_TFT_UPSCALE must be between 2 and 8."
 #endif
@@ -3175,6 +3208,8 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
     #error "MMU_SERIAL_PORT cannot be the same as SERIAL_PORT."
   #elif defined(SERIAL_PORT_2) && MMU_SERIAL_PORT == SERIAL_PORT_2
     #error "MMU_SERIAL_PORT cannot be the same as SERIAL_PORT_2."
+  #elif defined(SERIAL_PORT_3) && MMU_SERIAL_PORT == SERIAL_PORT_3
+    #error "MMU_SERIAL_PORT cannot be the same as SERIAL_PORT_3."
   #elif defined(LCD_SERIAL_PORT) && MMU_SERIAL_PORT == LCD_SERIAL_PORT
     #error "MMU_SERIAL_PORT cannot be the same as LCD_SERIAL_PORT."
   #elif defined(RS485_SERIAL_PORT) && MMU_SERIAL_PORT == RS485_SERIAL_PORT
@@ -3190,6 +3225,8 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
     #error "LCD_SERIAL_PORT cannot be the same as SERIAL_PORT."
   #elif defined(SERIAL_PORT_2) && LCD_SERIAL_PORT == SERIAL_PORT_2
     #error "LCD_SERIAL_PORT cannot be the same as SERIAL_PORT_2."
+  #elif defined(SERIAL_PORT_3) && LCD_SERIAL_PORT == SERIAL_PORT_3
+    #error "LCD_SERIAL_PORT cannot be the same as SERIAL_PORT_3."
   #elif defined(RS485_SERIAL_PORT) && LCD_SERIAL_PORT == RS485_SERIAL_PORT
     #error "LCD_SERIAL_PORT cannot be the same as RS485_SERIAL_PORT."
   #endif
@@ -3213,6 +3250,27 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
     #error "RS485_SERIAL_PORT cannot be the same as SERIAL_PORT."
   #elif defined(SERIAL_PORT_2) && RS485_SERIAL_PORT == SERIAL_PORT_2
     #error "RS485_SERIAL_PORT cannot be the same as SERIAL_PORT_2."
+  #elif defined(SERIAL_PORT_3) && RS485_SERIAL_PORT == SERIAL_PORT_3
+    #error "RS485_SERIAL_PORT cannot be the same as SERIAL_PORT_3."
+  #endif
+#endif
+
+/**
+ * The MKS WiFi module drives its serial port directly, bypassing MarlinSerial
+ */
+#if ENABLED(MKS_WIFI_MODULE)
+  #if WIFI_SERIAL_PORT == SERIAL_PORT
+    #error "WIFI_SERIAL_PORT cannot be the same as SERIAL_PORT."
+  #elif defined(SERIAL_PORT_2) && WIFI_SERIAL_PORT == SERIAL_PORT_2
+    #error "WIFI_SERIAL_PORT cannot be the same as SERIAL_PORT_2."
+  #elif defined(SERIAL_PORT_3) && WIFI_SERIAL_PORT == SERIAL_PORT_3
+    #error "WIFI_SERIAL_PORT cannot be the same as SERIAL_PORT_3."
+  #elif defined(MMU_SERIAL_PORT) && WIFI_SERIAL_PORT == MMU_SERIAL_PORT
+    #error "WIFI_SERIAL_PORT cannot be the same as MMU_SERIAL_PORT."
+  #elif defined(LCD_SERIAL_PORT) && WIFI_SERIAL_PORT == LCD_SERIAL_PORT
+    #error "WIFI_SERIAL_PORT cannot be the same as LCD_SERIAL_PORT."
+  #elif defined(RS485_SERIAL_PORT) && WIFI_SERIAL_PORT == RS485_SERIAL_PORT
+    #error "WIFI_SERIAL_PORT cannot be the same as RS485_SERIAL_PORT."
   #endif
 #endif
 

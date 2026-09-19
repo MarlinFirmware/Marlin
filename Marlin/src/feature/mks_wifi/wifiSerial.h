@@ -21,42 +21,20 @@
  */
 #pragma once
 
-#ifdef __cplusplus
-  extern "C" {
+#include "mks_wifi_port.h"
+
+#define WIFI_BAUDRATE          115200
+#define WIFI_UPLOAD_BAUDRATE  1958400
+#define USART_SAFE_INSERT
+
+#define WIFI_RX_BUF_SIZE  (1024)
+#define WIFI_TX_BUF_SIZE  (64)
+
+#ifdef __STM32F1__
+  #include "wifiSerial_STM32F1.h"
+#else
+  #include "wifiSerial_STM32.h"
 #endif
 
-void lv_draw_wifi_list();
-void lv_clear_wifi_list();
-void disp_wifi_list();
-void cutWifiName(char *name, int len, char *outStr);
-void wifi_scan_handle();
-
-// WIFI_LIST / wifi_list now belong to feature/mks_wifi/wifi_module.h
-
-typedef struct list_menu_disp {
-  const char *title;
-  const char *file_pages;
-} list_menu_def;
-extern list_menu_def list_menu;
-
-typedef struct keyboard_menu_disp {
-  const char *title;
-  const char *apply;
-  const char *password;
-  const char *letter;
-  const char *digital;
-  const char *symbol;
-  const char *space;
-} keyboard_menu_def;
-extern keyboard_menu_def keyboard_menu;
-
-typedef struct tips_menu_disp {
-  const char *joining;
-  const char *failedJoin;
-  const char *wifiConected;
-} tips_menu_def;
-extern tips_menu_def tips_menu;
-
-#ifdef __cplusplus
-  } /* C-declarations for C++ */
-#endif
+extern WifiSerial WifiSerial1;
+#define WIFISERIAL WifiSerial1
