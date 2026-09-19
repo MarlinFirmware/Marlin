@@ -643,11 +643,27 @@ bool Stepper::disable_axis(const AxisEnum axis) {
       // Apply direction
       DIR_WAIT_BEFORE();
       const uint8_t axis = rtg.rt_params.axis;
-      const bool fwd = current_block->direction_bits[axis];
-      switch (axis) {
-        case X_AXIS: X_APPLY_DIR(fwd, false); break;
-        case Y_AXIS: Y_APPLY_DIR(fwd, false); break;
-        case Z_AXIS: Z_APPLY_DIR(fwd, false); break;
+      const bool neg = current_block->direction_bits[axis];   // head direction, set = negative
+
+      #if CORE_IS_XY
+        if (axis == X_AXIS || axis == Y_AXIS) {
+          // Head direction -> motor directions (same math as the planner)
+          const int8_t d  = neg ? -1 : 1,
+                       dx = (axis == X_AXIS) ? d : 0,
+                       dy = (axis == Y_AXIS) ? d : 0;
+          const bool a_neg = (dx + dy) < 0,
+                     b_neg = CORESIGN(dx - dy) < 0;
+          X_APPLY_DIR(a_neg ? INVERT_X_DIR : !INVERT_X_DIR, false);
+          Y_APPLY_DIR(b_neg ? INVERT_Y_DIR : !INVERT_Y_DIR, false);
+        }
+        else
+      #endif
+      {
+        switch (axis) {
+          case X_AXIS: X_APPLY_DIR(neg, false); break;
+          case Y_AXIS: Y_APPLY_DIR(neg, false); break;
+          case Z_AXIS: Z_APPLY_DIR(neg, false); break;
+        }
       }
 
       step_event_count = current_block->step_event_count;
@@ -679,9 +695,34 @@ bool Stepper::disable_axis(const AxisEnum axis) {
       A##_APPLY_STEP(!STEP_STATE_##A, false); \
     } while(0)
 
+    #define RESONANCE_STEP_SEQUENCE_XY() do { \
+      X_APPLY_STEP(STEP_STATE_X, false); \
+      Y_APPLY_STEP(STEP_STATE_Y, false); \
+      START_TIMED_PULSE(); \
+      AWAIT_HIGH_PULSE(); \
+      X_APPLY_STEP(!STEP_STATE_X, false); \
+      Y_APPLY_STEP(!STEP_STATE_Y, false); \
+    } while (0)
+
     USING_TIMED_PULSE();
 
     const uint8_t axis = rtg.rt_params.axis;
+
+    #if CORE_IS_XY
+      // CoreXY: a head move along X or Y needs BOTH motors (A = X stepper, B = Y stepper)
+      if (axis == X_AXIS || axis == Y_AXIS) {
+        #if ISR_MULTI_STEPS
+          RESONANCE_STEP_SEQUENCE_XY();
+          while (--events_to_do) {
+            AWAIT_LOW_PULSE();
+            RESONANCE_STEP_SEQUENCE_XY();
+          }
+        #else
+          do { RESONANCE_STEP_SEQUENCE_XY(); } while (--events_to_do);
+        #endif
+        return;
+      }
+    #endif
 
     switch (axis) {
       case X_AXIS:
