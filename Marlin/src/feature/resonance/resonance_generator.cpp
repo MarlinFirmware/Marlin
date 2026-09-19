@@ -102,22 +102,26 @@ void ResonanceGenerator::reset() {
 }
 
 float ResonanceGenerator::calc_next_pos() {
-  // Phase accumulation and wrapping within [0, 2π)
-  phase_fp += (int32_t)(((int64_t)current_freq_fp * freq_to_phase_fp) >> FP_BITS);
+  // Phase accumulation (drop 4 LSBs of freq so the product stays inside int32)
+  phase_fp += ((current_freq_fp >> 4) * freq_to_phase_fp) >> (FP_BITS - 4);
   if (phase_fp >= M_TAU_FP) phase_fp -= M_TAU_FP;
   else if (phase_fp < 0) phase_fp += M_TAU_FP;
 
   // -π <= r_fp <= π
   const int32_t r_fp = (phase_fp > M_PI_FP) ? phase_fp - M_TAU_FP : phase_fp;
 
-  // Calculate windowing polynomial: 1.0 - 0.101321184 * r²
-  const int32_t poly_fp = FP_ONE - ((C0101321184_FP * ((r_fp * r_fp) >> FP_BITS)) >> FP_BITS);
+  // r² in Q16:  Q12 × Q12 = Q24, >> 8
+  const int32_t rh_fp = r_fp >> 4;
+  const int32_t r2_fp = (rh_fp * rh_fp) >> 8;
 
-  // Combine amplitude, phase, and polynomial and return new position
-  const int32_t amplitude_fp = (int32_t)(((int64_t)amplitude_precalc_fp * FP_ONE) / current_freq_fp);
-  const int32_t pos_fp = (int32_t)((((int64_t)amplitude_fp * r_fp) >> FP_BITS) * poly_fp) >> FP_BITS;
+  // 1.0 - 0.101321184·r²:  Q12 × Q16 = Q28, >> 12
+  const int32_t poly_fp = (int32_t)FP_ONE - (((r2_fp >> 4) * C0101321184_FP) >> 12);
 
-  return FP2F(pos_fp);
+  // r·poly:  Q15 × Q15 = Q30, >> 14 → Q16 (peaks at ~1.21·2³⁰, fits in int32)
+  const int32_t rp_fp = ((r_fp >> 1) * (poly_fp >> 1)) >> 14;
+
+  // Amplitude ∝ 1/f done in float: one div, one mul, no int64
+  return (FP2F(amplitude_precalc_fp) / FP2F(current_freq_fp)) * FP2F(rp_fp);
 }
 
 #if ENABLED(FT_MOTION)
