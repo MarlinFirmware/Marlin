@@ -34,6 +34,7 @@
 
 resonance_test_params_t ResonanceGenerator::rt_params;     // Resonance test parameters
 float ResonanceGenerator::timeline;
+float ResonanceGenerator::sample_time;
 
 bool ResonanceGenerator::active = false;                   // Resonance test active
 bool ResonanceGenerator::done = false;                     // Resonance test done
@@ -66,6 +67,8 @@ void ResonanceGenerator::start() {
 
   // Calculate time constant for sine sweep
   const float rt_time = rt_params.octave_duration * (logf(RATIO) / logf(2.0f));
+
+  sample_time = rt_time;
 
   #if HAS_STANDARD_MOTION
     if (TERN1(FT_MOTION, !ftMotion.cfg.active)) {
@@ -181,6 +184,8 @@ float ResonanceGenerator::calc_next_pos() {
     const int32_t delta_steps = (int32_t)floor(step_accumulator);
     step_accumulator -= delta_steps;
     const uint32_t abs_steps = abs(delta_steps);
+
+    block.initial_rate = (uint32_t)(_MAX(abs_steps, 1U) / sample_time);
 
     // Update block
     block.steps[rt_params.axis] = abs_steps;

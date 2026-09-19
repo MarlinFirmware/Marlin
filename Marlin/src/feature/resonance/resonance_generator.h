@@ -105,6 +105,8 @@ class ResonanceGenerator {
     #endif
     static bool active;               // Resonance test active
     static bool done;                 // Resonance test done
+
+    static float sample_time;
 };
 
 extern ResonanceGenerator rtg;
