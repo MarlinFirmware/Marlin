@@ -41,13 +41,18 @@ static void set_wifi_str(uint8_t * const dst, const size_t dstsize, const char *
  * Parameters:
  *   S"<ssid>"  Network to join, or to host in access point mode
  *   P"<pass>"  Network password. Use P"" for an open network
- *   A<bool>    1 to host an access point, 0 to join a network
+ *   A<bool>    1 to host an access point, 0 to join a network. Omit to keep
+ *              the current mode; S and P apply to whichever mode is set.
  *   U          Update the module's own firmware from 'MksWifi.bin' on the
  *              media, the same thing that runs at startup when the file is
  *              present. Takes up to a minute and blocks while it runs.
  *
- * With GCODE_QUOTED_STRINGS disabled only one string can be given per command,
- * unquoted: 'M587 SMyNetwork' then 'M587 PMyPassword'.
+ * Without GCODE_QUOTED_STRINGS the parser gives 'string_arg' to the first
+ * parameter that has no numeric value, and it runs to the end of the line. So
+ * only one string fits per command, and numeric parameters must come first:
+ *
+ *   M587 A0 SMyNetwork
+ *   M587 PMyPassword
  *
  * Settings are applied to the module at once and saved with M500.
  * With no parameters, report the current settings.
