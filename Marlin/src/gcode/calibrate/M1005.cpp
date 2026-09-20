@@ -33,6 +33,7 @@
 #endif
 #include "../../module/temperature.h"
 #include "../../feature/babystep.h"
+#include "../../feature/first_layer_cal.h"
 #include "../../lcd/marlinui.h"
 
 #if HAS_LEVELING
@@ -73,12 +74,8 @@
   #define FLC_MARGIN 10
 #endif
 
-#define FLC_PURGE_SEGMENT   25.0f   // (mm) Maximum length of each wide purge segment
 #define FLC_RETRACT_LENGTH   2.0f   // (mm) Retract after printing, unless FWRETRACT sets length
 #define FLC_FEEDRATE      1000      // (mm/min) Print feedrate
-#define FLC_PATCH_WIDTH     20.0f   // (mm) Solid patch size
-#define FLC_PATCH_HEIGHT    12.0f
-#define FLC_ROUND_BED_SPAN   0.8f   // Portion of printable radius spanned by rows in Y
 
 static bool flc_canceled;
 
@@ -133,48 +130,23 @@ static void flc_abort() {
   flc_heaters_off();
 }
 
-typedef struct {
-  float cx, half_x,       // Center X and half-width of rectangular area
-        epm;              // (mm) Filament per mm of travel at nominal line width
-  feedRate_t fr_mm_s;
-  #if IS_KINEMATIC
-    float cy, radius;
-  #endif
+// Extrude line from current position using 'e' mm of filament
+static void flc_line_to(const flc_segment_t &seg, const feedRate_t fr_mm_s) {
+  motion.destination = motion.position;
+  motion.destination.x = seg.x;
+  motion.destination.y = seg.y;
+  motion.destination.e += seg.e;
+  motion.prepare_internal_move_to_destination(fr_mm_s);
 
-  // Half row length at given Y
-  float row_half(const float y) const {
-    #if IS_KINEMATIC
-      return SQRT(_MAX(0.0f, sq(radius) - sq(y - cy)));
-    #else
-      UNUSED(y);
-      return half_x;
-    #endif
-  }
+  // Keep planner queue short so stop request takes effect quickly
+  while (planner.movesplanned() > 1 && !flc_stop_requested()) marlin.idle();
+}
 
-  // Extrude line from current position at 'e_mul' times nominal flow
-  void line_to(const float x, const float y, const float e_mul=1.0f) const {
-    if (flc_canceled) return;
-    const xy_pos_t dest = { x, y };
-    const float len = (dest - xy_pos_t(motion.position)).magnitude();
-    motion.destination = motion.position;
-    motion.destination.x = x;
-    motion.destination.y = y;
-    motion.destination.e += len * epm * e_mul;
-    motion.prepare_internal_move_to_destination(fr_mm_s);
-
-    // Keep planner queue short so stop request takes effect quickly
-    while (planner.movesplanned() > 1 && !flc_stop_requested()) marlin.idle();
-  }
-
-  void retract(const float len) const {
-    motion.destination = motion.position;
-    motion.destination.e -= len;
-    motion.prepare_internal_move_to_destination(planner.settings.max_feedrate_mm_s[E_AXIS] * 0.666f);
-  }
-} flc_t;
-
-// Cross-section of extruded line with rounded ends (mm^2)
-static float flc_area(const float h, const float w) { return (M_PI) * sq(h) * 0.25f + h * (w - h); }
+static void flc_retract(const float len) {
+  motion.destination = motion.position;
+  motion.destination.e -= len;
+  motion.prepare_internal_move_to_destination(planner.settings.max_feedrate_mm_s[E_AXIS] * 0.666f);
+}
 
 // Use M200 filament diameter when set, otherwise configured diameter
 static float flc_filament_diameter() {
@@ -221,34 +193,22 @@ void GcodeSuite::M1005() {
     return;
   }
 
-  flc_t flc;
-  flc.fr_mm_s = parser.feedrateval('F', MMM_TO_MMS(FLC_FEEDRATE));
-  flc.epm = flc_area(h, w) / ((M_PI) * sq(fil_dia) * 0.25f);
+  const feedRate_t fr_mm_s = parser.feedrateval('F', MMM_TO_MMS(FLC_FEEDRATE));
 
   //
   // Cover bed within travel limits.
   // Rows run along X from back to front.
   //
+  FLCPattern pattern;
   #if IS_KINEMATIC
-    flc.cx = X_CENTER; flc.cy = Y_CENTER;
-    flc.radius = (PRINTABLE_RADIUS) - inset;
-    flc.half_x = flc.radius;
-    const float half_y = flc.radius * FLC_ROUND_BED_SPAN,
-                y_back = flc.cy + half_y, y_front = flc.cy - half_y;
+    const bool fits = pattern.init_round(X_CENTER, Y_CENTER, (PRINTABLE_RADIUS) - inset, rows, h, w, fil_dia);
   #else
     const float x_min = _MAX(X_MIN_BED, X_MIN_POS) + inset, x_max = _MIN(X_MAX_BED, X_MAX_POS) - inset,
                 y_front = _MAX(Y_MIN_BED, Y_MIN_POS) + inset, y_back = _MIN(Y_MAX_BED, Y_MAX_POS) - inset;
-    flc.cx = (x_min + x_max) * 0.5f;
-    flc.half_x = (x_max - x_min) * 0.5f;
+    const bool fits = pattern.init_rect(x_min, x_max, y_front, y_back, rows, h, w, fil_dia);
   #endif
 
-  // Spread rows evenly and fit patch between last two
-  const float span_y = y_back - y_front,
-              pitch = span_y / (rows - 1),
-              patch_w = _MIN(FLC_PATCH_WIDTH, flc.row_half(y_front)),
-              patch_h = _MIN(FLC_PATCH_HEIGHT, pitch - 4 * w);
-
-  if (patch_h < 4 * w || flc.row_half(y_back) * 2 < 3 * (FLC_PURGE_SEGMENT)) {
+  if (!fits) {
     SERIAL_ECHOLNPGM(GCODE_ERR_MSG("Print area too small."));
     LCD_MESSAGE(MSG_FLC_BED_TOO_SMALL);
     return;
@@ -347,62 +307,24 @@ void GcodeSuite::M1005() {
   #endif
   motion.remember_feedrate_scaling_off();
 
-  // Start at back left and work toward front
-  float y = y_back, dir = 1.0f;
-  float x = flc.cx - dir * flc.row_half(y);
-
   motion.do_z_clearance(Z_CLEARANCE_BETWEEN_PROBES);
-  motion.blocking_move_xy(x, y);
+  motion.blocking_move_xy(pattern.start_x(), pattern.start_y());
   motion.blocking_move_z(h);
 
   flc_canceled = false;
   marlin.wait_for_heatup = true;  // M108 clears this to stop
   TERN_(HAS_MARLINUI_MENU, flc_babystep_screen());
 
-  for (uint8_t i = 0; i < rows && !flc_canceled; ++i) {
-    // End each row where straight step to next row stays inside area
-    const bool last = i == rows - 1;
-    const float half = last ? flc.row_half(y) : _MIN(flc.row_half(y), flc.row_half(y - pitch)),
-                x_end = flc.cx + dir * half;
-
-    if (i == 0) {
-      // Purge on bed. Start with wide line and narrow to nominal width.
-      const float seg = _MIN(FLC_PURGE_SEGMENT, ABS(x_end - x) / 3);
-      flc.line_to(x + dir * seg, y, flc_area(h, 4 * w) / flc_area(h, w));
-      flc.line_to(x + dir * seg * 2, y, flc_area(h, 2 * w) / flc_area(h, w));
-    }
-    flc.line_to(x_end, y);
-    x = x_end;
-
-    if (!last) {
-      y -= pitch;
-      flc.line_to(x, y);
-      dir = -dir;
-    }
-  }
-
-  //
-  // Fill solid patch between last two rows, starting where last row ended
-  //
-  const float spacing = w - h * (1.0f - (M_PI) * 0.25f);
-  for (uint8_t n = uint8_t(patch_h / spacing + 0.5f); n-- && !flc_canceled;) {
-    y += spacing;
-    flc.line_to(x, y);
-    x -= dir * patch_w;
-    flc.line_to(x, y);
-    dir = -dir;
-  }
+  flc_segment_t seg;
+  while (!flc_canceled && pattern.next(seg)) flc_line_to(seg, fr_mm_s);
 
   //
   // Finish
   //
   marlin.wait_for_heatup = false;
   const bool completed = !flc_canceled;
-  if (flc_canceled) {
-    motion.quickstop_stepper();
-    flc_canceled = false; // Allow retract
-  }
-  flc.retract(TERN(FWRETRACT, fwretract.settings.retract_length, FLC_RETRACT_LENGTH));
+  if (flc_canceled) motion.quickstop_stepper();
+  flc_retract(TERN(FWRETRACT, fwretract.settings.retract_length, FLC_RETRACT_LENGTH));
   planner.synchronize();
 
   #if ENABLED(MESH_BED_LEVELING)
