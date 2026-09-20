@@ -1606,6 +1606,27 @@
   #define FEEDRATE_CHANGE_BEEP_FREQUENCY 440
 #endif
 
+/**
+ * First Layer Calibration
+ * Calibrate nozzle-to-bed distance.
+ * Prints zig-zag pattern ending in solid patch. Babystep Z
+ * while it prints, then judge result on patch.
+ * Start with 'M1005' or from LCD menu. Use 'M500' to save result.
+ * Requires bed probe and BABYSTEP_ZPROBE_OFFSET. Result goes to Probe Z Offset.
+ */
+#if HAS_BED_PROBE
+  //#define FIRST_LAYER_CALIBRATION
+  #if ENABLED(FIRST_LAYER_CALIBRATION)
+    //#define FLC_KEEP_HEATERS_ON      // Leave heaters on after printing
+    #define FLC_BED_INSET    10.0      // (mm) Margin from bed edges or printable radius
+    #define FLC_ROW_PITCH    20.0      // (mm) Distance between rows
+    #define FLC_LAYER_HEIGHT  0.2      // (mm) Layer height
+    #define FLC_LINE_WIDTH    0.42     // (mm) Line width. Usually a little over the nozzle diameter.
+    #define FLC_FEEDRATE   1000        // (mm/min) Print feedrate
+    #define FLC_PATCH_SIZE  { 20, 12 } // (mm) Solid patch size
+  #endif
+#endif
+
 #if HAS_BED_PROBE
 
   #if HAS_MARLINUI_MENU

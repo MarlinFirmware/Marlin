@@ -1711,6 +1711,18 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
   #endif
 #endif
 
+#if ENABLED(FIRST_LAYER_CALIBRATION)
+  #if !HAS_EXTRUDERS
+    #error "FIRST_LAYER_CALIBRATION requires at least one extruder."
+  #elif !HAS_BED_PROBE
+    #error "FIRST_LAYER_CALIBRATION requires a bed probe. Result is stored in Probe Z Offset."
+  #elif DISABLED(BABYSTEP_ZPROBE_OFFSET)
+    #error "FIRST_LAYER_CALIBRATION requires BABYSTEP_ZPROBE_OFFSET so babysteps adjust Probe Z Offset."
+  #elif IS_KINEMATIC && DISABLED(DELTA)
+    #error "FIRST_LAYER_CALIBRATION only supports Cartesian, Core, and DELTA kinematics."
+  #endif
+#endif
+
 #if ENABLED(MESH_EDIT_GFX_OVERLAY)
   #if DISABLED(AUTO_BED_LEVELING_UBL)
     #error "MESH_EDIT_GFX_OVERLAY requires AUTO_BED_LEVELING_UBL."
