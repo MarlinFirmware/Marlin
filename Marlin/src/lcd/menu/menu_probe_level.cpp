@@ -251,18 +251,22 @@
     ui.return_to_status();
   }
 
-  // Offer to reset Probe Z Offset when default is higher, since that can only raise nozzle
+  // Offer to reset Z offset when default is higher, since that can only raise nozzle
   void _flc_select() {
     editable.int8 = MenuItemBase::itemIndex;
-    constexpr float dpo[] = NOZZLE_TO_PROBE_OFFSET;
-    if (probe.offset.z >= dpo[Z_AXIS]) return _flc_start(false);
+    #if ENABLED(MESH_BED_LEVELING)
+      if (bedlevel.z_offset >= 0) return _flc_start(false);
+    #else
+      constexpr float dpo[] = NOZZLE_TO_PROBE_OFFSET;
+      if (probe.offset.z >= dpo[Z_AXIS]) return _flc_start(false);
+    #endif
     ui.goto_screen([]{
       MenuItem_confirm::select_screen(
           GET_TEXT_F(MSG_YES), GET_TEXT_F(MSG_NO)
         , []{ _flc_start(true); }
         , []{ _flc_start(false); }
         , GET_TEXT_F(MSG_FLC_RESET_OFFSET)
-        , BABYSTEP_TO_STR(probe.offset.z)
+        , BABYSTEP_TO_STR(TERN(MESH_BED_LEVELING, bedlevel.z_offset, probe.offset.z))
       );
     });
   }
@@ -406,11 +410,13 @@ void menu_probe_level() {
     // First Layer Calibration
     //
     #if ENABLED(FIRST_LAYER_CALIBRATION)
-      #if HAS_PREHEAT
-        SUBMENU(MSG_FIRST_LAYER_CAL, menu_first_layer_cal);
-      #else
-        GCODES_ITEM(MSG_FIRST_LAYER_CAL, F("M1005"));
-      #endif
+      if (TERN1(MESH_BED_LEVELING, is_valid)) {
+        #if HAS_PREHEAT
+          SUBMENU(MSG_FIRST_LAYER_CAL, menu_first_layer_cal);
+        #else
+          GCODES_ITEM(MSG_FIRST_LAYER_CAL, F("M1005"));
+        #endif
+      }
     #endif
 
     //

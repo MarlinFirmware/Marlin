@@ -1612,9 +1612,10 @@
  * Prints zig-zag pattern ending in solid patch. Babystep Z
  * while it prints, then judge result on patch.
  * Start with 'M1005' or from LCD menu. Use 'M500' to save result.
- * Requires bed probe and BABYSTEP_ZPROBE_OFFSET. Result goes to Probe Z Offset.
+ * With bed probe this requires BABYSTEP_ZPROBE_OFFSET. Result goes to Probe Z Offset.
+ * With MESH_BED_LEVELING this requires BABYSTEPPING. Result goes to Mesh Z Offset.
  */
-#if HAS_BED_PROBE
+#if HAS_BED_PROBE || ENABLED(MESH_BED_LEVELING)
   //#define FIRST_LAYER_CALIBRATION
   #if ENABLED(FIRST_LAYER_CALIBRATION)
     //#define FLC_ROWS          6     // Rows in zig-zag pattern

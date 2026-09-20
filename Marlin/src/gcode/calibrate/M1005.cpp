@@ -28,7 +28,9 @@
 #include "../../MarlinCore.h"
 #include "../../module/motion.h"
 #include "../../module/planner.h"
-#include "../../module/probe.h"
+#if HAS_BED_PROBE
+  #include "../../module/probe.h"
+#endif
 #include "../../module/temperature.h"
 #include "../../feature/babystep.h"
 #include "../../lcd/marlinui.h"
@@ -82,12 +84,16 @@ static bool flc_canceled;
 
 #if HAS_MARLINUI_MENU
 
+  static void flc_babystep_screen() {
+    TERN(MESH_BED_LEVELING, lcd_babystep_z(), ui.goto_screen(lcd_babystep_zoffset));
+  }
+
   // Clicking out of babystep screen asks whether to stop
   static void flc_stop_screen() {
     MenuItem_confirm::select_screen(
         GET_TEXT_F(MSG_BUTTON_STOP), GET_TEXT_F(MSG_BACK)
       , []{ flc_canceled = true; ui.return_to_status(); }
-      , []{ ui.goto_screen(lcd_babystep_zoffset); }
+      , flc_babystep_screen
       , GET_TEXT_F(MSG_STOP_PRINT), (const char *)nullptr, F("?")
     );
   }
@@ -99,7 +105,8 @@ static bool flc_canceled;
           GET_TEXT_F(MSG_BUTTON_SAVE), GET_TEXT_F(MSG_BUTTON_CANCEL)
         , []{ ui.store_settings(); ui.return_to_status(); }
         , ui.return_to_status
-        , GET_TEXT_F(MSG_ZPROBE_ZOFFSET), BABYSTEP_TO_STR(probe.offset.z), F("?")
+        , GET_TEXT_F(TERN(MESH_BED_LEVELING, MSG_MESH_Z_OFFSET, MSG_ZPROBE_ZOFFSET))
+        , BABYSTEP_TO_STR(TERN(MESH_BED_LEVELING, bedlevel.z_offset, probe.offset.z)), F("?")
       );
     }
   #endif
@@ -184,14 +191,16 @@ static float flc_filament_diameter() {
  * Calibrate nozzle-to-bed distance.
  * Prints zig-zag pattern across bed ending in solid patch.
  * Babystep Z while pattern prints to adjust Probe Z Offset.
+ * With MESH_BED_LEVELING babysteps are added to Mesh Z Offset after printing.
  * Click out of babystep screen or send M108 to stop early.
  * Result is not saved. LCD offers to save when done, or use M500.
  *
  *  H<temp>    Hotend temperature. If omitted with no target set, use first preheat preset.
  *  B<temp>    Bed temperature. If omitted with no target set, use first preheat preset.
- *  R          Reset Probe Z Offset to configured default before printing, but only if that raises nozzle
+ *  R          Reset Probe Z Offset to configured default, or Mesh Z Offset to 0, before printing,
+ *             but only if that raises nozzle
  *  K<bool>    Keep heaters on after printing (default: FLC_KEEP_HEATERS_ON)
- *  A<bool>    Run G29 first if leveling is not valid (default: 1)
+ *  A<bool>    Run G29 first if leveling is not valid (default: 1). Ignored with MESH_BED_LEVELING.
  *  O          Home only if needed. Otherwise always home so nozzle height matches current Z offset.
  *  L<linear>  Layer height
  *  W<linear>  Line width
@@ -245,13 +254,22 @@ void GcodeSuite::M1005() {
     return;
   }
 
+  #if ENABLED(MESH_BED_LEVELING)
+    // Manual leveling can't be run from here
+    if (!leveling_is_valid()) {
+      SERIAL_ECHOLNPGM(GCODE_ERR_MSG("Mesh Bed Leveling required."));
+      LCD_MESSAGE(MSG_UBL_MESH_INVALID);
+      return;
+    }
+  #endif
+
   //
   // Heat, home, and level
   //
   LCD_MESSAGE(MSG_FIRST_LAYER_CAL);
 
   const bool keep_heaters_on = parser.boolval('K', ENABLED(FLC_KEEP_HEATERS_ON)),
-             do_level = TERN0(HAS_LEVELING, parser.boolval('A', true) && !leveling_is_valid());
+             do_level = TERN0(HAS_LEVELING, DISABLED(MESH_BED_LEVELING) && parser.boolval('A', true) && !leveling_is_valid());
 
   // Probe with cold nozzle so it can't ooze on bed. Otherwise heat nozzle along with bed.
   #if HAS_HOTEND
@@ -285,16 +303,28 @@ void GcodeSuite::M1005() {
     set_bed_leveling_enabled(true);
   #endif
 
-  // Babystep to default offset like LCD does, so nozzle and offset stay in step
   if (parser.seen_test('R')) {
-    constexpr float dpo[] = NOZZLE_TO_PROBE_OFFSET;
-    const float diff = dpo[Z_AXIS] - probe.offset.z;
-    if (diff > 0) {
-      babystep.add_mm(Z_AXIS, diff);
-      probe.offset.z = dpo[Z_AXIS];
-    }
-    else if (diff < 0)
-      SERIAL_ECHOLNPGM("Probe Z Offset not reset. Default would lower nozzle.");
+    #if ENABLED(MESH_BED_LEVELING)
+      // Mesh Z Offset applies to next move. Only clear offset that lowers nozzle.
+      if (bedlevel.z_offset < 0) {
+        const bool was_active = planner.leveling_active;
+        set_bed_leveling_enabled(false);
+        bedlevel.z_offset = 0;
+        set_bed_leveling_enabled(was_active);
+      }
+      else if (bedlevel.z_offset > 0)
+        SERIAL_ECHOLNPGM("Mesh Z Offset not reset. That would lower nozzle.");
+    #else
+      // Babystep to default offset like LCD does, so nozzle and offset stay in step
+      constexpr float dpo[] = NOZZLE_TO_PROBE_OFFSET;
+      const float diff = dpo[Z_AXIS] - probe.offset.z;
+      if (diff > 0) {
+        babystep.add_mm(Z_AXIS, diff);
+        probe.offset.z = dpo[Z_AXIS];
+      }
+      else if (diff < 0)
+        SERIAL_ECHOLNPGM("Probe Z Offset not reset. Default would lower nozzle.");
+    #endif
   }
 
   #if HAS_HOTEND
@@ -327,7 +357,7 @@ void GcodeSuite::M1005() {
 
   flc_canceled = false;
   marlin.wait_for_heatup = true;  // M108 clears this to stop
-  TERN_(HAS_MARLINUI_MENU, ui.goto_screen(lcd_babystep_zoffset));
+  TERN_(HAS_MARLINUI_MENU, flc_babystep_screen());
 
   for (uint8_t i = 0; i < rows && !flc_canceled; ++i) {
     // End each row where straight step to next row stays inside area
@@ -375,6 +405,14 @@ void GcodeSuite::M1005() {
   flc.retract(TERN(FWRETRACT, fwretract.settings.retract_length, FLC_RETRACT_LENGTH));
   planner.synchronize();
 
+  #if ENABLED(MESH_BED_LEVELING)
+    // Move babysteps since homing into Mesh Z Offset. Nozzle stays where it is.
+    while (babystep.has_steps()) marlin.idle();
+    bedlevel.z_offset += babystep.axis_total[BS_TOTAL_IND(Z_AXIS)] * planner.mm_per_step[Z_AXIS];
+    babystep.reset_total(Z_AXIS);
+    motion.sync_plan_position();
+  #endif
+
   #if ENABLED(NOZZLE_PARK_FEATURE)
     nozzle.park(2);
   #else
@@ -407,7 +445,13 @@ void GcodeSuite::M1005() {
       ui.return_to_status();
   #endif
 
-  if (completed) SERIAL_ECHOLNPGM(STR_PROBE_OFFSET " " STR_Z, probe.offset.z, ". Use M500 to save.");
+  if (completed) {
+    #if ENABLED(MESH_BED_LEVELING)
+      SERIAL_ECHOLNPGM("Mesh Z Offset ", bedlevel.z_offset, ". Use M500 to save.");
+    #else
+      SERIAL_ECHOLNPGM(STR_PROBE_OFFSET " " STR_Z, probe.offset.z, ". Use M500 to save.");
+    #endif
+  }
 }
 
 #endif // FIRST_LAYER_CALIBRATION
