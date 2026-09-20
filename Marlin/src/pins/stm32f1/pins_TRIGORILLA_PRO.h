@@ -53,7 +53,7 @@
   #define EEPROM_START_ADDRESS (0x8000000UL + (STM32_FLASH_SIZE) * 1024UL - (EEPROM_PAGE_SIZE) * 2UL)
   #define EEPROM_PAGE_SIZE                0x800U  // 2K
   #define MARLIN_EEPROM_SIZE    EEPROM_PAGE_SIZE
-#else
+#elif ENABLED(EEPROM_SETTINGS)
   #define MARLIN_EEPROM_SIZE              0x800U  // On SD, Limit to 2K, require this amount of RAM
 #endif
 

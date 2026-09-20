@@ -655,4 +655,4 @@ typedef struct {
 /**INDENT-ON**/
 /// @endcond
 
-#endif /* UOTGHS_DEVICE_H_INCLUDED */
+#endif /* UOTGHS_DEVICE_DUE_H_INCLUDED */

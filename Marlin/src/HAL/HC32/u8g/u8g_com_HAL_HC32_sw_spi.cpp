@@ -24,7 +24,7 @@
 
 #include "../../../inc/MarlinConfig.h"
 
-#if U8G_SW_SPI_HC32
+#if ALL(HAS_MARLINUI_U8GLIB, FORCE_SOFT_SPI)
 
 #warning "Software SPI for U8Glib is experimental on HC32F460. Please share your experiences at https://github.com/shadow578/Marlin-H32/issues/35"
 
@@ -159,5 +159,5 @@ uint8_t u8g_com_HAL_HC32_sw_spi_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_val, voi
   return 1;
 }
 
-#endif // U8G_SW_SPI_HC32
+#endif // HAS_MARLINUI_U8GLIB && FORCE_SOFT_SPI
 #endif // ARDUINO_ARCH_HC32

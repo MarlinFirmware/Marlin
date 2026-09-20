@@ -36,6 +36,10 @@
 #include "../../module/planner.h"
 #include "../../module/motion.h"
 
+#if HAS_CUTTER
+  #include "../../feature/spindle_laser.h"
+#endif
+
 #if DISABLED(LCD_PROGRESS_BAR) && ALL(FILAMENT_LCD_DISPLAY, HAS_MEDIA)
   #include "../../feature/filwidth.h"
   #include "../../gcode/parser.h"
@@ -204,7 +208,7 @@ void draw_fan_status(uint16_t x, uint16_t y, const bool blink) {
   tft.canvas(x, y, TEMP_FAN_CONTROL_W, TEMP_FAN_CONTROL_H);
   tft.set_background(COLOR_BACKGROUND);
 
-  uint8_t fanSpeed = thermalManager.fan_speed[0];
+  uint8_t fanSpeed = fans[0].speed;
   MarlinImage image;
 
   if (fanSpeed >= 127)
@@ -216,10 +220,35 @@ void draw_fan_status(uint16_t x, uint16_t y, const bool blink) {
 
   tft.add_image(FAN_ICON_X, FAN_ICON_Y, image, COLOR_FAN);
 
-  tft_string.set(ui8tostr4pctrj(thermalManager.fan_speed[0]));
+  tft_string.set(ui8tostr4pctrj(fans[0].speed));
   tft_string.trim();
   tft.add_text(FAN_TEXT_X, FAN_TEXT_Y, COLOR_FAN, tft_string);
 }
+
+#if HAS_CUTTER
+
+void draw_cutter_status(uint16_t x, uint16_t y) {
+  tft.canvas(x, y, TEMP_FAN_CONTROL_W, TEMP_FAN_CONTROL_H);
+  tft.set_background(COLOR_BACKGROUND);
+
+  tft.add_image(CUTTER_ICON_X, CUTTER_ICON_Y, cutter.enabled() ? imgCutterOn : imgCutter, COLOR_CUTTER);
+
+  if (cutter.isReadyForUI) {
+    #if CUTTER_UNIT_IS(RPM)
+      tft_string.set(ftostr61rj(float(cutter.unitPower) / 1000));
+      tft_string.add('K');
+    #else
+      tft_string.set(cutter_power2str(cutter.unitPower));
+    #endif
+  }
+  else
+    tft_string.set("---");
+
+  tft_string.trim();
+  tft.add_text(tft_string.center(TEMP_FAN_CONTROL_W), CUTTER_VALUE_Y, COLOR_CUTTER, tft_string);
+}
+
+#endif // HAS_CUTTER
 
 void MarlinUI::draw_status_screen() {
   const bool blink = get_blink();
@@ -248,6 +277,9 @@ void MarlinUI::draw_status_screen() {
       #endif
       #if HAS_FAN
         case ITEM_FAN: draw_fan_status(ITEM_X(i), ITEM_Y, blink); break;
+      #endif
+      #if HAS_CUTTER
+        case ITEM_CUTTER: draw_cutter_status(ITEM_X(i), ITEM_Y); break;
       #endif
     }
   }
