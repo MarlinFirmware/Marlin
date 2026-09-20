@@ -45,12 +45,37 @@
   #include "../../lcd/menu/menu_item.h"
 #endif
 
+#if ENABLED(FWRETRACT)
+  #include "../../feature/fwretract.h"
+#endif
+
+// Default to Mesh Validation settings when G26 is enabled
+#ifndef FLC_LAYER_HEIGHT
+  #ifdef MESH_TEST_LAYER_HEIGHT
+    #define FLC_LAYER_HEIGHT MESH_TEST_LAYER_HEIGHT
+  #else
+    #define FLC_LAYER_HEIGHT 0.2
+  #endif
+#endif
 #ifndef FLC_LINE_WIDTH
-  #define FLC_LINE_WIDTH 0.42
+  #ifdef MESH_TEST_NOZZLE_SIZE
+    #define FLC_LINE_WIDTH ((MESH_TEST_NOZZLE_SIZE) + 0.02)
+  #else
+    #define FLC_LINE_WIDTH 0.42
+  #endif
+#endif
+#ifndef FLC_ROWS
+  #define FLC_ROWS 6
+#endif
+#ifndef FLC_MARGIN
+  #define FLC_MARGIN 10
 #endif
 
 #define FLC_PURGE_SEGMENT   25.0f   // (mm) Maximum length of each wide purge segment
-#define FLC_RETRACT_LENGTH   2.0f   // (mm) Retract after printing
+#define FLC_RETRACT_LENGTH   2.0f   // (mm) Retract after printing, unless FWRETRACT sets length
+#define FLC_FEEDRATE      1000      // (mm/min) Print feedrate
+#define FLC_PATCH_WIDTH     20.0f   // (mm) Solid patch size
+#define FLC_PATCH_HEIGHT    12.0f
 #define FLC_ROUND_BED_SPAN   0.8f   // Portion of printable radius spanned by rows in Y
 
 static bool flc_canceled;
@@ -144,38 +169,45 @@ typedef struct {
 // Cross-section of extruded line with rounded ends (mm^2)
 static float flc_area(const float h, const float w) { return (M_PI) * sq(h) * 0.25f + h * (w - h); }
 
+// Use M200 filament diameter when set, otherwise configured diameter
+static float flc_filament_diameter() {
+  #if HAS_VOLUMETRIC_EXTRUSION
+    const float d = planner.filament_size[motion.extruder];
+    if (d > 0) return d;
+  #endif
+  return DEFAULT_NOMINAL_FILAMENT_DIA;
+}
+
 /**
  * M1005: First Layer Calibration
  *
  * Calibrate nozzle-to-bed distance.
- * Prints zig-zag pattern across printable area ending in solid patch.
+ * Prints zig-zag pattern across bed ending in solid patch.
  * Babystep Z while pattern prints to adjust Probe Z Offset.
  * Click out of babystep screen or send M108 to stop early.
  * Result is not saved. LCD offers to save when done, or use M500.
  *
- *  H<temp>    Hotend temperature. Omit to leave hotend as-is.
- *  B<temp>    Bed temperature. Omit to leave bed as-is.
+ *  H<temp>    Hotend temperature. If omitted with no target set, use first preheat preset.
+ *  B<temp>    Bed temperature. If omitted with no target set, use first preheat preset.
  *  R          Reset Probe Z Offset to configured default before printing, but only if that raises nozzle
  *  K<bool>    Keep heaters on after printing (default: FLC_KEEP_HEATERS_ON)
  *  A<bool>    Run G29 first if leveling is not valid (default: 1)
  *  O          Home only if needed. Otherwise always home so nozzle height matches current Z offset.
  *  L<linear>  Layer height
  *  W<linear>  Line width
- *  I<linear>  Inset from bed edges or printable radius
- *  P<linear>  Distance between rows
+ *  I<linear>  Margin from bed edges or printable radius
+ *  P<count>   Number of rows
  *  F<rate>    Print feedrate
- *  D<linear>  Filament diameter
+ *  D<linear>  Filament diameter (default: M200 diameter or DEFAULT_NOMINAL_FILAMENT_DIA)
  */
 void GcodeSuite::M1005() {
-  constexpr xy_pos_t patch_size = FLC_PATCH_SIZE;
-
   const float h = parser.linearval('L', FLC_LAYER_HEIGHT),
               w = parser.linearval('W', FLC_LINE_WIDTH),
-              inset = parser.linearval('I', FLC_BED_INSET),
-              fil_dia = parser.linearval('D', DEFAULT_NOMINAL_FILAMENT_DIA);
-  float pitch = parser.linearval('P', FLC_ROW_PITCH);
+              inset = parser.linearval('I', FLC_MARGIN),
+              fil_dia = parser.linearval('D', flc_filament_diameter());
+  const uint8_t rows = parser.byteval('P', FLC_ROWS);
 
-  if (h <= 0 || w < h || pitch <= 0 || fil_dia <= 0 || inset < 0) {
+  if (h <= 0 || w < h || rows < 2 || fil_dia <= 0 || inset < 0) {
     SERIAL_ECHOLNPGM(GCODE_ERR_MSG("Bad M1005 parameter."));
     return;
   }
@@ -185,7 +217,8 @@ void GcodeSuite::M1005() {
   flc.epm = flc_area(h, w) / ((M_PI) * sq(fil_dia) * 0.25f);
 
   //
-  // Get area to cover. Rows run along X from back to front.
+  // Cover bed within travel limits.
+  // Rows run along X from back to front.
   //
   #if IS_KINEMATIC
     flc.cx = X_CENTER; flc.cy = Y_CENTER;
@@ -200,20 +233,17 @@ void GcodeSuite::M1005() {
     flc.half_x = (x_max - x_min) * 0.5f;
   #endif
 
-  // Fit patch between last two rows
+  // Spread rows evenly and fit patch between last two
   const float span_y = y_back - y_front,
-              patch_w = _MIN(patch_size.x, flc.row_half(y_front)),
-              patch_h = _MIN(patch_size.y, pitch - 4 * w);
+              pitch = span_y / (rows - 1),
+              patch_w = _MIN(FLC_PATCH_WIDTH, flc.row_half(y_front)),
+              patch_h = _MIN(FLC_PATCH_HEIGHT, pitch - 4 * w);
 
-  if (span_y < pitch || flc.row_half(y_back) * 2 < 3 * (FLC_PURGE_SEGMENT) || patch_h <= 0) {
+  if (patch_h < 4 * w || flc.row_half(y_back) * 2 < 3 * (FLC_PURGE_SEGMENT)) {
     SERIAL_ECHOLNPGM(GCODE_ERR_MSG("Print area too small."));
     LCD_MESSAGE(MSG_FLC_BED_TOO_SMALL);
     return;
   }
-
-  // Spread rows evenly over span
-  const uint8_t rows = uint8_t(span_y / pitch) + 1;
-  pitch = span_y / (rows - 1);
 
   //
   // Heat, home, and level
@@ -225,11 +255,19 @@ void GcodeSuite::M1005() {
 
   // Probe with cold nozzle so it can't ooze on bed. Otherwise heat nozzle along with bed.
   #if HAS_HOTEND
-    const celsius_t hotend_target = parser.seenval('H') ? parser.value_int() : thermalManager.degTargetHotend(motion.extruder); // Marlin always sends itself Celsius
+    celsius_t hotend_target = parser.seenval('H') ? parser.value_int() : thermalManager.degTargetHotend(motion.extruder); // Marlin always sends itself Celsius
+    #if HAS_PREHEAT
+      if (!hotend_target && !parser.seen('H')) hotend_target = ui.material_preset[0].hotend_temp;
+    #endif
     if (!do_level) thermalManager.setTargetHotend(hotend_target, motion.extruder);
   #endif
   #if HAS_HEATED_BED
-    if (parser.seenval('B')) thermalManager.setTargetBed(parser.value_int());
+    if (parser.seenval('B'))
+      thermalManager.setTargetBed(parser.value_int());
+    #if HAS_PREHEAT
+      else if (!thermalManager.degTargetBed())
+        thermalManager.setTargetBed(ui.material_preset[0].bed_temp);
+    #endif
     if (thermalManager.degTargetBed()) {
       thermalManager.isHeatingBed() ? LCD_MESSAGE(MSG_BED_HEATING) : LCD_MESSAGE(MSG_BED_COOLING);
       if (!thermalManager.wait_for_bed(false)) return flc_abort();
@@ -334,7 +372,7 @@ void GcodeSuite::M1005() {
     motion.quickstop_stepper();
     flc_canceled = false; // Allow retract
   }
-  flc.retract(FLC_RETRACT_LENGTH);
+  flc.retract(TERN(FWRETRACT, fwretract.settings.retract_length, FLC_RETRACT_LENGTH));
   planner.synchronize();
 
   #if ENABLED(NOZZLE_PARK_FEATURE)

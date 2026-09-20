@@ -1617,13 +1617,11 @@
 #if HAS_BED_PROBE
   //#define FIRST_LAYER_CALIBRATION
   #if ENABLED(FIRST_LAYER_CALIBRATION)
-    //#define FLC_KEEP_HEATERS_ON      // Leave heaters on after printing
-    #define FLC_BED_INSET    10.0      // (mm) Margin from bed edges or printable radius
-    #define FLC_ROW_PITCH    20.0      // (mm) Distance between rows
-    #define FLC_LAYER_HEIGHT  0.2      // (mm) Layer height
-    #define FLC_LINE_WIDTH    0.42     // (mm) Line width. Usually a little over the nozzle diameter.
-    #define FLC_FEEDRATE   1000        // (mm/min) Print feedrate
-    #define FLC_PATCH_SIZE  { 20, 12 } // (mm) Solid patch size
+    //#define FLC_ROWS          6     // Rows in zig-zag pattern
+    //#define FLC_MARGIN       10     // (mm) Margin from bed edges or printable radius
+    //#define FLC_LAYER_HEIGHT  0.2   // (mm) Layer height. Default: MESH_TEST_LAYER_HEIGHT or 0.2
+    //#define FLC_LINE_WIDTH    0.42  // (mm) Line width. Default: MESH_TEST_NOZZLE_SIZE + 0.02 or 0.42
+    //#define FLC_KEEP_HEATERS_ON     // Leave heaters on after printing
   #endif
 #endif
 
