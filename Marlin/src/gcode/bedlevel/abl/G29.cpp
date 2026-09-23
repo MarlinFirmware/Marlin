@@ -272,7 +272,7 @@ G29_TYPE GcodeSuite::G29() {
     #if ENABLED(PROBE_MANUALLY)
       static vector_3 points[3];
       if (!g29_in_progress) probe.get_three_points(points);
-    #elif
+    #else
       vector_3 points[3];
       probe.get_three_points(points);
     #endif
