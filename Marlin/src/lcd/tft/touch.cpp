@@ -230,14 +230,25 @@ void Touch::touch(touch_control_t * const control) {
       break;
 
     // Increase / Decrease controls are held with an ever-decreasing repeat delay
-    case INCREASE:
+    case INCREASE: {
       hold(control, repeat_delay - (FAST_REPEAT_DECREMENT));
-      TERN(AUTO_BED_LEVELING_UBL, ui.external_control ? bedlevel.encoder_diff++ : ui.encoderPosition++, ui.encoderPosition++);
-      break;
-    case DECREASE:
+      const int32_t step = control->data > 0 ? control->data : 1;
+      if (ui.external_control) {
+        TERN_(AUTO_BED_LEVELING_UBL, bedlevel.encoder_diff += step);
+      }
+      else
+        ui.encoderPosition += step;
+    } break;
+
+    case DECREASE: {
       hold(control, repeat_delay - (FAST_REPEAT_DECREMENT));
-      TERN(AUTO_BED_LEVELING_UBL, ui.external_control ? bedlevel.encoder_diff-- : ui.encoderPosition--, ui.encoderPosition--);
-      break;
+      const int32_t step = control->data > 0 ? control->data : 1;
+      if (ui.external_control) {
+        TERN_(AUTO_BED_LEVELING_UBL, bedlevel.encoder_diff -= step);
+      }
+      else
+        ui.encoderPosition = ui.encoderPosition > uint32_t(step) ? ui.encoderPosition - step : 0;
+    } break;
 
     // Other controls behave like menu items
 

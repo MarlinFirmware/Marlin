@@ -410,7 +410,7 @@ static bool mode_keypad = false;
   static int32_t keypad_value = 0;
   static uint32_t keypad_value_decimal = 0;
 
-  static float stepSize = -1;
+  static int32_t stepSize = -1;
   static void stepChange(touch_event_t *e) {
     stepSize = e->index;
     ui.refresh();
@@ -484,23 +484,27 @@ void TFT::drawSimpleBtn(const char *label, uint16_t x, uint16_t y, uint16_t w, u
     tft.add_text(tft_string.center(w), style == BTN_TOGGLE ? 0 : tft_string.vcenter(h), ((style == BTN_OUTLINE && selected) || style == BTN_FILLED) ? colorTxt : color, tft_string);
   }
 
-  TERN_(HAS_TFT_XPT2046, if (true/*enabled*/) touch.add_control(touchType, x, y, w, h, data, index));
+  touch.add_control(touchType, x, y, w, h, data, index);
 }
 
 #endif // TOUCH_SCREEN
 
 #if ENABLED(TOUCH_SCREEN)
+  void MenuEditItemBase::reset_edit_screen_state() {
+    mode_keypad = false;
+    stepSize = -1;
+  }
+
   void MenuEditItemBase::put_new_value(float newDisplayVal) {
     const float minDisplayVal = minEditValue / valueStep,
-                maxDisplayVal = maxEditValue / valueStep;
+                maxDisplayVal = (minEditValue + maxEditValue) / valueStep;
 
     NOMORE(newDisplayVal, maxDisplayVal);
     NOLESS(newDisplayVal, minDisplayVal);
 
-    const int32_t newVal = newDisplayVal * valueStep;
+    const int32_t newVal = newDisplayVal * valueStep - minEditValue;
 
     ui.encoderPosition = newVal;
-    // TODO: Fix junction dev (minEditVal is not 0) always adds minEditVal to input value
     // TODO: Does not account for value types where there is a conversion during ftostr (i.e., percent)
   }
 
@@ -617,9 +621,9 @@ void MenuEditItemBase::draw_edit_screen(FSTR_P const ftpl, const char * const va
       tft.canvas(0, SLIDER_Y, w, h);
       tft.set_background(COLOR_BACKGROUND);
       tft.add_text(tft_string.center(w), tft_string.vcenter(h), COLOR_WHITE, tft_string, w);
-      TERN_(TOUCH_SCREEN, touch.add_control(CALLBACK, 0, SLIDER_Y, w, h, intptr_t(setValue), minEditValue));
+      TERN_(TOUCH_SCREEN, touch.add_control(CALLBACK, 0, SLIDER_Y, w, h, intptr_t(setValue), 0));
 
-      tft_string.set(shortenNum(to_str_edit_t(valueToString)(maxEditValue)));
+      tft_string.set(shortenNum(to_str_edit_t(valueToString)(minEditValue + maxEditValue)));
       tft.canvas(TFT_WIDTH - w, SLIDER_Y, w, h);
       tft.set_background(COLOR_BACKGROUND);
       tft.add_text(tft_string.center(w), tft_string.vcenter(h), COLOR_WHITE, tft_string, w);
@@ -630,7 +634,7 @@ void MenuEditItemBase::draw_edit_screen(FSTR_P const ftpl, const char * const va
       int8_t stepCount = 0;
       float steps[10] = {0};
 
-      int32_t range = maxEditValue - minEditValue;
+      int32_t range = maxEditValue;
       int32_t div = 1;
 
       int8_t multip = 5;

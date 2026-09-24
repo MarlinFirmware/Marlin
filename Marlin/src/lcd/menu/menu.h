@@ -170,6 +170,7 @@ class MenuEditItemBase : public MenuItemBase {
     #endif
     #if TFT_COLOR_TOUCH
       static float valueStep;
+      static void reset_edit_screen_state();
     #endif
     static screenFunc_t callbackFunc;
     static bool liveEdit;

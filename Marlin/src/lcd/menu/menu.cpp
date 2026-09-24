@@ -162,6 +162,7 @@ void MenuEditItemBase::goto_edit_screen(
   maxEditValue = maxv;
   TERN_(TFT_COLOR_UI, valueToString = to_string);
   TERN_(TFT_COLOR_TOUCH, valueStep = step);
+  TERN_(TFT_COLOR_TOUCH, reset_edit_screen_state());
   ui.encoderPosition = ep;
   ui.currentScreen = cs;
   callbackFunc = cb;
