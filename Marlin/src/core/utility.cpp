@@ -159,7 +159,7 @@
       SERIAL_ECHOPGM("Mesh Bed Leveling");
       if (planner.leveling_active) {
         SERIAL_ECHOLNPGM(" (enabled)");
-        const float z_offset = bedlevel.get_z_offset(),
+        const float z_offset = mesh_z_offset,
                     z_correction = bedlevel.get_z_correction(motion.position);
         SERIAL_ECHOPGM("MBL Adjustment Z", ftostr43sign(z_offset + z_correction, '+'));
         #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
