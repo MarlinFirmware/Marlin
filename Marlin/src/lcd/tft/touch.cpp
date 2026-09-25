@@ -56,8 +56,9 @@ TouchControlType Touch::touch_control_type = NONE;
   millis_t Touch::next_sleep_ms; // = 0
 #endif
 
+// Called again by reinit_lcd(), so don't reset calibration here. That would
+// discard the values loaded from EEPROM. See MarlinSettings::reset().
 void Touch::init() {
-  TERN_(TOUCH_SCREEN_CALIBRATION, touch_calibration.calibration_reset());
   reset();
   io.init();
   TERN_(HAS_DISPLAY_SLEEP, wakeUp());
