@@ -3573,9 +3573,9 @@ void Stepper::_set_position(const abce_long_t &spos) {
     #elif CORE_IS_YZ
       count_position.set(spos.a, spos.b + spos.c, CORESIGN(spos.b - spos.c));
     #elif ENABLED(MARKFORGED_XY)
-      count_position.set(spos.a TERN(MARKFORGED_INVERSE, +, -) spos.b, spos.b, spos.c);
+      count_position.set(spos.a TERN(MARKFORGED_INVERSE, -, +) spos.b, spos.b, spos.c);
     #elif ENABLED(MARKFORGED_YX)
-      count_position.set(spos.a, spos.b TERN(MARKFORGED_INVERSE, +, -) spos.a, spos.c);
+      count_position.set(spos.a, spos.b TERN(MARKFORGED_INVERSE, -, +) spos.a, spos.c);
     #endif
     SECONDARY_AXIS_CODE(
       count_position.i = spos.i,
