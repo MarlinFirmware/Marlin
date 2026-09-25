@@ -38,7 +38,7 @@
   #include "../../module/ft_motion.h"
 #endif
 
-#if ANY(DWIN_CREALITY_LCD_JYERSUI, EXTENSIBLE_UI)
+#if ANY(DWIN_CREALITY_LCD_JYERSUI, EXTENSIBLE_UI, DWIN_LCD_PROUI)
   #define VERBOSE_SINGLE_PROBE
 #endif
 
