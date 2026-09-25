@@ -2872,6 +2872,7 @@ void Motion::set_axis_is_at_home(const AxisEnum axis) {
     position[axis] = (axis == Z_AXIS) ? DIFF_TERN(HAS_BED_PROBE, delta_height, probe.offset.z) : base_home_pos(axis);
   #elif NUM_AXES
     position[axis] = SUM_TERN(HAS_HOME_OFFSET, base_home_pos(axis), home_offset[axis]);
+    TERN_(HAS_HOTEND_OFFSET, position[axis] += active_hotend_offset()[axis]);
   #endif
 
   /**
