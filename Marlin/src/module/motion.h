@@ -97,6 +97,40 @@ public:
       | (ENABLED(AXIS7_ROTATES)<<U_AXIS), | (ENABLED(AXIS8_ROTATES)<<V_AXIS), | (ENABLED(AXIS9_ROTATES)<<W_AXIS))
   };
 
+  #if ENABLED(RUNTIME_AXIS_DIRECTION)
+    // Runtime axis direction inversion flags
+    static AxisFlags axis_inverted;              // X, Y, Z, I, J, K, U, V, W
+    #if HAS_EXTRUDERS
+      static bool extruder_inverted[E_STEPPERS];  // E0, E1, E2, E3, E4, E5, E6, E7
+    #endif
+    // Secondary stepper relative inversions (vs primary)
+    #if ENABLED(X_DUAL_STEPPER_DRIVERS)
+      static bool x2_vs_x_inverted;
+    #endif
+    #if ENABLED(Y_DUAL_STEPPER_DRIVERS)
+      static bool y2_vs_y_inverted;
+    #endif
+    #if NUM_Z_STEPPERS >= 2
+      static bool z2_vs_z_inverted;
+    #endif
+    #if NUM_Z_STEPPERS >= 3
+      static bool z3_vs_z_inverted;
+    #endif
+    #if NUM_Z_STEPPERS >= 4
+      static bool z4_vs_z_inverted;
+    #endif
+    #if ENABLED(E_DUAL_STEPPER_DRIVERS)
+      static bool e1_vs_e0_inverted;
+    #endif
+    static void reset_axis_direction();
+  #endif
+
+  #if ENABLED(RUNTIME_HOMING_DIRECTION)
+    // Runtime homing direction flags (-1 = MIN, 1 = MAX)
+    static int8_t axis_home_dir[LOGICAL_AXES];   // X, Y, Z, I, J, K, U, V, W
+    static void reset_axis_home_dir();
+  #endif
+
   #if HAS_MULTI_EXTRUDER
     static uint8_t extruder;            // Selected extruder (tool) - T<extruder>
   #else
@@ -286,7 +320,11 @@ public:
     XYZ_DEFS(float,  base_max_pos,  MAX_POS);     // base_max_pos(axis)
     XYZ_DEFS(float,  base_home_pos, HOME_POS);    // base_home_pos(axis)
     XYZ_DEFS(float,  max_axis_length, MAX_LENGTH); // max_axis_length(axis)
-    XYZ_DEFS(int8_t, home_dir,      HOME_DIR);    // home_dir(axis)
+    #if ENABLED(RUNTIME_HOMING_DIRECTION)
+      static int8_t home_dir(const AxisEnum axis) { return axis_home_dir[axis]; }
+    #else
+      XYZ_DEFS(int8_t, home_dir,      HOME_DIR);    // home_dir(axis)
+    #endif
 
     static float home_bump_mm(const AxisEnum axis) {
       static const xyz_pos_t home_bump_mm_P DEFS_PROGMEM = HOMING_BUMP_MM;
