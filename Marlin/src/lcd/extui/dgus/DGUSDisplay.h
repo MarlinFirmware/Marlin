@@ -51,6 +51,10 @@ typedef enum : uint8_t {
 
 constexpr uint16_t swap16(const uint16_t value) { return (value & 0xFFU) << 8U | (value >> 8U); }
 
+#if DGUS_LCD_UI_CREALITY_TOUCH
+  typedef void (*screenUpdateCallback_t)(DGUS_ScreenID screen);
+#endif
+
 // Low-Level access to the display.
 class DGUSDisplay {
 public:
@@ -58,6 +62,9 @@ public:
   DGUSDisplay() = default;
 
   static void initDisplay();
+  #if DGUS_LCD_UI_CREALITY_TOUCH
+    static void resetDisplay();
+  #endif
 
   // Variable access.
   static void writeVariable_P(uint16_t adr, const void *values, uint8_t valueslen, bool isstr=false);
@@ -85,6 +92,12 @@ public:
     writeVariable(adr, (const void *)zhstr, vallen, true);
   }
 
+  #if DGUS_LCD_UI_CREALITY_TOUCH
+    // Until now I did not need to actively read from the display.
+    // (I extensively use the auto upload of the display)
+    static void readVariable(uint16_t adr);
+  #endif
+
   // Utility functions for bridging ui_api and dgus
   template<typename T, float(*Getter)(const T), T selector, typename WireType=uint16_t>
   static void setVariable(DGUS_VP_Variable &var) {
@@ -97,13 +110,15 @@ public:
     Setter(newvalue, selector);
   }
 
-  // Until now I did not need to actively read from the display. That's why there is no ReadVariable
-  // (I extensively use the auto upload of the display)
-
   // Force display into another screen.
   // (And trigger update of containing VPs)
   // (to implement a pop up message, which may not be nested)
   static void requestScreen(const DGUS_ScreenID screenID);
+
+  #if DGUS_LCD_UI_CREALITY_TOUCH
+    // Request the current displayed screen - will be passed to current_screen_update_callback
+    static void readCurrentScreen();
+  #endif
 
   // Periodic tasks, eg. Rx-Queue handling.
   static void loop();
@@ -116,6 +131,10 @@ public:
   // (both boils down that the display answered to our chatting)
   static bool isInitialized() { return initialized; }
 
+  #if DGUS_LCD_UI_CREALITY_TOUCH
+    static screenUpdateCallback_t current_screen_update_callback;
+  #endif
+
 private:
   static void writeHeader(uint16_t adr, uint8_t cmd, uint8_t payloadlen);
   static void writePGM(const char str[], uint8_t len);
@@ -124,6 +143,10 @@ private:
   static rx_datagram_state_t rx_datagram_state;
   static uint8_t rx_datagram_len;
   static bool initialized, no_reentrance;
+
+  #if DGUS_LCD_UI_CREALITY_TOUCH
+    static DGUS_ScreenID displayRequest;
+  #endif
 };
 
 extern DGUSDisplay dgus;
