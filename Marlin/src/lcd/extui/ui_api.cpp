@@ -81,7 +81,7 @@
   #include "../../feature/backlash.h"
 #endif
 
-#if HAS_BED_PROBE
+#if ANY(HAS_BED_PROBE, MESH_BED_LEVELING, AUTO_BED_LEVELING_UBL)
   #include "../../module/probe.h"
 #endif
 
@@ -314,12 +314,12 @@ namespace ExtUI {
   //
   uint8_t getTargetFan_percent(const fan_t fan) {
     UNUSED(fan);
-    return TERN0(HAS_FAN, thermalManager.fanSpeedPercent(fan - FAN0));
+    return TERN0(HAS_FAN, fans[fan - FAN0].speed_pct());
   }
 
   uint8_t getActualFan_percent(const fan_t fan) {
     UNUSED(fan);
-    return TERN0(HAS_FAN, thermalManager.scaledFanSpeedPercent(fan - FAN0));
+    return TERN0(HAS_FAN, fans[fan - FAN0].speed_pct_scaled());
   }
 
   //

@@ -35,8 +35,8 @@
 class NextionTFT {
   private:
     static uint8_t command_len;
-    static char    nextion_command[MAX_CMND_LEN];
-    static char    selectedfile[MAX_PATH_LEN];
+    static char    nextion_command[MAX_CMND_LEN + 1];
+    static char    selectedfile[MAX_PATH_LEN + 1];
 
   public:
     NextionTFT();

@@ -43,8 +43,8 @@
 #define DEBUG_OUT NEXDEBUGLEVEL
 #include "../../../core/debug_out.h"
 
-char NextionTFT::selectedfile[MAX_PATH_LEN];
-char NextionTFT::nextion_command[MAX_CMND_LEN];
+char NextionTFT::selectedfile[MAX_PATH_LEN + 1];
+char NextionTFT::nextion_command[MAX_CMND_LEN + 1];
 uint8_t NextionTFT::command_len;
 
 uint32_t layer = 0;
@@ -124,9 +124,9 @@ void NextionTFT::tftSend(FSTR_P const fstr/*=nullptr*/) { // A helper to print P
 
 bool NextionTFT::readTFTCommand() {
   bool command_ready = false;
-  while ((LCD_SERIAL.available() > 0) && (command_len < MAX_CMND_LEN)) {
+  while (LCD_SERIAL.available() > 0 && command_len < MAX_CMND_LEN) {
     nextion_command[command_len] = LCD_SERIAL.read();
-    if (nextion_command[command_len] == 10) {
+    if (nextion_command[command_len] == '\n') {
       command_ready = true;
       break;
     }

@@ -22,15 +22,14 @@
 
 #include "../../../inc/MarlinConfig.h"
 
-#if ENABLED(FTM_RESONANCE_TEST)
+#if ENABLED(RESONANCE_TEST)
 
 #include "../../gcode.h"
 #include "../../../lcd/marlinui.h"
-#include "../../../module/ft_motion.h"
-#include "../../../module/ft_motion/resonance_generator.h"
+#include "../../../feature/resonance/resonance_generator.h"
 
 void say_resonance_test() {
-  const ftm_resonance_test_params_t &p = ftMotion.rtg.rt_params;
+  const resonance_test_params_t &p = rtg.rt_params;
   SERIAL_ECHO_START();
   SERIAL_ECHOLN(F("M495 "), F("Resonance Test"));
   SERIAL_ECHOLNPGM("  Axis: ", p.axis == NO_AXIS_ENUM ? C('-') : C(AXIS_CHAR(p.axis)));
@@ -64,7 +63,7 @@ void say_resonance_test() {
 void GcodeSuite::M495() {
   if (!parser.seen_any()) return say_resonance_test();
 
-  ftm_resonance_test_params_t &p = ftMotion.rtg.rt_params;
+  resonance_test_params_t &p = rtg.rt_params;
 
   const bool seenX = parser.seen_test('X'), seenY = parser.seen_test('Y'), seenZ = parser.seen_test('Z');
 
@@ -137,8 +136,8 @@ void GcodeSuite::M495() {
   if (parser.seenval('G')) {
     const float val = parser.value_float();
     if (WITHIN(val, 0, 100)) {
-      ftMotion.rtg.timeline = val;
-      SERIAL_ECHOLNPGM("Resonance Frequency set to ", ftMotion.rtg.getFrequencyFromTimeline(), " Hz");
+      rtg.timeline = val;
+      SERIAL_ECHOLNPGM("Resonance Frequency set to ", rtg.getFrequencyFromTimeline(), " Hz");
     }
     else {
       SERIAL_ECHOLN(F("?Invalid "), F("Timeline value (0..100 s)"));
@@ -146,23 +145,18 @@ void GcodeSuite::M495() {
   }
 
   if (parser.seen_test('S')) {
-    if (ftMotion.cfg.active) {
-      if (p.axis != NO_AXIS_ENUM) {
-        if (p.max_freq > p.min_freq) {
-          SERIAL_ECHOLN(F("Starting "), F("Resonance Test"));
-          ftMotion.start_resonance_test();
-          // The function returns immediately, the test runs in the background.
-        }
-        else {
-          SERIAL_ECHOLNPGM("?End Frequency must be greater than Start Frequency");
-        }
+    if (p.axis != NO_AXIS_ENUM) {
+      if (p.max_freq > p.min_freq) {
+        SERIAL_ECHOLN(F("Starting "), F("Resonance Test"));
+        rtg.start();
+        // The function returns immediately, the test runs in the background.
       }
       else {
-        SERIAL_ECHOLN(F("?Specify X, Y, or Z axis"), F(" first"));
+        SERIAL_ECHOLNPGM("?End Frequency must be greater than Start Frequency");
       }
     }
     else {
-      SERIAL_ECHOLN(F("?Activate FT Motion to run the "), F("Resonance Test"));
+      SERIAL_ECHOLN(F("?Specify X, Y, or Z axis"), F(" first"));
     }
   }
 }
@@ -171,8 +165,8 @@ void GcodeSuite::M495() {
  * M496: Abort the resonance test (via Emergency Parser)
  */
 void GcodeSuite::M496() {
-  if (ftMotion.rtg.isActive()) {
-      ftMotion.rtg.abort();
+  if (rtg.isActive()) {
+      rtg.abort();
       EmergencyParser::rt_stop_by_M496 = false;
       ui.refresh();
       #if DISABLED(MARLIN_SMALL_BUILD)
@@ -185,4 +179,4 @@ void GcodeSuite::M496() {
   #endif
 }
 
-#endif // FTM_RESONANCE_TEST
+#endif // RESONANCE_TEST

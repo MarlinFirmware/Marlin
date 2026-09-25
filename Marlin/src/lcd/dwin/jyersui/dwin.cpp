@@ -199,7 +199,7 @@ grid_count_t gridpoint;
 float corner_avg;
 float corner_pos;
 
-bool probe_deployed = false;
+bool dwin_probe_deployed = false;
 
 JyersDWIN jyersDWIN;
 
@@ -849,9 +849,9 @@ void JyersDWIN::drawStatusArea(const bool icons/*=false*/) {
       fan = -1;
       dwinIconShow(ICON, ICON_FanSpeed, 187, 383);
     }
-    if (thermalManager.fan_speed[0] != fan) {
-      fan = thermalManager.fan_speed[0];
-      dwinDrawIntValue(true, true, 0, DWIN_FONT_STAT, getColor(eeprom_settings.status_area_text, COLOR_WHITE), COLOR_BG_BLACK, 3, 195 + 2 * STAT_CHR_W, 384, thermalManager.fan_speed[0]);
+    if (fans[0].speed != fan) {
+      fan = fans[0].speed;
+      dwinDrawIntValue(true, true, 0, DWIN_FONT_STAT, getColor(eeprom_settings.status_area_text, COLOR_WHITE), COLOR_BG_BLACK, 3, 195 + 2 * STAT_CHR_W, 384, fans[0].speed);
     }
   #endif
 
@@ -1268,8 +1268,8 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
             drawMenuItem(row, ICON_Back, GET_TEXT_F(MSG_BACK));
           else {
             #if HAS_BED_PROBE
-              probe_deployed = false;
-              probe.set_deployed(probe_deployed);
+              dwin_probe_deployed = false;
+              probe.set_deployed(dwin_probe_deployed);
             #endif
             drawMenu(ID_Prepare, PREPARE_MOVE);
           }
@@ -1329,12 +1329,12 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
           case MOVE_P:
             if (draw) {
               drawMenuItem(row, ICON_StockConfiguration, F("Probe"));
-              drawCheckbox(row, probe_deployed);
+              drawCheckbox(row, dwin_probe_deployed);
             }
             else {
-              FLIP(probe_deployed);
-              probe.set_deployed(probe_deployed);
-              drawCheckbox(row, probe_deployed);
+              FLIP(dwin_probe_deployed);
+              probe.set_deployed(dwin_probe_deployed);
+              drawCheckbox(row, dwin_probe_deployed);
             }
             break;
         #endif
@@ -2012,10 +2012,10 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
           case TEMP_FAN:
             if (draw) {
               drawMenuItem(row, ICON_FanSpeed, GET_TEXT_F(MSG_FAN_SPEED));
-              drawFloat(thermalManager.fan_speed[0], row, false, 1);
+              drawFloat(fans[0].speed, row, false, 1);
             }
             else
-              modifyValue(thermalManager.fan_speed[0], MIN_FAN_SPEED, MAX_FAN_SPEED, 1);
+              modifyValue(fans[0].speed, MIN_FAN_SPEED, MAX_FAN_SPEED, 1);
             break;
         #endif
         #if ANY(PIDTEMP, PIDTEMPBED)
@@ -3042,7 +3042,7 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
               break;
         }
         break;
-    #endif  // HAS_PROBE_MENU
+    #endif  // HAS_BED_PROBE
 
     #if HAS_TRINAMIC_CONFIG
       case ID_TMCMenu:
@@ -3216,7 +3216,9 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
               if (draw)
                 drawMenuItem(row, ICON_Tilt, GET_TEXT_F(MSG_UBL_TILT_MESH));
               else {
-                if (bedlevel.storage_slot < 0) { popupHandler(Popup_MeshSlot); break; }
+                #if ALL(AUTO_BED_LEVELING_UBL, HAS_MESH_STORAGE)
+                  if (bedlevel.storage_slot < 0) { popupHandler(Popup_MeshSlot); break; }
+                #endif
                 popupHandler(Popup_Home);
                 gcode.home_all_axes(true);
                 popupHandler(Popup_Level);
@@ -3282,7 +3284,7 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
                   break;
                 }
               #endif
-              #if ENABLED(AUTO_BED_LEVELING_UBL)
+              #if ALL(AUTO_BED_LEVELING_UBL, HAS_MESH_STORAGE)
                 if (bedlevel.storage_slot < 0) {
                   popupHandler(Popup_MeshSlot);
                   break;
@@ -3317,7 +3319,7 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
             if (draw)
               drawMenuItem(row, ICON_Mesh, GET_TEXT_F(MSG_MESH_VIEW), nullptr, true);
             else {
-              #if ENABLED(AUTO_BED_LEVELING_UBL)
+              #if ALL(AUTO_BED_LEVELING_UBL, HAS_MESH_STORAGE)
                 if (bedlevel.storage_slot < 0) {
                   popupHandler(Popup_MeshSlot);
                   break;
@@ -3332,7 +3334,7 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
             else
               drawMenu(ID_LevelSettings);
             break;
-          #if ENABLED(AUTO_BED_LEVELING_UBL)
+          #if ALL(AUTO_BED_LEVELING_UBL, HAS_MESH_STORAGE)
             case LEVELING_SLOT:
               if (draw) {
                 drawMenuItem(row, ICON_PrintSize, GET_TEXT_F(MSG_UBL_STORAGE_SLOT));
@@ -3878,10 +3880,10 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
           case TUNE_FAN:
             if (draw) {
               drawMenuItem(row, ICON_FanSpeed, GET_TEXT_F(MSG_FAN_SPEED));
-              drawFloat(thermalManager.fan_speed[0], row, false, 1);
+              drawFloat(fans[0].speed, row, false, 1);
             }
             else
-              modifyValue(thermalManager.fan_speed[0], MIN_FAN_SPEED, MAX_FAN_SPEED, 1);
+              modifyValue(fans[0].speed, MIN_FAN_SPEED, MAX_FAN_SPEED, 1);
             break;
         #endif
 
@@ -4308,7 +4310,7 @@ void JyersDWIN::popupHandler(const PopupID popupid, const bool option/*=false*/)
     case Popup_Resume:        drawPopup(F("Resume Print?"), F("Looks Like the last"), F("print was interrupted."), Proc_Popup); break;
     case Popup_ConfFilChange: drawPopup(F("Confirm Filament Change"), F(""), F(""), Proc_Popup); break;
     case Popup_PurgeMore:     drawPopup(F("Purge more filament?"), F("(Cancel to finish process)"), F(""), Proc_Popup); break;
-    #if ENABLED(AUTO_BED_LEVELING_UBL)
+    #if ALL(AUTO_BED_LEVELING_UBL, HAS_MESH_STORAGE)
       case Popup_SaveLevel:   drawPopup(GET_TEXT_F(MSG_LEVEL_BED_DONE), F("Save to EEPROM?"), F(""), Proc_Popup); break;
       case Popup_MeshSlot:    drawPopup(F("Mesh slot not selected"), F("(Confirm to select slot 0)"), F(""), Proc_Popup); break;
     #endif
@@ -4603,7 +4605,7 @@ void JyersDWIN::printScreenControl() {
             #else
               TERN_(HAS_HEATED_BED, queue.inject(TS(F("M140 S"), pausebed)));
               TERN_(HAS_EXTRUDERS, queue.inject(TS(F("M109 S"), pausetemp)));
-              TERN_(HAS_FAN, thermalManager.fan_speed[0] = pausefan);
+              TERN_(HAS_FAN, fans[0].speed = pausefan);
               planner.synchronize();
               TERN_(HAS_MEDIA, queue.inject(FPSTR(M24_STR)));
             #endif
@@ -4651,7 +4653,7 @@ void JyersDWIN::popupControl() {
               queue.inject(F("M25"));
               TERN_(HAS_HOTEND, pausetemp = thermalManager.degTargetHotend(0));
               TERN_(HAS_HEATED_BED, pausebed = thermalManager.degTargetBed());
-              TERN_(HAS_FAN, pausefan = thermalManager.fan_speed[0]);
+              TERN_(HAS_FAN, pausefan = fans[0].speed);
               thermalManager.cooldown();
             #endif
           }
@@ -4738,7 +4740,7 @@ void JyersDWIN::popupControl() {
           break;
       #endif // ADVANCED_PAUSE_FEATURE
 
-      #if HAS_MESH
+      #if HAS_MESH_STORAGE
         case Popup_SaveLevel:
           if (selection == 0) {
             #if ENABLED(AUTO_BED_LEVELING_UBL)
@@ -4753,7 +4755,7 @@ void JyersDWIN::popupControl() {
           break;
       #endif
 
-      #if ENABLED(AUTO_BED_LEVELING_UBL)
+      #if ALL(AUTO_BED_LEVELING_UBL, HAS_MESH_STORAGE)
         case Popup_MeshSlot:
           if (selection == 0) bedlevel.storage_slot = 0;
           redrawMenu(true, true);
@@ -5035,8 +5037,8 @@ void JyersDWIN::screenUpdate() {
           }
         #endif
         #if HAS_FAN
-          if (thermalManager.fan_speed[0] != fanspeed) {
-            fanspeed = thermalManager.fan_speed[0];
+          if (fans[0].speed != fanspeed) {
+            fanspeed = fans[0].speed;
             if (scrollpos <= TEMP_FAN && TEMP_FAN <= scrollpos + MROWS) {
               if (process != Proc_Value || selection != TEMP_HOTEND - scrollpos)
                 drawFloat(fanspeed, TEMP_FAN - scrollpos, false, 1);
@@ -5064,8 +5066,8 @@ void JyersDWIN::screenUpdate() {
           }
         #endif
         #if HAS_FAN
-          if (thermalManager.fan_speed[0] != fanspeed) {
-            fanspeed = thermalManager.fan_speed[0];
+          if (fans[0].speed != fanspeed) {
+            fanspeed = fans[0].speed;
             if (scrollpos <= TUNE_FAN && TUNE_FAN <= scrollpos + MROWS) {
               if (process != Proc_Value || selection != TEMP_HOTEND - scrollpos)
                 drawFloat(fanspeed, TUNE_FAN - scrollpos, false, 1);

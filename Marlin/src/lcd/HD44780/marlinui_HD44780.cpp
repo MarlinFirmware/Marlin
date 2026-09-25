@@ -393,7 +393,7 @@ void MarlinUI::init_lcd() {
   #elif ENABLED(LCD_I2C_TYPE_MCP23017)
     lcd.setMCPType(LTI_TYPE_MCP23017);
     lcd.begin(LCD_WIDTH, LCD_HEIGHT);
-    update_indicators();
+    update_indicators(true);   // Force turning off the LEDs at startup
 
   #elif ENABLED(LCD_I2C_TYPE_MCP23008)
     lcd.setMCPType(LTI_TYPE_MCP23008);
@@ -1133,15 +1133,15 @@ void MarlinUI::draw_status_screen() {
           #if HAS_FAN0
             if (true
               #if ALL(HAS_EXTRUDERS, ADAPTIVE_FAN_SLOWING)
-                && (blink || thermalManager.fan_speed_scaler[0] < 128)
+                && (blink || fans[0].speed_scaler < 128)
               #endif
             ) {
-              uint16_t spd = thermalManager.fan_speed[0];
+              uint16_t spd = fans[0].speed;
               if (blink) c = 'F';
               #if ENABLED(ADAPTIVE_FAN_SLOWING)
-                else { c = '*'; spd = thermalManager.scaledFanSpeed(0, spd); }
+                else { c = '*'; spd = fans[0].scaled_speed(spd); }
               #endif
-              pct = thermalManager.pwmToPercent(spd);
+              pct = Fan::pwmToPercent(spd);
             }
             else
           #endif
@@ -1386,7 +1386,7 @@ void MarlinUI::draw_status_screen() {
 
   #if ENABLED(LCD_HAS_STATUS_INDICATORS)
 
-    void MarlinUI::update_indicators() {
+    void MarlinUI::update_indicators(const bool forceUpdate) {
       // Set the LEDS - referred to as backlights by the LiquidTWI2 library
       static uint8_t ledsprev = 0;
       uint8_t leds = 0;
@@ -1395,20 +1395,20 @@ void MarlinUI::draw_status_screen() {
       if (TERN0(HAS_HOTEND, thermalManager.degTargetHotend(0) > 0)) leds |= LED_B;
 
       #if HAS_FAN
-        if ( TERN0(HAS_FAN0, thermalManager.fan_speed[0])
-          || TERN0(HAS_FAN1, thermalManager.fan_speed[1])
-          || TERN0(HAS_FAN2, thermalManager.fan_speed[2])
-          || TERN0(HAS_FAN3, thermalManager.fan_speed[3])
-          || TERN0(HAS_FAN4, thermalManager.fan_speed[4])
-          || TERN0(HAS_FAN5, thermalManager.fan_speed[5])
-          || TERN0(HAS_FAN6, thermalManager.fan_speed[6])
-          || TERN0(HAS_FAN7, thermalManager.fan_speed[7])
+        if ( TERN0(HAS_FAN0, fans[0].speed)
+          || TERN0(HAS_FAN1, fans[1].speed)
+          || TERN0(HAS_FAN2, fans[2].speed)
+          || TERN0(HAS_FAN3, fans[3].speed)
+          || TERN0(HAS_FAN4, fans[4].speed)
+          || TERN0(HAS_FAN5, fans[5].speed)
+          || TERN0(HAS_FAN6, fans[6].speed)
+          || TERN0(HAS_FAN7, fans[7].speed)
         ) leds |= LED_C;
       #endif // HAS_FAN
 
       if (TERN0(HAS_MULTI_HOTEND, thermalManager.degTargetHotend(1) > 0)) leds |= LED_C;
 
-      if (leds != ledsprev) {
+      if (leds != ledsprev || forceUpdate) {
         lcd.setBacklight(leds);
         ledsprev = leds;
       }

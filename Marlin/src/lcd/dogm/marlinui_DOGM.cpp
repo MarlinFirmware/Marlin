@@ -543,7 +543,7 @@ void MarlinUI::clear_for_drawing() {
     uint8_t n = LCD_WIDTH - 1;
     n -= lcd_put_u8str(ftpl, itemIndex, itemStringC, itemStringF, n);
     for (; n; --n) lcd_put_u8str(F(" "));
-    lcd_put_lchar(LCD_PIXEL_WIDTH - (MENU_FONT_WIDTH), row_y2, post_char);
+    lcd_put_lchar(LCD_PIXEL_WIDTH - (MENU_FONT_WIDTH), row_y2 - MENU_FONT_DESCENT, post_char);
     lcd_put_u8str(F(" "));
   }
 
@@ -560,7 +560,7 @@ void MarlinUI::clear_for_drawing() {
     if (vallen) {
       lcd_put_u8str(F(":"));
       for (; n; --n) lcd_put_u8str(F(" "));
-      lcd_moveto(LCD_PIXEL_WIDTH - _MAX((MENU_FONT_WIDTH) * vallen, pixelwidth + 2), row_y2);
+      lcd_moveto(LCD_PIXEL_WIDTH - _MAX((MENU_FONT_WIDTH) * vallen, pixelwidth + 2), row_y2 - MENU_FONT_DESCENT);
       if (pgm) lcd_put_u8str_P(inStr); else lcd_put_u8str(inStr);
     }
   }
@@ -739,6 +739,9 @@ void MarlinUI::clear_for_drawing() {
 
   #if ANY(BABYSTEP_GFX_OVERLAY, MESH_EDIT_GFX_OVERLAY)
 
+    #pragma GCC diagnostic push
+    #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+
     //
     // Draw knob rotation => Z motion key for:
     //  - menu.cpp:lcd_babystep_zoffset
@@ -833,6 +836,8 @@ void MarlinUI::clear_for_drawing() {
       B00011110,B00000000,
       B00001100,B00000000
     };
+
+    #pragma GCC diagnostic pop
 
     void MarlinUI::zoffset_overlay(const int8_t dir) {
       const unsigned char *rot_up = TERN(OVERLAY_GFX_REVERSE, ccw_bmp,  cw_bmp),

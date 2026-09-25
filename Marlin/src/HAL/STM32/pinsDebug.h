@@ -130,7 +130,7 @@ const XrefInfo pin_xref[] PROGMEM = {
 #ifndef NUM_ANALOG_LAST
   #define NUM_ANALOG_LAST ((NUM_ANALOG_FIRST) + (NUM_ANALOG_INPUTS) - 1)
 #endif
-#define NUMBER_PINS_TOTAL ((NUM_DIGITAL_PINS) + TERN0(HAS_HIGH_ANALOG_PINS, NUM_ANALOG_INPUTS))
+#define NUMBER_PINS_TOTAL COUNT(pin_xref)  // All consumers index pin_xref[]
 #define isValidPin(P) (WITHIN(P, 0, (NUM_DIGITAL_PINS) - 1) || TERN0(HAS_HIGH_ANALOG_PINS, WITHIN(P, NUM_ANALOG_FIRST, NUM_ANALOG_LAST)))
 #define digitalRead_mod(A) extDigitalRead(A)  // must use Arduino pin numbers when doing reads
 #define printPinNumber(Q)
@@ -146,8 +146,44 @@ const XrefInfo pin_xref[] PROGMEM = {
 //
 #define GET_PIN_MAP_PIN_M43(x) pin_xref[x].Ard_num
 
+//
+// Pins that will cause a hang / reset / disconnect in M43 Toggle and Watch utils
+//
 #ifndef M43_NEVER_TOUCH
-  #define _M43_NEVER_TOUCH(x) WITHIN(x, 9, 12) // SERIAL/USB pins: PA9(TX) PA10(RX) PA11(USB_DM) PA12(USB_DP)
+
+  // Set these as GPIO and the crystal stops. Boards clocked from HSE hang.
+  #if defined(STM32F1xx)
+    #if defined(PD0) && defined(PD1)
+      #define OSC_IN_PIN                      PD0
+      #define OSC_OUT_PIN                     PD1
+    #endif
+  #elif defined(STM32F0xx) || defined(STM32G0xx) || defined(STM32G4xx)
+    #if defined(PF0) && defined(PF1)
+      #define OSC_IN_PIN                      PF0
+      #define OSC_OUT_PIN                     PF1
+    #endif
+  #elif defined(PH0) && defined(PH1)                // F2/F4/F7/H7/L4/...
+    #define OSC_IN_PIN                        PH0
+    #define OSC_OUT_PIN                       PH1
+  #endif
+
+  // Only skip them while HSE is running. On HSI boards these are normal pins.
+  #ifdef OSC_IN_PIN
+    #define IS_OSC_PIN(P) (((P) == OSC_IN_PIN || (P) == OSC_OUT_PIN) && __HAL_RCC_GET_FLAG(RCC_FLAG_HSERDY))
+  #else
+    #define IS_OSC_PIN(P) false
+  #endif
+
+  // Reset pin on variants that expose it
+  #if defined(STM32G0xx) && defined(PF2)
+    #define IS_NRST_PIN(P) ((P) == PF2)
+  #else
+    #define IS_NRST_PIN(P) false
+  #endif
+
+  // 'x' indexes pin_xref[]. It's not a pin number.
+  #define _M43_NEVER_TOUCH(x) ( WITHIN(x, 9, 12)    /* SERIAL/USB pins: PA9(TX) PA10(RX) PA11(USB_DM) PA12(USB_DP) */ \
+                             || IS_OSC_PIN(GET_PIN_MAP_PIN_M43(x)) || IS_NRST_PIN(GET_PIN_MAP_PIN_M43(x)) )
   #if PIN_EXISTS(KILL)
     #define M43_NEVER_TOUCH(x) m43_never_touch(x)
 
@@ -206,7 +242,7 @@ void printPinPort(const pin_t pin) {
   for (index = 0; index < NUMBER_PINS_TOTAL; index++)
     if (pin == GET_PIN_MAP_PIN_M43(index)) break;
 
-  const char * ppa = pin_xref[index].Port_pin_alpha;
+  const char * ppa = index < NUMBER_PINS_TOTAL ? pin_xref[index].Port_pin_alpha : "?";
   sprintf_P(buffer, PSTR("%s"), ppa);
   SERIAL_ECHO(buffer);
   if (ppa[3] == '\0') SERIAL_CHAR(' ');
@@ -222,11 +258,10 @@ void printPinPort(const pin_t pin) {
     SERIAL_ECHO_SP(7);
 
   // Print number to be used with M42
+  // The digital pins these map to aren't contiguous. Deriving one from the
+  // analog index gives the wrong pin.
   int calc_p = pin;
-  if (pin > NUM_DIGITAL_PINS) {
-    calc_p -= NUM_ANALOG_FIRST;
-    if (calc_p > 7) calc_p += 8;
-  }
+  if (pin > NUM_DIGITAL_PINS) calc_p = digitalPinFirstOccurence(pin);
   SERIAL_ECHO(F(" M42 P"), calc_p, C(' '));
   if (calc_p < 100) {
     SERIAL_CHAR(' ');

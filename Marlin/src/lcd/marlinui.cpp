@@ -1206,7 +1206,9 @@ void MarlinUI::init() {
             break;
         } // switch
 
-        TERN_(HAS_ADC_BUTTONS, keypad_buttons = 0);
+        #if ALL(HAS_ADC_BUTTONS, HAS_ENCODER_ACTION, IS_RRW_KEYPAD)
+          keypad_buttons = 0;
+        #endif
 
         #if HAS_MARLINUI_U8GLIB
 

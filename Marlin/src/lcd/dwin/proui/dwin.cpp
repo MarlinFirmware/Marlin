@@ -828,8 +828,8 @@ void updateVariable() {
 
   #if HAS_FAN
     static uint8_t _fanspeed = 0;
-    const bool _new_fanspeed = _fanspeed != thermalManager.fan_speed[0];
-    if (_new_fanspeed) _fanspeed = thermalManager.fan_speed[0];
+    const bool _new_fanspeed = _fanspeed != fans[0].speed;
+    if (_new_fanspeed) _fanspeed = fans[0].speed;
   #endif
 
   if (isMenu(tuneMenu) || isMenu(temperatureMenu)) {
@@ -1098,7 +1098,7 @@ void dwinDrawDashboard() {
 
   #if HAS_FAN
     DWINUI::drawIcon(ICON_FanSpeed, 187, 383);
-    DWINUI::drawInt(DWIN_FONT_STAT, hmiData.colorIndicator, hmiData.colorBackground, 3, 195 + 2 * STAT_CHR_W, 384, thermalManager.fan_speed[0]);
+    DWINUI::drawInt(DWIN_FONT_STAT, hmiData.colorIndicator, hmiData.colorBackground, 3, 195 + 2 * STAT_CHR_W, 384, fans[0].speed);
   #endif
 
   #if HAS_ZOFFSET_ITEM
@@ -2049,7 +2049,7 @@ void MarlinUI::kill_screen(FSTR_P const lcd_error, FSTR_P const) {
     DONE_BUZZ(true);
   }
 
-  #if HAS_MESH
+  #if HAS_MESH_STORAGE
     void saveMesh() { TERN(AUTO_BED_LEVELING_UBL, ublMeshSave(), writeEEPROM()); }
   #endif
 
@@ -2340,7 +2340,7 @@ void setMoveZ() { hmiValue.axis = Z_AXIS; setPFloatOnClick(Z_MIN_POS, Z_MAX_POS,
 
 #if HAS_FAN
   void applyFanSpeed() { thermalManager.set_fan_speed(0, menuData.value); }
-  void setFanSpeed() { setIntOnClick(0, 255, thermalManager.fan_speed[0], applyFanSpeed); }
+  void setFanSpeed() { setIntOnClick(0, 255, fans[0].speed, applyFanSpeed); }
 #endif
 
 #if ENABLED(NOZZLE_PARK_FEATURE)
@@ -2492,18 +2492,22 @@ void gotoConfirmToPrint() {
 
 #if ENABLED(AUTO_BED_LEVELING_UBL)
 
-  void applyUBLSlot() { bedlevel.storage_slot = menuData.value; }
-  void setUBLSlot() { setIntOnClick(0, settings.calc_num_meshes() - 1, bedlevel.storage_slot, applyUBLSlot); }
-  void onDrawUBLSlot(MenuItem* menuitem, int8_t line) {
-    NOLESS(bedlevel.storage_slot, 0);
-    onDrawIntMenu(menuitem, line, bedlevel.storage_slot);
-  }
+  #if HAS_MESH_STORAGE
+    void applyUBLSlot() { bedlevel.storage_slot = menuData.value; }
+    void setUBLSlot() { setIntOnClick(0, settings.calc_num_meshes() - 1, bedlevel.storage_slot, applyUBLSlot); }
+    void onDrawUBLSlot(MenuItem* menuitem, int8_t line) {
+      NOLESS(bedlevel.storage_slot, 0);
+      onDrawIntMenu(menuitem, line, bedlevel.storage_slot);
+    }
+  #endif
 
   void applyUBLTiltGrid() { bedLevelTools.tilt_grid = menuData.value; }
   void setUBLTiltGrid() { setIntOnClick(1, 3, bedLevelTools.tilt_grid, applyUBLTiltGrid); }
 
   void ublMeshTilt() {
-    NOLESS(bedlevel.storage_slot, 0);
+    #if HAS_MESH_STORAGE
+      NOLESS(bedlevel.storage_slot, 0);
+    #endif
     if (bedLevelTools.tilt_grid > 1)
       gcode.process_subcommands_now(TS(F("G29J"), bedLevelTools.tilt_grid));
     else
@@ -2512,21 +2516,23 @@ void gotoConfirmToPrint() {
   }
 
   void ublSmartFillMesh() {
-    for (uint8_t x = 0; x < GRID_MAX_POINTS_Y; ++x) bedlevel.smart_fill_mesh();
+    bedlevel.smart_fill_mesh();
     LCD_MESSAGE(MSG_UBL_MESH_FILLED);
   }
 
-  void ublMeshSave() {
-    NOLESS(bedlevel.storage_slot, 0);
-    settings.store_mesh(bedlevel.storage_slot);
-    ui.status_printf(0, GET_TEXT_F(MSG_MESH_SAVED), bedlevel.storage_slot);
-    DONE_BUZZ(true);
-  }
+  #if HAS_MESH_STORAGE
+    void ublMeshSave() {
+      NOLESS(bedlevel.storage_slot, 0);
+      settings.store_mesh(bedlevel.storage_slot);
+      ui.status_printf(0, GET_TEXT_F(MSG_MESH_SAVED), bedlevel.storage_slot);
+      DONE_BUZZ(true);
+    }
 
-  void ublMeshLoad() {
-    NOLESS(bedlevel.storage_slot, 0);
-    settings.load_mesh(bedlevel.storage_slot);
-  }
+    void ublMeshLoad() {
+      NOLESS(bedlevel.storage_slot, 0);
+      settings.load_mesh(bedlevel.storage_slot);
+    }
+  #endif
 
 #endif // AUTO_BED_LEVELING_UBL
 
@@ -3593,7 +3599,7 @@ void drawTuneMenu() {
       bedTargetItem = EDIT_ITEM(ICON_BedTemp, MSG_UBL_SET_TEMP_BED, onDrawBedTemp, setBedTemp, &thermalManager.temp_bed.target);
     #endif
     #if HAS_FAN
-      fanSpeedItem = EDIT_ITEM(ICON_FanSpeed, MSG_FAN_SPEED, onDrawFanSpeed, setFanSpeed, &thermalManager.fan_speed[0]);
+      fanSpeedItem = EDIT_ITEM(ICON_FanSpeed, MSG_FAN_SPEED, onDrawFanSpeed, setFanSpeed, &fans[0].speed);
     #endif
     #if ALL(HAS_ZOFFSET_ITEM, HAS_BED_PROBE, BABYSTEP_ZPROBE_OFFSET, BABYSTEPPING)
       EDIT_ITEM(ICON_Zoffset, MSG_BABYSTEP_PROBE_Z, onDrawZOffset, setZOffset, &BABY_Z_VAR);
@@ -3932,7 +3938,7 @@ void drawTemperatureMenu() {
       bedTargetItem = EDIT_ITEM(ICON_BedTemp, MSG_UBL_SET_TEMP_BED, onDrawBedTemp, setBedTemp, &thermalManager.temp_bed.target);
     #endif
     #if HAS_FAN
-      fanSpeedItem = EDIT_ITEM(ICON_FanSpeed, MSG_FAN_SPEED, onDrawFanSpeed, setFanSpeed, &thermalManager.fan_speed[0]);
+      fanSpeedItem = EDIT_ITEM(ICON_FanSpeed, MSG_FAN_SPEED, onDrawFanSpeed, setFanSpeed, &fans[0].speed);
     #endif
     #if ENABLED(PIDTEMP) && ANY(PID_AUTOTUNE_MENU, PID_EDIT_MENU)
       MENU_ITEM_F(ICON_PIDNozzle, STR_HOTEND_PID " Settings", onDrawSubMenu, drawHotendPIDMenu);
@@ -4555,9 +4561,11 @@ void drawLevelMenu() {
       #endif
     #endif
     #if ENABLED(AUTO_BED_LEVELING_UBL)
-      EDIT_ITEM(ICON_UBLSlot, MSG_UBL_STORAGE_SLOT, onDrawUBLSlot, setUBLSlot, &bedlevel.storage_slot);
-      MENU_ITEM(ICON_UBLMeshSave, MSG_UBL_SAVE_MESH, onDrawMenuItem, ublMeshSave);
-      MENU_ITEM(ICON_UBLMeshLoad, MSG_UBL_LOAD_MESH, onDrawMenuItem, ublMeshLoad);
+      #if HAS_MESH_STORAGE
+        EDIT_ITEM(ICON_UBLSlot, MSG_UBL_STORAGE_SLOT, onDrawUBLSlot, setUBLSlot, &bedlevel.storage_slot);
+        MENU_ITEM(ICON_UBLMeshSave, MSG_UBL_SAVE_MESH, onDrawMenuItem, ublMeshSave);
+        MENU_ITEM(ICON_UBLMeshLoad, MSG_UBL_LOAD_MESH, onDrawMenuItem, ublMeshLoad);
+      #endif
       MENU_ITEM(ICON_UBLTiltGrid, MSG_UBL_TILT_MESH, onDrawMenuItem, ublMeshTilt);
       MENU_ITEM(ICON_UBLSmartFill, MSG_UBL_SMART_FILLIN, onDrawMenuItem, ublSmartFillMesh);
     #endif

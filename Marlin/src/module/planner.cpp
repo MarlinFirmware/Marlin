@@ -1206,51 +1206,6 @@ void Planner::recalculate(const float safe_exit_speed_sqr) {
 }
 
 /**
- * Apply fan speeds
- */
-#if HAS_FAN
-
-  void Planner::sync_fan_speeds(uint8_t (&fan_speed)[FAN_COUNT]) {
-
-    #if ENABLED(FAN_SOFT_PWM)
-      #define _FAN_SET(F) thermalManager.soft_pwm_amount_fan[F] = CALC_FAN_SPEED(fan_speed[F]);
-    #else
-      #define _FAN_SET(F) hal.set_pwm_duty(pin_t(PART_COOLING_FAN##F##_PIN), CALC_FAN_SPEED(fan_speed[F]));
-    #endif
-    #define FAN_SET(F) do{ kickstart_fan(fan_speed, ms, F); _FAN_SET(F); }while(0)
-
-    const millis_t ms = millis();
-    TERN_(HAS_FAN0, FAN_SET(0)); TERN_(HAS_FAN1, FAN_SET(1));
-    TERN_(HAS_FAN2, FAN_SET(2)); TERN_(HAS_FAN3, FAN_SET(3));
-    TERN_(HAS_FAN4, FAN_SET(4)); TERN_(HAS_FAN5, FAN_SET(5));
-    TERN_(HAS_FAN6, FAN_SET(6)); TERN_(HAS_FAN7, FAN_SET(7));
-  }
-
-  #if FAN_KICKSTART_TIME
-
-    void Planner::kickstart_fan(uint8_t (&fan_speed)[FAN_COUNT], const millis_t &ms, const uint8_t f) {
-      static millis_t fan_kick_end[FAN_COUNT] = { 0 };
-      #if ENABLED(FAN_KICKSTART_LINEAR)
-        static uint8_t set_fan_speed[FAN_COUNT] = { 0 };
-      #endif
-      if (fan_speed[f] > FAN_OFF_PWM) {
-        const bool first_kick = fan_kick_end[f] == 0 && TERN1(FAN_KICKSTART_LINEAR, fan_speed[f] > set_fan_speed[f]);
-        if (first_kick)
-          fan_kick_end[f] = ms + MUL_TERN(FAN_KICKSTART_LINEAR, FAN_KICKSTART_TIME, (fan_speed[f] - set_fan_speed[f]) / 255);
-        if (first_kick || PENDING(ms, fan_kick_end[f])) {
-          fan_speed[f] = FAN_KICKSTART_POWER;
-          return;
-        }
-      }
-      fan_kick_end[f] = 0;
-      TERN_(FAN_KICKSTART_LINEAR, set_fan_speed[f] = fan_speed[f]);
-    }
-
-  #endif
-
-#endif // HAS_FAN
-
-/**
  * Maintain fans, paste extruder pressure, spindle/laser power
  */
 void Planner::check_axes_activity() {
@@ -1259,9 +1214,7 @@ void Planner::check_axes_activity() {
     xyze_bool_t axis_active = { false };
   #endif
 
-  #if HAS_FAN && DISABLED(LASER_SYNCHRONOUS_M106_M107)
-    #define HAS_TAIL_FAN_SPEED 1
-    static uint8_t tail_fan_speed[FAN_COUNT] = ARRAY_N_1(FAN_COUNT, 13);
+  #if HAS_TAIL_FAN_SPEED
     bool fans_need_update = false;
   #endif
 
@@ -1282,10 +1235,11 @@ void Planner::check_axes_activity() {
 
     #if HAS_TAIL_FAN_SPEED
       FANS_LOOP(i) {
-        const uint8_t spd = thermalManager.scaledFanSpeed(i, block->fan_speed[i]);
-        if (tail_fan_speed[i] != spd) {
+        Fan &fan = fans[i];
+        const uint8_t spd = fan.scaled_speed(block->fan_speed[i]);
+        if (fan.tail_speed != spd) {
+          fan.tail_speed = spd;
           fans_need_update = true;
-          tail_fan_speed[i] = spd;
         }
       }
     #endif
@@ -1319,10 +1273,11 @@ void Planner::check_axes_activity() {
 
     #if HAS_TAIL_FAN_SPEED
       FANS_LOOP(i) {
-        const uint8_t spd = thermalManager.scaledFanSpeed(i);
-        if (tail_fan_speed[i] != spd) {
+        Fan &fan = fans[i];
+        const uint8_t spd = fan.scaled_speed();
+        if (fan.tail_speed != spd) {
           fans_need_update = true;
-          tail_fan_speed[i] = spd;
+          fan.tail_speed = spd;
         }
       }
     #endif
@@ -1355,7 +1310,7 @@ void Planner::check_axes_activity() {
   // Update Fan speeds
   // Only if synchronous M106/M107 is disabled
   //
-  TERN_(HAS_TAIL_FAN_SPEED, if (fans_need_update) sync_fan_speeds(tail_fan_speed));
+  TERN_(HAS_TAIL_FAN_SPEED, if (fans_need_update) Fan::sync_speeds());
 
   // Update hotend temperature based on extruder speed
   TERN_(AUTOTEMP, thermalManager.autotemp_task());
@@ -1619,6 +1574,14 @@ float Planner::triggered_position_mm(const AxisEnum axis) {
   return result * mm_per_step[axis];
 }
 
+/**
+ * The Planner is busy when one of these conditions is true:
+ *   - It has blocks queued
+ *   - The cleaning buffer counter is set (running out moves)
+ *   - The closed loop controller is waiting
+ *   - The ZV Input Shaper (standard motion) still has events
+ *   - FT Motion is busy
+ */
 bool Planner::busy() {
   return (has_blocks_queued() || cleaning_buffer_counter
       || TERN0(EXTERNAL_CLOSED_LOOP_CONTROLLER, CLOSED_LOOP_WAITING())
@@ -1698,7 +1661,9 @@ float Planner::get_axis_position_mm(const AxisEnum axis) {
 /**
  * Block until the planner is finished processing
  */
-void Planner::synchronize() { while (busy()) marlin.idle(); }
+void Planner::synchronize() {
+  while (busy()) marlin.idle();
+}
 
 /**
  * @brief Add a new linear movement to the planner queue (in terms of steps).
@@ -1760,8 +1725,12 @@ bool Planner::_buffer_steps(const xyze_long_t &target
     minimum_planner_speed_sqr
   );
 
-  // Recalculate and optimize trapezoidal speed profiles
-  recalculate(safe_exit_speed_sqr);
+  // Recalculate and optimize trapezoidal speed profiles.
+  // CJ planner ignores trapezoidal entry/exit speeds — it runs its own
+  // jolt-aware passes via planNext(). Blocks are marked recalculate=false
+  // above, so skip the expensive reverse/forward pass and trapezoid calc.
+  const bool is_jolt = TERN0(FTM_CONSTANT_JOLT, ftMotion.cfg.active && ftMotion.cfg.trajectory_type == TrajectoryType::CONSTANT_JOLT);
+  if (!is_jolt) recalculate(safe_exit_speed_sqr);
 
   // Movement successfully queued!
   return true;
@@ -2092,7 +2061,7 @@ bool Planner::_populate_block(
   TERN_(MIXING_EXTRUDER, mixer.populate_block(block->b_color));
 
   #if HAS_FAN
-    FANS_LOOP(i) block->fan_speed[i] = thermalManager.fan_speed[i];
+    FANS_LOOP(i) block->fan_speed[i] = fans[i].speed;
   #endif
 
   #if ENABLED(BARICUDA)
@@ -2714,24 +2683,24 @@ bool Planner::_populate_block(
     #endif // HAS_ROUGH_LIN_ADVANCE
 
     xyze_float_t speed_diff = current_speed;
-    float vmax_junction;
+    float vmax_junc;
     if (!moves_queued || UNEAR_ZERO(previous_nominal_speed)) {
       // Limited by a jerk to/from full halt.
-      vmax_junction = block->nominal_speed;
+      vmax_junc = block->nominal_speed;
     }
     else {
       // Compute the maximum velocity allowed at a joint of two successive segments.
 
       // The junction velocity will be shared between successive segments. Limit the junction velocity to their minimum.
-      // Scale per-axis velocities for the same vmax_junction.
+      // Scale per-axis velocities for the same vmax_junc.
       if (block->nominal_speed < previous_nominal_speed) {
-        vmax_junction = block->nominal_speed;
-        const float previous_scale = vmax_junction / previous_nominal_speed;
+        vmax_junc = block->nominal_speed;
+        const float previous_scale = vmax_junc / previous_nominal_speed;
         LOOP_LOGICAL_AXES(i) speed_diff[i] -= previous_speed[i] * previous_scale;
       }
       else {
-        vmax_junction = previous_nominal_speed;
-        const float current_scale = vmax_junction / block->nominal_speed;
+        vmax_junc = previous_nominal_speed;
+        const float current_scale = vmax_junc / block->nominal_speed;
         LOOP_LOGICAL_AXES(i) speed_diff[i] = speed_diff[i] * current_scale - previous_speed[i];
       }
     }
@@ -2743,7 +2712,7 @@ bool Planner::_populate_block(
       const float jerk = ABS(speed_diff[i]), maxj = max_j[i];
       if (jerk * v_factor > maxj) v_factor = maxj / jerk;
     }
-    vmax_junction_sqr = sq(vmax_junction * v_factor);
+    vmax_junction_sqr = sq(vmax_junc * v_factor);
 
   #endif // CLASSIC_JERK
 
@@ -2753,6 +2722,14 @@ bool Planner::_populate_block(
 
   // Max entry speed of this block equals the max exit speed of the previous block.
   block->max_entry_speed_sqr = vmax_junction_sqr;
+
+  #if ENABLED(FTM_CONSTANT_JOLT)
+    const bool is_jolt = ftMotion.cfg.active && ftMotion.cfg.trajectory_type == TrajectoryType::CONSTANT_JOLT;
+    if (is_jolt) block->vmax_junction = SQRT(vmax_junction_sqr);
+  #else
+    constexpr bool is_jolt = false;
+  #endif
+
   // Set entry speed. The reverse and forward passes will optimize it later.
   block->entry_speed_sqr = minimum_planner_speed_sqr;
   // Set min entry speed. Rarely it could be higher than the previous nominal speed but that's ok.
@@ -2762,7 +2739,9 @@ bool Planner::_populate_block(
   TERN_(HAS_STANDARD_MOTION, block->initial_rate = 0);
   TERN_(FT_MOTION, block->entry_speed = 0);
 
-  block->flag.recalculate = true;
+  // CJ planner runs its own jolt-aware passes — blocks are ready immediately.
+  // recalculate() is also skipped below, so no code will re-set this flag.
+  block->flag.recalculate = !is_jolt;
 
   // Update previous path unit_vector and nominal speed
   previous_speed = current_speed;
@@ -2805,7 +2784,7 @@ void Planner::buffer_sync_block(const BlockFlagBit sync_flag/*=BLOCK_BIT_SYNC_PO
   #endif
 
   #if ENABLED(LASER_SYNCHRONOUS_M106_M107)
-    FANS_LOOP(i) block->fan_speed[i] = thermalManager.fan_speed[i];
+    FANS_LOOP(i) block->fan_speed[i] = fans[i].speed;
   #endif
 
   /**
@@ -3086,7 +3065,7 @@ bool Planner::buffer_line(const xyze_pos_t &cart, const feedRate_t fr_mm_s
     block->flag.reset(BLOCK_BIT_PAGE);
 
     #if HAS_FAN
-      FANS_LOOP(i) block->fan_speed[i] = thermalManager.fan_speed[i];
+      FANS_LOOP(i) block->fan_speed[i] = fans[i].speed;
     #endif
 
     E_TERN_(block->extruder = extruder);

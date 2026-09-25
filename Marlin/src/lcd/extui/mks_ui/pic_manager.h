@@ -57,7 +57,7 @@
 
 #define PIC_MAX_CN           100    // Maximum number of pictures
 #define PIC_NAME_MAX_LEN      30    // Picture name maximum length
-#define PIC_NAME_OFFSET        4    // Same picture filename section
+#define PIC_NAME_OFFSET        4    // Picture name after "bmp_"
 
 #define LOGO_MAX_SIZE_TFT35             (300 * 1024)
 #define LOGO_MAX_SIZE_TFT32             (150 * 1024)
@@ -148,12 +148,10 @@ union union32 {
 };
 
 // pic information
-struct pic_msg {
+typedef struct {
   uint8_t name[PIC_NAME_MAX_LEN];
   union union32 size;
-};
-
-typedef struct pic_msg PIC_MSG;
+} pic_msg_t;
 
 #define BMP_WRITE_BUF_LEN 512
 

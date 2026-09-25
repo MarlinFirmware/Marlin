@@ -765,6 +765,10 @@
   #error "MP_SCARA is now just SCARA."
 #elif defined(HAS_PIN_27_BOARD)
   #error "HAS_PIN_27_BOARD is now USE_PIN_27_BOARD."
+#elif defined(BED_HYSTERESIS)
+  #error "BED_HYSTERESIS is now BED_LIMIT_HYSTERESIS."
+#elif defined(CHAMBER_HYSTERESIS)
+  #error "CHAMBER_HYSTERESIS is now CHAMBER_LIMIT_HYSTERESIS."
 #endif
 
 // SDSS renamed to SD_SS_PIN

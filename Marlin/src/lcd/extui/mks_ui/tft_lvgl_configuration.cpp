@@ -354,14 +354,14 @@ lv_fs_res_t spi_flash_open_cb (lv_fs_drv_t * drv, void * file_p, const char * pa
   return LV_FS_RES_OK;
 }
 
-lv_fs_res_t spi_flash_close_cb (lv_fs_drv_t * drv, void * file_p) {
+lv_fs_res_t spi_flash_close_cb(lv_fs_drv_t * drv, void * file_p) {
   lv_fs_res_t res = LV_FS_RES_OK;
   /* Add your code here */
   pic_read_addr_offset = pic_read_base_addr;
   return res;
 }
 
-lv_fs_res_t spi_flash_read_cb (lv_fs_drv_t * drv, void * file_p, void * buf, uint32_t btr, uint32_t * br) {
+lv_fs_res_t spi_flash_read_cb(lv_fs_drv_t * drv, void * file_p, void * buf, uint32_t btr, uint32_t * br) {
   lv_pic_test((uint8_t *)buf, pic_read_addr_offset, btr);
   *br = btr;
   return LV_FS_RES_OK;

@@ -33,6 +33,7 @@ def resolve(base=None):
             return tuple(os.path.join(marlin, f) for f in FILES)
         return FILES
 
+
 def pop_and_resolve_base_arg(args):
     base = None
     if '--base' in args:
@@ -72,6 +73,7 @@ def set(file_path, define_name, value):
 
     return False
 
+
 def add(file_path, define_name, value=""):
     '''
     Insert a define on the first blank line in a file.
@@ -95,6 +97,7 @@ def add(file_path, define_name, value=""):
 
     with open(file_path, 'w', encoding='utf-8', newline='') as f:
         f.writelines(content)
+
 
 def enable(file_path, define_name, enable=True):
     '''
