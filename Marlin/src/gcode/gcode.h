@@ -246,7 +246,7 @@
  * M420 - Enable/Disable Leveling (with current values) S1=enable S0=disable (Requires MESH_BED_LEVELING or ABL)
  * M421 - Set a single Z coordinate in the Mesh Leveling grid. X<units> Y<units> Z<units> (Requires MESH_BED_LEVELING, AUTO_BED_LEVELING_BILINEAR, or AUTO_BED_LEVELING_UBL)
  * M422 - Set Z Stepper automatic alignment position using probe. X<units> Y<units> A<axis> (Requires Z_STEPPER_AUTO_ALIGN)
- * M425 - Enable/Disable and tune backlash correction. (Requires BACKLASH_COMPENSATION and BACKLASH_GCODE)
+ * M425 - Enable/Disable and tune backlash correction. (Requires BACKLASH_COMPENSATION and BACKLASH_GCODE) and calibration (requires CALIBRATION_GCODE)
  * M428 - Set the home_offset based on the position. Nearest edge applies. (Disabled by NO_WORKSPACE_OFFSETS or DELTA)
  * M430 - Read the system current, voltage, and power (Requires POWER_MONITOR_CURRENT, POWER_MONITOR_VOLTAGE, or POWER_MONITOR_FIXED_VOLTAGE)
  * M485 - Send RS485 packets (Requires RS485_SERIAL_PORT)
@@ -1098,7 +1098,7 @@ private:
     static void M421();
   #endif
 
-  #if ENABLED(BACKLASH_GCODE)
+  #if ANY(BACKLASH_GCODE, CALIBRATION_GCODE)
     static void M425();
     static void M425_report(const bool forReplay=true);
   #endif
