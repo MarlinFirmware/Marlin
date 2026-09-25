@@ -510,42 +510,32 @@ const char* ftostr52sprj(const float f) {
   return &conv[1];
 }
 
-const char* shortenNum(const char * convptr, const bool removeWhole0/*=true*/, const bool removeUnit/*=true*/) {
-  // TODO: Implementation behaves as if removeWhole0 and removeUnit were true
+// Reduce a formatted number to its shortest form: "+000.10" => "0.1", "  25%" => "25", "-005.00" => "-5".
+// Drops spaces, '+', leading zeros, trailing decimal zeros, and (optionally) the '%' unit.
+// The result is in its own buffer, so it's safe to pass a string that points into conv[].
+const char* shortenNum(const char * convptr, const bool removeWhole0/*=false*/, const bool removeUnit/*=true*/) {
+  static char out[12];
+  uint8_t o = 0;
+  bool neg = false, decimal = false;
 
-  bool numberFound = false;
-  int8_t decimalIdx = -1;
-  int i;
+  const char *s = convptr;
+  for (; *s == ' ' || *s == '+' || *s == '-'; ++s) if (*s == '-') neg = true;
+  while (*s == '0' && WITHIN(s[1], '0', '9')) ++s;          // Leading zeros, keeping one before '.'
+  if (removeWhole0 && *s == '0' && s[1] == '.') ++s;        // "0.5" => ".5"
+  else if (!removeWhole0 && *s == '.') out[o++] = '0';      // ".5" => "0.5"
 
-  // i = strlen ; decimalIdx = indexOf('.')
-  for (i = 0; convptr[i] != '\0'; i++)
-    if (convptr[i] == '.') decimalIdx = i;
-
-  // Scanning backwards from the end...
-  uint8_t returnStart = 8, intStart = returnStart - 1;
-  for (--i; i >= 0; --i) {
-    const char c = convptr[i];
-    // Skip all space, percent
-    if (c == ' ' || c == '%') continue;
-    const bool decimal_to_left = WITHIN(decimalIdx, 0, i);
-    // Skip '0' and '.' to the right of the decimal point
-    if (((c == '0' || c == '.') && !numberFound && decimal_to_left))
-      continue;
-    // Now preserve other '0' (and '.') characters to the left
-    numberFound = true;
-    // Keep the character
-    conv[intStart] = c;
-    // A non-0 or any character right of the decimal point?
-    if (c != '0' || decimal_to_left) {
-      // Move returnStart to the latest added character
-      returnStart = intStart;
-      //if (c == '-') conv[returnStart] = '-';  // TODO: Move '-' to the (old) returnStart index
-    }
-    // Update the index for the next character
-    --intStart;
+  for (; *s && o < COUNT(out) - 1; ++s) {
+    if (*s == ' ' || (removeUnit && *s == '%')) continue;
+    if (*s == '.') decimal = true;
+    out[o++] = *s;
   }
+  if (decimal) {                                            // Trailing zeros, then a bare '.'
+    while (o && out[o - 1] == '0') --o;
+    if (o && out[o - 1] == '.') --o;
+  }
+  if (!o || (o == 1 && out[0] == '0')) { out[0] = '0'; o = 1; neg = false; } // "-0" => "0"
+  out[o] = '\0';
 
-  returnStart -= (returnStart == 8); // Only 0's were found? Return "0" (conv[8] is always '\0')
-
-  return &conv[returnStart];
+  if (neg && o < COUNT(out) - 1) { memmove(out + 1, out, o + 1); out[0] = '-'; }
+  return out;
 }

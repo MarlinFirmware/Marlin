@@ -668,27 +668,34 @@ void MenuEditItemBase::draw_edit_screen(FSTR_P const ftpl, const char * const va
     }
 
     #if ENABLED(TOUCH_SCREEN)
-      int8_t stepCount = 0;
-      float steps[10] = {0};
-
-      int32_t range = maxEditValue;
-      int32_t div = 1;
-
-      int8_t multip = 5;
-
-      while (range / div >= 2) {
+      // Step sizes in encoder units: 1, 5, 10, 50, ... while at least two fit in the range.
+      // Labels show the actual value of each step, e.g., "0.01" for a float52 item.
+      int32_t steps[10];
+      uint8_t stepCount = 0;
+      for (int32_t div = 1, multip = 5; stepCount < COUNT(steps) && maxEditValue / div >= 2; div *= multip, multip = multip == 5 ? 2 : 5)
         steps[stepCount++] = div;
-        div *= multip;
-        multip = multip == 5 ? 2 : 5;
-      }
 
-      if (stepSize == -1) stepSize = steps[2];
-      int x_pos = (TFT_WIDTH - stepCount * (BTN_WIDTH + X_MARGIN) + X_MARGIN) / 2;
+      if (stepCount) {
+        // Size buttons for the widest label, then keep as many (finest) steps as will fit
+        uint16_t btn_w = BTN_WIDTH;
+        for (uint8_t i = 0; i < stepCount; ++i) {
+          tft_string.set(shortenNum(to_str_edit_t(valueToString)(steps[i])));
+          NOLESS(btn_w, tft_string.width() + 8);
+        }
+        uint16_t gap = X_MARGIN;
+        if (stepCount * (btn_w + gap) - gap > TFT_WIDTH) gap = X_MARGIN / 3;
+        NOMORE(stepCount, (TFT_WIDTH + gap) / (btn_w + gap));
 
-      for (int i = 0; i < stepCount; i++) {
-        tft.drawSimpleBtn(shortenNum(to_str_edit_t(valueToString)(steps[i])), x_pos, SLIDER_Y + 24 + Y_MARGIN, BTN_WIDTH, FONT_LINE_HEIGHT, COLOR_WHITE, COLOR_BACKGROUND, BTN_TOGGLE, stepSize == steps[i], CALLBACK, intptr_t(stepChange), int32_t(steps[i]));
-        x_pos += BTN_WIDTH + X_MARGIN;
+        if (stepSize == -1) stepSize = steps[_MIN(2, stepCount - 1)];
+
+        int x_pos = (TFT_WIDTH - stepCount * (btn_w + gap) + gap) / 2;
+        for (uint8_t i = 0; i < stepCount; ++i) {
+          tft.drawSimpleBtn(shortenNum(to_str_edit_t(valueToString)(steps[i])), x_pos, SLIDER_Y + 24 + Y_MARGIN, btn_w, FONT_LINE_HEIGHT, COLOR_WHITE, COLOR_BACKGROUND, BTN_TOGGLE, stepSize == steps[i], CALLBACK, intptr_t(stepChange), steps[i]);
+          x_pos += btn_w + gap;
+        }
       }
+      else if (stepSize == -1)
+        stepSize = 1;
     #endif // TOUCH_SCREEN
 
   }

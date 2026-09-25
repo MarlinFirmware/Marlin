@@ -169,4 +169,5 @@ FORCE_INLINE const char* ftostr3rj(const float x) { return i16tostr3rj(int16_t(x
 // Convert signed float to space-padded string with 1.23, 12.34, 123.45 format
 const char* ftostr52sprj(const float f);
 
-const char* shortenNum(const char * convptr, const bool removeWhole0=true, const bool removeUnit=true);
+// Reduce a formatted number to its shortest form, e.g., "+000.10" => "0.1"
+const char* shortenNum(const char * convptr, const bool removeWhole0=false, const bool removeUnit=true);
