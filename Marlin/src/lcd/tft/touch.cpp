@@ -50,6 +50,7 @@ millis_t Touch::next_touch_ms = 0,
          Touch::time_to_hold,
          Touch::repeat_delay,
          Touch::nada_start_ms;
+bool Touch::repeat_started; // = false
 TouchControlType Touch::touch_control_type = NONE;
 #if HAS_DISPLAY_SLEEP
   millis_t Touch::next_sleep_ms; // = 0
@@ -96,6 +97,7 @@ void Touch::idle() {
     touch_control_type = NONE;
     time_to_hold = 0;
     repeat_delay = MINIMUM_HOLD_TIME;
+    repeat_started = false;
     return;
   }
 
@@ -229,9 +231,9 @@ void Touch::touch(touch_control_t * const control) {
       ui.encoderPosition = (x - control->x) * control->data / control->width;
       break;
 
-    // Increase / Decrease controls are held with an ever-decreasing repeat delay
+    // Increase / Decrease controls repeat after the pre-delay, then accelerate
     case INCREASE: {
-      hold(control, repeat_delay - (FAST_REPEAT_DECREMENT));
+      hold(control, TOUCH_REPEAT_DELAY, true);
       const int32_t step = control->data > 0 ? control->data : 1;
       if (ui.external_control) {
         TERN_(AUTO_BED_LEVELING_UBL, bedlevel.encoder_diff += step);
@@ -241,7 +243,7 @@ void Touch::touch(touch_control_t * const control) {
     } break;
 
     case DECREASE: {
-      hold(control, repeat_delay - (FAST_REPEAT_DECREMENT));
+      hold(control, TOUCH_REPEAT_DELAY, true);
       const int32_t step = control->data > 0 ? control->data : 1;
       if (ui.external_control) {
         TERN_(AUTO_BED_LEVELING_UBL, bedlevel.encoder_diff -= step);
@@ -344,10 +346,33 @@ void Touch::touch(touch_control_t * const control) {
 //
 // Set the control as "held" until the touch is released
 //
-void Touch::hold(touch_control_t * const control, const millis_t delay/*=0*/) {
+// The first repeat waits TOUCH_REPEAT_PRE_DELAY so a deliberate tap doesn't
+// immediately run away; subsequent repeats use 'delay'. This mirrors keyboard
+// key-repeat: a long wait, then a steady fast interval.
+//
+// With 'accelerate' the interval ramps down by FAST_REPEAT_DECREMENT on each
+// repeat (never below MIN_REPEAT_DELAY) so a long hold speeds up.
+//
+void Touch::hold(touch_control_t * const control, const millis_t delay/*=0*/, const bool accelerate/*=false*/) {
   current_control = control;
   if (delay) {
-    repeat_delay = _MAX(delay, uint32_t(MIN_REPEAT_DELAY));
+    if (!repeat_started) {
+      // First activation of this control: wait out the pre-repeat delay before
+      // repeating at all. Not clamped to MIN_REPEAT_DELAY -- that floor exists
+      // for accelerating controls and would defeat the pre-delay entirely.
+      repeat_started = true;
+      repeat_delay = TOUCH_REPEAT_PRE_DELAY;
+    }
+    else if (accelerate) {
+      // Ramp down from the previous interval, but the pre-delay is not an
+      // interval, so the first accelerated repeat starts from 'delay'.
+      const millis_t prev = repeat_delay == TOUCH_REPEAT_PRE_DELAY ? delay : repeat_delay;
+      repeat_delay = prev > millis_t(MIN_REPEAT_DELAY) + (FAST_REPEAT_DECREMENT)
+                   ? prev - (FAST_REPEAT_DECREMENT) : millis_t(MIN_REPEAT_DELAY);
+    }
+    else
+      repeat_delay = _MAX(delay, millis_t(MIN_REPEAT_DELAY));
+
     time_to_hold = next_touch_ms + repeat_delay;
   }
   ui.refresh();

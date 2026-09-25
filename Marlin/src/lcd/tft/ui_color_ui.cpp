@@ -569,6 +569,11 @@ void MenuEditItemBase::draw_edit_screen(FSTR_P const ftpl, const char * const va
 
   menu_line(line++);
   tft_string.set(ftpl, itemIndex, itemStringC, itemStringF);
+  // On the keypad the center shows what you're typing, so append the old value
+  // to the title for reference. Read here, before ftostr52() below can clobber it.
+  #if ENABLED(TOUCH_SCREEN)
+    if (mode_keypad && value) { tft_string.add(F(": ")); tft_string.add(value); }
+  #endif
   tft_string.trim();
   tft.add_text(tft_string.center(TFT_WIDTH), MENU_TEXT_Y, COLOR_MENU_TEXT, tft_string);
 
