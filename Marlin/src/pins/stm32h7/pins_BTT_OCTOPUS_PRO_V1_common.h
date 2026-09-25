@@ -23,7 +23,6 @@
 
 #include "env_validate.h"
 
-#define HAS_OTG_USB_HOST_SUPPORT                  // USB Flash Drive support
 #define USES_DIAG_JUMPERS
 
 // Onboard I2C EEPROM
