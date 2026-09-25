@@ -108,28 +108,28 @@ void ControllerFan::update() {
     ? settings.active_speed
     : settings.idle_speed;
 
-  set_fan_speed(s);
-
   // Convert 1-255 to the MIN-MAX PWM range
-  speed = CALC_FAN_SPEED(speed);
+  s = CALC_FAN_SPEED(s);
 
   // When the fan first starts up it can run at high power for a short period
   #if FAN_KICKSTART_TIME
 
     static millis_t kick_end_ms = 0;
 
-    if (speed > FAN_OFF_PWM) {                  // Is the fan turned on?
+    if (s > FAN_OFF_PWM) {                      // Is the fan turned on?
       if (!kick_end_ms) {                       // No kickstart yet?
         kick_end_ms = ms + FAN_KICKSTART_TIME;  // Set a future time at which to stop
-        speed = FAN_KICKSTART_POWER;            // Override the power
+        s = FAN_KICKSTART_POWER;                // Override the power
       }
       else if (PENDING(ms, kick_end_ms))        // Still waiting for end of kickstart time?
-        speed = FAN_KICKSTART_POWER;            // Override the power
+        s = FAN_KICKSTART_POWER;                // Override the power
     }
     else
       kick_end_ms = 0;                          // Reset kick_end_ms for kickstart on next enable
 
   #endif // FAN_KICKSTART_TIME
+
+  set_fan_speed(s);
 
   #if ENABLED(FAN_SOFT_PWM)
 
