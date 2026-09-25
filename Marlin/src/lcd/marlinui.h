@@ -219,6 +219,12 @@ public:
     TERN_(HAS_MARLINUI_MENU, currentScreen = status_screen);
   }
 
+  #if ENABLED(REVERSE_ENCODER_MENU_ITEM)
+    static bool reverse_encoder;  // Flag to reverse the encoder direction
+  #else
+    static constexpr bool reverse_encoder = false;
+  #endif
+
   static void init();
 
   static void reinit_lcd() { TERN_(REINIT_NOISY_LCD, init_lcd()); }
@@ -871,24 +877,31 @@ public:
 
     #define ENCODERBASE (TERN(REVERSE_ENCODER_DIRECTION, -1, +1))
 
-    #if ANY(REVERSE_MENU_DIRECTION, REVERSE_SELECT_DIRECTION)
+    #if ANY(REVERSE_MENU_DIRECTION, REVERSE_SELECT_DIRECTION, REVERSE_ENCODER_MENU_ITEM)
       static int8_t encoderDirection;
     #else
       static constexpr int8_t encoderDirection = ENCODERBASE;
     #endif
 
+    // Restore the encoder direction when exiting menus or select screen
     FORCE_INLINE static void encoder_direction_normal() {
-      #if ANY(REVERSE_MENU_DIRECTION, REVERSE_SELECT_DIRECTION)
+      #if ANY(REVERSE_MENU_DIRECTION, REVERSE_SELECT_DIRECTION, REVERSE_ENCODER_MENU_ITEM)
         encoderDirection = ENCODERBASE;
       #endif
     }
 
+    // The encoder direction may be reversed while in menus
     FORCE_INLINE static void encoder_direction_menus() {
-      TERN_(REVERSE_MENU_DIRECTION, encoderDirection = -(ENCODERBASE));
+      #if ENABLED(REVERSE_MENU_DIRECTION)
+        encoderDirection = reverse_encoder ? (ENCODERBASE) : -(ENCODERBASE);
+      #endif
     }
 
+    // The encoder direction may be reversed while in the select screen
     FORCE_INLINE static void encoder_direction_select() {
-      TERN_(REVERSE_SELECT_DIRECTION, encoderDirection = -(ENCODERBASE));
+      #if ENABLED(REVERSE_SELECT_DIRECTION)
+        encoderDirection = reverse_encoder ? (ENCODERBASE) : -(ENCODERBASE);
+      #endif
     }
 
   #else // !HAS_ENCODER_ACTION
