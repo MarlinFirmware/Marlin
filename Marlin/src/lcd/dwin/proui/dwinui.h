@@ -55,7 +55,7 @@
 #define ICON_HomeY            ICON_MoveY
 #define ICON_HomeZ            ICON_MoveZ
 #define ICON_HSMode           ICON_MaxAccZ
-#define ICON_InputShaping     ICON_MaxAccelerated
+#define ICON_InputShaping     ICON_MaxAccel
 #define ICON_JDmm             ICON_MaxJerk
 #define ICON_Lock             ICON_Checkbox
 #define ICON_ManualMesh       ICON_Mesh

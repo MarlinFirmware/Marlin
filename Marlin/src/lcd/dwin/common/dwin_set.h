@@ -87,7 +87,7 @@
 #define ICON_SetABSPreheat      50
 
 #define ICON_MaxSpeed           51
-#define ICON_MaxAccelerated     52
+#define ICON_MaxAccel           52
 #define ICON_MaxJerk            53
 #define ICON_Step               54
 #define ICON_PrintSize          55
