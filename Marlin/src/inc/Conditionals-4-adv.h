@@ -1891,6 +1891,33 @@
   #define NEED_LSF 1
 #endif
 
+// Provide a reasonable minimum grid spacing
+#if ANY(ABL_USES_GRID, VARIABLE_GRID_POINTS) && !defined(GRID_MIN_SPACING)
+  #define GRID_MIN_SPACING 25
+#endif
+
+// Determine max points when left undefined
+#ifdef GRID_MIN_SPACING
+  #ifndef GRID_MAX_POINTS_X
+    #define GRID_MAX_POINTS_X ((X_BED_SIZE) / (GRID_MIN_SPACING))
+  #endif
+  #ifndef GRID_MAX_POINTS_Y
+    #define GRID_MAX_POINTS_Y ((Y_BED_SIZE) / (GRID_MIN_SPACING))
+  #endif
+#endif
+
+// Linear Grid or Mesh
+#ifdef GRID_MAX_POINTS_X
+
+  #define GRID_CONST         IF_DISABLED(VARIABLE_GRID_POINTS, const)
+  #define GRID_CONSTEXPR     IF_DISABLED(VARIABLE_GRID_POINTS, constexpr)
+  #define GRID_VAL(A,B)      (TERN(VARIABLE_GRID_POINTS, A, B))
+
+  #define GRID_LOOP_MAX(A,B)   for (uint8_t A = 0; A < (GRID_MAX_POINTS_X); ++A) for (uint8_t B = 0; B < (GRID_MAX_POINTS_Y); ++B)
+  #define GRID_LOOP_USED(A,B)  for (uint8_t A = 0; A < bedlevel.nr_grid_points.x; ++A) for (uint8_t B = 0; B < bedlevel.nr_grid_points.y; ++B)
+
+#endif // GRID_MAX_POINTS_X
+
 // Saving meshes to EEPROM?
 #if ALL(EEPROM_SETTINGS, HAS_MESH)
   #ifndef MAX_SAVED_MESHES
