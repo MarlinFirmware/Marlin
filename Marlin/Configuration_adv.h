@@ -2095,6 +2095,10 @@
     #define DEFAULT_SHARED_VOLUME USB_FLASH_DRIVE  // :[ 'SD_ONBOARD', 'USB_FLASH_DRIVE' ]
   #endif
 
+  // Maximum number of consecutive SD card read errors before aborting the print
+  // Prevents infinite loops when reading from SD card with hardware/communication faults
+  #define SD_MAX_READ_ERRORS 5
+
 #endif // HAS_MEDIA
 
 /**
@@ -3561,7 +3565,7 @@
   //#define MONITOR_DRIVER_STATUS
 
   #if ENABLED(MONITOR_DRIVER_STATUS)
-    #define CURRENT_STEP_DOWN     50  // (mA)
+    #define CURRENT_STEP_DOWN     50  // (mA) Do not exceed the desired minimum current
     #define REPORT_CURRENT_CHANGE
     #define STOP_ON_ERROR
   #endif

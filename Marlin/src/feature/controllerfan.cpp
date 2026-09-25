@@ -129,6 +129,8 @@ void ControllerFan::update() {
 
   #endif // FAN_KICKSTART_TIME
 
+  set_fan_speed(s);
+
   #if ENABLED(FAN_SOFT_PWM)
 
     soft_pwm_speed = speed >> 1;   // Controller Fan Soft PWM uses 0-127 as 0-100% so cut the 0-255 range in half.
