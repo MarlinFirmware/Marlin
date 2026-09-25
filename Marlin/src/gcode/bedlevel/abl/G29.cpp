@@ -269,13 +269,9 @@ G29_TYPE GcodeSuite::G29() {
 
   // 3-point leveling gets points from the probe class
   #if ENABLED(AUTO_BED_LEVELING_3POINT)
-    #if ENABLED(PROBE_MANUALLY)
-      static vector_3 points[3];
-      if (!g29_in_progress) probe.get_three_points(points);
-    #else
-      vector_3 points[3];
+    TERN_(PROBE_MANUALLY, static) vector_3 points[3];
+    if (TERN1(PROBE_MANUALLY, !g29_in_progress))
       probe.get_three_points(points);
-    #endif
   #endif
 
   // Storage for ABL Linear results
