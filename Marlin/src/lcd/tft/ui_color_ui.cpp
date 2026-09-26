@@ -280,7 +280,7 @@ void MarlinUI::draw_status_screen() {
         case ITEM_COOLER: draw_heater_status(ITEM_X(i), ITEM_Y, H_COOLER); break;
       #endif
       #if HAS_FAN
-        OPTCODE(HAS_FAN, case ITEM_FAN: draw_fan_status(ITEM_X(i), ITEM_Y, blink); break)
+        case ITEM_FAN: draw_fan_status(ITEM_X(i), ITEM_Y, blink); break;
       #endif
       #if HAS_CUTTER
         case ITEM_CUTTER: draw_cutter_status(ITEM_X(i), ITEM_Y); break;
