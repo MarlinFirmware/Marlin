@@ -147,7 +147,9 @@ void disable_steppers();
 #endif
 
 void draw_heater_status(uint16_t x, uint16_t y, const int8_t heater);
-void draw_fan_status(uint16_t x, uint16_t y, const bool blink);
+#if HAS_FAN
+  void draw_fan_status(uint16_t x, uint16_t y, const bool blink);
+#endif
 #if HAS_CUTTER
   #ifndef COLOR_CUTTER
     #define COLOR_CUTTER COLOR_WHITE
