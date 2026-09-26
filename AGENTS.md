@@ -232,7 +232,6 @@ GitHub Actions workflows run on every pull request and push:
 | `ci-validate-boards.yml` | Validates board pin configurations |
 | `ci-validate-pins.yml` | Checks for missing/invalid pin definitions |
 | `ci-validate-lines.yml` | Validates line count limits for 8-bit boards |
-| `auto-label.yml` | Auto-labels PRs by changed paths |
 | `check-pr.yml` | PR quality checks |
 
 ### 6.4 Docker Build Environment
