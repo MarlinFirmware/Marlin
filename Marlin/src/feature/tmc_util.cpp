@@ -335,8 +335,9 @@
     template<typename TMC>
     void step_current_down(TMC &st) {
       if (st.isEnabled()) {
-        const uint16_t I_rms = st.getMilliamps() - (CURRENT_STEP_DOWN);
-        if (I_rms > 50) {
+        const uint16_t current = st.getMilliamps();
+        if (current > CURRENT_STEP_DOWN + 50) {
+          const uint16_t I_rms = current - CURRENT_STEP_DOWN;
           st.rms_current(I_rms);
           #if ENABLED(REPORT_CURRENT_CHANGE)
             st.printLabel();
