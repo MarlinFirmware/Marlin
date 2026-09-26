@@ -15,6 +15,11 @@ on:
       - bugfix-2.1.x
       - 2.1.x
 
+# Cancel PR runs superseded by a new push, so stacked runs don't queue up behind each other.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
   validate_source_files:
     name: Validate Source Files
