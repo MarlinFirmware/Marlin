@@ -565,22 +565,23 @@ void MenuEditItemBase::draw_edit_screen(FSTR_P const ftpl, const char * const va
   tft.canvas(0, 0, TFT_WIDTH, TFT_HEIGHT);
   tft.set_background(COLOR_BACKGROUND);
 
+  // Only menu item edits get the keypad. Babystep, Move Axis, etc. have no value range to apply it to.
+  const bool can_keypad = TERN0(TOUCH_SCREEN, itemEdit), keypad = can_keypad && mode_keypad;
+
   uint16_t line = 0;
 
   menu_line(line++);
   tft_string.set(ftpl, itemIndex, itemStringC, itemStringF);
   // On the keypad the center shows what you're typing, so append the old value
   // to the title for reference. Read here, before ftostr52() below can clobber it.
-  #if ENABLED(TOUCH_SCREEN)
-    if (mode_keypad && value) { tft_string.add(F(": ")); tft_string.add(value); }
-  #endif
+  if (keypad && value) tft_string.add_value(value);
   tft_string.trim();
   tft.add_text(tft_string.center(TFT_WIDTH), MENU_TEXT_Y, COLOR_MENU_TEXT, tft_string);
 
   TERN_(AUTO_BED_LEVELING_UBL, if (ui.external_control) line++);  // ftostr52() will overwrite *value so *value has to be displayed first
 
   #if ENABLED(TOUCH_SCREEN)
-    if (mode_keypad) {
+    if (keypad) {
       uint16_t rows[4] = {0}, cols[4] = {0};
       for (uint8_t i = 0; i < 4; i++) {
         rows[3 - i] = i == 0 ? TFT_HEIGHT - Y_MARGIN - BTN_HEIGHT : rows[3 - i + 1] - BTN_HEIGHT - Y_MARGIN / 2;
@@ -652,64 +653,72 @@ void MenuEditItemBase::draw_edit_screen(FSTR_P const ftpl, const char * const va
         touch.add_control(SLIDER, (TFT_WIDTH - SLIDER_W) / 2, SLIDER_Y - 8, SLIDER_W, 32, maxEditValue);
       #endif
 
-      int w = (TFT_WIDTH - SLIDER_W) / 2 - 2;
-      int h = FONT_LINE_HEIGHT;
-      tft_string.set(shortenNum(to_str_edit_t(valueToString)(minEditValue)));
-      tft.canvas(0, SLIDER_Y, w, h);
-      tft.set_background(COLOR_BACKGROUND);
-      tft.add_text(tft_string.center(w), tft_string.vcenter(h), COLOR_WHITE, tft_string, w);
-      TERN_(TOUCH_SCREEN, touch.add_control(CALLBACK, 0, SLIDER_Y, w, h, intptr_t(setValue), 0));
+      // Min / Max labels (tap to set) for menu item edits. Other screens keep the last item's range and formatter.
+      if (itemEdit) {
+        int w = (TFT_WIDTH - SLIDER_W) / 2 - 2;
+        int h = FONT_LINE_HEIGHT;
+        tft_string.set(shortenNum(to_str_edit_t(valueToString)(minEditValue)));
+        tft.canvas(0, SLIDER_Y, w, h);
+        tft.set_background(COLOR_BACKGROUND);
+        tft.add_text(tft_string.center(w), tft_string.vcenter(h), COLOR_WHITE, tft_string, w);
+        TERN_(TOUCH_SCREEN, touch.add_control(CALLBACK, 0, SLIDER_Y, w, h, intptr_t(setValue), 0));
 
-      tft_string.set(shortenNum(to_str_edit_t(valueToString)(minEditValue + maxEditValue)));
-      tft.canvas(TFT_WIDTH - w, SLIDER_Y, w, h);
-      tft.set_background(COLOR_BACKGROUND);
-      tft.add_text(tft_string.center(w), tft_string.vcenter(h), COLOR_WHITE, tft_string, w);
-      TERN_(TOUCH_SCREEN, touch.add_control(CALLBACK, TFT_WIDTH - w, SLIDER_Y, w, h, intptr_t(setValue), maxEditValue));
+        tft_string.set(shortenNum(to_str_edit_t(valueToString)(minEditValue + maxEditValue)));
+        tft.canvas(TFT_WIDTH - w, SLIDER_Y, w, h);
+        tft.set_background(COLOR_BACKGROUND);
+        tft.add_text(tft_string.center(w), tft_string.vcenter(h), COLOR_WHITE, tft_string, w);
+        TERN_(TOUCH_SCREEN, touch.add_control(CALLBACK, TFT_WIDTH - w, SLIDER_Y, w, h, intptr_t(setValue), maxEditValue));
+      }
     }
 
     #if ENABLED(TOUCH_SCREEN)
       // Step sizes in encoder units: 1, 5, 10, 50, ... while at least two fit in the range.
       // Labels show the actual value of each step, e.g., "0.01" for a float52 item.
-      int32_t steps[10];
-      uint8_t stepCount = 0;
-      for (int32_t div = 1, multip = 5; stepCount < COUNT(steps) && maxEditValue / div >= 2; div *= multip, multip = multip == 5 ? 2 : 5)
-        steps[stepCount++] = div;
+      // Menu item edits only. Other screens have no range, so +/- move by one step.
+      if (can_keypad) {
+        int32_t steps[10];
+        uint8_t stepCount = 0;
+        for (int32_t div = 1, multip = 5; stepCount < COUNT(steps) && maxEditValue / div >= 2; div *= multip, multip = multip == 5 ? 2 : 5)
+          steps[stepCount++] = div;
 
-      if (stepCount) {
-        // Size buttons for the widest label, then keep as many (finest) steps as will fit
-        uint16_t btn_w = BTN_WIDTH;
-        for (uint8_t i = 0; i < stepCount; ++i) {
-          tft_string.set(shortenNum(to_str_edit_t(valueToString)(steps[i])));
-          NOLESS(btn_w, tft_string.width() + 8);
+        if (stepCount) {
+          // Size buttons for the widest label, then keep as many (finest) steps as will fit
+          uint16_t btn_w = BTN_WIDTH;
+          for (uint8_t i = 0; i < stepCount; ++i) {
+            tft_string.set(shortenNum(to_str_edit_t(valueToString)(steps[i])));
+            NOLESS(btn_w, tft_string.width() + 8);
+          }
+          uint16_t gap = X_MARGIN;
+          if (stepCount * (btn_w + gap) - gap > TFT_WIDTH) gap = X_MARGIN / 3;
+          NOMORE(stepCount, (TFT_WIDTH + gap) / (btn_w + gap));
+
+          if (stepSize == -1) stepSize = steps[_MIN(2, stepCount - 1)];
+
+          int x_pos = (TFT_WIDTH - stepCount * (btn_w + gap) + gap) / 2;
+          for (uint8_t i = 0; i < stepCount; ++i) {
+            tft.drawSimpleBtn(shortenNum(to_str_edit_t(valueToString)(steps[i])), x_pos, SLIDER_Y + 24 + Y_MARGIN, btn_w, FONT_LINE_HEIGHT, COLOR_WHITE, COLOR_BACKGROUND, BTN_TOGGLE, stepSize == steps[i], CALLBACK, intptr_t(stepChange), steps[i]);
+            x_pos += btn_w + gap;
+          }
         }
-        uint16_t gap = X_MARGIN;
-        if (stepCount * (btn_w + gap) - gap > TFT_WIDTH) gap = X_MARGIN / 3;
-        NOMORE(stepCount, (TFT_WIDTH + gap) / (btn_w + gap));
-
-        if (stepSize == -1) stepSize = steps[_MIN(2, stepCount - 1)];
-
-        int x_pos = (TFT_WIDTH - stepCount * (btn_w + gap) + gap) / 2;
-        for (uint8_t i = 0; i < stepCount; ++i) {
-          tft.drawSimpleBtn(shortenNum(to_str_edit_t(valueToString)(steps[i])), x_pos, SLIDER_Y + 24 + Y_MARGIN, btn_w, FONT_LINE_HEIGHT, COLOR_WHITE, COLOR_BACKGROUND, BTN_TOGGLE, stepSize == steps[i], CALLBACK, intptr_t(stepChange), steps[i]);
-          x_pos += btn_w + gap;
-        }
+        else if (stepSize == -1)
+          stepSize = 1;
       }
-      else if (stepSize == -1)
-        stepSize = 1;
     #endif // TOUCH_SCREEN
 
   }
 
-  tft.draw_edit_screen_buttons(mode_keypad);
+  tft.draw_edit_screen_buttons(can_keypad, keypad);
 }
 
-void TFT::draw_edit_screen_buttons(const bool mode_keypad/*=false*/) {
+void TFT::draw_edit_screen_buttons(const bool can_keypad/*=false*/, const bool mode_keypad/*=false*/) {
   #if ENABLED(TOUCH_SCREEN)
     #define BUTTON_ROW_Y (TFT_HEIGHT - Y_MARGIN - BTN_HEIGHT)
-    drawSimpleBtn(mode_keypad ? "-/+" : "123", X_MARGIN,         BUTTON_ROW_Y, BTN_WIDTH, BTN_HEIGHT, COLOR_BLACK,       COLOR_WHITE, BTN_FILLED,  false, CALLBACK, intptr_t(switchKeypad));
+    if (can_keypad)
+      drawSimpleBtn(mode_keypad ? "-/+" : "123", X_MARGIN,         BUTTON_ROW_Y, BTN_WIDTH, BTN_HEIGHT, COLOR_BLACK,       COLOR_WHITE, BTN_FILLED,  false, CALLBACK, intptr_t(switchKeypad));
     if (!mode_keypad) {
-      drawSimpleBtn("-", (TFT_WIDTH - X_MARGIN) / 2 - BTN_WIDTH, BUTTON_ROW_Y, BTN_WIDTH, BTN_HEIGHT, COLOR_WHITE,       COLOR_WHITE, BTN_OUTLINE, false, DECREASE, intptr_t(stepSize));
-      drawSimpleBtn("+", (TFT_WIDTH + X_MARGIN) / 2,             BUTTON_ROW_Y, BTN_WIDTH, BTN_HEIGHT, COLOR_WHITE,       COLOR_WHITE, BTN_OUTLINE, false, INCREASE, intptr_t(stepSize));
+      const intptr_t step = can_keypad ? stepSize : 1;
+      drawSimpleBtn("-", (TFT_WIDTH - X_MARGIN) / 2 - BTN_WIDTH, BUTTON_ROW_Y, BTN_WIDTH, BTN_HEIGHT, COLOR_WHITE,       COLOR_WHITE, BTN_OUTLINE, false, DECREASE, step);
+      drawSimpleBtn("+", (TFT_WIDTH + X_MARGIN) / 2,             BUTTON_ROW_Y, BTN_WIDTH, BTN_HEIGHT, COLOR_WHITE,       COLOR_WHITE, BTN_OUTLINE, false, INCREASE, step);
     }
     drawSimpleBtn("OK", TFT_WIDTH - X_MARGIN - BTN_WIDTH,        BUTTON_ROW_Y, BTN_WIDTH, BTN_HEIGHT, COLOR_VIVID_GREEN, COLOR_BLACK, BTN_FILLED,  true,  BUTTON,   intptr_t(okClicked));
   #endif

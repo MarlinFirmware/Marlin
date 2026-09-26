@@ -167,6 +167,7 @@ class MenuEditItemBase : public MenuItemBase {
     static int32_t minEditValue, maxEditValue;  // Encoder value range
     #if ENABLED(TFT_COLOR_UI)
       static intptr_t valueToString;
+      static bool itemEdit; // Drawing a menu item's edit screen, not babystep, move axis, etc.
     #endif
     #if TFT_COLOR_TOUCH
       static float valueStep;
@@ -204,7 +205,11 @@ class MenuEditItemBase : public MenuItemBase {
     static void draw_edit_screen(FSTR_P const fstr, const char * const value);
 
     // This method is for the current menu item
-    static void draw_edit_screen(const char * const value) { draw_edit_screen(editLabel, value); }
+    static void draw_edit_screen(const char * const value) {
+      TERN_(TFT_COLOR_UI, itemEdit = true);
+      draw_edit_screen(editLabel, value);
+      TERN_(TFT_COLOR_UI, itemEdit = false);
+    }
 
     #if TFT_COLOR_TOUCH
       static void put_new_value(float val);

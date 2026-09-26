@@ -86,6 +86,7 @@ bool         MenuEditItemBase::liveEdit;
     float    MenuEditItemBase::valueStep;
   #endif
   intptr_t   MenuEditItemBase::valueToString;
+  bool       MenuEditItemBase::itemEdit; // = false
 #endif
 
 ////////////////////////////////////////////
