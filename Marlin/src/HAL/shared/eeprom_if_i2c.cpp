@@ -56,6 +56,13 @@ void eeprom_init() {
 #ifndef EEPROM_DEVICE_ADDRESS
   #define EEPROM_DEVICE_ADDRESS  0x50
 #endif
+#ifndef EEPROM_I2C_TRIES
+  #define EEPROM_I2C_TRIES       3
+#endif
+
+// Wire::endTransmission status for "no ACK on address", meaning no such device.
+// Any other non-zero status is a bus fault, which a re-init may clear.
+#define I2C_NO_ACK_ADDR          2
 
 static constexpr uint8_t eeprom_device_address = I2C_ADDRESS(EEPROM_DEVICE_ADDRESS);
 
@@ -83,21 +90,55 @@ static void _eeprom_begin(uint8_t * const pos) {
   eWire.write(uint8_t(eeprom_address & 0xFF));           // Address Low
 }
 
-void eeprom_write_byte(uint8_t *pos, uint8_t value) {
-  _eeprom_begin(pos);
-  eWire.write(value);
-  eWire.endTransmission();
+// A disturbed I2C bus can leave the peripheral stuck, and some Wire back-ends neither
+// recover from that nor report it, so a transfer can "succeed" with stale or no data.
+// Verify every transfer and reset the bus before trying again.
 
-  // wait for write cycle to complete
-  // this could be done more efficiently with "acknowledge polling"
-  delay(EEPROM_WRITE_DELAY);
+static void _eeprom_bus_reset() {
+  // STM32duino's TwoWire keeps its buffers on the heap and frees them only in end(),
+  // so begin() on its own would orphan them. The other back-ends used here hold their
+  // buffers statically, and SlowSoftWire declares end() without defining it.
+  #if defined(HAL_STM32) && DISABLED(SOFT_I2C_EEPROM)
+    eWire.end();
+  #endif
+  eeprom_init();                                 // Force-reset and re-initialize the peripheral
+}
+
+// Read one byte, reporting success apart from the value, since 0xFF is valid data.
+static bool _eeprom_read_byte(uint8_t * const pos, uint8_t &value) {
+  for (uint8_t t = EEPROM_I2C_TRIES; t--;) {
+    _eeprom_begin(pos);
+    const uint8_t err = eWire.endTransmission();
+    if (err == I2C_NO_ACK_ADDR) break;           // Nothing is listening. Don't retry.
+    if (!err && eWire.requestFrom(_eeprom_calc_device_address(pos), (byte)1) && eWire.available()) {
+      value = eWire.read();
+      return true;
+    }
+    _eeprom_bus_reset();                         // Reset the bus and try again
+  }
+  return false;
+}
+
+void eeprom_write_byte(uint8_t *pos, uint8_t value) {
+  for (uint8_t t = EEPROM_I2C_TRIES; t--;) {
+    _eeprom_begin(pos);
+    eWire.write(value);
+    const uint8_t err = eWire.endTransmission();
+    if (err == I2C_NO_ACK_ADDR) break;           // Nothing is listening. Don't retry.
+    if (!err) {
+      // wait for write cycle to complete
+      // this could be done more efficiently with "acknowledge polling"
+      delay(EEPROM_WRITE_DELAY);
+      uint8_t stored;                            // Confirm the byte was stored
+      if (_eeprom_read_byte(pos, stored) && stored == value) return;
+    }
+    _eeprom_bus_reset();                         // Reset the bus and try again
+  }
 }
 
 uint8_t eeprom_read_byte(uint8_t *pos) {
-  _eeprom_begin(pos);
-  eWire.endTransmission();
-  eWire.requestFrom(_eeprom_calc_device_address(pos), (byte)1);
-  return eWire.available() ? eWire.read() : 0xFF;
+  uint8_t value;
+  return _eeprom_read_byte(pos, value) ? value : 0xFF;
 }
 
 #endif // USE_SHARED_EEPROM
