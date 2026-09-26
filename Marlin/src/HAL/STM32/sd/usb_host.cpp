@@ -39,14 +39,14 @@ BulkStorage bulk(&usb);
 static void USBH_UserProcess(USBH_HandleTypeDef *phost, uint8_t id) {
   switch(id) {
     case HOST_USER_SELECT_CONFIGURATION:
-      //SERIAL_ECHOLNPGM("APPLICATION_SELECT_CONFIGURATION");
+      //SERIAL_ECHOLN("APPLICATION_SELECT_CONFIGURATION");
       break;
     case HOST_USER_DISCONNECTION:
-      //SERIAL_ECHOLNPGM("APPLICATION_DISCONNECT");
+      //SERIAL_ECHOLN("APPLICATION_DISCONNECT");
       usb.setUsbTaskState(USB_STATE_INIT);
       break;
     case HOST_USER_CLASS_ACTIVE:
-      //SERIAL_ECHOLNPGM("APPLICATION_READY");
+      //SERIAL_ECHOLN("APPLICATION_READY");
       usb.setUsbTaskState(USB_STATE_RUNNING);
       break;
     case HOST_USER_CONNECTION:
@@ -58,15 +58,15 @@ static void USBH_UserProcess(USBH_HandleTypeDef *phost, uint8_t id) {
 
 bool USBHost::start() {
   if (USBH_Init(&hUsbHost, USBH_UserProcess, TERN(USE_USB_HS_IN_FS, HOST_HS, HOST_FS)) != USBH_OK) {
-    SERIAL_ECHOLNPGM("Error: USBH_Init");
+    SERIAL_ECHOLN("Error: USBH_Init");
     return false;
   }
   if (USBH_RegisterClass(&hUsbHost, USBH_MSC_CLASS) != USBH_OK) {
-    SERIAL_ECHOLNPGM("Error: USBH_RegisterClass");
+    SERIAL_ECHOLN("Error: USBH_RegisterClass");
     return false;
   }
   if (USBH_Start(&hUsbHost) != USBH_OK) {
-    SERIAL_ECHOLNPGM("Error: USBH_Start");
+    SERIAL_ECHOLN("Error: USBH_Start");
     return false;
   }
   return true;
@@ -88,9 +88,9 @@ void USBHost::setUsbTaskState(uint8_t state) {
     capacity = info.capacity.block_nbr / 2000;
     block_size = info.capacity.block_size;
     block_count = info.capacity.block_nbr;
-    //SERIAL_ECHOLNPGM("info.capacity.block_nbr : ", info.capacity.block_nbr);
-    //SERIAL_ECHOLNPGM("info.capacity.block_size: ", info.capacity.block_size);
-    //SERIAL_ECHOLNPGM("capacity                : ", capacity, "MB");
+    //SERIAL_ECHOLN("info.capacity.block_nbr : ", info.capacity.block_nbr);
+    //SERIAL_ECHOLN("info.capacity.block_size: ", info.capacity.block_size);
+    //SERIAL_ECHOLN("capacity                : ", capacity, "MB");
   }
 };
 
