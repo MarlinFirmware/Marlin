@@ -1320,7 +1320,7 @@ void Motion::restore_feedrate_and_scaling() {
     //SERIAL_ECHOLNPGM("Motion limits in: ", target.x, ", ", target.y, ", ", target.z);
     //SERIAL_EOL();
 
-    if (!soft_endstop._enabled) return;
+    if (!soft_endstop.enabled()) return;
 
     #if IS_KINEMATIC
 
