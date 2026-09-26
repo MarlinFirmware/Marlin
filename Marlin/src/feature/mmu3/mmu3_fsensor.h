@@ -22,7 +22,7 @@
 #pragma once
 
 /**
- * mmu2_fsensor.h
+ * mmu3_fsensor.h
  */
 
 #include "../../core/macros.h"
