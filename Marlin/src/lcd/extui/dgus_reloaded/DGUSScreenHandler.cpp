@@ -66,7 +66,14 @@ bool DGUSScreenHandler::wait_continue = false;
 
 bool DGUSScreenHandler::leveling_active = false;
 
+uint8_t DGUSScreenHandler::language = 0;
+
+#if ENABLED(FILAMENT_SWITCH_AND_MOTION)
+  uint16_t DGUSScreenHandler::jam_length = DGUS_DEFAULT_JAM_LEN;
+#endif
+
 millis_t DGUSScreenHandler::status_expire = 0;
+char DGUSScreenHandler::standing_status[] = "";
 millis_t DGUSScreenHandler::eeprom_save = 0;
 
 void DGUSScreenHandler::init() {
@@ -135,7 +142,7 @@ void DGUSScreenHandler::loop() {
   }
 
   if (status_expire > 0 && ELAPSED(ms, status_expire)) {
-    setStatusMessage(FPSTR(NUL_STR), 0);
+    setStatusMessage(standing_status, 0); // Back to Marlin's own status
     return;
   }
 
@@ -191,6 +198,7 @@ void DGUSScreenHandler::storeSettings(char *buff) {
   data.volume = dgus.getVolume();
   data.brightness = dgus.getBrightness();
   data.abl_okay = (ExtUI::getLevelingActive() && ExtUI::getLevelingIsValid());
+  data.language = language;
 
   memcpy(buff, &data, sizeof(data));
 }
@@ -204,6 +212,7 @@ void DGUSScreenHandler::loadSettings(const char *buff) {
 
   dgus.setVolume(data.initialized ? data.volume : DGUS_DEFAULT_VOLUME);
   dgus.setBrightness(data.initialized ? data.brightness : DGUS_DEFAULT_BRIGHTNESS);
+  language = data.initialized ? data.language : 0;
 
   if (data.initialized) {
     leveling_active = (data.abl_okay && ExtUI::getLevelingIsValid());
@@ -372,13 +381,26 @@ void DGUSScreenHandler::setMessageLine_P(PGM_P const msg, const uint8_t line) {
 }
 
 void DGUSScreenHandler::setStatusMessage(const char* msg, const millis_t duration) {
-  dgus.writeString((uint16_t)DGUS_Addr::MESSAGE_Status, msg, DGUS_STATUS_LEN, false, true);
+  dgus.writeString((uint16_t)DGUS_Addr::MESSAGE_Status, msg, DGUS_STATUS_LEN, true, false, false);
   status_expire = (duration > 0 ? ExtUI::safe_millis() + duration : 0);
 }
 
 void DGUSScreenHandler::setStatusMessage(FSTR_P const fmsg, const millis_t duration) {
-  dgus.writeString((uint16_t)DGUS_Addr::MESSAGE_Status, fmsg, DGUS_STATUS_LEN, false, true);
+  dgus.writeString((uint16_t)DGUS_Addr::MESSAGE_Status, fmsg, DGUS_STATUS_LEN, true, false, false);
   status_expire = (duration > 0 ? ExtUI::safe_millis() + duration : 0);
+}
+
+static const char machine_name[] PROGMEM = MACHINE_NAME;
+
+// Marlin's own status ("<machine name> Ready.", "Printing...") stays on screen until the next one, and comes
+// back when a screen message expires. The machine name has its own field, so drop it from the message.
+void DGUSScreenHandler::setStandingStatus(const char * const msg) {
+  const char *m = msg;
+  const size_t n = strlen_P(machine_name);
+  if (n && strncmp_P(m, machine_name, n) == 0 && m[n] == ' ') m += n + 1;
+  strncpy(standing_status, m, DGUS_STATUS_LEN);
+  standing_status[DGUS_STATUS_LEN] = '\0';
+  setStatusMessage(standing_status, 0);
 }
 
 void DGUSScreenHandler::showWaitScreen(const DGUS_ScreenID return_screenID, const bool has_continue/*=false*/) {
