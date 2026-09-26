@@ -9,6 +9,9 @@ on:
   schedule:
     - cron: '0 */6 * * *'
 
+permissions:
+  contents: write
+
 jobs:
   bump_date:
     name: Bump Distribution Date

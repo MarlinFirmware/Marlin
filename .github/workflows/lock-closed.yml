@@ -9,6 +9,9 @@ on:
   schedule:
     - cron: '0 1/13 * * *'
 
+permissions:
+  issues: write
+
 jobs:
   lock:
     name: Lock Closed Issues

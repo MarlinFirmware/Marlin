@@ -9,6 +9,9 @@ on:
   issues:
     types: [reopened]
 
+permissions:
+  issues: write
+
 jobs:
   unlock:
     name: Unlock Reopened

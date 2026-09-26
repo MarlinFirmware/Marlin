@@ -13,6 +13,9 @@ on:
     - 1.1.x
     - 2.0.x
 
+permissions:
+  pull-requests: write
+
 jobs:
   bad_target:
     name: PR Bad Target

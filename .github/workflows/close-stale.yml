@@ -9,6 +9,11 @@ on:
   schedule:
   - cron: "22 1 * * *"
 
+permissions:
+  actions: write
+  issues: write
+  pull-requests: write
+
 jobs:
   stale:
     name: Close Stale Issues
