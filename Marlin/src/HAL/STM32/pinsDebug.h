@@ -339,6 +339,16 @@ FSTR_P pad_owner(const PinName dp) {
     }
   #endif
 
+  /**
+   * NRST on STM32G0 shares its pad with PF2. The NRST_MODE option bits decide which
+   * one has it: 0b10 is GPIO, anything else leaves the reset circuit in charge.
+   * FLASH is always clocked, so OPTR can be read without a guard.
+   */
+  #if defined(STM32G0xx) && defined(FLASH_OPTR_NRST_MODE)
+    if (port == 5 && num == 2 && (FLASH->OPTR & FLASH_OPTR_NRST_MODE) != FLASH_OPTR_NRST_MODE_1)
+      return F("NRST");
+  #endif
+
   return nullptr;
 }
 
