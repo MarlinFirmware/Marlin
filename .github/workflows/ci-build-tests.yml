@@ -183,17 +183,6 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-pip-build-
 
-    - name: Restore PlatformIO cache
-      id: pio-cache
-      uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6
-      with:
-        path: |
-          ~/.platformio
-          .pio/libdeps
-        key: ${{ runner.os }}-pio-build-v1
-        restore-keys: |
-          ${{ runner.os }}-pio-build-
-
     - name: Select Python 3.9
       uses: actions/setup-python@v7
       with:
@@ -203,6 +192,40 @@ jobs:
     - name: Install PlatformIO
       run: |
         pip install -U platformio
+
+    - name: Resolve cache group
+      id: cache-group
+      env:
+        TEST_PLATFORM: ${{ matrix.test-platform }}
+      run: |
+        # Targets with the same platform and packages share a toolchain, so they share a cache
+        pio project config --json-output | python3 -c '
+        import hashlib, json, os, sys
+        config = dict(json.load(sys.stdin))
+        env = dict(config.get("env:" + os.environ["TEST_PLATFORM"], []))
+        toolchain = json.dumps([env.get("platform"), env.get("platform_packages")])
+        print("name=" + hashlib.sha1(toolchain.encode()).hexdigest()[:12])
+        ' >>"$GITHUB_OUTPUT"
+
+    - name: Restore PlatformIO cache
+      id: pio-cache
+      uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6
+      with:
+        path: ~/.platformio
+        key: ${{ runner.os }}-pio-v2-${{ steps.cache-group.outputs.name }}
+
+    # Libraries are installed per env, so each target keeps its own cache
+    - name: Restore library cache
+      id: lib-cache
+      uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6
+      with:
+        path: .pio/libdeps
+        key: ${{ runner.os }}-libdeps-v1-${{ matrix.test-platform }}-${{ hashFiles('ini/*.ini', 'platformio.ini') }}
+        restore-keys: |
+          ${{ runner.os }}-libdeps-v1-${{ matrix.test-platform }}-
+
+    - name: Update PlatformIO packages
+      run: |
         pio pkg update --global
 
     - name: Install Simulator dependencies
@@ -215,12 +238,17 @@ jobs:
       run: |
         make tests-single-ci TEST_TARGET=${{ matrix.test-platform }}
 
-    # Only push builds refresh the cache, so PR runs can't fill the repo cache quota
+    # Only push builds refresh the caches, so PR runs can't fill the repo cache quota
     - name: Save PlatformIO cache
       if: github.event_name == 'push' && steps.pio-cache.outputs.cache-hit != 'true'
       uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6
       with:
-        path: |
-          ~/.platformio
-          .pio/libdeps
+        path: ~/.platformio
         key: ${{ steps.pio-cache.outputs.cache-primary-key }}
+
+    - name: Save library cache
+      if: github.event_name == 'push' && steps.lib-cache.outputs.cache-hit != 'true'
+      uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6
+      with:
+        path: .pio/libdeps
+        key: ${{ steps.lib-cache.outputs.cache-primary-key }}
