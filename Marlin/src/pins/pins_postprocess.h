@@ -264,24 +264,6 @@
 #ifndef Z_CS_PIN
   #define Z_CS_PIN -1
 #endif
-#ifndef I_CS_PIN
-  #define I_CS_PIN -1
-#endif
-#ifndef J_CS_PIN
-  #define J_CS_PIN -1
-#endif
-#ifndef K_CS_PIN
-  #define K_CS_PIN -1
-#endif
-#ifndef U_CS_PIN
-  #define U_CS_PIN -1
-#endif
-#ifndef V_CS_PIN
-  #define V_CS_PIN -1
-#endif
-#ifndef W_CS_PIN
-  #define W_CS_PIN -1
-#endif
 #ifndef E0_CS_PIN
   #define E0_CS_PIN -1
 #endif
