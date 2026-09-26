@@ -186,7 +186,7 @@ float ResonanceGenerator::calc_next_pos() {
     step_accumulator -= delta_steps;
     const uint32_t abs_steps = abs(delta_steps);
 
-    block.initial_rate = (uint32_t)(_MAX(abs_steps, 1U) / RESONANCE_TS);
+    block.initial_rate = uint32_t(_MAX(abs_steps, 1U) / (RESONANCE_TS));
 
     // Update block
     block.steps[rt_params.axis] = abs_steps;
