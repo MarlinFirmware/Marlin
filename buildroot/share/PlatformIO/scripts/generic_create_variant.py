@@ -52,8 +52,9 @@ if pioutil.is_pio_build():
 
     # Make sure the local variant sub-folder exists
     if marlin_variant_pattern.match(str(variant).lower()):
-        here = Path.cwd()
-        variants_dir = here / 'buildroot' / 'share' / 'PlatformIO' / 'variants'
-        source_dir = variants_dir / variant
+        variants_dir = Path('buildroot', 'share', 'PlatformIO', 'variants')
+        source_dir = Path.cwd() / variants_dir / variant
         assert source_dir.is_dir()
-        board.update("build.variants_dir", str(variants_dir))
+        # Relative, so the framework prefixes $PROJECT_DIR. STM32duino escapes '(' and ')'
+        # in a literal path, which breaks the include path when the project path has them.
+        board.update("build.variants_dir", variants_dir.as_posix())
