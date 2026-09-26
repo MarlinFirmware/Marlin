@@ -242,7 +242,6 @@ A Dockerfile (`docker/Dockerfile`) provides a reproducible build environment:
 ```dockerfile
 FROM python:3.11-bookworm
 RUN pip install -U platformio PyYaml
-RUN pio upgrade --dev
 WORKDIR /code
 ```
 
