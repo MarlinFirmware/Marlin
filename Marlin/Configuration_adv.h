@@ -3562,7 +3562,7 @@
   //#define MONITOR_DRIVER_STATUS
 
   #if ENABLED(MONITOR_DRIVER_STATUS)
-    #define CURRENT_STEP_DOWN     50  // (mA)
+    #define CURRENT_STEP_DOWN     50  // (mA) Do not exceed the desired minimum current
     #define REPORT_CURRENT_CHANGE
     #define STOP_ON_ERROR
   #endif
