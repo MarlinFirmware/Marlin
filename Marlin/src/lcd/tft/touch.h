@@ -52,21 +52,29 @@ enum TouchControlType : uint16_t {
   FEEDRATE, FLOWRATE,
   UBL,
   STOP,
-  BUTTON
+  BUTTON,
+  CALLBACK
 };
 
 typedef struct __attribute__((__packed__)) {
   TouchControlType type;
-  uint16_t x;
-  uint16_t y;
-  uint16_t width;
-  uint16_t height;
+  uint16_t x, y;
+  uint16_t width, height;
   intptr_t data;
+  int32_t index;
 } touch_control_t;
+
+typedef struct {
+  uint16_t x, y;
+  int32_t index;
+} touch_event_t;
+
+typedef void (*touch_handler_t)(touch_event_t*);
 
 #define MAX_CONTROLS               16
 #define MINIMUM_HOLD_TIME          15   // Debounce delay for ignoring short accidental touch
-#define TOUCH_REPEAT_DELAY        100   // 1/10s Repeat delay for key-like buttons
+#define TOUCH_REPEAT_PRE_DELAY   1000   // 1s Wait before a held control starts repeating
+#define TOUCH_REPEAT_DELAY        250   // 1/4s Interval between repeats once repeating starts
 #define MIN_REPEAT_DELAY           25   // Smallest permitted repeat delay for controls that speed up the longer they are held
 #define FAST_REPEAT_DECREMENT       5   // Repeat delay may decrease for a control as it is held
 #define UBL_REPEAT_DELAY          125   // Repeat delay for a held control
@@ -85,6 +93,7 @@ class Touch {
     static uint16_t controls_count;
 
     static millis_t next_touch_ms, time_to_hold, repeat_delay, nada_start_ms;
+    static bool repeat_started;   // Pre-repeat delay elapsed, now repeating at the shorter interval
     static TouchControlType touch_control_type;
 
     static bool get_point(int16_t * const x, int16_t * const y);
@@ -93,9 +102,10 @@ class Touch {
     static void touch(touch_control_t * const control);
 
     // Set the control as "held" until the touch is released
-    static void hold(touch_control_t * const control, const millis_t delay=0);
+    static void hold(touch_control_t * const control, const millis_t delay=0, const bool accelerate=false);
 
   public:
+    static touch_event_t touch_event;
     static void init();
     static void reset() { controls_count = 0; nada_start_ms = 0; current_control = nullptr; }
     static void clear() { controls_count = 0; }
@@ -115,7 +125,7 @@ class Touch {
       static void sleepTimeout();
       static void wakeUp();
     #endif
-    static void add_control(TouchControlType type, uint16_t x, uint16_t y, uint16_t width, uint16_t height, intptr_t data=0);
+    static void add_control(TouchControlType type, uint16_t x, uint16_t y, uint16_t width, uint16_t height, intptr_t data=0, int32_t index=0);
     static void add_control(TouchControlType type, uint16_t x, uint16_t y, uint16_t width, uint16_t height, void (*handler)()) {
       add_control(type, x, y, width, height, intptr_t(handler));
     }

@@ -49,6 +49,11 @@
   #include "../../feature/bedlevel/bedlevel.h"
 #endif
 
+#define BTN_WIDTH  48
+#define BTN_HEIGHT 36
+#define X_MARGIN   15
+#define Y_MARGIN   11
+
 void MarlinUI::tft_idle() {
   #if ENABLED(TOUCH_SCREEN)
     if (TERN0(HAS_DISPLAY_SLEEP, lcd_sleep_task())) return;
@@ -286,7 +291,7 @@ void MarlinUI::draw_status_screen() {
 
   // Coordinates
   #if ENABLED(MOVE_AXIS_SCREEN)
-    TERN_(TOUCH_SCREEN, touch.add_control(MENU_SCREEN, COORDINATES_X, COORDINATES_Y, COORDINATES_W, COORDINATES_H, (intptr_t) ui.move_axis_screen));
+    TERN_(TOUCH_SCREEN, touch.add_control(MENU_SCREEN, COORDINATES_X, COORDINATES_Y, COORDINATES_W, COORDINATES_H, intptr_t(ui.move_axis_screen)));
   #endif
 
   tft.canvas(COORDINATES_X, COORDINATES_Y, COORDINATES_W, COORDINATES_H);
@@ -429,67 +434,293 @@ void MarlinUI::draw_status_screen() {
   tft.add_text(STATUS_MESSAGE_TEXT_X, STATUS_MESSAGE_TEXT_Y, COLOR_STATUS_MESSAGE, tft_string);
 }
 
+typedef const char*(*to_str_edit_t)(const int32_t);
+static bool mode_keypad = false;
+
+#if ENABLED(TOUCH_SCREEN)
+
+  static int32_t keypad_value = 0;
+  static uint32_t keypad_value_decimal = 0;
+
+  static int32_t stepSize = -1;
+  static void stepChange(touch_event_t *e) {
+    stepSize = e->index;
+    ui.refresh();
+  }
+
+  static void keypadBtnCb(touch_event_t *e) {
+    int32_t dig = e->index;
+    switch (dig) {
+      case -4: // negative / positive
+        keypad_value *= -1;
+        break;
+      case -3: // Clear all
+        keypad_value = 0;
+        keypad_value_decimal = 0;
+        break;
+      case -2: // erase
+        if (keypad_value_decimal == 1) {
+          keypad_value_decimal = 0;
+        }
+        else {
+          keypad_value = int(keypad_value) / 10;
+          keypad_value_decimal /= 10;
+        }
+        break;
+      case -1: // decimal
+        keypad_value_decimal = keypad_value_decimal == 0 ? 1 : keypad_value_decimal >= 1000000 ? 0 : keypad_value_decimal * 10;
+        break;
+      default: // add digit
+        int8_t neg = keypad_value < 0 ? -1 : 1;
+        if (dig >= 0 && keypad_value * neg < 999999 && keypad_value_decimal < 1000000) {
+          keypad_value = keypad_value * 10 + neg * dig;
+          if (keypad_value_decimal > 0) keypad_value_decimal *= 10;
+        }
+    }
+    ui.refresh();
+  }
+
+  static void okClicked() {
+    if (mode_keypad) {
+      const float newVal = (float)keypad_value / (keypad_value_decimal ?: 1);
+      MenuEditItemBase::put_new_value(newVal);
+      touch_event_t te;
+      te.index = -3;
+      keypadBtnCb(&te);
+    }
+    ui.lcd_clicked = true;
+  }
+
+  static void setValue(touch_event_t *e) {
+    ui.encoderPosition = e->index;
+    ui.refresh();
+  }
+
+#endif // TOUCH_SCREEN
+
+#if ENABLED(TOUCH_SCREEN)
+
+void TFT::drawSimpleBtn(const char *label, uint16_t x, uint16_t y, uint16_t w, uint16_t h, uint16_t color, uint16_t colorTxt, BTN_STYLE style, bool selected, TouchControlType touchType, intptr_t data, int32_t index) {
+
+  //if (!enabled) bgColor = COLOR_CONTROL_DISABLED;
+
+  tft.canvas(x, y, w, h);
+  tft.set_background(style == BTN_TOGGLE ? COLOR_BACKGROUND : color);
+  if (style == BTN_OUTLINE && !selected) tft.add_bar(1, 1, w - 2, h - 2, COLOR_BACKGROUND);
+  if (style == BTN_TOGGLE && selected) tft.add_bar(0, h - 2, w, 2, color);
+
+  // TODO: Make an add_text() taking a font arg
+  if (label) {
+    tft_string.set(label);
+    tft_string.trim();
+    tft.add_text(tft_string.center(w), style == BTN_TOGGLE ? 0 : tft_string.vcenter(h), ((style == BTN_OUTLINE && selected) || style == BTN_FILLED) ? colorTxt : color, tft_string);
+  }
+
+  touch.add_control(touchType, x, y, w, h, data, index);
+}
+
+#endif // TOUCH_SCREEN
+
+#if ENABLED(TOUCH_SCREEN)
+  void MenuEditItemBase::reset_edit_screen_state() {
+    mode_keypad = false;
+    stepSize = -1;
+  }
+
+  void MenuEditItemBase::put_new_value(float newDisplayVal) {
+    const float minDisplayVal = minEditValue / valueStep,
+                maxDisplayVal = (minEditValue + maxEditValue) / valueStep;
+
+    NOMORE(newDisplayVal, maxDisplayVal);
+    NOLESS(newDisplayVal, minDisplayVal);
+
+    const int32_t newVal = newDisplayVal * valueStep - minEditValue;
+
+    ui.encoderPosition = newVal;
+    // TODO: Does not account for value types where there is a conversion during ftostr (i.e., percent)
+  }
+
+  static void switchKeypad() {
+    mode_keypad = !mode_keypad;
+    if (!mode_keypad) {
+      const float newVal = float(keypad_value) / (keypad_value_decimal ?: 1);
+      MenuEditItemBase::put_new_value(newVal);
+    }
+    else {
+      touch_event_t te;
+      te.index = -3;
+      keypadBtnCb(&te);
+    }
+    ui.refresh();
+  }
+
+#endif // TOUCH_SCREEN
+
 // Low-level draw_edit_screen can be used to draw an edit screen from anyplace
 void MenuEditItemBase::draw_edit_screen(FSTR_P const ftpl, const char * const value/*=nullptr*/) {
   ui.encoder_direction_normal();
+  //ui.defer_status_screen(); // Should already be done by MarlinUI
   TERN_(TOUCH_SCREEN, touch.clear());
 
-  uint16_t line = 1;
+  tft.canvas(0, 0, TFT_WIDTH, TFT_HEIGHT);
+  tft.set_background(COLOR_BACKGROUND);
+
+  // Only menu item edits get the keypad. Babystep, Move Axis, etc. have no value range to apply it to.
+  const bool can_keypad = TERN0(TOUCH_SCREEN, itemEdit), keypad = can_keypad && mode_keypad;
+
+  uint16_t line = 0;
 
   menu_line(line++);
   tft_string.set(ftpl, itemIndex, itemStringC, itemStringF);
+  // On the keypad the center shows what you're typing, so append the old value
+  // to the title for reference. Read here, before ftostr52() below can clobber it.
+  if (keypad && value) tft_string.add_value(value);
   tft_string.trim();
   tft.add_text(tft_string.center(TFT_WIDTH), MENU_TEXT_Y, COLOR_MENU_TEXT, tft_string);
 
   TERN_(AUTO_BED_LEVELING_UBL, if (ui.external_control) line++);  // ftostr52() will overwrite *value so *value has to be displayed first
 
-  menu_line(line);
-  tft_string.set(value);
-  tft_string.trim();
-  tft.add_text(tft_string.center(TFT_WIDTH), MENU_TEXT_Y, COLOR_MENU_VALUE, tft_string);
+  #if ENABLED(TOUCH_SCREEN)
+    if (keypad) {
+      uint16_t rows[4] = {0}, cols[4] = {0};
+      for (uint8_t i = 0; i < 4; i++) {
+        rows[3 - i] = i == 0 ? TFT_HEIGHT - Y_MARGIN - BTN_HEIGHT : rows[3 - i + 1] - BTN_HEIGHT - Y_MARGIN / 2;
+        cols[i] = i == 0 ? TFT_WIDTH/2 - BTN_WIDTH * 1.5 - X_MARGIN : cols[i - 1] + BTN_WIDTH + X_MARGIN;
+      }
 
-  #if ENABLED(AUTO_BED_LEVELING_UBL)
-    if (ui.external_control) {
-      menu_line(line - 1);
+      char ch[2] = {0};
+      for (uint8_t i = 1; i < 10; i++) {
+        ch[0] = '0' + i;
+        tft.drawSimpleBtn(&ch[0], cols[(i - 1) % 3], rows[(i - 1) / 3], BTN_WIDTH, BTN_HEIGHT, COLOR_WHITE, COLOR_WHITE, BTN_OUTLINE, false, CALLBACK, intptr_t(keypadBtnCb), i);
+      }
 
-      tft_string.set(X_LBL);
-      tft.add_text(UBL_X_LABEL_X, MENU_TEXT_Y, COLOR_MENU_TEXT, tft_string);
-      tft_string.set(ftostr52(motion.logical_x(motion.position.x)));
+      tft.drawSimpleBtn("+/-", cols[3], rows[2], BTN_WIDTH, BTN_HEIGHT, COLOR_WHITE, COLOR_WHITE, BTN_OUTLINE, false, CALLBACK, intptr_t(keypadBtnCb), -4);
+      ch[0] = 'C';
+      tft.drawSimpleBtn(&ch[0], cols[3], rows[0], BTN_WIDTH, BTN_HEIGHT, COLOR_WHITE, COLOR_WHITE, BTN_OUTLINE, false, CALLBACK, intptr_t(keypadBtnCb), -3);
+      ch[0] = '<';
+      tft.drawSimpleBtn(&ch[0], cols[3], rows[1], BTN_WIDTH, BTN_HEIGHT, COLOR_WHITE, COLOR_WHITE, BTN_OUTLINE, false, CALLBACK, intptr_t(keypadBtnCb), -2);
+      ch[0] = '.';
+      tft.drawSimpleBtn(&ch[0], cols[0], rows[3], BTN_WIDTH, BTN_HEIGHT, COLOR_WHITE, COLOR_WHITE, BTN_OUTLINE, false, CALLBACK, intptr_t(keypadBtnCb), -1);
+      ch[0] = '0';
+      tft.drawSimpleBtn(&ch[0], cols[1], rows[3], BTN_WIDTH, BTN_HEIGHT, COLOR_WHITE, COLOR_WHITE, BTN_OUTLINE, false, CALLBACK, intptr_t(keypadBtnCb), 0);
+
+      menu_line(line);
+      tft_string.set(keypad_value < 0 ? '-' : ' ');
+      tft_string.add(ftostr7xrj(keypad_value, keypad_value_decimal ?: 1));
+      if (keypad_value_decimal == 1) tft_string.add('.');
       tft_string.trim();
-      tft.add_text(UBL_X_TEXT_X, MENU_TEXT_Y, COLOR_MENU_VALUE, tft_string);
-
-      tft_string.set(Y_LBL);
-      tft.add_text(UBL_Y_LABEL_X, MENU_TEXT_Y, COLOR_MENU_TEXT, tft_string);
-      tft_string.set(ftostr52(motion.logical_x(motion.position.y)));
-      tft_string.trim();
-      tft.add_text(UBL_Y_TEXT_X, MENU_TEXT_Y, COLOR_MENU_VALUE, tft_string);
+      tft.add_text(tft_string.center(TFT_WIDTH), MENU_TEXT_Y, COLOR_MENU_VALUE, tft_string);
     }
-  #endif
+    else
+  #endif // TOUCH_SCREEN
+  {
 
-  if (ui.can_show_slider() && maxEditValue > 0) {
-    tft.canvas((TFT_WIDTH - SLIDER_W) / 2, SLIDER_Y, SLIDER_W, 16);
-    tft.set_background(COLOR_BACKGROUND);
+    menu_line(line);
+    tft_string.set(value);
+    tft_string.trim();
+    tft.add_text(tft_string.center(TFT_WIDTH), MENU_TEXT_Y, COLOR_MENU_VALUE, tft_string);
 
-    int16_t position = (SLIDER_W - 2) * ui.encoderPosition / maxEditValue;
-    tft.add_bar(0, 7, 1, 2, ui.encoderPosition == 0 ? COLOR_SLIDER_INACTIVE : COLOR_SLIDER);
-    tft.add_bar(1, 6, position, 4, COLOR_SLIDER);
-    tft.add_bar(position + 1, 6, SLIDER_W - 2 - position, 4, COLOR_SLIDER_INACTIVE);
-    tft.add_bar(SLIDER_W - 1, 7, 1, 2, int32_t(ui.encoderPosition) == maxEditValue ? COLOR_SLIDER : COLOR_SLIDER_INACTIVE);
+    #if ENABLED(AUTO_BED_LEVELING_UBL)
+      if (ui.external_control) { // TODO: Disable keypad for UBL or check what is happening
+        menu_line(line - 1);
+
+        tft_string.set(X_LBL);
+        tft.add_text(UBL_X_LABEL_X, MENU_TEXT_Y, COLOR_MENU_TEXT, tft_string);
+        tft_string.set(ftostr52(LOGICAL_X_POSITION(motion.position.x)));
+        tft_string.trim();
+        tft.add_text(UBL_X_TEXT_X, MENU_TEXT_Y, COLOR_MENU_VALUE, tft_string);
+
+        tft_string.set(Y_LBL);
+        tft.add_text(UBL_Y_LABEL_X, MENU_TEXT_Y, COLOR_MENU_TEXT, tft_string);
+        tft_string.set(ftostr52(LOGICAL_Y_POSITION(motion.position.y)));
+        tft_string.trim();
+        tft.add_text(UBL_Y_TEXT_X, MENU_TEXT_Y, COLOR_MENU_VALUE, tft_string);
+      }
+    #endif
+
+    if (ui.can_show_slider() && maxEditValue > 0) {
+      tft.canvas((TFT_WIDTH - SLIDER_W) / 2, SLIDER_Y, SLIDER_W, 16);
+      tft.set_background(COLOR_BACKGROUND);
+
+      int16_t position = (SLIDER_W - 2) * ui.encoderPosition / maxEditValue;
+      tft.add_bar(0, 7, 1, 2, ui.encoderPosition == 0 ? COLOR_SLIDER_INACTIVE : COLOR_SLIDER);
+      tft.add_bar(1, 6, position, 4, COLOR_SLIDER);
+      tft.add_bar(position + 1, 6, SLIDER_W - 2 - position, 4, COLOR_SLIDER_INACTIVE);
+      tft.add_bar(SLIDER_W - 1, 7, 1, 2, int32_t(ui.encoderPosition) == maxEditValue ? COLOR_SLIDER : COLOR_SLIDER_INACTIVE);
+
+      #if ENABLED(TOUCH_SCREEN)
+        tft.add_image((SLIDER_W - 8) * ui.encoderPosition / maxEditValue, 0, imgSlider, COLOR_SLIDER);
+        touch.add_control(SLIDER, (TFT_WIDTH - SLIDER_W) / 2, SLIDER_Y - 8, SLIDER_W, 32, maxEditValue);
+      #endif
+
+      // Min / Max labels (tap to set) for menu item edits. Other screens keep the last item's range and formatter.
+      if (itemEdit) {
+        int w = (TFT_WIDTH - SLIDER_W) / 2 - 2;
+        int h = FONT_LINE_HEIGHT;
+        tft_string.set(shortenNum(to_str_edit_t(valueToString)(minEditValue)));
+        tft.canvas(0, SLIDER_Y, w, h);
+        tft.set_background(COLOR_BACKGROUND);
+        tft.add_text(tft_string.center(w), tft_string.vcenter(h), COLOR_WHITE, tft_string, w);
+        TERN_(TOUCH_SCREEN, touch.add_control(CALLBACK, 0, SLIDER_Y, w, h, intptr_t(setValue), 0));
+
+        tft_string.set(shortenNum(to_str_edit_t(valueToString)(minEditValue + maxEditValue)));
+        tft.canvas(TFT_WIDTH - w, SLIDER_Y, w, h);
+        tft.set_background(COLOR_BACKGROUND);
+        tft.add_text(tft_string.center(w), tft_string.vcenter(h), COLOR_WHITE, tft_string, w);
+        TERN_(TOUCH_SCREEN, touch.add_control(CALLBACK, TFT_WIDTH - w, SLIDER_Y, w, h, intptr_t(setValue), maxEditValue));
+      }
+    }
 
     #if ENABLED(TOUCH_SCREEN)
-      tft.add_image((SLIDER_W - 8) * ui.encoderPosition / maxEditValue, 0, imgSlider, COLOR_SLIDER);
-      touch.add_control(SLIDER, (TFT_WIDTH - SLIDER_W) / 2, SLIDER_Y - 8, SLIDER_W, 32, maxEditValue);
-    #endif
+      // Step sizes in encoder units: 1, 5, 10, 50, ... while at least two fit in the range.
+      // Labels show the actual value of each step, e.g., "0.01" for a float52 item.
+      // Menu item edits only. Other screens have no range, so +/- move by one step.
+      if (can_keypad) {
+        int32_t steps[10];
+        uint8_t stepCount = 0;
+        for (int32_t div = 1, multip = 5; stepCount < COUNT(steps) && maxEditValue / div >= 2; div *= multip, multip = multip == 5 ? 2 : 5)
+          steps[stepCount++] = div;
+
+        if (stepCount) {
+          // Size buttons for the widest label, then keep as many (finest) steps as will fit
+          uint16_t btn_w = BTN_WIDTH;
+          for (uint8_t i = 0; i < stepCount; ++i) {
+            tft_string.set(shortenNum(to_str_edit_t(valueToString)(steps[i])));
+            NOLESS(btn_w, tft_string.width() + 8);
+          }
+          uint16_t gap = X_MARGIN;
+          if (stepCount * (btn_w + gap) - gap > TFT_WIDTH) gap = X_MARGIN / 3;
+          NOMORE(stepCount, (TFT_WIDTH + gap) / (btn_w + gap));
+
+          if (stepSize == -1) stepSize = steps[_MIN(2, stepCount - 1)];
+
+          int x_pos = (TFT_WIDTH - stepCount * (btn_w + gap) + gap) / 2;
+          for (uint8_t i = 0; i < stepCount; ++i) {
+            tft.drawSimpleBtn(shortenNum(to_str_edit_t(valueToString)(steps[i])), x_pos, SLIDER_Y + 24 + Y_MARGIN, btn_w, FONT_LINE_HEIGHT, COLOR_WHITE, COLOR_BACKGROUND, BTN_TOGGLE, stepSize == steps[i], CALLBACK, intptr_t(stepChange), steps[i]);
+            x_pos += btn_w + gap;
+          }
+        }
+        else if (stepSize == -1)
+          stepSize = 1;
+      }
+    #endif // TOUCH_SCREEN
+
   }
 
-  tft.draw_edit_screen_buttons();
+  tft.draw_edit_screen_buttons(can_keypad, keypad);
 }
 
-void TFT::draw_edit_screen_buttons() {
+void TFT::draw_edit_screen_buttons(const bool can_keypad/*=false*/, const bool mode_keypad/*=false*/) {
   #if ENABLED(TOUCH_SCREEN)
-    add_control(BUTTON_DECREASE_X, BUTTON_DECREASE_Y, DECREASE, imgDecrease);
-    add_control(BUTTON_INCREASE_X, BUTTON_INCREASE_Y, INCREASE, imgIncrease);
-    add_control(BUTTON_CLICK_X, BUTTON_CLICK_Y, CLICK, imgConfirm);
+    #define BUTTON_ROW_Y (TFT_HEIGHT - Y_MARGIN - BTN_HEIGHT)
+    if (can_keypad)
+      drawSimpleBtn(mode_keypad ? "-/+" : "123", X_MARGIN,         BUTTON_ROW_Y, BTN_WIDTH, BTN_HEIGHT, COLOR_BLACK,       COLOR_WHITE, BTN_FILLED,  false, CALLBACK, intptr_t(switchKeypad));
+    if (!mode_keypad) {
+      const intptr_t step = can_keypad ? stepSize : 1;
+      drawSimpleBtn("-", (TFT_WIDTH - X_MARGIN) / 2 - BTN_WIDTH, BUTTON_ROW_Y, BTN_WIDTH, BTN_HEIGHT, COLOR_WHITE,       COLOR_WHITE, BTN_OUTLINE, false, DECREASE, step);
+      drawSimpleBtn("+", (TFT_WIDTH + X_MARGIN) / 2,             BUTTON_ROW_Y, BTN_WIDTH, BTN_HEIGHT, COLOR_WHITE,       COLOR_WHITE, BTN_OUTLINE, false, INCREASE, step);
+    }
+    drawSimpleBtn("OK", TFT_WIDTH - X_MARGIN - BTN_WIDTH,        BUTTON_ROW_Y, BTN_WIDTH, BTN_HEIGHT, COLOR_VIVID_GREEN, COLOR_BLACK, BTN_FILLED,  true,  BUTTON,   intptr_t(okClicked));
   #endif
 }
 

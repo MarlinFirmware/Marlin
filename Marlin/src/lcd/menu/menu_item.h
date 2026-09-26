@@ -110,8 +110,18 @@ class TMenuEditItem : MenuEditItemBase {
       // Make sure minv and maxv fit within int32_t
       const int32_t minv = _MAX(scaleToEncoder(minValue), INT32_MIN),
                     maxv = _MIN(scaleToEncoder(maxValue), INT32_MAX);
-      goto_edit_screen(fstr, ptr, minv, maxv - minv, scaleToEncoder(*ptr) - minv,
-        edit_screen, callback, live);
+      goto_edit_screen(
+          fstr              // Edit label
+        , ptr               // Edit value pointer
+        , minv              // Encoder min
+        , maxv - minv       // Encoder max
+        OPTARG(TFT_COLOR_UI, intptr_t(to_string)) // Value-to-string conversion function
+        OPTARG(TFT_COLOR_TOUCH, NAME::scaleVal()) // Smallest step
+        , scaleToEncoder(*ptr) - minv // Initial encoder value
+        , edit_screen       // Edit screen function
+        , callback          // Callback after edit
+        , live              // Flag to callback during editing
+      );
     }
 };
 
@@ -138,6 +148,7 @@ class TMenuEditItem : MenuEditItemBase {
   struct MenuEditItemInfo_##NAME { \
     typedef TYPE type_t; \
     /* scale the given value to the encoder */ \
+    static float scaleVal()   { return SCALE; } \
     static int32_t scaleToEncoder(const type_t &value) { return value * (SCALE) ETC; } \
     static type_t unscaleEncoder(const int32_t value) { return type_t(value) / (SCALE) ETC; } \
     static const char* strfunc(const type_t &value) { return STRFUNC(_DOFIX(TYPE,value)); } \
