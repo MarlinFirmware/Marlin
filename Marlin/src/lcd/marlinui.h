@@ -147,13 +147,13 @@ typedef bool (*statusResetFunc_t)();
       static int8_t constexpr e_index = 0;
     #endif
     static millis_t start_time;
-    #if IS_KINEMATIC
+    #if HAS_NONLINEAR_KINEMATICS
       static xyze_pos_t all_axes_destination;
     #endif
   public:
     static screenFunc_t screen_ptr;
     static float menu_scale;
-    #if IS_KINEMATIC
+    #if HAS_NONLINEAR_KINEMATICS
       static float offset;
     #endif
     #if ENABLED(MANUAL_E_MOVES_RELATIVE)
@@ -162,7 +162,7 @@ typedef bool (*statusResetFunc_t)();
 
     template <typename T>
     static void set_destination(const T& dest) {
-      #if IS_KINEMATIC
+      #if HAS_NONLINEAR_KINEMATICS
         // Moves are segmented, so the entire move is not submitted at once.
         // Using a separate variable prevents corrupting the in-progress move.
         all_axes_destination = motion.position;
@@ -175,12 +175,12 @@ typedef bool (*statusResetFunc_t)();
 
     static float axis_value(const AxisEnum axis) {
       return motion.native_to_logical(
-        processing ? motion.destination[axis] : SUM_TERN(IS_KINEMATIC, motion.position[axis], offset),
+        processing ? motion.destination[axis] : SUM_TERN(HAS_NONLINEAR_KINEMATICS, motion.position[axis], offset),
         axis
       );
     }
     static bool apply_diff(const AxisEnum axis, const float diff, const float min, const float max) {
-      #if IS_KINEMATIC
+      #if HAS_NONLINEAR_KINEMATICS
         float &valref = offset;
         const float rmin = min - motion.position[axis], rmax = max - motion.position[axis];
       #else
@@ -192,7 +192,7 @@ typedef bool (*statusResetFunc_t)();
       if (min != max) { if (diff < 0) NOLESS(valref, rmin); else NOMORE(valref, rmax); }
       return pre != valref;
     }
-    #if IS_KINEMATIC
+    #if HAS_NONLINEAR_KINEMATICS
       static bool processing;
     #else
       static bool constexpr processing = false;

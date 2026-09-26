@@ -824,7 +824,7 @@ void MarlinUI::init() {
     millis_t ManualMove::start_time = 0;
     float ManualMove::menu_scale = 1;
     screenFunc_t ManualMove::screen_ptr;
-    #if IS_KINEMATIC
+    #if HAS_NONLINEAR_KINEMATICS
       float ManualMove::offset = 0;
       xyze_pos_t ManualMove::all_axes_destination = { 0 };
       bool ManualMove::processing = false;
@@ -869,7 +869,7 @@ void MarlinUI::init() {
        */
       const feedRate_t fr = parser.axis_is_rotational(axis) && parser.using_inch_units() ? IN_TO_MM(fr_mm_s) : fr_mm_s;
 
-      #if IS_KINEMATIC
+      #if HAS_NONLINEAR_KINEMATICS
 
         #if HAS_MULTI_EXTRUDER
           REMEMBER(ae, motion.extruder);

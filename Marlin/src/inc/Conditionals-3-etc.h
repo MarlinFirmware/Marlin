@@ -625,11 +625,20 @@
   #define NORMAL_AXIS Z_AXIS
 #endif
 
+/**
+ * HAS_NONLINEAR_KINEMATICS - The Cartesian to motor transform is non-linear, so a
+ * straight line in Cartesian space is a curve in motor space. Such machines need
+ * their moves broken into segments and converted one at a time, and they provide
+ * explicit inverse / forward kinematics.
+ *
+ * CORE and Markforged machines also drive an axis with two motors, but their
+ * transform is linear, so they are Cartesian for these purposes and are excluded.
+ */
 #if ANY(SCARA, AXEL_TPARA)
   #define IS_SCARA 1
-  #define IS_KINEMATIC 1
+  #define HAS_NONLINEAR_KINEMATICS 1
 #elif ANY(DELTA, POLARGRAPH, POLAR)
-  #define IS_KINEMATIC 1
+  #define HAS_NONLINEAR_KINEMATICS 1
 #else
   #define IS_CARTESIAN 1
   #if !IS_CORE

@@ -176,7 +176,7 @@ int16_t Motion::feedrate_percentage = 100;
   constexpr xyz_feedrate_t Motion::homing_feedrate_mm_m;
 #endif
 
-#if IS_KINEMATIC
+#if HAS_NONLINEAR_KINEMATICS
 
   abce_pos_t Motion::delta;
 
@@ -197,7 +197,7 @@ int16_t Motion::feedrate_percentage = 100;
                     delta_max_radius_2 = sq(float(PRINTABLE_RADIUS));
   #endif
 
-#endif // IS_KINEMATIC
+#endif // HAS_NONLINEAR_KINEMATICS
 
 /**
  * The workspace can be offset by some commands, or
@@ -664,7 +664,7 @@ void Motion::report_position_projected() {
 
 #endif // REALTIME_REPORTING_COMMANDS
 
-#if IS_KINEMATIC
+#if HAS_NONLINEAR_KINEMATICS
 
   bool Motion::can_reach(const float rx, const float ry, const float inset/*=0*/) {
 
@@ -860,7 +860,7 @@ void Motion::goto_current_position(const feedRate_t fr_mm_s/*=feedrate_mm_s*/) {
   }
 #endif
 
-#if IS_KINEMATIC
+#if HAS_NONLINEAR_KINEMATICS
 
   /**
    * Buffer a fast move without interpolation. Set position to destination
@@ -883,7 +883,7 @@ void Motion::goto_current_position(const feedRate_t fr_mm_s/*=feedrate_mm_s*/) {
     position = destination;
   }
 
-#endif // IS_KINEMATIC
+#endif // HAS_NONLINEAR_KINEMATICS
 
 /**
  * Do a fast or normal move to 'destination' with an optional FR.
@@ -891,15 +891,15 @@ void Motion::goto_current_position(const feedRate_t fr_mm_s/*=feedrate_mm_s*/) {
  *  - Extrude the specified length regardless of flow percentage.
  */
 void Motion::_goto_destination_internal(const feedRate_t fr_mm_s/*=0.0f*/
-  OPTARG(IS_KINEMATIC, const bool is_fast/*=false*/)
+  OPTARG(HAS_NONLINEAR_KINEMATICS, const bool is_fast/*=false*/)
 ) {
   REMEMBER(fr, feedrate_mm_s);
   REMEMBER(pct, feedrate_percentage, 100);
   TERN_(HAS_EXTRUDERS, REMEMBER(fac, planner.e_factor[extruder], 1.0f));
 
   if (fr_mm_s) feedrate_mm_s = fr_mm_s;
-  if (TERN0(IS_KINEMATIC, is_fast))
-    TERN(IS_KINEMATIC, prepare_fast_move_to_destination(), NOOP);
+  if (TERN0(HAS_NONLINEAR_KINEMATICS, is_fast))
+    TERN(HAS_NONLINEAR_KINEMATICS, prepare_fast_move_to_destination(), NOOP);
   else
     prepare_line_to_destination();
 }
@@ -940,7 +940,7 @@ void Motion::blocking_move(NUM_AXIS_ARGS_(const float) const feedRate_t fr_mm_s/
     const feedRate_t z_feedrate = fr_mm_s ?: homing_feedrate(Z_AXIS);
   #endif
 
-  #if IS_KINEMATIC && DISABLED(POLARGRAPH)
+  #if HAS_NONLINEAR_KINEMATICS && DISABLED(POLARGRAPH)
     // kinematic machines are expected to home to a point 1.5x their range? never reachable.
     if (!can_reach(x, y)) return;
     destination = position;          // sync destination at the start
@@ -1322,7 +1322,7 @@ void Motion::restore_feedrate_and_scaling() {
 
     if (!soft_endstop.enabled()) return;
 
-    #if IS_KINEMATIC
+    #if HAS_NONLINEAR_KINEMATICS
 
       if (TERN0(DELTA, !all_axes_homed())) return;
 
@@ -1559,7 +1559,7 @@ float Motion::get_move_distance(const xyze_pos_t &diff OPTARG(HAS_ROTATIONAL_AXE
   #endif
 }
 
-#if IS_KINEMATIC
+#if HAS_NONLINEAR_KINEMATICS
 
   #if IS_SCARA
     /**
@@ -1683,7 +1683,7 @@ float Motion::get_move_distance(const xyze_pos_t &diff OPTARG(HAS_ROTATIONAL_AXE
     return false; // caller will update position
   }
 
-#else // !IS_KINEMATIC
+#else // !HAS_NONLINEAR_KINEMATICS
 
   #if ENABLED(SEGMENT_LEVELED_MOVES) && DISABLED(AUTO_BED_LEVELING_UBL)
 
@@ -1796,7 +1796,7 @@ float Motion::get_move_distance(const xyze_pos_t &diff OPTARG(HAS_ROTATIONAL_AXE
     return false; // caller will update position
   }
 
-#endif // !IS_KINEMATIC
+#endif // !HAS_NONLINEAR_KINEMATICS
 
 #if HAS_DUPLICATION_MODE
   bool Motion::extruder_duplication;
@@ -1982,12 +1982,12 @@ void Motion::prepare_line_to_destination() {
 
   if (
     #if UBL_SEGMENTED
-      #if IS_KINEMATIC // UBL using Kinematic / Cartesian cases as a workaround for now.
+      #if HAS_NONLINEAR_KINEMATICS // UBL using Kinematic / Cartesian cases as a workaround for now.
         bedlevel.line_to_destination_segmented(mms_scaled())
       #else
         goto_destination_cartesian()
       #endif
-    #elif IS_KINEMATIC
+    #elif HAS_NONLINEAR_KINEMATICS
       goto_destination_kinematic()
     #else
       goto_destination_cartesian()

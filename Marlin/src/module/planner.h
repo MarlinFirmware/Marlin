@@ -109,7 +109,7 @@
   #endif
 #endif
 
-#if IS_KINEMATIC && HAS_JUNCTION_DEVIATION
+#if HAS_NONLINEAR_KINEMATICS && HAS_JUNCTION_DEVIATION
   #define HAS_DIST_MM_ARG 1
 #endif
 
@@ -616,7 +616,7 @@ class Planner {
       static xyze_pos_t position_float;
     #endif
 
-    #if IS_KINEMATIC
+    #if HAS_NONLINEAR_KINEMATICS
       static xyze_pos_t position_cart;
     #endif
 
@@ -1196,7 +1196,7 @@ class Planner {
 
     static void recalculate(const float safe_exit_speed_sqr);
 
-    #if IS_KINEMATIC
+    #if HAS_NONLINEAR_KINEMATICS
       // Allow do_homing_move to access internal functions, such as buffer_segment.
       friend void Motion::do_homing_move(const AxisEnum, const float, const feedRate_t, const bool);
     #endif

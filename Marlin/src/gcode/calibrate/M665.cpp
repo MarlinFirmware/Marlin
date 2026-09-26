@@ -22,7 +22,7 @@
 
 #include "../../inc/MarlinConfig.h"
 
-#if IS_KINEMATIC
+#if HAS_NONLINEAR_KINEMATICS
 
 #include "../gcode.h"
 #include "../../module/motion.h"
@@ -209,4 +209,4 @@
 
 #endif // POLAR
 
-#endif // IS_KINEMATIC
+#endif // HAS_NONLINEAR_KINEMATICS

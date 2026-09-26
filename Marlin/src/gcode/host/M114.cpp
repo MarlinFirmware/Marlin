@@ -68,7 +68,7 @@
       report_linear_axis_pos(unleveled);
     #endif
 
-    #if IS_KINEMATIC
+    #if HAS_NONLINEAR_KINEMATICS
       // Kinematics applied to the leveled position
       SERIAL_ECHOPGM(TERN(POLAR, "Polar", TERN(IS_SCARA, "SCARA", "Delta")) "K: " );
       inverse_kinematics(leveled);  // writes delta[]
