@@ -183,8 +183,9 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-pip-build-
 
-    - name: Cache PlatformIO
-      uses: actions/cache@v6
+    - name: Restore PlatformIO cache
+      id: pio-cache
+      uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6
       with:
         path: |
           ~/.platformio
@@ -213,3 +214,13 @@ jobs:
     - name: Run ${{ matrix.test-platform }} Tests
       run: |
         make tests-single-ci TEST_TARGET=${{ matrix.test-platform }}
+
+    # Only push builds refresh the cache, so PR runs can't fill the repo cache quota
+    - name: Save PlatformIO cache
+      if: github.event_name == 'push' && steps.pio-cache.outputs.cache-hit != 'true'
+      uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6
+      with:
+        path: |
+          ~/.platformio
+          .pio/libdeps
+        key: ${{ steps.pio-cache.outputs.cache-primary-key }}
