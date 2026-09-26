@@ -642,11 +642,22 @@ bool Stepper::disable_axis(const AxisEnum axis) {
     if ((current_block = rtg.generate_resonance_block())) {
       // Apply direction
       DIR_WAIT_BEFORE();
+
       const uint8_t axis = rtg.rt_params.axis;
       const bool fwd = current_block->direction_bits[axis];
       switch (axis) {
-        case X_AXIS: X_APPLY_DIR(fwd, false); break;
-        case Y_AXIS: Y_APPLY_DIR(fwd, false); break;
+        #if CORE_IS_XY
+          case CORE_AXIS_1:
+          case CORE_AXIS_2: {
+            const int8_t d = fwd ? 1 : -1;
+            const bool b_fwd = CORESIGN(axis == CORE_AXIS_1 ? d : -d) >= 0;
+            X_APPLY_DIR(fwd, false);
+            Y_APPLY_DIR(b_fwd, false);
+          }
+        #else
+          case X_AXIS: X_APPLY_DIR(fwd, false); break;
+          case Y_AXIS: Y_APPLY_DIR(fwd, false); break;
+        #endif
         case Z_AXIS: Z_APPLY_DIR(fwd, false); break;
       }
 
@@ -679,9 +690,33 @@ bool Stepper::disable_axis(const AxisEnum axis) {
       A##_APPLY_STEP(!STEP_STATE_##A, false); \
     } while(0)
 
+    #define CORE_RESONANCE_STEP_SEQUENCE() do { \
+      X_APPLY_STEP(STEP_STATE_X, false); \
+      Y_APPLY_STEP(STEP_STATE_Y, false); \
+      START_TIMED_PULSE(); \
+      AWAIT_HIGH_PULSE(); \
+      X_APPLY_STEP(!STEP_STATE_X, false); \
+      Y_APPLY_STEP(!STEP_STATE_Y, false); \
+    } while (0)
+
     USING_TIMED_PULSE();
 
     const uint8_t axis = rtg.rt_params.axis;
+
+    #if CORE_IS_XY
+      if (axis == CORE_AXIS_1 || axis == CORE_AXIS_1) {
+        #if ISR_MULTI_STEPS
+          CORE_RESONANCE_STEP_SEQUENCE();
+          while (--events_to_do) {
+            AWAIT_LOW_PULSE();
+            CORE_RESONANCE_STEP_SEQUENCE();
+          }
+        #else
+          do { CORE_RESONANCE_STEP_SEQUENCE(); } while (--events_to_do);
+        #endif
+        return;
+      }
+    #endif
 
     switch (axis) {
       case X_AXIS:

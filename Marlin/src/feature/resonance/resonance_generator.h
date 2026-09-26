@@ -51,7 +51,7 @@
 // Fixed-point constants
 #define M_TAU_FP F2FP(2.0f * M_PI)
 #define M_PI_FP F2FP(M_PI)
-#define C0101321184_FP F2FP(0.101321184f) // 1/π² : coefficient of the cubic sine approximation r·(1 - r²/π²)
+#define C0101321184_FP F2FP(0.101321184f) // 1 / π² : Coefficient of the cubic sine approximation r·(1 - r²/π²)
 
 typedef struct ResonanceTestParams {
   AxisEnum axis         = NO_AXIS_ENUM; // Axis to test
@@ -103,7 +103,7 @@ class ResonanceGenerator {
 
     // Phase variables (in radians, stored as fixed-point)
     static int32_t phase_fp;          // Fixed-point phase accumulator (Q16.16, wrapped to [0, 2π))
-    static int32_t phase_inc_fp;      // Q28: phase advance per step per Hz (2π·RESONANCE_TS)
+    static int32_t phase_inc_fp;      // Q28: per-step phase advance per Hz (2π·RESONANCE_TS)
     static int32_t freq_mul_inc;      // Q28: per-step frequency multiplier minus 1 (exp2(RESONANCE_TS/oct) - 1)
 
     static int32_t max_freq_fp;       // Fixed-point maximum frequency

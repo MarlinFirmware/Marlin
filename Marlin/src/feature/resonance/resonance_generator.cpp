@@ -79,9 +79,10 @@ void ResonanceGenerator::start() {
   phase_fp = 0;
 
   // Sweep time base
+  // Advance the sweep and phase using the same fixed time step for all motion modes.
   // After n generated points, t = n·RESONANCE_TS  and  f(t) = min_freq · exp2(t / octave_duration)
   freq_mul_inc = F2FPQ(exp2f(RESONANCE_TS / rt_params.octave_duration) - 1.0f);
-  // Use Q28 for phase calculation only for consistency between freq and phase (Q16 is enough) 
+  // Use Q28 for phase calculation only for consistency between freq and phase (Q16 is enough)
   phase_inc_fp = F2FPQ((2.0f * M_PI) * RESONANCE_TS);
 }
 
@@ -111,14 +112,14 @@ float ResonanceGenerator::calc_next_pos() {
   if (phase_fp >= M_TAU_FP) phase_fp -= M_TAU_FP;
   else if (phase_fp < 0) phase_fp += M_TAU_FP;
 
-  // -π <= r <= π
+  // -pi <= r_fp <= pi
   const int32_t r_fp = (phase_fp > M_PI_FP) ? phase_fp - M_TAU_FP : phase_fp;
 
   // Windowing polynomial: 1.0 - r²/π²
   const int64_t r2 = (int64_t)r_fp * r_fp;
   const int32_t poly_fp = FP_ONE - (int32_t)(((int64_t)C0101321184_FP * (r2 >> FP_BITS)) >> FP_BITS);
 
-  // Amplitude A = amplitude_precalc / f
+  // Combine amplitude, phase, and polynomial without overflowing fixed-point values.
   const int32_t amplitude_fp = (int32_t)(((int64_t)amplitude_precalc_fp * FP_ONE) / current_freq_fp);
 
   // Position offset = A·r·poly
@@ -184,6 +185,8 @@ float ResonanceGenerator::calc_next_pos() {
     const int32_t delta_steps = (int32_t)floor(step_accumulator);
     step_accumulator -= delta_steps;
     const uint32_t abs_steps = abs(delta_steps);
+
+    block.initial_rate = uint32_t(_MAX(abs_steps, 1U) / (RESONANCE_TS));
 
     // Update block
     block.steps[rt_params.axis] = abs_steps;
