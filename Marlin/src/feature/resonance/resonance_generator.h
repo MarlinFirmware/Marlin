@@ -103,8 +103,8 @@ class ResonanceGenerator {
 
     // Phase variables (in radians, stored as fixed-point)
     static int32_t phase_fp;          // Fixed-point phase accumulator (Q16.16, wrapped to [0, 2π))
-    static int32_t phase_inc_fp;      // Q28: phase advance per Hz per step (2π·RESONANCE_TS)
-    static int32_t freq_mul_inc;      // Q28: frequency multiplier minus 1 per step (exp2(RESONANCE_TS/oct) - 1)
+    static int32_t phase_inc_fp;      // Q28: per-step phase advance per Hz (2π·RESONANCE_TS)
+    static int32_t freq_mul_inc;      // Q28: per-step frequency multiplier minus 1 (exp2(RESONANCE_TS/oct) - 1)
 
     static int32_t max_freq_fp;       // Fixed-point maximum frequency
     #if HAS_STANDARD_MOTION

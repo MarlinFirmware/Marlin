@@ -115,7 +115,7 @@ float ResonanceGenerator::calc_next_pos() {
   // -pi <= r_fp <= pi
   const int32_t r_fp = (phase_fp > M_PI_FP) ? phase_fp - M_TAU_FP : phase_fp;
 
-  // Calculate windowing polynomial: 1.0 - r^2/pi^2
+  // Windowing polynomial: 1.0 - r²/π²
   const int64_t r2 = (int64_t)r_fp * r_fp;
   const int32_t poly_fp = FP_ONE - (int32_t)(((int64_t)C0101321184_FP * (r2 >> FP_BITS)) >> FP_BITS);
 
