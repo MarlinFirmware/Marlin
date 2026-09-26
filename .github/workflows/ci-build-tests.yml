@@ -188,7 +188,6 @@ jobs:
       with:
         path: |
           ~/.platformio
-          .pio/build
           .pio/libdeps
         key: ${{ runner.os }}-pio-build-v1
         restore-keys: |

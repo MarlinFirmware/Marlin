@@ -60,7 +60,6 @@ jobs:
       with:
         path: |
           ~/.platformio
-          .pio/build
           .pio/libdeps
         key: ${{ runner.os }}-pio-tests-v1
         restore-keys: |
