@@ -430,22 +430,19 @@ bool is_digital(const pin_t pin) {
 }
 
 void printPinPort(const pin_t pin) {
-  char buffer[16];
   pin_t index;
   for (index = 0; index < NUMBER_PINS_TOTAL; index++)
     if (pin == GET_PIN_MAP_PIN_M43(index)) break;
 
   // A pin with no entry would otherwise index one past the end of pin_xref
   const char * const ppa = index < NUMBER_PINS_TOTAL ? pin_xref[index].Port_pin_alpha : "?";
-  sprintf_P(buffer, PSTR("%s"), ppa);
-  SERIAL_ECHO(buffer);
+  SERIAL_ECHO(ppa);
   if (ppa[3] == '\0') SERIAL_CHAR(' ');
 
   // print analog pin number
   const int8_t Port_pin = digital_pin_to_analog_pin(pin);
   if (Port_pin >= 0) {
-    sprintf_P(buffer, PSTR(" (A%d) "), Port_pin);
-    SERIAL_ECHO(buffer);
+    SERIAL_ECHO(" (A", Port_pin, ") ");
     if (Port_pin < 10) SERIAL_CHAR(' ');
   }
   else
@@ -690,7 +687,7 @@ void printPeriphName(const void * const p) {
   #define _PNAME(N) if (p == (const void *)N) { SERIAL_ECHO(F(#N)); return; }
   #include "pins_Periph.h"
   #undef _PNAME
-  SERIAL_ECHOPGM("?");
+  SERIAL_CHAR('?');
 }
 
 // Report "<peripheral>_<function>" for the pin, if it can be identified
@@ -699,7 +696,7 @@ bool printPinFunctionPass(const PinName dp, const uint8_t af, const bool analog,
   UNUSED(strict);
 
   #define _TRY_MAP(MAP, ROLE) do{ \
-    if ((e = find_pinmap_entry(dp, MAP, af, true, strict))) { SERIAL_CHAR(' '); printPeriphName(e->peripheral); SERIAL_ECHOPGM(ROLE); return true; } \
+    if ((e = find_pinmap_entry(dp, MAP, af, true, strict))) { SERIAL_CHAR(' '); printPeriphName(e->peripheral); SERIAL_ECHO(ROLE); return true; } \
   }while(0)
 
   if (analog) {
@@ -707,7 +704,7 @@ bool printPinFunctionPass(const PinName dp, const uint8_t af, const bool analog,
       if ((e = find_pinmap_entry(dp, PinMap_ADC, af, false, strict))) {  // ADC entries carry no AF
         SERIAL_CHAR(' ');
         printPeriphName(e->peripheral);
-        SERIAL_ECHOPGM("_IN", STM_PIN_CHANNEL(e->function));
+        SERIAL_ECHO("_IN", STM_PIN_CHANNEL(e->function));
         return true;
       }
     #endif
@@ -723,7 +720,7 @@ bool printPinFunctionPass(const PinName dp, const uint8_t af, const bool analog,
       if (e) {
         SERIAL_CHAR(' ');
         printPeriphName(e->peripheral);
-        SERIAL_ECHOPGM("_CH", STM_PIN_CHANNEL(e->function));
+        SERIAL_ECHO("_CH", STM_PIN_CHANNEL(e->function));
         if (STM_PIN_INVERTED(e->function)) SERIAL_CHAR('N');
         return true;
       }
@@ -757,15 +754,15 @@ bool printPinFunctionPass(const PinName dp, const uint8_t af, const bool analog,
     if (af == 0) {
       if (STM_PORT(dp) == 0) {
         switch (STM_PIN(dp)) {
-          case 13: SERIAL_ECHOPGM(" SWDIO/JTMS"); return true;
-          case 14: SERIAL_ECHOPGM(" SWCLK/JTCK"); return true;
-          case 15: SERIAL_ECHOPGM(" JTDI");       return true;
+          case 13: SERIAL_ECHO(" SWDIO/JTMS"); return true;
+          case 14: SERIAL_ECHO(" SWCLK/JTCK"); return true;
+          case 15: SERIAL_ECHO(" JTDI");       return true;
         }
       }
       else if (STM_PORT(dp) == 1) {
         switch (STM_PIN(dp)) {
-          case 3: SERIAL_ECHOPGM(" JTDO/TRACESWO"); return true;
-          case 4: SERIAL_ECHOPGM(" NJTRST");        return true;
+          case 3: SERIAL_ECHO(" JTDO/TRACESWO"); return true;
+          case 4: SERIAL_ECHO(" NJTRST");        return true;
         }
       }
     }
@@ -777,13 +774,11 @@ bool printPinFunctionPass(const PinName dp, const uint8_t af, const bool analog,
 // Say what owns the pad, or note the drive limit when nothing does.
 void printPinPadInfo(const PinName dp, FSTR_P const owner) {
   if (owner) {
-    SERIAL_ECHOPGM("  !! ");
-    SERIAL_ECHO(owner);
-    SERIAL_ECHOPGM(" drives this pad - GPIO has no effect");
+    SERIAL_ECHO("  !! ", owner, " drives this pad - GPIO has no effect");
   }
   else if (STM_PORT(dp) == 2 && WITHIN(STM_PIN(dp), 13, 15)) {
     // PC13..PC15 are fed through the backup-domain power switch
-    SERIAL_ECHOPGM("  (backup domain pad - limited output drive)");
+    SERIAL_ECHO("  (backup domain pad - limited output drive)");
   }
 }
 
@@ -804,16 +799,16 @@ bool printPinFunction(const PinName dp, const uint8_t af, const bool analog) {
 void printPinSpeed(const uint8_t speed) {
   #ifdef STM32F1xx
     switch (speed) {
-      case 1: SERIAL_ECHOPGM(" 10MHz"); break;
-      case 2: SERIAL_ECHOPGM(" 2MHz");  break;
-      case 3: SERIAL_ECHOPGM(" 50MHz"); break;
+      case 1: SERIAL_ECHO(" 10MHz"); break;
+      case 2: SERIAL_ECHO(" 2MHz");  break;
+      case 3: SERIAL_ECHO(" 50MHz"); break;
     }
   #else
     switch (speed) {
-      case LL_GPIO_SPEED_FREQ_LOW:    SERIAL_ECHOPGM(" Low");    break;
-      case LL_GPIO_SPEED_FREQ_MEDIUM: SERIAL_ECHOPGM(" Medium"); break;
-      case LL_GPIO_SPEED_FREQ_HIGH:   SERIAL_ECHOPGM(" High");   break;
-      default:                        SERIAL_ECHOPGM(" VeryHigh");
+      case LL_GPIO_SPEED_FREQ_LOW:    SERIAL_ECHO(" Low");    break;
+      case LL_GPIO_SPEED_FREQ_MEDIUM: SERIAL_ECHO(" Medium"); break;
+      case LL_GPIO_SPEED_FREQ_HIGH:   SERIAL_ECHO(" High");   break;
+      default:                        SERIAL_ECHO(" VeryHigh");
     }
   #endif
 }
@@ -838,38 +833,38 @@ void printPinPWM(const pin_t pin) {
    */
   if (pc.mode == MODE_PIN_ALT || pc.mode == MODE_PIN_ANALOG || owner) {
     switch (pc.mode) {
-      case MODE_PIN_ANALOG: SERIAL_ECHOPGM(" Analog"); break;
-      case MODE_PIN_INPUT:  SERIAL_ECHOPGM(" Input");  break;
-      case MODE_PIN_OUTPUT: SERIAL_ECHOPGM(" Output"); break;
-      case MODE_PIN_ALT:    SERIAL_ECHOPGM(" Alt");    break;
+      case MODE_PIN_ANALOG: SERIAL_ECHO(" Analog"); break;
+      case MODE_PIN_INPUT:  SERIAL_ECHO(" Input");  break;
+      case MODE_PIN_OUTPUT: SERIAL_ECHO(" Output"); break;
+      case MODE_PIN_ALT:    SERIAL_ECHO(" Alt");    break;
     }
   }
 
   const bool driven = (pc.mode == MODE_PIN_OUTPUT || pc.mode == MODE_PIN_ALT);
 
   #if HAS_GPIO_AF_REG
-    if (pc.mode == MODE_PIN_ALT) SERIAL_ECHOPGM(" AF", pc.af);
+    if (pc.mode == MODE_PIN_ALT) SERIAL_ECHO(" AF", pc.af);
   #endif
 
   if (pc.mode == MODE_PIN_ALT || pc.mode == MODE_PIN_ANALOG) {
     // An owned pad is named by printPinPadInfo below, so "(unmapped)" adds nothing.
     if (!printPinFunction(dp, pc.af, pc.mode == MODE_PIN_ANALOG) && !owner)
-      SERIAL_ECHOPGM(" (unmapped)");
+      SERIAL_ECHO(" (unmapped)");
   }
 
   if (driven) SERIAL_ECHO(pc.open_drain ? F(" OpenDrain") : F(" PushPull"));
 
   if (pc.floating)
-    SERIAL_ECHOPGM(" Floating");
+    SERIAL_ECHO(" Floating");
   else switch (pc.pull) {
-    case PIN_PULL_UP:   SERIAL_ECHOPGM(" PullUp");   break;
-    case PIN_PULL_DOWN: SERIAL_ECHOPGM(" PullDown"); break;
+    case PIN_PULL_UP:   SERIAL_ECHO(" PullUp");   break;
+    case PIN_PULL_DOWN: SERIAL_ECHO(" PullDown"); break;
     default: break;
   }
 
   if (driven) printPinSpeed(pc.speed);
 
-  if (pc.locked) SERIAL_ECHOPGM(" Locked");
+  if (pc.locked) SERIAL_ECHO(" Locked");
 
   printPinPadInfo(dp, owner);
 
