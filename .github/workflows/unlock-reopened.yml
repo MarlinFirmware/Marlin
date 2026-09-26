@@ -18,6 +18,7 @@ jobs:
     if: github.repository == 'MarlinFirmware/Marlin'
 
     runs-on: ubuntu-22.04
+    timeout-minutes: 10
 
     steps:
     - name: Unlock Reopened Issue

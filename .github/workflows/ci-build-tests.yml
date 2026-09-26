@@ -44,6 +44,7 @@ jobs:
     if: github.repository == 'MarlinFirmware/Marlin'
 
     runs-on: ubuntu-22.04
+    timeout-minutes: 60
 
     env:
       CONFIG_BRANCH: ${{ github.base_ref || github.ref_name }}
