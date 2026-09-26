@@ -42,6 +42,7 @@
  */
 
 #include <Arduino.h>
+#include <PeripheralPins.h>
 
 #ifndef NUM_DIGITAL_PINS
    // Only in ST's Arduino core (STM32duino, STM32Core)
@@ -130,7 +131,14 @@ const XrefInfo pin_xref[] PROGMEM = {
 #ifndef NUM_ANALOG_LAST
   #define NUM_ANALOG_LAST ((NUM_ANALOG_FIRST) + (NUM_ANALOG_INPUTS) - 1)
 #endif
-#define NUMBER_PINS_TOTAL COUNT(pin_xref)  // All consumers index pin_xref[]
+/**
+ * M43 walks this range and indexes pin_xref with it, so it must not exceed the
+ * table. pin_xref holds only the port/pins the variant actually defines, which is
+ * fewer than NUM_DIGITAL_PINS plus the analog inputs on most parts - the surplus
+ * indices used to read past the end of the array and print a blank port name with
+ * a stale M42 number repeated to the end of the report.
+ */
+#define NUMBER_PINS_TOTAL COUNT(pin_xref)
 #define isValidPin(P) (WITHIN(P, 0, (NUM_DIGITAL_PINS) - 1) || TERN0(HAS_HIGH_ANALOG_PINS, WITHIN(P, NUM_ANALOG_FIRST, NUM_ANALOG_LAST)))
 #define digitalRead_mod(A) extDigitalRead(A)  // must use Arduino pin numbers when doing reads
 #define printPinNumber(Q)
@@ -146,77 +154,262 @@ const XrefInfo pin_xref[] PROGMEM = {
 //
 #define GET_PIN_MAP_PIN_M43(x) pin_xref[x].Ard_num
 
-//
-// Pins that will cause a hang / reset / disconnect in M43 Toggle and Watch utils
-//
-#ifndef M43_NEVER_TOUCH
+/**
+ * Pin configuration read back from the GPIO registers.
+ *
+ * STM32F1 keeps a 4-bit CNF/MODE field per pin in CRL/CRH, where the mode and the
+ * output driver share one field and there is no alternate function multiplexer -
+ * peripherals are steered by the AFIO remap registers instead. Every other family
+ * has the MODER/OTYPER/OSPEEDR/PUPDR/AFR set, with a per-pin AF number. So the two
+ * are decoded separately below.
+ */
 
-  // Set these as GPIO and the crystal stops. Boards clocked from HSE hang.
-  #if defined(STM32F1xx)
-    #if defined(PD0) && defined(PD1)
-      #define OSC_IN_PIN                      PD0
-      #define OSC_OUT_PIN                     PD1
-    #endif
-  #elif defined(STM32F0xx) || defined(STM32G0xx) || defined(STM32G4xx)
-    #if defined(PF0) && defined(PF1)
-      #define OSC_IN_PIN                      PF0
-      #define OSC_OUT_PIN                     PF1
-    #endif
-  #elif defined(PH0) && defined(PH1)                // F2/F4/F7/H7/L4/...
-    #define OSC_IN_PIN                        PH0
-    #define OSC_OUT_PIN                       PH1
-  #endif
+#ifdef STM32F1xx
+  #define HAS_GPIO_AF_REG 0
+#else
+  #define HAS_GPIO_AF_REG 1
+#endif
 
-  // Only skip them while HSE is running. On HSI boards these are normal pins.
-  #ifdef OSC_IN_PIN
-    #define IS_OSC_PIN(P) (((P) == OSC_IN_PIN || (P) == OSC_OUT_PIN) && __HAL_RCC_GET_FLAG(RCC_FLAG_HSERDY))
-  #else
-    #define IS_OSC_PIN(P) false
-  #endif
+#define PIN_PULL_NONE 0
+#define PIN_PULL_UP   1
+#define PIN_PULL_DOWN 2
 
-  // Reset pin on variants that expose it
-  #if defined(STM32G0xx) && defined(PF2)
-    #define IS_NRST_PIN(P) ((P) == PF2)
-  #else
-    #define IS_NRST_PIN(P) false
-  #endif
+typedef struct {
+  uint8_t mode;       // MODE_PIN_INPUT / _OUTPUT / _ALT / _ANALOG
+  uint8_t pull;       // PIN_PULL_NONE / _UP / _DOWN
+  uint8_t speed;      // Raw OSPEEDR (or F1 MODE) field. See printPinSpeed.
+  uint8_t af;         // Alternate function number. Always 0 on F1.
+  bool open_drain;    // Output driver, for MODE_PIN_OUTPUT and MODE_PIN_ALT
+  bool floating;      // F1 only: input with neither pull enabled
+  bool locked;        // Pin configuration frozen by the LCKR lock sequence
+} PinConfig;
 
-  // 'x' indexes pin_xref[]. It's not a pin number.
-  #define _M43_NEVER_TOUCH(x) ( WITHIN(x, 9, 12)    /* SERIAL/USB pins: PA9(TX) PA10(RX) PA11(USB_DM) PA12(USB_DP) */ \
-                             || IS_OSC_PIN(GET_PIN_MAP_PIN_M43(x)) || IS_NRST_PIN(GET_PIN_MAP_PIN_M43(x)) )
-  #if PIN_EXISTS(KILL)
-    #define M43_NEVER_TOUCH(x) m43_never_touch(x)
+PinConfig get_pin_config(const PinName dp) {
+  PinConfig pc = { MODE_PIN_INPUT, PIN_PULL_NONE, 0, 0, false, false, false };
+  if (dp == NC) return pc;
 
-    bool m43_never_touch(const pin_t index) {
-      static pin_t M43_kill_index = -1;
-      if (M43_kill_index < 0)
-        for (M43_kill_index = 0; M43_kill_index < NUMBER_PINS_TOTAL; M43_kill_index++)
-          if (KILL_PIN == GET_PIN_MAP_PIN_M43(M43_kill_index)) break;
-      return _M43_NEVER_TOUCH(index) || index == M43_kill_index; // KILL_PIN and SERIAL/USB
+  GPIO_TypeDef * const port = get_GPIO_Port(STM_PORT(dp));
+  if (!port) return pc;
+
+  const uint32_t ll_pin = STM_LL_GPIO_PIN(dp);
+
+  #ifdef STM32F1xx
+
+    // CRL/CRH hold CNF in bits 3:2 and MODE in bits 1:0 for each pin.
+    const uint32_t cr = LL_GPIO_GetPinMode(port, ll_pin);
+    const uint8_t cnf = (cr >> 2) & 0x03, md = cr & 0x03;
+    pc.speed = md;
+    if (md) {                                   // MODE != 0 : output at 10 / 2 / 50 MHz
+      pc.mode = (cnf & 0x02) ? MODE_PIN_ALT : MODE_PIN_OUTPUT;
+      pc.open_drain = bool(cnf & 0x01);
     }
+    else switch (cnf) {                         // MODE == 0 : input
+      case 0: pc.mode = MODE_PIN_ANALOG; break;
+      case 1: pc.floating = true; break;        // CNF 01 : floating, no pull
+      default:                                  // CNF 10 : pull direction is held in ODR
+        pc.pull = (LL_GPIO_GetPinPull(port, ll_pin) == LL_GPIO_PULL_UP) ? PIN_PULL_UP : PIN_PULL_DOWN;
+    }
+
   #else
-    #define M43_NEVER_TOUCH(index) _M43_NEVER_TOUCH(index)
+
+    switch (LL_GPIO_GetPinMode(port, ll_pin)) {
+      case LL_GPIO_MODE_OUTPUT:    pc.mode = MODE_PIN_OUTPUT; break;
+      case LL_GPIO_MODE_ALTERNATE: pc.mode = MODE_PIN_ALT;    break;
+      case LL_GPIO_MODE_ANALOG:    pc.mode = MODE_PIN_ANALOG; break;
+      default:                     pc.mode = MODE_PIN_INPUT;  break;
+    }
+
+    pc.open_drain = (LL_GPIO_GetPinOutputType(port, ll_pin) == LL_GPIO_OUTPUT_OPENDRAIN);
+    pc.speed = uint8_t(LL_GPIO_GetPinSpeed(port, ll_pin));
+
+    switch (LL_GPIO_GetPinPull(port, ll_pin)) {
+      case LL_GPIO_PULL_UP:   pc.pull = PIN_PULL_UP;   break;
+      case LL_GPIO_PULL_DOWN: pc.pull = PIN_PULL_DOWN; break;
+      default: break;
+    }
+
+    pc.af = uint8_t(STM_PIN(dp) < 8 ? LL_GPIO_GetAFPin_0_7(port, ll_pin) : LL_GPIO_GetAFPin_8_15(port, ll_pin));
+
   #endif
+
+  pc.locked = bool(LL_GPIO_IsPinLocked(port, ll_pin));
+
+  return pc;
+}
+
+/**
+ * Port holding the HSE OSC_IN / OSC_OUT pair, as an STM_PORT index (A = 0).
+ *
+ * Only the families whose placement is known are listed. STM32F1 is left out on
+ * purpose: OSC_IN and OSC_OUT are dedicated pins on the packages Marlin builds
+ * for, and PD0/PD1 only become GPIO through an AFIO remap on the small packages.
+ */
+#if defined(STM32F0xx) || defined(STM32F3xx) || defined(STM32G0xx) || defined(STM32G4xx)
+  #define HSE_OSC_PORT 5  // PF0 = OSC_IN, PF1 = OSC_OUT
+#elif defined(STM32F2xx) || defined(STM32F4xx) || defined(STM32F7xx) || defined(STM32H7xx) || defined(STM32L4xx)
+  #define HSE_OSC_PORT 7  // PH0 = OSC_IN, PH1 = OSC_OUT
+#endif
+
+/**
+ * The peripheral that has taken this pad away from the GPIO block, or nullptr when
+ * the GPIO block is in control.
+ *
+ * A USB transceiver and the oscillators sit on their pads ahead of the GPIO logic,
+ * so once they are running those pins stop following MODER/OTYPER/ODR entirely. The
+ * registers still read back whatever was written, so the pin looks like an ordinary
+ * input or output that the CPU cannot drive - on an STM32F407, enabling the OTG_HS
+ * PHY silently takes PB14 and PB15.
+ *
+ * Only pads with their own analog front end need this. A peripheral that takes a pin
+ * through the alternate-function mux (OTG_HS with an external ULPI PHY, for one)
+ * already shows up as "Alt AFn <name>".
+ *
+ * A peripheral's registers must not be read while its clock is gated, so each test
+ * reads the RCC enable bit first. RCC is always clocked, so the oscillator tests
+ * need no such guard. Each block is keyed on the CMSIS symbols it needs, so a family
+ * that names them differently is simply not checked.
+ */
+FSTR_P pad_owner(const PinName dp) {
+  if (dp == NC) return nullptr;
+
+  const uint32_t port = STM_PORT(dp), num = STM_PIN(dp);
+  UNUSED(port); UNUSED(num);
+
+  #ifdef USB_OTG_GCCFG_PWRDWN
+
+    // OTG_FS transceiver: PA11 = DM, PA12 = DP
+    #if defined(USB_OTG_FS) && (defined(RCC_AHB2ENR_OTGFSEN) || defined(RCC_AHB1ENR_USB2OTGFSEN))
+      if (port == 0 && WITHIN(num, 11, 12)) {
+        #ifdef RCC_AHB2ENR_OTGFSEN
+          const bool otg_fs_on = !!(RCC->AHB2ENR & RCC_AHB2ENR_OTGFSEN);
+        #else
+          const bool otg_fs_on = !!(RCC->AHB1ENR & RCC_AHB1ENR_USB2OTGFSEN);
+        #endif
+        if (otg_fs_on && (USB_OTG_FS->GCCFG & USB_OTG_GCCFG_PWRDWN))
+          return F("OTG_FS transceiver");
+      }
+    #endif
+
+    // OTG_HS with the embedded full-speed PHY: PB14 = DM, PB15 = DP.
+    // With an external ULPI PHY (PHYSEL clear) these two pads stay free.
+    #if defined(USB_OTG_HS) && defined(USB_OTG_GUSBCFG_PHYSEL) && (defined(RCC_AHB1ENR_OTGHSEN) || defined(RCC_AHB1ENR_USB1OTGHSEN))
+      if (port == 1 && WITHIN(num, 14, 15)) {
+        #ifdef RCC_AHB1ENR_OTGHSEN
+          const bool otg_hs_on = !!(RCC->AHB1ENR & RCC_AHB1ENR_OTGHSEN);
+        #else
+          const bool otg_hs_on = !!(RCC->AHB1ENR & RCC_AHB1ENR_USB1OTGHSEN);
+        #endif
+        if (otg_hs_on && (USB_OTG_HS->GUSBCFG & USB_OTG_GUSBCFG_PHYSEL)
+                      && (USB_OTG_HS->GCCFG & USB_OTG_GCCFG_PWRDWN))
+          return F("OTG_HS PHY");
+      }
+    #endif
+
+  #endif // USB_OTG_GCCFG_PWRDWN
+
+  /**
+   * HSE oscillator. OSC_IN / OSC_OUT belong to the oscillator whenever HSE runs,
+   * and nearly every board here runs from a crystal. In bypass mode an external
+   * clock feeds OSC_IN only, so OSC_OUT is released.
+   */
+  #if defined(HSE_OSC_PORT) && defined(RCC_CR_HSEON)
+    if (port == HSE_OSC_PORT && num <= 1 && (RCC->CR & RCC_CR_HSEON)) {
+      #ifdef RCC_CR_HSEBYP
+        const bool hse_byp = !!(RCC->CR & RCC_CR_HSEBYP);
+      #else
+        constexpr bool hse_byp = false;
+      #endif
+      if (num == 0 || !hse_byp)  // OSC_OUT is free when an external clock is bypassed in
+        return F("HSE oscillator");
+    }
+  #endif
+
+  /**
+   * LSE oscillator on OSC32_IN / OSC32_OUT, the same PC14 / PC15 on every family.
+   * As with HSE, a bypassed external clock uses only the input pin.
+   */
+  #ifdef RCC_BDCR_LSEON
+    if (port == 2 && WITHIN(num, 14, 15) && (RCC->BDCR & RCC_BDCR_LSEON)) {
+      #ifdef RCC_BDCR_LSEBYP
+        const bool lse_byp = !!(RCC->BDCR & RCC_BDCR_LSEBYP);
+      #else
+        constexpr bool lse_byp = false;
+      #endif
+      if (num == 14 || !lse_byp) return F("LSE oscillator");
+    }
+  #endif
+
+  /**
+   * NRST on STM32G0 shares its pad with PF2. The NRST_MODE option bits decide which
+   * one has it: 0b10 is GPIO, anything else leaves the reset circuit in charge.
+   * FLASH is always clocked, so OPTR can be read without a guard.
+   */
+  #if defined(STM32G0xx) && defined(FLASH_OPTR_NRST_MODE)
+    if (port == 5 && num == 2 && (FLASH->OPTR & FLASH_OPTR_NRST_MODE) != FLASH_OPTR_NRST_MODE_1)
+      return F("NRST");
+  #endif
+
+  return nullptr;
+}
+
+/**
+ * Pins M43 must not drive.
+ *
+ * This was the index range 9..12, meaning PA9..PA12, but pin_xref only holds the
+ * pins a variant actually defines. On a part with a gap below PA12 - the G030J6M
+ * variant has no PA3..PA7, PA9 or PA10 - that range lands on entirely different
+ * pins, leaving the real serial and USB pins exposed. Convert the index to a port
+ * and pin number and test those instead.
+ */
+#ifndef M43_NEVER_TOUCH
+  #define M43_NEVER_TOUCH(I) m43_never_touch(I)
+
+  bool m43_never_touch(const pin_t index) {
+    const pin_t pin = GET_PIN_MAP_PIN_M43(index);
+
+    #if PIN_EXISTS(KILL)
+      if (pin == KILL_PIN) return true;
+    #endif
+
+    const PinName dp = digitalPinToPinName(pin);
+    if (dp == NC) return true;
+
+    const uint32_t port = STM_PORT(dp), num = STM_PIN(dp);
+
+    // SERIAL/USB: PA9 (TX) PA10 (RX) PA11 (USB_DM) PA12 (USB_DP)
+    if (port == 0 && WITHIN(num, 9, 12)) return true;
+
+    // A pad held by a transceiver or an oscillator cannot be driven anyway
+    if (pad_owner(dp)) return true;
+
+    // SWD/JTAG still on the pad. Driving it drops the debug connection, so skip it
+    // while it holds AF0 and leave it alone once a board has claimed it as GPIO.
+    // Only testable where there is an AF register - F1's SWJ_CFG is write-only.
+    #if HAS_GPIO_AF_REG
+      const PinConfig pc = get_pin_config(dp);
+      if (pc.mode == MODE_PIN_ALT && pc.af == 0
+        && ((port == 0 && WITHIN(num, 13, 15)) || (port == 1 && WITHIN(num, 3, 4)))
+      ) return true;
+    #endif
+
+    return false;
+  }
 #endif
 
 uint8_t get_pin_mode(const pin_t pin) {
-  const PinName dp = digitalPinToPinName(pin);
-  uint32_t ll_pin  = STM_LL_GPIO_PIN(dp);
-  GPIO_TypeDef *port = get_GPIO_Port(STM_PORT(dp));
-  uint32_t mode = LL_GPIO_GetPinMode(port, ll_pin);
-  switch (mode) {
-    case LL_GPIO_MODE_ANALOG: return MODE_PIN_ANALOG;
-    case LL_GPIO_MODE_INPUT: return MODE_PIN_INPUT;
-    case LL_GPIO_MODE_OUTPUT: return MODE_PIN_OUTPUT;
-    case LL_GPIO_MODE_ALTERNATE: return MODE_PIN_ALT;
-    TERN_(STM32F1xx, case LL_GPIO_MODE_FLOATING:)
-    default: return 0;
-  }
+  return get_pin_config(digitalPinToPinName(pin)).mode;
 }
 
+/**
+ * The shared report consults getValidPinMode and pwm_status before printing a pin
+ * level. A pin driven by its peripheral, or a pad the GPIO block does not control
+ * at all, has no level worth printing - the ODR/IDR value would just contradict
+ * what printPinPWM reports. Answer for both so neither is printed.
+ */
 bool getValidPinMode(const pin_t pin) {
-  const uint8_t pin_mode = get_pin_mode(pin);
-  return pin_mode == MODE_PIN_OUTPUT || pin_mode == MODE_PIN_ALT;  // assume all alt definitions are PWM
+  const PinName dp = digitalPinToPinName(pin);
+  const uint8_t pin_mode = get_pin_config(dp).mode;
+  return pin_mode == MODE_PIN_OUTPUT || pin_mode == MODE_PIN_ALT || pad_owner(dp);
 }
 
 int8_t digital_pin_to_analog_pin(const pin_t pin) {
@@ -237,100 +430,442 @@ bool is_digital(const pin_t pin) {
 }
 
 void printPinPort(const pin_t pin) {
-  char buffer[16];
   pin_t index;
   for (index = 0; index < NUMBER_PINS_TOTAL; index++)
     if (pin == GET_PIN_MAP_PIN_M43(index)) break;
 
-  const char * ppa = index < NUMBER_PINS_TOTAL ? pin_xref[index].Port_pin_alpha : "?";
-  sprintf_P(buffer, PSTR("%s"), ppa);
-  SERIAL_ECHO(buffer);
+  // A pin with no entry would otherwise index one past the end of pin_xref
+  const char * const ppa = index < NUMBER_PINS_TOTAL ? pin_xref[index].Port_pin_alpha : "?";
+  SERIAL_ECHO(ppa);
   if (ppa[3] == '\0') SERIAL_CHAR(' ');
 
   // print analog pin number
   const int8_t Port_pin = digital_pin_to_analog_pin(pin);
   if (Port_pin >= 0) {
-    sprintf_P(buffer, PSTR(" (A%d) "), Port_pin);
-    SERIAL_ECHO(buffer);
+    SERIAL_ECHO(" (A", Port_pin, ") ");
     if (Port_pin < 10) SERIAL_CHAR(' ');
   }
   else
     SERIAL_ECHO_SP(7);
 
-  // Print number to be used with M42
-  // The digital pins these map to aren't contiguous. Deriving one from the
-  // analog index gives the wrong pin.
-  int calc_p = pin;
-  if (pin > NUM_DIGITAL_PINS) calc_p = digitalPinFirstOccurence(pin);
-  SERIAL_ECHO(F(" M42 P"), calc_p, C(' '));
-  if (calc_p < 100) {
+  /**
+   * Number to use with M42. This platform defines GET_PIN_MAP_PIN(index) as the
+   * index itself, so M42 takes the Arduino pin number as-is. The analog pins used
+   * to be folded down into the digital range here, which is AVR numbering and made
+   * the reported number ambiguous - PB2 and PC0 both came back as "M42 P18".
+   */
+  SERIAL_ECHO(F(" M42 P"), pin, C(' '));
+  if (pin < 100) {
     SERIAL_CHAR(' ');
-    if (calc_p <  10)
-      SERIAL_CHAR(' ');
+    if (pin < 10) SERIAL_CHAR(' ');
   }
 }
 
+// See getValidPinMode above. printPinPWM names what is really driving the pin.
 bool pwm_status(const pin_t pin) {
-  return get_pin_mode(pin) == MODE_PIN_ALT;
+  const PinName dp = digitalPinToPinName(pin);
+  return get_pin_config(dp).mode == MODE_PIN_ALT || pad_owner(dp);
 }
 
-void printPinPWM(const pin_t pin) {
-  #ifndef STM32F1xx
-    if (pwm_status(pin)) {
-      uint32_t alt_all = 0;
-      const PinName dp = digitalPinToPinName(pin);
-      pin_t pin_number = uint8_t(PIN_NUM(dp));
-      const bool over_7 = pin_number >= 8;
-      const uint8_t ind = over_7 ? 1 : 0;
-      switch (PORT_ALPHA(dp)) {  // get alt function
-        case 'A' : alt_all = GPIOA->AFR[ind]; break;
-        case 'B' : alt_all = GPIOB->AFR[ind]; break;
-        case 'C' : alt_all = GPIOC->AFR[ind]; break;
-        case 'D' : alt_all = GPIOD->AFR[ind]; break;
-        #ifdef PE_0
-          case 'E' : alt_all = GPIOE->AFR[ind]; break;
-        #elif defined(PF_0)
-          case 'F' : alt_all = GPIOF->AFR[ind]; break;
-        #elif defined(PG_0)
-          case 'G' : alt_all = GPIOG->AFR[ind]; break;
-        #elif defined(PH_0)
-          case 'H' : alt_all = GPIOH->AFR[ind]; break;
-        #elif defined(PI_0)
-          case 'I' : alt_all = GPIOI->AFR[ind]; break;
-        #elif defined(PJ_0)
-          case 'J' : alt_all = GPIOJ->AFR[ind]; break;
-        #elif defined(PK_0)
-          case 'K' : alt_all = GPIOK->AFR[ind]; break;
-        #elif defined(PL_0)
-          case 'L' : alt_all = GPIOL->AFR[ind]; break;
-        #endif
-      }
-      if (over_7) pin_number -= 8;
+/**
+ * Report the peripheral function a pin is currently assigned to.
+ *
+ * The AF number alone only narrows it to a group of peripherals, and which group
+ * depends on the family. Instead, match the pin against the core's own PinMap
+ * tables - which are generated per variant - and require the AF held in the AFR
+ * register to match, so only the function actually selected is reported.
+ *
+ * STM32F1 has no AF multiplexer. There the AFIO remap registers are decoded instead
+ * (see f1_remap_active), so the reported peripheral follows the remap actually in
+ * effect rather than assuming the default mapping.
+ */
 
-      uint8_t alt_func = (alt_all >> (4 * pin_number)) & 0x0F;
-      SERIAL_ECHOPGM("Alt Function: ", alt_func);
-      if (alt_func < 10) SERIAL_CHAR(' ');
-      SERIAL_ECHOPGM(" - ");
-      switch (alt_func) {
-        case  0 : SERIAL_ECHOPGM("system (misc. I/O)"); break;
-        case  1 : SERIAL_ECHOPGM("TIM1/TIM2 (probably PWM)"); break;
-        case  2 : SERIAL_ECHOPGM("TIM3..5 (probably PWM)"); break;
-        case  3 : SERIAL_ECHOPGM("TIM8..11 (probably PWM)"); break;
-        case  4 : SERIAL_ECHOPGM("I2C1..3"); break;
-        case  5 : SERIAL_ECHOPGM("SPI1/SPI2"); break;
-        case  6 : SERIAL_ECHOPGM("SPI3"); break;
-        case  7 : SERIAL_ECHOPGM("USART1..3"); break;
-        case  8 : SERIAL_ECHOPGM("USART4..6"); break;
-        case  9 : SERIAL_ECHOPGM("CAN1/CAN2, TIM12..14  (probably PWM)"); break;
-        case 10 : SERIAL_ECHOPGM("OTG"); break;
-        case 11 : SERIAL_ECHOPGM("ETH"); break;
-        case 12 : SERIAL_ECHOPGM("FSMC, SDIO, OTG"); break;
-        case 13 : SERIAL_ECHOPGM("DCMI"); break;
-        case 14 : SERIAL_ECHOPGM("unused (shouldn't see this)"); break;
-        case 15 : SERIAL_ECHOPGM("EVENTOUT"); break;
+#if !HAS_GPIO_AF_REG
+
+  /**
+   * STM32F1 has no per-pin alternate-function mux. A peripheral reaches a pin through
+   * the AFIO remap registers instead, so a PinMap entry carries the remap state it
+   * needs in place of an AF number. Report whether that state is in effect, which is
+   * what picks the right entry when several entries share a pin.
+   *
+   * The remap fields are readable - only SWJ_CFG is write-only - but AFIO is a clocked
+   * peripheral, so its clock is checked before the registers are touched.
+   *
+   * The core applies a remap with AFIO_REMAP_ENABLE/DISABLE for a single-bit field, or
+   * AFIO_REMAP_PARTIAL(value, field) for a multi-bit one, so the test here is the same
+   * comparison in reverse. Each case is keyed on the CMSIS mask it needs, matching how
+   * the AFIO_* enum itself is guarded, so a part without a given remap has no case.
+   *
+   * A value with no case reports false, so an unrecognised remap never claims a pin;
+   * find_pinmap_entry falls back to the pin's first entry for those.
+   */
+  bool f1_remap_active(const uint32_t afio) {
+    // No remap to satisfy, so the entry is eligible. Which of several eligible
+    // peripherals actually has the pin is settled by the clock and channel tests.
+    if (afio == AFIO_NONE) return true;
+
+    #ifdef RCC_APB2ENR_AFIOEN
+      if (!(RCC->APB2ENR & RCC_APB2ENR_AFIOEN)) return false;
+    #endif
+
+    const uint32_t mapr = AFIO->MAPR, mapr2 = AFIO->MAPR2;
+    UNUSED(mapr); UNUSED(mapr2);
+
+    #define _RM_ON(MASK)      ((mapr  & uint32_t(MASK)) != 0)
+    #define _RM_ON2(MASK)     ((mapr2 & uint32_t(MASK)) != 0)
+    #define _RM_IS(FLD, VAL)  ((mapr  & uint32_t(FLD)) == uint32_t(VAL))
+
+    switch (afio) {
+
+      #ifdef AFIO_MAPR_SPI1_REMAP
+        case AFIO_SPI1_ENABLE:    return  _RM_ON(AFIO_MAPR_SPI1_REMAP);
+        case AFIO_SPI1_DISABLE:   return !_RM_ON(AFIO_MAPR_SPI1_REMAP);
+      #endif
+      #ifdef AFIO_MAPR_I2C1_REMAP
+        case AFIO_I2C1_ENABLE:    return  _RM_ON(AFIO_MAPR_I2C1_REMAP);
+        case AFIO_I2C1_DISABLE:   return !_RM_ON(AFIO_MAPR_I2C1_REMAP);
+      #endif
+      #ifdef AFIO_MAPR_USART1_REMAP
+        case AFIO_USART1_ENABLE:  return  _RM_ON(AFIO_MAPR_USART1_REMAP);
+        case AFIO_USART1_DISABLE: return !_RM_ON(AFIO_MAPR_USART1_REMAP);
+      #endif
+      #ifdef AFIO_MAPR_USART2_REMAP
+        case AFIO_USART2_ENABLE:  return  _RM_ON(AFIO_MAPR_USART2_REMAP);
+        case AFIO_USART2_DISABLE: return !_RM_ON(AFIO_MAPR_USART2_REMAP);
+      #endif
+      #ifdef AFIO_MAPR_TIM4_REMAP
+        case AFIO_TIM4_ENABLE:    return  _RM_ON(AFIO_MAPR_TIM4_REMAP);
+        case AFIO_TIM4_DISABLE:   return !_RM_ON(AFIO_MAPR_TIM4_REMAP);
+      #endif
+      #ifdef AFIO_MAPR_SPI3_REMAP
+        case AFIO_SPI3_ENABLE:    return  _RM_ON(AFIO_MAPR_SPI3_REMAP);
+        case AFIO_SPI3_DISABLE:   return !_RM_ON(AFIO_MAPR_SPI3_REMAP);
+      #endif
+
+      // Multi-bit fields: no-remap is zero, the others are compared to their value.
+      #ifdef AFIO_MAPR_USART3_REMAP_FULLREMAP
+        case AFIO_USART3_DISABLE: return _RM_IS(AFIO_MAPR_USART3_REMAP_FULLREMAP, 0);
+        case AFIO_USART3_PARTIAL: return _RM_IS(AFIO_MAPR_USART3_REMAP_FULLREMAP, AFIO_MAPR_USART3_REMAP_PARTIALREMAP);
+        case AFIO_USART3_ENABLE:  return _RM_IS(AFIO_MAPR_USART3_REMAP_FULLREMAP, AFIO_MAPR_USART3_REMAP_FULLREMAP);
+      #endif
+      #ifdef AFIO_MAPR_TIM1_REMAP_FULLREMAP
+        case AFIO_TIM1_DISABLE:   return _RM_IS(AFIO_MAPR_TIM1_REMAP_FULLREMAP, 0);
+        case AFIO_TIM1_PARTIAL:   return _RM_IS(AFIO_MAPR_TIM1_REMAP_FULLREMAP, AFIO_MAPR_TIM1_REMAP_PARTIALREMAP);
+        case AFIO_TIM1_ENABLE:    return _RM_IS(AFIO_MAPR_TIM1_REMAP_FULLREMAP, AFIO_MAPR_TIM1_REMAP_FULLREMAP);
+      #endif
+      #ifdef AFIO_MAPR_TIM2_REMAP_FULLREMAP
+        case AFIO_TIM2_DISABLE:   return _RM_IS(AFIO_MAPR_TIM2_REMAP_FULLREMAP, 0);
+        case AFIO_TIM2_PARTIAL_1: return _RM_IS(AFIO_MAPR_TIM2_REMAP_FULLREMAP, AFIO_MAPR_TIM2_REMAP_PARTIALREMAP1);
+        case AFIO_TIM2_PARTIAL_2: return _RM_IS(AFIO_MAPR_TIM2_REMAP_FULLREMAP, AFIO_MAPR_TIM2_REMAP_PARTIALREMAP2);
+        case AFIO_TIM2_ENABLE:    return _RM_IS(AFIO_MAPR_TIM2_REMAP_FULLREMAP, AFIO_MAPR_TIM2_REMAP_FULLREMAP);
+      #endif
+      #ifdef AFIO_MAPR_TIM3_REMAP_FULLREMAP
+        case AFIO_TIM3_DISABLE:   return _RM_IS(AFIO_MAPR_TIM3_REMAP_FULLREMAP, 0);
+        case AFIO_TIM3_PARTIAL:   return _RM_IS(AFIO_MAPR_TIM3_REMAP_FULLREMAP, AFIO_MAPR_TIM3_REMAP_PARTIALREMAP);
+        case AFIO_TIM3_ENABLE:    return _RM_IS(AFIO_MAPR_TIM3_REMAP_FULLREMAP, AFIO_MAPR_TIM3_REMAP_FULLREMAP);
+      #endif
+      #ifdef AFIO_MAPR_CAN_REMAP
+        case AFIO_CAN1_1:         return _RM_IS(AFIO_MAPR_CAN_REMAP, AFIO_MAPR_CAN_REMAP_REMAP1);
+        case AFIO_CAN1_2:         return _RM_IS(AFIO_MAPR_CAN_REMAP, AFIO_MAPR_CAN_REMAP_REMAP2);
+        case AFIO_CAN1_3:         return _RM_IS(AFIO_MAPR_CAN_REMAP, AFIO_MAPR_CAN_REMAP_REMAP3);
+      #endif
+
+      // MAPR2, on the parts that have it
+      #ifdef AFIO_MAPR2_TIM9_REMAP
+        case AFIO_TIM9_ENABLE:    return  _RM_ON2(AFIO_MAPR2_TIM9_REMAP);
+        case AFIO_TIM9_DISABLE:   return !_RM_ON2(AFIO_MAPR2_TIM9_REMAP);
+      #endif
+      #ifdef AFIO_MAPR2_TIM10_REMAP
+        case AFIO_TIM10_ENABLE:   return  _RM_ON2(AFIO_MAPR2_TIM10_REMAP);
+        case AFIO_TIM10_DISABLE:  return !_RM_ON2(AFIO_MAPR2_TIM10_REMAP);
+      #endif
+      #ifdef AFIO_MAPR2_TIM11_REMAP
+        case AFIO_TIM11_ENABLE:   return  _RM_ON2(AFIO_MAPR2_TIM11_REMAP);
+        case AFIO_TIM11_DISABLE:  return !_RM_ON2(AFIO_MAPR2_TIM11_REMAP);
+      #endif
+      #ifdef AFIO_MAPR2_TIM12_REMAP
+        case AFIO_TIM12_ENABLE:   return  _RM_ON2(AFIO_MAPR2_TIM12_REMAP);
+        case AFIO_TIM12_DISABLE:  return !_RM_ON2(AFIO_MAPR2_TIM12_REMAP);
+      #endif
+      #ifdef AFIO_MAPR2_TIM13_REMAP
+        case AFIO_TIM13_ENABLE:   return  _RM_ON2(AFIO_MAPR2_TIM13_REMAP);
+        case AFIO_TIM13_DISABLE:  return !_RM_ON2(AFIO_MAPR2_TIM13_REMAP);
+      #endif
+      #ifdef AFIO_MAPR2_TIM14_REMAP
+        case AFIO_TIM14_ENABLE:   return  _RM_ON2(AFIO_MAPR2_TIM14_REMAP);
+        case AFIO_TIM14_DISABLE:  return !_RM_ON2(AFIO_MAPR2_TIM14_REMAP);
+      #endif
+      #ifdef AFIO_MAPR2_TIM15_REMAP
+        case AFIO_TIM15_ENABLE:   return  _RM_ON2(AFIO_MAPR2_TIM15_REMAP);
+        case AFIO_TIM15_DISABLE:  return !_RM_ON2(AFIO_MAPR2_TIM15_REMAP);
+      #endif
+      #ifdef AFIO_MAPR2_TIM16_REMAP
+        case AFIO_TIM16_ENABLE:   return  _RM_ON2(AFIO_MAPR2_TIM16_REMAP);
+        case AFIO_TIM16_DISABLE:  return !_RM_ON2(AFIO_MAPR2_TIM16_REMAP);
+      #endif
+      #ifdef AFIO_MAPR2_TIM17_REMAP
+        case AFIO_TIM17_ENABLE:   return  _RM_ON2(AFIO_MAPR2_TIM17_REMAP);
+        case AFIO_TIM17_DISABLE:  return !_RM_ON2(AFIO_MAPR2_TIM17_REMAP);
+      #endif
+    }
+
+    #undef _RM_ON
+    #undef _RM_ON2
+    #undef _RM_IS
+
+    return false;
+  }
+
+  /**
+   * Is this peripheral's clock running?
+   *
+   * The remap test alone cannot finish the job: several peripherals can claim the
+   * same pin in the default mapping, where no remap applies to any of them. PA9 is
+   * both USART1_TX and TIM1_CH2, and the GPIO registers say only "alternate
+   * function push-pull". Whether the peripheral is clocked is what separates them.
+   *
+   * An unlisted peripheral reports true, so it is never vetoed on the strict pass.
+   */
+  bool f1_periph_enabled(const void * const p) {
+    #define _PCLK1(N, BIT) if (p == (const void *)N) return !!(RCC->APB1ENR & RCC_APB1ENR_##BIT);
+    #define _PCLK2(N, BIT) if (p == (const void *)N) return !!(RCC->APB2ENR & RCC_APB2ENR_##BIT);
+    #include "pins_PeriphClk.h"
+    #undef _PCLK1
+    #undef _PCLK2
+    return true;
+  }
+
+  /**
+   * Is this timer channel actually driving its pin?
+   *
+   * A clocked timer is not enough. Marlin runs a timer for the stepper and another
+   * for temperature, so TIM1 is clocked on most F1 boards while none of its channels
+   * reach a pin - which is why PA9, shared by USART1_TX and TIM1_CH2, still resolved
+   * to the timer once the clock test passed. The channel output enable in CCER is
+   * what says the timer drives this pad.
+   *
+   * CCER holds CCxE every four bits: CC1E at 0, CC2E at 4, and so on.
+   */
+  bool f1_tim_channel_on(const void * const p, const uint32_t ch) {
+    if (!WITHIN(ch, 1, 4) || !f1_periph_enabled(p)) return false;
+    return !!(((const TIM_TypeDef *)p)->CCER & (TIM_CCER_CC1E << ((ch - 1) * 4)));
+  }
+
+#endif // !HAS_GPIO_AF_REG
+
+// Find the entry in 'map' for this pin. PinMap lists alternate routings as PX_n_ALTk,
+// so compare the port and pin number rather than the whole PinName.
+const PinMap * find_pinmap_entry(const PinName dp, const PinMap * const map, const uint8_t af, const bool match_af=true, const bool strict=false) {
+  #if !HAS_GPIO_AF_REG
+    UNUSED(af); UNUSED(match_af);
+    const PinMap *fallback = nullptr;
+  #else
+    UNUSED(strict);
+  #endif
+  for (const PinMap *e = map; e->pin != NC; ++e) {
+    if (STM_PORT(e->pin) != STM_PORT(dp) || STM_PIN(e->pin) != STM_PIN(dp)) continue;
+    #if HAS_GPIO_AF_REG
+      if (match_af && STM_PIN_AFNUM(e->function) != af) continue;
+      return e;
+    #else
+      // F1: the entry whose AFIO remap is in effect, and on the strict pass whose
+      // peripheral is also clocked. See printPinFunction.
+      if (f1_remap_active(STM_PIN_AFNUM(e->function))
+        && (!strict || f1_periph_enabled(e->peripheral))) return e;
+      if (!fallback) fallback = e;
+    #endif
+  }
+  #if HAS_GPIO_AF_REG
+    return nullptr;
+  #else
+    return strict ? nullptr : fallback;   // let the loose pass decide
+  #endif
+}
+
+// Name of the peripheral instance a PinMap entry points to
+void printPeriphName(const void * const p) {
+  #define _PNAME(N) if (p == (const void *)N) { SERIAL_ECHO(F(#N)); return; }
+  #include "pins_Periph.h"
+  #undef _PNAME
+  SERIAL_CHAR('?');
+}
+
+// Report "<peripheral>_<function>" for the pin, if it can be identified
+bool printPinFunctionPass(const PinName dp, const uint8_t af, const bool analog, const bool strict) {
+  const PinMap *e;
+  UNUSED(strict);
+
+  #define _TRY_MAP(MAP, ROLE) do{ \
+    if ((e = find_pinmap_entry(dp, MAP, af, true, strict))) { SERIAL_CHAR(' '); printPeriphName(e->peripheral); SERIAL_ECHO(ROLE); return true; } \
+  }while(0)
+
+  if (analog) {
+    #ifdef HAL_ADC_MODULE_ENABLED
+      if ((e = find_pinmap_entry(dp, PinMap_ADC, af, false, strict))) {  // ADC entries carry no AF
+        SERIAL_CHAR(' ');
+        printPeriphName(e->peripheral);
+        SERIAL_ECHO("_IN", STM_PIN_CHANNEL(e->function));
+        return true;
+      }
+    #endif
+    return false;
+  }
+
+  #ifdef HAL_TIM_MODULE_ENABLED
+    if ((e = find_pinmap_entry(dp, PinMap_PWM, af, true, strict))) {
+      #if !HAS_GPIO_AF_REG
+        // On the strict pass require the channel itself, not just the timer, to be on
+        if (strict && !f1_tim_channel_on(e->peripheral, STM_PIN_CHANNEL(e->function))) e = nullptr;
+      #endif
+      if (e) {
+        SERIAL_CHAR(' ');
+        printPeriphName(e->peripheral);
+        SERIAL_ECHO("_CH", STM_PIN_CHANNEL(e->function));
+        if (STM_PIN_INVERTED(e->function)) SERIAL_CHAR('N');
+        return true;
       }
     }
-  #else
-    // TODO: F1 doesn't support changing pins function, so we need to check the function of the PIN and if it's enabled
   #endif
+
+  #ifdef HAL_UART_MODULE_ENABLED
+    _TRY_MAP(PinMap_UART_TX,  "_TX");
+    _TRY_MAP(PinMap_UART_RX,  "_RX");
+    _TRY_MAP(PinMap_UART_RTS, "_RTS");
+    _TRY_MAP(PinMap_UART_CTS, "_CTS");
+  #endif
+
+  #ifdef HAL_SPI_MODULE_ENABLED
+    _TRY_MAP(PinMap_SPI_MOSI, "_MOSI");
+    _TRY_MAP(PinMap_SPI_MISO, "_MISO");
+    _TRY_MAP(PinMap_SPI_SCLK, "_SCK");
+    _TRY_MAP(PinMap_SPI_SSEL, "_SS");
+  #endif
+
+  #ifdef HAL_I2C_MODULE_ENABLED
+    _TRY_MAP(PinMap_I2C_SDA, "_SDA");
+    _TRY_MAP(PinMap_I2C_SCL, "_SCL");
+  #endif
+
+  #undef _TRY_MAP
+
+  // AF0 on the SWJ pins is the debug port. There is no PinMap table for it, so it
+  // would otherwise fall through as "(unmapped)".
+  #if HAS_GPIO_AF_REG
+    if (af == 0) {
+      if (STM_PORT(dp) == 0) {
+        switch (STM_PIN(dp)) {
+          case 13: SERIAL_ECHO(" SWDIO/JTMS"); return true;
+          case 14: SERIAL_ECHO(" SWCLK/JTCK"); return true;
+          case 15: SERIAL_ECHO(" JTDI");       return true;
+        }
+      }
+      else if (STM_PORT(dp) == 1) {
+        switch (STM_PIN(dp)) {
+          case 3: SERIAL_ECHO(" JTDO/TRACESWO"); return true;
+          case 4: SERIAL_ECHO(" NJTRST");        return true;
+        }
+      }
+    }
+  #endif
+
+  return false;
+}
+
+// Say what owns the pad, or note the drive limit when nothing does.
+void printPinPadInfo(const PinName dp, FSTR_P const owner) {
+  if (owner) {
+    SERIAL_ECHO("  !! ", owner, " drives this pad - GPIO has no effect");
+  }
+  else if (STM_PORT(dp) == 2 && WITHIN(STM_PIN(dp), 13, 15)) {
+    // PC13..PC15 are fed through the backup-domain power switch
+    SERIAL_ECHO("  (backup domain pad - limited output drive)");
+  }
+}
+
+/**
+ * On F1 make a first pass that only accepts a peripheral whose clock is running,
+ * so a pin shared by two peripherals in the default mapping resolves to the one
+ * actually in use, then fall back to naming it at all. Elsewhere the AF number in
+ * the register already picks exactly one, so a single pass is enough.
+ */
+bool printPinFunction(const PinName dp, const uint8_t af, const bool analog) {
+  #if !HAS_GPIO_AF_REG
+    if (printPinFunctionPass(dp, af, analog, true)) return true;
+  #endif
+  return printPinFunctionPass(dp, af, analog, false);
+}
+
+// Output slew rate. The F1 MODE field names a frequency; everywhere else OSPEEDR is a grade.
+void printPinSpeed(const uint8_t speed) {
+  #ifdef STM32F1xx
+    switch (speed) {
+      case 1: SERIAL_ECHO(" 10MHz"); break;
+      case 2: SERIAL_ECHO(" 2MHz");  break;
+      case 3: SERIAL_ECHO(" 50MHz"); break;
+    }
+  #else
+    switch (speed) {
+      case LL_GPIO_SPEED_FREQ_LOW:    SERIAL_ECHO(" Low");    break;
+      case LL_GPIO_SPEED_FREQ_MEDIUM: SERIAL_ECHO(" Medium"); break;
+      case LL_GPIO_SPEED_FREQ_HIGH:   SERIAL_ECHO(" High");   break;
+      default:                        SERIAL_ECHO(" VeryHigh");
+    }
+  #endif
+}
+
+/**
+ * Report how a pin is configured right now, read back from the GPIO registers.
+ * The shared report calls this at the end of each extended line.
+ */
+void printPinPWM(const pin_t pin) {
+  const PinName dp = digitalPinToPinName(pin);
+  if (dp == NC) return;
+
+  const PinConfig pc = get_pin_config(dp);
+  FSTR_P const owner = pad_owner(dp);
+
+  SERIAL_CHAR(' ');   // each field below brings its own leading space
+
+  /**
+   * The shared report already prints "Input"/"Output" and a level for a plain GPIO,
+   * so only name the mode where it stayed silent - an alternate-function pin or a
+   * pad a peripheral has taken - or where it called an analog pin an input.
+   */
+  if (pc.mode == MODE_PIN_ALT || pc.mode == MODE_PIN_ANALOG || owner) {
+    switch (pc.mode) {
+      case MODE_PIN_ANALOG: SERIAL_ECHO(" Analog"); break;
+      case MODE_PIN_INPUT:  SERIAL_ECHO(" Input");  break;
+      case MODE_PIN_OUTPUT: SERIAL_ECHO(" Output"); break;
+      case MODE_PIN_ALT:    SERIAL_ECHO(" Alt");    break;
+    }
+  }
+
+  const bool driven = (pc.mode == MODE_PIN_OUTPUT || pc.mode == MODE_PIN_ALT);
+
+  #if HAS_GPIO_AF_REG
+    if (pc.mode == MODE_PIN_ALT) SERIAL_ECHO(" AF", pc.af);
+  #endif
+
+  if (pc.mode == MODE_PIN_ALT || pc.mode == MODE_PIN_ANALOG) {
+    // An owned pad is named by printPinPadInfo below, so "(unmapped)" adds nothing.
+    if (!printPinFunction(dp, pc.af, pc.mode == MODE_PIN_ANALOG) && !owner)
+      SERIAL_ECHO(" (unmapped)");
+  }
+
+  if (driven) SERIAL_ECHO(pc.open_drain ? F(" OpenDrain") : F(" PushPull"));
+
+  if (pc.floating)
+    SERIAL_ECHO(" Floating");
+  else switch (pc.pull) {
+    case PIN_PULL_UP:   SERIAL_ECHO(" PullUp");   break;
+    case PIN_PULL_DOWN: SERIAL_ECHO(" PullDown"); break;
+    default: break;
+  }
+
+  if (driven) printPinSpeed(pc.speed);
+
+  if (pc.locked) SERIAL_ECHO(" Locked");
+
+  printPinPadInfo(dp, owner);
+
 } // printPinPWM
