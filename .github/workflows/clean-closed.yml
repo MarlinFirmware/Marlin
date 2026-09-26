@@ -15,26 +15,37 @@ jobs:
   remove_label:
     runs-on: ubuntu-22.04
 
-    strategy:
-      matrix:
-        label:
-          - "S: Don't Merge"
-          - "S: Hold for 2.1"
-          - "S: Please Merge"
-          - "S: Please Test"
-          - "help wanted"
-          - "Bug: Potential ?"
-          - "Needs: Discussion"
-          - "Needs: Documentation"
-          - "Needs: More Data"
-          - "Needs: Patch"
-          - "Needs: Testing"
-          - "Needs: Work"
-
     steps:
-      - uses: actions/checkout@v7
       - name: Remove Labels
-        uses: actions-ecosystem/action-remove-labels@v1
+        uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7
         with:
-          github_token: ${{ github.token }}
-          labels: ${{ matrix.label }}
+          script: |
+            const obsolete = [
+              "S: Don't Merge",
+              "S: Hold for 2.1",
+              "S: Please Merge",
+              "S: Please Test",
+              "help wanted",
+              "Bug: Potential ?",
+              "Needs: Discussion",
+              "Needs: Documentation",
+              "Needs: More Data",
+              "Needs: Patch",
+              "Needs: Testing",
+              "Needs: Work"
+            ];
+            const issue_number = context.issue.number;
+            const { data: issue } = await github.rest.issues.get({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number
+            });
+            const stale = issue.labels.map(l => l.name).filter(l => obsolete.includes(l));
+            for (const name of stale) {
+              await github.rest.issues.removeLabel({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number,
+                name
+              });
+            }
