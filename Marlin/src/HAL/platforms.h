@@ -58,6 +58,8 @@
   #define HAL_PATH(PATH, NAME) XSTR(PATH/HAL/SAMD21/NAME)
 #elif defined(__PLAT_RP2040__)
   #define HAL_PATH(PATH, NAME) XSTR(PATH/HAL/RP2040/NAME)
+#elif defined(ARDUINO_ARCH_AT32)
+  #define HAL_PATH(PATH, NAME) XSTR(PATH/HAL/AT32/NAME)
 #else
   #error "Unsupported Platform!"
 #endif
