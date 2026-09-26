@@ -210,10 +210,7 @@ jobs:
       if: matrix.test-platform == 'simulator_linux_release'
       run: |
         sudo apt-get update
-        sudo apt-get install build-essential
-        sudo apt-get install libsdl2-dev
-        sudo apt-get install libsdl2-net-dev
-        sudo apt-get install libglm-dev
+        sudo apt-get install -y build-essential libsdl2-dev libsdl2-net-dev libglm-dev
 
     - name: Run ${{ matrix.test-platform }} Tests
       run: |
