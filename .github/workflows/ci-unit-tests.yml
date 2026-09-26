@@ -62,9 +62,9 @@ jobs:
         path: |
           ~/.platformio
           .pio/libdeps
-        key: ${{ runner.os }}-pio-tests-v1
+        key: ${{ runner.os }}-pio-unit-v1-${{ hashFiles('ini/*.ini', 'platformio.ini') }}
         restore-keys: |
-          ${{ runner.os }}-pio-tests-
+          ${{ runner.os }}-pio-unit-v1-
 
     - name: Select Python 3.9
       uses: actions/setup-python@v7
