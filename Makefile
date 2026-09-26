@@ -4,6 +4,7 @@ CONTAINER_RT_BIN := docker
 CONTAINER_RT_OPTS := --rm -v $(PWD):/code -v platformio-cache:/root/.platformio
 CONTAINER_IMAGE := marlin-dev
 UNIT_TEST_CONFIG ?= default
+PRETTIER_VERSION ?= 3.9.6
 
 # Find a Python 3 interpreter
 ifeq ($(OS),Windows_NT)
@@ -170,7 +171,7 @@ format-lines:
 
 validate-lines:
 	@echo "Validating text formatting"
-	@npx prettier --check . --editorconfig --object-wrap preserve --prose-wrap never
+	@npx --yes prettier@$(PRETTIER_VERSION) --check . --editorconfig --object-wrap preserve --prose-wrap never
 
 validate-urls:
 	@echo "Checking URLs in source files"

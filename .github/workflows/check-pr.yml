@@ -13,15 +13,19 @@ on:
     - 1.1.x
     - 2.0.x
 
+permissions:
+  pull-requests: write
+
 jobs:
   bad_target:
     name: PR Bad Target
     if: github.repository == 'MarlinFirmware/Marlin'
 
     runs-on: ubuntu-22.04
+    timeout-minutes: 10
 
     steps:
-    - uses: superbrothers/close-pull-request@v3
+    - uses: superbrothers/close-pull-request@9c18513d320d7b2c7185fb93396d0c664d5d8448 # v3
       with:
         comment: >
           Thanks for your contribution! Unfortunately we can't accept PRs directed at release branches. We make patches to the bugfix branches and only later do we push them out as releases.

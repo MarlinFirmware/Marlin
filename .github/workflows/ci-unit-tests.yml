@@ -32,6 +32,9 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
+permissions:
+  contents: read
+
 jobs:
   # This runs all unit tests as a single job. While it should be possible to break this up into
   # multiple jobs, they currently run quickly and finish long before the compilation tests.
@@ -42,32 +45,33 @@ jobs:
     if: github.repository == 'MarlinFirmware/Marlin'
 
     runs-on: ubuntu-22.04
+    timeout-minutes: 30
 
     steps:
     - name: Check out the PR
-      uses: actions/checkout@v7
+      uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
     - name: Cache pip
-      uses: actions/cache@v6
+      uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6
       with:
         path: ~/.cache/pip
         key: ${{ runner.os }}-pip-unit-v1
         restore-keys: |
           ${{ runner.os }}-pip-unit-
 
-    - name: Cache PlatformIO
-      uses: actions/cache@v6
+    - name: Restore PlatformIO cache
+      id: pio-cache
+      uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6
       with:
         path: |
           ~/.platformio
-          .pio/build
           .pio/libdeps
-        key: ${{ runner.os }}-pio-tests-v1
+        key: ${{ runner.os }}-pio-unit-v1-${{ hashFiles('ini/*.ini', 'platformio.ini') }}
         restore-keys: |
-          ${{ runner.os }}-pio-tests-
+          ${{ runner.os }}-pio-unit-v1-
 
     - name: Select Python 3.9
-      uses: actions/setup-python@v7
+      uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7
       with:
         python-version: '3.9'
         architecture: 'x64'
@@ -75,9 +79,18 @@ jobs:
     - name: Install PlatformIO
       run: |
         pip install -U platformio
-        pio upgrade --dev
         pio pkg update --global
 
     - name: Run All Unit Tests
       run: |
         make unit-test-all-local
+
+    # Only push builds refresh the cache, so PR runs can't fill the repo cache quota
+    - name: Save PlatformIO cache
+      if: github.event_name == 'push' && steps.pio-cache.outputs.cache-hit != 'true'
+      uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6
+      with:
+        path: |
+          ~/.platformio
+          .pio/libdeps
+        key: ${{ steps.pio-cache.outputs.cache-primary-key }}

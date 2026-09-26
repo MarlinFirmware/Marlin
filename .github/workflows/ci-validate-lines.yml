@@ -20,26 +20,21 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
+permissions:
+  contents: read
+
 jobs:
   validate_source_files:
     name: Validate Source Files
     if: github.repository == 'MarlinFirmware/Marlin'
 
     runs-on: ubuntu-22.04
+    timeout-minutes: 10
 
     steps:
       - name: Check out the PR
-        uses: actions/checkout@v7
-
-      - name: Cache node_modules
-        uses: actions/cache@v6
-        with:
-          path: node_modules
-          key: ${{ runner.os }}-npm-lines-v1
-          restore-keys: |
-            ${{ runner.os }}-npm-lines-
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
       - name: Validate text file formatting
         run: |
-          npm install --save-dev prettier
           make validate-lines -j
