@@ -220,7 +220,7 @@ public:
   static void move_z_after_probing() {
     DEBUG_SECTION(mzah, "move_z_after_probing", DEBUGGING(LEVELING));
     #ifdef Z_AFTER_PROBING
-      motion.do_z_clearance(Z_AFTER_PROBING, true, true); // Move down still permitted
+      motion.do_z_clearance(Z_AFTER_PROBING, true); // Move down still permitted
     #endif
   }
 

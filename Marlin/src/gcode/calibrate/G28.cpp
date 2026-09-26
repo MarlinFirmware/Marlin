@@ -407,18 +407,16 @@ void GcodeSuite::G28() {
           if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("R0 = No Z raise");
         }
         else {
-          bool with_probe = ENABLED(HOMING_Z_WITH_PROBE);
           // Raise above the current Z (which should be synced in the planner)
           // The "height" for Z is a coordinate. But if Z is not trusted/homed make it relative.
           if (seenR || !(motion.z_min_trusted || motion.axis_should_home(Z_AXIS))) {
             z_homing_height += motion.position.z;
-            with_probe = false;
           }
 
           if (may_skate) {
             // Apply Z clearance before doing any lateral motion
             if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Raise Z before homing:");
-            motion.do_z_clearance(z_homing_height, with_probe);
+            motion.do_z_clearance(z_homing_height);
           }
         }
 
