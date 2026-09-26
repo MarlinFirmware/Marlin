@@ -832,6 +832,8 @@
   #include "stm32f4/pins_MKS_NEPTUNE_X.h"           // STM32F4                              env:mks_neptune_x
 #elif MB(MKS_NEPTUNE_3)
   #include "stm32f4/pins_MKS_NEPTUNE_3.h"           // STM32F4                              env:mks_neptune_3
+#elif MB(LDO_LEVIATHAN_V1_2)
+  #include "stm32f4/pins_LDO_LEVIATHAN.h"           // STM32F4                              env:LDO_LEVIATHAN env:LDO_LEVIATHAN_no_bootloader env:LDO_LEVIATHAN_katapult
 
 //
 // Other ARM Cortex-M4
@@ -880,6 +882,8 @@
   #include "stm32h7/pins_FYSETC_SPIDER_KING_V1_H723.h"   // STM32H7                         env:STM32H723ZG_fysetc
 #elif MB(FYSETC_SPIDER_KING_V1_1_H723)
   #include "stm32h7/pins_FYSETC_SPIDER_KING_V1_1_H723.h" // STM32H7                         env:STM32H723ZG_fysetc
+#elif MB(LDO_LEVIATHAN_V1_3)
+  #include "stm32h7/pins_LDO_LEVIATHAN_V1_3.h"           // STM32H7                         env:LDO_LEVIATHAN_V13 env:LDO_LEVIATHAN_V13_no_bootloader env:LDO_LEVIATHAN_V13_katapult
 
 //
 // Espressif ESP32
