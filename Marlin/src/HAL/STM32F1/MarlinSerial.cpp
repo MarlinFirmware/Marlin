@@ -111,11 +111,21 @@ constexpr bool serial_handles_emergency(int port) {
 // Instantiate all UARTs even if they are not needed
 // This avoids a bunch of logic to figure out every serial
 // port which may be in use on the system.
-#if DISABLED(MKS_WIFI_MODULE)
+// The MKS WiFi module drives its own USART, so skip that one.
+#if ENABLED(MKS_WIFI_MODULE)
+  #define WIFI_OWNS_USART(N) (WIFI_SERIAL_PORT == (N))
+#else
+  #define WIFI_OWNS_USART(N) 0
+#endif
+#if !WIFI_OWNS_USART(1)
   DEFINE_HWSERIAL_MARLIN(MSerial1, 1);
 #endif
-DEFINE_HWSERIAL_MARLIN(MSerial2, 2);
-DEFINE_HWSERIAL_MARLIN(MSerial3, 3);
+#if !WIFI_OWNS_USART(2)
+  DEFINE_HWSERIAL_MARLIN(MSerial2, 2);
+#endif
+#if !WIFI_OWNS_USART(3)
+  DEFINE_HWSERIAL_MARLIN(MSerial3, 3);
+#endif
 #if ANY(STM32_HIGH_DENSITY, STM32_XL_DENSITY)
   DEFINE_HWSERIAL_UART_MARLIN(MSerial4, 4);
   DEFINE_HWSERIAL_UART_MARLIN(MSerial5, 5);

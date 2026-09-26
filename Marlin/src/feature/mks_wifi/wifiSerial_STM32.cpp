@@ -19,20 +19,19 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-#include "../../../HAL/platforms.h"
+#include "../../HAL/platforms.h"
 
 #ifdef HAL_STM32
 
-#include "../../../inc/MarlinConfigPre.h"
+#include "../../inc/MarlinConfigPre.h"
 
-#if ALL(HAS_TFT_LVGL_UI, MKS_WIFI_MODULE)
+#if ENABLED(MKS_WIFI_MODULE)
 
-#include "tft_lvgl_configuration.h"
+#include "../../inc/MarlinConfig.h"
 
-#include "draw_ui.h"
 #include "wifiSerial.h"
 
-WifiSerial WifiSerial1(USART1);
+WifiSerial WifiSerial1(WIFI_USART);
 
 void WifiSerial::setRx(uint32_t _rx) { _serial.pin_rx = digitalPinToPinName(_rx); }
 void WifiSerial::setTx(uint32_t _tx) { _serial.pin_tx = digitalPinToPinName(_tx); }
@@ -297,7 +296,7 @@ void WifiSerial::begin(unsigned long baud, byte config) {
   if (baud == WIFI_BAUDRATE)
     uart_attach_rx_callback(&_serial, _rx_complete_irq);
   else
-    USART1->CR1 |= USART_CR1_RE;  // Preserve word length, etc. Use 'or' to preserve USART_CR1_M_8N1
+    WIFI_USART->CR1 |= USART_CR1_RE;  // Preserve word length, etc. Use 'or' to preserve USART_CR1_M_8N1
 }
 
 void WifiSerial::end() {
@@ -353,5 +352,5 @@ int WifiSerial::write(uint8_t c) {
   return 1;
 }
 
-#endif // HAS_TFT_LVGL_UI && MKS_WIFI_MODULE
+#endif // MKS_WIFI_MODULE
 #endif // HAL_STM32
