@@ -34,15 +34,15 @@
 
 resonance_test_params_t ResonanceGenerator::rt_params;     // Resonance test parameters
 float ResonanceGenerator::timeline;
-float ResonanceGenerator::sample_time;
 
 bool ResonanceGenerator::active = false;                   // Resonance test active
 bool ResonanceGenerator::done = false;                     // Resonance test done
-int32_t ResonanceGenerator::freq_to_phase_fp;
+int32_t ResonanceGenerator::phase_inc_fp;
+int32_t ResonanceGenerator::freq_mul_inc;
 int32_t ResonanceGenerator::max_freq_fp;
 int32_t ResonanceGenerator::phase_fp;
 int32_t ResonanceGenerator::current_freq_fp;
-int32_t ResonanceGenerator::amplitude_precalc_fp; 
+int32_t ResonanceGenerator::amplitude_precalc_fp;
 
 
 #if HAS_STANDARD_MOTION
@@ -65,11 +65,6 @@ void ResonanceGenerator::start() {
   if (rt_params.axis == Z_AXIS)
     NOMORE(rt_params.accel_per_hz, 15.0f);
 
-  // Calculate time constant for sine sweep
-  const float rt_time = rt_params.octave_duration * (logf(RATIO) / logf(2.0f));
-
-  sample_time = rt_time;
-
   #if HAS_STANDARD_MOTION
     if (TERN1(FT_MOTION, !ftMotion.cfg.active)) {
       block.reset();
@@ -80,9 +75,12 @@ void ResonanceGenerator::start() {
   // Precompute fixed-point sine sweep parameters
   amplitude_precalc_fp = F2FP((rt_params.amplitude_correction * rt_params.accel_per_hz * 0.25f) / sq(M_PI));
   current_freq_fp = F2FP(rt_params.min_freq);
-  freq_to_phase_fp = F2FP(2.0f * M_PI * rt_time);
   max_freq_fp = F2FP(rt_params.max_freq);
   phase_fp = 0;
+
+  // Advance the sweep and phase using the same fixed time step for all motion modes.
+  freq_mul_inc = F2FPQ(exp2f(RESONANCE_TS / rt_params.octave_duration) - 1.0f);
+  phase_inc_fp = F2FPQ((2.0f * M_PI) * RESONANCE_TS);
 }
 
 void ResonanceGenerator::abort() {
@@ -105,26 +103,23 @@ void ResonanceGenerator::reset() {
 }
 
 float ResonanceGenerator::calc_next_pos() {
-  // Phase accumulation (drop 4 LSBs of freq so the product stays inside int32)
-  phase_fp += ((current_freq_fp >> 4) * freq_to_phase_fp) >> (FP_BITS - 4);
+  // Phase accumulation: d-phase = 2*pi*f*RESONANCE_TS
+  phase_fp += (int32_t)(((int64_t)current_freq_fp * phase_inc_fp) >> FP_Q);
   if (phase_fp >= M_TAU_FP) phase_fp -= M_TAU_FP;
   else if (phase_fp < 0) phase_fp += M_TAU_FP;
 
-  // -π <= r_fp <= π
+  // -pi <= r_fp <= pi
   const int32_t r_fp = (phase_fp > M_PI_FP) ? phase_fp - M_TAU_FP : phase_fp;
 
-  // r² in Q16:  Q12 × Q12 = Q24, >> 8
-  const int32_t rh_fp = r_fp >> 4;
-  const int32_t r2_fp = (rh_fp * rh_fp) >> 8;
+  // Calculate windowing polynomial: 1.0 - r^2/pi^2
+  const int64_t r2 = (int64_t)r_fp * r_fp;
+  const int32_t poly_fp = FP_ONE - (int32_t)(((int64_t)C0101321184_FP * (r2 >> FP_BITS)) >> FP_BITS);
 
-  // 1.0 - 0.101321184·r²:  Q12 × Q16 = Q28, >> 12
-  const int32_t poly_fp = (int32_t)FP_ONE - (((r2_fp >> 4) * C0101321184_FP) >> 12);
+  // Combine amplitude, phase, and polynomial without overflowing fixed-point values.
+  const int32_t amplitude_fp = (int32_t)(((int64_t)amplitude_precalc_fp * FP_ONE) / current_freq_fp);
+  const int32_t pos_fp = (int32_t)(((((int64_t)amplitude_fp * r_fp) >> FP_BITS) * poly_fp) >> FP_BITS);
 
-  // r·poly:  Q15 × Q15 = Q30, >> 14 → Q16 (peaks at ~1.21·2³⁰, fits in int32)
-  const int32_t rp_fp = ((r_fp >> 1) * (poly_fp >> 1)) >> 14;
-
-  // Amplitude ∝ 1/f done in float: one div, one mul, no int64
-  return (FP2F(amplitude_precalc_fp) / FP2F(current_freq_fp)) * FP2F(rp_fp);
+  return FP2F(pos_fp);
 }
 
 #if ENABLED(FT_MOTION)
@@ -141,7 +136,7 @@ float ResonanceGenerator::calc_next_pos() {
 
     while (!ftMotion.stepping.is_full()) {
       // Calculate current frequency with exponential sweep
-      current_freq_fp += current_freq_fp >> FP_BITS;
+      current_freq_fp += (int32_t)(((int64_t)current_freq_fp * freq_mul_inc + (1L << (FP_Q - 1))) >> FP_Q);
       if (current_freq_fp > max_freq_fp) {
         done = true;
         return;
@@ -169,7 +164,7 @@ float ResonanceGenerator::calc_next_pos() {
     const uint8_t axis_bit = 1 << rt_params.axis;
 
     // Calculate current frequency with exponential sweep
-    current_freq_fp += current_freq_fp >> FP_BITS;
+    current_freq_fp += (int32_t)(((int64_t)current_freq_fp * freq_mul_inc + (1L << (FP_Q - 1))) >> FP_Q);
     if (current_freq_fp > max_freq_fp) {
       done = true;
       return nullptr;
@@ -185,7 +180,7 @@ float ResonanceGenerator::calc_next_pos() {
     step_accumulator -= delta_steps;
     const uint32_t abs_steps = abs(delta_steps);
 
-    block.initial_rate = (uint32_t)(_MAX(abs_steps, 1U) / sample_time);
+    block.initial_rate = (uint32_t)(_MAX(abs_steps, 1U) / RESONANCE_TS);
 
     // Update block
     block.steps[rt_params.axis] = abs_steps;
