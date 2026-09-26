@@ -91,7 +91,7 @@ struct matrix_3x3 {
 
   void set_to_identity();
 
-  void debug(FSTR_P const title);
+  void debug(FSTR_P const title, const uint8_t prec=SERIAL_FLOAT_PRECISION);
 
   void apply_rotation_xyz(float &x, float &y, float &z);
 };
