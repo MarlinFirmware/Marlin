@@ -1913,6 +1913,7 @@
     //#define BACKUP_POWER_SUPPLY           // Backup power / UPS to move the steppers on power-loss
     #if ENABLED(BACKUP_POWER_SUPPLY)
       //#define POWER_LOSS_RETRACT_LEN   10 // (mm) Length of filament to retract on fail
+      //#define EVENT_GCODE_BEFORE_KILL "G27P4\nM400" // Executed as last thing before kill. E.g. park bozzle to prevent blob on print
     #endif
 
     // Enable if Z homing is needed for proper recovery. 99.9% of the time this should be disabled!
@@ -1920,6 +1921,8 @@
     #if ENABLED(POWER_LOSS_RECOVER_ZHOME)
       //#define POWER_LOSS_ZHOME_POS { 0, 0 } // Safe XY position to home Z while avoiding objects on the bed
     #endif
+
+    //#define EVENT_GCODE_ON_RESUME "M600"  //G-code run just before print resumed. E.g. "change filament" to ensure proper filament load.
   #endif
 
   /**
