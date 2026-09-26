@@ -17,6 +17,13 @@ jobs:
     runs-on: ubuntu-22.04
 
     steps:
-    - uses: OSDKDev/unlock-issues@v1.1
+    - name: Unlock Reopened Issue
+      uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7
       with:
-        repo-token: "${{ secrets.GITHUB_TOKEN }}"
+        script: |
+          if (!context.payload.issue.locked) return;
+          await github.rest.issues.unlock({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            issue_number: context.issue.number
+          });
