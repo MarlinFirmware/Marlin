@@ -642,24 +642,23 @@ bool Stepper::disable_axis(const AxisEnum axis) {
     if ((current_block = rtg.generate_resonance_block())) {
       // Apply direction
       DIR_WAIT_BEFORE();
+
       const uint8_t axis = rtg.rt_params.axis;
       const bool fwd = current_block->direction_bits[axis];
-
-      if (TERN0(CORE_IS_XY, axis == CORE_AXIS_1 || axis == CORE_AXIS_2)) {
+      switch (axis) {
         #if CORE_IS_XY
-          // Head direction -> motor directions (same math as the planner)
-          const int8_t d = fwd ? 1 : -1;
-          const bool b_fwd = CORESIGN(axis == CORE_AXIS_1 ? d : -d) >= 0;
-          X_APPLY_DIR(fwd, false);
-          Y_APPLY_DIR(b_fwd, false);
-        #endif
-      }
-      else {
-        switch (axis) {
+          case CORE_AXIS_1:
+          case CORE_AXIS_2: {
+            const int8_t d = fwd ? 1 : -1;
+            const bool b_fwd = CORESIGN(axis == CORE_AXIS_1 ? d : -d) >= 0;
+            X_APPLY_DIR(fwd, false);
+            Y_APPLY_DIR(b_fwd, false);
+          }
+        #else
           case X_AXIS: X_APPLY_DIR(fwd, false); break;
           case Y_AXIS: Y_APPLY_DIR(fwd, false); break;
-          case Z_AXIS: Z_APPLY_DIR(fwd, false); break;
-        }
+        #endif
+        case Z_AXIS: Z_APPLY_DIR(fwd, false); break;
       }
 
       step_event_count = current_block->step_event_count;
