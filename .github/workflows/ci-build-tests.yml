@@ -207,6 +207,7 @@ jobs:
         pio pkg update --global
 
     - name: Install Simulator dependencies
+      if: matrix.test-platform == 'simulator_linux_release'
       run: |
         sudo apt-get update
         sudo apt-get install build-essential
