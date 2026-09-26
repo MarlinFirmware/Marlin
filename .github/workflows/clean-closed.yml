@@ -13,6 +13,9 @@ on:
 
 jobs:
   remove_label:
+    name: Clean Closed
+    if: github.repository == 'MarlinFirmware/Marlin'
+
     runs-on: ubuntu-22.04
 
     steps:
