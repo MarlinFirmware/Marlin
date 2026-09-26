@@ -1643,7 +1643,6 @@ uint8_t expand_u8str_P(char * const outstr, PGM_P const ptpl, const int8_t ind, 
         msg = GET_TEXT_F(WELCOME_MSG);
       #endif
     }
-
     else if (ENABLED(STATUS_DO_CLEAR_EMPTY))
       msg = F("");
     else
