@@ -993,9 +993,9 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
 #if HAS_FANMUX && !HAS_FAN0
   #error "FAN0_PIN must be defined to use Fan Multiplexing."
 #elif PIN_EXISTS(FANMUX1) && !PIN_EXISTS(FANMUX0)
-  #error "FANMUX0_PIN must be set before FANMUX1_PIN can be set."
+  #error "FANMUX0_PIN must be defined before FANMUX1_PIN can be defined."
 #elif PIN_EXISTS(FANMUX2) && !PINS_EXIST(FANMUX0, FANMUX1)
-  #error "FANMUX0_PIN and FANMUX1_PIN must be set before FANMUX2_PIN can be set."
+  #error "FANMUX0_PIN and FANMUX1_PIN must be defined before FANMUX2_PIN can be defined."
 #endif
 
 // PID Fan Scaling requires a fan
@@ -2900,8 +2900,14 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
 #if ENABLED(NEOPIXEL_LED)
   #if !PIN_EXISTS(NEOPIXEL) || NEOPIXEL_PIXELS == 0
     #error "NEOPIXEL_LED requires NEOPIXEL_PIN and NEOPIXEL_PIXELS."
+  #elif ALL(NEOPIXEL2_SEPARATE, NEOPIXEL2_INSERIES)
+    #error "Enable only one of NEOPIXEL2_SEPARATE or NEOPIXEL2_INSERIES."
   #elif ENABLED(NEOPIXEL2_SEPARATE) && !(defined(NEOPIXEL2_TYPE) && PIN_EXISTS(NEOPIXEL2) && NEOPIXEL2_PIXELS > 0)
     #error "NEOPIXEL2_SEPARATE requires NEOPIXEL2_TYPE, NEOPIXEL2_PIN and NEOPIXEL2_PIXELS."
+  #elif ENABLED(NEOPIXEL2_INSERIES) && !(defined(NEOPIXEL2_TYPE) && PIN_EXISTS(NEOPIXEL2))
+    #error "NEOPIXEL2_INSERIES requires NEOPIXEL2_TYPE and NEOPIXEL2_PIN."
+  #elif defined(NEOPIXEL2_TYPE) && !PIN_EXISTS(NEOPIXEL2)
+    #error "NEOPIXEL2_TYPE requires NEOPIXEL2_PIN."
   #elif ENABLED(NEO2_COLOR_PRESETS) && DISABLED(NEOPIXEL2_SEPARATE)
     #error "NEO2_COLOR_PRESETS requires NEOPIXEL2_SEPARATE to be enabled."
   #endif
@@ -4350,16 +4356,23 @@ static_assert(_PLUS_TEST(3), "DEFAULT_MAX_ACCELERATION values must be positive."
   #error "Enable only one of WIFISUPPORT or ESP3D_WIFISUPPORT."
 #elif ENABLED(ESP3D_WIFISUPPORT) && DISABLED(ARDUINO_ARCH_ESP32)
   #error "ESP3D_WIFISUPPORT requires an ESP32 motherboard."
-#elif ALL(ARDUINO_ARCH_ESP32, WIFISUPPORT)
-  #if !(defined(WIFI_SSID) && defined(WIFI_PWD))
-    #error "ESP32 motherboard with WIFISUPPORT requires WIFI_SSID and WIFI_PWD."
+#endif
+
+// Only the native ESP32 WiFi needs credentials at compile time. An add-on module
+// on another board is brought up by esp_wifi_init() and configures itself.
+#if ALL(ARDUINO_ARCH_ESP32, WIFISUPPORT) && !(defined(WIFI_SSID) && defined(WIFI_PWD))
+  #error "ESP32 motherboard with WIFISUPPORT requires WIFI_SSID and WIFI_PWD."
+#endif
+
+// With no WiFi at all these can do nothing whatsoever.
+#if NONE(WIFISUPPORT, ESP3D_WIFISUPPORT)
+  #if ANY(WEBSUPPORT, OTASUPPORT)
+    #error "WEBSUPPORT and OTASUPPORT require WIFISUPPORT."
+  #elif ENABLED(WIFI_CUSTOM_COMMAND)
+    #error "WIFI_CUSTOM_COMMAND requires ESP3D_WIFISUPPORT."
+  #elif defined(WIFI_SSID) || defined(WIFI_PWD)
+    #error "WIFI_SSID and WIFI_PWD require WIFISUPPORT."
   #endif
-#elif ENABLED(WIFI_CUSTOM_COMMAND) && NONE(ESP3D_WIFISUPPORT, WIFISUPPORT)
-  #error "WIFI_CUSTOM_COMMAND requires an ESP32 motherboard and WIFISUPPORT."
-#elif ENABLED(OTASUPPORT) && NONE(ESP3D_WIFISUPPORT, WIFISUPPORT)
-  #error "OTASUPPORT requires an ESP32 motherboard and WIFISUPPORT."
-#elif (defined(WIFI_SSID) || defined(WIFI_PWD)) && NONE(ESP3D_WIFISUPPORT, WIFISUPPORT)
-  #error "WIFI_SSID and WIFI_PWD only apply to ESP32 motherboard with WIFISUPPORT."
 #endif
 
 /**

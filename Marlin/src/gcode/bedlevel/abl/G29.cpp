@@ -269,8 +269,9 @@ G29_TYPE GcodeSuite::G29() {
 
   // 3-point leveling gets points from the probe class
   #if ENABLED(AUTO_BED_LEVELING_3POINT)
-    vector_3 points[3];
-    probe.get_three_points(points);
+    TERN_(PROBE_MANUALLY, static) vector_3 points[3];
+    if (TERN1(PROBE_MANUALLY, !g29_in_progress))
+      probe.get_three_points(points);
   #endif
 
   // Storage for ABL Linear results
@@ -525,6 +526,10 @@ G29_TYPE GcodeSuite::G29() {
         reset_bed_level();      // Reset grid to 0.0 or "not probed". (Also disables ABL)
         abl.reenable = false;   // Can't re-enable (on error) until the new grid is written
       }
+      // If Z home / M206 Z provides a known-accurate Z0 at the Z safe homing point, use it to calibrate the Probe Z Offset.
+      #if ENABLED(PROBE_Z0_BEFORE_G29)
+        abl.Z_offset -=  probe.probe_at_point(Z_SAFE_HOMING_X_POINT, Z_SAFE_HOMING_Y_POINT, PROBE_PT_NONE, abl.verbose_level, false);
+      #endif
       // Pre-populate local Z values from the stored mesh
       TERN_(IS_KINEMATIC, COPY(abl.z_values, bedlevel.z_values));
     #endif

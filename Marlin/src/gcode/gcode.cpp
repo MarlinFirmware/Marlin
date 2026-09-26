@@ -179,11 +179,12 @@ void GcodeSuite::get_destination_from_command() {
   // Get new XYZ position, whether absolute or relative
   LOOP_NUM_AXES(i) {
     if ( (seen[i] = parser.seenval(AXIS_CHAR(i))) ) {
-      const float v = parser.value_axis_units((AxisEnum)i);
       if (skip_move)
         motion.destination[i] = motion.position[i];
-      else
+      else {
+        const float v = parser.value_axis_units((AxisEnum)i);
         motion.destination[i] = axis_is_relative((AxisEnum)i) ? motion.position[i] + v : motion.logical_to_native(v, (AxisEnum)i);
+      }
     }
     else
       motion.destination[i] = motion.position[i];
@@ -848,7 +849,7 @@ void GcodeSuite::process_parsed_command(bool no_ok/*=false*/) {
         case 360: M360(); break;                                  // M360: Firmware settings
       #endif
 
-      #if ENABLED(SCARA)
+      #if ENABLED(SCARA_CALIBRATION)
         case 360: if (M360()) return; break;                      // M360: SCARA Theta pos1
         case 361: if (M361()) return; break;                      // M361: SCARA Theta pos2
         case 362: if (M362()) return; break;                      // M362: SCARA Psi pos1
@@ -1238,7 +1239,7 @@ void GcodeSuite::process_subcommands_now(FSTR_P fgcode) {
     if (!delim) break;                                // Last command?
     pgcode = delim + 1;                               // Get the next command
   }
-  parser.parse(saved_cmd);                            // Restore the parser state
+  if (saved_cmd) parser.parse(saved_cmd);             // Restore the parser state (if any)
 }
 
 #pragma GCC diagnostic pop
@@ -1254,7 +1255,7 @@ void GcodeSuite::process_subcommands_now(char * gcode) {
     *delim = '\n';                                    // Put back the newline
     gcode = delim + 1;                                // Get the next command
   }
-  parser.parse(saved_cmd);                            // Restore the parser state
+  if (saved_cmd) parser.parse(saved_cmd);             // Restore the parser state (if any)
 }
 
 #if ENABLED(HOST_KEEPALIVE_FEATURE)

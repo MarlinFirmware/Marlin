@@ -71,7 +71,7 @@ void GcodeSuite::M106() {
     }
   #endif
 
-  const uint16_t dspeed = parser.seen_test('A') ? thermalManager.fan_speed[motion.extruder] : 255;
+  const uint16_t dspeed = parser.seen_test('A') ? fans[motion.extruder].speed : 255;
 
   uint16_t speed = dspeed;
 
