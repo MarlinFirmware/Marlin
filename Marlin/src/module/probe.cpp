@@ -46,6 +46,10 @@
   #include "../feature/bedlevel/bdl/bdl.h"
 #endif
 
+#if ENABLED(BD_PRESSURE_PROBE)
+  #include "../feature/bd_pressure.h"
+#endif
+
 #if ENABLED(DELTA)
   #include "delta.h"
 #endif
@@ -626,6 +630,11 @@ bool Probe::probe_down_to_z(const float z, const feedRate_t fr_mm_s) {
   #if ALL(HAS_TEMP_HOTEND, WAIT_FOR_HOTEND)
     thermalManager.wait_for_hotend_heating(motion.extruder);
   #endif
+
+  // Put the bd_pressure module in probe mode and re-tare it, as Klipper does
+  // on homing_move_begin. A PA calibration leaves it in PA mode, where it
+  // stops driving the endstop output altogether.
+  TERN_(BD_PRESSURE_PROBE, bdp.probe_prep());
 
   #if ENABLED(BLTOUCH)
     // Ensure the BLTouch is deployed. (Does nothing if already deployed.)
