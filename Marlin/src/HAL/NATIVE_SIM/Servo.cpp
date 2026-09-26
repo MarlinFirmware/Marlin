@@ -37,26 +37,26 @@ uint8_t ServoCount = 0;                                // the total number of at
 
 Servo::Servo() {
   // Constructor stub
-  DEBUG_ECHOLNPGM("Debug Servo: constructor");
+  DEBUG_ECHOLN("Debug Servo: constructor");
   this->servoIndex = ServoCount++;                    // assign a servo index to this instance
 }
 
 uint8_t Servo::attach(int pin) {
   // Attach stub
-  DEBUG_ECHOLNPGM("Debug Servo: attach to pin ", pin, " servo index ", this->servoIndex);
+  DEBUG_ECHOLN("Debug Servo: attach to pin ", pin, " servo index ", this->servoIndex);
   return attach(pin, MIN_PULSE_WIDTH, MAX_PULSE_WIDTH);
 }
 
 uint8_t Servo::attach(int pin, int min, int max) {
   // Attach with min and max stub
-  DEBUG_ECHOLNPGM("Debug Servo: attach to pin ", pin, " with min ", min, " and max ", max);
+  DEBUG_ECHOLN("Debug Servo: attach to pin ", pin, " with min ", min, " and max ", max);
   if (pin > 0) servo_pin = pin;
   return this->servoIndex;
 }
 
 void Servo::detach() {
   // Detach stub
-  DEBUG_ECHOLNPGM("Debug Servo: detach");
+  DEBUG_ECHOLN("Debug Servo: detach");
 }
 
 // If value is < 200 it is treated as an angle, otherwise as pulse width in microseconds
@@ -65,37 +65,37 @@ void Servo::write(int value) {
     value = map(constrain(value, 0, 180), 0, 180, SERVO_MIN_US(min), SERVO_MAX_US(max));
   }
   writeMicroseconds(value);
-  DEBUG_ECHOLNPGM("Debug Servo: write ", value);
+  DEBUG_ECHOLN("Debug Servo: write ", value);
 }
 
 void Servo::writeMicroseconds(int value) {
   // Simulate the servo movement
   this->value = value;
   hal.set_pwm_duty(pin_t(this->servo_pin), (float(value) / 20000) * UINT16_MAX, UINT16_MAX);
-  DEBUG_ECHOLNPGM("Debug Servo: write microseconds ", value);
+  DEBUG_ECHOLN("Debug Servo: write microseconds ", value);
 }
 
 int Servo::read() {
   // Read stub
-  DEBUG_ECHOLNPGM("Debug Servo: read ", this->value);
+  DEBUG_ECHOLN("Debug Servo: read ", this->value);
   return this->value;
 }
 
 int Servo::readMicroseconds() {
   // Read microseconds stub
-  DEBUG_ECHOLNPGM("Debug Servo: read microseconds");
+  DEBUG_ECHOLN("Debug Servo: read microseconds");
   return 0;
 }
 
 bool Servo::attached() {
   // Attached stub
-  DEBUG_ECHOLNPGM("Debug Servo: attached");
+  DEBUG_ECHOLN("Debug Servo: attached");
   return false;
 }
 
 int Servo::move(const unsigned char cmd) {
   // Move stub
-  DEBUG_ECHOLNPGM("Debug Servo: move ", cmd);
+  DEBUG_ECHOLN("Debug Servo: move ", cmd);
   write(cmd);
   return 0;
 }
