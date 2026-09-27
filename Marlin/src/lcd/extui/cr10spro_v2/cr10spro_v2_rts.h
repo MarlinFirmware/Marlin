@@ -163,6 +163,7 @@ class RTS {
       bool    chinese;
       uint8_t volume;
       bool    energy_saving;  // Turn off the bed after the first layers
+      bool    leveling;       // Bed leveling on at startup (not saved by Marlin for bilinear)
     };
     static settings_t settings;
 

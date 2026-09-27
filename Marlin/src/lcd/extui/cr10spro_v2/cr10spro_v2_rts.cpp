@@ -78,6 +78,7 @@ namespace {
 
   bool auto_leveling = false;
   uint8_t probe_count = 0;
+  uint32_t probed_points = 0;     // One bit per mesh point, to count each once
 
   float filament_len[2] = { 10, 10 };
   float pending_e = 0;            // Filament move waiting for the nozzle to heat
@@ -280,7 +281,7 @@ void RTS::refreshFileList() {
   for (uint16_t i = files.count(); i-- && file_count < RTS_FILE_SLOTS;) {
     if (!files.seek(i) || files.isDir()) continue;
     file_index[file_count] = i;
-    makeDisplayName(name, files.longFilename());
+    makeDisplayName(name, files.filename());
     writeText(VP_FILE_NAMES + file_count * 10, name);
     writeWord(VP_FILE_ICON + 1 + file_count, 1);
     ++file_count;
@@ -337,7 +338,7 @@ void RTS::startSelectedFile() {
   FileList files;
   if (!files.seek(file_index[selected_file])) return;
   char name[RTS_FILENAME_LEN];
-  makeDisplayName(name, files.longFilename());
+  makeDisplayName(name, files.filename());
   showFilename(VP_PRINT_FILENAME, name);
   printFile(files.shortFilename());
   printStarted();
@@ -577,15 +578,22 @@ void RTS::homingFinished() {
 
 void RTS::meshPointProbed(const int8_t x, const int8_t y, const float z) {
   sendMeshPoint(x, y, z);
-  // A mesh reset reports every point, already cleared to NAN
-  if (auto_leveling && probe_count < GRID_MAX_POINTS && !isnan(getMeshPoint({ uint8_t(x), uint8_t(y) })))
-    writeWord(VP_AUTOLEVEL_ICON, ++probe_count);
+  if (!auto_leveling || !WITHIN(x, 0, RTS_MESH_SIZE - 1) || !WITHIN(y, 0, RTS_MESH_SIZE - 1)) return;
+  // A mesh reset reports every point as 0 after clearing it to NAN
+  if (z == 0 && isnan(getMeshPoint({ uint8_t(x), uint8_t(y) }))) return;
+  // G29 reports each probed point, then every point again when the new mesh is applied
+  const uint8_t i = y * RTS_MESH_SIZE + x;
+  if (TEST32(probed_points, i)) return;
+  SBI32(probed_points, i);
+  writeWord(VP_AUTOLEVEL_ICON, ++probe_count);
 }
 
 void RTS::levelingFinished() {
   sendMesh();
   if (auto_leveling) {
     auto_leveling = false;
+    settings.leveling = getLevelingActive();
+    if (getLevelingIsValid()) saveSettings();
     gotoPage(PAGE_LEVELING);
   }
 }
@@ -858,6 +866,7 @@ void RTS::onBedLevel(const uint16_t value) {
     case 5: // Probe the mesh
       auto_leveling = true;
       probe_count = 0;
+      probed_points = 0;
       writeWord(VP_AUTOLEVEL_ICON, 1);
       gotoPage(PAGE_AUTOLEVEL);
       injectCommands(isMachineHomed() ? F("G29") : F("G28\nG29"));
@@ -869,6 +878,7 @@ void RTS::onBedLevel(const uint16_t value) {
     case 10: moveToTrammingPoint(X_MIN_BED + lfrb[0], Y_MAX_BED - lfrb[3]); break;
     case 11: // Leveling on/off
       setLevelingActive(!getLevelingActive());
+      settings.leveling = getLevelingActive();
       writeWord(VP_LEVELING_ICON, getLevelingActive() ? 3 : 2);
       sendZOffset();
       saveSettings();
@@ -988,7 +998,7 @@ void RTS::onFileChoose(const uint16_t value) {
   FileList files;
   if (!files.seek(file_index[selected_file])) return;
   char name[RTS_FILENAME_LEN];
-  makeDisplayName(name, files.longFilename());
+  makeDisplayName(name, files.filename());
   showFilename(VP_CHOSEN_FILENAME, name);
 
   char buf[8];

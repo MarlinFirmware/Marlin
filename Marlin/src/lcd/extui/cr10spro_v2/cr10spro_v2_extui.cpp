@@ -34,7 +34,7 @@
 
 namespace ExtUI {
 
-  static constexpr uint8_t settings_version = 1;
+  static constexpr uint8_t settings_version = 2;
 
   void onStartup() { rts.onStartup(); }
   void onIdle() { rts.onIdle(); }
@@ -43,10 +43,11 @@ namespace ExtUI {
     PGM_P const e = FTOP(error);
     if (e == GET_TEXT(MSG_ERR_HEATING_FAILED))
       rts.gotoPage(RTS::PAGE_ERR_HEATING);
-    else if (e == GET_TEXT(MSG_ERR_MAXTEMP) || e == GET_TEXT(MSG_ERR_MINTEMP))
+    else if (e == GET_TEXT(MSG_ERR_MAXTEMP) || e == GET_TEXT(MSG_ERR_MINTEMP) || e == GET_TEXT(MSG_ERR_REDUNDANT_TEMP))
       rts.gotoPage(RTS::PAGE_ERR_TEMP);
-    else
+    else if (e == GET_TEXT(MSG_ERR_THERMAL_RUNAWAY) || e == GET_TEXT(MSG_ERR_TEMP_MALFUNCTION))
       rts.gotoPage(RTS::PAGE_ERR_RUNAWAY);
+    // The screen has no page for other errors (M112, homing or probe failure)
   }
 
   void onMediaMounted() { rts.mediaInserted(); }
@@ -97,6 +98,7 @@ namespace ExtUI {
     RTS::settings.chinese       = false;
     RTS::settings.volume        = 0x80;
     RTS::settings.energy_saving = false;
+    RTS::settings.leveling      = false;
   }
 
   static_assert(sizeof(RTS::settings_t) <= eeprom_data_size, "Insufficient space in EEPROM for UI parameters");
@@ -118,6 +120,9 @@ namespace ExtUI {
   void onSettingsStored(const bool) {}
 
   void onSettingsLoaded(const bool) {
+    // Restore the leveling state the screen last set. G28 keeps it with RESTORE_LEVELING_AFTER_G28.
+    if (RTS::settings.leveling != getLevelingActive() && !isPrinting())
+      setLevelingActive(RTS::settings.leveling);
     rts.sendLanguage();
     rts.sendVolume();
     rts.sendZOffset();
