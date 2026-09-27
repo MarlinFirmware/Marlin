@@ -46,6 +46,7 @@ class Neptune3TFT {
 
     static void mediaMounted();
     static void mediaRemoved();
+    static void mediaError();
 
     static void printTimerStarted();
     static void printDone();

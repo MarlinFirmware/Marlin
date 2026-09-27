@@ -40,7 +40,7 @@ namespace ExtUI {
   void onPrinterKilled(FSTR_P const error, FSTR_P const) { neptune3.printerKilled(error); }
 
   void onMediaMounted() { neptune3.mediaMounted(); }
-  void onMediaError() {}
+  void onMediaError() { neptune3.mediaError(); }
   void onMediaRemoved() { neptune3.mediaRemoved(); }
 
   void onHeatingError(const heater_id_t heater) { neptune3.heatingError(heater); }

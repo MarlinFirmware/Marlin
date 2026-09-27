@@ -454,6 +454,7 @@ void Neptune3TFT::refreshFileList() {
 
 void Neptune3TFT::mediaMounted() { refreshFileList(); }
 void Neptune3TFT::mediaRemoved() { clearFileList(); }
+void Neptune3TFT::mediaError() { SEND("page err_sdread"); }
 
 void Neptune3TFT::startPrint(const int8_t index) {
   if (!WITHIN(index, 0, file_count - 1)) return;
