@@ -170,7 +170,7 @@ class MenuEditItemBase : public MenuItemBase {
       static bool itemEdit; // Drawing a menu item's edit screen, not babystep, move axis, etc.
     #endif
     #if TFT_COLOR_TOUCH
-      static float valueStep;
+      static float valueStep; // Encoder units per displayed unit (1 = integer entry)
       static void reset_edit_screen_state();
     #endif
     static screenFunc_t callbackFunc;
@@ -184,7 +184,7 @@ class MenuEditItemBase : public MenuItemBase {
       , const int32_t minv    // Encoder minimum
       , const int32_t maxv    // Encoder maximum
       OPTARG(TFT_COLOR_UI, intptr_t to_string)  // Value-to-string conversion function
-      OPTARG(TFT_COLOR_TOUCH, const float step) // Smallest step
+      OPTARG(TFT_COLOR_TOUCH, const float step) // Encoder units per displayed unit
       , const uint32_t ep     // Initial encoder value
       , const screenFunc_t cs // MenuItem_type::draw_edit_screen => MenuEditItemBase::edit()
       , const screenFunc_t cb // Callback after edit
@@ -212,7 +212,7 @@ class MenuEditItemBase : public MenuItemBase {
     }
 
     #if TFT_COLOR_TOUCH
-      static void put_new_value(float val);
+      static void put_new_value(const float val);
     #endif
 };
 

@@ -250,7 +250,7 @@ void Touch::touch(touch_control_t * const control) {
         TERN_(AUTO_BED_LEVELING_UBL, bedlevel.encoder_diff -= step);
       }
       else
-        ui.encoderPosition = ui.encoderPosition > uint32_t(step) ? ui.encoderPosition - step : 0;
+        ui.encoderPosition -= step; // Relative screens (Move, Babystep) need negative steps. Edit screens constrain.
     } break;
 
     // Other controls behave like menu items

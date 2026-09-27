@@ -71,7 +71,13 @@ typedef struct {
 
 typedef void (*touch_handler_t)(touch_event_t*);
 
-#define MAX_CONTROLS               16
+// Tall displays show the edit screen keypad together with the slider, steps and buttons.
+// Controls beyond this limit are ignored, so it must cover the busiest screen.
+#if TFT_HEIGHT >= 480
+  #define MAX_CONTROLS             32
+#else
+  #define MAX_CONTROLS             16
+#endif
 #define MINIMUM_HOLD_TIME          15   // Debounce delay for ignoring short accidental touch
 #define TOUCH_REPEAT_PRE_DELAY   1000   // 1s Wait before a held control starts repeating
 #define TOUCH_REPEAT_DELAY        250   // 1/4s Interval between repeats once repeating starts
