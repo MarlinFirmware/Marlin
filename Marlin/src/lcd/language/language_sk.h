@@ -106,7 +106,7 @@ namespace LanguageNarrow_sk {
   LSTR MSG_NOZZLE_N                       = _UxGT("Tryska ~");                                 // Nozzle ~
   LSTR MSG_BED                            = _UxGT("Podložka");                                 // Bed
   LSTR MSG_FAN_SPEED                      = _UxGT("Rýchlosť vent.");                           // Fan Speed
-  LSTR MSG_FAN_SPEED_N                    = _UxGT("Rýchlosť vent. ~");                         // Fan Speed ~
+  LSTR MSG_FAN_SPEED_N                    = _UxGT("Rýchlosť vent. ~");                         // Fan ~ Speed
   LSTR MSG_FLOW                           = _UxGT("Prietok");                                  // Flow
   LSTR MSG_FLOW_N                         = _UxGT("Prietok ~");                                // Flow ~
   LSTR MSG_CONTROL                        = _UxGT("Ovládanie");                                // Control
@@ -366,7 +366,7 @@ namespace LanguageNarrow_sk {
   LSTR MSG_CHAMBER                        = _UxGT("Komora");                                   // Enclosure
   LSTR MSG_STORED_FAN_N                   = _UxGT("Ulož. vent. ~");                            // Stored Fan ~
   LSTR MSG_EXTRA_FAN_SPEED                = _UxGT("Rýchlosť ex. vent.");                       // Extra Fan Speed
-  LSTR MSG_EXTRA_FAN_SPEED_N              = _UxGT("Rýchlosť ex. vent. ~");                     // Extra Fan Speed ~
+  LSTR MSG_EXTRA_FAN_SPEED_N              = _UxGT("Rýchlosť ex. vent. ~");                     // Extra Fan ~ Speed
   LSTR MSG_PID_AUTOTUNE                   = _UxGT("Kalibrácia PID");                           // PID Autotune
   LSTR MSG_PID_AUTOTUNE_E                 = _UxGT("Kalibrácia PID *");                         // Autotune * PID
   LSTR MSG_JERK                           = _UxGT("Skok");                                     // Jerk

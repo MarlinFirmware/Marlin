@@ -99,7 +99,7 @@ namespace LanguageNarrow_tr {
   LSTR MSG_NOZZLE_N                       = _UxGT("Nozul ~");                                  // Nozzle ~
   LSTR MSG_BED                            = _UxGT("Tabla");                                    // Bed
   LSTR MSG_FAN_SPEED                      = _UxGT("Fan Hızı");                                 // Fan Speed
-  LSTR MSG_FAN_SPEED_N                    = _UxGT("Fan Hızı ~");                               // Fan Speed ~
+  LSTR MSG_FAN_SPEED_N                    = _UxGT("Fan ~ Hızı");                               // Fan ~ Speed
   LSTR MSG_FLOW                           = _UxGT("Akış");                                     // Flow
   LSTR MSG_FLOW_N                         = _UxGT("Akış ~");                                   // Flow ~
   LSTR MSG_CONTROL                        = _UxGT("Kontrol");                                  // Control
@@ -359,7 +359,7 @@ namespace LanguageNarrow_tr {
   LSTR MSG_CHAMBER                        = _UxGT("Kabin");                                    // Enclosure
   LSTR MSG_STORED_FAN_N                   = _UxGT("Depolanan Fan ~");                          // Stored Fan ~
   LSTR MSG_EXTRA_FAN_SPEED                = _UxGT("Ekstra Fan Hızı");                          // Extra Fan Speed
-  LSTR MSG_EXTRA_FAN_SPEED_N              = _UxGT("Ekstra Fan Hızı ~");                        // Extra Fan Speed ~
+  LSTR MSG_EXTRA_FAN_SPEED_N              = _UxGT("Ekstra Fan ~ Hızı");                        // Extra Fan ~ Speed
   LSTR MSG_PID_AUTOTUNE                   = _UxGT("PID Kalibrasyonu");                         // PID Autotune
   LSTR MSG_PID_AUTOTUNE_E                 = _UxGT("* PID Kalibrasyonu");                       // Autotune * PID
   LSTR MSG_JERK                           = _UxGT("Sarsım");                                   // Jerk

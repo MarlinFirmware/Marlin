@@ -98,7 +98,7 @@ namespace LanguageNarrow_pl {
   LSTR MSG_NOZZLE_N                       = _UxGT("Dysza ~");                                  // Nozzle ~
   LSTR MSG_BED                            = _UxGT("Stół");                                     // Bed
   LSTR MSG_FAN_SPEED                      = _UxGT("Obroty wentylatora");                       // Fan Speed
-  LSTR MSG_FAN_SPEED_N                    = _UxGT("Obroty wentylatora ~");                     // Fan Speed ~
+  LSTR MSG_FAN_SPEED_N                    = _UxGT("Obroty wentylatora ~");                     // Fan ~ Speed
   LSTR MSG_FLOW                           = _UxGT("Przepływ");                                 // Flow
   LSTR MSG_FLOW_N                         = _UxGT("Przepływ ~");                               // Flow ~
   LSTR MSG_CONTROL                        = _UxGT("Ustawienia");                               // Control
@@ -342,7 +342,7 @@ namespace LanguageNarrow_pl {
   LSTR MSG_HOTEND_TOO_COLD                = _UxGT("Dysza za zimna");                           // Hotend too cold
   LSTR MSG_CHAMBER                        = _UxGT("Obudowa");                                  // Enclosure
   LSTR MSG_EXTRA_FAN_SPEED                = _UxGT("Obroty dodatkowego wentylatora");           // Extra Fan Speed
-  LSTR MSG_EXTRA_FAN_SPEED_N              = _UxGT("Obroty dodatkowego wentylatora ~");         // Extra Fan Speed ~
+  LSTR MSG_EXTRA_FAN_SPEED_N              = _UxGT("Obroty dodatkowego wentylatora ~");         // Extra Fan ~ Speed
   LSTR MSG_PID_AUTOTUNE                   = _UxGT("PID Autostrojenie");                        // PID Autotune
   LSTR MSG_PID_AUTOTUNE_E                 = _UxGT("PID Autostrojenie *");                      // Autotune * PID
   LSTR MSG_JERK                           = _UxGT("Zryw");                                     // Jerk

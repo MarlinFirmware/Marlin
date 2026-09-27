@@ -105,7 +105,7 @@ namespace LanguageNarrow_es {
   LSTR MSG_NOZZLE_N                       = _UxGT("Boquilla ~");                               // Nozzle ~
   LSTR MSG_BED                            = _UxGT("Cama");                                     // Bed
   LSTR MSG_FAN_SPEED                      = _UxGT("Ventilador");                               // Fan Speed
-  LSTR MSG_FAN_SPEED_N                    = _UxGT("Ventilador ~");                             // Fan Speed ~
+  LSTR MSG_FAN_SPEED_N                    = _UxGT("Ventilador ~");                             // Fan ~ Speed
   LSTR MSG_FLOW                           = _UxGT("Flujo");                                    // Flow
   LSTR MSG_FLOW_N                         = _UxGT("Flujo ~");                                  // Flow ~
   LSTR MSG_CONTROL                        = _UxGT("Control");                                  // Control
@@ -365,7 +365,7 @@ namespace LanguageNarrow_es {
   LSTR MSG_CHAMBER                        = _UxGT("Recinto");                                  // Enclosure
   LSTR MSG_STORED_FAN_N                   = _UxGT("Vent. almacenado ~");                       // Stored Fan ~
   LSTR MSG_EXTRA_FAN_SPEED                = _UxGT("Vel. Ext. ventil.");                        // Extra Fan Speed
-  LSTR MSG_EXTRA_FAN_SPEED_N              = _UxGT("Vel. Ext. ventil. ~");                      // Extra Fan Speed ~
+  LSTR MSG_EXTRA_FAN_SPEED_N              = _UxGT("Vel. Ext. ventil. ~");                      // Extra Fan ~ Speed
   LSTR MSG_PID_AUTOTUNE                   = _UxGT("PID Auto-ajuste");                          // PID Autotune
   LSTR MSG_PID_AUTOTUNE_E                 = _UxGT("PID Auto-ajuste *");                        // Autotune * PID
   LSTR MSG_JERK                           = _UxGT("Jerk");                                     // Jerk
