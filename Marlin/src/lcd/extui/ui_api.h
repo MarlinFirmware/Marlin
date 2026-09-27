@@ -241,6 +241,7 @@ namespace ExtUI {
     void onLevelingStart();
     void onLevelingDone();
     #if ENABLED(PREHEAT_BEFORE_LEVELING)
+      celsius_t getLevelingNozzleTemp();
       celsius_t getLevelingBedTemp();
     #endif
     #if HAS_MESH

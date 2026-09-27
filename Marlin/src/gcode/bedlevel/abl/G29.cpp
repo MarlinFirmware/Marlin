@@ -467,7 +467,8 @@ G29_TYPE GcodeSuite::G29() {
           rts.sendData(1, Wait_VP);
           rts.gotoPage(ID_ABL_HeatWait_L, ID_ABL_HeatWait_D);
         #endif
-        if (!abl.dryrun) probe.preheat_for_probing(LEVELING_NOZZLE_TEMP,
+        if (!abl.dryrun) probe.preheat_for_probing(
+          TERN(EXTENSIBLE_UI, ExtUI::getLevelingNozzleTemp(), LEVELING_NOZZLE_TEMP),
           TERN(EXTENSIBLE_UI, ExtUI::getLevelingBedTemp(), LEVELING_BED_TEMP)
         );
       #endif
