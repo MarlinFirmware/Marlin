@@ -34,6 +34,8 @@
 
 #define BOARD_INFO_NAME "ZNP Robin Nano_DW V2.2"
 
+#define BOARD_LCD_SERIAL_PORT 6
+
 //
 // Limit Switches
 //
