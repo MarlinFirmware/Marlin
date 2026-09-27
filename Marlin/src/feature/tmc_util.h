@@ -69,6 +69,11 @@ typedef struct {
   uint8_t hstrt;
 } chopper_timing_t;
 
+// Datasheet limits, including "Effective HEND+HSTRT ≤ 16"
+constexpr bool chopper_timing_valid(const chopper_timing_t &ct) {
+  return WITHIN(ct.toff, 1, 15) && WITHIN(ct.hend, -3, 12) && WITHIN(ct.hstrt, 1, 8) && ct.hend + ct.hstrt <= 16;
+}
+
 template<char AXIS_LETTER, char DRIVER_ID>
 class TMCStorage {
   protected:
