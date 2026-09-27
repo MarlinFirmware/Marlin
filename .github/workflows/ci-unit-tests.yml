@@ -51,14 +51,6 @@ jobs:
     - name: Check out the PR
       uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
-    - name: Cache pip
-      uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6
-      with:
-        path: ~/.cache/pip
-        key: ${{ runner.os }}-pip-unit-v1
-        restore-keys: |
-          ${{ runner.os }}-pip-unit-
-
     - name: Restore PlatformIO cache
       id: pio-cache
       uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6
