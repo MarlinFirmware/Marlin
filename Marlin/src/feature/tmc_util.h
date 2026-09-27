@@ -29,13 +29,31 @@
 #include <TMCStepper.h>
 #include "../module/planner.h"
 
-#define CHOPPER_DEFAULT_12V  { 3, -1, 1 }   // { toff, hend, hstrt }
+// 1.8° steppers                              { toff, hend, hstrt }
+#define CHOPPER_DEFAULT_12V  { 3, -1, 1 }
 #define CHOPPER_DEFAULT_19V  { 4,  1, 1 }
 #define CHOPPER_DEFAULT_24V  { 4,  2, 1 }
-#define CHOPPER_DEFAULT_36V  { 5,  2, 4 }
+#define CHOPPER_DEFAULT_36V  { 5,  2, 4 }   // TMC2130, TMC2160, TMC2240, TMC5130, TMC5160
+#define CHOPPER_DEFAULT_48V  { 5,  2, 6 }   // TMC2160, TMC5160
+#define CHOPPER_DEFAULT_60V  { 5,  2, 8 }   // TMC2160, TMC5160
+
+#define CHOPPER_18STEP_12V   CHOPPER_DEFAULT_12V
+#define CHOPPER_18STEP_19V   CHOPPER_DEFAULT_19V
+#define CHOPPER_18STEP_24V   CHOPPER_DEFAULT_24V
+#define CHOPPER_18STEP_36V   CHOPPER_DEFAULT_36V
+#define CHOPPER_18STEP_48V   CHOPPER_DEFAULT_48V
+#define CHOPPER_18STEP_60V   CHOPPER_DEFAULT_60V
+
+// 0.9° steppers
+#define CHOPPER_09STEP_12V   { 3, -1, 2 }
+#define CHOPPER_09STEP_19V   { 3, -1, 4 }
+#define CHOPPER_09STEP_24V   { 3, -1, 5 }
+#define CHOPPER_09STEP_36V   { 4,  0, 8 }   // TMC2130, TMC2160, TMC2240, TMC5130, TMC5160
+#define CHOPPER_09STEP_48V   { 5,  5, 8 }   // TMC2160, TMC5160
+
+// Others
 #define CHOPPER_PRUSAMK3_24V { 3, -2, 6 }
 #define CHOPPER_MARLIN_119   { 5,  2, 3 }
-#define CHOPPER_09STEP_24V   { 3, -1, 5 }
 
 #if ENABLED(MONITOR_DRIVER_STATUS) && !defined(MONITOR_DRIVER_STATUS_INTERVAL_MS)
   #define MONITOR_DRIVER_STATUS_INTERVAL_MS 500U
