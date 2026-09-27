@@ -496,6 +496,7 @@
 #define BOARD_ZNP_ROBIN_NANO_V1_3           5260  // Elegoo Neptune 2 v1.3 board
 #define BOARD_MKS_NEPTUNE_X                 5261  // Elegoo Neptune X
 #define BOARD_MKS_NEPTUNE_3                 5262  // Elegoo Neptune 3
+#define BOARD_MKS_E3D_V2                    5263  // Elegoo Neptune 3 Pro / Plus / Max (STM32F401RC)
 
 //
 // Other ARM Cortex-M4

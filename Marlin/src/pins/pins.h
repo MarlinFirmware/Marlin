@@ -832,6 +832,8 @@
   #include "stm32f4/pins_MKS_NEPTUNE_X.h"           // STM32F4                              env:mks_neptune_x
 #elif MB(MKS_NEPTUNE_3)
   #include "stm32f4/pins_MKS_NEPTUNE_3.h"           // STM32F4                              env:mks_neptune_3
+#elif MB(MKS_E3D_V2)
+  #include "stm32f4/pins_MKS_E3D_V2.h"              // STM32F4                              env:mks_e3d_v2
 
 //
 // Other ARM Cortex-M4
