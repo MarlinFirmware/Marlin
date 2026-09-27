@@ -201,7 +201,7 @@ void Touch::touch(touch_control_t * const control) {
     // Tap on button with 'true' selection
     case CONFIRM: ui.encoderPosition = 1; ui.selection = true; ui.lcd_clicked = true; break;
     // Tap on butto with 'false' selection
-    case CANCEL:  ui.encoderPosition = 0; ui.selection = false; ui.lcd_clicked = true; break;
+    case CANCEL_ITEM: ui.encoderPosition = 0; ui.selection = false; ui.lcd_clicked = true; break;
 
     // Specifically, Click to Continue
     #if HAS_RESUME_CONTINUE
@@ -277,14 +277,16 @@ void Touch::touch(touch_control_t * const control) {
 
     } break;
 
-    case FAN: {
-      ui.clear_for_drawing();
-      editable.uint8 = fans[0].speed;
-      MenuItem_percent::action(GET_TEXT_F(MSG_FIRST_FAN_SPEED), &editable.uint8, 0, 255, []{
-        thermalManager.set_fan_speed(0, editable.uint8);
-        TERN_(LASER_SYNCHRONOUS_M106_M107, planner.buffer_sync_block(BLOCK_BIT_SYNC_FANS));
-      });
-    } break;
+    #if HAS_FAN
+      case FAN: {
+        ui.clear_for_drawing();
+        editable.uint8 = fans[0].speed;
+        MenuItem_percent::action(GET_TEXT_F(MSG_FIRST_FAN_SPEED), &editable.uint8, 0, 255, []{
+          thermalManager.set_fan_speed(0, editable.uint8);
+          TERN_(LASER_SYNCHRONOUS_M106_M107, planner.buffer_sync_block(BLOCK_BIT_SYNC_FANS));
+        });
+      } break;
+    #endif
 
     case FEEDRATE:
       ui.clear_for_drawing();
