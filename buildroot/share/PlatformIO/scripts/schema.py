@@ -96,6 +96,15 @@ def load_boards():
             return "['" + "','".join(boards) + "']"
     return ''
 
+# Extract all display names from displays.h
+def load_displays():
+    dpath = Path("Marlin/src/core/displays.h")
+    if dpath.is_file():
+        with dpath.open(encoding='utf-8') as dfile:
+            displays = [ line.split()[1] for line in dfile if line.startswith("#define LCD_") and "(" not in line.split()[1] ]
+            return "['" + "','".join(displays) + "']"
+    return ''
+
 #
 # Extract the specified configuration files in the form of a structured schema.
 # Contains the full schema for the configuration files, not just the enabled options,
@@ -121,6 +130,9 @@ def load_boards():
 def extract_files(filekey):
     # Load board names from boards.h
     boards = load_boards()
+
+    # Load display names from displays.h
+    displays = load_displays()
 
     # Parsing states
     class Parse:
@@ -433,6 +445,8 @@ def extract_files(filekey):
                         # Set the options for the current #define
                         if define_name == "MOTHERBOARD" and boards != '':
                             define_info['options'] = boards
+                        elif define_name == "LCD_CONTROLLER" and displays != '':
+                            define_info['options'] = displays
                         elif options_json != '':
                             define_info['options'] = options_json
                             if eol_options: options_json = ''
