@@ -2266,6 +2266,9 @@ void setMoveZ() { hmiValue.axis = Z_AXIS; setPFloatOnClick(Z_MIN_POS, Z_MAX_POS,
   void setProbeOffsetX() { setPFloatOnClick(-60, 60, UNITFDIGITS); }
   void setProbeOffsetY() { setPFloatOnClick(-60, 60, UNITFDIGITS); }
   void setProbeOffsetZ() { setPFloatOnClick(-10, 10, 2); }
+  #if ENABLED(GLOBAL_MESH_Z_OFFSET)
+    void setMeshZOffset() { setPFloatOnClick(PROBE_OFFSET_ZMIN, PROBE_OFFSET_ZMAX, 2); }
+  #endif
 
   #if ENABLED(Z_MIN_PROBE_REPEATABILITY_TEST)
     void probeTest() {
@@ -4533,6 +4536,7 @@ void drawLevelMenu() {
     + ENABLED(HAS_HOME_OFFSET)
     + TERN0(HAS_MESH, 2 + ENABLED(USE_GRID_MESHVIEWER) + TERN0(HAS_PROUI_MESH_EDIT, 2))
     + TERN0(AUTO_BED_LEVELING_UBL, 5)
+    + ENABLED(GLOBAL_MESH_Z_OFFSET)
   );
   checkkey = ID_Menu;
   if (SET_MENU(levelMenu, MSG_BED_LEVELING, items)) {
@@ -4558,6 +4562,9 @@ void drawLevelMenu() {
       #if HAS_PROUI_MESH_EDIT
         MENU_ITEM(ICON_MeshEdit, MSG_EDIT_MESH, onDrawSubMenu, drawEditMeshMenu);
         MENU_ITEM(ICON_MeshReset, MSG_MESH_RESET, onDrawMenuItem, resetMesh);
+      #endif
+      #if ENABLED(GLOBAL_MESH_Z_OFFSET)
+        EDIT_ITEM(ICON_Zoffset, MSG_MESH_Z_OFFSET, onDrawPFloat2Menu, setMeshZOffset, &mesh_z_offset);
       #endif
     #endif
     #if ENABLED(AUTO_BED_LEVELING_UBL)

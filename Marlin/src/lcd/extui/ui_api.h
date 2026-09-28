@@ -376,6 +376,11 @@ namespace ExtUI {
   float getZOffset_mm();
   void setZOffset_mm(const float);
 
+  #if ENABLED(GLOBAL_MESH_Z_OFFSET)
+    float getMeshZOffset_mm();
+    void setMeshZOffset_mm(const float);
+  #endif
+
   // The Probe XYZ Offset
   #if HAS_BED_PROBE
     float getProbeOffset_mm(const axis_t);
