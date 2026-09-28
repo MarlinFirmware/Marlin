@@ -542,6 +542,7 @@
 #define BOARD_GODI_CONTROLLER_V1_0    7010  // Godi Controller based on ESP32 32-Bit V1.0
 #define BOARD_MM_JOKER                7011  // MagicMaker JOKER based on ESP32 (with I2S stepper stream)
 #define BOARD_MKS_DLC32_V2_1          7012  // MKS DLC32 V2.1 CNC/laser controller based on ESP32 (with I2S stepper stream)
+#define BOARD_BTT_RODENT_V1           7013  // BigTreeTech Rodent V1.0/V1.1 CNC controller based on ESP32 (with I2S stepper stream)
 
 //
 // SAMD51 ARM Cortex-M4
