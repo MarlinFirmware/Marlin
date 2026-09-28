@@ -42,6 +42,15 @@ namespace LanguageNarrow_ko_KR {
   constexpr uint8_t CHARSIZE              = 1;
   LSTR LANGUAGE                           = _UxGT("Korean");
 
+  LSTR MSG_KINEMATICS_SETTINGS            = _UxGT("키네마틱 설정");                                  // Kinematics Settings
+  LSTR MSG_DELTA_TOWER_ANGLE_TRIM_N       = _UxGT("@ 타워 보정");                                  // @ Tower Trim
+  LSTR MSG_DELTA_ROD_TRIM_A               = _UxGT("A 로드 보정");                                  // A Rod Trim
+  LSTR MSG_DELTA_ROD_TRIM_B               = _UxGT("B 로드 보정");                                  // B Rod Trim
+  LSTR MSG_DELTA_ROD_TRIM_C               = _UxGT("C 로드 보정");                                  // C Rod Trim
+  LSTR MSG_SCARA_P_OFFSET                 = _UxGT("세타 오프셋");                                   // P Offset
+  LSTR MSG_SCARA_T_OFFSET                 = _UxGT("프사이 오프셋");                                  // T Offset
+  LSTR MSG_SCARA_Z_OFFSET                 = _UxGT("Z 오프셋");                                    // Z Offset
+
   LSTR WELCOME_MSG                        = MACHINE_NAME_SUBST _UxGT(" 준비.");                  // (MACHINE_NAME_SUBST) Ready.
   LSTR MSG_MEDIA_INSERTED                 = _UxGT("카드 삽입됨");                                   // (MEDIA_TYPE_EN) Inserted
   LSTR MSG_MEDIA_REMOVED                  = _UxGT("카드 제거됨");                                   // (MEDIA_TYPE_EN) Removed

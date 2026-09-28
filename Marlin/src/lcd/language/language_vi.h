@@ -381,6 +381,14 @@ namespace LanguageNarrow_vi {
   LSTR MSG_DELTA_DIAG_ROD                 = _UxGT("Gậy Chéo");                                 // Diag Rod
   LSTR MSG_DELTA_HEIGHT                   = _UxGT("Chiều Cao");                                // Height
   LSTR MSG_DELTA_RADIUS                   = _UxGT("Bán Kính");                                 // Radius
+  LSTR MSG_KINEMATICS_SETTINGS            = _UxGT("Thiết lập động học");                       // Kinematics Settings
+  LSTR MSG_DELTA_TOWER_ANGLE_TRIM_N       = _UxGT("@ Chỉnh tháp");                             // @ Tower Trim
+  LSTR MSG_DELTA_ROD_TRIM_A               = _UxGT("@ Chỉnh thanh A");                          // A Rod Trim
+  LSTR MSG_DELTA_ROD_TRIM_B               = _UxGT("@ Chỉnh thanh B");                          // B Rod Trim
+  LSTR MSG_DELTA_ROD_TRIM_C               = _UxGT("@ Chỉnh thanh C");                          // C Rod Trim
+  LSTR MSG_SCARA_P_OFFSET                 = _UxGT("Độ lệch theta");                            // P Offset
+  LSTR MSG_SCARA_T_OFFSET                 = _UxGT("Độ lệch psi");                              // T Offset
+  LSTR MSG_SCARA_Z_OFFSET                 = _UxGT("Độ lệch Z");                                // Z Offset
   LSTR MSG_3POINT_LEVELING                = _UxGT("San lấp 3-Điểm");                           // 3-Point Leveling
   LSTR MSG_LINEAR_LEVELING                = _UxGT("San Lấp Tuyến Tính");                       // Linear Leveling
   LSTR MSG_BILINEAR_LEVELING              = _UxGT("San Lấp Song Tuyến");                       // Bilinear Leveling

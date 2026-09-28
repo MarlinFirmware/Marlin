@@ -400,6 +400,14 @@ namespace LanguageNarrow_pt_br {
   LSTR MSG_DELTA_DIAG_ROD                 = _UxGT("Haste Diagonal");                           // Diag Rod
   LSTR MSG_DELTA_HEIGHT                   = _UxGT("Altura");                                   // Height
   LSTR MSG_DELTA_RADIUS                   = _UxGT("Raio");                                     // Radius
+  LSTR MSG_KINEMATICS_SETTINGS            = _UxGT("Config. cinemática");                       // Kinematics Settings
+  LSTR MSG_DELTA_TOWER_ANGLE_TRIM_N       = _UxGT("@ Ajuste torre");                           // @ Tower Trim
+  LSTR MSG_DELTA_ROD_TRIM_A               = _UxGT("@ Ajuste haste A");                         // A Rod Trim
+  LSTR MSG_DELTA_ROD_TRIM_B               = _UxGT("@ Ajuste haste B");                         // B Rod Trim
+  LSTR MSG_DELTA_ROD_TRIM_C               = _UxGT("@ Ajuste haste C");                         // C Rod Trim
+  LSTR MSG_SCARA_P_OFFSET                 = _UxGT("Offset theta");                             // P Offset
+  LSTR MSG_SCARA_T_OFFSET                 = _UxGT("Offset psi");                               // T Offset
+  LSTR MSG_SCARA_Z_OFFSET                 = _UxGT("Offset Z");                                 // Z Offset
   LSTR MSG_3POINT_LEVELING                = _UxGT("Nivelamento 3 pontos");                     // 3-Point Leveling
   LSTR MSG_LINEAR_LEVELING                = _UxGT("Nivelamento Linear");                       // Linear Leveling
   LSTR MSG_BILINEAR_LEVELING              = _UxGT("Nivelamento Bilinear");                     // Bilinear Leveling

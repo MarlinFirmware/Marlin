@@ -451,6 +451,14 @@ namespace LanguageNarrow_sk {
   LSTR MSG_DELTA_DIAG_ROD                 = _UxGT("Diag. rameno");                             // Diag Rod
   LSTR MSG_DELTA_HEIGHT                   = _UxGT("Výška");                                    // Height
   LSTR MSG_DELTA_RADIUS                   = _UxGT("Polomer");                                  // Radius
+  LSTR MSG_KINEMATICS_SETTINGS            = _UxGT("Nastavenie kinematiky");                    // Kinematics Settings
+  LSTR MSG_DELTA_TOWER_ANGLE_TRIM_N       = _UxGT("@ Korekcia veže");                          // @ Tower Trim
+  LSTR MSG_DELTA_ROD_TRIM_A               = _UxGT("@ Korekcia ramena A");                      // A Rod Trim
+  LSTR MSG_DELTA_ROD_TRIM_B               = _UxGT("@ Korekcia ramena B");                      // B Rod Trim
+  LSTR MSG_DELTA_ROD_TRIM_C               = _UxGT("@ Korekcia ramena C");                      // C Rod Trim
+  LSTR MSG_SCARA_P_OFFSET                 = _UxGT("Posun theta");                              // P Offset
+  LSTR MSG_SCARA_T_OFFSET                 = _UxGT("Posun psi");                                // T Offset
+  LSTR MSG_SCARA_Z_OFFSET                 = _UxGT("Posun Z");                                  // Z Offset
   LSTR MSG_3POINT_LEVELING                = _UxGT("3-bodové rovnanie");                        // 3-Point Leveling
   LSTR MSG_LINEAR_LEVELING                = _UxGT("Lineárne rovnanie");                        // Linear Leveling
   LSTR MSG_BILINEAR_LEVELING              = _UxGT("Bilineárne rovnanie");                      // Bilinear Leveling

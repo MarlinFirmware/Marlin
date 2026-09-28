@@ -444,6 +444,14 @@ namespace LanguageNarrow_sv {
   LSTR MSG_DELTA_DIAG_ROD                 = _UxGT("Diag Rod");                                 // Diag Rod
   LSTR MSG_DELTA_HEIGHT                   = _UxGT("Höjd");                                     // Height
   LSTR MSG_DELTA_RADIUS                   = _UxGT("Radie");                                    // Radius
+  LSTR MSG_KINEMATICS_SETTINGS            = _UxGT("Kinematikinställningar");                   // Kinematics Settings
+  LSTR MSG_DELTA_TOWER_ANGLE_TRIM_N       = _UxGT("@ Tornjustering");                          // @ Tower Trim
+  LSTR MSG_DELTA_ROD_TRIM_A               = _UxGT("@ Stavjustering A");                        // A Rod Trim
+  LSTR MSG_DELTA_ROD_TRIM_B               = _UxGT("@ Stavjustering B");                        // B Rod Trim
+  LSTR MSG_DELTA_ROD_TRIM_C               = _UxGT("@ Stavjustering C");                        // C Rod Trim
+  LSTR MSG_SCARA_P_OFFSET                 = _UxGT("Theta-förskjutning");                       // P Offset
+  LSTR MSG_SCARA_T_OFFSET                 = _UxGT("Psi-förskjutning");                         // T Offset
+  LSTR MSG_SCARA_Z_OFFSET                 = _UxGT("Z-förskjutning");                           // Z Offset
   LSTR MSG_3POINT_LEVELING                = _UxGT("3-Punkts nivåjustering");                   // 3-Point Leveling
   LSTR MSG_LINEAR_LEVELING                = _UxGT("Linjär nivåjustering");                     // Linear Leveling
   LSTR MSG_BILINEAR_LEVELING              = _UxGT("Bilinjär nivåjustering");                   // Bilinear Leveling

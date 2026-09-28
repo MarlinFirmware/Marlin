@@ -45,6 +45,15 @@ namespace LanguageNarrow_nl {
   constexpr uint8_t CHARSIZE              = 1;
   LSTR LANGUAGE                           = _UxGT("Dutch");
 
+  LSTR MSG_KINEMATICS_SETTINGS            = _UxGT("Kinematica-instellingen");                  // Kinematics Settings
+  LSTR MSG_DELTA_TOWER_ANGLE_TRIM_N       = _UxGT("@ Torenafstelling");                        // @ Tower Trim
+  LSTR MSG_DELTA_ROD_TRIM_A               = _UxGT("@ Staafafstelling A");                      // A Rod Trim
+  LSTR MSG_DELTA_ROD_TRIM_B               = _UxGT("@ Staafafstelling B");                      // B Rod Trim
+  LSTR MSG_DELTA_ROD_TRIM_C               = _UxGT("@ Staafafstelling C");                      // C Rod Trim
+  LSTR MSG_SCARA_P_OFFSET                 = _UxGT("Theta-offset");                             // P Offset
+  LSTR MSG_SCARA_T_OFFSET                 = _UxGT("Psi-offset");                               // T Offset
+  LSTR MSG_SCARA_Z_OFFSET                 = _UxGT("Z-offset");                                 // Z Offset
+
   LSTR WELCOME_MSG                        = MACHINE_NAME_SUBST _UxGT(" gereed.");              // (MACHINE_NAME_SUBST) Ready.
   LSTR MSG_MEDIA_INSERTED                 = _UxGT("Kaart ingestoken");                         // (MEDIA_TYPE_EN) Inserted
   LSTR MSG_MEDIA_REMOVED                  = _UxGT("Kaart verwijderd");                         // (MEDIA_TYPE_EN) Removed

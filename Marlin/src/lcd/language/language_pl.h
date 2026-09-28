@@ -398,6 +398,14 @@ namespace LanguageNarrow_pl {
   LSTR MSG_DELTA_DIAG_ROD                 = _UxGT("Ukośne ramię");                             // Diag Rod
   LSTR MSG_DELTA_HEIGHT                   = _UxGT("Wysokość");                                 // Height
   LSTR MSG_DELTA_RADIUS                   = _UxGT("Promień");                                  // Radius
+  LSTR MSG_KINEMATICS_SETTINGS            = _UxGT("Ustawienia kinematyki");                    // Kinematics Settings
+  LSTR MSG_DELTA_TOWER_ANGLE_TRIM_N       = _UxGT("@ Korekta wieży");                          // @ Tower Trim
+  LSTR MSG_DELTA_ROD_TRIM_A               = _UxGT("@ Korekta pręta A");                        // A Rod Trim
+  LSTR MSG_DELTA_ROD_TRIM_B               = _UxGT("@ Korekta pręta B");                        // B Rod Trim
+  LSTR MSG_DELTA_ROD_TRIM_C               = _UxGT("@ Korekta pręta C");                        // C Rod Trim
+  LSTR MSG_SCARA_P_OFFSET                 = _UxGT("Przesunięcie theta");                       // P Offset
+  LSTR MSG_SCARA_T_OFFSET                 = _UxGT("Przesunięcie psi");                         // T Offset
+  LSTR MSG_SCARA_Z_OFFSET                 = _UxGT("Przesunięcie Z");                           // Z Offset
   LSTR MSG_3POINT_LEVELING                = _UxGT("Poziomowanie 3-punktowe");                  // 3-Point Leveling
   LSTR MSG_LINEAR_LEVELING                = _UxGT("Poziomowanie liniowe");                     // Linear Leveling
   LSTR MSG_BILINEAR_LEVELING              = _UxGT("Poziomowanie biliniowe");                   // Bilinear Leveling
