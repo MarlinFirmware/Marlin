@@ -450,6 +450,14 @@ namespace LanguageNarrow_es {
   LSTR MSG_DELTA_DIAG_ROD                 = _UxGT("Barra Diagonal");                           // Diag Rod
   LSTR MSG_DELTA_HEIGHT                   = _UxGT("Altura");                                   // Height
   LSTR MSG_DELTA_RADIUS                   = _UxGT("Radio");                                    // Radius
+  LSTR MSG_KINEMATICS_SETTINGS            = _UxGT("Ajustes cinemática");                       // Kinematics Settings
+  LSTR MSG_DELTA_TOWER_ANGLE_TRIM_N       = _UxGT("@ Ajuste torre");                           // @ Tower Trim
+  LSTR MSG_DELTA_ROD_TRIM_A               = _UxGT("@ Ajuste barra A");                         // A Rod Trim
+  LSTR MSG_DELTA_ROD_TRIM_B               = _UxGT("@ Ajuste barra B");                         // B Rod Trim
+  LSTR MSG_DELTA_ROD_TRIM_C               = _UxGT("@ Ajuste barra C");                         // C Rod Trim
+  LSTR MSG_SCARA_P_OFFSET                 = _UxGT("Desplaz. theta");                           // P Offset
+  LSTR MSG_SCARA_T_OFFSET                 = _UxGT("Desplaz. psi");                             // T Offset
+  LSTR MSG_SCARA_Z_OFFSET                 = _UxGT("Desplaz. Z");                               // Z Offset
   LSTR MSG_3POINT_LEVELING                = _UxGT("Nivelando 3puntos");                        // 3-Point Leveling
   LSTR MSG_LINEAR_LEVELING                = _UxGT("Nivelando Lineal");                         // Linear Leveling
   LSTR MSG_BILINEAR_LEVELING              = _UxGT("Nivelando Bilineal");                       // Bilinear Leveling

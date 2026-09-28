@@ -446,6 +446,14 @@ namespace LanguageNarrow_hu {
   LSTR MSG_DELTA_DIAG_ROD                 = _UxGT("Diag rúd");                                 // Diag Rod
   LSTR MSG_DELTA_HEIGHT                   = _UxGT("Magasság");                                 // Height
   LSTR MSG_DELTA_RADIUS                   = _UxGT("Sugár");                                    // Radius
+  LSTR MSG_KINEMATICS_SETTINGS            = _UxGT("Kinematika beállítás");                     // Kinematics Settings
+  LSTR MSG_DELTA_TOWER_ANGLE_TRIM_N       = _UxGT("@ Torony igazítás");                        // @ Tower Trim
+  LSTR MSG_DELTA_ROD_TRIM_A               = _UxGT("@ Rúd igazítás A");                         // A Rod Trim
+  LSTR MSG_DELTA_ROD_TRIM_B               = _UxGT("@ Rúd igazítás B");                         // B Rod Trim
+  LSTR MSG_DELTA_ROD_TRIM_C               = _UxGT("@ Rúd igazítás C");                         // C Rod Trim
+  LSTR MSG_SCARA_P_OFFSET                 = _UxGT("Theta eltolás");                            // P Offset
+  LSTR MSG_SCARA_T_OFFSET                 = _UxGT("Psi eltolás");                              // T Offset
+  LSTR MSG_SCARA_Z_OFFSET                 = _UxGT("Z eltolás");                                // Z Offset
   LSTR MSG_3POINT_LEVELING                = _UxGT("3-Pontos szintezés");                       // 3-Point Leveling
   LSTR MSG_LINEAR_LEVELING                = _UxGT("Lineáris szintezés");                       // Linear Leveling
   LSTR MSG_BILINEAR_LEVELING              = _UxGT("Bilineáris szintezés");                     // Bilinear Leveling

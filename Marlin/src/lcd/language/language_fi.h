@@ -44,6 +44,15 @@ namespace LanguageNarrow_fi {
   constexpr uint8_t CHARSIZE              = 2;
   LSTR LANGUAGE                           = _UxGT("Finnish");
 
+  LSTR MSG_KINEMATICS_SETTINGS            = _UxGT("Kinematiikka-asetukset");                   // Kinematics Settings
+  LSTR MSG_DELTA_TOWER_ANGLE_TRIM_N       = _UxGT("@ Tornin säätö");                           // @ Tower Trim
+  LSTR MSG_DELTA_ROD_TRIM_A               = _UxGT("@ Varren säätö A");                         // A Rod Trim
+  LSTR MSG_DELTA_ROD_TRIM_B               = _UxGT("@ Varren säätö B");                         // B Rod Trim
+  LSTR MSG_DELTA_ROD_TRIM_C               = _UxGT("@ Varren säätö C");                         // C Rod Trim
+  LSTR MSG_SCARA_P_OFFSET                 = _UxGT("Theta-siirto");                             // P Offset
+  LSTR MSG_SCARA_T_OFFSET                 = _UxGT("Psi-siirto");                               // T Offset
+  LSTR MSG_SCARA_Z_OFFSET                 = _UxGT("Z-siirto");                                 // Z Offset
+
   LSTR WELCOME_MSG                        = MACHINE_NAME_SUBST _UxGT(" valmis.");              // (MACHINE_NAME_SUBST) Ready.
   LSTR MSG_MEDIA_INSERTED                 = _UxGT("Kortti asetettu");                          // (MEDIA_TYPE_EN) Inserted
   LSTR MSG_MEDIA_REMOVED                  = _UxGT("Kortti poistettu");                         // (MEDIA_TYPE_EN) Removed

@@ -289,6 +289,14 @@ namespace LanguageNarrow_eu {
   LSTR MSG_DELTA_DIAG_ROD                 = _UxGT("Barra diagonala");                          // Diag Rod
   LSTR MSG_DELTA_HEIGHT                   = _UxGT("Altuera");                                  // Height
   LSTR MSG_DELTA_RADIUS                   = _UxGT("Erradioa");                                 // Radius
+  LSTR MSG_KINEMATICS_SETTINGS            = _UxGT("Zinematika ezarpenak");                     // Kinematics Settings
+  LSTR MSG_DELTA_TOWER_ANGLE_TRIM_N       = _UxGT("@ Dorre-doikuntza");                        // @ Tower Trim
+  LSTR MSG_DELTA_ROD_TRIM_A               = _UxGT("@ Barra-doikuntza A");                      // A Rod Trim
+  LSTR MSG_DELTA_ROD_TRIM_B               = _UxGT("@ Barra-doikuntza B");                      // B Rod Trim
+  LSTR MSG_DELTA_ROD_TRIM_C               = _UxGT("@ Barra-doikuntza C");                      // C Rod Trim
+  LSTR MSG_SCARA_P_OFFSET                 = _UxGT("Theta desplaz.");                           // P Offset
+  LSTR MSG_SCARA_T_OFFSET                 = _UxGT("Psi desplaz.");                             // T Offset
+  LSTR MSG_SCARA_Z_OFFSET                 = _UxGT("Z desplaz.");                               // Z Offset
   LSTR MSG_3POINT_LEVELING                = _UxGT("3 puntuko berdinketa");                     // 3-Point Leveling
   LSTR MSG_LINEAR_LEVELING                = _UxGT("Berdinketa lineala");                       // Linear Leveling
   LSTR MSG_BILINEAR_LEVELING              = _UxGT("Berdinketa bilinearra");                    // Bilinear Leveling

@@ -444,6 +444,14 @@ namespace LanguageNarrow_tr {
   LSTR MSG_DELTA_DIAG_ROD                 = _UxGT("Çapral Mil");                               // Diag Rod
   LSTR MSG_DELTA_HEIGHT                   = _UxGT("Yükseklik");                                // Height
   LSTR MSG_DELTA_RADIUS                   = _UxGT("Yarıçap");                                  // Radius
+  LSTR MSG_KINEMATICS_SETTINGS            = _UxGT("Kinematik Ayarları");                       // Kinematics Settings
+  LSTR MSG_DELTA_TOWER_ANGLE_TRIM_N       = _UxGT("@ Kule Ayarı");                             // @ Tower Trim
+  LSTR MSG_DELTA_ROD_TRIM_A               = _UxGT("@ Çubuk Ayarı A");                          // A Rod Trim
+  LSTR MSG_DELTA_ROD_TRIM_B               = _UxGT("@ Çubuk Ayarı B");                          // B Rod Trim
+  LSTR MSG_DELTA_ROD_TRIM_C               = _UxGT("@ Çubuk Ayarı C");                          // C Rod Trim
+  LSTR MSG_SCARA_P_OFFSET                 = _UxGT("Theta Ofseti");                             // P Offset
+  LSTR MSG_SCARA_T_OFFSET                 = _UxGT("Psi Ofseti");                               // T Offset
+  LSTR MSG_SCARA_Z_OFFSET                 = _UxGT("Z Ofseti");                                 // Z Offset
   LSTR MSG_3POINT_LEVELING                = _UxGT("3-Nokta Seviyeleme");                       // 3-Point Leveling
   LSTR MSG_LINEAR_LEVELING                = _UxGT("Doğrusal Seviyeleme");                      // Linear Leveling
   LSTR MSG_BILINEAR_LEVELING              = _UxGT("İki Yönlü Doğ. Hiza.");                     // Bilinear Leveling
