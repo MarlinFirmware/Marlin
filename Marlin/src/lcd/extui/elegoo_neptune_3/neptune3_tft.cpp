@@ -263,8 +263,8 @@ static void setPreset(const n3_preset_t &p) {
     n3_settings.material[temp_select] = p;
   #if HAS_LEVELING_TEMP_EDIT
     else {
-      setLevelingTemp_celsius(p.hotend, H0);
-      setLevelingTemp_celsius(p.bed, BED);
+      setLevelingNozzleTemp(p.hotend);
+      setLevelingBedTemp(p.bed);
     }
   #endif
 }
