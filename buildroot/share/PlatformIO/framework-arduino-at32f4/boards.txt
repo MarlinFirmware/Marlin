@@ -1,0 +1,18 @@
+menu.upload_method=Upload method
+
+at32f403a.name=AT32F403ACGU7 BlackPill Boards
+at32f403a.build.mcu=cortex-m4
+#at32f403a.build.f_cpu=240000000L
+at32f403a.build.board=AT32F403ACGxx
+at32f403a.build.vect_flags=-DUSER_ADDR_ROM=0x08000000
+at32f403a.build.core=arduino
+at32f403a.build.extra_flags=-DAT32F403ACGU7 -USE_STDPERIPH_DRIVER
+at32f403a.build.variant=AT32F403ACGU7
+at32f403a.build.variant_system_lib=FrameLib.a
+at32f403a.build.ldscript=linker_scripts\AT32F403AxG_FLASH.ld
+
+# Upload yöntemi
+at32f403a.menu.upload_method.USBDFUMethod=Artery DFU ISP
+at32f403a.menu.upload_method.USBDFUMethod.upload.protocol=Artery_ISP
+at32f403a.menu.upload_method.USBDFUMethod.upload.tool=Artery_ISP_Console
+at32f403a.menu.upload_method.USBDFUMethod.upload.maximum_size=1048576

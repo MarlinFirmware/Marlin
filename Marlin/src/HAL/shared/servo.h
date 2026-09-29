@@ -78,6 +78,8 @@
   #include "../HC32/Servo.h"
 #elif defined(ARDUINO_ARCH_MFL)
   #include "../GD32_MFL/Servo.h"
+#elif defined(ARDUINO_ARCH_AT32)
+  #include "../AT32/Servo.h"
 #elif defined(__STM32F1__) || defined(TARGET_STM32F1)
   #include "../STM32F1/Servo.h"
 #elif defined(ARDUINO_ARCH_STM32)

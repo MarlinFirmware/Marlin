@@ -1,0 +1,49 @@
+{
+  "name": "at32",
+  "title": "ArteryTek AT32",
+  "description": "PlatformIO platform for Artery Technology AT32F4 MCUs using the community ArduinoCore-AT32F4 framework.",
+  "homepage": "https://github.com/MarlinFirmware/Marlin",
+  "license": "GPL-3.0",
+  "keywords": ["dev-platform", "arm", "cortex-m4", "arterytek", "at32"],
+  "engines": {
+    "platformio": "^6"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/MarlinFirmware/Marlin"
+  },
+  "version": "0.1.0",
+  "build": {
+    "flags": [
+      "-mcpu=cortex-m4",
+      "-mthumb",
+      "-mfloat-abi=hard",
+      "-mfpu=fpv4-sp-d16",
+      "-Os",
+      "-DNDEBUG"
+    ]
+  },
+  "frameworks": {
+    "arduino": {
+      "package": "framework-arduino-at32f4",
+      "script": "builder/frameworks/arduino.py",
+      "title": "ArduinoCore-AT32F4"
+    }
+  },
+  "packages": {
+    "toolchain-gccarmnoneeabi": {
+      "type": "toolchain",
+      "owner": "platformio",
+      "version": ">=1.60301.0,<1.80000.0"
+    },
+    "framework-arduino-at32f4": {
+      "type": "framework",
+      "version": "file://buildroot/share/PlatformIO/framework-arduino-at32f4"
+    },
+    "tool-openocd-at32": {
+      "type": "uploader",
+      "optional": true,
+      "version": "https://github.com/amoxu/tool-openocd-at32.git"
+    }
+  }
+}
