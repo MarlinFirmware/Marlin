@@ -103,14 +103,6 @@ Probe probe;
 
 xyz_pos_t Probe::offset; // Initialized by settings.load
 
-#if ANY(PREHEAT_BEFORE_PROBING, PREHEAT_BEFORE_LEVELING)
-  #if HAS_LEVELING_TEMP_EDIT
-    Probe::leveling_temp_t Probe::leveling_temp; // Initialized by settings.load
-  #else
-    constexpr Probe::leveling_temp_t Probe::leveling_temp;
-  #endif
-#endif
-
 #if HAS_PROBE_XY_OFFSET
   const xy_pos_t &Probe::offset_xy = Probe::offset;
 #else
@@ -384,7 +376,7 @@ FORCE_INLINE void probe_specific_action(const bool deploy) {
   #if ENABLED(PAUSE_BEFORE_DEPLOY_STOW)
 
     // Start preheating before waiting for user confirmation that the probe is ready.
-    TERN_(PREHEAT_BEFORE_PROBING, if (deploy) probe.preheat_for_probing(true));
+    TERN_(PREHEAT_BEFORE_PROBING, if (deploy) thermalManager.preheat_for_probing(true));
 
     FSTR_P const ds_fstr = deploy ? GET_TEXT_F(MSG_MANUAL_DEPLOY) : GET_TEXT_F(MSG_MANUAL_STOW);
     ui.return_to_status();       // To display the new status message
@@ -467,48 +459,6 @@ FORCE_INLINE void probe_specific_action(const bool deploy) {
   #endif
 }
 
-#if ANY(PREHEAT_BEFORE_PROBING, PREHEAT_BEFORE_LEVELING)
-
-  /**
-   * Do preheating as required before leveling or probing.
-   *  - If a preheat input is higher than the current target, raise the target temperature.
-   *  - If a preheat input is higher than the current temperature, wait for stabilization.
-   */
-  void Probe::preheat_for_probing(const bool early/*=false*/) {
-    if (!early) LCD_MESSAGE(MSG_PREHEATING);
-    DEBUG_ECHOPGM("Preheating");
-
-    #if HAS_HOTEND
-      constexpr celsius_t hotend_temp = PROBING_NOZZLE_TEMP;
-      const bool wait_for_nozzle_heat = TERN0(HAS_HOTEND, hotend_temp > 0);
-      const celsius_t hotendPreheat = wait_for_nozzle_heat && hotend_temp > thermalManager.degTargetHotend(0) ? hotend_temp : 0;
-      if (hotendPreheat) {
-        DEBUG_ECHOPGM(" hotend (", hotendPreheat, ")");
-        thermalManager.setTargetHotend(hotendPreheat, 0);
-      }
-    #endif
-
-    #if HAS_HEATED_BED
-      constexpr celsius_t bed_temp = PROBING_BED_TEMP;
-      const bool wait_for_bed_heat = TERN0(HAS_HEATED_BED, bed_temp > 0);
-      const celsius_t bedPreheat = wait_for_bed_heat && bed_temp > thermalManager.degTargetBed() ? bed_temp : 0;
-      if (bedPreheat) {
-        if (TERN0(HAS_HOTEND, wait_for_nozzle_heat && hotendPreheat)) DEBUG_ECHOPGM(" and ");
-        DEBUG_ECHOPGM(" bed (", bedPreheat, ")");
-        thermalManager.setTargetBed(bedPreheat);
-      }
-    #endif
-
-    DEBUG_EOL();
-
-    if (!early) {
-      TERN_(HAS_HOTEND,     if (wait_for_nozzle_heat && hotend_temp > thermalManager.wholeDegHotend(0) + (TEMP_WINDOW)) thermalManager.wait_for_hotend(0));
-      TERN_(HAS_HEATED_BED, if (wait_for_bed_heat    && bed_temp    > thermalManager.wholeDegBed() + (TEMP_BED_WINDOW)) thermalManager.wait_for_bed_heating());
-    }
-  }
-
-#endif
-
 /**
  * Print an error and stop()
  */
@@ -587,7 +537,7 @@ bool Probe::set_deployed(const bool deploy, const bool no_return/*=false*/) {
 
   // If preheating is required before any probing...
   // TODO: Consider skipping this for things like M401, G34, etc.
-  TERN_(PREHEAT_BEFORE_PROBING, if (deploy) preheat_for_probing());
+  TERN_(PREHEAT_BEFORE_PROBING, if (deploy) thermalManager.preheat_for_probing());
 
   if (!no_return) motion.blocking_move(old_xy); // Return to the original location unless handled externally
 

@@ -81,7 +81,7 @@
   #include "../../feature/backlash.h"
 #endif
 
-#if ANY(HAS_BED_PROBE, MESH_BED_LEVELING, AUTO_BED_LEVELING_UBL, PREHEAT_BEFORE_LEVELING)
+#if ANY(HAS_BED_PROBE, MESH_BED_LEVELING, AUTO_BED_LEVELING_UBL)
   #include "../../module/probe.h"
 #endif
 
@@ -941,15 +941,15 @@ namespace ExtUI {
 
     #if ENABLED(PREHEAT_BEFORE_LEVELING)
       #if HAS_HOTEND
-        celsius_t getLevelingNozzleTemp() { return Probe::leveling_temp.hotend; }
+        celsius_t getLevelingNozzleTemp() { return thermalManager.leveling_temp.hotend; }
         #if HAS_LEVELING_TEMP_EDIT
-          void setLevelingNozzleTemp(const celsius_t temp) { Probe::leveling_temp.hotend = temp; }
+          void setLevelingNozzleTemp(const celsius_t temp) { thermalManager.leveling_temp.hotend = temp; }
         #endif
       #endif
       #if HAS_HEATED_BED
-        celsius_t getLevelingBedTemp() { return Probe::leveling_temp.bed; }
+        celsius_t getLevelingBedTemp() { return thermalManager.leveling_temp.bed; }
         #if HAS_LEVELING_TEMP_EDIT
-          void setLevelingBedTemp(const celsius_t temp) { Probe::leveling_temp.bed = temp; }
+          void setLevelingBedTemp(const celsius_t temp) { thermalManager.leveling_temp.bed = temp; }
         #endif
       #endif
     #endif

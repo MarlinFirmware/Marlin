@@ -1574,7 +1574,7 @@ void dwinHomingDone() {
       drawManualMeshMenu();
     #endif
     #if ALL(AUTO_BED_LEVELING_UBL, PREHEAT_BEFORE_LEVELING)
-      if (!DEBUGGING(DRYRUN)) Probe::preheat_for_leveling();
+      if (!DEBUGGING(DRYRUN)) thermalManager.preheat_for_leveling();
     #endif
   }
 
@@ -4434,7 +4434,7 @@ void drawMaxAccelMenu() {
         MENU_ITEM(ICON_ProbeMargin, MSG_MESH_INSET, onDrawSubMenu, drawMeshInsetMenu);
       #endif
       #if HAS_LEVELING_TEMP_EDIT
-        EDIT_ITEM(ICON_Temperature, MSG_UBL_SET_TEMP_BED, onDrawPIntMenu, setBedLevT, &probe.leveling_temp.bed);
+        EDIT_ITEM(ICON_Temperature, MSG_UBL_SET_TEMP_BED, onDrawPIntMenu, setBedLevT, &thermalManager.leveling_temp.bed);
       #endif
       EDIT_ITEM(ICON_SetZOffset, MSG_Z_FADE_HEIGHT, onDrawPFloatMenu, setMeshFadeHeight, &planner.z_fade_height);
       EDIT_ITEM(ICON_UBLActive, MSG_ACTIVATE_MESH, onDrawChkbMenu, setMeshActive, &planner.leveling_active);

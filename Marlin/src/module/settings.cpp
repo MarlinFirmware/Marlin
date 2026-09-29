@@ -290,7 +290,7 @@ typedef struct SettingsDataStruct {
   #endif
 
   #if HAS_LEVELING_TEMP_EDIT
-    Probe::leveling_temp_t leveling_temp;               // probe.leveling_temp
+    Temperature::leveling_temp_t leveling_temp;         // thermalManager.leveling_temp
   #endif
 
   //
@@ -1081,7 +1081,7 @@ void MarlinSettings::postprocess() {
     //
     #if HAS_LEVELING_TEMP_EDIT
       _FIELD_TEST(leveling_temp);
-      EEPROM_WRITE(probe.leveling_temp);
+      EEPROM_WRITE(thermalManager.leveling_temp);
     #endif
 
     //
@@ -2164,7 +2164,7 @@ void MarlinSettings::postprocess() {
       //
       #if HAS_LEVELING_TEMP_EDIT
         _FIELD_TEST(leveling_temp);
-        EEPROM_READ(probe.leveling_temp);
+        EEPROM_READ(thermalManager.leveling_temp);
       #endif
 
       //
@@ -3535,7 +3535,7 @@ void MarlinSettings::reset() {
   //
   // Leveling preheat temperatures
   //
-  TERN_(HAS_LEVELING_TEMP_EDIT, probe.reset_leveling_temp());
+  TERN_(HAS_LEVELING_TEMP_EDIT, thermalManager.reset_leveling_temp());
 
   //
   // Z Stepper Auto-alignment points
