@@ -361,11 +361,6 @@ void onPostprocessSettings() {}
       }
     #endif
   }
-
-  #if ENABLED(PREHEAT_BEFORE_LEVELING)
-    celsius_t getLevelingNozzleTemp() { return LEVELING_NOZZLE_TEMP; }
-    celsius_t getLevelingBedTemp() { return LEVELING_BED_TEMP; }
-  #endif
 #endif
 
 #if HAS_MESH

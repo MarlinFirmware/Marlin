@@ -103,6 +103,10 @@ Probe probe;
 
 xyz_pos_t Probe::offset; // Initialized by settings.load
 
+#if HAS_LEVELING_TEMP_EDIT
+  Probe::leveling_temp_t Probe::leveling_temp; // Initialized by settings.load
+#endif
+
 #if HAS_PROBE_XY_OFFSET
   const xy_pos_t &Probe::offset_xy = Probe::offset;
 #else

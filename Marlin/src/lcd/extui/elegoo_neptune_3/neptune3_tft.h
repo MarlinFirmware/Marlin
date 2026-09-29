@@ -72,9 +72,6 @@ class Neptune3TFT {
     static void loadSettings(const char *buff);
     static void postprocessSettings();
 
-    static celsius_t levelingNozzleTemp();
-    static celsius_t levelingBedTemp();
-
   private:
     static void sendRaw(FSTR_P const fstr);
     static void send(FSTR_P const fstr);

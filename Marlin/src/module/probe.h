@@ -87,6 +87,15 @@
 class Probe {
 public:
 
+  #if ENABLED(PREHEAT_BEFORE_LEVELING)
+    typedef struct { celsius_t hotend, bed; } leveling_temp_t;
+    #if HAS_LEVELING_TEMP_EDIT
+      static leveling_temp_t leveling_temp;
+    #else
+      static constexpr leveling_temp_t leveling_temp = { LEVELING_NOZZLE_TEMP, LEVELING_BED_TEMP };
+    #endif
+  #endif
+
   #if ENABLED(SENSORLESS_PROBING)
     typedef struct { bool x:1, y:1, z:1; } sense_bool_t;
     static sense_bool_t test_sensitivity;

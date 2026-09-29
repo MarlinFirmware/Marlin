@@ -129,11 +129,10 @@ enum N3Wait : uint8_t { WAIT_NONE, WAIT_PAUSE, WAIT_STOP, WAIT_HOME_MOVE, WAIT_H
 enum N3Speed : uint8_t { SPEED_FEEDRATE = 1, SPEED_FLOW, SPEED_FAN };
 enum N3Limit : uint8_t { LIMIT_NONE, LIMIT_FEEDRATE, LIMIT_ACCEL };
 
-// Material preheat presets (PLA, ABS, PETG, TPU) and the leveling temperatures, saved with M500
+// Material preheat presets (PLA, ABS, PETG, TPU), saved with M500
 typedef struct { celsius_t hotend, bed; } n3_preset_t;
 typedef struct {
   n3_preset_t material[4];
-  n3_preset_t probe;
 } n3_settings_t;
 
 static n3_settings_t n3_settings;
@@ -249,8 +248,29 @@ void Neptune3TFT::sendAdvancedValues() {
   SENDF("speedsetvalue.eaxis.val=%d", _LIMIT_VALUE(E0));
 }
 
+// The preset being edited: a material, or Marlin's leveling temperatures
+static n3_preset_t getPreset() {
+  if (temp_select < 4) return n3_settings.material[temp_select];
+  #if ENABLED(PREHEAT_BEFORE_LEVELING)
+    return { getLevelingTemp_celsius(H0), getLevelingTemp_celsius(BED) };
+  #else
+    return { 0, 0 };
+  #endif
+}
+
+static void setPreset(const n3_preset_t &p) {
+  if (temp_select < 4)
+    n3_settings.material[temp_select] = p;
+  #if HAS_LEVELING_TEMP_EDIT
+    else {
+      setLevelingTemp_celsius(p.hotend, H0);
+      setLevelingTemp_celsius(p.bed, BED);
+    }
+  #endif
+}
+
 void Neptune3TFT::sendMaterialValues() {
-  const n3_preset_t &p = temp_select < 4 ? n3_settings.material[temp_select] : n3_settings.probe;
+  const n3_preset_t p = getPreset();
   SENDF("tempsetvalue.nozzletemp.val=%d", p.hotend);
   SENDF("tempsetvalue.bedtemp.val=%d", p.bed);
 }
@@ -759,12 +779,13 @@ void Neptune3TFT::handleKey(const uint16_t addr, const uint16_t value) {
     case KEY_PRESET_NOZZLE:
     case KEY_PRESET_BED: {
       if (!WITHIN(value, 1, 2)) break;
-      n3_preset_t &p = temp_select < 4 ? n3_settings.material[temp_select] : n3_settings.probe;
+      n3_preset_t p = getPreset();
       const int16_t d = value == 1 ? unit : -unit;
       if (addr == KEY_PRESET_NOZZLE)
         p.hotend = constrain(p.hotend + d, temp_select < 4 ? 160 : 140, _MIN(280, thermalManager.hotend_max_target(0)));
       else
         p.bed = constrain(p.bed + d, 50, _MIN(110, BED_MAX_TARGET));
+      setPreset(p);
       sendMaterialValues();
     } break;
 
@@ -1198,11 +1219,6 @@ void Neptune3TFT::factoryReset() {
     _PRESET(3, 200, 50);
   #endif
   #undef _PRESET
-  #if ENABLED(PREHEAT_BEFORE_LEVELING)
-    n3_settings.probe = { LEVELING_NOZZLE_TEMP, LEVELING_BED_TEMP };
-  #else
-    n3_settings.probe = { 140, 60 };
-  #endif
 }
 
 void Neptune3TFT::storeSettings(char *buff) {
@@ -1218,8 +1234,5 @@ void Neptune3TFT::postprocessSettings() {
   sendZOffset(F("leveldata"));
   sendMesh();
 }
-
-celsius_t Neptune3TFT::levelingNozzleTemp() { return n3_settings.probe.hotend; }
-celsius_t Neptune3TFT::levelingBedTemp() { return n3_settings.probe.bed; }
 
 #endif // ELEGOO_NEPTUNE_3_TFT

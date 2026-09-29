@@ -288,6 +288,9 @@ typedef struct SettingsDataStruct {
   #if NUM_AXES
     xyz_pos_t probe_offset;                             // M851 X Y Z
   #endif
+  #if HAS_LEVELING_TEMP_EDIT
+    Probe::leveling_temp_t leveling_temp;               // probe.leveling_temp
+  #endif
 
   //
   // ABL_PLANAR
@@ -1070,6 +1073,14 @@ void MarlinSettings::postprocess() {
       #endif
       EEPROM_WRITE(zpo);
     }
+    #endif
+
+    //
+    // Leveling preheat temperatures
+    //
+    #if HAS_LEVELING_TEMP_EDIT
+      _FIELD_TEST(leveling_temp);
+      EEPROM_WRITE(probe.leveling_temp);
     #endif
 
     //
@@ -2145,6 +2156,14 @@ void MarlinSettings::postprocess() {
         #endif
         EEPROM_READ(zpo);
       }
+      #endif
+
+      //
+      // Leveling preheat temperatures
+      //
+      #if HAS_LEVELING_TEMP_EDIT
+        _FIELD_TEST(leveling_temp);
+        EEPROM_READ(probe.leveling_temp);
       #endif
 
       //
@@ -3510,6 +3529,13 @@ void MarlinSettings::reset() {
     #else
       probe.offset.set(NUM_AXIS_LIST(0, 0, dpo[Z_AXIS], 0, 0, 0, 0, 0, 0));
     #endif
+  #endif
+
+  //
+  // Leveling preheat temperatures
+  //
+  #if HAS_LEVELING_TEMP_EDIT
+    probe.leveling_temp = { LEVELING_NOZZLE_TEMP, LEVELING_BED_TEMP };
   #endif
 
   //

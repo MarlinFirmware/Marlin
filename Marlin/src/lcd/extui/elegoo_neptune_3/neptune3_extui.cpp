@@ -83,10 +83,6 @@ namespace ExtUI {
   #if HAS_LEVELING
     void onLevelingStart() { neptune3.levelingStart(); }
     void onLevelingDone() { neptune3.levelingDone(); }
-    #if ENABLED(PREHEAT_BEFORE_LEVELING)
-      celsius_t getLevelingNozzleTemp() { return neptune3.levelingNozzleTemp(); }
-      celsius_t getLevelingBedTemp() { return neptune3.levelingBedTemp(); }
-    #endif
   #endif
 
   #if HAS_MESH

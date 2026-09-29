@@ -81,7 +81,7 @@
   #include "../../feature/backlash.h"
 #endif
 
-#if ANY(HAS_BED_PROBE, MESH_BED_LEVELING, AUTO_BED_LEVELING_UBL)
+#if ANY(HAS_BED_PROBE, MESH_BED_LEVELING, AUTO_BED_LEVELING_UBL, PREHEAT_BEFORE_LEVELING)
   #include "../../module/probe.h"
 #endif
 
@@ -868,6 +868,17 @@ namespace ExtUI {
     bool getLevelingActive() { return planner.leveling_active; }
     void setLevelingActive(const bool state) { set_bed_leveling_enabled(state); }
     bool getLevelingIsValid() { return leveling_is_valid(); }
+
+    #if ENABLED(PREHEAT_BEFORE_LEVELING)
+      celsius_t getLevelingTemp_celsius(const heater_t heater) {
+        return heater == BED ? Probe::leveling_temp.bed : Probe::leveling_temp.hotend;
+      }
+      #if HAS_LEVELING_TEMP_EDIT
+        void setLevelingTemp_celsius(const celsius_t celsius, const heater_t heater) {
+          if (heater == BED) probe.leveling_temp.bed = celsius; else probe.leveling_temp.hotend = celsius;
+        }
+      #endif
+    #endif
 
     #if HAS_MESH
 
