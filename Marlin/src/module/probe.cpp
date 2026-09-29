@@ -103,8 +103,12 @@ Probe probe;
 
 xyz_pos_t Probe::offset; // Initialized by settings.load
 
-#if HAS_LEVELING_TEMP_EDIT
-  Probe::leveling_temp_t Probe::leveling_temp; // Initialized by settings.load
+#if ANY(PREHEAT_BEFORE_PROBING, PREHEAT_BEFORE_LEVELING)
+  #if HAS_LEVELING_TEMP_EDIT
+    Probe::leveling_temp_t Probe::leveling_temp; // Initialized by settings.load
+  #else
+    constexpr Probe::leveling_temp_t Probe::leveling_temp;
+  #endif
 #endif
 
 #if HAS_PROBE_XY_OFFSET
@@ -471,33 +475,27 @@ FORCE_INLINE void probe_specific_action(const bool deploy) {
    *  - If a preheat input is higher than the current temperature, wait for stabilization.
    */
   void Probe::preheat_for_probing(const bool early/*=false*/, const bool and_leveling/*=false*/) {
-    const celsius_t hotend_temp = TERN0(HAS_HOTEND, and_leveling ? leveling_temp.hotend : PROBING_NOZZLE_TEMP),
-                    bed_temp = TERN0(HAS_HEATED_BED, and_leveling ? leveling_temp.bed : PROBING_BED_TEMP);
-
-    const bool wait_for_nozzle_heat = hotend_temp > 0, wait_for_bed_heat = bed_temp > 0;
-
     if (!early) LCD_MESSAGE(MSG_PREHEATING);
-
-    DEBUG_ECHOPGM("Preheating ");
+    DEBUG_ECHOPGM("Preheating");
 
     #if HAS_HOTEND
-      if (wait_for_nozzle_heat) {
-        const celsius_t hotendPreheat = leveling_temp.hotend > thermalManager.degTargetHotend(0) ? leveling_temp.hotend : 0;
-        if (hotendPreheat) {
-          DEBUG_ECHOPGM("hotend (", hotendPreheat, ")");
-          thermalManager.setTargetHotend(hotendPreheat, 0);
-        }
+      const celsius_t hotend_temp = and_leveling ? leveling_temp.hotend : PROBING_NOZZLE_TEMP;
+      const bool wait_for_nozzle_heat = TERN0(HAS_HOTEND, hotend_temp > 0);
+      const celsius_t hotendPreheat = wait_for_nozzle_heat && leveling_temp.hotend > thermalManager.degTargetHotend(0) ? leveling_temp.hotend : 0;
+      if (hotendPreheat) {
+        DEBUG_ECHOPGM(" hotend (", hotendPreheat, ")");
+        thermalManager.setTargetHotend(hotendPreheat, 0);
       }
     #endif
 
     #if HAS_HEATED_BED
-      if (wait_for_bed_heat) {
-        const celsius_t bedPreheat = leveling_temp.bed > thermalManager.degTargetBed() ? leveling_temp.bed : 0;
-        if (bedPreheat) {
-          if (TERN0(HAS_HOTEND, wait_for_nozzle_heat && hotendPreheat)) DEBUG_ECHOPGM(" and ");
-          DEBUG_ECHOPGM("bed (", bedPreheat, ")");
-          thermalManager.setTargetBed(bedPreheat);
-        }
+      const celsius_t bed_temp = TERN0(HAS_HEATED_BED, and_leveling ? leveling_temp.bed : PROBING_BED_TEMP);
+      const bool wait_for_bed_heat = TERN0(HAS_HEATED_BED, bed_temp > 0);
+      const celsius_t bedPreheat = wait_for_bed_heat && leveling_temp.bed > thermalManager.degTargetBed() ? leveling_temp.bed : 0;
+      if (bedPreheat) {
+        if (TERN0(HAS_HOTEND, wait_for_nozzle_heat && hotendPreheat)) DEBUG_ECHOPGM(" and ");
+        DEBUG_ECHOPGM(" bed (", bedPreheat, ")");
+        thermalManager.setTargetBed(bedPreheat);
       }
     #endif
 

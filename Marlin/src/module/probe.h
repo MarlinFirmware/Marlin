@@ -90,20 +90,20 @@
 class Probe {
 public:
 
-  #if ENABLED(PREHEAT_BEFORE_LEVELING)
+  #if ANY(PREHEAT_BEFORE_PROBING, PREHEAT_BEFORE_LEVELING)
     typedef struct {
       OPTCODE(HAS_HOTEND, celsius_t hotend)
       OPTCODE(HAS_HEATED_BED, celsius_t bed)
     } leveling_temp_t;
     #if HAS_LEVELING_TEMP_EDIT
       static leveling_temp_t leveling_temp;
+      static void reset_leveling_temp() {
+        TERN_(HAS_HOTEND, leveling_temp.hotend = LEVELING_NOZZLE_TEMP);
+        TERN_(HAS_HEATED_BED, leveling_temp.bed = LEVELING_BED_TEMP);
+      }
     #else
       static constexpr leveling_temp_t leveling_temp = { OPTITEM(HAS_HOTEND, LEVELING_NOZZLE_TEMP) OPTITEM(HAS_HEATED_BED, LEVELING_BED_TEMP) };
     #endif
-    static void reset_leveling_temp() {
-      TERN_(HAS_HOTEND, leveling_temp.hotend = LEVELING_NOZZLE_TEMP);
-      TERN_(HAS_HEATED_BED, leveling_temp.bed = LEVELING_BED_TEMP);
-    }
   #endif
 
   #if ENABLED(SENSORLESS_PROBING)
@@ -117,7 +117,7 @@ public:
 
     #if ANY(PREHEAT_BEFORE_PROBING, PREHEAT_BEFORE_LEVELING)
       static void preheat_for_probing(const bool early=false, const bool and_leveling=false);
-      static void preheat_for_leveling(const bool early=false) { preheat_for_probing(early, true); }
+      static void preheat_for_leveling(const bool early=false) { preheat_for_probing(early, ENABLED(PREHEAT_BEFORE_LEVELING)); }
     #endif
 
     static void probe_error_stop();
