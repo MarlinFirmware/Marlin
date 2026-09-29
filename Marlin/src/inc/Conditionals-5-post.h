@@ -2397,11 +2397,6 @@
   #undef PREHEAT_BEFORE_LEVELING
 #endif
 
-// Leveling preheat temperatures that can be changed from the LCD
-#if ALL(PREHEAT_BEFORE_LEVELING, HAS_BED_PROBE) && ANY(DWIN_LCD_PROUI, ELEGOO_NEPTUNE_3_TFT)
-  #define HAS_LEVELING_TEMP_EDIT 1
-#endif
-
 #if HAS_TEMP_COOLER && PIN_EXISTS(COOLER)
   #define HAS_COOLER 1
   #ifndef COOLER_OVERSHOOT

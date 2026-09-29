@@ -240,13 +240,16 @@ namespace ExtUI {
     bool getLevelingIsValid();
     void onLevelingStart();
     void onLevelingDone();
+
     #if ENABLED(PREHEAT_BEFORE_LEVELING)
-      // Temperatures to preheat to before leveling (H0 or BED)
-      celsius_t getLevelingTemp_celsius(const heater_t);
-      #if HAS_LEVELING_TEMP_EDIT
-        void setLevelingTemp_celsius(const celsius_t, const heater_t);
+      #if HAS_HOTEND
+        celsius_t getLevelingNozzleTemp();
+      #endif
+      #if HAS_HEATED_BED
+        celsius_t getLevelingBedTemp();
       #endif
     #endif
+
     #if HAS_MESH
       // Mesh data, utilities, events
       bed_mesh_t& getMeshArray();

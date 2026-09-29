@@ -870,13 +870,11 @@ namespace ExtUI {
     bool getLevelingIsValid() { return leveling_is_valid(); }
 
     #if ENABLED(PREHEAT_BEFORE_LEVELING)
-      celsius_t getLevelingTemp_celsius(const heater_t heater) {
-        return heater == BED ? Probe::leveling_temp.bed : Probe::leveling_temp.hotend;
-      }
-      #if HAS_LEVELING_TEMP_EDIT
-        void setLevelingTemp_celsius(const celsius_t celsius, const heater_t heater) {
-          if (heater == BED) probe.leveling_temp.bed = celsius; else probe.leveling_temp.hotend = celsius;
-        }
+      #if HAS_HOTEND
+        celsius_t getLevelingNozzleTemp() { return probe.leveling_temp.hotend; }
+      #endif
+      #if HAS_HEATED_BED
+        celsius_t getLevelingBedTemp() { return probe.leveling_temp.bed; }
       #endif
     #endif
 

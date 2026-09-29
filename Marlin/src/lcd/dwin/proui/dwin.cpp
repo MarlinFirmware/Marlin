@@ -1574,7 +1574,7 @@ void dwinHomingDone() {
       drawManualMeshMenu();
     #endif
     #if ALL(AUTO_BED_LEVELING_UBL, PREHEAT_BEFORE_LEVELING)
-      if (!DEBUGGING(DRYRUN)) probe.preheat_for_probing(probe.leveling_temp.hotend, probe.leveling_temp.bed);
+      if (!DEBUGGING(DRYRUN)) probe.preheat_for_leveling();
     #endif
   }
 

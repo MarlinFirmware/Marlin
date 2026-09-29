@@ -72,10 +72,13 @@
 #define Z_TWEEN_SAFE_CLEARANCE SUM_TERN(BLTOUCH, Z_CLEARANCE_BETWEEN_PROBES, bltouch.z_extra_clearance())
 
 #if ENABLED(PREHEAT_BEFORE_LEVELING)
-  #ifndef LEVELING_NOZZLE_TEMP
+  #if ANY(DWIN_LCD_PROUI, ELEGOO_NEPTUNE_3_TFT)
+    #define EDITABLE_PREHEAT_BEFORE_LEVELING
+  #endif
+  #if HAS_HOTEND && !defined(LEVELING_NOZZLE_TEMP)
     #define LEVELING_NOZZLE_TEMP 0
   #endif
-  #ifndef LEVELING_BED_TEMP
+  #if HAS_HEATED_BED && !defined(LEVELING_BED_TEMP)
     #define LEVELING_BED_TEMP 0
   #endif
 #endif
@@ -88,12 +91,19 @@ class Probe {
 public:
 
   #if ENABLED(PREHEAT_BEFORE_LEVELING)
-    typedef struct { celsius_t hotend, bed; } leveling_temp_t;
+    typedef struct {
+      OPTCODE(HAS_HOTEND, celsius_t hotend)
+      OPTCODE(HAS_HEATED_BED, celsius_t bed)
+    } leveling_temp_t;
     #if HAS_LEVELING_TEMP_EDIT
       static leveling_temp_t leveling_temp;
     #else
-      static constexpr leveling_temp_t leveling_temp = { LEVELING_NOZZLE_TEMP, LEVELING_BED_TEMP };
+      static constexpr leveling_temp_t leveling_temp = { OPTITEM(HAS_HOTEND, LEVELING_NOZZLE_TEMP) OPTITEM(HAS_HEATED_BED, LEVELING_BED_TEMP) };
     #endif
+    static void reset_leveling_temp() {
+      TERN_(HAS_HOTEND, leveling_temp.hotend = LEVELING_NOZZLE_TEMP);
+      TERN_(HAS_HEATED_BED, leveling_temp.bed = LEVELING_BED_TEMP);
+    }
   #endif
 
   #if ENABLED(SENSORLESS_PROBING)
@@ -106,7 +116,8 @@ public:
     static xyz_pos_t offset;
 
     #if ANY(PREHEAT_BEFORE_PROBING, PREHEAT_BEFORE_LEVELING)
-      static void preheat_for_probing(const celsius_t hotend_temp, const celsius_t bed_temp, const bool early=false);
+      static void preheat_for_probing(const bool early=false, const bool and_leveling=false);
+      static void preheat_for_leveling(const bool early=false) { preheat_for_probing(early, true); }
     #endif
 
     static void probe_error_stop();

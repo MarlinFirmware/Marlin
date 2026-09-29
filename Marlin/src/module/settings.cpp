@@ -288,6 +288,7 @@ typedef struct SettingsDataStruct {
   #if NUM_AXES
     xyz_pos_t probe_offset;                             // M851 X Y Z
   #endif
+
   #if HAS_LEVELING_TEMP_EDIT
     Probe::leveling_temp_t leveling_temp;               // probe.leveling_temp
   #endif
@@ -3534,9 +3535,7 @@ void MarlinSettings::reset() {
   //
   // Leveling preheat temperatures
   //
-  #if HAS_LEVELING_TEMP_EDIT
-    probe.leveling_temp = { LEVELING_NOZZLE_TEMP, LEVELING_BED_TEMP };
-  #endif
+  TERN_(HAS_LEVELING_TEMP_EDIT, probe.reset_leveling_temp());
 
   //
   // Z Stepper Auto-alignment points
