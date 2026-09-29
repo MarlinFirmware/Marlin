@@ -172,6 +172,6 @@
 
 #endif // HAS_WIRED_LCD && IS_NEWPANEL
 
-#ifndef SDSS
+#ifndef SD_SS_PIN
   #define SD_SS_PIN                           26  // B6 SDCS
 #endif

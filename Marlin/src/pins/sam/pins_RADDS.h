@@ -292,6 +292,6 @@
 
 #endif // HAS_WIRED_LCD
 
-#ifndef SDSS
+#ifndef SD_SS_PIN
   #define SD_SS_PIN                            4
 #endif
