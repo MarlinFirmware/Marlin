@@ -47,13 +47,7 @@ namespace ExtUI {
   void onMinTempError(const heater_id_t heater) { neptune3.minTempError(heater); }
   void onMaxTempError(const heater_id_t heater) { neptune3.maxTempError(heater); }
 
-  void onPlayTone(const uint16_t, const uint16_t/*=0*/) {}
-
   void onPrintTimerStarted() { neptune3.printTimerStarted(); }
-  void onPrintTimerPaused() {}
-  void onPrintTimerStopped() {}
-
-  void onFilamentRunout(const extruder_t) {}
 
   void onUserConfirmRequired(const char * const) { neptune3.userConfirmRequired(); }
   void onUserConfirmRequired(const int, const char * const, FSTR_P const) { neptune3.userConfirmRequired(); }
@@ -77,8 +71,6 @@ namespace ExtUI {
   void onStoreSettings(char *buff) { neptune3.storeSettings(buff); }
   void onLoadSettings(const char *buff) { neptune3.loadSettings(buff); }
   void onPostprocessSettings() { neptune3.postprocessSettings(); }
-  void onSettingsStored(const bool) {}
-  void onSettingsLoaded(const bool) {}
 
   #if HAS_LEVELING
     void onLevelingStart() { neptune3.levelingStart(); }
@@ -87,36 +79,12 @@ namespace ExtUI {
 
   #if HAS_MESH
     void onMeshUpdate(const int8_t xpos, const int8_t ypos, const float zval) { neptune3.meshUpdate(xpos, ypos, zval); }
-    void onMeshUpdate(const int8_t, const int8_t, const probe_state_t) {}
-  #endif
-
-  #if ENABLED(PREVENT_COLD_EXTRUSION)
-    void onSetMinExtrusionTemp(const celsius_t) {}
   #endif
 
   #if ENABLED(POWER_LOSS_RECOVERY)
     void onSetPowerLoss(const bool onoff) { neptune3.setPowerLoss(onoff); }
-    void onPowerLoss() {}
     void onPowerLossResume() { neptune3.powerLossResume(); }
   #endif
-
-  #if HAS_PID_HEATING
-    void onPIDTuning(const pidresult_t) {}
-    void onStartM303(const int, const heater_id_t, const celsius_t) {}
-  #endif
-
-  #if ENABLED(MPC_AUTOTUNE)
-    void onMPCTuning(const mpcresult_t) {}
-  #endif
-
-  #if ENABLED(PLATFORM_M997_SUPPORT)
-    void onFirmwareFlash() {}
-  #endif
-
-  void onSteppersDisabled() {}
-  void onSteppersEnabled() {}
-  void onAxisDisabled(const axis_t) {}
-  void onAxisEnabled(const axis_t) {}
 }
 
 #endif // ELEGOO_NEPTUNE_3_TFT

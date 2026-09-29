@@ -512,7 +512,9 @@ namespace ExtUI {
 
   /**
    * Event callback routines
-   * Must be defined, and will be called by Marlin as needed
+   *
+   * Called by Marlin as needed. Weak no-op defaults are provided in
+   * ui_api.cpp, so a display only needs to define the handlers it uses.
    */
   void onStartup();
   void onIdle();
