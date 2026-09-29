@@ -252,7 +252,7 @@ void Neptune3TFT::sendAdvancedValues() {
 static n3_preset_t getPreset() {
   if (temp_select < 4) return n3_settings.material[temp_select];
   #if ENABLED(PREHEAT_BEFORE_LEVELING)
-    return { getLevelingTemp_celsius(H0), getLevelingTemp_celsius(BED) };
+    return { getLevelingNozzleTemp(), getLevelingBedTemp() };
   #else
     return { 0, 0 };
   #endif
