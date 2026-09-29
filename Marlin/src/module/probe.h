@@ -116,7 +116,6 @@ public:
 
     static xyz_pos_t offset;
     #if ANY(PREHEAT_BEFORE_PROBING, PREHEAT_BEFORE_LEVELING)
-    #if ANY(PREHEAT_BEFORE_PROBING, PREHEAT_BEFORE_LEVELING)
       static void preheat_for_probing(const bool early=false);
     #endif
 
