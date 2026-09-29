@@ -871,15 +871,15 @@ namespace ExtUI {
 
     #if ENABLED(PREHEAT_BEFORE_LEVELING)
       #if HAS_HOTEND
-        celsius_t getLevelingNozzleTemp() { return probe.leveling_temp.hotend; }
+        celsius_t getLevelingNozzleTemp() { return Probe::leveling_temp.hotend; }
         #if HAS_LEVELING_TEMP_EDIT
-          void setLevelingNozzleTemp(const celsius_t temp) { probe.leveling_temp.hotend = temp; }
+          void setLevelingNozzleTemp(const celsius_t temp) { Probe::leveling_temp.hotend = temp; }
         #endif
       #endif
       #if HAS_HEATED_BED
-        celsius_t getLevelingBedTemp() { return probe.leveling_temp.bed; }
+        celsius_t getLevelingBedTemp() { return Probe::leveling_temp.bed; }
         #if HAS_LEVELING_TEMP_EDIT
-          void setLevelingBedTemp(const celsius_t temp) { probe.leveling_temp.bed = temp; }
+          void setLevelingBedTemp(const celsius_t temp) { Probe::leveling_temp.bed = temp; }
         #endif
       #endif
     #endif

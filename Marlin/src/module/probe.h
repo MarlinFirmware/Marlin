@@ -103,6 +103,10 @@ public:
     #endif
   #endif
 
+  #if ENABLED(PREHEAT_BEFORE_LEVELING)
+    static void preheat_for_leveling(const bool early=false);
+  #endif
+
   #if ENABLED(SENSORLESS_PROBING)
     typedef struct { bool x:1, y:1, z:1; } sense_bool_t;
     static sense_bool_t test_sensitivity;
@@ -111,10 +115,9 @@ public:
   #if HAS_BED_PROBE
 
     static xyz_pos_t offset;
-
     #if ANY(PREHEAT_BEFORE_PROBING, PREHEAT_BEFORE_LEVELING)
-      static void preheat_for_probing(const bool early=false, const bool and_leveling=false);
-      static void preheat_for_leveling(const bool early=false) { preheat_for_probing(early, ENABLED(PREHEAT_BEFORE_LEVELING)); }
+    #if ANY(PREHEAT_BEFORE_PROBING, PREHEAT_BEFORE_LEVELING)
+      static void preheat_for_probing(const bool early=false);
     #endif
 
     static void probe_error_stop();
