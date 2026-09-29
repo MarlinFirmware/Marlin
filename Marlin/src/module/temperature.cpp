@@ -199,7 +199,7 @@
   #endif
 #endif
 
-#if ENABLED(MPCTEMP)
+#if ANY(MPCTEMP, PREHEAT_BEFORE_LEVELING)
   #include "probe.h"
 #endif
 
@@ -5285,5 +5285,40 @@ void Temperature::isr() {
     }
 
   #endif // HAS_COOLER
+
+#if ENABLED(PREHEAT_BEFORE_LEVELING)
+
+  #if DISABLED(HAS_BED_PROBE)
+    #if HAS_LEVELING_TEMP_EDIT
+      Probe::leveling_temp_t Probe::leveling_temp; // Initialized by settings.load
+    #else
+      constexpr Probe::leveling_temp_t Probe::leveling_temp;
+    #endif
+  #endif
+
+  void Probe::preheat_for_leveling(const bool early/*=false*/) {
+    if (!early) LCD_MESSAGE(MSG_PREHEATING);
+
+    #if HAS_HOTEND
+      const celsius_t hotend_temp = leveling_temp.hotend;
+      const bool wait_for_nozzle_heat = hotend_temp > 0;
+      if (wait_for_nozzle_heat && hotend_temp > thermalManager.degTargetHotend(0))
+        thermalManager.setTargetHotend(hotend_temp, 0);
+    #endif
+
+    #if HAS_HEATED_BED
+      const celsius_t bed_temp = leveling_temp.bed;
+      const bool wait_for_bed_heat = bed_temp > 0;
+      if (wait_for_bed_heat && bed_temp > thermalManager.degTargetBed())
+        thermalManager.setTargetBed(bed_temp);
+    #endif
+
+    if (!early) {
+      TERN_(HAS_HOTEND,     if (wait_for_nozzle_heat && hotend_temp > thermalManager.wholeDegHotend(0) + (TEMP_WINDOW)) thermalManager.wait_for_hotend(0));
+      TERN_(HAS_HEATED_BED, if (wait_for_bed_heat    && bed_temp    > thermalManager.wholeDegBed() + (TEMP_BED_WINDOW)) thermalManager.wait_for_bed_heating());
+    }
+  }
+
+#endif // PREHEAT_BEFORE_LEVELING
 
 #endif // HAS_TEMP_SENSOR
