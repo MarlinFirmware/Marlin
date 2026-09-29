@@ -44,6 +44,15 @@ namespace LanguageNarrow_jp_kana {
   constexpr uint8_t CHARSIZE              = 3;
   LSTR LANGUAGE                           = _UxGT("Japanese");
 
+  LSTR MSG_KINEMATICS_SETTINGS            = _UxGT("キネマティクス セッテイ");                             // Kinematics Settings
+  LSTR MSG_DELTA_TOWER_ANGLE_TRIM_N       = _UxGT("@ タワー チョウセイ");                              // @ Tower Trim
+  LSTR MSG_DELTA_ROD_TRIM_A               = _UxGT("A ロッド チョウセイ");                              // A Rod Trim
+  LSTR MSG_DELTA_ROD_TRIM_B               = _UxGT("B ロッド チョウセイ");                              // B Rod Trim
+  LSTR MSG_DELTA_ROD_TRIM_C               = _UxGT("C ロッド チョウセイ");                              // C Rod Trim
+  LSTR MSG_SCARA_P_OFFSET                 = _UxGT("シータ オフセット");                                // P Offset
+  LSTR MSG_SCARA_T_OFFSET                 = _UxGT("プサイ オフセット");                                // T Offset
+  LSTR MSG_SCARA_Z_OFFSET                 = _UxGT("Z オフセット");                                  // Z Offset
+
   LSTR WELCOME_MSG                        = MACHINE_NAME_SUBST _UxGT(" ジュンビカンリョウ");            // (MACHINE_NAME_SUBST) Ready.
   LSTR MSG_MEDIA_INSERTED                 = _UxGT("メディアガソウニュウサレマシタ");                          // (MEDIA_TYPE_EN) Inserted
   LSTR MSG_MEDIA_REMOVED                  = _UxGT("メディアガアリマセン");                               // (MEDIA_TYPE_EN) Removed

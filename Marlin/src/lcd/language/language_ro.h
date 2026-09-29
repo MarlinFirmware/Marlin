@@ -445,6 +445,14 @@ namespace LanguageNarrow_ro {
   LSTR MSG_DELTA_DIAG_ROD                 = _UxGT("Diag Rod");                                 // Diag Rod
   LSTR MSG_DELTA_HEIGHT                   = _UxGT("Inaltime");                                 // Height
   LSTR MSG_DELTA_RADIUS                   = _UxGT("Radius");                                   // Radius
+  LSTR MSG_KINEMATICS_SETTINGS            = _UxGT("Setări cinematică");                        // Kinematics Settings
+  LSTR MSG_DELTA_TOWER_ANGLE_TRIM_N       = _UxGT("@ Reglaj turn");                            // @ Tower Trim
+  LSTR MSG_DELTA_ROD_TRIM_A               = _UxGT("@ Reglaj tijă A");                          // A Rod Trim
+  LSTR MSG_DELTA_ROD_TRIM_B               = _UxGT("@ Reglaj tijă B");                          // B Rod Trim
+  LSTR MSG_DELTA_ROD_TRIM_C               = _UxGT("@ Reglaj tijă C");                          // C Rod Trim
+  LSTR MSG_SCARA_P_OFFSET                 = _UxGT("Decalaj theta");                            // P Offset
+  LSTR MSG_SCARA_T_OFFSET                 = _UxGT("Decalaj psi");                              // T Offset
+  LSTR MSG_SCARA_Z_OFFSET                 = _UxGT("Decalaj Z");                                // Z Offset
   LSTR MSG_3POINT_LEVELING                = _UxGT("Nivelare in 3 puncte");                     // 3-Point Leveling
   LSTR MSG_LINEAR_LEVELING                = _UxGT("Nivelare Lineara");                         // Linear Leveling
   LSTR MSG_BILINEAR_LEVELING              = _UxGT("Nivelare Bilineara");                       // Bilinear Leveling

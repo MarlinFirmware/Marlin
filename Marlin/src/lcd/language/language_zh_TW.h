@@ -421,6 +421,14 @@ namespace LanguageNarrow_zh_TW {
   LSTR MSG_DELTA_DIAG_ROD                 = _UxGT("⊿斜柱");                                      // Diag Rod
   LSTR MSG_DELTA_HEIGHT                   = _UxGT("⊿高度");                                      // Height
   LSTR MSG_DELTA_RADIUS                   = _UxGT("⊿半徑");                                      // Radius
+  LSTR MSG_KINEMATICS_SETTINGS            = _UxGT("運動學設定");                                    // Kinematics Settings
+  LSTR MSG_DELTA_TOWER_ANGLE_TRIM_N       = _UxGT("@ 塔角修正");                                   // @ Tower Trim
+  LSTR MSG_DELTA_ROD_TRIM_A               = _UxGT("A 連桿修正");                                   // A Rod Trim
+  LSTR MSG_DELTA_ROD_TRIM_B               = _UxGT("B 連桿修正");                                   // B Rod Trim
+  LSTR MSG_DELTA_ROD_TRIM_C               = _UxGT("C 連桿修正");                                   // C Rod Trim
+  LSTR MSG_SCARA_P_OFFSET                 = _UxGT("Theta 偏移");                                 // P Offset
+  LSTR MSG_SCARA_T_OFFSET                 = _UxGT("Psi 偏移");                                   // T Offset
+  LSTR MSG_SCARA_Z_OFFSET                 = _UxGT("Z 偏移");                                     // Z Offset
   LSTR MSG_3POINT_LEVELING                = _UxGT("三點調平");                                     // 3-Point Leveling
   LSTR MSG_LINEAR_LEVELING                = _UxGT("線性調平");                                     // Linear Leveling
   LSTR MSG_BILINEAR_LEVELING              = _UxGT("      雙線性調平");                              // Bilinear Leveling
