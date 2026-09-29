@@ -3151,13 +3151,13 @@ void Stepper::isr() {
           buffer[index] = input;
           if (++index == IS_COMPENSATION_BUFFER_SIZE) index = 0;
         }
-        FORCE_INLINE xy_long_t past_item(const uint16_t n) {
+        FORCE_INLINE xy_long_t past_item(uint16_t n) {
+          // A shaping frequency set below SHAPING_MIN_FREQ (e.g., by M593 during a
+          // ringing test) asks for more history than the buffer holds. Clamp to the
+          // oldest item rather than read out of bounds.
+          NOMORE(n, IS_COMPENSATION_BUFFER_SIZE - 1);
           int16_t i = int16_t(index) - n;
           if (i < 0) i += IS_COMPENSATION_BUFFER_SIZE;
-          // The following only happens when IS Freq is set below the minimum
-          // configured at build time ...in which case IS will also misbehave!
-          // Using setters whenever possible prevents values being set too low.
-          if (TERN0(MARLIN_DEV_MODE, i < 0)) return {0, 0};
           return buffer[i];
         }
       } DelayBuffer;
