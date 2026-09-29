@@ -244,11 +244,15 @@ namespace ExtUI {
     #if ENABLED(PREHEAT_BEFORE_LEVELING)
       #if HAS_HOTEND
         celsius_t getLevelingNozzleTemp();
-        void setLevelingNozzleTemp(const celsius_t);
+        #if HAS_LEVELING_TEMP_EDIT
+          void setLevelingNozzleTemp(const celsius_t);
+        #endif
       #endif
       #if HAS_HEATED_BED
         celsius_t getLevelingBedTemp();
-        void setLevelingBedTemp(const celsius_t);
+        #if HAS_LEVELING_TEMP_EDIT
+          void setLevelingBedTemp(const celsius_t);
+        #endif
       #endif
     #endif
 
