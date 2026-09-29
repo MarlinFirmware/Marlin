@@ -222,7 +222,7 @@
 #elif ENABLED(FYSETC_242_OLED_12864)
 
   #define IS_RRD_SC 1
-  #define U8GLIB_SH1106
+  #define DOGLCD                    // SW-SPI, not an I2C OLED
 
   #ifndef NEOPIXEL_BRIGHTNESS
     #define NEOPIXEL_BRIGHTNESS 127
