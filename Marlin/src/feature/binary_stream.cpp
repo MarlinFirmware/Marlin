@@ -28,7 +28,8 @@
 #include "binary_stream.h"
 
 char* SDFileTransferProtocol::Packet::Open::data = nullptr;
-size_t SDFileTransferProtocol::data_waiting, SDFileTransferProtocol::transfer_timeout, SDFileTransferProtocol::idle_timeout;
+size_t SDFileTransferProtocol::data_waiting;
+TDelay<SDFileTransferProtocol::TIMEOUT> SDFileTransferProtocol::transfer_timeout;
 bool SDFileTransferProtocol::transfer_active, SDFileTransferProtocol::dummy_transfer, SDFileTransferProtocol::compression;
 
 BinaryStream binaryStream[NUM_SERIAL];
