@@ -824,6 +824,11 @@ void MarlinUI::init() {
     millis_t ManualMove::start_time = 0;
     float ManualMove::menu_scale = 1;
     screenFunc_t ManualMove::screen_ptr;
+    #if ALL(TFT_COLOR_UI, TOUCH_SCREEN)
+      float ManualMove::step_sizes[8];
+      const char *ManualMove::step_labels[8];
+      uint8_t ManualMove::step_count; // = 0
+    #endif
     #if IS_KINEMATIC
       float ManualMove::offset = 0;
       xyze_pos_t ManualMove::all_axes_destination = { 0 };

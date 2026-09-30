@@ -647,6 +647,15 @@ typedef struct { raw_adc_t raw_min, raw_max; celsius_t mintemp, maxtemp; } temp_
 
 #endif // AUTOTEMP
 
+#if ANY(PREHEAT_BEFORE_PROBING, PREHEAT_BEFORE_LEVELING)
+  #if HAS_HOTEND && !defined(LEVELING_NOZZLE_TEMP)
+    #define LEVELING_NOZZLE_TEMP 0
+  #endif
+  #if HAS_HEATED_BED && !defined(LEVELING_BED_TEMP)
+    #define LEVELING_BED_TEMP 0
+  #endif
+#endif
+
 class Temperature {
 
   public:
@@ -1297,6 +1306,24 @@ class Temperature {
 
     #if ENABLED(PROBING_HEATERS_OFF)
       static void pause_heaters(const bool p);
+    #endif
+
+    #if ANY(PREHEAT_BEFORE_PROBING, PREHEAT_BEFORE_LEVELING)
+      typedef struct {
+        OPTCODE(HAS_HOTEND, celsius_t hotend)
+        OPTCODE(HAS_HEATED_BED, celsius_t bed)
+      } leveling_temp_t;
+      #if HAS_LEVELING_TEMP_EDIT
+        static leveling_temp_t leveling_temp;
+        static void reset_leveling_temp() {
+          TERN_(HAS_HOTEND, leveling_temp.hotend = LEVELING_NOZZLE_TEMP);
+          TERN_(HAS_HEATED_BED, leveling_temp.bed = LEVELING_BED_TEMP);
+        }
+      #else
+        static constexpr leveling_temp_t leveling_temp = { OPTITEM(HAS_HOTEND, LEVELING_NOZZLE_TEMP) OPTITEM(HAS_HEATED_BED, LEVELING_BED_TEMP) };
+      #endif
+      static void preheat_for_probing(const bool early=false, const bool and_leveling=false);
+      static void preheat_for_leveling(const bool early=false) { preheat_for_probing(early, ENABLED(PREHEAT_BEFORE_LEVELING)); }
     #endif
 
     #if HEATER_IDLE_HANDLER

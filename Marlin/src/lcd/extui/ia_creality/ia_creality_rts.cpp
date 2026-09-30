@@ -393,7 +393,7 @@ void RTS::onIdle() {
     rts.sendData(0, FilesMaxPage);
   }
 
-  if (rts.recdat.addr != DisplayZaxis && rts.recdat.addr != DisplayYaxis && rts.recdat.addr != DisplayZaxis) {
+  if (rts.recdat.addr != DisplayXaxis && rts.recdat.addr != DisplayYaxis && rts.recdat.addr != DisplayZaxis) {
     rts.sendData(10 * getAxisPosition_mm(axis_t(X)), DisplayXaxis);
     rts.sendData(10 * getAxisPosition_mm(axis_t(Y)), DisplayYaxis);
     rts.sendData(10 * getAxisPosition_mm(axis_t(Z)), DisplayZaxis);

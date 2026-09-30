@@ -1574,7 +1574,7 @@ void dwinHomingDone() {
       drawManualMeshMenu();
     #endif
     #if ALL(AUTO_BED_LEVELING_UBL, PREHEAT_BEFORE_LEVELING)
-      if (!DEBUGGING(DRYRUN)) probe.preheat_for_probing(LEVELING_NOZZLE_TEMP, hmiData.bedLevT);
+      if (!DEBUGGING(DRYRUN)) thermalManager.preheat_for_leveling();
     #endif
   }
 
@@ -1910,7 +1910,6 @@ void dwinSetDataDefaults() {
     hmiData.extMinT = EXTRUDE_MINTEMP;
     applyExtMinT();
   #endif
-  TERN_(PREHEAT_BEFORE_LEVELING, hmiData.bedLevT = LEVELING_BED_TEMP);
   TERN_(BAUD_RATE_GCODE, setBaud250K());
   #if ALL(LCD_BED_TRAMMING, HAS_BED_PROBE)
     hmiData.fullManualTramming = DISABLED(BED_TRAMMING_USE_PROBE);
@@ -2424,7 +2423,7 @@ void setMoveZ() { hmiValue.axis = Z_AXIS; setPFloatOnClick(Z_MIN_POS, Z_MAX_POS,
     dwinUpdateLCD();
   }
 
-  #if ENABLED(PREHEAT_BEFORE_LEVELING)
+  #if HAS_LEVELING_TEMP_EDIT
     void setBedLevT() { setPIntOnClick(MIN_BEDTEMP, MAX_BEDTEMP); }
   #endif
 
@@ -4424,7 +4423,7 @@ void drawMaxAccelMenu() {
   void drawMeshSetMenu() {
     constexpr uint8_t items = (1
       + ENABLED(HAS_PROUI_MESH_EDIT)
-      + ENABLED(PREHEAT_BEFORE_LEVELING)
+      + ENABLED(HAS_LEVELING_TEMP_EDIT)
       + 2
       + ENABLED(AUTO_BED_LEVELING_UBL)
     );
@@ -4434,8 +4433,8 @@ void drawMaxAccelMenu() {
       #if HAS_PROUI_MESH_EDIT
         MENU_ITEM(ICON_ProbeMargin, MSG_MESH_INSET, onDrawSubMenu, drawMeshInsetMenu);
       #endif
-      #if ENABLED(PREHEAT_BEFORE_LEVELING)
-        EDIT_ITEM(ICON_Temperature, MSG_UBL_SET_TEMP_BED, onDrawPIntMenu, setBedLevT, &hmiData.bedLevT);
+      #if HAS_LEVELING_TEMP_EDIT
+        EDIT_ITEM(ICON_Temperature, MSG_UBL_SET_TEMP_BED, onDrawPIntMenu, setBedLevT, &thermalManager.leveling_temp.bed);
       #endif
       EDIT_ITEM(ICON_SetZOffset, MSG_Z_FADE_HEIGHT, onDrawPFloatMenu, setMeshFadeHeight, &planner.z_fade_height);
       EDIT_ITEM(ICON_UBLActive, MSG_ACTIVATE_MESH, onDrawChkbMenu, setMeshActive, &planner.leveling_active);
