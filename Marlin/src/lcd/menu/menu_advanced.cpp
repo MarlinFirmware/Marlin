@@ -186,7 +186,7 @@ void menu_backlash();
     #if ENABLED(FILAMENT_SWITCH_AND_MOTION)
       editable.decimal = runout.motion_distance();
       auto set_motion_distance = []{ runout.set_motion_distance(editable.decimal); };
-      EDIT_ITEM_FAST(float31, MSG_MOTION_DISTANCE_MM, &editable.decimal, 0.1, 10, set_motion_distance, true);
+      EDIT_ITEM_FAST(float31, MSG_MOTION_DISTANCE_MM, &editable.decimal, 0, 10, set_motion_distance, true);
     #endif
 
     END_MENU();
