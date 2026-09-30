@@ -5287,3 +5287,54 @@ void Temperature::isr() {
   #endif // HAS_COOLER
 
 #endif // HAS_TEMP_SENSOR
+
+#if ANY(PREHEAT_BEFORE_PROBING, PREHEAT_BEFORE_LEVELING)
+
+  #define DEBUG_OUT ENABLED(DEBUG_LEVELING_FEATURE)
+  #include "../core/debug_out.h"
+
+  #if HAS_LEVELING_TEMP_EDIT
+    Temperature::leveling_temp_t Temperature::leveling_temp; // Initialized by settings.load
+  #else
+    constexpr Temperature::leveling_temp_t Temperature::leveling_temp;
+  #endif
+
+  /**
+   * Do preheating as required before leveling or probing.
+   *  - If a preheat input is higher than the current target, raise the target temperature.
+   *  - If a preheat input is higher than the current temperature, wait for stabilization.
+   */
+  void Temperature::preheat_for_probing(const bool early/*=false*/, const bool and_leveling/*=false*/) {
+    if (!early) LCD_MESSAGE(MSG_PREHEATING);
+    DEBUG_ECHOPGM("Preheating");
+
+    #if HAS_HOTEND
+      const celsius_t hotend_temp = and_leveling ? leveling_temp.hotend : PROBING_NOZZLE_TEMP;
+      const bool wait_for_nozzle_heat = TERN0(HAS_HOTEND, hotend_temp > 0);
+      const celsius_t hotendPreheat = wait_for_nozzle_heat && hotend_temp > degTargetHotend(0) ? hotend_temp : 0;
+      if (hotendPreheat) {
+        DEBUG_ECHOPGM(" hotend (", hotendPreheat, ")");
+        setTargetHotend(hotendPreheat, 0);
+      }
+    #endif
+
+    #if HAS_HEATED_BED
+      const celsius_t bed_temp = TERN0(HAS_HEATED_BED, and_leveling ? leveling_temp.bed : PROBING_BED_TEMP);
+      const bool wait_for_bed_heat = TERN0(HAS_HEATED_BED, bed_temp > 0);
+      const celsius_t bedPreheat = wait_for_bed_heat && bed_temp > degTargetBed() ? bed_temp : 0;
+      if (bedPreheat) {
+        if (TERN0(HAS_HOTEND, wait_for_nozzle_heat && hotendPreheat)) DEBUG_ECHOPGM(" and ");
+        DEBUG_ECHOPGM(" bed (", bedPreheat, ")");
+        setTargetBed(bedPreheat);
+      }
+    #endif
+
+    DEBUG_EOL();
+
+    if (!early) {
+      TERN_(HAS_HOTEND,     if (wait_for_nozzle_heat && hotend_temp > wholeDegHotend(0) + (TEMP_WINDOW)) wait_for_hotend(0));
+      TERN_(HAS_HEATED_BED, if (wait_for_bed_heat    && bed_temp    > wholeDegBed() + (TEMP_BED_WINDOW)) wait_for_bed_heating());
+    }
+  }
+
+#endif // PREHEAT_BEFORE_PROBING || PREHEAT_BEFORE_LEVELING
