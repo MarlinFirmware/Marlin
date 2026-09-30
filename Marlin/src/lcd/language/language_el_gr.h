@@ -107,7 +107,7 @@ namespace LanguageNarrow_el_gr {
   LSTR MSG_NOZZLE_N                       = _UxGT("Ακροφύσιο ~");                              // Nozzle ~
   LSTR MSG_BED                            = _UxGT("Κλίνη");                                    // Bed
   LSTR MSG_FAN_SPEED                      = _UxGT("Ταχύτητα ανεμιστήρα");                      // Fan Speed
-  LSTR MSG_FAN_SPEED_N                    = _UxGT("Ταχύτητα ανεμιστήρα ~");                    // Fan Speed ~
+  LSTR MSG_FAN_SPEED_N                    = _UxGT("Ταχύτητα ανεμιστήρα ~");                    // Fan ~ Speed
   LSTR MSG_FLOW                           = _UxGT("Ροή");                                      // Flow
   LSTR MSG_FLOW_N                         = _UxGT("Ροή ~");                                    // Flow ~
   LSTR MSG_CONTROL                        = _UxGT("Έλεγχος");                                  // Control

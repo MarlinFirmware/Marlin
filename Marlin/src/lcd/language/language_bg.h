@@ -98,7 +98,7 @@ namespace LanguageNarrow_bg {
   LSTR MSG_NOZZLE_N                       = " " LCD_STR_THERMOMETER _UxGT(" Дюза ~");          // Nozzle ~
   LSTR MSG_BED                            = " " LCD_STR_THERMOMETER _UxGT(" Легло");           // Bed
   LSTR MSG_FAN_SPEED                      = _UxGT("Вентилатор");                               // Fan Speed
-  LSTR MSG_FAN_SPEED_N                    = _UxGT("Вентилатор ~");                             // Fan Speed ~
+  LSTR MSG_FAN_SPEED_N                    = _UxGT("Вентилатор ~");                             // Fan ~ Speed
   LSTR MSG_FLOW                           = _UxGT("Поток");                                    // Flow
   LSTR MSG_FLOW_N                         = _UxGT("Поток ~");                                  // Flow ~
   LSTR MSG_CONTROL                        = _UxGT("Управление");                               // Control

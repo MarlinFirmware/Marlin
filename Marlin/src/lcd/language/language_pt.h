@@ -105,7 +105,7 @@ namespace LanguageNarrow_pt {
   LSTR MSG_NOZZLE_N                       = " " LCD_STR_THERMOMETER _UxGT(" Bico ~");          // Nozzle ~
   LSTR MSG_BED                            = " " LCD_STR_THERMOMETER _UxGT(" Base");            // Bed
   LSTR MSG_FAN_SPEED                      = _UxGT("Vel. ventoinha");                           // Fan Speed
-  LSTR MSG_FAN_SPEED_N                    = _UxGT("Vel. ventoinha ~");                         // Fan Speed ~
+  LSTR MSG_FAN_SPEED_N                    = _UxGT("Vel. ventoinha ~");                         // Fan ~ Speed
   LSTR MSG_FLOW                           = _UxGT("Fluxo");                                    // Flow
   LSTR MSG_FLOW_N                         = _UxGT("Fluxo ~");                                  // Flow ~
   LSTR MSG_CONTROL                        = _UxGT("Controlo");                                 // Control

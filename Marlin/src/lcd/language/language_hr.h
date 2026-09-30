@@ -105,7 +105,7 @@ namespace LanguageNarrow_hr {
   LSTR MSG_NOZZLE_N                       = _UxGT("Dizna ~");                                  // Nozzle ~
   LSTR MSG_BED                            = _UxGT("Bed");                                      // Bed
   LSTR MSG_FAN_SPEED                      = _UxGT("Brzina ventilatora");                       // Fan Speed
-  LSTR MSG_FAN_SPEED_N                    = _UxGT("Brzina ventilatora ~");                     // Fan Speed ~
+  LSTR MSG_FAN_SPEED_N                    = _UxGT("Brzina ventilatora ~");                     // Fan ~ Speed
   LSTR MSG_SELECT_E                       = _UxGT("Odaberi *");                                // Select *
   LSTR MSG_TEMPERATURE                    = _UxGT("Temperature");                              // Temperature
   LSTR MSG_MOTION                         = _UxGT("Gibanje");                                  // Motion

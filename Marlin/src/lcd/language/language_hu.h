@@ -101,7 +101,7 @@ namespace LanguageNarrow_hu {
   LSTR MSG_NOZZLE_N                       = _UxGT("Fej ~");                                    // Nozzle ~
   LSTR MSG_BED                            = _UxGT("Ágy");                                      // Bed
   LSTR MSG_FAN_SPEED                      = _UxGT("Hütés sebesség");                           // Fan Speed
-  LSTR MSG_FAN_SPEED_N                    = _UxGT("Hütés sebesség {");                         // Fan Speed ~
+  LSTR MSG_FAN_SPEED_N                    = _UxGT("Hütés sebesség {");                         // Fan ~ Speed
   LSTR MSG_FLOW                           = _UxGT("Folyás");                                   // Flow
   LSTR MSG_FLOW_N                         = _UxGT("Folyás ~");                                 // Flow ~
   LSTR MSG_CONTROL                        = _UxGT("Konfiguráció");                             // Control
@@ -361,7 +361,7 @@ namespace LanguageNarrow_hu {
   LSTR MSG_CHAMBER                        = _UxGT("Burkolat");                                 // Enclosure
   LSTR MSG_STORED_FAN_N                   = _UxGT("Tárolt hütés {");                           // Stored Fan ~
   LSTR MSG_EXTRA_FAN_SPEED                = _UxGT("Extra hütés sebesség");                     // Extra Fan Speed
-  LSTR MSG_EXTRA_FAN_SPEED_N              = _UxGT("Extra hütés sebesség {");                   // Extra Fan Speed ~
+  LSTR MSG_EXTRA_FAN_SPEED_N              = _UxGT("Extra hütés sebesség {");                   // Extra Fan ~ Speed
   LSTR MSG_PID_AUTOTUNE                   = _UxGT("PID hangolás");                             // PID Autotune
   LSTR MSG_PID_AUTOTUNE_E                 = _UxGT("PID hangolás *");                           // Autotune * PID
   LSTR MSG_JERK                           = _UxGT("Rántás");                                   // Jerk

@@ -96,7 +96,7 @@ namespace LanguageNarrow_zh_TW {
   LSTR MSG_NOZZLE_N                       = " " LCD_STR_THERMOMETER _UxGT(" 噴嘴 ~");            // Nozzle ~
   LSTR MSG_BED                            = " " LCD_STR_THERMOMETER _UxGT(" 熱床");              // Bed
   LSTR MSG_FAN_SPEED                      = _UxGT("風扇速率");                                     // Fan Speed
-  LSTR MSG_FAN_SPEED_N                    = _UxGT("風扇速率 {");                                   // Fan Speed ~
+  LSTR MSG_FAN_SPEED_N                    = _UxGT("風扇速率 {");                                   // Fan ~ Speed
   LSTR MSG_FLOW                           = _UxGT("擠出速率");                                     // Flow
   LSTR MSG_FLOW_N                         = _UxGT("擠出速率 ~");                                   // Flow ~
   LSTR MSG_CONTROL                        = _UxGT("控制");                                       // Control
@@ -355,7 +355,7 @@ namespace LanguageNarrow_zh_TW {
   LSTR MSG_CHAMBER                        = _UxGT("Enclosure");                                // Enclosure
   LSTR MSG_STORED_FAN_N                   = _UxGT("Stored Fan {");                             // Stored Fan ~
   LSTR MSG_EXTRA_FAN_SPEED                = _UxGT("額外風扇速率");                                   // Extra Fan Speed
-  LSTR MSG_EXTRA_FAN_SPEED_N              = _UxGT("額外風扇速率 {");                                 // Extra Fan Speed ~
+  LSTR MSG_EXTRA_FAN_SPEED_N              = _UxGT("額外風扇速率 {");                                 // Extra Fan ~ Speed
   LSTR MSG_JERK                           = _UxGT("抖動速率");                                     // Jerk
   LSTR MSG_VA_JERK                        = _UxGT("軸抖動速率") STR_A;                              // Max (STR_A) Jerk
   LSTR MSG_VB_JERK                        = _UxGT("軸抖動速率") STR_B;                              // Max (STR_B) Jerk

@@ -94,7 +94,7 @@ namespace LanguageNarrow_fi {
   LSTR MSG_NOZZLE_N                       = _UxGT("Suutin ~");                                 // Nozzle ~
   LSTR MSG_BED                            = _UxGT("Alusta");                                   // Bed
   LSTR MSG_FAN_SPEED                      = _UxGT("Tuul. nopeus");                             // Fan Speed
-  LSTR MSG_FAN_SPEED_N                    = _UxGT("Tuul. nopeus ~");                           // Fan Speed ~
+  LSTR MSG_FAN_SPEED_N                    = _UxGT("Tuul. ~ nopeus");                           // Fan ~ Speed
   LSTR MSG_FLOW                           = _UxGT("Virtaus");                                  // Flow
   LSTR MSG_FLOW_N                         = _UxGT("Virtaus ~");                                // Flow ~
   LSTR MSG_CONTROL                        = _UxGT("Kontrolli");                                // Control

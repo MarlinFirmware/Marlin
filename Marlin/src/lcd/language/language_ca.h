@@ -104,7 +104,7 @@ namespace LanguageNarrow_ca {
   LSTR MSG_NOZZLE_N                       = _UxGT("Nozzle ~");                                 // Nozzle ~
   LSTR MSG_BED                            = _UxGT("Llit");                                     // Bed
   LSTR MSG_FAN_SPEED                      = _UxGT("Vel. Ventilador");                          // Fan Speed
-  LSTR MSG_FAN_SPEED_N                    = _UxGT("Vel. Ventilador ~");                        // Fan Speed ~
+  LSTR MSG_FAN_SPEED_N                    = _UxGT("Vel. Ventilador ~");                        // Fan ~ Speed
   LSTR MSG_FLOW                           = _UxGT("Flux");                                     // Flow
   LSTR MSG_FLOW_N                         = _UxGT("Flux ~");                                   // Flow ~
   LSTR MSG_VTRAV_MIN                      = _UxGT("VViatge min");                              // Min Travel Speed

@@ -96,7 +96,7 @@ namespace LanguageNarrow_vi {
   LSTR MSG_NOZZLE_N                       = _UxGT("Đầu phun ~");                               // Nozzle ~
   LSTR MSG_BED                            = _UxGT("Bàn");                                      // Bed
   LSTR MSG_FAN_SPEED                      = _UxGT("Tốc độ quạt");                              // Fan Speed
-  LSTR MSG_FAN_SPEED_N                    = _UxGT("Tốc độ quạt ~");                            // Fan Speed ~
+  LSTR MSG_FAN_SPEED_N                    = _UxGT("Tốc độ quạt ~");                            // Fan ~ Speed
   LSTR MSG_FLOW                           = _UxGT("Lưu Lượng");                                // Flow
   LSTR MSG_FLOW_N                         = _UxGT("Lưu Lượng ~");                              // Flow ~
   LSTR MSG_CONTROL                        = _UxGT("Điều khiển");                               // Control
@@ -329,7 +329,7 @@ namespace LanguageNarrow_vi {
   LSTR MSG_LED_BRIGHTNESS                 = _UxGT("độ sáng");                                  // Brightness
   LSTR MSG_HOTEND_TOO_COLD                = _UxGT("Đầu nóng quá lạnh");                        // Hotend too cold
   LSTR MSG_EXTRA_FAN_SPEED                = _UxGT("Tốc độ quạt phụ");                         // Extra Fan Speed
-  LSTR MSG_EXTRA_FAN_SPEED_N              = _UxGT("Tốc độ quạt phụ ~");                       // Extra Fan Speed ~
+  LSTR MSG_EXTRA_FAN_SPEED_N              = _UxGT("Tốc độ quạt phụ ~");                       // Extra Fan ~ Speed
   LSTR MSG_JERK                           = _UxGT("Giật");                                     // Jerk
   LSTR MSG_VA_JERK                        = _UxGT("Giật-V") STR_A;                             // Max (STR_A) Jerk
   LSTR MSG_VB_JERK                        = _UxGT("Giật-V") STR_B;                             // Max (STR_B) Jerk

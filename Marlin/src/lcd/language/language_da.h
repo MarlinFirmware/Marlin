@@ -101,7 +101,7 @@ namespace LanguageNarrow_da {
   LSTR MSG_NOZZLE_N                       = _UxGT("Dyse ~");                                   // Nozzle ~
   LSTR MSG_BED                            = _UxGT("Plade");                                    // Bed
   LSTR MSG_FAN_SPEED                      = _UxGT("Blæser hastighed");                         // Fan Speed
-  LSTR MSG_FAN_SPEED_N                    = _UxGT("Blæser hastighed ~");                       // Fan Speed ~
+  LSTR MSG_FAN_SPEED_N                    = _UxGT("Blæser ~ hastighed");                       // Fan ~ Speed
   LSTR MSG_CONTROL                        = _UxGT("Kontrol");                                  // Control
   LSTR MSG_AUTOTEMP                       = _UxGT("Autotemp");                                 // Autotemp
   LSTR MSG_SELECT_E                       = _UxGT("Vælg *");                                   // Select *

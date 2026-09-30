@@ -85,7 +85,7 @@ namespace LanguageNarrow_ko_KR {
   LSTR MSG_NOZZLE_N                       = _UxGT("노즐 ~");                                     // Nozzle ~
   LSTR MSG_BED                            = _UxGT("베드");                                       // Bed
   LSTR MSG_FAN_SPEED                      = _UxGT("펜 속도");                                     // Fan Speed
-  LSTR MSG_FAN_SPEED_N                    = _UxGT("펜 속도 ~");                                   // Fan Speed ~
+  LSTR MSG_FAN_SPEED_N                    = _UxGT("펜 ~ 속도");                                   // Fan ~ Speed
   LSTR MSG_TEMPERATURE                    = _UxGT("온도");                                       // Temperature
   LSTR MSG_MOTION                         = _UxGT("동작");                                       // Motion
   LSTR MSG_STORE_EEPROM                   = _UxGT("설정 저장하기");                                  // Store Settings
@@ -116,7 +116,7 @@ namespace LanguageNarrow_ko_KR {
   LSTR MSG_IDEX_MODE_MIRRORED_COPY        = _UxGT("미러 사본");                                    // Mirrored Copy
   LSTR MSG_UBL_DOING_G29                  = _UxGT("오토레벨링 하기");                                 // Doing G29
   LSTR MSG_EXTRA_FAN_SPEED                = _UxGT("엑스트라 펜 속도");                                // Extra Fan Speed
-  LSTR MSG_EXTRA_FAN_SPEED_N              = _UxGT("엑스트라 펜 속도 ~");                              // Extra Fan Speed ~
+  LSTR MSG_EXTRA_FAN_SPEED_N              = _UxGT("엑스트라 펜 ~ 속도");                              // Extra Fan ~ Speed
   LSTR MSG_INIT_EEPROM                    = _UxGT("EEPROM 초기화");                               // Initialize EEPROM
   LSTR MSG_PRINT_PAUSED                   = _UxGT("일시 정지됨");                                   // Print Paused
   LSTR MSG_PRINTING                       = _UxGT("출력중...");                                   // Printing...

@@ -98,7 +98,7 @@ namespace LanguageNarrow_ru {
   LSTR MSG_NOZZLE_N                       = _UxGT("Сопло ~");                                  // Nozzle ~
   LSTR MSG_BED                            = _UxGT("Стол,  ") LCD_STR_DEGREE _UxGT("C");        // Bed
   LSTR MSG_FAN_SPEED                      = _UxGT("Кулер");                                    // Fan Speed
-  LSTR MSG_FAN_SPEED_N                    = _UxGT("Кулер ~");                                  // Fan Speed ~
+  LSTR MSG_FAN_SPEED_N                    = _UxGT("Кулер ~");                                  // Fan ~ Speed
   LSTR MSG_FLOW                           = _UxGT("Поток");                                    // Flow
   LSTR MSG_FLOW_N                         = _UxGT("Поток ~");                                  // Flow ~
   LSTR MSG_CONTROL                        = _UxGT("Настройки");                                // Control
@@ -358,7 +358,7 @@ namespace LanguageNarrow_ru {
   LSTR MSG_CHAMBER                        = _UxGT("Камера,") LCD_STR_DEGREE _UxGT("C");        // Enclosure
   LSTR MSG_STORED_FAN_N                   = _UxGT("Сохранённый кулер ~");                      // Stored Fan ~
   LSTR MSG_EXTRA_FAN_SPEED                = _UxGT("Дополн. кулер");                            // Extra Fan Speed
-  LSTR MSG_EXTRA_FAN_SPEED_N              = _UxGT("Дополн. кулер ~");                          // Extra Fan Speed ~
+  LSTR MSG_EXTRA_FAN_SPEED_N              = _UxGT("Дополн. кулер ~");                          // Extra Fan ~ Speed
   LSTR MSG_PID_AUTOTUNE                   = _UxGT("Автокалибровка PID");                       // PID Autotune
   LSTR MSG_PID_AUTOTUNE_E                 = _UxGT("Автокалибр. PID *");                        // Autotune * PID
   LSTR MSG_JERK                           = _UxGT("Рывок");                                    // Jerk

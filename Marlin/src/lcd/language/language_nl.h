@@ -103,7 +103,7 @@ namespace LanguageNarrow_nl {
   LSTR MSG_NOZZLE_N                       = _UxGT("Nozzle ~");                                 // Nozzle ~
   LSTR MSG_BED                            = _UxGT("Bed");                                      // Bed
   LSTR MSG_FAN_SPEED                      = _UxGT("Fan snelheid");                             // Fan Speed
-  LSTR MSG_FAN_SPEED_N                    = _UxGT("Fan snelheid ~");                           // Fan Speed ~
+  LSTR MSG_FAN_SPEED_N                    = _UxGT("Fan ~ snelheid");                           // Fan ~ Speed
   LSTR MSG_FLOW                           = _UxGT("Flow");                                     // Flow
   LSTR MSG_FLOW_N                         = _UxGT("Flow ~");                                   // Flow ~
   LSTR MSG_CONTROL                        = _UxGT("Control");                                  // Control

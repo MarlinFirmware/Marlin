@@ -96,7 +96,7 @@ namespace LanguageNarrow_pt_br {
   LSTR MSG_NOZZLE_N                       = _UxGT("Bocal ~");                                  // Nozzle ~
   LSTR MSG_BED                            = _UxGT("Mesa");                                     // Bed
   LSTR MSG_FAN_SPEED                      = _UxGT("Vel. Ventoinha");                           // Fan Speed
-  LSTR MSG_FAN_SPEED_N                    = _UxGT("Vel. Ventoinha ~");                         // Fan Speed ~
+  LSTR MSG_FAN_SPEED_N                    = _UxGT("Vel. Ventoinha ~");                         // Fan ~ Speed
   LSTR MSG_FLOW                           = _UxGT("Vazão");                                    // Flow
   LSTR MSG_FLOW_N                         = _UxGT("Vazão ~");                                  // Flow ~
   LSTR MSG_CONTROL                        = _UxGT("Controle");                                 // Control
@@ -337,7 +337,7 @@ namespace LanguageNarrow_pt_br {
   LSTR MSG_LED_BRIGHTNESS                 = _UxGT("Brilho");                                   // Brightness
   LSTR MSG_HOTEND_TOO_COLD                = _UxGT("Extrus. mto fria");                         // Hotend too cold
   LSTR MSG_EXTRA_FAN_SPEED                = _UxGT("+Vel. Ventoinha");                          // Extra Fan Speed
-  LSTR MSG_EXTRA_FAN_SPEED_N              = _UxGT("+Vel. Ventoinha ~");                        // Extra Fan Speed ~
+  LSTR MSG_EXTRA_FAN_SPEED_N              = _UxGT("+Vel. Ventoinha ~");                        // Extra Fan ~ Speed
   LSTR MSG_JERK                           = _UxGT("Arrancada");                                // Jerk
   LSTR MSG_VA_JERK                        = _UxGT("arrancada V") STR_A;                        // Max (STR_A) Jerk
   LSTR MSG_VB_JERK                        = _UxGT("arrancada V") STR_B;                        // Max (STR_B) Jerk

@@ -98,7 +98,7 @@ namespace LanguageNarrow_uk {
   LSTR MSG_NOZZLE_N                       = _UxGT("Сопло ~");                                  // Nozzle ~
   LSTR MSG_BED                            = _UxGT("Стіл,  ") LCD_STR_DEGREE _UxGT("C");        // Bed
   LSTR MSG_FAN_SPEED                      = _UxGT("Швидк. вент.");                             // Fan Speed
-  LSTR MSG_FAN_SPEED_N                    = _UxGT("Швидк. вент. ~");                           // Fan Speed ~
+  LSTR MSG_FAN_SPEED_N                    = _UxGT("Швидк. вент. ~");                           // Fan ~ Speed
   LSTR MSG_FLOW                           = _UxGT("Потік");                                    // Flow
   LSTR MSG_FLOW_N                         = _UxGT("Потік ~");                                  // Flow ~
   LSTR MSG_CONTROL                        = _UxGT("Налаштування");                             // Control
@@ -358,7 +358,7 @@ namespace LanguageNarrow_uk {
   LSTR MSG_CHAMBER                        = _UxGT("Камера,") LCD_STR_DEGREE _UxGT("C");        // Enclosure
   LSTR MSG_STORED_FAN_N                   = _UxGT("Збереж. вент. ~");                          // Stored Fan ~
   LSTR MSG_EXTRA_FAN_SPEED                = _UxGT("Дод. швидк. вент.");                        // Extra Fan Speed
-  LSTR MSG_EXTRA_FAN_SPEED_N              = _UxGT("Додат.вент. ~");                            // Extra Fan Speed ~
+  LSTR MSG_EXTRA_FAN_SPEED_N              = _UxGT("Додат.вент. ~");                            // Extra Fan ~ Speed
   LSTR MSG_PID_AUTOTUNE                   = _UxGT("Автопідбір PID");                           // PID Autotune
   LSTR MSG_PID_AUTOTUNE_E                 = _UxGT("Автопідбір PID *");                         // Autotune * PID
   LSTR MSG_JERK                           = _UxGT("Ривок");                                    // Jerk
@@ -700,7 +700,7 @@ namespace LanguageWide_uk {
     LSTR MSG_UBL_FINE_TUNE_CLOSEST        = _UxGT("Точно налашт.найближчу");                   // Fine Tune Closest
     LSTR MSG_LED_PRESETS                  = _UxGT("Передустановки світла");                    // Light Presets
     LSTR MSG_STORED_FAN_N                 = _UxGT("Збереж.швидк.вент. ~");                     // Stored Fan ~
-    LSTR MSG_EXTRA_FAN_SPEED_N            = _UxGT("Дод. швидк. вент. ~");                      // Extra Fan Speed ~
+    LSTR MSG_EXTRA_FAN_SPEED_N            = _UxGT("Дод. швидк. вент. ~");                      // Extra Fan ~ Speed
     LSTR MSG_JUNCTION_DEVIATION           = _UxGT("Відхилення вузла");                         // Junction Dev
     LSTR MSG_INIT_EEPROM                  = _UxGT("Ініціалізація EEPROM");                     // Initialize EEPROM
     LSTR MSG_SINGLENOZZLE_PRIME_SPEED     = _UxGT("Початк.швидкість");                         // Prime Speed

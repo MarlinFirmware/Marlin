@@ -98,7 +98,7 @@ namespace LanguageNarrow_eu {
   LSTR MSG_NOZZLE_N                       = _UxGT("Pita ~");                                   // Nozzle ~
   LSTR MSG_BED                            = _UxGT("Ohea");                                     // Bed
   LSTR MSG_FAN_SPEED                      = _UxGT("Haizagailu abiadura");                      // Fan Speed
-  LSTR MSG_FAN_SPEED_N                    = _UxGT("Haizagailu abiadura ~");                    // Fan Speed ~
+  LSTR MSG_FAN_SPEED_N                    = _UxGT("Haizagailu abiadura ~");                    // Fan ~ Speed
   LSTR MSG_FLOW                           = _UxGT("Fluxua");                                   // Flow
   LSTR MSG_FLOW_N                         = _UxGT("Fluxua ~");                                 // Flow ~
   LSTR MSG_CONTROL                        = _UxGT("Kontrola");                                 // Control
@@ -260,7 +260,7 @@ namespace LanguageNarrow_eu {
   LSTR MSG_INTENSITY_W                    = _UxGT("Intentsitate zuria");                       // White Intensity
   LSTR MSG_LED_BRIGHTNESS                 = _UxGT("Distira");                                  // Brightness
   LSTR MSG_EXTRA_FAN_SPEED                = _UxGT("Haiz.gehig. abiadura");                     // Extra Fan Speed
-  LSTR MSG_EXTRA_FAN_SPEED_N              = _UxGT("Haiz.gehig. abiadura ~");                   // Extra Fan Speed ~
+  LSTR MSG_EXTRA_FAN_SPEED_N              = _UxGT("Haiz.gehig. abiadura ~");                   // Extra Fan ~ Speed
   LSTR MSG_JERK                           = _UxGT("Astindua");                                 // Jerk
   LSTR MSG_VA_JERK                        = _UxGT("V") STR_A _UxGT("-astindua");               // Max (STR_A) Jerk
   LSTR MSG_VB_JERK                        = _UxGT("V") STR_B _UxGT("-astindua");               // Max (STR_B) Jerk
