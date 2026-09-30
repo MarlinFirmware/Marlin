@@ -33,6 +33,15 @@
 #define FP_BITS 16  // 16 bits for fractional part
 #define FP_ONE (1UL << FP_BITS)  // Fixed-point 1.0
 
+// Nominal time step of one generated point (s) (previous rt_time).
+// Same for FT-Motion and standard motion.
+#define RESONANCE_TS 0.001f
+
+// Use Q28 instead of Q16 for the sweep time base to avoid calculation errors.
+#define FP_Q 28
+#define FP_Q_SCALE_F 268435456.0f  // 2^FP_Q as float
+#define F2FPQ(x) ((int32_t)((x) * FP_Q_SCALE_F + 0.5f))
+
 // Convert float to fixed-point
 #define F2FP(x) ((int32_t)((x) * FP_ONE + 0.5f))
 
@@ -42,10 +51,7 @@
 // Fixed-point constants
 #define M_TAU_FP F2FP(2.0f * M_PI)
 #define M_PI_FP F2FP(M_PI)
-#define C0101321184_FP F2FP(0.101321184f)
-
-// For rt_time calculation, perfect match between octave duration and frequency sweep
-#define RATIO (1.0f + 1.0f / 65536.0f) // 1 + 1/2^16
+#define C0101321184_FP F2FP(0.101321184f) // 1/π² : coefficient of the cubic sine approximation r·(1 - r²/π²)
 
 typedef struct ResonanceTestParams {
   AxisEnum axis         = NO_AXIS_ENUM; // Axis to test
@@ -93,11 +99,12 @@ class ResonanceGenerator {
 
     // Fixed-point variables
     static int32_t amplitude_precalc_fp;  // Fixed-point amplitude precalculation
-    static int32_t current_freq_fp;       // Fixed-point current frequency
+    static int32_t current_freq_fp;       // Fixed-point current frequency (Q16.16)
 
     // Phase variables (in radians, stored as fixed-point)
-    static int32_t phase_fp;          // Fixed-point phase accumulator
-    static int32_t freq_to_phase_fp;  // Fixed-point frequency to phase conversion
+    static int32_t phase_fp;          // Fixed-point phase accumulator (Q16.16, wrapped to [0, 2π))
+    static int32_t phase_inc_fp;      // Q28: phase advance per step per Hz (2π·RESONANCE_TS)
+    static int32_t freq_mul_inc;      // Q28: per-step frequency multiplier minus 1 (exp2(RESONANCE_TS/oct) - 1)
 
     static int32_t max_freq_fp;       // Fixed-point maximum frequency
     #if HAS_STANDARD_MOTION

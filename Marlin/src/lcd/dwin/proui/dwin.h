@@ -151,9 +151,6 @@ typedef struct {
   #if ENABLED(PREVENT_COLD_EXTRUSION)
     celsius_t extMinT = EXTRUDE_MINTEMP;
   #endif
-  #if ENABLED(PREHEAT_BEFORE_LEVELING)
-    celsius_t bedLevT = LEVELING_BED_TEMP;
-  #endif
 
   // Various Options
   #if ENABLED(BAUD_RATE_GCODE)

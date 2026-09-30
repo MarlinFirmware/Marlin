@@ -49,6 +49,15 @@ namespace LanguageNarrow_id {
   constexpr uint8_t CHARSIZE              = 2;
   LSTR LANGUAGE                           = _UxGT("Bahasa Indonesia");
 
+  LSTR MSG_KINEMATICS_SETTINGS            = _UxGT("Pengaturan Kinematika");                    // Kinematics Settings
+  LSTR MSG_DELTA_TOWER_ANGLE_TRIM_N       = _UxGT("@ Setelan menara");                         // @ Tower Trim
+  LSTR MSG_DELTA_ROD_TRIM_A               = _UxGT("@ Setelan batang A");                       // A Rod Trim
+  LSTR MSG_DELTA_ROD_TRIM_B               = _UxGT("@ Setelan batang B");                       // B Rod Trim
+  LSTR MSG_DELTA_ROD_TRIM_C               = _UxGT("@ Setelan batang C");                       // C Rod Trim
+  LSTR MSG_SCARA_P_OFFSET                 = _UxGT("Offset theta");                             // P Offset
+  LSTR MSG_SCARA_T_OFFSET                 = _UxGT("Offset psi");                               // T Offset
+  LSTR MSG_SCARA_Z_OFFSET                 = _UxGT("Offset Z");                                 // Z Offset
+
   LSTR WELCOME_MSG                        = MACHINE_NAME_SUBST _UxGT(" siap.");
   LSTR MSG_MEDIA_INSERTED                 = _UxGT("Kartu terpasang");
   LSTR MSG_MEDIA_REMOVED                  = _UxGT("Kartu dilepas");
