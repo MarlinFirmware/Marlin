@@ -176,7 +176,7 @@
 #define BOARD_GT2560_V41B             1322  // Geeetech GT2560 V4.1B for A10(M/T/D)
 #define BOARD_EINSTART_S              1323  // Einstart retrofit
 #define BOARD_WANHAO_ONEPLUS          1324  // Wanhao 0ne+ i3 Mini
-#define BOARD_WANHAO_D9               1325  // Wanhao D9 MK2
+#define BOARD_WANHAO_D9               1325  // Wanhao Duplicator 9
 #define BOARD_OVERLORD                1326  // Overlord/Overlord Pro
 #define BOARD_HJC2560C_REV1           1327  // ADIMLab Gantry v1
 #define BOARD_HJC2560C_REV2           1328  // ADIMLab Gantry v2
