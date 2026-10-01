@@ -4618,6 +4618,29 @@ static_assert(_PLUS_TEST(3), "DEFAULT_MAX_ACCELERATION values must be positive."
   #endif
 #endif
 
+/**
+ * Require certain features for DGUS_LCD_UI E3V2_TOUCH.
+ */
+#if DGUS_UI_IS(E3V2_TOUCH)
+  #if BUFSIZE < 4
+    #error "DGUS_LCD_UI E3V2_TOUCH requires a BUFSIZE of at least 4."
+  #elif HOTENDS != 1 || EXTRUDERS != 1
+    #error "DGUS_LCD_UI E3V2_TOUCH requires 1 hotend and 1 extruder."
+  #elif !HAS_HEATED_BED
+    #error "DGUS_LCD_UI E3V2_TOUCH requires a heated bed."
+  #elif !HAS_MEDIA
+    #error "DGUS_LCD_UI E3V2_TOUCH requires SDSUPPORT."
+  #elif !defined(PREHEAT_1_TEMP_HOTEND) || !defined(PREHEAT_2_TEMP_HOTEND)
+    #error "DGUS_LCD_UI E3V2_TOUCH requires 2 preheating presets."
+  #elif DISABLED(BABYSTEPPING)
+    #error "DGUS_LCD_UI E3V2_TOUCH requires BABYSTEPPING for its Z offset controls."
+  #elif HAS_BED_PROBE && DISABLED(BABYSTEP_ZPROBE_OFFSET)
+    #error "DGUS_LCD_UI E3V2_TOUCH with a bed probe requires BABYSTEP_ZPROBE_OFFSET."
+  #elif !HAS_BED_PROBE && DISABLED(BABYSTEP_DISPLAY_TOTAL)
+    #error "DGUS_LCD_UI E3V2_TOUCH without a bed probe requires BABYSTEP_DISPLAY_TOTAL."
+  #endif
+#endif
+
 // JTAG support in the HAL
 #if ENABLED(DISABLE_DEBUG) && !defined(JTAGSWD_DISABLE)
   #error "DISABLE_DEBUG is not supported for the selected MCU/Board."
