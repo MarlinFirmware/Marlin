@@ -95,7 +95,7 @@ class TFT {
     #endif
     #if ENABLED(TOUCH_SCREEN)
       static void drawSimpleBtn(const char *label, uint16_t x, uint16_t y, uint16_t w, uint16_t h, uint16_t color, uint16_t colorTxt, BTN_STYLE style, bool selected, TouchControlType touchType = BUTTON, intptr_t data = 0, int32_t index = 0, uint16_t colorBg = COLOR_BACKGROUND);
-    #endif  
+    #endif
 };
 
 extern TFT tft;
