@@ -496,6 +496,7 @@
 #define BOARD_MKS_NEPTUNE_X                 5260  // Elegoo Neptune X
 #define BOARD_MKS_NEPTUNE_3                 5261  // Elegoo Neptune 3
 #define BOARD_MKS_E3D_V2                    5262  // Elegoo Neptune 3 Pro / Plus / Max (STM32F401RC)
+#define BOARD_CREALITY_V24S1_200            5263  // Creality v2.4.S1_200 (STM32F401RC) CR-FDM-v2.4.S1_200 as found in the Sermoon V1 / V1 Pro
 
 //
 // Other ARM Cortex-M4
