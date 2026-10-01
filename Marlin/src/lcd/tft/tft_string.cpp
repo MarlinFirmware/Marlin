@@ -74,12 +74,13 @@ void TFT_String::add_glyphs(const uint8_t *font) {
   fontStartEncoding = ((unifont_t *)font)->fontStartEncoding;
   fontEndEncoding = ((unifont_t *)font)->fontEndEncoding;
   pointer = (uint8_t *)font + sizeof(unifont_t);
+  const uint8_t bpp = ((unifont_t *)font)->format & 0x0F; // Bits per pixel
 
   if (fontEndEncoding < 0x0100) { // base and symbol fonts
     for (unicode = fontStartEncoding; unicode <= fontEndEncoding; unicode++) {
       if (*pointer != NO_GLYPH) {
         glyphs[unicode] = (glyph_t *)pointer;
-        pointer += sizeof(glyph_t) + ((glyph_t *)pointer)->dataSize;
+        pointer += sizeof(glyph_t) + glyph_data_size((glyph_t *)pointer, bpp);
       }
       else
         pointer++;
@@ -97,7 +98,7 @@ void TFT_String::add_glyphs(const uint8_t *font) {
             }
             if (*pointer != NO_GLYPH) {
               glyphs_extra[unicode - fontStartEncoding] = pointer;
-              pointer += sizeof(glyph_t) + ((glyph_t *)pointer)->dataSize;
+              pointer += sizeof(glyph_t) + glyph_data_size((glyph_t *)pointer, bpp);
             }
             else
               pointer++;
@@ -111,7 +112,7 @@ void TFT_String::add_glyphs(const uint8_t *font) {
           }
           glyphs_extra[i] = pointer;
           unicode = *(uint16_t *) pointer;
-          pointer += sizeof(uniglyph_t) + ((uniglyph_t *)pointer)->glyph.dataSize;
+          pointer += sizeof(uniglyph_t) + glyph_data_size(&((uniglyph_t *)pointer)->glyph, bpp);
           extra_count = i + 1;
           if (unicode == fontEndEncoding)
             break;

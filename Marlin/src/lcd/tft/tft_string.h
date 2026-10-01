@@ -67,11 +67,16 @@ typedef struct __attribute__((__packed__)) {
 typedef struct __attribute__((__packed__)) {
   uint8_t bbxWidth;
   uint8_t bbxHeight;
-  uint8_t dataSize;
+  uint8_t dataSize;     // Low byte of the bitmap size. Not used; may overflow on large glyphs. See glyph_data_size().
    int8_t dWidth;
    int8_t bbxOffsetX;
    int8_t bbxOffsetY;
 } glyph_t;
+
+// Glyph bitmap size in bytes. Rows are padded to whole bytes, as drawn by Canvas::addImage.
+inline uint16_t glyph_data_size(const glyph_t * const g, const uint8_t bpp) {
+  return uint16_t((g->bbxWidth * bpp + 7) >> 3) * g->bbxHeight;
+}
 
 // unicode-prepended TFT glyphs
 typedef struct __attribute__((__packed__)) {

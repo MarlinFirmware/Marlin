@@ -114,6 +114,9 @@
   #ifdef FONT_EXTRA
     #error "Helvetica font does not have symbols required for selected LCD_LANGUAGE."
   #endif
+  #if ENABLED(TFT_FONT_LARGE)
+    #error "TFT_FONT_LARGE requires TFT_FONT NOTOSANS or UNIFONT."
+  #endif
 #else
   #error "Invalid TFT_FONT value."
 #endif

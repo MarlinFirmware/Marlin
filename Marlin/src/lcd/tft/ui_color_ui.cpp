@@ -49,10 +49,17 @@
   #include "../../feature/bedlevel/bedlevel.h"
 #endif
 
-#define BTN_WIDTH  48
-#define BTN_HEIGHT 36
-#define X_MARGIN   15
-#define Y_MARGIN   11
+// Edit screen button metrics (overridable by the UI layout header)
+#ifndef EDIT_BTN_WIDTH
+  #define EDIT_BTN_WIDTH  48
+  #define EDIT_BTN_HEIGHT 36
+  #define EDIT_X_MARGIN   15
+  #define EDIT_Y_MARGIN   11
+#endif
+#define BTN_WIDTH  EDIT_BTN_WIDTH
+#define BTN_HEIGHT EDIT_BTN_HEIGHT
+#define X_MARGIN   EDIT_X_MARGIN
+#define Y_MARGIN   EDIT_Y_MARGIN
 
 void MarlinUI::tft_idle() {
   #if ENABLED(TOUCH_SCREEN)
@@ -353,10 +360,10 @@ void MarlinUI::draw_status_screen() {
   tft.canvas(FEEDRATE_X, FEEDRATE_Y, FEEDRATE_W, FEEDRATE_H);
   tft.set_background(COLOR_BACKGROUND);
   uint16_t color = motion.feedrate_percentage == 100 ? COLOR_RATE_100 : COLOR_RATE_ALTERED;
-  tft.add_image(0, 0, imgFeedRate, color);
+  tft.add_image(FEEDRATE_ICON_X, FEEDRATE_ICON_Y, imgFeedRate, color);
   tft_string.set(i16tostr3rj(motion.feedrate_percentage));
   tft_string.add('%');
-  tft.add_text(36, tft_string.vcenter(30), color, tft_string);
+  tft.add_text(FEEDRATE_TEXT_X, FEEDRATE_TEXT_Y, color, tft_string);
   TERN_(TOUCH_SCREEN, touch.add_control(FEEDRATE, FEEDRATE_X, FEEDRATE_Y, FEEDRATE_W, FEEDRATE_H));
 
   #if HAS_EXTRUDERS
@@ -364,7 +371,7 @@ void MarlinUI::draw_status_screen() {
     tft.canvas(FLOWRATE_X, FLOWRATE_Y, FLOWRATE_W, FLOWRATE_H);
     tft.set_background(COLOR_BACKGROUND);
     color = planner.flow_percentage[0] == 100 ? COLOR_RATE_100 : COLOR_RATE_ALTERED;
-    tft.add_image(FLOWRATE_ICON_X, FLOWRATE_ICON_X, imgFlowRate, color);
+    tft.add_image(FLOWRATE_ICON_X, FLOWRATE_ICON_Y, imgFlowRate, color);
     tft_string.set(i16tostr3rj(planner.flow_percentage[motion.extruder]));
     tft_string.add('%');
     tft.add_text(FLOWRATE_TEXT_X, FLOWRATE_TEXT_Y, color, tft_string);

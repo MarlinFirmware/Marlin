@@ -874,7 +874,11 @@
     #define LCD_HEIGHT TERN(TOUCH_SCREEN, 6, 7)
   #endif
 #elif HAS_UI_1024x600
-  #define LCD_HEIGHT TERN(TOUCH_SCREEN, 12, 13)
+  #if ENABLED(TFT_FONT_LARGE)
+    #define LCD_HEIGHT TERN(TOUCH_SCREEN, 9, 10)
+  #else
+    #define LCD_HEIGHT TERN(TOUCH_SCREEN, 12, 13)
+  #endif
 #endif
 
 // This emulated DOGM has 'touch/xpt2046', not 'tft/xpt2046'
