@@ -437,6 +437,38 @@ bool Touch::get_point(int16_t * const x, int16_t * const y) {
 
 #endif // HAS_DISPLAY_SLEEP
 
+#if HAS_SIM_TOUCH_RECTS
+
+  /**
+   * Simulator only: As the last stage of drawing a screen, send the touch control
+   * rectangles to the simulated panel so MarlinSimUI can overlay them on the screen.
+   * Sent with a custom panel command, only when the set of rectangles changes:
+   *   0xF5, count (16 bit), then x, y, width, height (16 bit each) per control.
+   * All values are big-endian bytes, like the CASET / RASET parameters.
+   */
+  void Touch::sim_touch_rects() {
+    static uint32_t last_hash = 0;
+    uint32_t hash = 2166136261UL ^ controls_count;   // FNV-1a over the geometry
+    for (uint16_t i = 0; i < controls_count; ++i) {
+      const touch_control_t &c = controls[i];
+      for (const uint16_t v : { c.x, c.y, c.width, c.height }) hash = (hash ^ v) * 16777619UL;
+    }
+    if (hash == last_hash) return;
+    last_hash = hash;
+
+    auto send16 = [](const uint16_t v) { TFT_IO::writeData(v >> 8); TFT_IO::writeData(v & 0xFF); };
+    TFT_IO::dataTransferBegin(DATASIZE_8BIT);
+    TFT_IO::writeReg(0xF5);
+    send16(controls_count);
+    for (uint16_t i = 0; i < controls_count; ++i) {
+      const touch_control_t &c = controls[i];
+      send16(c.x); send16(c.y); send16(c.width); send16(c.height);
+    }
+    TFT_IO::dataTransferEnd();
+  }
+
+#endif // HAS_SIM_TOUCH_RECTS
+
 bool MarlinUI::touch_pressed() {
   return touch.is_clicked();
 }
