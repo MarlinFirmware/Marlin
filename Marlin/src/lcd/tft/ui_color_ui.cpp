@@ -717,13 +717,13 @@ void MenuEditItemBase::draw_edit_screen(FSTR_P const ftpl, const char * const va
 
         tft_string.set(X_LBL);
         tft.add_text(UBL_X_LABEL_X, MENU_TEXT_Y, COLOR_MENU_TEXT, tft_string);
-        tft_string.set(ftostr52(LOGICAL_X_POSITION(motion.position.x)));
+        tft_string.set(ftostr52(motion.logical_x(motion.position.x)));
         tft_string.trim();
         tft.add_text(UBL_X_TEXT_X, MENU_TEXT_Y, COLOR_MENU_VALUE, tft_string);
 
         tft_string.set(Y_LBL);
         tft.add_text(UBL_Y_LABEL_X, MENU_TEXT_Y, COLOR_MENU_TEXT, tft_string);
-        tft_string.set(ftostr52(LOGICAL_Y_POSITION(motion.position.y)));
+        tft_string.set(ftostr52(motion.logical_y(motion.position.y)));
         tft_string.trim();
         tft.add_text(UBL_Y_TEXT_X, MENU_TEXT_Y, COLOR_MENU_VALUE, tft_string);
       }
@@ -862,7 +862,8 @@ void TFT::draw_edit_screen_buttons(const bool can_keypad/*=false*/, const bool n
     if (can_keypad)
       drawSimpleBtn(mode_keypad ? "-/+" : "123", X_MARGIN, BUTTON_ROW_Y, BTN_WIDTH, BTN_HEIGHT, COLOR_BLACK, COLOR_WHITE, BTN_FILLED, false, CALLBACK, intptr_t(switchKeypad));
     if (!no_plus_minus) draw_edit_screen_plus_minus(BUTTON_ROW_Y, can_keypad ? stepSize : 1);
-    drawSimpleBtn("OK", TFT_WIDTH - X_MARGIN - BTN_WIDTH, BUTTON_ROW_Y, BTN_WIDTH, BTN_HEIGHT, COLOR_VIVID_GREEN, COLOR_BLACK, BTN_FILLED, true, BUTTON, intptr_t(okClicked));
+    // Under external control (e.g., UBL mesh edit) the caller waits for ui.button_pressed(), which needs a CLICK
+    drawSimpleBtn("OK", TFT_WIDTH - X_MARGIN - BTN_WIDTH, BUTTON_ROW_Y, BTN_WIDTH, BTN_HEIGHT, COLOR_VIVID_GREEN, COLOR_BLACK, BTN_FILLED, true, ui.external_control ? CLICK : BUTTON, intptr_t(okClicked));
   #endif
 }
 
