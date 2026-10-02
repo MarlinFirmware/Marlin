@@ -187,15 +187,15 @@
   #define PROGRESS_BAR_Y            440
 
   #define STATUS_MESSAGE_W          TFT_WIDTH
-  #define STATUS_MESSAGE_H          FONT_LINE_HEIGHT
+  #define STATUS_MESSAGE_H          56
   #define STATUS_MESSAGE_X          0
   #define STATUS_MESSAGE_Y          490
 
   #if ENABLED(AUTO_BED_LEVELING_UBL)
-    #define UBL_X_LABEL_X           (TFT_WIDTH / 2 - 180)
-    #define UBL_X_TEXT_X            (TFT_WIDTH / 2 - 24) - tft_string.width()
-    #define UBL_Y_LABEL_X           (TFT_WIDTH / 2 + 24)
-    #define UBL_Y_TEXT_X            (TFT_WIDTH / 2 + 180) - tft_string.width()
+    #define UBL_X_LABEL_X           (TFT_WIDTH / 2 - 220)
+    #define UBL_X_TEXT_X            (TFT_WIDTH / 2 -  40) - tft_string.width()
+    #define UBL_Y_LABEL_X           (TFT_WIDTH / 2 +  40)
+    #define UBL_Y_TEXT_X            (TFT_WIDTH / 2 + 220) - tft_string.width()
 
     #define UBL_COORDINATES_W       180
     #define UBL_COORDINATES_X       320
@@ -421,14 +421,14 @@
 
 #if !defined(STATUS_MESSAGE_W) && !defined(STATUS_MESSAGE_H) && !defined(STATUS_MESSAGE_X) && !defined(STATUS_MESSAGE_Y)
   #define STATUS_MESSAGE_W          TFT_WIDTH
-  #define STATUS_MESSAGE_H          FONT_LINE_HEIGHT
+  #define STATUS_MESSAGE_H          36
   #define STATUS_MESSAGE_X          0
   #define STATUS_MESSAGE_Y          504
 #endif
 
 #if !defined(STATUS_MESSAGE_TEXT_X) && !defined(STATUS_MESSAGE_TEXT_Y)
   #define STATUS_MESSAGE_TEXT_X     tft_string.center(STATUS_MESSAGE_W)
-  #define STATUS_MESSAGE_TEXT_Y     VCENTER
+  #define STATUS_MESSAGE_TEXT_Y     tft_string.vcenter(STATUS_MESSAGE_H)
 #endif
 
 // MenuEditItemBase::draw_edit_screen()
