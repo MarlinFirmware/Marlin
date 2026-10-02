@@ -496,6 +496,7 @@
 #define BOARD_MKS_NEPTUNE_X                 5260  // Elegoo Neptune X
 #define BOARD_MKS_NEPTUNE_3                 5261  // Elegoo Neptune 3
 #define BOARD_MKS_E3D_V2                    5262  // Elegoo Neptune 3 Pro / Plus / Max (STM32F401RC)
+#define BOARD_PRUSA_BUDDY                   5263  // Prusa Buddy (STM32F407VGT6) as found in the Prusa MINI
 
 //
 // Other ARM Cortex-M4
