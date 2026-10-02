@@ -124,14 +124,14 @@
 #if !defined(MAX_ITEMS) && !defined(ITEM_X) && !defined(ITEM_Y)
   #define MAX_ITEMS                 4
   #define ITEM_X(N)                 (TFT_WIDTH / _MIN(ITEMS_COUNT, MAX_ITEMS) - TEMP_FAN_CONTROL_W) / 2 + (TFT_WIDTH * N / _MIN(ITEMS_COUNT, MAX_ITEMS))
-  #define ITEM_Y                    4
+  #define ITEM_Y                    2
 #endif
 
 #if !defined(COORDINATES_W) && !defined(COORDINATES_H) && !defined(COORDINATES_X) && !defined(COORDINATES_Y)
   #define COORDINATES_W             TFT_WIDTH - 8
   #define COORDINATES_H             FONT_LINE_HEIGHT * 2
   #define COORDINATES_X             4
-  #define COORDINATES_Y             132
+  #define COORDINATES_Y             130
 #endif
 
 #if !defined(E_MARK_X) && !defined(E_MARK_Y) && !defined(E_VALUE_X) && !defined(E_VALUE_Y)
@@ -167,7 +167,7 @@
   #define FEEDRATE_W                120
   #define FEEDRATE_H                32
   #define FEEDRATE_X                24
-  #define FEEDRATE_Y                218
+  #define FEEDRATE_Y                216
 #endif
 #if !defined(FEEDRATE_ICON_X) && !defined(FEEDRATE_ICON_Y) && !defined(FEEDRATE_ICON_Y) && !defined(FEEDRATE_TEXT_Y)
   #define FEEDRATE_ICON_X           0
@@ -180,7 +180,7 @@
   #define FLOWRATE_W                120
   #define FLOWRATE_H                32
   #define FLOWRATE_X                176
-  #define FLOWRATE_Y                218
+  #define FLOWRATE_Y                216
 #endif
 #if !defined(FLOWRATE_ICON_X) && !defined(FLOWRATE_ICON_Y) && !defined(FLOWRATE_TEXT_X) && !defined(FLOWRATE_TEXT_Y)
   #define FLOWRATE_ICON_X           0
@@ -191,25 +191,25 @@
 
 #if !defined(MENU_ICON_X) && !defined(MENU_ICON_Y)
   #define MENU_ICON_X               250
-  #define MENU_ICON_Y               354
+  #define MENU_ICON_Y               352
 #endif
 #if !defined(SDCARD_ICON_X) && !defined(SDCARD_ICON_Y)
   #define SDCARD_ICON_X             6
-  #define SDCARD_ICON_Y             354
+  #define SDCARD_ICON_Y             352
 #endif
 
 #if !defined(ELAPSED_TIME_W) && !defined(ELAPSED_TIME_H) && !defined(ELAPSED_TIME_X) && !defined(ELAPSED_TIME_Y)
   #define ELAPSED_TIME_W            168
   #define ELAPSED_TIME_H            29
   #define ELAPSED_TIME_X            (TFT_WIDTH - ELAPSED_TIME_W) / 2
-  #define ELAPSED_TIME_Y            388
+  #define ELAPSED_TIME_Y            386
 #endif
 
 #if !defined(REMAINING_TIME_W) && !defined(REMAINING_TIME_H) && !defined(REMAINING_TIME_X) && !defined(REMAINING_TIME_Y)
   #if ALL(SHOW_ELAPSED_TIME, SHOW_REMAINING_TIME)
-    #define REMAINING_TIME_Y        354
+    #define REMAINING_TIME_Y        352
   #elif ENABLED(SHOW_REMAINING_TIME)
-    #define REMAINING_TIME_Y        388
+    #define REMAINING_TIME_Y        386
   #endif
 
   #define REMAINING_TIME_H          29
@@ -235,19 +235,19 @@
   #define PROGRESS_BAR_W            TFT_WIDTH - 8
   #define PROGRESS_BAR_H            12
   #define PROGRESS_BAR_X            4
-  #define PROGRESS_BAR_Y            422
+  #define PROGRESS_BAR_Y            420
 #endif
 
 #if !defined(STATUS_MESSAGE_W) && !defined(STATUS_MESSAGE_H) && !defined(STATUS_MESSAGE_X) && !defined(STATUS_MESSAGE_Y)
   #define STATUS_MESSAGE_W          TFT_WIDTH
-  #define STATUS_MESSAGE_H          FONT_LINE_HEIGHT
+  #define STATUS_MESSAGE_H          36
   #define STATUS_MESSAGE_X          0
-  #define STATUS_MESSAGE_Y          440
+  #define STATUS_MESSAGE_Y          438
 #endif
 
 #if !defined(STATUS_MESSAGE_TEXT_X) && !defined(STATUS_MESSAGE_TEXT_Y)
   #define STATUS_MESSAGE_TEXT_X     tft_string.center(STATUS_MESSAGE_W)
-  #define STATUS_MESSAGE_TEXT_Y     VCENTER
+  #define STATUS_MESSAGE_TEXT_Y     tft_string.vcenter(STATUS_MESSAGE_H)
 #endif
 
 // MenuEditItemBase::draw_edit_screen()
@@ -258,10 +258,10 @@
 
 #if ENABLED(AUTO_BED_LEVELING_UBL)
   #if !defined(UBL_X_LABEL_X) && !defined(UBL_X_TEXT_X) && !defined(UBL_Y_LABEL_X) && !defined(UBL_Y_TEXT_X)
-    #define UBL_X_LABEL_X           (TFT_WIDTH / 2 - 120)
-    #define UBL_X_TEXT_X            (TFT_WIDTH / 2 - 16) - tft_string.width()
-    #define UBL_Y_LABEL_X           (TFT_WIDTH / 2 + 16)
-    #define UBL_Y_TEXT_X            (TFT_WIDTH / 2 + 120) - tft_string.width()
+    #define UBL_X_LABEL_X           (TFT_WIDTH / 2 - 136)
+    #define UBL_X_TEXT_X            (TFT_WIDTH / 2 -  24) - tft_string.width()
+    #define UBL_Y_LABEL_X           (TFT_WIDTH / 2 +  24)
+    #define UBL_Y_TEXT_X            (TFT_WIDTH / 2 + 136) - tft_string.width()
   #endif
 
   // MarlinUI::ubl_plot()
