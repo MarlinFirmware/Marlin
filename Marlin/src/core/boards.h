@@ -496,6 +496,7 @@
 #define BOARD_MKS_NEPTUNE_X                 5260  // Elegoo Neptune X
 #define BOARD_MKS_NEPTUNE_3                 5261  // Elegoo Neptune 3
 #define BOARD_MKS_E3D_V2                    5262  // Elegoo Neptune 3 Pro / Plus / Max (STM32F401RC)
+#define BOARD_PRUSA_BUDDY                   5263  // Prusa Buddy (STM32F407VGT6) as found in the Prusa MINI
 
 //
 // Other ARM Cortex-M4
@@ -524,6 +525,7 @@
 #define BOARD_FLY_SUPER8_PRO                6015  // FLY SUPER8 PRO (STM32H723ZG)
 #define BOARD_FYSETC_SPIDER_KING_V1_H723    6016  // FYSETC Spider King v1 (STM32H723ZG)
 #define BOARD_FYSETC_SPIDER_KING_V1_1_H723  6017  // FYSETC Spider King v1.1 (STM32H723ZG)
+#define BOARD_BTT_SCYLLA_V1_0               6018  // BigTreeTech Scylla V1.0 (STM32H723VG)
 
 //
 // Espressif ESP32 WiFi
@@ -542,6 +544,7 @@
 #define BOARD_GODI_CONTROLLER_V1_0    7010  // Godi Controller based on ESP32 32-Bit V1.0
 #define BOARD_MM_JOKER                7011  // MagicMaker JOKER based on ESP32 (with I2S stepper stream)
 #define BOARD_MKS_DLC32_V2_1          7012  // MKS DLC32 V2.1 CNC/laser controller based on ESP32 (with I2S stepper stream)
+#define BOARD_BTT_RODENT_V1           7013  // BigTreeTech Rodent V1.0/V1.1 CNC controller based on ESP32 (with I2S stepper stream)
 
 //
 // SAMD51 ARM Cortex-M4

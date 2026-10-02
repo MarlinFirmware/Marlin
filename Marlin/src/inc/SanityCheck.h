@@ -3029,7 +3029,7 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
 #endif
 
 #if ANY(TFT_GENERIC, MKS_TS35_V2_0, MKS_TS24_R_V2_1, MKS_ROBIN_TFT24, MKS_ROBIN_TFT28, MKS_ROBIN_TFT32, MKS_ROBIN_TFT35, MKS_ROBIN_TFT43, MKS_ROBIN_TFT_V1_1R, \
-        TFT_TRONXY_X5SA, ANYCUBIC_TFT35, ANYCUBIC_TFT35, LONGER_LK_TFT28, ANET_ET4_TFT28, ANET_ET5_TFT35, BIQU_BX_TFT70, BTT_TFT35_SPI_V1_0)
+        TFT_TRONXY_X5SA, ANYCUBIC_TFT35, ANYCUBIC_TFT35, LONGER_LK_TFT28, ANET_ET4_TFT28, ANET_ET5_TFT35, BIQU_BX_TFT70, BTT_TFT35_SPI_V1_0, PRUSA_MINI_LCD)
   #if NONE(TFT_COLOR_UI, TFT_CLASSIC_UI, TFT_LVGL_UI)
     #error "TFT_COLOR_UI, TFT_CLASSIC_UI, TFT_LVGL_UI is required for your TFT. Please enable one."
   #elif MANY(TFT_COLOR_UI, TFT_CLASSIC_UI, TFT_LVGL_UI)
@@ -4615,6 +4615,31 @@ static_assert(_PLUS_TEST(3), "DEFAULT_MAX_ACCELERATION values must be positive."
     #error "DGUS_LCD_UI E3S1PRO requires 2 preheating presets."
   #elif ENABLED(AUTO_BED_LEVELING_UBL) && DISABLED(UBL_SAVE_ACTIVE_ON_M500)
     #warning "Without UBL_SAVE_ACTIVE_ON_M500, your mesh will not be saved when using the touchscreen."
+  #endif
+#endif
+
+/**
+ * Require certain features for DGUS_LCD_UI CR10SPROV2.
+ */
+#if DGUS_UI_IS(CR10SPROV2)
+  #if !(HOTENDS == 1 && EXTRUDERS == 1)
+    #error "DGUS_LCD_UI CR10SPROV2 requires 1 hotend and 1 extruder."
+  #elif !HAS_HEATED_BED
+    #error "DGUS_LCD_UI CR10SPROV2 requires a heated bed."
+  #elif !HAS_FAN
+    #error "DGUS_LCD_UI CR10SPROV2 requires a fan."
+  #elif !HAS_MEDIA
+    #error "DGUS_LCD_UI CR10SPROV2 requires SDSUPPORT."
+  #elif !HAS_BED_PROBE
+    #error "DGUS_LCD_UI CR10SPROV2 requires a bed probe."
+  #elif !HAS_MESH || GRID_MAX_POINTS_X != 5 || GRID_MAX_POINTS_Y != 5
+    #error "DGUS_LCD_UI CR10SPROV2 requires a 5x5 mesh (GRID_MAX_POINTS_X/Y 5)."
+  #elif DISABLED(BABYSTEPPING)
+    #error "DGUS_LCD_UI CR10SPROV2 requires BABYSTEPPING."
+  #elif !defined(PREHEAT_1_TEMP_HOTEND) || !defined(PREHEAT_2_TEMP_HOTEND)
+    #error "DGUS_LCD_UI CR10SPROV2 requires 2 preheating presets."
+  #elif NUM_RUNOUT_SENSORS > 1
+    #error "DGUS_LCD_UI CR10SPROV2 requires NUM_RUNOUT_SENSORS < 2."
   #endif
 #endif
 

@@ -136,6 +136,7 @@ jobs:
         - STM32F401RC_creality
         - STM32F407VE_black
         - I3DBEEZ9_V1
+        - PRUSA_BUDDY
 
         # STM32F7
         - NUCLEO_F767ZI
@@ -144,6 +145,7 @@ jobs:
         # STM32H7
         - BTT_SKR_SE_BX
         - STM32H743VI_btt
+        - STM32H723VG_btt
 
         # STM32F1 (Maple)
         - jgaurora_a5s_a1_maple

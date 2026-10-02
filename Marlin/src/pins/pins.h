@@ -832,6 +832,8 @@
   #include "stm32f4/pins_MKS_NEPTUNE_3.h"           // STM32F4                              env:mks_neptune_3
 #elif MB(MKS_E3D_V2)
   #include "stm32f4/pins_MKS_E3D_V2.h"              // STM32F4                              env:mks_e3d_v2
+#elif MB(PRUSA_BUDDY)
+  #include "stm32f4/pins_PRUSA_BUDDY.h"             // STM32F4                              env:PRUSA_BUDDY env:PRUSA_BUDDY_no_bootloader
 
 //
 // Other ARM Cortex-M4
@@ -880,6 +882,8 @@
   #include "stm32h7/pins_FYSETC_SPIDER_KING_V1_H723.h"   // STM32H7                         env:STM32H723ZG_fysetc
 #elif MB(FYSETC_SPIDER_KING_V1_1_H723)
   #include "stm32h7/pins_FYSETC_SPIDER_KING_V1_1_H723.h" // STM32H7                         env:STM32H723ZG_fysetc
+#elif MB(BTT_SCYLLA_V1_0)
+  #include "stm32h7/pins_BTT_SCYLLA_V1_0.h"              // STM32H7                         env:STM32H723VG_btt
 
 //
 // Espressif ESP32
@@ -911,6 +915,8 @@
   #include "esp32/pins_MM_JOKER.h"                  // ESP32                                env:esp32
 #elif MB(MKS_DLC32_V2_1)
   #include "esp32/pins_MKS_DLC32_V2_1.h"            // ESP32                                env:mks_dlc32_v2_1
+#elif MB(BTT_RODENT_V1)
+  #include "esp32/pins_BTT_RODENT_V1.h"             // ESP32                                env:esp32
 
 //
 // Adafruit Grand Central M4 (SAMD51 ARM Cortex-M4)
