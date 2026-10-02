@@ -108,7 +108,7 @@
   #include "../../../feature/tmc_util.h"
 #endif
 
-#if HAS_GCODE_PREVIEW
+#if PROUI_GCODE_PREVIEW
   #include "gcode_preview.h"
 #endif
 
@@ -647,7 +647,7 @@ void drawPrintDone() {
   title.showCaption(GET_TEXT_F(MSG_PRINT_DONE));
   DWINUI::clearMainArea();
   dwinPrintHeader();
-  #if HAS_GCODE_PREVIEW
+  #if PROUI_GCODE_PREVIEW
     const bool haspreview = preview.valid();
     if (haspreview) {
       preview.show();
@@ -1824,7 +1824,7 @@ void dwinHomingDone() {
 
 // Started a Print Job
 void dwinPrintStarted() {
-  TERN_(HAS_GCODE_PREVIEW, if (hostPrinting()) preview.invalidate());
+  TERN_(PROUI_GCODE_PREVIEW, if (hostPrinting()) preview.invalidate());
   TERN_(SET_PROGRESS_PERCENT, ui.progress_reset());
   TERN_(SET_REMAINING_TIME, ui.reset_remaining_time());
   hmiFlag.pause_flag = false;
@@ -1926,7 +1926,7 @@ void dwinSetDataDefaults() {
     TERN_(LED_COLOR_PRESETS, leds.set_default());
     applyLEDColor();
   #endif
-  TERN_(HAS_GCODE_PREVIEW, hmiData.enablePreview = true);
+  TERN_(PROUI_GCODE_PREVIEW, hmiData.enablePreview = true);
   #if HAS_BED_PROBE && DISABLED(BD_SENSOR)
     hmiData.multiple_probing = MULTIPLE_PROBING;
   #endif
@@ -2455,7 +2455,7 @@ void setMoveZ() { hmiValue.axis = Z_AXIS; setPFloatOnClick(Z_MIN_POS, Z_MAX_POS,
 
 #endif // HAS_LOCKSCREEN
 
-#if HAS_GCODE_PREVIEW
+#if PROUI_GCODE_PREVIEW
 
   void setPreview() { toggleCheckboxLine(hmiData.enablePreview); }
 
@@ -2470,10 +2470,10 @@ void setMoveZ() { hmiValue.axis = Z_AXIS; setPFloatOnClick(Z_MIN_POS, Z_MAX_POS,
       hmiReturnScreen();
   }
 
-#endif // HAS_GCODE_PREVIEW
+#endif // PROUI_GCODE_PREVIEW
 
 void gotoConfirmToPrint() {
-  #if HAS_GCODE_PREVIEW
+  #if PROUI_GCODE_PREVIEW
     if (hmiData.enablePreview) {
       gotoPopup(preview.drawFromSD, onClickConfirmToPrint);
       return;
@@ -3354,7 +3354,7 @@ void drawAdvancedSettingsMenu() {
     + ANY(MPC_EDIT_MENU, MPC_AUTOTUNE_MENU)
     + (ENABLED(PIDTEMPBED) && ANY(PID_AUTOTUNE_MENU, PID_EDIT_MENU))
     + TERN0(PRINTCOUNTER, 2)
-    + COUNT_ENABLED(EDITABLE_DISPLAY_TIMEOUT, SOUND_MENU_ITEM, POWER_LOSS_RECOVERY, HAS_GCODE_PREVIEW, PROUI_MEDIASORT)
+    + COUNT_ENABLED(EDITABLE_DISPLAY_TIMEOUT, SOUND_MENU_ITEM, POWER_LOSS_RECOVERY, PROUI_GCODE_PREVIEW, PROUI_MEDIASORT)
     + 1
     + TERN0(HAS_LCD_BRIGHTNESS, 2)
     + ENABLED(CASE_LIGHT_MENU)
@@ -3394,7 +3394,7 @@ void drawAdvancedSettingsMenu() {
     #if ENABLED(POWER_LOSS_RECOVERY)
       EDIT_ITEM(ICON_Pwrlossr, MSG_OUTAGE_RECOVERY, onDrawChkbMenu, setPwrLossr, &recovery.enabled);
     #endif
-    #if HAS_GCODE_PREVIEW
+    #if PROUI_GCODE_PREVIEW
       EDIT_ITEM(ICON_File, MSG_HAS_PREVIEW, onDrawChkbMenu, setPreview, &hmiData.enablePreview);
     #endif
     #if ENABLED(PROUI_MEDIASORT)

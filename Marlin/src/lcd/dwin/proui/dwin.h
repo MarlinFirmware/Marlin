@@ -170,7 +170,7 @@ typedef struct {
   #if ALL(LED_CONTROL_MENU, HAS_COLOR_LEDS)
     LED1Color_t ledColor = defColorLeds;
   #endif
-  #if HAS_GCODE_PREVIEW
+  #if PROUI_GCODE_PREVIEW
     bool enablePreview = true;
   #endif
   #if HAS_BED_PROBE && DISABLED(BD_SENSOR)
