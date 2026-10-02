@@ -117,19 +117,23 @@ namespace {
     out[len] = '\0';
   }
 
+  // Target is 0 or set below current temp
   bool nozzleAtTemp() {
     const celsius_t t = getTargetTemp_celsius(E0);
-    return t && getActualTemp_celsius(E0) >= t - (TEMP_WINDOW);
+    return !t || t <= getActualTemp_celsius(E0) + (TEMP_WINDOW);
   }
 
+  // Target is 0 or set below current temp
   bool bedAtTemp() {
     const celsius_t t = getTargetTemp_celsius(BED);
-    return !t || getActualTemp_celsius(BED) >= t - (TEMP_BED_WINDOW);
+    return !t || t <= getActualTemp_celsius(BED) + (TEMP_BED_WINDOW);
   }
 
+  // Current temp percent of target
   uint8_t heatPercent() {
-    const celsius_t t = getTargetTemp_celsius(E0);
-    return t ? _MIN(getActualTemp_celsius(E0) * 100 / t, 100) : 100;
+    const celsius_t t = getTargetTemp_celsius(E0),
+                    c = getActualTemp_celsius(E0);
+    return c >= t ? 100 : c * 100 / t;
   }
 
 } // namespace

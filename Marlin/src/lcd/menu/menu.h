@@ -30,6 +30,7 @@
 extern int8_t encoderLine, encoderTopLine, screen_items;
 
 void scroll_screen(const uint8_t limit, const bool is_menu);
+void scroll_screen_end();
 
 typedef void (*selectFunc_t)();
 
