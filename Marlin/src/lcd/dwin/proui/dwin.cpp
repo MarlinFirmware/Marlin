@@ -1927,6 +1927,7 @@ void dwinSetDataDefaults() {
     applyLEDColor();
   #endif
   TERN_(HAS_GCODE_PREVIEW, hmiData.enablePreview = true);
+  TERN_(REVERSE_ENCODER_MENU_ITEM, ui.reverse_encoder = false);
   #if HAS_BED_PROBE && DISABLED(BD_SENSOR)
     hmiData.multiple_probing = MULTIPLE_PROBING;
   #endif
@@ -2833,6 +2834,10 @@ void applyMaxAccel() { planner.set_max_acceleration(hmiValue.axis, menuData.valu
   void setAddRecover()    { setPFloatOnClick(-5, 5, UNITFDIGITS); }
 #endif
 
+#if ENABLED(REVERSE_ENCODER_MENU_ITEM)
+  void toggleReverseEncoder() { toggleCheckboxLine(ui.reverse_encoder); }
+#endif
+
 // Special Menuitem Drawing functions =================================================
 
 void onDrawBack(MenuItem* menuitem, int8_t line) {
@@ -3359,6 +3364,7 @@ void drawAdvancedSettingsMenu() {
     + TERN0(HAS_LCD_BRIGHTNESS, 2)
     + ENABLED(CASE_LIGHT_MENU)
     + ENABLED(LED_CONTROL_MENU)
+    + ENABLED(REVERSE_ENCODER_MENU_ITEM)
   );
   checkkey = ID_Menu;
   if (SET_MENU(advancedSettingsMenu, MSG_ADVANCED_SETTINGS, items)) {
@@ -3419,6 +3425,9 @@ void drawAdvancedSettingsMenu() {
     #if ENABLED(LED_CONTROL_MENU)
       enableLiveLedColor = true; // Allow live update of color in control menu
       MENU_ITEM(ICON_LedControl, MSG_LED_CONTROL, onDrawSubMenu, drawLedControlMenu);
+    #endif
+    #if ENABLED(REVERSE_ENCODER_MENU_ITEM)
+      EDIT_ITEM(ICON_Motion, MSG_REVERSE_ENCODER, onDrawChkbMenu, toggleReverseEncoder, &ui.reverse_encoder);
     #endif
   }
   ui.reset_status(true);
