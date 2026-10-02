@@ -480,6 +480,12 @@
   #define MAX_AUTORETRACT 99
 #endif
 
+// FORCE_SOFT_SPI bit-bangs the SD card too. Use LCD_FORCE_SOFT_SPI instead when the
+// panel has its own pins. Soft SPI disables interrupts per byte and breaks TMC serial.
+#if ANY(FORCE_SOFT_SPI, LCD_FORCE_SOFT_SPI)
+  #define LCD_USE_SOFT_SPI 1
+#endif
+
 /**
  * LCD Contrast for Graphical Displays
  */
@@ -2388,7 +2394,6 @@
   #define BED_MAX_TARGET ((BED_MAXTEMP) - (BED_OVERSHOOT))
 #else
   #undef PIDTEMPBED
-  #undef PREHEAT_BEFORE_LEVELING
 #endif
 
 #if HAS_TEMP_COOLER && PIN_EXISTS(COOLER)

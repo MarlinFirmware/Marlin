@@ -113,7 +113,7 @@ bool PersistentStore::access_start() {
       // This must be the first time since power on that we have accessed the storage, or someone
       // loaded and called write_data and never called access_finish.
       // Lets go looking for the slot that holds our configuration.
-      if (eeprom_data_written) DEBUG_ECHOLNPGM("Dangling EEPROM write_data");
+      if (eeprom_data_written) DEBUG_ECHOLN("Dangling EEPROM write_data");
       uint32_t address = FLASH_ADDRESS_START;
       while (address <= FLASH_ADDRESS_END) {
         uint32_t address_value = (*(__IO uint32_t*)address);
@@ -132,7 +132,7 @@ bool PersistentStore::access_start() {
         // load current settings
         uint8_t *eeprom_data = (uint8_t *)SLOT_ADDRESS(current_slot);
         for (int i = 0; i < long(MARLIN_EEPROM_SIZE); i++) ram_eeprom[i] = eeprom_data[i];
-        DEBUG_ECHOLNPGM("EEPROM loaded from slot ", current_slot, ".");
+        DEBUG_ECHOLN("EEPROM loaded from slot ", current_slot, ".");
       }
       eeprom_data_written = false;
     }
@@ -187,9 +187,9 @@ bool PersistentStore::access_finish() {
         hal.isr_on();
         TERN_(HAS_PAUSE_SERVO_OUTPUT, RESUME_SERVO_OUTPUT());
         if (status != HAL_OK) {
-          DEBUG_ECHOLNPGM("HAL_FLASHEx_Erase=", status);
-          DEBUG_ECHOLNPGM("GetError=", HAL_FLASH_GetError());
-          DEBUG_ECHOLNPGM("SectorError=", SectorError);
+          DEBUG_ECHOLN("HAL_FLASHEx_Erase=", status);
+          DEBUG_ECHOLN("GetError=", HAL_FLASH_GetError());
+          DEBUG_ECHOLN("SectorError=", SectorError);
           if (flash_unlocked) {
             HAL_FLASH_Lock();
             flash_unlocked = false;
@@ -223,9 +223,9 @@ bool PersistentStore::access_finish() {
           offset += FLASHWORD_SIZE;
         }
         else {
-          DEBUG_ECHOLNPGM("HAL_FLASH_Program=", status);
-          DEBUG_ECHOLNPGM("GetError=", HAL_FLASH_GetError());
-          DEBUG_ECHOLNPGM("address=", address);
+          DEBUG_ECHOLN("HAL_FLASH_Program=", status);
+          DEBUG_ECHOLN("GetError=", HAL_FLASH_GetError());
+          DEBUG_ECHOLN("address=", address);
           success = false;
           break;
         }
@@ -238,7 +238,7 @@ bool PersistentStore::access_finish() {
 
       if (success) {
         eeprom_data_written = false;
-        DEBUG_ECHOLNPGM("EEPROM saved to slot ", current_slot, ".");
+        DEBUG_ECHOLN("EEPROM saved to slot ", current_slot, ".");
       }
 
       return success;

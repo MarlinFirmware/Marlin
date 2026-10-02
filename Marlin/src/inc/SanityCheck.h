@@ -339,7 +339,7 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
  * LCD Info Screen Style
  */
 #if LCD_INFO_SCREEN_STYLE > 0
-  #if HAS_MARLINUI_U8GLIB || LCD_WIDTH < 20 || LCD_HEIGHT < 4
+  #if !HAS_MARLINUI_HD44780 || LCD_WIDTH < 20 || LCD_HEIGHT < 4
     #error "Alternative LCD_INFO_SCREEN_STYLE requires 20x4 Character LCD."
   #elif LCD_INFO_SCREEN_STYLE > 2
     #error "LCD_INFO_SCREEN_STYLE only has options 0 (Classic), 1 (Průša), and 2 (CNC)."
@@ -3028,8 +3028,8 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
   static_assert(strcmp(STRINGIFY(LCD_LANGUAGE_5), STRINGIFY(LCD_LANGUAGE_4)), "Error: LCD_LANGUAGE_5 (" STRINGIFY(LCD_LANGUAGE) ") cannot be the same as LCD_LANGUAGE_4.");
 #endif
 
-#if ANY(TFT_GENERIC, MKS_TS35_V2_0, MKS_ROBIN_TFT24, MKS_ROBIN_TFT28, MKS_ROBIN_TFT32, MKS_ROBIN_TFT35, MKS_ROBIN_TFT43, MKS_ROBIN_TFT_V1_1R, \
-        TFT_TRONXY_X5SA, ANYCUBIC_TFT35, ANYCUBIC_TFT35, LONGER_LK_TFT28, ANET_ET4_TFT28, ANET_ET5_TFT35, BIQU_BX_TFT70, BTT_TFT35_SPI_V1_0)
+#if ANY(TFT_GENERIC, MKS_TS35_V2_0, MKS_TS24_R_V2_1, MKS_ROBIN_TFT24, MKS_ROBIN_TFT28, MKS_ROBIN_TFT32, MKS_ROBIN_TFT35, MKS_ROBIN_TFT43, MKS_ROBIN_TFT_V1_1R, \
+        TFT_TRONXY_X5SA, ANYCUBIC_TFT35, ANYCUBIC_TFT35, LONGER_LK_TFT28, ANET_ET4_TFT28, ANET_ET5_TFT35, BIQU_BX_TFT70, BTT_TFT35_SPI_V1_0, PRUSA_MINI_LCD)
   #if NONE(TFT_COLOR_UI, TFT_CLASSIC_UI, TFT_LVGL_UI)
     #error "TFT_COLOR_UI, TFT_CLASSIC_UI, TFT_LVGL_UI is required for your TFT. Please enable one."
   #elif MANY(TFT_COLOR_UI, TFT_CLASSIC_UI, TFT_LVGL_UI)
@@ -3202,6 +3202,8 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
     #error "MALYAN_LCD requires LCD_SERIAL_PORT to be defined."
   #elif ENABLED(NEXTION_LCD)
     #error "NEXTION_LCD requires LCD_SERIAL_PORT to be defined."
+  #elif ENABLED(ELEGOO_NEPTUNE_3_TFT)
+    #error "ELEGOO_NEPTUNE_3_TFT requires LCD_SERIAL_PORT to be defined."
   #endif
 #endif
 
@@ -4567,6 +4569,21 @@ static_assert(_PLUS_TEST(3), "DEFAULT_MAX_ACCELERATION values must be positive."
 #endif
 
 /**
+ * Require certain features for ELEGOO_NEPTUNE_3_TFT.
+ */
+#if ENABLED(ELEGOO_NEPTUNE_3_TFT)
+  #if !HAS_MEDIA
+    #error "ELEGOO_NEPTUNE_3_TFT requires SDSUPPORT."
+  #elif DISABLED(AUTO_BED_LEVELING_BILINEAR)
+    #error "ELEGOO_NEPTUNE_3_TFT requires AUTO_BED_LEVELING_BILINEAR."
+  #elif !((GRID_MAX_POINTS_X == 6 && GRID_MAX_POINTS_Y == 6) || (GRID_MAX_POINTS_X == 7 && (GRID_MAX_POINTS_Y == 7 || GRID_MAX_POINTS_Y == 9)))
+    #error "ELEGOO_NEPTUNE_3_TFT requires a 6x6 (Pro), 7x7 (Plus), or 7x9 (Max) bed leveling grid."
+  #elif HOTENDS > 1
+    #error "ELEGOO_NEPTUNE_3_TFT supports only one hotend."
+  #endif
+#endif
+
+/**
  * Require certain features for DGUS_LCD_UI E3S1PRO.
  */
 #if DGUS_UI_IS(E3S1PRO)
@@ -4598,6 +4615,31 @@ static_assert(_PLUS_TEST(3), "DEFAULT_MAX_ACCELERATION values must be positive."
     #error "DGUS_LCD_UI E3S1PRO requires 2 preheating presets."
   #elif ENABLED(AUTO_BED_LEVELING_UBL) && DISABLED(UBL_SAVE_ACTIVE_ON_M500)
     #warning "Without UBL_SAVE_ACTIVE_ON_M500, your mesh will not be saved when using the touchscreen."
+  #endif
+#endif
+
+/**
+ * Require certain features for DGUS_LCD_UI CR10SPROV2.
+ */
+#if DGUS_UI_IS(CR10SPROV2)
+  #if !(HOTENDS == 1 && EXTRUDERS == 1)
+    #error "DGUS_LCD_UI CR10SPROV2 requires 1 hotend and 1 extruder."
+  #elif !HAS_HEATED_BED
+    #error "DGUS_LCD_UI CR10SPROV2 requires a heated bed."
+  #elif !HAS_FAN
+    #error "DGUS_LCD_UI CR10SPROV2 requires a fan."
+  #elif !HAS_MEDIA
+    #error "DGUS_LCD_UI CR10SPROV2 requires SDSUPPORT."
+  #elif !HAS_BED_PROBE
+    #error "DGUS_LCD_UI CR10SPROV2 requires a bed probe."
+  #elif !HAS_MESH || GRID_MAX_POINTS_X != 5 || GRID_MAX_POINTS_Y != 5
+    #error "DGUS_LCD_UI CR10SPROV2 requires a 5x5 mesh (GRID_MAX_POINTS_X/Y 5)."
+  #elif DISABLED(BABYSTEPPING)
+    #error "DGUS_LCD_UI CR10SPROV2 requires BABYSTEPPING."
+  #elif !defined(PREHEAT_1_TEMP_HOTEND) || !defined(PREHEAT_2_TEMP_HOTEND)
+    #error "DGUS_LCD_UI CR10SPROV2 requires 2 preheating presets."
+  #elif NUM_RUNOUT_SENSORS > 1
+    #error "DGUS_LCD_UI CR10SPROV2 requires NUM_RUNOUT_SENSORS < 2."
   #endif
 #endif
 
