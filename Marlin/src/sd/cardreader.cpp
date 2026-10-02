@@ -1056,6 +1056,9 @@ void CardReader::write_command(char * const buf) {
     parent.rewind();
     for (dir_t p; parent.readDir(&p, longFilename) > 0;) {
 
+      // Skip hidden items, e.g., macOS .Spotlight-V100 and .fseventsd
+      if (p.attributes & DIR_ATT_HIDDEN) continue;
+
       // If the item is a dir, recurse into it
       if (DIR_IS_SUBDIR(&p)) {
         // Get the name of the dir for opening
