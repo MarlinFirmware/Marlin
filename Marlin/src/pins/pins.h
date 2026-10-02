@@ -915,6 +915,8 @@
   #include "esp32/pins_MM_JOKER.h"                  // ESP32                                env:esp32
 #elif MB(MKS_DLC32_V2_1)
   #include "esp32/pins_MKS_DLC32_V2_1.h"            // ESP32                                env:mks_dlc32_v2_1
+#elif MB(BTT_RODENT_V1)
+  #include "esp32/pins_BTT_RODENT_V1.h"             // ESP32                                env:esp32
 
 //
 // Adafruit Grand Central M4 (SAMD51 ARM Cortex-M4)
