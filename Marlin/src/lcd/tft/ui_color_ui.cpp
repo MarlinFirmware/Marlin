@@ -74,7 +74,12 @@ void MarlinUI::tft_idle() {
 
   tft.queue.async();
 
-  TERN_(TOUCH_SCREEN, if (tft.queue.is_empty()) touch.idle()); // Touch driver is not DMA-aware, so only check for touch controls after screen drawing is completed
+  #if ENABLED(TOUCH_SCREEN)
+    if (tft.queue.is_empty()) {         // Touch driver is not DMA-aware, so only check for touch controls after screen drawing is completed
+      TERN_(HAS_SIM_TOUCH_RECTS, touch.sim_touch_rects()); // Last stage of drawing: the touch rects overlay
+      touch.idle();
+    }
+  #endif
 }
 
 #if ENABLED(SHOW_BOOTSCREEN)
