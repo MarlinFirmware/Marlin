@@ -102,7 +102,7 @@
 #define TEMP_1_TR_ENABLE_PIN                PF4
 
 // MAX6675 Cold-Junction-Compensated K-Thermocouple to Digital Converter (0°C to +1024°C)
-// https://datasheets.maximintegrated.com/en/ds/MAX6675.pdf
+// https://datasheets.maximintegrated.com/en/ds/max6675.pdf
 
 #define TEMP_0_CS_PIN                       PC4   // max6675 datasheet: /CS pin, found with multimeter, not tested and likely wrong
 #define TEMP_0_SCK_PIN                      PB3   // max6675 datasheet: SCK pin, found with multimeter, not tested
@@ -192,7 +192,7 @@
   #define I2C_SDA_PIN                       PG13
   #define I2C_SCL_PIN                       PG14  // To be confirmed on the Lerdge S, but probably same as the K
   #define MARLIN_EEPROM_SIZE             0x2000U  // 8K
-#else
+#elif ENABLED(EEPROM_SETTINGS)
   #define MARLIN_EEPROM_SIZE              0x800U  // On SD, Limit to 2K, require this amount of RAM
 #endif
 

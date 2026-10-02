@@ -39,26 +39,26 @@
 
 namespace MMU3 {
 
-// On MK3 we cannot do actual power cycle on HW. Instead trigger a hardware reset.
-void power_on() {
-  #if PIN_EXISTS(MMU_RST)
-    OUT_WRITE(MMU_RST_PIN, HIGH);
-  #endif
-  power_reset();
-}
+  // On MK3 we cannot do actual power cycle on HW. Instead trigger a hardware reset.
+  void power_on() {
+    #if PIN_EXISTS(MMU_RST)
+      OUT_WRITE(MMU_RST_PIN, HIGH);
+    #endif
+    power_reset();
+  }
 
-void power_off() {}
+  void power_off() {}
 
-void power_reset() {
-  #if PIN_EXISTS(MMU_RST) // HW - pulse reset pin
-    WRITE(MMU_RST_PIN, LOW);
-    safe_delay(100);
-    WRITE(MMU_RST_PIN, HIGH);
-  #else
-    mmu3.reset(MMU3::Software); // TODO: Needs redesign. This power implementation shouldn't know anything about the MMU itself
-  #endif
-  // otherwise HW reset is not available
-}
+  void power_reset() {
+    #if PIN_EXISTS(MMU_RST) // HW - pulse reset pin
+      WRITE(MMU_RST_PIN, LOW);
+      safe_delay(100);
+      WRITE(MMU_RST_PIN, HIGH);
+    #else
+      mmu3.reset(MMU3::Software); // TODO: Needs redesign. This power implementation shouldn't know anything about the MMU itself
+    #endif
+    // otherwise HW reset is not available
+  }
 
 } // MMU3
 

@@ -35,7 +35,7 @@
  */
 void GcodeSuite::M876() {
 
-  if (parser.seenval('S')) hostui.handle_response((uint8_t)parser.value_int());
+  if (parser.seenval('S')) hostui.handle_response((uint8_t)parser.value_byte());
 
 }
 

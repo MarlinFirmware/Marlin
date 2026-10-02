@@ -22,7 +22,7 @@ const u8g_fntpgm_uint8_t fontpage_2_222_223[45] U8G_FONT_SECTION("fontpage_2_222
   0x05,0x07,0x07,0x06,0x00,0xFE,0x78,0x80,0x70,0x08,0xF0,0x10,0x60};
 
 static const uxg_fontinfo_t g_fontinfo_tr[] PROGMEM = {
-  FONTDATA_ITEM(2, 158, 159, fontpage_2_158_159), // 'Ğ' -- 'ğ'
-  FONTDATA_ITEM(2, 176, 177, fontpage_2_176_177), // 'İ' -- 'ı'
-  FONTDATA_ITEM(2, 222, 223, fontpage_2_222_223), // 'Ş' -- 'ş'
+  FONTDATA_ITEM(2, 158, 159, fontpage_2_158_159), // ' Ğ ' - ' ğ '
+  FONTDATA_ITEM(2, 176, 177, fontpage_2_176_177), // ' İ ' - ' ı '
+  FONTDATA_ITEM(2, 222, 223, fontpage_2_222_223), // ' Ş ' - ' ş '
 };

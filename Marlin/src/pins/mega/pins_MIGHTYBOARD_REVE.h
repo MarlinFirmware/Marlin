@@ -24,7 +24,7 @@
 /**
  * Mightyboard Rev.E pin assignments
  * Schematic: https://github.com/sciguy14/HelioWatcher/blob/master/HelioWatcher%20Circuit/MakerBot%20MightyBoard%20REVE%20Schematic.pdf
- * also works for Rev D boards. It's all rev E despite what the silk screen says
+ * also works for Rev D boards. It's all rev E despite what the silkscreen says.
  */
 
 /**
@@ -183,6 +183,43 @@
 #define CUTOFF_TEST_PIN                       17  // H0
 #define CUTOFF_SR_CHECK_PIN                   70  // G4 (TOSC1)
 
+#if HAS_TMC_UART
+  /**
+   * TMC220x stepper drivers
+   *
+   * Hardware serial communication ports.
+   * If undefined software serial is used according to the pins below
+   */
+  #define X_HARDWARE_SERIAL Serial2
+  #define Y_HARDWARE_SERIAL Serial1
+
+  /**
+   * Software serial
+   */
+
+  #define X_SERIAL_TX_PIN                     16
+  #define X_SERIAL_RX_PIN                     17
+
+  #define Y_SERIAL_TX_PIN                     18
+  #define Y_SERIAL_RX_PIN                     19
+
+  #define Z_SERIAL_TX_PIN                     41
+  #define Z_SERIAL_RX_PIN                     66
+
+  #define E0_SERIAL_TX_PIN                    40
+  #define E0_SERIAL_RX_PIN                    67
+
+  #define E1_SERIAL_TX_PIN                    37
+  #define E1_SERIAL_RX_PIN                    68
+
+#endif // HAS_TMC_UART
+
+//
+// SD Card
+//
+#define SD_SS_PIN                             53  // B0
+#define SD_DETECT_PIN                          9  // H6
+
 //
 // LCD / Controller
 //
@@ -220,10 +257,6 @@
     #define BTN_LEFT                          72  // J2
     #define BTN_RIGHT                         14  // J1
 
-    // Disable encoder
-    #undef BTN_EN1
-    #undef BTN_EN2
-
     #define BEEPER_PIN                         4  // G5
 
     #define STAT_LED_RED_PIN                  32  // C5
@@ -235,40 +268,3 @@
   #define BTN_ENC                     BTN_CENTER
 
 #endif // HAS_WIRED_LCD
-
-//
-// SD Card
-//
-#define SD_SS_PIN                             53  // B0
-#define SD_DETECT_PIN                          9  // H6
-
-#if HAS_TMC_UART
-  /**
-   * TMC220x stepper drivers
-   *
-   * Hardware serial communication ports.
-   * If undefined software serial is used according to the pins below
-   */
-  #define X_HARDWARE_SERIAL Serial2
-  #define Y_HARDWARE_SERIAL Serial1
-
-  /**
-   * Software serial
-   */
-
-  #define X_SERIAL_TX_PIN                     16
-  #define X_SERIAL_RX_PIN                     17
-
-  #define Y_SERIAL_TX_PIN                     18
-  #define Y_SERIAL_RX_PIN                     19
-
-  #define Z_SERIAL_TX_PIN                     41
-  #define Z_SERIAL_RX_PIN                     66
-
-  #define E0_SERIAL_TX_PIN                    40
-  #define E0_SERIAL_RX_PIN                    67
-
-  #define E1_SERIAL_TX_PIN                    37
-  #define E1_SERIAL_RX_PIN                    68
-
-#endif

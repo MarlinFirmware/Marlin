@@ -67,8 +67,8 @@ const u8g_fntpgm_uint8_t fontpage_8_209_209[30] U8G_FONT_SECTION("fontpage_8_209
   0x00,0x05,0x07,0x07,0x06,0x00,0x00,0x50,0x00,0x70,0x88,0xF0,0x80,0x70};
 
 static const uxg_fontinfo_t g_fontinfo_ru[] PROGMEM = {
-  FONTDATA_ITEM(8, 144, 168, fontpage_8_144_168), // 'А' -- 'Ш'
-  FONTDATA_ITEM(8, 171, 173, fontpage_8_171_173), // 'Ы' -- 'Э'
-  FONTDATA_ITEM(8, 175, 207, fontpage_8_175_207), // 'Я' -- 'я'
-  FONTDATA_ITEM(8, 209, 209, fontpage_8_209_209), // 'ё' -- 'ё'
+  FONTDATA_ITEM(8, 144, 168, fontpage_8_144_168), // ' А ' - ' Ш '
+  FONTDATA_ITEM(8, 171, 173, fontpage_8_171_173), // ' Ы ' - ' Э '
+  FONTDATA_ITEM(8, 175, 207, fontpage_8_175_207), // ' Я ' - ' я '
+  FONTDATA_ITEM(8, 209, 209, fontpage_8_209_209), // ' ё ' - ' ё '
 };

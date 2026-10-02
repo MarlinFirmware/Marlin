@@ -114,14 +114,14 @@ constexpr en_clk_sysclk_div_factor_t get_division_factor() {
  * @brief Validate the runtime clocks match the expected values.
  */
 void validate_system_clocks() {
-  #define CLOCK_ASSERT(expected, actual)                  \
-    if (expected != actual) {                             \
-      SERIAL_ECHOPGM(                                     \
-        "Clock Mismatch for " #expected ": "              \
-        "expected ", expected,                            \
-        ", got ", actual                                  \
-        );                                                \
-      CORE_ASSERT_FAIL("Clock Mismatch: " #expected);     \
+  #define CLOCK_ASSERT(expected, actual)              \
+    if (expected != actual) {                         \
+      SERIAL_ECHO(                                    \
+        "Clock Mismatch for " #expected ": "          \
+        "expected ", expected,                        \
+        ", got ", actual                              \
+        );                                            \
+      CORE_ASSERT_FAIL("Clock Mismatch: " #expected); \
     }
 
   update_system_clock_frequencies();
@@ -204,7 +204,7 @@ void core_hook_sysclock_init() {
   power_mode_update_post(F_SYSTEM_CLOCK);
 
   // Verify clocks match expected values (at runtime)
-  #if ENABLED(MARLIN_DEV_MODE) || ENABLED(ALWAYS_VALIDATE_CLOCKS)
+  #if ANY(MARLIN_DEV_MODE, ALWAYS_VALIDATE_CLOCKS)
     validate_system_clocks();
   #endif
 

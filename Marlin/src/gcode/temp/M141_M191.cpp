@@ -35,7 +35,13 @@
 #include "../../lcd/marlinui.h"
 
 /**
- * M141: Set chamber temperature
+ * M141: Set chamber target temperature and return immediately
+ *
+ * Parameters
+ *  S<target> : Target temperature in current units
+ *
+ * With HAS_PREHEAT (material presets are defined)
+ *  I<preset> : Material Preset index
  */
 void GcodeSuite::M141() {
   if (DEBUGGING(DRYRUN)) return;

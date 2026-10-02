@@ -65,6 +65,10 @@ const tImage images[imgCount] = {
   BtnRounded_42x39x4,                                      // imgBtn39Rounded
   Time_Elapsed_32x32x4,                                    // imgTimeElapsed
   Time_Remaining_32x32x4,                                  // imgTimeRemaining
+  #if HAS_CUTTER
+    Cutter_64x64x4,                                        // imgCutter
+    Cutter_On_64x64x4,                                     // imgCutterOn
+  #endif
 };
 
 #endif // HAS_GRAPHICAL_TFT

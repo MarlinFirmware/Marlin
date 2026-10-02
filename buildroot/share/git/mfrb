@@ -1,8 +1,11 @@
 #!/usr/bin/env bash
 #
 # mfrb
+# MF Rebase manually to re-message, merge, drop, etc.
 #
-# Do "git rebase -i" against the repo's "target" branch
+# Does "git rebase -i" against the repo's "target" branch
+#
+# Usually `git rebase -i upstream/bugfix-2.1.x`
 #
 
 MFINFO=$(mfinfo "$@") || exit 1

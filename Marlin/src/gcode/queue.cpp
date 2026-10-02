@@ -41,6 +41,10 @@ GCodeQueue queue;
   #include "../feature/binary_stream.h"
 #endif
 
+#if ENABLED(EXTENSIBLE_UI)
+  #include "../lcd/extui/ui_api.h"
+#endif
+
 #if ENABLED(POWER_LOSS_RECOVERY)
   #include "../feature/powerloss.h"
 #endif
@@ -539,7 +543,7 @@ void GCodeQueue::get_serial_commands() {
         if (command[0] == 'M') switch (command[3]) {
           case '8': if (command[2] == '0' && command[1] == '1') { marlin.end_waiting(); } break;
           case '2': if (command[2] == '1' && command[1] == '1') marlin.kill(FPSTR(M112_KILL_STR), nullptr, true); break;
-          case '0': if (command[1] == '4' && command[2] == '1') quickstop_stepper(); break;
+          case '0': if (command[1] == '4' && command[2] == '1') motion.quickstop_stepper(); break;
         }
 
         #if NO_TIMEOUTS > 0
@@ -570,11 +574,35 @@ void GCodeQueue::get_serial_commands() {
     // Get commands if there are more in the file
     if (!card.isStillFetching()) return;
 
+    #if HAS_SD_DETECT
+      // Abort print if SD card was removed mid-print
+      if (!card.isInserted()) {
+        SERIAL_ERROR_MSG(STR_SD_ERR_CARD_REMOVED, F(STR_PRINT_ABORTED));
+        card.abortFilePrintNow();
+        return;
+      }
+    #endif
+
+    #ifndef SD_MAX_READ_ERRORS
+      #define SD_MAX_READ_ERRORS 5
+    #endif
+
     int sd_count = 0;
+    uint16_t sd_read_errors = 0;
     while (!ring_buffer.full() && !card.eof()) {
       const int16_t n = card.get();
       const bool card_eof = card.eof();
-      if (n < 0 && !card_eof) { SERIAL_ERROR_MSG(STR_SD_ERR_READ); continue; }
+      if (n < 0 && !card_eof) {
+        SERIAL_ERROR_MSG(STR_SD_ERR_READ);
+        if (++sd_read_errors >= SD_MAX_READ_ERRORS) {
+          SERIAL_ERROR_MSG(STR_SD_ERR_TOO_MANY_READ_ERRORS, F(STR_PRINT_ABORTED));
+          card.abortFilePrintNow();
+          TERN_(EXTENSIBLE_UI, ExtUI::onMediaError());
+          break;
+        }
+        continue;
+      }
+      sd_read_errors = 0; // Reset on successful read
 
       CommandLine &command = ring_buffer.commands[ring_buffer.index_w];
       const char sd_char = (char)n;

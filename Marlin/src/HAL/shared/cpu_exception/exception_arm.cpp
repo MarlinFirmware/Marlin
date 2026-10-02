@@ -66,7 +66,7 @@ void * hook_get_usagefault_vector_address(unsigned vtor) { return (void*)(vtor +
 void * hook_get_reserved_vector_address(unsigned vtor)   { return (void*)(vtor + 0x07); }
 
 // Common exception frame for ARM, should work for all ARM CPU
-// Described here (modified for convenience): https://interrupt.memfault.com/blog/cortex-m-fault-debug
+// Described here (modified for convenience): https://interrupt.memfault.com/blog/cortex-m-hardfault-debug
 struct __attribute__((packed)) ContextStateFrame {
   uint32_t r0;
   uint32_t r1;

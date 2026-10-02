@@ -81,6 +81,14 @@ int32_t      MenuEditItemBase::minEditValue,
 screenFunc_t MenuEditItemBase::callbackFunc;
 bool         MenuEditItemBase::liveEdit;
 
+#if ENABLED(TFT_COLOR_UI)
+  #if ENABLED(TOUCH_SCREEN)
+    float    MenuEditItemBase::valueStep;
+  #endif
+  intptr_t   MenuEditItemBase::valueToString;
+  bool       MenuEditItemBase::itemEdit; // = false
+#endif
+
 ////////////////////////////////////////////
 //////// Menu Navigation & History /////////
 ////////////////////////////////////////////
@@ -134,14 +142,16 @@ void MenuEditItemBase::edit_screen(strfunc_t strfunc, loadfunc_t loadfunc) {
 
 // Going to an edit screen sets up some persistent values first
 void MenuEditItemBase::goto_edit_screen(
-  FSTR_P const el,        // Edit label
-  void * const ev,        // Edit value pointer
-  const int32_t minv,     // Encoder minimum
-  const int32_t maxv,     // Encoder maximum
-  const uint32_t ep,      // Initial encoder value
-  const screenFunc_t cs,  // MenuItem_type::draw_edit_screen => MenuEditItemBase::edit()
-  const screenFunc_t cb,  // Callback after edit
-  const bool le           // Flag to call cb() during editing
+    FSTR_P const el       // Edit label
+  , void * const ev       // Edit value pointer
+  , const int32_t minv    // Encoder minimum
+  , const int32_t maxv    // Encoder maximum
+  OPTARG(TFT_COLOR_UI, intptr_t to_string)  // Value-to-string conversion function
+  OPTARG(TFT_COLOR_TOUCH, const float step) // Encoder units per displayed unit
+  , const uint32_t ep     // Initial encoder value
+  , const screenFunc_t cs // MenuItem_type::draw_edit_screen => MenuEditItemBase::edit()
+  , const screenFunc_t cb // Callback after edit
+  , const bool le         // Flag to call cb() during editing
 ) {
   TERN_(HAS_TOUCH_BUTTONS, ui.on_edit_screen = true);
   ui.screen_changed = true;
@@ -151,6 +161,9 @@ void MenuEditItemBase::goto_edit_screen(
   editValue = ev;
   minEditValue = minv;
   maxEditValue = maxv;
+  TERN_(TFT_COLOR_UI, valueToString = to_string);
+  TERN_(TFT_COLOR_TOUCH, valueStep = step);
+  TERN_(TFT_COLOR_TOUCH, reset_edit_screen_state());
   ui.encoderPosition = ep;
   ui.currentScreen = cs;
   callbackFunc = cb;
@@ -191,7 +204,12 @@ void MarlinUI::goto_screen(screenFunc_t screen, const uint16_t encoder/*=0*/, co
       if (on_status_screen())
         doubleclick_expire_ms = millis() + DOUBLECLICK_MAX_INTERVAL;
     }
-    else if (screen == status_screen && currentScreen == menu_main && PENDING(millis(), doubleclick_expire_ms)) {
+    else if (
+      screen == status_screen
+      && currentScreen == menu_main
+      && encoderPosition == 0
+      && PENDING(millis(), doubleclick_expire_ms)
+    ) {
       if (BABYSTEP_ALLOWED())
         screen = TERN(BABYSTEP_ZPROBE_OFFSET, lcd_babystep_zoffset, lcd_babystep_z);
       else {
@@ -296,8 +314,8 @@ void scroll_screen(const uint8_t limit, const bool is_menu) {
 #if HAS_LINE_TO_Z
 
   void line_to_z(const float z) {
-    current_position.z = z;
-    line_to_current_position(manual_feedrate_mm_s.z);
+    motion.position.z = z;
+    motion.goto_current_position(manual_feedrate_mm_s.z);
   }
 
 #endif
@@ -309,7 +327,7 @@ void scroll_screen(const uint8_t limit, const bool is_menu) {
   void lcd_babystep_zoffset() {
     if (ui.use_click()) return ui.goto_previous_screen_no_defer();
     ui.defer_status_screen();
-    const bool do_probe = DISABLED(BABYSTEP_HOTEND_Z_OFFSET) || active_extruder == 0;
+    const bool do_probe = DISABLED(BABYSTEP_HOTEND_Z_OFFSET) || motion.extruder == 0;
     if (ui.encoderPosition) {
       const int16_t babystep_increment = int16_t(ui.encoderPosition) * (BABYSTEP_SIZE_Z);
       ui.encoderPosition = 0;
@@ -317,7 +335,7 @@ void scroll_screen(const uint8_t limit, const bool is_menu) {
       const float diff = planner.mm_per_step[Z_AXIS] * babystep_increment,
                   new_probe_offset = probe.offset.z + diff,
                   new_offs = TERN(BABYSTEP_HOTEND_Z_OFFSET
-                    , do_probe ? new_probe_offset : hotend_offset[active_extruder].z - diff
+                    , do_probe ? new_probe_offset : motion.active_hotend_offset().z - diff
                     , new_probe_offset
                   );
       if (WITHIN(new_offs, PROBE_OFFSET_ZMIN, PROBE_OFFSET_ZMAX)) {
@@ -327,7 +345,7 @@ void scroll_screen(const uint8_t limit, const bool is_menu) {
         if (do_probe)
           probe.offset.z = new_offs;
         else
-          TERN(BABYSTEP_HOTEND_Z_OFFSET, hotend_offset[active_extruder].z = new_offs, NOOP);
+          TERN(BABYSTEP_HOTEND_Z_OFFSET, motion.active_hotend_offset().z = new_offs, NOOP);
 
         ui.refresh(LCDVIEW_CALL_REDRAW_NEXT);
       }
@@ -339,7 +357,7 @@ void scroll_screen(const uint8_t limit, const bool is_menu) {
       }
       else {
         #if ENABLED(BABYSTEP_HOTEND_Z_OFFSET)
-          MenuEditItemBase::draw_edit_screen(GET_TEXT_F(MSG_HOTEND_OFFSET_Z), ftostr54sign(hotend_offset[active_extruder].z));
+          MenuEditItemBase::draw_edit_screen(GET_TEXT_F(MSG_HOTEND_OFFSET_Z), ftostr54sign(motion.active_hotend_offset().z));
         #endif
       }
     }

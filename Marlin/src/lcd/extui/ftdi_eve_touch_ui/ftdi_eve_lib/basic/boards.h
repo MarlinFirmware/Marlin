@@ -64,7 +64,7 @@
 /**
  * Settings for the Haoyu Electronics, 4.3" Graphical LCD Touchscreen, 480x272, SPI, FT800 (FT800CB-HY43B)
  *                                 and   5" Graphical LCD Touchscreen, 480x272, SPI, FT800 (FT800CB-HY50B)
- *  http://www.hotmcu.com/43-graphical-lcd-touchscreen-480x272-spi-ft800-p-111.html?cPath=6_16
+ *  https://www.hotmcu.com/43-graphical-lcd-touchscreen-480x272-spi-ft800-p-111.html?cPath=6_16
  *  http://www.hotmcu.com/5-graphical-lcd-touchscreen-480x272-spi-ft800-p-124.html?cPath=6_16
  * Datasheet:
  *  https://www.hantronix.com/files/data/1278363262430-3.pdf
@@ -90,7 +90,7 @@
 
 /**
  * Settings for the Haoyu Electronics, 5" Graphical LCD Touchscreen, 800x480, SPI, FT810
- *  http://www.hotmcu.com/5-graphical-lcd-touchscreen-800x480-spi-ft810-p-286.html
+ *  https://www.hotmcu.com/5-graphical-lcd-touchscreen-800x480-spi-ft810-p-286.html
  * Datasheet:
  *  https://www.haoyuelectronics.com/Attachment/HY5-LCD-HD/KD50G21-40NT-A1.pdf
  */
@@ -115,7 +115,7 @@
  * Settings for the 4D Systems, 4.3" Embedded SPI Display 480x272, SPI, FT800 (4DLCD-FT843)
  *  https://4dsystems.com.au/4dlcd-ft843
  * Datasheet:
- *  https://4dsystems.com.au/mwdownloads/download/link/id/52/
+ *  https://resources.4dsystems.com.au/datasheets/ft8xx/4DLCD-FT843/4DLCD-FT843_Datasheet_R_1_3.pdf
  */
 #elif defined(LCD_4DSYSTEMS_4DLCD_FT843)
   #if !HAS_RESOLUTION
@@ -159,7 +159,7 @@
  * FYSETC Color LCD
  *  https://www.aliexpress.com/item/4000627651757.html
  * Product information:
- *  https://github.com/FYSETC/TFT81050
+ *  https://github.com/FYSETC/FYSETC-TFT81050
  */
 #elif defined(LCD_FYSETC_TFT81050)
   #if !HAS_RESOLUTION

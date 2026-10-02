@@ -109,7 +109,7 @@ bool SDIO_ReadBlock(uint32_t block, uint8_t *dst) {
   WITH_RETRY(SDIO_READ_RETRIES, {
     en_result_t rc = SDCARD_ReadBlocks(handle, block, 1, dst, SDIO_READ_TIMEOUT);
     if (rc == Ok) return true;
-    printf("SDIO_ReadBlock error (rc=%u; ErrorCode=%lu)\n", rc, handle->u32ErrorCode);
+    printf("SDIO_ReadBlock error (rc=%u; ErrorCode=%" PRIu32 ")\n", rc, handle->u32ErrorCode);
   })
 
   return false;
@@ -122,7 +122,7 @@ bool SDIO_WriteBlock(uint32_t block, const uint8_t *src) {
   WITH_RETRY(SDIO_WRITE_RETRIES, {
     en_result_t rc = SDCARD_WriteBlocks(handle, block, 1, (uint8_t *)src, SDIO_WRITE_TIMEOUT);
     if (rc == Ok) return true;
-    printf("SDIO_WriteBlock error (rc=%u; ErrorCode=%lu)\n", rc, handle->u32ErrorCode);
+    printf("SDIO_WriteBlock error (rc=%u; ErrorCode=%" PRIu32 ")\n", rc, handle->u32ErrorCode);
   })
 
   return false;

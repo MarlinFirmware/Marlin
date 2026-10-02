@@ -33,7 +33,7 @@
 // --------------------------------------------------------------------------
 
 typedef uint32_t hal_timer_t;
-#define HAL_TIMER_TYPE_MAX 0xFFFFFFFFUL
+#define HAL_TIMER_TYPE_MAX hal_timer_t(UINT32_MAX)
 
 #define HAL_TIMER_RATE      F_CPU   // frequency of timers peripherals
 
@@ -56,7 +56,6 @@ typedef uint32_t hal_timer_t;
 #define STEPPER_TIMER_PRESCALE      (CYCLES_PER_MICROSECOND / STEPPER_TIMER_TICKS_PER_US)
 
 #define PULSE_TIMER_RATE            STEPPER_TIMER_RATE                              // (Hz) Frequency of Pulse Timer
-#define PULSE_TIMER_TICKS_PER_US    STEPPER_TIMER_TICKS_PER_US
 #define PULSE_TIMER_PRESCALE        STEPPER_TIMER_PRESCALE
 
 #define ENABLE_STEPPER_DRIVER_INTERRUPT()   HAL_timer_enable_interrupt(MF_TIMER_STEP)
@@ -143,9 +142,8 @@ FORCE_INLINE static void HAL_timer_isr_prologue(const uint8_t timer_num) {
     Rtc * const rtc = timer_config[timer_num].pRtc;
     // Clear interrupt flag
     rtc->MODE0.INTFLAG.reg = RTC_MODE0_INTFLAG_CMP0| RTC_MODE0_INTFLAG_OVF;
-
   }
-  else if (timer_config[timer_num].type == TimerType::tcc){
+  else if (timer_config[timer_num].type == TimerType::tcc) {
     Tcc * const tc = timer_config[timer_num].pTcc;
     // Clear interrupt flag
     tc->INTFLAG.reg = TCC_INTFLAG_OVF;

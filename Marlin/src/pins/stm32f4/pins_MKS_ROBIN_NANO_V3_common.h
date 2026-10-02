@@ -31,10 +31,12 @@
 #define STEP_TIMER 10
 
 // Use one of these or SDCard-based Emulation will be used
-//#define SRAM_EEPROM_EMULATION                   // Use BackSRAM-based EEPROM emulation
-//#define FLASH_EEPROM_EMULATION                  // Use Flash-based EEPROM emulation
-#if ANY(NO_EEPROM_SELECTED, I2C_EEPROM)
+#if NO_EEPROM_SELECTED
   #define I2C_EEPROM
+  //#define SRAM_EEPROM_EMULATION                 // Use BackSRAM-based EEPROM emulation
+  //#define FLASH_EEPROM_EMULATION                // Use Flash-based EEPROM emulation
+#endif
+#if ENABLED(I2C_EEPROM)
   #define MARLIN_EEPROM_SIZE             0x1000U  // 4K
   #define I2C_SCL_PIN                       PB6
   #define I2C_SDA_PIN                       PB7
@@ -210,7 +212,6 @@
 
 //
 // Onboard SD card
-// Detect pin doesn't work when ONBOARD and NO_SD_HOST_DRIVE disabled
 //
 #if SD_CONNECTION_IS(ONBOARD)
   #define ENABLE_SPI3
@@ -218,7 +219,9 @@
   #define SD_SCK_PIN                        PC10
   #define SD_MISO_PIN                       PC11
   #define SD_MOSI_PIN                       PC12
-  #define SD_DETECT_PIN                     PD12
+  #if ENABLED(NO_SD_HOST_DRIVE)
+    #define SD_DETECT_PIN                   PD12  // Detect pin doesn't work with SD Host Drive
+  #endif
 #endif
 
 #define SPI_FLASH
@@ -260,14 +263,22 @@
 #define EXP2_08_PIN                         -1    // RESET
 
 //
+// The EXP2 header is wired to SPI1, whether or not the SD card is on it.
+// Declaring the pins lets a display on this header use hardware SPI.
+//
+#define LCD_HW_SPI_SCK_PIN           EXP2_02_PIN  // PA5
+#define LCD_HW_SPI_MISO_PIN          EXP2_01_PIN  // PA6
+#define LCD_HW_SPI_MOSI_PIN          EXP2_06_PIN  // PA7
+
+//
 // SPI SD Card
 //
 #if SD_CONNECTION_IS(LCD)
   #define ENABLE_SPI1
   #define SD_SS_PIN                  EXP2_04_PIN
-  #define SD_SCK_PIN                 EXP2_02_PIN
-  #define SD_MISO_PIN                EXP2_01_PIN
-  #define SD_MOSI_PIN                EXP2_06_PIN
+  #define SD_SCK_PIN          LCD_HW_SPI_SCK_PIN
+  #define SD_MISO_PIN        LCD_HW_SPI_MISO_PIN
+  #define SD_MOSI_PIN        LCD_HW_SPI_MOSI_PIN
   #define SD_DETECT_PIN              EXP2_07_PIN
 #endif
 

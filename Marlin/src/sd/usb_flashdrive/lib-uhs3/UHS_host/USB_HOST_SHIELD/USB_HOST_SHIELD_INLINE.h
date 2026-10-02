@@ -331,7 +331,7 @@ int16_t UHS_NI MAX3421E_HOST::Init(int16_t mseconds) {
     again:
       MAX3421E_SPI_Settings = SPISettings(spd, MSBFIRST, SPI_MODE0);
     if (reset() == 0) {
-      MAX_HOST_DEBUG(PSTR("Fail SPI speed %lu\r\n"), spd);
+      MAX_HOST_DEBUG(PSTR("Fail SPI speed %" PRIu32 "\r\n"), spd);
       if (spd > 1999999) {
         spd -= 1000000;
         goto again;
@@ -346,7 +346,7 @@ int16_t UHS_NI MAX3421E_HOST::Init(int16_t mseconds) {
         regWr(rGPINPOL, sample_wr);
         sample_rd = regRd(rGPINPOL);
         if (sample_rd != sample_wr) {
-          MAX_HOST_DEBUG(PSTR("Fail SPI speed %lu\r\n"), spd);
+          MAX_HOST_DEBUG(PSTR("Fail SPI speed %" PRIu32 "\r\n"), spd);
           if (spd > 1999999) {
             spd -= 1000000;
             goto again;
@@ -358,7 +358,7 @@ int16_t UHS_NI MAX3421E_HOST::Init(int16_t mseconds) {
       regWr(rGPINPOL, gpinpol_copy);
     }
 
-    MAX_HOST_DEBUG(PSTR("Pass SPI speed %lu\r\n"), spd);
+    MAX_HOST_DEBUG(PSTR("Pass SPI speed %" PRIu32 "\r\n"), spd);
   #endif
 
   if (reset() == 0) { // OSCOKIRQ hasn't asserted in time

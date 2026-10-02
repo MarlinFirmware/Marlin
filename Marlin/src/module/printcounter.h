@@ -35,13 +35,13 @@ struct printStatistics {    // 16 bytes
   //const uint8_t magic;    // Magic header, it will always be 0x16
   uint16_t totalPrints;     // Number of prints
   uint16_t finishedPrints;  // Number of complete prints
-  uint32_t printTime;       // Accumulated printing time
-  uint32_t longestPrint;    // Longest successful print job
+  uint32_t printTime;       // (s) Accumulated printing time
+  uint32_t longestPrint;    // (s) Longest successful print job
   #if HAS_EXTRUDERS
     float  filamentUsed;    // Accumulated filament consumed in mm
   #endif
   #if SERVICE_INTERVAL_1 > 0
-    uint32_t nextService1;  // Service intervals (or placeholders)
+    uint32_t nextService1;  // (s) Service intervals (or placeholders)
   #endif
   #if SERVICE_INTERVAL_2 > 0
     uint32_t nextService2;
@@ -86,7 +86,7 @@ class PrintCounter: public Stopwatch {
      * @details Store the timestamp of the last deltaDuration(), this is
      * required due to the updateInterval cycle.
      */
-    static millis_t lastDuration;
+    static uint32_t lastDuration;
 
     /**
      * @brief Stats were loaded from EEPROM
@@ -102,7 +102,7 @@ class PrintCounter: public Stopwatch {
      * used internally for print statistics accounting is not intended to be a
      * user callable function.
      */
-    static millis_t deltaDuration();
+    static uint32_t deltaDuration();
 
   public:
 

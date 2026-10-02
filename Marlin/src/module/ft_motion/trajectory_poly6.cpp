@@ -30,27 +30,11 @@
 
 Poly6TrajectoryGenerator::Poly6TrajectoryGenerator() {}
 
-void Poly6TrajectoryGenerator::plan(const float initial_speed, const float final_speed, const float acceleration, float nominal_speed, const float distance) {
-  this->initial_speed = initial_speed;
+void Poly6TrajectoryGenerator::plan(const float initial_speed_in, const float final_speed_in, const float acceleration_in, const float nominal_speed_in, const float distance_in) {
+  // Use base class to calculate T1, T2, T3 and basic positions
+  TrapezoidalTrajectoryGenerator::plan(initial_speed_in, final_speed_in, acceleration_in, nominal_speed_in, distance_in);
 
-  // --- Trapezoid timings (unchanged) ---
-  const float invA = 1.0f / acceleration;
-  const float ldiff = distance + 0.5f * invA * (sq(initial_speed) + sq(final_speed));
-
-  T2 = ldiff / nominal_speed - invA * nominal_speed;
-  if (T2 < 0.0f) {
-    T2 = 0.0f;
-    nominal_speed = SQRT(ldiff * acceleration);
-  }
-
-  this->nominal_speed = nominal_speed;
-
-  T1 = (nominal_speed - initial_speed) * invA;
-  T3 = (nominal_speed - final_speed) * invA;
-
-  // Distances at phase boundaries (trapezoid areas)
-  pos_before_coast = 0.5f * (initial_speed + nominal_speed) * T1;
-  pos_after_coast  = pos_before_coast + nominal_speed * T2;
+  const float final_speed = final_speed_in; // just for consistency with the other parameters that otherwise shadow the member variables
 
   // --- Build sextic (in position) for each phase ---
   // We start from a quintic-in-position s5(u) that meets endpoints with a(0)=a(1)=0,
@@ -105,11 +89,6 @@ void Poly6TrajectoryGenerator::plan(const float initial_speed, const float final
 
 }
 
-void Poly6TrajectoryGenerator::planRunout(const float duration) {
-  reset();
-  T2 = duration;
-}
-
 float Poly6TrajectoryGenerator::getDistanceAtTime(const float t) const {
   if (t < T1) {
     // Accel phase: u=t/T1
@@ -117,27 +96,25 @@ float Poly6TrajectoryGenerator::getDistanceAtTime(const float t) const {
     return s5_u(0.0f, initial_speed, T1, acc_c3, acc_c4, acc_c5, u)
          + acc_c6 * K_u(0.0f, initial_speed, T1, u); // K added as pure shape (position domain)
   }
-  else if (t <= (T1 + T2)) {
+  else if (t <= T1_plus_T2) {
     // Coast
-    return pos_before_coast + this->nominal_speed * (t - T1);
+    return pos_before_coast + nominal_speed * (t - T1);
   }
   // Decel phase
-  const float tau = t - (T1 + T2),
+  const float tau = t - T1_plus_T2,
               u = tau / T3;
-  return s5_u(pos_after_coast, this->nominal_speed, T3, dec_c3, dec_c4, dec_c5, u)
-       + dec_c6 * K_u(pos_after_coast, this->nominal_speed, T3, u);
+  return s5_u(pos_after_coast, nominal_speed, T3, dec_c3, dec_c4, dec_c5, u)
+       + dec_c6 * K_u(pos_after_coast, nominal_speed, T3, u);
 }
 
-float Poly6TrajectoryGenerator::getTotalDuration() const { return T1 + T2 + T3; }
-
 void Poly6TrajectoryGenerator::reset() {
-  T1 = T2 = T3 = 0.0f;
-  initial_speed = nominal_speed = 0.0f;
-  pos_before_coast = pos_after_coast = 0.0f;
-
+  // Reset polynomial coefficients
   acc_c3 = acc_c4 = acc_c5 = 0.0f;
   dec_c3 = dec_c4 = dec_c5 = 0.0f;
   acc_c6 = dec_c6 = 0.0f;
+
+  // Call base class reset to handle inherited members
+  TrapezoidalTrajectoryGenerator::reset();
 }
 
 #endif // FTM_POLYS

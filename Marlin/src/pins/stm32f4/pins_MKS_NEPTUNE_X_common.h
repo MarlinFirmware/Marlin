@@ -33,7 +33,7 @@
 // Use one of these or SDCard-based Emulation will be used
 //#define SRAM_EEPROM_EMULATION                   // Use BackSRAM-based EEPROM emulation
 //#define FLASH_EEPROM_EMULATION                  // Use Flash-based EEPROM emulation
-#if EITHER(NO_EEPROM_SELECTED, I2C_EEPROM)
+#if SHALL_USE_EEPROM(I2C_EEPROM)
   #define I2C_EEPROM
   #define MARLIN_EEPROM_SIZE             0x1000U  // 4K
   #define I2C_SCL_PIN                       PB6
@@ -211,7 +211,6 @@
 //
 // Onboard SD card
 //
-// detect pin doesn't work when ONBOARD and NO_SD_HOST_DRIVE disabled
 #if SD_CONNECTION_IS(ONBOARD)
   #define ENABLE_SPI3
   #define SD_SS_PIN                         -1
@@ -219,7 +218,9 @@
   #define SD_SCK_PIN                        PC10
   #define SD_MISO_PIN                       PC11
   #define SD_MOSI_PIN                       PC12
-  #define SD_DETECT_PIN                     PD12
+  #if ENABLED(NO_SD_HOST_DRIVE)
+    #define SD_DETECT_PIN                   PD12  // Detect pin doesn't work with SD Host Drive
+  #endif
 #endif
 
 #define SPI_FLASH

@@ -204,9 +204,9 @@
 // Heated Bed Bang-Bang options
 //
 #if DISABLED(PIDTEMPBED)
-  #define BED_CHECK_INTERVAL 5000   // (ms) Interval between checks in bang-bang control
+  #define BED_CHECK_INTERVAL  5000  // (ms) Interval between checks in bang-bang control
   #if ANY(BED_LIMIT_SWITCHING, PELTIER_BED)
-    #define BED_HYSTERESIS 2        // (°C) Only set the relevant heater state when ABS(T-target) > BED_HYSTERESIS
+    #define BED_LIMIT_HYSTERESIS 2  // (°C) Only set the relevant heater state when ABS(T-target) > BED_LIMIT_HYSTERESIS
   #endif
 #endif
 
@@ -220,9 +220,9 @@
   //#define FAN1_PIN                   -1   // Remove the fan signal on pin P2_04 (example: SKR 1.4 Turbo HE1 plug)
 
   #if DISABLED(PIDTEMPCHAMBER)
-    #define CHAMBER_CHECK_INTERVAL 5000   // (ms) Interval between checks in bang-bang control
+    #define CHAMBER_CHECK_INTERVAL  5000  // (ms) Interval between checks in bang-bang control
     #if ENABLED(CHAMBER_LIMIT_SWITCHING)
-      #define CHAMBER_HYSTERESIS 2        // (°C) Only set the relevant heater state when ABS(T-target) > CHAMBER_HYSTERESIS
+      #define CHAMBER_LIMIT_HYSTERESIS 2  // (°C) Only set the relevant heater state when ABS(T-target) > CHAMBER_LIMIT_HYSTERESIS
     #endif
   #endif
 
@@ -579,6 +579,25 @@
 #define TEMP_SENSOR_AD8495_GAIN   1.0
 
 // @section fans
+
+/**
+ * Part Cooling Fan Pins
+ * Override the default part cooling fan pins for each fan index.
+ * Allows remapping which physical fan pin is used for part cooling.
+ * By default: FAN0 -> FAN0_PIN, FAN1 -> FAN1_PIN, etc.
+ */
+//#define PART_COOLING_FAN0_PIN   FAN0_PIN
+//#define PART_COOLING_FAN1_PIN   FAN1_PIN
+//#define PART_COOLING_FAN2_PIN   FAN2_PIN
+//#define PART_COOLING_FAN3_PIN   FAN3_PIN
+//#define PART_COOLING_FAN4_PIN   FAN4_PIN
+//#define PART_COOLING_FAN5_PIN   FAN5_PIN
+//#define PART_COOLING_FAN6_PIN   FAN6_PIN
+//#define PART_COOLING_FAN7_PIN   FAN7_PIN
+//#define PART_COOLING_FAN8_PIN   FAN8_PIN
+//#define PART_COOLING_FAN9_PIN   FAN9_PIN
+//#define PART_COOLING_FAN10_PIN  FAN10_PIN
+//#define PART_COOLING_FAN11_PIN  FAN11_PIN
 
 /**
  * Controller Fan
@@ -1160,12 +1179,26 @@
 #if ENABLED(FT_MOTION)
   //#define FTM_IS_DEFAULT_MOTION               // Use FT Motion as the factory default?
   //#define FT_MOTION_MENU                      // Provide a MarlinUI menu to set M493 and M494 parameters
-  //#define FTM_HOME_AND_PROBE                  // Use FT Motion for homing / probing. Disable if FT Motion breaks these functions.
+
+  //#define NO_STANDARD_MOTION                  // Disable the standard motion system entirely to save Flash and RAM
+  #if DISABLED(NO_STANDARD_MOTION)
+    //#define FTM_HOME_AND_PROBE                // Use FT Motion for homing / probing. Disable if FT Motion breaks these functions.
+  #endif
 
   //#define FTM_DYNAMIC_FREQ                    // Enable for linear adjustment of XY shaping frequency according to Z or E
   #if ENABLED(FTM_DYNAMIC_FREQ)
     #define FTM_DEFAULT_DYNFREQ_MODE dynFreqMode_DISABLED // Default mode of dynamic frequency calculation. (DISABLED, Z_BASED, MASS_BASED)
   #endif
+
+  // Disable unused shapers if you need more free space
+  #define FTM_SHAPER_ZV
+  #define FTM_SHAPER_ZVD
+  #define FTM_SHAPER_ZVDD
+  #define FTM_SHAPER_ZVDDD
+  #define FTM_SHAPER_EI
+  #define FTM_SHAPER_2HEI
+  #define FTM_SHAPER_3HEI
+  #define FTM_SHAPER_MZV
 
   #define FTM_DEFAULT_SHAPER_X      ftMotionShaper_NONE // Default shaper mode on X axis (NONE, ZV, ZVD, ZVDD, ZVDDD, EI, 2HEI, 3HEI, MZV)
   #define FTM_SHAPING_DEFAULT_FREQ_X   37.0f    // (Hz) Default peak frequency used by input shapers
@@ -1190,8 +1223,6 @@
   #define FTM_SHAPING_ZETA_E            0.03f   // Zeta used by input shapers for E axis
   #define FTM_SHAPING_V_TOL_E           0.05f   // Vibration tolerance used by EI input shapers for E axis
 
-  //#define FTM_RESONANCE_TEST                  // Sine sweep motion for resonance study
-
   //#define FTM_SMOOTHING                       // Smoothing can reduce artifacts and make steppers quieter
                                                 // on sharp corners, but too much will round corners.
   #if ENABLED(FTM_SMOOTHING)
@@ -1206,15 +1237,28 @@
 
   #define FTM_POLYS                             // Disable POLY5/6 to save ~3k of Flash. Preserves TRAPEZOIDAL.
   #if ENABLED(FTM_POLYS)
-    #define FTM_TRAJECTORY_TYPE TRAPEZOIDAL     // Block acceleration profile (TRAPEZOIDAL, POLY5, POLY6)
-                                                // TRAPEZOIDAL: Continuous Velocity. Max acceleration is respected.
-                                                // POLY5:       Like POLY6 with 1.5x but uses less CPU.
-                                                // POLY6:       Continuous Acceleration (aka S_CURVE).
-                                                // POLY trajectories not only reduce resonances without rounding corners, but also
-                                                // reduce extruder strain due to linear advance.
-
     #define FTM_POLY6_ACCELERATION_OVERSHOOT 1.875f // Max acceleration overshoot factor for POLY6 (1.25 to 1.875)
   #endif
+
+  /**
+   * FTM Constant-Jolt Trajectory (7-phase S-curve).
+   * Jolt is the rate of change of acceleration, not related to Marlin's "classic jerk."
+   * Ramps acceleration gradually so max acceleration is limited by max speed and distance traveled.
+   */
+  //#define FTM_CONSTANT_JOLT
+  #if ENABLED(FTM_CONSTANT_JOLT)
+    #define FTM_DEFAULT_JOLT 250.0f         // (m/s³) Default jolt for constant-jolt trajectory.
+                                            // Higher values print faster at the cost of increased resonance and extruder stress
+  #endif
+
+  // Block acceleration profile
+  // :[ 'TRAPEZOIDAL', 'POLY5', 'POLY6', 'CONSTANT_JOLT' ]
+  #define FTM_TRAJECTORY_TYPE TRAPEZOIDAL   //   TRAPEZOIDAL: Continuous Velocity. Max acceleration is respected.
+                                            //         POLY5: Like POLY6 with 1.5x but uses less CPU. Requires FTM_POLYS.
+                                            //         POLY6: Continuous Acceleration (aka S_CURVE). Requires FTM_POLYS.
+                                            // CONSTANT_JOLT: 7-phase S-curve. Requires FTM_CONSTANT_JOLT.
+                                            // POLY trajectories not only reduce resonances without rounding corners, but
+                                            // also reduce extruder strain due to linear advance.
 
   /**
    * Advanced configuration
@@ -1223,6 +1267,25 @@
                                             // The total buffered time in seconds is (FTM_BUFFER_SIZE/FTM_FS)
   #define FTM_FS                     1000   // (Hz) Frequency for trajectory generation.
   #define FTM_MIN_SHAPE_FREQ           20   // (Hz) Minimum shaping frequency, lower consumes more RAM
+
+  /**
+   * TMC2208 / TMC2208_STANDALONE drivers require a brief pause after a DIR change
+   * to prevent a standstill shutdown when using StealthChop (the standalone default).
+   * These options cause FT Motion to delay for > 750µs after a DIR change on a given axis.
+   * Disable only if you are certain that this can never happen with your TMC2208s.
+   */
+  #if AXIS_DRIVER_TYPE_X(TMC2208) || AXIS_DRIVER_TYPE_X(TMC2208_STANDALONE)
+    #define FTM_DIR_CHANGE_HOLD_X
+  #endif
+  #if AXIS_DRIVER_TYPE_Y(TMC2208) || AXIS_DRIVER_TYPE_Y(TMC2208_STANDALONE)
+    #define FTM_DIR_CHANGE_HOLD_Y
+  #endif
+  #if AXIS_DRIVER_TYPE_Z(TMC2208) || AXIS_DRIVER_TYPE_Z(TMC2208_STANDALONE)
+    #define FTM_DIR_CHANGE_HOLD_Z
+  #endif
+  #if HAS_E_DRIVER(TMC2208) || HAS_E_DRIVER(TMC2208_STANDALONE)
+    #define FTM_DIR_CHANGE_HOLD_E
+  #endif
 
 #endif // FT_MOTION
 
@@ -1260,6 +1323,10 @@
   //#define SHAPING_MIN_FREQ  20.0      // (Hz) By default the minimum of the shaping frequencies. Override to affect SRAM usage.
   //#define SHAPING_MAX_STEPRATE 10000  // By default the maximum total step rate of the shaped axes. Override to affect SRAM usage.
   //#define SHAPING_MENU                // Add a menu to the LCD to set shaping parameters.
+#endif
+
+#if ANY(INPUT_SHAPING_X, INPUT_SHAPING_Y, INPUT_SHAPING_Z, FTM_SHAPER_ZV, FTM_SHAPER_ZVD, FTM_SHAPER_ZVDD, FTM_SHAPER_ZVDDD, FTM_SHAPER_EI, FTM_SHAPER_2HEI, FTM_SHAPER_3HEI, FTM_SHAPER_MZV)
+  //#define RESONANCE_TEST              // Sine sweep motion for resonance study
 #endif
 
 // @section motion
@@ -1452,7 +1519,7 @@
 //#define MICROSTEP32 HIGH,LOW,HIGH
 
 // Microstep settings (Requires a board with pins named X_MS1, X_MS2, etc.)
-#define MICROSTEP_MODES { 16, 16, 16, 16, 16, 16 } // [1,2,4,8,16]
+#define MICROSTEP_MODES { 16, 16, 16, 16, 16, 16 } // :[ 1, 2, 4, 8, 16 ]
 
 /**
  * @section stepper motor current
@@ -1512,6 +1579,9 @@
 
 // @section lcd
 
+// Turn off the display blinking that warns about possible accuracy reduction
+//#define DISABLE_REDUCED_ACCURACY_WARNING
+
 #if HAS_MANUAL_MOVE_MENU
   #define MANUAL_FEEDRATE { 50*60, 50*60, 4*60, 2*60 } // (mm/min) Feedrates for manual moves along X, Y, Z, E from panel
   #define FINE_MANUAL_MOVE 0.025    // (mm) Smallest manual move (< 0.1mm) applying to Z on most machines
@@ -1536,52 +1606,61 @@
   #define FEEDRATE_CHANGE_BEEP_FREQUENCY 440
 #endif
 
-/**
- * Probe Offset Wizard
- * Add a Probe Z Offset calibration option to the LCD menu.
- * Use this helper to get a perfect 'M851 Z' probe offset.
- * When launched this powerful wizard:
- *  - Measures the bed height at the configured position with the probe.
- *  - Moves the nozzle to the same position for a "paper" measurement.
- *  - The difference is used to set the probe Z offset.
- */
-#if HAS_BED_PROBE && ANY(HAS_MARLINUI_MENU, HAS_TFT_LVGL_UI)
-  //#define PROBE_OFFSET_WIZARD
-  #if ENABLED(PROBE_OFFSET_WIZARD)
-    /**
-     * Enable to init the Probe Z-Offset when starting the Wizard.
-     * Use a height slightly above the estimated nozzle-to-probe Z offset.
-     * For example, with an offset of -5, consider a starting height of -4.
-     */
-    //#define PROBE_OFFSET_WIZARD_START_Z -4.0
+#if HAS_BED_PROBE
 
-    // Set a convenient position to do the calibration (probing point and nozzle/bed-distance)
-    //#define PROBE_OFFSET_WIZARD_XY_POS { X_CENTER, Y_CENTER }
+  #if HAS_MARLINUI_MENU
+    #define PROBE_DEPLOY_STOW_MENU    // Show Deploy / Stow Probe options in the Motion menu.
   #endif
-#endif
 
-#if HAS_MARLINUI_MENU
-
-  #if HAS_BED_PROBE
-
-    // Show Deploy / Stow Probe options in the Motion menu.
-    #define PROBE_DEPLOY_STOW_MENU
-
-    // Add calibration in the Probe Offsets menu to compensate for X-axis twist.
-    //#define X_AXIS_TWIST_COMPENSATION
-    #if ENABLED(X_AXIS_TWIST_COMPENSATION)
+  /**
+   * Probe Offset Wizard
+   * Add a Probe Z Offset calibration option to the LCD menu.
+   * Use this helper to get a perfect 'M851 Z' probe offset.
+   * When launched this powerful wizard:
+   *  - Measures the bed height at the configured position with the probe.
+   *  - Moves the nozzle to the same position for a "paper" measurement.
+   *  - The difference is used to set the probe Z offset.
+   */
+  #if ANY(HAS_MARLINUI_MENU, HAS_TFT_LVGL_UI)
+    //#define PROBE_OFFSET_WIZARD
+    #if ENABLED(PROBE_OFFSET_WIZARD)
       /**
        * Enable to init the Probe Z-Offset when starting the Wizard.
        * Use a height slightly above the estimated nozzle-to-probe Z offset.
        * For example, with an offset of -5, consider a starting height of -4.
        */
-      #define XATC_START_Z 0.0
-      #define XATC_MAX_POINTS 3             // Number of points to probe in the wizard
-      #define XATC_Y_POSITION Y_CENTER      // (mm) Y position to probe
-      #define XATC_Z_OFFSETS { 0, 0, 0 }    // Z offsets for X axis sample points
-    #endif
+      //#define PROBE_OFFSET_WIZARD_START_Z -4.0
 
+      // Set a convenient position to do the calibration (probing point and nozzle/bed-distance)
+      //#define PROBE_OFFSET_WIZARD_XY_POS { X_CENTER, Y_CENTER }
+    #endif
   #endif
+
+  /**
+   * M423 X-Axis Twist Compensation
+   * If probing with an off-center probe produces an unreliable mesh, it may be
+   * a twisted X axis. Use this feature to measure and compensate.
+   */
+  //#define X_AXIS_TWIST_COMPENSATION
+  #if ENABLED(X_AXIS_TWIST_COMPENSATION)
+    #define XATC_MAX_POINTS  3          // Number of points to probe in the wizard
+    #define XATC_Z_OFFSETS { 0, 0, 0 }  // Z offsets for X axis sample points
+
+    // Add calibration to the Probe Offsets menu in MarlinUI
+    #if HAS_MARLINUI_MENU
+      /**
+       * Set non-zero to init the Probe Z-Offset when starting the Wizard.
+       * Use an offset slightly higher than the estimated nozzle-to-probe Z offset.
+       * For example, with an offset of -5, consider a starting offset of -4.
+       */
+      #define XATC_START_Z    0.0
+      #define XATC_Y_POSITION Y_CENTER      // (mm) Y position to probe
+    #endif
+  #endif
+
+#endif // HAS_BED_PROBE
+
+#if HAS_MARLINUI_MENU
 
   // Include a page of printer information in the LCD Main Menu
   //#define LCD_INFO_MENU
@@ -1765,6 +1844,12 @@
    */
   //#define SD_SPI_SPEED SPI_HALF_SPEED
 
+  /**
+   * Reinit the LCD after SD Card insert/remove or when entering the menu.
+   * Required for some LCDs that use shared SPI with an external SD Card reader.
+   */
+  #define REINIT_NOISY_LCD
+
   // The standard SD detect circuit reads LOW when media is inserted and HIGH when empty.
   // Enable this option and set to HIGH if your SD cards are incorrectly detected.
   //#define SD_DETECT_STATE HIGH
@@ -1798,6 +1883,14 @@
   #if ENABLED(PRINTER_EVENT_LEDS)
     #define PE_LEDS_COMPLETED_TIME  (30*60) // (seconds) Time to keep the LED "done" color before restoring normal illumination
   #endif
+
+  /**
+   * Priming for the Remaining Time estimate
+   * Long processes at the start of a G-code file can skew the Remaining Time estimate.
+   * Enable these options to start this estimation at a later point in the G-code file.
+   */
+  //#define REMAINING_TIME_PRIME      // Provide G-code 'M75 R' to prime the Remaining Time estimate
+  //#define REMAINING_TIME_AUTOPRIME  // Prime the Remaining Time estimate later (e.g., at the end of 'M109')
 
   /**
    * Continue after Power-Loss (Creality3D)
@@ -1865,17 +1958,21 @@
 
   // SD Card Sorting options
   #if ENABLED(SDCARD_SORT_ALPHA)
-    #define SDSORT_REVERSE     false  // Default to sorting file names in reverse order.
-    #define SDSORT_LIMIT       40     // Maximum number of sorted items (10-256). Costs 27 bytes each.
-    #define SDSORT_FOLDERS     -1     // -1=above  0=none  1=below
-    #define SDSORT_GCODE       false  // Enable G-code M34 to set sorting behaviors: M34 S<-1|0|1> F<-1|0|1>
-    #define SDSORT_USES_RAM    false  // Pre-allocate a static array for faster pre-sorting.
-    #define SDSORT_USES_STACK  false  // Prefer the stack for pre-sorting to give back some SRAM. (Negated by next 2 options.)
-    #define SDSORT_CACHE_NAMES false  // Keep sorted items in RAM longer for speedy performance. Most expensive option.
-    #define SDSORT_DYNAMIC_RAM false  // Use dynamic allocation (within SD menus). Least expensive option. Set SDSORT_LIMIT before use!
-    #define SDSORT_CACHE_VFATS 2      // Maximum number of 13-byte VFAT entries to use for sorting.
-                                      // Note: Only affects SCROLL_LONG_FILENAMES with SDSORT_CACHE_NAMES but not SDSORT_DYNAMIC_RAM.
-    #define SDSORT_QUICK       true   // Use Quick Sort as a sorting algorithm. Otherwise use Bubble Sort.
+    #define SDSORT_QUICK           true   // Use Quick Sort as a sorting algorithm. Otherwise use Bubble Sort.
+    #define SDSORT_REVERSE         false  // Default to sorting file names in reverse order.
+    #define SDSORT_LIMIT           40     // Maximum number of sorted items (10-256). Costs 27 bytes each.
+    #define SDSORT_FOLDERS        -1      // -1=above  0=none  1=below
+    #define SDSORT_GCODE           false  // Enable G-code M34 to set sorting behaviors: M34 S<-1|0|1> F<-1|0|1>
+    #define SDSORT_USES_STACK      false  // Prefer the stack for pre-sorting to give back some SRAM. (Negated by next 2 options.)
+    #define SDSORT_USES_RAM        false  // Pre-allocate a static array for faster pre-sorting.
+    #if ENABLED(SDSORT_USES_RAM)
+      #define SDSORT_CACHE_NAMES   false  // Keep sorted items in RAM longer for speedy performance. Most expensive option.
+      #if ENABLED(SDSORT_CACHE_NAMES)
+        #define SDSORT_DYNAMIC_RAM false  // Use dynamic allocation (within SD menus). Least expensive option. Set SDSORT_LIMIT before use!
+        #define SDSORT_CACHE_VFATS 2      // Maximum number of 13-byte VFAT entries to use for sorting.
+                                          // Note: Only affects SCROLL_LONG_FILENAMES with SDSORT_CACHE_NAMES but not SDSORT_DYNAMIC_RAM.
+      #endif
+    #endif
   #endif
 
   // Allow international symbols in long filenames. To display correctly, the
@@ -2007,12 +2104,9 @@
     #define DEFAULT_SHARED_VOLUME USB_FLASH_DRIVE  // :[ 'SD_ONBOARD', 'USB_FLASH_DRIVE' ]
   #endif
 
-  // G-code Preview for TFT Color UI uses image data embedded in G-code files
-  #if ENABLED(TFT_COLOR_UI)
-    //#define GCODE_PREVIEW_JPEG  // Enable JPEG thumbnail decoding
-    //#define GCODE_PREVIEW_PNG   // Enable PNG thumbnail decoding
-    //#define GCODE_PREVIEW_QOI   // Enable QOI thumbnail decoding
-  #endif
+  // Maximum number of consecutive SD card read errors before aborting the print
+  // Prevents infinite loops when reading from SD card with hardware/communication faults
+  #define SD_MAX_READ_ERRORS 5
 
 #endif // HAS_MEDIA
 
@@ -2295,6 +2389,16 @@
   //#define TFT_BTOKMENU_COLOR 0x145F // 00010 100010 11111 Cyan
 #endif
 
+//
+// G-code Preview for TFT Color UI
+// Uses image data embedded in G-code files by your slicer
+//
+#if ALL(TFT_COLOR_UI, HAS_MEDIA)
+  //#define GCODE_PREVIEW_JPEG  // Enable JPEG thumbnail decoding
+  //#define GCODE_PREVIEW_PNG   // Enable PNG thumbnail decoding
+  //#define GCODE_PREVIEW_QOI   // Enable QOI thumbnail decoding
+#endif
+
 /**
  * Display Sleep
  * Enable this option to save energy and prevent OLED pixel burn-in.
@@ -2336,7 +2440,7 @@
   //#define WATCHDOG_RESET_MANUAL
 #endif
 
-// @section lcd
+// @section baby-stepping
 
 /**
  * Babystepping enables movement of the axes by tiny increments without changing
@@ -2589,12 +2693,14 @@
   #endif
 #endif // PTC_PROBE || PTC_BED || PTC_HOTEND
 
-// @section extras
+// @section gcode
 
 //
 // G60/G61 Position Save and Return
 //
 //#define SAVED_POSITIONS 1         // Each saved position slot costs 12 bytes
+
+// @section motion
 
 //
 // G2/G3 Arc Support
@@ -2607,7 +2713,6 @@
   //#define ARC_SEGMENTS_PER_SEC 50   // Use the feedrate to choose the segment length
   #define N_ARC_CORRECTION       25   // Number of interpolated segments between corrections
   //#define ARC_P_CIRCLES             // Enable the 'P' parameter to specify complete circles
-  //#define SF_ARC_FIX                // Enable only if using SkeinForge with "Arc Point" fillet procedure
 #endif
 
 // G5 Bézier Curve Support with XYZE destination and IJPQ offsets
@@ -2626,6 +2731,8 @@
  * Preparing your G-code: https://github.com/colinrgodsey/step-daemon
  */
 //#define DIRECT_STEPPING
+
+// @section calibrate
 
 /**
  * G38 Probe Target
@@ -2748,6 +2855,11 @@
   // Enable this option to collect and display the number
   // of dropped bytes after a file transfer to SD.
   //#define SERIAL_STATS_DROPPED_RX
+
+  // Enable this option to collect and display framing errors.
+  // Framing errors occur when invalid start/stop bits or other
+  // serial protocol violations are detected.
+  //#define SERIAL_STATS_RX_FRAMING_ERRORS
 #endif
 
 // Monitor RX buffer usage
@@ -2775,8 +2887,8 @@
  *
  * Adds support for commands:
  *  S000 : Report State and Position while moving.
- *  P000 : Instant Pause / Hold while moving.
- *  R000 : Resume from Pause / Hold.
+ *  P000 : Instant Pause / Hold while moving. Enable SOFT_FEED_HOLD for soft deceleration.
+ *  R000 : Resume from Pause / Hold. Enable SOFT_FEED_HOLD for soft acceleration.
  *
  * - During Hold all Emergency Parser commands are available, as usual.
  * - Enable NANODLP_Z_SYNC and NANODLP_ALL_AXIS for move command end-state reports.
@@ -2833,7 +2945,7 @@
  */
 //#define EXTRA_FAN_SPEED
 
-// @section gcode
+// @section firmware retraction
 
 /**
  * Firmware-based and LCD-controlled retract
@@ -2888,6 +3000,8 @@
    * Extra G-code to run while executing tool-change commands. Can be used to use an additional
    * stepper motor (e.g., I axis in Configuration.h) to drive the tool-changer.
    */
+  //#define EVENT_GCODE_PARK_T0 "G28 A\nG1 A0"        // Extra G-code to run before tool-change command (if T0 was active)
+  //#define EVENT_GCODE_PARK_T1 "G1 A10"              // Extra G-code to run before tool-change command (if T1 was active)
   //#define EVENT_GCODE_TOOLCHANGE_T0 "G28 A\nG1 A0"  // Extra G-code to run while executing tool-change command T0
   //#define EVENT_GCODE_TOOLCHANGE_T1 "G1 A10"        // Extra G-code to run while executing tool-change command T1
   //#define EVENT_GCODE_TOOLCHANGE_ALWAYS_RUN         // Always execute above G-code sequences. Use with caution!
@@ -3467,7 +3581,7 @@
   //#define MONITOR_DRIVER_STATUS
 
   #if ENABLED(MONITOR_DRIVER_STATUS)
-    #define CURRENT_STEP_DOWN     50  // [mA]
+    #define CURRENT_STEP_DOWN     50  // (mA) Do not exceed the desired minimum current
     #define REPORT_CURRENT_CHANGE
     #define STOP_ON_ERROR
   #endif
@@ -3483,7 +3597,7 @@
    */
   //#define HYBRID_THRESHOLD
 
-  #define X_HYBRID_THRESHOLD     100  // [mm/s]
+  #define X_HYBRID_THRESHOLD     100  // (mm/s)
   #define X2_HYBRID_THRESHOLD    100
   #define Y_HYBRID_THRESHOLD     100
   #define Y2_HYBRID_THRESHOLD    100
@@ -3494,7 +3608,7 @@
   #define I_HYBRID_THRESHOLD       3  // [linear=mm/s, rotational=°/s]
   #define J_HYBRID_THRESHOLD       3  // [linear=mm/s, rotational=°/s]
   #define K_HYBRID_THRESHOLD       3  // [linear=mm/s, rotational=°/s]
-  #define U_HYBRID_THRESHOLD       3  // [mm/s]
+  #define U_HYBRID_THRESHOLD       3  // (mm/s)
   #define V_HYBRID_THRESHOLD       3
   #define W_HYBRID_THRESHOLD       3
   #define E0_HYBRID_THRESHOLD     30
@@ -3553,7 +3667,13 @@
     //#define SPI_ENDSTOPS              // TMC2130, TMC2240, and TMC5160
     //#define IMPROVE_HOMING_RELIABILITY
     //#define SENSORLESS_STALLGUARD_DELAY   0 // (ms) Delay to allow drivers to settle
-  #endif
+
+    #if HAS_MARLINUI_MENU
+      // Convenient homing menu items next to Sensorless Homing edit items
+      //#define SENSORLESS_HOMING_TEST_MENU_ITEMS
+    #endif
+
+  #endif // SENSORLESS_HOMING || SENSORLESS_PROBING
 
   // @section tmc/config
 
@@ -3650,7 +3770,7 @@
   //#define PHOTO_RETRACT_MM   6.5                          // (mm) E retract/recover for the photo move (M240 R S)
 
   // Canon RC-1 or homebrew digital camera trigger
-  // Data from: https://www.doc-diy.net/photo/rc-1_hacked/
+  // Data from: https://web.archive.org/web/20250327153953/www.doc-diy.net/photo/rc-1_hacked/
   //#define PHOTOGRAPH_PIN 23
 
   // Canon Hack Development Kit
@@ -4221,7 +4341,7 @@
     #define BUTTON1_WHEN_PRINTING false     // Button allowed to trigger during printing?
     #define BUTTON1_GCODE         "G28"
     #define BUTTON1_DESC          "Homing"  // Optional string to set the LCD status
-    //#define BUTTON1_IMMEDIATE             // Skip the queue and run the G-code immediately. Rarely needed.
+    //#define BUTTON1_IMMEDIATE             // Skip the queue and execute immediately. Rarely needed.
   #endif
 
   //#define BUTTON2_PIN -1
@@ -4259,12 +4379,12 @@
  * Host Prompt Support enables Marlin to use the host for user prompts so
  * filament runout and other processes can be managed from the host side.
  */
-//#define HOST_ACTION_COMMANDS
+#define HOST_ACTION_COMMANDS
 #if ENABLED(HOST_ACTION_COMMANDS)
   //#define HOST_PAUSE_M76                // Tell the host to pause in response to M76
-  //#define HOST_PROMPT_SUPPORT           // Initiate host prompts to get user feedback
+  #define HOST_PROMPT_SUPPORT             // Initiate host prompts to get user feedback
   #if ENABLED(HOST_PROMPT_SUPPORT)
-    //#define HOST_STATUS_NOTIFICATIONS   // Send some status messages to the host as notifications
+    #define HOST_STATUS_NOTIFICATIONS     // Send some status messages to the host as notifications
   #endif
   //#define HOST_START_MENU_ITEM          // Add a menu item that tells the host to start
   //#define HOST_SHUTDOWN_MENU_ITEM       // Add a menu item that tells the host to shut down
@@ -4287,7 +4407,7 @@
  * Developed by Chris Barr at Aus3D.
  *
  * Wiki: https://wiki.aus3d.com.au/Magnetic_Encoder
- * Github: https://github.com/Aus3D/MagneticEncoder
+ * GitHub: https://github.com/Aus3D/MagneticEncoder
  *
  * Supplier: https://aus3d.com.au/products/magnetic-encoder-module
  * Alternative Supplier: https://reliabuild3d.com/
@@ -4406,15 +4526,38 @@
 #endif
 
 /**
- * Instant freeze / unfreeze functionality
- * Potentially useful for rapid stop that allows being resumed. Halts stepper movement.
- * Note this does NOT pause spindles, lasers, fans, heaters or any other auxiliary device.
- * @section interface
+ * Freeze / Unfreeze
+ *
+ * Pause / Hold that keeps power available and does not stop the spindle can be initiated by
+ * the FREEZE_PIN. Halts instantly (default) or performs a soft feed hold that decelerates and
+ * halts movement at FREEZE_JERK (requires SOFT_FEED_HOLD).
+ * Motion can be resumed by using the FREEZE_PIN.
+ *
+ * NOTE: Controls Laser PWM but does NOT pause Spindle, Fans, Heaters or other devices.
+ * @section freeze
  */
 //#define FREEZE_FEATURE
 #if ENABLED(FREEZE_FEATURE)
-  //#define FREEZE_PIN 41   // Override the default (KILL) pin here
-  #define FREEZE_STATE LOW  // State of pin indicating freeze
+  //#define FREEZE_PIN   -1   // Override the default (KILL) pin here
+  #define FREEZE_STATE  LOW   // State of pin indicating freeze
+#endif
+
+#if ANY(FREEZE_FEATURE, REALTIME_REPORTING_COMMANDS)
+  /**
+   * Command P000 (REALTIME_REPORTING_COMMANDS and EMERGENCY_PARSER) or
+   * FREEZE_PIN (FREEZE_FEATURE) initiates a soft feed hold that keeps
+   * power available and does not stop the spindle.
+   *
+   * The soft feed hold decelerates and halts movement at FREEZE_JERK.
+   * Motion can be resumed with command R000 (requires REALTIME_REPORTING_COMMANDS) or
+   * by using the FREEZE_PIN (requires FREEZE_FEATURE).
+   *
+   * NOTE: Affects Laser PWM but DOES NOT pause Spindle, Fans, Heaters or other devices.
+   */
+  //#define SOFT_FEED_HOLD
+  #if ENABLED(SOFT_FEED_HOLD)
+    #define FREEZE_JERK     2   // (mm/s) Completely halt when motion has decelerated below this value
+  #endif
 #endif
 
 /**
@@ -4481,28 +4624,43 @@
 
 /**
  * Native ESP32 board with WiFi or add-on ESP32 WiFi-101 module
+ *
+ * Enable one or the other. The two are separate implementations sharing no code,
+ * and each has its own extras below.
+ *
+ * WIFISUPPORT covers both an add-on WiFi module wired to the controller and
+ * Marlin's own WiFi on an ESP32 build. ESP3D_WIFISUPPORT is ESP32 only.
  */
 //#define WIFISUPPORT         // Marlin embedded WiFi management. Not needed for simple WiFi serial port.
 //#define ESP3D_WIFISUPPORT   // ESP3D Library WiFi management (https://github.com/luc-github/ESP3DLib)
 
-/**
- * Extras for an ESP32-based motherboard with WIFISUPPORT
- * These options don't apply to add-on WiFi modules based on ESP32 WiFi101.
- */
-#if ANY(WIFISUPPORT, ESP3D_WIFISUPPORT)
+#if ENABLED(WIFISUPPORT)
+  /**
+   * Marlin's own webserver and OTA, implemented in HAL/ESP32/wifi/ and built
+   * only for an ESP32 build of Marlin. With an add-on WiFi module the module
+   * runs its own firmware, so neither option has any effect there.
+   */
   //#define WEBSUPPORT          // Start a webserver (which may include auto-discovery) using SPIFFS
   //#define OTASUPPORT          // Support over-the-air firmware updates
-  //#define WIFI_CUSTOM_COMMAND // Accept feature config commands (e.g., WiFi ESP3D) from the host
 
   /**
-   * To set a default WiFi SSID / Password, create a file called Configuration_Secure.h with
-   * the following defines, customized for your network. This specific file is excluded via
-   * .gitignore to prevent it from accidentally leaking to the public.
+   * The network is set at compile time. To set a default WiFi SSID / Password, create a file
+   * called Configuration_Secure.h with the following defines, customized for your network.
+   * This specific file is excluded via .gitignore to prevent it from accidentally leaking
+   * to the public.
    *
    *   #define WIFI_SSID "WiFi SSID"
    *   #define WIFI_PWD  "WiFi Password"
    */
   //#include "Configuration_Secure.h" // External file with WiFi SSID / Password
+
+#elif ENABLED(ESP3D_WIFISUPPORT)
+  /**
+   * ESP3D brings its own webserver and OTA, so WEBSUPPORT and OTASUPPORT don't apply here.
+   * The network is configured at runtime with '[ESP100]' / '[ESP101]' and stored on the ESP,
+   * so WIFI_SSID / WIFI_PWD don't apply either.
+   */
+  //#define WIFI_CUSTOM_COMMAND // Accept ESP3D '[ESP...]' commands from the host
 #endif
 
 // @section multi-material

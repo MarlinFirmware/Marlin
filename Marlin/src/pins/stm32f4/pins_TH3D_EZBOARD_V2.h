@@ -36,12 +36,11 @@
 #define DISABLE_JTAGSWD                           // Disabling J-tag and Debug via SWD
 
 // Onboard I2C EEPROM
-#if NO_EEPROM_SELECTED
+#if SHALL_USE_EEPROM(I2C_EEPROM)
   #define I2C_EEPROM
   #define MARLIN_EEPROM_SIZE             0x1000U  // 4K
   #define I2C_SCL_PIN                       PB6
   #define I2C_SDA_PIN                       PB7
-  #undef NO_EEPROM_SELECTED
 #endif
 
 //

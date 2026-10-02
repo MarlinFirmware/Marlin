@@ -107,51 +107,35 @@
 //
 #define NEOPIXEL_PIN                          24
 
+// Custom serial pins for RP2040 UART remapping
+#define SERIAL1_TX_PIN                         8
+#define SERIAL1_RX_PIN                         9
+
 /**
  * TMC2208/TMC2209 stepper drivers
  */
 #if HAS_TMC_UART
   /**
    * Hardware serial communication ports.
-   * If undefined software serial is used according to the pins below
    */
-  //#define X_HARDWARE_SERIAL  Serial1
-  //#define X2_HARDWARE_SERIAL Serial1
-  //#define Y_HARDWARE_SERIAL  Serial1
-  //#define Y2_HARDWARE_SERIAL Serial1
-  //#define Z_HARDWARE_SERIAL MSerial1
-  //#define Z2_HARDWARE_SERIAL Serial1
-  //#define E0_HARDWARE_SERIAL Serial1
-  //#define E1_HARDWARE_SERIAL Serial1
-  //#define E2_HARDWARE_SERIAL Serial1
-  //#define E3_HARDWARE_SERIAL Serial1
-  //#define E4_HARDWARE_SERIAL Serial1
+  #define X_HARDWARE_SERIAL  MarlinSerial1
+  #define Y_HARDWARE_SERIAL  MarlinSerial1
+  #define Z_HARDWARE_SERIAL  MarlinSerial1
+  #define E0_HARDWARE_SERIAL MarlinSerial1
 
-  /**
-   * Software serial
-   */
-  #ifndef X_SERIAL_TX_PIN
-    #define X_SERIAL_TX_PIN                    8
+  // Default TMC slave addresses
+  #ifndef X_SLAVE_ADDRESS
+    #define X_SLAVE_ADDRESS                     0
   #endif
-  #ifndef X_SERIAL_RX_PIN
-    #define X_SERIAL_RX_PIN                    9
+  #ifndef Y_SLAVE_ADDRESS
+    #define Y_SLAVE_ADDRESS                     2
   #endif
-  #ifndef Y_SERIAL_TX_PIN
-    #define Y_SERIAL_TX_PIN                    8
+  #ifndef Z_SLAVE_ADDRESS
+    #define Z_SLAVE_ADDRESS                     1
   #endif
-  #ifndef Y_SERIAL_RX_PIN
-    #define Y_SERIAL_RX_PIN                    9
+  #ifndef E0_SLAVE_ADDRESS
+    #define E0_SLAVE_ADDRESS                    3
   #endif
-  #ifndef Z_SERIAL_TX_PIN
-    #define Z_SERIAL_TX_PIN                    8
-  #endif
-  #ifndef Z_SERIAL_RX_PIN
-    #define Z_SERIAL_RX_PIN                    9
-  #endif
-  #ifndef E0_SERIAL_TX_PIN
-    #define E0_SERIAL_TX_PIN                   8
-  #endif
-  #ifndef E0_SERIAL_RX_PIN
-    #define E0_SERIAL_RX_PIN                   9
-  #endif
+
+  #define TMC_BAUD_RATE                115200
 #endif

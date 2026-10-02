@@ -29,7 +29,7 @@ using namespace FTDI;
 using namespace ExtUI;
 using namespace Theme;
 
-#if ANY(MESH_BED_LEVELING, AUTO_BED_LEVELING_UBL)
+#if HAS_MESH
   #define GRID_COLS 3
   #define GRID_ROWS 6
   #define BED_MESH_TITLE_POS BTN_POS(1,1), BTN_SIZE(3,1)

@@ -31,6 +31,23 @@ MARLIN_TEST(gcode, process_parsed_command) {
   suite.process_parsed_command(false);
 }
 
+MARLIN_TEST(gcode, parse_g_code_number_limit) {
+  char max_command[] = "G65535";
+  parser.parse(max_command);
+  TEST_ASSERT_TRUE(parser.is_command('G', UINT16_MAX));
+
+  char overflow_command[] = "G65536";
+  parser.parse(overflow_command);
+  TEST_ASSERT_EQUAL('?', parser.command_letter);
+}
+
+MARLIN_TEST(gcode, reject_m_code_overflow_alias) {
+  char current_command[] = "M65648";
+  parser.parse(current_command);
+  TEST_ASSERT_EQUAL('?', parser.command_letter);
+  TEST_ASSERT_FALSE(parser.is_command('M', 112));
+}
+
 MARLIN_TEST(gcode, parse_g1_xz) {
   char current_command[] = "G0 X10 Z30";
   parser.command_letter = -128;

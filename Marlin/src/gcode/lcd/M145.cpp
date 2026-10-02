@@ -41,7 +41,7 @@
  *   F<fan speed>
  */
 void GcodeSuite::M145() {
-  const uint8_t material = (uint8_t)parser.intval('S');
+  const uint8_t material = (uint8_t)parser.byteval('S');
   if (material >= PREHEAT_COUNT)
     SERIAL_ERROR_MSG(STR_ERR_MATERIAL_INDEX);
   else {

@@ -102,7 +102,7 @@ void AdvancedSettingsMenu::onRedraw(draw_mode_t what) {
       #endif
       .enabled(ENABLED(HAS_MULTI_HOTEND))
       .tag(4) .button(OFFSETS_POS,            GET_TEXT_F(MSG_OFFSETS_MENU))
-      .enabled(ANY(LIN_ADVANCE, HAS_FILAMENT_SENSOR))
+      .enabled(ANY(HAS_LIN_ADVANCE_K, HAS_FILAMENT_SENSOR))
       .tag(11).button(FILAMENT_POS,           GET_TEXT_F(MSG_FILAMENT))
       .tag(12).button(ENDSTOPS_POS,           GET_TEXT_F(MSG_LCD_ENDSTOPS))
       .tag(15).button(DISPLAY_POS,            GET_TEXT_F(MSG_DISPLAY_MENU))
@@ -136,7 +136,7 @@ bool AdvancedSettingsMenu::onTouchEnd(uint8_t tag) {
     #endif
     case  9: GOTO_SCREEN(InterfaceSettingsScreen);  LockScreen::check_passcode(); break;
     case 10: GOTO_SCREEN(RestoreFailsafeDialogBox); LockScreen::check_passcode(); break;
-    #if ANY(LIN_ADVANCE, HAS_FILAMENT_SENSOR)
+    #if HAS_LIN_ADVANCE_K || HAS_FILAMENT_SENSOR
       case 11: GOTO_SCREEN(FilamentMenu); break;
     #endif
     case 12: GOTO_SCREEN(EndstopStatesScreen); break;

@@ -80,15 +80,15 @@ const u8g_fntpgm_uint8_t fontpage_64_166_166[24] U8G_FONT_SECTION("fontpage_64_1
   0x00,0x05,0x01,0x01,0x06,0x00,0x00,0xA8};
 
 static const uxg_fontinfo_t g_fontinfo_el[] PROGMEM = {
-  FONTDATA_ITEM(7, 136, 136, fontpage_7_136_136), // 'Έ' -- 'Έ'
-  FONTDATA_ITEM(7, 145, 149, fontpage_7_145_149), // 'Α' -- 'Ε'
-  FONTDATA_ITEM(7, 151, 157, fontpage_7_151_157), // 'Η' -- 'Ν'
-  FONTDATA_ITEM(7, 159, 161, fontpage_7_159_161), // 'Ο' -- 'Ρ'
-  FONTDATA_ITEM(7, 163, 167, fontpage_7_163_167), // 'Σ' -- 'Χ'
-  FONTDATA_ITEM(7, 172, 175, fontpage_7_172_175), // 'ά' -- 'ί'
-  FONTDATA_ITEM(7, 177, 181, fontpage_7_177_181), // 'α' -- 'ε'
-  FONTDATA_ITEM(7, 183, 199, fontpage_7_183_199), // 'η' -- 'χ'
-  FONTDATA_ITEM(7, 201, 201, fontpage_7_201_201), // 'ω' -- 'ω'
-  FONTDATA_ITEM(7, 204, 206, fontpage_7_204_206), // 'ό' -- 'ώ'
-  FONTDATA_ITEM(64, 166, 166, fontpage_64_166_166), // '…' -- '…'
+  FONTDATA_ITEM(7, 136, 136, fontpage_7_136_136), // ' Έ ' - ' Έ '
+  FONTDATA_ITEM(7, 145, 149, fontpage_7_145_149), // ' Α ' - ' Ε '
+  FONTDATA_ITEM(7, 151, 157, fontpage_7_151_157), // ' Η ' - ' Ν '
+  FONTDATA_ITEM(7, 159, 161, fontpage_7_159_161), // ' Ο ' - ' Ρ '
+  FONTDATA_ITEM(7, 163, 167, fontpage_7_163_167), // ' Σ ' - ' Χ '
+  FONTDATA_ITEM(7, 172, 175, fontpage_7_172_175), // ' ά ' - ' ί '
+  FONTDATA_ITEM(7, 177, 181, fontpage_7_177_181), // ' α ' - ' ε '
+  FONTDATA_ITEM(7, 183, 199, fontpage_7_183_199), // ' η ' - ' χ '
+  FONTDATA_ITEM(7, 201, 201, fontpage_7_201_201), // ' ω ' - ' ω '
+  FONTDATA_ITEM(7, 204, 206, fontpage_7_204_206), // ' ό ' - ' ώ '
+  FONTDATA_ITEM(64, 166, 166, fontpage_64_166_166), // ' … ' - ' … '
 };

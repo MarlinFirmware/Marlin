@@ -38,7 +38,7 @@ const char DGUS_MACHINENAME[] PROGMEM = MACHINE_NAME;
 const char DGUS_MARLINVERSION[] PROGMEM = SHORT_BUILD_VERSION;
 const char DGUS_BOARD[] PROGMEM = BOARD_INFO_NAME;
 const char DGUS_BEDSIZE[] PROGMEM = DGUS_BED_SIZE_STR;
-const char DGUS_WEBSITE[] PROGMEM = "http://marlinfw.org";
+const char DGUS_WEBSITE[] PROGMEM = "https://marlinfw.org";
 const uint16_t DGUS_ZERO = 0;
 
 #define VP_HELPER(ADDR, SIZE, FLAGS, EXTRA, RXHANDLER, TXHANDLER) \

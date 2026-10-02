@@ -349,6 +349,7 @@ void menu_main() {
           SUBMENU(MSG_MEDIA_MENU_SD, MEDIA_MENU_GATEWAY);
         else if (TERN0(SHOW_UNMOUNTED_DRIVES, card.isSDCardInserted()))
           SUBMENU(MSG_MEDIA_MENU_SD, MEDIA_MENU_GATEWAY_SD);
+
         if (card.isFlashDriveMounted())
           SUBMENU(MSG_MEDIA_MENU_USB, MEDIA_MENU_GATEWAY);
         else if (TERN0(SHOW_UNMOUNTED_DRIVES, card.isFlashDriveInserted()))

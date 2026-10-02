@@ -30,17 +30,17 @@
  * it would not make sense to parse G-Code from TMC responses
  */
 constexpr bool serial_handles_emergency(int port) {
-  return false
+  return (false
     #ifdef SERIAL_PORT
-         || (SERIAL_PORT) == port
+      || (SERIAL_PORT) == port
     #endif
     #ifdef SERIAL_PORT_2
-         || (SERIAL_PORT_2) == port
+      || (SERIAL_PORT_2) == port
     #endif
     #ifdef LCD_SERIAL_PORT
-         || (LCD_SERIAL_PORT) == port
+      || (LCD_SERIAL_PORT) == port
     #endif
-      ;
+  );
 }
 
 //
@@ -48,7 +48,7 @@ constexpr bool serial_handles_emergency(int port) {
 //
 
 // serial port where RX and TX use IRQs
-#define DEFINE_IRQ_SERIAL_MARLIN(name, n)      \
+#define DEFINE_IRQ_SERIAL_MARLIN(name, n)    \
   MSerialT name(serial_handles_emergency(n), \
                 &USART##n##_config,          \
                 BOARD_USART##n##_TX_PIN,     \
@@ -57,7 +57,7 @@ constexpr bool serial_handles_emergency(int port) {
 // serial port where RX uses DMA and TX uses IRQs
 // all serial ports use DMA1
 // since there are 4 USARTs and 4 DMA channels, we can use the USART number as the DMA channel
-#define DEFINE_DMA_SERIAL_MARLIN(name, n)      \
+#define DEFINE_DMA_SERIAL_MARLIN(name, n)    \
   MSerialT name(serial_handles_emergency(n), \
                 &USART##n##_config,          \
                 BOARD_USART##n##_TX_PIN,     \
@@ -67,12 +67,17 @@ constexpr bool serial_handles_emergency(int port) {
 
 #define DEFINE_SERIAL_MARLIN(name, n) TERN(SERIAL_DMA, DEFINE_DMA_SERIAL_MARLIN(name, n), DEFINE_IRQ_SERIAL_MARLIN(name, n))
 
-DEFINE_SERIAL_MARLIN(MSerial1, 1);
-DEFINE_SERIAL_MARLIN(MSerial2, 2);
-
-// TODO: remove this warning when SERIAL_DMA has been tested some more
-#if ENABLED(SERIAL_DMA)
-  #warning "SERIAL_DMA may be unstable on HC32F460."
+#if PINS_EXIST(BOARD_USART1_RX, BOARD_USART1_TX)
+  DEFINE_SERIAL_MARLIN(MSerial1, 1);
+#endif
+#if PINS_EXIST(BOARD_USART2_RX, BOARD_USART2_TX)
+  DEFINE_SERIAL_MARLIN(MSerial2, 2);
+#endif
+#if PINS_EXIST(BOARD_USART3_RX, BOARD_USART3_TX)
+  DEFINE_SERIAL_MARLIN(MSerial3, 3);
+#endif
+#if PINS_EXIST(BOARD_USART4_RX, BOARD_USART4_TX)
+  DEFINE_SERIAL_MARLIN(MSerial4, 4);
 #endif
 
 //

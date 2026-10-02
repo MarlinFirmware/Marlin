@@ -136,6 +136,9 @@ static void setWindow(u8g_t *u8g, u8g_dev_t *dev, uint16_t xMin, uint16_t yMin, 
 
 #if HAS_TOUCH_BUTTONS
 
+  #pragma GCC diagnostic push
+  #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+
   static const uint8_t buttonD[] = {
     B01111111,B11111111,B11111111,B11111110,
     B10000000,B00000000,B00000000,B00000001,
@@ -307,6 +310,8 @@ static void setWindow(u8g_t *u8g, u8g_dev_t *dev, uint16_t xMin, uint16_t yMin, 
     }
   }
 
+  #pragma GCC diagnostic pop
+
 #endif // HAS_TOUCH_BUTTONS
 
 // Used to fill RGB565 (16bits) background
@@ -377,7 +382,8 @@ uint8_t u8g_dev_tft_320x240_upscale_from_128x64_fn(u8g_t *u8g, u8g_dev_t *dev, u
       if (msgInitCount) return -1;
       tftio.init();
       tftio.initTFT();
-      TERN_(TOUCH_SCREEN_CALIBRATION, touch_calibration.calibration_reset());
+      // Don't reset touch calibration here. This also runs on reinit_lcd(),
+      // after settings (incl. calibration) are loaded. See MarlinSettings::reset().
       u8g_upscale_clear_lcd(u8g, dev, buffer);
       return 0;
 

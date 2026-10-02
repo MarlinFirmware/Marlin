@@ -27,7 +27,7 @@
 //
 typedef Timer0 *timer_channel_t;
 typedef uint16_t hal_timer_t;
-#define HAL_TIMER_TYPE_MAX 0xFFFFU
+#define HAL_TIMER_TYPE_MAX hal_timer_t(UINT16_MAX)
 
 //
 // Timer instances
@@ -69,9 +69,9 @@ extern Timer0 step_timer;
 #define STEPPER_TIMER_TICKS_PER_US  ((STEPPER_TIMER_RATE) / 1000000UL)        // Integer 3
 
 // Pulse timer (== stepper timer)
-#define MF_TIMER_PULSE            MF_TIMER_STEP
-#define PULSE_TIMER_PRESCALE      STEPPER_TIMER_PRESCALE
-#define PULSE_TIMER_TICKS_PER_US  STEPPER_TIMER_TICKS_PER_US
+#define MF_TIMER_PULSE        MF_TIMER_STEP
+#define PULSE_TIMER_RATE      STEPPER_TIMER_RATE                        // (Hz) Frequency of Pulse Timer
+#define PULSE_TIMER_PRESCALE  STEPPER_TIMER_PRESCALE
 
 //
 // HAL functions

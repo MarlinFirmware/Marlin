@@ -26,26 +26,33 @@
 //
 // uint64-free equivalent of: ((uint64_t)a * b) >> 16
 //
-FORCE_INLINE constexpr uint32_t a_times_b_shift_16(uint32_t a, uint32_t b) {
-  uint32_t hi = a >> 16;
-  uint32_t lo = a & 0xFFFFu;
+FORCE_INLINE constexpr uint32_t a_times_b_shift_16(const uint32_t a, const uint32_t b) {
+  const uint32_t hi = a >> 16, lo = a & 0x0000FFFF;
   return (hi * b) + ((lo * b) >> 16);
 }
-#define FTM_NEVER (UINT16_MAX)                                       // Reserved number to indicate "no ticks in this frame" (FRAME_TICKS_FP+1 would work too)
-constexpr uint32_t FRAME_TICKS = STEPPER_TIMER_RATE / FTM_FS;        // Timer ticks in a frame
-static_assert(FRAME_TICKS < FTM_NEVER, "(STEPPER_TIMER_RATE / FTM_FS) must be < 2^16 (otherwise fixed-point numbers exceed uint16 vars).");
-constexpr uint32_t FTM_Q_INT = 32u - __builtin_clz(FRAME_TICKS + 1); // Bits to represent the max value (duration of a frame, +1 one for FTM_NEVER).
-                                                                     // "clz" counts leading zeroes.
-constexpr uint32_t FTM_Q = 16 - FTM_Q_INT;                           // uint16 interval fractional bits.
-                                                                     // Intervals buffer has fixed point numbers with the point on this position
+
+// Count leading zeroes of v when stored in a 32 bit uint, equivalent to `32 - ceil(log2(v))`
+constexpr int CLZ32(const uint32_t v, const int c=0) {
+  return v ? (TEST32(v, 31)) ? c : CLZ32(v << 1, c + 1) : 32;
+}
+constexpr uint32_t FRAME_TICKS = STEPPER_TIMER_RATE / FTM_FS; // Timer ticks per frame
+constexpr uint32_t FTM_Q_INT = 32u - CLZ32(FRAME_TICKS + 1U); // Bits to represent the integer part of the max value (duration of a frame, +1 one for FTM_NEVER).
+constexpr uint32_t FTM_Q = 16u - FTM_Q_INT;                   // uint16 interval fractional bits.
+                                                              // Intervals buffer has fixed point numbers with the point on this position
 
 // The _FP and _fp suffixes mean the number is in fixed point format with the point at the FTM_Q position.
 // See: https://en.wikipedia.org/wiki/Fixed-point_arithmetic
-// E.g number_fp = number << FTM_Q
-//     number == (number_fp >> FTM_Q)
-constexpr uint32_t ONE_FP = 1 << FTM_Q;                   // Number 1 in fixed point format
+// e.g., number_fp = number << FTM_Q
+//       number == (number_fp >> FTM_Q)
+constexpr uint32_t ONE_FP = 1UL << FTM_Q;                 // Number 1 in fixed point format
 constexpr uint32_t FP_FLOOR_MASK = ~(ONE_FP - 1);         // Bit mask to do FLOOR in fixed point
 constexpr uint32_t FRAME_TICKS_FP = FRAME_TICKS << FTM_Q; // Ticks in a frame in fixed point
+constexpr uint32_t FTM_NEVER = FRAME_TICKS_FP + 1;        // Reserved number to indicate "no ticks in this frame", also max isr wait on empty stepper buffer
+
+// Sanity check
+static_assert(FRAME_TICKS < FTM_NEVER, "(STEPPER_TIMER_RATE / FTM_FS) (" STRINGIFY(STEPPER_TIMER_RATE) " / " STRINGIFY(FTM_FS) ") must be < " STRINGIFY(FTM_NEVER) " to fit 16-bit fixed-point numbers.");
+static_assert(POW(2, 16 - FTM_Q) > FRAME_TICKS, "FRAME_TICKS in Q format should fit in a uint16");
+static_assert(POW(2, 16 - FTM_Q - 1) <= FRAME_TICKS, "A smaller FTM_Q would still alow a FRAME_TICKS in Q format to fit in a uint16");
 
 typedef struct stepper_plan {
   AxisBits dir_bits;
@@ -60,8 +67,7 @@ typedef struct Stepping {
   // ISR part
   //
 
-  AxisBits dir_bits;
-  AxisBits step_bits;
+  AxisBits dir_bits, step_bits;
 
   xyze_ulong_t axis_interval_fp{ LOGICAL_AXIS_LIST_1(FTM_NEVER) };
   xyze_ulong_t ticks_left_per_axis_fp{ LOGICAL_AXIS_LIST_1(FTM_NEVER) };
@@ -71,7 +77,7 @@ typedef struct Stepping {
   // generating the next step pulse. The call is inexpensive:
   //  - no heap, no locks – pure arithmetic on pre-computed data
   FORCE_INLINE uint32_t advance_until_step() {
-    step_bits = 0;
+    step_bits.reset();
     uint32_t ticks_to_wait_fp = 0;
 
     for (;;) {
@@ -133,7 +139,7 @@ typedef struct Stepping {
   }
 
   FORCE_INLINE void reset() {
-    step_bits = 0;
+    step_bits.reset();
     axis_interval_fp = FTM_NEVER;
     ticks_left_per_axis_fp = FTM_NEVER;
     ticks_left_in_frame_fp = 0;
@@ -145,6 +151,8 @@ typedef struct Stepping {
   //
   // Buffering part
   //
+
+  #define FTM_BUFFER_MASK (FTM_BUFFER_SIZE - 1u)
 
   stepper_plan_t stepper_plan_buff[FTM_BUFFER_SIZE];
   uint32_t stepper_plan_tail = 0, stepper_plan_head = 0;
@@ -234,11 +242,20 @@ typedef struct Stepping {
   FORCE_INLINE bool is_busy() {
     return !(is_empty() && ticks_left_in_frame_fp == 0);
   }
+
   FORCE_INLINE bool is_empty() {
     return stepper_plan_head == stepper_plan_tail;
   }
+
   FORCE_INLINE bool is_full() {
     return ((stepper_plan_head + 1) & FTM_BUFFER_MASK) == stepper_plan_tail;
+  }
+
+  // Buffer runtime in milliseconds (ignoring ticks left in current frame)
+  FORCE_INLINE uint16_t buffer_runtime() const {
+    const uint32_t queued_frames = (stepper_plan_head - stepper_plan_tail) & FTM_BUFFER_MASK;
+    const uint32_t queued_ms = queued_frames * (1000UL * FTM_TS);
+    return queued_ms;
   }
 
 } stepping_t;

@@ -40,7 +40,7 @@
  */
 
 typedef uint16_t hal_timer_t;
-#define HAL_TIMER_TYPE_MAX 0xFFFFU
+#define HAL_TIMER_TYPE_MAX hal_timer_t(UINT16_MAX)
 
 #define HAL_TIMER_RATE uint32_t(F_CPU)  // frequency of timers peripherals
 
@@ -80,8 +80,8 @@ typedef uint16_t hal_timer_t;
   //#define MF_TIMER_TEMP       4  // 2->4, Timer 2 for Stepper Current PWM
 #endif
 
-#if MB(BTT_SKR_MINI_E3_V1_0, BTT_SKR_E3_DIP, BTT_SKR_MINI_E3_V1_2, MKS_ROBIN_LITE, MKS_ROBIN_E3D, MKS_ROBIN_E3, VOXELAB_AQUILA)
-  // SKR Mini E3 boards use PA8 as FAN0_PIN, so TIMER 1 is used for Fan PWM.
+#if MB(BTT_SKR_MINI_E3_V1_0, BTT_SKR_E3_DIP, BTT_SKR_MINI_E3_V1_2, MKS_ROBIN_LITE, MKS_ROBIN_E3D, MKS_ROBIN_E3D_V1_1, MKS_ROBIN_E3, MKS_ROBIN_E3_V1_1, VOXELAB_AQUILA)
+  // These boards use PA8 as FAN0_PIN, so TIMER 1 is used for Fan PWM.
   #ifdef STM32_HIGH_DENSITY
     #define MF_TIMER_SERVO0  8  // tone.cpp uses Timer 4
   #else
@@ -103,7 +103,6 @@ typedef uint16_t hal_timer_t;
 #define STEPPER_TIMER_TICKS_PER_US  ((STEPPER_TIMER_RATE) / 1000000UL)              // (MHz) Stepper Timer ticks per µs
 
 #define PULSE_TIMER_RATE            STEPPER_TIMER_RATE                              // (Hz) Frequency of Pulse Timer
-#define PULSE_TIMER_TICKS_PER_US    STEPPER_TIMER_TICKS_PER_US
 #define PULSE_TIMER_PRESCALE        STEPPER_TIMER_PRESCALE
 
 timer_dev* HAL_get_timer_dev(int number);

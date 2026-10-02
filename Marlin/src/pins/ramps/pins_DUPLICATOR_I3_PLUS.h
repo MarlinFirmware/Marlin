@@ -181,5 +181,5 @@
  * ##################################
  *
  * Pictogram by Ludy https://github.com/Ludy87
- * See: https://sebastien.andrivet.com/en/posts/wanhao-duplicator-i3-plus-3d-printer/
+ * See: https://sebastien.andrivet.com/en/posts/wanhao-duplicator-i3-plus-3d-printers/
  */

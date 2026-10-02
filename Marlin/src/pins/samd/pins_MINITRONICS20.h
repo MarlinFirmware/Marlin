@@ -24,6 +24,7 @@
 /**
  * ReprapWorld Minitronics v2.0
  * https://reprap.org/wiki/Minitronics_20
+ * https://www.123-3d.nl/pdf/datasheet_minitronics_20_20181003.pdf
  * 48MHz Atmel SAMD21J18 ARM Cortex-M0+
  */
 

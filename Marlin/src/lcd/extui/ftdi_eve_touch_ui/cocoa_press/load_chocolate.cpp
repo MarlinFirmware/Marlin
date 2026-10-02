@@ -129,12 +129,12 @@ bool LoadChocolateScreen::onTouchEnd(uint8_t tag) {
   return true;
 }
 
-void LoadChocolateScreen::setManualFeedrateAndIncrement(float feedrate_mm_s, float &increment_mm) {
+void LoadChocolateScreen::setManualFeedrateAndIncrement(float fr_mm_s, float &increment_mm) {
   // Compute increment so feedrate so that the tool lags the adjuster when it is
   // being held down, this allows enough margin for the planner to
   // connect segments and even out the motion.
-  ExtUI::setFeedrate_mm_s(feedrate_mm_s);
-  increment_mm = feedrate_mm_s / ((TOUCH_REPEATS_PER_SECOND) * 0.80f);
+  ExtUI::setFeedrate_mm_s(fr_mm_s);
+  increment_mm = fr_mm_s / ((TOUCH_REPEATS_PER_SECOND) * 0.80f);
 }
 
 bool LoadChocolateScreen::onTouchHeld(uint8_t tag) {
