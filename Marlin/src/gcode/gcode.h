@@ -114,11 +114,13 @@
  * M43  - Display pin status, watch pins for changes, watch endstops & toggle LED, Z servo probe test, toggle pins (Requires PINS_DEBUGGING)
  * M48  - Measure Z Probe repeatability: M48 P<points> X<pos> Y<pos> V<level> E<engage> L<legs> S<chizoid>. (Requires Z_MIN_PROBE_REPEATABILITY_TEST)
  *
+ * M72  - Set the Creality Cloud job name. (Requires DGUS_LCD_UI SERMOON_V1)
  * M73  - Set the progress percentage. (Requires SET_PROGRESS_MANUALLY)
  * M75  - Start the print job timer.
  * M76  - Pause the print job timer.
  * M77  - Stop the print job timer.
  * M78  - Show statistical information about the print jobs. (Requires PRINTCOUNTER)
+ * M79  - Creality Cloud WiFi board print status. (Requires DGUS_LCD_UI SERMOON_V1)
  *
  * M80  - Turn on Power Supply. (Requires PSU_CONTROL)
  * M81  - Turn off Power Supply. (Requires PSU_CONTROL)
@@ -730,6 +732,10 @@ private:
     static void M48();
   #endif
 
+  #if DGUS_LCD_UI_SERMOON_V1
+    static void M72();
+  #endif
+
   #if ENABLED(SET_PROGRESS_MANUALLY)
     static void M73();
   #endif
@@ -740,6 +746,10 @@ private:
 
   #if ENABLED(PRINTCOUNTER)
     static void M78();
+  #endif
+
+  #if DGUS_LCD_UI_SERMOON_V1
+    static void M79();
   #endif
 
   #if ENABLED(PSU_CONTROL)

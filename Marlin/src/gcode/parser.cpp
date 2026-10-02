@@ -284,6 +284,7 @@ void GCodeParser::parse(char *p) {
     TERN_(HAS_STATUS_MESSAGE, case 117:)
     TERN_(HAS_RS485_SERIAL, case 485:)
     TERN_(GCODE_MACROS, case 810 ... 819:)
+    TERN_(DGUS_LCD_UI_SERMOON_V1, case 72: case 79:)
     case 118:
       string_arg = unescape_string(p);
       return;
