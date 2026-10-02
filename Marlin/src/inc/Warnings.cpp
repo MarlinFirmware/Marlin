@@ -103,8 +103,8 @@
     #if ANY(WEBSUPPORT, OTASUPPORT)
       #warning "WEBSUPPORT and OTASUPPORT need a native ESP32 motherboard. They do nothing with an add-on WiFi module."
     #endif
-    #if defined(WIFI_SSID) || defined(WIFI_PWD)
-      #warning "WIFI_SSID and WIFI_PWD need a native ESP32 motherboard. An add-on WiFi module configures itself."
+    #if (defined(WIFI_SSID) || defined(WIFI_PWD)) && DISABLED(MKS_WIFI_MODULE)
+      #warning "WIFI_SSID and WIFI_PWD need a native ESP32 motherboard or MKS_WIFI_MODULE. Other add-on WiFi modules configure themselves."
     #endif
   #endif
 #endif

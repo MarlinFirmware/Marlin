@@ -73,6 +73,10 @@
   #include <lvgl.h>
 #endif
 
+#if ENABLED(MKS_WIFI_MODULE)
+  #include "feature/mks_wifi/wifi_module.h"
+#endif
+
 #if HAS_DWIN_E3V2
   #include "lcd/dwin/common/encoder.h"
   #if ENABLED(DWIN_CREALITY_LCD)
@@ -909,6 +913,13 @@ void Marlin::idle(const bool no_stepper_sleep/*=false*/) {
   // Update the LVGL interface
   TERN_(HAS_TFT_LVGL_UI, LV_TASK_HANDLER());
 
+  // Pull G-code and file data from the MKS WiFi module.
+  // With the LVGL UI these are driven by LV_TASK_HANDLER / printer_state_polling.
+  #if ENABLED(MKS_WIFI_MODULE) && !HAS_TFT_LVGL_UI
+    get_wifi_commands();
+    wifi_looping();
+  #endif
+
   IDLE_DONE:
   TERN_(MARLIN_DEV_MODE, idle_depth--);
 
@@ -1688,6 +1699,15 @@ void setup() {
       if (!card.isMounted()) SETUP_RUN(card.mount()); // Mount SD to load graphics and fonts
     #endif
     SETUP_RUN(tft_lvgl_init());
+  #endif
+
+  // Without the LVGL UI nothing else starts the WiFi module
+  #if ENABLED(MKS_WIFI_MODULE) && !HAS_TFT_LVGL_UI
+    SETUP_RUN(mks_esp_wifi_init());
+    #if HAS_MEDIA
+      if (!card.isMounted()) SETUP_RUN(card.mount());  // Mount SD to look for ESP firmware
+      SETUP_RUN(mks_wifi_firmware_update());
+    #endif
   #endif
 
   #if ALL(HAS_WIRED_LCD, SHOW_BOOTSCREEN)
