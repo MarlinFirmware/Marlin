@@ -22,7 +22,7 @@
 #pragma once
 
 /**
- * mmu2_log.h
+ * mmu3_log.h
  */
 
 #include "../../inc/MarlinConfig.h"
