@@ -28,6 +28,7 @@
 #endif
 
 #include "arduino_extras.h"
+#include "Servo.h"
 #include "../../core/macros.h"
 #include "../shared/math_32bit.h"
 #include "../shared/HAL_SPI.h"
