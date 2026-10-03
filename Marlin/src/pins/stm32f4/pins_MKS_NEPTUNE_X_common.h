@@ -187,7 +187,7 @@
 
 // Random Info
 #define USB_SERIAL              -1  // USB Serial
-#define WIFI_SERIAL              3  // USART3
+#define WIFI_SERIAL_PORT         3  // USART3
 #define MKS_WIFI_MODULE_SERIAL   1  // USART1
 #define MKS_WIFI_MODULE_SPI      2  // SPI2
 
