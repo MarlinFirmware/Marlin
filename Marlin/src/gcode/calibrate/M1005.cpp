@@ -56,6 +56,10 @@
   #include "../../feature/host_actions.h"
 #endif
 
+#if ENABLED(EXTENSIBLE_UI)
+  #include "../../lcd/extui/ui_api.h"
+#endif
+
 // Host can only stop printing while command queue is busy with M1005
 #if ALL(HOST_PROMPT_SUPPORT, EMERGENCY_PARSER)
   #define FLC_HOST_STOP 1
@@ -151,6 +155,16 @@ static void flc_abort(const bool canceled=true) {
   flc_heaters_off();
 }
 
+#if ENABLED(FLC_CLEAN_PROMPT)
+  // Wait for click, like M0, while nozzle is hot and parked
+  static void flc_clean_prompt() {
+    LCD_MESSAGE(MSG_FLC_CLEAN_NOZZLE);
+    TERN_(EXTENSIBLE_UI, ExtUI::onUserConfirmRequired(GET_TEXT_F(MSG_FLC_CLEAN_NOZZLE)));
+    TERN_(HOST_PROMPT_SUPPORT, hostui.continue_prompt(GET_TEXT_F(MSG_FLC_CLEAN_NOZZLE)));
+    marlin.wait_for_user_response();
+  }
+#endif
+
 // Extrude line from current position using 'e' mm of filament
 static void flc_line_to(const flc_segment_t &seg, const feedRate_t fr_mm_s) {
   motion.destination = motion.position;
@@ -187,6 +201,7 @@ static float flc_filament_diameter() {
  * With MESH_BED_LEVELING babysteps are added to Mesh Z Offset after printing.
  * Won't start without filament when runout switch is enabled.
  * Nozzle heats at NOZZLE_PARK_POINT. When done it moves to back of travel so print is visible.
+ * Once hot, FLC_CLEAN_PROMPT waits for click so nozzle can be cleaned, and FLC_NOZZLE_WIPE runs G12.
  * Click LCD while heating, click out of babystep screen, or send M108 to stop early.
  * Result is not saved. LCD and host prompt offer to save when done, or use M500.
  *
@@ -329,6 +344,8 @@ void GcodeSuite::M1005() {
       TERN_(HAS_MARLINUI_MENU, ui.capture());
       if (!thermalManager.wait_for_hotend(motion.extruder, false OPTARG(HEATUP_CLICK_CAN_CANCEL, true))) return flc_abort();
       TERN_(HAS_MARLINUI_MENU, ui.release());
+      TERN_(FLC_CLEAN_PROMPT, flc_clean_prompt());
+      TERN_(FLC_NOZZLE_WIPE, process_subcommands_now(F("G12")));
     }
   #endif
 

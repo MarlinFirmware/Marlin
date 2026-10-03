@@ -1623,6 +1623,8 @@
     //#define FLC_LAYER_HEIGHT  0.2   // (mm) Layer height. Default: MESH_TEST_LAYER_HEIGHT or 0.2
     //#define FLC_LINE_WIDTH    0.42  // (mm) Line width. Default: MESH_TEST_NOZZLE_SIZE + 0.02 or 0.42
     //#define FLC_KEEP_HEATERS_ON     // Leave heaters on after printing
+    //#define FLC_CLEAN_PROMPT        // Wait for click after heating so nozzle can be cleaned
+    //#define FLC_NOZZLE_WIPE         // Wipe nozzle with G12 after heating. Requires NOZZLE_CLEAN_FEATURE.
   #endif
 #endif
 

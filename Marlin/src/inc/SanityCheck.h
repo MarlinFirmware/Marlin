@@ -1722,6 +1722,10 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
     #error "FIRST_LAYER_CALIBRATION requires BABYSTEP_ZPROBE_OFFSET so babysteps adjust Probe Z Offset."
   #elif IS_KINEMATIC && DISABLED(DELTA)
     #error "FIRST_LAYER_CALIBRATION only supports Cartesian, Core, and DELTA kinematics."
+  #elif ENABLED(FLC_CLEAN_PROMPT) && !HAS_RESUME_CONTINUE
+    #error "FLC_CLEAN_PROMPT requires an LCD controller or EMERGENCY_PARSER."
+  #elif ENABLED(FLC_NOZZLE_WIPE) && DISABLED(NOZZLE_CLEAN_FEATURE)
+    #error "FLC_NOZZLE_WIPE requires NOZZLE_CLEAN_FEATURE."
   #endif
 #endif
 
