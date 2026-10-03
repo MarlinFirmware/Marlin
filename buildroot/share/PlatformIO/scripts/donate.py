@@ -3,10 +3,11 @@
 # Print a formatted donate block at the end of a successful build.
 # Links are read from .github/FUNDING.yml so they stay in sync with GitHub's Sponsor button.
 #
+import os
 import pioutil
-if pioutil.is_pio_build():
+if not os.environ.get('MARLIN_LESS_NOISE') and pioutil.is_pio_build():
 
-    import os, re, shutil
+    import re, shutil
     from pathlib import Path
     env = pioutil.env
 
