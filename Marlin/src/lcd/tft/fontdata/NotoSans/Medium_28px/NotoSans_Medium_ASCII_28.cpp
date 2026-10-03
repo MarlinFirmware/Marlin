@@ -22,7 +22,7 @@
 
 #include "../../fontdata.h"
 
-#if HAS_GRAPHICAL_TFT && TFT_FONT == UNIFONT
+#if HAS_GRAPHICAL_TFT && TFT_FONT == NOTOSANS
 
 // NotoSans_Medium ASCII 38pt, capital 'A' height: 28px, width: 100%, range: 0x0020-0x007e
 extern const uint8_t NotoSans_Medium_ASCII_28[12031] = {

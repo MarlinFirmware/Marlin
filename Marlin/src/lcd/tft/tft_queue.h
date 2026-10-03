@@ -48,6 +48,7 @@ enum CanvasSubtype : uint8_t {
   CANVAS_ADD_IMAGE,
   CANVAS_ADD_BAR,
   CANVAS_ADD_RECT,
+  CANVAS_ADD_TINY_TEXT,   // Text in the tiny digits font (HAS_TFT_TINY_FONT)
 };
 
 typedef struct __attribute__((__packed__)) {
@@ -141,7 +142,7 @@ class TFT_Queue {
     static void canvas(uint16_t x, uint16_t y, uint16_t width, uint16_t height);
     static void set_background(uint16_t color);
     static void add_text(uint16_t x, uint16_t y, uint16_t color, const uint16_t *string, uint16_t maxWidth);
-    static void add_text(uint16_t x, uint16_t y, uint16_t color, const uint8_t *string, uint16_t maxWidth);
+    static void add_text(uint16_t x, uint16_t y, uint16_t color, const uint8_t *string, uint16_t maxWidth, const CanvasSubtype type=CANVAS_ADD_TEXT);
     static void add_text(uint16_t x, uint16_t y, uint16_t color, const char *string, uint16_t maxWidth) {
       add_text(x, y, color, (uint8_t *)string, maxWidth);
     }

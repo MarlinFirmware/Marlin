@@ -71,6 +71,8 @@
 #include "tft_font.h"
 #include "tft_color.h"
 
+#include "ui_ubl_labels.h"
+
 #ifndef BOOTSCREEN_LOGO_X
   #define BOOTSCREEN_LOGO_X (TFT_WIDTH - BOOTSCREEN_LOGO_W) / 2
 #endif

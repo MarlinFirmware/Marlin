@@ -42,6 +42,7 @@
 
 #define LCODE_cz      _LATIN_EXTENDED_A
 #define LCODE_hr      _LATIN_EXTENDED_A
+#define LCODE_hu      _LATIN_EXTENDED_A
 #define LCODE_pl      _LATIN_EXTENDED_A
 #define LCODE_sk      _LATIN_EXTENDED_A
 #define LCODE_tr      _LATIN_EXTENDED_A
@@ -69,19 +70,19 @@
   #define EXTRA_GLYPHS  73
 #elif _LCODE(_KATAKANA)
   #define FONT_EXTRA    Katakana
-  #define EXTRA_GLYPHS  102
+  #define EXTRA_GLYPHS  106
 #elif _LCODE(_KOREAN)
   #define FONT_EXTRA    Korean
-  #define EXTRA_GLYPHS  110
+  #define EXTRA_GLYPHS  392
 #elif _LCODE(_VIETNAMESE)
   #define FONT_EXTRA    Vietnamese
   #define EXTRA_GLYPHS  107
 #elif _LCODE(_SIMPLIFIED_CHINESE)
   #define FONT_EXTRA    Simplified_Chinese
-  #define EXTRA_GLYPHS  373
+  #define EXTRA_GLYPHS  562
 #elif _LCODE(_TRADITIONAL_CHINESE)
   #define FONT_EXTRA    Traditional_Chinese
-  #define EXTRA_GLYPHS  307
+  #define EXTRA_GLYPHS  558
 #else // Basin Latin (0x0020 - 0x007f) and Latin-1 Supplement (0x0080-0x00ff) characters only
   #define EXTRA_GLYPHS  0
 #endif
@@ -89,6 +90,7 @@
 #undef _LCODE
 #undef LCODE_cz
 #undef LCODE_hr
+#undef LCODE_hu
 #undef LCODE_pl
 #undef LCODE_sk
 #undef LCODE_tr
@@ -111,6 +113,9 @@
   #define FONT_FAMILY       Helvetica
   #ifdef FONT_EXTRA
     #error "Helvetica font does not have symbols required for selected LCD_LANGUAGE."
+  #endif
+  #if ENABLED(TFT_FONT_LARGE)
+    #error "TFT_FONT_LARGE requires TFT_FONT NOTOSANS or UNIFONT."
   #endif
 #else
   #error "Invalid TFT_FONT value."

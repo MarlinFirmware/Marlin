@@ -102,7 +102,7 @@ void drawMessage_P(PGM_P const msg) {
     #else
       TFT_HEIGHT - Y_MARGIN - 29, (TFT_WIDTH / 2) - (BTN_WIDTH / 2) - X_MARGIN
     #endif
-    , FONT_LINE_HEIGHT
+    , _MAX(FONT_LINE_HEIGHT, tft_string.font_height()) // Room for tall scripts, e.g., Vietnamese
   );
   tft.set_background(COLOR_BACKGROUND);
   tft.add_text(0, 0, COLOR_STATUS_MESSAGE, msg);

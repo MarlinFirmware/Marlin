@@ -49,10 +49,17 @@
   #include "../../feature/bedlevel/bedlevel.h"
 #endif
 
-#define BTN_WIDTH  48
-#define BTN_HEIGHT 36
-#define X_MARGIN   15
-#define Y_MARGIN   11
+// Edit screen button metrics (overridable by the UI layout header)
+#ifndef EDIT_BTN_WIDTH
+  #define EDIT_BTN_WIDTH  48
+  #define EDIT_BTN_HEIGHT 36
+  #define EDIT_X_MARGIN   15
+  #define EDIT_Y_MARGIN   11
+#endif
+#define BTN_WIDTH  EDIT_BTN_WIDTH
+#define BTN_HEIGHT EDIT_BTN_HEIGHT
+#define X_MARGIN   EDIT_X_MARGIN
+#define Y_MARGIN   EDIT_Y_MARGIN
 
 void MarlinUI::tft_idle() {
   #if ENABLED(TOUCH_SCREEN)
@@ -67,7 +74,12 @@ void MarlinUI::tft_idle() {
 
   tft.queue.async();
 
-  TERN_(TOUCH_SCREEN, if (tft.queue.is_empty()) touch.idle()); // Touch driver is not DMA-aware, so only check for touch controls after screen drawing is completed
+  #if ENABLED(TOUCH_SCREEN)
+    if (tft.queue.is_empty()) {         // Touch driver is not DMA-aware, so only check for touch controls after screen drawing is completed
+      TERN_(HAS_SIM_TOUCH_RECTS, touch.sim_touch_rects()); // Last stage of drawing: the touch rects overlay
+      touch.idle();
+    }
+  #endif
 }
 
 #if ENABLED(SHOW_BOOTSCREEN)
@@ -353,10 +365,10 @@ void MarlinUI::draw_status_screen() {
   tft.canvas(FEEDRATE_X, FEEDRATE_Y, FEEDRATE_W, FEEDRATE_H);
   tft.set_background(COLOR_BACKGROUND);
   uint16_t color = motion.feedrate_percentage == 100 ? COLOR_RATE_100 : COLOR_RATE_ALTERED;
-  tft.add_image(0, 0, imgFeedRate, color);
+  tft.add_image(FEEDRATE_ICON_X, FEEDRATE_ICON_Y, imgFeedRate, color);
   tft_string.set(i16tostr3rj(motion.feedrate_percentage));
   tft_string.add('%');
-  tft.add_text(36, tft_string.vcenter(30), color, tft_string);
+  tft.add_text(FEEDRATE_TEXT_X, FEEDRATE_TEXT_Y, color, tft_string);
   TERN_(TOUCH_SCREEN, touch.add_control(FEEDRATE, FEEDRATE_X, FEEDRATE_Y, FEEDRATE_W, FEEDRATE_H));
 
   #if HAS_EXTRUDERS
@@ -364,7 +376,7 @@ void MarlinUI::draw_status_screen() {
     tft.canvas(FLOWRATE_X, FLOWRATE_Y, FLOWRATE_W, FLOWRATE_H);
     tft.set_background(COLOR_BACKGROUND);
     color = planner.flow_percentage[0] == 100 ? COLOR_RATE_100 : COLOR_RATE_ALTERED;
-    tft.add_image(FLOWRATE_ICON_X, FLOWRATE_ICON_X, imgFlowRate, color);
+    tft.add_image(FLOWRATE_ICON_X, FLOWRATE_ICON_Y, imgFlowRate, color);
     tft_string.set(i16tostr3rj(planner.flow_percentage[motion.extruder]));
     tft_string.add('%');
     tft.add_text(FLOWRATE_TEXT_X, FLOWRATE_TEXT_Y, color, tft_string);
@@ -928,18 +940,121 @@ void MenuItem_confirm::draw_select_screen(FSTR_P const yes, FSTR_P const no, con
 
 #if ENABLED(AUTO_BED_LEVELING_UBL)
 
+  #if HAS_TFT_TINY_FONT
+    #include "tft_tiny_font.h"
+  #endif
+  #if ANY(UBL_MAP_LABELS_MENU_FONT, HAS_TFT_TINY_FONT)
+    #define HAS_UBL_MAP_LABELS 1
+  #endif
+
+  /**
+   * Heat map color for a mesh Z value, scaled to the largest offset in the mesh:
+   * green at 0, toward blue for low points, toward red for high points.
+   */
+  static uint16_t ubl_heat_color(const float z, const float zmax) {
+    const float t = zmax > 0.0005f ? constrain(z / zmax, -1.0f, 1.0f) : 0.0f;
+    uint8_t r, g, b;
+    if (t < 0) { const float f = -t; r = 64 * f;  g = 220 - 92 * f;  b = 255 * f; }
+    else       { const float f = t;  r = 255 * f; g = 220 - 156 * f; b = 32 * f;  }
+    return RGB(uint16_t(r), uint16_t(g), uint16_t(b));
+  }
+
+  #if HAS_UBL_MAP_LABELS
+
+    /**
+     * Compact Z label. The style selects the widest format that fits the cells:
+     *   0 = "-0.125"  1 = "-0.13"  2 = "-.13"
+     */
+    static const char* ubl_map_label(const float z, const uint8_t style) {
+      static char buf[10];
+      const int32_t div = style ? 100 : 1000, n = LROUND(ABS(z) * div);
+      int32_t ip = n / div, fp = n % div;
+      char *p = buf;
+      if (z < 0 && n) *p++ = '-';
+      if (ip || style < 2) {
+        char t[6]; uint8_t i = 0;
+        do { t[i++] = '0' + ip % 10; ip /= 10; } while (ip && i < 5);
+        while (i) *p++ = t[--i];
+      }
+      *p++ = '.';
+      for (int32_t d = div / 10; d; d /= 10) { *p++ = '0' + fp / d; fp %= d; }
+      *p = '\0';
+      return buf;
+    }
+
+    static uint16_t ubl_label_width(const char * const s) {
+      #if HAS_TFT_TINY_FONT
+        return TinyFont::width(s);
+      #else
+        tft_string.set(s);
+        return tft_string.width();
+      #endif
+    }
+
+  #endif // HAS_UBL_MAP_LABELS
+
   void MarlinUI::ubl_plot(const uint8_t x_plot, const uint8_t y_plot) {
+
+    // Cell size and the center of a mesh point within the grid canvas
+    constexpr uint16_t cell_w = UBL_CELL_W, cell_h = UBL_CELL_H;
+    auto point_x = [](const uint8_t x) -> uint16_t { return 2 + (x * 2 + 1) * (UBL_GRID_W - 4) / (GRID_MAX_POINTS_X) / 2; };
+    auto point_y = [](const uint8_t y) -> uint16_t { return UBL_GRID_H - 2 - ((y * 2 + 1) * (UBL_GRID_H - 4) / (GRID_MAX_POINTS_Y) / 2); };
+    auto reachable = [](const uint8_t x, const uint8_t y) { return motion.can_reach({ bedlevel.get_mesh_x(x), bedlevel.get_mesh_y(y) }); };
+
+    // Largest Z offset for the heat colors
+    float zmax = 0;
+    GRID_LOOP(x, y) {
+      const float z = bedlevel.z_values[x][y];
+      if (!isnan(z) && reachable(x, y)) NOLESS(zmax, ABS(z));
+    }
+
+    #if HAS_UBL_MAP_LABELS
+      // Pick the most precise label style that fits every cell, or none
+      uint8_t style = 0;
+      for (; style < 3; ++style) {
+        uint16_t wmax = 0;
+        GRID_LOOP(x, y) {
+          const float z = bedlevel.z_values[x][y];
+          if (!isnan(z) && reachable(x, y)) NOLESS(wmax, ubl_label_width(ubl_map_label(z, style)));
+        }
+        if (wmax + (UBL_LABEL_GAP) <= cell_w) break;
+      }
+      const bool labels = style < 3;
+    #endif
 
     tft.canvas(UBL_GRID_X, UBL_GRID_Y, UBL_GRID_W, UBL_GRID_H);
     tft.set_background(COLOR_BACKGROUND);
     tft.add_rectangle(0, 0, UBL_GRID_W, UBL_GRID_H, COLOR_WHITE);
 
-    for (uint16_t x = 0; x < (GRID_MAX_POINTS_X); x++)
-      for (uint16_t y = 0; y < (GRID_MAX_POINTS_Y); y++)
-        if (motion.can_reach({ bedlevel.get_mesh_x(x), bedlevel.get_mesh_y(y) }))
-          tft.add_bar(1 + (x * 2 + 1) * (UBL_GRID_W - 4) / (GRID_MAX_POINTS_X) / 2, UBL_GRID_H - 3 - ((y * 2 + 1) * (UBL_GRID_H - 4) / (GRID_MAX_POINTS_Y) / 2), 2, 2, COLOR_UBL);
+    // Point markers: Z labels in heat colors if they fit, otherwise heat colored squares
+    const uint16_t mark = _MAX(2, _MIN(cell_w, cell_h) - 6);
+    GRID_LOOP(x, y) {
+      if (!reachable(x, y)) continue;
+      const uint16_t cx = point_x(x), cy = point_y(y);
+      const float z = bedlevel.z_values[x][y];
+      if (isnan(z))
+        tft.add_bar(cx - 1, cy - 1, 2, 2, COLOR_DARKGREY);    // Not probed
+      #if HAS_UBL_MAP_LABELS
+        else if (labels) {
+          const char * const s = ubl_map_label(z, style);
+          const uint16_t lx = cx - ubl_label_width(s) / 2;
+          #if HAS_TFT_TINY_FONT
+            // Center the digits vertically on the point
+            const uint16_t ly = cy + TinyFont::digitHeight() / 2 - TinyFont::ascent();
+            tft.add_tiny_text(lx, ly, ubl_heat_color(z, zmax), s);
+          #else
+            tft_string.set(s);
+            tft.add_text(lx, cy - cell_h / 2 + tft_string.vcenter(cell_h), ubl_heat_color(z, zmax), tft_string);
+          #endif
+        }
+      #endif
+      else
+        tft.add_bar(cx - mark / 2, cy - mark / 2, mark, mark, ubl_heat_color(z, zmax));
+    }
 
-    tft.add_rectangle((x_plot * 2 + 1) * (UBL_GRID_W - 4) / (GRID_MAX_POINTS_X) / 2 - 1, UBL_GRID_H - 5 - ((y_plot * 2 + 1) * (UBL_GRID_H - 4) / (GRID_MAX_POINTS_Y) / 2), 6, 6, COLOR_UBL);
+    // Selected point: frame the whole cell
+    const uint16_t fw = _MAX(6, cell_w - 2), fh = _MAX(6, cell_h - 2);
+    tft.add_rectangle(point_x(x_plot) - fw / 2, point_y(y_plot) - fh / 2, fw, fh, COLOR_UBL);
 
     const xy_pos_t pos = { bedlevel.get_mesh_x(x_plot), bedlevel.get_mesh_y(y_plot) },
                    lpos = pos.asLogical();
