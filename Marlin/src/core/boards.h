@@ -497,6 +497,7 @@
 #define BOARD_MKS_NEPTUNE_3                 5261  // Elegoo Neptune 3
 #define BOARD_MKS_E3D_V2                    5262  // Elegoo Neptune 3 Pro / Plus / Max (STM32F401RC)
 #define BOARD_PRUSA_BUDDY                   5263  // Prusa Buddy (STM32F407VGT6) as found in the Prusa MINI
+#define BOARD_LDO_LEVIATHAN_V1_2            5264  // LDO Leviathan v1.2 (STM32F446ZE)
 
 //
 // Other ARM Cortex-M4
@@ -526,6 +527,7 @@
 #define BOARD_FYSETC_SPIDER_KING_V1_H723    6016  // FYSETC Spider King v1 (STM32H723ZG)
 #define BOARD_FYSETC_SPIDER_KING_V1_1_H723  6017  // FYSETC Spider King v1.1 (STM32H723ZG)
 #define BOARD_BTT_SCYLLA_V1_0               6018  // BigTreeTech Scylla V1.0 (STM32H723VG)
+#define BOARD_LDO_LEVIATHAN_V1_3            6019  // LDO Leviathan v1.3 (STM32H743ZI)
 
 //
 // Espressif ESP32 WiFi
