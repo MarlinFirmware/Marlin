@@ -65,6 +65,18 @@ typedef Flags<
 void event_filament_runout(const uint8_t extruder);
 inline bool should_monitor_runout() { return did_pause_print || marlin.printingIsActive(); }
 
+inline bool active_filament_is_out() {
+  #if MULTI_FILAMENT_SENSOR
+    #define _CASE_OUT(N) case N-1: return FILAMENT_IS_OUT(N);
+    switch (motion.extruder) {
+      REPEAT_1(NUM_RUNOUT_SENSORS, _CASE_OUT)
+    }
+    return false;
+  #else
+    return FILAMENT_IS_OUT();
+  #endif
+}
+
 template<class RESPONSE_T, class SENSOR_T>
 class TFilamentMonitor;
 class FilamentSensor;
