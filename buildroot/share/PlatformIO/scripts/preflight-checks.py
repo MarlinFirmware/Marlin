@@ -163,7 +163,7 @@ if pioutil.is_pio_build():
         for f in [ "abl.cpp", "abl.h" ]:
             if (p / f).is_file():
                 mixedin += [ f ]
-        f = mpath / "src/gcode/feature/pause"
+        p = mpath / "src/gcode/feature/pause"
         for f in [ "G60.cpp", "G61.cpp" ]:
             if (p / f).is_file():
                 mixedin += [ f ]
