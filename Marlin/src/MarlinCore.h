@@ -48,7 +48,7 @@ void safe_delay(millis_t ms);
 class Marlin {
 public:
   #if ENABLED(CONFIGURABLE_MACHINE_NAME)
-    static MString<64> machine_name;
+    static TString machine_name;
   #endif
 
   static MarlinState state;
