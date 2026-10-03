@@ -28,6 +28,10 @@
 #include "../../../module/planner.h"
 #include "../../../module/stepper.h"
 
+#if ENABLED(BD_PRESSURE_PA)
+  #include "../../../feature/bd_pressure.h"
+#endif
+
 #if ENABLED(ADVANCE_K_EXTRA)
   float other_extruder_advance_K[EXTRUDERS];
   uint8_t lin_adv_slot = 0;
@@ -44,8 +48,26 @@
  *
  * With SMOOTH_LIN_ADVANCE:
  *  U<tau>      Set a tau value for LA smoothing
+ *
+ * With BD_PRESSURE_PA:
+ *  C           Run an automatic calibration and set K to the result
+ *  V<step>     ...with this PA increment per pass
+ *  P<passes>   ...and at most this many passes
+ *  D           Report the bd_pressure module version and threshold
  */
 void GcodeSuite::M900() {
+
+  #if ENABLED(BD_PRESSURE_PA)
+    if (parser.seen('D')) { bdp.report(); return; }
+    if (parser.seen('C')) {
+      const float step = parser.floatval('V', BD_PRESSURE_PA_STEP);
+      const uint8_t passes = _MIN(parser.byteval('P', BD_PRESSURE_PA_PASSES), BD_PRESSURE_PA_PASSES);
+      if (step <= 0) { SERIAL_ECHOLNPGM("?V value out of range."); return; }
+      if (passes < 10) { SERIAL_ECHOLNPGM("?P value out of range (10-", BD_PRESSURE_PA_PASSES, ")."); return; }
+      bdp.calibrate(step, passes);
+      return;
+    }
+  #endif
 
   auto echo_value_oor = [](const char ltr, const bool ten=true) {
     SERIAL_CHAR('?', ltr);
