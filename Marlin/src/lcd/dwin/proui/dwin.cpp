@@ -1920,7 +1920,7 @@ void dwinSetDataDefaults() {
   #endif
   hmiData.mediaAutoMount = ENABLED(HAS_SD_EXTENDER);
   #if ALL(INDIVIDUAL_AXIS_HOMING_SUBMENU, MESH_BED_LEVELING)
-    hmiData.zAfterHoming = DEF_Z_AFTER_HOMING;
+    hmiData.zAfterHoming = Z_AFTER_HOMING;
   #endif
   #if ALL(LED_CONTROL_MENU, HAS_COLOR_LEDS)
     TERN_(LED_COLOR_PRESETS, leds.set_default());
@@ -2282,7 +2282,7 @@ void setMoveZ() { hmiValue.axis = Z_AXIS; setPFloatOnClick(Z_MIN_POS, Z_MAX_POS,
 
   #if DISABLED(BD_SENSOR)
     void applyProbeMultiple() { hmiData.multiple_probing = menuData.value; }
-    void setProbeMultiple()  { setIntOnClick(0, 4, hmiData.multiple_probing, applyProbeMultiple); }
+    void setProbeMultiple()  { setIntOnClick(0, 10, hmiData.multiple_probing, applyProbeMultiple); }
   #endif
 
   void setProbeZSpeed()  { setPIntOnClick(60, 1000); }
