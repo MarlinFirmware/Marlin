@@ -656,8 +656,8 @@ void Endstops::update() {
     #define PROCESS_ENDSTOP_Z(MINMAX) PROCESS_DUAL_ENDSTOP(Z, MINMAX)
   #endif
 
-  #define AXIS_IS_MOVING(A) TERN(FT_MOTION, ftMotion, stepper).axis_is_moving(A##_REAL)
-  #define AXIS_DIR_REV(A)  !TERN(FT_MOTION, ftMotion, stepper).axis_direction(A##_REAL)
+  #define AXIS_IS_MOVING(A) stepper.axis_is_moving(A##_REAL)
+  #define AXIS_DIR_REV(A)  !stepper.axis_direction(A##_REAL)
 
   #if ENABLED(G38_PROBE_TARGET)
     // For G38 moves check the probe's pin for ALL movement
