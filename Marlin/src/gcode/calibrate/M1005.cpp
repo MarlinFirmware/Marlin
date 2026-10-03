@@ -84,6 +84,9 @@
 #define FLC_FEEDRATE      1000      // (mm/min) Print feedrate
 
 static bool flc_canceled;
+#if HAS_LEVELING
+  static bool flc_leveling_was_active;
+#endif
 
 #if HAS_MARLINUI_MENU
 
@@ -134,6 +137,7 @@ static void flc_heaters_off() {
 static void flc_abort(const bool canceled=true) {
   TERN_(HAS_MARLINUI_MENU, ui.release());
   if (canceled) LCD_MESSAGE(MSG_FLC_CANCELED);
+  TERN_(HAS_LEVELING, set_bed_leveling_enabled(flc_leveling_was_active));
   flc_heaters_off();
 }
 
@@ -243,6 +247,7 @@ void GcodeSuite::M1005() {
   // Heat, home, and level
   //
   LCD_MESSAGE(MSG_FIRST_LAYER_CAL);
+  TERN_(HAS_LEVELING, flc_leveling_was_active = planner.leveling_active);  // Restored when done
 
   const bool keep_heaters_on = parser.boolval('K', ENABLED(FLC_KEEP_HEATERS_ON)),
              do_level = TERN0(HAS_LEVELING, DISABLED(MESH_BED_LEVELING) && parser.boolval('A', true) && !leveling_is_valid());
@@ -363,6 +368,8 @@ void GcodeSuite::M1005() {
       motion.blocking_move_xy(x_min, y_back); // Move nozzle away so print is visible
     #endif
   #endif
+
+  TERN_(HAS_LEVELING, set_bed_leveling_enabled(flc_leveling_was_active));
 
   if (!keep_heaters_on) flc_heaters_off();
 
