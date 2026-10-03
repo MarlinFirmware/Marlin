@@ -21,34 +21,27 @@
  */
 
 /**
- * lcd/extui/cr10spro_v2/cr10spro_v2_extui.cpp
+ * lcd/extui/sermoon_d1/sermoon_d1_extui.cpp
  *
- * ExtUI callbacks for the Creality CR-10S Pro V2 stock touchscreen
+ * ExtUI callbacks for the Creality Sermoon D1 stock touchscreen
  */
 
 #include "../../../inc/MarlinConfigPre.h"
 
-#if DGUS_LCD_UI_CR10SPROV2
+#if DGUS_LCD_UI_SERMOON_D1
 
-#include "cr10spro_v2_rts.h"
+#include "sermoon_d1_rts.h"
 
 namespace ExtUI {
 
-  static constexpr uint8_t settings_version = 2;
+  static constexpr uint8_t settings_version = 1;
 
   void onStartup() { rts.onStartup(); }
+
   void onIdle() { rts.onIdle(); }
 
-  void onPrinterKilled(FSTR_P const error, FSTR_P const) {
-    PGM_P const e = FTOP(error);
-    if (e == GET_TEXT(MSG_ERR_HEATING_FAILED))
-      rts.gotoPage(RTS::PAGE_ERR_HEATING);
-    else if (e == GET_TEXT(MSG_ERR_MAXTEMP) || e == GET_TEXT(MSG_ERR_MINTEMP) || e == GET_TEXT(MSG_ERR_REDUNDANT_TEMP))
-      rts.gotoPage(RTS::PAGE_ERR_TEMP);
-    else if (e == GET_TEXT(MSG_ERR_THERMAL_RUNAWAY) || e == GET_TEXT(MSG_ERR_TEMP_MALFUNCTION))
-      rts.gotoPage(RTS::PAGE_ERR_RUNAWAY);
-    // The screen has no page for other errors (M112, homing or probe failure)
-  }
+  // The screen has one error page, with a short message
+  void onPrinterKilled(FSTR_P const error, FSTR_P const) { rts.showError(error); }
 
   void onMediaMounted() { rts.mediaInserted(); }
   void onMediaError() { rts.mediaRemoved(); }
@@ -62,13 +55,9 @@ namespace ExtUI {
   void onFilamentRunout(const extruder_t) { rts.filamentRunout(); }
 
   void onUserConfirmRequired(const char * const msg) {
-    if (!msg) return;
-    if (strcmp_P(msg, GET_TEXT(MSG_REHEATDONE)) == 0)
-      rts.gotoPage(RTS::PAGE_REHEAT_DONE);
-    else if (strcmp_P(msg, GET_TEXT(MSG_NOZZLE_PARKED)) == 0)
+    if (msg && strcmp_P(msg, GET_TEXT(MSG_NOZZLE_PARKED)) == 0)
       rts.gotoPage(RTS::PAGE_PAUSED);
   }
-
   void onUserConfirmRequired(const int, const char * const cstr, FSTR_P const) { onUserConfirmRequired(cstr); }
   void onUserConfirmRequired(const int, FSTR_P const fstr, FSTR_P const) { onUserConfirmRequired(fstr); }
 
@@ -79,12 +68,12 @@ namespace ExtUI {
   void onHomingStart() { rts.homingStarted(); }
   void onHomingDone() { rts.homingFinished(); }
 
+  void onSteppersDisabled() { rts.writeWord(VP_MOTOR_ICON, 0); }
+  void onSteppersEnabled() { rts.writeWord(VP_MOTOR_ICON, 1); }
+
   void onFactoryReset() {
-    RTS::settings.version       = settings_version;
-    RTS::settings.chinese       = false;
-    RTS::settings.volume        = 0x80;
-    RTS::settings.energy_saving = false;
-    RTS::settings.leveling      = false;
+    RTS::settings.version  = settings_version;
+    RTS::settings.language = 2;   // English
   }
 
   static_assert(sizeof(RTS::settings_t) <= eeprom_data_size, "Insufficient space in EEPROM for UI parameters");
@@ -103,11 +92,6 @@ namespace ExtUI {
   }
 
   void onSettingsLoaded(const bool) {
-    // Restore the leveling state the screen last set. G28 keeps it with RESTORE_LEVELING_AFTER_G28.
-    if (RTS::settings.leveling != getLevelingActive() && !isPrinting())
-      setLevelingActive(RTS::settings.leveling);
-    rts.sendLanguage();
-    rts.sendVolume();
     rts.sendZOffset();
     rts.sendMesh();
   }
@@ -128,11 +112,9 @@ namespace ExtUI {
   #endif
 
   #if HAS_PID_HEATING
-    void onPIDTuning(const pidresult_t rst) {
-      if (rst == PID_TUNING_TIMEOUT) rts.gotoPage(RTS::PAGE_ERR_HEATING);
-    }
+    void onStartM303(const int, const heater_id_t, const celsius_t) {}
   #endif
 
 } // ExtUI
 
-#endif // DGUS_LCD_UI_CR10SPROV2
+#endif // DGUS_LCD_UI_SERMOON_D1
