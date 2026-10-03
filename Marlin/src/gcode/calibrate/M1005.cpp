@@ -91,6 +91,7 @@
 
 #define FLC_RETRACT_LENGTH   2.0f   // (mm) Retract after printing, unless FWRETRACT sets length
 #define FLC_FEEDRATE      1000      // (mm/min) Print feedrate
+#define FLC_END_Z_RAISE     10.0f   // (mm) Raise after printing
 
 static bool flc_canceled;
 #if HAS_LEVELING
@@ -185,6 +186,7 @@ static float flc_filament_diameter() {
  * Babystep Z while pattern prints to adjust Probe Z Offset.
  * With MESH_BED_LEVELING babysteps are added to Mesh Z Offset after printing.
  * Won't start without filament when runout switch is enabled.
+ * Nozzle heats at NOZZLE_PARK_POINT. When done it moves to back of travel so print is visible.
  * Click LCD while heating, click out of babystep screen, or send M108 to stop early.
  * Result is not saved. LCD and host prompt offer to save when done, or use M500.
  *
@@ -322,6 +324,7 @@ void GcodeSuite::M1005() {
   #if HAS_HOTEND
     thermalManager.setTargetHotend(hotend_target, motion.extruder);
     if (hotend_target) {
+      TERN_(NOZZLE_PARK_FEATURE, nozzle.park(0));  // Wait where nozzle is easy to reach
       thermalManager.isHeatingHotend(motion.extruder) ? LCD_MESSAGE(MSG_HEATING) : LCD_MESSAGE(MSG_COOLING);
       TERN_(HAS_MARLINUI_MENU, ui.capture());
       if (!thermalManager.wait_for_hotend(motion.extruder, false OPTARG(HEATUP_CLICK_CAN_CANCEL, true))) return flc_abort();
@@ -371,13 +374,10 @@ void GcodeSuite::M1005() {
     motion.sync_plan_position();
   #endif
 
-  #if ENABLED(NOZZLE_PARK_FEATURE)
-    nozzle.park(2);
-  #else
-    motion.do_z_clearance_by(Z_CLEARANCE_BETWEEN_PROBES);
-    #if !IS_KINEMATIC
-      motion.blocking_move_xy(x_min, y_back); // Move nozzle away so print is visible
-    #endif
+  // Move nozzle away so print is visible. Bed slingers bring bed forward.
+  motion.do_z_clearance_by(FLC_END_Z_RAISE);
+  #if !IS_KINEMATIC
+    motion.blocking_move_xy(X_MIN_POS, Y_MAX_POS);
   #endif
 
   TERN_(HAS_LEVELING, set_bed_leveling_enabled(flc_leveling_was_active));
