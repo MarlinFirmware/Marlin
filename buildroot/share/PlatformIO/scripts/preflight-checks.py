@@ -9,7 +9,7 @@ if pioutil.is_pio_build():
     from pathlib import Path
     env = pioutil.env
 
-    def preflight_error(title, *body):
+    def exit_with_error(title, *body):
         '''Exit with a formatted error. Body items are paragraphs, or lists of preformatted lines.'''
         out = ['', 'Error: ' + title]
         for item in body:
@@ -105,15 +105,18 @@ if pioutil.is_pio_build():
     def sanity_check_target():
         # Sanity checks:
         if 'PIOENV' not in env:
-            preflight_error("PIOENV is not defined.", "This script is intended to be used with PlatformIO.")
+            exit_with_error("PIOENV is not defined.", "This script is intended to be used with PlatformIO.")
 
         # Require PlatformIO 6.1.1 or later
         vers = pioutil.get_pio_version()
         if vers < [6, 1, 1]:
-            preflight_error("Marlin requires PlatformIO >= 6.1.1.", "Use 'pio upgrade' to get a newer version.")
+            exit_with_error("Marlin requires PlatformIO >= 6.1.1.", "Use 'pio upgrade' to get a newer version.")
 
         if 'MARLIN_FEATURES' not in env:
-            preflight_error("This script should be used after common Marlin scripts.")
+            exit_with_error("This script should always follow the common Marlin scripts.")
+
+        if len(env['MARLIN_FEATURES']) == 0:
+            exit_with_error("Failed to parse Marlin features.", "See previous error messages.")
 
         # Useful values
         project_dir = Path(env['PROJECT_DIR'])
@@ -136,10 +139,7 @@ if pioutil.is_pio_build():
                             file.write(modified_text)
 
         if conf_modified:
-            raise SystemExit('WARNING: Configuration files needed an update to remove incompatible items. Try the build again to use the updated files.')
-
-        if len(env['MARLIN_FEATURES']) == 0:
-            preflight_error("Failed to parse Marlin features.", "See previous error messages.")
+            raise SystemExit('WARNING: Configuration files updated to remove incompatible items. Build again to use the updated files.')
 
         #
         # Alert user for config files in 'project' or 'project/config'
@@ -150,17 +150,17 @@ if pioutil.is_pio_build():
             for f in config_files:
                 if (p / f).is_file():
                     desc = "Redundant" if has_cfgs else "Your"
-                    preflight_error(f"{desc} config files were found in {p}.", "Put the configs you want to use into the 'Marlin' subfolder.")
+                    exit_with_error(f"{desc} config files were found in {p}.", "Put the configs you want to use into the 'Marlin' subfolder.")
 
         if not has_cfgs:
-            preflight_error("No configuration files found!", "Put your config files into the 'Marlin' subfolder.")
+            exit_with_error("No configuration files found!", "Put your config files into the 'Marlin' subfolder.")
 
         # Check for common errors in MOTHERBOARD setting
         motherboard = env['MARLIN_FEATURES']['MOTHERBOARD']
         if motherboard.startswith("MOTHERBOARD "):
-            preflight_error('MOTHERBOARD setting mangled by an extra instance of "MOTHERBOARD."')
+            exit_with_error('MOTHERBOARD setting mangled by an extra instance of "MOTHERBOARD."')
         if not motherboard.startswith("BOARD_"):
-            preflight_error("MOTHERBOARD setting missing BOARD_ prefix.", f"Found '{motherboard}'. Did you mean 'BOARD_{motherboard}'?")
+            exit_with_error("MOTHERBOARD setting missing BOARD_ prefix.", f"Found '{motherboard}'. Did you mean 'BOARD_{motherboard}'?")
 
         build_env = env['PIOENV']
         board_envs = get_envs_for_board(motherboard)
@@ -172,21 +172,21 @@ if pioutil.is_pio_build():
         if not result and not build_env.endswith("_native_test"):
             envs = [ e[4:] for e in board_envs if e.startswith("env:") ]
             if not envs:
-                preflight_error("No build environment found for %s." % motherboard,
+                exit_with_error("No build environment found for %s." % motherboard,
                                 "Check the MOTHERBOARD setting in Configuration.h. Valid board names are listed in Marlin/src/core/boards.h.")
             notes = get_env_notes(envs, config)
             pad = max(len(e) for e in envs)
             mpad = max(len(m) for m, _ in notes.values())
             env_list = [ ("* %-*s  %-*s  %s" % (pad, e, mpad, *notes[e])).rstrip() for e in envs ]
             if build_env in config.default_envs():
-                fix, cmd = "Set default_envs in platformio.ini to", "default_envs = "
+                fix, cmd = "Set default_envs in platformio.ini to", "default_envs = " + envs[0]
             else:
-                fix, cmd = "Build with", "pio run -e "
+                fix, cmd = "Build with", "pio run -e " + envs[0]
             if len(envs) == 1:
-                howto = [ fix + ":", [ cmd + envs[0] ] ]
+                howto = [ fix + ":", [ cmd ] ]
             else:
-                howto = [ fix + " one of these environments:", env_list, [ "e.g., " + cmd + envs[0] ] ]
-            preflight_error("Build environment '%s' is incompatible with %s." % (build_env, motherboard), *howto)
+                howto = [ fix + " one of these environments:", env_list, [ "e.g., " + cmd ] ]
+            exit_with_error("Build environment '%s' is incompatible with %s." % (build_env, motherboard), *howto)
 
         #
         # Find the name.cpp.o or name.o and remove it
@@ -249,7 +249,7 @@ if pioutil.is_pio_build():
             if (p / f).is_file():
                 mixedin += [ f ]
         if mixedin:
-            preflight_error("Old files fell into your Marlin folder.", "Remove these files and try again:", [ "* " + f for f in mixedin ])
+            exit_with_error("Old files fell into your Marlin folder.", "Remove these files and try again:", [ "* " + f for f in mixedin ])
 
         #
         # Check FILAMENT_RUNOUT_SCRIPT has a %c parammeter when required
@@ -259,7 +259,7 @@ if pioutil.is_pio_build():
                 if 'FILAMENT_RUNOUT_SCRIPT' in env['MARLIN_FEATURES']:
                     frs = env['MARLIN_FEATURES']['FILAMENT_RUNOUT_SCRIPT']
                     if "M600" in frs and "%c" not in frs:
-                        preflight_error("FILAMENT_RUNOUT_SCRIPT needs a %c parameter (e.g., \"M600 T%c\") when NUM_RUNOUT_SENSORS is > 1.")
+                        exit_with_error("FILAMENT_RUNOUT_SCRIPT needs a %c parameter (e.g., \"M600 T%c\") when NUM_RUNOUT_SENSORS is > 1.")
 
 
     sanity_check_target()
