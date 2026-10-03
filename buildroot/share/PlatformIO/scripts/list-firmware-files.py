@@ -1,5 +1,5 @@
 #
-# show-firmware.py
+# list-firmware-files.py
 # List the firmware file(s) at the end of the build, since some envs rename or encrypt them
 #
 import pioutil
