@@ -217,7 +217,8 @@ bool load_filament(const float slow_load_length/*=0*/, const float fast_load_len
 
     while (marlin.wait_for_user) {
       impatient_beep(max_beep_count);
-      TERN_(FILAMENT_CHANGE_RESUME_ON_INSERT, if (!active_filament_is_out()) marlin.user_resume());
+      if (TERN0(FILAMENT_CHANGE_RESUME_ON_INSERT, !active_filament_is_out()))
+        marlin.user_resume();
       marlin.idle_no_sleep();
     }
   }
