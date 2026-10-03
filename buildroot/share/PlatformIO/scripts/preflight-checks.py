@@ -205,6 +205,22 @@ if pioutil.is_pio_build():
         rm_ofile("inc", "Warnings")
 
         #
+        # Build Warnings.cpp first. It includes SanityCheck.h, so a config error
+        # stops the build there instead of repeating for every source file.
+        #
+        warnings_cpp = mpath / "src/inc/Warnings.cpp"
+        if warnings_cpp.is_file():
+            marlin_src = str(mpath / "src")
+            def build_warnings_first(env, node):
+                src = node.srcnode().get_abspath()
+                if not src.startswith(marlin_src): return node
+                obj = env.Object(node)
+                if Path(src) != warnings_cpp:
+                    env.Requires(obj, env.File("$BUILD_DIR/src/src/inc/Warnings.cpp.o"))
+                return obj
+            env.AddBuildMiddleware(build_warnings_first)
+
+        #
         # Renew date/time
         #
         rm_ofile("gcode/host", "M115")
