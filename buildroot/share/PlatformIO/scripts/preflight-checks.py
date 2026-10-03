@@ -186,6 +186,7 @@ if pioutil.is_pio_build():
                 howto = [ fix + ":", [ cmd ] ]
             else:
                 howto = [ fix + " one of these environments:", env_list, [ "e.g., " + cmd ] ]
+            howto.append("We recommend using the 'Auto Build Marlin' extension in VSCode.")
             exit_with_error("Build environment '%s' is incompatible with %s." % (build_env, motherboard), *howto)
 
         #
