@@ -196,12 +196,6 @@
     #define UBL_X_TEXT_X            (TFT_WIDTH / 2 -  40) - tft_string.width()
     #define UBL_Y_LABEL_X           (TFT_WIDTH / 2 +  40)
     #define UBL_Y_TEXT_X            (TFT_WIDTH / 2 + 220) - tft_string.width()
-
-    #define UBL_COORDINATES_W       180
-    #define UBL_COORDINATES_X       320
-    #define UBL_X_COORDINATE_Y      UBL_GRID_Y + (UBL_GRID_H - MENU_ITEM_HEIGHT) / 2 - MENU_ITEM_HEIGHT
-    #define UBL_Y_COORDINATE_Y      UBL_GRID_Y + (UBL_GRID_H - MENU_ITEM_HEIGHT) / 2
-    #define UBL_Z_COORDINATE_Y      UBL_GRID_Y + (UBL_GRID_H - MENU_ITEM_HEIGHT) / 2 + MENU_ITEM_HEIGHT
   #endif
 
 #endif // TFT_FONT_LARGE
@@ -447,16 +441,16 @@
 
   // MarlinUI::ubl_plot()
   #if !defined(UBL_GRID_W) && !defined(UBL_GRID_H) && !defined(UBL_GRID_X) && !defined(UBL_GRID_Y) && !defined(UBL_CONTROL_OFFSET)
-    #define UBL_GRID_W              192
-    #define UBL_GRID_H              192
+    #define UBL_GRID_W              480   // Bottom arrows end at 536, above NAVIGATION_BACK_Y
+    #define UBL_GRID_H              480
     #define UBL_GRID_X              8
     #define UBL_GRID_Y              8
     #define UBL_CONTROL_OFFSET      16
   #endif
 
   #if !defined(UBL_COORDINATES_W) && !defined(UBL_COORDINATES_X) && !defined(UBL_X_COORDINATE_Y) && !defined(UBL_Y_COORDINATE_Y) && !defined(UBL_Z_COORDINATE_Y)
-    #define UBL_COORDINATES_W       120
-    #define UBL_COORDINATES_X       320
+    #define UBL_COORDINATES_W       300
+    #define UBL_COORDINATES_X       600
 
     #define UBL_X_COORDINATE_Y      UBL_GRID_Y + (UBL_GRID_H - MENU_ITEM_HEIGHT) / 2 - MENU_ITEM_HEIGHT
     #define UBL_Y_COORDINATE_Y      UBL_GRID_Y + (UBL_GRID_H - MENU_ITEM_HEIGHT) / 2
@@ -464,7 +458,7 @@
   #endif
 
   #if !defined(UBL_ACTION_X) && !defined(UBL_ACTION_Y)
-    #define UBL_ACTION_X            UBL_COORDINATES_X
-    #define UBL_ACTION_Y            UBL_GRID_Y + UBL_GRID_H + UBL_CONTROL_OFFSET
+    #define UBL_ACTION_X            UBL_COORDINATES_X + (UBL_COORDINATES_W - 32) / 2
+    #define UBL_ACTION_Y            UBL_Z_COORDINATE_Y + MENU_ITEM_HEIGHT + UBL_CONTROL_OFFSET
   #endif
 #endif
