@@ -125,6 +125,9 @@ const XrefInfo pin_xref[] PROGMEM = {
 #define PORT_NUM(P) (((P)  >> 4) & 0x0007)
 #define PORT_ALPHA(P) ('A' + ((P) >> 4))
 
+#ifndef NUM_ANALOG_FIRST
+  #define NUM_ANALOG_FIRST PNUM_ANALOG_BASE // STM32duino 2.x numbers analog pins (A0 = PIN_A0) from here
+#endif
 #if NUM_ANALOG_FIRST >= NUM_DIGITAL_PINS
   #define HAS_HIGH_ANALOG_PINS 1
 #endif

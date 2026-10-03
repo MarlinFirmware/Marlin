@@ -94,6 +94,39 @@ const PinName digitalPin[] = {
   PB_13,  PB_14,
   PB_4,
 };
+
+// Analog (Ax) pin number array, used by STM32duino 2.x. Ax is digital pin NUM_ANALOG_FIRST + x.
+const uint32_t analogInputPin[] = {
+  NUM_ANALOG_FIRST + 0,  // A0
+  NUM_ANALOG_FIRST + 1,  // A1
+  NUM_ANALOG_FIRST + 2,  // A2
+  NUM_ANALOG_FIRST + 3,  // A3
+  NUM_ANALOG_FIRST + 4,  // A4
+  NUM_ANALOG_FIRST + 5,  // A5
+  NUM_ANALOG_FIRST + 6,  // A6
+  NUM_ANALOG_FIRST + 7,  // A7
+  NUM_ANALOG_FIRST + 8,  // A8
+  NUM_ANALOG_FIRST + 9,  // A9
+  NUM_ANALOG_FIRST + 10, // A10
+  NUM_ANALOG_FIRST + 11, // A11
+  NUM_ANALOG_FIRST + 12, // A12
+  NUM_ANALOG_FIRST + 13, // A13
+  #if NUM_ANALOG_INPUTS > 14
+    NUM_ANALOG_FIRST + 14, // A14
+  #endif
+  #if NUM_ANALOG_INPUTS > 15
+    NUM_ANALOG_FIRST + 15, // A15
+  #endif
+  #if NUM_ANALOG_INPUTS > 16
+    NUM_ANALOG_FIRST + 16, // A16
+  #endif
+  #if NUM_ANALOG_INPUTS > 17
+    NUM_ANALOG_FIRST + 17, // A17
+  #endif
+  #if NUM_ANALOG_INPUTS > 18
+    NUM_ANALOG_FIRST + 18, // A18
+  #endif
+};
 #endif // ARDUINO_BLACK_F407VE || ARDUINO_BLACK_F407VG
 
 #if defined(ARDUINO_BLACK_F407ZE) || defined(ARDUINO_BLACK_F407ZG)
