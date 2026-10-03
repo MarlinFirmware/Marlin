@@ -52,6 +52,12 @@
   #include "../../feature/fwretract.h"
 #endif
 
+// Runout switch can tell whether filament is loaded. Motion sensor can't.
+#if HAS_FILAMENT_SENSOR && (DISABLED(FILAMENT_MOTION_SENSOR) || ENABLED(FILAMENT_SWITCH_AND_MOTION))
+  #define FLC_FILAMENT_CHECK 1
+  #include "../../feature/runout.h"
+#endif
+
 // Default to Mesh Validation settings when G26 is enabled
 #ifndef FLC_LAYER_HEIGHT
   #ifdef MESH_TEST_LAYER_HEIGHT
@@ -165,6 +171,7 @@ static float flc_filament_diameter() {
  * Prints zig-zag pattern across bed ending in solid patch.
  * Babystep Z while pattern prints to adjust Probe Z Offset.
  * With MESH_BED_LEVELING babysteps are added to Mesh Z Offset after printing.
+ * Won't start without filament when runout switch is enabled.
  * Click LCD while heating, click out of babystep screen, or send M108 to stop early.
  * Result is not saved. LCD offers to save when done, or use M500.
  *
@@ -220,6 +227,14 @@ void GcodeSuite::M1005() {
     if (!leveling_is_valid()) {
       SERIAL_ECHOLNPGM(GCODE_ERR_MSG("Mesh Bed Leveling required."));
       LCD_MESSAGE(MSG_UBL_MESH_INVALID);
+      return;
+    }
+  #endif
+
+  #if FLC_FILAMENT_CHECK
+    if (runout.enabled && TEST(FilamentSensorBase::poll_runout_states(), TERN0(MULTI_FILAMENT_SENSOR, motion.extruder))) {
+      SERIAL_ECHOLNPGM(GCODE_ERR_MSG("No filament."));
+      LCD_MESSAGE(MSG_FLC_LOAD_FILAMENT);
       return;
     }
   #endif

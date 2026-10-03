@@ -764,6 +764,7 @@ namespace LanguageNarrow_en {
   LSTR MSG_FLC_RESET_OFFSET               = _UxGT("Reset Z Offset?");
   LSTR MSG_FLC_BED_TOO_SMALL              = _UxGT("Print area too small");
   LSTR MSG_FLC_CANCELED                   = _UxGT("First Layer Canceled");
+  LSTR MSG_FLC_LOAD_FILAMENT              = _UxGT("Load filament first");
   LSTR MSG_XATC                           = _UxGT("X-Twist Wizard");
   LSTR MSG_XATC_DONE                      = _UxGT("X-Twist Wizard Done!");
   LSTR MSG_XATC_UPDATE_Z_OFFSET           = _UxGT("Update Z-Offset to ");
