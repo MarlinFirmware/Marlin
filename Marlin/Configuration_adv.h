@@ -3520,13 +3520,21 @@
    * Optimize spreadCycle chopper parameters by using predefined parameter sets
    * or with the help of an example included in the library.
    * Provided parameter sets are
-   * CHOPPER_DEFAULT_12V
+   * CHOPPER_DEFAULT_12V  // 1.8 degree steppers (also CHOPPER_18STEP_<V>)
    * CHOPPER_DEFAULT_19V
    * CHOPPER_DEFAULT_24V
    * CHOPPER_DEFAULT_36V
-   * CHOPPER_09STEP_24V   // 0.9 degree steppers (24V)
+   * CHOPPER_DEFAULT_48V
+   * CHOPPER_DEFAULT_60V
+   * CHOPPER_09STEP_12V   // 0.9 degree steppers
+   * CHOPPER_09STEP_19V
+   * CHOPPER_09STEP_24V
+   * CHOPPER_09STEP_36V
+   * CHOPPER_09STEP_48V
    * CHOPPER_PRUSAMK3_24V // Imported parameters from the official Průša firmware for MK3 (24V)
    * CHOPPER_MARLIN_119   // Old defaults from Marlin v1.1.9
+   *
+   * Presets over 24V require a driver rated for the supply voltage.
    *
    * Define your own with:
    * { <off_time[1..15]>, <hysteresis_end[-3..12]>, hysteresis_start[1..8] }
