@@ -104,53 +104,26 @@ const PinName digitalPin[] = {
   PE_13, //D77
   PE_14, //D78
   PE_15, //D79
-  PF_0,  //D80
-  PF_1,  //D81
-  PF_2,  //D82
-  PF_3,  //D83
-  PF_4,  //D84
-  PF_5,  //D85
-  PF_6,  //D86
-  PF_7,  //D87
-  PF_8,  //D88
-  PF_9,  //D89
-  PF_10, //D90
-  PF_11, //D91
-  PF_12, //D92
-  PF_13, //D93
-  PF_14, //D94
-  PF_15, //D95
-  PG_0,  //D96
-  PG_1,  //D97
-  PG_2,  //D98
-  PG_3,  //D99
-  PG_4,  //D100
-  PG_5,  //D101
-  PG_6,  //D102
-  PG_7,  //D103
-  PG_8,  //D104
-  PG_9,  //D105
-  PG_10, //D106
-  PG_11, //D107
-  PG_12, //D108
-  PG_13, //D109
-  PG_14, //D110
-  PG_15, //D111
 
   //Duplicated ADC Pins
-  PA_3,  //D112/A0
-  PA_4,  //D113/A1
-  PC_0,  //D114/A2
-  PC_1,  //D115/A3
-  PC_2,  //D116/A4
-  PC_3,  //D117/A5
-  PC_4,  //D118/A6
-  PF_3,  //D119/A16 - 1:FSMC_A3  2:ADC3_IN9
-  PF_4,  //D120/A17 - 1:FSMC_A4  2:ADC3_IN14
-  PF_5,  //D121/A18 - 1:FSMC_A5  2:ADC3_IN15
-  PF_6,  //D122/A19 - 1:TIM10_CH1  2:ADC3_IN4
-  PF_7,  //D123/A20 - 1:TIM11_CH1  2:ADC3_IN5
-  PF_8,  //D124/A20 - 1:TIM11_CH1  2:ADC3_IN6
+  PA_3,  //D80/A0
+  PA_4,  //D81/A1
+  PC_0,  //D82/A2
+  PC_1,  //D83/A3
+  PC_2,  //D84/A4
+  PC_3,  //D85/A5
+  PC_4   //D86/A6
+};
+
+// Analog (Ax) pin number array, used by STM32duino 2.x. Ax is digital pin NUM_ANALOG_FIRST + x.
+const uint32_t analogInputPin[] = {
+  NUM_ANALOG_FIRST + 0,  // A0
+  NUM_ANALOG_FIRST + 1,  // A1
+  NUM_ANALOG_FIRST + 2,  // A2
+  NUM_ANALOG_FIRST + 3,  // A3
+  NUM_ANALOG_FIRST + 4,  // A4
+  NUM_ANALOG_FIRST + 5,  // A5
+  NUM_ANALOG_FIRST + 6,  // A6
 };
 
 #ifdef __cplusplus
@@ -167,14 +140,14 @@ extern "C" {
   * @brief  System Clock Configuration
   *         The system Clock is configured as follow :
   *            System Clock source            = PLL (HSE)
-  *            SYSCLK(Hz)                     = 168000000
-  *            HCLK(Hz)                       = 168000000
+  *            SYSCLK(Hz)                     = 180000000
+  *            HCLK(Hz)                       = 180000000
   *            AHB Prescaler                  = 1
   *            APB1 Prescaler                 = 4
   *            APB2 Prescaler                 = 2
-  *            HSE Frequency(Hz)              = 8000000
-  *            PLL_M                          = 8
-  *            PLL_N                          = 336
+  *            HSE Frequency(Hz)              = 12000000
+  *            PLL_M                          = 6
+  *            PLL_N                          = 180
   *            PLL_P                          = 2
   *            PLL_Q                          = 7
   *            VDD(V)                         = 3.3
@@ -187,40 +160,51 @@ WEAK void SystemClock_Config(void)
 {
   RCC_ClkInitTypeDef RCC_ClkInitStruct;
   RCC_OscInitTypeDef RCC_OscInitStruct;
+  RCC_PeriphCLKInitTypeDef PeriphClkInitStruct;
+
 
   /* Enable Power Control clock */
   __HAL_RCC_PWR_CLK_ENABLE();
 
+#ifdef HAL_PWR_MODULE_ENABLED
   /* The voltage scaling allows optimizing the power consumption when the device is
      clocked below the maximum system frequency, to update the voltage scaling value
      regarding system frequency refer to product datasheet.  */
   __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE1);
+#endif
 
   /* Enable HSE Oscillator and activate PLL with HSE as source */
   RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
   RCC_OscInitStruct.HSEState = RCC_HSE_ON;
   RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
   RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
-  RCC_OscInitStruct.PLL.PLLM = 8;
-  RCC_OscInitStruct.PLL.PLLN = 336;
+  RCC_OscInitStruct.PLL.PLLM = 6;
+  RCC_OscInitStruct.PLL.PLLN = 180;
   RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV2;
   RCC_OscInitStruct.PLL.PLLQ = 7;
-  if(HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
-  {
-    /* Initialization Error */
-  }
+  RCC_OscInitStruct.PLL.PLLR = 2;
+  HAL_RCC_OscConfig(&RCC_OscInitStruct);
+
+  HAL_PWREx_EnableOverDrive();
 
   /* Select PLL as system clock source and configure the HCLK, PCLK1 and PCLK2
      clocks dividers */
-  RCC_ClkInitStruct.ClockType = (RCC_CLOCKTYPE_SYSCLK | RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2);
-  RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
+  RCC_ClkInitStruct.ClockType = (RCC_CLOCKTYPE_SYSCLK | RCC_CLOCKTYPE_HCLK |
+                                 RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2);
+  RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLRCLK;
   RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
   RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV4;
   RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV2;
-  if(HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_5) != HAL_OK)
-  {
-    /* Initialization Error */
-  }
+  HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_5);
+
+  PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_CLK48;
+  PeriphClkInitStruct.PLLSAI.PLLSAIM = 6;
+  PeriphClkInitStruct.PLLSAI.PLLSAIN = 96;
+  PeriphClkInitStruct.PLLSAI.PLLSAIQ = 2;
+  PeriphClkInitStruct.PLLSAI.PLLSAIP = RCC_PLLSAIP_DIV4;
+  PeriphClkInitStruct.PLLSAIDivQ = 1;
+  PeriphClkInitStruct.Clk48ClockSelection = RCC_CLK48CLKSOURCE_PLLSAIP;
+  HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct);
 }
 
 #ifdef __cplusplus

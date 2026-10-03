@@ -104,15 +104,70 @@ const PinName digitalPin[] = {
   PE_13, //D77
   PE_14, //D78
   PE_15, //D79
+  PF_0,  //D80
+  PF_1,  //D81
+  PF_2,  //D82
+  PF_3,  //D83
+  PF_4,  //D84
+  PF_5,  //D85
+  PF_6,  //D86
+  PF_7,  //D87
+  PF_8,  //D88
+  PF_9,  //D89
+  PF_10, //D90
+  PF_11, //D91
+  PF_12, //D92
+  PF_13, //D93
+  PF_14, //D94
+  PF_15, //D95
+  PG_0,  //D96
+  PG_1,  //D97
+  PG_2,  //D98
+  PG_3,  //D99
+  PG_4,  //D100
+  PG_5,  //D101
+  PG_6,  //D102
+  PG_7,  //D103
+  PG_8,  //D104
+  PG_9,  //D105
+  PG_10, //D106
+  PG_11, //D107
+  PG_12, //D108
+  PG_13, //D109
+  PG_14, //D110
+  PG_15, //D111
 
   //Duplicated ADC Pins
-  PA_3,  //D80/A0
-  PA_4,  //D81/A1
-  PC_0,  //D82/A2
-  PC_1,  //D83/A3
-  PC_2,  //D84/A4
-  PC_3,  //D85/A5
-  PC_4   //D86/A6
+  PA_3,  //D112/A0
+  PA_4,  //D113/A1
+  PC_0,  //D114/A2
+  PC_1,  //D115/A3
+  PC_2,  //D116/A4
+  PC_3,  //D117/A5
+  PC_4,  //D118/A6
+  PF_3,  //D119/A16 - 1:FSMC_A3  2:ADC3_IN9
+  PF_4,  //D120/A17 - 1:FSMC_A4  2:ADC3_IN14
+  PF_5,  //D121/A18 - 1:FSMC_A5  2:ADC3_IN15
+  PF_6,  //D122/A19 - 1:TIM10_CH1  2:ADC3_IN4
+  PF_7,  //D123/A20 - 1:TIM11_CH1  2:ADC3_IN5
+  PF_8,  //D124/A20 - 1:TIM11_CH1  2:ADC3_IN6
+};
+
+// Analog (Ax) pin number array, used by STM32duino 2.x. Ax is digital pin NUM_ANALOG_FIRST + x.
+const uint32_t analogInputPin[] = {
+  NUM_ANALOG_FIRST + 0,  // A0
+  NUM_ANALOG_FIRST + 1,  // A1
+  NUM_ANALOG_FIRST + 2,  // A2
+  NUM_ANALOG_FIRST + 3,  // A3
+  NUM_ANALOG_FIRST + 4,  // A4
+  NUM_ANALOG_FIRST + 5,  // A5
+  NUM_ANALOG_FIRST + 6,  // A6
+  NUM_ANALOG_FIRST + 7,  // A7
+  NUM_ANALOG_FIRST + 8,  // A8
+  NUM_ANALOG_FIRST + 9,  // A9
+  NUM_ANALOG_FIRST + 10, // A10
+  NUM_ANALOG_FIRST + 11, // A11
+  NUM_ANALOG_FIRST + 12, // A12
 };
 
 #ifdef __cplusplus
