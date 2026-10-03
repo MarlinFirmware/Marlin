@@ -97,13 +97,17 @@ void LevelingBilinear::extrapolate_one_point(const uint8_t x, const uint8_t y, c
   #endif
 #endif
 
+void LevelingBilinear::fill(const float val/*=NAN*/) {
+  GRID_LOOP(x, y) {
+    z_values[x][y] = val;
+    TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(x, y, 0));
+  }
+}
+
 void LevelingBilinear::reset() {
   grid_start.reset();
   grid_spacing.reset();
-  GRID_LOOP(x, y) {
-    z_values[x][y] = NAN;
-    TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(x, y, 0));
-  }
+  fill();
 }
 
 /**
