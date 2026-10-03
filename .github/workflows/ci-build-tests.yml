@@ -109,6 +109,7 @@ jobs:
         - PANDA_PI_V29
         - STM32F103RC_btt
         - STM32F103RC_fysetc
+        - STM32F103RE
         - STM32F103RE_btt
         - STM32F103RE_btt_USB
         - STM32F103RE_creality
@@ -118,7 +119,6 @@ jobs:
         #- mks_robin_nano_v1v2_usbmod
         #- STM32F103CB_malyan
         #- STM32F103RC_btt_USB
-        #- STM32F103RE
 
         # STM32F4
         - ARMED
