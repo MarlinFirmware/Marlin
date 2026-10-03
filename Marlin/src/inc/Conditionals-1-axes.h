@@ -377,6 +377,7 @@
   #undef Z_SAFE_HOMING
   #undef MIN_SOFTWARE_ENDSTOP_Z
   #undef MAX_SOFTWARE_ENDSTOP_Z
+  #undef AUTO_FIRST_LAYER_Z_ADJUST
 #endif
 
 #if !HAS_I_AXIS
