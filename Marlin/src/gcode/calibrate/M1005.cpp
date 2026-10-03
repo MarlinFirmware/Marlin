@@ -52,6 +52,15 @@
   #include "../../feature/fwretract.h"
 #endif
 
+#if ENABLED(HOST_PROMPT_SUPPORT)
+  #include "../../feature/host_actions.h"
+#endif
+
+// Host can only stop printing while command queue is busy with M1005
+#if ALL(HOST_PROMPT_SUPPORT, EMERGENCY_PARSER)
+  #define FLC_HOST_STOP 1
+#endif
+
 // Runout switch can tell whether filament is loaded. Motion sensor can't.
 #if HAS_FILAMENT_SENSOR && (DISABLED(FILAMENT_MOTION_SENSOR) || ENABLED(FILAMENT_SWITCH_AND_MOTION))
   #define FLC_FILAMENT_CHECK 1
@@ -109,8 +118,8 @@ static bool flc_canceled;
     static void flc_save_screen() {
       MenuItem_confirm::select_screen(
           GET_TEXT_F(MSG_BUTTON_SAVE), GET_TEXT_F(MSG_BUTTON_CANCEL)
-        , []{ ui.store_settings(); ui.return_to_status(); }
-        , ui.return_to_status
+        , []{ TERN_(HOST_PROMPT_SUPPORT, hostui.prompt_end()); ui.store_settings(); ui.return_to_status(); }
+        , []{ TERN_(HOST_PROMPT_SUPPORT, hostui.prompt_end()); ui.return_to_status(); }
         , GET_TEXT_F(TERN(MESH_BED_LEVELING, MSG_MESH_Z_OFFSET, MSG_ZPROBE_ZOFFSET))
         , BABYSTEP_TO_STR(TERN(MESH_BED_LEVELING, bedlevel.z_offset, probe.offset.z)), F("?")
       );
@@ -177,7 +186,7 @@ static float flc_filament_diameter() {
  * With MESH_BED_LEVELING babysteps are added to Mesh Z Offset after printing.
  * Won't start without filament when runout switch is enabled.
  * Click LCD while heating, click out of babystep screen, or send M108 to stop early.
- * Result is not saved. LCD offers to save when done, or use M500.
+ * Result is not saved. LCD and host prompt offer to save when done, or use M500.
  *
  *  H<temp>    Hotend temperature. If omitted with no target set, use first preheat preset.
  *  B<temp>    Bed temperature. If omitted with no target set, use first preheat preset.
@@ -339,6 +348,7 @@ void GcodeSuite::M1005() {
   flc_canceled = false;
   marlin.wait_for_heatup = true;  // M108 clears this to stop
   TERN_(HAS_MARLINUI_MENU, flc_babystep_screen());
+  TERN_(FLC_HOST_STOP, hostui.prompt_do(PROMPT_STOP, GET_TEXT_F(MSG_FIRST_LAYER_CAL), GET_TEXT_F(MSG_BUTTON_STOP)));
 
   flc_segment_t seg;
   while (!flc_canceled && pattern.next(seg)) flc_line_to(seg, fr_mm_s);
@@ -347,6 +357,7 @@ void GcodeSuite::M1005() {
   // Finish
   //
   marlin.wait_for_heatup = false;
+  TERN_(FLC_HOST_STOP, hostui.prompt_end());
   const bool completed = !flc_canceled;
   if (flc_canceled) motion.quickstop_stepper();
   flc_retract(TERN(FWRETRACT, fwretract.settings.retract_length, FLC_RETRACT_LENGTH));
@@ -399,6 +410,12 @@ void GcodeSuite::M1005() {
       SERIAL_ECHOLNPGM("Mesh Z Offset ", bedlevel.z_offset, ". Use M500 to save.");
     #else
       SERIAL_ECHOLNPGM(STR_PROBE_OFFSET " " STR_Z, probe.offset.z, ". Use M500 to save.");
+    #endif
+    #if ALL(HOST_PROMPT_SUPPORT, EEPROM_SETTINGS)
+      hostui.prompt_do(PROMPT_SAVE_SETTINGS,
+        TS(GET_TEXT_F(TERN(MESH_BED_LEVELING, MSG_MESH_Z_OFFSET, MSG_ZPROBE_ZOFFSET)), ' ', p_float_t(TERN(MESH_BED_LEVELING, bedlevel.z_offset, probe.offset.z), 3), '?'),
+        GET_TEXT_F(MSG_BUTTON_SAVE), GET_TEXT_F(MSG_BUTTON_CANCEL)
+      );
     #endif
   }
 }
