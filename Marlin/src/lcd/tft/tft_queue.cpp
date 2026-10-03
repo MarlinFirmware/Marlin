@@ -139,6 +139,11 @@ void TFT_Queue::canvas(queueTask_t *task) {
         parametersCanvasRectangle_t *p_rect = (parametersCanvasRectangle_t *)item;
         tftCanvas.addRect(p_rect->x, p_rect->y, p_rect->width, p_rect->height, p_rect->color);
       } break;
+
+      case CANVAS_ADD_PIXELS: {
+        parametersCanvasPixels_t *p_pixels = (parametersCanvasPixels_t *)item;
+        tftCanvas.addPixels(p_pixels->x, p_pixels->y, p_pixels->width, p_pixels->height, p_pixels->pixels);
+      } break;
     }
     item = ((parametersCanvasBackground_t *)item)->nextParameter;
   }
@@ -385,6 +390,24 @@ void TFT_Queue::add_rectangle(uint16_t x, uint16_t y, uint16_t width, uint16_t h
   parameters->color = ENDIAN_COLOR(color);
 
   end_of_queue += sizeof(parametersCanvasRectangle_t);
+  task_parameters->count++;
+  parameters->nextParameter = end_of_queue;
+}
+
+void TFT_Queue::add_pixels(uint16_t x, uint16_t y, uint16_t width, uint16_t height, uint16_t *pixels) {
+  handle_queue_overflow(sizeof(parametersCanvasPixels_t));
+  parametersCanvas_t *task_parameters = (parametersCanvas_t *)(((uint8_t *)last_task) + sizeof(queueTask_t));
+  parametersCanvasPixels_t *parameters = (parametersCanvasPixels_t *)end_of_queue;
+  last_parameter = end_of_queue;
+
+  parameters->type = CANVAS_ADD_PIXELS;
+  parameters->x = x;
+  parameters->y = y;
+  parameters->width = width;
+  parameters->height = height;
+  parameters->pixels = pixels;
+
+  end_of_queue += sizeof(parametersCanvasPixels_t);
   task_parameters->count++;
   parameters->nextParameter = end_of_queue;
 }

@@ -48,6 +48,7 @@ enum CanvasSubtype : uint8_t {
   CANVAS_ADD_IMAGE,
   CANVAS_ADD_BAR,
   CANVAS_ADD_RECT,
+  CANVAS_ADD_PIXELS,
 };
 
 typedef struct __attribute__((__packed__)) {
@@ -118,6 +119,16 @@ typedef struct __attribute__((__packed__)) {
   uint16_t color;
 } parametersCanvasRectangle_t;
 
+typedef struct __attribute__((__packed__)) {
+  CanvasSubtype type;
+  uint8_t *nextParameter;
+  uint16_t x;
+  uint16_t y;
+  uint16_t width;
+  uint16_t height;
+  uint16_t *pixels;
+} parametersCanvasPixels_t;
+
 class TFT_Queue {
   private:
     static uint8_t queue[TFT_QUEUE_SIZE];
@@ -151,4 +162,5 @@ class TFT_Queue {
 
     static void add_bar(uint16_t x, uint16_t y, uint16_t width, uint16_t height, uint16_t color);
     static void add_rectangle(uint16_t x, uint16_t y, uint16_t width, uint16_t height, uint16_t color);
+    static void add_pixels(uint16_t x, uint16_t y, uint16_t width, uint16_t height, uint16_t *pixels);
 };
