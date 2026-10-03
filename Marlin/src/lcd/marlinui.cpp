@@ -452,7 +452,7 @@ void MarlinUI::init() {
       uint16_t MarlinUI::repeat_delay;
     #endif
 
-    #if ANY(AUTO_BED_LEVELING_UBL, G26_MESH_VALIDATION)
+    #if ANY(AUTO_BED_LEVELING_UBL, G26_MESH_VALIDATION, FIRST_LAYER_CALIBRATION)
 
       bool MarlinUI::external_control; // = false
 

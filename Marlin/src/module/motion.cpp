@@ -62,7 +62,7 @@
   #include "../feature/fwretract.h"
 #endif
 
-#if ENABLED(BABYSTEP_DISPLAY_TOTAL)
+#if HAS_BABYSTEP_TOTAL
   #include "../feature/babystep.h"
 #endif
 
@@ -2891,7 +2891,7 @@ void Motion::set_axis_is_at_home(const AxisEnum axis) {
 
   TERN_(I2C_POSITION_ENCODERS, I2CPEM.homed(axis));
 
-  TERN_(BABYSTEP_DISPLAY_TOTAL, babystep.reset_total(axis));
+  TERN_(HAS_BABYSTEP_TOTAL, babystep.reset_total(axis));
 
   TERN_(HAS_WORKSPACE_OFFSET, workspace_offset[axis] = 0);
 

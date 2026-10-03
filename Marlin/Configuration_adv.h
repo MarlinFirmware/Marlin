@@ -1606,6 +1606,28 @@
   #define FEEDRATE_CHANGE_BEEP_FREQUENCY 440
 #endif
 
+/**
+ * First Layer Calibration
+ * Calibrate nozzle-to-bed distance.
+ * Prints zig-zag pattern ending in solid patch. Babystep Z
+ * while it prints, then judge result on patch.
+ * Start with 'M1005' or from LCD menu. Use 'M500' to save result.
+ * With bed probe this requires BABYSTEP_ZPROBE_OFFSET. Result goes to Probe Z Offset.
+ * With MESH_BED_LEVELING this requires BABYSTEPPING. Result goes to Mesh Z Offset.
+ */
+#if HAS_BED_PROBE || ENABLED(MESH_BED_LEVELING)
+  //#define FIRST_LAYER_CALIBRATION
+  #if ENABLED(FIRST_LAYER_CALIBRATION)
+    //#define FLC_ROWS          6     // Rows in zig-zag pattern
+    //#define FLC_MARGIN       10     // (mm) Margin from bed edges or printable radius
+    //#define FLC_LAYER_HEIGHT  0.2   // (mm) Layer height. Default: MESH_TEST_LAYER_HEIGHT or 0.2
+    //#define FLC_LINE_WIDTH    0.42  // (mm) Line width. Default: MESH_TEST_NOZZLE_SIZE + 0.02 or 0.42
+    //#define FLC_KEEP_HEATERS_ON     // Leave heaters on after printing
+    //#define FLC_CLEAN_PROMPT        // Wait for click after heating so nozzle can be cleaned
+    //#define FLC_NOZZLE_WIPE         // Wipe nozzle with G12 after heating. Requires NOZZLE_CLEAN_FEATURE.
+  #endif
+#endif
+
 #if HAS_BED_PROBE
 
   #if HAS_MARLINUI_MENU
