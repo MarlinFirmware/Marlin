@@ -124,9 +124,10 @@ static void flc_heaters_off() {
   TERN_(HAS_HEATED_BED, thermalManager.setTargetBed(0));
 }
 
-// Stop with heaters off
-static void flc_abort() {
-  LCD_MESSAGE(MSG_FLC_CANCELED);
+// Stop before printing, with heaters off
+static void flc_abort(const bool canceled=true) {
+  TERN_(HAS_MARLINUI_MENU, ui.release());
+  if (canceled) LCD_MESSAGE(MSG_FLC_CANCELED);
   flc_heaters_off();
 }
 
@@ -164,7 +165,7 @@ static float flc_filament_diameter() {
  * Prints zig-zag pattern across bed ending in solid patch.
  * Babystep Z while pattern prints to adjust Probe Z Offset.
  * With MESH_BED_LEVELING babysteps are added to Mesh Z Offset after printing.
- * Click out of babystep screen or send M108 to stop early.
+ * Click LCD while heating, click out of babystep screen, or send M108 to stop early.
  * Result is not saved. LCD offers to save when done, or use M500.
  *
  *  H<temp>    Hotend temperature. If omitted with no target set, use first preheat preset.
@@ -248,7 +249,9 @@ void GcodeSuite::M1005() {
     #endif
     if (thermalManager.degTargetBed()) {
       thermalManager.isHeatingBed() ? LCD_MESSAGE(MSG_BED_HEATING) : LCD_MESSAGE(MSG_BED_COOLING);
-      if (!thermalManager.wait_for_bed(false)) return flc_abort();
+      TERN_(HAS_MARLINUI_MENU, ui.capture());  // Click cancels, like G26
+      if (!thermalManager.wait_for_bed(false OPTARG(HEATUP_CLICK_CAN_CANCEL, true))) return flc_abort();
+      TERN_(HAS_MARLINUI_MENU, ui.release());
     }
   #endif
 
@@ -256,7 +259,7 @@ void GcodeSuite::M1005() {
     LCD_MESSAGE(MSG_LEVEL_BED_HOMING);
     home_all_axes(true);
   }
-  if (motion.homing_needed_error()) return flc_heaters_off();
+  if (motion.homing_needed_error()) return flc_abort(false);
 
   #if HAS_LEVELING
     if (do_level) process_subcommands_now(F(TERN(AUTO_BED_LEVELING_UBL, "G29P1\nG29P3\nG29P3", "G29")));
@@ -291,7 +294,9 @@ void GcodeSuite::M1005() {
     thermalManager.setTargetHotend(hotend_target, motion.extruder);
     if (hotend_target) {
       thermalManager.isHeatingHotend(motion.extruder) ? LCD_MESSAGE(MSG_HEATING) : LCD_MESSAGE(MSG_COOLING);
-      if (!thermalManager.wait_for_hotend(motion.extruder, false)) return flc_abort();
+      TERN_(HAS_MARLINUI_MENU, ui.capture());
+      if (!thermalManager.wait_for_hotend(motion.extruder, false OPTARG(HEATUP_CLICK_CAN_CANCEL, true))) return flc_abort();
+      TERN_(HAS_MARLINUI_MENU, ui.release());
     }
   #endif
 
