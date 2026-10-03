@@ -2269,6 +2269,8 @@
 
   #define MAX_SAVED_MESHES    100         // Maximum number of meshes to store to EEPROM. Use 0 to disable saving.
 
+  //#define VARIABLE_GRID_POINTS          // Set the number of Probed Points with 'G29 X# Y#'. Limited by GRID_MAX_POINTS_*.
+
 #endif
 
 #if ANY(AUTO_BED_LEVELING_LINEAR, AUTO_BED_LEVELING_BILINEAR)
@@ -2301,6 +2303,10 @@
       #define BILINEAR_SUBDIVISIONS 3
     #endif
 
+  #endif
+
+  #if ANY(AUTO_BED_LEVELING_LINEAR, VARIABLE_GRID_POINTS)
+    //#define GRID_MIN_SPACING  25  // (mm) Prevent tiny cells when probing a small area
   #endif
 
 #elif ENABLED(AUTO_BED_LEVELING_UBL)
