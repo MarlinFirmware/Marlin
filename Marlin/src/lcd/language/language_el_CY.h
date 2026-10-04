@@ -43,4 +43,13 @@ namespace Language_el_CY {
 
   constexpr uint8_t CHARSIZE              = 2;
   LSTR LANGUAGE                           = _UxGT("Greek (Cyprus)");
+
+  LSTR MSG_KINEMATICS_SETTINGS            = _UxGT("Ρυθμίσεις κινηματικής");                    // Kinematics Settings
+  LSTR MSG_DELTA_TOWER_ANGLE_TRIM_N       = _UxGT("@ Ρύθμιση πύργου");                         // @ Tower Trim
+  LSTR MSG_DELTA_ROD_TRIM_A               = _UxGT("@ Ρύθμιση ράβδου A");                       // A Rod Trim
+  LSTR MSG_DELTA_ROD_TRIM_B               = _UxGT("@ Ρύθμιση ράβδου B");                       // B Rod Trim
+  LSTR MSG_DELTA_ROD_TRIM_C               = _UxGT("@ Ρύθμιση ράβδου C");                       // C Rod Trim
+  LSTR MSG_SCARA_P_OFFSET                 = _UxGT("Μετατόπιση θήτα");                          // P Offset
+  LSTR MSG_SCARA_T_OFFSET                 = _UxGT("Μετατόπιση ψι");                            // T Offset
+  LSTR MSG_SCARA_Z_OFFSET                 = _UxGT("Μετατόπιση Z");                             // Z Offset
 }

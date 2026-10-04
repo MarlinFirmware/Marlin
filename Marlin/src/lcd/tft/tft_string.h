@@ -142,6 +142,17 @@ class TFT_String {
     static void set(FSTR_P const fstr, uint8_t max_len=MAX_STRING_LENGTH) { set(FTOP(fstr), max_len); }
 
     /**
+     * @brief Append a value to a label, as in "Label: value"
+     *        Leading spaces (from right-justified value strings) are skipped.
+     *
+     * @param vstr The value string
+     */
+    static void add_value(const char *vstr) {
+      while (*vstr == ' ') vstr++;
+      add(F(": ")); add(vstr);
+    }
+
+    /**
      * @brief Append / Set C-string with optional substitution
      *
      * @param tpl A string with optional substitution

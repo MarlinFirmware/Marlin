@@ -70,10 +70,6 @@ namespace ExtUI {
     #endif
   }
 
-  void onHeatingError(const heater_id_t header_id) {}
-  void onMinTempError(const heater_id_t header_id) {}
-  void onMaxTempError(const heater_id_t header_id) {}
-
   void onStatusChanged(const char * const lcd_msg) { StatusScreen::setStatusMessage(lcd_msg); }
 
   void onPrintTimerStarted() {
@@ -84,9 +80,6 @@ namespace ExtUI {
   void onPrintTimerStopped() {
     InterfaceSoundsScreen::playEventSound(InterfaceSoundsScreen::PRINTING_FINISHED);
   }
-  void onPrintTimerPaused() {}
-
-  void onPrintDone() {}
 
   void onFilamentRunout(const extruder_t extruder) {
     char lcd_msg[30];
@@ -95,13 +88,9 @@ namespace ExtUI {
     InterfaceSoundsScreen::playEventSound(InterfaceSoundsScreen::PRINTING_FAILED, FTDI::PLAY_SYNCHRONOUS);
   }
 
-  void onHomingStart() {}
-  void onHomingDone() {}
-
   void onFactoryReset() { InterfaceSettingsScreen::defaultSettings(); }
   void onStoreSettings(char *buff) { InterfaceSettingsScreen::saveSettings(buff); }
   void onLoadSettings(const char *buff) { InterfaceSettingsScreen::loadSettings(buff); }
-  void onPostprocessSettings() {} // Called after loading or resetting stored settings
 
   void onSettingsStored(const bool success) {
     #ifdef ARCHIM2_SPI_FLASH_EEPROM_BACKUP_SIZE
@@ -112,7 +101,6 @@ namespace ExtUI {
       UNUSED(success);
     #endif
   }
-  void onSettingsLoaded(const bool) {}
 
   void onPlayTone(const uint16_t frequency, const uint16_t duration/*=0*/) { sound.play_tone(frequency, duration); }
 
@@ -150,36 +138,12 @@ namespace ExtUI {
     }
   #endif
 
-  #if HAS_LEVELING
-    void onLevelingStart() {}
-    void onLevelingDone() {}
-    #if ENABLED(PREHEAT_BEFORE_LEVELING)
-      celsius_t getLevelingBedTemp() { return LEVELING_BED_TEMP; }
-    #endif
-  #endif
-
   #if HAS_MESH
     void onMeshUpdate(const int8_t x, const int8_t y, const float val) {
       BedMeshViewScreen::onMeshUpdate(x, y, val);
     }
     void onMeshUpdate(const int8_t x, const int8_t y, const ExtUI::probe_state_t state) {
       BedMeshViewScreen::onMeshUpdate(x, y, state);
-    }
-  #endif
-
-  #if ENABLED(PREVENT_COLD_EXTRUSION)
-    void onSetMinExtrusionTemp(const celsius_t) {}
-  #endif
-
-  #if ENABLED(POWER_LOSS_RECOVERY)
-    void onSetPowerLoss(const bool onoff) {
-      // Called when power-loss is enabled/disabled
-    }
-    void onPowerLoss() {
-      // Called when power-loss state is detected
-    }
-    void onPowerLossResume() {
-      // Called on resume from power-loss
     }
   #endif
 
@@ -208,9 +172,6 @@ namespace ExtUI {
       }
       GOTO_SCREEN(StatusScreen);
     }
-    void onStartM303(const int count, const heater_id_t hid, const celsius_t temp) {
-      // Called by M303 to update the UI
-    }
   #endif // HAS_PID_HEATING
 
   #if ENABLED(MPC_AUTOTUNE)
@@ -224,15 +185,6 @@ namespace ExtUI {
       GOTO_SCREEN(StatusScreen);
     }
   #endif
-
-  #if ENABLED(PLATFORM_M997_SUPPORT)
-    void onFirmwareFlash() {}
-  #endif
-
-  void onSteppersDisabled() {}
-  void onSteppersEnabled() {}
-  void onAxisDisabled(const axis_t) {}
-  void onAxisEnabled(const axis_t) {}
 }
 
 #endif // TOUCH_UI_FTDI_EVE

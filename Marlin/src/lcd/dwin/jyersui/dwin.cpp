@@ -3240,7 +3240,7 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
               #if ENABLED(AUTO_BED_LEVELING_UBL)
                 #if ENABLED(PREHEAT_BEFORE_LEVELING)
                   popupHandler(Popup_Heating);
-                  probe.preheat_for_probing(LEVELING_NOZZLE_TEMP, LEVELING_BED_TEMP);
+                  thermalManager.preheat_for_leveling();
                 #endif
                 #if HAS_BED_PROBE
                   popupHandler(Popup_Level);
@@ -3299,16 +3299,7 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
               mesh_conf.goto_mesh_value = false;
               #if ENABLED(PREHEAT_BEFORE_LEVELING)
                 popupHandler(Popup_Heating);
-                #if HAS_HOTEND
-                  if (thermalManager.degTargetHotend(0) < LEVELING_NOZZLE_TEMP)
-                    thermalManager.setTargetHotend(LEVELING_NOZZLE_TEMP, 0);
-                #endif
-                #if HAS_HEATED_BED
-                  if (thermalManager.degTargetBed() < LEVELING_BED_TEMP)
-                    thermalManager.setTargetBed(LEVELING_BED_TEMP);
-                #endif
-                TERN_(HAS_HOTEND, thermalManager.wait_for_hotend(0));
-                TERN_(HAS_HEATED_BED, thermalManager.wait_for_bed_heating());
+                thermalManager.preheat_for_leveling();
               #endif
               popupHandler(Popup_MoveWait);
               mesh_conf.manual_mesh_move();

@@ -335,3 +335,7 @@
     #endif
   #endif
 #endif
+
+#if ALL(X_AXIS_TWIST_COMPENSATION, HAS_MARLINUI_MENU)
+  #define X_AXIS_TWIST_MENU
+#endif
