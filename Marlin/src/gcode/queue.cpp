@@ -41,6 +41,10 @@ GCodeQueue queue;
   #include "../feature/binary_stream.h"
 #endif
 
+#if ENABLED(EXTENSIBLE_UI)
+  #include "../lcd/extui/ui_api.h"
+#endif
+
 #if ENABLED(POWER_LOSS_RECOVERY)
   #include "../feature/powerloss.h"
 #endif
@@ -593,6 +597,7 @@ void GCodeQueue::get_serial_commands() {
         if (++sd_read_errors >= SD_MAX_READ_ERRORS) {
           SERIAL_ERROR_MSG(STR_SD_ERR_TOO_MANY_READ_ERRORS, F(STR_PRINT_ABORTED));
           card.abortFilePrintNow();
+          TERN_(EXTENSIBLE_UI, ExtUI::onMediaError());
           break;
         }
         continue;

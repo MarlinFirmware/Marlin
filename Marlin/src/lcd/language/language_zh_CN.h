@@ -97,7 +97,7 @@ namespace LanguageNarrow_zh_CN {
   LSTR MSG_NOZZLE_N                       = _UxGT("喷嘴 ~");                                     // Nozzle ~
   LSTR MSG_BED                            = _UxGT("热床");                                       // Bed
   LSTR MSG_FAN_SPEED                      = _UxGT("风扇速率");                                     // Fan Speed
-  LSTR MSG_FAN_SPEED_N                    = _UxGT("风扇速率 ~");                                   // Fan Speed ~
+  LSTR MSG_FAN_SPEED_N                    = _UxGT("风扇速率 ~");                                   // Fan ~ Speed
   LSTR MSG_FLOW                           = _UxGT("挤出速率");                                     // Flow
   LSTR MSG_FLOW_N                         = _UxGT("挤出速率 ~");                                   // Flow ~
   LSTR MSG_CONTROL                        = _UxGT("控制");                                       // Control
@@ -356,7 +356,7 @@ namespace LanguageNarrow_zh_CN {
   LSTR MSG_CHAMBER                        = _UxGT("机箱壳");                                      // Enclosure
   LSTR MSG_STORED_FAN_N                   = _UxGT("存储的风扇 ~");                                  // Stored Fan ~
   LSTR MSG_EXTRA_FAN_SPEED                = _UxGT("额外风扇速率");                                   // Extra Fan Speed
-  LSTR MSG_EXTRA_FAN_SPEED_N              = _UxGT("额外风扇速率 ~");                                 // Extra Fan Speed ~
+  LSTR MSG_EXTRA_FAN_SPEED_N              = _UxGT("额外风扇速率 ~");                                 // Extra Fan ~ Speed
   LSTR MSG_PID_AUTOTUNE                   = _UxGT("自动PID");                                    // PID Autotune
   LSTR MSG_PID_AUTOTUNE_E                 = _UxGT("自动PID *");                                  // Autotune * PID
   LSTR MSG_JERK                           = _UxGT("抖动速率");                                     // Jerk
@@ -441,6 +441,14 @@ namespace LanguageNarrow_zh_CN {
   LSTR MSG_DELTA_DIAG_ROD                 = _UxGT("⊿斜柱");                                      // Diag Rod
   LSTR MSG_DELTA_HEIGHT                   = _UxGT("⊿高度");                                      // Height
   LSTR MSG_DELTA_RADIUS                   = _UxGT("⊿半径");                                      // Radius
+  LSTR MSG_KINEMATICS_SETTINGS            = _UxGT("运动学设置");                                    // Kinematics Settings
+  LSTR MSG_DELTA_TOWER_ANGLE_TRIM_N       = _UxGT("@ 塔角修正");                                   // @ Tower Trim
+  LSTR MSG_DELTA_ROD_TRIM_A               = _UxGT("A 连杆修正");                                   // A Rod Trim
+  LSTR MSG_DELTA_ROD_TRIM_B               = _UxGT("B 连杆修正");                                   // B Rod Trim
+  LSTR MSG_DELTA_ROD_TRIM_C               = _UxGT("C 连杆修正");                                   // C Rod Trim
+  LSTR MSG_SCARA_P_OFFSET                 = _UxGT("Theta 偏移");                                 // P Offset
+  LSTR MSG_SCARA_T_OFFSET                 = _UxGT("Psi 偏移");                                   // T Offset
+  LSTR MSG_SCARA_Z_OFFSET                 = _UxGT("Z 偏移");                                     // Z Offset
   LSTR MSG_3POINT_LEVELING                = _UxGT("三点调平");                                     // 3-Point Leveling
   LSTR MSG_LINEAR_LEVELING                = _UxGT("线性调平");                                     // Linear Leveling
   LSTR MSG_BILINEAR_LEVELING              = _UxGT("双线性调平");                                    // Bilinear Leveling

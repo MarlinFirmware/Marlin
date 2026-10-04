@@ -106,7 +106,7 @@ namespace LanguageNarrow_gl {
   LSTR MSG_NOZZLE_N                       = _UxGT("Bico ~");                                   // Nozzle ~
   LSTR MSG_BED                            = _UxGT("Cama");                                     // Bed
   LSTR MSG_FAN_SPEED                      = _UxGT("Vel. Ventilador");                          // Fan Speed
-  LSTR MSG_FAN_SPEED_N                    = _UxGT("Vel. Ventilador ~");                        // Fan Speed ~
+  LSTR MSG_FAN_SPEED_N                    = _UxGT("Vel. Ventilador ~");                        // Fan ~ Speed
   LSTR MSG_FLOW                           = _UxGT("Fluxo");                                    // Flow
   LSTR MSG_FLOW_N                         = _UxGT("Fluxo ~");                                  // Flow ~
   LSTR MSG_CONTROL                        = _UxGT("Control");                                  // Control
@@ -365,7 +365,7 @@ namespace LanguageNarrow_gl {
   LSTR MSG_CHAMBER                        = _UxGT("Cámara");                                   // Enclosure
   LSTR MSG_STORED_FAN_N                   = _UxGT("Ventilador Mem. ~");                        // Stored Fan ~
   LSTR MSG_EXTRA_FAN_SPEED                = _UxGT("Vel. Vent. Extra");                         // Extra Fan Speed
-  LSTR MSG_EXTRA_FAN_SPEED_N              = _UxGT("Vel. Vent. Extra ~");                       // Extra Fan Speed ~
+  LSTR MSG_EXTRA_FAN_SPEED_N              = _UxGT("Vel. Vent. Extra ~");                       // Extra Fan ~ Speed
   LSTR MSG_PID_AUTOTUNE                   = _UxGT("Auto-Sint. PID");                           // PID Autotune
   LSTR MSG_PID_AUTOTUNE_E                 = _UxGT("Auto-Sint. PID *");                         // Autotune * PID
   LSTR MSG_JERK                           = _UxGT("Jerk");                                     // Jerk
@@ -450,6 +450,14 @@ namespace LanguageNarrow_gl {
   LSTR MSG_DELTA_DIAG_ROD                 = _UxGT("Barra Diagonal");                           // Diag Rod
   LSTR MSG_DELTA_HEIGHT                   = _UxGT("Altura");                                   // Height
   LSTR MSG_DELTA_RADIUS                   = _UxGT("Radio");                                    // Radius
+  LSTR MSG_KINEMATICS_SETTINGS            = _UxGT("Axustes cinemáticos");                      // Kinematics Settings
+  LSTR MSG_DELTA_TOWER_ANGLE_TRIM_N       = _UxGT("@ Axuste torre");                           // @ Tower Trim
+  LSTR MSG_DELTA_ROD_TRIM_A               = _UxGT("@ Axuste barra A");                         // A Rod Trim
+  LSTR MSG_DELTA_ROD_TRIM_B               = _UxGT("@ Axuste barra B");                         // B Rod Trim
+  LSTR MSG_DELTA_ROD_TRIM_C               = _UxGT("@ Axuste barra C");                         // C Rod Trim
+  LSTR MSG_SCARA_P_OFFSET                 = _UxGT("Despraz. theta");                           // P Offset
+  LSTR MSG_SCARA_T_OFFSET                 = _UxGT("Despraz. psi");                             // T Offset
+  LSTR MSG_SCARA_Z_OFFSET                 = _UxGT("Despraz. Z");                               // Z Offset
   LSTR MSG_3POINT_LEVELING                = _UxGT("Nivelación 3puntos");                       // 3-Point Leveling
   LSTR MSG_LINEAR_LEVELING                = _UxGT("Nivelación Lineal");                        // Linear Leveling
   LSTR MSG_BILINEAR_LEVELING              = _UxGT("Nivelación Bilineal");                      // Bilinear Leveling
