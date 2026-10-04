@@ -127,6 +127,10 @@
   #define COLOR_SLIDER_INACTIVE   COLOR_GREY
 #endif
 
+#ifndef COLOR_KEYPAD_BG
+  #define COLOR_KEYPAD_BG         COLOR_NAVY    // Edit screen keypad buttons, including CANC and DONE
+#endif
+
 #ifndef COLOR_UBL
   #define COLOR_UBL               COLOR_WHITE
 #endif

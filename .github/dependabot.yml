@@ -1,0 +1,18 @@
+#
+# dependabot.yml
+# Keep GitHub Actions versions current
+#
+
+version: 2
+
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly
+    labels:
+      - "PR: Improvement"
+    groups:
+      actions:
+        patterns:
+          - "*"
