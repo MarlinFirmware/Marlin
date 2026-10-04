@@ -232,7 +232,6 @@ GitHub Actions workflows run on every pull request and push:
 | `ci-validate-boards.yml` | Validates board pin configurations |
 | `ci-validate-pins.yml` | Checks for missing/invalid pin definitions |
 | `ci-validate-lines.yml` | Validates line count limits for 8-bit boards |
-| `auto-label.yml` | Auto-labels PRs by changed paths |
 | `check-pr.yml` | PR quality checks |
 
 ### 6.4 Docker Build Environment
@@ -242,7 +241,6 @@ A Dockerfile (`docker/Dockerfile`) provides a reproducible build environment:
 ```dockerfile
 FROM python:3.11-bookworm
 RUN pip install -U platformio PyYaml
-RUN pio upgrade --dev
 WORKDIR /code
 ```
 
