@@ -49,6 +49,15 @@ namespace LanguageNarrow_hg {
   constexpr uint8_t CHARSIZE              = 2;
   LSTR LANGUAGE                           = _UxGT("Hinglish");
 
+  LSTR MSG_KINEMATICS_SETTINGS            = _UxGT("Kinematics Settings");                      // Kinematics Settings
+  LSTR MSG_DELTA_TOWER_ANGLE_TRIM_N       = _UxGT("@ Tower Trim");                             // @ Tower Trim
+  LSTR MSG_DELTA_ROD_TRIM_A               = _UxGT("A Rod Trim");                               // A Rod Trim
+  LSTR MSG_DELTA_ROD_TRIM_B               = _UxGT("B Rod Trim");                               // B Rod Trim
+  LSTR MSG_DELTA_ROD_TRIM_C               = _UxGT("C Rod Trim");                               // C Rod Trim
+  LSTR MSG_SCARA_P_OFFSET                 = _UxGT("Theta Offset");                             // P Offset
+  LSTR MSG_SCARA_T_OFFSET                 = _UxGT("Psi Offset");                               // T Offset
+  LSTR MSG_SCARA_Z_OFFSET                 = _UxGT("Z Offset");                                 // Z Offset
+
   LSTR WELCOME_MSG                        = MACHINE_NAME_SUBST _UxGT(" taiyaar.");
   LSTR MSG_MEDIA_INSERTED                 = _UxGT("Card lagi");
   LSTR MSG_MEDIA_REMOVED                  = _UxGT("Card nikal gayi");

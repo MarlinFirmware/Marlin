@@ -44,6 +44,15 @@ namespace LanguageNarrow_da {
   constexpr uint8_t CHARSIZE              = 2;
   LSTR LANGUAGE                           = _UxGT("Danish");
 
+  LSTR MSG_KINEMATICS_SETTINGS            = _UxGT("Kinematik-indstillinger");                  // Kinematics Settings
+  LSTR MSG_DELTA_TOWER_ANGLE_TRIM_N       = _UxGT("@ Tårnjustering");                          // @ Tower Trim
+  LSTR MSG_DELTA_ROD_TRIM_A               = _UxGT("@ Stangjustering A");                       // A Rod Trim
+  LSTR MSG_DELTA_ROD_TRIM_B               = _UxGT("@ Stangjustering B");                       // B Rod Trim
+  LSTR MSG_DELTA_ROD_TRIM_C               = _UxGT("@ Stangjustering C");                       // C Rod Trim
+  LSTR MSG_SCARA_P_OFFSET                 = _UxGT("Theta-forskydning");                        // P Offset
+  LSTR MSG_SCARA_T_OFFSET                 = _UxGT("Psi-forskydning");                          // T Offset
+  LSTR MSG_SCARA_Z_OFFSET                 = _UxGT("Z-forskydning");                            // Z Offset
+
   LSTR WELCOME_MSG                        = MACHINE_NAME_SUBST _UxGT(" er klar");              // (MACHINE_NAME_SUBST) Ready.
   LSTR MSG_MEDIA_INSERTED                 = _UxGT("Kort isat");                                // (MEDIA_TYPE_EN) Inserted
   LSTR MSG_MEDIA_REMOVED                  = _UxGT("Kort fjernet");                             // (MEDIA_TYPE_EN) Removed
@@ -92,7 +101,7 @@ namespace LanguageNarrow_da {
   LSTR MSG_NOZZLE_N                       = _UxGT("Dyse ~");                                   // Nozzle ~
   LSTR MSG_BED                            = _UxGT("Plade");                                    // Bed
   LSTR MSG_FAN_SPEED                      = _UxGT("Blæser hastighed");                         // Fan Speed
-  LSTR MSG_FAN_SPEED_N                    = _UxGT("Blæser hastighed ~");                       // Fan Speed ~
+  LSTR MSG_FAN_SPEED_N                    = _UxGT("Blæser ~ hastighed");                       // Fan ~ Speed
   LSTR MSG_CONTROL                        = _UxGT("Kontrol");                                  // Control
   LSTR MSG_AUTOTEMP                       = _UxGT("Autotemp");                                 // Autotemp
   LSTR MSG_SELECT_E                       = _UxGT("Vælg *");                                   // Select *

@@ -104,7 +104,7 @@ namespace LanguageNarrow_cz {
   LSTR MSG_NOZZLE_N                       = _UxGT("Tryska ~");                                 // Nozzle ~
   LSTR MSG_BED                            = _UxGT("Podložka");                                 // Bed
   LSTR MSG_FAN_SPEED                      = _UxGT("Rychlost vent.");                           // Fan Speed
-  LSTR MSG_FAN_SPEED_N                    = _UxGT("Rychlost vent. ~");                         // Fan Speed ~
+  LSTR MSG_FAN_SPEED_N                    = _UxGT("Rychlost vent. ~");                         // Fan ~ Speed
   LSTR MSG_FLOW                           = _UxGT("Průtok");                                   // Flow
   LSTR MSG_FLOW_N                         = _UxGT("Průtok ~");                                 // Flow ~
   LSTR MSG_CONTROL                        = _UxGT("Ovládaní");                                 // Control
@@ -364,7 +364,7 @@ namespace LanguageNarrow_cz {
   LSTR MSG_CHAMBER                        = _UxGT("Komora");                                   // Enclosure
   LSTR MSG_STORED_FAN_N                   = _UxGT("Ulož. vent. ~");                            // Stored Fan ~
   LSTR MSG_EXTRA_FAN_SPEED                = _UxGT("Rychlost ex. vent.");                       // Extra Fan Speed
-  LSTR MSG_EXTRA_FAN_SPEED_N              = _UxGT("Rychlost ex. vent. ~");                     // Extra Fan Speed ~
+  LSTR MSG_EXTRA_FAN_SPEED_N              = _UxGT("Rychlost ex. vent. ~");                     // Extra Fan ~ Speed
   LSTR MSG_PID_AUTOTUNE                   = _UxGT("PID automatika");                           // PID Autotune
   LSTR MSG_PID_AUTOTUNE_E                 = _UxGT("PID automatika *");                         // Autotune * PID
   LSTR MSG_JERK                           = _UxGT("Jerk");                                     // Jerk
@@ -449,6 +449,14 @@ namespace LanguageNarrow_cz {
   LSTR MSG_DELTA_DIAG_ROD                 = _UxGT("Diag rameno");                              // Diag Rod
   LSTR MSG_DELTA_HEIGHT                   = _UxGT("Výška");                                    // Height
   LSTR MSG_DELTA_RADIUS                   = _UxGT("Poloměr");                                  // Radius
+  LSTR MSG_KINEMATICS_SETTINGS            = _UxGT("Nastavení kinematiky");                     // Kinematics Settings
+  LSTR MSG_DELTA_TOWER_ANGLE_TRIM_N       = _UxGT("@ Ořez věže");                              // @ Tower Trim
+  LSTR MSG_DELTA_ROD_TRIM_A               = _UxGT("@ Ořez táhla A");                           // A Rod Trim
+  LSTR MSG_DELTA_ROD_TRIM_B               = _UxGT("@ Ořez táhla B");                           // B Rod Trim
+  LSTR MSG_DELTA_ROD_TRIM_C               = _UxGT("@ Ořez táhla C");                           // C Rod Trim
+  LSTR MSG_SCARA_P_OFFSET                 = _UxGT("Offset theta");                             // P Offset
+  LSTR MSG_SCARA_T_OFFSET                 = _UxGT("Offset psi");                               // T Offset
+  LSTR MSG_SCARA_Z_OFFSET                 = _UxGT("Offset Z");                                 // Z Offset
   LSTR MSG_3POINT_LEVELING                = _UxGT("3-bodové rovnání");                         // 3-Point Leveling
   LSTR MSG_LINEAR_LEVELING                = _UxGT("Lineárni rovnání");                         // Linear Leveling
   LSTR MSG_BILINEAR_LEVELING              = _UxGT("Bilineární rovnání");                       // Bilinear Leveling

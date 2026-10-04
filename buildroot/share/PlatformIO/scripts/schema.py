@@ -149,6 +149,8 @@ def extract_files(filekey):
             section = 'none'        # Current Settings section
             line_number = 0         # Counter for the line number of the file
             conditions = []         # Create a condition stack for the current file
+            negcount = []           # Parallel stack: how many leading items in each condition-array are #else negations
+            run_owner = None        # First #define of the current run of consecutive #defines
             comment_buff = []       # A temporary buffer for comments
             prev_comment = ''       # Copy before reset for an EOL comment
             options_json = ''       # A buffer for the most recent options JSON found
@@ -162,6 +164,10 @@ def extract_files(filekey):
 
                 # Clean the line for easier parsing
                 the_line = the_line.strip()
+
+                # A blank line or preprocessor directive ends a run of consecutive #defines
+                if the_line == '' or re.match(r'^#\s*(if|ifn?def|elif|else|endif)\b', the_line):
+                    run_owner = None
 
                 if join_line:   # A previous line is being made longer
                     line += (' ' if line else '') + the_line
@@ -323,6 +329,14 @@ def extract_files(filekey):
                             return s
                         return f'({s})'
 
+                    # Negate the given (atomized) condition, wrapping comparisons so '!' binds correctly
+                    def negate(s):
+                        if s.startswith('!') and (re.match(r'^!\w+(\([^()]*\))?$', s) or (s.startswith('!(') and s.endswith(')'))):
+                            return s[1:]
+                        if re.match(r'^\w+(\([^()]*\))?$', s) or (s.startswith('(') and s.endswith(')')):
+                            return '!' + s
+                        return f'!({s})'
+
                     #
                     # The conditions stack is an array containing condition-arrays.
                     # Each condition-array lists the conditions for the current block.
@@ -332,6 +346,9 @@ def extract_files(filekey):
                     # ELIF adds a new condition to the end of the array.
                     # ELSE/ELIF re-push the condition-array.
                     #
+                    # The negated items only say "none of the prior branches applied," so they're
+                    # counted in 'negcount' and reported separately as 'block_clause', not 'requires'.
+                    #
                     cparts = line.split()
                     iselif, iselse = cparts[0] == '#elif', cparts[0] == '#else'
                     if iselif or iselse or cparts[0] == '#endif':
@@ -340,18 +357,24 @@ def extract_files(filekey):
 
                         # Pop the last condition-array from the stack
                         prev = conditions.pop()
+                        negcount.pop()
 
                         if iselif or iselse:
-                            prev[-1] = '!' + prev[-1] # Invert the last condition
+                            prev[-1] = negate(prev[-1]) # Invert the last condition
+                            nneg = len(prev)            # All items so far are now prior-branch negations
                             if iselif: prev.append(atomize(line[5:].strip()))
                             conditions.append(prev)
+                            negcount.append(nneg)
 
                     elif cparts[0] == '#if':
                         conditions.append([ atomize(line[3:].strip()) ])
+                        negcount.append(0)
                     elif cparts[0] == '#ifdef':
                         conditions.append([ f'defined({line[6:].strip()})' ])
+                        negcount.append(0)
                     elif cparts[0] == '#ifndef':
                         conditions.append([ f'!defined({line[7:].strip()})' ])
+                        negcount.append(0)
 
                     # Handle a complete #define line
                     elif defmatch is not None:
@@ -400,8 +423,13 @@ def extract_files(filekey):
                         if val != '': define_info['value'] = val
                         if value_type != '': define_info['type'] = value_type
 
-                        # Join up accumulated conditions with &&
-                        if conditions: define_info['requires'] = '(' + ') && ('.join(sum(conditions, [])) + ')'
+                        # Join up accumulated conditions with &&. Prior-branch negations go to 'block_clause'.
+                        reqs, blks = [], []
+                        for carr, nneg in zip(conditions, negcount):
+                            blks += carr[:nneg]
+                            reqs += carr[nneg:]
+                        if reqs: define_info['requires'] = '(' + ') && ('.join(reqs) + ')'
+                        if blks: define_info['block_clause'] = '(' + ') && ('.join(blks) + ')'
 
                         # If the comment_buff is not empty, add the comment to the info
                         if comment_buff:
@@ -429,6 +457,14 @@ def extract_files(filekey):
 
                         if 'comment' in define_info and define_info['comment'] == '':
                             del define_info['comment']
+
+                        # A comment heading a run of consecutive #defines (no blank line or directive
+                        # between them) describes the whole run. Share it with the uncommented followers.
+                        # (At this point 'comment' can only be a leading comment. EOL comments are attached later.)
+                        if 'comment' in define_info:
+                            run_owner = define_info
+                        elif run_owner is not None:
+                            define_info['shared_comment'] = run_owner['comment']
 
                         # Set the options for the current #define
                         if define_name == "MOTHERBOARD" and boards != '':

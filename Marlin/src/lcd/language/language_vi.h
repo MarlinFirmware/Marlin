@@ -96,7 +96,7 @@ namespace LanguageNarrow_vi {
   LSTR MSG_NOZZLE_N                       = _UxGT("Đầu phun ~");                               // Nozzle ~
   LSTR MSG_BED                            = _UxGT("Bàn");                                      // Bed
   LSTR MSG_FAN_SPEED                      = _UxGT("Tốc độ quạt");                              // Fan Speed
-  LSTR MSG_FAN_SPEED_N                    = _UxGT("Tốc độ quạt ~");                            // Fan Speed ~
+  LSTR MSG_FAN_SPEED_N                    = _UxGT("Tốc độ quạt ~");                            // Fan ~ Speed
   LSTR MSG_FLOW                           = _UxGT("Lưu Lượng");                                // Flow
   LSTR MSG_FLOW_N                         = _UxGT("Lưu Lượng ~");                              // Flow ~
   LSTR MSG_CONTROL                        = _UxGT("Điều khiển");                               // Control
@@ -329,7 +329,7 @@ namespace LanguageNarrow_vi {
   LSTR MSG_LED_BRIGHTNESS                 = _UxGT("độ sáng");                                  // Brightness
   LSTR MSG_HOTEND_TOO_COLD                = _UxGT("Đầu nóng quá lạnh");                        // Hotend too cold
   LSTR MSG_EXTRA_FAN_SPEED                = _UxGT("Tốc độ quạt phụ");                         // Extra Fan Speed
-  LSTR MSG_EXTRA_FAN_SPEED_N              = _UxGT("Tốc độ quạt phụ ~");                       // Extra Fan Speed ~
+  LSTR MSG_EXTRA_FAN_SPEED_N              = _UxGT("Tốc độ quạt phụ ~");                       // Extra Fan ~ Speed
   LSTR MSG_JERK                           = _UxGT("Giật");                                     // Jerk
   LSTR MSG_VA_JERK                        = _UxGT("Giật-V") STR_A;                             // Max (STR_A) Jerk
   LSTR MSG_VB_JERK                        = _UxGT("Giật-V") STR_B;                             // Max (STR_B) Jerk
@@ -381,6 +381,14 @@ namespace LanguageNarrow_vi {
   LSTR MSG_DELTA_DIAG_ROD                 = _UxGT("Gậy Chéo");                                 // Diag Rod
   LSTR MSG_DELTA_HEIGHT                   = _UxGT("Chiều Cao");                                // Height
   LSTR MSG_DELTA_RADIUS                   = _UxGT("Bán Kính");                                 // Radius
+  LSTR MSG_KINEMATICS_SETTINGS            = _UxGT("Thiết lập động học");                       // Kinematics Settings
+  LSTR MSG_DELTA_TOWER_ANGLE_TRIM_N       = _UxGT("@ Chỉnh tháp");                             // @ Tower Trim
+  LSTR MSG_DELTA_ROD_TRIM_A               = _UxGT("@ Chỉnh thanh A");                          // A Rod Trim
+  LSTR MSG_DELTA_ROD_TRIM_B               = _UxGT("@ Chỉnh thanh B");                          // B Rod Trim
+  LSTR MSG_DELTA_ROD_TRIM_C               = _UxGT("@ Chỉnh thanh C");                          // C Rod Trim
+  LSTR MSG_SCARA_P_OFFSET                 = _UxGT("Độ lệch theta");                            // P Offset
+  LSTR MSG_SCARA_T_OFFSET                 = _UxGT("Độ lệch psi");                              // T Offset
+  LSTR MSG_SCARA_Z_OFFSET                 = _UxGT("Độ lệch Z");                                // Z Offset
   LSTR MSG_3POINT_LEVELING                = _UxGT("San lấp 3-Điểm");                           // 3-Point Leveling
   LSTR MSG_LINEAR_LEVELING                = _UxGT("San Lấp Tuyến Tính");                       // Linear Leveling
   LSTR MSG_BILINEAR_LEVELING              = _UxGT("San Lấp Song Tuyến");                       // Bilinear Leveling
