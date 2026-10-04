@@ -42,6 +42,15 @@ namespace LanguageNarrow_ko_KR {
   constexpr uint8_t CHARSIZE              = 1;
   LSTR LANGUAGE                           = _UxGT("Korean");
 
+  LSTR MSG_KINEMATICS_SETTINGS            = _UxGT("키네마틱 설정");                                  // Kinematics Settings
+  LSTR MSG_DELTA_TOWER_ANGLE_TRIM_N       = _UxGT("@ 타워 보정");                                  // @ Tower Trim
+  LSTR MSG_DELTA_ROD_TRIM_A               = _UxGT("A 로드 보정");                                  // A Rod Trim
+  LSTR MSG_DELTA_ROD_TRIM_B               = _UxGT("B 로드 보정");                                  // B Rod Trim
+  LSTR MSG_DELTA_ROD_TRIM_C               = _UxGT("C 로드 보정");                                  // C Rod Trim
+  LSTR MSG_SCARA_P_OFFSET                 = _UxGT("세타 오프셋");                                   // P Offset
+  LSTR MSG_SCARA_T_OFFSET                 = _UxGT("프사이 오프셋");                                  // T Offset
+  LSTR MSG_SCARA_Z_OFFSET                 = _UxGT("Z 오프셋");                                    // Z Offset
+
   LSTR WELCOME_MSG                        = MACHINE_NAME_SUBST _UxGT(" 준비.");                  // (MACHINE_NAME_SUBST) Ready.
   LSTR MSG_MEDIA_INSERTED                 = _UxGT("카드 삽입됨");                                   // (MEDIA_TYPE_EN) Inserted
   LSTR MSG_MEDIA_REMOVED                  = _UxGT("카드 제거됨");                                   // (MEDIA_TYPE_EN) Removed
@@ -76,7 +85,7 @@ namespace LanguageNarrow_ko_KR {
   LSTR MSG_NOZZLE_N                       = _UxGT("노즐 ~");                                     // Nozzle ~
   LSTR MSG_BED                            = _UxGT("베드");                                       // Bed
   LSTR MSG_FAN_SPEED                      = _UxGT("펜 속도");                                     // Fan Speed
-  LSTR MSG_FAN_SPEED_N                    = _UxGT("펜 속도 ~");                                   // Fan Speed ~
+  LSTR MSG_FAN_SPEED_N                    = _UxGT("펜 ~ 속도");                                   // Fan ~ Speed
   LSTR MSG_TEMPERATURE                    = _UxGT("온도");                                       // Temperature
   LSTR MSG_MOTION                         = _UxGT("동작");                                       // Motion
   LSTR MSG_STORE_EEPROM                   = _UxGT("설정 저장하기");                                  // Store Settings
@@ -107,7 +116,7 @@ namespace LanguageNarrow_ko_KR {
   LSTR MSG_IDEX_MODE_MIRRORED_COPY        = _UxGT("미러 사본");                                    // Mirrored Copy
   LSTR MSG_UBL_DOING_G29                  = _UxGT("오토레벨링 하기");                                 // Doing G29
   LSTR MSG_EXTRA_FAN_SPEED                = _UxGT("엑스트라 펜 속도");                                // Extra Fan Speed
-  LSTR MSG_EXTRA_FAN_SPEED_N              = _UxGT("엑스트라 펜 속도 ~");                              // Extra Fan Speed ~
+  LSTR MSG_EXTRA_FAN_SPEED_N              = _UxGT("엑스트라 펜 ~ 속도");                              // Extra Fan ~ Speed
   LSTR MSG_INIT_EEPROM                    = _UxGT("EEPROM 초기화");                               // Initialize EEPROM
   LSTR MSG_PRINT_PAUSED                   = _UxGT("일시 정지됨");                                   // Print Paused
   LSTR MSG_PRINTING                       = _UxGT("출력중...");                                   // Printing...

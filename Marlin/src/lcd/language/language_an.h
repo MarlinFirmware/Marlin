@@ -45,6 +45,15 @@ namespace LanguageNarrow_an {
   constexpr uint8_t CHARSIZE              = 1;
   LSTR LANGUAGE                           = _UxGT("Aragonese");
 
+  LSTR MSG_KINEMATICS_SETTINGS            = _UxGT("Achustes cinemáticos");                     // Kinematics Settings
+  LSTR MSG_DELTA_TOWER_ANGLE_TRIM_N       = _UxGT("@ Ajuste d torre");                         // @ Tower Trim
+  LSTR MSG_DELTA_ROD_TRIM_A               = _UxGT("@ Ajuste d barra A");                       // A Rod Trim
+  LSTR MSG_DELTA_ROD_TRIM_B               = _UxGT("@ Ajuste d barra B");                       // B Rod Trim
+  LSTR MSG_DELTA_ROD_TRIM_C               = _UxGT("@ Ajuste d barra C");                       // C Rod Trim
+  LSTR MSG_SCARA_P_OFFSET                 = _UxGT("Desplaz. theta");                           // P Offset
+  LSTR MSG_SCARA_T_OFFSET                 = _UxGT("Desplaz. psi");                             // T Offset
+  LSTR MSG_SCARA_Z_OFFSET                 = _UxGT("Desplaz. Z");                               // Z Offset
+
   LSTR WELCOME_MSG                        = MACHINE_NAME_SUBST _UxGT(" parada.");              // (MACHINE_NAME_SUBST) Ready.
   LSTR MSG_MEDIA_INSERTED                 = _UxGT("Tarcheta mesa");                            // (MEDIA_TYPE_EN) Inserted
   LSTR MSG_MEDIA_REMOVED                  = _UxGT("Tarcheta sacada");                          // (MEDIA_TYPE_EN) Removed
@@ -100,7 +109,7 @@ namespace LanguageNarrow_an {
   LSTR MSG_NOZZLE_N                       = _UxGT("Boquilla ~");                               // Nozzle ~
   LSTR MSG_BED                            = _UxGT("Base");                                     // Bed
   LSTR MSG_FAN_SPEED                      = _UxGT("Ixoriador");                                // Fan Speed
-  LSTR MSG_FAN_SPEED_N                    = _UxGT("Ixoriador ~");                              // Fan Speed ~
+  LSTR MSG_FAN_SPEED_N                    = _UxGT("Ixoriador ~");                              // Fan ~ Speed
   LSTR MSG_FLOW                           = _UxGT("Fluxo");                                    // Flow
   LSTR MSG_FLOW_N                         = _UxGT("Fluxo ~");                                  // Flow ~
   LSTR MSG_CONTROL                        = _UxGT("Control");                                  // Control

@@ -29,6 +29,10 @@
 // read or update Marlin's state using the methods in the
 // ExtUI methods in "../ui_api.h"
 //
+// Event handlers not defined here fall back to the no-op
+// defaults in "../ui_api.cpp". See "../ui_api.h" for the
+// full list of handlers that a UI may define.
+//
 // Although it may be possible to access other state
 // variables from Marlin, using the API here possibly
 // helps ensure future compatibility.
@@ -45,49 +49,6 @@ namespace ExtUI {
      *   READ(pin)
      */
   }
-  void onIdle() {}
-  void onPrinterKilled(FSTR_P const error, FSTR_P const component) {}
-
-  void onMediaMounted() {}
-  void onMediaError() {}
-  void onMediaRemoved() {}
-
-  void onHeatingError(const heater_id_t header_id) {}
-  void onMinTempError(const heater_id_t header_id) {}
-  void onMaxTempError(const heater_id_t header_id) {}
-
-  void onPlayTone(const uint16_t frequency, const uint16_t duration/*=0*/) {}
-
-  void onPrintTimerStarted() {}
-  void onPrintTimerPaused() {}
-  void onPrintTimerStopped() {}
-
-  void onFilamentRunout(const extruder_t extruder) {}
-
-  void onUserConfirmRequired(const char * const msg) {}
-
-  // For fancy LCDs include an icon ID, message, and translated button title
-  void onUserConfirmRequired(const int icon, const char * const cstr, FSTR_P const fBtn) {}
-  void onUserConfirmRequired(const int icon, FSTR_P const fstr, FSTR_P const fBtn) {}
-
-  #if ENABLED(ADVANCED_PAUSE_FEATURE)
-    void onPauseMode(
-      const PauseMessage message,
-      const PauseMode mode/*=PAUSE_MODE_SAME*/,
-      const uint8_t extruder/*=motion.extruder*/
-    ) {
-      stdOnPauseMode(message, mode, extruder);
-    }
-  #endif
-
-  void onStatusChanged(const char * const msg) {}
-
-  void onHomingStart() {}
-  void onHomingDone() {}
-
-  void onPrintDone() {}
-
-  void onFactoryReset() {}
 
   void onStoreSettings(char *buff) {
     // Called when saving to EEPROM (i.e. M500). If the ExtUI needs
@@ -109,51 +70,13 @@ namespace ExtUI {
     //  memcpy(&myDataStruct, buff, sizeof(myDataStruct));
   }
 
-  void onPostprocessSettings() {
-    // Called after loading or resetting stored settings
-  }
-
-  void onSettingsStored(const bool success) {
-    // Called after the entire EEPROM has been written,
-    // whether successful or not.
-  }
-
-  void onSettingsLoaded(const bool success) {
-    // Called after the entire EEPROM has been read,
-    // whether successful or not.
-  }
-
-  #if HAS_LEVELING
-    void onLevelingStart() {}
-    void onLevelingDone() {}
-    #if ENABLED(PREHEAT_BEFORE_LEVELING)
-      celsius_t getLevelingBedTemp() { return LEVELING_BED_TEMP; }
-    #endif
-  #endif
-
-  #if HAS_MESH
-    void onMeshUpdate(const int8_t xpos, const int8_t ypos, const float zval) {
-      // Called when any mesh points are updated
-    }
-
-    void onMeshUpdate(const int8_t xpos, const int8_t ypos, const probe_state_t state) {
-      // Called to indicate a special condition
-    }
-  #endif
-
-  #if ENABLED(PREVENT_COLD_EXTRUSION)
-    void onSetMinExtrusionTemp(const celsius_t) {}
-  #endif
-
-  #if ENABLED(POWER_LOSS_RECOVERY)
-    void onSetPowerLoss(const bool onoff) {
-      // Called when power-loss is enabled/disabled
-    }
-    void onPowerLoss() {
-      // Called when power-loss state is detected
-    }
-    void onPowerLossResume() {
-      // Called on resume from power-loss
+  #if ENABLED(ADVANCED_PAUSE_FEATURE)
+    void onPauseMode(
+      const PauseMessage message,
+      const PauseMode mode/*=PAUSE_MODE_SAME*/,
+      const uint8_t extruder/*=motion.extruder*/
+    ) {
+      stdOnPauseMode(message, mode, extruder);
     }
   #endif
 
@@ -170,9 +93,6 @@ namespace ExtUI {
         case PID_DONE:            break;
       }
     }
-    void onStartM303(const int count, const heater_id_t hid, const celsius_t temp) {
-      // Called by M303 to update the UI
-    }
   #endif
 
   #if ENABLED(MPC_AUTOTUNE)
@@ -186,15 +106,6 @@ namespace ExtUI {
       }
     }
   #endif
-
-  #if ENABLED(PLATFORM_M997_SUPPORT)
-    void onFirmwareFlash() {}
-  #endif
-
-  void onSteppersDisabled() {}
-  void onSteppersEnabled() {}
-  void onAxisDisabled(const axis_t) {}
-  void onAxisEnabled(const axis_t) {}
 }
 
 #endif // EXTUI_EXAMPLE && EXTENSIBLE_UI
