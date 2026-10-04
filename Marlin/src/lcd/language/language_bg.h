@@ -44,6 +44,15 @@ namespace LanguageNarrow_bg {
   constexpr uint8_t CHARSIZE              = 2;
   LSTR LANGUAGE                           = _UxGT("Bulgarian");
 
+  LSTR MSG_KINEMATICS_SETTINGS            = _UxGT("Кинематични настройки");                    // Kinematics Settings
+  LSTR MSG_DELTA_TOWER_ANGLE_TRIM_N       = _UxGT("@ Ъгъл на кула");                           // @ Tower Trim
+  LSTR MSG_DELTA_ROD_TRIM_A               = _UxGT("@ Корекция прът A");                        // A Rod Trim
+  LSTR MSG_DELTA_ROD_TRIM_B               = _UxGT("@ Корекция прът B");                        // B Rod Trim
+  LSTR MSG_DELTA_ROD_TRIM_C               = _UxGT("@ Корекция прът C");                        // C Rod Trim
+  LSTR MSG_SCARA_P_OFFSET                 = _UxGT("Отместване тета");                          // P Offset
+  LSTR MSG_SCARA_T_OFFSET                 = _UxGT("Отместване пси");                           // T Offset
+  LSTR MSG_SCARA_Z_OFFSET                 = _UxGT("Отместване Z");                             // Z Offset
+
   LSTR WELCOME_MSG                        = MACHINE_NAME_SUBST _UxGT(" Готов.");               // (MACHINE_NAME_SUBST) Ready.
   LSTR MSG_MEDIA_INSERTED                 = _UxGT("Картата е поставена");                      // (MEDIA_TYPE_EN) Inserted
   LSTR MSG_MEDIA_REMOVED                  = _UxGT("Картата е извадена");                       // (MEDIA_TYPE_EN) Removed
@@ -89,7 +98,7 @@ namespace LanguageNarrow_bg {
   LSTR MSG_NOZZLE_N                       = " " LCD_STR_THERMOMETER _UxGT(" Дюза ~");          // Nozzle ~
   LSTR MSG_BED                            = " " LCD_STR_THERMOMETER _UxGT(" Легло");           // Bed
   LSTR MSG_FAN_SPEED                      = _UxGT("Вентилатор");                               // Fan Speed
-  LSTR MSG_FAN_SPEED_N                    = _UxGT("Вентилатор ~");                             // Fan Speed ~
+  LSTR MSG_FAN_SPEED_N                    = _UxGT("Вентилатор ~");                             // Fan ~ Speed
   LSTR MSG_FLOW                           = _UxGT("Поток");                                    // Flow
   LSTR MSG_FLOW_N                         = _UxGT("Поток ~");                                  // Flow ~
   LSTR MSG_CONTROL                        = _UxGT("Управление");                               // Control

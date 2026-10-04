@@ -44,6 +44,15 @@ namespace LanguageNarrow_hr {
   constexpr uint8_t CHARSIZE              = 2;
   LSTR LANGUAGE                           = _UxGT("Croatian");
 
+  LSTR MSG_KINEMATICS_SETTINGS            = _UxGT("Postavke kinematike");                      // Kinematics Settings
+  LSTR MSG_DELTA_TOWER_ANGLE_TRIM_N       = _UxGT("@ Podešavanje tornja");                     // @ Tower Trim
+  LSTR MSG_DELTA_ROD_TRIM_A               = _UxGT("@ Podešavanje šipke A");                    // A Rod Trim
+  LSTR MSG_DELTA_ROD_TRIM_B               = _UxGT("@ Podešavanje šipke B");                    // B Rod Trim
+  LSTR MSG_DELTA_ROD_TRIM_C               = _UxGT("@ Podešavanje šipke C");                    // C Rod Trim
+  LSTR MSG_SCARA_P_OFFSET                 = _UxGT("Pomak theta");                              // P Offset
+  LSTR MSG_SCARA_T_OFFSET                 = _UxGT("Pomak psi");                                // T Offset
+  LSTR MSG_SCARA_Z_OFFSET                 = _UxGT("Pomak Z");                                  // Z Offset
+
   LSTR WELCOME_MSG                        = MACHINE_NAME_SUBST _UxGT(" spreman.");             // (MACHINE_NAME_SUBST) Ready.
   LSTR MSG_MEDIA_INSERTED                 = _UxGT("SD kartica umetnuta");                      // (MEDIA_TYPE_EN) Inserted
   LSTR MSG_MEDIA_REMOVED                  = _UxGT("SD kartica uklonjena");                     // (MEDIA_TYPE_EN) Removed
@@ -96,7 +105,7 @@ namespace LanguageNarrow_hr {
   LSTR MSG_NOZZLE_N                       = _UxGT("Dizna ~");                                  // Nozzle ~
   LSTR MSG_BED                            = _UxGT("Bed");                                      // Bed
   LSTR MSG_FAN_SPEED                      = _UxGT("Brzina ventilatora");                       // Fan Speed
-  LSTR MSG_FAN_SPEED_N                    = _UxGT("Brzina ventilatora ~");                     // Fan Speed ~
+  LSTR MSG_FAN_SPEED_N                    = _UxGT("Brzina ventilatora ~");                     // Fan ~ Speed
   LSTR MSG_SELECT_E                       = _UxGT("Odaberi *");                                // Select *
   LSTR MSG_TEMPERATURE                    = _UxGT("Temperature");                              // Temperature
   LSTR MSG_MOTION                         = _UxGT("Gibanje");                                  // Motion

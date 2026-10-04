@@ -67,7 +67,7 @@ bool getValidPinMode(const int8_t pin) {  // 1: output, 0: input
 void printPinPWM(const int32_t pin) {
   if (pwm_status(pin)) {
     //uint32_t chan = g_APinDescription[pin].ulPWMChannel TODO when fast pwm is operative;
-    //SERIAL_ECHOPGM("PWM = ", duty);
+    //SERIAL_ECHO("PWM = ", duty);
   }
 }
 

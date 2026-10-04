@@ -188,7 +188,7 @@
 #define ONBOARD_SPI_DEVICE                     2  // Maple
 #define ONBOARD_SD_CS_PIN              SD_SS_PIN
 #define SD_DETECT_PIN                       PC10
-#define NO_SD_HOST_DRIVE
+#define BOARD_NO_HOST_DRIVE                       // SD is only seen by the printer
 
 // TODO: This is the only way to set SPI for SD on STM32 (for now)
 #define ENABLE_SPI2
