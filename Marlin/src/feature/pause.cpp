@@ -291,7 +291,7 @@ bool load_filament(const float slow_load_length/*=0*/, const float fast_load_len
           KEEPALIVE_STATE(PAUSED_FOR_USER);
           marlin.user_resume();
           pause_menu_response = PAUSE_RESPONSE_WAIT_FOR;
-          #if ANY(HAS_MARLINUI_MENU, EXTENSIBLE_UI)
+          #if ANY(HAS_MARLINUI_MENU, EXTENSIBLE_UI, DWIN_CREALITY_LCD_JYERSUI)
             ui.pause_show_message(PAUSE_MESSAGE_OPTION); // MarlinUI and MKS UI also set PAUSE_RESPONSE_WAIT_FOR
           #else
             TERN_(SOVOL_SV06_RTS, rts.gotoPage(ID_PurgeMore_L, ID_PurgeMore_D));
