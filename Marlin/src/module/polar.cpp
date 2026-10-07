@@ -71,6 +71,13 @@ void inverse_kinematics(const xyz_pos_t &raw) {
 
     static float current_polar_theta = 0;
 
+    // At the center the angle is undefined (ATAN2(0,0) == 0) so keep the
+    // current angle instead of spinning the turntable to 0°.
+    if (UNEAR_ZERO(rawRadius)) {
+      motion.delta.set(rawRadius, current_polar_theta, raw.z);
+      return;
+    }
+
     float r = rawRadius,
           theta = absoluteAngle(posTheta),
           currentAbsTheta = absoluteAngle(current_polar_theta);
