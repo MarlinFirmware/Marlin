@@ -90,7 +90,7 @@ public:
   #endif
 
   #if ENABLED(GCODE_MOTION_MODES)
-    static int16_t motion_mode_codenum;
+    static int8_t motion_mode_codenum;
     #if USE_GCODE_SUBCODES
       static uint8_t motion_mode_subcode;
     #endif
