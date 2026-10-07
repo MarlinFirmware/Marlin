@@ -611,6 +611,8 @@ def migrate(A, U, B, resolve, explain, report, orig_label, target_label, upgrade
     a_names = set(n for f in A for n in A[f].names)
 
     sets = {}           # (file, idx) -> (text, why)
+    owner = {}          # (file, idx) -> why, for every define a user change was applied to
+    disables = []       # stock options the user deleted, disabled last unless set another way
     merges = {}         # (file, new name) -> (part names, {part name: user define})
     inserts = {}        # (file, idx) -> [lines]   insert after line idx (-1 = top)
     orphans = { f: [] for f in B }
@@ -656,10 +658,12 @@ def migrate(A, U, B, resolve, explain, report, orig_label, target_label, upgrade
 
     def apply(bd, enabled, value, comment, name, why, like=None):
         k = (bd.file, bd.idx)
-        if k in sets and sets[k][1] != why:
-            report.add('Warnings', f'{bd.name}: set by both {sets[k][1]} and {why}; kept the latter')
+        if k in owner and owner[k] != why:
+            report.add('Warnings', f'{bd.name}: set by both {owner[k]} and {why}; kept the latter')
+        owner[k] = why
         text = bd.render(enabled, value, comment, like)
         if text != bd.raw: sets[k] = (text, why)
+        else: sets.pop(k, None)
 
     for f in FILES:
         if f not in U: continue
@@ -745,13 +749,14 @@ def migrate(A, U, B, resolve, explain, report, orig_label, target_label, upgrade
                 value = bd.value
             comment = ud.comment if ud and squash(ud.comment) != squash(ad.comment) else bd.comment
             if not ud:
-                report.add('Applied', f'{label}: removed in your file, disabled')
-            else:
-                what = []
-                if ud.enabled != ad.enabled: what.append('enabled' if ud.enabled else 'disabled')
-                if squash(ud.value) != squash(ad.value): what.append(f'= {short(value)}')
-                if comment is ud.comment and squash(ud.comment) != squash(ad.comment): what.append('comment')
-                report.add('Applied', f'{label}: ' + ', '.join(what))
+                # Weakest change: any setting of the target option (e.g. under its new name) wins
+                disables.append((bd, comment, f'{f}:{ad.name}', label))
+                continue
+            what = []
+            if ud.enabled != ad.enabled: what.append('enabled' if ud.enabled else 'disabled')
+            if squash(ud.value) != squash(ad.value): what.append(f'= {short(value)}')
+            if comment is ud.comment and squash(ud.comment) != squash(ad.comment): what.append('comment')
+            report.add('Applied', f'{label}: ' + ', '.join(what))
             like = ud if ud and squash(ud.value) != squash(ad.value) else None
             apply(bd, enabled, value, comment, ad.name, f'{f}:{ad.name}', like)
             # The target may split one option into #if/#else alternatives: set them all
@@ -873,6 +878,15 @@ def migrate(A, U, B, resolve, explain, report, orig_label, target_label, upgrade
                     report.add('Added lines placed', f'{f} {where}: {first}' + (f' (+{len(run) - 1} lines)' if len(run) > 1 else ''))
                 else:
                     orphan(f, run, f'added lines: no matching place in {target_label}')
+
+    # Stock options the user deleted, unless the target option was set another way
+    for bd, comment, why, label in disables:
+        k = (bd.file, bd.idx)
+        if k in owner:
+            report.add('Applied', f'{label}: removed in your file, but {owner[k]} sets {bd.name}; kept that')
+            continue
+        report.add('Applied', f'{label}: removed in your file, disabled')
+        apply(bd, False, bd.value, comment, bd.name, why)
 
     # Assemble output
     out = {}
@@ -1000,6 +1014,16 @@ requires a full git clone of Marlin with tags (not a ZIP download):
     for f, b in bases.items():
         if b != base:
             report.add('Warnings', f'{f} matches {git.describe(b)} better than {blabel}; used that as its base')
+        # A base of another version usually means the clone lacks the user's version
+        m = re.search(r'#define\s+CONFIGURATION_(?:ADV_)?H_VERSION\s+(\w+)', git.show(b, GIT_DIR + f) or '')
+        if f in vers and m and m[1] != vers[f]:
+            why = f'{f} is version {vers[f]}, but its base {git.describe(b)} is version {m[1]}'
+            if args.base:
+                why += '. Check that --from names the version your files came from'
+            elif vers[f] > m[1]:
+                why += ('. This clone may not have that version yet; update it and run again:\n'
+                        f'    git -C {args.repo} fetch --tags')
+            report.add('Warnings', why)
     out = migrate_texts(git, user, bases, target, report, blabel, tlabel, stock_lines)
 
     odir = cdir if args.in_place else Path(args.out) if args.out else cdir / 'migrated'
