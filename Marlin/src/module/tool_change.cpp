@@ -1440,7 +1440,12 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
       #define HAS_TC_GCODE_USE_GLOBAL 1
     #endif
 
-    if (ENABLED(EVENT_GCODE_TOOLCHANGE_ALWAYS_RUN) || !no_move) {
+    // Event G-code may call G28 or T, which call tool_change again. Don't recurse.
+    static bool in_event_gcode; // = false
+
+    if (!in_event_gcode && (ENABLED(EVENT_GCODE_TOOLCHANGE_ALWAYS_RUN) || !no_move)) {
+
+      REMEMBER(evt, in_event_gcode, true);
 
       #if ANY(HAS_EVENT_GCODE_PARK, HAS_TC_GCODE_USE_GLOBAL)
         xyz_pos_t old_workspace_offset;
