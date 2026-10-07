@@ -92,7 +92,11 @@ namespace ExtUI {
       const PauseMode mode/*=PAUSE_MODE_SAME*/,
       const uint8_t extruder/*=motion.extruder*/
     ) {
-      stdOnPauseMode(message, mode, extruder);
+      // This UI has no "Purge More / Resume" choice, so don't wait for one
+      if (message == PAUSE_MESSAGE_OPTION)
+        setPauseMenuResponse(PAUSE_RESPONSE_RESUME_PRINT);
+      else
+        stdOnPauseMode(message, mode, extruder);
     }
   #endif
 
