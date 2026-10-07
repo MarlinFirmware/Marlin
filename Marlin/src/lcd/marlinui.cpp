@@ -1198,6 +1198,11 @@ void MarlinUI::init() {
 
       if ((should_draw() || drawing_screen) && (!bbr2 || bbr2 > max_display_update_time)) {
 
+        // Only time the Status Screen draw if it was already current. A menu action may
+        // block for a long time (e.g., MMU load) then return to the Status Screen, and
+        // that time must not count or the screen will stop updating while printing.
+        const bool time_status_draw = on_status_screen();
+
         // Change state of drawing flag between screen updates
         if (!drawing_screen) switch (lcdDrawUpdate) {
           case LCDVIEW_CALL_NO_REDRAW:
@@ -1241,7 +1246,7 @@ void MarlinUI::init() {
             // If still drawing and there's another page, update max-time and return now.
             // The nextPage will already be set up on the next call.
             if (drawing_screen && (drawing_screen = u8g.nextPage())) {
-              if (on_status_screen())
+              if (time_status_draw && on_status_screen())
                 NOLESS(max_display_update_time, millis() - ms);
               return;
             }
@@ -1261,7 +1266,7 @@ void MarlinUI::init() {
 
         // Keeping track of the longest time for an individual LCD update.
         // Used to do screen throttling when the planner starts to fill up.
-        if (on_status_screen())
+        if (time_status_draw && on_status_screen())
           NOLESS(max_display_update_time, millis() - ms);
       }
 
