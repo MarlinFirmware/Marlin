@@ -566,7 +566,7 @@ def main():
                 print("Installing YAML module ...")
                 import subprocess
                 try:
-                    subprocess.run(['python3', '-m', 'pip', 'install', 'pyyaml'])
+                    subprocess.run([sys.executable, '-m', 'pip', 'install', 'pyyaml'])
                     import yaml
                 except:
                     print("Failed to install YAML module")
