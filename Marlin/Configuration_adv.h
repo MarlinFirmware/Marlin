@@ -2389,6 +2389,16 @@
   //#define TFT_BTOKMENU_COLOR 0x145F // 00010 100010 11111 Cyan
 #endif
 
+//
+// G-code Preview for TFT Color UI
+// Uses image data embedded in G-code files by your slicer
+//
+#if ALL(TFT_COLOR_UI, HAS_MEDIA)
+  //#define GCODE_PREVIEW_JPEG  // Enable JPEG thumbnail decoding
+  //#define GCODE_PREVIEW_PNG   // Enable PNG thumbnail decoding
+  //#define GCODE_PREVIEW_QOI   // Enable QOI thumbnail decoding
+#endif
+
 /**
  * Display Sleep
  * Enable this option to save energy and prevent OLED pixel burn-in.

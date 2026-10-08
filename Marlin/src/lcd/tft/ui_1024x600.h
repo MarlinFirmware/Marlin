@@ -315,3 +315,20 @@
     #define UBL_ACTION_Y            UBL_GRID_Y + UBL_GRID_H + UBL_CONTROL_OFFSET
   #endif
 #endif
+
+// G-code Preview Screen Layout (1024x600)
+#if !defined(GCODE_PREVIEW_THUMB_WIDTH) && !defined(GCODE_PREVIEW_THUMB_HEIGHT)
+  #define GCODE_PREVIEW_THUMB_WIDTH   (TFT_WIDTH / 2)
+  #define GCODE_PREVIEW_THUMB_HEIGHT  (TFT_HEIGHT - 50)
+#endif
+
+#if !defined(GCODE_PREVIEW_TEXT_X) && !defined(GCODE_PREVIEW_TEXT_Y_START)
+  #define GCODE_PREVIEW_TEXT_X        (GCODE_PREVIEW_THUMB_WIDTH + 20)
+  #define GCODE_PREVIEW_TEXT_Y_START  40
+#endif
+
+#if !defined(GCODE_PREVIEW_BUTTON_Y) && !defined(GCODE_PREVIEW_BUTTON1_X) && !defined(GCODE_PREVIEW_BUTTON2_X)
+  #define GCODE_PREVIEW_BUTTON_Y      (TFT_HEIGHT - 60)
+  #define GCODE_PREVIEW_BUTTON1_X     (TFT_WIDTH / 4 - 40)
+  #define GCODE_PREVIEW_BUTTON2_X     (3 * TFT_WIDTH / 4 - 40)
+#endif
