@@ -39,7 +39,7 @@
 //
 // EEPROM Emulation
 //
-#if NO_EEPROM_SELECTED
+#if SHALL_USE_EEPROM(FLASH_EEPROM_EMULATION)
   #define FLASH_EEPROM_EMULATION
   //#define SRAM_EEPROM_EMULATION
   //#define I2C_EEPROM
@@ -51,9 +51,7 @@
   #define FLASH_EEPROM_LEVELING
 #elif ENABLED(I2C_EEPROM)
   #define MARLIN_EEPROM_SIZE             0x2000U  // 8K
-#endif
-
-#ifndef MARLIN_EEPROM_SIZE
+#elif ENABLED(EEPROM_SETTINGS)
   #define MARLIN_EEPROM_SIZE             0x1000U  // 4K
 #endif
 

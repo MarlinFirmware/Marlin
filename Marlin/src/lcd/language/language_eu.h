@@ -98,7 +98,7 @@ namespace LanguageNarrow_eu {
   LSTR MSG_NOZZLE_N                       = _UxGT("Pita ~");                                   // Nozzle ~
   LSTR MSG_BED                            = _UxGT("Ohea");                                     // Bed
   LSTR MSG_FAN_SPEED                      = _UxGT("Haizagailu abiadura");                      // Fan Speed
-  LSTR MSG_FAN_SPEED_N                    = _UxGT("Haizagailu abiadura ~");                    // Fan Speed ~
+  LSTR MSG_FAN_SPEED_N                    = _UxGT("Haizagailu abiadura ~");                    // Fan ~ Speed
   LSTR MSG_FLOW                           = _UxGT("Fluxua");                                   // Flow
   LSTR MSG_FLOW_N                         = _UxGT("Fluxua ~");                                 // Flow ~
   LSTR MSG_CONTROL                        = _UxGT("Kontrola");                                 // Control
@@ -260,7 +260,7 @@ namespace LanguageNarrow_eu {
   LSTR MSG_INTENSITY_W                    = _UxGT("Intentsitate zuria");                       // White Intensity
   LSTR MSG_LED_BRIGHTNESS                 = _UxGT("Distira");                                  // Brightness
   LSTR MSG_EXTRA_FAN_SPEED                = _UxGT("Haiz.gehig. abiadura");                     // Extra Fan Speed
-  LSTR MSG_EXTRA_FAN_SPEED_N              = _UxGT("Haiz.gehig. abiadura ~");                   // Extra Fan Speed ~
+  LSTR MSG_EXTRA_FAN_SPEED_N              = _UxGT("Haiz.gehig. abiadura ~");                   // Extra Fan ~ Speed
   LSTR MSG_JERK                           = _UxGT("Astindua");                                 // Jerk
   LSTR MSG_VA_JERK                        = _UxGT("V") STR_A _UxGT("-astindua");               // Max (STR_A) Jerk
   LSTR MSG_VB_JERK                        = _UxGT("V") STR_B _UxGT("-astindua");               // Max (STR_B) Jerk
@@ -289,6 +289,14 @@ namespace LanguageNarrow_eu {
   LSTR MSG_DELTA_DIAG_ROD                 = _UxGT("Barra diagonala");                          // Diag Rod
   LSTR MSG_DELTA_HEIGHT                   = _UxGT("Altuera");                                  // Height
   LSTR MSG_DELTA_RADIUS                   = _UxGT("Erradioa");                                 // Radius
+  LSTR MSG_KINEMATICS_SETTINGS            = _UxGT("Zinematika ezarpenak");                     // Kinematics Settings
+  LSTR MSG_DELTA_TOWER_ANGLE_TRIM_N       = _UxGT("@ Dorre-doikuntza");                        // @ Tower Trim
+  LSTR MSG_DELTA_ROD_TRIM_A               = _UxGT("@ Barra-doikuntza A");                      // A Rod Trim
+  LSTR MSG_DELTA_ROD_TRIM_B               = _UxGT("@ Barra-doikuntza B");                      // B Rod Trim
+  LSTR MSG_DELTA_ROD_TRIM_C               = _UxGT("@ Barra-doikuntza C");                      // C Rod Trim
+  LSTR MSG_SCARA_P_OFFSET                 = _UxGT("Theta desplaz.");                           // P Offset
+  LSTR MSG_SCARA_T_OFFSET                 = _UxGT("Psi desplaz.");                             // T Offset
+  LSTR MSG_SCARA_Z_OFFSET                 = _UxGT("Z desplaz.");                               // Z Offset
   LSTR MSG_3POINT_LEVELING                = _UxGT("3 puntuko berdinketa");                     // 3-Point Leveling
   LSTR MSG_LINEAR_LEVELING                = _UxGT("Berdinketa lineala");                       // Linear Leveling
   LSTR MSG_BILINEAR_LEVELING              = _UxGT("Berdinketa bilinearra");                    // Bilinear Leveling

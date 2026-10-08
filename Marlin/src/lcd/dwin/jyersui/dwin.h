@@ -50,7 +50,9 @@ enum PopupID : uint8_t {
   Popup_ETemp,
   Popup_ConfFilChange,
   Popup_PurgeMore,
-  Popup_MeshSlot,
+  #if ALL(AUTO_BED_LEVELING_UBL, HAS_MESH_STORAGE)
+    Popup_MeshSlot,
+  #endif
   Popup_Level,
   Popup_Home,
   Popup_MoveWait,

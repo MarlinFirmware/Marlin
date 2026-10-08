@@ -51,14 +51,12 @@
   #define I2C_EEPROM                              // EEPROM on I2C-0
   //#define FLASH_EEPROM_EMULATION
   //#define SDCARD_EEPROM_EMULATION
-  #if ENABLED(I2C_EEPROM)
-    #define MARLIN_EEPROM_SIZE          0x10000U  // 64K (CAT24C512)
-  #if ENABLED(SDCARD_EEPROM_EMULATION)
-    #define MARLIN_EEPROM_SIZE            0x800U  // 2K
-  #else
-    #define MARLIN_EEPROM_SIZE            0x800U  // 2K
-  #endif
-  #undef NO_EEPROM_SELECTED
+#endif
+
+#if ENABLED(I2C_EEPROM)
+  #define MARLIN_EEPROM_SIZE            0x10000U  // 64K (CAT24C512)
+#elif ENABLED(EEPROM_SETTINGS)
+  #define MARLIN_EEPROM_SIZE              0x800U  // 2K
 #endif
 
 //

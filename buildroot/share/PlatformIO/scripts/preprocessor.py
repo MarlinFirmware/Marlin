@@ -45,7 +45,7 @@ def run_preprocessor(env, fn=None):
     try:
         define_list_text = subprocess.check_output(cmd, shell=True)
     except:
-        raise RuntimeError(f"Command `{cmd}` failed during build pre-processing.")
+        raise SystemExit("\nError: Build pre-processing failed. See errors above.\n")
 
     define_list = define_list_text.splitlines() if define_list_text else []
 

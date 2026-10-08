@@ -153,6 +153,23 @@ typedef bool (*statusResetFunc_t)();
   public:
     static screenFunc_t screen_ptr;
     static float menu_scale;
+    #if ALL(TFT_COLOR_UI, TOUCH_SCREEN)
+      // Distances for the Move screen buttons, replacing the "Move Xmm" submenu
+      static float step_sizes[8];       // (mm or °) Each distance, smallest first
+      static const char *step_labels[8]; // Distance as shown, e.g., "0.1" (inches in inch mode)
+      static uint8_t step_count;
+      static void add_step(const float d, const char * const label) {
+        if (step_count >= COUNT(step_sizes)) return;
+        // Insert in ascending order
+        uint8_t i = step_count++;
+        for (; i && step_sizes[i - 1] > d; --i) {
+          step_sizes[i] = step_sizes[i - 1];
+          step_labels[i] = step_labels[i - 1];
+        }
+        step_sizes[i] = d;
+        step_labels[i] = label;
+      }
+    #endif
     #if IS_KINEMATIC
       static float offset;
     #endif
@@ -703,7 +720,9 @@ public:
 
     // Manual Movement
     static ManualMove manual_move;
-    static bool can_show_slider() { return !external_control && currentScreen != manual_move.screen_ptr; }
+    static bool can_show_slider() {
+      return ENABLED(TFT_COLOR_UI) || (!external_control && currentScreen != manual_move.screen_ptr);
+    }
 
     // Select Screen (modal NO/YES style dialog)
     static bool selection;

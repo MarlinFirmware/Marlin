@@ -57,7 +57,6 @@ class MenuItem_button : public MenuItemBase {
 // ACTION_ITEM(LABEL, FUNC)
 class MenuItem_function : public MenuItem_button {
   public:
-    //static void action(FSTR_P const, const uint8_t, const menuAction_t func) { (*func)(); };
     static void action(FSTR_P const, const menuAction_t func) { if (func) (*func)(); };
 };
 
@@ -71,6 +70,7 @@ class MenuItem_gcode : public MenuItem_button {
     static void action(FSTR_P const fstr, const uint8_t, FSTR_P const fgcode) { action(fstr, fgcode); }
 };
 
+// COMMAND_ITEM(LABEL, GCODES)
 class MenuItem_command : public MenuItem_gcode {
   public:
     static void action(FSTR_P const, FSTR_P const fgcode) { gcode.process_subcommands_now(fgcode); }
@@ -110,8 +110,18 @@ class TMenuEditItem : MenuEditItemBase {
       // Make sure minv and maxv fit within int32_t
       const int32_t minv = _MAX(scaleToEncoder(minValue), INT32_MIN),
                     maxv = _MIN(scaleToEncoder(maxValue), INT32_MAX);
-      goto_edit_screen(fstr, ptr, minv, maxv - minv, scaleToEncoder(*ptr) - minv,
-        edit_screen, callback, live);
+      goto_edit_screen(
+          fstr              // Edit label
+        , ptr               // Edit value pointer
+        , minv              // Encoder min
+        , maxv - minv       // Encoder max
+        OPTARG(TFT_COLOR_UI, intptr_t(to_string)) // Value-to-string conversion function
+        OPTARG(TFT_COLOR_TOUCH, NAME::scaleVal()) // Encoder units per displayed unit
+        , scaleToEncoder(*ptr) - minv // Initial encoder value
+        , edit_screen       // Edit screen function
+        , callback          // Callback after edit
+        , live              // Flag to callback during editing
+      );
     }
 };
 
@@ -134,10 +144,13 @@ class TMenuEditItem : MenuEditItemBase {
  */
 #define __DOFIXfloat PROBE()
 #define _DOFIX(TYPE,V) TYPE(TERN(IS_PROBE(__DOFIX##TYPE),FIXFLOAT(V),(V)))
+// Types whose STRFUNC displays the encoder value instead of the stored value (e.g., 0-255 shown as 0-100%)
+#define __SHOWENCpercent PROBE()
 #define DEFINE_MENU_EDIT_ITEM_TYPE(NAME, TYPE, STRFUNC, SCALE, ETC...) \
   struct MenuEditItemInfo_##NAME { \
     typedef TYPE type_t; \
-    /* scale the given value to the encoder */ \
+    /* Encoder units per displayed unit, for converting a typed value */ \
+    static float scaleVal()   { return TERN(IS_PROBE(__SHOWENC##NAME), 1, SCALE); } \
     static int32_t scaleToEncoder(const type_t &value) { return value * (SCALE) ETC; } \
     static type_t unscaleEncoder(const int32_t value) { return type_t(value) / (SCALE) ETC; } \
     static const char* strfunc(const type_t &value) { return STRFUNC(_DOFIX(TYPE,value)); } \
@@ -456,6 +469,7 @@ class MenuItem_bool : public MenuEditItemBase {
 
 // Predefined menu item types //
 
+// BACK_ITEM rewinds the menu history
 #if ENABLED(NO_BACK_MENU_ITEM)
   #define BACK_ITEM_F(FLABEL) NOOP
   #define BACK_ITEM(LABEL)    NOOP
@@ -469,6 +483,7 @@ class MenuItem_bool : public MenuEditItemBase {
   #define BACK_ITEM_N(N, LABEL)                          MENU_ITEM_N(back, N, LABEL)
 #endif
 
+// ACTION_ITEM runs a simple void callback or lambda
 #define ACTION_ITEM_N_S_F(N, S, FLABEL, ACTION)      MENU_ITEM_N_S_F(function, N, S, FLABEL, ACTION)
 #define ACTION_ITEM_N_S(N, S, LABEL, ACTION)       ACTION_ITEM_N_S_F(N, S, GET_TEXT_F(LABEL), ACTION)
 #define ACTION_ITEM_S_F(S, FLABEL, ACTION)             MENU_ITEM_S_F(function, S, FLABEL, ACTION)
@@ -478,6 +493,7 @@ class MenuItem_bool : public MenuEditItemBase {
 #define ACTION_ITEM_F(FLABEL, ACTION)                    MENU_ITEM_F(function, FLABEL, ACTION)
 #define ACTION_ITEM(LABEL, ACTION)                     ACTION_ITEM_F(GET_TEXT_F(LABEL), ACTION)
 
+// GCODES_ITEM injects one or more G-codes into the queue if possible.
 #define GCODES_ITEM_N_S_F(N, S, FLABEL, GCODES)      MENU_ITEM_N_S_F(gcode, N, S, FLABEL, GCODES)
 #define GCODES_ITEM_N_S(N, S, LABEL, GCODES)       GCODES_ITEM_N_S_F(N, S, GET_TEXT_F(LABEL), GCODES)
 #define GCODES_ITEM_S_F(S, FLABEL, GCODES)             MENU_ITEM_S_F(gcode, S, FLABEL, GCODES)
@@ -487,6 +503,7 @@ class MenuItem_bool : public MenuEditItemBase {
 #define GCODES_ITEM_F(FLABEL, GCODES)                    MENU_ITEM_F(gcode, FLABEL, GCODES)
 #define GCODES_ITEM(LABEL, GCODES)                     GCODES_ITEM_F(GET_TEXT_F(LABEL), GCODES)
 
+// GCODES_ITEM runs some G-code now. Only use for G-code that returns immediately!
 #define COMMAND_ITEM_N_S_F(N, S, FLABEL, GCODES)     MENU_ITEM_N_S_F(command, N, S, FLABEL, GCODES)
 #define COMMAND_ITEM_N_S(N, S, LABEL, GCODES)     COMMAND_ITEM_N_S_F(N, S, GET_TEXT_F(LABEL), GCODES)
 #define COMMAND_ITEM_S_F(S, FLABEL, GCODES)            MENU_ITEM_S_F(command, S, FLABEL, GCODES)
@@ -496,6 +513,7 @@ class MenuItem_bool : public MenuEditItemBase {
 #define COMMAND_ITEM_F(FLABEL, GCODES)                   MENU_ITEM_F(command, FLABEL, GCODES)
 #define COMMAND_ITEM(LABEL, GCODES)                   COMMAND_ITEM_F(GET_TEXT_F(LABEL), GCODES)
 
+// SUBMENU navigates to a new menu, pushing to history
 #define SUBMENU_N_S_F(N, S, FLABEL, DEST)            MENU_ITEM_N_S_F(submenu, N, S, FLABEL, DEST)
 #define SUBMENU_N_S(N, S, LABEL, DEST)                 SUBMENU_N_S_F(N, S, GET_TEXT_F(LABEL), DEST)
 #define SUBMENU_S_F(S, FLABEL, DEST)                   MENU_ITEM_S_F(submenu, S, FLABEL, DEST)
@@ -505,6 +523,7 @@ class MenuItem_bool : public MenuEditItemBase {
 #define SUBMENU_F(FLABEL, DEST)                          MENU_ITEM_F(submenu, FLABEL, DEST)
 #define SUBMENU(LABEL, DEST)                               SUBMENU_F(GET_TEXT_F(LABEL), DEST)
 
+// EDIT_ITEM runs the edit screen with parameter for label, variable ref, value range, callback, etc.
 #define EDIT_ITEM_N_S_F(TYPE, N, S, FLABEL, V...)    MENU_ITEM_N_S_F(TYPE, N, S, FLABEL, ##V)
 #define EDIT_ITEM_N_S(TYPE, N, S, LABEL, V...)       EDIT_ITEM_N_S_F(TYPE, N, S, GET_TEXT_F(LABEL), ##V)
 #define EDIT_ITEM_S_F(TYPE, S, FLABEL, V...)           MENU_ITEM_S_F(TYPE, S, FLABEL, ##V)
@@ -514,6 +533,7 @@ class MenuItem_bool : public MenuEditItemBase {
 #define EDIT_ITEM_F(TYPE, FLABEL, V...)                  MENU_ITEM_F(TYPE, FLABEL, ##V)
 #define EDIT_ITEM(TYPE, LABEL, V...)                     EDIT_ITEM_F(TYPE, GET_TEXT_F(LABEL), ##V)
 
+// EDIT_ITEM_FAST runs EDIT_ITEM with accelerated click-wheel behavior
 #define EDIT_ITEM_FAST_N_S_F(TYPE, N, S, FLABEL, V...)  _MENU_ITEM_N_S_F(TYPE, N, S, true, FLABEL, ##V)
 #define EDIT_ITEM_FAST_N_S(TYPE, N, S, LABEL, V...) EDIT_ITEM_FAST_N_S_F(TYPE, N, S, true, GET_TEXT_F(LABEL), ##V)
 #define EDIT_ITEM_FAST_S_F(TYPE, S, FLABEL, V...)         _MENU_ITEM_S_F(TYPE, S, true, FLABEL, ##V)
@@ -540,6 +560,11 @@ class MenuItem_bool : public MenuEditItemBase {
 #define GCODES_ITEM_f_F(f, FLABEL, GCODES)             MENU_ITEM_f_F(gcode, f, FLABEL, GCODES)
 #define GCODES_ITEM_f(f, LABEL, GCODES)              GCODES_ITEM_f_F(f, GET_TEXT_F(LABEL), GCODES)
 
+#define COMMAND_ITEM_N_f_F(N, f, FLABEL, GCODES)     MENU_ITEM_N_f_F(gcode, N, f, FLABEL, GCODES)
+#define COMMAND_ITEM_N_f(N, f, LABEL, GCODES)      COMMAND_ITEM_N_f_F(N, f, GET_TEXT_F(LABEL), GCODES)
+#define COMMAND_ITEM_f_F(f, FLABEL, GCODES)            MENU_ITEM_f_F(gcode, f, FLABEL, GCODES)
+#define COMMAND_ITEM_f(f, LABEL, GCODES)             COMMAND_ITEM_f_F(f, GET_TEXT_F(LABEL), GCODES)
+
 #define SUBMENU_N_f_F(N, f, FLABEL, DEST)            MENU_ITEM_N_f_F(submenu, N, f, FLABEL, DEST)
 #define SUBMENU_N_f(N, f, LABEL, DEST)                 SUBMENU_N_f_F(N, f, GET_TEXT_F(LABEL), DEST)
 #define SUBMENU_f_F(f, FLABEL, DEST)                   MENU_ITEM_f_F(submenu, f, FLABEL, DEST)
@@ -555,6 +580,7 @@ class MenuItem_bool : public MenuEditItemBase {
 #define EDIT_ITEM_FAST_f_F(TYPE, f, FLABEL, V...)         _MENU_ITEM_f_F(TYPE, f, true, FLABEL, ##V)
 #define EDIT_ITEM_FAST_f(TYPE, f, LABEL, V...)        EDIT_ITEM_FAST_f_F(TYPE, f, GET_TEXT_F(LABEL), ##V)
 
+// Confirm Item inner part with Main label and YES/NO labels, etc.
 #define _CONFIRM_ITEM_INNER_F(FLABEL, V...) do {             \
   if (CLICKED()) {                                           \
     ui.push_current_screen();                                \
@@ -565,7 +591,7 @@ class MenuItem_bool : public MenuEditItemBase {
     (HIGHLIGHTED(), _lcdLineNr, FLABEL, ##V);                \
 }while(0)
 
-// Indexed items set a global index value and optional data
+// Confirm Item with Main label, YES/NO labels, etc.
 #define _CONFIRM_ITEM_F(FLABEL, V...) do { \
   if (MY_LINE()) {                         \
     _skipStatic = false;                   \
@@ -574,12 +600,12 @@ class MenuItem_bool : public MenuEditItemBase {
   NEXT_ITEM();                             \
 }while(0)
 
-// Indexed items set a global index value
+// Confirm Item with Index, String, YES/NO labels, etc.
 #define _CONFIRM_ITEM_N_S_F(N, S, V...) do{ \
   if (MY_LINE()) {                          \
     _skipStatic = false;                    \
     MenuItemBase::init(N, S);               \
-    _CONFIRM_ITEM_INNER_F(TYPE, ##V);       \
+    _CONFIRM_ITEM_INNER_F(V);               \
   }                                         \
   NEXT_ITEM();                              \
 }while(0)
@@ -598,7 +624,7 @@ class MenuItem_bool : public MenuEditItemBase {
 #define CONFIRM_ITEM_N_F(N,FLABEL,A,B,V...)       _CONFIRM_ITEM_N_F(N, FLABEL, GET_TEXT_F(A), GET_TEXT_F(B), ##V)
 #define CONFIRM_ITEM_N(N,LABEL, V...)              CONFIRM_ITEM_N_F(N, GET_TEXT_F(LABEL), ##V)
 
-#define YESNO_ITEM_N_S_F(N,S,FLABEL, V...)      _CONFIRM_ITEM_N_S_F(N, S, FLABEL, MSG_YES, MSG_NO, ##V)
+#define YESNO_ITEM_N_S_F(N,S,FLABEL, V...)       CONFIRM_ITEM_N_S_F(N, S, FLABEL, MSG_YES, MSG_NO, ##V)
 #define YESNO_ITEM_N_S(N,S,LABEL, V...)            YESNO_ITEM_N_S_F(N, S, GET_TEXT_F(LABEL), ##V)
 #define YESNO_ITEM_N_F(N,FLABEL, V...)             CONFIRM_ITEM_N_F(N, FLABEL, MSG_YES, MSG_NO, ##V)
 #define YESNO_ITEM_N(N,LABEL, V...)                  YESNO_ITEM_N_F(N, GET_TEXT_F(LABEL), ##V)
@@ -631,9 +657,9 @@ class MenuItem_bool : public MenuEditItemBase {
   #endif
 
   #define _FAN_EDIT_ITEMS(F,L) do{ \
-    editable.uint8 = thermalManager.fan_speed[F]; \
+    editable.uint8 = fans[F].speed; \
     EDIT_ITEM_FAST_N(percent, F, MSG_##L, &editable.uint8, 0, 255, on_fan_update); \
-    EDIT_EXTRA_FAN_SPEED(percent, F, MSG_EXTRA_##L, &thermalManager.extra_fan_speed[F].speed, 3, 255); \
+    EDIT_EXTRA_FAN_SPEED(percent, F, MSG_EXTRA_##L, &fans[F].extra.speed, 3, 255); \
   }while(0)
 
   #if FAN_COUNT > 1

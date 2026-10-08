@@ -4,6 +4,8 @@
 # Apply options from config.ini to the existing Configuration headers
 #
 import re, os, shutil, subprocess, configparser, datetime
+from urllib.error import HTTPError, URLError
+from urllib.request import Request, urlopen
 from pathlib import Path
 
 verbose = 0
@@ -135,14 +137,54 @@ def disable_all_options():
             fullpath.write_text('\n'.join(lines), encoding='utf-8')
             blab(f"Updated {file}")
 
+def get_pr_number():
+    # GitHub Actions exposes the pull request number for pull_request events.
+    pr_number = os.getenv("GITHUB_EVENT_NUMBER", "").strip()
+    if pr_number.isdigit():
+        return pr_number
+
+    # Use gh when running locally, if it is available and the current branch
+    # is associated with a pull request.
+    if shutil.which("gh") is not None:
+        result = subprocess.run(
+            ["gh", "pr", "view", "--json", "number", "--jq", ".number"],
+            capture_output=True, text=True, check=False
+        )
+        pr_number = result.stdout.strip()
+        if pr_number.isdigit():
+            return pr_number
+
+    return None
+
+def configurations_branch_exists(branch):
+    request = Request(
+        f"https://api.github.com/repos/MarlinFirmware/Configurations/git/ref/heads/{branch}",
+        headers={"Accept": "application/vnd.github+json", "User-Agent": "Marlin-configuration"}
+    )
+    try:
+        with urlopen(request, timeout=5) as response:
+            return response.status == 200
+    except (HTTPError, URLError, TimeoutError):
+        return False
+
+def default_configurations_branch():
+    pr_number = get_pr_number()
+    if pr_number:
+        branch = f"pr-{pr_number}"
+        if configurations_branch_exists(branch):
+            return branch
+    return "bugfix-2.1.x"
+
 # Fetch configuration files from GitHub given the path.
 # Return True if any files were fetched.
 def fetch_example(url):
     blab(f"Fetching example configuration from: {url}")
     if url.endswith("/"): url = url[:-1]
     if not url.startswith('http'):
-        brch = "bugfix-2.1.x"
-        if '@' in url: url, brch = map(str.strip, url.split('@'))
+        if '@' in url:
+            url, brch = map(str.strip, url.split('@'))
+        else:
+            brch = default_configurations_branch()
         if url == 'examples/default': url = 'default'
         url = f"https://raw.githubusercontent.com/MarlinFirmware/Configurations/{brch}/config/{url}"
     url = url.replace("%", "%25").replace(" ", "%20")

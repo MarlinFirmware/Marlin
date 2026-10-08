@@ -54,7 +54,7 @@
 //#define FLASH_EEPROM_EMULATION
 //#define SDCARD_EEPROM_EMULATION
 
-#if ANY(NO_EEPROM_SELECTED, I2C_EEPROM)
+#if SHALL_USE_EEPROM(I2C_EEPROM)
   #define I2C_EEPROM                              // EEPROM on I2C-0
   #define MARLIN_EEPROM_SIZE             0x1000U  // 4K
 #endif
@@ -193,7 +193,7 @@
 // Power Supply Control
 //
 #if ENABLED(MKS_PWC)
-  #if ENABLED(TFT_LVGL_UI)
+  #if HAS_TFT_LVGL_UI
     #if ENABLED(PSU_CONTROL)
       #error "PSU_CONTROL is incompatible with MKS_PWC plus TFT_LVGL_UI."
     #endif

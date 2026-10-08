@@ -26,13 +26,15 @@
 #define BOARD_INFO_NAME      "STM32F401RET6"
 #define DEFAULT_MACHINE_NAME "Ender-5 S1"
 
-#define IIC_BL24CXX_EEPROM                        // EEPROM on I2C-0 used only for display settings
+#if NO_EEPROM_SELECTED
+  #define IIC_BL24CXX_EEPROM                      // EEPROM on I2C-0 used only for display settings
+  //#define SDCARD_EEPROM_EMULATION               // SD EEPROM until all EEPROM is BL24CXX
+#endif
 #if ENABLED(IIC_BL24CXX_EEPROM)
   #define IIC_EEPROM_SDA                    PA11
   #define IIC_EEPROM_SCL                    PA12
   #define MARLIN_EEPROM_SIZE              0x800U  // 2K (24C16)
-#else
-  #define SDCARD_EEPROM_EMULATION                 // SD EEPROM until all EEPROM is BL24CXX
+#elif ENABLED(EEPROM_SETTINGS)
   #define MARLIN_EEPROM_SIZE              0x800U  // 2K
 #endif
 
@@ -128,7 +130,7 @@
 #define ONBOARD_SPI_DEVICE                     1
 #define ONBOARD_SD_CS_PIN                   PC12  // SDSS
 #define ONBOARD_SDIO
-#define NO_SD_HOST_DRIVE                          // This board's SD is only seen by the printer
+#define BOARD_NO_HOST_DRIVE                       // SD is only seen by the printer
 
 // SPI 2
 #if ENABLED(RET6_12864_LCD)

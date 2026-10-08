@@ -242,4 +242,4 @@ private:
 #if defined(LOAD_UHS_BULK_STORAGE) && !defined(UHS_BULK_STORAGE_LOADED)
 #include "UHS_BULK_STORAGE_INLINE.h"
 #endif
-#endif // __MASSTORAGE_H__
+#endif // __UHS_BULK_STORAGE_H__
