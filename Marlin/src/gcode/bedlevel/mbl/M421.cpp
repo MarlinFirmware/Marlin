@@ -30,7 +30,7 @@
 
 #include "../../gcode.h"
 #include "../../../module/motion.h"
-#include "../../../feature/bedlevel/mbl/mesh_bed_leveling.h"
+#include "../../../feature/bedlevel/bedlevel.h"
 
 /**
  * M421: Set a single Mesh Bed Leveling Z coordinate
