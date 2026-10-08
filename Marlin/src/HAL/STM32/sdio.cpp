@@ -453,7 +453,7 @@ bool SDIO_IsReady() {
 }
 
 uint32_t SDIO_GetCardSize() {
-  return (uint32_t)(hsd.SdCard.BlockNbr) * (hsd.SdCard.BlockSize);
+  return hsd.SdCard.LogBlockNbr; // Number of 512-byte blocks, as for the SPI driver
 }
 
 #endif // ONBOARD_SDIO
