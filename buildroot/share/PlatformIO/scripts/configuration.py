@@ -212,7 +212,7 @@ def fetch_example(url):
             gotfile = True
             blab(f"Fetched {fn}", 2)
 
-    if Path('wgot').exists(): shutil.rmtree('wgot')
+    Path('wgot').unlink(missing_ok=True)
 
     if gotfile:
         blab("Example configuration fetched successfully")
