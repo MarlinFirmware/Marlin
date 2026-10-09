@@ -3254,13 +3254,19 @@ void Stepper::isr() {
       int32_t la_step_rate = (target_adv_steps - last_target_adv_steps) * dt_inv;
       last_target_adv_steps = target_adv_steps;
 
+      // Approximate Gaussian smoothing via higher order exponential smoothing.
+      // Stages keep 8 fractional bits so truncation can't leave a lasting negative
+      // offset, which made E under-extrude and keep retracting while idle.
+      constexpr uint8_t frac_bits = 8;
+      constexpr int32_t rate_limit = INT32_MAX >> (frac_bits + 1);
       static int32_t smoothed_vals[SMOOTH_LIN_ADV_EXP_ORDER] = {0};
 
+      int32_t smoothed = constrain(la_step_rate, -rate_limit, rate_limit) * _BV(frac_bits);
       for (uint8_t i = 0; i < SMOOTH_LIN_ADV_EXP_ORDER; i++) {
-        // Approximate Gaussian smoothing via higher order exponential smoothing
-        smoothed_vals[i] += MULT_Q(30, la_step_rate - smoothed_vals[i], extruder_advance_alpha_q30[E_INDEX_N(motion.extruder)]);
-        la_step_rate = smoothed_vals[i];
+        smoothed_vals[i] += MULT_Q(30, smoothed - smoothed_vals[i], extruder_advance_alpha_q30[E_INDEX_N(motion.extruder)]);
+        smoothed = smoothed_vals[i];
       }
+      la_step_rate = (smoothed + _BV(frac_bits - 1)) >> frac_bits; // Round to nearest
 
       const int32_t planned_step_rate = current_block
         ? MULT_Q(30, curr_step_rate, current_block->e_step_ratio_q30)
