@@ -3260,15 +3260,15 @@ void Stepper::isr() {
 
         xy_long_t pre_shaping_rate{0}, first_pulse_rate{0};
         if (current_block && current_block->xy_length_inv_q30 > 0) {
-          pre_shaping_rate = xy_long_t({
-            MULT_Q(30, unshaped_rate_e * current_block->steps.x, current_block->xy_length_inv_q30),
-            MULT_Q(30, unshaped_rate_e * current_block->steps.y, current_block->xy_length_inv_q30)
-          });
+          // Split E between X and Y in proportion to their steps. Y takes the remainder so no E is lost.
+          const int32_t rate_x = MULT_Q(30, unshaped_rate_e * current_block->steps.x, current_block->xy_length_inv_q30);
+          pre_shaping_rate = xy_long_t({ rate_x, unshaped_rate_e - rate_x });
           unshaped_rate_e = 0;
 
+          // The first pulse takes all that the delayed second pulse won't, so no E is lost to rounding
           first_pulse_rate = xy_long_t({
-            TERN_(INPUT_SHAPING_X, shaping_x.enabled ? (pre_shaping_rate.x * shaping_x.factor1) >> 7 :) pre_shaping_rate.x,
-            TERN_(INPUT_SHAPING_Y, shaping_y.enabled ? (pre_shaping_rate.y * shaping_y.factor1) >> 7 :) pre_shaping_rate.y
+            TERN_(INPUT_SHAPING_X, shaping_x.enabled ? pre_shaping_rate.x - ((pre_shaping_rate.x * shaping_x.factor2) >> 7) :) pre_shaping_rate.x,
+            TERN_(INPUT_SHAPING_Y, shaping_y.enabled ? pre_shaping_rate.y - ((pre_shaping_rate.y * shaping_y.factor2) >> 7) :) pre_shaping_rate.y
           });
         }
 

@@ -2439,7 +2439,7 @@ bool Planner::_populate_block(
     block->e_step_ratio_q30 = block->direction_bits.e ? ratio : -ratio;
 
     #if ENABLED(INPUT_SHAPING_E_SYNC)
-      const uint32_t xy_steps = TERN0(INPUT_SHAPING_X, block->steps.x) + TERN0(INPUT_SHAPING_Y, block->steps.y);
+      const uint32_t xy_steps = block->steps.x + block->steps.y;
       block->xy_length_inv_q30 = xy_steps ? (_BV32(30) / xy_steps) : 0;
     #endif
   #endif
