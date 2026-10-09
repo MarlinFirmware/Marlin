@@ -3669,6 +3669,12 @@
 //
 //#define EASYTHREED_UI
 
+//
+// PanelDue touch controller by Escher3D
+// https://escher3d.com/pages/order/products/product2.php
+//
+//#define PANELDUE
+
 //=============================================================================
 //=============================== Extra Features ==============================
 //=============================================================================

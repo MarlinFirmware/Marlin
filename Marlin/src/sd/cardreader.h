@@ -297,6 +297,10 @@ public:
 
   static void ls(const uint8_t lsflags=0);
 
+  #if ENABLED(PANELDUE)
+    static void lsJSON(const uint8_t depth, MediaFile parent);
+  #endif
+
   #if ENABLED(POWER_LOSS_RECOVERY)
     static bool jobRecoverFileExists();
     static void openJobRecoveryFile(const bool read);
@@ -418,6 +422,9 @@ private:
     MediaFile parent, const char * const prepend, const uint8_t lsflags
     OPTARG(LONG_FILENAME_HOST_SUPPORT, const char * const prependLong=nullptr)
   );
+  #if ENABLED(PANELDUE)
+    static void printListingJSON(const uint8_t depth, MediaFile parent);
+  #endif
 };
 
 #else // !HAS_MEDIA

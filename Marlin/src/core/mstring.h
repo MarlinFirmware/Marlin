@@ -291,6 +291,10 @@ public:
     return hval;
   }
 
+  // Char and String matching
+  bool endswith(const char c) const { int sz = length(); return sz && str[sz - 1] == c; }
+  bool endswith(char * const s) const { int sz = length(), ssz = strlen(s); return sz >= ssz && !strcmp(str + sz - ssz, s); }
+
   void copyto(char * const dst) const { strcpy(dst, str); }
   void copyto(char * const dst, int len) const { strlcpy(dst, str, len + 1); }
 
