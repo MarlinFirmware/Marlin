@@ -212,17 +212,14 @@ void GcodeSuite::M115() {
     // LONG_FILENAME_HOST_SUPPORT (M33)
     cap_line(F("LONG_FILENAME"), ENABLED(LONG_FILENAME_HOST_SUPPORT));
 
+    // EXTENDED_M20 (M20 L)
+    cap_line(F("EXTENDED_M20"), ENABLED(LONG_FILENAME_HOST_SUPPORT));
+
     // LONG_FILENAME_WRITE_SUPPORT (M23, M28, M30...)
     cap_line(F("LFN_WRITE"), ENABLED(LONG_FILENAME_WRITE_SUPPORT));
 
     // CUSTOM_FIRMWARE_UPLOAD (M20 F)
     cap_line(F("CUSTOM_FIRMWARE_UPLOAD"), ENABLED(CUSTOM_FIRMWARE_UPLOAD));
-
-    // EXTENDED_M20 (M20 L)
-    cap_line(F("EXTENDED_M20"), ENABLED(LONG_FILENAME_HOST_SUPPORT));
-
-    // THERMAL_PROTECTION
-    cap_line(F("THERMAL_PROTECTION"), ENABLED(THERMALLY_SAFE));
 
     // MOTION_MODES (M80-M89)
     cap_line(F("MOTION_MODES"), ENABLED(GCODE_MOTION_MODES));
@@ -248,40 +245,34 @@ void GcodeSuite::M115() {
     // MEATPACK Compression
     cap_line(F("MEATPACK"), SERIAL_IMPL.has_feature(port, SerialFeature::MeatPack));
 
-    // CONFIG_EXPORT
-    cap_line(F("CONFIG_EXPORT"), ENABLED(CONFIGURATION_EMBEDDING));
-
-    // SINGLE_NOZZLE
-    cap_line(F("SINGLE_NOZZLE"), ENABLED(SINGLENOZZLE));
-
-    // HEATED_BED
+    // HEATED_BED (M140, M190)
     cap_line(F("HEATED_BED"), ENABLED(HAS_HEATED_BED));
 
-    // MIXING_EXTRUDER
+    // MIXING_EXTRUDER (M163-M165)
     cap_line(F("MIXING_EXTRUDER"), ENABLED(MIXING_EXTRUDER));
 
-    // DUAL_X_CARRIAGE
+    // DUAL_X_CARRIAGE (M605)
     cap_line(F("DUAL_X_CARRIAGE"), ENABLED(DUAL_X_CARRIAGE));
 
-    // NOZZLE_PARK_FEATURE
+    // NOZZLE_PARKING (G27)
     cap_line(F("NOZZLE_PARKING"), ENABLED(NOZZLE_PARK_FEATURE));
 
-    // NOZZLE_CLEAN_FEATURE
+    // NOZZLE_CLEANING (G12)
     cap_line(F("NOZZLE_CLEANING"), ENABLED(NOZZLE_CLEAN_FEATURE));
 
-    // INPUT_SHAPING
+    // INPUT_SHAPING (M593)
     cap_line(F("INPUT_SHAPING"), ANY(INPUT_SHAPING_X, INPUT_SHAPING_Y));
 
-    // LIN_ADVANCE
+    // LINEAR_ADVANCE (M900)
     cap_line(F("LINEAR_ADVANCE"), ENABLED(LIN_ADVANCE));
 
-    // FIRMWARE_RETRACT
+    // FIRMWARE_RETRACT (G10, G11, M207, M208)
     cap_line(F("FIRMWARE_RETRACT"), ENABLED(FWRETRACT));
 
-    // POWER_LOSS_RECOVERY
+    // POWER_LOSS_RECOVERY (M413)
     cap_line(F("POWER_LOSS_RECOVERY"), ENABLED(POWER_LOSS_RECOVERY));
 
-    // DIRECT_STEPPING
+    // DIRECT_STEPPING (G6)
     cap_line(F("DIRECT_STEPPING"), ENABLED(DIRECT_STEPPING));
 
     // Machine Geometry
@@ -335,49 +326,54 @@ void GcodeSuite::M115() {
     #endif
 
     // Temperatures
-    #if ENABLED(M115_TEMPERATURE_REPORT)
-      SERIAL_ECHOLNPGM(
-        "temperatures:{"
-          "t0:{min:", HEATER_0_MINTEMP, ",max:", HEATER_0_MAXTEMP, "}"
-          #if TEMP_SENSOR_1
-            ",t1:{min:", HEATER_1_MINTEMP, ",max:", HEATER_1_MAXTEMP, "}"
-          #endif
+    TERF(M115_TEMPERATURE_REPORT, SERIAL_ECHOLNPGM)(
+      F("temperatures:{")
+      #if TEMP_SENSOR_0
+        , F("t0"), F(":{min:"), HEATER_0_MINTEMP, F(",max:"), HEATER_0_MAXTEMP, C('}')
+        #if TEMP_SENSOR_1
+          , F(",t1"), F(":{min:"), HEATER_1_MINTEMP, F(",max:"), HEATER_1_MAXTEMP, C('}')
           #if TEMP_SENSOR_2
-            ",t2:{min:", HEATER_2_MINTEMP, ",max:", HEATER_2_MAXTEMP, "}"
+            , F(",t2"), F(":{min:"), HEATER_2_MINTEMP, F(",max:"), HEATER_2_MAXTEMP, C('}')
+            #if TEMP_SENSOR_3
+              , F(",t3"), F(":{min:"), HEATER_3_MINTEMP, F(",max:"), HEATER_3_MAXTEMP, C('}')
+              #if TEMP_SENSOR_4
+                , F(",t4"), F(":{min:"), HEATER_4_MINTEMP, F(",max:"), HEATER_4_MAXTEMP, C('}')
+                #if TEMP_SENSOR_5
+                  , F(",t5"), F(":{min:"), HEATER_5_MINTEMP, F(",max:"), HEATER_5_MAXTEMP, C('}')
+                  #if TEMP_SENSOR_6
+                    , F(",t6"), F(":{min:"), HEATER_6_MINTEMP, F(",max:"), HEATER_6_MAXTEMP, C('}')
+                    #if TEMP_SENSOR_7
+                      , F(",t7"), F(":{min:"), HEATER_7_MINTEMP, F(",max:"), HEATER_7_MAXTEMP, C('}')
+                    #endif
+                  #endif
+                #endif
+              #endif
+            #endif
           #endif
-          #if TEMP_SENSOR_3
-            ",t3:{min:", HEATER_3_MINTEMP, ",max:", HEATER_3_MAXTEMP, "}"
-          #endif
-          #if TEMP_SENSOR_4
-            ",t4:{min:", HEATER_4_MINTEMP, ",max:", HEATER_4_MAXTEMP, "}"
-          #endif
-          #if TEMP_SENSOR_5
-            ",t5:{min:", HEATER_5_MINTEMP, ",max:", HEATER_5_MAXTEMP, "}"
-          #endif
-          #if TEMP_SENSOR_6
-            ",t6:{min:", HEATER_6_MINTEMP, ",max:", HEATER_6_MAXTEMP, "}"
-          #endif
-          #if TEMP_SENSOR_7
-            ",t7:{min:", HEATER_7_MINTEMP, ",max:", HEATER_7_MAXTEMP, "}"
-          #endif
-          #if TEMP_SENSOR_BED
-            ",bed:{min:", BED_MINTEMP, ",max:", BED_MAXTEMP, "}"
-          #endif
-          #if TEMP_SENSOR_CHAMBER
-            ",chamber:{min:", CHAMBER_MINTEMP, ",max:", CHAMBER_MAXTEMP, "}"
-          #endif
-          #if TEMP_SENSOR_COOLER
-            ",cooler:{min:", COOLER_MINTEMP, ",max:", COOLER_MAXTEMP, "}"
-          #endif
-          #if TEMP_SENSOR_BOARD
-            ",board:{min:", BOARD_MINTEMP, ",max:", BOARD_MAXTEMP, "}"
-          #endif
-          #if TEMP_SENSOR_SOC
-            ",soc:{max:", SOC_MAXTEMP, "}"
-          #endif
-        "}"
-      );
-    #endif
+        #endif
+        #define COMMA
+      #endif
+      #if TEMP_SENSOR_BED
+        , F(TERN(COMMA, ",") "bed:{min:"), BED_MINTEMP, F(",max:"), BED_MAXTEMP, C('}')
+        #define COMMA
+      #endif
+      #if TEMP_SENSOR_CHAMBER
+        , F(TERN(COMMA, ",") "chamber"), F(":{min:"), CHAMBER_MINTEMP, F(",max:"), CHAMBER_MAXTEMP, C('}')
+        #define COMMA
+      #endif
+      #if TEMP_SENSOR_COOLER
+        , F(TERN(COMMA, ",") "cooler"), F(":{min:"), COOLER_MINTEMP, F(",max:"), COOLER_MAXTEMP, C('}')
+        #define COMMA
+      #endif
+      #if TEMP_SENSOR_BOARD
+        , F(TERN(COMMA, ",") "board"), F(":{min:"), BOARD_MINTEMP, F(",max:"), BOARD_MAXTEMP, C('}')
+        #define COMMA
+      #endif
+      #if TEMP_SENSOR_SOC
+        , F(TERN(COMMA, ",") "soc:{max:"), SOC_MAXTEMP, C('}')
+      #endif
+      , C('}')
+    );
 
   #endif // EXTENDED_CAPABILITIES_REPORT
 }
