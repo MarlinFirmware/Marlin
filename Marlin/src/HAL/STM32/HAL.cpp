@@ -47,6 +47,12 @@
   #include <usbd_cdc_if.h>
 #endif
 
+#if defined(STM32G0B0xx) || defined(STM32G0B1xx) || defined(STM32G0C1xx)
+  // Errata 2.2.10: Prefetch may fail on branches and calls across Flash banks, corrupting code
+  // execution. Disable it right after HAL_Init() (premain, priority 101) and before static objects.
+  __attribute__((constructor(102))) static void disable_flash_prefetch() { __HAL_FLASH_PREFETCH_BUFFER_DISABLE(); }
+#endif
+
 // ------------------------
 // Public Variables
 // ------------------------
