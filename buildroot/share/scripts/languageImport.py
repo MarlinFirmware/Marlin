@@ -1,229 +1,162 @@
 #!/usr/bin/env python3
-"""
-languageImport.py
+'''
+languageImport.py [options] SOURCE [SOURCE ...]
 
-Import LCD language strings from a CSV file or Google Sheets
-and write Marlin LCD language files based on the data.
+Merge translated LCD strings into the Marlin language files.
 
-Use languageExport.py to export CSV from the language files.
+Unlike a full regeneration, merging only touches the strings provided.
+Everything else in each language file (header, defines, untouched lines)
+is preserved, so the resulting diff shows only real changes.
 
-Google Sheets Link:
+Sources:
+  out-todo/todo_xx.json     Work-pack from 'languageExport.py --todo'
+  out-json/language_xx.json Section tables from 'languageExport.py --json'
+  languages.csv             CSV from 'languageExport.py' (one or many languages)
+  download [NAME.csv]       Download the shared Google Sheet as CSV
+
+Each imported string is validated against English before it's written:
+placeholders ($ @ ~ * { and printf specifiers), macros, and multi-line shape
+must match. Invalid strings are reported and skipped. Strings identical to the
+English text are kept, marking them as reviewed (e.g., "BLTouch", "Jerk").
+
+Options:
+  -n, --dry-run   Report what would change without writing
+  -r, --replace   Replace existing translations (default: only add missing)
+  -l LANG         Only import the given language(s)
+  --no-sort       Don't sort entries into English order (sorting is the default)
+
+Derived languages (e.g., fr_na from fr) are regenerated automatically
+whenever their source language is updated.
+
+Google Sheets:
 https://docs.google.com/spreadsheets/d/12yiy-kS84ajKFm7oQIrC4CF8ZWeu9pAR4zrgxH4ruk4/edit#gid=84528699
-
-TODO: Use the defines and comments above the namespace from existing language files.
-      Get the 'constexpr uint8_t CHARSIZE' from existing language files.
-      Get the correct 'using namespace' for languages that don't inherit from English.
-
-"""
-
-import sys, re, requests, csv, datetime
-from languageUtil import *
-from pathlib import Path
-
-LANGHOME = "Marlin/src/lcd/language"
-OUTDIR = Path('out-language')
-
-# Get the file path from the command line
-FILEPATH = sys.argv[1] if len(sys.argv) > 1 else None
-
-download = FILEPATH == 'download'
-
-if not FILEPATH or download:
-    SHEETID = "12yiy-kS84ajKFm7oQIrC4CF8ZWeu9pAR4zrgxH4ruk4"
-    FILEPATH = 'https://docs.google.com/spreadsheet/ccc?key=%s&output=csv' % SHEETID
-
-if FILEPATH.startswith('http'):
-    response = requests.get(FILEPATH)
-    assert response.status_code == 200, 'GET failed for %s' % FILEPATH
-    csvdata = response.content.decode('utf-8')
-else:
-    if not FILEPATH.endswith('.csv'): FILEPATH += '.csv'
-    with open(FILEPATH, 'r', encoding='utf-8') as f: csvdata = f.read()
-
-if not csvdata:
-    print("Error: couldn't read CSV data from %s" % FILEPATH)
-    exit(1)
-
-if download:
-    DLNAME = sys.argv[2] if len(sys.argv) > 2 else 'languages.csv'
-    if not DLNAME.endswith('.csv'): DLNAME += '.csv'
-    with open(DLNAME, 'w', encoding='utf-8') as f: f.write(csvdata)
-    print("Downloaded %s from %s" % (DLNAME, FILEPATH))
-    exit(0)
-
-lines = csvdata.splitlines()
-#print(lines)
-reader = csv.reader(lines, delimiter=',')
-gothead = False
-columns = ['']
-numcols = 0
-strings_per_lang = {}
-for row in reader:
-    if not gothead:
-        gothead = True
-        numcols = len(row)
-        if row[0] != 'name':
-            print('Error: first column should be "name"')
-            exit(1)
-        # The rest of the columns are language codes and names
-        for i in range(1, numcols):
-            elms = row[i].split(' ')
-            lang = elms[0]
-            style = ('Wide' if elms[-1] == '(wide)' else 'Tall' if elms[-1] == '(tall)' else 'Narrow')
-            columns.append({ 'lang': lang, 'style': style })
-            if not lang in strings_per_lang: strings_per_lang[lang] = {}
-            if not style in strings_per_lang[lang]: strings_per_lang[lang][style] = {}
-        continue
-    # Add the named string for all the included languages
-    name = row[0]
-    for i in range(1, numcols):
-        str_key = row[i]
-        if str_key:
-            col = columns[i]
-            strings_per_lang[col['lang']][col['style']][name] = str_key
-
-# Create a folder for the imported language outfiles
-OUTDIR.mkdir(exist_ok=True)
-
-FILEHEADER = '''/**
- * Marlin 3D Printer Firmware
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
- *
- * Based on Sprinter and grbl.
- * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- *
- */
-#pragma once
-
-/**
- * %s
- *
- * LCD Menu Messages
- * See also https://marlinfw.org/docs/development/lcd_language.html
- *
- * Substitutions are applied for the following characters when used in menu items titles:
- *
- *   $ displays an inserted string
- *   { displays  '0'....'10' for indexes 0 - 10
- *   ~ displays  '1'....'11' for indexes 0 - 10
- *   * displays 'E1'...'E11' for indexes 0 - 10 (By default. Uses LCD_FIRST_TOOL)
- *   @ displays an axis name such as XYZUVW, or E for an extruder
- */
-
 '''
 
-# Iterate over the languages which correspond to the columns
-# The columns are assumed to be grouped by language in the order Narrow, Wide, Tall
-# TODO: Go through lang only, then impose the order Narrow, Wide, Tall.
-#       So if something is missing or out of order everything still gets built correctly.
+import sys, csv, json, argparse
+from pathlib import Path
+from languageUtil import *
 
-f = None
-gotlang = {}
-for i in range(1, numcols):
-    #if i > 6: break # Testing
-    col = columns[i]
-    lang, style = col['lang'], col['style']
+SHEETID = "12yiy-kS84ajKFm7oQIrC4CF8ZWeu9pAR4zrgxH4ruk4"
 
-    # If we haven't already opened a file for this language, do so now
-    if not lang in gotlang:
-        gotlang[lang] = {}
-        if f: f.close()
-        fn = OUTDIR / f"language_{lang}.h"
-        f = open(fn, 'w', encoding='utf-8', newline='')
-        if not f:
-            print("Failed to open %s." % fn)
-            exit(1)
+def read_source(path):
+    '''
+    Read a source file and return { code: [ (section, name, flat), ... ] }
+    '''
+    path = Path(path)
+    data = {}
+    if path.suffix == '.json':
+        j = json.loads(path.read_text(encoding='utf-8'))
+        if 'strings' in j:      # Work-pack
+            code = j['language']
+            data[code] = [ (it['section'], it['name'], it.get('text', '')) for it in j['strings'] ]
+        else:                   # Section tables
+            code = path.stem.replace('language_', '')
+            data[code] = [ (s, n, v) for s in SECTIONS for n, v in j.get(s, {}).items() ]
+    else:
+        rows = list(csv.reader(path.read_text(encoding='utf-8').splitlines()))
+        head = rows[0]
+        if head[0] != 'name': raise ValueError(f"{path}: first column should be 'name'")
+        cols = []
+        for h in head[1:]:
+            elms = h.split(' ')
+            sect = 'wide' if elms[-1] == '(wide)' else 'tall' if elms[-1] == '(tall)' else 'narrow'
+            cols.append((elms[0], sect))
+        for row in rows[1:]:
+            for (code, sect), val in zip(cols, row[1:]):
+                data.setdefault(code, []).append((sect, row[0], val))
+    return data
 
-        # Write the opening header for the new language file
-        f.write(FILEHEADER % language_name(lang))
-        f.write('/**\n * Imported from %s on %s at %s\n */\n' % (FILEPATH, datetime.date.today(), datetime.datetime.now().strftime("%H:%M:%S")))
+def validate(en, section, name, flat):
+    'Return an error string if the flat string is unsuitable, else None'
+    ref = en.resolve(section, name)
+    if ref is None: return "not defined in English"
+    eflat = ref.flat
+    (subs, pf), (esubs, epf) = flat_placeholders(flat), flat_placeholders(eflat)
+    if subs != esubs: return f"substitutions '{subs}' != English '{esubs}'"
+    if any(p not in epf for p in pf): return f"printf {pf} not in English {epf}"
+    el, ll = flat_lines(eflat), flat_lines(flat)
+    if (el is None) != (ll is None): return "multi-line shape differs from English"
+    if ll is not None and not 1 <= len(ll) <= 3: return "multi-line strings need 1-3 lines"
+    def norm(ms): return { 'MEDIA_TYPE' if m.startswith('MEDIA_TYPE_') else m for m in ms }
+    extra = norm(flat_macros(flat)) - norm(flat_macros(eflat)) - { m for m in flat_macros(flat) if m.startswith(('LCD_STR_', 'STR_', 'SUPERSCRIPT_')) }
+    if extra: return f"unknown macros {sorted(extra)}"
+    if '"' in flat_text(flat) or '\\' in flat_text(flat): return "contains a quote or backslash"
+    return None
 
-        iso = language_iso(lang)
-        if iso: f.write(f"\n#define DISPLAY_CHARSET_ISO10646_{iso}")
-        noext = language_noext(lang)
-        if noext: f.write("\n#define NOT_EXTENDED_ISO10646_1_5X7")
-        if iso or noext: f.write("\n")
+def main():
+    require_repo_root()
+    parser = argparse.ArgumentParser(description="Merge translated LCD strings into Marlin language files")
+    parser.add_argument('source', nargs='+', help="work-pack JSON, language JSON, CSV, or 'download'")
+    parser.add_argument('-n', '--dry-run', action='store_true', help="report changes without writing files")
+    parser.add_argument('-r', '--replace', action='store_true', help="replace existing translations")
+    parser.add_argument('-l', '--language', action='append', help="only import the given language(s)")
+    parser.add_argument('--no-sort', dest='sort', action='store_false', help="don't sort entries into English order")
+    args = parser.parse_args()
 
-    # Start a namespace for the language and style
-    f.write('\nnamespace Language%s_%s {\n' % (style, lang))
+    if args.source[0] == 'download':
+        import requests
+        url = f'https://docs.google.com/spreadsheet/ccc?key={SHEETID}&output=csv'
+        response = requests.get(url)
+        assert response.status_code == 200, f'GET failed for {url}'
+        name = args.source[1] if len(args.source) > 1 else 'languages.csv'
+        if not name.endswith('.csv'): name += '.csv'
+        Path(name).write_text(response.content.decode('utf-8'), encoding='utf-8')
+        print(f"Downloaded {name} from {url}")
+        return
 
-    # Wide and tall namespaces inherit from the others
-    if style == 'Wide':
-        f.write('  using namespace LanguageNarrow_%s;\n' % lang)
-        f.write('  #if LCD_WIDTH > 20 || HAS_DWIN_E3V2\n')
-    elif style == 'Tall':
-        f.write('  using namespace LanguageWide_%s;\n' % lang)
-        f.write('  #if LCD_HEIGHT >= 4\n')
-        f.write('    // Filament Change screens show up to 3 lines on a 4-line display\n')
-    elif style == 'Narrow':
-        if lang != 'en':
-            f.write('  using namespace Language_en; // Inherit undefined strings from English\n')
-        charsize = language_charsize(lang)
-        if charsize: f.write(f"\n  constexpr uint8_t CHARSIZE              = {charsize};\n")
+    only = parse_language_args(args.language)
+    incoming = {}
+    for src in args.source:
+        for code, items in read_source(src).items():
+            incoming.setdefault(code, []).extend(items)
 
-    # Formatting for the lines
-    indent = '  ' if style == 'Narrow' else '    '
-    width = 34 if style == 'Narrow' else 32
-    lstr_fmt = '%sLSTR %%-%ds = %%s;%%s\n' % (indent, width)
+    en = LangFile.load('en')
+    status, written = 0, set()
+    for code, items in incoming.items():
+        if code == 'en' or (only and code not in only): continue
+        if not (LANGHOME / f'language_{code}.h').exists():
+            print(f"{code}: no language_{code}.h (create it first)")
+            status = 1
+            continue
+        if language_derived(code):
+            print(f"{code}: generated from {language_derived(code)}, skipping")
+            continue
+        lf = LangFile.load(code)
+        added = replaced = skipped = 0
+        for section, name, flat in items:
+            flat = flat or ''
+            if not flat.strip(): continue
+            if name in NEVER_TRANSLATE: continue
+            err = validate(en, section, name, flat)
+            if err:
+                print(f"  {code} {section}:{name}: {err} :: \"{flat}\"")
+                skipped += 1
+                status = 1
+                continue
+            # Identical to English is allowed; it records that the string was reviewed
+            # and is intentionally the same (e.g., technical terms like "BLTouch").
+            cur = lf.sections[section].get(name)
+            if cur:
+                if cur.flat == flat or not args.replace: continue
+                replaced += 1
+            else:
+                added += 1
+            lf.set(section, name, flat)
+        if args.sort and (added or replaced): lf.sort_like(en)
+        print(f"{code}: {added} added, {replaced} replaced, {skipped} skipped")
+        if not args.dry_run and (added or replaced):
+            lf.save(en)
+            written.add(code)
 
-    # Emit all the strings for this language and style
-    for name in strings_per_lang[lang][style].keys():
-        # Get the raw string value
-        val = strings_per_lang[lang][style][name]
-        # Count the number of bars
-        if val.startswith('|'):
-            bars = val.count('|')
-            val = val[1:]
-        else:
-            bars = 0
-        # Escape backslashes, substitute quotes, and wrap in _UxGT("...")
-        val = '_UxGT("%s")' % val.replace('\\', '\\\\').replace('"', '$$$')
-        # Move named references outside of the macro
-        val = re.sub(r'\(([A-Z0-9]+_[A-Z0-9_]+)\)', r'") \1 _UxGT("', val)
-        # Remove all empty _UxGT("") that result from the above
-        val = re.sub(r'\s*_UxGT\(""\)\s*', '', val)
-        # No wrapper needed for just spaces or punctuation
-        val = re.sub(r'_UxGT\(("[ .~]+")\)', r'\1', val)
-        # Multi-line strings start with a bar...
-        if bars:
-            # Wrap the string in MSG_#_LINE(...) and split on bars
-            val = re.sub(r'^_UxGT\((.+)\)', r'_UxGT(MSG_%s_LINE(\1))' % bars, val)
-            val = val.replace('|', '", "')
-        # Restore quotes inside the string
-        val = val.replace('$$$', '\\"')
-        # Add a comment with the English string for reference
-        comm = ''
-        if lang != 'en' and 'en' in strings_per_lang:
-            en = strings_per_lang['en']
-            if name in en[style]: str_key = en[style][name].strip()
-            elif name in en['Narrow']: str_key = en['Narrow'][name].strip()
-            if str_key and str_key != "English":
-                cfmt = '%%%ss// %%s' % (50 - len(val) if len(val) < 50 else 1)
-                comm = cfmt % (' ', str_key)
+    # Regenerate derived languages (e.g., fr_na) from their updated sources
+    if not args.dry_run:
+        for code in LANGNAME:
+            src = language_derived(code)
+            if src and src in written:
+                derive_language(en, code)
+                print(f"{code}: regenerated from {src}")
 
-        # Write out the string definition
-        f.write(lstr_fmt % (name, val, comm))
-        if name == 'LANGUAGE': f.write("\n")
+    exit(status)
 
-    if style == 'Wide' or style == 'Tall': f.write('  #endif\n')
-
-    f.write('}\n') # End namespace
-
-    # Assume the 'Tall' namespace comes last
-    if style == 'Tall': f.write('\nnamespace Language_%s {\n  using namespace LanguageTall_%s;\n}\n' % (lang, lang))
-
-# Close the last-opened output file
-if f: f.close()
+if __name__ == '__main__':
+    main()

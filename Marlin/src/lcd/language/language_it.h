@@ -154,7 +154,7 @@ namespace LanguageNarrow_it {
   LSTR MSG_USERWAIT                       = _UxGT("Premi tasto..");                            // Click to Resume...
   LSTR MSG_PRINT_ABORTED                  = _UxGT("Stampa annullata");                         // Print Aborted
   LSTR MSG_NO_MOVE                        = _UxGT("Nessun movimento");                         // No Move.
-  LSTR MSG_KILLED                         = _UxGT("UCCISO. ");                                 // KILLED.
+  LSTR MSG_KILLED                         = _UxGT("ARRESTATO. ");                              // KILLED.
   LSTR MSG_STOPPED                        = _UxGT("ARRESTATO. ");                              // STOPPED.
   LSTR MSG_CONTROL_RETRACT                = _UxGT("Ritrai mm");                                // Retract mm
   LSTR MSG_CONTROL_RETRACT_SWAP           = _UxGT("Scamb. ritrai mm");                         // Swap Re.mm
@@ -433,7 +433,7 @@ namespace LanguageNarrow_it {
   LSTR MSG_BLTOUCH_MODE_STORE             = _UxGT("BLTouch modo mem.");                        // Mode-Store
   LSTR MSG_BLTOUCH_MODE_STORE_5V          = _UxGT("Metti BLTouch a 5V");                       // Set BLTouch to 5V
   LSTR MSG_BLTOUCH_MODE_STORE_OD          = _UxGT("Metti BLTouch a OD");                       // Set BLTouch to OD
-  LSTR MSG_BLTOUCH_MODE_ECHO              = _UxGT("Segnala modo");                             // Report Drain
+  LSTR MSG_BLTOUCH_MODE_ECHO              = _UxGT("Mostra modo");                              // Report Mode
   LSTR MSG_BLTOUCH_MODE_CHANGE            = _UxGT("PERICOLO: impostazioni errate possono cause danni! Procedo comunque?"); // DANGER: Bad settings can cause damage! Proceed anyway?
   LSTR MSG_TOUCHMI_PROBE                  = _UxGT("TouchMI");                                  // TouchMI
   LSTR MSG_TOUCHMI_INIT                   = _UxGT("Inizializ.TouchMI");                        // Init TouchMI
@@ -454,9 +454,9 @@ namespace LanguageNarrow_it {
   LSTR MSG_DELTA_RADIUS                   = _UxGT("Raggio");                                   // Radius
   LSTR MSG_KINEMATICS_SETTINGS            = _UxGT("Impostazioni cinematiche");                 // Kinematics Settings
   LSTR MSG_DELTA_TOWER_ANGLE_TRIM_N       = _UxGT("@ Correz. torre");                          // @ Tower Trim
-  LSTR MSG_DELTA_ROD_TRIM_A               = _UxGT("@ Correz. asta A");                         // A Rod Trim
-  LSTR MSG_DELTA_ROD_TRIM_B               = _UxGT("@ Correz. asta B");                         // B Rod Trim
-  LSTR MSG_DELTA_ROD_TRIM_C               = _UxGT("@ Correz. asta C");                         // C Rod Trim
+  LSTR MSG_DELTA_ROD_TRIM_A               = _UxGT("Correz. asta A");                           // A Rod Trim
+  LSTR MSG_DELTA_ROD_TRIM_B               = _UxGT("Correz. asta B");                           // B Rod Trim
+  LSTR MSG_DELTA_ROD_TRIM_C               = _UxGT("Correz. asta C");                           // C Rod Trim
   LSTR MSG_SCARA_P_OFFSET                 = _UxGT("Offset theta");                             // P Offset
   LSTR MSG_SCARA_T_OFFSET                 = _UxGT("Offset psi");                               // T Offset
   LSTR MSG_SCARA_Z_OFFSET                 = _UxGT("Offset Z");                                 // Z Offset
@@ -465,6 +465,7 @@ namespace LanguageNarrow_it {
   LSTR MSG_BILINEAR_LEVELING              = _UxGT("Livel. bilineare");                         // Bilinear Leveling
   LSTR MSG_UBL_LEVELING                   = _UxGT("Livel.piatto unific.");                     // Unified Bed Leveling
   LSTR MSG_MESH_LEVELING                  = _UxGT("Livel. mesh");                              // Mesh Leveling
+  LSTR MSG_MESH_SETTINGS                  = _UxGT("Impostazioni mesh");                        // Mesh Settings
   LSTR MSG_INFO_RUNAWAY_OFF               = _UxGT("Controllo fuga: OFF");                      // Runaway Watch: OFF
   LSTR MSG_INFO_RUNAWAY_ON                = _UxGT("Controllo fuga: ON");                       // Runaway Watch: ON
   LSTR MSG_CASE_LIGHT_BRIGHTNESS          = _UxGT("Luminosità Luci");                          // Light Brightness
@@ -589,7 +590,7 @@ namespace LanguageNarrow_it {
   LSTR MSG_MESH_MAX_Y                     = _UxGT("Mesh Y massimo");                           // Mesh Y Maximum
   LSTR MSG_MESH_AMAX                      = _UxGT("Massimizza area");                          // Maximize Area
   LSTR MSG_MESH_CENTER                    = _UxGT("Area centrale");                            // Center Area
-  LSTR MSG_MESH_CANCEL                    = _UxGT("Mesh cancellata");                          // Mesh cancelled
+  LSTR MSG_MESH_CANCEL                    = _UxGT("Mesh cancellata");                          // Mesh canceled
   LSTR MSG_M48_OUT_OF_BOUNDS              = _UxGT("Sonda oltre i limiti");                     // Probe out of bounds
   LSTR MSG_IDEX_DUPE_GAP                  = _UxGT("X-Gap-X duplicato");                        // Duplicate X-Gap
   LSTR MSG_UBL_TILT_MESH                  = _UxGT("Inclina mesh");                             // Tilt Mesh
@@ -682,6 +683,7 @@ namespace LanguageNarrow_it {
   LSTR MSG_ZPROBE_SETTINGS                = _UxGT("Impostazioni sonda");                       // Probe Settings
   LSTR MSG_ZPROBE_OFFSETS                 = _UxGT("Offsets sonda");                            // Probe Offsets
   LSTR MSG_ZPROBE_MARGIN                  = _UxGT("Margine sonda");                            // Probe Margin
+  LSTR MSG_ZPROBE_MULTIPLE                = _UxGT("Sondaggio multiplo");                       // Multiple Probing
   LSTR MSG_Z_FEED_RATE                    = _UxGT("Velocità Z");                               // Z Feedrate
   LSTR MSG_ENABLE_HS_MODE                 = _UxGT("Abilita modo HS");                          // Enable HS mode
   LSTR MSG_MOVE_NOZZLE_TO_BED             = _UxGT("Muovi ugel.su piatto");                     // Move Nozzle to Bed
@@ -765,7 +767,9 @@ namespace LanguageNarrow_it {
   LSTR MSG_HOMING_FEEDRATE_N              = _UxGT("Vel.azzeram. @");                           // @ Homing FR
   LSTR MSG_HOME_ALL                       = _UxGT("Azzera tutti");                             // Home All
   LSTR MSG_Z_AFTER_HOME                   = _UxGT("Z dopo azzeramento");                       // Z After Homing
+  LSTR MSG_ZERO_MESH_POINT                = _UxGT("Azzera punto att.");                        // Zero Current Point
   LSTR MSG_ERR_M428_TOO_FAR               = _UxGT("Err: Troppo lontano!");                     // MIN/MAX Too Far
+  LSTR MSG_PREHEAT_1_CHAMBER              = _UxGT("Preris.") PREHEAT_1_LABEL _UxGT(" camera"); // Preheat (PREHEAT_1_LABEL) Chmb
   LSTR MSG_PREHEAT_2                      = _UxGT("Preriscalda ") PREHEAT_2_LABEL;             // Preheat (PREHEAT_2_LABEL)
   LSTR MSG_PREHEAT_3                      = _UxGT("Preriscalda ") PREHEAT_3_LABEL;             // Preheat (PREHEAT_3_LABEL)
   LSTR MSG_PREHEAT_4                      = PREHEAT_4_LABEL;                                   // (PREHEAT_4_LABEL)
@@ -777,7 +781,7 @@ namespace LanguageNarrow_it {
   LSTR MSG_MESH_RESET                     = _UxGT("Resetta mesh");                             // Mesh reset
   LSTR MSG_CUSTOM_MENU_MAIN_TITLE         = _UxGT("_UxGT(") CUSTOM_MENU_MAIN_TITLE _UxGT(")"); // _UxGT((CUSTOM_MENU_MAIN_TITLE))
   LSTR MSG_TOOL_HEAD_TH                   = _UxGT("_UxGT(") CUSTOM_MENU_MAIN_TITLE _UxGT(" (TH))"); // _UxGT((CUSTOM_MENU_MAIN_TITLE) (TH))
-  LSTR MSG_PRESENT_BED                    = _UxGT("Piatto presente");                          // Present Bed
+  LSTR MSG_PRESENT_BED                    = _UxGT("Piatto avanti");                            // Present Bed
   LSTR MSG_M48_DEV                        = _UxGT("Dev");                                      // Dev
   LSTR MSG_M48_MAX_DELTA                  = _UxGT("Delta max");                                // Max delta
   LSTR MSG_MESH_ACTIVE                    = _UxGT("Mesh %i attiva");                           // Mesh %i active
@@ -816,6 +820,8 @@ namespace LanguageNarrow_it {
   LSTR MSG_FTM_TRAPEZOIDAL                = _UxGT("Trapezoidale");                             // Trapezoidal
   LSTR MSG_FTM_POLY5                      = _UxGT("5° ordine");                                // 5th Order
   LSTR MSG_FTM_POLY6                      = _UxGT("6° ordine");                                // 6th Order
+  LSTR MSG_FTM_CONSTANT_JOLT              = _UxGT("Jolt costante");                            // Constant Jolt
+  LSTR MSG_FTM_JOLT                       = _UxGT("Jolt (m/s3)");                              // Jolt (m/s3)
   LSTR MSG_FTM_TRAJECTORY                 = _UxGT("Traiettoria: $");                           // Trajectory: $
   LSTR MSG_FILAMENT_EN                    = _UxGT("Filamento *");                              // Filament *
   LSTR MSG_SEGMENTS_PER_SECOND            = _UxGT("Segmenti/Sec");                             // Segments/Sec
@@ -902,6 +908,7 @@ namespace LanguageNarrow_it {
   LSTR MSG_FTM_VTOL_N                     = _UxGT("Livello vib. @");                           // @ Vib. Level
   LSTR MSG_FTM_SMOOTH_TIME_N              = _UxGT("@ Tempo smorzamento");                      // @ Smoothing Time
   LSTR MSG_FTM_POLY6_OVERSHOOT            = _UxGT("@ Overshoot Poly6");                        // @ Poly6 Overshoot
+  LSTR MSG_FTM_CONFIGURE_AXIS_N           = _UxGT("Configura asse @");                         // Configure @ Axis
   LSTR MSG_RESONANCE_TEST                 = _UxGT("Test risonanza");                           // Resonance Test
   LSTR MSG_RT_RUNNING                     = _UxGT("Test ris.in corso...");                     // Res. Test Running...
   LSTR MSG_RT_START_N                     = _UxGT("Avvia Test Asse @");                        // Start @ Axis Test
@@ -930,6 +937,37 @@ namespace LanguageNarrow_it {
   LSTR DGUS_MSG_WRITE_EEPROM_FAILED       = _UxGT("Scrittura EEPROM fallita");                 // EEPROM write failed
   LSTR DGUS_MSG_READ_EEPROM_FAILED        = _UxGT("Lettura EEPROM fallita");                   // EEPROM read failed
   LSTR DGUS_MSG_FILAMENT_RUNOUT           = _UxGT("Filament runout E%d");                      // Filament runout E%d
+  LSTR MSG_TITLE_FINDA_DIDNT_TRIGGER      = _UxGT("FINDA NON ATTIVATO");                       // FINDA DIDNT TRIGGER
+  LSTR MSG_TITLE_FINDA_FILAMENT_STUCK     = _UxGT("FINDA FILAM.BLOCC.");                       // FINDA FILAM. STUCK
+  LSTR MSG_TITLE_FSENSOR_DIDNT_TRIGGER    = _UxGT("FSENSOR NON ATTIV.");                       // FSENSOR DIDNT TRIGG.
+  LSTR MSG_TITLE_FSENSOR_FILAMENT_STUCK   = _UxGT("FSENSOR FIL.BLOCC.");                       // FSENSOR FIL. STUCK
+  LSTR MSG_TITLE_PULLEY_CANNOT_MOVE       = _UxGT("PULEGGIA BLOCCATA");                        // PULLEY CANNOT MOVE
+  LSTR MSG_TITLE_FSENSOR_TOO_EARLY        = _UxGT("FSENSOR ANTICIPATO");                       // FSENSOR TOO EARLY
+  LSTR MSG_TITLE_INSPECT_FINDA            = _UxGT("ISPEZIONA FINDA");                          // INSPECT FINDA
+  LSTR MSG_TITLE_LOAD_TO_EXTRUDER_FAILED  = _UxGT("CARICO ESTR.FALLITO");                      // LOAD TO EXTR. FAILED
+  LSTR MSG_TITLE_SELECTOR_CANNOT_MOVE     = _UxGT("SELETTORE BLOCCATO");                       // SELECTOR CANNOT MOVE
+  LSTR MSG_TITLE_SELECTOR_CANNOT_HOME     = _UxGT("SELETTORE NO HOME");                        // SELECTOR CANNOT HOME
+  LSTR MSG_TITLE_IDLER_CANNOT_MOVE        = _UxGT("IDLER BLOCCATO");                           // IDLER CANNOT MOVE
+  LSTR MSG_TITLE_IDLER_CANNOT_HOME        = _UxGT("IDLER NO HOME");                            // IDLER CANNOT HOME
+  LSTR MSG_TITLE_TMC_WARNING_TMC_TOO_HOT  = _UxGT("AVVISO TMC CALDO");                         // WARNING TMC TOO HOT
+  LSTR MSG_TITLE_TMC_OVERHEAT_ERROR       = _UxGT("ERR.SURRISC. TMC");                         // TMC OVERHEAT ERROR
+  LSTR MSG_TITLE_TMC_DRIVER_ERROR         = _UxGT("ERRORE DRIVER TMC");                        // TMC DRIVER ERROR
+  LSTR MSG_TITLE_TMC_DRIVER_RESET         = _UxGT("RESET DRIVER TMC");                         // TMC DRIVER RESET
+  LSTR MSG_TITLE_TMC_UNDERVOLTAGE_ERROR   = _UxGT("ERR.SOTTOTENS. TMC");                       // TMC UNDERVOLTAGE ERR
+  LSTR MSG_TITLE_TMC_DRIVER_SHORTED       = _UxGT("DRIVER TMC IN CORTO");                      // TMC DRIVER SHORTED
+  LSTR MSG_TITLE_SELFTEST_FAILED          = _UxGT("AUTOTEST MMU FALLITO");                     // MMU SELFTEST FAILED
+  LSTR MSG_TITLE_MMU_MCU_ERROR            = _UxGT("ERRORE MCU MMU");                           // MMU MCU ERROR
+  LSTR MSG_TITLE_MMU_NOT_RESPONDING       = _UxGT("MMU NON RISPONDE");                         // MMU NOT RESPONDING
+  LSTR MSG_TITLE_COMMUNICATION_ERROR      = _UxGT("ERR.COMUNICAZIONE");                        // COMMUNICATION ERROR
+  LSTR MSG_TITLE_FILAMENT_ALREADY_LOADED  = _UxGT("FIL. GIÀ CARICATO");                        // FIL. ALREADY LOADED
+  LSTR MSG_TITLE_INVALID_TOOL             = _UxGT("UTENSILE NON VALIDO");                      // INVALID TOOL
+  LSTR MSG_TITLE_QUEUE_FULL               = _UxGT("CODA PIENA");                               // QUEUE FULL
+  LSTR MSG_TITLE_FW_UPDATE_NEEDED         = _UxGT("AGGIORNA FW MMU");                          // MMU FW UPDATE NEEDED
+  LSTR MSG_TITLE_FW_RUNTIME_ERROR         = _UxGT("ERRORE RUNTIME FW");                        // FW RUNTIME ERROR
+  LSTR MSG_TITLE_UNLOAD_MANUALLY          = _UxGT("SCARICA A MANO");                           // UNLOAD MANUALLY
+  LSTR MSG_TITLE_FILAMENT_EJECTED         = _UxGT("FILAMENTO ESPULSO");                        // FILAMENT EJECTED
+  LSTR MSG_TITLE_FILAMENT_CHANGE          = _UxGT("CAMBIO FILAMENTO");                         // FILAMENT CHANGE
+  LSTR MSG_TITLE_UNKNOWN_ERROR            = _UxGT("ERRORE SCONOSCIUTO");                       // UNKNOWN ERROR
   LSTR MSG_DESC_FINDA_DIDNT_TRIGGER       = _UxGT("FINDA non si è attivato durante il caricamento del filamento. Assicurarsi che il filamento possa muoversi e che FINDA funzioni."); // FINDA didn't trigger while loading the filament. Ensure the filament can move and FINDA works.
   LSTR MSG_DESC_FINDA_FILAMENT_STUCK      = _UxGT("FINDA non si è disattivato durante lo scaricamento del filamento. Provare a scaricarlo manualmente. Assicurarsi che il filamento si muova e che FINDA funzioni."); // FINDA didn't switch off while unloading filament. Try unloading manually. Ensure filament can move and FINDA works.
   LSTR MSG_DESC_FSENSOR_DIDNT_TRIGGER     = _UxGT("Il sensore del filamento non si è attivato durante il caricamento del filamento. Assicurarsi che il sensore sia calibrato e che il filamento lo abbia raggiunto."); // Filament sensor didn't trigger while loading the filament. Ensure the sensor is calibrated and the filament reached it.
@@ -999,6 +1037,11 @@ namespace LanguageNarrow_it {
 namespace LanguageWide_it {
   using namespace LanguageNarrow_it;
   #if LCD_WIDTH > 20 || HAS_DWIN_E3V2
+    LSTR MSG_PREHEAT_1_END                = _UxGT("Preriscalda ") PREHEAT_1_LABEL _UxGT(" ugello"); // Preheat (PREHEAT_1_LABEL) Hotend
+    LSTR MSG_PREHEAT_1_END_E              = _UxGT("Preriscalda ") PREHEAT_1_LABEL _UxGT(" ugello ~"); // Preheat (PREHEAT_1_LABEL) Hotend ~
+    LSTR MSG_PREHEAT_1_SETTINGS           = _UxGT("Preriscalda ") PREHEAT_1_LABEL _UxGT(" conf."); // Preheat (PREHEAT_1_LABEL) Settings
+    LSTR MSG_PREHEAT_M_END                = _UxGT("Preriscalda ugello $");                     // Preheat $ Hotend
+    LSTR MSG_PREHEAT_M_END_E              = _UxGT("Preriscalda ugello ~ $");                   // Preheat $ Hotend ~
     LSTR MSG_PREHEAT_M_SETTINGS           = _UxGT("Configurazioni preriscaldo $");             // Preheat $ Settings
     LSTR MSG_MEDIA_MENU                   = _UxGT("Seleziona da ") MEDIA_TYPE_IT;              // Select from (MEDIA_TYPE_EN)
     LSTR MSG_NO_MEDIA                     = MEDIA_TYPE_EN _UxGT(" non trovato");               // No (MEDIA_TYPE_EN) Found
@@ -1016,11 +1059,15 @@ namespace LanguageWide_it {
     LSTR MSG_PLEASE_PREHEAT               = _UxGT("Si prega di preriscaldare l'ugello.");      // Please preheat the hot end.
     LSTR MSG_MEDIA_NOT_INSERTED           = _UxGT("Nessun supporto inserito.");                // No media inserted.
     LSTR MSG_INFO_PRINT_COUNT_RESET       = _UxGT("Azzera i contatori di stampa");             // Reset Print Count
+    LSTR MSG_ZERO_MESH                    = _UxGT("Azzera punto attuale");                     // Zero Current Point
     LSTR MSG_HOMING_FEEDRATE_N            = _UxGT("Velocità @ di homing");                     // @ Homing Feedrate
+    LSTR MSG_PREHEAT_1_CHAMBER            = _UxGT("Preriscalda ") PREHEAT_1_LABEL _UxGT(" camera"); // Preheat (PREHEAT_1_LABEL) Chamber
     LSTR MSG_PREHEAT_M_CHAMBER            = _UxGT("Preriscalda camera per $");                 // Preheat $ Chamber
     LSTR MSG_EEPROM_INITIALIZED           = _UxGT("Ripristinate impostazioni predefinite");    // Default Settings Restored
     LSTR MSG_MEDIA_MENU_SD                = _UxGT("Seleziona da scheda SD");                   // Select from SD Card
     LSTR MSG_MEDIA_MENU_USB               = _UxGT("Seleziona da unità USB");                   // Select from USB Drive
+    LSTR MSG_RT_RUNNING                   = _UxGT("Test risonanza in corso...");               // Resonance Test Running...
+    LSTR MSG_RESONANCE_FREQ               = _UxGT("Frequenza di risonanza");                   // Resonance frequency
     LSTR MSG_HOMING_FEEDRATE_X            = _UxGT("Velocità X di homing");                     // X Homing Feedrate
     LSTR MSG_HOMING_FEEDRATE_Y            = _UxGT("Velocità Y di homing");                     // Y Homing Feedrate
     LSTR MSG_HOMING_FEEDRATE_Z            = _UxGT("Velocità Z di homing");                     // Z Homing Feedrate
