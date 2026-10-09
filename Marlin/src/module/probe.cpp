@@ -521,6 +521,8 @@ bool Probe::set_deployed(const bool deploy, const bool no_return/*=false*/) {
     }
 
     if (PROBE_TRIGGERED() == deploy) {             // Unchanged after deploy/stow action?
+      if (deploy) PROBE_EXPLAIN("Still triggered after deploy. Check that it deploys and its wiring.");
+      else        PROBE_EXPLAIN("Not triggered after stow. Check that it stows and its wiring.");
       if (marlin.isRunning()) {
         SERIAL_ERROR_MSG("Z-Probe failed");
         LCD_ALERTMESSAGE_F("Err: ZPROBE");
@@ -668,6 +670,10 @@ bool Probe::probe_down_to_z(const float z, const feedRate_t fr_mm_s) {
   // Tell the planner where we actually are
   motion.sync_plan_position();
 
+  if (!probe_triggered)
+    PROBE_EXPLAIN("Reached Z", z, " without triggering. Check wiring (M119), NOZZLE_TO_PROBE_OFFSET Z (M851 Z", offset.z,
+                  ") and Z_PROBE_LOW_POINT (", Z_PROBE_LOW_POINT, ").");
+
   return !probe_triggered;
 }
 
@@ -693,6 +699,7 @@ bool Probe::probe_down_to_z(const float z, const feedRate_t fr_mm_s) {
     #if ALL(PROBE_ACTIVATION_SWITCH, PROBE_TARE_ONLY_WHILE_INACTIVE)
       if (endstops.probe_switch_activated()) {
         if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Cannot tare an active probe");
+        PROBE_EXPLAIN("Can't tare while the probe is triggered.");
         return true;
       }
     #endif
@@ -749,6 +756,10 @@ float Probe::run_z_probe(const bool sanity_check/*=true*/, const float z_min_poi
     #else
       UNUSED(plbl);
     #endif
+    if (!probe_fail && early_fail)
+      PROBE_EXPLAIN("Triggered at Z", motion.position.z, " before reaching the bed (expected below Z", zoffs + error_tolerance,
+                    "). Already triggered or inverted? Check M119, Z_MIN_PROBE_ENDSTOP_HIT_STATE, NOZZLE_TO_PROBE_OFFSET Z (M851 Z", offset.z,
+                    ") and Z_PROBE_ERROR_TOLERANCE (", error_tolerance, ").");
     return probe_fail || early_fail;
   };
 
@@ -981,6 +992,7 @@ float Probe::probe_at_point(
   );
   if (!can_reach(npos, probe_relative)) {
     if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Not Reachable");
+    PROBE_EXPLAIN("X", motion.logical_x(rx), " Y", motion.logical_y(ry), " is out of reach. Check NOZZLE_TO_PROBE_OFFSET X/Y, PROBING_MARGIN and the bed size.");
     return NAN;
   }
 

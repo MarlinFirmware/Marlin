@@ -75,6 +75,13 @@
   extern abc_float_t offset_sensorless_adj;
 #endif
 
+// Explain a probe failure in plain English
+#if ENABLED(EXPLAIN_PROBE_FAILURES)
+  #define PROBE_EXPLAIN(S, V...) SERIAL_ECHO_MSG("Probe: " S, ##V)
+#else
+  #define PROBE_EXPLAIN(...) NOOP
+#endif
+
 class Probe {
 public:
 
