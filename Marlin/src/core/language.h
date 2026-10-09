@@ -357,7 +357,7 @@
 #define STR_Y "Y"
 #define STR_Z "Z"
 #define STR_E "E"
-#if HAS_NONLINEAR_KINEMATICS
+#if IS_KINEMATIC
   #define STR_A "A"
   #define STR_B "B"
   #define STR_C "C"

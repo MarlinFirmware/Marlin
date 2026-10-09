@@ -362,7 +362,7 @@ typedef struct SettingsDataStruct {
   //
   // Kinematic Settings (Delta, SCARA, TPARA, Polargraph...)
   //
-  #if HAS_NONLINEAR_KINEMATICS
+  #if IS_KINEMATIC
     float segments_per_second;                          // M665 S
     #if ENABLED(DELTA)
       float delta_height;                               // M666 H
@@ -1203,7 +1203,7 @@ void MarlinSettings::postprocess() {
     //
     // Kinematic Settings (Delta, SCARA, TPARA, Polargraph...)
     //
-    #if HAS_NONLINEAR_KINEMATICS
+    #if IS_KINEMATIC
     {
       EEPROM_WRITE(segments_per_second);
       #if ENABLED(DELTA)
@@ -2305,7 +2305,7 @@ void MarlinSettings::postprocess() {
       //
       // Kinematic Settings (Delta, SCARA, TPARA, Polargraph...)
       //
-      #if HAS_NONLINEAR_KINEMATICS
+      #if IS_KINEMATIC
       {
         EEPROM_READ(segments_per_second);
         #if ENABLED(DELTA)
@@ -3561,7 +3561,7 @@ void MarlinSettings::reset() {
   // Kinematic Settings (Delta, SCARA, TPARA, Polargraph...)
   //
 
-  #if HAS_NONLINEAR_KINEMATICS
+  #if IS_KINEMATIC
     segments_per_second = DEFAULT_SEGMENTS_PER_SECOND;
     #if ENABLED(DELTA)
       const abc_float_t adj = DELTA_ENDSTOP_ADJ, dta = DELTA_TOWER_ANGLE_TRIM, ddr = DELTA_DIAGONAL_ROD_TRIM_TOWER;
@@ -4043,7 +4043,7 @@ void MarlinSettings::reset() {
     //
     // Kinematic Settings
     //
-    TERN_(HAS_NONLINEAR_KINEMATICS, gcode.M665_report(forReplay));
+    TERN_(IS_KINEMATIC, gcode.M665_report(forReplay));
 
     //
     // M666 Endstops Adjustment

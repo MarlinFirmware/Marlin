@@ -188,7 +188,7 @@
 #endif
 
 // Require 0,0 bed center for Delta, SCARA, and Polargraph
-#if HAS_NONLINEAR_KINEMATICS
+#if IS_KINEMATIC
   #define BED_CENTER_AT_0_0
 #endif
 
@@ -305,7 +305,7 @@
 /**
  * No adjustable bed on non-cartesians
  */
-#if HAS_NONLINEAR_KINEMATICS
+#if IS_KINEMATIC
   #undef LCD_BED_TRAMMING
   #undef SLOWDOWN
 #endif
@@ -3046,7 +3046,7 @@
 #if ENABLED(POLAR)
   #undef MIN_SOFTWARE_ENDSTOP_Y
   #undef MAX_SOFTWARE_ENDSTOP_Y
-#elif HAS_NONLINEAR_KINEMATICS
+#elif IS_KINEMATIC
   #undef MIN_SOFTWARE_ENDSTOP_X
   #undef MIN_SOFTWARE_ENDSTOP_Y
   #undef MAX_SOFTWARE_ENDSTOP_X
@@ -3057,7 +3057,7 @@
  * Bed Probing bounds
  */
 
-#if HAS_NONLINEAR_KINEMATICS
+#if IS_KINEMATIC
   #undef PROBING_MARGIN_LEFT
   #undef PROBING_MARGIN_RIGHT
   #undef PROBING_MARGIN_FRONT
@@ -3115,7 +3115,7 @@
  * Default mesh area is an area with an inset margin on the print area.
  */
 #if HAS_MESH
-  #if HAS_NONLINEAR_KINEMATICS
+  #if IS_KINEMATIC
     // Probing points may be verified at compile time within the radius
     // using static_assert(HYPOT2(X2-X1,Y2-Y1)<=sq(PRINTABLE_RADIUS),"bad probe point!")
     // so that may be added to SanityCheck.h in the future.

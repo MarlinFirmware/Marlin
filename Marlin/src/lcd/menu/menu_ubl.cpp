@@ -428,7 +428,7 @@ void ubl_map_screen() {
 
     ui.defer_status_screen();
 
-    #if HAS_NONLINEAR_KINEMATICS
+    #if IS_KINEMATIC
       // Index of the mesh point upon entry
       const int32_t old_pos_index = grid_index(x_plot, y_plot);
       // Direction from new (unconstrained) encoder value
@@ -445,15 +445,15 @@ void ubl_map_screen() {
       y = ui.encoderPosition / (GRID_MAX_POINTS_X);
 
       // Validate if needed
-      #if HAS_NONLINEAR_KINEMATICS
+      #if IS_KINEMATIC
         const xy_pos_t xy = { bedlevel.get_mesh_x(x), bedlevel.get_mesh_y(y) };
         if (motion.can_reach(xy)) break; // Found a valid point
         ui.encoderPosition += step_dir;       // Test the next point
       #endif
-    } while (ENABLED(HAS_NONLINEAR_KINEMATICS));
+    } while (ENABLED(IS_KINEMATIC));
 
     // Determine number of points to edit
-    #if HAS_NONLINEAR_KINEMATICS
+    #if IS_KINEMATIC
       n_edit_pts = 9; // TODO: Delta accessible edit points
     #else
       const bool xc = WITHIN(x, 1, (GRID_MAX_POINTS_X) - 2),
