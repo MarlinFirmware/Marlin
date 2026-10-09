@@ -3151,12 +3151,12 @@ void Stepper::isr() {
           buffer[index] = input;
           if (++index == IS_COMPENSATION_BUFFER_SIZE) index = 0;
         }
-        FORCE_INLINE xy_long_t past_item(uint16_t n) {
+        FORCE_INLINE xy_long_t past_item(uint32_t n) {
           // A shaping frequency set below SHAPING_MIN_FREQ (e.g., by M593 during a
           // ringing test) asks for more history than the buffer holds. Clamp to the
           // oldest item rather than read out of bounds.
-          NOMORE(n, IS_COMPENSATION_BUFFER_SIZE - 1);
-          int16_t i = int16_t(index) - n;
+          NOMORE(n, IS_COMPENSATION_BUFFER_SIZE);
+          int16_t i = int16_t(index) - int16_t(n);
           if (i < 0) i += IS_COMPENSATION_BUFFER_SIZE;
           return buffer[i];
         }
@@ -3166,7 +3166,7 @@ void Stepper::isr() {
 
       xy_long_t Stepper::smooth_lin_adv_lookback(const shaping_time_t stepper_ticks) {
         constexpr uint32_t adv_ticks_per_stepper_ticks_Q30 = (uint64_t(SMOOTH_LIN_ADV_HZ) * _BV32(30)) / (STEPPER_TIMER_RATE);
-        const uint16_t delay_steps = MULT_Q(30, stepper_ticks, adv_ticks_per_stepper_ticks_Q30);
+        const uint32_t delay_steps = MULT_Q(30, stepper_ticks, adv_ticks_per_stepper_ticks_Q30);
         return delayBuffer.past_item(delay_steps);
       }
 
