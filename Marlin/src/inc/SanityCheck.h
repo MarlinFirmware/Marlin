@@ -3053,6 +3053,10 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
   #error "Please select only one of TFT_RES_320x240, TFT_RES_480x272, TFT_RES_480x320, or TFT_RES_1024x600."
 #endif
 
+#if ENABLED(TFT_FONT_LARGE) && !ALL(TFT_COLOR_UI, HAS_UI_1024x600)
+  #error "TFT_FONT_LARGE requires TFT_COLOR_UI with a 1024x600 TFT (TFT_RES_1024x600)."
+#endif
+
 #if ENABLED(TFT_LVGL_UI)
   #if DISABLED(TFT_RES_480x320)
     #error "TFT_LVGL_UI requires TFT_RES_480x320."

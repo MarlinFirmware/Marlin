@@ -201,6 +201,11 @@ def emit(ff:FontFile, glyphs:dict, legacy_size=False):
   start, end = codes[0], codes[-1]
   hdr = list(ff.header)
   hdr[2:6] = [start & 0xFF, start >> 8, end & 0xFF, end >> 8]
+  # Ascent and descent must cover every glyph. TFT_String uses the extents of all loaded fonts.
+  tops = [ s8(glyphs[u][5]) + glyphs[u][1] for u in codes if glyphs[u][1] ]
+  bots = [ s8(glyphs[u][5]) for u in codes if glyphs[u][1] ]
+  if tops: hdr[6] = u8(max(s8(hdr[6]), max(tops)))
+  if bots: hdr[7] = u8(min(s8(hdr[7]), min(bots)))
   size = 8 + sum(2 + len(glyphs[u]) for u in codes)   # The real array length
   # The original tool computed the size from the (wrapped) uint8 dataSize field
   if legacy_size: size = 8 + sum(8 + glyphs[u][2] for u in codes)
@@ -285,8 +290,6 @@ def main():
         counts.add(count)
         rel = path.relative_to(REPO)
         if missing: print(f'{rel}: no glyph in source fonts for: {"".join(missing)}', file=sys.stderr)
-        big = [ chr(u) for u in sorted(glyphs) if len(glyphs[u]) - 6 > 255 ]
-        if big: print(f'{rel}: warning: {len(big)} glyphs exceed 255 data bytes (uint8 dataSize overflows; font unusable at this size)', file=sys.stderr)
         if args.check:
           old = path.read_text(encoding='utf-8')
           if text == old: print(f'{rel}: identical ({count} glyphs)')

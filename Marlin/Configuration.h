@@ -3574,6 +3574,8 @@
    * :['NOTOSANS', 'UNIFONT', 'HELVETICA']
    */
   #define TFT_FONT  NOTOSANS
+  //#define TFT_FONT_LARGE    // Use larger fonts for better visibility. (TFT_RES_1024x600 with NOTOSANS or UNIFONT)
+  //#define TFT_NO_TINY_FONT  // A small numerical font may be used for meshes, etc. Eschew this font to save 1.1k.
 
   /**
    * TFT Theme for Color UI. Choose one of the following or add a new one to 'Marlin/src/lcd/tft/themes' directory
