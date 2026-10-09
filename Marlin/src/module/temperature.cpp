@@ -5012,6 +5012,49 @@ void Temperature::isr() {
 
   #endif // HAS_HEATED_BED
 
+  #ifdef LEVELING_HEAT_SOAK_TIME
+
+    void Temperature::wait_for_heat_soak(const uint16_t seconds) {
+      if (!seconds) return;
+
+      SERIAL_ECHOLN(F("Heat soak for "), seconds, C('s'));
+
+      #if DISABLED(BUSY_WHILE_HEATING) && ENABLED(HOST_KEEPALIVE_FEATURE)
+        KEEPALIVE_STATE(NOT_BUSY);
+      #endif
+
+      millis_t next_temp_ms = millis();
+      const millis_t soak_end = next_temp_ms + SEC_TO_MS(seconds);
+
+      marlin.heatup_start();
+      while (marlin.is_heating()) {
+        millis_t now = millis();
+        if (ELAPSED(now, soak_end)) break;
+
+        // Report every 1 second
+        if (ELAPSED(now, next_temp_ms)) {
+          next_temp_ms = now + 1000UL;
+          print_heater_states(motion.extruder);
+          const millis_t remaining = soak_end - now;
+          const long rem_sec = long((remaining + 800UL) / 1000UL); // Show "0" for the last 0.2 seconds
+          SERIAL_ECHOLNPGM(" W:", rem_sec)
+          #if HAS_STATUS_MESSAGE
+            ui.status_printf(0, F(S_FMT " %lus"), GET_TEXT(MSG_HEAT_SOAK), rem_sec);
+          #endif
+        }
+
+        marlin.idle();
+        gcode.reset_stepper_timeout(); // Keep steppers powered
+      }
+
+      if (marlin.is_heating()) {
+        marlin.heatup_done();
+        ui.reset_status();
+      }
+    }
+
+  #endif // LEVELING_HEAT_SOAK_TIME
+
   #if HAS_TEMP_PROBE
 
     #ifndef MIN_DELTA_SLOPE_DEG_PROBE
@@ -5328,6 +5371,10 @@ void Temperature::isr() {
       }
     #endif
 
+    #ifdef LEVELING_HEAT_SOAK_TIME
+      DEBUG_ECHO(F(" and soak for "), LEVELING_HEAT_SOAK_TIME, C('s'));
+    #endif
+
     DEBUG_EOL();
 
     if (!early) {
@@ -5339,8 +5386,11 @@ void Temperature::isr() {
       // for would be left on the display until something else replaced it.
       if (waitHotend || waitBed) {
         LCD_MESSAGE(MSG_PREHEATING);
-        TERN_(HAS_HOTEND,     if (waitHotend) thermalManager.wait_for_hotend(0));
-        TERN_(HAS_HEATED_BED, if (waitBed)    thermalManager.wait_for_bed_heating());
+        TERN_(HAS_HOTEND,     if (waitHotend) wait_for_hotend(0));
+        TERN_(HAS_HEATED_BED, if (waitBed)    wait_for_bed_heating());
+        #ifdef LEVELING_HEAT_SOAK_TIME
+          wait_for_heat_soak(LEVELING_HEAT_SOAK_TIME);
+        #endif
       }
     }
   }
