@@ -1793,8 +1793,15 @@ void Temperature::mintemp_error(const heater_id_t heater_id OPTARG(ERR_INCLUDE_T
       hotend.modeled_block_temp += delta_to_apply;
       hotend.modeled_sensor_temp += delta_to_apply;
 
-      // Only correct ambient when close to steady state (output power is not clipped or asymptotic temperature is reached)
-      if (WITHIN(hotend.soft_pwm_amount, 1, 126) || fabs(blocktempdelta + delta_to_apply) < (MPC_STEADYSTATE * MPC_dT))
+      // Only correct ambient when close to steady state (output power is not clipped or asymptotic temperature is reached).
+      // Brief clipping is usually sensor noise. Skipping only those updates biases the ambient estimate (#28420)
+      // so only skip when the output has been clipped for over a second, as in heat-up and cool-down.
+      if (WITHIN(hotend.soft_pwm_amount, 1, 126))
+        hotend.clipped_count = 0;
+      else if (hotend.clipped_count < 255)
+        hotend.clipped_count++;
+
+      if (hotend.clipped_count * (MPC_dT) <= 1.0f || fabs(blocktempdelta + delta_to_apply) < (MPC_STEADYSTATE * MPC_dT))
         hotend.modeled_ambient_temp += delta_to_apply > 0.f ? _MAX(delta_to_apply, MPC_MIN_AMBIENT_CHANGE * MPC_dT) : _MIN(delta_to_apply, -MPC_MIN_AMBIENT_CHANGE * MPC_dT);
 
       float power = 0.0;
