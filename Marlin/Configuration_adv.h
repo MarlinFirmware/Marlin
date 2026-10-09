@@ -2618,6 +2618,12 @@
 // @section probes
 
 /**
+ * Explain probe failures in plain English, e.g., "Probe: Triggered at Z9.80 before reaching the bed..."
+ * Prints the reason and what to check when probing fails, without enabling DEBUG_LEVELING_FEATURE.
+ */
+//#define EXPLAIN_PROBE_FAILURES
+
+/**
  * Thermal Probe Compensation
  *
  * Adjust probe measurements to compensate for distortion associated with the temperature
