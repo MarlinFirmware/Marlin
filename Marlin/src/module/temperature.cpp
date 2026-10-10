@@ -1242,6 +1242,12 @@ void Temperature::factory_reset() {
 
     MPCHeaterInfo &hotend = temp_hotend[e];
     MPC_t &mpc = hotend.mpc;
+    const MPC_t old_mpc = mpc; // Restored if tuning fails
+    auto tuning_failed = [&]{
+      mpc = old_mpc;
+      SERIAL_ECHOLNPGM(STR_MPC_AUTOTUNE_FAILED);
+      TERN_(EXTENSIBLE_UI, ExtUI::onMPCTuning(ExtUI::mpcresult_t::MPC_TEMP_ERROR));
+    };
 
     // Move to center of bed, just above bed height and cool with max fan
     gcode.home_all_axes(true);
@@ -1309,6 +1315,9 @@ void Temperature::factory_reset() {
       mpc.sensor_responsiveness = tuner.get_rate_fastest() / (tuner.get_rate_fastest() * tuner.get_time_fastest() + tuner.get_ambient_temp() - tuner.get_temp_fastest());
     }
 
+    // Measuring heat loss with invalid model only ends in temperature error
+    if (!mpc.isValid()) return tuning_failed();
+
     hotend.modeled_block_temp = asymp_temp + (tuner.get_ambient_temp() - asymp_temp) * exp(-block_responsiveness * tuner.get_elapsed_heating_time());
     hotend.modeled_sensor_temp = tuner.get_last_measured_temp();
 
@@ -1318,7 +1327,10 @@ void Temperature::factory_reset() {
 
     // Use the estimated overshoot of the temperature as the target to achieve.
     hotend.target = hotend.modeled_block_temp;
-    if (tuner.measure_transfer() != MPC_autotuner::MeasurementState::SUCCESS) return;
+    if (tuner.measure_transfer() != MPC_autotuner::MeasurementState::SUCCESS) {
+      mpc = old_mpc;
+      return;
+    }
 
     // Update the transfer coefficients
     mpc.ambient_xfer_coeff_fan0 = tuner.get_power_fan0() / (hotend.target - tuner.get_ambient_temp());
@@ -1355,6 +1367,8 @@ void Temperature::factory_reset() {
         mpc.sensor_responsiveness = tuner.get_rate_fastest() / (tuner.get_rate_fastest() * tuner.get_time_fastest() + tuner.get_ambient_temp() - tuner.get_temp_fastest());
       }
     }
+
+    if (!mpc.isValid()) return tuning_failed();
 
     SERIAL_ECHOLNPGM(STR_MPC_AUTOTUNE_FINISHED);
     TERN_(EXTENSIBLE_UI, ExtUI::onMPCTuning(ExtUI::mpcresult_t::MPC_DONE));
