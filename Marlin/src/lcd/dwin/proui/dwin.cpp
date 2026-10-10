@@ -4164,8 +4164,8 @@ void drawMaxAccelMenu() {
 
   #if ENABLED(MPC_EDIT_MENU)
     void setHeaterPower() { setPFloatOnClick(1, 200, 1); }
-    void setBlkHeatCapacity() { setPFloatOnClick(0, 40, 2); }
-    void setSensorResponse() { setPFloatOnClick(0, 1, 4); }
+    void setBlkHeatCapacity() { setPFloatOnClick(0.01f, 40, 2); }
+    void setSensorResponse() { setPFloatOnClick(0.0001f, 1, 4); }
     void setAmbientXfer() { setPFloatOnClick(0, 1, 4); }
     #if ENABLED(MPC_INCLUDE_FAN)
       #define MPC_FAN_FDIGITS 4
