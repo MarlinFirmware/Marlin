@@ -66,11 +66,18 @@
  * G42  - Coordinated move to a mesh point (Requires MESH_BED_LEVELING, AUTO_BED_LEVELING_BLINEAR, or AUTO_BED_LEVELING_UBL)
  * G60  - Save current position. (Requires SAVED_POSITIONS)
  * G61  - Apply/Restore saved coordinates. (Requires SAVED_POSITIONS)
+ * G73  - Shallow peck drill cycle
  * G76  - Calibrate first layer temperature offsets. (Requires PTC_PROBE and PTC_BED)
  * G80  - Cancel current motion mode (Requires GCODE_MOTION_MODES)
+ * G80  - Cancel drill cancel
+ * G81  - Basic drill cycle
+ * G82  - Normal drill cycle
+ * G83  - Deep drill cycle
  * G90  - Use Absolute Coordinates
  * G91  - Use Relative Coordinates
  * G92  - Set current position to coordinates given
+ * G98  - Start drill - retract to initial
+ * G99  - Start drill - retract to specified
  *
  * "M" Codes
  *
@@ -642,6 +649,10 @@ private:
 
   #if ENABLED(GCODE_MOTION_MODES)
     static void G80();
+  #endif
+
+  #if ENABLED(DRILL_CYCLES)
+    static void G81(uint8_t mode);
   #endif
 
   static void G90() { set_relative_mode(false); }
