@@ -1746,6 +1746,12 @@ void Temperature::mintemp_error(const heater_id_t heater_id OPTARG(ERR_INCLUDE_T
       MPCHeaterInfo &hotend = temp_hotend[ee];
       MPC_t &mpc = hotend.mpc;
 
+      // Keep heater off with invalid model and restart model once it's fixed
+      if (!mpc.isValid()) {
+        hotend.modeled_block_temp = NAN;
+        return 0;
+      }
+
       // At startup, initialize modeled temperatures
       if (isnan(hotend.modeled_block_temp)) {
         hotend.modeled_ambient_temp = _MIN(30.0f, hotend.celsius);   // Cap initial value at reasonable max room temperature of 30C
