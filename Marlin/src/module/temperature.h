@@ -411,8 +411,8 @@ typedef struct { float p, i, d, c, f; } raw_pidcf_t;
 
 #endif
 
-#if ENABLED(G26_MESH_VALIDATION) && ANY(HAS_MARLINUI_MENU, EXTENSIBLE_UI)
-  #define G26_CLICK_CAN_CANCEL 1
+#if ANY(G26_MESH_VALIDATION, FIRST_LAYER_CALIBRATION) && ANY(HAS_MARLINUI_MENU, EXTENSIBLE_UI)
+  #define HEATUP_CLICK_CAN_CANCEL 1
 #endif
 
 // A temperature sensor
@@ -1037,7 +1037,7 @@ class Temperature {
 
       #if HAS_TEMP_HOTEND
         static bool wait_for_hotend(const uint8_t target_extruder, const bool no_wait_for_cooling=true
-          OPTARG(G26_CLICK_CAN_CANCEL, const bool click_to_cancel=false)
+          OPTARG(HEATUP_CLICK_CAN_CANCEL, const bool click_to_cancel=false)
         );
 
         #if ENABLED(WAIT_FOR_HOTEND)
@@ -1099,7 +1099,7 @@ class Temperature {
       }
 
       static bool wait_for_bed(const bool no_wait_for_cooling=true
-        OPTARG(G26_CLICK_CAN_CANCEL, const bool click_to_cancel=false)
+        OPTARG(HEATUP_CLICK_CAN_CANCEL, const bool click_to_cancel=false)
       );
 
       static void wait_for_bed_heating();

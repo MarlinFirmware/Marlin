@@ -760,6 +760,13 @@ namespace LanguageNarrow_en {
   LSTR MSG_PROBE_WIZARD                   = _UxGT("Z Probe Wizard");
   LSTR MSG_PROBE_WIZARD_PROBING           = _UxGT("Probing Z Reference");
   LSTR MSG_PROBE_WIZARD_MOVING            = _UxGT("Moving to Probing Pos");
+  LSTR MSG_FIRST_LAYER_CAL                = _UxGT("First Layer Cal.");
+  LSTR MSG_FIRST_LAYER_CAL_M              = _UxGT("First Layer ($)");
+  LSTR MSG_FLC_RESET_OFFSET               = _UxGT("Reset Z Offset?");
+  LSTR MSG_FLC_BED_TOO_SMALL              = _UxGT("Print area too small");
+  LSTR MSG_FLC_CANCELED                   = _UxGT("First Layer Canceled");
+  LSTR MSG_FLC_LOAD_FILAMENT              = _UxGT("Load filament first");
+  LSTR MSG_FLC_CLEAN_NOZZLE               = _UxGT("Clean nozzle, click");
   LSTR MSG_XATC                           = _UxGT("X-Twist Wizard");
   LSTR MSG_XATC_DONE                      = _UxGT("X-Twist Wizard Done!");
   LSTR MSG_XATC_UPDATE_Z_OFFSET           = _UxGT("Update Z-Offset to ");
@@ -1118,6 +1125,8 @@ namespace LanguageWide_en {
     LSTR MSG_HOMING_FEEDRATE_X            = _UxGT("X Homing Feedrate");
     LSTR MSG_HOMING_FEEDRATE_Y            = _UxGT("Y Homing Feedrate");
     LSTR MSG_HOMING_FEEDRATE_Z            = _UxGT("Z Homing Feedrate");
+    LSTR MSG_FIRST_LAYER_CAL              = _UxGT("First Layer Calibration");
+    LSTR MSG_FLC_CLEAN_NOZZLE             = _UxGT("Clean nozzle, then click");
   #endif
 }
 

@@ -328,7 +328,7 @@ typedef struct {
         thermalManager.setTargetBed(bed_temp);
 
         // Wait for the temperature to stabilize
-        if (!thermalManager.wait_for_bed(true OPTARG(G26_CLICK_CAN_CANCEL, true)))
+        if (!thermalManager.wait_for_bed(true OPTARG(HEATUP_CLICK_CAN_CANCEL, true)))
           return G26_ERR;
       }
 
@@ -344,7 +344,7 @@ typedef struct {
     thermalManager.setTargetHotend(hotend_temp, motion.extruder);
 
     // Wait for the temperature to stabilize
-    if (!thermalManager.wait_for_hotend(motion.extruder, true OPTARG(G26_CLICK_CAN_CANCEL, true)))
+    if (!thermalManager.wait_for_hotend(motion.extruder, true OPTARG(HEATUP_CLICK_CAN_CANCEL, true)))
       return G26_ERR;
 
     ui.reset_status();
