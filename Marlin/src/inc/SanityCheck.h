@@ -920,11 +920,11 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
  */
 #if ENABLED(DIFFERENTIAL_EXTRUDER)
   #if EXTRUDERS != 1
-    #error "DIFFERENTIAL EXTRUDER currently requires a single extruder (EXTRUDERS = 1)."
+    #error "DIFFERENTIAL_EXTRUDER currently requires a single extruder (EXTRUDERS = 1)."
   #elif !IS_FULL_CARTESIAN
-    #error "DIFFERENTIAL EXTRUDER requires standard Cartesian kinematics."
+    #error "DIFFERENTIAL_EXTRUDER requires standard Cartesian kinematics."
   #elif !defined(CPU_32_BIT)
-    #error "DIFFERENTIAL EXTRUDER requires a 32-bit CPU."
+    #error "DIFFERENTIAL_EXTRUDER requires a 32-bit CPU."
   #endif
 #endif
 
@@ -3053,6 +3053,10 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
   #error "Please select only one of TFT_RES_320x240, TFT_RES_480x272, TFT_RES_480x320, or TFT_RES_1024x600."
 #endif
 
+#if ENABLED(TFT_FONT_LARGE) && !ALL(TFT_COLOR_UI, HAS_UI_1024x600)
+  #error "TFT_FONT_LARGE requires TFT_COLOR_UI with a 1024x600 TFT (TFT_RES_1024x600)."
+#endif
+
 #if ENABLED(TFT_LVGL_UI)
   #if DISABLED(TFT_RES_480x320)
     #error "TFT_LVGL_UI requires TFT_RES_480x320."
@@ -4640,6 +4644,29 @@ static_assert(_PLUS_TEST(3), "DEFAULT_MAX_ACCELERATION values must be positive."
     #error "DGUS_LCD_UI CR10SPROV2 requires 2 preheating presets."
   #elif NUM_RUNOUT_SENSORS > 1
     #error "DGUS_LCD_UI CR10SPROV2 requires NUM_RUNOUT_SENSORS < 2."
+  #endif
+#endif
+
+/**
+ * Require certain features for DGUS_LCD_UI SERMOON_D1.
+ */
+#if DGUS_UI_IS(SERMOON_D1)
+  #if !(HOTENDS == 1 && EXTRUDERS == 1)
+    #error "DGUS_LCD_UI SERMOON_D1 requires 1 hotend and 1 extruder."
+  #elif !HAS_HEATED_BED
+    #error "DGUS_LCD_UI SERMOON_D1 requires a heated bed."
+  #elif !HAS_FAN
+    #error "DGUS_LCD_UI SERMOON_D1 requires a fan."
+  #elif !HAS_MEDIA
+    #error "DGUS_LCD_UI SERMOON_D1 requires SDSUPPORT."
+  #elif HAS_MESH && (GRID_MAX_POINTS_X > 5 || GRID_MAX_POINTS_Y > 5)
+    #error "DGUS_LCD_UI SERMOON_D1 shows a mesh of up to 5x5 (GRID_MAX_POINTS_X/Y 5)."
+  #elif DISABLED(BABYSTEPPING)
+    #error "DGUS_LCD_UI SERMOON_D1 requires BABYSTEPPING."
+  #elif !defined(PREHEAT_1_TEMP_HOTEND) || !defined(PREHEAT_2_TEMP_HOTEND)
+    #error "DGUS_LCD_UI SERMOON_D1 requires 2 preheating presets."
+  #elif NUM_RUNOUT_SENSORS > 1
+    #error "DGUS_LCD_UI SERMOON_D1 requires NUM_RUNOUT_SENSORS < 2."
   #endif
 #endif
 

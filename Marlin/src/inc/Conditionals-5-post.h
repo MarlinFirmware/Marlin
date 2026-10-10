@@ -3331,7 +3331,7 @@
     #elif IS_DWIN_MARLINUI
       // Defined by header
     #elif HAS_GRAPHICAL_TFT
-      #define LCD_WIDTH ((TFT_WIDTH) / 16)
+      #define LCD_WIDTH ((TFT_WIDTH) / TERN(TFT_FONT_LARGE, 20, 16))
     #else
       #define LCD_WIDTH TERN(IS_ULTIPANEL, 20, 16)
     #endif

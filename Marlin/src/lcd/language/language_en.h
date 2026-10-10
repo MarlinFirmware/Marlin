@@ -455,7 +455,7 @@ namespace LanguageNarrow_en {
   LSTR MSG_BLTOUCH_MODE_STORE             = _UxGT("Mode-Store");
   LSTR MSG_BLTOUCH_MODE_STORE_5V          = _UxGT("Set BLTouch to 5V");
   LSTR MSG_BLTOUCH_MODE_STORE_OD          = _UxGT("Set BLTouch to OD");
-  LSTR MSG_BLTOUCH_MODE_ECHO              = _UxGT("Report Drain");
+  LSTR MSG_BLTOUCH_MODE_ECHO              = _UxGT("Report Mode");
   LSTR MSG_BLTOUCH_MODE_CHANGE            = _UxGT("DANGER: Bad settings can cause damage! Proceed anyway?");
   LSTR MSG_TOUCHMI_PROBE                  = _UxGT("TouchMI");
   LSTR MSG_TOUCHMI_INIT                   = _UxGT("Init TouchMI");
@@ -714,6 +714,7 @@ namespace LanguageNarrow_en {
   LSTR MSG_ERR_COOLING_FAILED             = _UxGT("Cooling Failed");
   LSTR MSG_PLEASE_WAIT                    = _UxGT("Please wait...");
   LSTR MSG_PREHEATING                     = _UxGT("Preheating...");
+  LSTR MSG_HEAT_SOAK                      = _UxGT("Heat Soak");
   LSTR MSG_PROBE_HEATING                  = _UxGT("Probe Heating...");
   LSTR MSG_PROBE_COOLING                  = _UxGT("Probe Cooling...");
   LSTR MSG_LASER_COOLING                  = _UxGT("Laser Cooling...");

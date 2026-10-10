@@ -467,6 +467,7 @@ struct PIDHeaterInfo : public HeaterInfo {
     float modeled_ambient_temp,
           modeled_block_temp,
           modeled_sensor_temp;
+    uint8_t clipped_count;              // Consecutive updates with the output power clipped
     float fanCoefficient() { return mpc.fanCoefficient(); }
     void applyFanAdjustment(const float cf) { mpc.applyFanAdjustment(cf); }
   };
@@ -1102,6 +1103,10 @@ class Temperature {
       );
 
       static void wait_for_bed_heating();
+
+      #ifdef LEVELING_HEAT_SOAK_TIME
+        static void wait_for_heat_soak(const uint16_t seconds);
+      #endif
 
       static void manage_heated_bed(const millis_t &ms);
 

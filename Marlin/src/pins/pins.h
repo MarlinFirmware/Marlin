@@ -884,6 +884,8 @@
   #include "stm32h7/pins_FYSETC_SPIDER_KING_V1_1_H723.h" // STM32H7                         env:STM32H723ZG_fysetc
 #elif MB(BTT_SCYLLA_V1_0)
   #include "stm32h7/pins_BTT_SCYLLA_V1_0.h"              // STM32H7                         env:STM32H723VG_btt
+#elif MB(FYSETC_SPIDER_V3_H723)
+  #include "stm32h7/pins_FYSETC_SPIDER_V3_H723.h"        // STM32H7                         env:STM32H723VG_fysetc
 
 //
 // Espressif ESP32

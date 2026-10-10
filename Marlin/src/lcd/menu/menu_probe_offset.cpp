@@ -144,7 +144,7 @@ static void wizard_move_screen();
 
   /**
    * True while either heater is still below its probing temperature, using the
-   * same margins Probe::preheat_for_probing() would have waited on. Once this
+   * same margins Temperature::preheat_for_probing() would have waited on. Once this
    * goes false, the preheat call inside probing has nothing left to wait for.
    */
   static bool wizard_preheat_pending() {
@@ -317,7 +317,7 @@ void goto_probe_offset_wizard() {
   #if ENABLED(PREHEAT_BEFORE_PROBING)
     // Set the probing temperatures now and watch them come up, rather than
     // letting homing or probing stop to heat with nothing on screen to say so.
-    probe.preheat_for_probing(PROBING_NOZZLE_TEMP, PROBING_BED_TEMP, true);
+    thermalManager.preheat_for_probing(true);
     ui.goto_screen(wizard_preheat_screen);
   #else
     wizard_start_homing();
