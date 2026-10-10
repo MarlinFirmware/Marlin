@@ -457,7 +457,7 @@ void drawBackFirst(const bool is_sel=true) {
 //
 #define CASE_BACK          0
 
-#define MOTION_CASE_RATE   1
+#define MOTION_CASE_SPEED  1
 #define MOTION_CASE_ACCEL  2
 #define MOTION_CASE_JERK   (MOTION_CASE_ACCEL + ENABLED(CLASSIC_JERK))
 #define MOTION_CASE_STEPS  (MOTION_CASE_JERK + 1)
@@ -526,7 +526,7 @@ void say_speed_en(const uint16_t inset, const uint8_t row) {
   itemAreaCopy(133, 119, 172, 132, row, inset);  // "Speed"
 }
 void say_max_accel_en(const uint8_t row) {
-   say_max_en(row);                               // "Max"
+   say_max_en(row);                              // "Max"
    itemAreaCopy(  0, 135,  79, 145, row, 30);    // "Acceleration"
 }
 void say_max_jerk_speed_en(const uint8_t row) {
@@ -999,8 +999,8 @@ void drawMotionMenu() {
   clearMainWindow();
 
   if (hmiIsChinese()) {
-    dwinFrameTitleCopy(1, 16, 28, 13);                        // "Motion"
-    itemAreaCopy(173, 133, 228, 147, MOTION_CASE_RATE);        // Max speed
+    dwinFrameTitleCopy(1, 16, 28, 13);                         // "Motion"
+    itemAreaCopy(173, 133, 228, 147, MOTION_CASE_SPEED);       // Max speed
     itemAreaCopy(173, 133, 200, 147, MOTION_CASE_ACCEL);       // Max...
     itemAreaCopy(28, 149, 69, 161, MOTION_CASE_ACCEL, 30, 1);  // ...Acceleration
     #if ENABLED(CLASSIC_JERK)
@@ -1017,14 +1017,14 @@ void drawMotionMenu() {
       dwinFrameTitleCopy(144, 16, 46, 11);                            // "Motion"
     #endif
     #ifdef USE_STRING_TITLES
-      dwinDrawLabel(MOTION_CASE_RATE, F("Feedrate"));                 // "Feedrate"
+      dwinDrawLabel(MOTION_CASE_SPEED, GET_TEXT_F(MSG_SPEED));        // "Speed"
       dwinDrawLabel(MOTION_CASE_ACCEL, GET_TEXT_F(MSG_ACCELERATION)); // "Acceleration"
       #if ENABLED(CLASSIC_JERK)
         dwinDrawLabel(MOTION_CASE_JERK, GET_TEXT_F(MSG_JERK));        // "Jerk"
       #endif
       dwinDrawLabel(MOTION_CASE_STEPS, GET_TEXT_F(MSG_STEPS_PER_MM)); // "Steps/mm"
     #else
-      say_max_en(MOTION_CASE_RATE); say_speed_en(30, MOTION_CASE_RATE); // "Max Speed"
+      say_max_en(MOTION_CASE_SPEED); say_speed_en(30, MOTION_CASE_SPEED); // "Max Speed"
       say_max_accel_en(MOTION_CASE_ACCEL);                              // "Max Acceleration"
       #if ENABLED(CLASSIC_JERK)
         say_max_en(MOTION_CASE_JERK); say_jerk_en(MOTION_CASE_JERK);    // "Max Jerk"
@@ -1038,7 +1038,7 @@ void drawMotionMenu() {
 
   uint8_t i = 0;
   #define _MOTION_ICON(N) drawMenuLine(++i, ICON_MaxSpeed + (N) - 1)
-  _MOTION_ICON(MOTION_CASE_RATE); drawMoreIcon(i);
+  _MOTION_ICON(MOTION_CASE_SPEED); drawMoreIcon(i);
   _MOTION_ICON(MOTION_CASE_ACCEL); drawMoreIcon(i);
   #if ENABLED(CLASSIC_JERK)
     _MOTION_ICON(MOTION_CASE_JERK); drawMoreIcon(i);
@@ -1434,7 +1434,7 @@ void hmiMoveDone(const AxisEnum axis) {
       #endif
 
       if (hmiValues.show_mode == -1) // Temperature
-        checkkey = ID_TemperatureID;
+        checkkey = ID_Temperature;
       else
         checkkey = ID_Tune;
       drawEditInteger3(temp_line, hmiValues.tempE);
@@ -1483,7 +1483,7 @@ void hmiMoveDone(const AxisEnum axis) {
           }
         #endif
       #endif
-      checkkey = hmiValues.show_mode == -1 ? ID_TemperatureID : ID_Tune;
+      checkkey = hmiValues.show_mode == -1 ? ID_Temperature : ID_Tune;
       drawEditInteger3(bed_line, hmiValues.tempBed);
       thermalManager.setTargetBed(hmiValues.tempBed);
       return;
@@ -1525,7 +1525,7 @@ void hmiMoveDone(const AxisEnum axis) {
           return;
         }
       #endif
-      checkkey = hmiValues.show_mode == -1 ? ID_TemperatureID : ID_Tune;
+      checkkey = hmiValues.show_mode == -1 ? ID_Temperature : ID_Tune;
       drawEditInteger3(fan_line, hmiValues.fanSpeed);
       thermalManager.set_fan_speed(0, hmiValues.fanSpeed);
       return;
@@ -1732,7 +1732,7 @@ void updateVariable() {
         drawEditInteger3(TUNE_CASE_FAN + MROWS - index_tune, _fanspeed);
     #endif
   }
-  else if (checkkey == ID_TemperatureID) {
+  else if (checkkey == ID_Temperature) {
     // Temperature page temperature update
     #if HAS_HOTEND
       if (_new_hotend_target) drawEditInteger3(TEMP_CASE_TEMP, _hotendtarget);
@@ -2753,7 +2753,7 @@ void hmiPrepare() {
       #if HAS_ZOFFSET_ITEM
         case PREPARE_CASE_ZOFF:
           #if ANY(HAS_BED_PROBE, BABYSTEPPING)
-            checkkey = ID_HomeOffset;
+            checkkey = ID_ZOffset;
             hmiValues.show_mode = -4;
             hmiValues.offset_value = BABY_Z_VAR * 100;
             drawEditSignedFloat2(PREPARE_CASE_ZOFF + MROWS - index_prepare, hmiValues.offset_value, true);
@@ -2829,9 +2829,9 @@ void drawTemperatureMenu() {
         dwinDrawLabel(TEMP_CASE_FAN, GET_TEXT_F(MSG_FAN_SPEED));
       #endif
       #if HAS_PREHEAT
-        dwinDrawLabel(TEMP_CASE_PLA, F(PREHEAT_1_LABEL " Preheat Settings"));
+        dwinDrawLabel(TEMP_CASE_PLA, GET_TEXT_F(MSG_PREHEAT_1_SETTINGS));
         #if PREHEAT_COUNT > 1
-          dwinDrawLabel(TEMP_CASE_ABS, F(PREHEAT_2_LABEL " Preheat Settings"));
+          dwinDrawLabel(TEMP_CASE_ABS, F("Preheat " PREHEAT_2_LABEL " Settings"));
         #endif
       #endif
     #else
@@ -2934,7 +2934,7 @@ void hmiControl() {
         gotoMainMenu();
         break;
       case CONTROL_CASE_TEMP:
-        checkkey = ID_TemperatureID;
+        checkkey = ID_Temperature;
         hmiValues.show_mode = -1;
         select_temp.reset();
         drawTemperatureMenu();
@@ -3056,7 +3056,7 @@ void hmiAxisMove() {
               return;
             }
           #endif
-          checkkey = ID_Extruder;
+          checkkey = ID_MoveE;
           hmiValues.moveScaled.e = motion.position.e * MINUNITMULT;
           drawEditSignedFloat3(4, hmiValues.moveScaled.e, true);
           encoderRate.enabled = true;
@@ -3121,7 +3121,7 @@ void hmiTemperature() {
           clearMainWindow();
 
           if (hmiIsChinese()) {
-            dwinFrameTitleCopy(59, 16, 81, 14);                       // "PLA Settings"
+            dwinFrameTitleCopy(59, 16, 81, 14);                        // "PLA Settings"
             itemAreaCopy(100, 89, 124, 101, PREHEAT_CASE_TEMP);
             itemAreaCopy(1, 134, 56, 146, PREHEAT_CASE_TEMP, 24);      // PLA nozzle temp
             #if HAS_HEATED_BED
@@ -3138,14 +3138,14 @@ void hmiTemperature() {
           }
           else {
             #ifdef USE_STRING_HEADINGS
-              drawTitle(F(PREHEAT_1_LABEL " Settings")); // TODO: GET_TEXT_F
+              drawTitle(GET_TEXT_F(MSG_PREHEAT_1_SETTINGS));
             #else
-              dwinFrameTitleCopy(56, 15, 85, 14);                       // "Temperature"  TODO: "PLA Settings"
+              dwinFrameTitleCopy(56, 15, 85, 14);                      // "Temperature"  TODO: "PLA Settings"
             #endif
             #ifdef USE_STRING_TITLES
-              dwinDrawLabel(PREHEAT_CASE_TEMP, F("Nozzle Temp"));
+              dwinDrawLabel(PREHEAT_CASE_TEMP, GET_TEXT_F(MSG_TEMP_NOZZLE));
               #if HAS_HEATED_BED
-                dwinDrawLabel(PREHEAT_CASE_BED, F("Bed Temp"));
+                dwinDrawLabel(PREHEAT_CASE_BED, GET_TEXT_F(MSG_TEMP_BED));
               #endif
               #if HAS_FAN
                 dwinDrawLabel(PREHEAT_CASE_FAN, GET_TEXT_F(MSG_FAN_SPEED));
@@ -3154,16 +3154,16 @@ void hmiTemperature() {
                 dwinDrawLabel(PREHEAT_CASE_SAVE, GET_TEXT_F(MSG_STORE_EEPROM));
               #endif
             #else
-              say_pla_en(0, PREHEAT_CASE_TEMP);                           // "PLA"
+              say_pla_en(0, PREHEAT_CASE_TEMP);                          // "PLA"
               itemAreaCopy(198, 104, 237, 114, PREHEAT_CASE_TEMP, 27);   // "Nozzle"
               itemAreaCopy(1,  89,  81, 102, PREHEAT_CASE_TEMP, 71);     // "Temperature"
               #if HAS_HEATED_BED
-                say_pla_en(0, PREHEAT_CASE_BED);                          // "PLA"
+                say_pla_en(0, PREHEAT_CASE_BED);                         // "PLA"
                 itemAreaCopy(240, 104, 264, 114, PREHEAT_CASE_BED, 27);  // "Bed"
                 itemAreaCopy(1, 89, 83, 101, PREHEAT_CASE_BED, 54);      // "Temperature"
               #endif
               #if HAS_FAN
-                say_pla_en(0, PREHEAT_CASE_FAN);                          // "PLA"
+                say_pla_en(0, PREHEAT_CASE_FAN);                         // "PLA"
                 itemAreaCopy(0, 119, 64, 132, PREHEAT_CASE_FAN, 27);     // "Fan speed"
               #endif
               #if ENABLED(EEPROM_SETTINGS)
@@ -3200,7 +3200,7 @@ void hmiTemperature() {
           clearMainWindow();
 
           if (hmiIsChinese()) {
-            dwinFrameTitleCopy(142, 16, 82, 14);                        // "ABS Settings"
+            dwinFrameTitleCopy(142, 16, 82, 14);                         // "ABS Settings"
 
             itemAreaCopy(180, 89, 204, 100, PREHEAT_CASE_TEMP);
             itemAreaCopy(1, 134, 56, 146, PREHEAT_CASE_TEMP, 24);        // ABS nozzle temp
@@ -3221,12 +3221,12 @@ void hmiTemperature() {
             #ifdef USE_STRING_HEADINGS
               drawTitle(F("ABS Settings")); // TODO: GET_TEXT_F
             #else
-              dwinFrameTitleCopy(56, 15, 85, 14);                       // "Temperature"  TODO: "ABS Settings"
+              dwinFrameTitleCopy(56, 15, 85, 14);                        // "Temperature"  TODO: "ABS Settings"
             #endif
             #ifdef USE_STRING_TITLES
-              dwinDrawLabel(PREHEAT_CASE_TEMP, F("Nozzle Temp"));
+              dwinDrawLabel(PREHEAT_CASE_TEMP, GET_TEXT_F(MSG_TEMP_NOZZLE));
               #if HAS_HEATED_BED
-                dwinDrawLabel(PREHEAT_CASE_BED, F("Bed Temp"));
+                dwinDrawLabel(PREHEAT_CASE_BED, GET_TEXT_F(MSG_TEMP_BED));
               #endif
               #if HAS_FAN
                 dwinDrawLabel(PREHEAT_CASE_FAN, GET_TEXT_F(MSG_FAN_SPEED));
@@ -3235,21 +3235,21 @@ void hmiTemperature() {
                 dwinDrawLabel(PREHEAT_CASE_SAVE, GET_TEXT_F(MSG_STORE_EEPROM));
               #endif
             #else
-              say_abs_en(0, PREHEAT_CASE_TEMP);                           // "ABS"
+              say_abs_en(0, PREHEAT_CASE_TEMP);                          // "ABS"
               itemAreaCopy(197, 104, 238, 114, PREHEAT_CASE_TEMP, 29);   // "Nozzle"
               itemAreaCopy(1,  89,  34, 102, PREHEAT_CASE_TEMP, 73);     // "Temp"
               #if HAS_HEATED_BED
-                say_abs_en(0, PREHEAT_CASE_BED);                          // "ABS"
+                say_abs_en(0, PREHEAT_CASE_BED);                         // "ABS"
                 itemAreaCopy(240, 104, 264, 114, PREHEAT_CASE_BED, 29);  // "Bed"
                 itemAreaCopy(1,  89,  83, 102, PREHEAT_CASE_BED, 56);    // "Temperature"
               #endif
               #if HAS_FAN
-                say_abs_en(0, PREHEAT_CASE_FAN);                          // "ABS"
+                say_abs_en(0, PREHEAT_CASE_FAN);                         // "ABS"
                 itemAreaCopy(0, 119,  64, 132, PREHEAT_CASE_FAN, 29);    // "Fan speed"
               #endif
               #if ENABLED(EEPROM_SETTINGS)
                 itemAreaCopy(98, 165, 233, 177, PREHEAT_CASE_SAVE);      // "Save PLA parameters"
-                say_abs_en(33, PREHEAT_CASE_SAVE);                        // "ABS"
+                say_abs_en(33, PREHEAT_CASE_SAVE);                       // "ABS"
               #endif
             #endif
           }
@@ -3279,65 +3279,12 @@ void hmiTemperature() {
   dwinUpdateLCD();
 }
 
-void drawMaxSpeedMenu() {
-  clearMainWindow();
-
-  if (hmiIsChinese()) {
-    dwinFrameTitleCopy(1, 16, 28, 13);          // "Max Speed (mm/s)"
-
-    auto say_max_speed_cn = [](const uint8_t line) {
-      itemAreaCopy(173, 133, 228, 147, line);    // "Max speed"
-    };
-
-    say_max_speed_cn(1);                          // "Max speed"
-    itemAreaCopy(229, 133, 236, 147, 1, 58);     // "X"
-    say_max_speed_cn(2);                          // "Max speed"
-    itemAreaCopy(1, 150, 7, 160, 2, 58, 3);      // "Y"
-    say_max_speed_cn(3);                          // "Max speed"
-    itemAreaCopy(9, 150, 16, 160, 3, 58, 3);     // "Z"
-    #if HAS_HOTEND
-      say_max_speed_cn(4);                        // "Max speed"
-      itemAreaCopy(18, 150, 25, 160, 4, 58, 3);  // "E"
-    #endif
-  }
-  else {
-    #ifdef USE_STRING_HEADINGS
-      drawTitle(F("Max Speed (mm/s)")); // TODO: GET_TEXT_F
-    #else
-      dwinFrameTitleCopy(144, 16, 46, 11);                  // "Max Speed (mm/s)"
-    #endif
-    #ifdef USE_STRING_TITLES
-      dwinDrawLabel(1, F("Max Feedrate X"));
-      dwinDrawLabel(2, F("Max Feedrate Y"));
-      dwinDrawLabel(3, F("Max Feedrate Z"));
-      #if HAS_HOTEND
-        dwinDrawLabel(4, F("Max Feedrate E"));
-      #endif
-    #else
-      say_max_en(1); say_speed_en(30, 1); say_x_en(73, 1);    // "Max Speed X"
-      say_max_en(2); say_speed_en(30, 2); say_y_en(73, 2);    // "Max Speed Y"
-      say_max_en(3); say_speed_en(30, 3); say_z_en(73, 3);    // "Max Speed Z"
-      #if HAS_HOTEND
-        say_max_en(4); say_speed_en(30, 4); say_e_en(73, 4);  // "Max Speed E"
-      #endif
-    #endif
-  }
-
-  drawBackFirst();
-  for (uint8_t i = 0; i < 3 + ENABLED(HAS_HOTEND); ++i) drawMenuLine(i + 1, ICON_MaxSpeedX + i);
-  drawEditInteger4(1, planner.settings.max_feedrate_mm_s[X_AXIS]);
-  drawEditInteger4(2, planner.settings.max_feedrate_mm_s[Y_AXIS]);
-  drawEditInteger4(3, planner.settings.max_feedrate_mm_s[Z_AXIS]);
-  #if HAS_HOTEND
-    drawEditInteger4(4, planner.settings.max_feedrate_mm_s[E_AXIS]);
-  #endif
-}
-
+// Max Acceleration
 void drawMaxAccelMenu() {
   clearMainWindow();
 
   if (hmiIsChinese()) {
-    dwinFrameTitleCopy(1, 16, 28, 13);            // "Acceleration"
+    dwinFrameTitleCopy(1, 16, 28, 13);             // "Acceleration"
 
     itemAreaCopy(173, 133, 200, 147, 1);
     itemAreaCopy( 28, 149,  69, 161, 1, 30, 1);
@@ -3358,14 +3305,14 @@ void drawMaxAccelMenu() {
     #ifdef USE_STRING_HEADINGS
       drawTitle(GET_TEXT_F(MSG_ACCELERATION));
     #else
-      dwinFrameTitleCopy(144, 16, 46, 11);    // "Acceleration"
+      dwinFrameTitleCopy(144, 16, 46, 11);          // "Acceleration"
     #endif
     #ifdef USE_STRING_TITLES
-      dwinDrawLabel(1, F("Max Accel X"));
-      dwinDrawLabel(2, F("Max Accel Y"));
-      dwinDrawLabel(3, F("Max Accel Z"));
+      dwinDrawLabel(1, GET_TEXT_F(MSG_AMAX_A));
+      dwinDrawLabel(2, GET_TEXT_F(MSG_AMAX_A));
+      dwinDrawLabel(3, GET_TEXT_F(MSG_AMAX_A));
       #if HAS_HOTEND
-        dwinDrawLabel(4, F("Max Accel E"));
+        dwinDrawLabel(4, GET_TEXT_F(MSG_AMAX_A));
       #endif
     #else
       say_max_accel_en(1); say_x_en(112, 1);    // "Max Acceleration X"
@@ -3387,12 +3334,119 @@ void drawMaxAccelMenu() {
   #endif
 }
 
+// Steps per mm
+void drawStepsMenu() {
+  clearMainWindow();
+
+  if (hmiIsChinese()) {
+    dwinFrameTitleCopy(1, 16, 28, 13);             // "Steps per mm"
+
+    itemAreaCopy(153, 148, 194, 161, 1);
+    itemAreaCopy(229, 133, 236, 147, 1, 44);       // Transmission Ratio X
+    itemAreaCopy(153, 148, 194, 161, 2);
+    itemAreaCopy(  1, 150,   7, 160, 2, 44, 3);    // Transmission Ratio Y
+    itemAreaCopy(153, 148, 194, 161, 3);
+    itemAreaCopy(  9, 150,  16, 160, 3, 44, 3);    // Transmission Ratio Z
+    #if HAS_HOTEND
+      itemAreaCopy(153, 148, 194, 161, 4);
+      itemAreaCopy( 18, 150,  25, 160, 4, 44, 3);  // Transmission Ratio E
+    #endif
+  }
+  else {
+    #ifdef USE_STRING_HEADINGS
+      drawTitle(GET_TEXT_F(MSG_STEPS_PER_MM));
+    #else
+      dwinFrameTitleCopy(144, 16, 46, 11);         // "Steps per mm"
+    #endif
+    #ifdef USE_STRING_TITLES
+      dwinDrawLabel(1, GET_TEXT_F(MSG_A_STEPS));
+      dwinDrawLabel(2, GET_TEXT_F(MSG_B_STEPS));
+      dwinDrawLabel(3, GET_TEXT_F(MSG_C_STEPS));
+      #if HAS_HOTEND
+        dwinDrawLabel(4, GET_TEXT_F(MSG_E_STEPS));
+      #endif
+    #else
+      say_steps_per_mm_en(1); say_x_en(101, 1);     // "Steps-per-mm X"
+      say_steps_per_mm_en(2); say_y_en(101, 2);     // "Y"
+      say_steps_per_mm_en(3); say_z_en(101, 3);     // "Z"
+      #if HAS_HOTEND
+        say_steps_per_mm_en(4); say_e_en(101, 4);   // "E"
+      #endif
+    #endif
+  }
+
+  drawBackFirst();
+  for (uint8_t i = 0; i < 3 + ENABLED(HAS_HOTEND); ++i) drawMenuLine(i + 1, ICON_StepX + i);
+  drawEditFloat3(1, planner.settings.axis_steps_per_mm[X_AXIS] * MINUNITMULT);
+  drawEditFloat3(2, planner.settings.axis_steps_per_mm[Y_AXIS] * MINUNITMULT);
+  drawEditFloat3(3, planner.settings.axis_steps_per_mm[Z_AXIS] * MINUNITMULT);
+  #if HAS_HOTEND
+    drawEditFloat3(4, planner.settings.axis_steps_per_mm[E_AXIS] * MINUNITMULT);
+  #endif
+}
+
+// Max Speed
+void drawMaxSpeedMenu() {
+  clearMainWindow();
+
+  if (hmiIsChinese()) {
+    dwinFrameTitleCopy(1, 16, 28, 13);           // "Max Speed (mm/s)"
+
+    auto say_max_speed_cn = [](const uint8_t line) {
+      itemAreaCopy(173, 133, 228, 147, line);    // "Max speed"
+    };
+
+    say_max_speed_cn(1);                         // "Max speed"
+    itemAreaCopy(229, 133, 236, 147, 1, 58);     // "X"
+    say_max_speed_cn(2);                         // "Max speed"
+    itemAreaCopy(1, 150, 7, 160, 2, 58, 3);      // "Y"
+    say_max_speed_cn(3);                         // "Max speed"
+    itemAreaCopy(9, 150, 16, 160, 3, 58, 3);     // "Z"
+    #if HAS_HOTEND
+      say_max_speed_cn(4);                       // "Max speed"
+      itemAreaCopy(18, 150, 25, 160, 4, 58, 3);  // "E"
+    #endif
+  }
+  else {
+    #ifdef USE_STRING_HEADINGS
+      drawTitle(GET_TEXT_F(MSG_MAX_SPEED));
+    #else
+      dwinFrameTitleCopy(144, 16, 46, 11); // "Max Speed (mm/s)"
+    #endif
+    #ifdef USE_STRING_TITLES
+      dwinDrawLabel(1, GET_TEXT_F(MSG_VMAX_A));
+      dwinDrawLabel(2, GET_TEXT_F(MSG_VMAX_B));
+      dwinDrawLabel(3, GET_TEXT_F(MSG_VMAX_C));
+      #if HAS_HOTEND
+        dwinDrawLabel(4, GET_TEXT_F(MSG_VMAX_E));
+      #endif
+    #else
+      say_max_en(1); say_speed_en(30, 1); say_x_en(73, 1);    // "Max Speed X"
+      say_max_en(2); say_speed_en(30, 2); say_y_en(73, 2);    // "Max Speed Y"
+      say_max_en(3); say_speed_en(30, 3); say_z_en(73, 3);    // "Max Speed Z"
+      #if HAS_HOTEND
+        say_max_en(4); say_speed_en(30, 4); say_e_en(73, 4);  // "Max Speed E"
+      #endif
+    #endif
+  }
+
+  drawBackFirst();
+  for (uint8_t i = 0; i < 3 + ENABLED(HAS_HOTEND); ++i) drawMenuLine(i + 1, ICON_MaxSpeedX + i);
+  drawEditInteger4(1, planner.settings.max_feedrate_mm_s[X_AXIS]);
+  drawEditInteger4(2, planner.settings.max_feedrate_mm_s[Y_AXIS]);
+  drawEditInteger4(3, planner.settings.max_feedrate_mm_s[Z_AXIS]);
+  #if HAS_HOTEND
+    drawEditInteger4(4, planner.settings.max_feedrate_mm_s[E_AXIS]);
+  #endif
+}
+
 #if ENABLED(CLASSIC_JERK)
+  // Max Jerk
   void drawMaxJerkMenu() {
     clearMainWindow();
 
     if (hmiIsChinese()) {
-      dwinFrameTitleCopy(1, 16, 28, 13);            // "Jerk"
+      dwinFrameTitleCopy(1, 16, 28, 13);             // "Jerk"
 
       itemAreaCopy(173, 133, 200, 147, 1);
       itemAreaCopy(  1, 180,  28, 192, 1, 30, 1);
@@ -3417,7 +3471,7 @@ void drawMaxAccelMenu() {
       #ifdef USE_STRING_HEADINGS
         drawTitle(GET_TEXT_F(MSG_JERK));
       #else
-        dwinFrameTitleCopy(144, 16, 46, 11);        // "Jerk"
+        dwinFrameTitleCopy(144, 16, 46, 11);          // "Jerk"
       #endif
       #ifdef USE_STRING_TITLES
         dwinDrawLabel(1, GET_TEXT_F(MSG_VA_JERK));
@@ -3447,56 +3501,6 @@ void drawMaxAccelMenu() {
   }
 #endif
 
-void drawStepsMenu() {
-  clearMainWindow();
-
-  if (hmiIsChinese()) {
-    dwinFrameTitleCopy(1, 16, 28, 13);            // "Steps per mm"
-
-    itemAreaCopy(153, 148, 194, 161, 1);
-    itemAreaCopy(229, 133, 236, 147, 1, 44);       // Transmission Ratio X
-    itemAreaCopy(153, 148, 194, 161, 2);
-    itemAreaCopy(  1, 150,   7, 160, 2, 44, 3);    // Transmission Ratio Y
-    itemAreaCopy(153, 148, 194, 161, 3);
-    itemAreaCopy(  9, 150,  16, 160, 3, 44, 3);    // Transmission Ratio Z
-    #if HAS_HOTEND
-      itemAreaCopy(153, 148, 194, 161, 4);
-      itemAreaCopy( 18, 150,  25, 160, 4, 44, 3);  // Transmission Ratio E
-    #endif
-  }
-  else {
-    #ifdef USE_STRING_HEADINGS
-      drawTitle(GET_TEXT_F(MSG_STEPS_PER_MM));
-    #else
-      dwinFrameTitleCopy(144, 16, 46, 11);        // "Steps per mm"
-    #endif
-    #ifdef USE_STRING_TITLES
-      dwinDrawLabel(1, GET_TEXT_F(MSG_A_STEPS));
-      dwinDrawLabel(2, GET_TEXT_F(MSG_B_STEPS));
-      dwinDrawLabel(3, GET_TEXT_F(MSG_C_STEPS));
-      #if HAS_HOTEND
-        dwinDrawLabel(4, GET_TEXT_F(MSG_E_STEPS));
-      #endif
-    #else
-      say_steps_per_mm_en(1); say_x_en(101, 1);     // "Steps-per-mm X"
-      say_steps_per_mm_en(2); say_y_en(101, 2);     // "Y"
-      say_steps_per_mm_en(3); say_z_en(101, 3);     // "Z"
-      #if HAS_HOTEND
-        say_steps_per_mm_en(4); say_e_en(101, 4);   // "E"
-      #endif
-    #endif
-  }
-
-  drawBackFirst();
-  for (uint8_t i = 0; i < 3 + ENABLED(HAS_HOTEND); ++i) drawMenuLine(i + 1, ICON_StepX + i);
-  drawEditFloat3(1, planner.settings.axis_steps_per_mm[X_AXIS] * MINUNITMULT);
-  drawEditFloat3(2, planner.settings.axis_steps_per_mm[Y_AXIS] * MINUNITMULT);
-  drawEditFloat3(3, planner.settings.axis_steps_per_mm[Z_AXIS] * MINUNITMULT);
-  #if HAS_HOTEND
-    drawEditFloat3(4, planner.settings.axis_steps_per_mm[E_AXIS] * MINUNITMULT);
-  #endif
-}
-
 // Motion
 void hmiMotion() {
   EncoderState encoder_diffState = get_encoder_state();
@@ -3517,15 +3521,20 @@ void hmiMotion() {
         index_control = MROWS;
         drawControlMenu();
         break;
-      case MOTION_CASE_RATE:
-        checkkey = ID_MaxSpeed;
-        select_speed.reset();
-        drawMaxSpeedMenu();
-        break;
       case MOTION_CASE_ACCEL:
         checkkey = ID_MaxAcceleration;
         select_acc.reset();
         drawMaxAccelMenu();
+        break;
+      case MOTION_CASE_STEPS:
+        checkkey = ID_Step;
+        select_step.reset();
+        drawStepsMenu();
+        break;
+      case MOTION_CASE_SPEED:
+        checkkey = ID_MaxSpeed;
+        select_speed.reset();
+        drawMaxSpeedMenu();
         break;
       #if ENABLED(CLASSIC_JERK)
         case MOTION_CASE_JERK:
@@ -3534,11 +3543,6 @@ void hmiMotion() {
           drawMaxJerkMenu();
          break;
       #endif
-      case MOTION_CASE_STEPS:
-        checkkey = ID_Step;
-        select_step.reset();
-        drawStepsMenu();
-        break;
       default: break;
     }
   }
@@ -3841,7 +3845,7 @@ void hmiTune() {
       #if HAS_ZOFFSET_ITEM
         case TUNE_CASE_ZOFF: // Z-offset
           #if ANY(HAS_BED_PROBE, BABYSTEPPING)
-            checkkey = ID_HomeOffset;
+            checkkey = ID_ZOffset;
             hmiValues.offset_value = BABY_Z_VAR * 100;
             drawEditSignedFloat2(TUNE_CASE_ZOFF + MROWS - index_tune, hmiValues.offset_value, true);
             encoderRate.enabled = true;
@@ -3875,7 +3879,7 @@ void hmiTune() {
     else if (encoder_diffState == ENCODER_DIFF_ENTER) {
       switch (select_PLA.now) {
         case CASE_BACK:
-          checkkey = ID_TemperatureID;
+          checkkey = ID_Temperature;
           select_temp.now = TEMP_CASE_PLA;
           hmiValues.show_mode = -1;
           drawTemperatureMenu();
@@ -3932,7 +3936,7 @@ void hmiTune() {
       else if (encoder_diffState == ENCODER_DIFF_ENTER) {
         switch (select_ABS.now) {
           case CASE_BACK:
-            checkkey = ID_TemperatureID;
+            checkkey = ID_Temperature;
             select_temp.now = TEMP_CASE_ABS;
             hmiValues.show_mode = -1;
             drawTemperatureMenu();
@@ -3976,35 +3980,6 @@ void hmiTune() {
 
 #endif // HAS_PREHEAT
 
-// Max Speed
-void hmiMaxSpeed() {
-  EncoderState encoder_diffState = get_encoder_state();
-  if (encoder_diffState == ENCODER_DIFF_NO) return;
-
-  // Avoid flicker by updating only the previous menu
-  if (encoder_diffState == ENCODER_DIFF_CW) {
-    if (select_speed.inc(1 + 3 + ENABLED(HAS_HOTEND))) moveHighlight(1, select_speed.now);
-  }
-  else if (encoder_diffState == ENCODER_DIFF_CCW) {
-    if (select_speed.dec()) moveHighlight(-1, select_speed.now);
-  }
-  else if (encoder_diffState == ENCODER_DIFF_ENTER) {
-    if (WITHIN(select_speed.now, 1, 4)) {
-      checkkey = ID_MaxSpeedValue;
-      hmiFlag.feedspeed_axis = AxisEnum(select_speed.now - 1);
-      hmiValues.maxFeedSpeed = planner.settings.max_feedrate_mm_s[hmiFlag.feedspeed_axis];
-      drawEditInteger4(select_speed.now, hmiValues.maxFeedSpeed, true);
-      encoderRate.enabled = true;
-    }
-    else { // Back
-      checkkey = ID_Motion;
-      select_motion.now = MOTION_CASE_RATE;
-      drawMotionMenu();
-    }
-  }
-  dwinUpdateLCD();
-}
-
 // Max Acceleration
 void hmiMaxAcceleration() {
   EncoderState encoder_diffState = get_encoder_state();
@@ -4028,6 +4003,66 @@ void hmiMaxAcceleration() {
     else { // Back
       checkkey = ID_Motion;
       select_motion.now = MOTION_CASE_ACCEL;
+      drawMotionMenu();
+    }
+  }
+  dwinUpdateLCD();
+}
+
+#if ENABLED(EDITABLE_STEPS_PER_UNIT)
+  // Steps per mm
+  void hmiStep() {
+    EncoderState encoder_diffState = get_encoder_state();
+    if (encoder_diffState == ENCODER_DIFF_NO) return;
+
+    // Avoid flicker by updating only the previous menu
+    if (encoder_diffState == ENCODER_DIFF_CW) {
+      if (select_step.inc(1 + 3 + ENABLED(HAS_HOTEND))) moveHighlight(1, select_step.now);
+    }
+    else if (encoder_diffState == ENCODER_DIFF_CCW) {
+      if (select_step.dec()) moveHighlight(-1, select_step.now);
+    }
+    else if (encoder_diffState == ENCODER_DIFF_ENTER) {
+      if (WITHIN(select_step.now, 1, 4)) {
+        checkkey = ID_StepValue;
+        hmiFlag.step_axis = AxisEnum(select_step.now - 1);
+        hmiValues.maxStepScaled = planner.settings.axis_steps_per_mm[hmiFlag.step_axis] * MINUNITMULT;
+        drawEditFloat3(select_step.now, hmiValues.maxStepScaled, true);
+        encoderRate.enabled = true;
+      }
+      else { // Back
+        checkkey = ID_Motion;
+        select_motion.now = MOTION_CASE_STEPS;
+        drawMotionMenu();
+      }
+    }
+    dwinUpdateLCD();
+  }
+#endif
+
+// Max Speed
+void hmiMaxSpeed() {
+  EncoderState encoder_diffState = get_encoder_state();
+  if (encoder_diffState == ENCODER_DIFF_NO) return;
+
+  // Avoid flicker by updating only the previous menu
+  if (encoder_diffState == ENCODER_DIFF_CW) {
+    if (select_speed.inc(1 + 3 + ENABLED(HAS_HOTEND))) moveHighlight(1, select_speed.now);
+  }
+  else if (encoder_diffState == ENCODER_DIFF_CCW) {
+    if (select_speed.dec()) moveHighlight(-1, select_speed.now);
+  }
+  else if (encoder_diffState == ENCODER_DIFF_ENTER) {
+    if (WITHIN(select_speed.now, 1, 4)) {
+      checkkey = ID_MaxSpeedValue;
+      hmiFlag.feedspeed_axis = AxisEnum(select_speed.now - 1);
+      hmiValues.maxFeedSpeed = planner.settings.max_feedrate_mm_s[hmiFlag.feedspeed_axis];
+      drawEditInteger4(select_speed.now, hmiValues.maxFeedSpeed, true);
+      encoderRate.enabled = true;
+    }
+    else { // Back
+      checkkey = ID_Motion;
+      select_motion.now = MOTION_CASE_SPEED;
       drawMotionMenu();
     }
   }
@@ -4064,35 +4099,6 @@ void hmiMaxAcceleration() {
     dwinUpdateLCD();
   }
 #endif // CLASSIC_JERK
-
-// Step
-void hmiStep() {
-  EncoderState encoder_diffState = get_encoder_state();
-  if (encoder_diffState == ENCODER_DIFF_NO) return;
-
-  // Avoid flicker by updating only the previous menu
-  if (encoder_diffState == ENCODER_DIFF_CW) {
-    if (select_step.inc(1 + 3 + ENABLED(HAS_HOTEND))) moveHighlight(1, select_step.now);
-  }
-  else if (encoder_diffState == ENCODER_DIFF_CCW) {
-    if (select_step.dec()) moveHighlight(-1, select_step.now);
-  }
-  else if (encoder_diffState == ENCODER_DIFF_ENTER) {
-    if (WITHIN(select_step.now, 1, 4)) {
-      checkkey = ID_StepValue;
-      hmiFlag.step_axis = AxisEnum(select_step.now - 1);
-      hmiValues.maxStepScaled = planner.settings.axis_steps_per_mm[hmiFlag.step_axis] * MINUNITMULT;
-      drawEditFloat3(select_step.now, hmiValues.maxStepScaled, true);
-      encoderRate.enabled = true;
-    }
-    else { // Back
-      checkkey = ID_Motion;
-      select_motion.now = MOTION_CASE_STEPS;
-      drawMotionMenu();
-    }
-  }
-  dwinUpdateLCD();
-}
 
 void hmiInit() {
   hmiSDCardInit();
@@ -4256,9 +4262,10 @@ void dwinHandleScreen() {
     case ID_Control:        hmiControl(); break;
     case ID_Leveling:       break;
     case ID_PrintProcess:   hmiPrinting(); break;
+    case ID_PrintSpeed:     hmiPrintSpeed(); break;
     case ID_PrintWindow:    hmiPauseOrStop(); break;
     case ID_AxisMove:       hmiAxisMove(); break;
-    case ID_TemperatureID:  hmiTemperature(); break;
+    case ID_Temperature:    hmiTemperature(); break;
     case ID_Motion:         hmiMotion(); break;
     case ID_AdvSet:         hmiAdvSet(); break;
     #if HAS_HOME_OFFSET
@@ -4280,21 +4287,27 @@ void dwinHandleScreen() {
         case ID_ABSPreheat: hmiABSPreheatSetting(); break;
       #endif
     #endif
-    case ID_MaxSpeed:       hmiMaxSpeed(); break;
     case ID_MaxAcceleration: hmiMaxAcceleration(); break;
+    case ID_MaxAccelerationValue: hmiMaxAccelerationXYZE(); break;
+    #if ENABLED(EDITABLE_STEPS_PER_UNIT)
+      case ID_Step:         hmiStep(); break;
+      case ID_StepValue:    hmiStepXYZE(); break;
+    #endif
+    case ID_MaxSpeed:       hmiMaxSpeed(); break;
+    case ID_MaxSpeedValue:  hmiMaxFeedspeedXYZE(); break;
     #if ENABLED(CLASSIC_JERK)
       case ID_MaxJerk:      hmiMaxJerk(); break;
+      case ID_MaxJerkValue: hmiMaxJerkXYZE(); break;
     #endif
-    case ID_Step:           hmiStep(); break;
     case ID_MoveX:          hmiMoveX(); break;
     case ID_MoveY:          hmiMoveY(); break;
     case ID_MoveZ:          hmiMoveZ(); break;
     #if HAS_HOTEND
-      case ID_Extruder:     hmiMoveE(); break;
+      case ID_MoveE:        hmiMoveE(); break;
       case ID_ETemp:        hmiETemp(); break;
     #endif
     #if ANY(HAS_BED_PROBE, BABYSTEPPING)
-      case ID_HomeOffset:   hmiZoffset(); break;
+      case ID_ZOffset:      hmiZoffset(); break;
     #endif
     #if HAS_HEATED_BED
       case ID_BedTemp:      hmiBedTemp(); break;
@@ -4302,17 +4315,8 @@ void dwinHandleScreen() {
     #if HAS_PREHEAT && HAS_FAN
       case ID_FanSpeed:     hmiFanSpeed(); break;
     #endif
-    case ID_PrintSpeed:     hmiPrintSpeed(); break;
-    case ID_MaxSpeedValue:  hmiMaxFeedspeedXYZE(); break;
-    case ID_MaxAccelerationValue: hmiMaxAccelerationXYZE(); break;
     #if HAS_SPINDLE_ACCELERATION
       case ID_SpindleAccelerationValue: hmiSpindleAcceleration(); break;
-    #endif
-    #if ENABLED(CLASSIC_JERK)
-      case ID_MaxJerkValue: hmiMaxJerkXYZE(); break;
-    #endif
-    #if ENABLED(EDITABLE_STEPS_PER_UNIT)
-      case ID_StepValue:    hmiStepXYZE(); break;
     #endif
     default: break;
   }
