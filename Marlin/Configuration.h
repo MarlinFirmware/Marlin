@@ -1371,6 +1371,8 @@
   #define MAX_FEEDRATE_EDIT_VALUES    { 600, 600, 10, 50 } // ...or, set your own edit limits
 #endif
 
+//#define MAX_PRINT_FEEDRATE_MM_S  1000   // (mm/s) Adjustable maximum feedrate for printing moves
+
 /**
  * Default Max Acceleration (speed change with time) (linear=mm/(s^2), rotational=°/(s^2))
  * (Maximum start speed for accelerated moves)
