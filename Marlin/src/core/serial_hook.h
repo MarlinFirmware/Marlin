@@ -200,6 +200,8 @@ struct RuntimeSerial : public SerialBase< RuntimeSerial<SerialT> >, public Seria
 #define _S_CLASS(N) class Serial##N##T,
 #define _S_NAME(N) Serial##N##T,
 
+void serial2file(uint8_t c);
+
 template < REPEAT(NUM_SERIAL, _S_CLASS) const uint8_t offset=0, const uint8_t step=1 >
 struct MultiSerial : public SerialBase< MultiSerial< REPEAT(NUM_SERIAL, _S_NAME) offset, step > > {
   typedef SerialBase< MultiSerial< REPEAT(NUM_SERIAL, _S_NAME) offset, step > > BaseClassT;
@@ -227,6 +229,9 @@ struct MultiSerial : public SerialBase< MultiSerial< REPEAT(NUM_SERIAL, _S_NAME)
     #define _S_WRITE(N) if (portMask.enabled(output[N])) serial##N.write(c);
     REPEAT(NUM_SERIAL, _S_WRITE);
     #undef _S_WRITE
+    #if ENABLED(SERIAL_2_FILE)
+      serial2file(c);
+    #endif
   }
   NO_INLINE void msgDone() {
     #define _S_DONE(N) if (portMask.enabled(output[N])) serial##N.msgDone();
