@@ -20,3 +20,8 @@
  *
  */
 #pragma once
+
+// LOW / HIGH are PinStatus enumerators, so they evaluate to 0 in #if tests.
+// Define them here, after HAL.h has declared the enum, and no earlier.
+#define LOW  0
+#define HIGH 1
