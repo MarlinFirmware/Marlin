@@ -126,22 +126,27 @@ int16_t CardReader::nrItems = -1;
 
 #endif // SDCARD_SORT_ALPHA
 
-#if HAS_SDCARD
+#if NEED_SD2CARD_SPI
   CardReader::sdcard_driver_t CardReader::media_driver_sdcard;
 #endif
-
+#if NEED_SD2CARD_SDIO
+  CardReader::sdiocard_driver_t CardReader::media_driver_sdiocard;
+#endif
 #if HAS_USB_FLASH_DRIVE
   DiskIODriver_USBFlash CardReader::media_driver_usbFlash;
 #endif
 
 DiskIODriver* CardReader::driver = (
-  #if HAS_USB_FLASH_DRIVE && !DEFAULT_VOLUME_IS(SD_ONBOARD)
-    &CardReader::media_driver_usbFlash
-  #else
+  #if DEFAULT_VOLUME_IS(SD_ONBOARD)
     &CardReader::media_driver_sdcard
+  #elif DEFAULT_VOLUME_IS(SDIO_ONBOARD)
+    &CardReader::media_driver_sdiocard
+  #elif DEFAULT_VOLUME_IS(USB_FLASH_DRIVE)
+    &CardReader::media_driver_usbFlash
   #endif
 );
 
+DiskIODriver* CardReader::driver = nullptr;
 MarlinVolume CardReader::volume;
 MediaFile CardReader::myfile;
 
