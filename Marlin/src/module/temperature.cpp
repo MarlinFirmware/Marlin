@@ -2278,7 +2278,11 @@ void Temperature::task() {
   if (marlin.is(MF_INITIALIZING)) return hal.watchdog_refresh(); // If Marlin isn't started, at least reset the watchdog!
 
   static bool no_reentry = false;  // Prevent recursion
-  if (no_reentry) return;
+  if (no_reentry) {
+    // loud_kill() parks nozzle from inside task(), so keep watchdog fed until it halts
+    if (marlin.is(MF_KILLED)) hal.watchdog_refresh();
+    return;
+  }
   REMEMBER(mh, no_reentry, true);
 
   #if ENABLED(EMERGENCY_PARSER)
