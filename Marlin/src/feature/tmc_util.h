@@ -37,6 +37,12 @@
 #define CHOPPER_MARLIN_119   { 5,  2, 3 }
 #define CHOPPER_09STEP_24V   { 3, -1, 5 }
 
+enum StallguardType : uint8_t {
+    SG_STALLGUARD2 = 0,
+    SG_STALLGUARD4 = 1,
+    SG_NONE = 0
+};
+
 #if ENABLED(MONITOR_DRIVER_STATUS) && !defined(MONITOR_DRIVER_STATUS_INTERVAL_MS)
   #define MONITOR_DRIVER_STATUS_INTERVAL_MS 500U
 #endif
@@ -329,7 +335,10 @@ class TMCMarlin<TMC2240Stepper, AXIS_LETTER, DRIVER_ID, AXIS_ID> : public TMC224
     #if USE_SENSORLESS
       int16_t homing_threshold() { return TMC2240Stepper::sgt(); }
       void homing_threshold(int16_t sgt_val) {
-        sgt_val = (int16_t)constrain(sgt_val, sgt_min, sgt_max);
+        const bool pwm = this->en_pwm_mode();
+        const int8_t min = pwm ? 0 : -64;
+        const int8_t max = pwm ? 255 : 63;
+        sgt_val = (int16_t)constrain(sgt_val, min, max);
         TMC2240Stepper::sgt(sgt_val);
         TERN_(HAS_MARLINUI_MENU, this->stored.homing_thrs = sgt_val);
       }
@@ -423,10 +432,29 @@ void test_tmc_connection(LOGICAL_AXIS_DECL_LC(const bool, true));
   void tmc_disable_stallguard(TMC2209Stepper &st, const bool restore_stealth);
 
   bool tmc_enable_stallguard(TMC2240Stepper &st);
+  bool tmc_enable_stallguard(TMC2240Stepper &st, const StallguardType sg_type);
   void tmc_disable_stallguard(TMC2240Stepper &st, const bool restore_stealth);
 
   bool tmc_enable_stallguard(TMC2660Stepper);
   void tmc_disable_stallguard(TMC2660Stepper, const bool);
+
+  #if ENABLED(STALLGUARD_TUNING)
+
+  uint8_t tmc_stallguard_version(TMC2130Stepper);
+  uint16_t tmc_sg_result(TMC2130Stepper &st);
+
+  uint8_t tmc_stallguard_version(TMC2209Stepper);
+  uint16_t tmc_sg_result(TMC2209Stepper &st);
+
+
+  uint8_t tmc_stallguard_version(TMC2240Stepper &st);
+  uint16_t tmc_sg_result(TMC2240Stepper &st);
+
+
+  uint8_t tmc_stallguard_version(TMC2660Stepper);
+  uint16_t tmc_sg_result(TMC2660Stepper &st);
+
+  #endif
 
   #if ENABLED(SPI_ENDSTOPS)
 
