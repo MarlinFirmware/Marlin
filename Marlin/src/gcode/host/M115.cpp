@@ -39,8 +39,6 @@
   #include "../../libs/hex_print.h"
 #endif
 
-//#define MINIMAL_CAP_LINES // Don't even mention the disabled capabilities
-
 #if ENABLED(EXTENDED_CAPABILITIES_REPORT)
   inline void cap_line(FSTR_P const name, const bool ena=true) {
     #if ENABLED(MINIMAL_CAP_LINES)
@@ -124,10 +122,10 @@ void GcodeSuite::M115() {
     serial_index_t port = queue.ring_buffer.command_port();
 
     // PAREN_COMMENTS
-    TERN_(PAREN_COMMENTS, cap_line(F("PAREN_COMMENTS")));
+    cap_line(F("PAREN_COMMENTS"), ENABLED(PAREN_COMMENTS));
 
     // QUOTED_STRINGS
-    TERN_(GCODE_QUOTED_STRINGS, cap_line(F("QUOTED_STRINGS")));
+    cap_line(F("QUOTED_STRINGS"), ENABLED(GCODE_QUOTED_STRINGS));
 
     // SERIAL_XON_XOFF
     cap_line(F("SERIAL_XON_XOFF"), ENABLED(SERIAL_XON_XOFF));
@@ -188,6 +186,9 @@ void GcodeSuite::M115() {
     // HOST ACTION COMMANDS (paused, resume, resumed, cancel, etc.)
     cap_line(F("HOST_ACTION_COMMANDS"), ENABLED(HOST_ACTION_COMMANDS));
 
+    // HAS_DISPLAY
+    cap_line(F("DISPLAY"), ENABLED(HAS_DISPLAY));
+
     // PROMPT SUPPORT (M876)
     cap_line(F("PROMPT_SUPPORT"), ENABLED(HOST_PROMPT_SUPPORT));
 
@@ -211,23 +212,23 @@ void GcodeSuite::M115() {
     // LONG_FILENAME_HOST_SUPPORT (M33)
     cap_line(F("LONG_FILENAME"), ENABLED(LONG_FILENAME_HOST_SUPPORT));
 
+    // EXTENDED_M20 (M20 L)
+    cap_line(F("EXTENDED_M20"), ENABLED(LONG_FILENAME_HOST_SUPPORT));
+
     // LONG_FILENAME_WRITE_SUPPORT (M23, M28, M30...)
     cap_line(F("LFN_WRITE"), ENABLED(LONG_FILENAME_WRITE_SUPPORT));
 
     // CUSTOM_FIRMWARE_UPLOAD (M20 F)
     cap_line(F("CUSTOM_FIRMWARE_UPLOAD"), ENABLED(CUSTOM_FIRMWARE_UPLOAD));
 
-    // EXTENDED_M20 (M20 L)
-    cap_line(F("EXTENDED_M20"), ENABLED(LONG_FILENAME_HOST_SUPPORT));
-
-    // THERMAL_PROTECTION
-    cap_line(F("THERMAL_PROTECTION"), ENABLED(THERMALLY_SAFE));
-
     // MOTION_MODES (M80-M89)
     cap_line(F("MOTION_MODES"), ENABLED(GCODE_MOTION_MODES));
 
     // ARC_SUPPORT (G2-G3)
     cap_line(F("ARCS"), ENABLED(ARC_SUPPORT));
+
+    // BEZIER_CURVE_SUPPORT (G5)
+    cap_line(F("BEZIERS"), ENABLED(BEZIER_CURVE_SUPPORT));
 
     // BABYSTEPPING (M290)
     cap_line(F("BABYSTEPPING"), ENABLED(BABYSTEPPING));
@@ -244,8 +245,35 @@ void GcodeSuite::M115() {
     // MEATPACK Compression
     cap_line(F("MEATPACK"), SERIAL_IMPL.has_feature(port, SerialFeature::MeatPack));
 
-    // CONFIG_EXPORT
-    cap_line(F("CONFIG_EXPORT"), ENABLED(CONFIGURATION_EMBEDDING));
+    // HEATED_BED (M140, M190)
+    cap_line(F("HEATED_BED"), ENABLED(HAS_HEATED_BED));
+
+    // MIXING_EXTRUDER (M163-M165)
+    cap_line(F("MIXING_EXTRUDER"), ENABLED(MIXING_EXTRUDER));
+
+    // DUAL_X_CARRIAGE (M605)
+    cap_line(F("DUAL_X_CARRIAGE"), ENABLED(DUAL_X_CARRIAGE));
+
+    // NOZZLE_PARKING (G27)
+    cap_line(F("NOZZLE_PARKING"), ENABLED(NOZZLE_PARK_FEATURE));
+
+    // NOZZLE_CLEANING (G12)
+    cap_line(F("NOZZLE_CLEANING"), ENABLED(NOZZLE_CLEAN_FEATURE));
+
+    // INPUT_SHAPING (M593)
+    cap_line(F("INPUT_SHAPING"), ANY(INPUT_SHAPING_X, INPUT_SHAPING_Y));
+
+    // LINEAR_ADVANCE (M900)
+    cap_line(F("LINEAR_ADVANCE"), ENABLED(LIN_ADVANCE));
+
+    // FIRMWARE_RETRACT (G10, G11, M207, M208)
+    cap_line(F("FIRMWARE_RETRACT"), ENABLED(FWRETRACT));
+
+    // POWER_LOSS_RECOVERY (M413)
+    cap_line(F("POWER_LOSS_RECOVERY"), ENABLED(POWER_LOSS_RECOVERY));
+
+    // DIRECT_STEPPING (G6)
+    cap_line(F("DIRECT_STEPPING"), ENABLED(DIRECT_STEPPING));
 
     // Machine Geometry
     #if ENABLED(M115_GEOMETRY_REPORT)
@@ -296,6 +324,56 @@ void GcodeSuite::M115() {
         "}" // area
       );
     #endif
+
+    // Temperatures
+    TERF(M115_TEMPERATURE_REPORT, SERIAL_ECHOLNPGM)(
+      F("temperatures:{")
+      #if TEMP_SENSOR_0
+        , F("t0"), F(":{min:"), HEATER_0_MINTEMP, F(",max:"), HEATER_0_MAXTEMP, C('}')
+        #if TEMP_SENSOR_1
+          , F(",t1"), F(":{min:"), HEATER_1_MINTEMP, F(",max:"), HEATER_1_MAXTEMP, C('}')
+          #if TEMP_SENSOR_2
+            , F(",t2"), F(":{min:"), HEATER_2_MINTEMP, F(",max:"), HEATER_2_MAXTEMP, C('}')
+            #if TEMP_SENSOR_3
+              , F(",t3"), F(":{min:"), HEATER_3_MINTEMP, F(",max:"), HEATER_3_MAXTEMP, C('}')
+              #if TEMP_SENSOR_4
+                , F(",t4"), F(":{min:"), HEATER_4_MINTEMP, F(",max:"), HEATER_4_MAXTEMP, C('}')
+                #if TEMP_SENSOR_5
+                  , F(",t5"), F(":{min:"), HEATER_5_MINTEMP, F(",max:"), HEATER_5_MAXTEMP, C('}')
+                  #if TEMP_SENSOR_6
+                    , F(",t6"), F(":{min:"), HEATER_6_MINTEMP, F(",max:"), HEATER_6_MAXTEMP, C('}')
+                    #if TEMP_SENSOR_7
+                      , F(",t7"), F(":{min:"), HEATER_7_MINTEMP, F(",max:"), HEATER_7_MAXTEMP, C('}')
+                    #endif
+                  #endif
+                #endif
+              #endif
+            #endif
+          #endif
+        #endif
+        #define COMMA
+      #endif
+      #if TEMP_SENSOR_BED
+        , F(TERN(COMMA, ",") "bed:{min:"), BED_MINTEMP, F(",max:"), BED_MAXTEMP, C('}')
+        #define COMMA
+      #endif
+      #if TEMP_SENSOR_CHAMBER
+        , F(TERN(COMMA, ",") "chamber"), F(":{min:"), CHAMBER_MINTEMP, F(",max:"), CHAMBER_MAXTEMP, C('}')
+        #define COMMA
+      #endif
+      #if TEMP_SENSOR_COOLER
+        , F(TERN(COMMA, ",") "cooler"), F(":{min:"), COOLER_MINTEMP, F(",max:"), COOLER_MAXTEMP, C('}')
+        #define COMMA
+      #endif
+      #if TEMP_SENSOR_BOARD
+        , F(TERN(COMMA, ",") "board"), F(":{min:"), BOARD_MINTEMP, F(",max:"), BOARD_MAXTEMP, C('}')
+        #define COMMA
+      #endif
+      #if TEMP_SENSOR_SOC
+        , F(TERN(COMMA, ",") "soc:{max:"), SOC_MAXTEMP, C('}')
+      #endif
+      , C('}')
+    );
 
   #endif // EXTENDED_CAPABILITIES_REPORT
 }
