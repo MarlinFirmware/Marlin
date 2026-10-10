@@ -89,7 +89,8 @@ IF_DISABLED(NO_SD_AUTOSTART, uint8_t CardReader::autofile_index); // = 0
 
 // private:
 
-MediaFile CardReader::root, CardReader::workDir, CardReader::workDirParents[MAX_DIR_DEPTH];
+MediaFile CardReader::root, CardReader::workDir;
+MediaFile CardReader::workDirParents[MAX_DIR_DEPTH];
 uint8_t CardReader::workDirDepth;
 int16_t CardReader::nrItems = -1;
 
