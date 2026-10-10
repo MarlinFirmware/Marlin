@@ -23,7 +23,7 @@
 
 #include "env_validate.h"
 
-#define HAS_OTG_USB_HOST_SUPPORT                  // USB Flash Drive support
+// No USB Flash Drive support. The USB-A port is wired to PB14/PB15, which have no USB function on the STM32H723.
 #define USES_DIAG_JUMPERS
 
 // Onboard I2C EEPROM

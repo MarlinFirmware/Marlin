@@ -105,6 +105,7 @@ jobs:
         # STM32F1
         - chitu_f103
         - mks_robin
+        - mks_robin_e3
         - mks_robin_nano_v1v2
         - PANDA_PI_V29
         - STM32F103RC_btt
