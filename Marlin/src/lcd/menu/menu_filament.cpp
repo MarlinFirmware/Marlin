@@ -248,7 +248,7 @@ void menu_pause_option() {
 
   #if HAS_FILAMENT_SENSOR
     if (still_out)
-      EDIT_ITEM(bool, MSG_RUNOUT_SENSOR, &runout.enabled, runout.reset);
+      EDIT_ITEM(bool, MSG_RUNOUT_SENSOR, &runout.monitoring, runout.reset);
   #endif
 
   if (!still_out)
