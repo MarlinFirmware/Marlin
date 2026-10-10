@@ -97,32 +97,39 @@ void GcodeSuite::M360() {
   // Homing Directions
   //
   static PGMSTR(H_DIR_STR, "HomeDir");
-  #if X_HOME_DIR
-    config_line(H_DIR_STR, X_HOME_DIR, X_STR);
-  #endif
-  #if Y_HOME_DIR
-    config_line(H_DIR_STR, Y_HOME_DIR, Y_STR);
-  #endif
-  #if Z_HOME_DIR
-    config_line(H_DIR_STR, Z_HOME_DIR, Z_STR);
-  #endif
-  #if I_HOME_DIR
-    config_line(H_DIR_STR, I_HOME_DIR, I_STR);
-  #endif
-  #if J_HOME_DIR
-    config_line(H_DIR_STR, J_HOME_DIR, J_STR);
-  #endif
-  #if K_HOME_DIR
-    config_line(H_DIR_STR, K_HOME_DIR, K_STR);
-  #endif
-  #if U_HOME_DIR
-    config_line(H_DIR_STR, U_HOME_DIR, U_STR);
-  #endif
-  #if V_HOME_DIR
-    config_line(H_DIR_STR, V_HOME_DIR, V_STR);
-  #endif
-  #if W_HOME_DIR
-    config_line(H_DIR_STR, W_HOME_DIR, W_STR);
+  #if ENABLED(RUNTIME_HOMING_DIRECTION)
+    // Report runtime homing direction values
+    #define _REPORT_HOME_DIR(Q) if (motion.home_dir(Q##_AXIS)) config_line(H_DIR_STR, motion.home_dir(Q##_AXIS), Q##_STR);
+    MAIN_AXIS_MAP(_REPORT_HOME_DIR);
+  #else
+    // Report compile-time homing direction values
+    #if X_HOME_DIR
+      config_line(H_DIR_STR, X_HOME_DIR, X_STR);
+    #endif
+    #if Y_HOME_DIR
+      config_line(H_DIR_STR, Y_HOME_DIR, Y_STR);
+    #endif
+    #if Z_HOME_DIR
+      config_line(H_DIR_STR, Z_HOME_DIR, Z_STR);
+    #endif
+    #if I_HOME_DIR
+      config_line(H_DIR_STR, I_HOME_DIR, I_STR);
+    #endif
+    #if J_HOME_DIR
+      config_line(H_DIR_STR, J_HOME_DIR, J_STR);
+    #endif
+    #if K_HOME_DIR
+      config_line(H_DIR_STR, K_HOME_DIR, K_STR);
+    #endif
+    #if U_HOME_DIR
+      config_line(H_DIR_STR, U_HOME_DIR, U_STR);
+    #endif
+    #if V_HOME_DIR
+      config_line(H_DIR_STR, V_HOME_DIR, V_STR);
+    #endif
+    #if W_HOME_DIR
+      config_line(H_DIR_STR, W_HOME_DIR, W_STR);
+    #endif
   #endif
 
   #if ANY(CLASSIC_JERK, HAS_LINEAR_E_JERK)

@@ -69,6 +69,10 @@
  */
 #include "../../inc/MarlinConfig.h"
 
+#if ENABLED(RUNTIME_AXIS_DIRECTION)
+  #include "../motion.h"
+#endif
+
 #if HAS_TRINAMIC_CONFIG
   #include "trinamic.h"
 #endif
@@ -76,7 +80,53 @@
 void restore_stepper_drivers();  // Called by powerManager.power_on()
 void reset_stepper_drivers();    // Called by settings.load / settings.reset
 
-#define INVERT_DIR(AXIS, D) (TERN_(INVERT_## AXIS ##_DIR, !)(D))
+// Axis direction inversion macros
+#if ENABLED(RUNTIME_AXIS_DIRECTION)
+  // Runtime direction inversion: check motion flags
+  #define INVERT_DIR(AXIS, D) (motion.axis_inverted[AXIS##_AXIS] ? !(D) : (D))
+  #define INVERT_E_DIR(N, D)  (motion.extruder_inverted[N] ? !(D) : (D))
+  // Secondary stepper relative inversions (vs primary)
+  #if ENABLED(X_DUAL_STEPPER_DRIVERS)
+    #define INVERT_DIR_X2_VS_X(D) (motion.x2_vs_x_inverted ? !(D) : (D))
+  #else
+    #define INVERT_DIR_X2_VS_X(D) (D)
+  #endif
+  #if ENABLED(Y_DUAL_STEPPER_DRIVERS)
+    #define INVERT_DIR_Y2_VS_Y(D) (motion.y2_vs_y_inverted ? !(D) : (D))
+  #else
+    #define INVERT_DIR_Y2_VS_Y(D) (D)
+  #endif
+  #if NUM_Z_STEPPERS >= 2
+    #define INVERT_DIR_Z2_VS_Z(D) (motion.z2_vs_z_inverted ? !(D) : (D))
+  #else
+    #define INVERT_DIR_Z2_VS_Z(D) (D)
+  #endif
+  #if NUM_Z_STEPPERS >= 3
+    #define INVERT_DIR_Z3_VS_Z(D) (motion.z3_vs_z_inverted ? !(D) : (D))
+  #else
+    #define INVERT_DIR_Z3_VS_Z(D) (D)
+  #endif
+  #if NUM_Z_STEPPERS >= 4
+    #define INVERT_DIR_Z4_VS_Z(D) (motion.z4_vs_z_inverted ? !(D) : (D))
+  #else
+    #define INVERT_DIR_Z4_VS_Z(D) (D)
+  #endif
+  #if ENABLED(E_DUAL_STEPPER_DRIVERS)
+    #define INVERT_DIR_E1_VS_E0(D) (motion.e1_vs_e0_inverted ? !(D) : (D))
+  #else
+    #define INVERT_DIR_E1_VS_E0(D) (D)
+  #endif
+#else
+  // Compile-time direction inversion: use INVERT_*_DIR defines
+  #define INVERT_DIR(AXIS, D)   (TERN_(INVERT_##AXIS##_DIR, !)(D))
+  #define INVERT_E_DIR(N, D)    (TERN_(INVERT_E##N##_DIR, !)(D))
+  #define INVERT_DIR_X2_VS_X(D) (TERN_(INVERT_X2_VS_X_DIR, !)(D))
+  #define INVERT_DIR_Y2_VS_Y(D) (TERN_(INVERT_Y2_VS_Y_DIR, !)(D))
+  #define INVERT_DIR_Z2_VS_Z(D) (TERN_(INVERT_Z2_VS_Z_DIR, !)(D))
+  #define INVERT_DIR_Z3_VS_Z(D) (TERN_(INVERT_Z3_VS_Z_DIR, !)(D))
+  #define INVERT_DIR_Z4_VS_Z(D) (TERN_(INVERT_Z4_VS_Z_DIR, !)(D))
+  #define INVERT_DIR_E1_VS_E0(D) (TERN_(INVERT_E1_VS_E0_DIR, !)(D))
+#endif
 
 // X Stepper
 #if HAS_X_AXIS
@@ -156,8 +206,8 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
   #endif
   #ifndef X2_DIR_INIT
     #define X2_DIR_INIT() SET_OUTPUT(X2_DIR_PIN)
-    #define X2_DIR_WRITE(STATE) WRITE(X2_DIR_PIN,INVERT_DIR(X2, STATE))
-    #define X2_DIR_READ() INVERT_DIR(X2, bool(READ(X2_DIR_PIN)))
+    #define X2_DIR_WRITE(STATE) WRITE(X2_DIR_PIN,INVERT_DIR(X, STATE))
+    #define X2_DIR_READ() INVERT_DIR(X, bool(READ(X2_DIR_PIN)))
   #endif
   #define X2_STEP_INIT() SET_OUTPUT(X2_STEP_PIN)
   #ifndef X2_STEP_WRITE
@@ -178,8 +228,8 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
   #endif
   #ifndef Y2_DIR_INIT
     #define Y2_DIR_INIT() SET_OUTPUT(Y2_DIR_PIN)
-    #define Y2_DIR_WRITE(STATE) WRITE(Y2_DIR_PIN,INVERT_DIR(Y2, STATE))
-    #define Y2_DIR_READ() INVERT_DIR(Y2, bool(READ(Y2_DIR_PIN)))
+    #define Y2_DIR_WRITE(STATE) WRITE(Y2_DIR_PIN,INVERT_DIR(Y, STATE))
+    #define Y2_DIR_READ() INVERT_DIR(Y, bool(READ(Y2_DIR_PIN)))
   #endif
   #define Y2_STEP_INIT() SET_OUTPUT(Y2_STEP_PIN)
   #ifndef Y2_STEP_WRITE
@@ -202,8 +252,8 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
   #endif
   #ifndef Z2_DIR_INIT
     #define Z2_DIR_INIT() SET_OUTPUT(Z2_DIR_PIN)
-    #define Z2_DIR_WRITE(STATE) WRITE(Z2_DIR_PIN,INVERT_DIR(Z2, STATE))
-    #define Z2_DIR_READ() INVERT_DIR(Z2, bool(READ(Z2_DIR_PIN)))
+    #define Z2_DIR_WRITE(STATE) WRITE(Z2_DIR_PIN,INVERT_DIR(Z, STATE))
+    #define Z2_DIR_READ() INVERT_DIR(Z, bool(READ(Z2_DIR_PIN)))
   #endif
   #define Z2_STEP_INIT() SET_OUTPUT(Z2_STEP_PIN)
   #ifndef Z2_STEP_WRITE
@@ -226,8 +276,8 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
   #endif
   #ifndef Z3_DIR_INIT
     #define Z3_DIR_INIT() SET_OUTPUT(Z3_DIR_PIN)
-    #define Z3_DIR_WRITE(STATE) WRITE(Z3_DIR_PIN,INVERT_DIR(Z3, STATE))
-    #define Z3_DIR_READ() INVERT_DIR(Z3, bool(READ(Z3_DIR_PIN)))
+    #define Z3_DIR_WRITE(STATE) WRITE(Z3_DIR_PIN,INVERT_DIR(Z, STATE))
+    #define Z3_DIR_READ() INVERT_DIR(Z, bool(READ(Z3_DIR_PIN)))
   #endif
   #define Z3_STEP_INIT() SET_OUTPUT(Z3_STEP_PIN)
   #ifndef Z3_STEP_WRITE
@@ -250,8 +300,8 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
   #endif
   #ifndef Z4_DIR_INIT
     #define Z4_DIR_INIT() SET_OUTPUT(Z4_DIR_PIN)
-    #define Z4_DIR_WRITE(STATE) WRITE(Z4_DIR_PIN,INVERT_DIR(Z4, STATE))
-    #define Z4_DIR_READ() INVERT_DIR(Z4, bool(READ(Z4_DIR_PIN)))
+    #define Z4_DIR_WRITE(STATE) WRITE(Z4_DIR_PIN,INVERT_DIR(Z, STATE))
+    #define Z4_DIR_READ() INVERT_DIR(Z, bool(READ(Z4_DIR_PIN)))
   #endif
   #define Z4_STEP_INIT() SET_OUTPUT(Z4_STEP_PIN)
   #ifndef Z4_STEP_WRITE
@@ -409,8 +459,8 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
   #endif
   #ifndef E0_DIR_INIT
     #define E0_DIR_INIT() SET_OUTPUT(E0_DIR_PIN)
-    #define E0_DIR_WRITE(STATE) WRITE(E0_DIR_PIN,INVERT_DIR(E0, STATE))
-    #define E0_DIR_READ() INVERT_DIR(E0, bool(READ(E0_DIR_PIN)))
+    #define E0_DIR_WRITE(STATE) WRITE(E0_DIR_PIN,INVERT_E_DIR(0, STATE))
+    #define E0_DIR_READ() INVERT_E_DIR(0, bool(READ(E0_DIR_PIN)))
   #endif
   #define E0_STEP_INIT() SET_OUTPUT(E0_STEP_PIN)
   #ifndef E0_STEP_WRITE
@@ -431,8 +481,8 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
   #endif
   #ifndef E1_DIR_INIT
     #define E1_DIR_INIT() SET_OUTPUT(E1_DIR_PIN)
-    #define E1_DIR_WRITE(STATE) WRITE(E1_DIR_PIN,INVERT_DIR(E1, STATE))
-    #define E1_DIR_READ() INVERT_DIR(E1, bool(READ(E1_DIR_PIN)))
+    #define E1_DIR_WRITE(STATE) WRITE(E1_DIR_PIN,INVERT_E_DIR(1, STATE))
+    #define E1_DIR_READ() INVERT_E_DIR(1, bool(READ(E1_DIR_PIN)))
   #endif
   #define E1_STEP_INIT() SET_OUTPUT(E1_STEP_PIN)
   #ifndef E1_STEP_WRITE
@@ -453,8 +503,8 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
   #endif
   #ifndef E2_DIR_INIT
     #define E2_DIR_INIT() SET_OUTPUT(E2_DIR_PIN)
-    #define E2_DIR_WRITE(STATE) WRITE(E2_DIR_PIN,INVERT_DIR(E2, STATE))
-    #define E2_DIR_READ() INVERT_DIR(E2, bool(READ(E2_DIR_PIN)))
+    #define E2_DIR_WRITE(STATE) WRITE(E2_DIR_PIN,INVERT_E_DIR(2, STATE))
+    #define E2_DIR_READ() INVERT_E_DIR(2, bool(READ(E2_DIR_PIN)))
   #endif
   #define E2_STEP_INIT() SET_OUTPUT(E2_STEP_PIN)
   #ifndef E2_STEP_WRITE
@@ -475,8 +525,8 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
   #endif
   #ifndef E3_DIR_INIT
     #define E3_DIR_INIT() SET_OUTPUT(E3_DIR_PIN)
-    #define E3_DIR_WRITE(STATE) WRITE(E3_DIR_PIN,INVERT_DIR(E3, STATE))
-    #define E3_DIR_READ() INVERT_DIR(E3, bool(READ(E3_DIR_PIN)))
+    #define E3_DIR_WRITE(STATE) WRITE(E3_DIR_PIN,INVERT_E_DIR(3, STATE))
+    #define E3_DIR_READ() INVERT_E_DIR(3, bool(READ(E3_DIR_PIN)))
   #endif
   #define E3_STEP_INIT() SET_OUTPUT(E3_STEP_PIN)
   #ifndef E3_STEP_WRITE
@@ -497,8 +547,8 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
   #endif
   #ifndef E4_DIR_INIT
     #define E4_DIR_INIT() SET_OUTPUT(E4_DIR_PIN)
-    #define E4_DIR_WRITE(STATE) WRITE(E4_DIR_PIN,INVERT_DIR(E4, STATE))
-    #define E4_DIR_READ() INVERT_DIR(E4, bool(READ(E4_DIR_PIN)))
+    #define E4_DIR_WRITE(STATE) WRITE(E4_DIR_PIN,INVERT_E_DIR(4, STATE))
+    #define E4_DIR_READ() INVERT_E_DIR(4, bool(READ(E4_DIR_PIN)))
   #endif
   #define E4_STEP_INIT() SET_OUTPUT(E4_STEP_PIN)
   #ifndef E4_STEP_WRITE
@@ -519,8 +569,8 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
   #endif
   #ifndef E5_DIR_INIT
     #define E5_DIR_INIT() SET_OUTPUT(E5_DIR_PIN)
-    #define E5_DIR_WRITE(STATE) WRITE(E5_DIR_PIN,INVERT_DIR(E5, STATE))
-    #define E5_DIR_READ() INVERT_DIR(E5, bool(READ(E5_DIR_PIN)))
+    #define E5_DIR_WRITE(STATE) WRITE(E5_DIR_PIN,INVERT_E_DIR(5, STATE))
+    #define E5_DIR_READ() INVERT_E_DIR(5, bool(READ(E5_DIR_PIN)))
   #endif
   #define E5_STEP_INIT() SET_OUTPUT(E5_STEP_PIN)
   #ifndef E5_STEP_WRITE
@@ -541,8 +591,8 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
   #endif
   #ifndef E6_DIR_INIT
     #define E6_DIR_INIT() SET_OUTPUT(E6_DIR_PIN)
-    #define E6_DIR_WRITE(STATE) WRITE(E6_DIR_PIN,INVERT_DIR(E6, STATE))
-    #define E6_DIR_READ() INVERT_DIR(E6, bool(READ(E6_DIR_PIN)))
+    #define E6_DIR_WRITE(STATE) WRITE(E6_DIR_PIN,INVERT_E_DIR(6, STATE))
+    #define E6_DIR_READ() INVERT_E_DIR(6, bool(READ(E6_DIR_PIN)))
   #endif
   #define E6_STEP_INIT() SET_OUTPUT(E6_STEP_PIN)
   #ifndef E6_STEP_WRITE
@@ -563,8 +613,8 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
   #endif
   #ifndef E7_DIR_INIT
     #define E7_DIR_INIT() SET_OUTPUT(E7_DIR_PIN)
-    #define E7_DIR_WRITE(STATE) WRITE(E7_DIR_PIN,INVERT_DIR(E7, STATE))
-    #define E7_DIR_READ() INVERT_DIR(E7, bool(READ(E7_DIR_PIN)))
+    #define E7_DIR_WRITE(STATE) WRITE(E7_DIR_PIN,INVERT_E_DIR(7, STATE))
+    #define E7_DIR_READ() INVERT_E_DIR(7, bool(READ(E7_DIR_PIN)))
   #endif
   #define E7_STEP_INIT() SET_OUTPUT(E7_STEP_PIN)
   #ifndef E7_STEP_WRITE
@@ -796,8 +846,8 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
 
 #elif ENABLED(E_DUAL_STEPPER_DRIVERS)
   #define E_STEP_WRITE(E,V) do{ E0_STEP_WRITE(V); E1_STEP_WRITE(V); }while(0)
-  #define    FWD_E_DIR(E)   do{ E0_DIR_WRITE(HIGH); E1_DIR_WRITE(INVERT_DIR(E1_VS_E0, HIGH)); }while(0)
-  #define    REV_E_DIR(E)   do{ E0_DIR_WRITE(LOW ); E1_DIR_WRITE(INVERT_DIR(E1_VS_E0, LOW )); }while(0)
+  #define    FWD_E_DIR(E)   do{ E0_DIR_WRITE(HIGH); E1_DIR_WRITE(INVERT_DIR_E1_VS_E0(HIGH)); }while(0)
+  #define    REV_E_DIR(E)   do{ E0_DIR_WRITE(LOW ); E1_DIR_WRITE(INVERT_DIR_E1_VS_E0(LOW )); }while(0)
 
 #elif E_STEPPERS == 1
   #define E_STEP_WRITE(E,V) E0_STEP_WRITE(V)
