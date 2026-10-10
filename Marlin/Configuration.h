@@ -1829,6 +1829,15 @@
 // Enable the M48 repeatability test to test probe accuracy
 //#define Z_MIN_PROBE_REPEATABILITY_TEST
 
+// Enable the M49 physical axis-endstop repeatability diagnostic.
+// The selected axis must be homed and have a separate mechanical endstop.
+// See docs/AxisEndstopRepeatabilityTest.md for details
+// #define AXIS_ENDSTOP_REPEATABILITY_TEST
+#if ENABLED(AXIS_ENDSTOP_REPEATABILITY_TEST)
+  // Maximum travel beyond the configured home coordinate if the switch fails.
+  #define AXIS_ENDSTOP_REPEATABILITY_MAX_OVERRUN 0.5 // (mm)
+#endif
+
 // Before deploy/stow pause for user confirmation
 //#define PAUSE_BEFORE_DEPLOY_STOW
 #if ENABLED(PAUSE_BEFORE_DEPLOY_STOW)
