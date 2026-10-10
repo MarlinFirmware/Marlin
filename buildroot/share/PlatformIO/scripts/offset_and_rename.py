@@ -6,6 +6,11 @@
 #   - Set linker flag LD_MAX_DATA_SIZE based on 'build.maximum_ram_size'.
 #   - Define STM32_FLASH_SIZE from 'upload.maximum_size' for use by Flash-based EEPROM emulation.
 #
+# - If 'board_build.flash_reserve' is provided, shrink the flash LENGTH available to the
+#   linker by that many bytes at the top end, so Marlin's own code/data can never be placed
+#   over flash used by the bootloader for its own purposes (e.g., a bootloader-owned info
+#   page at the end of flash).
+#
 # - For 'board_build.rename' add a post-action to rename the firmware file.
 #
 import pioutil
@@ -26,9 +31,15 @@ if pioutil.is_pio_build():
         # Chip total flash (bytes) from board JSON
         _max_flash_bytes = int(board.get("upload.maximum_size"))
 
-        # Keep STM32_FLASH_SIZE as the chip total (KiB)
+        # Keep STM32_FLASH_SIZE as the chip total (KiB) - this reflects real silicon,
+        # not the space Marlin is allowed to use, so leave it untouched by flash_reserve.
         maximum_flash_size = _max_flash_bytes // 1024
         marlin.replace_define('STM32_FLASH_SIZE', maximum_flash_size)
+
+        # Bytes reserved by the bootloader at the top of flash (e.g. a bootloader info
+        # page) that Marlin's own linked code/data must never occupy.
+        _flash_reserve = int(str(board.get("build.flash_reserve", 0)), 0)
+        _ld_max_size = _max_flash_bytes - _flash_reserve
 
         # Also compute available flash after bootloader for Project Inspect
         try:
@@ -36,8 +47,8 @@ if pioutil.is_pio_build():
         except Exception:
             _offset_int = 0
 
-        if _max_flash_bytes and _offset_int:
-            _avail = _max_flash_bytes - _offset_int
+        if _ld_max_size and _offset_int:
+            _avail = _ld_max_size - _offset_int
             if _avail > 0:
                 # Update in-memory manifest so Advanced Memory Usage shows the correct total
                 try:
@@ -68,8 +79,10 @@ if pioutil.is_pio_build():
         # Provide the symbols the linker script expects:
         #   ORIGIN = 0x08000000 + LD_FLASH_OFFSET
         #   LENGTH = LD_MAX_SIZE - LD_FLASH_OFFSET
+        # LD_MAX_SIZE is reduced by flash_reserve so the linker can't place anything
+        # in the reserved region at the top of flash.
         _upsert_defsym("LD_FLASH_OFFSET", _offset_int)
-        _upsert_defsym("LD_MAX_SIZE", _max_flash_bytes)
+        _upsert_defsym("LD_MAX_SIZE", _ld_max_size)
 
         if maximum_ram_size:
             _upsert_defsym("LD_MAX_DATA_SIZE", int(maximum_ram_size) - 40)
