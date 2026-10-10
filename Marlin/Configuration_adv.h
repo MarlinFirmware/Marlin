@@ -1240,6 +1240,10 @@
     #define FTM_POLY6_ACCELERATION_OVERSHOOT 1.875f // Max acceleration overshoot factor for POLY6 (1.25 to 1.875)
   #endif
 
+  #define FTM_MINIMUM_CRUISE_RATIO 0.5f         // Minimum fraction of distance to spend at cruising speed (0.0f disables)
+                                                // Reduces vibrations and extrusion artefacts in short blocks like small surface
+                                                // features and thin solid infills
+
   /**
    * FTM Constant-Jolt Trajectory (7-phase S-curve).
    * Jolt is the rate of change of acceleration, not related to Marlin's "classic jerk."
