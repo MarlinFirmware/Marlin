@@ -89,7 +89,7 @@
 
 #if ENABLED(BOARD_REV_1_0)
   #if HAS_CUTTER
-    #define X_STOP_PIN                        13  // SW1  (didn't change) - also has a useable hardware PWM
+    #define X_STOP_PIN                        13  // SW1  (didn't change) - also has a usable hardware PWM
     #define Y_STOP_PIN                        12  // SW2
     #define Z_STOP_PIN                        11  // SW3
   #else
