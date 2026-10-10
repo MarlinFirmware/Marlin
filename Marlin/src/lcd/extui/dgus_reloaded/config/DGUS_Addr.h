@@ -96,6 +96,8 @@ enum class DGUS_Addr : uint16_t {
   POWERLOSS_Resume        = 0x202D, // Popup / Data: DGUS_Data::Popup
   WAIT_Abort              = 0x202E, // Popup / Data: DGUS_Data::Popup
   WAIT_Continue           = 0x202F,
+  FILAMENT_SENSOR_Toggle  = 0x2030, // Data: DGUS_Data::FilamentSensor
+  FILAMENT_SENSOR_Save    = 0x2032,
 
   // WRITE-ONLY VARIABLES
 
@@ -157,6 +159,7 @@ enum class DGUS_Addr : uint16_t {
   INFOS_FilamentUsed      = 0x31A5, // 0x31A5 - 0x31BC
   WAIT_Icons              = 0x31BD, // Bits: DGUS_Data::WaitIcon
   STATUS_Icons            = 0x31BE, // Bits: DGUS_Data::StatusIcon
+  FILAMENT_SENSOR_Icons   = 0x31BF, // Bits: DGUS_Data::FilamentSensorIcon
 
   // READ-WRITE VARIABLES
 
@@ -165,6 +168,8 @@ enum class DGUS_Addr : uint16_t {
   PID_Cycles              = 0x4021, // Type: Integer (16 bits unsigned)
   VOLUME_Level            = 0x4022, // Type: Integer (16 bits unsigned) / Data: volume as percent (0-100)
   BRIGHTNESS_Level        = 0x4023, // Type: Integer (16 bits unsigned) / Data: brightness as percent (0-100)
+  LANGUAGE                = 0x4024, // Type: Integer (16 bits unsigned) / Data: index of the screen files' language
+  FILAMENT_SENSOR_Jam     = 0x4025, // Type: Integer (16 bits unsigned) / Data: jam length in mm, 0 turns jam detection off
 
   // SPECIAL CASES
 

@@ -97,7 +97,7 @@ namespace ExtUI {
   #endif
 
   void onStatusChanged(const char * const msg) {
-    screen.setStatusMessage(msg);
+    screen.setStandingStatus(msg);
   }
 
   void onFactoryReset() {

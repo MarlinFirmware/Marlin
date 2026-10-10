@@ -70,6 +70,15 @@ namespace DGUSTxHandler {
 
   void waitIcons(DGUS_VP &);
 
+  #if HAS_FILAMENT_SENSOR
+    void filamentSensorIcons(DGUS_VP &);
+    #if ENABLED(FILAMENT_SWITCH_AND_MOTION)
+      void filamentSensorJam(DGUS_VP &);
+    #endif
+  #endif
+
+  void language(DGUS_VP &);
+
   void fanSpeed(DGUS_VP &);
 
   void volume(DGUS_VP &);
