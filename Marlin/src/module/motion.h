@@ -302,6 +302,10 @@ public:
 
   #endif // NUM_AXES
 
+  #if ENABLED(CALIBRATION_GCODE)
+    static xyz_pos_t calibration_center;
+  #endif
+
   //
   // Workspace offsets
   //

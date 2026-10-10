@@ -247,6 +247,10 @@ typedef struct SettingsDataStruct {
     xyz_pos_t hotend_offset[HOTENDS - 1];               // M218 XYZ
   #endif
 
+  #if ENABLED(CALIBRATION_GCODE)
+    xyz_pos_t calibration_center;               // M425 OPQ
+  #endif
+
   //
   // Spindle Acceleration
   //
@@ -974,6 +978,16 @@ void MarlinSettings::postprocess() {
       #endif
     }
 
+    //
+    // Calibration Center
+    //
+    {
+      #if ENABLED(CALIBRATION_GCODE)
+        _FIELD_TEST(calibration_center);
+        EEPROM_WRITE(motion.calibration_center);
+      #endif
+    }
+  
     //
     // Spindle Acceleration
     //
@@ -2056,6 +2070,16 @@ void MarlinSettings::postprocess() {
             EEPROM_READ(motion.hotend_offset[e]);
         #endif
       }
+
+    //
+    // Calibration Center
+    //
+    {
+      #if ENABLED(CALIBRATION_GCODE)
+        _FIELD_TEST(calibration_center);
+        EEPROM_WRITE(motion.calibration_center);
+      #endif
+    }
 
       //
       // Spindle Acceleration
@@ -3411,6 +3435,16 @@ void MarlinSettings::reset() {
   // Hotend Offsets
   //
   TERN_(HAS_HOTEND_OFFSET, motion.reset_hotend_offsets());
+
+  
+  //
+  // Calibration Center
+  //
+  #if ENABLED(CALIBRATION_GCODE)
+    constexpr float calib_center[] = CALIBRATION_OBJECT_CENTER;
+    static_assert(COUNT(calib_center) == NUM_AXES, "CALIBRATION_OBJECT_CENTER must contain offsets for each axis X, Y, Z....");
+    LOOP_NUM_AXES(a) motion.calibration_center[a] = calib_center[a];
+  #endif
 
   //
   // Spindle Acceleration
