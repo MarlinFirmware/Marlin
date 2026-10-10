@@ -405,8 +405,9 @@ typedef struct { float p, i, d, c, f; } raw_pidcf_t;
       void applyFanAdjustment(const float) {}
     #endif
     float fanCoefficient() { return SUM_TERN(MPC_INCLUDE_FAN, ambient_xfer_coeff_fan0, fan255_adjustment); }
-    // Zero, negative or NaN values give NaN or infinite heater output
-    bool isValid() const { return heater_power > 0 && block_heat_capacity > 0 && sensor_responsiveness > 0; }
+    // Zero, negative, NaN or infinite values give NaN or infinite heater output
+    static bool isFinitePositive(const float v) { return v > 0 && !isinf(v); }
+    bool isValid() const { return isFinitePositive(heater_power) && isFinitePositive(block_heat_capacity) && isFinitePositive(sensor_responsiveness); }
   } MPC_t;
 
   #define MPC_dT ((OVERSAMPLENR * float(ACTUAL_ADC_SAMPLES)) / (TEMP_TIMER_FREQUENCY))
