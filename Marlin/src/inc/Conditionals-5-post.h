@@ -2394,7 +2394,6 @@
   #define BED_MAX_TARGET ((BED_MAXTEMP) - (BED_OVERSHOOT))
 #else
   #undef PIDTEMPBED
-  #undef PREHEAT_BEFORE_LEVELING
 #endif
 
 #if HAS_TEMP_COOLER && PIN_EXISTS(COOLER)
@@ -2672,6 +2671,11 @@
   #undef FAN_SOFT_PWM_REQUIRED
 #endif
 
+// SINGLENOZZLE fan standby needs a fan
+#if !ALL(HAS_FAN, SINGLENOZZLE)
+  #undef SINGLENOZZLE_STANDBY_FAN
+#endif
+
 #if PIN_EXISTS(FANMUX0)
   #define HAS_FANMUX 1  // Part Cooling fan multipliexer
 #else
@@ -2922,17 +2926,21 @@
   #endif
 #endif
 
+// G92 shifts the workspace
+#if DISABLED(NO_WORKSPACE_OFFSETS)
+  #define HAS_WORKSPACE_OFFSET 1
+#endif
+#if DISABLED(NO_HOME_OFFSETS)
+  #if IS_CARTESIAN
+    #define HAS_HOME_OFFSET 1     // M206 affects the Native Machine Space on G28
+  #elif IS_SCARA
+    #define HAS_SCARA_OFFSET 1    // The SCARA home offset applies only on G28
+  #endif
+#endif
+
 /**
  * Bed Probe dependencies
  */
-#if ANY(MESH_BED_LEVELING, HAS_BED_PROBE)
-  #ifndef PROBE_OFFSET_ZMIN
-    #define PROBE_OFFSET_ZMIN -20
-  #endif
-  #ifndef PROBE_OFFSET_ZMAX
-    #define PROBE_OFFSET_ZMAX  20
-  #endif
-#endif
 #if HAS_BED_PROBE
   #ifndef PROBE_OFFSET_XMIN
     #define PROBE_OFFSET_XMIN -(X_BED_SIZE)
@@ -2955,6 +2963,20 @@
   #ifndef NOZZLE_TO_PROBE_OFFSET
     #define NOZZLE_TO_PROBE_OFFSET { 0, 0, 0 }
   #endif
+#endif
+
+#if HAS_BED_PROBE || ALL(HAS_MARLINUI_MENU, MESH_BED_LEVELING) \
+  || (ANY(DWIN_CREALITY_LCD, DWIN_CREALITY_LCD_JYERSUI, DWIN_LCD_PROUI) && ANY(BABYSTEPPING, HAS_WORKSPACE_OFFSET))
+  #ifndef PROBE_OFFSET_ZMIN
+    #define PROBE_OFFSET_ZMIN -20
+  #endif
+  #ifndef PROBE_OFFSET_ZMAX
+    #define PROBE_OFFSET_ZMAX  20
+  #endif
+#else
+  // Nothing can apply a Z offset, so drop limits
+  #undef PROBE_OFFSET_ZMIN
+  #undef PROBE_OFFSET_ZMAX
 #endif
 
 /**
@@ -3210,18 +3232,6 @@
   #undef MOTOR_CURRENT
 #endif
 
-// G92 shifts the workspace
-#if DISABLED(NO_WORKSPACE_OFFSETS)
-  #define HAS_WORKSPACE_OFFSET 1
-#endif
-#if DISABLED(NO_HOME_OFFSETS)
-  #if IS_CARTESIAN
-    #define HAS_HOME_OFFSET 1     // M206 affects the Native Machine Space on G28
-  #elif IS_SCARA
-    #define HAS_SCARA_OFFSET 1    // The SCARA home offset applies only on G28
-  #endif
-#endif
-
 #if ANY(HAS_MARLINUI_MENU, TOUCH_UI_FTDI_EVE)
   // LCD timeout to status screen default is 15s
   #ifndef LCD_TIMEOUT_TO_STATUS
@@ -3332,7 +3342,7 @@
     #elif IS_DWIN_MARLINUI
       // Defined by header
     #elif HAS_GRAPHICAL_TFT
-      #define LCD_WIDTH ((TFT_WIDTH) / 16)
+      #define LCD_WIDTH ((TFT_WIDTH) / TERN(TFT_FONT_LARGE, 20, 16))
     #else
       #define LCD_WIDTH TERN(IS_ULTIPANEL, 20, 16)
     #endif

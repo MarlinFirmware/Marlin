@@ -289,6 +289,10 @@ typedef struct SettingsDataStruct {
     xyz_pos_t probe_offset;                             // M851 X Y Z
   #endif
 
+  #if HAS_LEVELING_TEMP_EDIT
+    Temperature::leveling_temp_t leveling_temp;         // thermalManager.leveling_temp
+  #endif
+
   //
   // ABL_PLANAR
   //
@@ -1070,6 +1074,14 @@ void MarlinSettings::postprocess() {
       #endif
       EEPROM_WRITE(zpo);
     }
+    #endif
+
+    //
+    // Leveling preheat temperatures
+    //
+    #if HAS_LEVELING_TEMP_EDIT
+      _FIELD_TEST(leveling_temp);
+      EEPROM_WRITE(thermalManager.leveling_temp);
     #endif
 
     //
@@ -2145,6 +2157,14 @@ void MarlinSettings::postprocess() {
         #endif
         EEPROM_READ(zpo);
       }
+      #endif
+
+      //
+      // Leveling preheat temperatures
+      //
+      #if HAS_LEVELING_TEMP_EDIT
+        _FIELD_TEST(leveling_temp);
+        EEPROM_READ(thermalManager.leveling_temp);
       #endif
 
       //
@@ -3511,6 +3531,11 @@ void MarlinSettings::reset() {
       probe.offset.set(NUM_AXIS_LIST(0, 0, dpo[Z_AXIS], 0, 0, 0, 0, 0, 0));
     #endif
   #endif
+
+  //
+  // Leveling preheat temperatures
+  //
+  TERN_(HAS_LEVELING_TEMP_EDIT, thermalManager.reset_leveling_temp());
 
   //
   // Z Stepper Auto-alignment points

@@ -467,6 +467,7 @@ struct PIDHeaterInfo : public HeaterInfo {
     float modeled_ambient_temp,
           modeled_block_temp,
           modeled_sensor_temp;
+    uint8_t clipped_count;              // Consecutive updates with the output power clipped
     float fanCoefficient() { return mpc.fanCoefficient(); }
     void applyFanAdjustment(const float cf) { mpc.applyFanAdjustment(cf); }
   };
@@ -646,6 +647,15 @@ typedef struct { raw_adc_t raw_min, raw_max; celsius_t mintemp, maxtemp; } temp_
   } autotemp_t;
 
 #endif // AUTOTEMP
+
+#if ANY(PREHEAT_BEFORE_PROBING, PREHEAT_BEFORE_LEVELING)
+  #if HAS_HOTEND && !defined(LEVELING_NOZZLE_TEMP)
+    #define LEVELING_NOZZLE_TEMP 0
+  #endif
+  #if HAS_HEATED_BED && !defined(LEVELING_BED_TEMP)
+    #define LEVELING_BED_TEMP 0
+  #endif
+#endif
 
 class Temperature {
 
@@ -1094,6 +1104,10 @@ class Temperature {
 
       static void wait_for_bed_heating();
 
+      #ifdef LEVELING_HEAT_SOAK_TIME
+        static void wait_for_heat_soak(const uint16_t seconds);
+      #endif
+
       static void manage_heated_bed(const millis_t &ms);
 
     #endif // HAS_HEATED_BED
@@ -1297,6 +1311,24 @@ class Temperature {
 
     #if ENABLED(PROBING_HEATERS_OFF)
       static void pause_heaters(const bool p);
+    #endif
+
+    #if ANY(PREHEAT_BEFORE_PROBING, PREHEAT_BEFORE_LEVELING)
+      typedef struct {
+        OPTCODE(HAS_HOTEND, celsius_t hotend)
+        OPTCODE(HAS_HEATED_BED, celsius_t bed)
+      } leveling_temp_t;
+      #if HAS_LEVELING_TEMP_EDIT
+        static leveling_temp_t leveling_temp;
+        static void reset_leveling_temp() {
+          TERN_(HAS_HOTEND, leveling_temp.hotend = LEVELING_NOZZLE_TEMP);
+          TERN_(HAS_HEATED_BED, leveling_temp.bed = LEVELING_BED_TEMP);
+        }
+      #else
+        static constexpr leveling_temp_t leveling_temp = { OPTITEM(HAS_HOTEND, LEVELING_NOZZLE_TEMP) OPTITEM(HAS_HEATED_BED, LEVELING_BED_TEMP) };
+      #endif
+      static void preheat_for_probing(const bool early=false, const bool and_leveling=false);
+      static void preheat_for_leveling(const bool early=false) { preheat_for_probing(early, ENABLED(PREHEAT_BEFORE_LEVELING)); }
     #endif
 
     #if HEATER_IDLE_HANDLER

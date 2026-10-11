@@ -81,7 +81,7 @@ void ResonanceGenerator::start() {
   // Sweep time base
   // After n generated points, t = n·RESONANCE_TS  and  f(t) = min_freq · exp2(t / octave_duration)
   freq_mul_inc = F2FPQ(exp2f(RESONANCE_TS / rt_params.octave_duration) - 1.0f);
-  // Use Q28 for phase calculation only for consistency between freq and phase (Q16 is enough) 
+  // Use Q28 for phase calculation only for consistency between freq and phase (Q16 is enough)
   phase_inc_fp = F2FPQ((2.0f * M_PI) * RESONANCE_TS);
 }
 

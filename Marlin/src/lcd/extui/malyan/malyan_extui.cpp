@@ -103,7 +103,6 @@ namespace ExtUI {
   }
 
   #if HAS_PID_HEATING
-
     void onPIDTuning(const pidresult_t rst) {
       // Called for temperature PID tuning result
       //SERIAL_ECHOLNPGM("OnPIDTuning:", rst);
@@ -127,100 +126,10 @@ namespace ExtUI {
           break;
       }
     }
-
-    void onStartM303(const int count, const heater_id_t hid, const celsius_t temp) {
-      // Called by M303 to update the UI
-    }
-
   #endif
 
   void onPrintTimerStarted() { write_to_lcd(F("{SYS:BUILD}")); }
-  void onPrintTimerPaused() {}
   void onPrintTimerStopped() { write_to_lcd(F("{TQ:100}")); }
-
-  // Not needed for Malyan LCD
-  void onStatusChanged(const char * const) {}
-
-  void onMediaMounted() {}
-  void onMediaError() {}
-  void onMediaRemoved() {}
-
-  void onHeatingError(const heater_id_t header_id) {}
-  void onMinTempError(const heater_id_t header_id) {}
-  void onMaxTempError(const heater_id_t header_id) {}
-
-  void onPlayTone(const uint16_t, const uint16_t/*=0*/) {}
-
-  void onFilamentRunout(const extruder_t extruder) {}
-  void onUserConfirmRequired(const char * const) {}
-
-  // For fancy LCDs include an icon ID, message, and translated button title
-  void onUserConfirmRequired(const int icon, const char * const cstr, FSTR_P const fBtn) {}
-  void onUserConfirmRequired(const int icon, FSTR_P const fstr, FSTR_P const fBtn) {}
-
-  #if ENABLED(ADVANCED_PAUSE_FEATURE)
-    void onPauseMode(
-      const PauseMessage message,
-      const PauseMode mode/*=PAUSE_MODE_SAME*/,
-      const uint8_t extruder/*=motion.extruder*/
-    ) {}
-  #endif
-
-  void onHomingStart() {}
-  void onHomingDone() {}
-
-  void onPrintDone() {}
-  void onFactoryReset() {}
-
-  void onStoreSettings(char*) {}
-  void onLoadSettings(const char*) {}
-  void onPostprocessSettings() {}
-  void onSettingsStored(const bool) {}
-  void onSettingsLoaded(const bool) {}
-
-  #if HAS_LEVELING
-    void onLevelingStart() {}
-    void onLevelingDone() {}
-    #if ENABLED(PREHEAT_BEFORE_LEVELING)
-      celsius_t getLevelingBedTemp() { return LEVELING_BED_TEMP; }
-    #endif
-  #endif
-
-  #if HAS_MESH
-    void onMeshUpdate(const int8_t, const int8_t, const float) {}
-    void onMeshUpdate(const int8_t, const int8_t, const ExtUI::probe_state_t) {}
-  #endif
-
-  #if ENABLED(PREVENT_COLD_EXTRUSION)
-    void onSetMinExtrusionTemp(const celsius_t) {}
-  #endif
-
-  #if ENABLED(POWER_LOSS_RECOVERY)
-    void onSetPowerLoss(const bool onoff) {
-      // Called when power-loss is enabled/disabled
-    }
-    void onPowerLoss() {
-      // Called when power-loss state is detected
-    }
-    void onPowerLossResume() {
-      // Called on resume from power-loss
-    }
-  #endif
-
-  #if ENABLED(MPC_AUTOTUNE)
-    void onMPCTuning(const mpcresult_t rst) {
-      // Called for temperature PID tuning result
-    }
-  #endif
-
-  #if ENABLED(PLATFORM_M997_SUPPORT)
-    void onFirmwareFlash() {}
-  #endif
-
-  void onSteppersDisabled() {}
-  void onSteppersEnabled() {}
-  void onAxisDisabled(const axis_t) {}
-  void onAxisEnabled(const axis_t) {}
 }
 
 #endif // MALYAN_LCD
