@@ -135,9 +135,7 @@
 //
 // LCD Serial (USART4) — Anycubic DGUS TFT
 //
-#undef LCD_SERIAL_PORT
-#define LCD_SERIAL_PORT                     4
-
+#define BOARD_LCD_SERIAL_PORT               4
 #define BOARD_USART4_TX_PIN                 PB10
 #define BOARD_USART4_RX_PIN                 PH2
 

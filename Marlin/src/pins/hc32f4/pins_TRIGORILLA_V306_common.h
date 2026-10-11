@@ -41,13 +41,15 @@
 #endif
 
 //
-// EEPROM (flash emulation — no I2C EEPROM on board)
+// EEPROM — No EEPROM chip on board. Emulate in flash, like the stock firmware.
 //
 #if NO_EEPROM_SELECTED
   #define FLASH_EEPROM_EMULATION
   #undef NO_EEPROM_SELECTED
 #endif
 #define MARLIN_EEPROM_SIZE               0x2000U  // 8K
+
+#define BOARD_LCD_SERIAL_PORT               4
 
 //
 // Limit Switches
@@ -77,6 +79,8 @@
 
 //
 // TMC UART — all axes share a single-wire UART on PB2
+// The stock drivers have no addressing, so the stock firmware broadcasts the same
+// settings to all of them. Use TMC2208_STANDALONE unless each driver has a unique address.
 //
 #define X_SERIAL_TX_PIN                     PB2
 #define X_SERIAL_RX_PIN                     PB2
@@ -119,9 +123,8 @@
 #endif
 
 //
-// Probe — LeviQ hall-effect sensor (auto-level, no deploy/stow by default)
+// Probe — LeviQ sensor (FIX_MOUNTED_PROBE in stock firmware, no tare pin)
 //
-#define AUTO_LEVEL_TX_PIN                   -1
 #define AUTO_LEVEL_RX_PIN                   PA1
 
 #ifndef Z_MIN_PROBE_PIN
@@ -136,7 +139,22 @@
   #define ONBOARD_SDIO
 #endif
 
+#define BOARD_SDIO_D0                       PC8
+#define BOARD_SDIO_D1                       PC9
+#define BOARD_SDIO_D2                       PC10
+#define BOARD_SDIO_D3                       PC11
+#define BOARD_SDIO_CLK                      PC12
+#define BOARD_SDIO_CMD                      PD2
+#define BOARD_SDIO_DET                      SD_DETECT_PIN
+
 //
-// Display (serial LCD / DWIN) — USART4: TX=PB4, RX=PB3
-// Configure via SERIAL_PORT_2 in Configuration.h.
+// USART Pins
 //
+
+// Host (USB via CH340) — SERIAL_PORT 2
+#define BOARD_USART2_TX_PIN                 PA2
+#define BOARD_USART2_RX_PIN                 PA3
+
+// Display (Anycubic DGUS TFT) — LCD_SERIAL_PORT 4 (assigned in Conditionals-4-adv.h)
+#define BOARD_USART4_TX_PIN                 PB4
+#define BOARD_USART4_RX_PIN                 PB3

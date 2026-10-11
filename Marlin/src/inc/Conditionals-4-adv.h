@@ -1939,6 +1939,8 @@
       #define LCD_SERIAL_PORT 2
     #elif MB(MKS_E3D_V2)
       #define LCD_SERIAL_PORT 6
+    #elif MB(TRIGORILLA_F1_V1, TRIGORILLA_V306, TRIGORILLA_V306_GO)
+      #define LCD_SERIAL_PORT 4
     #else
       #define LCD_SERIAL_PORT 3
     #endif

@@ -2498,7 +2498,7 @@ namespace Anycubic {
     static bool probe_tare_flag = 0;
 
     if (!probe_tare_flag) {
-      probe.tare();
+      TERN_(PROBE_TARE, probe.tare());
 
       if (PROBE_TRIGGERED()) {  // triggered too early
         probe_check_counter = 0;
