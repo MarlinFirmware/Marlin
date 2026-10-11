@@ -1892,7 +1892,9 @@ void MarlinSettings::postprocess() {
     const bool success = (eeprom_error == ERR_EEPROM_NOERR);
     if (success) {
       LCD_MESSAGE(MSG_SETTINGS_STORED);
-      TERN_(HOST_PROMPT_SUPPORT, hostui.notify(GET_TEXT_F(MSG_SETTINGS_STORED)));
+      #if ENABLED(HOST_PROMPT_SUPPORT) && DISABLED(HOST_STATUS_NOTIFICATIONS)
+        hostui.notify(GET_TEXT_F(MSG_SETTINGS_STORED));
+      #endif
     }
 
     TERN_(EXTENSIBLE_UI, ExtUI::onSettingsStored(success));

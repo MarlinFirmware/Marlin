@@ -2100,7 +2100,9 @@ uint8_t expand_u8str_P(char * const outstr, PGM_P const ptpl, const int8_t ind, 
     void MarlinUI::eeprom_alert(const EEPROM_Error err) {
       FSTR_P const err_msg = eeprom_err(err);
       set_status(err_msg);
-      TERN_(HOST_PROMPT_SUPPORT, hostui.notify(err_msg));
+      #if ENABLED(HOST_PROMPT_SUPPORT) && DISABLED(HOST_STATUS_NOTIFICATIONS)
+        hostui.notify(err_msg);
+      #endif
       #if HAS_MARLINUI_MENU
         editable.uint8 = err;
         goto_screen([]{
