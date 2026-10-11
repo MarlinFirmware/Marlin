@@ -153,6 +153,23 @@ const PinName digitalPin[] = {
   PF_8,  //D124/A20 - 1:TIM11_CH1  2:ADC3_IN6
 };
 
+// Analog (Ax) pin number array, used by STM32duino 2.x. Ax is digital pin NUM_ANALOG_FIRST + x.
+const uint32_t analogInputPin[] = {
+  NUM_ANALOG_FIRST + 0,  // A0
+  NUM_ANALOG_FIRST + 1,  // A1
+  NUM_ANALOG_FIRST + 2,  // A2
+  NUM_ANALOG_FIRST + 3,  // A3
+  NUM_ANALOG_FIRST + 4,  // A4
+  NUM_ANALOG_FIRST + 5,  // A5
+  NUM_ANALOG_FIRST + 6,  // A6
+  NUM_ANALOG_FIRST + 7,  // A7
+  NUM_ANALOG_FIRST + 8,  // A8
+  NUM_ANALOG_FIRST + 9,  // A9
+  NUM_ANALOG_FIRST + 10, // A10
+  NUM_ANALOG_FIRST + 11, // A11
+  NUM_ANALOG_FIRST + 12, // A12
+};
+
 #ifdef __cplusplus
 }
 #endif
@@ -167,14 +184,14 @@ extern "C" {
   * @brief  System Clock Configuration
   *         The system Clock is configured as follow :
   *            System Clock source            = PLL (HSE)
-  *            SYSCLK(Hz)                     = 180000000
-  *            HCLK(Hz)                       = 180000000
+  *            SYSCLK(Hz)                     = 168000000
+  *            HCLK(Hz)                       = 168000000
   *            AHB Prescaler                  = 1
   *            APB1 Prescaler                 = 4
   *            APB2 Prescaler                 = 2
-  *            HSE Frequency(Hz)              = 12000000
-  *            PLL_M                          = 6
-  *            PLL_N                          = 180
+  *            HSE Frequency(Hz)              = 8000000
+  *            PLL_M                          = 8
+  *            PLL_N                          = 336
   *            PLL_P                          = 2
   *            PLL_Q                          = 7
   *            VDD(V)                         = 3.3
@@ -187,51 +204,40 @@ WEAK void SystemClock_Config(void)
 {
   RCC_ClkInitTypeDef RCC_ClkInitStruct;
   RCC_OscInitTypeDef RCC_OscInitStruct;
-  RCC_PeriphCLKInitTypeDef PeriphClkInitStruct;
-
 
   /* Enable Power Control clock */
   __HAL_RCC_PWR_CLK_ENABLE();
 
-#ifdef HAL_PWR_MODULE_ENABLED
   /* The voltage scaling allows optimizing the power consumption when the device is
      clocked below the maximum system frequency, to update the voltage scaling value
      regarding system frequency refer to product datasheet.  */
   __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE1);
-#endif
 
   /* Enable HSE Oscillator and activate PLL with HSE as source */
   RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
   RCC_OscInitStruct.HSEState = RCC_HSE_ON;
   RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
   RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
-  RCC_OscInitStruct.PLL.PLLM = 6;
-  RCC_OscInitStruct.PLL.PLLN = 180;
+  RCC_OscInitStruct.PLL.PLLM = 8;
+  RCC_OscInitStruct.PLL.PLLN = 336;
   RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV2;
   RCC_OscInitStruct.PLL.PLLQ = 7;
-  RCC_OscInitStruct.PLL.PLLR = 2;
-  HAL_RCC_OscConfig(&RCC_OscInitStruct);
-
-  HAL_PWREx_EnableOverDrive();
+  if(HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
+  {
+    /* Initialization Error */
+  }
 
   /* Select PLL as system clock source and configure the HCLK, PCLK1 and PCLK2
      clocks dividers */
-  RCC_ClkInitStruct.ClockType = (RCC_CLOCKTYPE_SYSCLK | RCC_CLOCKTYPE_HCLK |
-                                 RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2);
-  RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLRCLK;
+  RCC_ClkInitStruct.ClockType = (RCC_CLOCKTYPE_SYSCLK | RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2);
+  RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
   RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
   RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV4;
   RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV2;
-  HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_5);
-
-  PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_CLK48;
-  PeriphClkInitStruct.PLLSAI.PLLSAIM = 6;
-  PeriphClkInitStruct.PLLSAI.PLLSAIN = 96;
-  PeriphClkInitStruct.PLLSAI.PLLSAIQ = 2;
-  PeriphClkInitStruct.PLLSAI.PLLSAIP = RCC_PLLSAIP_DIV4;
-  PeriphClkInitStruct.PLLSAIDivQ = 1;
-  PeriphClkInitStruct.Clk48ClockSelection = RCC_CLK48CLKSOURCE_PLLSAIP;
-  HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct);
+  if(HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_5) != HAL_OK)
+  {
+    /* Initialization Error */
+  }
 }
 
 #ifdef __cplusplus
