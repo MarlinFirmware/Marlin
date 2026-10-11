@@ -37,6 +37,7 @@
 #include "../../../module/temperature.h"
 #include "../../../module/planner.h"
 #include "../../../module/settings.h"
+#include "../../../sd/cardreader.h"
 #include "../../../libs/buzzer.h"
 
 //#define DEBUG_OUT 1
