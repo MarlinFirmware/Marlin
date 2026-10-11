@@ -183,7 +183,7 @@ public:
   static bool isInserted() { return isFlashDriveInserted() || isSDCardInserted(); }
 
   // Mount and release physical media
-  static void mount();
+  static void mount(const bool alert=true);
   static void release();
 
   static bool isMounted() { return flag.mounted; }

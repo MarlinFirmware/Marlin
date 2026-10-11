@@ -484,7 +484,11 @@ void CardReader::printSelectedFilename() {
   SERIAL_EOL();
 }
 
-void CardReader::mount() {
+#if ANY(HAS_SD_DETECT, HAS_USB_FLASH_DRIVE)
+  static bool mount_alerted = false; // A media init fail alert is showing
+#endif
+
+void CardReader::mount(const bool alert/*=true*/) {
   flag.mounted = false;
   nrItems = -1;
   if (root.isOpen()) root.close();
@@ -507,11 +511,16 @@ void CardReader::mount() {
     SERIAL_ECHO_MSG(STR_SD_CARD_OK);
   }
 
-  if (flag.mounted)
+  if (flag.mounted) {
+    #if ANY(HAS_SD_DETECT, HAS_USB_FLASH_DRIVE)
+      if (mount_alerted) { mount_alerted = false; ui.reset_alert_level(); ui.reset_status(); } // Clear the init fail alert
+    #endif
     cdroot();
+  }
   else {
     #if ANY(HAS_SD_DETECT, HAS_USB_FLASH_DRIVE)
-      if (!marlin.is(MF_INITIALIZING)) {
+      if (alert && !marlin.is(MF_INITIALIZING)) {
+        mount_alerted = true;
         if (isSDCardSelected())
           LCD_ALERTMESSAGE(MSG_MEDIA_INIT_FAIL_SD);
         else if (isFlashDriveSelected())
@@ -580,6 +589,19 @@ void CardReader::manage_media() {
     #endif
   );
 
+  // Retry a failed mount a few times, in case the media wasn't fully seated yet.
+  // A mount attempt blocks, so retries wait until nothing is printing or queued.
+  constexpr uint8_t mount_retries = 2;
+  constexpr millis_t mount_retry_ms = 1000;
+  static uint8_t retries_left = mount_retries;
+  static millis_t next_retry_ms = 0;
+  if (stat == INSERT_NONE) retries_left = mount_retries;
+  if (next_retry_ms) {
+    if (PENDING(millis(), next_retry_ms)) return;
+    if (marlin.printingIsActive() || planner.has_blocks_queued() || queue.has_commands_queued()) return;
+    next_retry_ms = 0;
+  }
+
   if (stat == prev_stat) return;    // Already checked and still no change?
 
   DEBUG_SECTION(cmm, "CardReader::manage_media()", true);
@@ -587,6 +609,11 @@ void CardReader::manage_media() {
 
   // Without a UI there's no auto-mount or release
   if (!ui.detected()) { DEBUG_ECHOLNPGM("SD: No UI Detected."); return; }
+
+  // Let media insert / remove messages replace an earlier init fail alert
+  #if ANY(HAS_SD_DETECT, HAS_USB_FLASH_DRIVE)
+    if (mount_alerted) { mount_alerted = false; ui.reset_alert_level(); }
+  #endif
 
   const MediaPresence old_stat = prev_stat,
                       old_real = old_stat == MEDIA_BOOT ? INSERT_NONE : old_stat;
@@ -620,7 +647,17 @@ void CardReader::manage_media() {
         #endif
       #endif
       safe_delay(500);                  // Time for inserted media to settle. May re-enter for multiple media?
-      mount();
+      mount(!retries_left);             // Alert only on the last try
+
+      // Not mounted? Leave the status unchanged to try again later
+      if (!isMounted() && retries_left) {
+        --retries_left;
+        next_retry_ms = millis() + mount_retry_ms;
+        prev_stat = old_stat;
+        TERN_(HAS_MULTI_VOLUME, no_reenter = false);
+        return;
+      }
+      retries_left = mount_retries;
     }
 
     // If the selected media isn't mounted throw an alert in ui.media_changed
