@@ -22,7 +22,7 @@
 #pragma once
 
 /**
- * Wanhao Duplicator D9 MK2 pin assignments
+ * Wanhao Duplicator 9 pin assignments (MK1, MK2 and MK3 share this board)
  * ATmega2560
  */
 
@@ -32,9 +32,9 @@
   #error "Oops! Select 'Arduino/Genuino Mega or Mega 2560' in 'Tools > Board.'"
 #endif
 
-#define BOARD_INFO_NAME      "Wanhao D9 MK2"
+#define BOARD_INFO_NAME      "Wanhao D9"
 #define DEFAULT_MACHINE_NAME BOARD_INFO_NAME
-#define BOARD_WEBSITE_URL    "wanhao.store"
+#define BOARD_WEBSITE_URL    "github.com/Le-Syl21/WANHAO-Duplicator-9"
 
 #define LARGE_FLASH true
 
@@ -116,19 +116,19 @@
 //
 
 #if HAS_WIRED_LCD
-  #define BEEPER_PIN                          27  // EXP1-1
+  #define BEEPER_PIN                          27
 
-  #define LCD_PINS_RS                         37  // EXP1-4
-  #define LCD_PINS_EN                         36  // EXP1-8
+  #define LCD_PINS_RS                         37
+  #define LCD_PINS_EN                         36
 
-  #define LCD_PINS_D4                         34  // EXP1-4
-  #define LCD_PINS_D5                         35  // EXP1-6
-  #define LCD_PINS_D6                         32  // EXP1-7
-  #define LCD_PINS_D7                         33  // EXP1-8
+  #define LCD_PINS_D4                         34
+  #define LCD_PINS_D5                         35
+  #define LCD_PINS_D6                         32
+  #define LCD_PINS_D7                         33
 
-  #define BTN_ENC                             30  // EXP1-2
-  #define BTN_EN1                             29  // EXP1-3 or EXP2-3
-  #define BTN_EN2                             28  // EXP1-5 or EXP2-5
+  #define BTN_ENC                             30
+  #define BTN_EN1                             29
+  #define BTN_EN2                             28
 #endif // HAS_WIRED_LCD
 
 //

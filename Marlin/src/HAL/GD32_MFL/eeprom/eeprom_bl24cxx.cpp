@@ -54,7 +54,7 @@ bool PersistentStore::access_finish() {
 }
 
 bool PersistentStore::write_data(int &pos, const uint8_t *value, size_t size, uint16_t *crc) {
-  uint16_t written = 0;
+  static uint8_t written = 0; // Counted across calls since settings are written one field at a time
   while (size--) {
     uint8_t v = *value;
     uint8_t * const p = (uint8_t * const)REAL_EEPROM_ADDR(pos);
@@ -62,7 +62,7 @@ bool PersistentStore::write_data(int &pos, const uint8_t *value, size_t size, ui
     // so only write bytes that have changed!
     if (v != eeprom_read_byte(p)) {
       eeprom_write_byte(p, v);
-      if (++written & 0x7F) delay(2); else safe_delay(2);
+      if (++written & 0x3F) delay(2); else safe_delay(2);
       if (eeprom_read_byte(p) != v) {
         SERIAL_ECHO_MSG(STR_ERR_EEPROM_WRITE);
         return true;

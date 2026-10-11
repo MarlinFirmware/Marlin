@@ -1606,52 +1606,61 @@
   #define FEEDRATE_CHANGE_BEEP_FREQUENCY 440
 #endif
 
-/**
- * Probe Offset Wizard
- * Add a Probe Z Offset calibration option to the LCD menu.
- * Use this helper to get a perfect 'M851 Z' probe offset.
- * When launched this powerful wizard:
- *  - Measures the bed height at the configured position with the probe.
- *  - Moves the nozzle to the same position for a "paper" measurement.
- *  - The difference is used to set the probe Z offset.
- */
-#if HAS_BED_PROBE && ANY(HAS_MARLINUI_MENU, HAS_TFT_LVGL_UI)
-  //#define PROBE_OFFSET_WIZARD
-  #if ENABLED(PROBE_OFFSET_WIZARD)
-    /**
-     * Enable to init the Probe Z-Offset when starting the Wizard.
-     * Use a height slightly above the estimated nozzle-to-probe Z offset.
-     * For example, with an offset of -5, consider a starting height of -4.
-     */
-    //#define PROBE_OFFSET_WIZARD_START_Z -4.0
+#if HAS_BED_PROBE
 
-    // Set a convenient position to do the calibration (probing point and nozzle/bed-distance)
-    //#define PROBE_OFFSET_WIZARD_XY_POS { X_CENTER, Y_CENTER }
+  #if HAS_MARLINUI_MENU
+    #define PROBE_DEPLOY_STOW_MENU    // Show Deploy / Stow Probe options in the Motion menu.
   #endif
-#endif
 
-#if HAS_MARLINUI_MENU
-
-  #if HAS_BED_PROBE
-
-    // Show Deploy / Stow Probe options in the Motion menu.
-    #define PROBE_DEPLOY_STOW_MENU
-
-    // Add calibration in the Probe Offsets menu to compensate for X-axis twist.
-    //#define X_AXIS_TWIST_COMPENSATION
-    #if ENABLED(X_AXIS_TWIST_COMPENSATION)
+  /**
+   * Probe Offset Wizard
+   * Add a Probe Z Offset calibration option to the LCD menu.
+   * Use this helper to get a perfect 'M851 Z' probe offset.
+   * When launched this powerful wizard:
+   *  - Measures the bed height at the configured position with the probe.
+   *  - Moves the nozzle to the same position for a "paper" measurement.
+   *  - The difference is used to set the probe Z offset.
+   */
+  #if ANY(HAS_MARLINUI_MENU, HAS_TFT_LVGL_UI)
+    //#define PROBE_OFFSET_WIZARD
+    #if ENABLED(PROBE_OFFSET_WIZARD)
       /**
        * Enable to init the Probe Z-Offset when starting the Wizard.
        * Use a height slightly above the estimated nozzle-to-probe Z offset.
        * For example, with an offset of -5, consider a starting height of -4.
        */
-      #define XATC_START_Z 0.0
-      #define XATC_MAX_POINTS 3             // Number of points to probe in the wizard
-      #define XATC_Y_POSITION Y_CENTER      // (mm) Y position to probe
-      #define XATC_Z_OFFSETS { 0, 0, 0 }    // Z offsets for X axis sample points
-    #endif
+      //#define PROBE_OFFSET_WIZARD_START_Z -4.0
 
-  #endif // HAS_BED_PROBE
+      // Set a convenient position to do the calibration (probing point and nozzle/bed-distance)
+      //#define PROBE_OFFSET_WIZARD_XY_POS { X_CENTER, Y_CENTER }
+    #endif
+  #endif
+
+  /**
+   * M423 X-Axis Twist Compensation
+   * If probing with an off-center probe produces an unreliable mesh, it may be
+   * a twisted X axis. Use this feature to measure and compensate.
+   */
+  //#define X_AXIS_TWIST_COMPENSATION
+  #if ENABLED(X_AXIS_TWIST_COMPENSATION)
+    #define XATC_MAX_POINTS  3          // Number of points to probe in the wizard
+    #define XATC_Z_OFFSETS { 0, 0, 0 }  // Z offsets for X axis sample points
+
+    // Add calibration to the Probe Offsets menu in MarlinUI
+    #if HAS_MARLINUI_MENU
+      /**
+       * Set non-zero to init the Probe Z-Offset when starting the Wizard.
+       * Use an offset slightly higher than the estimated nozzle-to-probe Z offset.
+       * For example, with an offset of -5, consider a starting offset of -4.
+       */
+      #define XATC_START_Z    0.0
+      #define XATC_Y_POSITION Y_CENTER      // (mm) Y position to probe
+    #endif
+  #endif
+
+#endif // HAS_BED_PROBE
+
+#if HAS_MARLINUI_MENU
 
   // Include a page of printer information in the LCD Main Menu
   //#define LCD_INFO_MENU
