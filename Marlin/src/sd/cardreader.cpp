@@ -488,7 +488,14 @@ void CardReader::printSelectedFilename() {
   static bool mount_alerted = false; // A media init fail alert is showing
 #endif
 
+// State of mount_async()
+enum MountState : uint8_t { MOUNT_IDLE, MOUNT_SETTLE, MOUNT_INIT, MOUNT_INIT_LCD };
+static MountState mount_state = MOUNT_IDLE;
+static millis_t mount_settle_ms;
+
 void CardReader::mount(const bool alert/*=true*/) {
+  mount_state = MOUNT_IDLE; // Cancel mount_async()
+
   flag.mounted = false;
   nrItems = -1;
   if (root.isOpen()) root.close();
@@ -500,6 +507,51 @@ void CardReader::mount(const bool alert/*=true*/) {
     #endif
   );
 
+  mount_finish(driver_init, alert);
+}
+
+/**
+ * Mount the media in steps, so the main loop isn't blocked while it gets ready.
+ * Call on each idle() until it returns true. The result is then in isMounted().
+ */
+bool CardReader::mount_async(const bool alert) {
+  switch (mount_state) {
+
+    case MOUNT_IDLE:
+      if (isMounted()) return true;           // Mounted some other way, e.g., M21
+      mount_settle_ms = millis() + 500;       // Time for inserted media to settle
+      mount_state = MOUNT_SETTLE;
+      break;
+
+    case MOUNT_SETTLE:
+      if (PENDING(millis(), mount_settle_ms)) break;
+      flag.mounted = false;
+      nrItems = -1;
+      if (root.isOpen()) root.close();
+      driver->initStart(SD_SPI_SPEED, SD_SS_PIN);
+      mount_state = MOUNT_INIT;
+      break;
+
+    case MOUNT_INIT:
+    case MOUNT_INIT_LCD: {
+      const int8_t result = driver->initStep();
+      if (!result) break;
+      #if PIN_EXISTS(LCD_SDSS) && (LCD_SDSS_PIN != SD_SS_PIN)
+        if (result < 0 && mount_state == MOUNT_INIT) {
+          driver->initStart(SD_SPI_SPEED, LCD_SDSS_PIN);
+          mount_state = MOUNT_INIT_LCD;
+          break;
+        }
+      #endif
+      mount_state = MOUNT_IDLE;
+      mount_finish(result > 0, alert);
+      return true;
+    }
+  }
+  return false;
+}
+
+void CardReader::mount_finish(const bool driver_init, const bool alert) {
   if (!driver_init)
     SERIAL_ECHO_MSG(STR_SD_INIT_FAIL);
   else if (!volume.init(driver))
@@ -589,16 +641,17 @@ void CardReader::manage_media() {
     #endif
   );
 
-  // Retry a failed mount a few times, in case the media wasn't fully seated yet.
-  // A mount attempt blocks, so retries wait until nothing is printing or queued.
+  // Retry a failed mount a few times, in case the media wasn't fully seated yet
   constexpr uint8_t mount_retries = 2;
   constexpr millis_t mount_retry_ms = 1000;
   static uint8_t retries_left = mount_retries;
   static millis_t next_retry_ms = 0;
-  if (stat == INSERT_NONE) retries_left = mount_retries;
+  if (stat == INSERT_NONE) {
+    retries_left = mount_retries;
+    mount_state = MOUNT_IDLE;       // Media removed while mounting
+  }
   if (next_retry_ms) {
     if (PENDING(millis(), next_retry_ms)) return;
-    if (marlin.printingIsActive() || planner.has_blocks_queued() || queue.has_commands_queued()) return;
     next_retry_ms = 0;
   }
 
@@ -646,8 +699,15 @@ void CardReader::manage_media() {
           else if (vadd & INSERT_USB) selectMediaFlashDrive();
         #endif
       #endif
-      safe_delay(500);                  // Time for inserted media to settle. May re-enter for multiple media?
-      mount(!retries_left);             // Alert only on the last try
+      if (old_stat <= MEDIA_BOOT) {     // Mount at boot before anything else runs
+        safe_delay(500);                // Time for inserted media to settle
+        mount(!retries_left);           // Alert only on the last try
+      }
+      else if (!mount_async(!retries_left)) {
+        prev_stat = old_stat;           // Still mounting. Continue on the next call.
+        TERN_(HAS_MULTI_VOLUME, no_reenter = false);
+        return;
+      }
 
       // Not mounted? Leave the status unchanged to try again later
       if (!isMounted() && retries_left) {
@@ -674,7 +734,7 @@ void CardReader::manage_media() {
          (isSDCardSelected()     && (vdiff & INSERT_SD))
       || (isFlashDriveSelected() && (vdiff & INSERT_USB))
     #else
-      stat // == INSERT_MEDIA
+      old_real // == INSERT_MEDIA
     #endif
   ) {
     flag.workDirIsRoot = true;          // Return to root on release

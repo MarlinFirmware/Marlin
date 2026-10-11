@@ -40,6 +40,22 @@ public:
   virtual bool init(const uint8_t sckRateID, const pin_t chipSelectPin) = 0; //TODO: only for SPI
 
   /**
+   * Start an initialization that is completed by calling initStep(),
+   * so the caller isn't blocked while the card gets ready.
+   * By default the whole initialization is done here.
+   */
+  virtual void initStart(const uint8_t sckRateID, const pin_t chipSelectPin) {
+    initResult = init(sckRateID, chipSelectPin) ? 1 : -1;
+  }
+
+  /**
+   * Continue an initialization started by initStart().
+   *
+   * \return 0 while in progress, 1 for success, or -1 for failure.
+   */
+  virtual int8_t initStep() { return initResult; }
+
+  /**
    * Read a card's CSD register. The CSD contains Card-Specific Data that
    * provides information regarding access to the card's contents.
    *
@@ -65,4 +81,7 @@ public:
   virtual bool isReady() = 0;
 
   virtual void idle() = 0;
+
+protected:
+  int8_t initResult = 0;
 };
