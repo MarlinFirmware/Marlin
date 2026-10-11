@@ -186,6 +186,9 @@
 #define STR_SD_NOT_PRINTING                 "Not SD printing"
 #define STR_SD_ERR_WRITE_TO_FILE            "error writing to file"
 #define STR_SD_ERR_READ                     "SD read error"
+#define STR_SD_ERR_TOO_MANY_READ_ERRORS     "SD error overage"
+#define STR_SD_ERR_CARD_REMOVED             "SD card gone"
+#define STR_PRINT_ABORTED                   ", print aborted"
 #define STR_SD_CANT_ENTER_SUBDIR            "Cannot enter subdir: "
 
 #define STR_ENDSTOPS_HIT                    "endstops hit: "

@@ -26,4 +26,8 @@
 //
 #if MB(MKS_TINYBEE)
   #define MAX_EXPANDER_BITS 24  // TinyBee has 3 x HC595
+#elif MB(MKS_DLC32_V2_1)
+  #define MAX_EXPANDER_BITS 8   // DLC32 has 1 x HC595
+#elif MB(BTT_RODENT_V1)
+  #define MAX_EXPANDER_BITS 16  // Rodent has 2 x HC595
 #endif

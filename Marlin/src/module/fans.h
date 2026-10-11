@@ -85,7 +85,7 @@
     Fan(const uint8_t fi) : index(fi) {}
 
     void init() {
-      #define _INIT(N) if (index == N) INIT_FAN_PIN(PART_COOLING_FAN##N##_PIN);
+      #define _INIT(N) TERN_(HAS_FAN##N, if (index == N) INIT_FAN_PIN(PART_COOLING_FAN##N##_PIN));
       REPEAT(FAN_COUNT, _INIT)
       #undef _INIT
     }
@@ -193,7 +193,7 @@
 
     static void sync_speeds() {
       const millis_t ms = millis();
-      #define FAN_SET(F) fans[F].sync(ms, pin_t(PART_COOLING_FAN##F##_PIN));
+      #define FAN_SET(F) TERN_(HAS_FAN##F, fans[F].sync(ms, pin_t(PART_COOLING_FAN##F##_PIN)));
       REPEAT(FAN_COUNT, FAN_SET)
       #undef FAN_SET
     }
@@ -203,7 +203,7 @@
     }
 
     static void write(const uint8_t fi, const uint8_t state) {
-      #define _CASE(N) if (fi == N) WRITE(FAN ##N## _PIN, (state) ^ ENABLED(FAN_INVERTING));
+      #define _CASE(N) TERN_(HAS_FAN##N, if (fi == N) WRITE(PART_COOLING_FAN##N##_PIN, (state) ^ ENABLED(FAN_INVERTING)));
       REPEAT(FAN_COUNT, _CASE)
       #undef _CASE
     }

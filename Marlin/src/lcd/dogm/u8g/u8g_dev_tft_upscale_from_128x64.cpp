@@ -382,7 +382,8 @@ uint8_t u8g_dev_tft_320x240_upscale_from_128x64_fn(u8g_t *u8g, u8g_dev_t *dev, u
       if (msgInitCount) return -1;
       tftio.init();
       tftio.initTFT();
-      TERN_(TOUCH_SCREEN_CALIBRATION, touch_calibration.calibration_reset());
+      // Don't reset touch calibration here. This also runs on reinit_lcd(),
+      // after settings (incl. calibration) are loaded. See MarlinSettings::reset().
       u8g_upscale_clear_lcd(u8g, dev, buffer);
       return 0;
 

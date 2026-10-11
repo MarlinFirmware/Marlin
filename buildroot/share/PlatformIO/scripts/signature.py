@@ -375,7 +375,7 @@ f'''#
         print(yellow + "Generating Config-export.h ...")
 
         config_h = Path('Marlin', 'Config-export.h')
-        with config_h.open('w') as outfile:
+        with config_h.open('w', encoding='utf-8') as outfile:
             filegrp = { 'Configuration.h':'config:basic', 'Configuration_adv.h':'config:advanced' }
             vers = build_defines["CONFIGURATION_H_VERSION"]
             dt_string = datetime.utcnow().strftime("%Y-%m-%d at %H:%M:%S")
@@ -444,7 +444,7 @@ f'''#
                     import yaml
                 except ImportError:
                     env.Execute(env.VerboseAction(
-                        '$PYTHONEXE -m pip install "pyyaml"',
+                        '"$PYTHONEXE" -m pip install "pyyaml"',
                         "Installing YAML for schema.yml export",
                     ))
                     import yaml

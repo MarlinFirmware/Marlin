@@ -354,17 +354,19 @@ void RTS::onIdle() {
   rts.sendData(getZOffset_mm() * 100, ProbeOffset_Z);
   rts.sendData(uint16_t(getFlow_percent(E0)), Flowrate);
 
-  if (nozzleTempStatus[0] || nozzleTempStatus[2]) { // statuse of loadfilament and unloadfinement when temperature is less than
-    uint16_t IconTemp = getActualTemp_celsius(getActiveTool()) * 100 / getTargetTemp_celsius(getActiveTool());
-    NOMORE(IconTemp, 100U);
+  if (nozzleTempStatus[0] || nozzleTempStatus[2]) { // statuses of loadfilament and unloadfilament when temperature is less than target
+    const celsius_t t = getTargetTemp_celsius(getActiveTool()),
+                    c = getActualTemp_celsius(getActiveTool());
+    const bool noheat = c >= t;
+    const uint16_t IconTemp = uint16_t(noheat ? 100 : c * 100 / t);
     rts.sendData(IconTemp, HeatPercentIcon);
-    if (getActualTemp_celsius(getActiveTool()) > EXTRUDE_MINTEMP && nozzleTempStatus[0] != 0) {
+    if (c > (EXTRUDE_MINTEMP) && nozzleTempStatus[0] != 0) {
       nozzleTempStatus[0] = 0;
       rts.sendData(10 * changeMaterialBuf[0], FilamentUnit1);
       rts.sendData(10 * changeMaterialBuf[1], FilamentUnit2);
       rts.sendData(ExchangePageBase + 65, ExchangepageAddr);
     }
-    else if (getActualTemp_celsius(getActiveTool()) >= getTargetTemp_celsius(getActiveTool()) && nozzleTempStatus[2]) {
+    else if (noheat && nozzleTempStatus[2]) {
       nozzleTempStatus[2] = 0;
       tpShowStatus = true;
       rts.sendData(4, ExchFlmntIcon);
@@ -393,7 +395,7 @@ void RTS::onIdle() {
     rts.sendData(0, FilesMaxPage);
   }
 
-  if (rts.recdat.addr != DisplayZaxis && rts.recdat.addr != DisplayYaxis && rts.recdat.addr != DisplayZaxis) {
+  if (rts.recdat.addr != DisplayXaxis && rts.recdat.addr != DisplayYaxis && rts.recdat.addr != DisplayZaxis) {
     rts.sendData(10 * getAxisPosition_mm(axis_t(X)), DisplayXaxis);
     rts.sendData(10 * getAxisPosition_mm(axis_t(Y)), DisplayYaxis);
     rts.sendData(10 * getAxisPosition_mm(axis_t(Z)), DisplayZaxis);

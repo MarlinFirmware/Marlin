@@ -1633,7 +1633,13 @@ float Planner::get_axis_position_mm(const AxisEnum axis) {
 
       if (was_enabled) stepper.wake_up();
 
-      axis_steps = ((axis == CORE_AXIS_1) ? p1 - p2 : p2);
+      // Unmix the joined axis. This must be the exact inverse of the mixing
+      // done by Stepper::_set_position and by the block step counts below.
+      #if ENABLED(MARKFORGED_XY)
+        axis_steps = (axis == CORE_AXIS_1) ? p1 TERN(MARKFORGED_INVERSE, +, -) p2 : p2;
+      #else
+        axis_steps = (axis == CORE_AXIS_2) ? p2 TERN(MARKFORGED_INVERSE, +, -) p1 : p1;
+      #endif
     }
     else
       axis_steps = DIFF_TERN(BACKLASH_COMPENSATION, stepper.position(axis), backlash.get_applied_steps(axis));
@@ -1970,14 +1976,14 @@ bool Planner::_populate_block(
     dist_mm.c = CORESIGN(dy - dz);
   #elif ENABLED(MARKFORGED_XY)
     XYZ_CODE(
-      dist_mm.a = dx TERN(MARKFORGED_INVERSE, +, -) dy,
+      dist_mm.a = dx TERN(MARKFORGED_INVERSE, -, +) dy,
       dist_mm.b = dy,
       dist_mm.z = dz
     );
   #elif ENABLED(MARKFORGED_YX)
     XYZ_CODE(
       dist_mm.a = dx,
-      dist_mm.b = dy TERN(MARKFORGED_INVERSE, +, -) dx,
+      dist_mm.b = dy TERN(MARKFORGED_INVERSE, -, +) dx,
       dist_mm.z = dz
     );
   #else

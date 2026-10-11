@@ -269,8 +269,9 @@ G29_TYPE GcodeSuite::G29() {
 
   // 3-point leveling gets points from the probe class
   #if ENABLED(AUTO_BED_LEVELING_3POINT)
-    vector_3 points[3];
-    probe.get_three_points(points);
+    TERN_(PROBE_MANUALLY, static) vector_3 points[3];
+    if (TERN1(PROBE_MANUALLY, !g29_in_progress))
+      probe.get_three_points(points);
   #endif
 
   // Storage for ABL Linear results
@@ -466,9 +467,7 @@ G29_TYPE GcodeSuite::G29() {
           rts.sendData(1, Wait_VP);
           rts.gotoPage(ID_ABL_HeatWait_L, ID_ABL_HeatWait_D);
         #endif
-        if (!abl.dryrun) probe.preheat_for_probing(LEVELING_NOZZLE_TEMP,
-          TERN(EXTENSIBLE_UI, ExtUI::getLevelingBedTemp(), LEVELING_BED_TEMP)
-        );
+        if (!abl.dryrun) thermalManager.preheat_for_leveling();
       #endif
     }
 
@@ -975,7 +974,7 @@ G29_TYPE GcodeSuite::G29() {
       // For LINEAR and 3POINT leveling correct the current position
 
       if (abl.verbose_level > 0)
-        planner.bed_level_matrix.debug(F("\n\nBed Level Correction Matrix:"));
+        planner.bed_level_matrix.debug(F("\n\nBed Level Correction Matrix:"), 4);
 
       if (!abl.dryrun) {
         //

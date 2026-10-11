@@ -371,7 +371,9 @@ bool Marlin::printingIsPaused() {
 }
 
 void Marlin::startOrResumeJob() {
-  if (!printingIsPaused()) {
+  // Reset per-job state only for a new job. A running timer means the job is
+  // already underway (e.g., M24 after M125 or MarlinUI::resume_print resumed it).
+  if (!print_job_timer.isRunning() && !printingIsPaused()) {
     TERN_(GCODE_REPEAT_MARKERS, repeat.reset());
     TERN_(CANCEL_OBJECTS, cancelable.reset());
     TERN_(LCD_SHOW_E_TOTAL, motion.e_move_accumulator = 0);

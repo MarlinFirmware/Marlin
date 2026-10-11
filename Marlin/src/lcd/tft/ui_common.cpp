@@ -432,12 +432,12 @@ bool MarlinUI::detected() { return true; }
 
 void MarlinUI::init_lcd() {
   tft.init();
-  tft.set_font(MENU_FONT_NAME);
-  #ifdef SYMBOLS_FONT_NAME
-    tft.add_glyphs(SYMBOLS_FONT_NAME);
+  tft.set_font(TFT_MENU_FONT_NAME);
+  #ifdef TFT_SYMBOLS_FONT_NAME
+    tft.add_glyphs(TFT_SYMBOLS_FONT_NAME);
   #endif
-  #ifdef EXTRA_FONT_NAME
-    tft.add_glyphs(EXTRA_FONT_NAME);
+  #ifdef TFT_EXTRA_FONT_NAME
+    tft.add_glyphs(TFT_EXTRA_FONT_NAME);
   #endif
   TERN_(TOUCH_SCREEN, touch.init());
   clear_for_drawing();
