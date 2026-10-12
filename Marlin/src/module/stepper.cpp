@@ -268,6 +268,18 @@ uint32_t Stepper::advance_divisor = 0,
  */
 #if ENABLED(NONLINEAR_EXTRUSION)
   nonlinear_t Stepper::nle;             // Initialized by settings.load
+
+  #if ENABLED(SMOOTH_LIN_ADVANCE)
+    // Update the fixed-point coefficients used by set_la_interval.
+    // Call whenever NLE settings or E steps-per-mm change.
+    void Stepper::refresh_nle_q30() {
+      const float mm_per_step = planner.mm_per_step[E_AXIS_N(0)];
+      const nonlinear_coeff_t &coeff = nle.settings.coeff;
+      nle.q30.A = _BV32(30) * (coeff.A * sq(mm_per_step));
+      nle.q30.B = _BV32(30) * (coeff.B * mm_per_step);
+      nle.q30.C = _BV32(30) * coeff.C;
+    }
+  #endif
 #endif
 
 #if HAS_ZV_SHAPING
@@ -3120,7 +3132,7 @@ void Stepper::isr() {
         const bool forward_e = step_rate > 0;
 
         #if ENABLED(NONLINEAR_EXTRUSION)
-          if (nle.settings.enabled && forward_e && XYZ_HAS_STEPS(current_block)) {
+          if (nle.settings.enabled && forward_e && current_block && XYZ_HAS_STEPS(current_block)) {
             // Maximum polynomial value is just above 1, like 1.05..1.2, less than 2 anyway, so we can use 30 bits for fractional part
             int32_t vd_q30 = nle.q30.A * sq(step_rate) + nle.q30.B * step_rate;
             NOLESS(vd_q30, 0);
@@ -3242,13 +3254,19 @@ void Stepper::isr() {
       int32_t la_step_rate = (target_adv_steps - last_target_adv_steps) * dt_inv;
       last_target_adv_steps = target_adv_steps;
 
+      // Approximate Gaussian smoothing via higher order exponential smoothing.
+      // Stages keep 8 fractional bits so truncation can't leave a lasting negative
+      // offset, which made E under-extrude and keep retracting while idle.
+      constexpr uint8_t frac_bits = 8;
+      constexpr int32_t rate_limit = INT32_MAX >> (frac_bits + 1);
       static int32_t smoothed_vals[SMOOTH_LIN_ADV_EXP_ORDER] = {0};
 
+      int32_t smoothed = constrain(la_step_rate, -rate_limit, rate_limit) * _BV(frac_bits);
       for (uint8_t i = 0; i < SMOOTH_LIN_ADV_EXP_ORDER; i++) {
-        // Approximate Gaussian smoothing via higher order exponential smoothing
-        smoothed_vals[i] += MULT_Q(30, la_step_rate - smoothed_vals[i], extruder_advance_alpha_q30[E_INDEX_N(motion.extruder)]);
-        la_step_rate = smoothed_vals[i];
+        smoothed_vals[i] += MULT_Q(30, smoothed - smoothed_vals[i], extruder_advance_alpha_q30[E_INDEX_N(motion.extruder)]);
+        smoothed = smoothed_vals[i];
       }
+      la_step_rate = (smoothed + _BV(frac_bits - 1)) >> frac_bits; // Round to nearest
 
       const int32_t planned_step_rate = current_block
         ? MULT_Q(30, curr_step_rate, current_block->e_step_ratio_q30)

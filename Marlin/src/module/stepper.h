@@ -413,6 +413,9 @@ class Stepper {
 
     #if ENABLED(NONLINEAR_EXTRUSION)
       static nonlinear_t nle;
+      #if ENABLED(SMOOTH_LIN_ADVANCE)
+        static void refresh_nle_q30();
+      #endif
     #endif
 
     #if ENABLED(ADAPTIVE_STEP_SMOOTHING_TOGGLE)
