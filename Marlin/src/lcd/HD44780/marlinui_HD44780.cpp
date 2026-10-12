@@ -265,16 +265,18 @@ void MarlinUI::set_custom_characters(const HD44780CharSet screen_charset/*=CHARS
     #endif
   };
 
-  const static PROGMEM byte clock[8] = {
-    B00000,
-    B01110,
-    B10011,
-    B10101,
-    B10001,
-    B01110,
-    B00000,
-    B00000
-  };
+  #if NEED_CLOCK_GLYPH
+    const static PROGMEM byte clock[8] = {
+      B00000,
+      B01110,
+      B10011,
+      B10101,
+      B10001,
+      B01110,
+      B00000,
+      B00000
+    };
+  #endif
 
   #if ENABLED(LCD_PROGRESS_BAR)
 
@@ -353,12 +355,14 @@ void MarlinUI::set_custom_characters(const HD44780CharSet screen_charset/*=CHARS
     #endif
 
     default: {
-      // Info Screen uses 5 special characters
+      // The Status Screen uses 4-5 special characters
       createChar_P(LCD_STR_BEDTEMP[0], bedTemp);
       createChar_P(LCD_STR_DEGREE[0], degree);
       createChar_P(LCD_STR_THERMOMETER[0], thermometer);
       createChar_P(LCD_STR_FEEDRATE[0], feedrate);
-      createChar_P(LCD_STR_CLOCK[0], clock);
+
+      // A Clock Glyph may be used for some display themes
+      TERN_(NEED_CLOCK_GLYPH, createChar_P(LCD_STR_CLOCK[0], clock));
 
       #if ENABLED(LCD_PROGRESS_BAR)
         if (screen_charset == CHARSET_INFO) { // 3 Progress bar characters for info screen
