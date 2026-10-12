@@ -54,7 +54,7 @@
   #include "../feature/runout.h"
 #endif
 
-#if ENABLED(SENSORLESS_HOMING)
+#if ANY(SENSORLESS_HOMING, HOMING_HYBRID_THRESHOLD)
   #include "../feature/tmc_util.h"
 #endif
 
@@ -619,19 +619,18 @@ void Motion::report_position_projected() {
 
   /**
    * Set the homing Hybrid Threshold on the stealthChop steppers that move
-   * to home the given axis, saving the current thresholds. With 'homing' false,
-   * restore the saved thresholds.
+   * to home the given axis, saving the current thresholds in 'saved'.
+   * With 'homing' false, restore the thresholds from 'saved'.
    */
-  void Motion::apply_homing_hybrid_thrs(const AxisEnum axis, const bool homing) {
-    static homing_hybrid_thrs_t saved_hybrid_thrs;
+  void Motion::apply_homing_hybrid_thrs(const AxisEnum axis, const bool homing, homing_hybrid_thrs_t &saved) {
 
     #define _APPLY_HYBRID_THRS(A) do{ \
       if (homing) { \
-        saved_hybrid_thrs.A = stepper##A.get_pwm_thrs(); \
+        saved.A = stepper##A.get_pwm_thrs(); \
         stepper##A.set_pwm_thrs(homing_hybrid_thrs.A); \
       } \
       else \
-        stepper##A.set_pwm_thrs(saved_hybrid_thrs.A); \
+        stepper##A.set_pwm_thrs(saved.A); \
     }while(0)
 
     #define _MAP_HYBRID_THRS(A) OPTCODE(A##_HAS_STEALTHCHOP, _APPLY_HYBRID_THRS(A))
@@ -2641,9 +2640,9 @@ void Motion::prepare_line_to_destination() {
     TERN_(HAS_HOMING_CURRENT, set_homing_current(axis));
 
     //
-    // Set the homing Hybrid Threshold for the homed axis motor(s)
+    // Use the homing Hybrid Threshold until homeaxis() returns
     //
-    TERN_(HOMING_HYBRID_THRESHOLD, apply_homing_hybrid_thrs(axis, true));
+    TERN_(HOMING_HYBRID_THRESHOLD, const TemporaryHomingHybridThreshold temp_hybrid_thrs(axis));
 
     //
     // Back away to prevent an early sensorless trigger
@@ -2931,11 +2930,6 @@ void Motion::prepare_line_to_destination() {
     // Restore axis motor(s) current after homing
     //
     TERN_(HAS_HOMING_CURRENT, restore_homing_current(axis));
-
-    //
-    // Restore axis motor(s) Hybrid Threshold after homing
-    //
-    TERN_(HOMING_HYBRID_THRESHOLD, apply_homing_hybrid_thrs(axis, false));
 
   } // homeaxis()
 

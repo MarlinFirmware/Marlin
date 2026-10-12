@@ -86,6 +86,10 @@ constexpr float fslop = 0.0001;
 typedef bits_t(NUM_AXES) main_axes_bits_t;
 constexpr main_axes_bits_t main_axes_mask = _BV(NUM_AXES) - 1;
 
+#if ENABLED(HOMING_HYBRID_THRESHOLD)
+  struct homing_hybrid_thrs_t; // tmc_util.h
+#endif
+
 class Motion {
 public:
   static bool relative_mode;            // Relative Mode - G90/G91
@@ -649,7 +653,8 @@ public:
   #endif
 
   #if ENABLED(HOMING_HYBRID_THRESHOLD)
-    static void apply_homing_hybrid_thrs(const AxisEnum axis, const bool homing);
+    // Use TemporaryHomingHybridThreshold (tmc_util.h) to apply and restore
+    static void apply_homing_hybrid_thrs(const AxisEnum axis, const bool homing, homing_hybrid_thrs_t &saved);
   #endif
 
 private:

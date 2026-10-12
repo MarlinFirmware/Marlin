@@ -501,6 +501,18 @@ void test_tmc_connection(LOGICAL_AXIS_DECL_LC(const bool, true));
 
   extern homing_hybrid_thrs_t homing_hybrid_thrs;
 
+  /**
+   * Apply the homing Hybrid Threshold to the steppers that move to home an axis,
+   * then restore the previous thresholds when it goes out of scope.
+   */
+  class TemporaryHomingHybridThreshold {
+    const AxisEnum axis;
+    homing_hybrid_thrs_t saved;
+    public:
+      TemporaryHomingHybridThreshold(const AxisEnum a) : axis(a) { motion.apply_homing_hybrid_thrs(axis, true, saved); }
+      ~TemporaryHomingHybridThreshold() { motion.apply_homing_hybrid_thrs(axis, false, saved); }
+  };
+
 #endif // HOMING_HYBRID_THRESHOLD
 
 #endif // HAS_TRINAMIC_CONFIG
