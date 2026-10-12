@@ -478,7 +478,7 @@ void Motion::report_position_projected() {
       // CORE and Markforged kinematics
       switch (axis) {
         default: break;
-        case X_AXIS: case Y_AXIS: MAP(_MAP_RESTORE, X, Y); break;
+        case X_AXIS: case Y_AXIS: MAP(_MAP_RESTORE, X, X2, Y, Y2); break;
         case Z_AXIS: MAP(_MAP_RESTORE, Z, Z2, Z3, Z4); break;
       }
 
