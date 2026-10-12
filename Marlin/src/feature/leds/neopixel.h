@@ -121,7 +121,8 @@ public:
     #if PIN_EXISTS(NEOPIXEL2)
       #if CONJOINED_NEOPIXEL
         adaneo2.show();
-      #else
+      #elif DISABLED(NEOPIXEL2_SEPARATE)
+        adaneo1.setPin(NEOPIXEL2_PIN);
         adaneo1.show();
         adaneo1.setPin(NEOPIXEL_PIN);
       #endif
@@ -175,10 +176,7 @@ extern Marlin_NeoPixel neo;
     static void begin() { adaneo.begin(); }
     static void set_pixel_color(const uint16_t n, const uint32_t c) { adaneo.setPixelColor(n, c); }
     static void set_brightness(const uint8_t b) { adaneo.setBrightness(b); }
-    static void show() {
-      adaneo.show();
-      adaneo.setPin(NEOPIXEL2_PIN);
-    }
+    static void show() { adaneo.show(); }
 
     // Accessors
     static uint16_t pixels() { return adaneo.numPixels();}

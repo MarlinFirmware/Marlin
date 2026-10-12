@@ -52,7 +52,7 @@ uint16_t GCodeParser::codenum;
 #endif
 
 #if ENABLED(GCODE_MOTION_MODES)
-  int16_t GCodeParser::motion_mode_codenum = -1;
+  int8_t GCodeParser::motion_mode_codenum = -1;
   #if USE_GCODE_SUBCODES
     uint8_t GCodeParser::motion_mode_subcode;
   #endif
@@ -235,7 +235,7 @@ void GCodeParser::parse(char *p) {
         if (letter == 'G'
           && (codenum <= TERN(ARC_SUPPORT, 3, 1) || TERN0(BEZIER_CURVE_SUPPORT, codenum == 5) || TERN0(G38_PROBE_TARGET, codenum == 38))
         ) {
-          motion_mode_codenum = codenum;
+          motion_mode_codenum = int8_t(codenum);
           TERN_(USE_GCODE_SUBCODES, motion_mode_subcode = subcode);
         }
       #endif
@@ -263,7 +263,7 @@ void GCodeParser::parse(char *p) {
       case 'F':
         if (motion_mode_codenum < 0) return;
         command_letter = 'G';
-        codenum = motion_mode_codenum;
+        codenum = uint16_t(motion_mode_codenum);
         TERN_(USE_GCODE_SUBCODES, subcode = motion_mode_subcode);
         p--; // Back up one character to use the current parameter
         break;

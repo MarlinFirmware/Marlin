@@ -83,7 +83,7 @@
 
 #elif ENABLED(USE_OTG_USB_HOST)
 
-  #if HAS_SD_HOST_DRIVE
+  #if HAL_SD_HOST_DRIVE
     #include HAL_PATH(../.., sd/msc_sd.h)
   #endif
 

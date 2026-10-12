@@ -101,7 +101,7 @@ bool pwm_status(const pin_t pin) {
 void printPinPWM(const pin_t pin) {
   if (!pwm_status(pin)) return;
   const uint8_t chan = uint8_t(channel_for_pin(uint8_t(pin)));
-  SERIAL_ECHOPGM("  LEDC chan: ", chan, "  duty: ", uint32_t(ledcRead(chan)), "  freq: ", uint32_t(ledcReadFreq(chan)));
+  SERIAL_ECHO("  LEDC chan: ", chan, "  duty: ", uint32_t(ledcRead(chan)), "  freq: ", uint32_t(ledcReadFreq(chan)));
 }
 
 // ESP32 GPIOs are not grouped into named ports, so there is nothing to report.

@@ -45,6 +45,12 @@
   #define HAS_SAVED_POSITIONS
 #endif
 
+// WiFi libraries are only needed where Marlin itself drives the radio. On other
+// platforms WIFISUPPORT just powers up an add-on module running its own firmware.
+#if defined(ARDUINO_ARCH_ESP32) && ANY(WIFISUPPORT, ESP3D_WIFISUPPORT)
+  #define HAS_ESP32_WIFI
+#endif
+
 #if ENABLED(DUET_SMART_EFFECTOR) && PIN_EXISTS(SMART_EFFECTOR_MOD)
   #define HAS_SMART_EFF_MOD
 #endif
@@ -110,6 +116,9 @@
   #if ENABLED(ONE_CLICK_PRINT)
     #define HAS_MENU_ONE_CLICK_PRINT
   #endif
+  #if ENABLED(X_AXIS_TWIST_COMPENSATION)
+    #define X_AXIS_TWIST_MENU
+  #endif
 #endif
 
 #if HAS_GRAPHICAL_TFT
@@ -117,6 +126,8 @@
   #define UI_INCL_(W, H) STRINGIFY_(../../../../Marlin/src/lcd/tft/ui_##W##x##H.h)
   #define UI_INCL(W, H) UI_INCL_(W, H)
   #include UI_INCL(TFT_WIDTH, TFT_HEIGHT)
+
+  #include "../../../../Marlin/src/lcd/tft/ui_ubl_labels.h"  // HAS_TFT_TINY_FONT
 
   #define Latin_Extended_A 1
   #define Cyrillic 2

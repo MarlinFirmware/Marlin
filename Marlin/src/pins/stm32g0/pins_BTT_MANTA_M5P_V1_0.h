@@ -203,9 +203,17 @@
 #define EXP2_08_PIN                         -1
 
 //
-// Onboard SD card
+// SD Card
 // Must use soft SPI because Marlin's default hardware SPI is tied to LCD's EXP2
 //
+#ifndef SDCARD_CONNECTION
+  #if HAS_WIRED_LCD && DISABLED(NO_LCD_SDCARD)
+    #define SDCARD_CONNECTION                LCD
+  #else
+    #define SDCARD_CONNECTION            ONBOARD
+  #endif
+#endif
+
 #if SD_CONNECTION_IS(LCD)
   #define SD_SS_PIN                  EXP2_04_PIN
   #define SD_SCK_PIN                 EXP2_02_PIN

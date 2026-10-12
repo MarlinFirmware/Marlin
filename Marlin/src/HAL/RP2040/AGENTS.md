@@ -32,13 +32,11 @@ Because the framework is upstream, there is **no mirror-to-installed-package ste
 
 3. **EEPROM backend is per-board, not auto-selected.** The HAL ships two backends: `eeprom/eeprom_flash.cpp` (`FLASH_EEPROM_EMULATION`) and `eeprom/eeprom_wired.cpp` (`USE_WIRED_EEPROM`). Each RP2040 board's pins file must `#define` one of them; Marlin does not pick it automatically. The flash backend writes the **last flash sector** via `FLASH_TARGET_OFFSET = PICO_FLASH_SIZE_BYTES - FLASH_SECTOR_SIZE` and **assumes 2 MB flash** — change that if a board has different flash size (`eeprom_flash.cpp`). Writes disable interrupts around `flash_range_erase`/ `flash_range_program`.
 
-4. **USB SD-host drive (MSC) is TinyUSB-based and off by default on RP2040.** `raspberrypi.ini` compiles with `-DNO_SD_HOST_DRIVE`; `HAS_SD_HOST_DRIVE` / `msc_sd.cpp` (TinyUSB `tud_msc_*_cb` callbacks) is only active if you drop that flag (see the commented `#custom_marlin.HAS_SD_HOST_DRIVE = tinyusb` line). The USB connect/disconnect toggle in `HAL.cpp` (`USB_CONNECT_PIN`) exists only when that pin is defined.
+4. **`freeMemory()` relies on a linker symbol, not a stack probe.** It computes `(char*)&__StackLimit - (char*)_sbrk(0)` using the Pico linker-provided `__StackLimit` (`HAL.cpp`). Don't "fix" it with a local-variable subtraction as on single-stack chips — that is wrong on this core.
 
-5. **`freeMemory()` relies on a linker symbol, not a stack probe.** It computes `(char*)&__StackLimit - (char*)_sbrk(0)` using the Pico linker-provided `__StackLimit` (`HAL.cpp`). Don't "fix" it with a local-variable subtraction as on single-stack chips — that is wrong on this core.
+5. **`flashFirmware()` (M997) reboots into the bootloader via the watchdog.** `flashFirmware()` → `hal.reboot()` → `watchdog_reboot(0,0,1)` (`HAL.cpp`). The `raspberrypi.ini` build flags include `-DPLATFORM_M997_SUPPORT` (also forced on in `HAL.h`). A UF2/picotool upload picks up the reset.
 
-6. **`flashFirmware()` (M997) reboots into the bootloader via the watchdog.** `flashFirmware()` → `hal.reboot()` → `watchdog_reboot(0,0,1)` (`HAL.cpp`). The `raspberrypi.ini` build flags include `-DPLATFORM_M997_SUPPORT` (also forced on in `HAL.h`). A UF2/picotool upload picks up the reset.
-
-7. **SPI uses the core's `<SPI.h>` directly; SOFTWARE_SPI path also exists.** `HAL_SPI.cpp` includes `<SPI.h>` and calls `spiBegin()`; a software-SPI fallback is compiled when `SOFTWARE_SPI` is enabled. There is no custom `SPI` global shim needed (unlike AT32). `spi_pins.h` pins live in `HAL/RP2040/`.
+6. **SPI uses the core's `<SPI.h>` directly; SOFTWARE_SPI path also exists.** `HAL_SPI.cpp` includes `<SPI.h>` and calls `spiBegin()`; a software-SPI fallback is compiled when `SOFTWARE_SPI` is enabled. There is no custom `SPI` global shim needed (unlike AT32). `spi_pins.h` pins live in `HAL/RP2040/`.
 
 ## Conventions
 

@@ -38,6 +38,8 @@
   #define DEFAULT_MACHINE_NAME "Ender 2 Pro"
 #endif
 
+#define BOARD_LCD_SERIAL_PORT 1
+
 //
 // Onboard crystal oscillator
 //
@@ -135,7 +137,7 @@
 #define ONBOARD_SPI_DEVICE                     1
 #define ONBOARD_SD_CS_PIN                   PC3   // SDSS
 #define ONBOARD_SDIO
-#define NO_SD_HOST_DRIVE                          // This board's SD is only seen by the printer
+#define BOARD_NO_HOST_DRIVE                       // SD is only seen by the printer
 
 #ifndef LCD_SERIAL_PORT
   #define LCD_SERIAL_PORT                      1

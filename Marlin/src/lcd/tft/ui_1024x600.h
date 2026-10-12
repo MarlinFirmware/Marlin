@@ -28,7 +28,9 @@
 #define MENU_TEXT_Y                 tft_string.vcenter(MENU_ITEM_HEIGHT)
 
 #define MENU_ITEM_ICON_X            5
-#define MENU_ITEM_ICON_Y            5
+#ifndef MENU_ITEM_ICON_Y
+  #define MENU_ITEM_ICON_Y          TERN(TFT_FONT_LARGE, 12, 5)
+#endif
 #define MENU_ITEM_ICON_SPACE        (5 + 32 + 5)
 
 #ifndef MENU_ITEM_SUBMENU_ICON_X
@@ -39,19 +41,164 @@
   #define MENU_ITEM_BACK_LINE_SHIFT -32
 #endif
 
-#define MENU_ITEM_HEIGHT            43
+#define MENU_ITEM_HEIGHT            TERN(TFT_FONT_LARGE, 56, 43)
 #define MENU_LINE_HEIGHT            (MENU_ITEM_HEIGHT + 2)
 #define MENU_TOP_LINE_Y             4
 
-#if TFT_FONT == NOTOSANS || TFT_FONT == HELVETICA
-  #define FONT_SIZE                 19
-#elif TFT_FONT == UNIFONT
-  #define FONT_SIZE                 20
+#if ENABLED(TFT_FONT_LARGE)
+  // Large fonts for better visibility. Use only the large font files to save space.
+  #if TFT_FONT == NOTOSANS
+    #define FONT_SIZE               29
+  #elif TFT_FONT == UNIFONT
+    #define FONT_SIZE               30
+  #endif
+  #define FONT_LINE_HEIGHT          50
+#else
+  #if TFT_FONT == NOTOSANS || TFT_FONT == HELVETICA
+    #define FONT_SIZE               19
+  #elif TFT_FONT == UNIFONT
+    #define FONT_SIZE               20
+  #endif
+  #define FONT_LINE_HEIGHT          34
 #endif
 
-#define FONT_LINE_HEIGHT            34
-
 // ---------------------------------------------------------------------------------
+
+#if ENABLED(TFT_FONT_LARGE)
+  /**
+   * Large font layout. Each group below replaces the corresponding default group
+   * further down. The same positions and sizes are used for drawing and touch.
+   */
+  #define MENU_ITEM_ICON_Y          ((MENU_ITEM_HEIGHT - 32) / 2)
+
+  // MarlinUI::move_axis_screen() text areas
+  #define MOVE_AXIS_VALUE_W         170   // Axis values, e.g., "-123.45"
+  #define MOVE_AXIS_STEP_W          184   // Step size, e.g., "10.00mm"
+  #define MOVE_AXIS_E_NAME_W        100   // Extruder selection, e.g., "E  1"
+  #define MOVE_AXIS_Z_TYPE_W        150   // Z / Offset selection
+
+  // MenuEditItemBase::draw_edit_screen() buttons
+  #define EDIT_BTN_WIDTH            72
+  #define EDIT_BTN_HEIGHT           50
+  #define EDIT_X_MARGIN             20
+  #define EDIT_Y_MARGIN             14
+
+  // MarlinUI::draw_kill_screen()
+  #define KILL_SCREEN_STATUS_Y      94
+  #define KILL_SCREEN_HALTED_Y      184
+  #define KILL_SCREEN_RESET_Y       250
+
+  // draw_heater_status() and draw_fan_status(): Target, icon, current
+  #define TEMP_FAN_CONTROL_W        120
+  #define TEMP_FAN_CONTROL_H        150
+  #define TEMP_ICON_X               ((TEMP_FAN_CONTROL_W - 64) / 2)
+  #define TEMP_ICON_Y               (FONT_LINE_HEIGHT - 8)
+  #define FAN_ICON_X                ((TEMP_FAN_CONTROL_W - 64) / 2)
+  #define FAN_ICON_Y                ((TEMP_FAN_CONTROL_H - FONT_LINE_HEIGHT - 64) / 2)
+  #define TEMP_CURRENT_TEXT_X       tft_string.center(TEMP_FAN_CONTROL_W) + 2
+  #define TEMP_CURRENT_TEXT_Y       (TEMP_FAN_CONTROL_H - FONT_LINE_HEIGHT) + tft_string.vcenter(FONT_LINE_HEIGHT)
+  #define TEMP_TARGET_TEXT_X        tft_string.center(TEMP_FAN_CONTROL_W) + 2
+  #define TEMP_TARGET_TEXT_Y        tft_string.vcenter(FONT_LINE_HEIGHT)
+  #define FAN_TEXT_X                tft_string.center(TEMP_FAN_CONTROL_W) + 6
+  #define FAN_TEXT_Y                TEMP_CURRENT_TEXT_Y
+
+  // MarlinUI::draw_status_screen()
+  #define MAX_ITEMS                 8
+  #define ITEM_X(N)                 (TFT_WIDTH / _MIN(ITEMS_COUNT, MAX_ITEMS) - TEMP_FAN_CONTROL_W) / 2 + (TFT_WIDTH * N / _MIN(ITEMS_COUNT, MAX_ITEMS))
+  #define ITEM_Y                    4
+
+  #define COORDINATES_W             TFT_WIDTH - 8
+  #define COORDINATES_H             FONT_LINE_HEIGHT
+  #define COORDINATES_X             4
+  #define COORDINATES_Y             176
+
+  #define X_MARK_X                  40
+  #define X_MARK_Y                  VCENTER
+  #define X_VALUE_X                 210 - tft_string.width()
+  #define X_VALUE_Y                 VCENTER
+
+  #define Y_MARK_X                  290
+  #define Y_MARK_Y                  VCENTER
+  #define Y_VALUE_X                 460 - tft_string.width()
+  #define Y_VALUE_Y                 VCENTER
+
+  #define E_MARK_X                  520
+  #define E_MARK_Y                  VCENTER
+  #define E_VALUE_X                 720 - tft_string.width()
+  #define E_VALUE_Y                 VCENTER
+
+  #define Z_MARK_X                  790
+  #define Z_MARK_Y                  VCENTER
+  #define Z_VALUE_X                 970 - tft_string.width()
+  #define Z_VALUE_Y                 VCENTER
+  #define Z_VALUE_OFFSET            48
+
+  #define FEEDRATE_W                180
+  #define FEEDRATE_H                FONT_LINE_HEIGHT
+  #define FEEDRATE_X                250
+  #define FEEDRATE_Y                270
+  #define FEEDRATE_ICON_X           0
+  #define FEEDRATE_ICON_Y           ((FEEDRATE_H - 32) / 2)
+  #define FEEDRATE_TEXT_X           40
+  #define FEEDRATE_TEXT_Y           tft_string.vcenter(FEEDRATE_H)
+
+  #define FLOWRATE_W                180
+  #define FLOWRATE_H                FONT_LINE_HEIGHT
+  #define FLOWRATE_X                620
+  #define FLOWRATE_Y                270
+  #define FLOWRATE_ICON_X           0
+  #define FLOWRATE_ICON_Y           ((FLOWRATE_H - 32) / 2)
+  #define FLOWRATE_TEXT_X           40
+  #define FLOWRATE_TEXT_Y           tft_string.vcenter(FLOWRATE_H)
+
+  #define MENU_ICON_X               900
+  #define MENU_ICON_Y               (FEEDRATE_Y + (FEEDRATE_H - 64) / 2)
+  #define SDCARD_ICON_X             60
+  #define SDCARD_ICON_Y             MENU_ICON_Y
+
+  #if ALL(SHOW_ELAPSED_TIME, SHOW_REMAINING_TIME)
+    #define ELAPSED_TIME_W          (TFT_WIDTH / 2)
+    #define ELAPSED_TIME_X          (TFT_WIDTH / 2) - ELAPSED_TIME_W
+    #define REMAINING_TIME_W        (TFT_WIDTH / 2)
+    #define REMAINING_TIME_X        (TFT_WIDTH / 2)
+  #else
+    #define ELAPSED_TIME_W          TFT_WIDTH
+    #define ELAPSED_TIME_X          0
+    #define REMAINING_TIME_W        TFT_WIDTH
+    #define REMAINING_TIME_X        0
+  #endif
+  #define ELAPSED_TIME_H            FONT_LINE_HEIGHT
+  #define ELAPSED_TIME_Y            360
+  #define REMAINING_TIME_H          FONT_LINE_HEIGHT
+  #define REMAINING_TIME_Y          360
+
+  #define ELAPSED_TIME_IMAGE_X      tft_string.center(ELAPSED_TIME_W) - 18
+  #define ELAPSED_TIME_IMAGE_Y      ((ELAPSED_TIME_H - 32) / 2)
+  #define ELAPSED_TIME_TEXT_X       tft_string.center(ELAPSED_TIME_W) + 18
+  #define ELAPSED_TIME_TEXT_Y       tft_string.vcenter(ELAPSED_TIME_H)
+  #define REMAINING_TIME_IMAGE_X    tft_string.center(REMAINING_TIME_W) - 18
+  #define REMAINING_TIME_IMAGE_Y    ((REMAINING_TIME_H - 32) / 2)
+  #define REMAINING_TIME_TEXT_X     tft_string.center(REMAINING_TIME_W) + 18
+  #define REMAINING_TIME_TEXT_Y     tft_string.vcenter(REMAINING_TIME_H)
+
+  #define PROGRESS_BAR_W            TFT_WIDTH - 8
+  #define PROGRESS_BAR_H            12
+  #define PROGRESS_BAR_X            4
+  #define PROGRESS_BAR_Y            440
+
+  #define STATUS_MESSAGE_W          TFT_WIDTH
+  #define STATUS_MESSAGE_H          56
+  #define STATUS_MESSAGE_X          0
+  #define STATUS_MESSAGE_Y          490
+
+  #if ENABLED(AUTO_BED_LEVELING_UBL)
+    #define UBL_X_LABEL_X           (TFT_WIDTH / 2 - 220)
+    #define UBL_X_TEXT_X            (TFT_WIDTH / 2 -  40) - tft_string.width()
+    #define UBL_Y_LABEL_X           (TFT_WIDTH / 2 +  40)
+    #define UBL_Y_TEXT_X            (TFT_WIDTH / 2 + 220) - tft_string.width()
+  #endif
+
+#endif // TFT_FONT_LARGE
 
 #define VCENTER tft_string.vcenter(FONT_LINE_HEIGHT)
 
@@ -268,14 +415,14 @@
 
 #if !defined(STATUS_MESSAGE_W) && !defined(STATUS_MESSAGE_H) && !defined(STATUS_MESSAGE_X) && !defined(STATUS_MESSAGE_Y)
   #define STATUS_MESSAGE_W          TFT_WIDTH
-  #define STATUS_MESSAGE_H          FONT_LINE_HEIGHT
+  #define STATUS_MESSAGE_H          36
   #define STATUS_MESSAGE_X          0
   #define STATUS_MESSAGE_Y          504
 #endif
 
 #if !defined(STATUS_MESSAGE_TEXT_X) && !defined(STATUS_MESSAGE_TEXT_Y)
   #define STATUS_MESSAGE_TEXT_X     tft_string.center(STATUS_MESSAGE_W)
-  #define STATUS_MESSAGE_TEXT_Y     VCENTER
+  #define STATUS_MESSAGE_TEXT_Y     tft_string.vcenter(STATUS_MESSAGE_H)
 #endif
 
 // MenuEditItemBase::draw_edit_screen()
@@ -294,16 +441,16 @@
 
   // MarlinUI::ubl_plot()
   #if !defined(UBL_GRID_W) && !defined(UBL_GRID_H) && !defined(UBL_GRID_X) && !defined(UBL_GRID_Y) && !defined(UBL_CONTROL_OFFSET)
-    #define UBL_GRID_W              192
-    #define UBL_GRID_H              192
+    #define UBL_GRID_W              480   // Bottom arrows end at 536, above NAVIGATION_BACK_Y
+    #define UBL_GRID_H              480
     #define UBL_GRID_X              8
     #define UBL_GRID_Y              8
     #define UBL_CONTROL_OFFSET      16
   #endif
 
   #if !defined(UBL_COORDINATES_W) && !defined(UBL_COORDINATES_X) && !defined(UBL_X_COORDINATE_Y) && !defined(UBL_Y_COORDINATE_Y) && !defined(UBL_Z_COORDINATE_Y)
-    #define UBL_COORDINATES_W       120
-    #define UBL_COORDINATES_X       320
+    #define UBL_COORDINATES_W       300
+    #define UBL_COORDINATES_X       600
 
     #define UBL_X_COORDINATE_Y      UBL_GRID_Y + (UBL_GRID_H - MENU_ITEM_HEIGHT) / 2 - MENU_ITEM_HEIGHT
     #define UBL_Y_COORDINATE_Y      UBL_GRID_Y + (UBL_GRID_H - MENU_ITEM_HEIGHT) / 2
@@ -311,7 +458,7 @@
   #endif
 
   #if !defined(UBL_ACTION_X) && !defined(UBL_ACTION_Y)
-    #define UBL_ACTION_X            UBL_COORDINATES_X
-    #define UBL_ACTION_Y            UBL_GRID_Y + UBL_GRID_H + UBL_CONTROL_OFFSET
+    #define UBL_ACTION_X            UBL_COORDINATES_X + (UBL_COORDINATES_W - 32) / 2
+    #define UBL_ACTION_Y            UBL_Z_COORDINATE_Y + MENU_ITEM_HEIGHT + UBL_CONTROL_OFFSET
   #endif
 #endif
