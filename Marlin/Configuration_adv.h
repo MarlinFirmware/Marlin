@@ -3609,12 +3609,14 @@
    *
    * TMC2130, TMC2160, TMC2209, TMC2240, TMC2660, TMC5130, and TMC5160 only
    * Connect the stepper driver's DIAG1 pin to the X/Y endstop pin.
-   * X, Y, and Z homing will always be done in spreadCycle mode.
+   * (TMC2240 signals a stall on DIAG0.)
+   * TMC2209 and TMC2240 home in stealthChop mode using StallGuard4.
+   * Other drivers home in spreadCycle mode using StallGuard2.
    *
    * X/Y/Z_STALL_SENSITIVITY is the default stall threshold.
    * Use M914 X Y Z to set the stall threshold at runtime:
    *
-   *  Sensitivity  TMC2209        Others
+   *  Sensitivity  TMC2209/2240   Others
    *    HIGHEST        255         -64    (Too sensitive => False positive)
    *    LOWEST          0           63    (Too insensitive => No trigger)
    *
@@ -3633,7 +3635,7 @@
   //#define SENSORLESS_HOMING // StallGuard capable drivers only
 
   #if ANY(SENSORLESS_HOMING, SENSORLESS_PROBING)
-    // TMC2209: 0...255. TMC2130: -64...63
+    // TMC2209, TMC2240: 0...255. Others: -64...63
     #define X_STALL_SENSITIVITY  8
     #define X2_STALL_SENSITIVITY X_STALL_SENSITIVITY
     #define Y_STALL_SENSITIVITY  8

@@ -327,10 +327,11 @@ class TMCMarlin<TMC2240Stepper, AXIS_LETTER, DRIVER_ID, AXIS_ID> : public TMC224
     #endif
 
     #if USE_SENSORLESS
-      int16_t homing_threshold() { return TMC2240Stepper::sgt(); }
+      // StallGuard4 threshold SG4_THRS (0-255). Higher values are more sensitive.
+      int16_t homing_threshold() { return TMC2240Stepper::sg4_thrs(); }
       void homing_threshold(int16_t sgt_val) {
         sgt_val = (int16_t)constrain(sgt_val, sgt_min, sgt_max);
-        TMC2240Stepper::sgt(sgt_val);
+        TMC2240Stepper::sg4_thrs(sgt_val);
         TERN_(HAS_MARLINUI_MENU, this->stored.homing_thrs = sgt_val);
       }
       #if ENABLED(SPI_ENDSTOPS)
@@ -347,8 +348,8 @@ class TMCMarlin<TMC2240Stepper, AXIS_LETTER, DRIVER_ID, AXIS_ID> : public TMC224
       void refresh_homing_thrs() { homing_threshold(this->stored.homing_thrs); }
     #endif
 
-    static constexpr int8_t sgt_min = -64,
-                            sgt_max =  63;
+    static constexpr uint8_t sgt_min = 0,
+                             sgt_max = 255;
 };
 
 template<char AXIS_LETTER, char DRIVER_ID, AxisEnum AXIS_ID>
