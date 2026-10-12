@@ -205,6 +205,9 @@ static const feedRate_t _DMF[] PROGMEM = DEFAULT_MAX_FEEDRATE;
 #if ENABLED(EDITABLE_STEPS_PER_UNIT)
   static const float   _DASU[] PROGMEM = DEFAULT_AXIS_STEPS_PER_UNIT;
 #endif
+#if ENABLED(MPCTEMP)
+  static void reset_mpc(const uint8_t e);
+#endif
 
 /**
  * Current EEPROM Layout
@@ -2937,7 +2940,18 @@ void MarlinSettings::postprocess() {
       // Model predictive control
       //
       #if ENABLED(MPCTEMP)
-        HOTEND_LOOP() EEPROM_READ(thermalManager.temp_hotend[e].mpc);
+        HOTEND_LOOP() {
+          MPC_t mpc;
+          EEPROM_READ(mpc);
+          if (!validating) {
+            if (mpc.isValid())
+              thermalManager.temp_hotend[e].mpc = mpc;
+            else {
+              SERIAL_WARN_MSG("Invalid MPC for E", e, ". Using defaults.");
+              reset_mpc(e);
+            }
+          }
+        }
       #endif
 
       //
@@ -3342,6 +3356,53 @@ void MarlinSettings::postprocess() {
   }
 
 #endif // HAS_EARLY_LCD_SETTINGS
+
+#if ENABLED(MPCTEMP)
+
+  static void reset_mpc(const uint8_t e) {
+    constexpr float _mpc_heater_power[] = MPC_HEATER_POWER;
+    static_assert(HOTENDS == COUNT(_mpc_heater_power), "MPC_HEATER_POWER requires values for all (" STRINGIFY(HOTENDS) ") hotends.");
+
+    #if ENABLED(MPC_PTC)
+      constexpr float _mpc_heater_alpha[] = MPC_HEATER_ALPHA;
+      constexpr float _mpc_heater_reftemp[] = MPC_HEATER_REFTEMP;
+      static_assert(HOTENDS == COUNT(_mpc_heater_alpha), "MPC_HEATER_ALPHA requires values for all (" STRINGIFY(HOTENDS) ") hotends.");
+      static_assert(HOTENDS == COUNT(_mpc_heater_reftemp), "MPC_HEATER_REFTEMP requires values for all (" STRINGIFY(HOTENDS) ") hotends.");
+    #endif
+
+    constexpr float _mpc_block_heat_capacity[] = MPC_BLOCK_HEAT_CAPACITY;
+    static_assert(HOTENDS == COUNT(_mpc_block_heat_capacity), "MPC_BLOCK_HEAT_CAPACITY requires values for all (" STRINGIFY(HOTENDS) ") hotends.");
+
+    constexpr float _mpc_sensor_responsiveness[] = MPC_SENSOR_RESPONSIVENESS;
+    static_assert(HOTENDS == COUNT(_mpc_sensor_responsiveness), "MPC_SENSOR_RESPONSIVENESS requires values for all (" STRINGIFY(HOTENDS) ") hotends.");
+
+    constexpr float _mpc_ambient_xfer_coeff[] = MPC_AMBIENT_XFER_COEFF;
+    static_assert(HOTENDS == COUNT(_mpc_ambient_xfer_coeff), "MPC_AMBIENT_XFER_COEFF requires values for all (" STRINGIFY(HOTENDS) ") hotends.");
+
+    #if ENABLED(MPC_INCLUDE_FAN)
+      constexpr float _mpc_ambient_xfer_coeff_fan255[] = MPC_AMBIENT_XFER_COEFF_FAN255;
+      static_assert(HOTENDS == COUNT(_mpc_ambient_xfer_coeff_fan255), "MPC_AMBIENT_XFER_COEFF_FAN255 requires values for all (" STRINGIFY(HOTENDS) ") hotends.");
+    #endif
+
+    constexpr float _filament_heat_capacity_permm[] = FILAMENT_HEAT_CAPACITY_PERMM;
+    static_assert(HOTENDS == COUNT(_filament_heat_capacity_permm), "FILAMENT_HEAT_CAPACITY_PERMM requires values for all (" STRINGIFY(HOTENDS) ") hotends.");
+
+    MPC_t &mpc = thermalManager.temp_hotend[e].mpc;
+    mpc.heater_power = _mpc_heater_power[e];
+    #if ENABLED(MPC_PTC)
+      mpc.heater_alpha = _mpc_heater_alpha[e];
+      mpc.heater_reftemp = _mpc_heater_reftemp[e];
+    #endif
+    mpc.block_heat_capacity = _mpc_block_heat_capacity[e];
+    mpc.sensor_responsiveness = _mpc_sensor_responsiveness[e];
+    mpc.ambient_xfer_coeff_fan0 = _mpc_ambient_xfer_coeff[e];
+    #if ENABLED(MPC_INCLUDE_FAN)
+      mpc.fan255_adjustment = _mpc_ambient_xfer_coeff_fan255[e] - _mpc_ambient_xfer_coeff[e];
+    #endif
+    mpc.filament_heat_capacity_permm = _filament_heat_capacity_permm[e];
+  }
+
+#endif // MPCTEMP
 
 /**
  * M502 - Reset Configuration
@@ -3786,50 +3847,7 @@ void MarlinSettings::reset() {
   // Model predictive control
   //
   #if ENABLED(MPCTEMP)
-
-    constexpr float _mpc_heater_power[] = MPC_HEATER_POWER;
-    static_assert(HOTENDS == COUNT(_mpc_heater_power), "MPC_HEATER_POWER requires values for all (" STRINGIFY(HOTENDS) ") hotends.");
-
-    #if ENABLED(MPC_PTC)
-      constexpr float _mpc_heater_alpha[] = MPC_HEATER_ALPHA;
-      constexpr float _mpc_heater_reftemp[] = MPC_HEATER_REFTEMP;
-      static_assert(HOTENDS == COUNT(_mpc_heater_alpha), "MPC_HEATER_ALPHA requires values for all (" STRINGIFY(HOTENDS) ") hotends.");
-      static_assert(HOTENDS == COUNT(_mpc_heater_reftemp), "MPC_HEATER_REFTEMP requires values for all (" STRINGIFY(HOTENDS) ") hotends.");
-    #endif
-
-    constexpr float _mpc_block_heat_capacity[] = MPC_BLOCK_HEAT_CAPACITY;
-    static_assert(HOTENDS == COUNT(_mpc_block_heat_capacity), "MPC_BLOCK_HEAT_CAPACITY requires values for all (" STRINGIFY(HOTENDS) ") hotends.");
-
-    constexpr float _mpc_sensor_responsiveness[] = MPC_SENSOR_RESPONSIVENESS;
-    static_assert(HOTENDS == COUNT(_mpc_sensor_responsiveness), "MPC_SENSOR_RESPONSIVENESS requires values for all (" STRINGIFY(HOTENDS) ") hotends.");
-
-    constexpr float _mpc_ambient_xfer_coeff[] = MPC_AMBIENT_XFER_COEFF;
-    static_assert(HOTENDS == COUNT(_mpc_ambient_xfer_coeff), "MPC_AMBIENT_XFER_COEFF requires values for all (" STRINGIFY(HOTENDS) ") hotends.");
-
-    #if ENABLED(MPC_INCLUDE_FAN)
-      constexpr float _mpc_ambient_xfer_coeff_fan255[] = MPC_AMBIENT_XFER_COEFF_FAN255;
-      static_assert(HOTENDS == COUNT(_mpc_ambient_xfer_coeff_fan255), "MPC_AMBIENT_XFER_COEFF_FAN255 requires values for all (" STRINGIFY(HOTENDS) ") hotends.");
-    #endif
-
-    constexpr float _filament_heat_capacity_permm[] = FILAMENT_HEAT_CAPACITY_PERMM;
-    static_assert(HOTENDS == COUNT(_filament_heat_capacity_permm), "FILAMENT_HEAT_CAPACITY_PERMM requires values for all (" STRINGIFY(HOTENDS) ") hotends.");
-
-    HOTEND_LOOP() {
-      MPC_t &mpc = thermalManager.temp_hotend[e].mpc;
-      mpc.heater_power = _mpc_heater_power[e];
-      #if ENABLED(MPC_PTC)
-        mpc.heater_alpha = _mpc_heater_alpha[e];
-        mpc.heater_reftemp = _mpc_heater_reftemp[e];
-      #endif
-      mpc.block_heat_capacity = _mpc_block_heat_capacity[e];
-      mpc.sensor_responsiveness = _mpc_sensor_responsiveness[e];
-      mpc.ambient_xfer_coeff_fan0 = _mpc_ambient_xfer_coeff[e];
-      #if ENABLED(MPC_INCLUDE_FAN)
-        mpc.fan255_adjustment = _mpc_ambient_xfer_coeff_fan255[e] - _mpc_ambient_xfer_coeff[e];
-      #endif
-      mpc.filament_heat_capacity_permm = _filament_heat_capacity_permm[e];
-    }
-
+    HOTEND_LOOP() reset_mpc(e);
   #endif // MPCTEMP
 
   //
