@@ -347,6 +347,17 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
 #endif
 
 /**
+ * LCD Bed Mesh Viewer
+ */
+#if ENABLED(BED_MESH_VIEWER)
+  #if !HAS_MARLINUI_U8GLIB
+    #error "BED_MESH_VIEWER requires a graphical LCD compatible with U8glib (e.g., MINI12864)."
+  #elif !HAS_LEVELING
+    #error "BED_MESH_VIEWER requires at least one leveling system enabled (MESH, BILINEAR, or UBL)."
+  #endif
+#endif
+
+/**
  * Progress Bar
  */
 #if ENABLED(LCD_PROGRESS_BAR)

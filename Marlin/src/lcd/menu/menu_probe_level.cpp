@@ -299,9 +299,9 @@ void menu_probe_level() {
         if (is_valid) SUBMENU(MSG_EDIT_MESH, menu_edit_mesh);
       #endif
 
-      // 
+      //
       // >>> REAL-TIME PLATE MAP INSERTION IN MICRON <<<
-      // 
+      //
       #if ENABLED(BED_MESH_VIEWER)
         if (is_valid) {
         // The MENU_ITEM macro recognizes the LSTR object and applies the correct localization
