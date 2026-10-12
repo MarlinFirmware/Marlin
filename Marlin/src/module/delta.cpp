@@ -242,6 +242,7 @@ void home_delta() {
 
   // Set homing current for all motors
   TERN_(HAS_HOMING_CURRENT, motion.set_homing_current(Z_AXIS));
+  TERN_(HOMING_HYBRID_THRESHOLD, motion.apply_homing_hybrid_thrs(Z_AXIS, true));
 
   // Move all carriages together linearly until an endstop is hit.
   motion.position.z = DIFF_TERN(HAS_BED_PROBE, delta_height + 10, probe.offset.z);
@@ -251,6 +252,7 @@ void home_delta() {
 
   // Restore the homing current for all motors
   TERN_(HAS_HOMING_CURRENT, motion.restore_homing_current(Z_AXIS));
+  TERN_(HOMING_HYBRID_THRESHOLD, motion.apply_homing_hybrid_thrs(Z_AXIS, false));
 
   // Re-enable stealthChop if used. Disable diag1 pin on driver.
   #if ENABLED(SENSORLESS_HOMING) && DISABLED(ENDSTOPS_ALWAYS_ON_DEFAULT)

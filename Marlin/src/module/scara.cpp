@@ -259,6 +259,7 @@ float segments_per_second = DEFAULT_SEGMENTS_PER_SECOND;
 
     // Set the homing current for all motors
     TERN_(HAS_HOMING_CURRENT, motion.set_homing_current(Z_AXIS));
+    TERN_(HOMING_HYBRID_THRESHOLD, motion.apply_homing_hybrid_thrs(Z_AXIS, true));
 
     // Move to home, should move Z, Y, then X. Move X to near 0 (to avoid div by zero
     // and sign/angle stability around 0 for trigonometric functions), Y to 0 and Z to Z_MAX_LENGTH
@@ -270,6 +271,7 @@ float segments_per_second = DEFAULT_SEGMENTS_PER_SECOND;
 
     // Restore the homing current for all motors
     TERN_(HAS_HOMING_CURRENT, motion.restore_homing_current(Z_AXIS));
+    TERN_(HOMING_HYBRID_THRESHOLD, motion.apply_homing_hybrid_thrs(Z_AXIS, false));
 
     // Re-enable stealthChop if used. Disable diag1 pin on driver.
     #if ENABLED(SENSORLESS_HOMING)

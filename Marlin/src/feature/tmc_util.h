@@ -41,8 +41,9 @@
   #define MONITOR_DRIVER_STATUS_INTERVAL_MS 500U
 #endif
 
+// Convert between a hybrid threshold speed and a TSTEP value. 0 is passed through.
 constexpr uint16_t _tmc_thrs(const uint16_t msteps, const uint32_t thrs, const uint32_t spmm) {
-  return 12650000UL * msteps / (256 * thrs * spmm);
+  return thrs ? 12650000UL * msteps / (256 * thrs * spmm) : 0;
 }
 
 typedef struct {
@@ -477,5 +478,29 @@ void test_tmc_connection(LOGICAL_AXIS_DECL_LC(const bool, true));
   #endif
 
 #endif // HAS_HOMING_CURRENT
+
+#if ENABLED(HOMING_HYBRID_THRESHOLD)
+
+  // Hybrid Threshold (mm/s) for each stealthChop stepper while homing. 0 = Stay in stealthChop.
+  struct homing_hybrid_thrs_t {
+    OPTCODE(X_HAS_STEALTHCHOP,  uint16_t X)
+    OPTCODE(Y_HAS_STEALTHCHOP,  uint16_t Y)
+    OPTCODE(Z_HAS_STEALTHCHOP,  uint16_t Z)
+    OPTCODE(X2_HAS_STEALTHCHOP, uint16_t X2)
+    OPTCODE(Y2_HAS_STEALTHCHOP, uint16_t Y2)
+    OPTCODE(Z2_HAS_STEALTHCHOP, uint16_t Z2)
+    OPTCODE(Z3_HAS_STEALTHCHOP, uint16_t Z3)
+    OPTCODE(Z4_HAS_STEALTHCHOP, uint16_t Z4)
+    OPTCODE(I_HAS_STEALTHCHOP,  uint16_t I)
+    OPTCODE(J_HAS_STEALTHCHOP,  uint16_t J)
+    OPTCODE(K_HAS_STEALTHCHOP,  uint16_t K)
+    OPTCODE(U_HAS_STEALTHCHOP,  uint16_t U)
+    OPTCODE(V_HAS_STEALTHCHOP,  uint16_t V)
+    OPTCODE(W_HAS_STEALTHCHOP,  uint16_t W)
+  };
+
+  extern homing_hybrid_thrs_t homing_hybrid_thrs;
+
+#endif // HOMING_HYBRID_THRESHOLD
 
 #endif // HAS_TRINAMIC_CONFIG

@@ -615,6 +615,110 @@ void Motion::report_position_projected() {
 
 #endif // HAS_HOMING_CURRENT
 
+#if ENABLED(HOMING_HYBRID_THRESHOLD)
+
+  /**
+   * Set the homing Hybrid Threshold on the stealthChop steppers that move
+   * to home the given axis, saving the current thresholds. With 'homing' false,
+   * restore the saved thresholds.
+   */
+  void Motion::apply_homing_hybrid_thrs(const AxisEnum axis, const bool homing) {
+    static homing_hybrid_thrs_t saved_hybrid_thrs;
+
+    #define _APPLY_HYBRID_THRS(A) do{ \
+      if (homing) { \
+        saved_hybrid_thrs.A = stepper##A.get_pwm_thrs(); \
+        stepper##A.set_pwm_thrs(homing_hybrid_thrs.A); \
+      } \
+      else \
+        stepper##A.set_pwm_thrs(saved_hybrid_thrs.A); \
+    }while(0)
+
+    #define _MAP_HYBRID_THRS(A) OPTCODE(A##_HAS_STEALTHCHOP, _APPLY_HYBRID_THRS(A))
+
+    #if ANY(CORE_IS_XY, MARKFORGED_XY, MARKFORGED_YX)
+
+      // CORE and Markforged kinematics
+      switch (axis) {
+        default: break;
+        case X_AXIS: case Y_AXIS: MAP(_MAP_HYBRID_THRS, X, X2, Y, Y2); break;
+        case Z_AXIS: MAP(_MAP_HYBRID_THRS, Z, Z2, Z3, Z4); break;
+      }
+
+    #elif CORE_IS_XZ
+
+      // CORE XZ / ZX
+      switch (axis) {
+        default: break;
+        case X_AXIS: case Z_AXIS: MAP(_MAP_HYBRID_THRS, X, Z); break;
+        case Y_AXIS: MAP(_MAP_HYBRID_THRS, Y, Y2); break;
+      }
+
+    #elif CORE_IS_YZ
+
+      // CORE YZ / ZY
+      switch (axis) {
+        default: break;
+        case X_AXIS: MAP(_MAP_HYBRID_THRS, X, X2); break;
+        case Y_AXIS: case Z_AXIS: MAP(_MAP_HYBRID_THRS, Y, Z); break;
+      }
+
+    #elif ANY(AXEL_TPARA, DELTA)
+
+      // TPARA or DELTA kinematics.
+      // Z_AXIS is a special mode to apply to all axes.
+      if (axis == A_AXIS || axis == Z_AXIS) _MAP_HYBRID_THRS(X);
+      if (axis == B_AXIS || axis == Z_AXIS) _MAP_HYBRID_THRS(Y);
+      if (axis == C_AXIS) _MAP_HYBRID_THRS(Z);
+
+    #elif ANY(IS_SCARA, POLARGRAPH, POLAR, ARTICULATED_ROBOT_ARM)
+
+      // SCARA, POLAR, and Articulated Robot Arm kinematics
+      switch (axis) {
+        default: break;
+        case A_AXIS: _MAP_HYBRID_THRS(X); break;
+        case B_AXIS: _MAP_HYBRID_THRS(Y); break;
+        case C_AXIS: _MAP_HYBRID_THRS(Z); break;
+      }
+
+    #elif ENABLED(FOAMCUTTER_XYUV)
+
+      // Foam cutter
+      switch (axis) {
+        default: break;
+        case X_AXIS: case I_AXIS: MAP(_MAP_HYBRID_THRS, X, I); break;
+        case Y_AXIS: case J_AXIS: MAP(_MAP_HYBRID_THRS, Y, J); break;
+        case Z_AXIS: _MAP_HYBRID_THRS(Z); break;
+      }
+
+    #else
+
+      // Cartesian kinematics
+      switch (axis) {
+        default: break;
+        case X_AXIS: MAP(_MAP_HYBRID_THRS, X, X2); break;
+        case Y_AXIS: MAP(_MAP_HYBRID_THRS, Y, Y2); break;
+        case Z_AXIS: MAP(_MAP_HYBRID_THRS, Z, Z2, Z3, Z4); break;
+      }
+
+    #endif // kinematics
+
+    switch (axis) {
+      default: break;
+      #if DISABLED(FOAMCUTTER_XYUV)
+        OPTCODE(I_HAS_STEALTHCHOP, case I_AXIS: _APPLY_HYBRID_THRS(I); break)
+        OPTCODE(J_HAS_STEALTHCHOP, case J_AXIS: _APPLY_HYBRID_THRS(J); break)
+      #endif
+      OPTCODE(K_HAS_STEALTHCHOP, case K_AXIS: _APPLY_HYBRID_THRS(K); break)
+      OPTCODE(U_HAS_STEALTHCHOP, case U_AXIS: _APPLY_HYBRID_THRS(U); break)
+      OPTCODE(V_HAS_STEALTHCHOP, case V_AXIS: _APPLY_HYBRID_THRS(V); break)
+      OPTCODE(W_HAS_STEALTHCHOP, case W_AXIS: _APPLY_HYBRID_THRS(W); break)
+    }
+
+  } // apply_homing_hybrid_thrs()
+
+#endif // HOMING_HYBRID_THRESHOLD
+
 #if ENABLED(AUTO_REPORT_POSITION)
   AutoReporter<Motion::PositionReport> Motion::position_auto_reporter;
 #endif
@@ -2537,6 +2641,11 @@ void Motion::prepare_line_to_destination() {
     TERN_(HAS_HOMING_CURRENT, set_homing_current(axis));
 
     //
+    // Set the homing Hybrid Threshold for the homed axis motor(s)
+    //
+    TERN_(HOMING_HYBRID_THRESHOLD, apply_homing_hybrid_thrs(axis, true));
+
+    //
     // Back away to prevent an early sensorless trigger
     //
     #if DISABLED(DELTA) && defined(SENSORLESS_BACKOFF_MM)
@@ -2822,6 +2931,11 @@ void Motion::prepare_line_to_destination() {
     // Restore axis motor(s) current after homing
     //
     TERN_(HAS_HOMING_CURRENT, restore_homing_current(axis));
+
+    //
+    // Restore axis motor(s) Hybrid Threshold after homing
+    //
+    TERN_(HOMING_HYBRID_THRESHOLD, apply_homing_hybrid_thrs(axis, false));
 
   } // homeaxis()
 

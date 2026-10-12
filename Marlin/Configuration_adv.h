@@ -3605,6 +3605,30 @@
   #define E7_HYBRID_THRESHOLD     30
 
   /**
+   * Use a separate Hybrid Threshold while homing each axis.
+   * TMC2209 and TMC2240 home with StallGuard4, which only works in stealthChop.
+   * Set the threshold above the homing feedrate, or 0 to stay in stealthChop.
+   * M913 H X/Y/Z to live tune the setting
+   */
+  //#define HOMING_HYBRID_THRESHOLD
+  #if ENABLED(HOMING_HYBRID_THRESHOLD)
+    #define X_HOMING_HYBRID_THRESHOLD    0  // (mm/s) 0 = Stay in stealthChop
+    #define X2_HOMING_HYBRID_THRESHOLD   0
+    #define Y_HOMING_HYBRID_THRESHOLD    0
+    #define Y2_HOMING_HYBRID_THRESHOLD   0
+    #define Z_HOMING_HYBRID_THRESHOLD    0
+    #define Z2_HOMING_HYBRID_THRESHOLD   0
+    #define Z3_HOMING_HYBRID_THRESHOLD   0
+    #define Z4_HOMING_HYBRID_THRESHOLD   0
+    #define I_HOMING_HYBRID_THRESHOLD    0  // [linear=mm/s, rotational=°/s]
+    #define J_HOMING_HYBRID_THRESHOLD    0  // [linear=mm/s, rotational=°/s]
+    #define K_HOMING_HYBRID_THRESHOLD    0  // [linear=mm/s, rotational=°/s]
+    #define U_HOMING_HYBRID_THRESHOLD    0  // (mm/s)
+    #define V_HOMING_HYBRID_THRESHOLD    0
+    #define W_HOMING_HYBRID_THRESHOLD    0
+  #endif
+
+  /**
    * Use StallGuard to home / probe X, Y, Z.
    *
    * TMC2130, TMC2160, TMC2209, TMC2240, TMC2660, TMC5130, and TMC5160 only
@@ -3612,6 +3636,7 @@
    * (TMC2240 signals a stall on DIAG0.)
    * TMC2209 and TMC2240 home in stealthChop mode using StallGuard4.
    * Other drivers home in spreadCycle mode using StallGuard2.
+   * With HYBRID_THRESHOLD use HOMING_HYBRID_THRESHOLD to stay in stealthChop while homing.
    *
    * X/Y/Z_STALL_SENSITIVITY is the default stall threshold.
    * Use M914 X Y Z to set the stall threshold at runtime:

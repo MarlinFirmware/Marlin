@@ -648,6 +648,10 @@ public:
     static void restore_homing_current(const AxisEnum axis);
   #endif
 
+  #if ENABLED(HOMING_HYBRID_THRESHOLD)
+    static void apply_homing_hybrid_thrs(const AxisEnum axis, const bool homing);
+  #endif
+
 private:
   #if ENABLED(DUAL_X_CARRIAGE)
     static xyz_pos_t raised_parked_position;    // Used in mode 1

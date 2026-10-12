@@ -52,6 +52,10 @@
   homing_current_t homing_current_mA;
 #endif
 
+#if ENABLED(HOMING_HYBRID_THRESHOLD)
+  homing_hybrid_thrs_t homing_hybrid_thrs;
+#endif
+
 /**
  * Check for over temperature or short to ground error flags.
  * Report and log warning of overtemperature condition.
