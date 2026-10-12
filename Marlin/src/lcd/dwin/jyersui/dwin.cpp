@@ -2273,7 +2273,7 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
                 drawFloat(thermalManager.temp_hotend[0].mpc.block_heat_capacity, row, false, 100);
               }
               else
-                modifyValue(thermalManager.temp_hotend[0].mpc.block_heat_capacity, 0, 40, 100);
+                modifyValue(thermalManager.temp_hotend[0].mpc.block_heat_capacity, 0.01f, 40, 100);
               break;
 
             case MPCMENU_SENSOR_RESPONSIVENESS:
@@ -2282,7 +2282,7 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
                 drawFloat(thermalManager.temp_hotend[0].mpc.sensor_responsiveness, row, false, 10000);
               }
               else
-                modifyValue(thermalManager.temp_hotend[0].mpc.sensor_responsiveness, 0, 1, 10000);
+                modifyValue(thermalManager.temp_hotend[0].mpc.sensor_responsiveness, 0.0001f, 1, 10000);
               break;
 
             case MPCMENU_AMBIENT_XFER_COEFF:
