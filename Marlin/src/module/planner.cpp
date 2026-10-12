@@ -2439,7 +2439,7 @@ bool Planner::_populate_block(
     block->e_step_ratio_q30 = block->direction_bits.e ? ratio : -ratio;
 
     #if ENABLED(INPUT_SHAPING_E_SYNC)
-      const uint32_t xy_steps = TERN0(INPUT_SHAPING_X, block->steps.x) + TERN0(INPUT_SHAPING_Y, block->steps.y);
+      const uint32_t xy_steps = block->steps.x + block->steps.y;
       block->xy_length_inv_q30 = xy_steps ? (_BV32(30) / xy_steps) : 0;
     #endif
   #endif
@@ -3220,11 +3220,8 @@ void Planner::refresh_acceleration_rates() {
 void Planner::refresh_positioning() {
   #if ENABLED(EDITABLE_STEPS_PER_UNIT)
     LOOP_DISTINCT_AXES(i) mm_per_step[i] = 1.0f / settings.axis_steps_per_mm[i];
-    #if ALL(NONLINEAR_EXTRUSION, SMOOTH_LIN_ADVANCE)
-      stepper.nle.q30.A = _BV32(30) * (stepper.nle.settings.coeff.A * sq(mm_per_step[E_AXIS_N(0)]));
-      stepper.nle.q30.B = _BV32(30) * (stepper.nle.settings.coeff.B * mm_per_step[E_AXIS_N(0)]);
-    #endif
   #endif
+  TERN_(SMOOTH_LIN_ADVANCE, TERN_(NONLINEAR_EXTRUSION, stepper.refresh_nle_q30()));
   set_position_mm(motion.position);
   refresh_acceleration_rates();
 }

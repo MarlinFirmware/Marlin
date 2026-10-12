@@ -170,6 +170,7 @@ static SPISettings spiConfig;
     SPI.setSCLK(SD_SCK_PIN);
 
     SPI.begin();
+    SPI.beginTransaction(spiConfig); // Apply the requested clock
   }
 
   /**

@@ -67,10 +67,6 @@
   #include "../../../feature/host_actions.h"
 #endif
 
-#if DISABLED(PROBE_MANUALLY) && ANY(AUTO_BED_LEVELING_BILINEAR, AUTO_BED_LEVELING_LINEAR, AUTO_BED_LEVELING_3POINT)
-  #define HAS_ONESTEP_LEVELING 1
-#endif
-
 #if HAS_MESH || (HAS_LEVELING && HAS_ZOFFSET_ITEM)
   #include "../../../feature/bedlevel/bedlevel.h"
   #include "bedlevel_tools.h"
@@ -126,6 +122,10 @@
 
 #if HAS_LOCKSCREEN
   #include "lockscreen.h"
+#endif
+
+#if ANY(BABYSTEPPING, HAS_BED_PROBE, HAS_WORKSPACE_OFFSET)
+  #define HAS_ZOFFSET_ITEM 1
 #endif
 
 #ifndef MACHINE_SIZE
@@ -2084,13 +2084,6 @@ void autoHome() { queue.inject_P(G28_STR); }
 #endif
 
 #if HAS_ZOFFSET_ITEM
-
-  #ifndef PROBE_OFFSET_ZMIN
-    #define PROBE_OFFSET_ZMIN -20
-  #endif
-  #ifndef PROBE_OFFSET_ZMAX
-    #define PROBE_OFFSET_ZMAX  20
-  #endif
 
   void applyZOffset() { TERN_(EEPROM_SETTINGS, settings.save()); }
   void liveZOffset() {
@@ -4164,8 +4157,8 @@ void drawMaxAccelMenu() {
 
   #if ENABLED(MPC_EDIT_MENU)
     void setHeaterPower() { setPFloatOnClick(1, 200, 1); }
-    void setBlkHeatCapacity() { setPFloatOnClick(0, 40, 2); }
-    void setSensorResponse() { setPFloatOnClick(0, 1, 4); }
+    void setBlkHeatCapacity() { setPFloatOnClick(0.01f, 40, 2); }
+    void setSensorResponse() { setPFloatOnClick(0.0001f, 1, 4); }
     void setAmbientXfer() { setPFloatOnClick(0, 1, 4); }
     #if ENABLED(MPC_INCLUDE_FAN)
       #define MPC_FAN_FDIGITS 4
