@@ -3151,13 +3151,13 @@ void Stepper::isr() {
           buffer[index] = input;
           if (++index == IS_COMPENSATION_BUFFER_SIZE) index = 0;
         }
-        FORCE_INLINE xy_long_t past_item(const uint16_t n) {
-          int16_t i = int16_t(index) - n;
+        FORCE_INLINE xy_long_t past_item(uint32_t n) {
+          // A shaping frequency set below SHAPING_MIN_FREQ (e.g., by M593 during a
+          // ringing test) asks for more history than the buffer holds. Clamp to the
+          // oldest item rather than read out of bounds.
+          NOMORE(n, IS_COMPENSATION_BUFFER_SIZE);
+          int16_t i = int16_t(index) - int16_t(n);
           if (i < 0) i += IS_COMPENSATION_BUFFER_SIZE;
-          // The following only happens when IS Freq is set below the minimum
-          // configured at build time ...in which case IS will also misbehave!
-          // Using setters whenever possible prevents values being set too low.
-          if (TERN0(MARLIN_DEV_MODE, i < 0)) return {0, 0};
           return buffer[i];
         }
       } DelayBuffer;
@@ -3166,7 +3166,7 @@ void Stepper::isr() {
 
       xy_long_t Stepper::smooth_lin_adv_lookback(const shaping_time_t stepper_ticks) {
         constexpr uint32_t adv_ticks_per_stepper_ticks_Q30 = (uint64_t(SMOOTH_LIN_ADV_HZ) * _BV32(30)) / (STEPPER_TIMER_RATE);
-        const uint16_t delay_steps = MULT_Q(30, stepper_ticks, adv_ticks_per_stepper_ticks_Q30);
+        const uint32_t delay_steps = MULT_Q(30, stepper_ticks, adv_ticks_per_stepper_ticks_Q30);
         return delayBuffer.past_item(delay_steps);
       }
 
@@ -3260,15 +3260,15 @@ void Stepper::isr() {
 
         xy_long_t pre_shaping_rate{0}, first_pulse_rate{0};
         if (current_block && current_block->xy_length_inv_q30 > 0) {
-          pre_shaping_rate = xy_long_t({
-            MULT_Q(30, unshaped_rate_e * current_block->steps.x, current_block->xy_length_inv_q30),
-            MULT_Q(30, unshaped_rate_e * current_block->steps.y, current_block->xy_length_inv_q30)
-          });
+          // Split E between X and Y in proportion to their steps. Y takes the remainder so no E is lost.
+          const int32_t rate_x = MULT_Q(30, unshaped_rate_e * current_block->steps.x, current_block->xy_length_inv_q30);
+          pre_shaping_rate = xy_long_t({ rate_x, unshaped_rate_e - rate_x });
           unshaped_rate_e = 0;
 
+          // The first pulse takes all that the delayed second pulse won't, so no E is lost to rounding
           first_pulse_rate = xy_long_t({
-            TERN_(INPUT_SHAPING_X, shaping_x.enabled ? (pre_shaping_rate.x * shaping_x.factor1) >> 7 :) pre_shaping_rate.x,
-            TERN_(INPUT_SHAPING_Y, shaping_y.enabled ? (pre_shaping_rate.y * shaping_y.factor1) >> 7 :) pre_shaping_rate.y
+            TERN_(INPUT_SHAPING_X, shaping_x.enabled ? pre_shaping_rate.x - ((pre_shaping_rate.x * shaping_x.factor2) >> 7) :) pre_shaping_rate.x,
+            TERN_(INPUT_SHAPING_Y, shaping_y.enabled ? pre_shaping_rate.y - ((pre_shaping_rate.y * shaping_y.factor2) >> 7) :) pre_shaping_rate.y
           });
         }
 
