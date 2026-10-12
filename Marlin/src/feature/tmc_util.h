@@ -333,6 +333,10 @@ class TMCMarlin<TMC2240Stepper, AXIS_LETTER, DRIVER_ID, AXIS_ID> : public TMC224
         TMC2240Stepper::sgt(sgt_val);
         TERN_(HAS_MARLINUI_MENU, this->stored.homing_thrs = sgt_val);
       }
+      #if ENABLED(SPI_ENDSTOPS)
+        // DRV_STATUS.stallguard is set by StallGuard2 (spreadCycle) or StallGuard4 (stealthChop)
+        bool test_stall_status() { return TMC2240Stepper::stallguard(); }
+      #endif
     #endif
 
     void refresh_stepper_current() { rms_current(this->val_mA); }
