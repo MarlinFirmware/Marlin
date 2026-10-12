@@ -477,6 +477,18 @@ void test_tmc_connection(LOGICAL_AXIS_DECL_LC(const bool, true));
     extern homing_current_t homing_current_mA;
   #endif
 
+  /**
+   * Set the homing current on the steppers that move to home an axis,
+   * then restore the previous currents when it goes out of scope.
+   */
+  class TemporaryHomingCurrent {
+    const AxisEnum axis;
+    homing_current_t saved;
+    public:
+      TemporaryHomingCurrent(const AxisEnum a) : axis(a) { motion.set_homing_current(axis, saved); }
+      ~TemporaryHomingCurrent() { motion.restore_homing_current(axis, saved); }
+  };
+
 #endif // HAS_HOMING_CURRENT
 
 #if ENABLED(HOMING_HYBRID_THRESHOLD)

@@ -32,7 +32,7 @@
 #include "motion.h"
 #include "planner.h"
 
-#if ENABLED(HOMING_HYBRID_THRESHOLD)
+#if ANY(HOMING_HYBRID_THRESHOLD, HAS_HOMING_CURRENT)
   #include "../feature/tmc_util.h"
 #endif
 
@@ -261,11 +261,9 @@ float segments_per_second = DEFAULT_SEGMENTS_PER_SECOND;
       #endif
     #endif
 
-    // Set the homing current for all motors
-    TERN_(HAS_HOMING_CURRENT, motion.set_homing_current(Z_AXIS));
-
     {
-      // Use the homing Hybrid Threshold for this move only
+      // Use the homing current and Hybrid Threshold for this move only
+      TERN_(HAS_HOMING_CURRENT, const TemporaryHomingCurrent temp_current(Z_AXIS));
       TERN_(HOMING_HYBRID_THRESHOLD, const TemporaryHomingHybridThreshold temp_hybrid_thrs(Z_AXIS));
 
       // Move to home, should move Z, Y, then X. Move X to near 0 (to avoid div by zero
@@ -275,10 +273,7 @@ float segments_per_second = DEFAULT_SEGMENTS_PER_SECOND;
 
       motion.goto_current_position(motion.homing_feedrate(Z_AXIS));
       planner.synchronize();
-    }
-
-    // Restore the homing current for all motors
-    TERN_(HAS_HOMING_CURRENT, motion.restore_homing_current(Z_AXIS));
+    } // Restore homing current and Hybrid Threshold
 
     // Re-enable stealthChop if used. Disable diag1 pin on driver.
     #if ENABLED(SENSORLESS_HOMING)
