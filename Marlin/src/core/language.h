@@ -563,6 +563,7 @@
   #define LCD_STR_REFRESH     "\x04"
   #define LCD_STR_FOLDER      "\x05"
   #define LCD_STR_FEEDRATE    "\x06"
+  #define LCD_STR_CLOCK       "\x07"
   #define LCD_STR_ARROW_RIGHT ">"  /* from the default character set */
 
 #else
@@ -574,6 +575,7 @@
   #define LCD_STR_FOLDER      "\x02"
   #define LCD_STR_ARROW_RIGHT "\x03"
   #define LCD_STR_UPLEVEL     "\x04"
+  #define LCD_STR_CLOCK       "\x05"
   #define LCD_STR_FEEDRATE    "\x06"
   #define LCD_STR_BEDTEMP     "\x07"
   #define LCD_STR_THERMOMETER "\x08"
