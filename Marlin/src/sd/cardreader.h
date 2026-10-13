@@ -183,7 +183,7 @@ public:
   static bool isInserted() { return isFlashDriveInserted() || isSDCardInserted(); }
 
   // Mount and release physical media
-  static void mount();
+  static void mount(const bool alert=true);
   static void release();
 
   static bool isMounted() { return flag.mounted; }
@@ -332,6 +332,12 @@ public:
   #endif
 
 private:
+  //
+  // Mount in steps without blocking. Call until it returns true.
+  //
+  static bool mount_async(const bool alert);
+  static void mount_finish(const bool driver_init, const bool alert);
+
   //
   // Driver, volume, and temporary file
   //
