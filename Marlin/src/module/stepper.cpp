@@ -3285,8 +3285,8 @@ void Stepper::isr() {
 
           // The first pulse takes all that the delayed second pulse won't, so no E is lost to rounding
           first_pulse_rate = xy_long_t({
-            TERN_(INPUT_SHAPING_X, shaping_x.enabled ? pre_shaping_rate.x - ((pre_shaping_rate.x * shaping_x.factor2) >> 7) :) pre_shaping_rate.x,
-            TERN_(INPUT_SHAPING_Y, shaping_y.enabled ? pre_shaping_rate.y - ((pre_shaping_rate.y * shaping_y.factor2) >> 7) :) pre_shaping_rate.y
+            TERN_(INPUT_SHAPING_X, shaping_x.enabled ? (pre_shaping_rate.x * shaping_x.factor1) >> 7 :) pre_shaping_rate.x,
+            TERN_(INPUT_SHAPING_Y, shaping_y.enabled ? (pre_shaping_rate.y * shaping_y.factor1) >> 7 :) pre_shaping_rate.y
           });
         }
 
