@@ -3028,6 +3028,25 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
   static_assert(strcmp(STRINGIFY(LCD_LANGUAGE_5), STRINGIFY(LCD_LANGUAGE_4)), "Error: LCD_LANGUAGE_5 (" STRINGIFY(LCD_LANGUAGE) ") cannot be the same as LCD_LANGUAGE_4.");
 #endif
 
+/**
+ * Klingon (pIqaD) glyphs are only provided by TFT_COLOR_UI for the primary language
+ */
+#if !HAS_GRAPHICAL_TFT
+  static_assert(strcmp(STRINGIFY(LCD_LANGUAGE), "tlh"), "LCD_LANGUAGE tlh (Klingon) requires TFT_COLOR_UI.");
+#endif
+#if NUM_LANGUAGES > 1
+  static_assert(strcmp(STRINGIFY(LCD_LANGUAGE_2), "tlh"), "LCD_LANGUAGE_2 cannot be tlh (Klingon). Use LCD_LANGUAGE tlh with TFT_COLOR_UI.");
+#endif
+#if NUM_LANGUAGES > 2
+  static_assert(strcmp(STRINGIFY(LCD_LANGUAGE_3), "tlh"), "LCD_LANGUAGE_3 cannot be tlh (Klingon). Use LCD_LANGUAGE tlh with TFT_COLOR_UI.");
+#endif
+#if NUM_LANGUAGES > 3
+  static_assert(strcmp(STRINGIFY(LCD_LANGUAGE_4), "tlh"), "LCD_LANGUAGE_4 cannot be tlh (Klingon). Use LCD_LANGUAGE tlh with TFT_COLOR_UI.");
+#endif
+#if NUM_LANGUAGES > 4
+  static_assert(strcmp(STRINGIFY(LCD_LANGUAGE_5), "tlh"), "LCD_LANGUAGE_5 cannot be tlh (Klingon). Use LCD_LANGUAGE tlh with TFT_COLOR_UI.");
+#endif
+
 #if ANY(TFT_GENERIC, MKS_TS35_V2_0, MKS_TS24_R_V2_1, MKS_ROBIN_TFT24, MKS_ROBIN_TFT28, MKS_ROBIN_TFT32, MKS_ROBIN_TFT35, MKS_ROBIN_TFT43, MKS_ROBIN_TFT_V1_1R, \
         TFT_TRONXY_X5SA, ANYCUBIC_TFT35, ANYCUBIC_TFT35, LONGER_LK_TFT28, ANET_ET4_TFT28, ANET_ET5_TFT35, BIQU_BX_TFT70, BTT_TFT35_SPI_V1_0, PRUSA_MINI_LCD)
   #if NONE(TFT_COLOR_UI, TFT_CLASSIC_UI, TFT_LVGL_UI)
