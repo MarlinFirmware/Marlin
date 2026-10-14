@@ -187,8 +187,10 @@
   #define W_BED_SIZE W_MAX_LENGTH
 #endif
 
-// Require 0,0 bed center for Delta, SCARA, and Polargraph
-#if IS_KINEMATIC
+// Require 0,0 bed center for Delta, Polar, and Polargraph.
+// SCARA and TPARA use whatever coordinate space the Configuration defines: the bed
+// starts at 0,0 unless BED_CENTER_AT_0_0 is enabled. SCARA_OFFSET places the shoulder in that space.
+#if IS_KINEMATIC && !IS_SCARA
   #define BED_CENTER_AT_0_0
 #endif
 
