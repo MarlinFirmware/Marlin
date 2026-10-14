@@ -303,12 +303,12 @@ public:
 
   // Truncate to at most n bytes on a Unicode boundary, dropping an incomplete last glyph
   MString& utrunc(const int &n=SIZE) {
-    int len = _MIN(n, length()), s = len;         // Find the start of the last glyph
-    while (s > 0 && !START_OF_UTF8_CHAR(str[s - 1])) --s;
-    if (s > 0) {
-      const uint8_t c = str[s - 1];
+    int len = _MIN(n, length()), s = len - 1;     // Truncation len, index
+    uint8_t c;
+    while (s >= 0 && !START_OF_UTF8_CHAR((c = str[s]))) s--;
+    if (s >= 0) {                                 // Found one?
       const int glen = c < 0xE0 ? (c < 0x80 ? 1 : 2) : (c < 0xF0 ? 3 : 4);
-      if (s - 1 + glen > len) len = s - 1;        // The last glyph is cut short
+      if (len < s + glen) len = s;                // The last glyph is cut short
     }
     str[len] = '\0';
     debug(F("utrunc"));
