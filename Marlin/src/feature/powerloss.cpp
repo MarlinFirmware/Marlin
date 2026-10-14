@@ -487,7 +487,8 @@ void PrintJobRecovery::resume() {
 
   #if HOMING_Z_DOWN
     // Move to a safe XY position and home Z while avoiding the print.
-    const xy_pos_t p = xy_pos_t(POWER_LOSS_ZHOME_POS) TERN_(HOMING_Z_WITH_PROBE, - probe.offset_xy);
+    xy_pos_t p = xy_pos_t(POWER_LOSS_ZHOME_POS);
+    TERN_(HOMING_Z_WITH_PROBE, p -= probe.offset_xy_at_probe(p));
     PROCESS_SUBCOMMANDS_NOW(TS(F("G1F1000X"), p_float_t(p.x, 3), 'Y', p_float_t(p.y, 3), F("\nG28HZ")));
   #endif
 

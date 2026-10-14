@@ -58,7 +58,11 @@ extern float segments_per_second;
     float angle;    // Direction of the tool from the forearm (degrees, positive is counter-clockwise)
   };
   scara_tool_t scara_tool(const xy_pos_t &offset);    // The virtual forearm for a tool offset from the L2 tool point
-  scara_tool_t scara_active_tool();                   // ...for the active tool (relative to T0)
+  scara_tool_t scara_hotend_tool();                   // ...for the active hotend (relative to T0)
+  scara_tool_t scara_active_tool();                   // ...for the tool the kinematics use: the hotend, or the probe in a ScaraProbeTool
+
+  // Where 'to' is when 'from' is at the point: the same arm, a different tool
+  xy_pos_t scara_convert(const xy_pos_t &point, const scara_tool_t &from, const scara_tool_t &to);
 
   // Can the tool reach the point? The reach is a ring around the shoulder, narrower for 'inset' mm at both edges.
   bool scara_can_reach(const xy_pos_t &point, const scara_tool_t &tool, const float inset=0);

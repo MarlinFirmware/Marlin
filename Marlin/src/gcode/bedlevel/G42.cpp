@@ -62,8 +62,9 @@ void GcodeSuite::G42() {
 
   #if HAS_PROBE_XY_OFFSET
     if (parser.seen_test('P')) {
-      if (hasI) motion.destination.x -= probe.offset_xy.x;
-      if (hasJ) motion.destination.y -= probe.offset_xy.y;
+      const xy_pos_t offs = probe.offset_xy_at_probe(xy_pos_t(motion.destination));
+      if (hasI) motion.destination.x -= offs.x;
+      if (hasJ) motion.destination.y -= offs.y;
     }
   #endif
 
