@@ -98,6 +98,9 @@ float segments_per_second = DEFAULT_SEGMENTS_PER_SECOND;
       #endif
       forward_kinematics(motion.delta.a, motion.delta.b);
       motion.position[axis] = motion.cartes[axis];
+      // The home offset (M665) can move the home position out of bounds after the compile-time check
+      if (axis == X_AXIS && (!WITHIN(motion.cartes.x, X_MIN_POS - 0.01f, X_MAX_POS + 0.01f) || !WITHIN(motion.cartes.y, Y_MIN_POS - 0.01f, Y_MAX_POS + 0.01f)))
+        SERIAL_WARN_MSG("SCARA home position is outside the movement limits.");
       //DEBUG_ECHOLNPGM("homeposition (theta,psi):", motion.delta.a, ",", motion.delta.b);
       //DEBUG_ECHOLNPGM("  (x,y)", motion.position.x, ",", motion.position.y);
       motion.delta.b += motion.delta.a * SCARA_CROSSTALK_FACTOR;
