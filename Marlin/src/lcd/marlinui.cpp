@@ -425,7 +425,7 @@ void MarlinUI::init() {
         #else
           // Simply cut off at maxlen
           const uint8_t chop = TERN(UTF_FILENAME_SUPPORT, utf8_byte_pos_by_char_num(theCard.longFilename, maxlen), maxlen);
-          theCard.longFilename[_MAX(chop, LONG_FILENAME_LENGTH - 1)] = '\0';
+          theCard.longFilename[_MAX(chop, LONG_FILENAME_BYTES - 1)] = '\0';
         #endif
       }
       return outstr;
