@@ -72,7 +72,16 @@ float segments_per_second = DEFAULT_SEGMENTS_PER_SECOND;
   // Set while the probe is the active tool: its offset from T0 (in the forearm's frame) replaces the hotend's
   static const xy_pos_t *scara_offset_override = nullptr;
 
-  scara_tool_t scara_active_tool() {
+  // The factors depend only on the offset, so they are kept until it changes
+  static scara_tool_t scara_cached_tool(const xy_pos_t &offset, xy_pos_t &last_offset, scara_tool_t &tool) {
+    if (offset.x != last_offset.x || offset.y != last_offset.y) {
+      tool = scara_tool(offset);
+      last_offset = offset;
+    }
+    return tool;
+  }
+
+  scara_tool_t scara_hotend_tool() {
     static xy_pos_t last_offset = { NAN, NAN };
     static scara_tool_t tool = { L2, 0 };
     xy_pos_t offset = { 0, 0 };
@@ -80,12 +89,14 @@ float segments_per_second = DEFAULT_SEGMENTS_PER_SECOND;
       offset.set(motion.active_hotend_offset().x - motion.hotend_offset[0].x,
                  motion.active_hotend_offset().y - motion.hotend_offset[0].y);
     #endif
-    if (scara_offset_override) offset = *scara_offset_override;
-    if (offset.x != last_offset.x || offset.y != last_offset.y) {
-      tool = scara_tool(offset);
-      last_offset = offset;
-    }
-    return tool;
+    return scara_cached_tool(offset, last_offset, tool);
+  }
+
+  scara_tool_t scara_active_tool() {
+    if (!scara_offset_override) return scara_hotend_tool();
+    static xy_pos_t last_offset = { NAN, NAN };
+    static scara_tool_t tool = { L2, 0 };
+    return scara_cached_tool(*scara_offset_override, last_offset, tool);
   }
 
   bool scara_can_reach(const xy_pos_t &point, const scara_tool_t &tool, const float inset/*=0*/) {
@@ -124,14 +135,35 @@ float segments_per_second = DEFAULT_SEGMENTS_PER_SECOND;
    * Integrated into Marlin and slightly restructured by Joachim Cerny.
    * Modified by dekutree64 to take elbow psi rather than distal arm relative to cartesian X axis.
    */
-  void forward_kinematics(const float theta, const float psi) {
-    const scara_tool_t tool = scara_active_tool();
+  // Where the tool is for the given joint angles (degrees: theta of the upper arm, and psi of the real forearm)
+  static xy_pos_t scara_tip(const float theta, const float psi, const scara_tool_t &tool) {
     const float a = RADIANS(theta), b = RADIANS(theta + psi + tool.angle),
                 a_sin = sin(a) * L1, a_cos = cos(a) * L1,
                 b_sin = sin(b) * tool.length, b_cos = cos(b) * tool.length;
+    return { a_cos + b_cos + scara_offset.x, a_sin + b_sin + scara_offset.y };
+  }
 
-    motion.cartes.x = a_cos + b_cos + scara_offset.x;
-    motion.cartes.y = a_sin + b_sin + scara_offset.y;
+  // The joint angles (radians) that put the tool at the point. 'psi' is for the real forearm, and the tool's
+  // angle from it is taken out. With 'clamp' a point out of reach gets the nearest straight or folded arm.
+  static void scara_angles(const xy_pos_t &point, const scara_tool_t &tool, float &theta, float &psi, const bool clamp=false) {
+    const float x = point.x - scara_offset.x, y = point.y - scara_offset.y,
+      cosPsi0 = (HYPOT2(x, y) - HYPOT2(L1, tool.length)) / (2.0f * L1 * tool.length),
+      cosPsi = clamp ? _MAX(-1.0f, _MIN(1.0f, cosPsi0)) : cosPsi0,
+      virtual_psi = ACOS(cosPsi) * SCARA_ELBOW_DIR, K1 = L1 + tool.length * cosPsi, K2 = tool.length * sin(virtual_psi);
+    theta = ATAN2(K1 * y - K2 * x, K1 * x + K2 * y);
+    psi = virtual_psi - RADIANS(tool.angle);
+  }
+
+  xy_pos_t scara_convert(const xy_pos_t &point, const scara_tool_t &from, const scara_tool_t &to) {
+    float theta, psi;
+    scara_angles(point, from, theta, psi, true);
+    return scara_tip(DEGREES(theta), DEGREES(psi), to);
+  }
+
+  void forward_kinematics(const float theta, const float psi) {
+    const xy_pos_t tip = scara_tip(theta, psi, scara_active_tool());
+    motion.cartes.x = tip.x;
+    motion.cartes.y = tip.y;
 
     /*
       DEBUG_ECHOLNPGM(
@@ -179,13 +211,10 @@ float segments_per_second = DEFAULT_SEGMENTS_PER_SECOND;
 
   void inverse_kinematics(const xyz_pos_t &raw) {
     // Math adapted from RepRepFirmware ScaraKinematics.cpp https://github.com/Duet3D/RepRapFirmware
-    // The active tool's virtual forearm. Its angle from the real forearm is not part of the elbow angle psi.
-    const scara_tool_t tool = scara_active_tool();
-    const float x = raw.x - scara_offset.x, y = raw.y - scara_offset.y,
-      cosPsi = (HYPOT2(x, y) - HYPOT2(L1, tool.length)) / (2.0f * L1 * tool.length),
-      psi = ACOS(cosPsi) * SCARA_ELBOW_DIR, K1 = L1 + tool.length * cosPsi, K2 = tool.length * sin(psi),
-      theta = ATAN2(K1 * y - K2 * x, K1 * x + K2 * y);
-    motion.delta.set(DEGREES(theta), DEGREES(psi - RADIANS(tool.angle) + theta * SCARA_CROSSTALK_FACTOR), raw.z);
+    // Solve for the active tool's virtual forearm, which is at an angle from the real one
+    float theta, psi;
+    scara_angles(raw, scara_active_tool(), theta, psi);
+    motion.delta.set(DEGREES(theta), DEGREES(psi + theta * SCARA_CROSSTALK_FACTOR), raw.z);
 
     /*
       DEBUG_ECHOLNPGM("SCARA IK");

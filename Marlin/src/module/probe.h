@@ -236,6 +236,23 @@ public:
     static constexpr xy_pos_t offset_xy = xy_pos_t({ 0, 0 });   // See #16767
   #endif
 
+  /**
+   * The XY offset from the nozzle to the probe as a Cartesian vector, in the frame of the machine.
+   * That is 'offset_xy' on every machine but SCARA, where the probe is bolted to the forearm and its
+   * offset (in the forearm's frame) turns with the arm, so it depends on where the arm is. Use the one
+   * that matches the position you have:
+   *   offset_xy_at_nozzle(N) : the probe is at N + offset, for the active nozzle at N.
+   *   offset_xy_at_probe(P)  : the nozzle is at P - offset, for the probe at P.
+   * Only the raw 'offset_xy' is set by M851 and kept in the EEPROM (in forearm terms on SCARA).
+   */
+  #if ENABLED(SCARA)
+    static xy_pos_t offset_xy_at_nozzle(const xy_pos_t &nozzle_pos);
+    static xy_pos_t offset_xy_at_probe(const xy_pos_t &probe_pos);
+  #else
+    static const xy_pos_t &offset_xy_at_nozzle(const xy_pos_t&) { return offset_xy; }
+    static const xy_pos_t &offset_xy_at_probe(const xy_pos_t&)  { return offset_xy; }
+  #endif
+
   static bool deploy(const bool no_return=false) { return set_deployed(true, no_return); }
   static bool stow(const bool no_return=false)   { return set_deployed(false, no_return); }
 
