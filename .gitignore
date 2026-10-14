@@ -23,6 +23,8 @@
 _Version.h
 bdf2u8g.exe
 genpages.exe
+buildroot/share/fonts/bdfconv/
+buildroot/share/fonts/wenquanyi_12pt.bdf
 marlin_config.json
 mczip.h
 language*.csv

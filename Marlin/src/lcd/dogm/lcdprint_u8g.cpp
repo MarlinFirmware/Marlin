@@ -31,7 +31,7 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-#if HAS_MARLINUI_U8GLIB
+#if HAS_MARLINUI_U8GLIB && !HAS_MARLINUI_U8G2
 
 #include "marlinui_DOGM.h"
 
