@@ -1378,7 +1378,7 @@ void Motion::restore_feedrate_and_scaling() {
         default: break;
       }
 
-    #elif HAS_HOTEND_OFFSET
+    #elif HAS_HOTEND_OFFSET && DISABLED(SCARA) // SCARA tool offsets are in its kinematics, so its limits are the same for every tool
 
       // Software endstops are relative to the tool 0 workspace, so
       // the movement limits must be shifted by the tool offset to

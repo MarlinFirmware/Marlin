@@ -46,6 +46,20 @@ extern float segments_per_second;
 
   void forward_kinematics(const float a, const float b);
 
+  /**
+   * Tool offsets on a SCARA are bolted to the forearm, so they turn with it. The offset of a
+   * tool (hotend or probe) is in the forearm's frame: X to the right of the arm's direction,
+   * Y toward its tip, so it is the plain offset when the forearm points along +Y.
+   * The tool is then at the end of a "virtual forearm" from the elbow: a different length at an
+   * angle from the real forearm. The tool point is at L2 along the arm for a tool with no offset.
+   */
+  struct scara_tool_t {
+    float length;   // Elbow to tool (mm)
+    float angle;    // Direction of the tool from the forearm (degrees, positive is counter-clockwise)
+  };
+  scara_tool_t scara_tool(const xy_pos_t &offset);    // The virtual forearm for a tool offset from the L2 tool point
+  scara_tool_t scara_active_tool();                   // ...for the active tool (relative to T0)
+
 #endif
 
 void inverse_kinematics(const xyz_pos_t &raw);
