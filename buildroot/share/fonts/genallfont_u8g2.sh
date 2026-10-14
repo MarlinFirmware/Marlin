@@ -87,7 +87,6 @@ DN_WORK=$(mktemp -d)
 for ALANG in ${LANG_ARG:=$LANGS_DEFAULT} ; do
   echo "Generating Marlin U8g2 language data for '${ALANG}'" >&2
   case "$ALANG" in
-     zh_* ) FONTFILE=$(find_bdf wenquanyi_12pt) ;;
      ko_* ) FONTFILE=$(find_bdf NanumGothic) ;;
         * ) FONTFILE="${FN_FONT}" ;;
   esac

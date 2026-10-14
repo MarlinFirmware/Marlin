@@ -34,5 +34,5 @@ cd Marlin
 
 - Each language gets one U8g2 font, `fontdata_<lang>`, in `Marlin/src/lcd/dogm/fontdata/langdata_<lang>_u8g2.h`. It holds every character above U+00FF that the language uses, addressed by its Unicode codepoint. Languages with no such characters get `nullptr`.
 - Characters up to U+00FF come from `fontdata_ISO10646_1_u8g2.h`, which the script also writes, along with the small Info Screen font `fontdata_6x9_marlin_u8g2.h`.
-- Glyphs come from `marlin-6x12-3.bdf`, `NanumGothic.bdf` (Korean) and `wenquanyi_12pt.bdf` (Chinese, looked for here and in `/usr/share/fonts`).
+- Glyphs come from `marlin-6x12-3.bdf`, which includes 12 px CJK glyphs for Chinese, and `NanumGothic.bdf` (Korean).
 - On first run the script downloads [bdfconv](https://github.com/olikraus/u8g2/tree/master/tools/font/bdfconv) from the u8g2 project and builds it. It needs a C compiler, `curl` or `wget`, and Python 3 (for `u8g2_hexfont.py`, which writes the font data as hex arrays).
