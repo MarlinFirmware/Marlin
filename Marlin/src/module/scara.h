@@ -60,6 +60,25 @@ extern float segments_per_second;
   scara_tool_t scara_tool(const xy_pos_t &offset);    // The virtual forearm for a tool offset from the L2 tool point
   scara_tool_t scara_active_tool();                   // ...for the active tool (relative to T0)
 
+  // Can the tool reach the point? The reach is a ring around the shoulder, narrower for 'inset' mm at both edges.
+  bool scara_can_reach(const xy_pos_t &point, const scara_tool_t &tool, const float inset=0);
+
+  #if HAS_BED_PROBE
+    /**
+     * While this is in scope the probe is the active tool: the kinematics place the probe itself
+     * at the given position, with the probe offset (M851) in the forearm's frame. On exit the
+     * hotend is the active tool again and the XY position is where the arm is now, as seen by the hotend.
+     * 'use' is false for a move of the nozzle, which does nothing.
+     */
+    class ScaraProbeTool {
+      public:
+        ScaraProbeTool(const bool use=true);
+        ~ScaraProbeTool();
+      private:
+        const bool used;
+    };
+  #endif
+
 #endif
 
 void inverse_kinematics(const xyz_pos_t &raw);

@@ -93,9 +93,14 @@ public:
 
     #if IS_KINEMATIC
 
-      #if HAS_PROBE_XY_OFFSET
+      #if ENABLED(SCARA)
+        // The probe is bolted to the forearm and is a tool of its own with a virtual forearm. A point for the
+        // probe is reachable by the probe, and one for the nozzle by the active hotend. PROBING_MARGIN keeps off the edges.
+        static bool can_reach(const float rx, const float ry, const bool probe_relative=true) {
+          return scara_can_reach({ rx, ry }, probe_relative ? scara_tool(offset_xy) : scara_active_tool(), probe_relative ? PROBING_MARGIN : 0);
+        }
+      #elif HAS_PROBE_XY_OFFSET
         // Return true if the both nozzle and the probe can reach the given point.
-        // Note: This won't work on SCARA since the probe offset rotates with the arm.
         static bool can_reach(const float rx, const float ry, const bool probe_relative=true) {
           if (probe_relative) {
             return motion.can_reach(rx - offset_xy.x, ry - offset_xy.y) // The nozzle can go where it needs to go?

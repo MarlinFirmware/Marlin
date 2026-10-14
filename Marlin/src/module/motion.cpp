@@ -788,13 +788,8 @@ void Motion::report_position_projected() {
 
     #elif IS_SCARA
 
-      const float R2 = HYPOT2(rx - SCARA_OFFSET_X, ry - SCARA_OFFSET_Y);
-      can_reach = (
-        R2 <= sq(L1 + L2) - inset
-        #if MIDDLE_DEAD_ZONE_R > 0
-          && R2 >= FLOAT_SQ(MIDDLE_DEAD_ZONE_R)
-        #endif
-      );
+      // The ring around the shoulder that the active tool can reach
+      can_reach = scara_can_reach({ rx, ry }, scara_active_tool(), inset);
 
     #elif ENABLED(POLARGRAPH)
 
