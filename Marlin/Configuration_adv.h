@@ -2137,6 +2137,14 @@
   //#define USE_SMALL_INFOFONT
 
   /**
+   * This feature is EXPERIMENTAL so use with caution and test thoroughly.
+   * Use U8g2lib instead of U8glib-HAL for graphical displays.
+   * U8g2lib is a newer library with improved performance and features.
+   * NOTE: This option changes the display library dependency.
+   */
+  //#define USE_U8G2_LIB
+
+  /**
    * ST7920-based LCDs can emulate a 16 x 4 character display using
    * the ST7920 character-generator for very fast screen updates.
    * Enable LIGHTWEIGHT_UI to use this special display mode.

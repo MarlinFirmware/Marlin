@@ -29,7 +29,7 @@
 
 #include "../../../inc/MarlinConfig.h"
 
-#if IS_U8GLIB_ST7920
+#if IS_U8GLIB_ST7920 && !HAS_MARLINUI_U8G2
 
 #include "ultralcd_st7920_u8glib_rrd_AVR.h"
 
@@ -185,5 +185,5 @@ u8g_dev_t u8g_dev_st7920_128x64_rrd_sw_spi = { u8g_dev_rrd_st7920_128x64_fn, &u8
   void ST7920_write_byte(const uint8_t val) { ST7920_WRITE_BYTE(val); }
 #endif
 
-#endif // IS_U8GLIB_ST7920
+#endif // IS_U8GLIB_ST7920 && !HAS_MARLINUI_U8G2
 #endif // __AVR__ || ARDUINO_ARCH_STM32 || ARDUINO_ARCH_ESP32 || ARDUINO_ARCH_MFL
