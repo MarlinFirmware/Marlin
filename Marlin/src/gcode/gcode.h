@@ -324,6 +324,7 @@
  * M919 - Set / Report motor Chopper Times (time_off, hysteresis_end, hysteresis_start) using axis codes XYZE, etc.
  *        If no parameters are given, report. (Requires *_DRIVER_TYPE TMC(2130|2160|5130|5160|2208|2209|2240|2660))
  * M920 - Set Homing Current. (Requires distinct *_CURRENT_HOME settings)
+ * M921 - TMC stepper driver stallguard tuning. (Requires STALLGUARD_TUNING)
  * M936 - OTA update firmware. (Requires OTA_FIRMWARE_UPDATE)
  * M951 - Set Magnetic Parking Extruder parameters. (Requires MAGNETIC_PARKING_EXTRUDER)
  * M3426 - Read MCP3426 ADC over I2C. (Requires HAS_MCP3426_ADC)
@@ -1294,6 +1295,10 @@ private:
       static void M920();
       static void M920_report(const bool forReplay=true);
     #endif
+  #endif
+
+  #if ENABLED(STALLGUARD_TUNING)
+    static void M921();
   #endif
 
   #if HAS_MOTOR_CURRENT_SPI || HAS_MOTOR_CURRENT_PWM || HAS_MOTOR_CURRENT_I2C || HAS_MOTOR_CURRENT_DAC

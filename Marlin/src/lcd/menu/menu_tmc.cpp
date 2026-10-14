@@ -170,6 +170,57 @@ void menu_tmc_current() {
 
 #endif // HAS_STEALTHCHOP
 
+#if ENABLED(STALLGUARD_TUNING_MENU)
+  #include "../../feature/stallguard/stallguard_tuning.h"
+  #include "../../gcode/gcode.h"
+
+  void menu_tmc_stallguard_tuning() {
+
+    bool has_run = false;
+    START_MENU();
+    BACK_ITEM(MSG_TMC_DRIVERS);
+
+    if (!stallguard_tuner.isDone()) {
+      STATIC_ITEM(MSG_STALLGUARD_TUNING_RUNNING);
+      has_run = true;
+    }
+    else  if (has_run) {
+      has_run = false;
+      AxisEnum axis = stallguard_tuner.tunedAxis();
+
+      #if ENABLED(FT_MOTION)
+        if(stallguard_tuner.sg_ftmSuccess()) {
+          PSTRING_ITEM_N_P(axis, MSG_PROPOSED_FTM_SENSITIVITY_N, i8tostr3rj(stallguard_tuner.get_ftm_threshold()), SS_FULL);
+          GCODES_ITEM_N(axis, MSG_SAVE_FTM_SENSITIVITY_N, F("M921 S0"));
+        }
+        else
+          PSTRING_ITEM_N_P(axis, MSG_STALLGUARD_TUNING_N, GET_TEXT(MSG_FTM_SG_TUNING_FAILED), SS_FULL);
+      #endif
+
+      #if HAS_STANDARD_MOTION
+        if(stallguard_tuner.sg_stdSuccess()) {
+          PSTRING_ITEM_N_P(axis, MSG_PROPOSED_STD_SENSITIVITY_N, i8tostr3rj(stallguard_tuner.get_std_threshold()), SS_FULL);
+          GCODES_ITEM_N(axis, MSG_SAVE_STD_SENSITIVITY_N, F("M921 S1"));
+        }
+        else
+          PSTRING_ITEM_N_P(axis, MSG_STALLGUARD_TUNING_N, GET_TEXT(MSG_STD_SG_TUNING_FAILED), SS_FULL);
+      #endif
+
+    }
+    else {
+      #if X_SENSORLESS
+        GCODES_ITEM_N(X_AXIS, MSG_STALLGUARD_TUNING_N, F("M921 X"));
+      #endif
+      #if Y_SENSORLESS
+        GCODES_ITEM_N(Y_AXIS, MSG_STALLGUARD_TUNING_N, F("M921 Y"));
+      #endif
+    }
+    
+    END_MENU();
+  }
+
+#endif // STALLGUARD_TUNING_MENU
+
 void menu_tmc() {
   START_MENU();
   BACK_ITEM(MSG_ADVANCED_SETTINGS);
@@ -178,6 +229,9 @@ void menu_tmc() {
   TERN_(SENSORLESS_HOMING,       SUBMENU(MSG_TMC_HOMING_THRS, menu_tmc_homing_thrs));
   TERN_(EDITABLE_HOMING_CURRENT, SUBMENU(MSG_TMC_HOMING_CURRENT, menu_tmc_homing_current));
   TERN_(HAS_STEALTHCHOP,         SUBMENU(MSG_TMC_STEALTHCHOP, menu_tmc_step_mode));
+  TERN_(STALLGUARD_TUNING_MENU,  CONFIRM_ITEM(MSG_STALLGUARD_TUNING, MSG_PROGRESS_OK, MSG_BUTTON_CANCEL,\
+                                              menu_tmc_stallguard_tuning, ui.go_back,\
+                                              GET_TEXT_F(MSG_MOVE_WARNING),(const char *)nullptr));
   END_MENU();
 }
 
