@@ -3064,12 +3064,13 @@
 #endif
 
 /**
- * Only constrain Z on DELTA / SCARA machines
+ * Only constrain Z on DELTA / TPARA machines.
+ * SCARA can also constrain XY to the bed bounds.
  */
 #if ENABLED(POLAR)
   #undef MIN_SOFTWARE_ENDSTOP_Y
   #undef MAX_SOFTWARE_ENDSTOP_Y
-#elif IS_KINEMATIC
+#elif IS_KINEMATIC && DISABLED(SCARA)
   #undef MIN_SOFTWARE_ENDSTOP_X
   #undef MIN_SOFTWARE_ENDSTOP_Y
   #undef MAX_SOFTWARE_ENDSTOP_X
