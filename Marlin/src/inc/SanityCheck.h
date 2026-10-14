@@ -275,6 +275,34 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
 #endif
 
 /**
+ * SCARA / TPARA: the bed and the home position must lie inside the movement limits.
+ * A home position outside (X|Y)_(MIN|MAX)_POS is clamped by the software endstops,
+ * so the first move after G28 jumps to the nearest limit. (The printable area may
+ * extend past the bed, but not past the movement limits.)
+ */
+#if IS_SCARA
+  static_assert(X_MIN_BED >= X_MIN_POS && X_MAX_BED <= X_MAX_POS,
+    "SCARA: X_MIN_POS and X_MAX_POS must contain the bed. With BED_CENTER_AT_0_0 the bed spans -X_BED_SIZE/2 to X_BED_SIZE/2, otherwise 0 to X_BED_SIZE.");
+  static_assert(Y_MIN_BED >= Y_MIN_POS && Y_MAX_BED <= Y_MAX_POS,
+    "SCARA: Y_MIN_POS and Y_MAX_POS must contain the bed. With BED_CENTER_AT_0_0 the bed spans -Y_BED_SIZE/2 to Y_BED_SIZE/2, otherwise 0 to Y_BED_SIZE.");
+
+  #if ENABLED(SCARA) && defined(SCARA_HOME_THETA)
+    // G28 sets the joints to SCARA_HOME_THETA / SCARA_HOME_PSI, which places the tool at the forward kinematics of those angles
+    constexpr float _scara_home_x = float(SCARA_LINKAGE_1) * cosf(RADIANS(SCARA_HOME_THETA)) + float(SCARA_LINKAGE_2) * cosf(RADIANS((SCARA_HOME_THETA) + (SCARA_HOME_PSI))) + float(SCARA_OFFSET_X),
+                    _scara_home_y = float(SCARA_LINKAGE_1) * sinf(RADIANS(SCARA_HOME_THETA)) + float(SCARA_LINKAGE_2) * sinf(RADIANS((SCARA_HOME_THETA) + (SCARA_HOME_PSI))) + float(SCARA_OFFSET_Y);
+    static_assert(_scara_home_x >= float(X_MIN_POS) - 0.01f && _scara_home_x <= float(X_MAX_POS) + 0.01f,
+      "SCARA_HOME_THETA / SCARA_HOME_PSI put the home position outside X_MIN_POS...X_MAX_POS. Widen the X limits or change the home angles.");
+    static_assert(_scara_home_y >= float(Y_MIN_POS) - 0.01f && _scara_home_y <= float(Y_MAX_POS) + 0.01f,
+      "SCARA_HOME_THETA / SCARA_HOME_PSI put the home position outside Y_MIN_POS...Y_MAX_POS. Widen the Y limits or change the home angles.");
+  #else
+    static_assert(float(X_HOME_POS) >= float(X_MIN_POS) - 0.01f && float(X_HOME_POS) <= float(X_MAX_POS) + 0.01f,
+      "X_HOME_POS (or MANUAL_X_HOME_POS) is outside X_MIN_POS...X_MAX_POS.");
+    static_assert(float(Y_HOME_POS) >= float(Y_MIN_POS) - 0.01f && float(Y_HOME_POS) <= float(Y_MAX_POS) + 0.01f,
+      "Y_HOME_POS (or MANUAL_Y_HOME_POS) is outside Y_MIN_POS...Y_MAX_POS.");
+  #endif
+#endif
+
+/**
  * Granular software endstops (Marlin >= 1.1.7)
  */
 #if ENABLED(MIN_SOFTWARE_ENDSTOPS) && NONE(MIN_SOFTWARE_ENDSTOP_Z, POLARGRAPH)
