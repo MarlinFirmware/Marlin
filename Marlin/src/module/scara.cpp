@@ -40,6 +40,10 @@
   #include "endstops.h"
 #endif
 
+#if ALL(SCARA, HAS_BED_PROBE)
+  #include "probe.h"
+#endif
+
 //#define SCARA_DEBUG
 #define DEBUG_OUT ENABLED(SCARA_DEBUG)
 #include "../core/debug_out.h"
@@ -65,21 +69,54 @@ float segments_per_second = DEFAULT_SEGMENTS_PER_SECOND;
    * The factors depend only on the offset, so they are kept until a hotend XY offset changes
    * (M218, M501, M502, the LCD, ...), which makes every change take effect without a hook.
    */
+  // Set while the probe is the active tool: its offset from T0 (in the forearm's frame) replaces the hotend's
+  static const xy_pos_t *scara_offset_override = nullptr;
+
   scara_tool_t scara_active_tool() {
+    static xy_pos_t last_offset = { NAN, NAN };
+    static scara_tool_t tool = { L2, 0 };
+    xy_pos_t offset = { 0, 0 };
     #if HAS_HOTEND_OFFSET
-      static xy_pos_t last_offset = { NAN, NAN };
-      static scara_tool_t tool = { L2, 0 };
-      const xy_pos_t offset = { motion.active_hotend_offset().x - motion.hotend_offset[0].x,
-                                motion.active_hotend_offset().y - motion.hotend_offset[0].y };
-      if (offset.x != last_offset.x || offset.y != last_offset.y) {
-        tool = scara_tool(offset);
-        last_offset = offset;
-      }
-      return tool;
-    #else
-      return { L2, 0 };
+      offset.set(motion.active_hotend_offset().x - motion.hotend_offset[0].x,
+                 motion.active_hotend_offset().y - motion.hotend_offset[0].y);
     #endif
+    if (scara_offset_override) offset = *scara_offset_override;
+    if (offset.x != last_offset.x || offset.y != last_offset.y) {
+      tool = scara_tool(offset);
+      last_offset = offset;
+    }
+    return tool;
   }
+
+  bool scara_can_reach(const xy_pos_t &point, const scara_tool_t &tool, const float inset/*=0*/) {
+    const float R2 = HYPOT2(point.x - scara_offset.x, point.y - scara_offset.y),
+                outer = L1 + tool.length - inset;
+    float inner = ABS(L1 - tool.length);
+    #if MIDDLE_DEAD_ZONE_R > 0
+      NOLESS(inner, float(MIDDLE_DEAD_ZONE_R));
+    #endif
+    inner += inset;
+    return outer > 0 && R2 <= sq(outer) && R2 >= sq(inner);
+  }
+
+  #if HAS_BED_PROBE
+
+    ScaraProbeTool::ScaraProbeTool(const bool use) : used(use) {
+      if (used) scara_offset_override = &probe.offset_xy;
+    }
+
+    ScaraProbeTool::~ScaraProbeTool() {
+      if (!used) return;
+      scara_offset_override = nullptr;
+      // The arm hasn't moved, but the hotend is the tool again, so its XY position is where the arm puts it now
+      planner.synchronize();
+      motion.get_cartesian_from_steppers();
+      motion.position.x = motion.cartes.x;
+      motion.position.y = motion.cartes.y;
+      motion.sync_plan_position();
+    }
+
+  #endif // HAS_BED_PROBE
 
   /**
    * Morgan SCARA Forward Kinematics. Results in 'cartes'.

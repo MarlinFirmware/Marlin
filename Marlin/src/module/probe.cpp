@@ -974,6 +974,12 @@ float Probe::probe_at_point(
     DEBUG_POS("", motion.position);
   }
 
+  #if ENABLED(SCARA)
+    // The probe is bolted to the forearm, so its offset turns with the arm: the probe is a tool with a virtual
+    // forearm, moved to the point itself. It is the active tool until this function returns.
+    const ScaraProbeTool probe_tool(probe_relative);
+  #endif
+
   // Use a safe Z height for the XY move
   const float safe_z = _MAX(motion.position.z, z_clearance);
 
@@ -991,7 +997,9 @@ float Probe::probe_at_point(
   if (DEBUGGING(LEVELING)) DEBUG_ECHOPGM("Move to probe");
   if (probe_relative) { // Get the nozzle position, adjust for active hotend if not 0
     if (DEBUGGING(LEVELING)) DEBUG_ECHOPGM("-relative");
-    npos -= DIFF_TERN(HAS_HOTEND_OFFSET, offset_xy, motion.active_hotend_offset());
+    #if DISABLED(SCARA) // The SCARA probe tool is moved to the point itself
+      npos -= DIFF_TERN(HAS_HOTEND_OFFSET, offset_xy, motion.active_hotend_offset());
+    #endif
   }
   if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM(" point");
 
