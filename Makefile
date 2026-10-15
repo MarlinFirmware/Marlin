@@ -5,6 +5,7 @@ CONTAINER_RT_OPTS := --rm -v $(PWD):/code -v platformio-cache:/root/.platformio
 CONTAINER_IMAGE := marlin-dev
 UNIT_TEST_CONFIG ?= default
 PRETTIER_VERSION ?= 3.9.6
+export PRETTIER_VERSION
 
 # Find a Python 3 interpreter
 ifeq ($(OS),Windows_NT)
