@@ -75,6 +75,19 @@ extern float segments_per_second;
   // Returns true if the point had to move.
   bool scara_clamp_reach(xy_pos_t &point, const scara_tool_t &tool, const float inset=0);
 
+  // Which way the elbow bends. 1 = counterclockwise (right-handed), -1 = clockwise. G28 sets it from the side of the
+  // home angle, M665 D changes it. The elbow can only change sides through a straight arm.
+  extern int8_t scara_elbow_dir;
+
+  // Change the side of the elbow. If the arm is homed it goes out to full extension along the line from the shoulder
+  // through the tool, bends the other way there, and comes back to where it was. Returns false (and leaves the elbow as
+  // it was) if that can't be done: the joint ranges don't allow the straight or the other-sided arm, or the tool is at the shoulder.
+  bool scara_set_elbow_dir(const int8_t dir);
+
+  // Move the point to where the arms put the tool when the joints are kept inside their ranges (SCARA_THETA_MIN/MAX and
+  // SCARA_PSI_MIN/MAX). Returns true if it had to move. Always false without ranges.
+  bool scara_clamp_joints(xy_pos_t &point, const scara_tool_t &tool);
+
   // Can the tool reach every point of the rectangle? The reach is a disc less a disc, so the outer edge reaches the whole
   // rectangle if it reaches the corners, and the dead zone misses it if the point of the rectangle nearest the shoulder
   // is outside it.

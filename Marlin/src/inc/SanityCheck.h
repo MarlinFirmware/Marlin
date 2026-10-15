@@ -303,6 +303,40 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
 #endif
 
 /**
+ * SCARA joint angle ranges: both ends of a range, a range that holds the home angles. The shoulder homes at one end of its
+ * range, which is where its endstop is, so a range that went past it would let the arm run into the switch.
+ */
+#if ENABLED(SCARA)
+  #if defined(SCARA_THETA_MIN) != defined(SCARA_THETA_MAX)
+    #error "SCARA_THETA_MIN and SCARA_THETA_MAX must both be defined, or neither."
+  #endif
+  #if defined(SCARA_PSI_MIN) != defined(SCARA_PSI_MAX)
+    #error "SCARA_PSI_MIN and SCARA_PSI_MAX must both be defined, or neither."
+  #endif
+  #ifdef SCARA_THETA_MIN
+    static_assert(float(SCARA_THETA_MIN) < float(SCARA_THETA_MAX) && float(SCARA_THETA_MAX) - float(SCARA_THETA_MIN) <= 360.0f,
+      "SCARA_THETA_MIN must be less than SCARA_THETA_MAX, and no more than 360 degrees below it.");
+    #ifdef SCARA_HOME_THETA
+      #if X_HOME_DIR < 0
+        static_assert(float(SCARA_THETA_MIN) > float(SCARA_HOME_THETA) - 0.01f && float(SCARA_THETA_MIN) < float(SCARA_HOME_THETA) + 0.01f,
+          "SCARA_THETA_MIN must be SCARA_HOME_THETA when X_HOME_DIR is negative: the shoulder homes at its minimum.");
+      #else
+        static_assert(float(SCARA_THETA_MAX) > float(SCARA_HOME_THETA) - 0.01f && float(SCARA_THETA_MAX) < float(SCARA_HOME_THETA) + 0.01f,
+          "SCARA_THETA_MAX must be SCARA_HOME_THETA when X_HOME_DIR is positive: the shoulder homes at its maximum.");
+      #endif
+    #endif
+  #endif
+  #ifdef SCARA_PSI_MIN
+    static_assert(float(SCARA_PSI_MIN) < float(SCARA_PSI_MAX) && float(SCARA_PSI_MIN) >= -180.0f && float(SCARA_PSI_MAX) <= 180.0f,
+      "SCARA_PSI_MIN must be less than SCARA_PSI_MAX, and both between -180 and 180.");
+    #ifdef SCARA_HOME_PSI
+      static_assert(float(SCARA_HOME_PSI) >= float(SCARA_PSI_MIN) - 0.01f && float(SCARA_HOME_PSI) <= float(SCARA_PSI_MAX) + 0.01f,
+        "SCARA_HOME_PSI must be inside SCARA_PSI_MIN...SCARA_PSI_MAX.");
+    #endif
+  #endif
+#endif
+
+/**
  * Granular software endstops (Marlin >= 1.1.7)
  */
 #if ENABLED(MIN_SOFTWARE_ENDSTOPS) && NONE(MIN_SOFTWARE_ENDSTOP_Z, POLARGRAPH)
