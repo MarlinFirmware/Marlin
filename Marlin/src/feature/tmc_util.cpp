@@ -52,6 +52,10 @@
   homing_current_t homing_current_mA;
 #endif
 
+#if ENABLED(HOMING_HYBRID_THRESHOLD)
+  homing_hybrid_thrs_t homing_hybrid_thrs;
+#endif
+
 /**
  * Check for over temperature or short to ground error flags.
  * Report and log warning of overtemperature condition.
@@ -157,7 +161,6 @@
       constexpr uint8_t OT_bp = 25, OTPW_bp = 26;
       constexpr uint32_t S2G_bm = 0x18000000;
       #if ENABLED(TMC_DEBUG)
-        constexpr uint16_t SG_RESULT_bm = 0x3FF; // 0:9
         constexpr uint8_t STEALTH_bp = 14;
         constexpr uint32_t CS_ACTUAL_bm = 0x1F0000; // 16:20
         constexpr uint8_t STALL_GUARD_bp = 24;
@@ -170,7 +173,7 @@
         // 8-bit optimization saves up to 70 bytes of PROGMEM per axis
         uint8_t spart;
         #if ENABLED(TMC_DEBUG)
-          data.sg_result = ds & SG_RESULT_bm;
+          data.sg_result = st.sg4_result(); // StallGuard4 load (SG4_RESULT register)
           spart = ds >> 8;
           data.is_stealth = TEST(spart, STEALTH_bp - 8);
           spart = ds >> 16;
@@ -193,7 +196,7 @@
         data.is_s2g = !!(ds & S2G_bm);
         #if ENABLED(TMC_DEBUG)
           constexpr uint8_t CS_ACTUAL_sb = 16;
-          data.sg_result = ds & SG_RESULT_bm;
+          data.sg_result = st.sg4_result(); // StallGuard4 load (SG4_RESULT register)
           data.is_stealth = TEST(ds, STEALTH_bp);
           data.cs_actual = (ds & CS_ACTUAL_bm) >> CS_ACTUAL_sb;
           data.is_stall = TEST(ds, STALL_GUARD_bp);
@@ -725,7 +728,7 @@
         case TMC_DRV_CS_ACTUAL: if (st.CS_ACTUAL())  SERIAL_CHAR('*'); break;
         case TMC_STALLGUARD:    if (st.stallguard()) SERIAL_CHAR('*'); break;
         case TMC_OT:            if (st.ot())         SERIAL_CHAR('*'); break;
-        case TMC_SG_RESULT:     SERIAL_ECHO(st.SG_RESULT());           break;
+        case TMC_SG_RESULT:     SERIAL_ECHO(st.sg4_result());          break; // StallGuard4 load (0-510)
         default: break; // other...
       }
     }
@@ -1177,14 +1180,12 @@
     st.TCOOLTHRS(0);
   }
 
+  // TMC2240 homes in stealthChop with StallGuard4, like the TMC2209
   bool tmc_enable_stallguard(TMC2240Stepper &st) {
     const bool stealthchop_was_enabled = st.en_pwm_mode();
 
-    // TODO: Use StallGuard4 when stealthChop is enabled
-    //       and leave stealthChop state unchanged.
-
     st.TCOOLTHRS(0xFFFFF);
-    st.en_pwm_mode(false);
+    st.en_pwm_mode(true);
     st.diag0_stall(true);
 
     return stealthchop_was_enabled;

@@ -554,6 +554,7 @@ namespace LanguageNarrow_en {
   LSTR MSG_TMC_DRIVERS                    = _UxGT("TMC Drivers");
   LSTR MSG_TMC_CURRENT                    = _UxGT("Driver Current");
   LSTR MSG_TMC_HYBRID_THRS                = _UxGT("Hybrid Threshold");
+  LSTR MSG_TMC_HOMING_HYBRID_THRS         = _UxGT("Homing Hybrid Thrs");
   LSTR MSG_TMC_HOMING_THRS                = _UxGT("Sensorless Homing");
   LSTR MSG_TMC_STEPPING_MODE              = _UxGT("Stepping Mode");
   LSTR MSG_TMC_STEALTHCHOP                = _UxGT("StealthChop");

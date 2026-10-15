@@ -68,6 +68,10 @@
   #endif
 #endif
 
+#if ENABLED(PROBING_USE_CURRENT_HOME)
+  #include "../feature/tmc_util.h"
+#endif
+
 #if ENABLED(MEASURE_BACKLASH_WHEN_PROBING)
   #include "../feature/backlash.h"
 #endif
@@ -994,8 +998,8 @@ float Probe::probe_at_point(
   // Move the probe to the starting XYZ
   motion.blocking_move(npos, feedRate_t(XY_PROBE_FEEDRATE_MM_S));
 
-  // Change Z motor current to homing current
-  TERN_(PROBING_USE_CURRENT_HOME, motion.set_homing_current(Z_AXIS));
+  // Use the Z homing current until this function returns
+  TERN_(PROBING_USE_CURRENT_HOME, const TemporaryHomingCurrent temp_current(Z_AXIS));
 
   float measured_z;
 
@@ -1053,9 +1057,6 @@ float Probe::probe_at_point(
     }
 
   #endif // !BD_SENSOR
-
-  // Restore the Z homing current
-  TERN_(PROBING_USE_CURRENT_HOME, motion.restore_homing_current(Z_AXIS));
 
   return measured_z;
 }
