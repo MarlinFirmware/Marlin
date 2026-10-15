@@ -1471,6 +1471,29 @@ void Motion::restore_feedrate_and_scaling() {
 
     #endif
 
+    #if ENABLED(SCARA)
+      // The software endstops are a box (the bed), but the tool reaches a ring around the shoulder. Bring a target
+      // the arm can't reach to the nearest point that it can, inside the box.
+      if (axis_was_homed(X_AXIS) && axis_was_homed(Y_AXIS)) {
+        // A side whose software endstop is disabled has no limit
+        xy_pos_t lo = { -1e6f, -1e6f }, hi = { 1e6f, 1e6f };
+        #if !HAS_SOFTWARE_ENDSTOPS || ENABLED(MIN_SOFTWARE_ENDSTOP_X)
+          lo.x = soft_endstop.min.x;
+        #endif
+        #if !HAS_SOFTWARE_ENDSTOPS || ENABLED(MIN_SOFTWARE_ENDSTOP_Y)
+          lo.y = soft_endstop.min.y;
+        #endif
+        #if !HAS_SOFTWARE_ENDSTOPS || ENABLED(MAX_SOFTWARE_ENDSTOP_X)
+          hi.x = soft_endstop.max.x;
+        #endif
+        #if !HAS_SOFTWARE_ENDSTOPS || ENABLED(MAX_SOFTWARE_ENDSTOP_Y)
+          hi.y = soft_endstop.max.y;
+        #endif
+        xy_pos_t p = target;
+        if (scara_clamp_to_limits(p, scara_active_tool(), lo, hi, SCARA_REACH_MARGIN)) { target.x = p.x; target.y = p.y; }
+      }
+    #endif
+
     #if HAS_Z_AXIS
       if (axis_was_homed(Z_AXIS)) {
         #if !HAS_SOFTWARE_ENDSTOPS || ENABLED(MIN_SOFTWARE_ENDSTOP_Z)
