@@ -64,8 +64,24 @@ extern float segments_per_second;
   // Where 'to' is when 'from' is at the point: the same arm, a different tool
   xy_pos_t scara_convert(const xy_pos_t &point, const scara_tool_t &from, const scara_tool_t &to);
 
-  // Can the tool reach the point? The reach is a ring around the shoulder, narrower for 'inset' mm at both edges.
+  // The reach of a tool is a ring around the shoulder: the elbow can't fold or straighten all the way without
+  // trouble, so the ring is narrowed by 'inset' mm at both edges. It excludes a dead zone around the shoulder.
+  void scara_reach_ring(const scara_tool_t &tool, const float inset, float &inner, float &outer);
+
+  // Can the tool reach the point?
   bool scara_can_reach(const xy_pos_t &point, const scara_tool_t &tool, const float inset=0);
+
+  // Move the point to the nearest point the tool can reach, straight toward or away from the shoulder.
+  // Returns true if the point had to move.
+  bool scara_clamp_reach(xy_pos_t &point, const scara_tool_t &tool, const float inset=0);
+
+  // Move the point to the nearest point the tool can reach inside the box (the software endstops). Returns false, with
+  // the point unchanged, if no point can be both (the box is entirely in the dead zone or out of reach).
+  bool scara_clamp_to_limits(xy_pos_t &point, const scara_tool_t &tool, const xy_pos_t &box_min, const xy_pos_t &box_max, const float inset=0);
+
+  // A target is kept this far inside the edges of the reach: at full extension or fold a small move of the tool
+  // is a big turn of the elbow
+  constexpr float SCARA_REACH_MARGIN = 0.1f;
 
   #if HAS_BED_PROBE
     /**

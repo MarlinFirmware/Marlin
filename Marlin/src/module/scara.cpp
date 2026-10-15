@@ -99,15 +99,80 @@ float segments_per_second = DEFAULT_SEGMENTS_PER_SECOND;
     return scara_cached_tool(*scara_offset_override, last_offset, tool);
   }
 
-  bool scara_can_reach(const xy_pos_t &point, const scara_tool_t &tool, const float inset/*=0*/) {
-    const float R2 = HYPOT2(point.x - scara_offset.x, point.y - scara_offset.y),
-                outer = L1 + tool.length - inset;
-    float inner = ABS(L1 - tool.length);
+  void scara_reach_ring(const scara_tool_t &tool, const float inset, float &inner, float &outer) {
+    outer = L1 + tool.length - inset;
+    inner = ABS(L1 - tool.length);
     #if MIDDLE_DEAD_ZONE_R > 0
       NOLESS(inner, float(MIDDLE_DEAD_ZONE_R));
     #endif
     inner += inset;
+  }
+
+  bool scara_can_reach(const xy_pos_t &point, const scara_tool_t &tool, const float inset/*=0*/) {
+    float inner, outer;
+    scara_reach_ring(tool, inset, inner, outer);
+    const float R2 = HYPOT2(point.x - scara_offset.x, point.y - scara_offset.y);
     return outer > 0 && R2 <= sq(outer) && R2 >= sq(inner);
+  }
+
+  bool scara_clamp_reach(xy_pos_t &point, const scara_tool_t &tool, const float inset/*=0*/) {
+    float inner, outer;
+    scara_reach_ring(tool, inset, inner, outer);
+    NOLESS(outer, 0.0f);
+    if (inner > outer) inner = outer = (inner + outer) * 0.5f;  // Too narrow to have a ring: the middle of it
+
+    const float dx = point.x - scara_offset.x, dy = point.y - scara_offset.y, R2 = HYPOT2(dx, dy);
+    if (R2 <= sq(outer) && R2 >= sq(inner)) return false;
+
+    // Straight toward or away from the shoulder is the nearest. At the shoulder itself any direction is, so use +Y
+    const float R = SQRT(R2), r = R2 > sq(outer) ? outer : inner;
+    const bool at_center = R < 0.001f;
+    point.x = scara_offset.x + (at_center ? 0.0f : dx / R * r);
+    point.y = scara_offset.y + (at_center ? r : dy / R * r);
+    return true;
+  }
+
+  bool scara_clamp_to_limits(xy_pos_t &point, const scara_tool_t &tool, const xy_pos_t &box_min, const xy_pos_t &box_max, const float inset/*=0*/) {
+    float inner, outer;
+    scara_reach_ring(tool, inset, inner, outer);
+    if (outer <= 0 || inner > outer) return false;
+
+    // The nearest point of the region (the box less the dead zone and past the reach) is on its edge: along a side of the box,
+    // or on an arc of one of the two circles. So try each of these, and the corners and crossings where they meet.
+    constexpr float eps = 0.001f;
+    const xy_pos_t c = scara_offset;
+    float best_d2 = 1e30f;
+    xy_pos_t best = point;
+    auto try_point = [&](const float x, const float y) {
+      const float R = HYPOT(x - c.x, y - c.y);
+      if (x < box_min.x - eps || x > box_max.x + eps || y < box_min.y - eps || y > box_max.y + eps) return;
+      if (R < inner - eps || R > outer + eps) return;
+      const float d2 = HYPOT2(x - point.x, y - point.y);
+      if (d2 < best_d2) { best_d2 = d2; best.set(x, y); }
+    };
+
+    const float xc = _MAX(box_min.x, _MIN(box_max.x, point.x)), yc = _MAX(box_min.y, _MIN(box_max.y, point.y));
+    try_point(xc, yc);                                               // The box's nearest point
+    try_point(box_min.x, yc); try_point(box_max.x, yc);              // The nearest point on each side
+    try_point(xc, box_min.y); try_point(xc, box_max.y);
+    const float xs[] = { box_min.x, box_max.x }, ys[] = { box_min.y, box_max.y }, radii[] = { inner, outer };
+    for (uint8_t i = 0; i < 2; ++i) for (uint8_t j = 0; j < 2; ++j)
+      try_point(xs[i], ys[j]);                                       // The corners
+
+    const float R = HYPOT(point.x - c.x, point.y - c.y);
+    for (uint8_t k = 0; k < 2; ++k) {
+      const float r = radii[k];
+      if (R > 0.001f) try_point(c.x + (point.x - c.x) / R * r, c.y + (point.y - c.y) / R * r); // The nearest point on the circle
+      for (uint8_t i = 0; i < 2; ++i) {                              // Where the circle crosses each side
+        const float dx = xs[i] - c.x, dy = ys[i] - c.y;
+        if (ABS(dx) <= r) { const float h = SQRT(sq(r) - sq(dx)); try_point(xs[i], c.y + h); try_point(xs[i], c.y - h); }
+        if (ABS(dy) <= r) { const float w = SQRT(sq(r) - sq(dy)); try_point(c.x + w, ys[i]); try_point(c.x - w, ys[i]); }
+      }
+    }
+
+    if (best_d2 >= 1e30f) return false;
+    point = best;
+    return true;
   }
 
   #if HAS_BED_PROBE
@@ -211,9 +276,15 @@ float segments_per_second = DEFAULT_SEGMENTS_PER_SECOND;
 
   void inverse_kinematics(const xyz_pos_t &raw) {
     // Math adapted from RepRepFirmware ScaraKinematics.cpp https://github.com/Duet3D/RepRapFirmware
-    // Solve for the active tool's virtual forearm, which is at an angle from the real one
+    // Solve for the active tool's virtual forearm, which is at an angle from the real one. Every segment of a
+    // move comes through here, so a point the arm can't reach (past full extension, or the dead zone that a
+    // straight line between reachable points can cross) goes to the nearest one that it can: the path bends
+    // around the dead zone instead of the arm getting a NaN.
+    const scara_tool_t tool = scara_active_tool();
+    xy_pos_t point = { raw.x, raw.y };
+    scara_clamp_reach(point, tool);
     float theta, psi;
-    scara_angles(raw, scara_active_tool(), theta, psi);
+    scara_angles(point, tool, theta, psi, true);
     motion.delta.set(DEGREES(theta), DEGREES(psi + theta * SCARA_CROSSTALK_FACTOR), raw.z);
 
     /*
