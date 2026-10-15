@@ -115,6 +115,20 @@ float segments_per_second = DEFAULT_SEGMENTS_PER_SECOND;
     return outer > 0 && R2 <= sq(outer) && R2 >= sq(inner);
   }
 
+  bool scara_rect_reachable(const xy_pos_t &corner1, const xy_pos_t &corner2, const scara_tool_t &tool, const float inset/*=0*/) {
+    float inner, outer;
+    scara_reach_ring(tool, inset, inner, outer);
+    if (outer <= 0) return false;
+    const float x1 = _MIN(corner1.x, corner2.x), x2 = _MAX(corner1.x, corner2.x),
+                y1 = _MIN(corner1.y, corner2.y), y2 = _MAX(corner1.y, corner2.y),
+                dx1 = x1 - scara_offset.x, dx2 = x2 - scara_offset.x,
+                dy1 = y1 - scara_offset.y, dy2 = y2 - scara_offset.y,
+                nx = _MAX(x1, _MIN(x2, scara_offset.x)) - scara_offset.x,   // The nearest point of the rectangle to the shoulder
+                ny = _MAX(y1, _MIN(y2, scara_offset.y)) - scara_offset.y;
+    const float far2 = _MAX(_MAX(HYPOT2(dx1, dy1), HYPOT2(dx2, dy1)), _MAX(HYPOT2(dx1, dy2), HYPOT2(dx2, dy2)));
+    return far2 <= sq(outer) && HYPOT2(nx, ny) >= sq(inner);
+  }
+
   bool scara_clamp_reach(xy_pos_t &point, const scara_tool_t &tool, const float inset/*=0*/) {
     float inner, outer;
     scara_reach_ring(tool, inset, inner, outer);
