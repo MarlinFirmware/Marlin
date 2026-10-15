@@ -410,6 +410,12 @@ float segments_per_second = DEFAULT_SEGMENTS_PER_SECOND;
     // stopped at the end of its range leaves the tool where the arms put it.
     TERN_(SCARA_HAS_JOINT_RANGES, scara_limit_angles(theta, psi));
 
+    // With no range for the shoulder, atan2 gives its angle from -180 to 180, so a tool crossing the line behind the
+    // shoulder would turn the arm 360 degrees the long way around. The same direction nearest the last angle is the short way.
+    #ifndef SCARA_THETA_MIN
+      theta += 360.0f * roundf((motion.delta.a - theta) / 360.0f);
+    #endif
+
     motion.delta.set(theta, psi + theta * SCARA_CROSSTALK_FACTOR, raw.z);
 
     /*
