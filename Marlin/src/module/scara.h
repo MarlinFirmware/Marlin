@@ -75,6 +75,11 @@ extern float segments_per_second;
   // Returns true if the point had to move.
   bool scara_clamp_reach(xy_pos_t &point, const scara_tool_t &tool, const float inset=0);
 
+  // Can the tool reach every point of the rectangle? The reach is a disc less a disc, so the outer edge reaches the whole
+  // rectangle if it reaches the corners, and the dead zone misses it if the point of the rectangle nearest the shoulder
+  // is outside it.
+  bool scara_rect_reachable(const xy_pos_t &corner1, const xy_pos_t &corner2, const scara_tool_t &tool, const float inset=0);
+
   // Move the point to the nearest point the tool can reach inside the box (the software endstops). Returns false, with
   // the point unchanged, if no point can be both (the box is entirely in the dead zone or out of reach).
   bool scara_clamp_to_limits(xy_pos_t &point, const scara_tool_t &tool, const xy_pos_t &box_min, const xy_pos_t &box_max, const float inset=0);
