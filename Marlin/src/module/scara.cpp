@@ -54,6 +54,12 @@ float segments_per_second = DEFAULT_SEGMENTS_PER_SECOND;
 
   constexpr xy_pos_t scara_offset = { SCARA_OFFSET_X, SCARA_OFFSET_Y };
 
+  int8_t scara_elbow_dir = SCARA_ELBOW_DIR;
+
+  #if defined(SCARA_THETA_MIN) || defined(SCARA_PSI_MIN)
+    #define SCARA_HAS_JOINT_RANGES 1
+  #endif
+
   /**
    * The virtual forearm of a tool at 'offset' (forearm frame) from the L2 tool point.
    * The tool is at (offset.x across, L2 + offset.y along) the forearm from the elbow.
@@ -108,11 +114,14 @@ float segments_per_second = DEFAULT_SEGMENTS_PER_SECOND;
     inner += inset;
   }
 
+  static bool scara_angles_allowed(const xy_pos_t &point, const scara_tool_t &tool, const int8_t dir);
+
   bool scara_can_reach(const xy_pos_t &point, const scara_tool_t &tool, const float inset/*=0*/) {
     float inner, outer;
     scara_reach_ring(tool, inset, inner, outer);
     const float R2 = HYPOT2(point.x - scara_offset.x, point.y - scara_offset.y);
-    return outer > 0 && R2 <= sq(outer) && R2 >= sq(inner);
+    return outer > 0 && R2 <= sq(outer) && R2 >= sq(inner)
+        && scara_angles_allowed(point, tool, scara_elbow_dir);   // ...and the joints can turn that far (always, without ranges)
   }
 
   bool scara_rect_reachable(const xy_pos_t &corner1, const xy_pos_t &corner2, const scara_tool_t &tool, const float inset/*=0*/) {
@@ -228,7 +237,7 @@ float segments_per_second = DEFAULT_SEGMENTS_PER_SECOND;
     const float x = point.x - scara_offset.x, y = point.y - scara_offset.y,
       cosPsi0 = (HYPOT2(x, y) - HYPOT2(L1, tool.length)) / (2.0f * L1 * tool.length),
       cosPsi = clamp ? _MAX(-1.0f, _MIN(1.0f, cosPsi0)) : cosPsi0,
-      virtual_psi = ACOS(cosPsi) * SCARA_ELBOW_DIR, K1 = L1 + tool.length * cosPsi, K2 = tool.length * sin(virtual_psi);
+      virtual_psi = ACOS(cosPsi) * scara_elbow_dir, K1 = L1 + tool.length * cosPsi, K2 = tool.length * sin(virtual_psi);
     theta = ATAN2(K1 * y - K2 * x, K1 * x + K2 * y);
     psi = virtual_psi - RADIANS(tool.angle);
   }
@@ -237,6 +246,101 @@ float segments_per_second = DEFAULT_SEGMENTS_PER_SECOND;
     float theta, psi;
     scara_angles(point, from, theta, psi, true);
     return scara_tip(DEGREES(theta), DEGREES(psi), to);
+  }
+
+  #if SCARA_HAS_JOINT_RANGES
+
+    /**
+     * Put the joint angles (degrees) inside their ranges. The shoulder is an angle, so it is first brought into the
+     * 360-degree window that starts at its minimum (the same direction, so the tool doesn't move). Returns true if
+     * an angle was past an end of its range and had to be stopped there, which moves the tool.
+     */
+    static bool scara_limit_angles(float &theta, float &psi) {
+      constexpr float eps = 0.001f;   // A point exactly at an end of a range is inside it, whatever the float math says
+      bool clamped = false;
+      #ifdef SCARA_THETA_MIN
+        constexpr float span = float(SCARA_THETA_MAX) - float(SCARA_THETA_MIN);
+        float d = theta - float(SCARA_THETA_MIN);
+        d -= 360.0f * FLOOR(d / 360.0f);
+        if (d > span) {                       // In the gap of the window: the nearer end of the range
+          if (d - span > eps && d < 360.0f - eps) clamped = true;
+          d = (d - span) <= (360.0f - d) ? span : 0.0f;
+        }
+        theta = float(SCARA_THETA_MIN) + d;
+      #endif
+      #ifdef SCARA_PSI_MIN
+        if (psi > 180.0f) psi -= 360.0f; else if (psi <= -180.0f) psi += 360.0f;
+        if (psi < float(SCARA_PSI_MIN))      { clamped |= (float(SCARA_PSI_MIN) - psi > eps); psi = float(SCARA_PSI_MIN); }
+        else if (psi > float(SCARA_PSI_MAX)) { clamped |= (psi - float(SCARA_PSI_MAX) > eps); psi = float(SCARA_PSI_MAX); }
+      #endif
+      return clamped;
+    }
+
+  #endif // SCARA_HAS_JOINT_RANGES
+
+  bool scara_clamp_joints(xy_pos_t &point, const scara_tool_t &tool) {
+    #if SCARA_HAS_JOINT_RANGES
+      float theta, psi;
+      scara_angles(point, tool, theta, psi, true);
+      theta = DEGREES(theta); psi = DEGREES(psi);
+      if (!scara_limit_angles(theta, psi)) return false;
+      point = scara_tip(theta, psi, tool);
+      return true;
+    #else
+      UNUSED(point); UNUSED(tool);
+      return false;
+    #endif
+  }
+
+  // Do the joint ranges allow the tool at the point, with the elbow bent the given way?
+  // (Declared above, where scara_can_reach uses it.)
+  static bool scara_angles_allowed(const xy_pos_t &point, const scara_tool_t &tool, const int8_t dir) {
+    #if SCARA_HAS_JOINT_RANGES
+      const int8_t was = scara_elbow_dir;
+      scara_elbow_dir = dir;
+      xy_pos_t p = point;
+      const bool ok = !scara_clamp_joints(p, tool);
+      scara_elbow_dir = was;
+      return ok;
+    #else
+      UNUSED(point); UNUSED(tool); UNUSED(dir);
+      return true;
+    #endif
+  }
+
+  bool scara_set_elbow_dir(const int8_t dir) {
+    const int8_t want = dir < 0 ? -1 : 1;
+    if (want == scara_elbow_dir) return true;
+
+    // Not homed: the position isn't known, so there is nothing to move. Homing sets the side from the home angle.
+    if (!motion.axis_was_homed(X_AXIS) || !motion.axis_was_homed(Y_AXIS)) {
+      scara_elbow_dir = want;
+      return true;
+    }
+
+    // The elbow can only change sides through a straight arm. So go out to full extension along the line from the
+    // shoulder through the tool, bend the other way there, and come back. Check that the arm can do all of it first.
+    const scara_tool_t tool = scara_active_tool();
+    float inner, outer;
+    scara_reach_ring(tool, 0, inner, outer);
+    const xy_pos_t here = { motion.position.x, motion.position.y };
+    const float dx = here.x - scara_offset.x, dy = here.y - scara_offset.y, R = HYPOT(dx, dy);
+    if (R < 0.001f) {
+      SERIAL_ERROR_MSG("The tool is at the shoulder. Move it away before changing the elbow.");
+      return false;
+    }
+    const float k = (outer - 0.001f) / R;     // Just short of straight, which is within reach
+    const xy_pos_t out = { scara_offset.x + dx * k, scara_offset.y + dy * k };
+
+    if (!scara_angles_allowed(out, tool, scara_elbow_dir) || !scara_angles_allowed(out, tool, want) || !scara_angles_allowed(here, tool, want)) {
+      SERIAL_ERROR_MSG("The joint ranges (SCARA_THETA_MIN/MAX, SCARA_PSI_MIN/MAX) don't allow the elbow to change sides here.");
+      return false;
+    }
+
+    motion.blocking_move_xy(out);
+    scara_elbow_dir = want;
+    motion.blocking_move_xy(here);
+    return true;
   }
 
   void forward_kinematics(const float theta, const float psi) {
@@ -265,6 +369,7 @@ float segments_per_second = DEFAULT_SEGMENTS_PER_SECOND;
       #ifdef SCARA_HOME_THETA
         motion.delta.a = SCARA_HOME_THETA;
         motion.delta.b = SCARA_HOME_PSI;
+        if (SCARA_HOME_PSI) scara_elbow_dir = SCARA_HOME_PSI > 0 ? 1 : -1;   // The arm is bent the way it was homed
       #else
         motion.position[X_AXIS] = motion.base_home_pos(X_AXIS);
         motion.position[Y_AXIS] = motion.base_home_pos(Y_AXIS);
@@ -299,7 +404,13 @@ float segments_per_second = DEFAULT_SEGMENTS_PER_SECOND;
     scara_clamp_reach(point, tool);
     float theta, psi;
     scara_angles(point, tool, theta, psi, true);
-    motion.delta.set(DEGREES(theta), DEGREES(psi + theta * SCARA_CROSSTALK_FACTOR), raw.z);
+    theta = DEGREES(theta); psi = DEGREES(psi);
+
+    // Keep each joint inside its range, which is also what turns the shoulder into the right window. A joint that is
+    // stopped at the end of its range leaves the tool where the arms put it.
+    TERN_(SCARA_HAS_JOINT_RANGES, scara_limit_angles(theta, psi));
+
+    motion.delta.set(theta, psi + theta * SCARA_CROSSTALK_FACTOR, raw.z);
 
     /*
       DEBUG_ECHOLNPGM("SCARA IK");

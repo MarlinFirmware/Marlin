@@ -1489,8 +1489,19 @@ void Motion::restore_feedrate_and_scaling() {
         #if !HAS_SOFTWARE_ENDSTOPS || ENABLED(MAX_SOFTWARE_ENDSTOP_Y)
           hi.y = soft_endstop.max.y;
         #endif
+        const scara_tool_t tool = scara_active_tool();
         xy_pos_t p = target;
-        if (scara_clamp_to_limits(p, scara_active_tool(), lo, hi, SCARA_REACH_MARGIN)) { target.x = p.x; target.y = p.y; }
+        bool moved = scara_clamp_to_limits(p, tool, lo, hi, SCARA_REACH_MARGIN);
+
+        // The joints are kept inside their ranges too, and a point they can't reach is the nearest one that they can.
+        // That can leave the box or the reach, so settle between them, and end on the joints, which are the hard stop.
+        for (uint8_t i = 0; i < 3 && scara_clamp_joints(p, tool); ++i) {
+          moved = true;
+          if (!scara_clamp_to_limits(p, tool, lo, hi, SCARA_REACH_MARGIN)) break;
+        }
+        scara_clamp_joints(p, tool);
+
+        if (moved) { target.x = p.x; target.y = p.y; }
       }
     #endif
 
