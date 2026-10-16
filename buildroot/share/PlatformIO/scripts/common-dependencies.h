@@ -59,6 +59,9 @@
   #if ENABLED(BACKLASH_GCODE)
     #define HAS_MENU_BACKLASH
   #endif
+  #if ALL(MKS_WIFI_MODULE, LCD_INFO_MENU)
+    #define HAS_MENU_MKS_WIFI
+  #endif
   #if ENABLED(LCD_BED_TRAMMING)
     #define HAS_MENU_BED_TRAMMING
   #endif

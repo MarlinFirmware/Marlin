@@ -193,10 +193,10 @@
 // MKS WiFi Module
 //
 #if ENABLED(MKS_WIFI_MODULE)
+  #define WIFI_SERIAL_PORT                     1  // USART1
   #define WIFI_IO0_PIN                      PC13
   #define WIFI_IO1_PIN                      PC7
   #define WIFI_RESET_PIN                    PE9
-  #define MKS_WIFI_MODULE_SERIAL               1  // USART1
   #define MKS_WIFI_MODULE_SPI                  2  // SPI2
 #else
   #define WIFI_SERIAL_PORT                     3  // USART3
