@@ -38,19 +38,23 @@
  * M140 - Set Bed Temperature target and return immediately
  * M190 - Set Bed Temperature target and wait
  *
- *  I<index>  : Preset index (if material presets are defined)
- *  S<target> : The target temperature in current units
- *
  * Parameters
- *  I<index>  : Preset index (if material presets are defined)
  *  S<target> : The target temperature in current units. Wait for heating only.
+ *  I<index>  : Preset index (if material presets are defined)
+ *  A<index>  : (BED_ZONES) Zone index (0-based). Sets the target for that one zone only.
+ *  K<mask>   : (BED_ZONES) Bitmask of zones to target. Bit 0 = zone 0, bit 1 = zone 1, etc.
+ *              Overrides the persistent active zone mask (M142) for this command only.
+ *              M190 waits for the zones it set.
  *
  * M190 Parameters
  *  R<target> : The target temperature in current units. Wait for heating and cooling.
  *
  * Examples
- *  M140 S60 : Set target to 60° and return right away.
- *  M190 R40 : Set target to 40°. Wait until the bed gets close to 40°.
+ *  M140 S60        : Set target to 60° for all active zones and return right away.
+ *  M190 R40        : Set target to 40°. Wait until all active zones reach 40°.
+ *  M140 S80 A2     : (BED_ZONES) Set zone 2 only to 80° and return.
+ *  M190 S60 K5     : (BED_ZONES) Set zones 0 and 2 (0b0101) to 60° and wait.
+ *  M140 S0  K15    : (BED_ZONES) Turn off all 4 zones (0b1111).
  *
  * With PRINTJOB_TIMER_AUTOSTART turning on heaters will start the print job timer
  *  (used by printingIsActive, etc.) and turning off heaters will stop the timer.
@@ -91,6 +95,21 @@ void GcodeSuite::M140_M190(const bool isM190) {
 
   if (!got_temp) return;
 
+  // Resolve zone mask: K<bitmask> overrides, A<index> selects one area/zone,
+  // otherwise use the persistent active mask.
+  #if HAS_BED_ZONES
+    uint16_t zmask = thermalManager.bed_zone_mask;
+    if (parser.seenval('K')) {
+      zmask = uint16_t(parser.value_ulong()) & ((1U << BED_ZONES_COUNT) - 1U);
+      if (!zmask) { SERIAL_ECHOLNPGM(GCODE_ERR_MSG("K selects no bed zones")); return; }
+    }
+    else if (parser.seenval('A')) {
+      const uint8_t z = parser.value_byte();
+      if (z >= BED_ZONES_COUNT) { SERIAL_ECHOLNPGM(GCODE_ERR_MSG("No bed zone A", z)); return; }
+      zmask = _BV(z);
+    }
+  #endif
+
   #if ENABLED(BED_ANNEALING_GCODE)
     const bool anneal = isM190 && !no_wait_for_cooling && parser.seenval('T');
     const millis_t anneal_ms = anneal ? parser.value_millis_from_seconds() : 0UL;
@@ -99,8 +118,12 @@ void GcodeSuite::M140_M190(const bool isM190) {
   #endif
 
   if (!anneal) {
-    thermalManager.setTargetBed(temp);
-    thermalManager.isHeatingBed() ? LCD_MESSAGE(MSG_BED_HEATING) : LCD_MESSAGE(MSG_BED_COOLING);
+    #if HAS_BED_ZONES
+      thermalManager.setTargetBed(temp, zmask);
+    #else
+      thermalManager.setTargetBed(temp);
+    #endif
+    thermalManager.isHeatingBed(TERN_(HAS_BED_ZONES, zmask)) ? LCD_MESSAGE(MSG_BED_HEATING) : LCD_MESSAGE(MSG_BED_COOLING);
   }
 
   // With PRINTJOB_TIMER_AUTOSTART, M190 can start the timer, and M140 can stop it
@@ -110,17 +133,22 @@ void GcodeSuite::M140_M190(const bool isM190) {
     #if ENABLED(BED_ANNEALING_GCODE)
       if (anneal) {
         LCD_MESSAGE(MSG_BED_ANNEALING);
-        const millis_t wait_ms = anneal_ms / (thermalManager.degBed() - temp);
+        const celsius_float_t start_temp = thermalManager.degBed(TERN_(HAS_BED_ZONES, zmask));
+        const millis_t wait_ms = anneal_ms / (start_temp - temp);
         // Loop from current temp down to the target
-        for (celsius_t cool_temp = thermalManager.degBed() - 1; cool_temp >= temp; --cool_temp) {
-          thermalManager.setTargetBed(cool_temp); // Cool by one degree
+        for (celsius_t cool_temp = start_temp - 1; cool_temp >= temp; --cool_temp) {
+          #if HAS_BED_ZONES
+            thermalManager.setTargetBed(cool_temp, zmask);
+          #else
+            thermalManager.setTargetBed(cool_temp);
+          #endif
           dwell(wait_ms);   // Wait while going to the next degree
         }
         return;
       }
     #endif
 
-    thermalManager.wait_for_bed(no_wait_for_cooling);
+    thermalManager.wait_for_bed(no_wait_for_cooling OPTARG(G26_CLICK_CAN_CANCEL, false) OPTARG(HAS_BED_ZONES, zmask));
 
     #if ENABLED(REMAINING_TIME_AUTOPRIME)
       if (card.isStillPrinting()) {
