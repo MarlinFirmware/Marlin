@@ -104,6 +104,40 @@ public:
       | (ENABLED(AXIS7_ROTATES)<<U_AXIS), | (ENABLED(AXIS8_ROTATES)<<V_AXIS), | (ENABLED(AXIS9_ROTATES)<<W_AXIS))
   };
 
+  #if ENABLED(RUNTIME_AXIS_DIRECTION)
+    // Runtime axis direction inversion flags
+    static AxisFlags axis_inverted;              // X, Y, Z, I, J, K, U, V, W
+    #if HAS_EXTRUDERS
+      static bool extruder_inverted[E_STEPPERS];  // E0, E1, E2, E3, E4, E5, E6, E7
+    #endif
+    // Secondary stepper relative inversions (vs primary)
+    #if HAS_SYNCED_X_STEPPERS
+      static bool x2_vs_x_inverted;
+    #endif
+    #if HAS_SYNCED_Y_STEPPERS
+      static bool y2_vs_y_inverted;
+    #endif
+    #if NUM_Z_STEPPERS >= 2
+      static bool z2_vs_z_inverted;
+    #endif
+    #if NUM_Z_STEPPERS >= 3
+      static bool z3_vs_z_inverted;
+    #endif
+    #if NUM_Z_STEPPERS >= 4
+      static bool z4_vs_z_inverted;
+    #endif
+    #if ENABLED(E_DUAL_STEPPER_DRIVERS)
+      static bool e1_vs_e0_inverted;
+    #endif
+    static void reset_axis_direction();
+  #endif
+
+  #if ENABLED(RUNTIME_HOMING_DIRECTION)
+    // Runtime homing direction flags (-1 = MIN, 1 = MAX)
+    static int8_t axis_home_dir[LOGICAL_AXES];   // X, Y, Z, I, J, K, U, V, W
+    static void reset_axis_home_dir();
+  #endif
+
   #if HAS_MULTI_EXTRUDER
     static uint8_t extruder;            // Selected extruder (tool) - T<extruder>
   #else
@@ -291,9 +325,30 @@ public:
       }
     XYZ_DEFS(float,  base_min_pos,  MIN_POS);     // base_min_pos(axis)
     XYZ_DEFS(float,  base_max_pos,  MAX_POS);     // base_max_pos(axis)
-    XYZ_DEFS(float,  base_home_pos, HOME_POS);    // base_home_pos(axis)
     XYZ_DEFS(float,  max_axis_length, MAX_LENGTH); // max_axis_length(axis)
-    XYZ_DEFS(int8_t, home_dir,      HOME_DIR);    // home_dir(axis)
+    #if ENABLED(RUNTIME_HOMING_DIRECTION)
+      XYZ_DEFS(float,  config_home_pos, HOME_POS);  // config_home_pos(axis)
+      XYZ_DEFS(int8_t, config_home_dir, HOME_DIR);  // config_home_dir(axis)
+      static int8_t home_dir(const AxisEnum axis) { return axis_home_dir[axis]; }
+      // Axes whose homing direction is set by other features
+      static bool home_dir_fixed(const AxisEnum axis) {
+        return TERN0(HOMING_Z_WITH_PROBE, axis == Z_AXIS) || TERN0(DUAL_X_CARRIAGE, axis == X_AXIS);
+      }
+      // Can the axis home towards this end (-1 = MIN, 1 = MAX)? It needs an endstop state there.
+      static bool can_home_to(const AxisEnum axis, const int8_t dir) {
+        #define _CASE_STOP(A) case A##_AXIS: return dir < 0 ? ENABLED(HAS_##A##_MIN_STATE) : ENABLED(HAS_##A##_MAX_STATE);
+        switch (axis) { MAIN_AXIS_MAP(_CASE_STOP) default: return false; }
+        #undef _CASE_STOP
+      }
+      // The configured home position applies at the configured end. The other end homes to its min/max position.
+      static float base_home_pos(const AxisEnum axis) {
+        const int8_t dir = home_dir(axis);
+        return dir == config_home_dir(axis) ? config_home_pos(axis) : dir < 0 ? base_min_pos(axis) : base_max_pos(axis);
+      }
+    #else
+      XYZ_DEFS(float,  base_home_pos, HOME_POS);    // base_home_pos(axis)
+      XYZ_DEFS(int8_t, home_dir,      HOME_DIR);    // home_dir(axis)
+    #endif
 
     static float home_bump_mm(const AxisEnum axis) {
       static const xyz_pos_t home_bump_mm_P DEFS_PROGMEM = HOMING_BUMP_MM;
@@ -303,7 +358,7 @@ public:
     #if HAS_X_AXIS
       static int8_t tool_x_home_dir(const uint8_t tool=extruder) {
         UNUSED(tool);
-        return TERN(DUAL_X_CARRIAGE, tool ? 1 : -1, X_HOME_DIR);
+        return TERN(DUAL_X_CARRIAGE, tool ? 1 : -1, TERN(RUNTIME_HOMING_DIRECTION, home_dir(X_AXIS), X_HOME_DIR));
       }
     #endif
 
