@@ -2,7 +2,7 @@
 
 Working notes and conventions for the **GD32_MFL HAL** folder (`Marlin/src/HAL/GD32_MFL/`).
 
-This HAL targets GigaDevice GD32F1/GD32F3 MCUs via the third-party **MFL Arduino Core** (`https://github.com/bnmguy/ArduinoCore_MFL`), not the older Maple/STM32duino cores. It currently supports the GD32F303RE (Creality V4.2.x) and GD32F103RC (Aquila v1.0.1) boards.
+This HAL targets GigaDevice GD32F1/GD32F3 MCUs via the third-party **MFL Arduino Core** (`https://github.com/bmourit/ArduinoCore-MFL`), not the older Maple/STM32duino cores. It currently supports the GD32F303RE (Creality V4.2.x) and GD32F103RC (Aquila v1.0.1) boards.
 
 ## Build & Test Loop
 
