@@ -3449,9 +3449,10 @@ void Temperature::init() {
       // Inactive state waits for a target temperature to be set
       case TRInactive: break;
 
-      // When first heating, wait for the temperature to be reached then go to Stable state
+      // When first heating, wait until within hysteresis of the target then go to Stable state.
+      // The heating watchdog (WATCH_*) covers the heat-up until the same point.
       case TRFirstHeating:
-        if (current < running_temp) break;
+        if (current < running_temp - hysteresis_degc) break;
         state = TRStable;
 
       // While the temperature is stable watch for a bad temperature

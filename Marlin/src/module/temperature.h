@@ -522,27 +522,25 @@ struct HeaterWatch {
 
   inline bool check(const celsius_t curr) { return curr >= target; }
 
+  // Keep watching until within HYSTERESIS of the target, where thermal runaway protection takes over
   inline void restart(const celsius_t curr, const celsius_t tgt) {
-    if (tgt) {
-      const celsius_t newtarget = curr + INCREASE;
-      if (newtarget < tgt - HYSTERESIS - 1) {
-        target = newtarget;
-        next_ms = millis() + SEC_TO_MS(PERIOD);
-        return;
-      }
+    if (tgt && curr < tgt - HYSTERESIS) {
+      target = _MIN(curr + INCREASE, tgt - HYSTERESIS);
+      next_ms = millis() + SEC_TO_MS(PERIOD);
     }
-    next_ms = 0;
+    else
+      next_ms = 0;
   }
 };
 
 #if WATCH_HOTENDS
-  typedef struct HeaterWatch<WATCH_TEMP_INCREASE, TEMP_HYSTERESIS, WATCH_TEMP_PERIOD> hotend_watch_t;
+  typedef struct HeaterWatch<WATCH_TEMP_INCREASE, THERMAL_PROTECTION_HYSTERESIS, WATCH_TEMP_PERIOD> hotend_watch_t;
 #endif
 #if WATCH_BED
-  typedef struct HeaterWatch<WATCH_BED_TEMP_INCREASE, TEMP_BED_HYSTERESIS, WATCH_BED_TEMP_PERIOD> bed_watch_t;
+  typedef struct HeaterWatch<WATCH_BED_TEMP_INCREASE, THERMAL_PROTECTION_BED_HYSTERESIS, WATCH_BED_TEMP_PERIOD> bed_watch_t;
 #endif
 #if WATCH_CHAMBER
-  typedef struct HeaterWatch<WATCH_CHAMBER_TEMP_INCREASE, TEMP_CHAMBER_HYSTERESIS, WATCH_CHAMBER_TEMP_PERIOD> chamber_watch_t;
+  typedef struct HeaterWatch<WATCH_CHAMBER_TEMP_INCREASE, THERMAL_PROTECTION_CHAMBER_HYSTERESIS, WATCH_CHAMBER_TEMP_PERIOD> chamber_watch_t;
 #endif
 #if WATCH_COOLER
   typedef struct HeaterWatch<WATCH_COOLER_TEMP_INCREASE, TEMP_COOLER_HYSTERESIS, WATCH_COOLER_TEMP_PERIOD> cooler_watch_t;
