@@ -27,6 +27,13 @@
 
 #include "../inc/MarlinConfig.h"
 
+// Also used by the hotend auto fans, which don't need HAS_FAN
+#if ENABLED(FAST_PWM_FAN)
+  #define SET_FAST_PWM_FREQ(P) hal.set_pwm_frequency(pin_t(P), FAST_PWM_FAN_FREQUENCY)
+#else
+  #define SET_FAST_PWM_FREQ(P) NOOP
+#endif
+
 #if ANY(HAS_FAN, USE_CONTROLLER_FAN)
   // Init fans according to whether they're native PWM or Software PWM
   #ifdef BOARD_OPENDRAIN_MOSFETS
@@ -38,11 +45,6 @@
     #define _INIT_FAN_PIN(P) _INIT_SOFT_FAN(P)
   #else
     #define _INIT_FAN_PIN(P) do{ if (PWM_PIN(P)) SET_PWM(P); else _INIT_SOFT_FAN(P); }while(0)
-  #endif
-  #if ENABLED(FAST_PWM_FAN)
-    #define SET_FAST_PWM_FREQ(P) hal.set_pwm_frequency(pin_t(P), FAST_PWM_FAN_FREQUENCY)
-  #else
-    #define SET_FAST_PWM_FREQ(P) NOOP
   #endif
   #define INIT_FAN_PIN(P) do{ _INIT_FAN_PIN(P); SET_FAST_PWM_FREQ(P); }while(0)
 #endif
