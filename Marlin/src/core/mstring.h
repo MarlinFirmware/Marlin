@@ -301,11 +301,16 @@ public:
   MString& rtrim() { int s = length(); while (s && str[s - 1] == ' ') --s; str[s] = '\0'; return *this; }
   MString& trim() { return rtrim().ltrim(); }
 
-  // Truncate on a Unicode boundary
+  // Truncate to at most n bytes on a Unicode boundary, dropping an incomplete last glyph
   MString& utrunc(const int &n=SIZE) {
-    const int sz = length();
-    if (sz && n <= sz)
-      for (int i = n; i >= 0; i--) if (START_OF_UTF8_CHAR(str[i])) { str[i] = '\0'; break; }
+    int len = _MIN(n, length()), s = len - 1;     // Truncation len, index
+    uint8_t c;
+    while (s >= 0 && !START_OF_UTF8_CHAR((c = str[s]))) s--;
+    if (s >= 0) {                                 // Found one?
+      const int glen = c < 0xE0 ? (c < 0x80 ? 1 : 2) : (c < 0xF0 ? 3 : 4);
+      if (len < s + glen) len = s;                // The last glyph is cut short
+    }
+    str[len] = '\0';
     debug(F("utrunc"));
     return *this;
   }

@@ -192,7 +192,7 @@
   #define I2C_SDA_PIN                       PG13
   #define I2C_SCL_PIN                       PG14  // To be confirmed on the Lerdge S, but probably same as the K
   #define MARLIN_EEPROM_SIZE             0x2000U  // 8K
-#else
+#elif ENABLED(EEPROM_SETTINGS)
   #define MARLIN_EEPROM_SIZE              0x800U  // On SD, Limit to 2K, require this amount of RAM
 #endif
 

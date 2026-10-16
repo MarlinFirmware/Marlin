@@ -86,6 +86,13 @@ constexpr float fslop = 0.0001;
 typedef bits_t(NUM_AXES) main_axes_bits_t;
 constexpr main_axes_bits_t main_axes_mask = _BV(NUM_AXES) - 1;
 
+#if HAS_HOMING_CURRENT
+  struct homing_current_t;     // tmc_util.h
+#endif
+#if ENABLED(HOMING_HYBRID_THRESHOLD)
+  struct homing_hybrid_thrs_t; // tmc_util.h
+#endif
+
 class Motion {
 public:
   static bool relative_mode;            // Relative Mode - G90/G91
@@ -180,7 +187,7 @@ public:
    */
   #if ENABLED(EDITABLE_HOMING_FEEDRATE)
     static xyz_feedrate_t homing_feedrate_mm_m;
-  #else
+  #elif NUM_AXES
     static constexpr xyz_feedrate_t homing_feedrate_mm_m = HOMING_FEEDRATE_MM_M;
   #endif
 
@@ -272,31 +279,35 @@ public:
     #define DEFS_PROGMEM PROGMEM
   #endif
 
-  static float pgm_read_any(const float *p)   { return TERN(__IMXRT1062__, *p, pgm_read_float(p)); }
-  static int8_t pgm_read_any(const int8_t *p) { return TERN(__IMXRT1062__, *p, pgm_read_byte(p)); }
+  #if NUM_AXES
 
-  #define XYZ_DEFS(T, NAME, OPT) \
-    static T NAME(const AxisEnum axis) { \
-      static constexpr XYZval<T> NAME##_P DEFS_PROGMEM = NUM_AXIS_ARRAY(X_##OPT, Y_##OPT, Z_##OPT, I_##OPT, J_##OPT, K_##OPT, U_##OPT, V_##OPT, W_##OPT); \
-      return pgm_read_any(&NAME##_P[axis]); \
+    static float pgm_read_any(const float *p)   { return TERN(__IMXRT1062__, *p, pgm_read_float(p)); }
+    static int8_t pgm_read_any(const int8_t *p) { return TERN(__IMXRT1062__, *p, pgm_read_byte(p)); }
+
+    #define XYZ_DEFS(T, NAME, OPT) \
+      static T NAME(const AxisEnum axis) { \
+        static constexpr XYZval<T> NAME##_P DEFS_PROGMEM = NUM_AXIS_ARRAY(X_##OPT, Y_##OPT, Z_##OPT, I_##OPT, J_##OPT, K_##OPT, U_##OPT, V_##OPT, W_##OPT); \
+        return pgm_read_any(&NAME##_P[axis]); \
+      }
+    XYZ_DEFS(float,  base_min_pos,  MIN_POS);     // base_min_pos(axis)
+    XYZ_DEFS(float,  base_max_pos,  MAX_POS);     // base_max_pos(axis)
+    XYZ_DEFS(float,  base_home_pos, HOME_POS);    // base_home_pos(axis)
+    XYZ_DEFS(float,  max_axis_length, MAX_LENGTH); // max_axis_length(axis)
+    XYZ_DEFS(int8_t, home_dir,      HOME_DIR);    // home_dir(axis)
+
+    static float home_bump_mm(const AxisEnum axis) {
+      static const xyz_pos_t home_bump_mm_P DEFS_PROGMEM = HOMING_BUMP_MM;
+      return pgm_read_any(&home_bump_mm_P[axis]);
     }
-  XYZ_DEFS(float,  base_min_pos,  MIN_POS);     // base_min_pos(axis)
-  XYZ_DEFS(float,  base_max_pos,  MAX_POS);     // base_max_pos(axis)
-  XYZ_DEFS(float,  base_home_pos, HOME_POS);    // base_home_pos(axis)
-  XYZ_DEFS(float,  max_axis_length, MAX_LENGTH); // max_axis_length(axis)
-  XYZ_DEFS(int8_t, home_dir,      HOME_DIR);    // home_dir(axis)
 
-  static float home_bump_mm(const AxisEnum axis) {
-    static const xyz_pos_t home_bump_mm_P DEFS_PROGMEM = HOMING_BUMP_MM;
-    return pgm_read_any(&home_bump_mm_P[axis]);
-  }
+    #if HAS_X_AXIS
+      static int8_t tool_x_home_dir(const uint8_t tool=extruder) {
+        UNUSED(tool);
+        return TERN(DUAL_X_CARRIAGE, tool ? 1 : -1, X_HOME_DIR);
+      }
+    #endif
 
-  #if HAS_X_AXIS
-    static int8_t tool_x_home_dir(const uint8_t tool=extruder) {
-      UNUSED(tool);
-      return TERN(DUAL_X_CARRIAGE, tool ? 1 : -1, X_HOME_DIR);
-    }
-  #endif
+  #endif // NUM_AXES
 
   //
   // Workspace offsets
@@ -640,8 +651,14 @@ public:
   #endif
 
   #if HAS_HOMING_CURRENT
-    static void set_homing_current(const AxisEnum axis);
-    static void restore_homing_current(const AxisEnum axis);
+    // Use TemporaryHomingCurrent (tmc_util.h) to set and restore
+    static void set_homing_current(const AxisEnum axis, homing_current_t &saved);
+    static void restore_homing_current(const AxisEnum axis, const homing_current_t &saved);
+  #endif
+
+  #if ENABLED(HOMING_HYBRID_THRESHOLD)
+    // Use TemporaryHomingHybridThreshold (tmc_util.h) to apply and restore
+    static void apply_homing_hybrid_thrs(const AxisEnum axis, const bool homing, homing_hybrid_thrs_t &saved);
   #endif
 
 private:

@@ -39,6 +39,10 @@
   #include "../../feature/probe_temp_comp.h"
 #endif
 
+#if ENABLED(FT_MOTION)
+  #include "../../module/ft_motion.h"
+#endif
+
 /**
  * M48: Z probe repeatability measurement function.
  *
@@ -93,6 +97,10 @@ void GcodeSuite::M48() {
     SERIAL_ECHOLNPGM(GCODE_ERR_MSG("Legs of movement implausible (0-15)."));
     return;
   }
+
+  // Potentially disable Fixed-Time Motion for probing
+  TERN_(FT_MOTION, FTM_DISABLE_IN_SCOPE());
+
   if (n_legs == 1) n_legs = 2;
 
   // Schizoid motion as an optional stress-test
@@ -261,11 +269,11 @@ void GcodeSuite::M48() {
 
     #if HAS_STATUS_MESSAGE
       // Display M48 results in the status bar
-      if (MAX_MESSAGE_SIZE <= 20) {
+      if (MAX_MESSAGE_LENGTH <= 20) {
         // 12345678901234567890
         // Deviation: 0.123456
         ui.set_status_and_level(TS(GET_TEXT_F(MSG_M48_DEVIATION), F(": "), w_float_t(sigma, 2, 6)));
-      } else if (MAX_MESSAGE_SIZE <= 30) {
+      } else if (MAX_MESSAGE_LENGTH <= 30) {
         // 123456789012345678901234567890
         // Dev:0.12345, Max delta:0.12345
         ui.set_status_and_level(TS(GET_TEXT_F(MSG_M48_DEV), ':', w_float_t(sigma, 2, 5), F(", "), GET_TEXT(MSG_M48_MAX_DELTA), ':', w_float_t(_MAX(mean - min, max - mean), 2, 5)));

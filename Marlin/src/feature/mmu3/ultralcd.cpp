@@ -201,7 +201,7 @@ void lcd_show_fullscreen_message_and_wait(FSTR_P const fmsg) {
 }
 
 void lcd_replace_status_char(const uint8_t position, const char message) {
-  if (position >= MAX_MESSAGE_SIZE) return;
+  if (position >= MAX_MESSAGE_BYTES) return;
   //int size = ui.status_message.length();
   char *str = ui.status_message.buffer();
   str[position] = message;

@@ -941,7 +941,7 @@ void DGUSScreenHandlerMKS::handleAccChange(DGUS_VP_Variable &var, void *val_ptr)
 #endif // BABYSTEPPING
 
 void DGUSScreenHandlerMKS::getManualFilament(DGUS_VP_Variable &var, void *val_ptr) {
-  distanceFilament = (float)BE16_P(val_ptr);
+  distanceFilament = BE16_P(val_ptr);
   skipVP = var.VP; // Don't overwrite value the next update time as the display might autoincrement in parallel
 }
 
@@ -998,16 +998,13 @@ void DGUSScreenHandlerMKS::filamentLoadUnload(DGUS_VP_Variable &var, void *val_p
   #endif
 
   if (swap_tool) {
-    char buf[30]; // TODO: Use MString / TS()
-    snprintf_P(buf, 30,
-      #if ANY(HAS_MULTI_HOTEND, SINGLENOZZLE)
-        PSTR("M1002T%cE%dF%d"), char('0' + swap_tool - 1)
-      #else
-        PSTR("M1002E%dF%d")
-      #endif
-      , (int)distanceFilament * filamentDir, filamentSpeed_mm_s * 60
-    );
-    queue.inject(buf);
+    const int e_mm = (int)distanceFilament * filamentDir;
+    const uint16_t mm_min = filamentSpeed_mm_s * 60;
+    #if ANY(HAS_MULTI_HOTEND, SINGLENOZZLE)
+      queue.inject(TS(F("M1002T"), char('0' + swap_tool - 1), F("E"), e_mm, F("F"), mm_min));
+    #else
+      queue.inject(TS(F("M1002E"), e_mm, F("F"), mm_min));
+    #endif
   }
 }
 
@@ -1018,9 +1015,7 @@ void DGUSScreenHandlerMKS::filamentLoadUnload(DGUS_VP_Variable &var, void *val_p
 void GcodeSuite::M1002() {
   #if ANY(HAS_MULTI_HOTEND, SINGLENOZZLE)
   {
-    char buf[3]; // TODO: Use MString / TS()
-    sprintf_P(buf, PSTR("T%c"), char('0' + parser.intval('T')));
-    process_subcommands_now(buf);
+    process_subcommands_now(TS(F("T"), char('0' + parser.intval('T'))));
   }
   #endif
 
@@ -1028,9 +1023,7 @@ void GcodeSuite::M1002() {
   set_e_relative(); // M83
 
   {
-    char buf[20]; // TODO: Use MString / TS()
-    snprintf_P(buf, 20, PSTR("G1E%dF%d"), parser.intval('E'), parser.intval('F'));
-    process_subcommands_now(buf);
+    process_subcommands_now(TS(F("G1E"), parser.intval('E'), F("F"), parser.intval('F')));
   }
 
   axis_relative = old_axis_relative;

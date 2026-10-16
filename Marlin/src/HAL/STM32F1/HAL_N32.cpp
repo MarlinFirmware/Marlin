@@ -612,7 +612,7 @@ void ADC_DMA_init() {
  *        n32g452 - end
  ==============================================================================*/
 
-#define NS_PINRT(V...)       do{ SERIAL_ECHO_START(); SERIAL_ECHOLNPGM(V); }while(0)
+#define NS_PINRT(V...)       do{ SERIAL_ECHO_START(); SERIAL_ECHOLN(V); }while(0)
 
 // Init the AD in continuous capture mode
 void MarlinHAL::adc_init() {

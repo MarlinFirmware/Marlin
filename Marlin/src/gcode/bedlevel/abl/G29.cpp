@@ -269,8 +269,9 @@ G29_TYPE GcodeSuite::G29() {
 
   // 3-point leveling gets points from the probe class
   #if ENABLED(AUTO_BED_LEVELING_3POINT)
-    vector_3 points[3];
-    probe.get_three_points(points);
+    TERN_(PROBE_MANUALLY, static) vector_3 points[3];
+    if (TERN1(PROBE_MANUALLY, !g29_in_progress))
+      probe.get_three_points(points);
   #endif
 
   // Storage for ABL Linear results
@@ -402,12 +403,13 @@ G29_TYPE GcodeSuite::G29() {
     #endif
 
     #if HAS_VARIABLE_XY_PROBE_FEEDRATE
-      constexpr feedRate_t min_probe_feedrate_mm_s = XY_PROBE_FEEDRATE_MIN;
-      motion.xy_probe_feedrate_mm_s = MMM_TO_MMS(parser.linearval('S', XY_PROBE_FEEDRATE));
-      if (motion.xy_probe_feedrate_mm_s < min_probe_feedrate_mm_s) {
-        motion.xy_probe_feedrate_mm_s = min_probe_feedrate_mm_s;
-        SERIAL_ECHOLNPGM(GCODE_ERR_MSG("Feedrate (S) too low. (Using ", min_probe_feedrate_mm_s, ")"));
+      static constexpr feedRate_t min_fr_mm_m = XY_PROBE_MIN_FEEDRATE_MM_M;
+      feedRate_t fr_mm_m = parser.linearval('S', XY_PROBE_FEEDRATE);
+      if (fr_mm_m < min_fr_mm_m) {
+        fr_mm_m = min_fr_mm_m;
+        SERIAL_ECHOLNPGM(GCODE_ERR_MSG("Feedrate (S) too low. (Using ", LINEAR_UNIT(min_fr_mm_m), " units/min)"));
       }
+      motion.xy_probe_feedrate_mm_s = MMM_TO_MMS(fr_mm_m);
     #endif
 
     #if ABL_USES_GRID
@@ -465,9 +467,7 @@ G29_TYPE GcodeSuite::G29() {
           rts.sendData(1, Wait_VP);
           rts.gotoPage(ID_ABL_HeatWait_L, ID_ABL_HeatWait_D);
         #endif
-        if (!abl.dryrun) probe.preheat_for_probing(LEVELING_NOZZLE_TEMP,
-          TERN(EXTENSIBLE_UI, ExtUI::getLevelingBedTemp(), LEVELING_BED_TEMP)
-        );
+        if (!abl.dryrun) thermalManager.preheat_for_leveling();
       #endif
     }
 
@@ -524,6 +524,10 @@ G29_TYPE GcodeSuite::G29() {
         reset_bed_level();      // Reset grid to 0.0 or "not probed". (Also disables ABL)
         abl.reenable = false;   // Can't re-enable (on error) until the new grid is written
       }
+      // If Z home / M206 Z provides a known-accurate Z0 at the Z safe homing point, use it to calibrate the Probe Z Offset.
+      #if ENABLED(PROBE_Z0_BEFORE_G29)
+        abl.Z_offset -=  probe.probe_at_point(Z_SAFE_HOMING_X_POINT, Z_SAFE_HOMING_Y_POINT, PROBE_PT_NONE, abl.verbose_level, false);
+      #endif
       // Pre-populate local Z values from the stored mesh
       TERN_(IS_KINEMATIC, COPY(abl.z_values, bedlevel.z_values));
     #endif
@@ -723,7 +727,6 @@ G29_TYPE GcodeSuite::G29() {
 
           #if ENABLED(BD_SENSOR_PROBE_NO_STOP)
             if (PR_INNER_VAR == inStart) {
-              char tmp_1[32];
 
               // move to the start point of new line
               abl.measured_z = faux ? 0.001f * random(-100, 101) : probe.probe_at_point(abl.probePos, raise_after, abl.verbose_level);
@@ -736,29 +739,26 @@ G29_TYPE GcodeSuite::G29() {
               abl.probePos = abl.probe_position_lf + abl.gridSpacing * abl.meshCount.asFloat();
 
               // Coordinate that puts the probe at the grid point
-              abl.probePos -= probe.offset_xy;
+              const xy_pos_t nozPos = abl.probePos - probe.offset_xy;
+              if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("BD X", nozPos.x, " Y", nozPos.y);
 
               // Put a G1 move into the buffer
               // TODO: Instead of G1, we can just add the move directly to the planner...
               //  {
-              //  motion.destination = motion.position; motion.destination = abl.probePos;
+              //  motion.destination = motion.position; motion.destination = nozPos;
               //  REMEMBER(fr, motion.feedrate_mm_s, XY_PROBE_FEEDRATE_MM_S);
               //  motion.prepare_line_to_destination();
               //  }
-              sprintf_P(tmp_1, PSTR("G1X%d.%d Y%d.%d F%d"),
-                int(abl.probePos.x), int(abl.probePos.x * 10) % 10,
-                int(abl.probePos.y), int(abl.probePos.y * 10) % 10,
-                XY_PROBE_FEEDRATE
+              gcode.process_subcommands_now(
+                MString<31>{}.setf_P(PSTR("G1X%s Y%s F%d"),
+                  p_float_t(nozPos.x, 1),
+                  p_float_t(nozPos.y, 1),
+                  XY_PROBE_FEEDRATE
+                )
               );
-              gcode.process_subcommands_now(tmp_1);
-
-              if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("destX: ", abl.probePos.x, " Y:", abl.probePos.y);
 
               // Reset the inner counter back to the start
               PR_INNER_VAR = inStart;
-
-              // Get the coordinate of the start of the row/column
-              abl.probePos = abl.probe_position_lf + abl.gridSpacing * abl.meshCount.asFloat();
             }
 
             // Wait around until the real axis position reaches the comparison point
@@ -974,7 +974,7 @@ G29_TYPE GcodeSuite::G29() {
       // For LINEAR and 3POINT leveling correct the current position
 
       if (abl.verbose_level > 0)
-        planner.bed_level_matrix.debug(F("\n\nBed Level Correction Matrix:"));
+        planner.bed_level_matrix.debug(F("\n\nBed Level Correction Matrix:"), 4);
 
       if (!abl.dryrun) {
         //

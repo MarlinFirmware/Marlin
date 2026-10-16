@@ -98,10 +98,6 @@ void onMediaRemoved() {
   }
 }
 
-void onHeatingError(const heater_id_t header_id) {}
-void onMinTempError(const heater_id_t header_id) {}
-void onMaxTempError(const heater_id_t header_id) {}
-
 void onPlayTone(const uint16_t, const uint16_t/*=0*/) {
   rts.sendData(StartSoundSet, SoundAddr);
 }
@@ -305,11 +301,6 @@ void onLoadSettings(const char *buff) {
   rts.setTouchScreenConfiguration();
 }
 
-void onSettingsStored(const bool success) {
-  // Called after the entire EEPROM has been written,
-  // whether successful or not.
-}
-
 void onSettingsLoaded(const bool success) {
   #if HAS_MESH
     if (ExtUI::getLevelingIsValid()) {
@@ -335,10 +326,7 @@ void onSettingsLoaded(const bool success) {
   rts.setTouchScreenConfiguration();
 }
 
-void onPostprocessSettings() {}
-
 #if HAS_LEVELING
-  void onLevelingStart() {}
 
   void onLevelingDone() {
     #if HAS_MESH
@@ -364,7 +352,6 @@ void onPostprocessSettings() {}
 #endif
 
 #if HAS_MESH
-  void onMeshUpdate(const int8_t xpos, const int8_t ypos, probe_state_t state) {}
 
   void onMeshUpdate(const int8_t xpos, const int8_t ypos, const float zval) {
     if (waitway == 3)
@@ -384,17 +371,7 @@ void onPostprocessSettings() {}
   }
 #endif
 
-#if ENABLED(PREVENT_COLD_EXTRUSION)
-  void onSetMinExtrusionTemp(const celsius_t) {}
-#endif
-
 #if ENABLED(POWER_LOSS_RECOVERY)
-  void onSetPowerLoss(const bool onoff) {
-    // Called when power-loss is enabled/disabled
-  }
-  void onPowerLoss() {
-    // Called when power-loss state is detected
-  }
   void onPowerLossResume() {
     startprogress = 254;
     show_status   = true;
@@ -419,31 +396,8 @@ void onPostprocessSettings() {}
     #endif
     onStatusChanged(F("PID Tune Finished"));
   }
-  void onStartM303(const int count, const heater_id_t hid, const celsius_t temp) {
-    // Called by M303 to update the UI
-  }
+
 #endif
-
-#if ENABLED(MPC_AUTOTUNE)
-  void onMPCTuning(const mpcresult_t rst) {
-    // Called for temperature PID tuning result
-  }
-#endif
-
-#if ENABLED(PLATFORM_M997_SUPPORT)
-  void onFirmwareFlash() {}
-#endif
-
-void onHomingStart() {}
-void onHomingDone() {}
-
-void onPrintDone() {}
-
-void onSteppersDisabled() {}
-void onSteppersEnabled() {}
-void onAxisDisabled(const axis_t) {}
-void onAxisEnabled(const axis_t) {}
-
 } // ExtUI
 
 #endif // DGUS_LCD_UI_IA_CREALITY

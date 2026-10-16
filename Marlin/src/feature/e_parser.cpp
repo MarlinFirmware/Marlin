@@ -33,7 +33,7 @@
 // Static data members
 bool EmergencyParser::killed_by_M112, // = false
      EmergencyParser::quickstop_by_M410,
-     #if ENABLED(FTM_RESONANCE_TEST)
+     #if ENABLED(RESONANCE_TEST)
        EmergencyParser::rt_stop_by_M496, // = false
      #endif
      #if HAS_MEDIA
@@ -151,7 +151,7 @@ void EmergencyParser::update(EmergencyParser::State &state, const uint8_t c) {
     case EP_M4:
       switch (c) {
         case '1' :state = EP_M41;    break;
-        #if ENABLED(FTM_RESONANCE_TEST)
+        #if ENABLED(RESONANCE_TEST)
           case '9': state = EP_M49;  break;
         #endif
         default: state  = EP_IGNORE;
@@ -160,7 +160,7 @@ void EmergencyParser::update(EmergencyParser::State &state, const uint8_t c) {
 
     case EP_M41: state = (c == '0') ? EP_M410 : EP_IGNORE; break;
 
-    #if ENABLED(FTM_RESONANCE_TEST)
+    #if ENABLED(RESONANCE_TEST)
       case EP_M49: state = (c == '6') ? EP_M496 : EP_IGNORE; break;
     #endif
 
@@ -209,7 +209,7 @@ void EmergencyParser::update(EmergencyParser::State &state, const uint8_t c) {
           case EP_M108: marlin.end_waiting(); break;
           case EP_M112: killed_by_M112 = true; break;
           case EP_M410: quickstop_by_M410 = true; break;
-          #if ENABLED(FTM_RESONANCE_TEST)
+          #if ENABLED(RESONANCE_TEST)
             case EP_M496: rt_stop_by_M496 = true; break;
           #endif
           #if ENABLED(EP_BABYSTEPPING)

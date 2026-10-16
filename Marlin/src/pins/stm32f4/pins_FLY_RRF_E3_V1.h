@@ -34,10 +34,12 @@
 
 #define USES_DIAG_JUMPERS // Requires Mellow/Fly TMC2209 with DIAG disable dip switch
 
-#if NO_EEPROM_SELECTED
+#if SHALL_USE_EEPROM(FLASH_EEPROM_EMULATION)
   #define FLASH_EEPROM_EMULATION
 #endif
-#define MARLIN_EEPROM_SIZE               0x1000U  // 4K
+#if ENABLED(EEPROM_SETTINGS)
+  #define MARLIN_EEPROM_SIZE             0x1000U  // 4K
+#endif
 
 //
 // Servos

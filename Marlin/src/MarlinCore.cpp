@@ -79,9 +79,9 @@
     #include "lcd/dwin/creality/dwin.h"
   #elif ENABLED(DWIN_CREALITY_LCD_JYERSUI)
     #include "lcd/dwin/jyersui/dwin.h"
-  #elif ENABLED(SOVOL_SV06_RTS)
-    #include "lcd/sovol_rts/sovol_rts.h"
   #endif
+#elif ENABLED(SOVOL_SV06_RTS)
+  #include "lcd/sovol_rts/sovol_rts.h"
 #endif
 
 #if HAS_ETHERNET
@@ -371,7 +371,9 @@ bool Marlin::printingIsPaused() {
 }
 
 void Marlin::startOrResumeJob() {
-  if (!printingIsPaused()) {
+  // Reset per-job state only for a new job. A running timer means the job is
+  // already underway (e.g., M24 after M125 or MarlinUI::resume_print resumed it).
+  if (!print_job_timer.isRunning() && !printingIsPaused()) {
     TERN_(GCODE_REPEAT_MARKERS, repeat.reset());
     TERN_(CANCEL_OBJECTS, cancelable.reset());
     TERN_(LCD_SHOW_E_TOTAL, motion.e_move_accumulator = 0);
@@ -999,7 +1001,7 @@ void Marlin::stop() {
   print_job_timer.stop();
 
   #if ANY(PROBING_FANS_OFF, ADVANCED_PAUSE_FANS_PAUSE)
-    thermalManager.set_fans_paused(false); // Un-pause fans for safety
+    Fan::all_resume(); // Un-pause fans for safety
   #endif
 
   if (!isStopped()) {
@@ -1165,6 +1167,7 @@ inline void tmc_standby_setup() {
  *  - Apply Password Lock - Hold for Authentication
  *  - Open Touch Screen Calibration screen, if not calibrated
  *  - Set Marlin to RUNNING State
+ *  - Stop print timer
  */
 void setup() {
   #ifdef FASTIO_INIT
@@ -1381,6 +1384,12 @@ void setup() {
       SETUP_RUN(card.mount());        // Mount media with settings before first_load
     #endif
   #endif
+
+  //#if ENABLED(PRINTJOB_TIMER_AUTOSTART)
+  //  // Stop timer and set welcome message
+  //  if (TERN1(POWER_LOSS_RECOVERY, !recovery.check()))
+  //    thermalManager.auto_job_check_timer(false, true);
+  //#endif
 
   // Prepare some LCDs to display early
   #if HAS_EARLY_LCD_SETTINGS

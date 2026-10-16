@@ -42,21 +42,16 @@
 // EEPROM
 //
 #if NO_EEPROM_SELECTED
-  // FLASH
-  //#define FLASH_EEPROM_EMULATION
-
-  // I2C
   #define IIC_BL24CXX_EEPROM                      // EEPROM on I2C-0 used only for display settings
-  #if ENABLED(IIC_BL24CXX_EEPROM)
-    #define IIC_EEPROM_SDA                  PC2
-    #define IIC_EEPROM_SCL                  PC3
-    #define MARLIN_EEPROM_SIZE            0x800U  // 2K (24C16)
-  #else
-    #define SDCARD_EEPROM_EMULATION               // SD EEPROM until all EEPROM is BL24CXX
-    #define MARLIN_EEPROM_SIZE            0x800U  // 2K
-  #endif
-
-  #undef NO_EEPROM_SELECTED
+  //#define FLASH_EEPROM_EMULATION
+  #define SDCARD_EEPROM_EMULATION                 // SD EEPROM until all EEPROM is BL24CXX
+#endif
+#if ENABLED(IIC_BL24CXX_EEPROM)
+  #define IIC_EEPROM_SDA                    PC2
+  #define IIC_EEPROM_SCL                    PC3
+  #define MARLIN_EEPROM_SIZE              0x800U  // 2K (24C16)
+#elif ENABLED(EEPROM_SETTINGS)
+  #define MARLIN_EEPROM_SIZE              0x800U  // 2K
 #endif
 
 //
@@ -152,7 +147,7 @@
 #define ONBOARD_SPI_DEVICE                     1
 #define ONBOARD_SD_CS_PIN                   PC11  // SDSS
 #define ONBOARD_SDIO
-#define NO_SD_HOST_DRIVE                          // This board's SD is only seen by the printer
+#define BOARD_NO_HOST_DRIVE                       // SD is only seen by the printer
 
 #if ANY(RET6_12864_LCD, HAS_DWIN_E3V2, IS_DWIN_MARLINUI)
 

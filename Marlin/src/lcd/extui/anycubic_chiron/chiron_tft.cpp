@@ -807,7 +807,7 @@ void ChironTFT::panelProcess(uint8_t req) {
         }
       }
       else
-        tftSendLn(AC_msg_start_probing); // Just enter levelling menu
+        tftSendLn(AC_msg_start_probing); // Just enter leveling menu
       break;
 
     case 31:   // A31 Adjust all Probe Points

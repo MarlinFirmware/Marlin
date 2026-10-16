@@ -33,6 +33,19 @@
 #include "../../MarlinCore.h"
 #include "../../module/temperature.h"
 
+#if IS_KINEMATIC
+  #include "../../module/motion.h"
+  #if ENABLED(DELTA)
+    #include "../../module/delta.h"
+  #elif IS_SCARA
+    #include "../../module/scara.h"
+  #elif ENABLED(POLARGRAPH)
+    #include "../../module/polargraph.h"
+  #elif ENABLED(POLAR)
+    #include "../../module/polar.h"
+  #endif
+#endif
+
 #if ENABLED(LCD_ENDSTOP_TEST)
   #include "../../module/endstops.h"
 #endif
@@ -56,6 +69,10 @@
   #endif
 #endif
 
+#if ENABLED(DELTA) && HAS_LEVELING
+  #include "../../feature/bedlevel/bedlevel.h"
+#endif
+
 #if ENABLED(SOUND_MENU_ITEM)
   #include "../../libs/buzzer.h"
 #endif
@@ -63,6 +80,56 @@
 #if ENABLED(HOTEND_IDLE_TIMEOUT)
   #include "../../feature/hotend_idle.h"
 #endif
+
+#if IS_KINEMATIC
+
+  void menu_kinematics_settings() {
+    const bool busy = marlin.printer_busy();
+    #if ENABLED(DELTA)
+      auto _recalc_delta = []{
+        TERN_(HAS_LEVELING, reset_bed_level());
+        recalc_delta_settings();
+      };
+    #endif
+
+    START_MENU();
+    BACK_ITEM(MSG_CONFIGURATION);
+
+    if (!busy) {
+      #if ANY(DELTA, IS_SCARA, POLARGRAPH, POLAR)
+        EDIT_ITEM_FAST(float4, MSG_SEGMENTS_PER_SECOND, &segments_per_second, 100, 9999); // M665 S
+      #endif
+      #if ENABLED(DELTA)
+        #if DISABLED(DELTA_CALIBRATION_MENU)
+          EDIT_ITEM_FAST(float52sign, MSG_DELTA_HEIGHT, &delta_height, delta_height - 10, delta_height + 10, _recalc_delta);  // M665 H
+          EDIT_ITEM_FAST(float52sign, MSG_DELTA_RADIUS, &delta_radius, delta_radius - 5, delta_radius + 5, _recalc_delta);    // M665 R
+          EDIT_ITEM_FAST(float52sign, MSG_DELTA_DIAG_ROD, &delta_diagonal_rod, delta_diagonal_rod - 5, delta_diagonal_rod + 5, _recalc_delta); // M665 L
+          EDIT_ITEM_FAST_N(float43, X_AXIS, MSG_DELTA_TOWER_ANGLE_TRIM_N, &delta_tower_angle_trim.a, -5, 5, _recalc_delta); // M665 X
+          EDIT_ITEM_FAST_N(float43, Y_AXIS, MSG_DELTA_TOWER_ANGLE_TRIM_N, &delta_tower_angle_trim.b, -5, 5, _recalc_delta); // M665 Y
+          EDIT_ITEM_FAST_N(float43, Z_AXIS, MSG_DELTA_TOWER_ANGLE_TRIM_N, &delta_tower_angle_trim.c, -5, 5, _recalc_delta); // M665 Z
+        #endif
+        EDIT_ITEM(float43, MSG_DELTA_ROD_TRIM_A, &delta_diagonal_rod_trim.a, -5, 5, _recalc_delta); // M665 A
+        EDIT_ITEM(float43, MSG_DELTA_ROD_TRIM_B, &delta_diagonal_rod_trim.b, -5, 5, _recalc_delta); // M665 B
+        EDIT_ITEM(float43, MSG_DELTA_ROD_TRIM_C, &delta_diagonal_rod_trim.c, -5, 5, _recalc_delta); // M665 C
+      #elif IS_SCARA
+        #if HAS_SCARA_OFFSET
+          EDIT_ITEM_FAST(float43, MSG_SCARA_P_OFFSET, &motion.scara_home_offset.a, -180, 180); // M665 A/P/X
+          EDIT_ITEM_FAST(float43, MSG_SCARA_T_OFFSET, &motion.scara_home_offset.b, -180, 180); // M665 B/T/Y
+          EDIT_ITEM_FAST(float52sign, MSG_SCARA_Z_OFFSET, &motion.scara_home_offset.z, -10, 10); // M665 Z
+        #endif
+      #elif ENABLED(POLARGRAPH)
+        EDIT_ITEM_FAST(float51sign, MSG_DRAW_MIN_X, &draw_area_min.x, X_MIN_POS, draw_area_max.x - 10); // M665 L
+        EDIT_ITEM_FAST(float51sign, MSG_DRAW_MAX_X, &draw_area_max.x, draw_area_min.x + 10, X_MAX_POS); // M665 R
+        EDIT_ITEM_FAST(float51sign, MSG_DRAW_MIN_Y, &draw_area_min.y, Y_MIN_POS, draw_area_max.y - 10); // M665 B
+        EDIT_ITEM_FAST(float51sign, MSG_DRAW_MAX_Y, &draw_area_max.y, draw_area_min.y + 10, Y_MAX_POS); // M665 T
+        EDIT_ITEM_FAST(float51sign, MSG_MAX_BELT_LEN, &polargraph_max_belt_len, 500, 2000); // M665 H
+      #endif
+    }
+
+    END_MENU();
+  }
+
+#endif // IS_KINEMATIC
 
 #if ANY(LCD_PROGRESS_BAR_TEST, LCD_ENDSTOP_TEST)
   #include "../lcdprint.h"
@@ -213,9 +280,7 @@ void menu_advanced_settings();
       EXTRUDER_LOOP() {
         if (e != motion.extruder) {
           ACTION_ITEM_N_F(e, msg_migrate, []{
-            char cmd[12];
-            sprintf_P(cmd, PSTR("M217 T%i"), int(MenuItemBase::itemIndex));
-            queue.inject(cmd);
+            queue.inject(TS(F("M217 T"), int(MenuItemBase::itemIndex)));
           });
         }
       }
@@ -591,6 +656,10 @@ void menu_configuration() {
   #endif
 
   SUBMENU(MSG_ADVANCED_SETTINGS, menu_advanced_settings);
+
+  #if IS_KINEMATIC
+    SUBMENU(MSG_KINEMATICS_SETTINGS, menu_kinematics_settings);
+  #endif
 
   //
   // Set Fan Controller speed

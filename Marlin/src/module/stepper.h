@@ -88,12 +88,6 @@ typedef struct {
 typedef bits_t(NUM_AXES + E_STATES) e_axis_bits_t;
 constexpr e_axis_bits_t e_axis_mask = (_BV(E_STATES) - 1) << NUM_AXES;
 
-// All the stepper enable pins
-constexpr pin_t ena_pins[] = {
-  NUM_AXIS_LIST_(X_ENABLE_PIN, Y_ENABLE_PIN, Z_ENABLE_PIN, I_ENABLE_PIN, J_ENABLE_PIN, K_ENABLE_PIN, U_ENABLE_PIN, V_ENABLE_PIN, W_ENABLE_PIN)
-  LIST_N(E_STEPPERS, E0_ENABLE_PIN, E1_ENABLE_PIN, E2_ENABLE_PIN, E3_ENABLE_PIN, E4_ENABLE_PIN, E5_ENABLE_PIN, E6_ENABLE_PIN, E7_ENABLE_PIN)
-};
-
 // Index of the axis or extruder element in a combined array
 constexpr uint8_t index_of_axis(const AxisEnum axis E_OPTARG(const uint8_t eindex=0)) {
   return uint8_t(axis) + (E_TERN0(axis < NUM_AXES ? 0 : eindex));
@@ -106,34 +100,54 @@ constexpr uint8_t index_of_axis(const AxisEnum axis E_OPTARG(const uint8_t einde
 
 #define INDEX_OF_AXIS(A,V...)     index_of_axis(A E_OPTARG(V+0))
 
-// Bit mask for a matching enable pin, or 0
-constexpr ena_mask_t ena_same(const uint8_t a, const uint8_t b) {
-  return ena_pins[a] == ena_pins[b] ? _BV(b) : 0;
-}
+#if DISABLED(SOFTWARE_DRIVER_ENABLE)
+  // All the stepper enable pins
+  constexpr pin_t ena_pins[] = {
+    NUM_AXIS_LIST_(X_ENABLE_PIN, Y_ENABLE_PIN, Z_ENABLE_PIN, I_ENABLE_PIN, J_ENABLE_PIN, K_ENABLE_PIN, U_ENABLE_PIN, V_ENABLE_PIN, W_ENABLE_PIN)
+    LIST_N(E_STEPPERS, E0_ENABLE_PIN, E1_ENABLE_PIN, E2_ENABLE_PIN, E3_ENABLE_PIN, E4_ENABLE_PIN, E5_ENABLE_PIN, E6_ENABLE_PIN, E7_ENABLE_PIN)
+  };
 
-// Recursively get the enable overlaps mask for a given linear axis or extruder
-constexpr ena_mask_t ena_overlap(const uint8_t a=0, const uint8_t b=0) {
-  return b >= ENABLE_COUNT ? 0 : (a == b ? 0 : ena_same(a, b)) | ena_overlap(a, b + 1);
-}
+  // Bit mask for a matching enable pin, or 0
+  constexpr ena_mask_t ena_same(const uint8_t a, const uint8_t b) {
+    return ena_pins[a] == ena_pins[b] ? _BV(b) : 0;
+  }
 
-// Recursively get whether there's any overlap at all
-constexpr bool any_enable_overlap(const uint8_t a=0) {
-  return a >= ENABLE_COUNT ? false : ena_overlap(a) || any_enable_overlap(a + 1);
-}
+  // Recursively get the enable overlaps mask for a given linear axis or extruder
+  constexpr ena_mask_t ena_overlap(const uint8_t a=0, const uint8_t b=0) {
+    return b >= ENABLE_COUNT ? 0 : (a == b ? 0 : ena_same(a, b)) | ena_overlap(a, b + 1);
+  }
 
-// Array of axes that overlap with each
-// TODO: Consider cases where >=2 steppers are used by a linear axis or extruder
-//       (e.g., CoreXY, Dual XYZ, or E with multiple steppers, etc.).
-constexpr ena_mask_t enable_overlap[] = {
-  #define _OVERLAP(N) ena_overlap(INDEX_OF_AXIS(AxisEnum(N))),
-  REPEAT(NUM_AXES, _OVERLAP)
-  #if HAS_EXTRUDERS
-    #define _E_OVERLAP(N) ena_overlap(INDEX_OF_AXIS(E_AXIS, N)),
-    REPEAT(E_STEPPERS, _E_OVERLAP)
-  #endif
-};
+  // Recursively get whether there's any overlap at all
+  constexpr bool any_enable_overlap(const uint8_t a=0) {
+    return a >= ENABLE_COUNT ? false : ena_overlap(a) || any_enable_overlap(a + 1);
+  }
 
-//static_assert(!any_enable_overlap(), "There is some overlap.");
+  // Array of axes that overlap with each
+  // TODO: Consider cases where >=2 steppers are used by a linear axis or extruder
+  //       (e.g., CoreXY, Dual XYZ, or E with multiple steppers, etc.).
+  constexpr ena_mask_t enable_overlap[] = {
+    #define _OVERLAP(N) ena_overlap(INDEX_OF_AXIS(AxisEnum(N))),
+    REPEAT(NUM_AXES, _OVERLAP)
+    #if HAS_EXTRUDERS
+      #define _E_OVERLAP(N) ena_overlap(INDEX_OF_AXIS(E_AXIS, N)),
+      REPEAT(E_STEPPERS, _E_OVERLAP)
+    #endif
+  };
+
+  //static_assert(!any_enable_overlap(), "There is some overlap.");
+
+#else
+  // With SOFTWARE_DRIVER_ENABLE there are no shared hardware pins, so no overlap
+  constexpr bool any_enable_overlap(const uint8_t=0) { return false; }
+  constexpr ena_mask_t enable_overlap[] = {
+    #define _OVERLAP(N) ena_mask_t(0),
+    REPEAT(NUM_AXES, _OVERLAP)
+    #if HAS_EXTRUDERS
+      #define _E_OVERLAP(N) ena_mask_t(0),
+      REPEAT(E_STEPPERS, _E_OVERLAP)
+    #endif
+  };
+#endif // !SOFTWARE_DRIVER_ENABLE
 
 #if HAS_ZV_SHAPING
 
@@ -163,7 +177,7 @@ constexpr ena_mask_t enable_overlap[] = {
     #define SHAPING_MIN_FREQ _MIN(__FLT_MAX__ OPTARG(INPUT_SHAPING_X, SHAPING_FREQ_X) OPTARG(INPUT_SHAPING_Y, SHAPING_FREQ_Y) OPTARG(INPUT_SHAPING_Z, SHAPING_FREQ_Z))
   #endif
   constexpr float shaping_min_freq = SHAPING_MIN_FREQ;
-  constexpr uint16_t shaping_echoes = FLOOR(max_step_rate / shaping_min_freq / 2) + 3;
+  constexpr uint16_t shaping_echoes = uint16_t(max_step_rate / shaping_min_freq / 2) + 3;
 
   typedef hal_timer_t shaping_time_t;
   enum shaping_echo_t { ECHO_NONE = 0, ECHO_FWD = 1, ECHO_BWD = 2 };
@@ -240,21 +254,21 @@ constexpr ena_mask_t enable_overlap[] = {
         static bool dequeue_x() { SHAPING_QUEUE_DEQUEUE(x) }
         static bool empty_x() { return head_x == tail; }
         static uint16_t free_count_x() { return _free_count_x; }
-        static uint16_t get_delay_x() { return delay_x; }
+        static shaping_time_t get_delay_x() { return delay_x; }
       #endif
       #if ENABLED(INPUT_SHAPING_Y)
         static shaping_time_t peek_y() { return _peek_y; }
         static bool dequeue_y() { SHAPING_QUEUE_DEQUEUE(y) }
         static bool empty_y() { return head_y == tail; }
         static uint16_t free_count_y() { return _free_count_y; }
-        static uint16_t get_delay_y() { return delay_y; }
+        static shaping_time_t get_delay_y() { return delay_y; }
       #endif
       #if ENABLED(INPUT_SHAPING_Z)
         static shaping_time_t peek_z() { return _peek_z; }
         static bool dequeue_z() { SHAPING_QUEUE_DEQUEUE(z) }
         static bool empty_z() { return head_z == tail; }
         static uint16_t free_count_z() { return _free_count_z; }
-        static uint16_t get_delay_z() { return delay_z; }
+        static shaping_time_t get_delay_z() { return delay_z; }
       #endif
       static void purge() {
         const auto st = shaping_time_t(-1);
@@ -399,6 +413,9 @@ class Stepper {
 
     #if ENABLED(NONLINEAR_EXTRUSION)
       static nonlinear_t nle;
+      #if ENABLED(SMOOTH_LIN_ADVANCE)
+        static void refresh_nle_q30();
+      #endif
     #endif
 
     #if ENABLED(ADAPTIVE_STEP_SMOOTHING_TOGGLE)
@@ -577,6 +594,11 @@ class Stepper {
 
       // The stepper block processing ISR phase
       static hal_timer_t block_phase_isr();
+
+      #if ENABLED(RESONANCE_TEST)
+        static void resonance_pulse_phase_isr();
+        static hal_timer_t resonance_block_phase_isr();
+      #endif
     #endif
 
     #if HAS_ZV_SHAPING
@@ -736,8 +758,9 @@ class Stepper {
       CBI(axis_enabled.bits, INDEX_OF_AXIS(axis, eindex));
       #if HAS_Z_AXIS
         if (TERN0(Z_CAN_FALL_DOWN, axis == Z_AXIS)) {
-          motion.z_min_trusted = false;
-          motion.position.z = 0;
+          motion.set_all_unhomed();     // Re-homing required before any motion
+          motion.position.z = 0;        // Assume the head has fallen to the bed
+          motion.sync_plan_position();  // Sync planner step counts to match
         }
       #endif
       // TODO: DELTA should have "Z" state affect all (ABC) motors and treat "XY" on/off as meaningless

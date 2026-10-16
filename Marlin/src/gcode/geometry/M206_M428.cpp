@@ -38,7 +38,7 @@ void GcodeSuite::M206() {
   if (!parser.seen_any()) return M206_report();
   LOOP_NUM_AXES(a)
     if (parser.seenval(AXIS_CHAR(a))) motion.set_home_offset((AxisEnum)a, parser.value_axis_units((AxisEnum)a));
-  #if ENABLED(MORGAN_SCARA)
+  #if ENABLED(SCARA)
     if (parser.seenval('T')) motion.set_home_offset(A_AXIS, parser.value_float()); // Theta
     if (parser.seenval('P')) motion.set_home_offset(B_AXIS, parser.value_float()); // Psi
   #endif

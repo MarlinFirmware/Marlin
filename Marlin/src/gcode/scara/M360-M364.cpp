@@ -22,15 +22,15 @@
 
 #include "../../inc/MarlinConfig.h"
 
-#if ENABLED(MORGAN_SCARA)
+#if ENABLED(SCARA_CALIBRATION)
 
 #include "../gcode.h"
 #include "../../module/scara.h"
 #include "../../module/motion.h"
 
-inline bool SCARA_move_to_cal(const uint8_t delta_a, const uint8_t delta_b) {
+inline bool SCARA_move_to_cal(const uint8_t theta, const uint8_t psi) {
   if (marlin.isRunning()) {
-    forward_kinematics(delta_a, delta_b);
+    forward_kinematics(theta, psi);
     motion.blocking_move_xy(motion.cartes);
     return true;
   }
@@ -50,7 +50,7 @@ bool GcodeSuite::M360() {
  */
 bool GcodeSuite::M361() {
   SERIAL_ECHOLNPGM(" Cal: Theta 90");
-  return SCARA_move_to_cal(90, 130);
+  return SCARA_move_to_cal(90, 40);
 }
 
 /**
@@ -58,7 +58,7 @@ bool GcodeSuite::M361() {
  */
 bool GcodeSuite::M362() {
   SERIAL_ECHOLNPGM(" Cal: Psi 0");
-  return SCARA_move_to_cal(60, 180);
+  return SCARA_move_to_cal(60, 180-60);
 }
 
 /**
@@ -66,7 +66,7 @@ bool GcodeSuite::M362() {
  */
 bool GcodeSuite::M363() {
   SERIAL_ECHOLNPGM(" Cal: Psi 90");
-  return SCARA_move_to_cal(50, 90);
+  return SCARA_move_to_cal(50, 90-50);
 }
 
 /**
@@ -74,7 +74,7 @@ bool GcodeSuite::M363() {
  */
 bool GcodeSuite::M364() {
   SERIAL_ECHOLNPGM(" Cal: Theta-Psi 90");
-  return SCARA_move_to_cal(45, 135);
+  return SCARA_move_to_cal(45, 90);
 }
 
-#endif // MORGAN_SCARA
+#endif // SCARA_CALIBRATION

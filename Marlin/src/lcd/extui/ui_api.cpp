@@ -81,7 +81,7 @@
   #include "../../feature/backlash.h"
 #endif
 
-#if HAS_BED_PROBE
+#if ANY(HAS_BED_PROBE, MESH_BED_LEVELING, AUTO_BED_LEVELING_UBL)
   #include "../../module/probe.h"
 #endif
 
@@ -114,6 +114,76 @@
 #endif
 
 namespace ExtUI {
+
+  /**
+   * Default no-op event handlers. These are weak symbols, so a display
+   * only needs to define the handlers it actually uses.
+   */
+  #define WEAK_EXTUI __attribute__((weak))
+
+  WEAK_EXTUI void onStartup() {}
+  WEAK_EXTUI void onIdle() {}
+  WEAK_EXTUI void onMediaMounted() {}
+  WEAK_EXTUI void onMediaError() {}
+  WEAK_EXTUI void onMediaRemoved() {}
+  WEAK_EXTUI void onHeatingError(const heater_id_t) {}
+  WEAK_EXTUI void onMinTempError(const heater_id_t) {}
+  WEAK_EXTUI void onMaxTempError(const heater_id_t) {}
+  WEAK_EXTUI void onPlayTone(const uint16_t, const uint16_t) {}
+  WEAK_EXTUI void onPrinterKilled(FSTR_P const, FSTR_P const) {}
+  WEAK_EXTUI void onPrintTimerStarted() {}
+  WEAK_EXTUI void onPrintTimerPaused() {}
+  WEAK_EXTUI void onPrintTimerStopped() {}
+  WEAK_EXTUI void onPrintDone() {}
+  WEAK_EXTUI void onFilamentRunout(const extruder_t) {}
+  WEAK_EXTUI void onUserConfirmRequired(const char * const) {}
+  WEAK_EXTUI void onUserConfirmRequired(const int, const char * const, FSTR_P const) {}
+  WEAK_EXTUI void onUserConfirmRequired(const int, FSTR_P const, FSTR_P const) {}
+  #if ENABLED(ADVANCED_PAUSE_FEATURE)
+    WEAK_EXTUI void onPauseMode(const PauseMessage, const PauseMode, const uint8_t) {}
+  #endif
+  WEAK_EXTUI void onStatusChanged(const char * const) {}
+  WEAK_EXTUI void onHomingStart() {}
+  WEAK_EXTUI void onHomingDone() {}
+  WEAK_EXTUI void onSteppersDisabled() {}
+  WEAK_EXTUI void onSteppersEnabled() {}
+  WEAK_EXTUI void onAxisDisabled(const axis_t) {}
+  WEAK_EXTUI void onAxisEnabled(const axis_t) {}
+  WEAK_EXTUI void onFactoryReset() {}
+  WEAK_EXTUI void onStoreSettings(char *) {}
+  WEAK_EXTUI void onLoadSettings(const char *) {}
+  WEAK_EXTUI void onPostprocessSettings() {}
+  WEAK_EXTUI void onSettingsStored(const bool) {}
+  WEAK_EXTUI void onSettingsLoaded(const bool) {}
+  #if HAS_LEVELING
+    WEAK_EXTUI void onLevelingStart() {}
+    WEAK_EXTUI void onLevelingDone() {}
+    #if HAS_MESH
+      WEAK_EXTUI void onMeshUpdate(const int8_t, const int8_t, const float) {}
+      WEAK_EXTUI void onMeshUpdate(const int8_t, const int8_t, const probe_state_t) {}
+    #endif
+  #endif
+  #if ENABLED(PREVENT_COLD_EXTRUSION)
+    WEAK_EXTUI void onSetMinExtrusionTemp(const celsius_t) {}
+  #endif
+  #if ENABLED(POWER_LOSS_RECOVERY)
+    WEAK_EXTUI void onSetPowerLoss(const bool) {}
+    WEAK_EXTUI void onPowerLoss() {}
+    WEAK_EXTUI void onPowerLossResume() {}
+  #endif
+  #if HAS_PID_HEATING
+    WEAK_EXTUI void onPIDTuning(const pidresult_t) {}
+    WEAK_EXTUI void onStartM303(const int, const heater_id_t, const celsius_t) {}
+  #endif
+  #if ENABLED(MPC_AUTOTUNE)
+    WEAK_EXTUI void onMPCTuning(const mpcresult_t) {}
+  #endif
+  #if ENABLED(PLATFORM_M997_SUPPORT)
+    WEAK_EXTUI void onFirmwareFlash() {}
+  #endif
+
+  #undef WEAK_EXTUI
+
   static struct {
     bool printer_killed : 1;
     #if ENABLED(JOYSTICK)
@@ -314,12 +384,12 @@ namespace ExtUI {
   //
   uint8_t getTargetFan_percent(const fan_t fan) {
     UNUSED(fan);
-    return TERN0(HAS_FAN, thermalManager.fanSpeedPercent(fan - FAN0));
+    return TERN0(HAS_FAN, fans[fan - FAN0].speed_pct());
   }
 
   uint8_t getActualFan_percent(const fan_t fan) {
     UNUSED(fan);
-    return TERN0(HAS_FAN, thermalManager.scaledFanSpeedPercent(fan - FAN0));
+    return TERN0(HAS_FAN, fans[fan - FAN0].speed_pct_scaled());
   }
 
   //
@@ -868,6 +938,21 @@ namespace ExtUI {
     bool getLevelingActive() { return planner.leveling_active; }
     void setLevelingActive(const bool state) { set_bed_leveling_enabled(state); }
     bool getLevelingIsValid() { return leveling_is_valid(); }
+
+    #if ENABLED(PREHEAT_BEFORE_LEVELING)
+      #if HAS_HOTEND
+        celsius_t getLevelingNozzleTemp() { return thermalManager.leveling_temp.hotend; }
+        #if HAS_LEVELING_TEMP_EDIT
+          void setLevelingNozzleTemp(const celsius_t temp) { thermalManager.leveling_temp.hotend = temp; }
+        #endif
+      #endif
+      #if HAS_HEATED_BED
+        celsius_t getLevelingBedTemp() { return thermalManager.leveling_temp.bed; }
+        #if HAS_LEVELING_TEMP_EDIT
+          void setLevelingBedTemp(const celsius_t temp) { thermalManager.leveling_temp.bed = temp; }
+        #endif
+      #endif
+    #endif
 
     #if HAS_MESH
 

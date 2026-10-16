@@ -41,7 +41,7 @@
 #endif
 #define BOARD_WEBSITE_URL      "www.creality.com"
 
-#define BOARD_LCD_SERIAL_PORT 2
+#define BOARD_LCD_SERIAL_PORT               2
 
 //
 // EEPROM

@@ -32,11 +32,14 @@
 #define SBIT_TIMER0 1
 #define SBIT_TIMER1 2
 
-#define SBIT_CNTEN 0
+// TCR (Timer Control Register) bits
+#define SBIT_CNTEN 0 // Counter Enable
+#define SBIT_CRST  1 // Counter Reset (hold TC and PC at 0 while set)
 
-#define SBIT_MR0I  0 // Timer 0 Interrupt when TC matches MR0
-#define SBIT_MR0R  1 // Timer 0 Reset TC on Match
-#define SBIT_MR0S  2 // Timer 0 Stop TC and PC on Match
+// MCR (Match Control Register) bits — also doubles as IR (Interrupt Register) bit positions
+#define SBIT_MR0I  0 // Interrupt when TC matches MR0 (IR bit 0 = MR0 interrupt flag)
+#define SBIT_MR0R  1 // Reset TC on Match
+#define SBIT_MR0S  2 // Stop TC and PC on Match
 #define SBIT_MR1I  3
 #define SBIT_MR1R  4
 #define SBIT_MR1S  5
@@ -110,8 +113,25 @@ void HAL_timer_start(const uint8_t timer_num, const uint32_t frequency);
 
 FORCE_INLINE static void HAL_timer_set_compare(const uint8_t timer_num, const hal_timer_t compare) {
   switch (timer_num) {
-    case MF_TIMER_STEP: STEP_TIMER_PTR->MR0 = compare; break; // Stepper Timer Match Register 0
-    case MF_TIMER_TEMP: TEMP_TIMER_PTR->MR0 = compare; break; //    Temp Timer Match Register 0
+    case MF_TIMER_STEP: {
+      STEP_TIMER_PTR->MR0 = compare;
+      // If the counter has already passed the compare value, reset it now to avoid
+      // waiting for TC to wrap around (~171s at 25MHz) before the next interrupt.
+      // Read TC once to minimize the window between the comparison and the reset.
+      const hal_timer_t tc = STEP_TIMER_PTR->TC;
+      if (tc >= compare) {
+        SBI(STEP_TIMER_PTR->TCR, SBIT_CRST); // Assert counter reset (TC held at 0)
+        CBI(STEP_TIMER_PTR->TCR, SBIT_CRST); // Release reset; TC starts counting from 0
+      }
+    } break;
+    case MF_TIMER_TEMP: {
+      TEMP_TIMER_PTR->MR0 = compare;
+      const hal_timer_t tc = TEMP_TIMER_PTR->TC;
+      if (tc >= compare) {
+        SBI(TEMP_TIMER_PTR->TCR, SBIT_CRST);
+        CBI(TEMP_TIMER_PTR->TCR, SBIT_CRST);
+      }
+    } break;
   }
 }
 
@@ -165,8 +185,9 @@ FORCE_INLINE static bool HAL_timer_interrupt_enabled(const uint8_t timer_num) {
 
 FORCE_INLINE static void HAL_timer_isr_prologue(const uint8_t timer_num) {
   switch (timer_num) {
-    case MF_TIMER_STEP: SBI(STEP_TIMER_PTR->IR, SBIT_CNTEN); break;
-    case MF_TIMER_TEMP: SBI(TEMP_TIMER_PTR->IR, SBIT_CNTEN); break;
+    // Clear the match interrupt flag (IR bit 0 = MR0 interrupt) by writing 1 to it
+    case MF_TIMER_STEP: SBI(STEP_TIMER_PTR->IR, SBIT_MR0I); break;
+    case MF_TIMER_TEMP: SBI(TEMP_TIMER_PTR->IR, SBIT_MR0I); break;
   }
 }
 
