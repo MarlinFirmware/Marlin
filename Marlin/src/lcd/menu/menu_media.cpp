@@ -31,6 +31,10 @@
 #include "menu_item.h"
 #include "../../sd/cardreader.h"
 
+#if HAS_TFT_GCODE_PREVIEW
+  #include "../tft/ui_gcode_preview.h"
+#endif
+
 void lcd_sd_updir() {
   ui.encoderPosition = card.cdup() ? ENCODER_STEPS_PER_MENU_ITEM : 0;
   encoderTopLine = 0;
@@ -70,7 +74,11 @@ class MenuItem_sdfile : public MenuItem_sdbase {
         sd_top_line = encoderTopLine;
         sd_items = screen_items;
       #endif
-      #if ENABLED(SD_MENU_CONFIRM_START)
+      #if HAS_TFT_GCODE_PREVIEW
+        // The preview screen confirms the print
+        preview.load(card.filename);
+        MenuItem_submenu::action(fstr, Preview::screen);
+      #elif ENABLED(SD_MENU_CONFIRM_START)
         MenuItem_submenu::action(fstr, []{
           char * const filename = card.longest_filename();
           MenuItem_confirm::select_screen(

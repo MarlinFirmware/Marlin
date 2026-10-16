@@ -380,6 +380,13 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
 #endif
 
 /**
+ * G-code Preview
+ */
+#if HAS_TFT_GCODE_PREVIEW && !ALL(TFT_COLOR_UI, HAS_MEDIA)
+  #error "GCODE_PREVIEW_(JPEG|QOI|MKS) require TFT_COLOR_UI and SDSUPPORT."
+#endif
+
+/**
  * Custom Boot and Status screens
  */
 #if ENABLED(SHOW_CUSTOM_BOOTSCREEN) && NONE(TFT_COLOR_UI, HAS_MARLINUI_HD44780, HAS_MARLINUI_U8GLIB, TOUCH_UI_FTDI_EVE, IS_DWIN_MARLINUI)
