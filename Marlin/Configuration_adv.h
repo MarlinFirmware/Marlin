@@ -2383,11 +2383,11 @@
   //#define TFT_BTOKMENU_COLOR 0x145F // 00010 100010 11111 Cyan
 #endif
 
-//
-// G-code Preview for TFT Color UI
-// Show the thumbnail your slicer embeds in the G-code before printing a file.
-// Set your slicer to write JPG or QOI thumbnails, or MKS TFT preview images.
-//
+/**
+ * G-code Preview for TFT Color UI
+ * Show the thumbnail your slicer embeds in the G-code before printing a file.
+ * Set your slicer to write JPG or QOI thumbnails, or MKS TFT preview images.
+ */
 #if ALL(TFT_COLOR_UI, HAS_MEDIA)
   //#define GCODE_PREVIEW_JPEG  // Enable JPEG thumbnail decoding
   //#define GCODE_PREVIEW_QOI   // Enable QOI thumbnail decoding
