@@ -903,7 +903,7 @@ void Temperature::factory_reset() {
 
         // Make sure heating is actually working
         #if WATCH_PID
-          if (ALL(WATCH_BED, WATCH_HOTENDS) || isbed == DISABLED(WATCH_HOTENDS) || ischamber == DISABLED(WATCH_HOTENDS)) {
+          if (PER_CBH(ENABLED(WATCH_CHAMBER), ENABLED(WATCH_BED), ENABLED(WATCH_HOTENDS))) {
             if (!heated) {                                            // If not yet reached target...
               if (current_temp > next_watch_temp) {                   // Over the watch temp?
                 next_watch_temp = current_temp + watch_temp_increase; // - set the next temp to watch for
