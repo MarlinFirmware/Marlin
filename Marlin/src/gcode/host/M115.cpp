@@ -147,6 +147,13 @@ void GcodeSuite::M115() {
     // AUTOREPORT_TEMP (M155)
     cap_line(F("AUTOREPORT_TEMP"), ENABLED(AUTO_REPORT_TEMPERATURES));
 
+    // BED_ZONES — M105 reports B0:/B1:/... instead of a single B:
+    #if HAS_BED_ZONES
+      SERIAL_ECHOLNPGM("Cap:BED_ZONES:", BED_ZONES_COUNT);
+    #else
+      cap_line(F("BED_ZONES"), false);
+    #endif
+
     // PROGRESS (M530 S L, M531 <file>, M532 X L)
     cap_line(F("PROGRESS"), false);
 

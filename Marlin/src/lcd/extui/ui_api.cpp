@@ -1026,13 +1026,16 @@ namespace ExtUI {
   #endif
 
   #if ENABLED(PIDTEMPBED)
-    float getBedPID_Kp() { return thermalManager.temp_bed.pid.p(); }
-    float getBedPID_Ki() { return thermalManager.temp_bed.pid.i(); }
-    float getBedPID_Kd() { return thermalManager.temp_bed.pid.d(); }
+    // With BED_ZONES this is zone 0
+    #define _BED_PID TERN(HAS_BED_ZONES, thermalManager.temp_bed[0], thermalManager.temp_bed).pid
+    float getBedPID_Kp() { return _BED_PID.p(); }
+    float getBedPID_Ki() { return _BED_PID.i(); }
+    float getBedPID_Kd() { return _BED_PID.d(); }
 
     void setBedPID(const float p, const float i, const float d) {
-      thermalManager.temp_bed.pid.set(p, i, d);
+      _BED_PID.set(p, i, d);
     }
+    #undef _BED_PID
 
     void startBedPIDTune(const celsius_t temp) {
       thermalManager.PID_autotune(temp, H_BED, 4, true);
