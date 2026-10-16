@@ -884,6 +884,15 @@
 #endif
 
 /**
+ * DELTA warnings
+ */
+#if ENABLED(DELTA)
+  constexpr float delta_steps[] = DEFAULT_AXIS_STEPS_PER_UNIT;
+  static_warning(delta_steps[X_AXIS] == delta_steps[Y_AXIS] && delta_steps[X_AXIS] == delta_steps[Z_AXIS],
+    "DELTA DEFAULT_AXIS_STEPS_PER_UNIT differ for X, Y, and Z. This is unusual, so make sure it is intended.");
+#endif
+
+/**
  * Input Shaping
  */
 #if HAS_ZV_SHAPING
