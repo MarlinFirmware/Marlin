@@ -323,7 +323,7 @@ void GcodeSuite::G28() {
       #endif
       // PARKING_EXTRUDER homing requires different handling of movement / solenoid activation, depending on the side of homing
       #if ENABLED(PARKING_EXTRUDER)
-        const bool homed_towards_tool = old_tool_index == TERN(X_HOME_TO_MIN, 0, 1),
+        const bool homed_towards_tool = old_tool_index == TERN(RUNTIME_HOMING_DIRECTION, (motion.home_dir(X_AXIS) < 0 ? 0 : 1), TERN(X_HOME_TO_MIN, 0, 1)),
                    pe_final_change_must_unpark = parking_extruder_unpark_after_homing(old_tool_index, homed_towards_tool);
       #endif
       tool_change(0, true);
@@ -496,7 +496,9 @@ void GcodeSuite::G28() {
               motion.homeaxis(Z_AXIS);
             #endif
 
-            #if ANY(Z_HOME_TO_MIN, ALLOW_Z_AFTER_HOMING)
+            #if ENABLED(RUNTIME_HOMING_DIRECTION)
+              finalRaiseZ = motion.home_dir(Z_AXIS) < 0 || ENABLED(ALLOW_Z_AFTER_HOMING);
+            #elif ANY(Z_HOME_TO_MIN, ALLOW_Z_AFTER_HOMING)
               finalRaiseZ = true;
             #endif
           }

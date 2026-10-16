@@ -604,12 +604,16 @@ void MarlinUI::init() {
 
             if (RRK(EN_KEYPAD_MIDDLE))  goto_screen(menu_move);
 
-            #if NONE(DELTA, Z_HOME_TO_MAX)
+            #if ENABLED(RUNTIME_HOMING_DIRECTION)
+              if (motion.home_dir(Z_AXIS) < 0 && RRK(EN_KEYPAD_F2)) _reprapworld_keypad_move(Z_AXIS,  1);
+            #elif NONE(DELTA, Z_HOME_TO_MAX)
               if (RRK(EN_KEYPAD_F2))    _reprapworld_keypad_move(Z_AXIS,  1);
             #endif
 
             if (homed) {
-              #if ANY(DELTA, Z_HOME_TO_MAX)
+              #if ENABLED(RUNTIME_HOMING_DIRECTION)
+                if (motion.home_dir(Z_AXIS) > 0 && RRK(EN_KEYPAD_F2)) _reprapworld_keypad_move(Z_AXIS,  1);
+              #elif ANY(DELTA, Z_HOME_TO_MAX)
                 if (RRK(EN_KEYPAD_F2))  _reprapworld_keypad_move(Z_AXIS,  1);
               #endif
               if (RRK(EN_KEYPAD_F3))    _reprapworld_keypad_move(Z_AXIS, -1);

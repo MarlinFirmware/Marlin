@@ -969,8 +969,16 @@ void GcodeSuite::process_parsed_command(bool no_ok/*=false*/) {
         case 554: M554(); break;                                  // M554: Set netmask
       #endif
 
+      #if ENABLED(RUNTIME_HOMING_DIRECTION)
+        case 574: M574(); break;                                  // M574: Set homing direction
+      #endif
+
       #if ENABLED(BAUD_RATE_GCODE)
         case 575: M575(); break;                                  // M575: Set serial baudrate
+      #endif
+
+      #if ENABLED(RUNTIME_AXIS_DIRECTION)
+        case 583: M583(); break;                                  // M583: Set stepper direction
       #endif
 
       #if ENABLED(NONLINEAR_EXTRUSION)

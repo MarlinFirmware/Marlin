@@ -940,6 +940,23 @@
   #endif
 #endif
 
+/**
+ * Runtime Axis Direction
+ * Set stepper directions with M583, starting from the INVERT_*_DIR settings.
+ * Save them with M500 and restore the configured values with M502.
+ */
+//#define RUNTIME_AXIS_DIRECTION
+
+/**
+ * Runtime Homing Direction
+ * Set the homing direction of each axis with M574 (1 = MIN, 2 = MAX), starting from [XYZ]_HOME_DIR.
+ * Save it with M500 and restore the configured values with M502.
+ * When a board defines both MIN and MAX pins for an axis both endstops are read, so both need
+ * a switch (or a pin that reads as not triggered). Z homing with a probe and X with DUAL_X_CARRIAGE
+ * can't be changed. Not compatible with DELTA, [XY]_DUAL_ENDSTOPS, or Z_MULTI_ENDSTOPS.
+ */
+//#define RUNTIME_HOMING_DIRECTION
+
 // @section extruder
 
 // Activate a solenoid on the active extruder with M380. Disable all with M381.
