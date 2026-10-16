@@ -843,6 +843,11 @@ private:
     FORCE_INLINE static void M190() { M140_M190(true); }
   #endif
 
+  #if HAS_BED_ZONES
+    static void M142();
+    static void M142_report(const bool forReplay=true);
+  #endif
+
   #if HAS_HEATED_CHAMBER
     static void M141();
     static void M191();
