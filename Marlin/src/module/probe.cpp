@@ -84,7 +84,7 @@
   #include "../feature/host_actions.h" // for PROMPT_USER_CONTINUE
 #endif
 
-#if HAS_Z_SERVO_PROBE || HAS_MAG_MOUNTED_SERVO_PROBE
+#if HAS_Z_SERVO_PROBE || HAS_MAG_MOUNTED_SERVO_PROBE || ENABLED(SWITCHING_NOZZLE_LIFT_TO_PROBE)
   #include "servo.h"
 #endif
 
