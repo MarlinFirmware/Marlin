@@ -4630,15 +4630,18 @@ void Temperature::isr() {
       #define HEATER_STATE_FLOAT_PRECISION _MIN(SERIAL_FLOAT_PRECISION, 2)
     #endif
 
-    SString<50> s(' ', k);
-    if (TERN0(HAS_MULTI_HOTEND, e >= 0)) s += char('0' + e);
-    s += ':'; s += p_float_t(c, HEATER_STATE_FLOAT_PRECISION);
-    if (show_t) { s += F(" /"); s += p_float_t(t, HEATER_STATE_FLOAT_PRECISION); }
+    // Print directly. Formatting the floats with SString / p_float_t calls dtostrf, which
+    // links in the whole libc float formatter (about 1.7 KB on AVR).
+    SERIAL_CHAR(' ', k);
+    if (TERN0(HAS_MULTI_HOTEND, e >= 0)) SERIAL_CHAR('0' + e);
+    SERIAL_CHAR(':');
+    SERIAL_ECHO(p_float_t(c, HEATER_STATE_FLOAT_PRECISION));
+    if (show_t) { SERIAL_ECHOPGM(" /"); SERIAL_ECHO(p_float_t(t, HEATER_STATE_FLOAT_PRECISION)); }
     #if ENABLED(SHOW_TEMP_ADC_VALUES)
       // Temperature MAX SPI boards do not have an OVERSAMPLENR defined
-      s.append(F(" ("), TERN(HAS_MAXTC_LIBRARIES, k == 'T', false) ? r : r * RECIPROCAL(OVERSAMPLENR), ')');
+      SERIAL_ECHOPGM(" (", TERN(HAS_MAXTC_LIBRARIES, k == 'T', false) ? r : r * RECIPROCAL(OVERSAMPLENR));
+      SERIAL_CHAR(')');
     #endif
-    s.echo();
     delay(2);
   }
 
