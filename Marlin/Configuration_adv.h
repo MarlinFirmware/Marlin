@@ -2523,10 +2523,8 @@
  */
 //#define NONLINEAR_EXTRUSION
 #if ENABLED(NONLINEAR_EXTRUSION)
-  //#define NONLINEAR_EXTRUSION_DEFAULT_ON    // Enable if NLE should be ON by default
-  //#define NONLINEAR_FACTOR_A 0.0000         // Quadratic coefficient (default 0.0)
-  //#define NONLINEAR_FACTOR_B 0.0000         // Linear coefficient (default 0.0)
-  //#define NONLINEAR_FACTOR_C 1.00           // Constant coefficient (default 1.0)
+  //#define NONLINEAR_EXTRUSION_DEFAULT_ON          // Enable if NLE should be ON by default
+  //#define NONLINEAR_FACTORS { 0.0f, 0.0f, 1.0f }  // Quadratic, Linear, Constant coefficients
 #endif
 
 // @section leveling

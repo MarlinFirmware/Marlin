@@ -274,7 +274,7 @@ uint32_t Stepper::advance_divisor = 0,
     // Call whenever NLE settings or E steps-per-mm change.
     void Stepper::refresh_nle_q30() {
       const float mm_per_step = planner.mm_per_step[E_AXIS_N(0)];
-      const nonlinear_coeff_t &coeff = nle.settings.coeff;
+      const NonlinearCoeff &coeff = nle.settings.coeff;
       nle.q30.A = _BV32(30) * (coeff.A * sq(mm_per_step));
       nle.q30.B = _BV32(30) * (coeff.B * mm_per_step);
       nle.q30.C = _BV32(30) * coeff.C;

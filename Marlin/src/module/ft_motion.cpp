@@ -509,7 +509,7 @@ xyze_float_t FTMotion::calc_traj_point(const float dist) {
 
       #if ENABLED(NONLINEAR_EXTRUSION)
         if (stepper.nle.settings.enabled) {
-          const nonlinear_coeff_t &coeff = stepper.nle.settings.coeff;
+          const NonlinearCoeff &coeff = stepper.nle.settings.coeff;
           const float multiplier = max(coeff.C, coeff.A * sq(e_rate) + coeff.B * e_rate + coeff.C),
                       nle_term = traj_e_delta * (multiplier - 1);
 
