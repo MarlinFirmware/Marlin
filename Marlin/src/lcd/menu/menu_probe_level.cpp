@@ -236,6 +236,51 @@
   void goto_tramming_wizard();
 #endif
 
+#if ENABLED(FIRST_LAYER_CALIBRATION) && HAS_PREHEAT
+
+  #include "../../gcode/queue.h"
+
+  // Start First Layer Calibration with material in editable.int8
+  void _flc_start(const bool reset) {
+    const preheat_t &mat = ui.material_preset[editable.int8];
+    queue.inject(MString<32>{}.setf_P(PSTR("M1005%s" TERN_(HAS_HOTEND, "H%" PRIi16) TERN_(HAS_HEATED_BED, "B%" PRIi16))
+      , reset ? "R" : ""
+      OPTARG(HAS_HOTEND, mat.hotend_temp)
+      OPTARG(HAS_HEATED_BED, mat.bed_temp)
+    ));
+    ui.return_to_status();
+  }
+
+  // Offer to reset Z offset when default is higher, since that can only raise nozzle
+  void _flc_select() {
+    editable.int8 = MenuItemBase::itemIndex;
+    #if ENABLED(MESH_BED_LEVELING)
+      if (bedlevel.z_offset >= 0) return _flc_start(false);
+    #else
+      constexpr float dpo[] = NOZZLE_TO_PROBE_OFFSET;
+      if (probe.offset.z >= dpo[Z_AXIS]) return _flc_start(false);
+    #endif
+    ui.goto_screen([]{
+      MenuItem_confirm::select_screen(
+          GET_TEXT_F(MSG_YES), GET_TEXT_F(MSG_NO)
+        , []{ _flc_start(true); }
+        , []{ _flc_start(false); }
+        , GET_TEXT_F(MSG_FLC_RESET_OFFSET)
+        , BABYSTEP_TO_STR(TERN(MESH_BED_LEVELING, bedlevel.z_offset, probe.offset.z))
+      );
+    });
+  }
+
+  void menu_first_layer_cal() {
+    START_MENU();
+    BACK_ITEM(MSG_BACK);
+    for (uint8_t m = 0; m < PREHEAT_COUNT; ++m)
+      ACTION_ITEM_N_f(m, ui.get_preheat_label(m), MSG_FIRST_LAYER_CAL_M, _flc_select);
+    END_MENU();
+  }
+
+#endif
+
 // Include a sub-menu when there's manual probing
 
 void menu_probe_level() {
@@ -359,6 +404,19 @@ void menu_probe_level() {
     //
     #if ENABLED(PROBE_OFFSET_WIZARD)
       SUBMENU(MSG_PROBE_WIZARD, goto_probe_offset_wizard);
+    #endif
+
+    //
+    // First Layer Calibration
+    //
+    #if ENABLED(FIRST_LAYER_CALIBRATION)
+      if (TERN1(MESH_BED_LEVELING, is_valid)) {
+        #if HAS_PREHEAT
+          SUBMENU(MSG_FIRST_LAYER_CAL, menu_first_layer_cal);
+        #else
+          GCODES_ITEM(MSG_FIRST_LAYER_CAL, F("M1005"));
+        #endif
+      }
     #endif
 
     //

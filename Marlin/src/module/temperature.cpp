@@ -4735,7 +4735,7 @@ void Temperature::isr() {
     #endif
 
     bool Temperature::wait_for_hotend(const uint8_t target_extruder, const bool no_wait_for_cooling/*=true*/
-      OPTARG(G26_CLICK_CAN_CANCEL, const bool click_to_cancel/*=false*/)
+      OPTARG(HEATUP_CLICK_CAN_CANCEL, const bool click_to_cancel/*=false*/)
     ) {
       #if ENABLED(AUTOTEMP)
         REMEMBER(1, autotemp.enabled, false);
@@ -4827,7 +4827,7 @@ void Temperature::isr() {
           }
         }
 
-        #if G26_CLICK_CAN_CANCEL
+        #if HEATUP_CLICK_CAN_CANCEL
           if (click_to_cancel && ui.use_click()) {
             marlin.heatup_done();
             TERN_(HAS_MARLINUI_MENU, ui.quick_feedback());
@@ -4932,7 +4932,7 @@ void Temperature::isr() {
     #endif
 
     bool Temperature::wait_for_bed(const bool no_wait_for_cooling/*=true*/
-      OPTARG(G26_CLICK_CAN_CANCEL, const bool click_to_cancel/*=false*/)
+      OPTARG(HEATUP_CLICK_CAN_CANCEL, const bool click_to_cancel/*=false*/)
     ) {
       #if TEMP_BED_RESIDENCY_TIME > 0
         millis_t residency_start_ms = 0;
@@ -5019,7 +5019,7 @@ void Temperature::isr() {
           }
         }
 
-        #if G26_CLICK_CAN_CANCEL
+        #if HEATUP_CLICK_CAN_CANCEL
           if (click_to_cancel && ui.use_click()) {
             marlin.heatup_done();
             TERN_(HAS_MARLINUI_MENU, ui.quick_feedback());

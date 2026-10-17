@@ -1156,6 +1156,10 @@ void GcodeSuite::process_parsed_command(bool no_ok/*=false*/) {
         case 1004: M1004(); break;                                // M1004: UBL Mesh Wizard
       #endif
 
+      #if ENABLED(FIRST_LAYER_CALIBRATION)
+        case 1005: M1005(); break;                                // M1005: First Layer Calibration
+      #endif
+
       #if ENABLED(MAX7219_GCODE)
         case 7219: M7219(); break;                                // M7219: Set LEDs, columns, and rows
       #endif

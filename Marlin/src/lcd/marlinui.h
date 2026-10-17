@@ -834,7 +834,7 @@ public:
   //
   // Block interaction while under external control
   //
-  #if HAS_MARLINUI_MENU && ANY(AUTO_BED_LEVELING_UBL, G26_MESH_VALIDATION)
+  #if HAS_MARLINUI_MENU && ANY(AUTO_BED_LEVELING_UBL, G26_MESH_VALIDATION, FIRST_LAYER_CALIBRATION)
     static bool external_control;
     FORCE_INLINE static void capture() { external_control = true; }
     FORCE_INLINE static void release() { external_control = false; }
@@ -882,7 +882,7 @@ public:
       static bool hw_button_pressed() { return BUTTON_CLICK(); }
     #endif
 
-    #if ANY(AUTO_BED_LEVELING_UBL, G26_MESH_VALIDATION)
+    #if ANY(AUTO_BED_LEVELING_UBL, G26_MESH_VALIDATION, FIRST_LAYER_CALIBRATION)
       static void wait_for_release();
     #endif
 

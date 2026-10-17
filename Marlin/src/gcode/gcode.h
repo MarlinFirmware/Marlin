@@ -344,6 +344,7 @@
  * M995 - Touch screen calibration for TFT display
  * M997 - Perform in-application firmware update
  * M999 - Restart after being stopped by error
+ * M1005 - First Layer Calibration. (Requires FIRST_LAYER_CALIBRATION)
  *
  * D... - Custom Development G-code. Add hooks to "gcode_D.cpp" for developers to test features. (Requires MARLIN_DEV_MODE)
  *        D576 - Set buffer monitoring options. (Requires BUFFER_MONITORING)
@@ -1362,6 +1363,10 @@ private:
 
   #if ENABLED(UBL_MESH_WIZARD)
     static void M1004();
+  #endif
+
+  #if ENABLED(FIRST_LAYER_CALIBRATION)
+    static void M1005();
   #endif
 
   #if ENABLED(HAS_MCP3426_ADC)
