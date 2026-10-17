@@ -158,6 +158,26 @@ const XrefInfo pin_xref[] PROGMEM = {
 #define GET_PIN_MAP_PIN_M43(x) pin_xref[x].Ard_num
 
 /**
+ * M43 walks pin_xref in port/pin order, but its P, L and S parameters take the
+ * same pin number as M42 and the "M42 P" column of the report. Find that pin's
+ * pin_xref index, or M43_INVALID_INDEX if the variant doesn't have it. Compare pads,
+ * not numbers, so an analog pin is found by either of its numbers (e.g., 0 or PIN_A0
+ * for PA0).
+ */
+#define M43_INVALID_INDEX 0xFF
+static_assert(NUMBER_PINS_TOTAL < M43_INVALID_INDEX, "pin_xref is too big for a uint8_t index.");
+
+uint8_t parsed_pin_index_m43(const char code, const uint8_t dval) {
+  if (!parser.seenval(code)) return dval;
+  const PinName dp = digitalPinToPinName(parser.value_int());
+  if (dp != NC)
+    for (uint8_t i = 0; i < NUMBER_PINS_TOTAL; ++i)
+      if (digitalPinToPinName(GET_PIN_MAP_PIN_M43(i)) == dp) return i;
+  return M43_INVALID_INDEX;
+}
+#define PARSED_PIN_INDEX_M43(code, dval) parsed_pin_index_m43(code, dval)
+
+/**
  * Pin configuration read back from the GPIO registers.
  *
  * STM32F1 keeps a 4-bit CNF/MODE field per pin in CRL/CRH, where the mode and the
