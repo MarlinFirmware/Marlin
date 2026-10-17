@@ -84,6 +84,7 @@ void SERIAL_CHAR(char a) { SERIAL_IMPL.write(a); }
 void SERIAL_EOL() { SERIAL_CHAR('\n'); }
 
 void SERIAL_ECHO(serial_char_t x) { SERIAL_IMPL.write(x.c); }
+void SERIAL_ECHOLN(serial_char_t x) { SERIAL_ECHO(x); SERIAL_EOL(); }
 
 void SERIAL_FLUSH()    { SERIAL_IMPL.flush(); }
 void SERIAL_FLUSHTX()  { SERIAL_IMPL.flushTX(); }
