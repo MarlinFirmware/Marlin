@@ -55,7 +55,7 @@
 
 #include "../../../inc/MarlinConfigPre.h"
 
-#if HAS_MARLINUI_U8GLIB && DISABLED(TFT_CLASSIC_UI)
+#if HAS_MARLINUI_U8GLIB && !HAS_MARLINUI_U8G2 && DISABLED(TFT_CLASSIC_UI)
 
 #include "HAL_LCD_com_defines.h"
 
