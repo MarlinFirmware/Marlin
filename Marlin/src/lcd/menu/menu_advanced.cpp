@@ -204,7 +204,11 @@ void menu_backlash();
     int16_t autotune_temp[HOTENDS] = ARRAY_BY_HOTENDS1(PREHEAT_1_TEMP_HOTEND);
   #endif
   #if ENABLED(PIDTEMPBED)
-    int16_t autotune_temp_bed = PREHEAT_1_TEMP_BED;
+    #if HAS_BED_ZONES
+      int16_t autotune_temp_bed_zone[BED_ZONES_COUNT] = ARRAY_N_1(BED_ZONES_COUNT, PREHEAT_1_TEMP_BED);
+    #else
+      int16_t autotune_temp_bed = PREHEAT_1_TEMP_BED;
+    #endif
   #endif
   #if ENABLED(PIDTEMPCHAMBER)
     int16_t autotune_temp_chamber = PREHEAT_1_TEMP_CHAMBER;
@@ -216,7 +220,7 @@ void menu_backlash();
     int16_t tune_temp;
     switch (hid) {
       #if ENABLED(PIDTEMPBED)
-        case H_BED: tune_temp = autotune_temp_bed; break;
+        case H_BED: tune_temp = TERN(HAS_BED_ZONES, autotune_temp_bed_zone[0], autotune_temp_bed); break;
       #endif
       #if ENABLED(PIDTEMPCHAMBER)
         case H_CHAMBER: tune_temp = autotune_temp_chamber; break;
@@ -231,6 +235,17 @@ void menu_backlash();
     queue.inject(TS(F("M303 U1 E"), int(hid), F(" S"), tune_temp));
     ui.return_to_status();
   }
+
+  #if ENABLED(PIDTEMPBED) && HAS_BED_ZONES
+    // Per-zone autotune — zone index is stored in MenuItemBase::itemIndex
+    void _lcd_autotune_bed_zone() {
+      char cmd[40];
+      const uint8_t z = (uint8_t)MenuItemBase::itemIndex;
+      sprintf_P(cmd, PSTR("M303 U1 E-1 A%u S%i"), z, autotune_temp_bed_zone[z]);
+      queue.inject(cmd);
+      ui.return_to_status();
+    }
+  #endif
 
 #endif // PID_AUTOTUNE_MENU
 
@@ -249,7 +264,7 @@ void menu_backlash();
   void apply_PID_p(const int8_t e) {
     switch (e) {
       #if ENABLED(PIDTEMPBED)
-        case H_BED: thermalManager.temp_bed.pid.set_Kp(raw_Kp); break;
+        case H_BED: TERN(HAS_BED_ZONES, thermalManager.temp_bed[0], thermalManager.temp_bed).pid.set_Kp(raw_Kp); break;
       #endif
       #if ENABLED(PIDTEMPCHAMBER)
         case H_CHAMBER: thermalManager.temp_chamber.pid.set_Kp(raw_Kp); break;
@@ -265,7 +280,7 @@ void menu_backlash();
   void apply_PID_i(const int8_t e) {
     switch (e) {
       #if ENABLED(PIDTEMPBED)
-        case H_BED: thermalManager.temp_bed.pid.set_Ki(raw_Ki); break;
+        case H_BED: TERN(HAS_BED_ZONES, thermalManager.temp_bed[0], thermalManager.temp_bed).pid.set_Ki(raw_Ki); break;
       #endif
       #if ENABLED(PIDTEMPCHAMBER)
         case H_CHAMBER: thermalManager.temp_chamber.pid.set_Ki(raw_Ki); break;
@@ -281,7 +296,7 @@ void menu_backlash();
   void apply_PID_d(const int8_t e) {
     switch (e) {
       #if ENABLED(PIDTEMPBED)
-        case H_BED: thermalManager.temp_bed.pid.set_Kd(raw_Kd); break;
+        case H_BED: TERN(HAS_BED_ZONES, thermalManager.temp_bed[0], thermalManager.temp_bed).pid.set_Kd(raw_Kd); break;
       #endif
       #if ENABLED(PIDTEMPCHAMBER)
         case H_CHAMBER: thermalManager.temp_chamber.pid.set_Kd(raw_Kd); break;
@@ -294,6 +309,13 @@ void menu_backlash();
         break;
     }
   }
+#endif
+
+#if ENABLED(PID_EDIT_MENU) && ENABLED(PIDTEMPBED) && HAS_BED_ZONES
+  // Per-zone bed PID apply helpers — zone from MenuItemBase::itemIndex
+  void apply_bed_zone_pid_p() { thermalManager.temp_bed[MenuItemBase::itemIndex].pid.set_Kp(raw_Kp); }
+  void apply_bed_zone_pid_i() { thermalManager.temp_bed[MenuItemBase::itemIndex].pid.set_Ki(raw_Ki); }
+  void apply_bed_zone_pid_d() { thermalManager.temp_bed[MenuItemBase::itemIndex].pid.set_Kd(raw_Kd); }
 #endif
 
 #if ALL(AUTOTEMP, HAS_TEMP_HOTEND) || ANY(PID_AUTOTUNE_MENU, PID_EDIT_MENU, MPC_AUTOTUNE_MENU, MPC_EDIT_MENU)
@@ -387,6 +409,23 @@ void menu_backlash();
         EDIT_ITEM_FAST_N(float41sign, N, MSG_PID_D_E, &raw_Kd, 1.00f, 9990, []{ apply_PID_d(N); })
     #endif
 
+    // Per-zone bed PID edit/autotune items — zone index used as N (stored in itemIndex)
+    #if ENABLED(PIDTEMPBED) && HAS_BED_ZONES
+      #if ENABLED(PID_EDIT_MENU)
+        #define _BED_ZONE_PID_ITEMS(Z) \
+          raw_Kp = thermalManager.temp_bed[Z].pid.p(); \
+          raw_Ki = thermalManager.temp_bed[Z].pid.i(); \
+          raw_Kd = thermalManager.temp_bed[Z].pid.d(); \
+          EDIT_ITEM_FAST_N(float41sign, Z, MSG_BED_ZONE_PID_P, &raw_Kp, 1.00f, 9990, apply_bed_zone_pid_p); \
+          EDIT_ITEM_FAST_N(float52sign, Z, MSG_BED_ZONE_PID_I, &raw_Ki, 0.01f, 9990, apply_bed_zone_pid_i); \
+          EDIT_ITEM_FAST_N(float41sign, Z, MSG_BED_ZONE_PID_D, &raw_Kd, 1.00f, 9990, apply_bed_zone_pid_d);
+      #endif
+      #if ENABLED(PID_AUTOTUNE_MENU)
+        #define _BED_ZONE_AUTOTUNE_ITEM(Z) \
+          EDIT_ITEM_FAST_N(int3, Z, MSG_BED_ZONE_AUTOTUNE, &autotune_temp_bed_zone[Z], PREHEAT_1_TEMP_BED, BED_MAX_TARGET, _lcd_autotune_bed_zone);
+      #endif
+    #endif
+
     #if ENABLED(PIDTEMP)
       #if ENABLED(PID_AUTOTUNE_MENU)
         #define HOTEND_PID_EDIT_MENU_ITEMS(N) \
@@ -443,11 +482,20 @@ void menu_backlash();
     #endif
 
     #if ENABLED(PIDTEMPBED)
-      #if ENABLED(PID_EDIT_MENU)
-        _PID_EDIT_ITEMS_TMPL(H_BED, thermalManager.temp_bed);
-      #endif
-      #if ENABLED(PID_AUTOTUNE_MENU)
-        EDIT_ITEM_FAST_N(int3, H_BED, MSG_PID_AUTOTUNE_E, &autotune_temp_bed, PREHEAT_1_TEMP_BED, BED_MAX_TARGET, []{ _lcd_autotune(H_BED); });
+      #if HAS_BED_ZONES
+        #if ENABLED(PID_EDIT_MENU)
+          REPEAT(BED_ZONES_COUNT, _BED_ZONE_PID_ITEMS);
+        #endif
+        #if ENABLED(PID_AUTOTUNE_MENU)
+          REPEAT(BED_ZONES_COUNT, _BED_ZONE_AUTOTUNE_ITEM);
+        #endif
+      #else
+        #if ENABLED(PID_EDIT_MENU)
+          _PID_EDIT_ITEMS_TMPL(H_BED, thermalManager.temp_bed);
+        #endif
+        #if ENABLED(PID_AUTOTUNE_MENU)
+          EDIT_ITEM_FAST_N(int3, H_BED, MSG_PID_AUTOTUNE_E, &autotune_temp_bed, PREHEAT_1_TEMP_BED, BED_MAX_TARGET, []{ _lcd_autotune(H_BED); });
+        #endif
       #endif
     #endif
 
