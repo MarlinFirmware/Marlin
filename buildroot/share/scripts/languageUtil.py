@@ -77,6 +77,7 @@ LANGNAME = {
   'ru':      { 'size':2, 'iso': "5",     'name':"Russian", 'tft':"Cyrillic" },
   'sk':      { 'size':2, 'iso': "SK",    'name':"Slovak", 'tft':"Latin_Extended_A" },
   'sv':      { 'size':2, 'iso': "1",     'name':"Swedish" },
+  'tlh':     { 'size':3,                 'name':"Klingon (pIqaD)", 'tft':"Klingon" },
   'tr':      { 'size':2, 'iso': "TR",    'name':"Turkish", 'tft':"Latin_Extended_A" },
   'uk':      { 'size':2, 'iso': "5",     'name':"Ukrainian", 'tft':"Cyrillic" },
   'vi':      { 'size':2,                 'name':"Vietnamese", 'tft':"Vietnamese" },
