@@ -79,6 +79,8 @@
     #include "lcd/dwin/creality/dwin.h"
   #elif ENABLED(DWIN_CREALITY_LCD_JYERSUI)
     #include "lcd/dwin/jyersui/dwin.h"
+  #elif ENABLED(DWIN_LCD_PROUI)
+    #include "lcd/extui/ui_api.h"
   #endif
 #elif ENABLED(SOVOL_SV06_RTS)
   #include "lcd/sovol_rts/sovol_rts.h"
@@ -1669,6 +1671,8 @@ void setup() {
 
   #if ENABLED(DWIN_CREALITY_LCD)
     SETUP_RUN(dwinInitScreen());
+  #elif ENABLED(DWIN_LCD_PROUI)
+    SETUP_RUN(ExtUI::onStartup());    // ProUI MarlinUI::init_lcd only does the handshake
   #elif ENABLED(SOVOL_SV06_RTS)
     SETUP_RUN(rts.init());
   #endif
