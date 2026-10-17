@@ -825,6 +825,8 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
     #error "E_DUAL_STEPPER_DRIVERS is incompatible with MIXING_EXTRUDER."
   #elif HAS_SWITCHING_EXTRUDER
     #error "E_DUAL_STEPPER_DRIVERS is incompatible with (MECHANICAL_)SWITCHING_EXTRUDER."
+  #elif AXIS_IS_TMC(E1) && _DRIVER_ID(E0_DRIVER_TYPE) != _DRIVER_ID(E1_DRIVER_TYPE)
+    #error "E_DUAL_STEPPER_DRIVERS with a Trinamic E1_DRIVER_TYPE requires a matching E0_DRIVER_TYPE."
   #endif
 #endif
 

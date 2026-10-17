@@ -32,6 +32,11 @@
 #include "MarlinConfigPre-4-adv.h"
 //========================================================
 
+// E_DUAL_STEPPER_DRIVERS (in Configuration_adv.h) uses the E1 stepper driver
+#if E_STEPPERS <= 1 && DISABLED(E_DUAL_STEPPER_DRIVERS)
+  #undef E1_DRIVER_TYPE
+#endif
+
 #if ENABLED(MARLIN_SMALL_BUILD)
   #undef EEPROM_CHITCHAT
   #undef CAPABILITIES_REPORT
