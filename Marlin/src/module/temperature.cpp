@@ -1651,7 +1651,7 @@ void Temperature::_temp_error(
 /**
  * Max Temp Error
  * @brief - The temperature reading is out of range, e.g., too high.
- *          May be caused by a disconnected thermistor which has infinite resistance.
+ *          May be caused by a shorted thermistor which has near zero resistance.
  * @param heater_id:  The heater that caused the error
  * @param deg:  The detected temperature (if ERR_INCLUDE_TEMP)
  */
@@ -1667,7 +1667,7 @@ void Temperature::maxtemp_error(const heater_id_t heater_id OPTARG(ERR_INCLUDE_T
 /**
  * Min Temp Error
  * @brief - The temperature reading is out of range, e.g., too high.
- *          May be caused by a shorted thermistor which has near zero resistance.
+ *          May be caused by a disconnected thermistor which has infinite resistance.
  * @param heater_id:  The heater that caused the error
  * @param deg:  The detected temperature (if ERR_INCLUDE_TEMP)
  */
