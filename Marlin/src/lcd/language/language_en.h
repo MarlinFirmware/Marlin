@@ -153,6 +153,11 @@ namespace LanguageNarrow_en {
   LSTR MSG_N_STEPS                        = _UxGT("@ steps/mm");
   LSTR MSG_E_STEPS                        = _UxGT("E steps/mm");
   LSTR MSG_EN_STEPS                       = _UxGT("* Steps/mm");
+  LSTR MSG_MOTOR_DIRECTION                = _UxGT("Motor Direction");
+  LSTR MSG_INVERT_N                       = _UxGT("Invert @");
+  LSTR MSG_INVERT_EN                      = _UxGT("Invert *");
+  LSTR MSG_HOMING_DIRECTION               = _UxGT("Homing Direction");
+  LSTR MSG_HOME_TO_MAX_N                  = _UxGT("Home @ to Max");
   LSTR MSG_TEMPERATURE                    = _UxGT("Temperature");
   LSTR MSG_MOTION                         = _UxGT("Motion");
   LSTR MSG_FILAMENT                       = _UxGT("Filament");
