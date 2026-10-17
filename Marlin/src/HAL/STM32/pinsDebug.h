@@ -158,6 +158,26 @@ const XrefInfo pin_xref[] PROGMEM = {
 #define GET_PIN_MAP_PIN_M43(x) pin_xref[x].Ard_num
 
 /**
+ * M43 walks pin_xref in port/pin order, but its P, L and S parameters take the
+ * same pin number as M42 and the "M42 P" column of the report. Find that pin's
+ * pin_xref index, or M43_INVALID_INDEX if the variant doesn't have it. Compare pads,
+ * not numbers, so an analog pin is found by either of its numbers (e.g., 0 or PIN_A0
+ * for PA0).
+ */
+#define M43_INVALID_INDEX 0xFF
+static_assert(NUMBER_PINS_TOTAL < M43_INVALID_INDEX, "pin_xref is too big for a uint8_t index.");
+
+uint8_t parsed_pin_index_m43(const char code, const uint8_t dval) {
+  if (!parser.seenval(code)) return dval;
+  const PinName dp = digitalPinToPinName(parser.value_int());
+  if (dp != NC)
+    for (uint8_t i = 0; i < NUMBER_PINS_TOTAL; ++i)
+      if (digitalPinToPinName(GET_PIN_MAP_PIN_M43(i)) == dp) return i;
+  return M43_INVALID_INDEX;
+}
+#define PARSED_PIN_INDEX_M43(code, dval) parsed_pin_index_m43(code, dval)
+
+/**
  * Pin configuration read back from the GPIO registers.
  *
  * STM32F1 keeps a 4-bit CNF/MODE field per pin in CRL/CRH, where the mode and the
@@ -241,16 +261,18 @@ PinConfig get_pin_config(const PinName dp) {
 }
 
 /**
- * Port holding the HSE OSC_IN / OSC_OUT pair, as an STM_PORT index (A = 0).
+ * Port holding the HSE OSC_IN / OSC_OUT pair, as the core's PortName. That enum
+ * only counts the ports a part has, so it can't be a fixed number: PortH is 5 on
+ * an STM32F401, which has no GPIOF or GPIOG.
  *
  * Only the families whose placement is known are listed. STM32F1 is left out on
  * purpose: OSC_IN and OSC_OUT are dedicated pins on the packages Marlin builds
  * for, and PD0/PD1 only become GPIO through an AFIO remap on the small packages.
  */
-#if defined(STM32F0xx) || defined(STM32F3xx) || defined(STM32G0xx) || defined(STM32G4xx)
-  #define HSE_OSC_PORT 5  // PF0 = OSC_IN, PF1 = OSC_OUT
-#elif defined(STM32F2xx) || defined(STM32F4xx) || defined(STM32F7xx) || defined(STM32H7xx) || defined(STM32L4xx)
-  #define HSE_OSC_PORT 7  // PH0 = OSC_IN, PH1 = OSC_OUT
+#if (defined(STM32F0xx) || defined(STM32F3xx) || defined(STM32G0xx) || defined(STM32G4xx)) && defined(GPIOF_BASE)
+  #define HSE_OSC_PORT PortF  // PF0 = OSC_IN, PF1 = OSC_OUT
+#elif (defined(STM32F2xx) || defined(STM32F4xx) || defined(STM32F7xx) || defined(STM32H7xx) || defined(STM32L4xx)) && defined(GPIOH_BASE)
+  #define HSE_OSC_PORT PortH  // PH0 = OSC_IN, PH1 = OSC_OUT
 #endif
 
 /**
@@ -347,8 +369,8 @@ FSTR_P pad_owner(const PinName dp) {
    * one has it: 0b10 is GPIO, anything else leaves the reset circuit in charge.
    * FLASH is always clocked, so OPTR can be read without a guard.
    */
-  #if defined(STM32G0xx) && defined(FLASH_OPTR_NRST_MODE)
-    if (port == 5 && num == 2 && (FLASH->OPTR & FLASH_OPTR_NRST_MODE) != FLASH_OPTR_NRST_MODE_1)
+  #if defined(STM32G0xx) && defined(FLASH_OPTR_NRST_MODE) && defined(GPIOF_BASE)
+    if (port == PortF && num == 2 && (FLASH->OPTR & FLASH_OPTR_NRST_MODE) != FLASH_OPTR_NRST_MODE_1)
       return F("NRST");
   #endif
 
