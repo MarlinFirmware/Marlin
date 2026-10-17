@@ -54,6 +54,11 @@
  */
 void GcodeSuite::G30() {
 
+  // Without VERBOSE_SINGLE_PROBE (which homes as needed) require homing first
+  #if DISABLED(VERBOSE_SINGLE_PROBE)
+    if (motion.homing_needed_error()) return;
+  #endif
+
   xy_pos_t probepos = motion.position;
 
   const bool seenX = parser.seenval('X');
