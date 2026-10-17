@@ -32,8 +32,12 @@
 
 FilamentMonitor runout;
 
-bool FilamentMonitorBase::enabled = true,
-     FilamentMonitorBase::filament_ran_out; // = false
+// Default: master monitoring on, all sensors individually enabled, mode RM_NONE.
+bool FilamentMonitorBase::monitoring,                    // initialized by settings
+     FilamentMonitorBase::enabled[NUM_RUNOUT_SENSORS],   // initialized by settings
+     FilamentMonitorBase::filament_ran_out;              // = false
+
+RunoutMode FilamentMonitorBase::mode[NUM_RUNOUT_SENSORS]; // initialized by settings
 
 #if ENABLED(HOST_ACTION_COMMANDS)
   bool FilamentMonitorBase::host_handling; // = false
@@ -46,7 +50,9 @@ bool FilamentMonitorBase::enabled = true,
 #endif
 
 #if HAS_FILAMENT_RUNOUT_DISTANCE
-  float RunoutResponseDelayed::runout_distance_mm = FILAMENT_RUNOUT_DISTANCE_MM;
+  // Per-sensor runout distances – initialized by settings.load() from
+  // FILAMENT_RUNOUT_DISTANCE_MM, then independently adjustable via M591.
+  float RunoutResponseDelayed::runout_distance_mm[NUM_RUNOUT_SENSORS];
   countdown_t RunoutResponseDelayed::mm_countdown;
   #if ENABLED(FILAMENT_MOTION_SENSOR)
     uint8_t FilamentSensorEncoder::motion_detected;
