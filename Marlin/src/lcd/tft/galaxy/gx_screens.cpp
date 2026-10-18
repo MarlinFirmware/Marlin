@@ -79,6 +79,7 @@ static bool gx_pid_bed = false;
 static celsius_t gx_pid_temp = 210;
 static uint8_t gx_pid_cycles = 8;
 static bool gx_aborted = false;
+static bool gx_was_printing = false, gx_show_done = false;
 static uint8_t gx_brightness = 100;
 
 static void gx_set_brightness(const uint8_t pct) {
@@ -410,7 +411,7 @@ static void gx_confirm(const char *title, const char *l1, const char *l2, const 
 
 enum GxCommand : uint8_t {
   C_HOME, C_MOTORS_OFF, C_PREHEAT0, C_PREHEAT1, C_COOLDOWN,
-  C_PAUSE_RESUME, C_STOP_ASK, C_STOP_YES, C_DONE_OK,
+  C_PAUSE_RESUME, C_STOP_ASK, C_STOP_YES, C_DONE_OK, C_REPRINT,
   C_LOAD, C_UNLOAD, C_PURGE, C_CHANGE,
   C_AUTOLEVEL, C_LEVEL_TOGGLE, C_MESH_M, C_MESH_P,
   C_DEPLOY, C_STOW, C_SELFTEST, C_ALARM,
@@ -497,7 +498,17 @@ static void gx_command(const uint8_t c) {
       break;
     case C_STOP_ASK:   gx_confirm("STOP PRINT?", "The current print will be aborted.", "Heaters turn off.", GXI_STOP, GX_C_BAD, "STOP", C_STOP_YES, true); return;
     case C_STOP_YES:   gx_aborted = true; ui.abort_print(); ui.return_to_status(); return;
-    case C_DONE_OK:    ui.return_to_status(); gx_invalidate(); break;
+    case C_DONE_OK:    gx_show_done = false; ui.return_to_status(); gx_invalidate(); break;
+    #if HAS_MEDIA
+      case C_REPRINT:  // Print the last job again (same file, same folder)
+        if (gx_thumb_has_job() && card.isMounted() && !card.isFileOpen()) {
+          gx_show_done = false;
+          gx_aborted = false;
+          card.openAndPrintFile(gx_job_dosname());
+          ui.return_to_status();
+        }
+        break;
+    #endif
 
     #if ENABLED(FILAMENT_LOAD_UNLOAD_GCODES)
       case C_LOAD:   if (thermalManager.tooColdToExtrude(0)) { gx_status_msg("Heat the nozzle first"); return; } queue.inject(F("M701")); break;
@@ -598,7 +609,6 @@ static void gx_screen_tune();
 
 enum GxMode : uint8_t { GM_NONE, GM_IDLE, GM_PRINT, GM_DONE };
 static GxMode gx_mode = GM_NONE;
-static bool gx_was_printing = false, gx_show_done = false;
 
 static void status_message_line(const uint16_t y) {
   gx_canvas(0, y, GX_W, 26);
@@ -695,7 +705,9 @@ static void done_draw(const bool full) {
   #if ENABLED(PRINTCOUNTER)
     stat_row(196, 180, 270, GXI_STATS, "Total prints", gx_itoa(print_job_timer.getStats().totalPrints));
   #endif
-  gx_button(20, 222, 212, 46, GXI_SNOW, "COOLDOWN", GXA(GA_CMD, C_COOLDOWN));
+  #if HAS_MEDIA
+    gx_button(20, 222, 212, 46, GXI_PLAY, "REPRINT", gx_thumb_has_job() ? GXA(GA_CMD, C_REPRINT) : 0);
+  #endif
   gx_button(248, 222, 212, 46, GXI_HOME, "HOME", GXA(GA_CMD, C_DONE_OK), GXB_PRIMARY);
   gx_footer_temps();
 }
