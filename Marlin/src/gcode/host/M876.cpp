@@ -35,7 +35,19 @@
  */
 void GcodeSuite::M876() {
 
-  if (parser.seenval('S')) hostui.handle_response((uint8_t)parser.value_byte());
+  if (!parser.seenval('S')) return;
+
+  #if ENABLED(EMERGENCY_PARSER)
+    // The emergency parser already handled this response when it arrived
+    if (emergency_parser.M876_handled) {
+      CRITICAL_SECTION_START();
+      --emergency_parser.M876_handled;
+      CRITICAL_SECTION_END();
+      return;
+    }
+  #endif
+
+  hostui.handle_response((uint8_t)parser.value_byte());
 
 }
 

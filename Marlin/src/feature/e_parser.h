@@ -77,6 +77,7 @@ public:
 
   #if ENABLED(HOST_PROMPT_SUPPORT)
     static uint8_t M876_reason;
+    static volatile uint8_t M876_handled; // Responses already handled here, for M876 to skip from the queue
   #endif
 
   EmergencyParser() { enable(); }
