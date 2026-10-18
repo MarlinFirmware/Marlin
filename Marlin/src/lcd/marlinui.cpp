@@ -38,6 +38,10 @@
 
 // All displays share the MarlinUI class
 #include "marlinui.h"
+
+#if ENABLED(NOVIN3DP_GALAXY_UI)
+  extern bool gx_full_redraw;
+#endif
 MarlinUI ui;
 
 #if HAS_DISPLAY
@@ -1198,7 +1202,8 @@ void MarlinUI::init() {
       // Then we want to use only 50% of the time
       const uint16_t bbr2 = buffer_runtime() >> 1;
 
-      if ((should_draw() || drawing_screen) && (!bbr2 || bbr2 > max_display_update_time)) {
+      // The galaxy UI draws a cleared screen in one go: never leave it blank while the planner is short
+      if ((should_draw() || drawing_screen) && (!bbr2 || bbr2 > max_display_update_time || TERN0(NOVIN3DP_GALAXY_UI, gx_full_redraw))) {
 
         // Change state of drawing flag between screen updates
         if (!drawing_screen) switch (lcdDrawUpdate) {
