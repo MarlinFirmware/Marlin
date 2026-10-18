@@ -98,6 +98,13 @@ class TFT {
     #if ENABLED(TOUCH_SCREEN)
       static void drawSimpleBtn(const char *label, uint16_t x, uint16_t y, uint16_t w, uint16_t h, uint16_t color, uint16_t colorTxt, BTN_STYLE style, bool selected, TouchControlType touchType = BUTTON, intptr_t data = 0, int32_t index = 0, uint16_t colorBg = COLOR_BACKGROUND);
     #endif
+
+    #if ENABLED(NOVIN3DP_GALAXY_UI)
+      static void set_galaxy_background() { queue.set_galaxy_background(); }
+      static void add_panel(int16_t x, int16_t y, uint16_t width, uint16_t height, uint16_t fill, uint16_t border, uint8_t radius, uint8_t flags) { queue.add_panel(x, y, width, height, fill, border, radius, flags); }
+      static void add_bitmap(int16_t x, int16_t y, uint8_t width, uint8_t height, const uint8_t *data, uint16_t color) { queue.add_bitmap(x, y, width, height, data, color); }
+      static void add_custom(int16_t x, int16_t y, void *fn, const void *payload, uint16_t size) { queue.add_custom(x, y, fn, payload, size); }
+    #endif
 };
 
 extern TFT tft;

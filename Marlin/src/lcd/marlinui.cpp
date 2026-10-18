@@ -701,7 +701,9 @@ void MarlinUI::init() {
 
     if (did_expire) reset_status();
 
-    #if HAS_MARLINUI_MENU
+    #if ENABLED(NOVIN3DP_GALAXY_UI)
+      use_click();      // The galaxy home screen has its own buttons; a stray click must not open Marlin's main menu
+    #elif HAS_MARLINUI_MENU
       if (use_click()) {
         #if ALL(FILAMENT_LCD_DISPLAY, HAS_MEDIA)
           pause_filament_display();

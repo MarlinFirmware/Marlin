@@ -133,7 +133,7 @@
 // Heaters / Fans
 //
 #define HEATER_0_PIN                        PE5   // HEATER1
-#define HEATER_1_PIN                        PB0   // HEATER2
+#define HEATER_1_PIN                        PB0  //   PB0   // HEATER2
 #define HEATER_BED_PIN                      PA0   // HOT BED
 
 #define FAN0_PIN                            PC14  // FAN
@@ -149,17 +149,17 @@
 // Misc. Functions
 //
 #ifndef FIL_RUNOUT_PIN
-  #define FIL_RUNOUT_PIN                    PA4   // MT_DET_1
+  #define FIL_RUNOUT_PIN                    PE6   // MT_DET_2 (X5 wiring)
 #endif
 #ifndef FIL_RUNOUT2_PIN
-  #define FIL_RUNOUT2_PIN                   PE6   // MT_DET_2
+  #define FIL_RUNOUT2_PIN                   PA4   // MT_DET_1 (X5 wiring)
 #endif
 #ifndef FIL_RUNOUT_STATE
   #define FIL_RUNOUT_STATE                LOW
 #endif
 
 #ifndef POWER_LOSS_PIN
-  #define POWER_LOSS_PIN                    PA13  // PW_DET
+  #define POWER_LOSS_PIN                    PB2  // PW_DET
 #endif
 
 //#define SUICIDE_PIN                       PB2
@@ -206,8 +206,8 @@
 // MKS Testing for code in lcd/extui/mks_ui
 //
 #if ALL(TFT_LVGL_UI, MKS_TEST)
-  #define MKS_TEST_POWER_LOSS_PIN           PA13  // PW_DET
-  #define MKS_TEST_PS_ON_PIN                PB2   // PW_OFF
+  #define MKS_TEST_POWER_LOSS_PIN           PB2  // PW_DET
+  #define MKS_TEST_PS_ON_PIN                PA13   // PW_OFF
 #endif
 
 //
@@ -314,10 +314,10 @@
   #define TOUCH_MISO_PIN             EXP2_01_PIN  // SPI1_MISO
   #define TOUCH_MOSI_PIN             EXP2_06_PIN  // SPI1_MOSI
 
-  #define LCD_READ_ID                       0xD3
+  #define LCD_READ_ID                       0x04
   #define LCD_USE_DMA_SPI
 
-  #define TFT_BUFFER_WORDS                 14400
+  #define TFT_BUFFER_WORDS                14400
 
   #ifndef TOUCH_CALIBRATION_X
     #define TOUCH_CALIBRATION_X           -17253
@@ -397,3 +397,4 @@
     #define BTN_ENC                  EXP1_02_PIN
   #endif
 #endif
+//#define FAN_SOFT_PWM

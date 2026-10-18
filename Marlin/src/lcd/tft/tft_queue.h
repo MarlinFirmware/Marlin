@@ -49,6 +49,12 @@ enum CanvasSubtype : uint8_t {
   CANVAS_ADD_BAR,
   CANVAS_ADD_RECT,
   CANVAS_ADD_TINY_TEXT,   // Text in the tiny digits font (HAS_TFT_TINY_FONT)
+  #if ENABLED(NOVIN3DP_GALAXY_UI)
+    CANVAS_SET_GALAXY,
+    CANVAS_ADD_PANEL,
+    CANVAS_ADD_BITMAP,
+    CANVAS_ADD_CUSTOM,
+  #endif
 };
 
 typedef struct __attribute__((__packed__)) {
@@ -89,7 +95,50 @@ typedef struct __attribute__((__packed__)) {
   uint32_t count;
   uint16_t maxWidth;
   uint16_t stringLength;
+  #if ENABLED(NOVIN3DP_GALAXY_UI)
+    const uint8_t *font;
+  #endif
 } parametersCanvasText_t;
+
+#if ENABLED(NOVIN3DP_GALAXY_UI)
+  typedef struct __attribute__((__packed__)) {
+    CanvasSubtype type;
+    uint8_t *nextParameter;
+  } parametersCanvasGalaxy_t;
+
+  typedef struct __attribute__((__packed__)) {
+    CanvasSubtype type;
+    uint8_t *nextParameter;
+    int16_t x;
+    int16_t y;
+    uint16_t width;
+    uint16_t height;
+    uint16_t fill;
+    uint16_t border;
+    uint8_t radius;
+    uint8_t flags;
+  } parametersCanvasPanel_t;
+
+  typedef struct __attribute__((__packed__)) {
+    CanvasSubtype type;
+    uint8_t *nextParameter;
+    int16_t x;
+    int16_t y;
+    uint8_t width;
+    uint8_t height;
+    uint16_t color;
+    const uint8_t *data;
+  } parametersCanvasBitmap_t;
+
+  typedef struct __attribute__((__packed__)) {
+    CanvasSubtype type;
+    uint8_t *nextParameter;
+    int16_t x;
+    int16_t y;
+    void *fn;
+    uint16_t size;    // payload bytes that follow this header
+  } parametersCanvasCustom_t;
+#endif
 
 typedef struct __attribute__((__packed__)) {
   CanvasSubtype type;
@@ -152,4 +201,11 @@ class TFT_Queue {
 
     static void add_bar(uint16_t x, uint16_t y, uint16_t width, uint16_t height, uint16_t color);
     static void add_rectangle(uint16_t x, uint16_t y, uint16_t width, uint16_t height, uint16_t color);
+
+    #if ENABLED(NOVIN3DP_GALAXY_UI)
+      static void set_galaxy_background();
+      static void add_panel(int16_t x, int16_t y, uint16_t width, uint16_t height, uint16_t fill, uint16_t border, uint8_t radius, uint8_t flags);
+      static void add_bitmap(int16_t x, int16_t y, uint8_t width, uint8_t height, const uint8_t *data, uint16_t color);
+      static void add_custom(int16_t x, int16_t y, void *fn, const void *payload, uint16_t size);
+    #endif
 };

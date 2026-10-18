@@ -36,11 +36,20 @@ uint16_t Canvas::startLine, Canvas::endLine;
 uint16_t Canvas::background_color;
 uint16_t *Canvas::buffer = TFT::buffer;
 
+#if ENABLED(NOVIN3DP_GALAXY_UI)
+  #include "galaxy/gx_core.h"
+  uint16_t Canvas::originX, Canvas::originY;
+#endif
+
 void Canvas::instantiate(uint16_t x, uint16_t y, uint16_t w, uint16_t h) {
   width = w;
   height = h;
   startLine = 0;
   endLine = 0;
+  #if ENABLED(NOVIN3DP_GALAXY_UI)
+    originX = x;
+    originY = y;
+  #endif
 
   // The TFT handles DMA within the given canvas rectangle
   // so whatever is drawn will be offset on the screen by x,y.
@@ -95,7 +104,12 @@ void Canvas::addText(uint16_t x, uint16_t y, uint16_t color, uint16_t *string, u
         addImage(x + stringWidth + pGlyph->bbxOffsetX, y + getFontAscent() - pGlyph->bbxHeight - pGlyph->bbxOffsetY, pGlyph->bbxWidth, pGlyph->bbxHeight, GREYSCALE1, ((uint8_t *)pGlyph) + sizeof(glyph_t), &color);
         break;
       case FONT_MARLIN_GLYPHS_2BPP:
-        addImage(x + stringWidth + pGlyph->bbxOffsetX, y + getFontAscent() - pGlyph->bbxHeight - pGlyph->bbxOffsetY, pGlyph->bbxWidth, pGlyph->bbxHeight, GREYSCALE2, ((uint8_t *)pGlyph) + sizeof(glyph_t), colors);
+        #if ENABLED(NOVIN3DP_GALAXY_UI)
+          // Blend antialiased edges with the pixels underneath (galaxy, panels)
+          addGlyphBlend(x + stringWidth + pGlyph->bbxOffsetX, y + getFontAscent() - pGlyph->bbxHeight - pGlyph->bbxOffsetY, pGlyph->bbxWidth, pGlyph->bbxHeight, ((uint8_t *)pGlyph) + sizeof(glyph_t), color);
+        #else
+          addImage(x + stringWidth + pGlyph->bbxOffsetX, y + getFontAscent() - pGlyph->bbxHeight - pGlyph->bbxOffsetY, pGlyph->bbxWidth, pGlyph->bbxHeight, GREYSCALE2, ((uint8_t *)pGlyph) + sizeof(glyph_t), colors);
+        #endif
         break;
     }
     stringWidth += pGlyph->dWidth;
@@ -308,6 +322,88 @@ void Canvas::addBar(uint16_t x, uint16_t y, uint16_t barWidth, uint16_t barHeigh
     }
   }
 }
+
+#if ENABLED(NOVIN3DP_GALAXY_UI)
+
+  void Canvas::setGalaxyBackground() {
+    for (uint16_t line = startLine; line < endLine; line++)
+      gx_fill_galaxy_row(buffer + (line - startLine) * width, originX, originY + line, width);
+    background_color = gx_galaxy_avg(originY + (startLine + endLine) / 2);
+  }
+
+  void Canvas::addGlyphBlend(int16_t x, int16_t y, uint8_t glyphWidth, uint8_t glyphHeight, const uint8_t *data, uint16_t color) {
+    static constexpr uint8_t alpha[4] = { 0, 96, 176, 255 };
+    const uint16_t rawColor = ENDIAN_COLOR(color);
+    for (int16_t i = 0; i < glyphHeight; i++) {
+      const int16_t line = y + i;
+      const uint8_t *row = data + i * ((glyphWidth + 3) >> 2);
+      if (!WITHIN(line, startLine, endLine - 1)) continue;
+      uint16_t *pixel = buffer + x + (line - startLine) * width;
+      for (int16_t j = 0; j < glyphWidth; j++, pixel++) {
+        const uint8_t a = (row[j >> 2] >> (6 - ((j & 3) << 1))) & 0x03;
+        if (!a || !WITHIN(x + j, 0, width - 1)) continue;
+        *pixel = a == 3 ? color : ENDIAN_COLOR(gx_blend(ENDIAN_COLOR(*pixel), rawColor, alpha[a]));
+      }
+    }
+  }
+
+  // Horizontal inset of a rounded corner on panel row i (0..h-1)
+  static uint8_t corner_inset(const uint8_t r, const int16_t i, const uint16_t h) {
+    int16_t d = 0;
+    if (i < r) d = r - i;
+    else if (i >= int16_t(h) - r) d = i - (int16_t(h) - r) + 1;
+    if (d <= 0) return 0;
+    const float dy = d - 0.5f;
+    return uint8_t(r - sqrtf(float(r * r) - dy * dy) + 0.5f);
+  }
+
+  void Canvas::addPanel(int16_t x, int16_t y, uint16_t panelWidth, uint16_t panelHeight, uint16_t fill, uint16_t border, uint8_t radius, uint8_t flags) {
+    if (endLine <= y || startLine >= y + panelHeight) return;
+    const uint16_t eFill = ENDIAN_COLOR(fill), eBorder = ENDIAN_COLOR(border);
+    for (int16_t i = 0; i < int16_t(panelHeight); i++) {
+      const int16_t line = y + i;
+      if (!WITHIN(line, startLine, endLine - 1)) continue;
+      uint16_t *row = buffer + (line - startLine) * width;
+      const uint8_t inset = corner_inset(radius, i, panelHeight);
+      const int16_t x0 = x + inset, x1 = x + panelWidth - 1 - inset;
+
+      if (flags & (GXP_BLEND | GXP_SOLID)) {
+        for (int16_t px = _MAX(x0, int16_t(0)); px <= _MIN(x1, int16_t(width - 1)); px++)
+          row[px] = (flags & GXP_SOLID) ? eFill : ENDIAN_COLOR(gx_half(ENDIAN_COLOR(row[px]), fill));
+      }
+
+      if (flags & GXP_BORDER) {
+        if (i == 0 || i == int16_t(panelHeight) - 1) {
+          for (int16_t px = _MAX(x0, int16_t(0)); px <= _MIN(x1, int16_t(width - 1)); px++) row[px] = eBorder;
+        }
+        else {
+          uint8_t nb = 0;
+          if (i > 0) NOLESS(nb, corner_inset(radius, i - 1, panelHeight));
+          if (i < int16_t(panelHeight) - 1) NOLESS(nb, corner_inset(radius, i + 1, panelHeight));
+          const int16_t span = _MAX(int16_t(0), int16_t(nb) - int16_t(inset) - 1);
+          for (int16_t k = 0; k <= span; k++) {
+            if (WITHIN(x0 + k, 0, width - 1)) row[x0 + k] = eBorder;
+            if (WITHIN(x1 - k, 0, width - 1)) row[x1 - k] = eBorder;
+          }
+        }
+      }
+    }
+  }
+
+  void Canvas::addBitmap(int16_t x, int16_t y, uint8_t bitmapWidth, uint8_t bitmapHeight, const uint8_t *data, uint16_t color) {
+    if (!data || endLine <= y || startLine >= y + bitmapHeight) return;
+    const uint16_t rowBytes = (bitmapWidth + 7) >> 3, eColor = ENDIAN_COLOR(color);
+    for (int16_t i = 0; i < bitmapHeight; i++) {
+      const int16_t line = y + i;
+      if (!WITHIN(line, startLine, endLine - 1)) continue;
+      const uint8_t *src = data + i * rowBytes;
+      uint16_t *row = buffer + (line - startLine) * width;
+      for (int16_t j = 0; j < bitmapWidth; j++)
+        if ((src[j >> 3] & (0x80 >> (j & 7))) && WITHIN(x + j, 0, width - 1)) row[x + j] = eColor;
+    }
+  }
+
+#endif // NOVIN3DP_GALAXY_UI
 
 Canvas tftCanvas;
 

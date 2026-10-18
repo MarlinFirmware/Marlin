@@ -111,6 +111,9 @@
        *          playing the tones in the queue.
        */
       static void tick();
+
+      // True while a tone is sounding or waiting in the queue
+      static bool is_active() { return state.endtime || !buffer.isEmpty(); }
   };
 
   // Provide a buzzer instance

@@ -804,3 +804,4 @@
 #define _UI_SERMOON_D1  109
 #define _DGUS_UI_IS(N) || (CAT(_UI_, DGUS_LCD_UI) == CAT(_UI_, N))
 #define DGUS_UI_IS(V...) (0 MAP(_DGUS_UI_IS, V))
+#define LOOP_L_N(VAR, N) LOOP_S_L_N(VAR, 0, N)
