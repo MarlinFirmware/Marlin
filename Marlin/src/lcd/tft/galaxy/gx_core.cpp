@@ -119,8 +119,23 @@ void gx_icon(const int16_t x, const int16_t y, const GxIcon icon, const uint8_t 
   if (data) tft.add_bitmap(x, y, size, size, data, color);
 }
 
+// The large font is ASCII-only: a degree sign ("\xC2\xB0") is drawn as a small ring
+#define GX_DEG_W 11
+static const char* gx_deg_split(const char *str, const GxFont font) {
+  return font == GXF_L ? strstr(str, "\xC2\xB0") : nullptr;
+}
+
 uint16_t gx_text(const int16_t x, const int16_t y, const char *str, const uint16_t color, const GxFont font, const uint16_t maxw) {
   if (!str || !*str) return 0;
+  if (const char * const deg = gx_deg_split(str, font)) {
+    char head[24]; strlcpy(head, str, _MIN(sizeof(head), size_t(deg - str + 1)));
+    uint16_t w = gx_text(x, y, head, color, font, maxw);
+    gx_panel(x + w + 2, y + 5, 7, 7, color, GXP_BORDER, color, 3);
+    gx_panel(x + w + 3, y + 6, 5, 5, color, GXP_BORDER, color, 2);
+    w += GX_DEG_W;
+    if (deg[2]) w += gx_text(x + w, y, deg + 2, color, font);
+    return w;
+  }
   gx_use(font);
   tft_string.set(str);
   const uint16_t w = tft_string.width();
@@ -131,6 +146,10 @@ uint16_t gx_text(const int16_t x, const int16_t y, const char *str, const uint16
 
 uint16_t gx_text_width(const char *str, const GxFont font) {
   if (!str || !*str) return 0;
+  if (const char * const deg = gx_deg_split(str, font)) {
+    char head[24]; strlcpy(head, str, _MIN(sizeof(head), size_t(deg - str + 1)));
+    return gx_text_width(head, font) + GX_DEG_W + gx_text_width(deg + 2, font);
+  }
   gx_use(font);
   tft_string.set(str);
   const uint16_t w = tft_string.width();
