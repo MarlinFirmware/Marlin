@@ -23,6 +23,7 @@
 
 #include <stdint.h>
 
+#include "../../inc/MarlinConfigPre.h"
 #include "../utf8.h"
 
 #define NO_GLYPH  0xFF
@@ -109,6 +110,13 @@ class TFT_String {
 
     static void set_font(const uint8_t *font);
     static void add_glyphs(const uint8_t *font);
+
+    #if ENABLED(NOVIN3DP_GALAXY_UI)
+      // The galaxy UI mixes two fonts; each queued text item remembers its own
+      static const uint8_t *base_font, *base_symbols;
+      static const uint8_t *current_font() { return (const uint8_t *)font_header; }
+      static void use_font(const uint8_t *font);
+    #endif
 
     static uint8_t  font_type() { return font_header->format; };
     static uint16_t font_ascent() { return ascent; }
