@@ -41,8 +41,9 @@
   #define MONITOR_DRIVER_STATUS_INTERVAL_MS 500U
 #endif
 
+// Convert between a hybrid threshold speed and a TSTEP value. 0 is passed through.
 constexpr uint16_t _tmc_thrs(const uint16_t msteps, const uint32_t thrs, const uint32_t spmm) {
-  return 12650000UL * msteps / (256 * thrs * spmm);
+  return thrs ? 12650000UL * msteps / (256 * thrs * spmm) : 0;
 }
 
 typedef struct {
@@ -327,12 +328,17 @@ class TMCMarlin<TMC2240Stepper, AXIS_LETTER, DRIVER_ID, AXIS_ID> : public TMC224
     #endif
 
     #if USE_SENSORLESS
-      int16_t homing_threshold() { return TMC2240Stepper::sgt(); }
+      // StallGuard4 threshold SG4_THRS (0-255). Higher values are more sensitive.
+      int16_t homing_threshold() { return TMC2240Stepper::sg4_thrs(); }
       void homing_threshold(int16_t sgt_val) {
         sgt_val = (int16_t)constrain(sgt_val, sgt_min, sgt_max);
-        TMC2240Stepper::sgt(sgt_val);
+        TMC2240Stepper::sg4_thrs(sgt_val);
         TERN_(HAS_MARLINUI_MENU, this->stored.homing_thrs = sgt_val);
       }
+      #if ENABLED(SPI_ENDSTOPS)
+        // DRV_STATUS.stallguard is set by StallGuard2 (spreadCycle) or StallGuard4 (stealthChop)
+        bool test_stall_status() { return TMC2240Stepper::stallguard(); }
+      #endif
     #endif
 
     void refresh_stepper_current() { rms_current(this->val_mA); }
@@ -343,8 +349,8 @@ class TMCMarlin<TMC2240Stepper, AXIS_LETTER, DRIVER_ID, AXIS_ID> : public TMC224
       void refresh_homing_thrs() { homing_threshold(this->stored.homing_thrs); }
     #endif
 
-    static constexpr int8_t sgt_min = -64,
-                            sgt_max =  63;
+    static constexpr uint8_t sgt_min = 0,
+                             sgt_max = 255;
 };
 
 template<char AXIS_LETTER, char DRIVER_ID, AxisEnum AXIS_ID>
@@ -471,6 +477,54 @@ void test_tmc_connection(LOGICAL_AXIS_DECL_LC(const bool, true));
     extern homing_current_t homing_current_mA;
   #endif
 
+  /**
+   * Set the homing current on the steppers that move to home an axis,
+   * then restore the previous currents when it goes out of scope.
+   */
+  class TemporaryHomingCurrent {
+    const AxisEnum axis;
+    homing_current_t saved;
+    public:
+      TemporaryHomingCurrent(const AxisEnum a) : axis(a) { motion.set_homing_current(axis, saved); }
+      ~TemporaryHomingCurrent() { motion.restore_homing_current(axis, saved); }
+  };
+
 #endif // HAS_HOMING_CURRENT
+
+#if ENABLED(HOMING_HYBRID_THRESHOLD)
+
+  // Hybrid Threshold (mm/s) for each stealthChop stepper while homing. 0 = Stay in stealthChop.
+  struct homing_hybrid_thrs_t {
+    OPTCODE(X_HAS_STEALTHCHOP,  uint16_t X)
+    OPTCODE(Y_HAS_STEALTHCHOP,  uint16_t Y)
+    OPTCODE(Z_HAS_STEALTHCHOP,  uint16_t Z)
+    OPTCODE(X2_HAS_STEALTHCHOP, uint16_t X2)
+    OPTCODE(Y2_HAS_STEALTHCHOP, uint16_t Y2)
+    OPTCODE(Z2_HAS_STEALTHCHOP, uint16_t Z2)
+    OPTCODE(Z3_HAS_STEALTHCHOP, uint16_t Z3)
+    OPTCODE(Z4_HAS_STEALTHCHOP, uint16_t Z4)
+    OPTCODE(I_HAS_STEALTHCHOP,  uint16_t I)
+    OPTCODE(J_HAS_STEALTHCHOP,  uint16_t J)
+    OPTCODE(K_HAS_STEALTHCHOP,  uint16_t K)
+    OPTCODE(U_HAS_STEALTHCHOP,  uint16_t U)
+    OPTCODE(V_HAS_STEALTHCHOP,  uint16_t V)
+    OPTCODE(W_HAS_STEALTHCHOP,  uint16_t W)
+  };
+
+  extern homing_hybrid_thrs_t homing_hybrid_thrs;
+
+  /**
+   * Apply the homing Hybrid Threshold to the steppers that move to home an axis,
+   * then restore the previous thresholds when it goes out of scope.
+   */
+  class TemporaryHomingHybridThreshold {
+    const AxisEnum axis;
+    homing_hybrid_thrs_t saved;
+    public:
+      TemporaryHomingHybridThreshold(const AxisEnum a) : axis(a) { motion.apply_homing_hybrid_thrs(axis, true, saved); }
+      ~TemporaryHomingHybridThreshold() { motion.apply_homing_hybrid_thrs(axis, false, saved); }
+  };
+
+#endif // HOMING_HYBRID_THRESHOLD
 
 #endif // HAS_TRINAMIC_CONFIG

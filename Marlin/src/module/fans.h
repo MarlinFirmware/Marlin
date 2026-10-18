@@ -27,6 +27,13 @@
 
 #include "../inc/MarlinConfig.h"
 
+// Also used by the hotend auto fans, which don't need HAS_FAN
+#if ENABLED(FAST_PWM_FAN)
+  #define SET_FAST_PWM_FREQ(P) hal.set_pwm_frequency(pin_t(P), FAST_PWM_FAN_FREQUENCY)
+#else
+  #define SET_FAST_PWM_FREQ(P) NOOP
+#endif
+
 #if ANY(HAS_FAN, USE_CONTROLLER_FAN)
   // Init fans according to whether they're native PWM or Software PWM
   #ifdef BOARD_OPENDRAIN_MOSFETS
@@ -38,11 +45,6 @@
     #define _INIT_FAN_PIN(P) _INIT_SOFT_FAN(P)
   #else
     #define _INIT_FAN_PIN(P) do{ if (PWM_PIN(P)) SET_PWM(P); else _INIT_SOFT_FAN(P); }while(0)
-  #endif
-  #if ENABLED(FAST_PWM_FAN)
-    #define SET_FAST_PWM_FREQ(P) hal.set_pwm_frequency(pin_t(P), FAST_PWM_FAN_FREQUENCY)
-  #else
-    #define SET_FAST_PWM_FREQ(P) NOOP
   #endif
   #define INIT_FAN_PIN(P) do{ _INIT_FAN_PIN(P); SET_FAST_PWM_FREQ(P); }while(0)
 #endif
@@ -85,9 +87,43 @@
     Fan(const uint8_t fi) : index(fi) {}
 
     void init() {
-      #define _INIT(N) TERN_(HAS_FAN##N, if (index == N) INIT_FAN_PIN(PART_COOLING_FAN##N##_PIN));
-      REPEAT(FAN_COUNT, _INIT)
-      #undef _INIT
+      // Not a REPEAT / TERN_ : the pin of a disabled fan (-1) can't be passed to INIT_FAN_PIN, even unused
+      #if HAS_FAN0
+        if (index == 0) INIT_FAN_PIN(PART_COOLING_FAN0_PIN);
+      #endif
+      #if HAS_FAN1
+        if (index == 1) INIT_FAN_PIN(PART_COOLING_FAN1_PIN);
+      #endif
+      #if HAS_FAN2
+        if (index == 2) INIT_FAN_PIN(PART_COOLING_FAN2_PIN);
+      #endif
+      #if HAS_FAN3
+        if (index == 3) INIT_FAN_PIN(PART_COOLING_FAN3_PIN);
+      #endif
+      #if HAS_FAN4
+        if (index == 4) INIT_FAN_PIN(PART_COOLING_FAN4_PIN);
+      #endif
+      #if HAS_FAN5
+        if (index == 5) INIT_FAN_PIN(PART_COOLING_FAN5_PIN);
+      #endif
+      #if HAS_FAN6
+        if (index == 6) INIT_FAN_PIN(PART_COOLING_FAN6_PIN);
+      #endif
+      #if HAS_FAN7
+        if (index == 7) INIT_FAN_PIN(PART_COOLING_FAN7_PIN);
+      #endif
+      #if HAS_FAN8
+        if (index == 8) INIT_FAN_PIN(PART_COOLING_FAN8_PIN);
+      #endif
+      #if HAS_FAN9
+        if (index == 9) INIT_FAN_PIN(PART_COOLING_FAN9_PIN);
+      #endif
+      #if HAS_FAN10
+        if (index == 10) INIT_FAN_PIN(PART_COOLING_FAN10_PIN);
+      #endif
+      #if HAS_FAN11
+        if (index == 11) INIT_FAN_PIN(PART_COOLING_FAN11_PIN);
+      #endif
     }
     static void init_pins();
 
@@ -193,9 +229,42 @@
 
     static void sync_speeds() {
       const millis_t ms = millis();
-      #define FAN_SET(F) TERN_(HAS_FAN##F, fans[F].sync(ms, pin_t(PART_COOLING_FAN##F##_PIN)));
-      REPEAT(FAN_COUNT, FAN_SET)
-      #undef FAN_SET
+      #if HAS_FAN0
+        fans[0].sync(ms, pin_t(PART_COOLING_FAN0_PIN));
+      #endif
+      #if HAS_FAN1
+        fans[1].sync(ms, pin_t(PART_COOLING_FAN1_PIN));
+      #endif
+      #if HAS_FAN2
+        fans[2].sync(ms, pin_t(PART_COOLING_FAN2_PIN));
+      #endif
+      #if HAS_FAN3
+        fans[3].sync(ms, pin_t(PART_COOLING_FAN3_PIN));
+      #endif
+      #if HAS_FAN4
+        fans[4].sync(ms, pin_t(PART_COOLING_FAN4_PIN));
+      #endif
+      #if HAS_FAN5
+        fans[5].sync(ms, pin_t(PART_COOLING_FAN5_PIN));
+      #endif
+      #if HAS_FAN6
+        fans[6].sync(ms, pin_t(PART_COOLING_FAN6_PIN));
+      #endif
+      #if HAS_FAN7
+        fans[7].sync(ms, pin_t(PART_COOLING_FAN7_PIN));
+      #endif
+      #if HAS_FAN8
+        fans[8].sync(ms, pin_t(PART_COOLING_FAN8_PIN));
+      #endif
+      #if HAS_FAN9
+        fans[9].sync(ms, pin_t(PART_COOLING_FAN9_PIN));
+      #endif
+      #if HAS_FAN10
+        fans[10].sync(ms, pin_t(PART_COOLING_FAN10_PIN));
+      #endif
+      #if HAS_FAN11
+        fans[11].sync(ms, pin_t(PART_COOLING_FAN11_PIN));
+      #endif
     }
     static void sync_speeds(uint8_t (&fanspeed)[FAN_COUNT]) {
       FANS_LOOP(f) fans[f].speed = fanspeed[f];
@@ -203,9 +272,42 @@
     }
 
     static void write(const uint8_t fi, const uint8_t state) {
-      #define _CASE(N) TERN_(HAS_FAN##N, if (fi == N) WRITE(PART_COOLING_FAN##N##_PIN, (state) ^ ENABLED(FAN_INVERTING)));
-      REPEAT(FAN_COUNT, _CASE)
-      #undef _CASE
+      #if HAS_FAN0
+        if (fi == 0) WRITE(PART_COOLING_FAN0_PIN, (state) ^ ENABLED(FAN_INVERTING));
+      #endif
+      #if HAS_FAN1
+        if (fi == 1) WRITE(PART_COOLING_FAN1_PIN, (state) ^ ENABLED(FAN_INVERTING));
+      #endif
+      #if HAS_FAN2
+        if (fi == 2) WRITE(PART_COOLING_FAN2_PIN, (state) ^ ENABLED(FAN_INVERTING));
+      #endif
+      #if HAS_FAN3
+        if (fi == 3) WRITE(PART_COOLING_FAN3_PIN, (state) ^ ENABLED(FAN_INVERTING));
+      #endif
+      #if HAS_FAN4
+        if (fi == 4) WRITE(PART_COOLING_FAN4_PIN, (state) ^ ENABLED(FAN_INVERTING));
+      #endif
+      #if HAS_FAN5
+        if (fi == 5) WRITE(PART_COOLING_FAN5_PIN, (state) ^ ENABLED(FAN_INVERTING));
+      #endif
+      #if HAS_FAN6
+        if (fi == 6) WRITE(PART_COOLING_FAN6_PIN, (state) ^ ENABLED(FAN_INVERTING));
+      #endif
+      #if HAS_FAN7
+        if (fi == 7) WRITE(PART_COOLING_FAN7_PIN, (state) ^ ENABLED(FAN_INVERTING));
+      #endif
+      #if HAS_FAN8
+        if (fi == 8) WRITE(PART_COOLING_FAN8_PIN, (state) ^ ENABLED(FAN_INVERTING));
+      #endif
+      #if HAS_FAN9
+        if (fi == 9) WRITE(PART_COOLING_FAN9_PIN, (state) ^ ENABLED(FAN_INVERTING));
+      #endif
+      #if HAS_FAN10
+        if (fi == 10) WRITE(PART_COOLING_FAN10_PIN, (state) ^ ENABLED(FAN_INVERTING));
+      #endif
+      #if HAS_FAN11
+        if (fi == 11) WRITE(PART_COOLING_FAN11_PIN, (state) ^ ENABLED(FAN_INVERTING));
+      #endif
     }
     void write(const uint8_t state) { write(index, state); }
   };
