@@ -57,7 +57,7 @@
 
 #include "../../../inc/MarlinConfig.h"
 
-#if IS_U8GLIB_ST7920
+#if HAS_MARLINUI_U8GLIB
 
 #include <U8glib-HAL.h>
 #include "../../shared/Delay.h"
@@ -196,5 +196,5 @@ uint8_t u8g_com_ST7920_sw_spi_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_val, void 
   void ST7920_write_byte(const uint8_t val) { ST7920_WRITE_BYTE(val); }
 #endif // LIGHTWEIGHT_UI
 
-#endif // IS_U8GLIB_ST7920
+#endif // HAS_MARLINUI_U8GLIB
 #endif // __PLAT_NATIVE_SIM__
