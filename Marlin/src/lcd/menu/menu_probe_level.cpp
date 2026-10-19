@@ -243,8 +243,8 @@
   // Start First Layer Calibration with material in editable.int8
   void _flc_start(const bool reset) {
     const preheat_t &mat = ui.material_preset[editable.int8];
-    queue.inject(MString<32>{}.setf_P(PSTR("M1005%s" TERN_(HAS_HOTEND, "H%" PRIi16) TERN_(HAS_HEATED_BED, "B%" PRIi16))
-      , reset ? "R" : ""
+    queue.inject(MString<32>{}.setf_P(PSTR("G26Z%s" TERN_(HAS_HOTEND, "H%" PRIi16) TERN_(HAS_HEATED_BED, "B%" PRIi16))
+      , reset ? "E" : ""
       OPTARG(HAS_HOTEND, mat.hotend_temp)
       OPTARG(HAS_HEATED_BED, mat.bed_temp)
     ));
@@ -414,7 +414,7 @@ void menu_probe_level() {
         #if HAS_PREHEAT
           SUBMENU(MSG_FIRST_LAYER_CAL, menu_first_layer_cal);
         #else
-          GCODES_ITEM(MSG_FIRST_LAYER_CAL, F("M1005"));
+          GCODES_ITEM(MSG_FIRST_LAYER_CAL, F("G26Z"));
         #endif
       }
     #endif

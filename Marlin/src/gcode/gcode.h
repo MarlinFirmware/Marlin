@@ -52,7 +52,7 @@
  * G19  - Select Plane YZ (Requires CNC_WORKSPACE_PLANES)
  * G20  - Set input units to inches (Requires INCH_MODE_SUPPORT)
  * G21  - Set input units to millimeters (Requires INCH_MODE_SUPPORT)
- * G26  - Mesh Validation Pattern (Requires G26_MESH_VALIDATION)
+ * G26  - Mesh Validation Pattern (Requires G26_MESH_VALIDATION). G26 Z - First Layer Calibration (Requires FIRST_LAYER_CALIBRATION)
  * G27  - Park Nozzle (Requires NOZZLE_PARK_FEATURE)
  * G28  - Home one or more axes
  * G29  - Start or continue the bed leveling probe procedure (Requires bed leveling)
@@ -344,7 +344,6 @@
  * M995 - Touch screen calibration for TFT display
  * M997 - Perform in-application firmware update
  * M999 - Restart after being stopped by error
- * M1005 - First Layer Calibration. (Requires FIRST_LAYER_CALIBRATION)
  *
  * D... - Custom Development G-code. Add hooks to "gcode_D.cpp" for developers to test features. (Requires MARLIN_DEV_MODE)
  *        D576 - Set buffer monitoring options. (Requires BUFFER_MONITORING)
@@ -569,6 +568,9 @@ private:
 
   #if ENABLED(G26_MESH_VALIDATION)
     static void G26();
+  #endif
+  #if ENABLED(FIRST_LAYER_CALIBRATION)
+    static void G26_FLC();
   #endif
 
   #if ENABLED(NOZZLE_PARK_FEATURE)
@@ -1363,10 +1365,6 @@ private:
 
   #if ENABLED(UBL_MESH_WIZARD)
     static void M1004();
-  #endif
-
-  #if ENABLED(FIRST_LAYER_CALIBRATION)
-    static void M1005();
   #endif
 
   #if ENABLED(HAS_MCP3426_ADC)

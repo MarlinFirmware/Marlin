@@ -60,7 +60,7 @@
   #include "../../lcd/extui/ui_api.h"
 #endif
 
-// Host can only stop printing while command queue is busy with M1005
+// Host can only stop printing while command queue is busy with G26 Z
 #if ALL(HOST_PROMPT_SUPPORT, EMERGENCY_PARSER)
   #define FLC_HOST_STOP 1
 #endif
@@ -193,7 +193,7 @@ static float flc_filament_diameter() {
 }
 
 /**
- * M1005: First Layer Calibration
+ * G26 Z: First Layer Calibration (alternative mode of G26 Mesh Validation Pattern)
  *
  * Calibrate nozzle-to-bed distance.
  * Prints zig-zag pattern across bed ending in solid patch.
@@ -205,33 +205,39 @@ static float flc_filament_diameter() {
  * Click LCD while heating, click out of babystep screen, or send M108 to stop early.
  * Result is not saved. LCD and host prompt offer to save when done, or use M500.
  *
- *  H<temp>    Hotend temperature. If omitted with no target set, use first preheat preset.
- *  B<temp>    Bed temperature. If omitted with no target set, use first preheat preset.
- *  R          Reset Probe Z Offset to configured default, or Mesh Z Offset to 0, before printing,
- *             but only if that raises nozzle
+ * Parameters shared with G26 keep their G26 meaning. P and Q are used by G26 for other things
+ * (prime, retraction), which don't apply here since G26 Z doesn't run the Mesh Validation Pattern.
+ *
+ *  Z          Select First Layer Calibration instead of Mesh Validation
+ *  H<temp>    Hotend temperature. If omitted with no target set, use preset 'I'.
+ *  B<temp>    Bed temperature. If omitted with no target set, use preset 'I'.
+ *  I<index>   Preheat preset index used when H or B is omitted (default: 0, first preset)
  *  K<bool>    Keep heaters on after printing (default: FLC_KEEP_HEATERS_ON)
- *  A<bool>    Run G29 first if leveling is not valid (default: 1). Ignored with MESH_BED_LEVELING.
- *  O          Home only if needed. Otherwise always home so nozzle height matches current Z offset.
  *  L<linear>  Layer height
- *  W<linear>  Line width
- *  I<linear>  Margin from bed edges or printable radius
- *  P<count>   Number of rows
- *  F<rate>    Print feedrate
- *  D<linear>  Filament diameter (default: M200 diameter or DEFAULT_NOMINAL_FILAMENT_DIA)
+ *  S<linear>  Nozzle size. Line width is nozzle size + 0.02.
+ *  F<linear>  Filament diameter (default: M200 diameter or DEFAULT_NOMINAL_FILAMENT_DIA)
+ *
+ *  A<bool>    Run G29 first if leveling is not valid (default: 1). Ignored with MESH_BED_LEVELING.
+ *  E          Erase (reset) Probe Z Offset to configured default, or Mesh Z Offset to 0, before printing,
+ *             but only if that raises nozzle
+ *  J          Home only if needed. Otherwise always home so nozzle height matches current Z offset.
+ *  P<linear>  Margin from bed edges or printable radius
+ *  Q<count>   Number of rows
+ *  V<rate>    Print feedrate
  */
-void GcodeSuite::M1005() {
+void GcodeSuite::G26_FLC() {
   const float h = parser.linearval('L', FLC_LAYER_HEIGHT),
-              w = parser.linearval('W', FLC_LINE_WIDTH),
-              inset = parser.linearval('I', FLC_MARGIN),
-              fil_dia = parser.linearval('D', flc_filament_diameter());
-  const uint8_t rows = parser.byteval('P', FLC_ROWS);
+              w = parser.seenval('S') ? parser.value_linear_units() + 0.02f : float(FLC_LINE_WIDTH),
+              inset = parser.linearval('P', FLC_MARGIN),
+              fil_dia = parser.linearval('F', flc_filament_diameter());
+  const uint8_t rows = parser.byteval('Q', FLC_ROWS);
 
   if (h <= 0 || w < h || rows < 2 || fil_dia <= 0 || inset < 0) {
-    SERIAL_ECHOLNPGM(GCODE_ERR_MSG("Bad M1005 parameter."));
+    SERIAL_ECHOLNPGM(GCODE_ERR_MSG("Bad G26 Z parameter."));
     return;
   }
 
-  const feedRate_t fr_mm_s = parser.feedrateval('F', MMM_TO_MMS(FLC_FEEDRATE));
+  const feedRate_t fr_mm_s = parser.feedrateval('V', MMM_TO_MMS(FLC_FEEDRATE));
 
   //
   // Cover bed within travel limits.
@@ -279,10 +285,13 @@ void GcodeSuite::M1005() {
              do_level = TERN0(HAS_LEVELING, DISABLED(MESH_BED_LEVELING) && parser.boolval('A', true) && !leveling_is_valid());
 
   // Probe with cold nozzle so it can't ooze on bed. Otherwise heat nozzle along with bed.
+  #if HAS_PREHEAT
+    const uint8_t preset_index = _MIN(parser.byteval('I'), PREHEAT_COUNT - 1);
+  #endif
   #if HAS_HOTEND
     celsius_t hotend_target = parser.seenval('H') ? parser.value_int() : thermalManager.degTargetHotend(motion.extruder); // Marlin always sends itself Celsius
     #if HAS_PREHEAT
-      if (!hotend_target && !parser.seen('H')) hotend_target = ui.material_preset[0].hotend_temp;
+      if (!hotend_target && !parser.seen('H')) hotend_target = ui.material_preset[preset_index].hotend_temp;
     #endif
     if (!do_level) thermalManager.setTargetHotend(hotend_target, motion.extruder);
   #endif
@@ -291,7 +300,7 @@ void GcodeSuite::M1005() {
       thermalManager.setTargetBed(parser.value_int());
     #if HAS_PREHEAT
       else if (!thermalManager.degTargetBed())
-        thermalManager.setTargetBed(ui.material_preset[0].bed_temp);
+        thermalManager.setTargetBed(ui.material_preset[preset_index].bed_temp);
     #endif
     if (thermalManager.degTargetBed()) {
       thermalManager.isHeatingBed() ? LCD_MESSAGE(MSG_BED_HEATING) : LCD_MESSAGE(MSG_BED_COOLING);
@@ -301,7 +310,7 @@ void GcodeSuite::M1005() {
     }
   #endif
 
-  if (!parser.seen_test('O') || motion.axes_should_home()) {
+  if (!parser.seen_test('J') || motion.axes_should_home()) {
     LCD_MESSAGE(MSG_LEVEL_BED_HOMING);
     home_all_axes(true);
   }
@@ -312,7 +321,7 @@ void GcodeSuite::M1005() {
     set_bed_leveling_enabled(true);
   #endif
 
-  if (parser.seen_test('R')) {
+  if (parser.seen_test('E')) {
     #if ENABLED(MESH_BED_LEVELING)
       // Mesh Z Offset applies to next move. Only clear offset that lowers nozzle.
       if (bedlevel.z_offset < 0) {

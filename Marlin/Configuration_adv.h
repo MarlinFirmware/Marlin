@@ -1611,7 +1611,7 @@
  * Calibrate nozzle-to-bed distance.
  * Prints zig-zag pattern ending in solid patch. Babystep Z
  * while it prints, then judge result on patch.
- * Start with 'M1005' or from LCD menu. Use 'M500' to save result.
+ * Start with 'G26 Z' or from LCD menu. Use 'M500' to save result.
  * With bed probe this requires BABYSTEP_ZPROBE_OFFSET. Result goes to Probe Z Offset.
  * With MESH_BED_LEVELING this requires BABYSTEPPING. Result goes to Mesh Z Offset.
  */

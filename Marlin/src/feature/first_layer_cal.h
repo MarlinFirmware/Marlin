@@ -23,7 +23,7 @@
 #pragma once
 
 /**
- * first_layer_cal.h - Pattern generator for First Layer Calibration (M1005)
+ * first_layer_cal.h - Pattern generator for First Layer Calibration (G26 Z)
  *
  * Produces zig-zag rows from back to front, then a solid patch between
  * last two rows. First row starts wide and narrows, as a purge.
