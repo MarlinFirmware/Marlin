@@ -3885,6 +3885,7 @@ void Stepper::report_positions() {
 
       // Any DIR change requires a wait period
       DIR_WAIT_AFTER();
+      TERN_(I2S_STEPPER_STREAM, i2s_push_sample()); // DIR before STEP
     }
 
     /**
