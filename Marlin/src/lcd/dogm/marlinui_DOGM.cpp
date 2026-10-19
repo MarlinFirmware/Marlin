@@ -573,11 +573,10 @@ void MarlinUI::clear_for_drawing() {
     bool extra_row = labellen * prop > LCD_WIDTH - 2 - vallen * prop;
 
     #if ENABLED(USE_BIG_EDIT_FONT)
-      // Use the menu font if the label won't fit on a single line
+      // Use the menu font if the label and value won't fit on a single line
       constexpr u8g_uint_t lcd_edit_width = (LCD_PIXEL_WIDTH) / (EDIT_FONT_WIDTH);
       u8g_uint_t lcd_chr_fit, one_chr_width;
-      if (labellen * prop <= lcd_edit_width - 1) {
-        if (labellen * prop + vallen * prop + 1 > lcd_edit_width) extra_row = true;
+      if (labellen * prop + vallen * prop + 1 <= lcd_edit_width) {
         lcd_chr_fit = lcd_edit_width + 1;
         one_chr_width = EDIT_FONT_WIDTH;
         ui.set_font(FONT_EDIT);
