@@ -21,6 +21,7 @@
 #include "../../marlinui.h"
 #include "../../menu/menu.h"
 #include "../../../MarlinCore.h"
+#include "../../../gcode/gcode.h"
 #include "../../../gcode/queue.h"
 #include "../../../module/temperature.h"
 #include "../../../module/planner.h"
@@ -514,7 +515,10 @@ static void gx_command(const uint8_t c) {
       case C_LOAD:   if (thermalManager.tooColdToExtrude(0)) { gx_status_msg("Heat the nozzle first"); return; } queue.inject(F("M701")); break;
       case C_UNLOAD: if (thermalManager.tooColdToExtrude(0)) { gx_status_msg("Heat the nozzle first"); return; } queue.inject(F("M702")); break;
     #endif
-    case C_PURGE:  if (thermalManager.tooColdToExtrude(0)) { gx_status_msg("Heat the nozzle first"); return; } queue.inject(F("M83\nG1 E30 F180")); break;
+    case C_PURGE:  // Extrude 30mm relative, then restore the E mode the host / G-code had set
+      if (thermalManager.tooColdToExtrude(0)) { gx_status_msg("Heat the nozzle first"); return; }
+      queue.inject(gcode.axis_is_relative(E_AXIS) ? F("G1 E30 F180") : F("M83\nG1 E30 F180\nM82"));
+      break;
     #if ENABLED(ADVANCED_PAUSE_FEATURE)
       case C_CHANGE: queue.inject(F("M600")); break;
     #endif
@@ -714,8 +718,17 @@ static void done_draw(const bool full) {
 
 void gx_status_screen() {
   const bool printing = marlin.printingIsActive() || marlin.printingIsPaused();
+  #if ENABLED(PRINTCOUNTER)
+    // Only a print that really finished counts: also catches M524 / host aborts
+    static uint16_t finished_at_start = 0;
+    if (printing && !gx_was_printing) finished_at_start = print_job_timer.getStats().finishedPrints;
+  #endif
   if (printing) { gx_was_printing = true; gx_show_done = false; }
-  else if (gx_was_printing) { gx_was_printing = false; gx_show_done = !gx_aborted; gx_aborted = false; }
+  else if (gx_was_printing) {
+    gx_was_printing = false;
+    gx_show_done = !gx_aborted && TERN1(PRINTCOUNTER, print_job_timer.getStats().finishedPrints != finished_at_start);
+    gx_aborted = false;
+  }
 
   const GxMode mode = printing ? GM_PRINT : (gx_show_done ? GM_DONE : GM_IDLE);
   // Print start switches heaters/motors on: their surge can corrupt the first frames.
@@ -1040,7 +1053,7 @@ GX_SCREEN(gx_screen_level) {
         gx_text_center(k * 78, 28, 72, any ? gx_ftoa(vals[k], 2) : "--", GX_C_TEXT);
       }
       gx_panel(0, 72, 230, 10, GX_C_LINE, GXP_BORDER, 0, 4);
-      for (uint16_t px = 2; px < 228; px++) gx_bar(px, 74, 1, 6, mesh_color(px, 2, 227));
+      for (uint16_t px = 2; px < 228; px += 6) gx_bar(px, 74, _MIN(uint16_t(6), uint16_t(228 - px)), 6, mesh_color(px + 3, 2, 227));  // 38 bars, not 226
       gx_text(0, 90, "low", GX_C_DIM);
       gx_text_right(230, 90, "high", GX_C_DIM);
     }

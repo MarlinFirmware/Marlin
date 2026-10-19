@@ -309,7 +309,7 @@ void gx_header(const char *title, const bool back) {
   }
   gx_text(tx, 8 + gx_vcenter(36, GXF_L), title, GX_C_ACC, GXF_L, 236 - tx);
   gx_bar(tx, 50, GX_W - 10 - tx, 1, GX_C_ACC);
-  if (back) gx_touch_add(0, 0, 70, GX_HEADER_H, GXA(1, 0));   // GA_BACK
+  if (back) gx_touch_add(0, 0, 70, GX_HEADER_H, GXA(GA_BACK, 0));
 }
 
 void gx_header_info(const char *info, const uint16_t color, const GxFont font) {

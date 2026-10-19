@@ -227,14 +227,15 @@ static void thumb_render(uint16_t *buffer, uint16_t cw, uint16_t startLine, uint
   const int16_t size = key->size;
   if (int16_t(endLine) <= y || int16_t(startLine) >= y + size) return;   // Not in this strip
 
-  // Restart when this is a new image or the strip doesn't continue where we stopped
+  // Restart when this is a new image, the image starts in this strip, or the strip doesn't
+  // continue where we stopped. A failed image is not retried on its later strips:
+  // a file without a thumbnail would otherwise be re-opened and re-scanned for every strip.
   const bool same = memcmp(&T.key, key, sizeof(thumb_payload_t)) == 0;
   const int16_t first = _MAX(int16_t(startLine) - y, int16_t(0));
-  if (!same || int16_t(T.row) != first || first == 0) {
+  if (!same || first == 0 || (T.ok && int16_t(T.row) != first)) {
     if (!thumb_start(key)) { thumb_stop(); T.ok = false; }
-    if (T.ok)   // skip rows above this strip
-      for (; int16_t(T.row) < first; T.row++)
-        for (int16_t c = 0; c < size; c++) if (!qoi_pixel()) { T.ok = false; break; }
+    for (; T.ok && int16_t(T.row) < first; T.row++)   // skip rows above this strip
+      for (int16_t c = 0; c < size; c++) if (!qoi_pixel()) { T.ok = false; thumb_stop(); break; }
   }
 
   if (!T.ok) { draw_fallback(buffer, cw, startLine, endLine, x, y, size); return; }
