@@ -669,7 +669,7 @@ void menu_configuration() {
   //
   // Set Fan Controller speed
   //
-  #if ANY(CONTROLLER_FAN_MENU, EXTRUDER_AUTO_FAN_SPEED_MENU)
+  #if ANY(CONTROLLER_FAN_MENU, EDITABLE_AUTO_FAN_SPEED)
     SUBMENU(MSG_FANS, menu_fans);
   #endif
 
