@@ -268,6 +268,18 @@ uint32_t Stepper::advance_divisor = 0,
  */
 #if ENABLED(NONLINEAR_EXTRUSION)
   nonlinear_t Stepper::nle;             // Initialized by settings.load
+
+  #if ENABLED(SMOOTH_LIN_ADVANCE)
+    // Update the fixed-point coefficients used by set_la_interval.
+    // Call whenever NLE settings or E steps-per-mm change.
+    void Stepper::refresh_nle_q30() {
+      const float mm_per_step = planner.mm_per_step[E_AXIS_N(0)];
+      const NonlinearCoeff &coeff = nle.settings.coeff;
+      nle.q30.A = _BV32(30) * (coeff.A * sq(mm_per_step));
+      nle.q30.B = _BV32(30) * (coeff.B * mm_per_step);
+      nle.q30.C = _BV32(30) * coeff.C;
+    }
+  #endif
 #endif
 
 #if HAS_ZV_SHAPING
@@ -586,6 +598,21 @@ void Stepper::enable_axis(const AxisEnum axis) {
   TERN_(EXTENSIBLE_UI, ExtUI::onAxisEnabled(ExtUI::axis_to_axis_t(axis)));
 }
 
+// Power off the given axis stepper(s) and apply side-effects (e.g., mark the axis untrusted)
+static void _disable_axis_steppers(const AxisEnum axis) {
+  #define _CASE_DISABLE(N) case N##_AXIS: DISABLE_AXIS_##N(); break;
+  switch (axis) {
+    MAIN_AXIS_MAP(_CASE_DISABLE)
+    default: break;
+  }
+  TERN_(EXTENSIBLE_UI, ExtUI::onAxisDisabled(ExtUI::axis_to_axis_t(axis)));
+}
+
+// Axes sharing a just-disabled ENA pin are also powered off, so apply their side-effects too
+static void _disable_overlapping_axes(const ena_mask_t overlap) {
+  if (any_enable_overlap()) LOOP_NUM_AXES(a) if (TEST(overlap, a)) _disable_axis_steppers(AxisEnum(a));
+}
+
 /**
  * Mark an axis as disabled and power off its stepper(s).
  * If one of the axis steppers is still in use by a non-disabled axis the axis will remain powered.
@@ -611,12 +638,8 @@ bool Stepper::disable_axis(const AxisEnum axis) {
   // toggle the ENA state that they all share.
   const bool can_disable = can_axis_disable(axis);
   if (can_disable) {
-    #define _CASE_DISABLE(N) case N##_AXIS: DISABLE_AXIS_##N(); break;
-    switch (axis) {
-      MAIN_AXIS_MAP(_CASE_DISABLE)
-      default: break;
-    }
-    TERN_(EXTENSIBLE_UI, ExtUI::onAxisDisabled(ExtUI::axis_to_axis_t(axis)));
+    _disable_axis_steppers(axis);
+    _disable_overlapping_axes(enable_overlap[INDEX_OF_AXIS(axis)]);
   }
 
   return can_disable;
@@ -642,11 +665,22 @@ bool Stepper::disable_axis(const AxisEnum axis) {
     if ((current_block = rtg.generate_resonance_block())) {
       // Apply direction
       DIR_WAIT_BEFORE();
+
       const uint8_t axis = rtg.rt_params.axis;
       const bool fwd = current_block->direction_bits[axis];
       switch (axis) {
-        case X_AXIS: X_APPLY_DIR(fwd, false); break;
-        case Y_AXIS: Y_APPLY_DIR(fwd, false); break;
+        #if CORE_IS_XY
+          case CORE_AXIS_1:
+          case CORE_AXIS_2: {
+            const int8_t d = fwd ? 1 : -1;
+            const bool b_fwd = CORESIGN(axis == CORE_AXIS_1 ? d : -d) >= 0;
+            X_APPLY_DIR(fwd, false);
+            Y_APPLY_DIR(b_fwd, false);
+          }
+        #else
+          case X_AXIS: X_APPLY_DIR(fwd, false); break;
+          case Y_AXIS: Y_APPLY_DIR(fwd, false); break;
+        #endif
         case Z_AXIS: Z_APPLY_DIR(fwd, false); break;
       }
 
@@ -679,9 +713,33 @@ bool Stepper::disable_axis(const AxisEnum axis) {
       A##_APPLY_STEP(!STEP_STATE_##A, false); \
     } while(0)
 
+    #define CORE_RESONANCE_STEP_SEQUENCE() do { \
+      X_APPLY_STEP(STEP_STATE_X, false); \
+      Y_APPLY_STEP(STEP_STATE_Y, false); \
+      START_TIMED_PULSE(); \
+      AWAIT_HIGH_PULSE(); \
+      X_APPLY_STEP(!STEP_STATE_X, false); \
+      Y_APPLY_STEP(!STEP_STATE_Y, false); \
+    } while (0)
+
     USING_TIMED_PULSE();
 
     const uint8_t axis = rtg.rt_params.axis;
+
+    #if CORE_IS_XY
+      if (axis == CORE_AXIS_1 || axis == CORE_AXIS_1) {
+        #if ISR_MULTI_STEPS
+          CORE_RESONANCE_STEP_SEQUENCE();
+          while (--events_to_do) {
+            AWAIT_LOW_PULSE();
+            CORE_RESONANCE_STEP_SEQUENCE();
+          }
+        #else
+          do { CORE_RESONANCE_STEP_SEQUENCE(); } while (--events_to_do);
+        #endif
+        return;
+      }
+    #endif
 
     switch (axis) {
       case X_AXIS:
@@ -747,6 +805,7 @@ bool Stepper::disable_axis(const AxisEnum axis) {
     if (can_disable) {
       #define _CASE_DIS_E(N) case N: DISABLE_AXIS_E##N(); break;
       switch (eindex) { REPEAT(E_STEPPERS, _CASE_DIS_E) }
+      _disable_overlapping_axes(enable_overlap[INDEX_OF_AXIS(E_AXIS, eindex)]);
     }
     return can_disable;
   }
@@ -3120,7 +3179,7 @@ void Stepper::isr() {
         const bool forward_e = step_rate > 0;
 
         #if ENABLED(NONLINEAR_EXTRUSION)
-          if (nle.settings.enabled && forward_e && XYZ_HAS_STEPS(current_block)) {
+          if (nle.settings.enabled && forward_e && current_block && XYZ_HAS_STEPS(current_block)) {
             // Maximum polynomial value is just above 1, like 1.05..1.2, less than 2 anyway, so we can use 30 bits for fractional part
             int32_t vd_q30 = nle.q30.A * sq(step_rate) + nle.q30.B * step_rate;
             NOLESS(vd_q30, 0);
@@ -3151,13 +3210,13 @@ void Stepper::isr() {
           buffer[index] = input;
           if (++index == IS_COMPENSATION_BUFFER_SIZE) index = 0;
         }
-        FORCE_INLINE xy_long_t past_item(const uint16_t n) {
-          int16_t i = int16_t(index) - n;
+        FORCE_INLINE xy_long_t past_item(uint32_t n) {
+          // A shaping frequency set below SHAPING_MIN_FREQ (e.g., by M593 during a
+          // ringing test) asks for more history than the buffer holds. Clamp to the
+          // oldest item rather than read out of bounds.
+          NOMORE(n, IS_COMPENSATION_BUFFER_SIZE);
+          int16_t i = int16_t(index) - int16_t(n);
           if (i < 0) i += IS_COMPENSATION_BUFFER_SIZE;
-          // The following only happens when IS Freq is set below the minimum
-          // configured at build time ...in which case IS will also misbehave!
-          // Using setters whenever possible prevents values being set too low.
-          if (TERN0(MARLIN_DEV_MODE, i < 0)) return {0, 0};
           return buffer[i];
         }
       } DelayBuffer;
@@ -3166,7 +3225,7 @@ void Stepper::isr() {
 
       xy_long_t Stepper::smooth_lin_adv_lookback(const shaping_time_t stepper_ticks) {
         constexpr uint32_t adv_ticks_per_stepper_ticks_Q30 = (uint64_t(SMOOTH_LIN_ADV_HZ) * _BV32(30)) / (STEPPER_TIMER_RATE);
-        const uint16_t delay_steps = MULT_Q(30, stepper_ticks, adv_ticks_per_stepper_ticks_Q30);
+        const uint32_t delay_steps = MULT_Q(30, stepper_ticks, adv_ticks_per_stepper_ticks_Q30);
         return delayBuffer.past_item(delay_steps);
       }
 
@@ -3242,13 +3301,19 @@ void Stepper::isr() {
       int32_t la_step_rate = (target_adv_steps - last_target_adv_steps) * dt_inv;
       last_target_adv_steps = target_adv_steps;
 
+      // Approximate Gaussian smoothing via higher order exponential smoothing.
+      // Stages keep 8 fractional bits so truncation can't leave a lasting negative
+      // offset, which made E under-extrude and keep retracting while idle.
+      constexpr uint8_t frac_bits = 8;
+      constexpr int32_t rate_limit = INT32_MAX >> (frac_bits + 1);
       static int32_t smoothed_vals[SMOOTH_LIN_ADV_EXP_ORDER] = {0};
 
+      int32_t smoothed = constrain(la_step_rate, -rate_limit, rate_limit) * _BV(frac_bits);
       for (uint8_t i = 0; i < SMOOTH_LIN_ADV_EXP_ORDER; i++) {
-        // Approximate Gaussian smoothing via higher order exponential smoothing
-        smoothed_vals[i] += MULT_Q(30, la_step_rate - smoothed_vals[i], extruder_advance_alpha_q30[E_INDEX_N(motion.extruder)]);
-        la_step_rate = smoothed_vals[i];
+        smoothed_vals[i] += MULT_Q(30, smoothed - smoothed_vals[i], extruder_advance_alpha_q30[E_INDEX_N(motion.extruder)]);
+        smoothed = smoothed_vals[i];
       }
+      la_step_rate = (smoothed + _BV(frac_bits - 1)) >> frac_bits; // Round to nearest
 
       const int32_t planned_step_rate = current_block
         ? MULT_Q(30, curr_step_rate, current_block->e_step_ratio_q30)
@@ -3260,12 +3325,12 @@ void Stepper::isr() {
 
         xy_long_t pre_shaping_rate{0}, first_pulse_rate{0};
         if (current_block && current_block->xy_length_inv_q30 > 0) {
-          pre_shaping_rate = xy_long_t({
-            MULT_Q(30, unshaped_rate_e * current_block->steps.x, current_block->xy_length_inv_q30),
-            MULT_Q(30, unshaped_rate_e * current_block->steps.y, current_block->xy_length_inv_q30)
-          });
+          // Split E between X and Y in proportion to their steps. Y takes the remainder so no E is lost.
+          const int32_t rate_x = MULT_Q(30, unshaped_rate_e * current_block->steps.x, current_block->xy_length_inv_q30);
+          pre_shaping_rate = xy_long_t({ rate_x, unshaped_rate_e - rate_x });
           unshaped_rate_e = 0;
 
+          // The first pulse takes all that the delayed second pulse won't, so no E is lost to rounding
           first_pulse_rate = xy_long_t({
             TERN_(INPUT_SHAPING_X, shaping_x.enabled ? (pre_shaping_rate.x * shaping_x.factor1) >> 7 :) pre_shaping_rate.x,
             TERN_(INPUT_SHAPING_Y, shaping_y.enabled ? (pre_shaping_rate.y * shaping_y.factor1) >> 7 :) pre_shaping_rate.y
@@ -3573,9 +3638,9 @@ void Stepper::_set_position(const abce_long_t &spos) {
     #elif CORE_IS_YZ
       count_position.set(spos.a, spos.b + spos.c, CORESIGN(spos.b - spos.c));
     #elif ENABLED(MARKFORGED_XY)
-      count_position.set(spos.a TERN(MARKFORGED_INVERSE, +, -) spos.b, spos.b, spos.c);
+      count_position.set(spos.a TERN(MARKFORGED_INVERSE, -, +) spos.b, spos.b, spos.c);
     #elif ENABLED(MARKFORGED_YX)
-      count_position.set(spos.a, spos.b TERN(MARKFORGED_INVERSE, +, -) spos.a, spos.c);
+      count_position.set(spos.a, spos.b TERN(MARKFORGED_INVERSE, -, +) spos.a, spos.c);
     #endif
     SECONDARY_AXIS_CODE(
       count_position.i = spos.i,

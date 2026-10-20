@@ -595,9 +595,9 @@
 #elif MB(MKS_ROBIN_E3)
   #include "stm32f1/pins_MKS_ROBIN_E3.h"            // STM32F1                              env:mks_robin_e3 env:mks_robin_e3_maple
 #elif MB(MKS_ROBIN_E3_V1_1)
-  #include "stm32f1/pins_MKS_ROBIN_E3_V1_1.h"       // STM32F1                              env:mks_robin_e3
+  #include "stm32f1/pins_MKS_ROBIN_E3_V1_1.h"       // STM32F1                              env:mks_robin_e3 env:mks_robin_e3_maple
 #elif MB(MKS_ROBIN_E3D)
-  #include "stm32f1/pins_MKS_ROBIN_E3D.h"           // STM32F1                              env:mks_robin_e3
+  #include "stm32f1/pins_MKS_ROBIN_E3D.h"           // STM32F1                              env:mks_robin_e3 env:mks_robin_e3_maple
 #elif MB(MKS_ROBIN_E3D_V1_1)
   #include "stm32f1/pins_MKS_ROBIN_E3D_V1_1.h"      // STM32F1                              env:mks_robin_e3 env:mks_robin_e3_maple
 #elif MB(MKS_ROBIN_E3P)
@@ -718,8 +718,6 @@
   #include "stm32f4/pins_RUMBA32_BTT.h"             // STM32F4                              env:rumba32
 #elif MB(BLACK_STM32F407VE)
   #include "stm32f4/pins_BLACK_STM32F407VE.h"       // STM32F4                              env:STM32F407VE_black
-#elif MB(BLACK_STM32F407ZE)
-  #error "BLACK_STM32F407ZE is not yet supported."
 #elif MB(BTT_SKR_MINI_E3_V3_0_1)
   #include "stm32f4/pins_BTT_SKR_MINI_E3_V3_0_1.h"  // STM32F4                              env:STM32F401RC_btt env:STM32F401RC_btt_xfer
 #elif MB(BTT_SKR_PRO_V1_1)
@@ -807,7 +805,7 @@
 #elif MB(BLACKPILL_CUSTOM)
   #include "stm32f4/pins_BLACKPILL_CUSTOM.h"        // STM32F4                              env:STM32F401CD_blackpill_stlink
 #elif MB(I3DBEEZ9_V1)
-  #include "stm32f4/pins_I3DBEEZ9.h"                // STM32F4                              env:I3DBEEZ9_V1
+  #include "stm32f4/pins_I3DBEEZ9.h"                // STM32F4                              env:I3DBEEZ9_V1 env:I3DBEEZ9_V1_usb_flash_drive
 #elif MB(MELLOW_FLY_E3_V2)
   #include "stm32f4/pins_MELLOW_FLY_E3_V2.h"        // STM32F4                              env:STM32F407VG_mellow_fly_e3
 #elif MB(MELLOW_FLY_E3_PRO_V3)
@@ -832,6 +830,10 @@
   #include "stm32f4/pins_MKS_NEPTUNE_X.h"           // STM32F4                              env:mks_neptune_x
 #elif MB(MKS_NEPTUNE_3)
   #include "stm32f4/pins_MKS_NEPTUNE_3.h"           // STM32F4                              env:mks_neptune_3
+#elif MB(MKS_E3D_V2)
+  #include "stm32f4/pins_MKS_E3D_V2.h"              // STM32F4                              env:mks_e3d_v2
+#elif MB(PRUSA_BUDDY)
+  #include "stm32f4/pins_PRUSA_BUDDY.h"             // STM32F4                              env:PRUSA_BUDDY env:PRUSA_BUDDY_no_bootloader
 
 //
 // Other ARM Cortex-M4
@@ -880,6 +882,10 @@
   #include "stm32h7/pins_FYSETC_SPIDER_KING_V1_H723.h"   // STM32H7                         env:STM32H723ZG_fysetc
 #elif MB(FYSETC_SPIDER_KING_V1_1_H723)
   #include "stm32h7/pins_FYSETC_SPIDER_KING_V1_1_H723.h" // STM32H7                         env:STM32H723ZG_fysetc
+#elif MB(BTT_SCYLLA_V1_0)
+  #include "stm32h7/pins_BTT_SCYLLA_V1_0.h"              // STM32H7                         env:STM32H723VG_btt
+#elif MB(FYSETC_SPIDER_V3_H723)
+  #include "stm32h7/pins_FYSETC_SPIDER_V3_H723.h"        // STM32H7                         env:STM32H723VG_fysetc
 
 //
 // Espressif ESP32
@@ -909,6 +915,10 @@
   #include "esp32/pins_GODI_CONTROLLER_V1_0.h"      // ESP32                                env:godi_esp32
 #elif MB(MM_JOKER)
   #include "esp32/pins_MM_JOKER.h"                  // ESP32                                env:esp32
+#elif MB(MKS_DLC32_V2_1)
+  #include "esp32/pins_MKS_DLC32_V2_1.h"            // ESP32                                env:mks_dlc32_v2_1
+#elif MB(BTT_RODENT_V1)
+  #include "esp32/pins_BTT_RODENT_V1.h"             // ESP32                                env:esp32
 
 //
 // Adafruit Grand Central M4 (SAMD51 ARM Cortex-M4)
@@ -936,6 +946,12 @@
   #include "hc32f4/pins_AQUILA_101.h"               // HC32F460                             env:HC32F460C_aquila_101 env:HC32F460C_openhc32boot
 #elif MB(CREALITY_ENDER2P_V24S4)
   #include "hc32f4/pins_CREALITY_ENDER2P_V24S4.h"   // HC32F460                             env:HC32F460C_e2p24s4 env:HC32F460C_openhc32boot
+#elif MB(TRIGORILLA_F1_V1)
+  #include "hc32f4/pins_TRIGORILLA_F1_V1.h"         // HC32F460                             env:HC32F460C_kobra_max
+#elif MB(TRIGORILLA_V306)
+  #include "hc32f4/pins_TRIGORILLA_V306.h"          // HC32F460                             env:HC32F460E_kobra_neo
+#elif MB(TRIGORILLA_V306_GO)
+  #include "hc32f4/pins_TRIGORILLA_V306_GO.h"       // HC32F460                             env:HC32F460E_kobra_go env:HC32F460C_kobra_go
 
 //
 // GD32 ARM Cortex-M3
@@ -976,7 +992,7 @@
 //
 
 #elif MB(SIMULATED)
-  #include "native/pins_RAMPS_NATIVE.h"             // Native or Simulation                 lin:linux_native lin:simulator_linux_debug lin:simulator_linux_release lin:linux_native_test mac:simulator_macos_debug mac:simulator_macos_release win:simulator_windows
+  #include "native/pins_RAMPS_NATIVE.h"             // Native or Simulation                 lin:linux_native lin:simulator_linux_debug lin:simulator_linux_release lin:linux_native_test mac:simulator_macos_debug mac:simulator_macos_release mac:simulator_macos_debug_legacy mac:simulator_macos_release_legacy win:simulator_windows
 
 #else
 
@@ -1016,6 +1032,7 @@
   #define BOARD_VAKE403D                99928
   #define BOARD_TRONXY_V10              99929
   #define BOARD_FYSETC_SPIDER_KING407   99930
+  #define BOARD_BLACK_STM32F407ZE       99931
 
   #if MB(MKS_13)
     #error "BOARD_MKS_13 is now BOARD_MKS_GEN_13. Please update your configuration."
@@ -1079,6 +1096,8 @@
     #error "BOARD_VAKE403D is no longer supported in Marlin."
   #elif MB(FYSETC_SPIDER_KING407)
     #error "BOARD_FYSETC_SPIDER_KING407 is now BOARD_FYSETC_SPIDER_KING_V1_F407 or BOARD_FYSETC_SPIDER_KING_V1_1_F407. Please update your configuration."
+  #elif MB(BLACK_STM32F407ZE)
+    #error "BOARD_BLACK_STM32F407ZE is no longer supported in Marlin."
   #elif MB(ERROR)
     #warning "Most likely missing / misplaced Configuration files."
   #elif defined(MOTHERBOARD)
@@ -1119,6 +1138,7 @@
   #undef BOARD_VAKE403D
   #undef BOARD_TRONXY_V10
   #undef BOARD_FYSETC_SPIDER_KING407
+  #undef BOARD_BLACK_STM32F407ZE
 
 #endif
 

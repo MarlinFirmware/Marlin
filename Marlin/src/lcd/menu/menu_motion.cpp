@@ -138,17 +138,25 @@ void _goto_manual_move(const float scale) {
 
 void _menu_move_distance(const AxisEnum axis, const screenFunc_t func, const int8_t eindex=motion.extruder) {
   ui.manual_move.screen_ptr = func;
-  START_MENU();
-  if (LCD_HEIGHT >= 4) {
-    if (axis < NUM_AXES)
-      STATIC_ITEM_N(axis, MSG_MOVE_N, SS_DEFAULT|SS_INVERT);
-    else {
-      TERN_(MANUAL_E_MOVES_RELATIVE, ui.manual_move.e_origin = motion.position.e);
-      STATIC_ITEM_N(eindex, MSG_MOVE_EN, SS_DEFAULT|SS_INVERT);
-    }
-  }
 
-  BACK_ITEM(MSG_MOVE_AXIS);
+  #if TFT_COLOR_TOUCH
+    // The Move screen has buttons for the distances instead of a submenu
+    ui.manual_move.step_count = 0;
+    #define __MOVE_SUB(L,T,D) if (motion.rotational[axis] || _LINEAR_LIMIT(D)) ui.manual_move.add_step(D, T)
+  #else
+    START_MENU();
+    if (LCD_HEIGHT >= 4) {
+      if (axis < NUM_AXES)
+        STATIC_ITEM_N(axis, MSG_MOVE_N, SS_DEFAULT|SS_INVERT);
+      else {
+        TERN_(MANUAL_E_MOVES_RELATIVE, ui.manual_move.e_origin = motion.position.e);
+        STATIC_ITEM_N(eindex, MSG_MOVE_EN, SS_DEFAULT|SS_INVERT);
+      }
+    }
+
+    BACK_ITEM(MSG_MOVE_AXIS);
+    #define __MOVE_SUB(L,T,D) if (motion.rotational[axis] || _LINEAR_LIMIT(D)) SUBMENU_S(F(T), L, []{ _goto_manual_move(D); })
+  #endif
 
   #if NUM_AXES
     #define __LINEAR_LIMIT(D) ((D) < motion.max_axis_length(axis) / 2 + 1)
@@ -163,7 +171,6 @@ void _menu_move_distance(const AxisEnum axis, const screenFunc_t func, const int
   #else
     #define _LINEAR_LIMIT __LINEAR_LIMIT
   #endif
-  #define __MOVE_SUB(L,T,D) if (motion.rotational[axis] || _LINEAR_LIMIT(D)) SUBMENU_S(F(T), L, []{ _goto_manual_move(D); })
 
   if (motion.rotational[axis]) {
     #ifdef MANUAL_MOVE_DISTANCE_DEG
@@ -183,11 +190,35 @@ void _menu_move_distance(const AxisEnum axis, const screenFunc_t func, const int
       MAP(_MOVE_MM, MANUAL_MOVE_DISTANCE_MM)
     #endif
     #if HAS_Z_AXIS
-      if (axis == Z_AXIS && (FINE_MANUAL_MOVE) > 0.0f && (FINE_MANUAL_MOVE) < 0.1f)
-        SUBMENU_f(F(STRINGIFY(FINE_MANUAL_MOVE)), MSG_MOVE_N_MM, []{ _goto_manual_move(float(FINE_MANUAL_MOVE)); });
+      if (axis == Z_AXIS && (FINE_MANUAL_MOVE) > 0.0f && (FINE_MANUAL_MOVE) < 0.1f) {
+        #if TFT_COLOR_TOUCH
+          ui.manual_move.add_step(float(FINE_MANUAL_MOVE), STRINGIFY(FINE_MANUAL_MOVE));
+        #else
+          SUBMENU_f(F(STRINGIFY(FINE_MANUAL_MOVE)), MSG_MOVE_N_MM, []{ _goto_manual_move(float(FINE_MANUAL_MOVE)); });
+        #endif
+      }
     #endif
   }
-  END_MENU();
+
+  #if TFT_COLOR_TOUCH
+    #if ENABLED(MANUAL_E_MOVES_RELATIVE)
+      if (axis == E_AXIS) ui.manual_move.e_origin = motion.position.e;
+    #endif
+    UNUSED(eindex);
+    // Keep the last distance if it's offered for this axis. Otherwise start with the largest one up to 1 (mm, in, °).
+    float scale = 0;
+    for (uint8_t i = 0; i < ui.manual_move.step_count; ++i)
+      if (ui.manual_move.step_sizes[i] == ui.manual_move.menu_scale) scale = ui.manual_move.menu_scale;
+    if (!scale && ui.manual_move.step_count) {
+      const float one = (!motion.rotational[axis] && parser.using_inch_units()) ? IN_TO_MM(1) : 1;
+      uint8_t i = 0;
+      while (i < ui.manual_move.step_count - 1 && ui.manual_move.step_sizes[i + 1] <= one) ++i;
+      scale = ui.manual_move.step_sizes[i];
+    }
+    _goto_manual_move(scale ?: 1);
+  #else
+    END_MENU();
+  #endif
 }
 
 #if E_MANUAL

@@ -54,7 +54,7 @@
   #include "../feature/runout.h"
 #endif
 
-#if ENABLED(SENSORLESS_HOMING)
+#if ANY(SENSORLESS_HOMING, HOMING_HYBRID_THRESHOLD, HAS_HOMING_CURRENT)
   #include "../feature/tmc_util.h"
 #endif
 
@@ -292,21 +292,19 @@ void Motion::report_position_projected() {
     #define debug_current(...)
   #endif
 
-  homing_current_t saved_current_mA;
-
   /**
    * Set motors to their homing / probing currents.
-   * Currents are saved first so they can be restored afterward.
+   * Currents are saved in 'saved' so they can be restored afterward.
    */
-  void Motion::set_homing_current(const AxisEnum axis) {
+  void Motion::set_homing_current(const AxisEnum axis, homing_current_t &saved) {
 
     #define HOMING_CURRENT(A) TERN(EDITABLE_HOMING_CURRENT, homing_current_mA.A, A##_CURRENT_HOME)
 
     // Saves the running current of the motor at the moment the function is called and sets current to CURRENT_HOME
     #define _SAVE_SET_CURRENT(A) do{ \
-      saved_current_mA.A = stepper##A.getMilliamps(); \
+      saved.A = stepper##A.getMilliamps(); \
       stepper##A.rms_current(HOMING_CURRENT(A)); \
-      debug_current(F(STR_##A), saved_current_mA.A, HOMING_CURRENT(A)); \
+      debug_current(F(STR_##A), saved.A, HOMING_CURRENT(A)); \
     }while(0)
 
     #define _MAP_SAVE_SET(A) OPTCODE(A##_HAS_HOME_CURRENT, _SAVE_SET_CURRENT(A))
@@ -454,15 +452,14 @@ void Motion::report_position_projected() {
   } // set_homing_current()
 
   /**
-   * Restore motors to their previously-stored currents.
-   * Always call set_homing_current() first!
+   * Restore motors to the currents saved by set_homing_current().
    */
-  void Motion::restore_homing_current(const AxisEnum axis) {
+  void Motion::restore_homing_current(const AxisEnum axis, const homing_current_t &saved) {
 
     // Restore the saved current
     #define _RESTORE_CURRENT(A) \
-      stepper##A.rms_current(saved_current_mA.A); \
-      debug_current(F(STR_##A), HOMING_CURRENT(A), saved_current_mA.A)
+      stepper##A.rms_current(saved.A); \
+      debug_current(F(STR_##A), HOMING_CURRENT(A), saved.A)
 
     #define _MAP_RESTORE(A) OPTCODE(A##_HAS_HOME_CURRENT, _RESTORE_CURRENT(A))
 
@@ -473,7 +470,7 @@ void Motion::report_position_projected() {
       // CORE and Markforged kinematics
       switch (axis) {
         default: break;
-        case X_AXIS: case Y_AXIS: MAP(_MAP_RESTORE, X, Y); break;
+        case X_AXIS: case Y_AXIS: MAP(_MAP_RESTORE, X, X2, Y, Y2); break;
         case Z_AXIS: MAP(_MAP_RESTORE, Z, Z2, Z3, Z4); break;
       }
 
@@ -609,6 +606,109 @@ void Motion::report_position_projected() {
   } // restore_homing_current()
 
 #endif // HAS_HOMING_CURRENT
+
+#if ENABLED(HOMING_HYBRID_THRESHOLD)
+
+  /**
+   * Set the homing Hybrid Threshold on the stealthChop steppers that move
+   * to home the given axis, saving the current thresholds in 'saved'.
+   * With 'homing' false, restore the thresholds from 'saved'.
+   */
+  void Motion::apply_homing_hybrid_thrs(const AxisEnum axis, const bool homing, homing_hybrid_thrs_t &saved) {
+
+    #define _APPLY_HYBRID_THRS(A) do{ \
+      if (homing) { \
+        saved.A = stepper##A.get_pwm_thrs(); \
+        stepper##A.set_pwm_thrs(homing_hybrid_thrs.A); \
+      } \
+      else \
+        stepper##A.set_pwm_thrs(saved.A); \
+    }while(0)
+
+    #define _MAP_HYBRID_THRS(A) OPTCODE(A##_HAS_STEALTHCHOP, _APPLY_HYBRID_THRS(A))
+
+    #if ANY(CORE_IS_XY, MARKFORGED_XY, MARKFORGED_YX)
+
+      // CORE and Markforged kinematics
+      switch (axis) {
+        default: break;
+        case X_AXIS: case Y_AXIS: MAP(_MAP_HYBRID_THRS, X, X2, Y, Y2); break;
+        case Z_AXIS: MAP(_MAP_HYBRID_THRS, Z, Z2, Z3, Z4); break;
+      }
+
+    #elif CORE_IS_XZ
+
+      // CORE XZ / ZX
+      switch (axis) {
+        default: break;
+        case X_AXIS: case Z_AXIS: MAP(_MAP_HYBRID_THRS, X, Z); break;
+        case Y_AXIS: MAP(_MAP_HYBRID_THRS, Y, Y2); break;
+      }
+
+    #elif CORE_IS_YZ
+
+      // CORE YZ / ZY
+      switch (axis) {
+        default: break;
+        case X_AXIS: MAP(_MAP_HYBRID_THRS, X, X2); break;
+        case Y_AXIS: case Z_AXIS: MAP(_MAP_HYBRID_THRS, Y, Z); break;
+      }
+
+    #elif ANY(AXEL_TPARA, DELTA)
+
+      // TPARA or DELTA kinematics.
+      // Z_AXIS is a special mode to apply to all axes.
+      if (axis == A_AXIS || axis == Z_AXIS) _MAP_HYBRID_THRS(X);
+      if (axis == B_AXIS || axis == Z_AXIS) _MAP_HYBRID_THRS(Y);
+      if (axis == C_AXIS) _MAP_HYBRID_THRS(Z);
+
+    #elif ANY(IS_SCARA, POLARGRAPH, POLAR, ARTICULATED_ROBOT_ARM)
+
+      // SCARA, POLAR, and Articulated Robot Arm kinematics
+      switch (axis) {
+        default: break;
+        case A_AXIS: _MAP_HYBRID_THRS(X); break;
+        case B_AXIS: _MAP_HYBRID_THRS(Y); break;
+        case C_AXIS: _MAP_HYBRID_THRS(Z); break;
+      }
+
+    #elif ENABLED(FOAMCUTTER_XYUV)
+
+      // Foam cutter
+      switch (axis) {
+        default: break;
+        case X_AXIS: case I_AXIS: MAP(_MAP_HYBRID_THRS, X, I); break;
+        case Y_AXIS: case J_AXIS: MAP(_MAP_HYBRID_THRS, Y, J); break;
+        case Z_AXIS: _MAP_HYBRID_THRS(Z); break;
+      }
+
+    #else
+
+      // Cartesian kinematics
+      switch (axis) {
+        default: break;
+        case X_AXIS: MAP(_MAP_HYBRID_THRS, X, X2); break;
+        case Y_AXIS: MAP(_MAP_HYBRID_THRS, Y, Y2); break;
+        case Z_AXIS: MAP(_MAP_HYBRID_THRS, Z, Z2, Z3, Z4); break;
+      }
+
+    #endif // kinematics
+
+    switch (axis) {
+      default: break;
+      #if DISABLED(FOAMCUTTER_XYUV)
+        OPTCODE(I_HAS_STEALTHCHOP, case I_AXIS: _APPLY_HYBRID_THRS(I); break)
+        OPTCODE(J_HAS_STEALTHCHOP, case J_AXIS: _APPLY_HYBRID_THRS(J); break)
+      #endif
+      OPTCODE(K_HAS_STEALTHCHOP, case K_AXIS: _APPLY_HYBRID_THRS(K); break)
+      OPTCODE(U_HAS_STEALTHCHOP, case U_AXIS: _APPLY_HYBRID_THRS(U); break)
+      OPTCODE(V_HAS_STEALTHCHOP, case V_AXIS: _APPLY_HYBRID_THRS(V); break)
+      OPTCODE(W_HAS_STEALTHCHOP, case W_AXIS: _APPLY_HYBRID_THRS(W); break)
+    }
+
+  } // apply_homing_hybrid_thrs()
+
+#endif // HOMING_HYBRID_THRESHOLD
 
 #if ENABLED(AUTO_REPORT_POSITION)
   AutoReporter<Motion::PositionReport> Motion::position_auto_reporter;
@@ -1109,11 +1209,7 @@ void Motion::blocking_move(const xy_pos_t &raw, const feedRate_t fr_mm_s/*=0.0f*
 
   void Motion::do_move_after_z_homing() {
     DEBUG_SECTION(mzah, "do_move_after_z_homing", DEBUGGING(LEVELING));
-    do_z_clearance(
-      Z_POST_CLEARANCE,
-      ALL(HOMING_Z_WITH_PROBE, HAS_STOWABLE_PROBE) && TERN0(HAS_BED_PROBE, endstops.z_probe_enabled),
-      true
-    );
+    do_z_clearance(Z_POST_CLEARANCE, false, true);
   }
 
   void Motion::do_z_post_clearance() { do_z_clearance(Z_POST_CLEARANCE); }
@@ -1308,16 +1404,20 @@ void Motion::restore_feedrate_and_scaling() {
   /**
    * Constrain the given coordinates to the software endstops.
    *
-   * For DELTA/SCARA the XY constraint is based on the smallest
+   * For DELTA the XY constraint is based on the smallest
    * radius within the set software endstops.
+   *
+   * SCARA uses the XY software endstops (bed bounds) like Cartesian,
+   * since the bed origin is not at the center of the arm's reach.
+   * TPARA only constrains Z.
    */
   void Motion::apply_limits(xyz_pos_t &target) {
     //SERIAL_ECHOLNPGM("Motion limits in: ", target.x, ", ", target.y, ", ", target.z);
     //SERIAL_EOL();
 
-    if (!soft_endstop._enabled) return;
+    if (!soft_endstop.enabled()) return;
 
-    #if IS_KINEMATIC
+    #if IS_KINEMATIC && !IS_SCARA
 
       if (TERN0(DELTA, !all_axes_homed())) return;
 
@@ -1329,7 +1429,6 @@ void Motion::restore_feedrate_and_scaling() {
       #elif ENABLED(POLAR)
         // For now, we don't limit POLAR
       #else
-        // SCARA needs to consider the angle of the arm through the entire move, so for now use no tool offset.
         constexpr xy_pos_t offs{0};
       #endif
 
@@ -1339,13 +1438,11 @@ void Motion::restore_feedrate_and_scaling() {
       #elif ENABLED(POLAR)
         // Motion limits are as same as cartesian limits.
       #else
-        if (TERN1(IS_SCARA, axis_was_homed(X_AXIS) && axis_was_homed(Y_AXIS))) {
-          const float dist_2 = HYPOT2(target.x - offs.x, target.y - offs.y);
-          //SERIAL_ECHOLNPGM("Motion limits data: dist_2:", dist_2, " delta_max_radius_2: ", delta_max_radius_2);
-          //SERIAL_EOL();
-          if (dist_2 > delta_max_radius_2)
-            target *= float(delta_max_radius / SQRT(dist_2)); // 200 / 300 = 0.66
-        }
+        const float dist_2 = HYPOT2(target.x - offs.x, target.y - offs.y);
+        //SERIAL_ECHOLNPGM("Motion limits data: dist_2:", dist_2, " delta_max_radius_2: ", delta_max_radius_2);
+        //SERIAL_EOL();
+        if (dist_2 > delta_max_radius_2)
+          target *= float(delta_max_radius / SQRT(dist_2)); // 200 / 300 = 0.66
       #endif
 
     #else
@@ -1884,8 +1981,8 @@ float Motion::get_move_distance(const xyze_pos_t &diff OPTARG(HAS_ROTATIONAL_AXE
             xyze_pos_t new_pos = pos_now;
             if (idex_mode == DXC_DUPLICATION_MODE)
               new_pos.x = x0_pos + duplicate_extruder_x_offset;
-            else
-              new_pos.x = _MIN(X_BED_SIZE - x0_pos, X_MAX_POS);
+            else // Mirror around the bed center, but not past the T1 max (X2_MAX_POS or M218 T1 X)
+              new_pos.x = _MIN(X_BED_SIZE - x0_pos, _MAX(hotend_offset[1].x, X2_MAX_POS));
 
             // Move duplicate extruder into the correct position
             if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Set planner X", inactive_extruder_x, " ... Line to X", new_pos.x);
@@ -2530,261 +2627,265 @@ void Motion::prepare_line_to_destination() {
       }
     #endif
 
-    //
-    // Set a new current for the homed axis motor(s)
-    //
-    TERN_(HAS_HOMING_CURRENT, set_homing_current(axis));
+    {
+      //
+      // Use the homing current and Hybrid Threshold for the homing moves.
+      // Both are restored when this scope ends, including on early return.
+      //
+      TERN_(HAS_HOMING_CURRENT, const TemporaryHomingCurrent temp_current(axis));
+      TERN_(HOMING_HYBRID_THRESHOLD, const TemporaryHomingHybridThreshold temp_hybrid_thrs(axis));
 
-    //
-    // Back away to prevent an early sensorless trigger
-    //
-    #if DISABLED(DELTA) && defined(SENSORLESS_BACKOFF_MM)
-      const xyz_float_t backoff = SENSORLESS_BACKOFF_MM;
-      if ((TERN0(X_SENSORLESS, axis == X_AXIS) || TERN0(Y_SENSORLESS, axis == Y_AXIS) || TERN0(Z_SENSORLESS, axis == Z_AXIS) || TERN0(I_SENSORLESS, axis == I_AXIS) || TERN0(J_SENSORLESS, axis == J_AXIS) || TERN0(K_SENSORLESS, axis == K_AXIS)) && backoff[axis]) {
-        const float backoff_length = -ABS(backoff[axis]) * axis_home_dir;
-        if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Sensorless backoff: ", backoff_length, "mm");
-        do_homing_move(axis, backoff_length, homing_feedrate(axis));
-      }
-    #endif
-
-    //
-    // Back away to prevent opposite endstop damage
-    //
-    #if !defined(SENSORLESS_BACKOFF_MM) && XY_COUNTERPART_BACKOFF_MM
-      if (!(axis_was_homed(X_AXIS) || axis_was_homed(Y_AXIS)) && (axis == X_AXIS || axis == Y_AXIS)) {
-        const AxisEnum opposite_axis = axis == X_AXIS ? Y_AXIS : X_AXIS;
-        const float backoff_length = -ABS(XY_COUNTERPART_BACKOFF_MM) * home_dir(opposite_axis);
-        do_homing_move(opposite_axis, backoff_length, homing_feedrate(opposite_axis));
-      }
-    #endif
-
-    // Determine if a homing bump will be done and the bumps distance
-    // When homing Z with probe respect probe clearance
-    const bool use_probe_bump = TERN0(HOMING_Z_WITH_PROBE, axis == Z_AXIS && home_bump_mm(axis));
-    const float bump = axis_home_dir * (
-      use_probe_bump ? _MAX(TERN0(HOMING_Z_WITH_PROBE, Z_CLEARANCE_BETWEEN_PROBES), home_bump_mm(axis)) : home_bump_mm(axis)
-    );
-
-    //
-    // Fast move towards endstop until triggered
-    //
-    const float move_length = 1.5f * max_axis_length(TERN(DELTA, Z_AXIS, axis)) * axis_home_dir;
-    if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Home Fast: ", move_length, "mm");
-    do_homing_move(axis, move_length, 0.0, !use_probe_bump);
-
-    // If a second homing move is configured...
-    if (bump) {
-      #if ALL(HOMING_Z_WITH_PROBE, BLTOUCH)
-        if (axis == Z_AXIS && !bltouch.high_speed_mode) bltouch.stow(); // Intermediate STOW (in LOW SPEED MODE)
+      //
+      // Back away to prevent an early sensorless trigger
+      //
+      #if DISABLED(DELTA) && defined(SENSORLESS_BACKOFF_MM)
+        const xyz_float_t backoff = SENSORLESS_BACKOFF_MM;
+        if ((TERN0(X_SENSORLESS, axis == X_AXIS) || TERN0(Y_SENSORLESS, axis == Y_AXIS) || TERN0(Z_SENSORLESS, axis == Z_AXIS) || TERN0(I_SENSORLESS, axis == I_AXIS) || TERN0(J_SENSORLESS, axis == J_AXIS) || TERN0(K_SENSORLESS, axis == K_AXIS)) && backoff[axis]) {
+          const float backoff_length = -ABS(backoff[axis]) * axis_home_dir;
+          if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Sensorless backoff: ", backoff_length, "mm");
+          do_homing_move(axis, backoff_length, homing_feedrate(axis));
+        }
       #endif
 
-      // Move away from the endstop by the axis HOMING_BUMP_MM
-      if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Move Away: ", -bump, "mm");
-      do_homing_move(axis, -bump, TERN0(HOMING_Z_WITH_PROBE, (axis == Z_AXIS ? z_probe_fast_mm_s : 0)), false);
-
-      #if ENABLED(DETECT_BROKEN_ENDSTOP)
-
-        // Check for a broken endstop
-        EndstopEnum es;
-        switch (axis) {
-          #define _ESCASE(A) case A##_AXIS: es = A##_ENDSTOP; break;
-          MAIN_AXIS_MAP(_ESCASE)
-          default: break;
+      //
+      // Back away to prevent opposite endstop damage
+      //
+      #if !defined(SENSORLESS_BACKOFF_MM) && XY_COUNTERPART_BACKOFF_MM
+        if (!(axis_was_homed(X_AXIS) || axis_was_homed(Y_AXIS)) && (axis == X_AXIS || axis == Y_AXIS)) {
+          const AxisEnum opposite_axis = axis == X_AXIS ? Y_AXIS : X_AXIS;
+          const float backoff_length = -ABS(XY_COUNTERPART_BACKOFF_MM) * home_dir(opposite_axis);
+          do_homing_move(opposite_axis, backoff_length, homing_feedrate(opposite_axis));
         }
+      #endif
 
-        #if ENABLED(DUAL_X_CARRIAGE)
-          if (axis == X_AXIS && axis_home_dir > 0) {
-            es = X_MAX;
-            if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("DUAL_X_CARRIAGE: Homing to X_MAX");
+      // Determine if a homing bump will be done and the bumps distance
+      // When homing Z with probe respect probe clearance
+      const bool use_probe_bump = TERN0(HOMING_Z_WITH_PROBE, axis == Z_AXIS && home_bump_mm(axis));
+      const float bump = axis_home_dir * (
+        use_probe_bump ? _MAX(TERN0(HOMING_Z_WITH_PROBE, Z_CLEARANCE_BETWEEN_PROBES), home_bump_mm(axis)) : home_bump_mm(axis)
+      );
+
+      //
+      // Fast move towards endstop until triggered
+      //
+      const float move_length = 1.5f * max_axis_length(TERN(DELTA, Z_AXIS, axis)) * axis_home_dir;
+      if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Home Fast: ", move_length, "mm");
+      do_homing_move(axis, move_length, 0.0, !use_probe_bump);
+
+      // If a second homing move is configured...
+      if (bump) {
+        #if ALL(HOMING_Z_WITH_PROBE, BLTOUCH)
+          if (axis == Z_AXIS && !bltouch.high_speed_mode) bltouch.stow(); // Intermediate STOW (in LOW SPEED MODE)
+        #endif
+
+        // Move away from the endstop by the axis HOMING_BUMP_MM
+        if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Move Away: ", -bump, "mm");
+        do_homing_move(axis, -bump, TERN0(HOMING_Z_WITH_PROBE, (axis == Z_AXIS ? z_probe_fast_mm_s : 0)), false);
+
+        #if ENABLED(DETECT_BROKEN_ENDSTOP)
+
+          // Check for a broken endstop
+          EndstopEnum es;
+          switch (axis) {
+            #define _ESCASE(A) case A##_AXIS: es = A##_ENDSTOP; break;
+            MAIN_AXIS_MAP(_ESCASE)
+            default: break;
+          }
+
+          #if ENABLED(DUAL_X_CARRIAGE)
+            if (axis == X_AXIS && axis_home_dir > 0) {
+              es = X_MAX;
+              if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("DUAL_X_CARRIAGE: Homing to X_MAX");
+            }
+          #endif
+
+          if (endstops.state(es)) {
+            SERIAL_ECHO_MSG("Bad ", C(AXIS_CHAR(axis)), " Endstop?");
+            marlin.kill(GET_TEXT_F(MSG_KILL_HOMING_FAILED));
+          }
+
+        #endif // DETECT_BROKEN_ENDSTOP
+
+        #if ALL(HOMING_Z_WITH_PROBE, BLTOUCH)
+          if (axis == Z_AXIS && !bltouch.high_speed_mode && bltouch.deploy()) {
+            bltouch.stow();
+            return; // Intermediate DEPLOY (in LOW SPEED MODE)
           }
         #endif
 
-        if (endstops.state(es)) {
-          SERIAL_ECHO_MSG("Bad ", C(AXIS_CHAR(axis)), " Endstop?");
-          marlin.kill(GET_TEXT_F(MSG_KILL_HOMING_FAILED));
-        }
-
-      #endif // DETECT_BROKEN_ENDSTOP
+        // Slow move towards endstop until triggered
+        const float rebump = bump * 2;
+        if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Re-bump: ", rebump, "mm");
+        do_homing_move(axis, rebump, get_homing_bump_feedrate(axis), true);
+      }
 
       #if ALL(HOMING_Z_WITH_PROBE, BLTOUCH)
-        if (axis == Z_AXIS && !bltouch.high_speed_mode && bltouch.deploy()) {
-          bltouch.stow();
-          return; // Intermediate DEPLOY (in LOW SPEED MODE)
-        }
+        if (axis == Z_AXIS) bltouch.stow(); // The final STOW
       #endif
 
-      // Slow move towards endstop until triggered
-      const float rebump = bump * 2;
-      if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Re-bump: ", rebump, "mm");
-      do_homing_move(axis, rebump, get_homing_bump_feedrate(axis), true);
-    }
-
-    #if ALL(HOMING_Z_WITH_PROBE, BLTOUCH)
-      if (axis == Z_AXIS) bltouch.stow(); // The final STOW
-    #endif
-
-    #if HAS_EXTRA_ENDSTOPS
-      const bool pos_dir = axis_home_dir > 0;
-      #if ENABLED(X_DUAL_ENDSTOPS)
-        if (axis == X_AXIS) {
-          const float adj = ABS(endstops.x2_endstop_adj);
-          if (adj) {
-            if (pos_dir ? (endstops.x2_endstop_adj > 0) : (endstops.x2_endstop_adj < 0)) stepper.set_x_lock(true); else stepper.set_x2_lock(true);
-            do_homing_move(axis, pos_dir ? -adj : adj);
-            stepper.set_x_lock(false);
-            stepper.set_x2_lock(false);
-          }
-        }
-      #endif
-      #if ENABLED(Y_DUAL_ENDSTOPS)
-        if (axis == Y_AXIS) {
-          const float adj = ABS(endstops.y2_endstop_adj);
-          if (adj) {
-            if (pos_dir ? (endstops.y2_endstop_adj > 0) : (endstops.y2_endstop_adj < 0)) stepper.set_y_lock(true); else stepper.set_y2_lock(true);
-            do_homing_move(axis, pos_dir ? -adj : adj);
-            stepper.set_y_lock(false);
-            stepper.set_y2_lock(false);
-          }
-        }
-      #endif
-
-      #if ENABLED(Z_MULTI_ENDSTOPS)
-        if (axis == Z_AXIS) {
-
-          #if NUM_Z_STEPPERS == 2
-
-            const float adj = ABS(endstops.z2_endstop_adj);
+      #if HAS_EXTRA_ENDSTOPS
+        const bool pos_dir = axis_home_dir > 0;
+        #if ENABLED(X_DUAL_ENDSTOPS)
+          if (axis == X_AXIS) {
+            const float adj = ABS(endstops.x2_endstop_adj);
             if (adj) {
-              if (pos_dir ? (endstops.z2_endstop_adj > 0) : (endstops.z2_endstop_adj < 0))
-                stepper.set_z1_lock(true);
-              else
-                stepper.set_z2_lock(true);
+              if (pos_dir ? (endstops.x2_endstop_adj > 0) : (endstops.x2_endstop_adj < 0)) stepper.set_x_lock(true); else stepper.set_x2_lock(true);
               do_homing_move(axis, pos_dir ? -adj : adj);
-              stepper.set_z1_lock(false);
-              stepper.set_z2_lock(false);
+              stepper.set_x_lock(false);
+              stepper.set_x2_lock(false);
             }
-
-          #else // NUM_Z_STEPPERS >= 3
-
-            // Handy arrays of stepper lock function pointers
-
-            typedef void (*adjustFunc_t)(const bool);
-
-            adjustFunc_t lock[] = ARRAY_N(NUM_Z_STEPPERS, stepper.set_z1_lock, stepper.set_z2_lock, stepper.set_z3_lock, stepper.set_z4_lock);
-            float adj[] = ARRAY_N(NUM_Z_STEPPERS, 0, endstops.z2_endstop_adj, endstops.z3_endstop_adj, endstops.z4_endstop_adj);
-
-            adjustFunc_t tempLock;
-            float tempAdj;
-
-            // Manual bubble sort by adjust value
-            if (adj[1] < adj[0]) {
-              tempLock = lock[0], tempAdj = adj[0];
-              lock[0] = lock[1], adj[0] = adj[1];
-              lock[1] = tempLock, adj[1] = tempAdj;
+          }
+        #endif
+        #if ENABLED(Y_DUAL_ENDSTOPS)
+          if (axis == Y_AXIS) {
+            const float adj = ABS(endstops.y2_endstop_adj);
+            if (adj) {
+              if (pos_dir ? (endstops.y2_endstop_adj > 0) : (endstops.y2_endstop_adj < 0)) stepper.set_y_lock(true); else stepper.set_y2_lock(true);
+              do_homing_move(axis, pos_dir ? -adj : adj);
+              stepper.set_y_lock(false);
+              stepper.set_y2_lock(false);
             }
-            if (adj[2] < adj[1]) {
-              tempLock = lock[1], tempAdj = adj[1];
-              lock[1] = lock[2], adj[1] = adj[2];
-              lock[2] = tempLock, adj[2] = tempAdj;
-            }
-            #if NUM_Z_STEPPERS >= 4
-              if (adj[3] < adj[2]) {
-                tempLock = lock[2], tempAdj = adj[2];
-                lock[2] = lock[3], adj[2] = adj[3];
-                lock[3] = tempLock, adj[3] = tempAdj;
+          }
+        #endif
+
+        #if ENABLED(Z_MULTI_ENDSTOPS)
+          if (axis == Z_AXIS) {
+
+            #if NUM_Z_STEPPERS == 2
+
+              const float adj = ABS(endstops.z2_endstop_adj);
+              if (adj) {
+                if (pos_dir ? (endstops.z2_endstop_adj > 0) : (endstops.z2_endstop_adj < 0))
+                  stepper.set_z1_lock(true);
+                else
+                  stepper.set_z2_lock(true);
+                do_homing_move(axis, pos_dir ? -adj : adj);
+                stepper.set_z1_lock(false);
+                stepper.set_z2_lock(false);
+              }
+
+            #else // NUM_Z_STEPPERS >= 3
+
+              // Handy arrays of stepper lock function pointers
+
+              typedef void (*adjustFunc_t)(const bool);
+
+              adjustFunc_t lock[] = ARRAY_N(NUM_Z_STEPPERS, stepper.set_z1_lock, stepper.set_z2_lock, stepper.set_z3_lock, stepper.set_z4_lock);
+              float adj[] = ARRAY_N(NUM_Z_STEPPERS, 0, endstops.z2_endstop_adj, endstops.z3_endstop_adj, endstops.z4_endstop_adj);
+
+              adjustFunc_t tempLock;
+              float tempAdj;
+
+              // Manual bubble sort by adjust value
+              if (adj[1] < adj[0]) {
+                tempLock = lock[0], tempAdj = adj[0];
+                lock[0] = lock[1], adj[0] = adj[1];
+                lock[1] = tempLock, adj[1] = tempAdj;
               }
               if (adj[2] < adj[1]) {
                 tempLock = lock[1], tempAdj = adj[1];
                 lock[1] = lock[2], adj[1] = adj[2];
                 lock[2] = tempLock, adj[2] = tempAdj;
               }
-            #endif
-            if (adj[1] < adj[0]) {
-              tempLock = lock[0], tempAdj = adj[0];
-              lock[0] = lock[1], adj[0] = adj[1];
-              lock[1] = tempLock, adj[1] = tempAdj;
-            }
-
-            float d;
-            if (pos_dir) {
-              // Normalize adj to smallest value and do the first move
-              (*lock[0])(true);
-              if ((d = adj[1] - adj[0])) do_homing_move(axis, d);
-              // Lock the second stepper for the final correction
-              (*lock[1])(true);
-              if ((d = adj[2] - adj[1])) do_homing_move(axis, d);
               #if NUM_Z_STEPPERS >= 4
-                // Lock the third stepper for the final correction
+                if (adj[3] < adj[2]) {
+                  tempLock = lock[2], tempAdj = adj[2];
+                  lock[2] = lock[3], adj[2] = adj[3];
+                  lock[3] = tempLock, adj[3] = tempAdj;
+                }
+                if (adj[2] < adj[1]) {
+                  tempLock = lock[1], tempAdj = adj[1];
+                  lock[1] = lock[2], adj[1] = adj[2];
+                  lock[2] = tempLock, adj[2] = tempAdj;
+                }
+              #endif
+              if (adj[1] < adj[0]) {
+                tempLock = lock[0], tempAdj = adj[0];
+                lock[0] = lock[1], adj[0] = adj[1];
+                lock[1] = tempLock, adj[1] = tempAdj;
+              }
+
+              float d;
+              if (pos_dir) {
+                // Normalize adj to smallest value and do the first move
+                (*lock[0])(true);
+                if ((d = adj[1] - adj[0])) do_homing_move(axis, d);
+                // Lock the second stepper for the final correction
+                (*lock[1])(true);
+                if ((d = adj[2] - adj[1])) do_homing_move(axis, d);
+                #if NUM_Z_STEPPERS >= 4
+                  // Lock the third stepper for the final correction
+                  (*lock[2])(true);
+                  if ((d = adj[3] - adj[2])) do_homing_move(axis, d);
+                #endif
+              }
+              else {
+                #if NUM_Z_STEPPERS >= 4
+                  (*lock[3])(true);
+                  if ((d = adj[2] - adj[3])) do_homing_move(axis, d);
+                #endif
                 (*lock[2])(true);
-                if ((d = adj[3] - adj[2])) do_homing_move(axis, d);
-              #endif
-            }
-            else {
-              #if NUM_Z_STEPPERS >= 4
-                (*lock[3])(true);
-                if ((d = adj[2] - adj[3])) do_homing_move(axis, d);
-              #endif
-              (*lock[2])(true);
-              if ((d = adj[1] - adj[2])) do_homing_move(axis, d);
-              (*lock[1])(true);
-              if ((d = adj[0] - adj[1])) do_homing_move(axis, d);
-            }
-            CODE_N(NUM_Z_STEPPERS,
-              stepper.set_z1_lock(false), stepper.set_z2_lock(false),
-              stepper.set_z3_lock(false), stepper.set_z4_lock(false)
-            );
+                if ((d = adj[1] - adj[2])) do_homing_move(axis, d);
+                (*lock[1])(true);
+                if ((d = adj[0] - adj[1])) do_homing_move(axis, d);
+              }
+              CODE_N(NUM_Z_STEPPERS,
+                stepper.set_z1_lock(false), stepper.set_z2_lock(false),
+                stepper.set_z3_lock(false), stepper.set_z4_lock(false)
+              );
 
-          #endif
+            #endif
+          }
+
+        #endif // Z_MULTI_ENDSTOPS
+
+        // Reset flags for X, Y, Z motor locking
+        switch (axis) {
+          default: break;
+          TERN_(X_DUAL_ENDSTOPS, case X_AXIS:)
+          TERN_(Y_DUAL_ENDSTOPS, case Y_AXIS:)
+          TERN_(Z_MULTI_ENDSTOPS, case Z_AXIS:)
+            stepper.set_separate_multi_axis(false);
         }
 
-      #endif // Z_MULTI_ENDSTOPS
+      #endif // HAS_EXTRA_ENDSTOPS
 
-      // Reset flags for X, Y, Z motor locking
-      switch (axis) {
-        default: break;
-        TERN_(X_DUAL_ENDSTOPS, case X_AXIS:)
-        TERN_(Y_DUAL_ENDSTOPS, case Y_AXIS:)
-        TERN_(Z_MULTI_ENDSTOPS, case Z_AXIS:)
-          stepper.set_separate_multi_axis(false);
-      }
+      #ifdef TMC_HOME_PHASE
+        // move back to homing phase if configured and capable
+        backout_to_tmc_homing_phase(axis);
+      #endif
 
-    #endif // HAS_EXTRA_ENDSTOPS
+      #if IS_SCARA
 
-    #ifdef TMC_HOME_PHASE
-      // move back to homing phase if configured and capable
-      backout_to_tmc_homing_phase(axis);
-    #endif
+        set_axis_is_at_home(axis);
+        sync_plan_position();
 
-    #if IS_SCARA
+      #elif ENABLED(DELTA)
 
-      set_axis_is_at_home(axis);
-      sync_plan_position();
+        // Delta has already moved all three towers up in G28
+        // so here it re-homes each tower in turn.
+        // Delta homing treats the axes as normal linear axes.
 
-    #elif ENABLED(DELTA)
+        const float adjDistance = delta_endstop_adj[axis],
+                    minDistance = (MIN_STEPS_PER_SEGMENT) * planner.mm_per_step[axis];
 
-      // Delta has already moved all three towers up in G28
-      // so here it re-homes each tower in turn.
-      // Delta homing treats the axes as normal linear axes.
+        // Retrace by the amount specified in delta_endstop_adj if more than min steps.
+        if (adjDistance * (Z_HOME_DIR) < 0 && ABS(adjDistance) > minDistance) { // away from endstop, more than min distance
+          if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("adjDistance:", adjDistance);
+          do_homing_move(axis, adjDistance, get_homing_bump_feedrate(axis));
+        }
 
-      const float adjDistance = delta_endstop_adj[axis],
-                  minDistance = (MIN_STEPS_PER_SEGMENT) * planner.mm_per_step[axis];
+      #else // CARTESIAN / CORE / MARKFORGED_XY / MARKFORGED_YX
 
-      // Retrace by the amount specified in delta_endstop_adj if more than min steps.
-      if (adjDistance * (Z_HOME_DIR) < 0 && ABS(adjDistance) > minDistance) { // away from endstop, more than min distance
-        if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("adjDistance:", adjDistance);
-        do_homing_move(axis, adjDistance, get_homing_bump_feedrate(axis));
-      }
+        set_axis_is_at_home(axis);
+        sync_plan_position();
 
-    #else // CARTESIAN / CORE / MARKFORGED_XY / MARKFORGED_YX
+        destination[axis] = position[axis];
 
-      set_axis_is_at_home(axis);
-      sync_plan_position();
+        if (DEBUGGING(LEVELING)) DEBUG_POS("> AFTER set_axis_is_at_home", position);
 
-      destination[axis] = position[axis];
-
-      if (DEBUGGING(LEVELING)) DEBUG_POS("> AFTER set_axis_is_at_home", position);
-
-    #endif
+      #endif
+    } // Restore homing current and Hybrid Threshold
 
     #if ALL(BD_SENSOR, HOMING_Z_WITH_PROBE)
       if (axis == Z_AXIS) bdl.config_state = BDS_IDLE;
@@ -2816,11 +2917,6 @@ void Motion::prepare_line_to_destination() {
     #endif
 
     if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("<<< homeaxis(", C(AXIS_CHAR(axis)), ")");
-
-    //
-    // Restore axis motor(s) current after homing
-    //
-    TERN_(HAS_HOMING_CURRENT, restore_homing_current(axis));
 
   } // homeaxis()
 

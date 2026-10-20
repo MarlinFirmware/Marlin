@@ -1633,7 +1633,13 @@ float Planner::get_axis_position_mm(const AxisEnum axis) {
 
       if (was_enabled) stepper.wake_up();
 
-      axis_steps = ((axis == CORE_AXIS_1) ? p1 - p2 : p2);
+      // Unmix the joined axis. This must be the exact inverse of the mixing
+      // done by Stepper::_set_position and by the block step counts below.
+      #if ENABLED(MARKFORGED_XY)
+        axis_steps = (axis == CORE_AXIS_1) ? p1 TERN(MARKFORGED_INVERSE, +, -) p2 : p2;
+      #else
+        axis_steps = (axis == CORE_AXIS_2) ? p2 TERN(MARKFORGED_INVERSE, +, -) p1 : p1;
+      #endif
     }
     else
       axis_steps = DIFF_TERN(BACKLASH_COMPENSATION, stepper.position(axis), backlash.get_applied_steps(axis));
@@ -1970,14 +1976,14 @@ bool Planner::_populate_block(
     dist_mm.c = CORESIGN(dy - dz);
   #elif ENABLED(MARKFORGED_XY)
     XYZ_CODE(
-      dist_mm.a = dx TERN(MARKFORGED_INVERSE, +, -) dy,
+      dist_mm.a = dx TERN(MARKFORGED_INVERSE, -, +) dy,
       dist_mm.b = dy,
       dist_mm.z = dz
     );
   #elif ENABLED(MARKFORGED_YX)
     XYZ_CODE(
       dist_mm.a = dx,
-      dist_mm.b = dy TERN(MARKFORGED_INVERSE, +, -) dx,
+      dist_mm.b = dy TERN(MARKFORGED_INVERSE, -, +) dx,
       dist_mm.z = dz
     );
   #else
@@ -2433,7 +2439,7 @@ bool Planner::_populate_block(
     block->e_step_ratio_q30 = block->direction_bits.e ? ratio : -ratio;
 
     #if ENABLED(INPUT_SHAPING_E_SYNC)
-      const uint32_t xy_steps = TERN0(INPUT_SHAPING_X, block->steps.x) + TERN0(INPUT_SHAPING_Y, block->steps.y);
+      const uint32_t xy_steps = block->steps.x + block->steps.y;
       block->xy_length_inv_q30 = xy_steps ? (_BV32(30) / xy_steps) : 0;
     #endif
   #endif
@@ -3214,11 +3220,8 @@ void Planner::refresh_acceleration_rates() {
 void Planner::refresh_positioning() {
   #if ENABLED(EDITABLE_STEPS_PER_UNIT)
     LOOP_DISTINCT_AXES(i) mm_per_step[i] = 1.0f / settings.axis_steps_per_mm[i];
-    #if ALL(NONLINEAR_EXTRUSION, SMOOTH_LIN_ADVANCE)
-      stepper.nle.q30.A = _BV32(30) * (stepper.nle.settings.coeff.A * sq(mm_per_step[E_AXIS_N(0)]));
-      stepper.nle.q30.B = _BV32(30) * (stepper.nle.settings.coeff.B * mm_per_step[E_AXIS_N(0)]);
-    #endif
   #endif
+  TERN_(SMOOTH_LIN_ADVANCE, TERN_(NONLINEAR_EXTRUSION, stepper.refresh_nle_q30()));
   set_position_mm(motion.position);
   refresh_acceleration_rates();
 }

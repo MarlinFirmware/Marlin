@@ -47,6 +47,17 @@
   #include <usbd_cdc_if.h>
 #endif
 
+#if defined(STM32G0B0xx) || defined(STM32G0B1xx) || defined(STM32G0C1xx)
+  // Errata 2.2.10: Prefetch may fail on branches and calls across Flash banks, corrupting code
+  // execution. If the image reaches bank 2, disable it right after HAL_Init() (premain, priority 101)
+  // and before static objects.
+  extern uint32_t _sidata, _sdata, _edata; // From the linker script
+  __attribute__((constructor(102))) static void disable_flash_prefetch() {
+    const uint32_t image_end = uint32_t(&_sidata) + (uint32_t(&_edata) - uint32_t(&_sdata));
+    if (image_end > FLASH_BASE + (FLASH_SIZE >> 1)) __HAL_FLASH_PREFETCH_BUFFER_DISABLE(); // Physical banks, regardless of DUAL_BANK
+  }
+#endif
+
 // ------------------------
 // Public Variables
 // ------------------------
@@ -124,6 +135,9 @@ uint8_t MarlinHAL::get_reset_source() {
     #ifdef RCC_FLAG_IWDG2RST
       RESET != __HAL_RCC_GET_FLAG(RCC_FLAG_IWDG2RST) ? RST_WATCHDOG :
     #endif
+    #ifdef RCC_FLAG_WWDGRST
+      RESET != __HAL_RCC_GET_FLAG(RCC_FLAG_WWDGRST)  ? RST_WATCHDOG :
+    #endif
     #ifdef RCC_FLAG_SFTRST
       RESET != __HAL_RCC_GET_FLAG(RCC_FLAG_SFTRST)   ? RST_SOFTWARE :
     #endif
@@ -132,6 +146,9 @@ uint8_t MarlinHAL::get_reset_source() {
     #endif
     #ifdef RCC_FLAG_PORRST
       RESET != __HAL_RCC_GET_FLAG(RCC_FLAG_PORRST)   ? RST_POWER_ON :
+    #endif
+    #ifdef RCC_FLAG_PWRRST // STM32G0/G4/L4/... combine BOR and POR/PDR in one flag
+      RESET != __HAL_RCC_GET_FLAG(RCC_FLAG_PWRRST)   ? RST_POWER_ON :
     #endif
     0
   );

@@ -124,14 +124,14 @@
 #if !defined(MAX_ITEMS) && !defined(ITEM_X) && !defined(ITEM_Y)
   #define MAX_ITEMS                 5
   #define ITEM_X(N)                 (TFT_WIDTH / _MIN(ITEMS_COUNT, MAX_ITEMS) - TEMP_FAN_CONTROL_W) / 2 + (TFT_WIDTH * N / _MIN(ITEMS_COUNT, MAX_ITEMS))
-  #define ITEM_Y                    2
+  #define ITEM_Y                    0
 #endif
 
 #if !defined(COORDINATES_W) && !defined(COORDINATES_H) && !defined(COORDINATES_X) && !defined(COORDINATES_Y)
   #define COORDINATES_W             TFT_WIDTH - 8
   #define COORDINATES_H             FONT_LINE_HEIGHT
   #define COORDINATES_X             4
-  #define COORDINATES_Y             103
+  #define COORDINATES_Y             101
 #endif
 
 #if ENABLED(LCD_SHOW_E_TOTAL)
@@ -169,7 +169,7 @@
   #define FEEDRATE_W                86
   #define FEEDRATE_H                32
   #define FEEDRATE_X                70
-  #define FEEDRATE_Y                134
+  #define FEEDRATE_Y                132
 #endif
 #if !defined(FEEDRATE_ICON_X) && !defined(FEEDRATE_ICON_Y) && !defined(FEEDRATE_ICON_Y) && !defined(FEEDRATE_TEXT_Y)
   #define FEEDRATE_ICON_X           0
@@ -182,7 +182,7 @@
   #define FLOWRATE_W                86
   #define FLOWRATE_H                32
   #define FLOWRATE_X                170
-  #define FLOWRATE_Y                134
+  #define FLOWRATE_Y                132
 #endif
 #if !defined(FLOWRATE_ICON_X) && !defined(FLOWRATE_ICON_Y) && !defined(FLOWRATE_TEXT_X) && !defined(FLOWRATE_TEXT_Y)
   #define FLOWRATE_ICON_X           0
@@ -193,11 +193,11 @@
 
 #if !defined(MENU_ICON_X) && !defined(MENU_ICON_Y)
   #define MENU_ICON_X               256
-  #define MENU_ICON_Y               130
+  #define MENU_ICON_Y               128
 #endif
 #if !defined(SDCARD_ICON_X) && !defined(SDCARD_ICON_Y)
   #define SDCARD_ICON_X             0
-  #define SDCARD_ICON_Y             130
+  #define SDCARD_ICON_Y             128
 #endif
 
 #if !defined(ELAPSED_TIME_W) && !defined(ELAPSED_TIME_H) && !defined(ELAPSED_TIME_X) && !defined(ELAPSED_TIME_Y)
@@ -210,7 +210,7 @@
   #endif
 
   #define ELAPSED_TIME_H            32
-  #define ELAPSED_TIME_Y            168
+  #define ELAPSED_TIME_Y            166
 #endif
 
 #if !defined(REMAINING_TIME_W) && !defined(REMAINING_TIME_H) && !defined(REMAINING_TIME_X) && !defined(REMAINING_TIME_Y)
@@ -223,7 +223,7 @@
   #endif
 
   #define REMAINING_TIME_H          32
-  #define REMAINING_TIME_Y          168
+  #define REMAINING_TIME_Y          166
 #endif
 
 #if !defined(ELAPSED_TIME_IMAGE_X) && !defined(ELAPSED_TIME_IMAGE_Y) && !defined(ELAPSED_TIME_TEXT_X) && !defined(ELAPSED_TIME_TEXT_Y)
@@ -244,19 +244,19 @@
   #define PROGRESS_BAR_W            TFT_WIDTH - 8
   #define PROGRESS_BAR_H            9
   #define PROGRESS_BAR_X            4
-  #define PROGRESS_BAR_Y            202
+  #define PROGRESS_BAR_Y            200
 #endif
 
 #if !defined(STATUS_MESSAGE_W) && !defined(STATUS_MESSAGE_H) && !defined(STATUS_MESSAGE_X) && !defined(STATUS_MESSAGE_Y)
   #define STATUS_MESSAGE_W          TFT_WIDTH
-  #define STATUS_MESSAGE_H          FONT_LINE_HEIGHT
+  #define STATUS_MESSAGE_H          26
   #define STATUS_MESSAGE_X          0
-  #define STATUS_MESSAGE_Y          212
+  #define STATUS_MESSAGE_Y          210
 #endif
 
 #if !defined(STATUS_MESSAGE_TEXT_X) && !defined(STATUS_MESSAGE_TEXT_Y)
   #define STATUS_MESSAGE_TEXT_X     tft_string.center(STATUS_MESSAGE_W)
-  #define STATUS_MESSAGE_TEXT_Y     VCENTER
+  #define STATUS_MESSAGE_TEXT_Y     tft_string.vcenter(STATUS_MESSAGE_H)
 #endif
 
 // MenuEditItemBase::draw_edit_screen()

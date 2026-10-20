@@ -339,7 +339,7 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
  * LCD Info Screen Style
  */
 #if LCD_INFO_SCREEN_STYLE > 0
-  #if HAS_MARLINUI_U8GLIB || LCD_WIDTH < 20 || LCD_HEIGHT < 4
+  #if !HAS_MARLINUI_HD44780 || LCD_WIDTH < 20 || LCD_HEIGHT < 4
     #error "Alternative LCD_INFO_SCREEN_STYLE requires 20x4 Character LCD."
   #elif LCD_INFO_SCREEN_STYLE > 2
     #error "LCD_INFO_SCREEN_STYLE only has options 0 (Classic), 1 (Průša), and 2 (CNC)."
@@ -920,11 +920,11 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
  */
 #if ENABLED(DIFFERENTIAL_EXTRUDER)
   #if EXTRUDERS != 1
-    #error "DIFFERENTIAL EXTRUDER currently requires a single extruder (EXTRUDERS = 1)."
+    #error "DIFFERENTIAL_EXTRUDER currently requires a single extruder (EXTRUDERS = 1)."
   #elif !IS_FULL_CARTESIAN
-    #error "DIFFERENTIAL EXTRUDER requires standard Cartesian kinematics."
+    #error "DIFFERENTIAL_EXTRUDER requires standard Cartesian kinematics."
   #elif !defined(CPU_32_BIT)
-    #error "DIFFERENTIAL EXTRUDER requires a 32-bit CPU."
+    #error "DIFFERENTIAL_EXTRUDER requires a 32-bit CPU."
   #endif
 #endif
 
@@ -3028,8 +3028,8 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
   static_assert(strcmp(STRINGIFY(LCD_LANGUAGE_5), STRINGIFY(LCD_LANGUAGE_4)), "Error: LCD_LANGUAGE_5 (" STRINGIFY(LCD_LANGUAGE) ") cannot be the same as LCD_LANGUAGE_4.");
 #endif
 
-#if ANY(TFT_GENERIC, MKS_TS35_V2_0, MKS_ROBIN_TFT24, MKS_ROBIN_TFT28, MKS_ROBIN_TFT32, MKS_ROBIN_TFT35, MKS_ROBIN_TFT43, MKS_ROBIN_TFT_V1_1R, \
-        TFT_TRONXY_X5SA, ANYCUBIC_TFT35, ANYCUBIC_TFT35, LONGER_LK_TFT28, ANET_ET4_TFT28, ANET_ET5_TFT35, BIQU_BX_TFT70, BTT_TFT35_SPI_V1_0)
+#if ANY(TFT_GENERIC, MKS_TS35_V2_0, MKS_TS24_R_V2_1, MKS_ROBIN_TFT24, MKS_ROBIN_TFT28, MKS_ROBIN_TFT32, MKS_ROBIN_TFT35, MKS_ROBIN_TFT43, MKS_ROBIN_TFT_V1_1R, \
+        TFT_TRONXY_X5SA, ANYCUBIC_TFT35, ANYCUBIC_TFT35, LONGER_LK_TFT28, ANET_ET4_TFT28, ANET_ET5_TFT35, BIQU_BX_TFT70, BTT_TFT35_SPI_V1_0, PRUSA_MINI_LCD)
   #if NONE(TFT_COLOR_UI, TFT_CLASSIC_UI, TFT_LVGL_UI)
     #error "TFT_COLOR_UI, TFT_CLASSIC_UI, TFT_LVGL_UI is required for your TFT. Please enable one."
   #elif MANY(TFT_COLOR_UI, TFT_CLASSIC_UI, TFT_LVGL_UI)
@@ -3051,6 +3051,10 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
 
 #if MANY(TFT_RES_320x240, TFT_RES_480x272, TFT_RES_480x320, TFT_RES_1024x600)
   #error "Please select only one of TFT_RES_320x240, TFT_RES_480x272, TFT_RES_480x320, or TFT_RES_1024x600."
+#endif
+
+#if ENABLED(TFT_FONT_LARGE) && !ALL(TFT_COLOR_UI, HAS_UI_1024x600)
+  #error "TFT_FONT_LARGE requires TFT_COLOR_UI with a 1024x600 TFT (TFT_RES_1024x600)."
 #endif
 
 #if ENABLED(TFT_LVGL_UI)
@@ -3085,6 +3089,20 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
 
 #if ENABLED(ANYCUBIC_LCD_VYPER)
   static_assert(strcmp(STRINGIFY(LCD_LANGUAGE_2), "zh_CN") == 0, "LCD_LANGUAGE_2 must be set to zh_CN for ANYCUBIC_LCD_VYPER.");
+#endif
+
+#if ENABLED(ANYCUBIC_LCD_KOBRA)
+  #ifndef BEEPER_PIN
+    #error "ANYCUBIC_LCD_KOBRA requires BEEPER_PIN"
+  #elif !HAS_MEDIA
+    #error "ANYCUBIC_LCD_KOBRA requires SDSUPPORT"
+  #elif TEMP_SENSOR_BED == 0
+    #error "ANYCUBIC_LCD_KOBRA requires heatbed (TEMP_SENSOR_BED)"
+  #elif NONE(AUTO_BED_LEVELING_BILINEAR, AUTO_BED_LEVELING_UBL, MESH_BED_LEVELING)
+    #error "ANYCUBIC_LCD_KOBRA requires one of: AUTO_BED_LEVELING_BILINEAR, AUTO_BED_LEVELING_UBL or MESH_BED_LEVELING"
+  #elif DISABLED(BABYSTEPPING)
+    #error "ANYCUBIC_LCD_KOBRA requires BABYSTEPPING"
+  #endif
 #endif
 
 #if ENABLED(NO_LCD_SDCARD) && SD_CONNECTION_IS(LCD)
@@ -3143,7 +3161,7 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
 
 // Startup Tune requirements
 #ifdef STARTUP_TUNE
-  #if ANY(ANYCUBIC_LCD_CHIRON, ANYCUBIC_LCD_VYPER)
+  #if ANY(ANYCUBIC_LCD_CHIRON, ANYCUBIC_LCD_KOBRA, ANYCUBIC_LCD_VYPER)
     #error "STARTUP_TUNE should be disabled with ANYCUBIC_LCD_CHIRON or ANYCUBIC_LCD_VYPER."
   #elif !(ALL(HAS_BEEPER, SPEAKER) || USE_MARLINUI_BUZZER)
     #error "STARTUP_TUNE requires a BEEPER_PIN with SPEAKER or USE_MARLINUI_BUZZER."
@@ -3196,12 +3214,14 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
 #else
   #if HAS_DGUS_LCD
     #error "The DGUS LCD requires LCD_SERIAL_PORT to be defined."
-  #elif ANY(ANYCUBIC_LCD_I3MEGA, ANYCUBIC_LCD_CHIRON, ANYCUBIC_LCD_VYPER)
+  #elif ANY(ANYCUBIC_LCD_I3MEGA, ANYCUBIC_LCD_CHIRON, ANYCUBIC_LCD_KOBRA, ANYCUBIC_LCD_VYPER)
     #error "ANYCUBIC_LCD_* requires LCD_SERIAL_PORT to be defined."
   #elif ENABLED(MALYAN_LCD)
     #error "MALYAN_LCD requires LCD_SERIAL_PORT to be defined."
   #elif ENABLED(NEXTION_LCD)
     #error "NEXTION_LCD requires LCD_SERIAL_PORT to be defined."
+  #elif ENABLED(ELEGOO_NEPTUNE_3_TFT)
+    #error "ELEGOO_NEPTUNE_3_TFT requires LCD_SERIAL_PORT to be defined."
   #endif
 #endif
 
@@ -3768,6 +3788,10 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
   #endif
 #endif // HYBRID_THRESHOLD
 
+#if ENABLED(HOMING_HYBRID_THRESHOLD) && DISABLED(HYBRID_THRESHOLD)
+  #error "HOMING_HYBRID_THRESHOLD requires HYBRID_THRESHOLD."
+#endif
+
 // Other TMC feature requirements
 #if ENABLED(SENSORLESS_HOMING) && !HAS_STALLGUARD
   #error "SENSORLESS_HOMING requires TMC2130, TMC2160, TMC2209, TMC2240, TMC2660, or TMC5160 stepper drivers."
@@ -3973,6 +3997,15 @@ static_assert(_PLUS_TEST(3), "DEFAULT_MAX_ACCELERATION values must be positive."
   static_assert(COUNT(sanity_arr_8) >= LOGICAL_AXES, "MANUAL_FEEDRATE requires " _LOGICAL_AXES_STR "elements.");
   static_assert(COUNT(sanity_arr_8) <= LOGICAL_AXES, "MANUAL_FEEDRATE has too many elements. " _LOGICAL_AXES_STR "elements only.");
   static_assert(_PLUS_TEST(8), "MANUAL_FEEDRATE values must be positive.");
+#endif
+
+#if ENABLED(MPCTEMP)
+  constexpr float sanity_arr_9[] = MPC_HEATER_POWER;
+  static_assert(_PLUS_TEST(9), "MPC_HEATER_POWER values must be positive.");
+  constexpr float sanity_arr_10[] = MPC_BLOCK_HEAT_CAPACITY;
+  static_assert(_PLUS_TEST(10), "MPC_BLOCK_HEAT_CAPACITY values must be positive.");
+  constexpr float sanity_arr_11[] = MPC_SENSOR_RESPONSIVENESS;
+  static_assert(_PLUS_TEST(11), "MPC_SENSOR_RESPONSIVENESS values must be positive.");
 #endif
 
 #undef __PLUS_TEST
@@ -4567,6 +4600,21 @@ static_assert(_PLUS_TEST(3), "DEFAULT_MAX_ACCELERATION values must be positive."
 #endif
 
 /**
+ * Require certain features for ELEGOO_NEPTUNE_3_TFT.
+ */
+#if ENABLED(ELEGOO_NEPTUNE_3_TFT)
+  #if !HAS_MEDIA
+    #error "ELEGOO_NEPTUNE_3_TFT requires SDSUPPORT."
+  #elif DISABLED(AUTO_BED_LEVELING_BILINEAR)
+    #error "ELEGOO_NEPTUNE_3_TFT requires AUTO_BED_LEVELING_BILINEAR."
+  #elif !((GRID_MAX_POINTS_X == 6 && GRID_MAX_POINTS_Y == 6) || (GRID_MAX_POINTS_X == 7 && (GRID_MAX_POINTS_Y == 7 || GRID_MAX_POINTS_Y == 9)))
+    #error "ELEGOO_NEPTUNE_3_TFT requires a 6x6 (Pro), 7x7 (Plus), or 7x9 (Max) bed leveling grid."
+  #elif HOTENDS > 1
+    #error "ELEGOO_NEPTUNE_3_TFT supports only one hotend."
+  #endif
+#endif
+
+/**
  * Require certain features for DGUS_LCD_UI E3S1PRO.
  */
 #if DGUS_UI_IS(E3S1PRO)
@@ -4598,6 +4646,54 @@ static_assert(_PLUS_TEST(3), "DEFAULT_MAX_ACCELERATION values must be positive."
     #error "DGUS_LCD_UI E3S1PRO requires 2 preheating presets."
   #elif ENABLED(AUTO_BED_LEVELING_UBL) && DISABLED(UBL_SAVE_ACTIVE_ON_M500)
     #warning "Without UBL_SAVE_ACTIVE_ON_M500, your mesh will not be saved when using the touchscreen."
+  #endif
+#endif
+
+/**
+ * Require certain features for DGUS_LCD_UI CR10SPROV2.
+ */
+#if DGUS_UI_IS(CR10SPROV2)
+  #if !(HOTENDS == 1 && EXTRUDERS == 1)
+    #error "DGUS_LCD_UI CR10SPROV2 requires 1 hotend and 1 extruder."
+  #elif !HAS_HEATED_BED
+    #error "DGUS_LCD_UI CR10SPROV2 requires a heated bed."
+  #elif !HAS_FAN
+    #error "DGUS_LCD_UI CR10SPROV2 requires a fan."
+  #elif !HAS_MEDIA
+    #error "DGUS_LCD_UI CR10SPROV2 requires SDSUPPORT."
+  #elif !HAS_BED_PROBE
+    #error "DGUS_LCD_UI CR10SPROV2 requires a bed probe."
+  #elif !HAS_MESH || GRID_MAX_POINTS_X != 5 || GRID_MAX_POINTS_Y != 5
+    #error "DGUS_LCD_UI CR10SPROV2 requires a 5x5 mesh (GRID_MAX_POINTS_X/Y 5)."
+  #elif DISABLED(BABYSTEPPING)
+    #error "DGUS_LCD_UI CR10SPROV2 requires BABYSTEPPING."
+  #elif !defined(PREHEAT_1_TEMP_HOTEND) || !defined(PREHEAT_2_TEMP_HOTEND)
+    #error "DGUS_LCD_UI CR10SPROV2 requires 2 preheating presets."
+  #elif NUM_RUNOUT_SENSORS > 1
+    #error "DGUS_LCD_UI CR10SPROV2 requires NUM_RUNOUT_SENSORS < 2."
+  #endif
+#endif
+
+/**
+ * Require certain features for DGUS_LCD_UI SERMOON_D1.
+ */
+#if DGUS_UI_IS(SERMOON_D1)
+  #if !(HOTENDS == 1 && EXTRUDERS == 1)
+    #error "DGUS_LCD_UI SERMOON_D1 requires 1 hotend and 1 extruder."
+  #elif !HAS_HEATED_BED
+    #error "DGUS_LCD_UI SERMOON_D1 requires a heated bed."
+  #elif !HAS_FAN
+    #error "DGUS_LCD_UI SERMOON_D1 requires a fan."
+  #elif !HAS_MEDIA
+    #error "DGUS_LCD_UI SERMOON_D1 requires SDSUPPORT."
+  #elif HAS_MESH && (GRID_MAX_POINTS_X > 5 || GRID_MAX_POINTS_Y > 5)
+    #error "DGUS_LCD_UI SERMOON_D1 shows a mesh of up to 5x5 (GRID_MAX_POINTS_X/Y 5)."
+  #elif DISABLED(BABYSTEPPING)
+    #error "DGUS_LCD_UI SERMOON_D1 requires BABYSTEPPING."
+  #elif !defined(PREHEAT_1_TEMP_HOTEND) || !defined(PREHEAT_2_TEMP_HOTEND)
+    #error "DGUS_LCD_UI SERMOON_D1 requires 2 preheating presets."
+  #elif NUM_RUNOUT_SENSORS > 1
+    #error "DGUS_LCD_UI SERMOON_D1 requires NUM_RUNOUT_SENSORS < 2."
   #endif
 #endif
 

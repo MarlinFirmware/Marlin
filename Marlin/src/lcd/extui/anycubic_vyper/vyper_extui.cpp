@@ -49,10 +49,6 @@ namespace ExtUI {
   void onMediaError()   { dgus.mediaEvent(AC_media_error);    }
   void onMediaRemoved() { dgus.mediaEvent(AC_media_removed);  }
 
-  void onHeatingError(const heater_id_t header_id) {}
-  void onMinTempError(const heater_id_t header_id) {}
-  void onMaxTempError(const heater_id_t header_id) {}
-
   void onPlayTone(const uint16_t frequency, const uint16_t duration/*=0*/) {
     #if ENABLED(SPEAKER)
       ::tone(BEEPER_PIN, frequency, duration);
@@ -62,8 +58,6 @@ namespace ExtUI {
   void onPrintTimerStarted() { dgus.timerEvent(AC_timer_started); }
   void onPrintTimerPaused()  { dgus.timerEvent(AC_timer_paused);  }
   void onPrintTimerStopped() { dgus.timerEvent(AC_timer_stopped); }
-
-  void onPrintDone() {}
 
   void onFilamentRunout(const extruder_t)            { dgus.filamentRunout(); }
 
@@ -121,72 +115,10 @@ namespace ExtUI {
     dgus.paramInit();
   }
 
-  void onSettingsStored(const bool success) {
-    // Called after the entire EEPROM has been written,
-    // whether successful or not.
-  }
-
-  void onSettingsLoaded(const bool success) {
-    // Called after the entire EEPROM has been read,
-    // whether successful or not.
-  }
-
-  #if HAS_LEVELING
-    void onLevelingStart() {}
-    void onLevelingDone() {}
-    #if ENABLED(PREHEAT_BEFORE_LEVELING)
-      celsius_t getLevelingBedTemp() { return LEVELING_BED_TEMP; }
-    #endif
-  #endif
-
-  #if HAS_MESH
-    void onMeshUpdate(const int8_t xpos, const int8_t ypos, const float zval) {
-      // Called when any mesh points are updated
-      //SERIAL_ECHOLNPGM("onMeshUpdate() x:", xpos, " y:", ypos, " z:", zval);
-    }
-
-    void onMeshUpdate(const int8_t xpos, const int8_t ypos, const probe_state_t state) {
-      // Called to indicate a special condition
-      //SERIAL_ECHOLNPGM("onMeshUpdate() x:", xpos, " y:", ypos, " state:", state);
-    }
-  #endif
-
-  #if ENABLED(PREVENT_COLD_EXTRUSION)
-    void onSetMinExtrusionTemp(const celsius_t) {}
-  #endif
-
   #if ENABLED(POWER_LOSS_RECOVERY)
-    // Called when power-loss is enabled/disabled
-    void onSetPowerLoss(const bool) { /* nothing to do */ }
-    // Called when power-loss state is detected
-    void onPowerLoss() { /* handled internally */ }
     // Called on resume from power-loss
     void onPowerLossResume() { dgus.powerLossRecovery(); }
   #endif
-
-  #if HAS_PID_HEATING
-    void onPIDTuning(const pidresult_t rst) {
-      // Called for temperature PID tuning result
-    }
-    void onStartM303(const int count, const heater_id_t hid, const celsius_t temp) {
-      // Called by M303 to update the UI
-    }
-  #endif
-
-  #if ENABLED(MPC_AUTOTUNE)
-    void onMPCTuning(const mpcresult_t rst) {
-      // Called for temperature MPC tuning result
-    }
-  #endif
-
-  #if ENABLED(PLATFORM_M997_SUPPORT)
-    void onFirmwareFlash() {}
-  #endif
-
-  void onSteppersDisabled() {}
-  void onSteppersEnabled() {}
-  void onAxisDisabled(const axis_t) {}
-  void onAxisEnabled(const axis_t) {}
 }
 
 #endif // ANYCUBIC_LCD_VYPER

@@ -40,7 +40,7 @@
   #include "probe.h"
 #endif
 
-#if ENABLED(SENSORLESS_HOMING)
+#if ANY(SENSORLESS_HOMING, HOMING_HYBRID_THRESHOLD, HAS_HOMING_CURRENT)
   #include "../feature/tmc_util.h"
   #include "stepper/indirection.h"
 #endif
@@ -240,17 +240,17 @@ void home_delta() {
     #endif
   #endif
 
-  // Set homing current for all motors
-  TERN_(HAS_HOMING_CURRENT, motion.set_homing_current(Z_AXIS));
+  {
+    // Use the homing current and Hybrid Threshold for this move only
+    TERN_(HAS_HOMING_CURRENT, const TemporaryHomingCurrent temp_current(Z_AXIS));
+    TERN_(HOMING_HYBRID_THRESHOLD, const TemporaryHomingHybridThreshold temp_hybrid_thrs(Z_AXIS));
 
-  // Move all carriages together linearly until an endstop is hit.
-  motion.position.z = DIFF_TERN(HAS_BED_PROBE, delta_height + 10, probe.offset.z);
-  motion.goto_current_position(motion.homing_feedrate(Z_AXIS));
-  planner.synchronize();
-  TERN_(HAS_DELTA_SENSORLESS_PROBING, endstops.report_states());
-
-  // Restore the homing current for all motors
-  TERN_(HAS_HOMING_CURRENT, motion.restore_homing_current(Z_AXIS));
+    // Move all carriages together linearly until an endstop is hit.
+    motion.position.z = DIFF_TERN(HAS_BED_PROBE, delta_height + 10, probe.offset.z);
+    motion.goto_current_position(motion.homing_feedrate(Z_AXIS));
+    planner.synchronize();
+    TERN_(HAS_DELTA_SENSORLESS_PROBING, endstops.report_states());
+  } // Restore homing current and Hybrid Threshold
 
   // Re-enable stealthChop if used. Disable diag1 pin on driver.
   #if ENABLED(SENSORLESS_HOMING) && DISABLED(ENDSTOPS_ALWAYS_ON_DEFAULT)

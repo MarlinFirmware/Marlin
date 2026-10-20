@@ -371,7 +371,9 @@ bool Marlin::printingIsPaused() {
 }
 
 void Marlin::startOrResumeJob() {
-  if (!printingIsPaused()) {
+  // Reset per-job state only for a new job. A running timer means the job is
+  // already underway (e.g., M24 after M125 or MarlinUI::resume_print resumed it).
+  if (!print_job_timer.isRunning() && !printingIsPaused()) {
     TERN_(GCODE_REPEAT_MARKERS, repeat.reset());
     TERN_(CANCEL_OBJECTS, cancelable.reset());
     TERN_(LCD_SHOW_E_TOTAL, motion.e_move_accumulator = 0);
@@ -440,8 +442,11 @@ void Marlin::manage_inactivity(const bool no_stepper_sleep/*=false*/) {
   const bool do_reset_timeout = no_stepper_sleep
                                || TERN0(PAUSE_PARK_NO_STEPPER_TIMEOUT, did_pause_print);
 
-  // Reset both the M18/M84 activity timeout and the M85 max 'kill' timeout
-  if (do_reset_timeout) gcode.reset_stepper_timeout(ms);
+  // Reset both the M18/M84 activity timeout and the M85 max 'kill' timeout.
+  // Resonance blocks bypass the planner queue, so keep the stepper timeout
+  // (and M85 max-inactive kill) from firing while a test is running.
+  if (do_reset_timeout || TERN0(RESONANCE_TEST, rtg.isActive()))
+    gcode.reset_stepper_timeout(ms);
 
   if (gcode.stepper_max_timed_out(ms)) {
     SERIAL_ERROR_START();

@@ -28,6 +28,7 @@
 
 #if HAL_SD_HOST_DRIVE
 
+#include "../../../MarlinCore.h"
 #include "../../../sd/cardreader.h"
 
 #include "msc_sd.h"
@@ -61,12 +62,14 @@ public:
   }
 
   bool GetCapacity(uint32_t *pBlockNum, uint16_t *pBlockSize) {
+    if (!IsReady()) return false;
     *pBlockNum = diskIODriver()->cardSize();
     *pBlockSize = BLOCK_SIZE;
     return true;
   }
 
   bool Write(uint8_t *pBuf, uint32_t blkAddr, uint16_t blkLen) {
+    if (!IsReady()) return false;
     auto sd2card = diskIODriver();
     // single block
     if (blkLen == 1) {
@@ -97,6 +100,7 @@ public:
   }
 
   bool Read(uint8_t *pBuf, uint32_t blkAddr, uint16_t blkLen) {
+    if (!IsReady()) return false;
     auto sd2card = diskIODriver();
     // single block
     if (blkLen == 1) {
@@ -126,7 +130,9 @@ public:
     return done;
   }
 
-  bool IsReady() { return diskIODriver()->isReady(); }
+  // Report "no medium" until setup() is complete, so the host can't access
+  // the card while Marlin is still initializing and mounting it.
+  bool IsReady() { return marlin.isRunning() && diskIODriver()->isReady(); }
 };
 
 Sd2CardUSBMscHandler usbMscHandler;
@@ -151,8 +157,10 @@ uint8_t  Marlin_STORAGE_Inquirydata[] = { /* 36 */
 USBMscHandler *pSingleMscHandler = &usbMscHandler;
 
 void MSC_SD_init() {
-  USBDevice.end();
-  delay(200);
+  // The CDC+MSC composite class is already active and the handlers are looked up
+  // on each request, so there's no need to re-enumerate. Restarting USB here,
+  // while the host may still be enumerating, left the board unrecognized when
+  // the cable was plugged in at power-on.
   USBDevice.registerMscHandlers(1, &pSingleMscHandler, Marlin_STORAGE_Inquirydata);
   USBDevice.begin();
 }
