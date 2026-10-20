@@ -830,6 +830,9 @@ namespace LanguageNarrow_hu {
   LSTR MSG_ADVANCE_TAU                    = _UxGT("Advance Tau");                              // Advance Tau
   LSTR MSG_ADVANCE_TAU_E                  = _UxGT("Advance Tau *");                            // Advance Tau *
   LSTR MSG_NLE_ON                         = _UxGT("NLE bekapcsolva");                          // NLE enabled
+  LSTR MSG_NLE_A                          = _UxGT("-Négyzetes");                               // -Quadratic
+  LSTR MSG_NLE_B                          = _UxGT("-Lineáris");                                // -Linear
+  LSTR MSG_NLE_C                          = _UxGT("-Állandó");                                 // -Constant
   LSTR MSG_HOTEND_TEMP_GRAPH              = _UxGT("Fej hőfok grafikon");                       // Hotend Temp Graph
   LSTR MSG_BED_TEMP_GRAPH                 = _UxGT("Ágy hőfok grafikon");                       // Bed Temp Graph
   LSTR MSG_EEPROM_INITIALIZED             = _UxGT("EEPROM inicializálva");                     // EEPROM Initialized

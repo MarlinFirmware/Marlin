@@ -302,26 +302,32 @@ constexpr uint8_t index_of_axis(const AxisEnum axis E_OPTARG(const uint8_t einde
 //
 #if ENABLED(NONLINEAR_EXTRUSION)
 
+  struct NonlinearCoeff {
+    static constexpr float nonlinear_factors[3] =
+      #ifdef NONLINEAR_FACTORS
+        NONLINEAR_FACTORS
+      #else
+        { 0.0f, 0.0f, 1.0f }
+      #endif
+    ;
+    float A = nonlinear_factors[0],
+          B = nonlinear_factors[1],
+          C = nonlinear_factors[2];
+    void reset() { *this = NonlinearCoeff{}; }
+  };
+
+  struct NonlinearSettings {
+    bool enabled = ENABLED(NONLINEAR_EXTRUSION_DEFAULT_ON);
+    NonlinearCoeff coeff;
+    void reset() { *this = NonlinearSettings{}; }
+  };
+
   #if DISABLED(SMOOTH_LIN_ADVANCE)
     #define NONLINEAR_EXTRUSION_Q24 1
   #endif
 
   typedef struct {
-    float A, B, C;
-    void reset() { A = B = 0.0f; C = 1.0f; }
-  } nonlinear_coeff_t;
-
-  typedef struct {
-    bool enabled;
-    nonlinear_coeff_t coeff;
-    void reset() {
-      enabled = ENABLED(NONLINEAR_EXTRUSION_DEFAULT_ON);
-      coeff.reset();
-    }
-  } nonlinear_settings_t;
-
-  typedef struct {
-    nonlinear_settings_t settings;
+    NonlinearSettings settings;
     union {
       struct { int32_t A, B, C; } q24;
       struct { int32_t A, B, C; } q30;

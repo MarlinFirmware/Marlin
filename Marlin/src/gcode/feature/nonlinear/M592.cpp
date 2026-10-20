@@ -30,7 +30,7 @@
 void GcodeSuite::M592_report(const bool forReplay/*=true*/) {
   TERN_(MARLIN_SMALL_BUILD, return);
   report_heading_etc(forReplay, F(STR_NONLINEAR_EXTRUSION));
-  const nonlinear_settings_t &sns = stepper.nle.settings;
+  const NonlinearSettings &sns = stepper.nle.settings;
   SERIAL_ECHOLNPGM("  M592 S", sns.enabled, " A", sns.coeff.A, " B", sns.coeff.B, " C", sns.coeff.C);
 }
 
@@ -48,7 +48,7 @@ void GcodeSuite::M592_report(const bool forReplay/*=true*/) {
 void GcodeSuite::M592() {
   if (!parser.seen_any()) return M592_report();
 
-  nonlinear_settings_t &sns = stepper.nle.settings;
+  NonlinearSettings &sns = stepper.nle.settings;
 
   if (parser.seen('S')) sns.enabled = parser.value_bool();
   if (parser.seenval('A')) sns.coeff.A = parser.value_float();

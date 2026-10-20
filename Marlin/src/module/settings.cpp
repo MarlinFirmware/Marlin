@@ -698,7 +698,7 @@ typedef struct SettingsDataStruct {
   // Nonlinear Extrusion
   //
   #if ENABLED(NONLINEAR_EXTRUSION)
-    nonlinear_settings_t stepper_ne_settings;           // M592 S A B C
+    NonlinearSettings stepper_ne_settings;              // M592 S A B C
   #endif
 
   //

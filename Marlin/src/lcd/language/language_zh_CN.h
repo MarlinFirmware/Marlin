@@ -825,6 +825,9 @@ namespace LanguageNarrow_zh_CN {
   LSTR MSG_ADVANCE_TAU                    = _UxGT("Advance Tau");                              // Advance Tau
   LSTR MSG_ADVANCE_TAU_E                  = _UxGT("Advance Tau *");                            // Advance Tau *
   LSTR MSG_NLE_ON                         = _UxGT("NLE已启用");                                   // NLE enabled
+  LSTR MSG_NLE_A                          = _UxGT("-二次");                                      // -Quadratic
+  LSTR MSG_NLE_B                          = _UxGT("-一次");                                      // -Linear
+  LSTR MSG_NLE_C                          = _UxGT("-常数");                                      // -Constant
   LSTR MSG_HOTEND_TEMP_GRAPH              = _UxGT("热端温度曲线");                                   // Hotend Temp Graph
   LSTR MSG_BED_TEMP_GRAPH                 = _UxGT("热床温度曲线");                                   // Bed Temp Graph
   LSTR MSG_EEPROM_INITIALIZED             = _UxGT("EEPROM已初始化");                               // EEPROM Initialized
