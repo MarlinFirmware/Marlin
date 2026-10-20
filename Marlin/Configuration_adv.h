@@ -627,8 +627,8 @@
   #define CONTROLLER_FAN_BED_HEATING        // Turn on the fan when heating the bed
 
   //#define CONTROLLER_FAN_EDITABLE         // Enable M710 configurable settings
-  #if ENABLED(CONTROLLER_FAN_EDITABLE)
-    #define CONTROLLER_FAN_MENU             // Enable the Controller Fan submenu
+  #if ALL(CONTROLLER_FAN_EDITABLE, HAS_MARLINUI_MENU)
+    //#define CONTROLLER_FAN_MENU           // Enable the Controller Fan submenu
   #endif
 #endif
 
