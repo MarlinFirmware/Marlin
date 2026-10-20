@@ -1931,6 +1931,7 @@
   #define GRID_CONST         IF_DISABLED(VARIABLE_GRID_POINTS, const)
   #define GRID_CONSTEXPR     IF_DISABLED(VARIABLE_GRID_POINTS, constexpr)
   #define GRID_VAL(A,B)      (TERN(VARIABLE_GRID_POINTS, A, B))
+  #define GRID_MAX_POINTS ((GRID_MAX_POINTS_X) * (GRID_MAX_POINTS_Y))
 
   #define GRID_LOOP_MAX(A,B)   for (uint8_t A = 0; A < (GRID_MAX_POINTS_X); ++A) for (uint8_t B = 0; B < (GRID_MAX_POINTS_Y); ++B)
   #define GRID_LOOP_USED(A,B)  for (uint8_t A = 0; A < bedlevel.nr_grid_points.x; ++A) for (uint8_t B = 0; B < bedlevel.nr_grid_points.y; ++B)

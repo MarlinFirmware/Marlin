@@ -455,8 +455,10 @@ typedef uint16_t raw_adc_t;
 typedef int16_t celsius_t;
 typedef float celsius_float_t;
 
-// Type large enough to count leveling grid points
-typedef IF<TERN0(ABL_USES_GRID, (GRID_MAX_POINTS > 255)), uint16_t, uint8_t>::type grid_count_t;
+// Type to count and index leveling grid points
+#ifdef GRID_MAX_POINTS
+  typedef IF<TERN0(ABL_USES_GRID, (GRID_MAX_POINTS > 255)), uint16_t, uint8_t>::type grid_count_t;
+#endif
 
 // Conversion macros
 #define MMM_TO_MMS(MM_M) feedRate_t(static_cast<float>(MM_M) / 60.0f)

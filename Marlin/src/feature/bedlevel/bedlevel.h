@@ -66,7 +66,7 @@ void reset_bed_level();
                                   mesh_max{ MESH_MAX_X, MESH_MAX_Y };
       #endif
 
-      static constexpr xy_uint8_t max_points = { GRID_MAX_POINTS_X, GRID_MAX_POINTS_Y; },
+      static constexpr xy_uint8_t max_points = { GRID_MAX_POINTS_X, GRID_MAX_POINTS_Y },
                                   max_cells = { GRID_MAX_POINTS_X - 1, GRID_MAX_POINTS_Y - 1 };
 
       #if ENABLED(VARIABLE_GRID_POINTS)
