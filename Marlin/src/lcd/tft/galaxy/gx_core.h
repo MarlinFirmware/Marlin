@@ -61,7 +61,8 @@ enum GxCmd : uint8_t {
   GA_CELL,    // 8 - mesh cell
   GA_PAGE,    // 9 - file page (0 = up, 1 = down)
   GA_ADJ,     // 10 - heater/fan adjust: arg = (target << 4) | op
-  GA_TXT      // 11 - G-code keyboard key
+  GA_TXT,     // 11 - G-code keyboard key
+  GA_STEP     // 12 - TMC step mode: arg = (driver << 1) | stealthChop
 };
 
 enum GxFont : uint8_t { GXF_S, GXF_L };            // NotoSans 14 (full) / NotoSans 19 (ASCII)
