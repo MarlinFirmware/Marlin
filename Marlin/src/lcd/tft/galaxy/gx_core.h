@@ -124,6 +124,7 @@ bool gx_beep_enabled();
 void gx_header(const char *title, const bool back=true);
 void gx_header_info(const char *info, const uint16_t color=GX_C_DIM, const GxFont font=GXF_S);
 void gx_footer_temps();
+void gx_alert(const char *msg);         // Warning in the footer for a few seconds (static string)
 void gx_footer_msg(const char *msg, const GxIcon icon=GXI_INFO, const uint16_t color=GX_C_DIM);
 void gx_footer_status();
 void gx_tile(const uint16_t x, const uint16_t y, const uint16_t w, const uint16_t h, const GxIcon icon, const uint8_t isz, const char *label, const uint16_t action, const uint16_t color=GX_C_ACC, const char *sub=nullptr, const bool on=false);

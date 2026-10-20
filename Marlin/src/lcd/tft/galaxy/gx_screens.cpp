@@ -98,6 +98,7 @@ static celsius_t gx_pid_temp = 210;
 static uint8_t gx_pid_cycles = 8;
 static bool gx_aborted = false;
 static bool gx_was_printing = false, gx_show_done = false;
+static millis_t gx_start_deadline = 0;   // Print requested: it must start before this time
 // Brightness in percent, kept in ui.brightness so M500 saves it
 static uint8_t gx_brightness() {
   return TERN(HAS_LCD_BRIGHTNESS, uint8_t((uint16_t(ui.brightness) * 100 + 127) / 255), 100);
@@ -540,12 +541,13 @@ static void gx_command(const uint8_t c) {
     case C_DONE_OK:    gx_show_done = false; ui.return_to_status(); gx_invalidate(); break;
     #if HAS_MEDIA
       case C_REPRINT:  // Print the last job again (same file, same folder)
-        if (gx_thumb_has_job() && card.isMounted() && !card.isFileOpen()) {
-          gx_show_done = false;
-          gx_aborted = false;
-          card.openAndPrintFile(gx_job_dosname());
-          ui.return_to_status();
-        }
+        if (!gx_thumb_has_job() || card.isFileOpen()) break;
+        if (!gx_job_file_ok()) { gx_alert("File not found. Insert the media."); break; }
+        gx_show_done = false;
+        gx_aborted = false;
+        gx_start_deadline = millis() + 5000UL;
+        card.openAndPrintFile(gx_job_dosname());
+        ui.return_to_status();
         break;
     #endif
 
@@ -604,12 +606,17 @@ static void gx_command(const uint8_t c) {
       case C_VOL_SD:  gx_open_volume(false); return;
       case C_EJECT:   card.release(); gx_status_msg("Media released"); return;
       case C_REFRESH: card.mount(); gx_status_msg(card.isMounted() ? "Media ready" : "No media"); return;
-      case C_PRINT:
+      case C_PRINT: {
+        // Make sure the file can be opened before leaving the file screen
+        MediaFile dir = card.getWorkDir(), f;
+        if (!card.isMounted() || !f.open(&dir, gx_sel_dos, O_READ)) { gx_alert("Can't open the file. Check the media."); return; }
+        f.close();
         gx_thumb_set_job(gx_sel_dos, gx_sel_long);
         gx_aborted = false;
+        gx_start_deadline = millis() + 5000UL;
         card.openAndPrintFile(gx_sel_dos);
         ui.return_to_status();
-        return;
+      } return;
     #endif
 
     case C_XM: gx_move(X_AXIS, -1); break;
@@ -756,6 +763,11 @@ static void done_draw(const bool full) {
 
 void gx_status_screen() {
   const bool printing = marlin.printingIsActive() || marlin.printingIsPaused();
+  // A requested print that never started (M23 failed): tell the user
+  if (gx_start_deadline) {
+    if (printing) gx_start_deadline = 0;
+    else if (ELAPSED(millis(), gx_start_deadline)) { gx_start_deadline = 0; ui.set_status("Print did not start: file could not be opened"); gx_invalidate(); }
+  }
   #if ENABLED(PRINTCOUNTER)
     // Only a print that really finished counts: also catches M524 / host aborts
     static uint16_t finished_at_start = 0;

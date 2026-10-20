@@ -47,6 +47,13 @@ void gx_thumb_set_job(const char *dosname, const char *longname) {
   job_valid = true;
 }
 bool gx_thumb_has_job() { return job_valid; }
+bool gx_job_file_ok() {
+  if (!job_valid || !card.isMounted()) return false;
+  MediaFile dir = job_dir, f;
+  const bool ok = f.open(&dir, job_dos, O_READ);
+  if (ok) f.close();
+  return ok;
+}
 const char* gx_job_name() { return job_valid ? job_long : card.longest_filename(); }
 const char* gx_job_dosname() { return job_dos; }
 
@@ -164,8 +171,11 @@ static bool thumb_start(const thumb_payload_t *key) {
     hdr[i] = b;
   }
   if (hdr[0] != 'q' || hdr[1] != 'o' || hdr[2] != 'i' || hdr[3] != 'f') return false;
-  const uint32_t w = (uint32_t(hdr[4]) << 24) | (uint32_t(hdr[5]) << 16) | (uint32_t(hdr[6]) << 8) | hdr[7];
-  if (w != key->size) return false;
+  const uint32_t w = (uint32_t(hdr[4]) << 24) | (uint32_t(hdr[5]) << 16) | (uint32_t(hdr[6]) << 8) | hdr[7],
+                 h = (uint32_t(hdr[8]) << 24) | (uint32_t(hdr[9]) << 16) | (uint32_t(hdr[10]) << 8) | hdr[11];
+  if (w != key->size || h != key->size) return false;    // Square thumbnail of the requested size only
+  if (hdr[12] != 3 && hdr[12] != 4) return false;        // Channels: RGB or RGBA
+  if (hdr[13] > 1) return false;                         // Colorspace: sRGB or linear
 
   memset(T.idx, 0, sizeof(T.idx));
   T.px[0] = T.px[1] = T.px[2] = 0; T.px[3] = 255;

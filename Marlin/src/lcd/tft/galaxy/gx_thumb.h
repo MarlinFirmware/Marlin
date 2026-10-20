@@ -25,6 +25,7 @@ void gx_thumb(const int16_t x, const int16_t y, const uint8_t size, const char *
 // Remember the directory and names of the file that is about to be printed
 void gx_thumb_set_job(const char *dosname, const char *longname);
 bool gx_thumb_has_job();
+bool gx_job_file_ok();          // The last job's file can be opened
 const char* gx_job_name();
 const char* gx_job_dosname();
 

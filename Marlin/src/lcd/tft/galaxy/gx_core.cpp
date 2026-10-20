@@ -375,7 +375,13 @@ static const char* gx_temp_pair(const celsius_t cur, const celsius_t tgt) {
   return b;
 }
 
+static const char *gx_alert_msg = nullptr;
+static millis_t gx_alert_until = 0;
+void gx_alert(const char *msg) { gx_alert_msg = msg; gx_alert_until = millis() + 4000UL; ui.set_status(msg); gx_invalidate(); }
+
 void gx_footer_temps() {
+  if (gx_alert_msg && PENDING(millis(), gx_alert_until)) { gx_footer_msg(gx_alert_msg, GXI_WARNING, GX_C_HOT); return; }
+  gx_alert_msg = nullptr;
   gx_footer_frame();
   #if HAS_HOTEND
     const celsius_t nc = thermalManager.wholeDegHotend(0), nt = thermalManager.degTargetHotend(0);
