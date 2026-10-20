@@ -37,6 +37,7 @@
 #include "../../../module/temperature.h"
 #include "../../../module/planner.h"
 #include "../../../module/settings.h"
+#include "../../../sd/cardreader.h"
 #include "../../../libs/buzzer.h"
 
 //#define DEBUG_OUT 1
@@ -184,7 +185,7 @@ uint8_t valueunit;
 uint8_t valuetype;
 
 char statusmsg[64];
-char filename[LONG_FILENAME_LENGTH];
+char filename[LONG_FILENAME_BYTES];
 bool printing = false;
 bool paused = false;
 bool sdprint = false;
@@ -2272,7 +2273,7 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
                 drawFloat(thermalManager.temp_hotend[0].mpc.block_heat_capacity, row, false, 100);
               }
               else
-                modifyValue(thermalManager.temp_hotend[0].mpc.block_heat_capacity, 0, 40, 100);
+                modifyValue(thermalManager.temp_hotend[0].mpc.block_heat_capacity, 0.01f, 40, 100);
               break;
 
             case MPCMENU_SENSOR_RESPONSIVENESS:
@@ -2281,7 +2282,7 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
                 drawFloat(thermalManager.temp_hotend[0].mpc.sensor_responsiveness, row, false, 10000);
               }
               else
-                modifyValue(thermalManager.temp_hotend[0].mpc.sensor_responsiveness, 0, 1, 10000);
+                modifyValue(thermalManager.temp_hotend[0].mpc.sensor_responsiveness, 0.0001f, 1, 10000);
               break;
 
             case MPCMENU_AMBIENT_XFER_COEFF:
@@ -3240,7 +3241,7 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
               #if ENABLED(AUTO_BED_LEVELING_UBL)
                 #if ENABLED(PREHEAT_BEFORE_LEVELING)
                   popupHandler(Popup_Heating);
-                  probe.preheat_for_probing(LEVELING_NOZZLE_TEMP, LEVELING_BED_TEMP);
+                  thermalManager.preheat_for_leveling();
                 #endif
                 #if HAS_BED_PROBE
                   popupHandler(Popup_Level);
@@ -3299,16 +3300,7 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
               mesh_conf.goto_mesh_value = false;
               #if ENABLED(PREHEAT_BEFORE_LEVELING)
                 popupHandler(Popup_Heating);
-                #if HAS_HOTEND
-                  if (thermalManager.degTargetHotend(0) < LEVELING_NOZZLE_TEMP)
-                    thermalManager.setTargetHotend(LEVELING_NOZZLE_TEMP, 0);
-                #endif
-                #if HAS_HEATED_BED
-                  if (thermalManager.degTargetBed() < LEVELING_BED_TEMP)
-                    thermalManager.setTargetBed(LEVELING_BED_TEMP);
-                #endif
-                TERN_(HAS_HOTEND, thermalManager.wait_for_hotend(0));
-                TERN_(HAS_HEATED_BED, thermalManager.wait_for_bed_heating());
+                thermalManager.preheat_for_leveling();
               #endif
               popupHandler(Popup_MoveWait);
               mesh_conf.manual_mesh_move();
@@ -4859,8 +4851,8 @@ void JyersDWIN::modifyOption(const uint8_t value, const char * const * options, 
 
 void JyersDWIN::updateStatus(const char * const text) {
   if (strncmp_P(text, PSTR("<F>"), 3) == 0) {
-    for (uint8_t i = 0; i < _MIN((size_t)LONG_FILENAME_LENGTH, strlen(text)); ++i) filename[i] = text[i + 3];
-    filename[_MIN((size_t)LONG_FILENAME_LENGTH - 1, strlen(text))] = '\0';
+    for (uint8_t i = 0; i < _MIN((size_t)LONG_FILENAME_BYTES, strlen(text)); ++i) filename[i] = text[i + 3];
+    filename[_MIN((size_t)LONG_FILENAME_BYTES - 1, strlen(text))] = '\0';
     drawPrintFilename(true);
   }
   else {

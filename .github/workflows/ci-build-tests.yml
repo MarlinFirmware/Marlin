@@ -105,10 +105,12 @@ jobs:
         # STM32F1
         - chitu_f103
         - mks_robin
+        - mks_robin_e3
         - mks_robin_nano_v1v2
         - PANDA_PI_V29
         - STM32F103RC_btt
         - STM32F103RC_fysetc
+        - STM32F103RE
         - STM32F103RE_btt
         - STM32F103RE_btt_USB
         - STM32F103RE_creality
@@ -118,7 +120,6 @@ jobs:
         #- mks_robin_nano_v1v2_usbmod
         #- STM32F103CB_malyan
         #- STM32F103RC_btt_USB
-        #- STM32F103RE
 
         # STM32F4
         - ARMED
@@ -129,12 +130,14 @@ jobs:
         - STM32F446VE_fysetc
         - LERDGEK
         - LERDGEX
+        - mks_e3d_v2
         - mks_robin_pro2
         - Opulo_Lumen_REV3
         - rumba32
         - STM32F401RC_creality
         - STM32F407VE_black
         - I3DBEEZ9_V1
+        - PRUSA_BUDDY
 
         # STM32F7
         - NUCLEO_F767ZI
@@ -143,6 +146,8 @@ jobs:
         # STM32H7
         - BTT_SKR_SE_BX
         - STM32H743VI_btt
+        - STM32H723VG_btt
+        - STM32H723VG_fysetc
 
         # STM32F1 (Maple)
         - jgaurora_a5s_a1_maple
@@ -163,6 +168,9 @@ jobs:
 
         # HC32
         - HC32F460C_aquila_101
+        - HC32F460C_kobra_max
+        - HC32F460E_kobra_go
+        - HC32F460E_kobra_neo
 
         # GD32F3
         - GD32F303RE_creality_mfl

@@ -110,8 +110,18 @@ class TMenuEditItem : MenuEditItemBase {
       // Make sure minv and maxv fit within int32_t
       const int32_t minv = _MAX(scaleToEncoder(minValue), INT32_MIN),
                     maxv = _MIN(scaleToEncoder(maxValue), INT32_MAX);
-      goto_edit_screen(fstr, ptr, minv, maxv - minv, scaleToEncoder(*ptr) - minv,
-        edit_screen, callback, live);
+      goto_edit_screen(
+          fstr              // Edit label
+        , ptr               // Edit value pointer
+        , minv              // Encoder min
+        , maxv - minv       // Encoder max
+        OPTARG(TFT_COLOR_UI, intptr_t(to_string)) // Value-to-string conversion function
+        OPTARG(TFT_COLOR_TOUCH, NAME::scaleVal()) // Encoder units per displayed unit
+        , scaleToEncoder(*ptr) - minv // Initial encoder value
+        , edit_screen       // Edit screen function
+        , callback          // Callback after edit
+        , live              // Flag to callback during editing
+      );
     }
 };
 
@@ -134,10 +144,13 @@ class TMenuEditItem : MenuEditItemBase {
  */
 #define __DOFIXfloat PROBE()
 #define _DOFIX(TYPE,V) TYPE(TERN(IS_PROBE(__DOFIX##TYPE),FIXFLOAT(V),(V)))
+// Types whose STRFUNC displays the encoder value instead of the stored value (e.g., 0-255 shown as 0-100%)
+#define __SHOWENCpercent PROBE()
 #define DEFINE_MENU_EDIT_ITEM_TYPE(NAME, TYPE, STRFUNC, SCALE, ETC...) \
   struct MenuEditItemInfo_##NAME { \
     typedef TYPE type_t; \
-    /* scale the given value to the encoder */ \
+    /* Encoder units per displayed unit, for converting a typed value */ \
+    static float scaleVal()   { return TERN(IS_PROBE(__SHOWENC##NAME), 1, SCALE); } \
     static int32_t scaleToEncoder(const type_t &value) { return value * (SCALE) ETC; } \
     static type_t unscaleEncoder(const int32_t value) { return type_t(value) / (SCALE) ETC; } \
     static const char* strfunc(const type_t &value) { return STRFUNC(_DOFIX(TYPE,value)); } \
@@ -567,6 +580,7 @@ class MenuItem_bool : public MenuEditItemBase {
 #define EDIT_ITEM_FAST_f_F(TYPE, f, FLABEL, V...)         _MENU_ITEM_f_F(TYPE, f, true, FLABEL, ##V)
 #define EDIT_ITEM_FAST_f(TYPE, f, LABEL, V...)        EDIT_ITEM_FAST_f_F(TYPE, f, GET_TEXT_F(LABEL), ##V)
 
+// Confirm Item inner part with Main label and YES/NO labels, etc.
 #define _CONFIRM_ITEM_INNER_F(FLABEL, V...) do {             \
   if (CLICKED()) {                                           \
     ui.push_current_screen();                                \
@@ -577,7 +591,7 @@ class MenuItem_bool : public MenuEditItemBase {
     (HIGHLIGHTED(), _lcdLineNr, FLABEL, ##V);                \
 }while(0)
 
-// Indexed items set a global index value and optional data
+// Confirm Item with Main label, YES/NO labels, etc.
 #define _CONFIRM_ITEM_F(FLABEL, V...) do { \
   if (MY_LINE()) {                         \
     _skipStatic = false;                   \
@@ -586,12 +600,12 @@ class MenuItem_bool : public MenuEditItemBase {
   NEXT_ITEM();                             \
 }while(0)
 
-// Indexed items set a global index value
+// Confirm Item with Index, String, YES/NO labels, etc.
 #define _CONFIRM_ITEM_N_S_F(N, S, V...) do{ \
   if (MY_LINE()) {                          \
     _skipStatic = false;                    \
     MenuItemBase::init(N, S);               \
-    _CONFIRM_ITEM_INNER_F(TYPE, ##V);       \
+    _CONFIRM_ITEM_INNER_F(V);               \
   }                                         \
   NEXT_ITEM();                              \
 }while(0)
@@ -610,7 +624,7 @@ class MenuItem_bool : public MenuEditItemBase {
 #define CONFIRM_ITEM_N_F(N,FLABEL,A,B,V...)       _CONFIRM_ITEM_N_F(N, FLABEL, GET_TEXT_F(A), GET_TEXT_F(B), ##V)
 #define CONFIRM_ITEM_N(N,LABEL, V...)              CONFIRM_ITEM_N_F(N, GET_TEXT_F(LABEL), ##V)
 
-#define YESNO_ITEM_N_S_F(N,S,FLABEL, V...)      _CONFIRM_ITEM_N_S_F(N, S, FLABEL, MSG_YES, MSG_NO, ##V)
+#define YESNO_ITEM_N_S_F(N,S,FLABEL, V...)       CONFIRM_ITEM_N_S_F(N, S, FLABEL, MSG_YES, MSG_NO, ##V)
 #define YESNO_ITEM_N_S(N,S,LABEL, V...)            YESNO_ITEM_N_S_F(N, S, GET_TEXT_F(LABEL), ##V)
 #define YESNO_ITEM_N_F(N,FLABEL, V...)             CONFIRM_ITEM_N_F(N, FLABEL, MSG_YES, MSG_NO, ##V)
 #define YESNO_ITEM_N(N,LABEL, V...)                  YESNO_ITEM_N_F(N, GET_TEXT_F(LABEL), ##V)

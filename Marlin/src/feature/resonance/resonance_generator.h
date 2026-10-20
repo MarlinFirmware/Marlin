@@ -22,6 +22,7 @@
 #pragma once
 
 #include "../../inc/MarlinConfigPre.h"
+#include "../../core/types.h"
 
 #include <math.h>
 

@@ -41,6 +41,10 @@ GCodeQueue queue;
   #include "../feature/binary_stream.h"
 #endif
 
+#if ENABLED(EXTENSIBLE_UI)
+  #include "../lcd/extui/ui_api.h"
+#endif
+
 #if ENABLED(POWER_LOSS_RECOVERY)
   #include "../feature/powerloss.h"
 #endif
@@ -539,7 +543,7 @@ void GCodeQueue::get_serial_commands() {
         if (command[0] == 'M') switch (command[3]) {
           case '8': if (command[2] == '0' && command[1] == '1') { marlin.end_waiting(); } break;
           case '2': if (command[2] == '1' && command[1] == '1') marlin.kill(FPSTR(M112_KILL_STR), nullptr, true); break;
-          case '0': if (command[1] == '4' && command[2] == '1') motion.quickstop_stepper(); break;
+          case '0': if (command[1] == '4' && command[2] == '1') planner.quick_stop(); break; // M410 in the queue completes the stop
         }
 
         #if NO_TIMEOUTS > 0
@@ -593,6 +597,7 @@ void GCodeQueue::get_serial_commands() {
         if (++sd_read_errors >= SD_MAX_READ_ERRORS) {
           SERIAL_ERROR_MSG(STR_SD_ERR_TOO_MANY_READ_ERRORS, F(STR_PRINT_ABORTED));
           card.abortFilePrintNow();
+          TERN_(EXTENSIBLE_UI, ExtUI::onMediaError());
           break;
         }
         continue;

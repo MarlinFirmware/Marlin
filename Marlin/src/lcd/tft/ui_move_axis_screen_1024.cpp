@@ -51,7 +51,21 @@
 #define X_MARGIN 20
 #define Y_MARGIN 15
 
-#define CUR_STEP_VALUE_WIDTH 104
+// Text area sizes, overridable by the UI layout header (e.g., for TFT_FONT_LARGE)
+#ifndef MOVE_AXIS_VALUE_W
+  #define MOVE_AXIS_VALUE_W   (BTN_WIDTH + X_MARGIN)
+#endif
+#ifndef MOVE_AXIS_STEP_W
+  #define MOVE_AXIS_STEP_W    104
+#endif
+#ifndef MOVE_AXIS_E_NAME_W
+  #define MOVE_AXIS_E_NAME_W  BTN_WIDTH
+#endif
+#ifndef MOVE_AXIS_Z_TYPE_W
+  #define MOVE_AXIS_Z_TYPE_W  BTN_WIDTH
+#endif
+
+#define CUR_STEP_VALUE_WIDTH MOVE_AXIS_STEP_W
 void drawCurStepValue() {
   tft_string.set(ftostr52sp(motionAxisState.currentStepSize));
   tft_string.add(F("mm"));
@@ -63,14 +77,14 @@ void drawCurStepValue() {
 #if HAS_Z_AXIS
   void drawCurZSelection() {
     tft_string.set('Z');
-    tft.canvas(motionAxisState.zTypePos.x, motionAxisState.zTypePos.y, tft_string.width(), 34);
+    tft.canvas(motionAxisState.zTypePos.x, motionAxisState.zTypePos.y, tft_string.width(), FONT_LINE_HEIGHT);
     tft.set_background(COLOR_BACKGROUND);
     tft.add_text(0, 0, Z_BTN_COLOR, tft_string);
 
     tft.queue.sync();
 
     tft_string.set(F("Offset"));
-    tft.canvas(motionAxisState.zTypePos.x, motionAxisState.zTypePos.y + 34, tft_string.width(), 34);
+    tft.canvas(motionAxisState.zTypePos.x, motionAxisState.zTypePos.y + FONT_LINE_HEIGHT, tft_string.width(), FONT_LINE_HEIGHT);
     tft.set_background(COLOR_BACKGROUND);
     #if HAS_BED_PROBE
       if (motionAxisState.z_selection == Z_SELECTION_Z_PROBE)
@@ -81,7 +95,7 @@ void drawCurStepValue() {
 
 #if HAS_EXTRUDERS
   void drawCurESelection() {
-    tft.canvas(motionAxisState.eNamePos.x, motionAxisState.eNamePos.y, BTN_WIDTH, BTN_HEIGHT);
+    tft.canvas(motionAxisState.eNamePos.x, motionAxisState.eNamePos.y, MOVE_AXIS_E_NAME_W, BTN_HEIGHT);
     tft.set_background(COLOR_BACKGROUND);
     tft_string.set('E');
     tft.add_text(0, 0, E_BTN_COLOR, tft_string);
@@ -90,7 +104,8 @@ void drawCurStepValue() {
 #endif
 
 void drawMessage_P(PGM_P const msg) {
-  tft.canvas(X_MARGIN, TFT_HEIGHT - Y_MARGIN - 34, TFT_HEIGHT / 2, 34);
+  const uint16_t h = _MAX(FONT_LINE_HEIGHT, tft_string.font_height()); // Room for tall scripts, e.g., Vietnamese
+  tft.canvas(X_MARGIN, TFT_HEIGHT - Y_MARGIN - FONT_LINE_HEIGHT, TFT_HEIGHT / 2, h);
   tft.set_background(COLOR_BACKGROUND);
   tft.add_text(0, 0, COLOR_STATUS_MESSAGE, msg);
 }
@@ -117,7 +132,7 @@ void drawAxisValue(const AxisEnum axis) {
     #endif
     default: return;
   }
-  tft.canvas(pos.x, pos.y, BTN_WIDTH + X_MARGIN, BTN_HEIGHT);
+  tft.canvas(pos.x, pos.y, MOVE_AXIS_VALUE_W, BTN_HEIGHT);
   tft.set_background(COLOR_BACKGROUND);
   tft_string.set(ftostr52sp(value));
   tft.add_text(0, 0, color, tft_string);
@@ -181,7 +196,7 @@ void MarlinUI::move_axis_screen() {
   #if HAS_EXTRUDERS
     motionAxisState.eNamePos.set(x, y);
     drawCurESelection();
-    TERN_(TOUCH_SCREEN, if (!busy) touch.add_control(BUTTON, x, y, BTN_WIDTH, BTN_HEIGHT, e_select));
+    TERN_(TOUCH_SCREEN, if (!busy) touch.add_control(BUTTON, x, y, MOVE_AXIS_E_NAME_W, BTN_HEIGHT, e_select));
   #endif
 
   x += BTN_WIDTH + spacing;
@@ -202,10 +217,11 @@ void MarlinUI::move_axis_screen() {
   x += BTN_WIDTH + spacing;
 
   #if HAS_Z_AXIS
-    motionAxisState.zTypePos.set(x, y);
+    const int ztype_x = _MIN(x, TFT_WIDTH - X_MARGIN - (MOVE_AXIS_Z_TYPE_W)); // Keep the wider label on screen
+    motionAxisState.zTypePos.set(ztype_x, y);
     drawCurZSelection();
     #if ALL(HAS_BED_PROBE, TOUCH_SCREEN)
-      if (!busy) touch.add_control(BUTTON, x, y, BTN_WIDTH, 34 * 2, z_select);
+      if (!busy) touch.add_control(BUTTON, ztype_x, y, MOVE_AXIS_Z_TYPE_W, FONT_LINE_HEIGHT * 2, z_select);
     #endif
   #endif
 
@@ -239,7 +255,7 @@ void MarlinUI::move_axis_screen() {
   // Current Z
   #if HAS_Z_AXIS
     drawBtn(x, y, "Z-", z_minus, imgDown, Z_BTN_COLOR, !busy || ENABLED(BABYSTEP_ZPROBE_OFFSET)); // Only enabled when not busy or have babystep
-    motionAxisState.zValuePos.set(x, y + BTN_HEIGHT + 2);
+    motionAxisState.zValuePos.set(_MIN(x, TFT_WIDTH - (MOVE_AXIS_VALUE_W)), y + BTN_HEIGHT + 2); // Keep the value on screen
     drawAxisValue(Z_AXIS);
   #endif
 
@@ -247,7 +263,7 @@ void MarlinUI::move_axis_screen() {
    * Row 4: | Step Size | [Disable Steppers] | [Back] |
    *************************************************************************/
 
-  y = TFT_HEIGHT - Y_MARGIN - 32;
+  y = TFT_HEIGHT - Y_MARGIN - TERN(TFT_FONT_LARGE, BTN_HEIGHT, 32);
   x = TFT_WIDTH / 2 - CUR_STEP_VALUE_WIDTH / 2;
   motionAxisState.stepValuePos.set(x, y);
   if (!busy) {

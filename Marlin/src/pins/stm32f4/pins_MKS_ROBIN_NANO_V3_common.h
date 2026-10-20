@@ -171,7 +171,7 @@
 // Power Supply Control
 //
 #if ENABLED(MKS_PWC)
-  #if ENABLED(TFT_LVGL_UI)
+  #if HAS_TFT_LVGL_UI
     #if ENABLED(PSU_CONTROL)
       #error "PSU_CONTROL is incompatible with MKS_PWC plus TFT_LVGL_UI."
     #endif

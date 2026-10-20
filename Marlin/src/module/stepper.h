@@ -177,7 +177,7 @@ constexpr uint8_t index_of_axis(const AxisEnum axis E_OPTARG(const uint8_t einde
     #define SHAPING_MIN_FREQ _MIN(__FLT_MAX__ OPTARG(INPUT_SHAPING_X, SHAPING_FREQ_X) OPTARG(INPUT_SHAPING_Y, SHAPING_FREQ_Y) OPTARG(INPUT_SHAPING_Z, SHAPING_FREQ_Z))
   #endif
   constexpr float shaping_min_freq = SHAPING_MIN_FREQ;
-  constexpr uint16_t shaping_echoes = FLOOR(max_step_rate / shaping_min_freq / 2) + 3;
+  constexpr uint16_t shaping_echoes = uint16_t(max_step_rate / shaping_min_freq / 2) + 3;
 
   typedef hal_timer_t shaping_time_t;
   enum shaping_echo_t { ECHO_NONE = 0, ECHO_FWD = 1, ECHO_BWD = 2 };
@@ -254,21 +254,21 @@ constexpr uint8_t index_of_axis(const AxisEnum axis E_OPTARG(const uint8_t einde
         static bool dequeue_x() { SHAPING_QUEUE_DEQUEUE(x) }
         static bool empty_x() { return head_x == tail; }
         static uint16_t free_count_x() { return _free_count_x; }
-        static uint16_t get_delay_x() { return delay_x; }
+        static shaping_time_t get_delay_x() { return delay_x; }
       #endif
       #if ENABLED(INPUT_SHAPING_Y)
         static shaping_time_t peek_y() { return _peek_y; }
         static bool dequeue_y() { SHAPING_QUEUE_DEQUEUE(y) }
         static bool empty_y() { return head_y == tail; }
         static uint16_t free_count_y() { return _free_count_y; }
-        static uint16_t get_delay_y() { return delay_y; }
+        static shaping_time_t get_delay_y() { return delay_y; }
       #endif
       #if ENABLED(INPUT_SHAPING_Z)
         static shaping_time_t peek_z() { return _peek_z; }
         static bool dequeue_z() { SHAPING_QUEUE_DEQUEUE(z) }
         static bool empty_z() { return head_z == tail; }
         static uint16_t free_count_z() { return _free_count_z; }
-        static uint16_t get_delay_z() { return delay_z; }
+        static shaping_time_t get_delay_z() { return delay_z; }
       #endif
       static void purge() {
         const auto st = shaping_time_t(-1);
@@ -302,26 +302,32 @@ constexpr uint8_t index_of_axis(const AxisEnum axis E_OPTARG(const uint8_t einde
 //
 #if ENABLED(NONLINEAR_EXTRUSION)
 
+  struct NonlinearCoeff {
+    static constexpr float nonlinear_factors[3] =
+      #ifdef NONLINEAR_FACTORS
+        NONLINEAR_FACTORS
+      #else
+        { 0.0f, 0.0f, 1.0f }
+      #endif
+    ;
+    float A = nonlinear_factors[0],
+          B = nonlinear_factors[1],
+          C = nonlinear_factors[2];
+    void reset() { *this = NonlinearCoeff{}; }
+  };
+
+  struct NonlinearSettings {
+    bool enabled = ENABLED(NONLINEAR_EXTRUSION_DEFAULT_ON);
+    NonlinearCoeff coeff;
+    void reset() { *this = NonlinearSettings{}; }
+  };
+
   #if DISABLED(SMOOTH_LIN_ADVANCE)
     #define NONLINEAR_EXTRUSION_Q24 1
   #endif
 
   typedef struct {
-    float A, B, C;
-    void reset() { A = B = 0.0f; C = 1.0f; }
-  } nonlinear_coeff_t;
-
-  typedef struct {
-    bool enabled;
-    nonlinear_coeff_t coeff;
-    void reset() {
-      enabled = ENABLED(NONLINEAR_EXTRUSION_DEFAULT_ON);
-      coeff.reset();
-    }
-  } nonlinear_settings_t;
-
-  typedef struct {
-    nonlinear_settings_t settings;
+    NonlinearSettings settings;
     union {
       struct { int32_t A, B, C; } q24;
       struct { int32_t A, B, C; } q30;
@@ -413,6 +419,9 @@ class Stepper {
 
     #if ENABLED(NONLINEAR_EXTRUSION)
       static nonlinear_t nle;
+      #if ENABLED(SMOOTH_LIN_ADVANCE)
+        static void refresh_nle_q30();
+      #endif
     #endif
 
     #if ENABLED(ADAPTIVE_STEP_SMOOTHING_TOGGLE)
