@@ -112,7 +112,7 @@ float ResonanceGenerator::calc_next_pos() {
   if (phase_fp >= M_TAU_FP) phase_fp -= M_TAU_FP;
   else if (phase_fp < 0) phase_fp += M_TAU_FP;
 
-  // -π <= r <= π
+  // -pi <= r_fp <= pi
   const int32_t r_fp = (phase_fp > M_PI_FP) ? phase_fp - M_TAU_FP : phase_fp;
 
   // Windowing polynomial: 1.0 - r²/π²
@@ -185,6 +185,8 @@ float ResonanceGenerator::calc_next_pos() {
     const int32_t delta_steps = (int32_t)floor(step_accumulator);
     step_accumulator -= delta_steps;
     const uint32_t abs_steps = abs(delta_steps);
+
+    block.initial_rate = uint32_t(_MAX(abs_steps, 1U) / (RESONANCE_TS));
 
     // Update block
     block.steps[rt_params.axis] = abs_steps;
