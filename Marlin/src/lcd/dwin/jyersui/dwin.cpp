@@ -4720,6 +4720,7 @@ void JyersDWIN::popupControl() {
             redrawMenu(true, true, false);
           break;
         case Popup_PurgeMore:
+          marlin.user_resume(); // Break out of ADVANCED_PAUSE_CONTINUOUS_PURGE
           if (selection == 0) {
             pause_menu_response = PAUSE_RESPONSE_EXTRUDE_MORE;
             popupHandler(Popup_FilChange);
