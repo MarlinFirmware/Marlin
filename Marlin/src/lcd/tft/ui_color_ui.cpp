@@ -678,8 +678,10 @@ void MenuEditItemBase::draw_edit_screen(FSTR_P const ftpl, const char * const va
   //ui.defer_status_screen(); // Should already be done by MarlinUI
   TERN_(TOUCH_SCREEN, touch.clear());
 
-  tft.canvas(0, 0, TFT_WIDTH, TFT_HEIGHT);
-  tft.set_background(COLOR_BACKGROUND);
+  #if ENABLED(TOUCH_SCREEN)
+    // The knob ended a keypad entry. Clear the screen once to remove CANC / DONE.
+    if (keypad_entered && !keypad_editing()) { keypad_clear(); ui.refresh(); }
+  #endif
 
   // Only menu item edits get the keypad. Babystep, Move Axis, etc. have no value range to apply it to.
   // Tall displays show it below the slider. Others toggle between slider and keypad.
