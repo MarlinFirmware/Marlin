@@ -47,7 +47,7 @@ Because the framework is upstream, there is **no "mirror to installed package" s
 
 8. **Hardware-PWM pins are GPIO 0–33 only.** `MAX_PWM_IOPIN = 33` in `HAL.h`; `get_pwm_channel()` (HAL.cpp) rejects pins ≥ 34 (input-only) and caps at 15 LEDC channels. Pins 34–39 are input-only on ESP32 — never assign them to heater/fan PWM.
 
-9. **Watchdog is split and partly stubbed.** `USE_WATCHDOG` refreshes the ESP task WDT via `esp_task_wdt_reset()`, but `MarlinHAL::watchdog_init()` is an explicit TODO stub. Separately, `USE_ESP32_TASK_WDT` inits a 10 s task WDT in `init_board()`. Don't rely on `watchdog_init()` doing setup.
+9. **`USE_WATCHDOG` uses the IDF Task Watchdog.** `MarlinHAL::watchdog_init()` sets its timeout (4 s, or 8 s with `WATCHDOG_DURATION_8S`) with reset on timeout, and subscribes the Marlin loop task; `watchdog_refresh()` feeds it with `esp_task_wdt_reset()`, so it must be called from the loop task. Separately, `USE_ESP32_TASK_WDT` (PANDA) inits a 10 s task WDT in `init_board()`, which `watchdog_init()` later overrides.
 
 10. **WiFi builds are size-sensitive.** `WIFISUPPORT` pulls ESPAsyncWebServer + Wi-Fi; `ESP3D_WIFISUPPORT` pulls esp3dlib. `ini/esp32.ini` sets `-DCORE_DEBUG_LEVEL=0` to keep the image small, and `mks_tinybee` adds `build_src_flags = -O3`. If a WiFi-enabled config overflows, check the partition CSV and debug level before touching HAL code.
 
