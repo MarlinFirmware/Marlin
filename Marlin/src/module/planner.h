@@ -313,7 +313,7 @@ typedef struct PlannerBlock {
     uint32_t acceleration_rate;             // Acceleration rate in (2^24 steps)/timer_ticks*s
   #endif
 
-  AxisBits direction_bits;                  // Direction bits set for this block, where 1 is negative motion
+  AxisBits direction_bits;                  // Direction bits set for this block, where 1 is forward motion
 
   #if ENABLED(FT_MOTION)
     ext_distance_t ext_distance_mm;         // The distance traveled in mm along each axis

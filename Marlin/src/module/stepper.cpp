@@ -665,6 +665,7 @@ bool Stepper::disable_axis(const AxisEnum axis) {
     if ((current_block = rtg.generate_resonance_block())) {
       // Apply direction
       DIR_WAIT_BEFORE();
+
       const uint8_t axis = rtg.rt_params.axis;
       const bool fwd = current_block->direction_bits[axis];
       switch (axis) {
