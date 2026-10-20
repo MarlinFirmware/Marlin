@@ -38,6 +38,9 @@ static uint8_t gx_nx[2][GX_W], gx_ny[2][GX_H];
 static const uint16_t gx_neb_color[2] = { GX_RGB(34, 78, 170), GX_RGB(52, 40, 140) };
 
 bool gx_full_redraw = true;
+
+xyze_feedrate_t gx_manual_feedrate_mm_m = MANUAL_FEEDRATE;
+void gx_reset_manual_feedrate() { gx_manual_feedrate_mm_m = MANUAL_FEEDRATE; }
 static uint16_t gx_refresh_ms = 0;
 static millis_t gx_next_refresh = 0;
 

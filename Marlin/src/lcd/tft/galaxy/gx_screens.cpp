@@ -151,6 +151,7 @@ enum GxValue : uint8_t {
   V_PID_T, V_PID_C, V_PROBE_X, V_PROBE_Y, V_FADE,
   V_LA_K, V_UNLOAD, V_LOAD, V_RUNOUT_D,
   V_BRIGHT, V_SLEEP,
+  V_MFR_X, V_MFR_Y, V_MFR_Z, V_MFR_E,
   V_COUNT
 };
 
@@ -203,6 +204,8 @@ static float v_get(const uint8_t v) {
       case V_RUNOUT_D: return runout.runout_distance();
     #endif
     case V_BRIGHT: return gx_brightness();
+    case V_MFR_X: case V_MFR_Y: case V_MFR_Z: case V_MFR_E:
+      return MMM_TO_MMS(gx_manual_feedrate_mm_m[v == V_MFR_E ? E_AXIS : AxisEnum(v - V_MFR_X)]);
     #if HAS_DISPLAY_SLEEP
       case V_SLEEP: return ui.sleep_timeout_minutes;
     #endif
@@ -255,6 +258,8 @@ static void v_set(const uint8_t v, const float f) {
       case V_RUNOUT_D: runout.set_runout_distance(f); break;
     #endif
     case V_BRIGHT: gx_set_brightness(uint8_t(f)); break;
+    case V_MFR_X: case V_MFR_Y: case V_MFR_Z: case V_MFR_E:
+      gx_manual_feedrate_mm_m[v == V_MFR_E ? E_AXIS : AxisEnum(v - V_MFR_X)] = MMS_TO_MMM(f); break;
     #if ALL(HAS_DISPLAY_SLEEP, EDITABLE_DISPLAY_TIMEOUT)
       case V_SLEEP: ui.sleep_timeout_minutes = uint8_t(f); TERN_(TOUCH_SCREEN, touch.wakeUp()); break;
     #endif
@@ -287,6 +292,10 @@ static void v_info(const uint8_t v, const char* &label, const char* &unit, float
     case V_RUNOUT_D: label = "RUNOUT DISTANCE"; unit = "mm"; mx = 100; dec = 1; break;
     case V_BRIGHT: label = "BRIGHTNESS"; unit = "%"; mn = 10; mx = 100; break;
     case V_SLEEP:  label = "SCREEN SLEEP"; unit = "min"; mx = 99; break;
+    case V_MFR_X:  label = "X MOVE SPEED"; unit = "mm/s"; mn = 1; mx = 500; break;
+    case V_MFR_Y:  label = "Y MOVE SPEED"; unit = "mm/s"; mn = 1; mx = 500; break;
+    case V_MFR_Z:  label = "Z MOVE SPEED"; unit = "mm/s"; mn = 0.1f; mx = 50; dec = 1; break;
+    case V_MFR_E:  label = "E MOVE SPEED"; unit = "mm/s"; mn = 0.1f; mx = 50; dec = 1; break;
     default: label = ""; break;
   }
 }
@@ -1598,20 +1607,32 @@ GX_SCREEN(gx_screen_eeprom) {
 // More: TMC drivers and advanced settings
 //////////////////////////////////////////////////////////////////////////////
 
+GX_SCREEN(gx_screen_movespeed) {
+  if (!gx_full()) return;
+  gx_header("MOVE SPEED");
+  constexpr uint16_t W = 460, H = 42;
+  static const char * const names[4] = { "X axis", "Y axis", "Z axis", "Extruder" };
+  static const GxIcon icons[4] = { GXI_AXES, GXI_AXES, GXI_ZOFFSET, GXI_EXTRUDER };
+  for (uint8_t i = 0; i < 4; i++)
+    gx_row(10, 58 + i * 48, W, H, icons[i], names[i], v_str(V_MFR_X + i), "mm/s", GXA(GA_EDIT, V_MFR_X + i), GXT_EDIT);
+  gx_footer_msg("Speeds of the Move screen. Keep with EEPROM > Store");
+}
+
 GX_SCREEN(gx_screen_more) {
   if (!gx_full()) return;
   gx_header("MORE");
-  struct { GxIcon icon; const char *label; uint8_t go; bool on; } t[6] = {
+  struct { GxIcon icon; const char *label; uint8_t go; bool on; } t[7] = {
     { GXI_BOLT,     "TMC drivers", 33, ENABLED(GX_HAS_TMC) },
     { GXI_BOLT,     "Current",     34, ENABLED(GX_HAS_TMC) },
     { GXI_SPEED,    "Hybrid thr.", 35, ALL(GX_HAS_TMC, HYBRID_THRESHOLD) },
     { GXI_MOON,     "Stealth",     36, ALL(GX_HAS_TMC, HAS_STEALTHCHOP) },
     { GXI_TARGET,   "Sensorless",  37, ALL(GX_HAS_TMC, SENSORLESS_HOMING) },
+    { GXI_SPEED,    "Move speed",  39, true },
     { GXI_GEAR,     "Advanced",    38, true }
   };
-  constexpr uint16_t TW = 146, TH = 96;
-  for (uint8_t i = 0; i < 6; i++)
-    gx_tile(10 + (i % 3) * (TW + 11), 62 + (i / 3) * (TH + 8), TW, TH, t[i].icon, 32, t[i].label,
+  constexpr uint16_t TW = 109, TH = 96;
+  for (uint8_t i = 0; i < 7; i++)
+    gx_tile(10 + (i % 4) * (TW + 8), 62 + (i / 4) * (TH + 8), TW, TH, t[i].icon, 32, t[i].label,
             t[i].on ? GXA(GA_GO, t[i].go) : 0, t[i].on ? GX_C_ACC : GX_C_LINE);
   gx_footer_temps();
 }
@@ -1730,6 +1751,7 @@ static void gx_open(const uint8_t id) {
       #endif
     #endif
     case 38: gx_go(menu_advanced_settings); break;
+    case 39: gx_go(gx_screen_movespeed); break;
     case 18: TERN_(TOUCH_SCREEN_CALIBRATION, gx_go(touch_screen_calibration)); break;
     case 19: gx_pid_bed = false; gx_pid_temp = 210; gx_go(gx_screen_pid); break;
     case 20: gx_pid_bed = true;  gx_pid_temp = 60;  gx_go(gx_screen_pid); break;

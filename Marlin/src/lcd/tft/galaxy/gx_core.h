@@ -11,7 +11,7 @@
  */
 #pragma once
 
-#include "../../../inc/MarlinConfigPre.h"
+#include "../../../inc/MarlinConfig.h"
 
 #if ENABLED(NOVIN3DP_GALAXY_UI)
 
@@ -136,6 +136,10 @@ void gx_edit_value(const char *label, const char *unit, const float minv, const 
 void gx_status_screen();             // Home / printing / finished
 void gx_go(void (*screen)());        // Push current screen and open another
 void gx_back();
+
+// Manual move feedrates (mm/min), editable in More > Move speed and saved with M500
+extern xyze_feedrate_t gx_manual_feedrate_mm_m;
+void gx_reset_manual_feedrate();
 
 // Formatting helpers
 const char* gx_ftoa(const float v, const uint8_t decimals);
