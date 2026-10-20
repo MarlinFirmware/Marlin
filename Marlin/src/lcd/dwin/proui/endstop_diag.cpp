@@ -32,13 +32,12 @@
 
 #if ENABLED(DWIN_LCD_PROUI)
 
-#include "dwin_defines.h"
+#include "dwin.h"
 
 #if HAS_ESDIAG
 
 #include "endstop_diag.h"
 #include "../../marlinui.h"
-#include "dwin.h"
 #include "dwin_popup.h"
 
 #if HAS_FILAMENT_SENSOR

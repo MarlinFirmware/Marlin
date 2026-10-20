@@ -71,7 +71,7 @@ void MoveAxisScreen::onRedraw(draw_mode_t what) {
     #endif
   #endif
   #if Z_HOME_TO_MIN
-    w.button(24, GET_TEXT_F(MSG_MOVE_Z_TO_TOP), !axis_should_home(Z_AXIS));
+    w.button(24, GET_TEXT_F(MSG_MOVE_Z_TO_TOP), !motion.axis_should_home(Z_AXIS));
   #endif
   w.increments();
   #ifdef PARKING_COMMAND_GCODE
@@ -132,8 +132,8 @@ bool BaseMoveAxisScreen::onTouchHeld(const uint8_t tag) {
 }
 
 void BaseMoveAxisScreen::raiseZtoTop() {
-  constexpr xyz_feedrate_t homing_feedrate = HOMING_FEEDRATE_MM_M;
-  setAxisPosition_mm(Z_MAX_POS - 5, Z, homing_feedrate.z);
+  constexpr xyz_feedrate_t homing_fr = HOMING_FEEDRATE_MM_M;
+  setAxisPosition_mm(Z_MAX_POS - 5, Z, homing_fr.z);
 }
 
 float BaseMoveAxisScreen::getManualFeedrate(const uint8_t axis, const float increment_mm) {

@@ -38,16 +38,16 @@ uint16_t MarlinHAL::adc_result;
   static inline void HAL_clock_frequencies_dump() {
     auto& rcuInstance = rcu::RCU::get_instance();
     uint32_t freq = rcuInstance.get_clock_frequency(rcu::Clock_Frequency::CK_SYS);
-    SERIAL_ECHOPGM("\nSYSTEM_CLOCK=", freq);
+    SERIAL_ECHO("\nSYSTEM_CLOCK=", freq);
     freq = rcuInstance.get_clock_frequency(rcu::Clock_Frequency::CK_AHB);
-    SERIAL_ECHOPGM("\nABH_CLOCK=", freq);
+    SERIAL_ECHO("\nABH_CLOCK=", freq);
     freq = rcuInstance.get_clock_frequency(rcu::Clock_Frequency::CK_APB1);
-    SERIAL_ECHOPGM("\nAPB1_CLOCK=", freq);
+    SERIAL_ECHO("\nAPB1_CLOCK=", freq);
     freq = rcuInstance.get_clock_frequency(rcu::Clock_Frequency::CK_APB2);
-    SERIAL_ECHOPGM("\nAPB2_CLOCK=", freq,
+    SERIAL_ECHO("\nAPB2_CLOCK=", freq,
     "\nF_CPU=", F_CPU);
     // Done
-    SERIAL_ECHOPGM("\n--\n");
+    SERIAL_ECHO("\n--\n");
   }
 #endif  // MARLIN_DEV_MODE
 

@@ -111,13 +111,13 @@
     template<uint8_t p>
     struct arduino_digital_pin {
       static constexpr uint8_t pin = p;
-      static void set_high()          {digitalWrite(p, HIGH);}
-      static void set_low()           {digitalWrite(p, LOW);}
-      static void set_input()         {pinMode(p, INPUT);}
-      static void set_input_pullup()  {pinMode(p, INPUT_PULLUP);}
-      static void set_output()        {pinMode(p, OUTPUT);}
-      static uint8_t read()           {return digitalRead(p);}
-      static void write(bool v)       {digitalWrite(p, v ? HIGH : LOW);}
+      static void set_high()          { digitalWrite(p, HIGH); }
+      static void set_low()           { digitalWrite(p, LOW); }
+      static void set_input()         { pinMode(p, INPUT); }
+      static void set_input_pullup()  { pinMode(p, INPUT_PULLUP); }
+      static void set_output()        { pinMode(p, OUTPUT); }
+      static uint8_t read()           { return digitalRead(p); }
+      static void write(bool v)       { digitalWrite(p, v ? HIGH : LOW); }
     };
 
     #define MAKE_ARDUINO_PINS(ID) typedef arduino_digital_pin<ID> ARDUINO_DIGITAL_##ID;

@@ -48,7 +48,7 @@ void GcodeSuite::G12() {
 
   // Don't allow nozzle cleaning without homing first
   constexpr main_axes_bits_t clean_axis_mask = main_axes_mask & ~TERN0(NOZZLE_CLEAN_NO_Z, Z_AXIS) & ~TERN0(NOZZLE_CLEAN_NO_Y, Y_AXIS);
-  if (homing_needed_error(clean_axis_mask)) return;
+  if (motion.homing_needed_error(clean_axis_mask)) return;
 
   #ifdef WIPE_SEQUENCE_COMMANDS
     if (!parser.seen_any()) {
@@ -79,11 +79,11 @@ void GcodeSuite::G12() {
     TEMPORARY_BED_LEVELING_STATE(!TEST(cleans, Z_AXIS) && planner.leveling_active);
   #endif
 
-  SET_SOFT_ENDSTOP_LOOSE(!parser.boolval('E'));
+  motion.set_soft_endstop_loose(!parser.boolval('E'));
 
   nozzle.clean(pattern, strokes, radius, objects, cleans);
 
-  SET_SOFT_ENDSTOP_LOOSE(false);
+  motion.set_soft_endstop_loose(false);
 }
 
 #endif // NOZZLE_CLEAN_FEATURE

@@ -64,4 +64,4 @@ void FilamentPromptDialogBox::hide() {
     GOTO_PREVIOUS();
 }
 
-#endif // FTDI_ALERT_DIALOG_BOX
+#endif // FTDI_FILAMENT_PROMPT_DIALOG_BOX

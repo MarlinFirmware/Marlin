@@ -4,19 +4,29 @@ CONTAINER_RT_BIN := docker
 CONTAINER_RT_OPTS := --rm -v $(PWD):/code -v platformio-cache:/root/.platformio
 CONTAINER_IMAGE := marlin-dev
 UNIT_TEST_CONFIG ?= default
+PRETTIER_VERSION ?= 3.9.6
+export PRETTIER_VERSION
 
 # Find a Python 3 interpreter
 ifeq ($(OS),Windows_NT)
 	# Windows: use `where` – fall back through the three common names
 	PYTHON := $(shell which python 2>nul || which python3 2>nul || which py 2>nul)
 	# Windows: Use Python script to find pins files
-	PINS := $(shell $(PYTHON) $(MAKESCRIPTS_DIR)/find.py Marlin/src/pins -mindepth 2 -name 'pins_*.h')
+	ALL_PINS := $(shell $(PYTHON) $(MAKESCRIPTS_DIR)/find.py Marlin/src/pins -mindepth 2 -name 'pins_*.h')
 else
 	# POSIX: use `command -v` – prefer python3 over python
 	PYTHON := $(shell command -v python3 2>/dev/null || command -v python 2>/dev/null)
 	# Unix/Linux: Use find command
-	PINS := $(shell find Marlin/src/pins -mindepth 2 -name 'pins_*.h')
+	ALL_PINS := $(shell find Marlin/src/pins -mindepth 2 -name 'pins_*.h')
 endif
+
+PINSPATH ?=
+PINSPATH := $(patsubst Marlin/src/pins/%,%,$(PINSPATH))
+PINSPATH := $(patsubst %/,%,$(PINSPATH))
+
+# If PINSPATH already contains %, use it directly.
+# Otherwise append /% to match all files below the path.
+PINS := $(if $(PINSPATH),$(filter Marlin/src/pins/$(PINSPATH)/%,$(ALL_PINS)),$(ALL_PINS))
 
 # Check that the found interpreter is Python 3
 # Error if there's no Python 3 available
@@ -33,10 +43,12 @@ help:
 	@echo "Tasks for local development:"
 	@echo "make marlin                    : Build Marlin for the configured board"
 	@echo "make format-pins -j            : Reformat all pins files (-j for parallel execution)"
+	@echo "make format-pins -j PINSPATH=dir : Reformat only pins files under dir"
 	@echo "make validate-lines -j         : Validate line endings, fails on trailing whitespace, etc."
 	@echo "make validate-pins -j          : Validate all pins files, fails if any require reformatting"
 	@echo "make validate-boards -j        : Validate boards.h and pins.h for standards compliance"
 	@echo "make validate-urls             : Validate URLs in source files"
+	@echo "make validate-conditionals     : Validate #if/#endif structure and #define bodies"
 	@echo "make tests-single-ci           : Run a single test from inside the CI"
 	@echo "make tests-single-local        : Run a single test locally"
 	@echo "make tests-single-local-docker : Run a single test locally, using docker"
@@ -161,7 +173,7 @@ format-lines:
 
 validate-lines:
 	@echo "Validating text formatting"
-	@npx prettier --check . --editorconfig --object-wrap preserve --prose-wrap never
+	@npx --yes prettier@$(PRETTIER_VERSION) --check . --editorconfig --object-wrap preserve --prose-wrap never
 
 validate-urls:
 	@echo "Checking URLs in source files"
@@ -174,3 +186,9 @@ BOARDS_FILE := Marlin/src/core/boards.h
 validate-boards:
 	@echo "Validating boards.h file"
 	@$(PYTHON) $(MAKESCRIPTS_DIR)/validate_boards.py $(BOARDS_FILE) || (echo "\nError: boards.h file is not valid. Please check and correct it.\n" && exit 1)
+
+.PHONY: validate-conditionals
+
+validate-conditionals:
+	@echo "Validating preprocessor conditionals"
+	@$(PYTHON) $(MAKESCRIPTS_DIR)/validate_conditionals.py Marlin buildroot || (echo "\nError: malformed preprocessor conditionals. Please check and correct them.\n" && exit 1)

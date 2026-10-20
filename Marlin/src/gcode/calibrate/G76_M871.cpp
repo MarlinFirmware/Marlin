@@ -100,7 +100,7 @@
       const millis_t ms = millis();
       if (ELAPSED(ms, ntr)) {
         ntr = ms + 1000;
-        thermalManager.print_heater_states(active_extruder);
+        thermalManager.print_heater_states(motion.extruder);
       }
       return (timeout && ELAPSED(ms, timeout));
     };
@@ -150,7 +150,7 @@
 
     if (do_bed_cal || do_probe_cal) {
       // Ensure park position is reachable
-      bool reachable = position_is_reachable(parkpos) || WITHIN(parkpos.z, Z_MIN_POS - fslop, Z_MAX_POS + fslop);
+      bool reachable = motion.can_reach(parkpos) || WITHIN(parkpos.z, Z_MIN_POS - fslop, Z_MAX_POS + fslop);
       if (!reachable)
         SERIAL_ECHOLNPGM("!Park");
       else {
@@ -167,7 +167,7 @@
       process_subcommands_now(FPSTR(G28_STR));
     }
 
-    remember_feedrate_scaling_off();
+    motion.remember_feedrate_scaling_off();
 
     /******************************************
      * Calibrate bed temperature offsets
@@ -198,7 +198,7 @@
         report_targets(target_bed, target_probe);
 
         // Park nozzle
-        do_blocking_move_to(parkpos);
+        motion.blocking_move(parkpos);
 
         // Wait for heatbed to reach target temp and probe to cool below target temp
         if (wait_for_temps(target_bed, target_probe, next_temp_report, millis() + MIN_TO_MS(15))) {
@@ -207,7 +207,7 @@
         }
 
         // Move the nozzle to the probing point and wait for the probe to reach target temp
-        do_blocking_move_to(noz_pos_xyz);
+        motion.blocking_move(noz_pos_xyz);
         say_waiting_for_probe_heating();
         SERIAL_EOL();
         while (thermalManager.wholeDegProbe() < target_probe)
@@ -239,7 +239,7 @@
     if (do_probe_cal) {
 
       // Park nozzle
-      do_blocking_move_to(parkpos);
+      motion.blocking_move(parkpos);
 
       // Initialize temperatures
       const celsius_t target_bed = BED_MAX_TARGET;
@@ -258,7 +258,7 @@
       bool timeout = false;
       for (uint8_t idx = 0; idx <= PTC_PROBE_COUNT; idx++) {
         // Move probe to probing point and wait for it to reach target temperature
-        do_blocking_move_to(noz_pos_xyz);
+        motion.blocking_move(noz_pos_xyz);
 
         say_waiting_for_probe_heating();
         SERIAL_ECHOLNPGM(" Bed:", target_bed, " Probe:", target_probe);
@@ -291,7 +291,7 @@
       ptc.print_offsets();
     } // do_probe_cal
 
-    restore_feedrate_and_scaling();
+    motion.restore_feedrate_and_scaling();
   }
 
 #endif // PTC_PROBE && PTC_BED

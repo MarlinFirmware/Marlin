@@ -28,7 +28,7 @@
 
 #define BOARD_INFO_NAME "RUMBA32 (BTT)"
 
-#if NO_EEPROM_SELECTED
+#if SHALL_USE_EEPROM(I2C_EEPROM)
   #define I2C_EEPROM
   #define MARLIN_EEPROM_SIZE             0x1000U  // 4K (24LC32AT-I/OT)
 #endif

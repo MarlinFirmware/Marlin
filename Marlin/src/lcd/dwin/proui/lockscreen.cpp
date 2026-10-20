@@ -32,11 +32,10 @@
 
 #if ENABLED(DWIN_LCD_PROUI)
 
-#include "dwin_defines.h"
+#include "dwin.h"
 
 #if HAS_LOCKSCREEN
 
-#include "dwin.h"
 #include "lockscreen.h"
 
 LockScreen lockScreen;

@@ -43,7 +43,7 @@
  */
 void GcodeSuite::G27() {
   // Don't allow nozzle parking without homing first
-  if (homing_needed_error()) return;
+  if (motion.homing_needed_error()) return;
   const int16_t pval = parser.intval('P');
   if (WITHIN(pval, 0, 4)) {
     nozzle.park(pval);

@@ -33,10 +33,16 @@ void AxisShaping::set_axis_shaping_A(
   OPTARG(HAS_FTM_EI_SHAPING, const float vtol)
 ) {
 
-  const float K = exp(-zeta * M_PI / sqrt(1.f - sq(zeta))),
-              K2 = sq(K),
-              K3 = K2 * K,
-              K4 = K3 * K;
+  const float K = exp(-zeta * M_PI / sqrt(1.f - sq(zeta)));
+  #if ANY(FTM_SHAPER_ZVD, FTM_SHAPER_ZVDD, FTM_SHAPER_ZVDDD, FTM_SHAPER_EI, FTM_SHAPER_2HEI, FTM_SHAPER_3HEI, FTM_SHAPER_MZV)
+    const float K2 = sq(K);
+  #endif
+  #if ANY(FTM_SHAPER_ZVDD, FTM_SHAPER_ZVDDD, FTM_SHAPER_2HEI, FTM_SHAPER_3HEI)
+    const float K3 = K2 * K;
+  #endif
+  #if ANY(FTM_SHAPER_ZVDDD, FTM_SHAPER_3HEI)
+    const float K4 = K3 * K;
+  #endif
 
   switch (shaper) {
 

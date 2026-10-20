@@ -37,7 +37,7 @@ bool GcodeSuite::select_coordinate_system(const int8_t _new) {
   xyz_float_t new_offset{0};
   if (WITHIN(_new, 0, MAX_COORDINATE_SYSTEMS - 1))
     new_offset = coordinate_system[_new];
-  workspace_offset = new_offset;
+  motion.workspace_offset = new_offset;
   return true;
 }
 
@@ -55,7 +55,7 @@ void GcodeSuite::G53() {
   select_coordinate_system(-1);   // Always remove workspace offsets
   #ifdef DEBUG_M53
     SERIAL_ECHOLNPGM("Go to native space");
-    report_current_position();
+    motion.report_position();
   #endif
 
   if (parser.chain()) {       // Command to chain?
@@ -63,7 +63,7 @@ void GcodeSuite::G53() {
     select_coordinate_system(old_system);
     #ifdef DEBUG_M53
       SERIAL_ECHOLNPGM("Go back to workspace ", old_system);
-      report_current_position();
+      motion.report_position();
     #endif
   }
 }
@@ -81,7 +81,7 @@ void G54_59(uint8_t subcode=0) {
   const int8_t _space = parser.codenum - 54 + subcode;
   if (gcode.select_coordinate_system(_space)) {
     SERIAL_ECHOLNPGM("Select workspace ", _space);
-    report_current_position();
+    motion.report_position();
   }
 }
 void GcodeSuite::G54() { G54_59(); }

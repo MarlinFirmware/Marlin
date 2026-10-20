@@ -9,14 +9,25 @@ on:
   issues:
     types: [reopened]
 
+permissions:
+  issues: write
+
 jobs:
   unlock:
     name: Unlock Reopened
     if: github.repository == 'MarlinFirmware/Marlin'
 
     runs-on: ubuntu-22.04
+    timeout-minutes: 10
 
     steps:
-    - uses: OSDKDev/unlock-issues@v1.1
+    - name: Unlock Reopened Issue
+      uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
       with:
-        repo-token: "${{ secrets.GITHUB_TOKEN }}"
+        script: |
+          if (!context.payload.issue.locked) return;
+          await github.rest.issues.unlock({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            issue_number: context.issue.number
+          });

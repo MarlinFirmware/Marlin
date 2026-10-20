@@ -61,11 +61,11 @@
 void GcodeSuite::G34() {
 
   // Home before the alignment procedure
-  home_if_needed();
+  motion.home_if_needed();
 
   TERN_(HAS_LEVELING, TEMPORARY_BED_LEVELING_STATE(false));
 
-  SET_SOFT_ENDSTOP_LOOSE(true);
+  motion.set_soft_endstop_loose(true);
   TemporaryGlobalEndstopsState unlock_z(false);
 
   #ifdef GANTRY_CALIBRATION_COMMANDS_PRE
@@ -77,7 +77,7 @@ void GcodeSuite::G34() {
     // Move XY to safe position
     if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Parking XY");
     const xy_pos_t safe_pos = GANTRY_CALIBRATION_SAFE_POSITION;
-    do_blocking_move_to_xy(safe_pos, MMM_TO_MMS(GANTRY_CALIBRATION_XY_PARK_FEEDRATE));
+    motion.blocking_move_xy(safe_pos, MMM_TO_MMS(GANTRY_CALIBRATION_XY_PARK_FEEDRATE));
   #endif
 
   const float move_distance = parser.intval('Z', GANTRY_CALIBRATION_EXTRA_HEIGHT),
@@ -86,7 +86,7 @@ void GcodeSuite::G34() {
 
   // Move Z to pounce position
   if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Setting Z Pounce");
-  do_blocking_move_to_z(zpounce, homing_feedrate(Z_AXIS));
+  motion.blocking_move_z(zpounce, motion.homing_feedrate(Z_AXIS));
 
   // Store current motor settings, then apply reduced value
 
@@ -133,7 +133,7 @@ void GcodeSuite::G34() {
 
   // Do Final Z move to adjust
   if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Final Z Move");
-  do_blocking_move_to_z(zgrind, MMM_TO_MMS(GANTRY_CALIBRATION_FEEDRATE));
+  motion.blocking_move_z(zgrind, MMM_TO_MMS(GANTRY_CALIBRATION_FEEDRATE));
 
   #if _REDUCE_CURRENT
     // Reset current to original values
@@ -157,14 +157,14 @@ void GcodeSuite::G34() {
 
   // Back off end plate, back to normal motion range
   if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Z Backoff");
-  do_blocking_move_to_z(zpounce, MMM_TO_MMS(GANTRY_CALIBRATION_FEEDRATE));
+  motion.blocking_move_z(zpounce, MMM_TO_MMS(GANTRY_CALIBRATION_FEEDRATE));
 
   #ifdef GANTRY_CALIBRATION_COMMANDS_POST
     if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Running Post Commands");
     process_subcommands_now(F(GANTRY_CALIBRATION_COMMANDS_POST));
   #endif
 
-  SET_SOFT_ENDSTOP_LOOSE(false);
+  motion.set_soft_endstop_loose(false);
 }
 
 #endif // MECHANICAL_GANTRY_CALIBRATION

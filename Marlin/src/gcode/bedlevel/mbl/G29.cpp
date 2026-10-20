@@ -89,7 +89,7 @@ void GcodeSuite::G29() {
     return;
   }
 
-  TERN_(FULL_REPORT_TO_HOST_FEATURE, set_and_report_grblstate(M_PROBE));
+  TERN_(FULL_REPORT_TO_HOST_FEATURE, motion.set_and_report_grblstate(M_PROBE));
 
   int8_t ix, iy;
   ix = iy = 0;
@@ -114,7 +114,7 @@ void GcodeSuite::G29() {
 
         // Position bed horizontally and Z probe vertically.
         #if HAS_SAFE_BED_LEVELING
-          xyze_pos_t safe_position = current_position;
+          xyze_pos_t safe_position = motion.position;
           #ifdef SAFE_BED_LEVELING_START_X
             safe_position.x = SAFE_BED_LEVELING_START_X;
           #endif
@@ -143,7 +143,7 @@ void GcodeSuite::G29() {
             safe_position.w = SAFE_BED_LEVELING_START_W;
           #endif
 
-          do_blocking_move_to(safe_position);
+          motion.blocking_move(safe_position);
         #endif // HAS_SAFE_BED_LEVELING
 
         queue.inject(F("G29S2"));
@@ -162,7 +162,7 @@ void GcodeSuite::G29() {
       // For each G29 S2...
       if (mbl_probe_index == 0) {
         // Move close to the bed before the first point
-        do_blocking_move_to_z(
+        motion.blocking_move_z(
           #ifdef MANUAL_PROBE_START_Z
             MANUAL_PROBE_START_Z
           #else
@@ -172,28 +172,28 @@ void GcodeSuite::G29() {
       }
       else {
         // Save Z for the previous mesh position
-        bedlevel.set_zigzag_z(mbl_probe_index - 1, current_position.z);
-        TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(ix, iy, current_position.z));
-        SET_SOFT_ENDSTOP_LOOSE(false);
+        bedlevel.set_zigzag_z(mbl_probe_index - 1, motion.position.z);
+        TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(ix, iy, motion.position.z));
+        motion.set_soft_endstop_loose(false);
       }
       // If there's another point to sample, move there with optional lift.
       if (mbl_probe_index < GRID_MAX_POINTS) {
         // Disable software endstops to allow manual adjustment
         // If G29 is left hanging without completion they won't be re-enabled!
-        SET_SOFT_ENDSTOP_LOOSE(true);
+        motion.set_soft_endstop_loose(true);
         bedlevel.zigzag(mbl_probe_index++, ix, iy);
         _manual_goto_xy({ bedlevel.index_to_xpos[ix], bedlevel.index_to_ypos[iy] });
       }
       else {
         // Move to the after probing position
-        current_position.z = (
+        motion.position.z = (
           #ifdef Z_AFTER_PROBING
             Z_AFTER_PROBING
           #else
             Z_CLEARANCE_BETWEEN_MANUAL_PROBES
           #endif
         );
-        line_to_current_position();
+        motion.goto_current_position();
         planner.synchronize();
 
         // After recording the last point, activate home and activate
@@ -206,8 +206,8 @@ void GcodeSuite::G29() {
         set_bed_leveling_enabled(true);
 
         #if ENABLED(MESH_G28_REST_ORIGIN)
-          current_position.z = 0;
-          line_to_current_position(homing_feedrate(Z_AXIS));
+          motion.position.z = 0;
+          motion.goto_current_position(motion.homing_feedrate(Z_AXIS));
           planner.synchronize();
         #endif
 
@@ -263,9 +263,9 @@ void GcodeSuite::G29() {
     if (mbl_probe_index > 0) TERN_(HAS_STATUS_MESSAGE, ui.status_printf(0, F(S_FMT " %i/%i"), GET_TEXT(MSG_PROBING_POINT), _MIN(mbl_probe_index, GRID_MAX_POINTS), int(GRID_MAX_POINTS)));
   }
 
-  report_current_position();
+  motion.report_position();
 
-  TERN_(FULL_REPORT_TO_HOST_FEATURE, set_and_report_grblstate(M_IDLE));
+  TERN_(FULL_REPORT_TO_HOST_FEATURE, motion.set_and_report_grblstate(M_IDLE));
 }
 
 #endif // MESH_BED_LEVELING

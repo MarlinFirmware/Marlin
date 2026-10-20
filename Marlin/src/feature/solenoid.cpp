@@ -26,7 +26,7 @@
 
 #include "solenoid.h"
 
-#include "../module/motion.h" // for active_extruder
+#include "../module/motion.h" // for motion.extruder
 #include "../module/tool_change.h" // for parking_extruder_set_parked
 
 // Used primarily with MANUAL_SOLENOID_CONTROL
@@ -38,7 +38,7 @@ static void set_solenoid(const uint8_t num, const uint8_t state) {
   }
 
   #if ENABLED(PARKING_EXTRUDER)
-    if (state == LOW && active_extruder == num) // If active extruder's solenoid is disabled, carriage is considered parked
+    if (state == LOW && motion.extruder == num) // If active extruder's solenoid is disabled, carriage is considered parked
       parking_extruder_set_parked(true);
   #endif
 }

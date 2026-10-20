@@ -27,15 +27,14 @@
  * Date: 2023/01/29
  */
 
-#include "../../../inc/MarlinConfig.h"
+#include "../../../inc/MarlinConfigPre.h"
 
 #if ENABLED(DWIN_LCD_PROUI)
 
-#include "dwin_defines.h"
+#include "dwin.h"
 
 #if PROUI_TUNING_GRAPH
 
-#include "dwin.h"
 #include "../../marlinui.h"
 #include "plot.h"
 

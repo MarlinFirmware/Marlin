@@ -106,13 +106,13 @@
 
     #if HAS_SCARA_OFFSET
 
-      if (parser.seenval('Z')) scara_home_offset.z = parser.value_linear_units();
+      if (parser.seenval('Z')) motion.scara_home_offset.z = parser.value_linear_units();
 
       const bool hasA = parser.seenval('A'), hasP = parser.seenval('P'), hasX = parser.seenval('X');
       const uint8_t sumAPX = hasA + hasP + hasX;
       if (sumAPX) {
         if (sumAPX == 1)
-          scara_home_offset.a = parser.value_float();
+          motion.scara_home_offset.a = parser.value_float();
         else {
           SERIAL_ERROR_MSG("Only one of A, P, or X is allowed.");
           return;
@@ -123,7 +123,7 @@
       const uint8_t sumBTY = hasB + hasT + hasY;
       if (sumBTY) {
         if (sumBTY == 1)
-          scara_home_offset.b = parser.value_float();
+          motion.scara_home_offset.b = parser.value_float();
         else {
           SERIAL_ERROR_MSG("Only one of B, T, or Y is allowed.");
           return;
@@ -140,9 +140,9 @@
     SERIAL_ECHOLNPGM_P(
       PSTR("  M665 S"), segments_per_second
       #if HAS_SCARA_OFFSET
-        , SP_P_STR, scara_home_offset.a
-        , SP_T_STR, scara_home_offset.b
-        , SP_Z_STR, LINEAR_UNIT(scara_home_offset.z)
+        , SP_P_STR, motion.scara_home_offset.a
+        , SP_T_STR, motion.scara_home_offset.b
+        , SP_Z_STR, LINEAR_UNIT(motion.scara_home_offset.z)
       #endif
     );
   }

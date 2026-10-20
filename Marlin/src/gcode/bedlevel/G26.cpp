@@ -174,25 +174,25 @@ void move_to(const float rx, const float ry, const float z, const float e_delta)
 
   const xy_pos_t dest = { rx, ry };
 
-  const bool has_xy_component = dest != current_position, // Check if X or Y is involved in the movement.
+  const bool has_xy_component = dest != motion.position, // Check if X or Y is involved in the movement.
              has_e_component = e_delta != 0.0;
 
   if (z != last_z) {
     last_z = z;
-    destination.set(current_position.x, current_position.y, z, current_position.e);
+    motion.destination.set(motion.position.x, motion.position.y, z, motion.position.e);
     const feedRate_t fr_mm_s = planner.settings.max_feedrate_mm_s[Z_AXIS] * 0.5f; // Use half of the Z_AXIS max feed rate
-    prepare_internal_move_to_destination(fr_mm_s);
+    motion.prepare_internal_move_to_destination(fr_mm_s);
   }
 
   // If X or Y in combination with E is involved do a 'normal' move.
   // If X or Y with no E is involved do a 'fast' move
   // Otherwise retract/recover/hop.
-  destination = dest;
-  destination.e += e_delta;
+  motion.destination = dest;
+  motion.destination.e += e_delta;
   const feedRate_t fr_mm_s = has_xy_component
     ? (has_e_component ? feedRate_t(G26_XY_FEEDRATE) : feedRate_t(G26_XY_FEEDRATE_TRAVEL))
     : planner.settings.max_feedrate_mm_s[E_AXIS] * 0.666f;
-  prepare_internal_move_to_destination(fr_mm_s);
+  motion.prepare_internal_move_to_destination(fr_mm_s);
 }
 
 void move_to(const xyz_pos_t &where, const float de) { move_to(where.x, where.y, where.z, de); }
@@ -229,8 +229,8 @@ typedef struct {
 
   // TODO: Parameterize the Z lift with a define
   void retract_lift_move(const xyz_pos_t &s) {
-    retract_filament(destination);
-    move_to(current_position.x, current_position.y, current_position.z + 0.5f, 0.0f);  // Z lift to minimize scraping
+    retract_filament(motion.destination);
+    move_to(motion.position.x, motion.position.y, motion.position.z + 0.5f, 0.0f);  // Z lift to minimize scraping
     move_to(s.x, s.y, s.z + 0.5f, 0.0f);  // Get to the starting point with no extrusion while lifted
   }
 
@@ -259,7 +259,7 @@ typedef struct {
   void print_line_from_here_to_there(const xyz_pos_t &s, const xyz_pos_t &e) {
 
     // Distances to the start / end of the line
-    xy_float_t svec = current_position - s, evec = current_position - e;
+    xy_float_t svec = motion.position - s, evec = motion.position - e;
 
     const float dist_start = HYPOT2(svec.x, svec.y),
                 dist_end = HYPOT2(evec.x, evec.y),
@@ -279,7 +279,7 @@ typedef struct {
 
     const float e_pos_delta = line_length * g26_e_axis_feedrate * extrusion_multiplier;
 
-    recover_filament(destination);
+    recover_filament(motion.destination);
     move_to(e, e_pos_delta);  // Get to the ending point with an appropriate amount of extrusion
   }
 
@@ -306,7 +306,7 @@ typedef struct {
         LIMIT(e.x, X_MIN_POS + 1, X_MAX_POS - 1);
       #endif
 
-      if (position_is_reachable(s) && position_is_reachable(e))
+      if (motion.can_reach(s) && motion.can_reach(e))
         print_line_from_here_to_there(s, e);
     }
   }
@@ -341,10 +341,10 @@ typedef struct {
     // Start heating the active nozzle
     LCD_MESSAGE_MAX(MSG_G26_HEATING_NOZZLE);
     ui.quick_feedback();
-    thermalManager.setTargetHotend(hotend_temp, active_extruder);
+    thermalManager.setTargetHotend(hotend_temp, motion.extruder);
 
     // Wait for the temperature to stabilize
-    if (!thermalManager.wait_for_hotend(active_extruder, true OPTARG(G26_CLICK_CAN_CANCEL, true)))
+    if (!thermalManager.wait_for_hotend(motion.extruder, true OPTARG(G26_CLICK_CAN_CANCEL, true)))
       return G26_ERR;
 
     ui.reset_status();
@@ -369,13 +369,13 @@ typedef struct {
         LCD_MESSAGE_MAX(MSG_G26_MANUAL_PRIME);
         ui.chirp();
 
-        destination = current_position;
+        motion.destination = motion.position;
 
-        recover_filament(destination); // Make sure G26 doesn't think the filament is retracted().
+        recover_filament(motion.destination); // Make sure G26 doesn't think the filament is retracted().
 
         while (!ui.button_pressed()) {
           ui.chirp();
-          destination.e += 0.25;
+          motion.destination.e += 0.25;
           #if ENABLED(PREVENT_LENGTHY_EXTRUDE)
             Total_Prime += 0.25;
             if (Total_Prime >= EXTRUDE_MAXLENGTH) {
@@ -383,8 +383,8 @@ typedef struct {
               return G26_ERR;
             }
           #endif
-          prepare_internal_move_to_destination(fr_slow_e);
-          destination = current_position;
+          motion.prepare_internal_move_to_destination(fr_slow_e);
+          motion.destination = motion.position;
           planner.synchronize();    // Without this synchronize, the purge is more consistent,
                                     // but because the planner has a buffer, we won't be able
                                     // to stop as quickly. So we put up with the less smooth
@@ -402,11 +402,11 @@ typedef struct {
     {
       LCD_MESSAGE_MAX(MSG_G26_FIXED_LENGTH);
       ui.quick_feedback();
-      destination = current_position;
-      destination.e += prime_length;
-      prepare_internal_move_to_destination(fr_slow_e);
-      destination.e -= prime_length;
-      retract_filament(destination);
+      motion.destination = motion.position;
+      motion.destination.e += prime_length;
+      motion.prepare_internal_move_to_destination(fr_slow_e);
+      motion.destination.e -= prime_length;
+      retract_filament(motion.destination);
     }
 
     return G26_OK;
@@ -500,7 +500,7 @@ void GcodeSuite::G26() {
 
   // Don't allow Mesh Validation without homing first,
   // or if the parameter parsing did not go OK, abort
-  if (homing_needed_error()) return;
+  if (motion.homing_needed_error()) return;
 
   #if HAS_TOOLCHANGE
     // Change the tool first, if specified
@@ -616,7 +616,7 @@ void GcodeSuite::G26() {
 
   // If any preset or temperature was specified
   if (noztemp) {
-    if (!WITHIN(noztemp, 165, thermalManager.hotend_max_target(active_extruder))) {
+    if (!WITHIN(noztemp, 165, thermalManager.hotend_max_target(motion.extruder))) {
       SERIAL_ECHOLNPGM(GCODE_ERR_MSG("Specified nozzle temperature not plausible."));
       return;
     }
@@ -647,10 +647,10 @@ void GcodeSuite::G26() {
     return;
   }
 
-  // Set a position with 'X' and/or 'Y'. Default: current_position
-  g26.xy_pos.set(parser.seenval('X') ? RAW_X_POSITION(parser.value_linear_units()) : current_position.x,
-                 parser.seenval('Y') ? RAW_Y_POSITION(parser.value_linear_units()) : current_position.y);
-  if (!position_is_reachable(g26.xy_pos)) {
+  // Set a position with 'X' and/or 'Y'. Default: motion.position
+  g26.xy_pos.set(parser.seenval('X') ? motion.raw_x(parser.value_linear_units()) : motion.position.x,
+                 parser.seenval('Y') ? motion.raw_y(parser.value_linear_units()) : motion.position.y);
+  if (!motion.can_reach(g26.xy_pos)) {
     SERIAL_ECHOLNPGM(GCODE_ERR_MSG("Specified X,Y coordinate out of bounds."));
     return;
   }
@@ -660,7 +660,7 @@ void GcodeSuite::G26() {
    */
   set_bed_leveling_enabled(!parser.seen_test('D'));
 
-  do_z_clearance(Z_CLEARANCE_BETWEEN_PROBES);
+  motion.do_z_clearance(Z_CLEARANCE_BETWEEN_PROBES);
 
   #if HAS_VOLUMETRIC_EXTRUSION
     bool volumetric_was_enabled = parser.volumetric_enabled;
@@ -670,8 +670,7 @@ void GcodeSuite::G26() {
 
   if (g26.turn_on_heaters() != G26_OK) goto LEAVE;
 
-  current_position.e = 0.0;
-  sync_plan_position_e();
+  motion.set_and_sync_e(0.0f);
 
   if (g26.prime_flag && g26.prime_nozzle() != G26_OK) goto LEAVE;
 
@@ -688,10 +687,10 @@ void GcodeSuite::G26() {
   circle_flags.reset();
 
   // Move nozzle to the specified height for the first layer
-  destination = current_position;
-  destination.z = g26.layer_height;
-  move_to(destination, 0.0);
-  move_to(destination, g26.ooze_amount);
+  motion.destination = motion.position;
+  motion.destination.z = g26.layer_height;
+  move_to(motion.destination, 0.0);
+  move_to(motion.destination, g26.ooze_amount);
 
   TERN_(HAS_MARLINUI_MENU, ui.capture());
 
@@ -719,14 +718,14 @@ void GcodeSuite::G26() {
   TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(location.pos, ExtUI::G26_START));
   do {
     // Find the nearest confluence
-    location = g26.find_closest_circle_to_print(g26.continue_with_closest ? xy_pos_t(current_position) : g26.xy_pos);
+    location = g26.find_closest_circle_to_print(g26.continue_with_closest ? xy_pos_t(motion.position) : g26.xy_pos);
 
     if (location.valid()) {
       TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(location.pos, ExtUI::G26_POINT_START));
       const xy_pos_t circle = { bedlevel.get_mesh_x(location.pos.a), bedlevel.get_mesh_y(location.pos.b) };
 
       // If this mesh location is outside the printable radius, skip it.
-      if (!position_is_reachable(circle)) continue;
+      if (!motion.can_reach(circle)) continue;
 
       // Determine where to start and end the circle,
       // which is always drawn counter-clockwise.
@@ -767,11 +766,11 @@ void GcodeSuite::G26() {
         }
 
         const ab_float_t arc_offset = circle - s;
-        const xy_float_t dist = current_position - s;   // Distance from the start of the actual circle
+        const xy_float_t dist = motion.position - s;   // Distance from the start of the actual circle
         const float dist_start = HYPOT2(dist.x, dist.y);
         const xyze_pos_t endpoint = {
           e.x, e.y, g26.layer_height,
-          current_position.e + (arc_length * g26_e_axis_feedrate * g26.extrusion_multiplier)
+          motion.position.e + (arc_length * g26_e_axis_feedrate * g26.extrusion_multiplier)
         };
 
         if (dist_start > 2.0) {
@@ -782,11 +781,11 @@ void GcodeSuite::G26() {
         s.z = g26.layer_height;
         move_to(s, 0.0);  // Get to the starting point with no extrusion / un-Z lift
 
-        g26.recover_filament(destination);
+        g26.recover_filament(motion.destination);
 
-        { REMEMBER(fr, feedrate_mm_s, PLANNER_XY_FEEDRATE_MM_S * 0.1f);
+        { REMEMBER(fr, motion.feedrate_mm_s, PLANNER_XY_FEEDRATE_MM_S * 0.1f);
           plan_arc(endpoint, arc_offset, false, 0);  // Draw a counter-clockwise arc
-          destination = current_position;
+          motion.destination = motion.position;
         }
 
         if (TERN0(HAS_MARLINUI_MENU, user_canceled())) goto LEAVE; // Check if the user wants to stop the Mesh Validation
@@ -820,7 +819,7 @@ void GcodeSuite::G26() {
 
           #if IS_KINEMATIC
             // Check to make sure this segment is entirely on the bed, skip if not.
-            if (!position_is_reachable(p) || !position_is_reachable(q)) continue;
+            if (!motion.can_reach(p) || !motion.can_reach(q)) continue;
           #elif HAS_ENDSTOPS
             LIMIT(p.x, X_MIN_POS + 1, X_MAX_POS - 1); // Prevent hitting the endstops
             LIMIT(p.y, Y_MIN_POS + 1, Y_MAX_POS - 1);
@@ -851,9 +850,9 @@ void GcodeSuite::G26() {
   LCD_MESSAGE_MIN(MSG_G26_LEAVING);
   TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(location, ExtUI::G26_FINISH));
 
-  g26.retract_filament(destination);
-  destination.z = Z_CLEARANCE_BETWEEN_PROBES;
-  move_to(destination, 0);                                   // Raise the nozzle
+  g26.retract_filament(motion.destination);
+  motion.destination.z = Z_CLEARANCE_BETWEEN_PROBES;
+  move_to(motion.destination, 0);         // Raise the nozzle
 
   #if HAS_VOLUMETRIC_EXTRUSION
     parser.volumetric_enabled = volumetric_was_enabled;
@@ -864,7 +863,7 @@ void GcodeSuite::G26() {
 
   if (!g26.keep_heaters_on) {
     TERN_(HAS_HEATED_BED, thermalManager.setTargetBed(0));
-    thermalManager.setTargetHotend(active_extruder, 0);
+    thermalManager.setTargetHotend(motion.extruder, 0);
   }
 }
 

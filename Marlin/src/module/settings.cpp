@@ -205,6 +205,9 @@ static const feedRate_t _DMF[] PROGMEM = DEFAULT_MAX_FEEDRATE;
 #if ENABLED(EDITABLE_STEPS_PER_UNIT)
   static const float   _DASU[] PROGMEM = DEFAULT_AXIS_STEPS_PER_UNIT;
 #endif
+#if ENABLED(MPCTEMP)
+  static void reset_mpc(const uint8_t e);
+#endif
 
 /**
  * Current EEPROM Layout
@@ -289,6 +292,10 @@ typedef struct SettingsDataStruct {
     xyz_pos_t probe_offset;                             // M851 X Y Z
   #endif
 
+  #if HAS_LEVELING_TEMP_EDIT
+    Temperature::leveling_temp_t leveling_temp;         // thermalManager.leveling_temp
+  #endif
+
   //
   // ABL_PLANAR
   //
@@ -297,13 +304,15 @@ typedef struct SettingsDataStruct {
   //
   // AUTO_BED_LEVELING_BILINEAR
   //
-  uint8_t grid_max_x, grid_max_y;                       // GRID_MAX_POINTS_X, GRID_MAX_POINTS_Y
-  uint16_t grid_check;                                  // Hash to check against X/Y
-  xy_pos_t bilinear_grid_spacing, bilinear_start;       // G29 L F
-  #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
-    bed_mesh_t z_values;                                // G29
-  #else
-    float z_values[3][3];
+  #if HAS_MESH_STORAGE
+    uint8_t grid_max_x, grid_max_y;                     // GRID_MAX_POINTS_X, GRID_MAX_POINTS_Y
+    uint16_t grid_check;                                // Hash to check against X/Y
+    xy_pos_t bilinear_grid_spacing, bilinear_start;     // G29 L F
+    #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
+      bed_mesh_t z_values;                              // G29
+    #else
+      float z_values[3][3];
+    #endif
   #endif
 
   //
@@ -318,8 +327,10 @@ typedef struct SettingsDataStruct {
   //
   // AUTO_BED_LEVELING_UBL
   //
-  bool planner_leveling_active;                         // M420 S  planner.leveling_active
-  int8_t ubl_storage_slot;                              // bedlevel.storage_slot
+  #if HAS_MESH_STORAGE
+    bool planner_leveling_active;                       // M420 S  planner.leveling_active
+    int8_t ubl_storage_slot;                            // bedlevel.storage_slot
+  #endif
 
   //
   // SERVO_ANGLES
@@ -497,6 +508,9 @@ typedef struct SettingsDataStruct {
   //
   per_stepper_uint16_t tmc_stepper_current;             // M906 X Y Z...
   per_stepper_uint32_t tmc_hybrid_threshold;            // M913 X Y Z...
+  #if ENABLED(HOMING_HYBRID_THRESHOLD)
+    homing_hybrid_thrs_t homing_hybrid_thrs;            // M913 H X Y Z...
+  #endif
   mot_stepper_int16_t tmc_sgt;                          // M914 X Y Z...
   per_stepper_bool_t tmc_stealth_enabled;               // M569 X Y Z...
 
@@ -735,7 +749,7 @@ uint16_t MarlinSettings::datasize() { return sizeof(SettingsData); }
 #endif
 
 void MarlinSettings::postprocess() {
-  xyze_pos_t oldpos = current_position;
+  xyze_pos_t oldpos = motion.position;
 
   // steps per s2 needs to be updated to agree with units per s2
   planner.refresh_acceleration_rates();
@@ -754,11 +768,13 @@ void MarlinSettings::postprocess() {
   #endif
 
   // Software endstops depend on home_offset
-  LOOP_NUM_AXES(i) update_software_endstops((AxisEnum)i);
+  LOOP_NUM_AXES(i) motion.update_software_endstops((AxisEnum)i);
 
   TERN_(ENABLE_LEVELING_FADE_HEIGHT, set_z_fade_height(new_z_fade_height, false)); // false = no report
 
-  TERN_(AUTO_BED_LEVELING_BILINEAR, bedlevel.refresh_bed_level());
+  #if ALL(AUTO_BED_LEVELING_BILINEAR, HAS_MESH_STORAGE)
+    bedlevel.refresh_bed_level();
+  #endif
 
   TERN_(HAS_MOTOR_CURRENT_PWM, stepper.refresh_motor_power());
 
@@ -771,12 +787,12 @@ void MarlinSettings::postprocess() {
   TERN_(EXTENSIBLE_UI, ExtUI::onPostprocessSettings());
 
   // Refresh mm_per_step with the reciprocal of axis_steps_per_mm
-  // and init stepper.count[], planner.position[] with current_position
+  // and init stepper.count[], planner.position[] with motion.position
   planner.refresh_positioning();
 
   // Various factors can change the current position
-  if (oldpos != current_position)
-    report_current_position();
+  if (oldpos != motion.position)
+    motion.report_position();
 
   // Moved as last update due to interference with NeoPixel init
   TERN_(HAS_LCD_CONTRAST, ui.refresh_contrast());
@@ -949,14 +965,13 @@ void MarlinSettings::postprocess() {
     #if NUM_AXES
     {
       _FIELD_TEST(home_offset);
-
       #if HAS_SCARA_OFFSET
-        EEPROM_WRITE(scara_home_offset);
+        EEPROM_WRITE(motion.scara_home_offset);
+      #elif HAS_HOME_OFFSET
+        EEPROM_WRITE(motion.home_offset);
       #else
-        #if !HAS_HOME_OFFSET
-          const xyz_pos_t home_offset{0};
-        #endif
-        EEPROM_WRITE(home_offset);
+        const xyz_pos_t _home_offset{0};
+        EEPROM_WRITE(_home_offset);
       #endif
     }
     #endif // NUM_AXES
@@ -968,7 +983,7 @@ void MarlinSettings::postprocess() {
       #if HAS_HOTEND_OFFSET
         // Skip hotend 0 which must be 0
         for (uint8_t e = 1; e < HOTENDS; ++e)
-          EEPROM_WRITE(hotend_offset[e]);
+          EEPROM_WRITE(motion.hotend_offset[e]);
       #endif
     }
 
@@ -1075,6 +1090,14 @@ void MarlinSettings::postprocess() {
     #endif
 
     //
+    // Leveling preheat temperatures
+    //
+    #if HAS_LEVELING_TEMP_EDIT
+      _FIELD_TEST(leveling_temp);
+      EEPROM_WRITE(thermalManager.leveling_temp);
+    #endif
+
+    //
     // Planar Bed Leveling matrix
     //
     {
@@ -1089,6 +1112,7 @@ void MarlinSettings::postprocess() {
     //
     // Bilinear Auto Bed Leveling
     //
+    #if HAS_MESH_STORAGE
     {
       #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
         static_assert(
@@ -1122,6 +1146,7 @@ void MarlinSettings::postprocess() {
         for (uint16_t q = grid_max_x * grid_max_y; q--;) EEPROM_WRITE(dummyf);
       #endif
     }
+    #endif // HAS_MESH_STORAGE
 
     //
     // X Axis Twist Compensation
@@ -1136,6 +1161,7 @@ void MarlinSettings::postprocess() {
     //
     // Unified Bed Leveling
     //
+    #if HAS_MESH_STORAGE
     {
       _FIELD_TEST(planner_leveling_active);
       const bool ubl_active = TERN(AUTO_BED_LEVELING_UBL, planner.leveling_active, false);
@@ -1143,6 +1169,7 @@ void MarlinSettings::postprocess() {
       EEPROM_WRITE(ubl_active);
       EEPROM_WRITE(storage_slot);
     }
+    #endif
 
     //
     // Servo Angles
@@ -1405,7 +1432,7 @@ void MarlinSettings::postprocess() {
     //
     #if ENABLED(EDITABLE_HOMING_FEEDRATE)
       _FIELD_TEST(homing_feedrate_mm_m);
-      EEPROM_WRITE(homing_feedrate_mm_m);
+      EEPROM_WRITE(motion.homing_feedrate_mm_m);
     #endif
 
     //
@@ -1521,6 +1548,14 @@ void MarlinSettings::postprocess() {
       #endif
       EEPROM_WRITE(tmc_hybrid_threshold);
     }
+
+    //
+    // TMC Homing Hybrid Threshold
+    //
+    #if ENABLED(HOMING_HYBRID_THRESHOLD)
+      _FIELD_TEST(homing_hybrid_thrs);
+      EEPROM_WRITE(homing_hybrid_thrs);
+    #endif
 
     //
     // TMC StallGuard threshold
@@ -1888,7 +1923,9 @@ void MarlinSettings::postprocess() {
     const bool success = (eeprom_error == ERR_EEPROM_NOERR);
     if (success) {
       LCD_MESSAGE(MSG_SETTINGS_STORED);
-      TERN_(HOST_PROMPT_SUPPORT, hostui.notify(GET_TEXT_F(MSG_SETTINGS_STORED)));
+      #if ENABLED(HOST_PROMPT_SUPPORT) && DISABLED(HOST_STATUS_NOTIFICATIONS)
+        hostui.notify(GET_TEXT_F(MSG_SETTINGS_STORED));
+      #endif
     }
 
     TERN_(EXTENSIBLE_UI, ExtUI::onSettingsStored(success));
@@ -2031,14 +2068,13 @@ void MarlinSettings::postprocess() {
       #if NUM_AXES
       {
         _FIELD_TEST(home_offset);
-
         #if HAS_SCARA_OFFSET
-          EEPROM_READ(scara_home_offset);
+          EEPROM_READ(motion.scara_home_offset);
+        #elif HAS_HOME_OFFSET
+          EEPROM_READ(motion.home_offset);
         #else
-          #if !HAS_HOME_OFFSET
-            xyz_pos_t home_offset;
-          #endif
-          EEPROM_READ(home_offset);
+          const xyz_pos_t _home_offset{0};
+          EEPROM_READ(_home_offset);
         #endif
       }
       #endif // NUM_AXES
@@ -2050,7 +2086,7 @@ void MarlinSettings::postprocess() {
         #if HAS_HOTEND_OFFSET
           // Skip hotend 0 which must be 0
           for (uint8_t e = 1; e < HOTENDS; ++e)
-            EEPROM_READ(hotend_offset[e]);
+            EEPROM_READ(motion.hotend_offset[e]);
         #endif
       }
 
@@ -2157,6 +2193,14 @@ void MarlinSettings::postprocess() {
       #endif
 
       //
+      // Leveling preheat temperatures
+      //
+      #if HAS_LEVELING_TEMP_EDIT
+        _FIELD_TEST(leveling_temp);
+        EEPROM_READ(thermalManager.leveling_temp);
+      #endif
+
+      //
       // Planar Bed Leveling matrix
       //
       {
@@ -2170,6 +2214,7 @@ void MarlinSettings::postprocess() {
       //
       // Bilinear Auto Bed Leveling
       //
+      #if HAS_MESH_STORAGE
       {
         uint8_t grid_max_x, grid_max_y;
         EEPROM_READ_ALWAYS(grid_max_x);                // 1 byte
@@ -2203,6 +2248,7 @@ void MarlinSettings::postprocess() {
             for (uint16_t q = grid_max_x * grid_max_y; q--;) EEPROM_READ(dummyf);
           }
       }
+      #endif // HAS_MESH_STORAGE
 
       //
       // X Axis Twist Compensation
@@ -2217,6 +2263,7 @@ void MarlinSettings::postprocess() {
       //
       // Unified Bed Leveling active state
       //
+      #if HAS_MESH_STORAGE
       {
         _FIELD_TEST(planner_leveling_active);
         #if ENABLED(AUTO_BED_LEVELING_UBL)
@@ -2226,9 +2273,11 @@ void MarlinSettings::postprocess() {
           bool planner_leveling_active;
           int8_t ubl_storage_slot;
         #endif
+
         EEPROM_READ(planner_leveling_active);
         EEPROM_READ(ubl_storage_slot);
       }
+      #endif
 
       //
       // SERVO_ANGLES
@@ -2512,7 +2561,7 @@ void MarlinSettings::postprocess() {
       //
       #if ENABLED(EDITABLE_HOMING_FEEDRATE)
         _FIELD_TEST(homing_feedrate_mm_m);
-        EEPROM_READ(homing_feedrate_mm_m);
+        EEPROM_READ(motion.homing_feedrate_mm_m);
       #endif
 
       //
@@ -2623,6 +2672,18 @@ void MarlinSettings::postprocess() {
           }
         #endif
       }
+
+      //
+      // TMC Homing Hybrid Threshold
+      //
+      #if ENABLED(HOMING_HYBRID_THRESHOLD)
+        {
+          homing_hybrid_thrs_t homing_hybrid_thrs_in;
+          _FIELD_TEST(homing_hybrid_thrs);
+          EEPROM_READ(homing_hybrid_thrs_in);
+          if (!validating) homing_hybrid_thrs = homing_hybrid_thrs_in;
+        }
+      #endif
 
       //
       // TMC StallGuard threshold.
@@ -2933,7 +2994,18 @@ void MarlinSettings::postprocess() {
       // Model predictive control
       //
       #if ENABLED(MPCTEMP)
-        HOTEND_LOOP() EEPROM_READ(thermalManager.temp_hotend[e].mpc);
+        HOTEND_LOOP() {
+          MPC_t mpc;
+          EEPROM_READ(mpc);
+          if (!validating) {
+            if (mpc.isValid())
+              thermalManager.temp_hotend[e].mpc = mpc;
+            else {
+              SERIAL_WARN_MSG("Invalid MPC for E", e, ". Using defaults.");
+              reset_mpc(e);
+            }
+          }
+        }
       #endif
 
       //
@@ -3074,9 +3146,11 @@ void MarlinSettings::postprocess() {
             bedlevel.reset();
           }
 
-          if (bedlevel.storage_slot >= 0) {
-            load_mesh(bedlevel.storage_slot);
-            DEBUG_ECHOLNPGM("Mesh ", bedlevel.storage_slot, " loaded from storage.");
+          if (TERN0(HAS_MESH_STORAGE, bedlevel.storage_slot >= 0)) {
+            #if HAS_MESH_STORAGE
+              load_mesh(bedlevel.storage_slot);
+              DEBUG_ECHOLNPGM("Mesh ", bedlevel.storage_slot, " loaded from storage.");
+            #endif
           }
           else {
             bedlevel.reset();
@@ -3183,7 +3257,7 @@ void MarlinSettings::postprocess() {
     return false;
   }
 
-  #if ENABLED(AUTO_BED_LEVELING_UBL)
+  #if ALL(AUTO_BED_LEVELING_UBL, HAS_MESH_STORAGE)
 
     static void ubl_invalid_slot(const int s) {
       DEBUG_ECHOLN(F("?Invalid "), F("slot.\n"), s, F(" mesh slots available."));
@@ -3204,7 +3278,7 @@ void MarlinSettings::postprocess() {
     #define MESH_STORE_SIZE sizeof(TERN(OPTIMIZED_MESH_STORAGE, mesh_store_t, bedlevel.z_values))
 
     uint16_t MarlinSettings::calc_num_meshes() {
-      return (meshes_end - meshes_start_index()) / MESH_STORE_SIZE;
+      return _MIN(uint16_t(MAX_SAVED_MESHES), uint16_t((meshes_end - meshes_start_index()) / MESH_STORE_SIZE));
     }
 
     int MarlinSettings::mesh_slot_offset(const int8_t slot) {
@@ -3307,7 +3381,7 @@ void MarlinSettings::postprocess() {
     //void MarlinSettings::delete_mesh() { return; }
     //void MarlinSettings::defrag_meshes() { return; }
 
-  #endif // AUTO_BED_LEVELING_UBL
+  #endif // AUTO_BED_LEVELING_UBL && HAS_MESH_STORAGE
 
 #else // !EEPROM_SETTINGS
 
@@ -3336,6 +3410,53 @@ void MarlinSettings::postprocess() {
   }
 
 #endif // HAS_EARLY_LCD_SETTINGS
+
+#if ENABLED(MPCTEMP)
+
+  static void reset_mpc(const uint8_t e) {
+    constexpr float _mpc_heater_power[] = MPC_HEATER_POWER;
+    static_assert(HOTENDS == COUNT(_mpc_heater_power), "MPC_HEATER_POWER requires values for all (" STRINGIFY(HOTENDS) ") hotends.");
+
+    #if ENABLED(MPC_PTC)
+      constexpr float _mpc_heater_alpha[] = MPC_HEATER_ALPHA;
+      constexpr float _mpc_heater_reftemp[] = MPC_HEATER_REFTEMP;
+      static_assert(HOTENDS == COUNT(_mpc_heater_alpha), "MPC_HEATER_ALPHA requires values for all (" STRINGIFY(HOTENDS) ") hotends.");
+      static_assert(HOTENDS == COUNT(_mpc_heater_reftemp), "MPC_HEATER_REFTEMP requires values for all (" STRINGIFY(HOTENDS) ") hotends.");
+    #endif
+
+    constexpr float _mpc_block_heat_capacity[] = MPC_BLOCK_HEAT_CAPACITY;
+    static_assert(HOTENDS == COUNT(_mpc_block_heat_capacity), "MPC_BLOCK_HEAT_CAPACITY requires values for all (" STRINGIFY(HOTENDS) ") hotends.");
+
+    constexpr float _mpc_sensor_responsiveness[] = MPC_SENSOR_RESPONSIVENESS;
+    static_assert(HOTENDS == COUNT(_mpc_sensor_responsiveness), "MPC_SENSOR_RESPONSIVENESS requires values for all (" STRINGIFY(HOTENDS) ") hotends.");
+
+    constexpr float _mpc_ambient_xfer_coeff[] = MPC_AMBIENT_XFER_COEFF;
+    static_assert(HOTENDS == COUNT(_mpc_ambient_xfer_coeff), "MPC_AMBIENT_XFER_COEFF requires values for all (" STRINGIFY(HOTENDS) ") hotends.");
+
+    #if ENABLED(MPC_INCLUDE_FAN)
+      constexpr float _mpc_ambient_xfer_coeff_fan255[] = MPC_AMBIENT_XFER_COEFF_FAN255;
+      static_assert(HOTENDS == COUNT(_mpc_ambient_xfer_coeff_fan255), "MPC_AMBIENT_XFER_COEFF_FAN255 requires values for all (" STRINGIFY(HOTENDS) ") hotends.");
+    #endif
+
+    constexpr float _filament_heat_capacity_permm[] = FILAMENT_HEAT_CAPACITY_PERMM;
+    static_assert(HOTENDS == COUNT(_filament_heat_capacity_permm), "FILAMENT_HEAT_CAPACITY_PERMM requires values for all (" STRINGIFY(HOTENDS) ") hotends.");
+
+    MPC_t &mpc = thermalManager.temp_hotend[e].mpc;
+    mpc.heater_power = _mpc_heater_power[e];
+    #if ENABLED(MPC_PTC)
+      mpc.heater_alpha = _mpc_heater_alpha[e];
+      mpc.heater_reftemp = _mpc_heater_reftemp[e];
+    #endif
+    mpc.block_heat_capacity = _mpc_block_heat_capacity[e];
+    mpc.sensor_responsiveness = _mpc_sensor_responsiveness[e];
+    mpc.ambient_xfer_coeff_fan0 = _mpc_ambient_xfer_coeff[e];
+    #if ENABLED(MPC_INCLUDE_FAN)
+      mpc.fan255_adjustment = _mpc_ambient_xfer_coeff_fan255[e] - _mpc_ambient_xfer_coeff[e];
+    #endif
+    mpc.filament_heat_capacity_permm = _filament_heat_capacity_permm[e];
+  }
+
+#endif // MPCTEMP
 
 /**
  * M502 - Reset Configuration
@@ -3396,15 +3517,15 @@ void MarlinSettings::reset() {
   // Home Offset
   //
   #if HAS_SCARA_OFFSET
-    scara_home_offset.reset();
+    motion.scara_home_offset.reset();
   #elif HAS_HOME_OFFSET
-    home_offset.reset();
+    motion.home_offset.reset();
   #endif
 
   //
   // Hotend Offsets
   //
-  TERN_(HAS_HOTEND_OFFSET, reset_hotend_offsets());
+  TERN_(HAS_HOTEND_OFFSET, motion.reset_hotend_offsets());
 
   //
   // Spindle Acceleration
@@ -3527,6 +3648,11 @@ void MarlinSettings::reset() {
   #endif
 
   //
+  // Leveling preheat temperatures
+  //
+  TERN_(HAS_LEVELING_TEMP_EDIT, thermalManager.reset_leveling_temp());
+
+  //
   // Z Stepper Auto-alignment points
   //
   TERN_(Z_STEPPER_AUTO_ALIGN, z_stepper_align.reset_to_default());
@@ -3634,7 +3760,7 @@ void MarlinSettings::reset() {
   //
   // Homing Feedrate
   //
-  TERN_(EDITABLE_HOMING_FEEDRATE, homing_feedrate_mm_m = xyz_feedrate_t(HOMING_FEEDRATE_MM_M));
+  TERN_(EDITABLE_HOMING_FEEDRATE, motion.homing_feedrate_mm_m = xyz_feedrate_t(HOMING_FEEDRATE_MM_M));
 
   //
   // TMC Homing Current
@@ -3657,6 +3783,28 @@ void MarlinSettings::reset() {
       OPTITEM(W_HAS_HOME_CURRENT,  W_CURRENT_HOME)
     };
     homing_current_mA = base_homing_current_mA;
+  #endif
+
+  //
+  // TMC Homing Hybrid Threshold
+  //
+  #if ENABLED(HOMING_HYBRID_THRESHOLD)
+    homing_hybrid_thrs = {
+      OPTITEM(X_HAS_STEALTHCHOP,  X_HOMING_HYBRID_THRESHOLD)
+      OPTITEM(Y_HAS_STEALTHCHOP,  Y_HOMING_HYBRID_THRESHOLD)
+      OPTITEM(Z_HAS_STEALTHCHOP,  Z_HOMING_HYBRID_THRESHOLD)
+      OPTITEM(X2_HAS_STEALTHCHOP, X2_HOMING_HYBRID_THRESHOLD)
+      OPTITEM(Y2_HAS_STEALTHCHOP, Y2_HOMING_HYBRID_THRESHOLD)
+      OPTITEM(Z2_HAS_STEALTHCHOP, Z2_HOMING_HYBRID_THRESHOLD)
+      OPTITEM(Z3_HAS_STEALTHCHOP, Z3_HOMING_HYBRID_THRESHOLD)
+      OPTITEM(Z4_HAS_STEALTHCHOP, Z4_HOMING_HYBRID_THRESHOLD)
+      OPTITEM(I_HAS_STEALTHCHOP,  I_HOMING_HYBRID_THRESHOLD)
+      OPTITEM(J_HAS_STEALTHCHOP,  J_HOMING_HYBRID_THRESHOLD)
+      OPTITEM(K_HAS_STEALTHCHOP,  K_HOMING_HYBRID_THRESHOLD)
+      OPTITEM(U_HAS_STEALTHCHOP,  U_HOMING_HYBRID_THRESHOLD)
+      OPTITEM(V_HAS_STEALTHCHOP,  V_HOMING_HYBRID_THRESHOLD)
+      OPTITEM(W_HAS_STEALTHCHOP,  W_HOMING_HYBRID_THRESHOLD)
+    };
   #endif
 
   //
@@ -3780,50 +3928,7 @@ void MarlinSettings::reset() {
   // Model predictive control
   //
   #if ENABLED(MPCTEMP)
-
-    constexpr float _mpc_heater_power[] = MPC_HEATER_POWER;
-    static_assert(HOTENDS == COUNT(_mpc_heater_power), "MPC_HEATER_POWER requires values for all (" STRINGIFY(HOTENDS) ") hotends.");
-
-    #if ENABLED(MPC_PTC)
-      constexpr float _mpc_heater_alpha[] = MPC_HEATER_ALPHA;
-      constexpr float _mpc_heater_reftemp[] = MPC_HEATER_REFTEMP;
-      static_assert(HOTENDS == COUNT(_mpc_heater_alpha), "MPC_HEATER_ALPHA requires values for all (" STRINGIFY(HOTENDS) ") hotends.");
-      static_assert(HOTENDS == COUNT(_mpc_heater_reftemp), "MPC_HEATER_REFTEMP requires values for all (" STRINGIFY(HOTENDS) ") hotends.");
-    #endif
-
-    constexpr float _mpc_block_heat_capacity[] = MPC_BLOCK_HEAT_CAPACITY;
-    static_assert(HOTENDS == COUNT(_mpc_block_heat_capacity), "MPC_BLOCK_HEAT_CAPACITY requires values for all (" STRINGIFY(HOTENDS) ") hotends.");
-
-    constexpr float _mpc_sensor_responsiveness[] = MPC_SENSOR_RESPONSIVENESS;
-    static_assert(HOTENDS == COUNT(_mpc_sensor_responsiveness), "MPC_SENSOR_RESPONSIVENESS requires values for all (" STRINGIFY(HOTENDS) ") hotends.");
-
-    constexpr float _mpc_ambient_xfer_coeff[] = MPC_AMBIENT_XFER_COEFF;
-    static_assert(HOTENDS == COUNT(_mpc_ambient_xfer_coeff), "MPC_AMBIENT_XFER_COEFF requires values for all (" STRINGIFY(HOTENDS) ") hotends.");
-
-    #if ENABLED(MPC_INCLUDE_FAN)
-      constexpr float _mpc_ambient_xfer_coeff_fan255[] = MPC_AMBIENT_XFER_COEFF_FAN255;
-      static_assert(HOTENDS == COUNT(_mpc_ambient_xfer_coeff_fan255), "MPC_AMBIENT_XFER_COEFF_FAN255 requires values for all (" STRINGIFY(HOTENDS) ") hotends.");
-    #endif
-
-    constexpr float _filament_heat_capacity_permm[] = FILAMENT_HEAT_CAPACITY_PERMM;
-    static_assert(HOTENDS == COUNT(_filament_heat_capacity_permm), "FILAMENT_HEAT_CAPACITY_PERMM requires values for all (" STRINGIFY(HOTENDS) ") hotends.");
-
-    HOTEND_LOOP() {
-      MPC_t &mpc = thermalManager.temp_hotend[e].mpc;
-      mpc.heater_power = _mpc_heater_power[e];
-      #if ENABLED(MPC_PTC)
-        mpc.heater_alpha = _mpc_heater_alpha[e];
-        mpc.heater_reftemp = _mpc_heater_reftemp[e];
-      #endif
-      mpc.block_heat_capacity = _mpc_block_heat_capacity[e];
-      mpc.sensor_responsiveness = _mpc_sensor_responsiveness[e];
-      mpc.ambient_xfer_coeff_fan0 = _mpc_ambient_xfer_coeff[e];
-      #if ENABLED(MPC_INCLUDE_FAN)
-        mpc.fan255_adjustment = _mpc_ambient_xfer_coeff_fan255[e] - _mpc_ambient_xfer_coeff[e];
-      #endif
-      mpc.filament_heat_capacity_permm = _filament_heat_capacity_permm[e];
-    }
-
+    HOTEND_LOOP() reset_mpc(e);
   #endif // MPCTEMP
 
   //
@@ -3995,8 +4100,10 @@ void MarlinSettings::reset() {
         if (!forReplay) {
           SERIAL_EOL();
           bedlevel.report_state();
-          SERIAL_ECHO_MSG("Active Mesh Slot ", bedlevel.storage_slot);
-          SERIAL_ECHO_MSG("EEPROM can hold ", calc_num_meshes(), " meshes.\n");
+          #if HAS_MESH_STORAGE
+            SERIAL_ECHO_MSG("Active Mesh Slot ", bedlevel.storage_slot);
+            SERIAL_ECHO_MSG("EEPROM can hold ", calc_num_meshes(), " meshes.\n");
+          #endif
         }
 
        //bedlevel.report_current_mesh();   // This is too verbose for large meshes. A better (more terse)

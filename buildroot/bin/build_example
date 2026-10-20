@@ -37,8 +37,15 @@ build_example  -b|--base=<path>    - Configurations root folder (e.g., ./.pio/bu
 "
 }
 
+# Path-add helper: only adds a directory if it exists and isn't already on PATH
+pathadd() {
+  if [ -d "$1" ] && [[ ":$PATH:" != *":$1:"* ]]; then
+    export PATH="$1:$PATH"
+  fi
+}
+
 HERE=`dirname $0`
-PATH="$HERE:$PATH"
+pathadd "$HERE"
 
 . mfutil
 
@@ -255,37 +262,15 @@ while true; do
         ARCENVSUB="$ARCSUB"
       fi
 
-      # Copy potential firmware files into the config folder
+      # Copy potential firmware files into a sub-folder of the destination.
+      # By default archive into Configurations. For release redirect to the MarlinBuilds working copy.
       # TODO: Consider firmware that needs an STM32F4_UPDATE folder.
       #       Currently only BOARD_CREALITY_F401RE env:STM32F401RE_creality
       if ((ARCHIVE)); then
         annc "Archiving"
-        find "$BUILD" -type f \( "${BNAME[@]}" \) -exec sh -c '
-          ARCDIR="$1" ; CONFIG="$2" ; FILE="$3" ; shift 3
-          NAME=${FILE##*/} ; SHRT=${NAME%.*} ; DIR=${FILE%/*}
-          ZIPX=
-          if [[ $CONFIG == *Simulator* ]]; then
-            case $(uname | tr '[:upper:]' '[:lower:]') in
-              darwin) SUB="macOS" ; ZIPX="-X" ;;
-              *linux) SUB="Linux" ;;
-                win*) SUB="Windows" ;;
-               msys*) SUB="Windows" ;;
-             cygwin*) SUB="Windows" ;;
-              mingw*) SUB="Windows" ;;
-                   *) SUB='Unix' ;;
-            esac
-            ARCH=$(uname -m | tr '[:lower:]' '[:upper:]')
-            ARCDIR="$ARCDIR/$SUB-$ARCH"
-          fi
-          mkdir -p "$ARCDIR"
-          rm -f "$ARCDIR"/*.zip "$ARCDIR"/*.sha256.txt
-          cd "$DIR"
-          SHASUM=$(sha256sum "$NAME" | cut -d" " -f1)
-          echo "$CONFIG\n$SHASUM" > "$ARCDIR/$NAME.sha256.txt"
-          zip $ZIPX "$ARCDIR/$SHRT.zip" "$NAME" && rm "$NAME"
-          cd - >/dev/null
-        ' sh "$ARCENVSUB" "$CONFIG" {} +
-      fi # ARCHIVE
+        find "$BUILD" -type f \( "${BNAME[@]}" \) \
+          -exec "$HERE/build_archive" "$ARCENVSUB" "$CONFIG" {} +
+      fi
 
       # Reveal the configs after the build, if requested
       ((REVEAL)) && { annc "Revealing $ARCENVSUB" ; open "$ARCENVSUB" ; }

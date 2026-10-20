@@ -59,16 +59,16 @@ void GcodeSuite::G92() {
   #endif
 
   switch (subcode_G92) {
-    default: return;                                                  // Ignore unknown G92.x
+    default: return;                                              // Ignore unknown G92.x
 
     #if ENABLED(CNC_COORDINATE_SYSTEMS) && !IS_SCARA
-      case 1:                                                         // G92.1 - Zero the Workspace Offset
-        workspace_offset.reset();
+      case 1:                                                     // G92.1 - Zero the Workspace Offset
+        motion.workspace_offset.reset();
         break;
     #endif
 
     #if ANY(POWER_LOSS_RECOVERY, HAS_ROTATIONAL_AXES)
-      case 9:                                                         // G92.9 - Set Current Position directly (like Marlin 1.0)
+      case 9:                                                     // G92.9 - Set Current Position directly (like Marlin 1.0)
         LOOP_LOGICAL_AXES(i) {
           if (parser.seenval(AXIS_CHAR(i))) {
             if (TERN1(HAS_EXTRUDERS, i != E_AXIS))
@@ -76,7 +76,7 @@ void GcodeSuite::G92() {
             else {
               TERN_(HAS_EXTRUDERS, sync_E = true);
             }
-            current_position[i] = parser.value_axis_units((AxisEnum)i);
+            motion.position[i] = parser.value_axis_units((AxisEnum)i);
           }
         }
         break;
@@ -86,17 +86,17 @@ void GcodeSuite::G92() {
       LOOP_LOGICAL_AXES(i) {
         if (parser.seenval(AXIS_CHAR(i))) {
           const float l = parser.value_axis_units((AxisEnum)i),   // Given axis coordinate value, converted to millimeters
-                      v = TERN0(HAS_EXTRUDERS, i == E_AXIS) ? l : LOGICAL_TO_NATIVE(l, i),  // Axis position in NATIVE space (applying the existing offset)
-                      d = v - current_position[i];                // How much is the current axis position altered by?
+                      v = TERN0(HAS_EXTRUDERS, i == E_AXIS) ? l : motion.logical_to_native(l, (AxisEnum)i),  // Axis position in NATIVE space (applying the existing offset)
+                      d = v - motion.position[i];                 // How much is the current axis position altered by?
           if (!NEAR_ZERO(d)) {
             #if HAS_WORKSPACE_OFFSET && NONE(IS_SCARA, POLARGRAPH)  // When using workspaces...
               if (TERN1(HAS_EXTRUDERS, i != E_AXIS)) {
-                workspace_offset[i] += d;                         // ...most axes offset the workspace...
+                motion.workspace_offset[i] += d;                  // ...most axes offset the workspace...
               }
               else {
                 #if HAS_EXTRUDERS
                   sync_E = true;
-                  current_position.e = v;                         // ...but E is set directly
+                  motion.position.e = v;                          // ...but E is set directly
                 #endif
               }
             #else                                                 // Without workspaces...
@@ -105,7 +105,7 @@ void GcodeSuite::G92() {
               else {
                 TERN_(HAS_EXTRUDERS, sync_E = true);
               }
-              current_position[i] = v;                            // ...set Current Position directly (like Marlin 1.0)
+              motion.position[i] = v;                             // ...set Current Position directly (like Marlin 1.0)
             #endif
           }
         }
@@ -116,13 +116,13 @@ void GcodeSuite::G92() {
   #if ENABLED(CNC_COORDINATE_SYSTEMS)
     // Apply Workspace Offset to the active coordinate system
     if (WITHIN(active_coordinate_system, 0, MAX_COORDINATE_SYSTEMS - 1))
-      coordinate_system[active_coordinate_system] = workspace_offset;
+      coordinate_system[active_coordinate_system] = motion.workspace_offset;
   #endif
 
-  if (sync_XYZE) sync_plan_position();
+  if (sync_XYZE) motion.sync_plan_position();
   #if HAS_EXTRUDERS
-    else if (sync_E) sync_plan_position_e();
+    else if (sync_E) motion.sync_plan_position_e();
   #endif
 
-  IF_DISABLED(DIRECT_STEPPING, report_current_position());
+  IF_DISABLED(DIRECT_STEPPING, motion.report_position());
 }

@@ -40,27 +40,27 @@ namespace FTDI {
 
   void SPI::spi_init() {
     SET_OUTPUT(CLCD_MOD_RESET); // Module Reset (a.k.a. PD, not SPI)
-    WRITE(CLCD_MOD_RESET, 0); // start with module in power-down
+    WRITE(CLCD_MOD_RESET, LOW); // start with module in power-down
 
     SET_OUTPUT(CLCD_SPI_CS);
-    WRITE(CLCD_SPI_CS, 1);
+    WRITE(CLCD_SPI_CS, HIGH);
 
     #ifdef CLCD_SPI_EXTRA_CS
       SET_OUTPUT(CLCD_SPI_EXTRA_CS);
-      WRITE(CLCD_SPI_EXTRA_CS, 1);
+      WRITE(CLCD_SPI_EXTRA_CS, HIGH);
     #endif
 
     #ifdef SPI_FLASH_SS
       SET_OUTPUT(SPI_FLASH_SS);
-      WRITE(SPI_FLASH_SS, 1);
+      WRITE(SPI_FLASH_SS, HIGH);
     #endif
 
     #ifdef CLCD_USE_SOFT_SPI
       SET_OUTPUT(CLCD_SOFT_SPI_MOSI);
-      WRITE(CLCD_SOFT_SPI_MOSI, 1);
+      WRITE(CLCD_SOFT_SPI_MOSI, HIGH);
 
       SET_OUTPUT(CLCD_SOFT_SPI_SCLK);
-      WRITE(CLCD_SOFT_SPI_SCLK, 0);
+      WRITE(CLCD_SOFT_SPI_SCLK, LOW);
 
       SET_INPUT_PULLUP(CLCD_SOFT_SPI_MISO);
     #else
@@ -77,9 +77,9 @@ namespace FTDI {
       noInterrupts();
       for (k = 0; k < 8; k++) {  // Output and Read each bit of spiOutByte and spiInByte
         WRITE(CLCD_SOFT_SPI_MOSI, (spiOutByte & spiIndex) ? 1 : 0); // Output MOSI Bit
-        WRITE(CLCD_SOFT_SPI_SCLK, 1);   // Pulse Clock
+        WRITE(CLCD_SOFT_SPI_SCLK, HIGH); // Pulse Clock
         if (READ(CLCD_SOFT_SPI_MISO)) spiInByte |= spiIndex; // MISO changes on the falling edge of clock, so sample it before
-        WRITE(CLCD_SOFT_SPI_SCLK, 0);
+        WRITE(CLCD_SOFT_SPI_SCLK, LOW);
         spiIndex >>= 1;
       }
       interrupts();
@@ -94,8 +94,8 @@ namespace FTDI {
       noInterrupts();
       for (k = 0; k < 8; k++) {         // Output each bit of spiOutByte
         WRITE(CLCD_SOFT_SPI_MOSI, (spiOutByte & spiIndex) ? 1 : 0); // Output MOSI Bit
-        WRITE(CLCD_SOFT_SPI_SCLK, 1);   // Pulse Clock
-        WRITE(CLCD_SOFT_SPI_SCLK, 0);
+        WRITE(CLCD_SOFT_SPI_SCLK, HIGH); // Pulse Clock
+        WRITE(CLCD_SOFT_SPI_SCLK, LOW);
         spiIndex >>= 1;
       }
       interrupts();
@@ -118,18 +118,18 @@ namespace FTDI {
     #ifndef CLCD_USE_SOFT_SPI
       SPI_OBJ.beginTransaction(spi_settings);
     #endif
-    WRITE(CLCD_SPI_CS, 0);
+    WRITE(CLCD_SPI_CS, LOW);
     #ifdef CLCD_SPI_EXTRA_CS
-      WRITE(CLCD_SPI_EXTRA_CS, 0);
+      WRITE(CLCD_SPI_EXTRA_CS, LOW);
     #endif
     delayMicroseconds(1);
   }
 
   // CLCD SPI - Chip Deselect
   void SPI::spi_ftdi_deselect() {
-    WRITE(CLCD_SPI_CS, 1);
+    WRITE(CLCD_SPI_CS, HIGH);
     #ifdef CLCD_SPI_EXTRA_CS
-      WRITE(CLCD_SPI_EXTRA_CS, 1);
+      WRITE(CLCD_SPI_EXTRA_CS, HIGH);
     #endif
     #ifndef CLCD_USE_SOFT_SPI
       SPI_OBJ.endTransaction();
@@ -142,13 +142,13 @@ namespace FTDI {
     #ifndef CLCD_USE_SOFT_SPI
       SPI_OBJ.beginTransaction(spi_settings);
     #endif
-    WRITE(SPI_FLASH_SS, 0);
+    WRITE(SPI_FLASH_SS, LOW);
     delayMicroseconds(1);
   }
 
   // Serial SPI Flash SPI - Chip Deselect
   void SPI::spi_flash_deselect() {
-    WRITE(SPI_FLASH_SS, 1);
+    WRITE(SPI_FLASH_SS, HIGH);
     #ifndef CLCD_USE_SOFT_SPI
       SPI_OBJ.endTransaction();
     #endif
@@ -157,18 +157,18 @@ namespace FTDI {
 
   // Not really a SPI signal...
   void SPI::ftdi_reset() {
-    WRITE(CLCD_MOD_RESET, 0);
+    WRITE(CLCD_MOD_RESET, LOW);
     delay(6); /* minimum time for power-down is 5ms */
-    WRITE(CLCD_MOD_RESET, 1);
+    WRITE(CLCD_MOD_RESET, HIGH);
     delay(21); /* minimum time to allow from rising PD_N to first access is 20ms */
   }
 
   // Not really a SPI signal...
   void SPI::test_pulse() {
     #ifdef CLCD_AUX_0
-      WRITE(CLCD_AUX_0, 1);
+      WRITE(CLCD_AUX_0, HIGH);
       delayMicroseconds(10);
-      WRITE(CLCD_AUX_0, 0);
+      WRITE(CLCD_AUX_0, LOW);
     #endif
   }
 }

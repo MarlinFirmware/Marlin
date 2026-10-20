@@ -25,9 +25,7 @@
 #include "../inc/MarlinConfigPre.h"
 #include "../core/utility.h"
 
-#if !ARDUINO_ARCH_ESP32
-  #pragma GCC diagnostic ignored "-Wimplicit-fallthrough"
-#endif
+#pragma GCC diagnostic ignored "-Wimplicit-fallthrough"
 
 constexpr char DIGIT(const uint8_t n) { return '0' + n; }
 
@@ -137,6 +135,11 @@ const char* i16tostr3rj(const int16_t x) {
   conv[6] = RJDIGIT(xx, 10);
   conv[7] = DIGIMOD(xx, 1);
   return &conv[5];
+}
+
+// Convert unsigned 16bit int to string 1, 12, 123 format, capped at 999
+const char* utostr3(const uint16_t x) {
+  return i16tostr3left(_MIN(x, 999U));
 }
 
 // Convert unsigned 16bit int to lj string with 123 format
@@ -386,6 +389,32 @@ inline const char* ftostrX1rj(const float f, const int index=1) {
   return &conv[index];
 }
 
+/**
+ * Convert float to string representing its absolute value with up to 8 characters including decimal dot, right aligned, example: ____5678, ____5.67, ___45.67, __345.67, _2345.67, 12345.67
+ *
+ * IMPORTANT: Supports only floats that can be displayed by above mentioned format
+ * IMPORTANT: Float is represented by scientific notation using two parameters, from which float can be acquired by intVal / decimal
+ * @param intVal Scaled integer value with float digits
+ * @param decimal divisor to acquire the float, must be power of 10
+ */
+const char* ftostr7xrj(int32_t intVal, uint32_t decimal) {
+  if (intVal < 0) intVal *= -1; // Just print the absolute value
+
+  int32_t div = 1;   // Current digit value: 1, 10, 100, 1000...
+  int8_t intEnd = 7; // Index of the digit out
+
+  // Loop while there are digits or a decimal point to print
+  // Collect digits from right to left
+  while (intEnd >= 0 && (intVal >= div || (int32_t)decimal >= div)) {
+    if ((int32_t)decimal == div && WITHIN(intEnd, 1, 6)) conv[intEnd--] = '.'; // Decimal at the given power of 10
+    conv[intEnd] = DIGIT((intVal / div) % 10);                                 // The digit
+    div *= 10;
+    intEnd--;
+  }
+
+  return &conv[intEnd + 1];
+}
+
 // Convert unsigned float to string with _2.3 / 12.3 format
 const char* ftostr31rj(const float f) { return ftostrX1rj(f, 7 - 3); }
 
@@ -455,11 +484,6 @@ const char* ftostr52sp(const float f) {
   return &conv[1];
 }
 
-// Convert unsigned 16bit int to string 1, 12, 123 format, capped at 999
-const char* utostr3(const uint16_t x) {
-  return i16tostr3left(_MIN(x, 999U));
-}
-
 // Convert float to space-padded string with 1.23, 12.34, 123.45 format
 const char* ftostr52sprj(const float f) {
   long i = INTFLOAT(f, 2);
@@ -484,4 +508,87 @@ const char* ftostr52sprj(const float f) {
   conv[7] = DIGIMOD(i, 1);
 
   return &conv[1];
+}
+
+// Reduce a formatted number to its shortest form: "+000.10" => "0.1", "  25%" => "25", "-005.00" => "-5".
+// Drops spaces, '+', leading zeros, trailing decimal zeros, and (optionally) the '%' unit.
+// The result is in its own buffer, so it's safe to pass a string that points into conv[].
+const char* shortenNum(const char * convptr, const bool removeWhole0/*=false*/, const bool removeUnit/*=true*/) {
+  static char out[12];
+  uint8_t o = 0;
+  bool neg = false, decimal = false;
+
+  const char *s = convptr;
+  for (; *s == ' ' || *s == '+' || *s == '-'; ++s) if (*s == '-') neg = true;
+  while (*s == '0' && WITHIN(s[1], '0', '9')) ++s;          // Leading zeros, keeping one before '.'
+  if (removeWhole0 && *s == '0' && s[1] == '.') ++s;        // "0.5" => ".5"
+  else if (!removeWhole0 && *s == '.') out[o++] = '0';      // ".5" => "0.5"
+
+  for (; *s && o < COUNT(out) - 1; ++s) {
+    if (*s == ' ' || (removeUnit && *s == '%')) continue;
+    if (*s == '.') decimal = true;
+    out[o++] = *s;
+  }
+  if (decimal) {                                            // Trailing zeros, then a bare '.'
+    while (o && out[o - 1] == '0') --o;
+    if (o && out[o - 1] == '.') --o;
+  }
+  if (!o || (o == 1 && out[0] == '0')) { out[0] = '0'; o = 1; neg = false; } // "-0" => "0"
+  out[o] = '\0';
+
+  if (neg && o < COUNT(out) - 1) { memmove(out + 1, out, o + 1); out[0] = '-'; }
+  return out;
+}
+
+// Format a float into a buffer, like dtostrf, without avr-libc's float formatter.
+// See numtostr.h for the details and limits.
+char * ftostrf(char * const str, float value, const int8_t width, uint8_t prec) {
+  char tmp[FTOSTRF_BUFSIZE];
+  uint8_t len = 0;
+
+  if (value != value) {                 // NaN
+    tmp[len++] = 'n'; tmp[len++] = 'a'; tmp[len++] = 'n';
+  }
+  else {
+    if (value < 0) { tmp[len++] = '-'; value = -value; }
+    if (prec > 6) prec = 6;
+
+    if (value >= 4294967040.0f) {       // Too big for 32 bits (also infinity)
+      tmp[len++] = 'o'; tmp[len++] = 'v'; tmp[len++] = 'f';
+    }
+    else {
+      // The integer part is exact, and so is what's left. Only the fraction is scaled and rounded.
+      uint32_t ip = uint32_t(value);
+      uint32_t fscale = 1;
+      for (uint8_t i = prec; i--;) fscale *= 10;
+      uint32_t fp = uint32_t((value - float(ip)) * float(fscale) + 0.5f);
+      if (fp >= fscale) { fp -= fscale; ++ip; }   // Rounded up to the next whole number
+
+      // Integer digits, last to first, then in order
+      char digits[10];
+      uint8_t d = 0;
+      do { digits[d++] = char('0' + (ip % 10)); ip /= 10; } while (ip);
+      while (d) tmp[len++] = digits[--d];
+
+      // Fraction digits, with leading zeros
+      if (prec) {
+        tmp[len++] = '.';
+        for (uint8_t i = prec; i--;) { tmp[len + i] = char('0' + (fp % 10)); fp /= 10; }
+        len += prec;
+      }
+    }
+  }
+
+  // Pad to the field width, left or right
+  uint8_t w = width < 0 ? uint8_t(-width) : uint8_t(width);
+  if (w > FTOSTRF_BUFSIZE - 1) w = FTOSTRF_BUFSIZE - 1;
+  uint8_t pad = w > len ? w - len : 0;
+
+  char *p = str;
+  if (width >= 0) while (pad) { *p++ = ' '; --pad; }
+  for (uint8_t i = 0; i < len; ++i) *p++ = tmp[i];
+  if (width < 0) while (pad) { *p++ = ' '; --pad; }
+  *p = '\0';
+
+  return str;
 }

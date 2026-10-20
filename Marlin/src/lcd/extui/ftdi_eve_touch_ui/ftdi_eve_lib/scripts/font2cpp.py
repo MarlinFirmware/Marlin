@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 # Written By Marcio Teixeira 2019 - Aleph Objects, Inc.
 #

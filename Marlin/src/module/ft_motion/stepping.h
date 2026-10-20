@@ -67,8 +67,7 @@ typedef struct Stepping {
   // ISR part
   //
 
-  AxisBits dir_bits;
-  AxisBits step_bits;
+  AxisBits dir_bits, step_bits;
 
   xyze_ulong_t axis_interval_fp{ LOGICAL_AXIS_LIST_1(FTM_NEVER) };
   xyze_ulong_t ticks_left_per_axis_fp{ LOGICAL_AXIS_LIST_1(FTM_NEVER) };
@@ -78,7 +77,7 @@ typedef struct Stepping {
   // generating the next step pulse. The call is inexpensive:
   //  - no heap, no locks – pure arithmetic on pre-computed data
   FORCE_INLINE uint32_t advance_until_step() {
-    step_bits = 0;
+    step_bits.reset();
     uint32_t ticks_to_wait_fp = 0;
 
     for (;;) {
@@ -140,7 +139,7 @@ typedef struct Stepping {
   }
 
   FORCE_INLINE void reset() {
-    step_bits = 0;
+    step_bits.reset();
     axis_interval_fp = FTM_NEVER;
     ticks_left_per_axis_fp = FTM_NEVER;
     ticks_left_in_frame_fp = 0;
@@ -250,6 +249,13 @@ typedef struct Stepping {
 
   FORCE_INLINE bool is_full() {
     return ((stepper_plan_head + 1) & FTM_BUFFER_MASK) == stepper_plan_tail;
+  }
+
+  // Buffer runtime in milliseconds (ignoring ticks left in current frame)
+  FORCE_INLINE uint16_t buffer_runtime() const {
+    const uint32_t queued_frames = (stepper_plan_head - stepper_plan_tail) & FTM_BUFFER_MASK;
+    const uint32_t queued_ms = queued_frames * (1000UL * FTM_TS);
+    return queued_ms;
   }
 
 } stepping_t;

@@ -57,8 +57,10 @@
 // fr         French
 // fr_na      French without accents (DWIN T5UID1 touchscreen)
 // gl         Galician
+// hg         Hinglish (Hindi in Latin script)
 // hr         Croatian
 // hu         Hungarian
+// id         Indonesian (Bahasa)
 // it         Italian
 // jp_kana    Japanese
 // ko_KR      Korean (South Korea)
@@ -184,6 +186,9 @@
 #define STR_SD_NOT_PRINTING                 "Not SD printing"
 #define STR_SD_ERR_WRITE_TO_FILE            "error writing to file"
 #define STR_SD_ERR_READ                     "SD read error"
+#define STR_SD_ERR_TOO_MANY_READ_ERRORS     "SD error overage"
+#define STR_SD_ERR_CARD_REMOVED             "SD card gone"
+#define STR_PRINT_ABORTED                   ", print aborted"
 #define STR_SD_CANT_ENTER_SUBDIR            "Cannot enter subdir: "
 
 #define STR_ENDSTOPS_HIT                    "endstops hit: "
@@ -237,6 +242,7 @@
 #define STR_MPC_AUTOTUNE_START              "MPC Autotune start for " STR_E
 #define STR_MPC_AUTOTUNE_INTERRUPTED        "MPC Autotune interrupted!"
 #define STR_MPC_AUTOTUNE_FINISHED           "MPC Autotune finished! Put the constants below into Configuration.h"
+#define STR_MPC_AUTOTUNE_FAILED             "MPC Autotune failed! Constants unchanged."
 #define STR_MPC_COOLING_TO_AMBIENT          "Cooling to ambient"
 #define STR_MPC_HEATING_PAST_200            "Heating to over 200C"
 #define STR_MPC_MEASURING_AMBIENT           "Measuring ambient heatloss at "
@@ -366,17 +372,17 @@
 #define STR_Z2 STR_C "2"
 #define STR_Z3 STR_C "3"
 #define STR_Z4 STR_C "4"
-#if CORE_IS_XY || CORE_IS_XZ
+#if ANY(HAS_REAL_X, IS_SCARA, DELTA)
   #define STEPPER_A_NAME 'A'
 #else
   #define STEPPER_A_NAME 'X'
 #endif
-#if CORE_IS_XY || CORE_IS_YZ
+#if ANY(HAS_REAL_Y, IS_SCARA, DELTA, POLAR)
   #define STEPPER_B_NAME 'B'
 #else
   #define STEPPER_B_NAME 'Y'
 #endif
-#if CORE_IS_XZ || CORE_IS_YZ
+#if ANY(HAS_REAL_Z, DELTA)
   #define STEPPER_C_NAME 'C'
 #else
   #define STEPPER_C_NAME 'Z'

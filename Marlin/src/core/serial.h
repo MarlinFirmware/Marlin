@@ -50,11 +50,7 @@ extern uint8_t marlin_debug_flags;
 // Serial redirection
 //
 // Step 1: Find out what the first serial leaf is
-#if HAS_MULTI_SERIAL && defined(SERIAL_CATCHALL)
-  #define _SERIAL_LEAF_1 MYSERIAL
-#else
-  #define _SERIAL_LEAF_1 MYSERIAL1
-#endif
+#define _SERIAL_LEAF_1 MYSERIAL1
 
 // Hook Meatpack if it's enabled on the first leaf
 #if ENABLED(MEATPACK_ON_SERIAL_PORT_1)
@@ -71,10 +67,7 @@ extern uint8_t marlin_debug_flags;
   #define _PORT_REDIRECT(n,p) REMEMBER(n,multiSerial.portMask,p)
   #define _PORT_RESTORE(n)    RESTORE(n)
   #define SERIAL_ASSERT(P)    if (multiSerial.portMask!=(P)) { debugger(); }
-  // If we have a catchall, use that directly
-  #ifdef SERIAL_CATCHALL
-    #define _SERIAL_LEAF_2 SERIAL_CATCHALL
-  #elif HAS_ETHERNET
+  #if HAS_ETHERNET
     typedef ConditionalSerial<decltype(MYSERIAL2)> SerialLeafT2;  // We need to create an instance here
     extern SerialLeafT2 msSerial2;
     #define _SERIAL_LEAF_2 msSerial2
@@ -236,7 +229,8 @@ void SERIAL_ECHO_SP(uint8_t count);
 inline FSTR_P const ON_OFF(const bool onoff) { return onoff ? F("ON") : F("OFF"); }
 inline FSTR_P const TRUE_FALSE(const bool tf) { return tf ? F("true") : F("false"); }
 
-void serial_offset(const float v, const uint8_t sp=0); // For v==0 draw space (sp==1) or plus (sp==2)
+// For v==0 draw space (sp==1) or plus (sp==2)
+void serial_offset(const float v, const uint8_t sp=0, const uint8_t prec=SERIAL_FLOAT_PRECISION);
 
 void print_bin(const uint16_t val);
 

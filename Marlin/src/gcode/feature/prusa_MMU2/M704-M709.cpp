@@ -104,7 +104,7 @@ void GcodeSuite::M706() {
 void GcodeSuite::M707() {
   if (mmu3.enabled() && parser.seenval('A')) {
     char *address = parser.value_string();
-    mmu3.readRegister(uint8_t(strtol(address, NULL, 16)));
+    mmu3.readRegister(uint8_t(strtol(address, nullptr, 16)));
   }
 }
 
@@ -126,7 +126,7 @@ void GcodeSuite::M707() {
 void GcodeSuite::M708() {
   if (mmu3.enabled() && parser.seenval('A')) {
     char *address = parser.value_string();
-    const uint8_t addr = uint8_t(strtol(address, NULL, 16));
+    const uint8_t addr = uint8_t(strtol(address, nullptr, 16));
     if (addr) {
       const uint16_t data = parser.ushortval('X', 0);
       mmu3.writeRegister(addr, data);

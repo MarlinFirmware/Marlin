@@ -24,7 +24,12 @@
 
 #include "../../../inc/MarlinConfig.h"
 
-#if ALL(HAS_MARLINUI_U8GLIB, FORCE_SOFT_SPI)
+// DOGM display with software SPI
+#if HAS_MARLINUI_U8GLIB && defined(DOGLCD_SCK) && defined(DOGLCD_MOSI) && defined(DOGLCD_A0) && defined(DOGLCD_CS)
+  #define HAS_DOGLCD_SW_SPI 1
+#endif
+
+#if HAS_DOGLCD_SW_SPI
 
 #include <U8glib-HAL.h>
 #include "../../shared/HAL_SPI.h"
@@ -34,8 +39,8 @@
 static inline uint8_t swSpiTransfer_mode_0(uint8_t b) {
   for (uint8_t i = 0; i < 8; ++i) {
     const uint8_t state = (b & 0x80) ? HIGH : LOW;
-    WRITE(DOGLCD_SCK, HIGH);
     WRITE(DOGLCD_MOSI, state);
+    WRITE(DOGLCD_SCK, HIGH);      // Slave samples MOSI on the rising edge
     b <<= 1;
     WRITE(DOGLCD_SCK, LOW);
   }
@@ -125,5 +130,5 @@ uint8_t u8g_com_HAL_MFL_sw_spi_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_val, void
   return 1;
 }
 
-#endif // HAS_MARLINUI_U8GLIB && FORCE_SOFT_SPI
+#endif // HAS_DOGLCD_SW_SPI
 #endif // ARDUINO_ARCH_MFL
