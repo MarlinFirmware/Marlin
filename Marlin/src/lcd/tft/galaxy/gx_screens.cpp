@@ -1624,12 +1624,42 @@ GX_SCREEN(gx_screen_movespeed) {
   struct gx_stepmode_t { const char *name; bool *stealth; void (*refresh)(); };
   #define GX_SM(ST, NAME) { NAME, &stepper##ST.stored.stealthChop_enabled, []{ stepper##ST.refresh_stepping_mode(); } },
   static const gx_stepmode_t gx_stepmodes[] = {
-    TERN_( X_HAS_STEALTHCHOP, GX_SM(X,  "X"))   TERN_(X2_HAS_STEALTHCHOP, GX_SM(X2, "X2"))
-    TERN_( Y_HAS_STEALTHCHOP, GX_SM(Y,  "Y"))   TERN_(Y2_HAS_STEALTHCHOP, GX_SM(Y2, "Y2"))
-    TERN_( Z_HAS_STEALTHCHOP, GX_SM(Z,  "Z"))   TERN_(Z2_HAS_STEALTHCHOP, GX_SM(Z2, "Z2"))
-    TERN_(Z3_HAS_STEALTHCHOP, GX_SM(Z3, "Z3"))  TERN_(Z4_HAS_STEALTHCHOP, GX_SM(Z4, "Z4"))
-    TERN_(E0_HAS_STEALTHCHOP, GX_SM(E0, "E0"))  TERN_(E1_HAS_STEALTHCHOP, GX_SM(E1, "E1"))
-    TERN_(E2_HAS_STEALTHCHOP, GX_SM(E2, "E2"))  TERN_(E3_HAS_STEALTHCHOP, GX_SM(E3, "E3"))
+    #if X_HAS_STEALTHCHOP
+      GX_SM(X, "X")
+    #endif
+    #if X2_HAS_STEALTHCHOP
+      GX_SM(X2, "X2")
+    #endif
+    #if Y_HAS_STEALTHCHOP
+      GX_SM(Y, "Y")
+    #endif
+    #if Y2_HAS_STEALTHCHOP
+      GX_SM(Y2, "Y2")
+    #endif
+    #if Z_HAS_STEALTHCHOP
+      GX_SM(Z, "Z")
+    #endif
+    #if Z2_HAS_STEALTHCHOP
+      GX_SM(Z2, "Z2")
+    #endif
+    #if Z3_HAS_STEALTHCHOP
+      GX_SM(Z3, "Z3")
+    #endif
+    #if Z4_HAS_STEALTHCHOP
+      GX_SM(Z4, "Z4")
+    #endif
+    #if E0_HAS_STEALTHCHOP
+      GX_SM(E0, "E0")
+    #endif
+    #if E1_HAS_STEALTHCHOP
+      GX_SM(E1, "E1")
+    #endif
+    #if E2_HAS_STEALTHCHOP
+      GX_SM(E2, "E2")
+    #endif
+    #if E3_HAS_STEALTHCHOP
+      GX_SM(E3, "E3")
+    #endif
   };
   #undef GX_SM
   constexpr uint8_t gx_stepmode_count = COUNT(gx_stepmodes);
