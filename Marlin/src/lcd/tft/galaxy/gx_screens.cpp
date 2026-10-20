@@ -451,14 +451,8 @@ enum GxCommand : uint8_t {
   C_HOME_XY, C_HOME_Z
 };
 
-// The UI never moves the extruder below the minimum temperature, even without PREVENT_COLD_EXTRUSION
-#ifndef EXTRUDE_MINTEMP
-  #define EXTRUDE_MINTEMP 170
-#endif
-static bool gx_too_cold() {
-  return TERN0(HAS_HOTEND, thermalManager.wholeDegHotend(0) < TERN(PREVENT_COLD_EXTRUSION, thermalManager.extrude_min_temp, EXTRUDE_MINTEMP))
-      && TERN1(PREVENT_COLD_EXTRUSION, thermalManager.tooColdToExtrude(0));
-}
+// Cold extrusion is blocked only with PREVENT_COLD_EXTRUSION (and not after M302)
+static bool gx_too_cold() { return thermalManager.tooColdToExtrude(0); }
 
 static void gx_move(const AxisEnum axis, const int8_t dir) {
   #if HAS_EXTRUDERS
