@@ -206,20 +206,11 @@ static bool qoi_pixel() {
   return true;
 }
 
-// Fallback: the 1-bit file icon, centered
+// Fallback: the file icon, centered
 static void draw_fallback(uint16_t *buffer, const uint16_t cw, const uint16_t startLine, const uint16_t endLine, const int16_t x, const int16_t y, const uint8_t size) {
   const uint8_t isz = size >= 80 ? 80 : (size >= 48 ? 48 : 32);
   const uint8_t *data = gx_icon_data(GXI_FILE, isz);
-  if (!data) return;
-  const int16_t ox = x + (size - isz) / 2, oy = y + (size - isz) / 2;
-  const uint16_t rb = (isz + 7) >> 3, col = ENDIAN_COLOR(GX_C_DIM);
-  for (int16_t r = 0; r < isz; r++) {
-    const int16_t line = oy + r;
-    if (line < int16_t(startLine) || line >= int16_t(endLine)) continue;
-    uint16_t *row = buffer + (line - startLine) * cw;
-    for (int16_t c = 0; c < isz; c++)
-      if ((data[r * rb + (c >> 3)] & (0x80 >> (c & 7))) && WITHIN(ox + c, 0, cw - 1)) row[ox + c] = col;
-  }
+  if (data) gx_icon_render(buffer, cw, startLine, endLine, x + (size - isz) / 2, y + (size - isz) / 2, data, isz, GX_C_DIM);
 }
 
 static void thumb_render(uint16_t *buffer, uint16_t cw, uint16_t startLine, uint16_t endLine, int16_t x, int16_t y, const uint8_t *payload) {
