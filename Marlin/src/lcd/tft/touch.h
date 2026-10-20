@@ -76,7 +76,7 @@ typedef void (*touch_handler_t)(touch_event_t*);
 // Tall displays show the edit screen keypad together with the slider, steps and buttons.
 // Controls beyond this limit are ignored, so it must cover the busiest screen.
 #if ENABLED(NOVIN3DP_GALAXY_UI)
-  #define MAX_CONTROLS             40
+  #define MAX_CONTROLS             52   // G-code keyboard: 44 keys + 4 buttons + header
 #elif TFT_HEIGHT >= 480
   #define MAX_CONTROLS             32
 #else

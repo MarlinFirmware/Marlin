@@ -49,6 +49,22 @@
 
 // Marlin menus reused as-is (restyled by gx_ui.cpp)
 void menu_advanced_settings();
+#if ALL(HAS_MARLINUI_MENU, HAS_TRINAMIC_CONFIG)
+  #define GX_HAS_TMC 1
+#endif
+#if GX_HAS_TMC
+  void menu_tmc();
+  void menu_tmc_current();
+  #if ENABLED(HYBRID_THRESHOLD)
+    void menu_tmc_hybrid_thrs();
+  #endif
+  #if ENABLED(SENSORLESS_HOMING)
+    void menu_tmc_homing_thrs();
+  #endif
+  #if HAS_STEALTHCHOP
+    void menu_tmc_step_mode();
+  #endif
+#endif
 #if DISABLED(SLIM_LCD_MENUS)
   void menu_advanced_velocity();
   void menu_advanced_acceleration();
@@ -1151,12 +1167,12 @@ GX_SCREEN(gx_screen_settings) {
   if (!gx_full()) return;
   gx_header("SETTINGS");
   const bool rec = TERN0(POWER_LOSS_RECOVERY, recovery.enabled);
-  static const GxIcon icons[12] = { GXI_THERMO, GXI_MOTION, GXI_SPOOL, GXI_PROBE, GXI_LEVELING, GXI_BOLT, GXI_DISPLAY, GXI_INFO, GXI_STORE, GXI_LOAD_SET, GXI_RESTORE, GXI_TARGET };
-  const char * const labels[12] = { "Temperature", "Motion", "Filament", "Probe", "Leveling", rec ? "Recovery on" : "Recovery off", "Display", "About", "Store", "Load", "Restore", "Touch cal." };
-  const uint16_t actions[12] = { GXA(GA_GO, 13), GXA(GA_GO, 16), GXA(GA_GO, 14), GXA(GA_GO, 15), GXA(GA_GO, 7), GXA(GA_CMD, C_RECOVERY), GXA(GA_GO, 26), GXA(GA_GO, 17),
-                                 GXA(GA_CMD, C_SAVE_ASK), GXA(GA_CMD, C_LOAD_ASK), GXA(GA_CMD, C_RESTORE_ASK), GXA(GA_GO, 18) };
+  static const GxIcon icons[11] = { GXI_THERMO, GXI_MOTION, GXI_SPOOL, GXI_PROBE, GXI_LEVELING, GXI_BOLT, GXI_DISPLAY, GXI_STORE, GXI_GEAR, GXI_EDIT, GXI_INFO };
+  const char * const labels[11] = { "Temperature", "Motion", "Filament", "Probe", "Leveling", rec ? "Recovery on" : "Recovery off", "Display", "EEPROM", "More", "G-code", "About" };
+  const uint16_t actions[11] = { GXA(GA_GO, 13), GXA(GA_GO, 16), GXA(GA_GO, 14), GXA(GA_GO, 15), GXA(GA_GO, 7), GXA(GA_CMD, C_RECOVERY), GXA(GA_GO, 26),
+                                 GXA(GA_GO, 30), GXA(GA_GO, 31), GXA(GA_GO, 32), GXA(GA_GO, 17) };
   constexpr uint16_t TW = 109, TH = 64;
-  for (uint8_t i = 0; i < 12; i++) {
+  for (uint8_t i = 0; i < 11; i++) {
     const bool on = i == 5 && rec;
     gx_tile(10 + (i % 4) * (TW + 8), 58 + (i / 4) * (TH + 6), TW, TH, icons[i], 24, labels[i], actions[i], i == 5 && !on ? GX_C_DIM : GX_C_ACC, nullptr, on);
   }
@@ -1561,6 +1577,102 @@ static void gx_tramming() {
   #endif
 }
 
+//////////////////////////////////////////////////////////////////////////////
+// EEPROM: store / load / restore
+//////////////////////////////////////////////////////////////////////////////
+
+GX_SCREEN(gx_screen_eeprom) {
+  if (!gx_full()) return;
+  gx_header("EEPROM");
+  constexpr uint16_t TW = 146, TH = 120;
+  gx_tile(10,               70, TW, TH, GXI_STORE,    48, "Store",   GXA(GA_CMD, C_SAVE_ASK),    GX_C_ACC, "Save (M500)");
+  gx_tile(10 + (TW + 11),   70, TW, TH, GXI_LOAD_SET, 48, "Load",    GXA(GA_CMD, C_LOAD_ASK),    GX_C_ACC, "Read (M501)");
+  gx_tile(10 + 2*(TW + 11), 70, TW, TH, GXI_RESTORE,  48, "Restore", GXA(GA_CMD, C_RESTORE_ASK), GX_C_HOT, "Defaults (M502)");
+  gx_footer_temps();
+}
+
+//////////////////////////////////////////////////////////////////////////////
+// More: TMC drivers and advanced settings
+//////////////////////////////////////////////////////////////////////////////
+
+GX_SCREEN(gx_screen_more) {
+  if (!gx_full()) return;
+  gx_header("MORE");
+  struct { GxIcon icon; const char *label; uint8_t go; bool on; } t[6] = {
+    { GXI_BOLT,     "TMC drivers", 33, ENABLED(GX_HAS_TMC) },
+    { GXI_BOLT,     "Current",     34, ENABLED(GX_HAS_TMC) },
+    { GXI_SPEED,    "Hybrid thr.", 35, ALL(GX_HAS_TMC, HYBRID_THRESHOLD) },
+    { GXI_MOON,     "Stealth",     36, ALL(GX_HAS_TMC, HAS_STEALTHCHOP) },
+    { GXI_TARGET,   "Sensorless",  37, ALL(GX_HAS_TMC, SENSORLESS_HOMING) },
+    { GXI_GEAR,     "Advanced",    38, true }
+  };
+  constexpr uint16_t TW = 146, TH = 96;
+  for (uint8_t i = 0; i < 6; i++)
+    gx_tile(10 + (i % 3) * (TW + 11), 62 + (i / 3) * (TH + 8), TW, TH, t[i].icon, 32, t[i].label,
+            t[i].on ? GXA(GA_GO, t[i].go) : 0, t[i].on ? GX_C_ACC : GX_C_LINE);
+  gx_footer_temps();
+}
+
+//////////////////////////////////////////////////////////////////////////////
+// G-code: type a command and send it
+//////////////////////////////////////////////////////////////////////////////
+
+static char gx_gcode[40] = "";
+
+#define GX_TXT_BS    0x08
+#define GX_TXT_CLR   0x01
+#define GX_TXT_SEND  0x0D
+
+static void gx_text_key(const char k) {
+  size_t n = strlen(gx_gcode);
+  switch (k) {
+    case GX_TXT_BS:  if (n) gx_gcode[n - 1] = '\0'; break;
+    case GX_TXT_CLR: gx_gcode[0] = '\0'; break;
+    case GX_TXT_SEND:
+      if (n) {
+        queue.enqueue_one_now(gx_gcode);
+        char m[48]; strlcpy(m, "Sent: ", sizeof(m)); strlcat(m, gx_gcode, sizeof(m));
+        ui.set_status(m);
+        gx_gcode[0] = '\0';
+      }
+      break;
+    default:
+      if (n < sizeof(gx_gcode) - 1 && !(k == ' ' && (!n || gx_gcode[n - 1] == ' '))) { gx_gcode[n] = k; gx_gcode[n + 1] = '\0'; }
+      break;
+  }
+  gx_invalidate();
+}
+
+GX_SCREEN(gx_screen_gcode) {
+  if (gx_full()) gx_header("G-CODE");
+
+  // Command line and the last status message
+  gx_canvas(10, 56, 460, 40);
+  gx_panel(0, 0, 460, 40, GX_C_ACC);
+  if (gx_gcode[0]) gx_text(12, gx_vcenter(40, GXF_L), gx_gcode, GX_C_TEXT, GXF_L, 436);
+  else gx_text(12, gx_vcenter(40, GXF_S), "Type a command, e.g. G28", GX_C_DIM);
+  gx_canvas(10, 98, 460, 20);
+  if (ui.has_status()) gx_text(4, 2, ui.status_message, GX_C_DIM, GXF_S, 452);
+
+  if (!gx_full()) return;
+
+  // 4 rows of 11 keys
+  static const char rows[4][12] = { "1234567890.", "GMTSEFXYZP-", "ABCDHIJKLNO", "QRUVW:*;=/!" };
+  constexpr uint16_t KW = 38, KH = 36, GAP = 4, KX = 10, KY = 122;
+  for (uint8_t r = 0; r < 4; r++)
+    for (uint8_t c = 0; c < 11; c++) {
+      const char k = rows[r][c], lbl[2] = { k, 0 };
+      gx_button(KX + c * (KW + GAP), KY + r * (KH + GAP), KW, KH, GX_NO_ICON, lbl, GXA(GA_TXT, k));
+    }
+
+  // Bottom row: clear, space, backspace, send
+  constexpr uint16_t BY = KY + 4 * (KH + GAP);
+  gx_button(10,  BY, 92,  36, GXI_CLOSE,     "CLEAR", GXA(GA_TXT, GX_TXT_CLR));
+  gx_button(108, BY, 150, 36, GX_NO_ICON,    "SPACE", GXA(GA_TXT, ' '));
+  gx_button(264, BY, 72,  36, GXI_BACKSPACE, nullptr, GXA(GA_TXT, GX_TXT_BS) | GX_REPEAT);
+  gx_button(342, BY, 128, 36, GXI_PLAY,      "SEND",  GXA(GA_TXT, GX_TXT_SEND), GXB_PRIMARY);
+}
+
 static void gx_open(const uint8_t id) {
   switch (id) {
     case 0:  gx_go(gx_screen_prepare); break;
@@ -1598,6 +1710,23 @@ static void gx_open(const uint8_t id) {
       #endif
     #endif
     case 17: gx_go(gx_screen_about); break;
+    case 30: gx_go(gx_screen_eeprom); break;
+    case 31: gx_go(gx_screen_more); break;
+    case 32: gx_go(gx_screen_gcode); break;
+    #if GX_HAS_TMC
+      case 33: gx_go(menu_tmc); break;
+      case 34: gx_go(menu_tmc_current); break;
+      #if ENABLED(HYBRID_THRESHOLD)
+        case 35: gx_go(menu_tmc_hybrid_thrs); break;
+      #endif
+      #if HAS_STEALTHCHOP
+        case 36: gx_go(menu_tmc_step_mode); break;
+      #endif
+      #if ENABLED(SENSORLESS_HOMING)
+        case 37: gx_go(menu_tmc_homing_thrs); break;
+      #endif
+    #endif
+    case 38: gx_go(menu_advanced_settings); break;
     case 18: TERN_(TOUCH_SCREEN_CALIBRATION, gx_go(touch_screen_calibration)); break;
     case 19: gx_pid_bed = false; gx_pid_temp = 210; gx_go(gx_screen_pid); break;
     case 20: gx_pid_bed = true;  gx_pid_temp = 60;  gx_go(gx_screen_pid); break;
@@ -1618,6 +1747,7 @@ void gx_touch(const uint16_t action) {
       if (from_confirm && ui.currentScreen == gx_screen_confirm) gx_back();   // Close the dialog after "yes"
     } break;
     case GA_KEY:   kp_key(char(arg)); break;
+    case GA_TXT:   gx_text_key(char(arg)); break;
     #if HAS_MEDIA
       case GA_FILE: gx_file_tap(arg); break;
       case GA_PAGE:
