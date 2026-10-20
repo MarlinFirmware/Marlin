@@ -81,13 +81,13 @@ static celsius_t gx_pid_temp = 210;
 static uint8_t gx_pid_cycles = 8;
 static bool gx_aborted = false;
 static bool gx_was_printing = false, gx_show_done = false;
-static uint8_t gx_brightness = 100;
-
+// Brightness in percent, kept in ui.brightness so M500 saves it
+static uint8_t gx_brightness() {
+  return TERN(HAS_LCD_BRIGHTNESS, uint8_t((uint16_t(ui.brightness) * 100 + 127) / 255), 100);
+}
 static void gx_set_brightness(const uint8_t pct) {
-  gx_brightness = constrain(pct, 10, 100);
-  #if PIN_EXISTS(TFT_BACKLIGHT)
-    if (PWM_PIN(TFT_BACKLIGHT_PIN)) analogWrite(pin_t(TFT_BACKLIGHT_PIN), uint16_t(gx_brightness) * 255 / 100);
-  #endif
+  TERN_(HAS_LCD_BRIGHTNESS, ui.set_brightness(uint8_t(uint16_t(constrain(pct, 10, 100)) * 255 / 100)));
+  UNUSED(pct);
 }
 
 static void gx_screen_begin() {
@@ -186,7 +186,7 @@ static float v_get(const uint8_t v) {
     #if HAS_FILAMENT_RUNOUT_DISTANCE
       case V_RUNOUT_D: return runout.runout_distance();
     #endif
-    case V_BRIGHT: return gx_brightness;
+    case V_BRIGHT: return gx_brightness();
     #if HAS_DISPLAY_SLEEP
       case V_SLEEP: return ui.sleep_timeout_minutes;
     #endif
@@ -326,6 +326,11 @@ static void kp_key(const char k) {
       strlcpy(kp.buf, gx_ftoa(constrain(atof(kp.buf) + dv, mn, mx), d), sizeof(kp.buf));
       kp.fresh = false;
     } break;
+    case 's':     // Toggle sign
+      if (kp.fresh) { strcpy(kp.buf, "-"); kp.fresh = false; }
+      else if (kp.buf[0] == '-') memmove(kp.buf, kp.buf + 1, n);
+      else if (n < sizeof(kp.buf) - 1) { memmove(kp.buf + 1, kp.buf, n + 1); kp.buf[0] = '-'; }
+      break;
     case '.':
       if (!d) break;
       if (kp.fresh) { strcpy(kp.buf, "0"); kp.fresh = false; n = 1; }
@@ -346,9 +351,11 @@ GX_SCREEN(gx_screen_keypad) {
   v_info(kp.value, l, u, mn, mx, d);
   if (gx_full()) gx_header(l);
 
-  // Value
-  gx_canvas(10, 60, 220, 84);
-  gx_panel(0, 0, 220, 84, GX_C_ACC);
+  // Value (narrower when a sign key is needed)
+  const bool can_neg = mn < 0;
+  const uint16_t vw0 = can_neg ? 162 : 220;
+  gx_canvas(10, 60, vw0, 84);
+  gx_panel(0, 0, vw0, 84, GX_C_ACC);
   const uint16_t vw = gx_text(16, 10, kp.buf[0] ? kp.buf : "0", GX_C_ACC, GXF_L);
   gx_text(24 + vw, 16, u, GX_C_DIM);
   char mm[32];
@@ -359,6 +366,8 @@ GX_SCREEN(gx_screen_keypad) {
   gx_text(16, 52, mm, GX_C_DIM);
 
   if (!gx_full()) return;
+
+  if (can_neg) gx_button(178, 60, 52, 84, GX_NO_ICON, "+/-", GXA(GA_KEY, 's'));
 
   // Step buttons: -10x, +10x, -1x, +1x of the smallest step
   static const char inc_key[4] = { 'M', 'P', 'm', 'p' };
@@ -1418,7 +1427,13 @@ GX_SCREEN(gx_screen_about) {
     const char *name = gx_strip_gcode(gx_sel_long);
     char l1[48]; strlcpy(l1, name, sizeof(l1));
     uint8_t cut = strlen(l1);
-    while (cut > 1 && gx_text_width(l1, GXF_S) > 284) l1[--cut] = '\0';
+    while (cut > 1 && gx_text_width(l1, GXF_S) > 284) {
+      l1[--cut] = '\0';
+      while (cut > 1 && (uint8_t(name[cut]) & 0xC0) == 0x80) l1[--cut] = '\0';   // Never split a UTF-8 character
+    }
+    if (cut < strlen(name)) {                                                     // Prefer to break at a space
+      for (uint8_t i = cut; i > cut / 2; i--) if (l1[i - 1] == ' ') { cut = i; l1[cut] = '\0'; break; }
+    }
     gx_text(0, 4, l1, GX_C_ACC);
     if (cut < strlen(name)) gx_text(0, 34, name + cut, GX_C_ACC, GXF_S, 284);
     char sz[16];
