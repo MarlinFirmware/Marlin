@@ -819,9 +819,9 @@ GX_SCREEN(gx_screen_prepare) {
   gx_set_refresh(1000);
   if (gx_full()) {
     gx_header("PREPARE");
-    static const GxIcon icons[8] = { GXI_AUTOHOME, GXI_AXES, GXI_STEPPERS_OFF, GXI_PREHEAT, GXI_PREHEAT, GXI_SNOW, GXI_SPOOL, GXI_LEVELING };
-    static const char * const labels[8] = { "AUTO HOME", "MOVE", "MOTORS OFF", "PREHEAT PLA", "PREHEAT ABS", "COOLDOWN", "FILAMENT", "LEVELING" };
-    const uint16_t actions[8] = { GXA(GA_CMD, C_HOME), GXA(GA_GO, 4), GXA(GA_CMD, C_MOTORS_OFF), GXA(GA_CMD, C_PREHEAT0), GXA(GA_CMD, C_PREHEAT1), GXA(GA_CMD, C_COOLDOWN), GXA(GA_GO, 6), GXA(GA_GO, 7) };
+    static const GxIcon icons[8] = { GXI_AUTOHOME, GXI_AXES, GXI_STEPPERS_OFF, GXI_SPOOL, GXI_PREHEAT, GXI_PREHEAT, GXI_SNOW, GXI_LEVELING };
+    static const char * const labels[8] = { "AUTO HOME", "MOVE", "MOTORS OFF", "FILAMENT", "PREHEAT ABS", "PREHEAT PLA", "COOLDOWN", "LEVELING" };
+    const uint16_t actions[8] = { GXA(GA_CMD, C_HOME), GXA(GA_GO, 4), GXA(GA_CMD, C_MOTORS_OFF), GXA(GA_GO, 6), GXA(GA_CMD, C_PREHEAT1), GXA(GA_CMD, C_PREHEAT0), GXA(GA_CMD, C_COOLDOWN), GXA(GA_GO, 7) };
     tiles4x2(icons, labels, actions);
   }
   char pos[40];
