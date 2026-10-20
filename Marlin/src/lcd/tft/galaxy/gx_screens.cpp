@@ -971,12 +971,12 @@ GX_SCREEN(gx_screen_temp) {
   #if HAS_HOTEND
     const celsius_t nc = thermalManager.wholeDegHotend(0), nt = thermalManager.degTargetHotend(0);
     sprintf_P(a, PSTR("%i\xC2\xB0"), int(nc)); sprintf_P(b, PSTR("Target %i\xC2\xB0"), int(nt));
-    temp_card(0, GXI_NOZZLE, "NOZZLE", a, b, (nt > 0 && nc < nt - 2) ? GX_C_HOT : GX_C_ACC, V_NOZZLE);
+    temp_card(0, GXI_NOZZLE, "NOZZLE", a, b, gx_heat_color(nc), V_NOZZLE);
   #endif
   #if HAS_HEATED_BED
     const celsius_t bc = thermalManager.wholeDegBed(), bt = thermalManager.degTargetBed();
     sprintf_P(a, PSTR("%i\xC2\xB0"), int(bc)); sprintf_P(b, PSTR("Target %i\xC2\xB0"), int(bt));
-    temp_card(1, GXI_BED, "BED", a, b, (bt > 0 && bc < bt - 2) ? GX_C_HOT : GX_C_ACC, V_BED);
+    temp_card(1, GXI_BED, "BED", a, b, gx_heat_color(bc), V_BED);
   #endif
   #if HAS_FAN
     sprintf_P(a, PSTR("%u%%"), unsigned(fans[0].speed_pct()));
@@ -1536,8 +1536,7 @@ GX_SCREEN(gx_screen_heat) {
     if (t == 1) cur = thermalManager.wholeDegBed();
   #endif
   const int16_t tgt = heat_get(t), mx = heat_max(t);
-  const bool heating = !fan && tgt > 0 && cur < tgt - 2;
-  const uint16_t col = heating ? GX_C_HOT : GX_C_ACC;
+  const uint16_t col = fan ? GX_C_ACC : gx_heat_color(cur);
 
   if (gx_full()) {
     gx_header(titles[t]);

@@ -325,8 +325,11 @@ static void gx_footer_frame() {
   gx_bar(0, 0, GX_W, 1, GX_C_LINE);
 }
 
+// Footer columns: nozzle, bed, (chamber), fan
+#define GX_FOOTER_COLS (3 + ENABLED(HAS_TEMP_CHAMBER))
+
 static void gx_footer_item(const uint8_t col, const GxIcon icon, const uint16_t icolor, const char *txt) {
-  const uint16_t cw = GX_W / 3, x0 = col * cw;
+  const uint16_t cw = GX_W / (GX_FOOTER_COLS), x0 = col * cw;
   const uint16_t tw = gx_text_width(txt), total = 24 + 8 + tw, sx = x0 + (cw > total ? (cw - total) / 2 : 0);
   gx_icon(sx, 10, icon, 24, icolor);
   gx_text(sx + 32, 2 + gx_vcenter(42, GXF_S), txt, GX_C_TEXT);
@@ -343,18 +346,33 @@ void gx_footer_temps() {
   gx_footer_frame();
   #if HAS_HOTEND
     const celsius_t nc = thermalManager.wholeDegHotend(0), nt = thermalManager.degTargetHotend(0);
-    gx_footer_item(0, GXI_NOZZLE, (nt > 0 && nc < nt - 2) ? GX_C_HOT : GX_C_ACC, gx_temp_pair(nc, nt));
+    gx_footer_item(0, GXI_NOZZLE, gx_heat_color(nc), gx_temp_pair(nc, nt));
   #endif
   #if HAS_HEATED_BED
     const celsius_t bc = thermalManager.wholeDegBed(), bt = thermalManager.degTargetBed();
-    gx_footer_item(1, GXI_BED, (bt > 0 && bc < bt - 2) ? GX_C_HOT : GX_C_ACC, gx_temp_pair(bc, bt));
+    gx_footer_item(1, GXI_BED, gx_heat_color(bc), gx_temp_pair(bc, bt));
+  #endif
+  #if HAS_TEMP_CHAMBER
+    const celsius_t cc = thermalManager.wholeDegChamber();
+    #if HAS_HEATED_CHAMBER
+      const char * const ct = gx_temp_pair(cc, thermalManager.degTargetChamber());
+    #else
+      char ct[12]; sprintf_P(ct, PSTR("%i\xC2\xB0"), int(cc));
+    #endif
+    gx_footer_item(2, GXI_THERMO, gx_heat_color(cc), ct);
   #endif
   #if HAS_FAN
     char f[8]; sprintf_P(f, PSTR("%u%%"), unsigned(fans[0].speed_pct()));
-    gx_footer_item(2, GXI_FAN, GX_C_ACC, f);
+    gx_footer_item(GX_FOOTER_COLS - 1, GXI_FAN, GX_C_ACC, f);
   #endif
-  // Each item opens its own screen: nozzle, bed, fan
-  for (uint8_t i = 0; i < 3; i++) gx_touch_add(i * (GX_W / 3), GX_FOOTER_Y, GX_W / 3, GX_H - GX_FOOTER_Y, GXA(GA_GO, 27 + i));
+  // Each item opens its own screen: nozzle, bed, (chamber: temperature screen), fan
+  constexpr uint16_t cw = GX_W / (GX_FOOTER_COLS);
+  gx_touch_add(0,  GX_FOOTER_Y, cw, GX_H - GX_FOOTER_Y, GXA(GA_GO, 27));
+  gx_touch_add(cw, GX_FOOTER_Y, cw, GX_H - GX_FOOTER_Y, GXA(GA_GO, 28));
+  #if HAS_TEMP_CHAMBER
+    gx_touch_add(2 * cw, GX_FOOTER_Y, cw, GX_H - GX_FOOTER_Y, GXA(GA_TEMPS, 0));
+  #endif
+  gx_touch_add((GX_FOOTER_COLS - 1) * cw, GX_FOOTER_Y, cw, GX_H - GX_FOOTER_Y, GXA(GA_GO, 29));
 }
 
 void gx_footer_msg(const char *msg, const GxIcon icon, const uint16_t color) {
