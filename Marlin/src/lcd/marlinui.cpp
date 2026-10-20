@@ -41,6 +41,7 @@
 
 #if ENABLED(NOVIN3DP_GALAXY_UI)
   extern bool gx_full_redraw;
+  extern xyze_feedrate_t gx_manual_feedrate_mm_m;
 #endif
 MarlinUI ui;
 
@@ -871,7 +872,7 @@ void MarlinUI::init() {
       // Add a manual move to the queue?
       if (axis == NO_AXIS_ENUM || PENDING(millis(), start_time) || planner.is_full()) return;
 
-      const feedRate_t fr_mm_s = (axis < LOGICAL_AXES) ? manual_feedrate_mm_s[axis] : PLANNER_XY_FEEDRATE_MM_S;
+      const feedRate_t fr_mm_s = (axis < LOGICAL_AXES) ? TERN(NOVIN3DP_GALAXY_UI, MMM_TO_MMS(gx_manual_feedrate_mm_m[axis]), manual_feedrate_mm_s[axis]) : PLANNER_XY_FEEDRATE_MM_S;
 
       /**
        * For a rotational axis apply the "inch" to "mm" conversion factor. This mimics behaviour of the G-code G1
