@@ -117,17 +117,24 @@ void gx_panel(const int16_t x, const int16_t y, const uint16_t w, const uint16_t
   tft.add_panel(x, y, w, h, fill, border, r, flags);
 }
 
-// Icons are 4-bit alpha masks, tinted with a light-to-color vertical gradient
+// Icons are run-length coded 4-bit alpha masks, tinted with a light-to-color vertical gradient
 void gx_icon_render(uint16_t *buffer, const uint16_t cw, const uint16_t startLine, const uint16_t endLine,
                     const int16_t x, const int16_t y, const uint8_t *data, const uint8_t size, const uint16_t color) {
+  // Run-length decoder: 0x00-0x7F = n+1 transparent pixels, 0x80|a<<3|(n-1) = n pixels of alpha a
+  const uint8_t *src = data;
+  uint8_t run = 0, alpha = 0;
+  auto next = [&]() -> uint8_t {
+    if (!run) { const uint8_t b = *src++; if (b & 0x80) { alpha = (b >> 3) & 0x0F; run = (b & 7) + 1; } else { alpha = 0; run = b + 1; } }
+    run--; return alpha;
+  };
   for (int16_t r = 0; r < size; r++) {
     const int16_t line = y + r;
-    if (line < int16_t(startLine) || line >= int16_t(endLine)) continue;
+    if (line >= int16_t(endLine)) break;
+    if (line < int16_t(startLine)) { for (uint8_t c = 0; c < size; c++) next(); continue; }
     const uint16_t col = gx_blend(color, 0xFFFF, uint8_t(uint16_t(size - 1 - r) * 90 / size));   // Lighter at the top
     uint16_t *row = buffer + (line - startLine) * cw;
-    const uint8_t *src = data + r * (size >> 1);
     for (int16_t c = 0; c < size; c++) {
-      const uint8_t a = (c & 1) ? (src[c >> 1] & 0x0F) : (src[c >> 1] >> 4);
+      const uint8_t a = next();
       if (!a || !WITHIN(x + c, 0, cw - 1)) continue;
       row[x + c] = a == 15 ? ENDIAN_COLOR(col) : ENDIAN_COLOR(gx_blend(ENDIAN_COLOR(row[x + c]), col, a * 17));
     }
