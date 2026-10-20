@@ -32,6 +32,12 @@
 #define GX_C_BAD      0xFAAE  // #FF5470
 #define GX_C_OK       0x4711  // #47E08F
 
+// Heater icons turn orange at or above this temperature (hot to the touch)
+#ifndef GX_HOT_TEMP
+  #define GX_HOT_TEMP   50
+#endif
+inline uint16_t gx_heat_color(const int16_t cur) { return cur >= GX_HOT_TEMP ? GX_C_HOT : GX_C_ACC; }
+
 // Panel flags
 #define GXP_BLEND     0x01    // Fill with 50% panel color over the galaxy
 #define GXP_SOLID     0x02    // Fill with a solid color
