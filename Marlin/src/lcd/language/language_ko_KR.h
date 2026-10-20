@@ -358,6 +358,8 @@ namespace LanguageNarrow_ko_KR {
   LSTR MSG_STORED_FAN_N                   = _UxGT("저장된 팬 ~");                                  // Stored Fan ~
   LSTR MSG_EXTRA_FAN_SPEED                = _UxGT("추가 팬 속도");                                  // Extra Fan Speed
   LSTR MSG_EXTRA_FAN_SPEED_N              = _UxGT("추가 팬 ~ 속도");                                // Extra Fan ~ Speed
+  LSTR MSG_FANS                           = _UxGT("팬");                                        // Fans
+  LSTR MSG_EXTRUDER_AUTO_FAN_SPEED        = _UxGT("익스트루더 팬 속도");                               // Extruder fan speed
   LSTR MSG_PID_AUTOTUNE                   = _UxGT("PID 자동튜닝");                                 // PID Autotune
   LSTR MSG_PID_AUTOTUNE_E                 = _UxGT("* PID 자동튜닝");                               // Autotune * PID
   LSTR MSG_JERK                           = _UxGT("Jerk");                                     // Jerk

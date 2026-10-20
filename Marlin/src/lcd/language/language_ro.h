@@ -362,6 +362,8 @@ namespace LanguageNarrow_ro {
   LSTR MSG_STORED_FAN_N                   = _UxGT("Stored Fan ~");                             // Stored Fan ~
   LSTR MSG_EXTRA_FAN_SPEED                = _UxGT("Extra Fan Speed");                          // Extra Fan Speed
   LSTR MSG_EXTRA_FAN_SPEED_N              = _UxGT("Extra Fan ~ Speed");                        // Extra Fan ~ Speed
+  LSTR MSG_FANS                           = _UxGT("Ventilatoare");                             // Fans
+  LSTR MSG_EXTRUDER_AUTO_FAN_SPEED        = _UxGT("Vit. vent. extruder");                      // Extruder fan speed
   LSTR MSG_PID_AUTOTUNE                   = _UxGT("PID Autotune");                             // PID Autotune
   LSTR MSG_PID_AUTOTUNE_E                 = _UxGT("PID Autotune *");                           // Autotune * PID
   LSTR MSG_JERK                           = _UxGT("Jerk");                                     // Jerk

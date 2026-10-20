@@ -361,6 +361,8 @@ namespace LanguageNarrow_eu {
   LSTR MSG_STORED_FAN_N                   = _UxGT("Gordetako haiz. ~");                        // Stored Fan ~
   LSTR MSG_EXTRA_FAN_SPEED                = _UxGT("Haiz.gehig. abiadura");                     // Extra Fan Speed
   LSTR MSG_EXTRA_FAN_SPEED_N              = _UxGT("Haiz.gehig. abiadura ~");                   // Extra Fan ~ Speed
+  LSTR MSG_FANS                           = _UxGT("Haizagailuak");                             // Fans
+  LSTR MSG_EXTRUDER_AUTO_FAN_SPEED        = _UxGT("Estr. haiz. abiad.");                       // Extruder fan speed
   LSTR MSG_PID_AUTOTUNE                   = _UxGT("PID auto-doiketa");                         // PID Autotune
   LSTR MSG_PID_AUTOTUNE_E                 = _UxGT("* PID auto-doiketa");                       // Autotune * PID
   LSTR MSG_JERK                           = _UxGT("Astindua");                                 // Jerk

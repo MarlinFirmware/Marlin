@@ -360,6 +360,8 @@ namespace LanguageNarrow_fi {
   LSTR MSG_STORED_FAN_N                   = _UxGT("Tallennettu tuul. ~");                      // Stored Fan ~
   LSTR MSG_EXTRA_FAN_SPEED                = _UxGT("Lisätuul. nopeus");                         // Extra Fan Speed
   LSTR MSG_EXTRA_FAN_SPEED_N              = _UxGT("Lisätuul. ~ nopeus");                       // Extra Fan ~ Speed
+  LSTR MSG_FANS                           = _UxGT("Tuulettimet");                              // Fans
+  LSTR MSG_EXTRUDER_AUTO_FAN_SPEED        = _UxGT("Extr. tuul. nopeus");                       // Extruder fan speed
   LSTR MSG_PID_AUTOTUNE                   = _UxGT("PID-automaattisäätö");                      // PID Autotune
   LSTR MSG_PID_AUTOTUNE_E                 = _UxGT("Autom. säätö * PID");                       // Autotune * PID
   LSTR MSG_JERK                           = _UxGT("Nykäisy");                                  // Jerk
