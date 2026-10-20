@@ -84,6 +84,7 @@ jobs:
         # ESP32
         - esp32
         - mks_tinybee
+        - mks_dlc32_v2_1
 
         # Teensy 2
         #- at90usb1286_cdc
