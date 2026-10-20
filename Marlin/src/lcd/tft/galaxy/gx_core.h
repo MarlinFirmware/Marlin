@@ -85,8 +85,9 @@ void gx_fill_galaxy_row(uint16_t *dst, uint16_t x0, uint16_t y, uint16_t count);
 uint16_t gx_galaxy_avg(const uint16_t y);
 uint16_t gx_blend(const uint16_t a, const uint16_t b, const uint8_t alpha);   // alpha = weight of b
 inline uint16_t gx_half(const uint16_t a, const uint16_t b) { return ((a & 0xF7DE) >> 1) + ((b & 0xF7DE) >> 1); }
-const uint8_t* gx_icon_data(const GxIcon icon, const uint8_t size);
-const uint8_t* gx_aa_icon_data(const GxIcon icon, const uint8_t size);   // Antialiased version, or nullptr
+const uint8_t* gx_icon_data(const GxIcon icon, const uint8_t size);   // 4-bit alpha, two pixels per byte
+void gx_icon_render(uint16_t *buffer, const uint16_t cw, const uint16_t startLine, const uint16_t endLine,
+                    const int16_t x, const int16_t y, const uint8_t *data, const uint8_t size, const uint16_t color);
 
 //
 // Canvas helpers (a canvas is a screen rectangle; coordinates inside are relative)

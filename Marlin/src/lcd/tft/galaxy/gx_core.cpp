@@ -117,18 +117,16 @@ void gx_panel(const int16_t x, const int16_t y, const uint16_t w, const uint16_t
   tft.add_panel(x, y, w, h, fill, border, r, flags);
 }
 
-// Antialiased icon: 4-bit alpha, tinted with a light-to-color vertical gradient
-struct gx_aa_payload_t { const uint8_t *data; uint8_t size; uint16_t color; };
-
-static void aa_render(uint16_t *buffer, uint16_t cw, uint16_t startLine, uint16_t endLine, int16_t x, int16_t y, const uint8_t *payload) {
-  gx_aa_payload_t p; memcpy(&p, payload, sizeof(p));
-  for (int16_t r = 0; r < p.size; r++) {
+// Icons are 4-bit alpha masks, tinted with a light-to-color vertical gradient
+void gx_icon_render(uint16_t *buffer, const uint16_t cw, const uint16_t startLine, const uint16_t endLine,
+                    const int16_t x, const int16_t y, const uint8_t *data, const uint8_t size, const uint16_t color) {
+  for (int16_t r = 0; r < size; r++) {
     const int16_t line = y + r;
     if (line < int16_t(startLine) || line >= int16_t(endLine)) continue;
-    const uint16_t col = gx_blend(p.color, 0xFFFF, uint8_t(uint16_t(p.size - 1 - r) * 90 / p.size));   // Lighter at the top
+    const uint16_t col = gx_blend(color, 0xFFFF, uint8_t(uint16_t(size - 1 - r) * 90 / size));   // Lighter at the top
     uint16_t *row = buffer + (line - startLine) * cw;
-    const uint8_t *src = p.data + r * (p.size >> 1);
-    for (int16_t c = 0; c < p.size; c++) {
+    const uint8_t *src = data + r * (size >> 1);
+    for (int16_t c = 0; c < size; c++) {
       const uint8_t a = (c & 1) ? (src[c >> 1] & 0x0F) : (src[c >> 1] >> 4);
       if (!a || !WITHIN(x + c, 0, cw - 1)) continue;
       row[x + c] = a == 15 ? ENDIAN_COLOR(col) : ENDIAN_COLOR(gx_blend(ENDIAN_COLOR(row[x + c]), col, a * 17));
@@ -136,14 +134,18 @@ static void aa_render(uint16_t *buffer, uint16_t cw, uint16_t startLine, uint16_
   }
 }
 
+struct gx_icon_payload_t { const uint8_t *data; uint8_t size; uint16_t color; };
+
+static void icon_render(uint16_t *buffer, uint16_t cw, uint16_t startLine, uint16_t endLine, int16_t x, int16_t y, const uint8_t *payload) {
+  gx_icon_payload_t p; memcpy(&p, payload, sizeof(p));
+  gx_icon_render(buffer, cw, startLine, endLine, x, y, p.data, p.size, p.color);
+}
+
 void gx_icon(const int16_t x, const int16_t y, const GxIcon icon, const uint8_t size, const uint16_t color) {
-  if (const uint8_t * const aa = gx_aa_icon_data(icon, size)) {
-    const gx_aa_payload_t p = { aa, size, color };
-    tft.add_custom(x, y, (void *)aa_render, &p, sizeof(p));
-    return;
-  }
   const uint8_t *data = gx_icon_data(icon, size);
-  if (data) tft.add_bitmap(x, y, size, size, data, color);
+  if (!data) return;
+  const gx_icon_payload_t p = { data, size, color };
+  tft.add_custom(x, y, (void *)icon_render, &p, sizeof(p));
 }
 
 // The large font is ASCII-only: a degree sign ("\xC2\xB0") is drawn as a small ring
