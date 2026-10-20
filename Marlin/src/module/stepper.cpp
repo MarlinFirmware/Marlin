@@ -2613,7 +2613,7 @@ void Stepper::isr() {
    * have been done, so it is less time critical.
    */
   hal_timer_t Stepper::block_phase_isr() {
-    #if DISABLED(OLD_ADAPTIVE_MULTISTEPPING)
+    #if NONE(OLD_ADAPTIVE_MULTISTEPPING, I2S_STEPPER_STREAM) // I2S has no stepper timer to time the ISR
       // If the ISR uses < 50% of MPU time, halve multi-stepping
       const hal_timer_t time_spent = HAL_timer_get_count(MF_TIMER_STEP);
       #if MULTISTEPPING_LIMIT > 1
