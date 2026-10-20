@@ -451,9 +451,18 @@ enum GxCommand : uint8_t {
   C_HOME_XY, C_HOME_Z
 };
 
+// The UI never moves the extruder below the minimum temperature, even without PREVENT_COLD_EXTRUSION
+#ifndef EXTRUDE_MINTEMP
+  #define EXTRUDE_MINTEMP 170
+#endif
+static bool gx_too_cold() {
+  return TERN0(HAS_HOTEND, thermalManager.wholeDegHotend(0) < TERN(PREVENT_COLD_EXTRUSION, thermalManager.extrude_min_temp, EXTRUDE_MINTEMP))
+      && TERN1(PREVENT_COLD_EXTRUSION, thermalManager.tooColdToExtrude(0));
+}
+
 static void gx_move(const AxisEnum axis, const int8_t dir) {
   #if HAS_EXTRUDERS
-    if (axis == E_AXIS && thermalManager.tooColdToExtrude(0)) { gx_status_msg("Nozzle too cold to extrude"); return; }
+    if (axis == E_AXIS && gx_too_cold()) { gx_status_msg("Nozzle too cold"); return; }
   #endif
   if (ui.manual_move.processing) return;
   float mn, mx;
@@ -537,11 +546,11 @@ static void gx_command(const uint8_t c) {
     #endif
 
     #if ENABLED(FILAMENT_LOAD_UNLOAD_GCODES)
-      case C_LOAD:   if (thermalManager.tooColdToExtrude(0)) { gx_status_msg("Heat the nozzle first"); return; } queue.inject(F("M701")); break;
-      case C_UNLOAD: if (thermalManager.tooColdToExtrude(0)) { gx_status_msg("Heat the nozzle first"); return; } queue.inject(F("M702")); break;
+      case C_LOAD:   if (gx_too_cold()) { gx_status_msg("Heat the nozzle first"); return; } queue.inject(F("M701")); break;
+      case C_UNLOAD: if (gx_too_cold()) { gx_status_msg("Heat the nozzle first"); return; } queue.inject(F("M702")); break;
     #endif
     case C_PURGE:  // Extrude 30mm relative, then restore the E mode the host / G-code had set
-      if (thermalManager.tooColdToExtrude(0)) { gx_status_msg("Heat the nozzle first"); return; }
+      if (gx_too_cold()) { gx_status_msg("Heat the nozzle first"); return; }
       queue.inject(gcode.axis_is_relative(E_AXIS) ? F("G1 E30 F180") : F("M83\nG1 E30 F180\nM82"));
       break;
     #if ENABLED(ADVANCED_PAUSE_FEATURE)
@@ -990,7 +999,7 @@ GX_SCREEN(gx_screen_filament) {
   }
   #if HAS_HOTEND
     const celsius_t nc = thermalManager.wholeDegHotend(0), nt = thermalManager.degTargetHotend(0);
-    const bool cold = thermalManager.tooColdToExtrude(0);
+    const bool cold = gx_too_cold();
     char a[12], b[20];
     sprintf_P(a, PSTR("%i\xC2\xB0"), int(nc)); sprintf_P(b, PSTR("Target %i\xC2\xB0"), int(nt));
     gx_canvas(10, 58, 182, 210);
