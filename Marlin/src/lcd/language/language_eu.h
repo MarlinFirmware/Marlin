@@ -825,6 +825,9 @@ namespace LanguageNarrow_eu {
   LSTR MSG_ADVANCE_TAU                    = _UxGT("Advance Tau");                              // Advance Tau
   LSTR MSG_ADVANCE_TAU_E                  = _UxGT("Advance Tau *");                            // Advance Tau *
   LSTR MSG_NLE_ON                         = _UxGT("NLE gaituta");                              // NLE enabled
+  LSTR MSG_NLE_A                          = _UxGT("-Koadratikoa");                             // -Quadratic
+  LSTR MSG_NLE_B                          = _UxGT("-Lineala");                                 // -Linear
+  LSTR MSG_NLE_C                          = _UxGT("-Konstantea");                              // -Constant
   LSTR MSG_HOTEND_TEMP_GRAPH              = _UxGT("Hotend tenp. graf.");                       // Hotend Temp Graph
   LSTR MSG_BED_TEMP_GRAPH                 = _UxGT("Ohe tenp. grafikoa");                       // Bed Temp Graph
   LSTR MSG_EEPROM_INITIALIZED             = _UxGT("EEPROM hasieratuta");                       // EEPROM Initialized

@@ -830,6 +830,9 @@ namespace LanguageNarrow_cz {
   LSTR MSG_ADVANCE_TAU                    = _UxGT("Tau pro posun");                            // Advance Tau
   LSTR MSG_ADVANCE_TAU_E                  = _UxGT("Tau pro posun *");                          // Advance Tau *
   LSTR MSG_NLE_ON                         = _UxGT("NLE zapnuto");                              // NLE enabled
+  LSTR MSG_NLE_A                          = _UxGT("-Kvadratický");                             // -Quadratic
+  LSTR MSG_NLE_B                          = _UxGT("-Lineární");                                // -Linear
+  LSTR MSG_NLE_C                          = _UxGT("-Konstantní");                              // -Constant
   LSTR MSG_HOTEND_TEMP_GRAPH              = _UxGT("Graf teploty trysky");                      // Hotend Temp Graph
   LSTR MSG_BED_TEMP_GRAPH                 = _UxGT("Graf teploty podl.");                       // Bed Temp Graph
   LSTR MSG_EEPROM_INITIALIZED             = _UxGT("EEPROM inicializ.");                        // EEPROM Initialized

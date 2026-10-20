@@ -825,6 +825,9 @@ namespace LanguageNarrow_vi {
   LSTR MSG_ADVANCE_TAU                    = _UxGT("Tau Advance");                              // Advance Tau
   LSTR MSG_ADVANCE_TAU_E                  = _UxGT("Tau Advance *");                            // Advance Tau *
   LSTR MSG_NLE_ON                         = _UxGT("Đã bật NLE");                               // NLE enabled
+  LSTR MSG_NLE_A                          = _UxGT("-Bậc hai");                                 // -Quadratic
+  LSTR MSG_NLE_B                          = _UxGT("-Tuyến tính");                              // -Linear
+  LSTR MSG_NLE_C                          = _UxGT("-Hằng số");                                 // -Constant
   LSTR MSG_HOTEND_TEMP_GRAPH              = _UxGT("Đồ thị nhiệt đ.phun");                      // Hotend Temp Graph
   LSTR MSG_BED_TEMP_GRAPH                 = _UxGT("Đồ thị nhiệt bàn");                         // Bed Temp Graph
   LSTR MSG_EEPROM_INITIALIZED             = _UxGT("Đã khởi tạo EEPROM");                       // EEPROM Initialized

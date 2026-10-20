@@ -824,6 +824,9 @@ namespace LanguageNarrow_uk {
   LSTR MSG_ADVANCE_TAU                    = _UxGT("Advance Tau");                              // Advance Tau
   LSTR MSG_ADVANCE_TAU_E                  = _UxGT("Advance Tau *");                            // Advance Tau *
   LSTR MSG_NLE_ON                         = _UxGT("NLE увімкнено");                            // NLE enabled
+  LSTR MSG_NLE_A                          = _UxGT("-Квадратичний");                            // -Quadratic
+  LSTR MSG_NLE_B                          = _UxGT("-Лінійний");                                // -Linear
+  LSTR MSG_NLE_C                          = _UxGT("-Стала");                                   // -Constant
   LSTR MSG_HOTEND_TEMP_GRAPH              = _UxGT("Графік Т хотенда");                         // Hotend Temp Graph
   LSTR MSG_BED_TEMP_GRAPH                 = _UxGT("Графік Т столу");                           // Bed Temp Graph
   LSTR MSG_EEPROM_INITIALIZED             = _UxGT("EEPROM ініціаліз.");                        // EEPROM Initialized

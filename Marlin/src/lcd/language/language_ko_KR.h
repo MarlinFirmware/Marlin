@@ -822,6 +822,9 @@ namespace LanguageNarrow_ko_KR {
   LSTR MSG_ADVANCE_TAU                    = _UxGT("Advance Tau");                              // Advance Tau
   LSTR MSG_ADVANCE_TAU_E                  = _UxGT("Advance Tau *");                            // Advance Tau *
   LSTR MSG_NLE_ON                         = _UxGT("NLE 켜짐");                                   // NLE enabled
+  LSTR MSG_NLE_A                          = _UxGT("-이차");                                      // -Quadratic
+  LSTR MSG_NLE_B                          = _UxGT("-선형");                                      // -Linear
+  LSTR MSG_NLE_C                          = _UxGT("-상수");                                      // -Constant
   LSTR MSG_HOTEND_TEMP_GRAPH              = _UxGT("핫엔드 온도 그래프");                               // Hotend Temp Graph
   LSTR MSG_BED_TEMP_GRAPH                 = _UxGT("베드 온도 그래프");                                // Bed Temp Graph
   LSTR MSG_EEPROM_INITIALIZED             = _UxGT("EEPROM 초기화됨");                              // EEPROM Initialized
