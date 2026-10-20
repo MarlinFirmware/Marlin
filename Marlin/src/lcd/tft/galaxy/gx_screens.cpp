@@ -53,6 +53,7 @@ void menu_advanced_settings();
   #define GX_HAS_TMC 1
 #endif
 #if GX_HAS_TMC
+  #include "../../../module/stepper/trinamic.h"
   void menu_tmc();
   void menu_tmc_current();
   #if ENABLED(HYBRID_THRESHOLD)
@@ -1617,20 +1618,63 @@ GX_SCREEN(gx_screen_movespeed) {
   gx_footer_msg("Speeds of the Move screen. Keep with EEPROM > Store");
 }
 
+#if ALL(GX_HAS_TMC, HAS_STEALTHCHOP)
+
+  // Every driver with StealthChop: label, mode flag and the refresh call
+  struct gx_stepmode_t { const char *name; bool *stealth; void (*refresh)(); };
+  #define GX_SM(ST, NAME) { NAME, &stepper##ST.stored.stealthChop_enabled, []{ stepper##ST.refresh_stepping_mode(); } },
+  static const gx_stepmode_t gx_stepmodes[] = {
+    TERN_( X_HAS_STEALTHCHOP, GX_SM(X,  "X"))   TERN_(X2_HAS_STEALTHCHOP, GX_SM(X2, "X2"))
+    TERN_( Y_HAS_STEALTHCHOP, GX_SM(Y,  "Y"))   TERN_(Y2_HAS_STEALTHCHOP, GX_SM(Y2, "Y2"))
+    TERN_( Z_HAS_STEALTHCHOP, GX_SM(Z,  "Z"))   TERN_(Z2_HAS_STEALTHCHOP, GX_SM(Z2, "Z2"))
+    TERN_(Z3_HAS_STEALTHCHOP, GX_SM(Z3, "Z3"))  TERN_(Z4_HAS_STEALTHCHOP, GX_SM(Z4, "Z4"))
+    TERN_(E0_HAS_STEALTHCHOP, GX_SM(E0, "E0"))  TERN_(E1_HAS_STEALTHCHOP, GX_SM(E1, "E1"))
+    TERN_(E2_HAS_STEALTHCHOP, GX_SM(E2, "E2"))  TERN_(E3_HAS_STEALTHCHOP, GX_SM(E3, "E3"))
+  };
+  #undef GX_SM
+  constexpr uint8_t gx_stepmode_count = COUNT(gx_stepmodes);
+
+  static void gx_set_stepmode(const uint8_t arg) {
+    const uint8_t i = arg >> 1;
+    if (i >= gx_stepmode_count) return;
+    *gx_stepmodes[i].stealth = arg & 1;
+    gx_stepmodes[i].refresh();
+    gx_invalidate();
+  }
+
+  GX_SCREEN(gx_screen_stepmode) {
+    if (gx_full()) gx_header("STEP MODE");
+    // Rows of two choices; up to 4 drivers per screen height
+    const uint8_t n = _MIN(gx_stepmode_count, uint8_t(4));
+    constexpr uint16_t RH = 46;
+    for (uint8_t i = 0; i < n; i++) {
+      const uint16_t y = 58 + i * (RH + 6);
+      const bool st = *gx_stepmodes[i].stealth;
+      gx_canvas(10, y, 90, RH);
+      gx_panel(0, 0, 90, RH);
+      char l[12]; strlcpy(l, gx_stepmodes[i].name, sizeof(l)); strlcat(l, " axis", sizeof(l));
+      gx_text_center(0, gx_vcenter(RH, GXF_S), 90, l, GX_C_TEXT);
+      gx_button(108, y, 176, RH, GXI_MOON, "Quiet",  GXA(GA_STEP, (i << 1) | 1), st ? GXB_SELECTED : GXB_NORMAL);
+      gx_button(292, y, 178, RH, GXI_BOLT, "Strong", GXA(GA_STEP, (i << 1) | 0), st ? GXB_NORMAL : GXB_SELECTED);
+    }
+    if (gx_full()) gx_footer_msg("Quiet: StealthChop, silent   Strong: SpreadCycle, more torque");
+  }
+
+#endif
+
 GX_SCREEN(gx_screen_more) {
   if (!gx_full()) return;
   gx_header("MORE");
-  struct { GxIcon icon; const char *label; uint8_t go; bool on; } t[7] = {
-    { GXI_BOLT,     "TMC drivers", 33, ENABLED(GX_HAS_TMC) },
-    { GXI_BOLT,     "Current",     34, ENABLED(GX_HAS_TMC) },
+  struct { GxIcon icon; const char *label; uint8_t go; bool on; } t[6] = {
+    { GXI_BOLT,     "TMC current", 34, ENABLED(GX_HAS_TMC) },
     { GXI_SPEED,    "Hybrid thr.", 35, ALL(GX_HAS_TMC, HYBRID_THRESHOLD) },
-    { GXI_MOON,     "Stealth",     36, ALL(GX_HAS_TMC, HAS_STEALTHCHOP) },
+    { GXI_MOON,     "Step mode",   36, ALL(GX_HAS_TMC, HAS_STEALTHCHOP) },
     { GXI_TARGET,   "Sensorless",  37, ALL(GX_HAS_TMC, SENSORLESS_HOMING) },
     { GXI_SPEED,    "Move speed",  39, true },
     { GXI_GEAR,     "Advanced",    38, true }
   };
   constexpr uint16_t TW = 109, TH = 96;
-  for (uint8_t i = 0; i < 7; i++)
+  for (uint8_t i = 0; i < 6; i++)
     gx_tile(10 + (i % 4) * (TW + 8), 62 + (i / 4) * (TH + 8), TW, TH, t[i].icon, 32, t[i].label,
             t[i].on ? GXA(GA_GO, t[i].go) : 0, t[i].on ? GX_C_ACC : GX_C_LINE);
   gx_footer_temps();
@@ -1743,7 +1787,7 @@ static void gx_open(const uint8_t id) {
         case 35: gx_go(menu_tmc_hybrid_thrs); break;
       #endif
       #if HAS_STEALTHCHOP
-        case 36: gx_go(menu_tmc_step_mode); break;
+        case 36: gx_go(gx_screen_stepmode); break;
       #endif
       #if ENABLED(SENSORLESS_HOMING)
         case 37: gx_go(menu_tmc_homing_thrs); break;
@@ -1772,6 +1816,9 @@ void gx_touch(const uint16_t action) {
     } break;
     case GA_KEY:   kp_key(char(arg)); break;
     case GA_TXT:   gx_text_key(char(arg)); break;
+    #if ALL(GX_HAS_TMC, HAS_STEALTHCHOP)
+      case GA_STEP: gx_set_stepmode(arg); break;
+    #endif
     #if HAS_MEDIA
       case GA_FILE: gx_file_tap(arg); break;
       case GA_PAGE:
