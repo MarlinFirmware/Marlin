@@ -114,6 +114,7 @@ jobs:
         - STM32F103RE_btt
         - STM32F103RE_btt_USB
         - STM32F103RE_creality
+        - STM32F103VE_GTM32
         - STM32F103VE_longer
         #- mks_robin_mini
         #- mks_robin_nano_v1_3_f4_usbmod
