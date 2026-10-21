@@ -502,8 +502,10 @@ uint32_t getHash(char * str) {
 void dwinCheckStatusMessage() {
   static MString<>::hash_t old_hash = 0x0000;
   const MString<>::hash_t hash = ui.status_message.hash();
-  hash_changed = hash != old_hash;
-  old_hash = hash;
+  if (hash != old_hash) {
+    hash_changed = true; // Cleared after the message is drawn
+    old_hash = hash;
+  }
 }
 
 void dwinDrawStatusMessage() {
