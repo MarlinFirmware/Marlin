@@ -2592,7 +2592,7 @@ void gotoConfirmToPrint() {
 
       if (hmiData.fullManualTramming) {
         queue.inject(MString<100>(
-          F("M420S0\nG28O\nG90\nG0F300Z5\nG0F5000X"), p_float_t(xpos, 1), 'Y', p_float_t(ypos, 1), F("\nG0F300Z0")
+          F("M420S0\nG28O\nG90\nG0F300Z"), p_float_t((BED_TRAMMING_HEIGHT) + (BED_TRAMMING_Z_HOP), 1), F("\nG0F5000X"), p_float_t(xpos, 1), 'Y', p_float_t(ypos, 1), F("\nG0F300Z"), p_float_t(BED_TRAMMING_HEIGHT, 2)
         ));
       }
       else {
@@ -2617,7 +2617,7 @@ void gotoConfirmToPrint() {
       float xpos = 0, ypos = 0;
       tramXY(point, xpos, ypos);
       queue.inject(MString<100>(
-        F("M420S0\nG28O\nG90\nG0F300Z5\nG0F5000X"), p_float_t(xpos, 1), 'Y', p_float_t(ypos, 1), F("\nG0F300Z0")
+        F("M420S0\nG28O\nG90\nG0F300Z"), p_float_t((BED_TRAMMING_HEIGHT) + (BED_TRAMMING_Z_HOP), 1), F("\nG0F5000X"), p_float_t(xpos, 1), 'Y', p_float_t(ypos, 1), F("\nG0F300Z"), p_float_t(BED_TRAMMING_HEIGHT, 2)
       ));
     }
 
