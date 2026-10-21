@@ -163,7 +163,7 @@
 #define DWIN_VAR_UPDATE_INTERVAL          500
 #define DWIN_UPDATE_INTERVAL             1000
 
-#if HAS_MESH && HAS_BED_PROBE
+#if HAS_BED_PROBE
   #define BABY_Z_VAR probe.offset.z
 #else
   float z_offset = 0;
