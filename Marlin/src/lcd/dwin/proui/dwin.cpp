@@ -4062,22 +4062,24 @@ void drawMaxAccelMenu() {
 
 #if ENABLED(EDITABLE_HOMING_FEEDRATE)
 
+  // Draw a float feedrate (mm/min) as an integer
+  void onDrawPFloatAsIntMenu(MenuItem* menuitem, int8_t line) {
+    onDrawIntMenu(menuitem, line, LROUND(*(float*)static_cast<MenuItemPtr*>(menuitem)->value));
+  }
+
   void drawHomingFRMenu() {
     constexpr uint8_t items = 1 + COUNT_ENABLED(HAS_X_AXIS, HAS_Y_AXIS, HAS_Z_AXIS);
     checkkey = ID_Menu;
     if (SET_MENU(homingFRMenu, MSG_HOMING_FEEDRATE, items)) {
       BACK_ITEM(drawMotionMenu);
       #if HAS_X_AXIS
-        uint16_t xhome = static_cast<uint16_t>(motion.homing_feedrate_mm_m.x);
-        EDIT_ITEM(ICON_MaxSpeedJerkX, MSG_HOMING_FEEDRATE_X, onDrawPIntMenu, setHomingX, &xhome);
+        EDIT_ITEM(ICON_MaxSpeedJerkX, MSG_HOMING_FEEDRATE_X, onDrawPFloatAsIntMenu, setHomingX, &motion.homing_feedrate_mm_m.x);
       #endif
       #if HAS_Y_AXIS
-        uint16_t yhome = static_cast<uint16_t>(motion.homing_feedrate_mm_m.y);
-        EDIT_ITEM(ICON_MaxSpeedJerkY, MSG_HOMING_FEEDRATE_Y, onDrawPIntMenu, setHomingY, &yhome);
+        EDIT_ITEM(ICON_MaxSpeedJerkY, MSG_HOMING_FEEDRATE_Y, onDrawPFloatAsIntMenu, setHomingY, &motion.homing_feedrate_mm_m.y);
       #endif
       #if HAS_Z_AXIS
-        uint16_t zhome = static_cast<uint16_t>(motion.homing_feedrate_mm_m.z);
-        EDIT_ITEM(ICON_MaxSpeedJerkZ, MSG_HOMING_FEEDRATE_Z, onDrawPIntMenu, setHomingZ, &zhome);
+        EDIT_ITEM(ICON_MaxSpeedJerkZ, MSG_HOMING_FEEDRATE_Z, onDrawPFloatAsIntMenu, setHomingZ, &motion.homing_feedrate_mm_m.z);
       #endif
     }
     updateMenu(homingFRMenu);
