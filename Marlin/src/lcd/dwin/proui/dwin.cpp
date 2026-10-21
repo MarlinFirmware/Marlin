@@ -1753,13 +1753,21 @@ void dwinHomingDone() {
       #if ENABLED(PIDTEMPBED)
         case PIDTEMPBED_START:
           hmiSaveProcessID(ID_PIDProcess);
-          dwinDrawPopup(ICON_TempTooHigh, GET_TEXT_F(MSG_PID_AUTOTUNE), GET_TEXT_F(MSG_PID_FOR_BED));
+          #if PROUI_TUNING_GRAPH
+            dwinDrawPIDMPCPopup();
+          #else
+            dwinDrawPopup(ICON_TempTooHigh, GET_TEXT_F(MSG_PID_AUTOTUNE), GET_TEXT_F(MSG_PID_FOR_BED));
+          #endif
           break;
       #endif
       #if ENABLED(PIDTEMPCHAMBER)
         case PIDTEMPCHAMBER_START:
           hmiSaveProcessID(ID_PIDProcess);
-          dwinDrawPopup(ICON_TempTooHigh, GET_TEXT_F(MSG_PID_AUTOTUNE), GET_TEXT_F(MSG_PID_FOR_CHAMBER));
+          #if PROUI_TUNING_GRAPH
+            dwinDrawPIDMPCPopup();
+          #else
+            dwinDrawPopup(ICON_TempTooHigh, GET_TEXT_F(MSG_PID_AUTOTUNE), GET_TEXT_F(MSG_PID_FOR_CHAMBER));
+          #endif
           break;
       #endif
       case PID_BAD_HEATER_ID:
