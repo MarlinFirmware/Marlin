@@ -49,6 +49,30 @@
   #include "../tft/touch.h"
 #endif
 
+#if ENABLED(VARIABLE_GRID_POINTS)
+
+  //
+  // Grid size selected in the menu, used by the next leveling procedure
+  //
+  #if ENABLED(DELTA)
+    // Edit (N-1)/2 so only odd numbers can be selected
+    static xy_uint8_t lcd_grid_half = { (GRID_MAX_POINTS_X - 1) / 2, (GRID_MAX_POINTS_Y - 1) / 2 };
+    static xy_uint8_t lcd_grid_points() { return { uint8_t(lcd_grid_half.x * 2 + 1), uint8_t(lcd_grid_half.y * 2 + 1) }; }
+  #else
+    static xy_uint8_t lcd_grid_pts = { GRID_MAX_POINTS_X, GRID_MAX_POINTS_Y };
+    static xy_uint8_t lcd_grid_points() { return lcd_grid_pts; }
+  #endif
+
+  // Append " X<n> Y<n>" for each axis not using the default (maximum) size.
+  // Bilinear G29 still applies GRID_MIN_SPACING to an axis that isn't given.
+  static void append_grid_points(MString<30> &cmd, const bool always=false) {
+    const xy_uint8_t gp = lcd_grid_points();
+    if (always || gp.x != (GRID_MAX_POINTS_X)) cmd.append(F(" X"), gp.x);
+    if (always || gp.y != (GRID_MAX_POINTS_Y)) cmd.append(F(" Y"), gp.y);
+  }
+
+#endif // VARIABLE_GRID_POINTS
+
 #if ENABLED(LCD_BED_LEVELING) && ANY(PROBE_MANUALLY, MESH_BED_LEVELING)
 
   #include "../../module/motion.h"
@@ -58,8 +82,8 @@
   // Motion > Level Bed handlers
   //
 
-  // LCD probed points are from defaults
-  grid_count_t total_probe_points() { return TERN(AUTO_BED_LEVELING_3POINT, 3, bedlevel.used_points()); }
+  // Points to probe, as set by G29
+  uint16_t total_probe_points() { return TERN(MESH_BED_LEVELING, bedlevel.used_points(), g29_total_points); }
 
   //
   // Bed leveling is done. Wait for G29 to complete.
@@ -160,6 +184,15 @@
 
     // G29 Records Z, moves, and signals when it pauses
     ui.wait_for_move = true;
+    #if ENABLED(VARIABLE_GRID_POINTS)
+      if (manual_probe_index == 0) {
+        // The first G29 starts probing with the selected grid size
+        MString<30> cmd(TERN(MESH_BED_LEVELING, F("G29S1"), F("G29V1")));
+        append_grid_points(cmd);
+        queue.inject(cmd);
+        return;
+      }
+    #endif
     #if ENABLED(MESH_BED_LEVELING)
       queue.inject(manual_probe_index ? F("G29S2") : F("G29S1"));
     #elif ENABLED(PROBE_MANUALLY)
@@ -251,7 +284,7 @@ void menu_probe_level() {
 
   #if HAS_LEVELING
     const bool is_homed = motion.all_axes_homed(),
-               is_valid = bedlevel.leveling_is_valid();
+               is_valid = leveling_is_valid();
   #endif
 
   #if NONE(PROBE_MANUALLY, MESH_BED_LEVELING)
@@ -281,6 +314,27 @@ void menu_probe_level() {
       }
 
       //
+      // Grid size for the next leveling
+      //
+      #if ENABLED(VARIABLE_GRID_POINTS)
+        #if ENABLED(DELTA)
+          EDIT_ITEM(uint8_odd, MSG_GRID_POINTS_X, &lcd_grid_half.x, 1, (GRID_MAX_POINTS_X - 1) / 2);
+          EDIT_ITEM(uint8_odd, MSG_GRID_POINTS_Y, &lcd_grid_half.y, 1, (GRID_MAX_POINTS_Y - 1) / 2);
+        #else
+          EDIT_ITEM(uint8, MSG_GRID_POINTS_X, &lcd_grid_pts.x, 2, GRID_MAX_POINTS_X);
+          EDIT_ITEM(uint8, MSG_GRID_POINTS_Y, &lcd_grid_pts.y, 2, GRID_MAX_POINTS_Y);
+        #endif
+        #if ENABLED(AUTO_BED_LEVELING_UBL)
+          // UBL: G29 P7 sets the size and resets the mesh before building a new one
+          ACTION_ITEM(MSG_SET_GRID_SIZE, []{
+            MString<30> cmd(F("G29P7"));
+            append_grid_points(cmd, true);
+            queue.inject(cmd);
+          });
+        #endif
+      #endif
+
+      //
       // Level Bed
       //
       #if ENABLED(AUTO_BED_LEVELING_UBL)
@@ -293,7 +347,15 @@ void menu_probe_level() {
         #endif
       #else
         // Automatic leveling can just run the G-code
-        GCODES_ITEM(MSG_LEVEL_BED, is_homed ? F("G29") : F("G29N"));
+        #if ENABLED(VARIABLE_GRID_POINTS)
+          ACTION_ITEM(MSG_LEVEL_BED, []{
+            MString<30> cmd(motion.all_axes_homed() ? F("G29") : F("G29N"));
+            append_grid_points(cmd);
+            queue.inject(cmd);
+          });
+        #else
+          GCODES_ITEM(MSG_LEVEL_BED, is_homed ? F("G29") : F("G29N"));
+        #endif
       #endif
 
       //

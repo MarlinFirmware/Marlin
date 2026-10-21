@@ -437,8 +437,9 @@ void ubl_map_screen() {
 
     do {
       // Now, keep the encoder position within range
-      if (int32_t(ui.encoderPosition) < 0) ui.encoderPosition = GRID_MAX_POINTS + TERN(TOUCH_SCREEN, ui.encoderPosition, -1);
-      if (int32_t(ui.encoderPosition) > GRID_MAX_POINTS - 1) ui.encoderPosition = TERN0(TOUCH_SCREEN, ui.encoderPosition - bedlevel.used_points());
+      const int32_t used_points = bedlevel.used_points();
+      if (int32_t(ui.encoderPosition) < 0) ui.encoderPosition = used_points + TERN(TOUCH_SCREEN, ui.encoderPosition, -1);
+      if (int32_t(ui.encoderPosition) > used_points - 1) ui.encoderPosition = TERN0(TOUCH_SCREEN, ui.encoderPosition - used_points);
 
       // Draw the grid point based on the encoder
       x = ui.encoderPosition % bedlevel.nr_grid_points.x;

@@ -1565,7 +1565,7 @@ void dwinHomingDone() {
       hmiSaveProcessID(ID_Leveling);
       title.showCaption(GET_TEXT_F(MSG_BED_LEVELING));
       #if ENABLED(AUTO_BED_LEVELING_UBL)
-        meshViewer.drawMeshGrid(GRID_MAX_POINTS_X, GRID_MAX_POINTS_Y);
+        meshViewer.drawMeshGrid(bedlevel.nr_grid_points.x, bedlevel.nr_grid_points.y);
         DWINUI::drawButton(BTN_Cancel, 86, 305);
       #else
         dwinShowPopup(ICON_AutoLeveling, GET_TEXT_F(MSG_BED_LEVELING), GET_TEXT_F(MSG_PLEASE_WAIT));

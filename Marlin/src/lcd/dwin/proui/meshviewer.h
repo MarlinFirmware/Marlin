@@ -29,6 +29,7 @@
  * Date: 2023/05/05
  */
 
+#include "../../../inc/MarlinConfig.h"
 #include "../../../feature/bedlevel/bedlevel.h"
 
 class MeshViewer {
@@ -38,7 +39,16 @@ public:
   static void drawMeshPoint(const uint8_t x, const uint8_t y, const float z);
   static void drawMeshPoint(const xy_int8_t xy, const float z) { drawMeshPoint(uint8_t(xy.x), uint8_t(xy.y), z); }
   static void draw(const bool withsave=false, const bool redraw=true);
-  static void drawMesh(const float (&zval)[2][2], const uint8_t csizex, const uint8_t csizey);
+  // Draw a mesh from any 2D array, such as bedlevel.z_values or a 2x2 tramming array
+  template<uint8_t NY>
+  static void drawMesh(const float (*zval)[NY], const uint8_t csizex, const uint8_t csizey) {
+    drawMeshGrid(csizex, csizey);
+    for (uint8_t y = 0; y < csizey; ++y) {
+      hal.watchdog_refresh();
+      for (uint8_t x = 0; x < csizex; ++x)
+        drawMeshPoint(x, y, zval[x][y]);
+    }
+  }
 };
 
 extern MeshViewer meshViewer;

@@ -73,8 +73,8 @@ void GcodeSuite::M420() {
       #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
         xy_pos_t start, spacing;
         start.set(x_min, y_min);
-        spacing.set((x_max - x_min) / bedlevel.max_cells.x,
-                    (y_max - y_min) / bedlevel.max_cells.y);
+        spacing.set((x_max - x_min) / (bedlevel.nr_grid_points.x - 1),
+                    (y_max - y_min) / (bedlevel.nr_grid_points.y - 1));
         bedlevel.set_grid(spacing, start OPTARG(VARIABLE_GRID_POINTS, bedlevel.nr_grid_points));
       #endif
       GRID_LOOP_USED(x, y) {
@@ -204,12 +204,7 @@ void GcodeSuite::M420() {
     #else
       if (bedlevel.leveling_is_valid()) {
         #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
-          #if ENABLED(VARIABLE_GRID_POINTS)
-            //bedlevel.set_grid(bedlevel.grid_spacing, bedlevel.mesh_min, bedlevel.nr_grid_points);
-            bedlevel.print_leveling_grid(nullptr, &bedlevel.nr_grid_points);
-          #else
-            bedlevel.print_leveling_grid();
-          #endif
+          bedlevel.print_leveling_grid();
         #elif ENABLED(MESH_BED_LEVELING)
           SERIAL_ECHOLNPGM("Mesh Bed Level data:");
           bedlevel.report_mesh();

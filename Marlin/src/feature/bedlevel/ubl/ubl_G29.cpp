@@ -235,6 +235,11 @@
  *                    you should have the Mesh adjusted for a Mean Height of 0.00 and the Z-Probe measuring
  *                    0.000 at the Z Home location.
  *
+ *   P7    Grid Size  With VARIABLE_GRID_POINTS, set the number of mesh points with X<count> Y<count>.
+ *                    This resets and invalidates the mesh, so use it before building a new mesh.
+ *                    The mesh size is saved with each stored mesh. G29 P7 alone reports the size.
+ *                    (DELTA requires odd numbers.) Example: G29 P7 X5 Y5
+ *
  *   Q     Test       Load specified Test Pattern to assist in checking correct operation of system. This
  *                    command is not anticipated to be of much value to the typical user. It is intended
  *                    for developers to help them verify correct operation of the Unified Bed Leveling System.
@@ -311,6 +316,11 @@ G29_parameters_t unified_bed_leveling::param;
 
 void unified_bed_leveling::G29() {
   SET_UBL_PROBE_DEPLOYED(false);
+
+  #if ENABLED(VARIABLE_GRID_POINTS)
+    // G29 P7 [X<count>] [Y<count>] is a stand-alone command
+    if (parser.seenval('P') && parser.value_int() == 7) { G29_set_grid_points(); return; }
+  #endif
 
   if (G29_parse_parameters()) return; // Abort on parameter error
 
@@ -693,10 +703,39 @@ void unified_bed_leveling::G29_handle_homing_and_setup() {
 /**
  * Handle mesh invalidation (I parameter)
  */
+#if ENABLED(VARIABLE_GRID_POINTS)
+
+  /**
+   * G29 P7 X<count> Y<count> : Set the number of mesh points, resetting the mesh.
+   * Omitted X or Y keeps the current count. No X or Y just reports the size.
+   */
+  void unified_bed_leveling::G29_set_grid_points() {
+    const bool seenx = parser.seenval('X'), seeny = parser.seenval('Y');
+    if (seenx || seeny) {
+      const xy_uint8_t points = {
+        seenx ? uint8_t(parser.byteval('X')) : nr_grid_points.x,
+        seeny ? uint8_t(parser.byteval('Y')) : nr_grid_points.y
+      };
+      if (!valid_grid_points(points)) {
+        SERIAL_ECHOLNPGM(GCODE_ERR_MSG("Grid points (X Y) must be 2-" STRINGIFY(GRID_MAX_POINTS_X) " x 2-" STRINGIFY(GRID_MAX_POINTS_Y)
+          TERN_(DELTA, ", odd for DELTA") "."));
+        return;
+      }
+      reset();                      // Zero the mesh and disable leveling
+      set_nr_grid_points(points);
+      invalidate();                 // The new mesh must be probed before use
+    }
+    SERIAL_ECHO(F("UBL mesh size "), nr_grid_points.x, C('x'), nr_grid_points.y);
+    if (seenx || seeny) SERIAL_ECHOPGM(" (mesh invalidated)");
+    SERIAL_EOL();
+  }
+
+#endif // VARIABLE_GRID_POINTS
+
 void unified_bed_leveling::G29_handle_invalidate() {
   // Invalidate one or more nearby mesh points, possibly all.
   grid_count_t count = parser.has_value() ? parser.value_ushort() : 1;
-    bool invalidate_all = count >= GRID_MAX_POINTS;
+    bool invalidate_all = count >= used_points();
     if (!invalidate_all) {
       while (count--) {
         if ((count & 0x0F) == 0x0F) marlin.idle();
@@ -1258,8 +1297,8 @@ bool unified_bed_leveling::G29_parse_parameters() {
     #endif
       {
         param.P_phase = pval;
-        if (!WITHIN(param.P_phase, 0, 6)) {
-          SERIAL_ECHOLNPGM("?(P)hase value invalid (0-6).\n");
+        if (!WITHIN(param.P_phase, 0, TERN(VARIABLE_GRID_POINTS, 7, 6))) {
+          SERIAL_ECHOLNPGM("?(P)hase value invalid (0-" TERN(VARIABLE_GRID_POINTS, "7", "6") ").\n");
           err_flag = true;
         }
       }
@@ -1542,18 +1581,13 @@ void unified_bed_leveling::smart_fill_mesh() {
 
   #if ENABLED(VARIABLE_GRID_POINTS)
 
-    // Ensure nr_grid_points.x and nr_grid_points.y are greater than the values being subtracted
-    if (nr_grid_points.x < 2 || nr_grid_points.y < 2) {
-      // Handle error condition: maybe return, set an error flag, etc.
-      return;
-    }
-
-    static smart_fill_info
-      info0 = { 0, (nr_grid_points.x), 0, (uint8_t)(nr_grid_points.y - 2), false },  // Bottom
-      info1 = { 0, (nr_grid_points.x), (uint8_t)(nr_grid_points.y - 1), 0, false },  // Top
-      info2 = { 0, (uint8_t)(nr_grid_points.x - 2), 0, (nr_grid_points.y), true },   // Left
-      info3 = { (uint8_t)(nr_grid_points.x - 1), 0, 0, (nr_grid_points.y), true };   // Right
-    static const smart_fill_info * const info[] = { &info0, &info1, &info2, &info3 };
+    // Built for the current grid size on every call
+    const smart_fill_info
+      info0 = { 0, nr_grid_points.x, 0, uint8_t(nr_grid_points.y - 2), false },  // Bottom of the mesh looking up
+      info1 = { 0, nr_grid_points.x, uint8_t(nr_grid_points.y - 1), 0, false },  // Top of the mesh looking down
+      info2 = { 0, uint8_t(nr_grid_points.x - 2), 0, nr_grid_points.y, true },   // Left side of the mesh looking right
+      info3 = { uint8_t(nr_grid_points.x - 1), 0, 0, nr_grid_points.y, true };   // Right side of the mesh looking left
+    const smart_fill_info * const info[] = { &info0, &info1, &info2, &info3 };
 
     #define SF_PTR(V) V
     #define SF_BYTE(V) V
@@ -1805,7 +1839,7 @@ void unified_bed_leveling::smart_fill_mesh() {
     // the point being extrapolated.  Then extrapolate the mesh point from WLSF.
 
     static_assert((GRID_MAX_POINTS_Y) <= 16, "GRID_MAX_POINTS_Y too big");
-    uint16_t bitmap[nr_grid_points.x] = { 0 };
+    uint16_t bitmap[GRID_MAX_POINTS_X] = { 0 };
     struct linear_fit_data lsf_results;
 
     SERIAL_ECHOPGM("Extrapolating mesh...");
@@ -1957,7 +1991,7 @@ void unified_bed_leveling::smart_fill_mesh() {
 
       param.KLS_storage_slot = (int8_t)parser.value_int();
 
-      float tmp_z_values[nr_grid_points.x][nr_grid_points.y];
+      bed_mesh_t tmp_z_values;
       settings.load_mesh(param.KLS_storage_slot, &tmp_z_values);
 
       SERIAL_ECHOLNPGM("Subtracting mesh in slot ", param.KLS_storage_slot, " from current mesh.");

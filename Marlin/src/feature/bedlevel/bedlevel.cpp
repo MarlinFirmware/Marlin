@@ -33,6 +33,7 @@
 
 #if ENABLED(PROBE_MANUALLY)
   bool g29_in_progress = false;
+  uint16_t g29_total_points = 0;
 #endif
 
 #if ENABLED(LCD_BED_LEVELING)
@@ -51,46 +52,63 @@
 #endif
 
 #if HAS_MESH
+
   // The Leveling Mesh is shared by MBL, ABL Bilinear, and UBL
   bed_mesh_t LevelingMesh::z_values;
 
-  #if ANY(HAS_PROUI_MESH_EDIT, VARIABLE_GRID_POINTS)
-    xy_pos_t LevelingMesh::mesh_min, LevelingMesh::mesh_max;
-  #else
-    constexpr xy_pos_t LevelingMesh::mesh_min, LevelingMesh::mesh_max;
-  #endif
-
   constexpr xy_uint8_t LevelingMesh::max_points, LevelingMesh::max_cells;
+
   #if ENABLED(VARIABLE_GRID_POINTS)
-    xy_uint8_t LevelingMesh::nr_grid_points;
-    xy_float_t LevelingMesh::grid_spacing;
-    #if ENABLED(CACHED_DIST_RECIPROCAL)
-      xy_float_t LevelingMesh::grid_spacing_recip;
-    #endif
+    xy_uint8_t LevelingMesh::nr_grid_points = { GRID_MAX_POINTS_X, GRID_MAX_POINTS_Y };
   #else
     constexpr xy_uint8_t LevelingMesh::nr_grid_points;
-    constexpr xy_float_t LevelingMesh::grid_spacing;
   #endif
+
+  #if HAS_DYNAMIC_MESH_GRID
+    // Constant-initialized so the grid is valid before any constructor runs
+    #define _MESH_SPACING_X ((float(MESH_MAX_X) - float(MESH_MIN_X)) / float(GRID_MAX_POINTS_X - 1))
+    #define _MESH_SPACING_Y ((float(MESH_MAX_Y) - float(MESH_MIN_Y)) / float(GRID_MAX_POINTS_Y - 1))
+    xy_pos_t LevelingMesh::mesh_min = { MESH_MIN_X, MESH_MIN_Y },
+             LevelingMesh::mesh_max = { MESH_MAX_X, MESH_MAX_Y };
+    #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
+      // Bilinear has no grid until G29 or EEPROM provides one
+      xy_float_t LevelingMesh::grid_spacing = { 0, 0 };
+      #if ENABLED(CACHED_DIST_RECIPROCAL)
+        xy_float_t LevelingMesh::grid_spacing_recip = { 0, 0 };
+      #endif
+    #else
+      xy_float_t LevelingMesh::grid_spacing = { _MESH_SPACING_X, _MESH_SPACING_Y };
+      #if ENABLED(CACHED_DIST_RECIPROCAL)
+        xy_float_t LevelingMesh::grid_spacing_recip = { 1.0f / _MESH_SPACING_X, 1.0f / _MESH_SPACING_Y };
+      #endif
+    #endif
+    #undef _MESH_SPACING_X
+    #undef _MESH_SPACING_Y
+  #else
+    constexpr xy_pos_t LevelingMesh::mesh_min, LevelingMesh::mesh_max;
+    constexpr xy_float_t LevelingMesh::grid_spacing;
+    #if ENABLED(CACHED_DIST_RECIPROCAL)
+      constexpr xy_float_t LevelingMesh::grid_spacing_recip;
+    #endif
+  #endif
+
+  void LevelingMesh::reset(const float v/*=0.0f*/) {
+    TERN_(VARIABLE_GRID_POINTS, nr_grid_points = max_points);
+    refresh_mesh_lookup();
+    GRID_LOOP_MAX(x, y) z_values[x][y] = v;
+    #if ENABLED(EXTENSIBLE_UI)
+      GRID_LOOP_USED(x, y) ExtUI::onMeshUpdate(x, y, isnan(v) ? 0.0f : v);
+    #endif
+  }
+
+  bool LevelingMesh::leveling_is_valid() {
+    return TERN(DWIN_LCD_PROUI, bedLevelTools.meshValidate(), bedlevel.mesh_is_valid());
+  }
 
 #endif // HAS_MESH
 
-#if ENABLED(CACHED_DIST_RECIPROCAL) && DISABLED(VARIABLE_GRID_POINTS)
-  constexpr xy_float_t LevelingMesh::grid_spacing_recip;
-#endif
-
-void LevelingMesh::reset(const float v) {
-  TERN_(VARIABLE_GRID_POINTS, set_nr_grid_points(grid_max_points));
-  GRID_LOOP_MAX(x, y) z_values[x][y] = v;
-}
-
-bool LevelingMesh::leveling_is_valid() {
-  return (
-    #if ALL(HAS_MESH, DWIN_LCD_PROUI)
-      bedLevelTools.meshValidate()
-    #else
-      TERN1(HAS_MESH, bedlevel.mesh_is_valid())
-    #endif
-  );
+bool leveling_is_valid() {
+  return TERN1(HAS_MESH, bedlevel.leveling_is_valid());
 }
 
 /**
@@ -178,10 +196,9 @@ void reset_bed_level() {
   /**
    * Print calibration results for plotting or manual frame adjustment.
    */
-  void print_2d_array(const uint8_t sx, const uint8_t sy, const uint8_t precision, const float *values OPTARG(VARIABLE_GRID_POINTS, xy_uint8_t printpos/*={0,0}*/)) {
-
+  void print_2d_array(const uint8_t sx, const uint8_t sy, const uint8_t precision, const float *values, const uint8_t stride_y) {
     #ifndef SCAD_MESH_OUTPUT
-      for (uint8_t x = 0; x < GRID_VAL(printpos.x, sx); ++x) {
+      for (uint8_t x = 0; x < sx; ++x) {
         SERIAL_ECHO_SP(precision + (x < 10 ? 3 : 2));
         SERIAL_ECHO(x);
       }
@@ -190,16 +207,16 @@ void reset_bed_level() {
     #ifdef SCAD_MESH_OUTPUT
       SERIAL_ECHOLNPGM("measured_z = ["); // open 2D array
     #endif
-    for (uint8_t y = 0; y < GRID_VAL(printpos.y, sy); ++y) {
+    for (uint8_t y = 0; y < sy; ++y) {
       #ifdef SCAD_MESH_OUTPUT
         SERIAL_ECHOPGM(" [");             // open sub-array
       #else
         if (y < 10) SERIAL_CHAR(' ');
         SERIAL_ECHO(y);
       #endif
-      for (uint8_t x = 0; x < GRID_VAL(printpos.x, sx); ++x) {
+      for (uint8_t x = 0; x < sx; ++x) {
         SERIAL_CHAR(' ');
-        const float offset = values[x * sy + y];
+        const float offset = values[x * stride_y + y];
         if (!isnan(offset)) {
           if (offset >= 0) SERIAL_CHAR('+');
           SERIAL_ECHO(p_float_t(offset, precision));
@@ -215,12 +232,12 @@ void reset_bed_level() {
           #endif
         }
         #ifdef SCAD_MESH_OUTPUT
-          if (x < GRID_VAL(printpos.x, sx) - 1) SERIAL_CHAR(',');
+          if (x < sx - 1) SERIAL_CHAR(',');
         #endif
       }
       #ifdef SCAD_MESH_OUTPUT
         SERIAL_ECHOPGM(" ]");            // close sub-array
-        if (y < GRID_VAL(printpos.y, sy) - 1) SERIAL_CHAR(',');
+        if (y < sy - 1) SERIAL_CHAR(',');
       #endif
       SERIAL_EOL();
     }

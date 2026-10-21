@@ -1910,13 +1910,14 @@
   #define NEED_LSF 1
 #endif
 
-// Provide a reasonable minimum grid spacing
-#if ANY(ABL_USES_GRID, VARIABLE_GRID_POINTS) && !defined(GRID_MIN_SPACING)
+// Provide a reasonable minimum grid spacing for G29 with ABL Linear / Bilinear
+#if ABL_USES_GRID && !defined(GRID_MIN_SPACING)
   #define GRID_MIN_SPACING 25
 #endif
 
-// Determine max points when left undefined
-#ifdef GRID_MIN_SPACING
+// Determine max points from the bed size when left undefined.
+// (Kinematic bed sizes may be floating-point, so they can't be used here.)
+#if ABL_USES_GRID && !IS_KINEMATIC
   #ifndef GRID_MAX_POINTS_X
     #define GRID_MAX_POINTS_X ((X_BED_SIZE) / (GRID_MIN_SPACING))
   #endif
@@ -1932,6 +1933,11 @@
   #define GRID_CONSTEXPR     IF_DISABLED(VARIABLE_GRID_POINTS, constexpr)
   #define GRID_VAL(A,B)      (TERN(VARIABLE_GRID_POINTS, A, B))
   #define GRID_MAX_POINTS ((GRID_MAX_POINTS_X) * (GRID_MAX_POINTS_Y))
+
+  // Mesh bounds and spacing that may change at runtime
+  #if ANY(VARIABLE_GRID_POINTS, HAS_PROUI_MESH_EDIT, AUTO_BED_LEVELING_BILINEAR)
+    #define HAS_DYNAMIC_MESH_GRID 1
+  #endif
 
   #define GRID_LOOP_MAX(A,B)   for (uint8_t A = 0; A < (GRID_MAX_POINTS_X); ++A) for (uint8_t B = 0; B < (GRID_MAX_POINTS_Y); ++B)
   #define GRID_LOOP_USED(A,B)  for (uint8_t A = 0; A < bedlevel.nr_grid_points.x; ++A) for (uint8_t B = 0; B < bedlevel.nr_grid_points.y; ++B)

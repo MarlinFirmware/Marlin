@@ -259,6 +259,10 @@ namespace ExtUI {
     #if HAS_MESH
       // Mesh data, utilities, events
       bed_mesh_t& getMeshArray();
+      xy_uint8_t getMeshGridPoints();  // Number of grid points in use, up to GRID_MAX_POINTS_[XY]
+      inline uint16_t getMeshPointCount() { const xy_uint8_t p = getMeshGridPoints(); return uint16_t(p.x) * p.y; }
+      // Loop over the grid points in use
+      #define EXTUI_GRID_LOOP(A,B) for (uint8_t A = 0; A < ExtUI::getMeshGridPoints().x; ++A) for (uint8_t B = 0; B < ExtUI::getMeshGridPoints().y; ++B)
       float getMeshPoint(const xy_uint8_t &pos);
       void setMeshPoint(const xy_uint8_t &pos, const float zval);
       void moveToMeshPoint(const xy_uint8_t &pos, const float z);

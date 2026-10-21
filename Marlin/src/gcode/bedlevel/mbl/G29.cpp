@@ -118,12 +118,14 @@ void GcodeSuite::G29() {
 
     case MeshStart:
       #if ENABLED(VARIABLE_GRID_POINTS)
+      {
         const xy_uint8_t points = { parser.byteval('X', GRID_MAX_POINTS_X), parser.byteval('Y', GRID_MAX_POINTS_Y) };
-        const xy_bool_t ok = { WITHIN(points.x, 3, GRID_MAX_POINTS_X), WITHIN(points.y, 3, GRID_MAX_POINTS_Y) };
-        if (!ok.x) SERIAL_ECHOLNPGM("?(X) Probe points out of range (3..", int(GRID_MAX_POINTS_X), ")");
-        if (!ok.y) SERIAL_ECHOLNPGM("?(Y) Probe points out of range (3..", int(GRID_MAX_POINTS_Y), ")");
-        if (!ok.x || !ok.y) return;
+        const bool okx = WITHIN(points.x, 2, GRID_MAX_POINTS_X), oky = WITHIN(points.y, 2, GRID_MAX_POINTS_Y);
+        if (!okx) SERIAL_ECHOLNPGM("?(X) Probe points out of range (2..", int(GRID_MAX_POINTS_X), ")");
+        if (!oky) SERIAL_ECHOLNPGM("?(Y) Probe points out of range (2..", int(GRID_MAX_POINTS_Y), ")");
+        if (!okx || !oky) return;
         bedlevel.set_nr_grid_points(points);
+      }
       #endif
       bedlevel.reset();
       mbl_probe_index = 0;
@@ -226,8 +228,8 @@ void GcodeSuite::G29() {
     case MeshSet:
       if (parser.seenval('I')) {
         ix = parser.value_int();
-        if (!WITHIN(ix, 0, (GRID_MAX_POINTS_X) - 1)) {
-          SERIAL_ECHOLNPGM("I out of range (0-", (GRID_MAX_POINTS_X) - 1, ")");
+        if (!WITHIN(ix, 0, bedlevel.nr_grid_points.x - 1)) {
+          SERIAL_ECHOLNPGM("I out of range (0-", bedlevel.nr_grid_points.x - 1, ")");
           return;
         }
       }
@@ -236,8 +238,8 @@ void GcodeSuite::G29() {
 
       if (parser.seenval('J')) {
         iy = parser.value_int();
-        if (!WITHIN(iy, 0, (GRID_MAX_POINTS_Y) - 1)) {
-          SERIAL_ECHOLNPGM("J out of range (0-", (GRID_MAX_POINTS_Y) - 1, ")");
+        if (!WITHIN(iy, 0, bedlevel.nr_grid_points.y - 1)) {
+          SERIAL_ECHOLNPGM("J out of range (0-", bedlevel.nr_grid_points.y - 1, ")");
           return;
         }
       }

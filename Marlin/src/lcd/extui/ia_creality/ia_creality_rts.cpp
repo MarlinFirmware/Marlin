@@ -1062,10 +1062,10 @@ void RTS::handleData() {
 
           if (ExtUI::getLevelingIsValid()) {
             uint8_t abl_probe_index = 0;
-            for (uint8_t outer = 0; outer < bedlevel.nr_grid_points.y; outer++)
-              for (uint8_t inner = 0; inner < bedlevel.nr_grid_points.x; inner++) {
+            for (uint8_t outer = 0; outer < ExtUI::getMeshGridPoints().y; outer++)
+              for (uint8_t inner = 0; inner < ExtUI::getMeshGridPoints().x; inner++) {
                 const bool zig = outer & 1;
-                const xy_uint8_t point = { uint8_t(zig ? bedlevel.nr_grid_points.x - 1 - inner : inner), outer };
+                const xy_uint8_t point = { uint8_t(zig ? ExtUI::getMeshGridPoints().x - 1 - inner : inner), outer };
                 sendData(ExtUI::getMeshPoint(point) * 1000, AutolevelVal + abl_probe_index * 2);
                 ++abl_probe_index;
               }
@@ -1624,9 +1624,9 @@ void RTS::handleData() {
 
     case AutolevelVal: {
       uint8_t meshPoint = (recdat.addr - AutolevelVal) / 2,
-              yPnt = meshPoint / bedlevel.nr_grid_points.x,
-              xPnt = meshPoint - yPnt * bedlevel.nr_grid_points.x;
-      if (yPnt % 2 != 0) xPnt = bedlevel.nr_grid_points.x - 1 - xPnt; // zag row
+              yPnt = meshPoint / ExtUI::getMeshGridPoints().x,
+              xPnt = meshPoint - yPnt * ExtUI::getMeshGridPoints().x;
+      if (yPnt % 2 != 0) xPnt = ExtUI::getMeshGridPoints().x - 1 - xPnt; // zag row
 
       float meshVal = float(recdat.data[0] - (recdat.data[0] >= 32768 ? 65536 : 0)) / 1000;
 

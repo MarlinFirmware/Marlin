@@ -33,23 +33,18 @@ private:
   static void extrapolate_one_point(const uint8_t x, const uint8_t y, const int8_t xdir, const int8_t ydir);
 
   #if ENABLED(ABL_BILINEAR_SUBDIVISION)
-    #if ENABLED(VARIABLE_GRID_POINTS)
-      #define ABL_MAX_POINTS_VIRT_X ((GRID_MAX_POINTS_X - 1) * (BILINEAR_SUBDIVISIONS) + 1)
-      #define ABL_MAX_POINTS_VIRT_Y ((GRID_MAX_POINTS_Y - 1) * (BILINEAR_SUBDIVISIONS) + 1)
-      static_assert(ABL_MAX_POINTS_VIRT_X <= 256 && ABL_MAX_POINTS_VIRT_Y <= 256, "Too many BILINEAR_SUBDIVISIONS or ABL_MAX_POINTS_VIRT_*. Reduce one of them.");
-      static float z_values_virt[ABL_MAX_POINTS_VIRT_X][ABL_MAX_POINTS_VIRT_Y];
-    #else
-      #define ABL_GRID_POINTS_VIRT_X ((GRID_MAX_POINTS_X - 1) * (BILINEAR_SUBDIVISIONS) + 1)
-      #define ABL_GRID_POINTS_VIRT_Y ((GRID_MAX_POINTS_Y - 1) * (BILINEAR_SUBDIVISIONS) + 1)
-      static_assert(ABL_GRID_POINTS_VIRT_X <= 256 && ABL_GRID_POINTS_VIRT_Y <= 256, "Too many BILINEAR_SUBDIVISIONS or ABL_MAX_POINTS_VIRT_*. Reduce one of them.");
-      static float z_values_virt[ABL_GRID_POINTS_VIRT_X][ABL_GRID_POINTS_VIRT_Y];
-    #endif
+    // Size of the subdivided mesh array, for the maximum number of grid points
+    #define ABL_GRID_POINTS_VIRT_X ((GRID_MAX_POINTS_X - 1) * (BILINEAR_SUBDIVISIONS) + 1)
+    #define ABL_GRID_POINTS_VIRT_Y ((GRID_MAX_POINTS_Y - 1) * (BILINEAR_SUBDIVISIONS) + 1)
+    static_assert(ABL_GRID_POINTS_VIRT_X <= 256 && ABL_GRID_POINTS_VIRT_Y <= 256, "Too many BILINEAR_SUBDIVISIONS or GRID_MAX_POINTS_[XY]. Reduce one of them.");
+    static float z_values_virt[ABL_GRID_POINTS_VIRT_X][ABL_GRID_POINTS_VIRT_Y];
 
     static xy_pos_t grid_spacing_virt;
     static xy_float_t grid_factor_virt;
-    #if ENABLED(VARIABLE_GRID_POINTS)
-      static xy_uint_t nr_grid_points_virt;
-    #endif
+
+    // Number of subdivided points in use
+    static uint16_t virt_points_x() { return (nr_grid_points.x - 1) * (BILINEAR_SUBDIVISIONS) + 1; }
+    static uint16_t virt_points_y() { return (nr_grid_points.y - 1) * (BILINEAR_SUBDIVISIONS) + 1; }
 
     static float virt_coord(const uint8_t x, const uint8_t y);
     static float virt_cmr(const float p[4], const uint8_t i, const float t);
@@ -61,7 +56,7 @@ public:
   static void reset();
   static void set_grid(const xy_pos_t &_grid_spacing, const xy_pos_t &_mesh_min OPTARG(VARIABLE_GRID_POINTS, const xy_uint8_t &_nr_grid_points=grid_max_points));
   static void extrapolate_unprobed_bed_level();
-  static void print_leveling_grid(const bed_mesh_t *_z_values=nullptr OPTARG(VARIABLE_GRID_POINTS, const xy_uint8_t *_grid_points=nullptr));
+  static void print_leveling_grid(const bed_mesh_t *_z_values=nullptr, const xy_uint8_t *_grid_points=nullptr);
   static void refresh_bed_level();
   static float get_mesh_x(const uint8_t i) { return _grid_x(i); } // Caller beware. Don't go out of bounds.
   static float get_mesh_y(const uint8_t j) { return _grid_y(j); } // Caller beware. Don't go out of bounds.

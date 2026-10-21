@@ -1686,6 +1686,12 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
   #endif
 #endif
 
+#if ENABLED(VARIABLE_GRID_POINTS)
+  #if NONE(MESH_BED_LEVELING, AUTO_BED_LEVELING_BILINEAR, AUTO_BED_LEVELING_UBL)
+    #error "VARIABLE_GRID_POINTS requires MESH_BED_LEVELING, AUTO_BED_LEVELING_BILINEAR, or AUTO_BED_LEVELING_UBL."
+  #endif
+#endif
+
 #define _POINT_COUNT (defined(PROBE_PT_1) + defined(PROBE_PT_2) + defined(PROBE_PT_3))
 #if _POINT_COUNT != 0 && _POINT_COUNT != 3
   #error "For 3-Point Procedures all XY points must be defined (or none for the defaults)."

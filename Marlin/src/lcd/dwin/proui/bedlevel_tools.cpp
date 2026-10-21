@@ -241,7 +241,7 @@ bool BedLevelTools::meshValidate() {
       }
       else {          // has value
         MString<12> msg;
-        constexpr bool is_wide = bedlevel.nr_grid_points.x >= TERN(TJC_DISPLAY, 8, 10);
+        GRID_CONSTEXPR bool is_wide = bedlevel.nr_grid_points.x >= TERN(TJC_DISPLAY, 8, 10);
         if (is_wide)
           msg.setf(F("%02i"), uint16_t(z * 100) % 100);
         else

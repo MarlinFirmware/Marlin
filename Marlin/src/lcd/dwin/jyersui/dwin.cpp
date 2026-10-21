@@ -3779,7 +3779,7 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
           case MMESH_OLD:
             uint8_t mesh_x, mesh_y;
             // 0,0 -> 1,0 -> 2,0 -> 2,1 -> 1,1 -> 0,1 -> 0,2 -> 1,2 -> 2,2
-            mesh_y = (gridpoint - 1) / bedlevel.nr_grid_points.y;
+            mesh_y = (gridpoint - 1) / bedlevel.nr_grid_points.x;
             mesh_x = (gridpoint - 1) % bedlevel.nr_grid_points.x;
 
             if (mesh_y % 2 == 1)

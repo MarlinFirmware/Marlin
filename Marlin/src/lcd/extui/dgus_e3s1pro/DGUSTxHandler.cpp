@@ -62,7 +62,7 @@ void DGUSTxHandler::elapsedMinutes(DGUS_VP &vp) {
 }
 
 void DGUSTxHandler::levelingProgress(DGUS_VP &vp) {
-  const uint16_t data = (100 * screen.currentMeshPointIndex) / GRID_MAX_POINTS;
+  const uint16_t data = (100 * screen.currentMeshPointIndex) / ExtUI::getMeshPointCount();
   dgus.write((uint16_t)vp.addr, Endianness::toBE(data));
 }
 
@@ -72,7 +72,7 @@ void DGUSTxHandler::fanSpeed(DGUS_VP &vp) {
 }
 
 void DGUSTxHandler::levelingProgressIcon(DGUS_VP &vp) {
-  const uint16_t data = 1 + (50 * screen.currentMeshPointIndex) / GRID_MAX_POINTS;
+  const uint16_t data = 1 + (50 * screen.currentMeshPointIndex) / ExtUI::getMeshPointCount();
   dgus.write((uint16_t)vp.addr, Endianness::toBE(data));
 }
 

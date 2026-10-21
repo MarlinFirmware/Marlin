@@ -46,7 +46,7 @@
 
   void mesh_bed_leveling::report_mesh() {
     SERIAL_ECHOLN(nr_grid_points.x, 'x', nr_grid_points.y, F(" mesh. Z offset: "), p_float_t(z_offset, 5), F("\nMeasured points:"));
-    print_2d_array(nr_grid_points.x, nr_grid_points.y, 5, z_values[0]);
+    print_2d_array(nr_grid_points.x, nr_grid_points.y, 5, z_values[0], GRID_MAX_POINTS_Y);
   }
 
   void mesh_bed_leveling::reset() {
@@ -66,10 +66,6 @@
     void mesh_bed_leveling::line_to_destination(const feedRate_t scaled_fr_mm_s, uint8_t x_splits, uint8_t y_splits) {
       // Get current and destination cells for this line
       xy_uint8_t scel = cell_indexes(motion.position), ecel = cell_indexes(motion.destination);
-      NOMORE(scel.x, max_cells.x - 1);
-      NOMORE(scel.y, max_cells.y - 1);
-      NOMORE(ecel.x, max_cells.x - 1);
-      NOMORE(ecel.y, max_cells.y - 1);
 
       // Start and end in the same cell? No split needed.
       if (scel == ecel) {
@@ -90,7 +86,7 @@
         // Split on the X grid line
         CBI(x_splits, gcx);
         dest = motion.destination;
-        motion.destination.x = index_to_xpos[gcx];
+        motion.destination.x = get_mesh_x(gcx);
         normalized_dist = (motion.destination.x - motion.position.x) / (dest.x - motion.position.x);
         motion.destination.y = MBL_SEGMENT_END(y);
       }
@@ -99,7 +95,7 @@
         // Split on the Y grid line
         CBI(y_splits, gcy);
         dest = motion.destination;
-        motion.destination.y = index_to_ypos[gcy];
+        motion.destination.y = get_mesh_y(gcy);
         normalized_dist = (motion.destination.y - motion.position.y) / (dest.y - motion.position.y);
         motion.destination.x = MBL_SEGMENT_END(x);
       }

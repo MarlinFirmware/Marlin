@@ -98,6 +98,9 @@ private:
   #endif
   static bool G29_handle_phase_ops();
   static void G29_handle_post_processing();
+  #if ENABLED(VARIABLE_GRID_POINTS)
+    static void G29_set_grid_points();
+  #endif
 
   #if ENABLED(UBL_DEVEL_DEBUGGING)
     static void g29_what_command();
@@ -149,16 +152,16 @@ public:
 
   FORCE_INLINE static void set_z(const int8_t px, const int8_t py, const float z) { z_values[px][py] = z; }
 
-  static int8_t closest_x_index(const float x OPTARG(VARIABLE_GRID_POINTS, const xy_uint8_t &_nr_grid_points)) {
+  static int8_t closest_x_index(const float x) {
     const int8_t px = (x - mesh_min.x + grid_spacing.x * 0.5f) * grid_spacing_reciprocal().x;
     return WITHIN(px, 0, bedlevel.used_cells_x()) ? px : -1;
   }
-  static int8_t closest_y_index(const float y OPTARG(VARIABLE_GRID_POINTS, const xy_uint8_t &_nr_grid_points)) {
+  static int8_t closest_y_index(const float y) {
     const int8_t py = (y - mesh_min.y + grid_spacing.y * 0.5f) * grid_spacing_reciprocal().y;
     return WITHIN(py, 0, bedlevel.used_cells_y()) ? py : -1;
   }
   static xy_int8_t closest_indexes(const xy_pos_t &xy) {
-    return { closest_x_index(xy.x OPTARG(VARIABLE_GRID_POINTS, nr_grid_points)), closest_y_index(xy.y OPTARG(VARIABLE_GRID_POINTS, nr_grid_points)) };
+    return { closest_x_index(xy.x), closest_y_index(xy.y) };
   }
 
   /**
@@ -286,7 +289,7 @@ public:
   #endif
 
   static bool mesh_is_valid() {
-    GRID_LOOP_MAX(x, y) if (isnan(z_values[x][y])) return false;
+    GRID_LOOP_USED(x, y) if (isnan(z_values[x][y])) return false;
     return true;
   }
 

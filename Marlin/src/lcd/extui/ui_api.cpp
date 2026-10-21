@@ -937,7 +937,7 @@ namespace ExtUI {
 
     bool getLevelingActive() { return planner.leveling_active; }
     void setLevelingActive(const bool state) { set_bed_leveling_enabled(state); }
-    bool getLevelingIsValid() { return bedlevel.leveling_is_valid(); }
+    bool getLevelingIsValid() { return leveling_is_valid(); }
 
     #if ENABLED(PREHEAT_BEFORE_LEVELING)
       #if HAS_HOTEND
@@ -957,6 +957,7 @@ namespace ExtUI {
     #if HAS_MESH
 
       bed_mesh_t& getMeshArray() { return bedlevel.z_values; }
+      xy_uint8_t getMeshGridPoints() { return bedlevel.nr_grid_points; }
       float getMeshPoint(const xy_uint8_t &pos) { return bedlevel.z_values[pos.x][pos.y]; }
       void setMeshPoint(const xy_uint8_t &pos, const float zoff) {
         if (WITHIN(pos.x, 0, bedlevel.nr_grid_points.x - 1) && WITHIN(pos.y, 0, bedlevel.nr_grid_points.y - 1)) {

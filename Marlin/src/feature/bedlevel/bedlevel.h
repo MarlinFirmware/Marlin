@@ -29,12 +29,14 @@
 
 #if ENABLED(PROBE_MANUALLY)
   extern bool g29_in_progress;
+  extern uint16_t g29_total_points; // Number of points to probe in the G29 in progress
 #else
   constexpr bool g29_in_progress = false;
 #endif
 
 void set_bed_leveling_enabled(const bool enable=true);
 void reset_bed_level();
+bool leveling_is_valid();
 
 #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
   void set_z_fade_height(const float zfh, const bool do_report=true);
@@ -46,6 +48,30 @@ void reset_bed_level();
 
 #ifdef GRID_MAX_POINTS_X
   constexpr xy_uint8_t grid_max_points = { GRID_MAX_POINTS_X, GRID_MAX_POINTS_Y };
+
+  // DELTA requires an odd number of grid points so there is a center point
+  constexpr bool grid_points_must_be_odd = ENABLED(DELTA);
+
+  /**
+   * Reduce the number of grid points on each axis so the grid spacing
+   * across 'size' is not smaller than 'min_spacing'. Never fewer than 2.
+   * With 'odd' the result is odd (and at least 3), so 'points' must be odd.
+   * An axis with min_spacing <= 0 keeps its number of points.
+   */
+  inline uint8_t reduced_grid_points(const float size, const uint8_t points, const float min_spacing, const bool odd=grid_points_must_be_odd) {
+    if (min_spacing <= 0 || points < 3 || size / (points - 1) >= min_spacing) return points;
+    uint8_t n = constrain(uint8_t(size / min_spacing) + 1, 2, points);
+    if (odd && !(n & 1)) n = _MAX(n - 1, 3);
+    return n;
+  }
+  inline xy_uint8_t reduced_grid_points(const xy_float_t &size, const xy_uint8_t &points, const xy_float_t &min_spacing, const bool odd=grid_points_must_be_odd) {
+    return { reduced_grid_points(size.x, points.x, min_spacing.x, odd), reduced_grid_points(size.y, points.y, min_spacing.y, odd) };
+  }
+
+  // Is a grid size allowed? Between 2 and GRID_MAX_POINTS_[XY], and odd for DELTA.
+  inline bool grid_points_allowed(const uint8_t n, const uint8_t nmax, const bool odd=grid_points_must_be_odd) {
+    return WITHIN(n, 2, nmax) && (!odd || (n & 1));
+  }
 #endif
 
 #if HAS_MESH
@@ -59,40 +85,51 @@ void reset_bed_level();
     public:
       static bed_mesh_t z_values;
 
-      #if ANY(HAS_PROUI_MESH_EDIT, VARIABLE_GRID_POINTS)
-        static xy_pos_t mesh_min, mesh_max;
-      #else
-        static constexpr xy_pos_t mesh_min{ MESH_MIN_X, MESH_MIN_Y },
-                                  mesh_max{ MESH_MAX_X, MESH_MAX_Y };
-      #endif
-
       static constexpr xy_uint8_t max_points = { GRID_MAX_POINTS_X, GRID_MAX_POINTS_Y },
                                   max_cells = { GRID_MAX_POINTS_X - 1, GRID_MAX_POINTS_Y - 1 };
 
-      #if ENABLED(VARIABLE_GRID_POINTS)
-        static xy_uint8_t nr_grid_points;
+      // Mesh bounds and spacing are runtime values when they can be changed by
+      // G29 (Bilinear), the ProUI Mesh Inset menu, or a variable number of points.
+      #if HAS_DYNAMIC_MESH_GRID
+        static xy_pos_t mesh_min, mesh_max;
         static xy_float_t grid_spacing;
-      #else
-        static constexpr xy_uint8_t nr_grid_points = max_points;
-        static constexpr xy_float_t grid_spacing = (mesh_max - mesh_min) / (nr_grid_points - 1);
-      #endif
-      #if ENABLED(CACHED_DIST_RECIPROCAL)
-        #if ENABLED(VARIABLE_GRID_POINTS)
+        #if ENABLED(CACHED_DIST_RECIPROCAL)
           static xy_float_t grid_spacing_recip;
-        #else
+        #endif
+      #else
+        static constexpr xy_pos_t mesh_min{ MESH_MIN_X, MESH_MIN_Y },
+                                  mesh_max{ MESH_MAX_X, MESH_MAX_Y };
+        static constexpr xy_float_t grid_spacing = {
+          (float(MESH_MAX_X) - float(MESH_MIN_X)) / float(GRID_MAX_POINTS_X - 1),
+          (float(MESH_MAX_Y) - float(MESH_MIN_Y)) / float(GRID_MAX_POINTS_Y - 1)
+        };
+        #if ENABLED(CACHED_DIST_RECIPROCAL)
           static constexpr xy_float_t grid_spacing_recip = grid_spacing.reciprocal();
         #endif
       #endif
 
+      #if ENABLED(VARIABLE_GRID_POINTS)
+        static xy_uint8_t nr_grid_points;
+      #else
+        static constexpr xy_uint8_t nr_grid_points = max_points;
+      #endif
+
+      // Update the grid spacing after changing mesh_min, mesh_max, or nr_grid_points
       static void refresh_mesh_lookup() {
-        #if ENABLED(VARIABLE_GRID_POINTS)
-          grid_spacing = (mesh_max - mesh_min) / (nr_grid_points - 1);
-          grid_spacing_recip = grid_spacing_reciprocal();
+        #if HAS_DYNAMIC_MESH_GRID
+          grid_spacing.set((mesh_max.x - mesh_min.x) / float(nr_grid_points.x - 1),
+                           (mesh_max.y - mesh_min.y) / float(nr_grid_points.y - 1));
+          TERN_(CACHED_DIST_RECIPROCAL, grid_spacing_recip = grid_spacing.reciprocal());
         #endif
       }
+
       #if ENABLED(VARIABLE_GRID_POINTS)
+        // Is a grid size valid for the mesh array?
+        static bool valid_grid_points(const xy_uint8_t &gp) {
+          return grid_points_allowed(gp.x, GRID_MAX_POINTS_X) && grid_points_allowed(gp.y, GRID_MAX_POINTS_Y);
+        }
         static void set_nr_grid_points(const xy_uint8_t &gp) {
-          nr_grid_points = gp;
+          nr_grid_points.set(constrain(gp.x, 2, GRID_MAX_POINTS_X), constrain(gp.y, 2, GRID_MAX_POINTS_Y));
           refresh_mesh_lookup();
         }
       #endif
@@ -107,13 +144,17 @@ void reset_bed_level();
         return TERN(CACHED_DIST_RECIPROCAL, grid_spacing_recip, grid_spacing.reciprocal());
       }
 
+      // Reset mesh bounds and the number of points to the configured defaults
       static void init() {
-        #if ENABLED(VARIABLE_GRID_POINTS)
+        #if HAS_DYNAMIC_MESH_GRID && !HAS_PROUI_MESH_EDIT
           mesh_min.set(MESH_MIN_X, MESH_MIN_Y);
           mesh_max.set(MESH_MAX_X, MESH_MAX_Y);
-          set_nr_grid_points(grid_max_points);
         #endif
+        TERN_(VARIABLE_GRID_POINTS, nr_grid_points = max_points);
+        refresh_mesh_lookup();
       }
+
+      // Reset the number of points and fill the whole mesh with a value
       static void reset(const float v=0.0f);
 
       static bool has_mesh() { return !!grid_spacing.x; }
@@ -127,12 +168,24 @@ void reset_bed_level();
         return { grid_x(index.x), grid_y(index.y) };
       }
 
+      // Cell indexes. A cell is the area between two grid lines, so the
+      // last valid cell index is one less than the number of cells.
       static int8_t _cell_index_x(const float x) { return FLOOR((x - mesh_min.x) * grid_spacing_reciprocal().x); }
       static int8_t _cell_index_y(const float y) { return FLOOR((y - mesh_min.y) * grid_spacing_reciprocal().y); }
-      static bool cell_index_x_valid(const float x) { return WITHIN(_cell_index_x(x), 0, nr_grid_points.x - 1); }
-      static bool cell_index_y_valid(const float y) { return WITHIN(_cell_index_y(y), 0, nr_grid_points.y - 1); }
-      static uint8_t cell_index_x(const float x) { return constrain(_cell_index_x(x), 0, nr_grid_points.x - 1); }
-      static uint8_t cell_index_y(const float y) { return constrain(_cell_index_y(y), 0, nr_grid_points.y - 1); }
+      static bool cell_index_x_valid(const float x) { return WITHIN(_cell_index_x(x), 0, used_cells_x() - 1); }
+      static bool cell_index_y_valid(const float y) { return WITHIN(_cell_index_y(y), 0, used_cells_y() - 1); }
+      static uint8_t cell_index_x(const float x) { return constrain(_cell_index_x(x), 0, used_cells_x() - 1); }
+      static uint8_t cell_index_y(const float y) { return constrain(_cell_index_y(y), 0, used_cells_y() - 1); }
+
+      // Nearest grid point index, or -1 if outside the grid
+      static int8_t nearest_index_x(const float x) {
+        const int8_t px = FLOOR((x - mesh_min.x) * grid_spacing_reciprocal().x + 0.5f);
+        return WITHIN(px, 0, used_points_x() - 1) ? px : -1;
+      }
+      static int8_t nearest_index_y(const float y) {
+        const int8_t py = FLOOR((y - mesh_min.y) * grid_spacing_reciprocal().y + 0.5f);
+        return WITHIN(py, 0, used_points_y() - 1) ? py : -1;
+      }
       static xy_uint8_t cell_indexes(const float x, const float y) { return { cell_index_x(x), cell_index_y(y) }; }
       static xy_uint8_t cell_indexes(const xy_pos_t &xy) { return cell_indexes(xy.x, xy.y); }
 
@@ -160,14 +213,9 @@ void reset_bed_level();
 
     /**
      * Print calibration results for plotting or manual frame adjustment.
+     * Print sx * sy values from an array whose second dimension is stride_y.
      */
-    void print_2d_array(const uint8_t sx, const uint8_t sy, const uint8_t precision, const float *values OPTARG(VARIABLE_GRID_POINTS, xy_uint8_t printpos={0,0}));
-
-    #if ENABLED(VARIABLE_GRID_POINTS)
-      #define PRINT_2D_ARRAY(X, Y, P, V, M...) print_2d_array(X, Y, P, V, M)
-    #else
-      #define PRINT_2D_ARRAY(X, Y, P, V, M...) print_2d_array(X, Y, P, V)
-    #endif
+    void print_2d_array(const uint8_t sx, const uint8_t sy, const uint8_t precision, const float *values, const uint8_t stride_y);
 
   #endif
 

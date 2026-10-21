@@ -75,7 +75,7 @@ void BedMeshEditScreen::onEntry() {
 
 void BedMeshEditScreen::makeMeshValid() {
   bed_mesh_t &mesh = ExtUI::getMeshArray();
-  GRID_LOOP_USED(x, y) {
+  EXTUI_GRID_LOOP(x, y) {
     if (isnan(mesh[x][y])) mesh[x][y] = 0;
   }
 }

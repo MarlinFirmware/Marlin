@@ -297,18 +297,21 @@ void DGUSTxHandler::ablDisableIcon(DGUS_VP &vp) {
 
 void DGUSTxHandler::ablGrid(DGUS_VP &vp) {
   // Batch send
-  int16_t data[GRID_MAX_POINTS];
+  int16_t data[DGUS_LEVEL_GRID_SIZE];
   xy_uint8_t point;
   int16_t fixed;
 
-  for (int16_t i = 0; i < GRID_MAX_POINTS; i++) {
+  // The panel shows the maximum grid. Unused points are shown as zero.
+  const xy_uint8_t used = ExtUI::getMeshGridPoints();
+  for (int16_t i = 0; i < DGUS_LEVEL_GRID_SIZE; i++) {
     point.x = i % (GRID_MAX_POINTS_X);
     point.y = i / (GRID_MAX_POINTS_X);
-    fixed = dgus.toFixedPoint<float, int16_t, 3>(ExtUI::getMeshPoint(point));
+    const bool in_use = point.x < used.x && point.y < used.y;
+    fixed = in_use ? dgus.toFixedPoint<float, int16_t, 3>(ExtUI::getMeshPoint(point)) : 0;
     data[i] = Swap16(fixed);
   }
 
-  dgus.write((uint16_t)vp.addr, data, sizeof(*data) * GRID_MAX_POINTS);
+  dgus.write((uint16_t)vp.addr, data, sizeof(*data) * DGUS_LEVEL_GRID_SIZE);
 }
 
 void DGUSTxHandler::filamentIcons(DGUS_VP &vp) {

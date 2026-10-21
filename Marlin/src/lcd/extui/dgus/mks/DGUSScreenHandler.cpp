@@ -500,7 +500,7 @@ void DGUSScreenHandlerMKS::meshLevel(DGUS_VP_Variable &var, void *val_ptr) {
         break;
 
       case 2:
-        if (mesh_point_count == bedlevel.used_points()) { // The first point
+        if (mesh_point_count == GRID_MAX_POINTS) { // The first point (G29 S1 probes the full grid)
           queue.enqueue_now(F("G28\nG29S1"));
           mesh_point_count--;
 

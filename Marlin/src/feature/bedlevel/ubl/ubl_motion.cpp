@@ -413,10 +413,12 @@
       // in top of loop and again re-find same adjacent cell and use it, just less efficient
       // for mesh inset area.
 
-      const xy_uint8_t icell = cell_indexes(raw);
+      xy_int8_t icell = { _cell_index_x(raw.x), _cell_index_y(raw.y) };
+      LIMIT(icell.x, 0, used_cells_x());
+      LIMIT(icell.y, 0, used_cells_y());
 
       const int8_t ncellx = _MIN(icell.x + 1, used_cells_x()),
-                   ncelly = _MIN(icell.y + 1, used_cells_x());
+                   ncelly = _MIN(icell.y + 1, used_cells_y());
       float z_x0y0 = z_values[icell.x][icell.y],  // z at lower left corner
             z_x1y0 = z_values[ncellx ][icell.y],  // z at upper left corner
             z_x0y1 = z_values[icell.x][ncelly ],  // z at lower right corner

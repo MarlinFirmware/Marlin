@@ -99,15 +99,6 @@ void MeshViewer::drawMeshPoint(const uint8_t x, const uint8_t y, const float z) 
   }
 }
 
-void MeshViewer::drawMesh(const float (&zval)[2][2], const uint8_t csizex, const uint8_t csizey) {
-  drawMeshGrid(csizex, csizey);
-  for (uint8_t y = 0; y < csizey; ++y) {
-    hal.watchdog_refresh();
-    for (uint8_t x = 0; x < csizex; ++x)
-      drawMeshPoint(x, y, zval[x][y]);
-  }
-}
-
 void MeshViewer::draw(const bool withsave/*=false*/, const bool redraw/*=true*/) {
   title.showCaption(GET_TEXT_F(MSG_MESH_VIEWER));
 

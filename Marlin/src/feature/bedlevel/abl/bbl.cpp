@@ -95,17 +95,22 @@ void LevelingBilinear::extrapolate_one_point(const uint8_t x, const uint8_t y, c
 
 void LevelingBilinear::reset() {
   LevelingMesh::reset(NAN);
+  // No grid until G29 or EEPROM sets one
+  grid_spacing.reset();
+  TERN_(CACHED_DIST_RECIPROCAL, grid_spacing_recip.reset());
 }
 
 /**
  * Set grid spacing and start position
  */
-void LevelingBilinear::set_grid(const xy_pos_t& _grid_spacing, const xy_pos_t& _mesh_min OPTARG(VARIABLE_GRID_POINTS, const xy_uint8_t &_nr_grid_points)) {
-  TERN_(HAS_PROUI_MESH_EDIT, mesh_min = _mesh_min);
+void LevelingBilinear::set_grid(const xy_pos_t &_grid_spacing, const xy_pos_t &_mesh_min OPTARG(VARIABLE_GRID_POINTS, const xy_uint8_t &_nr_grid_points)) {
   #if ENABLED(VARIABLE_GRID_POINTS)
-    grid_spacing = _grid_spacing;
-    set_nr_grid_points(_nr_grid_points);
+    nr_grid_points.set(constrain(_nr_grid_points.x, 2, GRID_MAX_POINTS_X), constrain(_nr_grid_points.y, 2, GRID_MAX_POINTS_Y));
   #endif
+  mesh_min = _mesh_min;
+  mesh_max.set(_mesh_min.x + _grid_spacing.x * (nr_grid_points.x - 1), _mesh_min.y + _grid_spacing.y * (nr_grid_points.y - 1));
+  grid_spacing = _grid_spacing;
+  TERN_(CACHED_DIST_RECIPROCAL, grid_spacing_recip = grid_spacing.reciprocal());
 }
 
 /**
@@ -114,19 +119,18 @@ void LevelingBilinear::set_grid(const xy_pos_t& _grid_spacing, const xy_pos_t& _
  */
 void LevelingBilinear::extrapolate_unprobed_bed_level() {
   #ifdef HALF_IN_X
-    constexpr uint8_t ctrx2 = 0, xend = nr_grid_points.x - 1;
+    GRID_CONSTEXPR uint8_t ctrx2 = 0, xend = nr_grid_points.x - 1;
   #else
-    GRID_CONSTEXPR uint8_t
-      ctrx1 = GRID_VAL(nr_grid_points.x - 1, max_cells.x) / 2, // left-of-center
-      ctrx2 = nr_grid_points.x / 2,    // right-of-center
-      xend = ctrx1;
+    GRID_CONSTEXPR uint8_t ctrx1 = (nr_grid_points.x - 1) / 2,  // left-of-center
+                           ctrx2 = nr_grid_points.x / 2,        // right-of-center
+                           xend = ctrx1;
   #endif
 
   #ifdef HALF_IN_Y
-    constexpr uint8_t ctry2 = 0, yend = nr_grid_points.y - 1;
+    GRID_CONSTEXPR uint8_t ctry2 = 0, yend = nr_grid_points.y - 1;
   #else
-    GRID_CONSTEXPR uint8_t ctry1 = GRID_VAL(nr_grid_points.y - 1, max_cells.y) / 2,  // top-of-center
-                           ctry2 = nr_grid_points.y / 2,     // bottom-of-center
+    GRID_CONSTEXPR uint8_t ctry1 = (nr_grid_points.y - 1) / 2,  // top-of-center
+                           ctry2 = nr_grid_points.y / 2,        // bottom-of-center
                            yend = ctry1;
   #endif
 
@@ -150,37 +154,23 @@ void LevelingBilinear::extrapolate_unprobed_bed_level() {
     }
 }
 
-void LevelingBilinear::print_leveling_grid(const bed_mesh_t* _z_values/*=nullptr*/ OPTARG(VARIABLE_GRID_POINTS, const xy_uint8_t *_grid_points/*=nullptr*/)) {
-  // Print the passed mesh grid(s) or the current mesh
+void LevelingBilinear::print_leveling_grid(const bed_mesh_t *_z_values/*=nullptr*/, const xy_uint8_t *_grid_points/*=nullptr*/) {
+  // Print the passed mesh grid or the current mesh
   SERIAL_ECHOLNPGM("Bilinear Leveling Grid:");
-  PRINT_2D_ARRAY(
-    nr_grid_points.x, nr_grid_points.y, 3,
-    _z_values ? *_z_values[0] : z_values[0],
-    _grid_points ? *_grid_points : nr_grid_points
-  );
+  const xy_uint8_t &gp = _grid_points ? *_grid_points : nr_grid_points;
+  print_2d_array(gp.x, gp.y, 3, _z_values ? (*_z_values)[0] : z_values[0], GRID_MAX_POINTS_Y);
 
   #if ENABLED(ABL_BILINEAR_SUBDIVISION)
     if (!_z_values) {
       SERIAL_ECHOLNPGM("Subdivided with CATMULL ROM Leveling Grid:");
-      PRINT_2D_ARRAY(
-        GRID_VAL(ABL_MAX_POINTS_VIRT_X, ABL_GRID_POINTS_VIRT_X),
-        GRID_VAL(ABL_MAX_POINTS_VIRT_Y, ABL_GRID_POINTS_VIRT_Y),
-        5, z_values_virt[0], { uint8_t(nr_grid_points_virt.x), uint8_t(nr_grid_points_virt.y) }
-      );
+      print_2d_array(virt_points_x(), virt_points_y(), 5, z_values_virt[0], ABL_GRID_POINTS_VIRT_Y);
     }
   #endif
 }
 
 #if ENABLED(ABL_BILINEAR_SUBDIVISION)
 
-  #if ENABLED(VARIABLE_GRID_POINTS)
-    xy_uint_t LevelingBilinear::nr_grid_points_virt;
-    float LevelingBilinear::z_values_virt[ABL_MAX_POINTS_VIRT_X][ABL_MAX_POINTS_VIRT_Y];
-  #else
-    #define ABL_TEMP_POINTS_X (GRID_MAX_POINTS_X + 2)
-    #define ABL_TEMP_POINTS_Y (GRID_MAX_POINTS_Y + 2)
-    float LevelingBilinear::z_values_virt[ABL_GRID_POINTS_VIRT_X][ABL_GRID_POINTS_VIRT_Y];
-  #endif
+  float LevelingBilinear::z_values_virt[ABL_GRID_POINTS_VIRT_X][ABL_GRID_POINTS_VIRT_Y];
   xy_pos_t LevelingBilinear::grid_spacing_virt;
   xy_float_t LevelingBilinear::grid_factor_virt;
 
@@ -195,12 +185,12 @@ void LevelingBilinear::print_leveling_grid(const bed_mesh_t* _z_values/*=nullptr
       // making this function more complex by extrapolating two points.
       return 0.0;
     }
-    if (!x || x == GRID_VAL(nr_grid_points.x + 2, ABL_TEMP_POINTS_X) - 1) {
+    if (!x || x == nr_grid_points.x + 1) {
       if (x) {
         ep = nr_grid_points.x - 1;
-        ip = GRID_VAL(nr_grid_points.x - 1, max_cells.x) - 1;
+        ip = nr_grid_points.x - 2;
       }
-      if (WITHIN(y, 1, GRID_VAL(nr_grid_points.y + 2, ABL_TEMP_POINTS_Y) - 2))
+      if (WITHIN(y, 1, nr_grid_points.y))
         return LINEAR_EXTRAPOLATION(
           z_values[ep][y - 1],
           z_values[ip][y - 1]
@@ -211,12 +201,12 @@ void LevelingBilinear::print_leveling_grid(const bed_mesh_t* _z_values/*=nullptr
           virt_coord(ip + 1, y)
         );
     }
-    if (!y || y == GRID_VAL(nr_grid_points.y + 2, ABL_TEMP_POINTS_Y) - 1) {
+    if (!y || y == nr_grid_points.y + 1) {
       if (y) {
         ep = nr_grid_points.y - 1;
-        ip = GRID_VAL(nr_grid_points.y - 1, max_cells.y) - 1;
+        ip = nr_grid_points.y - 2;
       }
-      if (WITHIN(x, 1, GRID_VAL(nr_grid_points.x + 2, ABL_TEMP_POINTS_X) - 2))
+      if (WITHIN(x, 1, nr_grid_points.x))
         return LINEAR_EXTRAPOLATION(
           z_values[x - 1][ep],
           z_values[x - 1][ip]
@@ -253,9 +243,6 @@ void LevelingBilinear::print_leveling_grid(const bed_mesh_t* _z_values/*=nullptr
   void LevelingBilinear::subdivide_mesh() {
     grid_spacing_virt = grid_spacing / (BILINEAR_SUBDIVISIONS);
     grid_factor_virt = grid_spacing_virt.reciprocal();
-    #if ENABLED(VARIABLE_GRID_POINTS)
-      nr_grid_points_virt.set((nr_grid_points.x - 1) * (uint16_t)(BILINEAR_SUBDIVISIONS) + (uint16_t)1, (nr_grid_points.y - 1) * (uint16_t)(BILINEAR_SUBDIVISIONS) + (uint16_t)1);
-    #endif
     for (uint8_t y = 0; y < nr_grid_points.y; ++y)
       for (uint8_t x = 0; x < nr_grid_points.x; ++x)
         for (uint8_t ty = 0; ty < BILINEAR_SUBDIVISIONS; ++ty)
@@ -283,12 +270,12 @@ void LevelingBilinear::refresh_bed_level() {
 #if ENABLED(ABL_BILINEAR_SUBDIVISION)
   #define ABL_BG_SPACING(A) grid_spacing_virt.A
   #define ABL_BG_FACTOR(A)  grid_factor_virt.A
-  #define ABL_BG_POINTS_X   GRID_VAL(nr_grid_points_virt.x, ABL_GRID_POINTS_VIRT_X)
-  #define ABL_BG_POINTS_Y   GRID_VAL(nr_grid_points_virt.y, ABL_GRID_POINTS_VIRT_Y)
+  #define ABL_BG_POINTS_X   virt_points_x()
+  #define ABL_BG_POINTS_Y   virt_points_y()
   #define ABL_BG_GRID(X,Y)  z_values_virt[X][Y]
 #else
   #define ABL_BG_SPACING(A) grid_spacing.A
-  #define ABL_BG_FACTOR(A)  grid_spacing.reciprocal().A
+  #define ABL_BG_FACTOR(A)  grid_spacing_reciprocal().A
   #define ABL_BG_POINTS_X   nr_grid_points.x
   #define ABL_BG_POINTS_Y   nr_grid_points.y
   #define ABL_BG_GRID(X,Y)  z_values[X][Y]

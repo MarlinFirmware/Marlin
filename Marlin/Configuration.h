@@ -2276,7 +2276,14 @@
 
   #define MAX_SAVED_MESHES    100         // Maximum number of meshes to store to EEPROM. Use 0 to disable saving.
 
-  //#define VARIABLE_GRID_POINTS          // Set the number of Probed Points with 'G29 X# Y#'. Limited by GRID_MAX_POINTS_*.
+  /**
+   * Allow fewer grid points than GRID_MAX_POINTS_[XY] to be used at runtime.
+   *  - Bilinear: 'G29 X# Y#' or 'G29 P#'. Otherwise GRID_MIN_SPACING may reduce the points.
+   *  - MBL:      'G29 S1 X# Y#'
+   *  - UBL:      'G29 P7 X# Y#' resets the mesh with the new size. Saved with each mesh.
+   * DELTA requires odd numbers of points.
+   */
+  //#define VARIABLE_GRID_POINTS
 
 #endif
 

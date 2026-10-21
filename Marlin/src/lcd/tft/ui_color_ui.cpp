@@ -997,13 +997,13 @@ void MenuItem_confirm::draw_select_screen(FSTR_P const yes, FSTR_P const no, con
 
     // Cell size and the center of a mesh point within the grid canvas
     constexpr uint16_t cell_w = UBL_CELL_W, cell_h = UBL_CELL_H;
-    auto point_x = [](const uint8_t x) -> uint16_t { return 2 + (x * 2 + 1) * (UBL_GRID_W - 4) / (GRID_MAX_POINTS_X) / 2; };
-    auto point_y = [](const uint8_t y) -> uint16_t { return UBL_GRID_H - 2 - ((y * 2 + 1) * (UBL_GRID_H - 4) / (GRID_MAX_POINTS_Y) / 2); };
+    auto point_x = [](const uint8_t x) -> uint16_t { return 2 + (x * 2 + 1) * (UBL_GRID_W - 4) / bedlevel.nr_grid_points.x / 2; };
+    auto point_y = [](const uint8_t y) -> uint16_t { return UBL_GRID_H - 2 - ((y * 2 + 1) * (UBL_GRID_H - 4) / bedlevel.nr_grid_points.y / 2); };
     auto reachable = [](const uint8_t x, const uint8_t y) { return motion.can_reach({ bedlevel.get_mesh_x(x), bedlevel.get_mesh_y(y) }); };
 
     // Largest Z offset for the heat colors
     float zmax = 0;
-    GRID_LOOP(x, y) {
+    GRID_LOOP_USED(x, y) {
       const float z = bedlevel.z_values[x][y];
       if (!isnan(z) && reachable(x, y)) NOLESS(zmax, ABS(z));
     }
@@ -1013,7 +1013,7 @@ void MenuItem_confirm::draw_select_screen(FSTR_P const yes, FSTR_P const no, con
       uint8_t style = 0;
       for (; style < 3; ++style) {
         uint16_t wmax = 0;
-        GRID_LOOP(x, y) {
+        GRID_LOOP_USED(x, y) {
           const float z = bedlevel.z_values[x][y];
           if (!isnan(z) && reachable(x, y)) NOLESS(wmax, ubl_label_width(ubl_map_label(z, style)));
         }
@@ -1028,7 +1028,7 @@ void MenuItem_confirm::draw_select_screen(FSTR_P const yes, FSTR_P const no, con
 
     // Point markers: Z labels in heat colors if they fit, otherwise heat colored squares
     const uint16_t mark = _MAX(2, _MIN(cell_w, cell_h) - 6);
-    GRID_LOOP_USED((x, y) {
+    GRID_LOOP_USED(x, y) {
       if (!reachable(x, y)) continue;
       const uint16_t cx = point_x(x), cy = point_y(y);
       const float z = bedlevel.z_values[x][y];

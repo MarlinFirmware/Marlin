@@ -58,7 +58,7 @@ static float meshGetter(uint8_t x, uint8_t y, void*) {
 
 void BedMeshViewScreen::onEntry() {
   mydata.highlight.x = -1;
-  mydata.count = GRID_MAX_POINTS;
+  mydata.count = ExtUI::getMeshPointCount();
   mydata.message = nullptr;
   BaseScreen::onEntry();
 }
@@ -93,7 +93,7 @@ void BedMeshViewScreen::onRedraw(draw_mode_t what) {
   }
 
   if (what & FOREGROUND) {
-    const float progress = sq(float(mydata.count) / bedlevel.used_points());
+    const float progress = sq(float(mydata.count) / ExtUI::getMeshPointCount());
     if (progress >= 1.0)
       drawHighlightedPointValue();
     drawMeshForeground(cmd, INSET_POS(MESH_POS), meshGetter, nullptr, pointToTag(mydata.highlight.x, mydata.highlight.y), progress);
@@ -122,11 +122,11 @@ void BedMeshViewScreen::onMeshUpdate(const int8_t x, const int8_t y, const ExtUI
       mydata.count = 0;
       break;
     case ExtUI::G29_FINISH:
-      if (mydata.count == GRID_MAX_POINTS && ExtUI::getLevelingIsValid())
+      if (mydata.count == ExtUI::getMeshPointCount() && ExtUI::getLevelingIsValid())
         mydata.message = GET_TEXT_F(MSG_BED_MAPPING_DONE);
       else
         mydata.message = GET_TEXT_F(MSG_BED_MAPPING_INCOMPLETE);
-      mydata.count = GRID_MAX_POINTS;
+      mydata.count = ExtUI::getMeshPointCount();
       break;
     case ExtUI::G26_START:
       mydata.message = nullptr;
