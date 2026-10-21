@@ -1920,7 +1920,7 @@ void dwinSetDataDefaults() {
     hmiData.extMinT = EXTRUDE_MINTEMP;
     applyExtMinT();
   #endif
-  TERN_(BAUD_RATE_GCODE, setBaud250K());
+  TERN_(BAUD_RATE_GCODE, hmiData.baud115K = (BAUDRATE == 115200));
   #if ALL(LCD_BED_TRAMMING, HAS_BED_PROBE)
     hmiData.fullManualTramming = DISABLED(BED_TRAMMING_USE_PROBE);
   #endif
@@ -1952,7 +1952,10 @@ void dwinCopySettingsFrom(const char * const buff) {
   DWINUI::setColors(hmiData.colorText, hmiData.colorBackground, hmiData.colorStatusBg);
   TERN_(PREVENT_COLD_EXTRUSION, applyExtMinT());
   motion.feedrate_percentage = 100;
-  TERN_(BAUD_RATE_GCODE, hmiSetBaudRate());
+  // Only change the baud rate if the stored choice differs from the configured BAUDRATE
+  #if ENABLED(BAUD_RATE_GCODE)
+    if (hmiData.baud115K != (BAUDRATE == 115200)) hmiSetBaudRate();
+  #endif
   #if ALL(LED_CONTROL_MENU, HAS_COLOR_LEDS)
     leds.set_color(
       hmiData.ledColor.r,
