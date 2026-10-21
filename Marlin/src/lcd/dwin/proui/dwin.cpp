@@ -2116,11 +2116,12 @@ void autoHome() { queue.inject_P(G28_STR); }
   }
 
   void setMoveZto0() {
+    gcode.process_subcommands_now(F(TERN_(Z_SAFE_HOMING, "G28XYO\n") "G28Z"));
+    TERN_(HAS_LEVELING, set_bed_leveling_enabled(false)); // Go to the true Z0, even if G28 re-enabled leveling
     #if ENABLED(Z_SAFE_HOMING)
-      gcode.process_subcommands_now(MString<54>(F("G28XYO\nG28Z\nG0F5000X"), Z_SAFE_HOMING_X_POINT, F("Y"), Z_SAFE_HOMING_Y_POINT, F("\nG0Z0F300\nM400")));
+      gcode.process_subcommands_now(MString<54>(F("G0F5000X"), Z_SAFE_HOMING_X_POINT, F("Y"), Z_SAFE_HOMING_Y_POINT, F("\nG0Z0F300\nM400")));
     #else
-      TERN_(HAS_LEVELING, set_bed_leveling_enabled(false));
-      gcode.process_subcommands_now(F("G28Z\nG0Z0F300\nM400"));
+      gcode.process_subcommands_now(F("G0Z0F300\nM400"));
     #endif
     ui.reset_status();
     DONE_BUZZ(true);
