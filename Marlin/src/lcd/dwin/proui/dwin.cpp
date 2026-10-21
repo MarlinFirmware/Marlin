@@ -1956,6 +1956,9 @@ void dwinCopySettingsFrom(const char * const buff) {
   #if ENABLED(BAUD_RATE_GCODE)
     if (hmiData.baud115K != (BAUDRATE == 115200)) hmiSetBaudRate();
   #endif
+  #if ENABLED(PROUI_MEDIASORT)
+    card.setSortOn(hmiData.mediaSort ? TERN(SDSORT_REVERSE, AS_REV, AS_FWD) : AS_OFF);
+  #endif
   #if ALL(LED_CONTROL_MENU, HAS_COLOR_LEDS)
     leds.set_color(
       hmiData.ledColor.r,
