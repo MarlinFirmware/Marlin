@@ -2596,8 +2596,13 @@ void gotoConfirmToPrint() {
         ));
       }
       else {
-        LIMIT(xpos, mesh_min.x, mesh_max.x);
-        LIMIT(ypos, mesh_min.y, mesh_max.y);
+        #if HAS_MESH
+          LIMIT(xpos, mesh_min.x, mesh_max.x);
+          LIMIT(ypos, mesh_min.y, mesh_max.y);
+        #else
+          LIMIT(xpos, probe.min_x(), probe.max_x());
+          LIMIT(ypos, probe.min_y(), probe.max_y());
+        #endif
         probe.stow();
         gcode.process_subcommands_now(F("M420S0\nG28O"));
         inLev = true;
