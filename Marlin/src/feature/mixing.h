@@ -89,6 +89,9 @@ class Mixer {
   static void init(); // Populate colors at boot time
 
   static void reset_vtools();
+  #if ENABLED(GRADIENT_MIX)
+    static void reset_gradient();
+  #endif
   static void refresh_collector(const float proportion=1.0, const uint8_t t=selected_vtool, float (&c)[MIXING_STEPPERS]=collector);
 
   // Used up to Planner level

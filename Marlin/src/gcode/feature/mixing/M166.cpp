@@ -103,4 +103,21 @@ void GcodeSuite::M166() {
   SERIAL_EOL();
 }
 
+void GcodeSuite::M166_report(const bool forReplay/*=true*/) {
+  TERN_(MARLIN_SMALL_BUILD, return);
+
+  report_heading_etc(forReplay, F("Gradient Mix"));
+  SERIAL_ECHOPGM("  M166 S", mixer.gradient.allowed,
+    " A", mixer.gradient.start_z,
+    " Z", mixer.gradient.end_z,
+    " I", mixer.gradient.start_vtool,
+    " J", mixer.gradient.end_vtool
+  );
+  #if ENABLED(GRADIENT_VTOOL)
+    SERIAL_ECHOPGM(" T");
+    if (mixer.gradient.vtool_index >= 0) SERIAL_ECHO(mixer.gradient.vtool_index);
+  #endif
+  SERIAL_EOL();
+}
+
 #endif // GRADIENT_MIX

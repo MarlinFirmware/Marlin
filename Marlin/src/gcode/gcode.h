@@ -888,6 +888,7 @@ private:
     #endif
     #if ENABLED(GRADIENT_MIX)
       static void M166();
+      static void M166_report(const bool forReplay=true);
     #endif
   #endif
 
