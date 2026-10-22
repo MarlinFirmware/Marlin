@@ -213,9 +213,9 @@ class Mixer {
         COPY(gradient.start_mix, mix);
         update_mix_from_vtool(gradient.end_vtool);
         COPY(gradient.end_mix, mix);
+        prev_z = -1;
         update_gradient_for_planner_z();
         COPY(mix, mix_bak);
-        prev_z = -1;
       }
     }
 
