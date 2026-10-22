@@ -63,6 +63,7 @@ static_assert(NR_MIXING_VIRTUAL_TOOLS <= MAX_VTOOLS, "MIXING_VIRTUAL_TOOLS must 
 
   typedef struct {
     bool enabled;                         // This gradient is enabled
+    bool allowed;                         // Gradients are switched on (M166 S)
     mixer_comp_t color[MIXING_STEPPERS];  // The current gradient color
     float start_z, end_z;                 // Region for gradient
     int8_t start_vtool, end_vtool;        // Start and end virtual tools
@@ -205,7 +206,7 @@ class Mixer {
       #else
         constexpr bool is_grd = true;
       #endif
-      gradient.enabled = is_grd && gradient.start_vtool != gradient.end_vtool && gradient.start_z < gradient.end_z;
+      gradient.enabled = gradient.allowed && is_grd && gradient.start_vtool != gradient.end_vtool && gradient.start_z < gradient.end_z;
       if (gradient.enabled) {
         mixer_perc_t mix_bak[MIXING_STEPPERS];
         COPY(mix_bak, mix);

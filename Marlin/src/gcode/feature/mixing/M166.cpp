@@ -61,14 +61,14 @@ inline void echo_zt(const int t, const float z) {
 void GcodeSuite::M166() {
   if (parser.seenval('A')) mixer.gradient.start_z = parser.value_float();
   if (parser.seenval('Z')) mixer.gradient.end_z = parser.value_float();
-  if (parser.seenval('I')) mixer.gradient.start_vtool = (uint8_t)constrain(parser.value_int(), 0, MIXING_VIRTUAL_TOOLS);
-  if (parser.seenval('J')) mixer.gradient.end_vtool = (uint8_t)constrain(parser.value_int(), 0, MIXING_VIRTUAL_TOOLS);
+  if (parser.seenval('I')) mixer.gradient.start_vtool = (uint8_t)constrain(parser.value_int(), 0, MIXING_VIRTUAL_TOOLS - 1);
+  if (parser.seenval('J')) mixer.gradient.end_vtool = (uint8_t)constrain(parser.value_int(), 0, MIXING_VIRTUAL_TOOLS - 1);
 
   #if ENABLED(GRADIENT_VTOOL)
     if (parser.seen('T')) mixer.gradient.vtool_index = parser.byteval('T', -1);
   #endif
 
-  if (parser.seen('S')) mixer.gradient.enabled = parser.value_bool();
+  if (parser.seen('S')) mixer.gradient.allowed = parser.value_bool();
 
   mixer.refresh_gradient();
 
