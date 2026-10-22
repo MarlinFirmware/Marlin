@@ -25,9 +25,10 @@
  * temperature.h - temperature controller
  */
 
-#include "thermistor/thermistors.h"
-
 #include "../inc/MarlinConfig.h"
+
+#include "thermistor/thermistors.h"
+#include "fans.h"
 
 #if ENABLED(AUTO_POWER_CONTROL)
   #include "../feature/power.h"
@@ -404,6 +405,9 @@ typedef struct { float p, i, d, c, f; } raw_pidcf_t;
       void applyFanAdjustment(const float) {}
     #endif
     float fanCoefficient() { return SUM_TERN(MPC_INCLUDE_FAN, ambient_xfer_coeff_fan0, fan255_adjustment); }
+    // Zero, negative, NaN or infinite values give NaN or infinite heater output
+    static bool isFinitePositive(const float v) { return v > 0 && !isinf(v); }
+    bool isValid() const { return isFinitePositive(heater_power) && isFinitePositive(block_heat_capacity) && isFinitePositive(sensor_responsiveness); }
   } MPC_t;
 
   #define MPC_dT ((OVERSAMPLENR * float(ACTUAL_ADC_SAMPLES)) / (TEMP_TIMER_FREQUENCY))
@@ -466,6 +470,7 @@ struct PIDHeaterInfo : public HeaterInfo {
     float modeled_ambient_temp,
           modeled_block_temp,
           modeled_sensor_temp;
+    uint8_t clipped_count;              // Consecutive updates with the output power clipped
     float fanCoefficient() { return mpc.fanCoefficient(); }
     void applyFanAdjustment(const float cf) { mpc.applyFanAdjustment(cf); }
   };
@@ -517,27 +522,25 @@ struct HeaterWatch {
 
   inline bool check(const celsius_t curr) { return curr >= target; }
 
+  // Keep watching until within HYSTERESIS of the target, where thermal runaway protection takes over
   inline void restart(const celsius_t curr, const celsius_t tgt) {
-    if (tgt) {
-      const celsius_t newtarget = curr + INCREASE;
-      if (newtarget < tgt - HYSTERESIS - 1) {
-        target = newtarget;
-        next_ms = millis() + SEC_TO_MS(PERIOD);
-        return;
-      }
+    if (tgt && curr < tgt - HYSTERESIS) {
+      target = _MIN(curr + INCREASE, tgt - HYSTERESIS);
+      next_ms = millis() + SEC_TO_MS(PERIOD);
     }
-    next_ms = 0;
+    else
+      next_ms = 0;
   }
 };
 
 #if WATCH_HOTENDS
-  typedef struct HeaterWatch<WATCH_TEMP_INCREASE, TEMP_HYSTERESIS, WATCH_TEMP_PERIOD> hotend_watch_t;
+  typedef struct HeaterWatch<WATCH_TEMP_INCREASE, THERMAL_PROTECTION_HYSTERESIS, WATCH_TEMP_PERIOD> hotend_watch_t;
 #endif
 #if WATCH_BED
-  typedef struct HeaterWatch<WATCH_BED_TEMP_INCREASE, TEMP_BED_HYSTERESIS, WATCH_BED_TEMP_PERIOD> bed_watch_t;
+  typedef struct HeaterWatch<WATCH_BED_TEMP_INCREASE, THERMAL_PROTECTION_BED_HYSTERESIS, WATCH_BED_TEMP_PERIOD> bed_watch_t;
 #endif
 #if WATCH_CHAMBER
-  typedef struct HeaterWatch<WATCH_CHAMBER_TEMP_INCREASE, TEMP_CHAMBER_HYSTERESIS, WATCH_CHAMBER_TEMP_PERIOD> chamber_watch_t;
+  typedef struct HeaterWatch<WATCH_CHAMBER_TEMP_INCREASE, THERMAL_PROTECTION_CHAMBER_HYSTERESIS, WATCH_CHAMBER_TEMP_PERIOD> chamber_watch_t;
 #endif
 #if WATCH_COOLER
   typedef struct HeaterWatch<WATCH_COOLER_TEMP_INCREASE, TEMP_COOLER_HYSTERESIS, WATCH_COOLER_TEMP_PERIOD> cooler_watch_t;
@@ -646,6 +649,15 @@ typedef struct { raw_adc_t raw_min, raw_max; celsius_t mintemp, maxtemp; } temp_
 
 #endif // AUTOTEMP
 
+#if ANY(PREHEAT_BEFORE_PROBING, PREHEAT_BEFORE_LEVELING)
+  #if HAS_HOTEND && !defined(LEVELING_NOZZLE_TEMP)
+    #define LEVELING_NOZZLE_TEMP 0
+  #endif
+  #if HAS_HEATED_BED && !defined(LEVELING_BED_TEMP)
+    #define LEVELING_BED_TEMP 0
+  #endif
+#endif
+
 class Temperature {
 
   public:
@@ -686,15 +698,6 @@ class Temperature {
     #endif
     #if ENABLED(AUTO_POWER_COOLER_FAN)
       static uint8_t coolerfan_speed;
-    #endif
-
-    #if ENABLED(FAN_SOFT_PWM)
-      static uint8_t soft_pwm_amount_fan[FAN_COUNT],
-                     soft_pwm_count_fan[FAN_COUNT];
-    #endif
-
-    #if ALL(FAN_SOFT_PWM, USE_CONTROLLER_FAN)
-      static uint8_t soft_pwm_controllerfan_speed;
     #endif
 
     #if ALL(HAS_MARLINUI_MENU, PREVENT_COLD_EXTRUSION) && E_MANUAL > 0
@@ -764,7 +767,7 @@ class Temperature {
 
       static heater_idle_t heater_idle[NR_HEATER_IDLE];
 
-    #endif // HEATER_IDLE_TIMER
+    #endif // HEATER_IDLE_HANDLER
 
     #if HAS_ADC_BUTTONS
       static uint32_t current_ADCKey_raw;
@@ -924,48 +927,13 @@ class Temperature {
     #endif
 
     #if HAS_FAN
-
-      static uint8_t fan_speed[FAN_COUNT];
-      #define FANS_LOOP(I) for (uint8_t I = 0; I < FAN_COUNT; ++I)
-
       static void set_fan_speed(const uint8_t fan, const uint16_t speed);
-
       #if ENABLED(REPORT_FAN_CHANGE)
         static void report_fan_speed(const uint8_t fan);
       #endif
-
-      #if ANY(PROBING_FANS_OFF, ADVANCED_PAUSE_FANS_PAUSE)
-        static bool fans_paused;
-        static uint8_t saved_fan_speed[FAN_COUNT];
-      #endif
-
-      #if ENABLED(ADAPTIVE_FAN_SLOWING)
-        static uint8_t fan_speed_scaler[FAN_COUNT];
-      #endif
-
-      static uint8_t scaledFanSpeed(const uint8_t fan, const uint8_t fs) {
-        UNUSED(fan); // Potentially unused!
-        return (fs * uint16_t(TERN(ADAPTIVE_FAN_SLOWING, fan_speed_scaler[fan], 128))) >> 7;
-      }
-
-      static uint8_t scaledFanSpeed(const uint8_t fan) {
-        return scaledFanSpeed(fan, fan_speed[fan]);
-      }
-
-      static constexpr inline uint8_t pwmToPercent(const uint8_t speed) { return ui8_to_percent(speed); }
-      static uint8_t fanSpeedPercent(const uint8_t fan)          { return ui8_to_percent(fan_speed[fan]); }
-      static uint8_t scaledFanSpeedPercent(const uint8_t fan)    { return ui8_to_percent(scaledFanSpeed(fan)); }
-
       #if ENABLED(EXTRA_FAN_SPEED)
-        typedef struct { uint8_t saved, speed; } extra_fan_t;
-        static extra_fan_t extra_fan_speed[FAN_COUNT];
         static void set_temp_fan_speed(const uint8_t fan, const uint16_t command_or_speed);
       #endif
-
-      #if ANY(PROBING_FANS_OFF, ADVANCED_PAUSE_FANS_PAUSE)
-        void set_fans_paused(const bool p);
-      #endif
-
     #endif // HAS_FAN
 
     static void zero_fan_speeds() {
@@ -1136,6 +1104,10 @@ class Temperature {
       );
 
       static void wait_for_bed_heating();
+
+      #ifdef LEVELING_HEAT_SOAK_TIME
+        static void wait_for_heat_soak(const uint16_t seconds);
+      #endif
 
       static void manage_heated_bed(const millis_t &ms);
 
@@ -1340,6 +1312,24 @@ class Temperature {
 
     #if ENABLED(PROBING_HEATERS_OFF)
       static void pause_heaters(const bool p);
+    #endif
+
+    #if ANY(PREHEAT_BEFORE_PROBING, PREHEAT_BEFORE_LEVELING)
+      typedef struct {
+        OPTCODE(HAS_HOTEND, celsius_t hotend)
+        OPTCODE(HAS_HEATED_BED, celsius_t bed)
+      } leveling_temp_t;
+      #if HAS_LEVELING_TEMP_EDIT
+        static leveling_temp_t leveling_temp;
+        static void reset_leveling_temp() {
+          TERN_(HAS_HOTEND, leveling_temp.hotend = LEVELING_NOZZLE_TEMP);
+          TERN_(HAS_HEATED_BED, leveling_temp.bed = LEVELING_BED_TEMP);
+        }
+      #else
+        static constexpr leveling_temp_t leveling_temp = { OPTITEM(HAS_HOTEND, LEVELING_NOZZLE_TEMP) OPTITEM(HAS_HEATED_BED, LEVELING_BED_TEMP) };
+      #endif
+      static void preheat_for_probing(const bool early=false, const bool and_leveling=false);
+      static void preheat_for_leveling(const bool early=false) { preheat_for_probing(early, ENABLED(PREHEAT_BEFORE_LEVELING)); }
     #endif
 
     #if HEATER_IDLE_HANDLER

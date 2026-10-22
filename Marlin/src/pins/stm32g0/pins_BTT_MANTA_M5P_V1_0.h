@@ -35,11 +35,8 @@
 //
 // EEPROM
 //
-#if ANY(NO_EEPROM_SELECTED, FLASH_EEPROM_EMULATION)
-  #undef NO_EEPROM_SELECTED
-  #ifndef FLASH_EEPROM_EMULATION
-    #define FLASH_EEPROM_EMULATION
-  #endif
+#if SHALL_USE_EEPROM(FLASH_EEPROM_EMULATION)
+  #define FLASH_EEPROM_EMULATION
   #define EEPROM_PAGE_SIZE                0x800U  // 2K
   #define EEPROM_START_ADDRESS (0x8000000UL + (STM32_FLASH_SIZE) * 1024UL - (EEPROM_PAGE_SIZE) * 2UL)
   #define MARLIN_EEPROM_SIZE     EEPROM_PAGE_SIZE
@@ -206,9 +203,17 @@
 #define EXP2_08_PIN                         -1
 
 //
-// Onboard SD card
+// SD Card
 // Must use soft SPI because Marlin's default hardware SPI is tied to LCD's EXP2
 //
+#ifndef SDCARD_CONNECTION
+  #if HAS_WIRED_LCD && DISABLED(NO_LCD_SDCARD)
+    #define SDCARD_CONNECTION                LCD
+  #else
+    #define SDCARD_CONNECTION            ONBOARD
+  #endif
+#endif
+
 #if SD_CONNECTION_IS(LCD)
   #define SD_SS_PIN                  EXP2_04_PIN
   #define SD_SCK_PIN                 EXP2_02_PIN

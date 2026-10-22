@@ -4,6 +4,8 @@ CONTAINER_RT_BIN := docker
 CONTAINER_RT_OPTS := --rm -v $(PWD):/code -v platformio-cache:/root/.platformio
 CONTAINER_IMAGE := marlin-dev
 UNIT_TEST_CONFIG ?= default
+PRETTIER_VERSION ?= 3.9.6
+export PRETTIER_VERSION
 
 # Find a Python 3 interpreter
 ifeq ($(OS),Windows_NT)
@@ -46,6 +48,7 @@ help:
 	@echo "make validate-pins -j          : Validate all pins files, fails if any require reformatting"
 	@echo "make validate-boards -j        : Validate boards.h and pins.h for standards compliance"
 	@echo "make validate-urls             : Validate URLs in source files"
+	@echo "make validate-conditionals     : Validate #if/#endif structure and #define bodies"
 	@echo "make tests-single-ci           : Run a single test from inside the CI"
 	@echo "make tests-single-local        : Run a single test locally"
 	@echo "make tests-single-local-docker : Run a single test locally, using docker"
@@ -170,7 +173,7 @@ format-lines:
 
 validate-lines:
 	@echo "Validating text formatting"
-	@npx prettier --check . --editorconfig --object-wrap preserve --prose-wrap never
+	@npx --yes prettier@$(PRETTIER_VERSION) --check . --editorconfig --object-wrap preserve --prose-wrap never
 
 validate-urls:
 	@echo "Checking URLs in source files"
@@ -183,3 +186,9 @@ BOARDS_FILE := Marlin/src/core/boards.h
 validate-boards:
 	@echo "Validating boards.h file"
 	@$(PYTHON) $(MAKESCRIPTS_DIR)/validate_boards.py $(BOARDS_FILE) || (echo "\nError: boards.h file is not valid. Please check and correct it.\n" && exit 1)
+
+.PHONY: validate-conditionals
+
+validate-conditionals:
+	@echo "Validating preprocessor conditionals"
+	@$(PYTHON) $(MAKESCRIPTS_DIR)/validate_conditionals.py Marlin buildroot || (echo "\nError: malformed preprocessor conditionals. Please check and correct them.\n" && exit 1)

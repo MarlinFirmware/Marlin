@@ -48,7 +48,7 @@
 //#undef DISABLE_DEBUG                            // DISABLE_(DEBUG|JTAG) is not supported for STM32F4.
 //#define DISABLE_JTAG
 
-#define BOARD_LCD_SERIAL_PORT 2
+#define BOARD_LCD_SERIAL_PORT               2
 
 //
 // EEPROM
@@ -56,7 +56,6 @@
 #if NO_EEPROM_SELECTED
   #define IIC_BL24CXX_EEPROM                      // EEPROM on I2C-0
   //#define SDCARD_EEPROM_EMULATION
-  #undef NO_EEPROM_SELECTED
 #endif
 
 #if ENABLED(IIC_BL24CXX_EEPROM)
@@ -207,7 +206,7 @@
 #define ONBOARD_SDIO
 #define SDIO_CLOCK                       4500000
 #define SDIO_READ_RETRIES                     16
-#define NO_SD_HOST_DRIVE                  // This board's SD is only seen by the printer
+#define BOARD_NO_HOST_DRIVE                       // SD is only seen by the printer
 
 /**
  *                 ------

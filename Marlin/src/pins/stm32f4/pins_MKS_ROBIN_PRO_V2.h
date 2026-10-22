@@ -213,7 +213,6 @@
 // Onboard SD card
 // NOT compatible with LCD
 //
-// Detect pin doesn't work when ONBOARD and NO_SD_HOST_DRIVE disabled
 #if SD_CONNECTION_IS(ONBOARD)
   #if USE_NEW_SPI_API
     #define SD_SPI MARLIN_SPI(HardwareSPI3, PC9)
@@ -224,7 +223,9 @@
     #define SD_MISO_PIN                     PC11
     #define SD_MOSI_PIN                     PC12
   #endif
-  #define SD_DETECT_PIN                     PD12
+  #if ENABLED(NO_SD_HOST_DRIVE)
+    #define SD_DETECT_PIN                   PD12  // Detect pin doesn't work with SD Host Drive
+  #endif
 #endif
 
 /**               ------                                      ------

@@ -70,9 +70,6 @@
 #if DISABLED(SINGLENOZZLE)
   #undef SINGLENOZZLE_STANDBY_TEMP
 #endif
-#if !ALL(HAS_FAN, SINGLENOZZLE)
-  #undef SINGLENOZZLE_STANDBY_FAN
-#endif
 
 // No inactive extruders with SWITCHING_NOZZLE or Průša MMU1 or just 1 E stepper exists
 #if HAS_SWITCHING_NOZZLE || HAS_PRUSA_MMU1 || E_STEPPERS < 2
@@ -385,12 +382,6 @@
   #else
     #define HAS_REAL_BED_PROBE 1
   #endif
-  #if HAS_REAL_BED_PROBE && NONE(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN, Z_SPI_SENSORLESS)
-    #define NEED_Z_MIN_PROBE_PIN 1
-  #endif
-  #if Z_HOME_TO_MIN && (!NEED_Z_MIN_PROBE_PIN || ENABLED(USE_PROBE_FOR_Z_HOMING))
-    #define HOMING_Z_WITH_PROBE 1
-  #endif
   #if DISABLED(NOZZLE_AS_PROBE)
     #define HAS_PROBE_XY_OFFSET 1
   #endif
@@ -420,8 +411,8 @@
   #undef Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN
   #undef Z_MIN_PROBE_ENDSTOP_HIT_STATE
   #undef USE_PROBE_FOR_Z_HOMING
+  #undef PROBE_Z0_BEFORE_G29
   #undef Z_MIN_PROBE_REPEATABILITY_TEST
-  #undef HOMING_Z_WITH_PROBE
   #undef Z_CLEARANCE_MULTI_PROBE
   #undef Z_PROBE_ERROR_TOLERANCE
   #undef Z_AFTER_PROBING
@@ -443,9 +434,19 @@
   #undef NOZZLE_TO_PROBE_OFFSET
 #endif
 
-#if NONE(BABYSTEPPING, HAS_BED_PROBE, HAS_WORKSPACE_OFFSET)
-  #undef PROBE_OFFSET_ZMIN
-  #undef PROBE_OFFSET_ZMAX
+#if ANY(PREHEAT_BEFORE_PROBING, PREHEAT_BEFORE_LEVELING)
+  #ifndef PROBING_NOZZLE_TEMP
+    #define PROBING_NOZZLE_TEMP 0
+  #endif
+  #ifndef LEVELING_NOZZLE_TEMP
+    #define LEVELING_NOZZLE_TEMP PROBING_NOZZLE_TEMP
+  #endif
+  #ifndef PROBING_BED_TEMP
+    #define PROBING_BED_TEMP 0
+  #endif
+  #ifndef LEVELING_BED_TEMP
+    #define LEVELING_BED_TEMP PROBING_BED_TEMP
+  #endif
 #endif
 
 #if ENABLED(BELTPRINTER) && !defined(HOME_Y_BEFORE_X)
@@ -500,9 +501,15 @@
   #undef RESTORE_LEVELING_AFTER_G28
   #undef ENABLE_LEVELING_AFTER_G28
   #undef G29_RETRY_AND_RECOVER
+  #undef PREHEAT_BEFORE_LEVELING
+  #undef LEVELING_NOZZLE_TEMP
+  #undef LEVELING_BED_TEMP
 #endif
 #if !HAS_LEVELING || ANY(MESH_BED_LEVELING, AUTO_BED_LEVELING_UBL)
   #undef PROBE_MANUALLY
+#endif
+#if ENABLED(PREHEAT_BEFORE_LEVELING) && ANY(DWIN_LCD_PROUI, ELEGOO_NEPTUNE_3_TFT)
+  #define HAS_LEVELING_TEMP_EDIT 1
 #endif
 #if ANY(HAS_BED_PROBE, PROBE_MANUALLY, MESH_BED_LEVELING)
   #define PROBE_SELECTED 1
@@ -632,14 +639,14 @@
 #endif
 
 #if ANY(SCARA, AXEL_TPARA)
-  #define IS_SCARA 1
-  #define IS_KINEMATIC 1
-#elif ANY(DELTA, POLARGRAPH, POLAR)
-  #define IS_KINEMATIC 1
+  #define IS_SCARA 1              // Linear Motion derives from SCARA kinematics
+#endif
+#if ANY(IS_SCARA, DELTA, POLARGRAPH, POLAR)
+  #define IS_KINEMATIC 1          // Linear Motion derives from kinematic conversion and segmentation
 #else
-  #define IS_CARTESIAN 1
+  #define IS_CARTESIAN 1          // Linear Motion requires no segmentation
   #if !IS_CORE
-    #define IS_FULL_CARTESIAN 1
+    #define IS_FULL_CARTESIAN 1   // Linear Motion is simple steps-per-mm from top to bottom
   #endif
 #endif
 

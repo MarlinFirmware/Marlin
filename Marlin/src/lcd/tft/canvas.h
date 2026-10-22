@@ -49,6 +49,7 @@ class Canvas {
 
     static void setBackground(uint16_t color);
     static void addText(uint16_t x, uint16_t y, uint16_t color, uint16_t *string, uint16_t maxWidth);
+    static void addTinyText(uint16_t x, uint16_t y, uint16_t color, uint16_t *string);
     static void addImage(int16_t x, int16_t y, MarlinImage image, uint16_t *colors);
 
     static void addRect(uint16_t x, uint16_t y, uint16_t width, uint16_t height, uint16_t color);

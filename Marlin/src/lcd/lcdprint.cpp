@@ -44,7 +44,7 @@
  *
  * Return the number of characters emitted
  */
-lcd_uint_t lcd_put_u8str_P(PGM_P const ptpl, const int8_t ind, const char *cstr/*=nullptr*/, FSTR_P const fstr/*=nullptr*/, const lcd_uint_t maxlen/*=MAX_MESSAGE_SIZE*/) {
+lcd_uint_t lcd_put_u8str_P(PGM_P const ptpl, const int8_t ind, const char *cstr/*=nullptr*/, FSTR_P const fstr/*=nullptr*/, const lcd_uint_t maxlen/*=MAX_MESSAGE_BYTES*/) {
   char estr[maxlen * LANG_CHARSIZE + 2];
   const lcd_uint_t outlen = expand_u8str_P(estr, ptpl, ind, cstr, fstr, maxlen);
   lcd_put_u8str_max(estr, maxlen * (MENU_FONT_WIDTH));

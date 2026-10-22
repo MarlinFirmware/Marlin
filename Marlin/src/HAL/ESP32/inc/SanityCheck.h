@@ -21,8 +21,8 @@
  */
 #pragma once
 
-#if HAS_SPI_TFT || HAS_FSMC_TFT
-  #error "Sorry! TFT displays are not available for HAL/ESP32."
+#if HAS_FSMC_TFT
+  #error "Sorry! FSMC TFT displays are not available for HAL/ESP32."
 #endif
 
 #if ENABLED(EMERGENCY_PARSER)
@@ -38,10 +38,6 @@
 
 #if HAS_TMC_SW_SERIAL
   #error "TMC220x Software Serial is not supported on ESP32."
-#endif
-
-#if ALL(WIFISUPPORT, ESP3D_WIFISUPPORT)
-  #error "Only enable one WiFi option, either WIFISUPPORT or ESP3D_WIFISUPPORT."
 #endif
 
 #if ENABLED(POSTMORTEM_DEBUGGING)

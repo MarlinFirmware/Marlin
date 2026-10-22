@@ -26,6 +26,11 @@
 
 #include "canvas.h"
 
+#if ALL(TFT_COLOR_UI, AUTO_BED_LEVELING_UBL)
+  #include "ui_common.h"   // HAS_TFT_TINY_FONT
+  #include "tft_tiny_font.h"
+#endif
+
 uint16_t Canvas::width, Canvas::height;
 uint16_t Canvas::startLine, Canvas::endLine;
 uint16_t Canvas::background_color;
@@ -96,6 +101,29 @@ void Canvas::addText(uint16_t x, uint16_t y, uint16_t color, uint16_t *string, u
     stringWidth += pGlyph->dWidth;
   }
 }
+
+#if HAS_TFT_TINY_FONT
+
+  // Draw text in the tiny digits font. Like addText(), but independent of the loaded menu font.
+  void Canvas::addTinyText(uint16_t x, uint16_t y, uint16_t color, uint16_t *string) {
+    if (endLine < y || startLine > y + TinyFont::height()) return;
+
+    uint16_t colors[3];
+    for (uint8_t i = 0; i < 3; i++) {
+      colors[i] = gradient(ENDIAN_COLOR(color), ENDIAN_COLOR(background_color), ((i+1) << 8) / 3);
+      colors[i] = ENDIAN_COLOR(colors[i]);
+    }
+    uint16_t stringWidth = 0;
+    for (uint16_t i = 0; string[i]; i++) {
+      const glyph_t * const pGlyph = TinyFont::glyph(string[i]);
+      if (!pGlyph) continue;
+      addImage(x + stringWidth + pGlyph->bbxOffsetX, y + TinyFont::ascent() - pGlyph->bbxHeight - pGlyph->bbxOffsetY,
+               pGlyph->bbxWidth, pGlyph->bbxHeight, GREYSCALE2, ((uint8_t *)pGlyph) + sizeof(glyph_t), colors);
+      stringWidth += pGlyph->dWidth;
+    }
+  }
+
+#endif // HAS_TFT_TINY_FONT
 
 void Canvas::addImage(int16_t x, int16_t y, MarlinImage image, uint16_t *colors) {
   uint16_t *data = (uint16_t *)images[image].data;

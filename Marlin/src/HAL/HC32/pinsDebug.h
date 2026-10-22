@@ -135,7 +135,7 @@ void printPinPWM(const pin_t pin) {
     return; // No pwm pin or no unit assigned
 
   // Print timer assignment of pin, eg. "TimerA1Ch2 Func4"
-  SERIAL_ECHOPGM("TimerA", TIMERA_REG_TO_X(unit->peripheral.register_base),
+  SERIAL_ECHO("TimerA", TIMERA_REG_TO_X(unit->peripheral.register_base),
                  "Ch", TIMERA_CHANNEL_TO_X(channel),
                  " Func", int(port_function));
   SERIAL_ECHO_SP(3); // 3 spaces
@@ -147,11 +147,11 @@ void printPinPWM(const pin_t pin) {
     // - Timer period value (PERAR)
     const uint8_t clock_divider = timera_clk_div_to_n(unit->state.base_init->enClkDiv);
     const uint16_t period = TIMERA_GetPeriodValue(unit->peripheral.register_base);
-    SERIAL_ECHOPGM("1/", clock_divider, " PERAR=", period);
+    SERIAL_ECHO("1/", clock_divider, " PERAR=", period);
   }
   else {
     // Unit not initialized
-    SERIAL_ECHOPGM("N/A");
+    SERIAL_ECHO("N/A");
     return;
   }
 
@@ -162,11 +162,11 @@ void printPinPWM(const pin_t pin) {
     // Channel active, print
     // - Channel compare value
     const uint16_t compare = TIMERA_GetCompareValue(unit->peripheral.register_base, channel);
-    SERIAL_ECHOPGM("CMPAR=", compare);
+    SERIAL_ECHO("CMPAR=", compare);
   }
   else {
     // Channel inactive
-    SERIAL_ECHOPGM("N/A");
+    SERIAL_ECHO("N/A");
   }
 }
 

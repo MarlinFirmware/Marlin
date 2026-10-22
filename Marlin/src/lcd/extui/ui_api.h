@@ -240,9 +240,22 @@ namespace ExtUI {
     bool getLevelingIsValid();
     void onLevelingStart();
     void onLevelingDone();
+
     #if ENABLED(PREHEAT_BEFORE_LEVELING)
-      celsius_t getLevelingBedTemp();
+      #if HAS_HOTEND
+        celsius_t getLevelingNozzleTemp();
+        #if HAS_LEVELING_TEMP_EDIT
+          void setLevelingNozzleTemp(const celsius_t);
+        #endif
+      #endif
+      #if HAS_HEATED_BED
+        celsius_t getLevelingBedTemp();
+        #if HAS_LEVELING_TEMP_EDIT
+          void setLevelingBedTemp(const celsius_t);
+        #endif
+      #endif
     #endif
+
     #if HAS_MESH
       // Mesh data, utilities, events
       bed_mesh_t& getMeshArray();
@@ -499,7 +512,9 @@ namespace ExtUI {
 
   /**
    * Event callback routines
-   * Must be defined, and will be called by Marlin as needed
+   *
+   * Called by Marlin as needed. Weak no-op defaults are provided in
+   * ui_api.cpp, so a display only needs to define the handlers it uses.
    */
   void onStartup();
   void onIdle();

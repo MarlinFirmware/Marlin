@@ -113,7 +113,7 @@
 #define SD_DETECT_PIN                       -1
 #define SDCARD_CONNECTION                ONBOARD
 //#define ONBOARD_SDIO
-#define NO_SD_HOST_DRIVE                          // This board's SD is only seen by the printer
+#define BOARD_NO_HOST_DRIVE                       // SD is only seen by the printer
 
 #if SD_CONNECTION_IS(ONBOARD)
   #define ONBOARD_SD_CS_PIN                 PA4

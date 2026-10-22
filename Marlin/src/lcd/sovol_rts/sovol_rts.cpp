@@ -150,7 +150,7 @@ void RTS::sdCardInit() {
       if (j >= filenamelen) { addrnum++; continue; }
 
       if (j >= FILENAME_LEN) {
-        strncpy(&pFilename[FILENAME_LEN - 3], "..", 2);
+        strncpy(&pFilename[FILENAME_LEN - 3], "..", 3);
         pFilename[FILENAME_LEN - 1] = '\0';
         j = FILENAME_LEN - 1;
       }
@@ -1544,7 +1544,7 @@ void RTS::updateTempBed() {
 }
 
 void RTS::updateFan0() {
-  TERN_(HAS_FAN, sendData(thermalManager.fan_speed[0], FAN_SPEED_VP));
+  TERN_(HAS_FAN, sendData(fans[0].speed, FAN_SPEED_VP));
 }
 
 void RTS::onIdle() {

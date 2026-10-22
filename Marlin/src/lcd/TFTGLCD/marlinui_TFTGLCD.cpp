@@ -326,7 +326,7 @@ void MarlinUI::init_lcd() {
     // SPI speed must be less 10MHz
     SET_OUTPUT(TFTGLCD_CS);
     WRITE(TFTGLCD_CS, HIGH);
-    spiInit(TERN(__STM32F1__, SPI_QUARTER_SPEED, SPI_FULL_SPEED));
+    spiInit(TERN(__STM32F1__, SPI_QUARTER_SPEED, TERN(HAL_STM32, SPI_HALF_SPEED, SPI_FULL_SPEED)));
     WRITE(TFTGLCD_CS, LOW);
     SPI_SEND_ONE(GET_LCD_ROW);
     t = SPI_SEND_ONE(GET_SPI_DATA);
@@ -906,11 +906,11 @@ void MarlinUI::draw_status_screen() {
     #endif
 
     #if HAS_FAN
-      uint16_t spd = thermalManager.fan_speed[0];
+      uint16_t spd = fans[0].speed;
       #if ENABLED(ADAPTIVE_FAN_SLOWING)
-        if (!blink) spd = thermalManager.scaledFanSpeed(0, spd);
+        if (!blink) spd = fans[0].scaled_speed(spd);
       #endif
-      uint16_t per = thermalManager.pwmToPercent(spd);
+      const uint16_t pct = Fan::pwmToPercent(spd);
 
       #if HOTENDS < 2
         #define FANX 11
@@ -920,9 +920,9 @@ void MarlinUI::draw_status_screen() {
       lcd_moveto(FANX, 5); lcd_put_u8str(F("FAN"));
       lcd_moveto(FANX + 1, 6); lcd.write('%');
       lcd_moveto(FANX, 7);
-      lcd.print(i16tostr3rj(per));
+      lcd.print(i16tostr3rj(pct));
 
-      if (TERN0(HAS_FAN0, thermalManager.fan_speed[0]) || TERN0(HAS_FAN1, thermalManager.fan_speed[1]) || TERN0(HAS_FAN2, thermalManager.fan_speed[2]))
+      if (TERN0(HAS_FAN0, fans[0].speed) || TERN0(HAS_FAN1, fans[1].speed) || TERN0(HAS_FAN2, fans[2].speed))
         picBits |= ICON_FAN;
       else
         picBits &= ~ICON_FAN;

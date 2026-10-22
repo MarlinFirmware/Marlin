@@ -52,10 +52,6 @@
   #define JUST_BABYSTEP 1
 #endif
 
-#if ANY(BABYSTEPPING, HAS_BED_PROBE, HAS_WORKSPACE_OFFSET)
-  #define HAS_ZOFFSET_ITEM 1
-#endif
-
 #define defColorBackground  RGB(1, 12, 8)
 #define defColorCursor      RGB(20, 49, 31)
 #define defColorTitleBg     RGB(0, 23, 16)
@@ -112,7 +108,7 @@
 #if PROUI_TUNING_GRAPH
   #define PROUI_ITEM_PLOT     // Plot temp graph viewer
 #endif
-#define HAS_GCODE_PREVIEW 1   // Preview G-code model thumbnail
+#define PROUI_GCODE_PREVIEW 1 // Preview G-code model thumbnail
 #define HAS_CUSTOM_COLORS 1   // Change display colors
 #define HAS_ESDIAG 1          // View End-stop/Runout switch continuity
 #define HAS_LOCKSCREEN 1      // Simple lockscreen

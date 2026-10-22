@@ -68,7 +68,7 @@
     #error "Your Configuration_adv.h file is for a newer version of Marlin. Upgrade Marlin or downgrade your Configuration_adv.h."
   #endif
   #undef HEXIFY
-#endif // HAS_IGNORED_CONFIGS
+#endif // USE_STD_CONFIGS
 
 /**
  * Warnings for old configurations
@@ -339,7 +339,7 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
  * LCD Info Screen Style
  */
 #if LCD_INFO_SCREEN_STYLE > 0
-  #if HAS_MARLINUI_U8GLIB || LCD_WIDTH < 20 || LCD_HEIGHT < 4
+  #if !HAS_MARLINUI_HD44780 || LCD_WIDTH < 20 || LCD_HEIGHT < 4
     #error "Alternative LCD_INFO_SCREEN_STYLE requires 20x4 Character LCD."
   #elif LCD_INFO_SCREEN_STYLE > 2
     #error "LCD_INFO_SCREEN_STYLE only has options 0 (Classic), 1 (Průša), and 2 (CNC)."
@@ -920,11 +920,11 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
  */
 #if ENABLED(DIFFERENTIAL_EXTRUDER)
   #if EXTRUDERS != 1
-    #error "DIFFERENTIAL EXTRUDER currently requires a single extruder (EXTRUDERS = 1)."
+    #error "DIFFERENTIAL_EXTRUDER currently requires a single extruder (EXTRUDERS = 1)."
   #elif !IS_FULL_CARTESIAN
-    #error "DIFFERENTIAL EXTRUDER requires standard Cartesian kinematics."
+    #error "DIFFERENTIAL_EXTRUDER requires standard Cartesian kinematics."
   #elif !defined(CPU_32_BIT)
-    #error "DIFFERENTIAL EXTRUDER requires a 32-bit CPU."
+    #error "DIFFERENTIAL_EXTRUDER requires a 32-bit CPU."
   #endif
 #endif
 
@@ -993,9 +993,9 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
 #if HAS_FANMUX && !HAS_FAN0
   #error "FAN0_PIN must be defined to use Fan Multiplexing."
 #elif PIN_EXISTS(FANMUX1) && !PIN_EXISTS(FANMUX0)
-  #error "FANMUX0_PIN must be set before FANMUX1_PIN can be set."
+  #error "FANMUX0_PIN must be defined before FANMUX1_PIN can be defined."
 #elif PIN_EXISTS(FANMUX2) && !PINS_EXIST(FANMUX0, FANMUX1)
-  #error "FANMUX0_PIN and FANMUX1_PIN must be set before FANMUX2_PIN can be set."
+  #error "FANMUX0_PIN and FANMUX1_PIN must be defined before FANMUX2_PIN can be defined."
 #endif
 
 // PID Fan Scaling requires a fan
@@ -1454,7 +1454,7 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
   #if ENABLED(MAGLEV4)
     #if !PIN_EXISTS(MAGLEV_TRIGGER)
       #error "MAGLEV4 requires MAGLEV_TRIGGER_PIN to be defined."
-    #elif ENABLED(HOMING_Z_WITH_PROBE) && DISABLED(Z_SAFE_HOMING)
+    #elif HOMING_Z_WITH_PROBE && DISABLED(Z_SAFE_HOMING)
       #error "MAGLEV4 requires Z_SAFE_HOMING."
     #elif MAGLEV_TRIGGER_DELAY != 15
       #error "MAGLEV_TRIGGER_DELAY should not be changed. Comment out this line to continue."
@@ -2900,8 +2900,14 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
 #if ENABLED(NEOPIXEL_LED)
   #if !PIN_EXISTS(NEOPIXEL) || NEOPIXEL_PIXELS == 0
     #error "NEOPIXEL_LED requires NEOPIXEL_PIN and NEOPIXEL_PIXELS."
+  #elif ALL(NEOPIXEL2_SEPARATE, NEOPIXEL2_INSERIES)
+    #error "Enable only one of NEOPIXEL2_SEPARATE or NEOPIXEL2_INSERIES."
   #elif ENABLED(NEOPIXEL2_SEPARATE) && !(defined(NEOPIXEL2_TYPE) && PIN_EXISTS(NEOPIXEL2) && NEOPIXEL2_PIXELS > 0)
     #error "NEOPIXEL2_SEPARATE requires NEOPIXEL2_TYPE, NEOPIXEL2_PIN and NEOPIXEL2_PIXELS."
+  #elif ENABLED(NEOPIXEL2_INSERIES) && !(defined(NEOPIXEL2_TYPE) && PIN_EXISTS(NEOPIXEL2))
+    #error "NEOPIXEL2_INSERIES requires NEOPIXEL2_TYPE and NEOPIXEL2_PIN."
+  #elif defined(NEOPIXEL2_TYPE) && !PIN_EXISTS(NEOPIXEL2)
+    #error "NEOPIXEL2_TYPE requires NEOPIXEL2_PIN."
   #elif ENABLED(NEO2_COLOR_PRESETS) && DISABLED(NEOPIXEL2_SEPARATE)
     #error "NEO2_COLOR_PRESETS requires NEOPIXEL2_SEPARATE to be enabled."
   #endif
@@ -3022,8 +3028,8 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
   static_assert(strcmp(STRINGIFY(LCD_LANGUAGE_5), STRINGIFY(LCD_LANGUAGE_4)), "Error: LCD_LANGUAGE_5 (" STRINGIFY(LCD_LANGUAGE) ") cannot be the same as LCD_LANGUAGE_4.");
 #endif
 
-#if ANY(TFT_GENERIC, MKS_TS35_V2_0, MKS_ROBIN_TFT24, MKS_ROBIN_TFT28, MKS_ROBIN_TFT32, MKS_ROBIN_TFT35, MKS_ROBIN_TFT43, MKS_ROBIN_TFT_V1_1R, \
-        TFT_TRONXY_X5SA, ANYCUBIC_TFT35, ANYCUBIC_TFT35, LONGER_LK_TFT28, ANET_ET4_TFT28, ANET_ET5_TFT35, BIQU_BX_TFT70, BTT_TFT35_SPI_V1_0)
+#if ANY(TFT_GENERIC, MKS_TS35_V2_0, MKS_TS24_R_V2_1, MKS_ROBIN_TFT24, MKS_ROBIN_TFT28, MKS_ROBIN_TFT32, MKS_ROBIN_TFT35, MKS_ROBIN_TFT43, MKS_ROBIN_TFT_V1_1R, \
+        TFT_TRONXY_X5SA, ANYCUBIC_TFT35, ANYCUBIC_TFT35, LONGER_LK_TFT28, ANET_ET4_TFT28, ANET_ET5_TFT35, BIQU_BX_TFT70, BTT_TFT35_SPI_V1_0, PRUSA_MINI_LCD)
   #if NONE(TFT_COLOR_UI, TFT_CLASSIC_UI, TFT_LVGL_UI)
     #error "TFT_COLOR_UI, TFT_CLASSIC_UI, TFT_LVGL_UI is required for your TFT. Please enable one."
   #elif MANY(TFT_COLOR_UI, TFT_CLASSIC_UI, TFT_LVGL_UI)
@@ -3045,6 +3051,10 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
 
 #if MANY(TFT_RES_320x240, TFT_RES_480x272, TFT_RES_480x320, TFT_RES_1024x600)
   #error "Please select only one of TFT_RES_320x240, TFT_RES_480x272, TFT_RES_480x320, or TFT_RES_1024x600."
+#endif
+
+#if ENABLED(TFT_FONT_LARGE) && !ALL(TFT_COLOR_UI, HAS_UI_1024x600)
+  #error "TFT_FONT_LARGE requires TFT_COLOR_UI with a 1024x600 TFT (TFT_RES_1024x600)."
 #endif
 
 #if ENABLED(TFT_LVGL_UI)
@@ -3079,6 +3089,20 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
 
 #if ENABLED(ANYCUBIC_LCD_VYPER)
   static_assert(strcmp(STRINGIFY(LCD_LANGUAGE_2), "zh_CN") == 0, "LCD_LANGUAGE_2 must be set to zh_CN for ANYCUBIC_LCD_VYPER.");
+#endif
+
+#if ENABLED(ANYCUBIC_LCD_KOBRA)
+  #ifndef BEEPER_PIN
+    #error "ANYCUBIC_LCD_KOBRA requires BEEPER_PIN"
+  #elif !HAS_MEDIA
+    #error "ANYCUBIC_LCD_KOBRA requires SDSUPPORT"
+  #elif TEMP_SENSOR_BED == 0
+    #error "ANYCUBIC_LCD_KOBRA requires heatbed (TEMP_SENSOR_BED)"
+  #elif NONE(AUTO_BED_LEVELING_BILINEAR, AUTO_BED_LEVELING_UBL, MESH_BED_LEVELING)
+    #error "ANYCUBIC_LCD_KOBRA requires one of: AUTO_BED_LEVELING_BILINEAR, AUTO_BED_LEVELING_UBL or MESH_BED_LEVELING"
+  #elif DISABLED(BABYSTEPPING)
+    #error "ANYCUBIC_LCD_KOBRA requires BABYSTEPPING"
+  #endif
 #endif
 
 #if ENABLED(NO_LCD_SDCARD) && SD_CONNECTION_IS(LCD)
@@ -3137,7 +3161,7 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
 
 // Startup Tune requirements
 #ifdef STARTUP_TUNE
-  #if ANY(ANYCUBIC_LCD_CHIRON, ANYCUBIC_LCD_VYPER)
+  #if ANY(ANYCUBIC_LCD_CHIRON, ANYCUBIC_LCD_KOBRA, ANYCUBIC_LCD_VYPER)
     #error "STARTUP_TUNE should be disabled with ANYCUBIC_LCD_CHIRON or ANYCUBIC_LCD_VYPER."
   #elif !(ALL(HAS_BEEPER, SPEAKER) || USE_MARLINUI_BUZZER)
     #error "STARTUP_TUNE requires a BEEPER_PIN with SPEAKER or USE_MARLINUI_BUZZER."
@@ -3190,12 +3214,14 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
 #else
   #if HAS_DGUS_LCD
     #error "The DGUS LCD requires LCD_SERIAL_PORT to be defined."
-  #elif ANY(ANYCUBIC_LCD_I3MEGA, ANYCUBIC_LCD_CHIRON, ANYCUBIC_LCD_VYPER)
+  #elif ANY(ANYCUBIC_LCD_I3MEGA, ANYCUBIC_LCD_CHIRON, ANYCUBIC_LCD_KOBRA, ANYCUBIC_LCD_VYPER)
     #error "ANYCUBIC_LCD_* requires LCD_SERIAL_PORT to be defined."
   #elif ENABLED(MALYAN_LCD)
     #error "MALYAN_LCD requires LCD_SERIAL_PORT to be defined."
   #elif ENABLED(NEXTION_LCD)
     #error "NEXTION_LCD requires LCD_SERIAL_PORT to be defined."
+  #elif ENABLED(ELEGOO_NEPTUNE_3_TFT)
+    #error "ELEGOO_NEPTUNE_3_TFT requires LCD_SERIAL_PORT to be defined."
   #endif
 #endif
 
@@ -3336,7 +3362,7 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
 /**
  * TMC2209 slave address values
  */
-#define INVALID_TMC_ADDRESS(ST) static_assert(0 <= ST##_SLAVE_ADDRESS && ST##_SLAVE_ADDRESS <= 3, "TMC2209 slave address must be 0, 1, 2 or 3")
+#define INVALID_TMC_ADDRESS(ST) static_assert(0 <= ST##_SLAVE_ADDRESS && ST##_SLAVE_ADDRESS <= 3, "TMC2209 slave address for " STRINGIFY(ST) " must be 0, 1, 2 or 3")
 #if AXIS_DRIVER_TYPE_X(TMC2209)
   INVALID_TMC_ADDRESS(X);
 #elif AXIS_DRIVER_TYPE_X2(TMC2209)
@@ -3762,6 +3788,10 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
   #endif
 #endif // HYBRID_THRESHOLD
 
+#if ENABLED(HOMING_HYBRID_THRESHOLD) && DISABLED(HYBRID_THRESHOLD)
+  #error "HOMING_HYBRID_THRESHOLD requires HYBRID_THRESHOLD."
+#endif
+
 // Other TMC feature requirements
 #if ENABLED(SENSORLESS_HOMING) && !HAS_STALLGUARD
   #error "SENSORLESS_HOMING requires TMC2130, TMC2160, TMC2209, TMC2240, TMC2660, or TMC5160 stepper drivers."
@@ -3967,6 +3997,15 @@ static_assert(_PLUS_TEST(3), "DEFAULT_MAX_ACCELERATION values must be positive."
   static_assert(COUNT(sanity_arr_8) >= LOGICAL_AXES, "MANUAL_FEEDRATE requires " _LOGICAL_AXES_STR "elements.");
   static_assert(COUNT(sanity_arr_8) <= LOGICAL_AXES, "MANUAL_FEEDRATE has too many elements. " _LOGICAL_AXES_STR "elements only.");
   static_assert(_PLUS_TEST(8), "MANUAL_FEEDRATE values must be positive.");
+#endif
+
+#if ENABLED(MPCTEMP)
+  constexpr float sanity_arr_9[] = MPC_HEATER_POWER;
+  static_assert(_PLUS_TEST(9), "MPC_HEATER_POWER values must be positive.");
+  constexpr float sanity_arr_10[] = MPC_BLOCK_HEAT_CAPACITY;
+  static_assert(_PLUS_TEST(10), "MPC_BLOCK_HEAT_CAPACITY values must be positive.");
+  constexpr float sanity_arr_11[] = MPC_SENSOR_RESPONSIVENESS;
+  static_assert(_PLUS_TEST(11), "MPC_SENSOR_RESPONSIVENESS values must be positive.");
 #endif
 
 #undef __PLUS_TEST
@@ -4350,16 +4389,23 @@ static_assert(_PLUS_TEST(3), "DEFAULT_MAX_ACCELERATION values must be positive."
   #error "Enable only one of WIFISUPPORT or ESP3D_WIFISUPPORT."
 #elif ENABLED(ESP3D_WIFISUPPORT) && DISABLED(ARDUINO_ARCH_ESP32)
   #error "ESP3D_WIFISUPPORT requires an ESP32 motherboard."
-#elif ALL(ARDUINO_ARCH_ESP32, WIFISUPPORT)
-  #if !(defined(WIFI_SSID) && defined(WIFI_PWD))
-    #error "ESP32 motherboard with WIFISUPPORT requires WIFI_SSID and WIFI_PWD."
+#endif
+
+// Only the native ESP32 WiFi needs credentials at compile time. An add-on module
+// on another board is brought up by esp_wifi_init() and configures itself.
+#if ALL(ARDUINO_ARCH_ESP32, WIFISUPPORT) && !(defined(WIFI_SSID) && defined(WIFI_PWD))
+  #error "ESP32 motherboard with WIFISUPPORT requires WIFI_SSID and WIFI_PWD."
+#endif
+
+// With no WiFi at all these can do nothing whatsoever.
+#if NONE(WIFISUPPORT, ESP3D_WIFISUPPORT)
+  #if ANY(WEBSUPPORT, OTASUPPORT)
+    #error "WEBSUPPORT and OTASUPPORT require WIFISUPPORT."
+  #elif ENABLED(WIFI_CUSTOM_COMMAND)
+    #error "WIFI_CUSTOM_COMMAND requires ESP3D_WIFISUPPORT."
+  #elif defined(WIFI_SSID) || defined(WIFI_PWD)
+    #error "WIFI_SSID and WIFI_PWD require WIFISUPPORT."
   #endif
-#elif ENABLED(WIFI_CUSTOM_COMMAND) && NONE(ESP3D_WIFISUPPORT, WIFISUPPORT)
-  #error "WIFI_CUSTOM_COMMAND requires an ESP32 motherboard and WIFISUPPORT."
-#elif ENABLED(OTASUPPORT) && NONE(ESP3D_WIFISUPPORT, WIFISUPPORT)
-  #error "OTASUPPORT requires an ESP32 motherboard and WIFISUPPORT."
-#elif (defined(WIFI_SSID) || defined(WIFI_PWD)) && NONE(ESP3D_WIFISUPPORT, WIFISUPPORT)
-  #error "WIFI_SSID and WIFI_PWD only apply to ESP32 motherboard with WIFISUPPORT."
 #endif
 
 /**
@@ -4554,6 +4600,21 @@ static_assert(_PLUS_TEST(3), "DEFAULT_MAX_ACCELERATION values must be positive."
 #endif
 
 /**
+ * Require certain features for ELEGOO_NEPTUNE_3_TFT.
+ */
+#if ENABLED(ELEGOO_NEPTUNE_3_TFT)
+  #if !HAS_MEDIA
+    #error "ELEGOO_NEPTUNE_3_TFT requires SDSUPPORT."
+  #elif DISABLED(AUTO_BED_LEVELING_BILINEAR)
+    #error "ELEGOO_NEPTUNE_3_TFT requires AUTO_BED_LEVELING_BILINEAR."
+  #elif !((GRID_MAX_POINTS_X == 6 && GRID_MAX_POINTS_Y == 6) || (GRID_MAX_POINTS_X == 7 && (GRID_MAX_POINTS_Y == 7 || GRID_MAX_POINTS_Y == 9)))
+    #error "ELEGOO_NEPTUNE_3_TFT requires a 6x6 (Pro), 7x7 (Plus), or 7x9 (Max) bed leveling grid."
+  #elif HOTENDS > 1
+    #error "ELEGOO_NEPTUNE_3_TFT supports only one hotend."
+  #endif
+#endif
+
+/**
  * Require certain features for DGUS_LCD_UI E3S1PRO.
  */
 #if DGUS_UI_IS(E3S1PRO)
@@ -4585,6 +4646,54 @@ static_assert(_PLUS_TEST(3), "DEFAULT_MAX_ACCELERATION values must be positive."
     #error "DGUS_LCD_UI E3S1PRO requires 2 preheating presets."
   #elif ENABLED(AUTO_BED_LEVELING_UBL) && DISABLED(UBL_SAVE_ACTIVE_ON_M500)
     #warning "Without UBL_SAVE_ACTIVE_ON_M500, your mesh will not be saved when using the touchscreen."
+  #endif
+#endif
+
+/**
+ * Require certain features for DGUS_LCD_UI CR10SPROV2.
+ */
+#if DGUS_UI_IS(CR10SPROV2)
+  #if !(HOTENDS == 1 && EXTRUDERS == 1)
+    #error "DGUS_LCD_UI CR10SPROV2 requires 1 hotend and 1 extruder."
+  #elif !HAS_HEATED_BED
+    #error "DGUS_LCD_UI CR10SPROV2 requires a heated bed."
+  #elif !HAS_FAN
+    #error "DGUS_LCD_UI CR10SPROV2 requires a fan."
+  #elif !HAS_MEDIA
+    #error "DGUS_LCD_UI CR10SPROV2 requires SDSUPPORT."
+  #elif !HAS_BED_PROBE
+    #error "DGUS_LCD_UI CR10SPROV2 requires a bed probe."
+  #elif !HAS_MESH || GRID_MAX_POINTS_X != 5 || GRID_MAX_POINTS_Y != 5
+    #error "DGUS_LCD_UI CR10SPROV2 requires a 5x5 mesh (GRID_MAX_POINTS_X/Y 5)."
+  #elif DISABLED(BABYSTEPPING)
+    #error "DGUS_LCD_UI CR10SPROV2 requires BABYSTEPPING."
+  #elif !defined(PREHEAT_1_TEMP_HOTEND) || !defined(PREHEAT_2_TEMP_HOTEND)
+    #error "DGUS_LCD_UI CR10SPROV2 requires 2 preheating presets."
+  #elif NUM_RUNOUT_SENSORS > 1
+    #error "DGUS_LCD_UI CR10SPROV2 requires NUM_RUNOUT_SENSORS < 2."
+  #endif
+#endif
+
+/**
+ * Require certain features for DGUS_LCD_UI SERMOON_D1.
+ */
+#if DGUS_UI_IS(SERMOON_D1)
+  #if !(HOTENDS == 1 && EXTRUDERS == 1)
+    #error "DGUS_LCD_UI SERMOON_D1 requires 1 hotend and 1 extruder."
+  #elif !HAS_HEATED_BED
+    #error "DGUS_LCD_UI SERMOON_D1 requires a heated bed."
+  #elif !HAS_FAN
+    #error "DGUS_LCD_UI SERMOON_D1 requires a fan."
+  #elif !HAS_MEDIA
+    #error "DGUS_LCD_UI SERMOON_D1 requires SDSUPPORT."
+  #elif HAS_MESH && (GRID_MAX_POINTS_X > 5 || GRID_MAX_POINTS_Y > 5)
+    #error "DGUS_LCD_UI SERMOON_D1 shows a mesh of up to 5x5 (GRID_MAX_POINTS_X/Y 5)."
+  #elif DISABLED(BABYSTEPPING)
+    #error "DGUS_LCD_UI SERMOON_D1 requires BABYSTEPPING."
+  #elif !defined(PREHEAT_1_TEMP_HOTEND) || !defined(PREHEAT_2_TEMP_HOTEND)
+    #error "DGUS_LCD_UI SERMOON_D1 requires 2 preheating presets."
+  #elif NUM_RUNOUT_SENSORS > 1
+    #error "DGUS_LCD_UI SERMOON_D1 requires NUM_RUNOUT_SENSORS < 2."
   #endif
 #endif
 
