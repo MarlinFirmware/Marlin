@@ -176,7 +176,7 @@
  * M150 - Set Status LED Color as R<red> U<green> B<blue> W<white> P<bright>. Values 0-255. (Requires BLINKM, RGB_LED, RGBW_LED, NEOPIXEL_LED, PCA9533, or PCA9632).
  * M154 - Auto-report position with interval of S<seconds>. (Requires AUTO_REPORT_POSITION)
  * M155 - Auto-report temperatures with interval of S<seconds>. (Requires AUTO_REPORT_TEMPERATURES)
- * M163 - Set a single proportion for a mixing extruder. (Requires MIXING_EXTRUDER)
+ * M163 - Set a single proportion for a mixing extruder. With no parameters report the mix factors and virtual tools. (Requires MIXING_EXTRUDER)
  * M164 - Commit the mix and save to a virtual tool (current, or as specified by 'S'). (Requires MIXING_EXTRUDER)
  * M165 - Set the mix for the mixing extruder (and current virtual tool) with parameters ABCDHI. (Requires MIXING_EXTRUDER and DIRECT_MIXING_IN_G1)
  * M166 - Set the Gradient Mix for the mixing extruder. (Requires GRADIENT_MIX)
@@ -881,6 +881,7 @@ private:
 
   #if ENABLED(MIXING_EXTRUDER)
     static void M163();
+    static void M163_report(const bool forReplay=true);
     static void M164();
     #if ENABLED(DIRECT_MIXING_IN_G1)
       static void M165();

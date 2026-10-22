@@ -113,6 +113,10 @@
   #include "../feature/backlash.h"
 #endif
 
+#if ENABLED(MIXING_EXTRUDER)
+  #include "../feature/mixing.h"
+#endif
+
 #if ENABLED(FT_MOTION)
   #include "../module/ft_motion.h"
 #endif
@@ -723,6 +727,13 @@ typedef struct SettingsDataStruct {
   //
   #if ENABLED(GCODE_MACROS_IN_EEPROM)
     char gcode_macros[GCODE_MACROS_SLOTS][GCODE_MACROS_SLOT_SIZE + 1];
+  #endif
+
+  //
+  // MIXING_EXTRUDER
+  //
+  #if ENABLED(MIXING_EXTRUDER)
+    mixer_comp_t mixer_color[MIXING_VIRTUAL_TOOLS][MIXING_STEPPERS]; // M163 S P, M164 S
   #endif
 
 } SettingsData;
@@ -1870,6 +1881,14 @@ void MarlinSettings::postprocess() {
     #if ENABLED(GCODE_MACROS_IN_EEPROM)
       _FIELD_TEST(gcode_macros);
       EEPROM_WRITE(gcode.macros);
+    #endif
+
+    //
+    // MIXING_EXTRUDER
+    //
+    #if ENABLED(MIXING_EXTRUDER)
+      _FIELD_TEST(mixer_color);
+      for (uint8_t t = 0; t < MIXING_VIRTUAL_TOOLS; ++t) EEPROM_WRITE(mixer.color[t]);
     #endif
 
     //
@@ -3080,6 +3099,14 @@ void MarlinSettings::postprocess() {
       #endif
 
       //
+      // MIXING_EXTRUDER
+      //
+      #if ENABLED(MIXING_EXTRUDER)
+        _FIELD_TEST(mixer_color);
+        for (uint8_t t = 0; t < MIXING_VIRTUAL_TOOLS; ++t) EEPROM_READ(mixer.color[t]);
+      #endif
+
+      //
       // Validate Final Size and CRC
       //
       const uint16_t eeprom_total = eeprom_index - (EEPROM_OFFSET);
@@ -3942,6 +3969,11 @@ void MarlinSettings::reset() {
   TERN_(GCODE_MACROS_IN_EEPROM, gcode.reset_macros());
 
   //
+  // Mixing Extruder Virtual Tools
+  //
+  TERN_(MIXING_EXTRUDER, mixer.reset_vtools());
+
+  //
   // Hotend Idle Timeout
   //
   TERN_(HOTEND_IDLE_TIMEOUT, hotend_idle.cfg.set_defaults());
@@ -4182,6 +4214,11 @@ void MarlinSettings::reset() {
     // G-Code Macros
     //
     TERN_(GCODE_MACROS, gcode.M810_819_report(forReplay));
+
+    //
+    // Mixing Extruder Virtual Tools
+    //
+    TERN_(MIXING_EXTRUDER, gcode.M163_report(forReplay));
 
     //
     // Probe Offset
