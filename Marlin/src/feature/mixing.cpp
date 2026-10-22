@@ -119,8 +119,6 @@ void Mixer::init() {
 
   ZERO(collector);
 
-  reset_vtools();
-
   #if HAS_MIXER_SYNC_CHANNEL
     // AUTORETRACT_TOOL gets the same amount of all filaments
     MIXER_STEPPER_LOOP(i)

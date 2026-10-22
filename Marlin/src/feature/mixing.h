@@ -81,6 +81,7 @@ static_assert(NR_MIXING_VIRTUAL_TOOLS <= MAX_VTOOLS, "MIXING_VIRTUAL_TOOLS must 
  * @details Contains data and behaviors for a Mixing Extruder
  */
 class Mixer {
+  friend class MarlinSettings;
   public:
 
   static float collector[MIXING_STEPPERS];    // M163 components, also editable from LCD

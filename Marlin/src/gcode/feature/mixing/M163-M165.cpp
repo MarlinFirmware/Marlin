@@ -33,12 +33,19 @@
  * Set a single mix factor for a mixing extruder
  * This is called "weight" by some systems.
  * Must be followed by M164 to normalize and commit them.
+ * With no parameters, report the pending mix factors and the mix of all virtual tools.
  *
  * Parameters:
  *   S<index>  The channel index to set
  *   P<float>  The mix value
  */
 void GcodeSuite::M163() {
+  if (!parser.seen_any()) {
+    SERIAL_ECHOPGM("Pending mix:");
+    MIXER_STEPPER_LOOP(i) SERIAL_ECHOPGM(" S", i, " P", p_float_t(mixer.collector[i], 3));
+    SERIAL_EOL();
+    return M163_report();
+  }
   const int mix_index = parser.intval('S');
   if (mix_index < MIXING_STEPPERS)
     mixer.set_collector(mix_index, parser.floatval('P'));
@@ -65,6 +72,22 @@ void GcodeSuite::M164() {
   }
   else
     mixer.normalize();
+}
+
+void GcodeSuite::M163_report(const bool forReplay/*=true*/) {
+  TERN_(MARLIN_SMALL_BUILD, return);
+
+  report_heading(forReplay, F("Mixing Virtual Tools"));
+  for (uint8_t t = 0; t < MIXING_VIRTUAL_TOOLS; ++t) {
+    float c[MIXING_STEPPERS];
+    mixer.refresh_collector(1.0f, t, c);
+    MIXER_STEPPER_LOOP(i) {
+      report_echo_start(forReplay);
+      SERIAL_ECHOLNPGM("  M163 S", i, " P", p_float_t(c[i], 3));
+    }
+    report_echo_start(forReplay);
+    SERIAL_ECHOLNPGM("  M164 S", t);
+  }
 }
 
 #if ENABLED(DIRECT_MIXING_IN_G1)
