@@ -1844,7 +1844,7 @@ void MarlinUI::kill_screen(FSTR_P const lcd_error, FSTR_P const) {
 
 #if ENABLED(SCROLL_LONG_FILENAMES)
 
-  char shift_name[LONG_FILENAME_LENGTH + 1];
+  char shift_name[LONG_FILENAME_BYTES + 1];
   int8_t shift_amt; // = 0
   millis_t shift_ms; // = 0
 

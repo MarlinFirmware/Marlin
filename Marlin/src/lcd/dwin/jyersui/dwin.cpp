@@ -185,7 +185,7 @@ uint8_t valueunit;
 uint8_t valuetype;
 
 char statusmsg[64];
-char filename[LONG_FILENAME_LENGTH];
+char filename[LONG_FILENAME_BYTES];
 bool printing = false;
 bool paused = false;
 bool sdprint = false;
@@ -4720,6 +4720,7 @@ void JyersDWIN::popupControl() {
             redrawMenu(true, true, false);
           break;
         case Popup_PurgeMore:
+          marlin.user_resume(); // Break out of ADVANCED_PAUSE_CONTINUOUS_PURGE
           if (selection == 0) {
             pause_menu_response = PAUSE_RESPONSE_EXTRUDE_MORE;
             popupHandler(Popup_FilChange);
@@ -4851,8 +4852,8 @@ void JyersDWIN::modifyOption(const uint8_t value, const char * const * options, 
 
 void JyersDWIN::updateStatus(const char * const text) {
   if (strncmp_P(text, PSTR("<F>"), 3) == 0) {
-    for (uint8_t i = 0; i < _MIN((size_t)LONG_FILENAME_LENGTH, strlen(text)); ++i) filename[i] = text[i + 3];
-    filename[_MIN((size_t)LONG_FILENAME_LENGTH - 1, strlen(text))] = '\0';
+    for (uint8_t i = 0; i < _MIN((size_t)LONG_FILENAME_BYTES, strlen(text)); ++i) filename[i] = text[i + 3];
+    filename[_MIN((size_t)LONG_FILENAME_BYTES - 1, strlen(text))] = '\0';
     drawPrintFilename(true);
   }
   else {

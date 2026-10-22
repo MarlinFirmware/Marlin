@@ -38,7 +38,7 @@
   #define DEFAULT_MACHINE_NAME "Ender 2 Pro"
 #endif
 
-#define BOARD_LCD_SERIAL_PORT 1
+#define BOARD_LCD_SERIAL_PORT               1
 
 //
 // Onboard crystal oscillator

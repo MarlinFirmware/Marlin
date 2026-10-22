@@ -35,7 +35,10 @@
 enum StealthIndex : uint8_t {
   LOGICAL_AXIS_LIST(STEALTH_AXIS_E, STEALTH_AXIS_X, STEALTH_AXIS_Y, STEALTH_AXIS_Z, STEALTH_AXIS_I, STEALTH_AXIS_J, STEALTH_AXIS_K, STEALTH_AXIS_U, STEALTH_AXIS_V, STEALTH_AXIS_W)
 };
-#define TMC_INIT(ST, STEALTH_INDEX) tmc_init(stepper##ST, ST##_CURRENT, ST##_MICROSTEPS, ST##_HYBRID_THRESHOLD, stealthchop_by_axis[STEALTH_INDEX], chopper_timing_##ST, ST##_INTERPOLATE, ST##_HOLD_MULTIPLIER)
+#define TMC_INIT(ST, STEALTH_INDEX) do{ \
+  static_assert(chopper_timing_valid(chopper_timing_##ST), "CHOPPER_TIMING_" #ST " must be { toff[1..15], hend[-3..12], hstrt[1..8] } with hend + hstrt <= 16."); \
+  tmc_init(stepper##ST, ST##_CURRENT, ST##_MICROSTEPS, ST##_HYBRID_THRESHOLD, stealthchop_by_axis[STEALTH_INDEX], chopper_timing_##ST, ST##_INTERPOLATE, ST##_HOLD_MULTIPLIER); \
+}while(0)
 
 //
 //   IC = TMC model number

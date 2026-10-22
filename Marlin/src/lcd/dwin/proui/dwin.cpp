@@ -960,7 +960,7 @@ void onClickSDItem() {
 
 #if ENABLED(SCROLL_LONG_FILENAMES)
 
-  char shift_name[LONG_FILENAME_LENGTH + 1] = "";
+  char shift_name[LONG_FILENAME_BYTES + 1] = "";
 
   void drawSDItemShifted(uint8_t &shift) {
     // Shorten to the available space
@@ -991,7 +991,7 @@ void onClickSDItem() {
       if (selected >= 1 + hasUpDir) {
         const int8_t filenum = selected - 1 - hasUpDir; // Skip "Back" and ".."
         card.selectFileByIndexSorted(filenum);
-        makeNameWithoutExt(shift_name, card.longest_filename(), LONG_FILENAME_LENGTH);
+        makeNameWithoutExt(shift_name, card.longest_filename(), LONG_FILENAME_BYTES);
         shift_len = strlen(shift_name);
         shift_amt = 0;
       }
