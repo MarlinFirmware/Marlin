@@ -68,6 +68,16 @@ bool FilamentMonitorBase::enabled = true,
 
 #if ENABLED(HOST_ACTION_COMMANDS)
   #include "host_actions.h"
+
+  static const bool runout_script_uses_pause = (
+    #ifdef FILAMENT_RUNOUT_SCRIPT
+      strstr(FILAMENT_RUNOUT_SCRIPT, "M600")
+      || strstr(FILAMENT_RUNOUT_SCRIPT, "M125")
+      || TERN0(ADVANCED_PAUSE_FEATURE, strstr(FILAMENT_RUNOUT_SCRIPT, "M25"))
+    #else
+      false
+    #endif
+  );
 #endif
 
 #if ENABLED(EXTENSIBLE_UI)
@@ -106,13 +116,7 @@ void event_filament_runout(const uint8_t extruder) {
 
   #if ENABLED(HOST_ACTION_COMMANDS)
 
-    const bool park_or_pause = (false
-      #ifdef FILAMENT_RUNOUT_SCRIPT
-        || strstr(FILAMENT_RUNOUT_SCRIPT, "M600")
-        || strstr(FILAMENT_RUNOUT_SCRIPT, "M125")
-        || TERN0(ADVANCED_PAUSE_FEATURE, strstr(FILAMENT_RUNOUT_SCRIPT, "M25"))
-      #endif
-    );
+    const bool park_or_pause = runout_script_uses_pause;
 
     if (run_runout_script && park_or_pause) {
       hostui.paused(false);
