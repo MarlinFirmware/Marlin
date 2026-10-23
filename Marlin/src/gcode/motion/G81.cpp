@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2026 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -38,148 +38,133 @@
  * G99: Start drill - retract to specified
  */
 
-bool        retract_to_initial  = true;
-feedRate_t  drill_feedrate      = NAN;
-float       drill_rapid_z       = NAN;
-float       drill_finish_depth  = NAN;
+class DrillCycle {
+  public:
+    static bool        retract_to_initial  = true;
+    static feedRate_t  feedrate      = NAN;
+    static float       rapid_z       = NAN;
+    static float       finish_depth  = NAN;
 
-bool move_to(xyze_pos_t position, float z, feedRate_t f) {
-  if(planner.cleaning_buffer_counter) return false;
+    static void end() { feedrate = rapid_z = finish_depth  = NAN; }
 
-  LOOP_NUM_AXES(i) {
-    destination[i] = position[i];
+  bool move_to(const xyze_pos_t position, cosnt float z, const feedRate_t f) {
+    if (planner.cleaning_buffer_counter) return false;
+    motion.destination = motion.position;
+    motion.destination.z = z;
+    motion.feedrate_mm_s = f;
+    prepare_line_to_destination();
+    return true;
   }
 
-  destination[Z_AXIS] = z;
-  feedrate_mm_s = f;
-
-  prepare_line_to_destination();
-
-  return true;
- }
+} drill;
 
 void drill_cycle(uint8_t mode) {
-  //get input values and build positional variables
-  bool  allow_peck    = mode == 83 || mode == 73;
-  bool  allow_dwell   = mode == 82 || mode == 83 || mode == 73;
+  // Get input values and build positional variables
+  const bool allow_peck = mode == 83 || mode == 73,
+             allow_dwell = mode == 82 || mode == 83 || mode == 73;
 
-  //drill depth, must not be NAN
-  if(parser.seenval(AXIS_CHAR(Z_AXIS))) {
+  // Drill depth, must not be NAN
+  if (parser.seenval(AXIS_CHAR(Z_AXIS))) {
     const float v       = parser.value_axis_units(Z_AXIS);
-    drill_finish_depth  = gcode.axis_is_relative(AxisEnum(Z_AXIS)) ? current_position[Z_AXIS] + v : LOGICAL_TO_NATIVE(v, Z_AXIS);
+    drill.finish_depth  = gcode.axis_is_relative(Z_AXIS) ? current_position.z + v : LOGICAL_TO_NATIVE(v, Z_AXIS);
   }
-  if(drill_finish_depth == NAN) return;
+  if (drill.finish_depth == NAN) return;
 
-  //get position of all axes
-  xyze_pos_t  drill_position;
+  // Get position of all axes
+  xyze_pos_t drill_position;
   LOOP_NUM_AXES(i) {
-    if(i == Z_AXIS) {
-      drill_position[i]   = current_position.z;
-    } else if (parser.seenval(AXIS_CHAR(i))) {
-      const float v = parser.value_axis_units((AxisEnum)i);
-      drill_position[i] = gcode.axis_is_relative(AxisEnum(i)) ? current_position[i] + v : LOGICAL_TO_NATIVE(v, i);
-    } else {
-      drill_position[i] = current_position[i];
+    if (i == Z_AXIS) {
+      drill_position.z = current_position.z;
+    }
+    else if (parser.seenval(AXIS_CHAR(i))) {
+      const float v = parser.value_axis_units(AxisEnum(i));
+      drill_position.z = gcode.axis_is_relative(AxisEnum(i)) ? current_position.z + v : LOGICAL_TO_NATIVE(v, i);
+    }
+    else {
+      drill_position.z = current_position[i];
     }
   }
 
-  //rapid, retract planes
-  if(parser.seenval('R')) drill_rapid_z = LOGICAL_TO_NATIVE(parser.value_axis_units(Z_AXIS), Z_AXIS);
-  else if(drill_rapid_z == NAN) drill_rapid_z = drill_position[Z_AXIS];
-  float drill_retract_z = retract_to_initial ? drill_position[Z_AXIS] : drill_rapid_z;
+  // Rapid, retract planes
+  if (parser.seenval('R'))
+    drill.rapid_z = LOGICAL_TO_NATIVE(parser.value_axis_units(Z_AXIS), Z_AXIS);
+  else if (drill.rapid_z == NAN)
+    drill.rapid_z = drill_position.z;
 
-  //feedrate
-  if(parser.seenval('F')) drill_feedrate = parser.value_feedrate();
-  else if(drill_feedrate == NAN) drill_feedrate = MMM_TO_MMS(DRILL_CYCLES_DEFAULT_FEEDRATE);
+  // Final Z position
+  const float drill_retract_z = drill.retract_to_initial ? drill_position.z : drill.rapid_z;
 
-  //peck
-  float drill_peck_distance = parser.axis_value_to_mm(Z_AXIS, 1000.0f);
-  if(allow_peck) {
+  // Feedrate
+  if (parser.seenval('F'))
+    drill.feedrate = parser.value_feedrate();
+  else if (drill.feedrate == NAN)
+    drill.feedrate = MMM_TO_MMS(DRILL_CYCLES_DEFAULT_FEEDRATE);
+
+  // Peck
+  float drill_peck_distance;
+  if (allow_peck)
     drill_peck_distance = parser.seenval('Q') ? parser.value_axis_units(Z_AXIS) : parser.axis_value_to_mm(Z_AXIS, DRILL_CYCLES_DEFAULT_PECK);
-  }
+  else
+    drill_peck_distance = parser.axis_value_to_mm(Z_AXIS, 1000.0f);
 
-  //dwell
-  int16_t drill_dwell_time = 0;
-  if(allow_dwell) {
-    drill_dwell_time = parser.seenval('P') ? parser.value_int() : DRILL_CYCLES_DEFAULT_DWELL;
-  }
+  // Dwell
+  const int16_t drill_dwell_time = allow_dwell ? parser.intval('P', DRILL_CYCLES_DEFAULT_DWELL) : 0;
 
-  //move to initial xy position
-  if(!move_to(drill_position, 
-            drill_position[Z_AXIS],
-            DRILL_CYCLES_XY_FEEDRATE)) return;
+  // Move to initial xy position
+  if (!move_to(drill_position, drill_position.z, DRILL_CYCLES_XY_FEEDRATE)) return;
 
-  //move to rapid z position
-  if(!move_to(drill_position, 
-            drill_rapid_z,
-            DRILL_CYCLES_RETRACT_FEEDRATE)) return;
+  // Move to rapid Z position
+  if (!move_to(drill_position, drill.rapid_z, DRILL_CYCLES_RETRACT_FEEDRATE)) return;
 
-  //start drill cycle
-  float drill_current_depth = drill_rapid_z;
-  float drill_last_z        = drill_current_depth;
-  while(drill_current_depth > drill_finish_depth) {
-    //calculate new drill depth
+  // Start drill cycle
+  float drill_current_depth = drill.rapid_z, drill_last_z = drill.rapid_z;
+
+  while (drill_current_depth > drill.finish_depth) {
+    // Calculate new drill depth
     drill_current_depth -= drill_peck_distance;
-    if(drill_current_depth < drill_finish_depth) drill_current_depth = drill_finish_depth;
+    NOLESS(drill_current_depth, drill.finish_depth);
 
-    //drill into material
-    if(!move_to(drill_position, 
-            drill_current_depth,
-            drill_feedrate)) return;
+    // Drill into material
+    if (!move_to(drill_position, drill_current_depth, drill.feedrate)) return;
 
-    //do dwell
-    if(drill_dwell_time > 0) {
-      if(planner.cleaning_buffer_counter) return;
+    // Do dwell
+    if (drill_dwell_time > 0) {
+      if (planner.cleaning_buffer_counter) return;
       planner.synchronize();
       gcode.dwell(drill_dwell_time);
     }
 
-    //move to rapid z position
-    if(!move_to(drill_position, 
-            mode == 73 ? drill_last_z : drill_rapid_z,
-            DRILL_CYCLES_RETRACT_FEEDRATE)) return;
+    // Move to rapid Z position
+    if (!move_to(drill_position, mode == 73 ? drill_last_z : drill.rapid_z, DRILL_CYCLES_RETRACT_FEEDRATE)) return;
 
-    //store current depth
+    // Store current depth
     drill_last_z = drill_current_depth;
   }
 
-  //retract to final z
-  if(!move_to(drill_position,
-            drill_retract_z,
-            DRILL_CYCLES_RETRACT_FEEDRATE)) return;
+  // Retract to final Z
+  if (!move_to(drill_position, drill_retract_z, DRILL_CYCLES_RETRACT_FEEDRATE)) return;
 }
 
-void GcodeSuite::G81(uint8_t mode) {
-  switch(mode) {
-    case 0:       //End cycle and clear variables
-      drill_feedrate      = NAN;
-      drill_rapid_z       = NAN;
-      drill_finish_depth  = NAN;
-      break;
-
-    case 1:       //Start basic cycle
-      drill_cycle(81);
-      break;
-
-    case 2:       //Start normal cycle
-      drill_cycle(82);
-      break;
-
-    case 3:       //Start deep cycle
-      drill_cycle(83);
-      break;
-
-    case 4:       //Start peck cycle
-      drill_cycle(73);
-      break;
-
-    case 18:      //Set retract type
-      retract_to_initial = true;
-      break;
-
-    case 19:      //Set retract type
-      retract_to_initial = false;
-      break;
+/**
+ * G81: Basic drill cycle
+ *
+ * G81.0: End drill cycle
+ * G81.1: Basic drill cycle
+ * G81.2: Normal drill cycle (Basic with dwell)
+ * G81.3: Deep drill cycle (Normal with peck)
+ * G81.4: Shallow peck drill cycle
+ * G81.18: Start drill - Retract to initial
+ * G81.19: Start drill - Retract to specified
+ */
+void GcodeSuite::G81(const uint8_t mode) {
+  switch (mode) {
+    case  0: drill.end(); break;                      // End cycle and clear variables
+    case  1: drill_cycle(81); break;                  // Start basic cycle
+    case  2: drill_cycle(82); break;                  // Start normal cycle
+    case  3: drill_cycle(83); break;                  // Start deep cycle
+    case  4: drill_cycle(73); break;                  // Start peck cycle
+    case 18: drill.retract_to_initial = true; break;  // Set retract type
+    case 19: drill.retract_to_initial = false; break; // Set retract type
   }
 }
 

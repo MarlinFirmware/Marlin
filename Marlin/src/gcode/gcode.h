@@ -652,7 +652,7 @@ private:
   #endif
 
   #if ENABLED(DRILL_CYCLES)
-    static void G81(uint8_t mode);
+    static void G81(const uint8_t mode);
   #endif
 
   static void G90() { set_relative_mode(false); }
