@@ -242,10 +242,12 @@ void DGUSScreenHandler::meshUpdate(const int8_t xpos, const int8_t ypos) {
     return;
   }
 
-  uint8_t point = ypos * GRID_MAX_POINTS_X + xpos;
+  // Icons are laid out for the maximum grid
+  uint8_t point = ypos * (GRID_MAX_POINTS_X) + xpos;
   probing_icons[point < 16 ? 0 : 1] |= (1U << (point % 16));
 
-  if (xpos >= GRID_MAX_POINTS_X - 1 && ypos >= GRID_MAX_POINTS_Y - 1 && !ExtUI::getLevelingIsValid())
+  const xy_uint8_t used = ExtUI::getMeshGridPoints();
+  if (xpos >= used.x - 1 && ypos >= used.y - 1 && !ExtUI::getLevelingIsValid())
     probing_icons[0] = probing_icons[1] = 0;
 
   triggerFullUpdate();

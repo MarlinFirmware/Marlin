@@ -2276,6 +2276,15 @@
 
   #define MAX_SAVED_MESHES    100         // Maximum number of meshes to store to EEPROM. Use 0 to disable saving.
 
+  /**
+   * Allow fewer grid points than GRID_MAX_POINTS_[XY] to be used at runtime.
+   *  - Bilinear: 'G29 X# Y#' or 'G29 P#'. Otherwise GRID_MIN_SPACING may reduce the points.
+   *  - MBL:      'G29 S1 X# Y#'
+   *  - UBL:      'G29 P7 X# Y#' resets the mesh with the new size. Saved with each mesh.
+   * DELTA requires odd numbers of points.
+   */
+  //#define VARIABLE_GRID_POINTS
+
 #endif
 
 #if ANY(AUTO_BED_LEVELING_LINEAR, AUTO_BED_LEVELING_BILINEAR)
@@ -2308,6 +2317,10 @@
       #define BILINEAR_SUBDIVISIONS 3
     #endif
 
+  #endif
+
+  #if ANY(AUTO_BED_LEVELING_LINEAR, VARIABLE_GRID_POINTS)
+    //#define GRID_MIN_SPACING  25  // (mm) Prevent tiny cells when probing a small area
   #endif
 
 #elif ENABLED(AUTO_BED_LEVELING_UBL)

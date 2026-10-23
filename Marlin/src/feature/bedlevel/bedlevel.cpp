@@ -33,6 +33,7 @@
 
 #if ENABLED(PROBE_MANUALLY)
   bool g29_in_progress = false;
+  uint16_t g29_total_points = 0;
 #endif
 
 #if ENABLED(LCD_BED_LEVELING)
@@ -50,14 +51,64 @@
   #include "../../lcd/dwin/proui/bedlevel_tools.h"
 #endif
 
-bool leveling_is_valid() {
-  return (
-    #if ALL(HAS_MESH, DWIN_LCD_PROUI)
-      bedLevelTools.meshValidate()
+#if HAS_MESH
+
+  // The Leveling Mesh is shared by MBL, ABL Bilinear, and UBL
+  bed_mesh_t LevelingMesh::z_values;
+
+  constexpr xy_uint8_t LevelingMesh::max_points, LevelingMesh::max_cells;
+
+  #if ENABLED(VARIABLE_GRID_POINTS)
+    xy_uint8_t LevelingMesh::nr_grid_points = { GRID_MAX_POINTS_X, GRID_MAX_POINTS_Y };
+  #else
+    constexpr xy_uint8_t LevelingMesh::nr_grid_points;
+  #endif
+
+  #if HAS_DYNAMIC_MESH_GRID
+    // Constant-initialized so the grid is valid before any constructor runs
+    #define _MESH_SPACING_X ((float(MESH_MAX_X) - float(MESH_MIN_X)) / float(GRID_MAX_POINTS_X - 1))
+    #define _MESH_SPACING_Y ((float(MESH_MAX_Y) - float(MESH_MIN_Y)) / float(GRID_MAX_POINTS_Y - 1))
+    xy_pos_t LevelingMesh::mesh_min = { MESH_MIN_X, MESH_MIN_Y },
+             LevelingMesh::mesh_max = { MESH_MAX_X, MESH_MAX_Y };
+    #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
+      // Bilinear has no grid until G29 or EEPROM provides one
+      xy_float_t LevelingMesh::grid_spacing = { 0, 0 };
+      #if ENABLED(CACHED_DIST_RECIPROCAL)
+        xy_float_t LevelingMesh::grid_spacing_recip = { 0, 0 };
+      #endif
     #else
-      TERN1(HAS_MESH, bedlevel.mesh_is_valid())
+      xy_float_t LevelingMesh::grid_spacing = { _MESH_SPACING_X, _MESH_SPACING_Y };
+      #if ENABLED(CACHED_DIST_RECIPROCAL)
+        xy_float_t LevelingMesh::grid_spacing_recip = { 1.0f / _MESH_SPACING_X, 1.0f / _MESH_SPACING_Y };
+      #endif
     #endif
-  );
+    #undef _MESH_SPACING_X
+    #undef _MESH_SPACING_Y
+  #else
+    constexpr xy_pos_t LevelingMesh::mesh_min, LevelingMesh::mesh_max;
+    constexpr xy_float_t LevelingMesh::grid_spacing;
+    #if ENABLED(CACHED_DIST_RECIPROCAL)
+      constexpr xy_float_t LevelingMesh::grid_spacing_recip;
+    #endif
+  #endif
+
+  void LevelingMesh::reset(const float v/*=0.0f*/) {
+    TERN_(VARIABLE_GRID_POINTS, nr_grid_points = max_points);
+    refresh_mesh_lookup();
+    GRID_LOOP_MAX(x, y) z_values[x][y] = v;
+    #if ENABLED(EXTENSIBLE_UI)
+      GRID_LOOP_USED(x, y) ExtUI::onMeshUpdate(x, y, isnan(v) ? 0.0f : v);
+    #endif
+  }
+
+  bool LevelingMesh::leveling_is_valid() {
+    return TERN(DWIN_LCD_PROUI, bedLevelTools.meshValidate(), bedlevel.mesh_is_valid());
+  }
+
+#endif // HAS_MESH
+
+bool leveling_is_valid() {
+  return TERN1(HAS_MESH, bedlevel.leveling_is_valid());
 }
 
 /**
@@ -69,7 +120,7 @@ bool leveling_is_valid() {
 void set_bed_leveling_enabled(const bool enable/*=true*/) {
   DEBUG_SECTION(log_sble, "set_bed_leveling_enabled", DEBUGGING(LEVELING));
 
-  const bool can_change = TERN1(AUTO_BED_LEVELING_BILINEAR, !enable || leveling_is_valid());
+  const bool can_change = TERN1(AUTO_BED_LEVELING_BILINEAR, !enable || bedlevel.leveling_is_valid());
 
   if (can_change && enable != planner.leveling_active) {
 
@@ -145,7 +196,7 @@ void reset_bed_level() {
   /**
    * Print calibration results for plotting or manual frame adjustment.
    */
-  void print_2d_array(const uint8_t sx, const uint8_t sy, const uint8_t precision, const float *values) {
+  void print_2d_array(const uint8_t sx, const uint8_t sy, const uint8_t precision, const float *values, const uint8_t stride_y) {
     #ifndef SCAD_MESH_OUTPUT
       for (uint8_t x = 0; x < sx; ++x) {
         SERIAL_ECHO_SP(precision + (x < 10 ? 3 : 2));
@@ -165,7 +216,7 @@ void reset_bed_level() {
       #endif
       for (uint8_t x = 0; x < sx; ++x) {
         SERIAL_CHAR(' ');
-        const float offset = values[x * sy + y];
+        const float offset = values[x * stride_y + y];
         if (!isnan(offset)) {
           if (offset >= 0) SERIAL_CHAR('+');
           SERIAL_ECHO(p_float_t(offset, precision));

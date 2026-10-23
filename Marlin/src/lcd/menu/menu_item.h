@@ -157,6 +157,9 @@ class TMenuEditItem : MenuEditItemBase {
   }; \
   typedef TMenuEditItem<MenuEditItemInfo_##NAME> MenuItem_##NAME
 
+// Display k as 2k+1, so an edited half-value only ever shows odd numbers
+inline const char* ui8tostr3rj_odd(const uint8_t k) { return ui8tostr3rj(uint8_t(k * 2 + 1)); }
+
 //                         NAME         TYPE      STRFUNC          SCALE         ROUND
 DEFINE_MENU_EDIT_ITEM_TYPE(percent     ,uint8_t  ,ui8tostr4pctrj  , 100.f/255.f, + 0.5f   ); // 100%       right-justified
 DEFINE_MENU_EDIT_ITEM_TYPE(percent_3   ,uint8_t  ,pcttostrpctrj   ,   1                   ); // 100%       right-justified
@@ -164,6 +167,7 @@ DEFINE_MENU_EDIT_ITEM_TYPE(int3        ,int16_t  ,i16tostr3rj     ,   1         
 DEFINE_MENU_EDIT_ITEM_TYPE(int4        ,int16_t  ,i16tostr4signrj ,   1                   ); // 1234, -123 right-justified
 DEFINE_MENU_EDIT_ITEM_TYPE(int8        ,int8_t   ,i8tostr3rj      ,   1                   ); // 123, -12   right-justified
 DEFINE_MENU_EDIT_ITEM_TYPE(uint8       ,uint8_t  ,ui8tostr3rj     ,   1                   ); // 123        right-justified
+DEFINE_MENU_EDIT_ITEM_TYPE(uint8_odd   ,uint8_t  ,ui8tostr3rj_odd ,   1                   ); // 2k+1       right-justified (edits k)
 DEFINE_MENU_EDIT_ITEM_TYPE(uint16_3    ,uint16_t ,ui16tostr3rj    ,   1                   ); // 123        right-justified
 DEFINE_MENU_EDIT_ITEM_TYPE(uint16_4    ,uint16_t ,ui16tostr4rj    ,   0.1f                ); // 1234       right-justified
 DEFINE_MENU_EDIT_ITEM_TYPE(uint16_5    ,uint16_t ,ui16tostr5rj    ,   0.01f               ); // 12345      right-justified

@@ -30,7 +30,7 @@
 
 #include "../../gcode.h"
 #include "../../../module/motion.h"
-#include "../../../feature/bedlevel/mbl/mesh_bed_leveling.h"
+#include "../../../feature/bedlevel/bedlevel.h"
 
 /**
  * M421: Set a single Mesh Bed Leveling Z coordinate
@@ -50,7 +50,7 @@ void GcodeSuite::M421() {
 
   if (int(hasI && hasJ) + int(hasX && hasY) != 1 || !(hasZ || hasQ))
     SERIAL_ERROR_MSG(STR_ERR_M421_PARAMETERS);
-  else if (!WITHIN(ix, 0, GRID_MAX_POINTS_X - 1) || !WITHIN(iy, 0, GRID_MAX_POINTS_Y - 1))
+  else if (!WITHIN(ix, 0, bedlevel.nr_grid_points.x - 1) || !WITHIN(iy, 0, bedlevel.nr_grid_points.y - 1))
     SERIAL_ERROR_MSG(STR_ERR_MESH_XY);
   else
     bedlevel.set_z(ix, iy, parser.value_linear_units() + (hasQ ? bedlevel.z_values[ix][iy] : 0));

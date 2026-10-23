@@ -301,10 +301,13 @@ void DGUSTxHandler::ablGrid(DGUS_VP &vp) {
   xy_uint8_t point;
   int16_t fixed;
 
+  // The panel shows the maximum grid. Unused points are shown as zero.
+  const xy_uint8_t used = ExtUI::getMeshGridPoints();
   for (int16_t i = 0; i < DGUS_LEVEL_GRID_SIZE; i++) {
     point.x = i % (GRID_MAX_POINTS_X);
     point.y = i / (GRID_MAX_POINTS_X);
-    fixed = dgus.toFixedPoint<float, int16_t, 3>(ExtUI::getMeshPoint(point));
+    const bool in_use = point.x < used.x && point.y < used.y;
+    fixed = in_use ? dgus.toFixedPoint<float, int16_t, 3>(ExtUI::getMeshPoint(point)) : 0;
     data[i] = Swap16(fixed);
   }
 

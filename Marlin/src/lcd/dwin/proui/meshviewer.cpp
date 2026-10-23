@@ -99,14 +99,6 @@ void MeshViewer::drawMeshPoint(const uint8_t x, const uint8_t y, const float z) 
   }
 }
 
-void MeshViewer::drawMesh(const bed_mesh_t zval, const uint8_t csizex, const uint8_t csizey) {
-  drawMeshGrid(csizex, csizey);
-  for (uint8_t y = 0; y < csizey; ++y) {
-    hal.watchdog_refresh();
-    for (uint8_t x = 0; x < csizex; ++x) drawMeshPoint(x, y, zval[x][y]);
-  }
-}
-
 void MeshViewer::draw(const bool withsave/*=false*/, const bool redraw/*=true*/) {
   title.showCaption(GET_TEXT_F(MSG_MESH_VIEWER));
 
@@ -119,7 +111,7 @@ void MeshViewer::draw(const bool withsave/*=false*/, const bool redraw/*=true*/)
     #endif
   }
   else {
-    if (redraw) drawMesh(bedlevel.z_values, GRID_MAX_POINTS_X, GRID_MAX_POINTS_Y);
+    if (redraw) drawMesh(bedlevel.z_values, bedlevel.nr_grid_points.x, bedlevel.nr_grid_points.y);
     else DWINUI::drawBox(1, hmiData.colorBackground, { 89, 305, 99, 38 });
   }
 
@@ -147,7 +139,7 @@ void onClick_MeshViewer() {
 
 void gotoMeshViewer(const bool redraw) {
   meshredraw = redraw;
-  if (leveling_is_valid()) gotoPopup(drawMeshViewer, onClick_MeshViewer);
+  if (bedlevel.leveling_is_valid()) gotoPopup(drawMeshViewer, onClick_MeshViewer);
   else hmiReturnScreen();
 }
 

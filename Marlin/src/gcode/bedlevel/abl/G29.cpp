@@ -68,6 +68,10 @@
 #endif
 
 #if ABL_USES_GRID
+  // Linear leveling always allows the number of points to be set by G29
+  #if ANY(AUTO_BED_LEVELING_LINEAR, VARIABLE_GRID_POINTS)
+    #define G29_VARIABLE_POINTS 1
+  #endif
   #if ENABLED(PROBE_Y_FIRST)
     #define PR_OUTER_VAR  abl.meshCount.x
     #define PR_OUTER_SIZE abl.grid_points.x
@@ -116,7 +120,7 @@ public:
     int abl_probe_index;
   #endif
 
-  #if ENABLED(AUTO_BED_LEVELING_LINEAR)
+  #if G29_VARIABLE_POINTS
     grid_count_t abl_points;
   #elif ENABLED(AUTO_BED_LEVELING_3POINT)
     static constexpr grid_count_t abl_points = 3;
@@ -133,16 +137,20 @@ public:
 
     xy_float_t gridSpacing; // = { 0.0f, 0.0f }
 
-    #if ENABLED(AUTO_BED_LEVELING_LINEAR)
-      bool                topography_map;
-      xy_uint8_t          grid_points;
-    #else // Bilinear
+    // The number of points to probe. Applied to the mesh only after probing succeeds.
+    #if G29_VARIABLE_POINTS
+      xy_uint8_t grid_points;
+    #else
       static constexpr xy_uint8_t grid_points = { GRID_MAX_POINTS_X, GRID_MAX_POINTS_Y };
+    #endif
+
+    #if ENABLED(AUTO_BED_LEVELING_LINEAR)
+      bool topography_map;
     #endif
 
     #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
       float Z_offset;
-      bed_mesh_t z_values;
+      bed_mesh_t z_readings;
     #endif
 
     #if ENABLED(AUTO_BED_LEVELING_LINEAR)
@@ -154,9 +162,11 @@ public:
   #endif
 };
 
-#if ABL_USES_GRID && ANY(AUTO_BED_LEVELING_3POINT, AUTO_BED_LEVELING_BILINEAR)
-  constexpr xy_uint8_t G29_State::grid_points;
+#if !G29_VARIABLE_POINTS && ANY(AUTO_BED_LEVELING_3POINT, ABL_USES_GRID)
   constexpr grid_count_t G29_State::abl_points;
+#endif
+#if ABL_USES_GRID && !G29_VARIABLE_POINTS
+  constexpr xy_uint8_t G29_State::grid_points;
 #endif
 
 /**
@@ -178,7 +188,7 @@ public:
  *   V<0-4>  Set the verbose level (0-4)
  *           Example: G29 V3
  *
- *   With AUTO_BED_LEVELING_LINEAR:
+ *   With AUTO_BED_LEVELING_LINEAR or BILINEAR + VARIABLE_GRID_POINTS:
  *     P<int>  Set the size of the grid that will be probed (P x P points)
  *             Example: G29 P4
  *
@@ -187,6 +197,10 @@ public:
  *
  *     Y<int>  Set the Y size of the grid that will be probed (X x Y points)
  *
+ *     U<linear>  Minimum grid spacing, overriding GRID_MIN_SPACING. 0 to disable.
+ *                Axes without an explicit P, X, or Y use fewer points if needed.
+ *
+ *   With LINEAR leveling:
  *     T  Generate a Bed Topology Report
  *        Example: G29 P5 T - for a detailed report.
  *        This is useful for manual bed leveling and finding flaws in the bed
@@ -309,7 +323,7 @@ G29_TYPE GcodeSuite::G29() {
 
       const bool seen_w = parser.seen_test('W');
       if (seen_w) {
-        if (!leveling_is_valid()) {
+        if (!bedlevel.leveling_is_valid()) {
           SERIAL_ERROR_MSG("No bilinear grid");
           G29_RETURN(false, false);
         }
@@ -329,15 +343,13 @@ G29_TYPE GcodeSuite::G29() {
 
         if (!isnan(rx) && !isnan(ry)) {
           // Get nearest i / j from rx / ry
-          i = (rx - bedlevel.grid_start.x) / bedlevel.grid_spacing.x + 0.5f;
-          j = (ry - bedlevel.grid_start.y) / bedlevel.grid_spacing.y + 0.5f;
-          LIMIT(i, 0, (GRID_MAX_POINTS_X) - 1);
-          LIMIT(j, 0, (GRID_MAX_POINTS_Y) - 1);
+          i = constrain(LROUND((rx - bedlevel.mesh_min.x) / bedlevel.grid_spacing.x), 0, bedlevel.nr_grid_points.x - 1);
+          j = constrain(LROUND((ry - bedlevel.mesh_min.y) / bedlevel.grid_spacing.y), 0, bedlevel.nr_grid_points.y - 1);
         }
 
         #pragma GCC diagnostic pop
 
-        if (WITHIN(i, 0, (GRID_MAX_POINTS_X) - 1) && WITHIN(j, 0, (GRID_MAX_POINTS_Y) - 1)) {
+        if (WITHIN(i, 0, bedlevel.nr_grid_points.x - 1) && WITHIN(j, 0, bedlevel.nr_grid_points.y - 1)) {
           set_bed_leveling_enabled(false);
           bedlevel.z_values[i][j] = rz;
           bedlevel.refresh_bed_level();
@@ -371,32 +383,44 @@ G29_TYPE GcodeSuite::G29() {
     abl.dryrun = parser.boolval('D') || TERN0(PROBE_MANUALLY, no_action);
 
     #if ENABLED(AUTO_BED_LEVELING_LINEAR)
-
       incremental_LSF_reset(&lsf_results);
-
       abl.topography_map = abl.verbose_level > 2 || parser.boolval('T');
+      abl.mean = 0;
+    #endif
 
-      // X and Y specify points in each direction, overriding the default
-      // These values may be saved with the completed mesh
-      abl.grid_points.set(
-        parser.byteval('X', GRID_MAX_POINTS_X),
-        parser.byteval('Y', GRID_MAX_POINTS_Y)
-      );
-      if (parser.seenval('P')) abl.grid_points.x = abl.grid_points.y = parser.value_int();
+    #if G29_VARIABLE_POINTS
 
-      if (!WITHIN(abl.grid_points.x, 2, GRID_MAX_POINTS_X)) {
+      // Smallest allowed grid spacing for axes whose point count isn't given
+      xy_float_t min_spacing = { GRID_MIN_SPACING, GRID_MIN_SPACING };
+      if (parser.seenval('U')) {
+        const float u = parser.value_linear_units();
+        min_spacing.set(u, u);
+      }
+
+      // P sets the number of points on both axes. X and Y override P.
+      // An axis with an explicit number of points is never reduced.
+      xy_int_t points = { GRID_MAX_POINTS_X, GRID_MAX_POINTS_Y };
+      if (parser.seenval('P')) { points.x = points.y = parser.value_int(); min_spacing.reset(); }
+      if (parser.seenval('X')) { points.x = parser.value_int(); min_spacing.x = 0; }
+      if (parser.seenval('Y')) { points.y = parser.value_int(); min_spacing.y = 0; }
+
+      if (!WITHIN(points.x, 2, GRID_MAX_POINTS_X)) {
         SERIAL_ECHOLNPGM(GCODE_ERR_MSG("Probe points (X) implausible (2-" STRINGIFY(GRID_MAX_POINTS_X) ")."));
         G29_RETURN(false, false);
       }
-      if (!WITHIN(abl.grid_points.y, 2, GRID_MAX_POINTS_Y)) {
+      if (!WITHIN(points.y, 2, GRID_MAX_POINTS_Y)) {
         SERIAL_ECHOLNPGM(GCODE_ERR_MSG("Probe points (Y) implausible (2-" STRINGIFY(GRID_MAX_POINTS_Y) ")."));
         G29_RETURN(false, false);
       }
+      if (grid_points_must_be_odd && !((points.x & 1) && (points.y & 1))) {
+        SERIAL_ECHOLNPGM(GCODE_ERR_MSG("Probe points must be odd for DELTA."));
+        G29_RETURN(false, false);
+      }
+      abl.grid_points.set(points.x, points.y);
 
-      abl.abl_points = abl.grid_points.x * abl.grid_points.y;
-      abl.mean = 0;
+    #endif // G29_VARIABLE_POINTS
 
-    #elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
+    #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
 
       abl.Z_offset = parser.linearval('Z');
 
@@ -436,11 +460,22 @@ G29_TYPE GcodeSuite::G29() {
         G29_RETURN(false, false);
       }
 
-      // Probe at the points of a lattice grid
-      abl.gridSpacing.set((abl.probe_position_rb.x - abl.probe_position_lf.x) / (abl.grid_points.x - 1),
-                          (abl.probe_position_rb.y - abl.probe_position_lf.y) / (abl.grid_points.y - 1));
+      // Size of the probing area
+      const xy_float_t size = abl.probe_position_rb - abl.probe_position_lf;
+
+      #if G29_VARIABLE_POINTS
+        // Use fewer points where the grid spacing would be under the minimum
+        abl.grid_points = reduced_grid_points(size, abl.grid_points, min_spacing);
+        abl.abl_points = abl.grid_points.x * abl.grid_points.y;
+      #endif
+
+      // Spacing between grid lines
+      abl.gridSpacing.set(size.x / (abl.grid_points.x - 1), size.y / (abl.grid_points.y - 1));
 
     #endif // ABL_USES_GRID
+
+    // Let the LCD know how many points will be probed
+    TERN_(PROBE_MANUALLY, g29_total_points = abl.abl_points);
 
     if (abl.verbose_level > 0) {
       SERIAL_ECHOPGM("G29 Auto Bed Leveling");
@@ -520,7 +555,9 @@ G29_TYPE GcodeSuite::G29() {
     #endif
 
     #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
-      if (!abl.dryrun && (abl.gridSpacing != bedlevel.grid_spacing || abl.probe_position_lf != bedlevel.grid_start)) {
+      if (!abl.dryrun && (abl.gridSpacing != bedlevel.grid_spacing || abl.probe_position_lf != bedlevel.mesh_min
+        || TERN0(VARIABLE_GRID_POINTS, abl.grid_points != bedlevel.nr_grid_points)
+      )) {
         reset_bed_level();      // Reset grid to 0.0 or "not probed". (Also disables ABL)
         abl.reenable = false;   // Can't re-enable (on error) until the new grid is written
       }
@@ -529,7 +566,7 @@ G29_TYPE GcodeSuite::G29() {
         abl.Z_offset -=  probe.probe_at_point(Z_SAFE_HOMING_X_POINT, Z_SAFE_HOMING_Y_POINT, PROBE_PT_NONE, abl.verbose_level, false);
       #endif
       // Pre-populate local Z values from the stored mesh
-      TERN_(IS_KINEMATIC, COPY(abl.z_values, bedlevel.z_values));
+      TERN_(IS_KINEMATIC, COPY(abl.z_readings, bedlevel.z_values));
     #endif
 
   } // !g29_in_progress
@@ -597,7 +634,7 @@ G29_TYPE GcodeSuite::G29() {
       #elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
 
         const float newz = abl.measured_z + abl.Z_offset;
-        abl.z_values[abl.meshCount.x][abl.meshCount.y] = newz;
+        abl.z_readings[abl.meshCount.x][abl.meshCount.y] = newz;
         TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(abl.meshCount, newz));
 
         if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM_P(PSTR("Save X"), abl.meshCount.x, SP_Y_STR, abl.meshCount.y, SP_Z_STR, abl.measured_z + abl.Z_offset);
@@ -801,7 +838,7 @@ G29_TYPE GcodeSuite::G29() {
           #elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
 
             const float z = abl.measured_z + abl.Z_offset;
-            abl.z_values[abl.meshCount.x][abl.meshCount.y] = z;
+            abl.z_readings[abl.meshCount.x][abl.meshCount.y] = z;
             TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(abl.meshCount, z));
 
             #if ENABLED(SOVOL_SV06_RTS)
@@ -812,7 +849,7 @@ G29_TYPE GcodeSuite::G29() {
 
           #endif
 
-          abl.reenable = false; // Don't re-enable after modifying the mesh
+          if (!abl.dryrun) abl.reenable = false; // Don't re-enable after modifying the mesh
           marlin.idle_no_sleep();
 
           if (TERN0(DWIN_LCD_PROUI, hmiFlag.cancel_lev)) break;
@@ -881,10 +918,10 @@ G29_TYPE GcodeSuite::G29() {
     #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
 
       if (abl.dryrun)
-        bedlevel.print_leveling_grid(&abl.z_values);
+        bedlevel.print_leveling_grid(&abl.z_readings, &abl.grid_points);
       else {
-        bedlevel.set_grid(abl.gridSpacing, abl.probe_position_lf);
-        COPY(bedlevel.z_values, abl.z_values);
+        bedlevel.set_grid(abl.gridSpacing, abl.probe_position_lf OPTARG(VARIABLE_GRID_POINTS, abl.grid_points));
+        COPY(bedlevel.z_values, abl.z_readings);
         TERN_(IS_KINEMATIC, bedlevel.extrapolate_unprobed_bed_level());
         bedlevel.refresh_bed_level();
 

@@ -1117,7 +1117,7 @@ void MarlinUI::draw_status_screen() {
       //print only top left corner. All frame with grid points will be printed by panel
       lcd_moveto(0, 0);
       *fb++ = TLC;   //top left corner - marker for plot parameters
-      *fb = (GRID_MAX_POINTS_X << 4) + GRID_MAX_POINTS_Y; //set mesh size
+      *fb = (bedlevel.nr_grid_points.x << 4) + bedlevel.nr_grid_points.y; //set mesh size
 
       // Print plot position
       lcd_moveto(_LCD_W_POS, 0);
@@ -1126,9 +1126,9 @@ void MarlinUI::draw_status_screen() {
 
       // Show all values
       lcd_moveto(_LCD_W_POS, 1); lcd_put_u8str(F("X:"));
-      lcd.print(ftostr52(motion.logical_x(pgm_read_float(&bedlevel._mesh_index_to_xpos[x_plot]))));
+      lcd.print(ftostr52(motion.logical_x(bedlevel.get_mesh_x(x_plot))));
       lcd_moveto(_LCD_W_POS, 2); lcd_put_u8str(F("Y:"));
-      lcd.print(ftostr52(motion.logical_y(pgm_read_float(&bedlevel._mesh_index_to_ypos[y_plot]))));
+      lcd.print(ftostr52(motion.logical_y(bedlevel.get_mesh_y(y_plot))));
 
       // Show the location value
       lcd_moveto(_LCD_W_POS, 3); lcd_put_u8str(F("Z:"));

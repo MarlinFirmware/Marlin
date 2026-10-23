@@ -227,11 +227,6 @@ int16_t Motion::feedrate_percentage = 100;
   constexpr feedRate_t Motion::z_probe_fast_mm_s;
 #endif
 
-#if HAS_PROUI_MESH_EDIT
-  xy_pos_t mesh_min{ MESH_MIN_X, MESH_MIN_Y },
-           mesh_max{ MESH_MAX_X, MESH_MAX_Y };
-#endif
-
 /**
  * Output the current position to serial
  */
