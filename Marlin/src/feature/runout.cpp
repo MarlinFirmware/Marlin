@@ -106,7 +106,7 @@ void event_filament_runout(const uint8_t extruder) {
 
   #if ENABLED(HOST_ACTION_COMMANDS)
 
-    const bool park_or_pause = (false
+    static constexpr bool park_or_pause = (false
       #ifdef FILAMENT_RUNOUT_SCRIPT
         || strstr(FILAMENT_RUNOUT_SCRIPT, "M600")
         || strstr(FILAMENT_RUNOUT_SCRIPT, "M125")
