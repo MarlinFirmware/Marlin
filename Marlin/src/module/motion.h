@@ -264,7 +264,7 @@ public:
   #if HAS_VARIABLE_XY_PROBE_FEEDRATE
     static feedRate_t xy_probe_feedrate_mm_s;   // Set with 'G29 S' for ABL LINEAR/BILINEAR. TODO: Store to EEPROM.
   #endif
-  #if ENABLED(DWIN_LCD_PROUI)
+  #if ALL(DWIN_LCD_PROUI, HAS_BED_PROBE)
     static uint16_t z_probe_slow_mm_s;
   #elif defined(Z_PROBE_FEEDRATE_SLOW)
     static constexpr feedRate_t z_probe_slow_mm_s = MMM_TO_MMS(Z_PROBE_FEEDRATE_SLOW);
