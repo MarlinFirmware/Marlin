@@ -3658,20 +3658,20 @@ void Stepper::_set_position(const abce_long_t &spos) {
 
   #if ENABLED(INPUT_SHAPING_X)
     if (shaping_x.enabled) {
+      shaping_x.last_block_end_pos = count_position.x; // Stepper space, like count_position
       count_position.x += x_shaping_delta;
-      shaping_x.last_block_end_pos = spos.x;
     }
   #endif
   #if ENABLED(INPUT_SHAPING_Y)
     if (shaping_y.enabled) {
+      shaping_y.last_block_end_pos = count_position.y; // Stepper space, like count_position
       count_position.y += y_shaping_delta;
-      shaping_y.last_block_end_pos = spos.y;
     }
   #endif
   #if ENABLED(INPUT_SHAPING_Z)
     if (shaping_z.enabled) {
+      shaping_z.last_block_end_pos = count_position.z; // Stepper space, like count_position
       count_position.z += z_shaping_delta;
-      shaping_z.last_block_end_pos = spos.z;
     }
   #endif
 }
