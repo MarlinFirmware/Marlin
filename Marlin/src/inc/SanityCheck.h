@@ -4400,11 +4400,11 @@ static_assert(_PLUS_TEST(3), "DEFAULT_MAX_ACCELERATION values must be positive."
 // With no WiFi at all these can do nothing whatsoever.
 #if NONE(WIFISUPPORT, ESP3D_WIFISUPPORT)
   #if ANY(WEBSUPPORT, OTASUPPORT)
-    #error "WEBSUPPORT and OTASUPPORT require WIFISUPPORT."
+    #error "WEBSUPPORT and OTASUPPORT require WIFISUPPORT or ESP3D_WIFISUPPORT."
   #elif ENABLED(WIFI_CUSTOM_COMMAND)
     #error "WIFI_CUSTOM_COMMAND requires ESP3D_WIFISUPPORT."
   #elif defined(WIFI_SSID) || defined(WIFI_PWD)
-    #error "WIFI_SSID and WIFI_PWD require WIFISUPPORT."
+    #error "WIFI_SSID and WIFI_PWD require WIFISUPPORT or ESP3D_WIFISUPPORT."
   #endif
 #endif
 
