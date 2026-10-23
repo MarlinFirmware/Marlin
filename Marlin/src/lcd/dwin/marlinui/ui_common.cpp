@@ -292,7 +292,7 @@ void MarlinUI::draw_status_message(const bool blink) {
     if (y >= LCD_PIXEL_HEIGHT) return false;
 
     if (is_static && sel)
-      dwinDrawBox(1, Color_Bg_Heading, 0, y, LCD_PIXEL_WIDTH, MENU_LINE_HEIGHT - 1);
+      dwinDrawBox(1, COLOR_BG_HEADING, 0, y, LCD_PIXEL_WIDTH, MENU_LINE_HEIGHT - 1);
     else {
       #if ENABLED(MENU_HOLLOW_FRAME)
                  dwinDrawBox(1, COLOR_BG_BLACK, 0, y, LCD_PIXEL_WIDTH, MENU_LINE_HEIGHT - 1);

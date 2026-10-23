@@ -67,6 +67,10 @@ class MarlinSettings {
       static bool load();      // Return 'true' if data was loaded ok
       static bool validate();  // Return 'true' if EEPROM data is ok
 
+      #if ENABLED(ONE_CLICK_PRINT) && NONE(EEPROM_AUTO_INIT, EEPROM_INIT_NOW)
+        static EEPROM_Error eeprom_status() { return (EEPROM_Error)working_crc; }
+      #endif
+
       static EEPROM_Error check_version();
 
       static void first_load() {
@@ -100,10 +104,8 @@ class MarlinSettings {
 
     #else // !EEPROM_SETTINGS
 
-      FORCE_INLINE
-      static bool load() { reset(); report(); return true; }
-      FORCE_INLINE
-      static void first_load() { (void)load(); }
+      FORCE_INLINE static bool load() { reset(); report(); return true; }
+      FORCE_INLINE static void first_load() { (void)load(); }
 
     #endif // !EEPROM_SETTINGS
 
@@ -114,8 +116,7 @@ class MarlinSettings {
     #if DISABLED(DISABLE_M503)
       static void report(const bool forReplay=false);
     #else
-      FORCE_INLINE
-      static void report(const bool=false) {}
+      FORCE_INLINE static void report(const bool=false) {}
     #endif
 
   private:

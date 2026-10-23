@@ -37,7 +37,7 @@ public:
    * @param nominal_speed Peak feedrate [mm/s]
    * @param distance Total distance to travel [mm]
    */
-  virtual void plan(const float initial_speed, const float final_speed, const float acceleration, float nominal_speed, const float distance) = 0;
+  virtual void plan(const float initial_speed, const float final_speed, const float acceleration, const float nominal_speed, const float distance) = 0;
 
   /**
    * Plan a zero-motion trajectory for a specific duration.
@@ -74,5 +74,6 @@ protected:
  */
 enum class TrajectoryType : uint8_t {
   TRAPEZOIDAL, POLY5, POLY6
-  OPTARG(FTM_RESONANCE_TEST, RESONANCE)
+  OPTARG(FTM_CONSTANT_JOLT, CONSTANT_JOLT)
+  OPTARG(RESONANCE_TEST, RESONANCE)
 };

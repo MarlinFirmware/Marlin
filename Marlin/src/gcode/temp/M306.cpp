@@ -49,7 +49,7 @@
  */
 
 void GcodeSuite::M306() {
-  const uint8_t e = E_TERN0(parser.intval('E', active_extruder));
+  const uint8_t e = E_TERN0(parser.intval('E', motion.extruder));
   if (e >= (EXTRUDERS)) {
     SERIAL_ECHOLNPGM("?(E)xtruder index out of range (0-", (EXTRUDERS) - 1, ").");
     return;
@@ -77,6 +77,7 @@ void GcodeSuite::M306() {
 
   if (parser.seen("ACFPRH")) {
     MPC_t &mpc = thermalManager.temp_hotend[e].mpc;
+    const MPC_t old_mpc = mpc;
     if (parser.seenval('P')) mpc.heater_power = parser.value_float();
     #if ENABLED(MPC_PTC)
       if (parser.seenval('L')) mpc.heater_alpha = parser.value_float();
@@ -89,6 +90,10 @@ void GcodeSuite::M306() {
       if (parser.seenval('F')) mpc.applyFanAdjustment(parser.value_float());
     #endif
     if (parser.seenval('H')) mpc.filament_heat_capacity_permm = parser.value_float();
+    if (!mpc.isValid()) {
+      mpc = old_mpc;
+      SERIAL_ECHOLNPGM("?P, C and R must be positive.");
+    }
     return;
   }
 

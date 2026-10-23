@@ -29,20 +29,39 @@
 #include <TMCStepper.h>
 #include "../module/planner.h"
 
-#define CHOPPER_DEFAULT_12V  { 3, -1, 1 }   // { toff, hend, hstrt }
+// 1.8° steppers                              { toff, hend, hstrt }
+#define CHOPPER_DEFAULT_12V  { 3, -1, 1 }
 #define CHOPPER_DEFAULT_19V  { 4,  1, 1 }
 #define CHOPPER_DEFAULT_24V  { 4,  2, 1 }
-#define CHOPPER_DEFAULT_36V  { 5,  2, 4 }
+#define CHOPPER_DEFAULT_36V  { 5,  2, 4 }   // TMC2130, TMC2160, TMC2240, TMC5130, TMC5160
+#define CHOPPER_DEFAULT_48V  { 5,  2, 6 }   // TMC2160, TMC5160
+#define CHOPPER_DEFAULT_60V  { 5,  2, 8 }   // TMC2160, TMC5160
+
+#define CHOPPER_18STEP_12V   CHOPPER_DEFAULT_12V
+#define CHOPPER_18STEP_19V   CHOPPER_DEFAULT_19V
+#define CHOPPER_18STEP_24V   CHOPPER_DEFAULT_24V
+#define CHOPPER_18STEP_36V   CHOPPER_DEFAULT_36V
+#define CHOPPER_18STEP_48V   CHOPPER_DEFAULT_48V
+#define CHOPPER_18STEP_60V   CHOPPER_DEFAULT_60V
+
+// 0.9° steppers
+#define CHOPPER_09STEP_12V   { 3, -1, 2 }
+#define CHOPPER_09STEP_19V   { 3, -1, 4 }
+#define CHOPPER_09STEP_24V   { 3, -1, 5 }
+#define CHOPPER_09STEP_36V   { 4,  0, 8 }   // TMC2130, TMC2160, TMC2240, TMC5130, TMC5160
+#define CHOPPER_09STEP_48V   { 5,  5, 8 }   // TMC2160, TMC5160
+
+// Others
 #define CHOPPER_PRUSAMK3_24V { 3, -2, 6 }
 #define CHOPPER_MARLIN_119   { 5,  2, 3 }
-#define CHOPPER_09STEP_24V   { 3, -1, 5 }
 
 #if ENABLED(MONITOR_DRIVER_STATUS) && !defined(MONITOR_DRIVER_STATUS_INTERVAL_MS)
   #define MONITOR_DRIVER_STATUS_INTERVAL_MS 500U
 #endif
 
+// Convert between a hybrid threshold speed and a TSTEP value. 0 is passed through.
 constexpr uint16_t _tmc_thrs(const uint16_t msteps, const uint32_t thrs, const uint32_t spmm) {
-  return 12650000UL * msteps / (256 * thrs * spmm);
+  return thrs ? 12650000UL * msteps / (256 * thrs * spmm) : 0;
 }
 
 typedef struct {
@@ -50,6 +69,11 @@ typedef struct {
   int8_t hend;
   uint8_t hstrt;
 } chopper_timing_t;
+
+// Datasheet limits, including "Effective HEND+HSTRT ≤ 16"
+constexpr bool chopper_timing_valid(const chopper_timing_t &ct) {
+  return WITHIN(ct.toff, 1, 15) && WITHIN(ct.hend, -3, 12) && WITHIN(ct.hstrt, 1, 8) && ct.hend + ct.hstrt <= 16;
+}
 
 template<char AXIS_LETTER, char DRIVER_ID>
 class TMCStorage {
@@ -327,12 +351,17 @@ class TMCMarlin<TMC2240Stepper, AXIS_LETTER, DRIVER_ID, AXIS_ID> : public TMC224
     #endif
 
     #if USE_SENSORLESS
-      int16_t homing_threshold() { return TMC2240Stepper::sgt(); }
+      // StallGuard4 threshold SG4_THRS (0-255). Higher values are more sensitive.
+      int16_t homing_threshold() { return TMC2240Stepper::sg4_thrs(); }
       void homing_threshold(int16_t sgt_val) {
         sgt_val = (int16_t)constrain(sgt_val, sgt_min, sgt_max);
-        TMC2240Stepper::sgt(sgt_val);
+        TMC2240Stepper::sg4_thrs(sgt_val);
         TERN_(HAS_MARLINUI_MENU, this->stored.homing_thrs = sgt_val);
       }
+      #if ENABLED(SPI_ENDSTOPS)
+        // DRV_STATUS.stallguard is set by StallGuard2 (spreadCycle) or StallGuard4 (stealthChop)
+        bool test_stall_status() { return TMC2240Stepper::stallguard(); }
+      #endif
     #endif
 
     void refresh_stepper_current() { rms_current(this->val_mA); }
@@ -343,8 +372,8 @@ class TMCMarlin<TMC2240Stepper, AXIS_LETTER, DRIVER_ID, AXIS_ID> : public TMC224
       void refresh_homing_thrs() { homing_threshold(this->stored.homing_thrs); }
     #endif
 
-    static constexpr int8_t sgt_min = -64,
-                            sgt_max =  63;
+    static constexpr uint8_t sgt_min = 0,
+                             sgt_max = 255;
 };
 
 template<char AXIS_LETTER, char DRIVER_ID, AxisEnum AXIS_ID>
@@ -471,6 +500,54 @@ void test_tmc_connection(LOGICAL_AXIS_DECL_LC(const bool, true));
     extern homing_current_t homing_current_mA;
   #endif
 
+  /**
+   * Set the homing current on the steppers that move to home an axis,
+   * then restore the previous currents when it goes out of scope.
+   */
+  class TemporaryHomingCurrent {
+    const AxisEnum axis;
+    homing_current_t saved;
+    public:
+      TemporaryHomingCurrent(const AxisEnum a) : axis(a) { motion.set_homing_current(axis, saved); }
+      ~TemporaryHomingCurrent() { motion.restore_homing_current(axis, saved); }
+  };
+
 #endif // HAS_HOMING_CURRENT
+
+#if ENABLED(HOMING_HYBRID_THRESHOLD)
+
+  // Hybrid Threshold (mm/s) for each stealthChop stepper while homing. 0 = Stay in stealthChop.
+  struct homing_hybrid_thrs_t {
+    OPTCODE(X_HAS_STEALTHCHOP,  uint16_t X)
+    OPTCODE(Y_HAS_STEALTHCHOP,  uint16_t Y)
+    OPTCODE(Z_HAS_STEALTHCHOP,  uint16_t Z)
+    OPTCODE(X2_HAS_STEALTHCHOP, uint16_t X2)
+    OPTCODE(Y2_HAS_STEALTHCHOP, uint16_t Y2)
+    OPTCODE(Z2_HAS_STEALTHCHOP, uint16_t Z2)
+    OPTCODE(Z3_HAS_STEALTHCHOP, uint16_t Z3)
+    OPTCODE(Z4_HAS_STEALTHCHOP, uint16_t Z4)
+    OPTCODE(I_HAS_STEALTHCHOP,  uint16_t I)
+    OPTCODE(J_HAS_STEALTHCHOP,  uint16_t J)
+    OPTCODE(K_HAS_STEALTHCHOP,  uint16_t K)
+    OPTCODE(U_HAS_STEALTHCHOP,  uint16_t U)
+    OPTCODE(V_HAS_STEALTHCHOP,  uint16_t V)
+    OPTCODE(W_HAS_STEALTHCHOP,  uint16_t W)
+  };
+
+  extern homing_hybrid_thrs_t homing_hybrid_thrs;
+
+  /**
+   * Apply the homing Hybrid Threshold to the steppers that move to home an axis,
+   * then restore the previous thresholds when it goes out of scope.
+   */
+  class TemporaryHomingHybridThreshold {
+    const AxisEnum axis;
+    homing_hybrid_thrs_t saved;
+    public:
+      TemporaryHomingHybridThreshold(const AxisEnum a) : axis(a) { motion.apply_homing_hybrid_thrs(axis, true, saved); }
+      ~TemporaryHomingHybridThreshold() { motion.apply_homing_hybrid_thrs(axis, false, saved); }
+  };
+
+#endif // HOMING_HYBRID_THRESHOLD
 
 #endif // HAS_TRINAMIC_CONFIG

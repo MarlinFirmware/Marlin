@@ -47,30 +47,30 @@ Nozzle nozzle;
      */
     void Nozzle::stroke(const xyz_pos_t &start, const xyz_pos_t &end, const uint8_t strokes) {
       #if ENABLED(NOZZLE_CLEAN_GOBACK)
-        const xyz_pos_t oldpos = current_position;
+        const xyz_pos_t oldpos = motion.position;
       #endif
 
       // Move Z (and XY) to the starting point, if needed
       #if DISABLED(NOZZLE_CLEAN_NO_Z)
-        do_blocking_move_to(start);
+        motion.blocking_move(start);
       #endif
 
       // Run the stroke pattern
       for (uint8_t i = 0; i <= strokes; ++i) {
         #if ENABLED(NOZZLE_CLEAN_NO_Y)
           if (i & 1)
-            do_blocking_move_to_x(end.x);
+            motion.blocking_move_x(end.x);
           else
-            do_blocking_move_to_x(start.x);
+            motion.blocking_move_x(start.x);
         #else
           if (i & 1)
-            do_blocking_move_to_xy(end);
+            motion.blocking_move_xy(end);
           else
-            do_blocking_move_to_xy(start);
+            motion.blocking_move_xy(start);
         #endif
       }
 
-      TERN_(NOZZLE_CLEAN_GOBACK, do_blocking_move_to(oldpos));
+      TERN_(NOZZLE_CLEAN_GOBACK, motion.blocking_move(oldpos));
     }
   #endif
 
@@ -89,13 +89,13 @@ Nozzle nozzle;
       if (!diff.x || !diff.y) return;
 
       #if ENABLED(NOZZLE_CLEAN_GOBACK)
-        const xyz_pos_t back = current_position;
+        const xyz_pos_t back = motion.position;
       #endif
 
       #if ENABLED(NOZZLE_CLEAN_NO_Z)
-        do_blocking_move_to_xy(start);
+        motion.blocking_move_xy(start);
       #else
-        do_blocking_move_to(start);
+        motion.blocking_move(start);
       #endif
 
       const uint8_t zigs = objects << 1;
@@ -106,20 +106,20 @@ Nozzle nozzle;
         for (int8_t i = 0; i < zigs; i++) {
           side = (i & 1) ? &end : &start;
           if (horiz)
-            do_blocking_move_to_xy(start.x + i * P, side->y);
+            motion.blocking_move_xy(start.x + i * P, side->y);
           else
-            do_blocking_move_to_xy(side->x, start.y + i * P);
+            motion.blocking_move_xy(side->x, start.y + i * P);
         }
         for (int8_t i = zigs; i >= 0; i--) {
           side = (i & 1) ? &end : &start;
           if (horiz)
-            do_blocking_move_to_xy(start.x + i * P, side->y);
+            motion.blocking_move_xy(start.x + i * P, side->y);
           else
-            do_blocking_move_to_xy(side->x, start.y + i * P);
+            motion.blocking_move_xy(side->x, start.y + i * P);
         }
       }
 
-      TERN_(NOZZLE_CLEAN_GOBACK, do_blocking_move_to(back));
+      TERN_(NOZZLE_CLEAN_GOBACK, motion.blocking_move(back));
     }
   #endif
 
@@ -136,21 +136,21 @@ Nozzle nozzle;
       if (strokes == 0) return;
 
       #if ENABLED(NOZZLE_CLEAN_GOBACK)
-        const xyz_pos_t back = current_position;
+        const xyz_pos_t back = motion.position;
       #endif
-      TERN(NOZZLE_CLEAN_NO_Z, do_blocking_move_to_xy, do_blocking_move_to)(start);
+      motion.TERN(NOZZLE_CLEAN_NO_Z, blocking_move_xy, blocking_move)(start);
 
       for (uint8_t s = 0; s < strokes; ++s)
         for (uint8_t i = 0; i < NOZZLE_CLEAN_CIRCLE_FN; ++i)
-          do_blocking_move_to_xy(
+          motion.blocking_move_xy(
             middle.x + sin((RADIANS(360) / NOZZLE_CLEAN_CIRCLE_FN) * i) * radius,
             middle.y + cos((RADIANS(360) / NOZZLE_CLEAN_CIRCLE_FN) * i) * radius
           );
 
       // Let's be safe
-      do_blocking_move_to_xy(start);
+      motion.blocking_move_xy(start);
 
-      TERN_(NOZZLE_CLEAN_GOBACK, do_blocking_move_to(back));
+      TERN_(NOZZLE_CLEAN_GOBACK, motion.blocking_move(back));
     }
   #endif
 
@@ -167,7 +167,7 @@ Nozzle nozzle;
       xyz_pos_t middle[HOTENDS] = NOZZLE_CLEAN_CIRCLE_MIDDLE;
     #endif
 
-    const uint8_t arrPos = ANY(SINGLENOZZLE, MIXING_EXTRUDER) ? 0 : active_extruder;
+    const uint8_t arrPos = ANY(SINGLENOZZLE, MIXING_EXTRUDER) ? 0 : motion.extruder;
 
     switch (pattern) {
       #if DISABLED(NOZZLE_CLEAN_PATTERN_LINE)
@@ -197,16 +197,16 @@ Nozzle nozzle;
     #if HAS_SOFTWARE_ENDSTOPS
 
       #define LIMIT_AXIS(A) do{ \
-                                           LIMIT( start[arrPos].A, soft_endstop.min.A, soft_endstop.max.A); \
-                                           LIMIT(   end[arrPos].A, soft_endstop.min.A, soft_endstop.max.A); \
-        TERN_(NOZZLE_CLEAN_PATTERN_CIRCLE, LIMIT(middle[arrPos].A, soft_endstop.min.A, soft_endstop.max.A)); \
+                                           LIMIT( start[arrPos].A, motion.soft_endstop.min.A, motion.soft_endstop.max.A); \
+                                           LIMIT(   end[arrPos].A, motion.soft_endstop.min.A, motion.soft_endstop.max.A); \
+        TERN_(NOZZLE_CLEAN_PATTERN_CIRCLE, LIMIT(middle[arrPos].A, motion.soft_endstop.min.A, motion.soft_endstop.max.A)); \
       }while(0)
 
-      if (soft_endstop.enabled()) {
+      if (motion.soft_endstop.enabled()) {
         LIMIT_AXIS(x); LIMIT_AXIS(y); LIMIT_AXIS(z);
         #if ENABLED(NOZZLE_CLEAN_PATTERN_CIRCLE)
-          if (pattern == 2 && !(WITHIN(middle[arrPos].x, soft_endstop.min.x + radius, soft_endstop.max.x - radius)
-                             && WITHIN(middle[arrPos].y, soft_endstop.min.y + radius, soft_endstop.max.y - radius))
+          if (pattern == 2 && !(WITHIN(middle[arrPos].x, motion.soft_endstop.min.x + radius, motion.soft_endstop.max.x - radius)
+                             && WITHIN(middle[arrPos].y, motion.soft_endstop.min.y + radius, motion.soft_endstop.max.y - radius))
           ) {
             SERIAL_ECHOLNPGM("Warning: Radius Out of Range"); return;
           }
@@ -222,10 +222,10 @@ Nozzle nozzle;
     #endif
 
     if (TERN1(NOZZLE_CLEAN_PATTERN_CIRCLE, pattern != 2)) {
-      if (!TEST(cleans, X_AXIS)) start[arrPos].x = end[arrPos].x = current_position.x;
-      if (!TEST(cleans, Y_AXIS)) start[arrPos].y = end[arrPos].y = current_position.y;
+      if (!TEST(cleans, X_AXIS)) start[arrPos].x = end[arrPos].x = motion.position.x;
+      if (!TEST(cleans, Y_AXIS)) start[arrPos].y = end[arrPos].y = motion.position.y;
     }
-    if (!TEST(cleans, Z_AXIS)) start[arrPos].z = end[arrPos].z = current_position.z;
+    if (!TEST(cleans, Z_AXIS)) start[arrPos].z = end[arrPos].z = motion.position.z;
 
     switch (pattern) { // no default clause as pattern is already validated
       #if ENABLED(NOZZLE_CLEAN_PATTERN_LINE)
@@ -252,7 +252,7 @@ Nozzle nozzle;
           #ifdef NOZZLE_PARK_Z_RAISE_MIN
             NOZZLE_PARK_Z_RAISE_MIN +           // Minimum raise...
           #endif
-          current_position.z                    // ...over current position
+          motion.position.z                    // ...over current position
         )
       );
     }
@@ -264,15 +264,15 @@ Nozzle nozzle;
 
       switch (z_action) {
         case 1:   // Go to Z-park height
-          do_blocking_move_to_z(park.z, fr_z);
+          motion.blocking_move_z(park.z, fr_z);
           break;
 
         case 2:   // Raise by Z-park height
-          do_blocking_move_to_z(_MIN(current_position.z + park.z, Z_MAX_POS), fr_z);
+          motion.blocking_move_z(_MIN(motion.position.z + park.z, Z_MAX_POS), fr_z);
           break;
 
         case 3: { // Raise by NOZZLE_PARK_Z_RAISE_MIN, bypass XY-park position
-          do_blocking_move_to_z(park_mode_0_height(0), fr_z);
+          motion.blocking_move_z(park_mode_0_height(0), fr_z);
           goto SKIP_XY_MOVE;
         } break;
 
@@ -280,7 +280,7 @@ Nozzle nozzle;
           break;
 
         default:  // Raise by NOZZLE_PARK_Z_RAISE_MIN, use park.z as a minimum height
-          do_blocking_move_to_z(park_mode_0_height(park.z), fr_z);
+          motion.blocking_move_z(park_mode_0_height(park.z), fr_z);
           break;
       }
     #endif // HAS_Z_AXIS
@@ -291,18 +291,18 @@ Nozzle nozzle;
       #endif
       constexpr feedRate_t fr_xy = NOZZLE_PARK_XY_FEEDRATE;
       switch (NOZZLE_PARK_MOVE) {
-        case 0: do_blocking_move_to_xy(park, fr_xy); break;
-        case 1: do_blocking_move_to_x(park.x, fr_xy); break;
-        case 2: do_blocking_move_to_y(park.y, fr_xy); break;
-        case 3: do_blocking_move_to_x(park.x, fr_xy);
-                do_blocking_move_to_y(park.y, fr_xy); break;
-        case 4: do_blocking_move_to_y(park.y, fr_xy);
-                do_blocking_move_to_x(park.x, fr_xy); break;
+        case 0: motion.blocking_move_xy(park, fr_xy); break;
+        case 1: motion.blocking_move_x(park.x, fr_xy); break;
+        case 2: motion.blocking_move_y(park.y, fr_xy); break;
+        case 3: motion.blocking_move_x(park.x, fr_xy);
+                motion.blocking_move_y(park.y, fr_xy); break;
+        case 4: motion.blocking_move_y(park.y, fr_xy);
+                motion.blocking_move_x(park.x, fr_xy); break;
       }
     }
 
     SKIP_XY_MOVE:
-    report_current_position();
+    motion.report_position();
   }
 
 #endif // NOZZLE_PARK_FEATURE

@@ -499,7 +499,7 @@ float MAX31865::temperature(float rtd_res) {
 
 /**
  * MAX31865 SPI Timing constants
- * See MAX31865 datasheet (https://datasheets.maximintegrated.com/en/ds/MAX31865.pdf)
+ * See MAX31865 datasheet (https://datasheets.maximintegrated.com/en/ds/max31865.pdf)
  * All timings in nsec, minimum values.
  */
 

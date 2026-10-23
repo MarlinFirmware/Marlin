@@ -96,7 +96,7 @@ void MarlinHAL::init() {
     // Might disable other peripherals using the pin; to circumvent that please undefine one of the above things!
     // The true culprit is the AVR ArduinoCore that enables peripherals redundantly.
     // (USART1 on the GeeeTech GT2560)
-    // https://www.youtube.com/watch?v=jMgCvRXkexk
+    // https://youtube.be/jMgCvRXkexk
     _ATmega_savePinAlternate(BEEPER_PIN);
 
     OUT_WRITE(BEEPER_PIN, LOW);

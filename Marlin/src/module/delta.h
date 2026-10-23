@@ -79,7 +79,7 @@ void recalc_delta_settings();
     )                                     \
   )
 
-#define DELTA_IK(V) delta.set(DELTA_Z(V, A_AXIS), DELTA_Z(V, B_AXIS), DELTA_Z(V, C_AXIS))
+#define DELTA_IK(V) motion.delta.set(DELTA_Z(V, A_AXIS), DELTA_Z(V, B_AXIS), DELTA_Z(V, C_AXIS))
 
 void inverse_kinematics(const xyz_pos_t &raw);
 
@@ -114,7 +114,7 @@ void refresh_delta_clip_start_height();
  * based on a Java function from "Delta Robot Kinematics V3"
  * by Steve Graves
  *
- * The result is stored in the cartes[] array.
+ * The result is stored in the motion.cartes[] array.
  */
 void forward_kinematics(const float z1, const float z2, const float z3);
 

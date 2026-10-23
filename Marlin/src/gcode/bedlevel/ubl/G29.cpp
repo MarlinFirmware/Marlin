@@ -37,11 +37,11 @@
 
 void GcodeSuite::G29() {
 
-  TERN_(FULL_REPORT_TO_HOST_FEATURE, set_and_report_grblstate(M_PROBE));
+  TERN_(FULL_REPORT_TO_HOST_FEATURE, motion.set_and_report_grblstate(M_PROBE));
 
   bedlevel.G29();
 
-  TERN_(FULL_REPORT_TO_HOST_FEATURE, set_and_report_grblstate(M_IDLE));
+  TERN_(FULL_REPORT_TO_HOST_FEATURE, motion.set_and_report_grblstate(M_IDLE));
 }
 
 #endif // AUTO_BED_LEVELING_UBL

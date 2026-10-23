@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 # This file is for preprocessing G-code and the new G29 Auto bed leveling from Marlin
 # It will analyze the first 2 layers and return the maximum size for this part

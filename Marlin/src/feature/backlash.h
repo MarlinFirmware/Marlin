@@ -29,7 +29,7 @@ public:
   static constexpr uint8_t all_on = 0xFF, all_off = 0x00;
 
 private:
-  static AxisBits last_direction_bits;
+  static AxisBits last_direction;
   static xyz_long_t residual_error;
 
   #if ENABLED(BACKLASH_GCODE)

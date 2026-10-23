@@ -30,6 +30,7 @@ out-csv/
 out-language/
 *.gen
 *.sublime-workspace
+.cache/
 
 # npm
 node_modules/
@@ -174,6 +175,13 @@ __pycache__
 tags
 *.logs
 *.bak
+.env
+schema.json
+sqlite*.db
+
+# Tools
 .aider*
 !.aiderignore
-.env
+.zed/
+*mcp*.db
+github-app.yml

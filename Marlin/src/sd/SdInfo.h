@@ -39,7 +39,7 @@
 // Version 3.01
 // May 18, 2010
 //
-// https://www.sdcard.org/downloads/pls/index.html
+// https://www.sdcard.org/downloads/pls/
 
 // SD card commands
 uint8_t const CMD0 = 0x00,    // GO_IDLE_STATE - init card in spi mode if CS low

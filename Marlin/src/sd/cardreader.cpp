@@ -79,7 +79,7 @@ CardReader card;
 // public:
 
 card_flags_t CardReader::flag;
-char CardReader::filename[FILENAME_LENGTH], CardReader::longFilename[LONG_FILENAME_LENGTH];
+char CardReader::filename[FILENAME_LENGTH], CardReader::longFilename[LONG_FILENAME_BYTES];
 
 IF_DISABLED(NO_SD_AUTOSTART, uint8_t CardReader::autofile_index); // = 0
 
@@ -95,13 +95,13 @@ int16_t CardReader::nrItems = -1;
 
 #if ENABLED(SDCARD_SORT_ALPHA)
 
-  int16_t CardReader::sort_count;
   #if ENABLED(SDSORT_GCODE)
     SortFlag CardReader::sort_alpha;
     int8_t CardReader::sort_folders;
     //bool CardReader::sort_reverse;
   #endif
 
+  int16_t CardReader::sort_count;
   uint8_t *CardReader::sort_order;
 
   #if ENABLED(SDSORT_USES_RAM)
@@ -159,13 +159,15 @@ CardReader::CardReader() {
       static uint8_t sort_order_static[SDSORT_LIMIT];
       sort_order = sort_order_static;
     #endif
-    #if ENABLED(SDSORT_CACHE_NAMES) && DISABLED(SDSORT_DYNAMIC_RAM)
-      static char sortshort_static[SDSORT_LIMIT][FILENAME_LENGTH];
-      sortshort = sortshort_static;
-    #endif
-    #if ENABLED(SDSORT_CACHE_NAMES) && !ALL(SDSORT_DYNAMIC_RAM, SDSORT_USES_STACK)
-      static char sortnames_static[SDSORT_LIMIT][SORTED_LONGNAME_STORAGE];
-      sortnames = sortnames_static;
+    #if ENABLED(SDSORT_CACHE_NAMES)
+      #if DISABLED(SDSORT_DYNAMIC_RAM)
+        static char sortshort_static[SDSORT_LIMIT][FILENAME_LENGTH];
+        sortshort = sortshort_static;
+      #endif
+      #if !ALL(SDSORT_DYNAMIC_RAM, SDSORT_USES_STACK)
+        static char sortnames_static[SDSORT_LIMIT][SORTED_LONGNAME_STORAGE];
+        sortnames = sortnames_static;
+      #endif
     #endif
 
     sort_count = 0;
@@ -369,6 +371,27 @@ void CardReader::ls(const uint8_t lsflags/*=0*/) {
   }
 }
 
+#if ENABLED(PANELDUE)
+
+  //
+  // Get the next visible item (folder or G-code file) in a folder.
+  // Call dir.rewind() to start from the first item.
+  // The long filename buffer is not touched.
+  // Return false when there are no more items.
+  //
+  bool CardReader::nextVisibleItem(MediaFile &dir, char * const dosFilename, bool &isDir) {
+    dir_t p;
+    while (dir.readDir(&p, nullptr) > 0) {
+      if (!is_visible_entity(p)) continue;
+      createFilename(dosFilename, p);
+      isDir = flag.filenameIsDir;
+      return true;
+    }
+    return false;
+  }
+
+#endif // PANELDUE
+
 #if ENABLED(LONG_FILENAME_HOST_SUPPORT)
 
   //
@@ -391,7 +414,7 @@ void CardReader::ls(const uint8_t lsflags/*=0*/) {
       char *segment = &path[i]; // The segment after most slashes
 
       // If a segment is empty (extra-slash) then exit
-      if (!*segment) break;
+      if (!segment[0]) break;
 
       // Go to the next segment
       while (path[++i]) { }
@@ -437,7 +460,7 @@ void CardReader::ls(const uint8_t lsflags/*=0*/) {
     // Zero out slashes to make segments
     for (i = 0; i < pathLen; i++) if (bufShort[i] == '/') bufShort[i] = '\0';
 
-    SdFile diveDir = root; // start from the root for segment 1
+    MediaFile diveDir = root; // start from the root for segment 1
     for (i = 0; i < pathLen;) {
 
       if (bufShort[i] == '\0') i++; // move past a single nul
@@ -445,7 +468,7 @@ void CardReader::ls(const uint8_t lsflags/*=0*/) {
       char *segment = &bufShort[i]; // The segment after most slashes
 
       // If a segment is empty (extra-slash) then exit
-      if (!*segment) break;
+      if (!segment[0]) break;
 
       //SERIAL_ECHOLNPGM("Looking for segment: ", segment);
 
@@ -482,7 +505,18 @@ void CardReader::printSelectedFilename() {
   SERIAL_EOL();
 }
 
-void CardReader::mount() {
+#if ANY(HAS_SD_DETECT, HAS_USB_FLASH_DRIVE)
+  static bool mount_alerted = false; // A media init fail alert is showing
+#endif
+
+// State of mount_async()
+enum MountState : uint8_t { MOUNT_IDLE, MOUNT_SETTLE, MOUNT_INIT, MOUNT_INIT_LCD };
+static MountState mount_state = MOUNT_IDLE;
+static millis_t mount_settle_ms;
+
+void CardReader::mount(const bool alert/*=true*/) {
+  mount_state = MOUNT_IDLE; // Cancel mount_async()
+
   flag.mounted = false;
   nrItems = -1;
   if (root.isOpen()) root.close();
@@ -494,6 +528,51 @@ void CardReader::mount() {
     #endif
   );
 
+  mount_finish(driver_init, alert);
+}
+
+/**
+ * Mount the media in steps, so the main loop isn't blocked while it gets ready.
+ * Call on each idle() until it returns true. The result is then in isMounted().
+ */
+bool CardReader::mount_async(const bool alert) {
+  switch (mount_state) {
+
+    case MOUNT_IDLE:
+      if (isMounted()) return true;           // Mounted some other way, e.g., M21
+      mount_settle_ms = millis() + 500;       // Time for inserted media to settle
+      mount_state = MOUNT_SETTLE;
+      break;
+
+    case MOUNT_SETTLE:
+      if (PENDING(millis(), mount_settle_ms)) break;
+      flag.mounted = false;
+      nrItems = -1;
+      if (root.isOpen()) root.close();
+      driver->initStart(SD_SPI_SPEED, SD_SS_PIN);
+      mount_state = MOUNT_INIT;
+      break;
+
+    case MOUNT_INIT:
+    case MOUNT_INIT_LCD: {
+      const int8_t result = driver->initStep();
+      if (!result) break;
+      #if PIN_EXISTS(LCD_SDSS) && (LCD_SDSS_PIN != SD_SS_PIN)
+        if (result < 0 && mount_state == MOUNT_INIT) {
+          driver->initStart(SD_SPI_SPEED, LCD_SDSS_PIN);
+          mount_state = MOUNT_INIT_LCD;
+          break;
+        }
+      #endif
+      mount_state = MOUNT_IDLE;
+      mount_finish(result > 0, alert);
+      return true;
+    }
+  }
+  return false;
+}
+
+void CardReader::mount_finish(const bool driver_init, const bool alert) {
   if (!driver_init)
     SERIAL_ECHO_MSG(STR_SD_INIT_FAIL);
   else if (!volume.init(driver))
@@ -505,11 +584,16 @@ void CardReader::mount() {
     SERIAL_ECHO_MSG(STR_SD_CARD_OK);
   }
 
-  if (flag.mounted)
+  if (flag.mounted) {
+    #if ANY(HAS_SD_DETECT, HAS_USB_FLASH_DRIVE)
+      if (mount_alerted) { mount_alerted = false; ui.reset_alert_level(); ui.reset_status(); } // Clear the init fail alert
+    #endif
     cdroot();
+  }
   else {
     #if ANY(HAS_SD_DETECT, HAS_USB_FLASH_DRIVE)
-      if (!marlin.is(MF_INITIALIZING)) {
+      if (alert && !marlin.is(MF_INITIALIZING)) {
+        mount_alerted = true;
         if (isSDCardSelected())
           LCD_ALERTMESSAGE(MSG_MEDIA_INIT_FAIL_SD);
         else if (isFlashDriveSelected())
@@ -578,6 +662,20 @@ void CardReader::manage_media() {
     #endif
   );
 
+  // Retry a failed mount a few times, in case the media wasn't fully seated yet
+  constexpr uint8_t mount_retries = 2;
+  constexpr millis_t mount_retry_ms = 1000;
+  static uint8_t retries_left = mount_retries;
+  static millis_t next_retry_ms = 0;
+  if (stat == INSERT_NONE) {
+    retries_left = mount_retries;
+    mount_state = MOUNT_IDLE;       // Media removed while mounting
+  }
+  if (next_retry_ms) {
+    if (PENDING(millis(), next_retry_ms)) return;
+    next_retry_ms = 0;
+  }
+
   if (stat == prev_stat) return;    // Already checked and still no change?
 
   DEBUG_SECTION(cmm, "CardReader::manage_media()", true);
@@ -585,6 +683,11 @@ void CardReader::manage_media() {
 
   // Without a UI there's no auto-mount or release
   if (!ui.detected()) { DEBUG_ECHOLNPGM("SD: No UI Detected."); return; }
+
+  // Let media insert / remove messages replace an earlier init fail alert
+  #if ANY(HAS_SD_DETECT, HAS_USB_FLASH_DRIVE)
+    if (mount_alerted) { mount_alerted = false; ui.reset_alert_level(); }
+  #endif
 
   const MediaPresence old_stat = prev_stat,
                       old_real = old_stat == MEDIA_BOOT ? INSERT_NONE : old_stat;
@@ -617,8 +720,25 @@ void CardReader::manage_media() {
           else if (vadd & INSERT_USB) selectMediaFlashDrive();
         #endif
       #endif
-      safe_delay(500);                  // Time for inserted media to settle. May re-enter for multiple media?
-      mount();
+      if (old_stat <= MEDIA_BOOT) {     // Mount at boot before anything else runs
+        safe_delay(500);                // Time for inserted media to settle
+        mount(!retries_left);           // Alert only on the last try
+      }
+      else if (!mount_async(!retries_left)) {
+        prev_stat = old_stat;           // Still mounting. Continue on the next call.
+        TERN_(HAS_MULTI_VOLUME, no_reenter = false);
+        return;
+      }
+
+      // Not mounted? Leave the status unchanged to try again later
+      if (!isMounted() && retries_left) {
+        --retries_left;
+        next_retry_ms = millis() + mount_retry_ms;
+        prev_stat = old_stat;
+        TERN_(HAS_MULTI_VOLUME, no_reenter = false);
+        return;
+      }
+      retries_left = mount_retries;
     }
 
     // If the selected media isn't mounted throw an alert in ui.media_changed
@@ -635,7 +755,7 @@ void CardReader::manage_media() {
          (isSDCardSelected()     && (vdiff & INSERT_SD))
       || (isFlashDriveSelected() && (vdiff & INSERT_USB))
     #else
-      stat // == INSERT_MEDIA
+      old_real // == INSERT_MEDIA
     #endif
   ) {
     flag.workDirIsRoot = true;          // Return to root on release
@@ -836,11 +956,11 @@ void CardReader::openFileRead(const char * const path, const uint8_t subcall_typ
 
   abortFilePrintNow();
 
-  MediaFile *diveDir;
-  const char * const fname = diveToFile(true, diveDir, path);
+  MediaFile *diveDirPtr;
+  const char * const fname = diveToFile(true, diveDirPtr, path);
   if (!fname) return openFailed(path);
 
-  if (myfile.open(diveDir, fname, O_READ)) {
+  if (myfile.open(diveDirPtr, fname, O_READ)) {
     filesize = myfile.fileSize();
     sdpos = 0;
 
@@ -875,12 +995,12 @@ void CardReader::openFileWrite(const char * const path) {
 
   abortFilePrintNow();
 
-  MediaFile *diveDir;
-  const char * const fname = diveToFile(false, diveDir, path);
+  MediaFile *diveDirPtr;
+  const char * const fname = diveToFile(false, diveDirPtr, path);
   if (!fname) return openFailed(path);
 
   #if DISABLED(SDCARD_READONLY)
-    if (myfile.open(diveDir, fname, O_CREAT | O_APPEND | O_WRITE | O_TRUNC)) {
+    if (myfile.open(diveDirPtr, fname, O_CREAT | O_APPEND | O_WRITE | O_TRUNC)) {
       flag.saving = true;
       selectFileByName(fname);
       TERN_(EMERGENCY_PARSER, emergency_parser.disable());
@@ -903,18 +1023,18 @@ bool CardReader::fileExists(const char * const path) {
   DEBUG_ECHOLNPGM("fileExists: ", path);
 
   // Dive to the file's directory and get the base name
-  MediaFile *diveDir = nullptr;
-  const char * const fname = diveToFile(false, diveDir, path);
+  MediaFile *diveDirPtr = nullptr;
+  const char * const fname = diveToFile(false, diveDirPtr, path);
   if (!fname) return false;
 
   // Get the longname of the checked file
-  //diveDir->rewind();
-  //selectByName(*diveDir, fname);
-  //diveDir->close();
+  //diveDirPtr->rewind();
+  //selectByName(*diveDirPtr, fname);
+  //diveDirPtr->close();
 
   // Try to open the file and return the result
   MediaFile tmpFile;
-  const bool success = tmpFile.open(diveDir, fname, O_READ);
+  const bool success = tmpFile.open(diveDirPtr, fname, O_READ);
   if (success) tmpFile.close();
   return success;
 }
@@ -1030,11 +1150,16 @@ void CardReader::write_command(char * const buf) {
    * Select the newest file and ask the user if they want to print it.
    */
   bool CardReader::one_click_check() {
+    // Don't proceed if an EEPROM error needs a response
+    #if ENABLED(EEPROM_SETTINGS) && NONE(EEPROM_AUTO_INIT, EEPROM_INIT_NOW)
+      if (settings.eeprom_status() != ERR_EEPROM_NOERR) return false;
+    #endif
+
     const bool found = selectNewestFile();    // Changes the current workDir if found
     if (found) {
       //SERIAL_ECHO_MSG(" OCP File: ", longest_filename(), "\n");
       //ui.init();
-      one_click_print();                      // Restores workkDir to root (eventually)
+      one_click_print();                      // Restores workDir to root (eventually)
     }
     return found;
   }
@@ -1048,6 +1173,9 @@ void CardReader::write_command(char * const buf) {
     // Iterate the given parent dir
     parent.rewind();
     for (dir_t p; parent.readDir(&p, longFilename) > 0;) {
+
+      // Skip hidden items, e.g., macOS .Spotlight-V100 and .fseventsd
+      if (p.attributes & DIR_ATT_HIDDEN) continue;
 
       // If the item is a dir, recurse into it
       if (DIR_IS_SUBDIR(&p)) {
@@ -1326,8 +1454,8 @@ void CardReader::cdroot() {
     #else
       // Copy filenames into the static array
       #define _SET_SORTNAME(I) strlcpy(sortnames[I], longest_filename(), sizeof(sortnames[I]))
-      #if SORTED_LONGNAME_MAXLEN == LONG_FILENAME_LENGTH
-        // Short name sorting always use LONG_FILENAME_LENGTH with no trailing nul
+      #if SORTED_LONGNAME_MAXLEN == LONG_FILENAME_BYTES
+        // Short name sorting always use LONG_FILENAME_BYTES with no trailing nul
         #define SET_SORTNAME(I) _SET_SORTNAME(I)
       #else
         // Copy multiple name blocks. Add a nul for the longest case.
@@ -1339,7 +1467,7 @@ void CardReader::cdroot() {
         #define SET_SORTSHORT(I) NOOP
       #endif
     #endif
-  #endif
+  #endif // SDSORT_USES_RAM
 
   /**
    * Read all the files and produce a sort key
@@ -1418,7 +1546,7 @@ void CardReader::cdroot() {
         {
           auto sort_cmp_files = [&](const int16_t o1, const int16_t o2) -> bool {
             #if DISABLED(SDSORT_USES_RAM)
-              char name1[LONG_FILENAME_LENGTH];
+              char name1[LONG_FILENAME_BYTES];
               selectFileByIndex(o1);
               strcpy(name1, longest_filename());
               #if HAS_FOLDER_SORTING
@@ -1505,7 +1633,7 @@ void CardReader::cdroot() {
           #if DISABLED(SDSORT_USES_RAM)
             // By default re-read the names from SD for every compare, retaining two
             // filenames at a time. This is very slow but is safest and uses minimal RAM.
-            char name1[LONG_FILENAME_LENGTH];
+            char name1[LONG_FILENAME_BYTES];
           #endif
 
           // Bubble Sort
@@ -1595,7 +1723,7 @@ void CardReader::cdroot() {
       }
       else {
         sort_order[0] = uint8_t(0);
-        #if ALL(SDSORT_USES_RAM, SDSORT_CACHE_NAMES)
+        #if ENABLED(SDSORT_CACHE_NAMES)
           #if ENABLED(SDSORT_DYNAMIC_RAM)
             sortnames = new char[1][SORTED_LONGNAME_STORAGE];
             sortshort = new char[1][SORTED_SHORTNAME_STORAGE];

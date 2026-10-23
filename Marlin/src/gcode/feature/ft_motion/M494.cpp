@@ -30,14 +30,20 @@
 #include "../../../lcd/marlinui.h"
 
 void say_ftm_settings() {
-  #if ANY(FTM_POLYS, FTM_SMOOTHING)
+  #if ANY(FTM_POLYS, FTM_SMOOTHING, FTM_CONSTANT_JOLT)
     const ft_config_t &c = ftMotion.cfg;
   #endif
 
-  #if ENABLED(FTM_POLYS)
+  #if HAS_FTM_TRAJECTORY_SELECTION
     SERIAL_ECHOLN(F("  Trajectory: "), ftMotion.getTrajectoryName(), C('('), (uint8_t)ftMotion.getTrajectoryType(), C(')'));
-    if (ftMotion.getTrajectoryType() == TrajectoryType::POLY6)
-      SERIAL_ECHOLNPGM("  Poly6 Overshoot: ", p_float_t(c.poly6_acceleration_overshoot, 3));
+    #if ENABLED(FTM_POLYS)
+      if (ftMotion.getTrajectoryType() == TrajectoryType::POLY6)
+        SERIAL_ECHOLNPGM("  Poly6 Overshoot: ", p_float_t(c.poly6_acceleration_overshoot, 3));
+    #endif
+    #if ENABLED(FTM_CONSTANT_JOLT)
+      if (ftMotion.getTrajectoryType() == TrajectoryType::CONSTANT_JOLT)
+        SERIAL_ECHOLNPGM("  Jolt: ", p_float_t(c.jolt / 1000.0f, 1), " m/s^3");
+    #endif
   #endif
 
   #if ENABLED(FTM_SMOOTHING)
@@ -52,7 +58,7 @@ void GcodeSuite::M494_report(const bool forReplay/*=true*/) {
   report_heading_etc(forReplay, F("FT Motion"));
   SERIAL_ECHOPGM("  M494 T", (uint8_t)ftMotion.getTrajectoryType());
 
-  #if ANY(FTM_POLYS, FTM_SMOOTHING)
+  #if ANY(FTM_POLYS, FTM_SMOOTHING, FTM_CONSTANT_JOLT)
     const ft_config_t &c = ftMotion.cfg;
   #endif
 
@@ -70,6 +76,11 @@ void GcodeSuite::M494_report(const bool forReplay/*=true*/) {
       SERIAL_ECHOPGM(" O", c.poly6_acceleration_overshoot);
   #endif
 
+  #if ENABLED(FTM_CONSTANT_JOLT)
+    if (ftMotion.getTrajectoryType() == TrajectoryType::CONSTANT_JOLT)
+      SERIAL_ECHOPGM(" J", c.jolt / 1000.0f);
+  #endif
+
   SERIAL_EOL();
 }
 
@@ -77,8 +88,9 @@ void GcodeSuite::M494_report(const bool forReplay/*=true*/) {
  * M494: Set Fixed-time Motion Control parameters
  *
  * Parameters:
- *    T<type> Set trajectory generator type (0=TRAPEZOIDAL, 1=POLY5, 2=POLY6)
+ *    T<type> Set trajectory generator type (0=TRAPEZOIDAL, 1=POLY5, 2=POLY6, 3=CONSTANT_JOLT)
  *    O<overshoot> Set acceleration overshoot for POLY6 (1.25-1.875)
+ *    J<jolt> Set maximum jolt for CONSTANT_JOLT (m/s³, positive)
  *    X<time> Set smoothing time for the X axis
  *    Y<time> Set smoothing time for the Y axis
  *    Z<time> Set smoothing time for the Z axis
@@ -87,15 +99,22 @@ void GcodeSuite::M494_report(const bool forReplay/*=true*/) {
 void GcodeSuite::M494() {
   bool report = !parser.seen_any();
 
-  #if ENABLED(FTM_POLYS)
+  #if HAS_FTM_TRAJECTORY_SELECTION
 
     // Parse trajectory type parameter.
     if (parser.seenval('T')) {
       if (ftMotion.updateTrajectoryType(TrajectoryType(parser.value_int())))
         report = true;
       else
-        SERIAL_ECHOLN(F("?Invalid "), F("(T)rajectory type value. Use 0=TRAPEZOIDAL, 1=POLY5, 2=POLY6"));
+        SERIAL_ECHOLN(F("?Invalid (T)rajectory type value. (0=TRAPEZOIDAL"
+          TERN_(FTM_POLYS, ", 1=POLY5, 2=POLY6")
+          TERN_(FTM_CONSTANT_JOLT, ", 3=CONSTANT_JOLT")
+          ")"));
     }
+
+  #endif // HAS_FTM_TRAJECTORY_SELECTION
+
+  #if ENABLED(FTM_POLYS)
 
     // Parse overshoot parameter.
     if (parser.seenval('O')) {
@@ -109,6 +128,16 @@ void GcodeSuite::M494() {
     }
 
   #endif // FTM_POLYS
+
+  #if ENABLED(FTM_CONSTANT_JOLT)
+
+    // Parse jolt parameter (user provides m/s³, stored internally as mm/s³).
+    if (parser.seenval('J')) {
+      ftMotion.cfg.set_jolt(parser.value_float() * 1000.0f);
+      report = true;
+    }
+
+  #endif // FTM_CONSTANT_JOLT
 
   #if ENABLED(FTM_SMOOTHING)
 

@@ -117,7 +117,7 @@ void lv_draw_set() {
   lv_big_button_create(scr, "F:/bmp_about.bin", set_menu.about, BTN_SIZE_X * 2 + INTERVAL_W * 3, titleHeight, event_handler, ID_S_ABOUT);
   lv_big_button_create(scr, ENABLED(HAS_SUICIDE) ? "F:/bmp_manual_off.bin" : "F:/bmp_function1.bin", set_menu.TERN(HAS_SUICIDE, shutdown, motoroff), BTN_SIZE_X * 3 + INTERVAL_W * 4, titleHeight, event_handler, ID_S_MOTOR_OFF);
   lv_big_button_create(scr, "F:/bmp_machine_para.bin", set_menu.machine_para, INTERVAL_W, BTN_SIZE_Y + INTERVAL_H + titleHeight, event_handler, ID_S_MACHINE_PARA);
-  #if HAS_LANG_SELECT_SCREEN
+  #if MKS_LANG_SELECT_SCREEN
     lv_big_button_create(scr, "F:/bmp_language.bin", set_menu.language, BTN_SIZE_X + INTERVAL_W * 2, BTN_SIZE_Y + INTERVAL_H + titleHeight, event_handler, ID_S_LANGUAGE);
   #endif
   #if ENABLED(MKS_WIFI_MODULE)

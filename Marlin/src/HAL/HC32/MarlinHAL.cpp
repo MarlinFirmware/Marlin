@@ -46,7 +46,7 @@ extern "C" char *_sbrk(int incr);
   inline void HAL_clock_frequencies_dump() {
     // 1. dump all clock frequencies
     update_system_clock_frequencies();
-    SERIAL_ECHOPGM(
+    SERIAL_ECHO(
       "-- clocks dump -- \nSYS=", SYSTEM_CLOCK_FREQUENCIES.system,
       "\nHCLK=", SYSTEM_CLOCK_FREQUENCIES.hclk,
       "\nPCLK0=", SYSTEM_CLOCK_FREQUENCIES.pclk0,
@@ -60,26 +60,26 @@ extern "C" char *_sbrk(int incr);
 
     // 2. dump current system clock source
     en_clk_sys_source_t clkSrc = CLK_GetSysClkSource();
-    SERIAL_ECHOPGM("\nSYSCLK=");
+    SERIAL_ECHO("\nSYSCLK=");
     switch (clkSrc) {
-      case ClkSysSrcHRC:    SERIAL_ECHOPGM("HRC"); break;
-      case ClkSysSrcMRC:    SERIAL_ECHOPGM("MRC"); break;
-      case ClkSysSrcLRC:    SERIAL_ECHOPGM("LRC"); break;
-      case ClkSysSrcXTAL:   SERIAL_ECHOPGM("XTAL"); break;
-      case ClkSysSrcXTAL32: SERIAL_ECHOPGM("XTAL32"); break;
-      case CLKSysSrcMPLL:   SERIAL_ECHOPGM("MPLL");
+      case ClkSysSrcHRC:    SERIAL_ECHO("HRC"); break;
+      case ClkSysSrcMRC:    SERIAL_ECHO("MRC"); break;
+      case ClkSysSrcLRC:    SERIAL_ECHO("LRC"); break;
+      case ClkSysSrcXTAL:   SERIAL_ECHO("XTAL"); break;
+      case ClkSysSrcXTAL32: SERIAL_ECHO("XTAL32"); break;
+      case CLKSysSrcMPLL:   SERIAL_ECHO("MPLL");
 
         // 3. if MPLL is used, dump MPLL settings:
         // (derived from CLK_SetPllSource and CLK_MpllConfig)
         // source
         switch (M4_SYSREG->CMU_PLLCFGR_f.PLLSRC) {
-          case ClkPllSrcXTAL: SERIAL_ECHOPGM(",XTAL"); break;
-          case ClkPllSrcHRC:  SERIAL_ECHOPGM(",HRC"); break;
+          case ClkPllSrcXTAL: SERIAL_ECHO(",XTAL"); break;
+          case ClkPllSrcHRC:  SERIAL_ECHO(",HRC"); break;
           default: break;
         }
 
         // PLL multipliers and dividers
-        SERIAL_ECHOPGM(
+        SERIAL_ECHO(
           "\nP=", M4_SYSREG->CMU_PLLCFGR_f.MPLLP + 1UL,
           "\nQ=", M4_SYSREG->CMU_PLLCFGR_f.MPLLQ + 1UL,
           "\nR=", M4_SYSREG->CMU_PLLCFGR_f.MPLLR + 1UL,
@@ -91,7 +91,7 @@ extern "C" char *_sbrk(int incr);
     }
 
     // Done
-    SERIAL_ECHOPGM("\n--\n");
+    SERIAL_ECHO("\n--\n");
   }
 #endif // MARLIN_DEV_MODE
 
@@ -161,18 +161,15 @@ void MarlinHAL::idletask() {
       if (err != usart_receive_error_t::None) {
         // "Warning: MSerial[n] RX [Framing|Parity|Overrun] Error"
         SERIAL_WARN_START();
-        SERIAL_ECHOPGM(" MSerial");
-        SERIAL_ECHO(serial + 1);
-        SERIAL_ECHOPGM(" RX ");
+        SERIAL_ECHO(" MSerial", serial + 1, " RX ");
         switch(err) {
-          case usart_receive_error_t::FramingError: SERIAL_ECHOPGM("Framing"); break;
-          case usart_receive_error_t::ParityError:  SERIAL_ECHOPGM("Parity");  break;
-          case usart_receive_error_t::OverrunError: SERIAL_ECHOPGM("Overrun"); break;
-          case usart_receive_error_t::RxDataDropped: SERIAL_ECHOPGM("DataDropped"); break;
+          case usart_receive_error_t::FramingError:  SERIAL_ECHO("Framing"); break;
+          case usart_receive_error_t::ParityError:   SERIAL_ECHO("Parity");  break;
+          case usart_receive_error_t::OverrunError:  SERIAL_ECHO("Overrun"); break;
+          case usart_receive_error_t::RxDataDropped: SERIAL_ECHO("DataDropped"); break;
           default: break;
         }
-        SERIAL_ECHOPGM(" Error");
-        SERIAL_EOL();
+        SERIAL_ECHOLN(" Error");
       }
     }
   #endif

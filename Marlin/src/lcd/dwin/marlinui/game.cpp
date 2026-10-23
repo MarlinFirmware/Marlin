@@ -104,7 +104,7 @@ void MarlinGame::frame_end() {
     char perf_str[32];
     sprintf_P(
       perf_str,
-      PSTR("d%04lu w%04lu c%04lu"),
+      PSTR("d%04" PRIu32 " w%04" PRIu32 " c%04" PRIu32),
       frame_draw_millis,
       frame_wait_millis,
       dwin_game_perf.draw_calls

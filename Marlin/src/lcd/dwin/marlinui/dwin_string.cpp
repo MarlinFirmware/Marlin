@@ -54,7 +54,7 @@ void DWIN_String::add(const char *tpl, const int8_t index, const char *cstr/*=nu
 
   while (*tpl) {
     tpl = get_utf8_value_cb(tpl, read_byte, wc);
-    if (wc > 255) wc |= 0x0080;
+    if (wc > 0xFF) wc |= 0x0080;
     const uint8_t ch = uint8_t(wc & 0x00FF);
 
     if (ch == '{' || ch == '~' || ch == '*') {
@@ -84,7 +84,7 @@ void DWIN_String::add(const char *cstr, uint8_t max_len/*=MAX_STRING_LENGTH*/) {
   while (*cstr && max_len) {
     cstr = get_utf8_value_cb(cstr, read_byte, wc);
     /*
-    if (wc > 255) wc |= 0x0080;
+    if (wc > 0xFF) wc |= 0x0080;
     const uint8_t ch = uint8_t(wc & 0x00FF);
     add_character(ch);
     */
@@ -104,7 +104,7 @@ void DWIN_String::add(const lchar_t &wc) {
 
   // For 8-bit ASCII just print the single character
   char str[] = { '?', 0 };
-  if (wc < 255) {
+  if (wc < 0xFF) {
     str[0] = (char)wc;
   }
   else {

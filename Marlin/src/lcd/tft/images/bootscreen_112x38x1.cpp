@@ -27,6 +27,9 @@
 #include "../tft_image.h"
 #include "../../../inc/MarlinConfig.h" // for binary defines
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+
 const uint8_t marlin_logo_112x38x1[532] = {
   B00000001,B11111111,B11111111,B11111111,B11111111,B11111111,B11111111,B11111111,B11111111,B11111111,B11111111,B11111111,B11111111,B11111111,
   B00001111,B11111111,B11111111,B11111111,B11111111,B11111111,B11111111,B11111111,B11111111,B11111111,B11111111,B11111111,B11111111,B11111111,
@@ -69,5 +72,7 @@ const uint8_t marlin_logo_112x38x1[532] = {
 };
 
 const tImage MarlinLogo112x38x1 = { (void *)marlin_logo_112x38x1, 112, 38, GREYSCALE1 };
+
+#pragma GCC diagnostic pop
 
 #endif // HAS_GRAPHICAL_TFT && SHOW_BOOTSCREEN

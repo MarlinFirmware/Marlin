@@ -43,7 +43,7 @@ public:
     #if HAS_MEDIA
       EP_M5, EP_M52, EP_M524,
     #endif
-    #if ENABLED(FTM_RESONANCE_TEST)
+    #if ENABLED(RESONANCE_TEST)
       EP_M49, EP_M496,
     #endif
     #if ENABLED(EP_BABYSTEPPING)
@@ -67,7 +67,7 @@ public:
   static bool killed_by_M112;
   static bool quickstop_by_M410;
 
-  #if ENABLED(FTM_RESONANCE_TEST)
+  #if ENABLED(RESONANCE_TEST)
     static bool rt_stop_by_M496;
   #endif
 
@@ -77,6 +77,7 @@ public:
 
   #if ENABLED(HOST_PROMPT_SUPPORT)
     static uint8_t M876_reason;
+    static volatile uint8_t M876_handled; // Responses already handled here, for M876 to skip from the queue
   #endif
 
   EmergencyParser() { enable(); }
@@ -93,3 +94,7 @@ private:
 };
 
 extern EmergencyParser emergency_parser;
+
+#if ENABLED(SOFT_FEED_HOLD)
+  extern bool realtime_ramping_pause_flag;
+#endif

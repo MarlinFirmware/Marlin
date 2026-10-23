@@ -55,4 +55,9 @@ typedef struct Smoothing {
     LOGICAL_AXIS_MAP(_CLEAR);
     #undef _CLEAR
   }
+  void fill(const xyze_float_t pos) {
+    #define _FILL_SMO(A) for (uint32_t i = 0; i < FTM_SMOOTHING_ORDER; i++) A.smoothing_pass[i] = pos.A;
+    LOGICAL_AXIS_MAP(_FILL_SMO);
+    #undef _FILL_SMO
+  }
 } smoothing_t;

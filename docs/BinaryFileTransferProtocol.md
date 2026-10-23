@@ -38,14 +38,14 @@ ADB5 00 0 1 0000 0103
 +-------------------------------+-------------------------------+
 ```
 
-| Field           | Width   | Description                                                                                       |
-| --------------- | ------- | ------------------------------------------------------------------------------------------------- |
-| Start Token     | 16 bits | Each packet must start with the 16-bit value `0xB5AD`.                                            |
-| Sync Number     | 8 bits  | Synchronization value, each packet after sync should increment this value by 1.                   |
-| Protocol ID     | 4 bits  | Protocol ID. `0` for Connection Control, `1` for Transfer. See Below.                             |
-| Packet Type     | 4 bits  | Packet Type ID. Depends on the Protocol ID, see below.                                            |
-| Payload Length  | 16 bits | Length of payload data. If this value is greater than 0, a packet payload will follow the header. |
-| Header Checksum | 16 bits | 16-bit Fletchers checksum of the header data excluding the Start Token                            |
+| Field | Width | Description |
+| --- | --- | --- |
+| Start Token | 16 bits | Each packet must start with the 16-bit value `0xB5AD`. |
+| Sync Number | 8 bits | Synchronization value, each packet after sync should increment this value by 1. |
+| Protocol ID | 4 bits | Protocol ID. `0` for Connection Control, `1` for Transfer. See Below. |
+| Packet Type | 4 bits | Packet Type ID. Depends on the Protocol ID, see below. |
+| Payload Length | 16 bits | Length of payload data. If this value is greater than 0, a packet payload will follow the header. |
+| Header Checksum | 16 bits | 16-bit Fletchers checksum of the header data excluding the Start Token |
 
 ## Packet Payload
 
@@ -61,10 +61,10 @@ If the Payload Length field of the header is non-zero, payload data is expected 
 +-------------------------------+-------------------------------+
 ```
 
-| Field           | Width                | Description                                                                                                        |
-| --------------- | -------------------- | ------------------------------------------------------------------------------------------------------------------ |
-| Payload Data    | Payload Length bytes | Payload data. This should be no longer than the buffer length reported by the Connection SYNC operation.           |
-| Packet Checksum | 16 bits              | 16-bit Fletchers checksum of the header and payload, including the Header Checksum, but excluding the Start Token. |
+| Field | Width | Description |
+| --- | --- | --- |
+| Payload Data | Payload Length bytes | Payload data. This should be no longer than the buffer length reported by the Connection SYNC operation. |
+| Packet Checksum | 16 bits | 16-bit Fletchers checksum of the header and payload, including the Header Checksum, but excluding the Start Token. |
 
 ## Fletchers Checksum
 
@@ -125,13 +125,13 @@ Returns a sync response:
 ss<SYNC>,<BUFFER_SIZE>,<VERSION_MAJOR>.<VERSION_MINOR>.<VERSION_PATCH>
 ```
 
-| Value         | Description                                                                                                           |
-| ------------- | --------------------------------------------------------------------------------------------------------------------- |
-| SYNC          | The current Sync Number, this should be used in the next packet sent and incremented by 1 for each packet sent after. |
-| BUFFER_SIZE   | The client buffer size. Packet Payload Length must not exceed this value.                                             |
-| VERSION_MAJOR | The major version number of the client Marlin BFT protocol, e.g., `0`.                                                |
-| VERSION_MINOR | The minor version number of the client Marlin BFT protocol, e.g., `1`.                                                |
-| VERSION_PATCH | The patch version number of the client Marlin BFT protocol, e.g., `0`.                                                |
+| Value | Description |
+| --- | --- |
+| SYNC | The current Sync Number, this should be used in the next packet sent and incremented by 1 for each packet sent after. |
+| BUFFER_SIZE | The client buffer size. Packet Payload Length must not exceed this value. |
+| VERSION_MAJOR | The major version number of the client Marlin BFT protocol, e.g., `0`. |
+| VERSION_MINOR | The minor version number of the client Marlin BFT protocol, e.g., `1`. |
+| VERSION_PATCH | The patch version number of the client Marlin BFT protocol, e.g., `0`. |
 
 Example response:
 
@@ -147,13 +147,13 @@ A CLOSE packet should be the last packet sent by a host. On success, the client 
 
 `Protocol ID` 1 packets control the file transfers performed over the connection:
 
-| Packet Type | Name  | Description                                                   |
-| ----------- | ----- | ------------------------------------------------------------- |
-| 0           | QUERY | Query the client protocol details and compression parameters. |
-| 1           | OPEN  | Open a file for writing and begin accepting data to transfer. |
-| 2           | CLOSE | Finish writing and close the current file.                    |
-| 3           | WRITE | Write data to an open file.                                   |
-| 4           | ABORT | Abort file transfer.                                          |
+| Packet Type | Name | Description |
+| --- | --- | --- |
+| 0 | QUERY | Query the client protocol details and compression parameters. |
+| 1 | OPEN | Open a file for writing and begin accepting data to transfer. |
+| 2 | CLOSE | Finish writing and close the current file. |
+| 3 | WRITE | Write data to an open file. |
+| 4 | ABORT | Abort file transfer. |
 
 ### QUERY Packet
 
@@ -165,12 +165,12 @@ Returns a query response:
 PFT:version:<VERSION_MAJOR>.<VERSION_MINOR>.<VERSION_PATCH>:compression:<COMPRESSION_ALGO>(,<COMPRESSION_PARAMS>)
 ```
 
-| Value              | Description                                                                                                                                   |
-| ------------------ | --------------------------------------------------------------------------------------------------------------------------------------------- |
-| VERSION_MAJOR      | The major version number of the client Marlin BFT protocol, e.g., `0`.                                                                        |
-| VERSION_MINOR      | The minor version number of the client Marlin BFT protocol, e.g., `1`.                                                                        |
-| VERSION_PATCH      | The patch version number of the client Marlin BFT protocol, e.g., `0`.                                                                        |
-| COMPRESSION_ALGO   | Compression algorithm. Currently either `heatshrink` or `none`                                                                                |
+| Value | Description |
+| --- | --- |
+| VERSION_MAJOR | The major version number of the client Marlin BFT protocol, e.g., `0`. |
+| VERSION_MINOR | The minor version number of the client Marlin BFT protocol, e.g., `1`. |
+| VERSION_PATCH | The patch version number of the client Marlin BFT protocol, e.g., `0`. |
+| COMPRESSION_ALGO | Compression algorithm. Currently either `heatshrink` or `none` |
 | COMPRESSION_PARAMS | Compression parameters, separated by commas. Currently, if `COMPRESSION_AGLO` is heatshrink, this will be the window size and lookahead size. |
 
 Example response:
@@ -197,12 +197,12 @@ Payload:
 +-------------------------------+-------------------------------+
 ```
 
-| Field           | Width   | Description                                                                                                                                                                                             |
-| --------------- | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Dummy           | 8 bits  | A boolean value indicating if this file transfer should be actually carried out or not. If `1`, the client will respond as if the file is opened and accept data transfer, but no data will be written. |
-| Compression     | 8 bits  | A boolean value indicating if the data to be transferred will be compressed using the algorithm and parameters returned in the QUERY Packet.                                                            |
-| Filename        | ...     | A filename including a null terminator byte.                                                                                                                                                            |
-| Packet Checksum | 16 bits | 16-bit Fletchers checksum of the header and payload, including the Header Checksum, but excluding the Start Token.                                                                                      |
+| Field | Width | Description |
+| --- | --- | --- |
+| Dummy | 8 bits | A boolean value indicating if this file transfer should be actually carried out or not. If `1`, the client will respond as if the file is opened and accept data transfer, but no data will be written. |
+| Compression | 8 bits | A boolean value indicating if the data to be transferred will be compressed using the algorithm and parameters returned in the QUERY Packet. |
+| Filename | ... | A filename including a null terminator byte. |
+| Packet Checksum | 16 bits | 16-bit Fletchers checksum of the header and payload, including the Header Checksum, but excluding the Start Token. |
 
 Responses:
 
@@ -228,7 +228,7 @@ Responses:
 
 Writes payload data to the currently open file. If the file was opened with Compression set to 1, the data will be decompressed first. Payload Length must not exceed the buffer size returned by the SYNC Packet.
 
-Responses:
+Responses:\
 On success, an `ok<SYNC>` response will be sent. On error, an `ok<SYNC>` response will be followed by an error response:
 
 | Response      | Description                    |

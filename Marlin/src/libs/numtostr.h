@@ -59,6 +59,9 @@ const char* i16tostr3rj(const int16_t x);
 // Convert signed int to lj string with 123 format
 const char* i16tostr3left(const int16_t xx);
 
+// Convert unsigned int to string 1, 12, 123 format, capped at 999
+const char* utostr3(const uint16_t x);
+
 // Convert signed int to rj string with _123, -123, _-12, or __-1 format
 const char* i16tostr4signrj(const int16_t x);
 
@@ -134,6 +137,9 @@ const char* ftostr51rj(const float x);
 // Convert unsigned float to string with ____5.6 / ___45.6 / __345.6 / _2345.6 / 12345.6 format
 const char* ftostr61rj(const float x);
 
+// Convert usigned float to string with ____5.67, ___45.67, __345.67, _2345.67, 12345.67 format
+const char* ftostr7xrj(int32_t intVal, uint32_t decimal);
+
 // Convert unsigned float to string with 1.23 format
 const char* ftostr32rj(const float f);
 
@@ -160,8 +166,33 @@ FORCE_INLINE const char* ftostr3rj(const float x) { return i16tostr3rj(int16_t(x
   FORCE_INLINE const char* ftostr4sign(const float x) { return i16tostr4signrj(int16_t(x + (x < 0 ? -0.5f : 0.5f))); }
 #endif
 
-// Convert unsigned int to string 1, 12, 123 format, capped at 999
-const char* utostr3(const uint16_t x);
-
 // Convert signed float to space-padded string with 1.23, 12.34, 123.45 format
 const char* ftostr52sprj(const float f);
+
+// Reduce a formatted number to its shortest form, e.g., "+000.10" => "0.1"
+const char* shortenNum(const char * convptr, const bool removeWhole0=false, const bool removeUnit=true);
+
+// Buffer size for ftostrf
+#define FTOSTRF_BUFSIZE 20
+
+/**
+ * Format a float into the caller's buffer, as dtostrf does, but without avr-libc's float
+ * formatter (dtoa_prf, __ftoa_engine, __fp_*) that dtostrf links in on AVR (about 1.5 KB).
+ *
+ *   str    Output buffer of FTOSTRF_BUFSIZE characters.
+ *   width  Minimum field width, right-justified, or left-justified if negative. At most 19.
+ *   prec   Digits after the decimal point, at most 6.
+ *
+ * The integer part is exact (up to 4294967039) and only the fraction is scaled by 10^prec
+ * and rounded half up. The result can differ from a libc that rounds the exact binary
+ * value only when the fraction is within a float ulp of a rounding tie. Values of
+ * 4294967040 or more give "ovf" (also infinity), and NaN gives "nan".
+ */
+char * ftostrf(char * const str, float value, const int8_t width, uint8_t prec);
+
+// Format a w_float_t. AVR uses ftostrf, other platforms keep dtostrf.
+#ifdef __AVR__
+  #define w_float_to_str(WF, BUF) ftostrf(BUF, (WF).value, (WF).width, (WF).prec)
+#else
+  #define w_float_to_str(WF, BUF) dtostrf((WF).value, (WF).width, (WF).prec, BUF)
+#endif

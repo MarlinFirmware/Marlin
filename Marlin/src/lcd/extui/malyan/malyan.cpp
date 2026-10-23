@@ -65,7 +65,7 @@
 // This is based on longest sys command + a filename, plus some buffer
 // in case we encounter some data we don't recognize
 // There is no evidence a line will ever be this long, but better safe than sorry
-#define MAX_CURLY_COMMAND (32 + LONG_FILENAME_LENGTH) * 2
+#define MAX_CURLY_COMMAND (32 + LONG_FILENAME_BYTES) * 2
 
 // Track incoming command bytes from the LCD
 uint16_t inbound_count;
@@ -128,8 +128,8 @@ void process_lcd_c_command(const char *command) {
   switch (command[0]) {
     case 'C': // Cope with both V1 early rev and later LCDs.
     case 'S':
-      feedrate_percentage = target_val * 10;
-      LIMIT(feedrate_percentage, SPEED_EDIT_MIN, SPEED_EDIT_MAX);
+      motion.feedrate_percentage = target_val * 10;
+      LIMIT(motion.feedrate_percentage, SPEED_EDIT_MIN, SPEED_EDIT_MAX);
       break;
 
     case 'T':

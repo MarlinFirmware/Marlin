@@ -475,10 +475,10 @@ uint8_t UHS_NI UHS_Bulk_Storage::Start() {
                 if(!rcode) {
                         if(!UHS_SLEEP_MS(3)) goto FailUnPlug;
                         BS_HOST_DEBUG("CheckLUN...\r\n");
-                        BS_HOST_DEBUG("%lu\r\n", millis()/1000);
+                        BS_HOST_DEBUG("%" PRIu32 "\r\n", millis()/1000);
                         // Stalls on ***some*** devices, ***WHY***?! Device SAID it is READY!!
                         LUNOk[lun] = CheckLUN(lun);
-                        BS_HOST_DEBUG("%lu\r\n", millis()/1000);
+                        BS_HOST_DEBUG("%" PRIu32 "\r\n", millis()/1000);
                         if(!LUNOk[lun]) LUNOk[lun] = CheckLUN(lun);
                         if(!UHS_SLEEP_MS(1)) goto FailUnPlug;
                         BS_HOST_DEBUG("Checked LUN...\r\n");

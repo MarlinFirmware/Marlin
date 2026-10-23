@@ -37,16 +37,16 @@
   #include "ft_motion/trajectory_poly5.h"
   #include "ft_motion/trajectory_poly6.h"
 #endif
-#if ENABLED(FTM_RESONANCE_TEST)
-  #include "ft_motion/resonance_generator.h"
-  #include "../gcode/gcode.h" // for home_all_axes
-#endif
 
 #include "stepper.h" // Access stepper block queue function and abort status.
 #include "endstops.h"
 
 #if ENABLED(POWER_LOSS_RECOVERY)
   #include "../feature/powerloss.h"
+#endif
+
+#if HAS_FILAMENT_RUNOUT_DISTANCE
+  #include "../feature/runout.h"
 #endif
 
 FTMotion ftMotion;
@@ -70,23 +70,28 @@ AxisBits FTMotion::moving_axis_flags,           // These axes are moving in the 
 
 // Block data variables.
 xyze_pos_t   FTMotion::startPos,                    // (mm) Start position of block
-             FTMotion::endPos_prevBlock = { 0.0f }; // (mm) End position of previous block
+             FTMotion::endPos_prevBlock = { 0.0f }, // (mm) End position of previous block
+             FTMotion::last_target_traj = { 0.0f }; // (mm) Last target position after shaping and smoothing
 xyze_float_t FTMotion::ratio;                       // (ratio) Axis move ratio of block
 float FTMotion::tau = 0.0f;                         // (s) Time since start of block
 bool FTMotion::fastForwardUntilMotion = false;      // Fast forward time if there is no motion
+#if HAS_FTM_DIR_CHANGE_HOLD
+  xyze_uint_t FTMotion::hold_frames;                // Briefly hold motion after direction changes to fix TMC2208 bug
+  AxisBits FTMotion::last_traj_dir;                 // Direction of the last trajectory point after shaping, smoothing, ...
+#endif
 
 // Trajectory generators
 TrapezoidalTrajectoryGenerator FTMotion::trapezoidalGenerator;
 #if ENABLED(FTM_POLYS)
-  TrajectoryType FTMotion::trajectoryType = TrajectoryType::FTM_TRAJECTORY_TYPE;
   Poly5TrajectoryGenerator FTMotion::poly5Generator;
   Poly6TrajectoryGenerator FTMotion::poly6Generator;
-  TrajectoryGenerator* FTMotion::currentGenerator = &FTMotion::trapezoidalGenerator;
 #endif
-
-// Resonance Test
-#if ENABLED(FTM_RESONANCE_TEST)
-  ResonanceGenerator FTMotion::rtg; // Resonance trajectory generator instance
+#if ENABLED(FTM_CONSTANT_JOLT)
+  ConstantJoltTrajectoryGenerator FTMotion::cjGenerator;
+#endif
+#if HAS_FTM_TRAJECTORY_SELECTION
+  TrajectoryType FTMotion::trajectoryType = TrajectoryType::FTM_TRAJECTORY_TYPE;
+  TrajectoryGenerator* FTMotion::currentGenerator = &FTMotion::trapezoidalGenerator;
 #endif
 
 #if FTM_HAS_LIN_ADVANCE
@@ -162,9 +167,9 @@ void FTMotion::loop() {
    * 4. Signal ready for new block.
    */
 
-  const bool using_resonance = TERN(FTM_RESONANCE_TEST, rtg.isActive(), false);
+  const bool using_resonance = TERN0(RESONANCE_TEST, rtg.isActive());
 
-  #if ENABLED(FTM_RESONANCE_TEST)
+  #if ENABLED(RESONANCE_TEST)
     if (using_resonance) {
       // Resonance Test has priority over normal ft_motion operation.
       // Process resonance test if active. When it's done, generate the last data points for a clean ending.
@@ -244,7 +249,11 @@ void FTMotion::reset() {
   TERN_(DISTINCT_E_FACTORS, block_extruder_axis = E_AXIS);
 
   moving_axis_flags.reset();
-
+  last_target_traj.reset();
+  #if HAS_FTM_DIR_CHANGE_HOLD
+    last_traj_dir.reset();
+    hold_frames.reset();
+  #endif
   if (did_suspend) stepper.wake_up();
 }
 
@@ -254,6 +263,7 @@ void FTMotion::discard_planner_block_protected() {
   if (stepper.current_block) {  // Safeguard in case current_block must not be null (it will
                                 // be null when the "block" is a runout or generated) in order
                                 // to use planner.release_current_block().
+    TERN_(HAS_FILAMENT_RUNOUT_DISTANCE, runout.block_completed(stepper.current_block));
     stepper.current_block = nullptr;
     planner.release_current_block();  // FTM uses release_current_block() instead of discard_current_block(),
                                       // as in block_phase_isr(). This change is to avoid invoking axis_did_move.reset().
@@ -297,11 +307,11 @@ void FTMotion::plan_runout_block() {
 void FTMotion::init() {
   update_shaping_params();
   TERN_(FTM_SMOOTHING, update_smoothing_params());
-  TERN_(FTM_POLYS, setTrajectoryType(cfg.trajectory_type));
+  TERN_(HAS_FTM_TRAJECTORY_SELECTION, setTrajectoryType(cfg.trajectory_type));
   reset(); // Precautionary.
 }
 
-#if ENABLED(FTM_POLYS)
+#if HAS_FTM_TRAJECTORY_SELECTION
 
   // Set trajectory generator type
   void FTMotion::setTrajectoryType(const TrajectoryType type) {
@@ -309,19 +319,32 @@ void FTMotion::init() {
     switch (type) {
       default:
       case TrajectoryType::TRAPEZOIDAL: currentGenerator = &trapezoidalGenerator; break;
-      case TrajectoryType::POLY5:       currentGenerator = &poly5Generator;       break;
-      case TrajectoryType::POLY6:       currentGenerator = &poly6Generator;       break;
+      #if ENABLED(FTM_POLYS)
+        case TrajectoryType::POLY5:     currentGenerator = &poly5Generator;       break;
+        case TrajectoryType::POLY6:     currentGenerator = &poly6Generator;       break;
+      #endif
+      #if ENABLED(FTM_CONSTANT_JOLT)
+        case TrajectoryType::CONSTANT_JOLT:
+          cjGenerator.setJoltPtr(&cfg.jolt);
+          currentGenerator = &cjGenerator;
+          break;
+      #endif
     }
   }
 
   // Update trajectory generator type from G-code or UI
   bool FTMotion::updateTrajectoryType(const TrajectoryType type) {
-    if (type == trajectoryType) return false;
+    if (type == trajectoryType) return true;  // Already selected — valid, no-op
     switch (type) {
       default: return false;
       case TrajectoryType::TRAPEZOIDAL:
-      case TrajectoryType::POLY5:
-      case TrajectoryType::POLY6:
+      #if ENABLED(FTM_POLYS)
+        case TrajectoryType::POLY5:
+        case TrajectoryType::POLY6:
+      #endif
+      #if ENABLED(FTM_CONSTANT_JOLT)
+        case TrajectoryType::CONSTANT_JOLT:
+      #endif
         break;
     }
     prep_for_shaper_change();
@@ -329,14 +352,19 @@ void FTMotion::init() {
     return true;
   }
 
-#endif // FTM_POLYS
+#endif // HAS_FTM_TRAJECTORY_SELECTION
 
 FSTR_P FTMotion::getTrajectoryName() {
   switch (getTrajectoryType()) {
     default:
     case TrajectoryType::TRAPEZOIDAL: return GET_TEXT_F(MSG_FTM_TRAPEZOIDAL);
-    case TrajectoryType::POLY5:       return GET_TEXT_F(MSG_FTM_POLY5);
-    case TrajectoryType::POLY6:       return GET_TEXT_F(MSG_FTM_POLY6);
+    #if ENABLED(FTM_POLYS)
+      case TrajectoryType::POLY5:     return GET_TEXT_F(MSG_FTM_POLY5);
+      case TrajectoryType::POLY6:     return GET_TEXT_F(MSG_FTM_POLY6);
+    #endif
+    #if ENABLED(FTM_CONSTANT_JOLT)
+      case TrajectoryType::CONSTANT_JOLT: return GET_TEXT_F(MSG_FTM_CONSTANT_JOLT);
+    #endif
   }
 }
 
@@ -344,10 +372,10 @@ FSTR_P FTMotion::getTrajectoryName() {
 // Called from FTMotion::loop() at the fetch of the next planner block.
 // Return whether a plan is available.
 bool FTMotion::plan_next_block() {
-  while (true) {
+  for (;;) {
 
     const bool had_block = !!stepper.current_block;
-    discard_planner_block_protected();                                  // Always clears stepper.current_block...
+    discard_planner_block_protected();                            // Always clears stepper.current_block...
     block_t * const current_block = planner.get_current_block();  // ...so get the current block from the queue
 
     // The planner had a block and there was not another one?
@@ -371,23 +399,19 @@ bool FTMotion::plan_next_block() {
       if (current_block->is_sync_pos()) stepper._set_position(current_block->position);
       continue;
     }
-    ensure_float_precision();
+
+    // Keep extruder position within float precision
+    ensure_extruder_float_precision();
 
     #if ENABLED(POWER_LOSS_RECOVERY)
       recovery.info.sdpos = current_block->sdpos;
       recovery.info.current_position = current_block->start_position;
     #endif
 
-    // Some kinematics track axis motion in HX, HY, HZ
-    #if ANY(CORE_IS_XY, CORE_IS_XZ, MARKFORGED_XY, MARKFORGED_YX)
-      stepper.last_direction_bits.hx = current_block->direction_bits.hx;
-    #endif
-    #if ANY(CORE_IS_XY, CORE_IS_YZ, MARKFORGED_XY, MARKFORGED_YX)
-      stepper.last_direction_bits.hy = current_block->direction_bits.hy;
-    #endif
-    #if ANY(CORE_IS_XZ, CORE_IS_YZ)
-      stepper.last_direction_bits.hz = current_block->direction_bits.hz;
-    #endif
+    // Some kinematics track axis motion in RX, RY, RZ
+    TERN_(HAS_REAL_X, stepper.last_direction_bits.rx = current_block->direction_bits.rx);
+    TERN_(HAS_REAL_Y, stepper.last_direction_bits.ry = current_block->direction_bits.ry);
+    TERN_(HAS_REAL_Z, stepper.last_direction_bits.rz = current_block->direction_bits.rz);
 
     // Cache the extruder index / axis for this block
     #if ANY(HAS_MULTI_EXTRUDER, MIXING_EXTRUDER)
@@ -400,20 +424,25 @@ bool FTMotion::plan_next_block() {
     const float totalLength = current_block->millimeters;
 
     startPos = endPos_prevBlock;
-    const xyze_pos_t& moveDist = current_block->dist_mm;
+    const ext_distance_t &moveDist = current_block->ext_distance_mm;
     ratio = moveDist / totalLength;
 
-    // Plan the trajectory using the trajectory generator
-    currentGenerator->plan(current_block->entry_speed, current_block->exit_speed, current_block->acceleration, current_block->nominal_speed, totalLength);
-
+    currentGenerator->plan(current_block->entry_speed, current_block->exit_speed,
+                           current_block->acceleration, current_block->nominal_speed, totalLength);
     endPos_prevBlock += moveDist;
 
     TERN_(FTM_HAS_LIN_ADVANCE, use_advance_lead = current_block->use_advance_lead);
 
     axis_move_dir = current_block->direction_bits;
-    #define _SET_MOVE_END(A) moving_axis_flags.A = moveDist.A ? true : false;
 
+    // Set moving flags for axes that have movement in this block
+    // For CORE kinematics: moveDist.x/.y/.z contain motor distances (a/b/c)
+    // HEAD movement flags need to be inferred: if either motor moves, the head moves
+    #define _SET_MOVE_END(A) moving_axis_flags.A = bool(moveDist.A);
     LOGICAL_AXIS_MAP(_SET_MOVE_END);
+    TERN_(HAS_REAL_X, moving_axis_flags.rx = bool(moveDist.real.x));
+    TERN_(HAS_REAL_Y, moving_axis_flags.ry = bool(moveDist.real.y));
+    TERN_(HAS_REAL_Z, moving_axis_flags.rz = bool(moveDist.real.z));
 
     // If the endstop is already pressed, endstop interrupts won't invoke
     // endstop_triggered and the move will grind. So check here for a
@@ -421,7 +450,7 @@ bool FTMotion::plan_next_block() {
     endstops.update();
 
     return true;
-  }
+  } // infinite loop
 }
 
 #if HAS_EXTRUDERS
@@ -432,7 +461,7 @@ bool FTMotion::plan_next_block() {
    * resolution = 2^(floor(log2(|x|)) - 23)
    * By resetting at ±1'000mm (1 meter), we get a minimum resolution of ~ 0.00006mm, enough for smoothing to work well.
    */
-  void FTMotion::ensure_float_precision() {
+  void FTMotion::ensure_extruder_float_precision() {
     constexpr float FTM_POSITION_WRAP_THRESHOLD = 1000; // (mm) Reset when position exceeds this to prevent floating point precision loss
     if (ABS(endPos_prevBlock.E) < FTM_POSITION_WRAP_THRESHOLD) return;
 
@@ -453,6 +482,9 @@ bool FTMotion::plan_next_block() {
     // Offset linear advance previous position
     prev_traj_e += offset;
 
+    // Make sure the difference is accounted-for in the past
+    last_target_traj.e += offset;
+
     // Offset stepper current position
     const int64_t delta_steps_q48_16 = offset * planner.settings.axis_steps_per_mm[block_extruder_axis] * (1ULL << 16);
     stepping.curr_steps_q48_16.E += delta_steps_q48_16;
@@ -466,21 +498,38 @@ xyze_float_t FTMotion::calc_traj_point(const float dist) {
   LOGICAL_AXIS_MAP_LC(_SET_TRAJ);
 
   #if FTM_HAS_LIN_ADVANCE
-    const float advK = planner.get_advance_k();
-    if (advK) {
-      const float traj_e = traj_coords.e;
-      if (use_advance_lead) {
-        // Don't apply LA to retract/unretract blocks
-        const float e_rate = (traj_e - prev_traj_e) * (FTM_FS);
-        traj_coords.e += e_rate * advK;
-      }
-      prev_traj_e = traj_e;
+    float traj_e = traj_coords.e;
+
+    // Apply LA/NLE only to printing (not retract/unretract) blocks
+    if (use_advance_lead) {
+      const float traj_e_delta = traj_e - prev_traj_e; // Extruder delta in mm, always positive for use_advance_lead (printing moves)
+      const float e_rate = traj_e_delta * (FTM_FS);    // Extruder velocity in mm/s
+
+      traj_coords.e += e_rate * planner.get_advance_k();
+
+      #if ENABLED(NONLINEAR_EXTRUSION)
+        if (stepper.nle.settings.enabled) {
+          const NonlinearCoeff &coeff = stepper.nle.settings.coeff;
+          const float multiplier = max(coeff.C, coeff.A * sq(e_rate) + coeff.B * e_rate + coeff.C),
+                      nle_term = traj_e_delta * (multiplier - 1);
+
+          traj_coords.e += nle_term;
+          traj_e += nle_term;
+          startPos.e += nle_term;
+          endPos_prevBlock.e += nle_term;
+        }
+      #endif
     }
-  #endif
+
+    prev_traj_e = traj_e;
+
+  #endif // FTM_HAS_LIN_ADVANCE
 
   // Update shaping parameters if needed.
   switch (cfg.dynFreqMode) {
+
     #if HAS_DYNAMIC_FREQ_MM
+
       case dynFreqMode_Z_BASED: {
         static float oldz = 0.0f;
         const float z = traj_coords.z;
@@ -497,9 +546,11 @@ xyze_float_t FTMotion::calc_traj_point(const float dist) {
           shaping.refresh_largest_delay_samples();
         }
       } break;
+
     #endif
 
     #if HAS_DYNAMIC_FREQ_G
+
       case dynFreqMode_MASS_BASED:
         // Update constantly. The optimization done for Z value makes
         // less sense for E, as E is expected to constantly change.
@@ -511,6 +562,7 @@ xyze_float_t FTMotion::calc_traj_point(const float dist) {
         #endif
         shaping.refresh_largest_delay_samples();
         break;
+
     #endif
 
     default: break;
@@ -524,13 +576,14 @@ xyze_float_t FTMotion::calc_traj_point(const float dist) {
 
     // Approximate Gaussian smoothing via chained EMAs
     auto _smoothen = [&](const AxisEnum axis, axis_smoothing_t &smoo) {
-      if (smoo.alpha <= 0.0f) return;
-      float smooth_val = traj_coords[axis];
-      for (uint8_t _i = 0; _i < FTM_SMOOTHING_ORDER; ++_i) {
-        smoo.smoothing_pass[_i] += (smooth_val - smoo.smoothing_pass[_i]) * smoo.alpha;
-        smooth_val = smoo.smoothing_pass[_i];
+      if (smoo.alpha != 1.0f) {
+        float smooth_val = traj_coords[axis];
+        for (uint8_t _i = 0; _i < FTM_SMOOTHING_ORDER; ++_i) {
+          smoo.smoothing_pass[_i] += (smooth_val - smoo.smoothing_pass[_i]) * smoo.alpha;
+          smooth_val = smoo.smoothing_pass[_i];
+        }
+        traj_coords[axis] = smooth_val;
       }
-      traj_coords[axis] = smooth_val;
     };
 
     #define _SMOOTHEN(A) _smoothen(_AXIS(A), smoothing.A);
@@ -575,6 +628,38 @@ xyze_float_t FTMotion::calc_traj_point(const float dist) {
   return traj_coords;
 }
 
+#if HAS_FTM_DIR_CHANGE_HOLD
+
+  // When a flip is detected (and the axis is in stealthChop or is standalone),
+  // hold that axis' trajectory coordinate constant for at least 750µs.
+  xyze_float_t FTMotion::ftm_hold_frames(xyze_float_t hold_coords) {
+    #define DIR_FLIP_HOLD_S 0.000'750f
+    static constexpr uint32_t dir_flip_hold_frames = 1 + (DIR_FLIP_HOLD_S) / (FTM_TS);
+
+    auto start_hold_if_dir_flip = [&](const AxisEnum a) {
+      const bool dir = hold_coords[a] > last_target_traj[a],
+                 moved = hold_coords[a] != last_target_traj[a],
+                 flipped = moved && (dir != last_traj_dir[a]),
+                 hold = !moved || (flipped && hold_frames[a] > 0);
+      if (hold) {
+        if (hold_frames[a]) hold_frames[a]--;
+        hold_coords[a] = last_target_traj[a];
+      }
+      else {
+        last_traj_dir[a] = dir;
+        hold_frames[a] = dir_flip_hold_frames;
+      }
+    };
+
+    #define START_HOLD_IF_DIR_FLIP(A) TERN_(FTM_DIR_CHANGE_HOLD_##A, start_hold_if_dir_flip(_AXIS(A)));
+    LOGICAL_AXIS_MAP(START_HOLD_IF_DIR_FLIP);
+
+    last_target_traj = hold_coords;
+    return hold_coords;
+  }
+
+#endif // HAS_FTM_DIR_CHANGE_HOLD
+
 /**
  * Generate stepper data of the trajectory.
  * Called from FTMotion::loop()
@@ -584,7 +669,7 @@ void FTMotion::fill_stepper_plan_buffer() {
     float total_duration = currentGenerator->getTotalDuration(); // If the current plan is empty, it will have zero duration.
     while (tau + FTM_TS > total_duration) {
       /**
-       * We’ve reached the end of the current block.
+       * We've reached the end of the current block.
        *
        * `tau` is the time that has elapsed inside this block. After a block is finished, the next one may
        * start at any point between *just before* the last sampled time (one step earlier, i.e. `-FTM_TS`)
@@ -593,7 +678,7 @@ void FTMotion::fill_stepper_plan_buffer() {
        *
        * To account for that uncertainty we simply subtract the duration of the finished block from `tau`.
        * This brings us back to a time value that is valid for the next block, while still allowing the next
-       * block’s start to be offset by up to one time step into the past.
+       * block's start to be offset by up to one time step into the past.
        */
       tau -= total_duration;
       const bool plan_available = plan_next_block();
@@ -604,38 +689,22 @@ void FTMotion::fill_stepper_plan_buffer() {
 
     // Get distance from trajectory generator
     xyze_float_t traj_coords = calc_traj_point(currentGenerator->getDistanceAtTime(tau));
-    if (fastForwardUntilMotion && traj_coords == startPos) {
+    if (fastForwardUntilMotion && traj_coords == last_target_traj) {
       // Axis synchronization delays all axes. When coming from a reset, there is a ramp up time filling all buffers.
       // If the slowest axis doesn't move and it isn't smoothened, this time can be skipped.
       // It eliminates idle time when changing smoothing time or shapers and speeds up homing and bed leveling.
     }
     else {
+
+      TERN_(HAS_FTM_DIR_CHANGE_HOLD, traj_coords = ftm_hold_frames(traj_coords));
+
       fastForwardUntilMotion = false;
+
       // Calculate and store stepper plan in buffer
       stepping_enqueue(traj_coords);
     }
+    last_target_traj = traj_coords;
   }
 }
-
-#if ENABLED(FTM_RESONANCE_TEST)
-
-  // Start Resonance Testing
-  void FTMotion::start_resonance_test() {
-    home_if_needed(); // Ensure known axes first
-
-    ftm_resonance_test_params_t &p = rtg.rt_params;
-
-    // Safe Acceleration per Hz for Z axis
-    if (p.axis == Z_AXIS && p.accel_per_hz > 15.0f)
-      p.accel_per_hz = 15.0f;
-
-    // Always move to the center of the bed
-    do_blocking_move_to_xy(X_CENTER, Y_CENTER, Z_CLEARANCE_FOR_HOMING);
-
-    // Start test at the current position with the configured time-step
-    rtg.start(current_position, FTM_TS);
-  }
-
-#endif // FTM_RESONANCE_TEST
 
 #endif // FT_MOTION

@@ -198,14 +198,14 @@ namespace MMU3 {
 
   uint16_t PrusaErrorCode(const uint8_t i) { return pgm_read_word(errorCodes + i); }
 
-  FSTR_P const PrusaErrorTitle(const uint8_t i) { return (FSTR_P const)pgm_read_ptr(errorTitles + i); }
-  FSTR_P const PrusaErrorDesc(const uint8_t i) { return (FSTR_P const)pgm_read_ptr(errorDescs + i); }
+  FSTR_P const PrusaErrorTitle(const uint8_t i) { return (FSTR_P const)pgm_read_ptr(&errorTitles[i]); }
+  FSTR_P const PrusaErrorDesc(const uint8_t i) { return (FSTR_P const)pgm_read_ptr(&errorDescs[i]); }
 
-  uint8_t PrusaErrorButtons(const uint8_t i) { return pgm_read_byte(errorButtons + i); }
+  uint8_t PrusaErrorButtons(const uint8_t i) { return pgm_read_byte(&errorButtons[i]); }
 
   FSTR_P const PrusaErrorButtonTitle(const uint8_t bi) {
     // -1 represents the hidden NoOperation button which is not drawn in any way
-    return (FSTR_P const)pgm_read_ptr(btnOperation + bi - 1);
+    return (FSTR_P const)pgm_read_ptr(&btnOperation[bi - 1]);
   }
 
   Buttons ButtonPressed(const ErrorCode ec) {

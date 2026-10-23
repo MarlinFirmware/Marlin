@@ -21,8 +21,8 @@
  */
 #pragma once
 
-#if HAS_SPI_TFT || HAS_FSMC_TFT
-  #error "Sorry! TFT displays are not available for HAL/ESP32."
+#if HAS_FSMC_TFT
+  #error "Sorry! FSMC TFT displays are not available for HAL/ESP32."
 #endif
 
 #if ENABLED(EMERGENCY_PARSER)
@@ -40,10 +40,6 @@
   #error "TMC220x Software Serial is not supported on ESP32."
 #endif
 
-#if ALL(WIFISUPPORT, ESP3D_WIFISUPPORT)
-  #error "Only enable one WiFi option, either WIFISUPPORT or ESP3D_WIFISUPPORT."
-#endif
-
 #if ENABLED(POSTMORTEM_DEBUGGING)
   #error "POSTMORTEM_DEBUGGING is not yet supported on ESP32."
 #endif
@@ -57,7 +53,7 @@
 #endif
 
 #if ALL(I2S_STEPPER_STREAM, LIN_ADVANCE) && DISABLED(EXPERIMENTAL_I2S_LA)
-  #error "I2S stream is currently incompatible with LIN_ADVANCE."
+  #error "I2S stream is currently incompatible with LIN_ADVANCE. Enable EXPERIMENTAL_I2S_LA to proceed anyway."
 #endif
 
 #if ALL(I2S_STEPPER_STREAM, PRINTCOUNTER) && PRINTCOUNTER_SAVE_INTERVAL > 0 && DISABLED(PRINTCOUNTER_SYNC)

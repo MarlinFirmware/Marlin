@@ -27,16 +27,24 @@
 #include "shaping.h"
 
 // Refresh the gains used by shaping functions.
+// NOTE: External tools (e.g., dbuezas/usb-Input-shaper-calibrator) mirror the shaper
+//       formulas in set_axis_shaping_A and set_axis_shaping_N. Coordinate any changes.
 void AxisShaping::set_axis_shaping_A(
   const ftMotionShaper_t shaper,
   const float zeta
   OPTARG(HAS_FTM_EI_SHAPING, const float vtol)
 ) {
 
-  const float K = exp(-zeta * M_PI / sqrt(1.f - sq(zeta))),
-              K2 = sq(K),
-              K3 = K2 * K,
-              K4 = K3 * K;
+  const float K = exp(-zeta * M_PI / sqrt(1.f - sq(zeta)));
+  #if ANY(FTM_SHAPER_ZVD, FTM_SHAPER_ZVDD, FTM_SHAPER_ZVDDD, FTM_SHAPER_EI, FTM_SHAPER_2HEI, FTM_SHAPER_3HEI)
+    const float K2 = sq(K);
+  #endif
+  #if ANY(FTM_SHAPER_ZVDD, FTM_SHAPER_ZVDDD, FTM_SHAPER_2HEI, FTM_SHAPER_3HEI)
+    const float K3 = K2 * K;
+  #endif
+  #if ANY(FTM_SHAPER_ZVDDD, FTM_SHAPER_3HEI)
+    const float K4 = K3 * K;
+  #endif
 
   switch (shaper) {
 
@@ -93,7 +101,8 @@ void AxisShaping::set_axis_shaping_A(
     #if ENABLED(FTM_SHAPER_2HEI)
       case ftMotionShaper_2HEI: {
         max_i = 3U;
-        const float vtolx2 = sq(vtol);
+        // vtol == 0 makes X == 0 and Ai[0] = 0/0 (NaN), so enforce a small minimum.
+        const float vtolx2 = sq(_MAX(vtol, 0.001f));
         const float X = POW(vtolx2 * (sqrt(1.0f - vtolx2) + 1.0f), 1.0f / 3.0f);
         Ai[0] = (3.0f * sq(X) + 2.0f * X + 3.0f * vtolx2) / (16.0f * X);
         Ai[1] = (0.5f - Ai[0]) * K;
@@ -122,10 +131,14 @@ void AxisShaping::set_axis_shaping_A(
     #if ENABLED(FTM_SHAPER_MZV)
       case ftMotionShaper_MZV: {
         max_i = 2U;
-        const float Bx = 1.4142135623730950488016887242097f * K;
-        Ai[0] = 1.0f / (1.0f + Bx + K2);
+        // Impulses are 0.375 periods apart (0.75 over the shaper), so the per-impulse
+        // damping factor is exp(-0.75 * zeta * PI / df) == K^0.75, as in Klipper's
+        // get_mzv_shaper (K = exp(-2t * zeta * PI / ((n-1) * df)), t = 0.75, n = 3).
+        const float Km = POW(K, 0.75f), Km2 = sq(Km);
+        const float Bx = 1.4142135623730950488016887242097f * Km;
+        Ai[0] = 1.0f / (1.0f + Bx + Km2);
         Ai[1] = Ai[0] * Bx;
-        Ai[2] = Ai[0] * K2;
+        Ai[2] = Ai[0] * Km2;
       }
       break;
     #endif

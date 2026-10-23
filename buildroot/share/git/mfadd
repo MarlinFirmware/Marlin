@@ -17,7 +17,12 @@ if [[ $1 =~ ":" || $1 =~ "/" ]]; then
   [[ $1 =~ ":" ]] && IFS=':' || IFS="/"
   read -a DATA <<< "$1"
   USER=${DATA[0]}
-  BRANCH=${DATA[1]}
+  if [[ ${#DATA[@]} > 2 ]]; then
+    REPO=${DATA[1]}
+    BRANCH=${DATA[2]}
+  else
+    BRANCH=${DATA[1]}
+  fi
   NAME=${2:-$BRANCH}
 else
   USER=$1
@@ -25,7 +30,7 @@ fi
 
 MFINFO=$(mfinfo) || exit 1
 IFS=' ' read -a INFO <<< "$MFINFO"
-REPO=${INFO[2]}
+[[ -z $REPO ]] && REPO=${INFO[2]}
 
 set -e
 
@@ -33,4 +38,4 @@ echo "Adding and fetching $USER/$REPO..."
 git remote add "$USER" "git@github.com:$USER/$REPO.git" >/dev/null 2>&1 || echo "Remote exists."
 git fetch "$USER"
 
-[[ ! -z "$BRANCH" && ! -z "$NAME" ]] && git checkout -b "$NAME" --track "$USER/$BRANCH"
+[[ -n $BRANCH && -n $NAME ]] && git checkout -b "$NAME" --track "$USER/$BRANCH"

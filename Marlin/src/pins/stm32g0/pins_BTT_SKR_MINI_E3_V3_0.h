@@ -35,8 +35,7 @@
 //#define BOGUS_TEMPERATURE_GRACE_PERIOD    2000
 
 // Onboard I2C EEPROM
-#if ANY(NO_EEPROM_SELECTED, I2C_EEPROM)
-  #undef NO_EEPROM_SELECTED
+#if SHALL_USE_EEPROM(I2C_EEPROM)
   #define I2C_EEPROM
   #define SOFT_I2C_EEPROM                         // Force the use of Software I2C
   #define I2C_SCL_PIN                       PB6
@@ -44,7 +43,7 @@
   #define MARLIN_EEPROM_SIZE             0x1000U  // 4K
 #endif
 
-#define BOARD_LCD_SERIAL_PORT 1
+#define BOARD_LCD_SERIAL_PORT               1
 
 #define LED_PIN                             PD8
 
@@ -453,8 +452,11 @@
 //
 // NeoPixel
 //
-#ifndef BOARD_NEOPIXEL_PIN
-  #define BOARD_NEOPIXEL_PIN                PA8   // LED driving pin
+#define BOARD_NEOPIXEL_PIN                  PA8   // LED driving pin
+#ifndef BOARD_HAS_DCDC5V
+  #define BOARD_NEOPIXEL_MAX                  7   // Max number of NEOPIXELS supported on this board
+#else
+  #define BOARD_NEOPIXEL_MAX                 29   // With 5V DC-DC converter
 #endif
 
 // Pins for documentation and sanity checks only.

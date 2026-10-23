@@ -22,10 +22,10 @@
 
 #include "../../fontdata.h"
 
-#if HAS_GRAPHICAL_TFT && TFT_FONT == UNIFONT
+#if HAS_GRAPHICAL_TFT && TFT_FONT == NOTOSANS
 
 // NotoSans_Medium 40pt, capital 'A' height: 29px, width: 100%, range: 0x0020-0x00ff
-extern const uint8_t NotoSans_Medium_29[25485] = {
+extern const uint8_t NotoSans_Medium_29[28813] = {
   130,29,32,0,255,0,38,246, // unifont_t
   // 0x0020 " "
   0,0,0,10,0,0,

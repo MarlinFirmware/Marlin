@@ -21,6 +21,6 @@
  */
 #pragma once
 
-#if ALL(HAS_MEDIA, USBD_USE_CDC_MSC)
-  #define HAS_SD_HOST_DRIVE 1
+#if ALL(HAS_MEDIA, USBD_USE_CDC_MSC) && DISABLED(NO_SD_HOST_DRIVE)
+  #define HAL_SD_HOST_DRIVE 1
 #endif

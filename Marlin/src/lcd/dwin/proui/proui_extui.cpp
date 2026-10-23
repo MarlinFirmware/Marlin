@@ -47,6 +47,10 @@
 
 #include "dwin_popup.h"
 
+#if HAS_MESH
+  #include "meshviewer.h"
+#endif
+
 #include "../../extui/ui_api.h"
 #include "../../../module/stepper.h"
 
@@ -62,13 +66,6 @@ namespace ExtUI {
 
   void onStartup() { dwinInitScreen(); }
 
-  void onIdle() {}
-  void onPrinterKilled(FSTR_P const error, FSTR_P const component) {}
-
-  void onMediaMounted() {}
-  void onMediaError()   {}
-  void onMediaRemoved() {}
-
   void onHeatingError(const heater_id_t heater_id) {
     dwinPopupTemperature(heater_id, 2); // "Heating failed"
   }
@@ -78,11 +75,6 @@ namespace ExtUI {
   void onMaxTempError(const heater_id_t heater_id) {
     dwinPopupTemperature(heater_id, 1); // "Too high"
   }
-
-  void onPlayTone(const uint16_t frequency, const uint16_t duration/*=0*/) {}
-  void onPrintTimerStarted() {}
-  void onPrintTimerPaused() {}
-  void onPrintTimerStopped() {}
 
   #if HAS_FILAMENT_SENSOR
     void onFilamentRunout(const extruder_t extruder) {
@@ -107,7 +99,7 @@ namespace ExtUI {
   void onStatusChanged(const char * const) { dwinCheckStatusMessage(); }
 
   #if ENABLED(ADVANCED_PAUSE_FEATURE)
-    void onPauseMode(const PauseMessage message, const PauseMode mode/*=PAUSE_MODE_SAME*/, const uint8_t extruder/*=active_extruder*/) {
+    void onPauseMode(const PauseMessage message, const PauseMode mode/*=PAUSE_MODE_SAME*/, const uint8_t extruder/*=motion.extruder*/) {
       if (mode != PAUSE_MODE_SAME) pause_mode = mode;
       switch (message) {
         case PAUSE_MESSAGE_PARKING:  dwinPopupPause(GET_TEXT_F(MSG_PAUSE_PRINT_PARKING)); break; // M125
@@ -130,8 +122,6 @@ namespace ExtUI {
   void onHomingStart() { dwinHomingStart(); }
   void onHomingDone() { dwinHomingDone(); }
 
-  void onPrintDone() {}
-
   void onFactoryReset() { dwinSetDataDefaults(); }
 
   // Copy settings to EEPROM buffer for write
@@ -140,26 +130,13 @@ namespace ExtUI {
   // Get settings from loaded EEPROM data
   void onLoadSettings(const char *buff) { dwinCopySettingsFrom(buff); }
 
-  void onPostprocessSettings() {
-    // Called after loading or resetting stored settings
-  }
-
-  void onSettingsStored(const bool success) {
-    // Called after the entire EEPROM has been written,
-    // whether successful or not.
-  }
-
-  void onSettingsLoaded(const bool success) {
-    // Called after the entire EEPROM has been read,
-    // whether successful or not.
-  }
-
   #if HAS_LEVELING
     void onLevelingStart() { dwinLevelingStart(); }
-    void onLevelingDone() { dwinLevelingDone(); }
-    #if ENABLED(PREHEAT_BEFORE_LEVELING)
-      celsius_t getLevelingBedTemp() { return hmiData.bedLevT; }
-    #endif
+    void onLevelingDone() {
+      #if ALL(HAS_MESH, HAS_BED_PROBE)
+        dwinLevelingDone();
+      #endif
+    }
   #endif
 
   #if HAS_MESH
@@ -167,10 +144,7 @@ namespace ExtUI {
       const int16_t idx = ypos * (GRID_MAX_POINTS_X) + xpos;
       dwinMeshUpdate(_MIN(idx, GRID_MAX_POINTS), int(GRID_MAX_POINTS), zval);
       dwinRedrawScreen();
-    }
-
-    void onMeshUpdate(const int8_t xpos, const int8_t ypos, const probe_state_t state) {
-      // Called to indicate a special condition
+      meshViewer.drawMeshPoint(xpos, ypos, zval);
     }
   #endif
 
@@ -179,12 +153,6 @@ namespace ExtUI {
   #endif
 
   #if ENABLED(POWER_LOSS_RECOVERY)
-    void onSetPowerLoss(const bool onoff) {
-      // Called when power-loss is enabled/disabled
-    }
-    void onPowerLoss() {
-      // Called when power-loss state is detected
-    }
     void onPowerLossResume() {
       // Called on resume from power-loss
       recovery.ui_flag_resume = true;
@@ -235,13 +203,9 @@ namespace ExtUI {
     void onFirmwareFlash() { dwinRebootScreen(); }
   #endif
 
-  void onSteppersDisabled() {}
-  void onSteppersEnabled() {}
   void onAxisDisabled(const axis_t axis) {
-    set_axis_untrusted((AxisEnum)axis); // MRISCOC workaround: https://github.com/MarlinFirmware/Marlin/issues/23095
+    motion.set_axis_untrusted((AxisEnum)axis); // MRISCOC workaround: https://github.com/MarlinFirmware/Marlin/issues/23095
   }
-  void onAxisEnabled(const axis_t) {}
-
 } // ExtUI
 
 #endif // DWIN_LCD_PROUI

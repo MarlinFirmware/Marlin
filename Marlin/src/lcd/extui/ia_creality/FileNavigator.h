@@ -52,7 +52,7 @@ class FileNavigator {
     static uint16_t maxFiles();
   private:
     static ExtUI::FileList filelist;
-    static char     currentDirPath[MAX_PATH_LEN];
+    static char     currentDirPath[MAX_PATH_LEN + 1];
     static uint16_t lastindex;
 };
 
