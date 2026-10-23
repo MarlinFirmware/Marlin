@@ -184,18 +184,19 @@ int MarlinHAL::freeMemory() { return ESP.getFreeHeap(); }
 
 #if ENABLED(USE_WATCHDOG)
 
-  #define WDT_TIMEOUT_US TERN(WATCHDOG_DURATION_8S, 8000000, 4000000) // 4 or 8 second timeout
+  #include <esp_task_wdt.h>
 
-  extern "C" {
-    esp_err_t esp_task_wdt_reset();
-  }
+  #define WDT_TIMEOUT_S TERN(WATCHDOG_DURATION_8S, 8, 4) // 4 or 8 second timeout
 
   void watchdogSetup() {
     // do whatever. don't remove this function.
   }
 
+  // The IDF Task Watchdog is already running for the idle task. Set the timeout,
+  // reset on timeout, and watch the Marlin loop task, which calls watchdog_refresh().
   void MarlinHAL::watchdog_init() {
-    // TODO
+    esp_task_wdt_init(WDT_TIMEOUT_S, true);
+    esp_task_wdt_add(nullptr);
   }
 
   // Reset watchdog.

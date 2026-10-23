@@ -205,6 +205,9 @@ static const feedRate_t _DMF[] PROGMEM = DEFAULT_MAX_FEEDRATE;
 #if ENABLED(EDITABLE_STEPS_PER_UNIT)
   static const float   _DASU[] PROGMEM = DEFAULT_AXIS_STEPS_PER_UNIT;
 #endif
+#if ENABLED(MPCTEMP)
+  static void reset_mpc(const uint8_t e);
+#endif
 
 /**
  * Current EEPROM Layout
@@ -498,6 +501,9 @@ typedef struct SettingsDataStruct {
   //
   per_stepper_uint16_t tmc_stepper_current;             // M906 X Y Z...
   per_stepper_uint32_t tmc_hybrid_threshold;            // M913 X Y Z...
+  #if ENABLED(HOMING_HYBRID_THRESHOLD)
+    homing_hybrid_thrs_t homing_hybrid_thrs;            // M913 H X Y Z...
+  #endif
   mot_stepper_int16_t tmc_sgt;                          // M914 X Y Z...
   per_stepper_bool_t tmc_stealth_enabled;               // M569 X Y Z...
 
@@ -692,7 +698,7 @@ typedef struct SettingsDataStruct {
   // Nonlinear Extrusion
   //
   #if ENABLED(NONLINEAR_EXTRUSION)
-    nonlinear_settings_t stepper_ne_settings;           // M592 S A B C
+    NonlinearSettings stepper_ne_settings;              // M592 S A B C
   #endif
 
   //
@@ -1527,6 +1533,14 @@ void MarlinSettings::postprocess() {
     }
 
     //
+    // TMC Homing Hybrid Threshold
+    //
+    #if ENABLED(HOMING_HYBRID_THRESHOLD)
+      _FIELD_TEST(homing_hybrid_thrs);
+      EEPROM_WRITE(homing_hybrid_thrs);
+    #endif
+
+    //
     // TMC StallGuard threshold
     //
     {
@@ -1892,7 +1906,9 @@ void MarlinSettings::postprocess() {
     const bool success = (eeprom_error == ERR_EEPROM_NOERR);
     if (success) {
       LCD_MESSAGE(MSG_SETTINGS_STORED);
-      TERN_(HOST_PROMPT_SUPPORT, hostui.notify(GET_TEXT_F(MSG_SETTINGS_STORED)));
+      #if ENABLED(HOST_PROMPT_SUPPORT) && DISABLED(HOST_STATUS_NOTIFICATIONS)
+        hostui.notify(GET_TEXT_F(MSG_SETTINGS_STORED));
+      #endif
     }
 
     TERN_(EXTENSIBLE_UI, ExtUI::onSettingsStored(success));
@@ -2629,6 +2645,18 @@ void MarlinSettings::postprocess() {
       }
 
       //
+      // TMC Homing Hybrid Threshold
+      //
+      #if ENABLED(HOMING_HYBRID_THRESHOLD)
+        {
+          homing_hybrid_thrs_t homing_hybrid_thrs_in;
+          _FIELD_TEST(homing_hybrid_thrs);
+          EEPROM_READ(homing_hybrid_thrs_in);
+          if (!validating) homing_hybrid_thrs = homing_hybrid_thrs_in;
+        }
+      #endif
+
+      //
       // TMC StallGuard threshold.
       //
       {
@@ -2937,7 +2965,18 @@ void MarlinSettings::postprocess() {
       // Model predictive control
       //
       #if ENABLED(MPCTEMP)
-        HOTEND_LOOP() EEPROM_READ(thermalManager.temp_hotend[e].mpc);
+        HOTEND_LOOP() {
+          MPC_t mpc;
+          EEPROM_READ(mpc);
+          if (!validating) {
+            if (mpc.isValid())
+              thermalManager.temp_hotend[e].mpc = mpc;
+            else {
+              SERIAL_WARN_MSG("Invalid MPC for E", e, ". Using defaults.");
+              reset_mpc(e);
+            }
+          }
+        }
       #endif
 
       //
@@ -3289,13 +3328,15 @@ void MarlinSettings::postprocess() {
         #endif
 
         #if ENABLED(DWIN_LCD_PROUI)
-          status = !bedLevelTools.meshValidate();
-          if (status) {
-            bedlevel.invalidate();
-            LCD_MESSAGE(MSG_UBL_MESH_INVALID);
+          if (!into) {  // Only validate the live mesh
+            status = !bedLevelTools.meshValidate();
+            if (status) {
+              bedlevel.invalidate();
+              LCD_MESSAGE(MSG_UBL_MESH_INVALID);
+            }
+            else
+              ui.status_printf(0, GET_TEXT_F(MSG_MESH_LOADED), slot);
           }
-          else
-            ui.status_printf(0, GET_TEXT_F(MSG_MESH_LOADED), bedlevel.storage_slot);
         #endif
 
         if (status) SERIAL_ECHOLNPGM("?Unable to load mesh data.");
@@ -3342,6 +3383,53 @@ void MarlinSettings::postprocess() {
   }
 
 #endif // HAS_EARLY_LCD_SETTINGS
+
+#if ENABLED(MPCTEMP)
+
+  static void reset_mpc(const uint8_t e) {
+    constexpr float _mpc_heater_power[] = MPC_HEATER_POWER;
+    static_assert(HOTENDS == COUNT(_mpc_heater_power), "MPC_HEATER_POWER requires values for all (" STRINGIFY(HOTENDS) ") hotends.");
+
+    #if ENABLED(MPC_PTC)
+      constexpr float _mpc_heater_alpha[] = MPC_HEATER_ALPHA;
+      constexpr float _mpc_heater_reftemp[] = MPC_HEATER_REFTEMP;
+      static_assert(HOTENDS == COUNT(_mpc_heater_alpha), "MPC_HEATER_ALPHA requires values for all (" STRINGIFY(HOTENDS) ") hotends.");
+      static_assert(HOTENDS == COUNT(_mpc_heater_reftemp), "MPC_HEATER_REFTEMP requires values for all (" STRINGIFY(HOTENDS) ") hotends.");
+    #endif
+
+    constexpr float _mpc_block_heat_capacity[] = MPC_BLOCK_HEAT_CAPACITY;
+    static_assert(HOTENDS == COUNT(_mpc_block_heat_capacity), "MPC_BLOCK_HEAT_CAPACITY requires values for all (" STRINGIFY(HOTENDS) ") hotends.");
+
+    constexpr float _mpc_sensor_responsiveness[] = MPC_SENSOR_RESPONSIVENESS;
+    static_assert(HOTENDS == COUNT(_mpc_sensor_responsiveness), "MPC_SENSOR_RESPONSIVENESS requires values for all (" STRINGIFY(HOTENDS) ") hotends.");
+
+    constexpr float _mpc_ambient_xfer_coeff[] = MPC_AMBIENT_XFER_COEFF;
+    static_assert(HOTENDS == COUNT(_mpc_ambient_xfer_coeff), "MPC_AMBIENT_XFER_COEFF requires values for all (" STRINGIFY(HOTENDS) ") hotends.");
+
+    #if ENABLED(MPC_INCLUDE_FAN)
+      constexpr float _mpc_ambient_xfer_coeff_fan255[] = MPC_AMBIENT_XFER_COEFF_FAN255;
+      static_assert(HOTENDS == COUNT(_mpc_ambient_xfer_coeff_fan255), "MPC_AMBIENT_XFER_COEFF_FAN255 requires values for all (" STRINGIFY(HOTENDS) ") hotends.");
+    #endif
+
+    constexpr float _filament_heat_capacity_permm[] = FILAMENT_HEAT_CAPACITY_PERMM;
+    static_assert(HOTENDS == COUNT(_filament_heat_capacity_permm), "FILAMENT_HEAT_CAPACITY_PERMM requires values for all (" STRINGIFY(HOTENDS) ") hotends.");
+
+    MPC_t &mpc = thermalManager.temp_hotend[e].mpc;
+    mpc.heater_power = _mpc_heater_power[e];
+    #if ENABLED(MPC_PTC)
+      mpc.heater_alpha = _mpc_heater_alpha[e];
+      mpc.heater_reftemp = _mpc_heater_reftemp[e];
+    #endif
+    mpc.block_heat_capacity = _mpc_block_heat_capacity[e];
+    mpc.sensor_responsiveness = _mpc_sensor_responsiveness[e];
+    mpc.ambient_xfer_coeff_fan0 = _mpc_ambient_xfer_coeff[e];
+    #if ENABLED(MPC_INCLUDE_FAN)
+      mpc.fan255_adjustment = _mpc_ambient_xfer_coeff_fan255[e] - _mpc_ambient_xfer_coeff[e];
+    #endif
+    mpc.filament_heat_capacity_permm = _filament_heat_capacity_permm[e];
+  }
+
+#endif // MPCTEMP
 
 /**
  * M502 - Reset Configuration
@@ -3666,6 +3754,28 @@ void MarlinSettings::reset() {
   #endif
 
   //
+  // TMC Homing Hybrid Threshold
+  //
+  #if ENABLED(HOMING_HYBRID_THRESHOLD)
+    homing_hybrid_thrs = {
+      OPTITEM(X_HAS_STEALTHCHOP,  X_HOMING_HYBRID_THRESHOLD)
+      OPTITEM(Y_HAS_STEALTHCHOP,  Y_HOMING_HYBRID_THRESHOLD)
+      OPTITEM(Z_HAS_STEALTHCHOP,  Z_HOMING_HYBRID_THRESHOLD)
+      OPTITEM(X2_HAS_STEALTHCHOP, X2_HOMING_HYBRID_THRESHOLD)
+      OPTITEM(Y2_HAS_STEALTHCHOP, Y2_HOMING_HYBRID_THRESHOLD)
+      OPTITEM(Z2_HAS_STEALTHCHOP, Z2_HOMING_HYBRID_THRESHOLD)
+      OPTITEM(Z3_HAS_STEALTHCHOP, Z3_HOMING_HYBRID_THRESHOLD)
+      OPTITEM(Z4_HAS_STEALTHCHOP, Z4_HOMING_HYBRID_THRESHOLD)
+      OPTITEM(I_HAS_STEALTHCHOP,  I_HOMING_HYBRID_THRESHOLD)
+      OPTITEM(J_HAS_STEALTHCHOP,  J_HOMING_HYBRID_THRESHOLD)
+      OPTITEM(K_HAS_STEALTHCHOP,  K_HOMING_HYBRID_THRESHOLD)
+      OPTITEM(U_HAS_STEALTHCHOP,  U_HOMING_HYBRID_THRESHOLD)
+      OPTITEM(V_HAS_STEALTHCHOP,  V_HOMING_HYBRID_THRESHOLD)
+      OPTITEM(W_HAS_STEALTHCHOP,  W_HOMING_HYBRID_THRESHOLD)
+    };
+  #endif
+
+  //
   // Volumetric & Filament Size
   //
   #if HAS_VOLUMETRIC_EXTRUSION
@@ -3786,50 +3896,7 @@ void MarlinSettings::reset() {
   // Model predictive control
   //
   #if ENABLED(MPCTEMP)
-
-    constexpr float _mpc_heater_power[] = MPC_HEATER_POWER;
-    static_assert(HOTENDS == COUNT(_mpc_heater_power), "MPC_HEATER_POWER requires values for all (" STRINGIFY(HOTENDS) ") hotends.");
-
-    #if ENABLED(MPC_PTC)
-      constexpr float _mpc_heater_alpha[] = MPC_HEATER_ALPHA;
-      constexpr float _mpc_heater_reftemp[] = MPC_HEATER_REFTEMP;
-      static_assert(HOTENDS == COUNT(_mpc_heater_alpha), "MPC_HEATER_ALPHA requires values for all (" STRINGIFY(HOTENDS) ") hotends.");
-      static_assert(HOTENDS == COUNT(_mpc_heater_reftemp), "MPC_HEATER_REFTEMP requires values for all (" STRINGIFY(HOTENDS) ") hotends.");
-    #endif
-
-    constexpr float _mpc_block_heat_capacity[] = MPC_BLOCK_HEAT_CAPACITY;
-    static_assert(HOTENDS == COUNT(_mpc_block_heat_capacity), "MPC_BLOCK_HEAT_CAPACITY requires values for all (" STRINGIFY(HOTENDS) ") hotends.");
-
-    constexpr float _mpc_sensor_responsiveness[] = MPC_SENSOR_RESPONSIVENESS;
-    static_assert(HOTENDS == COUNT(_mpc_sensor_responsiveness), "MPC_SENSOR_RESPONSIVENESS requires values for all (" STRINGIFY(HOTENDS) ") hotends.");
-
-    constexpr float _mpc_ambient_xfer_coeff[] = MPC_AMBIENT_XFER_COEFF;
-    static_assert(HOTENDS == COUNT(_mpc_ambient_xfer_coeff), "MPC_AMBIENT_XFER_COEFF requires values for all (" STRINGIFY(HOTENDS) ") hotends.");
-
-    #if ENABLED(MPC_INCLUDE_FAN)
-      constexpr float _mpc_ambient_xfer_coeff_fan255[] = MPC_AMBIENT_XFER_COEFF_FAN255;
-      static_assert(HOTENDS == COUNT(_mpc_ambient_xfer_coeff_fan255), "MPC_AMBIENT_XFER_COEFF_FAN255 requires values for all (" STRINGIFY(HOTENDS) ") hotends.");
-    #endif
-
-    constexpr float _filament_heat_capacity_permm[] = FILAMENT_HEAT_CAPACITY_PERMM;
-    static_assert(HOTENDS == COUNT(_filament_heat_capacity_permm), "FILAMENT_HEAT_CAPACITY_PERMM requires values for all (" STRINGIFY(HOTENDS) ") hotends.");
-
-    HOTEND_LOOP() {
-      MPC_t &mpc = thermalManager.temp_hotend[e].mpc;
-      mpc.heater_power = _mpc_heater_power[e];
-      #if ENABLED(MPC_PTC)
-        mpc.heater_alpha = _mpc_heater_alpha[e];
-        mpc.heater_reftemp = _mpc_heater_reftemp[e];
-      #endif
-      mpc.block_heat_capacity = _mpc_block_heat_capacity[e];
-      mpc.sensor_responsiveness = _mpc_sensor_responsiveness[e];
-      mpc.ambient_xfer_coeff_fan0 = _mpc_ambient_xfer_coeff[e];
-      #if ENABLED(MPC_INCLUDE_FAN)
-        mpc.fan255_adjustment = _mpc_ambient_xfer_coeff_fan255[e] - _mpc_ambient_xfer_coeff[e];
-      #endif
-      mpc.filament_heat_capacity_permm = _filament_heat_capacity_permm[e];
-    }
-
+    HOTEND_LOOP() reset_mpc(e);
   #endif // MPCTEMP
 
   //

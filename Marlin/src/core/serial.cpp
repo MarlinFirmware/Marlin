@@ -21,6 +21,7 @@
  */
 
 #include "serial.h"
+#include "../libs/numtostr.h" // w_float_to_str
 #include "../inc/MarlinConfig.h"
 
 #if HAS_ETHERNET
@@ -74,7 +75,7 @@ MAP(_N_LBL, LOGICAL_AXIS_NAMES); MAP(_SP_N_LBL, LOGICAL_AXIS_NAMES);
 // Specializations for float, p_float_t, w_float_t
 template <> void SERIAL_ECHO(const float f)      { SERIAL_IMPL.print(f, SERIAL_FLOAT_PRECISION); }
 template <> void SERIAL_ECHO(const p_float_t pf) { SERIAL_IMPL.print(pf.value, pf.prec); }
-template <> void SERIAL_ECHO(const w_float_t wf) { char f1[20]; SERIAL_IMPL.print(dtostrf(wf.value, wf.width, wf.prec, f1)); }
+template <> void SERIAL_ECHO(const w_float_t wf) { char f1[FTOSTRF_BUFSIZE]; SERIAL_IMPL.print(w_float_to_str(wf, f1)); }
 
 // Specializations for F-string
 template <> void SERIAL_ECHO(FSTR_P const fstr)   { SERIAL_ECHO_P(FTOP(fstr)); }
@@ -84,6 +85,7 @@ void SERIAL_CHAR(char a) { SERIAL_IMPL.write(a); }
 void SERIAL_EOL() { SERIAL_CHAR('\n'); }
 
 void SERIAL_ECHO(serial_char_t x) { SERIAL_IMPL.write(x.c); }
+void SERIAL_ECHOLN(serial_char_t x) { SERIAL_ECHO(x); SERIAL_EOL(); }
 
 void SERIAL_FLUSH()    { SERIAL_IMPL.flush(); }
 void SERIAL_FLUSHTX()  { SERIAL_IMPL.flushTX(); }

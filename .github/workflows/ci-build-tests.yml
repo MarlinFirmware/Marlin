@@ -105,6 +105,7 @@ jobs:
         # STM32F1
         - chitu_f103
         - mks_robin
+        - mks_robin_e3
         - mks_robin_nano_v1v2
         - PANDA_PI_V29
         - STM32F103RC_btt
@@ -113,6 +114,7 @@ jobs:
         - STM32F103RE_btt
         - STM32F103RE_btt_USB
         - STM32F103RE_creality
+        - STM32F103VE_GTM32
         - STM32F103VE_longer
         #- mks_robin_mini
         #- mks_robin_nano_v1_3_f4_usbmod
@@ -167,6 +169,9 @@ jobs:
 
         # HC32
         - HC32F460C_aquila_101
+        - HC32F460C_kobra_max
+        - HC32F460E_kobra_go
+        - HC32F460E_kobra_neo
 
         # GD32F3
         - GD32F303RE_creality_mfl

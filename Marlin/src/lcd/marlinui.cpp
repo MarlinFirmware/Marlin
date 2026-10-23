@@ -80,7 +80,7 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
   #if ENABLED(STATUS_MESSAGE_SCROLLING)
     uint8_t MarlinUI::status_scroll_offset; // = 0
   #endif
-  MString<MAX_MESSAGE_SIZE> MarlinUI::status_message;
+  MString<MAX_MESSAGE_BYTES> MarlinUI::status_message;
   uint8_t MarlinUI::alert_level; // = 0
   #if HAS_STATUS_MESSAGE_TIMEOUT
     millis_t MarlinUI::status_message_expire_ms; // = 0
@@ -425,7 +425,7 @@ void MarlinUI::init() {
         #else
           // Simply cut off at maxlen
           const uint8_t chop = TERN(UTF_FILENAME_SUPPORT, utf8_byte_pos_by_char_num(theCard.longFilename, maxlen), maxlen);
-          theCard.longFilename[_MAX(chop, LONG_FILENAME_LENGTH - 1)] = '\0';
+          theCard.longFilename[_MAX(chop, LONG_FILENAME_BYTES - 1)] = '\0';
         #endif
       }
       return outstr;
@@ -1554,7 +1554,7 @@ void MarlinUI::host_notify(const char * const cstr) {
 
 #include <stdarg.h>
 
-uint8_t expand_u8str_P(char * const outstr, PGM_P const ptpl, const int8_t ind, const char *cstr/*=nullptr*/, FSTR_P const fstr/*=nullptr*/, const uint8_t maxlen/*=MAX_MESSAGE_SIZE*/) {
+uint8_t expand_u8str_P(char * const outstr, PGM_P const ptpl, const int8_t ind, const char *cstr/*=nullptr*/, FSTR_P const fstr/*=nullptr*/, const uint8_t maxlen/*=MAX_MESSAGE_BYTES*/) {
   const uint8_t *p = (uint8_t*)ptpl;
   char *o = outstr;
   int8_t n = maxlen;
@@ -1642,7 +1642,7 @@ uint8_t expand_u8str_P(char * const outstr, PGM_P const ptpl, const int8_t ind, 
 
     else if (!no_welcome) {
       #if ENABLED(CONFIGURABLE_MACHINE_NAME)
-        char new_status[MAX_MESSAGE_SIZE + 1];
+        char new_status[MAX_MESSAGE_BYTES + 1];
         expand_u8str_P(new_status, GET_TEXT(WELCOME_MSG), 0, &marlin.machine_name);
         _set_status_and_level(new_status, -1);
         return;
@@ -1683,9 +1683,8 @@ uint8_t expand_u8str_P(char * const outstr, PGM_P const ptpl, const int8_t ind, 
 
     pgm ? host_notify_P(ustr) : host_notify(ustr);
 
-    MString<30> msg;
-    pgm ? msg.set_P(ustr) : msg.set(ustr);
-    status_message.set(&msg).utrunc(MAX_MESSAGE_SIZE);
+    // Remove the last partial Unicode glyph, if any
+    (pgm ? status_message.set_P(ustr) : status_message.set(ustr)).utrunc(MAX_MESSAGE_BYTES);
 
     finish_status(level > 0); // Persist if the status has a level
   }
@@ -1703,7 +1702,7 @@ uint8_t expand_u8str_P(char * const outstr, PGM_P const ptpl, const int8_t ind, 
     pgm ? host_notify_P(ustr) : host_notify(ustr);
 
     // Remove the last partial Unicode glyph, if any
-    (pgm ? status_message.set_P(ustr) : status_message.set(ustr)).utrunc(MAX_MESSAGE_SIZE);
+    (pgm ? status_message.set_P(ustr) : status_message.set(ustr)).utrunc(MAX_MESSAGE_BYTES);
 
     finish_status(persist);
   }
@@ -1731,8 +1730,9 @@ uint8_t expand_u8str_P(char * const outstr, PGM_P const ptpl, const int8_t ind, 
 
     va_list args;
     va_start(args, pfmt);
-    vsnprintf_P(status_message, MAX_MESSAGE_SIZE, pfmt, args);
+    vsnprintf_P(status_message, MAX_MESSAGE_BYTES, pfmt, args);
     va_end(args);
+    status_message.utrunc();
 
     host_notify(status_message);
 
@@ -1812,6 +1812,7 @@ uint8_t expand_u8str_P(char * const outstr, PGM_P const ptpl, const int8_t ind, 
     va_start(args, pfmt);
     vsnprintf_P(&msg, 30, pfmt, args);
     va_end(args);
+    msg.utrunc();
 
     host_notify(msg);
   }
@@ -2100,7 +2101,9 @@ uint8_t expand_u8str_P(char * const outstr, PGM_P const ptpl, const int8_t ind, 
     void MarlinUI::eeprom_alert(const EEPROM_Error err) {
       FSTR_P const err_msg = eeprom_err(err);
       set_status(err_msg);
-      TERN_(HOST_PROMPT_SUPPORT, hostui.notify(err_msg));
+      #if ENABLED(HOST_PROMPT_SUPPORT) && DISABLED(HOST_STATUS_NOTIFICATIONS)
+        hostui.notify(err_msg);
+      #endif
       #if HAS_MARLINUI_MENU
         editable.uint8 = err;
         goto_screen([]{

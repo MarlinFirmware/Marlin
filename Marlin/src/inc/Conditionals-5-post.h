@@ -187,8 +187,10 @@
   #define W_BED_SIZE W_MAX_LENGTH
 #endif
 
-// Require 0,0 bed center for Delta, SCARA, and Polargraph
-#if IS_KINEMATIC
+// Require 0,0 bed center for Delta, Polar, and Polargraph.
+// SCARA and TPARA use whatever coordinate space the Configuration defines: the bed
+// starts at 0,0 unless BED_CENTER_AT_0_0 is enabled. SCARA_OFFSET places the shoulder in that space.
+#if IS_KINEMATIC && !IS_SCARA
   #define BED_CENTER_AT_0_0
 #endif
 
@@ -1455,6 +1457,9 @@
  *   - PARKING_EXTRUDER uses SOL0_PIN and SOL1_PIN
  *   - SOLENOID_PROBE uses SOL1_PIN
  *   - Z_PROBE_SLED uses SOL1_PIN, when defined (unless EXT_SOLENOID is enabled)
+ *
+ * SOL0_PIN is for the first (or only) solenoid, SOL1_PIN for a second one or a probe.
+ * SOL2_PIN...SOL7_PIN are only for MANUAL_SOLENOID_CONTROL or EXT_SOLENOID with more extruders.
  */
 #if ANY(EXT_SOLENOID, MANUAL_SOLENOID_CONTROL, PARKING_EXTRUDER, SOLENOID_PROBE, Z_PROBE_SLED)
   #if PIN_EXISTS(SOL0) && (ANY(MANUAL_SOLENOID_CONTROL, PARKING_EXTRUDER) || ALL(EXT_SOLENOID, HAS_EXTRUDERS))
@@ -1464,22 +1469,22 @@
     #define HAS_SOLENOID_1 1
   #endif
   #if PIN_EXISTS(SOL2) && (ENABLED(MANUAL_SOLENOID_CONTROL) || TERN0(EXT_SOLENOID, E_STEPPERS > 2))
-    #define HAS_SOLENOID_2 2
+    #define HAS_SOLENOID_2 1
   #endif
   #if PIN_EXISTS(SOL3) && (ENABLED(MANUAL_SOLENOID_CONTROL) || TERN0(EXT_SOLENOID, E_STEPPERS > 3))
-    #define HAS_SOLENOID_3 3
+    #define HAS_SOLENOID_3 1
   #endif
   #if PIN_EXISTS(SOL4) && (ENABLED(MANUAL_SOLENOID_CONTROL) || TERN0(EXT_SOLENOID, E_STEPPERS > 4))
-    #define HAS_SOLENOID_4 4
+    #define HAS_SOLENOID_4 1
   #endif
   #if PIN_EXISTS(SOL5) && (ENABLED(MANUAL_SOLENOID_CONTROL) || TERN0(EXT_SOLENOID, E_STEPPERS > 5))
-    #define HAS_SOLENOID_5 5
+    #define HAS_SOLENOID_5 1
   #endif
   #if PIN_EXISTS(SOL6) && (ENABLED(MANUAL_SOLENOID_CONTROL) || TERN0(EXT_SOLENOID, E_STEPPERS > 6))
-    #define HAS_SOLENOID_6 6
+    #define HAS_SOLENOID_6 1
   #endif
   #if PIN_EXISTS(SOL7) && (ENABLED(MANUAL_SOLENOID_CONTROL) || TERN0(EXT_SOLENOID, E_STEPPERS > 7))
-    #define HAS_SOLENOID_7 7
+    #define HAS_SOLENOID_7 1
   #endif
 #endif
 
@@ -2877,6 +2882,11 @@
   #undef FAN_SOFT_PWM_REQUIRED
 #endif
 
+// SINGLENOZZLE fan standby needs a fan
+#if !ALL(HAS_FAN, SINGLENOZZLE)
+  #undef SINGLENOZZLE_STANDBY_FAN
+#endif
+
 #if PIN_EXISTS(FANMUX0)
   #define HAS_FANMUX 1  // Part Cooling fan multipliexer
 #else
@@ -3127,17 +3137,21 @@
   #endif
 #endif
 
+// G92 shifts the workspace
+#if DISABLED(NO_WORKSPACE_OFFSETS)
+  #define HAS_WORKSPACE_OFFSET 1
+#endif
+#if DISABLED(NO_HOME_OFFSETS)
+  #if IS_CARTESIAN
+    #define HAS_HOME_OFFSET 1     // M206 affects the Native Machine Space on G28
+  #elif IS_SCARA
+    #define HAS_SCARA_OFFSET 1    // The SCARA home offset applies only on G28
+  #endif
+#endif
+
 /**
  * Bed Probe dependencies
  */
-#if ANY(MESH_BED_LEVELING, HAS_BED_PROBE)
-  #ifndef PROBE_OFFSET_ZMIN
-    #define PROBE_OFFSET_ZMIN -20
-  #endif
-  #ifndef PROBE_OFFSET_ZMAX
-    #define PROBE_OFFSET_ZMAX  20
-  #endif
-#endif
 #if HAS_BED_PROBE
   #ifndef PROBE_OFFSET_XMIN
     #define PROBE_OFFSET_XMIN -(X_BED_SIZE)
@@ -3160,6 +3174,20 @@
   #ifndef NOZZLE_TO_PROBE_OFFSET
     #define NOZZLE_TO_PROBE_OFFSET { 0, 0, 0 }
   #endif
+#endif
+
+#if HAS_BED_PROBE || ALL(HAS_MARLINUI_MENU, MESH_BED_LEVELING) \
+  || (ANY(DWIN_CREALITY_LCD, DWIN_CREALITY_LCD_JYERSUI, DWIN_LCD_PROUI) && ANY(BABYSTEPPING, HAS_WORKSPACE_OFFSET))
+  #ifndef PROBE_OFFSET_ZMIN
+    #define PROBE_OFFSET_ZMIN -20
+  #endif
+  #ifndef PROBE_OFFSET_ZMAX
+    #define PROBE_OFFSET_ZMAX  20
+  #endif
+#else
+  // Nothing can apply a Z offset, so drop limits
+  #undef PROBE_OFFSET_ZMIN
+  #undef PROBE_OFFSET_ZMAX
 #endif
 
 /**
@@ -3247,12 +3275,13 @@
 #endif
 
 /**
- * Only constrain Z on DELTA / SCARA machines
+ * Only constrain Z on DELTA / TPARA machines.
+ * SCARA can also constrain XY to the bed bounds.
  */
 #if ENABLED(POLAR)
   #undef MIN_SOFTWARE_ENDSTOP_Y
   #undef MAX_SOFTWARE_ENDSTOP_Y
-#elif IS_KINEMATIC
+#elif IS_KINEMATIC && DISABLED(SCARA)
   #undef MIN_SOFTWARE_ENDSTOP_X
   #undef MIN_SOFTWARE_ENDSTOP_Y
   #undef MAX_SOFTWARE_ENDSTOP_X
@@ -3367,7 +3396,7 @@
 #if PIN_EXISTS(BEEPER)
   #define HAS_BEEPER 1
 #endif
-#if ANY(IS_TFTGLCD_PANEL, PCA9632_BUZZER, LCD_USE_I2C_BUZZER)
+#if ANY(IS_TFTGLCD_PANEL, PCA9632_BUZZER, LCD_USE_I2C_BUZZER, PANELDUE)
   #define USE_MARLINUI_BUZZER 1
 #endif
 #if ANY(HAS_BEEPER, USE_MARLINUI_BUZZER)
@@ -3413,18 +3442,6 @@
   #undef UI_VOLTAGE_LEVEL
   #undef RADDS_DISPLAY
   #undef MOTOR_CURRENT
-#endif
-
-// G92 shifts the workspace
-#if DISABLED(NO_WORKSPACE_OFFSETS)
-  #define HAS_WORKSPACE_OFFSET 1
-#endif
-#if DISABLED(NO_HOME_OFFSETS)
-  #if IS_CARTESIAN
-    #define HAS_HOME_OFFSET 1     // M206 affects the Native Machine Space on G28
-  #elif IS_SCARA
-    #define HAS_SCARA_OFFSET 1    // The SCARA home offset applies only on G28
-  #endif
 #endif
 
 #if ANY(HAS_MARLINUI_MENU, TOUCH_UI_FTDI_EVE)

@@ -40,6 +40,10 @@
 
 #define BOARD_NO_NATIVE_USB
 
+#ifndef BOARD_LCD_SERIAL_PORT
+  #define BOARD_LCD_SERIAL_PORT               3
+#endif
+
 //
 // Release PB4 (Y_ENABLE_PIN) from JTAG NRST role
 //

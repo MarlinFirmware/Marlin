@@ -37,6 +37,7 @@
 #define BOARD_WEBSITE_URL    "github.com/Le-Syl21/WANHAO-Duplicator-9"
 
 #define LARGE_FLASH true
+#define BOARD_LCD_SERIAL_PORT               2
 
 //
 // Limit Switches
