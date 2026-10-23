@@ -1806,7 +1806,7 @@ void Stepper::isr() {
 
         #if ENABLED(BABYSTEPPING)
           NOMORE(interval, nextBabystepISR);   // Babystepping may want to return earlier
-          nextBabystepISR -= interval;
+          if (nextBabystepISR != BABYSTEP_NEVER) nextBabystepISR -= interval;
         #endif
 
         ftMotion_nextStepperISR -= interval;
