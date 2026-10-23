@@ -8,12 +8,13 @@ Validate with `mftest` (it regenerates `Marlin/Configuration.h` per target, whic
 
 ```bash
 cd "$(git rev-parse --show-toplevel)"
-buildroot/bin/mftest -t esp32 -n1 -y        # BOARD_ESPRESSIF_ESP32, WIFISUPPORT+WEBSUPPORT+OTA
-buildroot/bin/mftest -t esp32 -n2 -y        # BOARD_ESPRESSIF_ESP32, TMC HW serial (Serial1)
+buildroot/bin/mftest -t esp32_idf4 -n1 -y   # BOARD_ESPRESSIF_ESP32, WIFISUPPORT+WEBSUPPORT+OTA
+buildroot/bin/mftest -t esp32_idf4 -n2 -y   # BOARD_ESPRESSIF_ESP32, TMC HW serial (Serial1)
+buildroot/bin/mftest -t esp32_idf3 -n1 -y   # BOARD_BTT_RODENT_V1, chained TMC2160, spindle
 buildroot/bin/mftest -t mks_tinybee -n1 -y  # BOARD_MKS_TINYBEE, ESP3D_WIFISUPPORT
 ```
 
-Both `esp32` test targets exercise the base `env:esp32` build; `mks_tinybee` exercises the `ESP3D_WIFISUPPORT` path. Additional `ini/esp32.ini` envs with no test folder — `FYSETC_E4`, `PANDA`, `godi_esp32` — can be built directly with `pio run -e <env> -y` to check their partition-table / EXIO variants.
+The `esp32_idf4` tests exercise `env:esp32_idf4` (espressif32 6.1.0) and the `esp32_idf3` test exercises `env:esp32_idf3` (espressif32 2.1.0); `mks_tinybee` exercises the `ESP3D_WIFISUPPORT` path. Additional `ini/esp32.ini` envs with no test folder — `FYSETC_E4`, `PANDA`, `godi_esp32` — can be built directly with `pio run -e <env> -y` to check their partition-table / EXIO variants.
 
 > Builds are **not verified in this environment** (the `espressif32` PlatformIO platform may not be installed here). Run the `mftest` commands above to validate; do not claim green without running them.
 >
@@ -21,7 +22,7 @@ Both `esp32` test targets exercise the base `env:esp32` build; `mks_tinybee` exe
 
 ## Framework / Platform Integration (upstream, NOT vendored)
 
-ESP32 uses the **upstream `espressif32` PlatformIO platform** (`espressif32@2.1.0`, toolchain `toolchain-xtensa-esp32s3`) plus the upstream Arduino-ESP32 / ESP-IDF libraries. There is **no Marlin-vendored core** (AT32 is the exception). All Marlin-specific glue lives in:
+ESP32 uses the **upstream `espressif32` PlatformIO platform** (`espressif32@2.1.0` for `env:esp32_idf3` and the envs that extend it, `espressif32@6.1.0` for `env:esp32_idf4`) plus the upstream Arduino-ESP32 / ESP-IDF libraries. There is **no Marlin-vendored core** (AT32 is the exception). All Marlin-specific glue lives in:
 
 - `Marlin/src/HAL/ESP32/` — HAL implementation, I2S stepper, WiFi, OTA, SPIFFS, serial.
 - `Marlin/src/pins/esp32/` — board pin tables (each pins file declares its `env:`).
@@ -39,7 +40,7 @@ Because the framework is upstream, there is **no "mirror to installed package" s
 
 4. **ADC2 is unusable while WiFi is active.** `HAL.cpp adc_init()` only configures ADC1 channels (`get_channel()` maps pins 32–39); ADC2 is shared with the WiFi radio and is intentionally left unconfigured (see comment at `HAL.cpp:253`). Keep thermistor pins on ADC1, or readings will fail when WiFi is up.
 
-5. **Partition table is per-board and matters.** `env:esp32`/`mks_tinybee` use the platform default CSV; `FYSETC_E4` uses `default_16MB.csv`; `PANDA` and `godi_esp32` use the custom `Marlin/src/HAL/ESP32/esp32.csv` (otadata + two OTA app slots of 0x180000 + a SPIFFS partition). `WEBSUPPORT` needs the SPIFFS partition — if you change flash layout, keep the board's partition CSV in sync or OTA/Web won't fit.
+5. **Partition table is per-board and matters.** `env:esp32_idf3`/`env:esp32_idf4`/`mks_tinybee` use the platform default CSV; `FYSETC_E4` uses `default_16MB.csv`; `PANDA` and `godi_esp32` use the custom `Marlin/src/HAL/ESP32/esp32.csv` (otadata + two OTA app slots of 0x180000 + a SPIFFS partition). `WEBSUPPORT` needs the SPIFFS partition — if you change flash layout, keep the board's partition CSV in sync or OTA/Web won't fit.
 
 6. **Two mutually-exclusive stepper backends.** `I2S_STEPPER_STREAM` (DMA-driven I2S GPIO expander, the default) and `USE_ESP32_EXIO` (serial I/O expander, used by PANDA). `i2s.cpp` is compiled only when `!USE_ESP32_EXIO`. Do not enable both; expander-pin PWM (pin > 127) is routed through the I2S path in `HAL.cpp` `set_pwm_duty`.
 
