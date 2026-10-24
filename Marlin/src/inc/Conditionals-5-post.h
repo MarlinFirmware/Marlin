@@ -3362,6 +3362,10 @@
       #define LCD_HEIGHT TERN(IS_ULTIPANEL, 4, 2)
     #endif
   #endif
+  // Galaxy UI: TFT backlight brightness is set in the UI and saved with M500
+  #if ALL(NOVIN3DP_GALAXY_UI, TFT_COLOR_UI) && PIN_EXISTS(TFT_BACKLIGHT) && !defined(HAS_LCD_BRIGHTNESS)
+    #define HAS_LCD_BRIGHTNESS 1
+  #endif
   // Prepare the LCD to show the bootscreen early in setup
   #if ENABLED(SHOW_BOOTSCREEN) && ANY(HAS_LCD_CONTRAST, HAS_LCD_BRIGHTNESS)
     #define HAS_EARLY_LCD_SETTINGS 1

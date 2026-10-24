@@ -46,6 +46,10 @@
 
 #include "settings.h"
 
+#if ENABLED(NOVIN3DP_GALAXY_UI)
+  #include "../lcd/tft/galaxy/gx_core.h"
+#endif
+
 #include "endstops.h"
 #include "planner.h"
 #include "stepper.h"
@@ -446,6 +450,10 @@ typedef struct SettingsDataStruct {
   // HAS_LCD_BRIGHTNESS
   //
   uint8_t lcd_brightness;                               // M256 B
+
+  #if ENABLED(NOVIN3DP_GALAXY_UI)
+    xyze_feedrate_t gx_manual_feedrate_mm_m;            // Galaxy UI manual move feedrates (mm/min)
+  #endif
 
   //
   // Display Sleep
@@ -1358,6 +1366,11 @@ void MarlinSettings::postprocess() {
       const uint8_t lcd_brightness = TERN(HAS_LCD_BRIGHTNESS, ui.brightness, 255);
       EEPROM_WRITE(lcd_brightness);
     }
+
+    #if ENABLED(NOVIN3DP_GALAXY_UI)
+      _FIELD_TEST(gx_manual_feedrate_mm_m);
+      EEPROM_WRITE(gx_manual_feedrate_mm_m);
+    #endif
 
     //
     // LCD Backlight / Sleep Timeout
@@ -2472,6 +2485,15 @@ void MarlinSettings::postprocess() {
         EEPROM_READ(lcd_brightness);
         TERN_(HAS_LCD_BRIGHTNESS, if (!validating) ui.brightness = lcd_brightness);
       }
+
+      #if ENABLED(NOVIN3DP_GALAXY_UI)
+      {
+        xyze_feedrate_t gx_fr;
+        _FIELD_TEST(gx_manual_feedrate_mm_m);
+        EEPROM_READ(gx_fr);
+        if (!validating) gx_manual_feedrate_mm_m = gx_fr;
+      }
+      #endif
 
       //
       // LCD Backlight / Sleep Timeout
@@ -3695,6 +3717,7 @@ void MarlinSettings::reset() {
   // LCD Brightness
   //
   TERN_(HAS_LCD_BRIGHTNESS, ui.brightness = LCD_BRIGHTNESS_DEFAULT);
+  TERN_(NOVIN3DP_GALAXY_UI, gx_reset_manual_feedrate());
 
   //
   // LCD Backlight / Sleep Timeout

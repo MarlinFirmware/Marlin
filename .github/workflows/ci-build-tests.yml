@@ -132,6 +132,7 @@ jobs:
         - LERDGEK
         - LERDGEX
         - mks_e3d_v2
+        - mks_robin_nano_v3
         - mks_robin_pro2
         - Opulo_Lumen_REV3
         - rumba32
