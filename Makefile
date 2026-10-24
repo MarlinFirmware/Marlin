@@ -5,11 +5,12 @@ CONTAINER_RT_OPTS := --rm -v $(PWD):/code -v platformio-cache:/root/.platformio
 CONTAINER_IMAGE := marlin-dev
 UNIT_TEST_CONFIG ?= default
 PRETTIER_VERSION ?= 3.9.6
+export PRETTIER_VERSION
 
 # Find a Python 3 interpreter
 ifeq ($(OS),Windows_NT)
-	# Windows: use `where` – fall back through the three common names
-	PYTHON := $(shell which python 2>nul || which python3 2>nul || which py 2>nul)
+	# Windows: use the first of the three common names that runs
+	PYTHON := $(if $(filter ok,$(shell python -c "print('ok')" 2>/dev/null)),python,$(if $(filter ok,$(shell python3 -c "print('ok')" 2>/dev/null)),python3,py))
 	# Windows: Use Python script to find pins files
 	ALL_PINS := $(shell $(PYTHON) $(MAKESCRIPTS_DIR)/find.py Marlin/src/pins -mindepth 2 -name 'pins_*.h')
 else

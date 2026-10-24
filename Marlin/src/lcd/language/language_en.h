@@ -564,6 +564,7 @@ namespace LanguageNarrow_en {
   LSTR MSG_TMC_DRIVERS                    = _UxGT("TMC Drivers");
   LSTR MSG_TMC_CURRENT                    = _UxGT("Driver Current");
   LSTR MSG_TMC_HYBRID_THRS                = _UxGT("Hybrid Threshold");
+  LSTR MSG_TMC_HOMING_HYBRID_THRS         = _UxGT("Homing Hybrid Thrs");
   LSTR MSG_TMC_HOMING_THRS                = _UxGT("Sensorless Homing");
   LSTR MSG_TMC_STEPPING_MODE              = _UxGT("Stepping Mode");
   LSTR MSG_TMC_STEALTHCHOP                = _UxGT("StealthChop");
@@ -871,6 +872,9 @@ namespace LanguageNarrow_en {
   LSTR MSG_ADVANCE_TAU                    = _UxGT("Advance Tau");
   LSTR MSG_ADVANCE_TAU_E                  = _UxGT("Advance Tau *");
   LSTR MSG_NLE_ON                         = _UxGT("NLE enabled");
+  LSTR MSG_NLE_A                          = _UxGT("-Quadratic");
+  LSTR MSG_NLE_B                          = _UxGT("-Linear");
+  LSTR MSG_NLE_C                          = _UxGT("-Constant");
   LSTR MSG_HOTEND_TEMP_GRAPH              = _UxGT("Hotend Temp Graph");
   LSTR MSG_BED_TEMP_GRAPH                 = _UxGT("Bed Temp Graph");
   LSTR MSG_EEPROM_INITIALIZED             = _UxGT("EEPROM Initialized");

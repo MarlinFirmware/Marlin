@@ -107,7 +107,6 @@
 
     #if ENABLED(POWER_LOSS_RECOVERY)
       void onPowerLoss()               { Dgus.PowerLoss(); }
-      void onPowerLossResume()         { Dgus.PowerLossRecovery(); }
     #endif
 
   } // namespace ExtUI

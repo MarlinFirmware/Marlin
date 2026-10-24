@@ -1683,9 +1683,8 @@ uint8_t expand_u8str_P(char * const outstr, PGM_P const ptpl, const int8_t ind, 
 
     pgm ? host_notify_P(ustr) : host_notify(ustr);
 
-    MString<30> msg;
-    pgm ? msg.set_P(ustr) : msg.set(ustr);
-    status_message.set(&msg).utrunc(MAX_MESSAGE_BYTES);
+    // Remove the last partial Unicode glyph, if any
+    (pgm ? status_message.set_P(ustr) : status_message.set(ustr)).utrunc(MAX_MESSAGE_BYTES);
 
     finish_status(level > 0); // Persist if the status has a level
   }
@@ -1733,6 +1732,7 @@ uint8_t expand_u8str_P(char * const outstr, PGM_P const ptpl, const int8_t ind, 
     va_start(args, pfmt);
     vsnprintf_P(status_message, MAX_MESSAGE_BYTES, pfmt, args);
     va_end(args);
+    status_message.utrunc();
 
     host_notify(status_message);
 
@@ -1812,6 +1812,7 @@ uint8_t expand_u8str_P(char * const outstr, PGM_P const ptpl, const int8_t ind, 
     va_start(args, pfmt);
     vsnprintf_P(&msg, 30, pfmt, args);
     va_end(args);
+    msg.utrunc();
 
     host_notify(msg);
   }

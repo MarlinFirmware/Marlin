@@ -257,23 +257,25 @@ int WifiSerial::_tx_complete_irq(serial_t *obj) {
     // The previous chunk has been sent. Send the rest of the buffer, up to its end.
     obj->tx_tail = (obj->tx_tail + obj->tx_size) % WIFI_TX_BUF_SIZE;
 
+    // If the buffer isn't empty, send the rest, up to the end of the buffer
+    // (the HAL can't wrap around), and restart the transfer from here.
     if (obj->tx_head != obj->tx_tail) {
-      const size_t remaining_data = (WIFI_TX_BUF_SIZE + obj->tx_head - obj->tx_tail) % WIFI_TX_BUF_SIZE;
-      obj->tx_size = min(remaining_data, (size_t)(WIFI_TX_BUF_SIZE - obj->tx_tail));
+      const size_t remaining = (WIFI_TX_BUF_SIZE + obj->tx_head - obj->tx_tail) % WIFI_TX_BUF_SIZE;
+      obj->tx_size = min(remaining, (size_t)(WIFI_TX_BUF_SIZE - obj->tx_tail));
       uart_attach_tx_callback(obj, _tx_complete_irq, obj->tx_size);
       return -1;
     }
-    return 0;
 
   #else
 
     // If interrupts are enabled, there must be more data in the output
     // buffer. Send the next byte
     obj->tx_tail = (obj->tx_tail + 1) % WIFI_TX_BUF_SIZE;
-
-    return (obj->tx_head == obj->tx_tail) ? -1 : 0;
+    if (obj->tx_head == obj->tx_tail) return -1;
 
   #endif
+
+  return 0;
 }
 
 void WifiSerial::begin(unsigned long baud) { begin(baud, SERIAL_8N1); }
@@ -372,9 +374,11 @@ int WifiSerial::write(uint8_t c) {
 
   if (!serial_tx_active(&_serial)) {
     #if UART_TX_CHUNKS
-      const size_t remaining_data = (WIFI_TX_BUF_SIZE + _serial.tx_head - _serial.tx_tail) % WIFI_TX_BUF_SIZE;
-      _serial.tx_size = min(remaining_data, (size_t)(WIFI_TX_BUF_SIZE - _serial.tx_tail));
-      uart_attach_tx_callback(&_serial, _tx_complete_irq, _serial.tx_size);
+      if (_serial.tx_head != _serial.tx_tail) {
+        const size_t remaining = (WIFI_TX_BUF_SIZE + _serial.tx_head - _serial.tx_tail) % WIFI_TX_BUF_SIZE;
+        _serial.tx_size = min(remaining, (size_t)(WIFI_TX_BUF_SIZE - _serial.tx_tail));
+        uart_attach_tx_callback(&_serial, _tx_complete_irq, _serial.tx_size);
+      }
     #else
       uart_attach_tx_callback(&_serial, _tx_complete_irq);
     #endif

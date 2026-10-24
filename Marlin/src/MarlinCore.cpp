@@ -83,6 +83,8 @@
     #include "lcd/dwin/creality/dwin.h"
   #elif ENABLED(DWIN_CREALITY_LCD_JYERSUI)
     #include "lcd/dwin/jyersui/dwin.h"
+  #elif ENABLED(DWIN_LCD_PROUI)
+    #include "lcd/extui/ui_api.h"
   #endif
 #elif ENABLED(SOVOL_SV06_RTS)
   #include "lcd/sovol_rts/sovol_rts.h"
@@ -446,8 +448,11 @@ void Marlin::manage_inactivity(const bool no_stepper_sleep/*=false*/) {
   const bool do_reset_timeout = no_stepper_sleep
                                || TERN0(PAUSE_PARK_NO_STEPPER_TIMEOUT, did_pause_print);
 
-  // Reset both the M18/M84 activity timeout and the M85 max 'kill' timeout
-  if (do_reset_timeout) gcode.reset_stepper_timeout(ms);
+  // Reset both the M18/M84 activity timeout and the M85 max 'kill' timeout.
+  // Resonance blocks bypass the planner queue, so keep the stepper timeout
+  // (and M85 max-inactive kill) from firing while a test is running.
+  if (do_reset_timeout || TERN0(RESONANCE_TEST, rtg.isActive()))
+    gcode.reset_stepper_timeout(ms);
 
   if (gcode.stepper_max_timed_out(ms)) {
     SERIAL_ERROR_START();
@@ -1680,6 +1685,8 @@ void setup() {
 
   #if ENABLED(DWIN_CREALITY_LCD)
     SETUP_RUN(dwinInitScreen());
+  #elif ENABLED(DWIN_LCD_PROUI)
+    SETUP_RUN(ExtUI::onStartup());    // ProUI MarlinUI::init_lcd only does the handshake
   #elif ENABLED(SOVOL_SV06_RTS)
     SETUP_RUN(rts.init());
   #endif

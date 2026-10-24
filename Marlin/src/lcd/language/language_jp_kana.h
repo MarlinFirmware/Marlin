@@ -524,6 +524,7 @@ namespace LanguageNarrow_jp_kana {
   LSTR MSG_TMC_DRIVERS                    = _UxGT("TMCドライバー");                                 // TMC Drivers
   LSTR MSG_TMC_CURRENT                    = _UxGT("ドライバーデンリュウ");                               // Driver Current
   LSTR MSG_TMC_HYBRID_THRS                = _UxGT("ハイブリッドシキイチ");                               // Hybrid Threshold
+  LSTR MSG_TMC_HOMING_HYBRID_THRS         = _UxGT("ゲンテンハイブリッドシキイチ");                           // Homing Hybrid Thrs
   LSTR MSG_TMC_HOMING_THRS                = _UxGT("センサーレスフッキ");                                // Sensorless Homing
   LSTR MSG_TMC_STEPPING_MODE              = _UxGT("ステッピングモード");                                // Stepping Mode
   LSTR MSG_TMC_STEALTHCHOP                = _UxGT("StealthChop");                              // StealthChop
@@ -684,6 +685,7 @@ namespace LanguageNarrow_jp_kana {
   LSTR MSG_ERR_COOLING_FAILED             = _UxGT("レイキャクシッパイ");                                // Cooling Failed
   LSTR MSG_PLEASE_WAIT                    = _UxGT("オマチクダサイ");                                  // Please wait...
   LSTR MSG_PREHEATING                     = _UxGT("ヨネツチュウ");                                   // Preheating...
+  LSTR MSG_HEAT_SOAK                      = _UxGT("ヒートソーク");                                   // Heat Soak
   LSTR MSG_PROBE_HEATING                  = _UxGT("プローブカネツチュウ");                               // Probe Heating...
   LSTR MSG_PROBE_COOLING                  = _UxGT("プローブレイキャク");                                // Probe Cooling...
   LSTR MSG_LASER_COOLING                  = _UxGT("レーザーレイキャク");                                // Laser Cooling...
@@ -824,6 +826,9 @@ namespace LanguageNarrow_jp_kana {
   LSTR MSG_ADVANCE_TAU                    = _UxGT("アドバンス Tau");                                // Advance Tau
   LSTR MSG_ADVANCE_TAU_E                  = _UxGT("アドバンス Tau *");                              // Advance Tau *
   LSTR MSG_NLE_ON                         = _UxGT("NLE ユウコウ");                                 // NLE enabled
+  LSTR MSG_NLE_A                          = _UxGT("-ニジ");                                      // -Quadratic
+  LSTR MSG_NLE_B                          = _UxGT("-センケイ");                                    // -Linear
+  LSTR MSG_NLE_C                          = _UxGT("-イッテイ");                                    // -Constant
   LSTR MSG_HOTEND_TEMP_GRAPH              = _UxGT("ノズルオンドグラフ");                                // Hotend Temp Graph
   LSTR MSG_BED_TEMP_GRAPH                 = _UxGT("ベッドオンドグラフ");                                // Bed Temp Graph
   LSTR MSG_EEPROM_INITIALIZED             = _UxGT("EEPROMショキカズミ");                             // EEPROM Initialized

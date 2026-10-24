@@ -615,8 +615,8 @@
   #error "LIN_ADVANCE_K is now ADVANCE_K."
 #elif defined(EXTRA_LIN_ADVANCE_K)
   #error "EXTRA_LIN_ADVANCE_K is now ADVANCE_K_EXTRA."
-#elif defined(POLAR_SEGMENTS_PER_SECOND) || defined(DELTA_SEGMENTS_PER_SECOND)  || defined(SCARA_SEGMENTS_PER_SECOND) || defined(TPARA_SEGMENTS_PER_SECOND)
-  #error "(POLAR|DELTA|SCARA|TPARA)_SEGMENTS_PER_SECOND is now DEFAULT_SEGMENTS_PER_SECOND."
+#elif defined(POLAR_SEGMENTS_PER_SECOND) || defined(DELTA_SEGMENTS_PER_SECOND)  || defined(SCARA_SEGMENTS_PER_SECOND) || defined(TPARA_SEGMENTS_PER_SECOND) || defined(ROBOT_SEGMENTS_PER_SECOND)
+  #error "(POLAR|DELTA|SCARA|TPARA|ROBOT)_SEGMENTS_PER_SECOND is now DEFAULT_SEGMENTS_PER_SECOND."
 #elif defined(TMC_SW_MOSI) || defined(TMC_SW_MISO) || defined(TMC_SW_SCK)
   #error "TMC_SW_(MOSI|MISO|SCK) is now TMC_SPI_(MOSI|MISO|SCK)."
 #elif ANY(DGUS_LCD_UI_ORIGIN, DGUS_LCD_UI_FYSETC, DGUS_LCD_UI_HIPRECY, DGUS_LCD_UI_MKS, DGUS_LCD_UI_RELOADED) && !defined(DGUS_LCD_UI)
@@ -769,6 +769,45 @@
   #error "BED_HYSTERESIS is now BED_LIMIT_HYSTERESIS."
 #elif defined(CHAMBER_HYSTERESIS)
   #error "CHAMBER_HYSTERESIS is now CHAMBER_LIMIT_HYSTERESIS."
+#elif defined(MINIMUM_STEPPER_DIR_DELAY)
+  #error "MINIMUM_STEPPER_DIR_DELAY is now MINIMUM_STEPPER_POST_DIR_DELAY and MINIMUM_STEPPER_PRE_DIR_DELAY."
+#elif defined(X_HOMING_SENSITIVITY) || defined(Y_HOMING_SENSITIVITY) || defined(Z_HOMING_SENSITIVITY)
+  #error "[XYZ]_HOMING_SENSITIVITY is now [XYZ]_STALL_SENSITIVITY."
+#elif defined(R_SENSE)
+  #error "R_SENSE is now set per axis with [AXIS]_RSENSE."
+#elif defined(USER_DESC_1) || defined(USER_DESC_2) || defined(USER_DESC_3) || defined(USER_DESC_4) || defined(USER_DESC_5) \
+   || defined(USER_GCODE_1) || defined(USER_GCODE_2) || defined(USER_GCODE_3) || defined(USER_GCODE_4) || defined(USER_GCODE_5)
+  #error "USER_DESC_[12345] and USER_GCODE_[12345] are now MAIN_MENU_ITEM_[12345]_DESC and MAIN_MENU_ITEM_[12345]_GCODE."
+#elif defined(CUSTOM_USER_MENU_TITLE)
+  #error "CUSTOM_USER_MENU_TITLE is now CUSTOM_MENU_MAIN_TITLE."
+#elif defined(USER_SCRIPT_AUDIBLE_FEEDBACK) || defined(USER_SCRIPT_RETURN) || defined(USER_SCRIPT_DONE)
+  #error "USER_SCRIPT_(AUDIBLE_FEEDBACK|RETURN|DONE) is now CUSTOM_MENU_MAIN_SCRIPT_(AUDIBLE_FEEDBACK|RETURN|DONE)."
+#elif defined(MM_PER_ARC_SEGMENT)
+  #error "MM_PER_ARC_SEGMENT is now MIN_ARC_SEGMENT_MM."
+#elif defined(BTC_SAMPLE_START) || defined(BTC_SAMPLE_RES) || defined(BTC_SAMPLE_COUNT)
+  #error "BTC_SAMPLE_(START|RES|COUNT) is now PTC_PROBE_(START|RES|COUNT)."
+#elif defined(PTC_SAMPLE_START) || defined(PTC_SAMPLE_RES) || defined(PTC_SAMPLE_COUNT)
+  #error "PTC_SAMPLE_(START|RES|COUNT) is now PTC_PROBE_(START|RES|COUNT)."
+#elif defined(CONTROLLERFAN_SPEED_Z_ONLY)
+  #error "CONTROLLERFAN_SPEED_Z_ONLY is replaced by CONTROLLER_FAN_USE_Z_ONLY."
+#elif defined(TOOLCHANGE_FIL_EXTRA_PRIME)
+  #error "TOOLCHANGE_FIL_EXTRA_PRIME is now TOOLCHANGE_FS_EXTRA_PRIME."
+#elif defined(ROBOT_LINKAGE_1) || defined(ROBOT_LINKAGE_2)
+  #error "ROBOT_LINKAGE_[12] is now TPARA_LINKAGE_[12]."
+#elif defined(ROBOT_OFFSET_X) || defined(ROBOT_OFFSET_Y) || defined(ROBOT_OFFSET_Z)
+  #error "ROBOT_OFFSET_[XYZ] is now TPARA_OFFSET_[XYZ]."
+#elif defined(DEBUG_ROBOT_KINEMATICS)
+  #error "DEBUG_ROBOT_KINEMATICS is now DEBUG_TPARA_KINEMATICS."
+#elif defined(MINIMUM_PLANNER_SPEED)
+  #error "MINIMUM_PLANNER_SPEED is obsolete. The minimum planner junction speed is now automatic."
+#elif defined(DELTA_MAX_RADIUS)
+  #error "DELTA_MAX_RADIUS is obsolete and should be removed."
+#elif defined(SF_ARC_FIX)
+  #error "SF_ARC_FIX is obsolete and should be removed."
+#elif defined(DEBUG_SCARA_KINEMATICS)
+  #error "DEBUG_SCARA_KINEMATICS is obsolete and should be removed."
+#elif defined(SCARA_OFFSET_THETA1) || defined(SCARA_OFFSET_THETA2) || defined(THETA_HOMING_OFFSET) || defined(PSI_HOMING_OFFSET)
+  #error "SCARA_OFFSET_THETA1/2 and THETA/PSI_HOMING_OFFSET are obsolete. Set SCARA_HOME_THETA and SCARA_HOME_PSI to the shoulder and elbow angles at the home position, or leave them undefined to home at the Cartesian position."
 #endif
 
 // SDSS renamed to SD_SS_PIN
