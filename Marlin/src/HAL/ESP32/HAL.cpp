@@ -23,7 +23,7 @@
 
 #include "../../inc/MarlinConfig.h"
 
-#include <rom/rtc.h>
+#include <esp_system.h>
 #include <driver/adc.h>
 #include <esp_adc_cal.h>
 #include <HardwareSerial.h>
@@ -176,7 +176,19 @@ void MarlinHAL::idletask() {
   TERN_(ESP3D_WIFISUPPORT, esp3dlib.idletask());
 }
 
-uint8_t MarlinHAL::get_reset_source() { return rtc_get_reset_reason(1); }
+uint8_t MarlinHAL::get_reset_source() {
+  switch (esp_reset_reason()) {
+    case ESP_RST_POWERON:  return RST_POWER_ON;   // Includes the EN pin
+    case ESP_RST_EXT:      return RST_EXTERNAL;
+    case ESP_RST_BROWNOUT: return RST_BROWN_OUT;
+    case ESP_RST_INT_WDT:
+    case ESP_RST_TASK_WDT:
+    case ESP_RST_WDT:      return RST_WATCHDOG;
+    case ESP_RST_SW:
+    case ESP_RST_PANIC:    return RST_SOFTWARE;   // Restarted by software, or after a crash
+    default:               return 0;
+  }
+}
 
 void MarlinHAL::reboot() { ESP.restart(); }
 
