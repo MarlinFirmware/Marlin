@@ -363,6 +363,8 @@ namespace LanguageNarrow_hu {
   LSTR MSG_STORED_FAN_N                   = _UxGT("Tárolt hűtés ~");                           // Stored Fan ~
   LSTR MSG_EXTRA_FAN_SPEED                = _UxGT("Extra hűtés sebesség");                     // Extra Fan Speed
   LSTR MSG_EXTRA_FAN_SPEED_N              = _UxGT("Extra hűtés seb. ~");                       // Extra Fan ~ Speed
+  LSTR MSG_FANS                           = _UxGT("Ventilátorok");                             // Fans
+  LSTR MSG_EXTRUDER_AUTO_FAN_SPEED        = _UxGT("Adagoló hűtés seb.");                       // Extruder fan speed
   LSTR MSG_PID_AUTOTUNE                   = _UxGT("PID hangolás");                             // PID Autotune
   LSTR MSG_PID_AUTOTUNE_E                 = _UxGT("PID hangolás *");                           // Autotune * PID
   LSTR MSG_JERK                           = _UxGT("Rántás");                                   // Jerk

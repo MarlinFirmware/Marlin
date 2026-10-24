@@ -365,6 +365,8 @@ namespace LanguageNarrow_hg {
   LSTR MSG_STORED_FAN_N                   = _UxGT("Saved Pankha ~");                           // Stored Fan ~
   LSTR MSG_EXTRA_FAN_SPEED                = _UxGT("Extra Pankha speed");                       // Extra Fan Speed
   LSTR MSG_EXTRA_FAN_SPEED_N              = _UxGT("Extra Pankha ~ speed");                     // Extra Fan ~ Speed
+  LSTR MSG_FANS                           = _UxGT("Pankhe");                                   // Fans
+  LSTR MSG_EXTRUDER_AUTO_FAN_SPEED        = _UxGT("Extr. pankha speed");                       // Extruder fan speed
   LSTR MSG_PID_AUTOTUNE                   = _UxGT("PID Autotune");                             // PID Autotune
   LSTR MSG_PID_AUTOTUNE_E                 = _UxGT("Autotune * PID");                           // Autotune * PID
   LSTR MSG_JERK                           = _UxGT("Jerk");                                     // Jerk
