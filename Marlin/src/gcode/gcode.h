@@ -344,6 +344,7 @@
  * M995 - Touch screen calibration for TFT display
  * M997 - Perform in-application firmware update
  * M999 - Restart after being stopped by error
+ * M7422 - Dump the Creality v4.2.x bootloader info page. (Requires CREALITY_BOOTLOADER_INFO_DUMP)
  *
  * D... - Custom Development G-code. Add hooks to "gcode_D.cpp" for developers to test features. (Requires MARLIN_DEV_MODE)
  *        D576 - Set buffer monitoring options. (Requires BUFFER_MONITORING)
@@ -1329,6 +1330,10 @@ private:
   #if SPI_FLASH_BACKUP
     static void M993();
     static void M994();
+  #endif
+
+  #if ENABLED(CREALITY_BOOTLOADER_INFO_DUMP)
+    static void M7422();
   #endif
 
   #if ENABLED(PLATFORM_M997_SUPPORT)
