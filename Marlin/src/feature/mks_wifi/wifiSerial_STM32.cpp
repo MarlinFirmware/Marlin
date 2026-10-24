@@ -250,9 +250,10 @@ void WifiSerial::_rx_complete_irq(serial_t *obj) {
 
 // Actual interrupt handlers //////////////////////////////////////////////////////////////
 
-#if UART_TX_CHUNKS
+int WifiSerial::_tx_complete_irq(serial_t *obj) {
 
-  int WifiSerial::_tx_complete_irq(serial_t *obj) {
+  #if UART_TX_CHUNKS
+
     // The previous chunk has been sent. Send the rest of the buffer, up to its end.
     obj->tx_tail = (obj->tx_tail + obj->tx_size) % WIFI_TX_BUF_SIZE;
 
@@ -263,19 +264,17 @@ void WifiSerial::_rx_complete_irq(serial_t *obj) {
       return -1;
     }
     return 0;
-  }
 
-#else
+  #else
 
-  int WifiSerial::_tx_complete_irq(serial_t *obj) {
     // If interrupts are enabled, there must be more data in the output
     // buffer. Send the next byte
     obj->tx_tail = (obj->tx_tail + 1) % WIFI_TX_BUF_SIZE;
 
     return (obj->tx_head == obj->tx_tail) ? -1 : 0;
-  }
 
-#endif
+  #endif
+}
 
 void WifiSerial::begin(unsigned long baud) { begin(baud, SERIAL_8N1); }
 
