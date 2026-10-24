@@ -274,7 +274,7 @@
 
 /**
  * Two separate X-carriages with extruders that connect to a moving part
- * via a solenoid docking mechanism. Requires SOL1_PIN and SOL2_PIN.
+ * via a solenoid docking mechanism. Requires SOL0_PIN and SOL1_PIN.
  */
 //#define PARKING_EXTRUDER
 
@@ -3679,6 +3679,14 @@
 // EasyThreeD ET-4000+ with button input and status LED
 //
 //#define EASYTHREED_UI
+
+//
+// PanelDue touch controller by Duet3D (PanelDueFirmware 3.2 or newer)
+// https://docs.duet3d.com/User_manual/Connecting_hardware/Display_PanelDue
+// Connect the PanelDue to a free UART and define LCD_SERIAL_PORT with its index.
+// The PanelDue baud rate must be set to 57600, or define LCD_BAUDRATE to match.
+//
+//#define PANELDUE
 
 //=============================================================================
 //=============================== Extra Features ==============================

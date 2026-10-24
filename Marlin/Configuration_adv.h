@@ -300,9 +300,10 @@
  * temperature of the air in the room, and the firmware will keep
  * the heater on.
  *
- * The solution: Once the temperature reaches the target, start observing.
- * If the temperature stays too far below the target (hysteresis) for too
- * long (period), the firmware will halt the machine as a safety precaution.
+ * The solution: Once the temperature is within the hysteresis of the target,
+ * start observing. If the temperature stays too far below the target
+ * (hysteresis) for too long (period), the firmware will halt the machine as
+ * a safety precaution.
  *
  * If you get false positives for "Thermal Runaway", increase
  * THERMAL_PROTECTION_HYSTERESIS and/or THERMAL_PROTECTION_PERIOD
@@ -323,9 +324,9 @@
    * Whenever an M104, M109, or M303 increases the target temperature, the
    * firmware will wait for the WATCH_TEMP_PERIOD to expire. If the temperature
    * hasn't increased by WATCH_TEMP_INCREASE degrees, the machine is halted and
-   * requires a hard reset. This test restarts with any M104/M109/M303, but only
-   * if the current temperature is far enough below the target for a reliable
-   * test.
+   * requires a hard reset. This test restarts with any M104/M109/M303 and
+   * repeats until the temperature is within THERMAL_PROTECTION_HYSTERESIS of
+   * the target, where Thermal Runaway protection takes over.
    *
    * If you get false positives for "Heating failed", increase WATCH_TEMP_PERIOD
    * and/or decrease WATCH_TEMP_INCREASE. WATCH_TEMP_INCREASE should not be set
@@ -2523,7 +2524,8 @@
  */
 //#define NONLINEAR_EXTRUSION
 #if ENABLED(NONLINEAR_EXTRUSION)
-  //#define NONLINEAR_EXTRUSION_DEFAULT_ON    // Enable if NLE should be ON by default
+  //#define NONLINEAR_EXTRUSION_DEFAULT_ON          // Enable if NLE should be ON by default
+  //#define NONLINEAR_FACTORS { 0.0f, 0.0f, 1.0f }  // Quadratic, Linear, Constant coefficients
 #endif
 
 // @section leveling
@@ -3514,13 +3516,21 @@
    * Optimize spreadCycle chopper parameters by using predefined parameter sets
    * or with the help of an example included in the library.
    * Provided parameter sets are
-   * CHOPPER_DEFAULT_12V
+   * CHOPPER_DEFAULT_12V  // 1.8 degree steppers (also CHOPPER_18STEP_<V>)
    * CHOPPER_DEFAULT_19V
    * CHOPPER_DEFAULT_24V
    * CHOPPER_DEFAULT_36V
-   * CHOPPER_09STEP_24V   // 0.9 degree steppers (24V)
+   * CHOPPER_DEFAULT_48V
+   * CHOPPER_DEFAULT_60V
+   * CHOPPER_09STEP_12V   // 0.9 degree steppers
+   * CHOPPER_09STEP_19V
+   * CHOPPER_09STEP_24V
+   * CHOPPER_09STEP_36V
+   * CHOPPER_09STEP_48V
    * CHOPPER_PRUSAMK3_24V // Imported parameters from the official Průša firmware for MK3 (24V)
    * CHOPPER_MARLIN_119   // Old defaults from Marlin v1.1.9
+   *
+   * Presets over 24V require a driver rated for the supply voltage.
    *
    * Define your own with:
    * { <off_time[1..15]>, <hysteresis_end[-3..12]>, hysteresis_start[1..8] }

@@ -366,7 +366,6 @@ namespace Anycubic {
 
     static void PowerLoss();
 
-    static void PowerLossRecovery();
 
     static void HomingStart();
 

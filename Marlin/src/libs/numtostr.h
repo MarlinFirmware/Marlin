@@ -171,3 +171,28 @@ const char* ftostr52sprj(const float f);
 
 // Reduce a formatted number to its shortest form, e.g., "+000.10" => "0.1"
 const char* shortenNum(const char * convptr, const bool removeWhole0=false, const bool removeUnit=true);
+
+// Buffer size for ftostrf
+#define FTOSTRF_BUFSIZE 20
+
+/**
+ * Format a float into the caller's buffer, as dtostrf does, but without avr-libc's float
+ * formatter (dtoa_prf, __ftoa_engine, __fp_*) that dtostrf links in on AVR (about 1.5 KB).
+ *
+ *   str    Output buffer of FTOSTRF_BUFSIZE characters.
+ *   width  Minimum field width, right-justified, or left-justified if negative. At most 19.
+ *   prec   Digits after the decimal point, at most 6.
+ *
+ * The integer part is exact (up to 4294967039) and only the fraction is scaled by 10^prec
+ * and rounded half up. The result can differ from a libc that rounds the exact binary
+ * value only when the fraction is within a float ulp of a rounding tie. Values of
+ * 4294967040 or more give "ovf" (also infinity), and NaN gives "nan".
+ */
+char * ftostrf(char * const str, float value, const int8_t width, uint8_t prec);
+
+// Format a w_float_t. AVR uses ftostrf, other platforms keep dtostrf.
+#ifdef __AVR__
+  #define w_float_to_str(WF, BUF) ftostrf(BUF, (WF).value, (WF).width, (WF).prec)
+#else
+  #define w_float_to_str(WF, BUF) dtostrf((WF).value, (WF).width, (WF).prec, BUF)
+#endif
