@@ -269,7 +269,9 @@
  * M553 - Set / Report IP netmask. (Requires enabled Ethernet port)
  * M554 - Set / Report IP gateway. (Requires enabled Ethernet port)
  * M569 - Enable stealthChop on an axis. (Requires *_DRIVER_TYPE TMC(2130|2160|2208|2209|2240|5130|5160))
+ * M574 - Set / Report homing direction. (Requires RUNTIME_HOMING_DIRECTION)
  * M575 - Change the serial baud rate. (Requires BAUD_RATE_GCODE)
+ * M583 - Set / Report stepper direction. (Requires RUNTIME_AXIS_DIRECTION)
  * M592 - Set / Report Nonlinear Extrusion parameters. (Requires NONLINEAR_EXTRUSION)
  * M593 - Set / Report input shaping parameters. (Requires INPUT_SHAPING_[XY])
  * M600 - Pause for filament change: 'M600 X<pos> Y<pos> Z<raise> E<first_retract> L<later_retract>'. (Requires ADVANCED_PAUSE_FEATURE)
@@ -1178,8 +1180,18 @@ private:
     static void M569_report(const bool forReplay=true);
   #endif
 
+  #if ENABLED(RUNTIME_HOMING_DIRECTION)
+    static void M574();
+    static void M574_report(const bool forReplay=true);
+  #endif
+
   #if ENABLED(BAUD_RATE_GCODE)
     static void M575();
+  #endif
+
+  #if ENABLED(RUNTIME_AXIS_DIRECTION)
+    static void M583();
+    static void M583_report(const bool forReplay=true);
   #endif
 
   #if ENABLED(NONLINEAR_EXTRUSION)
