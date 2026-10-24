@@ -688,8 +688,7 @@ void menu_motion() {
   //
   // Move Axis
   //
-  if (TERN1(DELTA, motion.all_axes_homed()))
-    SUBMENU(MSG_MOVE_AXIS, menu_move);
+  SUBMENU(MSG_MOVE_AXIS, menu_move);
 
   //
   // Auto Home

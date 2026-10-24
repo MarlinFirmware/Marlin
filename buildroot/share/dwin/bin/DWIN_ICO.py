@@ -49,47 +49,38 @@
 #     11   5  ??? all zeroes
 #
 # Other notes:
-# * The index of each icon corresponds to the Icon number in dwin.h
-# * One exception is number 39: that header entry is blank, and dwin.h
-#   does not define a name for 39. This is specially handled to
-#   prevent reordering stock icons.
+# * The index of each icon corresponds to the Icon number in dwin_set.h
+#   (7.ICO) or marlinui/dwin_lcd.h (3.ICO, 4.ICO).
+# * Entries with zero length are empty slots (e.g., 39 in 7.ICO).
+#   All 256 entries are kept so that indexes never shift.
 
-import os, struct
+import os, re, struct
 from PIL import Image
-
-def getJpegResolution(jpegFile):
-    """Returns a 2-tuple containing the jpegFile's (width, height).
-    """
-    img = Image.open(jpegFile)
-    return img.size
 
 class DWIN_ICO_File():
     def __init__(self):
         self.entries = []    # list of header entries
 
-    def splitFile(self, filename, outDir):
+    def splitFile(self, filename, outDir, names=None):
         if not filename[-4:].lower() == '.ico':
             raise RuntimeError('Input file must end in .ico')
 
+        if names is None: names = iconNamesFor(filename)
+
         with open(filename, 'rb') as infile:
             self._parseHeader(infile)
-            self._splitEntryData(infile, outDir)
+            self._splitEntryData(infile, outDir, names)
 
     def _parseHeader(self, infile):
-        maxEntries = 256
-        count = 0
-        icon_nums = _iconNames.keys()
-        while count < maxEntries:
+        # Keep all 256 entries so each list index is the icon index
+        self.entries = []
+        for count in range(256):
             rawBytes = infile.read(16)
             entry = Entry()
             entry.parseRawData(rawBytes)
-            # check that it is valid: is offset nonzero?
-            # Special case: treat missing numbers as valid
-            if (entry.offset > 0) or count not in icon_nums:
-                self.entries.append(entry)
-            count += 1
+            self.entries.append(entry)
 
-    def _splitEntryData(self, infile, outDir):
+    def _splitEntryData(self, infile, outDir, names):
         print('Splitting Entry Data...')
         if 0 == len(self.entries):
             raise RuntimeError('.ico file is not loaded yet')
@@ -98,23 +89,19 @@ class DWIN_ICO_File():
         if not os.path.exists(outDir):
             os.mkdir(outDir)
 
-        # keep a count
-        count = 0
-        for entry in self.entries:
-            # Skip any empty entries. (Special handling of 39.)
-            if entry.length == 0:
-                count += 1
-                continue
-            outfilename = os.path.join(outDir, '%03d-ICON_%s.jpg' % (count, _iconNames.get(count, "UNKNOWN")))
+        for count, entry in enumerate(self.entries):
+            # Skip empty entries
+            if entry.length == 0: continue
+            outfilename = os.path.join(outDir, '%03d-ICON_%s.jpg' % (count, names.get(count, "UNKNOWN")))
             with open(outfilename, 'wb') as outfile:
+                # Seek file position, read length bytes, and write to new output file.
                 infile.seek(entry.offset)
                 blob = infile.read(entry.length)
+                if len(blob) != entry.length:
+                    raise RuntimeError('Icon %d data runs past the end of the file' % count)
                 outfile.write(blob)
-                # Seek file position, read length bytes, and write to new output file.
                 print('(%3d: width=%3d height=%3d offset=%6d len=%4d) ... %s' %
                       (count, entry.width, entry.height, entry.offset, entry.length, os.path.basename(outfilename)))
-
-            count += 1
 
     def createFile(self, iconDir, filename):
         """Create a new .ico file from the contents of iconDir.
@@ -129,29 +116,30 @@ class DWIN_ICO_File():
         # 1. Scan icon directory and record all valid files
         print('Scanning icon directory', iconDir)
         count = 0
-        for dirEntry in os.scandir(iconDir):
-            if not dirEntry.is_file():
-                print('...Ignoring', dirEntry.path)
+        for dirEntry in sorted(os.scandir(iconDir), key=lambda d: d.name):
+            # Only consider files named like "071-ICON_StepX.jpg"
+            m = re.match(r'^(\d{3})-.*\.jpe?g$', dirEntry.name, re.IGNORECASE)
+            if not dirEntry.is_file() or not m:
                 continue
-            # process each file:
-            try:
-                index = int(dirEntry.name[0:3])
-                if not (0 <= index <= 255):
-                    print('...Ignoring invalid index on', dirEntry.path)
-                    continue
-                # dirEntry.path is iconDir/name
-                w,h = getJpegResolution(dirEntry.path)
-                length = dirEntry.stat().st_size
-                e = self.entries[index]
-                e.width = w
-                e.height = h
-                e.length = length
-                e.filename = dirEntry.path
-                count += 1
-            except Exception as e:
-                print('Whoops: ', e)
-                pass
+            index = int(m.group(1))
+            if not (0 <= index <= 255):
+                raise RuntimeError('Invalid icon index in %s' % dirEntry.path)
+            e = self.entries[index]
+            if e.filename:
+                raise RuntimeError('Duplicate icon index %03d: %s and %s' % (index, os.path.basename(e.filename), dirEntry.name))
+            # dirEntry.path is iconDir/name
+            img = Image.open(dirEntry.path)
+            if img.format != 'JPEG':
+                raise RuntimeError('%s is not a JPEG file' % dirEntry.path)
+            if img.info.get('progressive') or img.info.get('progression'):
+                raise RuntimeError('%s is a progressive JPEG (use baseline)' % dirEntry.path)
+            e.width, e.height = img.size
+            e.length = dirEntry.stat().st_size
+            e.filename = dirEntry.path
+            count += 1
         print('...Scanned %d icon files' % (count))
+        if count == 0:
+            raise RuntimeError('No icon files found in %s' % iconDir)
 
         # 2. Scan over valid header entries and update offsets
         self._updateHeaderOffsets()
@@ -196,7 +184,7 @@ class DWIN_ICO_File():
         with open(filename, 'rb') as infile:
             contents = infile.read(length)
             if len(contents) != length:
-                raise RuntimeError('Failed to read contents of', filename)
+                raise RuntimeError('Failed to read contents of %s' % filename)
             return contents
 
 class Entry():
@@ -344,3 +332,43 @@ _iconNames = {
     253 : "AxisTL",
     254 : "AxisC"
 }
+
+# Names for MarlinUI's boot icons (3.ICO) and status icons (4.ICO), from marlinui/dwin_lcd.h
+_iconNames3 = {
+      0 : "MarlinBoot",
+      1 : "OpenSource",
+      2 : "GitHubURL",
+      3 : "MarlinURL",
+      4 : "Copyright"
+}
+
+_iconNames4 = {
+      0 : "LOGO_Marlin",
+      1 : "HotendOff",
+      2 : "HotendOn",
+      3 : "BedOff",
+      4 : "BedOn",
+      5 : "Fan0",
+      6 : "Fan1",
+      7 : "Fan2",
+      8 : "Fan3",
+      9 : "Halted",
+     10 : "Question",
+     11 : "Alert",
+     12 : "RotateCW",
+     13 : "RotateCCW",
+     14 : "UpArrow",
+     15 : "DownArrow",
+     16 : "Bedline",
+     17 : "BedLeveledOff",
+     18 : "BedLeveledOn"
+}
+
+def iconNamesFor(filename):
+    """Return the icon name map for an ICO file, by its leading set number.
+    Unknown sets get the 7.ICO (dwin_set.h) names.
+    """
+    m = re.match(r'^(\d+)', os.path.basename(filename))
+    num = int(m.group(1)) if m else 7
+    return { 3: _iconNames3, 4: _iconNames4 }.get(num, _iconNames)
+

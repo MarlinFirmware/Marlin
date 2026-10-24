@@ -1562,11 +1562,17 @@
 // X2 but not IDEX => Dual Synchronized X Steppers
 #if defined(X2_DRIVER_TYPE) && DISABLED(DUAL_X_CARRIAGE)
   #define HAS_SYNCED_X_STEPPERS 1
+  #ifndef INVERT_X2_DIR
+    #define INVERT_X2_DIR INVERT_X_DIR
+  #endif
 #endif
 
 // Y2 Stepper => Dual Synchronized Y Steppers
 #ifdef Y2_DRIVER_TYPE
   #define HAS_SYNCED_Y_STEPPERS 1
+  #ifndef INVERT_Y2_DIR
+    #define INVERT_Y2_DIR INVERT_Y_DIR
+  #endif
 #endif
 
 // Multiple Z steppers

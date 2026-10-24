@@ -28,7 +28,7 @@
 #include <esp_adc_cal.h>
 #include <HardwareSerial.h>
 
-#if ENABLED(USE_ESP32_TASK_WDT)
+#if ANY(USE_ESP32_TASK_WDT, USE_WATCHDOG)
   #include <esp_task_wdt.h>
 #endif
 
@@ -93,7 +93,12 @@ struct {
 
   bool wifi_custom_command(char * const command_ptr) {
     #if ENABLED(ESP3D_WIFISUPPORT)
-      return esp3dlib.parse(command_ptr);
+      // ESP3D commands such as a WiFi scan or a file system format can take longer
+      // than the watchdog timeout, and can't refresh the watchdog themselves.
+      TERN_(USE_WATCHDOG, esp_task_wdt_delete(nullptr));
+      const bool handled = esp3dlib.parse(command_ptr);
+      TERN_(USE_WATCHDOG, esp_task_wdt_add(nullptr));
+      return handled;
     #else
       UNUSED(command_ptr);
       return false;
@@ -184,18 +189,17 @@ int MarlinHAL::freeMemory() { return ESP.getFreeHeap(); }
 
 #if ENABLED(USE_WATCHDOG)
 
-  #define WDT_TIMEOUT_US TERN(WATCHDOG_DURATION_8S, 8000000, 4000000) // 4 or 8 second timeout
-
-  extern "C" {
-    esp_err_t esp_task_wdt_reset();
-  }
+  #define WDT_TIMEOUT_S TERN(WATCHDOG_DURATION_8S, 8, 4) // 4 or 8 second timeout
 
   void watchdogSetup() {
     // do whatever. don't remove this function.
   }
 
+  // The IDF Task Watchdog is already running for the idle task. Set the timeout,
+  // reset on timeout, and watch the Marlin loop task, which calls watchdog_refresh().
   void MarlinHAL::watchdog_init() {
-    // TODO
+    esp_task_wdt_init(WDT_TIMEOUT_S, true);
+    esp_task_wdt_add(nullptr);
   }
 
   // Reset watchdog.

@@ -163,7 +163,7 @@
 #define DWIN_VAR_UPDATE_INTERVAL          500
 #define DWIN_UPDATE_INTERVAL             1000
 
-#if HAS_MESH && HAS_BED_PROBE
+#if HAS_BED_PROBE
   #define BABY_Z_VAR probe.offset.z
 #else
   float z_offset = 0;
@@ -502,8 +502,10 @@ uint32_t getHash(char * str) {
 void dwinCheckStatusMessage() {
   static MString<>::hash_t old_hash = 0x0000;
   const MString<>::hash_t hash = ui.status_message.hash();
-  hash_changed = hash != old_hash;
-  old_hash = hash;
+  if (hash != old_hash) {
+    hash_changed = true; // Cleared after the message is drawn
+    old_hash = hash;
+  }
 }
 
 void dwinDrawStatusMessage() {
@@ -1751,13 +1753,21 @@ void dwinHomingDone() {
       #if ENABLED(PIDTEMPBED)
         case PIDTEMPBED_START:
           hmiSaveProcessID(ID_PIDProcess);
-          dwinDrawPopup(ICON_TempTooHigh, GET_TEXT_F(MSG_PID_AUTOTUNE), GET_TEXT_F(MSG_PID_FOR_BED));
+          #if PROUI_TUNING_GRAPH
+            dwinDrawPIDMPCPopup();
+          #else
+            dwinDrawPopup(ICON_TempTooHigh, GET_TEXT_F(MSG_PID_AUTOTUNE), GET_TEXT_F(MSG_PID_FOR_BED));
+          #endif
           break;
       #endif
       #if ENABLED(PIDTEMPCHAMBER)
         case PIDTEMPCHAMBER_START:
           hmiSaveProcessID(ID_PIDProcess);
-          dwinDrawPopup(ICON_TempTooHigh, GET_TEXT_F(MSG_PID_AUTOTUNE), GET_TEXT_F(MSG_PID_FOR_CHAMBER));
+          #if PROUI_TUNING_GRAPH
+            dwinDrawPIDMPCPopup();
+          #else
+            dwinDrawPopup(ICON_TempTooHigh, GET_TEXT_F(MSG_PID_AUTOTUNE), GET_TEXT_F(MSG_PID_FOR_CHAMBER));
+          #endif
           break;
       #endif
       case PID_BAD_HEATER_ID:
@@ -1910,7 +1920,7 @@ void dwinSetDataDefaults() {
     hmiData.extMinT = EXTRUDE_MINTEMP;
     applyExtMinT();
   #endif
-  TERN_(BAUD_RATE_GCODE, setBaud250K());
+  TERN_(BAUD_RATE_GCODE, hmiData.baud115K = (BAUDRATE == 115200));
   #if ALL(LCD_BED_TRAMMING, HAS_BED_PROBE)
     hmiData.fullManualTramming = DISABLED(BED_TRAMMING_USE_PROBE);
   #endif
@@ -1942,7 +1952,13 @@ void dwinCopySettingsFrom(const char * const buff) {
   DWINUI::setColors(hmiData.colorText, hmiData.colorBackground, hmiData.colorStatusBg);
   TERN_(PREVENT_COLD_EXTRUSION, applyExtMinT());
   motion.feedrate_percentage = 100;
-  TERN_(BAUD_RATE_GCODE, hmiSetBaudRate());
+  // Only change the baud rate if the stored choice differs from the configured BAUDRATE
+  #if ENABLED(BAUD_RATE_GCODE)
+    if (hmiData.baud115K != (BAUDRATE == 115200)) hmiSetBaudRate();
+  #endif
+  #if ENABLED(PROUI_MEDIASORT)
+    card.setSortOn(hmiData.mediaSort ? TERN(SDSORT_REVERSE, AS_REV, AS_FWD) : AS_OFF);
+  #endif
   #if ALL(LED_CONTROL_MENU, HAS_COLOR_LEDS)
     leds.set_color(
       hmiData.ledColor.r,
@@ -2100,11 +2116,12 @@ void autoHome() { queue.inject_P(G28_STR); }
   }
 
   void setMoveZto0() {
+    gcode.process_subcommands_now(F(TERN_(Z_SAFE_HOMING, "G28XYO\n") "G28Z"));
+    TERN_(HAS_LEVELING, set_bed_leveling_enabled(false)); // Go to the true Z0, even if G28 re-enabled leveling
     #if ENABLED(Z_SAFE_HOMING)
-      gcode.process_subcommands_now(MString<54>(F("G28XYO\nG28Z\nG0F5000X"), Z_SAFE_HOMING_X_POINT, F("Y"), Z_SAFE_HOMING_Y_POINT, F("\nG0Z0F300\nM400")));
+      gcode.process_subcommands_now(MString<54>(F("G0F5000X"), Z_SAFE_HOMING_X_POINT, F("Y"), Z_SAFE_HOMING_Y_POINT, F("\nG0Z0F300\nM400")));
     #else
-      TERN_(HAS_LEVELING, set_bed_leveling_enabled(false));
-      gcode.process_subcommands_now(F("G28Z\nG0Z0F300\nM400"));
+      gcode.process_subcommands_now(F("G0Z0F300\nM400"));
     #endif
     ui.reset_status();
     DONE_BUZZ(true);
@@ -2255,9 +2272,9 @@ void setMoveZ() { hmiValue.axis = Z_AXIS; setPFloatOnClick(Z_MIN_POS, Z_MAX_POS,
 #endif
 
 #if HAS_BED_PROBE
-  void setProbeOffsetX() { setPFloatOnClick(-60, 60, UNITFDIGITS); }
-  void setProbeOffsetY() { setPFloatOnClick(-60, 60, UNITFDIGITS); }
-  void setProbeOffsetZ() { setPFloatOnClick(-10, 10, 2); }
+  void setProbeOffsetX() { setPFloatOnClick(PROBE_OFFSET_XMIN, PROBE_OFFSET_XMAX, UNITFDIGITS); }
+  void setProbeOffsetY() { setPFloatOnClick(PROBE_OFFSET_YMIN, PROBE_OFFSET_YMAX, UNITFDIGITS); }
+  void setProbeOffsetZ() { setPFloatOnClick(PROBE_OFFSET_ZMIN, PROBE_OFFSET_ZMAX, 2); }
 
   #if ENABLED(Z_MIN_PROBE_REPEATABILITY_TEST)
     void probeTest() {
@@ -2575,12 +2592,17 @@ void gotoConfirmToPrint() {
 
       if (hmiData.fullManualTramming) {
         queue.inject(MString<100>(
-          F("M420S0\nG28O\nG90\nG0F300Z5\nG0F5000X"), p_float_t(xpos, 1), 'Y', p_float_t(ypos, 1), F("\nG0F300Z0")
+          F("M420S0\nG28O\nG90\nG0F300Z"), p_float_t((BED_TRAMMING_HEIGHT) + (BED_TRAMMING_Z_HOP), 1), F("\nG0F5000X"), p_float_t(xpos, 1), 'Y', p_float_t(ypos, 1), F("\nG0F300Z"), p_float_t(BED_TRAMMING_HEIGHT, 2)
         ));
       }
       else {
-        LIMIT(xpos, mesh_min.x, mesh_max.x);
-        LIMIT(ypos, mesh_min.y, mesh_max.y);
+        #if HAS_MESH
+          LIMIT(xpos, mesh_min.x, mesh_max.x);
+          LIMIT(ypos, mesh_min.y, mesh_max.y);
+        #else
+          LIMIT(xpos, probe.min_x(), probe.max_x());
+          LIMIT(ypos, probe.min_y(), probe.max_y());
+        #endif
         probe.stow();
         gcode.process_subcommands_now(F("M420S0\nG28O"));
         inLev = true;
@@ -2600,7 +2622,7 @@ void gotoConfirmToPrint() {
       float xpos = 0, ypos = 0;
       tramXY(point, xpos, ypos);
       queue.inject(MString<100>(
-        F("M420S0\nG28O\nG90\nG0F300Z5\nG0F5000X"), p_float_t(xpos, 1), 'Y', p_float_t(ypos, 1), F("\nG0F300Z0")
+        F("M420S0\nG28O\nG90\nG0F300Z"), p_float_t((BED_TRAMMING_HEIGHT) + (BED_TRAMMING_Z_HOP), 1), F("\nG0F5000X"), p_float_t(xpos, 1), 'Y', p_float_t(ypos, 1), F("\nG0F300Z"), p_float_t(BED_TRAMMING_HEIGHT, 2)
       ));
     }
 
@@ -4045,22 +4067,24 @@ void drawMaxAccelMenu() {
 
 #if ENABLED(EDITABLE_HOMING_FEEDRATE)
 
+  // Draw a float feedrate (mm/min) as an integer
+  void onDrawPFloatAsIntMenu(MenuItem* menuitem, int8_t line) {
+    onDrawIntMenu(menuitem, line, LROUND(*(float*)static_cast<MenuItemPtr*>(menuitem)->value));
+  }
+
   void drawHomingFRMenu() {
     constexpr uint8_t items = 1 + COUNT_ENABLED(HAS_X_AXIS, HAS_Y_AXIS, HAS_Z_AXIS);
     checkkey = ID_Menu;
     if (SET_MENU(homingFRMenu, MSG_HOMING_FEEDRATE, items)) {
       BACK_ITEM(drawMotionMenu);
       #if HAS_X_AXIS
-        uint16_t xhome = static_cast<uint16_t>(motion.homing_feedrate_mm_m.x);
-        EDIT_ITEM(ICON_MaxSpeedJerkX, MSG_HOMING_FEEDRATE_X, onDrawPIntMenu, setHomingX, &xhome);
+        EDIT_ITEM(ICON_MaxSpeedJerkX, MSG_HOMING_FEEDRATE_X, onDrawPFloatAsIntMenu, setHomingX, &motion.homing_feedrate_mm_m.x);
       #endif
       #if HAS_Y_AXIS
-        uint16_t yhome = static_cast<uint16_t>(motion.homing_feedrate_mm_m.y);
-        EDIT_ITEM(ICON_MaxSpeedJerkY, MSG_HOMING_FEEDRATE_Y, onDrawPIntMenu, setHomingY, &yhome);
+        EDIT_ITEM(ICON_MaxSpeedJerkY, MSG_HOMING_FEEDRATE_Y, onDrawPFloatAsIntMenu, setHomingY, &motion.homing_feedrate_mm_m.y);
       #endif
       #if HAS_Z_AXIS
-        uint16_t zhome = static_cast<uint16_t>(motion.homing_feedrate_mm_m.z);
-        EDIT_ITEM(ICON_MaxSpeedJerkZ, MSG_HOMING_FEEDRATE_Z, onDrawPIntMenu, setHomingZ, &zhome);
+        EDIT_ITEM(ICON_MaxSpeedJerkZ, MSG_HOMING_FEEDRATE_Z, onDrawPFloatAsIntMenu, setHomingZ, &motion.homing_feedrate_mm_m.z);
       #endif
     }
     updateMenu(homingFRMenu);

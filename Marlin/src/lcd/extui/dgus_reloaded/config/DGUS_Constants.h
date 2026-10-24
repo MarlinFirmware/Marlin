@@ -73,6 +73,10 @@
   #define DGUS_DEFAULT_FILAMENT_LEN 10
 #endif
 
+#ifndef DGUS_DEFAULT_JAM_LEN
+  #define DGUS_DEFAULT_JAM_LEN 10 // (mm) Jam length restored when jam detection is turned back on
+#endif
+
 #ifndef DGUS_LEVEL_CENTER_X
   #define DGUS_LEVEL_CENTER_X ((X_BED_SIZE) / 2)
 #endif
