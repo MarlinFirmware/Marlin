@@ -127,18 +127,6 @@ void MarlinHAL::init_board() {
   #if ENABLED(USE_ESP32_TASK_WDT)
     esp_task_wdt_init(10, true);
   #endif
-  #if ENABLED(ESP3D_WIFISUPPORT)
-    esp3dlib.init();
-  #elif ENABLED(WIFISUPPORT)
-    wifi_init();
-    TERN_(OTASUPPORT, OTA_init());
-    #if ENABLED(WEBSUPPORT)
-      spiffs_init();
-      web_init();
-    #endif
-    server.begin();
-  #endif
-
   // ESP32 uses a GPIO matrix that allows pins to be assigned to hardware serial ports.
   // The following code initializes hardware Serial1 and Serial2 to use user-defined pins
   // if they have been defined.
@@ -166,6 +154,20 @@ void MarlinHAL::init_board() {
     YSerial2.begin(460800 * 3, SERIAL_8N1, 16, 17);
   #elif ENABLED(I2S_STEPPER_STREAM)
     i2s_init();
+  #endif
+
+  // Start WiFi last. wifi_init() waits for the network, and until the expander
+  // is running its outputs (heaters, fans, ...) hold whatever state they powered up in.
+  #if ENABLED(ESP3D_WIFISUPPORT)
+    esp3dlib.init();
+  #elif ENABLED(WIFISUPPORT)
+    wifi_init();
+    TERN_(OTASUPPORT, OTA_init());
+    #if ENABLED(WEBSUPPORT)
+      spiffs_init();
+      web_init();
+    #endif
+    server.begin();
   #endif
 }
 
