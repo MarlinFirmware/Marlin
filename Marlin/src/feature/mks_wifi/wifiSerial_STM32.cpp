@@ -19,20 +19,25 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-#include "../../../HAL/platforms.h"
+#include "../../HAL/platforms.h"
 
 #ifdef HAL_STM32
 
-#include "../../../inc/MarlinConfigPre.h"
+#include "../../inc/MarlinConfigPre.h"
 
-#if ALL(HAS_TFT_LVGL_UI, MKS_WIFI_MODULE)
+#if ENABLED(MKS_WIFI_MODULE)
 
-#include "tft_lvgl_configuration.h"
+#include "../../inc/MarlinConfig.h"
 
-#include "draw_ui.h"
 #include "wifiSerial.h"
 
-WifiSerial WifiSerial1(USART1);
+// STM32duino 2.0.0 sends in chunks, with a size argument to uart_attach_tx_callback.
+// Its 2.0.0 development snapshot (0x020000F0), used by Marlin's USB framework forks, doesn't.
+#if defined(STM32H7xx) || (STM32_CORE_VERSION >= 0x02000000 && STM32_CORE_VERSION != 0x020000F0)
+  #define UART_TX_CHUNKS 1
+#endif
+
+WifiSerial WifiSerial1(WIFI_USART);
 
 void WifiSerial::setRx(uint32_t _rx) { _serial.pin_rx = digitalPinToPinName(_rx); }
 void WifiSerial::setTx(uint32_t _tx) { _serial.pin_tx = digitalPinToPinName(_tx); }
@@ -245,20 +250,11 @@ void WifiSerial::_rx_complete_irq(serial_t *obj) {
 
 // Actual interrupt handlers //////////////////////////////////////////////////////////////
 
-#if !WIFI_UART_TX_CHUNKS
+int WifiSerial::_tx_complete_irq(serial_t *obj) {
 
-  int WifiSerial::_tx_complete_irq(serial_t *obj) {
-    // If interrupts are enabled, there must be more data in the output
-    // buffer. Send the next byte
-    obj->tx_tail = (obj->tx_tail + 1) % WIFI_TX_BUF_SIZE;
+  #if UART_TX_CHUNKS
 
-    return (obj->tx_head == obj->tx_tail) ? -1 : 0;
-  }
-
-#else // Send in chunks
-
-  int WifiSerial::_tx_complete_irq(serial_t *obj) {
-    // The transfer is done. Move the tail past it.
+    // The previous chunk has been sent. Send the rest of the buffer, up to its end.
     obj->tx_tail = (obj->tx_tail + obj->tx_size) % WIFI_TX_BUF_SIZE;
 
     // If the buffer isn't empty, send the rest, up to the end of the buffer
@@ -269,10 +265,18 @@ void WifiSerial::_rx_complete_irq(serial_t *obj) {
       uart_attach_tx_callback(obj, _tx_complete_irq, obj->tx_size);
       return -1;
     }
-    return 0;
-  }
 
-#endif
+  #else
+
+    // If interrupts are enabled, there must be more data in the output
+    // buffer. Send the next byte
+    obj->tx_tail = (obj->tx_tail + 1) % WIFI_TX_BUF_SIZE;
+    if (obj->tx_head == obj->tx_tail) return -1;
+
+  #endif
+
+  return 0;
+}
 
 void WifiSerial::begin(unsigned long baud) { begin(baud, SERIAL_8N1); }
 
@@ -318,7 +322,7 @@ void WifiSerial::begin(unsigned long baud, byte config) {
   if (baud == WIFI_BAUDRATE)
     uart_attach_rx_callback(&_serial, _rx_complete_irq);
   else
-    USART1->CR1 |= USART_CR1_RE;  // Preserve word length, etc. Use 'or' to preserve USART_CR1_M_8N1
+    WIFI_USART->CR1 |= USART_CR1_RE;  // Preserve word length, etc. Use 'or' to preserve USART_CR1_M_8N1
 }
 
 void WifiSerial::end() {
@@ -368,19 +372,20 @@ int WifiSerial::write(uint8_t c) {
   _serial.tx_buff[_serial.tx_head] = c;
   _serial.tx_head = i;
 
-  #if WIFI_UART_TX_CHUNKS
-    if (!serial_tx_active(&_serial) && _serial.tx_head != _serial.tx_tail) {
-      const size_t remaining = (WIFI_TX_BUF_SIZE + _serial.tx_head - _serial.tx_tail) % WIFI_TX_BUF_SIZE;
-      _serial.tx_size = min(remaining, (size_t)(WIFI_TX_BUF_SIZE - _serial.tx_tail));
-      uart_attach_tx_callback(&_serial, _tx_complete_irq, _serial.tx_size);
-    }
-  #else
-    if (!serial_tx_active(&_serial))
+  if (!serial_tx_active(&_serial)) {
+    #if UART_TX_CHUNKS
+      if (_serial.tx_head != _serial.tx_tail) {
+        const size_t remaining = (WIFI_TX_BUF_SIZE + _serial.tx_head - _serial.tx_tail) % WIFI_TX_BUF_SIZE;
+        _serial.tx_size = min(remaining, (size_t)(WIFI_TX_BUF_SIZE - _serial.tx_tail));
+        uart_attach_tx_callback(&_serial, _tx_complete_irq, _serial.tx_size);
+      }
+    #else
       uart_attach_tx_callback(&_serial, _tx_complete_irq);
-  #endif
+    #endif
+  }
 
   return 1;
 }
 
-#endif // HAS_TFT_LVGL_UI && MKS_WIFI_MODULE
+#endif // MKS_WIFI_MODULE
 #endif // HAL_STM32
