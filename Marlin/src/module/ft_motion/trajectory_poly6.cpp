@@ -107,6 +107,45 @@ float Poly6TrajectoryGenerator::getDistanceAtTime(const float t) const {
        + dec_c6 * K_u(pos_after_coast, nominal_speed, T3, u);
 }
 
+/**
+ * Helper functions for velocity calculation (derivatives)
+ * s5'(u) = v0 + 3*c3*u² + 4*c4*u³ + 5*c5*u⁴
+ * K'(u) = 3*u²*(1-u)³ - 3*u³*(1-u)² = 3*u²*(1-u)²*((1-u) - u) = 3*u²*(1-u)²*(1-2u)
+ */
+static inline float s5p_u(const float v0, const float c3, const float c4, const float c5, const float u) {
+  const float u2 = sq(u), u3 = u2 * u, u4 = u3 * u;
+  return v0 + 3.0f * c3 * u2 + 4.0f * c4 * u3 + 5.0f * c5 * u4;
+}
+
+static inline float Kp_u(const float u) {
+  const float um1 = 1.0f - u;
+  // K'(u) = d/du[u³(1-u)³] = 3u²(1-u)³ - 3u³(1-u)²
+  //       = 3u²(1-u)²[(1-u) - u] = 3u²(1-u)²(1-2u)
+  return 3.0f * sq(u) * sq(um1) * (1.0f - 2.0f * u);
+}
+
+#if ENABLED(LASER_FEATURE)
+  float Poly6TrajectoryGenerator::getVelocityAtTime(const float t) const {
+    if (t < T1) {
+      // Acceleration phase: velocity = s5'(u)/Ts + c6*K'(u)/Ts (chain rule for u=t/T1)
+      const float u = t / T1;
+      const float v_poly = s5p_u(initial_speed, acc_c3, acc_c4, acc_c5, u);
+      const float v_shape = acc_c6 * Kp_u(u);
+      return (v_poly + v_shape) / T1;
+    }
+    else if (t <= T1_plus_T2) {
+      // Coast phase: constant velocity
+      return nominal_speed;
+    }
+    // Deceleration phase
+    const float tau = t - T1_plus_T2;
+    const float u = tau / T3;
+    const float v_poly = s5p_u(nominal_speed, dec_c3, dec_c4, dec_c5, u);
+    const float v_shape = dec_c6 * Kp_u(u);
+    return (v_poly + v_shape) / T3;
+  }
+#endif
+
 void Poly6TrajectoryGenerator::reset() {
   // Reset polynomial coefficients
   acc_c3 = acc_c4 = acc_c5 = 0.0f;
