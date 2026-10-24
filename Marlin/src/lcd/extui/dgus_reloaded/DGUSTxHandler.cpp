@@ -30,6 +30,10 @@
 #include "config/DGUS_Data.h"
 
 #include "../ui_api.h"
+
+#if HAS_FILAMENT_SENSOR
+  #include "../../../feature/runout.h"
+#endif
 #include "../../../module/stepper.h"
 #include "../../../module/temperature.h"
 #include "../../../module/printcounter.h"
@@ -507,6 +511,38 @@ void DGUSTxHandler::waitIcons(DGUS_VP &vp) {
   }
 
   dgus.write((uint16_t)vp.addr, Swap16(icons));
+}
+
+#if HAS_FILAMENT_SENSOR
+
+  void DGUSTxHandler::filamentSensorIcons(DGUS_VP &vp) {
+    uint16_t icons = 0;
+
+    if (ExtUI::getFilamentRunoutEnabled())
+      icons |= (uint16_t)DGUS_Data::FilamentSensorIcon::RUNOUT;
+    #if ENABLED(FILAMENT_SWITCH_AND_MOTION)
+      if (runout.motion_distance() > 0)
+        icons |= (uint16_t)DGUS_Data::FilamentSensorIcon::JAM;
+    #endif
+    if (!FILAMENT_IS_OUT())
+      icons |= (uint16_t)DGUS_Data::FilamentSensorIcon::PRESENT;
+
+    dgus.write((uint16_t)vp.addr, Swap16(icons));
+  }
+
+  #if ENABLED(FILAMENT_SWITCH_AND_MOTION)
+    void DGUSTxHandler::filamentSensorJam(DGUS_VP &vp) {
+      if (runout.motion_distance() > 0)
+        screen.jam_length = runout.motion_distance();
+
+      dgus.write((uint16_t)vp.addr, Swap16(screen.jam_length));
+    }
+  #endif
+
+#endif // HAS_FILAMENT_SENSOR
+
+void DGUSTxHandler::language(DGUS_VP &vp) {
+  dgus.write((uint16_t)vp.addr, Swap16((uint16_t)screen.language));
 }
 
 void DGUSTxHandler::fanSpeed(DGUS_VP &vp) {
