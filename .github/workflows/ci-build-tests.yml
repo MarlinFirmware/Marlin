@@ -82,7 +82,8 @@ jobs:
         - SAMD21_minitronics20
 
         # ESP32
-        - esp32
+        - esp32_idf3
+        - esp32_idf4
         - mks_tinybee
 
         # Teensy 2
