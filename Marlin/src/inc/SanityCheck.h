@@ -67,6 +67,14 @@
   #elif HEXIFY(CONFIGURATION_ADV_H_VERSION) > HEXIFY(REQUIRED_CONFIGURATION_ADV_H_VERSION)
     #error "Your Configuration_adv.h file is for a newer version of Marlin. Upgrade Marlin or downgrade your Configuration_adv.h."
   #endif
+  #if defined(CONFIGURATION_VERSION_HASH)
+    constexpr uint32_t config_version_hash_fnv(const char *p, uint32_t hash = 2166136261u) {
+      return *p ? config_version_hash_fnv(p + 1, (hash ^ static_cast<uint32_t>(static_cast<unsigned char>(*p))) * 16777619u) : hash;
+    }
+    constexpr uint32_t config_version_hash = config_version_hash_fnv(STRINGIFY(CONFIGURATION_H_VERSION) STRINGIFY(CONFIGURATION_ADV_H_VERSION));
+    static_assert(CONFIGURATION_VERSION_HASH == config_version_hash,
+      "CONFIGURATION_H_VERSION or CONFIGURATION_ADV_H_VERSION was changed. This is not recommended because these configuration files are specific to this version of the code. If you are migrating this config to another version, run: buildroot/share/PlatformIO/scripts/config_version_hash.py --update");
+  #endif
   #undef HEXIFY
 #endif // USE_STD_CONFIGS
 
