@@ -1933,9 +1933,9 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
  */
 #if ENABLED(SAV_3DGLCD)
   #if NONE(U8GLIB_SSD1306, U8GLIB_SH1106)
-    #error "Enable a SAV_3DGLCD display type: U8GLIB_SSD1306 or U8GLIB_SH1106."
+    #error "Select LCD_SAV_3DGLCD_SSD1306 or LCD_SAV_3DGLCD_SH1106 for the SAV 3D GLCD."
   #elif ALL(U8GLIB_SSD1306, U8GLIB_SH1106)
-    #error "Only enable one SAV_3DGLCD display type: U8GLIB_SSD1306 or U8GLIB_SH1106."
+    #error "Select only one of LCD_SAV_3DGLCD_SSD1306 or LCD_SAV_3DGLCD_SH1106."
   #endif
 #endif
 
