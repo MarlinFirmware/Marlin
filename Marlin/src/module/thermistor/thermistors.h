@@ -313,6 +313,148 @@ typedef struct { raw_adc_t value; celsius_t celsius; } temp_entry_t;
   #define TEMPTABLE_BED_LEN 0
 #endif
 
+// Bed zone thermistor tables (zones 1-15). Each zone defaults to TEMPTABLE_BED unless
+// BED_ZONE_SENSOR_TYPE_n selects a different thermistor type. Zone 0 always uses TEMPTABLE_BED.
+#if HAS_BED_ZONES
+  #define _BED_ZONE_TT(Z)     TT_NAME(BED_ZONE_SENSOR_TYPE_##Z)
+  #define _BED_ZONE_TT_LEN(Z) COUNT(_BED_ZONE_TT(Z))
+  #if BED_ZONES_COUNT > 1
+    #if BED_ZONE_SENSOR_TYPE_1 > 0
+      #define TEMPTABLE_BED_ZONE1     _BED_ZONE_TT(1)
+      #define TEMPTABLE_BED_ZONE1_LEN _BED_ZONE_TT_LEN(1)
+    #else
+      #define TEMPTABLE_BED_ZONE1     TEMPTABLE_BED
+      #define TEMPTABLE_BED_ZONE1_LEN TEMPTABLE_BED_LEN
+    #endif
+  #endif
+  #if BED_ZONES_COUNT > 2
+    #if BED_ZONE_SENSOR_TYPE_2 > 0
+      #define TEMPTABLE_BED_ZONE2     _BED_ZONE_TT(2)
+      #define TEMPTABLE_BED_ZONE2_LEN _BED_ZONE_TT_LEN(2)
+    #else
+      #define TEMPTABLE_BED_ZONE2     TEMPTABLE_BED
+      #define TEMPTABLE_BED_ZONE2_LEN TEMPTABLE_BED_LEN
+    #endif
+  #endif
+  #if BED_ZONES_COUNT > 3
+    #if BED_ZONE_SENSOR_TYPE_3 > 0
+      #define TEMPTABLE_BED_ZONE3     _BED_ZONE_TT(3)
+      #define TEMPTABLE_BED_ZONE3_LEN _BED_ZONE_TT_LEN(3)
+    #else
+      #define TEMPTABLE_BED_ZONE3     TEMPTABLE_BED
+      #define TEMPTABLE_BED_ZONE3_LEN TEMPTABLE_BED_LEN
+    #endif
+  #endif
+  #if BED_ZONES_COUNT > 4
+    #if BED_ZONE_SENSOR_TYPE_4 > 0
+      #define TEMPTABLE_BED_ZONE4     _BED_ZONE_TT(4)
+      #define TEMPTABLE_BED_ZONE4_LEN _BED_ZONE_TT_LEN(4)
+    #else
+      #define TEMPTABLE_BED_ZONE4     TEMPTABLE_BED
+      #define TEMPTABLE_BED_ZONE4_LEN TEMPTABLE_BED_LEN
+    #endif
+  #endif
+  #if BED_ZONES_COUNT > 5
+    #if BED_ZONE_SENSOR_TYPE_5 > 0
+      #define TEMPTABLE_BED_ZONE5     _BED_ZONE_TT(5)
+      #define TEMPTABLE_BED_ZONE5_LEN _BED_ZONE_TT_LEN(5)
+    #else
+      #define TEMPTABLE_BED_ZONE5     TEMPTABLE_BED
+      #define TEMPTABLE_BED_ZONE5_LEN TEMPTABLE_BED_LEN
+    #endif
+  #endif
+  #if BED_ZONES_COUNT > 6
+    #if BED_ZONE_SENSOR_TYPE_6 > 0
+      #define TEMPTABLE_BED_ZONE6     _BED_ZONE_TT(6)
+      #define TEMPTABLE_BED_ZONE6_LEN _BED_ZONE_TT_LEN(6)
+    #else
+      #define TEMPTABLE_BED_ZONE6     TEMPTABLE_BED
+      #define TEMPTABLE_BED_ZONE6_LEN TEMPTABLE_BED_LEN
+    #endif
+  #endif
+  #if BED_ZONES_COUNT > 7
+    #if BED_ZONE_SENSOR_TYPE_7 > 0
+      #define TEMPTABLE_BED_ZONE7     _BED_ZONE_TT(7)
+      #define TEMPTABLE_BED_ZONE7_LEN _BED_ZONE_TT_LEN(7)
+    #else
+      #define TEMPTABLE_BED_ZONE7     TEMPTABLE_BED
+      #define TEMPTABLE_BED_ZONE7_LEN TEMPTABLE_BED_LEN
+    #endif
+  #endif
+  #if BED_ZONES_COUNT > 8
+    #if BED_ZONE_SENSOR_TYPE_8 > 0
+      #define TEMPTABLE_BED_ZONE8     _BED_ZONE_TT(8)
+      #define TEMPTABLE_BED_ZONE8_LEN _BED_ZONE_TT_LEN(8)
+    #else
+      #define TEMPTABLE_BED_ZONE8     TEMPTABLE_BED
+      #define TEMPTABLE_BED_ZONE8_LEN TEMPTABLE_BED_LEN
+    #endif
+  #endif
+  #if BED_ZONES_COUNT > 9
+    #if BED_ZONE_SENSOR_TYPE_9 > 0
+      #define TEMPTABLE_BED_ZONE9     _BED_ZONE_TT(9)
+      #define TEMPTABLE_BED_ZONE9_LEN _BED_ZONE_TT_LEN(9)
+    #else
+      #define TEMPTABLE_BED_ZONE9     TEMPTABLE_BED
+      #define TEMPTABLE_BED_ZONE9_LEN TEMPTABLE_BED_LEN
+    #endif
+  #endif
+  #if BED_ZONES_COUNT > 10
+    #if BED_ZONE_SENSOR_TYPE_10 > 0
+      #define TEMPTABLE_BED_ZONE10     _BED_ZONE_TT(10)
+      #define TEMPTABLE_BED_ZONE10_LEN _BED_ZONE_TT_LEN(10)
+    #else
+      #define TEMPTABLE_BED_ZONE10     TEMPTABLE_BED
+      #define TEMPTABLE_BED_ZONE10_LEN TEMPTABLE_BED_LEN
+    #endif
+  #endif
+  #if BED_ZONES_COUNT > 11
+    #if BED_ZONE_SENSOR_TYPE_11 > 0
+      #define TEMPTABLE_BED_ZONE11     _BED_ZONE_TT(11)
+      #define TEMPTABLE_BED_ZONE11_LEN _BED_ZONE_TT_LEN(11)
+    #else
+      #define TEMPTABLE_BED_ZONE11     TEMPTABLE_BED
+      #define TEMPTABLE_BED_ZONE11_LEN TEMPTABLE_BED_LEN
+    #endif
+  #endif
+  #if BED_ZONES_COUNT > 12
+    #if BED_ZONE_SENSOR_TYPE_12 > 0
+      #define TEMPTABLE_BED_ZONE12     _BED_ZONE_TT(12)
+      #define TEMPTABLE_BED_ZONE12_LEN _BED_ZONE_TT_LEN(12)
+    #else
+      #define TEMPTABLE_BED_ZONE12     TEMPTABLE_BED
+      #define TEMPTABLE_BED_ZONE12_LEN TEMPTABLE_BED_LEN
+    #endif
+  #endif
+  #if BED_ZONES_COUNT > 13
+    #if BED_ZONE_SENSOR_TYPE_13 > 0
+      #define TEMPTABLE_BED_ZONE13     _BED_ZONE_TT(13)
+      #define TEMPTABLE_BED_ZONE13_LEN _BED_ZONE_TT_LEN(13)
+    #else
+      #define TEMPTABLE_BED_ZONE13     TEMPTABLE_BED
+      #define TEMPTABLE_BED_ZONE13_LEN TEMPTABLE_BED_LEN
+    #endif
+  #endif
+  #if BED_ZONES_COUNT > 14
+    #if BED_ZONE_SENSOR_TYPE_14 > 0
+      #define TEMPTABLE_BED_ZONE14     _BED_ZONE_TT(14)
+      #define TEMPTABLE_BED_ZONE14_LEN _BED_ZONE_TT_LEN(14)
+    #else
+      #define TEMPTABLE_BED_ZONE14     TEMPTABLE_BED
+      #define TEMPTABLE_BED_ZONE14_LEN TEMPTABLE_BED_LEN
+    #endif
+  #endif
+  #if BED_ZONES_COUNT > 15
+    #if BED_ZONE_SENSOR_TYPE_15 > 0
+      #define TEMPTABLE_BED_ZONE15     _BED_ZONE_TT(15)
+      #define TEMPTABLE_BED_ZONE15_LEN _BED_ZONE_TT_LEN(15)
+    #else
+      #define TEMPTABLE_BED_ZONE15     TEMPTABLE_BED
+      #define TEMPTABLE_BED_ZONE15_LEN TEMPTABLE_BED_LEN
+    #endif
+  #endif
+#endif // HAS_BED_ZONES
+
 #if TEMP_SENSOR_CHAMBER > 0
   #define TEMPTABLE_CHAMBER TT_NAME(TEMP_SENSOR_CHAMBER)
   #define TEMPTABLE_CHAMBER_LEN COUNT(TEMPTABLE_CHAMBER)
