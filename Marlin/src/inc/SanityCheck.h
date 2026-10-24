@@ -275,6 +275,68 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
 #endif
 
 /**
+ * SCARA / TPARA: the bed and the home position must lie inside the movement limits.
+ * A home position outside (X|Y)_(MIN|MAX)_POS is clamped by the software endstops,
+ * so the first move after G28 jumps to the nearest limit. (The printable area may
+ * extend past the bed, but not past the movement limits.)
+ */
+#if IS_SCARA
+  static_assert(X_MIN_BED >= X_MIN_POS && X_MAX_BED <= X_MAX_POS,
+    "SCARA: X_MIN_POS and X_MAX_POS must contain the bed. With BED_CENTER_AT_0_0 the bed spans -X_BED_SIZE/2 to X_BED_SIZE/2, otherwise 0 to X_BED_SIZE.");
+  static_assert(Y_MIN_BED >= Y_MIN_POS && Y_MAX_BED <= Y_MAX_POS,
+    "SCARA: Y_MIN_POS and Y_MAX_POS must contain the bed. With BED_CENTER_AT_0_0 the bed spans -Y_BED_SIZE/2 to Y_BED_SIZE/2, otherwise 0 to Y_BED_SIZE.");
+
+  #if ENABLED(SCARA) && defined(SCARA_HOME_THETA)
+    // G28 sets the joints to SCARA_HOME_THETA / SCARA_HOME_PSI, which places the tool at the forward kinematics of those angles
+    constexpr float _scara_home_x = float(SCARA_LINKAGE_1) * cosf(RADIANS(SCARA_HOME_THETA)) + float(SCARA_LINKAGE_2) * cosf(RADIANS((SCARA_HOME_THETA) + (SCARA_HOME_PSI))) + float(SCARA_OFFSET_X),
+                    _scara_home_y = float(SCARA_LINKAGE_1) * sinf(RADIANS(SCARA_HOME_THETA)) + float(SCARA_LINKAGE_2) * sinf(RADIANS((SCARA_HOME_THETA) + (SCARA_HOME_PSI))) + float(SCARA_OFFSET_Y);
+    static_assert(_scara_home_x >= float(X_MIN_POS) - 0.01f && _scara_home_x <= float(X_MAX_POS) + 0.01f,
+      "SCARA_HOME_THETA / SCARA_HOME_PSI put the home position outside X_MIN_POS...X_MAX_POS. Widen the X limits or change the home angles.");
+    static_assert(_scara_home_y >= float(Y_MIN_POS) - 0.01f && _scara_home_y <= float(Y_MAX_POS) + 0.01f,
+      "SCARA_HOME_THETA / SCARA_HOME_PSI put the home position outside Y_MIN_POS...Y_MAX_POS. Widen the Y limits or change the home angles.");
+  #else
+    static_assert(float(X_HOME_POS) >= float(X_MIN_POS) - 0.01f && float(X_HOME_POS) <= float(X_MAX_POS) + 0.01f,
+      "X_HOME_POS (or MANUAL_X_HOME_POS) is outside X_MIN_POS...X_MAX_POS.");
+    static_assert(float(Y_HOME_POS) >= float(Y_MIN_POS) - 0.01f && float(Y_HOME_POS) <= float(Y_MAX_POS) + 0.01f,
+      "Y_HOME_POS (or MANUAL_Y_HOME_POS) is outside Y_MIN_POS...Y_MAX_POS.");
+  #endif
+#endif
+
+/**
+ * SCARA joint angle ranges: both ends of a range, a range that holds the home angles. The shoulder homes at one end of its
+ * range, which is where its endstop is, so a range that went past it would let the arm run into the switch.
+ */
+#if ENABLED(SCARA)
+  #if defined(SCARA_THETA_MIN) != defined(SCARA_THETA_MAX)
+    #error "SCARA_THETA_MIN and SCARA_THETA_MAX must both be defined, or neither."
+  #endif
+  #if defined(SCARA_PSI_MIN) != defined(SCARA_PSI_MAX)
+    #error "SCARA_PSI_MIN and SCARA_PSI_MAX must both be defined, or neither."
+  #endif
+  #ifdef SCARA_THETA_MIN
+    static_assert(float(SCARA_THETA_MIN) < float(SCARA_THETA_MAX) && float(SCARA_THETA_MAX) - float(SCARA_THETA_MIN) <= 360.0f,
+      "SCARA_THETA_MIN must be less than SCARA_THETA_MAX, and no more than 360 degrees below it.");
+    #ifdef SCARA_HOME_THETA
+      #if X_HOME_DIR < 0
+        static_assert(float(SCARA_THETA_MIN) > float(SCARA_HOME_THETA) - 0.01f && float(SCARA_THETA_MIN) < float(SCARA_HOME_THETA) + 0.01f,
+          "SCARA_THETA_MIN must be SCARA_HOME_THETA when X_HOME_DIR is negative: the shoulder homes at its minimum.");
+      #else
+        static_assert(float(SCARA_THETA_MAX) > float(SCARA_HOME_THETA) - 0.01f && float(SCARA_THETA_MAX) < float(SCARA_HOME_THETA) + 0.01f,
+          "SCARA_THETA_MAX must be SCARA_HOME_THETA when X_HOME_DIR is positive: the shoulder homes at its maximum.");
+      #endif
+    #endif
+  #endif
+  #ifdef SCARA_PSI_MIN
+    static_assert(float(SCARA_PSI_MIN) < float(SCARA_PSI_MAX) && float(SCARA_PSI_MIN) >= -180.0f && float(SCARA_PSI_MAX) <= 180.0f,
+      "SCARA_PSI_MIN must be less than SCARA_PSI_MAX, and both between -180 and 180.");
+    #ifdef SCARA_HOME_PSI
+      static_assert(float(SCARA_HOME_PSI) >= float(SCARA_PSI_MIN) - 0.01f && float(SCARA_HOME_PSI) <= float(SCARA_PSI_MAX) + 0.01f,
+        "SCARA_HOME_PSI must be inside SCARA_PSI_MIN...SCARA_PSI_MAX.");
+    #endif
+  #endif
+#endif
+
+/**
  * Granular software endstops (Marlin >= 1.1.7)
  */
 #if ENABLED(MIN_SOFTWARE_ENDSTOPS) && NONE(MIN_SOFTWARE_ENDSTOP_Z, POLARGRAPH)

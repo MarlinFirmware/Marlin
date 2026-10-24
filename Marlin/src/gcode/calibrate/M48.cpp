@@ -79,9 +79,10 @@ void GcodeSuite::M48() {
   const ProbePtRaise raise_after = parser.boolval('E') ? PROBE_PT_STOW : PROBE_PT_RAISE;
 
   // Test at the current position by default, overridden by X and Y
-  const xy_pos_t test_position = {
-    parser.linearval('X', motion.position.x + probe.offset_xy.x),  // If no X use the probe's current X position
-    parser.linearval('Y', motion.position.y + probe.offset_xy.y)   // If no Y, ditto
+  const xy_pos_t probe_now = xy_pos_t(motion.position) + probe.offset_xy_at_nozzle(xy_pos_t(motion.position)),  // The probe's current position
+                 test_position = {
+    parser.linearval('X', probe_now.x),  // If no X use the probe's current X position
+    parser.linearval('Y', probe_now.y)   // If no Y, ditto
   };
 
   if (!probe.can_reach(test_position)) {
@@ -201,7 +202,7 @@ void GcodeSuite::M48() {
           while (angle < 0.0) angle += 360.0;
 
           // Choose the next position as an offset to chosen test position
-          const xy_pos_t noz_pos = test_position - probe.offset_xy;
+          const xy_pos_t noz_pos = test_position - probe.offset_xy_at_probe(test_position);
           xy_pos_t next_pos = {
             noz_pos.x + float(cos(RADIANS(angle))) * radius,
             noz_pos.y + float(sin(RADIANS(angle))) * radius

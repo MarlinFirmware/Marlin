@@ -113,6 +113,17 @@ xyz_pos_t Probe::offset; // Initialized by settings.load
   constexpr xy_pos_t Probe::offset_xy;
 #endif
 
+#if ENABLED(SCARA)
+  // The probe and the active hotend are both bolted to the forearm. The same arm puts each at a
+  // point, so the offset between them is the difference of where the arm puts the two tools.
+  xy_pos_t Probe::offset_xy_at_nozzle(const xy_pos_t &nozzle_pos) {
+    return scara_convert(nozzle_pos, scara_hotend_tool(), scara_tool(offset_xy)) - nozzle_pos;
+  }
+  xy_pos_t Probe::offset_xy_at_probe(const xy_pos_t &probe_pos) {
+    return probe_pos - scara_convert(probe_pos, scara_tool(offset_xy), scara_hotend_tool());
+  }
+#endif
+
 #if ENABLED(SENSORLESS_PROBING)
   Probe::sense_bool_t Probe::test_sensitivity = { true, true, true };
 #endif
@@ -974,6 +985,12 @@ float Probe::probe_at_point(
     DEBUG_POS("", motion.position);
   }
 
+  #if ENABLED(SCARA)
+    // The probe is bolted to the forearm, so its offset turns with the arm: the probe is a tool with a virtual
+    // forearm, moved to the point itself. It is the active tool until this function returns.
+    const ScaraProbeTool probe_tool(probe_relative);
+  #endif
+
   // Use a safe Z height for the XY move
   const float safe_z = _MAX(motion.position.z, z_clearance);
 
@@ -991,7 +1008,9 @@ float Probe::probe_at_point(
   if (DEBUGGING(LEVELING)) DEBUG_ECHOPGM("Move to probe");
   if (probe_relative) { // Get the nozzle position, adjust for active hotend if not 0
     if (DEBUGGING(LEVELING)) DEBUG_ECHOPGM("-relative");
-    npos -= DIFF_TERN(HAS_HOTEND_OFFSET, offset_xy, motion.active_hotend_offset());
+    #if DISABLED(SCARA) // The SCARA probe tool is moved to the point itself
+      npos -= DIFF_TERN(HAS_HOTEND_OFFSET, offset_xy, motion.active_hotend_offset());
+    #endif
   }
   if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM(" point");
 
@@ -1051,7 +1070,10 @@ float Probe::probe_at_point(
     }
     else {
       TERN_(HAS_PTC, ptc.apply_compensation(measured_z));
-      TERN_(X_AXIS_TWIST_COMPENSATION, measured_z += xatc.compensation(npos + offset_xy));
+      #if ENABLED(X_AXIS_TWIST_COMPENSATION)
+        // The probe's position: for a SCARA the probe was moved to the point itself
+        measured_z += xatc.compensation(TERN(SCARA, probe_relative ? xy_pos_t(npos) : xy_pos_t(npos) + offset_xy_at_nozzle(npos), xy_pos_t(npos) + offset_xy));
+      #endif
       if (verbose_level > 2 || DEBUGGING(LEVELING))
         SERIAL_ECHOLNPGM("Bed X: ", motion.logical_x(rx), " y: ", motion.logical_y(ry), " Z: ", measured_z);
     }

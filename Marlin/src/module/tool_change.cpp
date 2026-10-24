@@ -1311,6 +1311,14 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
       (void)check_tool_sensor_stats(motion.extruder, true);
 
       // The newly-selected extruder XYZ is actually at...
+      #if ENABLED(SCARA)
+        // SCARA tool XY offsets turn with the forearm and are in its kinematics: the new tool is
+        // where the arm puts it now, so get the XY from the steppers. Only Z offsets are simple.
+        TERN_(HAS_HOTEND_OFFSET, diff.x = diff.y = 0);
+        motion.get_cartesian_from_steppers();
+        motion.position.x = motion.cartes.x;
+        motion.position.y = motion.cartes.y;
+      #endif
       DEBUG_ECHOLNPGM("Offset Tool XYZ by { ", diff.x, ", ", diff.y, ", ", diff.z, " }");
       motion.position += diff;
 

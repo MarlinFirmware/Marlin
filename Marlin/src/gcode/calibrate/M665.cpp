@@ -89,6 +89,9 @@
    * Parameters:
    *
    *   S[segments]          - Segments-per-second
+   *   D[dir]               - (SCARA) Direction the elbow bends: 1 = counterclockwise, -1 = clockwise. If the arm is
+   *                          homed it goes out to full extension and comes back with the elbow on the other side.
+   *                          Homing sets it from the side of SCARA_HOME_PSI. Not saved.
    *
    * Without NO_WORKSPACE_OFFSETS:
    *
@@ -103,6 +106,10 @@
     if (!parser.seen_any()) return M665_report();
 
     if (parser.seenval('S')) segments_per_second = parser.value_float();
+
+    #if ENABLED(SCARA)
+      if (parser.seenval('D') && !scara_set_elbow_dir(parser.value_int())) return;
+    #endif
 
     #if HAS_SCARA_OFFSET
 
@@ -136,9 +143,12 @@
   void GcodeSuite::M665_report(const bool forReplay/*=true*/) {
     TERN_(MARLIN_SMALL_BUILD, return);
 
-    report_heading_etc(forReplay, F(STR_SCARA_SETTINGS " (" STR_S_SEG_PER_SEC TERN_(HAS_SCARA_OFFSET, " " STR_SCARA_P_T_Z) ")"));
+    report_heading_etc(forReplay, F(STR_SCARA_SETTINGS " (" STR_S_SEG_PER_SEC TERN_(SCARA, " D<elbow-dir>") TERN_(HAS_SCARA_OFFSET, " " STR_SCARA_P_T_Z) ")"));
     SERIAL_ECHOLNPGM_P(
       PSTR("  M665 S"), segments_per_second
+      #if ENABLED(SCARA)
+        , PSTR(" D"), scara_elbow_dir
+      #endif
       #if HAS_SCARA_OFFSET
         , SP_P_STR, motion.scara_home_offset.a
         , SP_T_STR, motion.scara_home_offset.b
