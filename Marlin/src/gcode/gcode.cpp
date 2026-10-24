@@ -394,8 +394,17 @@ void GcodeSuite::process_parsed_command(bool no_ok/*=false*/) {
         case 21: NOOP; break;                                     // No error on unknown G21
       #endif
 
-      #if ENABLED(G26_MESH_VALIDATION)
-        case 26: G26(); break;                                    // G26: Mesh Validation Pattern generation
+      #if ANY(G26_MESH_VALIDATION, FIRST_LAYER_CALIBRATION)
+        case 26:                                                  // G26: Mesh Validation Pattern generation, or G26 Z: First Layer Calibration
+          #if ENABLED(FIRST_LAYER_CALIBRATION)
+            if (parser.seen('Z')) { G26_FLC(); break; }
+          #endif
+          #if ENABLED(G26_MESH_VALIDATION)
+            G26();
+          #else
+            SERIAL_ECHOLNPGM(GCODE_ERR_MSG("G26 requires Z."));
+          #endif
+          break;
       #endif
 
       #if ENABLED(NOZZLE_PARK_FEATURE)
