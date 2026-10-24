@@ -21,7 +21,7 @@
  */
 
 /**
- * mmu2.cpp
+ * mmu3.cpp
  */
 
 #include "../../inc/MarlinConfigPre.h"
@@ -813,7 +813,7 @@ namespace MMU3 {
           default: break;
         }
         break;
-      case Buttons::TuneMMU:
+      case Buttons::TuneMMU: // TODO: May go unutilized, but it's here for now
         tune();
         break;
       case Buttons::Load:
@@ -1048,7 +1048,7 @@ namespace MMU3 {
       lastErrorSource = res;
       LogErrorEvent(PrusaErrorTitle(PrusaErrorCodeIndex(ec)));
 
-      if (ec != ErrorCode::OK && ec != ErrorCode::FILAMENT_EJECTED && ec != ErrorCode::FILAMENT_CHANGE) {
+      if (ec != ErrorCode::OK && ec != ErrorCode::FILAMENT_EJECTED) {
         IncrementMMUFails();
 
         // Check if it is a "power" failure. TMC-related errors are considered power failures.
