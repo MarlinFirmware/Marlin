@@ -390,14 +390,14 @@ void DGUSScreenHandler::setStatusMessage(FSTR_P const fmsg, const millis_t durat
   status_expire = (duration > 0 ? ExtUI::safe_millis() + duration : 0);
 }
 
-static const char machine_name[] PROGMEM = MACHINE_NAME;
+static PGMSTR(k_machine_name, MACHINE_NAME);
 
 // Marlin's own status ("<machine name> Ready.", "Printing...") stays on screen until the next one, and comes
 // back when a screen message expires. The machine name has its own field, so drop it from the message.
 void DGUSScreenHandler::setStandingStatus(const char * const msg) {
   const char *m = msg;
-  const size_t n = strlen_P(machine_name);
-  if (n && strncmp_P(m, machine_name, n) == 0 && m[n] == ' ') m += n + 1;
+  const size_t n = strlen_P(k_machine_name);
+  if (n && strncmp_P(m, k_machine_name, n) == 0 && m[n] == ' ') m += n + 1;
   strncpy(standing_status, m, DGUS_STATUS_LEN);
   standing_status[DGUS_STATUS_LEN] = '\0';
   setStatusMessage(standing_status, 0);
