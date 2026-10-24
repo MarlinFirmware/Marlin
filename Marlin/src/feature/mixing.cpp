@@ -119,6 +119,11 @@ void Mixer::init() {
 
   ZERO(collector);
 
+  // With MIXING_VTOOLS_IN_EEPROM the V-tools are already loaded or reset by settings
+  #if DISABLED(MIXING_VTOOLS_IN_EEPROM)
+    reset_vtools();
+  #endif
+
   #if HAS_MIXER_SYNC_CHANNEL
     // AUTORETRACT_TOOL gets the same amount of all filaments
     MIXER_STEPPER_LOOP(i)
@@ -165,13 +170,15 @@ void Mixer::refresh_collector(const float proportion/*=1.0*/, const uint8_t t/*=
 
   float Mixer::prev_z; // = 0
 
-  void Mixer::reset_gradient() {
-    gradient.allowed = true;
-    gradient.start_z = gradient.end_z = 0;
-    gradient.start_vtool = 0;
-    gradient.end_vtool = 1;
-    TERN_(GRADIENT_VTOOL, gradient.vtool_index = -1);
-  }
+  #if ENABLED(GRADIENT_MIX_IN_EEPROM)
+    void Mixer::reset_gradient() {
+      gradient.allowed = true;
+      gradient.start_z = gradient.end_z = 0;
+      gradient.start_vtool = 0;
+      gradient.end_vtool = 1;
+      TERN_(GRADIENT_VTOOL, gradient.vtool_index = -1);
+    }
+  #endif
 
   void Mixer::update_gradient_for_z(const float z) {
     if (z == prev_z) return;
