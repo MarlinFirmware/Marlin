@@ -975,10 +975,8 @@ void Marlin::minkill(const bool steppers_off/*=false*/) {
 
   TERN_(HAS_SUICIDE, suicide());
 
-  #ifdef ARDUINO_ARCH_ESP32
-    // The ESP32 Interrupt Watchdog resets the chip unless interrupts run on this core
-    sei();
-  #endif
+  // The ESP32 Interrupt Watchdog resets the chip unless interrupts run on this core
+  TERN_(ARDUINO_ARCH_ESP32, sei());
 
   #if ANY(HAS_KILL, SOFT_RESET_ON_KILL)
 
