@@ -274,7 +274,7 @@ uint32_t Stepper::advance_divisor = 0,
     // Call whenever NLE settings or E steps-per-mm change.
     void Stepper::refresh_nle_q30() {
       const float mm_per_step = planner.mm_per_step[E_AXIS_N(0)];
-      const nonlinear_coeff_t &coeff = nle.settings.coeff;
+      const NonlinearCoeff &coeff = nle.settings.coeff;
       nle.q30.A = _BV32(30) * (coeff.A * sq(mm_per_step));
       nle.q30.B = _BV32(30) * (coeff.B * mm_per_step);
       nle.q30.C = _BV32(30) * coeff.C;
@@ -665,11 +665,22 @@ bool Stepper::disable_axis(const AxisEnum axis) {
     if ((current_block = rtg.generate_resonance_block())) {
       // Apply direction
       DIR_WAIT_BEFORE();
+
       const uint8_t axis = rtg.rt_params.axis;
       const bool fwd = current_block->direction_bits[axis];
       switch (axis) {
-        case X_AXIS: X_APPLY_DIR(fwd, false); break;
-        case Y_AXIS: Y_APPLY_DIR(fwd, false); break;
+        #if CORE_IS_XY
+          case CORE_AXIS_1:
+          case CORE_AXIS_2: {
+            const int8_t d = fwd ? 1 : -1;
+            const bool b_fwd = CORESIGN(axis == CORE_AXIS_1 ? d : -d) >= 0;
+            X_APPLY_DIR(fwd, false);
+            Y_APPLY_DIR(b_fwd, false);
+          }
+        #else
+          case X_AXIS: X_APPLY_DIR(fwd, false); break;
+          case Y_AXIS: Y_APPLY_DIR(fwd, false); break;
+        #endif
         case Z_AXIS: Z_APPLY_DIR(fwd, false); break;
       }
 
@@ -702,9 +713,33 @@ bool Stepper::disable_axis(const AxisEnum axis) {
       A##_APPLY_STEP(!STEP_STATE_##A, false); \
     } while(0)
 
+    #define CORE_RESONANCE_STEP_SEQUENCE() do { \
+      X_APPLY_STEP(STEP_STATE_X, false); \
+      Y_APPLY_STEP(STEP_STATE_Y, false); \
+      START_TIMED_PULSE(); \
+      AWAIT_HIGH_PULSE(); \
+      X_APPLY_STEP(!STEP_STATE_X, false); \
+      Y_APPLY_STEP(!STEP_STATE_Y, false); \
+    } while (0)
+
     USING_TIMED_PULSE();
 
     const uint8_t axis = rtg.rt_params.axis;
+
+    #if CORE_IS_XY
+      if (axis == CORE_AXIS_1 || axis == CORE_AXIS_1) {
+        #if ISR_MULTI_STEPS
+          CORE_RESONANCE_STEP_SEQUENCE();
+          while (--events_to_do) {
+            AWAIT_LOW_PULSE();
+            CORE_RESONANCE_STEP_SEQUENCE();
+          }
+        #else
+          do { CORE_RESONANCE_STEP_SEQUENCE(); } while (--events_to_do);
+        #endif
+        return;
+      }
+    #endif
 
     switch (axis) {
       case X_AXIS:
@@ -1771,7 +1806,7 @@ void Stepper::isr() {
 
         #if ENABLED(BABYSTEPPING)
           NOMORE(interval, nextBabystepISR);   // Babystepping may want to return earlier
-          nextBabystepISR -= interval;
+          if (nextBabystepISR != BABYSTEP_NEVER) nextBabystepISR -= interval;
         #endif
 
         ftMotion_nextStepperISR -= interval;
@@ -3623,20 +3658,20 @@ void Stepper::_set_position(const abce_long_t &spos) {
 
   #if ENABLED(INPUT_SHAPING_X)
     if (shaping_x.enabled) {
+      shaping_x.last_block_end_pos = count_position.x; // Stepper space, like count_position
       count_position.x += x_shaping_delta;
-      shaping_x.last_block_end_pos = spos.x;
     }
   #endif
   #if ENABLED(INPUT_SHAPING_Y)
     if (shaping_y.enabled) {
+      shaping_y.last_block_end_pos = count_position.y; // Stepper space, like count_position
       count_position.y += y_shaping_delta;
-      shaping_y.last_block_end_pos = spos.y;
     }
   #endif
   #if ENABLED(INPUT_SHAPING_Z)
     if (shaping_z.enabled) {
+      shaping_z.last_block_end_pos = count_position.z; // Stepper space, like count_position
       count_position.z += z_shaping_delta;
-      shaping_z.last_block_end_pos = spos.z;
     }
   #endif
 }

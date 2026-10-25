@@ -526,6 +526,7 @@ namespace LanguageNarrow_ro {
   LSTR MSG_TMC_DRIVERS                    = _UxGT("TMC Drivers");                              // TMC Drivers
   LSTR MSG_TMC_CURRENT                    = _UxGT("Driver Current");                           // Driver Current
   LSTR MSG_TMC_HYBRID_THRS                = _UxGT("Hybrid Threshold");                         // Hybrid Threshold
+  LSTR MSG_TMC_HOMING_HYBRID_THRS         = _UxGT("Prag hibrid origine");                      // Homing Hybrid Thrs
   LSTR MSG_TMC_HOMING_THRS                = _UxGT("Sensorless Homing");                        // Sensorless Homing
   LSTR MSG_TMC_STEPPING_MODE              = _UxGT("Stepping Mode");                            // Stepping Mode
   LSTR MSG_TMC_STEALTHCHOP                = _UxGT("StealthChop");                              // StealthChop
@@ -686,6 +687,7 @@ namespace LanguageNarrow_ro {
   LSTR MSG_ERR_COOLING_FAILED             = _UxGT("Racire Esuata");                            // Cooling Failed
   LSTR MSG_PLEASE_WAIT                    = _UxGT("Asteptati...");                             // Please wait...
   LSTR MSG_PREHEATING                     = _UxGT("Preincalzire...");                          // Preheating...
+  LSTR MSG_HEAT_SOAK                      = _UxGT("Stabilizare termică");                      // Heat Soak
   LSTR MSG_PROBE_HEATING                  = _UxGT("Incalzire Sonda...");                       // Probe Heating...
   LSTR MSG_PROBE_COOLING                  = _UxGT("Racire Sonda...");                          // Probe Cooling...
   LSTR MSG_LASER_COOLING                  = _UxGT("Racire Laser...");                          // Laser Cooling...
@@ -826,6 +828,9 @@ namespace LanguageNarrow_ro {
   LSTR MSG_ADVANCE_TAU                    = _UxGT("Advance Tau");                              // Advance Tau
   LSTR MSG_ADVANCE_TAU_E                  = _UxGT("Advance Tau *");                            // Advance Tau *
   LSTR MSG_NLE_ON                         = _UxGT("NLE activat");                              // NLE enabled
+  LSTR MSG_NLE_A                          = _UxGT("-Pătratic");                                // -Quadratic
+  LSTR MSG_NLE_B                          = _UxGT("-Liniar");                                  // -Linear
+  LSTR MSG_NLE_C                          = _UxGT("-Constant");                                // -Constant
   LSTR MSG_HOTEND_TEMP_GRAPH              = _UxGT("Grafic Temp Capat");                        // Hotend Temp Graph
   LSTR MSG_BED_TEMP_GRAPH                 = _UxGT("Grafic Temp Pat");                          // Bed Temp Graph
   LSTR MSG_EEPROM_INITIALIZED             = _UxGT("EEPROM Initializat");                       // EEPROM Initialized

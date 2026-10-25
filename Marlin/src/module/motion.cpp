@@ -218,7 +218,7 @@ int16_t Motion::feedrate_percentage = 100;
   feedRate_t Motion::xy_probe_feedrate_mm_s = MMM_TO_MMS(XY_PROBE_FEEDRATE);
 #endif
 
-#if ENABLED(PROUI_ITEM_ZFR)
+#if ALL(DWIN_LCD_PROUI, HAS_BED_PROBE)
   uint16_t Motion::z_probe_slow_mm_s = MMM_TO_MMS(Z_PROBE_FEEDRATE_SLOW);
 #elif Z_PROBE_FEEDRATE_SLOW
   constexpr feedRate_t Motion::z_probe_slow_mm_s;
@@ -1446,8 +1446,12 @@ void Motion::restore_feedrate_and_scaling() {
         const float dist_2 = HYPOT2(target.x - offs.x, target.y - offs.y);
         //SERIAL_ECHOLNPGM("Motion limits data: dist_2:", dist_2, " delta_max_radius_2: ", delta_max_radius_2);
         //SERIAL_EOL();
-        if (dist_2 > delta_max_radius_2)
-          target *= float(delta_max_radius / SQRT(dist_2)); // 200 / 300 = 0.66
+        if (dist_2 > delta_max_radius_2) {
+          // Bring the effector center back to the printable radius. Z is limited below.
+          const float ratio = delta_max_radius / SQRT(dist_2); // 200 / 300 = 0.66
+          target.x = offs.x + (target.x - offs.x) * ratio;
+          target.y = offs.y + (target.y - offs.y) * ratio;
+        }
       #endif
 
     #else

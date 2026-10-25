@@ -371,6 +371,27 @@ void CardReader::ls(const uint8_t lsflags/*=0*/) {
   }
 }
 
+#if ENABLED(PANELDUE)
+
+  //
+  // Get the next visible item (folder or G-code file) in a folder.
+  // Call dir.rewind() to start from the first item.
+  // The long filename buffer is not touched.
+  // Return false when there are no more items.
+  //
+  bool CardReader::nextVisibleItem(MediaFile &dir, char * const dosFilename, bool &isDir) {
+    dir_t p;
+    while (dir.readDir(&p, nullptr) > 0) {
+      if (!is_visible_entity(p)) continue;
+      createFilename(dosFilename, p);
+      isDir = flag.filenameIsDir;
+      return true;
+    }
+    return false;
+  }
+
+#endif // PANELDUE
+
 #if ENABLED(LONG_FILENAME_HOST_SUPPORT)
 
   //
