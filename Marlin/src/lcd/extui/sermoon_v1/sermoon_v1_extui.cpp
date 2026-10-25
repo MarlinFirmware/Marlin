@@ -47,13 +47,6 @@ namespace ExtUI {
   void onMediaError() { rts.mediaRemoved(); }
   void onMediaRemoved() { rts.mediaRemoved(); }
 
-  // Error pages are shown by onPrinterKilled, which knows the cause
-  void onHeatingError(const heater_id_t) {}
-  void onMinTempError(const heater_id_t) {}
-  void onMaxTempError(const heater_id_t) {}
-
-  void onPlayTone(const uint16_t, const uint16_t/*=0*/) {}
-
   void onPrintTimerStarted() { rts.printStarted(); }
   void onPrintTimerPaused() { rts.printPaused(); }
   void onPrintTimerStopped() { rts.printStopped(); }
@@ -72,15 +65,7 @@ namespace ExtUI {
     void onPauseMode(const PauseMessage message, const PauseMode, const uint8_t) { rts.pauseMessage(message); }
   #endif
 
-  void onStatusChanged(const char * const) {}
-
-  void onHomingStart() {}
   void onHomingDone() { rts.homingFinished(); }
-
-  void onSteppersDisabled() {}
-  void onSteppersEnabled() {}
-  void onAxisDisabled(const axis_t) {}
-  void onAxisEnabled(const axis_t) {}
 
   void onFactoryReset() {
     RTS::settings.version  = settings_version;
@@ -103,44 +88,16 @@ namespace ExtUI {
       onFactoryReset();
   }
 
-  void onPostprocessSettings() {}
-  void onSettingsStored(const bool) {}
   void onSettingsLoaded(const bool) { rts.sendLanguage(); }
 
   #if HAS_LEVELING
-    void onLevelingStart() {}
-    void onLevelingDone() {}
     #if ENABLED(PREHEAT_BEFORE_LEVELING)
       celsius_t getLevelingBedTemp() { return LEVELING_BED_TEMP; }
     #endif
   #endif
 
-  #if HAS_MESH
-    void onMeshUpdate(const int8_t, const int8_t, const float) {}
-    void onMeshUpdate(const int8_t, const int8_t, const probe_state_t) {}
-  #endif
-
-  #if ENABLED(PREVENT_COLD_EXTRUSION)
-    void onSetMinExtrusionTemp(const celsius_t) {}
-  #endif
-
   #if ENABLED(POWER_LOSS_RECOVERY)
-    void onSetPowerLoss(const bool) {}
-    void onPowerLoss() {}
     void onPowerLossResume() { rts.powerLossDetected(); }
-  #endif
-
-  #if HAS_PID_HEATING
-    void onPIDTuning(const pidresult_t) {}
-    void onStartM303(const int, const heater_id_t, const celsius_t) {}
-  #endif
-
-  #if ENABLED(MPC_AUTOTUNE)
-    void onMPCTuning(const mpcresult_t) {}
-  #endif
-
-  #if ENABLED(PLATFORM_M997_SUPPORT)
-    void onFirmwareFlash() {}
   #endif
 
 } // ExtUI
