@@ -35,6 +35,28 @@
 
 namespace ExtUI {
 
+  #if DGUS_LCD_UI_CREALITY_TOUCH
+
+    // The CR-6 touch screen has dedicated screens for some errors
+    static DGUS_ScreenID killScreenFor(FSTR_P const error) {
+      PGM_P const err = FTOP(error);
+      if (strcmp_P(err, GET_TEXT(MSG_ERR_MAXTEMP)) == 0 || strcmp_P(err, GET_TEXT(MSG_ERR_THERMAL_RUNAWAY)) == 0)
+        return DGUS_SCREEN_THERMAL_RUNAWAY;
+      if (strcmp_P(err, GET_TEXT(MSG_ERR_HEATING_FAILED)) == 0)
+        return DGUS_SCREEN_HEATING_FAILED;
+      if (strcmp_P(err, GET_TEXT(MSG_ERR_MINTEMP)) == 0)
+        return DGUS_SCREEN_THERMISTOR_ERROR;
+      return DGUS_SCREEN_KILL;
+    }
+
+    // Confirm without a popup, e.g. while in the feed (load filament) workflow
+    static void onCrealityUserConfirmed() {
+      TERN_(M600_PURGE_MORE_RESUMABLE, setPauseMenuResponse(PAUSE_RESPONSE_RESUME_PRINT));
+      setUserConfirmed();
+    }
+
+  #endif
+
   void onStartup() {
     dgus.initDisplay();
     screen.updateScreenVPData();
@@ -45,11 +67,18 @@ namespace ExtUI {
   void onPrinterKilled(FSTR_P const error, FSTR_P const) {
     #if DGUS_LCD_UI_MKS
       screen.sendInfoScreenMKS(GET_TEXT_F(MSG_HALTED), error, nullptr, GET_TEXT_F(MSG_PLEASE_RESET), mks_language_index);
+    #elif DGUS_LCD_UI_CREALITY_TOUCH
+      screen.sendInfoScreen(GET_TEXT_F(MSG_HALTED), error, GET_TEXT_F(MSG_PLEASE_RESET), FPSTR(NUL_STR));
     #else
       screen.sendInfoScreen(GET_TEXT_F(MSG_HALTED), error, FPSTR(NUL_STR), GET_TEXT_F(MSG_PLEASE_RESET));
     #endif
 
-    screen.gotoScreen(DGUS_SCREEN_KILL);
+    #if DGUS_LCD_UI_CREALITY_TOUCH
+      screen.gotoScreen(killScreenFor(error));
+      screen.killScreenCalled();
+    #else
+      screen.gotoScreen(DGUS_SCREEN_KILL);
+    #endif
     while (!screen.loop());  // Wait while anything is left to be sent
   }
 
@@ -59,16 +88,32 @@ namespace ExtUI {
 
   void onUserConfirmRequired(const char * const msg) {
     if (msg) {
-      #if DGUS_LCD_UI_MKS
-        screen.sendInfoScreenMKS(F("Please confirm."), nullptr, msg, nullptr, mks_language_index);
+      #if DGUS_LCD_UI_CREALITY_TOUCH
+        // In the feed (load filament) workflow assume immediate confirmation
+        if (screen.getCurrentScreen() == DGUS_SCREEN_FEED) {
+          onCrealityUserConfirmed();
+          return;
+        }
+        // The screen change hook confirms when the popup is closed
+        screen.setStatusMessage(msg);
+        screen.sendInfoScreen_P(PSTR("Confirmation required"), msg, NUL_STR, PSTR("Ok"), true, false, true, true);
+        screen.gotoScreen(screen.isPrintJobActive() ? DGUS_SCREEN_PRINT_PAUSED : DGUS_SCREEN_POPUP);
       #else
-        screen.sendInfoScreen(F("Please confirm."), nullptr, msg, nullptr, true, false, false, false);
+        #if DGUS_LCD_UI_MKS
+          screen.sendInfoScreenMKS(F("Please confirm."), nullptr, msg, nullptr, mks_language_index);
+        #else
+          screen.sendInfoScreen(F("Please confirm."), nullptr, msg, nullptr, true, false, false, false);
+        #endif
+        screen.setupConfirmAction(setUserConfirmed);
+        screen.gotoScreen(DGUS_SCREEN_POPUP);
       #endif
-      screen.setupConfirmAction(setUserConfirmed);
-      screen.gotoScreen(DGUS_SCREEN_POPUP);
     }
     else if (screen.getCurrentScreen() == DGUS_SCREEN_POPUP) {
-      screen.setupConfirmAction(nullptr);
+      #if DGUS_LCD_UI_CREALITY_TOUCH
+        screen.setStatusMessage_P(nullptr);
+      #else
+        screen.setupConfirmAction(nullptr);
+      #endif
       screen.popToOldScreen();
     }
   }
@@ -96,11 +141,15 @@ namespace ExtUI {
   #if ENABLED(POWER_LOSS_RECOVERY)
     void onPowerLossResume() {
       // Called on resume from power-loss
-      IF_DISABLED(DGUS_LCD_UI_MKS, screen.gotoScreen(DGUS_SCREEN_POWER_LOSS));
+      #if DGUS_LCD_UI_CREALITY_TOUCH
+        screen.onPowerLossResume();
+      #else
+        IF_DISABLED(DGUS_LCD_UI_MKS, screen.gotoScreen(DGUS_SCREEN_POWER_LOSS));
+      #endif
     }
   #endif
 
-  #if HAS_PID_HEATING
+  #if HAS_PID_HEATING && DISABLED(DGUS_LCD_UI_CREALITY_TOUCH)
     void onPIDTuning(const pidresult_t rst) {
       // Called for temperature PID tuning result
       switch (rst) {
