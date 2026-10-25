@@ -106,7 +106,12 @@
 #define BOARD_NO_HOST_DRIVE                       // SD is only seen by the printer
 
 #define ONBOARD_SDIO                              // Extra added by Creality
-#define SDIO_CLOCK                       6000000  // In original source code overridden by Creality in sdio.h
+#ifndef SDIO_CLOCK
+  #define SDIO_CLOCK                     4500000  // Creality used 6MHz. CR-6 Community firmware: 4.5MHz is more reliable.
+#endif
+#ifndef SDIO_READ_RETRIES
+  #define SDIO_READ_RETRIES                   16  // CR-6 Community firmware: more retries for SD read errors
+#endif
 
 //
 // Misc. Functions
