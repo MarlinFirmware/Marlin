@@ -733,6 +733,26 @@ MarlinSettings settings;
 
 uint16_t MarlinSettings::datasize() { return sizeof(SettingsData); }
 
+#ifdef EEPROM_AUTOSAVE_AFTER
+
+  static millis_t autosave_ms; // = 0 (no save pending)
+
+  // (Re)start the timer, so a burst of changes leads to a single save
+  void MarlinSettings::request_autosave() {
+    autosave_ms = millis() + (EEPROM_AUTOSAVE_AFTER);
+    if (!autosave_ms) autosave_ms = 1;
+  }
+
+  // Called from idle(). Wait for the delay to pass and for printing and motion to finish.
+  void MarlinSettings::autosave_task() {
+    if (!autosave_ms || PENDING(millis(), autosave_ms)) return;
+    if (marlin.printJobOngoing() || planner.has_blocks_queued()) return;
+    autosave_ms = 0;  // Clear first in case save() calls idle()
+    save();
+  }
+
+#endif
+
 /**
  * Post-process after Retrieve or Reset
  */
