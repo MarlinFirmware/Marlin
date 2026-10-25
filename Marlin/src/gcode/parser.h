@@ -253,27 +253,25 @@ public:
   // The value as a string
   static char* value_string() { return value_ptr; }
 
-  // Float removes 'E' to prevent scientific notation interpretation
-  static float value_float() {
-    if (!value_ptr) return 0;
-    char *e = value_ptr;
-    for (;;) {
-      const char c = *e;
-      if (c == '\0' || c == ' ') break;
-      if (c == 'E' || c == 'e' || c == 'X' || c == 'x') {
-        *e = '\0';
-        const float ret = strtof(value_ptr, nullptr);
-        *e = c;
-        return ret;
-      }
-      ++e;
-    }
-    return strtof(value_ptr, nullptr);
-  }
+  /**
+   * Read a number the way G-code writes it: optional spaces, an optional sign, digits and, for
+   * a float, a decimal point and more digits. Reading stops at the first other character, so an
+   * 'E' or 'X' can't turn a value into scientific notation or hex, and "nan" or "inf" read as 0.
+   *
+   * These replace strtol, strtoul and strtof, which are about 1.8 KB of flash on AVR.
+   * - Integers saturate at the limits of the type, like strtol and strtoul.
+   * - A float is the same as strtof for up to 7 significant digits. With 8 or 9 it can differ in the
+   *   last bit, and with more it can be a few bits off. Digits after the 9th are ignored, but still
+   *   scale a whole number.
+   */
+  static int32_t  dec_to_long(const char *p);
+  static uint32_t dec_to_ulong(const char *p);
+  static float    dec_to_float(const char *p);
 
-  // Code value as a long or ulong
-  static int32_t value_long() { return value_ptr ? strtol(value_ptr, nullptr, 10) : 0L; }
-  static uint32_t value_ulong() { return value_ptr ? strtoul(value_ptr, nullptr, 10) : 0UL; }
+  // Code value as a float, long, or ulong
+  static float value_float() { return value_ptr ? dec_to_float(value_ptr) : 0; }
+  static int32_t value_long() { return value_ptr ? dec_to_long(value_ptr) : 0L; }
+  static uint32_t value_ulong() { return value_ptr ? dec_to_ulong(value_ptr) : 0UL; }
 
   // Code value for use as time
   static millis_t value_millis() { return value_ulong(); }
