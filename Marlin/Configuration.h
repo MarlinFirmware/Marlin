@@ -102,6 +102,7 @@
 /**
  * Select a secondary serial port on the board to use for communication with the host.
  * -2 is Ethernet on Teensy 4.1 boards, and the built-in Bluetooth (Classic SPP) on ESP32.
+ * ESP3D_WIFISUPPORT requires -1, which carries G-code from ESP3D to Marlin.
  * :[-2, -1, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
  */
 //#define SERIAL_PORT_2 -1
