@@ -250,6 +250,10 @@
   #include "feature/power.h"
 #endif
 
+#if ENABLED(PANCAKEBOT)
+  #include "feature/pancakebot.h"
+#endif
+
 #if ENABLED(EASYTHREED_UI)
   #include "feature/easythreed_ui.h"
 #endif
@@ -837,6 +841,9 @@ void Marlin::idle(const bool no_stepper_sleep/*=false*/) {
   // Check network connection
   TERN_(HAS_ETHERNET, ethernet.check());
 
+  // PancakeBot LEDs
+  TERN_(PANCAKEBOT, pancakebot.idle());
+
   // Handle Power-Loss Recovery
   #if ENABLED(POWER_LOSS_RECOVERY) && PIN_EXISTS(POWER_LOSS)
     if (card.isStillPrinting()) recovery.outage();
@@ -1312,6 +1319,11 @@ void setup() {
   #if ENABLED(PSU_CONTROL)
     SETUP_LOG("PSU_CONTROL");
     powerManager.init();
+  #endif
+
+  #if ENABLED(PANCAKEBOT)
+    SETUP_LOG("PANCAKEBOT");
+    pancakebot.init();
   #endif
 
   #if ENABLED(POWER_LOSS_RECOVERY)

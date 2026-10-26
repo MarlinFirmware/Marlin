@@ -30,11 +30,9 @@
  *
  * Ported from https://github.com/PancakeBot/PancakeBot-firmware
  *
- * Front panel (not supported by Marlin: 128x32 ST7565 graphic display with a
- * 3-button / encoder panel, status LEDs and a latching power key):
- *   Display SCK 23, MOSI 64, CS 63, A0 66, backlight 65
- *   Buttons EN1 10, EN2 3, ENC 13, END 11 (the power key shares pin 11)
- *   LEDs: Power On 5, Power Off 6, Working 7, SD Error 8
+ * The front panel (PANCAKEBOT_PANEL) has a 128x32 ST7565 graphic display, four push
+ * buttons, and four LEDs. The Power On (5) and Power Off (6) LEDs and the power key
+ * circuit are not driven by Marlin. The Back button is the power key (pin 11).
  */
 
 #include "env_validate.h"
@@ -65,9 +63,10 @@
 #define FAN0_PIN                               9
 
 //
-// Power key. Idles low, switches the power supply off when driven high.
+// LEDs
 //
-#define PS_ON_PIN                             11
+#define PANCAKEBOT_WORKING_LED_PIN             7  // Lit while printing from the SD card
+#define PANCAKEBOT_SD_ERROR_LED_PIN            8  // Lit when there is no SD card
 
 //
 // SD Card

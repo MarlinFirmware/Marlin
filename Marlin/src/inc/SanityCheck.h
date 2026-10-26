@@ -1077,6 +1077,16 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
 #endif
 
 /**
+ * PancakeBot
+ */
+#if ENABLED(PANCAKEBOT)
+  #if !PIN_EXISTS(PANCAKEBOT_WORKING_LED) || !PIN_EXISTS(PANCAKEBOT_SD_ERROR_LED)
+    #error "PANCAKEBOT requires PANCAKEBOT_WORKING_LED_PIN and PANCAKEBOT_SD_ERROR_LED_PIN."
+  #elif !HAS_MEDIA
+    #error "PANCAKEBOT requires SDSUPPORT."
+  #endif
+#endif
+/**
  * Synchronous M106/M107 checks
  */
 #if ENABLED(LASER_SYNCHRONOUS_M106_M107)
