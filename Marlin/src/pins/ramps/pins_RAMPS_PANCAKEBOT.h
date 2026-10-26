@@ -73,3 +73,19 @@
 //
 #define SD_SS_PIN                             53
 #define SD_DETECT_PIN                         49
+
+//
+// PancakeBot Panel
+//
+#if ENABLED(PANCAKEBOT_PANEL)
+  #define DOGLCD_SCK                          23
+  #define DOGLCD_MOSI                         64
+  #define DOGLCD_CS                           63
+  #define DOGLCD_A0                           66
+  #define LCD_BACKLIGHT_PIN                   65
+
+  #define BTN_UP                              10  // Previous item (with REVERSE_MENU_DIRECTION)
+  #define BTN_DOWN                             3  // Next item (with REVERSE_MENU_DIRECTION)
+  #define BTN_ENC                             13  // Start / Select
+  #define BTN_BACK                            11  // Also the power key
+#endif
