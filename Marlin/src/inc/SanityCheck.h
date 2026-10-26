@@ -3738,54 +3738,8 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
 #endif
 
 // TMC Hybrid Threshold
-#if ENABLED(HYBRID_THRESHOLD)
-  #if !STEALTHCHOP_ENABLED
+#if ENABLED(HYBRID_THRESHOLD) && !STEALTHCHOP_ENABLED
     #error "Enable STEALTHCHOP_(XY|Z|E) to use HYBRID_THRESHOLD."
-  #elif defined(X_HYBRID_THRESHOLD) && X_HYBRID_THRESHOLD == 0
-    #error "X_HYBRID_THRESHOLD must be greater than 0."
-  #elif defined(X2_HYBRID_THRESHOLD) && X2_HYBRID_THRESHOLD == 0
-    #error "X2_HYBRID_THRESHOLD must be greater than 0."
-  #elif defined(Y_HYBRID_THRESHOLD) && Y_HYBRID_THRESHOLD == 0
-    #error "Y_HYBRID_THRESHOLD must be greater than 0."
-  #elif defined(Y2_HYBRID_THRESHOLD) && Y2_HYBRID_THRESHOLD == 0
-    #error "Y2_HYBRID_THRESHOLD must be greater than 0."
-  #elif defined(Z_HYBRID_THRESHOLD) && Z_HYBRID_THRESHOLD == 0
-    #error "Z_HYBRID_THRESHOLD must be greater than 0."
-  #elif defined(Z2_HYBRID_THRESHOLD) && Z2_HYBRID_THRESHOLD == 0
-    #error "Z2_HYBRID_THRESHOLD must be greater than 0."
-  #elif defined(Z3_HYBRID_THRESHOLD) && Z3_HYBRID_THRESHOLD == 0
-    #error "Z3_HYBRID_THRESHOLD must be greater than 0."
-  #elif defined(Z4_HYBRID_THRESHOLD) && Z4_HYBRID_THRESHOLD == 0
-    #error "Z4_HYBRID_THRESHOLD must be greater than 0."
-  #elif defined(I_HYBRID_THRESHOLD) && I_HYBRID_THRESHOLD == 0
-    #error "I_HYBRID_THRESHOLD must be greater than 0."
-  #elif defined(J_HYBRID_THRESHOLD) && J_HYBRID_THRESHOLD == 0
-    #error "J_HYBRID_THRESHOLD must be greater than 0."
-  #elif defined(K_HYBRID_THRESHOLD) && K_HYBRID_THRESHOLD == 0
-    #error "K_HYBRID_THRESHOLD must be greater than 0."
-  #elif defined(U_HYBRID_THRESHOLD) && U_HYBRID_THRESHOLD == 0
-    #error "U_HYBRID_THRESHOLD must be greater than 0."
-  #elif defined(V_HYBRID_THRESHOLD) && V_HYBRID_THRESHOLD == 0
-    #error "V_HYBRID_THRESHOLD must be greater than 0."
-  #elif defined(W_HYBRID_THRESHOLD) && W_HYBRID_THRESHOLD == 0
-    #error "W_HYBRID_THRESHOLD must be greater than 0."
-  #elif defined(E0_HYBRID_THRESHOLD) && E0_HYBRID_THRESHOLD == 0
-    #error "E0_HYBRID_THRESHOLD must be greater than 0."
-  #elif defined(E1_HYBRID_THRESHOLD) && E1_HYBRID_THRESHOLD == 0
-    #error "E1_HYBRID_THRESHOLD must be greater than 0."
-  #elif defined(E2_HYBRID_THRESHOLD) && E2_HYBRID_THRESHOLD == 0
-    #error "E2_HYBRID_THRESHOLD must be greater than 0."
-  #elif defined(E3_HYBRID_THRESHOLD) && E3_HYBRID_THRESHOLD == 0
-    #error "E3_HYBRID_THRESHOLD must be greater than 0."
-  #elif defined(E4_HYBRID_THRESHOLD) && E4_HYBRID_THRESHOLD == 0
-    #error "E4_HYBRID_THRESHOLD must be greater than 0."
-  #elif defined(E5_HYBRID_THRESHOLD) && E5_HYBRID_THRESHOLD == 0
-    #error "E5_HYBRID_THRESHOLD must be greater than 0."
-  #elif defined(E6_HYBRID_THRESHOLD) && E6_HYBRID_THRESHOLD == 0
-    #error "E6_HYBRID_THRESHOLD must be greater than 0."
-  #elif defined(E7_HYBRID_THRESHOLD) && E7_HYBRID_THRESHOLD == 0
-    #error "E7_HYBRID_THRESHOLD must be greater than 0."
-  #endif
 #endif // HYBRID_THRESHOLD
 
 #if ENABLED(HOMING_HYBRID_THRESHOLD) && DISABLED(HYBRID_THRESHOLD)
@@ -4402,11 +4356,11 @@ static_assert(_PLUS_TEST(3), "DEFAULT_MAX_ACCELERATION values must be positive."
 // With no WiFi at all these can do nothing whatsoever.
 #if NONE(WIFISUPPORT, ESP3D_WIFISUPPORT)
   #if ANY(WEBSUPPORT, OTASUPPORT)
-    #error "WEBSUPPORT and OTASUPPORT require WIFISUPPORT."
+    #error "WEBSUPPORT and OTASUPPORT require WIFISUPPORT or ESP3D_WIFISUPPORT."
   #elif ENABLED(WIFI_CUSTOM_COMMAND)
     #error "WIFI_CUSTOM_COMMAND requires ESP3D_WIFISUPPORT."
   #elif defined(WIFI_SSID) || defined(WIFI_PWD)
-    #error "WIFI_SSID and WIFI_PWD require WIFISUPPORT."
+    #error "WIFI_SSID and WIFI_PWD require WIFISUPPORT or ESP3D_WIFISUPPORT."
   #endif
 #endif
 
