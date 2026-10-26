@@ -86,6 +86,16 @@ namespace DGUSRxHandler {
   void waitAbort(DGUS_VP &, void *);
   void waitContinue(DGUS_VP &, void *);
 
+  #if HAS_FILAMENT_SENSOR
+    void filamentSensorToggle(DGUS_VP &, void *);
+    void filamentSensorSave(DGUS_VP &, void *);
+    #if ENABLED(FILAMENT_SWITCH_AND_MOTION)
+      void filamentSensorJam(DGUS_VP &, void *);
+    #endif
+  #endif
+
+  void language(DGUS_VP &, void *);
+
   void fanSpeed(DGUS_VP &, void *);
 
   void volume(DGUS_VP &, void *);

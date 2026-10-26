@@ -594,6 +594,9 @@ class Stepper {
     // The ISR scheduler
     static void isr();
 
+    // Run the stepper events that are due. Return ticks until the next event.
+    static hal_timer_t isr_events();
+
     #if HAS_STANDARD_MOTION
       // The stepper pulse ISR phase
       static void pulse_phase_isr();
