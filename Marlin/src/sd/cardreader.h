@@ -101,7 +101,7 @@ class CardReader {
 public:
   static card_flags_t flag;                         // Flags (above)
   static char filename[FILENAME_LENGTH],            // DOS 8.3 filename of the selected item
-              longFilename[LONG_FILENAME_LENGTH];   // Long name of the selected item
+              longFilename[LONG_FILENAME_BYTES];    // Long name of the selected item
 
   // Fast! binary file transfer
   #if ENABLED(BINARY_FILE_TRANSFER)
@@ -297,6 +297,10 @@ public:
 
   static void ls(const uint8_t lsflags=0);
 
+  #if ENABLED(PANELDUE)
+    static bool nextVisibleItem(MediaFile &dir, char * const dosFilename, bool &isDir);
+  #endif
+
   #if ENABLED(POWER_LOSS_RECOVERY)
     static bool jobRecoverFileExists();
     static void openJobRecoveryFile(const bool read);
@@ -373,7 +377,7 @@ private:
       #define SORTED_LONGNAME_MAXLEN (SDSORT_CACHE_VFATS) * (FILENAME_LENGTH)
       #define SORTED_LONGNAME_STORAGE (SORTED_LONGNAME_MAXLEN + 1)
     #else
-      #define SORTED_LONGNAME_MAXLEN LONG_FILENAME_LENGTH
+      #define SORTED_LONGNAME_MAXLEN LONG_FILENAME_BYTES
       #define SORTED_LONGNAME_STORAGE SORTED_LONGNAME_MAXLEN
     #endif
 
@@ -447,7 +451,7 @@ public:
   static constexpr bool isFileOpen()            { return false; }
 };
 
-#define LONG_FILENAME_LENGTH 0
+#define LONG_FILENAME_BYTES 0
 
 #endif // !HAS_MEDIA
 

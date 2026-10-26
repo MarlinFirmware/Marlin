@@ -3091,6 +3091,20 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
   static_assert(strcmp(STRINGIFY(LCD_LANGUAGE_2), "zh_CN") == 0, "LCD_LANGUAGE_2 must be set to zh_CN for ANYCUBIC_LCD_VYPER.");
 #endif
 
+#if ENABLED(ANYCUBIC_LCD_KOBRA)
+  #ifndef BEEPER_PIN
+    #error "ANYCUBIC_LCD_KOBRA requires BEEPER_PIN"
+  #elif !HAS_MEDIA
+    #error "ANYCUBIC_LCD_KOBRA requires SDSUPPORT"
+  #elif TEMP_SENSOR_BED == 0
+    #error "ANYCUBIC_LCD_KOBRA requires heatbed (TEMP_SENSOR_BED)"
+  #elif NONE(AUTO_BED_LEVELING_BILINEAR, AUTO_BED_LEVELING_UBL, MESH_BED_LEVELING)
+    #error "ANYCUBIC_LCD_KOBRA requires one of: AUTO_BED_LEVELING_BILINEAR, AUTO_BED_LEVELING_UBL or MESH_BED_LEVELING"
+  #elif DISABLED(BABYSTEPPING)
+    #error "ANYCUBIC_LCD_KOBRA requires BABYSTEPPING"
+  #endif
+#endif
+
 #if ENABLED(NO_LCD_SDCARD) && SD_CONNECTION_IS(LCD)
   #error "SDCARD_CONNECTION cannot be set to LCD for the enabled display. No available SD card reader."
 #endif
@@ -3147,7 +3161,7 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
 
 // Startup Tune requirements
 #ifdef STARTUP_TUNE
-  #if ANY(ANYCUBIC_LCD_CHIRON, ANYCUBIC_LCD_VYPER)
+  #if ANY(ANYCUBIC_LCD_CHIRON, ANYCUBIC_LCD_KOBRA, ANYCUBIC_LCD_VYPER)
     #error "STARTUP_TUNE should be disabled with ANYCUBIC_LCD_CHIRON or ANYCUBIC_LCD_VYPER."
   #elif !(ALL(HAS_BEEPER, SPEAKER) || USE_MARLINUI_BUZZER)
     #error "STARTUP_TUNE requires a BEEPER_PIN with SPEAKER or USE_MARLINUI_BUZZER."
@@ -3200,7 +3214,7 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
 #else
   #if HAS_DGUS_LCD
     #error "The DGUS LCD requires LCD_SERIAL_PORT to be defined."
-  #elif ANY(ANYCUBIC_LCD_I3MEGA, ANYCUBIC_LCD_CHIRON, ANYCUBIC_LCD_VYPER)
+  #elif ANY(ANYCUBIC_LCD_I3MEGA, ANYCUBIC_LCD_CHIRON, ANYCUBIC_LCD_KOBRA, ANYCUBIC_LCD_VYPER)
     #error "ANYCUBIC_LCD_* requires LCD_SERIAL_PORT to be defined."
   #elif ENABLED(MALYAN_LCD)
     #error "MALYAN_LCD requires LCD_SERIAL_PORT to be defined."
@@ -3724,55 +3738,13 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
 #endif
 
 // TMC Hybrid Threshold
-#if ENABLED(HYBRID_THRESHOLD)
-  #if !STEALTHCHOP_ENABLED
+#if ENABLED(HYBRID_THRESHOLD) && !STEALTHCHOP_ENABLED
     #error "Enable STEALTHCHOP_(XY|Z|E) to use HYBRID_THRESHOLD."
-  #elif defined(X_HYBRID_THRESHOLD) && X_HYBRID_THRESHOLD == 0
-    #error "X_HYBRID_THRESHOLD must be greater than 0."
-  #elif defined(X2_HYBRID_THRESHOLD) && X2_HYBRID_THRESHOLD == 0
-    #error "X2_HYBRID_THRESHOLD must be greater than 0."
-  #elif defined(Y_HYBRID_THRESHOLD) && Y_HYBRID_THRESHOLD == 0
-    #error "Y_HYBRID_THRESHOLD must be greater than 0."
-  #elif defined(Y2_HYBRID_THRESHOLD) && Y2_HYBRID_THRESHOLD == 0
-    #error "Y2_HYBRID_THRESHOLD must be greater than 0."
-  #elif defined(Z_HYBRID_THRESHOLD) && Z_HYBRID_THRESHOLD == 0
-    #error "Z_HYBRID_THRESHOLD must be greater than 0."
-  #elif defined(Z2_HYBRID_THRESHOLD) && Z2_HYBRID_THRESHOLD == 0
-    #error "Z2_HYBRID_THRESHOLD must be greater than 0."
-  #elif defined(Z3_HYBRID_THRESHOLD) && Z3_HYBRID_THRESHOLD == 0
-    #error "Z3_HYBRID_THRESHOLD must be greater than 0."
-  #elif defined(Z4_HYBRID_THRESHOLD) && Z4_HYBRID_THRESHOLD == 0
-    #error "Z4_HYBRID_THRESHOLD must be greater than 0."
-  #elif defined(I_HYBRID_THRESHOLD) && I_HYBRID_THRESHOLD == 0
-    #error "I_HYBRID_THRESHOLD must be greater than 0."
-  #elif defined(J_HYBRID_THRESHOLD) && J_HYBRID_THRESHOLD == 0
-    #error "J_HYBRID_THRESHOLD must be greater than 0."
-  #elif defined(K_HYBRID_THRESHOLD) && K_HYBRID_THRESHOLD == 0
-    #error "K_HYBRID_THRESHOLD must be greater than 0."
-  #elif defined(U_HYBRID_THRESHOLD) && U_HYBRID_THRESHOLD == 0
-    #error "U_HYBRID_THRESHOLD must be greater than 0."
-  #elif defined(V_HYBRID_THRESHOLD) && V_HYBRID_THRESHOLD == 0
-    #error "V_HYBRID_THRESHOLD must be greater than 0."
-  #elif defined(W_HYBRID_THRESHOLD) && W_HYBRID_THRESHOLD == 0
-    #error "W_HYBRID_THRESHOLD must be greater than 0."
-  #elif defined(E0_HYBRID_THRESHOLD) && E0_HYBRID_THRESHOLD == 0
-    #error "E0_HYBRID_THRESHOLD must be greater than 0."
-  #elif defined(E1_HYBRID_THRESHOLD) && E1_HYBRID_THRESHOLD == 0
-    #error "E1_HYBRID_THRESHOLD must be greater than 0."
-  #elif defined(E2_HYBRID_THRESHOLD) && E2_HYBRID_THRESHOLD == 0
-    #error "E2_HYBRID_THRESHOLD must be greater than 0."
-  #elif defined(E3_HYBRID_THRESHOLD) && E3_HYBRID_THRESHOLD == 0
-    #error "E3_HYBRID_THRESHOLD must be greater than 0."
-  #elif defined(E4_HYBRID_THRESHOLD) && E4_HYBRID_THRESHOLD == 0
-    #error "E4_HYBRID_THRESHOLD must be greater than 0."
-  #elif defined(E5_HYBRID_THRESHOLD) && E5_HYBRID_THRESHOLD == 0
-    #error "E5_HYBRID_THRESHOLD must be greater than 0."
-  #elif defined(E6_HYBRID_THRESHOLD) && E6_HYBRID_THRESHOLD == 0
-    #error "E6_HYBRID_THRESHOLD must be greater than 0."
-  #elif defined(E7_HYBRID_THRESHOLD) && E7_HYBRID_THRESHOLD == 0
-    #error "E7_HYBRID_THRESHOLD must be greater than 0."
-  #endif
 #endif // HYBRID_THRESHOLD
+
+#if ENABLED(HOMING_HYBRID_THRESHOLD) && DISABLED(HYBRID_THRESHOLD)
+  #error "HOMING_HYBRID_THRESHOLD requires HYBRID_THRESHOLD."
+#endif
 
 // Other TMC feature requirements
 #if ENABLED(SENSORLESS_HOMING) && !HAS_STALLGUARD
@@ -4371,6 +4343,8 @@ static_assert(_PLUS_TEST(3), "DEFAULT_MAX_ACCELERATION values must be positive."
   #error "Enable only one of WIFISUPPORT or ESP3D_WIFISUPPORT."
 #elif ENABLED(ESP3D_WIFISUPPORT) && DISABLED(ARDUINO_ARCH_ESP32)
   #error "ESP3D_WIFISUPPORT requires an ESP32 motherboard."
+#elif ENABLED(ESP3D_WIFISUPPORT) && (!defined(SERIAL_PORT_2) || SERIAL_PORT_2 != -1)
+  #error "ESP3D_WIFISUPPORT requires SERIAL_PORT_2 -1, which carries G-code from ESP3D to Marlin."
 #endif
 
 // Only the native ESP32 WiFi needs credentials at compile time. An add-on module
@@ -4382,11 +4356,11 @@ static_assert(_PLUS_TEST(3), "DEFAULT_MAX_ACCELERATION values must be positive."
 // With no WiFi at all these can do nothing whatsoever.
 #if NONE(WIFISUPPORT, ESP3D_WIFISUPPORT)
   #if ANY(WEBSUPPORT, OTASUPPORT)
-    #error "WEBSUPPORT and OTASUPPORT require WIFISUPPORT."
+    #error "WEBSUPPORT and OTASUPPORT require WIFISUPPORT or ESP3D_WIFISUPPORT."
   #elif ENABLED(WIFI_CUSTOM_COMMAND)
     #error "WIFI_CUSTOM_COMMAND requires ESP3D_WIFISUPPORT."
   #elif defined(WIFI_SSID) || defined(WIFI_PWD)
-    #error "WIFI_SSID and WIFI_PWD require WIFISUPPORT."
+    #error "WIFI_SSID and WIFI_PWD require WIFISUPPORT or ESP3D_WIFISUPPORT."
   #endif
 #endif
 

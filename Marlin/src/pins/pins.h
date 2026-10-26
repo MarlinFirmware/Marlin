@@ -565,15 +565,15 @@
 #elif MB(STM3R_MINI)
   #include "stm32f1/pins_STM3R_MINI.h"              // STM32F1                              env:STM32F103VE env:STM32F103RE_maple
 #elif MB(GTM32_PRO_VB)
-  #include "stm32f1/pins_GTM32_PRO_VB.h"            // STM32F1                              env:STM32F103VE env:STM32F103VE_GTM32_maple
+  #include "stm32f1/pins_GTM32_PRO_VB.h"            // STM32F1                              env:STM32F103VE_GTM32 env:STM32F103VE_GTM32_maple
 #elif MB(GTM32_PRO_VD)
-  #include "stm32f1/pins_GTM32_PRO_VD.h"            // STM32F1                              env:STM32F103VE env:STM32F103VE_GTM32_maple
+  #include "stm32f1/pins_GTM32_PRO_VD.h"            // STM32F1                              env:STM32F103VE_GTM32 env:STM32F103VE_GTM32_maple
 #elif MB(GTM32_MINI)
-  #include "stm32f1/pins_GTM32_MINI.h"              // STM32F1                              env:STM32F103VE env:STM32F103VE_GTM32_maple
+  #include "stm32f1/pins_GTM32_MINI.h"              // STM32F1                              env:STM32F103VE_GTM32 env:STM32F103VE_GTM32_maple
 #elif MB(GTM32_MINI_A30)
-  #include "stm32f1/pins_GTM32_MINI_A30.h"          // STM32F1                              env:STM32F103VE env:STM32F103VE_GTM32_maple
+  #include "stm32f1/pins_GTM32_MINI_A30.h"          // STM32F1                              env:STM32F103VE_GTM32 env:STM32F103VE_GTM32_maple
 #elif MB(GTM32_REV_B)
-  #include "stm32f1/pins_GTM32_REV_B.h"             // STM32F1                              env:STM32F103VE env:STM32F103VE_GTM32_maple
+  #include "stm32f1/pins_GTM32_REV_B.h"             // STM32F1                              env:STM32F103VE_GTM32 env:STM32F103VE_GTM32_maple
 #elif MB(MORPHEUS)
   #include "stm32f1/pins_MORPHEUS.h"                // STM32F1                              env:STM32F103RE env:STM32F103RE_maple
 #elif MB(CHITU3D)
@@ -892,15 +892,15 @@
 //
 
 #elif MB(ESPRESSIF_ESP32)
-  #include "esp32/pins_ESP32.h"                     // ESP32                                env:esp32
+  #include "esp32/pins_ESP32.h"                     // ESP32                                env:esp32_idf4
 #elif MB(MRR_ESPA)
-  #include "esp32/pins_MRR_ESPA.h"                  // ESP32                                env:esp32
+  #include "esp32/pins_MRR_ESPA.h"                  // ESP32                                env:esp32_idf3
 #elif MB(MRR_ESPE)
-  #include "esp32/pins_MRR_ESPE.h"                  // ESP32                                env:esp32
+  #include "esp32/pins_MRR_ESPE.h"                  // ESP32                                env:esp32_idf3
 #elif MB(E4D_BOX)
-  #include "esp32/pins_E4D.h"                       // ESP32                                env:esp32
+  #include "esp32/pins_E4D.h"                       // ESP32                                env:esp32_idf3
 #elif MB(RESP32_CUSTOM)
-  #include "esp32/pins_RESP32_CUSTOM.h"             // ESP32                                env:esp32
+  #include "esp32/pins_RESP32_CUSTOM.h"             // ESP32                                env:esp32_idf3
 #elif MB(FYSETC_E4)
   #include "esp32/pins_FYSETC_E4.h"                 // ESP32                                env:FYSETC_E4
 #elif MB(PANDA_ZHU)
@@ -910,15 +910,15 @@
 #elif MB(MKS_TINYBEE)
   #include "esp32/pins_MKS_TINYBEE.h"               // ESP32                                env:mks_tinybee
 #elif MB(ENWI_ESPNP)
-  #include "esp32/pins_ENWI_ESPNP.h"                // ESP32                                env:esp32
+  #include "esp32/pins_ENWI_ESPNP.h"                // ESP32                                env:esp32_idf3
 #elif MB(GODI_CONTROLLER_V1_0)
   #include "esp32/pins_GODI_CONTROLLER_V1_0.h"      // ESP32                                env:godi_esp32
 #elif MB(MM_JOKER)
-  #include "esp32/pins_MM_JOKER.h"                  // ESP32                                env:esp32
+  #include "esp32/pins_MM_JOKER.h"                  // ESP32                                env:esp32_idf3
 #elif MB(MKS_DLC32_V2_1)
   #include "esp32/pins_MKS_DLC32_V2_1.h"            // ESP32                                env:mks_dlc32_v2_1
 #elif MB(BTT_RODENT_V1)
-  #include "esp32/pins_BTT_RODENT_V1.h"             // ESP32                                env:esp32
+  #include "esp32/pins_BTT_RODENT_V1.h"             // ESP32                                env:esp32_idf3
 
 //
 // Adafruit Grand Central M4 (SAMD51 ARM Cortex-M4)
@@ -946,6 +946,12 @@
   #include "hc32f4/pins_AQUILA_101.h"               // HC32F460                             env:HC32F460C_aquila_101 env:HC32F460C_openhc32boot
 #elif MB(CREALITY_ENDER2P_V24S4)
   #include "hc32f4/pins_CREALITY_ENDER2P_V24S4.h"   // HC32F460                             env:HC32F460C_e2p24s4 env:HC32F460C_openhc32boot
+#elif MB(TRIGORILLA_F1_V1)
+  #include "hc32f4/pins_TRIGORILLA_F1_V1.h"         // HC32F460                             env:HC32F460C_kobra_max
+#elif MB(TRIGORILLA_V306)
+  #include "hc32f4/pins_TRIGORILLA_V306.h"          // HC32F460                             env:HC32F460E_kobra_neo
+#elif MB(TRIGORILLA_V306_GO)
+  #include "hc32f4/pins_TRIGORILLA_V306_GO.h"       // HC32F460                             env:HC32F460E_kobra_go env:HC32F460C_kobra_go
 
 //
 // GD32 ARM Cortex-M3

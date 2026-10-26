@@ -147,7 +147,7 @@ void mount_file_sys(const uint8_t disk_type) {
 #if ENABLED(LONG_FILENAME_WRITE_SUPPORT)
 
   static bool removeIllegalChars(const char *unsanitizedName, char *sanitizedName) {
-    const size_t maxLength = LONG_FILENAME_LENGTH;
+    const size_t maxLength = LONG_FILENAME_BYTES;
     uint8_t i = 0;
     const char *fileExtension = NULL;
 
@@ -1005,7 +1005,7 @@ static void wifi_gcode_exec(uint8_t * const cmd_line) {
                   strcat_P((char *)list_file.file_name[sel_id], PSTR("/"));
 
                 if (file_writer.fileTransfer == 1) {
-                  char dosName[TERN(LONG_FILENAME_WRITE_SUPPORT, LONG_FILENAME_LENGTH, FILENAME_LENGTH)];
+                  char dosName[TERN(LONG_FILENAME_WRITE_SUPPORT, LONG_FILENAME_BYTES, FILENAME_LENGTH)];
                   uint8_t fileName[sizeof(list_file.file_name[sel_id])];
                   fileName[0] = '\0';
                   if (has_path_selected == 1) {
@@ -1600,7 +1600,7 @@ static void file_first_msg_handle(const uint8_t * const msg, const uint16_t msgL
   wifi_delay(1000);
 
   #if HAS_MEDIA
-    char dosName[TERN(LONG_FILENAME_WRITE_SUPPORT, LONG_FILENAME_LENGTH, FILENAME_LENGTH)];
+    char dosName[TERN(LONG_FILENAME_WRITE_SUPPORT, LONG_FILENAME_BYTES, FILENAME_LENGTH)];
 
     if (!sanitizeName((const char *)file_writer.saveFileName, dosName)) {
       clear_cur_ui();

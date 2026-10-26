@@ -217,8 +217,8 @@ inline int lcd_put_u8str(const lcd_uint_t col, const lcd_uint_t row, FSTR_P cons
  * @param maxlen The maximum size of the string (in pixels on GLCD)
  * @return the output width (in pixels on GLCD)
  */
-lcd_uint_t lcd_put_u8str_P(PGM_P const ptpl, const int8_t ind, const char *cstr=nullptr, FSTR_P const fstr=nullptr, const lcd_uint_t maxlen=MAX_MESSAGE_SIZE);
-inline lcd_uint_t lcd_put_u8str_P(const lcd_uint_t col, const lcd_uint_t row, PGM_P const ptpl, const int8_t ind, const char *cstr=nullptr, FSTR_P const fstr=nullptr, const lcd_uint_t maxlen=MAX_MESSAGE_SIZE) {
+lcd_uint_t lcd_put_u8str_P(PGM_P const ptpl, const int8_t ind, const char *cstr=nullptr, FSTR_P const fstr=nullptr, const lcd_uint_t maxlen=MAX_MESSAGE_BYTES);
+inline lcd_uint_t lcd_put_u8str_P(const lcd_uint_t col, const lcd_uint_t row, PGM_P const ptpl, const int8_t ind, const char *cstr=nullptr, FSTR_P const fstr=nullptr, const lcd_uint_t maxlen=MAX_MESSAGE_BYTES) {
   lcd_moveto(col, row);
   return lcd_put_u8str_P(ptpl, ind, cstr, fstr, maxlen);
 }
@@ -233,14 +233,14 @@ inline lcd_uint_t lcd_put_u8str_P(const lcd_uint_t col, const lcd_uint_t row, PG
  * @param maxlen The maximum size of the string (in pixels on GLCD)
  * @return the output width (in pixels on GLCD)
  */
-inline lcd_uint_t lcd_put_u8str(FSTR_P const ftpl, const int8_t ind, const char *cstr=nullptr, FSTR_P const fstr=nullptr, const lcd_uint_t maxlen=MAX_MESSAGE_SIZE) {
+inline lcd_uint_t lcd_put_u8str(FSTR_P const ftpl, const int8_t ind, const char *cstr=nullptr, FSTR_P const fstr=nullptr, const lcd_uint_t maxlen=MAX_MESSAGE_BYTES) {
   return lcd_put_u8str_P(FTOP(ftpl), ind, cstr, fstr, maxlen);
 }
 /**
  * @param col
  * @param row
  */
-inline lcd_uint_t lcd_put_u8str(const lcd_uint_t col, const lcd_uint_t row, FSTR_P const ftpl, const int8_t ind, const char *cstr=nullptr, FSTR_P const fstr=nullptr, const lcd_uint_t maxlen=MAX_MESSAGE_SIZE) {
+inline lcd_uint_t lcd_put_u8str(const lcd_uint_t col, const lcd_uint_t row, FSTR_P const ftpl, const int8_t ind, const char *cstr=nullptr, FSTR_P const fstr=nullptr, const lcd_uint_t maxlen=MAX_MESSAGE_BYTES) {
   return lcd_put_u8str_P(col, row, FTOP(ftpl), ind, cstr, fstr, maxlen);
 }
 

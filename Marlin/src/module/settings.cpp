@@ -501,6 +501,9 @@ typedef struct SettingsDataStruct {
   //
   per_stepper_uint16_t tmc_stepper_current;             // M906 X Y Z...
   per_stepper_uint32_t tmc_hybrid_threshold;            // M913 X Y Z...
+  #if ENABLED(HOMING_HYBRID_THRESHOLD)
+    homing_hybrid_thrs_t homing_hybrid_thrs;            // M913 H X Y Z...
+  #endif
   mot_stepper_int16_t tmc_sgt;                          // M914 X Y Z...
   per_stepper_bool_t tmc_stealth_enabled;               // M569 X Y Z...
 
@@ -695,7 +698,7 @@ typedef struct SettingsDataStruct {
   // Nonlinear Extrusion
   //
   #if ENABLED(NONLINEAR_EXTRUSION)
-    nonlinear_settings_t stepper_ne_settings;           // M592 S A B C
+    NonlinearSettings stepper_ne_settings;              // M592 S A B C
   #endif
 
   //
@@ -1528,6 +1531,14 @@ void MarlinSettings::postprocess() {
       #endif
       EEPROM_WRITE(tmc_hybrid_threshold);
     }
+
+    //
+    // TMC Homing Hybrid Threshold
+    //
+    #if ENABLED(HOMING_HYBRID_THRESHOLD)
+      _FIELD_TEST(homing_hybrid_thrs);
+      EEPROM_WRITE(homing_hybrid_thrs);
+    #endif
 
     //
     // TMC StallGuard threshold
@@ -2634,6 +2645,18 @@ void MarlinSettings::postprocess() {
       }
 
       //
+      // TMC Homing Hybrid Threshold
+      //
+      #if ENABLED(HOMING_HYBRID_THRESHOLD)
+        {
+          homing_hybrid_thrs_t homing_hybrid_thrs_in;
+          _FIELD_TEST(homing_hybrid_thrs);
+          EEPROM_READ(homing_hybrid_thrs_in);
+          if (!validating) homing_hybrid_thrs = homing_hybrid_thrs_in;
+        }
+      #endif
+
+      //
       // TMC StallGuard threshold.
       //
       {
@@ -3305,13 +3328,15 @@ void MarlinSettings::postprocess() {
         #endif
 
         #if ENABLED(DWIN_LCD_PROUI)
-          status = !bedLevelTools.meshValidate();
-          if (status) {
-            bedlevel.invalidate();
-            LCD_MESSAGE(MSG_UBL_MESH_INVALID);
+          if (!into) {  // Only validate the live mesh
+            status = !bedLevelTools.meshValidate();
+            if (status) {
+              bedlevel.invalidate();
+              LCD_MESSAGE(MSG_UBL_MESH_INVALID);
+            }
+            else
+              ui.status_printf(0, GET_TEXT_F(MSG_MESH_LOADED), slot);
           }
-          else
-            ui.status_printf(0, GET_TEXT_F(MSG_MESH_LOADED), bedlevel.storage_slot);
         #endif
 
         if (status) SERIAL_ECHOLNPGM("?Unable to load mesh data.");
@@ -3726,6 +3751,28 @@ void MarlinSettings::reset() {
       OPTITEM(W_HAS_HOME_CURRENT,  W_CURRENT_HOME)
     };
     homing_current_mA = base_homing_current_mA;
+  #endif
+
+  //
+  // TMC Homing Hybrid Threshold
+  //
+  #if ENABLED(HOMING_HYBRID_THRESHOLD)
+    homing_hybrid_thrs = {
+      OPTITEM(X_HAS_STEALTHCHOP,  X_HOMING_HYBRID_THRESHOLD)
+      OPTITEM(Y_HAS_STEALTHCHOP,  Y_HOMING_HYBRID_THRESHOLD)
+      OPTITEM(Z_HAS_STEALTHCHOP,  Z_HOMING_HYBRID_THRESHOLD)
+      OPTITEM(X2_HAS_STEALTHCHOP, X2_HOMING_HYBRID_THRESHOLD)
+      OPTITEM(Y2_HAS_STEALTHCHOP, Y2_HOMING_HYBRID_THRESHOLD)
+      OPTITEM(Z2_HAS_STEALTHCHOP, Z2_HOMING_HYBRID_THRESHOLD)
+      OPTITEM(Z3_HAS_STEALTHCHOP, Z3_HOMING_HYBRID_THRESHOLD)
+      OPTITEM(Z4_HAS_STEALTHCHOP, Z4_HOMING_HYBRID_THRESHOLD)
+      OPTITEM(I_HAS_STEALTHCHOP,  I_HOMING_HYBRID_THRESHOLD)
+      OPTITEM(J_HAS_STEALTHCHOP,  J_HOMING_HYBRID_THRESHOLD)
+      OPTITEM(K_HAS_STEALTHCHOP,  K_HOMING_HYBRID_THRESHOLD)
+      OPTITEM(U_HAS_STEALTHCHOP,  U_HOMING_HYBRID_THRESHOLD)
+      OPTITEM(V_HAS_STEALTHCHOP,  V_HOMING_HYBRID_THRESHOLD)
+      OPTITEM(W_HAS_STEALTHCHOP,  W_HOMING_HYBRID_THRESHOLD)
+    };
   #endif
 
   //

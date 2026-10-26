@@ -187,8 +187,10 @@
   #define W_BED_SIZE W_MAX_LENGTH
 #endif
 
-// Require 0,0 bed center for Delta, SCARA, and Polargraph
-#if IS_KINEMATIC
+// Require 0,0 bed center for Delta, Polar, and Polargraph.
+// SCARA and TPARA use whatever coordinate space the Configuration defines: the bed
+// starts at 0,0 unless BED_CENTER_AT_0_0 is enabled. SCARA_OFFSET places the shoulder in that space.
+#if IS_KINEMATIC && !IS_SCARA
   #define BED_CENTER_AT_0_0
 #endif
 
@@ -1455,6 +1457,9 @@
  *   - PARKING_EXTRUDER uses SOL0_PIN and SOL1_PIN
  *   - SOLENOID_PROBE uses SOL1_PIN
  *   - Z_PROBE_SLED uses SOL1_PIN, when defined (unless EXT_SOLENOID is enabled)
+ *
+ * SOL0_PIN is for the first (or only) solenoid, SOL1_PIN for a second one or a probe.
+ * SOL2_PIN...SOL7_PIN are only for MANUAL_SOLENOID_CONTROL or EXT_SOLENOID with more extruders.
  */
 #if ANY(EXT_SOLENOID, MANUAL_SOLENOID_CONTROL, PARKING_EXTRUDER, SOLENOID_PROBE, Z_PROBE_SLED)
   #if PIN_EXISTS(SOL0) && (ANY(MANUAL_SOLENOID_CONTROL, PARKING_EXTRUDER) || ALL(EXT_SOLENOID, HAS_EXTRUDERS))
@@ -1464,22 +1469,22 @@
     #define HAS_SOLENOID_1 1
   #endif
   #if PIN_EXISTS(SOL2) && (ENABLED(MANUAL_SOLENOID_CONTROL) || TERN0(EXT_SOLENOID, E_STEPPERS > 2))
-    #define HAS_SOLENOID_2 2
+    #define HAS_SOLENOID_2 1
   #endif
   #if PIN_EXISTS(SOL3) && (ENABLED(MANUAL_SOLENOID_CONTROL) || TERN0(EXT_SOLENOID, E_STEPPERS > 3))
-    #define HAS_SOLENOID_3 3
+    #define HAS_SOLENOID_3 1
   #endif
   #if PIN_EXISTS(SOL4) && (ENABLED(MANUAL_SOLENOID_CONTROL) || TERN0(EXT_SOLENOID, E_STEPPERS > 4))
-    #define HAS_SOLENOID_4 4
+    #define HAS_SOLENOID_4 1
   #endif
   #if PIN_EXISTS(SOL5) && (ENABLED(MANUAL_SOLENOID_CONTROL) || TERN0(EXT_SOLENOID, E_STEPPERS > 5))
-    #define HAS_SOLENOID_5 5
+    #define HAS_SOLENOID_5 1
   #endif
   #if PIN_EXISTS(SOL6) && (ENABLED(MANUAL_SOLENOID_CONTROL) || TERN0(EXT_SOLENOID, E_STEPPERS > 6))
-    #define HAS_SOLENOID_6 6
+    #define HAS_SOLENOID_6 1
   #endif
   #if PIN_EXISTS(SOL7) && (ENABLED(MANUAL_SOLENOID_CONTROL) || TERN0(EXT_SOLENOID, E_STEPPERS > 7))
-    #define HAS_SOLENOID_7 7
+    #define HAS_SOLENOID_7 1
   #endif
 #endif
 
@@ -3064,12 +3069,13 @@
 #endif
 
 /**
- * Only constrain Z on DELTA / SCARA machines
+ * Only constrain Z on DELTA / TPARA machines.
+ * SCARA can also constrain XY to the bed bounds.
  */
 #if ENABLED(POLAR)
   #undef MIN_SOFTWARE_ENDSTOP_Y
   #undef MAX_SOFTWARE_ENDSTOP_Y
-#elif IS_KINEMATIC
+#elif IS_KINEMATIC && DISABLED(SCARA)
   #undef MIN_SOFTWARE_ENDSTOP_X
   #undef MIN_SOFTWARE_ENDSTOP_Y
   #undef MAX_SOFTWARE_ENDSTOP_X
@@ -3184,7 +3190,7 @@
 #if PIN_EXISTS(BEEPER)
   #define HAS_BEEPER 1
 #endif
-#if ANY(IS_TFTGLCD_PANEL, PCA9632_BUZZER, LCD_USE_I2C_BUZZER)
+#if ANY(IS_TFTGLCD_PANEL, PCA9632_BUZZER, LCD_USE_I2C_BUZZER, PANELDUE)
   #define USE_MARLINUI_BUZZER 1
 #endif
 #if ANY(HAS_BEEPER, USE_MARLINUI_BUZZER)

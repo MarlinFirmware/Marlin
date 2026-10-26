@@ -25,6 +25,12 @@
 #include "Stream.h"
 #include "uart.h"
 
+// STM32duino 2.0.0+ sends in chunks, with a size argument to uart_attach_tx_callback,
+// and the TX complete callback must restart the transfer itself. Same test as HAL/STM32/HardwareSerial.cpp.
+#if defined(STM32H7xx) || (STM32_CORE_VERSION >= 0x02000000 && STM32_CORE_VERSION != 0x020000F0)
+  #define WIFI_UART_TX_CHUNKS 1
+#endif
+
 class WifiSerial {
   protected:
     // Has any byte been written to the UART since begin()

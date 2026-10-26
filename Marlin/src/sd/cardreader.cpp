@@ -79,7 +79,7 @@ CardReader card;
 // public:
 
 card_flags_t CardReader::flag;
-char CardReader::filename[FILENAME_LENGTH], CardReader::longFilename[LONG_FILENAME_LENGTH];
+char CardReader::filename[FILENAME_LENGTH], CardReader::longFilename[LONG_FILENAME_BYTES];
 
 IF_DISABLED(NO_SD_AUTOSTART, uint8_t CardReader::autofile_index); // = 0
 
@@ -370,6 +370,27 @@ void CardReader::ls(const uint8_t lsflags/*=0*/) {
     printListing(root, nullptr, lsflags);
   }
 }
+
+#if ENABLED(PANELDUE)
+
+  //
+  // Get the next visible item (folder or G-code file) in a folder.
+  // Call dir.rewind() to start from the first item.
+  // The long filename buffer is not touched.
+  // Return false when there are no more items.
+  //
+  bool CardReader::nextVisibleItem(MediaFile &dir, char * const dosFilename, bool &isDir) {
+    dir_t p;
+    while (dir.readDir(&p, nullptr) > 0) {
+      if (!is_visible_entity(p)) continue;
+      createFilename(dosFilename, p);
+      isDir = flag.filenameIsDir;
+      return true;
+    }
+    return false;
+  }
+
+#endif // PANELDUE
 
 #if ENABLED(LONG_FILENAME_HOST_SUPPORT)
 
@@ -1433,8 +1454,8 @@ void CardReader::cdroot() {
     #else
       // Copy filenames into the static array
       #define _SET_SORTNAME(I) strlcpy(sortnames[I], longest_filename(), sizeof(sortnames[I]))
-      #if SORTED_LONGNAME_MAXLEN == LONG_FILENAME_LENGTH
-        // Short name sorting always use LONG_FILENAME_LENGTH with no trailing nul
+      #if SORTED_LONGNAME_MAXLEN == LONG_FILENAME_BYTES
+        // Short name sorting always use LONG_FILENAME_BYTES with no trailing nul
         #define SET_SORTNAME(I) _SET_SORTNAME(I)
       #else
         // Copy multiple name blocks. Add a nul for the longest case.
@@ -1525,7 +1546,7 @@ void CardReader::cdroot() {
         {
           auto sort_cmp_files = [&](const int16_t o1, const int16_t o2) -> bool {
             #if DISABLED(SDSORT_USES_RAM)
-              char name1[LONG_FILENAME_LENGTH];
+              char name1[LONG_FILENAME_BYTES];
               selectFileByIndex(o1);
               strcpy(name1, longest_filename());
               #if HAS_FOLDER_SORTING
@@ -1612,7 +1633,7 @@ void CardReader::cdroot() {
           #if DISABLED(SDSORT_USES_RAM)
             // By default re-read the names from SD for every compare, retaining two
             // filenames at a time. This is very slow but is safest and uses minimal RAM.
-            char name1[LONG_FILENAME_LENGTH];
+            char name1[LONG_FILENAME_BYTES];
           #endif
 
           // Bubble Sort

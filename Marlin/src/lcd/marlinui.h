@@ -408,7 +408,7 @@ public:
 
   #if HAS_STATUS_MESSAGE
 
-    static MString<MAX_MESSAGE_SIZE> status_message;
+    static MString<MAX_MESSAGE_BYTES> status_message;
     static uint8_t alert_level; // Higher levels block lower levels
 
     #if HAS_STATUS_MESSAGE_TIMEOUT
@@ -968,9 +968,9 @@ private:
  * @param maxlen The maximum size of the string (in pixels on GLCD)
  * @return the output width (in pixels on GLCD)
  */
-uint8_t expand_u8str_P(char * const outstr, PGM_P const ptpl, const int8_t ind, const char *cstr=nullptr, FSTR_P const fstr=nullptr, const uint8_t maxlen=MAX_MESSAGE_SIZE);
+uint8_t expand_u8str_P(char * const outstr, PGM_P const ptpl, const int8_t ind, const char *cstr=nullptr, FSTR_P const fstr=nullptr, const uint8_t maxlen=MAX_MESSAGE_BYTES);
 
-inline uint8_t expand_u8str(char * const outstr, FSTR_P const ftpl, const int8_t ind, const char *cstr=nullptr, FSTR_P const fstr=nullptr, const uint8_t maxlen=MAX_MESSAGE_SIZE) {
+inline uint8_t expand_u8str(char * const outstr, FSTR_P const ftpl, const int8_t ind, const char *cstr=nullptr, FSTR_P const fstr=nullptr, const uint8_t maxlen=MAX_MESSAGE_BYTES) {
   return expand_u8str_P(outstr, FTOP(ftpl), ind, cstr, fstr, maxlen);
 }
 
