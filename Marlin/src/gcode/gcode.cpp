@@ -219,12 +219,21 @@ void GcodeSuite::get_destination_from_command() {
   #endif
 
   if (parser.floatval('F') > 0) {
+    #if ENABLED(FEEDRATE_MODE_SUPPORT)
+      parser.f_value = parser.value_float();
+    #endif
     const float fr_mm_min = parser.value_feedrate();
     motion.feedrate_mm_s = MMM_TO_MMS(fr_mm_min);
     // Update the cutter feed rate for use by M4 I set inline moves.
     TERN_(LASER_FEATURE, cutter.feedrate_mm_m = fr_mm_min);
   }
-
+  #if ENABLED(FEEDRATE_MODE_SUPPORT)
+    else if (parser.inverse_time_enabled && parser.linear_motion_gcode) {
+      const float fr_mm_min = parser.f_value * parser.cartesian_mm;
+      motion.feedrate_mm_s = MMM_TO_MMS(fr_mm_min);
+    }
+  #endif
+   
   #if ALL(PRINTCOUNTER, HAS_EXTRUDERS)
     if (!DEBUGGING(DRYRUN) && !skip_move)
       print_job_timer.incFilamentUsed(motion.destination.e - motion.position.e);

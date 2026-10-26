@@ -74,7 +74,7 @@
 
       // Start and end in the same cell? No split needed.
       if (scel == ecel) {
-        motion.position =  motion.destination;
+        motion.position = motion.destination;
         motion.goto_current_position(scaled_fr_mm_s);
         return;
       }

@@ -81,6 +81,7 @@ public:
     static bool linear_motion_gcode;
     #if ENABLED(FEEDRATE_MODE_SUPPORT)
       static bool inverse_time_enabled;
+      static float f_value;
     #endif
     #if HAS_ROTATIONAL_AXES
       static bool cartes_move;

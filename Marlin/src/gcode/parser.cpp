@@ -42,6 +42,7 @@ bool GCodeParser::volumetric_enabled;
   float GCodeParser::cartesian_mm;
   #if ENABLED(FEEDRATE_MODE_SUPPORT)
     bool GCodeParser::inverse_time_enabled;
+    float GCodeParser::f_value;
   #endif
   #if HAS_ROTATIONAL_AXES
     bool GCodeParser::cartes_move;
