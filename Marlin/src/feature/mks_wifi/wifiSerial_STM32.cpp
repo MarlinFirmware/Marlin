@@ -245,7 +245,7 @@ void WifiSerial::_rx_complete_irq(serial_t *obj) {
 // Actual interrupt handlers //////////////////////////////////////////////////////////////
 
 int WifiSerial::_tx_complete_irq(serial_t *obj) {
-  #if WIFI_UART_TX_CHUNKS
+  #if WIFI_UART_TX_CHUNKS // Send in chunks
 
     // The transfer is done. Move the tail past it.
     obj->tx_tail = (obj->tx_tail + obj->tx_size) % WIFI_TX_BUF_SIZE;
@@ -260,7 +260,7 @@ int WifiSerial::_tx_complete_irq(serial_t *obj) {
     }
     return 0;
 
-  #else // Send in chunks
+  #else
 
     // If interrupts are enabled, there must be more data in the output
     // buffer. Send the next byte
