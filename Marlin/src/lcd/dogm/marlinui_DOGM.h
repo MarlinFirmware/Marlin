@@ -98,6 +98,13 @@
     #define U8G_CLASS U8GLIB_LM6059_2X                          // 4 stripes (HW-SPI)
   #endif
 
+#elif IS_U8GLIB_NHD_C12832
+
+  // PancakeBot Panel: 128x32 ST7565 (NHD-C12832 compatible, 128 columns)
+
+  #define U8G_CLASS U8GLIB_NHD_C12832                           // 4 pages, SW-SPI
+  #define DOGM_FORCE_SOFT_SPI                                   // SW-SPI
+
 #elif IS_U8GLIB_ST7565_64128N
 
   // MaKrPanel, Mini Viki, Viki 2.0, AZSMZ 12864 ST7565 controller
