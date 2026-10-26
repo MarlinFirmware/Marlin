@@ -523,10 +523,12 @@ struct HeaterWatch {
   inline bool check(const celsius_t curr) { return curr >= target; }
 
   // Keep watching until within HYSTERESIS of the target, where thermal runaway protection takes over
-  inline void restart(const celsius_t curr, const celsius_t tgt) {
+  inline void restart(const celsius_t curr, const celsius_t tgt, const millis_t now=millis()) {
     if (tgt && curr < tgt - HYSTERESIS) {
       target = _MIN(curr + INCREASE, tgt - HYSTERESIS);
-      next_ms = millis() + SEC_TO_MS(PERIOD);
+      next_ms = now + SEC_TO_MS(PERIOD);
+      // Zero means disabled. Preserve an armed watch across timer wraparound.
+      if (!next_ms) next_ms = 1;
     }
     else
       next_ms = 0;
