@@ -23,7 +23,7 @@
 
 #include "../../inc/MarlinConfig.h"
 
-#include <rom/rtc.h>
+#include <esp_system.h>
 #include <driver/adc.h>
 #include <esp_adc_cal.h>
 #include <HardwareSerial.h>
@@ -127,18 +127,6 @@ void MarlinHAL::init_board() {
   #if ENABLED(USE_ESP32_TASK_WDT)
     esp_task_wdt_init(10, true);
   #endif
-  #if ENABLED(ESP3D_WIFISUPPORT)
-    esp3dlib.init();
-  #elif ENABLED(WIFISUPPORT)
-    wifi_init();
-    TERN_(OTASUPPORT, OTA_init());
-    #if ENABLED(WEBSUPPORT)
-      spiffs_init();
-      web_init();
-    #endif
-    server.begin();
-  #endif
-
   // ESP32 uses a GPIO matrix that allows pins to be assigned to hardware serial ports.
   // The following code initializes hardware Serial1 and Serial2 to use user-defined pins
   // if they have been defined.
@@ -167,6 +155,20 @@ void MarlinHAL::init_board() {
   #elif ENABLED(I2S_STEPPER_STREAM)
     i2s_init();
   #endif
+
+  // Start WiFi last. wifi_init() waits for the network, and until the expander
+  // is running its outputs (heaters, fans, ...) hold whatever state they powered up in.
+  #if ENABLED(ESP3D_WIFISUPPORT)
+    esp3dlib.init();
+  #elif ENABLED(WIFISUPPORT)
+    wifi_init();
+    TERN_(OTASUPPORT, OTA_init());
+    #if ENABLED(WEBSUPPORT)
+      spiffs_init();
+      web_init();
+    #endif
+    server.begin();
+  #endif
 }
 
 void MarlinHAL::idletask() {
@@ -176,7 +178,19 @@ void MarlinHAL::idletask() {
   TERN_(ESP3D_WIFISUPPORT, esp3dlib.idletask());
 }
 
-uint8_t MarlinHAL::get_reset_source() { return rtc_get_reset_reason(1); }
+uint8_t MarlinHAL::get_reset_source() {
+  switch (esp_reset_reason()) {
+    case ESP_RST_POWERON:  return RST_POWER_ON;   // Includes the EN pin
+    case ESP_RST_EXT:      return RST_EXTERNAL;
+    case ESP_RST_BROWNOUT: return RST_BROWN_OUT;
+    case ESP_RST_INT_WDT:
+    case ESP_RST_TASK_WDT:
+    case ESP_RST_WDT:      return RST_WATCHDOG;
+    case ESP_RST_SW:
+    case ESP_RST_PANIC:    return RST_SOFTWARE;   // Restarted by software, or after a crash
+    default:               return 0;
+  }
+}
 
 void MarlinHAL::reboot() { ESP.restart(); }
 
