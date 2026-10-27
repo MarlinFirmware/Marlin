@@ -603,7 +603,7 @@ void MarlinUI::clear_for_drawing() {
 
       ui.set_font(FONT_MENU);
 
-    #else
+    #else // !USE_BIG_EDIT_FONT
 
       const bool extra_row = labellen * prop > LCD_WIDTH - 2 - vallen * prop;
       constexpr u8g_uint_t lcd_chr_fit = LCD_WIDTH,
@@ -631,7 +631,7 @@ void MarlinUI::clear_for_drawing() {
         }
       }
 
-    #endif
+    #endif // !USE_BIG_EDIT_FONT
   }
 
   inline void draw_boxed_string(const u8g_uint_t x, const u8g_uint_t y, FSTR_P const fstr, const bool inv) {
