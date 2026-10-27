@@ -659,7 +659,6 @@ typedef struct { raw_adc_t raw_min, raw_max; celsius_t mintemp, maxtemp; } temp_
 #endif
 
 class Temperature {
-
   public:
 
     #if HAS_HOTEND
@@ -837,7 +836,7 @@ class Temperature {
       static millis_t fan_update_ms;
 
       static void manage_extruder_fans(millis_t ms) {
-        if (ELAPSED(ms, fan_update_ms)) { // only need to check fan state very infrequently
+        if (ELAPSED(ms, fan_update_ms)) { // Only need to check fan state very infrequently
           const millis_t next_ms = ms + fan_update_interval_ms;
           #if HAS_PWMFANCHECK
             #define FAN_CHECK_DURATION 100
@@ -988,9 +987,11 @@ class Temperature {
       #endif
     #endif
 
-    //high level conversion routines, for use outside of temperature.cpp
-    //inline so that there is no performance decrease.
-    //deg=degreeCelsius
+    /**
+     * High level conversion routines, for use outside of temperature.cpp
+     * inline so that there is no performance decrease.
+     * deg=degreeCelsius
+     */
 
     static celsius_float_t degHotend(const uint8_t E_NAME) {
       return TERN0(HAS_HOTEND, temp_hotend[HOTEND_INDEX].celsius);

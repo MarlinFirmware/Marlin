@@ -12,7 +12,7 @@ abm/js/schema.js in the MarlinFirmware/AutoBuildMarlin project, which has been e
 evaluate conditions and can determine what options are actually enabled, not just which
 options are uncommented. That will be migrated to this script for standalone migration.
 
-Usage: schema.py [-h] [some|json|jsons|group|yml|yaml]
+Usage: schema.py [-h|--help] [some|json|jsons|group|yml|yaml]
 
 Process Marlin firmware configuration files (Configuration.h and Configuration_adv.h)
 to produce structured output suitable for documentation, tooling, or automated processing.
@@ -49,6 +49,7 @@ grouping_patterns = [
     re.compile(r'^(HOTENDS|BED|PROBE|COOLER)$'),
     re.compile(r'^[XYZIJKUVW]M(IN|AX)$')
 ]
+
 # If the indexed part of the option name matches a pattern
 # then add it to the dictionary.
 def find_grouping(gdict, filekey, sectkey, optkey, pindex):
@@ -143,6 +144,7 @@ def extract_files(filekey):
     state = Parse.NORMAL
     # Serial ID
     sid = 0
+
     # Loop through files and parse them line by line
     for fn, fk in filekey.items():
         with Path("Marlin", fn).open(encoding='utf-8') as fileobj:

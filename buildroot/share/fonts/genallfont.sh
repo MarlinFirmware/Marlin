@@ -8,6 +8,7 @@
 # Copyright 2015-2018 Yunhui Fu <yhfudev@gmail.com>
 # License: GPL/BSD
 #####################################################################
+
 my_getpath() {
   local PARAM_DN="$1"
   shift
