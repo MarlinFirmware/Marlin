@@ -235,7 +235,7 @@ void Power::power_off() {
       HOTEND_LOOP() if (thermalManager.degTargetHotend(e) > 0 || thermalManager.temp_hotend[e].soft_pwm_amount > 0) return true;
     #endif
 
-    if (TERN0(HAS_HEATED_BED, thermalManager.degTargetBed() > 0 || thermalManager.temp_bed.soft_pwm_amount > 0)) return true;
+    if (TERN0(HAS_HEATED_BED, thermalManager.degTargetBed(TERN_(HAS_BED_ZONES, 0xFFFF)) > 0 || TERN(HAS_BED_ZONES, thermalManager.getHeaterPower(H_BED), thermalManager.temp_bed.soft_pwm_amount) > 0)) return true;
 
     return is_cooling_needed();
   }

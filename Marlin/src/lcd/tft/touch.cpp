@@ -273,7 +273,13 @@ void Touch::touch(touch_control_t * const control) {
 
         #if HAS_HEATED_BED
           case H_BED:
-            MenuItem_int3::action(GET_TEXT_F(MSG_BED), &thermalManager.temp_bed.target, 0, BED_MAX_TARGET, thermalManager.start_watching_bed);
+            #if HAS_BED_ZONES
+              // The status screen shows the active zones, so set them all
+              editable.celsius = thermalManager.degTargetBed();
+              MenuItem_int3::action(GET_TEXT_F(MSG_BED), &editable.celsius, 0, BED_MAX_TARGET, []{ thermalManager.setTargetBed(editable.celsius, thermalManager.bed_zone_mask); });
+            #else
+              MenuItem_int3::action(GET_TEXT_F(MSG_BED), &thermalManager.temp_bed.target, 0, BED_MAX_TARGET, thermalManager.start_watching_bed);
+            #endif
             break;
         #endif
 
