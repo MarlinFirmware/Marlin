@@ -733,7 +733,7 @@ void CardReader::manage_media() {
       // Not mounted? Leave the status unchanged to try again later
       if (!isMounted() && retries_left) {
         --retries_left;
-        next_retry_ms = millis() + mount_retry_ms;
+        next_retry_ms = next_millis(millis() + mount_retry_ms);
         prev_stat = old_stat;
         TERN_(HAS_MULTI_VOLUME, no_reenter = false);
         return;

@@ -235,7 +235,7 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
   millis_t MarlinUI::backlight_off_ms = 0;
 
   void MarlinUI::refresh_backlight_timeout() {
-    backlight_off_ms = backlight_timeout_minutes ? millis() + MIN_TO_MS(backlight_timeout_minutes) : 0;
+    backlight_off_ms = backlight_timeout_minutes ? next_millis(millis() + MIN_TO_MS(backlight_timeout_minutes)) : 0;
     #ifdef NEOPIXEL_BKGD_INDEX_FIRST
       neo.reset_background_color();
       neo.show();
@@ -255,7 +255,7 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
 
   millis_t MarlinUI::screen_timeout_ms = 0;
   void MarlinUI::refresh_screen_timeout() {
-    screen_timeout_ms = sleep_timeout_minutes ? millis() + MIN_TO_MS(sleep_timeout_minutes) : 0;
+    screen_timeout_ms = sleep_timeout_minutes ? next_millis(millis() + MIN_TO_MS(sleep_timeout_minutes)) : 0;
     wake_display();
   }
 
@@ -681,7 +681,7 @@ void MarlinUI::init() {
           else {
             // Defer message expiration before bar appears
             // and during any pause (not just SD)
-            expire_status_ms += LCD_UPDATE_INTERVAL;
+            expire_status_ms = next_millis(expire_status_ms + LCD_UPDATE_INTERVAL);
           }
         }
 
@@ -1745,7 +1745,7 @@ uint8_t expand_u8str_P(char * const outstr, PGM_P const ptpl, const int8_t ind, 
 
     set_status_reset_fn();
 
-    TERN_(HAS_STATUS_MESSAGE_TIMEOUT, status_message_expire_ms = persist ? 0 : millis() + (STATUS_MESSAGE_TIMEOUT_SEC) * 1000UL);
+    TERN_(HAS_STATUS_MESSAGE_TIMEOUT, status_message_expire_ms = persist ? 0 : next_millis(millis() + (STATUS_MESSAGE_TIMEOUT_SEC) * 1000UL));
 
     #if HAS_WIRED_LCD
 
@@ -1756,7 +1756,7 @@ uint8_t expand_u8str_P(char * const outstr, PGM_P const ptpl, const int8_t ind, 
       #if HAS_BASIC_PROGRESS_BAR
         progress_bar_ms = ms;
         #if PROGRESS_MSG_EXPIRE > 0
-          expire_status_ms = persist ? 0 : ms + PROGRESS_MSG_EXPIRE;
+          expire_status_ms = persist ? 0 : next_millis(ms + PROGRESS_MSG_EXPIRE);
         #endif
       #endif
 

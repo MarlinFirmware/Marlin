@@ -307,7 +307,7 @@ PGMSTR(M112_KILL_STR, "M112 Shutdown");
     UNUSED(no_sleep);
     KEEPALIVE_STATE(PAUSED_FOR_USER);
     wait_start();
-    if (ms) ms += millis(); // expire time
+    if (ms) ms = next_millis(ms + millis()); // expire time
     while (wait_for_user && !(ms && ELAPSED(millis(), ms)))
       idle(TERN_(ADVANCED_PAUSE_FEATURE, no_sleep));
     user_resume();
