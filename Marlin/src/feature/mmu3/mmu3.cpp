@@ -44,6 +44,7 @@
 
 #include "../../lcd/marlinui.h"
 #include "../../module/planner.h"
+#include "../../module/temperature.h"
 #include "../../module/motion.h"
 #include "../../gcode/parser.h"
 #include "../../gcode/queue.h"
@@ -1166,7 +1167,9 @@ namespace MMU3 {
               // this ensures that while the MMU is pushing the filament,
               // the extruder will keep rotating, preventing the filament to hit
               // the extruder gears...
-              while (planner.movesplanned() < 3) {
+              // (Skip this if the hotend is too cold to extrude, as the planner drops
+              //  those moves and the queue would never fill.)
+              while (planner.movesplanned() < 3 && !thermalManager.tooColdToExtrude(0)) {
                 extruder_move(extrude_distance, pulley_slow_feedrate, false);
               }
               break;
