@@ -25,6 +25,12 @@
 
 #if WATCH_HOTENDS || WATCH_BED
 
+MARLIN_TEST(millis, next_millis_preserves_nonzero) {
+  TEST_ASSERT_EQUAL_UINT32(1, next_millis(0));
+  TEST_ASSERT_EQUAL_UINT32(1, next_millis(1));
+  TEST_ASSERT_EQUAL_UINT32(UINT32_MAX, next_millis(UINT32_MAX));
+}
+
 MARLIN_TEST(heater_watch, zero_deadline_stays_armed) {
   HeaterWatch<2, 4, 40> watch{};
   const millis_t now = millis_t(0) - SEC_TO_MS(40);

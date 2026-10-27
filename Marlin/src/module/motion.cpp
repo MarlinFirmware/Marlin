@@ -1952,7 +1952,7 @@ float Motion::get_move_distance(const xyze_pos_t &diff OPTARG(HAS_ROTATIONAL_AXE
             if (delayed_move_time != UINT32_MAX) {
               position = destination;
               NOLESS(raised_parked_position.z, destination.z);
-              delayed_move_time = millis() + 1000UL;
+              delayed_move_time = next_millis(millis() + 1000UL);
               return true;
             }
           }
