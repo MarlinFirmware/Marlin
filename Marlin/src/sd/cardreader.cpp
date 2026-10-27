@@ -117,7 +117,7 @@ int16_t CardReader::nrItems = -1;
       #if ENABLED(SDSORT_DYNAMIC_RAM)
         uint8_t *CardReader::isDir;
       #elif ENABLED(SDSORT_CACHE_NAMES) || DISABLED(SDSORT_USES_STACK)
-        uint8_t CardReader::isDir[(SDSORT_LIMIT+7)>>3];
+        uint8_t CardReader::isDir[(SDSORT_LIMIT + 7) >> 3];
       #endif
       #define IS_DIR(n) TEST(isDir[(n) >> 3], (n) & 0x07)
     #endif
