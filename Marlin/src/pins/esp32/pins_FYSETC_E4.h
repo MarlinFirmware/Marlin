@@ -49,6 +49,24 @@
   #ifndef TMC_BAUD_RATE
     #define TMC_BAUD_RATE                 115200
   #endif
+
+  // Default TMC slave addresses
+  #ifndef X_SLAVE_ADDRESS
+    #define X_SLAVE_ADDRESS                    1
+  #endif
+  #ifndef Y_SLAVE_ADDRESS
+    #define Y_SLAVE_ADDRESS                    3
+  #endif
+  #ifndef Z_SLAVE_ADDRESS
+    #define Z_SLAVE_ADDRESS                    0
+  #endif
+  #ifndef E0_SLAVE_ADDRESS
+    #define E0_SLAVE_ADDRESS                   2
+  #endif
+  static_assert(X_SLAVE_ADDRESS == 1, "X_SLAVE_ADDRESS must be 1 for BOARD_FYSETC_E4.");
+  static_assert(Y_SLAVE_ADDRESS == 3, "Y_SLAVE_ADDRESS must be 3 for BOARD_FYSETC_E4.");
+  static_assert(Z_SLAVE_ADDRESS == 0, "Z_SLAVE_ADDRESS must be 0 for BOARD_FYSETC_E4.");
+  static_assert(E0_SLAVE_ADDRESS == 2, "E0_SLAVE_ADDRESS must be 2 for BOARD_FYSETC_E4.");
 #endif
 
 /**
