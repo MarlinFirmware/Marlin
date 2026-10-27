@@ -2524,7 +2524,8 @@
  */
 //#define NONLINEAR_EXTRUSION
 #if ENABLED(NONLINEAR_EXTRUSION)
-  //#define NONLINEAR_EXTRUSION_DEFAULT_ON    // Enable if NLE should be ON by default
+  //#define NONLINEAR_EXTRUSION_DEFAULT_ON          // Enable if NLE should be ON by default
+  //#define NONLINEAR_FACTORS { 0.0f, 0.0f, 1.0f }  // Quadratic, Linear, Constant coefficients
 #endif
 
 // @section leveling
@@ -3515,13 +3516,21 @@
    * Optimize spreadCycle chopper parameters by using predefined parameter sets
    * or with the help of an example included in the library.
    * Provided parameter sets are
-   * CHOPPER_DEFAULT_12V
+   * CHOPPER_DEFAULT_12V  // 1.8 degree steppers (also CHOPPER_18STEP_<V>)
    * CHOPPER_DEFAULT_19V
    * CHOPPER_DEFAULT_24V
    * CHOPPER_DEFAULT_36V
-   * CHOPPER_09STEP_24V   // 0.9 degree steppers (24V)
+   * CHOPPER_DEFAULT_48V
+   * CHOPPER_DEFAULT_60V
+   * CHOPPER_09STEP_12V   // 0.9 degree steppers
+   * CHOPPER_09STEP_19V
+   * CHOPPER_09STEP_24V
+   * CHOPPER_09STEP_36V
+   * CHOPPER_09STEP_48V
    * CHOPPER_PRUSAMK3_24V // Imported parameters from the official Průša firmware for MK3 (24V)
    * CHOPPER_MARLIN_119   // Old defaults from Marlin v1.1.9
+   *
+   * Presets over 24V require a driver rated for the supply voltage.
    *
    * Define your own with:
    * { <off_time[1..15]>, <hysteresis_end[-3..12]>, hysteresis_start[1..8] }
@@ -3579,6 +3588,7 @@
    * This mode allows for faster movements at the expense of higher noise levels.
    * STEALTHCHOP_(XY|Z|E) must be enabled to use HYBRID_THRESHOLD.
    * M913 X/Y/Z/E to live tune the setting
+   * Set THRESHOLD to zero to disable this function on specific axis.
    */
   //#define HYBRID_THRESHOLD
 
@@ -4646,32 +4656,32 @@
 //#define WIFISUPPORT         // Marlin embedded WiFi management. Not needed for simple WiFi serial port.
 //#define ESP3D_WIFISUPPORT   // ESP3D Library WiFi management (https://github.com/luc-github/ESP3DLib)
 
-#if ENABLED(WIFISUPPORT)
+#if ANY(WIFISUPPORT, ESP3D_WIFISUPPORT)
   /**
-   * Marlin's own webserver and OTA, implemented in HAL/ESP32/wifi/ and built
-   * only for an ESP32 build of Marlin. With an add-on WiFi module the module
-   * runs its own firmware, so neither option has any effect there.
+   * Webserver and OTA updates.
+   * With WIFISUPPORT these are Marlin's own, implemented in HAL/ESP32/wifi/ and built
+   * only for an ESP32 build of Marlin. With an add-on WiFi module the module runs its
+   * own firmware, so neither option has any effect there.
+   * With ESP3D_WIFISUPPORT these enable the ESP3D web interface and ESP3D OTA updates.
    */
   //#define WEBSUPPORT          // Start a webserver (which may include auto-discovery) using SPIFFS
   //#define OTASUPPORT          // Support over-the-air firmware updates
 
   /**
-   * The network is set at compile time. To set a default WiFi SSID / Password, create a file
-   * called Configuration_Secure.h with the following defines, customized for your network.
-   * This specific file is excluded via .gitignore to prevent it from accidentally leaking
-   * to the public.
+   * To set a default WiFi SSID / Password, create a file called Configuration_Secure.h with
+   * the following defines, customized for your network. This specific file is excluded via
+   * .gitignore to prevent it from accidentally leaking to the public.
    *
    *   #define WIFI_SSID "WiFi SSID"
    *   #define WIFI_PWD  "WiFi Password"
+   *
+   * With WIFISUPPORT the network is set at compile time. With ESP3D_WIFISUPPORT these are
+   * the defaults for station mode, which can be changed at runtime with '[ESP100]' / '[ESP101]'.
    */
   //#include "Configuration_Secure.h" // External file with WiFi SSID / Password
+#endif
 
-#elif ENABLED(ESP3D_WIFISUPPORT)
-  /**
-   * ESP3D brings its own webserver and OTA, so WEBSUPPORT and OTASUPPORT don't apply here.
-   * The network is configured at runtime with '[ESP100]' / '[ESP101]' and stored on the ESP,
-   * so WIFI_SSID / WIFI_PWD don't apply either.
-   */
+#if ENABLED(ESP3D_WIFISUPPORT)
   //#define WIFI_CUSTOM_COMMAND // Accept ESP3D '[ESP...]' commands from the host
 #endif
 

@@ -274,7 +274,7 @@ uint32_t Stepper::advance_divisor = 0,
     // Call whenever NLE settings or E steps-per-mm change.
     void Stepper::refresh_nle_q30() {
       const float mm_per_step = planner.mm_per_step[E_AXIS_N(0)];
-      const nonlinear_coeff_t &coeff = nle.settings.coeff;
+      const NonlinearCoeff &coeff = nle.settings.coeff;
       nle.q30.A = _BV32(30) * (coeff.A * sq(mm_per_step));
       nle.q30.B = _BV32(30) * (coeff.B * mm_per_step);
       nle.q30.C = _BV32(30) * coeff.C;
@@ -569,9 +569,16 @@ constexpr uint32_t timer_setup_ns = cycles_to_ns(timer_read_add_and_store_cycles
 constexpr hal_timer_t PULSE_HIGH_TICK_COUNT = ns_to_pulse_timer_ticks(_min_pulse_high_ns - _MIN(_min_pulse_high_ns, timer_setup_ns));
 constexpr hal_timer_t PULSE_LOW_TICK_COUNT = ns_to_pulse_timer_ticks(_min_pulse_low_ns - _MIN(_min_pulse_low_ns, timer_setup_ns));
 
-#define USING_TIMED_PULSE() hal_timer_t start_pulse_count = 0
-#define START_TIMED_PULSE() (start_pulse_count = HAL_timer_get_count(MF_TIMER_PULSE))
-#define AWAIT_TIMED_PULSE(DIR) while (PULSE_##DIR##_TICK_COUNT > HAL_timer_get_count(MF_TIMER_PULSE) - start_pulse_count) { /* nada */ }
+#if ENABLED(I2S_STEPPER_STREAM)
+  // Pulses last whole I2S samples and the stepper timer isn't running
+  #define USING_TIMED_PULSE() NOOP
+  #define START_TIMED_PULSE() NOOP
+  #define AWAIT_TIMED_PULSE(DIR) NOOP
+#else
+  #define USING_TIMED_PULSE() hal_timer_t start_pulse_count = 0
+  #define START_TIMED_PULSE() (start_pulse_count = HAL_timer_get_count(MF_TIMER_PULSE))
+  #define AWAIT_TIMED_PULSE(DIR) while (PULSE_##DIR##_TICK_COUNT > HAL_timer_get_count(MF_TIMER_PULSE) - start_pulse_count) { /* nada */ }
+#endif
 #define AWAIT_HIGH_PULSE() AWAIT_TIMED_PULSE(HIGH)
 #define AWAIT_LOW_PULSE()  AWAIT_TIMED_PULSE(LOW)
 
@@ -665,11 +672,22 @@ bool Stepper::disable_axis(const AxisEnum axis) {
     if ((current_block = rtg.generate_resonance_block())) {
       // Apply direction
       DIR_WAIT_BEFORE();
+
       const uint8_t axis = rtg.rt_params.axis;
       const bool fwd = current_block->direction_bits[axis];
       switch (axis) {
-        case X_AXIS: X_APPLY_DIR(fwd, false); break;
-        case Y_AXIS: Y_APPLY_DIR(fwd, false); break;
+        #if CORE_IS_XY
+          case CORE_AXIS_1:
+          case CORE_AXIS_2: {
+            const int8_t d = fwd ? 1 : -1;
+            const bool b_fwd = CORESIGN(axis == CORE_AXIS_1 ? d : -d) >= 0;
+            X_APPLY_DIR(fwd, false);
+            Y_APPLY_DIR(b_fwd, false);
+          }
+        #else
+          case X_AXIS: X_APPLY_DIR(fwd, false); break;
+          case Y_AXIS: Y_APPLY_DIR(fwd, false); break;
+        #endif
         case Z_AXIS: Z_APPLY_DIR(fwd, false); break;
       }
 
@@ -702,9 +720,33 @@ bool Stepper::disable_axis(const AxisEnum axis) {
       A##_APPLY_STEP(!STEP_STATE_##A, false); \
     } while(0)
 
+    #define CORE_RESONANCE_STEP_SEQUENCE() do { \
+      X_APPLY_STEP(STEP_STATE_X, false); \
+      Y_APPLY_STEP(STEP_STATE_Y, false); \
+      START_TIMED_PULSE(); \
+      AWAIT_HIGH_PULSE(); \
+      X_APPLY_STEP(!STEP_STATE_X, false); \
+      Y_APPLY_STEP(!STEP_STATE_Y, false); \
+    } while (0)
+
     USING_TIMED_PULSE();
 
     const uint8_t axis = rtg.rt_params.axis;
+
+    #if CORE_IS_XY
+      if (axis == CORE_AXIS_1 || axis == CORE_AXIS_1) {
+        #if ISR_MULTI_STEPS
+          CORE_RESONANCE_STEP_SEQUENCE();
+          while (--events_to_do) {
+            AWAIT_LOW_PULSE();
+            CORE_RESONANCE_STEP_SEQUENCE();
+          }
+        #else
+          do { CORE_RESONANCE_STEP_SEQUENCE(); } while (--events_to_do);
+        #endif
+        return;
+      }
+    #endif
 
     switch (axis) {
       case X_AXIS:
@@ -1709,7 +1751,12 @@ HAL_STEP_TIMER_ISR() {
   FORCE_INLINE static constexpr int32_t MULT_Q(uint8_t q, int32_t x, int32_t y) { return (int64_t(x) * y) >> q; }
 #endif
 
-void Stepper::isr() {
+/**
+ * Run all stepper events that are due now and return the number of
+ * ticks until the next one. Called by the stepper timer ISR and, without
+ * a stepper timer, by the ESP32 I2S stream task.
+ */
+hal_timer_t Stepper::isr_events() {
 
   #if HAS_STANDARD_MOTION
     static hal_timer_t nextMainISR = 0;           // Interval until the next main Stepper Pulse phase (0 = Now)
@@ -1720,6 +1767,136 @@ void Stepper::isr() {
   #if ENABLED(FT_MOTION)
     static uint32_t ftMotion_nextStepperISR = 0;  // Interval until the next FT Motion phase (0 = Now)
   #endif
+
+  // FT Motion can be toggled if Standard Motion is also active
+  const bool using_ftMotion = ENABLED(NO_STANDARD_MOTION) || TERN0(FT_MOTION, ftMotion.cfg.active);
+
+  hal_timer_t interval = 0;
+
+  #if ENABLED(FT_MOTION)
+
+    if (using_ftMotion) {
+      // Time to run stepping and apply STEP/DIR pulses?
+      if (!ftMotion_nextStepperISR) ftMotion_stepper();
+
+      // Piggyback babystepping to existing ISR
+      #if ENABLED(BABYSTEPPING)
+        // Time to run babystepping and apply STEP/DIR pulses?
+        //   babystepping_isr -> babystep.task -> [ babystep.step_axis(*) -> stepper.do_babystep ]
+        if (nextBabystepISR < (BABYSTEP_TICKS / 10)) nextBabystepISR = babystepping_isr();
+      #endif
+
+      // ^
+      // ^ Time critical! NOTHING besides pulse generation should be above here!!!
+      // ^
+
+      // Enable ISRs to reduce latency for higher priority ISRs
+      hal.isr_on();
+
+      // Get time until next FTM stepping event
+      if (!ftMotion_nextStepperISR) ftMotion_nextStepperISR = ftMotion.stepping.advance_until_step();
+
+      interval = HAL_TIMER_TYPE_MAX;         // Time until the next step
+      NOMORE(interval, ftMotion_nextStepperISR);
+
+      #if ENABLED(BABYSTEPPING)
+        NOMORE(interval, nextBabystepISR);   // Babystepping may want to return earlier
+        if (nextBabystepISR != BABYSTEP_NEVER) nextBabystepISR -= interval;
+      #endif
+
+      ftMotion_nextStepperISR -= interval;
+    }
+
+  #endif // FT_MOTION
+
+  #if HAS_STANDARD_MOTION
+
+    if (!using_ftMotion) {
+
+      if (TERN0(RESONANCE_TEST, rtg.isActive())) {
+        #if ENABLED(RESONANCE_TEST)
+          if (!nextMainISR) resonance_pulse_phase_isr();
+
+          hal.isr_on();
+          if (!nextMainISR) nextMainISR = resonance_block_phase_isr();
+
+          interval = hal_timer_t(STEPPER_TIMER_RATE * 0.03);                  // Max wait of 30ms regardless of stepper timer frequency
+          NOMORE(interval, nextMainISR);                                      // Time until the next Pulse / Block phase
+          nextMainISR -= interval;
+        #endif
+      }
+      else { // !rtg.isActive
+
+        TERN_(HAS_ZV_SHAPING, shaping_isr());               // Do Shaper stepping, if needed
+
+        if (!nextMainISR) pulse_phase_isr();                // 0 = Do coordinated axes Stepper pulses
+
+        #if ENABLED(LIN_ADVANCE)
+          if (!nextAdvanceISR) {                            // 0 = Do Linear Advance E Stepper pulses
+            advance_isr();
+            nextAdvanceISR = la_interval;
+          }
+          else if (nextAdvanceISR > la_interval)            // Start/accelerate LA steps if necessary
+            nextAdvanceISR = la_interval;
+        #endif
+
+        #if ENABLED(BABYSTEPPING)
+          // Time to run babystepping and apply STEP/DIR pulses?
+          //   babystepping_isr -> babystep.task -> [ babystep.step_axis(*) -> stepper.do_babystep ]
+          const bool is_babystep = (nextBabystepISR == 0);  // 0 = Do Babystepping (XY)Z pulses
+          if (is_babystep) nextBabystepISR = babystepping_isr();
+        #endif
+
+        // Enable ISRs to reduce latency for higher priority ISRs, or all ISRs if no prioritization.
+        hal.isr_on();
+
+        // ^== Time critical. NOTHING besides pulse generation should be above here!!!
+
+        if (!nextMainISR) nextMainISR = block_phase_isr();  // Manage acc/deceleration, get next block
+        #if ENABLED(SMOOTH_LIN_ADVANCE)
+          if (!smoothLinAdvISR) smoothLinAdvISR = smooth_lin_adv_isr();  // Manage la
+        #endif
+
+        #if ENABLED(BABYSTEPPING)
+          if (is_babystep)                                  // Avoid ANY stepping too soon after baby-stepping
+            NOLESS(nextMainISR, (BABYSTEP_TICKS) / 8);      // FULL STOP for 125µs after a baby-step
+
+          if (nextBabystepISR != BABYSTEP_NEVER)            // Avoid baby-stepping too close to axis Stepping
+            NOLESS(nextBabystepISR, nextMainISR / 2);       // TODO: Only look at axes enabled for baby-stepping
+        #endif
+
+        // Get the interval to the next ISR call
+        interval = hal_timer_t(STEPPER_TIMER_RATE * 0.03);                  // Max wait of 30ms regardless of stepper timer frequency
+        NOMORE(interval, nextMainISR);                                      // Time until the next Pulse / Block phase
+        TERN_(INPUT_SHAPING_X, NOMORE(interval, ShapingQueue::peek_x()));   // Time until next input shaping echo for X
+        TERN_(INPUT_SHAPING_Y, NOMORE(interval, ShapingQueue::peek_y()));   // Time until next input shaping echo for Y
+        TERN_(INPUT_SHAPING_Z, NOMORE(interval, ShapingQueue::peek_z()));   // Time until next input shaping echo for Z
+        TERN_(LIN_ADVANCE, NOMORE(interval, nextAdvanceISR));               // Come back early for Linear Advance?
+        TERN_(SMOOTH_LIN_ADVANCE, NOMORE(interval, smoothLinAdvISR));       // Come back early for Linear Advance rate update?
+        TERN_(BABYSTEPPING, NOMORE(interval, nextBabystepISR));             // Come back early for Babystepping?
+
+        //
+        // Compute remaining time for each ISR phase
+        //     NEVER : The phase is idle
+        //      Zero : The phase will occur on the next ISR call
+        //  Non-zero : The phase will occur on a future ISR call
+        //
+
+        nextMainISR -= interval;
+        TERN_(HAS_ZV_SHAPING, ShapingQueue::decrement_delays(interval));
+        TERN_(LIN_ADVANCE, if (nextAdvanceISR != LA_ADV_NEVER) nextAdvanceISR -= interval);
+        TERN_(SMOOTH_LIN_ADVANCE, if (smoothLinAdvISR != LA_ADV_NEVER) smoothLinAdvISR -= interval);
+        TERN_(BABYSTEPPING, if (nextBabystepISR != BABYSTEP_NEVER) nextBabystepISR -= interval);
+
+      } // !rtg.isActive
+    } // !using_ftMotion
+
+  #endif // HAS_STANDARD_MOTION
+
+  return interval;
+}
+
+void Stepper::isr() {
 
   // Program timer compare for the maximum period, so it does NOT
   // flag an interrupt while this ISR is running - So changes from small
@@ -1732,136 +1909,13 @@ void Stepper::isr() {
   // Limit the amount of iterations
   uint8_t max_loops = 10;
 
-  // FT Motion can be toggled if Standard Motion is also active
-  const bool using_ftMotion = ENABLED(NO_STANDARD_MOTION) || TERN0(FT_MOTION, ftMotion.cfg.active);
-
   // Storage for the soonest timer value of the next possible ISR, used in this do loop
   hal_timer_t min_ticks;
 
   // Loop until all events for this ISR have been issued
   do {
 
-    hal_timer_t interval = 0;
-
-    #if ENABLED(FT_MOTION)
-
-      if (using_ftMotion) {
-        // Time to run stepping and apply STEP/DIR pulses?
-        if (!ftMotion_nextStepperISR) ftMotion_stepper();
-
-        // Piggyback babystepping to existing ISR
-        #if ENABLED(BABYSTEPPING)
-          // Time to run babystepping and apply STEP/DIR pulses?
-          //   babystepping_isr -> babystep.task -> [ babystep.step_axis(*) -> stepper.do_babystep ]
-          if (nextBabystepISR < (BABYSTEP_TICKS / 10)) nextBabystepISR = babystepping_isr();
-        #endif
-
-        // ^
-        // ^ Time critical! NOTHING besides pulse generation should be above here!!!
-        // ^
-
-        // Enable ISRs to reduce latency for higher priority ISRs
-        hal.isr_on();
-
-        // Get time until next FTM stepping event
-        if (!ftMotion_nextStepperISR) ftMotion_nextStepperISR = ftMotion.stepping.advance_until_step();
-
-        interval = HAL_TIMER_TYPE_MAX;         // Time until the next step
-        NOMORE(interval, ftMotion_nextStepperISR);
-
-        #if ENABLED(BABYSTEPPING)
-          NOMORE(interval, nextBabystepISR);   // Babystepping may want to return earlier
-          nextBabystepISR -= interval;
-        #endif
-
-        ftMotion_nextStepperISR -= interval;
-      }
-
-    #endif // FT_MOTION
-
-    #if HAS_STANDARD_MOTION
-
-      if (!using_ftMotion) {
-
-        if (TERN0(RESONANCE_TEST, rtg.isActive())) {
-          #if ENABLED(RESONANCE_TEST)
-            if (!nextMainISR) resonance_pulse_phase_isr();
-
-            hal.isr_on();
-            if (!nextMainISR) nextMainISR = resonance_block_phase_isr();
-
-            interval = hal_timer_t(STEPPER_TIMER_RATE * 0.03);                  // Max wait of 30ms regardless of stepper timer frequency
-            NOMORE(interval, nextMainISR);                                      // Time until the next Pulse / Block phase
-            nextMainISR -= interval;
-          #endif
-        }
-        else { // !rtg.isActive
-
-          TERN_(HAS_ZV_SHAPING, shaping_isr());               // Do Shaper stepping, if needed
-
-          if (!nextMainISR) pulse_phase_isr();                // 0 = Do coordinated axes Stepper pulses
-
-          #if ENABLED(LIN_ADVANCE)
-            if (!nextAdvanceISR) {                            // 0 = Do Linear Advance E Stepper pulses
-              advance_isr();
-              nextAdvanceISR = la_interval;
-            }
-            else if (nextAdvanceISR > la_interval)            // Start/accelerate LA steps if necessary
-              nextAdvanceISR = la_interval;
-          #endif
-
-          #if ENABLED(BABYSTEPPING)
-            // Time to run babystepping and apply STEP/DIR pulses?
-            //   babystepping_isr -> babystep.task -> [ babystep.step_axis(*) -> stepper.do_babystep ]
-            const bool is_babystep = (nextBabystepISR == 0);  // 0 = Do Babystepping (XY)Z pulses
-            if (is_babystep) nextBabystepISR = babystepping_isr();
-          #endif
-
-          // Enable ISRs to reduce latency for higher priority ISRs, or all ISRs if no prioritization.
-          hal.isr_on();
-
-          // ^== Time critical. NOTHING besides pulse generation should be above here!!!
-
-          if (!nextMainISR) nextMainISR = block_phase_isr();  // Manage acc/deceleration, get next block
-          #if ENABLED(SMOOTH_LIN_ADVANCE)
-            if (!smoothLinAdvISR) smoothLinAdvISR = smooth_lin_adv_isr();  // Manage la
-          #endif
-
-          #if ENABLED(BABYSTEPPING)
-            if (is_babystep)                                  // Avoid ANY stepping too soon after baby-stepping
-              NOLESS(nextMainISR, (BABYSTEP_TICKS) / 8);      // FULL STOP for 125µs after a baby-step
-
-            if (nextBabystepISR != BABYSTEP_NEVER)            // Avoid baby-stepping too close to axis Stepping
-              NOLESS(nextBabystepISR, nextMainISR / 2);       // TODO: Only look at axes enabled for baby-stepping
-          #endif
-
-          // Get the interval to the next ISR call
-          interval = hal_timer_t(STEPPER_TIMER_RATE * 0.03);                  // Max wait of 30ms regardless of stepper timer frequency
-          NOMORE(interval, nextMainISR);                                      // Time until the next Pulse / Block phase
-          TERN_(INPUT_SHAPING_X, NOMORE(interval, ShapingQueue::peek_x()));   // Time until next input shaping echo for X
-          TERN_(INPUT_SHAPING_Y, NOMORE(interval, ShapingQueue::peek_y()));   // Time until next input shaping echo for Y
-          TERN_(INPUT_SHAPING_Z, NOMORE(interval, ShapingQueue::peek_z()));   // Time until next input shaping echo for Z
-          TERN_(LIN_ADVANCE, NOMORE(interval, nextAdvanceISR));               // Come back early for Linear Advance?
-          TERN_(SMOOTH_LIN_ADVANCE, NOMORE(interval, smoothLinAdvISR));       // Come back early for Linear Advance rate update?
-          TERN_(BABYSTEPPING, NOMORE(interval, nextBabystepISR));             // Come back early for Babystepping?
-
-          //
-          // Compute remaining time for each ISR phase
-          //     NEVER : The phase is idle
-          //      Zero : The phase will occur on the next ISR call
-          //  Non-zero : The phase will occur on a future ISR call
-          //
-
-          nextMainISR -= interval;
-          TERN_(HAS_ZV_SHAPING, ShapingQueue::decrement_delays(interval));
-          TERN_(LIN_ADVANCE, if (nextAdvanceISR != LA_ADV_NEVER) nextAdvanceISR -= interval);
-          TERN_(SMOOTH_LIN_ADVANCE, if (smoothLinAdvISR != LA_ADV_NEVER) smoothLinAdvISR -= interval);
-          TERN_(BABYSTEPPING, if (nextBabystepISR != BABYSTEP_NEVER) nextBabystepISR -= interval);
-
-        } // !rtg.isActive
-      } // !using_ftMotion
-
-    #endif // HAS_STANDARD_MOTION
+    const hal_timer_t interval = isr_events();
 
     /**
      * This needs to avoid a race-condition caused by interleaving
@@ -2078,6 +2132,7 @@ void Stepper::isr() {
             SET_STEP_DIR(AXIS); \
             TERN_(FT_MOTION, last_set_direction = last_direction_bits); \
             DIR_WAIT_AFTER(); \
+            TERN_(I2S_STEPPER_STREAM, i2s_push_sample()); /* DIR before STEP */ \
           } \
         } \
         else \
@@ -2291,6 +2346,8 @@ void Stepper::isr() {
         PULSE_STOP(E);
       #endif
 
+      TERN_(I2S_STEPPER_STREAM, i2s_push_sample()); // STEP low before the next pulse
+
       #if ISR_MULTI_STEPS
         if (events_to_do) START_TIMED_PULSE();
       #endif
@@ -2352,6 +2409,7 @@ void Stepper::isr() {
         #if ENABLED(INPUT_SHAPING_Z)
           PULSE_STOP(Z);
         #endif
+        TERN_(I2S_STEPPER_STREAM, i2s_push_sample()); // STEP low before the next pulse
       }
 
       TERN_(INPUT_SHAPING_X, step_needed.x = !ShapingQueue::peek_x() || ShapingQueue::free_count_x() < steps_per_isr);
@@ -2555,7 +2613,7 @@ void Stepper::isr() {
    * have been done, so it is less time critical.
    */
   hal_timer_t Stepper::block_phase_isr() {
-    #if DISABLED(OLD_ADAPTIVE_MULTISTEPPING)
+    #if NONE(OLD_ADAPTIVE_MULTISTEPPING, I2S_STEPPER_STREAM) // I2S has no stepper timer to time the ISR
       // If the ISR uses < 50% of MPU time, halve multi-stepping
       const hal_timer_t time_spent = HAL_timer_get_count(MF_TIMER_STEP);
       #if MULTISTEPPING_LIMIT > 1
@@ -3358,6 +3416,7 @@ void Stepper::isr() {
 
       // Set the STEP pulse OFF
       E_STEP_WRITE(TERN(MIXING_EXTRUDER, mixer.get_stepper(), stepper_extruder), !STEP_STATE_E);
+      TERN_(I2S_STEPPER_STREAM, i2s_push_sample()); // STEP low before the next pulse
     }
   }
 
@@ -3623,20 +3682,20 @@ void Stepper::_set_position(const abce_long_t &spos) {
 
   #if ENABLED(INPUT_SHAPING_X)
     if (shaping_x.enabled) {
+      shaping_x.last_block_end_pos = count_position.x; // Stepper space, like count_position
       count_position.x += x_shaping_delta;
-      shaping_x.last_block_end_pos = spos.x;
     }
   #endif
   #if ENABLED(INPUT_SHAPING_Y)
     if (shaping_y.enabled) {
+      shaping_y.last_block_end_pos = count_position.y; // Stepper space, like count_position
       count_position.y += y_shaping_delta;
-      shaping_y.last_block_end_pos = spos.y;
     }
   #endif
   #if ENABLED(INPUT_SHAPING_Z)
     if (shaping_z.enabled) {
+      shaping_z.last_block_end_pos = count_position.z; // Stepper space, like count_position
       count_position.z += z_shaping_delta;
-      shaping_z.last_block_end_pos = spos.z;
     }
   #endif
 }
@@ -3826,6 +3885,7 @@ void Stepper::report_positions() {
 
       // Any DIR change requires a wait period
       DIR_WAIT_AFTER();
+      TERN_(I2S_STEPPER_STREAM, i2s_push_sample()); // DIR before STEP
     }
 
     /**
@@ -3884,6 +3944,7 @@ void Stepper::report_positions() {
     // Stop pulses. Axes with DEDGE will do nothing, assuming STEP_STATE_* is HIGH
     #define _FTM_STEP_STOP(AXIS) AXIS##_APPLY_STEP(!STEP_STATE_##AXIS, false);
     LOGICAL_AXIS_MAP(_FTM_STEP_STOP);
+    TERN_(I2S_STEPPER_STREAM, i2s_push_sample()); // STEP low before the next pulse
 
   } // Stepper::ftMotion_stepper
 
@@ -3917,7 +3978,11 @@ void Stepper::report_positions() {
     #define EXTRA_CYCLES_BABYSTEP 0
   #endif
 
-  #if EXTRA_CYCLES_BABYSTEP > 20
+  #if ENABLED(I2S_STEPPER_STREAM)
+    // The STEP pulse lasts a whole I2S sample and the stepper timer isn't running
+    #define _SAVE_START() NOOP
+    #define _PULSE_WAIT() NOOP
+  #elif EXTRA_CYCLES_BABYSTEP > 20
     #define _SAVE_START() const hal_timer_t pulse_start = HAL_timer_get_count(MF_TIMER_PULSE)
     #define _PULSE_WAIT() while (EXTRA_CYCLES_BABYSTEP > uint32_t(HAL_timer_get_count(MF_TIMER_PULSE) - pulse_start) * (PULSE_TIMER_PRESCALE)) { /* nada */ }
   #else
@@ -3941,6 +4006,9 @@ void Stepper::report_positions() {
     #define EXTRA_DIR_WAIT_AFTER()
   #endif
 
+  // The I2S stream needs a sample for the DIR change, the STEP pulse, and the restored DIR
+  #define _I2S_PUSH() TERN_(I2S_STEPPER_STREAM, i2s_push_sample())
+
   #if DISABLED(DELTA)
 
     #define BABYSTEP_AXIS(AXIS, FWD, INV) do{      \
@@ -3949,13 +4017,16 @@ void Stepper::report_positions() {
       DIR_WAIT_BEFORE();                           \
       _APPLY_DIR(AXIS, (FWD)^(INV));               \
       DIR_WAIT_AFTER();                            \
+      _I2S_PUSH();                                 \
       _SAVE_START();                               \
       _APPLY_STEP(AXIS, _STEP_STATE(AXIS), true);  \
+      _I2S_PUSH();                                 \
       _PULSE_WAIT();                               \
       _APPLY_STEP(AXIS, !_STEP_STATE(AXIS), true); \
       EXTRA_DIR_WAIT_BEFORE();                     \
       _APPLY_DIR(AXIS, old_fwd);                   \
       EXTRA_DIR_WAIT_AFTER();                      \
+      _I2S_PUSH();                                 \
     }while(0)
 
   #endif
@@ -3969,15 +4040,18 @@ void Stepper::report_positions() {
       _APPLY_DIR(A, (FWD)^(INV));                               \
       _APPLY_DIR(B, (FWD)^(INV)^(ALT));                         \
       DIR_WAIT_AFTER();                                         \
+      _I2S_PUSH();                                              \
       _SAVE_START();                                            \
       _APPLY_STEP(A, _STEP_STATE(A), true);                     \
       _APPLY_STEP(B, _STEP_STATE(B), true);                     \
+      _I2S_PUSH();                                              \
       _PULSE_WAIT();                                            \
       _APPLY_STEP(A, !_STEP_STATE(A), true);                    \
       _APPLY_STEP(B, !_STEP_STATE(B), true);                    \
       EXTRA_DIR_WAIT_BEFORE();                                  \
       _APPLY_DIR(A, old_fwd.a); _APPLY_DIR(B, old_fwd.b);       \
       EXTRA_DIR_WAIT_AFTER();                                   \
+      _I2S_PUSH();                                              \
     }while(0)
 
   #endif
@@ -4038,12 +4112,14 @@ void Stepper::report_positions() {
           Z_DIR_WRITE(z_direction);
 
           DIR_WAIT_AFTER();
+          _I2S_PUSH();
 
           _SAVE_START();
 
           X_STEP_WRITE(STEP_STATE_X);
           Y_STEP_WRITE(STEP_STATE_Y);
           Z_STEP_WRITE(STEP_STATE_Z);
+          _I2S_PUSH();
 
           _PULSE_WAIT();
 
@@ -4059,6 +4135,7 @@ void Stepper::report_positions() {
           Z_DIR_WRITE(old_fwd[C_AXIS]);
 
           EXTRA_DIR_WAIT_AFTER();
+          _I2S_PUSH();
 
         #endif
 

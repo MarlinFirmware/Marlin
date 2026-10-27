@@ -698,7 +698,7 @@ typedef struct SettingsDataStruct {
   // Nonlinear Extrusion
   //
   #if ENABLED(NONLINEAR_EXTRUSION)
-    nonlinear_settings_t stepper_ne_settings;           // M592 S A B C
+    NonlinearSettings stepper_ne_settings;              // M592 S A B C
   #endif
 
   //
@@ -3328,13 +3328,15 @@ void MarlinSettings::postprocess() {
         #endif
 
         #if ENABLED(DWIN_LCD_PROUI)
-          status = !bedLevelTools.meshValidate();
-          if (status) {
-            bedlevel.invalidate();
-            LCD_MESSAGE(MSG_UBL_MESH_INVALID);
+          if (!into) {  // Only validate the live mesh
+            status = !bedLevelTools.meshValidate();
+            if (status) {
+              bedlevel.invalidate();
+              LCD_MESSAGE(MSG_UBL_MESH_INVALID);
+            }
+            else
+              ui.status_printf(0, GET_TEXT_F(MSG_MESH_LOADED), slot);
           }
-          else
-            ui.status_printf(0, GET_TEXT_F(MSG_MESH_LOADED), bedlevel.storage_slot);
         #endif
 
         if (status) SERIAL_ECHOLNPGM("?Unable to load mesh data.");

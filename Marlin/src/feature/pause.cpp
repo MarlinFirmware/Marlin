@@ -291,12 +291,26 @@ bool load_filament(const float slow_load_length/*=0*/, const float fast_load_len
           KEEPALIVE_STATE(PAUSED_FOR_USER);
           marlin.user_resume();
           pause_menu_response = PAUSE_RESPONSE_WAIT_FOR;
-          #if ANY(HAS_MARLINUI_MENU, EXTENSIBLE_UI)
+          #if ANY(HAS_MARLINUI_MENU, EXTENSIBLE_UI, DWIN_CREALITY_LCD_JYERSUI)
             ui.pause_show_message(PAUSE_MESSAGE_OPTION); // MarlinUI and MKS UI also set PAUSE_RESPONSE_WAIT_FOR
           #else
             TERN_(SOVOL_SV06_RTS, rts.gotoPage(ID_PurgeMore_L, ID_PurgeMore_D));
           #endif
-          while (pause_menu_response == PAUSE_RESPONSE_WAIT_FOR) marlin.idle_no_sleep();
+          #if HAS_FILAMENT_SENSOR
+            bool ran_out = runout.filament_ran_out;
+          #endif
+          while (pause_menu_response == PAUSE_RESPONSE_WAIT_FOR) {
+            marlin.idle_no_sleep();
+            #if HAS_FILAMENT_SENSOR
+              // A runout can be detected after the prompt (e.g., a motion sensor at the end of
+              // the purge) or cleared from the menu. Update the prompt and menu to match.
+              if (runout.filament_ran_out != ran_out) {
+                ran_out = !ran_out;
+                TERN_(HOST_PROMPT_SUPPORT, hostui.filament_load_prompt());
+                ui.refresh();
+              }
+            #endif
+          }
         }
       #endif
 

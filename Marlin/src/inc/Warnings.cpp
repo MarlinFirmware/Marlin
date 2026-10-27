@@ -80,20 +80,9 @@
 #endif
 
 /**
- * The two ESP32 WiFi implementations each ignore the other's options.
- * These do nothing where they are, but they don't stop anything working.
+ * WiFi options that do nothing where they are, but don't stop anything working.
  */
-#if ENABLED(ESP3D_WIFISUPPORT)
-  #if ENABLED(WEBSUPPORT)
-    #warning "WEBSUPPORT does nothing with ESP3D_WIFISUPPORT, which starts its own webserver. Remove it."
-  #endif
-  #if ENABLED(OTASUPPORT)
-    #warning "OTASUPPORT does nothing with ESP3D_WIFISUPPORT, which provides its own OTA. Remove it."
-  #endif
-  #if defined(WIFI_SSID) || defined(WIFI_PWD)
-    #warning "WIFI_SSID and WIFI_PWD do nothing with ESP3D_WIFISUPPORT. Set the network with '[ESP100]' and '[ESP101]'."
-  #endif
-#elif ENABLED(WIFISUPPORT)
+#if ENABLED(WIFISUPPORT)
   #if ENABLED(WIFI_CUSTOM_COMMAND)
     #warning "WIFI_CUSTOM_COMMAND does nothing with WIFISUPPORT. It applies to ESP3D_WIFISUPPORT."
   #endif
