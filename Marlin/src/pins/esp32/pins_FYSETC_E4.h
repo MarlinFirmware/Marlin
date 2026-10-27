@@ -34,6 +34,10 @@
   #error "FYSETC E4 only supports 1 hotend / E stepper."
 #endif
 
+#if !AXIS_DRIVER_TYPE_X(TMC2209) || !AXIS_DRIVER_TYPE_Y(TMC2209) || !AXIS_DRIVER_TYPE_Z(TMC2209) || !AXIS_DRIVER_TYPE_E0(TMC2209)
+  #error "This board has onboard TMC2209 drivers for X, Y, Z, and E0."
+#endif
+
 #define BOARD_INFO_NAME       "FYSETC_E4"
 
 #include "pins_ESPA_common.h"
