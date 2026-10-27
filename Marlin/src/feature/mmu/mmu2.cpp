@@ -320,8 +320,8 @@ void MMU2::mmu_loop() {
           // Respond to C0 MMU command in MMU2S model.
           // Keep trying until the filament reaches the gears, but give up after MMU2_C0_RETRY tries.
           const bool keep_trying = !mmu2s_triggered && last_cmd == MMU_CMD_C0 && mmu2s_c0_tries < (MMU2_C0_RETRY);
-          if (keep_trying) ++mmu2s_c0_tries;
           if (keep_trying) {
+            ++mmu2s_c0_tries; // Advance this counter or we'll hang in limbo
             // MMU ok received but filament sensor not triggered, retrying...
             DEBUG_ECHOLNPGM("MMU => 'ok' (no filament in gears)");
             DEBUG_ECHOLNPGM("MMU <= 'C0' (keep trying)");
