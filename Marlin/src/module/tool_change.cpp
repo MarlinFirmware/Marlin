@@ -1125,11 +1125,15 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
 
     UNUSED(no_move);
 
+    if (new_tool >= EXTRUDERS) return invalid_extruder_error(new_tool);
+
     mmu3.tool_change(new_tool);
 
   #elif HAS_PRUSA_MMU2
 
     UNUSED(no_move);
+
+    if (new_tool >= EXTRUDERS) return invalid_extruder_error(new_tool);
 
     mmu2.tool_change(new_tool);
 
