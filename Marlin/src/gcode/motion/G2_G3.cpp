@@ -136,19 +136,24 @@ void plan_arc(
 
   // If "P" specified circles, call plan_arc recursively then continue with the rest of the arc
   if (TERN0(ARC_P_CIRCLES, circles)) {
-    const float total_angular = abs_angular_travel + circles * RADIANS(360),    // Total rotation with all circles and remainder
-              part_per_circle = RADIANS(360) / total_angular;                   // Each circle's part of the total
 
-    ARC_LIJKUVWE_CODE(
-      const float per_circle_L = travel_L * part_per_circle,    // X, Y, or Z movement per circle
-      const float per_circle_I = travel_I * part_per_circle,    // The rest are also non-arc
-      const float per_circle_J = travel_J * part_per_circle,
-      const float per_circle_K = travel_K * part_per_circle,
-      const float per_circle_U = travel_U * part_per_circle,
-      const float per_circle_V = travel_V * part_per_circle,
-      const float per_circle_W = travel_W * part_per_circle,
-      const float per_circle_E = travel_E * part_per_circle     // E movement per circle
-    );
+    #if SECONDARY_AXES
+
+      const float total_angular = abs_angular_travel + circles * RADIANS(360),  // Total rotation with all circles and remainder
+                  part_per_circle = RADIANS(360) / total_angular; // Each circle's part of the total
+
+      ARC_LIJKUVWE_CODE(
+        const float per_circle_L = travel_L * part_per_circle,    // X, Y, or Z movement per circle
+        const float per_circle_I = travel_I * part_per_circle,    // The rest are also non-arc
+        const float per_circle_J = travel_J * part_per_circle,
+        const float per_circle_K = travel_K * part_per_circle,
+        const float per_circle_U = travel_U * part_per_circle,
+        const float per_circle_V = travel_V * part_per_circle,
+        const float per_circle_W = travel_W * part_per_circle,
+        const float per_circle_E = travel_E * part_per_circle     // E movement per circle
+      );
+
+    #endif
 
     xyze_pos_t temp_position = motion.position;
     for (uint16_t n = circles; n--;) {
