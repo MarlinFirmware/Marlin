@@ -1795,8 +1795,7 @@ void CardReader::fileHasFinished() {
 #if ENABLED(POWER_LOSS_RECOVERY)
 
   bool CardReader::jobRecoverFileExists() {
-    if (!isMounted()) return false;   // No volume to open the file on
-    const bool exists = recovery.file.open(&root, recovery.filename, O_READ);
+    const bool exists = isMounted() && recovery.file.open(&root, recovery.filename, O_READ);
     if (exists) recovery.file.close();
     return exists;
   }
