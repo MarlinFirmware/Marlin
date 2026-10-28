@@ -16,6 +16,8 @@ All commands assume the current directory is the repository root.
 | [marlin-codebase-navigation](marlin-codebase-navigation/SKILL.md) | Find definitions, uses, and flows in the source with git and grep |
 | [marlin-hal-work](marlin-hal-work/SKILL.md) | Add a board, extend a HAL, or create a new HAL |
 | [marlin-fork-harvesting](marlin-fork-harvesting/SKILL.md) | Evaluate a Marlin fork and port its features cleanly |
+| [marlin-mainsail-connector](marlin-mainsail-connector/SKILL.md) | Run Mainsail/Fluidd with a Marlin printer or the simulator through serial2moon |
+| [marlin-hosts-in-docker](marlin-hosts-in-docker/SKILL.md) | Run OctoPrint or Mainsail in Docker against the simulator or a printer to test host-facing behavior |
 
 ## Adding a skill
 
