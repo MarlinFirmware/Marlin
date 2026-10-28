@@ -1016,6 +1016,28 @@ void DGUSScreenHandlerCreality::popToOldScreen() {
     gotoScreen(isPrintJobActive() ? DGUS_SCREEN_PRINT_RUNNING : DGUS_SCREEN_MAIN, true);
 }
 
+#if HAS_LEVELING_TEMP_EDIT
+
+  // Temperatures to preheat to before leveling (PREHEAT_BEFORE_LEVELING), stored in EEPROM
+  void DGUSScreenHandlerCreality::handleLevelingTemp(DGUS_VP_Variable &var, void *val_ptr) {
+    celsius_t temp = int16_t(BE16_P(val_ptr));
+    #if HAS_HOTEND
+      if (var.VP == VP_TOGGLE_PROBE_PREHEAT_HOTEND_TEMP) {
+        LIMIT(temp, 0, thermalManager.hotend_max_target(0));
+        ExtUI::setLevelingNozzleTemp(temp);
+      }
+    #endif
+    #if HAS_HEATED_BED
+      if (var.VP == VP_TOGGLE_PROBE_PREHEAT_BED_TEMP) {
+        LIMIT(temp, 0, BED_MAX_TARGET);
+        ExtUI::setLevelingBedTemp(temp);
+      }
+    #endif
+    requestSaveSettings();
+  }
+
+#endif // HAS_LEVELING_TEMP_EDIT
+
 void DGUSScreenHandlerCreality::onBackButton(DGUS_VP_Variable &var, void *val_ptr) {
   // If we're busy: ignore
   if (hasSynchronousOperation) return;

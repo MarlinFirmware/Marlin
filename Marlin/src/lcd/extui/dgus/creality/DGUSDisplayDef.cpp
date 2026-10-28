@@ -461,6 +461,10 @@ const struct VPMapping VPMap[] PROGMEM = {
   #define _MESH_INPUT_VP(N) VPHELPER(VP_MESH_INPUT_X0_Y0 + (N) * (MESH_INPUT_DATA_SIZE), nullptr, screen.handleMeshPoint, nullptr),
 #endif
 
+// State of the compile-time probing options, for the icons on the Leveling Settings screen
+static bool probing_heaters_off = ENABLED(PROBING_HEATERS_OFF),
+            probing_stabilize = ANY(WAIT_FOR_BED_HEATER, WAIT_FOR_HOTEND);
+
 const struct DGUS_VP_Variable ListOfVP[] PROGMEM = {
   // Back button state
   VPHELPER(VP_BACK_BUTTON_STATE, nullptr, nullptr, screen.sendBusyState),
@@ -645,6 +649,21 @@ const struct DGUS_VP_Variable ListOfVP[] PROGMEM = {
   VPHELPER(VP_BUTTON_BEDLEVELKEY, nullptr, DGUSCrealityDisplay_HandleReturnKeyEvent, nullptr),
   VPHELPER(VP_BUTTON_HEATLOADSTARTKEY, nullptr, DGUSCrealityDisplay_HandleReturnKeyEvent, nullptr),
   VPHELPER(VP_BUTTON_MOVEKEY, nullptr, DGUSCrealityDisplay_HandleReturnKeyEvent, nullptr),
+
+  // Leveling Settings. The probing options are fixed in Configuration.h, so only show them.
+  VPHELPER(VP_TOGGLE_PROBE_SETTINGS_NAV_BUTTON, nullptr, screen.navigateToPage<DGUS_SCREEN_LEVELING_SETTINGS>, nullptr),
+  VPHELPER(VP_TOGGLE_PROBING_HEATERS_OFF_ONOFF_BUTTON, nullptr, screen.handleCompileTimeSetting, nullptr),
+  VPHELPER(VP_TOGGLE_PROBING_HEATERS_OFF_ONOFF_ICON, &probing_heaters_off, nullptr, (screen.sendIconValue<ICON_ACCURACY_TOGGLE_ON, ICON_ACCURACY_TOGGLE_OFF>)),
+  VPHELPER(VP_TOGGLE_POST_PROBING_TEMPERATURE_STABILIZATION_BUTTON, nullptr, screen.handleCompileTimeSetting, nullptr),
+  VPHELPER(VP_TOGGLE_POST_PROBING_TEMPERATURE_STABILIZATION_ICON, &probing_stabilize, nullptr, (screen.sendIconValue<ICON_POST_PROBE_TEMP_STABILIZATION_TOGGLE_ON, ICON_POST_PROBE_TEMP_STABILIZATION_TOGGLE_OFF>)),
+  #if HAS_LEVELING_TEMP_EDIT
+    #if HAS_HOTEND
+      VPHELPER(VP_TOGGLE_PROBE_PREHEAT_HOTEND_TEMP, &thermalManager.leveling_temp.hotend, screen.handleLevelingTemp, screen.sendWordValueToDisplay),
+    #endif
+    #if HAS_HEATED_BED
+      VPHELPER(VP_TOGGLE_PROBE_PREHEAT_BED_TEMP, &thermalManager.leveling_temp.bed, screen.handleLevelingTemp, screen.sendWordValueToDisplay),
+    #endif
+  #endif
 
   // File listing
   #if HAS_MEDIA
