@@ -68,6 +68,14 @@ Open http://localhost:8088. Check what the bridge reports without a browser:
 
 `mainsail.yml` uses serial2moon's `marlin-connector` image from the MarlinFirmware fork, which has the TCP transport and Marlin support that are still going into the upstream project. To test a local serial2moon build, `docker build -t s2m-local .` in its repository and set `S2M_IMAGE=s2m-local` in `.env`.
 
+## Webcam: show the Viewport in the host
+
+The simulator can serve its 3D Viewport as a webcam (SimUI `cutting-edge` and later). It is off by default. Turn it on from the Viewport's **Webcam** menu, or start the simulator with `--webcam-port 8101` (`MARLIN_SIM_WEBCAM_PORT`). It serves `/stream` (MJPEG) and `/snapshot` (JPEG), and only works while the Viewport is visible.
+
+- **OctoPrint:** Settings, Webcam & Timelapse. Stream URL `http://host.docker.internal:8101/stream`, snapshot URL `http://host.docker.internal:8101/snapshot`. The stream is shown by your browser, so if the browser can't resolve `host.docker.internal`, use `http://localhost:8101/stream` for it. The snapshot is fetched by the container, so keep `host.docker.internal` there.
+- **Mainsail:** Settings, Webcams, add a webcam with service MJPEG-Streamer and the same URLs (use `localhost` in both, since the browser fetches them).
+- Check it from a container: `docker run --rm curlimages/curl -s -o /dev/null -w '%{http_code}\n' http://host.docker.internal:8101/snapshot`.
+
 ## Real printers
 
 On a Linux host the USB device can be passed to the container (`devices:` in `octoprint.yml`; `mainsail.yml` does this already and autodetects the port). Docker Desktop on macOS and Windows can't pass USB through: run the host natively there, or use the simulator.
