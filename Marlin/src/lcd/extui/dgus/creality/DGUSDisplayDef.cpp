@@ -362,6 +362,7 @@ const uint16_t VPList_MiscSettings[] PROGMEM = {
 const uint16_t VPList_MeshValidation[] PROGMEM = {
   VPList_CommonWithHeatOnly,
 
+  VP_Z_OFFSET,  // This screen has a Z offset field, too
   VP_MESHPATTERN_NOZZLE_TEMP,
   VP_MESHPATTERN_BED_TEMP,
 
