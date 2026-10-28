@@ -7,11 +7,13 @@
 #   OCTOPRINT_PORT=5050                          web UI port (not 5000: macOS AirPlay uses it)
 #   OCTOPRINT_IMAGE=octoprint/octoprint:canary   another OctoPrint image or tag
 #   SERIAL_DEVICE=/dev/ttyUSB0                   a USB printer (Linux hosts only), see below
-#   SIM_ADDR=host.docker.internal:8099           the Marlin simulator's G-code socket
+#   SIM_ADDR=host.docker.internal:8199           the Marlin simulator's G-code socket
 #
 # Simulator: build and run it with SERIAL_PORT_2 enabled (see buildroot/skills/marlin-hosts-in-docker),
-# then in OctoPrint's Connection panel choose the serial port "socket://host.docker.internal:8099".
-# The socket takes one client at a time, so don't run this together with mainsail.yml.
+# then in OctoPrint's Connection panel choose the serial port "socket://host.docker.internal:8199".
+# OctoPrint defaults to port 8199 so it can use its own simulator next to the one for mainsail.yml
+# (port 8099): start that one with `MarlinSimulator --serial-port 8199`. The socket takes one
+# client at a time, so two hosts can't share a simulator.
 #
 # USB printer: Docker Desktop on macOS/Windows can't pass USB through, so this works only on
 # a Linux host. Uncomment `devices:` and set SERIAL_DEVICE (prefer /dev/serial/by-id/...).
@@ -22,7 +24,7 @@ services:
     ports:
       - "${OCTOPRINT_PORT:-5050}:5000"
     environment:
-      - SIM_ADDR=${SIM_ADDR:-host.docker.internal:8099}
+      - SIM_ADDR=${SIM_ADDR:-host.docker.internal:8199}
     volumes:
       - octoprint:/octoprint
     configs:
@@ -46,7 +48,7 @@ configs:
       import os
       import serial
 
-      URL = "socket://" + os.environ.get("SIM_ADDR", "host.docker.internal:8099")
+      URL = "socket://" + os.environ.get("SIM_ADDR", "host.docker.internal:8199")
 
       def _ports(candidates):
           return [URL]

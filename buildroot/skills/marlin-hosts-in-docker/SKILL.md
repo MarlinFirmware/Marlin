@@ -30,11 +30,26 @@ Restore the example config files afterward with `buildroot/bin/restore_configs`.
 
 From the host's point of view the simulator is on the computer running Docker, reachable as `host.docker.internal:8099` (built into Docker Desktop; the compose files add it for Linux Docker Engine).
 
+### Two simulators, one per host
+
+The socket serves one client at a time, so give each host its own simulator and port. The Compose files default to different ports (Mainsail 8099, OctoPrint 8199). The webcam port follows the serial port + 2:
+
+| Host | `--serial-port` | Webcam (menu default) | `--agent-port` (optional) |
+| --- | --- | --- | --- |
+| Mainsail | 8099 | 8101 | 8100 |
+| OctoPrint | 8199 | 8201 | 8200 |
+
+Start each simulator from its own folder, since each keeps `eeprom.dat` and `imgui.ini` in its working directory:
+
+    mkdir -p /tmp/sim-mainsail /tmp/sim-octoprint
+    (cd /tmp/sim-mainsail  && MarlinSimulator --serial-port 8099 --agent-port 8100 &)
+    (cd /tmp/sim-octoprint && MarlinSimulator --serial-port 8199 --agent-port 8200 &)
+
 ### OctoPrint
 
     docker compose -f buildroot/share/hosts/octoprint.yml up -d
 
-Open http://localhost:5050 (not 5000, which macOS uses for AirPlay), finish the setup wizard, then in the Connection panel choose port `socket://host.docker.internal:8099` and baud 115200 (the simulator ignores the baud). `SIM_ADDR` in `.env` changes the address. OctoPrint's data (settings, uploads, logs) lives in the `octoprint` volume; `docker compose ... down -v` erases it and brings the setup wizard back.
+Open http://localhost:5050 (not 5000, which macOS uses for AirPlay), finish the setup wizard, then in the Connection panel choose port `socket://host.docker.internal:8199` and baud 115200 (the simulator ignores the baud). `SIM_ADDR` in `.env` changes the address. OctoPrint's data (settings, uploads, logs) lives in the `octoprint` volume; `docker compose ... down -v` erases it and brings the setup wizard back.
 
 OctoPrint can't open a TCP socket as a printer port by itself: its `additionalPorts` setting is a list of file globs, so a `socket://` entry never appears. `octoprint.yml` therefore mounts a small plugin (`marlin_sim_socket.py`) that adds the port through the `octoprint.comm.transport.serial.additional_port_names` and `...serial.factory` hooks and opens it with `serial.serial_for_url`.
 
@@ -82,7 +97,7 @@ On a Linux host the USB device can be passed to the container (`devices:` in `oc
 
 ## Pitfalls
 
-- Port conflicts: 5000 is taken by macOS AirPlay, 8099 by whichever host connected first.
+- Port conflicts: 5000 is taken by macOS AirPlay. Two hosts on one simulator socket fight over it; use one simulator per host (see above).
 - The simulator's socket does not refuse a second client: the newer connection **replaces** the older one. A host that reconnects on its own (serial2moon does) will keep taking the socket back, so another host connects, reads the `M115` report and then drops with "socket disconnected". Stop the other host's container (`docker stop <name>`) before using a different one.
 - A host that connects first leaves the socket busy: `lsof -iTCP:8099` shows who holds it.
 - Both hosts keep their state in Docker volumes; `down -v` is the reset.
