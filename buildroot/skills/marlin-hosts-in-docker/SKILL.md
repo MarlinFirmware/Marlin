@@ -83,6 +83,7 @@ On a Linux host the USB device can be passed to the container (`devices:` in `oc
 ## Pitfalls
 
 - Port conflicts: 5000 is taken by macOS AirPlay, 8099 by whichever host connected first.
+- The simulator's socket does not refuse a second client: the newer connection **replaces** the older one. A host that reconnects on its own (serial2moon does) will keep taking the socket back, so another host connects, reads the `M115` report and then drops with "socket disconnected". Stop the other host's container (`docker stop <name>`) before using a different one.
 - A host that connects first leaves the socket busy: `lsof -iTCP:8099` shows who holds it.
 - Both hosts keep their state in Docker volumes; `down -v` is the reset.
 - The first OctoPrint start takes about 30 seconds before the page responds.
