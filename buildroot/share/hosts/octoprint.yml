@@ -5,6 +5,7 @@
 #
 # Settings go in a `.env` file next to this one (all optional):
 #   OCTOPRINT_PORT=5050                          web UI port (not 5000: macOS AirPlay uses it)
+#   OCTOPRINT_IMAGE=octoprint/octoprint:canary   another OctoPrint image or tag
 #   SERIAL_DEVICE=/dev/ttyUSB0                   a USB printer (Linux hosts only), see below
 #   SIM_ADDR=host.docker.internal:8099           the Marlin simulator's G-code socket
 #
@@ -17,7 +18,7 @@
 
 services:
   octoprint:
-    image: octoprint/octoprint:latest
+    image: ${OCTOPRINT_IMAGE:-octoprint/octoprint:latest}
     ports:
       - "${OCTOPRINT_PORT:-5050}:5000"
     environment:
