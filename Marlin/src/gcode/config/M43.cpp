@@ -52,13 +52,24 @@
 #ifndef GET_PIN_MAP_PIN_M43
   #define GET_PIN_MAP_PIN_M43(Q) GET_PIN_MAP_PIN(Q)
 #endif
+#ifdef PARSED_PIN_INDEX_M43
+  // The HAL maps M42 pin numbers to M43 indexes, and gives M43_INVALID_INDEX for an unknown pin
+  #define M43_INVALID_PIN(I) ((I) == M43_INVALID_INDEX)
+#else
+  #define PARSED_PIN_INDEX_M43(C,D) PARSED_PIN_INDEX(C,D)
+  #define M43_INVALID_PIN(I) false
+#endif
+
+inline void invalid_pin_err() { SERIAL_ECHOLNPGM(GCODE_ERR_MSG("Invalid Pin")); }
 
 inline void toggle_pins() {
   const bool ignore_protection = parser.boolval('I');
   const int repeat = parser.intval('R', 1),
-            start = PARSED_PIN_INDEX('S', 0),
-            end = PARSED_PIN_INDEX('L', NUM_DIGITAL_PINS - 1),
+            start = PARSED_PIN_INDEX_M43('S', 0),
+            end = PARSED_PIN_INDEX_M43('L', NUM_DIGITAL_PINS - 1),
             wait = parser.intval('W', 500);
+
+  if (M43_INVALID_PIN(start) || M43_INVALID_PIN(end)) return invalid_pin_err();
 
   for (uint8_t i = start; i <= end; ++i) {
     pin_t pin = GET_PIN_MAP_PIN_M43(i);
@@ -300,8 +311,10 @@ void GcodeSuite::M43() {
   if (parser.seen('S')) return servo_probe_test();
 
   // 'P' Get the range of pins to test or watch
-  uint8_t first_pin = PARSED_PIN_INDEX('P', 0),
-          last_pin = parser.seenval('L') ? PARSED_PIN_INDEX('L', 0) : (parser.seenval('P') ? first_pin : (NUMBER_PINS_TOTAL) - 1);
+  uint8_t first_pin = PARSED_PIN_INDEX_M43('P', 0),
+          last_pin = parser.seenval('L') ? PARSED_PIN_INDEX_M43('L', 0) : (parser.seenval('P') ? first_pin : (NUMBER_PINS_TOTAL) - 1);
+
+  if (M43_INVALID_PIN(first_pin) || M43_INVALID_PIN(last_pin)) return invalid_pin_err();
 
   NOMORE(first_pin, (NUMBER_PINS_TOTAL) - 1);
   NOMORE(last_pin, (NUMBER_PINS_TOTAL) - 1);

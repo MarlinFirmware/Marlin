@@ -164,7 +164,7 @@ void Touch::idle() {
       }
     }
 
-    if (!current_control) nada_start_ms = now;
+    if (!current_control) nada_start_ms = next_millis(now);
   }
 
   // Update previous point in continuing touch or drag
@@ -427,7 +427,7 @@ bool Touch::get_point(int16_t * const x, int16_t * const y) {
       next_touch_ms = millis() + 100;
       safe_delay(20);
     }
-    next_sleep_ms = ui.sleep_timeout_minutes ? millis() + MIN_TO_MS(ui.sleep_timeout_minutes) : 0;
+    next_sleep_ms = ui.sleep_timeout_minutes ? next_millis(millis() + MIN_TO_MS(ui.sleep_timeout_minutes)) : 0;
   }
 
   bool MarlinUI::display_is_asleep() { return touch.isSleeping(); }

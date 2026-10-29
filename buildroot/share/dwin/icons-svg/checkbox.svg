@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Marlin DWIN icon: Checkbox on -->
+<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20">
+  <rect x="3" y="3" width="14" height="14" rx="1.5" fill="none" stroke="#45bed9" stroke-width="2"/>
+  <path d="M6 10.2 L8.8 13 L14.2 7" fill="none" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

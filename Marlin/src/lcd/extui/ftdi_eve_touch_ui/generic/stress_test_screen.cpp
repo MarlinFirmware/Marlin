@@ -93,7 +93,7 @@ void StressTestScreen::startupCheck() {
 }
 
 void StressTestScreen::onEntry() {
-  mydata.next_watchdog_trigger = millis() + 10000 + random(40000);
+  mydata.next_watchdog_trigger = next_millis(millis() + 10000 + random(40000));
   mydata.message = PSTR("Test 1: Stress testing...");
 
   // Turn off heaters.

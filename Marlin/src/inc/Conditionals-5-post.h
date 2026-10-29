@@ -187,8 +187,10 @@
   #define W_BED_SIZE W_MAX_LENGTH
 #endif
 
-// Require 0,0 bed center for Delta, SCARA, and Polargraph
-#if IS_KINEMATIC
+// Require 0,0 bed center for Delta, Polar, and Polargraph.
+// SCARA and TPARA use whatever coordinate space the Configuration defines: the bed
+// starts at 0,0 unless BED_CENTER_AT_0_0 is enabled. SCARA_OFFSET places the shoulder in that space.
+#if IS_KINEMATIC && !IS_SCARA
   #define BED_CENTER_AT_0_0
 #endif
 
@@ -1455,6 +1457,9 @@
  *   - PARKING_EXTRUDER uses SOL0_PIN and SOL1_PIN
  *   - SOLENOID_PROBE uses SOL1_PIN
  *   - Z_PROBE_SLED uses SOL1_PIN, when defined (unless EXT_SOLENOID is enabled)
+ *
+ * SOL0_PIN is for the first (or only) solenoid, SOL1_PIN for a second one or a probe.
+ * SOL2_PIN...SOL7_PIN are only for MANUAL_SOLENOID_CONTROL or EXT_SOLENOID with more extruders.
  */
 #if ANY(EXT_SOLENOID, MANUAL_SOLENOID_CONTROL, PARKING_EXTRUDER, SOLENOID_PROBE, Z_PROBE_SLED)
   #if PIN_EXISTS(SOL0) && (ANY(MANUAL_SOLENOID_CONTROL, PARKING_EXTRUDER) || ALL(EXT_SOLENOID, HAS_EXTRUDERS))
@@ -1464,22 +1469,22 @@
     #define HAS_SOLENOID_1 1
   #endif
   #if PIN_EXISTS(SOL2) && (ENABLED(MANUAL_SOLENOID_CONTROL) || TERN0(EXT_SOLENOID, E_STEPPERS > 2))
-    #define HAS_SOLENOID_2 2
+    #define HAS_SOLENOID_2 1
   #endif
   #if PIN_EXISTS(SOL3) && (ENABLED(MANUAL_SOLENOID_CONTROL) || TERN0(EXT_SOLENOID, E_STEPPERS > 3))
-    #define HAS_SOLENOID_3 3
+    #define HAS_SOLENOID_3 1
   #endif
   #if PIN_EXISTS(SOL4) && (ENABLED(MANUAL_SOLENOID_CONTROL) || TERN0(EXT_SOLENOID, E_STEPPERS > 4))
-    #define HAS_SOLENOID_4 4
+    #define HAS_SOLENOID_4 1
   #endif
   #if PIN_EXISTS(SOL5) && (ENABLED(MANUAL_SOLENOID_CONTROL) || TERN0(EXT_SOLENOID, E_STEPPERS > 5))
-    #define HAS_SOLENOID_5 5
+    #define HAS_SOLENOID_5 1
   #endif
   #if PIN_EXISTS(SOL6) && (ENABLED(MANUAL_SOLENOID_CONTROL) || TERN0(EXT_SOLENOID, E_STEPPERS > 6))
-    #define HAS_SOLENOID_6 6
+    #define HAS_SOLENOID_6 1
   #endif
   #if PIN_EXISTS(SOL7) && (ENABLED(MANUAL_SOLENOID_CONTROL) || TERN0(EXT_SOLENOID, E_STEPPERS > 7))
-    #define HAS_SOLENOID_7 7
+    #define HAS_SOLENOID_7 1
   #endif
 #endif
 
@@ -1680,6 +1685,212 @@
   // Otherwise we are forced to enable software SPI.
   #if TMC_SPI_MISO != MISO || TMC_SPI_MOSI != MOSI || TMC_SPI_SCK != SCK
     #define TMC_USE_SW_SPI
+  #endif
+#endif
+
+/**
+ * Default each axis to the global TMC software SPI bus. A pins file may override
+ * any of these to put a driver on its own bus, as needed by add-on driver boards
+ * wired to a different SPI peripheral than the onboard drivers.
+ */
+#if ENABLED(TMC_USE_SW_SPI)
+  #ifndef X_SPI_MOSI
+    #define X_SPI_MOSI TMC_SPI_MOSI
+  #endif
+  #ifndef X_SPI_MISO
+    #define X_SPI_MISO TMC_SPI_MISO
+  #endif
+  #ifndef X_SPI_SCK
+    #define X_SPI_SCK TMC_SPI_SCK
+  #endif
+  #ifndef X2_SPI_MOSI
+    #define X2_SPI_MOSI TMC_SPI_MOSI
+  #endif
+  #ifndef X2_SPI_MISO
+    #define X2_SPI_MISO TMC_SPI_MISO
+  #endif
+  #ifndef X2_SPI_SCK
+    #define X2_SPI_SCK TMC_SPI_SCK
+  #endif
+  #ifndef Y_SPI_MOSI
+    #define Y_SPI_MOSI TMC_SPI_MOSI
+  #endif
+  #ifndef Y_SPI_MISO
+    #define Y_SPI_MISO TMC_SPI_MISO
+  #endif
+  #ifndef Y_SPI_SCK
+    #define Y_SPI_SCK TMC_SPI_SCK
+  #endif
+  #ifndef Y2_SPI_MOSI
+    #define Y2_SPI_MOSI TMC_SPI_MOSI
+  #endif
+  #ifndef Y2_SPI_MISO
+    #define Y2_SPI_MISO TMC_SPI_MISO
+  #endif
+  #ifndef Y2_SPI_SCK
+    #define Y2_SPI_SCK TMC_SPI_SCK
+  #endif
+  #ifndef Z_SPI_MOSI
+    #define Z_SPI_MOSI TMC_SPI_MOSI
+  #endif
+  #ifndef Z_SPI_MISO
+    #define Z_SPI_MISO TMC_SPI_MISO
+  #endif
+  #ifndef Z_SPI_SCK
+    #define Z_SPI_SCK TMC_SPI_SCK
+  #endif
+  #ifndef Z2_SPI_MOSI
+    #define Z2_SPI_MOSI TMC_SPI_MOSI
+  #endif
+  #ifndef Z2_SPI_MISO
+    #define Z2_SPI_MISO TMC_SPI_MISO
+  #endif
+  #ifndef Z2_SPI_SCK
+    #define Z2_SPI_SCK TMC_SPI_SCK
+  #endif
+  #ifndef Z3_SPI_MOSI
+    #define Z3_SPI_MOSI TMC_SPI_MOSI
+  #endif
+  #ifndef Z3_SPI_MISO
+    #define Z3_SPI_MISO TMC_SPI_MISO
+  #endif
+  #ifndef Z3_SPI_SCK
+    #define Z3_SPI_SCK TMC_SPI_SCK
+  #endif
+  #ifndef Z4_SPI_MOSI
+    #define Z4_SPI_MOSI TMC_SPI_MOSI
+  #endif
+  #ifndef Z4_SPI_MISO
+    #define Z4_SPI_MISO TMC_SPI_MISO
+  #endif
+  #ifndef Z4_SPI_SCK
+    #define Z4_SPI_SCK TMC_SPI_SCK
+  #endif
+  #ifndef I_SPI_MOSI
+    #define I_SPI_MOSI TMC_SPI_MOSI
+  #endif
+  #ifndef I_SPI_MISO
+    #define I_SPI_MISO TMC_SPI_MISO
+  #endif
+  #ifndef I_SPI_SCK
+    #define I_SPI_SCK TMC_SPI_SCK
+  #endif
+  #ifndef J_SPI_MOSI
+    #define J_SPI_MOSI TMC_SPI_MOSI
+  #endif
+  #ifndef J_SPI_MISO
+    #define J_SPI_MISO TMC_SPI_MISO
+  #endif
+  #ifndef J_SPI_SCK
+    #define J_SPI_SCK TMC_SPI_SCK
+  #endif
+  #ifndef K_SPI_MOSI
+    #define K_SPI_MOSI TMC_SPI_MOSI
+  #endif
+  #ifndef K_SPI_MISO
+    #define K_SPI_MISO TMC_SPI_MISO
+  #endif
+  #ifndef K_SPI_SCK
+    #define K_SPI_SCK TMC_SPI_SCK
+  #endif
+  #ifndef U_SPI_MOSI
+    #define U_SPI_MOSI TMC_SPI_MOSI
+  #endif
+  #ifndef U_SPI_MISO
+    #define U_SPI_MISO TMC_SPI_MISO
+  #endif
+  #ifndef U_SPI_SCK
+    #define U_SPI_SCK TMC_SPI_SCK
+  #endif
+  #ifndef V_SPI_MOSI
+    #define V_SPI_MOSI TMC_SPI_MOSI
+  #endif
+  #ifndef V_SPI_MISO
+    #define V_SPI_MISO TMC_SPI_MISO
+  #endif
+  #ifndef V_SPI_SCK
+    #define V_SPI_SCK TMC_SPI_SCK
+  #endif
+  #ifndef W_SPI_MOSI
+    #define W_SPI_MOSI TMC_SPI_MOSI
+  #endif
+  #ifndef W_SPI_MISO
+    #define W_SPI_MISO TMC_SPI_MISO
+  #endif
+  #ifndef W_SPI_SCK
+    #define W_SPI_SCK TMC_SPI_SCK
+  #endif
+  #ifndef E0_SPI_MOSI
+    #define E0_SPI_MOSI TMC_SPI_MOSI
+  #endif
+  #ifndef E0_SPI_MISO
+    #define E0_SPI_MISO TMC_SPI_MISO
+  #endif
+  #ifndef E0_SPI_SCK
+    #define E0_SPI_SCK TMC_SPI_SCK
+  #endif
+  #ifndef E1_SPI_MOSI
+    #define E1_SPI_MOSI TMC_SPI_MOSI
+  #endif
+  #ifndef E1_SPI_MISO
+    #define E1_SPI_MISO TMC_SPI_MISO
+  #endif
+  #ifndef E1_SPI_SCK
+    #define E1_SPI_SCK TMC_SPI_SCK
+  #endif
+  #ifndef E2_SPI_MOSI
+    #define E2_SPI_MOSI TMC_SPI_MOSI
+  #endif
+  #ifndef E2_SPI_MISO
+    #define E2_SPI_MISO TMC_SPI_MISO
+  #endif
+  #ifndef E2_SPI_SCK
+    #define E2_SPI_SCK TMC_SPI_SCK
+  #endif
+  #ifndef E3_SPI_MOSI
+    #define E3_SPI_MOSI TMC_SPI_MOSI
+  #endif
+  #ifndef E3_SPI_MISO
+    #define E3_SPI_MISO TMC_SPI_MISO
+  #endif
+  #ifndef E3_SPI_SCK
+    #define E3_SPI_SCK TMC_SPI_SCK
+  #endif
+  #ifndef E4_SPI_MOSI
+    #define E4_SPI_MOSI TMC_SPI_MOSI
+  #endif
+  #ifndef E4_SPI_MISO
+    #define E4_SPI_MISO TMC_SPI_MISO
+  #endif
+  #ifndef E4_SPI_SCK
+    #define E4_SPI_SCK TMC_SPI_SCK
+  #endif
+  #ifndef E5_SPI_MOSI
+    #define E5_SPI_MOSI TMC_SPI_MOSI
+  #endif
+  #ifndef E5_SPI_MISO
+    #define E5_SPI_MISO TMC_SPI_MISO
+  #endif
+  #ifndef E5_SPI_SCK
+    #define E5_SPI_SCK TMC_SPI_SCK
+  #endif
+  #ifndef E6_SPI_MOSI
+    #define E6_SPI_MOSI TMC_SPI_MOSI
+  #endif
+  #ifndef E6_SPI_MISO
+    #define E6_SPI_MISO TMC_SPI_MISO
+  #endif
+  #ifndef E6_SPI_SCK
+    #define E6_SPI_SCK TMC_SPI_SCK
+  #endif
+  #ifndef E7_SPI_MOSI
+    #define E7_SPI_MOSI TMC_SPI_MOSI
+  #endif
+  #ifndef E7_SPI_MISO
+    #define E7_SPI_MISO TMC_SPI_MISO
+  #endif
+  #ifndef E7_SPI_SCK
+    #define E7_SPI_SCK TMC_SPI_SCK
   #endif
 #endif
 
@@ -3064,12 +3275,13 @@
 #endif
 
 /**
- * Only constrain Z on DELTA / SCARA machines
+ * Only constrain Z on DELTA / TPARA machines.
+ * SCARA can also constrain XY to the bed bounds.
  */
 #if ENABLED(POLAR)
   #undef MIN_SOFTWARE_ENDSTOP_Y
   #undef MAX_SOFTWARE_ENDSTOP_Y
-#elif IS_KINEMATIC
+#elif IS_KINEMATIC && DISABLED(SCARA)
   #undef MIN_SOFTWARE_ENDSTOP_X
   #undef MIN_SOFTWARE_ENDSTOP_Y
   #undef MAX_SOFTWARE_ENDSTOP_X
@@ -3184,7 +3396,7 @@
 #if PIN_EXISTS(BEEPER)
   #define HAS_BEEPER 1
 #endif
-#if ANY(IS_TFTGLCD_PANEL, PCA9632_BUZZER, LCD_USE_I2C_BUZZER)
+#if ANY(IS_TFTGLCD_PANEL, PCA9632_BUZZER, LCD_USE_I2C_BUZZER, PANELDUE)
   #define USE_MARLINUI_BUZZER 1
 #endif
 #if ANY(HAS_BEEPER, USE_MARLINUI_BUZZER)

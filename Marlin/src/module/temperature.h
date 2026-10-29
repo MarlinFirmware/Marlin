@@ -522,27 +522,25 @@ struct HeaterWatch {
 
   inline bool check(const celsius_t curr) { return curr >= target; }
 
-  inline void restart(const celsius_t curr, const celsius_t tgt) {
-    if (tgt) {
-      const celsius_t newtarget = curr + INCREASE;
-      if (newtarget < tgt - HYSTERESIS - 1) {
-        target = newtarget;
-        next_ms = millis() + SEC_TO_MS(PERIOD);
-        return;
-      }
+  // Keep watching until within HYSTERESIS of the target, where thermal runaway protection takes over
+  inline void restart(const celsius_t curr, const celsius_t tgt, const millis_t now=millis()) {
+    if (tgt && curr < tgt - HYSTERESIS) {
+      target = _MIN(curr + INCREASE, tgt - HYSTERESIS);
+      next_ms = next_millis(now + SEC_TO_MS(PERIOD));
     }
-    next_ms = 0;
+    else
+      next_ms = 0;
   }
 };
 
 #if WATCH_HOTENDS
-  typedef struct HeaterWatch<WATCH_TEMP_INCREASE, TEMP_HYSTERESIS, WATCH_TEMP_PERIOD> hotend_watch_t;
+  typedef struct HeaterWatch<WATCH_TEMP_INCREASE, THERMAL_PROTECTION_HYSTERESIS, WATCH_TEMP_PERIOD> hotend_watch_t;
 #endif
 #if WATCH_BED
-  typedef struct HeaterWatch<WATCH_BED_TEMP_INCREASE, TEMP_BED_HYSTERESIS, WATCH_BED_TEMP_PERIOD> bed_watch_t;
+  typedef struct HeaterWatch<WATCH_BED_TEMP_INCREASE, THERMAL_PROTECTION_BED_HYSTERESIS, WATCH_BED_TEMP_PERIOD> bed_watch_t;
 #endif
 #if WATCH_CHAMBER
-  typedef struct HeaterWatch<WATCH_CHAMBER_TEMP_INCREASE, TEMP_CHAMBER_HYSTERESIS, WATCH_CHAMBER_TEMP_PERIOD> chamber_watch_t;
+  typedef struct HeaterWatch<WATCH_CHAMBER_TEMP_INCREASE, THERMAL_PROTECTION_CHAMBER_HYSTERESIS, WATCH_CHAMBER_TEMP_PERIOD> chamber_watch_t;
 #endif
 #if WATCH_COOLER
   typedef struct HeaterWatch<WATCH_COOLER_TEMP_INCREASE, TEMP_COOLER_HYSTERESIS, WATCH_COOLER_TEMP_PERIOD> cooler_watch_t;
@@ -661,7 +659,6 @@ typedef struct { raw_adc_t raw_min, raw_max; celsius_t mintemp, maxtemp; } temp_
 #endif
 
 class Temperature {
-
   public:
 
     #if HAS_HOTEND
@@ -743,7 +740,7 @@ class Temperature {
         millis_t timeout_ms;
         bool timed_out;
         inline void update(const millis_t &ms) { if (!timed_out && timeout_ms && ELAPSED(ms, timeout_ms)) timed_out = true; }
-        inline void start(const millis_t &ms) { timeout_ms = millis() + ms; timed_out = false; }
+        inline void start(const millis_t &ms) { timeout_ms = next_millis(millis() + ms); timed_out = false; }
         inline void reset() { timeout_ms = 0; timed_out = false; }
         inline void expire() { start(0); }
       } heater_idle_t;
@@ -839,7 +836,7 @@ class Temperature {
       static millis_t fan_update_ms;
 
       static void manage_extruder_fans(millis_t ms) {
-        if (ELAPSED(ms, fan_update_ms)) { // only need to check fan state very infrequently
+        if (ELAPSED(ms, fan_update_ms)) { // Only need to check fan state very infrequently
           const millis_t next_ms = ms + fan_update_interval_ms;
           #if HAS_PWMFANCHECK
             #define FAN_CHECK_DURATION 100
@@ -964,7 +961,7 @@ class Temperature {
         return preheat_end_ms_hotend[HOTEND_INDEX] && PENDING(millis(), preheat_end_ms_hotend[HOTEND_INDEX]);
       }
       static void start_hotend_preheat_time(const uint8_t E_NAME) {
-        preheat_end_ms_hotend[HOTEND_INDEX] = millis() + PREHEAT_TIME_HOTEND_MS;
+        preheat_end_ms_hotend[HOTEND_INDEX] = next_millis(millis() + PREHEAT_TIME_HOTEND_MS);
       }
       static void reset_hotend_preheat_time(const uint8_t E_NAME) {
         preheat_end_ms_hotend[HOTEND_INDEX] = 0;
@@ -980,7 +977,7 @@ class Temperature {
           return preheat_end_ms_bed && PENDING(millis(), preheat_end_ms_bed);
         }
         static void start_bed_preheat_time() {
-          preheat_end_ms_bed = millis() + PREHEAT_TIME_BED_MS;
+          preheat_end_ms_bed = next_millis(millis() + PREHEAT_TIME_BED_MS);
         }
         static void reset_bed_preheat_time() {
           preheat_end_ms_bed = 0;
@@ -990,9 +987,11 @@ class Temperature {
       #endif
     #endif
 
-    //high level conversion routines, for use outside of temperature.cpp
-    //inline so that there is no performance decrease.
-    //deg=degreeCelsius
+    /**
+     * High level conversion routines, for use outside of temperature.cpp
+     * inline so that there is no performance decrease.
+     * deg=degreeCelsius
+     */
 
     static celsius_float_t degHotend(const uint8_t E_NAME) {
       return TERN0(HAS_HOTEND, temp_hotend[HOTEND_INDEX].celsius);

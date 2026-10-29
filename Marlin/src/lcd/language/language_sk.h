@@ -531,6 +531,7 @@ namespace LanguageNarrow_sk {
   LSTR MSG_TMC_DRIVERS                    = _UxGT("Ovládače TMC");                             // TMC Drivers
   LSTR MSG_TMC_CURRENT                    = _UxGT("Prúd ovládača");                            // Driver Current
   LSTR MSG_TMC_HYBRID_THRS                = _UxGT("Hybridný prah");                            // Hybrid Threshold
+  LSTR MSG_TMC_HOMING_HYBRID_THRS         = _UxGT("Hybr. prah parkov.");                       // Homing Hybrid Thrs
   LSTR MSG_TMC_HOMING_THRS                = _UxGT("Bezsenzor. domov");                         // Sensorless Homing
   LSTR MSG_TMC_STEPPING_MODE              = _UxGT("Režim krokovania");                         // Stepping Mode
   LSTR MSG_TMC_STEALTHCHOP                = _UxGT("StealthChop");                              // StealthChop
@@ -691,6 +692,7 @@ namespace LanguageNarrow_sk {
   LSTR MSG_ERR_COOLING_FAILED             = _UxGT("Ochladz. zlyhalo");                         // Cooling Failed
   LSTR MSG_PLEASE_WAIT                    = _UxGT("Čakajte prosím...");                        // Please wait...
   LSTR MSG_PREHEATING                     = _UxGT("Zahrievanie...");                           // Preheating...
+  LSTR MSG_HEAT_SOAK                      = _UxGT("Prehriatie");                               // Heat Soak
   LSTR MSG_PROBE_HEATING                  = _UxGT("Ohrev sondy...");                           // Probe Heating...
   LSTR MSG_PROBE_COOLING                  = _UxGT("Ochladz. sondy...");                        // Probe Cooling...
   LSTR MSG_LASER_COOLING                  = _UxGT("Ochladz. lasera...");                       // Laser Cooling...
@@ -831,6 +833,9 @@ namespace LanguageNarrow_sk {
   LSTR MSG_ADVANCE_TAU                    = _UxGT("Tau pre posun");                            // Advance Tau
   LSTR MSG_ADVANCE_TAU_E                  = _UxGT("Tau pre posun *");                          // Advance Tau *
   LSTR MSG_NLE_ON                         = _UxGT("NLE zapnuté");                              // NLE enabled
+  LSTR MSG_NLE_A                          = _UxGT("-Kvadratický");                             // -Quadratic
+  LSTR MSG_NLE_B                          = _UxGT("-Lineárny");                                // -Linear
+  LSTR MSG_NLE_C                          = _UxGT("-Konštantný");                              // -Constant
   LSTR MSG_HOTEND_TEMP_GRAPH              = _UxGT("Graf tepl. hotendu");                       // Hotend Temp Graph
   LSTR MSG_BED_TEMP_GRAPH                 = _UxGT("Graf tepl. podložky");                      // Bed Temp Graph
   LSTR MSG_EEPROM_INITIALIZED             = _UxGT("EEPROM inicializ.");                        // EEPROM Initialized
