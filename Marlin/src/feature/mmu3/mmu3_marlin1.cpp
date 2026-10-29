@@ -21,7 +21,7 @@
  */
 
 /**
- * mmu2_marlin1.cpp
+ * mmu3_marlin1.cpp
  * MK3 / Marlin1 implementation of support routines for the MMU3
  */
 

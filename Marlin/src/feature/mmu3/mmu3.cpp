@@ -21,7 +21,7 @@
  */
 
 /**
- * mmu2.cpp
+ * mmu3.cpp
  */
 
 #include "../../inc/MarlinConfigPre.h"
@@ -824,7 +824,7 @@ namespace MMU3 {
         break;
       case Buttons::ResetMMU:
         reset(ResetPin); // Cannot do power cycle on the MK3
-        // ... but mmu2_power.cpp knows this and triggers a soft-reset instead.
+        // ... but mmu3_power.cpp knows this and triggers a soft-reset instead.
         break;
       case Buttons::DisableMMU:
         stop();
