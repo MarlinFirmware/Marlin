@@ -1824,8 +1824,10 @@ uint8_t expand_u8str_P(char * const outstr, PGM_P const ptpl, const int8_t ind, 
   void MarlinUI::abort_print() {
     #if HAS_MEDIA
       // Aborting a paused SD print parked in M125: don't let resume_print() move back and restart the closed file
-      const bool parked_sd_print = TERN0(ADVANCED_PAUSE_FEATURE, did_pause_print && card.isPaused());
-      TERN_(ADVANCED_PAUSE_FEATURE, if (parked_sd_print) did_pause_print = 0);
+      const bool parked_sd_print = TERN0(ADVANCED_PAUSE_FEATURE, marlin.printingIsPaused());
+      #if ENABLED(ADVANCED_PAUSE_FEATURE)
+        if (parked_sd_print) did_pause_print = 0;
+      #endif
       marlin.end_waiting();
       if (card.isStillPrinting() || parked_sd_print)
         card.abortFilePrintSoon();
