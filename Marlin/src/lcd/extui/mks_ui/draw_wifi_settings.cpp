@@ -31,6 +31,10 @@
 
 #include "draw_ui.h"
 
+#if ENABLED(EEPROM_SETTINGS)
+  #include "../../../module/settings.h"
+#endif
+
 extern lv_group_t *g;
 static lv_obj_t *scr, *labelModelValue = nullptr, *buttonModelValue = nullptr, *labelCloudValue = nullptr;
 
@@ -50,18 +54,16 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
       goto_previous_ui();
       break;
     case ID_WIFI_MODEL:
-      if (gCfgItems.wifi_mode_sel == AP_MODEL) {
-        gCfgItems.wifi_mode_sel = STA_MODEL;
+      if (mks_wifi.mode == AP_MODEL) {
+        mks_wifi.mode = STA_MODEL;
         lv_label_set_text(labelModelValue, WIFI_STA_TEXT);
-        lv_obj_align(labelModelValue, buttonModelValue, LV_ALIGN_CENTER, 0, 0);
-        update_spi_flash();
       }
       else {
-        gCfgItems.wifi_mode_sel = AP_MODEL;
+        mks_wifi.mode = AP_MODEL;
         lv_label_set_text(labelModelValue, WIFI_AP_TEXT);
-        lv_obj_align(labelModelValue, buttonModelValue, LV_ALIGN_CENTER, 0, 0);
-        update_spi_flash();
       }
+      lv_obj_align(labelModelValue, buttonModelValue, LV_ALIGN_CENTER, 0, 0);
+      TERN_(EEPROM_SETTINGS, settings.save());
       break;
     case ID_WIFI_NAME:
       keyboard_value = wifiName;
@@ -133,7 +135,7 @@ void lv_draw_wifi_settings() {
   lv_obj_t *label_Back = lv_label_create_empty(buttonBack);
 
   if (gCfgItems.multiple_language) {
-    if (gCfgItems.wifi_mode_sel == AP_MODEL) {
+    if (mks_wifi.mode == AP_MODEL) {
       lv_label_set_text(labelModelValue, WIFI_AP_TEXT);
       lv_obj_align(labelModelValue, buttonModelValue, LV_ALIGN_CENTER, 0, 0);
     }
@@ -142,14 +144,14 @@ void lv_draw_wifi_settings() {
       lv_obj_align(labelModelValue, buttonModelValue, LV_ALIGN_CENTER, 0, 0);
     }
     strcpy(public_buf_m, machine_menu.wifiName);
-    strcat(public_buf_m, (const char *)uiCfg.wifi_name);
+    strcat(public_buf_m, (const char *)mks_wifi.ssid);
     lv_label_set_text(labelNameText, public_buf_m);
 
     lv_label_set_text(labelNameValue, machine_menu.wifiEdit);
     lv_obj_align(labelNameValue, buttonNameValue, LV_ALIGN_CENTER, 0, 0);
 
     strcpy(public_buf_m, machine_menu.wifiPassWord);
-    strcat(public_buf_m, (const char *)uiCfg.wifi_key);
+    strcat(public_buf_m, (const char *)mks_wifi.key);
     lv_label_set_text(labelPassWordText, public_buf_m);
 
     lv_label_set_text(labelPassWordValue, machine_menu.wifiEdit);

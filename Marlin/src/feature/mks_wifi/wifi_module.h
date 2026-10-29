@@ -21,11 +21,12 @@
  */
 #pragma once
 
+#include "../../inc/MarlinConfigPre.h"
+#include "../../core/millis_t.h"
+
 #ifdef __cplusplus
   extern "C" {
 #endif
-
-#include "../../../inc/MarlinConfigPre.h"
 
 #include <math.h>
 #include <stdio.h>
@@ -36,10 +37,49 @@
 
 #define WIFI_DECODE_TYPE      1
 
+#define ESP_WIFI              0x02
+#define AP_MODEL              0x01
+#define STA_MODEL             0x02
+
+/**
+ * Network settings, saved with the rest of Marlin's settings (M500).
+ * Defaults come from WIFI_SSID / WIFI_PWD / MKS_WIFI_AP_MODE.
+ */
+typedef struct {
+  uint8_t ssid[32];
+  uint8_t key[64];
+  uint8_t mode;         // AP_MODEL or STA_MODEL
+} mks_wifi_settings_t;
+extern mks_wifi_settings_t mks_wifi;
+
+void mks_wifi_reset_settings();   // Apply the configured defaults
+void mks_wifi_apply_settings();   // Push the current settings to the module
+
+#ifndef TICK_CYCLE
+  #define TICK_CYCLE          1
+#endif
+
 #define IP_DHCP_FLAG          1
 
-#define WIFI_AP_NAME          "TP-LINK_MKS"
-#define WIFI_KEY_CODE         "makerbase"
+// Default credentials, shared with WIFISUPPORT. Fall back to the legacy MKS
+// demo values so an unconfigured build behaves as it always did.
+#ifdef WIFI_SSID
+  #define WIFI_AP_NAME        WIFI_SSID
+#else
+  #define WIFI_AP_NAME        "TP-LINK_MKS"
+#endif
+#ifdef WIFI_PWD
+  #define WIFI_KEY_CODE       WIFI_PWD
+#else
+  #define WIFI_KEY_CODE       "makerbase"
+#endif
+
+#ifndef MKS_WIFI_CLOUD_HOST
+  #define MKS_WIFI_CLOUD_HOST "baizhongyun.cn"
+#endif
+#ifndef MKS_WIFI_CLOUD_PORT
+  #define MKS_WIFI_CLOUD_PORT 10086
+#endif
 
 #define IP_ADDR               "192.168.3.100"
 #define IP_MASK               "255.255.255.0"
@@ -79,6 +119,22 @@ typedef struct {
 } WIFI_TRANS_ERROR;
 
 extern volatile WIFI_TRANS_ERROR wifiTransError;
+
+#define NUMBER_OF_PAGE         5
+#define WIFI_TOTAL_NUMBER     20
+#define WIFI_NAME_BUFFER_SIZE 33
+
+// Access points reported by the ESP module's last scan
+typedef struct {
+  int8_t getNameNum;
+  int8_t nameIndex;
+  int8_t currentWifipage;
+  int8_t getPage;
+  int8_t RSSI[WIFI_TOTAL_NUMBER];
+  uint8_t wifiName[WIFI_TOTAL_NUMBER][WIFI_NAME_BUFFER_SIZE];
+  uint8_t wifiConnectedName[WIFI_NAME_BUFFER_SIZE];
+} WIFI_LIST;
+extern WIFI_LIST wifi_list;
 
 typedef struct {
   char ap_name[32];   // wifi-name
@@ -184,6 +240,8 @@ millis_t getWifiTickDiff(const millis_t lastTick, const millis_t curTick);
 
 void mks_esp_wifi_init();
 extern int cfg_cloud_flag;
+
+void mks_wifi_init_settings();   // Seed the runtime protocol structs
 int send_to_wifi(uint8_t * const buf, const int len);
 void wifi_looping();
 int raw_send_to_wifi(uint8_t * const buf, const int len);
@@ -191,7 +249,7 @@ int package_to_wifi(WIFI_RET_TYPE type, uint8_t *buf, int len);
 void get_wifi_list_command_send();
 void get_wifi_commands();
 int readWifiBuf(int8_t *buf, int32_t len);
-void mks_wifi_firmware_update();
+void mks_wifi_firmware_update(const bool force=false);
 int usartFifoAvailable(SZ_USART_FIFO *fifo);
 int readUsartFifo(SZ_USART_FIFO *fifo, int8_t *buf, int32_t len);
 void esp_port_begin(uint8_t interrupt);

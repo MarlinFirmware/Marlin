@@ -112,8 +112,7 @@ void DGUSDisplay::writeVariable(uint16_t adr, uint16_t value) {
 }
 
 void DGUSDisplay::writeVariable(uint16_t adr, int16_t value) {
-  value = (value & 0xFFU) << 8U | (value >> 8U);
-  writeVariable(adr, static_cast<const void*>(&value), sizeof(uint16_t));
+  writeVariable(adr, uint16_t(value)); // Swap as unsigned to avoid sign extension
 }
 
 void DGUSDisplay::writeVariable(uint16_t adr, uint8_t value) {
