@@ -485,7 +485,7 @@ void GCodeQueue::get_serial_commands() {
             if (n2pos) npos = n2pos;
           }
 
-          const long gcode_N = strtol(npos + 1, nullptr, 10);
+          const long gcode_N = parser.dec_to_long(npos + 1);
 
           // The line number must be in the correct sequence.
           if (gcode_N != serial.last_N + 1 && !M110) {
@@ -500,7 +500,7 @@ void GCodeQueue::get_serial_commands() {
           if (apos) {
             uint8_t checksum = 0, count = uint8_t(apos - command);
             while (count) checksum ^= command[--count];
-            if (strtol(apos + 1, nullptr, 10) != checksum) {
+            if (parser.dec_to_long(apos + 1) != checksum) {
               gcode_line_error(F(STR_ERR_CHECKSUM_MISMATCH), p);
               break;
             }
@@ -527,7 +527,7 @@ void GCodeQueue::get_serial_commands() {
         if (marlin.isStopped()) {
           char* gpos = strchr(command, 'G');
           if (gpos) {
-            switch (strtol(gpos + 1, nullptr, 10)) {
+            switch (parser.dec_to_long(gpos + 1)) {
               case 0 ... 1:
               TERN_(ARC_SUPPORT, case 2 ... 3:)
               TERN_(BEZIER_CURVE_SUPPORT, case 5:)
@@ -543,7 +543,7 @@ void GCodeQueue::get_serial_commands() {
         if (command[0] == 'M') switch (command[3]) {
           case '8': if (command[2] == '0' && command[1] == '1') { marlin.end_waiting(); } break;
           case '2': if (command[2] == '1' && command[1] == '1') marlin.kill(FPSTR(M112_KILL_STR), nullptr, true); break;
-          case '0': if (command[1] == '4' && command[2] == '1') motion.quickstop_stepper(); break;
+          case '0': if (command[1] == '4' && command[2] == '1') planner.quick_stop(); break; // M410 in the queue completes the stop
         }
 
         #if NO_TIMEOUTS > 0

@@ -570,50 +570,68 @@ void MarlinUI::clear_for_drawing() {
 
     const u8g_uint_t prop = USE_WIDE_GLYPH ? 2 : 1;
     const u8g_uint_t labellen = utf8_strlen(ftpl), vallen = utf8_strlen(value);
-    bool extra_row = labellen * prop > LCD_WIDTH - 2 - vallen * prop;
 
     #if ENABLED(USE_BIG_EDIT_FONT)
-      // Use the menu font if the label won't fit on a single line
+
+      // Draw the label and value on centered lines, using the menu font only
+      // when the label is too wide for the edit font.
       constexpr u8g_uint_t lcd_edit_width = (LCD_PIXEL_WIDTH) / (EDIT_FONT_WIDTH);
-      u8g_uint_t lcd_chr_fit, one_chr_width;
-      if (labellen * prop <= lcd_edit_width - 1) {
-        if (labellen * prop + vallen * prop + 1 > lcd_edit_width) extra_row = true;
-        lcd_chr_fit = lcd_edit_width + 1;
-        one_chr_width = EDIT_FONT_WIDTH;
+      const bool label_is_big = labellen * prop <= lcd_edit_width;
+      const u8g_uint_t label_font_width = label_is_big ? EDIT_FONT_WIDTH : MENU_FONT_WIDTH,
+                       label_ascent = label_is_big ? EDIT_FONT_ASCENT : MENU_FONT_ASCENT,
+                       label_descent = label_is_big ? EDIT_FONT_DESCENT : MENU_FONT_DESCENT,
+                       label_baseline = LCD_PIXEL_HEIGHT / 2 - 1,
+                       value_baseline = label_baseline + EDIT_FONT_ASCENT + 2;
+      const pixel_len_t label_width = labellen * prop * label_font_width,
+                        value_width = vallen * prop * EDIT_FONT_WIDTH;
+      const u8g_uint_t label_x = label_width < LCD_PIXEL_WIDTH ? (LCD_PIXEL_WIDTH - label_width) / 2 : 0,
+                       value_x = value_width < LCD_PIXEL_WIDTH ? (LCD_PIXEL_WIDTH - value_width) / 2 : 0;
+
+      if (label_is_big)
         ui.set_font(FONT_EDIT);
-      }
-      else {
-        lcd_chr_fit = LCD_WIDTH;
-        one_chr_width = MENU_FONT_WIDTH;
+      else
         ui.set_font(FONT_MENU);
+
+      if (PAGE_CONTAINS(label_baseline - (label_ascent - 1), label_baseline + label_descent))
+        lcd_put_u8str(label_x, label_baseline, ftpl, itemIndex, itemStringC, itemStringF);
+
+      if (value) {
+        ui.set_font(FONT_EDIT);
+        if (PAGE_CONTAINS(value_baseline - (EDIT_FONT_ASCENT - 1), value_baseline))
+          lcd_put_u8str(value_x, value_baseline, value);
       }
-    #else
+
+      ui.set_font(FONT_MENU);
+
+    #else // !USE_BIG_EDIT_FONT
+
+      const bool extra_row = labellen * prop > LCD_WIDTH - 2 - vallen * prop;
       constexpr u8g_uint_t lcd_chr_fit = LCD_WIDTH,
                            one_chr_width = MENU_FONT_WIDTH;
-    #endif
 
-    // Center the label and value lines on the middle line
-    u8g_uint_t baseline = extra_row ? (LCD_PIXEL_HEIGHT) / 2 - 1
-                                    : (LCD_PIXEL_HEIGHT + EDIT_FONT_ASCENT) / 2;
+      // Center the label and value lines on the middle line
+      u8g_uint_t baseline = extra_row ? (LCD_PIXEL_HEIGHT) / 2 - 1
+                                      : (LCD_PIXEL_HEIGHT + EDIT_FONT_ASCENT) / 2;
 
-    // Assume the label is alpha-numeric (with a descender)
-    bool onpage = PAGE_CONTAINS(baseline - (EDIT_FONT_ASCENT - 1), baseline + EDIT_FONT_DESCENT);
-    if (onpage) lcd_put_u8str(0, baseline, ftpl, itemIndex, itemStringC, itemStringF);
+      // Assume the label is alpha-numeric (with a descender)
+      bool onpage = PAGE_CONTAINS(baseline - (EDIT_FONT_ASCENT - 1), baseline + EDIT_FONT_DESCENT);
+      if (onpage) lcd_put_u8str(0, baseline, ftpl, itemIndex, itemStringC, itemStringF);
 
-    // If a value is included, print a colon, then print the value right-justified
-    if (value) {
-      lcd_put_u8str(F(":"));
-      if (extra_row) {
-        // Assume that value is numeric (with no descender)
-        baseline += EDIT_FONT_ASCENT + 2;
-        onpage = PAGE_CONTAINS(baseline - (EDIT_FONT_ASCENT - 1), baseline);
+      // If a value is included, print a colon, then print the value right-justified
+      if (value) {
+        lcd_put_u8str(F(":"));
+        if (extra_row) {
+          // Assume that value is numeric (with no descender)
+          baseline += EDIT_FONT_ASCENT + 2;
+          onpage = PAGE_CONTAINS(baseline - (EDIT_FONT_ASCENT - 1), baseline);
+        }
+        if (onpage) {
+          lcd_put_lchar(((lcd_chr_fit - 1) - (vallen * prop + 1)) * one_chr_width, baseline, ' '); // Right-justified, padded, add a leading space
+          lcd_put_u8str(value);
+        }
       }
-      if (onpage) {
-        lcd_put_lchar(((lcd_chr_fit - 1) - (vallen * prop + 1)) * one_chr_width, baseline, ' '); // Right-justified, padded, add a leading space
-        lcd_put_u8str(value);
-      }
-    }
-    TERN_(USE_BIG_EDIT_FONT, ui.set_font(FONT_MENU));
+
+    #endif // !USE_BIG_EDIT_FONT
   }
 
   inline void draw_boxed_string(const u8g_uint_t x, const u8g_uint_t y, FSTR_P const fstr, const bool inv) {

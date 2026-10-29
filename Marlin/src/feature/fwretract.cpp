@@ -196,8 +196,8 @@ void FWRetract::retract(const bool retracting E_OPTARG(bool swapping/*=false*/))
  * M207: Set firmware retraction values
  *
  *   S[+units]    retract_length
- *   W[+units]    swap_retract_length (multi-extruder)
  *   F[units/min] retract_feedrate_mm_s
+ *   W[+units]    swap_retract_length (multi-extruder)
  *   Z[units]     retract_zraise
  */
 void FWRetract::M207() {
@@ -213,8 +213,8 @@ void FWRetract::M207_report() {
 
   SERIAL_ECHOLNPGM_P(
       PSTR("  M207 S"), LINEAR_UNIT(settings.retract_length)
-    , PSTR(" W"), LINEAR_UNIT(settings.swap_retract_length)
     , PSTR(" F"), LINEAR_UNIT(MMS_TO_MMM(settings.retract_feedrate_mm_s))
+    , PSTR(" W"), LINEAR_UNIT(settings.swap_retract_length)
     , SP_Z_STR, LINEAR_UNIT(settings.retract_zraise)
   );
 }
@@ -223,16 +223,16 @@ void FWRetract::M207_report() {
  * M208: Set firmware un-retraction values
  *
  *   S[+units]    retract_recover_extra (in addition to M207 S*)
- *   W[+units]    swap_retract_recover_extra (multi-extruder)
  *   F[units/min] retract_recover_feedrate_mm_s
+ *   W[+units]    swap_retract_recover_extra (multi-extruder)
  *   R[units/min] swap_retract_recover_feedrate_mm_s
  */
 void FWRetract::M208() {
   if (!parser.seen("FSRW")) return M208_report();
-  if (parser.seen('S')) settings.retract_recover_extra              = parser.value_axis_units(E_AXIS);
-  if (parser.seen('F')) settings.retract_recover_feedrate_mm_s      = MMM_TO_MMS(parser.value_axis_units(E_AXIS));
-  if (parser.seen('R')) settings.swap_retract_recover_feedrate_mm_s = MMM_TO_MMS(parser.value_axis_units(E_AXIS));
-  if (parser.seen('W')) settings.swap_retract_recover_extra         = parser.value_axis_units(E_AXIS);
+  if (parser.seenval('S')) settings.retract_recover_extra              = parser.value_axis_units(E_AXIS);
+  if (parser.seenval('F')) settings.retract_recover_feedrate_mm_s      = MMM_TO_MMS(parser.value_axis_units(E_AXIS));
+  if (parser.seenval('W')) settings.swap_retract_recover_extra         = parser.value_axis_units(E_AXIS);
+  if (parser.seenval('R')) settings.swap_retract_recover_feedrate_mm_s = MMM_TO_MMS(parser.value_axis_units(E_AXIS));
 }
 
 void FWRetract::M208_report() {
@@ -240,8 +240,8 @@ void FWRetract::M208_report() {
 
   SERIAL_ECHOLNPGM(
       "  M208 S", LINEAR_UNIT(settings.retract_recover_extra)
-    , " W", LINEAR_UNIT(settings.swap_retract_recover_extra)
     , " F", LINEAR_UNIT(MMS_TO_MMM(settings.retract_recover_feedrate_mm_s))
+    , " W", LINEAR_UNIT(settings.swap_retract_recover_extra)
     , " R", LINEAR_UNIT(MMS_TO_MMM(settings.swap_retract_recover_feedrate_mm_s))
   );
 }

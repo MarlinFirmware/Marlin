@@ -19,8 +19,12 @@ if pioutil.is_pio_build():
         files = sorted(f for f in build_dir.iterdir()
                        if f.suffix.lower() in FIRMWARE_EXTS and f.name not in SKIP_NAMES and f.stat().st_mtime >= newest)
         if not files: return
+        # Relative to the project, or the full path for a build_dir outside it
         project_dir = Path(env.subst("$PROJECT_DIR"))
-        names = [ str(f.relative_to(project_dir)) for f in files ]
+        def show_name(f):
+            try: return str(f.relative_to(project_dir))
+            except ValueError: return str(f)
+        names = [ show_name(f) for f in files ]
         if len(names) == 1:
             print("Firmware: " + names[0])
         else:

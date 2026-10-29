@@ -58,3 +58,8 @@ if pioutil.is_pio_build():
         # Relative, so the framework prefixes $PROJECT_DIR. STM32duino escapes '(' and ')'
         # in a literal path, which breaks the include path when the project path has them.
         board.update("build.variants_dir", variants_dir.as_posix())
+
+        # STM32duino 2.x includes 'variant_<BOARD>.h' by default. Variants shared by several
+        # boards provide 'variant_generic.h' instead, so select it explicitly.
+        if (source_dir / "variant_generic.h").is_file():
+            board.update("build.arduino.variant_h", "variant_generic.h")

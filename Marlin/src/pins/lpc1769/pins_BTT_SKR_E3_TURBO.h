@@ -34,7 +34,7 @@
 
 #define USES_DIAG_JUMPERS
 
-#define BOARD_LCD_SERIAL_PORT 1
+#define BOARD_LCD_SERIAL_PORT               1
 
 // Onboard I2C EEPROM
 #define I2C_EEPROM

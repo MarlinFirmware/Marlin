@@ -1113,7 +1113,7 @@ void Neptune3TFT::statusChanged(const char * const msg) {
 // M0 and other prompts continue straight away, as with the stock firmware.
 // During a filament change the Resume keys answer them instead.
 void Neptune3TFT::userConfirmRequired() {
-  if (!did_pause_print) auto_confirm = true;
+  if (!paused_for_filament_change) auto_confirm = true;
 }
 
 #if ENABLED(ADVANCED_PAUSE_FEATURE)

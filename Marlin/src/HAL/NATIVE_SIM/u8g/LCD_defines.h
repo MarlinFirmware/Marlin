@@ -29,6 +29,10 @@ void usleep(uint64_t microsec);
 
 uint8_t u8g_com_sw_spi_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_val, void *arg_ptr);
 uint8_t u8g_com_ST7920_sw_spi_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_val, void *arg_ptr);
+uint8_t u8g_com_HAL_NATIVE_SIM_hw_spi_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_val, void *arg_ptr);
 
 #define U8G_COM_HAL_SW_SPI_FN       u8g_com_sw_spi_fn
 #define U8G_COM_ST7920_HAL_SW_SPI   u8g_com_ST7920_sw_spi_fn
+#define U8G_COM_HAL_HW_SPI_FN       u8g_com_HAL_NATIVE_SIM_hw_spi_fn
+#define U8G_COM_HW_SPI              u8g_com_HAL_NATIVE_SIM_hw_spi_fn  // For the U8glib classes too (DOGM128, LM6059, MINI12864)
+#define U8G_COM_ST7920_HW_SPI       u8g_com_null_fn                   // U8glib leaves this null when it sets U8G_COM_HW_SPI

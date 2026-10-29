@@ -23,12 +23,12 @@
 
 #include "../../inc/MarlinConfig.h"
 
-#include <rom/rtc.h>
+#include <esp_system.h>
 #include <driver/adc.h>
 #include <esp_adc_cal.h>
 #include <HardwareSerial.h>
 
-#if ENABLED(USE_ESP32_TASK_WDT)
+#if ANY(USE_ESP32_TASK_WDT, USE_WATCHDOG)
   #include <esp_task_wdt.h>
 #endif
 
@@ -93,7 +93,12 @@ struct {
 
   bool wifi_custom_command(char * const command_ptr) {
     #if ENABLED(ESP3D_WIFISUPPORT)
-      return esp3dlib.parse(command_ptr);
+      // ESP3D commands such as a WiFi scan or a file system format can take longer
+      // than the watchdog timeout, and can't refresh the watchdog themselves.
+      TERN_(USE_WATCHDOG, esp_task_wdt_delete(nullptr));
+      const bool handled = esp3dlib.parse(command_ptr);
+      TERN_(USE_WATCHDOG, esp_task_wdt_add(nullptr));
+      return handled;
     #else
       UNUSED(command_ptr);
       return false;
@@ -122,18 +127,6 @@ void MarlinHAL::init_board() {
   #if ENABLED(USE_ESP32_TASK_WDT)
     esp_task_wdt_init(10, true);
   #endif
-  #if ENABLED(ESP3D_WIFISUPPORT)
-    esp3dlib.init();
-  #elif ENABLED(WIFISUPPORT)
-    wifi_init();
-    TERN_(OTASUPPORT, OTA_init());
-    #if ENABLED(WEBSUPPORT)
-      spiffs_init();
-      web_init();
-    #endif
-    server.begin();
-  #endif
-
   // ESP32 uses a GPIO matrix that allows pins to be assigned to hardware serial ports.
   // The following code initializes hardware Serial1 and Serial2 to use user-defined pins
   // if they have been defined.
@@ -162,6 +155,20 @@ void MarlinHAL::init_board() {
   #elif ENABLED(I2S_STEPPER_STREAM)
     i2s_init();
   #endif
+
+  // Start WiFi last. wifi_init() waits for the network, and until the expander
+  // is running its outputs (heaters, fans, ...) hold whatever state they powered up in.
+  #if ENABLED(ESP3D_WIFISUPPORT)
+    esp3dlib.init();
+  #elif ENABLED(WIFISUPPORT)
+    wifi_init();
+    TERN_(OTASUPPORT, OTA_init());
+    #if ENABLED(WEBSUPPORT)
+      spiffs_init();
+      web_init();
+    #endif
+    server.begin();
+  #endif
 }
 
 void MarlinHAL::idletask() {
@@ -171,7 +178,19 @@ void MarlinHAL::idletask() {
   TERN_(ESP3D_WIFISUPPORT, esp3dlib.idletask());
 }
 
-uint8_t MarlinHAL::get_reset_source() { return rtc_get_reset_reason(1); }
+uint8_t MarlinHAL::get_reset_source() {
+  switch (esp_reset_reason()) {
+    case ESP_RST_POWERON:  return RST_POWER_ON;   // Includes the EN pin
+    case ESP_RST_EXT:      return RST_EXTERNAL;
+    case ESP_RST_BROWNOUT: return RST_BROWN_OUT;
+    case ESP_RST_INT_WDT:
+    case ESP_RST_TASK_WDT:
+    case ESP_RST_WDT:      return RST_WATCHDOG;
+    case ESP_RST_SW:
+    case ESP_RST_PANIC:    return RST_SOFTWARE;   // Restarted by software, or after a crash
+    default:               return 0;
+  }
+}
 
 void MarlinHAL::reboot() { ESP.restart(); }
 
@@ -184,18 +203,17 @@ int MarlinHAL::freeMemory() { return ESP.getFreeHeap(); }
 
 #if ENABLED(USE_WATCHDOG)
 
-  #define WDT_TIMEOUT_US TERN(WATCHDOG_DURATION_8S, 8000000, 4000000) // 4 or 8 second timeout
-
-  extern "C" {
-    esp_err_t esp_task_wdt_reset();
-  }
+  #define WDT_TIMEOUT_S TERN(WATCHDOG_DURATION_8S, 8, 4) // 4 or 8 second timeout
 
   void watchdogSetup() {
     // do whatever. don't remove this function.
   }
 
+  // The IDF Task Watchdog is already running for the idle task. Set the timeout,
+  // reset on timeout, and watch the Marlin loop task, which calls watchdog_refresh().
   void MarlinHAL::watchdog_init() {
-    // TODO
+    esp_task_wdt_init(WDT_TIMEOUT_S, true);
+    esp_task_wdt_add(nullptr);
   }
 
   // Reset watchdog.

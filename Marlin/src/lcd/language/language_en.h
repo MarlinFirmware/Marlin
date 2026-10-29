@@ -266,6 +266,16 @@ namespace LanguageNarrow_en {
   LSTR MSG_USB_FD_USB_FAILED              = _UxGT("USB start failed");
   LSTR MSG_LCD_SOFT_ENDSTOPS              = _UxGT("Soft Endstops");
   LSTR MSG_ADVANCED_SETTINGS              = _UxGT("Advanced Settings");
+  LSTR MSG_MKS_WIFI                       = _UxGT("WiFi Module");
+  LSTR MSG_MKS_WIFI_SSID                  = _UxGT("Network");
+  LSTR MSG_MKS_WIFI_IP                    = _UxGT("IP");
+  LSTR MSG_MKS_WIFI_CONNECTED             = _UxGT("WiFi: Connected");
+  LSTR MSG_MKS_WIFI_CONNECTING            = _UxGT("WiFi: Connecting");
+  LSTR MSG_MKS_WIFI_BUSY                  = _UxGT("WiFi: Transferring");
+  LSTR MSG_MKS_WIFI_OFFLINE               = _UxGT("WiFi: Not configured");
+  LSTR MSG_MKS_WIFI_EXCEPTION             = _UxGT("WiFi: Error");
+  LSTR MSG_MKS_WIFI_MODE_STA              = _UxGT("Mode: Station");
+  LSTR MSG_MKS_WIFI_MODE_AP               = _UxGT("Mode: Access point");
   LSTR MSG_CONFIGURATION                  = _UxGT("Configuration");
   LSTR MSG_AUTO_Z_ALIGN                   = _UxGT("Auto Z-Align");
   LSTR MSG_Z_FADE_HEIGHT                  = _UxGT("Fade Height");
@@ -455,7 +465,7 @@ namespace LanguageNarrow_en {
   LSTR MSG_BLTOUCH_MODE_STORE             = _UxGT("Mode-Store");
   LSTR MSG_BLTOUCH_MODE_STORE_5V          = _UxGT("Set BLTouch to 5V");
   LSTR MSG_BLTOUCH_MODE_STORE_OD          = _UxGT("Set BLTouch to OD");
-  LSTR MSG_BLTOUCH_MODE_ECHO              = _UxGT("Report Drain");
+  LSTR MSG_BLTOUCH_MODE_ECHO              = _UxGT("Report Mode");
   LSTR MSG_BLTOUCH_MODE_CHANGE            = _UxGT("DANGER: Bad settings can cause damage! Proceed anyway?");
   LSTR MSG_TOUCHMI_PROBE                  = _UxGT("TouchMI");
   LSTR MSG_TOUCHMI_INIT                   = _UxGT("Init TouchMI");
@@ -502,6 +512,7 @@ namespace LanguageNarrow_en {
   LSTR MSG_FILAMENT_CHANGE_NOZZLE         = _UxGT("  Nozzle: ");
   LSTR MSG_RUNOUT_SENSOR                  = _UxGT("Runout Sensor");
   LSTR MSG_RUNOUT_DISTANCE_MM             = _UxGT("Runout Dist mm");
+  LSTR MSG_RUNOUT_TRIGGERED               = _UxGT("Runout triggered");
   LSTR MSG_KILL_HOMING_FAILED             = _UxGT("Homing Failed");
   LSTR MSG_LCD_PROBING_FAILED             = _UxGT("Probing Failed");
   LSTR MSG_MMU2_CHOOSE_FILAMENT_HEADER    = _UxGT("CHOOSE FILAMENT");
@@ -554,6 +565,7 @@ namespace LanguageNarrow_en {
   LSTR MSG_TMC_DRIVERS                    = _UxGT("TMC Drivers");
   LSTR MSG_TMC_CURRENT                    = _UxGT("Driver Current");
   LSTR MSG_TMC_HYBRID_THRS                = _UxGT("Hybrid Threshold");
+  LSTR MSG_TMC_HOMING_HYBRID_THRS         = _UxGT("Homing Hybrid Thrs");
   LSTR MSG_TMC_HOMING_THRS                = _UxGT("Sensorless Homing");
   LSTR MSG_TMC_STEPPING_MODE              = _UxGT("Stepping Mode");
   LSTR MSG_TMC_STEALTHCHOP                = _UxGT("StealthChop");
@@ -714,6 +726,7 @@ namespace LanguageNarrow_en {
   LSTR MSG_ERR_COOLING_FAILED             = _UxGT("Cooling Failed");
   LSTR MSG_PLEASE_WAIT                    = _UxGT("Please wait...");
   LSTR MSG_PREHEATING                     = _UxGT("Preheating...");
+  LSTR MSG_HEAT_SOAK                      = _UxGT("Heat Soak");
   LSTR MSG_PROBE_HEATING                  = _UxGT("Probe Heating...");
   LSTR MSG_PROBE_COOLING                  = _UxGT("Probe Cooling...");
   LSTR MSG_LASER_COOLING                  = _UxGT("Laser Cooling...");
@@ -860,6 +873,9 @@ namespace LanguageNarrow_en {
   LSTR MSG_ADVANCE_TAU                    = _UxGT("Advance Tau");
   LSTR MSG_ADVANCE_TAU_E                  = _UxGT("Advance Tau *");
   LSTR MSG_NLE_ON                         = _UxGT("NLE enabled");
+  LSTR MSG_NLE_A                          = _UxGT("-Quadratic");
+  LSTR MSG_NLE_B                          = _UxGT("-Linear");
+  LSTR MSG_NLE_C                          = _UxGT("-Constant");
   LSTR MSG_HOTEND_TEMP_GRAPH              = _UxGT("Hotend Temp Graph");
   LSTR MSG_BED_TEMP_GRAPH                 = _UxGT("Bed Temp Graph");
   LSTR MSG_EEPROM_INITIALIZED             = _UxGT("EEPROM Initialized");

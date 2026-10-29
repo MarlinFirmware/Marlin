@@ -37,6 +37,12 @@
 #include "HardwareSerial.h"
 #include "uart.h"
 
+// STM32duino 2.0.0 sends in chunks, with a size argument to uart_attach_tx_callback.
+// Its 2.0.0 development snapshot (0x020000F0), used by Marlin's USB framework forks, doesn't.
+#if defined(STM32H7xx) || (STM32_CORE_VERSION >= 0x02000000 && STM32_CORE_VERSION != 0x020000F0)
+  #define UART_TX_CHUNKS 1
+#endif
+
 // Prevent selection of LPUART1 on STM32H7xx
 #if defined(STM32H7xx) && (PIN_SERIAL1_TX == PA_9)
   #undef PIN_SERIAL1_TX
@@ -249,7 +255,7 @@ void HAL_HardwareSerial::init(PinName _rx, PinName _tx) {
  * @retval last character received
  */
 
-#if DISABLED(STM32H7xx)
+#if !UART_TX_CHUNKS
 
   int HAL_HardwareSerial::_tx_complete_irq(serial_t *obj) {
     // If interrupts are enabled, there must be more data in the output buffer. Send the next byte
@@ -260,7 +266,7 @@ void HAL_HardwareSerial::init(PinName _rx, PinName _tx) {
     return 0;
   }
 
-#else // STM32H7xx, has different uart_attach_tx_callback
+#else // Send in chunks
 
   int HAL_HardwareSerial::_tx_complete_irq(serial_t *obj) {
     // If interrupts are enabled, there must be more data in the output buffer. Send the next byte
@@ -381,7 +387,7 @@ size_t HAL_HardwareSerial::write(uint8_t c) {             // Interrupt based wri
   _serial.tx_buff[_serial.tx_head] = c;
   _serial.tx_head = i;
 
-  #ifdef STM32H7xx // Support STM32H7xx with different uart_attach_tx_callback
+  #if UART_TX_CHUNKS
     if ((!serial_tx_active(&_serial)) && (_serial.tx_head != _serial.tx_tail)) {
       size_t remaining_data = (TX_BUFFER_SIZE + _serial.tx_head -_serial.tx_tail) % TX_BUFFER_SIZE;
       _serial.tx_size = min(remaining_data, (size_t)(TX_BUFFER_SIZE - _serial.tx_tail));
