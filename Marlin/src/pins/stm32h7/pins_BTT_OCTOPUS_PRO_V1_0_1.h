@@ -21,9 +21,12 @@
  */
 #pragma once
 
-#define BOARD_INFO_NAME "OCTOPUS PRO V1.0.1"
+#define BOARD_INFO_NAME "BTT OCTOPUS PRO V1.0.1"
 
-// No USB Flash Drive support. The USB-A port is wired to PB14/PB15, which have no USB function on the STM32H723.
+// USB Flash Drive support, as on the Octopus Pro V1.0. The USB-A port is wired to PB14/PB15, which have no USB function on the STM32H723.
+#if NOT_TARGET(STM32H7)
+  #define HAS_OTG_USB_HOST_SUPPORT
+#endif
 
 //
 // Temperature Sensors
