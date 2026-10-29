@@ -28,7 +28,7 @@
 /**
  * Extracted from Prusa-Error-Codes repo
  * Subject to automation and optimization
- * BEWARE: This file should only be included by mmu3_error_converter.cpp!
+ * BEWARE - This file should only be included by mmu3_error_converter.cpp!
  */
 #include "inttypes.h"
 #include "../../../core/language.h"
