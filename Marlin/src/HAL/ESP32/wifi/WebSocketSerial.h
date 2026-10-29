@@ -60,6 +60,7 @@ public:
 class WebSocketSerial: public Stream {
   RingBuffer rx_buffer;
   RingBuffer tx_buffer;
+  void send(const uint8_t *data, const size_t len);
 
 public:
   WebSocketSerial();
