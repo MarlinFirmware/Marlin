@@ -621,6 +621,8 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
     #error "MMU2_EXTRUDER_SENSOR requires an LCD supporting MarlinUI."
   #elif ENABLED(MMU_MENUS) && !HAS_MARLINUI_MENU
     #error "MMU_MENUS requires an LCD supporting MarlinUI."
+  #elif HAS_PRUSA_MMU3 && DISABLED(ADVANCED_PAUSE_FEATURE)
+    #error "MMU3 requires ADVANCED_PAUSE_FEATURE (for hardcoded 'M600')."
   #elif HAS_PRUSA_MMU3 && !HAS_MARLINUI_MENU
     #error "MMU3 requires an LCD supporting MarlinUI."
   #elif HAS_PRUSA_MMU3 && DISABLED(MMU_MENUS)

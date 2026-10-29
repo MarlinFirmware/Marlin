@@ -107,7 +107,9 @@
   #include "../feature/power_monitor.h"
 #endif
 
-#include "../feature/pause.h"
+#if ENABLED(CONFIGURE_FILAMENT_CHANGE)
+  #include "../feature/pause.h"
+#endif
 
 #if ENABLED(BACKLASH_COMPENSATION)
   #include "../feature/backlash.h"
@@ -555,7 +557,7 @@ typedef struct SettingsDataStruct {
   #endif
 
   //
-  // ADVANCED_PAUSE_FEATURE
+  // CONFIGURE_FILAMENT_CHANGE
   //
   #if ENABLED(CONFIGURE_FILAMENT_CHANGE)
     fil_change_settings_t fc_settings[EXTRUDERS];       // M603 T U L

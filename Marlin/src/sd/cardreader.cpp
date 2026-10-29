@@ -845,7 +845,7 @@ void CardReader::startOrResumeFilePrinting() {
 // Run tasks upon finishing or aborting a file print.
 //
 void CardReader::endFilePrintNow(TERN_(SD_RESORT, const bool re_sort/*=false*/)) {
-  TERN_(ADVANCED_PAUSE_FEATURE, did_pause_print = 0);
+  TERN_(ADVANCED_PAUSE_FEATURE, paused_for_filament_change = 0);
   TERN_(DWIN_CREALITY_LCD, hmiFlag.print_finish = flag.sdprinting);
   flag.abort_sd_printing = false;
   if (isFileOpen()) myfile.close();
