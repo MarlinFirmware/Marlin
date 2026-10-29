@@ -621,6 +621,8 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
     #error "MMU2_EXTRUDER_SENSOR requires an LCD supporting MarlinUI."
   #elif ENABLED(MMU_MENUS) && !HAS_MARLINUI_MENU
     #error "MMU_MENUS requires an LCD supporting MarlinUI."
+  #elif HAS_PRUSA_MMU3 && DISABLED(ADVANCED_PAUSE_FEATURE)
+    #error "MMU3 requires ADVANCED_PAUSE_FEATURE (for hardcoded 'M600')."
   #elif HAS_PRUSA_MMU3 && !HAS_MARLINUI_MENU
     #error "MMU3 requires an LCD supporting MarlinUI."
   #elif HAS_PRUSA_MMU3 && DISABLED(MMU_MENUS)
@@ -3069,6 +3071,39 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
   #endif
 #endif
 
+/**
+ * MKS WiFi module. Works with any UI, or none, but it needs its own UART,
+ * the ESP control pins, and media to transfer files to.
+ */
+#if ENABLED(MKS_WIFI_MODULE)
+  #if DISABLED(WIFISUPPORT)
+    #error "MKS_WIFI_MODULE requires WIFISUPPORT."
+  #elif ANY(WEBSUPPORT, OTASUPPORT)
+    #error "WEBSUPPORT and OTASUPPORT don't apply to MKS_WIFI_MODULE, which runs its own firmware."
+  #elif !defined(__STM32F1__) && !defined(HAL_STM32)
+    #error "MKS_WIFI_MODULE is only supported on STM32F1 and STM32 HAL boards."
+  #elif !PIN_EXISTS(WIFI_RESET) || !PIN_EXISTS(WIFI_IO1)
+    #error "MKS_WIFI_MODULE requires WIFI_RESET_PIN and WIFI_IO1_PIN. Your board doesn't support it."
+  #elif !HAS_MEDIA
+    #error "MKS_WIFI_MODULE requires SDSUPPORT."
+  #elif !defined(WIFI_SERIAL_PORT)
+    #error "MKS_WIFI_MODULE requires WIFI_SERIAL_PORT. Your board doesn't support it."
+  #elif ENABLED(MKS_WIFI_AP_MODE) && !defined(WIFI_SSID)
+    #error "MKS_WIFI_AP_MODE requires WIFI_SSID to name the access point."
+  #elif defined(WIFI_PWD) && !defined(WIFI_SSID)
+    #error "WIFI_PWD requires WIFI_SSID."
+  #endif
+  #ifdef WIFI_SSID
+    static_assert(sizeof(WIFI_SSID) <= 32, "WIFI_SSID must be 31 characters or fewer for MKS_WIFI_MODULE.");
+  #endif
+  #ifdef WIFI_PWD
+    static_assert(sizeof(WIFI_PWD) <= 64, "WIFI_PWD must be 63 characters or fewer for MKS_WIFI_MODULE.");
+  #endif
+  #ifdef MKS_WIFI_CLOUD_HOST
+    static_assert(sizeof(MKS_WIFI_CLOUD_HOST) <= 96, "MKS_WIFI_CLOUD_HOST must be 95 characters or fewer.");
+  #endif
+#endif
+
 #if defined(GRAPHICAL_TFT_UPSCALE) && !WITHIN(GRAPHICAL_TFT_UPSCALE, 2, 8)
   #error "GRAPHICAL_TFT_UPSCALE must be between 2 and 8."
 #endif
@@ -3197,6 +3232,8 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
     #error "MMU_SERIAL_PORT cannot be the same as SERIAL_PORT."
   #elif defined(SERIAL_PORT_2) && MMU_SERIAL_PORT == SERIAL_PORT_2
     #error "MMU_SERIAL_PORT cannot be the same as SERIAL_PORT_2."
+  #elif defined(SERIAL_PORT_3) && MMU_SERIAL_PORT == SERIAL_PORT_3
+    #error "MMU_SERIAL_PORT cannot be the same as SERIAL_PORT_3."
   #elif defined(LCD_SERIAL_PORT) && MMU_SERIAL_PORT == LCD_SERIAL_PORT
     #error "MMU_SERIAL_PORT cannot be the same as LCD_SERIAL_PORT."
   #elif defined(RS485_SERIAL_PORT) && MMU_SERIAL_PORT == RS485_SERIAL_PORT
@@ -3212,6 +3249,8 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
     #error "LCD_SERIAL_PORT cannot be the same as SERIAL_PORT."
   #elif defined(SERIAL_PORT_2) && LCD_SERIAL_PORT == SERIAL_PORT_2
     #error "LCD_SERIAL_PORT cannot be the same as SERIAL_PORT_2."
+  #elif defined(SERIAL_PORT_3) && LCD_SERIAL_PORT == SERIAL_PORT_3
+    #error "LCD_SERIAL_PORT cannot be the same as SERIAL_PORT_3."
   #elif defined(RS485_SERIAL_PORT) && LCD_SERIAL_PORT == RS485_SERIAL_PORT
     #error "LCD_SERIAL_PORT cannot be the same as RS485_SERIAL_PORT."
   #endif
@@ -3237,6 +3276,27 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
     #error "RS485_SERIAL_PORT cannot be the same as SERIAL_PORT."
   #elif defined(SERIAL_PORT_2) && RS485_SERIAL_PORT == SERIAL_PORT_2
     #error "RS485_SERIAL_PORT cannot be the same as SERIAL_PORT_2."
+  #elif defined(SERIAL_PORT_3) && RS485_SERIAL_PORT == SERIAL_PORT_3
+    #error "RS485_SERIAL_PORT cannot be the same as SERIAL_PORT_3."
+  #endif
+#endif
+
+/**
+ * The MKS WiFi module drives its serial port directly, bypassing MarlinSerial
+ */
+#if ENABLED(MKS_WIFI_MODULE)
+  #if WIFI_SERIAL_PORT == SERIAL_PORT
+    #error "WIFI_SERIAL_PORT cannot be the same as SERIAL_PORT."
+  #elif defined(SERIAL_PORT_2) && WIFI_SERIAL_PORT == SERIAL_PORT_2
+    #error "WIFI_SERIAL_PORT cannot be the same as SERIAL_PORT_2."
+  #elif defined(SERIAL_PORT_3) && WIFI_SERIAL_PORT == SERIAL_PORT_3
+    #error "WIFI_SERIAL_PORT cannot be the same as SERIAL_PORT_3."
+  #elif defined(MMU_SERIAL_PORT) && WIFI_SERIAL_PORT == MMU_SERIAL_PORT
+    #error "WIFI_SERIAL_PORT cannot be the same as MMU_SERIAL_PORT."
+  #elif defined(LCD_SERIAL_PORT) && WIFI_SERIAL_PORT == LCD_SERIAL_PORT
+    #error "WIFI_SERIAL_PORT cannot be the same as LCD_SERIAL_PORT."
+  #elif defined(RS485_SERIAL_PORT) && WIFI_SERIAL_PORT == RS485_SERIAL_PORT
+    #error "WIFI_SERIAL_PORT cannot be the same as RS485_SERIAL_PORT."
   #endif
 #endif
 
@@ -3742,54 +3802,8 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
 #endif
 
 // TMC Hybrid Threshold
-#if ENABLED(HYBRID_THRESHOLD)
-  #if !STEALTHCHOP_ENABLED
+#if ENABLED(HYBRID_THRESHOLD) && !STEALTHCHOP_ENABLED
     #error "Enable STEALTHCHOP_(XY|Z|E) to use HYBRID_THRESHOLD."
-  #elif defined(X_HYBRID_THRESHOLD) && X_HYBRID_THRESHOLD == 0
-    #error "X_HYBRID_THRESHOLD must be greater than 0."
-  #elif defined(X2_HYBRID_THRESHOLD) && X2_HYBRID_THRESHOLD == 0
-    #error "X2_HYBRID_THRESHOLD must be greater than 0."
-  #elif defined(Y_HYBRID_THRESHOLD) && Y_HYBRID_THRESHOLD == 0
-    #error "Y_HYBRID_THRESHOLD must be greater than 0."
-  #elif defined(Y2_HYBRID_THRESHOLD) && Y2_HYBRID_THRESHOLD == 0
-    #error "Y2_HYBRID_THRESHOLD must be greater than 0."
-  #elif defined(Z_HYBRID_THRESHOLD) && Z_HYBRID_THRESHOLD == 0
-    #error "Z_HYBRID_THRESHOLD must be greater than 0."
-  #elif defined(Z2_HYBRID_THRESHOLD) && Z2_HYBRID_THRESHOLD == 0
-    #error "Z2_HYBRID_THRESHOLD must be greater than 0."
-  #elif defined(Z3_HYBRID_THRESHOLD) && Z3_HYBRID_THRESHOLD == 0
-    #error "Z3_HYBRID_THRESHOLD must be greater than 0."
-  #elif defined(Z4_HYBRID_THRESHOLD) && Z4_HYBRID_THRESHOLD == 0
-    #error "Z4_HYBRID_THRESHOLD must be greater than 0."
-  #elif defined(I_HYBRID_THRESHOLD) && I_HYBRID_THRESHOLD == 0
-    #error "I_HYBRID_THRESHOLD must be greater than 0."
-  #elif defined(J_HYBRID_THRESHOLD) && J_HYBRID_THRESHOLD == 0
-    #error "J_HYBRID_THRESHOLD must be greater than 0."
-  #elif defined(K_HYBRID_THRESHOLD) && K_HYBRID_THRESHOLD == 0
-    #error "K_HYBRID_THRESHOLD must be greater than 0."
-  #elif defined(U_HYBRID_THRESHOLD) && U_HYBRID_THRESHOLD == 0
-    #error "U_HYBRID_THRESHOLD must be greater than 0."
-  #elif defined(V_HYBRID_THRESHOLD) && V_HYBRID_THRESHOLD == 0
-    #error "V_HYBRID_THRESHOLD must be greater than 0."
-  #elif defined(W_HYBRID_THRESHOLD) && W_HYBRID_THRESHOLD == 0
-    #error "W_HYBRID_THRESHOLD must be greater than 0."
-  #elif defined(E0_HYBRID_THRESHOLD) && E0_HYBRID_THRESHOLD == 0
-    #error "E0_HYBRID_THRESHOLD must be greater than 0."
-  #elif defined(E1_HYBRID_THRESHOLD) && E1_HYBRID_THRESHOLD == 0
-    #error "E1_HYBRID_THRESHOLD must be greater than 0."
-  #elif defined(E2_HYBRID_THRESHOLD) && E2_HYBRID_THRESHOLD == 0
-    #error "E2_HYBRID_THRESHOLD must be greater than 0."
-  #elif defined(E3_HYBRID_THRESHOLD) && E3_HYBRID_THRESHOLD == 0
-    #error "E3_HYBRID_THRESHOLD must be greater than 0."
-  #elif defined(E4_HYBRID_THRESHOLD) && E4_HYBRID_THRESHOLD == 0
-    #error "E4_HYBRID_THRESHOLD must be greater than 0."
-  #elif defined(E5_HYBRID_THRESHOLD) && E5_HYBRID_THRESHOLD == 0
-    #error "E5_HYBRID_THRESHOLD must be greater than 0."
-  #elif defined(E6_HYBRID_THRESHOLD) && E6_HYBRID_THRESHOLD == 0
-    #error "E6_HYBRID_THRESHOLD must be greater than 0."
-  #elif defined(E7_HYBRID_THRESHOLD) && E7_HYBRID_THRESHOLD == 0
-    #error "E7_HYBRID_THRESHOLD must be greater than 0."
-  #endif
 #endif // HYBRID_THRESHOLD
 
 #if ENABLED(HOMING_HYBRID_THRESHOLD) && DISABLED(HYBRID_THRESHOLD)
@@ -4393,6 +4407,8 @@ static_assert(_PLUS_TEST(3), "DEFAULT_MAX_ACCELERATION values must be positive."
   #error "Enable only one of WIFISUPPORT or ESP3D_WIFISUPPORT."
 #elif ENABLED(ESP3D_WIFISUPPORT) && DISABLED(ARDUINO_ARCH_ESP32)
   #error "ESP3D_WIFISUPPORT requires an ESP32 motherboard."
+#elif ENABLED(ESP3D_WIFISUPPORT) && (!defined(SERIAL_PORT_2) || SERIAL_PORT_2 != -1)
+  #error "ESP3D_WIFISUPPORT requires SERIAL_PORT_2 -1, which carries G-code from ESP3D to Marlin."
 #endif
 
 // Only the native ESP32 WiFi needs credentials at compile time. An add-on module
@@ -4404,11 +4420,11 @@ static_assert(_PLUS_TEST(3), "DEFAULT_MAX_ACCELERATION values must be positive."
 // With no WiFi at all these can do nothing whatsoever.
 #if NONE(WIFISUPPORT, ESP3D_WIFISUPPORT)
   #if ANY(WEBSUPPORT, OTASUPPORT)
-    #error "WEBSUPPORT and OTASUPPORT require WIFISUPPORT."
+    #error "WEBSUPPORT and OTASUPPORT require WIFISUPPORT or ESP3D_WIFISUPPORT."
   #elif ENABLED(WIFI_CUSTOM_COMMAND)
     #error "WIFI_CUSTOM_COMMAND requires ESP3D_WIFISUPPORT."
   #elif defined(WIFI_SSID) || defined(WIFI_PWD)
-    #error "WIFI_SSID and WIFI_PWD require WIFISUPPORT."
+    #error "WIFI_SSID and WIFI_PWD require WIFISUPPORT or ESP3D_WIFISUPPORT."
   #endif
 #endif
 

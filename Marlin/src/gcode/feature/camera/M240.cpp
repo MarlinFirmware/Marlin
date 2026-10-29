@@ -168,7 +168,7 @@ void GcodeSuite::M240() {
   #if PIN_EXISTS(CHDK)
 
     OUT_WRITE(CHDK_PIN, HIGH);
-    chdk_timeout = millis() + parser.intval('D', PHOTO_SWITCH_MS);
+    chdk_timeout = next_millis(millis() + parser.intval('D', PHOTO_SWITCH_MS));
 
   #elif HAS_PHOTOGRAPH
 

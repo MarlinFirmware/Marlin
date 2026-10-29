@@ -266,6 +266,16 @@ namespace LanguageNarrow_en {
   LSTR MSG_USB_FD_USB_FAILED              = _UxGT("USB start failed");
   LSTR MSG_LCD_SOFT_ENDSTOPS              = _UxGT("Soft Endstops");
   LSTR MSG_ADVANCED_SETTINGS              = _UxGT("Advanced Settings");
+  LSTR MSG_MKS_WIFI                       = _UxGT("WiFi Module");
+  LSTR MSG_MKS_WIFI_SSID                  = _UxGT("Network");
+  LSTR MSG_MKS_WIFI_IP                    = _UxGT("IP");
+  LSTR MSG_MKS_WIFI_CONNECTED             = _UxGT("WiFi: Connected");
+  LSTR MSG_MKS_WIFI_CONNECTING            = _UxGT("WiFi: Connecting");
+  LSTR MSG_MKS_WIFI_BUSY                  = _UxGT("WiFi: Transferring");
+  LSTR MSG_MKS_WIFI_OFFLINE               = _UxGT("WiFi: Not configured");
+  LSTR MSG_MKS_WIFI_EXCEPTION             = _UxGT("WiFi: Error");
+  LSTR MSG_MKS_WIFI_MODE_STA              = _UxGT("Mode: Station");
+  LSTR MSG_MKS_WIFI_MODE_AP               = _UxGT("Mode: Access point");
   LSTR MSG_CONFIGURATION                  = _UxGT("Configuration");
   LSTR MSG_AUTO_Z_ALIGN                   = _UxGT("Auto Z-Align");
   LSTR MSG_Z_FADE_HEIGHT                  = _UxGT("Fade Height");
@@ -502,6 +512,7 @@ namespace LanguageNarrow_en {
   LSTR MSG_FILAMENT_CHANGE_NOZZLE         = _UxGT("  Nozzle: ");
   LSTR MSG_RUNOUT_SENSOR                  = _UxGT("Runout Sensor");
   LSTR MSG_RUNOUT_DISTANCE_MM             = _UxGT("Runout Dist mm");
+  LSTR MSG_RUNOUT_TRIGGERED               = _UxGT("Runout triggered");
   LSTR MSG_KILL_HOMING_FAILED             = _UxGT("Homing Failed");
   LSTR MSG_LCD_PROBING_FAILED             = _UxGT("Probing Failed");
   LSTR MSG_MMU2_CHOOSE_FILAMENT_HEADER    = _UxGT("CHOOSE FILAMENT");

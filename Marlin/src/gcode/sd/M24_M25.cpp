@@ -82,7 +82,7 @@ void GcodeSuite::M24() {
   #endif
 
   #if ENABLED(PARK_HEAD_ON_PAUSE)
-    if (did_pause_print) {
+    if (paused_for_filament_change) {
       resume_print(); // will call print_job_timer.start()
       return;
     }
