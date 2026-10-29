@@ -271,14 +271,26 @@
 #define EXP2_08_PIN                         -1    // RESET
 
 //
-// SPI / SD Card (onboard TF card shares SPI1 with EXP2)
+// SD Connection
 //
-#define SD_SCK_PIN                   EXP2_02_PIN
-#define SD_MISO_PIN                  EXP2_01_PIN
-#define SD_MOSI_PIN                  EXP2_06_PIN
+#ifndef SDCARD_CONNECTION
+  #define SDCARD_CONNECTION              ONBOARD
+#endif
 
-#define SD_SS_PIN                    EXP2_04_PIN
-#define SD_DETECT_PIN                EXP2_07_PIN
+//
+// SPI / SD Card
+// The onboard TF card and EXP2 share SPI1, SS (PA4) and card detect (PB10),
+// so ONBOARD and LCD use the same pins. Only one card can be inserted at a time.
+//
+#if SD_CONNECTION_IS(ONBOARD) || SD_CONNECTION_IS(LCD)
+  #define SD_SCK_PIN                 EXP2_02_PIN
+  #define SD_MISO_PIN                EXP2_01_PIN
+  #define SD_MOSI_PIN                EXP2_06_PIN
+  #define SD_SS_PIN                  EXP2_04_PIN
+  #define SD_DETECT_PIN              EXP2_07_PIN
+#elif SD_CONNECTION_IS(CUSTOM_CABLE)
+  #error "No custom SD drive cable defined for this board."
+#endif
 
 //
 // LCD / Controller

@@ -529,6 +529,7 @@ namespace LanguageNarrow_hg {
   LSTR MSG_TMC_DRIVERS                    = _UxGT("TMC Drivers");                              // TMC Drivers
   LSTR MSG_TMC_CURRENT                    = _UxGT("Driver Current");                           // Driver Current
   LSTR MSG_TMC_HYBRID_THRS                = _UxGT("Hybrid Threshold");                         // Hybrid Threshold
+  LSTR MSG_TMC_HOMING_HYBRID_THRS         = _UxGT("Home Hybrid Thrs");                         // Homing Hybrid Thrs
   LSTR MSG_TMC_HOMING_THRS                = _UxGT("Sensorless Homing");                        // Sensorless Homing
   LSTR MSG_TMC_STEPPING_MODE              = _UxGT("Stepping Mode");                            // Stepping Mode
   LSTR MSG_TMC_STEALTHCHOP                = _UxGT("StealthChop");                              // StealthChop
@@ -689,6 +690,7 @@ namespace LanguageNarrow_hg {
   LSTR MSG_ERR_COOLING_FAILED             = _UxGT("Thanda nahi hua");                          // Cooling Failed
   LSTR MSG_PLEASE_WAIT                    = _UxGT("Kripya ruko...");                           // Please wait...
   LSTR MSG_PREHEATING                     = _UxGT("Preheat ho raha...");                       // Preheating...
+  LSTR MSG_HEAT_SOAK                      = _UxGT("Heat Soak");                                // Heat Soak
   LSTR MSG_PROBE_HEATING                  = _UxGT("Probe garam ho raha");                      // Probe Heating...
   LSTR MSG_PROBE_COOLING                  = _UxGT("Probe thanda ho raha");                     // Probe Cooling...
   LSTR MSG_LASER_COOLING                  = _UxGT("Laser thanda ho raha");                     // Laser Cooling...
@@ -829,6 +831,9 @@ namespace LanguageNarrow_hg {
   LSTR MSG_ADVANCE_TAU                    = _UxGT("Advance Tau");                              // Advance Tau
   LSTR MSG_ADVANCE_TAU_E                  = _UxGT("Advance Tau *");                            // Advance Tau *
   LSTR MSG_NLE_ON                         = _UxGT("NLE chalu");                                // NLE enabled
+  LSTR MSG_NLE_A                          = _UxGT("-Quadratic");                               // -Quadratic
+  LSTR MSG_NLE_B                          = _UxGT("-Linear");                                  // -Linear
+  LSTR MSG_NLE_C                          = _UxGT("-Constant");                                // -Constant
   LSTR MSG_HOTEND_TEMP_GRAPH              = _UxGT("Hotend Temp Graph");                        // Hotend Temp Graph
   LSTR MSG_BED_TEMP_GRAPH                 = _UxGT("Bed Temp Graph");                           // Bed Temp Graph
   LSTR MSG_EEPROM_INITIALIZED             = _UxGT("EEPROM Init hua");                          // EEPROM Initialized

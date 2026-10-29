@@ -51,7 +51,7 @@
  *  E0_ENABLE_PIN               PWM 25 |               | 40 A16
  *  FAN0_PIN       MOSI1            26 |               | 39 A15      MISO1       X_STOP_PIN
  *  Z-PROBE PWR    SCK1             27 | *  *  *  *  * | 38 A14                  Y_STOP_PIN
- *  SOL1_PIN               RX7  PWM 28 |               | 37     PWM              HEATER_0_PIN
+ *  SOL0_PIN               RX7  PWM 28 |               | 37     PWM              HEATER_0_PIN
  *  FAN0_PIN               TX7  PWM 29 |               | 36     PWM              HEATER_BED_PIN
  *  X_CS_PIN                        30 |               | 35          TX8         E1_ENABLE_PIN
  *  y_CS_PIN                        31 |    SDCARD     | 34          RX8         E1_DIR_PIN

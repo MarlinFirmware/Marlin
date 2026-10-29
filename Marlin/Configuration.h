@@ -101,6 +101,7 @@
 /**
  * Select a secondary serial port on the board to use for communication with the host.
  * Currently Ethernet (-2) is only supported on Teensy 4.1 boards.
+ * ESP3D_WIFISUPPORT requires -1, which carries G-code from ESP3D to Marlin.
  * :[-2, -1, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
  */
 //#define SERIAL_PORT_2 -1
@@ -223,6 +224,12 @@
 // :[0, 1, 2, 3, 4, 5, 6, 7, 8]
 #define EXTRUDERS 1
 
+// Drive the E axis with two synchronized steppers
+//#define E_DUAL_STEPPER_DRIVERS
+#if ENABLED(E_DUAL_STEPPER_DRIVERS)
+  //#define INVERT_E1_VS_E0_DIR       // E direction signals are opposites
+#endif
+
 // Generally expected filament diameter (1.75, 2.85, 3.0, ...). Used for Volumetric, Filament Width Sensor, etc.
 #define DEFAULT_NOMINAL_FILAMENT_DIA 1.75
 
@@ -268,7 +275,7 @@
 
 /**
  * Two separate X-carriages with extruders that connect to a moving part
- * via a solenoid docking mechanism. Requires SOL1_PIN and SOL2_PIN.
+ * via a solenoid docking mechanism. Requires SOL0_PIN and SOL1_PIN.
  */
 //#define PARKING_EXTRUDER
 
@@ -3408,6 +3415,11 @@
 //#define ANYCUBIC_LCD_VYPER
 
 //
+// Touch-screen LCD for Anycubic Kobra
+//
+//#define ANYCUBIC_LCD_KOBRA
+
+//
 // Sovol SV-06 Resistive Touch Screen
 //
 //#define SOVOL_SV06_RTS
@@ -3575,7 +3587,7 @@
    */
   #define TFT_FONT  NOTOSANS
   //#define TFT_FONT_LARGE    // Use larger fonts for better visibility. (TFT_RES_1024x600 with NOTOSANS or UNIFONT)
-  //#define TFT_NO_TINY_FONT  // A small numerical font may be used for meshes, etc. Eschew this font to save 1.1k.
+  //#define TFT_NO_TINY_FONT  // Eschew the small numerical font used for meshes to recover Flash space.
 
   /**
    * TFT Theme for Color UI. Choose one of the following or add a new one to 'Marlin/src/lcd/tft/themes' directory
@@ -3590,10 +3602,6 @@
   //#define TFT_SHARED_IO   // I/O is shared between TFT display and other devices. Disable async data transfer.
 
   #define COMPACT_MARLIN_BOOT_LOGO  // Use compressed data to save Flash space
-#endif
-
-#if ENABLED(TFT_LVGL_UI)
-  //#define MKS_WIFI_MODULE // MKS WiFi module
 #endif
 
 /**
@@ -3668,6 +3676,14 @@
 // EasyThreeD ET-4000+ with button input and status LED
 //
 //#define EASYTHREED_UI
+
+//
+// PanelDue touch controller by Duet3D (PanelDueFirmware 3.2 or newer)
+// https://docs.duet3d.com/User_manual/Connecting_hardware/Display_PanelDue
+// Connect the PanelDue to a free UART and define LCD_SERIAL_PORT with its index.
+// The PanelDue baud rate must be set to 57600, or define LCD_BAUDRATE to match.
+//
+//#define PANELDUE
 
 //=============================================================================
 //=============================== Extra Features ==============================

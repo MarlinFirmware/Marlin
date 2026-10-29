@@ -8,6 +8,7 @@
 # Copyright 2015-2018 Yunhui Fu <yhfudev@gmail.com>
 # License: GPL/BSD
 #####################################################################
+
 my_getpath() {
   local PARAM_DN="$1"
   shift
@@ -73,7 +74,6 @@ open "$DN_WORK"
 for ALANG in ${LANG_ARG:=$LANGS_DEFAULT} ; do
   echo "Generating Marlin language data for '${ALANG}'" >&2
   case "$ALANG" in
-     zh_* ) FONTFILE="wenquanyi_12pt" ;;
      ko_* ) FONTFILE="${DN_EXEC}/NanumGothic.bdf" ;;
         * ) FONTFILE="${DN_EXEC}/marlin-6x12-3.bdf" ;;
   esac

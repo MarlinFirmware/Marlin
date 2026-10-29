@@ -36,11 +36,19 @@
 #include <ArduinoOTA.h>
 #include <driver/timer.h>
 
+#if ENABLED(USE_WATCHDOG)
+  #include <esp_task_wdt.h>
+#endif
+
 void OTA_init() {
   ArduinoOTA
     .onStart([]() {
       timer_pause(TIMER_GROUP_0, TIMER_0);
       timer_pause(TIMER_GROUP_0, TIMER_1);
+
+      // The whole update runs in the Marlin loop task, which can't refresh the watchdog meanwhile.
+      // A successful update reboots; a failed one watches the task again in onError.
+      TERN_(USE_WATCHDOG, esp_task_wdt_delete(nullptr));
 
       // U_FLASH or U_SPIFFS
       String type = (ArduinoOTA.getCommand() == U_FLASH) ? "sketch" : "filesystem";
@@ -55,6 +63,7 @@ void OTA_init() {
       Serial.printf("Progress: %u%%\r", (progress / (total / 100)));
     })
     .onError([](ota_error_t error) {
+      TERN_(USE_WATCHDOG, esp_task_wdt_add(nullptr));
       Serial.printf("Error[%u]: ", error);
       const char *str = "unknown";
       switch (error) {
