@@ -190,6 +190,10 @@ public:
   static void watchdog_init()    IF_DISABLED(USE_WATCHDOG, {});
   static void watchdog_refresh() IF_DISABLED(USE_WATCHDOG, {});
 
+  // Stop and restart watching the calling task, around work that can't refresh the watchdog
+  static void watchdog_unwatch() IF_DISABLED(USE_WATCHDOG, {});
+  static void watchdog_rewatch() IF_DISABLED(USE_WATCHDOG, {});
+
   static void init() {}        // Called early in setup()
   static void init_board();    // Called less early in setup()
   static void reboot();        // Restart the firmware
