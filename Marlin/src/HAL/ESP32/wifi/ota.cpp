@@ -37,10 +37,6 @@
 #include <WiFiUdp.h>
 #include <ArduinoOTA.h>
 
-#if ENABLED(USE_WATCHDOG)
-  #include <esp_task_wdt.h>
-#endif
-
 void OTA_init() {
   ArduinoOTA
     .onStart([]() {
@@ -49,7 +45,7 @@ void OTA_init() {
 
       // The whole update runs in the Marlin loop task, which can't refresh the watchdog meanwhile.
       // A successful update reboots; a failed one restarts the timers and watches the task again in onError.
-      TERN_(USE_WATCHDOG, esp_task_wdt_delete(nullptr));
+      hal.watchdog_unwatch();
 
       // NOTE: if updating SPIFFS this would be the place to unmount SPIFFS using SPIFFS.end()
       SERIAL_ECHOLNPGM("OTA update: ", ArduinoOTA.getCommand() == U_FLASH ? "firmware" : "filesystem");
@@ -67,7 +63,7 @@ void OTA_init() {
       // never runs, so the watchdog is never refreshed again and heater PWM is frozen.
       HAL_timer_resume(MF_TIMER_STEP);
       HAL_timer_resume(MF_TIMER_TEMP);
-      TERN_(USE_WATCHDOG, esp_task_wdt_add(nullptr));
+      hal.watchdog_rewatch();
       const char *str = "unknown";
       switch (error) {
         case OTA_AUTH_ERROR:    str = "Auth Failed";    break;
