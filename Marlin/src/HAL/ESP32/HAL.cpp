@@ -37,6 +37,11 @@
   #include <esp_task_wdt.h>
 #endif
 
+#if ENABLED(USE_WATCHDOG)
+  static TaskHandle_t watchdog_task; // The Marlin loop task, while the watchdog watches it
+  static bool watchdog_unwatched;    // Set by watchdog_unwatch, until watchdog_rewatch
+#endif
+
 #if ENABLED(WIFISUPPORT)
   #include <ESPAsyncWebServer.h>
   #include "wifi/wifi.h"
@@ -107,9 +112,9 @@ struct {
     #if ENABLED(ESP3D_WIFISUPPORT)
       // ESP3D commands such as a WiFi scan or a file system format can take longer
       // than the watchdog timeout, and can't refresh the watchdog themselves.
-      TERN_(USE_WATCHDOG, esp_task_wdt_delete(nullptr));
+      hal.watchdog_unwatch();
       const bool handled = esp3dlib.parse(command_ptr);
-      TERN_(USE_WATCHDOG, esp_task_wdt_add(nullptr));
+      hal.watchdog_rewatch();
       return handled;
     #else
       UNUSED(command_ptr);
@@ -244,11 +249,29 @@ int MarlinHAL::freeMemory() { return ESP.getFreeHeap(); }
   // reset on timeout, and watch the Marlin loop task, which calls watchdog_refresh().
   void MarlinHAL::watchdog_init() {
     task_wdt_init(WDT_TIMEOUT_S);
-    esp_task_wdt_add(nullptr);
+    watchdog_task = xTaskGetCurrentTaskHandle();
+    esp_task_wdt_add(watchdog_task);
   }
 
-  // Reset watchdog.
-  void MarlinHAL::watchdog_refresh() { esp_task_wdt_reset(); }
+  // Reset watchdog. ESP3DLib may call Marlin code that does this from its own task,
+  // or from the loop task while the watchdog isn't watching it (watchdog_unwatch).
+  void MarlinHAL::watchdog_refresh() {
+    if (xTaskGetCurrentTaskHandle() == watchdog_task) esp_task_wdt_reset();
+  }
+
+  void MarlinHAL::watchdog_unwatch() {
+    if (!watchdog_task) return;
+    esp_task_wdt_delete(watchdog_task);
+    watchdog_task = nullptr;
+    watchdog_unwatched = true;
+  }
+
+  void MarlinHAL::watchdog_rewatch() {
+    if (!watchdog_unwatched) return;
+    watchdog_unwatched = false;
+    watchdog_task = xTaskGetCurrentTaskHandle();
+    esp_task_wdt_add(watchdog_task);
+  }
 
 #endif
 
