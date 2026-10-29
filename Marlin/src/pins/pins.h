@@ -896,7 +896,7 @@
 //
 
 #elif MB(ESPRESSIF_ESP32)
-  #include "esp32/pins_ESP32.h"                     // ESP32                                env:esp32_idf4
+  #include "esp32/pins_ESP32.h"                     // ESP32                                env:esp32_idf4 env:esp32_idf5
 #elif MB(MRR_ESPA)
   #include "esp32/pins_MRR_ESPA.h"                  // ESP32                                env:esp32_idf3
 #elif MB(MRR_ESPE)
@@ -912,7 +912,7 @@
 #elif MB(PANDA_M4)
   #include "esp32/pins_PANDA_M4.h"                  // ESP32                                env:PANDA
 #elif MB(MKS_TINYBEE)
-  #include "esp32/pins_MKS_TINYBEE.h"               // ESP32                                env:mks_tinybee
+  #include "esp32/pins_MKS_TINYBEE.h"               // ESP32                                env:mks_tinybee env:mks_tinybee_idf5
 #elif MB(ENWI_ESPNP)
   #include "esp32/pins_ENWI_ESPNP.h"                // ESP32                                env:esp32_idf3
 #elif MB(GODI_CONTROLLER_V1_0)
