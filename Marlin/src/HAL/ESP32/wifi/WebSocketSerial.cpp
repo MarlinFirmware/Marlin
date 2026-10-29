@@ -106,7 +106,6 @@ void WebSocketSerial::begin(const long baud_setting) {
   ws.onEvent([this](AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType type, void *arg, uint8_t *data, size_t len) {
     switch (type) {
       case WS_EVT_CONNECT:                        // client connected
-        client->setCloseClientOnQueueFull(false); // A full queue drops output instead of the client
         client->client()->setNoDelay(true);       // Send each line now, not after the last one is acknowledged
         client->ping();
         break;
@@ -129,21 +128,18 @@ int WebSocketSerial::read() { return rx_buffer.read(); }
 int WebSocketSerial::available() { return rx_buffer.available(); }
 void WebSocketSerial::flush() { rx_buffer.flush(); }
 
-// Each client queues at most WS_MAX_QUEUED_MESSAGES messages. Wait up to 50ms for room,
-// so a burst of output (e.g., M115) isn't lost. If a client stops reading, drop output
-// without waiting until there's room again, so the client can't stall Marlin.
+// Each client queues at most WS_MAX_QUEUED_MESSAGES messages, and is closed if its queue overflows.
+// Wait up to 50ms for room, so a burst of output (e.g., M115) reaches clients that are reading.
+// Once a wait times out, don't wait again until every queue has room, so a client that stops
+// reading can't slow Marlin. textAll() only queues to connected clients.
 void WebSocketSerial::send(const uint8_t *data, const size_t len) {
-  static bool dropping = false;
+  static bool waited_out = false;
   ws.cleanupClients(); // A closed client counts as full until removed
-  if (!ws.availableForWriteAll()) {
-    if (dropping) return;
+  if (!waited_out) {
     const uint32_t start = millis();
-    while (!ws.availableForWriteAll()) {
-      if (millis() - start >= 50) { dropping = true; return; }
-      delay(1);
-    }
+    while (!ws.availableForWriteAll() && millis() - start < 50) delay(1);
   }
-  dropping = false;
+  waited_out = !ws.availableForWriteAll();
   ws.textAll(data, len);
 }
 
