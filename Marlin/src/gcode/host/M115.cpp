@@ -226,6 +226,9 @@ void GcodeSuite::M115() {
     // MOTION_MODES (M80-M89)
     cap_line(F("MOTION_MODES"), ENABLED(GCODE_MOTION_MODES));
 
+    // DRILL CYCLES (G73-99)
+    cap_line(F("DRILL_CYCLES"), ENABLED(DRILL_CYCLES));
+
     // ARC_SUPPORT (G2-G3)
     cap_line(F("ARCS"), ENABLED(ARC_SUPPORT));
 
