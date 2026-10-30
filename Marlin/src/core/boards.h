@@ -134,6 +134,7 @@
 #define BOARD_XTLW_MFF_V1             1166  // XTLW MFF V1.0
 #define BOARD_XTLW_MFF_V2             1167  // XTLW MFF V2.0
 #define BOARD_RUMBA_E3D               1168  // E3D Rumba BigBox
+#define BOARD_RAMPS_PANCAKEBOT        1169  // PancakeBot (RAMPS 1.3 based)
 
 //
 // RAMBo and derivatives

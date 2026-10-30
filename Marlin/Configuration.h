@@ -1023,6 +1023,17 @@
   #define PEN_UP_DOWN_MENU                // Add "Pen Up" and "Pen Down" to the MarlinUI menu
 #endif
 
+// @section pancakebot
+
+/**
+ * PancakeBot
+ *  - Batter Pump on the fan output (M106 / M107) stops while the print is paused.
+ *  - LEDs that show SD printing and SD card errors.
+ *
+ * Use with the PancakeBot board and PANCAKEBOT_PANEL.
+ */
+//#define PANCAKEBOT
+
 // @section delta
 
 /**
@@ -3155,6 +3166,12 @@
 // https://reprap.org/wiki/MaKrPanel
 //
 //#define MAKRPANEL
+
+//
+// PancakeBot Panel with a 128x32 ST7565 graphic display and 4 push buttons.
+// Up / Down / Select / Back. Use with the PancakeBot board and PANCAKEBOT.
+//
+//#define PANCAKEBOT_PANEL
 
 //
 // Adafruit ST7565 Full Graphic Controller.

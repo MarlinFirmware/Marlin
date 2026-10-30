@@ -1079,6 +1079,24 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
 #endif
 
 /**
+ * PancakeBot
+ */
+#if ENABLED(PANCAKEBOT)
+  #if !PIN_EXISTS(PANCAKEBOT_WORKING_LED) || !PIN_EXISTS(PANCAKEBOT_SD_ERROR_LED)
+    #error "PANCAKEBOT requires PANCAKEBOT_WORKING_LED_PIN and PANCAKEBOT_SD_ERROR_LED_PIN."
+  #elif !HAS_MEDIA
+    #error "PANCAKEBOT requires SDSUPPORT."
+  #endif
+#endif
+#if ENABLED(PANCAKEBOT_PANEL)
+  #if !defined(DOGLCD_SCK) || !defined(DOGLCD_MOSI) || !defined(DOGLCD_CS) || !defined(DOGLCD_A0)
+    #error "PANCAKEBOT_PANEL requires DOGLCD_SCK, DOGLCD_MOSI, DOGLCD_CS, and DOGLCD_A0."
+  #elif !defined(BTN_UP) || !defined(BTN_DOWN) || !defined(BTN_ENC)
+    #error "PANCAKEBOT_PANEL requires BTN_UP, BTN_DOWN, and BTN_ENC."
+  #endif
+#endif
+
+/**
  * Synchronous M106/M107 checks
  */
 #if ENABLED(LASER_SYNCHRONOUS_M106_M107)
