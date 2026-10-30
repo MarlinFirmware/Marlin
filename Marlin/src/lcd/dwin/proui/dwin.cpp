@@ -2276,7 +2276,7 @@ void setMoveZ() { hmiValue.axis = Z_AXIS; setPFloatOnClick(Z_MIN_POS, Z_MAX_POS,
   void setProbeOffsetY() { setPFloatOnClick(PROBE_OFFSET_YMIN, PROBE_OFFSET_YMAX, UNITFDIGITS); }
   void setProbeOffsetZ() { setPFloatOnClick(PROBE_OFFSET_ZMIN, PROBE_OFFSET_ZMAX, 2); }
   #if ENABLED(GLOBAL_MESH_Z_OFFSET)
-    void setMeshZOffset() { setPFloatOnClick(PROBE_OFFSET_ZMIN, PROBE_OFFSET_ZMAX, 2); }
+    void setMeshZOffset() { setPFloatOnClick(PROBE_OFFSET_ZMIN, PROBE_OFFSET_ZMAX, 2, mesh_z_offset_changed); }
   #endif
 
   #if ENABLED(Z_MIN_PROBE_REPEATABILITY_TEST)

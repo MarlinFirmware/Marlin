@@ -886,6 +886,7 @@ G29_TYPE GcodeSuite::G29() {
         bedlevel.set_grid(abl.gridSpacing, abl.probe_position_lf);
         COPY(bedlevel.z_values, abl.z_values);
         TERN_(IS_KINEMATIC, bedlevel.extrapolate_unprobed_bed_level());
+        TERN_(GLOBAL_MESH_Z_OFFSET, bedlevel.center_z_mesh_offset()); // Move the mesh average into the global offset
         bedlevel.refresh_bed_level();
 
         bedlevel.print_leveling_grid();
@@ -1012,7 +1013,6 @@ G29_TYPE GcodeSuite::G29() {
     #elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
 
       // Auto Bed Leveling is complete! Enable if possible.
-      TERN_(GLOBAL_MESH_Z_OFFSET, if (!abl.dryrun) bedlevel.center_z_mesh_offset());
       if (!abl.dryrun || abl.reenable) set_bed_leveling_enabled(true);
 
     #endif

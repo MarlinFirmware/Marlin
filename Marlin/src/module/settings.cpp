@@ -36,7 +36,7 @@
  */
 
 // Change EEPROM version if the structure changes
-#define EEPROM_VERSION "V91"
+#define EEPROM_VERSION "V92"
 #define EEPROM_OFFSET 100
 
 // Check the integrity of data offsets.
@@ -273,7 +273,7 @@ typedef struct SettingsDataStruct {
   //
   // GLOBAL_MESH_Z_OFFSET
   //
-  float bedlevel_z_offset;                              // M423 Zn     mesh_z_offset
+  float bedlevel_z_offset;                              // M424 Zn     mesh_z_offset
                                                         // G29 S4 Zn   also for MESH_BED_LEVELING
 
   //

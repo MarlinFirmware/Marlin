@@ -73,7 +73,7 @@
   #include "../../feature/bedlevel/bedlevel.h"
 #endif
 
-#if ANY(BABYSTEP_ZPROBE_OFFSET, BABYSTEP_GLOBAL_Z_OFFSET)
+#if ANY(BABYSTEP_ZPROBE_OFFSET, BABYSTEP_GLOBAL_Z)
   #include "../../feature/babystep.h"
 #endif
 

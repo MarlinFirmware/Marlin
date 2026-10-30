@@ -308,7 +308,7 @@ void menu_probe_level() {
         #else
           #define LCD_Z_OFFSET_TYPE float42_52 // Values from -99.99 to 99.99
         #endif
-        EDIT_ITEM(LCD_Z_OFFSET_TYPE, MSG_MESH_Z_OFFSET, &mesh_z_offset, PROBE_OFFSET_ZMIN, PROBE_OFFSET_ZMAX);
+        EDIT_ITEM(LCD_Z_OFFSET_TYPE, MSG_MESH_Z_OFFSET, &mesh_z_offset, PROBE_OFFSET_ZMIN, PROBE_OFFSET_ZMAX, mesh_z_offset_changed);
       #endif
 
     #endif // HAS_LEVELING

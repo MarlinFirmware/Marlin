@@ -313,7 +313,7 @@ static void set_value_confirm() {
     #if ENABLED(GLOBAL_MESH_Z_OFFSET)
       case meshZOffset: {
         const float z = atof(key_value);
-        if (WITHIN(z, PROBE_OFFSET_ZMIN, PROBE_OFFSET_ZMAX)) mesh_z_offset = z;
+        if (WITHIN(z, PROBE_OFFSET_ZMIN, PROBE_OFFSET_ZMAX)) set_mesh_z_offset(z);
       } break;
     #endif
 

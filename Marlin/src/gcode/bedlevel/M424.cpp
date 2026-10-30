@@ -43,10 +43,7 @@ void GcodeSuite::M424() {
     return;
   }
 
-  if (zval != mesh_z_offset) {
-    planner.synchronize();
-    mesh_z_offset = zval; // TODO: Handle the change in position when leveling is on
-  }
+  set_mesh_z_offset(zval);
 }
 
 void GcodeSuite::M424_report(const bool forReplay/*=true*/) {

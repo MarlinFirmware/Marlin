@@ -124,6 +124,28 @@ TemporaryBedLevelingState::TemporaryBedLevelingState(const bool enable) : saved(
 
 #endif // ENABLE_LEVELING_FADE_HEIGHT
 
+#if ENABLED(GLOBAL_MESH_Z_OFFSET)
+
+  /**
+   * The mesh Z offset is applied by the planner, so while leveling is active it
+   * shifts the physical Z of every move without moving the nozzle right now.
+   * Keep the stepper position and re-derive the logical Z so that logical
+   * and physical coordinates stay in agreement, in both directions.
+   */
+  void mesh_z_offset_changed() {
+    if (!planner.leveling_active) return;
+    planner.synchronize();
+    motion.set_current_from_steppers_for_axis(Z_AXIS);
+  }
+
+  void set_mesh_z_offset(const float zoff) {
+    if (zoff == mesh_z_offset) return;
+    mesh_z_offset = zoff;
+    mesh_z_offset_changed();
+  }
+
+#endif // GLOBAL_MESH_Z_OFFSET
+
 /**
  * Reset calibration results to zero.
  */
