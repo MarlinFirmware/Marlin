@@ -622,6 +622,11 @@
     #endif
   #endif
 
+  // G-code thumbnails (embedded images in the SD file header)
+  #if ENABLED(CREALITY_RTS)
+    #define HAS_GCODE_THUMBNAIL 1
+  #endif
+
 #else // !HAS_MEDIA
   #undef REINIT_NOISY_LCD
 #endif
