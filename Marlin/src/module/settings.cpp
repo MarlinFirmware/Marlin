@@ -119,6 +119,10 @@
   #include "../feature/backlash.h"
 #endif
 
+#if ANY(MIXING_VTOOLS_IN_EEPROM, GRADIENT_MIX_IN_EEPROM)
+  #include "../feature/mixing.h"
+#endif
+
 #if ENABLED(FT_MOTION)
   #include "../module/ft_motion.h"
 #endif
@@ -738,6 +742,21 @@ typedef struct SettingsDataStruct {
     mks_wifi_settings_t mks_wifi_settings;              // M587 S P
   #endif
 
+  //
+  // MIXING_EXTRUDER
+  //
+  #if ENABLED(MIXING_VTOOLS_IN_EEPROM)
+    mixer_comp_t mixer_color[MIXING_VIRTUAL_TOOLS][MIXING_STEPPERS]; // M163 S P, M164 S
+  #endif
+  #if ENABLED(GRADIENT_MIX_IN_EEPROM)
+    bool gradient_allowed;                              // M166 S
+    float gradient_start_z, gradient_end_z;             // M166 A Z
+    int8_t gradient_start_vtool, gradient_end_vtool;    // M166 I J
+    #if ENABLED(GRADIENT_VTOOL)
+      int8_t gradient_vtool_index;                      // M166 T
+    #endif
+  #endif
+
 } SettingsData;
 
 //static_assert(sizeof(SettingsData) <= MARLIN_EEPROM_SIZE, "EEPROM too small to contain SettingsData!");
@@ -789,6 +808,8 @@ void MarlinSettings::postprocess() {
   TERN_(HAS_LINEAR_E_JERK, planner.recalculate_max_e_jerk());
 
   TERN_(CASELIGHT_USES_BRIGHTNESS, caselight.update_brightness());
+
+  TERN_(GRADIENT_MIX_IN_EEPROM, mixer.refresh_gradient());
 
   TERN_(EXTENSIBLE_UI, ExtUI::onPostprocessSettings());
 
@@ -1891,6 +1912,23 @@ void MarlinSettings::postprocess() {
     #if ENABLED(MKS_WIFI_MODULE)
       _FIELD_TEST(mks_wifi_settings);
       EEPROM_WRITE(mks_wifi);
+    #endif
+
+    //
+    // MIXING_EXTRUDER
+    //
+    #if ENABLED(MIXING_VTOOLS_IN_EEPROM)
+      _FIELD_TEST(mixer_color);
+      for (uint8_t t = 0; t < MIXING_VIRTUAL_TOOLS; ++t) EEPROM_WRITE(mixer.color[t]);
+    #endif
+    #if ENABLED(GRADIENT_MIX_IN_EEPROM)
+      _FIELD_TEST(gradient_allowed);
+      EEPROM_WRITE(mixer.gradient.allowed);
+      EEPROM_WRITE(mixer.gradient.start_z);
+      EEPROM_WRITE(mixer.gradient.end_z);
+      EEPROM_WRITE(mixer.gradient.start_vtool);
+      EEPROM_WRITE(mixer.gradient.end_vtool);
+      TERN_(GRADIENT_VTOOL, EEPROM_WRITE(mixer.gradient.vtool_index));
     #endif
 
     //
@@ -3109,6 +3147,23 @@ void MarlinSettings::postprocess() {
       #endif
 
       //
+      // MIXING_EXTRUDER
+      //
+      #if ENABLED(MIXING_VTOOLS_IN_EEPROM)
+        _FIELD_TEST(mixer_color);
+        for (uint8_t t = 0; t < MIXING_VIRTUAL_TOOLS; ++t) EEPROM_READ(mixer.color[t]);
+      #endif
+      #if ENABLED(GRADIENT_MIX_IN_EEPROM)
+        _FIELD_TEST(gradient_allowed);
+        EEPROM_READ(mixer.gradient.allowed);
+        EEPROM_READ(mixer.gradient.start_z);
+        EEPROM_READ(mixer.gradient.end_z);
+        EEPROM_READ(mixer.gradient.start_vtool);
+        EEPROM_READ(mixer.gradient.end_vtool);
+        TERN_(GRADIENT_VTOOL, EEPROM_READ(mixer.gradient.vtool_index));
+      #endif
+
+      //
       // Validate Final Size and CRC
       //
       const uint16_t eeprom_total = eeprom_index - (EEPROM_OFFSET);
@@ -3978,6 +4033,12 @@ void MarlinSettings::reset() {
   TERN_(MKS_WIFI_MODULE, mks_wifi_reset_settings());
 
   //
+  // Mixing Extruder Virtual Tools
+  //
+  TERN_(MIXING_VTOOLS_IN_EEPROM, mixer.reset_vtools());
+  TERN_(GRADIENT_MIX_IN_EEPROM, mixer.reset_gradient());
+
+  //
   // Hotend Idle Timeout
   //
   TERN_(HOTEND_IDLE_TIMEOUT, hotend_idle.cfg.set_defaults());
@@ -4218,6 +4279,12 @@ void MarlinSettings::reset() {
     // G-Code Macros
     //
     TERN_(GCODE_MACROS, gcode.M810_819_report(forReplay));
+
+    //
+    // Mixing Extruder Virtual Tools
+    //
+    TERN_(MIXING_VTOOLS_IN_EEPROM, gcode.M163_report(forReplay));
+    TERN_(GRADIENT_MIX_IN_EEPROM, gcode.M166_report(forReplay));
 
     //
     // Probe Offset
