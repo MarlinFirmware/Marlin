@@ -1,0 +1,20 @@
+/**
+ * Generated automatically by buildroot/share/fonts/uxggenpages_u8g2.sh
+ * Contents will be REPLACED by future processing!
+ * Use genallfont_u8g2.sh to generate font data for updated languages.
+ */
+#pragma once
+
+#include <U8g2lib.h>
+
+/*
+  Fontname: -Marlin6x12-Fixed-Medium-R-SemiCondensed--12-90-100-100-C-111-ISO10646-1
+  Copyright: Public domain terminal emulator font.  Share and enjoy. original font -Misc-Fixed-Medium-R-SemiCondensed--12-110-75-75-C-60-ISO10646-1
+  Glyphs: 1/33809
+  BBX Build Mode: 0
+*/
+const uint8_t fontdata_ro[43] U8G2_FONT_SECTION("fontdata_ro") = {
+  0x01,0x00,0x03,0x03,0x03,0x04,0x01,0x01,0x04,0x05,0x08,0x00,0x00,0x07,0xFE,0x08,
+  0xFF,0x00,0x00,0x00,0x00,0x00,0x02,0x00,0x00,0x00,0x04,0xFF,0xFF,0x01,0x03,0x0C,
+  0xC5,0x1D,0xB1,0xC8,0x7C,0x1A,0xA9,0x45,0x08,0x00
+};

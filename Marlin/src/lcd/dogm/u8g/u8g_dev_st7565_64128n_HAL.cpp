@@ -55,7 +55,7 @@
 
 #include "../../../inc/MarlinConfig.h"
 
-#if HAS_MARLINUI_U8GLIB
+#if HAS_MARLINUI_U8GLIB && !HAS_MARLINUI_U8G2
 
 #include <U8glib-HAL.h>
 #include "HAL_LCD_com_defines.h"
