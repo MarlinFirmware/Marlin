@@ -29,6 +29,6 @@
 
 #define mmuVersionMajor 3
 #define mmuVersionMinor 0
-#define mmuVersionPatch 2
+#define mmuVersionPatch 0     // Minimum MMU FW version. Major and minor must match; any newer patch level is accepted.
 
 #define MMU_VERSION STRINGIFY(mmuVersionMajor) "." STRINGIFY(mmuVersionMinor) "." STRINGIFY(mmuVersionPatch)
