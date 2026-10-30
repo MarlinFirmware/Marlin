@@ -81,6 +81,11 @@ extern bool power_off_type_yes;
 #define PRINT_TIME_HOUR_VP                 0x1010
 #define PRINT_TIME_MIN_VP                  0x1012
 #define PRINT_PROCESS_VP                   0x1016
+#define DEFAULT_PRINT_MODEL_VP             0x1420  // 1 = show the default model icon (no preview)
+#define DOWNLOAD_PREVIEW_VP                0x1421  // 1..8 = loading animation, 0 = off
+#define PRINT_PREVIEW_PIC_VP               0xB000  // JPEG display variable for the print preview
+#define PRINT_PREVIEW_BRIGHTNESS_VP        0x8800  // Preview brightness (dims the unprinted part)
+#define PRINT_PREVIEW_SP_VP                0x9000  // Preview brightness description pointer
 #define PRINTER_FANOPEN_TITLE_VP           0x101E
 #define PRINTER_LEDOPEN_TITLE_VP           0x101F
 //#define PRINTER_AUTO_SHUTDOWN_ICON_VP      0x1020
@@ -446,6 +451,12 @@ class RTS {
     static void handleData();
     static void init();
     static void sendText(const char string[], unsigned long addr, uint8_t textSize=30);
+
+    #if HAS_GCODE_THUMBNAIL
+      static void sendBytes(const uint8_t * const data, const uint8_t len, const uint16_t addr);
+      static bool sendPreview(const char * const filename);
+      static void showPreviewProgress(const uint8_t percent);
+    #endif
     static DB recdat;
     static DB snddat;
   private:

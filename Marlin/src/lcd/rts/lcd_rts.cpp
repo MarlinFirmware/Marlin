@@ -40,6 +40,8 @@
 #include "../../module/planner.h"
 #include "../../gcode/queue.h"
 #include "../../gcode/gcode.h"
+#include "../../sd/cardreader.h"
+#include "../../sd/gcode_thumbnail.h"
 
 #if HAS_BED_PROBE
   #include "../../module/probe.h"
@@ -471,6 +473,8 @@ void RTS::init() {
 
   /*********transmit SD card filename to screen***************/
   sdCardInit();
+  TERN_(HAS_GCODE_THUMBNAIL, sendData(1, DEFAULT_PRINT_MODEL_VP));
+  TERN_(HAS_GCODE_THUMBNAIL, sendData(0, DOWNLOAD_PREVIEW_VP));
 
   /***************transmit Printer information to screen*****************/
   sendData(MACHINE_NAME, MACHINE_NAME_ABOUT_TEXT_VP);
@@ -736,6 +740,98 @@ void RTS::sendText(const char string[], unsigned long addr, uint8_t textSize) {
   for (int8_t i = 0; i < textSize; i++) sendData(0, addr + i);
   sendData(string, addr);
 }
+
+#if HAS_GCODE_THUMBNAIL
+
+  // Print preview: a 300x300 JPEG embedded in the G-code header by Creality Print
+  #define PREVIEW_TAG       "jpg"
+  #define PREVIEW_W         300
+  #define PREVIEW_H         300
+  #define PREVIEW_CHUNK     240   // Bytes per write to the screen (a multiple of 2)
+  #define PREVIEW_ACK_MS    25    // Time to wait for the screen to acknowledge each chunk
+
+  // Write raw bytes to a screen variable. The screen takes whole 16-bit words.
+  void RTS::sendBytes(const uint8_t * const data, const uint8_t len, const uint16_t addr) {
+    LCD_SERIAL.write(FHONE);
+    LCD_SERIAL.write(FHTWO);
+    LCD_SERIAL.write(uint8_t(3 + len));
+    LCD_SERIAL.write(uint8_t(VarAddr_W));
+    LCD_SERIAL.write(uint8_t(addr >> 8));
+    LCD_SERIAL.write(uint8_t(addr & 0xFF));
+    for (uint8_t i = 0; i < len; ++i) LCD_SERIAL.write(data[i]);
+  }
+
+  // Discard the screen's reply to a write: 5A A5 03 82 4F 4B ("OK")
+  static void wait_preview_ack() {
+    const millis_t timeout = millis() + PREVIEW_ACK_MS;
+    uint32_t tail = 0;
+    while (PENDING(millis(), timeout)) {
+      if (LCD_SERIAL.available()) {
+        tail = (tail << 8) | uint8_t(LCD_SERIAL.read());
+        if (tail == 0x03824F4B) break;
+      }
+    }
+  }
+
+  /**
+   * Send the 300x300 preview from the given G-code file to the screen.
+   * The screen's JPEG variable takes [0x5AA5, size] followed by the image
+   * at the variable address + 2 words; the start flag is cleared first and
+   * set last so a partial image is never shown.
+   * Returns true if the file has a preview and it was sent.
+   */
+  bool RTS::sendPreview(const char * const filename) {
+    sendData(0, DEFAULT_PRINT_MODEL_VP);
+
+    card.openFileRead(filename);
+    bool ok = card.isFileOpen() && GCodeThumbnail::find(PSTR(PREVIEW_TAG), PREVIEW_W, PREVIEW_H);
+    if (ok) {
+      static_assert(PREVIEW_CHUNK % 2 == 0 && PREVIEW_CHUNK <= 250, "PREVIEW_CHUNK must be even and fit in one frame.");
+      const uint32_t size = GCodeThumbnail::size();
+      uint8_t buf[PREVIEW_CHUNK];
+
+      sendBytes((const uint8_t*)"\0\0\0\0", 4, PRINT_PREVIEW_PIC_VP); // Clear the start flag and size
+      uint16_t word_addr = PRINT_PREVIEW_PIC_VP + 2;
+      uint32_t sent = 0;
+      uint8_t frame = 0;
+      while (sent < size) {
+        const uint16_t want = _MIN(uint32_t(PREVIEW_CHUNK), size - sent);
+        const uint16_t got = GCodeThumbnail::read(buf, want);
+        if (!got) { ok = false; break; }
+        const uint16_t padded = (got + 1) & ~1;          // Whole words
+        if (got & 1) buf[got] = 0;                       // (chunk size is even, only the last can be odd)
+        sendBytes(buf, padded, word_addr);
+        word_addr += padded / 2;
+        sent += got;
+        sendData(1 + (frame++ & 7), DOWNLOAD_PREVIEW_VP); // Loading animation
+        hal.watchdog_refresh();
+        wait_preview_ack();
+      }
+      sendData(0, DOWNLOAD_PREVIEW_VP);
+
+      if (ok) {
+        const uint8_t start[4] = { 0x5A, 0xA5, uint8_t(size >> 8), uint8_t(size & 0xFF) };
+        sendBytes(start, 4, PRINT_PREVIEW_PIC_VP);       // Display the image
+      }
+    }
+    card.closefile();
+
+    sendData(ok ? 0 : 1, DEFAULT_PRINT_MODEL_VP);        // No preview? Show the default model icon
+    showPreviewProgress(0);
+    return ok;
+  }
+
+  // Dim the part of the preview that hasn't been printed yet
+  void RTS::showPreviewProgress(const uint8_t percent) {
+    constexpr uint16_t left = 186, top = 70, width = 300, height = 300; // Preview area on the print page
+    sendData(left, PRINT_PREVIEW_SP_VP + 1);
+    sendData(top, PRINT_PREVIEW_SP_VP + 2);
+    sendData(left + width, PRINT_PREVIEW_SP_VP + 3);
+    sendData(top + (100 - _MIN(percent, uint8_t(100))) * height / 100, PRINT_PREVIEW_SP_VP + 4);
+    sendData(120, PRINT_PREVIEW_BRIGHTNESS_VP);           // Brightness of the dimmed part (0 = darkest, 256 = full)
+  }
+
+#endif // HAS_GCODE_THUMBNAIL
 
 void RTS::sdCardStop() {
   if (PoweroffContinue) {
@@ -2399,6 +2495,7 @@ void RTS::handleData() {
 
       sendData(ExchangePageBase + 1, ExchangepageAddr);
       change_page_font = 1;
+      TERN_(HAS_GCODE_THUMBNAIL, sendPreview(CardRecbuf.Cardfilename[CardRecbuf.recordcount]));
       delay(20);
       sendData(CardRecbuf.Cardshowfilename[CardRecbuf.recordcount], SELECT_FILE_TEXT_VP);
       break;
@@ -2688,6 +2785,7 @@ void RTS::eachMomentUpdate() {
 
       sendData(pct, PRINT_PROCESS_VP);
       last_cardpercentValue = pct;
+      TERN_(HAS_GCODE_THUMBNAIL, showPreviewProgress(pct));
       sendData(10.0f * motion.position.z, AXIS_Z_COORD_VP);
     }
 
