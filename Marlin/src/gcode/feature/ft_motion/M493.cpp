@@ -222,8 +222,10 @@ void GcodeSuite::M493() {
     if (parser.seen('S')) {
       const bool active = parser.value_bool();
       if (active != c.active) {
+        parser.inverse_time_enabled = false;
         ftMotion.toggle();
         flag.report = true;
+        parser.inverse_time_enabled = true;
       }
     }
   #endif
