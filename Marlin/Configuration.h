@@ -2536,6 +2536,7 @@
 #if ENABLED(EEPROM_SETTINGS)
   //#define EEPROM_AUTO_INIT  // Init EEPROM automatically on any errors.
   //#define EEPROM_INIT_NOW   // Init EEPROM on first boot after a new build.
+  //#define EEPROM_AUTOSAVE_AFTER 5000  // (ms) Save settings this long after they're edited on a supporting LCD, once not printing.
 #endif
 
 // @section host
@@ -3369,13 +3370,18 @@
  *  - Download https://www.crealitycloud.com/downloads/firmware/sermoon-series/sermoon-d1
  *  - Copy the DWIN_SET folder from the firmware package to the SD card.
  *
+ * CREALITY_TOUCH
+ *  - Creality CR-6 SE touch screen. Requires CR-6 Community touch screen firmware v61 or newer.
+ *  - Download https://github.com/CR6Community/CR-6-touchscreen/releases
+ *  - Copy the DWIN_SET folder from the release to the SD card.
+ *
  * Flash display with DGUS Displays for Marlin:
  *  - Format the SD card to FAT32 with an allocation size of 4kb.
  *  - Download files as specified for your type of display.
  *  - Plug the microSD card into the back of the display.
  *  - Boot the display and wait for the update to complete.
  *
- * :[ 'ORIGIN', 'FYSETC', 'HYPRECY', 'MKS', 'RELOADED', 'IA_CREALITY', 'E3S1PRO', 'CR10SPROV2', 'SERMOON_D1' ]
+ * :[ 'ORIGIN', 'FYSETC', 'HYPRECY', 'MKS', 'RELOADED', 'IA_CREALITY', 'E3S1PRO', 'CR10SPROV2', 'SERMOON_D1', 'CREALITY_TOUCH' ]
  */
 //#define DGUS_LCD_UI ORIGIN
 #if DGUS_UI_IS(MKS)

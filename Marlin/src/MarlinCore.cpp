@@ -861,6 +861,11 @@ void Marlin::idle(const bool no_stepper_sleep/*=false*/) {
   // Update the Print Job Timer state
   TERN_(PRINTCOUNTER, print_job_timer.tick());
 
+  // Save settings after a change that requested it
+  #ifdef EEPROM_AUTOSAVE_AFTER
+    settings.autosave_task();
+  #endif
+
   // Update the Beeper queue
   TERN_(HAS_BEEPER, buzzer.tick());
 
