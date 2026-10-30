@@ -59,3 +59,18 @@
 #if ALL(I2S_STEPPER_STREAM, PRINTCOUNTER) && PRINTCOUNTER_SAVE_INTERVAL > 0 && DISABLED(PRINTCOUNTER_SYNC)
   #error "PRINTCOUNTER_SAVE_INTERVAL may cause issues on ESP32 with an I2S expander. Define PRINTCOUNTER_SYNC in Configuration.h for an imperfect solution."
 #endif
+
+#if ENABLED(BLUETOOTH)
+  #error "BLUETOOTH is for AT90USB. On ESP32 set SERIAL_PORT, SERIAL_PORT_2 or SERIAL_PORT_3 to -2 for Bluetooth."
+#elif HAS_BLUETOOTH_SERIAL && ANY(WIFISUPPORT, ESP3D_WIFISUPPORT)
+  #error "ESP32 doesn't have enough RAM for Bluetooth (-2) together with WIFISUPPORT or ESP3D_WIFISUPPORT."
+#endif
+
+#if HAS_BLUETOOTH_SERIAL && __has_include(<core_version.h>)
+  #include <core_version.h>
+  // Before 1.0.6, BluetoothSerial stops sending for good if a host disconnects while the link is congested
+  #if defined(ARDUINO_ESP32_RELEASE_1_0_0) || defined(ARDUINO_ESP32_RELEASE_1_0_1) || defined(ARDUINO_ESP32_RELEASE_1_0_2) \
+   || defined(ARDUINO_ESP32_RELEASE_1_0_3) || defined(ARDUINO_ESP32_RELEASE_1_0_4) || defined(ARDUINO_ESP32_RELEASE_1_0_5)
+    #error "Bluetooth (-2) requires arduino-esp32 1.0.6 or newer. Use an environment with a newer espressif32 platform."
+  #endif
+#endif
