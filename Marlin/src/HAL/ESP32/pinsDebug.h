@@ -32,6 +32,7 @@
  *   - digitalPinToAnalogIndex(pin)
  *   - getValidPinMode(pin)
  *   - isValidPin(pin)
+ *   - M43_NEVER_TOUCH(pin)
  *   - isAnalogPin(pin)
  *   - digitalRead_mod(pin)
  *   - pwm_status(pin)
@@ -60,6 +61,12 @@
  * whichever ESP32 variant is being built.
  */
 #define isValidPin(P) (WITHIN(P, 0, pin_t(NUMBER_PINS_TOTAL - 1)) && GPIO_IS_VALID_GPIO(P))
+
+/**
+ * M43 must never drive the SPI flash pins (GPIO 6-11), which crashes the chip,
+ * or the UART0 pins (GPIO 1, 3) of the host serial port, which then stops working.
+ */
+#define M43_NEVER_TOUCH(Q) (WITHIN(Q, 6, 11) || (Q) == 1 || (Q) == 3)
 
 /**
  * ADC channels are not a contiguous range of GPIOs, so the channel and the pin
