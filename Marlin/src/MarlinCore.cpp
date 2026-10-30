@@ -475,10 +475,11 @@ void Marlin::manage_inactivity(const bool no_stepper_sleep/*=false*/) {
 
       static bool already_shutdown_steppers; // = false
 
-      if (!has_blocks && !do_reset_timeout && gcode.stepper_inactive_timeout()) {
-        const bool already = already_shutdown_steppers;
-        already_shutdown_steppers = !already;
-        if (!already) {
+      // CREALITY_RTS: Don't time out the steppers while a job is printing or paused
+      if (!has_blocks && !do_reset_timeout && gcode.stepper_inactive_timeout() && TERN1(CREALITY_RTS, !card.isPrinting() && !card.isPaused())) {
+        if (!already_shutdown_steppers) {
+          already_shutdown_steppers = true;
+
           // Individual axes will be disabled if configured
           TERN_(DISABLE_IDLE_X, stepper.disable_axis(X_AXIS));
           TERN_(DISABLE_IDLE_Y, stepper.disable_axis(Y_AXIS));
@@ -494,6 +495,8 @@ void Marlin::manage_inactivity(const bool no_stepper_sleep/*=false*/) {
           TERN_(AUTO_BED_LEVELING_UBL, bedlevel.steppers_were_disabled());
         }
       }
+      else
+        already_shutdown_steppers = false;
     }
   #endif
 
@@ -888,10 +891,6 @@ void Marlin::idle(const bool no_stepper_sleep/*=false*/) {
     RTS_Update();
   #else
     ui.update();
-  #endif
-
-  #if ENABLED(PROBE_ACTIVATION_SWITCH)
-    endstops.enable_z_probe(TERN1(CREALITY_RTS, (hmiFlag.home_flag || hmiFlag.G29_flag)) && (LOW == READ(PROBE_ACTIVATION_SWITCH_PIN)));
   #endif
 
   // Run i2c Position Encoders

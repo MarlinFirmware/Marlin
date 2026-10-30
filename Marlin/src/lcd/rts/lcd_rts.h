@@ -425,15 +425,6 @@ class RTS {
   public:
     RTS();
 
-    static float zCoordinateOffset; // Z-axis space coordinate difference
-
-    // Leveling-related functions
-    static bool levelStepHeightMeasure();
-
-    static void setZCoordinateOffset(const float _offset) { // Set the difference between the two coordinates
-      zCoordinateOffset = _offset;                          // (the lower limit of Z and the coordinate system established by BLTouch)
-    }
-
     static void eachMomentUpdate();
 
     static int receiveData();
@@ -605,12 +596,6 @@ void RTS_MoveAxisHoming();
 void RTS_MoveParkNozzle();
 void RTS_CommandPause();
 
-typedef enum {
-  GO_HOME_IDLE,   // idle status
-  GO_HOME_DOING,  // now homing
-  GO_HOME_DONE,   // at home
-} AutoGoHomeSta_t;
-
 // Cloud printing flag
 enum CloudPowerContinuePrintState {
   CLOUD_PLR_NULL_STATE,
@@ -630,27 +615,7 @@ typedef enum {
 
 extern int32_t g_couldPrintState;
 
-typedef struct {
-  // data
-  bool isBedLeveling;
-  unsigned char bedNozzleHeightState;
-  bool bedNozzleHeightCalFinishFlag;
-  unsigned char goHomeSta;
-  /**
-   * Z-axis coordinate offset: use bltouch to detect the origin and use the
-   * limit switch to detect the coordinates of the origin offset, this value
-   * is used to compensate for this offset.
-   */
-  float zCoordinateOffset;
-} BedNozzleHeightCalSt;
-
-extern BedNozzleHeightCalSt st_bedNozzleHeightCal;  // Platform and Nozzle Height Measuring Structure
-extern float bedNozzleHeightCalZ;                   // Platform nozzle Z-axis measurement variable
 extern int8_t g_cloudPLRStatusValue;
-
-void AutoUIBedNozzleHeightCali();
-void LcdAutoUIMoveXYBlock(float _posX, float _posY);
-void LcdAutoUIMoveZBlock(float _posZ);
 
 /////////////////////////////////////////////////////////////////
 

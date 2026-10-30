@@ -167,7 +167,8 @@
      * Move the Z probe (or just the nozzle) to the safe homing point
      * (Z is already at the right height)
      */
-    motion.destination.set(motion.safe_homing_xy, motion.position.z);
+    constexpr xy_float_t safe_homing_xy = { Z_SAFE_HOMING_X_POINT, Z_SAFE_HOMING_Y_POINT };
+    motion.destination.set(safe_homing_xy, motion.position.z);
 
     TERN_(HOMING_Z_WITH_PROBE, motion.destination -= probe.offset_xy);
 
@@ -586,7 +587,6 @@ void GcodeSuite::G28() {
     //DEBUG_ECHOLNPGM(" leveling_flag=: ", hmiFlag.leveling_flag);
     // If it is in leveling, the automatic compensation function will not be restored
     //process_subcommands_now_P(hmiFlag.leveling_flag ? PSTR("M420 S0") : PSTR("M420 S1 Z10"));
-    st_bedNozzleHeightCal.goHomeSta = GO_HOME_DONE;
   #endif
 
   motion.report_position();

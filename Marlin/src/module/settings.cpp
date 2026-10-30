@@ -747,10 +747,6 @@ typedef struct SettingsDataStruct {
   //
   #if ENABLED(CREALITY_RTS)
     bool wifi_enable_flag;        // M194 S
-    #if ENABLED(BLTOUCH_AND_Z_LIMIT)
-      float zCoordinateOffset;    // RTS Z offset
-    #endif
-    float bedNozzleHeightCalZ;
   #endif
 
 } SettingsData;
@@ -1831,10 +1827,6 @@ void MarlinSettings::postprocess() {
     #if ENABLED(CREALITY_RTS)
       _FIELD_TEST(wifi_enable_flag);
       EEPROM_WRITE(wifi_enable_flag);
-      #if ENABLED(BLTOUCH_AND_Z_LIMIT)
-        EEPROM_WRITE(rts.zCoordinateOffset);         // Z轴空间坐标差
-      #endif
-      EEPROM_WRITE(bedNozzleHeightCalZ); // caixiaoliang add 20210807
     #endif
 
     //
@@ -3009,10 +3001,6 @@ void MarlinSettings::postprocess() {
       #if ENABLED(CREALITY_RTS)
         _FIELD_TEST(wifi_enable_flag);
         EEPROM_READ(wifi_enable_flag);
-        #if ENABLED(BLTOUCH_AND_Z_LIMIT)
-          EEPROM_READ(rts.zCoordinateOffset);
-        #endif
-        EEPROM_READ(bedNozzleHeightCalZ);
       #endif
 
       //

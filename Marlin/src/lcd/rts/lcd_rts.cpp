@@ -129,7 +129,6 @@ uint8_t file_current_page = 1;
 uint8_t file_total_page = 1;
 uint8_t page_total_file = 0;
 
-float RTS::zCoordinateOffset; // Z-axis space coordinate difference
 DB RTS::recdat;
 DB RTS::snddat;
 unsigned char RTS::databuf[RTS_DATA_SIZE];
@@ -165,8 +164,6 @@ static bool temp_remove_card_flag = false;
 //static bool temp_cutting_line_flag = false;
 //static bool temp_wifi_print_flag = false; // 0 No interruption, 1 Suspension of material breaking 2 Suspension of card pulling
 
-BedNozzleHeightCalSt st_bedNozzleHeightCal = { 0 }; // Platform and Nozzle Height Measuring Structure
-float bedNozzleHeightCalZ = 0; // Platform nozzle Z-axis measurement variable
 bool g_heaterLoadTempAdd = false; // Inlet and out material temperature heating
 bool g_uiXYAxisEnable = false; // Axis movement interface, YX axis motor enable flag bit
 bool g_uiZAxisEnable = false; // Axis movement interface, Z-axis motor enable flag
@@ -375,7 +372,6 @@ void RTS::init() {
     int8_t inStart, inStop, inInc, showcount;
     showcount = 0;
     settings.load();
-    st_bedNozzleHeightCal.zCoordinateOffset = bedNozzleHeightCalZ;// caixiaoliang add 20210807
     for (int y = 0; y < GRID_MAX_POINTS_Y; y++) {
       // away from origin
       if (zig) {
@@ -902,7 +898,7 @@ void RTS::handleData() {
 
     case AdjustEnterKey:
       if (recdat.data[0] == 1) {
-        sendData(thermalManager.fan_speed[0] ? 0 : 1, PRINTER_FANOPEN_TITLE_VP);
+        sendData(fans[0].speed ? 0 : 1, PRINTER_FANOPEN_TITLE_VP);
         sendData(ExchangePageBase + 14, ExchangepageAddr);
         change_page_font = 14;
       }
@@ -924,7 +920,7 @@ void RTS::handleData() {
         settings.save();
       }
       else if (recdat.data[0] == 3) {
-        const bool fanOn = thermalManager.fan_speed[0];
+        const bool fanOn = fans[0].speed;
         sendData(fanOn ? 1 : 0, PRINTER_FANOPEN_TITLE_VP);
         thermalManager.set_fan_speed(0, fanOn ? 0 : 255);
       }
@@ -1545,7 +1541,7 @@ void RTS::handleData() {
         sendData(0, HEAD_SET_TEMP_VP);
         thermalManager.setTargetBed(0);
         sendData(0, BED_SET_TEMP_VP);
-        thermalManager.fan_speed[0] = 255;
+        fans[0].speed = 255;
         sendData(0, PRINTER_FANOPEN_TITLE_VP);
       }
       else if (recdat.data[0] == 2) {
@@ -1720,7 +1716,6 @@ void RTS::handleData() {
           change_page_font = 21;
         }
         settings.save();
-        st_bedNozzleHeightCal.isBedLeveling = false;
       }
       break;
 
@@ -2250,8 +2245,8 @@ void RTS::handleData() {
       break;
 
     case FanSpeedEnterKey:
-      thermalManager.fan_speed[0] = recdat.data[0];
-      sendData(thermalManager.fan_speed[0], FAN_SPEED_CONTROL_DATA_VP);
+      fans[0].speed = recdat.data[0];
+      sendData(fans[0].speed, FAN_SPEED_CONTROL_DATA_VP);
       break;
 
     case VelocityXaxisEnterKey: {
@@ -2531,7 +2526,7 @@ void RTS::handleData() {
 
       sendData(ui.language == 0 ? CORP_WEBSITE_C : CORP_WEBSITE_E, WEBSITE_ABOUT_TEXT_VP);
 
-      sendData(thermalManager.fan_speed[0] ? 1 : 0, PRINTER_FANOPEN_TITLE_VP);
+      sendData(fans[0].speed ? 1 : 0, PRINTER_FANOPEN_TITLE_VP);
       sendData(LEDStatus ? 1 : 0, PRINTER_LEDOPEN_TITLE_VP);
 
       //Percentrecord = card.percentDone() + 1;
@@ -2924,7 +2919,6 @@ void RTS_Update() {
   if (!marlin.wait_for_heatup && !hmiFlag.home_flag && !hmiFlag.G29_flag) Remove_card_window_check(); // rock_20220709
   hal.watchdog_refresh();
 
-  //AutoUIBedNozzleHeightCali(); // caixiaoliang 20210806 Call the nozzle platform height measurement function
 }
 
 void RTS_PauseMoveAxisPage() {
@@ -3026,148 +3020,6 @@ void ErrorHanding() {
   else if (errorway == 4) {
 
   }
-}
-
-/**
- * [调平步骤--开始找限位开关到CRTouch的距离]
- * @Author Creality
- * @Time   2021-09-22
- */
-bool RTS::levelStepHeightMeasure() {
-  #ifdef BLTOUCH
-    float coordinateOffset = VALUE_INVALID_8BIT;
-    // if (gLcdSermoonV2UI.GetStaGoingHome() != GO_HOME_DONE) return false;
-
-    // set homing status - 'GO_HOME_IDLE'
-    // SetStaGoingHome(GO_HOME_IDLE);  //此处用 home_flag 代替
-    // bltouch+lower limit enabled
-    #if ENABLED(BLTOUCH_AND_Z_LIMIT)
-      //constexpr xy_float_t test_offset_xy = {LEVEL_HEIGHT_MEASURE_X, LEVEL_HEIGHT_MEASURE_Y };
-      //motion.destination.set(test_offset_xy, motion.position.z);
-      ////motion.destination.set(motion.safe_homing_xy, motion.position.z);
-      //TERN_(1, motion.destination -= probe.offset_xy);
-      //if (motion.can_reach(motion.destination))
-      //  motion.blocking_move_xy(motion.destination);  // Move bltouch to the middle
-      //else
-      //  SERIAL_ECHO_MSG(STR_ZPROBE_OUT_SER);
-      //// The interface changes to "Operating"
-      //lcdDisplay.GotoScreen(DGUSLCD_SCREEN_MSG_OPERATE);
-      sendData(ExchangePageBase + 40, ExchangepageAddr);
-      // Start to measure the difference between two coordinates
-      //coordinateOffset = motion.homeaxis_bl(Z_AXIS, Z_MEASURE_FEEDRATE_FAST, Z_MEASURE_FEEDRATE_SLOW);
-      if (coordinateOffset != VALUE_INVALID_8BIT)
-        setZCoordinateOffset(coordinateOffset);
-      else {
-        DEBUG_ECHOLNPGM(" coordinateOffset err!!! ");
-        //setZCoordinateOffset(0.0);
-      }
-      settings.save();
-    #endif
-
-    // After measuring the difference between the two coordinates, the
-    // nozzle moves to the detection point for height adjustment.
-    //MoveXYBlock(float(LEVEL_HEIGHT_MEASURE_X), float(LEVEL_HEIGHT_MEASURE_Y));
-
-    // Get to the base height, block
-    //MoveZBlock(0.0);
-
-    // Show Z-axis compensation
-    sendData(probe.offset.z * 100, AUTO_BED_LEVEL_ZOFFSET_VP);
-    //sendData(probe.offset.z * 1000, VP_DATA_Z_OFFSET);
-    //uiShow.UI_ShowText(probe.offset.z, 3, lcdDisplay.current_screen, VP_DATA_Z_OFFSET);
-  #endif
-
-  return true;
-}
-
-void AutoUIBedNozzleHeightCali() {
-  if (st_bedNozzleHeightCal.bedNozzleHeightCalFinishFlag) return;
-
-  switch (st_bedNozzleHeightCal.bedNozzleHeightState) {
-    case 0:
-      st_bedNozzleHeightCal.isBedLeveling = true;
-      st_bedNozzleHeightCal.goHomeSta = GO_HOME_IDLE;
-      queue.enqueue_now(F("M420 S0"));
-      #ifdef BLTOUCH
-        //queue.inject(F("G28"));
-        //queue.inject(F("G0 Z0"));
-        queue.enqueue_now(F("G28"));
-        //queue.enqueue_now(F("G0 Z0"));
-      #else
-        queue.inject(F("G29 S1"));
-      #endif
-      st_bedNozzleHeightCal.bedNozzleHeightState++;
-      break;
-
-    case 1:
-      // wait for homing
-      if (st_bedNozzleHeightCal.goHomeSta == GO_HOME_DONE) {
-        // set homing status - 'GO_HOME_IDLE'
-        st_bedNozzleHeightCal.goHomeSta = GO_HOME_IDLE;
-        DEBUG_ECHOLNPGM("\n----------------------motion.position.z!!!!!!= ", motion.position.z * 100);
-
-        // The coordinates at this point should be Z_MAX_POS
-        DEBUG_ECHOLN(motion.position.z * 100);
-        motion.destination.set(motion.safe_homing_xy, motion.position.z);
-
-        motion.destination -= probe.offset_xy; // TODO:OPTIONAL?
-
-        if (motion.can_reach(motion.destination)) {
-          // This causes the carriage on Dual X to unpark
-          TERN_(DUAL_X_CARRIAGE, active_extruder_parked = false);
-          TERN_(SENSORLESS_HOMING, safe_delay(500));         // Short delay needed to settle
-          motion.blocking_move_xy(motion.destination);
-        }
-        else
-          DEBUG_ECHO_MSG(STR_ZPROBE_OUT_SER);
-
-        motion.homeaxis_bl(Z_AXIS, Z_MEASURE_FEEDRATE_FAST, Z_MEASURE_FEEDRATE_SLOW);
-
-        // Get to the center(x,y), block
-        LcdAutoUIMoveXYBlock(X_CENTER, Y_CENTER);
-
-        // Get to the base height block
-        LcdAutoUIMoveZBlock(0.0f);
-        bedNozzleHeightCalZ = st_bedNozzleHeightCal.zCoordinateOffset;
-        settings.save();      // Call save data to save the measured height data
-        st_bedNozzleHeightCal.bedNozzleHeightState++;
-      }
-      break;
-
-    case 2:
-      st_bedNozzleHeightCal.bedNozzleHeightState = 0;
-      st_bedNozzleHeightCal.bedNozzleHeightCalFinishFlag = true;
-      break;
-
-    default: break;
-  }
-
-  //if (st_bedNozzleHeightCal.bedNozzleHeightState == 2 && st_bedNozzleHeightCal.bedNozzleHeightCalFinishFlag) {
-  //// Probing is completed and the save button or return button is received
-  //  st_bedNozzleHeightCal.bedNozzleHeightState=0;
-  //  //DEBUG_ECHOPGM("\n..bedNozzleHeightCalFinish");
-  //}
-}
-
-/**
- * [LcdAutoUIMoveXY :get to the given position(x, y), block program running]
- * @Author Creality
- * @Time   2021-06-08
- * @param  _posX      [X coordinate]
- * @param  _posY      [Y coordinate]
- */
-void LcdAutoUIMoveXYBlock(float _posX, float _posY) {
-  motion.blocking_move_xy(_MIN(_posX, X_BED_SIZE), _MIN(_posY, Y_BED_SIZE));
-}
-
-/**
- * [LcdAutoUIMoveZBlock :get to the given position(z), block program running]
- * @Author Creality
- * @Time   2021-06-08
- * @param  _posZ      [Z coordinate]
- */
-void LcdAutoUIMoveZBlock(float _posZ) {
-  motion.blocking_move_z(_MIN(_posZ, Z_MAX_POS));
 }
 
 ///////////////////////
@@ -3273,8 +3125,8 @@ void RTS_ProbingPauseHotend() {
 
 void RTS_ProbingPauseFans() {
   #if ENABLED(PROBING_FANS_OFF)
-    afterprobe_fan0_speed = thermalManager.fan_speed[0];
-    if (thermalManager.fan_speed[0] > 0) {
+    afterprobe_fan0_speed = fans[0].speed;
+    if (fans[0].speed > 0) {
       thermalManager.set_fan_speed(0, 0);
       rts.sendData(0, PRINTER_FANOPEN_TITLE_VP);
     }
