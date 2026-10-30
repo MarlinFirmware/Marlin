@@ -137,3 +137,27 @@ def enable(file_path, define_name, enable=True):
             f.writelines(content)
 
     return found
+
+
+def get(file_path, define_name):
+    '''
+    Return the value of an enabled define in a file, or None if not found.
+    '''
+    with open(file_path, 'r', encoding='utf-8') as f:
+        for line in f:
+            match = re.match(r'^\s*#define\s+{}\s+(\S+)'.format(re.escape(define_name)), line)
+            if match: return match[1]
+    return None
+
+
+def display_value(name):
+    '''
+    Return the LCD_CONTROLLER value for a display name listed in displays.h
+    (e.g., 'VIKI2' => 'LCD_VIKI2'), or None if it isn't a display.
+    '''
+    path = os.path.join(os.environ.get('MARLIN_REPO', ''), 'Marlin', 'src', 'core', 'displays.h')
+    if os.path.exists(path):
+        with open(path, 'r', encoding='utf-8') as f:
+            if re.search(r'^#define\s+LCD_{}\s'.format(re.escape(name)), f.read(), re.M):
+                return 'LCD_' + name
+    return None

@@ -39,6 +39,7 @@
 
 #include "../core/macros.h"
 #include "../core/boards.h"
+#include "../core/displays.h"
 
 #if USE_STD_CONFIGS
   #if __has_include("../../Configuration.h")
