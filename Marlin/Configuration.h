@@ -1117,6 +1117,7 @@
   #define MIDDLE_DEAD_ZONE_R   0    // (mm)
 
   // Direction of elbow bend. 1 = right-handed (counterclockwise), -1 = left-handed (clockwise)
+  // This is the starting side. Homing sets it from the side of SCARA_HOME_PSI, and M665 D changes it.
   #define SCARA_ELBOW_DIR 1
 
   // This defines how shoulder movement affects the distal arm angle. Common values:
@@ -1130,6 +1131,19 @@
   // angles are calculated by inverse kinematics (note: M665 home offsets are still angles)
   #define SCARA_HOME_THETA   -40
   #define SCARA_HOME_PSI     160
+
+  // Range of each joint angle (degrees). Both ends of a range must be given. The arms are kept inside it, so it
+  // keeps them off the far side of their endstops and out of the base, the hub and their cables. The shoulder is
+  // measured counterclockwise from +X, in any window up to 360 degrees wide (it may go below -180 or above 180).
+  // The elbow is measured from the upper arm, so 0 is a straight arm, positive bends counterclockwise (and 180 is
+  // folded back); a range with both signs lets the elbow change sides (M665 D).
+  // The shoulder homes at one end of its range, so that end is SCARA_HOME_THETA: the minimum when X_HOME_DIR is
+  // negative, otherwise the maximum. The elbow's endstop is on its motor, which SCARA_CROSSTALK_FACTOR ties to the
+  // shoulder, so its range just has to hold SCARA_HOME_PSI.
+  //#define SCARA_THETA_MIN   -40
+  //#define SCARA_THETA_MAX   220
+  //#define SCARA_PSI_MIN     -20
+  //#define SCARA_PSI_MAX     160
 
   // Enable M360-M364 to calibrate SCARA angles
   //#define SCARA_CALIBRATION
