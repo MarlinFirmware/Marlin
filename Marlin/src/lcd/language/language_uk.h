@@ -360,6 +360,8 @@ namespace LanguageNarrow_uk {
   LSTR MSG_STORED_FAN_N                   = _UxGT("Збереж. вент. ~");                          // Stored Fan ~
   LSTR MSG_EXTRA_FAN_SPEED                = _UxGT("Дод. швидк. вент.");                        // Extra Fan Speed
   LSTR MSG_EXTRA_FAN_SPEED_N              = _UxGT("Додат.вент. ~");                            // Extra Fan ~ Speed
+  LSTR MSG_FANS                           = _UxGT("Вентилятори");                              // Fans
+  LSTR MSG_EXTRUDER_AUTO_FAN_SPEED        = _UxGT("Швидк. вент. екстр.");                      // Extruder fan speed
   LSTR MSG_PID_AUTOTUNE                   = _UxGT("Автопідбір PID");                           // PID Autotune
   LSTR MSG_PID_AUTOTUNE_E                 = _UxGT("Автопідбір PID *");                         // Autotune * PID
   LSTR MSG_JERK                           = _UxGT("Ривок");                                    // Jerk

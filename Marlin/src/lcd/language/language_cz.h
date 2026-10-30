@@ -366,6 +366,8 @@ namespace LanguageNarrow_cz {
   LSTR MSG_STORED_FAN_N                   = _UxGT("Ulož. vent. ~");                            // Stored Fan ~
   LSTR MSG_EXTRA_FAN_SPEED                = _UxGT("Rychlost ex. vent.");                       // Extra Fan Speed
   LSTR MSG_EXTRA_FAN_SPEED_N              = _UxGT("Rychlost ex. vent. ~");                     // Extra Fan ~ Speed
+  LSTR MSG_FANS                           = _UxGT("Ventilátory");                              // Fans
+  LSTR MSG_EXTRUDER_AUTO_FAN_SPEED        = _UxGT("Rychl. vent. extr.");                       // Extruder fan speed
   LSTR MSG_PID_AUTOTUNE                   = _UxGT("PID automatika");                           // PID Autotune
   LSTR MSG_PID_AUTOTUNE_E                 = _UxGT("PID automatika *");                         // Autotune * PID
   LSTR MSG_JERK                           = _UxGT("Jerk");                                     // Jerk

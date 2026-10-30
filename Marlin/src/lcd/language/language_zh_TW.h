@@ -358,6 +358,8 @@ namespace LanguageNarrow_zh_TW {
   LSTR MSG_STORED_FAN_N                   = _UxGT("儲存風扇 ~");                                   // Stored Fan ~
   LSTR MSG_EXTRA_FAN_SPEED                = _UxGT("額外風扇速率");                                   // Extra Fan Speed
   LSTR MSG_EXTRA_FAN_SPEED_N              = _UxGT("額外風扇速率 ~");                                 // Extra Fan ~ Speed
+  LSTR MSG_FANS                           = _UxGT("風扇");                                       // Fans
+  LSTR MSG_EXTRUDER_AUTO_FAN_SPEED        = _UxGT("擠出機風扇速率");                                  // Extruder fan speed
   LSTR MSG_PID_AUTOTUNE                   = _UxGT("PID自動調校");                                  // PID Autotune
   LSTR MSG_PID_AUTOTUNE_E                 = _UxGT("PID自動調校 *");                                // Autotune * PID
   LSTR MSG_JERK                           = _UxGT("抖動速率");                                     // Jerk

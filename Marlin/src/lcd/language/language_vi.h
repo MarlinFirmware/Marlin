@@ -358,6 +358,8 @@ namespace LanguageNarrow_vi {
   LSTR MSG_STORED_FAN_N                   = _UxGT("Quạt đã lưu ~");                            // Stored Fan ~
   LSTR MSG_EXTRA_FAN_SPEED                = _UxGT("Tốc độ quạt phụ");                         // Extra Fan Speed
   LSTR MSG_EXTRA_FAN_SPEED_N              = _UxGT("Tốc độ quạt phụ ~");                       // Extra Fan ~ Speed
+  LSTR MSG_FANS                           = _UxGT("Quạt");                                     // Fans
+  LSTR MSG_EXTRUDER_AUTO_FAN_SPEED        = _UxGT("Tốc độ quạt máy đùn");                      // Extruder fan speed
   LSTR MSG_PID_AUTOTUNE                   = _UxGT("Tự chỉnh PID");                             // PID Autotune
   LSTR MSG_PID_AUTOTUNE_E                 = _UxGT("Tự chỉnh PID *");                           // Autotune * PID
   LSTR MSG_JERK                           = _UxGT("Giật");                                     // Jerk
