@@ -119,7 +119,7 @@
 //#define FAN2_PIN                          PE1   // Controller fan FET
 
 #ifndef E0_AUTO_FAN_PIN
-  #define E0_AUTO_FAN_PIN                   PA1   // FAN1_PIN
+  #define E0_AUTO_FAN_PIN                   PC0   // Heatbreak fan FET (PA1 is the hotend heater)
 #endif
 
 //
