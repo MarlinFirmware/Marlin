@@ -91,6 +91,11 @@ namespace LanguageNarrow_en {
   LSTR MSG_LEVEL_BED_DONE                 = _UxGT("Leveling Done!");
   LSTR MSG_SET_HOME_OFFSETS               = _UxGT("Set Home Offsets");
   LSTR MSG_HOME_OFFSETS_APPLIED           = _UxGT("Offsets Applied");
+  LSTR MSG_AUTO_FIRST_LAYER_Z_ADJUST      = _UxGT("Adapt. First Layer Z Offset");
+  LSTR MSG_AFLZA_SLICER                   = _UxGT("Slicer");
+  LSTR MSG_AFLZA_UNKNOWN                  = _UxGT("Unknown");
+  LSTR MSG_AFLZA_ORCA                     = _UxGT("Orca");
+  LSTR MSG_AFLZA_PRUSA                    = _UxGT("Prusa");
   LSTR MSG_PREHEAT_1                      = _UxGT("Preheat ") PREHEAT_1_LABEL;
   LSTR MSG_PREHEAT_1_H                    = _UxGT("Preheat ") PREHEAT_1_LABEL " ~";
   LSTR MSG_PREHEAT_1_END                  = _UxGT("Preheat ") PREHEAT_1_LABEL _UxGT(" End");
