@@ -2385,6 +2385,17 @@
 #endif
 
 /**
+ * G-code Preview for TFT Color UI
+ * Show the thumbnail your slicer embeds in the G-code before printing a file.
+ * Set your slicer to write JPG or QOI thumbnails, or MKS TFT preview images.
+ */
+#if ALL(TFT_COLOR_UI, HAS_MEDIA)
+  //#define GCODE_PREVIEW_JPEG  // Enable JPEG thumbnail decoding
+  //#define GCODE_PREVIEW_QOI   // Enable QOI thumbnail decoding
+  //#define GCODE_PREVIEW_MKS   // Enable MKS TFT preview images (";simage:" / ";;gimage:")
+#endif
+
+/**
  * Display Sleep
  * Enable this option to save energy and prevent OLED pixel burn-in.
  */
