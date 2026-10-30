@@ -38,6 +38,10 @@
 
 #include "tft.h"
 
+#if ENABLED(NOVIN3DP_GALAXY_UI)
+  #include "galaxy/gx_core.h"
+#endif
+
 Touch touch;
 
 bool Touch::enabled = true;
@@ -158,6 +162,9 @@ void Touch::idle() {
         auto &c = controls[i];
         if ((WITHIN(x, c.x, c.x + c.width) && WITHIN(y, c.y, c.y + c.height)) || TERN0(TOUCH_SCREEN_CALIBRATION, c.type == CALIBRATE)) {
           touch_control_type = c.type;
+          #if ALL(NOVIN3DP_GALAXY_UI, GALAXY_TOUCH_BEEP)
+            if (c.type != CALIBRATE) gx_touch_beep();  // One beep per new touch, not on auto-repeat
+          #endif
           touch(&c);
           break;
         }
@@ -341,6 +348,17 @@ void Touch::touch(touch_control_t * const control) {
       touch_event.index = control->index;
       (touch_handler_t(control->data))(&touch_event);
       break;
+
+    #if ENABLED(NOVIN3DP_GALAXY_UI)
+      case GX_ACTION:
+        if (control->data & GX_REPEAT) hold(control, TOUCH_REPEAT_DELAY, true);
+        gx_touch(uint16_t(control->data & ~GX_REPEAT));
+        break;
+      case GX_SLIDER:
+        hold(control);   // Keep tracking the finger until the touch ends
+        gx_slider(uint8_t(control->data), uint16_t(uint32_t(constrain(x - int16_t(control->x), 0, int16_t(control->width))) * 1000UL / control->width));
+        break;
+    #endif
 
     default: break;
   }

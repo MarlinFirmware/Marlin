@@ -38,6 +38,11 @@
 
 // All displays share the MarlinUI class
 #include "marlinui.h"
+
+#if ENABLED(NOVIN3DP_GALAXY_UI)
+  extern bool gx_full_redraw;
+  extern xyze_feedrate_t gx_manual_feedrate_mm_m;
+#endif
 MarlinUI ui;
 
 #if HAS_DISPLAY
@@ -701,7 +706,9 @@ void MarlinUI::init() {
 
     if (did_expire) reset_status();
 
-    #if HAS_MARLINUI_MENU
+    #if ENABLED(NOVIN3DP_GALAXY_UI)
+      use_click();      // The galaxy home screen has its own buttons; a stray click must not open Marlin's main menu
+    #elif HAS_MARLINUI_MENU
       if (use_click()) {
         #if ALL(FILAMENT_LCD_DISPLAY, HAS_MEDIA)
           pause_filament_display();
@@ -865,7 +872,7 @@ void MarlinUI::init() {
       // Add a manual move to the queue?
       if (axis == NO_AXIS_ENUM || PENDING(millis(), start_time) || planner.is_full()) return;
 
-      const feedRate_t fr_mm_s = (axis < LOGICAL_AXES) ? manual_feedrate_mm_s[axis] : PLANNER_XY_FEEDRATE_MM_S;
+      const feedRate_t fr_mm_s = (axis < LOGICAL_AXES) ? TERN(NOVIN3DP_GALAXY_UI, MMM_TO_MMS(gx_manual_feedrate_mm_m[axis]), manual_feedrate_mm_s[axis]) : PLANNER_XY_FEEDRATE_MM_S;
 
       /**
        * For a rotational axis apply the "inch" to "mm" conversion factor. This mimics behaviour of the G-code G1
@@ -1196,7 +1203,8 @@ void MarlinUI::init() {
       // Then we want to use only 50% of the time
       const uint16_t bbr2 = buffer_runtime() >> 1;
 
-      if ((should_draw() || drawing_screen) && (!bbr2 || bbr2 > max_display_update_time)) {
+      // The galaxy UI draws a cleared screen in one go: never leave it blank while the planner is short
+      if ((should_draw() || drawing_screen) && (!bbr2 || bbr2 > max_display_update_time || TERN0(NOVIN3DP_GALAXY_UI, gx_full_redraw))) {
 
         // Only time the Status Screen draw if it was already current. A menu action may
         // block for a long time (e.g., MMU load) then return to the Status Screen, and

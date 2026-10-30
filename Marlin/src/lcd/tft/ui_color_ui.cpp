@@ -22,7 +22,8 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-#if ENABLED(TFT_COLOR_UI)
+// The NOVIN3DP galaxy UI (lcd/tft/galaxy) replaces this file's screens
+#if ENABLED(TFT_COLOR_UI) && DISABLED(NOVIN3DP_GALAXY_UI)
 
 #include "ui_common.h"
 

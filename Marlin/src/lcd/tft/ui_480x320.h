@@ -29,19 +29,31 @@
 
 #define MENU_ITEM_ICON_X            5
 #define MENU_ITEM_ICON_Y            5
-#define MENU_ITEM_ICON_SPACE        (5 + 32 + 5)
-
-#define MENU_ITEM_HEIGHT            43
+#if ENABLED(NOVIN3DP_GALAXY_UI)       // Galaxy UI uses the compact 14px layout
+  #define MENU_ITEM_ICON_SPACE      40
+  #define MENU_ITEM_HEIGHT          40
+#else
+  #define MENU_ITEM_ICON_SPACE      (5 + 32 + 5)
+  #define MENU_ITEM_HEIGHT          43
+#endif
 #define MENU_LINE_HEIGHT            (MENU_ITEM_HEIGHT + 2)
 #define MENU_TOP_LINE_Y             4
 
 #if TFT_FONT == NOTOSANS || TFT_FONT == HELVETICA
-  #define FONT_SIZE                 19
+  #if ENABLED(NOVIN3DP_GALAXY_UI)
+    #define FONT_SIZE               14
+  #else
+    #define FONT_SIZE               19
+  #endif
 #elif TFT_FONT == UNIFONT
   #define FONT_SIZE                 20
 #endif
 
-#define FONT_LINE_HEIGHT            34
+#if ENABLED(NOVIN3DP_GALAXY_UI)
+  #define FONT_LINE_HEIGHT          25
+#else
+  #define FONT_LINE_HEIGHT          34
+#endif
 
 // ---------------------------------------------------------------------------------
 

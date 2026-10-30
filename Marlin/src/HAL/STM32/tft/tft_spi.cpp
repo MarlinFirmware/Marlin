@@ -99,7 +99,11 @@ void TFT_SPI::init() {
         __HAL_RCC_DMA2_CLK_ENABLE();
         DMAtx.Instance = DMA2_Stream3;
         DMAtx.Init.Channel = DMA_CHANNEL_3;
-        SPIx.Init.BaudRatePrescaler  = SPI_BAUDRATEPRESCALER_4; // SPI1 clock on F1 and F4 is two times faster than SPI2 and SPI3 clock
+        #ifdef TFT_SPI1_PRESCALER
+          SPIx.Init.BaudRatePrescaler  = TFT_SPI1_PRESCALER;    // User override (Configuration.h)
+        #else
+          SPIx.Init.BaudRatePrescaler  = SPI_BAUDRATEPRESCALER_4; // SPI1 clock on F1 and F4 is two times faster than SPI2 and SPI3 clock
+        #endif
       #elif defined(STM32H7xx)
         __HAL_RCC_DMA1_CLK_ENABLE();
         DMAtx.Instance = DMA1_Stream4;
