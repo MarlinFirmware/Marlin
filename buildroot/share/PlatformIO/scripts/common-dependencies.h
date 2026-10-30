@@ -140,6 +140,7 @@
   #define Vietnamese 6
   #define Simplified_Chinese 7
   #define Traditional_Chinese 8
+  #define Klingon 9
 
   #if TFT_FONT == NOTOSANS
     #if FONT_SIZE == 14
@@ -160,6 +161,8 @@
         #define TFT_FONT_NOTOSANS_14_ZH_CN
       #elif FONT_EXTRA == Traditional_Chinese
         #define TFT_FONT_NOTOSANS_14_ZH_TW
+      #elif FONT_EXTRA == Klingon
+        #define TFT_FONT_NOTOSANS_14_TLH
       #endif
     #elif FONT_SIZE == 16
       #define TFT_FONT_NOTOSANS_16
@@ -179,6 +182,8 @@
         #define TFT_FONT_NOTOSANS_16_ZH_CN
       #elif FONT_EXTRA == Traditional_Chinese
         #define TFT_FONT_NOTOSANS_16_ZH_TW
+      #elif FONT_EXTRA == Klingon
+        #define TFT_FONT_NOTOSANS_16_TLH
       #endif
     #elif FONT_SIZE == 19
       #define TFT_FONT_NOTOSANS_19
@@ -198,6 +203,8 @@
         #define TFT_FONT_NOTOSANS_19_ZH_CN
       #elif FONT_EXTRA == Traditional_Chinese
         #define TFT_FONT_NOTOSANS_19_ZH_TW
+      #elif FONT_EXTRA == Klingon
+        #define TFT_FONT_NOTOSANS_19_TLH
       #endif
     #elif FONT_SIZE == 26
       #define TFT_FONT_NOTOSANS_26
@@ -217,6 +224,8 @@
         #define TFT_FONT_NOTOSANS_26_ZH_CN
       #elif FONT_EXTRA == Traditional_Chinese
         #define TFT_FONT_NOTOSANS_26_ZH_TW
+      #elif FONT_EXTRA == Klingon
+        #define TFT_FONT_NOTOSANS_26_TLH
       #endif
     #elif FONT_SIZE == 27
       #define TFT_FONT_NOTOSANS_27
@@ -236,6 +245,8 @@
         #define TFT_FONT_NOTOSANS_27_ZH_CN
       #elif FONT_EXTRA == Traditional_Chinese
         #define TFT_FONT_NOTOSANS_27_ZH_TW
+      #elif FONT_EXTRA == Klingon
+        #define TFT_FONT_NOTOSANS_27_TLH
       #endif
     #elif FONT_SIZE == 28
       #define TFT_FONT_NOTOSANS_28
@@ -255,6 +266,8 @@
         #define TFT_FONT_NOTOSANS_28_ZH_CN
       #elif FONT_EXTRA == Traditional_Chinese
         #define TFT_FONT_NOTOSANS_28_ZH_TW
+      #elif FONT_EXTRA == Klingon
+        #define TFT_FONT_NOTOSANS_28_TLH
       #endif
     #elif FONT_SIZE == 29
       #define TFT_FONT_NOTOSANS_29
@@ -274,6 +287,8 @@
         #define TFT_FONT_NOTOSANS_29_ZH_CN
       #elif FONT_EXTRA == Traditional_Chinese
         #define TFT_FONT_NOTOSANS_29_ZH_TW
+      #elif FONT_EXTRA == Klingon
+        #define TFT_FONT_NOTOSANS_29_TLH
       #endif
     #endif
   #elif TFT_FONT == UNIFONT
@@ -295,6 +310,8 @@
         #define TFT_FONT_UNIFONT_10_ZH_CN
       #elif FONT_EXTRA == Traditional_Chinese
         #define TFT_FONT_UNIFONT_10_ZH_TW
+      #elif FONT_EXTRA == Klingon
+        #define TFT_FONT_UNIFONT_10_TLH
       #endif
     #elif FONT_SIZE == 20
       #define TFT_FONT_UNIFONT_20
@@ -314,6 +331,8 @@
         #define TFT_FONT_UNIFONT_20_ZH_CN
       #elif FONT_EXTRA == Traditional_Chinese
         #define TFT_FONT_UNIFONT_20_ZH_TW
+      #elif FONT_EXTRA == Klingon
+        #define TFT_FONT_UNIFONT_20_TLH
       #endif
     #elif FONT_SIZE == 30
       #define TFT_FONT_UNIFONT_30
@@ -333,6 +352,8 @@
         #define TFT_FONT_UNIFONT_30_ZH_CN
       #elif FONT_EXTRA == Traditional_Chinese
         #define TFT_FONT_UNIFONT_30_ZH_TW
+      #elif FONT_EXTRA == Klingon
+        #define TFT_FONT_UNIFONT_30_TLH
       #endif
     #endif
   #elif TFT_FONT == HELVETICA
