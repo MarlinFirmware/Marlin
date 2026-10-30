@@ -382,6 +382,8 @@ void GcodeSuite::G28() {
                    doU = home_all || homeU, doV = home_all || homeV, doW = home_all || homeW
                  );
 
+      UNUSED(homeZZ);
+
       #if !HAS_Y_AXIS
         constexpr bool doY = false;
       #endif
