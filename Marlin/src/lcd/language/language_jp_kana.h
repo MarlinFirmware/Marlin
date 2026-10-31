@@ -360,6 +360,8 @@ namespace LanguageNarrow_jp_kana {
   LSTR MSG_STORED_FAN_N                   = _UxGT("ホゾンファン ~");                                 // Stored Fan ~
   LSTR MSG_EXTRA_FAN_SPEED                = _UxGT("ツイカファンソクド");                                // Extra Fan Speed
   LSTR MSG_EXTRA_FAN_SPEED_N              = _UxGT("ツイカファン~ソクド");                               // Extra Fan ~ Speed
+  LSTR MSG_FANS                           = _UxGT("ファン");                                      // Fans
+  LSTR MSG_EXTRUDER_AUTO_FAN_SPEED        = _UxGT("Eファンソクド");                                  // Extruder fan speed
   LSTR MSG_PID_AUTOTUNE                   = _UxGT("PIDジドウチョウセイ");                              // PID Autotune
   LSTR MSG_PID_AUTOTUNE_E                 = _UxGT("* PIDチョウセイ");                               // Autotune * PID
   LSTR MSG_JERK                           = _UxGT("ヤクドウ mm/s");                                // Jerk
