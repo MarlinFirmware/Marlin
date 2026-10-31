@@ -39,8 +39,6 @@
 // Note: pin_array is defined in `Marlin/src/pins/pinsDebug.h`, and since this file is included
 // after it, it is available in this file as well.
 
-#define PINS_DEBUG_CLASS
-
 struct PinsDebug : PinsDebugBase<PinsDebug> {
   static constexpr uint16_t count = BOARD_NR_GPIO_PINS;
   static constexpr uint8_t name_pad = 21;   // Space needed to be pretty if not first name assigned to a pin

@@ -38,8 +38,6 @@ extern const stm32_pin_info PIN_MAP[BOARD_NR_GPIO_PINS];
 
 #include "../../inc/MarlinConfig.h" // Allow pins/pins.h to set density
 
-#define PINS_DEBUG_CLASS
-
 struct PinsDebug : PinsDebugBase<PinsDebug> {
   static constexpr uint16_t count = BOARD_NR_GPIO_PINS;
   static constexpr uint8_t name_pad = 21;   // space needed to be pretty if not first name assigned to a pin

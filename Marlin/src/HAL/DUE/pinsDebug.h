@@ -59,8 +59,6 @@
  *    included just in case.
  */
 
-#define PINS_DEBUG_CLASS
-
 struct PinsDebug : PinsDebugBase<PinsDebug> {
   static constexpr uint16_t count = PINS_COUNT;
   static constexpr uint8_t name_pad = 14;   // space needed to be pretty if not first name assigned to a pin

@@ -673,8 +673,6 @@ void printPinSpeed(const uint8_t speed) {
   #endif
 }
 
-#define PINS_DEBUG_CLASS
-
 struct PinsDebug : PinsDebugBase<PinsDebug> {
 
   /**

@@ -26,8 +26,6 @@
  * See PinsDebugBase in pins/pinsDebug.h for the hooks.
  */
 
-#define PINS_DEBUG_CLASS
-
 struct PinsDebug : PinsDebugBase<PinsDebug> {
   static constexpr uint16_t count = PINS_COUNT;
   static constexpr uint8_t name_pad = 27;   // space needed to be pretty if not first name assigned to a pin
