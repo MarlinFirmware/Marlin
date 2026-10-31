@@ -46,8 +46,8 @@ struct filepos_t {
   filepos_t() : position(0), cluster(0) {}
 };
 
-// Avoid conflict with RP2040 / newlib fcntl.h
-#ifdef __PLAT_RP2040__
+// Avoid conflict with RP2040 / ESP32 newlib fcntl.h
+#if defined(__PLAT_RP2040__) || defined(ARDUINO_ARCH_ESP32)
   #undef O_RDONLY
   #undef O_WRONLY
   #undef O_RDWR
