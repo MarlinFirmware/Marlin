@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2021 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -23,53 +23,36 @@
 
 /**
  * Pins Debugging for Linux Native
- *
- *   - NUMBER_PINS_TOTAL
- *   - MULTI_NAME_PAD
- *   - getPinByIndex(index)
- *   - printPinNameByIndex(index)
- *   - getPinIsDigitalByIndex(index)
- *   - digitalPinToAnalogIndex(pin)
- *   - getValidPinMode(pin)
- *   - isValidPin(pin)
- *   - isAnalogPin(pin)
- *   - digitalRead_mod(pin)
- *   - pwm_status(pin)
- *   - printPinPWM(pin)
- *   - printPinPort(pin)
- *   - printPinNumber(pin)
- *   - printPinAnalog(pin)
+ * See PinsDebugBase in pins/pinsDebug.h for the hooks.
  */
 
-#define NUMBER_PINS_TOTAL   NUM_DIGITAL_PINS
-#define MULTI_NAME_PAD      16 // space needed to be pretty if not first name assigned to a pin
+#define PINS_DEBUG_CLASS
 
-// active ADC function/mode/code values for PINSEL registers
-constexpr int8_t ADC_pin_mode(const pin_t) { return -1; }
+struct PinsDebug : PinsDebugBase<PinsDebug> {
+  static constexpr uint16_t count = NUM_DIGITAL_PINS;
+  static constexpr uint8_t name_pad = 16;   // space needed to be pretty if not first name assigned to a pin
 
-// The pin and index are the same on this platform
-#define getPinIsDigitalByIndex getPinIsDigitalByIndex
-bool getPinIsDigitalByIndex(const pin_t pin) {
-  return (!isAnalogPin(pin) || get_pin_mode(pin) != ADC_pin_mode(pin));
-}
+  static bool is_valid(const pin_t pin) { return isValidPin(pin); }
 
-#define isAnalogPin(P) (digitalPinToAnalogIndex(P) >= 0)
+  static int16_t analog_index(const pin_t pin) { return digitalPinToAnalogIndex(pin); }
+  static bool is_analog(const pin_t pin) { return analog_index(pin) >= 0; }
 
-#define digitalRead_mod(P) digitalRead(P)
+  static int read_digital(const pin_t pin) { return digitalRead(pin); }
 
-int8_t get_pin_mode(const pin_t pin) { return isValidPin(pin) ? 0 : -1; }
+  // Active ADC function/mode/code values for PINSEL registers
+  static constexpr int8_t adc_pin_mode(const pin_t) { return -1; }
+  static int8_t pin_mode(const pin_t pin) { return is_valid(pin) ? 0 : -1; }
 
-bool getValidPinMode(const pin_t pin) {
-  const int8_t pin_mode = get_pin_mode(pin);
-  if (pin_mode == -1 || pin_mode == ADC_pin_mode(pin)) // Invalid pin or active analog pin
-    return false;
+  // Input/output state
+  static bool is_output(const pin_t pin) {
+    const int8_t mode = pin_mode(pin);
+    if (mode == -1 || mode == adc_pin_mode(pin)) return false; // Invalid pin or active analog pin
+    return Gpio::getMode(pin) != 0;
+  }
 
-  return (Gpio::getMode(pin) != 0); // Input/output state
-}
-
-void printPinPWM(const pin_t) {}
-bool pwm_status(const pin_t) { return false; }
-
-void printPinPort(const pin_t) {}
-
-
+  // The pin and index are the same on this platform
+  static bool is_digital_at(const uint16_t index) {
+    const pin_t pin = pin_t(index);
+    return !is_analog(pin) || pin_mode(pin) != adc_pin_mode(pin);
+  }
+};
