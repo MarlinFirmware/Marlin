@@ -26,6 +26,9 @@
 
 #include "ui_common.h"
 #include "../lcdprint.h"
+#if ENABLED(NOVIN3DP_GALAXY_UI)
+  #include "galaxy/gx_core.h"
+#endif
 #include "../../libs/numtostr.h"
 #include "../menu/menu.h"
 #include "../../gcode/queue.h"
@@ -212,6 +215,8 @@ void moveAxis(const AxisEnum axis, const int8_t direction) {
 
 #endif
 
+#if DISABLED(NOVIN3DP_GALAXY_UI) // The galaxy UI draws menu lines, menu items and the edit screens itself
+
 void text_line(const uint16_t y, uint16_t color) {
   tft.canvas(0, y, TFT_WIDTH, MENU_ITEM_HEIGHT);
   tft.set_background(color);
@@ -240,6 +245,8 @@ uint16_t menu_item(const uint8_t row, const bool sel) {
 
   return lineColor;
 }
+
+#endif // !NOVIN3DP_GALAXY_UI
 
 void add_control(uint16_t x, uint16_t y, TouchControlType control_type, intptr_t data, MarlinImage image, bool is_enabled, uint16_t color_enabled, uint16_t color_disabled) {
   const uint16_t width = images[image].width, height = images[image].height;
@@ -320,6 +327,8 @@ void lcd_put_int(const int i) {
 //
 // Menu Item methods
 //
+
+#if DISABLED(NOVIN3DP_GALAXY_UI)
 
 // Draw a generic menu item with pre_char (if selected) and post_char
 void MenuItemBase::_draw(const bool sel, const uint8_t row, FSTR_P const ftpl, const char pre_char, const char post_char) {
@@ -424,6 +433,8 @@ void MenuItem_static::draw(const uint8_t row, FSTR_P const ftpl, const uint8_t s
 
 #endif
 
+#endif // !NOVIN3DP_GALAXY_UI
+
 //
 // MarlinUI methods
 //
@@ -439,9 +450,18 @@ void MarlinUI::init_lcd() {
   #ifdef TFT_EXTRA_FONT_NAME
     tft.add_glyphs(TFT_EXTRA_FONT_NAME);
   #endif
+  #if ENABLED(NOVIN3DP_GALAXY_UI)
+    TFT_String::base_font = TFT_MENU_FONT_NAME;
+    #ifdef TFT_SYMBOLS_FONT_NAME
+      TFT_String::base_symbols = TFT_SYMBOLS_FONT_NAME;
+    #endif
+    gx_init();
+  #endif
   TERN_(TOUCH_SCREEN, touch.init());
   clear_for_drawing();
 }
+
+#if DISABLED(NOVIN3DP_GALAXY_UI)
 
 void MarlinUI::clear_lcd() {
   #if ENABLED(TOUCH_SCREEN)
@@ -453,6 +473,8 @@ void MarlinUI::clear_lcd() {
   tft.fill(0, 0, TFT_WIDTH, TFT_HEIGHT, COLOR_BACKGROUND);
   cursor.set(0, 0);
 }
+
+#endif // !NOVIN3DP_GALAXY_UI
 
 void MarlinUI::clear_for_drawing() { clear_lcd(); }
 
@@ -467,7 +489,7 @@ void MarlinUI::clear_for_drawing() { clear_lcd(); }
 
 #endif
 
-#if ENABLED(TOUCH_SCREEN_CALIBRATION)
+#if ENABLED(TOUCH_SCREEN_CALIBRATION) && DISABLED(NOVIN3DP_GALAXY_UI)
 
   void MarlinUI::touch_calibration_screen() {
     uint16_t x, y;

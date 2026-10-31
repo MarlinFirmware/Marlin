@@ -53,7 +53,9 @@ enum TouchControlType : uint16_t {
   UBL,
   STOP,
   BUTTON,
-  CALLBACK
+  CALLBACK,
+  GX_ACTION,    // NOVIN3DP galaxy UI action (data = action code, bit 15 = auto-repeat)
+  GX_SLIDER     // NOVIN3DP galaxy UI slider (data = slider id), follows the finger while held
 };
 
 typedef struct __attribute__((__packed__)) {
@@ -73,7 +75,9 @@ typedef void (*touch_handler_t)(touch_event_t*);
 
 // Tall displays show the edit screen keypad together with the slider, steps and buttons.
 // Controls beyond this limit are ignored, so it must cover the busiest screen.
-#if TFT_HEIGHT >= 480
+#if ENABLED(NOVIN3DP_GALAXY_UI)
+  #define MAX_CONTROLS             52   // G-code keyboard: 44 keys + 4 buttons + header
+#elif TFT_HEIGHT >= 480
   #define MAX_CONTROLS             32
 #else
   #define MAX_CONTROLS             16
