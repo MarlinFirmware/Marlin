@@ -79,7 +79,7 @@ FORCE_INLINE void printPinNumber(const pin_t pin) {
   SERIAL_ECHO(buffer);
 }
 
-#define isAnalogPin(P) ((P) >= analogInputToDigitalPin(0) && (P) <= analogInputToDigitalPin(9)) || ((P) >= analogInputToDigitalPin(12) && (P) <= analogInputToDigitalPin(20))
+#define isAnalogPin(P) (((P) >= analogInputToDigitalPin(0) && (P) <= analogInputToDigitalPin(9)) || ((P) >= analogInputToDigitalPin(12) && (P) <= analogInputToDigitalPin(20)))
 
 void printAnalogPin(char buffer[], int8_t pin) {
   if (pin <= 23)      sprintf_P(buffer, PSTR("(A%2d)  "), int(pin - 14));

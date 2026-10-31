@@ -48,7 +48,7 @@
 #define digitalPinToAnalogIndex(P) int(P - analogInputToDigitalPin(0))
 #define getValidPinMode(P) (isValidPin(P) && IS_OUTPUT(P))
 #define isValidPin(P) (P >= 0 && P < pin_t(NUMBER_PINS_TOTAL))
-#define isAnalogPin(P) (pin_t(P) >= analogInputToDigitalPin(0) && pin_t(P) <= analogInputToDigitalPin(13)) || (pin_t(P) >= analogInputToDigitalPin(14) && pin_t(P) <= analogInputToDigitalPin(17))
+#define isAnalogPin(P) ((pin_t(P) >= analogInputToDigitalPin(0) && pin_t(P) <= analogInputToDigitalPin(13)) || (pin_t(P) >= analogInputToDigitalPin(14) && pin_t(P) <= analogInputToDigitalPin(17)))
 #define printPinNumber printPinNumber
 FORCE_INLINE void printPinNumber(const pin_t pin) {
   char buffer[10];
