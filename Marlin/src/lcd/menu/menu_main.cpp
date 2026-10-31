@@ -321,7 +321,7 @@ void menu_main() {
       if (card_is_mounted) {
         #if ENABLED(MENU_ADDAUTOSTART)
           // [Run AutoFiles] for mounted drive(s)
-          if (card.isSDCardMounted())
+          if (card.isSDCardMounted() || card.isSDIOCardMounted())
             ACTION_ITEM(MSG_RUN_AUTOFILES_SD, card.autofile_begin);
           if (card.isFlashDriveMounted())
             ACTION_ITEM(MSG_RUN_AUTOFILES_USB, card.autofile_begin);
@@ -339,7 +339,7 @@ void menu_main() {
         #endif
 
         // [Release Media] for mounted drive(s)
-        if (card.isSDCardMounted())
+        if (card.isSDCardMounted() || card.isSDIOCardMounted())
           M22_ITEM(MSG_RELEASE_SD);
         if (card.isFlashDriveMounted())
           M22_ITEM(MSG_RELEASE_USB);
@@ -350,6 +350,11 @@ void menu_main() {
         else if (TERN0(SHOW_UNMOUNTED_DRIVES, card.isSDCardInserted()))
           SUBMENU(MSG_MEDIA_MENU_SD, MEDIA_MENU_GATEWAY_SD);
 
+        if (card.isSDIOCardMounted())
+          SUBMENU(MSG_MEDIA_MENU_SD, MEDIA_MENU_GATEWAY);
+        else if (TERN0(SHOW_UNMOUNTED_DRIVES, card.isSDIOCardInserted()))
+          SUBMENU(MSG_MEDIA_MENU_SD, MEDIA_MENU_GATEWAY_SDIO);
+
         if (card.isFlashDriveMounted())
           SUBMENU(MSG_MEDIA_MENU_USB, MEDIA_MENU_GATEWAY);
         else if (TERN0(SHOW_UNMOUNTED_DRIVES, card.isFlashDriveInserted()))
@@ -357,9 +362,10 @@ void menu_main() {
       }
       else {
         // NOTE: If the SD Card has no SD_DETECT it will always appear to be "inserted"
-        const bool att_sd  = ENABLED(ATTACH_WITHOUT_INSERT_SD)  || card.isSDCardInserted(),
-                   att_usb = ENABLED(ATTACH_WITHOUT_INSERT_USB) || card.isFlashDriveInserted();
-        if (!att_sd && !att_usb) {
+        const bool att_sd   = ENABLED(ATTACH_WITHOUT_INSERT_SD)   || card.isSDCardInserted(),
+                   att_sdio = ENABLED(ATTACH_WITHOUT_INSERT_SDIO) || card.isSDIOCardInserted(),
+                   att_usb  = ENABLED(ATTACH_WITHOUT_INSERT_USB)  || card.isFlashDriveInserted();
+        if (!att_sd && !att_sdio && !att_usb) {
           ACTION_ITEM(MSG_NO_MEDIA, nullptr);                 // [No Media]
         }
         else {
@@ -367,12 +373,15 @@ void menu_main() {
             // [Select from SD/USB] (or Password First)
             if (card.isSDCardInserted())
               SUBMENU(MSG_MEDIA_MENU_SD, MEDIA_MENU_GATEWAY_SD);
+            if (card.isSDIOCardInserted())
+              SUBMENU(MSG_MEDIA_MENU_SD, MEDIA_MENU_GATEWAY_SDIO);
             if (card.isFlashDriveInserted())
               SUBMENU(MSG_MEDIA_MENU_USB, MEDIA_MENU_GATEWAY_USB);
           #else
             #define M21(T) F("M21" TERN_(HAS_MULTI_VOLUME, T))
-            if (att_sd)  GCODES_ITEM(MSG_ATTACH_SD,  M21("S")); // M21 S - [Attach SD Card]
-            if (att_usb) GCODES_ITEM(MSG_ATTACH_USB, M21("U")); // M21 U - [Attach USB Drive]
+            if (att_sd)   GCODES_ITEM(MSG_ATTACH_SD,  M21("S")); // M21 S - [Attach SD Card]
+            if (att_sdio) GCODES_ITEM(MSG_ATTACH_SD,  M21("O")); // M21 O - [Attach SDIO Card]
+            if (att_usb)  GCODES_ITEM(MSG_ATTACH_USB, M21("U")); // M21 U - [Attach USB Drive]
           #endif
         }
       }
