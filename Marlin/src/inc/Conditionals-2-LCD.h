@@ -59,7 +59,11 @@
 #ifdef RS485_SERIAL_PORT
   #define HAS_RS485_SERIAL 1
 #endif
-#if SERIAL_PORT_2 == -2
+#ifdef ARDUINO_ARCH_ESP32
+  #if SERIAL_PORT == -2 || SERIAL_PORT_2 == -2 || SERIAL_PORT_3 == -2
+    #define HAS_BLUETOOTH_SERIAL 1
+  #endif
+#elif SERIAL_PORT_2 == -2
   #define HAS_ETHERNET 1
 #endif
 
