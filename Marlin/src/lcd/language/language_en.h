@@ -428,6 +428,10 @@ namespace LanguageNarrow_en {
   LSTR MSG_MEDIA_UPDATE                   = MEDIA_TYPE_EN _UxGT(" Update");
   LSTR MSG_RESET_PRINTER                  = _UxGT("Reset Printer");
   LSTR MSG_START_PRINT                    = _UxGT("Start Print");
+  LSTR MSG_PREVIEW_TIME                   = _UxGT("Print time");
+  LSTR MSG_PREVIEW_LAYER                  = _UxGT("Layer");
+  LSTR MSG_PREVIEW_SIZE                   = _UxGT("Size");
+  LSTR MSG_PREVIEW_NO_THUMBNAIL           = _UxGT("No thumbnail");
   LSTR MSG_BUTTON_NEXT                    = _UxGT("Next");
   LSTR MSG_BUTTON_INIT                    = _UxGT("Init");
   LSTR MSG_BUTTON_STOP                    = _UxGT("Stop");
