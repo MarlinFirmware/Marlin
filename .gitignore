@@ -157,6 +157,9 @@ cmake-build-*
 .settings
 .classpath
 
+# Clangd
+compile_commands.json
+
 # Python
 __pycache__
 
