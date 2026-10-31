@@ -90,6 +90,10 @@
   #include "lcd/sovol_rts/sovol_rts.h"
 #endif
 
+#if ENABLED(CREALITY_RTS)
+  #include "lcd/rts/lcd_rts.h"
+#endif
+
 #if HAS_ETHERNET
   #include "feature/ethernet.h"
 #endif
@@ -409,7 +413,9 @@ void Marlin::startOrResumeJob() {
     TERN_(POWER_LOSS_RECOVERY, recovery.purge());
 
     #ifdef EVENT_GCODE_SD_ABORT
-      queue.inject(F(EVENT_GCODE_SD_ABORT));
+      queue.enqueue_now(F(EVENT_GCODE_SD_ABORT));
+      motion.report_position();
+      TERN_(CREALITY_RTS, RTS_UpdatePosition());
     #endif
 
     TERN_(PASSWORD_AFTER_SD_PRINT_ABORT, password.lock_machine());
@@ -457,7 +463,7 @@ void Marlin::manage_inactivity(const bool no_stepper_sleep/*=false*/) {
   if (gcode.stepper_max_timed_out(ms)) {
     SERIAL_ERROR_START();
     SERIAL_ECHOLN(F(STR_KILL_PRE), F(STR_KILL_INACTIVE_TIME), parser.command_ptr);
-    kill();
+    TERN(CREALITY_RTS, RTS_StepperTimeout(), kill());
   }
 
   const bool has_blocks = planner.has_blocks_queued();  // Any moves in the planner?
@@ -469,7 +475,8 @@ void Marlin::manage_inactivity(const bool no_stepper_sleep/*=false*/) {
 
       static bool already_shutdown_steppers; // = false
 
-      if (!has_blocks && !do_reset_timeout && gcode.stepper_inactive_timeout()) {
+      // CREALITY_RTS: Don't time out the steppers while a job is printing or paused
+      if (!has_blocks && !do_reset_timeout && gcode.stepper_inactive_timeout() && TERN1(CREALITY_RTS, !card.isPrinting() && !card.isPaused())) {
         if (!already_shutdown_steppers) {
           already_shutdown_steppers = true;
 
@@ -853,7 +860,11 @@ void Marlin::idle(const bool no_stepper_sleep/*=false*/) {
   #endif
 
   // Handle SD Card insert / remove
-  TERN_(HAS_MEDIA, card.manage_media());
+  #if HAS_MEDIA
+    // Avoid the problem of leveling and returning to zero, plugging and unplugging the card will affect the probe and report error 203
+    if (TERN1(CREALITY_RTS, !hmiFlag.home_flag && !hmiFlag.G29_flag))
+      card.manage_media();
+  #endif
 
   // Announce Host Keepalive state (if any)
   TERN_(HOST_KEEPALIVE_FEATURE, gcode.host_keepalive());
@@ -876,7 +887,7 @@ void Marlin::idle(const bool no_stepper_sleep/*=false*/) {
   TERN_(FT_MOTION, ftMotion.loop());
 
   // Handle UI input / draw events
-  #if ENABLED(SOVOL_SV06_RTS)
+  #if ANY(SOVOL_SV06_RTS, CREALITY_RTS)
     RTS_Update();
   #else
     ui.update();
@@ -916,6 +927,22 @@ void Marlin::idle(const bool no_stepper_sleep/*=false*/) {
 
   // Handle Joystick jogging
   TERN_(POLL_JOG, joystick.inject_jog_moves());
+
+  #if ENABLED(MENU_RESET_WIFI)
+    static millis_t wifi_record_ms = 0;
+    if (rts_wifi_state == PRESSED) {
+      rts_wifi_state = RECORDTIME;
+      wifi_record_ms = millis() + 7000UL;
+    }
+    else if (rts_wifi_state == RECORDTIME) {
+      if (wifi_record_ms && ELAPSED(millis(), wifi_record_ms)) {
+        OUT_WRITE(RESET_WIFI_PIN, HIGH);
+        rts_wifi_state = INITIAL;
+        SERIAL_ECHOPGM("wifi is reset");
+        wifi_record_ms = 0;
+      }
+    }
+  #endif
 
   // Update the LVGL interface
   TERN_(HAS_TFT_LVGL_UI, LV_TASK_HANDLER());
@@ -1348,13 +1375,13 @@ void setup() {
 
   // Identify myself as Marlin x.x.x
   SERIAL_ECHOLNPGM("Marlin " SHORT_BUILD_VERSION);
-  #ifdef STRING_DISTRIBUTION_DATE
+  #if defined(STRING_DISTRIBUTION_DATE) && (DISABLED(CREALITY_RTS) || defined(STRING_CONFIG_H_AUTHOR))
     SERIAL_ECHO_MSG(
       " Last Updated: " STRING_DISTRIBUTION_DATE
       " | Author: " STRING_CONFIG_H_AUTHOR
     );
   #endif
-  SERIAL_ECHO_MSG(" Compiled: " __DATE__);
+  SERIAL_ECHO_MSG(" Compiled: " __DATE__ " " __TIME__);
   SERIAL_ECHO_MSG(STR_FREE_MEMORY, hal.freeMemory(), STR_PLANNER_BUFFER_BYTES, sizeof(block_t) * (BLOCK_BUFFER_SIZE));
 
   // Some HAL need precise delay adjustment
@@ -1690,7 +1717,7 @@ void setup() {
     SETUP_RUN(dwinInitScreen());
   #elif ENABLED(DWIN_LCD_PROUI)
     SETUP_RUN(ExtUI::onStartup());    // ProUI MarlinUI::init_lcd only does the handshake
-  #elif ENABLED(SOVOL_SV06_RTS)
+  #elif ANY(SOVOL_SV06_RTS, CREALITY_RTS)
     SETUP_RUN(rts.init());
   #endif
 
