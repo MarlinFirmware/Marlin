@@ -23,99 +23,81 @@
 
 /**
  * Pins Debugging for ESP32
- *
- *   - NUMBER_PINS_TOTAL
- *   - MULTI_NAME_PAD
- *   - getPinByIndex(index)
- *   - printPinNameByIndex(index)
- *   - getPinIsDigitalByIndex(index)
- *   - digitalPinToAnalogIndex(pin)
- *   - getValidPinMode(pin)
- *   - isValidPin(pin)
- *   - M43_NEVER_TOUCH(pin)
- *   - isAnalogPin(pin)
- *   - digitalRead_mod(pin)
- *   - pwm_status(pin)
- *   - printPinPWM(pin)
- *   - printPinPort(pin)
- *   - printPinNumber(pin)
- *   - printPinAnalog(pin)
+ * See PinsDebugBase in pins/pinsDebug.h for the hooks.
  */
 
 #include <driver/gpio.h>
 #include <soc/gpio_struct.h>
 #include <esp32-hal-ledc.h>
 
-#define NUMBER_PINS_TOTAL NUM_DIGITAL_PINS
-#define MULTI_NAME_PAD 16 // space needed to be pretty if not first name assigned to a pin
-
-#define printPinNumber printPinNumber
-FORCE_INLINE void printPinNumber(const pin_t pin) {
-  char buffer[10];
-  sprintf_P(buffer, PSTR("%02d"), pin);
-  SERIAL_ECHO(buffer);
-}
-
-/**
- * GPIO numbering is not contiguous. On the ESP32, GPIO 20, 24, and 28-31 don't
- * exist, and 34-39 are input-only. SOC_GPIO_VALID_GPIO_MASK knows the gaps for
- * whichever ESP32 variant is being built.
- */
-#define isValidPin(P) (WITHIN(P, 0, pin_t(NUMBER_PINS_TOTAL - 1)) && GPIO_IS_VALID_GPIO(P))
-
-/**
- * M43 must never drive the SPI flash pins (GPIO 6-11), which crashes the chip,
- * or the UART0 pins (GPIO 1, 3) of the host serial port, which then stops working.
- */
-#define M43_NEVER_TOUCH(Q) (WITHIN(Q, 6, 11) || (Q) == 1 || (Q) == 3)
-
-/**
- * ADC channels are not a contiguous range of GPIOs, so the channel and the pin
- * are different numbers. ESP32 analogRead() takes a GPIO, and the shared code
- * passes it whatever this returns, so return the pin. printPinAnalog reports
- * the actual channel.
- */
-int8_t digitalPinToAnalogIndex(const pin_t pin) {
-  return (isValidPin(pin) && digitalPinToAnalogChannel(pin) >= 0) ? int8_t(pin) : -1;
-}
-
-bool isAnalogPin(const pin_t pin) {
-  return isValidPin(pin) && digitalPinToAnalogChannel(pin) >= 0;
-}
-
-#define printPinAnalog printPinAnalog
-FORCE_INLINE void printPinAnalog(const pin_t pin) {
-  char buffer[12];
-  sprintf_P(buffer, PSTR(" (A%2d)  "), digitalPinToAnalogChannel(pin));
-  SERIAL_ECHO(buffer);
-}
-
-/**
- * True if the pin is currently an output. fastio's IS_OUTPUT is hardcoded to
- * 'true' for this HAL, so read the GPIO output-enable registers instead.
- */
-static bool getValidPinMode(const pin_t pin) {
-  if (!isValidPin(pin) || !GPIO_IS_VALID_OUTPUT_GPIO(pin)) return false; // 34-39 are input-only
-  return pin < 32 ? TEST32(GPIO.enable, pin) : TEST32(GPIO.enable1.val, pin - 32);
-}
+#define PINS_DEBUG_CLASS
 
 // Defined by the HAL. Returns the LEDC channel driving the pin, or -1. Unlike
 // get_pwm_channel it never allocates, so it's safe to call just to look.
 int8_t channel_for_pin(const uint8_t pin);
 
-bool pwm_status(const pin_t pin) {
-  // chan_pin[] is zero-initialized, so channel_for_pin() would match GPIO 0
-  // against an unallocated channel. get_pwm_channel skips pin 0 for the same
-  // reason, so no PWM is ever assigned to it.
-  if (!WITHIN(pin, 1, pin_t(MAX_PWM_IOPIN))) return false;
-  return channel_for_pin(uint8_t(pin)) >= 0;
-}
+struct PinsDebug : PinsDebugBase<PinsDebug> {
+  static constexpr uint16_t count = NUM_DIGITAL_PINS;
+  static constexpr uint8_t name_pad = 16;   // space needed to be pretty if not first name assigned to a pin
 
-void printPinPWM(const pin_t pin) {
-  if (!pwm_status(pin)) return;
-  const uint8_t chan = uint8_t(channel_for_pin(uint8_t(pin)));
-  SERIAL_ECHO("  LEDC chan: ", chan, "  duty: ", uint32_t(ledcRead(chan)), "  freq: ", uint32_t(ledcReadFreq(chan)));
-}
+  /**
+   * GPIO numbering is not contiguous. On the ESP32, GPIO 20, 24, and 28-31 don't
+   * exist, and 34-39 are input-only. SOC_GPIO_VALID_GPIO_MASK knows the gaps for
+   * whichever ESP32 variant is being built.
+   */
+  static bool is_valid(const pin_t pin) { return WITHIN(pin, 0, pin_t(count - 1)) && GPIO_IS_VALID_GPIO(pin); }
 
-// ESP32 GPIOs are not grouped into named ports, so there is nothing to report.
-void printPinPort(const pin_t) {}
+  /**
+   * M43 must never drive the SPI flash pins (GPIO 6-11), which crashes the chip,
+   * or the UART0 pins (GPIO 1, 3) of the host serial port, which then stops working.
+   */
+  static bool never_touch(const uint16_t index) { return WITHIN(index, 6, 11) || index == 1 || index == 3; }
+
+  /**
+   * ADC channels are not a contiguous range of GPIOs, so the channel and the pin
+   * are different numbers. ESP32 analogRead() takes a GPIO, and the shared code
+   * passes it whatever this returns, so return the pin. print_analog reports
+   * the actual channel.
+   */
+  static int16_t analog_index(const pin_t pin) {
+    return (is_valid(pin) && digitalPinToAnalogChannel(pin) >= 0) ? int8_t(pin) : -1;
+  }
+  static bool is_analog(const pin_t pin) { return is_valid(pin) && digitalPinToAnalogChannel(pin) >= 0; }
+
+  static void print_analog(const pin_t pin) {
+    char buffer[12];
+    sprintf_P(buffer, PSTR(" (A%2d)  "), digitalPinToAnalogChannel(pin));
+    SERIAL_ECHO(buffer);
+  }
+
+  /**
+   * True if the pin is currently an output. fastio's IS_OUTPUT is hardcoded to
+   * 'true' for this HAL, so read the GPIO output-enable registers instead.
+   */
+  static bool is_output(const pin_t pin) {
+    if (!is_valid(pin) || !GPIO_IS_VALID_OUTPUT_GPIO(pin)) return false; // 34-39 are input-only
+    return pin < 32 ? TEST32(GPIO.enable, pin) : TEST32(GPIO.enable1.val, pin - 32);
+  }
+
+  static bool pwm_active(const pin_t pin) {
+    // chan_pin[] is zero-initialized, so channel_for_pin() would match GPIO 0
+    // against an unallocated channel. get_pwm_channel skips pin 0 for the same
+    // reason, so no PWM is ever assigned to it.
+    if (!WITHIN(pin, 1, pin_t(MAX_PWM_IOPIN))) return false;
+    return channel_for_pin(uint8_t(pin)) >= 0;
+  }
+
+  static void print_pwm(const pin_t pin) {
+    if (!pwm_active(pin)) return;
+    const uint8_t chan = uint8_t(channel_for_pin(uint8_t(pin)));
+    SERIAL_ECHO("  LEDC chan: ", chan, "  duty: ", uint32_t(ledcRead(chan)), "  freq: ", uint32_t(ledcReadFreq(chan)));
+  }
+
+  static void print_number(const pin_t pin) {
+    char buffer[10];
+    sprintf_P(buffer, PSTR("%02d"), pin);
+    SERIAL_ECHO(buffer);
+  }
+
+  // ESP32 GPIOs are not grouped into named ports, so there is nothing to report (print_port).
+};

@@ -23,22 +23,7 @@
 
 /**
  * Pins Debugging for DUE
- *
- *   - NUMBER_PINS_TOTAL
- *   - MULTI_NAME_PAD
- *   - getPinByIndex(index)
- *   - printPinNameByIndex(index)
- *   - getPinIsDigitalByIndex(index)
- *   - digitalPinToAnalogIndex(pin)
- *   - getValidPinMode(pin)
- *   - isValidPin(pin)
- *   - isAnalogPin(pin)
- *   - digitalRead_mod(pin)
- *   - pwm_status(pin)
- *   - printPinPWM(pin)
- *   - printPinPort(pin)
- *   - printPinNumber(pin)
- *   - printPinAnalog(pin)
+ * See PinsDebugBase in pins/pinsDebug.h for the hooks.
  */
 
 #include "../shared/Marduino.h"
@@ -74,38 +59,45 @@
  *    included just in case.
  */
 
-#define NUMBER_PINS_TOTAL PINS_COUNT
+#define PINS_DEBUG_CLASS
 
-#define printPinNumber printPinNumber
-FORCE_INLINE void printPinNumber(const pin_t pin) {
-  char buffer[10];
-  sprintf_P(buffer, PSTR("%02d"), pin);
-  SERIAL_ECHO(buffer);
-}
-#define isValidPin(P) (P >= 0 && P < pin_t(NUMBER_PINS_TOTAL))
-#define digitalPinToAnalogIndex(P) int(P - analogInputToDigitalPin(0))
-#define isAnalogPin(P) WITHIN(P, pin_t(analogInputToDigitalPin(0)), pin_t(analogInputToDigitalPin(NUM_ANALOG_INPUTS - 1)))
-#define pwm_status(P) (((g_pinStatus[P] & 0xF) == PIN_STATUS_PWM) && \
-                        ((g_APinDescription[P].ulPinAttribute & PIN_ATTR_PWM) == PIN_ATTR_PWM))
-#define MULTI_NAME_PAD 14 // space needed to be pretty if not first name assigned to a pin
+struct PinsDebug : PinsDebugBase<PinsDebug> {
+  static constexpr uint16_t count = PINS_COUNT;
+  static constexpr uint8_t name_pad = 14;   // space needed to be pretty if not first name assigned to a pin
 
-bool getValidPinMode(const pin_t pin) {  // 1: output, 0: input
-  volatile Pio* port = g_APinDescription[pin].pPort;
-  uint32_t mask = g_APinDescription[pin].ulPin;
-  uint8_t pin_status = g_pinStatus[pin] & 0xF;
-  return (  (pin_status == 0 && (port->PIO_OSR & mask))
-          || pin_status == PIN_STATUS_DIGITAL_OUTPUT
-          || pwm_status(pin));
-}
-
-void printPinPWM(const int32_t pin) {
-  if (pwm_status(pin)) {
-    uint32_t chan = g_APinDescription[pin].ulPWMChannel;
-    SERIAL_ECHOPGM("PWM = ", PWM_INTERFACE->PWM_CH_NUM[chan].PWM_CDTY);
+  static bool is_valid(const pin_t pin) { return pin >= 0 && pin < pin_t(count); }
+  static int16_t analog_index(const pin_t pin) { return int(pin - analogInputToDigitalPin(0)); }
+  static bool is_analog(const pin_t pin) {
+    return WITHIN(pin, pin_t(analogInputToDigitalPin(0)), pin_t(analogInputToDigitalPin(NUM_ANALOG_INPUTS - 1)));
   }
-}
 
-void printPinPort(const pin_t) {}
+  static bool pwm_active(const pin_t pin) {
+    return ((g_pinStatus[pin] & 0xF) == PIN_STATUS_PWM)
+        && ((g_APinDescription[pin].ulPinAttribute & PIN_ATTR_PWM) == PIN_ATTR_PWM);
+  }
+
+  static bool is_output(const pin_t pin) {  // 1: output, 0: input
+    volatile Pio* port = g_APinDescription[pin].pPort;
+    uint32_t mask = g_APinDescription[pin].ulPin;
+    uint8_t pin_status = g_pinStatus[pin] & 0xF;
+    return (  (pin_status == 0 && (port->PIO_OSR & mask))
+            || pin_status == PIN_STATUS_DIGITAL_OUTPUT
+            || pwm_active(pin));
+  }
+
+  static void print_pwm(const pin_t pin) {
+    if (pwm_active(pin)) {
+      uint32_t chan = g_APinDescription[pin].ulPWMChannel;
+      SERIAL_ECHOPGM("PWM = ", PWM_INTERFACE->PWM_CH_NUM[chan].PWM_CDTY);
+    }
+  }
+
+  static void print_number(const pin_t pin) {
+    char buffer[10];
+    sprintf_P(buffer, PSTR("%02d"), pin);
+    SERIAL_ECHO(buffer);
+  }
+};
 
 /**
  * DUE Board pin   |  PORT  | Label

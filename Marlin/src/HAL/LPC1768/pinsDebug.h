@@ -23,52 +23,38 @@
 
 /**
  * Pins Debugging for LPC1768/9
- *
- *   - NUMBER_PINS_TOTAL
- *   - MULTI_NAME_PAD
- *   - getPinByIndex(index)
- *   - printPinNameByIndex(index)
- *   - getPinIsDigitalByIndex(index)
- *   - digitalPinToAnalogIndex(pin)
- *   - getValidPinMode(pin)
- *   - isValidPin(pin)
- *   - isAnalogPin(pin)
- *   - digitalRead_mod(pin)
- *   - pwm_status(pin)
- *   - printPinPWM(pin)
- *   - printPinPort(pin)
- *   - printPinNumber(pin)
- *   - printPinAnalog(pin)
+ * See PinsDebugBase in pins/pinsDebug.h for the hooks.
  */
 
-#define NUMBER_PINS_TOTAL NUM_DIGITAL_PINS
-#define isAnalogPin(P) (digitalPinToAnalogIndex(P) >= 0)
-#define printPinNumber printPinNumber
-FORCE_INLINE void printPinNumber(const pin_t pin) {
-  char buffer[12];
-  sprintf_P(buffer, PSTR("P%d_%02d"), LPC176x::pin_port(pin), LPC176x::pin_bit(pin));
-  SERIAL_ECHO(buffer);
-}
-#define printPinAnalog printPinAnalog
-FORCE_INLINE void printPinAnalog(const pin_t pin) {
-  char buffer[12];
-  sprintf_P(buffer, PSTR("_A%d     "), LPC176x::pin_get_adc_channel(pin));
-  SERIAL_ECHO(buffer);
-}
-#define MULTI_NAME_PAD 17 // space needed to be pretty if not first name assigned to a pin
+#define PINS_DEBUG_CLASS
 
-// pins that will cause hang/reset/disconnect in M43 Toggle and Watch utilities
-#ifndef M43_NEVER_TOUCH
-  #define M43_NEVER_TOUCH(Q) ((Q) == P0_29 || (Q) == P0_30 || (Q) == P2_09)  // USB pins
-#endif
+struct PinsDebug : PinsDebugBase<PinsDebug> {
+  static constexpr uint16_t count = NUM_DIGITAL_PINS;
+  static constexpr uint8_t name_pad = 17;   // space needed to be pretty if not first name assigned to a pin
 
-bool getValidPinMode(const pin_t pin) {
-  if (!LPC176x::pin_is_valid(pin) || LPC176x::pin_adc_enabled(pin)) // Invalid pin or active analog pin
-    return false;
+  // Pins that will cause hang/reset/disconnect in M43 Toggle and Watch utilities
+  static bool never_touch(const uint16_t index) { return index == P0_29 || index == P0_30 || index == P2_09; }  // USB pins
 
-  return LPC176x::gpio_direction(pin);
-}
+  static bool is_valid(const pin_t pin) { return isValidPin(pin); }
+  static int16_t analog_index(const pin_t pin) { return digitalPinToAnalogIndex(pin); }
+  static bool is_analog(const pin_t pin) { return analog_index(pin) >= 0; }
 
-void printPinPort(const pin_t) {}
-void printPinPWM(const pin_t) {}
-bool pwm_status(const pin_t) { return false; }
+  static bool is_output(const pin_t pin) {
+    if (!LPC176x::pin_is_valid(pin) || LPC176x::pin_adc_enabled(pin)) // Invalid pin or active analog pin
+      return false;
+
+    return LPC176x::gpio_direction(pin);
+  }
+
+  static void print_number(const pin_t pin) {
+    char buffer[12];
+    sprintf_P(buffer, PSTR("P%d_%02d"), LPC176x::pin_port(pin), LPC176x::pin_bit(pin));
+    SERIAL_ECHO(buffer);
+  }
+
+  static void print_analog(const pin_t pin) {
+    char buffer[12];
+    sprintf_P(buffer, PSTR("_A%d     "), LPC176x::pin_get_adc_channel(pin));
+    SERIAL_ECHO(buffer);
+  }
+};
