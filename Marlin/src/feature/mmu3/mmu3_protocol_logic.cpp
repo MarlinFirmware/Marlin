@@ -52,7 +52,16 @@
 
 namespace MMU3 {
 
+  // Major and minor must match exactly. The patch level must be at least the one in
+  // MMU_VERSION (the minimum supported). The registers and commands Marlin uses are the
+  // same in 3.0.0 through 3.0.4, so users don't have to flash their MMU to match Marlin.
+  // Prusa-Firmware requires an exact match because it ships paired with a specific MMU FW.
   static constexpr uint8_t supportedMmuFWVersion[] PROGMEM = { mmuVersionMajor, mmuVersionMinor, mmuVersionPatch };
+
+  static bool isSupportedVersionPart(const uint8_t stage, const uint8_t value) {
+    const uint8_t want = pgm_read_byte(&supportedMmuFWVersion[stage]);
+    return stage == 2 ? (value >= want) : (value == want);
+  }
 
   const Register ProtocolLogic::regs8Addrs[ProtocolLogic::regs8Count] PROGMEM = {
     Register::FINDA_State,            // FINDA state
@@ -288,7 +297,7 @@ namespace MMU3 {
     }
     else {
       mmuFwVersion[stage] = rsp.paramValue;
-      if (mmuFwVersion[stage] != pgm_read_byte(&supportedMmuFWVersion[stage])) {
+      if (!isSupportedVersionPart(stage, mmuFwVersion[stage])) {
         if (--retries == 0) return VersionMismatch;
         SendVersion(stage);
       }

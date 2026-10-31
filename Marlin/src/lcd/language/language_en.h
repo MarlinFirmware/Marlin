@@ -65,6 +65,9 @@
 #ifndef CUSTOM_MENU_MAIN_TITLE
   #define CUSTOM_MENU_MAIN_TITLE ""
 #endif
+#if HAS_PRUSA_MMU3
+  #include "../../feature/mmu3/mmu3_supported_version.h"  // MMU_VERSION
+#endif
 #ifndef MMU_VERSION
   #define MMU_VERSION ""
 #endif
