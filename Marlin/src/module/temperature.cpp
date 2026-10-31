@@ -419,6 +419,7 @@ PGMSTR(str_t_heating_failed, STR_T_HEATING_FAILED);
 
 // HAS_FAN does not include CONTROLLER_FAN
 #if HAS_FAN
+  uint8_t Temperature::max_fan_speed = 255;
   /**
    * Set the print fan speed for a target extruder
    */
