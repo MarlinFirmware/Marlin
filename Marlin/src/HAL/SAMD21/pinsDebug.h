@@ -23,49 +23,33 @@
 
 /**
  * Pins Debugging for SAMD21
- *
- *   - NUMBER_PINS_TOTAL
- *   - MULTI_NAME_PAD
- *   - getPinByIndex(index)
- *   - printPinNameByIndex(index)
- *   - getPinIsDigitalByIndex(index)
- *   - digitalPinToAnalogIndex(pin)
- *   - getValidPinMode(pin)
- *   - isValidPin(pin)
- *   - isAnalogPin(pin)
- *   - digitalRead_mod(pin)
- *   - pwm_status(pin)
- *   - printPinPWM(pin)
- *   - printPinPort(pin)
- *   - printPinNumber(pin)
- *   - printPinAnalog(pin)
+ * See PinsDebugBase in pins/pinsDebug.h for the hooks.
  */
 
-#define NUMBER_PINS_TOTAL PINS_COUNT
+#define PINS_DEBUG_CLASS
 
-#define isValidPin(P) (P >= 0 && P < pin_t(NUMBER_PINS_TOTAL))
-#define isAnalogPin(P) (digitalPinToAnalogIndex(P) >= 0)
-#define pwm_status(P) digitalPinHasPWM(P)
-#define MULTI_NAME_PAD 27 // space needed to be pretty if not first name assigned to a pin
+struct PinsDebug : PinsDebugBase<PinsDebug> {
+  static constexpr uint16_t count = PINS_COUNT;
+  static constexpr uint8_t name_pad = 27;   // space needed to be pretty if not first name assigned to a pin
 
-// pins that will cause hang/reset/disconnect in M43 Toggle and Watch utilities
-// uses pin index
-#define M43_NEVER_TOUCH(Q) ((Q) >= 75)
+  // Pins that will cause hang/reset/disconnect in M43 Toggle and Watch utilities (uses pin index)
+  static bool never_touch(const uint16_t index) { return index >= 75; }
 
-bool getValidPinMode(const int8_t pin) {  // 1: output, 0: input
-  const EPortType samdport = g_APinDescription[pin].ulPort;
-  const uint32_t samdpin = g_APinDescription[pin].ulPin;
-  return PORT->Group[samdport].DIR.reg & MASK(samdpin) || (PORT->Group[samdport].PINCFG[samdpin].reg & (PORT_PINCFG_INEN | PORT_PINCFG_PULLEN)) == PORT_PINCFG_PULLEN;
-}
+  static bool is_valid(const pin_t pin) { return pin >= 0 && pin < pin_t(count); }
+  static int16_t analog_index(const pin_t pin) { return digitalPinToAnalogIndex(pin); }
+  static bool is_analog(const pin_t pin) { return analog_index(pin) >= 0; }
 
-void printPinPWM(const int32_t pin) {
-  if (pwm_status(pin)) {
-    //uint32_t chan = g_APinDescription[pin].ulPWMChannel TODO when fast pwm is operative;
-    //SERIAL_ECHO("PWM = ", duty);
+  static bool pwm_active(const pin_t pin) { return digitalPinHasPWM(pin); }
+
+  static bool is_output(const pin_t pin) {  // 1: output, 0: input
+    const EPortType samdport = g_APinDescription[pin].ulPort;
+    const uint32_t samdpin = g_APinDescription[pin].ulPin;
+    return PORT->Group[samdport].DIR.reg & MASK(samdpin) || (PORT->Group[samdport].PINCFG[samdpin].reg & (PORT_PINCFG_INEN | PORT_PINCFG_PULLEN)) == PORT_PINCFG_PULLEN;
   }
-}
 
-void printPinPort(const pin_t) {}
+  // TODO: Report the PWM channel and duty when fast pwm is operative
+  //static void print_pwm(const pin_t pin) { ... }
+};
 
 /**
  * SAMD21 Board pin|  PORT  | Label

@@ -76,33 +76,15 @@
 
 /**
  * Pins Debugging for RP2040
- *
- *   - NUMBER_PINS_TOTAL
- *   - MULTI_NAME_PAD
- *   - getPinByIndex(index)
- *   - printPinNameByIndex(index)
- *   - getPinIsDigitalByIndex(index)
- *   - digitalPinToAnalogIndex(pin)
- *   - getValidPinMode(pin)
- *   - isValidPin(pin)
- *   - isAnalogPin(pin)
- *   - digitalRead_mod(pin)
- *   - pwm_status(pin)
- *   - printPinPWM(pin)
- *   - printPinPort(pin)
- *   - printPinNumber(pin)
- *   - printPinAnalog(pin)
+ * See PinsDebugBase in pins/pinsDebug.h for the hooks.
  */
 
-#define NUMBER_PINS_TOTAL NUM_DIGITAL_PINS
 #define NUM_ANALOG_FIRST A0
 
 #define MODE_PIN_INPUT  0 // Input mode (reset state)
 #define MODE_PIN_OUTPUT 1 // General purpose output mode
 #define MODE_PIN_ALT    2 // Alternate function mode
 #define MODE_PIN_ANALOG 3 // Analog mode
-
-#define digitalPinToAnalogIndex(P) digital_pin_to_analog_pin(P)
 
 uint8_t get_pin_mode(const pin_t pin) {
   // Check if pin is in alternate function mode (I2C, SPI, etc.)
@@ -121,41 +103,40 @@ uint8_t get_pin_mode(const pin_t pin) {
   return gpio_get_dir(pin) ? MODE_PIN_OUTPUT : MODE_PIN_INPUT;
 }
 
-bool getValidPinMode(const pin_t pin) {
-  const uint8_t pin_mode = get_pin_mode(pin);
-  return pin_mode == MODE_PIN_OUTPUT || pin_mode == MODE_PIN_ALT;  // assume all alt definitions are PWM
-}
-
-#define isValidPin(P) WITHIN(P, 0, pin_t(NUMBER_PINS_TOTAL - 1))
-
 int8_t digital_pin_to_analog_pin(pin_t pin) {
   pin -= NUM_ANALOG_FIRST;
   return (WITHIN(pin, 0, NUM_ANALOG_INPUTS - 1)) ? pin : -1;
 }
-
-bool isAnalogPin(const pin_t pin) {
-  return digital_pin_to_analog_pin(pin) >= 0;
-}
-
-#define MULTI_NAME_PAD 33 // space needed to be pretty if not first name assigned to a pin
 
 //bool is_digital(const pin_t pin) {
 //  const uint8_t pin_mode = get_pin_mode(pin);
 //  return pin_mode == MODE_PIN_INPUT || pin_mode == MODE_PIN_OUTPUT;
 //}
 
-bool pwm_status(const pin_t pin) {
-  // Check if this pin is configured for PWM
-  return PWM_PIN(pin) && get_pin_mode(pin) == MODE_PIN_ALT;
-}
+#define PINS_DEBUG_CLASS
 
-void printPinPWM(const pin_t pin) {
-  if (pwm_status(pin)) {
-    // RP2040 has hardware PWM on specific pins
-    char buffer[22];
-    sprintf_P(buffer, PSTR("PWM:  pin %d  "), pin);
-    SERIAL_ECHO(buffer);
+struct PinsDebug : PinsDebugBase<PinsDebug> {
+  static constexpr uint16_t count = NUM_DIGITAL_PINS;
+  static constexpr uint8_t name_pad = 33;   // space needed to be pretty if not first name assigned to a pin
+
+  static bool is_valid(const pin_t pin) { return WITHIN(pin, 0, pin_t(count - 1)); }
+  static int16_t analog_index(const pin_t pin) { return digital_pin_to_analog_pin(pin); }
+  static bool is_analog(const pin_t pin) { return analog_index(pin) >= 0; }
+
+  static bool is_output(const pin_t pin) {
+    const uint8_t pin_mode = get_pin_mode(pin);
+    return pin_mode == MODE_PIN_OUTPUT || pin_mode == MODE_PIN_ALT;  // assume all alt definitions are PWM
   }
-}
 
-void printPinPort(const pin_t pin) {}
+  // Check if this pin is configured for PWM
+  static bool pwm_active(const pin_t pin) { return PWM_PIN(pin) && get_pin_mode(pin) == MODE_PIN_ALT; }
+
+  static void print_pwm(const pin_t pin) {
+    if (pwm_active(pin)) {
+      // RP2040 has hardware PWM on specific pins
+      char buffer[22];
+      sprintf_P(buffer, PSTR("PWM:  pin %d  "), pin);
+      SERIAL_ECHO(buffer);
+    }
+  }
+};

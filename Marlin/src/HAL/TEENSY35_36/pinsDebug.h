@@ -23,26 +23,8 @@
 
 /**
  * Pins Debugging for Teensy 3.5 (MK64FX512) and Teensy 3.6 (MK66FX1M0)
- *
- *   - NUMBER_PINS_TOTAL
- *   - MULTI_NAME_PAD
- *   - getPinByIndex(index)
- *   - printPinNameByIndex(index)
- *   - getPinIsDigitalByIndex(index)
- *   - digitalPinToAnalogIndex(pin)
- *   - getValidPinMode(pin)
- *   - isValidPin(pin)
- *   - isAnalogPin(pin)
- *   - digitalRead_mod(pin)
- *   - pwm_status(pin)
- *   - printPinPWM(pin)
- *   - printPinPort(pin)
- *   - printPinNumber(pin)
- *   - printPinAnalog(pin)
+ * See PinsDebugBase in pins/pinsDebug.h for the hooks.
  */
-
-#define NUMBER_PINS_TOTAL NUM_DIGITAL_PINS
-#define MULTI_NAME_PAD 16 // space needed to be pretty if not first name assigned to a pin
 
 #define FTM0_CH0_PIN 22
 #define FTM0_CH1_PIN 23
@@ -69,18 +51,6 @@
   #define TPM1_CH1_PIN 17
 #endif
 
-#define digitalPinToAnalogIndex(P) int(P - analogInputToDigitalPin(0))
-#define getValidPinMode(P) (isValidPin(P) && IS_OUTPUT(P))
-#define isValidPin(P) (P >= 0 && P < pin_t(NUMBER_PINS_TOTAL))
-#define printPinNumber printPinNumber
-FORCE_INLINE void printPinNumber(const pin_t pin) {
-  char buffer[10];
-  sprintf_P(buffer, PSTR("%02d"), pin);
-  SERIAL_ECHO(buffer);
-}
-
-#define isAnalogPin(P) (((P) >= analogInputToDigitalPin(0) && (P) <= analogInputToDigitalPin(9)) || ((P) >= analogInputToDigitalPin(12) && (P) <= analogInputToDigitalPin(20)))
-
 void printAnalogPin(char buffer[], int8_t pin) {
   if (pin <= 23)      sprintf_P(buffer, PSTR("(A%2d)  "), int(pin - 14));
   else if (pin <= 39) sprintf_P(buffer, PSTR("(A%2d)  "), int(pin - 19));
@@ -103,7 +73,7 @@ void analog_pin_state(char buffer[], int8_t pin) {
  * Print a pin's PWM status.
  * Return true if it's currently a PWM pin.
  */
-bool pwm_status(const int8_t pin) {
+static bool ftm_pwm_status(const int8_t pin) {
   char buffer[20];   // for the sprintf statements
   switch (pin) {
     FTM_CASE(0,0);
@@ -134,6 +104,26 @@ bool pwm_status(const int8_t pin) {
   SERIAL_ECHOPGM("  ");
 }
 
-void printPinPWM(const pin_t) { /* TODO */ }
+#define PINS_DEBUG_CLASS
 
-void printPinPort(const pin_t) {}
+struct PinsDebug : PinsDebugBase<PinsDebug> {
+  static constexpr uint16_t count = NUM_DIGITAL_PINS;
+  static constexpr uint8_t name_pad = 16;   // space needed to be pretty if not first name assigned to a pin
+
+  static bool is_valid(const pin_t pin) { return pin >= 0 && pin < pin_t(count); }
+  static int16_t analog_index(const pin_t pin) { return int(pin - analogInputToDigitalPin(0)); }
+  static bool is_analog(const pin_t pin) {
+    return (pin >= analogInputToDigitalPin(0) && pin <= analogInputToDigitalPin(9))
+        || (pin >= analogInputToDigitalPin(12) && pin <= analogInputToDigitalPin(20));
+  }
+  static bool is_output(const pin_t pin) { return is_valid(pin) && IS_OUTPUT(pin); }
+  static bool pwm_active(const pin_t pin) { return ftm_pwm_status(pin); }
+
+  // TODO: print_pwm
+
+  static void print_number(const pin_t pin) {
+    char buffer[10];
+    sprintf_P(buffer, PSTR("%02d"), pin);
+    SERIAL_ECHO(buffer);
+  }
+};
