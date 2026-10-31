@@ -22,9 +22,11 @@
 
 #include "../../inc/MarlinConfig.h"
 
-#if ENABLED(BACKLASH_GCODE)
+#if ANY(BACKLASH_GCODE, CALIBRATION_GCODE)
 
-#include "../../feature/backlash.h"
+#if ENABLED(BACKLASH_GCODE)
+  #include "../../feature/backlash.h"
+#endif
 #include "../../module/planner.h"
 
 #include "../gcode.h"
@@ -40,12 +42,29 @@
  *   X            If a backlash measurement was done on X, copy that value
  *   Y                                           ... on Y
  *   Z                                           ... on Z
- *
+ *   O            Set the Calibration object center X                                         ... on Z
+ *   P            Set the Calibration object center Y
+ *   Q            Set the Calibration object center Z
  * Type M425 without any arguments to show active values.
  */
 void GcodeSuite::M425() {
   bool noArgs = true;
 
+  #if ENABLED(CALIBRATION_GCODE)
+    if (parser.seen('O')) {
+      motion.calibration_center[0] = parser.value_linear_units();
+      noArgs = false;
+    };
+    if (parser.seen('P')) {
+      motion.calibration_center[1] = parser.value_linear_units();
+      noArgs = false;
+    };
+    if (parser.seen('Q')) {
+      motion.calibration_center[2] = parser.value_linear_units();
+      noArgs = false;
+    };
+  #endif
+  #if ENABLED(BACKLASH_GCODE)
   auto axis_can_calibrate = [](const uint8_t a) -> bool {
     #define _CAN_CASE(N) case N##_AXIS: return bool(AXIS_CAN_CALIBRATE(N));
     switch (a) {
@@ -68,7 +87,7 @@ void GcodeSuite::M425() {
     backlash.set_correction(parser.value_float());
     noArgs = false;
   }
-
+  
   #ifdef BACKLASH_SMOOTHING_MM
     if (parser.seen('S')) {
       planner.synchronize();
@@ -103,18 +122,23 @@ void GcodeSuite::M425() {
       SERIAL_EOL();
     #endif
   }
+  #endif //BACKLASH_GCODE
 }
 
 void GcodeSuite::M425_report(const bool forReplay/*=true*/) {
   TERN_(MARLIN_SMALL_BUILD, return);
 
   report_heading_etc(forReplay, F(STR_BACKLASH_COMPENSATION));
-  SERIAL_ECHOPGM_P(
-    PSTR("  M425 F"), backlash.get_correction()
+  SERIAL_ECHOPGM("  M425");
+  #if ENABLED(BACKLASH_GCODE)
+    SERIAL_ECHOPGM_P(PSTR("  F"), backlash.get_correction()
     #ifdef BACKLASH_SMOOTHING_MM
       , PSTR(" S"), LINEAR_UNIT(backlash.get_smoothing_mm())
     #endif
-  );
+    );
+  #endif
+
+  #if ENABLED(BACKLASH_GCODE)
   #if NUM_AXES
     SERIAL_ECHOPGM_P(NUM_AXIS_PAIRED_LIST(
       SP_X_STR, LINEAR_UNIT(backlash.get_distance_mm(X_AXIS)),
@@ -128,7 +152,18 @@ void GcodeSuite::M425_report(const bool forReplay/*=true*/) {
       SP_W_STR, W_AXIS_UNIT(backlash.get_distance_mm(W_AXIS))
     ));
   #endif
+  #endif
+  #if ENABLED(CALIBRATION_GCODE)
+  SERIAL_ECHOPGM_P(PSTR("O"), LINEAR_UNIT(motion.calibration_center.x)
+    #if HAS_Y_AXIS
+      , PSTR("P"), LINEAR_UNIT(motion.calibration_center.y)
+    #endif
+    #if HAS_Z_AXIS
+      , PSTR("Q"), LINEAR_UNIT(motion.calibration_center.z)
+    #endif
+  );
+  #endif
   SERIAL_EOL();
 }
 
-#endif // BACKLASH_GCODE
+#endif // ANY(BACKLASH_GCODE, CALIBRATION_GCODE)
