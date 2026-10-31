@@ -23,22 +23,7 @@
 
 /**
  * Pins Debugging for STM32
- *
- *   - NUMBER_PINS_TOTAL
- *   - MULTI_NAME_PAD
- *   - getPinByIndex(index)
- *   - printPinNameByIndex(index)
- *   - getPinIsDigitalByIndex(index)
- *   - digitalPinToAnalogIndex(pin)
- *   - getValidPinMode(pin)
- *   - isValidPin(pin)
- *   - isAnalogPin(pin)
- *   - digitalRead_mod(pin)
- *   - pwm_status(pin)
- *   - printPinPWM(pin)
- *   - printPinPort(pin)
- *   - printPinNumber(pin)
- *   - printPinAnalog(pin)
+ * See PinsDebugBase in pins/pinsDebug.h for the hooks.
  */
 
 #include <Arduino.h>
@@ -134,44 +119,9 @@ const XrefInfo pin_xref[] PROGMEM = {
 #ifndef NUM_ANALOG_LAST
   #define NUM_ANALOG_LAST ((NUM_ANALOG_FIRST) + (NUM_ANALOG_INPUTS) - 1)
 #endif
-/**
- * M43 walks this range and indexes pin_xref with it, so it must not exceed the
- * table. pin_xref holds only the port/pins the variant actually defines, which is
- * fewer than NUM_DIGITAL_PINS plus the analog inputs on most parts - the surplus
- * indices used to read past the end of the array and print a blank port name with
- * a stale M42 number repeated to the end of the report.
- */
-#define NUMBER_PINS_TOTAL COUNT(pin_xref)
-#define isValidPin(P) (WITHIN(P, 0, (NUM_DIGITAL_PINS) - 1) || TERN0(HAS_HIGH_ANALOG_PINS, WITHIN(P, NUM_ANALOG_FIRST, NUM_ANALOG_LAST)))
-#define printPinNumber printPinNumber
-FORCE_INLINE void printPinNumber(const pin_t) {}
-#define digitalPinToAnalogIndex(P) -1  // will report analog pin number in the print port routine
-#define MULTI_NAME_PAD 33 // space needed to be pretty if not first name assigned to a pin
-
-//
-// Pin Mapping for M43
-//
-#define GET_PIN_MAP_PIN_M43(x) pin_xref[x].Ard_num
-
-/**
- * M43 walks pin_xref in port/pin order, but its P, L and S parameters take the
- * same pin number as M42 and the "M42 P" column of the report. Find that pin's
- * pin_xref index, or M43_INVALID_INDEX if the variant doesn't have it. Compare pads,
- * not numbers, so an analog pin is found by either of its numbers (e.g., 0 or PIN_A0
- * for PA0).
- */
+// M43 pin parameters map to indexes with PinsDebug::parsed_pin_index
 #define M43_INVALID_INDEX 0xFF
-static_assert(NUMBER_PINS_TOTAL < M43_INVALID_INDEX, "pin_xref is too big for a uint8_t index.");
-
-uint8_t parsed_pin_index_m43(const char code, const uint8_t dval) {
-  if (!parser.seenval(code)) return dval;
-  const PinName dp = digitalPinToPinName(parser.value_int());
-  if (dp != NC)
-    for (uint8_t i = 0; i < NUMBER_PINS_TOTAL; ++i)
-      if (digitalPinToPinName(GET_PIN_MAP_PIN_M43(i)) == dp) return i;
-  return M43_INVALID_INDEX;
-}
-#define PARSED_PIN_INDEX_M43(code, dval) parsed_pin_index_m43(code, dval)
+#define PARSED_PIN_INDEX_M43(code, dval) PinsDebug::parsed_pin_index(code, dval)
 
 /**
  * Pin configuration read back from the GPIO registers.
@@ -373,119 +323,8 @@ FSTR_P pad_owner(const PinName dp) {
   return nullptr;
 }
 
-/**
- * Pins M43 must not drive.
- *
- * This was the index range 9..12, meaning PA9..PA12, but pin_xref only holds the
- * pins a variant actually defines. On a part with a gap below PA12 - the G030J6M
- * variant has no PA3..PA7, PA9 or PA10 - that range lands on entirely different
- * pins, leaving the real serial and USB pins exposed. Convert the index to a port
- * and pin number and test those instead.
- */
-#ifndef M43_NEVER_TOUCH
-  #define M43_NEVER_TOUCH(I) m43_never_touch(I)
-
-  bool m43_never_touch(const pin_t index) {
-    const pin_t pin = GET_PIN_MAP_PIN_M43(index);
-
-    #if PIN_EXISTS(KILL)
-      if (pin == KILL_PIN) return true;
-    #endif
-
-    const PinName dp = digitalPinToPinName(pin);
-    if (dp == NC) return true;
-
-    const uint32_t port = STM_PORT(dp), num = STM_PIN(dp);
-
-    // SERIAL/USB: PA9 (TX) PA10 (RX) PA11 (USB_DM) PA12 (USB_DP)
-    if (port == 0 && WITHIN(num, 9, 12)) return true;
-
-    // A pad held by a transceiver or an oscillator cannot be driven anyway
-    if (pad_owner(dp)) return true;
-
-    // SWD/JTAG still on the pad. Driving it drops the debug connection, so skip it
-    // while it holds AF0 and leave it alone once a board has claimed it as GPIO.
-    // Only testable where there is an AF register - F1's SWJ_CFG is write-only.
-    #if HAS_GPIO_AF_REG
-      const PinConfig pc = get_pin_config(dp);
-      if (pc.mode == MODE_PIN_ALT && pc.af == 0
-        && ((port == 0 && WITHIN(num, 13, 15)) || (port == 1 && WITHIN(num, 3, 4)))
-      ) return true;
-    #endif
-
-    return false;
-  }
-#endif
-
 uint8_t get_pin_mode(const pin_t pin) {
   return get_pin_config(digitalPinToPinName(pin)).mode;
-}
-
-/**
- * The shared report consults getValidPinMode and pwm_status before printing a pin
- * level. A pin driven by its peripheral, or a pad the GPIO block does not control
- * at all, has no level worth printing - the ODR/IDR value would just contradict
- * what printPinPWM reports. Answer for both so neither is printed.
- */
-bool getValidPinMode(const pin_t pin) {
-  const PinName dp = digitalPinToPinName(pin);
-  const uint8_t pin_mode = get_pin_config(dp).mode;
-  return pin_mode == MODE_PIN_OUTPUT || pin_mode == MODE_PIN_ALT || pad_owner(dp);
-}
-
-int8_t digital_pin_to_analog_pin(const pin_t pin) {
-  if (WITHIN(pin, NUM_ANALOG_FIRST, NUM_ANALOG_LAST))
-    return pin - NUM_ANALOG_FIRST;
-
-  const int8_t ind = digitalPinToAnalogIndex(pin);
-  return (ind < NUM_ANALOG_INPUTS) ? ind : -1;
-}
-
-bool isAnalogPin(const pin_t pin) {
-  return get_pin_mode(pin) == MODE_PIN_ANALOG;
-}
-
-bool is_digital(const pin_t pin) {
-  const uint8_t pin_mode = get_pin_mode(pin_array[pin].pin);
-  return pin_mode == MODE_PIN_INPUT || pin_mode == MODE_PIN_OUTPUT;
-}
-
-void printPinPort(const pin_t pin) {
-  pin_t index;
-  for (index = 0; index < NUMBER_PINS_TOTAL; index++)
-    if (pin == GET_PIN_MAP_PIN_M43(index)) break;
-
-  // A pin with no entry would otherwise index one past the end of pin_xref
-  const char * const ppa = index < NUMBER_PINS_TOTAL ? pin_xref[index].Port_pin_alpha : "?";
-  SERIAL_ECHO(ppa);
-  if (ppa[3] == '\0') SERIAL_CHAR(' ');
-
-  // print analog pin number
-  const int8_t Port_pin = digital_pin_to_analog_pin(pin);
-  if (Port_pin >= 0) {
-    SERIAL_ECHO(" (A", Port_pin, ") ");
-    if (Port_pin < 10) SERIAL_CHAR(' ');
-  }
-  else
-    SERIAL_ECHO_SP(7);
-
-  /**
-   * Number to use with M42. This platform defines GET_PIN_MAP_PIN(index) as the
-   * index itself, so M42 takes the Arduino pin number as-is. The analog pins used
-   * to be folded down into the digital range here, which is AVR numbering and made
-   * the reported number ambiguous - PB2 and PC0 both came back as "M42 P18".
-   */
-  SERIAL_ECHO(F(" M42 P"), pin, C(' '));
-  if (pin < 100) {
-    SERIAL_CHAR(' ');
-    if (pin < 10) SERIAL_CHAR(' ');
-  }
-}
-
-// See getValidPinMode above. printPinPWM names what is really driving the pin.
-bool pwm_status(const pin_t pin) {
-  const PinName dp = digitalPinToPinName(pin);
-  return get_pin_config(dp).mode == MODE_PIN_ALT || pad_owner(dp);
 }
 
 /**
@@ -834,59 +673,198 @@ void printPinSpeed(const uint8_t speed) {
   #endif
 }
 
-/**
- * Report how a pin is configured right now, read back from the GPIO registers.
- * The shared report calls this at the end of each extended line.
- */
-void printPinPWM(const pin_t pin) {
-  const PinName dp = digitalPinToPinName(pin);
-  if (dp == NC) return;
+#define PINS_DEBUG_CLASS
 
-  const PinConfig pc = get_pin_config(dp);
-  FSTR_P const owner = pad_owner(dp);
-
-  SERIAL_CHAR(' ');   // each field below brings its own leading space
+struct PinsDebug : PinsDebugBase<PinsDebug> {
 
   /**
-   * The shared report already prints "Input"/"Output" and a level for a plain GPIO,
-   * so only name the mode where it stayed silent - an alternate-function pin or a
-   * pad a peripheral has taken - or where it called an analog pin an input.
+   * M43 walks this range and indexes pin_xref with it, so it must not exceed the
+   * table. pin_xref holds only the port/pins the variant actually defines, which is
+   * fewer than NUM_DIGITAL_PINS plus the analog inputs on most parts - the surplus
+   * indices used to read past the end of the array and print a blank port name with
+   * a stale M42 number repeated to the end of the report.
    */
-  if (pc.mode == MODE_PIN_ALT || pc.mode == MODE_PIN_ANALOG || owner) {
-    switch (pc.mode) {
-      case MODE_PIN_ANALOG: SERIAL_ECHO(" Analog"); break;
-      case MODE_PIN_INPUT:  SERIAL_ECHO(" Input");  break;
-      case MODE_PIN_OUTPUT: SERIAL_ECHO(" Output"); break;
-      case MODE_PIN_ALT:    SERIAL_ECHO(" Alt");    break;
+  static constexpr uint16_t count = COUNT(pin_xref);
+  static constexpr uint8_t name_pad = 33;   // space needed to be pretty if not first name assigned to a pin
+
+  static_assert(count < M43_INVALID_INDEX, "pin_xref is too big for a uint8_t index.");
+
+  static bool is_valid(const pin_t pin) {
+    return WITHIN(pin, 0, (NUM_DIGITAL_PINS) - 1) || TERN0(HAS_HIGH_ANALOG_PINS, WITHIN(pin, NUM_ANALOG_FIRST, NUM_ANALOG_LAST));
+  }
+
+  // Pin Mapping for M43
+  static pin_t pin_from_index(const uint16_t index) { return pin_xref[index].Ard_num; }
+
+  /**
+   * M43 walks pin_xref in port/pin order, but its P, L and S parameters take the
+   * same pin number as M42 and the "M42 P" column of the report. Find that pin's
+   * pin_xref index, or M43_INVALID_INDEX if the variant doesn't have it. Compare pads,
+   * not numbers, so an analog pin is found by either of its numbers (e.g., 0 or PIN_A0
+   * for PA0).
+   */
+  static uint8_t parsed_pin_index(const char code, const uint8_t dval) {
+    if (!parser.seenval(code)) return dval;
+    const PinName dp = digitalPinToPinName(parser.value_int());
+    if (dp != NC)
+      for (uint8_t i = 0; i < count; ++i)
+        if (digitalPinToPinName(pin_from_index(i)) == dp) return i;
+    return M43_INVALID_INDEX;
+  }
+
+  /**
+   * Pins M43 must not drive.
+   *
+   * This was the index range 9..12, meaning PA9..PA12, but pin_xref only holds the
+   * pins a variant actually defines. On a part with a gap below PA12 - the G030J6M
+   * variant has no PA3..PA7, PA9 or PA10 - that range lands on entirely different
+   * pins, leaving the real serial and USB pins exposed. Convert the index to a port
+   * and pin number and test those instead.
+   */
+  static bool never_touch(const uint16_t index) {
+    const pin_t pin = pin_from_index(index);
+
+    #if PIN_EXISTS(KILL)
+      if (pin == KILL_PIN) return true;
+    #endif
+
+    const PinName dp = digitalPinToPinName(pin);
+    if (dp == NC) return true;
+
+    const uint32_t port = STM_PORT(dp), num = STM_PIN(dp);
+
+    // SERIAL/USB: PA9 (TX) PA10 (RX) PA11 (USB_DM) PA12 (USB_DP)
+    if (port == 0 && WITHIN(num, 9, 12)) return true;
+
+    // A pad held by a transceiver or an oscillator cannot be driven anyway
+    if (pad_owner(dp)) return true;
+
+    // SWD/JTAG still on the pad. Driving it drops the debug connection, so skip it
+    // while it holds AF0 and leave it alone once a board has claimed it as GPIO.
+    // Only testable where there is an AF register - F1's SWJ_CFG is write-only.
+    #if HAS_GPIO_AF_REG
+      const PinConfig pc = get_pin_config(dp);
+      if (pc.mode == MODE_PIN_ALT && pc.af == 0
+        && ((port == 0 && WITHIN(num, 13, 15)) || (port == 1 && WITHIN(num, 3, 4)))
+      ) return true;
+    #endif
+
+    return false;
+  }
+
+  // The analog pin number is reported by print_port instead
+  static int16_t analog_index(const pin_t) { return -1; }
+
+  // Analog input number of a pin, or -1. (The core has no digitalPinToAnalogIndex.)
+  static int8_t analog_channel(const pin_t pin) {
+    return WITHIN(pin, NUM_ANALOG_FIRST, NUM_ANALOG_LAST) ? pin - NUM_ANALOG_FIRST : -1;
+  }
+  static bool is_analog(const pin_t pin) {
+    return get_pin_mode(pin) == MODE_PIN_ANALOG;
+  }
+  /**
+   * The shared report consults is_output and pwm_active before printing a pin
+   * level. A pin driven by its peripheral, or a pad the GPIO block does not control
+   * at all, has no level worth printing - the ODR/IDR value would just contradict
+   * what print_pwm reports. Answer for both so neither is printed.
+   */
+  static bool is_output(const pin_t pin) {
+    const PinName dp = digitalPinToPinName(pin);
+    const uint8_t pin_mode = get_pin_config(dp).mode;
+    return pin_mode == MODE_PIN_OUTPUT || pin_mode == MODE_PIN_ALT || pad_owner(dp);
+  }
+  // See is_output above. print_pwm names what is really driving the pin.
+  static bool pwm_active(const pin_t pin) {
+    const PinName dp = digitalPinToPinName(pin);
+    return get_pin_config(dp).mode == MODE_PIN_ALT || pad_owner(dp);
+  }
+  static void print_port(const pin_t pin) {
+    pin_t index;
+    for (index = 0; index < count; index++)
+      if (pin == pin_from_index(index)) break;
+
+    // A pin with no entry would otherwise index one past the end of pin_xref
+    const char * const ppa = index < count ? pin_xref[index].Port_pin_alpha : "?";
+    SERIAL_ECHO(ppa);
+    if (ppa[3] == '\0') SERIAL_CHAR(' ');
+
+    // print analog pin number
+    const int8_t Port_pin = analog_channel(pin);
+    if (Port_pin >= 0) {
+      SERIAL_ECHO(" (A", Port_pin, ") ");
+      if (Port_pin < 10) SERIAL_CHAR(' ');
+    }
+    else
+      SERIAL_ECHO_SP(7);
+
+    /**
+     * Number to use with M42. This platform defines GET_PIN_MAP_PIN(index) as the
+     * index itself, so M42 takes the Arduino pin number as-is. The analog pins used
+     * to be folded down into the digital range here, which is AVR numbering and made
+     * the reported number ambiguous - PB2 and PC0 both came back as "M42 P18".
+     */
+    SERIAL_ECHO(F(" M42 P"), pin, C(' '));
+    if (pin < 100) {
+      SERIAL_CHAR(' ');
+      if (pin < 10) SERIAL_CHAR(' ');
     }
   }
+  /**
+   * Report how a pin is configured right now, read back from the GPIO registers.
+   * The shared report calls this at the end of each extended line.
+   */
+  static void print_pwm(const pin_t pin) {
+    const PinName dp = digitalPinToPinName(pin);
+    if (dp == NC) return;
 
-  const bool driven = (pc.mode == MODE_PIN_OUTPUT || pc.mode == MODE_PIN_ALT);
+    const PinConfig pc = get_pin_config(dp);
+    FSTR_P const owner = pad_owner(dp);
 
-  #if HAS_GPIO_AF_REG
-    if (pc.mode == MODE_PIN_ALT) SERIAL_ECHO(" AF", pc.af);
-  #endif
+    SERIAL_CHAR(' ');   // each field below brings its own leading space
 
-  if (pc.mode == MODE_PIN_ALT || pc.mode == MODE_PIN_ANALOG) {
-    // An owned pad is named by printPinPadInfo below, so "(unmapped)" adds nothing.
-    if (!printPinFunction(dp, pc.af, pc.mode == MODE_PIN_ANALOG) && !owner)
-      SERIAL_ECHO(" (unmapped)");
-  }
+    /**
+     * The shared report already prints "Input"/"Output" and a level for a plain GPIO,
+     * so only name the mode where it stayed silent - an alternate-function pin or a
+     * pad a peripheral has taken - or where it called an analog pin an input.
+     */
+    if (pc.mode == MODE_PIN_ALT || pc.mode == MODE_PIN_ANALOG || owner) {
+      switch (pc.mode) {
+        case MODE_PIN_ANALOG: SERIAL_ECHO(" Analog"); break;
+        case MODE_PIN_INPUT:  SERIAL_ECHO(" Input");  break;
+        case MODE_PIN_OUTPUT: SERIAL_ECHO(" Output"); break;
+        case MODE_PIN_ALT:    SERIAL_ECHO(" Alt");    break;
+      }
+    }
 
-  if (driven) SERIAL_ECHO(pc.open_drain ? F(" OpenDrain") : F(" PushPull"));
+    const bool driven = (pc.mode == MODE_PIN_OUTPUT || pc.mode == MODE_PIN_ALT);
 
-  if (pc.floating)
-    SERIAL_ECHO(" Floating");
-  else switch (pc.pull) {
-    case PIN_PULL_UP:   SERIAL_ECHO(" PullUp");   break;
-    case PIN_PULL_DOWN: SERIAL_ECHO(" PullDown"); break;
-    default: break;
-  }
+    #if HAS_GPIO_AF_REG
+      if (pc.mode == MODE_PIN_ALT) SERIAL_ECHO(" AF", pc.af);
+    #endif
 
-  if (driven) printPinSpeed(pc.speed);
+    if (pc.mode == MODE_PIN_ALT || pc.mode == MODE_PIN_ANALOG) {
+      // An owned pad is named by printPinPadInfo below, so "(unmapped)" adds nothing.
+      if (!printPinFunction(dp, pc.af, pc.mode == MODE_PIN_ANALOG) && !owner)
+        SERIAL_ECHO(" (unmapped)");
+    }
 
-  if (pc.locked) SERIAL_ECHO(" Locked");
+    if (driven) SERIAL_ECHO(pc.open_drain ? F(" OpenDrain") : F(" PushPull"));
 
-  printPinPadInfo(dp, owner);
+    if (pc.floating)
+      SERIAL_ECHO(" Floating");
+    else switch (pc.pull) {
+      case PIN_PULL_UP:   SERIAL_ECHO(" PullUp");   break;
+      case PIN_PULL_DOWN: SERIAL_ECHO(" PullDown"); break;
+      default: break;
+    }
 
-} // printPinPWM
+    if (driven) printPinSpeed(pc.speed);
+
+    if (pc.locked) SERIAL_ECHO(" Locked");
+
+    printPinPadInfo(dp, owner);
+
+  } // print_pwm
+
+  static void print_number(const pin_t) {}
+};
