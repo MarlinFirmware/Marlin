@@ -63,6 +63,7 @@ static_assert(NR_MIXING_VIRTUAL_TOOLS <= MAX_VTOOLS, "MIXING_VIRTUAL_TOOLS must 
 
   typedef struct {
     bool enabled;                         // This gradient is enabled
+    bool allowed;                         // Gradients are switched on (M166 S)
     mixer_comp_t color[MIXING_STEPPERS];  // The current gradient color
     float start_z, end_z;                 // Region for gradient
     int8_t start_vtool, end_vtool;        // Start and end virtual tools
@@ -80,6 +81,9 @@ static_assert(NR_MIXING_VIRTUAL_TOOLS <= MAX_VTOOLS, "MIXING_VIRTUAL_TOOLS must 
  * @details Contains data and behaviors for a Mixing Extruder
  */
 class Mixer {
+  #if ANY(MIXING_VTOOLS_IN_EEPROM, GRADIENT_MIX_IN_EEPROM)
+    friend class MarlinSettings;
+  #endif
   public:
 
   static float collector[MIXING_STEPPERS];    // M163 components, also editable from LCD
@@ -87,6 +91,9 @@ class Mixer {
   static void init(); // Populate colors at boot time
 
   static void reset_vtools();
+  #if ENABLED(GRADIENT_MIX_IN_EEPROM)
+    static void reset_gradient();
+  #endif
   static void refresh_collector(const float proportion=1.0, const uint8_t t=selected_vtool, float (&c)[MIXING_STEPPERS]=collector);
 
   // Used up to Planner level
@@ -205,7 +212,7 @@ class Mixer {
       #else
         constexpr bool is_grd = true;
       #endif
-      gradient.enabled = is_grd && gradient.start_vtool != gradient.end_vtool && gradient.start_z < gradient.end_z;
+      gradient.enabled = gradient.allowed && is_grd && gradient.start_vtool != gradient.end_vtool && gradient.start_z < gradient.end_z;
       if (gradient.enabled) {
         mixer_perc_t mix_bak[MIXING_STEPPERS];
         COPY(mix_bak, mix);
@@ -213,9 +220,9 @@ class Mixer {
         COPY(gradient.start_mix, mix);
         update_mix_from_vtool(gradient.end_vtool);
         COPY(gradient.end_mix, mix);
+        prev_z = -1;
         update_gradient_for_planner_z();
         COPY(mix, mix_bak);
-        prev_z = -1;
       }
     }
 
