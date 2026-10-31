@@ -93,9 +93,25 @@ public:
 
     #if IS_KINEMATIC
 
-      #if HAS_PROBE_XY_OFFSET
+      #if ENABLED(SCARA)
+        // The probe is bolted to the forearm and is a tool of its own with a virtual forearm. A point for the
+        // probe (inside the probing bounds) is reachable by the probe, and one for the nozzle by the active hotend
+        // with the probe over the bounds. PROBING_MARGIN keeps the probe off the edges of its reach.
+        static bool can_reach(const float rx, const float ry, const bool probe_relative=true) {
+          if (probe_relative) {
+            return scara_can_reach({ rx, ry }, scara_tool(offset_xy), PROBING_MARGIN)
+                && COORDINATE_OKAY(rx, min_x() - fslop, max_x() + fslop)
+                && COORDINATE_OKAY(ry, min_y() - fslop, max_y() + fslop);
+          }
+          else {
+            const xy_pos_t nozzle = { rx, ry }, at = nozzle + offset_xy_at_nozzle(nozzle);   // Where the probe is
+            return scara_can_reach(nozzle, scara_active_tool())
+                && COORDINATE_OKAY(at.x, min_x() - fslop, max_x() + fslop)
+                && COORDINATE_OKAY(at.y, min_y() - fslop, max_y() + fslop);
+          }
+        }
+      #elif HAS_PROBE_XY_OFFSET
         // Return true if the both nozzle and the probe can reach the given point.
-        // Note: This won't work on SCARA since the probe offset rotates with the arm.
         static bool can_reach(const float rx, const float ry, const bool probe_relative=true) {
           if (probe_relative) {
             return motion.can_reach(rx - offset_xy.x, ry - offset_xy.y) // The nozzle can go where it needs to go?
@@ -215,7 +231,10 @@ public:
 
   static bool good_bounds(const xy_pos_t &lf, const xy_pos_t &rb) {
     return (
-      #if IS_KINEMATIC
+      #if ENABLED(SCARA)
+        // Every point of the grid, not just the corners: the dead zone can be in the way
+        can_reach(lf) && can_reach(rb) && scara_rect_reachable(lf, rb, scara_tool(offset_xy), PROBING_MARGIN)
+      #elif IS_KINEMATIC
         can_reach(lf.x, 0) && can_reach(rb.x, 0) && can_reach(0, lf.y) && can_reach(0, rb.y)
       #else
         can_reach(lf) && can_reach(rb)
@@ -229,6 +248,23 @@ public:
     static const xy_pos_t &offset_xy;
   #else
     static constexpr xy_pos_t offset_xy = xy_pos_t({ 0, 0 });   // See #16767
+  #endif
+
+  /**
+   * The XY offset from the nozzle to the probe as a Cartesian vector, in the frame of the machine.
+   * That is 'offset_xy' on every machine but SCARA, where the probe is bolted to the forearm and its
+   * offset (in the forearm's frame) turns with the arm, so it depends on where the arm is. Use the one
+   * that matches the position you have:
+   *   offset_xy_at_nozzle(N) : the probe is at N + offset, for the active nozzle at N.
+   *   offset_xy_at_probe(P)  : the nozzle is at P - offset, for the probe at P.
+   * Only the raw 'offset_xy' is set by M851 and kept in the EEPROM (in forearm terms on SCARA).
+   */
+  #if ENABLED(SCARA)
+    static xy_pos_t offset_xy_at_nozzle(const xy_pos_t &nozzle_pos);
+    static xy_pos_t offset_xy_at_probe(const xy_pos_t &probe_pos);
+  #else
+    static const xy_pos_t &offset_xy_at_nozzle(const xy_pos_t&) { return offset_xy; }
+    static const xy_pos_t &offset_xy_at_probe(const xy_pos_t&)  { return offset_xy; }
   #endif
 
   static bool deploy(const bool no_return=false) { return set_deployed(true, no_return); }
@@ -251,28 +287,28 @@ public:
      * far enough past the right edge).
      */
     static constexpr float _min_x(const xy_pos_t &probe_offset_xy=offset_xy) {
-      return TERN(IS_KINEMATIC,
+      return TERN(SCARA, (X_MIN_BED) + (PROBING_MARGIN), TERN(IS_KINEMATIC,   // SCARA: the bed, since its reach is not centered on it
         (X_CENTER) - probe_radius(probe_offset_xy),
         _MAX((X_MIN_BED) + (PROBING_MARGIN_LEFT), (X_MIN_POS) + probe_offset_xy.x)
-      );
+      ));
     }
     static constexpr float _max_x(const xy_pos_t &probe_offset_xy=offset_xy) {
-      return TERN(IS_KINEMATIC,
+      return TERN(SCARA, (X_MAX_BED) - (PROBING_MARGIN), TERN(IS_KINEMATIC,
         (X_CENTER) + probe_radius(probe_offset_xy),
         _MIN((X_MAX_BED) - (PROBING_MARGIN_RIGHT), (X_MAX_POS) + probe_offset_xy.x)
-      );
+      ));
     }
     static constexpr float _min_y(const xy_pos_t &probe_offset_xy=offset_xy) {
-      return TERN(IS_KINEMATIC,
+      return TERN(SCARA, (Y_MIN_BED) + (PROBING_MARGIN), TERN(IS_KINEMATIC,
         (Y_CENTER) - probe_radius(probe_offset_xy),
         _MAX((Y_MIN_BED) + (PROBING_MARGIN_FRONT), (Y_MIN_POS) + probe_offset_xy.y)
-      );
+      ));
     }
     static constexpr float _max_y(const xy_pos_t &probe_offset_xy=offset_xy) {
-      return TERN(IS_KINEMATIC,
+      return TERN(SCARA, (Y_MAX_BED) - (PROBING_MARGIN), TERN(IS_KINEMATIC,
         (Y_CENTER) + probe_radius(probe_offset_xy),
         _MIN((Y_MAX_BED) - (PROBING_MARGIN_BACK), (Y_MAX_POS) + probe_offset_xy.y)
-      );
+      ));
     }
 
     static float min_x() { return _min_x() TERN_(NOZZLE_AS_PROBE, TERN_(HAS_HOME_OFFSET, - motion.home_offset.x)); }
@@ -292,8 +328,21 @@ public:
       static constexpr xy_pos_t default_probe_xy_offset = xy_pos_t({ default_probe_xyz_offset.x,  default_probe_xyz_offset.y });
 
     public:
+      #if ENABLED(SCARA)
+        // The probe's virtual forearm (see scara.h) for the default offset, and the ring around the shoulder that it reaches
+        static constexpr float scara_len() { return __builtin_sqrtf(sq(float(SCARA_LINKAGE_2) + default_probe_xy_offset.y) + sq(default_probe_xy_offset.x)); }
+        static constexpr float scara_diff() { return float(SCARA_LINKAGE_1) > scara_len() ? float(SCARA_LINKAGE_1) - scara_len() : scara_len() - float(SCARA_LINKAGE_1); }
+        static constexpr float scara_inner() { return (scara_diff() > float(MIDDLE_DEAD_ZONE_R) ? scara_diff() : float(MIDDLE_DEAD_ZONE_R)) + float(PROBING_MARGIN); }
+        static constexpr float scara_outer() { return float(SCARA_LINKAGE_1) + scara_len() - float(PROBING_MARGIN); }
+      #endif
+
       static constexpr bool can_reach(float x, float y) {
-        #if IS_KINEMATIC
+        #if ENABLED(SCARA)
+          return HYPOT2(x - float(SCARA_OFFSET_X), y - float(SCARA_OFFSET_Y)) <= sq(scara_outer())
+              && HYPOT2(x - float(SCARA_OFFSET_X), y - float(SCARA_OFFSET_Y)) >= sq(scara_inner())
+              && COORDINATE_OKAY(x, _min_x(default_probe_xy_offset) - fslop, _max_x(default_probe_xy_offset) + fslop)
+              && COORDINATE_OKAY(y, _min_y(default_probe_xy_offset) - fslop, _max_y(default_probe_xy_offset) + fslop);
+        #elif IS_KINEMATIC
           return HYPOT2(x, y) <= sq(probe_radius(default_probe_xy_offset));
         #else
           return COORDINATE_OKAY(x, _min_x(default_probe_xy_offset) - fslop, _max_x(default_probe_xy_offset) + fslop)
