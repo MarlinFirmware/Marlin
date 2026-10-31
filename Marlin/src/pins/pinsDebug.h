@@ -185,6 +185,30 @@ inline pin_t getPinByIndex(const uint16_t index) {
   #define M43_NEVER_TOUCH(Q) false
 #endif
 
+// Default for HALs that don't need a special version of digitalRead
+#ifndef digitalRead_mod
+  #define digitalRead_mod(P) extDigitalRead(P)
+#endif
+
+// Default pin number / analog channel output. A HAL may override either by
+// defining the name (e.g., "#define printPinNumber printPinNumber") and
+// providing its own function.
+#ifndef printPinNumber
+  FORCE_INLINE void printPinNumber(const pin_t pin) {
+    char buffer[10];
+    sprintf_P(buffer, PSTR("%3d "), int(pin));
+    SERIAL_ECHO(buffer);
+  }
+#endif
+
+#ifndef printPinAnalog
+  FORCE_INLINE void printPinAnalog(const pin_t pin) {
+    char buffer[12];
+    sprintf_P(buffer, PSTR(" (A%2d)  "), int(digitalPinToAnalogIndex(pin)));
+    SERIAL_ECHO(buffer);
+  }
+#endif
+
 // The HAL may override getPinIsDigitalByIndex (by defining it)
 // where the pin mode is more reliable than the table.
 #ifndef getPinIsDigitalByIndex

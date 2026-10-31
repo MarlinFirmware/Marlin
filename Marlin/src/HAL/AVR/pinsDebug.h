@@ -349,6 +349,7 @@ void printPinPWM(const uint8_t pin) {
 } // printPinPWM
 
 #ifndef digitalRead_mod                   // Use Teensyduino's version of digitalRead - it doesn't disable the PWMs
+  #define digitalRead_mod digitalRead_mod
   int digitalRead_mod(const pin_t pin) {  // same as digitalRead except the PWM stop section has been removed
     const uint8_t port = digitalPinToPort_DEBUG(pin);
     return (port != NOT_A_PIN) && (*portInputRegister(port) & digitalPinToBitMask_DEBUG(pin)) ? HIGH : LOW;
@@ -385,7 +386,5 @@ void printPinPort(const pin_t pin) {   // print port number
   #endif
 }
 
-#define printPinNumber(P) do{ sprintf_P(buffer, PSTR("%3d "), P); SERIAL_ECHO(buffer); }while(0)
-#define printPinAnalog(P) do{ sprintf_P(buffer, PSTR(" (A%2d)  "), digitalPinToAnalogIndex(P)); SERIAL_ECHO(buffer); }while(0)
 
 #undef ABTEST

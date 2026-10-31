@@ -143,9 +143,8 @@ const XrefInfo pin_xref[] PROGMEM = {
  */
 #define NUMBER_PINS_TOTAL COUNT(pin_xref)
 #define isValidPin(P) (WITHIN(P, 0, (NUM_DIGITAL_PINS) - 1) || TERN0(HAS_HIGH_ANALOG_PINS, WITHIN(P, NUM_ANALOG_FIRST, NUM_ANALOG_LAST)))
-#define digitalRead_mod(A) extDigitalRead(A)  // must use Arduino pin numbers when doing reads
-#define printPinNumber(Q)
-#define printPinAnalog(P) do{ sprintf_P(buffer, PSTR(" (A%2d)  "), digitalPinToAnalogIndex(P)); SERIAL_ECHO(buffer); }while(0)
+#define printPinNumber printPinNumber
+FORCE_INLINE void printPinNumber(const pin_t) {}
 #define digitalPinToAnalogIndex(P) -1  // will report analog pin number in the print port routine
 #define MULTI_NAME_PAD 33 // space needed to be pretty if not first name assigned to a pin
 

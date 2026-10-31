@@ -137,9 +137,6 @@ bool isAnalogPin(const pin_t pin) {
   return digital_pin_to_analog_pin(pin) >= 0;
 }
 
-#define digitalRead_mod(A) extDigitalRead(A)  // must use Arduino pin numbers when doing reads
-#define printPinNumber(P) do{ sprintf_P(buffer, PSTR("%3d "), P); SERIAL_ECHO(buffer); }while(0)
-#define printPinAnalog(P) do{ sprintf_P(buffer, PSTR(" (A%2d)  "), digitalPinToAnalogIndex(P)); SERIAL_ECHO(buffer); }while(0)
 #define MULTI_NAME_PAD 33 // space needed to be pretty if not first name assigned to a pin
 
 //bool is_digital(const pin_t pin) {

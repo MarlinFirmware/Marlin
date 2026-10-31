@@ -43,9 +43,18 @@
 
 #define NUMBER_PINS_TOTAL NUM_DIGITAL_PINS
 #define isAnalogPin(P) (digitalPinToAnalogIndex(P) >= 0)
-#define digitalRead_mod(P) extDigitalRead(P)
-#define printPinNumber(P) do{ sprintf_P(buffer, PSTR("P%d_%02d"), LPC176x::pin_port(P), LPC176x::pin_bit(P)); SERIAL_ECHO(buffer); }while(0)
-#define printPinAnalog(P) do{ sprintf_P(buffer, PSTR("_A%d     "), LPC176x::pin_get_adc_channel(P)); SERIAL_ECHO(buffer); }while(0)
+#define printPinNumber printPinNumber
+FORCE_INLINE void printPinNumber(const pin_t pin) {
+  char buffer[12];
+  sprintf_P(buffer, PSTR("P%d_%02d"), LPC176x::pin_port(pin), LPC176x::pin_bit(pin));
+  SERIAL_ECHO(buffer);
+}
+#define printPinAnalog printPinAnalog
+FORCE_INLINE void printPinAnalog(const pin_t pin) {
+  char buffer[12];
+  sprintf_P(buffer, PSTR("_A%d     "), LPC176x::pin_get_adc_channel(pin));
+  SERIAL_ECHO(buffer);
+}
 #define MULTI_NAME_PAD 17 // space needed to be pretty if not first name assigned to a pin
 
 // pins that will cause hang/reset/disconnect in M43 Toggle and Watch utilities

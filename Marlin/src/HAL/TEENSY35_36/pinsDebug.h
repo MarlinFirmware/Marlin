@@ -72,8 +72,12 @@
 #define digitalPinToAnalogIndex(P) int(P - analogInputToDigitalPin(0))
 #define getValidPinMode(P) (isValidPin(P) && IS_OUTPUT(P))
 #define isValidPin(P) (P >= 0 && P < pin_t(NUMBER_PINS_TOTAL))
-#define printPinNumber(P) do{ sprintf_P(buffer, PSTR("%02d"), P); SERIAL_ECHO(buffer); }while(0)
-#define printPinAnalog(P) do{ sprintf_P(buffer, PSTR(" (A%2d)  "), digitalPinToAnalogIndex(P)); SERIAL_ECHO(buffer); }while(0)
+#define printPinNumber printPinNumber
+FORCE_INLINE void printPinNumber(const pin_t pin) {
+  char buffer[10];
+  sprintf_P(buffer, PSTR("%02d"), pin);
+  SERIAL_ECHO(buffer);
+}
 
 #define isAnalogPin(P) ((P) >= analogInputToDigitalPin(0) && (P) <= analogInputToDigitalPin(9)) || ((P) >= analogInputToDigitalPin(12) && (P) <= analogInputToDigitalPin(20))
 

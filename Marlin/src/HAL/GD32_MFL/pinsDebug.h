@@ -54,9 +54,18 @@
 #define NUMBER_PINS_TOTAL TOTAL_PIN_COUNT
 
 #define isValidPin(P) WITHIN(P, 0, (NUM_DIGITAL_PINS - 1))
-#define digitalRead_mod(P) extDigitalRead(P)
-#define printPinNumber(P) do { sprintf_P(buffer, PSTR("%3hd "), pin_t(P)); SERIAL_ECHO(buffer); } while (0)
-#define printPinAnalog(P) do { sprintf_P(buffer, PSTR(" (A%2d)  "), pin_t(getAdcChannelFromPin(P))); SERIAL_ECHO(buffer); } while (0)
+#define printPinNumber printPinNumber
+FORCE_INLINE void printPinNumber(const pin_t pin) {
+  char buffer[10];
+  sprintf_P(buffer, PSTR("%3hd "), pin_t(pin));
+  SERIAL_ECHO(buffer);
+}
+#define printPinAnalog printPinAnalog
+FORCE_INLINE void printPinAnalog(const pin_t pin) {
+  char buffer[12];
+  sprintf_P(buffer, PSTR(" (A%2d)  "), pin_t(getAdcChannelFromPin(pin)));
+  SERIAL_ECHO(buffer);
+}
 
 #define MULTI_NAME_PAD 21 // Space needed to be pretty if not first name assigned to a pin
 

@@ -45,8 +45,6 @@
 #define isValidPin(P) (P >= 0 && P < pin_t(NUMBER_PINS_TOTAL))
 #define isAnalogPin(P) (digitalPinToAnalogIndex(P) >= 0)
 #define digitalRead_mod(P)  digitalRead(P)
-#define printPinNumber(P) do{ sprintf_P(buffer, PSTR("%3d "), P); SERIAL_ECHO(buffer); }while(0)
-#define printPinAnalog(P) do{ sprintf_P(buffer, PSTR(" (A%2d)  "), digitalPinToAnalogIndex(P)); SERIAL_ECHO(buffer); }while(0)
 #define MULTI_NAME_PAD 16 // space needed to be pretty if not first name assigned to a pin
 
 // Active ADC function/mode/code values for PINSEL registers
