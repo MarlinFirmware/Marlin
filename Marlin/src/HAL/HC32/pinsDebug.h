@@ -55,13 +55,10 @@
 
 // Note: pin_array is defined in `Marlin/src/pins/pinsDebug.h`, and since this file is included
 // after it, it is available in this file as well.
-#define getPinByIndex(x) pin_t(pin_array[x].pin)
 #define digitalRead_mod(P) extDigitalRead(P)
 
 #define printPinNumber(P) do{ sprintf_P(buffer, PSTR("%3hd "), int16_t(P)); SERIAL_ECHO(buffer); }while(0)
 #define printPinAnalog(P) do{ sprintf_P(buffer, PSTR(" (A%2d)  "), digitalPinToAnalogIndex(P)); SERIAL_ECHO(buffer); }while(0)
-
-#define printPinNameByIndex(x) do{ sprintf_P(buffer, PSTR("%-" STRINGIFY(MAX_NAME_LENGTH) "s"), pin_array[x].name); SERIAL_ECHO(buffer); }while(0)
 
 #define MULTI_NAME_PAD 21 // Space needed to be pretty if not first name assigned to a pin
 
@@ -99,6 +96,7 @@ bool getValidPinMode(const pin_t pin) {
   return isValidPin(pin) && !IS_INPUT(pin);
 }
 
+#define getPinIsDigitalByIndex getPinIsDigitalByIndex
 bool getPinIsDigitalByIndex(const int16_t index) {
   const pin_t pin = getPinByIndex(index);
   return (!isAnalogPin(pin));

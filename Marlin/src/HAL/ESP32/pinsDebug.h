@@ -50,10 +50,7 @@
 #define MULTI_NAME_PAD 16 // space needed to be pretty if not first name assigned to a pin
 
 #define digitalRead_mod(P) extDigitalRead(P)
-#define printPinNameByIndex(x) do{ sprintf_P(buffer, PSTR("%-" STRINGIFY(MAX_NAME_LENGTH) "s"), pin_array[x].name); SERIAL_ECHO(buffer); }while(0)
 #define printPinNumber(P) do{ sprintf_P(buffer, PSTR("%02d"), P); SERIAL_ECHO(buffer); }while(0)
-#define getPinByIndex(x) pin_array[x].pin
-#define getPinIsDigitalByIndex(x) pin_array[x].is_digital
 
 /**
  * GPIO numbering is not contiguous. On the ESP32, GPIO 20, 24, and 28-31 don't

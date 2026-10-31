@@ -44,11 +44,8 @@
 #define NUMBER_PINS_TOTAL PINS_COUNT
 
 #define digitalRead_mod(P) extDigitalRead(P)
-#define printPinNameByIndex(x) do{ sprintf_P(buffer, PSTR("%-" STRINGIFY(MAX_NAME_LENGTH) "s"), pin_array[x].name); SERIAL_ECHO(buffer); }while(0)
 #define printPinNumber(P) do{ sprintf_P(buffer, PSTR("%3d "), P); SERIAL_ECHO(buffer); }while(0)
 #define printPinAnalog(P) do{ sprintf_P(buffer, PSTR(" (A%2d)  "), digitalPinToAnalogIndex(P)); SERIAL_ECHO(buffer); }while(0)
-#define getPinByIndex(x) pin_array[x].pin
-#define getPinIsDigitalByIndex(x) pin_array[x].is_digital
 #define isValidPin(P) (P >= 0 && P < pin_t(NUMBER_PINS_TOTAL))
 #define isAnalogPin(P) (digitalPinToAnalogIndex(P) >= 0)
 #define pwm_status(P) digitalPinHasPWM(P)

@@ -102,9 +102,6 @@
 #define MODE_PIN_ALT    2 // Alternate function mode
 #define MODE_PIN_ANALOG 3 // Analog mode
 
-#define getPinByIndex(x) pin_array[x].pin
-#define printPinNameByIndex(x) do{ sprintf_P(buffer, PSTR("%-" STRINGIFY(MAX_NAME_LENGTH) "s"), pin_array[x].name); SERIAL_ECHO(buffer); }while(0)
-#define getPinIsDigitalByIndex(x) pin_array[x].is_digital
 #define digitalPinToAnalogIndex(P) digital_pin_to_analog_pin(P)
 
 uint8_t get_pin_mode(const pin_t pin) {

@@ -74,7 +74,6 @@
   #define digitalPinToBitMask_DEBUG(P) digitalPinToBitMask(P)
   #define digitalPinToPort_DEBUG(P) digitalPinToPort(P)
   bool getValidPinMode(pin_t pin) {return *portModeRegister(digitalPinToPort_DEBUG(pin)) & digitalPinToBitMask_DEBUG(pin); }
-  #define getPinByIndex(x) pgm_read_byte(&pin_array[x].pin)
 
 #endif
 
@@ -88,23 +87,7 @@
   #define isAnalogPin(P) (_ANALOG1(P) || _ANALOG2(P))
   #define digitalPinToAnalogIndex(P) int(_ANALOG1(P) ? (P) - analogInputToDigitalPin(0) : _ANALOG2(P) ? (P) - analogInputToDigitalPin(8) + 8 : -1)
 #endif
-#define getPinByIndex(x) pgm_read_byte(&pin_array[x].pin)
 #define MULTI_NAME_PAD 26 // space needed to be pretty if not first name assigned to a pin
-
-void printPinNameByIndex(const uint8_t index) {
-  PGM_P const name_mem_pointer = (PGM_P)pgm_read_ptr(&pin_array[index].name);
-  for (uint8_t y = 0; y < MAX_NAME_LENGTH; ++y) {
-    char temp_char = pgm_read_byte(name_mem_pointer + y);
-    if (temp_char != 0)
-      SERIAL_CHAR(temp_char);
-    else {
-      for (uint8_t i = 0; i < MAX_NAME_LENGTH - y; ++i) SERIAL_CHAR(' ');
-      break;
-    }
-  }
-}
-
-#define getPinIsDigitalByIndex(x)   pgm_read_byte(&pin_array[x].is_digital)
 
 #if defined(__AVR_ATmega1284P__)  // 1284 IDE extensions set this to the number of
   #undef NUM_DIGITAL_PINS         // digital only pins while all other CPUs have it

@@ -53,12 +53,10 @@
 #define NUM_DIGITAL_PINS  TOTAL_PIN_COUNT
 #define NUMBER_PINS_TOTAL TOTAL_PIN_COUNT
 
-#define getPinByIndex(x) pin_t(pin_array[x].pin)
 #define isValidPin(P) WITHIN(P, 0, (NUM_DIGITAL_PINS - 1))
 #define digitalRead_mod(P) extDigitalRead(P)
 #define printPinNumber(P) do { sprintf_P(buffer, PSTR("%3hd "), pin_t(P)); SERIAL_ECHO(buffer); } while (0)
 #define printPinAnalog(P) do { sprintf_P(buffer, PSTR(" (A%2d)  "), pin_t(getAdcChannelFromPin(P))); SERIAL_ECHO(buffer); } while (0)
-#define printPinNameByIndex(x) do { sprintf_P(buffer, PSTR("%-" STRINGIFY(MAX_NAME_LENGTH) "s"), pin_array[x].name); SERIAL_ECHO(buffer); } while (0)
 
 #define MULTI_NAME_PAD 21 // Space needed to be pretty if not first name assigned to a pin
 
@@ -89,6 +87,7 @@ bool getValidPinMode(const pin_t pin) {
          mode != gpio::Pin_Mode::INPUT_PULLUP && mode != gpio::Pin_Mode::INPUT_PULLDOWN;
 }
 
+#define getPinIsDigitalByIndex getPinIsDigitalByIndex
 bool getPinIsDigitalByIndex(const int16_t index) {
   const pin_t pin = getPinByIndex(index);
   return (!isAnalogPin(pin));

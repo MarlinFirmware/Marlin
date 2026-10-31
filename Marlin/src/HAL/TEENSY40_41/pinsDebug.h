@@ -45,9 +45,6 @@
 
 #define NUMBER_PINS_TOTAL NUM_DIGITAL_PINS
 
-#define getPinByIndex(x) pin_array[x].pin
-#define printPinNameByIndex(x) do{ sprintf_P(buffer, PSTR("%-" STRINGIFY(MAX_NAME_LENGTH) "s"), pin_array[x].name); SERIAL_ECHO(buffer); }while(0)
-#define getPinIsDigitalByIndex(x) pin_array[x].is_digital
 #define digitalPinToAnalogIndex(P) int(P - analogInputToDigitalPin(0))
 #define getValidPinMode(P) (isValidPin(P) && IS_OUTPUT(P))
 #define isValidPin(P) (P >= 0 && P < pin_t(NUMBER_PINS_TOTAL))
