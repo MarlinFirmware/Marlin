@@ -30,8 +30,6 @@
 #include <soc/gpio_struct.h>
 #include <esp32-hal-ledc.h>
 
-#define PINS_DEBUG_CLASS
-
 // Defined by the HAL. Returns the LEDC channel driving the pin, or -1. Unlike
 // get_pwm_channel it never allocates, so it's safe to call just to look.
 int8_t channel_for_pin(const uint8_t pin);

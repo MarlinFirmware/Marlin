@@ -37,8 +37,6 @@
 
 #define NUM_DIGITAL_PINS  TOTAL_PIN_COUNT
 
-#define PINS_DEBUG_CLASS
-
 struct PinsDebug : PinsDebugBase<PinsDebug> {
   static constexpr uint16_t count = TOTAL_PIN_COUNT;
   static constexpr uint8_t name_pad = 21;   // Space needed to be pretty if not first name assigned to a pin

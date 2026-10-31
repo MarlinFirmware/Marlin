@@ -113,8 +113,6 @@ int8_t digital_pin_to_analog_pin(pin_t pin) {
 //  return pin_mode == MODE_PIN_INPUT || pin_mode == MODE_PIN_OUTPUT;
 //}
 
-#define PINS_DEBUG_CLASS
-
 struct PinsDebug : PinsDebugBase<PinsDebug> {
   static constexpr uint16_t count = NUM_DIGITAL_PINS;
   static constexpr uint8_t name_pad = 33;   // space needed to be pretty if not first name assigned to a pin

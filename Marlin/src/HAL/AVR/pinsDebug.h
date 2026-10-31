@@ -185,8 +185,6 @@ void timer_prefix(uint8_t T, char L, uint8_t N) {  // T - timer    L - pwm  N - 
   if (TEST(*TMSK, TOIE)) err_prob_interrupt();
 }
 
-#define PINS_DEBUG_CLASS
-
 struct PinsDebug : PinsDebugBase<PinsDebug> {
   static constexpr uint16_t count = NUM_DIGITAL_PINS;
   static constexpr uint8_t name_pad = 26;   // space needed to be pretty if not first name assigned to a pin
