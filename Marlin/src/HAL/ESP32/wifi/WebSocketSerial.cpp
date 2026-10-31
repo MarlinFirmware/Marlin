@@ -105,7 +105,10 @@ WebSocketSerial::WebSocketSerial()
 void WebSocketSerial::begin(const long baud_setting) {
   ws.onEvent([this](AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType type, void *arg, uint8_t *data, size_t len) {
     switch (type) {
-      case WS_EVT_CONNECT: client->ping(); break; // client connected
+      case WS_EVT_CONNECT:                        // client connected
+        client->client()->setNoDelay(true);       // Send each line now, not after the last one is acknowledged
+        client->ping();
+        break;
       case WS_EVT_DISCONNECT:                     // client disconnected
       case WS_EVT_ERROR:                          // error was received from the other end
       case WS_EVT_PONG: break;                    // pong message was received (in response to a ping request maybe)
@@ -125,13 +128,29 @@ int WebSocketSerial::read() { return rx_buffer.read(); }
 int WebSocketSerial::available() { return rx_buffer.available(); }
 void WebSocketSerial::flush() { rx_buffer.flush(); }
 
+// Each client queues at most WS_MAX_QUEUED_MESSAGES messages, and is closed if its queue overflows.
+// Wait up to 50ms for room, so a burst of output (e.g., M115) reaches clients that are reading.
+// Once a wait times out, don't wait again until every queue has room, so a client that stops
+// reading can't slow Marlin. textAll() only queues to connected clients.
+void WebSocketSerial::send(const uint8_t *data, const size_t len) {
+  static bool waited_out = false;
+  ws.cleanupClients(); // A closed client counts as full until removed
+  if (!waited_out) {
+    const uint32_t start = millis();
+    while (!ws.availableForWriteAll() && millis() - start < 50) delay(1);
+  }
+  waited_out = !ws.availableForWriteAll();
+  ws.textAll(data, len);
+}
+
 size_t WebSocketSerial::write(const uint8_t c) {
   size_t ret = tx_buffer.write(c);
 
-  if (ret && c == '\n') {
+  // Send at the end of a line, or when the buffer is full so a long line can't block it
+  if (c == '\n' || tx_buffer.available() == TX_BUFFER_SIZE - 1) {
     uint8_t tmp[TX_BUFFER_SIZE];
     ring_buffer_pos_t size = tx_buffer.read(tmp);
-    ws.textAll(tmp, size);
+    send(tmp, size);
   }
 
   return ret;

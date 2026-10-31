@@ -21,7 +21,7 @@
  */
 #pragma once
 
-#include "../../../inc/MarlinConfig.h"
+#include "../../../inc/MarlinConfigPre.h"
 #include "../../../core/serial_hook.h"
 
 #include <Stream.h>
@@ -60,6 +60,7 @@ public:
 class WebSocketSerial: public Stream {
   RingBuffer rx_buffer;
   RingBuffer tx_buffer;
+  void send(const uint8_t *data, const size_t len);
 
 public:
   WebSocketSerial();
