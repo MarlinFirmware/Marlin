@@ -85,6 +85,7 @@ jobs:
         - esp32_idf3
         - esp32_idf4
         - mks_tinybee
+        - mks_tinybee_idf5
 
         # Teensy 2
         #- at90usb1286_cdc
