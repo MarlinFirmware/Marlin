@@ -809,6 +809,10 @@
   #warning "Contrast cannot be changed when LCD_CONTRAST_MIN >= LCD_CONTRAST_MAX. (Define NO_LCD_CONTRAST_WARNING to suppress this warning.)"
 #endif
 
+#if HAS_MARLINUI_U8G2 && defined(__AVR__) && DISABLED(NO_U8G2_AVR_WARNING)
+  #warning "U8g2 is not recommended for 8-bit controllers due to memory and performance constraints. Consider using standard U8glib instead. (Define NO_U8G2_AVR_WARNING to suppress this warning.)"
+#endif
+
 #if PROGRESS_MSG_EXPIRE > 0 && HAS_STATUS_MESSAGE_TIMEOUT
   #warning "It is recommended not to combine PROGRESS_MSG_EXPIRE with STATUS_MESSAGE_TIMEOUT_SEC."
 #endif
