@@ -43,6 +43,14 @@
 #define DISABLE_JTAG
 
 //
+// EEPROM
+//
+#if NO_EEPROM_SELECTED
+  #define FLASH_EEPROM_EMULATION                  // Last 4K of flash bank 0
+  //#define SDCARD_EEPROM_EMULATION
+#endif
+
+//
 // Limit Switches
 //
 #define X_MIN_PIN                           PB11
