@@ -179,47 +179,13 @@ inline pin_t getPinByIndex(const uint16_t index) {
   #endif
 }
 
-#include HAL_PATH(.., pinsDebug.h)  // get the correct support file for this CPU
-
-#ifndef M43_NEVER_TOUCH
-  #define M43_NEVER_TOUCH(Q) false
-#endif
-
-// Default for HALs that don't need a special version of digitalRead
-#ifndef digitalRead_mod
-  #define digitalRead_mod(P) extDigitalRead(P)
-#endif
-
-// Default pin number / analog channel output. A HAL may override either by
-// defining the name (e.g., "#define printPinNumber printPinNumber") and
-// providing its own function.
-#ifndef printPinNumber
-  FORCE_INLINE void printPinNumber(const pin_t pin) {
-    char buffer[10];
-    sprintf_P(buffer, PSTR("%3d "), int(pin));
-    SERIAL_ECHO(buffer);
-  }
-#endif
-
-#ifndef printPinAnalog
-  FORCE_INLINE void printPinAnalog(const pin_t pin) {
-    char buffer[12];
-    sprintf_P(buffer, PSTR(" (A%2d)  "), int(digitalPinToAnalogIndex(pin)));
-    SERIAL_ECHO(buffer);
-  }
-#endif
-
-// The HAL may override getPinIsDigitalByIndex (by defining it)
-// where the pin mode is more reliable than the table.
-#ifndef getPinIsDigitalByIndex
-  inline bool getPinIsDigitalByIndex(const uint16_t index) {
-    #ifdef __AVR__
-      return pgm_read_byte(&pin_array[index].is_digital);
-    #else
-      return pin_array[index].is_digital;
-    #endif
-  }
-#endif
+inline bool pinTableIsDigital(const uint16_t index) {
+  #ifdef __AVR__
+    return pgm_read_byte(&pin_array[index].is_digital);
+  #else
+    return pin_array[index].is_digital;
+  #endif
+}
 
 // Print a pin's name padded to MAX_NAME_LENGTH. Names are in PROGMEM.
 inline void printPinNameByIndex(const uint16_t index) {
@@ -229,124 +195,239 @@ inline void printPinNameByIndex(const uint16_t index) {
   if (len < MAX_NAME_LENGTH) SERIAL_ECHO_SP(MAX_NAME_LENGTH - len);
 }
 
-static void printPinIOState(const bool isout) {
-  SERIAL_ECHO(isout ? F("Output ") : F("Input  "));
-}
+/**
+ * PinsDebugBase<Impl> - Shared pins debugging code
+ *
+ * Each HAL provides `struct PinsDebug : PinsDebugBase<PinsDebug>` and defines
+ * only what is special to the platform. Anything the HAL leaves out falls back
+ * to the default here. The base calls hooks as Impl::hook(), which resolves at
+ * compile time to the HAL's version if there is one, so there is no vtable.
+ *
+ * Required of the HAL:
+ *   static constexpr uint16_t count     Number of pins (M43 index range)
+ *   static constexpr uint8_t name_pad   Space to pad a pin's additional names
+ *   static bool is_analog(pin_t)        The pin is an analog input
+ *   static int16_t analog_index(pin_t)  Analog input number, or -1
+ *   static bool is_output(pin_t)        The pin is currently an output
+ *
+ * Optional (see the defaults below):
+ *   pin_from_index, never_touch, is_valid, is_digital_at, read_digital,
+ *   pwm_active, print_pwm, print_port, print_number, print_analog
+ */
+template<class Impl>
+struct PinsDebugBase {
 
-static void printPinState(const bool state) {
-  SERIAL_ECHO(state ? F("HIGH") : F("LOW"));
-}
+  // Map an M43 index to a pin number, and exclude indexes M43 must never touch
+  static pin_t pin_from_index(const uint16_t index) { return pin_t(index); }
+  static bool never_touch(const uint16_t) { return false; }
 
-// pretty report with PWM info
-inline void printPinStateExt(const pin_t pin, const bool ignore, const bool extended=false, FSTR_P const start_string=nullptr) {
-  char buffer[MAX_NAME_LENGTH + 1];   // for the sprintf statements
-  bool found = false, multi_name_pin = false;
+  static bool is_valid(const pin_t pin) { return WITHIN(pin, 0, pin_t(Impl::count - 1)); }
 
-  auto alt_pin_echo = [](const pin_t &pin) {
-    #if AVR_AT90USB1286_FAMILY
-      // Use FastIO for pins Teensy doesn't expose
-      if (pin == PIN_E2) {
-        printPinIOState(IS_OUTPUT(PIN_E2));
-        printPinState(READ(PIN_E2));
-        return false;
-      }
-      else if (pin == PIN_E3) {
-        printPinIOState(IS_OUTPUT(PIN_E3));
-        printPinState(READ(PIN_E3));
-        return false;
-      }
-    #endif
-    return true;
-  };
+  // Is the pin at this table index a digital pin (versus analog)?
+  static bool is_digital_at(const uint16_t index) { return pinTableIsDigital(index); }
 
-  for (uint8_t x = 0; x < COUNT(pin_array); ++x)  {    // scan entire array and report all instances of this pin
-    if (getPinByIndex(x) == pin) {
-      if (!found) {    // report digital and analog pin number only on the first time through
-        if (start_string) SERIAL_ECHO(start_string);
-        SERIAL_ECHOPGM("PIN: ");
-        printPinNumber(pin);
-        printPinPort(pin);
-        if (int8_t(digitalPinToAnalogIndex(pin)) >= 0) printPinAnalog(pin); // analog pin number
-        else SERIAL_ECHO_SP(8);                                                 // add padding if not an analog pin
-      }
-      else {
-        SERIAL_CHAR('.');
-        SERIAL_ECHO_SP(MULTI_NAME_PAD + (start_string ? strlen_P(FTOP(start_string)) : 0));  // add padding if not the first instance found
-      }
-      printPinNameByIndex(x);
-      if (extended) {
-        if (marlin.pin_is_protected(pin) && !ignore)
-          SERIAL_ECHOPGM("protected ");
+  // Read a pin without changing its mode (some digitalRead implementations stop PWM)
+  static int read_digital(const pin_t pin) { return extDigitalRead(pin); }
+
+  // Print PWM status. pwm_active returns true if the pin is a PWM output
+  // (and may print its duty). The default reports no PWM.
+  static bool pwm_active(const pin_t) { return false; }
+  static void print_pwm(const pin_t) {}
+
+  static void print_port(const pin_t) {}
+
+  static void print_number(const pin_t pin) {
+    char buffer[16];
+    sprintf_P(buffer, PSTR("%3d "), int(pin));
+    SERIAL_ECHO(buffer);
+  }
+
+  static void print_analog(const pin_t pin) {
+    char buffer[20];
+    sprintf_P(buffer, PSTR(" (A%2d)  "), int(Impl::analog_index(pin)));
+    SERIAL_ECHO(buffer);
+  }
+
+  // An M43 command must not touch this pin
+  static bool is_untouchable(const uint16_t index, const pin_t pin, const bool ignore_protection) {
+    return Impl::never_touch(index) || (!ignore_protection && marlin.pin_is_protected(pin));
+  }
+
+  // Pretty report with PWM info
+  static void print_state(const pin_t pin, const bool ignore, const bool extended=false, FSTR_P const start_string=nullptr) {
+    char buffer[MAX_NAME_LENGTH + 1];   // for the sprintf statements
+    bool found = false, multi_name_pin = false;
+
+    auto alt_pin_echo = [](const pin_t &pin) {
+      #if AVR_AT90USB1286_FAMILY
+        // Use FastIO for pins Teensy doesn't expose
+        if (pin == PIN_E2) {
+          print_io_state(IS_OUTPUT(PIN_E2));
+          print_state_name(READ(PIN_E2));
+          return false;
+        }
+        else if (pin == PIN_E3) {
+          print_io_state(IS_OUTPUT(PIN_E3));
+          print_state_name(READ(PIN_E3));
+          return false;
+        }
+      #endif
+      return true;
+    };
+
+    for (uint8_t x = 0; x < COUNT(pin_array); ++x)  {    // scan entire array and report all instances of this pin
+      if (getPinByIndex(x) == pin) {
+        if (!found) {    // report digital and analog pin number only on the first time through
+          if (start_string) SERIAL_ECHO(start_string);
+          SERIAL_ECHOPGM("PIN: ");
+          Impl::print_number(pin);
+          Impl::print_port(pin);
+          if (int8_t(Impl::analog_index(pin)) >= 0) Impl::print_analog(pin); // analog pin number
+          else SERIAL_ECHO_SP(8);                                            // add padding if not an analog pin
+        }
         else {
-          if (alt_pin_echo(pin)) {
-            if (!getPinIsDigitalByIndex(x)) {
-              sprintf_P(buffer, PSTR("Analog in = %5ld"), (long)analogRead(digitalPinToAnalogIndex(pin)));
-              SERIAL_ECHO(buffer);
-            }
-            else {
-              if (!getValidPinMode(pin)) {
-                //pinMode(pin, INPUT_PULLUP);  // make sure input isn't floating - stopped doing this
-                                               // because this could interfere with inductive/capacitive
-                                               // sensors (high impedance voltage divider) and with Pt100 amplifier
-                printPinIOState(false);
-                printPinState(digitalRead_mod(pin));
-              }
-              else if (pwm_status(pin)) {
-                // do nothing
+          SERIAL_CHAR('.');
+          SERIAL_ECHO_SP(Impl::name_pad + (start_string ? strlen_P(FTOP(start_string)) : 0));  // add padding if not the first instance found
+        }
+        printPinNameByIndex(x);
+        if (extended) {
+          if (marlin.pin_is_protected(pin) && !ignore)
+            SERIAL_ECHOPGM("protected ");
+          else {
+            if (alt_pin_echo(pin)) {
+              if (!Impl::is_digital_at(x)) {
+                sprintf_P(buffer, PSTR("Analog in = %5ld"), (long)analogRead(int8_t(Impl::analog_index(pin))));
+                SERIAL_ECHO(buffer);
               }
               else {
-                printPinIOState(true);
-                printPinState(digitalRead_mod(pin));
+                if (!Impl::is_output(pin)) {
+                  //pinMode(pin, INPUT_PULLUP);  // make sure input isn't floating - stopped doing this
+                                                 // because this could interfere with inductive/capacitive
+                                                 // sensors (high impedance voltage divider) and with Pt100 amplifier
+                  print_io_state(false);
+                  print_state_name(Impl::read_digital(pin));
+                }
+                else if (Impl::pwm_active(pin)) {
+                  // do nothing
+                }
+                else {
+                  print_io_state(true);
+                  print_state_name(Impl::read_digital(pin));
+                }
               }
+              if (!multi_name_pin && extended) Impl::print_pwm(pin);  // report PWM capabilities only on the first pass & only if doing an extended report
             }
-            if (!multi_name_pin && extended) printPinPWM(pin);  // report PWM capabilities only on the first pass & only if doing an extended report
+          }
+        }
+        SERIAL_EOL();
+        multi_name_pin = found;
+        found = true;
+      }  // end of IF
+    } // end of for loop
+
+    if (!found) {
+      if (start_string) SERIAL_ECHO(start_string);
+      SERIAL_ECHOPGM("PIN: ");
+      Impl::print_number(pin);
+      Impl::print_port(pin);
+      if (int8_t(Impl::analog_index(pin)) >= 0) Impl::print_analog(pin); // analog pin number
+      else SERIAL_ECHO_SP(8);                                            // add padding if not an analog pin
+      SERIAL_ECHOPGM("<unused/unknown>");
+      if (extended) {
+
+        if (alt_pin_echo(pin)) {
+          if (Impl::pwm_active(pin)) {
+            // do nothing
+          }
+          else if (Impl::is_output(pin)) {
+            SERIAL_ECHO_SP(MAX_NAME_LENGTH - 16);
+            print_io_state(true);
+            print_state_name(Impl::read_digital(pin));
+          }
+          else {
+            if (Impl::is_analog(pin)) {
+              sprintf_P(buffer, PSTR("   Analog in = %5ld"), (long)analogRead(int8_t(Impl::analog_index(pin))));
+              SERIAL_ECHO(buffer);
+              SERIAL_ECHOPGM("   ");
+            }
+            else
+            SERIAL_ECHO_SP(MAX_NAME_LENGTH - 16);   // add padding if not an analog pin
+
+            print_io_state(false);
+            print_state_name(Impl::read_digital(pin));
+          }
+          //if (!Impl::pwm_active(pin)) SERIAL_CHAR(' ');    // add padding if it's not a PWM pin
+          if (extended) {
+            SERIAL_ECHO_SP(MAX_NAME_LENGTH - 16);
+            Impl::print_pwm(pin);  // report PWM capabilities only if doing an extended report
           }
         }
       }
       SERIAL_EOL();
-      multi_name_pin = found;
-      found = true;
-    }  // end of IF
-  } // end of for loop
-
-  if (!found) {
-    if (start_string) SERIAL_ECHO(start_string);
-    SERIAL_ECHOPGM("PIN: ");
-    printPinNumber(pin);
-    printPinPort(pin);
-    if (int8_t(digitalPinToAnalogIndex(pin)) >= 0) printPinAnalog(pin); // analog pin number
-    else SERIAL_ECHO_SP(8);                                                 // add padding if not an analog pin
-    SERIAL_ECHOPGM("<unused/unknown>");
-    if (extended) {
-
-      if (alt_pin_echo(pin)) {
-        if (pwm_status(pin)) {
-          // do nothing
-        }
-        else if (getValidPinMode(pin)) {
-          SERIAL_ECHO_SP(MAX_NAME_LENGTH - 16);
-          printPinIOState(true);
-          printPinState(digitalRead_mod(pin));
-        }
-        else {
-          if (isAnalogPin(pin)) {
-            sprintf_P(buffer, PSTR("   Analog in = %5ld"), (long)analogRead(digitalPinToAnalogIndex(pin)));
-            SERIAL_ECHO(buffer);
-            SERIAL_ECHOPGM("   ");
-          }
-          else
-          SERIAL_ECHO_SP(MAX_NAME_LENGTH - 16);   // add padding if not an analog pin
-
-          printPinIOState(false);
-          printPinState(digitalRead_mod(pin));
-        }
-        //if (!pwm_status(pin)) SERIAL_CHAR(' ');    // add padding if it's not a PWM pin
-        if (extended) {
-          SERIAL_ECHO_SP(MAX_NAME_LENGTH - 16);
-          printPinPWM(pin);  // report PWM capabilities only if doing an extended report
-        }
-      }
     }
-    SERIAL_EOL();
   }
-}
+
+private:
+  static void print_io_state(const bool isout) { SERIAL_ECHO(isout ? F("Output ") : F("Input  ")); }
+  static void print_state_name(const bool state) { SERIAL_ECHO(state ? F("HIGH") : F("LOW")); }
+};
+
+#include HAL_PATH(.., pinsDebug.h)  // get the correct support file for this CPU
+
+/**
+ * A HAL that hasn't been converted to a PinsDebug class gets one made from
+ * the macros and functions in its pinsDebug.h. A converted HAL defines
+ * PINS_DEBUG_CLASS and declares PinsDebug itself.
+ */
+#ifndef PINS_DEBUG_CLASS
+
+  #ifndef M43_NEVER_TOUCH
+    #define M43_NEVER_TOUCH(Q) false
+  #endif
+
+  #ifndef GET_PIN_MAP_PIN_M43
+    #define GET_PIN_MAP_PIN_M43(Q) GET_PIN_MAP_PIN(Q)
+  #endif
+
+  #ifndef digitalRead_mod
+    #define digitalRead_mod(P) extDigitalRead(P)
+  #endif
+
+  #ifndef printPinNumber
+    FORCE_INLINE void printPinNumber(const pin_t pin) {
+      char buffer[10];
+      sprintf_P(buffer, PSTR("%3d "), int(pin));
+      SERIAL_ECHO(buffer);
+    }
+  #endif
+
+  #ifndef printPinAnalog
+    FORCE_INLINE void printPinAnalog(const pin_t pin) {
+      char buffer[12];
+      sprintf_P(buffer, PSTR(" (A%2d)  "), int(digitalPinToAnalogIndex(pin)));
+      SERIAL_ECHO(buffer);
+    }
+  #endif
+
+  #ifndef getPinIsDigitalByIndex
+    inline bool getPinIsDigitalByIndex(const uint16_t index) { return pinTableIsDigital(index); }
+  #endif
+
+  struct PinsDebug : PinsDebugBase<PinsDebug> {
+    static constexpr uint16_t count = NUMBER_PINS_TOTAL;
+    static constexpr uint8_t name_pad = MULTI_NAME_PAD;
+    static pin_t pin_from_index(const uint16_t i) { return GET_PIN_MAP_PIN_M43(i); }
+    static bool never_touch(const uint16_t i) { return M43_NEVER_TOUCH(i); }
+    static bool is_valid(const pin_t p) { return isValidPin(p); }
+    static bool is_analog(const pin_t p) { return isAnalogPin(p); }
+    static int16_t analog_index(const pin_t p) { return digitalPinToAnalogIndex(p); }
+    static bool is_output(const pin_t p) { return getValidPinMode(p); }
+    static bool is_digital_at(const uint16_t i) { return getPinIsDigitalByIndex(i); }
+    static int read_digital(const pin_t p) { return digitalRead_mod(p); }
+    static bool pwm_active(const pin_t p) { return pwm_status(p); }
+    static void print_pwm(const pin_t p) { printPinPWM(p); }
+    static void print_port(const pin_t p) { printPinPort(p); }
+    static void print_number(const pin_t p) { printPinNumber(p); }
+    static void print_analog(const pin_t p) { printPinAnalog(p); }
+  };
+#endif
