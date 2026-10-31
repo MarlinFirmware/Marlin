@@ -22,7 +22,14 @@
 #pragma once
 
 #include <stdint.h>
-#include <driver/timer.h>
+#if __has_include(<esp_idf_version.h>)
+  #include <esp_idf_version.h>
+#endif
+#if ESP_IDF_VERSION_MAJOR >= 5
+  #include <driver/gptimer.h>
+#else
+  #include <driver/timer.h>
+#endif
 
 // ------------------------
 // Defines
@@ -110,8 +117,10 @@ extern "C" {
 // ------------------------
 
 typedef struct {
-  timer_group_t  group;
-  timer_idx_t    idx;
+  #if ESP_IDF_VERSION_MAJOR < 5
+    timer_group_t  group;
+    timer_idx_t    idx;
+  #endif
   uint32_t       divider;
   void           (*fn)();
 } tTimerConfig;
@@ -130,6 +139,9 @@ void HAL_timer_start(const uint8_t timer_num, const uint32_t frequency);
 void HAL_timer_set_compare(const uint8_t timer_num, const hal_timer_t count);
 hal_timer_t HAL_timer_get_compare(const uint8_t timer_num);
 hal_timer_t HAL_timer_get_count(const uint8_t timer_num);
+
+void HAL_timer_pause(const uint8_t timer_num);
+void HAL_timer_resume(const uint8_t timer_num);
 
 void HAL_timer_enable_interrupt(const uint8_t timer_num);
 void HAL_timer_disable_interrupt(const uint8_t timer_num);
