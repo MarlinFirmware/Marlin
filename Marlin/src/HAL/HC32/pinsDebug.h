@@ -23,22 +23,7 @@
 
 /**
  * Pins Debugging for HC32
- *
- *   - NUMBER_PINS_TOTAL
- *   - MULTI_NAME_PAD
- *   - getPinByIndex(index)
- *   - printPinNameByIndex(index)
- *   - getPinIsDigitalByIndex(index)
- *   - digitalPinToAnalogIndex(pin)
- *   - getValidPinMode(pin)
- *   - isValidPin(pin)
- *   - isAnalogPin(pin)
- *   - digitalRead_mod(pin)
- *   - pwm_status(pin)
- *   - printPinPWM(pin)
- *   - printPinPort(pin)
- *   - printPinNumber(pin)
- *   - printPinAnalog(pin)
+ * See PinsDebugBase in pins/pinsDebug.h for the hooks.
  */
 
 #include "../../inc/MarlinConfig.h"
@@ -50,135 +35,132 @@
 #endif
 
 #define NUM_DIGITAL_PINS BOARD_NR_GPIO_PINS
-#define NUMBER_PINS_TOTAL BOARD_NR_GPIO_PINS
-#define isValidPin(P) IS_GPIO_PIN(P)
 
 // Note: pin_array is defined in `Marlin/src/pins/pinsDebug.h`, and since this file is included
 // after it, it is available in this file as well.
 
-#define printPinNumber printPinNumber
-FORCE_INLINE void printPinNumber(const pin_t pin) {
-  char buffer[10];
-  sprintf_P(buffer, PSTR("%3hd "), int16_t(pin));
-  SERIAL_ECHO(buffer);
-}
+#define PINS_DEBUG_CLASS
 
-#define MULTI_NAME_PAD 21 // Space needed to be pretty if not first name assigned to a pin
+struct PinsDebug : PinsDebugBase<PinsDebug> {
+  static constexpr uint16_t count = BOARD_NR_GPIO_PINS;
+  static constexpr uint8_t name_pad = 21;   // Space needed to be pretty if not first name assigned to a pin
 
-//
-// Pins that will cause a hang / reset / disconnect in M43 Toggle and Watch utils
-//
-#ifndef M43_NEVER_TOUCH
+  static bool is_valid(const pin_t pin) { return IS_GPIO_PIN(pin); }
+
+  //
+  // Pins that will cause a hang / reset / disconnect in M43 Toggle and Watch utils
+  //
   // Don't touch any of the following pins:
   // - Host serial pins, and
   // - Pins that could be connected to oscillators (see datasheet, Table 2.1):
   //   - XTAL = PH0, PH1
   //   - XTAL32 = PC14, PC15
-  #define IS_HOST_USART_PIN(Q) (Q == BOARD_USART2_TX_PIN || Q == BOARD_USART2_RX_PIN)
-  #define IS_OSC_PIN(Q) (Q == PH0 || Q == PH1 || Q == PC14 || Q == PC15)
+  static bool never_touch(const uint16_t index) {
+    const pin_t pin = pin_t(index);
+    return pin == BOARD_USART2_TX_PIN || pin == BOARD_USART2_RX_PIN       // Host USART
+        || pin == PH0 || pin == PH1 || pin == PC14 || pin == PC15;        // Oscillators
+  }
 
-  #define M43_NEVER_TOUCH(Q) (IS_HOST_USART_PIN(Q) || IS_OSC_PIN(Q))
-#endif
+  static int16_t analog_index(const pin_t pin) {
+    if (!is_valid(pin)) return -1;
+    const int8_t adc_channel = int8_t(PIN_MAP[pin].adc_info.channel);
+    return pin_t(adc_channel);
+  }
 
-int8_t digitalPinToAnalogIndex(const pin_t pin) {
-  if (!isValidPin(pin)) return -1;
-  const int8_t adc_channel = int8_t(PIN_MAP[pin].adc_info.channel);
-  return pin_t(adc_channel);
-}
+  static bool is_analog(const pin_t pin) {
+    if (!is_valid(pin)) return false;
 
-bool isAnalogPin(pin_t pin) {
-  if (!isValidPin(pin)) return false;
+    if (PIN_MAP[pin].adc_info.channel != ADC_PIN_INVALID)
+      return _GET_MODE(pin) == INPUT_ANALOG && !never_touch(pin);
 
-  if (PIN_MAP[pin].adc_info.channel != ADC_PIN_INVALID)
-    return _GET_MODE(pin) == INPUT_ANALOG && !M43_NEVER_TOUCH(pin);
-
-  return false;
-}
-
-bool getValidPinMode(const pin_t pin) {
-  return isValidPin(pin) && !IS_INPUT(pin);
-}
-
-#define getPinIsDigitalByIndex getPinIsDigitalByIndex
-bool getPinIsDigitalByIndex(const int16_t index) {
-  const pin_t pin = getPinByIndex(index);
-  return (!isAnalogPin(pin));
-}
-
-/**
- * @brief print pin PWM status
- * @return true if pin is currently a PWM pin, false otherwise
- */
-bool pwm_status(const pin_t pin) {
-  // Get timer assignment for pin
-  timera_config_t *unit;
-  en_timera_channel_t channel;
-  en_port_func_t port_function;
-  if (!timera_get_assignment(pin, unit, channel, port_function) || unit == nullptr) {
-    // No pwm pin or no unit assigned
     return false;
   }
 
-  // A pin that is PWM output is:
-  // - Assigned to a timerA unit (tested above)
-  // - Unit is initialized
-  // - Channel is active
-  // - PinMode is OUTPUT_PWM
-  return timera_is_unit_initialized(unit) && timera_is_channel_active(unit, channel) && getPinMode(pin) == OUTPUT_PWM;
-}
+  static bool is_output(const pin_t pin) { return is_valid(pin) && !IS_INPUT(pin); }
 
-void printPinPWM(const pin_t pin) {
-  // Get timer assignment for pin
-  timera_config_t *unit;
-  en_timera_channel_t channel;
-  en_port_func_t port_function;
-  if (!timera_get_assignment(pin, unit, channel, port_function) || unit == nullptr)
-    return; // No pwm pin or no unit assigned
+  static bool is_digital_at(const uint16_t index) { return !is_analog(getPinByIndex(index)); }
 
-  // Print timer assignment of pin, eg. "TimerA1Ch2 Func4"
-  SERIAL_ECHO("TimerA", TIMERA_REG_TO_X(unit->peripheral.register_base),
-                 "Ch", TIMERA_CHANNEL_TO_X(channel),
-                 " Func", int(port_function));
-  SERIAL_ECHO_SP(3); // 3 spaces
+  /**
+   * @brief print pin PWM status
+   * @return true if pin is currently a PWM pin, false otherwise
+   */
+  static bool pwm_active(const pin_t pin) {
+    // Get timer assignment for pin
+    timera_config_t *unit;
+    en_timera_channel_t channel;
+    en_port_func_t port_function;
+    if (!timera_get_assignment(pin, unit, channel, port_function) || unit == nullptr) {
+      // No pwm pin or no unit assigned
+      return false;
+    }
 
-  // Print timer unit state, eg. "1/16 PERAR=1234" OR "N/A"
-  if (timera_is_unit_initialized(unit)) {
-    // Unit initialized, print
-    // - Timer clock divider
-    // - Timer period value (PERAR)
-    const uint8_t clock_divider = timera_clk_div_to_n(unit->state.base_init->enClkDiv);
-    const uint16_t period = TIMERA_GetPeriodValue(unit->peripheral.register_base);
-    SERIAL_ECHO("1/", clock_divider, " PERAR=", period);
-  }
-  else {
-    // Unit not initialized
-    SERIAL_ECHO("N/A");
-    return;
+    // A pin that is PWM output is:
+    // - Assigned to a timerA unit (tested above)
+    // - Unit is initialized
+    // - Channel is active
+    // - PinMode is OUTPUT_PWM
+    return timera_is_unit_initialized(unit) && timera_is_channel_active(unit, channel) && getPinMode(pin) == OUTPUT_PWM;
   }
 
-  SERIAL_ECHO_SP(3); // 3 spaces
+  static void print_pwm(const pin_t pin) {
+    // Get timer assignment for pin
+    timera_config_t *unit;
+    en_timera_channel_t channel;
+    en_port_func_t port_function;
+    if (!timera_get_assignment(pin, unit, channel, port_function) || unit == nullptr)
+      return; // No pwm pin or no unit assigned
 
-  // Print timer channel state, e.g. "CMPAR=1234" OR "N/A"
-  if (timera_is_channel_active(unit, channel)) {
-    // Channel active, print
-    // - Channel compare value
-    const uint16_t compare = TIMERA_GetCompareValue(unit->peripheral.register_base, channel);
-    SERIAL_ECHO("CMPAR=", compare);
-  }
-  else {
-    // Channel inactive
-    SERIAL_ECHO("N/A");
-  }
-}
+    // Print timer assignment of pin, eg. "TimerA1Ch2 Func4"
+    SERIAL_ECHO("TimerA", TIMERA_REG_TO_X(unit->peripheral.register_base),
+                   "Ch", TIMERA_CHANNEL_TO_X(channel),
+                   " Func", int(port_function));
+    SERIAL_ECHO_SP(3); // 3 spaces
 
-void printPinPort(pin_t pin) {
-  const char port = 'A' + char(pin >> 4); // Pin div 16
-  const int16_t gbit = PIN_MAP[pin].bit_pos;
-  char buffer[8];
-  sprintf_P(buffer, PSTR("P%c%hd "), port, gbit);
-  if (gbit < 10) {
-    SERIAL_CHAR(' ');
+    // Print timer unit state, eg. "1/16 PERAR=1234" OR "N/A"
+    if (timera_is_unit_initialized(unit)) {
+      // Unit initialized, print
+      // - Timer clock divider
+      // - Timer period value (PERAR)
+      const uint8_t clock_divider = timera_clk_div_to_n(unit->state.base_init->enClkDiv);
+      const uint16_t period = TIMERA_GetPeriodValue(unit->peripheral.register_base);
+      SERIAL_ECHO("1/", clock_divider, " PERAR=", period);
+    }
+    else {
+      // Unit not initialized
+      SERIAL_ECHO("N/A");
+      return;
+    }
+
+    SERIAL_ECHO_SP(3); // 3 spaces
+
+    // Print timer channel state, e.g. "CMPAR=1234" OR "N/A"
+    if (timera_is_channel_active(unit, channel)) {
+      // Channel active, print
+      // - Channel compare value
+      const uint16_t compare = TIMERA_GetCompareValue(unit->peripheral.register_base, channel);
+      SERIAL_ECHO("CMPAR=", compare);
+    }
+    else {
+      // Channel inactive
+      SERIAL_ECHO("N/A");
+    }
   }
 
-  SERIAL_ECHO(buffer);
-}
+  static void print_port(const pin_t pin) {
+    const char port = 'A' + char(pin >> 4); // Pin div 16
+    const int16_t gbit = PIN_MAP[pin].bit_pos;
+    char buffer[8];
+    sprintf_P(buffer, PSTR("P%c%hd "), port, gbit);
+    if (gbit < 10) {
+      SERIAL_CHAR(' ');
+    }
+
+    SERIAL_ECHO(buffer);
+  }
+
+  static void print_number(const pin_t pin) {
+    char buffer[10];
+    sprintf_P(buffer, PSTR("%3hd "), int16_t(pin));
+    SERIAL_ECHO(buffer);
+  }
+};
