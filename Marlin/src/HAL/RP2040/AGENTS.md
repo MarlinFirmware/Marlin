@@ -34,7 +34,7 @@ Because the framework is upstream, there is **no mirror-to-installed-package ste
 
 4. **`freeMemory()` relies on a linker symbol, not a stack probe.** It computes `(char*)&__StackLimit - (char*)_sbrk(0)` using the Pico linker-provided `__StackLimit` (`HAL.cpp`). Don't "fix" it with a local-variable subtraction as on single-stack chips — that is wrong on this core.
 
-5. **`flashFirmware()` (M997) reboots into the bootloader via the watchdog.** `flashFirmware()` → `hal.reboot()` → `watchdog_reboot(0,0,1)` (`HAL.cpp`). The `raspberrypi.ini` build flags include `-DPLATFORM_M997_SUPPORT` (also forced on in `HAL.h`). A UF2/picotool upload picks up the reset.
+5. **`flashFirmware()` (M997) reboots into the UF2 bootloader.** `flashFirmware()` → `reset_usb_boot(0,0)` (`HAL.cpp`); `hal.reboot()` would only restart the current firmware. The `raspberrypi.ini` build flags include `-DPLATFORM_M997_SUPPORT` (also forced on in `HAL.h`). The board re-enumerates as `RPI-RP2` for a UF2/picotool upload.
 
 6. **SPI uses the core's `<SPI.h>` directly; SOFTWARE_SPI path also exists.** `HAL_SPI.cpp` includes `<SPI.h>` and calls `spiBegin()`; a software-SPI fallback is compiled when `SOFTWARE_SPI` is enabled. There is no custom `SPI` global shim needed (unlike AT32). `spi_pins.h` pins live in `HAL/RP2040/`.
 
