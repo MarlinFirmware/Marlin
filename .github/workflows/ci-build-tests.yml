@@ -176,6 +176,7 @@ jobs:
 
         # GD32F3
         - GD32F303RE_creality_mfl
+        - GD32F303RG_kobra2_neo_mfl
 
         # GD32F1
         - GD32F103RC_aquila_mfl
