@@ -2972,6 +2972,13 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
 #endif
 
 /**
+ * EEPROM autosave needs a positive delay
+ */
+#if defined(EEPROM_AUTOSAVE_AFTER) && !(EEPROM_AUTOSAVE_AFTER > 0)
+  #error "EEPROM_AUTOSAVE_AFTER must be a delay in milliseconds greater than 0."
+#endif
+
+/**
  * Make sure only one EEPROM type is enabled
  */
 #if ENABLED(EEPROM_SETTINGS)
