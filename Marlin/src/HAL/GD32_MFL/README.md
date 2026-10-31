@@ -6,4 +6,4 @@ Currently it supports:
 
 - GD32F303RET6
 
-Targeting the official [MFL Arduino Core](https://github.com/bnmguy/ArduinoCore_MFL).
+Targeting the official [MFL Arduino Core](https://github.com/bmourit/ArduinoCore-MFL).
