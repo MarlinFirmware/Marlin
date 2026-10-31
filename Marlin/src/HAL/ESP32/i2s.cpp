@@ -29,7 +29,13 @@
 
 #include "../shared/Marduino.h"
 #if ESP32_CLASSIC
-  #include <driver/periph_ctrl.h>
+  #if ESP_IDF_VERSION_MAJOR >= 5
+    #include <esp_private/periph_ctrl.h>
+    #include <soc/gpio_periph.h>
+    #include <rom/gpio.h>
+  #else
+    #include <driver/periph_ctrl.h>
+  #endif
   #include <rom/lldesc.h>
   #include <soc/i2s_struct.h>
 #else
