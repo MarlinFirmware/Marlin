@@ -515,7 +515,7 @@
 #define BOARD_BTT_SKR_V3_0                  6004  // BigTreeTech SKR V3.0 (STM32H743VI / STM32H723VG)
 #define BOARD_BTT_SKR_V3_0_EZ               6005  // BigTreeTech SKR V3.0 EZ (STM32H743VI / STM32H723VG)
 #define BOARD_BTT_OCTOPUS_MAX_EZ_V1_0       6006  // BigTreeTech Octopus Max EZ V1.0 (STM32H723ZE)
-#define BOARD_BTT_OCTOPUS_PRO_V1_0_1        6007  // BigTreeTech Octopus Pro v1.0.1 (STM32H723ZE)
+#define BOARD_BTT_OCTOPUS_PRO_V1_0_1        6007  // BigTreeTech Octopus Pro v1.0.1 (STM32H723ZE / STM32F446ZE)
 #define BOARD_BTT_OCTOPUS_PRO_V1_1          6008  // BigTreeTech Octopus Pro v1.1 (STM32H723ZE)
 #define BOARD_BTT_MANTA_M8P_V2_0            6009  // BigTreeTech Manta M8P V2.0 (STM32H723ZE)
 #define BOARD_BTT_KRAKEN_V1_0               6010  // BigTreeTech Kraken v1.0 (STM32H723ZG)
