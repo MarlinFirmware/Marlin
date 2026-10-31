@@ -31,12 +31,11 @@
 
 #if ALL(WIFISUPPORT, OTASUPPORT)
 
-#include "../../../core/serial.h"
+#include "../../../inc/MarlinConfig.h"
 
 #include <ESPmDNS.h>
 #include <WiFiUdp.h>
 #include <ArduinoOTA.h>
-#include <driver/timer.h>
 
 #if ENABLED(USE_WATCHDOG)
   #include <esp_task_wdt.h>
@@ -45,8 +44,8 @@
 void OTA_init() {
   ArduinoOTA
     .onStart([]() {
-      timer_pause(TIMER_GROUP_0, TIMER_0);
-      timer_pause(TIMER_GROUP_0, TIMER_1);
+      HAL_timer_pause(MF_TIMER_STEP);
+      HAL_timer_pause(MF_TIMER_TEMP);
 
       // The whole update runs in the Marlin loop task, which can't refresh the watchdog meanwhile.
       // A successful update reboots; a failed one restarts the timers and watches the task again in onError.
@@ -66,8 +65,8 @@ void OTA_init() {
     .onError([](ota_error_t error) {
       // The update failed, so Marlin carries on. Without the timers the temperature ISR
       // never runs, so the watchdog is never refreshed again and heater PWM is frozen.
-      timer_start(TIMER_GROUP_0, TIMER_0);
-      timer_start(TIMER_GROUP_0, TIMER_1);
+      HAL_timer_resume(MF_TIMER_STEP);
+      HAL_timer_resume(MF_TIMER_TEMP);
       TERN_(USE_WATCHDOG, esp_task_wdt_add(nullptr));
       const char *str = "unknown";
       switch (error) {
