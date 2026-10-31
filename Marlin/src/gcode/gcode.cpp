@@ -900,6 +900,10 @@ void GcodeSuite::process_parsed_command(bool no_ok/*=false*/) {
         case 423: M423(); break;                                  // M423: Reset, modify, or report X-Twist Compensation data
       #endif
 
+      #if ENABLED(GLOBAL_MESH_Z_OFFSET)
+        case 424: M424(); break;                                  // M424: Set or report the global mesh Z offset
+      #endif
+
       #if ENABLED(BACKLASH_GCODE)
         case 425: M425(); break;                                  // M425: Tune backlash compensation
       #endif

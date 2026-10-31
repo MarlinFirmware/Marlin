@@ -62,7 +62,7 @@ inline void echo_not_entered(const char c) { SERIAL_CHAR(c); SERIAL_ECHOLNPGM(" 
  *  S1              Start probing mesh points
  *  S2              Probe the next mesh point
  *  S3 In Jn Zn.nn  Manually modify a single point
- *  S4 Zn.nn        Set z offset. Positive away from bed, negative closer to bed.
+ *  S4 Zn.nn        Set the mesh Z offset. Positive away from bed, negative closer to bed. (Requires GLOBAL_MESH_Z_OFFSET)
  *  S5              Reset and disable mesh
  */
 void GcodeSuite::G29() {
@@ -203,6 +203,8 @@ void GcodeSuite::G29() {
         OKAY_BUZZ();
 
         home_all_axes();
+
+        TERN_(GLOBAL_MESH_Z_OFFSET, bedlevel.center_z_mesh_offset());
         set_bed_leveling_enabled(true);
 
         #if ENABLED(MESH_G28_REST_ORIGIN)
@@ -245,12 +247,14 @@ void GcodeSuite::G29() {
         return echo_not_entered('Z');
       break;
 
-    case MeshSetZOffset:
-      if (parser.seenval('Z'))
-        bedlevel.z_offset = parser.value_linear_units();
-      else
-        return echo_not_entered('Z');
-      break;
+    #if ENABLED(GLOBAL_MESH_Z_OFFSET)
+      case MeshSetZOffset:
+        if (parser.seenval('Z'))
+          set_mesh_z_offset(parser.value_linear_units());
+        else
+          return echo_not_entered('Z');
+        break;
+    #endif
 
     case MeshReset:
       reset_bed_level();
