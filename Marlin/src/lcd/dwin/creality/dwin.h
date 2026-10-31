@@ -40,8 +40,13 @@ enum processID : uint8_t {
   ID_Control,
   ID_Leveling,
   ID_PrintProcess,
+  ID_PrintSpeed,
+
+  // Window ID
+  ID_PrintWindow,
+
   ID_AxisMove,
-  ID_TemperatureID,
+  ID_Temperature,
   ID_Motion,
   ID_Info,
   ID_Tune,
@@ -51,17 +56,11 @@ enum processID : uint8_t {
       ID_ABSPreheat,
     #endif
   #endif
-  ID_MaxSpeed, ID_MaxSpeedValue,
   ID_MaxAcceleration, ID_MaxAccelerationValue,
-  #if HAS_SPINDLE_ACCELERATION
-    ID_SpindleAccelerationValue,
-  #endif
+  OPTITEM(EDITABLE_STEPS_PER_UNIT, ID_Step, ID_StepValue)
+  ID_MaxSpeed, ID_MaxSpeedValue,
   ID_MaxJerk, ID_MaxJerkValue,
-  ID_Step, ID_StepValue,
   ID_HomeOff, ID_HomeOffX, ID_HomeOffY, ID_HomeOffZ,
-
-  // Last Process ID
-  ID_LastPrepare,
 
   // Advance Settings
   ID_AdvSet,
@@ -72,21 +71,16 @@ enum processID : uint8_t {
 
   // Date variable ID
   ID_MoveX, ID_MoveY, ID_MoveZ,
-  #if HAS_HOTEND
-    ID_Extruder,
-    ID_ETemp,
+  OPTITEM(HAS_HOTEND, ID_MoveE, ID_ETemp)
+  #if ANY(HAS_BED_PROBE, BABYSTEPPING)
+    ID_ZOffset,
   #endif
-  ID_HomeOffset,
-  #if HAS_HEATED_BED
-    ID_BedTemp,
-  #endif
-  #if HAS_FAN
-    ID_FanSpeed,
-  #endif
-  ID_PrintSpeed,
+  OPTITEM(HAS_HEATED_BED, ID_BedTemp)
+  OPTITEM(HAS_FAN, ID_FanSpeed)
+  OPTITEM(HAS_SPINDLE_ACCELERATION, ID_SpindleAccelerationValue)
 
-  // Window ID
-  ID_PrintWindow, ID_PopupWindow
+  // Last Process ID
+  ID_LastPrepare
 };
 
 extern uint8_t checkkey;
@@ -106,13 +100,13 @@ typedef struct {
     int16_t fanSpeed = 0;
   #endif
   int16_t printSpeed    = 100;
-  float maxFeedSpeed    = 0;
   float maxAcceleration = 0;
+  float maxStepScaled   = 0;
+  float maxFeedSpeed    = 0;
+  float maxJerkScaled   = 0;
   #if HAS_SPINDLE_ACCELERATION
     float spindleAcceleration = 0;
   #endif
-  float maxJerkScaled   = 0;
-  float maxStepScaled   = 0;
   float offset_value    = 0;
   int8_t show_mode      = 0; // -1: Temperature control    0: Printing temperature
   struct {
