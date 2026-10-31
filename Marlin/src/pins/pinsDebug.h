@@ -253,6 +253,17 @@ struct PinsDebugBase {
     return Impl::never_touch(index) || (!ignore_protection && marlin.pin_is_protected(pin));
   }
 
+  // Get the pin for an M43 index. False if the index maps to no valid pin.
+  static FORCE_INLINE bool get_pin(const uint16_t index, pin_t &pin) {
+    pin = Impl::pin_from_index(index);
+    return Impl::is_valid(pin);
+  }
+
+  // Same, but also false for a pin M43 mustn't touch
+  static FORCE_INLINE bool get_touchable_pin(const uint16_t index, const bool ignore_protection, pin_t &pin) {
+    return get_pin(index, pin) && !is_untouchable(index, pin, ignore_protection);
+  }
+
   // Pretty report with PWM info
   static void print_state(const pin_t pin, const bool ignore, const bool extended=false, FSTR_P const start_string=nullptr) {
     char buffer[MAX_NAME_LENGTH + 1];   // for the sprintf statements

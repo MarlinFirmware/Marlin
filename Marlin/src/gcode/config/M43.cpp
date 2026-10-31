@@ -69,8 +69,8 @@ inline void toggle_pins() {
   if (M43_INVALID_PIN(start) || M43_INVALID_PIN(end)) return invalid_pin_err();
 
   for (uint8_t i = start; i <= end; ++i) {
-    pin_t pin = PinsDebug::pin_from_index(i);
-    if (!PinsDebug::is_valid(pin)) continue;
+    pin_t pin;
+    if (!PinsDebug::get_pin(i, pin)) continue;
     if (PinsDebug::is_untouchable(i, pin, ignore_protection)) {
       PinsDebug::print_state(pin, ignore_protection, true, F("Untouched "));
       SERIAL_EOL();
@@ -335,9 +335,8 @@ void GcodeSuite::M43() {
     uint8_t pin_state[pin_count];
     bool can_watch = false;
     for (uint8_t i = first_pin; i <= last_pin; ++i) {
-      pin_t pin = PinsDebug::pin_from_index(i);
-      if (!PinsDebug::is_valid(pin)) continue;
-      if (PinsDebug::is_untouchable(i, pin, ignore_protection)) continue;
+      pin_t pin;
+      if (!PinsDebug::get_touchable_pin(i, ignore_protection, pin)) continue;
       can_watch = true;
       pinMode(pin, INPUT_PULLUP);
       delay(1);
@@ -378,9 +377,8 @@ void GcodeSuite::M43() {
 
     for (;;) {
       for (uint8_t i = first_pin; i <= last_pin; ++i) {
-        const pin_t pin = PinsDebug::pin_from_index(i);
-        if (!PinsDebug::is_valid(pin)) continue;
-        if (PinsDebug::is_untouchable(i, pin, ignore_protection)) continue;
+        pin_t pin;
+        if (!PinsDebug::get_touchable_pin(i, ignore_protection, pin)) continue;
         const byte val =
           /*
           isAnalogPin(pin)
@@ -407,8 +405,8 @@ void GcodeSuite::M43() {
   else {
     // Report current state of selected pin(s)
     for (uint8_t i = first_pin; i <= last_pin; ++i) {
-      const pin_t pin = PinsDebug::pin_from_index(i);
-      if (PinsDebug::is_valid(pin)) PinsDebug::print_state(pin, ignore_protection, true);
+      pin_t pin;
+      if (PinsDebug::get_pin(i, pin)) PinsDebug::print_state(pin, ignore_protection, true);
     }
   }
 }
