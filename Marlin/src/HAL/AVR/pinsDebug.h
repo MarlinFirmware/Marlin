@@ -23,27 +23,10 @@
 
 /**
  * Pins Debugging for Atmel 8 bit AVR CPUs
- *
- *   - NUMBER_PINS_TOTAL
- *   - MULTI_NAME_PAD
- *   - getPinByIndex(index)
- *   - printPinNameByIndex(index)
- *   - getPinIsDigitalByIndex(index)
- *   - digitalPinToAnalogIndex(pin)
- *   - getValidPinMode(pin)
- *   - isValidPin(pin)
- *   - isAnalogPin(pin)
- *   - digitalRead_mod(pin)
- *   - pwm_status(pin)
- *   - printPinPWM(pin)
- *   - printPinPort(pin)
- *   - printPinNumber(pin)
- *   - printPinAnalog(pin)
+ * See PinsDebugBase in pins/pinsDebug.h for the hooks.
  */
 
 #include "../../inc/MarlinConfig.h"
-
-#define NUMBER_PINS_TOTAL NUM_DIGITAL_PINS
 
 #if MB(BQ_ZUM_MEGA_3D, MIGHTYBOARD_REVE, MINIRAMBO, SCOOVO_X9H, TRIGORILLA_14, MIGHTYBOARD_REVG)
   #define AVR_ATmega2560_FAMILY_PLUS_70 1
@@ -58,7 +41,6 @@
   #define digitalPinToTimer_DEBUG(P) digitalPinToTimer(P)
   #define digitalPinToBitMask_DEBUG(P) digitalPinToBitMask(P)
   #define digitalPinToPort_DEBUG(P) digitalPinToPort(P)
-  #define getValidPinMode(P) (*portModeRegister(P) & digitalPinToBitMask_DEBUG(P))
 
 #elif AVR_ATmega2560_FAMILY_PLUS_70   // So we can access/display all the pins on boards using more than 70
 
@@ -66,28 +48,14 @@
   #define digitalPinToTimer_DEBUG(P) digitalPinToTimer_plus_70(P)
   #define digitalPinToBitMask_DEBUG(P) digitalPinToBitMask_plus_70(P)
   #define digitalPinToPort_DEBUG(P) digitalPinToPort_plus_70(P)
-  bool getValidPinMode(pin_t pin) {return *portModeRegister(digitalPinToPort_DEBUG(pin)) & digitalPinToBitMask_DEBUG(pin); }
 
 #else
 
   #define digitalPinToTimer_DEBUG(P) digitalPinToTimer(P)
   #define digitalPinToBitMask_DEBUG(P) digitalPinToBitMask(P)
   #define digitalPinToPort_DEBUG(P) digitalPinToPort(P)
-  bool getValidPinMode(pin_t pin) {return *portModeRegister(digitalPinToPort_DEBUG(pin)) & digitalPinToBitMask_DEBUG(pin); }
 
 #endif
-
-#define isValidPin(P) (P >= 0 && P < NUMBER_PINS_TOTAL)
-#if AVR_ATmega1284_FAMILY
-  #define isAnalogPin(P) WITHIN(P, analogInputToDigitalPin(7), analogInputToDigitalPin(0))
-  #define digitalPinToAnalogIndex(P) int(isAnalogPin(P) ? (P) - analogInputToDigitalPin(7) : -1)
-#else
-  #define _ANALOG1(P) WITHIN(P, analogInputToDigitalPin(0), analogInputToDigitalPin(7))
-  #define _ANALOG2(P) WITHIN(P, analogInputToDigitalPin(8), analogInputToDigitalPin(15))
-  #define isAnalogPin(P) (_ANALOG1(P) || _ANALOG2(P))
-  #define digitalPinToAnalogIndex(P) int(_ANALOG1(P) ? (P) - analogInputToDigitalPin(0) : _ANALOG2(P) ? (P) - analogInputToDigitalPin(8) + 8 : -1)
-#endif
-#define MULTI_NAME_PAD 26 // space needed to be pretty if not first name assigned to a pin
 
 #if defined(__AVR_ATmega1284P__)  // 1284 IDE extensions set this to the number of
   #undef NUM_DIGITAL_PINS         // digital only pins while all other CPUs have it
@@ -103,64 +71,6 @@
     } else return false
 
 #define ABTEST(N) defined(TCCR##N##A) && defined(COM##N##A1)
-
-/**
- * Print a pin's PWM status.
- * Return true if it's currently a PWM pin.
- */
-bool pwm_status(const uint8_t pin) {
-  char buffer[20];   // for the sprintf statements
-
-  switch (digitalPinToTimer_DEBUG(pin)) {
-
-    #if ABTEST(0)
-      #ifdef TIMER0A
-        #if !AVR_AT90USB1286_FAMILY  // not available in Teensyduino type IDEs
-          PWM_CASE(0, A);
-        #endif
-      #endif
-      PWM_CASE(0, B);
-    #endif
-
-    #if ABTEST(1)
-      PWM_CASE(1, A);
-      PWM_CASE(1, B);
-      #if defined(COM1C1) && defined(TIMER1C)
-        PWM_CASE(1, C);
-      #endif
-    #endif
-
-    #if ABTEST(2)
-      PWM_CASE(2, A);
-      PWM_CASE(2, B);
-    #endif
-
-    #if ABTEST(3)
-      PWM_CASE(3, A);
-      PWM_CASE(3, B);
-      #ifdef COM3C1
-        PWM_CASE(3, C);
-      #endif
-    #endif
-
-    #ifdef TCCR4A
-      PWM_CASE(4, A);
-      PWM_CASE(4, B);
-      PWM_CASE(4, C);
-    #endif
-
-    #if ABTEST(5)
-      PWM_CASE(5, A);
-      PWM_CASE(5, B);
-      PWM_CASE(5, C);
-    #endif
-
-    case NOT_ON_TIMER:
-    default:
-      return false;
-  }
-  SERIAL_ECHO_SP(2);
-} // pwm_status
 
 const volatile uint8_t* const PWM_other[][3] PROGMEM = {
     { &TCCR0A, &TCCR0B, &TIMSK0 },
@@ -275,116 +185,201 @@ void timer_prefix(uint8_t T, char L, uint8_t N) {  // T - timer    L - pwm  N - 
   if (TEST(*TMSK, TOIE)) err_prob_interrupt();
 }
 
-void printPinPWM(const uint8_t pin) {
-  switch (digitalPinToTimer_DEBUG(pin)) {
+#define PINS_DEBUG_CLASS
 
-    #if ABTEST(0)
-      #ifdef TIMER0A
-        #if !AVR_AT90USB1286_FAMILY  // not available in Teensyduino type IDEs
-          case TIMER0A: timer_prefix(0, 'A', 3); break;
+struct PinsDebug : PinsDebugBase<PinsDebug> {
+  static constexpr uint16_t count = NUM_DIGITAL_PINS;
+  static constexpr uint8_t name_pad = 26;   // space needed to be pretty if not first name assigned to a pin
+
+  static bool is_valid(const pin_t pin) { return pin >= 0 && pin < pin_t(count); }
+
+  #if AVR_ATmega1284_FAMILY
+    static bool is_analog(const pin_t pin) { return WITHIN(pin, analogInputToDigitalPin(7), analogInputToDigitalPin(0)); }
+    static int16_t analog_index(const pin_t pin) { return is_analog(pin) ? pin - analogInputToDigitalPin(7) : -1; }
+  #else
+    static bool is_analog1(const pin_t pin) { return WITHIN(pin, analogInputToDigitalPin(0), analogInputToDigitalPin(7)); }
+    static bool is_analog2(const pin_t pin) { return WITHIN(pin, analogInputToDigitalPin(8), analogInputToDigitalPin(15)); }
+    static bool is_analog(const pin_t pin) { return is_analog1(pin) || is_analog2(pin); }
+    static int16_t analog_index(const pin_t pin) {
+      return is_analog1(pin) ? pin - analogInputToDigitalPin(0) : is_analog2(pin) ? pin - analogInputToDigitalPin(8) + 8 : -1;
+    }
+  #endif
+
+  static bool is_output(const pin_t pin) {
+    #if AVR_AT90USB1286_FAMILY
+      return *portModeRegister(pin) & digitalPinToBitMask_DEBUG(pin);
+    #else
+      return *portModeRegister(digitalPinToPort_DEBUG(pin)) & digitalPinToBitMask_DEBUG(pin);
+    #endif
+  }
+
+  #ifndef digitalRead_mod                   // Use Teensyduino's version of digitalRead - it doesn't disable the PWMs
+    static int read_digital(const pin_t pin) {  // same as digitalRead except the PWM stop section has been removed
+      const uint8_t port = digitalPinToPort_DEBUG(pin);
+      return (port != NOT_A_PIN) && (*portInputRegister(port) & digitalPinToBitMask_DEBUG(pin)) ? HIGH : LOW;
+    }
+  #endif
+
+  /**
+   * Print a pin's PWM status.
+   * Return true if it's currently a PWM pin.
+   */
+  static bool pwm_active(const pin_t pin) {
+    char buffer[20];   // for the sprintf statements
+
+    switch (digitalPinToTimer_DEBUG(pin)) {
+
+      #if ABTEST(0)
+        #ifdef TIMER0A
+          #if !AVR_AT90USB1286_FAMILY  // not available in Teensyduino type IDEs
+            PWM_CASE(0, A);
+          #endif
+        #endif
+        PWM_CASE(0, B);
+      #endif
+
+      #if ABTEST(1)
+        PWM_CASE(1, A);
+        PWM_CASE(1, B);
+        #if defined(COM1C1) && defined(TIMER1C)
+          PWM_CASE(1, C);
         #endif
       #endif
-      case TIMER0B: timer_prefix(0, 'B', 3); break;
-    #endif
 
-    #if ABTEST(1)
-      case TIMER1A: timer_prefix(1, 'A', 4); break;
-      case TIMER1B: timer_prefix(1, 'B', 4); break;
-      #if defined(COM1C1) && defined(TIMER1C)
-        case TIMER1C: timer_prefix(1, 'C', 4); break;
+      #if ABTEST(2)
+        PWM_CASE(2, A);
+        PWM_CASE(2, B);
       #endif
-    #endif
 
-    #if ABTEST(2)
-      case TIMER2A: timer_prefix(2, 'A', 3); break;
-      case TIMER2B: timer_prefix(2, 'B', 3); break;
-    #endif
-
-    #if ABTEST(3)
-      case TIMER3A: timer_prefix(3, 'A', 4); break;
-      case TIMER3B: timer_prefix(3, 'B', 4); break;
-      #ifdef COM3C1
-        case TIMER3C: timer_prefix(3, 'C', 4); break;
+      #if ABTEST(3)
+        PWM_CASE(3, A);
+        PWM_CASE(3, B);
+        #ifdef COM3C1
+          PWM_CASE(3, C);
+        #endif
       #endif
-    #endif
 
-    #ifdef TCCR4A
-      case TIMER4A: timer_prefix(4, 'A', 4); break;
-      case TIMER4B: timer_prefix(4, 'B', 4); break;
-      case TIMER4C: timer_prefix(4, 'C', 4); break;
-    #endif
-
-    #if ABTEST(5)
-      case TIMER5A: timer_prefix(5, 'A', 4); break;
-      case TIMER5B: timer_prefix(5, 'B', 4); break;
-      case TIMER5C: timer_prefix(5, 'C', 4); break;
-    #endif
-
-    case NOT_ON_TIMER: break;
-
-  }
-  SERIAL_ECHOPGM("  ");
-
-  // on pins that have two PWMs, print info on second PWM
-  #if AVR_ATmega2560_FAMILY || AVR_AT90USB1286_FAMILY
-    // looking for port B7 - PWMs 0A and 1C
-    if (digitalPinToPort_DEBUG(pin) == 'B' - 64 && 0x80 == digitalPinToBitMask_DEBUG(pin)) {
-      #if !AVR_AT90USB1286_FAMILY
-        SERIAL_ECHOPGM("\n .");
-        SERIAL_ECHO_SP(18);
-        SERIAL_ECHOPGM("TIMER1C");
-        print_is_also_tied();
-        timer_prefix(1, 'C', 4);
-      #else
-        SERIAL_ECHOPGM("\n .");
-        SERIAL_ECHO_SP(18);
-        SERIAL_ECHOPGM("TIMER0A");
-        print_is_also_tied();
-        timer_prefix(0, 'A', 3);
+      #ifdef TCCR4A
+        PWM_CASE(4, A);
+        PWM_CASE(4, B);
+        PWM_CASE(4, C);
       #endif
+
+      #if ABTEST(5)
+        PWM_CASE(5, A);
+        PWM_CASE(5, B);
+        PWM_CASE(5, C);
+      #endif
+
+      case NOT_ON_TIMER:
+      default:
+        return false;
     }
-  #else
-    UNUSED(print_is_also_tied);
-  #endif
-} // printPinPWM
+    SERIAL_ECHO_SP(2);
+  } // pwm_active
 
-#ifndef digitalRead_mod                   // Use Teensyduino's version of digitalRead - it doesn't disable the PWMs
-  #define digitalRead_mod digitalRead_mod
-  int digitalRead_mod(const pin_t pin) {  // same as digitalRead except the PWM stop section has been removed
-    const uint8_t port = digitalPinToPort_DEBUG(pin);
-    return (port != NOT_A_PIN) && (*portInputRegister(port) & digitalPinToBitMask_DEBUG(pin)) ? HIGH : LOW;
-  }
-#endif
+  static void print_pwm(const pin_t pin) {
+    switch (digitalPinToTimer_DEBUG(pin)) {
 
-void printPinPort(const pin_t pin) {   // print port number
-  #ifdef digitalPinToPort_DEBUG
-    uint8_t x;
-    SERIAL_ECHOPGM("  Port: ");
-    #if AVR_AT90USB1286_FAMILY
-      x = (pin == PIN_E2 || pin == PIN_E3) ? 'E' : 'A' + digitalPinToPort_DEBUG(pin) - 1;
-    #else
-      x = 'A' + digitalPinToPort_DEBUG(pin) - 1;
-    #endif
-    SERIAL_CHAR(x);
+      #if ABTEST(0)
+        #ifdef TIMER0A
+          #if !AVR_AT90USB1286_FAMILY  // not available in Teensyduino type IDEs
+            case TIMER0A: timer_prefix(0, 'A', 3); break;
+          #endif
+        #endif
+        case TIMER0B: timer_prefix(0, 'B', 3); break;
+      #endif
 
-    #if AVR_AT90USB1286_FAMILY
-      if (pin == PIN_E2)
-        x = '2';
-      else if (pin == PIN_E3)
-        x = '3';
-      else {
-        uint8_t temp = digitalPinToBitMask_DEBUG(pin);
-        for (x = '0'; x < '9' && temp != 1; x++) temp >>= 1;
+      #if ABTEST(1)
+        case TIMER1A: timer_prefix(1, 'A', 4); break;
+        case TIMER1B: timer_prefix(1, 'B', 4); break;
+        #if defined(COM1C1) && defined(TIMER1C)
+          case TIMER1C: timer_prefix(1, 'C', 4); break;
+        #endif
+      #endif
+
+      #if ABTEST(2)
+        case TIMER2A: timer_prefix(2, 'A', 3); break;
+        case TIMER2B: timer_prefix(2, 'B', 3); break;
+      #endif
+
+      #if ABTEST(3)
+        case TIMER3A: timer_prefix(3, 'A', 4); break;
+        case TIMER3B: timer_prefix(3, 'B', 4); break;
+        #ifdef COM3C1
+          case TIMER3C: timer_prefix(3, 'C', 4); break;
+        #endif
+      #endif
+
+      #ifdef TCCR4A
+        case TIMER4A: timer_prefix(4, 'A', 4); break;
+        case TIMER4B: timer_prefix(4, 'B', 4); break;
+        case TIMER4C: timer_prefix(4, 'C', 4); break;
+      #endif
+
+      #if ABTEST(5)
+        case TIMER5A: timer_prefix(5, 'A', 4); break;
+        case TIMER5B: timer_prefix(5, 'B', 4); break;
+        case TIMER5C: timer_prefix(5, 'C', 4); break;
+      #endif
+
+      case NOT_ON_TIMER: break;
+
+    }
+    SERIAL_ECHOPGM("  ");
+
+    // on pins that have two PWMs, print info on second PWM
+    #if AVR_ATmega2560_FAMILY || AVR_AT90USB1286_FAMILY
+      // looking for port B7 - PWMs 0A and 1C
+      if (digitalPinToPort_DEBUG(pin) == 'B' - 64 && 0x80 == digitalPinToBitMask_DEBUG(pin)) {
+        #if !AVR_AT90USB1286_FAMILY
+          SERIAL_ECHOPGM("\n .");
+          SERIAL_ECHO_SP(18);
+          SERIAL_ECHOPGM("TIMER1C");
+          print_is_also_tied();
+          timer_prefix(1, 'C', 4);
+        #else
+          SERIAL_ECHOPGM("\n .");
+          SERIAL_ECHO_SP(18);
+          SERIAL_ECHOPGM("TIMER0A");
+          print_is_also_tied();
+          timer_prefix(0, 'A', 3);
+        #endif
       }
     #else
-      uint8_t temp = digitalPinToBitMask_DEBUG(pin);
-      for (x = '0'; x < '9' && temp != 1; x++) temp >>= 1;
+      UNUSED(print_is_also_tied);
     #endif
-    SERIAL_CHAR(x);
-  #else
-    SERIAL_ECHO_SP(10);
-  #endif
-}
+  } // print_pwm
 
+  static void print_port(const pin_t pin) {   // print port number
+    #ifdef digitalPinToPort_DEBUG
+      uint8_t x;
+      SERIAL_ECHOPGM("  Port: ");
+      #if AVR_AT90USB1286_FAMILY
+        x = (pin == PIN_E2 || pin == PIN_E3) ? 'E' : 'A' + digitalPinToPort_DEBUG(pin) - 1;
+      #else
+        x = 'A' + digitalPinToPort_DEBUG(pin) - 1;
+      #endif
+      SERIAL_CHAR(x);
+
+      #if AVR_AT90USB1286_FAMILY
+        if (pin == PIN_E2)
+          x = '2';
+        else if (pin == PIN_E3)
+          x = '3';
+        else {
+          uint8_t temp = digitalPinToBitMask_DEBUG(pin);
+          for (x = '0'; x < '9' && temp != 1; x++) temp >>= 1;
+        }
+      #else
+        uint8_t temp = digitalPinToBitMask_DEBUG(pin);
+        for (x = '0'; x < '9' && temp != 1; x++) temp >>= 1;
+      #endif
+      SERIAL_CHAR(x);
+    #else
+      SERIAL_ECHO_SP(10);
+    #endif
+  }
+};
 
 #undef ABTEST
