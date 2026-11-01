@@ -339,6 +339,21 @@
   #endif
 #endif
 
+// PancakeBot panel: 128x32 ST7565 (NHD-C12832) display and push buttons
+#if ENABLED(PANCAKEBOT_PANEL)
+  #define IS_ULTIPANEL 1
+  #define DOGLCD
+  #define IS_U8GLIB_NHD_C12832 1
+  #define LCD_PIXEL_HEIGHT 32
+  #define LCD_HEIGHT 2
+  #define BOOT_MARLIN_LOGO_SMALL
+  #ifndef LCD_SCREEN_ROTATE
+    #define LCD_SCREEN_ROTATE 180 // The ST7565 scan is reversed on this panel
+  #endif
+  #define STD_ENCODER_PULSES_PER_STEP     1 // Push buttons, not an encoder
+  #define STD_ENCODER_STEPS_PER_MENU_ITEM 1
+#endif
+
 #if ENABLED(IS_U8GLIB_SSD1306)
   #define U8GLIB_SSD1306
 #endif
@@ -942,6 +957,7 @@
   + ENABLED(LONGER_LK_TFT28) \
   + ENABLED(MAKEBOARD_MINI_2_LINE_DISPLAY_1602) \
   + ENABLED(MAKRPANEL) \
+  + ENABLED(PANCAKEBOT_PANEL) \
   + ENABLED(MALYAN_LCD) \
   + ENABLED(NEXTION_TFT) \
   + ENABLED(ELEGOO_NEPTUNE_3_TFT) \
