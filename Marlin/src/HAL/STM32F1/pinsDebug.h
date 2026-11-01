@@ -52,11 +52,12 @@ extern const stm32_pin_info PIN_MAP[BOARD_NR_GPIO_PINS];
 #define NUM_DIGITAL_PINS BOARD_NR_GPIO_PINS
 #define NUMBER_PINS_TOTAL BOARD_NR_GPIO_PINS
 #define isValidPin(P) (P >= 0 && P < BOARD_NR_GPIO_PINS)
-#define getPinByIndex(x) pin_t(pin_array[x].pin)
-#define digitalRead_mod(P) extDigitalRead(P)
-#define printPinNumber(P) do{ sprintf_P(buffer, PSTR("%3hd "), int16_t(P)); SERIAL_ECHO(buffer); }while(0)
-#define printPinAnalog(P) do{ sprintf_P(buffer, PSTR(" (A%2d)  "), digitalPinToAnalogIndex(P)); SERIAL_ECHO(buffer); }while(0)
-#define printPinNameByIndex(x) do{ sprintf_P(buffer, PSTR("%-" STRINGIFY(MAX_NAME_LENGTH) "s"), pin_array[x].name); SERIAL_ECHO(buffer); }while(0)
+#define printPinNumber printPinNumber
+FORCE_INLINE void printPinNumber(const pin_t pin) {
+  char buffer[10];
+  sprintf_P(buffer, PSTR("%3hd "), int16_t(pin));
+  SERIAL_ECHO(buffer);
+}
 #define MULTI_NAME_PAD 21 // space needed to be pretty if not first name assigned to a pin
 
 // pins that will cause hang/reset/disconnect in M43 Toggle and Watch utilities
@@ -90,6 +91,7 @@ bool getValidPinMode(const pin_t pin) {
   return isValidPin(pin) && !IS_INPUT(pin);
 }
 
+#define getPinIsDigitalByIndex getPinIsDigitalByIndex
 bool getPinIsDigitalByIndex(const int16_t index) {
   const pin_t pin = getPinByIndex(index);
   return (!isAnalogPin(pin)

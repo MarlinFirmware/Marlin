@@ -102,9 +102,6 @@
 #define MODE_PIN_ALT    2 // Alternate function mode
 #define MODE_PIN_ANALOG 3 // Analog mode
 
-#define getPinByIndex(x) pin_array[x].pin
-#define printPinNameByIndex(x) do{ sprintf_P(buffer, PSTR("%-" STRINGIFY(MAX_NAME_LENGTH) "s"), pin_array[x].name); SERIAL_ECHO(buffer); }while(0)
-#define getPinIsDigitalByIndex(x) pin_array[x].is_digital
 #define digitalPinToAnalogIndex(P) digital_pin_to_analog_pin(P)
 
 uint8_t get_pin_mode(const pin_t pin) {
@@ -140,9 +137,6 @@ bool isAnalogPin(const pin_t pin) {
   return digital_pin_to_analog_pin(pin) >= 0;
 }
 
-#define digitalRead_mod(A) extDigitalRead(A)  // must use Arduino pin numbers when doing reads
-#define printPinNumber(P) do{ sprintf_P(buffer, PSTR("%3d "), P); SERIAL_ECHO(buffer); }while(0)
-#define printPinAnalog(P) do{ sprintf_P(buffer, PSTR(" (A%2d)  "), digitalPinToAnalogIndex(P)); SERIAL_ECHO(buffer); }while(0)
 #define MULTI_NAME_PAD 33 // space needed to be pretty if not first name assigned to a pin
 
 //bool is_digital(const pin_t pin) {

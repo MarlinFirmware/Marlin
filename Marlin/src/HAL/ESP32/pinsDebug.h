@@ -49,11 +49,12 @@
 #define NUMBER_PINS_TOTAL NUM_DIGITAL_PINS
 #define MULTI_NAME_PAD 16 // space needed to be pretty if not first name assigned to a pin
 
-#define digitalRead_mod(P) extDigitalRead(P)
-#define printPinNameByIndex(x) do{ sprintf_P(buffer, PSTR("%-" STRINGIFY(MAX_NAME_LENGTH) "s"), pin_array[x].name); SERIAL_ECHO(buffer); }while(0)
-#define printPinNumber(P) do{ sprintf_P(buffer, PSTR("%02d"), P); SERIAL_ECHO(buffer); }while(0)
-#define getPinByIndex(x) pin_array[x].pin
-#define getPinIsDigitalByIndex(x) pin_array[x].is_digital
+#define printPinNumber printPinNumber
+FORCE_INLINE void printPinNumber(const pin_t pin) {
+  char buffer[10];
+  sprintf_P(buffer, PSTR("%02d"), pin);
+  SERIAL_ECHO(buffer);
+}
 
 /**
  * GPIO numbering is not contiguous. On the ESP32, GPIO 20, 24, and 28-31 don't
@@ -82,7 +83,12 @@ bool isAnalogPin(const pin_t pin) {
   return isValidPin(pin) && digitalPinToAnalogChannel(pin) >= 0;
 }
 
-#define printPinAnalog(P) do{ sprintf_P(buffer, PSTR(" (A%2d)  "), digitalPinToAnalogChannel(P)); SERIAL_ECHO(buffer); }while(0)
+#define printPinAnalog printPinAnalog
+FORCE_INLINE void printPinAnalog(const pin_t pin) {
+  char buffer[12];
+  sprintf_P(buffer, PSTR(" (A%2d)  "), digitalPinToAnalogChannel(pin));
+  SERIAL_ECHO(buffer);
+}
 
 /**
  * True if the pin is currently an output. fastio's IS_OUTPUT is hardcoded to

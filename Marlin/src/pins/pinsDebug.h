@@ -167,11 +167,67 @@ const PinInfo pin_array[] PROGMEM = {
 
 };
 
+/**
+ * Access to the pin table, available to the HAL's support file.
+ * On AVR the table lives in PROGMEM and must be read with pgm_read_*.
+ */
+inline pin_t getPinByIndex(const uint16_t index) {
+  #ifdef __AVR__
+    return pin_t(pgm_read_byte(&pin_array[index].pin));
+  #else
+    return pin_t(pin_array[index].pin);
+  #endif
+}
+
 #include HAL_PATH(.., pinsDebug.h)  // get the correct support file for this CPU
 
 #ifndef M43_NEVER_TOUCH
   #define M43_NEVER_TOUCH(Q) false
 #endif
+
+// Default for HALs that don't need a special version of digitalRead
+#ifndef digitalRead_mod
+  #define digitalRead_mod(P) extDigitalRead(P)
+#endif
+
+// Default pin number / analog channel output. A HAL may override either by
+// defining the name (e.g., "#define printPinNumber printPinNumber") and
+// providing its own function.
+#ifndef printPinNumber
+  FORCE_INLINE void printPinNumber(const pin_t pin) {
+    char buffer[10];
+    sprintf_P(buffer, PSTR("%3d "), int(pin));
+    SERIAL_ECHO(buffer);
+  }
+#endif
+
+#ifndef printPinAnalog
+  FORCE_INLINE void printPinAnalog(const pin_t pin) {
+    char buffer[12];
+    sprintf_P(buffer, PSTR(" (A%2d)  "), int(digitalPinToAnalogIndex(pin)));
+    SERIAL_ECHO(buffer);
+  }
+#endif
+
+// The HAL may override getPinIsDigitalByIndex (by defining it)
+// where the pin mode is more reliable than the table.
+#ifndef getPinIsDigitalByIndex
+  inline bool getPinIsDigitalByIndex(const uint16_t index) {
+    #ifdef __AVR__
+      return pgm_read_byte(&pin_array[index].is_digital);
+    #else
+      return pin_array[index].is_digital;
+    #endif
+  }
+#endif
+
+// Print a pin's name padded to MAX_NAME_LENGTH. Names are in PROGMEM.
+inline void printPinNameByIndex(const uint16_t index) {
+  PGM_P const name = (PGM_P)pgm_read_ptr(&pin_array[index].name);
+  SERIAL_ECHOPGM_P(name);
+  const size_t len = strlen_P(name);
+  if (len < MAX_NAME_LENGTH) SERIAL_ECHO_SP(MAX_NAME_LENGTH - len);
+}
 
 static void printPinIOState(const bool isout) {
   SERIAL_ECHO(isout ? F("Output ") : F("Input  "));

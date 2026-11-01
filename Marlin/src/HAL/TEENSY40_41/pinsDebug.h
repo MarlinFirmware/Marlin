@@ -45,16 +45,16 @@
 
 #define NUMBER_PINS_TOTAL NUM_DIGITAL_PINS
 
-#define getPinByIndex(x) pin_array[x].pin
-#define printPinNameByIndex(x) do{ sprintf_P(buffer, PSTR("%-" STRINGIFY(MAX_NAME_LENGTH) "s"), pin_array[x].name); SERIAL_ECHO(buffer); }while(0)
-#define getPinIsDigitalByIndex(x) pin_array[x].is_digital
 #define digitalPinToAnalogIndex(P) int(P - analogInputToDigitalPin(0))
 #define getValidPinMode(P) (isValidPin(P) && IS_OUTPUT(P))
 #define isValidPin(P) (P >= 0 && P < pin_t(NUMBER_PINS_TOTAL))
-#define isAnalogPin(P) (pin_t(P) >= analogInputToDigitalPin(0) && pin_t(P) <= analogInputToDigitalPin(13)) || (pin_t(P) >= analogInputToDigitalPin(14) && pin_t(P) <= analogInputToDigitalPin(17))
-#define digitalRead_mod(P) extDigitalRead(P)  // AVR digitalRead disabled PWM before it read the pin
-#define printPinNumber(P) do{ sprintf_P(buffer, PSTR("%02d"), P); SERIAL_ECHO(buffer); }while(0)
-#define printPinAnalog(P) do{ sprintf_P(buffer, PSTR(" (A%2d)  "), digitalPinToAnalogIndex(P)); SERIAL_ECHO(buffer); }while(0)
+#define isAnalogPin(P) ((pin_t(P) >= analogInputToDigitalPin(0) && pin_t(P) <= analogInputToDigitalPin(13)) || (pin_t(P) >= analogInputToDigitalPin(14) && pin_t(P) <= analogInputToDigitalPin(17)))
+#define printPinNumber printPinNumber
+FORCE_INLINE void printPinNumber(const pin_t pin) {
+  char buffer[10];
+  sprintf_P(buffer, PSTR("%02d"), pin);
+  SERIAL_ECHO(buffer);
+}
 #define MULTI_NAME_PAD 16 // space needed to be pretty if not first name assigned to a pin
 
 struct pwm_pin_info_struct {

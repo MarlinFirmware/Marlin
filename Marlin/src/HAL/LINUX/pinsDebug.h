@@ -44,14 +44,11 @@
 #define NUMBER_PINS_TOTAL   NUM_DIGITAL_PINS
 #define MULTI_NAME_PAD      16 // space needed to be pretty if not first name assigned to a pin
 
-#define getPinByIndex(x) pin_array[x].pin
-
-#define printPinNameByIndex(x) do{ sprintf_P(buffer, PSTR("%-" STRINGIFY(MAX_NAME_LENGTH) "s"), pin_array[x].name); SERIAL_ECHO(buffer); }while(0)
-
 // active ADC function/mode/code values for PINSEL registers
 constexpr int8_t ADC_pin_mode(const pin_t) { return -1; }
 
 // The pin and index are the same on this platform
+#define getPinIsDigitalByIndex getPinIsDigitalByIndex
 bool getPinIsDigitalByIndex(const pin_t pin) {
   return (!isAnalogPin(pin) || get_pin_mode(pin) != ADC_pin_mode(pin));
 }
@@ -75,6 +72,4 @@ bool pwm_status(const pin_t) { return false; }
 
 void printPinPort(const pin_t) {}
 
-#define printPinNumber(P) do{ sprintf_P(buffer, PSTR("%3d "), P); SERIAL_ECHO(buffer); }while(0)
 
-#define printPinAnalog(P) do{ sprintf_P(buffer, PSTR(" (A%2d)  "), digitalPinToAnalogIndex(P)); SERIAL_ECHO(buffer); }while(0)
