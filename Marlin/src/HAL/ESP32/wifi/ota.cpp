@@ -77,7 +77,7 @@ void OTA_init() {
         case OTA_RECEIVE_ERROR: str = "Receive Failed"; break;
         case OTA_END_ERROR:     str = "End Failed";     break;
       }
-      SERIAL_ERROR_MSG("OTA update failed: ", str);
+      SERIAL_ECHO_MSG("OTA update failed: ", str);
     });
 
   ArduinoOTA.begin();
