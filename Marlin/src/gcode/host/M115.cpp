@@ -35,6 +35,10 @@
   #include "../../feature/caselight.h"
 #endif
 
+#if DGUS_LCD_UI_SERMOON_V1
+  #include "../../lcd/extui/sermoon_v1/sermoon_v1_rts.h"
+#endif
+
 #if !defined(MACHINE_UUID) && ENABLED(HAS_STM32_UID)
   #include "../../libs/hex_print.h"
 #endif
@@ -246,6 +250,13 @@ void GcodeSuite::M115() {
 
     // CONFIG_EXPORT
     cap_line(F("CONFIG_EXPORT"), ENABLED(CONFIGURATION_EMBEDDING));
+
+    // Creality Cloud WiFi board: switched on the Sermoon V1 screen, power-loss popup shown, enclosure LED
+    #if DGUS_LCD_UI_SERMOON_V1
+      cap_line(F("WIFI"), RTS::settings.wifi_led);
+      cap_line(F("IS_PLR"), RTS::recoveryPrompt());
+      cap_line(F("LED_STAT"), TERN0(CASE_LIGHT_ENABLE, caselight.on));
+    #endif
 
     // Machine Geometry
     #if ENABLED(M115_GEOMETRY_REPORT)
