@@ -2949,6 +2949,14 @@
 //#define REPRAP_DISCOUNT_SMART_CONTROLLER
 
 //
+// RepRapDiscount Smart Controller with OLED panel.
+// Same PCB with Winstar WEH002004 20x4 character OLED (WS0010 controller)
+// in place of the HD44780 LCD.
+// Pins and features follow REPRAP_DISCOUNT_SMART_CONTROLLER.
+//
+//#define REPRAP_DISCOUNT_SMART_CONTROLLER_OLED
+
+//
 // GT2560 (YHCB2004) LCD Display
 //
 // Requires Testato, Koepel softwarewire library and
