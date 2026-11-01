@@ -1,0 +1,8 @@
+# Name,   Type, SubType, Offset,  Size, Flags
+# default_8MB.csv with a 128KB NVS for Marlin's EEPROM, ESP3DLib and WiFi
+otadata,  data, ota,     0xe000,  0x2000,
+app0,     app,  ota_0,   0x10000, 0x320000,
+app1,     app,  ota_1,   0x330000,0x320000,
+nvs,      data, nvs,     0x650000,0x20000,
+spiffs,   data, spiffs,  0x670000,0x180000,
+coredump, data, coredump,0x7F0000,0x10000,
