@@ -21,6 +21,20 @@
  */
 #pragma once
 
+#if __has_include(<sdkconfig.h>)
+  #include <sdkconfig.h>
+#endif
+
+// The original ESP32. arduino-esp32 1.0.x (ESP-IDF 3) has no CONFIG_IDF_TARGET_* macros.
+#if defined(CONFIG_IDF_TARGET_ESP32) || !defined(CONFIG_IDF_TARGET)
+  #define ESP32_CLASSIC 1
+#endif
+
+// On ESP32-S3, serial port -1 is the native USB CDC port
+#if CONFIG_IDF_TARGET_ESP32S3 && (SERIAL_PORT == -1 || SERIAL_PORT_2 == -1 || SERIAL_PORT_3 == -1)
+  #define HAS_NATIVE_USB_SERIAL 1
+#endif
+
 //
 // Board-specific options need to be defined before HAL.h
 //

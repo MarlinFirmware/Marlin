@@ -29,6 +29,10 @@
 
 #include "../../inc/MarlinConfig.h"
 
+#if !ESP32_CLASSIC
+  #include <hal/timer_ll.h>
+#endif
+
 // ------------------------
 // Local defines
 // ------------------------
@@ -55,25 +59,34 @@ const tTimerConfig timer_config[NUM_HARDWARE_TIMERS] = {
 void IRAM_ATTR timer_isr(void *para) {
   const tTimerConfig& timer = timer_config[(int)para];
 
-  // Retrieve the interrupt status and the counter value
-  // from the timer that reported the interrupt
-  uint32_t intr_status = TG[timer.group]->int_st_timers.val;
-  TG[timer.group]->hw_timer[timer.idx].update = 1;
+  #if ESP32_CLASSIC
+    // Retrieve the interrupt status and the counter value
+    // from the timer that reported the interrupt
+    uint32_t intr_status = TG[timer.group]->int_st_timers.val;
+    TG[timer.group]->hw_timer[timer.idx].update = 1;
 
-  // Clear the interrupt
-  if (intr_status & BIT(timer.idx)) {
-    switch (timer.idx) {
-      case TIMER_0: TG[timer.group]->int_clr_timers.t0 = 1; break;
-      case TIMER_1: TG[timer.group]->int_clr_timers.t1 = 1; break;
-      case TIMER_MAX: break;
+    // Clear the interrupt
+    if (intr_status & BIT(timer.idx)) {
+      switch (timer.idx) {
+        case TIMER_0: TG[timer.group]->int_clr_timers.t0 = 1; break;
+        case TIMER_1: TG[timer.group]->int_clr_timers.t1 = 1; break;
+        case TIMER_MAX: break;
+      }
     }
-  }
+  #else
+    // Other ESP32 variants (IDF 4.4+) have a different register layout
+    timer_ll_clear_intr_status(TG[timer.group], timer.idx);
+  #endif
 
   timer.fn();
 
   // After the alarm has been triggered
   // Enable it again so it gets triggered the next time
-  TG[timer.group]->hw_timer[timer.idx].config.alarm_en = TIMER_ALARM_EN;
+  #if ESP32_CLASSIC
+    TG[timer.group]->hw_timer[timer.idx].config.alarm_en = TIMER_ALARM_EN;
+  #else
+    timer_ll_set_alarm_enable(TG[timer.group], timer.idx, true);
+  #endif
 }
 
 /**
@@ -91,6 +104,9 @@ void HAL_timer_start(const uint8_t timer_num, const uint32_t frequency) {
   config.alarm_en    = TIMER_ALARM_EN;
   config.intr_type   = TIMER_INTR_LEVEL;
   config.auto_reload = TIMER_AUTORELOAD_EN;
+  #if SOC_TIMER_GROUP_SUPPORT_XTAL
+    config.clk_src   = TIMER_SRC_CLK_APB; // HAL_TIMER_RATE is the APB clock
+  #endif
 
   // Select and initialize the timer
   timer_init(timer.group, timer.idx, &config);
@@ -165,7 +181,7 @@ void HAL_timer_disable_interrupt(const uint8_t timer_num) {
 
 bool HAL_timer_interrupt_enabled(const uint8_t timer_num) {
   const tTimerConfig timer = timer_config[timer_num];
-  return TG[timer.group]->int_ena.val | BIT(timer_num);
+  return TERN(ESP32_CLASSIC, TG[timer.group]->int_ena.val, TG[timer.group]->int_ena_timers.val) | BIT(timer_num);
 }
 
 #endif // ARDUINO_ARCH_ESP32

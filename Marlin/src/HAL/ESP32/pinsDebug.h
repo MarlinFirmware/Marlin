@@ -35,7 +35,11 @@
 int8_t channel_for_pin(const uint8_t pin);
 
 struct PinsDebug : PinsDebugBase<PinsDebug> {
-  static constexpr uint16_t count = NUM_DIGITAL_PINS;
+  #if CONFIG_IDF_TARGET_ESP32S3 && ESP_IDF_VERSION_MAJOR < 5
+    static constexpr uint16_t count = NUM_DIGITAL_PINS + 1; // arduino-esp32 2.x S3 variant omits GPIO 48
+  #else
+    static constexpr uint16_t count = NUM_DIGITAL_PINS;
+  #endif
   static constexpr uint8_t name_pad = 16;   // space needed to be pretty if not first name assigned to a pin
 
   /**
@@ -46,21 +50,30 @@ struct PinsDebug : PinsDebugBase<PinsDebug> {
   static bool is_valid(const pin_t pin) { return WITHIN(pin, 0, pin_t(count - 1)) && GPIO_IS_VALID_GPIO(pin); }
 
   /**
-   * M43 must never drive the SPI flash pins (GPIO 6-11), which crashes the chip,
-   * or the UART0 pins (GPIO 1, 3) of the host serial port, which then stops working.
+   * M43 must never drive the SPI flash pins, which crashes the chip, or the pins
+   * of a host serial port, which then stops working.
    */
-  static bool never_touch(const uint16_t index) { return WITHIN(index, 6, 11) || index == 1 || index == 3; }
+  static bool never_touch(const uint16_t index) {
+    #if CONFIG_IDF_TARGET_ESP32S3
+      // Flash and octal PSRAM (GPIO 26-37), native USB (GPIO 19, 20), UART0 (GPIO 43, 44)
+      return WITHIN(index, 26, 37) || index == 19 || index == 20 || index == 43 || index == 44;
+    #else
+      // Flash (GPIO 6-11), UART0 (GPIO 1, 3)
+      return WITHIN(index, 6, 11) || index == 1 || index == 3;
+    #endif
+  }
 
   /**
    * ADC channels are not a contiguous range of GPIOs, so the channel and the pin
    * are different numbers. ESP32 analogRead() takes a GPIO, and the shared code
    * passes it whatever this returns, so return the pin. print_analog reports
    * the actual channel.
+   *
+   * An analogRead() switches the pin to the ADC, so a never_touch pin isn't
+   * analog here. The ESP32-S3 native USB pins (GPIO 19, 20) are also ADC2 inputs.
    */
-  static int16_t analog_index(const pin_t pin) {
-    return (is_valid(pin) && digitalPinToAnalogChannel(pin) >= 0) ? int8_t(pin) : -1;
-  }
-  static bool is_analog(const pin_t pin) { return is_valid(pin) && digitalPinToAnalogChannel(pin) >= 0; }
+  static bool is_analog(const pin_t pin) { return is_valid(pin) && !never_touch(pin) && digitalPinToAnalogChannel(pin) >= 0; }
+  static int16_t analog_index(const pin_t pin) { return is_analog(pin) ? int8_t(pin) : -1; }
 
   static void print_analog(const pin_t pin) {
     char buffer[12];

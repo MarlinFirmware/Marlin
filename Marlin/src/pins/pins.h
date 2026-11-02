@@ -925,6 +925,8 @@
   #include "esp32/pins_MKS_DLC32_V2_1.h"            // ESP32                                env:mks_dlc32_v2_1
 #elif MB(BTT_RODENT_V1)
   #include "esp32/pins_BTT_RODENT_V1.h"             // ESP32                                env:esp32_idf3
+#elif MB(ESPRESSIF_ESP32S3)
+  #include "esp32/pins_ESP32S3.h"                   // ESP32-S3                             env:esp32s3_idf4
 
 //
 // Adafruit Grand Central M4 (SAMD51 ARM Cortex-M4)

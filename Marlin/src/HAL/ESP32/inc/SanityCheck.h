@@ -71,6 +71,8 @@
 
 #if ENABLED(BLUETOOTH)
   #error "BLUETOOTH is for AT90USB. On ESP32 set SERIAL_PORT, SERIAL_PORT_2 or SERIAL_PORT_3 to -2 for Bluetooth."
+#elif HAS_BLUETOOTH_SERIAL && !ESP32_CLASSIC
+  #error "Bluetooth (-2) requires the original ESP32. Other ESP32 chips have no Bluetooth Classic."
 #elif HAS_BLUETOOTH_SERIAL && ANY(WIFISUPPORT, ESP3D_WIFISUPPORT)
   #error "ESP32 doesn't have enough RAM for Bluetooth (-2) together with WIFISUPPORT or ESP3D_WIFISUPPORT."
 #endif
@@ -82,4 +84,22 @@
    || defined(ARDUINO_ESP32_RELEASE_1_0_3) || defined(ARDUINO_ESP32_RELEASE_1_0_4) || defined(ARDUINO_ESP32_RELEASE_1_0_5)
     #error "Bluetooth (-2) requires arduino-esp32 1.0.6 or newer. Use an environment with a newer espressif32 platform."
   #endif
+#endif
+
+#if ENABLED(I2S_STEPPER_SPLIT_STREAM) && !ESP32_CLASSIC
+  #error "I2S_STEPPER_SPLIT_STREAM is only available on the original ESP32."
+#elif ENABLED(I2S_STEPPER_STREAM) && !ESP32_CLASSIC && !(defined(I2S_WS) && defined(I2S_BCK) && defined(I2S_DATA))
+  #error "I2S_STEPPER_STREAM requires I2S_WS, I2S_BCK and I2S_DATA."
+#endif
+
+#if MB(ESPRESSIF_ESP32S3) && !CONFIG_IDF_TARGET_ESP32S3
+  #error "BOARD_ESPRESSIF_ESP32S3 requires an ESP32-S3 environment (env:esp32s3_idf4)."
+#endif
+
+#if !CONFIG_IDF_TARGET_ESP32S3 && SERIAL_PORT_2 == -1 && ANY(WIFISUPPORT, ESP3D_WIFISUPPORT)
+  #error "The WiFi serial port is now -3 (e.g., SERIAL_PORT_2 -3). Serial port -1 is the native USB port (ESP32-S3 only)."
+#elif !CONFIG_IDF_TARGET_ESP32S3 && (SERIAL_PORT == -1 || SERIAL_PORT_2 == -1 || SERIAL_PORT_3 == -1)
+  #error "Serial port -1 (native USB) requires an ESP32-S3."
+#elif (SERIAL_PORT == -3 || SERIAL_PORT_2 == -3 || SERIAL_PORT_3 == -3) && NONE(WIFISUPPORT, ESP3D_WIFISUPPORT)
+  #error "Serial port -3 (WiFi) requires WIFISUPPORT or ESP3D_WIFISUPPORT."
 #endif
