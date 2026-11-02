@@ -223,10 +223,12 @@ void GcodeSuite::M493() {
       const bool active = parser.value_bool();
       if (active != c.active) {
         const bool old_inverse_time = parser.inverse_time_enabled;
-        if (parser.inverse_time_enabled) parser.inverse_time_enabled = false;
+        #if ENABLED(FEEDRATE_MODE_SUPPORT)
+          if (parser.inverse_time_enabled) parser.inverse_time_enabled = false;
+        #endif
         ftMotion.toggle();
         flag.report = true;
-        parser.inverse_time_enabled = old_inverse_time;
+        TERN_(FEEDRATE_MODE_SUPORT, parser.inverse_time_enabled = old_inverse_time);
       }
     }
   #endif
