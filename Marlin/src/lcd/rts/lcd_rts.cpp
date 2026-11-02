@@ -151,6 +151,7 @@ float axis_unit = 10.0;
 bool LEDStatus = false;
 
 bool wifi_enable_flag;
+bool rts_sound_on = true;   // Screen touch beep. Saved to EEPROM.
 
 int update_time_value = 0;
 
@@ -492,6 +493,8 @@ void RTS::init() {
   #if ENABLED(FILAMENT_RUNOUT_SENSOR)
     sendData(runout.enabled ? 0 : 1, FILAMENT_CONTROL_ICON_VP);
   #endif
+
+  updateSoundDisplay();
 
   /**************************some info init*******************************/
   sendData(0, PRINT_PROCESS_ICON_VP);
@@ -1643,6 +1646,11 @@ void RTS::handleData() {
       else if (recdat.data[0] == 2) {
         sendData(ExchangePageBase + 21, ExchangepageAddr);
         change_page_font = 21;
+      }
+      else if (recdat.data[0] == 3) {   // Sound on / off
+        rts_sound_on ^= true;
+        updateSoundDisplay();
+        settings.save();
       }
       break;
 
@@ -2865,6 +2873,15 @@ void RTS::eachMomentUpdate() {
   }
 }
 
+/**
+ * Mute or unmute the screen's touch beep, and update the sound setting icon.
+ * The state is rts_sound_on, which is saved to EEPROM.
+ */
+void RTS::updateSoundDisplay() {
+  sendData(rts_sound_on ? DC_SOUND_SET_ON : DC_SOUND_SET_OFF, DC_SOUND_SET_DDR);
+  sendData(rts_sound_on ? 0 : 1, SOUND_SETTING_OFF_ON_VP);
+}
+
 void RTS::updateLanguageDisplay() {
   auto RTS_SndLangData = [](const uint16_t v) {
     sendData(ui.language + 1, v);
@@ -2999,6 +3016,7 @@ void RTS::updateLanguageDisplay() {
   RTS_SndLangData(PLA_SETTINGS_TITLE_VP);
   RTS_SndLangData(ABS_SETTINGS_TITLE_VP);
   RTS_SndLangData(LEVELING_WAY_TITLE_VP);
+  RTS_SndLangData(SOUND_SETTING_VP);
 }
 
 /**

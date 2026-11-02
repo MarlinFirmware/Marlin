@@ -79,6 +79,12 @@ extern bool power_off_type_yes;
 #define ExchangepageAddr      0x0084
 #define SoundAddr             0x00A0
 
+// Screen system variable 0x80: 0x5A enables the setting, bit 3 of the last byte is the touch beep
+// (the low bits are the screen rotation, as shipped). Written as a variable, like Creality does.
+#define DC_SOUND_SET_OFF    ((unsigned long)0x5A000031)  // Touch beep off
+#define DC_SOUND_SET_ON     ((unsigned long)0x5A000039)  // Touch beep on
+#define DC_SOUND_SET_DDR    ((unsigned long)0x0080)
+
 #define START_PROCESS_ICON_VP              0x1000
 #define PRINT_SPEED_RATE_VP                0x1006
 #define PRINT_PROCESS_ICON_VP              0x100E
@@ -362,6 +368,9 @@ extern bool power_off_type_yes;
 #define WEBSITE_ABOUT_CHAR_VP              0x1405
 #define PRINTER_PRINTSIZE_TITLE_VP         0x1406
 
+#define SOUND_SETTING_VP                   0x1422  // Sound setting title (per language)
+#define SOUND_SETTING_OFF_ON_VP            0x1423  // Sound setting icon: 0 = on, 1 = off
+
 #define LANGUAGE_CHINESE_TITLE_VP          0x1411
 #define LANGUAGE_ENGLISH_TITLE_VP          0x1412
 #define LANGUAGE_GERMAN_TITLE_VP           0x1413
@@ -441,6 +450,7 @@ class RTS {
     static bool sdDetected();
     static void sdCardUpate();
     static void updateLanguageDisplay();
+    static void updateSoundDisplay();
     static void sendData();
     //static void sendData(const String &, unsigned long, unsigned char=VarAddr_W);
     static void sendData(const char[], unsigned long, unsigned char=VarAddr_W);
@@ -602,6 +612,7 @@ void RTS_Update();
 extern int16_t temphot;
 extern int change_page_font;
 extern bool wifi_enable_flag;
+extern bool rts_sound_on;
 extern int update_time_value;
 extern bool PoweroffContinue;
 

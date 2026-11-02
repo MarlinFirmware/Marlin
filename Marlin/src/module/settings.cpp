@@ -755,6 +755,7 @@ typedef struct SettingsDataStruct {
   //
   #if ENABLED(CREALITY_RTS)
     bool wifi_enable_flag;        // M194 S
+    bool rts_sound_on;            // Screen sound button
   #endif
 
 } SettingsData;
@@ -1840,6 +1841,7 @@ void MarlinSettings::postprocess() {
     #if ENABLED(CREALITY_RTS)
       _FIELD_TEST(wifi_enable_flag);
       EEPROM_WRITE(wifi_enable_flag);
+      EEPROM_WRITE(rts_sound_on);
     #endif
 
     //
@@ -3023,6 +3025,7 @@ void MarlinSettings::postprocess() {
       #if ENABLED(CREALITY_RTS)
         _FIELD_TEST(wifi_enable_flag);
         EEPROM_READ(wifi_enable_flag);
+        EEPROM_READ(rts_sound_on);
       #endif
 
       //
@@ -3916,6 +3919,7 @@ void MarlinSettings::reset() {
   #if ENABLED(CREALITY_RTS)
     ui.language = 1; // 0:Chinese, 1:English
     wifi_enable_flag = true;
+    rts_sound_on = true;
   #endif
 
   //
@@ -4383,6 +4387,8 @@ void MarlinSettings::reset() {
     #if ENABLED(CREALITY_RTS)
       CONFIG_ECHO_HEADING("WIFI Enabled");
       CONFIG_ECHO_MSG("  M194 S", wifi_enable_flag);
+      CONFIG_ECHO_HEADING("Screen Sound (set with the screen's sound button)");
+      CONFIG_ECHO_MSG("  ; ", rts_sound_on ? F("on") : F("off"));
     #endif
   }
 
