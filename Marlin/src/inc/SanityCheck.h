@@ -3113,6 +3113,13 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
 #endif
 
 /**
+ * Creality WiFi box options are part of the RTS screen support
+ */
+#if ANY(CREALITY_WIFI, MENU_RESET_WIFI) && DISABLED(CREALITY_RTS)
+  #error "CREALITY_WIFI and MENU_RESET_WIFI require CREALITY_RTS."
+#endif
+
+/**
  * MKS WiFi module. Works with any UI, or none, but it needs its own UART,
  * the ESP control pins, and media to transfer files to.
  */
