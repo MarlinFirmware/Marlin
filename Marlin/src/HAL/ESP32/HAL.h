@@ -50,18 +50,40 @@
 // Defines
 // ------------------------
 
-#define MYSERIAL1 flushableSerial
+#if HAS_NATIVE_USB_SERIAL
+  #include "NativeUSBSerial.h"
+#endif
 
+// The WiFi serial port: G-code from ESP3D, or from the WebSocket at /ws
 #if ENABLED(ESP3D_WIFISUPPORT)
   typedef ForwardSerial1Class< decltype(Serial2Socket) > DefaultSerial1;
   extern DefaultSerial1 MSerial0;
-  #define MYSERIAL2 MSerial0
+  #define WIFI_HOST_SERIAL MSerial0
 #elif ENABLED(WIFISUPPORT)
-  #define MYSERIAL2 webSocketSerial
+  #define WIFI_HOST_SERIAL webSocketSerial
 #endif
 
-#if SERIAL_PORT_2 == 2
+// Serial port -1 is the native USB port (ESP32-S3), -3 is the WiFi serial port
+#if SERIAL_PORT == -3
+  #define MYSERIAL1 WIFI_HOST_SERIAL
+#elif SERIAL_PORT == -1
+  #define MYSERIAL1 nativeUSBSerial
+#else
+  #define MYSERIAL1 flushableSerial
+#endif
+
+#if SERIAL_PORT_2 == -3
+  #define MYSERIAL2 WIFI_HOST_SERIAL
+#elif SERIAL_PORT_2 == -1
+  #define MYSERIAL2 nativeUSBSerial
+#elif SERIAL_PORT_2 == 2
   #define MYSERIAL2 flushableSerial2
+#endif
+
+#if SERIAL_PORT_3 == -3
+  #define MYSERIAL3 WIFI_HOST_SERIAL
+#elif SERIAL_PORT_3 == -1
+  #define MYSERIAL3 nativeUSBSerial
 #endif
 
 #if LCD_SERIAL_PORT == 2
@@ -75,8 +97,14 @@
 #define HAL_CAN_SET_PWM_FREQ   // This HAL supports PWM Frequency adjustment
 #define PWM_FREQUENCY  1000U   // Default PWM frequency when set_pwm_duty() is called without set_pwm_frequency()
 #define PWM_RESOLUTION   10U   // Default PWM bit resolution
-#define CHANNEL_MAX_NUM  15U   // max PWM channel # to allocate (7 to only use low speed, 15 to use low & high)
-#define MAX_PWM_IOPIN    33U   // hardware pwm pins < 34
+#if ESP32_CLASSIC
+  #define CHANNEL_MAX_NUM  15U   // max PWM channel # to allocate (7 to only use low speed, 15 to use low & high)
+  #define MAX_PWM_IOPIN    33U   // hardware pwm pins < 34
+#else
+  #include <soc/soc_caps.h>
+  #define CHANNEL_MAX_NUM  (SOC_LEDC_CHANNEL_NUM - 1U)  // max PWM channel # to allocate
+  #define MAX_PWM_IOPIN    (SOC_GPIO_PIN_COUNT - 1U)    // all GPIOs can output PWM
+#endif
 #ifndef MAX_EXPANDER_BITS
   #define MAX_EXPANDER_BITS 32 // I2S expander bit width (max 32)
 #endif
@@ -107,6 +135,12 @@ void tone(const pin_t _pin, const unsigned int frequency, const unsigned long du
 void noTone(const pin_t _pin);
 int8_t get_pwm_channel(const pin_t pin, const uint32_t freq, const uint16_t res);
 void analogWrite(const pin_t pin, const uint16_t value, const uint32_t freq=PWM_FREQUENCY, const uint16_t res=8);
+
+// M997 restarts the firmware
+#ifndef PLATFORM_M997_SUPPORT
+  #define PLATFORM_M997_SUPPORT
+#endif
+void flashFirmware(const int16_t);
 
 //
 // Pin Mapping for M42, M43, M226

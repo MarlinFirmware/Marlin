@@ -4423,8 +4423,8 @@ static_assert(_PLUS_TEST(3), "DEFAULT_MAX_ACCELERATION values must be positive."
   #error "Enable only one of WIFISUPPORT or ESP3D_WIFISUPPORT."
 #elif ENABLED(ESP3D_WIFISUPPORT) && DISABLED(ARDUINO_ARCH_ESP32)
   #error "ESP3D_WIFISUPPORT requires an ESP32 motherboard."
-#elif ENABLED(ESP3D_WIFISUPPORT) && (!defined(SERIAL_PORT_2) || SERIAL_PORT_2 != -1)
-  #error "ESP3D_WIFISUPPORT requires SERIAL_PORT_2 -1, which carries G-code from ESP3D to Marlin."
+#elif ENABLED(ESP3D_WIFISUPPORT) && SERIAL_PORT != -3 && (!defined(SERIAL_PORT_2) || SERIAL_PORT_2 != -3) && (!defined(SERIAL_PORT_3) || SERIAL_PORT_3 != -3)
+  #error "ESP3D_WIFISUPPORT requires a serial port set to -3 (e.g., SERIAL_PORT_2 -3), which carries G-code from ESP3D to Marlin."
 #endif
 
 // Only the native ESP32 WiFi needs credentials at compile time. An add-on module

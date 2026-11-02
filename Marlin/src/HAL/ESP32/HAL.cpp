@@ -123,7 +123,19 @@ struct {
 
 #endif
 
+#if HAS_NATIVE_USB_SERIAL
+  // On the ESP32-S3 the ESP-IDF console writes to the native USB port as well as UART0.
+  // Keep ESP-IDF log lines off the native USB port: a host reads them as G-code (see NativeUSBSerial.h).
+  static int log_to_uart0(const char *fmt, va_list args) {
+    char buf[160];
+    const int len = vsnprintf(buf, sizeof(buf), fmt, args);
+    if (len > 0) flushableSerial.write((const uint8_t*)buf, _MIN(len, int(sizeof(buf) - 1)));
+    return len;
+  }
+#endif
+
 void MarlinHAL::init_board() {
+  TERN_(HAS_NATIVE_USB_SERIAL, esp_log_set_vprintf(log_to_uart0));
   #if ENABLED(USE_ESP32_TASK_WDT)
     esp_task_wdt_init(10, true);
   #endif
@@ -194,6 +206,9 @@ uint8_t MarlinHAL::get_reset_source() {
 
 void MarlinHAL::reboot() { ESP.restart(); }
 
+// Restart, as there's no in-application firmware update
+void flashFirmware(const int16_t) { hal.reboot(); }
+
 // return free memory between end of heap (or end bss) and whatever is current
 int MarlinHAL::freeMemory() { return ESP.getFreeHeap(); }
 
@@ -227,6 +242,14 @@ int MarlinHAL::freeMemory() { return ESP.getFreeHeap(); }
 
 // https://docs.espressif.com/projects/esp-idf/en/release-v4.4/esp32/api-reference/peripherals/adc.html
 adc1_channel_t get_channel(int pin) {
+  #if !ESP32_CLASSIC
+    // Other ESP32 variants map ADC1 to different pins
+    for (uint8_t c = 0; c < ADC1_CHANNEL_MAX; ++c) {
+      gpio_num_t io;
+      if (adc1_pad_get_io_num(adc1_channel_t(c), &io) == ESP_OK && io == pin) return adc1_channel_t(c);
+    }
+    return ADC1_CHANNEL_MAX;
+  #endif
   switch (pin) {
     case 39: return ADC1_CHANNEL_3;
     case 36: return ADC1_CHANNEL_0;
