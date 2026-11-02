@@ -28,9 +28,16 @@
 #include "i2s.h"
 
 #include "../shared/Marduino.h"
-#include <driver/periph_ctrl.h>
-#include <rom/lldesc.h>
-#include <soc/i2s_struct.h>
+#if ESP32_CLASSIC
+  #include <driver/periph_ctrl.h>
+  #include <rom/lldesc.h>
+  #include <soc/i2s_struct.h>
+#else
+  // Other ESP32 variants send the stream through the ESP-IDF I2S driver
+  #include <driver/i2s.h>
+  #include <rom/gpio.h>
+  #include <soc/gpio_sig_map.h>
+#endif
 #include <freertos/queue.h>
 #include "../../module/stepper.h"
 
@@ -38,6 +45,14 @@
 #define DMA_BUF_LEN   4092                             // maximum size in bytes
 #define I2S_SAMPLE_SIZE 4                              // 4 bytes, 32 bits per sample
 #define DMA_SAMPLE_COUNT DMA_BUF_LEN / I2S_SAMPLE_SIZE // number of samples per buffer
+
+// output value
+uint32_t i2s_port_data = 0;
+
+// Samples pushed so far, for timing the stepper events
+static uint32_t sample_count = 0;
+
+#if ESP32_CLASSIC
 
 typedef enum {
   I2S_NUM_0 = 0x0,  /*!< I2S 0*/
@@ -56,12 +71,6 @@ typedef struct {
 static portMUX_TYPE i2s_spinlock[I2S_NUM_MAX] = {portMUX_INITIALIZER_UNLOCKED, portMUX_INITIALIZER_UNLOCKED};
 static i2s_dev_t* I2S[I2S_NUM_MAX] = {&I2S0, &I2S1};
 static i2s_dma_t dma;
-
-// output value
-uint32_t i2s_port_data = 0;
-
-// Samples pushed so far, for timing the stepper events
-static uint32_t sample_count = 0;
 
 #define I2S_ENTER_CRITICAL()  portENTER_CRITICAL(&i2s_spinlock[i2s_num])
 #define I2S_EXIT_CRITICAL()   portEXIT_CRITICAL(&i2s_spinlock[i2s_num])
@@ -141,6 +150,17 @@ static void IRAM_ATTR i2s_intr_handler_default(void *arg) {
   I2S0.int_clr.val = I2S0.int_st.val;
 }
 
+#else // !ESP32_CLASSIC
+
+static struct {
+  uint32_t *current;
+  uint32_t rw_pos;
+} dma;
+
+static uint32_t i2s_buffer[DMA_SAMPLE_COUNT];
+
+#endif // !ESP32_CLASSIC
+
 static void i2s_push_idle(hal_timer_t n);
 
 /**
@@ -158,6 +178,8 @@ void stepperTask(void *parameter) {
     i2s_push_idle(interval > used ? interval - used : used ? 0 : 1); // Blocks while all DMA buffers are full
   }
 }
+
+#if ESP32_CLASSIC
 
 int i2s_init() {
   periph_module_enable(PERIPH_I2S0_MODULE);
@@ -319,6 +341,48 @@ int i2s_init() {
   return i2s_start(I2S_NUM_0);
 }
 
+#elif ENABLED(I2S_STEPPER_STREAM) // !ESP32_CLASSIC
+
+/**
+ * The same stream as the original ESP32: each 32-bit sample is one stereo frame
+ * of two 16-bit slots, high half first, at STEPPER_TIMER_RATE (250 kHz, BCK 8 MHz).
+ * WS is inverted so it rises at the start of each frame, latching the 74HC595s.
+ * MCLK = 128 * 250 kHz = 32 MHz divides the 160 MHz PLL exactly.
+ */
+int i2s_init() {
+  dma.current = i2s_buffer;
+  dma.rw_pos = 0;
+
+  i2s_config_t cfg = {};
+  cfg.mode = i2s_mode_t(I2S_MODE_MASTER | I2S_MODE_TX);
+  cfg.sample_rate = STEPPER_TIMER_RATE;
+  cfg.bits_per_sample = I2S_BITS_PER_SAMPLE_16BIT;
+  cfg.channel_format = I2S_CHANNEL_FMT_RIGHT_LEFT;
+  cfg.communication_format = I2S_COMM_FORMAT_STAND_MSB;
+  cfg.dma_buf_count = DMA_BUF_COUNT;
+  cfg.dma_buf_len = DMA_SAMPLE_COUNT;
+  cfg.use_apll = false;
+  cfg.tx_desc_auto_clear = false;
+  cfg.mclk_multiple = I2S_MCLK_MULTIPLE_128;
+  if (i2s_driver_install(I2S_NUM_0, &cfg, 0, nullptr) != ESP_OK) return -1;
+
+  i2s_pin_config_t pins = {};
+  pins.mck_io_num = I2S_PIN_NO_CHANGE;
+  pins.bck_io_num = I2S_BCK;
+  pins.ws_io_num = I2S_WS;
+  pins.data_out_num = I2S_DATA;
+  pins.data_in_num = I2S_PIN_NO_CHANGE;
+  if (i2s_set_pin(I2S_NUM_0, &pins) != ESP_OK) return -1;
+  gpio_matrix_out(I2S_WS, I2S0O_WS_OUT_IDX, true, false); // Invert WS
+
+  // Create the task that will feed the buffer
+  xTaskCreatePinnedToCore(stepperTask, "StepperTask", 10000, nullptr, 1, nullptr, CONFIG_ARDUINO_RUNNING_CORE); // run I2S stepper task on same core as rest of Marlin
+
+  return 0;
+}
+
+#endif // !ESP32_CLASSIC
+
 void i2s_write(uint8_t pin, uint8_t val) {
   #if ENABLED(I2S_STEPPER_SPLIT_STREAM)
     if (pin >= 16) {
@@ -336,6 +400,8 @@ uint8_t i2s_state(uint8_t pin) {
   return TEST(i2s_port_data, pin);
 }
 
+#if ESP32_CLASSIC
+
 // Make sure the current DMA buffer has room, taking the next free one when it's full
 static void i2s_buffer_ready() {
   if (!dma.current || dma.rw_pos >= DMA_SAMPLE_COUNT) {
@@ -343,6 +409,22 @@ static void i2s_buffer_ready() {
     dma.rw_pos = 0;
   }
 }
+
+#else
+
+// Send the buffer to the I2S driver when it's full. This blocks while all DMA buffers are full.
+static void i2s_buffer_ready() {
+  if (dma.rw_pos < DMA_SAMPLE_COUNT) return;
+
+  // The driver sends the low 16 bits of a sample first, so swap the halves
+  for (uint32_t i = 0; i < DMA_SAMPLE_COUNT; ++i) i2s_buffer[i] = (i2s_buffer[i] << 16) | (i2s_buffer[i] >> 16);
+
+  size_t written;
+  i2s_write(I2S_NUM_0, i2s_buffer, sizeof(i2s_buffer), &written, portMAX_DELAY);
+  dma.rw_pos = 0;
+}
+
+#endif
 
 void i2s_push_sample() {
   i2s_buffer_ready();
