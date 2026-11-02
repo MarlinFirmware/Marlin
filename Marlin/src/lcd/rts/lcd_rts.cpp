@@ -478,13 +478,7 @@ void RTS::init() {
   TERN_(HAS_GCODE_THUMBNAIL, sendData(0, DOWNLOAD_PREVIEW_VP));
 
   /***************transmit Printer information to screen*****************/
-  sendData(MACHINE_NAME, MACHINE_NAME_ABOUT_TEXT_VP);
-  sendData(FIRMWARE_VERSION, FIRMWARE_VERSION_ABOUT_TEXT_VP);
-  //sendData(SCREEN_VERSION, PRINTER_DISPLAY_VERSION_TEXT_VP);
-  sendData(HARDWARE_VERSION, HARDWARE_VERSION_ABOUT_TEXT_VP);
-  sendData(PRINT_SIZE, PRINTER_PRINTSIZE_TEXT_VP);
-  delay(5);
-  sendData(ui.language == 0 ? CORP_WEBSITE_C : CORP_WEBSITE_E, WEBSITE_ABOUT_TEXT_VP);
+  updateAboutDisplay();
 
   RTS_UpdateWifi();
 
@@ -1707,13 +1701,7 @@ void RTS::handleData() {
         delay(2000);
       }
       else if (recdat.data[0] == 5) {
-        sendData(MACHINE_NAME, MACHINE_NAME_ABOUT_TEXT_VP);
-        sendData(FIRMWARE_VERSION, FIRMWARE_VERSION_ABOUT_TEXT_VP);
-        //sendData(SCREEN_VERSION, PRINTER_DISPLAY_VERSION_TEXT_VP);
-        sendData(HARDWARE_VERSION, HARDWARE_VERSION_ABOUT_TEXT_VP);
-        sendData(PRINT_SIZE, PRINTER_PRINTSIZE_TEXT_VP);
-        delay(5);
-        sendData(ui.language == 0 ? CORP_WEBSITE_C : CORP_WEBSITE_E, WEBSITE_ABOUT_TEXT_VP);
+        updateAboutDisplay();
         sendData(ExchangePageBase + 24, ExchangepageAddr);
         change_page_font = 24;
       }
@@ -2623,13 +2611,7 @@ void RTS::handleData() {
         }
       }
 
-      sendData(MACHINE_NAME, MACHINE_NAME_ABOUT_TEXT_VP);
-      sendData(FIRMWARE_VERSION, FIRMWARE_VERSION_ABOUT_TEXT_VP);
-      //sendData(SCREEN_VERSION, PRINTER_DISPLAY_VERSION_TEXT_VP);
-      sendData(HARDWARE_VERSION, HARDWARE_VERSION_ABOUT_TEXT_VP);
-      sendData(PRINT_SIZE, PRINTER_PRINTSIZE_TEXT_VP);
-
-      sendData(ui.language == 0 ? CORP_WEBSITE_C : CORP_WEBSITE_E, WEBSITE_ABOUT_TEXT_VP);
+      updateAboutDisplay();
 
       sendData(fans[0].speed ? 1 : 0, PRINTER_FANOPEN_TITLE_VP);
       sendData(LEDStatus ? 1 : 0, PRINTER_LEDOPEN_TITLE_VP);
@@ -2871,6 +2853,19 @@ void RTS::eachMomentUpdate() {
 
     next_rts_update_ms = ms + RTS_UPDATE_INTERVAL + update_time_value;
   }
+}
+
+/**
+ * Send the printer information shown on the About screen.
+ * The firmware version is Marlin's own version string.
+ */
+void RTS::updateAboutDisplay() {
+  sendData(MACHINE_NAME, MACHINE_NAME_ABOUT_TEXT_VP);
+  sendData(SHORT_BUILD_VERSION, FIRMWARE_VERSION_ABOUT_TEXT_VP);
+  sendData(HARDWARE_VERSION, HARDWARE_VERSION_ABOUT_TEXT_VP);
+  sendData(PRINT_SIZE, PRINTER_PRINTSIZE_TEXT_VP);
+  delay(5);
+  sendData(ui.language == 0 ? CORP_WEBSITE_C : CORP_WEBSITE_E, WEBSITE_ABOUT_TEXT_VP);
 }
 
 /**

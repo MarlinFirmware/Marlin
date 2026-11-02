@@ -52,6 +52,23 @@ extern bool power_off_type_yes;
   #define LCD_BAUDRATE 115200  // Baud rate of the Creality screen's UART
 #endif
 
+/**
+ * About screen information. A configuration may define any of these.
+ * The firmware version is always Marlin's version string.
+ */
+#ifndef HARDWARE_VERSION
+  #define HARDWARE_VERSION BOARD_INFO_NAME  // Creality hardware version, e.g., "CR4NS200141C13"
+#endif
+#ifndef PRINT_SIZE
+  #define PRINT_SIZE STRINGIFY(X_BED_SIZE) " X " STRINGIFY(Y_BED_SIZE) " X " STRINGIFY(Z_MAX_POS) "mm"
+#endif
+#ifndef CORP_WEBSITE_C
+  #define CORP_WEBSITE_C "www.creality.cn "
+#endif
+#ifndef CORP_WEBSITE_E
+  #define CORP_WEBSITE_E "www.creality.com"
+#endif
+
 /*************Register and Variable addr*****************/
 #define RegAddr_W   0x80
 #define RegAddr_R   0x81
@@ -450,6 +467,7 @@ class RTS {
     static bool sdDetected();
     static void sdCardUpate();
     static void updateLanguageDisplay();
+    static void updateAboutDisplay();
     static void updateSoundDisplay();
     static void sendData();
     //static void sendData(const String &, unsigned long, unsigned char=VarAddr_W);
