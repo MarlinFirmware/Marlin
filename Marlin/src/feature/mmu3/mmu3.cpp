@@ -744,21 +744,25 @@ namespace MMU3 {
     }
   }
 
+  // True while reheatHotend is waiting. The wait keeps the MMU loop running, which
+  // would otherwise act on a second click on the error screen before the hotend is hot.
+  static bool reheating = false;
+
   void MMU3::reheatHotend(const int16_t temp) {
     LogEchoEvent(F("Resuming Temp"));
     // @@TODO MMU2_ECHO_MSGRPGM(PSTR("Restoring hotend temperature "));
     SERIAL_ECHOLN(temp);
+    reheating = true;
     thermal_setTargetHotend(temp);
     fullScreenMsgRestoringTemperature();
-    // @todo better report the event and let the GUI do its work somewhere else
-    ReportErrorHookSensorLineRender();
     waitForHotendTargetTemp(100, [] {
       marlin_manage_inactivity(true);
       mmu3.mmu_loop_inner(false);
-      ReportErrorHookDynamicRender();
     });
+    reheating = false;
     ScreenUpdateEnable(); // temporary hack to stop this locking the printer...
     LogEchoEvent(F("Hotend temperature reached"));
+    TERN_(HAS_WIRED_LCD, ui.reset_status());
     ScreenClear();
   }
 
@@ -809,6 +813,13 @@ namespace MMU3 {
   }
 
   void MMU3::checkUserInput() {
+    if (reheating) {
+      // Ignore clicks until the hotend is ready, so a retry can't start with a cold nozzle
+      SetButtonResponse(ButtonOperations::NoOperation);
+      lastButton = Buttons::NoButton;
+      return;
+    }
+
     auto btn = ButtonPressed(lastErrorCode);
 
     // Was a button pressed on the MMU itself instead of the LCD?

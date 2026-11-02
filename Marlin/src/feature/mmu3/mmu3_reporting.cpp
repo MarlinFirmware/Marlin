@@ -594,7 +594,9 @@ namespace MMU3 {
 
   void fullScreenMsgRestoringTemperature() {
     #if HAS_WIRED_LCD
-      lcd_display_message_fullscreen(F("MMU Retry: Restoring temperature..."));
+      // Show the status screen (with live temperatures) so the error menu can't be clicked again
+      ui.return_to_status();
+      ui.set_status(F("MMU Retry: Heating..."), true);
     #endif
   }
 
