@@ -48,6 +48,10 @@ extern bool power_off_type_yes;
 
 #define RTS_DATA_SIZE       26
 
+#ifndef LCD_BAUDRATE
+  #define LCD_BAUDRATE 115200  // Baud rate of the Creality screen's UART
+#endif
+
 /*************Register and Variable addr*****************/
 #define RegAddr_W   0x80
 #define RegAddr_R   0x81

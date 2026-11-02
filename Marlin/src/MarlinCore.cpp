@@ -1249,8 +1249,8 @@ void setup() {
   millis_t serial_connect_timeout = millis() + 1000UL;
   while (!MYSERIAL1.connected() && PENDING(millis(), serial_connect_timeout)) { /*nada*/ }
 
-  #if ENABLED(SOVOL_SV06_RTS)
-    LCD_SERIAL.begin(BAUDRATE);
+  #if ANY(SOVOL_SV06_RTS, CREALITY_RTS)
+    LCD_SERIAL.begin(TERN(CREALITY_RTS, LCD_BAUDRATE, BAUDRATE));
     serial_connect_timeout = millis() + 1000UL;
     while (!LCD_SERIAL.connected() && PENDING(millis(), serial_connect_timeout)) { /*nada*/ }
   #endif
