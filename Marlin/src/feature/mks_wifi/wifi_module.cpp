@@ -1044,6 +1044,16 @@ static void wifi_gcode_exec(uint8_t * const cmd_line) {
 
               card.openFileRead(cur_name);
 
+              // An uploaded file is stored under its sanitized (8.3) name, so a long name
+              // from the host isn't found as given. Try the name the upload would have used.
+              if (!card.isFileOpen() && cur_name && MKSW_WIFI_TYPE == ESP_WIFI) {
+                char dosName[TERN(LONG_FILENAME_WRITE_SUPPORT, LONG_FILENAME_BYTES, FILENAME_LENGTH)];
+                if (sanitizeName(cur_name + 1, dosName)) {
+                  strcpy(cur_name + 1, dosName);
+                  card.openFileRead(cur_name);
+                }
+              }
+
               if (card.isFileOpen())
                 print_to_wifi("File selected\r\n");
               else {
