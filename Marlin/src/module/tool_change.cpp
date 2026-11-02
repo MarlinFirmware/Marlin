@@ -1048,7 +1048,13 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
       // Park
       #if ENABLED(TOOLCHANGE_PARK)
         if (ok) {
-          IF_DISABLED(TOOLCHANGE_PARK_Y_ONLY, motion.position.x = toolchange_settings.change_point.x);
+          #if DISABLED(TOOLCHANGE_PARK_Y_ONLY)
+            motion.position.x = toolchange_settings.change_point.x;
+            // Keep an IDEX carriage out of the other carriage's path
+            #if ALL(DUAL_X_CARRIAGE, HAS_SOFTWARE_ENDSTOPS)
+              LIMIT(motion.position.x, motion.soft_endstop.min.x, motion.soft_endstop.max.x);
+            #endif
+          #endif
           IF_DISABLED(TOOLCHANGE_PARK_X_ONLY, motion.position.y = toolchange_settings.change_point.y);
           #if NONE(TOOLCHANGE_PARK_X_ONLY, TOOLCHANGE_PARK_Y_ONLY)
             SECONDARY_AXIS_CODE(
@@ -1248,7 +1254,11 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
       // Toolchange park
       #if ENABLED(TOOLCHANGE_PARK) && !HAS_SWITCHING_NOZZLE
         if (can_move_away && toolchange_settings.enable_park) {
-          IF_DISABLED(TOOLCHANGE_PARK_Y_ONLY, motion.position.x = toolchange_settings.change_point.x);
+          // With DUAL_X_CARRIAGE the old carriage is parked at its own home below,
+          // so don't send it to an X change point that may be in the other carriage's path.
+          #if NONE(TOOLCHANGE_PARK_Y_ONLY, DUAL_X_CARRIAGE)
+            motion.position.x = toolchange_settings.change_point.x;
+          #endif
           IF_DISABLED(TOOLCHANGE_PARK_X_ONLY, motion.position.y = toolchange_settings.change_point.y);
           #if NONE(TOOLCHANGE_PARK_X_ONLY, TOOLCHANGE_PARK_Y_ONLY)
             SECONDARY_AXIS_CODE(

@@ -352,6 +352,9 @@
     // Resume hotend temperature, if it was cooled. Safe to call if we aren't saved.
     void resumeHotendTemp();
 
+    // Set the hotend target and wait for it, with the "Restoring temperature" screen
+    void reheatHotend(const int16_t temp);
+
     // Resume position, if the extruder was parked. Safe to all if state was not saved.
     void resumeUnpark();
 
@@ -392,6 +395,15 @@
 
     xyz_pos_t resume_position;
     int16_t resume_hotend_temp;
+
+    #if ENABLED(HOTEND_IDLE_TIMEOUT)
+      // Targets when the error began, to undo a Hotend Idle Timeout that hit while waiting for the user
+      bool error_temps_saved;
+      int16_t error_hotend_target;
+      #if HAS_HEATED_BED
+        int16_t error_bed_target;
+      #endif
+    #endif
 
     ProgressCode lastProgressCode = ProgressCode::OK;
     ErrorCode lastErrorCode = ErrorCode::MMU_NOT_RESPONDING;

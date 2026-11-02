@@ -3436,6 +3436,14 @@
 //#define ELEGOO_NEPTUNE_3_TFT
 
 //
+// PanelDue touch controller by Duet3D (PanelDueFirmware 3.2 or newer)
+// https://docs.duet3d.com/User_manual/Connecting_hardware/Display_PanelDue
+// Connect the PanelDue to a free UART and define LCD_SERIAL_PORT with its index.
+// The PanelDue baud rate must be set to 57600, or define LCD_BAUDRATE to match.
+//
+//#define PANELDUE
+
+//
 // Third-party or vendor-customized controller interfaces.
 // Sources should be installed in 'src/lcd/extui'.
 //
@@ -3604,10 +3612,6 @@
   #define COMPACT_MARLIN_BOOT_LOGO  // Use compressed data to save Flash space
 #endif
 
-#if ENABLED(TFT_LVGL_UI)
-  //#define MKS_WIFI_MODULE // MKS WiFi module
-#endif
-
 /**
  * TFT Rotation. Set to one of the following values:
  *
@@ -3680,14 +3684,6 @@
 // EasyThreeD ET-4000+ with button input and status LED
 //
 //#define EASYTHREED_UI
-
-//
-// PanelDue touch controller by Duet3D (PanelDueFirmware 3.2 or newer)
-// https://docs.duet3d.com/User_manual/Connecting_hardware/Display_PanelDue
-// Connect the PanelDue to a free UART and define LCD_SERIAL_PORT with its index.
-// The PanelDue baud rate must be set to 57600, or define LCD_BAUDRATE to match.
-//
-//#define PANELDUE
 
 //=============================================================================
 //=============================== Extra Features ==============================

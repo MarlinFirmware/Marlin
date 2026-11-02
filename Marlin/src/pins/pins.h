@@ -863,7 +863,7 @@
 #elif MB(BTT_OCTOPUS_MAX_EZ_V1_0)
   #include "stm32h7/pins_BTT_OCTOPUS_MAX_EZ.h"           // STM32H7                         env:STM32H723ZE_btt env:STM32H723ZE_btt_katapult
 #elif MB(BTT_OCTOPUS_PRO_V1_0_1)
-  #include "stm32h7/pins_BTT_OCTOPUS_PRO_V1_0_1.h"       // STM32H7                         env:STM32H723ZE_btt env:STM32H723ZE_btt_katapult
+  #include "stm32h7/pins_BTT_OCTOPUS_PRO_V1_0_1.h"       // STM32H7                         env:STM32F446ZE_btt env:STM32F446ZE_btt_usb_flash_drive env:STM32F446ZE_btt_katapult env:STM32H723ZE_btt env:STM32H723ZE_btt_katapult
 #elif MB(BTT_OCTOPUS_PRO_V1_1)
   #include "stm32h7/pins_BTT_OCTOPUS_PRO_V1_1.h"         // STM32H7                         env:STM32H723ZE_btt env:STM32H723ZE_btt_katapult
 #elif MB(BTT_MANTA_M8P_V2_0)

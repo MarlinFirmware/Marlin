@@ -78,7 +78,7 @@ void event_filament_runout(const uint8_t extruder) {
 
   runout.init_for_restart(false); // Reset and disable
 
-  if (did_pause_print) return;  // Action already in progress. Purge triggered repeated runout.
+  if (paused_for_filament_change) return;  // Action already in progress. Purge triggered repeated runout.
 
   #if ENABLED(TOOLCHANGE_MIGRATION_FEATURE)
     if (migration.in_progress) {

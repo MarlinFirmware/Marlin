@@ -420,13 +420,13 @@ bool unload_filament(const float unload_length, const bool show_lcd/*=false*/,
  *
  * Return 'true' if pause was completed, 'false' for abort
  */
-uint8_t did_pause_print = 0;
+uint8_t paused_for_filament_change = 0;
 
 bool pause_print(const float retract, const xyz_pos_t &park_point, const bool show_lcd/*=false*/, const float unload_length/*=0*/ DXC_ARGS) {
   DEBUG_SECTION(pp, "pause_print", true);
   DEBUG_ECHOLNPGM("... park.x:", park_point.x, " y:", park_point.y, " z:", park_point.z, " unloadlen:", unload_length, " showlcd:", show_lcd DXC_SAY);
 
-  if (did_pause_print) return false; // already paused
+  if (paused_for_filament_change) return false; // already paused
 
   #if ENABLED(HOST_ACTION_COMMANDS)
     #ifdef ACTION_ON_PAUSED
@@ -439,14 +439,14 @@ bool pause_print(const float retract, const xyz_pos_t &park_point, const bool sh
   TERN_(HOST_PROMPT_SUPPORT, hostui.prompt_open(PROMPT_INFO, F("Pause"), FPSTR(DISMISS_STR)));
 
   // Indicate that the printer is paused
-  ++did_pause_print;
+  ++paused_for_filament_change;
 
   // Pause the print job and timer
   #if HAS_MEDIA
     const bool was_sd_printing = card.isStillPrinting();
     if (was_sd_printing) {
       card.pauseSDPrint();
-      ++did_pause_print; // Indicate SD pause also
+      ++paused_for_filament_change; // Indicate SD pause also
     }
   #endif
 
@@ -693,7 +693,7 @@ void resume_print(
   );
   //*/
 
-  if (!did_pause_print) return;
+  if (!paused_for_filament_change) return;
 
   // Re-enable the heaters if they timed out
   bool nozzle_timed_out = pause_for_user;
@@ -774,7 +774,7 @@ void resume_print(
     hostui.resume();
   #endif
 
-  --did_pause_print;
+  --paused_for_filament_change;
 
   TERN_(HOST_PROMPT_SUPPORT, hostui.prompt_open(PROMPT_INFO, F("Resuming"), FPSTR(DISMISS_STR)));
 
@@ -782,8 +782,8 @@ void resume_print(
   if (print_job_timer.isPaused()) print_job_timer.start();
 
   #if HAS_MEDIA
-    if (did_pause_print) {
-      --did_pause_print;
+    if (paused_for_filament_change) {
+      --paused_for_filament_change;
       card.startOrResumeFilePrinting();
       // Write PLR now to update the z axis value
       TERN_(POWER_LOSS_RECOVERY, if (recovery.enabled) recovery.save(true));

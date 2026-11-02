@@ -4658,14 +4658,44 @@
 
 #if ANY(WIFISUPPORT, ESP3D_WIFISUPPORT)
   /**
-   * Webserver and OTA updates.
-   * With WIFISUPPORT these are Marlin's own, implemented in HAL/ESP32/wifi/ and built
-   * only for an ESP32 build of Marlin. With an add-on WiFi module the module runs its
-   * own firmware, so neither option has any effect there.
-   * With ESP3D_WIFISUPPORT these enable the ESP3D web interface and ESP3D OTA updates.
+   * MKS WiFi module: an ESP8266/ESP32 co-processor on its own UART, fitted to
+   * MKS Robin / Neptune / Monster boards. Unlike a plain add-on module, which
+   * just bridges a serial port, Marlin talks to this one directly to transfer
+   * files and to set the network from WIFI_SSID / WIFI_PWD below.
+   *
+   * Requires a board that defines WIFI_RESET_PIN and WIFI_IO1_PIN, and
+   * SDSUPPORT for file transfers.
    */
-  //#define WEBSUPPORT          // Start a webserver (which may include auto-discovery) using SPIFFS
-  //#define OTASUPPORT          // Support over-the-air firmware updates
+  //#define MKS_WIFI_MODULE
+
+  #if ENABLED(MKS_WIFI_MODULE)
+    /**
+     * WIFI_SSID / WIFI_PWD are only the defaults here. The network is stored
+     * with the rest of Marlin's settings, so M587 or the TFT_LVGL_UI screens
+     * can change it at runtime and M500 makes the change stick. M502 restores
+     * the values below.
+     *
+     *   M587                       ; Report the current network
+     *   M587 S"MyNetwork" P"pass"  ; Join a network (needs GCODE_QUOTED_STRINGS)
+     *   M587 A1                    ; Host an access point instead
+     */
+    //#define MKS_WIFI_AP_MODE      // Host WIFI_SSID as an access point instead of joining it
+
+  #else
+    /**
+     * Webserver and OTA updates.
+     * With WIFISUPPORT these are Marlin's own, implemented in HAL/ESP32/wifi/ and built
+     * only for an ESP32 build of Marlin. With an add-on WiFi module the module runs its
+     * own firmware, so neither option has any effect there.
+     * With ESP3D_WIFISUPPORT these enable the ESP3D web interface and ESP3D OTA updates.
+     */
+    //#define WEBSUPPORT          // Start a webserver (which may include auto-discovery) using SPIFFS
+    //#define OTASUPPORT          // Support over-the-air firmware updates
+  #endif
+
+  #if ENABLED(ESP3D_WIFISUPPORT)
+    //#define WIFI_CUSTOM_COMMAND // Accept ESP3D '[ESP...]' commands from the host
+  #endif
 
   /**
    * To set a default WiFi SSID / Password, create a file called Configuration_Secure.h with
@@ -4679,10 +4709,6 @@
    * the defaults for station mode, which can be changed at runtime with '[ESP100]' / '[ESP101]'.
    */
   //#include "Configuration_Secure.h" // External file with WiFi SSID / Password
-#endif
-
-#if ENABLED(ESP3D_WIFISUPPORT)
-  //#define WIFI_CUSTOM_COMMAND // Accept ESP3D '[ESP...]' commands from the host
 #endif
 
 // @section multi-material
