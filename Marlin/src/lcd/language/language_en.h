@@ -679,6 +679,7 @@ namespace LanguageNarrow_en {
   LSTR MSG_INFO_MACHINENAME               = _UxGT("Machine Name");
   LSTR MSG_INFO_SIZE                      = _UxGT("Size");
   LSTR MSG_INFO_FWVERSION                 = _UxGT("Firmware Version");
+  LSTR MSG_INFO_MMUFWVERSION              = _UxGT("MMU Firmware Version");
   LSTR MSG_INFO_BUILD                     = _UxGT("Build Info");
   LSTR MSG_POWER_MONITOR                  = _UxGT("Power monitor");
   LSTR MSG_CURRENT                        = _UxGT("Current");
