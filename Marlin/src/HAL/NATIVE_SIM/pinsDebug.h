@@ -45,7 +45,7 @@ struct PinsDebug : PinsDebugBase<PinsDebug> {
   static bool is_output(const pin_t pin) {
     const int8_t mode = pin_mode(pin);
     if (mode == -1 || mode == adc_pin_mode(pin)) return false; // Invalid pin or active analog pin
-    return Gpio::getMode(pin) != 0;
+    return Gpio::getDir(pin) == OUTPUT;
   }
 
   // The pin and index are the same on this platform
