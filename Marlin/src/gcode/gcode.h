@@ -270,6 +270,7 @@
  * M554 - Set / Report IP gateway. (Requires enabled Ethernet port)
  * M569 - Enable stealthChop on an axis. (Requires *_DRIVER_TYPE TMC(2130|2160|2208|2209|2240|5130|5160))
  * M575 - Change the serial baud rate. (Requires BAUD_RATE_GCODE)
+ * M587 - Set / Report MKS WiFi network. 'U' to update the module firmware. (Requires MKS_WIFI_MODULE)
  * M592 - Set / Report Nonlinear Extrusion parameters. (Requires NONLINEAR_EXTRUSION)
  * M593 - Set / Report input shaping parameters. (Requires INPUT_SHAPING_[XY])
  * M600 - Pause for filament change: 'M600 X<pos> Y<pos> Z<raise> E<first_retract> L<later_retract>'. (Requires ADVANCED_PAUSE_FEATURE)
@@ -330,11 +331,11 @@
  * M7219 - Control Max7219 Matrix LEDs. (Requires MAX7219_GCODE)
  *
  *** SCARA ***
- * M360 - SCARA calibration: Move to cal-position ThetaA (0 deg calibration)
- * M361 - SCARA calibration: Move to cal-position ThetaB (90 deg calibration - steps per degree)
- * M362 - SCARA calibration: Move to cal-position PsiA (0 deg calibration)
- * M363 - SCARA calibration: Move to cal-position PsiB (90 deg calibration - steps per degree)
- * M364 - SCARA calibration: Move to cal-position PSIC (90 deg to Theta calibration position)
+ * M360 - SCARA calibration: Move to cal-position ThetaA (0 deg calibration) (Requires SCARA_CALIBRATION)
+ * M361 - SCARA calibration: Move to cal-position ThetaB (90 deg calibration - steps per degree) (Requires SCARA_CALIBRATION)
+ * M362 - SCARA calibration: Move to cal-position PsiA (0 deg calibration) (Requires SCARA_CALIBRATION)
+ * M363 - SCARA calibration: Move to cal-position PsiB (90 deg calibration - steps per degree) (Requires SCARA_CALIBRATION)
+ * M364 - SCARA calibration: Move to cal-position PSIC (90 deg to Theta calibration position) (Requires SCARA_CALIBRATION)
  *
  *** Custom codes (can be changed to suit future G-code standards) ***
  * G425 - Calibrate using a conductive object. (Requires CALIBRATION_GCODE)
@@ -1050,7 +1051,7 @@ private:
     static void M360();
   #endif
 
-  #if ENABLED(SCARA)
+  #if ENABLED(SCARA_CALIBRATION)
     static bool M360();
     static bool M361();
     static bool M362();
@@ -1180,6 +1181,11 @@ private:
 
   #if ENABLED(BAUD_RATE_GCODE)
     static void M575();
+  #endif
+
+  #if ENABLED(MKS_WIFI_MODULE)
+    static void M587();
+    static void M587_report(const bool forReplay=true);
   #endif
 
   #if ENABLED(NONLINEAR_EXTRUSION)

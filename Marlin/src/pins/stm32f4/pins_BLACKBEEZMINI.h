@@ -43,19 +43,16 @@
 //
 #if NO_EEPROM_SELECTED
   #define FLASH_EEPROM_EMULATION
+  //#define IIC_BL24CXX_EEPROM                    // EEPROM on I2C-0
+  //#define SDCARD_EEPROM_EMULATION
+#endif
+
+#if ENABLED(FLASH_EEPROM_EMULATION)
   #define FLASH_EEPROM_LEVELING
   #define FLASH_SECTOR          (FLASH_SECTOR_TOTAL - 1)
   #define FLASH_UNIT_SIZE               0x4000U  // 16K
   #define MARLIN_EEPROM_SIZE    FLASH_UNIT_SIZE
-  #undef NO_EEPROM_SELECTED
 #endif
-
-/*
-#if NO_EEPROM_SELECTED
-  #define IIC_BL24CXX_EEPROM                      // EEPROM on I2C-0
-  #define SDCARD_EEPROM_EMULATION
-#endif
-*/
 
 //
 // Limit Switches

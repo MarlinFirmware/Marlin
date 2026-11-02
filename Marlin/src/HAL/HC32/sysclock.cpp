@@ -114,14 +114,14 @@ constexpr en_clk_sysclk_div_factor_t get_division_factor() {
  * @brief Validate the runtime clocks match the expected values.
  */
 void validate_system_clocks() {
-  #define CLOCK_ASSERT(expected, actual)                  \
-    if (expected != actual) {                             \
-      SERIAL_ECHOPGM(                                     \
-        "Clock Mismatch for " #expected ": "              \
-        "expected ", expected,                            \
-        ", got ", actual                                  \
-        );                                                \
-      CORE_ASSERT_FAIL("Clock Mismatch: " #expected);     \
+  #define CLOCK_ASSERT(expected, actual)              \
+    if (expected != actual) {                         \
+      SERIAL_ECHO(                                    \
+        "Clock Mismatch for " #expected ": "          \
+        "expected ", expected,                        \
+        ", got ", actual                              \
+        );                                            \
+      CORE_ASSERT_FAIL("Clock Mismatch: " #expected); \
     }
 
   update_system_clock_frequencies();

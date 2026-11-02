@@ -36,10 +36,6 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-#if HAS_SD_HOST_DRIVE
-  #include "msc_sd.h"
-#endif
-
 // ADC index 4 is the MCU temperature
 #define HAL_ADC_MCU_TEMP_DUMMY_PIN 127
 #define TEMP_SOC_PIN HAL_ADC_MCU_TEMP_DUMMY_PIN   // ADC4 is internal temp sensor
@@ -167,7 +163,7 @@ public:
   static void delay_ms(const int ms) { delay(ms); }
 
   // Tasks, called from marlin.idle()
-  static void idletask() { TERN_(HAS_SD_HOST_DRIVE, tuh_task()); }
+  static void idletask();
 
   // Reset
   static uint8_t get_reset_source();

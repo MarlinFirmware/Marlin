@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
-
-# This file is for preprocessing G-code and the new G29 Auto bed leveling from Marlin
-# It will analyze the first 2 layers and return the maximum size for this part
-# Then it will be replaced with g29_keyword = ';MarlinG29Script' with the new G29 LRFB.
-# The new file will be created in the same folder.
+"""
+This file is for preprocessing G-code and the new G29 Auto bed leveling from Marlin
+It will analyze the first 2 layers and return the maximum size for this part
+Then it will be replaced with g29_keyword = ';MarlinG29Script' with the new G29 LRFB.
+The new file will be created in the same folder.
+"""
 
 from __future__ import print_function
 

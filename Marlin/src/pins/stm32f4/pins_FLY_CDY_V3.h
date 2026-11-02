@@ -51,9 +51,7 @@
   #define FLASH_EEPROM_LEVELING
 #elif ENABLED(I2C_EEPROM)
   #define MARLIN_EEPROM_SIZE              0x2000  // 8K
-#endif
-
-#ifndef MARLIN_EEPROM_SIZE
+#elif ENABLED(EEPROM_SETTINGS)
   #define MARLIN_EEPROM_SIZE              0x1000  // 4K
 #endif
 

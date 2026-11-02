@@ -45,6 +45,7 @@ enum class DGUS_ScreenID : uint8_t {
   VOLUME              = 20,
   BRIGHTNESS          = 21,
   INFOS               = 22,
+  FILAMENT_SENSOR     = 23,
   DEBUG               = 240,
   POWERLOSS           = 248,
   WAIT                = 249,
