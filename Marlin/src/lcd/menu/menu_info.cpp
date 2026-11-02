@@ -40,9 +40,7 @@
 
 #if HAS_PRUSA_MMU2
   #include "../../feature/mmu/mmu2.h"
-#endif
-
-#if HAS_PRUSA_MMU3
+#elif HAS_PRUSA_MMU3
   #include "../../feature/mmu3/mmu3.h"
 #endif
 
@@ -265,7 +263,7 @@ void menu_info_board() {
         char mmu_version[16];
         sprintf_P(mmu_version, PSTR("%u.%u.%u"), mmu_fw_version.major, mmu_fw_version.minor, mmu_fw_version.build);
         STATIC_ITEM(MSG_INFO_MMUFWVERSION, SS_CENTER);            // MMU Firmware Version
-        STATIC_ITEM_F(nullptr, SS_CENTER, mmu_version);            // 3.0.0
+        STATIC_ITEM_F(nullptr, SS_CENTER, mmu_version);           // 3.0.0
       }
     #elif HAS_PRUSA_MMU2
       const uint16_t mmu_fw_version = mmu2.getMMUFWVersion();
@@ -273,7 +271,7 @@ void menu_info_board() {
         char mmu_version[16];
         sprintf_P(mmu_version, PSTR("%u"), mmu_fw_version);
         STATIC_ITEM(MSG_INFO_MMUFWVERSION, SS_CENTER);            // MMU Firmware Version
-        STATIC_ITEM_F(nullptr, SS_CENTER, mmu_version);            // 126
+        STATIC_ITEM_F(nullptr, SS_CENTER, mmu_version);           // 126
       }
     #endif
     #if ENABLED(CONFIGURABLE_MACHINE_NAME)
