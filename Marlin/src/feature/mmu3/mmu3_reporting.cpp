@@ -552,7 +552,7 @@ namespace MMU3 {
       buf[i] = (buf[i] < 0) ? '1' : '0';
     }
     buf[LCD_WIDTH] = 0;
-    MMU2_ECHO_MSGLN(buf);
+    TERN_(MMU_DEBUG, MMU2_ECHO_MSGLN(buf));
   }
 
   void IncrementLoadFails() {
