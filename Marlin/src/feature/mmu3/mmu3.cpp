@@ -331,7 +331,7 @@ namespace MMU3 {
       // check, that Retry is actually allowed on that operation
       if (ButtonAvailable(ec) != Buttons::NoButton) {
         logic.SetInAutoRetry(true);
-        SERIAL_ECHOLN_P("RetryButtonPressed");
+        TERN_(MMU_DEBUG, SERIAL_ECHOLN_P("RetryButtonPressed"));
         // We don't decrement until the button is acknowledged by the MMU.
         // --retryAttempts; // "used" one retry attempt
         return true;
@@ -522,8 +522,10 @@ namespace MMU3 {
 
   void MMU3::setCurrentTool(uint8_t ex) {
     extruder = ex;
-    MMU2_ECHO_MSGRPGM(PSTR("MMU2tool="));
-    SERIAL_ECHOLN((int)ex);
+    #if ENABLED(MMU_DEBUG)
+      MMU2_ECHO_MSGRPGM(PSTR("MMU2tool="));
+      SERIAL_ECHOLN((int)ex);
+    #endif
   }
 
   bool MMU3::set_filament_type(uint8_t /*slot*/, uint8_t /*type*/) {
@@ -797,8 +799,10 @@ namespace MMU3 {
       case Buttons::Left:
       case Buttons::Middle:
       case Buttons::Right:
-        SERIAL_ECHOPGM("checkUserInput-btnLMR ");
-        SERIAL_ECHOLN((int)buttons_to_uint8t(btn));
+        #if ENABLED(MMU_DEBUG)
+          SERIAL_ECHOPGM("checkUserInput-btnLMR ");
+          SERIAL_ECHOLN((int)buttons_to_uint8t(btn));
+        #endif
         resumeHotendTemp(); // Recover the hotend temp before we attempt to do anything else...
 
         if (mmuLastErrorSource() == MMU3::ErrorSourceMMU)
