@@ -363,13 +363,13 @@ bool Marlin::printJobOngoing() { return print_job_timer.isRunning() || card.isSt
 /**
  * Printing is active when a job is underway but not paused
  */
-bool Marlin::printingIsActive() { return !did_pause_print && printJobOngoing(); }
+bool Marlin::printingIsActive() { return !paused_for_filament_change && printJobOngoing(); }
 
 /**
  * Printing is paused according to SD or host indicators
  */
 bool Marlin::printingIsPaused() {
-  return did_pause_print || print_job_timer.isPaused() || card.isPaused();
+  return paused_for_filament_change || print_job_timer.isPaused() || card.isPaused();
 }
 
 void Marlin::startOrResumeJob() {
@@ -442,7 +442,7 @@ void Marlin::manage_inactivity(const bool no_stepper_sleep/*=false*/) {
 
   // Prevent steppers timing-out
   const bool do_reset_timeout = no_stepper_sleep
-                               || TERN0(PAUSE_PARK_NO_STEPPER_TIMEOUT, did_pause_print);
+                               || TERN0(PAUSE_PARK_NO_STEPPER_TIMEOUT, paused_for_filament_change);
 
   // Reset both the M18/M84 activity timeout and the M85 max 'kill' timeout.
   // Resonance blocks bypass the planner queue, so keep the stepper timeout

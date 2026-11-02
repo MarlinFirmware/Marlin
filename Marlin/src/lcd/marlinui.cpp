@@ -1826,7 +1826,7 @@ uint8_t expand_u8str_P(char * const outstr, PGM_P const ptpl, const int8_t ind, 
       // Aborting a paused SD print parked in M125: don't let resume_print() move back and restart the closed file
       const bool parked_sd_print = TERN0(ADVANCED_PAUSE_FEATURE, marlin.printingIsPaused());
       #if ENABLED(ADVANCED_PAUSE_FEATURE)
-        if (parked_sd_print) did_pause_print = 0;
+        if (parked_sd_print) paused_for_filament_change = 0;
       #endif
       marlin.end_waiting();
       if (card.isStillPrinting() || parked_sd_print)
