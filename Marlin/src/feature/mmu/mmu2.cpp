@@ -82,6 +82,7 @@ MMU2 mmu2;
 bool MMU2::_enabled, MMU2::ready;
 #if HAS_PRUSA_MMU2S
   bool MMU2::mmu2s_triggered;
+  static uint8_t mmu2s_c0_tries;  // C0 re-sends since the last C0 command
 #endif
 uint8_t MMU2::cmd, MMU2::cmd_arg, MMU2::last_cmd, MMU2::extruder;
 int8_t MMU2::state = 0;
@@ -242,6 +243,7 @@ void MMU2::mmu_loop() {
         else if (cmd == MMU_CMD_C0) {
           // continue loading
           DEBUG_ECHOLNPGM("MMU <= 'C0'");
+          TERN_(HAS_PRUSA_MMU2S, mmu2s_c0_tries = 0);
           MMU2_SEND("C0");
           state = 3; // wait for response
         }
@@ -315,9 +317,11 @@ void MMU2::mmu_loop() {
 
       if (rx_ok()) {
         #if HAS_PRUSA_MMU2S
-          // Respond to C0 MMU command in MMU2S model
-          const bool keep_trying = !mmu2s_triggered && last_cmd == MMU_CMD_C0;
+          // Respond to C0 MMU command in MMU2S model.
+          // Keep trying until the filament reaches the gears, but give up after MMU2_C0_RETRY tries.
+          const bool keep_trying = !mmu2s_triggered && last_cmd == MMU_CMD_C0 && mmu2s_c0_tries < (MMU2_C0_RETRY);
           if (keep_trying) {
+            ++mmu2s_c0_tries; // Advance this counter or we'll hang in limbo
             // MMU ok received but filament sensor not triggered, retrying...
             DEBUG_ECHOLNPGM("MMU => 'ok' (no filament in gears)");
             DEBUG_ECHOLNPGM("MMU <= 'C0' (keep trying)");
@@ -884,8 +888,9 @@ void MMU2::filament_runout() {
         DEBUG_ECHOLNPGM("MMU <= 'A'");
         MMU2_SEND("A");
       }
-      // Slowly spin the extruder during C0
-      else {
+      // Slowly spin the extruder during C0. Skip this if the hotend is too cold to extrude,
+      // as the planner drops those moves and the queue would never fill.
+      else if (!thermalManager.tooColdToExtrude(motion.extruder)) {
         while (planner.movesplanned() < 3)
           unscaled_mmu2_e_move(0.25, MMM_TO_MMS(120), false);
       }

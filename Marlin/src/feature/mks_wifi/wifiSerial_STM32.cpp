@@ -19,20 +19,19 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-#include "../../../HAL/platforms.h"
+#include "../../HAL/platforms.h"
 
 #ifdef HAL_STM32
 
-#include "../../../inc/MarlinConfigPre.h"
+#include "../../inc/MarlinConfigPre.h"
 
-#if ALL(HAS_TFT_LVGL_UI, MKS_WIFI_MODULE)
+#if ENABLED(MKS_WIFI_MODULE)
 
-#include "tft_lvgl_configuration.h"
+#include "../../inc/MarlinConfig.h"
 
-#include "draw_ui.h"
 #include "wifiSerial.h"
 
-WifiSerial WifiSerial1(USART1);
+WifiSerial WifiSerial1(WIFI_USART);
 
 void WifiSerial::setRx(uint32_t _rx) { _serial.pin_rx = digitalPinToPinName(_rx); }
 void WifiSerial::setTx(uint32_t _tx) { _serial.pin_tx = digitalPinToPinName(_tx); }
@@ -245,19 +244,9 @@ void WifiSerial::_rx_complete_irq(serial_t *obj) {
 
 // Actual interrupt handlers //////////////////////////////////////////////////////////////
 
-#if !WIFI_UART_TX_CHUNKS
+int WifiSerial::_tx_complete_irq(serial_t *obj) {
+  #if WIFI_UART_TX_CHUNKS // Send in chunks
 
-  int WifiSerial::_tx_complete_irq(serial_t *obj) {
-    // If interrupts are enabled, there must be more data in the output
-    // buffer. Send the next byte
-    obj->tx_tail = (obj->tx_tail + 1) % WIFI_TX_BUF_SIZE;
-
-    return (obj->tx_head == obj->tx_tail) ? -1 : 0;
-  }
-
-#else // Send in chunks
-
-  int WifiSerial::_tx_complete_irq(serial_t *obj) {
     // The transfer is done. Move the tail past it.
     obj->tx_tail = (obj->tx_tail + obj->tx_size) % WIFI_TX_BUF_SIZE;
 
@@ -270,9 +259,17 @@ void WifiSerial::_rx_complete_irq(serial_t *obj) {
       return -1;
     }
     return 0;
-  }
 
-#endif
+  #else
+
+    // If interrupts are enabled, there must be more data in the output
+    // buffer. Send the next byte
+    obj->tx_tail = (obj->tx_tail + 1) % WIFI_TX_BUF_SIZE;
+
+    return (obj->tx_head == obj->tx_tail) ? -1 : 0;
+
+  #endif
+}
 
 void WifiSerial::begin(unsigned long baud) { begin(baud, SERIAL_8N1); }
 
@@ -318,7 +315,7 @@ void WifiSerial::begin(unsigned long baud, byte config) {
   if (baud == WIFI_BAUDRATE)
     uart_attach_rx_callback(&_serial, _rx_complete_irq);
   else
-    USART1->CR1 |= USART_CR1_RE;  // Preserve word length, etc. Use 'or' to preserve USART_CR1_M_8N1
+    WIFI_USART->CR1 |= USART_CR1_RE;  // Preserve word length, etc. Use 'or' to preserve USART_CR1_M_8N1
 }
 
 void WifiSerial::end() {
@@ -382,5 +379,5 @@ int WifiSerial::write(uint8_t c) {
   return 1;
 }
 
-#endif // HAS_TFT_LVGL_UI && MKS_WIFI_MODULE
+#endif // MKS_WIFI_MODULE
 #endif // HAL_STM32
