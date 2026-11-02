@@ -54,7 +54,7 @@ namespace MMU3 {
 
   void extruder_move(const float delta, const float feedRate_mm_s, const bool sync/*=true*/) {
     motion.position.e += delta / planner.e_factor[motion.extruder];
-    #if ENABLED(AUTO_BED_LEVELING_UBL)
+    #if HAS_LEVELING && !PLANNER_LEVELING
       // UBL correction is normally applied by the motion path, not buffer_line.
       xyze_pos_t leveled_position = motion.position;
       planner.apply_leveling(leveled_position);
