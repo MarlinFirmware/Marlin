@@ -475,6 +475,13 @@ namespace MMU3 {
           DecrementRetryAttempts();
         SendAndUpdateFilamentSensor();
         break;
+      case ScopeState::ReadRegisterSent:
+      case ScopeState::WriteRegisterSent:
+        // A register was accessed while a command is in progress or in error (e.g. by the
+        // Tune screen). Carry on with the command rather than treating it as a protocol error.
+        registerAccessDone = true;
+        SendAndUpdateFilamentSensor();
+        break;
       default:
         return ProtocolError;
     }
@@ -561,11 +568,13 @@ namespace MMU3 {
         if (rsp.paramCode == ResponseMsgParamCodes::Accepted) {
           // @@TODO just dump the value onto the serial
         }
+        registerAccessDone = true;
         return Finished;
       case ScopeState::WriteRegisterSent:
         if (rsp.paramCode == ResponseMsgParamCodes::Accepted) {
           // @@TODO do something? Retry if not accepted?
         }
+        registerAccessDone = true;
         return Finished;
       default:
         return ProtocolError;

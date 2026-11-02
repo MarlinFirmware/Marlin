@@ -620,86 +620,70 @@ namespace MMU3 {
 
   static_assert(COUNT(TuneItems) == 2);
 
-  typedef struct {
-    // Variables used when editing values.
-    const char* editLabel;
-    uint8_t editValueBits; // 8 or 16
-    void* editValuePtr;
-    int16_t currentValue;
-    int16_t minEditValue;
-    int16_t maxEditValue;
-    int16_t minJumpValue;
-  } menu_data_edit_t;
+  // Stallguard sensitivity being edited by the Tune screen
+  static TuneItem tune_item;
+  static uint8_t tune_value;
 
-  struct _menu_tune_data_t {
-    menu_data_edit_t reserved; // 13 bytes reserved for number editing functions
-    int8_t status;           // 1 byte
-    uint8_t currentValue;    // 1 byte
-    TuneItem item;           // 3 bytes
-  };
-
-  //static_assert(sizeof(_menu_tune_data_t) == 18);
-  //static_assert(sizeof(menu_data)>= sizeof(_menu_tune_data_t), "_menu_tune_data_t doesn't fit into menu_data");
-
-  void tuneIdlerStallguardThresholdMenu() {
-    // const uint8_t menu_data[32] = "Set Stallguard Threshold";
-    // //static constexpr _menu_tune_data_t * const _md = (_menu_tune_data_t*)&(menu_data[0]);
-    // static constexpr _menu_tune_data_t * const _md = (_menu_tune_data_t*)&(menu_data[0]);
-
-    // // Do not timeout the screen, otherwise there will be FW crash (menu recursion)
-    // //lcd_timeoutToStatus.stop();
-    //if (_md->status == 0) {
-    //  _md->status = 1; // Menu entered for the first time
-
-    //  // Fetch the TuneItem from PROGMEM
-    //  const uint8_t offset = (mmu3.mmuCurrentErrorCode() == ErrorCode::HOMING_IDLER_FAILED) ? 1 : 0;
-    //  memcpy_P(&(_md->item), &TuneItems[offset], sizeof(TuneItem));
-
-    //  // Fetch the value which is currently in MMU EEPROM
-    //  mmu3.readRegister(_md->item.address);
-    //  _md->currentValue = mmu3.getLastReadRegisterValue();
-    //}
-
-    // //MENU_BEGIN();
-    // //ON_MENU_LEAVE(
-    // //    mmu3.writeRegister(_md->item.address, (uint16_t)_md->currentValue);
-    // //    putErrorScreenToSleep = false;
-    // //    lcd_return_to_status();
-    // //    return;
-    // //);
-    // //MENU_ITEM_BACK(MSG_DONE);
-    // //MENU_ITEM_EDIT_int3_P(
-    // //    _i("Sensitivity"), ////MSG_MMU_SENSITIVITY c=18
-    // //    &_md->currentValue,
-    // //    _md->item.minValue,
-    // //    _md->item.maxValue
-    // //);
-    // //MENU_END();
-
-    //START_MENU();
-    //BACK_ITEM(MSG_BACK);
-    //EDIT_ITEM(
-    //    int8,
-    //    MSG_MMU_SENSITIVITY,
-    //    &_md->currentValue,
-    //    _md->item.minValue,
-    //    _md->item.maxValue,
-    //    []{
-    //        write_register_and_return_to_status_menu(_md->item.address, _md->currentValue);
-    //    }
-    //    );
-    //END_MENU();
+  // Close the Tune screen and let the error screen come back
+  static bool tune_finish_pending;
+  static void tune_done() {
+    putErrorScreenToSleep = false;
+    tune_finish_pending = true; // manage_response() will apply the edit and raise the error screen again
+    TERN_(HAS_WIRED_LCD, ui.return_to_status());
   }
+
+  // The register write is deferred: the menu callback runs inside ui.update(), and the write
+  // needs idle() to run the MMU protocol, which would re-enter this very menu.
+  static bool tune_write_pending;
+  static uint8_t tune_write_address, tune_write_value;
 
   void write_register_and_return_to_status_menu(uint8_t address, uint8_t value) {
-    mmu3.writeRegister(address, (uint16_t)value);
-    putErrorScreenToSleep = false;
-    ui.return_to_status();
+    tune_write_address = address;
+    tune_write_value = value;
+    tune_write_pending = true;
+    tune_done();
   }
 
+  void TuneApplyPendingWrite() {
+    if (!tune_finish_pending) return;
+    tune_finish_pending = false;
+    if (tune_write_pending) {
+      tune_write_pending = false;
+      mmu3.writeRegister(tune_write_address, (uint16_t)tune_write_value);
+    }
+    // The MMU is still in the same error, which it won't report as new, so bring the error screen back.
+    // The pressed Tune button was consumed elsewhere, so the screen still thinks it is being monitored.
+    ReportErrorHookState = ReportErrorHookStates::RENDER_ERROR_SCREEN;
+    ReportErrorHook((CommandInProgress)mmu3.getCommandInProgress(), mmu3.getLastErrorCode(), mmu3.mmuLastErrorSource());
+  }
+
+  #if HAS_WIRED_LCD
+    // Edit the Stallguard threshold of the axis that failed to home. The new value is
+    // written to the MMU when the edit is confirmed. Back leaves it alone. Either way
+    // the error screen returns so the user can press Retry.
+    void tuneIdlerStallguardThresholdMenu() {
+      START_MENU();
+      ACTION_ITEM_F(GET_TEXT_F(MSG_BACK), tune_done);
+      EDIT_ITEM(uint8, MSG_MMU_SENSITIVITY, &tune_value, tune_item.minValue, tune_item.maxValue, []{
+        write_register_and_return_to_status_menu(tune_item.address, tune_value);
+      });
+      END_MENU();
+    }
+  #endif
+
   void tuneIdlerStallguardThreshold() {
-    putErrorScreenToSleep = true;
-    //menu_submenu(tuneIdlerStallguardThresholdMenu);
+    // The Selector and the Idler each have their own threshold
+    const uint8_t offset = (mmu3.mmuCurrentErrorCode() == ErrorCode::HOMING_IDLER_FAILED) ? 1 : 0;
+    memcpy_P(&tune_item, &TuneItems[offset], sizeof(TuneItem));
+
+    // Fetch the value currently stored in the MMU
+    if (!mmu3.readRegister(tune_item.address)) return;
+    tune_value = _MIN(_MAX((uint8_t)mmu3.getLastReadRegisterValue(), tune_item.minValue), tune_item.maxValue);
+
+    #if HAS_WIRED_LCD
+      putErrorScreenToSleep = true;
+      ui.goto_screen(tuneIdlerStallguardThresholdMenu);
+    #endif
   }
 
 } // MMU3

@@ -242,8 +242,8 @@ namespace MMU3 {
       case ERR_MECHANICAL_IDLER_CANNOT_HOME:
         switch (buttonSelectedOperation) {
           // Maybe allow move selector right and left in the future
-          //case ButtonOperations::Tune:      // Tune Stallguard threshold
-          //  return Buttons::TuneMMU;        // Goes unused, possibility for future use
+          case ButtonOperations::Tune:        // Tune Stallguard threshold
+            return Buttons::TuneMMU;
           case ButtonOperations::Retry:       // "Repeat action"
             return Buttons::Middle;
           default:
