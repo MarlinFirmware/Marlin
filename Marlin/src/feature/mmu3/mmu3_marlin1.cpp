@@ -53,23 +53,18 @@ namespace MMU3 {
   }
 
   void extruder_move(const float delta, const float feedRate_mm_s, const bool sync/*=true*/) {
-    motion.position.e += delta / planner.e_factor[motion.extruder];
-    #if HAS_LEVELING && !PLANNER_LEVELING
-      // UBL correction is normally applied by the motion path, not buffer_line.
-      xyze_pos_t leveled_position = motion.position;
-      planner.apply_leveling(leveled_position);
-      planner.buffer_line(leveled_position, feedRate_mm_s);
-    #else
-      planner_line_to_current_position(feedRate_mm_s);
-    #endif
-    if (sync) planner.synchronize();
-  }
+    const float de = delta / planner.e_factor[motion.extruder];
+    motion.position.e += de;
 
-  float move_raise_z(const float delta) {
-    //return raise_z(delta);
-    xyze_pos_t current_position_before = motion.position;
-    motion.do_z_clearance_by(delta);
-    return (motion.position - current_position_before).z;
+    // Queue an E-only move from the planner's own end position.
+    // Building the target from motion.position can add a small XYZ move because the
+    // two differ by the leveling offset (UBL, or any leveling that buffer_line does not apply).
+    abce_pos_t target;
+    LOOP_NUM_AXES(i) target[i] = planner.position[i] * planner.mm_per_step[i];
+    target.e = planner.position.e * planner.mm_per_step[E_AXIS_N(motion.extruder)] + de;
+    planner.buffer_segment(target OPTARG(HAS_DIST_MM_ARG, xyze_float_t({ 0, 0, 0, de })), feedRate_mm_s, motion.extruder);
+
+    if (sync) planner.synchronize();
   }
 
   void planner_abort_queued_moves() {
