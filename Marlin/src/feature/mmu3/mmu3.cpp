@@ -21,7 +21,7 @@
  */
 
 /**
- * mmu2.cpp
+ * mmu3.cpp
  */
 
 #include "../../inc/MarlinConfigPre.h"
@@ -44,6 +44,7 @@
 
 #include "../../lcd/marlinui.h"
 #include "../../module/planner.h"
+#include "../../module/temperature.h"
 #include "../../module/motion.h"
 #include "../../gcode/parser.h"
 #include "../../gcode/queue.h"
@@ -95,6 +96,9 @@ namespace MMU3 {
     , tool_change_extruder(MMU2_NO_TOOL)
     , resume_position()
     , resume_hotend_temp(0)
+    #if ENABLED(HOTEND_IDLE_TIMEOUT)
+      , error_temps_saved(false)
+    #endif
     , logicStepLastStatus(StepStatus::Finished)
     , _state(xState::Stopped)
     , mmu_print_saved(SavedState::None)
@@ -330,7 +334,7 @@ namespace MMU3 {
       // check, that Retry is actually allowed on that operation
       if (ButtonAvailable(ec) != Buttons::NoButton) {
         logic.SetInAutoRetry(true);
-        SERIAL_ECHOLN_P("RetryButtonPressed");
+        TERN_(MMU_DEBUG, SERIAL_ECHOLN_P("RetryButtonPressed"));
         // We don't decrement until the button is acknowledged by the MMU.
         // --retryAttempts; // "used" one retry attempt
         return true;
@@ -521,8 +525,10 @@ namespace MMU3 {
 
   void MMU3::setCurrentTool(uint8_t ex) {
     extruder = ex;
-    MMU2_ECHO_MSGRPGM(PSTR("MMU2tool="));
-    SERIAL_ECHOLN((int)ex);
+    #if ENABLED(MMU_DEBUG)
+      MMU2_ECHO_MSGRPGM(PSTR("MMU2tool="));
+      SERIAL_ECHOLN((int)ex);
+    #endif
   }
 
   bool MMU3::set_filament_type(uint8_t /*slot*/, uint8_t /*type*/) {
@@ -695,6 +701,16 @@ namespace MMU3 {
   }
 
   void MMU3::saveHotendTemp(bool turn_off_nozzle) {
+    #if ENABLED(HOTEND_IDLE_TIMEOUT)
+      // Remember the targets from before the error. Hotend Idle Timeout may lower them
+      // while the error screen waits, and they must be restored when the user retries.
+      if (!error_temps_saved) {
+        error_temps_saved = true;
+        error_hotend_target = thermal_degTargetHotend();
+        TERN_(HAS_HEATED_BED, error_bed_target = thermalManager.degTargetBed());
+      }
+    #endif
+
     if (mmu_print_saved & SavedState::Cooldown) return;
 
     if (turn_off_nozzle && !(mmu_print_saved & SavedState::CooldownPending)) {
@@ -728,6 +744,28 @@ namespace MMU3 {
     }
   }
 
+  // True while reheatHotend is waiting. The wait keeps the MMU loop running, which
+  // would otherwise act on a second click on the error screen before the hotend is hot.
+  static bool reheating = false;
+
+  void MMU3::reheatHotend(const int16_t temp) {
+    LogEchoEvent(F("Resuming Temp"));
+    // @@TODO MMU2_ECHO_MSGRPGM(PSTR("Restoring hotend temperature "));
+    SERIAL_ECHOLN(temp);
+    reheating = true;
+    thermal_setTargetHotend(temp);
+    fullScreenMsgRestoringTemperature();
+    waitForHotendTargetTemp(100, [] {
+      marlin_manage_inactivity(true);
+      mmu3.mmu_loop_inner(false);
+    });
+    reheating = false;
+    ScreenUpdateEnable(); // temporary hack to stop this locking the printer...
+    LogEchoEvent(F("Hotend temperature reached"));
+    TERN_(HAS_WIRED_LCD, ui.reset_status());
+    ScreenClear();
+  }
+
   void MMU3::resumeHotendTemp() {
     if ((mmu_print_saved & SavedState::CooldownPending)) {
       // Clear the "pending" flag if we haven't cooled yet.
@@ -735,23 +773,24 @@ namespace MMU3 {
       LogEchoEvent(F("Cooldown flag cleared"));
     }
     if ((mmu_print_saved & SavedState::Cooldown) && resume_hotend_temp) {
-      LogEchoEvent(F("Resuming Temp"));
-      // @@TODO MMU2_ECHO_MSGRPGM(PSTR("Restoring hotend temperature "));
-      SERIAL_ECHOLN(resume_hotend_temp);
       mmu_print_saved &= ~(SavedState::Cooldown);
-      thermal_setTargetHotend(resume_hotend_temp);
-      fullScreenMsgRestoringTemperature();
-      // @todo better report the event and let the GUI do its work somewhere else
-      ReportErrorHookSensorLineRender();
-      waitForHotendTargetTemp(100, [] {
-        marlin_manage_inactivity(true);
-        mmu3.mmu_loop_inner(false);
-        ReportErrorHookDynamicRender();
-      });
-      ScreenUpdateEnable(); // temporary hack to stop this locking the printer...
-      LogEchoEvent(F("Hotend temperature reached"));
-      ScreenClear();
+      reheatHotend(resume_hotend_temp);
     }
+
+    #if ENABLED(HOTEND_IDLE_TIMEOUT)
+      if (error_temps_saved) {
+        error_temps_saved = false;
+        // Hotend Idle Timeout lowered the targets while waiting for the user? Raise them again.
+        #if HAS_HEATED_BED
+          if (thermalManager.degTargetBed() < error_bed_target) {
+            LogEchoEvent(F("Resuming Bed Temp"));
+            thermalManager.setTargetBed(error_bed_target);
+          }
+        #endif
+        if (error_hotend_target && thermal_degTargetHotend() < error_hotend_target)
+          reheatHotend(error_hotend_target);
+      }
+    #endif
   }
 
   void MMU3::resumeUnpark() {
@@ -774,6 +813,13 @@ namespace MMU3 {
   }
 
   void MMU3::checkUserInput() {
+    if (reheating) {
+      // Ignore clicks until the hotend is ready, so a retry can't start with a cold nozzle
+      SetButtonResponse(ButtonOperations::NoOperation);
+      lastButton = Buttons::NoButton;
+      return;
+    }
+
     auto btn = ButtonPressed(lastErrorCode);
 
     // Was a button pressed on the MMU itself instead of the LCD?
@@ -796,8 +842,10 @@ namespace MMU3 {
       case Buttons::Left:
       case Buttons::Middle:
       case Buttons::Right:
-        SERIAL_ECHOPGM("checkUserInput-btnLMR ");
-        SERIAL_ECHOLN((int)buttons_to_uint8t(btn));
+        #if ENABLED(MMU_DEBUG)
+          SERIAL_ECHOPGM("checkUserInput-btnLMR ");
+          SERIAL_ECHOLN((int)buttons_to_uint8t(btn));
+        #endif
         resumeHotendTemp(); // Recover the hotend temp before we attempt to do anything else...
 
         if (mmuLastErrorSource() == MMU3::ErrorSourceMMU)
@@ -823,7 +871,7 @@ namespace MMU3 {
         break;
       case Buttons::ResetMMU:
         reset(ResetPin); // Cannot do power cycle on the MK3
-        // ... but mmu2_power.cpp knows this and triggers a soft-reset instead.
+        // ... but mmu3_power.cpp knows this and triggers a soft-reset instead.
         break;
       case Buttons::DisableMMU:
         stop();
@@ -1166,7 +1214,9 @@ namespace MMU3 {
               // this ensures that while the MMU is pushing the filament,
               // the extruder will keep rotating, preventing the filament to hit
               // the extruder gears...
-              while (planner.movesplanned() < 3) {
+              // (Skip this if the hotend is too cold to extrude, as the planner drops
+              //  those moves and the queue would never fill.)
+              while (planner.movesplanned() < 3 && !thermalManager.tooColdToExtrude(0)) {
                 extruder_move(extrude_distance, pulley_slow_feedrate, false);
               }
               break;

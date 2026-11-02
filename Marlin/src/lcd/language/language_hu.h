@@ -527,6 +527,7 @@ namespace LanguageNarrow_hu {
   LSTR MSG_TMC_DRIVERS                    = _UxGT("TMC meghajtók");                            // TMC Drivers
   LSTR MSG_TMC_CURRENT                    = _UxGT("Meghajtó áram");                            // Driver Current
   LSTR MSG_TMC_HYBRID_THRS                = _UxGT("Hibrid küszöbérték");                       // Hybrid Threshold
+  LSTR MSG_TMC_HOMING_HYBRID_THRS         = _UxGT("Origó hibrid küszöb");                      // Homing Hybrid Thrs
   LSTR MSG_TMC_HOMING_THRS                = _UxGT("Motoros kezdőpont");                        // Sensorless Homing
   LSTR MSG_TMC_STEPPING_MODE              = _UxGT("Léptető mód");                              // Stepping Mode
   LSTR MSG_TMC_STEALTHCHOP                = _UxGT("StealthChop");                              // StealthChop
@@ -687,6 +688,7 @@ namespace LanguageNarrow_hu {
   LSTR MSG_ERR_COOLING_FAILED             = _UxGT("Hűtés sikertelen");                         // Cooling Failed
   LSTR MSG_PLEASE_WAIT                    = _UxGT("Kérlek várj...");                           // Please wait...
   LSTR MSG_PREHEATING                     = _UxGT("Előmelegítés...");                          // Preheating...
+  LSTR MSG_HEAT_SOAK                      = _UxGT("Átmelegítés");                              // Heat Soak
   LSTR MSG_PROBE_HEATING                  = _UxGT("Szonda fűtése...");                         // Probe Heating...
   LSTR MSG_PROBE_COOLING                  = _UxGT("Szonda hűtése...");                         // Probe Cooling...
   LSTR MSG_LASER_COOLING                  = _UxGT("Lézer hűtés...");                           // Laser Cooling...
@@ -830,6 +832,9 @@ namespace LanguageNarrow_hu {
   LSTR MSG_ADVANCE_TAU                    = _UxGT("Advance Tau");                              // Advance Tau
   LSTR MSG_ADVANCE_TAU_E                  = _UxGT("Advance Tau *");                            // Advance Tau *
   LSTR MSG_NLE_ON                         = _UxGT("NLE bekapcsolva");                          // NLE enabled
+  LSTR MSG_NLE_A                          = _UxGT("-Négyzetes");                               // -Quadratic
+  LSTR MSG_NLE_B                          = _UxGT("-Lineáris");                                // -Linear
+  LSTR MSG_NLE_C                          = _UxGT("-Állandó");                                 // -Constant
   LSTR MSG_HOTEND_TEMP_GRAPH              = _UxGT("Fej hőfok grafikon");                       // Hotend Temp Graph
   LSTR MSG_BED_TEMP_GRAPH                 = _UxGT("Ágy hőfok grafikon");                       // Bed Temp Graph
   LSTR MSG_EEPROM_INITIALIZED             = _UxGT("EEPROM inicializálva");                     // EEPROM Initialized

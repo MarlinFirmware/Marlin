@@ -522,6 +522,7 @@ namespace LanguageNarrow_ko_KR {
   LSTR MSG_TMC_DRIVERS                    = _UxGT("TMC 드라이버");                                 // TMC Drivers
   LSTR MSG_TMC_CURRENT                    = _UxGT("드라이버 전류");                                  // Driver Current
   LSTR MSG_TMC_HYBRID_THRS                = _UxGT("하이브리드 임계값");                                // Hybrid Threshold
+  LSTR MSG_TMC_HOMING_HYBRID_THRS         = _UxGT("홈 하이브리드 임계");                               // Homing Hybrid Thrs
   LSTR MSG_TMC_HOMING_THRS                = _UxGT("센서리스 홈");                                   // Sensorless Homing
   LSTR MSG_TMC_STEPPING_MODE              = _UxGT("스테핑 모드");                                   // Stepping Mode
   LSTR MSG_TMC_STEALTHCHOP                = _UxGT("StealthChop");                              // StealthChop
@@ -682,6 +683,7 @@ namespace LanguageNarrow_ko_KR {
   LSTR MSG_ERR_COOLING_FAILED             = _UxGT("냉각 실패");                                    // Cooling Failed
   LSTR MSG_PLEASE_WAIT                    = _UxGT("잠시 기다리세요...");                              // Please wait...
   LSTR MSG_PREHEATING                     = _UxGT("예열중...");                                   // Preheating...
+  LSTR MSG_HEAT_SOAK                      = _UxGT("열 안정화");                                    // Heat Soak
   LSTR MSG_PROBE_HEATING                  = _UxGT("프로브 가열중...");                               // Probe Heating...
   LSTR MSG_PROBE_COOLING                  = _UxGT("프로브 냉각중...");                               // Probe Cooling...
   LSTR MSG_LASER_COOLING                  = _UxGT("레이저 냉각중...");                               // Laser Cooling...
@@ -822,6 +824,9 @@ namespace LanguageNarrow_ko_KR {
   LSTR MSG_ADVANCE_TAU                    = _UxGT("Advance Tau");                              // Advance Tau
   LSTR MSG_ADVANCE_TAU_E                  = _UxGT("Advance Tau *");                            // Advance Tau *
   LSTR MSG_NLE_ON                         = _UxGT("NLE 켜짐");                                   // NLE enabled
+  LSTR MSG_NLE_A                          = _UxGT("-이차");                                      // -Quadratic
+  LSTR MSG_NLE_B                          = _UxGT("-선형");                                      // -Linear
+  LSTR MSG_NLE_C                          = _UxGT("-상수");                                      // -Constant
   LSTR MSG_HOTEND_TEMP_GRAPH              = _UxGT("핫엔드 온도 그래프");                               // Hotend Temp Graph
   LSTR MSG_BED_TEMP_GRAPH                 = _UxGT("베드 온도 그래프");                                // Bed Temp Graph
   LSTR MSG_EEPROM_INITIALIZED             = _UxGT("EEPROM 초기화됨");                              // EEPROM Initialized

@@ -94,7 +94,7 @@ bool TouchCalibration::handleTouch(const uint16_t x, const uint16_t y) {
   const millis_t now = millis();
 
   if (next_touch_update_ms && PENDING(now, next_touch_update_ms)) return false;
-  next_touch_update_ms = now + BUTTON_DELAY_MENU;
+  next_touch_update_ms = next_millis(now + BUTTON_DELAY_MENU);
 
   if (calibration_state < CALIBRATION_SUCCESS) {
     calibration_points[calibration_state].raw_x = x;

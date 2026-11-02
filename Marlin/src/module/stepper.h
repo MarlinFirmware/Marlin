@@ -302,26 +302,32 @@ constexpr uint8_t index_of_axis(const AxisEnum axis E_OPTARG(const uint8_t einde
 //
 #if ENABLED(NONLINEAR_EXTRUSION)
 
+  struct NonlinearCoeff {
+    static constexpr float nonlinear_factors[3] =
+      #ifdef NONLINEAR_FACTORS
+        NONLINEAR_FACTORS
+      #else
+        { 0.0f, 0.0f, 1.0f }
+      #endif
+    ;
+    float A = nonlinear_factors[0],
+          B = nonlinear_factors[1],
+          C = nonlinear_factors[2];
+    void reset() { *this = NonlinearCoeff{}; }
+  };
+
+  struct NonlinearSettings {
+    bool enabled = ENABLED(NONLINEAR_EXTRUSION_DEFAULT_ON);
+    NonlinearCoeff coeff;
+    void reset() { *this = NonlinearSettings{}; }
+  };
+
   #if DISABLED(SMOOTH_LIN_ADVANCE)
     #define NONLINEAR_EXTRUSION_Q24 1
   #endif
 
   typedef struct {
-    float A, B, C;
-    void reset() { A = B = 0.0f; C = 1.0f; }
-  } nonlinear_coeff_t;
-
-  typedef struct {
-    bool enabled;
-    nonlinear_coeff_t coeff;
-    void reset() {
-      enabled = ENABLED(NONLINEAR_EXTRUSION_DEFAULT_ON);
-      coeff.reset();
-    }
-  } nonlinear_settings_t;
-
-  typedef struct {
-    nonlinear_settings_t settings;
+    NonlinearSettings settings;
     union {
       struct { int32_t A, B, C; } q24;
       struct { int32_t A, B, C; } q30;
@@ -503,9 +509,9 @@ class Stepper {
     #endif
 
     #if ENABLED(S_CURVE_ACCELERATION)
-      static int32_t bezier_A,     // A coefficient in Bézier speed curve
-                     bezier_B,     // B coefficient in Bézier speed curve
-                     bezier_C;     // C coefficient in Bézier speed curve
+      static int32_t  bezier_A,    // A coefficient in Bézier speed curve
+                      bezier_B,    // B coefficient in Bézier speed curve
+                      bezier_C;    // C coefficient in Bézier speed curve
       static uint32_t bezier_F,    // F/free coefficient in Bézier speed curve
                       bezier_AV;   // AV coefficient in Bézier speed curve
       #ifdef __AVR__
@@ -555,7 +561,7 @@ class Stepper {
 
     static hal_timer_t ticks_nominal;
     #if DISABLED(S_CURVE_ACCELERATION)
-      static uint32_t acc_step_rate; // needed for deceleration start point
+      static uint32_t acc_step_rate; // Needed for deceleration start point
     #endif
 
     // Exact steps at which an endstop was triggered
@@ -587,6 +593,9 @@ class Stepper {
 
     // The ISR scheduler
     static void isr();
+
+    // Run the stepper events that are due. Return ticks until the next event.
+    static hal_timer_t isr_events();
 
     #if HAS_STANDARD_MOTION
       // The stepper pulse ISR phase
@@ -737,7 +746,7 @@ class Stepper {
     #endif
 
     #if ENABLED(BABYSTEPPING)
-      static void do_babystep(const AxisEnum axis, const bool direction); // perform a short step with a single stepper motor, outside of any convention
+      static void do_babystep(const AxisEnum axis, const bool direction); // Perform a short step with a single stepper motor, outside of any convention
     #endif
 
     #if HAS_MOTOR_CURRENT_PWM

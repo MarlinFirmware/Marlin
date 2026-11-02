@@ -255,6 +255,12 @@ void menu_pause_option() {
     ACTION_ITEM(MSG_FILAMENT_CHANGE_OPTION_RESUME, []{ pause_menu_response = PAUSE_RESPONSE_RESUME_PRINT; });
 
   END_MENU();
+
+  #if HAS_FILAMENT_SENSOR && LCD_HEIGHT > 3
+    // Say why Continue is missing, on the bottom line outside the menu so it can't be selected
+    if (still_out && ui.should_draw())
+      MenuItem_static::draw(LCD_HEIGHT - 1, GET_TEXT_F(MSG_RUNOUT_TRIGGERED), SS_CENTER);
+  #endif
 }
 
 //

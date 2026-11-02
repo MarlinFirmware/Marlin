@@ -110,7 +110,7 @@
 #endif
 
 #if ENABLED(ADVANCED_PAUSE_FEATURE)
-  #include "../../feature/pause.h"
+  #include "../../feature/pause.h" // for types
 #endif
 
 namespace ExtUI {

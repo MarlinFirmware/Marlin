@@ -101,6 +101,7 @@
 /**
  * Select a secondary serial port on the board to use for communication with the host.
  * Currently Ethernet (-2) is only supported on Teensy 4.1 boards.
+ * ESP3D_WIFISUPPORT requires -1, which carries G-code from ESP3D to Marlin.
  * :[-2, -1, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
  */
 //#define SERIAL_PORT_2 -1
@@ -3435,6 +3436,14 @@
 //#define ELEGOO_NEPTUNE_3_TFT
 
 //
+// PanelDue touch controller by Duet3D (PanelDueFirmware 3.2 or newer)
+// https://docs.duet3d.com/User_manual/Connecting_hardware/Display_PanelDue
+// Connect the PanelDue to a free UART and define LCD_SERIAL_PORT with its index.
+// The PanelDue baud rate must be set to 57600, or define LCD_BAUDRATE to match.
+//
+//#define PANELDUE
+
+//
 // Third-party or vendor-customized controller interfaces.
 // Sources should be installed in 'src/lcd/extui'.
 //
@@ -3601,10 +3610,6 @@
   //#define TFT_SHARED_IO   // I/O is shared between TFT display and other devices. Disable async data transfer.
 
   #define COMPACT_MARLIN_BOOT_LOGO  // Use compressed data to save Flash space
-#endif
-
-#if ENABLED(TFT_LVGL_UI)
-  //#define MKS_WIFI_MODULE // MKS WiFi module
 #endif
 
 /**
