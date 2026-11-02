@@ -544,8 +544,8 @@ namespace MMU3 {
   }
 
   void TryLoadUnloadReporter::DumpToSerial() {
-    char buf[LCD_WIDTH + 1];
-    TERN_(HAS_WIRED_LCD, ui.status_message.copyto(buf));
+    char buf[LCD_WIDTH + 1] = {};
+    TERN_(HAS_WIRED_LCD, ui.status_message.copyto(buf, LCD_WIDTH));
     for (uint8_t i = 0; i < sizeof(buf); i++) {
       // 0xFF is -1 when converting from unsigned to signed char
       // If the number is negative, that means filament is present
