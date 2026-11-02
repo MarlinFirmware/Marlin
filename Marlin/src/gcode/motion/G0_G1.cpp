@@ -50,7 +50,7 @@ void GcodeSuite::G0_G1(TERN_(HAS_FAST_MOVES, const bool fast_move/*=false*/)) {
   if (motion.gcode_motion_ignored()) return;
 
   TERN_(FULL_REPORT_TO_HOST_FEATURE, motion.set_and_report_grblstate(M_RUNNING));
-
+  
   #ifdef G0_FEEDRATE
     feedRate_t old_feedrate;
     #if ENABLED(VARIABLE_G0_FEEDRATE)
@@ -61,6 +61,7 @@ void GcodeSuite::G0_G1(TERN_(HAS_FAST_MOVES, const bool fast_move/*=false*/)) {
         old_feedrate = motion.feedrate_mm_s;            // Back up the (old) motion mode feedrate
         motion.feedrate_mm_s = fast_move_feedrate;      // Get G0 feedrate from last usage
       }
+    #endif
     #if HAS_ROTATIONAL_AXES || IS_KINEMATIC || HAS_LEVELING || ENABLED(FEEDRATE_MODE_SUPPORT)
       if (fast_move) {
         parser.linear_motion_gcode = false;
@@ -69,7 +70,7 @@ void GcodeSuite::G0_G1(TERN_(HAS_FAST_MOVES, const bool fast_move/*=false*/)) {
         parser.linear_motion_gcode = true;
       }
     #endif
-  #if HAS_ROTATIONAL_AXES || IS_KINEMATIC || HAS_LEVELING || ENABLED(FEEDRATE_MODE_SUPPORT)
+  #elif HAS_ROTATIONAL_AXES || IS_KINEMATIC || HAS_LEVELING || ENABLED(FEEDRATE_MODE_SUPPORT)
     parser.linear_motion_gcode = true;
   #endif
 
@@ -77,9 +78,6 @@ void GcodeSuite::G0_G1(TERN_(HAS_FAST_MOVES, const bool fast_move/*=false*/)) {
 
   #ifdef G0_FEEDRATE
     if (fast_move) {
-      #if HAS_ROTATIONAL_AXES || IS_KINEMATIC || HAS_LEVELING || ENABLED(FEEDRATE_MODE_SUPPORT)
-        parser.linear_motion_gcode = false;
-      #endif
       #if ENABLED(VARIABLE_G0_FEEDRATE)
         fast_move_feedrate = motion.feedrate_mm_s;      // Save feedrate for the next G0
       #else
