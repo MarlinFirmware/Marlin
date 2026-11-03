@@ -144,8 +144,8 @@ namespace MMU3 {
     safe_delay(t);
   }
 
-  void Enable_E0() { stepper.enable_extruder(TERN_(HAS_EXTRUDERS, 0)); }
-  void Disable_E0() { stepper.disable_extruder(TERN_(HAS_EXTRUDERS, 0)); }
+  void Enable_E0() { stepper.ENABLE_EXTRUDER(0); }
+  void Disable_E0() { stepper.DISABLE_EXTRUDER(0); }
 
   bool xy_are_trusted() {
     return motion.axis_is_trusted(X_AXIS) && motion.axis_is_trusted(Y_AXIS);
