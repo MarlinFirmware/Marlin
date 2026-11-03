@@ -655,13 +655,13 @@ bool Stepper::disable_axis(const AxisEnum axis) {
 
   hal_timer_t Stepper::resonance_block_phase_isr() {
 
-    const hal_timer_t time_spent = HAL_timer_get_count(MF_TIMER_STEP);
-    #if MULTISTEPPING_LIMIT > 1
+    #if DISABLED(OLD_ADAPTIVE_MULTISTEPPING) && MULTISTEPPING_LIMIT > 1
+      const hal_timer_t time_spent = HAL_timer_get_count(MF_TIMER_STEP);
       if (steps_per_isr > 1 && time_spent_out_isr >= time_spent_in_isr + time_spent)
         steps_per_isr >>= 1;
+      time_spent_in_isr = -time_spent;    // Unsigned but guaranteed to be +ve when needed
+      time_spent_out_isr = 0;
     #endif
-    time_spent_in_isr = -time_spent;    // Unsigned but guaranteed to be +ve when needed
-    time_spent_out_isr = 0;
 
     // If current block is not finished, continue with it
     if (step_events_completed < step_event_count)
