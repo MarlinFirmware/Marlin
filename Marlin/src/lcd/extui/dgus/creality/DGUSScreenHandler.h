@@ -206,11 +206,6 @@ public:
     Handler::init();
   }
 
-  // For buttons that show a setting that can only be changed at compile time
-  static void handleCompileTimeSetting(DGUS_VP_Variable &var, void *val_ptr) {
-    setStatusMessage(F("Set in Configuration.h"));
-  }
-
   #if HAS_LEVELING_TEMP_EDIT
     static void handleLevelingTemp(DGUS_VP_Variable &var, void *val_ptr);
   #endif
