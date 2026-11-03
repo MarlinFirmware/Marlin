@@ -28,6 +28,7 @@
 #include "../DGUSScreenHandler.h"
 #include "PageHandlers.h"
 #include "FilamentLoadUnloadHandler.h"
+#include "PauseParkHandler.h"
 
 #include "../../../../module/temperature.h"
 #include "../../../../module/settings.h"
@@ -233,6 +234,16 @@ void PrintPausedMenuHandler(DGUS_VP_Variable &var, unsigned short buttonValue) {
       TERN_(HAS_FILAMENT_SENSOR, runout.reset());
 
       if (!screen.handlePendingUserConfirmation()) {
+        #if CREALITY_PARK_ON_PAUSE
+          if (PauseParkHandler::isBusy()) {
+            screen.setStatusMessage(F("Please wait..."));
+            break;
+          }
+          if (PauseParkHandler::resume()) {
+            screen.gotoScreen(DGUS_SCREEN_PRINT_RUNNING);
+            break;
+          }
+        #endif
         ExtUI::resumePrint();
         screen.gotoScreen(DGUS_SCREEN_PRINT_RUNNING);
       }
@@ -250,6 +261,7 @@ void PrintPauseDialogHandler(DGUS_VP_Variable &var, unsigned short buttonValue) 
         case 2:
           screen.gotoScreen(DGUS_SCREEN_PRINT_RUNNING);
           screen.setStatusMessage(F("Pausing print - please wait..."));
+          if (TERN0(CREALITY_PARK_ON_PAUSE, PauseParkHandler::pause()) break;
           ExtUI::pausePrint();
           break;
 
@@ -277,6 +289,7 @@ void FilamentRunoutHandler(DGUS_VP_Variable &var, unsigned short buttonValue) {
       break;
 
     case VP_BUTTON_STOPPRINTKEY:
+      TERN_(CREALITY_PARK_ON_PAUSE, PauseParkHandler::reset());
       ExtUI::stopPrint();
       screen.gotoScreen(DGUS_SCREEN_MAIN);
       break;
@@ -288,6 +301,7 @@ void StopConfirmScreenHandler(DGUS_VP_Variable &var, unsigned short buttonValue)
     case VP_BUTTON_STOPPRINTKEY:
       switch (buttonValue) {
         case 2:
+          TERN_(CREALITY_PARK_ON_PAUSE, PauseParkHandler::reset());
           ExtUI::stopPrint();
           screen.gotoScreen(DGUS_SCREEN_MAIN);
           break;

@@ -37,6 +37,7 @@
 #include "../DGUSDisplay.h"
 #include "../DGUSScreenHandler.h"
 #include "../../../../sd/cardreader.h"
+#include "PauseParkHandler.h"
 
 #if ENABLED(POWER_LOSS_RECOVERY)
   #include "../../../../feature/powerloss.h"
@@ -83,6 +84,7 @@ namespace ExtUI {
   }
 
   void onPrintTimerStopped() {
+    TERN_(CREALITY_PARK_ON_PAUSE, PauseParkHandler::reset());
     // Only a job that was shown as a print has a finish screen
     if (!screen.isPrintJobActive()) return;
     screen.setPrintJobScreens(false);
