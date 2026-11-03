@@ -3233,9 +3233,6 @@
 //
 //#define CR10_STOCKDISPLAY
 
-// Resistive touch screen
-//#define CREALITY_RTS
-
 //
 // Ender-2 OEM display, a variant of the MKS_MINI_12864
 //
@@ -3431,6 +3428,12 @@
 // Sovol SV-06 Resistive Touch Screen
 //
 //#define SOVOL_SV06_RTS
+
+//
+// Creality Resistive Touch Screen
+// As found in the Creality CR-6 S1
+//
+//#define CREALITY_RTS
 
 //
 // 320x240 Nextion 2.8" serial TFT Resistive Touch Screen NX3224T028
