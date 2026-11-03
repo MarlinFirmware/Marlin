@@ -2596,65 +2596,22 @@ void Stepper::isr() {
     axis_did_move = didmove;
   }
 
-  // Set flags for all axes that move in this block
-  // These are set per-axis, not per-stepper
-  AxisBits didmove;
-  NUM_AXIS_CODE(
-    if (X_MOVE_TEST)              didmove.a = true, // Cartesian X or Kinematic A
-    if (Y_MOVE_TEST)              didmove.b = true, // Cartesian Y or Kinematic B
-    if (Z_MOVE_TEST)              didmove.c = true, // Cartesian Z or Kinematic C
-    if (!!current_block->steps.i) didmove.i = true,
-    if (!!current_block->steps.j) didmove.j = true,
-    if (!!current_block->steps.k) didmove.k = true,
-    if (!!current_block->steps.u) didmove.u = true,
-    if (!!current_block->steps.v) didmove.v = true,
-    if (!!current_block->steps.w) didmove.w = true
-  );
-  axis_did_move = didmove;
-}
-
-/**
- * This last phase of the stepper interrupt processes and properly
- * schedules planner blocks. This is executed after the step pulses
- * have been done, so it is less time critical.
- */
-hal_timer_t Stepper::block_phase_isr() {
-  #if DISABLED(OLD_ADAPTIVE_MULTISTEPPING) && MULTISTEPPING_LIMIT > 1
-    // If the ISR uses < 50% of MPU time, halve multi-stepping
-    const hal_timer_t time_spent = HAL_timer_get_count(MF_TIMER_STEP);
-    if (steps_per_isr > 1 && time_spent_out_isr >= time_spent_in_isr + time_spent) {
-      steps_per_isr >>= 1;
-      // ticks_nominal will need to be recalculated if we are in cruise phase
-      ticks_nominal = 0;
-    }
-    time_spent_in_isr = -time_spent;    // unsigned but guaranteed to be +ve when needed
-    time_spent_out_isr = 0;
-  #endif
-
-  // If no queued movements, just wait 1ms for the next block
-  hal_timer_t interval = (STEPPER_TIMER_RATE) / 1000UL;
-
-  // If there is a current block
-  if (current_block) {
-    // If current block is finished, reset pointer and finalize state
-    if (step_events_completed >= step_event_count) {
-      #if ENABLED(DIRECT_STEPPING)
-        // Direct stepping is currently not ready for HAS_I_AXIS
-        #if STEPPER_PAGE_FORMAT == SP_4x4D_128
-          #define PAGE_SEGMENT_UPDATE_POS(AXIS) \
-            count_position[_AXIS(AXIS)] += page_step_state.bd[_AXIS(AXIS)] - 128 * 7;
-        #elif STEPPER_PAGE_FORMAT == SP_4x1_512 || STEPPER_PAGE_FORMAT == SP_4x2_256
-          #define PAGE_SEGMENT_UPDATE_POS(AXIS) \
-            count_position[_AXIS(AXIS)] += page_step_state.bd[_AXIS(AXIS)] * count_direction[_AXIS(AXIS)];
-        #endif
-
-        if (current_block->is_page()) {
-          PAGE_SEGMENT_UPDATE_POS(X);
-          PAGE_SEGMENT_UPDATE_POS(Y);
-          PAGE_SEGMENT_UPDATE_POS(Z);
-          PAGE_SEGMENT_UPDATE_POS(E);
-        }
-      #endif
+  /**
+   * This last phase of the stepper interrupt processes and properly
+   * schedules planner blocks. This is executed after the step pulses
+   * have been done, so it is less time critical.
+   */
+  hal_timer_t Stepper::block_phase_isr() {
+    // I2S has no stepper timer to time the ISR
+    #if DISABLED(I2S_STEPPER_STREAM) \
+      && (DISABLED(OLD_ADAPTIVE_MULTISTEPPING) && MULTISTEPPING_LIMIT > 1)
+      // If the ISR uses < 50% of MPU time, halve multi-stepping
+      const hal_timer_t time_spent = HAL_timer_get_count(MF_TIMER_STEP);
+      if (steps_per_isr > 1 && time_spent_out_isr >= time_spent_in_isr + time_spent) {
+        steps_per_isr >>= 1;
+        // ticks_nominal will need to be recalculated if we are in cruise phase
+        ticks_nominal = 0;
+      }
       time_spent_in_isr = -time_spent;    // Unsigned but guaranteed to be +ve when needed
       time_spent_out_isr = 0;
     #endif
