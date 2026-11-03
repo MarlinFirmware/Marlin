@@ -517,6 +517,7 @@ bool DGUSScreenHandlerCreality::handlePendingUserConfirmation() {
   gotoScreen(DGUS_SCREEN_PRINT_RUNNING, true);
 
   // We might be re-entrant here
+  TERN_(M600_PURGE_MORE_RESUMABLE, ExtUI::setPauseMenuResponse(PAUSE_RESPONSE_RESUME_PRINT)); // else the "Purge More / Resume" wait never ends
   ExtUI::setUserConfirmed();
 
   return true;
@@ -764,6 +765,7 @@ void DGUSScreenHandler::screenChangeHook(DGUS_VP_Variable &var, void *val_ptr) {
 
   if (ExtUI::awaitingUserConfirm() && current_screenID == DGUS_SCREEN_POPUP) {
     DEBUG_ECHOLNPGM("Executing confirmation action");
+    TERN_(M600_PURGE_MORE_RESUMABLE, ExtUI::setPauseMenuResponse(PAUSE_RESPONSE_RESUME_PRINT));
     ExtUI::setUserConfirmed();
     screen.popToOldScreen();
     return;
