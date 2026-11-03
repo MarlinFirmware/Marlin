@@ -1289,7 +1289,7 @@ static void wifi_gcode_exec(uint8_t * const cmd_line) {
 
       case 998:
         if (MKSW_PRINT_STATE == IDLE) {
-          const int v = atoi(mStr);
+          const int v = spStr ? atoi(spStr) : -1;
           if (v == 0 || v == 1) set_cur_file_sys(v);
           wifi_ret_ack();
         }
