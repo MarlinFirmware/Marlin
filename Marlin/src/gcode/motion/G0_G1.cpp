@@ -22,9 +22,6 @@
 
 #include "../gcode.h"
 #include "../../module/motion.h"
-#if ENABLED(CREALITY_RTS)
-  #include "../../lcd/rts/lcd_rts.h"
-#endif
 
 #include "../../MarlinCore.h"
 
@@ -40,6 +37,8 @@
 
 #if ENABLED(SOVOL_SV06_RTS)
   #include "../../lcd/sovol_rts/sovol_rts.h"
+#elif ENABLED(CREALITY_RTS)
+  #include "../../lcd/rts/lcd_rts.h"
 #endif
 
 #if ENABLED(VARIABLE_G0_FEEDRATE)
