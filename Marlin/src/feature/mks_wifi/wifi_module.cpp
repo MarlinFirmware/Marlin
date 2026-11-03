@@ -1250,7 +1250,6 @@ static void wifi_gcode_exec(uint8_t * const cmd_line) {
         }
 
         print_to_wifi(tempBuf);
-        queue.enqueue_one(F("M105"));
         break;
 
       case 992:
