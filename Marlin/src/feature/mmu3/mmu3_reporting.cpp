@@ -663,7 +663,10 @@ namespace MMU3 {
     memcpy_P(&tune_item, &TuneItems[offset], sizeof(TuneItem));
 
     // Fetch the value currently stored in the MMU
-    if (!mmu3.readRegister(tune_item.address)) return;
+    if (!mmu3.readRegister(tune_item.address)) {
+      LogEchoEvent(F("Tune: no answer reading the sensitivity"));
+      return;
+    }
     tune_value = _MIN(_MAX((uint8_t)mmu3.getLastReadRegisterValue(), tune_item.minValue), tune_item.maxValue);
 
     #if HAS_WIRED_LCD
