@@ -411,10 +411,11 @@
  *   PRUSA_MMU3           : Průša MMU3  (Requires MK3S extruder with motion sensor and MMU firmware version 3.x.x, EXTRUDERS = 5)
  *   EXTENDABLE_EMU_MMU2  : MMU with configurable number of filaments (ERCF, SMuFF or similar with Průša MMU2 compatible firmware)
  *   EXTENDABLE_EMU_MMU2S : MMUS with configurable number of filaments (ERCF, SMuFF or similar with Průša MMU2 compatible firmware)
+ *   CHAMELEON            : 3D Chameleon Mk4 (EXTRUDERS = 2 to 4). A single button is pressed by an axis move.
  *
  * Requires NOZZLE_PARK_FEATURE to park print head in case MMU unit fails.
  * See additional options in Configuration_adv.h.
- * :["PRUSA_MMU1", "PRUSA_MMU2", "PRUSA_MMU2S", "PRUSA_MMU3", "EXTENDABLE_EMU_MMU2", "EXTENDABLE_EMU_MMU2S"]
+ * :["PRUSA_MMU1", "PRUSA_MMU2", "PRUSA_MMU2S", "PRUSA_MMU3", "EXTENDABLE_EMU_MMU2", "EXTENDABLE_EMU_MMU2S", "CHAMELEON"]
  */
 //#define MMU_MODEL PRUSA_MMU3
 
