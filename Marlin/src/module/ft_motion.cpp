@@ -40,6 +40,7 @@
 
 #include "stepper.h" // Access stepper block queue function and abort status.
 #include "endstops.h"
+#include "../lcd/marlinui.h"  // For GET_TEXT_F with multiple languages
 
 #if ENABLED(POWER_LOSS_RECOVERY)
   #include "../feature/powerloss.h"
