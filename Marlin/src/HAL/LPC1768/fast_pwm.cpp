@@ -26,8 +26,10 @@
 
 void MarlinHAL::set_pwm_duty(const pin_t pin, const uint16_t v, const uint16_t v_size/*=255*/, const bool invert/*=false*/) {
   if (!LPC176x::pin_is_valid(pin)) return;
-  if (LPC176x::pwm_attach_pin(pin))
-    LPC176x::pwm_write_ratio(pin, invert ? 1.0f - (float)v / v_size : (float)v / v_size);  // map 1-254 onto PWM range
+  if (LPC176x::pwm_attach_pin(pin)) {
+    const uint32_t duty = map(invert ? v_size - v : v, 0, v_size, 0, LPC176x::pwm_get_period(pin));
+    LPC176x::pwm_write(pin, duty);
+  }
 }
 
 void MarlinHAL::set_pwm_frequency(const pin_t pin, const uint16_t f_desired) {

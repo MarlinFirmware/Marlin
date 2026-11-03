@@ -90,12 +90,14 @@ public:
   #endif
 
   #if ENABLED(GCODE_MOTION_MODES)
-    static int16_t motion_mode_codenum;
+    static int8_t motion_mode_codenum;
     #if USE_GCODE_SUBCODES
       static uint8_t motion_mode_subcode;
     #endif
     FORCE_INLINE static void cancel_motion_mode() { motion_mode_codenum = -1; }
   #endif
+
+  FORCE_INLINE static bool has_string() { return string_arg && string_arg[0]; }
 
   #if ENABLED(DEBUG_GCODE_PARSER)
     static void debug();
@@ -132,11 +134,8 @@ public:
       SBI32(codebits, ind);                      // parameter exists
       param[ind] = ptr ? ptr - command_ptr : 0;  // parameter offset or 0
       #if ENABLED(DEBUG_GCODE_PARSER)
-        if (codenum == 800) {
-          SERIAL_ECHOPGM("Set bit ", ind, " of codebits (", hex_address((void*)(codebits >> 16)));
-          print_hex_word((uint16_t)(codebits & 0xFFFF));
-          SERIAL_ECHOLNPGM(") | param = ", param[ind]);
-        }
+        if (codenum == 800)
+          SERIAL_ECHOLNPGM("Set bit ", ind, " of codebits (", _hex_long(codebits), ") | param = ", param[ind]);
       #endif
     }
 
@@ -149,7 +148,7 @@ public:
       if (b) {
         if (param[ind]) {
           char * const ptr = command_ptr + param[ind];
-          value_ptr = valid_number(ptr) ? ptr : nullptr;
+          value_ptr = (valid_number(ptr) || TERN0(GCODE_QUOTED_STRINGS, *(ptr - 1) == '"')) ? ptr : nullptr;
         }
         else
           value_ptr = nullptr;
@@ -192,7 +191,7 @@ public:
     #if ENABLED(GCODE_CASE_INSENSITIVE)
       FORCE_INLINE static char* strgchr(char *p, char g) {
         auto uppercase = [](char c) {
-          return c + (WITHIN(c, 'a', 'z') ? 'A' - 'a' : 0);
+          return TERN0(GCODE_CASE_INSENSITIVE, WITHIN(c, 'a', 'z')) ? c + 'A' - 'a' : c;
         };
         const char d = uppercase(g);
         for (char cc; (cc = uppercase(*p)); p++) if (cc == d) return p;
@@ -254,27 +253,25 @@ public:
   // The value as a string
   static char* value_string() { return value_ptr; }
 
-  // Float removes 'E' to prevent scientific notation interpretation
-  static float value_float() {
-    if (!value_ptr) return 0;
-    char *e = value_ptr;
-    for (;;) {
-      const char c = *e;
-      if (c == '\0' || c == ' ') break;
-      if (c == 'E' || c == 'e' || c == 'X' || c == 'x') {
-        *e = '\0';
-        const float ret = strtof(value_ptr, nullptr);
-        *e = c;
-        return ret;
-      }
-      ++e;
-    }
-    return strtof(value_ptr, nullptr);
-  }
+  /**
+   * Read a number the way G-code writes it: optional spaces, an optional sign, digits and, for
+   * a float, a decimal point and more digits. Reading stops at the first other character, so an
+   * 'E' or 'X' can't turn a value into scientific notation or hex, and "nan" or "inf" read as 0.
+   *
+   * These replace strtol, strtoul and strtof, which are about 1.8 KB of flash on AVR.
+   * - Integers saturate at the limits of the type, like strtol and strtoul.
+   * - A float is the same as strtof for up to 7 significant digits. With 8 or 9 it can differ in the
+   *   last bit, and with more it can be a few bits off. Digits after the 9th are ignored, but still
+   *   scale a whole number.
+   */
+  static int32_t  dec_to_long(const char *p);
+  static uint32_t dec_to_ulong(const char *p);
+  static float    dec_to_float(const char *p);
 
-  // Code value as a long or ulong
-  static int32_t value_long() { return value_ptr ? strtol(value_ptr, nullptr, 10) : 0L; }
-  static uint32_t value_ulong() { return value_ptr ? strtoul(value_ptr, nullptr, 10) : 0UL; }
+  // Code value as a float, long, or ulong
+  static float value_float() { return value_ptr ? dec_to_float(value_ptr) : 0; }
+  static int32_t value_long() { return value_ptr ? dec_to_long(value_ptr) : 0L; }
+  static uint32_t value_ulong() { return value_ptr ? dec_to_ulong(value_ptr) : 0UL; }
 
   // Code value for use as time
   static millis_t value_millis() { return value_ulong(); }
@@ -282,7 +279,7 @@ public:
 
   // Reduce to fewer bits
   static int16_t value_int() { return (int16_t)value_long(); }
-  static uint16_t value_ushort() { return (uint16_t)value_long(); }
+  static uint16_t value_ushort() { return (uint16_t)value_ulong(); }
   static uint8_t value_byte() { return (uint8_t)constrain(value_long(), 0, 255); }
 
   // Bool is true with no value or non-zero
@@ -302,8 +299,8 @@ public:
   // Units modes: Inches, Fahrenheit, Kelvin
 
   #if ENABLED(INCH_MODE_SUPPORT)
-    static float mm_to_linear_unit(const_float_t mm)     { return mm / linear_unit_factor; }
-    static float mm_to_volumetric_unit(const_float_t mm) { return mm / (volumetric_enabled ? volumetric_unit_factor : linear_unit_factor); }
+    static float mm_to_linear_unit(const float mm)     { return mm / linear_unit_factor; }
+    static float mm_to_volumetric_unit(const float mm) { return mm / (volumetric_enabled ? volumetric_unit_factor : linear_unit_factor); }
 
     // Init linear units by constructor
     GCodeParser() { set_input_linear_units(LINEARUNIT_MM); }
@@ -325,16 +322,16 @@ public:
       return linear_unit_factor;
     }
 
-    static float linear_value_to_mm(const_float_t v)                  { return v * linear_unit_factor; }
+    static float linear_value_to_mm(const float v)                    { return v * linear_unit_factor; }
     static float axis_value_to_mm(const AxisEnum axis, const float v) { return v * axis_unit_factor(axis); }
     static float per_axis_value(const AxisEnum axis, const float v)   { return v / axis_unit_factor(axis); }
 
   #else
 
-    static constexpr float mm_to_linear_unit(const_float_t mm)     { return mm; }
-    static constexpr float mm_to_volumetric_unit(const_float_t mm) { return mm; }
+    static constexpr float mm_to_linear_unit(const float mm)     { return mm; }
+    static constexpr float mm_to_volumetric_unit(const float mm) { return mm; }
 
-    static constexpr float linear_value_to_mm(const_float_t v)             { return v; }
+    static constexpr float linear_value_to_mm(const float v)               { return v; }
     static constexpr float axis_value_to_mm(const AxisEnum, const float v) { return v; }
     static constexpr float per_axis_value(const AxisEnum, const float v)   { return v; }
 
@@ -347,6 +344,9 @@ public:
   #define LINEAR_UNIT(V)     parser.mm_to_linear_unit(V)
   #define VOLUMETRIC_UNIT(V) parser.mm_to_volumetric_unit(V)
 
+  #define X_AXIS_UNIT LINEAR_UNIT
+  #define Y_AXIS_UNIT LINEAR_UNIT
+  #define Z_AXIS_UNIT LINEAR_UNIT
   #define I_AXIS_UNIT(V) TERN(AXIS4_ROTATES, (V), LINEAR_UNIT(V))
   #define J_AXIS_UNIT(V) TERN(AXIS5_ROTATES, (V), LINEAR_UNIT(V))
   #define K_AXIS_UNIT(V) TERN(AXIS6_ROTATES, (V), LINEAR_UNIT(V))
@@ -418,19 +418,19 @@ public:
   void unknown_command_warning();
 
   // Provide simple value accessors with default option
-  static char*     stringval(const char c, char * const dval=nullptr) { return seenval(c) ? value_string()   : dval; }
-  static float     floatval(const char c, const float dval=0.0)   { return seenval(c) ? value_float()        : dval; }
-  static bool      boolval(const char c, const bool dval=false)   { return seenval(c) ? value_bool()         : (seen(c) ? true : dval); }
-  static uint8_t   byteval(const char c, const uint8_t dval=0)    { return seenval(c) ? value_byte()         : dval; }
-  static int16_t   intval(const char c, const int16_t dval=0)     { return seenval(c) ? value_int()          : dval; }
-  static uint16_t  ushortval(const char c, const uint16_t dval=0) { return seenval(c) ? value_ushort()       : dval; }
-  static int32_t   longval(const char c, const int32_t dval=0)    { return seenval(c) ? value_long()         : dval; }
-  static uint32_t  ulongval(const char c, const uint32_t dval=0)  { return seenval(c) ? value_ulong()        : dval; }
-  static float     linearval(const char c, const float dval=0)    { return seenval(c) ? value_linear_units() : dval; }
+  static char*     stringval(const char c, char * const dval=nullptr)   { return seenval(c) ? value_string()       : dval; }
+  static float     floatval(const char c, const float dval=0.0)         { return seenval(c) ? value_float()        : dval; }
+  static bool      boolval(const char c, const bool dval=false)         { return seenval(c) ? value_bool() : (seen(c) ? true : dval); }
+  static uint8_t   byteval(const char c, const uint8_t dval=0)          { return seenval(c) ? value_byte()         : dval; }
+  static int16_t   intval(const char c, const int16_t dval=0)           { return seenval(c) ? value_int()          : dval; }
+  static uint16_t  ushortval(const char c, const uint16_t dval=0)       { return seenval(c) ? value_ushort()       : dval; }
+  static int32_t   longval(const char c, const int32_t dval=0)          { return seenval(c) ? value_long()         : dval; }
+  static uint32_t  ulongval(const char c, const uint32_t dval=0)        { return seenval(c) ? value_ulong()        : dval; }
+  static float     linearval(const char c, const float dval=0)          { return seenval(c) ? value_linear_units() : dval; }
   static float     axisunitsval(const char c, const AxisEnum a, const float dval=0)
-                                                                         { return seenval(c) ? value_axis_units(a)  : dval; }
-  static celsius_t celsiusval(const char c, const celsius_t dval=0)    { return seenval(c) ? value_celsius() : dval; }
-  static feedRate_t feedrateval(const char c, const feedRate_t dval=0) { return seenval(c) ? value_feedrate() : dval; }
+                                                                        { return seenval(c) ? value_axis_units(a)  : dval; }
+  static celsius_t celsiusval(const char c, const celsius_t dval=0)     { return seenval(c) ? value_celsius()      : dval; }
+  static feedRate_t feedrateval(const char c, const feedRate_t dval=0)  { return seenval(c) ? value_feedrate()     : dval; }
 
   #if ENABLED(MARLIN_DEV_MODE)
 

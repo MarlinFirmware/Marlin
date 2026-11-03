@@ -84,14 +84,14 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
 
 void lv_draw_tool() {
   scr = lv_screen_create(TOOL_UI);
-  lv_big_button_create(scr, "F:/bmp_preHeat.bin", tool_menu.preheat, INTERVAL_V, titleHeight, event_handler, ID_T_PRE_HEAT);
-  lv_big_button_create(scr, "F:/bmp_extruct.bin", tool_menu.extrude, BTN_X_PIXEL + INTERVAL_V * 2, titleHeight, event_handler, ID_T_EXTRUCT);
-  lv_big_button_create(scr, "F:/bmp_mov.bin", tool_menu.move, BTN_X_PIXEL * 2 + INTERVAL_V * 3, titleHeight, event_handler, ID_T_MOV);
-  lv_big_button_create(scr, "F:/bmp_zero.bin", tool_menu.home, BTN_X_PIXEL * 3 + INTERVAL_V * 4, titleHeight, event_handler, ID_T_HOME);
-  lv_big_button_create(scr, "F:/bmp_leveling.bin", tool_menu.TERN(AUTO_BED_LEVELING_BILINEAR, autoleveling, leveling), INTERVAL_V, BTN_Y_PIXEL + INTERVAL_H + titleHeight, event_handler, ID_T_LEVELING);
-  lv_big_button_create(scr, "F:/bmp_filamentchange.bin", tool_menu.filament, BTN_X_PIXEL + INTERVAL_V * 2, BTN_Y_PIXEL + INTERVAL_H + titleHeight, event_handler, ID_T_FILAMENT);
-  lv_big_button_create(scr, "F:/bmp_more.bin", tool_menu.more, BTN_X_PIXEL * 2 + INTERVAL_V * 3, BTN_Y_PIXEL + INTERVAL_H + titleHeight, event_handler, ID_T_MORE);
-  lv_big_button_create(scr, "F:/bmp_return.bin", common_menu.text_back, BTN_X_PIXEL * 3 + INTERVAL_V * 4, BTN_Y_PIXEL + INTERVAL_H + titleHeight, event_handler, ID_T_RETURN);
+  lv_big_button_create(scr, "F:/bmp_preHeat.bin", tool_menu.preheat, INTERVAL_W, titleHeight, event_handler, ID_T_PRE_HEAT);
+  lv_big_button_create(scr, "F:/bmp_extruct.bin", tool_menu.extrude, BTN_SIZE_X + INTERVAL_W * 2, titleHeight, event_handler, ID_T_EXTRUCT);
+  lv_big_button_create(scr, "F:/bmp_mov.bin", tool_menu.move, BTN_SIZE_X * 2 + INTERVAL_W * 3, titleHeight, event_handler, ID_T_MOV);
+  lv_big_button_create(scr, "F:/bmp_zero.bin", tool_menu.home, BTN_SIZE_X * 3 + INTERVAL_W * 4, titleHeight, event_handler, ID_T_HOME);
+  lv_big_button_create(scr, "F:/bmp_leveling.bin", tool_menu.TERN(AUTO_BED_LEVELING_BILINEAR, autoleveling, leveling), INTERVAL_W, BTN_SIZE_Y + INTERVAL_H + titleHeight, event_handler, ID_T_LEVELING);
+  lv_big_button_create(scr, "F:/bmp_filamentchange.bin", tool_menu.filament, BTN_SIZE_X + INTERVAL_W * 2, BTN_SIZE_Y + INTERVAL_H + titleHeight, event_handler, ID_T_FILAMENT);
+  lv_big_button_create(scr, "F:/bmp_more.bin", tool_menu.more, BTN_SIZE_X * 2 + INTERVAL_W * 3, BTN_SIZE_Y + INTERVAL_H + titleHeight, event_handler, ID_T_MORE);
+  lv_big_button_create(scr, "F:/bmp_return.bin", common_menu.text_back, BTN_SIZE_X * 3 + INTERVAL_W * 4, BTN_SIZE_Y + INTERVAL_H + titleHeight, event_handler, ID_T_RETURN);
 }
 
 void lv_clear_tool() {

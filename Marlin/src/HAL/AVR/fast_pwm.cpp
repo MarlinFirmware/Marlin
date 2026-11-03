@@ -150,7 +150,7 @@ void MarlinHAL::set_pwm_frequency(const pin_t pin, const uint16_t f_desired) {
       else {
         if (p == 32 || p == 128) continue;                    // Skip TIMER2 specific prescalers when not TIMER2
         const uint16_t rft = (F_CPU) / (p * f_desired);
-        DEBUG_ECHOLNPGM("(Not Timer 2) F_CPU=" STRINGIFY(F_CPU), " prescaler=", p, " f_desired=", f_desired);
+        DEBUG_ECHOLNPGM("(Not Timer 2) F_CPU=", STRINGIFY(F_CPU), " prescaler=", p, " f_desired=", f_desired);
         res_fast_temp = rft - 1;
         res_pc_temp = rft / 2;
       }

@@ -93,15 +93,15 @@ namespace AVRHelpers {
     typedef T type;
   };
   template <typename T>
-  struct voltype <T, 1u> {
+  struct voltype <T, 1U> {
     typedef uint8_t type;
   };
   template <typename T>
-  struct voltype <T, 2u> {
+  struct voltype <T, 2U> {
     typedef uint16_t type;
   };
   template <typename T>
-  struct voltype <T, 4u> {
+  struct voltype <T, 4U> {
     typedef uint32_t type;
   };
 
@@ -2007,7 +2007,7 @@ inline void _ATmega_resetperipherals() {
 
   #if defined(__AVR_TRM01__) || defined(__AVR_TRM02__) || defined(__AVR_TRM03__) || defined(__AVR_TRM05__)
     _EEAR._EEAR = 0;
-    dwrite(_EEDR, (uint8_t)0u);
+    dwrite(_EEDR, (uint8_t)0U);
   #endif
 
   #if defined(__AVR_TRM01__) || defined(__AVR_TRM02__) || defined(__AVR_TRM03__) || defined(__AVR_TRM04__) || defined(__AVR_TRM05__)

@@ -57,7 +57,7 @@ void AdvancedSettingsMenu::onRedraw(draw_mode_t what) {
       .tag(2) .button(STEPS_PER_MM_POS,       GET_TEXT_F(MSG_STEPS_PER_MM))
               .enabled(ENABLED(HAS_TRINAMIC_CONFIG))
       .tag(3) .button(TMC_CURRENT_POS,        GET_TEXT_F(MSG_TMC_CURRENT))
-              .enabled(ENABLED(LIN_ADVANCE))
+              .enabled(ENABLED(HAS_LIN_ADVANCE_K))
       .tag(4) .button(LIN_ADVANCE_POS,        GET_TEXT_F(MSG_LINEAR_ADVANCE))
       .tag(5) .button(VELOCITY_POS,           GET_TEXT_F(MSG_MAX_SPEED_NO_UNITS))
       .tag(6) .button(ACCELERATION_POS,       GET_TEXT_F(MSG_ACCELERATION))
@@ -76,10 +76,10 @@ bool AdvancedSettingsMenu::onTouchEnd(uint8_t tag) {
     case  1: SaveSettingsDialogBox::promptToSaveSettings(); break;
     case  2: GOTO_SCREEN(StepsScreen); break;
     #if HAS_TRINAMIC_CONFIG
-    case  3: GOTO_SCREEN(StepperCurrentScreen); break;
+      case  3: GOTO_SCREEN(StepperCurrentScreen); break;
     #endif
-    #if ENABLED(LIN_ADVANCE)
-    case  4: GOTO_SCREEN(LinearAdvanceScreen);  break;
+    #if HAS_LIN_ADVANCE_K
+      case  4: GOTO_SCREEN(LinearAdvanceScreen);  break;
     #endif
     case  5: GOTO_SCREEN(MaxVelocityScreen); break;
     case  6: GOTO_SCREEN(DefaultAccelerationScreen);  break;

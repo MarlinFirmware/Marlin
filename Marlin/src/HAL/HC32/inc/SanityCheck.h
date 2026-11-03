@@ -22,6 +22,13 @@
 #pragma once
 #include <core_util.h>
 
+/**
+ * Require pins to be defined as macros with numerical values
+ */
+#ifndef PA0
+  #error "Your ARM platform pins are not defined as macros, only as enums! Provide pins_arduino.h and/or 'buildroot/share/PlatformIO/variants/*/variant.h' to define the pins."
+#endif
+
 #if !defined(ARDUINO_CORE_VERSION_INT) || !defined(GET_VERSION_INT)
   // version macros were introduced in arduino core version 1.1.0
   // below that version, we polyfill them
@@ -43,8 +50,11 @@
   #error "FAST_PWM_FAN is not yet implemented for this platform."
 #endif
 
-#if !defined(HAVE_SW_SERIAL) && HAS_TMC_SW_SERIAL
-  #error "Missing SoftwareSerial implementation."
+// SoftwareSerial introduced in arduino core version 1.3.1
+#if ARDUINO_CORE_VERSION_INT < GET_VERSION_INT(1, 3, 1)
+  #if !defined(HAVE_SW_SERIAL) && HAS_TMC_SW_SERIAL
+    #error "Missing SoftwareSerial implementation."
+  #endif
 #endif
 
 #if ENABLED(SDCARD_EEPROM_EMULATION) && !HAS_MEDIA
@@ -54,6 +64,10 @@
   #endif
 
   #error "SDCARD_EEPROM_EMULATION requires SDSUPPORT. Enable SDSUPPORT or choose another EEPROM emulation."
+#endif
+
+#if ENABLED(FLASH_EEPROM_EMULATION) && !defined(HC32_FLASH_SIZE)
+  #error "FLASH_EEPROM_EMULATION requires HC32_FLASH_SIZE (in KB). Use an HC32F460C or HC32F460E environment."
 #endif
 
 #if ENABLED(SERIAL_STATS_MAX_RX_QUEUED)
@@ -83,7 +97,7 @@
   #error "POSTMORTEM_DEBUGGING requires CORE_DISABLE_FAULT_HANDLER to be set."
 #endif
 
-#if defined(PANIC_ENABLE)
+#ifdef PANIC_ENABLE
   #if defined(PANIC_USART1_TX_PIN) || defined(PANIC_USART2_TX_PIN) || defined(PANIC_USART3_TX_PIN) || defined(PANIC_USART3_TX_PIN)
     #error "HC32 HAL uses a custom panic handler. Do not define PANIC_USARTx_TX_PIN."
   #endif
@@ -94,8 +108,10 @@
     #error "SERIAL_DMA requires USART_RX_DMA_SUPPORT to be enabled in the arduino core."
   #endif
 
-  // USART_RX_DMA_SUPPORT does not implement core_hook_usart_rx_irq, which is required for the emergency parser
-  #if ENABLED(EMERGENCY_PARSER)
+  // Before arduino core version 1.2.0, USART_RX_DMA_SUPPORT did not implement
+  // core_hook_usart_rx_irq, which is required for the emergency parser.
+  // With 1.2.0, this was fixed (see https://github.com/shadow578/framework-arduino-hc32f46x/pull/25).
+  #if ENABLED(EMERGENCY_PARSER) && ARDUINO_CORE_VERSION_INT < GET_VERSION_INT(1, 2, 0)
     #error "EMERGENCY_PARSER is not supported with SERIAL_DMA. Please disable either SERIAL_DMA or EMERGENCY_PARSER."
   #endif
 

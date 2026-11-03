@@ -132,9 +132,9 @@ extern const stm32_pin_info PIN_MAP[BOARD_NR_GPIO_PINS] = {
   {&gpioc,   NULL, NULL, 14, 0, ADCx}, /* PC14 OSC32_IN */
   {&gpioc,   NULL, NULL, 15, 0, ADCx}, /* PC15 OSC32_OUT */
 
-  {&gpiod,   NULL, NULL,   0, 0, ADCx} , /* PD0 OSC_IN */
-  {&gpiod,   NULL, NULL,   1, 0, ADCx} , /* PD1  OSC_OUT */
-  {&gpiod,   NULL, NULL,   2, 0, ADCx} , /* PD2  TIM3_ETR/UART5_RX SDIO_CMD */
+  {&gpiod,   NULL, NULL,   0, 0, ADCx}, /* PD0 OSC_IN */
+  {&gpiod,   NULL, NULL,   1, 0, ADCx}, /* PD1 OSC_OUT */
+  {&gpiod,   NULL, NULL,   2, 0, ADCx}, /* PD2 TIM3_ETR/UART5_RX SDIO_CMD */
 };
 
 /*  Basically everything that is defined as having a timer us PWM */

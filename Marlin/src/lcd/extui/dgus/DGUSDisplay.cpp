@@ -46,7 +46,7 @@
 
 DGUSDisplay dgus;
 
-#ifdef DEBUG_DGUS_COMM
+#if ENABLED(DEBUG_DGUS_COMM)
   #define DEBUGLCDCOMM_ECHOPGM DEBUG_ECHOPGM
 #else
   #define DEBUGLCDCOMM_ECHOPGM(...) NOOP
@@ -60,7 +60,7 @@ constexpr uint8_t DGUS_CMD_WRITEVAR = 0x82;
 constexpr uint8_t DGUS_CMD_READVAR = 0x83;
 
 #if ENABLED(DEBUG_DGUSLCD)
-  bool dguslcd_local_debug; // = false;
+  bool dguslcd_local_debug; // = false
 #endif
 
 void DGUSDisplay::initDisplay() {
@@ -76,7 +76,22 @@ void DGUSDisplay::initDisplay() {
   requestScreen(TERN(SHOW_BOOTSCREEN, DGUS_SCREEN_BOOT, DGUS_SCREEN_MAIN));
 }
 
-void DGUSDisplay::writeVariable(uint16_t adr, const void *values, uint8_t valueslen, bool isstr) {
+void DGUSDisplay::writeVariable_P(uint16_t adr, const void *values, uint8_t valueslen, bool isstr/*=false*/) {
+  const char* myvalues = static_cast<const char*>(values);
+  bool strend = !myvalues;
+  writeHeader(adr, DGUS_CMD_WRITEVAR, valueslen);
+  while (valueslen--) {
+    char x;
+    if (!strend) x = pgm_read_byte(myvalues++);
+    if ((isstr && !x) || strend) {
+      strend = true;
+      x = ' ';
+    }
+    LCD_SERIAL.write(x);
+  }
+}
+
+void DGUSDisplay::writeVariable(uint16_t adr, const void *values, uint8_t valueslen, bool isstr/*=false*/) {
   const char* myvalues = static_cast<const char*>(values);
   bool strend = !myvalues;
   writeHeader(adr, DGUS_CMD_WRITEVAR, valueslen);
@@ -97,8 +112,7 @@ void DGUSDisplay::writeVariable(uint16_t adr, uint16_t value) {
 }
 
 void DGUSDisplay::writeVariable(uint16_t adr, int16_t value) {
-  value = (value & 0xFFU) << 8U | (value >> 8U);
-  writeVariable(adr, static_cast<const void*>(&value), sizeof(uint16_t));
+  writeVariable(adr, uint16_t(value)); // Swap as unsigned to avoid sign extension
 }
 
 void DGUSDisplay::writeVariable(uint16_t adr, uint8_t value) {
@@ -118,21 +132,6 @@ void DGUSDisplay::writeVariable(uint16_t adr, long value) {
   tmp[2] = endian.lb[1];
   tmp[3] = endian.lb[0];
   writeVariable(adr, static_cast<const void*>(&tmp), sizeof(long));
-}
-
-void DGUSDisplay::writeVariablePGM(uint16_t adr, const void *values, uint8_t valueslen, bool isstr) {
-  const char* myvalues = static_cast<const char*>(values);
-  bool strend = !myvalues;
-  writeHeader(adr, DGUS_CMD_WRITEVAR, valueslen);
-  while (valueslen--) {
-    char x;
-    if (!strend) x = pgm_read_byte(myvalues++);
-    if ((isstr && !x) || strend) {
-      strend = true;
-      x = ' ';
-    }
-    LCD_SERIAL.write(x);
-  }
 }
 
 void DGUSDisplay::processRx() {
@@ -203,6 +202,18 @@ void DGUSDisplay::processRx() {
         |     DatagramLen  /  VPAdr  |
         |           Command          DataLen (in Words) */
         if (command == DGUS_CMD_READVAR) {
+          if (rx_datagram_len < 4) {
+            rx_datagram_state = DGUS_IDLE;
+            break;
+          }
+
+          const uint16_t dlen = uint16_t(tmp[2]) << 1,
+                         payload_len = rx_datagram_len - 4;
+          if (dlen < 2 || dlen != payload_len) {
+            rx_datagram_state = DGUS_IDLE;
+            break;
+          }
+
           const uint16_t vp = tmp[0] << 8 | tmp[1];
           DGUS_VP_Variable ramcopy;
           if (populate_VPVar(vp, &ramcopy)) {

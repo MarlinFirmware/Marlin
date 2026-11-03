@@ -25,6 +25,8 @@
   #include <NativeEthernet.h>
 #endif
 
+#include "../HAL/shared/Marduino.h"
+
 // Teensy 4.1 uses internal MAC Address
 
 class MarlinEthernet {
@@ -34,6 +36,10 @@ class MarlinEthernet {
     static EthernetClient telnetClient;
     static void init();
     static void check();
+
+    static void ETH0_report(const bool forReplay=true);
+    static void MAC_report(const bool forReplay=true);
+    static void ip_report(const uint16_t cmd, FSTR_P const post, const IPAddress &ipo, const bool forReplay=true);
 };
 
 extern MarlinEthernet ethernet;

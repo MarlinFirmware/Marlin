@@ -4,10 +4,11 @@
 # - For build.address replace VECT_TAB_ADDR to relocate the firmware
 # - For build.ldscript use one of the linker scripts in buildroot/share/PlatformIO/ldscripts
 #
+
 import pioutil
 if pioutil.is_pio_build():
     import marlin
-    board = marlin.env.BoardConfig()
+    board = pioutil.env.BoardConfig()
 
     address = board.get("build.address", "")
     if address:

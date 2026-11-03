@@ -23,24 +23,24 @@
 
 #include "../../inc/MarlinConfig.h"
 
-#include <rom/rtc.h>
+#include <esp_system.h>
 #include <driver/adc.h>
 #include <esp_adc_cal.h>
 #include <HardwareSerial.h>
 
-#if ENABLED(USE_ESP32_TASK_WDT)
+#if ANY(USE_ESP32_TASK_WDT, USE_WATCHDOG)
   #include <esp_task_wdt.h>
 #endif
 
 #if ENABLED(WIFISUPPORT)
   #include <ESPAsyncWebServer.h>
-  #include "wifi.h"
+  #include "wifi/wifi.h"
   #if ENABLED(OTASUPPORT)
-    #include "ota.h"
+    #include "wifi/ota.h"
   #endif
   #if ENABLED(WEBSUPPORT)
-    #include "spiffs.h"
-    #include "web.h"
+    #include "wifi/spiffs.h"
+    #include "wifi/web.h"
   #endif
 #endif
 
@@ -93,7 +93,12 @@ struct {
 
   bool wifi_custom_command(char * const command_ptr) {
     #if ENABLED(ESP3D_WIFISUPPORT)
-      return esp3dlib.parse(command_ptr);
+      // ESP3D commands such as a WiFi scan or a file system format can take longer
+      // than the watchdog timeout, and can't refresh the watchdog themselves.
+      TERN_(USE_WATCHDOG, esp_task_wdt_delete(nullptr));
+      const bool handled = esp3dlib.parse(command_ptr);
+      TERN_(USE_WATCHDOG, esp_task_wdt_add(nullptr));
+      return handled;
     #else
       UNUSED(command_ptr);
       return false;
@@ -122,18 +127,6 @@ void MarlinHAL::init_board() {
   #if ENABLED(USE_ESP32_TASK_WDT)
     esp_task_wdt_init(10, true);
   #endif
-  #if ENABLED(ESP3D_WIFISUPPORT)
-    esp3dlib.init();
-  #elif ENABLED(WIFISUPPORT)
-    wifi_init();
-    TERN_(OTASUPPORT, OTA_init());
-    #if ENABLED(WEBSUPPORT)
-      spiffs_init();
-      web_init();
-    #endif
-    server.begin();
-  #endif
-
   // ESP32 uses a GPIO matrix that allows pins to be assigned to hardware serial ports.
   // The following code initializes hardware Serial1 and Serial2 to use user-defined pins
   // if they have been defined.
@@ -162,6 +155,20 @@ void MarlinHAL::init_board() {
   #elif ENABLED(I2S_STEPPER_STREAM)
     i2s_init();
   #endif
+
+  // Start WiFi last. wifi_init() waits for the network, and until the expander
+  // is running its outputs (heaters, fans, ...) hold whatever state they powered up in.
+  #if ENABLED(ESP3D_WIFISUPPORT)
+    esp3dlib.init();
+  #elif ENABLED(WIFISUPPORT)
+    wifi_init();
+    TERN_(OTASUPPORT, OTA_init());
+    #if ENABLED(WEBSUPPORT)
+      spiffs_init();
+      web_init();
+    #endif
+    server.begin();
+  #endif
 }
 
 void MarlinHAL::idletask() {
@@ -171,11 +178,21 @@ void MarlinHAL::idletask() {
   TERN_(ESP3D_WIFISUPPORT, esp3dlib.idletask());
 }
 
-uint8_t MarlinHAL::get_reset_source() { return rtc_get_reset_reason(1); }
+uint8_t MarlinHAL::get_reset_source() {
+  switch (esp_reset_reason()) {
+    case ESP_RST_POWERON:  return RST_POWER_ON;   // Includes the EN pin
+    case ESP_RST_EXT:      return RST_EXTERNAL;
+    case ESP_RST_BROWNOUT: return RST_BROWN_OUT;
+    case ESP_RST_INT_WDT:
+    case ESP_RST_TASK_WDT:
+    case ESP_RST_WDT:      return RST_WATCHDOG;
+    case ESP_RST_SW:
+    case ESP_RST_PANIC:    return RST_SOFTWARE;   // Restarted by software, or after a crash
+    default:               return 0;
+  }
+}
 
 void MarlinHAL::reboot() { ESP.restart(); }
-
-void _delay_ms(const int ms) { delay(ms); }
 
 // return free memory between end of heap (or end bss) and whatever is current
 int MarlinHAL::freeMemory() { return ESP.getFreeHeap(); }
@@ -186,18 +203,17 @@ int MarlinHAL::freeMemory() { return ESP.getFreeHeap(); }
 
 #if ENABLED(USE_WATCHDOG)
 
-  #define WDT_TIMEOUT_US TERN(WATCHDOG_DURATION_8S, 8000000, 4000000) // 4 or 8 second timeout
-
-  extern "C" {
-    esp_err_t esp_task_wdt_reset();
-  }
+  #define WDT_TIMEOUT_S TERN(WATCHDOG_DURATION_8S, 8, 4) // 4 or 8 second timeout
 
   void watchdogSetup() {
     // do whatever. don't remove this function.
   }
 
+  // The IDF Task Watchdog is already running for the idle task. Set the timeout,
+  // reset on timeout, and watch the Marlin loop task, which calls watchdog_refresh().
   void MarlinHAL::watchdog_init() {
-    // TODO
+    esp_task_wdt_init(WDT_TIMEOUT_S, true);
+    esp_task_wdt_add(nullptr);
   }
 
   // Reset watchdog.
@@ -209,16 +225,17 @@ int MarlinHAL::freeMemory() { return ESP.getFreeHeap(); }
 // ADC
 // ------------------------
 
-#define ADC1_CHANNEL(pin) ADC1_GPIO ## pin ## _CHANNEL
-
+// https://docs.espressif.com/projects/esp-idf/en/release-v4.4/esp32/api-reference/peripherals/adc.html
 adc1_channel_t get_channel(int pin) {
   switch (pin) {
-    case 39: return ADC1_CHANNEL(39);
-    case 36: return ADC1_CHANNEL(36);
-    case 35: return ADC1_CHANNEL(35);
-    case 34: return ADC1_CHANNEL(34);
-    case 33: return ADC1_CHANNEL(33);
-    case 32: return ADC1_CHANNEL(32);
+    case 39: return ADC1_CHANNEL_3;
+    case 36: return ADC1_CHANNEL_0;
+    case 35: return ADC1_CHANNEL_7;
+    case 34: return ADC1_CHANNEL_6;
+    case 33: return ADC1_CHANNEL_5;
+    case 32: return ADC1_CHANNEL_4;
+    case 37: return ADC1_CHANNEL_1;
+    case 38: return ADC1_CHANNEL_2;
   }
   return ADC1_CHANNEL_MAX;
 }
@@ -243,12 +260,13 @@ void MarlinHAL::adc_init() {
   TERN_(HAS_TEMP_ADC_5,        adc1_set_attenuation(get_channel(TEMP_5_PIN), ADC_ATTEN_11db));
   TERN_(HAS_TEMP_ADC_6,        adc2_set_attenuation(get_channel(TEMP_6_PIN), ADC_ATTEN_11db));
   TERN_(HAS_TEMP_ADC_7,        adc3_set_attenuation(get_channel(TEMP_7_PIN), ADC_ATTEN_11db));
-  TERN_(HAS_HEATED_BED,        adc1_set_attenuation(get_channel(TEMP_BED_PIN), ADC_ATTEN_11db));
-  TERN_(HAS_TEMP_CHAMBER,      adc1_set_attenuation(get_channel(TEMP_CHAMBER_PIN), ADC_ATTEN_11db));
-  TERN_(HAS_TEMP_PROBE,        adc1_set_attenuation(get_channel(TEMP_PROBE_PIN), ADC_ATTEN_11db));
-  TERN_(HAS_TEMP_COOLER,       adc1_set_attenuation(get_channel(TEMP_COOLER_PIN), ADC_ATTEN_11db));
-  TERN_(HAS_TEMP_BOARD,        adc1_set_attenuation(get_channel(TEMP_BOARD_PIN), ADC_ATTEN_11db));
-  TERN_(FILAMENT_WIDTH_SENSOR, adc1_set_attenuation(get_channel(FILWIDTH_PIN), ADC_ATTEN_11db));
+  TERN_(HAS_TEMP_ADC_BED,      adc1_set_attenuation(get_channel(TEMP_BED_PIN), ADC_ATTEN_11db));
+  TERN_(HAS_TEMP_ADC_CHAMBER,  adc1_set_attenuation(get_channel(TEMP_CHAMBER_PIN), ADC_ATTEN_11db));
+  TERN_(HAS_TEMP_ADC_PROBE,    adc1_set_attenuation(get_channel(TEMP_PROBE_PIN), ADC_ATTEN_11db));
+  TERN_(HAS_TEMP_ADC_COOLER,   adc1_set_attenuation(get_channel(TEMP_COOLER_PIN), ADC_ATTEN_11db));
+  TERN_(HAS_TEMP_ADC_BOARD,    adc1_set_attenuation(get_channel(TEMP_BOARD_PIN), ADC_ATTEN_11db));
+  TERN_(HAS_FILWIDTH_ADC,      adc1_set_attenuation(get_channel(FILWIDTH_PIN), ADC_ATTEN_11db));
+  TERN_(HAS_FILWIDTH2_ADC,     adc1_set_attenuation(get_channel(FILWIDTH2_PIN), ADC_ATTEN_11db));
 
   // Note that adc2 is shared with the WiFi module, which has higher priority, so the conversion may fail.
   // That's why we're not setting it up here.
@@ -271,7 +289,8 @@ void MarlinHAL::adc_start(const pin_t pin) {
   uint32_t mv;
   esp_adc_cal_get_voltage((adc_channel_t)chan, &characteristics[attenuations[chan]], &mv);
 
-  adc_result = mv * isr_float_t(1023) / isr_float_t(ADC_REFERENCE_VOLTAGE) / isr_float_t(1000);
+  static constexpr uint32_t adc_divisor = uint32_t((ADC_REFERENCE_VOLTAGE) * 1000UL);
+  adc_result = (mv * 1023UL) / adc_divisor;
 
   // Change the attenuation level based on the new reading
   adc_atten_t atten;

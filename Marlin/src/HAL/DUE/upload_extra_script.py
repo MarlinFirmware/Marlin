@@ -4,6 +4,7 @@
 #  Windows: bossac.exe
 #  Other: leave unchanged
 #
+
 import pioutil
 if pioutil.is_pio_build():
     import platform
@@ -11,7 +12,7 @@ if pioutil.is_pio_build():
 
     if current_OS == 'Windows':
 
-        Import("env")
+        env = pioutil.env
 
         # Use bossac.exe on Windows
         env.Replace(

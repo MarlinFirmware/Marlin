@@ -5,17 +5,19 @@
 
 import pioutil
 if pioutil.is_pio_build():
-    Import("env")
+    env = pioutil.env
 
     cxxflags = [
         # "-Wno-incompatible-pointer-types",
         # "-Wno-unused-const-variable",
         # "-Wno-maybe-uninitialized",
-        # "-Wno-sign-compare"
+        # "-Wno-sign-compare",
+        "-fno-sized-deallocation"
     ]
-    if "teensy" not in env["PIOENV"]:
+    if "teensy" not in env["PIOENV"] and "esp32" not in env["PIOENV"]:
         cxxflags += ["-Wno-register"]
     env.Append(CXXFLAGS=cxxflags)
+    env.Append(CFLAGS=["-Wno-implicit-function-declaration"])
 
     #
     # Add CPU frequency as a compile time constant instead of a runtime variable
@@ -27,8 +29,8 @@ if pioutil.is_pio_build():
     # Useful for JTAG debugging
     #
     # It will separate release and debug build folders.
-    # It useful to keep two live versions: a debug version for debugging and another for
-    # release, for flashing when upload is not done automatically by jlink/stlink.
+    # This is useful to keep two live versions: a debug version and a release version,
+    # for flashing when upload is not done automatically by jlink/stlink.
     # Without this, PIO needs to recompile everything twice for any small change.
     if env.GetBuildType() == "debug" and env.get("UPLOAD_PROTOCOL") not in ["jlink", "stlink", "custom"]:
         env["BUILD_DIR"] = "$PROJECT_BUILD_DIR/$PIOENV/debug"

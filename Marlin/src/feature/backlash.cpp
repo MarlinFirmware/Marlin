@@ -29,7 +29,7 @@
 #include "../module/motion.h"
 #include "../module/planner.h"
 
-AxisBits Backlash::last_direction_bits;
+AxisBits Backlash::last_direction;
 xyz_long_t Backlash::residual_error{0};
 
 #ifdef BACKLASH_DISTANCE_MM
@@ -64,7 +64,7 @@ Backlash backlash;
  */
 
 void Backlash::add_correction_steps(const xyze_long_t &dist, const AxisBits dm, block_t * const block) {
-  AxisBits changed_dir = last_direction_bits ^ dm;
+  AxisBits changed_dir = last_direction ^ dm;
   // Ignore direction change unless steps are taken in that direction
   #if DISABLED(CORE_BACKLASH) || ANY(MARKFORGED_XY, MARKFORGED_YX)
     if (!dist.a)            changed_dir.x = false;
@@ -83,7 +83,7 @@ void Backlash::add_correction_steps(const xyze_long_t &dist, const AxisBits dm, 
     if (!(dist.b - dist.c)) changed_dir.z = false;
     if (!dist.a)            changed_dir.x = false;
   #endif
-  last_direction_bits ^= changed_dir;
+  last_direction ^= changed_dir;
 
   if (!correction && !residual_error) return;
 
@@ -167,17 +167,18 @@ void Backlash::add_correction_steps(const xyze_long_t &dist, const AxisBits dm, 
 int32_t Backlash::get_applied_steps(const AxisEnum axis) {
   if (axis >= NUM_AXES) return 0;
 
-  const bool forward = last_direction_bits[axis];
+  const bool forward = last_direction[axis];
 
   const int32_t residual_error_axis = residual_error[axis];
 
-  // At startup it is assumed the last move was forward.
-  // So the applied steps will always be negative.
+  // At startup, when no steps are applied, it is assumed the last move was backwards.
+  // So the applied steps will always be zero (when moving backwards) or a positive
+  // number (when moving forwards).
 
-  if (forward) return -residual_error_axis;
+  if (!forward) return -residual_error_axis;
 
   const float f_corr = float(correction) / all_on;
-  const int32_t full_error_axis = -f_corr * distance_mm[axis] * planner.settings.axis_steps_per_mm[axis];
+  const int32_t full_error_axis = f_corr * distance_mm[axis] * planner.settings.axis_steps_per_mm[axis];
   return full_error_axis - residual_error_axis;
 }
 
@@ -223,12 +224,12 @@ class Backlash::StepAdjuster {
   void Backlash::measure_with_probe() {
     if (measured_count.z == 255) return;
 
-    const float start_height = current_position.z;
-    while (current_position.z < (start_height + BACKLASH_MEASUREMENT_LIMIT) && PROBE_TRIGGERED())
-      do_blocking_move_to_z(current_position.z + BACKLASH_MEASUREMENT_RESOLUTION, MMM_TO_MMS(BACKLASH_MEASUREMENT_FEEDRATE));
+    const float start_height = motion.position.z;
+    while (motion.position.z < (start_height + BACKLASH_MEASUREMENT_LIMIT) && PROBE_TRIGGERED())
+      motion.blocking_move_z(motion.position.z + BACKLASH_MEASUREMENT_RESOLUTION, MMM_TO_MMS(BACKLASH_MEASUREMENT_FEEDRATE));
 
     // The backlash from all probe points is averaged, so count the number of measurements
-    measured_mm.z += current_position.z - start_height;
+    measured_mm.z += motion.position.z - start_height;
     measured_count.z++;
   }
 

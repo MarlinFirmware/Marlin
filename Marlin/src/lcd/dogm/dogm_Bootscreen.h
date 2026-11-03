@@ -30,6 +30,9 @@
 
 #include "../../inc/MarlinConfig.h"
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+
 #if ENABLED(SHOW_CUSTOM_BOOTSCREEN)
 
   typedef struct {
@@ -538,3 +541,5 @@
 #endif
 
 static_assert(sizeof(start_bmp) == (START_BMP_BYTEWIDTH) * (START_BMPHEIGHT), "Bootscreen (start_bmp) dimensions don't match data.");
+
+#pragma GCC diagnostic pop

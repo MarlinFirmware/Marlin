@@ -34,15 +34,15 @@
 #define FORCE_INLINE __attribute__((always_inline)) inline
 
 typedef uint32_t hal_timer_t;
-#define HAL_TIMER_TYPE_MAX 0xFFFFFFFE
+#define HAL_TIMER_TYPE_MAX hal_timer_t(UINT32_MAX-1UL)
 
-#define GPT_TIMER_RATE F_BUS_ACTUAL   // 150MHz
+#define GPT_TIMER_RATE (F_CPU / 4) // 150MHz (Can't use F_BUS_ACTUAL because it's extern volatile)
 
 #define GPT1_TIMER_PRESCALE 2
 #define GPT2_TIMER_PRESCALE 10
 
-#define GPT1_TIMER_RATE (GPT_TIMER_RATE / GPT1_TIMER_PRESCALE) // 75MHz
-#define GPT2_TIMER_RATE (GPT_TIMER_RATE / GPT2_TIMER_PRESCALE) // 15MHz
+#define GPT1_TIMER_RATE (GPT_TIMER_RATE / GPT1_TIMER_PRESCALE) // 150MHz /  2 = 75MHz
+#define GPT2_TIMER_RATE (GPT_TIMER_RATE / GPT2_TIMER_PRESCALE) // 150MHz / 10 = 15MHz
 
 #ifndef MF_TIMER_STEP
   #define MF_TIMER_STEP         0  // Timer Index for Stepper
@@ -57,19 +57,19 @@ typedef uint32_t hal_timer_t;
 #define TEMP_TIMER_RATE        1000000
 #define TEMP_TIMER_FREQUENCY   1000
 
-#define STEPPER_TIMER_RATE     GPT1_TIMER_RATE
-#define STEPPER_TIMER_TICKS_PER_US ((STEPPER_TIMER_RATE) / 1000000)
-#define STEPPER_TIMER_PRESCALE ((GPT_TIMER_RATE / 1000000) / STEPPER_TIMER_TICKS_PER_US)
+#define HAL_TIMER_RATE              GPT1_TIMER_RATE
+#define STEPPER_TIMER_RATE          HAL_TIMER_RATE
+#define STEPPER_TIMER_TICKS_PER_US  ((STEPPER_TIMER_RATE) / 1000000UL)
+#define STEPPER_TIMER_PRESCALE      (GPT_TIMER_RATE / STEPPER_TIMER_RATE)
 
-#define PULSE_TIMER_RATE       STEPPER_TIMER_RATE   // frequency of pulse timer
-#define PULSE_TIMER_PRESCALE   STEPPER_TIMER_PRESCALE
-#define PULSE_TIMER_TICKS_PER_US STEPPER_TIMER_TICKS_PER_US
+#define PULSE_TIMER_RATE            STEPPER_TIMER_RATE                              // (Hz) Frequency of Pulse Timer
+#define PULSE_TIMER_PRESCALE        STEPPER_TIMER_PRESCALE
 
-#define ENABLE_STEPPER_DRIVER_INTERRUPT() HAL_timer_enable_interrupt(MF_TIMER_STEP)
-#define DISABLE_STEPPER_DRIVER_INTERRUPT() HAL_timer_disable_interrupt(MF_TIMER_STEP)
-#define STEPPER_ISR_ENABLED() HAL_timer_interrupt_enabled(MF_TIMER_STEP)
+#define ENABLE_STEPPER_DRIVER_INTERRUPT()   HAL_timer_enable_interrupt(MF_TIMER_STEP)
+#define DISABLE_STEPPER_DRIVER_INTERRUPT()  HAL_timer_disable_interrupt(MF_TIMER_STEP)
+#define STEPPER_ISR_ENABLED()               HAL_timer_interrupt_enabled(MF_TIMER_STEP)
 
-#define ENABLE_TEMPERATURE_INTERRUPT() HAL_timer_enable_interrupt(MF_TIMER_TEMP)
+#define ENABLE_TEMPERATURE_INTERRUPT()  HAL_timer_enable_interrupt(MF_TIMER_TEMP)
 #define DISABLE_TEMPERATURE_INTERRUPT() HAL_timer_disable_interrupt(MF_TIMER_TEMP)
 
 #ifndef HAL_STEP_TIMER_ISR
@@ -88,8 +88,16 @@ void HAL_timer_start(const uint8_t timer_num, const uint32_t frequency);
 
 FORCE_INLINE static void HAL_timer_set_compare(const uint8_t timer_num, const hal_timer_t compare) {
   switch (timer_num) {
-    case MF_TIMER_STEP: GPT1_OCR1 = compare - 1; break;
-    case MF_TIMER_TEMP: GPT2_OCR1 = compare - 1; break;
+    case MF_TIMER_STEP:
+      GPT1_CR |= GPT_CR_FRR;    // Free Run Mode (setting OCRx preserves CNT)
+      GPT1_OCR1 = compare - 1;
+      GPT1_CR &= ~GPT_CR_FRR;   // Reset Mode (CNT resets on trigger)
+      break;
+    case MF_TIMER_TEMP:
+      GPT2_CR |= GPT_CR_FRR;    // Free Run Mode (setting OCRx preserves CNT)
+      GPT2_OCR1 = compare - 1;
+      GPT2_CR &= ~GPT_CR_FRR;   // Reset Mode (CNT resets on trigger)
+      break;
   }
 }
 
@@ -114,5 +122,4 @@ void HAL_timer_disable_interrupt(const uint8_t timer_num);
 bool HAL_timer_interrupt_enabled(const uint8_t timer_num);
 
 void HAL_timer_isr_prologue(const uint8_t timer_num);
-//void HAL_timer_isr_epilogue(const uint8_t timer_num) {}
-#define HAL_timer_isr_epilogue(T) NOOP
+inline void HAL_timer_isr_epilogue(const uint8_t) {}

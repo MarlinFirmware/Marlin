@@ -19,30 +19,38 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-
-/**
- * Support routines for X86_64
- */
 #pragma once
 
 /**
- * Translation of routines & variables used by pinsDebug.h
+ * Pins Debugging for x86_64
+ * See PinsDebugBase in pins/pinsDebug.h for the hooks.
  */
 
-#define NUMBER_PINS_TOTAL NUM_DIGITAL_PINS
-#define IS_ANALOG(P) (DIGITAL_PIN_TO_ANALOG_PIN(P) >= 0 ? 1 : 0)
-#define digitalRead_mod(p)  digitalRead(p)
-#define GET_ARRAY_PIN(p) pin_array[p].pin
-#define PRINT_ARRAY_NAME(x) do{ sprintf_P(buffer, PSTR("%-" STRINGIFY(MAX_NAME_LENGTH) "s"), pin_array[x].name); SERIAL_ECHO(buffer); }while(0)
-#define PRINT_PIN(p) do{ sprintf_P(buffer, PSTR("%3d "), p); SERIAL_ECHO(buffer); }while(0)
-#define PRINT_PIN_ANALOG(p) do{ sprintf_P(buffer, PSTR(" (A%2d)  "), DIGITAL_PIN_TO_ANALOG_PIN(pin)); SERIAL_ECHO(buffer); }while(0)
-#define MULTI_NAME_PAD 16 // space needed to be pretty if not first name assigned to a pin
+struct PinsDebug : PinsDebugBase<PinsDebug> {
+  static constexpr uint16_t count = NUM_DIGITAL_PINS;
+  static constexpr uint8_t name_pad = 16;   // space needed to be pretty if not first name assigned to a pin
 
-// Active ADC function/mode/code values for PINSEL registers
-int8_t ADC_pin_mode(pin_t pin);
-int8_t get_pin_mode(const pin_t pin);
-bool GET_PINMODE(const pin_t pin);
-bool GET_ARRAY_IS_DIGITAL(const pin_t pin);
-void print_port(const pin_t);
-void pwm_details(const pin_t);
-bool pwm_status(const pin_t);
+  static bool is_valid(const pin_t pin) { return pin >= 0 && pin < pin_t(count); }
+
+  static int16_t analog_index(const pin_t pin) { return digitalPinToAnalogIndex(pin); }
+  static bool is_analog(const pin_t pin) { return analog_index(pin) >= 0; }
+
+  static int read_digital(const pin_t pin) { return digitalRead(pin); }
+
+  // Active ADC function/mode/code values for PINSEL registers
+  static int8_t adc_pin_mode(const pin_t) { return -1; }
+  static int8_t pin_mode(const pin_t pin) { return is_valid(pin) ? 0 : -1; }
+
+  // Input/output state
+  static bool is_output(const pin_t pin) {
+    const int8_t mode = pin_mode(pin);
+    if (mode == -1 || mode == adc_pin_mode(pin)) return false; // Invalid pin or active analog pin
+    return Gpio::getDir(pin) == OUTPUT;
+  }
+
+  // The pin and index are the same on this platform
+  static bool is_digital_at(const uint16_t index) {
+    const pin_t pin = pin_t(index);
+    return !is_analog(pin) || pin_mode(pin) != adc_pin_mode(pin);
+  }
+};

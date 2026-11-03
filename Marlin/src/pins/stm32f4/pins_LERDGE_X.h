@@ -37,7 +37,7 @@
 #define I2C_EEPROM
 #define I2C_SCL_PIN                         PB8
 #define I2C_SDA_PIN                         PB9
-#define MARLIN_EEPROM_SIZE               0x10000  // FM24CL64 F-RAM 64K (8Kx8)
+#define MARLIN_EEPROM_SIZE              0x10000U  // FM24CL64 F-RAM 64K (8Kx8)
 
 #define HAS_OTG_USB_HOST_SUPPORT                  // USB Flash Drive support
 
@@ -126,7 +126,6 @@
   #define SD_MISO_PIN                       PC8
   #define SD_MOSI_PIN                       PD2
   #define SD_SS_PIN                         PC11
-  #define SDSS                              PC11
 #endif
 
 //
@@ -148,14 +147,14 @@
   #endif
   #define ST7796S_INVERTED
 
+  // TODO: See if FSMC DMA can work
   #define FSMC_CS_PIN                       PD7
   #define FSMC_RS_PIN                       PD11
+  #define TFT_CS_PIN                 FSMC_CS_PIN
+  #define TFT_RS_PIN                 FSMC_RS_PIN
 
   #define TFT_RESET_PIN                     PD6
   #define TFT_BACKLIGHT_PIN                 PD3
-
-  #define TFT_CS_PIN                 FSMC_CS_PIN
-  #define TFT_RS_PIN                 FSMC_RS_PIN
 
   #define TOUCH_CS_PIN                      PB6
   #define TOUCH_SCK_PIN                     PB3

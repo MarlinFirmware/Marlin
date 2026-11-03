@@ -81,7 +81,7 @@ __exc_usagefault:
 .thumb_func
 __default_exc:
     ldr r2, NVIC_CCR            @ Enable returning to thread mode even if there are
-    mov r1 ,#1                  @ pending exceptions. See flag NONEBASETHRDENA.
+    mov r1, #1                  @ pending exceptions. See flag NONEBASETHRDENA.
     str r1, [r2]
     cpsid i                     @ Disable global interrupts
     ldr r2, SYSTICK_CSR         @ Disable systick handler

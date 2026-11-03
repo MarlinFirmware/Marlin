@@ -41,8 +41,11 @@
   #include "mks_hardware.h"
   #include "../../../module/endstops.h"
 
-  bool pw_det_sta, pw_off_sta, mt_det_sta;
-  #if PIN_EXISTS(MT_DET_2)
+  bool pw_det_sta, pw_off_sta;
+  #if PIN_EXISTS(FIL_RUNOUT)
+    bool mt_det1_sta;
+  #endif
+  #if PIN_EXISTS(FIL_RUNOUT2)
     bool mt_det2_sta;
   #endif
   #if USE_X_MIN
@@ -96,40 +99,44 @@
     constexpr static bool endstopz4_sta = true;
   #endif
 
-  #define ESTATE(S) (READ(S##_PIN) == S##_ENDSTOP_HIT_STATE)
+  // Expand S first so TERN() arguments resolve to a pin name before pasting
+  #define _LOWSTATE(S) (READ(S##_PIN) == LOW)
+  #define LOWSTATE(S) _LOWSTATE(S)
 
   void test_gpio_readlevel_L() {
     #if PIN_EXISTS(WIFI_IO0)
       WRITE(WIFI_IO0_PIN, HIGH);
     #endif
     delay(10);
-    pw_det_sta = (READ(MKS_TEST_POWER_LOSS_PIN) == LOW);
-    pw_off_sta = (READ(MKS_TEST_PS_ON_PIN) == LOW);
-    mt_det_sta = (READ(MT_DET_1_PIN) == LOW);
-    #if PIN_EXISTS(MT_DET_2)
-      mt_det2_sta = (READ(MT_DET_2_PIN) == LOW);
+    pw_det_sta = LOWSTATE(MKS_TEST_POWER_LOSS);
+    pw_off_sta = LOWSTATE(MKS_TEST_PS_ON);
+    #if PIN_EXISTS(FIL_RUNOUT)
+      mt_det1_sta = LOWSTATE(FIL_RUNOUT);
     #endif
-    TERN_(USE_X_MIN, endstopx1_min = ESTATE(X_MIN));
-    TERN_(USE_X_MAX, endstopx1_max = ESTATE(X_MAX));
+    #if PIN_EXISTS(FIL_RUNOUT2)
+      mt_det2_sta = LOWSTATE(FIL_RUNOUT2);
+    #endif
+    TERN_(USE_X_MIN, endstopx1_min = LOWSTATE(X_MIN));
+    TERN_(USE_X_MAX, endstopx1_max = LOWSTATE(X_MAX));
     #if USE_X2_MIN || USE_X2_MAX
-      endstopx2_sta = ESTATE(TERN(USE_X2_MIN, X2_MIN, X2_MAX));
+      endstopx2_sta = LOWSTATE(TERN(USE_X2_MIN, X2_MIN, X2_MAX));
     #endif
     #if USE_Y_MIN || USE_Y_MAX
-      endstopy1_sta = ESTATE(TERN(USE_Y_MIN,   Y_MIN,  Y_MAX));
+      endstopy1_sta = LOWSTATE(TERN(USE_Y_MIN,   Y_MIN,  Y_MAX));
     #endif
     #if USE_Y2_MIN || USE_Y2_MAX
-      endstopy2_sta = ESTATE(TERN(USE_Y2_MIN, Y2_MIN, Y2_MAX));
+      endstopy2_sta = LOWSTATE(TERN(USE_Y2_MIN, Y2_MIN, Y2_MAX));
     #endif
-    TERN_(USE_Z_MIN, endstopz1_min = ESTATE(Z_MIN));
-    TERN_(USE_Z_MAX, endstopz1_max = ESTATE(Z_MAX));
+    TERN_(USE_Z_MIN, endstopz1_min = LOWSTATE(Z_MIN));
+    TERN_(USE_Z_MAX, endstopz1_max = LOWSTATE(Z_MAX));
     #if USE_Z2_MIN || USE_Z2_MAX
-      endstopz2_sta = ESTATE(TERN(USE_Z2_MIN, Z2_MIN, Z2_MAX));
+      endstopz2_sta = LOWSTATE(TERN(USE_Z2_MIN, Z2_MIN, Z2_MAX));
     #endif
     #if USE_Z3_MIN || USE_Z3_MAX
-      endstopz3_sta = ESTATE(TERN(USE_Z3_MIN, Z3_MIN, Z3_MAX));
+      endstopz3_sta = LOWSTATE(TERN(USE_Z3_MIN, Z3_MIN, Z3_MAX));
     #endif
     #if USE_Z4_MIN || USE_Z4_MAX
-      endstopz4_sta = ESTATE(TERN(USE_Z4_MIN, Z4_MIN, Z4_MAX));
+      endstopz4_sta = LOWSTATE(TERN(USE_Z4_MIN, Z4_MIN, Z4_MAX));
     #endif
   }
 
@@ -138,33 +145,35 @@
       WRITE(WIFI_IO0_PIN, LOW);
     #endif
     delay(10);
-    pw_det_sta = (READ(MKS_TEST_POWER_LOSS_PIN) == HIGH);
-    pw_off_sta = (READ(MKS_TEST_PS_ON_PIN) == HIGH);
-    mt_det_sta = (READ(MT_DET_1_PIN) == HIGH);
-    #if PIN_EXISTS(MT_DET_2)
-      mt_det2_sta = (READ(MT_DET_2_PIN) == HIGH);
+    pw_det_sta = !LOWSTATE(MKS_TEST_POWER_LOSS);
+    pw_off_sta = !LOWSTATE(MKS_TEST_PS_ON);
+    #if PIN_EXISTS(FIL_RUNOUT)
+      mt_det1_sta = !LOWSTATE(FIL_RUNOUT);
     #endif
-    TERN_(USE_X_MIN, endstopx1_min = !ESTATE(X_MIN));
-    TERN_(USE_X_MAX, endstopx1_max = !ESTATE(X_MAX));
+    #if PIN_EXISTS(FIL_RUNOUT2)
+      mt_det2_sta = !LOWSTATE(FIL_RUNOUT2);
+    #endif
+    TERN_(USE_X_MIN, endstopx1_min = !LOWSTATE(X_MIN));
+    TERN_(USE_X_MAX, endstopx1_max = !LOWSTATE(X_MAX));
     #if USE_X2_MIN || USE_X2_MAX
-      endstopx2_sta = !ESTATE(TERN(USE_X2_MIN, X2_MIN, X2_MAX));
+      endstopx2_sta = !LOWSTATE(TERN(USE_X2_MIN, X2_MIN, X2_MAX));
     #endif
     #if USE_Y_MIN || USE_Y_MAX
-      endstopy1_sta = !ESTATE(TERN(USE_Y_MIN,   Y_MIN,  Y_MAX));
+      endstopy1_sta = !LOWSTATE(TERN(USE_Y_MIN,   Y_MIN,  Y_MAX));
     #endif
     #if USE_Y2_MIN || USE_Y2_MAX
-      endstopy2_sta = !ESTATE(TERN(USE_Y2_MIN, Y2_MIN, Y2_MAX));
+      endstopy2_sta = !LOWSTATE(TERN(USE_Y2_MIN, Y2_MIN, Y2_MAX));
     #endif
-    TERN_(USE_Z_MIN, endstopz1_min = !ESTATE(Z_MIN));
-    TERN_(USE_Z_MAX, endstopz1_max = !ESTATE(Z_MAX));
+    TERN_(USE_Z_MIN, endstopz1_min = !LOWSTATE(Z_MIN));
+    TERN_(USE_Z_MAX, endstopz1_max = !LOWSTATE(Z_MAX));
     #if USE_Z2_MIN || USE_Z2_MAX
-      endstopz2_sta = !ESTATE(TERN(USE_Z2_MIN, Z2_MIN, Z2_MAX));
+      endstopz2_sta = !LOWSTATE(TERN(USE_Z2_MIN, Z2_MIN, Z2_MAX));
     #endif
     #if USE_Z3_MIN || USE_Z3_MAX
-      endstopz3_sta = !ESTATE(TERN(USE_Z3_MIN, Z3_MIN, Z3_MAX));
+      endstopz3_sta = !LOWSTATE(TERN(USE_Z3_MIN, Z3_MIN, Z3_MAX));
     #endif
     #if USE_Z4_MIN || USE_Z4_MAX
-      endstopz4_sta = !ESTATE(TERN(USE_Z4_MIN, Z4_MIN, Z4_MAX));
+      endstopz4_sta = !LOWSTATE(TERN(USE_Z4_MIN, Z4_MIN, Z4_MAX));
     #endif
   }
 
@@ -177,11 +186,11 @@
       SET_OUTPUT(WIFI_IO0_PIN);
     #endif
 
-    #if PIN_EXISTS(MT_DET_1)
-      SET_INPUT_PULLUP(MT_DET_1_PIN);
+    #if PIN_EXISTS(FIL_RUNOUT)
+      SET_INPUT_PULLUP(FIL_RUNOUT_PIN);
     #endif
-    #if PIN_EXISTS(MT_DET_2)
-      SET_INPUT_PULLUP(MT_DET_2_PIN);
+    #if PIN_EXISTS(FIL_RUNOUT2)
+      SET_INPUT_PULLUP(FIL_RUNOUT2_PIN);
     #endif
 
     SET_INPUT_PULLUP(MKS_TEST_POWER_LOSS_PIN);
@@ -225,8 +234,11 @@
       test_gpio_readlevel_L();
       test_gpio_readlevel_H();
       test_gpio_readlevel_L();
-      if (pw_det_sta && pw_off_sta && mt_det_sta
-        #if PIN_EXISTS(MT_DET_2)
+      if (pw_det_sta && pw_off_sta
+        #if PIN_EXISTS(FIL_RUNOUT)
+          && mt_det1_sta
+        #endif
+        #if PIN_EXISTS(FIL_RUNOUT2)
           && mt_det2_sta
         #endif
         #if ENABLED(MKS_HARDWARE_TEST_ONLY_E0)
@@ -251,7 +263,7 @@
 
     void mks_hardware_test() {
       if (millis() % 2000 < 1000) {
-        thermalManager.fan_speed[0] = 255;
+        fans[0].speed = 255;
         #if HAS_X_AXIS
           WRITE(X_DIR_PIN, LOW);
         #endif
@@ -278,7 +290,7 @@
         #endif
       }
       else {
-        thermalManager.fan_speed[0] = 0;
+        fans[0].speed = 0;
         #if HAS_X_AXIS
           WRITE(X_DIR_PIN, HIGH);
         #endif

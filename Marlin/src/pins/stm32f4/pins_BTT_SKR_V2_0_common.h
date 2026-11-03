@@ -71,61 +71,12 @@
 //
 // Limit Switches
 //
-#ifdef X_STALL_SENSITIVITY
-  #define X_STOP_PIN                  X_DIAG_PIN
-  #if X_HOME_TO_MIN
-    #define X_MAX_PIN                       PC2   // E0DET
-  #else
-    #define X_MIN_PIN                       PC2   // E0DET
-  #endif
-#elif ENABLED(X_DUAL_ENDSTOPS)
-  #ifndef X_MIN_PIN
-    #define X_MIN_PIN                       PC1   // X-STOP
-  #endif
-  #ifndef X_MAX_PIN
-    #define X_MAX_PIN                       PC2   // E0DET
-  #endif
-#else
-  #define X_STOP_PIN                        PC1   // X-STOP
-#endif
-
-#ifdef Y_STALL_SENSITIVITY
-  #define Y_STOP_PIN                  Y_DIAG_PIN
-  #if Y_HOME_TO_MIN
-    #define Y_MAX_PIN                       PA0   // E1DET
-  #else
-    #define Y_MIN_PIN                       PA0   // E1DET
-  #endif
-#elif ENABLED(Y_DUAL_ENDSTOPS)
-  #ifndef Y_MIN_PIN
-    #define Y_MIN_PIN                       PC3   // Y-STOP
-  #endif
-  #ifndef Y_MAX_PIN
-    #define Y_MAX_PIN                       PA0   // E1DET
-  #endif
-#else
-  #define Y_STOP_PIN                        PC3   // Y-STOP
-#endif
-
-#ifdef Z_STALL_SENSITIVITY
-  #define Z_STOP_PIN                  Z_DIAG_PIN
-  #if Z_HOME_TO_MIN
-    #define Z_MAX_PIN                       PC15  // PWRDET
-  #else
-    #define Z_MIN_PIN                       PC15  // PWRDET
-  #endif
-#elif ENABLED(Z_MULTI_ENDSTOPS)
-  #ifndef Z_MIN_PIN
-    #define Z_MIN_PIN                       PC0   // Z-STOP
-  #endif
-  #ifndef Z_MAX_PIN
-    #define Z_MAX_PIN                       PC15  // PWRDET
-  #endif
-#else
-  #ifndef Z_STOP_PIN
-    #define Z_STOP_PIN                      PC0   // Z-STOP
-  #endif
-#endif
+#define X_STOP_PIN                    X_DIAG_PIN  // X-STOP
+#define Y_STOP_PIN                    Y_DIAG_PIN  // Y-STOP
+#define Z_STOP_PIN                    Z_DIAG_PIN  // Z-STOP
+#define X_OTHR_PIN                          PC2   // E0DET
+#define Y_OTHR_PIN                          PA0   // E1DET
+#define Z_OTHR_PIN                          PC15  // PWRDET
 
 //
 // Z Probe (when not Z_MIN_PIN)
@@ -305,19 +256,10 @@
   // Software serial
   //
   #define X_SERIAL_TX_PIN                   PE0
-  #define X_SERIAL_RX_PIN        X_SERIAL_TX_PIN
-
   #define Y_SERIAL_TX_PIN                   PD3
-  #define Y_SERIAL_RX_PIN        Y_SERIAL_TX_PIN
-
   #define Z_SERIAL_TX_PIN                   PD0
-  #define Z_SERIAL_RX_PIN        Z_SERIAL_TX_PIN
-
   #define E0_SERIAL_TX_PIN                  PC6
-  #define E0_SERIAL_RX_PIN      E0_SERIAL_TX_PIN
-
   #define E1_SERIAL_TX_PIN                  PD12
-  #define E1_SERIAL_RX_PIN      E1_SERIAL_TX_PIN
 
   // Reduce baud rate to improve software serial reliability
   #ifndef TMC_BAUD_RATE
@@ -366,8 +308,7 @@
 // Must use soft SPI because Marlin's default hardware SPI is tied to LCD's EXP2
 //
 #if SD_CONNECTION_IS(LCD)
-  #define SDSS                       EXP2_04_PIN
-  #define SD_SS_PIN                         SDSS
+  #define SD_SS_PIN                  EXP2_04_PIN
   #define SD_SCK_PIN                 EXP2_02_PIN
   #define SD_MISO_PIN                EXP2_01_PIN
   #define SD_MOSI_PIN                EXP2_06_PIN
@@ -400,7 +341,6 @@
     #define E2_CS_PIN                EXP1_06_PIN
     #if HAS_TMC_UART
       #define E2_SERIAL_TX_PIN       EXP1_06_PIN
-      #define E2_SERIAL_RX_PIN       EXP1_06_PIN
     #endif
   #endif
 
@@ -413,7 +353,6 @@
     #define E3_CS_PIN                EXP1_04_PIN
     #if HAS_TMC_UART
       #define E3_SERIAL_TX_PIN       EXP1_04_PIN
-      #define E3_SERIAL_RX_PIN       EXP1_04_PIN
     #endif
   #else
     #define E3_ENABLE_PIN            EXP2_07_PIN
@@ -428,7 +367,6 @@
     #define E4_CS_PIN                EXP1_02_PIN
     #if HAS_TMC_UART
       #define E4_SERIAL_TX_PIN       EXP1_02_PIN
-      #define E4_SERIAL_RX_PIN       EXP1_02_PIN
     #endif
   #else
     #define E4_ENABLE_PIN            EXP2_07_PIN
@@ -496,7 +434,7 @@
       #elif ENABLED(FYSETC_MINI_12864_2_1)
         #define NEOPIXEL_PIN         EXP1_06_PIN
       #endif
-    #endif // !FYSETC_MINI_12864
+    #endif // FYSETC_MINI_12864
 
     #if IS_ULTIPANEL
       #define LCD_PINS_D5            EXP1_06_PIN

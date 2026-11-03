@@ -180,8 +180,6 @@
   #error "MIN_STEPS_PER_SEGMENT must be at least 1."
 #elif defined(PREVENT_DANGEROUS_EXTRUDE)
   #error "PREVENT_DANGEROUS_EXTRUDE is now PREVENT_COLD_EXTRUSION."
-#elif defined(SCARA)
-  #error "SCARA is now MORGAN_SCARA."
 #elif defined(ENABLE_AUTO_BED_LEVELING)
   #error "ENABLE_AUTO_BED_LEVELING is deprecated. Specify AUTO_BED_LEVELING_LINEAR, AUTO_BED_LEVELING_BILINEAR, or AUTO_BED_LEVELING_3POINT."
 #elif defined(AUTO_BED_LEVELING_FEATURE)
@@ -468,7 +466,7 @@
 #elif defined(ANYCUBIC_LCD_SERIAL_PORT)
   #error "ANYCUBIC_LCD_SERIAL_PORT is now LCD_SERIAL_PORT."
 #elif defined(INTERNAL_SERIAL_PORT)
-  #error "INTERNAL_SERIAL_PORT is now MMU2_SERIAL_PORT."
+  #error "INTERNAL_SERIAL_PORT is now MMU_SERIAL_PORT."
 #elif defined(X_DUAL_ENDSTOPS_ADJUSTMENT) || defined(Y_DUAL_ENDSTOPS_ADJUSTMENT) || defined(Z_DUAL_ENDSTOPS_ADJUSTMENT)
   #error "[XYZ]_DUAL_ENDSTOPS_ADJUSTMENT is now [XYZ]2_ENDSTOP_ADJUSTMENT."
 #elif defined(Z_TRIPLE_ENDSTOPS_ADJUSTMENT2) || defined(Z_TRIPLE_ENDSTOPS_ADJUSTMENT3)
@@ -497,6 +495,8 @@
   #error "DIGIPOT_I2C is now DIGIPOT_MCP4451 (or DIGIPOT_MCP4018)."
 #elif defined(TOUCH_BUTTONS)
   #error "TOUCH_BUTTONS is now TOUCH_SCREEN."
+#elif defined(DISABLE_ENCODER)
+  #error "DISABLE_ENCODER is now NO_BACK_MENU_ITEM."
 #elif defined(LCD_FULL_PIXEL_HEIGHT) || defined(LCD_FULL_PIXEL_WIDTH)
   #error "LCD_FULL_PIXEL_(WIDTH|HEIGHT) is deprecated and should be removed."
 #elif defined(FSMC_UPSCALE)
@@ -615,8 +615,8 @@
   #error "LIN_ADVANCE_K is now ADVANCE_K."
 #elif defined(EXTRA_LIN_ADVANCE_K)
   #error "EXTRA_LIN_ADVANCE_K is now ADVANCE_K_EXTRA."
-#elif defined(POLAR_SEGMENTS_PER_SECOND) || defined(DELTA_SEGMENTS_PER_SECOND)  || defined(SCARA_SEGMENTS_PER_SECOND) || defined(TPARA_SEGMENTS_PER_SECOND)
-  #error "(POLAR|DELTA|SCARA|TPARA)_SEGMENTS_PER_SECOND is now DEFAULT_SEGMENTS_PER_SECOND."
+#elif defined(POLAR_SEGMENTS_PER_SECOND) || defined(DELTA_SEGMENTS_PER_SECOND)  || defined(SCARA_SEGMENTS_PER_SECOND) || defined(TPARA_SEGMENTS_PER_SECOND) || defined(ROBOT_SEGMENTS_PER_SECOND)
+  #error "(POLAR|DELTA|SCARA|TPARA|ROBOT)_SEGMENTS_PER_SECOND is now DEFAULT_SEGMENTS_PER_SECOND."
 #elif defined(TMC_SW_MOSI) || defined(TMC_SW_MISO) || defined(TMC_SW_SCK)
   #error "TMC_SW_(MOSI|MISO|SCK) is now TMC_SPI_(MOSI|MISO|SCK)."
 #elif ANY(DGUS_LCD_UI_ORIGIN, DGUS_LCD_UI_FYSETC, DGUS_LCD_UI_HIPRECY, DGUS_LCD_UI_MKS, DGUS_LCD_UI_RELOADED) && !defined(DGUS_LCD_UI)
@@ -641,6 +641,8 @@
   #error "PROBE_PT_[123]_[XY] is now defined using PROBE_PT_[123] with an array { x, y }."
 #elif defined(SQUARE_WAVE_STEPPING)
   #error "SQUARE_WAVE_STEPPING is now EDGE_STEPPING."
+#elif defined(MINIMUM_STEPPER_PULSE)
+  #error "MINIMUM_STEPPER_PULSE (in µs) is now MINIMUM_STEPPER_PULSE_NS. Multiply old MINIMUM_STEPPER_PULSE x 1000!"
 #elif defined(FAN_PIN)
   #error "FAN_PIN is now FAN0_PIN."
 #elif defined(X_MIN_ENDSTOP_INVERTING) || defined(Y_MIN_ENDSTOP_INVERTING) || defined(Z_MIN_ENDSTOP_INVERTING) \
@@ -672,7 +674,7 @@
 #elif defined(Z2_USE_ENDSTOP)
   #error "Z2_USE_ENDSTOP is obsolete. Instead set Z2_STOP_PIN directly. (e.g., 'Z2_USE_ENDSTOP _ZMAX_' becomes 'Z2_STOP_PIN Z_MAX_PIN')"
 #elif defined(Z3_USE_ENDSTOP)
-  #error "Z3_USE_ENDSTOP is obsolete. Instead set Z2_STOP_PIN directly. (e.g., 'Z3_USE_ENDSTOP _ZMAX_' becomes 'Z3_STOP_PIN Z_MAX_PIN')"
+  #error "Z3_USE_ENDSTOP is obsolete. Instead set Z3_STOP_PIN directly. (e.g., 'Z3_USE_ENDSTOP _ZMAX_' becomes 'Z3_STOP_PIN Z_MAX_PIN')"
 #elif defined(Z4_USE_ENDSTOP)
   #error "Z4_USE_ENDSTOP is obsolete. Instead set Z4_STOP_PIN directly. (e.g., 'Z4_USE_ENDSTOP _ZMAX_' becomes 'Z4_STOP_PIN Z_MAX_PIN')"
 #elif defined(INTEGRATED_BABYSTEPPING)
@@ -693,7 +695,128 @@
   #error "Z_PROBE_END_SCRIPT is now EVENT_GCODE_AFTER_G29."
 #elif defined(WIFI_SERIAL)
   #error "WIFI_SERIAL is now WIFI_SERIAL_PORT."
+#elif defined(CALIBRATION_MEASUREMENT_RESOLUTION)
+  #error "CALIBRATION_MEASUREMENT_RESOLUTION is no longer needed and should be removed."
+#elif defined(MMU2_MENUS)
+  #error "MMU2_MENUS is now MMU_MENUS."
+#elif defined(MMU2_SERIAL_PORT)
+  #error "MMU2_SERIAL_PORT is now MMU_SERIAL_PORT."
+#elif defined(MMU2_RST_PIN)
+  #error "MMU2_RST_PIN is now MMU_RST_PIN."
+#elif defined(MMU2_MAX_RETRIES)
+  #error "MMU2_MAX_RETRIES is now MMU3_MAX_RETRIES."
+#elif defined(MMU2_FILAMENT_SENSOR_POSITION)
+  #error "MMU2_FILAMENT_SENSOR_POSITION is now MMU3_FILAMENT_SENSOR_POSITION."
+#elif defined(MMU2_TOOL_CHANGE_LOAD_LENGTH)
+  #error "MMU2_TOOL_CHANGE_LOAD_LENGTH is now MMU3_TOOL_CHANGE_LOAD_LENGTH."
+#elif defined(MMU2_LOAD_TO_NOZZLE_FEED_RATE)
+  #error "MMU2_LOAD_TO_NOZZLE_FEED_RATE is now MMU3_LOAD_TO_NOZZLE_FEED_RATE."
+#elif defined(MMU2_UNLOAD_TO_FINDA_FEED_RATE)
+  #error "MMU2_UNLOAD_TO_FINDA_FEED_RATE is no longer needed and should be removed."
+#elif defined(MMU2_VERIFY_LOAD_TO_NOZZLE_FEED_RATE)
+  #error "MMU2_VERIFY_LOAD_TO_NOZZLE_FEED_RATE is now MMU3_VERIFY_LOAD_TO_NOZZLE_FEED_RATE."
+#elif defined(MMU2_RETRY_UNLOAD_TO_FINDA_LENGTH)
+  #error "MMU2_RETRY_UNLOAD_TO_FINDA_LENGTH is now MMU3_RETRY_UNLOAD_TO_FINDA_LENGTH."
+#elif defined(MMU2_RETRY_UNLOAD_TO_FINDA_FEED_RATE)
+  #error "MMU2_RETRY_UNLOAD_TO_FINDA_FEED_RATE is now MMU3_RETRY_UNLOAD_TO_FINDA_FEED_RATE."
+#elif defined(MMU2_FILAMENT_SENSOR_POSITION)
+  #error "MMU2_FILAMENT_SENSOR_POSITION is now MMU3_FILAMENT_SENSOR_E_POSITION."
+#elif defined(MMU2_CHECK_FILAMENT_PRESENCE_EXTRUSION_LENGTH)
+  #error "MMU2_CHECK_FILAMENT_PRESENCE_EXTRUSION_LENGTH is now MMU3_CHECK_FILAMENT_PRESENCE_EXTRUSION_LENGTH."
+#elif defined(MMU_HAS_CUTTER)
+  #error "MMU_HAS_CUTTER is now MMU3_HAS_CUTTER."
+#elif defined(MMU_FORCE_STEALTH_MODE)
+  #error "MMU_FORCE_STEALTH_MODE is obsolete and should be removed."
+#elif defined(MMU_SPOOL_JOIN_CONSUMES_ALL_FILAMENT)
+  #error "MMU_SPOOL_JOIN_CONSUMES_ALL_FILAMENT is now MMU3_SPOOL_JOIN_CONSUMES_ALL_FILAMENT."
+#elif HAS_PRUSA_MMU3 && defined(MMU2_LOAD_TO_NOZZLE_SEQUENCE)
+  #error "MMU2_LOAD_TO_NOZZLE_SEQUENCE is now MMU3_LOAD_TO_NOZZLE_SEQUENCE for MMU_MODEL MMU3."
+#elif HAS_PRUSA_MMU3 && defined(MMU2_RAMMING_SEQUENCE)
+  #error "MMU2_RAMMING_SEQUENCE is now MMU3_RAMMING_SEQUENCE for MMU_MODEL MMU3."
+#elif defined(MMU_EXTRUDER_SENSOR)
+  #error "MMU_EXTRUDER_SENSOR is now MMU2_EXTRUDER_SENSOR."
+#elif defined(MMU_LOADING_ATTEMPTS_NR)
+  #error "MMU_LOADING_ATTEMPTS_NR is now MMU2_LOADING_ATTEMPTS_NR."
+#elif defined(MMU2_DEBUG)
+  #error "MMU2_DEBUG is now MMU_DEBUG."
+#elif defined(FTM_SHAPING_DEFAULT_X_FREQ) || defined(FTM_SHAPING_DEFAULT_Y_FREQ)
+  #error "FTM_SHAPING_DEFAULT_[XY]_FREQ is now FTM_SHAPING_DEFAULT_FREQ_[XY]."
+#elif defined(SDSS)
+  #error "SDSS is now SD_SS_PIN."
+#elif defined(FTM_LINEAR_ADV_DEFAULT_ENA)
+  #error "FTM_LINEAR_ADV_DEFAULT_ENA is obsolete and should be removed."
+#elif defined(FTM_LINEAR_ADV_DEFAULT_K)
+  #error "FTM_LINEAR_ADV_DEFAULT_K is now set with ADVANCE_K and should be removed."
+#elif defined(DEFAULT_Kp_LIST) || defined(DEFAULT_Ki_LIST) || defined(DEFAULT_Kd_LIST)
+  #error "DEFAULT_Kp_LIST, DEFAULT_Ki_LIST, DEFAULT_Kd_LIST are now (uppercase) DEFAULT_KP_LIST, DEFAULT_KI_LIST, DEFAULT_KD_LIST."
+#elif defined(DEFAULT_Kp) || defined(DEFAULT_Ki) || defined(DEFAULT_Kd)
+  #error "DEFAULT_Kp, DEFAULT_Ki, DEFAULT_Kd are now (uppercase) DEFAULT_KP, DEFAULT_KI, DEFAULT_KD."
+#elif defined(DEFAULT_bedKp) || defined(DEFAULT_bedKi) || defined(DEFAULT_bedKd)
+  #error "DEFAULT_bedKp, DEFAULT_bedKi, DEFAULT_bedKd are now DEFAULT_BED_KP, DEFAULT_BED_KI, DEFAULT_BED_KD."
+#elif defined(DEFAULT_chamberKp) || defined(DEFAULT_chamberKi) || defined(DEFAULT_chamberKd)
+  #error "DEFAULT_chamberKp, DEFAULT_chamberKi, DEFAULT_chamberKd are now DEFAULT_CHAMBER_KP, DEFAULT_CHAMBER_KI, DEFAULT_CHAMBER_KD."
+#elif defined(DEFAULT_Kc)
+  #error "DEFAULT_Kc is now (uppercase) DEFAULT_KC."
+#elif defined(DEFAULT_Kf)
+  #error "DEFAULT_Kf is now (uppercase) DEFAULT_KF."
+#elif defined(MORGAN_SCARA)
+  #error "MORGAN_SCARA is now just SCARA."
+#elif defined(MP_SCARA)
+  #error "MP_SCARA is now just SCARA."
+#elif defined(HAS_PIN_27_BOARD)
+  #error "HAS_PIN_27_BOARD is now USE_PIN_27_BOARD."
+#elif defined(BED_HYSTERESIS)
+  #error "BED_HYSTERESIS is now BED_LIMIT_HYSTERESIS."
+#elif defined(CHAMBER_HYSTERESIS)
+  #error "CHAMBER_HYSTERESIS is now CHAMBER_LIMIT_HYSTERESIS."
+#elif defined(MINIMUM_STEPPER_DIR_DELAY)
+  #error "MINIMUM_STEPPER_DIR_DELAY is now MINIMUM_STEPPER_POST_DIR_DELAY and MINIMUM_STEPPER_PRE_DIR_DELAY."
+#elif defined(X_HOMING_SENSITIVITY) || defined(Y_HOMING_SENSITIVITY) || defined(Z_HOMING_SENSITIVITY)
+  #error "[XYZ]_HOMING_SENSITIVITY is now [XYZ]_STALL_SENSITIVITY."
+#elif defined(R_SENSE)
+  #error "R_SENSE is now set per axis with [AXIS]_RSENSE."
+#elif defined(USER_DESC_1) || defined(USER_DESC_2) || defined(USER_DESC_3) || defined(USER_DESC_4) || defined(USER_DESC_5) \
+   || defined(USER_GCODE_1) || defined(USER_GCODE_2) || defined(USER_GCODE_3) || defined(USER_GCODE_4) || defined(USER_GCODE_5)
+  #error "USER_DESC_[12345] and USER_GCODE_[12345] are now MAIN_MENU_ITEM_[12345]_DESC and MAIN_MENU_ITEM_[12345]_GCODE."
+#elif defined(CUSTOM_USER_MENU_TITLE)
+  #error "CUSTOM_USER_MENU_TITLE is now CUSTOM_MENU_MAIN_TITLE."
+#elif defined(USER_SCRIPT_AUDIBLE_FEEDBACK) || defined(USER_SCRIPT_RETURN) || defined(USER_SCRIPT_DONE)
+  #error "USER_SCRIPT_(AUDIBLE_FEEDBACK|RETURN|DONE) is now CUSTOM_MENU_MAIN_SCRIPT_(AUDIBLE_FEEDBACK|RETURN|DONE)."
+#elif defined(MM_PER_ARC_SEGMENT)
+  #error "MM_PER_ARC_SEGMENT is now MIN_ARC_SEGMENT_MM."
+#elif defined(BTC_SAMPLE_START) || defined(BTC_SAMPLE_RES) || defined(BTC_SAMPLE_COUNT)
+  #error "BTC_SAMPLE_(START|RES|COUNT) is now PTC_PROBE_(START|RES|COUNT)."
+#elif defined(PTC_SAMPLE_START) || defined(PTC_SAMPLE_RES) || defined(PTC_SAMPLE_COUNT)
+  #error "PTC_SAMPLE_(START|RES|COUNT) is now PTC_PROBE_(START|RES|COUNT)."
+#elif defined(CONTROLLERFAN_SPEED_Z_ONLY)
+  #error "CONTROLLERFAN_SPEED_Z_ONLY is replaced by CONTROLLER_FAN_USE_Z_ONLY."
+#elif defined(TOOLCHANGE_FIL_EXTRA_PRIME)
+  #error "TOOLCHANGE_FIL_EXTRA_PRIME is now TOOLCHANGE_FS_EXTRA_PRIME."
+#elif defined(ROBOT_LINKAGE_1) || defined(ROBOT_LINKAGE_2)
+  #error "ROBOT_LINKAGE_[12] is now TPARA_LINKAGE_[12]."
+#elif defined(ROBOT_OFFSET_X) || defined(ROBOT_OFFSET_Y) || defined(ROBOT_OFFSET_Z)
+  #error "ROBOT_OFFSET_[XYZ] is now TPARA_OFFSET_[XYZ]."
+#elif defined(DEBUG_ROBOT_KINEMATICS)
+  #error "DEBUG_ROBOT_KINEMATICS is now DEBUG_TPARA_KINEMATICS."
+#elif defined(MINIMUM_PLANNER_SPEED)
+  #error "MINIMUM_PLANNER_SPEED is obsolete. The minimum planner junction speed is now automatic."
+#elif defined(DELTA_MAX_RADIUS)
+  #error "DELTA_MAX_RADIUS is obsolete and should be removed."
+#elif defined(SF_ARC_FIX)
+  #error "SF_ARC_FIX is obsolete and should be removed."
+#elif defined(DEBUG_SCARA_KINEMATICS)
+  #error "DEBUG_SCARA_KINEMATICS is obsolete and should be removed."
+#elif defined(SCARA_OFFSET_THETA1) || defined(SCARA_OFFSET_THETA2) || defined(THETA_HOMING_OFFSET) || defined(PSI_HOMING_OFFSET)
+  #error "SCARA_OFFSET_THETA1/2 and THETA/PSI_HOMING_OFFSET are obsolete. Set SCARA_HOME_THETA and SCARA_HOME_PSI to the shoulder and elbow angles at the home position, or leave them undefined to home at the Cartesian position."
 #endif
+
+// SDSS renamed to SD_SS_PIN
+#undef SDSS
+#define SDSS 8675309
+#if USB_CS_PIN == SDSS
+  #error "SDSS is now SD_SS_PIN."
+#endif
+#undef SDSS
 
 // Changes to Probe Temp Compensation (#17392)
 #if HAS_PTC && TEMP_SENSOR_PROBE && TEMP_SENSOR_BED
@@ -705,15 +828,15 @@
 #endif
 
 // Consolidate TMC26X, validate migration (#24373)
-#define _ISMAX_1(A) defined(A##_MAX_CURRENT)
-#define _ISSNS_1(A) defined(A##_SENSE_RESISTOR)
-#if DO(ISMAX,||,ALL_AXIS_NAMES)
+#define _ISMAX(A) defined(A##_MAX_CURRENT) ||
+#define _ISSNS(A) defined(A##_SENSE_RESISTOR) ||
+#if MAP(_ISMAX, ALL_AXIS_NAMES) 0
   #error "*_MAX_CURRENT is now set with *_CURRENT."
-#elif DO(ISSNS,||,ALL_AXIS_NAMES)
+#elif MAP(_ISSNS, ALL_AXIS_NAMES) 0
   #error "*_SENSE_RESISTOR (in Milli-Ohms) is now set with *_RSENSE (in Ohms), so you must divide values by 1000."
 #endif
-#undef _ISMAX_1
-#undef _ISSNS_1
+#undef _ISMAX
+#undef _ISSNS
 
 // L64xx stepper drivers have been removed
 #define _L6470              0x6470
@@ -739,3 +862,31 @@
 #undef _POWERSTEP01
 #undef _TMC26X
 #undef _TMC26X_STANDALONE
+
+#if ENABLED(MULTI_VOLUME)
+  // Change to a generic ID without SV_ prefix
+  #define SV_SD_ONBOARD      201
+  #define SV_USB_FLASH_DRIVE 202
+  #if DEFAULT_VOLUME_IS(SV_SD_ONBOARD) || SHARED_VOLUME_IS(SV_SD_ONBOARD)
+    #error "SV_SD_ONBOARD is now SD_ONBOARD."
+  #elif DEFAULT_VOLUME_IS(SV_USB_FLASH_DRIVE) || SHARED_VOLUME_IS(SV_USB_FLASH_DRIVE)
+    #error "SV_USB_FLASH_DRIVE is now USB_FLASH_DRIVE."
+  #endif
+  // Skip less clear "bad value" errors in inc/SanityCheck.h
+  #if DEFAULT_VOLUME_IS(SV_SD_ONBOARD)
+    #undef DEFAULT_VOLUME
+    #define DEFAULT_VOLUME SD_ONBOARD
+  #elif DEFAULT_VOLUME_IS(SV_USB_FLASH_DRIVE)
+    #undef DEFAULT_VOLUME
+    #define DEFAULT_VOLUME USB_FLASH_DRIVE
+  #endif
+  #if SHARED_VOLUME_IS(SV_SD_ONBOARD)
+    #undef DEFAULT_SHARED_VOLUME
+    #define DEFAULT_SHARED_VOLUME SD_ONBOARD
+  #elif SHARED_VOLUME_IS(SV_USB_FLASH_DRIVE)
+    #undef DEFAULT_SHARED_VOLUME
+    #define DEFAULT_SHARED_VOLUME USB_FLASH_DRIVE
+  #endif
+  #undef SV_SD_ONBOARD
+  #undef SV_USB_FLASH_DRIVE
+#endif

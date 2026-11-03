@@ -46,24 +46,22 @@
  *   M710 I127 A1 S255 D160 ; Set controller fan idle speed 50%, AutoMode On, Fan speed 100%, duration to 160 Secs
  */
 void GcodeSuite::M710() {
+  if (!parser.seen("ADIRS")) return M710_report();
 
-  const bool seenR = parser.seen('R');
-  if (seenR) controllerFan.reset();
+  if (parser.seen_test('R'))
+    controllerFan.reset();
 
-  const bool seenS = parser.seenval('S');
-  if (seenS) controllerFan.settings.active_speed = parser.value_byte();
+  if (parser.seenval('S'))
+    controllerFan.settings.active_speed = parser.value_byte();
 
-  const bool seenI = parser.seenval('I');
-  if (seenI) controllerFan.settings.idle_speed = parser.value_byte();
+  if (parser.seenval('I'))
+    controllerFan.settings.idle_speed = parser.value_byte();
 
-  const bool seenA = parser.seenval('A');
-  if (seenA) controllerFan.settings.auto_mode = parser.value_bool();
+  if (parser.seenval('A'))
+    controllerFan.settings.auto_mode = parser.value_bool();
 
-  const bool seenD = parser.seenval('D');
-  if (seenD) controllerFan.settings.duration = parser.value_ushort();
-
-  if (!(seenR || seenS || seenI || seenA || seenD))
-    M710_report();
+  if (parser.seenval('D'))
+    controllerFan.settings.duration = parser.value_ushort();
 }
 
 void GcodeSuite::M710_report(const bool forReplay/*=true*/) {

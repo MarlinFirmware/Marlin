@@ -1,17 +1,35 @@
 #!/usr/bin/env python3
-#
-# schema.py
-#
-# Used by signature.py via common-dependencies.py to generate a schema file during the PlatformIO build
-# when CONFIG_EXPORT is defined in the configuration.
-#
-# This script can also be run standalone from within the Marlin repo to generate JSON and YAML schema files.
-#
-# This script is a companion to abm/js/schema.js in the MarlinFirmware/AutoBuildMarlin project, which has
-# been extended to evaluate conditions and can determine what options are actually enabled, not just which
-# options are uncommented. That will be migrated to this script for standalone migration.
-#
-import re,json
+"""
+schema.py
+
+Extract firmware configuration into structured JSON or YAML schema format.
+
+Used by signature.py via common-dependencies.py to generate a schema file during the
+PlatformIO build when CONFIG_EXPORT is defined in the configuration.
+
+This script can also be run standalone from within the Marlin repo, and is a companion to
+abm/js/schema.js in the MarlinFirmware/AutoBuildMarlin project, which has been extended to
+evaluate conditions and can determine what options are actually enabled, not just which
+options are uncommented. That will be migrated to this script for standalone migration.
+
+Usage: schema.py [-h|--help] [some|json|jsons|group|yml|yaml]
+
+Process Marlin firmware configuration files (Configuration.h and Configuration_adv.h)
+to produce structured output suitable for documentation, tooling, or automated processing.
+
+Positional arguments:
+  some      Generate both JSON and YAML output (schema.json and schema.yml)
+  json      Generate JSON output (schema.json)
+  jsons     Generate grouped JSON output with wildcard options (schema.json and schema_grouped.json)
+  group     Generate grouped JSON output only (schema_grouped.json)
+  yml       Generate YAML output (schema.yml)
+  yaml      Same as 'yml'
+
+Optional arguments:
+  -h, --help  Show this help message and exit
+"""
+
+import re, json
 from pathlib import Path
 
 def extend_dict(d:dict, k:tuple):
@@ -31,6 +49,7 @@ grouping_patterns = [
     re.compile(r'^(HOTENDS|BED|PROBE|COOLER)$'),
     re.compile(r'^[XYZIJKUVW]M(IN|AX)$')
 ]
+
 # If the indexed part of the option name matches a pattern
 # then add it to the dictionary.
 def find_grouping(gdict, filekey, sectkey, optkey, pindex):
@@ -43,8 +62,7 @@ def find_grouping(gdict, filekey, sectkey, optkey, pindex):
                 optparts[pindex] = '*'
                 wildkey = '_'.join(optparts)
                 kkey = f'{filekey}|{sectkey}|{wildkey}'
-                if kkey not in gdict: gdict[kkey] = []
-                gdict[kkey].append((subkey, modkey))
+                gdict.setdefault(kkey, []).append((subkey, modkey))
 
 # Build a list of potential groups. Only those with multiple items will be grouped.
 def group_options(schema):
@@ -70,7 +88,7 @@ def group_options(schema):
 def load_boards():
     bpath = Path("Marlin/src/core/boards.h")
     if bpath.is_file():
-        with bpath.open() as bfile:
+        with bpath.open(encoding='utf-8') as bfile:
             boards = []
             for line in bfile:
                 if line.startswith("#define BOARD_"):
@@ -80,7 +98,7 @@ def load_boards():
     return ''
 
 #
-# Extract the current configuration files in the form of a structured schema.
+# Extract the specified configuration files in the form of a structured schema.
 # Contains the full schema for the configuration files, not just the enabled options,
 # Contains the current values of the options, not just data structure, so "schema" is a slight misnomer.
 #
@@ -99,9 +117,9 @@ def load_boards():
 #    - requires = The conditions that must be met for the define to be enabled
 #    - comment  = The comment for the define, if it has one
 #    - units    = The units for the define, if it has one
-#    - options  = The options for the define, if it has one
+#    - options  = The options for the define, if it has any
 #
-def extract():
+def extract_files(filekey):
     # Load board names from boards.h
     boards = load_boards()
 
@@ -114,39 +132,44 @@ def extract():
         GET_SENSORS     = 4 # Gathering temperature sensor options
         ERROR           = 9 # Syntax error
 
-    # List of files to process, with shorthand
-    filekey = { 'Configuration.h':'basic', 'Configuration_adv.h':'advanced' }
     # A JSON object to store the data
-    sch_out = { 'basic':{}, 'advanced':{} }
+    sch_out = { key:{} for key in filekey.values() }
     # Regex for #define NAME [VALUE] [COMMENT] with sanitized line
     defgrep = re.compile(r'^(//)?\s*(#define)\s+([A-Za-z0-9_]+)\s*(.*?)\s*(//.+)?$')
     # Pattern to match a float value
-    flt = r'[-+]?\s*(\d+\.|\d*\.\d+)([eE][-+]?\d+)?[fF]?'
-    # Defines to ignore
-    ignore = ('CONFIGURATION_H_VERSION', 'CONFIGURATION_ADV_H_VERSION', 'CONFIG_EXAMPLES_DIR', 'CONFIG_EXPORT')
+    flt = r'[-+]?\s*(?:\d+\.|\d*\.\d+)(?:[eE][-+]?\d+)?[fF]?'
+    # Pattern to match an integer expression
+    int_expr = r'(?:[-+]?\s*\d+(?:\s*[*\/+\-]\s*\d+)*)'
     # Start with unknown state
     state = Parse.NORMAL
     # Serial ID
     sid = 0
+
     # Loop through files and parse them line by line
     for fn, fk in filekey.items():
-        with Path("Marlin", fn).open() as fileobj:
+        with Path("Marlin", fn).open(encoding='utf-8') as fileobj:
             section = 'none'        # Current Settings section
             line_number = 0         # Counter for the line number of the file
             conditions = []         # Create a condition stack for the current file
+            negcount = []           # Parallel stack: how many leading items in each condition-array are #else negations
+            run_owner = None        # First #define of the current run of consecutive #defines
             comment_buff = []       # A temporary buffer for comments
             prev_comment = ''       # Copy before reset for an EOL comment
             options_json = ''       # A buffer for the most recent options JSON found
             eol_options = False     # The options came from end of line, so only apply once
             join_line = False       # A flag that the line should be joined with the previous one
             line = ''               # A line buffer to handle \ continuation
-            last_added_ref = None   # Reference to the last added item
+            last_added_ref = {}     # Reference to the last added item
             # Loop through the lines in the file
             for the_line in fileobj.readlines():
                 line_number += 1
 
                 # Clean the line for easier parsing
                 the_line = the_line.strip()
+
+                # A blank line or preprocessor directive ends a run of consecutive #defines
+                if the_line == '' or re.match(r'^#\s*(if|ifn?def|elif|else|endif)\b', the_line):
+                    run_owner = None
 
                 if join_line:   # A previous line is being made longer
                     line += (' ' if line else '') + the_line
@@ -180,26 +203,42 @@ def extract():
                             cfield = 'notes' if 'comment' in last_added_ref else 'comment'
                             last_added_ref[cfield] = cline
 
+                #
+                # Add the given comment line to the comment buffer, unless:
+                # - The line starts with ':' and JSON values to assign to 'opt'.
+                # - The line starts with '@section' so a new section needs to be returned.
+                # - The line starts with '======' so just skip it.
+                #
                 def use_comment(c, opt, sec, bufref):
-                    if c.startswith(':'):               # If the comment starts with : then it has magic JSON
-                        d = c[1:].strip()               # Strip the leading :
-                        cbr = c.rindex('}') if d.startswith('{') else c.rindex(']') if d.startswith('[') else 0
+                    '''
+                    c       - The comment line to parse
+                    opt     - Options JSON string to return (if not updated)
+                    sec     - Section to return (if not updated)
+                    bufref  - The comment buffer to add to
+                    '''
+                    sc = c.strip()                      # Strip for special patterns
+                    if sc.startswith(':'):              # If the comment starts with : then it has magic JSON
+                        d = sc[1:].strip()              # Strip the leading : and spaces
+                        # Look for a JSON container
+                        cbr = sc.rindex('}') if d.startswith('{') else sc.rindex(']') if d.startswith('[') else 0
                         if cbr:
-                            opt, cmt = c[1:cbr+1].strip(), c[cbr+1:].strip()
+                            opt, cmt = sc[1:cbr+1].strip(), sc[cbr+1:].strip()
                             if cmt != '': bufref.append(cmt)
                         else:
-                            opt = c[1:].strip()
-                    elif c.startswith('@section'):      # Start a new section
-                        sec = c[8:].strip()
-                    elif not c.startswith('========'):
-                        bufref.append(c)
+                            opt = sc[1:].strip()        # Some literal value not in a JSON container?
+                    else:
+                        m = re.match(r'@section\s*(.+)', sc) # Start a new section?
+                        if m:
+                            sec = m[1]
+                        elif not sc.startswith('========'):
+                            bufref.append(c)            # Anything else is part of the comment
                     return opt, sec
 
                 # For slash comments, capture consecutive slash comments.
                 # The comment will be applied to the next #define.
                 if state == Parse.SLASH_COMMENT:
                     if not defmatch and the_line.startswith('//'):
-                        use_comment(the_line[2:].strip(), options_json, section, comment_buff)
+                        options_json, section = use_comment(the_line[2:].strip(), options_json, section, comment_buff)
                         continue
                     else:
                         state = Parse.NORMAL
@@ -216,17 +255,16 @@ def extract():
                         # Temperature sensors are done
                         if state == Parse.GET_SENSORS:
                             options_json = f'[ {options_json[:-2]} ]'
-
                         state = Parse.NORMAL
 
-                    # Strip the leading '*' from block comments
+                    # Strip the leading '* ' from block comments
                     cline = re.sub(r'^\* ?', '', cline)
 
                     # Collect temperature sensors
                     if state == Parse.GET_SENSORS:
-                        sens = re.match(r'^(-?\d+)\s*:\s*(.+)$', cline)
+                        sens = re.match(r'^\s*(-?\d+)\s*:\s*(.+)$', cline)
                         if sens:
-                            s2 = sens[2].replace("'","''")
+                            s2 = sens[2].replace("'", "''")
                             options_json += f"{sens[1]}:'{sens[1]} - {s2}', "
 
                     elif state == Parse.BLOCK_COMMENT:
@@ -251,12 +289,11 @@ def extract():
                         comment_buff = []
                         state = Parse.BLOCK_COMMENT
                         eol_options = False
-
                     elif cpos2 != -1 and (cpos2 < cpos1 or cpos1 == -1):
                         cpos = cpos2
 
                         # Comment after a define may be continued on the following lines
-                        if defmatch != None and cpos > 10:
+                        if defmatch is not None and cpos > 10:
                             state = Parse.EOL_COMMENT
                             prev_comment = '\n'.join(comment_buff)
                             comment_buff = []
@@ -286,11 +323,21 @@ def extract():
 
                     # Parenthesize the given expression if needed
                     def atomize(s):
-                        if s == '' \
-                        or re.match(r'^[A-Za-z0-9_]*(\([^)]+\))?$', s) \
-                        or re.match(r'^[A-Za-z0-9_]+ == \d+?$', s):
+                        s = s.strip()
+                        if not s or s.isidentifier() or (s.startswith('(') and s.endswith(')')):
+                            return s
+                        if re.match(r'^[A-Za-z0-9_]*(\([^)]+\))$', s) \
+                        or re.match(r'^[A-Za-z0-9_]+\s*[=!<>]=?\s*.*$', s):
                             return s
                         return f'({s})'
+
+                    # Negate the given (atomized) condition, wrapping comparisons so '!' binds correctly
+                    def negate(s):
+                        if s.startswith('!') and (re.match(r'^!\w+(\([^()]*\))?$', s) or (s.startswith('!(') and s.endswith(')'))):
+                            return s[1:]
+                        if re.match(r'^\w+(\([^()]*\))?$', s) or (s.startswith('(') and s.endswith(')')):
+                            return '!' + s
+                        return f'!({s})'
 
                     #
                     # The conditions stack is an array containing condition-arrays.
@@ -301,6 +348,9 @@ def extract():
                     # ELIF adds a new condition to the end of the array.
                     # ELSE/ELIF re-push the condition-array.
                     #
+                    # The negated items only say "none of the prior branches applied," so they're
+                    # counted in 'negcount' and reported separately as 'block_clause', not 'requires'.
+                    #
                     cparts = line.split()
                     iselif, iselse = cparts[0] == '#elif', cparts[0] == '#else'
                     if iselif or iselse or cparts[0] == '#endif':
@@ -309,24 +359,30 @@ def extract():
 
                         # Pop the last condition-array from the stack
                         prev = conditions.pop()
+                        negcount.pop()
 
                         if iselif or iselse:
-                            prev[-1] = '!' + prev[-1] # Invert the last condition
+                            prev[-1] = negate(prev[-1]) # Invert the last condition
+                            nneg = len(prev)            # All items so far are now prior-branch negations
                             if iselif: prev.append(atomize(line[5:].strip()))
                             conditions.append(prev)
+                            negcount.append(nneg)
 
                     elif cparts[0] == '#if':
                         conditions.append([ atomize(line[3:].strip()) ])
+                        negcount.append(0)
                     elif cparts[0] == '#ifdef':
                         conditions.append([ f'defined({line[6:].strip()})' ])
+                        negcount.append(0)
                     elif cparts[0] == '#ifndef':
                         conditions.append([ f'!defined({line[7:].strip()})' ])
+                        negcount.append(0)
 
                     # Handle a complete #define line
-                    elif defmatch != None:
+                    elif defmatch is not None:
 
                         # Get the match groups into vars
-                        enabled, define_name, val = defmatch[1] == None, defmatch[3], defmatch[4]
+                        enabled, define_name, val = defmatch[1] is None, defmatch[3], defmatch[4]
 
                         # Increment the serial ID
                         sid += 1
@@ -341,37 +397,45 @@ def extract():
                         }
 
                         # Type is based on the value
-                        value_type = \
-                             'switch'  if val == '' \
-                        else 'bool'    if re.match(r'^(true|false)$', val) \
-                        else 'int'     if re.match(r'^[-+]?\s*\d+$', val) \
-                        else 'ints'    if re.match(r'^([-+]?\s*\d+)(\s*,\s*[-+]?\s*\d+)+$', val) \
-                        else 'floats'  if re.match(rf'({flt}(\s*,\s*{flt})+)', val) \
-                        else 'float'   if re.match(f'^({flt})$', val) \
-                        else 'string'  if val[0] == '"' \
-                        else 'char'    if val[0] == "'" \
-                        else 'state'   if re.match(r'^(LOW|HIGH)$', val) \
-                        else 'enum'    if re.match(r'^[A-Za-z0-9_]{3,}$', val) \
-                        else 'int[]'   if re.match(r'^{\s*[-+]?\s*\d+(\s*,\s*[-+]?\s*\d+)*\s*}$', val) \
-                        else 'float[]' if re.match(r'^{{\s*{flt}(\s*,\s*{flt})*\s*}}$', val) \
-                        else 'array'   if val[0] == '{' \
-                        else ''
+                        value_type = (
+                                 'switch'  if val == ''
+                            else 'int'     if re.match(r'^[-+]?\s*\d+$', val)
+                            else 'ints'    if re.match(r'^[-+]?\s*\d+(?:\s*,\s*[-+]?\s*\d+)+$', val)
+                            else 'floats'  if re.match(rf"^{flt}(?:\s*,\s*{flt})+$", val)
+                            else 'float'   if re.match(rf"^{flt}$", val)
+                            else 'string'  if val.startswith('"')
+                            else 'char'    if val.startswith("'")
+                            else 'bool'    if val in ('true', 'false')
+                            else 'state'   if val in ('HIGH', 'LOW')
+                            else 'int[]'   if re.match(rf"^\{{\s*{int_expr}(?:\s*,\s*{int_expr})*\s*\}}$", val)
+                            else 'float[]' if re.match(rf"^\{{\s*{flt}(?:\s*,\s*{flt})*\s*\}}$", val)
+                            else 'array'   if val.startswith('{')
+                            else 'enum'    if re.match(r'^[A-Za-z0-9_]{3,}$', val)
+                            else ''
+                        )
 
-                        val = (val == 'true')           if value_type == 'bool' \
-                        else int(val)                   if value_type == 'int' \
-                        else val.replace('f','')        if value_type == 'floats' \
-                        else float(val.replace('f','')) if value_type == 'float' \
-                        else val
+                        val = (
+                                 (val == 'true')            if value_type == 'bool'
+                            else int(val)                   if value_type == 'int'
+                            else val.replace('f','')        if value_type == 'floats'
+                            else float(val.replace('f','')) if value_type == 'float'
+                            else val
+                        )
 
                         if val != '': define_info['value'] = val
                         if value_type != '': define_info['type'] = value_type
 
-                        # Join up accumulated conditions with &&
-                        if conditions: define_info['requires'] = '(' + ') && ('.join(sum(conditions, [])) + ')'
+                        # Join up accumulated conditions with &&. Prior-branch negations go to 'block_clause'.
+                        reqs, blks = [], []
+                        for carr, nneg in zip(conditions, negcount):
+                            blks += carr[:nneg]
+                            reqs += carr[nneg:]
+                        if reqs: define_info['requires'] = '(' + ') && ('.join(reqs) + ')'
+                        if blks: define_info['block_clause'] = '(' + ') && ('.join(blks) + ')'
 
                         # If the comment_buff is not empty, add the comment to the info
                         if comment_buff:
-                            full_comment = '\n'.join(comment_buff)
+                            full_comment = '\n'.join(comment_buff).strip()
 
                             # An EOL comment will be added later
                             # The handling could go here instead of above
@@ -385,8 +449,24 @@ def extract():
                             units = re.match(r'^\(([^)]+)\)', full_comment)
                             if units:
                                 units = units[1]
-                                if units == 's' or units == 'sec': units = 'seconds'
+                                if units in ('s', 'sec'): units = 'seconds'
                                 define_info['units'] = units
+
+                        if 'comment' not in define_info or define_info['comment'] == '':
+                            if prev_comment:
+                                define_info['comment'] = prev_comment
+                                prev_comment = ''
+
+                        if 'comment' in define_info and define_info['comment'] == '':
+                            del define_info['comment']
+
+                        # A comment heading a run of consecutive #defines (no blank line or directive
+                        # between them) describes the whole run. Share it with the uncommented followers.
+                        # (At this point 'comment' can only be a leading comment. EOL comments are attached later.)
+                        if 'comment' in define_info:
+                            run_owner = define_info
+                        elif run_owner is not None:
+                            define_info['shared_comment'] = run_owner['comment']
 
                         # Set the options for the current #define
                         if define_name == "MOTHERBOARD" and boards != '':
@@ -412,13 +492,31 @@ def extract():
 
     return sch_out
 
+#
+# Extract the current configuration files in the form of a structured schema.
+#
+def extract():
+    # List of files to process, with shorthand
+    return extract_files({ 'Configuration.h':'basic', 'Configuration_adv.h':'advanced' })
+
 def dump_json(schema:dict, jpath:Path):
-    with jpath.open('w') as jfile:
+    with jpath.open('w', encoding='utf-8') as jfile:
         json.dump(schema, jfile, ensure_ascii=False, indent=2)
 
 def dump_yaml(schema:dict, ypath:Path):
     import yaml
-    with ypath.open('w') as yfile:
+
+    # Custom representer for all multi-line strings
+    def str_literal_representer(dumper, data):
+        if '\n' in data:  # Check for multi-line strings
+            # Add a newline to trigger '|+'
+            if not data.endswith('\n'): data += '\n'
+            return dumper.represent_scalar('tag:yaml.org,2002:str', data, style='|')
+        return dumper.represent_scalar('tag:yaml.org,2002:str', data)
+
+    yaml.add_representer(str, str_literal_representer)
+
+    with ypath.open('w', encoding='utf-8') as yfile:
         yaml.dump(schema, yfile, default_flow_style=False, width=120, indent=2)
 
 def main():
@@ -439,12 +537,17 @@ def main():
         def inargs(c): return len(set(args) & set(c)) > 0
 
         # Help / Unknown option
-        unk = not inargs(['some','json','jsons','group','yml','yaml'])
+        unk = not inargs(['some','json','jsons','group','yml','yaml', '-h', '--help'])
         if (unk): print(f"Unknown option: '{args[0]}'")
         if inargs(['-h', '--help']) or unk:
-            print("Usage: schema.py [some|json|jsons|group|yml|yaml]...")
-            print("       some  = json + yml")
-            print("       jsons = json + group")
+            print("Extract firmware configuration into structured JSON or YAML schema format.")
+            print("Usage: schema.py [-h] [some|json|jsons|group|yml|yaml]")
+            print("  some    Generate both JSON and YAML output (schema.json and schema.yml)")
+            print("  json    Generate JSON output (schema.json)")
+            print("  jsons   Generate grouped JSON output with wildcard options (schema.json and schema_grouped.json)")
+            print("  group   Generate grouped JSON output only (schema_grouped.json)")
+            print("  yml     Generate YAML output (schema.yml)")
+            print("  yaml    Same as 'yml'")
             return
 
         # JSON schema
@@ -465,7 +568,7 @@ def main():
                 print("Installing YAML module ...")
                 import subprocess
                 try:
-                    subprocess.run(['python3', '-m', 'pip', 'install', 'pyyaml'])
+                    subprocess.run([sys.executable, '-m', 'pip', 'install', 'pyyaml'])
                     import yaml
                 except:
                     print("Failed to install YAML module")

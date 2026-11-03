@@ -35,9 +35,7 @@
 //
 #if NO_EEPROM_SELECTED
   #define IIC_BL24CXX_EEPROM                      // EEPROM on I2C-0
-  #undef NO_EEPROM_SELECTED
-#elif DISABLED(IIC_BL24CXX_EEPROM)
-  #define SDCARD_EEPROM_EMULATION                 // SD EEPROM until all EEPROM is BL24CXX
+  //#define SDCARD_EEPROM_EMULATION               // SD EEPROM until all EEPROM is BL24CXX
 #endif
 
 //
@@ -68,6 +66,13 @@
 //
 #define HEATER_0_PIN                        PA0   // HEATER1
 #define HEATER_BED_PIN                      PA1   // HOT BED
-#define FAN0_PIN                            PA2   // FAN
+#define FAN0_PIN                            PA2   // FAN0
+#define FAN1_PIN                            PC1   // FAN1
+#define FAN2_PIN                            PC0   // FAN2
+
+//
+// Misc. Functions
+//
+#define LED_PIN                             PC14
 
 #include "pins_CREALITY_V4.h"

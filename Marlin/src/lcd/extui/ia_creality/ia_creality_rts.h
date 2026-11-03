@@ -228,7 +228,7 @@ class RTS {
     static void sendData(char,          const uint32_t, const uint8_t=VarAddr_W);
     static void sendData(int,           const uint32_t, const uint8_t=VarAddr_W);
     static void sendData(unsigned long, const uint32_t, const uint8_t=VarAddr_W);
-    static void sendData(const_float_t, const uint32_t, const uint8_t=VarAddr_W);
+    static void sendData(const float, const uint32_t, const uint8_t=VarAddr_W);
 
     static void sendData(uint8_t * const str, const uint32_t addr, const uint8_t cmd=VarAddr_W) { sendData((char *)str, addr, cmd); }
     static void sendData(const unsigned int n, uint32_t addr, const uint8_t cmd=VarAddr_W) { sendData(int(n), addr, cmd); }

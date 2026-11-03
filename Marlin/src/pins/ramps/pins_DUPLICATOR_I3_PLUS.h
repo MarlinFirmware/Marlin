@@ -77,7 +77,7 @@
 //
 // Misc. Functions
 //
-#define SDSS                                  53  // PB0 / SS
+#define SD_SS_PIN                             53  // PB0 / SS
 #define LED_PIN                               13  // PB7 / PWM13
 
 #define SD_MISO_PIN                           50  // PB3
@@ -181,5 +181,5 @@
  * ##################################
  *
  * Pictogram by Ludy https://github.com/Ludy87
- * See: https://sebastien.andrivet.com/en/posts/wanhao-duplicator-i3-plus-3d-printer/
+ * See: https://sebastien.andrivet.com/en/posts/wanhao-duplicator-i3-plus-3d-printers/
  */

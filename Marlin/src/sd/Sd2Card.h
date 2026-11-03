@@ -78,7 +78,7 @@ uint8_t const SD_CARD_TYPE_SD1  = 1,        // Standard capacity V1 SD card
 /**
  * Define SOFTWARE_SPI to use bit-bang SPI
  */
-#if ANY(MEGA_SOFT_SPI, USE_SOFTWARE_SPI)
+#if ANY(MEGA_SOFT_SPI, SDFAT_USE_SOFTWARE_SPI)
   #define SOFTWARE_SPI
 #endif
 
@@ -120,6 +120,8 @@ public:
    * \return true for success or false for failure.
    */
   bool init(const uint8_t sckRateID, const pin_t chipSelectPin) override;
+  void initStart(const uint8_t sckRateID, const pin_t chipSelectPin) override;
+  int8_t initStep() override;
 
   bool setSckRate(const uint8_t sckRateID);
 
@@ -174,6 +176,13 @@ private:
           spiRate_,
           status_,
           type_;
+
+  // Initialization steps
+  enum InitState : uint8_t { INIT_CMD0, INIT_CMD8, INIT_ACMD41 };
+  InitState initState_;
+  uint8_t initSckRateID_;
+  millis_t initTimeout_;
+  int8_t initFail(const uint8_t code);
 
   // private functions
   inline uint8_t cardAcmd(const uint8_t cmd, const uint32_t arg) {

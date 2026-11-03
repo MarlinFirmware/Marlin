@@ -1,9 +1,10 @@
 #
 # stm32_serialbuffer.py
 #
+
 import pioutil
 if pioutil.is_pio_build():
-    Import("env")
+    env = pioutil.env
 
     # Get a build flag's value or None
     def getBuildFlagValue(name):
@@ -15,9 +16,11 @@ if pioutil.is_pio_build():
 
     # Get an overriding buffer size for RX or TX from the build flags
     def getInternalSize(side):
-        return  getBuildFlagValue(f"MF_{side}_BUFFER_SIZE") or \
-                getBuildFlagValue(f"SERIAL_{side}_BUFFER_SIZE") or \
-                getBuildFlagValue(f"USART_{side}_BUF_SIZE")
+        return (
+            getBuildFlagValue(f"MF_{side}_BUFFER_SIZE")
+            or getBuildFlagValue(f"SERIAL_{side}_BUFFER_SIZE")
+            or getBuildFlagValue(f"USART_{side}_BUF_SIZE")
+        )
 
     # Get the largest defined buffer size for RX or TX
     def getBufferSize(side, default):

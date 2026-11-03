@@ -45,6 +45,12 @@
   #define HAS_SAVED_POSITIONS
 #endif
 
+// WiFi libraries are only needed where Marlin itself drives the radio. On other
+// platforms WIFISUPPORT just powers up an add-on module running its own firmware.
+#if defined(ARDUINO_ARCH_ESP32) && ANY(WIFISUPPORT, ESP3D_WIFISUPPORT)
+  #define HAS_ESP32_WIFI
+#endif
+
 #if ENABLED(DUET_SMART_EFFECTOR) && PIN_EXISTS(SMART_EFFECTOR_MOD)
   #define HAS_SMART_EFF_MOD
 #endif
@@ -52,6 +58,9 @@
 #if HAS_MARLINUI_MENU
   #if ENABLED(BACKLASH_GCODE)
     #define HAS_MENU_BACKLASH
+  #endif
+  #if ALL(MKS_WIFI_MODULE, LCD_INFO_MENU)
+    #define HAS_MENU_MKS_WIFI
   #endif
   #if ENABLED(LCD_BED_TRAMMING)
     #define HAS_MENU_BED_TRAMMING
@@ -86,8 +95,8 @@
   #if HAS_TEMPERATURE
     #define HAS_MENU_TEMPERATURE
   #endif
-  #if ENABLED(MMU2_MENUS)
-    #define HAS_MENU_MMU2
+  #if ENABLED(MMU_MENUS)
+    #define HAS_MENU_MMU
   #endif
   #if ENABLED(PASSWORD_FEATURE)
     #define HAS_MENU_PASSWORD
@@ -98,6 +107,9 @@
   #if ENABLED(TOUCH_SCREEN_CALIBRATION)
     #define HAS_MENU_TOUCH_SCREEN
   #endif
+  #if ANY(HAS_LEVELING, HAS_BED_PROBE, ASSISTED_TRAMMING_WIZARD, LCD_BED_TRAMMING)
+    #define HAS_MENU_PROBE_LEVEL
+  #endif
   #if ENABLED(ASSISTED_TRAMMING_WIZARD)
     #define HAS_MENU_TRAMMING_WIZARD
   #endif
@@ -107,6 +119,9 @@
   #if ENABLED(ONE_CLICK_PRINT)
     #define HAS_MENU_ONE_CLICK_PRINT
   #endif
+  #if ENABLED(X_AXIS_TWIST_COMPENSATION)
+    #define X_AXIS_TWIST_MENU
+  #endif
 #endif
 
 #if HAS_GRAPHICAL_TFT
@@ -114,6 +129,8 @@
   #define UI_INCL_(W, H) STRINGIFY_(../../../../Marlin/src/lcd/tft/ui_##W##x##H.h)
   #define UI_INCL(W, H) UI_INCL_(W, H)
   #include UI_INCL(TFT_WIDTH, TFT_HEIGHT)
+
+  #include "../../../../Marlin/src/lcd/tft/ui_ubl_labels.h"  // HAS_TFT_TINY_FONT
 
   #define Latin_Extended_A 1
   #define Cyrillic 2

@@ -162,14 +162,14 @@ void TFT_SPI::dataTransferBegin(uint16_t dataSize) {
 #include "../../../lcd/tft_io/tft_ids.h"
 
 uint32_t TFT_SPI::getID() {
-  DEBUG_ECHOLNPGM("TFT_SPI::getID()");
+  DEBUG_ECHOLN("TFT_SPI::getID()");
 
   uint32_t id = readID(LCD_READ_ID);
   #if ENABLED(DEBUG_TFT_IO)
     char debug_register[3], debug_value[5];
     sprintf_P(debug_register, PSTR("%02X"), LCD_READ_ID);
     sprintf_P(debug_value, PSTR("%04X"), uint16_t(id));
-    DEBUG_ECHOLNPGM("  readID(0x", debug_register, ") : 0x", debug_value);
+    DEBUG_ECHOLN("  readID(0x", debug_register, ") : 0x", debug_value);
   #endif
 
   if ((id & 0xFFFF) == 0 || (id & 0xFFFF) == 0xFFFF) {
@@ -177,7 +177,7 @@ uint32_t TFT_SPI::getID() {
     #if ENABLED(DEBUG_TFT_IO)
       sprintf_P(debug_register, PSTR("%02X"), LCD_READ_ID4);
       sprintf_P(debug_value, PSTR("%04X"), uint16_t(id));
-      DEBUG_ECHOLNPGM("  readID(0x", debug_register, ") : 0x", debug_value);
+      DEBUG_ECHOLN("  readID(0x", debug_register, ") : 0x", debug_value);
     #endif
   }
 
@@ -186,7 +186,7 @@ uint32_t TFT_SPI::getID() {
       id = TFT_DEFAULT_DRIVER;
       #if ENABLED(DEBUG_TFT_IO)
         sprintf_P(debug_value, PSTR("%04X"), uint16_t(id));
-        DEBUG_ECHOLNPGM("  Fallback to TFT_DEFAULT_DRIVER : 0x", debug_value);
+        DEBUG_ECHOLN("  Fallback to TFT_DEFAULT_DRIVER : 0x", debug_value);
       #endif
     }
   #endif
@@ -236,7 +236,7 @@ uint32_t TFT_SPI::readID(const uint16_t inReg) {
     #endif
   #endif
 
-  DEBUG_ECHOLNPGM("  raw data : ", data);
+  DEBUG_ECHOLN("  raw data : ", data);
   return data >> 7;
 }
 
@@ -337,7 +337,7 @@ void TFT_SPI::transmitDMA(uint32_t memoryIncrease, uint16_t *data, uint16_t coun
     SET_BIT(SPIx.Instance->CR2, SPI_CR2_TXDMAEN);   // Enable Tx DMA Request
   #endif
 
-  TERN_(TFT_SHARED_IO, while (isBusy()) { /* nada */ });
+  TERN_(TFT_SHARED_IO, while (isBusy()));
 }
 
 void TFT_SPI::transmit(uint32_t memoryIncrease, uint16_t *data, uint16_t count) {

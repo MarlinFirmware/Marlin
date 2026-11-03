@@ -27,7 +27,7 @@
  * On STM32F, all pins support external interrupt capability.
  * Any pin can be used for external interrupts, but there are some restrictions.
  * At most 16 different external interrupts can be used at one time.
- * Further, you can’t just pick any 16 pins to use. This is because every pin on the STM32
+ * Further, you can't just pick any 16 pins to use. This is because every pin on the STM32
  * connects to what is called an EXTI line, and only one pin per EXTI line can be used for external interrupts at a time
  * Check the Reference Manual of the MCU to confirm which line is used by each pin
  */
@@ -70,6 +70,7 @@ void setup_endstop_interrupts() {
   TERN_(USE_Z4_MAX,      _ATTACH(Z4_MAX_PIN));
   TERN_(USE_Z4_MIN,      _ATTACH(Z4_MIN_PIN));
   TERN_(USE_Z_MIN_PROBE, _ATTACH(Z_MIN_PROBE_PIN));
+  TERN_(USE_CALIBRATION, _ATTACH(CALIBRATION_PIN));
   TERN_(USE_I_MAX,       _ATTACH(I_MAX_PIN));
   TERN_(USE_I_MIN,       _ATTACH(I_MIN_PIN));
   TERN_(USE_J_MAX,       _ATTACH(J_MAX_PIN));

@@ -24,27 +24,26 @@
 #include "../../module/motion.h"
 
 /**
- * M220: Set speed percentage factor, aka "Feed Rate"
+ * M220: Set Feedrate Percentage
  *
- * Parameters
- *   S<percent> : Set the feed rate percentage factor
+ * Parameters:
+ *   None        Report the current speed percentage factor
+ *   S<percent>  Set the feed rate percentage factor
  *
- * Report the current speed percentage factor if no parameter is specified
- *
- * For MMU2 and MMU2S devices...
- *   B : Flag to back up the current factor
- *   R : Flag to restore the last-saved factor
+ *   For MMU2 and MMU2S devices:
+ *     B<flag>  Back up the current factor
+ *     R<flag>  Restore the last-saved factor
  */
 void GcodeSuite::M220() {
   if (!parser.seen_any()) {
-    SERIAL_ECHOLNPGM("FR:", feedrate_percentage, "%");
+    SERIAL_ECHOLNPGM("FR:", motion.feedrate_percentage, "%");
     return;
   }
 
   static int16_t backup_feedrate_percentage = 100;
-  const int16_t now_feedrate_perc = feedrate_percentage;
-  if (parser.seen_test('R')) feedrate_percentage = backup_feedrate_percentage;
+  const int16_t now_feedrate_perc = motion.feedrate_percentage;
+  if (parser.seen_test('R')) motion.feedrate_percentage = backup_feedrate_percentage;
   if (parser.seen_test('B')) backup_feedrate_percentage = now_feedrate_perc;
-  if (parser.seenval('S')) feedrate_percentage = parser.value_int();
+  if (parser.seenval('S')) motion.feedrate_percentage = parser.value_int();
 
 }

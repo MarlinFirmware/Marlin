@@ -62,11 +62,6 @@
   #endif
 #endif
 
-#if !defined(BOOTSCREEN_LOGO_X) && !defined(BOOTSCREEN_LOGO_Y)
-  #define BOOTSCREEN_LOGO_X         (TFT_WIDTH - BOOTSCREEN_LOGO_W) / 2
-  #define BOOTSCREEN_LOGO_Y         (TFT_HEIGHT - BOOTSCREEN_LOGO_H) / 2
-#endif
-
 #if !defined(NAVIGATION_PAGE_UP_X) && !defined(NAVIGATION_PAGE_UP_Y) && !defined(NAVIGATION_PAGE_DOWN_X) && !defined(NAVIGATION_PAGE_DOWN_Y) && !defined(NAVIGATION_BACK_X) && !defined(NAVIGATION_BACK_Y)
   #define NAVIGATION_PAGE_UP_X      24
   #define NAVIGATION_PAGE_UP_Y      TFT_HEIGHT - 34
@@ -129,14 +124,14 @@
 #if !defined(MAX_ITEMS) && !defined(ITEM_X) && !defined(ITEM_Y)
   #define MAX_ITEMS                 4
   #define ITEM_X(N)                 (TFT_WIDTH / _MIN(ITEMS_COUNT, MAX_ITEMS) - TEMP_FAN_CONTROL_W) / 2 + (TFT_WIDTH * N / _MIN(ITEMS_COUNT, MAX_ITEMS))
-  #define ITEM_Y                    2
+  #define ITEM_Y                    0
 #endif
 
 #if !defined(COORDINATES_W) && !defined(COORDINATES_H) && !defined(COORDINATES_X) && !defined(COORDINATES_Y)
   #define COORDINATES_W             TFT_WIDTH - 8
   #define COORDINATES_H             FONT_LINE_HEIGHT * 2
   #define COORDINATES_X             4
-  #define COORDINATES_Y             104
+  #define COORDINATES_Y             102
 #endif
 
 #if !defined(E_MARK_X) && !defined(E_MARK_Y) && !defined(E_VALUE_X) && !defined(E_VALUE_Y)
@@ -172,7 +167,7 @@
   #define FEEDRATE_W                90
   #define FEEDRATE_H                32
   #define FEEDRATE_X                20
-  #define FEEDRATE_Y                166
+  #define FEEDRATE_Y                164
 #endif
 #if !defined(FEEDRATE_ICON_X) && !defined(FEEDRATE_ICON_Y) && !defined(FEEDRATE_ICON_Y) && !defined(FEEDRATE_TEXT_Y)
   #define FEEDRATE_ICON_X           0
@@ -185,7 +180,7 @@
   #define FLOWRATE_W                90
   #define FLOWRATE_H                32
   #define FLOWRATE_X                134
-  #define FLOWRATE_Y                166
+  #define FLOWRATE_Y                164
 #endif
 #if !defined(FLOWRATE_ICON_X) && !defined(FLOWRATE_ICON_Y) && !defined(FLOWRATE_TEXT_X) && !defined(FLOWRATE_TEXT_Y)
   #define FLOWRATE_ICON_X           0
@@ -196,25 +191,25 @@
 
 #if !defined(MENU_ICON_X) && !defined(MENU_ICON_Y)
   #define MENU_ICON_X               176
-  #define MENU_ICON_Y               210
+  #define MENU_ICON_Y               208
 #endif
 #if !defined(SDCARD_ICON_X) && !defined(SDCARD_ICON_Y)
   #define SDCARD_ICON_X             0
-  #define SDCARD_ICON_Y             210
+  #define SDCARD_ICON_Y             208
 #endif
 
 #if !defined(ELAPSED_TIME_W) && !defined(ELAPSED_TIME_H) && !defined(ELAPSED_TIME_X) && !defined(ELAPSED_TIME_Y)
   #define ELAPSED_TIME_H            32
   #define ELAPSED_TIME_W            112
   #define ELAPSED_TIME_X            (TFT_WIDTH - ELAPSED_TIME_W) / 2
-  #define ELAPSED_TIME_Y            246
+  #define ELAPSED_TIME_Y            244
 #endif
 
 #if !defined(REMAINING_TIME_W) && !defined(REMAINING_TIME_H) && !defined(REMAINING_TIME_X) && !defined(REMAINING_TIME_Y)
   #if ALL(SHOW_ELAPSED_TIME, SHOW_REMAINING_TIME)
-    #define REMAINING_TIME_Y        210
+    #define REMAINING_TIME_Y        208
   #elif ENABLED(SHOW_REMAINING_TIME)
-    #define REMAINING_TIME_Y        246
+    #define REMAINING_TIME_Y        244
   #endif
 
   #define REMAINING_TIME_H          32
@@ -240,19 +235,19 @@
   #define PROGRESS_BAR_W            TFT_WIDTH - 8
   #define PROGRESS_BAR_H            9
   #define PROGRESS_BAR_X            4
-  #define PROGRESS_BAR_Y            282
+  #define PROGRESS_BAR_Y            280
 #endif
 
 #if !defined(STATUS_MESSAGE_W) && !defined(STATUS_MESSAGE_H) && !defined(STATUS_MESSAGE_X) && !defined(STATUS_MESSAGE_Y)
   #define STATUS_MESSAGE_W          TFT_WIDTH
-  #define STATUS_MESSAGE_H          FONT_LINE_HEIGHT
+  #define STATUS_MESSAGE_H          26
   #define STATUS_MESSAGE_X          0
-  #define STATUS_MESSAGE_Y          292
+  #define STATUS_MESSAGE_Y          290
 #endif
 
 #if !defined(STATUS_MESSAGE_TEXT_X) && !defined(STATUS_MESSAGE_TEXT_Y)
   #define STATUS_MESSAGE_TEXT_X     tft_string.center(STATUS_MESSAGE_W)
-  #define STATUS_MESSAGE_TEXT_Y     VCENTER
+  #define STATUS_MESSAGE_TEXT_Y     tft_string.vcenter(STATUS_MESSAGE_H)
 #endif
 
 // MenuEditItemBase::draw_edit_screen()

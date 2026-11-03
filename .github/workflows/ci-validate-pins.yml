@@ -8,44 +8,45 @@ name: CI - Validate Pins Files
 on:
   pull_request:
     branches:
-    - bugfix-2.1.x
+      - bugfix-2.1.x
     # Cannot be enabled on 2.1.x until it contains the unit test framework
     #- 2.1.x
     paths:
-    - 'Marlin/src/pins/*/**'
+      - "Marlin/src/pins/*/**"
   push:
     branches:
-    - bugfix-2.1.x
+      - bugfix-2.1.x
     # Cannot be enabled on 2.1.x until it contains the unit test framework
     #- 2.1.x
     paths:
-    - 'Marlin/src/pins/*/**'
+      - "Marlin/src/pins/*/**"
+
+# Cancel PR runs superseded by a new push, so stacked runs don't queue up behind each other.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions:
+  contents: read
 
 jobs:
   validate_pins_files:
     name: Validate Pins Files
     if: github.repository == 'MarlinFirmware/Marlin'
 
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
+    timeout-minutes: 10
 
     steps:
-    - name: Check out the PR
-      uses: actions/checkout@v4
+      - name: Check out the PR
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
-    - name: Cache pip
-      uses: actions/cache@v4
-      with:
-        path: ~/.cache/pip
-        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
-        restore-keys: |
-          ${{ runner.os }}-pip-
+      - name: Select Python 3.9
+        uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7
+        with:
+          python-version: "3.9"
+          architecture: "x64"
 
-    - name: Select Python 3.9
-      uses: actions/setup-python@v5
-      with:
-        python-version: '3.9'
-        architecture: 'x64'
-
-    - name: Validate all pins files
-      run: |
-        make validate-pins -j
+      - name: Validate all pins files
+        run: |
+          make validate-pins -j

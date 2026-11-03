@@ -58,16 +58,13 @@
   * CLCD::cmd()                        Send 32-Bit Value(4 Bytes)CMD Buffer   *
   * CLCD::cmd()                        Send Data Structure with 32-Bit Cmd    *
   * CLCD::str()                        Send Text String in 32-Bit Multiples   *
-
   *                                                                           *
   * FT800/810 GRAPHIC COMMANDS                                                *
   *                                                                           *
   * class CLCD:CommandFifo {}          Class to control Cmd FIFO              *
-
   * CommandFifo::start()               Wait for CP finish - Set FIFO Ptr      *
   * CommandFifo::execute()             Set REG_CMD_WRITE and start CP         *
   * CommandFifo::reset()               Set Cmd Buffer Pointers to 0           *
-  *
   * CommandFifo::fgcolor               Set Graphic Item Foreground Color      *
   * CommandFifo::bgcolor               Set Graphic Item Background Color      *
   * CommandFifo::begin()               Begin Drawing a Primitive              *

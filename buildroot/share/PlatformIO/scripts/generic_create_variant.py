@@ -6,16 +6,17 @@
 # will be picked up by PlatformIO just like any other variant.
 #
 import pioutil, re
+
 marlin_variant_pattern = re.compile("marlin_.*")
 if pioutil.is_pio_build():
-    import shutil,marlin
+    import shutil, marlin
     from pathlib import Path
 
     #
     # Get the platform name from the 'platform_packages' option,
     # or look it up by the platform.class.name.
     #
-    env = marlin.env
+    env = pioutil.env
     platform = env.PioPlatform()
 
     from platformio.package.meta import PackageSpec
@@ -40,26 +41,25 @@ if pioutil.is_pio_build():
     FRAMEWORK_DIR = Path(platform.get_package_dir(platform_name))
     assert FRAMEWORK_DIR.is_dir()
 
+    #
+    # Point variants_dir to our variant folder when board_build.variant
+    # is provided and the variant name begins with "marlin_".
+    #
     board = env.BoardConfig()
-
-    #mcu_type = board.get("build.mcu")[:-2]
     variant = board.get("build.variant")
+    #mcu_type = board.get("build.mcu")[:-2]
     #series = mcu_type[:7].upper() + "xx"
 
-    # Only prepare a new variant if the PlatformIO configuration provides it (board_build.variant).
-    # This check is important to avoid deleting official board config variants.
+    # Make sure the local variant sub-folder exists
     if marlin_variant_pattern.match(str(variant).lower()):
-        # Prepare a new empty folder at the destination
-        variant_dir = FRAMEWORK_DIR / "variants" / variant
-        if variant_dir.is_dir():
-            shutil.rmtree(variant_dir)
-        if not variant_dir.is_dir():
-            variant_dir.mkdir()
-
-        # Source dir is a local variant sub-folder
-        source_dir = Path("buildroot/share/PlatformIO/variants", variant)
+        variants_dir = Path('buildroot', 'share', 'PlatformIO', 'variants')
+        source_dir = Path.cwd() / variants_dir / variant
         assert source_dir.is_dir()
+        # Relative, so the framework prefixes $PROJECT_DIR. STM32duino escapes '(' and ')'
+        # in a literal path, which breaks the include path when the project path has them.
+        board.update("build.variants_dir", variants_dir.as_posix())
 
-        print("Copying variant " + str(variant) + " to framework directory...")
-
-        marlin.copytree(source_dir, variant_dir)
+        # STM32duino 2.x includes 'variant_<BOARD>.h' by default. Variants shared by several
+        # boards provide 'variant_generic.h' instead, so select it explicitly.
+        if (source_dir / "variant_generic.h").is_file():
+            board.update("build.arduino.variant_h", "variant_generic.h")

@@ -31,14 +31,22 @@
 #define IS_I2S_EXPANDER_PIN(IO) TEST(IO, 7)
 #define I2S_EXPANDER_PIN_INDEX(IO) (IO & 0x7F)
 
+// Only GPIOs have a pin mode. Expander pins (I2S 128+, EXIO 100+) must not reach pinMode(),
+// which on arduino-esp32 2.x shifts 1ULL by the pin number and so reconfigures the wrong GPIO.
+#define _IS_GPIO(IO)            (uint8_t(IO) < GPIO_PIN_COUNT)
+
 // Set pin as input
-#define _SET_INPUT(IO)          pinMode(IO, INPUT)
+#define _SET_INPUT(IO)          do{ if (_IS_GPIO(IO)) pinMode(IO, INPUT); }while(0)
 
 // Set pin as output
-#define _SET_OUTPUT(IO)         pinMode(IO, OUTPUT)
+#define _SET_OUTPUT(IO)         do{ if (_IS_GPIO(IO)) pinMode(IO, OUTPUT); }while(0)
+
+// TODO: Store set modes in an array and use those to get the mode
+#define _IS_OUTPUT(IO)           true
+#define _IS_INPUT(IO)            true
 
 // Set pin as input with pullup mode
-#define _PULLUP(IO, v)          pinMode(IO, v ? INPUT_PULLUP : INPUT)
+#define _PULLUP(IO, v)          do{ if (_IS_GPIO(IO)) pinMode(IO, v ? INPUT_PULLUP : INPUT); }while(0)
 
 #if ENABLED(USE_ESP32_EXIO)
   // Read a pin wrapper
@@ -69,6 +77,9 @@
 
 // Set pin as output and init
 #define OUT_WRITE(IO,V)         do{ _SET_OUTPUT(IO); WRITE(IO,V); }while(0)
+
+#define IS_OUTPUT(IO)            _IS_OUTPUT(IO)
+#define IS_INPUT(IO)             _IS_INPUT(IO)
 
 // digitalRead/Write wrappers
 #define extDigitalRead(IO)      digitalRead(IO)

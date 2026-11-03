@@ -84,7 +84,7 @@ void DGUSTxHandler::levelingProgressIcon(DGUS_VP &vp) {
 #endif
 
 void DGUSTxHandler::sdCardInsertionStatus(DGUS_VP &vp) {
-  const uint16_t data = ExtUI::isMediaInserted() ? 1 : 0;
+  const uint16_t data = ExtUI::isMediaMounted() ? 1 : 0;
   dgus.write((uint16_t)vp.addr, Endianness::toBE(data));
 }
 

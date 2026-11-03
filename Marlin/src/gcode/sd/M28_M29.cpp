@@ -33,6 +33,12 @@
 
 /**
  * M28: Start SD Write
+ *
+ * Parameters:
+ *   <filename>  File name to write
+ *
+ *   With BINARY_FILE_TRANSFER:
+ *     B1  Set an optimized binary file transfer mode
  */
 void GcodeSuite::M28() {
 

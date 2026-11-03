@@ -26,6 +26,7 @@
 // BLTouch commands are sent as servo angles
 typedef unsigned char BLTCommand;
 
+#define DEPLOY_ALARM          true
 #define STOW_ALARM            true
 #define BLTOUCH_DEPLOY          10
 #define BLTOUCH_STOW            90
@@ -104,7 +105,7 @@ public:
   static bool triggered();
 
 private:
-  static bool _deploy_query_alarm() { return command(BLTOUCH_DEPLOY, BLTOUCH_DEPLOY_DELAY); }
+  static bool _deploy_query_alarm() { return command(BLTOUCH_DEPLOY, BLTOUCH_DEPLOY_DELAY) == DEPLOY_ALARM; }
   static bool _stow_query_alarm()   { return command(BLTOUCH_STOW, BLTOUCH_STOW_DELAY) == STOW_ALARM; }
 
   static void clear();

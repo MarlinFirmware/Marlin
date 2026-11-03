@@ -31,7 +31,7 @@
  * - https://github.com/Ultimaker/Ultimaker2/blob/master/1546%20ultimainboard%20V2.1.4/schema4.SchDoc
  * - https://github.com/Ultimaker/Ultimaker2/blob/master/1546%20ultimainboard%20V2.1.4/schema5.SchDoc
  * Schematics (Original+):
- * Schematic (Original+): https://github.com/Ultimaker/Ultimaker-Original-Plus/blob/master/1091_Main_board_v2.1.1_(x1)/Ultimainboard%20rev.%202.1.1%20altium.zip
+ * Schematic (Original+): https://github.com/Ultimaker/Ultimaker-Original-Plus/blob/master/1091_Main_board_v2.1.1_%28x1%29/Ultimainboard%20rev.%202.1.1%20altium.zip
  * ATmega2560
  */
 
@@ -85,9 +85,19 @@
 #define MOTOR_CURRENT_PWM_E_PIN               46
 // Motor current PWM conversion, PWM value = MotorCurrentSetting * 255 / range
 #ifndef MOTOR_CURRENT_PWM_RANGE
-  #define MOTOR_CURRENT_PWM_RANGE            2000
+  #define MOTOR_CURRENT_PWM_RANGE            2900
 #endif
 #define DEFAULT_PWM_MOTOR_CURRENT  {1300, 1300, 1250}
+
+//
+// Filament Runout Sensor
+//
+#ifndef FIL_RUNOUT_PIN
+  #define FIL_RUNOUT_PIN                      54  // ADC0
+#endif
+#ifndef FIL_RUNOUT2_PIN
+  #define FIL_RUNOUT2_PIN                     55  // ADC1
+#endif
 
 //
 // Temperature Sensors
@@ -114,7 +124,7 @@
 //
 // Misc. Functions
 //
-#define SDSS                                  53
+#define SD_SS_PIN                             53
 #define SD_DETECT_PIN                         39
 #define LED_PIN                                8
 //#define SAFETY_TRIGGERED_PIN                28  // PIN to detect the safety circuit has triggered

@@ -104,6 +104,18 @@
 #ifndef COLOR_MENU_TEXT
   #define COLOR_MENU_TEXT         COLOR_YELLOW
 #endif
+#ifndef COLOR_MENU_STATIC_TEXT
+  #define COLOR_MENU_STATIC_TEXT  COLOR_SILVER
+#endif
+#ifndef COLOR_MENU_INVERT_TEXT
+  #define COLOR_MENU_INVERT_TEXT  COLOR_WHITE
+#endif
+#ifndef COLOR_MENU_BACK_TEXT
+  #define COLOR_MENU_BACK_TEXT    COLOR_WHITE
+#endif
+#ifndef COLOR_MENU_EDIT_TEXT
+  #define COLOR_MENU_EDIT_TEXT    COLOR_VIVID_GREEN
+#endif
 #ifndef COLOR_MENU_VALUE
   #define COLOR_MENU_VALUE        COLOR_WHITE
 #endif
@@ -113,6 +125,10 @@
 #endif
 #ifndef COLOR_SLIDER_INACTIVE
   #define COLOR_SLIDER_INACTIVE   COLOR_GREY
+#endif
+
+#ifndef COLOR_KEYPAD_BG
+  #define COLOR_KEYPAD_BG         COLOR_NAVY    // Edit screen keypad buttons, including CANC and DONE
 #endif
 
 #ifndef COLOR_UBL

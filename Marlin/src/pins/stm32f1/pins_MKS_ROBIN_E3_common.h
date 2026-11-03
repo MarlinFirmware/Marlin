@@ -38,9 +38,9 @@
 //
 // EEPROM
 //
-#if ANY(NO_EEPROM_SELECTED, FLASH_EEPROM_EMULATION)
+#if SHALL_USE_EEPROM(FLASH_EEPROM_EMULATION)
   #define FLASH_EEPROM_EMULATION
-  #define EEPROM_PAGE_SIZE     (0x800U)           // 2K
+  #define EEPROM_PAGE_SIZE                0x800U  // 2K
   #define EEPROM_START_ADDRESS (0x8000000UL + (STM32_FLASH_SIZE) * 1024UL - (EEPROM_PAGE_SIZE) * 2UL)
   #define MARLIN_EEPROM_SIZE    EEPROM_PAGE_SIZE  // 2K
 #endif
@@ -107,16 +107,9 @@
   //#define E0_HARDWARE_SERIAL MSerial1
 
   #define X_SERIAL_TX_PIN                   PC7
-  #define X_SERIAL_RX_PIN                   PC7
-
   #define Y_SERIAL_TX_PIN                   PD2
-  #define Y_SERIAL_RX_PIN                   PD2
-
   #define Z_SERIAL_TX_PIN                   PC12
-  #define Z_SERIAL_RX_PIN                   PC12
-
   #define E0_SERIAL_TX_PIN                  PC11
-  #define E0_SERIAL_RX_PIN                  PC11
 
   // Reduce baud rate to improve software serial reliability
   #ifndef TMC_BAUD_RATE
@@ -261,14 +254,34 @@
 //
 #define SDCARD_CONNECTION                ONBOARD
 #define ONBOARD_SPI_DEVICE                     2  // Maple
-#define SDSS                           SD_SS_PIN
-#define ONBOARD_SD_CS_PIN              SD_SS_PIN
+#define ONBOARD_SD_CS_PIN            EXP2_04_PIN
 #define SD_DETECT_PIN                EXP2_07_PIN
-#define NO_SD_HOST_DRIVE
+#define BOARD_NO_HOST_DRIVE                       // SD is only seen by the printer
 
 // TODO: This is the only way to set SPI for SD on STM32 (for now)
 #define ENABLE_SPI2
 #define SD_SCK_PIN                   EXP2_02_PIN
 #define SD_MISO_PIN                  EXP2_01_PIN
 #define SD_MOSI_PIN                  EXP2_06_PIN
-#define SD_SS_PIN                    EXP2_04_PIN
+#define SD_SS_PIN              ONBOARD_SD_CS_PIN
+
+//
+// TMC SPI drivers (E3D) share SPI2 (TMC_SPI_* pins) with the onboard SD card and EXP2.
+// The default 'SPI' object is elsewhere (SPI3 on the E0 STEP/DIR/EN pins with the
+// STM32 HAL, SPI1 on EXP1 with Maple) so keep all TMC traffic on the shared bus.
+//
+#if HAS_TMC_SPI
+  #define USES_SHARED_SPI                         // SPI is shared by SD card with TMC SPI drivers
+  #ifdef MAPLE_STM32F1
+    #ifndef SPI_DEVICE
+      #define SPI_DEVICE                       2  // Maple: Put the global 'SPI' on SPI2
+    #endif
+  #else
+    #ifndef TMC_USE_SW_SPI
+      #define TMC_USE_SW_SPI                      // Bit-bang the TMC_SPI_* pins
+    #endif
+    #ifndef FORCE_SOFT_SPI
+      #define FORCE_SOFT_SPI                      // SD and LCD on the same pins must also bit-bang
+    #endif
+  #endif
+#endif

@@ -37,7 +37,7 @@ static SPISettings spiConfig;
 // Public functions
 // ------------------------
 
-#if ENABLED(SOFTWARE_SPI)
+#if ANY(SOFTWARE_SPI, FORCE_SOFT_SPI)
 
   // ------------------------
   // Software SPI
@@ -170,6 +170,7 @@ static SPISettings spiConfig;
     SPI.setSCLK(SD_SCK_PIN);
 
     SPI.begin();
+    SPI.beginTransaction(spiConfig); // Apply the requested clock
   }
 
   /**

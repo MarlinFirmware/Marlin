@@ -43,6 +43,7 @@
 #include "types.h"
 #include "utility.h" // AXIS_CHAR
 #include "../lcd/utf8.h"
+#include "../libs/numtostr.h" // ftostrf
 
 #ifndef DEFAULT_MSTRING_SIZE
   #define DEFAULT_MSTRING_SIZE 20
@@ -122,7 +123,7 @@ public:
   MString& set(const unsigned long &l)    { SNPRINTF_P(str, SIZE, PSTR("%lu"), l);    debug(F("ulong"));   return *this; }
   MString& set(const float &f)            { return set(p_float_t(f, SERIAL_FLOAT_PRECISION)); }
   MString& set(const p_float_t &pf)       { return set(w_float_t(pf.value, 1, pf.prec)); }
-  MString& set(const w_float_t &wf)       { char f1[20]; return set(dtostrf(wf.value, wf.width, wf.prec, f1)); }
+  MString& set(const w_float_t &wf)       { char f1[FTOSTRF_BUFSIZE]; return set(w_float_to_str(wf, f1)); }
   MString& set(const serial_char_t &v)    { return set(char(v.c)); }
   MString& set(const xyz_pos_t &v)        { set(); return append(v); }
   MString& set(const xyze_pos_t &v)       { set(); return append(v); }
@@ -158,16 +159,16 @@ public:
   MString& append_P(PGM_P const s)            { int sz = length(); if (sz < SIZE) strlcpy_P(str + sz, s, SIZE - sz + 1); debug(F("pstring")); return *this; }
   MString& append(FSTR_P const f)             { return append_P(FTOP(f)); }
   MString& append(const bool &b)              { return append(b ? F("true") : F("false")); }
-  MString& append(const char c)               { int sz = length(); if (sz < SIZE) { str[sz] = c; if (sz < SIZE - 1) str[sz + 1] = '\0'; } return *this; }
+  MString& append(const char c)               { int sz = length(); if (sz < SIZE) { str[sz] = c; if (sz < SIZE - 1) str[sz + 1] = '\0'; } debug(F("char")); return *this; }
   #if ENABLED(FASTER_APPEND)
-    MString& append(const int8_t &i)          { int sz = length(); SNPRINTF(&str[sz], SIZE - sz, "%d",  i); return *this; }
-    MString& append(const short &i)           { int sz = length(); SNPRINTF(&str[sz], SIZE - sz, "%d",  i); return *this; }
-    MString& append(const int &i)             { int sz = length(); SNPRINTF(&str[sz], SIZE - sz, "%d",  i); return *this; }
-    MString& append(const long &l)            { int sz = length(); SNPRINTF(&str[sz], SIZE - sz, "%ld", l); return *this; }
-    MString& append(const unsigned char &i)   { int sz = length(); SNPRINTF(&str[sz], SIZE - sz, "%u",  i); return *this; }
-    MString& append(const unsigned short &i)  { int sz = length(); SNPRINTF(&str[sz], SIZE - sz, "%u",  i); return *this; }
-    MString& append(const unsigned int &i)    { int sz = length(); SNPRINTF(&str[sz], SIZE - sz, "%u",  i); return *this; }
-    MString& append(const unsigned long &l)   { int sz = length(); SNPRINTF(&str[sz], SIZE - sz, "%lu", l); return *this; }
+    MString& append(const int8_t &i)          { int sz = length(); SNPRINTF(&str[sz], SIZE - sz, "%d",  i); debug(F("int8_t")); return *this; }
+    MString& append(const short &i)           { int sz = length(); SNPRINTF(&str[sz], SIZE - sz, "%d",  i); debug(F("short"));  return *this; }
+    MString& append(const int &i)             { int sz = length(); SNPRINTF(&str[sz], SIZE - sz, "%d",  i); debug(F("int"));    return *this; }
+    MString& append(const long &l)            { int sz = length(); SNPRINTF(&str[sz], SIZE - sz, "%ld", l); debug(F("long"));   return *this; }
+    MString& append(const unsigned char &i)   { int sz = length(); SNPRINTF(&str[sz], SIZE - sz, "%u",  i); debug(F("uchar"));  return *this; }
+    MString& append(const unsigned short &i)  { int sz = length(); SNPRINTF(&str[sz], SIZE - sz, "%u",  i); debug(F("ushort")); return *this; }
+    MString& append(const unsigned int &i)    { int sz = length(); SNPRINTF(&str[sz], SIZE - sz, "%u",  i); debug(F("uint"));   return *this; }
+    MString& append(const unsigned long &l)   { int sz = length(); SNPRINTF(&str[sz], SIZE - sz, "%lu", l); debug(F("ulong"));  return *this; }
   #else
     MString& append(const int8_t &i)          { char buf[ 5]; sprintf(buf, "%d",  i); return append(buf); }
     MString& append(const short &i)           { char buf[12]; sprintf(buf, "%d",  i); return append(buf); }
@@ -180,7 +181,7 @@ public:
   #endif
   MString& append(const float &f)             { return append(p_float_t(f, SERIAL_FLOAT_PRECISION)); }
   MString& append(const p_float_t &pf)        { return append(w_float_t(pf.value, 1, pf.prec)); }
-  MString& append(const w_float_t &wf)        { char f1[20]; return append(dtostrf(wf.value, wf.width, wf.prec, f1)); }
+  MString& append(const w_float_t &wf)        { char f1[FTOSTRF_BUFSIZE]; return append(w_float_to_str(wf, f1)); }
   MString& append(const serial_char_t &v)     { return append(char(v.c)); }
   MString& append(const xyz_pos_t &v)         { LOOP_NUM_AXES(i)     { if (i) append(' '); append(AXIS_CHAR(i), v[i]); } debug(F("xyz")); return *this; }
   MString& append(const xyze_pos_t &v)        { LOOP_LOGICAL_AXES(i) { if (i) append(' '); append(AXIS_CHAR(i), v[i]); } debug(F("xyze")); return *this; }
@@ -280,12 +281,11 @@ public:
   // Quick hash to detect change (e.g., to avoid expensive drawing)
   typedef IF<ENABLED(DJB2_HASH), uint32_t, uint16_t>::type hash_t;
   hash_t hash() const {
+    const int sz = length();
     #if ENABLED(DJB2_HASH)
       hash_t hval = 5381;
-      char c;
-      while ((c = *str++)) hval += (hval << 5) + c; // = hval * 33 + c
+      for (int i = 0; i < sz; i++) hval += (hval << 5) + str[i]; // = hval * 33 + c
     #else
-      const int sz = length();
       hash_t hval = hash_t(sz);
       for (int i = 0; i < sz; i++) hval = ((hval << 1) | (hval >> 15)) ^ str[i]; // ROL, XOR
     #endif
@@ -298,12 +298,20 @@ public:
   MString& clear() { return set(); }
   MString& eol() { return append('\n'); }
   MString& trunc(const int &i) { if (i <= SIZE) str[i] = '\0'; debug(F("trunc")); return *this; }
+  MString& ltrim() { char *s = str; while (*s == ' ') ++s; if (s != str) strcpy(str, s); return *this; }
+  MString& rtrim() { int s = length(); while (s && str[s - 1] == ' ') --s; str[s] = '\0'; return *this; }
+  MString& trim() { return rtrim().ltrim(); }
 
-  // Truncate on a Unicode boundary
+  // Truncate to at most n bytes on a Unicode boundary, dropping an incomplete last glyph
   MString& utrunc(const int &n=SIZE) {
-    const int sz = length();
-    if (sz && n <= sz)
-      for (int i = n; i >= 0; i--) if (START_OF_UTF8_CHAR(str[i])) { str[i] = '\0'; break; }
+    int len = _MIN(n, length()), s = len - 1;     // Truncation len, index
+    uint8_t c;
+    while (s >= 0 && !START_OF_UTF8_CHAR((c = str[s]))) s--;
+    if (s >= 0) {                                 // Found one?
+      const int glen = c < 0xE0 ? (c < 0x80 ? 1 : 2) : (c < 0xF0 ? 3 : 4);
+      if (len < s + glen) len = s;                // The last glyph is cut short
+    }
+    str[len] = '\0';
     debug(F("utrunc"));
     return *this;
   }

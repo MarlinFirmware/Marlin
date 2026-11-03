@@ -42,62 +42,18 @@ bool FanCheck::enabled;
 
 void FanCheck::init() {
   #define _TACHINIT(N) TERN(E##N##_FAN_TACHO_PULLUP, SET_INPUT_PULLUP, TERN(E##N##_FAN_TACHO_PULLDOWN, SET_INPUT_PULLDOWN, SET_INPUT))(E##N##_FAN_TACHO_PIN)
-  #if HAS_E0_FAN_TACHO
-    _TACHINIT(0);
-  #endif
-  #if HAS_E1_FAN_TACHO
-    _TACHINIT(1);
-  #endif
-  #if HAS_E2_FAN_TACHO
-    _TACHINIT(2);
-  #endif
-  #if HAS_E3_FAN_TACHO
-    _TACHINIT(3);
-  #endif
-  #if HAS_E4_FAN_TACHO
-    _TACHINIT(4);
-  #endif
-  #if HAS_E5_FAN_TACHO
-    _TACHINIT(5);
-  #endif
-  #if HAS_E6_FAN_TACHO
-    _TACHINIT(6);
-  #endif
-  #if HAS_E7_FAN_TACHO
-    _TACHINIT(7);
-  #endif
+  #define _EN_TACHINIT(N) TERF(HAS_E##N##_FAN_TACHO, _TACHINIT)(N);
+  REPEAT(8, _EN_TACHINIT);
 }
 
 void FanCheck::update_tachometers() {
   bool status;
 
-  #define _TACHO_CASE(N) case N: status = READ(E##N##_FAN_TACHO_PIN); break;
+  #define __TACHO_GET_STATUS(N) case N: status = READ(E##N##_FAN_TACHO_PIN); break;
+  #define _TACHO_GET_STATUS(N) TERF(HAS_E##N##_FAN_TACHO, __TACHO_GET_STATUS)(N)
   for (uint8_t f = 0; f < TACHO_COUNT; ++f) {
     switch (f) {
-      #if HAS_E0_FAN_TACHO
-        _TACHO_CASE(0)
-      #endif
-      #if HAS_E1_FAN_TACHO
-        _TACHO_CASE(1)
-      #endif
-      #if HAS_E2_FAN_TACHO
-        _TACHO_CASE(2)
-      #endif
-      #if HAS_E3_FAN_TACHO
-        _TACHO_CASE(3)
-      #endif
-      #if HAS_E4_FAN_TACHO
-        _TACHO_CASE(4)
-      #endif
-      #if HAS_E5_FAN_TACHO
-        _TACHO_CASE(5)
-      #endif
-      #if HAS_E6_FAN_TACHO
-        _TACHO_CASE(6)
-      #endif
-      #if HAS_E7_FAN_TACHO
-        _TACHO_CASE(7)
-      #endif
+      REPEAT(8, _TACHO_GET_STATUS)
       default: continue;
     }
 
@@ -115,14 +71,8 @@ void FanCheck::compute_speed(uint16_t elapsedTime) {
   uint8_t fan_error_msk = 0;
   for (uint8_t f = 0; f < TACHO_COUNT; ++f) {
     switch (f) {
-      TERN_(HAS_E0_FAN_TACHO, case 0:)
-      TERN_(HAS_E1_FAN_TACHO, case 1:)
-      TERN_(HAS_E2_FAN_TACHO, case 2:)
-      TERN_(HAS_E3_FAN_TACHO, case 3:)
-      TERN_(HAS_E4_FAN_TACHO, case 4:)
-      TERN_(HAS_E5_FAN_TACHO, case 5:)
-      TERN_(HAS_E6_FAN_TACHO, case 6:)
-      TERN_(HAS_E7_FAN_TACHO, case 7:)
+      #define _EN_COMPUTE_FAN_CASE(N) TERN_(HAS_E##N##_FAN_TACHO, case N:)
+      REPEAT(8, _EN_COMPUTE_FAN_CASE)
         // Compute fan speed
         rps[f] = edge_counter[f] * float(250) / elapsedTime;
         edge_counter[f] = 0;
@@ -143,7 +93,7 @@ void FanCheck::compute_speed(uint16_t elapsedTime) {
   // Drop the error when all fans are ok
   if (!fan_error_msk && error == TachoError::REPORTED) error = TachoError::FIXED;
 
-  if (error == TachoError::FIXED && !printJobOngoing() && !printingIsPaused()) {
+  if (error == TachoError::FIXED && !marlin.printJobOngoing() && !marlin.printingIsPaused()) {
     error = TachoError::NONE; // if the issue has been fixed while the printer is idle, reenable immediately
     ui.reset_alert_level();
   }
@@ -156,17 +106,17 @@ void FanCheck::compute_speed(uint16_t elapsedTime) {
 }
 
 void FanCheck::report_speed_error(uint8_t fan) {
-  if (printJobOngoing()) {
+  if (marlin.printJobOngoing()) {
     if (error == TachoError::NONE) {
       if (thermalManager.degTargetHotend(fan) != 0) {
-        kill(GET_TEXT_F(MSG_FAN_SPEED_FAULT));
+        marlin.kill(GET_TEXT_F(MSG_FAN_SPEED_FAULT));
         error = TachoError::REPORTED;
       }
       else
         error = TachoError::DETECTED;   // Plans error for next processed command
     }
   }
-  else if (!printingIsPaused()) {
+  else if (!marlin.printingIsPaused()) {
     thermalManager.setTargetHotend(0, fan); // Always disable heating
     if (error == TachoError::NONE) error = TachoError::REPORTED;
   }
@@ -179,14 +129,8 @@ void FanCheck::print_fan_states() {
   for (uint8_t s = 0; s < 2; ++s) {
     for (uint8_t f = 0; f < TACHO_COUNT; ++f) {
       switch (f) {
-        TERN_(HAS_E0_FAN_TACHO, case 0:)
-        TERN_(HAS_E1_FAN_TACHO, case 1:)
-        TERN_(HAS_E2_FAN_TACHO, case 2:)
-        TERN_(HAS_E3_FAN_TACHO, case 3:)
-        TERN_(HAS_E4_FAN_TACHO, case 4:)
-        TERN_(HAS_E5_FAN_TACHO, case 5:)
-        TERN_(HAS_E6_FAN_TACHO, case 6:)
-        TERN_(HAS_E7_FAN_TACHO, case 7:)
+        #define _EN_PRINT_FAN_CASE(N) TERN_(HAS_E##N##_FAN_TACHO, case N:)
+        REPEAT(8, _EN_PRINT_FAN_CASE)
           SERIAL_ECHOPGM("E", f);
           if (s == 0)
             SERIAL_ECHOPGM(":", 60 * rps[f], " RPM ");

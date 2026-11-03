@@ -28,45 +28,57 @@
 #include "../../../feature/tmc_util.h"
 #include "../../../module/stepper/indirection.h" // for restore_stepper_drivers
 
+#if AXIS_COLLISION('I')
+  #warning "M122 parameter 'I' collision with axis name."
+#endif
+#if AXIS_COLLISION('V')
+  #warning "M122 parameter 'V' collision with axis name."
+#endif
+
 /**
  * M122: Debug TMC drivers
  *
- *   I          - Flag to re-initialize stepper drivers with current settings.
- *   X, Y, Z, E - Flags to only report the specified axes.
+ *   I             - Flag to re-initialize stepper drivers with current settings.
+ *   X, Y, Z ... E - Flags to only report the specified axes.
  *
  * With TMC_DEBUG:
  *   V     - Report raw register data. Refer to the datasheet to decipher the report.
- *   S     - Flag to enable/disable continuous debug reporting.
- *   P<ms> - Interval between continuous debug reports, in milliseconds.
+ *   S0    - Disable continuous debug reporting.
+ *   S1    - Enable continuous debug reporting with the default interval.
+ *   P<ms> - Enable continuous debug reporting with the given interval in ms.
  */
 void GcodeSuite::M122() {
   xyze_bool_t print_axis = ARRAY_N_1(LOGICAL_AXES, false);
 
   bool print_all = true;
   LOOP_LOGICAL_AXES(i) if (parser.seen_test(AXIS_CHAR(i))) { print_axis[i] = true; print_all = false; }
-
   if (print_all) LOOP_LOGICAL_AXES(i) print_axis[i] = true;
 
   if (parser.boolval('I')) restore_stepper_drivers();
 
   #if ENABLED(TMC_DEBUG)
     #if ENABLED(MONITOR_DRIVER_STATUS)
-      const bool sflag = parser.seen_test('S'), sval = sflag && parser.value_bool();
-      if (sflag && !sval)
+      if (parser.seenval('S') && !parser.value_bool()) { // "S0"
         tmc_set_report_interval(0);
-      else if (parser.seenval('P'))
+        return;
+      }
+      else if (parser.seenval('P')) { // "P<ms>"
         tmc_set_report_interval(_MAX(uint16_t(250), parser.value_ushort()));
-      else if (sval)
+        return;
+      }
+      else if (parser.boolval('S')) { // "S" or "S1"
         tmc_set_report_interval(MONITOR_DRIVER_STATUS_INTERVAL_MS);
+        return;
+      }
     #endif
 
     if (parser.seen_test('V'))
-      tmc_get_registers(LOGICAL_AXIS_ELEM(print_axis));
+      tmc_get_registers(LOGICAL_AXIS_ELEM_LC(print_axis));
     else
-      tmc_report_all(LOGICAL_AXIS_ELEM(print_axis));
+      tmc_report_all(LOGICAL_AXIS_ELEM_LC(print_axis));
   #endif
 
-  test_tmc_connection(LOGICAL_AXIS_ELEM(print_axis));
+  test_tmc_connection(LOGICAL_AXIS_ELEM_LC(print_axis));
 }
 
 #endif // HAS_TRINAMIC_CONFIG

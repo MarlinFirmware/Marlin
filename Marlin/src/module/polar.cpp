@@ -54,12 +54,14 @@ float absoluteAngle(float a) {
   return a;
 }
 
-void forward_kinematics(const_float_t r, const_float_t theta) {
+void forward_kinematics(const float r, const float theta) {
   const float absTheta = absoluteAngle(theta);
   float radius = r;
   if (polar_center_offset > 0.0) radius = SQRT( ABS( sq(r) - sq(-polar_center_offset) ) );
-  cartes.x = cos(RADIANS(absTheta))*radius;
-  cartes.y = sin(RADIANS(absTheta))*radius;
+  motion.cartes.set(
+    cos(RADIANS(absTheta)) * radius,
+    sin(RADIANS(absTheta)) * radius
+  );
 }
 
 void inverse_kinematics(const xyz_pos_t &raw) {
@@ -68,6 +70,13 @@ void inverse_kinematics(const xyz_pos_t &raw) {
                 posTheta = DEGREES(ATAN2(y, x));
 
     static float current_polar_theta = 0;
+
+    // At the center the angle is undefined (ATAN2(0,0) == 0) so keep the
+    // current angle instead of spinning the turntable to 0°.
+    if (UNEAR_ZERO(rawRadius)) {
+      motion.delta.set(rawRadius, current_polar_theta, raw.z);
+      return;
+    }
 
     float r = rawRadius,
           theta = absoluteAngle(posTheta),
@@ -89,7 +98,7 @@ void inverse_kinematics(const xyz_pos_t &raw) {
 
     current_polar_theta = theta;
 
-    delta.set(r, theta, raw.z);
+    motion.delta.set(r, theta, raw.z);
 }
 
 void polar_report_positions() {

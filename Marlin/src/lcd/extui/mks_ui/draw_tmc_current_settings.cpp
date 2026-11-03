@@ -49,34 +49,16 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
   if (event != LV_EVENT_RELEASED) return;
   lv_clear_tmc_current_settings();
   switch (obj->mks_obj_id) {
-    case ID_TMC_CURRENT_RETURN:
-      uiCfg.para_ui_page = false;
-      draw_return_ui();
-      return;
-    #if AXIS_IS_TMC(X)
-      case ID_TMC_CURRENT_X:  value = Xcurrent;  break;
-    #endif
-    #if AXIS_IS_TMC(Y)
-      case ID_TMC_CURRENT_Y:  value = Ycurrent;  break;
-    #endif
-    #if AXIS_IS_TMC(Z)
-      case ID_TMC_CURRENT_Z:  value = Zcurrent;  break;
-    #endif
-    #if AXIS_IS_TMC(E0)
-      case ID_TMC_CURRENT_E0: value = E0current; break;
-    #endif
-    #if AXIS_IS_TMC(E1)
-      case ID_TMC_CURRENT_E1: value = E1current; break;
-    #endif
+    case ID_TMC_CURRENT_RETURN: uiCfg.para_ui_page = false; draw_return_ui(); return;
 
-    case ID_TMC_CURRENT_UP:
-      uiCfg.para_ui_page = false;
-      lv_draw_tmc_current_settings();
-      return;
-    case ID_TMC_CURRENT_DOWN:
-      uiCfg.para_ui_page = true;
-      lv_draw_tmc_current_settings();
-      return;
+    case ID_TMC_CURRENT_X: TERN_(X_IS_TRINAMIC, value = Xcurrent); break;
+    case ID_TMC_CURRENT_Y: TERN_(Y_IS_TRINAMIC, value = Ycurrent); break;
+    case ID_TMC_CURRENT_Z: TERN_(Z_IS_TRINAMIC, value = Zcurrent); break;
+    case ID_TMC_CURRENT_E0: TERN_(E0_IS_TRINAMIC, value = E0current); break;
+    case ID_TMC_CURRENT_E1: TERN_(E1_IS_TRINAMIC, value = E1current); break;
+
+    case ID_TMC_CURRENT_UP:   uiCfg.para_ui_page = false; lv_draw_tmc_current_settings(); return;
+    case ID_TMC_CURRENT_DOWN: uiCfg.para_ui_page = true;  lv_draw_tmc_current_settings(); return;
   }
   lv_draw_number_key();
 
@@ -87,46 +69,26 @@ void lv_draw_tmc_current_settings() {
 
   float milliamps;
   if (!uiCfg.para_ui_page) {
-    #if AXIS_IS_TMC(X)
-      milliamps = stepperX.getMilliamps();
-    #else
-      milliamps = -1;
-    #endif
+    milliamps = TERN(X_IS_TRINAMIC, stepperX.getMilliamps(), -1);
     dtostrf(milliamps, 1, 1, public_buf_l);
     lv_screen_menu_item_1_edit(scr, machine_menu.X_Current, PARA_UI_POS_X, PARA_UI_POS_Y, event_handler, ID_TMC_CURRENT_X, 0, public_buf_l);
 
-    #if AXIS_IS_TMC(Y)
-      milliamps = stepperY.getMilliamps();
-    #else
-      milliamps = -1;
-    #endif
+    milliamps = TERN(Y_IS_TRINAMIC, stepperY.getMilliamps(), -1);
     dtostrf(milliamps, 1, 1, public_buf_l);
     lv_screen_menu_item_1_edit(scr, machine_menu.Y_Current, PARA_UI_POS_X, PARA_UI_POS_Y * 2, event_handler, ID_TMC_CURRENT_Y, 1, public_buf_l);
 
-    #if AXIS_IS_TMC(Z)
-      milliamps = stepperZ.getMilliamps();
-    #else
-      milliamps = -1;
-    #endif
+    milliamps = TERN(Z_IS_TRINAMIC, stepperZ.getMilliamps(), -1);
     dtostrf(milliamps, 1, 1, public_buf_l);
     lv_screen_menu_item_1_edit(scr, machine_menu.Z_Current, PARA_UI_POS_X, PARA_UI_POS_Y * 3, event_handler, ID_TMC_CURRENT_Z, 2, public_buf_l);
 
-    #if AXIS_IS_TMC(E0)
-      milliamps = stepperE0.getMilliamps();
-    #else
-      milliamps = -1;
-    #endif
+    milliamps = TERN(E0_IS_TRINAMIC, stepperE0.getMilliamps(), -1);
     dtostrf(milliamps, 1, 1, public_buf_l);
     lv_screen_menu_item_1_edit(scr, machine_menu.E0_Current, PARA_UI_POS_X, PARA_UI_POS_Y * 4, event_handler, ID_TMC_CURRENT_E0, 3, public_buf_l);
 
     lv_big_button_create(scr, "F:/bmp_back70x40.bin", machine_menu.next, PARA_UI_TURN_PAGE_POS_X, PARA_UI_TURN_PAGE_POS_Y, event_handler, ID_TMC_CURRENT_DOWN, true);
   }
   else {
-    #if AXIS_IS_TMC(E1)
-      milliamps = stepperE1.getMilliamps();
-    #else
-      milliamps = -1;
-    #endif
+    milliamps = TERN(E1_IS_TRINAMIC, stepperE1.getMilliamps(), -1);
     dtostrf(milliamps, 1, 1, public_buf_l);
     lv_screen_menu_item_1_edit(scr, machine_menu.E1_Current, PARA_UI_POS_X, PARA_UI_POS_Y, event_handler, ID_TMC_CURRENT_E1, 0, public_buf_l);
 
@@ -137,9 +99,8 @@ void lv_draw_tmc_current_settings() {
 }
 
 void lv_clear_tmc_current_settings() {
-  #if HAS_ROTARY_ENCODER
-    if (gCfgItems.encoder_enable) lv_group_remove_all_objs(g);
-  #endif
+  if (TERN0(HAS_ROTARY_ENCODER, gCfgItems.encoder_enable))
+    lv_group_remove_all_objs(g);
   lv_obj_del(scr);
 }
 

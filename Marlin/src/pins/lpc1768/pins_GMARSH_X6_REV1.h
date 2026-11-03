@@ -50,9 +50,9 @@
 #define X_MIN_PIN                          P0_00
 #define X_MAX_PIN                          P0_01
 #define Y_MIN_PIN                          P0_10
-#define Y_MAX_PIN                          P0_21
+#define Y_MAX_PIN                          P0_11
 #define Z_MIN_PIN                          P2_13
-#define Z_MAX_PIN                          P2_22
+#define Z_MAX_PIN                          P2_12
 
 //
 // Steppers
@@ -87,22 +87,11 @@
 //
 #if HAS_TMC_UART
   #define X_SERIAL_TX_PIN                  P1_00
-  #define X_SERIAL_RX_PIN        X_SERIAL_TX_PIN
-
   #define Y_SERIAL_TX_PIN                  P1_09
-  #define Y_SERIAL_RX_PIN        Y_SERIAL_TX_PIN
-
   #define Z_SERIAL_TX_PIN                  P1_16
-  #define Z_SERIAL_RX_PIN        Z_SERIAL_TX_PIN
-
   #define E0_SERIAL_TX_PIN                 P0_04
-  #define E0_SERIAL_RX_PIN      E0_SERIAL_TX_PIN
-
   #define E1_SERIAL_TX_PIN                 P2_02
-  #define E1_SERIAL_RX_PIN      E1_SERIAL_TX_PIN
-
   #define E2_SERIAL_TX_PIN                 P2_06
-  #define E2_SERIAL_RX_PIN      E2_SERIAL_TX_PIN
 
   // Reduce baud rate to improve software serial reliability
   #ifndef TMC_BAUD_RATE
@@ -133,20 +122,48 @@
 #define LED_PIN                            P1_31
 #define POWER_MONITOR_VOLTAGE_PIN       P0_25_A2
 
+/**          ------                    ------
+ *    P0_19 | 1  2 | P1_25      P0_17 | 1  2 | P0_15
+ *    P0_21 | 3  4 | P0_20      P1_23 | 3  4 | P0_16
+ *    P2_11   5  6 | P0_22      P1_24   5  6 | P0_18
+ *    P1_29 | 7  8 | P1_28      P1_22 | 7  8 | (KILL)
+ *      GND | 9 10 | 5V           GND | 9 10 | 5V
+ *           ------                    ------
+ *            EXP1                      EXP2
+ */
+#define EXP1_01_PIN                        P0_19
+#define EXP1_02_PIN                        P1_25
+#define EXP1_03_PIN                        P0_21  // Y+
+#define EXP1_04_PIN                        P0_20
+#define EXP1_05_PIN                        P2_11
+#define EXP1_06_PIN                        P0_22
+#define EXP1_07_PIN                        P1_29
+#define EXP1_08_PIN                        P1_28
+
+#define EXP2_01_PIN                        P0_17
+#define EXP2_02_PIN                        P0_15
+#define EXP2_03_PIN                        P1_23
+#define EXP2_04_PIN                        P0_16
+#define EXP2_05_PIN                        P1_24
+#define EXP2_06_PIN                        P0_18
+#define EXP2_07_PIN                        P1_22
+#define EXP2_08_PIN                        -1     // RESET
+
 //
 // LCD
 //
 #if IS_RRD_SC
-  #define BEEPER_PIN                       P0_19
-  #define BTN_EN1                          P1_23
-  #define BTN_EN2                          P1_24
-  #define BTN_ENC                          P1_25
-  #define LCD_PINS_RS                      P0_20
-  #define LCD_PINS_EN                      P0_21
-  #define LCD_PINS_D4                      P2_11
-  #define LCD_PINS_D5                      P0_22
-  #define LCD_PINS_D6                      P1_29
-  #define LCD_PINS_D7                      P1_28
+
+  #define BEEPER_PIN                 EXP1_01_PIN
+  #define BTN_EN1                    EXP2_03_PIN
+  #define BTN_EN2                    EXP2_05_PIN
+  #define BTN_ENC                    EXP1_02_PIN
+  #define LCD_PINS_RS                EXP1_04_PIN
+  #define LCD_PINS_EN                EXP1_03_PIN
+  #define LCD_PINS_D4                EXP1_05_PIN
+  #define LCD_PINS_D5                EXP1_06_PIN
+  #define LCD_PINS_D6                EXP1_07_PIN
+  #define LCD_PINS_D7                EXP1_08_PIN
 
   #if ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
     #define BTN_ENC_EN               LCD_PINS_D7  // Detect the presence of the encoder
@@ -167,11 +184,11 @@
 #endif
 
 #if SD_CONNECTION_IS(LCD)
-  #define SD_SCK_PIN                       P0_15
-  #define SD_MISO_PIN                      P0_17
-  #define SD_MOSI_PIN                      P0_18
-  #define SD_SS_PIN                        P0_16
-  #define SD_DETECT_PIN                    P1_22
+  #define SD_SCK_PIN                 EXP2_02_PIN
+  #define SD_MISO_PIN                EXP2_01_PIN
+  #define SD_MOSI_PIN                EXP2_06_PIN
+  #define SD_SS_PIN                  EXP2_04_PIN
+  #define SD_DETECT_PIN              EXP2_07_PIN
 #elif SD_CONNECTION_IS(ONBOARD)
   #define SD_SCK_PIN                       P0_07
   #define SD_MISO_PIN                      P0_08

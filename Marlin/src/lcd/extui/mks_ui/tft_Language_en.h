@@ -399,8 +399,8 @@
 #define FILAMENT_DIALOG_LOAD_CONFIRM1_TIPS_EN   "Heat completed,please load filament \nto extruder,and click <confirm> \nfor start loading."
 #define FILAMENT_DIALOG_LOAD_CONFIRM2_TIPS_EN   "Please load filament to extruder,\nand click <confirm> for start loading."
 #define FILAMENT_DIALOG_UNLOAD_CONFIRM_TIPS_EN  "Heat completed,please \nclick <confirm> for start unloading.!"
-#define FILAMENT_DIALOG_LOADING_TIPS_EN         "Is loading ,please wait!"
-#define FILAMENT_DIALOG_UNLOADING_TIPS_EN       "Is unloading,please wait!"
+#define FILAMENT_DIALOG_LOADING_TIPS_EN         "Is loading, please wait!"
+#define FILAMENT_DIALOG_UNLOADING_TIPS_EN       "Is unloading, please wait!"
 #define FILAMENT_DIALOG_LOAD_COMPLETE_TIPS_EN   "Load filament completed,\nclick <confirm> for return!"
 #define FILAMENT_DIALOG_UNLOAD_COMPLETE_TIPS_EN "Unload filament completed,\nclick <confirm> for return!"
 

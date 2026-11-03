@@ -2,12 +2,12 @@
 # SAMD51_grandcentral_m4.py
 # Customizations for env:SAMD51_grandcentral_m4
 #
+
 import pioutil
 if pioutil.is_pio_build():
     from os.path import join, isfile
     import shutil
-
-    Import("env")
+    env = pioutil.env
 
     mf = env["MARLIN_FEATURES"]
     rxBuf = mf["RX_BUFFER_SIZE"] if "RX_BUFFER_SIZE" in mf else "0"

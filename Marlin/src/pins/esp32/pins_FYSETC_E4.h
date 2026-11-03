@@ -34,24 +34,43 @@
   #error "FYSETC E4 only supports 1 hotend / E stepper."
 #endif
 
+#if !AXIS_DRIVER_TYPE_X(TMC2209) || !AXIS_DRIVER_TYPE_Y(TMC2209) || !AXIS_DRIVER_TYPE_Z(TMC2209) || !AXIS_DRIVER_TYPE_E0(TMC2209)
+  #error "This board has onboard TMC2209 drivers for X, Y, Z, and E0."
+#endif
+
 #define BOARD_INFO_NAME       "FYSETC_E4"
 
 #include "pins_ESPA_common.h"
 
 #if HAS_TMC_UART
   //
-  // TMC2209 stepper drivers
-  //
-
-  //
-  // Hardware serial 1
+  // TMC2208/TMC2209 stepper drivers
   //
   #define X_HARDWARE_SERIAL              Serial1
   #define Y_HARDWARE_SERIAL              Serial1
   #define Z_HARDWARE_SERIAL              Serial1
   #define E0_HARDWARE_SERIAL             Serial1
+  #ifndef TMC_BAUD_RATE
+    #define TMC_BAUD_RATE                 115200
+  #endif
 
-  #define TMC_BAUD_RATE 115200
+  // Default TMC slave addresses
+  #ifndef X_SLAVE_ADDRESS
+    #define X_SLAVE_ADDRESS                    1
+  #endif
+  #ifndef Y_SLAVE_ADDRESS
+    #define Y_SLAVE_ADDRESS                    3
+  #endif
+  #ifndef Z_SLAVE_ADDRESS
+    #define Z_SLAVE_ADDRESS                    0
+  #endif
+  #ifndef E0_SLAVE_ADDRESS
+    #define E0_SLAVE_ADDRESS                   2
+  #endif
+  static_assert(X_SLAVE_ADDRESS == 1, "X_SLAVE_ADDRESS must be 1 for BOARD_FYSETC_E4.");
+  static_assert(Y_SLAVE_ADDRESS == 3, "Y_SLAVE_ADDRESS must be 3 for BOARD_FYSETC_E4.");
+  static_assert(Z_SLAVE_ADDRESS == 0, "Z_SLAVE_ADDRESS must be 0 for BOARD_FYSETC_E4.");
+  static_assert(E0_SLAVE_ADDRESS == 2, "E0_SLAVE_ADDRESS must be 2 for BOARD_FYSETC_E4.");
 #endif
 
 /**

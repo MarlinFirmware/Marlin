@@ -23,6 +23,8 @@
 
 #define BOARD_INFO_NAME "BTT OCTOPUS PRO V1.0"
 
+#define HAS_OTG_USB_HOST_SUPPORT                  // USB Flash Drive support
+
 //
 // Temperature Sensors
 //

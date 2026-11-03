@@ -34,7 +34,8 @@
     ERR_EEPROM_VERSION,
     ERR_EEPROM_SIZE,
     ERR_EEPROM_CRC,
-    ERR_EEPROM_CORRUPT
+    ERR_EEPROM_CORRUPT,
+    ERR_EEPROM_NOPROM
   };
 #endif
 
@@ -66,10 +67,27 @@ class MarlinSettings {
       static bool load();      // Return 'true' if data was loaded ok
       static bool validate();  // Return 'true' if EEPROM data is ok
 
+      #if ENABLED(ONE_CLICK_PRINT) && NONE(EEPROM_AUTO_INIT, EEPROM_INIT_NOW)
+        static EEPROM_Error eeprom_status() { return (EEPROM_Error)working_crc; }
+      #endif
+
+      static EEPROM_Error check_version();
+
       static void first_load() {
         static bool loaded = false;
         if (!loaded && load()) loaded = true;
       }
+
+      #if HAS_EARLY_LCD_SETTINGS
+        // Special cases for LCD contrast and brightness, so
+        // some LCDs can display bootscreens earlier in setup().
+        #if HAS_LCD_CONTRAST
+          static void load_contrast();
+        #endif
+        #if HAS_LCD_BRIGHTNESS
+          static void load_brightness();
+        #endif
+      #endif
 
       #if ENABLED(AUTO_BED_LEVELING_UBL) // Eventually make these available if any leveling system
                                          // That can store is enabled
@@ -86,18 +104,19 @@ class MarlinSettings {
 
     #else // !EEPROM_SETTINGS
 
-      FORCE_INLINE
-      static bool load() { reset(); report(); return true; }
-      FORCE_INLINE
-      static void first_load() { (void)load(); }
+      FORCE_INLINE static bool load() { reset(); report(); return true; }
+      FORCE_INLINE static void first_load() { (void)load(); }
 
     #endif // !EEPROM_SETTINGS
+
+    #if HAS_EARLY_LCD_SETTINGS
+      static void load_lcd_state();
+    #endif
 
     #if DISABLED(DISABLE_M503)
       static void report(const bool forReplay=false);
     #else
-      FORCE_INLINE
-      static void report(const bool=false) {}
+      FORCE_INLINE static void report(const bool=false) {}
     #endif
 
   private:
