@@ -4858,10 +4858,14 @@ static_assert(_PLUS_TEST(3), "DEFAULT_MAX_ACCELERATION values must be positive."
 #endif // FT_MOTION
 
 /**
- * Resonance Test requires EMERGENCY_PARSER
+ * Resonance Test requires a 32-bit CPU and EMERGENCY_PARSER
  */
-#if ENABLED(RESONANCE_TEST) && DISABLED(EMERGENCY_PARSER)
-  #error "EMERGENCY_PARSER is required with RESONANCE_TEST (to cancel the test)."
+#if ENABLED(RESONANCE_TEST)
+  #ifdef __AVR__
+    #error "RESONANCE_TEST requires a 32-bit CPU."
+  #elif DISABLED(EMERGENCY_PARSER)
+    #error "EMERGENCY_PARSER is required with RESONANCE_TEST (to cancel the test)."
+  #endif
 #endif
 
 // Multi-Stepping Limit
