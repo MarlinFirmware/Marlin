@@ -3434,6 +3434,10 @@
 // As found in the Creality CR-6 S1
 //
 //#define CREALITY_RTS
+#if ENABLED(CREALITY_RTS)
+  //#define CREALITY_WIFI      // Creality WiFi module
+  //#define MENU_RESET_WIFI    // A menu to reset WiFi with the RESET_WIFI_PIN
+#endif
 
 //
 // 320x240 Nextion 2.8" serial TFT Resistive Touch Screen NX3224T028
@@ -3879,7 +3883,3 @@
 
 // Disable servo with M282 to reduce power consumption, noise, and heat when not in use
 //#define SERVO_DETACH_GCODE
-
-// Creality WiFi
-//#define CREALITY_WIFI
-//#define MENU_RESET_WIFI
